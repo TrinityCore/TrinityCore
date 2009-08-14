@@ -59,15 +59,15 @@ struct TRINITY_DLL_DECL instance_temple_of_ahnqiraj : public ScriptedInstance
         CthunPhase = 0;
     }
 
-    void OnCreatureCreate(Creature *creature, bool add)
+    void OnCreatureCreate(Creature* pCreature, bool add)
     {
-        switch (creature->GetEntry())
+        switch (pCreature->GetEntry())
         {
-            case 15263: SkeramGUID = creature->GetGUID(); break;
-            case 15544: VemGUID = creature->GetGUID(); break;
-            case 15511: KriGUID = creature->GetGUID(); break;
-            case 15276: VeklorGUID = creature->GetGUID(); break;
-            case 15275: VeknilashGUID = creature->GetGUID(); break;
+            case 15263: SkeramGUID = pCreature->GetGUID(); break;
+            case 15544: VemGUID = pCreature->GetGUID(); break;
+            case 15511: KriGUID = pCreature->GetGUID(); break;
+            case 15276: VeklorGUID = pCreature->GetGUID(); break;
+            case 15275: VeknilashGUID = pCreature->GetGUID(); break;
         }
     }
 

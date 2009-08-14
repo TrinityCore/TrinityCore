@@ -44,19 +44,19 @@ struct TRINITY_DLL_DECL instance_shattered_halls : public ScriptedInstance
         nethekurseDoorGUID = 0;
     }
 
-    void OnGameObjectCreate(GameObject *go, bool add)
+    void OnGameObjectCreate(GameObject* pGo, bool add)
     {
-        switch(go->GetEntry())
+        switch(pGo->GetEntry())
         {
-            case DOOR_NETHEKURSE: nethekurseDoorGUID = go->GetGUID(); break;
+            case DOOR_NETHEKURSE: nethekurseDoorGUID = pGo->GetGUID(); break;
         }
     }
 
-    void OnCreatureCreate(Creature *creature, bool add)
+    void OnCreatureCreate(Creature* pCreature, bool add)
     {
-        switch(creature->GetEntry())
+        switch(pCreature->GetEntry())
         {
-            case 16807: nethekurseGUID = creature->GetGUID(); break;
+            case 16807: nethekurseGUID = pCreature->GetGUID(); break;
         }
     }
 

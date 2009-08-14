@@ -120,15 +120,15 @@ struct TRINITY_DLL_DECL npc_ameAI : public npc_escortAI
     }
 };
 
-bool QuestAccept_npc_ame(Player* pPlayer, Creature* creature, Quest const* quest)
+bool QuestAccept_npc_ame(Player* pPlayer, Creature* pCreature, Quest const* quest)
 {
     if (quest->GetQuestId() == QUEST_CHASING_AME)
     {
-        CAST_AI(npc_escortAI, (creature->AI()))->Start(false, false, pPlayer->GetGUID());
-        DoScriptText(SAY_READY, creature, pPlayer);
-        creature->SetUInt32Value(UNIT_FIELD_BYTES_1,0);
+        CAST_AI(npc_escortAI, (pCreature->AI()))->Start(false, false, pPlayer->GetGUID());
+        DoScriptText(SAY_READY, pCreature, pPlayer);
+        pCreature->SetUInt32Value(UNIT_FIELD_BYTES_1,0);
         // Change faction so mobs attack
-        creature->setFaction(113);
+        pCreature->setFaction(113);
     }
     return true;
 }

@@ -57,43 +57,43 @@ struct TRINITY_DLL_DECL instance_uldaman : public ScriptedInstance
     std::vector<uint64> earthenGuardian;
     std::vector<uint64> archaedasWallMinions;    // minions lined up around the wall
 
-    void OnGameObjectCreate(GameObject *go, bool add)
+    void OnGameObjectCreate(GameObject* pGo, bool add)
     {
-        switch (go->GetEntry())
+        switch (pGo->GetEntry())
         {
             case ALTAR_OF_THE_KEEPER_TEMPLE_DOOR:         // lock the door
-                altarOfTheKeeperTempleDoor = go->GetGUID();
+                altarOfTheKeeperTempleDoor = pGo->GetGUID();
             break;
 
             case ARCHAEDAS_TEMPLE_DOOR:
-                archaedasTempleDoor = go->GetGUID();
+                archaedasTempleDoor = pGo->GetGUID();
             break;
 
             case ANCIENT_VAULT_DOOR:
-                go->SetGoState(GO_STATE_READY);
-                go->SetUInt32Value(GAMEOBJECT_FLAGS, 33);
-                ancientVaultDoor = go->GetGUID();
+                pGo->SetGoState(GO_STATE_READY);
+                pGo->SetUInt32Value(GAMEOBJECT_FLAGS, 33);
+                ancientVaultDoor = pGo->GetGUID();
             break;
         }
     }
 
-    void SetFrozenState(Creature *creature)
+    void SetFrozenState(Creature* pCreature)
     {
-        creature->setFaction(35);
-        creature->RemoveAllAuras();
+        pCreature->setFaction(35);
+        pCreature->RemoveAllAuras();
         //creature->RemoveFlag (UNIT_FIELD_FLAGS,UNIT_FLAG_ANIMATION_FROZEN);
-        creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-        creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
+        pCreature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+        pCreature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
     }
 
     void OpenDoor(uint64 guid)
     {
-        GameObject *go = instance->GetGameObject(guid);
-        if (!go)
+        GameObject* pGo = instance->GetGameObject(guid);
+        if (!pGo)
             return;
 
-        go->SetUInt32Value(GAMEOBJECT_FLAGS, 33);
-        go->SetGoState(GO_STATE_ACTIVE);
+        pGo->SetUInt32Value(GAMEOBJECT_FLAGS, 33);
+        pGo->SetGoState(GO_STATE_ACTIVE);
     }
 
     void ActivateStoneKeepers()
@@ -238,32 +238,32 @@ struct TRINITY_DLL_DECL instance_uldaman : public ScriptedInstance
     }
 
 
-    void OnCreatureCreate(Creature *creature, bool add)
+    void OnCreatureCreate(Creature* pCreature, bool add)
     {
-        switch (creature->GetEntry()) {
+        switch (pCreature->GetEntry()) {
             case 4857:    // Stone Keeper
-                SetFrozenState (creature);
-                stoneKeeper.push_back(creature->GetGUID());
+                SetFrozenState (pCreature);
+                stoneKeeper.push_back(pCreature->GetGUID());
                 break;
 
             case 7309:    // Earthen Custodian
-                archaedasWallMinions.push_back(creature->GetGUID());
+                archaedasWallMinions.push_back(pCreature->GetGUID());
                 break;
 
             case 7077:    // Earthen Hallshaper
-                archaedasWallMinions.push_back(creature->GetGUID());
+                archaedasWallMinions.push_back(pCreature->GetGUID());
                 break;
 
             case 7076:    // Earthen Guardian
-                earthenGuardian.push_back(creature->GetGUID());
+                earthenGuardian.push_back(pCreature->GetGUID());
                 break;
 
             case 10120:    // Vault Walker
-                vaultWalker.push_back(creature->GetGUID());
+                vaultWalker.push_back(pCreature->GetGUID());
                 break;
 
             case 2748:    // Archaedas
-                archaedasGUID = creature->GetGUID();
+                archaedasGUID = pCreature->GetGUID();
                 break;
 
         } // end switch

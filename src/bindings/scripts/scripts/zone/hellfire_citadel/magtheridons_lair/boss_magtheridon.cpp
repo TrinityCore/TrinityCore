@@ -501,12 +501,12 @@ struct TRINITY_DLL_DECL mob_hellfire_channelerAI : public ScriptedAI
 };
 
 //Manticron Cube
-bool GOHello_go_Manticron_Cube(Player* pPlayer, GameObject* _GO)
+bool GOHello_go_Manticron_Cube(Player* pPlayer, GameObject* pGo)
 {
-    ScriptedInstance* pInstance =_GO->GetInstanceData();
+    ScriptedInstance* pInstance = pGo->GetInstanceData();
     if (!pInstance) return true;
     if (pInstance->GetData(DATA_MAGTHERIDON_EVENT) != IN_PROGRESS) return true;
-    Creature *Magtheridon =Unit::GetCreature(*_GO, pInstance->GetData64(DATA_MAGTHERIDON));
+    Creature *Magtheridon =Unit::GetCreature(*pGo, pInstance->GetData64(DATA_MAGTHERIDON));
     if (!Magtheridon || !Magtheridon->isAlive()) return true;
 
     // if exhausted or already channeling return
@@ -516,7 +516,7 @@ bool GOHello_go_Manticron_Cube(Player* pPlayer, GameObject* _GO)
     pPlayer->InterruptNonMeleeSpells(false);
     pPlayer->CastSpell(pPlayer, SPELL_SHADOW_GRASP, true);
     pPlayer->CastSpell(pPlayer, SPELL_SHADOW_GRASP_VISUAL, false);
-    CAST_AI(boss_magtheridonAI, Magtheridon->AI())->SetClicker(_GO->GetGUID(), pPlayer->GetGUID());
+    CAST_AI(boss_magtheridonAI, Magtheridon->AI())->SetClicker(pGo->GetGUID(), pPlayer->GetGUID());
     return true;
 }
 

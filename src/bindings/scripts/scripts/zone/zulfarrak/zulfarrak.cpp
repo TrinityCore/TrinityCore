@@ -115,9 +115,9 @@ bool GossipHello_npc_sergeant_bly(Player* pPlayer, Creature* pCreature)
     return true;
 }
 
-bool GossipSelect_npc_sergeant_bly(Player* pPlayer, Creature* pCreature, uint32 sender, uint32 action)
+bool GossipSelect_npc_sergeant_bly(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
 {
-    if (action == GOSSIP_ACTION_INFO_DEF+1)
+    if (uiAction == GOSSIP_ACTION_INFO_DEF+1)
     {
         pPlayer->CLOSE_GOSSIP_MENU();
         pCreature->setFaction(FACTION_HOSTILE);
@@ -192,9 +192,9 @@ bool GossipHello_npc_weegli_blastfuse(Player* pPlayer, Creature* pCreature)
     return true;
 }
 
-bool GossipSelect_npc_weegli_blastfuse(Player* pPlayer, Creature* pCreature, uint32 sender, uint32 action)
+bool GossipSelect_npc_weegli_blastfuse(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
 {
-    if (action == GOSSIP_ACTION_INFO_DEF+1)
+    if (uiAction == GOSSIP_ACTION_INFO_DEF+1)
     {
         pPlayer->CLOSE_GOSSIP_MENU();
         //here we make him run to door, set the charge and run away off to nowhere

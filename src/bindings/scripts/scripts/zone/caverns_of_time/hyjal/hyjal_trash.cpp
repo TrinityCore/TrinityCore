@@ -382,7 +382,7 @@ struct mob_giant_infernalAI : public hyjal_trashAI
         m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
         m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
         m_creature->SetDisplayId(MODEL_INVIS);
-        go = false;
+        pGo = false;
         pos = 0;
         Reset();
     }
@@ -390,7 +390,7 @@ struct mob_giant_infernalAI : public hyjal_trashAI
     bool meteor;
     bool CanMove;
     bool WpEnabled;
-    bool go;
+    bool pGo;
     uint32 pos;
     uint32 spawnTimer;
     uint32 FlameBuffetTimer;
@@ -468,9 +468,9 @@ struct mob_giant_infernalAI : public hyjal_trashAI
             npc_escortAI::UpdateAI(diff);
         if (IsEvent)
         {
-            if (!go)
+            if (!pGo)
             {
-                go = true;
+                pGo = true;
                 if (pInstance)
                 {
                     AddWaypoint(0, HordeWPs[7][0]+irand(-3,3),    HordeWPs[7][1]+irand(-3,3),    HordeWPs[7][2]);//HordeWPs[7] infront of thrall
@@ -510,12 +510,12 @@ struct mob_abominationAI : public hyjal_trashAI
     mob_abominationAI(Creature* c) : hyjal_trashAI(c)
     {
         pInstance = c->GetInstanceData();
-        go = false;
+        pGo = false;
         pos = 0;
         Reset();
     }
 
-    bool go;
+    bool pGo;
     uint32 KnockDownTimer;
     uint32 pos;
     void Reset()
@@ -558,9 +558,9 @@ struct mob_abominationAI : public hyjal_trashAI
             npc_escortAI::UpdateAI(diff);
         if (IsEvent)
         {
-            if (!go)
+            if (!pGo)
             {
-                go = true;
+                pGo = true;
                 if (pInstance)
                 {
                     if (pInstance->GetData(DATA_ALLIANCE_RETREAT))//2.alliance boss down, use horde WPs
@@ -605,12 +605,12 @@ struct mob_ghoulAI : public hyjal_trashAI
     mob_ghoulAI(Creature* c) : hyjal_trashAI(c)
     {
         pInstance = c->GetInstanceData();
-        go = false;
+        pGo = false;
         pos = 0;
         Reset();
     }
 
-    bool go;
+    bool pGo;
     uint32 FrenzyTimer;
     uint32 pos;
     uint32 MoveTimer;
@@ -659,9 +659,9 @@ struct mob_ghoulAI : public hyjal_trashAI
             npc_escortAI::UpdateAI(diff);
         if (IsEvent)
         {
-            if (!go)
+            if (!pGo)
             {
-                go = true;
+                pGo = true;
                 if (pInstance)
                 {
                     if (pInstance->GetData(DATA_ALLIANCE_RETREAT))//2.alliance boss down, use horde WPs
@@ -708,12 +708,12 @@ struct mob_necromancerAI : public hyjal_trashAI
     mob_necromancerAI(Creature* c) : hyjal_trashAI(c), summons(m_creature)
     {
         pInstance = c->GetInstanceData();
-        go = false;
+        pGo = false;
         pos = 0;
         Reset();
     }
     SummonList summons;
-    bool go;
+    bool pGo;
     uint32 ShadowBoltTimer;
     uint32 pos;
     void Reset()
@@ -778,9 +778,9 @@ struct mob_necromancerAI : public hyjal_trashAI
             npc_escortAI::UpdateAI(diff);
         if (IsEvent)
         {
-            if (!go)
+            if (!pGo)
             {
-                go = true;
+                pGo = true;
                 if (pInstance)
                 {
                     if (pInstance->GetData(DATA_ALLIANCE_RETREAT))//2.alliance boss down, use horde WPs
@@ -826,12 +826,12 @@ struct mob_bansheeAI : public hyjal_trashAI
     mob_bansheeAI(Creature* c) : hyjal_trashAI(c)
     {
         pInstance = c->GetInstanceData();
-        go = false;
+        pGo = false;
         pos = 0;
         Reset();
     }
 
-    bool go;
+    bool pGo;
     uint32 CourseTimer;
     uint32 WailTimer;
     uint32 ShellTimer;
@@ -870,9 +870,9 @@ struct mob_bansheeAI : public hyjal_trashAI
             npc_escortAI::UpdateAI(diff);
         if (IsEvent)
         {
-            if (!go)
+            if (!pGo)
             {
-                go = true;
+                pGo = true;
                 if (pInstance)
                 {
                     if (pInstance->GetData(DATA_ALLIANCE_RETREAT))//2.alliance boss down, use horde WPs
@@ -925,12 +925,12 @@ struct mob_crypt_fiendAI : public hyjal_trashAI
     mob_crypt_fiendAI(Creature* c) : hyjal_trashAI(c)
     {
         pInstance = c->GetInstanceData();
-        go = false;
+        pGo = false;
         pos = 0;
         Reset();
     }
 
-    bool go;
+    bool pGo;
     uint32 WebTimer;
     uint32 pos;
     void Reset()
@@ -965,9 +965,9 @@ struct mob_crypt_fiendAI : public hyjal_trashAI
             npc_escortAI::UpdateAI(diff);
         if (IsEvent)
         {
-            if (!go)
+            if (!pGo)
             {
-                go = true;
+                pGo = true;
                 if (pInstance)
                 {
                     if (pInstance->GetData(DATA_ALLIANCE_RETREAT))//2.alliance boss down, use horde WPs
@@ -1011,12 +1011,12 @@ struct mob_fel_stalkerAI : public hyjal_trashAI
     mob_fel_stalkerAI(Creature* c) : hyjal_trashAI(c)
     {
         pInstance = c->GetInstanceData();
-        go = false;
+        pGo = false;
         pos = 0;
         Reset();
     }
 
-    bool go;
+    bool pGo;
     uint32 ManaBurnTimer;
     uint32 pos;
     void Reset()
@@ -1051,9 +1051,9 @@ struct mob_fel_stalkerAI : public hyjal_trashAI
             npc_escortAI::UpdateAI(diff);
         if (IsEvent)
         {
-            if (!go)
+            if (!pGo)
             {
-                go = true;
+                pGo = true;
                 if (pInstance)
                 {
                     if (pInstance->GetData(DATA_ALLIANCE_RETREAT))//2.alliance boss down, use horde WPs
@@ -1097,12 +1097,12 @@ struct mob_frost_wyrmAI : public hyjal_trashAI
     mob_frost_wyrmAI(Creature* c) : hyjal_trashAI(c)
     {
         pInstance = c->GetInstanceData();
-        go = false;
+        pGo = false;
         pos = 0;
         Reset();
     }
 
-    bool go;
+    bool pGo;
     uint32 FrostBreathTimer;
     uint32 pos;
     uint32 MoveTimer;
@@ -1152,9 +1152,9 @@ struct mob_frost_wyrmAI : public hyjal_trashAI
         }
         if (IsEvent)
         {
-            if (!go)
+            if (!pGo)
             {
-                go = true;
+                pGo = true;
                 if (pInstance)
                 {
                     if (!useFlyPath)
@@ -1208,13 +1208,13 @@ struct mob_gargoyleAI : public hyjal_trashAI
     mob_gargoyleAI(Creature* c) : hyjal_trashAI(c)
     {
         pInstance = c->GetInstanceData();
-        go = false;
+        pGo = false;
         pos = 0;
         DummyTarget[0] = 0;DummyTarget[1] = 0;DummyTarget[2] = 0;
         Reset();
     }
 
-    bool go;
+    bool pGo;
     uint32 StrikeTimer;
     uint32 pos;
     uint32 MoveTimer;
@@ -1264,9 +1264,9 @@ struct mob_gargoyleAI : public hyjal_trashAI
         }
         if (IsEvent)
         {
-            if (!go)
+            if (!pGo)
             {
-                go = true;
+                pGo = true;
                 if (pInstance)
                 {
                     if (!useFlyPath)

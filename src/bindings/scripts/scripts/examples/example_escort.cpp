@@ -197,7 +197,7 @@ bool GossipHello_example_escort(Player* pPlayer, Creature* pCreature)
     return true;
 }
 
-bool GossipSelect_example_escort(Player* pPlayer, Creature* pCreature, uint32 sender, uint32 uiAction)
+bool GossipSelect_example_escort(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
 {
     npc_escortAI* pEscortAI = CAST_AI(example_escortAI, pCreature->AI());
 

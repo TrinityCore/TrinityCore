@@ -41,7 +41,7 @@ struct TRINITY_DLL_DECL boss_anetheronAI : public hyjal_trashAI
     boss_anetheronAI(Creature *c) : hyjal_trashAI(c)
     {
         pInstance = c->GetInstanceData();
-        go = false;
+        pGo = false;
         pos = 0;
         SpellEntry *TempSpell = GET_SPELL(SPELL_SLEEP);
         if (TempSpell && TempSpell->EffectImplicitTargetA[0] != 1)
@@ -55,7 +55,7 @@ struct TRINITY_DLL_DECL boss_anetheronAI : public hyjal_trashAI
     uint32 SleepTimer;
     uint32 AuraTimer;
     uint32 InfernoTimer;
-    bool go;
+    bool pGo;
     uint32 pos;
 
     void Reset()
@@ -123,9 +123,9 @@ struct TRINITY_DLL_DECL boss_anetheronAI : public hyjal_trashAI
         {
             //Must update npc_escortAI
             npc_escortAI::UpdateAI(diff);
-            if (!go)
+            if (!pGo)
             {
-                go = true;
+                pGo = true;
                 if (pInstance)
                 {
                     AddWaypoint(0, 4896.08,    -1576.35,    1333.65);
@@ -148,8 +148,7 @@ struct TRINITY_DLL_DECL boss_anetheronAI : public hyjal_trashAI
 
         if (SwarmTimer < diff)
         {
-            Unit* target = SelectTarget(SELECT_TARGET_RANDOM,0,100,true);
-            if (target)
+            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM,0,100,true))
                 DoCast(target,SPELL_CARRION_SWARM);
 
             SwarmTimer = 45000+rand()%15000;

@@ -118,10 +118,10 @@ struct TRINITY_DLL_DECL instance_deadmines : public ScriptedInstance
         MoveCreatureInside(DefiasCompanion);
     }
 
-    void MoveCreatureInside(Creature *creature)
+    void MoveCreatureInside(Creature* pCreature)
     {
-        creature->RemoveUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
-        creature->GetMotionMaster()->MovePoint(0, -102.7,-655.9, creature->GetPositionZ());
+        pCreature->RemoveUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
+        pCreature->GetMotionMaster()->MovePoint(0, -102.7,-655.9, pCreature->GetPositionZ());
     }
 
     void ShootCannon()
@@ -141,18 +141,18 @@ struct TRINITY_DLL_DECL instance_deadmines : public ScriptedInstance
         DoorLever->SetUInt32Value(GAMEOBJECT_FLAGS, 4);
     }
 
-    void OnGameObjectCreate(GameObject *go, bool add)
+    void OnGameObjectCreate(GameObject* pGo, bool add)
     {
-        switch(go->GetEntry())
+        switch(pGo->GetEntry())
         {
             case GO_IRONCLAD_DOOR:
-                IronCladDoor = go;
+                IronCladDoor = pGo;
                 break;
             case GO_DEFIAS_CANNON:
-                DefiasCannon = go;
+                DefiasCannon = pGo;
                 break;
             case GO_DOOR_LEVER:
-                DoorLever = go;
+                DoorLever = pGo;
                 break;
         }
     }

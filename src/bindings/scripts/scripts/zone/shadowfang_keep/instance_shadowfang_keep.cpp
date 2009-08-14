@@ -74,22 +74,22 @@ struct TRINITY_DLL_DECL instance_shadowfang_keep : public ScriptedInstance
         }
     }
 
-    void OnGameObjectCreate(GameObject *go, bool add)
+    void OnGameObjectCreate(GameObject* pGo, bool add)
     {
-        switch(go->GetEntry())
+        switch(pGo->GetEntry())
         {
             case GO_COURTYARD_DOOR:
-                DoorCourtyardGUID = go->GetGUID();
+                DoorCourtyardGUID = pGo->GetGUID();
                 if (m_auiEncounter[0] == DONE)
                     DoUseDoorOrButton(DoorCourtyardGUID);
                 break;
             case GO_SORCERER_DOOR:
-                DoorSorcererGUID = go->GetGUID();
+                DoorSorcererGUID = pGo->GetGUID();
                 if (m_auiEncounter[2] == DONE)
                     DoUseDoorOrButton(DoorSorcererGUID);
                 break;
             case GO_ARUGAL_DOOR:
-                DoorArugalGUID = go->GetGUID();
+                DoorArugalGUID = pGo->GetGUID();
                 if (m_auiEncounter[3] == DONE)
                     DoUseDoorOrButton(DoorArugalGUID);
                 break;

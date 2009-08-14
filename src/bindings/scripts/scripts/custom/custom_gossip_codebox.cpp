@@ -35,9 +35,9 @@ bool GossipHello_custom_gossip_codebox(Player* pPlayer, Creature* pCreature)
 }
 
 //This function is called when the player clicks an option on the gossip menubool
-bool GossipSelect_custom_gossip_codebox(Player* pPlayer, Creature* pCreature, uint32 sender, uint32 action)
+bool GossipSelect_custom_gossip_codebox(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
 {
-    if (action == GOSSIP_ACTION_INFO_DEF+2)
+    if (uiAction == GOSSIP_ACTION_INFO_DEF+2)
     {
         pCreature->Say("Normal select, guess you're not interested.", LANG_UNIVERSAL, 0);
         pPlayer->CLOSE_GOSSIP_MENU();
@@ -45,11 +45,11 @@ bool GossipSelect_custom_gossip_codebox(Player* pPlayer, Creature* pCreature, ui
     return true;
 }
 
-bool GossipSelectWithCode_custom_gossip_codebox(Player* pPlayer, Creature* pCreature, uint32 sender, uint32 action, const char* sCode)
+bool GossipSelectWithCode_custom_gossip_codebox(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction, const char* sCode)
 {
-    if (sender == GOSSIP_SENDER_MAIN)
+    if (uiSender == GOSSIP_SENDER_MAIN)
     {
-        if (action == GOSSIP_ACTION_INFO_DEF+1)
+        if (uiAction == GOSSIP_ACTION_INFO_DEF+1)
         {
             if (std::strcmp(sCode, pPlayer->GetName())!=0)
             {

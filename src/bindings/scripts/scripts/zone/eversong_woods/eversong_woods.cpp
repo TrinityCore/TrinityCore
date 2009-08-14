@@ -101,9 +101,9 @@ bool GossipHello_npc_prospector_anvilward(Player* pPlayer, Creature* pCreature)
     return true;
 }
 
-bool GossipSelect_npc_prospector_anvilward(Player* pPlayer, Creature* pCreature, uint32 sender, uint32 action)
+bool GossipSelect_npc_prospector_anvilward(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
 {
-    switch(action)
+    switch(uiAction)
     {
         case GOSSIP_ACTION_INFO_DEF+1:
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SELECT, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
@@ -415,11 +415,11 @@ bool GossipHello_master_kelerun_bloodmourn(Player* pPlayer, Creature* pCreature)
     return true;
 }
 
-bool QuestAccept_master_kelerun_bloodmourn(Player* pPlayer, Creature *creature, Quest const *quest)
+bool QuestAccept_master_kelerun_bloodmourn(Player* pPlayer, Creature* pCreature, Quest const *quest)
 {
     // One Player exclusive quest, wait for user go activation
     if (quest->GetQuestId() == QUEST_SECOND_TRIAL)
-        CAST_AI(master_kelerun_bloodmournAI, creature->AI())->questPhase = 1;
+        CAST_AI(master_kelerun_bloodmournAI, pCreature->AI())->questPhase = 1;
 
     return true;
 }
@@ -578,12 +578,12 @@ struct TRINITY_DLL_DECL npc_apprentice_mirvedaAI : public ScriptedAI
     }
 };
 
-bool QuestAccept_npc_apprentice_mirveda(Player* pPlayer, Creature* creature, Quest const* quest)
+bool QuestAccept_npc_apprentice_mirveda(Player* pPlayer, Creature* pCreature, Quest const* quest)
 {
     if (quest->GetQuestId() == QUEST_UNEXPECTED_RESULT)
     {
-        CAST_AI(npc_apprentice_mirvedaAI, creature->AI())->Summon = true;
-        CAST_AI(npc_apprentice_mirvedaAI, creature->AI())->PlayerGUID = pPlayer->GetGUID();
+        CAST_AI(npc_apprentice_mirvedaAI, pCreature->AI())->Summon = true;
+        CAST_AI(npc_apprentice_mirvedaAI, pCreature->AI())->PlayerGUID = pPlayer->GetGUID();
     }
     return true;
 }

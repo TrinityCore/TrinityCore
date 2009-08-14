@@ -65,7 +65,7 @@ struct TRINITY_DLL_DECL mobs_spitelashesAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
-        // we mustn't remove the creature in the same round in which we cast the summon spell, otherwise there will be no summons
+        // we mustn't remove the Creature in the same round in which we cast the summon spell, otherwise there will be no summons
         if (spellhit && morphtimer>=5000)
         {
             m_creature->ForcedDespawn();
@@ -113,9 +113,9 @@ bool GossipHello_npc_loramus_thalipedes(Player* pPlayer, Creature* pCreature)
     return true;
 }
 
-bool GossipSelect_npc_loramus_thalipedes(Player* pPlayer, Creature* pCreature, uint32 sender, uint32 action)
+bool GossipSelect_npc_loramus_thalipedes(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
 {
-    switch (action)
+    switch (uiAction)
     {
         case GOSSIP_ACTION_INFO_DEF+1:
             pPlayer->CLOSE_GOSSIP_MENU();
@@ -403,9 +403,9 @@ bool GossipHello_mob_rizzle_sprysprocket(Player* pPlayer, Creature* pCreature)
     return true;
 }
 
-bool GossipSelect_mob_rizzle_sprysprocket(Player* pPlayer, Creature* pCreature, uint32 sender, uint32 action)
+bool GossipSelect_mob_rizzle_sprysprocket(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
 {
-    if (action == GOSSIP_ACTION_INFO_DEF + 1 && pPlayer->GetQuestStatus(10994) == QUEST_STATUS_INCOMPLETE)
+    if (uiAction == GOSSIP_ACTION_INFO_DEF + 1 && pPlayer->GetQuestStatus(10994) == QUEST_STATUS_INCOMPLETE)
     {
         pPlayer->CLOSE_GOSSIP_MENU();
         pCreature->CastSpell(pPlayer, SPELL_GIVE_SOUTHFURY_MOONSTONE, true);

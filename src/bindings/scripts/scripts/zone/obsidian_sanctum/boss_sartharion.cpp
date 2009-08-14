@@ -61,7 +61,7 @@ enum
     SPELL_TWILIGHT_REVENGE                      = 60639,
 
     SPELL_PYROBUFFET                            = 56916,    // currently used for hard enrage after 15 minutes
-    SPELL_PYROBUFFET_RANGE                      = 58907,    // possibly used when player get too far away from dummy creatures (2x creature entry 30494)
+    SPELL_PYROBUFFET_RANGE                      = 58907,    // possibly used when player get too far away from dummy creatures (2x Creature entry 30494)
 
     SPELL_TWILIGHT_SHIFT_ENTER                  = 57620,    // enter phase. Player get this when click GO
     SPELL_TWILIGHT_SHIFT_REMOVAL                = 61187,    // leave phase

@@ -356,7 +356,7 @@ void hyjalAI::Reset()
     WaveCount = 0;
     EnemyCount = 0;
 
-    // Set faction properly based on creature entry
+    // Set faction properly based on Creature entry
     switch(m_creature->GetEntry())
     {
         case JAINA:
@@ -513,7 +513,7 @@ void hyjalAI::SummonCreature(uint32 entry, float Base[4][3])
             if (pInstance->GetData(DATA_RAIDDAMAGE) < MINRAIDDAMAGE)
                 pCreature->SetDisableReputationGain(true);//no repu for solo farming
         }
-        // Check if creature is a boss.
+        // Check if Creature is a boss.
         if (pCreature->isWorldBoss())
         {
             if (!FirstBossDead)  BossGUID[0] = pCreature->GetGUID();

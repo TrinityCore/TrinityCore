@@ -250,7 +250,7 @@ void SimpleAI::UpdateAI(const uint32 diff)
                     DoCast(target, Spell[i].Spell_Id);
 
                     //Yell and sound use the same number so that you can make
-                    //the creature yell with the correct sound effect attached
+                    //the Creature yell with the correct sound effect attached
                     uint32 random_text = rand()%3;
 
                     //Random yell

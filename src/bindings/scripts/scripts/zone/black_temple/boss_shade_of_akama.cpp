@@ -185,7 +185,7 @@ struct TRINITY_DLL_DECL boss_shade_of_akamaAI : public ScriptedAI
     uint32 ReduceHealthTimer;
     uint32 SummonTimer;
     uint32 ResetTimer;
-    uint32 DefenderTimer;                                   // They are on a flat 15 second timer, independant of the other summon creature timer.
+    uint32 DefenderTimer;                                   // They are on a flat 15 second timer, independant of the other summon Creature timer.
 
     bool IsBanished;
     bool HasKilledAkama;
@@ -820,9 +820,9 @@ CreatureAI* GetAI_npc_akama_shade(Creature* pCreature)
     return new npc_akamaAI (pCreature);
 }
 
-bool GossipSelect_npc_akama(Player* pPlayer, Creature* pCreature, uint32 sender, uint32 action)
+bool GossipSelect_npc_akama(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
 {
-    if (action == GOSSIP_ACTION_INFO_DEF + 1)               //Fight time
+    if (uiAction == GOSSIP_ACTION_INFO_DEF + 1)               //Fight time
     {
         pPlayer->CLOSE_GOSSIP_MENU();
         CAST_AI(npc_akamaAI, pCreature->AI())->BeginEvent(pPlayer);

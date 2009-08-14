@@ -45,7 +45,7 @@ bool     obelisk_one, obelisk_two, obelisk_three, obelisk_four, obelisk_five;
 ## mobs_bladespire_ogre
 ######*/
 
-//TODO: add support for quest 10512 + creature abilities
+//TODO: add support for quest 10512 + Creature abilities
 struct TRINITY_DLL_DECL mobs_bladespire_ogreAI : public ScriptedAI
 {
     mobs_bladespire_ogreAI(Creature *c) : ScriptedAI(c) {}
@@ -123,7 +123,7 @@ struct TRINITY_DLL_DECL mobs_nether_drakeAI : public ScriptedAI
         ScriptedAI::MoveInLineOfSight(who);
     }
 
-    //in case creature was not summoned (not expected)
+    //in case Creature was not summoned (not expected)
     void MovementInform(uint32 type, uint32 id)
     {
         if (type != POINT_MOTION_TYPE)
@@ -291,9 +291,9 @@ bool GossipHello_npc_overseer_nuaar(Player* pPlayer, Creature* pCreature)
     return true;
 }
 
-bool GossipSelect_npc_overseer_nuaar(Player* pPlayer, Creature* pCreature, uint32 sender, uint32 action)
+bool GossipSelect_npc_overseer_nuaar(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
 {
-    if (action == GOSSIP_ACTION_INFO_DEF+1)
+    if (uiAction == GOSSIP_ACTION_INFO_DEF+1)
     {
         pPlayer->SEND_GOSSIP_MENU(10533, pCreature->GetGUID());
         pPlayer->AreaExploredOrEventHappens(10682);
@@ -315,9 +315,9 @@ bool GossipHello_npc_saikkal_the_elder(Player* pPlayer, Creature* pCreature)
     return true;
 }
 
-bool GossipSelect_npc_saikkal_the_elder(Player* pPlayer, Creature* pCreature, uint32 sender, uint32 action)
+bool GossipSelect_npc_saikkal_the_elder(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
 {
-    switch (action)
+    switch (uiAction)
     {
         case GOSSIP_ACTION_INFO_DEF+1:
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Yes elder. Tell me more of the book.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
@@ -335,11 +335,11 @@ bool GossipSelect_npc_saikkal_the_elder(Player* pPlayer, Creature* pCreature, ui
 ## go_legion_obelisk
 ######*/
 
-bool GOHello_go_legion_obelisk(Player* pPlayer, GameObject* _GO)
+bool GOHello_go_legion_obelisk(Player* pPlayer, GameObject* pGo)
 {    
     if (pPlayer->GetQuestStatus(10821) == QUEST_STATUS_INCOMPLETE)
     {
-        switch(_GO->GetEntry())
+        switch(pGo->GetEntry())
         {
             case LEGION_OBELISK_ONE:
                   obelisk_one = true;
@@ -360,7 +360,7 @@ bool GOHello_go_legion_obelisk(Player* pPlayer, GameObject* _GO)
     
         if (obelisk_one == true && obelisk_two == true && obelisk_three == true && obelisk_four == true && obelisk_five == true)
         {
-            _GO->SummonCreature(19963,2943.40f,4778.20f,284.49f,0.94f,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,120000);
+            pGo->SummonCreature(19963,2943.40f,4778.20f,284.49f,0.94f,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,120000);
             //reset global var
             obelisk_one = false;
             obelisk_two = false;

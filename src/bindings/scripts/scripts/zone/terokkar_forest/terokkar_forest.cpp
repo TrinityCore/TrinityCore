@@ -381,14 +381,14 @@ bool GossipHello_npc_floon(Player* pPlayer, Creature* pCreature)
     return true;
 }
 
-bool GossipSelect_npc_floon(Player* pPlayer, Creature* pCreature, uint32 sender, uint32 action)
+bool GossipSelect_npc_floon(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
 {
-    if (action == GOSSIP_ACTION_INFO_DEF)
+    if (uiAction == GOSSIP_ACTION_INFO_DEF)
     {
         pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_FLOON2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
         pPlayer->SEND_GOSSIP_MENU(9443, pCreature->GetGUID());
     }
-    if (action == GOSSIP_ACTION_INFO_DEF+1)
+    if (uiAction == GOSSIP_ACTION_INFO_DEF+1)
     {
         pPlayer->CLOSE_GOSSIP_MENU();
         pCreature->setFaction(FACTION_HOSTILE_FL);
@@ -480,12 +480,12 @@ struct TRINITY_DLL_DECL npc_isla_starmaneAI : public npc_escortAI
     }
 };
 
-bool QuestAccept_npc_isla_starmane(Player* pPlayer, Creature* creature, Quest const* quest)
+bool QuestAccept_npc_isla_starmane(Player* pPlayer, Creature* pCreature, Quest const* quest)
 {
     if (quest->GetQuestId() == QUEST_EFTW_H || quest->GetQuestId() == QUEST_EFTW_A)
     {
-        CAST_AI(npc_escortAI, (creature->AI()))->Start(true, false, pPlayer->GetGUID());
-        creature->setFaction(113);
+        CAST_AI(npc_escortAI, (pCreature->AI()))->Start(true, false, pPlayer->GetGUID());
+        pCreature->setFaction(113);
     }
     return true;
 }
@@ -541,7 +541,7 @@ CreatureAI* GetAI_npc_isla_starmaneAI(Creature* pCreature)
 #define GOSSIP_S_GEZZARAK_THE_HUNTRESS         "Summon Gezzarak the Huntress"
 #define GOSSIP_S_VAKKIZ_THE_WINDRAGER         "Summon Vakkiz the Windrager"
 
-bool GossipHello_go_skull_pile(Player* pPlayer, GameObject* _GO)
+bool GossipHello_go_skull_pile(Player* pPlayer, GameObject* pGo)
 {
     if ((pPlayer->GetQuestStatus(11885) == QUEST_STATUS_INCOMPLETE) || pPlayer->GetQuestRewardStatus(11885))
     {
@@ -551,13 +551,13 @@ bool GossipHello_go_skull_pile(Player* pPlayer, GameObject* _GO)
         pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_S_VAKKIZ_THE_WINDRAGER, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 4);
     }
 
-    pPlayer->SEND_GOSSIP_MENU(_GO->GetGOInfo()->questgiver.gossipID, _GO->GetGUID());
+    pPlayer->SEND_GOSSIP_MENU(pGo->GetGOInfo()->questgiver.gossipID, pGo->GetGUID());
     return true;
 }
 
-void SendActionMenu_go_skull_pile(Player* pPlayer, GameObject* _GO, uint32 action)
+void SendActionMenu_go_skull_pile(Player* pPlayer, GameObject* pGo, uint32 uiAction)
 {
-    switch(action)
+    switch(uiAction)
     {
         case GOSSIP_ACTION_INFO_DEF + 1:
               pPlayer->CastSpell(pPlayer,40642,false);
@@ -574,11 +574,11 @@ void SendActionMenu_go_skull_pile(Player* pPlayer, GameObject* _GO, uint32 actio
     }
 }
 
-bool GossipSelect_go_skull_pile(Player* pPlayer, GameObject* _GO, uint32 sender, uint32 action)
+bool GossipSelect_go_skull_pile(Player* pPlayer, GameObject* pGo, uint32 uiSender, uint32 uiAction)
 {
-    switch(sender)
+    switch(uiSender)
     {
-        case GOSSIP_SENDER_MAIN:    SendActionMenu_go_skull_pile(pPlayer, _GO, action); break;
+        case GOSSIP_SENDER_MAIN:    SendActionMenu_go_skull_pile(pPlayer, pGo, uiAction); break;
     }
     return true;
 }

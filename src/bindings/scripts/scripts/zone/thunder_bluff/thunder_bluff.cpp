@@ -114,9 +114,9 @@ bool GossipHello_npc_cairne_bloodhoof(Player* pPlayer, Creature* pCreature)
     return true;
 }
 
-bool GossipSelect_npc_cairne_bloodhoof(Player* pPlayer, Creature* pCreature, uint32 sender, uint32 action)
+bool GossipSelect_npc_cairne_bloodhoof(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
 {
-    if (action == GOSSIP_SENDER_INFO)
+    if (uiAction == GOSSIP_SENDER_INFO)
     {
         pPlayer->CastSpell(pPlayer, 23123, false);
         pPlayer->SEND_GOSSIP_MENU(7014, pCreature->GetGUID());

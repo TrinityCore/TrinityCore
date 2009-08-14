@@ -107,29 +107,29 @@ struct TRINITY_DLL_DECL instance_nexus : public ScriptedInstance
         }
     }
 
-    void OnGameObjectCreate(GameObject *go, bool add)
+    void OnGameObjectCreate(GameObject* pGo, bool add)
     {
-        switch(go->GetEntry())
+        switch(pGo->GetEntry())
         {
             case 188527:
             {
-                AnomalusContainmentSphere = go->GetGUID();
+                AnomalusContainmentSphere = pGo->GetGUID();
                 if (m_auiEncounter[1] == DONE)
-                    go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_UNK1);
+                    pGo->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_UNK1);
                 break;
             }
             case 188528:
             {
-                OrmoroksContainmentSphere = go->GetGUID();
+                OrmoroksContainmentSphere = pGo->GetGUID();
                 if (m_auiEncounter[2] == DONE)
-                    go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_UNK1);
+                    pGo->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_UNK1);
                 break;
             }
             case 188526:
             {
-                TelestrasContainmentSphere = go->GetGUID();
+                TelestrasContainmentSphere = pGo->GetGUID();
                 if (m_auiEncounter[0] == DONE)
-                    go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_UNK1);
+                    pGo->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_UNK1);
                 break;
             }
         }

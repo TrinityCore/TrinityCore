@@ -81,9 +81,9 @@ bool GossipHello_npc_innkeeper(Player* pPlayer, Creature* pCreature)
     return true;
 }
 
-bool GossipSelect_npc_innkeeper(Player* pPlayer, Creature* pCreature, uint32 sender, uint32 action)
+bool GossipSelect_npc_innkeeper(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
 {
-    if (action == GOSSIP_ACTION_INFO_DEF+HALLOWEEN_EVENTID && isEventActive() && !pPlayer->GetAura(SPELL_TRICK_OR_TREATED, pPlayer->GetGUID()))
+    if (uiAction == GOSSIP_ACTION_INFO_DEF+HALLOWEEN_EVENTID && isEventActive() && !pPlayer->GetAura(SPELL_TRICK_OR_TREATED, pPlayer->GetGUID()))
     {
         pPlayer->CLOSE_GOSSIP_MENU();
         pPlayer->CastSpell(pPlayer, SPELL_TRICK_OR_TREATED, true);

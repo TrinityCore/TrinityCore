@@ -644,7 +644,7 @@ void boss_kalecgosAI::UpdateAI(const uint32 diff)
     }
 }
 
-bool GOkalecgos_teleporter(Player* pPlayer, GameObject* _GO)
+bool GOkalecgos_teleporter(Player* pPlayer, GameObject* pGo)
 {
     if (pPlayer->HasAura(AURA_SPECTRAL_EXHAUSTION))
         pPlayer->GetSession()->SendNotification(GO_FAILED);

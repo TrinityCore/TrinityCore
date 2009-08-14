@@ -479,7 +479,7 @@ struct TRINITY_DLL_DECL boss_archimondeAI : public hyjal_trashAI
 
             if (CheckDistanceTimer < diff)
             {
-                // To simplify the check, we simply summon a creature in the location and then check how far we are from the creature
+                // To simplify the check, we simply summon a Creature in the location and then check how far we are from the creature
                 Creature* Check = m_creature->SummonCreature(CREATURE_CHANNEL_TARGET, NORDRASSIL_X, NORDRASSIL_Y, NORDRASSIL_Z, 0, TEMPSUMMON_TIMED_DESPAWN, 2000);
                 if (Check)
                 {

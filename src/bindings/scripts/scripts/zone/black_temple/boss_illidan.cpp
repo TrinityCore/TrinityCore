@@ -243,7 +243,7 @@ struct Yells
 {
     uint32 sound;
     char* text;
-    uint32 creature, timer, emote;
+    uint32 pCreature, timer, emote;
     bool Talk;
 };
 
@@ -514,22 +514,22 @@ struct TRINITY_DLL_DECL boss_illidan_stormrageAI : public ScriptedAI
     {
         Timer[EVENT_TALK_SEQUENCE] = Conversation[count].timer;
 
-        Creature* creature = NULL;
-        if (Conversation[count].creature == ILLIDAN_STORMRAGE)
-            creature = m_creature;
-        else if (Conversation[count].creature == AKAMA)
-            creature = (Unit::GetCreature((*m_creature), AkamaGUID));
-        else if (Conversation[count].creature == MAIEV_SHADOWSONG)
-            creature = (Unit::GetCreature((*m_creature), MaievGUID));
+        Creature* pCreature = NULL;
+        if (Conversation[count].pCreature == ILLIDAN_STORMRAGE)
+            pCreature = m_creature;
+        else if (Conversation[count].pCreature == AKAMA)
+            pCreature = (Unit::GetCreature((*m_creature), AkamaGUID));
+        else if (Conversation[count].pCreature == MAIEV_SHADOWSONG)
+            pCreature = (Unit::GetCreature((*m_creature), MaievGUID));
 
-        if (creature)
+        if (pCreature)
         {
             if (Conversation[count].emote)
-                creature->HandleEmoteCommand(Conversation[count].emote); // Make the creature do some animation!
+                pCreature->HandleEmoteCommand(Conversation[count].emote); // Make the Creature do some animation!
             if (Conversation[count].text)
-                creature->MonsterYell(Conversation[count].text, LANG_UNIVERSAL, 0); // Have the creature yell out some text
+                pCreature->MonsterYell(Conversation[count].text, LANG_UNIVERSAL, 0); // Have the Creature yell out some text
             if (Conversation[count].sound)
-                DoPlaySoundToSet(creature, Conversation[count].sound); // Play some sound on the creature
+                DoPlaySoundToSet(pCreature, Conversation[count].sound); // Play some sound on the creature
         }
     }
 
@@ -1568,9 +1568,9 @@ struct TRINITY_DLL_DECL boss_maievAI : public ScriptedAI
 };
 
 
-bool GossipSelect_npc_akama_at_illidan(Player* pPlayer, Creature* pCreature, uint32 sender, uint32 action)
+bool GossipSelect_npc_akama_at_illidan(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
 {
-    if (action == GOSSIP_ACTION_INFO_DEF) // Time to begin the Event
+    if (uiAction == GOSSIP_ACTION_INFO_DEF) // Time to begin the Event
     {
         pPlayer->CLOSE_GOSSIP_MENU();
         CAST_AI(npc_akama_illidanAI, pCreature->AI())->EnterPhase(PHASE_CHANNEL);
@@ -1655,7 +1655,7 @@ bool GOHello_cage_trap(Player* pPlayer, GameObject* pGo)
     float x, y, z;
     pPlayer->GetPosition(x, y, z);
 
-    // Grid search for nearest live creature of entry 23304 within 10 yards
+    // Grid search for nearest live Creature of entry 23304 within 10 yards
     if (Creature* pTrigger = pGo->FindNearestCreature(23304, 10.0f))
         CAST_AI(cage_trap_triggerAI, pTrigger->AI())->Active = true;
     pGo->SetGoState(GO_STATE_ACTIVE);

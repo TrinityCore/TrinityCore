@@ -46,9 +46,9 @@ bool GossipHello_npc_spirit_of_olum(Player* pPlayer, Creature* pCreature)
     return true;
 }
 
-bool GossipSelect_npc_spirit_of_olum(Player* pPlayer, Creature* pCreature, uint32 sender, uint32 action)
+bool GossipSelect_npc_spirit_of_olum(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
 {
-    if (action == GOSSIP_ACTION_INFO_DEF + 1)
+    if (uiAction == GOSSIP_ACTION_INFO_DEF + 1)
         pPlayer->CLOSE_GOSSIP_MENU();
 
     pPlayer->InterruptNonMeleeSpells(false);

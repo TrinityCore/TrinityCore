@@ -378,8 +378,8 @@ struct TRINITY_DLL_DECL boss_illidari_councilAI : public ScriptedAI
             return;
         }
         DoZoneInCombat();
-        // Load GUIDs on first aggro because the creature guids are only set as the creatures are created in world-
-        // this means that for each creature, it will attempt to LoadGUIDs even though some of the other creatures are
+        // Load GUIDs on first aggro because the Creature guids are only set as the creatures are created in world-
+        // this means that for each pCreature, it will attempt to LoadGUIDs even though some of the other creatures are
         // not in world, and thus have no GUID set in the instance data system. Putting it in aggro ensures that all the creatures
         // have been loaded and have their GUIDs set in the instance data system.
         if (!LoadedGUIDs)
