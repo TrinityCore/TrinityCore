@@ -101,42 +101,42 @@ struct TRINITY_DLL_DECL instance_mount_hyjal : public ScriptedInstance
         return false;
     }
 
-    void OnGameObjectCreate(GameObject *go, bool add)
+    void OnGameObjectCreate(GameObject* pGo, bool add)
     {
-        switch(go->GetEntry())
+        switch(pGo->GetEntry())
         {
             case 182060:
-                HordeGate = go->GetGUID();
+                HordeGate = pGo->GetGUID();
                 if (allianceRetreat)
-                    HandleGameObject(0, true, go);
+                    HandleGameObject(0, true, pGo);
                 else
-                    HandleGameObject(0, false, go);
+                    HandleGameObject(0, false, pGo);
                 break;
             case 182061:
-                ElfGate = go->GetGUID();
+                ElfGate = pGo->GetGUID();
                 if (hordeRetreat)
-                    HandleGameObject(0, true, go);
+                    HandleGameObject(0, true, pGo);
                 else
-                    HandleGameObject(0, false, go);
+                    HandleGameObject(0, false, pGo);
                 break;
             case GO_ANCIENT_GEM:
-                m_uiAncientGemGUID.push_back(go->GetGUID());
+                m_uiAncientGemGUID.push_back(pGo->GetGUID());
                 break;
         }
     }
 
-    void OnCreatureCreate(Creature *creature, bool add)
+    void OnCreatureCreate(Creature* pCreature, bool add)
     {
-        switch(creature->GetEntry())
+        switch(pCreature->GetEntry())
         {
-            case 17767: RageWinterchill = creature->GetGUID(); break;
-            case 17808: Anetheron = creature->GetGUID(); break;
-            case 17888: Kazrogal = creature->GetGUID();  break;
-            case 17842: Azgalor = creature->GetGUID(); break;
-            case 17968: Archimonde = creature->GetGUID(); break;
-            case 17772: JainaProudmoore = creature->GetGUID(); break;
-            case 17852: Thrall = creature->GetGUID(); break;
-            case 17948: TyrandeWhisperwind = creature->GetGUID(); break;
+            case 17767: RageWinterchill = pCreature->GetGUID(); break;
+            case 17808: Anetheron = pCreature->GetGUID(); break;
+            case 17888: Kazrogal = pCreature->GetGUID();  break;
+            case 17842: Azgalor = pCreature->GetGUID(); break;
+            case 17968: Archimonde = pCreature->GetGUID(); break;
+            case 17772: JainaProudmoore = pCreature->GetGUID(); break;
+            case 17852: Thrall = pCreature->GetGUID(); break;
+            case 17948: TyrandeWhisperwind = pCreature->GetGUID(); break;
         }
     }
 

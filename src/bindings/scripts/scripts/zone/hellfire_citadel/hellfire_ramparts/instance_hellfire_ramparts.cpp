@@ -40,12 +40,12 @@ struct TRINITY_DLL_DECL instance_ramparts : public ScriptedInstance
         m_uiChestHGUID = 0;
     }
 
-    void OnGameObjectCreate(GameObject *go, bool add)
+    void OnGameObjectCreate(GameObject* pGo, bool add)
     {
-        switch(go->GetEntry())
+        switch(pGo->GetEntry())
         {
-            case 185168: m_uiChestNGUID = go->GetGUID(); break;
-            case 185169: m_uiChestHGUID = go->GetGUID(); break;
+            case 185168: m_uiChestNGUID = pGo->GetGUID(); break;
+            case 185169: m_uiChestHGUID = pGo->GetGUID(); break;
         }
     }
 

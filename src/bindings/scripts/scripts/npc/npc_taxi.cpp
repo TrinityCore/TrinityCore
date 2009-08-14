@@ -81,7 +81,7 @@ bool GossipHello_npc_taxi(Player* pPlayer, Creature* pCreature)
         break;
     case 25059: // Isle of Quel'Danas - Ayren Cloudbreaker
         if (pPlayer->GetQuestStatus(11532) == QUEST_STATUS_INCOMPLETE || pPlayer->GetQuestStatus(11533) == QUEST_STATUS_INCOMPLETE)
-            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Speaking of action, I've been ordered to undertake an air strike.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 12);
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Speaking of uiAction, I've been ordered to undertake an air strike.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 12);
 
         if (pPlayer->GetQuestStatus(11542) == QUEST_STATUS_INCOMPLETE || pPlayer->GetQuestStatus(11543) == QUEST_STATUS_INCOMPLETE)
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I need to intercept the Dawnblade reinforcements.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 13);
@@ -133,9 +133,9 @@ bool GossipHello_npc_taxi(Player* pPlayer, Creature* pCreature)
     return true;
 }
 
-bool GossipSelect_npc_taxi(Player* pPlayer, Creature* pCreature, uint32 sender, uint32 action)
+bool GossipSelect_npc_taxi(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
 {
-    switch(action) {
+    switch(uiAction) {
     case GOSSIP_ACTION_INFO_DEF:
         //spellId is correct, however it gives flight a somewhat funny effect //TaxiPath 506.
         pPlayer->CLOSE_GOSSIP_MENU();

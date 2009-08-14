@@ -17,7 +17,7 @@
 /* ScriptData
 SDName: Stratholme
 SD%Complete: 100
-SDComment: Misc mobs for instance. GO-script to apply aura and start event for quest 8945
+SDComment: Misc mobs for instance. pGo-script to apply aura and start event for quest 8945
 SDCategory: Stratholme
 EndScriptData */
 
@@ -35,9 +35,9 @@ EndContentData */
 ## go_gauntlet_gate (this is the _first_ of the gauntlet gates, two exist)
 ######*/
 
-bool GOHello_go_gauntlet_gate(Player* pPlayer, GameObject* _GO)
+bool GOHello_go_gauntlet_gate(Player* pPlayer, GameObject* pGo)
 {
-    ScriptedInstance* pInstance = _GO->GetInstanceData();
+    ScriptedInstance* pInstance = pGo->GetInstanceData();
 
     if (!pInstance)
         return false;
@@ -55,12 +55,12 @@ bool GOHello_go_gauntlet_gate(Player* pPlayer, GameObject* _GO)
 
             if (pGroupie->GetQuestStatus(QUEST_DEAD_MAN_PLEA) == QUEST_STATUS_INCOMPLETE &&
                 !pGroupie->HasAura(SPELL_BARON_ULTIMATUM) &&
-                pGroupie->GetMap() == _GO->GetMap())
+                pGroupie->GetMap() == pGo->GetMap())
                 pGroupie->CastSpell(pGroupie,SPELL_BARON_ULTIMATUM,true);
         }
     } else if (pPlayer->GetQuestStatus(QUEST_DEAD_MAN_PLEA) == QUEST_STATUS_INCOMPLETE &&
                 !pPlayer->HasAura(SPELL_BARON_ULTIMATUM) &&
-                pPlayer->GetMap() == _GO->GetMap())
+                pPlayer->GetMap() == pGo->GetMap())
                 pPlayer->CastSpell(pPlayer,SPELL_BARON_ULTIMATUM,true);
 
     pInstance->SetData(TYPE_BARON_RUN,IN_PROGRESS);

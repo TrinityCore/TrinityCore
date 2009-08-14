@@ -238,9 +238,9 @@ bool GossipHello_npc_marin_noggenfogger(Player* pPlayer, Creature* pCreature)
     return true;
 }
 
-bool GossipSelect_npc_marin_noggenfogger(Player* pPlayer, Creature* pCreature, uint32 sender, uint32 action)
+bool GossipSelect_npc_marin_noggenfogger(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
 {
-    if (action == GOSSIP_ACTION_TRADE)
+    if (uiAction == GOSSIP_ACTION_TRADE)
         pPlayer->SEND_VENDORLIST(pCreature->GetGUID());
 
     return true;
@@ -268,7 +268,7 @@ bool GossipHello_npc_steward_of_time(Player* pPlayer, Creature* pCreature)
     return true;
 }
 
-bool QuestAccept_npc_steward_of_time(Player* pPlayer, Creature *creature, Quest const *quest)
+bool QuestAccept_npc_steward_of_time(Player* pPlayer, Creature* pCreature, Quest const *quest)
 {
     if (quest->GetQuestId() == 10279)                      //Quest: To The Master's Lair
         pPlayer->CastSpell(pPlayer,34891,true);               //(Flight through Caverns)
@@ -276,9 +276,9 @@ bool QuestAccept_npc_steward_of_time(Player* pPlayer, Creature *creature, Quest 
     return false;
 }
 
-bool GossipSelect_npc_steward_of_time(Player* pPlayer, Creature* pCreature, uint32 sender, uint32 action)
+bool GossipSelect_npc_steward_of_time(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
 {
-    if (action == GOSSIP_ACTION_INFO_DEF + 1)
+    if (uiAction == GOSSIP_ACTION_INFO_DEF + 1)
         pPlayer->CastSpell(pPlayer,34891,true);               //(Flight through Caverns)
 
     return true;
@@ -308,9 +308,9 @@ bool GossipHello_npc_stone_watcher_of_norgannon(Player* pPlayer, Creature* pCrea
     return true;
 }
 
-bool GossipSelect_npc_stone_watcher_of_norgannon(Player* pPlayer, Creature* pCreature, uint32 sender, uint32 action)
+bool GossipSelect_npc_stone_watcher_of_norgannon(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
 {
-    switch (action)
+    switch (uiAction)
     {
         case GOSSIP_ACTION_INFO_DEF:
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_NORGANNON_2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);

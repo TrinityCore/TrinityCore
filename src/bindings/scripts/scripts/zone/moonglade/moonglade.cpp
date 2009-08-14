@@ -70,9 +70,9 @@ bool GossipHello_npc_bunthen_plainswind(Player* pPlayer, Creature* pCreature)
     return true;
 }
 
-bool GossipSelect_npc_bunthen_plainswind(Player* pPlayer, Creature* pCreature, uint32 sender, uint32 action)
+bool GossipSelect_npc_bunthen_plainswind(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
 {
-    switch(action)
+    switch(uiAction)
     {
         case GOSSIP_ACTION_INFO_DEF + 1:
             pPlayer->CLOSE_GOSSIP_MENU();
@@ -112,9 +112,9 @@ bool GossipHello_npc_great_bear_spirit(Player* pPlayer, Creature* pCreature)
     return true;
 }
 
-bool GossipSelect_npc_great_bear_spirit(Player* pPlayer, Creature* pCreature, uint32 sender, uint32 action)
+bool GossipSelect_npc_great_bear_spirit(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
 {
-    switch (action)
+    switch (uiAction)
     {
         case GOSSIP_ACTION_INFO_DEF:
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_BEAR2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
@@ -169,9 +169,9 @@ bool GossipHello_npc_silva_filnaveth(Player* pPlayer, Creature* pCreature)
     return true;
 }
 
-bool GossipSelect_npc_silva_filnaveth(Player* pPlayer, Creature* pCreature, uint32 sender, uint32 action)
+bool GossipSelect_npc_silva_filnaveth(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
 {
-    switch(action)
+    switch(uiAction)
     {
         case GOSSIP_ACTION_INFO_DEF + 1:
             pPlayer->CLOSE_GOSSIP_MENU();
@@ -520,11 +520,11 @@ CreatureAI* GetAI_npc_clintar_spirit(Creature* pCreature)
 
 #define CLINTAR_SPIRIT 22916
 
-bool QuestAccept_npc_clintar_dreamwalker(Player* pPlayer, Creature *creature, Quest const *quest)
+bool QuestAccept_npc_clintar_dreamwalker(Player* pPlayer, Creature* pCreature, Quest const *quest)
 {
     if (quest->GetQuestId() == 10965)
     {
-        Creature *clintar_spirit = creature->SummonCreature(CLINTAR_SPIRIT, CLINTAR_SPIRIT_SUMMON_X, CLINTAR_SPIRIT_SUMMON_Y, CLINTAR_SPIRIT_SUMMON_Z, CLINTAR_SPIRIT_SUMMON_O, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 100000);
+        Creature *clintar_spirit = pCreature->SummonCreature(CLINTAR_SPIRIT, CLINTAR_SPIRIT_SUMMON_X, CLINTAR_SPIRIT_SUMMON_Y, CLINTAR_SPIRIT_SUMMON_Z, CLINTAR_SPIRIT_SUMMON_O, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 100000);
         if (clintar_spirit)
             CAST_AI(npc_clintar_spiritAI, clintar_spirit->AI())->StartEvent(pPlayer);
     }

@@ -19,15 +19,15 @@ pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_DOWN, GOSSIP_SENDER_MAIN, GOSS
     return true;
 }
 
-bool GossipSelect_npc_wyrmresttempel_middle_taxi(Player* pPlayer, Creature* pCreature, uint32 sender, uint32 action)
+bool GossipSelect_npc_wyrmresttempel_middle_taxi(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
 {
-    if (action == GOSSIP_ACTION_INFO_DEF + 1)
+    if (uiAction == GOSSIP_ACTION_INFO_DEF + 1)
     {          
         pPlayer->GetSession()->SendDoFlight(6376, 881);
     }
     
 
-    if (action == GOSSIP_ACTION_INFO_DEF + 2)
+    if (uiAction == GOSSIP_ACTION_INFO_DEF + 2)
     {
       pPlayer->GetSession()->SendDoFlight(6376, 882);
 
@@ -48,15 +48,15 @@ pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_MIDDLE, GOSSIP_SENDER_MAIN, GO
 
 
 
-bool GossipSelect_npc_wyrmresttempel_bottom_taxi(Player* pPlayer, Creature* pCreature, uint32 sender, uint32 action)
+bool GossipSelect_npc_wyrmresttempel_bottom_taxi(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
 {
-    if (action == GOSSIP_ACTION_INFO_DEF + 4)
+    if (uiAction == GOSSIP_ACTION_INFO_DEF + 4)
     {         
         pPlayer->GetSession()->SendDoFlight(6376, 878);
     }
     
 
-    if (action == GOSSIP_ACTION_INFO_DEF + 3)
+    if (uiAction == GOSSIP_ACTION_INFO_DEF + 3)
     {
       pPlayer->GetSession()->SendDoFlight(6376, 883);
 
@@ -75,14 +75,14 @@ pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ONEDOWN, GOSSIP_SENDER_MAIN, G
     return true;
 }
 
-bool GossipSelect_npc_wyrmresttempel_top_taxi(Player* pPlayer, Creature* pCreature, uint32 sender, uint32 action)
+bool GossipSelect_npc_wyrmresttempel_top_taxi(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
 {
-    if (action == GOSSIP_ACTION_INFO_DEF + 5)
+    if (uiAction == GOSSIP_ACTION_INFO_DEF + 5)
     {      
         pPlayer->GetSession()->SendDoFlight(6376, 879);
     }
 
-    if (action == GOSSIP_ACTION_INFO_DEF + 6)
+    if (uiAction == GOSSIP_ACTION_INFO_DEF + 6)
 
     {
       pPlayer->GetSession()->SendDoFlight(6376, 880);

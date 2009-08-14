@@ -32,7 +32,7 @@ struct TRINITY_DLL_DECL boss_azgalorAI : public hyjal_trashAI
     boss_azgalorAI(Creature *c) : hyjal_trashAI(c)
     {
         pInstance = c->GetInstanceData();
-        go = false;
+        pGo = false;
         pos = 0;
         SpellEntry *TempSpell = GET_SPELL(SPELL_HOWL_OF_AZGALOR);
         if (TempSpell)
@@ -46,7 +46,7 @@ struct TRINITY_DLL_DECL boss_azgalorAI : public hyjal_trashAI
     uint32 EnrageTimer;
     bool enraged;
 
-    bool go;
+    bool pGo;
     uint32 pos;
 
     void Reset()
@@ -115,9 +115,9 @@ struct TRINITY_DLL_DECL boss_azgalorAI : public hyjal_trashAI
         {
             //Must update npc_escortAI
             npc_escortAI::UpdateAI(diff);
-            if (!go)
+            if (!pGo)
             {
-                go = true;
+                pGo = true;
                 if (pInstance)
                 {
                     AddWaypoint(0, 5492.91,    -2404.61,    1462.63);

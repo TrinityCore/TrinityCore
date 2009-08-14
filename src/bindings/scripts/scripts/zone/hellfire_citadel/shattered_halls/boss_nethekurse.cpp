@@ -364,7 +364,7 @@ struct TRINITY_DLL_DECL mob_fel_orc_convertAI : public ScriptedAI
     }
 };
 
-//NOTE: this creature are also summoned by other spells, for different creatures
+//NOTE: this Creature are also summoned by other spells, for different creatures
 struct TRINITY_DLL_DECL mob_lesser_shadow_fissureAI : public ScriptedAI
 {
     mob_lesser_shadow_fissureAI(Creature *c) : ScriptedAI(c) {}

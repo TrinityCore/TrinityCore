@@ -86,10 +86,10 @@ bool GossipHello_npc_jaina_proudmoore(Player* pPlayer, Creature* pCreature)
     return true;
 }
 
-bool GossipSelect_npc_jaina_proudmoore(Player* pPlayer, Creature* pCreature, uint32 sender, uint32 action)
+bool GossipSelect_npc_jaina_proudmoore(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
 {
     hyjalAI* ai = CAST_AI(hyjalAI, pCreature->AI());
-    switch(action)
+    switch(uiAction)
     {
         case GOSSIP_ACTION_INFO_DEF + 1:
             ai->StartEvent(pPlayer);
@@ -155,11 +155,11 @@ bool GossipHello_npc_thrall(Player* pPlayer, Creature* pCreature)
     return true;
 }
 
-bool GossipSelect_npc_thrall(Player* pPlayer, Creature* pCreature, uint32 sender, uint32 action)
+bool GossipSelect_npc_thrall(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
 {
     hyjalAI* ai = CAST_AI(hyjalAI, pCreature->AI());
     ai->DeSpawnVeins();//despawn the alliance veins
-    switch(action)
+    switch(uiAction)
     {
         case GOSSIP_ACTION_INFO_DEF + 1:
             ai->StartEvent(pPlayer);
@@ -200,9 +200,9 @@ bool GossipHello_npc_tyrande_whisperwind(Player* pPlayer, Creature* pCreature)
     return true;
 }
 
-bool GossipSelect_npc_tyrande_whisperwind(Player* pPlayer, Creature* pCreature, uint32 sender, uint32 action)
+bool GossipSelect_npc_tyrande_whisperwind(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
 {
-    if (action == GOSSIP_ACTION_INFO_DEF)
+    if (uiAction == GOSSIP_ACTION_INFO_DEF)
     {
             ItemPosCountVec dest;
             uint8 msg = pPlayer->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, ITEM_TEAR_OF_GODDESS, 1);

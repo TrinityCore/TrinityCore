@@ -267,9 +267,9 @@ bool GossipHello_npc_engineer_spark_overgrind(Player* pPlayer, Creature* pCreatu
     return true;
 }
 
-bool GossipSelect_npc_engineer_spark_overgrind(Player* pPlayer, Creature* pCreature, uint32 sender, uint32 action)
+bool GossipSelect_npc_engineer_spark_overgrind(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
 {
-    if (action == GOSSIP_ACTION_INFO_DEF)
+    if (uiAction == GOSSIP_ACTION_INFO_DEF)
     {
         pPlayer->CLOSE_GOSSIP_MENU();
         pCreature->setFaction(FACTION_HOSTILE);
@@ -580,7 +580,7 @@ bool EffectDummyCreature_npc_nestlewood_owlkin(Unit *pCaster, uint32 spellId, ui
 
         pCreatureTarget->UpdateEntry(ENTRY_OWLKIN_INOC);
 
-        //set despawn timer, since we want to remove creature after a short time
+        //set despawn timer, since we want to remove Creature after a short time
         CAST_AI(npc_nestlewood_owlkinAI, pCreatureTarget->AI())->DespawnTimer = 15000;
 
         //always return true when we are handling this spell and effect

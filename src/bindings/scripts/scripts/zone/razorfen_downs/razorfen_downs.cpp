@@ -56,15 +56,15 @@ bool GossipHello_npc_henry_stern (Player* pPlayer, Creature* pCreature)
     return true;
 }
 
-bool GossipSelect_npc_henry_stern (Player* pPlayer, Creature* pCreature, uint32 sender, uint32 action)
+bool GossipSelect_npc_henry_stern (Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
 {
-    if (action == GOSSIP_ACTION_INFO_DEF + 1)
+    if (uiAction == GOSSIP_ACTION_INFO_DEF + 1)
     {
         pCreature->CastSpell(pPlayer, SPELL_TEACHING_GOLDTHORN_TEA, true);
         pPlayer->SEND_GOSSIP_MENU(GOSSIP_TEXT_TEA_ANSWER, pCreature->GetGUID());
     }
 
-    if (action == GOSSIP_ACTION_INFO_DEF + 2)
+    if (uiAction == GOSSIP_ACTION_INFO_DEF + 2)
     {
         pPlayer->SEND_GOSSIP_MENU(GOSSIP_TEXT_POTION_ANSWER, pCreature->GetGUID());
         pCreature->CastSpell(pPlayer, SPELL_TEACHING_MIGHTY_TROLLS_BLOOD_POTION, true);

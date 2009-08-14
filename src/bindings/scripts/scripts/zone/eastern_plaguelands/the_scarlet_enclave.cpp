@@ -934,9 +934,9 @@ CreatureAI* GetAI_npc_unworthy_initiate_anchor(Creature* pCreature)
     return new npc_unworthy_initiate_anchorAI(pCreature);
 }
 
-bool GOHello_go_acherus_soul_prison(Player* pPlayer, GameObject* go)
+bool GOHello_go_acherus_soul_prison(Player* pPlayer, GameObject* pGo)
 {
-    if (Creature *anchor = go->FindNearestCreature(29521, 15))
+    if (Creature *anchor = pGo->FindNearestCreature(29521, 15))
         if (uint64 prisonerGUID = anchor->AI()->GetGUID())
             if (Creature* prisoner = Creature::GetCreature(*pPlayer, prisonerGUID))
                 CAST_AI(npc_unworthy_initiateAI, (prisoner->AI()))->EventStart(anchor, pPlayer);

@@ -63,25 +63,25 @@ struct TRINITY_DLL_DECL instance_scarlet_monastery : public ScriptedInstance
         DoorHighInquisitorGUID = 0;
     }
 
-    void OnGameObjectCreate(GameObject *go, bool add)
+    void OnGameObjectCreate(GameObject* pGo, bool add)
     {
-        switch(go->GetEntry())
+        switch(pGo->GetEntry())
         {
-        case ENTRY_PUMPKIN_SHRINE: PumpkinShrineGUID = go->GetGUID();break;
-        case 104600: DoorHighInquisitorGUID = go->GetGUID(); break;
+        case ENTRY_PUMPKIN_SHRINE: PumpkinShrineGUID = pGo->GetGUID();break;
+        case 104600: DoorHighInquisitorGUID = pGo->GetGUID(); break;
         }
     }
 
-    void OnCreatureCreate(Creature *creature, bool add)
+    void OnCreatureCreate(Creature* pCreature, bool add)
     {
-        switch(creature->GetEntry())
+        switch(pCreature->GetEntry())
         {
-            case ENTRY_HORSEMAN:    HorsemanGUID = creature->GetGUID(); break;
-            case ENTRY_HEAD:        HeadGUID = creature->GetGUID(); break;
-            case ENTRY_PUMPKIN:     HorsemanAdds.insert(creature->GetGUID());break;
-            case 3976: MograineGUID = creature->GetGUID(); break;
-            case 3977: WhitemaneGUID = creature->GetGUID(); break;
-            case 3981: VorrelGUID = creature->GetGUID(); break;
+            case ENTRY_HORSEMAN:    HorsemanGUID = pCreature->GetGUID(); break;
+            case ENTRY_HEAD:        HeadGUID = pCreature->GetGUID(); break;
+            case ENTRY_PUMPKIN:     HorsemanAdds.insert(pCreature->GetGUID());break;
+            case 3976: MograineGUID = pCreature->GetGUID(); break;
+            case 3977: WhitemaneGUID = pCreature->GetGUID(); break;
+            case 3981: VorrelGUID = pCreature->GetGUID(); break;
         }
     }
 

@@ -193,14 +193,14 @@ struct TRINITY_DLL_DECL boss_najentusAI : public ScriptedAI
     }
 };
 
-bool GOHello_go_najentus_spine(Player* pPlayer, GameObject* _GO)
+bool GOHello_go_najentus_spine(Player* pPlayer, GameObject* pGo)
 {
-    if (ScriptedInstance* pInstance = _GO->GetInstanceData())
-        if (Creature* Najentus = Unit::GetCreature(*_GO, pInstance->GetData64(DATA_HIGHWARLORDNAJENTUS)))
+    if (ScriptedInstance* pInstance = pGo->GetInstanceData())
+        if (Creature* Najentus = Unit::GetCreature(*pGo, pInstance->GetData64(DATA_HIGHWARLORDNAJENTUS)))
             if (CAST_AI(boss_najentusAI, Najentus->AI())->RemoveImpalingSpine())
             {
                 pPlayer->CastSpell(pPlayer, SPELL_CREATE_NAJENTUS_SPINE, true);
-                _GO->DeleteObjectWithOwner();
+                pGo->DeleteObjectWithOwner();
             }
     return true;
 }

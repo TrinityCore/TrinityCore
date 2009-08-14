@@ -359,11 +359,11 @@ bool GossipHello_npc_barnes(Player* pPlayer, Creature* pCreature)
     return true;
 }
 
-bool GossipSelect_npc_barnes(Player* pPlayer, Creature* pCreature, uint32 sender, uint32 action)
+bool GossipSelect_npc_barnes(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
 {
     npc_barnesAI* pBarnesAI = CAST_AI(npc_barnesAI, pCreature->AI());
 
-    switch(action)
+    switch(uiAction)
     {
         case GOSSIP_ACTION_INFO_DEF+1:
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, OZ_GOSSIP2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
@@ -417,9 +417,9 @@ bool GossipHello_npc_berthold(Player* pPlayer, Creature* pCreature)
     return true;
 }
 
-bool GossipSelect_npc_berthold(Player* pPlayer, Creature* pCreature, uint32 sender, uint32 action)
+bool GossipSelect_npc_berthold(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
 {
-    if (action == GOSSIP_ACTION_INFO_DEF + 1)
+    if (uiAction == GOSSIP_ACTION_INFO_DEF + 1)
         pPlayer->CastSpell(pPlayer, SPELL_TELEPORT, true);
 
     pPlayer->CLOSE_GOSSIP_MENU();

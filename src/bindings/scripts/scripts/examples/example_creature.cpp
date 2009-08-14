@@ -69,7 +69,7 @@ enum
 struct TRINITY_DLL_DECL example_creatureAI : public ScriptedAI
 {
     //*** HANDLED FUNCTION ***
-    //This is the constructor, called only once when the creature is first created
+    //This is the constructor, called only once when the Creature is first created
     example_creatureAI(Creature *c) : ScriptedAI(c) {Reset();}
 
     //*** CUSTOM VARIABLES ****
@@ -228,7 +228,7 @@ struct TRINITY_DLL_DECL example_creatureAI : public ScriptedAI
 };
 
 //This is the GetAI method used by all scripts that involve AI
-//It is called every time a new creature using this script is created
+//It is called every time a new Creature using this script is created
 CreatureAI* GetAI_example_creature(Creature* pCreature)
 {
     return new example_creatureAI (pCreature);

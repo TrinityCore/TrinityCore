@@ -105,7 +105,7 @@ enum SpellIds
     SPELL_DARKNESS_OF_A_THOUSAND_SOULS_DAMAGE           = 45657,
 
     /* Armageddon spells wrong visual */
-    SPELL_ARMAGEDDON_TRIGGER                            = 45909, // Meteor spell trigger missile should cast creature on himself
+    SPELL_ARMAGEDDON_TRIGGER                            = 45909, // Meteor spell trigger missile should cast Creature on himself
     SPELL_ARMAGEDDON_VISUAL                             = 45911, // Does the hellfire visual to indicate where the meteor missle lands
     SPELL_ARMAGEDDON_VISUAL2                            = 45914, // Does the light visual to indicate where the meteor missle lands
     SPELL_ARMAGEDDON_VISUAL3                            = 24207, // This shouldn't correct but same as seen on the movie
@@ -236,7 +236,7 @@ float OrbLocations[4][5] = {
 struct Speech
 {
     int32 textid;
-    uint32 creature, timer;
+    uint32 pCreature, timer;
 };
 // TODO: Timers
 static Speech Sacrifice[]=
@@ -258,26 +258,26 @@ class AllOrbsInGrid
 {
 public:
     AllOrbsInGrid() {}
-    bool operator() (GameObject* go)
+    bool operator() (GameObject* pGo)
     {
-        if (go->GetEntry() == GAMEOBJECT_ORB_OF_THE_BLUE_DRAGONFLIGHT)
+        if (pGo->GetEntry() == GAMEOBJECT_ORB_OF_THE_BLUE_DRAGONFLIGHT)
             return true;
         return false;
     }
 };
 
-bool GOHello_go_orb_of_the_blue_flight(Player* pPlayer, GameObject* go)
+bool GOHello_go_orb_of_the_blue_flight(Player* pPlayer, GameObject* pGo)
 {
-    if (go->GetUInt32Value(GAMEOBJECT_FACTION) == 35){
-        ScriptedInstance* pInstance = go->GetInstanceData();
+    if (pGo->GetUInt32Value(GAMEOBJECT_FACTION) == 35){
+        ScriptedInstance* pInstance = pGo->GetInstanceData();
         float x,y,z;
         //float dx,dy,dz;
-        go->SummonCreature(CREATURE_POWER_OF_THE_BLUE_DRAGONFLIGHT, pPlayer->GetPositionX(), pPlayer->GetPositionY(), pPlayer->GetPositionZ(), 0.0f, TEMPSUMMON_TIMED_DESPAWN, 121000);
+        pGo->SummonCreature(CREATURE_POWER_OF_THE_BLUE_DRAGONFLIGHT, pPlayer->GetPositionX(), pPlayer->GetPositionY(), pPlayer->GetPositionZ(), 0.0f, TEMPSUMMON_TIMED_DESPAWN, 121000);
         pPlayer->CastSpell(pPlayer, SPELL_VENGEANCE_OF_THE_BLUE_FLIGHT, true);
-        go->SetUInt32Value(GAMEOBJECT_FACTION, 0);
+        pGo->SetUInt32Value(GAMEOBJECT_FACTION, 0);
         Creature* Kalec = Unit::GetCreature(*pPlayer, pInstance->GetData64(DATA_KALECGOS_KJ));
         //Kalec->RemoveDynObject(SPELL_RING_OF_BLUE_FLAMES);
-        go->GetPosition(x,y,z);
+        pGo->GetPosition(x,y,z);
         // this won't work. need rewritten
         /*
         for(uint8 i = 0; i < 4; ++i)
@@ -293,7 +293,7 @@ bool GOHello_go_orb_of_the_blue_flight(Player* pPlayer, GameObject* go)
             }
         }
         */
-        go->Refresh();
+        pGo->Refresh();
     }
     return true;
 }

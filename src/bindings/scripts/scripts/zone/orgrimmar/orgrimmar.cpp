@@ -49,9 +49,9 @@ bool GossipHello_npc_neeru_fireblade(Player* pPlayer, Creature* pCreature)
     return true;
 }
 
-bool GossipSelect_npc_neeru_fireblade(Player* pPlayer, Creature* pCreature, uint32 sender, uint32 action)
+bool GossipSelect_npc_neeru_fireblade(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
 {
-    switch (action)
+    switch (uiAction)
     {
         case GOSSIP_ACTION_INFO_DEF+1:
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SNF, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
@@ -144,12 +144,12 @@ CreatureAI* GetAI_npc_shenthul(Creature* pCreature)
     return new npc_shenthulAI (pCreature);
 }
 
-bool QuestAccept_npc_shenthul(Player* pPlayer, Creature* creature, Quest const* quest)
+bool QuestAccept_npc_shenthul(Player* pPlayer, Creature* pCreature, Quest const* quest)
 {
     if (quest->GetQuestId() == QUEST_SHATTERED_SALUTE)
     {
-        CAST_AI(npc_shenthulAI, creature->AI())->CanTalk = true;
-        CAST_AI(npc_shenthulAI, creature->AI())->PlayerGUID = pPlayer->GetGUID();
+        CAST_AI(npc_shenthulAI, pCreature->AI())->CanTalk = true;
+        CAST_AI(npc_shenthulAI, pCreature->AI())->PlayerGUID = pPlayer->GetGUID();
     }
     return true;
 }
@@ -224,9 +224,9 @@ bool GossipHello_npc_thrall_warchief(Player* pPlayer, Creature* pCreature)
     return true;
 }
 
-bool GossipSelect_npc_thrall_warchief(Player* pPlayer, Creature* pCreature, uint32 sender, uint32 action)
+bool GossipSelect_npc_thrall_warchief(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
 {
-    switch (action)
+    switch (uiAction)
     {
         case GOSSIP_ACTION_INFO_DEF+1:
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_STW1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);

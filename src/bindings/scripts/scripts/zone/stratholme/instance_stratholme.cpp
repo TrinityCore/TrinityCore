@@ -122,53 +122,53 @@ struct TRINITY_DLL_DECL instance_stratholme : public ScriptedInstance
         if (!goGuid)
             return;
 
-        if (GameObject *go = instance->GetGameObject(goGuid))
+        if (GameObject* pGo = instance->GetGameObject(goGuid))
         {
             if (withRestoreTime)
-                go->UseDoorOrButton(10);
+                pGo->UseDoorOrButton(10);
             else
-                go->SetGoState((GOState)newState);
+                pGo->SetGoState((GOState)newState);
         }
     }
 
-    void OnCreatureCreate(Creature *creature, bool add)
+    void OnCreatureCreate(Creature* pCreature, bool add)
     {
-        switch(creature->GetEntry())
+        switch(pCreature->GetEntry())
         {
-        case C_BARON:           baronGUID = creature->GetGUID(); break;
-        case C_YSIDA_TRIGGER:   ysidaTriggerGUID = creature->GetGUID(); break;
-        case C_CRYSTAL:         crystalsGUID.insert(creature->GetGUID()); break;
+        case C_BARON:           baronGUID = pCreature->GetGUID(); break;
+        case C_YSIDA_TRIGGER:   ysidaTriggerGUID = pCreature->GetGUID(); break;
+        case C_CRYSTAL:         crystalsGUID.insert(pCreature->GetGUID()); break;
         case C_ABOM_BILE:
-        case C_ABOM_VENOM:      abomnationGUID.insert(creature->GetGUID()); break;
+        case C_ABOM_VENOM:      abomnationGUID.insert(pCreature->GetGUID()); break;
         }
     }
 
-    void OnGameObjectCreate(GameObject *go, bool add)
+    void OnGameObjectCreate(GameObject* pGo, bool add)
     {
-        switch(go->GetEntry())
+        switch(pGo->GetEntry())
         {
-        case GO_SERVICE_ENTRANCE:   serviceEntranceGUID = go->GetGUID(); break;
+        case GO_SERVICE_ENTRANCE:   serviceEntranceGUID = pGo->GetGUID(); break;
         case GO_GAUNTLET_GATE1:
             //weird, but unless flag is set, client will not respond as expected. DB bug?
-            go->SetFlag(GAMEOBJECT_FLAGS,GO_FLAG_LOCKED);
-            gauntletGate1GUID = go->GetGUID();
+            pGo->SetFlag(GAMEOBJECT_FLAGS,GO_FLAG_LOCKED);
+            gauntletGate1GUID = pGo->GetGUID();
             break;
-        case GO_ZIGGURAT1:          ziggurat1GUID = go->GetGUID(); break;
-        case GO_ZIGGURAT2:          ziggurat2GUID = go->GetGUID(); break;
-        case GO_ZIGGURAT3:          ziggurat3GUID = go->GetGUID(); break;
+        case GO_ZIGGURAT1:          ziggurat1GUID = pGo->GetGUID(); break;
+        case GO_ZIGGURAT2:          ziggurat2GUID = pGo->GetGUID(); break;
+        case GO_ZIGGURAT3:          ziggurat3GUID = pGo->GetGUID(); break;
         case GO_ZIGGURAT4:          
-            ziggurat4GUID = go->GetGUID(); 
+            ziggurat4GUID = pGo->GetGUID(); 
             if (TYPE_BARON == DONE || TYPE_RAMSTEIN == DONE)
-                HandleGameObject(0, true, go);
+                HandleGameObject(0, true, pGo);
             break;
         case GO_ZIGGURAT5:          
-            ziggurat5GUID = go->GetGUID(); 
+            ziggurat5GUID = pGo->GetGUID(); 
             if (TYPE_BARON == DONE || TYPE_RAMSTEIN == DONE)
-                HandleGameObject(0, true, go);
+                HandleGameObject(0, true, pGo);
             break;
-        case GO_PORT_GAUNTLET:      portGauntletGUID = go->GetGUID(); break;
-        case GO_PORT_SLAUGTHER:     portSlaugtherGUID = go->GetGUID(); break;
-        case GO_PORT_ELDERS:        portElderGUID = go->GetGUID(); break;
+        case GO_PORT_GAUNTLET:      portGauntletGUID = pGo->GetGUID(); break;
+        case GO_PORT_SLAUGTHER:     portSlaugtherGUID = pGo->GetGUID(); break;
+        case GO_PORT_ELDERS:        portElderGUID = pGo->GetGUID(); break;
         }
     }
 

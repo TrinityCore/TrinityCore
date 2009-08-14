@@ -58,9 +58,9 @@ bool GossipHello_npc_erozion(Player* pPlayer, Creature* pCreature)
     return true;
 }
 
-bool GossipSelect_npc_erozion(Player* pPlayer, Creature* pCreature, uint32 sender, uint32 action)
+bool GossipSelect_npc_erozion(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
 {
-    if (action == GOSSIP_ACTION_INFO_DEF+1)
+    if (uiAction == GOSSIP_ACTION_INFO_DEF+1)
     {
         ItemPosCountVec dest;
         uint8 msg = pPlayer->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, ITEM_ENTRY_BOMBS, 1);
@@ -70,7 +70,7 @@ bool GossipSelect_npc_erozion(Player* pPlayer, Creature* pCreature, uint32 sende
         }
         pPlayer->SEND_GOSSIP_MENU(9515, pCreature->GetGUID());
     }
-    if (action == GOSSIP_ACTION_INFO_DEF+2)
+    if (uiAction == GOSSIP_ACTION_INFO_DEF+2)
     {
         pPlayer->CLOSE_GOSSIP_MENU();
     }
@@ -133,7 +133,7 @@ bool GossipSelect_npc_erozion(Player* pPlayer, Creature* pCreature, uint32 sende
 #define THRALL_MODEL_UNEQUIPPED 17292
 #define THRALL_MODEL_EQUIPPED   18165
 
-//Misc creature entries
+//Misc Creature entries
 #define ENTRY_ARMORER               18764
 #define ENTRY_SCARLOC               17862
 
@@ -339,7 +339,7 @@ struct TRINITY_DLL_DECL npc_thrall_old_hillsbradAI : public npc_escortAI
                             CAST_AI(npc_escortAI, (Taretha->AI()))->Start(false, true, PlayerGUID);
                     }
 
-                    //kill credit creature for quest
+                    //kill credit Creature for quest
                     Map* pMap = m_creature->GetMap();
                     Map::PlayerList const& players = pMap->GetPlayers();
                     if (!players.isEmpty() && pMap->IsDungeon())
@@ -522,10 +522,10 @@ bool GossipHello_npc_thrall_old_hillsbrad(Player* pPlayer, Creature* pCreature)
     return true;
 }
 
-bool GossipSelect_npc_thrall_old_hillsbrad(Player* pPlayer, Creature* pCreature, uint32 sender, uint32 action)
+bool GossipSelect_npc_thrall_old_hillsbrad(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
 {
     ScriptedInstance* pInstance = (pCreature->GetInstanceData());
-    switch(action)
+    switch(uiAction)
     {
         case GOSSIP_ACTION_INFO_DEF+1:
             pPlayer->CLOSE_GOSSIP_MENU();
@@ -629,15 +629,15 @@ bool GossipHello_npc_taretha(Player* pPlayer, Creature* pCreature)
     return true;
 }
 
-bool GossipSelect_npc_taretha(Player* pPlayer, Creature* pCreature, uint32 sender, uint32 action)
+bool GossipSelect_npc_taretha(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
 {
     ScriptedInstance* pInstance = (pCreature->GetInstanceData());
-    if (action == GOSSIP_ACTION_INFO_DEF+1)
+    if (uiAction == GOSSIP_ACTION_INFO_DEF+1)
     {
         pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_EPOCH2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
         pPlayer->SEND_GOSSIP_MENU(GOSSIP_ID_EPOCH2, pCreature->GetGUID());
     }
-    if (action == GOSSIP_ACTION_INFO_DEF+2)
+    if (uiAction == GOSSIP_ACTION_INFO_DEF+2)
     {
         pPlayer->CLOSE_GOSSIP_MENU();
 

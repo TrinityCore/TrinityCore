@@ -36,17 +36,17 @@ EndScriptData */
 3 - Warlord Kalithresh Event
 */
 
-bool GOHello_go_main_chambers_access_panel(Player* pPlayer, GameObject* _GO)
+bool GOHello_go_main_chambers_access_panel(Player* pPlayer, GameObject* pGo)
 {
-    ScriptedInstance* pInstance = _GO->GetInstanceData();
+    ScriptedInstance* pInstance = pGo->GetInstanceData();
 
     if (!pInstance)
         return false;
 
-    if (_GO->GetEntry() == ACCESS_PANEL_HYDRO && (pInstance->GetData(TYPE_HYDROMANCER_THESPIA) == DONE || pInstance->GetData(TYPE_HYDROMANCER_THESPIA) == SPECIAL))
+    if (pGo->GetEntry() == ACCESS_PANEL_HYDRO && (pInstance->GetData(TYPE_HYDROMANCER_THESPIA) == DONE || pInstance->GetData(TYPE_HYDROMANCER_THESPIA) == SPECIAL))
         pInstance->SetData(TYPE_HYDROMANCER_THESPIA,SPECIAL);
 
-    if (_GO->GetEntry() == ACCESS_PANEL_MEK && (pInstance->GetData(TYPE_MEKGINEER_STEAMRIGGER) == DONE || pInstance->GetData(TYPE_MEKGINEER_STEAMRIGGER) == SPECIAL))
+    if (pGo->GetEntry() == ACCESS_PANEL_MEK && (pInstance->GetData(TYPE_MEKGINEER_STEAMRIGGER) == DONE || pInstance->GetData(TYPE_MEKGINEER_STEAMRIGGER) == SPECIAL))
         pInstance->SetData(TYPE_MEKGINEER_STEAMRIGGER,SPECIAL);
 
     return true;
@@ -87,23 +87,23 @@ struct TRINITY_DLL_DECL instance_steam_vault : public ScriptedInstance
         return false;
     }
 
-    void OnCreatureCreate(Creature *creature, bool add)
+    void OnCreatureCreate(Creature* pCreature, bool add)
     {
-          switch(creature->GetEntry())
+          switch(pCreature->GetEntry())
         {
-          case 17797: ThespiaGUID = creature->GetGUID(); break;
-          case 17796: MekgineerGUID = creature->GetGUID(); break;
-          case 17798: KalithreshGUID = creature->GetGUID(); break;
+          case 17797: ThespiaGUID = pCreature->GetGUID(); break;
+          case 17796: MekgineerGUID = pCreature->GetGUID(); break;
+          case 17798: KalithreshGUID = pCreature->GetGUID(); break;
         }
     }
 
-    void OnGameObjectCreate(GameObject *go, bool add)
+    void OnGameObjectCreate(GameObject* pGo, bool add)
     {
-        switch(go->GetEntry())
+        switch(pGo->GetEntry())
         {
-        case MAIN_CHAMBERS_DOOR: MainChambersDoor = go->GetGUID(); break;
-        case ACCESS_PANEL_HYDRO: AccessPanelHydro = go->GetGUID(); break;
-        case ACCESS_PANEL_MEK:   AccessPanelMek = go->GetGUID(); break;
+        case MAIN_CHAMBERS_DOOR: MainChambersDoor = pGo->GetGUID(); break;
+        case ACCESS_PANEL_HYDRO: AccessPanelHydro = pGo->GetGUID(); break;
+        case ACCESS_PANEL_MEK:   AccessPanelMek = pGo->GetGUID(); break;
         }
     }
 

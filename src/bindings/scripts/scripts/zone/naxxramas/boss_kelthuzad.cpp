@@ -196,7 +196,7 @@ struct TRINITY_DLL_DECL boss_kelthuzadAI : public BossAI
                 {
                     Phase = 3 ;
                     DoScriptText(SAY_REQUEST_AID, m_creature);
-                    //here Lich King should respond to KelThuzad but I don't know which creature to make talk
+                    //here Lich King should respond to KelThuzad but I don't know which Creature to make talk
                     //so for now just make Kelthuzad says it.
                     DoScriptText(SAY_ANSWER_REQUEST, m_creature);
                 }

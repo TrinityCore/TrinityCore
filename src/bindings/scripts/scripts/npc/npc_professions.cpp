@@ -393,9 +393,9 @@ bool GossipHello_npc_prof_alchemy(Player* pPlayer, Creature* pCreature)
     return true;
 }
 
-void SendActionMenu_npc_prof_alchemy(Player* pPlayer, Creature* pCreature, uint32 action)
+void SendActionMenu_npc_prof_alchemy(Player* pPlayer, Creature* pCreature, uint32 uiAction)
 {
-    switch(action)
+    switch(uiAction)
     {
         case GOSSIP_ACTION_TRADE:
             pPlayer->SEND_VENDORLIST(pCreature->GetGUID());
@@ -462,25 +462,25 @@ void SendActionMenu_npc_prof_alchemy(Player* pPlayer, Creature* pCreature, uint3
     }
 }
 
-void SendConfirmLearn_npc_prof_alchemy(Player* pPlayer, Creature* pCreature, uint32 action)
+void SendConfirmLearn_npc_prof_alchemy(Player* pPlayer, Creature* pCreature, uint32 uiAction)
 {
-    if (action)
+    if (uiAction)
     {
         uint32 eCreature = pCreature->GetEntry();
         switch(eCreature)
         {
             case 22427:
-                pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_LEARN_TRANSMUTE, GOSSIP_SENDER_CHECK, action);
+                pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_LEARN_TRANSMUTE, GOSSIP_SENDER_CHECK, uiAction);
                                                             //unknown textID ()
                 pPlayer->SEND_GOSSIP_MENU(pCreature->GetNpcTextId(), pCreature->GetGUID());
                 break;
             case 19052:
-                pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_LEARN_ELIXIR,    GOSSIP_SENDER_CHECK, action);
+                pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_LEARN_ELIXIR,    GOSSIP_SENDER_CHECK, uiAction);
                                                             //unknown textID ()
                 pPlayer->SEND_GOSSIP_MENU(pCreature->GetNpcTextId(), pCreature->GetGUID());
                 break;
             case 17909:
-                pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_LEARN_POTION,    GOSSIP_SENDER_CHECK, action);
+                pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_LEARN_POTION,    GOSSIP_SENDER_CHECK, uiAction);
                                                             //unknown textID ()
                 pPlayer->SEND_GOSSIP_MENU(pCreature->GetNpcTextId(), pCreature->GetGUID());
                 break;
@@ -488,25 +488,25 @@ void SendConfirmLearn_npc_prof_alchemy(Player* pPlayer, Creature* pCreature, uin
     }
 }
 
-void SendConfirmUnlearn_npc_prof_alchemy(Player* pPlayer, Creature* pCreature, uint32 action)
+void SendConfirmUnlearn_npc_prof_alchemy(Player* pPlayer, Creature* pCreature, uint32 uiAction)
 {
-    if (action)
+    if (uiAction)
     {
         uint32 eCreature = pCreature->GetEntry();
         switch(eCreature)
         {
             case 22427:                                     //Zarevhi
-                pPlayer->ADD_GOSSIP_ITEM_EXTENDED(0, GOSSIP_UNLEARN_TRANSMUTE, GOSSIP_SENDER_CHECK, action, BOX_UNLEARN_ALCHEMY_SPEC, DoHighUnlearnCost(pPlayer),false);
+                pPlayer->ADD_GOSSIP_ITEM_EXTENDED(0, GOSSIP_UNLEARN_TRANSMUTE, GOSSIP_SENDER_CHECK, uiAction, BOX_UNLEARN_ALCHEMY_SPEC, DoHighUnlearnCost(pPlayer),false);
                                                             //unknown textID ()
                 pPlayer->SEND_GOSSIP_MENU(pCreature->GetNpcTextId(), pCreature->GetGUID());
                 break;
             case 19052:                                     //Lorokeem
-                pPlayer->ADD_GOSSIP_ITEM_EXTENDED(0, GOSSIP_UNLEARN_ELIXIR, GOSSIP_SENDER_CHECK, action,    BOX_UNLEARN_ALCHEMY_SPEC, DoHighUnlearnCost(pPlayer),false);
+                pPlayer->ADD_GOSSIP_ITEM_EXTENDED(0, GOSSIP_UNLEARN_ELIXIR, GOSSIP_SENDER_CHECK, uiAction,    BOX_UNLEARN_ALCHEMY_SPEC, DoHighUnlearnCost(pPlayer),false);
                                                             //unknown textID ()
                 pPlayer->SEND_GOSSIP_MENU(pCreature->GetNpcTextId(), pCreature->GetGUID());
                 break;
             case 17909:                                     //Lauranna Thar'well
-                pPlayer->ADD_GOSSIP_ITEM_EXTENDED(0, GOSSIP_UNLEARN_POTION, GOSSIP_SENDER_CHECK, action,    BOX_UNLEARN_ALCHEMY_SPEC, DoHighUnlearnCost(pPlayer),false);
+                pPlayer->ADD_GOSSIP_ITEM_EXTENDED(0, GOSSIP_UNLEARN_POTION, GOSSIP_SENDER_CHECK, uiAction,    BOX_UNLEARN_ALCHEMY_SPEC, DoHighUnlearnCost(pPlayer),false);
                                                             //unknown textID ()
                 pPlayer->SEND_GOSSIP_MENU(pCreature->GetNpcTextId(), pCreature->GetGUID());
                 break;
@@ -514,14 +514,14 @@ void SendConfirmUnlearn_npc_prof_alchemy(Player* pPlayer, Creature* pCreature, u
     }
 }
 
-bool GossipSelect_npc_prof_alchemy(Player* pPlayer, Creature* pCreature, uint32 sender, uint32 action)
+bool GossipSelect_npc_prof_alchemy(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
 {
-    switch(sender)
+    switch(uiSender)
     {
-        case GOSSIP_SENDER_MAIN:    SendActionMenu_npc_prof_alchemy(pPlayer, pCreature, action); break;
-        case GOSSIP_SENDER_LEARN:   SendConfirmLearn_npc_prof_alchemy(pPlayer, pCreature, action); break;
-        case GOSSIP_SENDER_UNLEARN: SendConfirmUnlearn_npc_prof_alchemy(pPlayer, pCreature, action); break;
-        case GOSSIP_SENDER_CHECK:   SendActionMenu_npc_prof_alchemy(pPlayer, pCreature, action); break;
+        case GOSSIP_SENDER_MAIN:    SendActionMenu_npc_prof_alchemy(pPlayer, pCreature, uiAction); break;
+        case GOSSIP_SENDER_LEARN:   SendConfirmLearn_npc_prof_alchemy(pPlayer, pCreature, uiAction); break;
+        case GOSSIP_SENDER_UNLEARN: SendConfirmUnlearn_npc_prof_alchemy(pPlayer, pCreature, uiAction); break;
+        case GOSSIP_SENDER_CHECK:   SendActionMenu_npc_prof_alchemy(pPlayer, pCreature, uiAction); break;
     }
     return true;
 }
@@ -601,9 +601,9 @@ bool GossipHello_npc_prof_blacksmith(Player* pPlayer, Creature* pCreature)
     return true;
 }
 
-void SendActionMenu_npc_prof_blacksmith(Player* pPlayer, Creature* pCreature, uint32 action)
+void SendActionMenu_npc_prof_blacksmith(Player* pPlayer, Creature* pCreature, uint32 uiAction)
 {
-    switch(action)
+    switch(uiAction)
     {
         case GOSSIP_ACTION_TRADE:
             pPlayer->SEND_VENDORLIST(pCreature->GetGUID());
@@ -727,25 +727,25 @@ void SendActionMenu_npc_prof_blacksmith(Player* pPlayer, Creature* pCreature, ui
     }
 }
 
-void SendConfirmLearn_npc_prof_blacksmith(Player* pPlayer, Creature* pCreature, uint32 action)
+void SendConfirmLearn_npc_prof_blacksmith(Player* pPlayer, Creature* pCreature, uint32 uiAction)
 {
-    if (action)
+    if (uiAction)
     {
         uint32 eCreature = pCreature->GetEntry();
         switch(eCreature)
         {
             case 11191:
-                pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_LEARN_HAMMER, GOSSIP_SENDER_CHECK, action);
+                pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_LEARN_HAMMER, GOSSIP_SENDER_CHECK, uiAction);
                                                             //unknown textID (TALK_HAMMER_LEARN)
                 pPlayer->SEND_GOSSIP_MENU(pCreature->GetNpcTextId(), pCreature->GetGUID());
                 break;
             case 11192:
-                pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_LEARN_AXE,    GOSSIP_SENDER_CHECK, action);
+                pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_LEARN_AXE,    GOSSIP_SENDER_CHECK, uiAction);
                                                             //unknown textID (TALK_AXE_LEARN)
                 pPlayer->SEND_GOSSIP_MENU(pCreature->GetNpcTextId(), pCreature->GetGUID());
                 break;
             case 11193:
-                pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_LEARN_SWORD,  GOSSIP_SENDER_CHECK, action);
+                pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_LEARN_SWORD,  GOSSIP_SENDER_CHECK, uiAction);
                                                             //unknown textID (TALK_SWORD_LEARN)
                 pPlayer->SEND_GOSSIP_MENU(pCreature->GetNpcTextId(), pCreature->GetGUID());
                 break;
@@ -753,9 +753,9 @@ void SendConfirmLearn_npc_prof_blacksmith(Player* pPlayer, Creature* pCreature, 
     }
 }
 
-void SendConfirmUnlearn_npc_prof_blacksmith(Player* pPlayer, Creature* pCreature, uint32 action)
+void SendConfirmUnlearn_npc_prof_blacksmith(Player* pPlayer, Creature* pCreature, uint32 uiAction)
 {
-    if (action)
+    if (uiAction)
     {
         uint32 eCreature = pCreature->GetEntry();
         switch(eCreature)
@@ -764,23 +764,23 @@ void SendConfirmUnlearn_npc_prof_blacksmith(Player* pPlayer, Creature* pCreature
             case 11178:                                     //Borgosh Corebender
             case 5164:                                      //Grumnus Steelshaper
             case 11177:                                     //Okothos Ironrager
-                pPlayer->ADD_GOSSIP_ITEM_EXTENDED(0, GOSSIP_UNLEARN_SMITH_SPEC, GOSSIP_SENDER_CHECK, action, BOX_UNLEARN_ARMORORWEAPON, DoLowUnlearnCost(pPlayer),false);
+                pPlayer->ADD_GOSSIP_ITEM_EXTENDED(0, GOSSIP_UNLEARN_SMITH_SPEC, GOSSIP_SENDER_CHECK, uiAction, BOX_UNLEARN_ARMORORWEAPON, DoLowUnlearnCost(pPlayer),false);
                                                             //unknown textID (TALK_UNLEARN_AXEORWEAPON)
                 pPlayer->SEND_GOSSIP_MENU(pCreature->GetNpcTextId(), pCreature->GetGUID());
                 break;
 
             case 11191:
-                pPlayer->ADD_GOSSIP_ITEM_EXTENDED(0, GOSSIP_UNLEARN_HAMMER, GOSSIP_SENDER_CHECK, action,    BOX_UNLEARN_WEAPON_SPEC, DoMedUnlearnCost(pPlayer),false);
+                pPlayer->ADD_GOSSIP_ITEM_EXTENDED(0, GOSSIP_UNLEARN_HAMMER, GOSSIP_SENDER_CHECK, uiAction,    BOX_UNLEARN_WEAPON_SPEC, DoMedUnlearnCost(pPlayer),false);
                                                             //unknown textID (TALK_HAMMER_UNLEARN)
                 pPlayer->SEND_GOSSIP_MENU(pCreature->GetNpcTextId(), pCreature->GetGUID());
                 break;
             case 11192:
-                pPlayer->ADD_GOSSIP_ITEM_EXTENDED(0, GOSSIP_UNLEARN_AXE, GOSSIP_SENDER_CHECK, action,       BOX_UNLEARN_WEAPON_SPEC, DoMedUnlearnCost(pPlayer),false);
+                pPlayer->ADD_GOSSIP_ITEM_EXTENDED(0, GOSSIP_UNLEARN_AXE, GOSSIP_SENDER_CHECK, uiAction,       BOX_UNLEARN_WEAPON_SPEC, DoMedUnlearnCost(pPlayer),false);
                                                             //unknown textID (TALK_AXE_UNLEARN)
                 pPlayer->SEND_GOSSIP_MENU(pCreature->GetNpcTextId(), pCreature->GetGUID());
                 break;
             case 11193:
-                pPlayer->ADD_GOSSIP_ITEM_EXTENDED(0, GOSSIP_UNLEARN_SWORD, GOSSIP_SENDER_CHECK, action,     BOX_UNLEARN_WEAPON_SPEC, DoMedUnlearnCost(pPlayer),false);
+                pPlayer->ADD_GOSSIP_ITEM_EXTENDED(0, GOSSIP_UNLEARN_SWORD, GOSSIP_SENDER_CHECK, uiAction,     BOX_UNLEARN_WEAPON_SPEC, DoMedUnlearnCost(pPlayer),false);
                                                             //unknown textID (TALK_SWORD_UNLEARN)
                 pPlayer->SEND_GOSSIP_MENU(pCreature->GetNpcTextId(), pCreature->GetGUID());
                 break;
@@ -788,14 +788,14 @@ void SendConfirmUnlearn_npc_prof_blacksmith(Player* pPlayer, Creature* pCreature
     }
 }
 
-bool GossipSelect_npc_prof_blacksmith(Player* pPlayer, Creature* pCreature, uint32 sender, uint32 action)
+bool GossipSelect_npc_prof_blacksmith(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
 {
-    switch(sender)
+    switch(uiSender)
     {
-        case GOSSIP_SENDER_MAIN:    SendActionMenu_npc_prof_blacksmith(pPlayer, pCreature, action); break;
-        case GOSSIP_SENDER_LEARN:   SendConfirmLearn_npc_prof_blacksmith(pPlayer, pCreature, action); break;
-        case GOSSIP_SENDER_UNLEARN: SendConfirmUnlearn_npc_prof_blacksmith(pPlayer, pCreature, action); break;
-        case GOSSIP_SENDER_CHECK:   SendActionMenu_npc_prof_blacksmith(pPlayer, pCreature, action); break;
+        case GOSSIP_SENDER_MAIN:    SendActionMenu_npc_prof_blacksmith(pPlayer, pCreature, uiAction); break;
+        case GOSSIP_SENDER_LEARN:   SendConfirmLearn_npc_prof_blacksmith(pPlayer, pCreature, uiAction); break;
+        case GOSSIP_SENDER_UNLEARN: SendConfirmUnlearn_npc_prof_blacksmith(pPlayer, pCreature, uiAction); break;
+        case GOSSIP_SENDER_CHECK:   SendActionMenu_npc_prof_blacksmith(pPlayer, pCreature, uiAction); break;
     }
     return true;
 }
@@ -916,15 +916,15 @@ bool GossipHello_npc_engineering_tele_trinket(Player* pPlayer, Creature* pCreatu
     return true;
 }
 
-bool GossipSelect_npc_engineering_tele_trinket(Player* pPlayer, Creature* pCreature, uint32 Sender, uint32 Action)
+bool GossipSelect_npc_engineering_tele_trinket(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
 {
-    if (Action == GOSSIP_ACTION_INFO_DEF+1)
+    if (uiAction == GOSSIP_ACTION_INFO_DEF+1)
         pPlayer->CLOSE_GOSSIP_MENU();
 
-    if (Sender != pCreature->GetEntry())
+    if (uiSender != pCreature->GetEntry())
         return true;
 
-    switch(Sender)
+    switch(uiSender)
     {
         case NPC_ZAP:
             pPlayer->CastSpell(pPlayer, SPELL_LEARN_TO_EVERLOOK, false);
@@ -984,9 +984,9 @@ bool GossipHello_npc_prof_leather(Player* pPlayer, Creature* pCreature)
     return true;
 }
 
-void SendActionMenu_npc_prof_leather(Player* pPlayer, Creature* pCreature, uint32 action)
+void SendActionMenu_npc_prof_leather(Player* pPlayer, Creature* pCreature, uint32 uiAction)
 {
-    switch(action)
+    switch(uiAction)
     {
         case GOSSIP_ACTION_TRADE:
             pPlayer->SEND_VENDORLIST(pCreature->GetGUID());
@@ -1040,28 +1040,28 @@ void SendActionMenu_npc_prof_leather(Player* pPlayer, Creature* pCreature, uint3
     }
 }
 
-void SendConfirmUnlearn_npc_prof_leather(Player* pPlayer, Creature* pCreature, uint32 action)
+void SendConfirmUnlearn_npc_prof_leather(Player* pPlayer, Creature* pCreature, uint32 uiAction)
 {
-    if (action)
+    if (uiAction)
     {
         uint32 eCreature = pCreature->GetEntry();
         switch(eCreature)
         {
             case 7866:                                      //Peter Galen
             case 7867:                                      //Thorkaf Dragoneye
-                pPlayer->ADD_GOSSIP_ITEM_EXTENDED(0, GOSSIP_UNLEARN_DRAGON, GOSSIP_SENDER_CHECK, action,    BOX_UNLEARN_LEATHER_SPEC, DoMedUnlearnCost(pPlayer),false);
+                pPlayer->ADD_GOSSIP_ITEM_EXTENDED(0, GOSSIP_UNLEARN_DRAGON, GOSSIP_SENDER_CHECK, uiAction,    BOX_UNLEARN_LEATHER_SPEC, DoMedUnlearnCost(pPlayer),false);
                                                             //unknown textID ()
                 pPlayer->SEND_GOSSIP_MENU(pCreature->GetNpcTextId(), pCreature->GetGUID());
                 break;
             case 7868:                                      //Sarah Tanner
             case 7869:                                      //Brumn Winterhoof
-                pPlayer->ADD_GOSSIP_ITEM_EXTENDED(0, GOSSIP_UNLEARN_ELEMENTAL, GOSSIP_SENDER_CHECK, action, BOX_UNLEARN_LEATHER_SPEC, DoMedUnlearnCost(pPlayer),false);
+                pPlayer->ADD_GOSSIP_ITEM_EXTENDED(0, GOSSIP_UNLEARN_ELEMENTAL, GOSSIP_SENDER_CHECK, uiAction, BOX_UNLEARN_LEATHER_SPEC, DoMedUnlearnCost(pPlayer),false);
                                                             //unknown textID ()
                 pPlayer->SEND_GOSSIP_MENU(pCreature->GetNpcTextId(), pCreature->GetGUID());
                 break;
             case 7870:                                      //Caryssia Moonhunter
             case 7871:                                      //Se'Jib
-                pPlayer->ADD_GOSSIP_ITEM_EXTENDED(0, GOSSIP_UNLEARN_TRIBAL, GOSSIP_SENDER_CHECK, action,    BOX_UNLEARN_LEATHER_SPEC, DoMedUnlearnCost(pPlayer),false);
+                pPlayer->ADD_GOSSIP_ITEM_EXTENDED(0, GOSSIP_UNLEARN_TRIBAL, GOSSIP_SENDER_CHECK, uiAction,    BOX_UNLEARN_LEATHER_SPEC, DoMedUnlearnCost(pPlayer),false);
                                                             //unknown textID ()
                 pPlayer->SEND_GOSSIP_MENU(pCreature->GetNpcTextId(), pCreature->GetGUID());
                 break;
@@ -1069,13 +1069,13 @@ void SendConfirmUnlearn_npc_prof_leather(Player* pPlayer, Creature* pCreature, u
     }
 }
 
-bool GossipSelect_npc_prof_leather(Player* pPlayer, Creature* pCreature, uint32 sender, uint32 action)
+bool GossipSelect_npc_prof_leather(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
 {
-    switch(sender)
+    switch(uiSender)
     {
-        case GOSSIP_SENDER_MAIN:    SendActionMenu_npc_prof_leather(pPlayer, pCreature, action); break;
-        case GOSSIP_SENDER_UNLEARN: SendConfirmUnlearn_npc_prof_leather(pPlayer, pCreature, action); break;
-        case GOSSIP_SENDER_CHECK:   SendActionMenu_npc_prof_leather(pPlayer, pCreature, action); break;
+        case GOSSIP_SENDER_MAIN:    SendActionMenu_npc_prof_leather(pPlayer, pCreature, uiAction); break;
+        case GOSSIP_SENDER_UNLEARN: SendConfirmUnlearn_npc_prof_leather(pPlayer, pCreature, uiAction); break;
+        case GOSSIP_SENDER_CHECK:   SendActionMenu_npc_prof_leather(pPlayer, pCreature, uiAction); break;
     }
     return true;
 }
@@ -1134,9 +1134,9 @@ bool GossipHello_npc_prof_tailor(Player* pPlayer, Creature* pCreature)
     return true;
 }
 
-void SendActionMenu_npc_prof_tailor(Player* pPlayer, Creature* pCreature, uint32 action)
+void SendActionMenu_npc_prof_tailor(Player* pPlayer, Creature* pCreature, uint32 uiAction)
 {
-    switch(action)
+    switch(uiAction)
     {
         case GOSSIP_ACTION_TRADE:
             pPlayer->SEND_VENDORLIST(pCreature->GetGUID());
@@ -1218,25 +1218,25 @@ void SendActionMenu_npc_prof_tailor(Player* pPlayer, Creature* pCreature, uint32
     }
 }
 
-void SendConfirmLearn_npc_prof_tailor(Player* pPlayer, Creature* pCreature, uint32 action)
+void SendConfirmLearn_npc_prof_tailor(Player* pPlayer, Creature* pCreature, uint32 uiAction)
 {
-    if (action)
+    if (uiAction)
     {
         uint32 eCreature = pCreature->GetEntry();
         switch(eCreature)
         {
             case 22213:
-                pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_LEARN_SPELLFIRE, GOSSIP_SENDER_CHECK, action);
+                pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_LEARN_SPELLFIRE, GOSSIP_SENDER_CHECK, uiAction);
                                                             //unknown textID ()
                 pPlayer->SEND_GOSSIP_MENU(pCreature->GetNpcTextId(), pCreature->GetGUID());
                 break;
             case 22208:
-                pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_LEARN_MOONCLOTH,    GOSSIP_SENDER_CHECK, action);
+                pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_LEARN_MOONCLOTH,    GOSSIP_SENDER_CHECK, uiAction);
                                                             //unknown textID ()
                 pPlayer->SEND_GOSSIP_MENU(pCreature->GetNpcTextId(), pCreature->GetGUID());
                 break;
             case 22212:
-                pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_LEARN_SHADOWEAVE,  GOSSIP_SENDER_CHECK, action);
+                pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_LEARN_SHADOWEAVE,  GOSSIP_SENDER_CHECK, uiAction);
                                                             //unknown textID ()
                 pPlayer->SEND_GOSSIP_MENU(pCreature->GetNpcTextId(), pCreature->GetGUID());
                 break;
@@ -1244,25 +1244,25 @@ void SendConfirmLearn_npc_prof_tailor(Player* pPlayer, Creature* pCreature, uint
     }
 }
 
-void SendConfirmUnlearn_npc_prof_tailor(Player* pPlayer, Creature* pCreature, uint32 action)
+void SendConfirmUnlearn_npc_prof_tailor(Player* pPlayer, Creature* pCreature, uint32 uiAction)
 {
-    if (action)
+    if (uiAction)
     {
         uint32 eCreature = pCreature->GetEntry();
         switch(eCreature)
         {
             case 22213:                                     //Gidge Spellweaver
-                pPlayer->ADD_GOSSIP_ITEM_EXTENDED(0, GOSSIP_UNLEARN_SPELLFIRE, GOSSIP_SENDER_CHECK, action, BOX_UNLEARN_TAILOR_SPEC, DoHighUnlearnCost(pPlayer),false);
+                pPlayer->ADD_GOSSIP_ITEM_EXTENDED(0, GOSSIP_UNLEARN_SPELLFIRE, GOSSIP_SENDER_CHECK, uiAction, BOX_UNLEARN_TAILOR_SPEC, DoHighUnlearnCost(pPlayer),false);
                                                             //unknown textID ()
                 pPlayer->SEND_GOSSIP_MENU(pCreature->GetNpcTextId(), pCreature->GetGUID());
                 break;
             case 22208:                                     //Nasmara Moonsong
-                pPlayer->ADD_GOSSIP_ITEM_EXTENDED(0, GOSSIP_UNLEARN_MOONCLOTH, GOSSIP_SENDER_CHECK, action, BOX_UNLEARN_TAILOR_SPEC, DoHighUnlearnCost(pPlayer),false);
+                pPlayer->ADD_GOSSIP_ITEM_EXTENDED(0, GOSSIP_UNLEARN_MOONCLOTH, GOSSIP_SENDER_CHECK, uiAction, BOX_UNLEARN_TAILOR_SPEC, DoHighUnlearnCost(pPlayer),false);
                                                             //unknown textID ()
                 pPlayer->SEND_GOSSIP_MENU(pCreature->GetNpcTextId(), pCreature->GetGUID());
                 break;
             case 22212:                                     //Andrion Darkspinner
-                pPlayer->ADD_GOSSIP_ITEM_EXTENDED(0, GOSSIP_UNLEARN_SHADOWEAVE, GOSSIP_SENDER_CHECK, action,BOX_UNLEARN_TAILOR_SPEC, DoHighUnlearnCost(pPlayer),false);
+                pPlayer->ADD_GOSSIP_ITEM_EXTENDED(0, GOSSIP_UNLEARN_SHADOWEAVE, GOSSIP_SENDER_CHECK, uiAction,BOX_UNLEARN_TAILOR_SPEC, DoHighUnlearnCost(pPlayer),false);
                                                             //unknown textID ()
                 pPlayer->SEND_GOSSIP_MENU(pCreature->GetNpcTextId(), pCreature->GetGUID());
                 break;
@@ -1270,14 +1270,14 @@ void SendConfirmUnlearn_npc_prof_tailor(Player* pPlayer, Creature* pCreature, ui
     }
 }
 
-bool GossipSelect_npc_prof_tailor(Player* pPlayer, Creature* pCreature, uint32 sender, uint32 action)
+bool GossipSelect_npc_prof_tailor(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
 {
-    switch(sender)
+    switch(uiSender)
     {
-        case GOSSIP_SENDER_MAIN:    SendActionMenu_npc_prof_tailor(pPlayer, pCreature, action); break;
-        case GOSSIP_SENDER_LEARN:   SendConfirmLearn_npc_prof_tailor(pPlayer, pCreature, action); break;
-        case GOSSIP_SENDER_UNLEARN: SendConfirmUnlearn_npc_prof_tailor(pPlayer, pCreature, action); break;
-        case GOSSIP_SENDER_CHECK:   SendActionMenu_npc_prof_tailor(pPlayer, pCreature, action); break;
+        case GOSSIP_SENDER_MAIN:    SendActionMenu_npc_prof_tailor(pPlayer, pCreature, uiAction); break;
+        case GOSSIP_SENDER_LEARN:   SendConfirmLearn_npc_prof_tailor(pPlayer, pCreature, uiAction); break;
+        case GOSSIP_SENDER_UNLEARN: SendConfirmUnlearn_npc_prof_tailor(pPlayer, pCreature, uiAction); break;
+        case GOSSIP_SENDER_CHECK:   SendActionMenu_npc_prof_tailor(pPlayer, pCreature, uiAction); break;
     }
     return true;
 }
@@ -1286,11 +1286,11 @@ bool GossipSelect_npc_prof_tailor(Player* pPlayer, Creature* pCreature, uint32 s
 # start menues for GO (engineering and leatherworking)
 ###*/
 
-/*bool GOHello_go_soothsaying_for_dummies(Player* pPlayer, GameObject* _GO)
+/*bool GOHello_go_soothsaying_for_dummies(Player* pPlayer, GameObject* pGo)
 {
     pPlayer->PlayerTalkClass->GetGossipMenu()->AddMenuItem(0,GOSSIP_LEARN_DRAGON, GOSSIP_SENDER_INFO, GOSSIP_ACTION_INFO_DEF, "", 0);
 
-    pPlayer->SEND_GOSSIP_MENU(5584, _GO->GetGUID());
+    pPlayer->SEND_GOSSIP_MENU(5584, pGo->GetGUID());
 
     return true;
 }*/

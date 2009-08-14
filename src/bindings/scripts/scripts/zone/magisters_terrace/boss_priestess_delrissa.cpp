@@ -153,7 +153,7 @@ struct TRINITY_DLL_DECL boss_priestess_delrissaAI : public ScriptedAI
 
     void InitializeLackeys()
     {
-        //can be called if creature are dead, so avoid
+        //can be called if Creature are dead, so avoid
         if (!m_creature->isAlive())
             return;
 
@@ -165,7 +165,7 @@ struct TRINITY_DLL_DECL boss_priestess_delrissaAI : public ScriptedAI
             //pre-allocate size for speed
             LackeyEntryList.resize((sizeof(m_auiAddEntries) / sizeof(uint32)));
 
-            //fill vector array with entries from creature array
+            //fill vector array with entries from Creature array
             for(uint8 i = 0; i < LackeyEntryList.size(); ++i)
                 LackeyEntryList[i] = m_auiAddEntries[i];
 

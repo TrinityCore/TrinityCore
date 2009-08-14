@@ -142,50 +142,50 @@ struct TRINITY_DLL_DECL instance_blackrock_depths : public ScriptedInstance
             TombBossGUIDs[i] = 0;
     }
 
-    void OnCreatureCreate(Creature *creature, bool add)
+    void OnCreatureCreate(Creature* pCreature, bool add)
     {
-        switch(creature->GetEntry())
+        switch(pCreature->GetEntry())
         {
-        case NPC_EMPEROR: EmperorGUID = creature->GetGUID(); break;
-        case NPC_PHALANX: PhalanxGUID = creature->GetGUID(); break;
-        case NPC_DOOMREL: TombBossGUIDs[0] = creature->GetGUID(); break;
-        case NPC_DOPEREL: TombBossGUIDs[1] = creature->GetGUID(); break;
-        case NPC_HATEREL: TombBossGUIDs[2] = creature->GetGUID(); break;
-        case NPC_VILEREL: TombBossGUIDs[3] = creature->GetGUID(); break;
-        case NPC_SEETHREL: TombBossGUIDs[4] = creature->GetGUID(); break;
-        case NPC_GLOOMREL: TombBossGUIDs[5] = creature->GetGUID(); break;
-        case NPC_ANGERREL: TombBossGUIDs[6] = creature->GetGUID(); break;
+        case NPC_EMPEROR: EmperorGUID = pCreature->GetGUID(); break;
+        case NPC_PHALANX: PhalanxGUID = pCreature->GetGUID(); break;
+        case NPC_DOOMREL: TombBossGUIDs[0] = pCreature->GetGUID(); break;
+        case NPC_DOPEREL: TombBossGUIDs[1] = pCreature->GetGUID(); break;
+        case NPC_HATEREL: TombBossGUIDs[2] = pCreature->GetGUID(); break;
+        case NPC_VILEREL: TombBossGUIDs[3] = pCreature->GetGUID(); break;
+        case NPC_SEETHREL: TombBossGUIDs[4] = pCreature->GetGUID(); break;
+        case NPC_GLOOMREL: TombBossGUIDs[5] = pCreature->GetGUID(); break;
+        case NPC_ANGERREL: TombBossGUIDs[6] = pCreature->GetGUID(); break;
         }
     }
 
-    void OnGameObjectCreate(GameObject *go, bool add)
+    void OnGameObjectCreate(GameObject* pGo, bool add)
     {
-        switch(go->GetEntry())
+        switch(pGo->GetEntry())
         {
-        case GO_ARENA1: GoArena1GUID = go->GetGUID(); break;
-        case GO_ARENA2: GoArena2GUID = go->GetGUID(); break;
-        case GO_ARENA3: GoArena3GUID = go->GetGUID(); break;
-        case GO_ARENA4: GoArena4GUID = go->GetGUID(); break;
-        case GO_SHADOW_LOCK: GoShadowLockGUID = go->GetGUID(); break;
-        case GO_SHADOW_MECHANISM: GoShadowMechGUID = go->GetGUID(); break;
-        case GO_SHADOW_GIANT_DOOR: GoShadowGiantGUID = go->GetGUID(); break;
-        case GO_SHADOW_DUMMY: GoShadowDummyGUID = go->GetGUID(); break;
-        case GO_BAR_KEG_SHOT: GoBarKegGUID = go->GetGUID(); break;
-        case GO_BAR_KEG_TRAP: GoBarKegTrapGUID = go->GetGUID(); break;
-        case GO_BAR_DOOR: GoBarDoorGUID = go->GetGUID(); break;
-        case GO_TOMB_ENTER: GoTombEnterGUID = go->GetGUID(); break;
+        case GO_ARENA1: GoArena1GUID = pGo->GetGUID(); break;
+        case GO_ARENA2: GoArena2GUID = pGo->GetGUID(); break;
+        case GO_ARENA3: GoArena3GUID = pGo->GetGUID(); break;
+        case GO_ARENA4: GoArena4GUID = pGo->GetGUID(); break;
+        case GO_SHADOW_LOCK: GoShadowLockGUID = pGo->GetGUID(); break;
+        case GO_SHADOW_MECHANISM: GoShadowMechGUID = pGo->GetGUID(); break;
+        case GO_SHADOW_GIANT_DOOR: GoShadowGiantGUID = pGo->GetGUID(); break;
+        case GO_SHADOW_DUMMY: GoShadowDummyGUID = pGo->GetGUID(); break;
+        case GO_BAR_KEG_SHOT: GoBarKegGUID = pGo->GetGUID(); break;
+        case GO_BAR_KEG_TRAP: GoBarKegTrapGUID = pGo->GetGUID(); break;
+        case GO_BAR_DOOR: GoBarDoorGUID = pGo->GetGUID(); break;
+        case GO_TOMB_ENTER: GoTombEnterGUID = pGo->GetGUID(); break;
         case GO_TOMB_EXIT: 
-            GoTombExitGUID = go->GetGUID();
+            GoTombExitGUID = pGo->GetGUID();
             if (GhostKillCount >= 7)
-                HandleGameObject(0, true, go);
+                HandleGameObject(0, true, pGo);
             else
-                HandleGameObject(0, false, go);
+                HandleGameObject(0, false, pGo);
             break;
-        case GO_LYCEUM: GoLyceumGUID = go->GetGUID(); break;
-        case GO_GOLEM_ROOM_N: GoGolemNGUID = go->GetGUID(); break;
-        case GO_GOLEM_ROOM_S: GoGolemSGUID = go->GetGUID(); break;
-        case GO_THONE_ROOM: GoThoneGUID = go->GetGUID(); break;
-        case GO_CHEST_SEVEN: GoChestGUID = go->GetGUID(); break;
+        case GO_LYCEUM: GoLyceumGUID = pGo->GetGUID(); break;
+        case GO_GOLEM_ROOM_N: GoGolemNGUID = pGo->GetGUID(); break;
+        case GO_GOLEM_ROOM_S: GoGolemSGUID = pGo->GetGUID(); break;
+        case GO_THONE_ROOM: GoThoneGUID = pGo->GetGUID(); break;
+        case GO_CHEST_SEVEN: GoChestGUID = pGo->GetGUID(); break;
         }
     }
 

@@ -127,13 +127,13 @@ struct TRINITY_DLL_DECL npc_willixAI : public npc_escortAI
     }
 };
 
-bool QuestAccept_npc_willix(Player* pPlayer, Creature* creature, Quest const* quest)
+bool QuestAccept_npc_willix(Player* pPlayer, Creature* pCreature, Quest const* quest)
 {
     if (quest->GetQuestId() == QUEST_WILLIX_THE_IMPORTER)
     {
-        CAST_AI(npc_escortAI, (creature->AI()))->Start(true, false, pPlayer->GetGUID());
-        DoScriptText(SAY_READY, creature, pPlayer);
-        creature->setFaction(113);
+        CAST_AI(npc_escortAI, (pCreature->AI()))->Start(true, false, pPlayer->GetGUID());
+        DoScriptText(SAY_READY, pCreature, pPlayer);
+        pCreature->setFaction(113);
     }
 
     return true;
