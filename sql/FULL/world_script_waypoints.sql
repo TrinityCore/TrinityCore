@@ -1031,14 +1031,31 @@ INSERT INTO `script_waypoint` VALUES
 (3678, 23, 114.619, 235.908, -96.0495, 0, ''),
 (3678, 24, 114.777, 237.155, -96.0304, 2500, 'NARALEX_EVENT_FINISHED');
 
-/* EOF */
+DELETE FROM `script_waypoint` WHERE `entry` = 22424;
+INSERT INTO `script_waypoint` VALUES
+('22424','0','-3605.719971','4175.580078','-0.031817','0','START_SKYWING'),
+('22424','1','-3602.311279','4253.213867','0.562436','0',''),
+('22424','2','-3529.151367','4263.524414','-7.871151','0',''),
+('22424','3','-3448.130371','4257.990723','-11.626289','0',''),
+('22424','4','-3377.783936','4209.064941','-9.476727','0',''),
+('22424','5','-3378.211426','4154.628418','0.366330','0',''),
+('22424','6','-3376.920166','4085.501709','14.178538','0',''),
+('22424','7','-3399.274658','4055.948975','18.603474','0',''),
+('22424','8','-3432.678223','4054.069824','29.588032','10000','');
 
-insert into `script_waypoint` (`entry`, `pointid`, `location_x`, `location_y`, `location_z`, `waittime`, `point_comment`) values('22424','0','-3605.719971','4175.580078','-0.031817','0','START_SKYWING');
-insert into `script_waypoint` (`entry`, `pointid`, `location_x`, `location_y`, `location_z`, `waittime`, `point_comment`) values('22424','1','-3602.311279','4253.213867','0.562436','0','');
-insert into `script_waypoint` (`entry`, `pointid`, `location_x`, `location_y`, `location_z`, `waittime`, `point_comment`) values('22424','2','-3529.151367','4263.524414','-7.871151','0','');
-insert into `script_waypoint` (`entry`, `pointid`, `location_x`, `location_y`, `location_z`, `waittime`, `point_comment`) values('22424','3','-3448.130371','4257.990723','-11.626289','0','');
-insert into `script_waypoint` (`entry`, `pointid`, `location_x`, `location_y`, `location_z`, `waittime`, `point_comment`) values('22424','4','-3377.783936','4209.064941','-9.476727','0','');
-insert into `script_waypoint` (`entry`, `pointid`, `location_x`, `location_y`, `location_z`, `waittime`, `point_comment`) values('22424','5','-3378.211426','4154.628418','0.366330','0','');
-insert into `script_waypoint` (`entry`, `pointid`, `location_x`, `location_y`, `location_z`, `waittime`, `point_comment`) values('22424','6','-3376.920166','4085.501709','14.178538','0','');
-insert into `script_waypoint` (`entry`, `pointid`, `location_x`, `location_y`, `location_z`, `waittime`, `point_comment`) values('22424','7','-3399.274658','4055.948975','18.603474','0','');
-insert into `script_waypoint` (`entry`, `pointid`, `location_x`, `location_y`, `location_z`, `waittime`, `point_comment`) values('22424','8','-3432.678223','4054.069824','29.588032','10000','');
+DELETE FROM `script_waypoint` WHERE `entry` = 22377;
+INSERT INTO `script_waypoint` VALUES
+(22377, 0, -2766.31, 5429.65, -34.53, 0, ''),
+(22377, 1, -2769.35, 5416.25, -34.53, 0, ''),
+(22377, 2, -2780.07, 5416.06, -34.53, 1000, ''),
+(22377, 3, -2812.56, 5415.20, -34.53, 1000, ''),
+(22377, 4, -2816.95, 5415.02, -34.52, 0, ''),
+(22377, 5, -2827.86, 5414.56, -28.29, 0, ''),
+(22377, 6, -2878.32, 5414.11, -28.26, 0, ''),
+(22377, 7, -2893.17, 5413.15, -18.59, 0, ''),
+(22377, 8, -2896.36, 5409.65, -18.59, 0, ''),
+(22377, 9, -2896.50, 5396.76, -8.77, 0, ''),
+(22377, 10, -2896.67, 5366.20, -9.59, 0, ''),
+(22377, 11, -2888.23, 5330.39, -11.19, 2000, '');
+
+/* EOF */

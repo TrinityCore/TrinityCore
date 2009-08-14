@@ -109,6 +109,7 @@ UPDATE `creature_template` SET `ScriptName`='npc_valkyr_battle_maiden' WHERE `en
 UPDATE `creature_template` SET `ScriptName`='npc_mirror_image' WHERE `entry`=31216;
 UPDATE `creature_template` SET `ScriptName`='npc_training_dummy' WHERE `entry` IN (17578,24792,32543,32546,32542,32545,30527,31143,31144,31146,32541,32666,32667);
 UPDATE `creature_template` SET `ScriptName`='npc_lightwell' WHERE `entry` IN (31883,31893,31894,31895,31896,31897);
+UPDATE `creature_template` SET `ScriptName`='npc_ebon_gargoyle' WHERE `entry`=27829;
 
 /*  */
 /* ZONE */
@@ -997,6 +998,7 @@ UPDATE `creature_template` SET `ScriptName`='npc_floon' WHERE `entry`=18588;
 UPDATE `creature_template` SET `ScriptName`='npc_isla_starmane' WHERE `entry`=18760;
 UPDATE `creature_template` SET `ScriptName`='mob_unkor_the_ruthless' WHERE `entry`=18262;
 UPDATE `creature_template` SET `ScriptName`='npc_slim' WHERE `entry`=19679;
+UPDATE `creature_template` SET `ScriptName`='npc_akuno' WHERE `entry`=22377;
 
 /* THOUSAND NEEDLES */
 UPDATE `creature_template` SET `ScriptName`='npc_paoka_swiftmountain' WHERE `entry`=10427;
