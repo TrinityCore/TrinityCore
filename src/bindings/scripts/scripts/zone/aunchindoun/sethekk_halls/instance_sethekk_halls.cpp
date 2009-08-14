@@ -24,20 +24,37 @@ EndScriptData */
 #include "precompiled.h"
 #include "def_sethekk_halls.h"
 
-#define IKISS_DOOR          177203
+enum
+{
+    NPC_ANZU   = 23035,
+    IKISS_DOOR = 177203,
+};
 
 struct TRINITY_DLL_DECL instance_sethekk_halls : public ScriptedInstance
 {
     instance_sethekk_halls(Map* pMap) : ScriptedInstance(pMap) {Initialize();};
 
+	uint32 AnzuEncounter;
     uint64 m_uiIkissDoorGUID;
 
     void Initialize()
     {
+		AnzuEncounter = NOT_STARTED;
         m_uiIkissDoorGUID = 0;
     }
 
-    void OnGameObjectCreate(GameObject *pGo, bool add)
+    void OnCreatureCreate(Creature* pCreature, bool add)
+    {
+        if (pCreature->GetEntry() == NPC_ANZU && AnzuEncounter >= IN_PROGRESS)
+        {
+            pCreature->DealDamage(pCreature, pCreature->GetMaxHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+            pCreature->RemoveCorpse();
+        } else {
+            AnzuEncounter = IN_PROGRESS;
+        }
+    }
+
+    void OnGameObjectCreate(GameObject* pGo, bool add)
     {
          if (pGo->GetEntry() == IKISS_DOOR)
             m_uiIkissDoorGUID = pGo->GetGUID();
@@ -50,6 +67,9 @@ struct TRINITY_DLL_DECL instance_sethekk_halls : public ScriptedInstance
             case DATA_IKISSDOOREVENT:
                 if (data == DONE)
                     DoUseDoorOrButton(m_uiIkissDoorGUID,DAY*IN_MILISECONDS);
+                break;
+            case TYPE_ANZU_ENCOUNTER:
+                AnzuEncounter = data;
                 break;
         }
     }
