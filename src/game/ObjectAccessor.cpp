@@ -256,9 +256,14 @@ ObjectAccessor::RemoveCorpse(Corpse *corpse)
 {
     assert(corpse && corpse->GetType() != CORPSE_BONES);
 
+    if(corpse->FindMap())
+        corpse->FindMap()->Remove(corpse, false);
+    else
+        corpse->RemoveFromWorld();
+
     Guard guard(i_corpseGuard);
     Player2CorpsesMapType::iterator iter = i_player2corpse.find(corpse->GetOwnerGUID());
-    if( iter == i_player2corpse.end() )
+    if( iter == i_player2corpse.end() ) // i do not know when it happens but it happens
         return;
 
     // build mapid*cellid -> guid_set map
@@ -266,10 +271,6 @@ ObjectAccessor::RemoveCorpse(Corpse *corpse)
     uint32 cell_id = (cell_pair.y_coord*TOTAL_NUMBER_OF_CELLS_PER_MAP) + cell_pair.x_coord;
 
     objmgr.DeleteCorpseCellData(corpse->GetMapId(), cell_id, corpse->GetOwnerGUID());
-    if(corpse->FindMap())
-        corpse->FindMap()->Remove(corpse, false);
-    else
-        corpse->RemoveFromWorld();
 
     i_player2corpse.erase(iter);
 }
