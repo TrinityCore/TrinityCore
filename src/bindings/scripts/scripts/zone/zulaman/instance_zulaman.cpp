@@ -166,13 +166,6 @@ struct TRINITY_DLL_DECL instance_zulaman : public ScriptedInstance
             HandleGameObject(ZulJinGateGUID, true);
     }
 
-    void UpdateWorldState(uint32 field, uint32 value)
-    {
-        WorldPacket data(SMSG_UPDATE_WORLD_STATE, 8);
-        data << field << value;
-        instance->SendToPlayers(&data);
-    }
-
     std::string GetSaveData()
     {
         std::ostringstream ss;
@@ -211,7 +204,7 @@ struct TRINITY_DLL_DECL instance_zulaman : public ScriptedInstance
                 if (QuestMinute)
                 {
                     QuestMinute += 15;
-                    UpdateWorldState(3106, QuestMinute);
+                    DoUpdateWorldState(3106, QuestMinute);
                 }
                 SummonHostage(0);
             }
@@ -224,7 +217,7 @@ struct TRINITY_DLL_DECL instance_zulaman : public ScriptedInstance
                 if (QuestMinute)
                 {
                     QuestMinute += 10;
-                    UpdateWorldState(3106, QuestMinute);
+                    DoUpdateWorldState(3106, QuestMinute);
                 }
                 SummonHostage(1);
             }
@@ -267,7 +260,7 @@ struct TRINITY_DLL_DECL instance_zulaman : public ScriptedInstance
             if (QuestMinute && BossKilled >= 4)
             {
                 QuestMinute = 0;
-                UpdateWorldState(3104, 0);
+                DoUpdateWorldState(3104, 0);
             }
             CheckInstanceStatus();
             SaveToDB();
@@ -302,9 +295,9 @@ struct TRINITY_DLL_DECL instance_zulaman : public ScriptedInstance
                 QuestTimer += 60000;
                 if (QuestMinute)
                 {
-                    UpdateWorldState(3104, 1);
-                    UpdateWorldState(3106, QuestMinute);
-                }else UpdateWorldState(3104, 0);
+                    DoUpdateWorldState(3104, 1);
+                    DoUpdateWorldState(3106, QuestMinute);
+                }else DoUpdateWorldState(3104, 0);
             }
             QuestTimer -= diff;
         }
