@@ -1111,10 +1111,10 @@
 							RelativePath="..\scripts\zone\magisters_terrace\instance_magisters_terrace.cpp"
 							>
 						</File>
-                        <File
-                            RelativePath="..\scripts\zone\magisters_terrace\magisters_terrace.cpp"
-                            >
-                        </File>
+						<File
+							RelativePath="..\scripts\zone\magisters_terrace\magisters_terrace.cpp"
+							>
+						</File>
 					</Filter>
 					<Filter
 						Name="Loch Modan"
@@ -1191,10 +1191,10 @@
 					<Filter
 						Name="Hinterlands"
 						>
-                        <File
-                            RelativePath="..\scripts\zone\hinterlands\hinterlands.cpp"
-                            >
-                        </File>
+						<File
+							RelativePath="..\scripts\zone\hinterlands\hinterlands.cpp"
+							>
+						</File>
 					</Filter>
 					<Filter
 						Name="Iron Forge"
@@ -1852,14 +1852,14 @@
 							>
 						</File>
 					</Filter>
-                    <Filter
-                        Name="Zul&apos;Drak"
-                        >
-                        <File
-                            RelativePath="..\scripts\zone\zuldrak\zuldrak.cpp"
-                            >
-                        </File>
-                    </Filter>
+					<Filter
+						Name="Zul&apos;Drak"
+						>
+						<File
+							RelativePath="..\scripts\zone\zuldrak\zuldrak.cpp"
+							>
+						</File>
+					</Filter>
 					<Filter
 						Name="Wetlands"
 						>
@@ -2426,9 +2426,10 @@
 						<Filter
 							Name="Grizzly Hills"
 							>
-                        <File
-                            RelativePath="..\scripts\zone\grizzly_hills\grizzly_hills.cpp"
-                            >
+							<File
+								RelativePath="..\scripts\zone\grizzly_hills\grizzly_hills.cpp"
+								>
+							</File>
 						</Filter>
 						<Filter
 							Name="Zul&apos;Drak"
@@ -2469,18 +2470,18 @@
 						<Filter
 							Name="Icecrown"
 							>
-                            <File
-                                RelativePath="..\scripts\zone\icecrown\icecrown.cpp"
-                                >
-                            </File>
+							<File
+								RelativePath="..\scripts\zone\icecrown\icecrown.cpp"
+								>
+							</File>
 						</Filter>
 						<Filter
 							Name="Sholazar Basin"
 							>
-                            <File
-                                RelativePath="..\scripts\zone\sholazar_basin\sholazar_basin.cpp"
-                                >
-                            </File>
+							<File
+								RelativePath="..\scripts\zone\sholazar_basin\sholazar_basin.cpp"
+								>
+							</File>
 						</Filter>
 						<Filter
 							Name="Dalaran"
