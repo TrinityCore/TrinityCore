@@ -88,7 +88,7 @@ struct TRINITY_DLL_DECL instance_molten_core : public ScriptedInstance
         IsBossDied[8] = false;
     }
 
-    bool Ism_auiEncounterInProgress() const
+    bool IsEncounterInProgress() const
     {
         return false;
     };
