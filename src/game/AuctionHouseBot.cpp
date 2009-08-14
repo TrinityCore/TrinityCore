@@ -93,13 +93,13 @@ void AuctionHouseBot::addNewAuctions(Player *AHBplayer, AHBConfig *config)
 
     if (auctions >= minItems)
     {
-        //if (debug_Out) sLog.outError("AHSeller: Auctions above minimum");
+        //if (debug_Out) sLog.outString("AHSeller: Auctions above minimum");
         return;
     }
 
     if (auctions >= maxItems)
     {
-        //if (debug_Out) sLog.outError("AHSeller: Auctions at or above maximum");
+        //if (debug_Out) sLog.outString("AHSeller: Auctions at or above maximum");
         return;
     }
 
@@ -109,7 +109,7 @@ void AuctionHouseBot::addNewAuctions(Player *AHBplayer, AHBConfig *config)
     else
         items = (maxItems - auctions);
 
-    if (debug_Out) sLog.outError("AHSeller: Adding %u Auctions", items);
+    if (debug_Out) sLog.outString("AHSeller: Adding %u Auctions", items);
 
     uint32 AuctioneerGUID = 0;
 
@@ -130,7 +130,7 @@ void AuctionHouseBot::addNewAuctions(Player *AHBplayer, AHBConfig *config)
         break;
     }
 
-    if (debug_Out) sLog.outError("AHSeller: Current Auctineer GUID is %u", AuctioneerGUID);
+    if (debug_Out) sLog.outString("AHSeller: Current Auctineer GUID is %u", AuctioneerGUID);
 
     uint32 greyTGcount = config->GetPercents(AHB_GREY_TG);
     uint32 whiteTGcount = config->GetPercents(AHB_WHITE_TG);
@@ -505,7 +505,7 @@ void AuctionHouseBot::addNewAuctionBuyerBotBid(Player *AHBplayer, AHBConfig *con
         // if it is, we skip this iteration.
         if (itr->second->owner == AHBplayerGUID)
         {
-            //if (debug_Out) sLog.outError("AHBuyer: I own this item.");
+            //if (debug_Out) sLog.outString("AHBuyer: I own this item.");
             continue;
         }
         // Check that we haven't bidded in this auction already.
@@ -513,11 +513,11 @@ void AuctionHouseBot::addNewAuctionBuyerBotBid(Player *AHBplayer, AHBConfig *con
         {
             uint32 tmpdata = itr->second->Id;
             possibleBids.push_back(tmpdata);
-            if (debug_Out) sLog.outError("AHBuyer: I have not bid on %u"), itr->second->Id;
+            //if (debug_Out) sLog.outString("AHBuyer: I have not bid on %u"), itr->second->Id;
         }
         else
         {
-            if (debug_Out) sLog.outError("AHBuyer: I have bid on %u"), itr->second->Id;
+            //if (debug_Out) sLog.outString("AHBuyer: I have bid on %u"), itr->second->Id;
         }
     }
 
@@ -526,7 +526,7 @@ void AuctionHouseBot::addNewAuctionBuyerBotBid(Player *AHBplayer, AHBConfig *con
         // Do we have anything to bid? If not, stop here.
         if (possibleBids.empty())
         {
-            if (debug_Out) sLog.outError("AHBuyer: I have no items to bid on.");
+            //if (debug_Out) sLog.outString("AHBuyer: I have no items to bid on.");
             count = config->GetBidsPerInterval();
             continue;
         }
@@ -566,39 +566,9 @@ void AuctionHouseBot::addNewAuctionBuyerBotBid(Player *AHBplayer, AHBConfig *con
         else
             currentprice = auction->startbid;
 
-        if (debug_Out)
-        {
-            sLog.outError("AHBuyer: Auction Info:");
-            sLog.outError("AHBuyer: Auctioneer: %u", auction->auctioneer);
-            sLog.outError("AHBuyer: AuctionHouse: %u", auction->GetHouseId());
-            sLog.outError("AHBuyer: Current Bid: %u", currentprice);
-            sLog.outError("AHBuyer: Bidder: %u", auction->bidder);
-            sLog.outError("AHBuyer: Buyout: %u", auction->buyout);
-            sLog.outError("AHBuyer: Deposit: %u", auction->deposit);
-            sLog.outError("AHBuyer: Expire Time: %u", auction->expire_time);
-            sLog.outError("AHBuyer: Auction Number: %u", auction->Id);
-            sLog.outError("AHBuyer: Item GUID: %u", auction->item_guidlow);
-            sLog.outError("AHBuyer: Item Template: %u", auction->item_template);
-            sLog.outError("AHBuyer: Owner: %u", auction->owner);
-            sLog.outError("AHBuyer: Starting Bid: %u", auction->startbid);
-            sLog.outError("AHBuyer: Item Info:");
-            sLog.outError("AHBuyer: Item ID: %u", prototype->ItemId);
-            sLog.outError("AHBuyer: Buy Price: %u", prototype->BuyPrice);
-            sLog.outError("AHBuyer: Sell Price: %u", prototype->SellPrice);
-            sLog.outError("AHBuyer: Bonding: %u", prototype->Bonding);
-            sLog.outError("AHBuyer: Quality: %u", prototype->Quality);
-            sLog.outError("AHBuyer: Item Level: %u", prototype->ItemLevel);
-            sLog.outError("AHBuyer: Ammo Type: %u", prototype->AmmoType);
-            sLog.outError("-------------------------------------------------");
-        }
-
         // Prepare portion from maximum bid
         double bidrate = static_cast<double>(urand(1, 100)) / 100;
         long double bidMax = 0;
-        if (debug_Out)
-        {
-            sLog.outError("AHBuyer: bidrate: %f", bidrate);
-        }
 
         // check that bid has acceptable value and take bid based on vendorprice, stacksize and quality
         switch (BuyMethod)
@@ -635,8 +605,6 @@ void AuctionHouseBot::addNewAuctionBuyerBotBid(Player *AHBplayer, AHBConfig *con
             }
         }
 
-        if (debug_Out) sLog.outError("AHBuyer: bidMax: %f", bidMax);
-
         // check some special items, and do recalculating to their prices
         switch (prototype->Class)
         {
@@ -651,7 +619,6 @@ void AuctionHouseBot::addNewAuctionBuyerBotBid(Player *AHBplayer, AHBConfig *con
         if (bidMax == 0)
         {
             // quality check failed to get bidmax, let's get out of here
-            if (debug_Out) sLog.outError("AHBuyer: bidMax(fail): %f", bidMax);
             continue;
         }
 
@@ -659,17 +626,39 @@ void AuctionHouseBot::addNewAuctionBuyerBotBid(Player *AHBplayer, AHBConfig *con
         long double bidvalue = currentprice + ((bidMax - currentprice) * bidrate);
         // Convert to uint32
         uint32 bidprice = static_cast<uint32>(bidvalue);
-        if (debug_Out)
-        {
-            sLog.outError("AHBuyer: bidvalue: %f", bidvalue);
-            sLog.outError("AHBuyer: bidprice: %u", bidprice);
-        }
 
         // Check our bid is high enough to be valid. If not, correct it to minimum.
         if ((currentprice + auction->GetAuctionOutBid()) > bidprice)
-        {
             bidprice = currentprice + auction->GetAuctionOutBid();
-            if (debug_Out) sLog.outError("AHBuyer: bidprice(>): %u", bidprice);
+
+        if (debug_Out)
+        {
+            sLog.outString("-------------------------------------------------");
+            sLog.outString("AHBuyer: Auction Info for bid # %u:", auction->Id);
+            sLog.outString("AHBuyer: AuctionHouse: %u", auction->GetHouseId());
+            sLog.outString("AHBuyer: Auctioneer: %u", auction->auctioneer);
+            sLog.outString("AHBuyer: Owner: %u", auction->owner);
+            sLog.outString("AHBuyer: Bidder: %u", auction->bidder);
+            sLog.outString("AHBuyer: Starting Bid: %u", auction->startbid);
+            sLog.outString("AHBuyer: Current Bid: %u", currentprice);
+            sLog.outString("AHBuyer: Buyout: %u", auction->buyout);
+            sLog.outString("AHBuyer: Deposit: %u", auction->deposit);
+            sLog.outString("AHBuyer: Expire Time: %u", auction->expire_time);
+            sLog.outString("AHBuyer: Bid Rate: %f", bidrate);
+            sLog.outString("AHBuyer: Bid Max: %f", bidMax);
+            sLog.outString("AHBuyer: Bid Value: %f", bidvalue);
+            sLog.outString("AHBuyer: Bid Price: %u", bidprice);
+            sLog.outString("AHBuyer: Item GUID: %u", auction->item_guidlow);
+            sLog.outString("AHBuyer: Item Template: %u", auction->item_template);
+            sLog.outString("AHBuyer: Item Info:");
+            sLog.outString("AHBuyer: Item ID: %u", prototype->ItemId);
+            sLog.outString("AHBuyer: Buy Price: %u", prototype->BuyPrice);
+            sLog.outString("AHBuyer: Sell Price: %u", prototype->SellPrice);
+            sLog.outString("AHBuyer: Bonding: %u", prototype->Bonding);
+            sLog.outString("AHBuyer: Quality: %u", prototype->Quality);
+            sLog.outString("AHBuyer: Item Level: %u", prototype->ItemLevel);
+            sLog.outString("AHBuyer: Ammo Type: %u", prototype->AmmoType);
+            sLog.outString("-------------------------------------------------");
         }
 
         // Check whether we do normal bid, or buyout
@@ -692,7 +681,6 @@ void AuctionHouseBot::addNewAuctionBuyerBotBid(Player *AHBplayer, AHBConfig *con
 
             auction->bidder = AHBplayer->GetGUIDLow();
             auction->bid = bidprice;
-            if (debug_Out) sLog.outError("AHBuyer: bidprice(>): %u", bidprice);
 
             // Saving auction into database
             CharacterDatabase.PExecute("UPDATE auctionhouse SET buyguid = '%u',lastbid = '%u' WHERE id = '%u'", auction->bidder, auction->bid, auction->Id);
@@ -992,259 +980,259 @@ void AuctionHouseBot::Initialize()
             // Disable PTR/Beta/Unused items
             if ((DisableBeta_PTR_Unused) && ((prototype->ItemId == 21878) || (prototype->ItemId == 27774) || (prototype->ItemId == 27811) || (prototype->ItemId == 28117) || (prototype->ItemId == 28112)))
             {
-                if (debug_Out_Filters) sLog.outError("AuctionHouseBot: Item %u disabled (PTR/Beta/Unused Item)", prototype->ItemId);
+                if (debug_Out_Filters) sLog.outString("AuctionHouseBot: Item %u disabled (PTR/Beta/Unused Item)", prototype->ItemId);
                 continue;
             }
 
             // Disable permanent enchants items
             if ((DisablePermEnchant) && (prototype->Class == ITEM_CLASS_PERMANENT))
             {
-                if (debug_Out_Filters) sLog.outError("AuctionHouseBot: Item %u disabled (Permanent Enchant Item)", prototype->ItemId);
+                if (debug_Out_Filters) sLog.outString("AuctionHouseBot: Item %u disabled (Permanent Enchant Item)", prototype->ItemId);
                 continue;
             }
 
             // Disable conjured items
             if ((DisableConjured) && (prototype->IsConjuredConsumable()))
             {
-                if (debug_Out_Filters) sLog.outError("AuctionHouseBot: Item %u disabled (Conjured Consumable)", prototype->ItemId);
+                if (debug_Out_Filters) sLog.outString("AuctionHouseBot: Item %u disabled (Conjured Consumable)", prototype->ItemId);
                 continue;
             }
 
             // Disable gems
             if ((DisableGems) && (prototype->Class == ITEM_CLASS_GEM))
             {
-                if (debug_Out_Filters) sLog.outError("AuctionHouseBot: Item %u disabled (Gem)", prototype->ItemId);
+                if (debug_Out_Filters) sLog.outString("AuctionHouseBot: Item %u disabled (Gem)", prototype->ItemId);
                 continue;
             }
 
             // Disable money
             if ((DisableMoney) && (prototype->Class == ITEM_CLASS_MONEY))
             {
-                if (debug_Out_Filters) sLog.outError("AuctionHouseBot: Item %u disabled (Money)", prototype->ItemId);
+                if (debug_Out_Filters) sLog.outString("AuctionHouseBot: Item %u disabled (Money)", prototype->ItemId);
                 continue;
             }
 
             // Disable moneyloot
             if ((DisableMoneyLoot) && (prototype->MinMoneyLoot > 0))
             {
-                if (debug_Out_Filters) sLog.outError("AuctionHouseBot: Item %u disabled (MoneyLoot)", prototype->ItemId);
+                if (debug_Out_Filters) sLog.outString("AuctionHouseBot: Item %u disabled (MoneyLoot)", prototype->ItemId);
                 continue;
             }
 
             // Disable lootable items
             if ((DisableLootable) && (prototype->Flags & 4))
             {
-                if (debug_Out_Filters) sLog.outError("AuctionHouseBot: Item %u disabled (Lootable Item)", prototype->ItemId);
+                if (debug_Out_Filters) sLog.outString("AuctionHouseBot: Item %u disabled (Lootable Item)", prototype->ItemId);
                 continue;
             }
 
             // Disable Keys
             if ((DisableKeys) && (prototype->Class == ITEM_CLASS_KEY))
             {
-                if (debug_Out_Filters) sLog.outError("AuctionHouseBot: Item %u disabled (Quest Item)", prototype->ItemId);
+                if (debug_Out_Filters) sLog.outString("AuctionHouseBot: Item %u disabled (Quest Item)", prototype->ItemId);
                 continue;
             }
 
             // Disable items with duration
             if ((DisableDuration) && (prototype->Duration > 0))
             {
-                if (debug_Out_Filters) sLog.outError("AuctionHouseBot: Item %u disabled (Has a Duration)", prototype->ItemId);
+                if (debug_Out_Filters) sLog.outString("AuctionHouseBot: Item %u disabled (Has a Duration)", prototype->ItemId);
                 continue;
             }
 
             // Disable items which are BOP or Quest Items and have a required level lower than the item level
             if ((DisableBOP_Or_Quest_NoReqLevel) && ((prototype->Bonding == BIND_WHEN_PICKED_UP || prototype->Bonding == BIND_QUEST_ITEM) && (prototype->RequiredLevel < prototype->ItemLevel)))
             {
-                if (debug_Out_Filters) sLog.outError("AuctionHouseBot: Item %u disabled (BOP or BQI and Required Level is less than Item Level)", prototype->ItemId);
+                if (debug_Out_Filters) sLog.outString("AuctionHouseBot: Item %u disabled (BOP or BQI and Required Level is less than Item Level)", prototype->ItemId);
                 continue;
             }
 
             // Disable items specifically for Warrior
             if ((DisableWarriorItems) && (prototype->AllowableClass == 1))
             {
-                if (debug_Out_Filters) sLog.outError("AuctionHouseBot: Item %u disabled (Warrior Item)", prototype->ItemId);
+                if (debug_Out_Filters) sLog.outString("AuctionHouseBot: Item %u disabled (Warrior Item)", prototype->ItemId);
                 continue;
             }
 
             // Disable items specifically for Paladin
             if ((DisablePaladinItems) && (prototype->AllowableClass == 2))
             {
-                if (debug_Out_Filters) sLog.outError("AuctionHouseBot: Item %u disabled (Paladin Item)", prototype->ItemId);
+                if (debug_Out_Filters) sLog.outString("AuctionHouseBot: Item %u disabled (Paladin Item)", prototype->ItemId);
                 continue;
             }
 
             // Disable items specifically for Hunter
             if ((DisableHunterItems) && (prototype->AllowableClass == 4))
             {
-                if (debug_Out_Filters) sLog.outError("AuctionHouseBot: Item %u disabled (Hunter Item)", prototype->ItemId);
+                if (debug_Out_Filters) sLog.outString("AuctionHouseBot: Item %u disabled (Hunter Item)", prototype->ItemId);
                 continue;
             }
 
             // Disable items specifically for Rogue
             if ((DisableRogueItems) && (prototype->AllowableClass == 8))
             {
-                if (debug_Out_Filters) sLog.outError("AuctionHouseBot: Item %u disabled (Rogue Item)", prototype->ItemId);
+                if (debug_Out_Filters) sLog.outString("AuctionHouseBot: Item %u disabled (Rogue Item)", prototype->ItemId);
                 continue;
             }
 
             // Disable items specifically for Priest
             if ((DisablePriestItems) && (prototype->AllowableClass == 16))
             {
-                if (debug_Out_Filters) sLog.outError("AuctionHouseBot: Item %u disabled (Priest Item)", prototype->ItemId);
+                if (debug_Out_Filters) sLog.outString("AuctionHouseBot: Item %u disabled (Priest Item)", prototype->ItemId);
                 continue;
             }
 
             // Disable items specifically for DK
             if ((DisableDKItems) && (prototype->AllowableClass == 32))
             {
-                if (debug_Out_Filters) sLog.outError("AuctionHouseBot: Item %u disabled (DK Item)", prototype->ItemId);
+                if (debug_Out_Filters) sLog.outString("AuctionHouseBot: Item %u disabled (DK Item)", prototype->ItemId);
                 continue;
             }
 
             // Disable items specifically for Shaman
             if ((DisableShamanItems) && (prototype->AllowableClass == 64))
             {
-                if (debug_Out_Filters) sLog.outError("AuctionHouseBot: Item %u disabled (Shaman Item)", prototype->ItemId);
+                if (debug_Out_Filters) sLog.outString("AuctionHouseBot: Item %u disabled (Shaman Item)", prototype->ItemId);
                 continue;
             }
 
             // Disable items specifically for Mage
             if ((DisableMageItems) && (prototype->AllowableClass == 128))
             {
-                if (debug_Out_Filters) sLog.outError("AuctionHouseBot: Item %u disabled (Mage Item)", prototype->ItemId);
+                if (debug_Out_Filters) sLog.outString("AuctionHouseBot: Item %u disabled (Mage Item)", prototype->ItemId);
                 continue;
             }
 
             // Disable items specifically for Warlock
             if ((DisableWarlockItems) && (prototype->AllowableClass == 256))
             {
-                if (debug_Out_Filters) sLog.outError("AuctionHouseBot: Item %u disabled (Warlock Item)", prototype->ItemId);
+                if (debug_Out_Filters) sLog.outString("AuctionHouseBot: Item %u disabled (Warlock Item)", prototype->ItemId);
                 continue;
             }
 
             // Disable items specifically for Unused Class
             if ((DisableUnusedClassItems) && (prototype->AllowableClass == 512))
             {
-                if (debug_Out_Filters) sLog.outError("AuctionHouseBot: Item %u disabled (Unused Item)", prototype->ItemId);
+                if (debug_Out_Filters) sLog.outString("AuctionHouseBot: Item %u disabled (Unused Item)", prototype->ItemId);
                 continue;
             }
 
             // Disable items specifically for Druid
             if ((DisableDruidItems) && (prototype->AllowableClass == 1024))
             {
-                if (debug_Out_Filters) sLog.outError("AuctionHouseBot: Item %u disabled (Druid Item)", prototype->ItemId);
+                if (debug_Out_Filters) sLog.outString("AuctionHouseBot: Item %u disabled (Druid Item)", prototype->ItemId);
                 continue;
             }
 
              // Disable Items below level X
             if ((DisableItemsBelowLevel) && (prototype->Class != ITEM_CLASS_TRADE_GOODS) && (prototype->ItemLevel < DisableItemsBelowLevel))
             {
-                if (debug_Out_Filters) sLog.outError("AuctionHouseBot: Item %u disabled (Item Level = %u)", prototype->ItemId, prototype->ItemLevel);
+                if (debug_Out_Filters) sLog.outString("AuctionHouseBot: Item %u disabled (Item Level = %u)", prototype->ItemId, prototype->ItemLevel);
                 continue;
             }
 
             // Disable Items above level X
             if ((DisableItemsAboveLevel) && (prototype->Class != ITEM_CLASS_TRADE_GOODS) && (prototype->ItemLevel > DisableItemsAboveLevel))
             {
-                if (debug_Out_Filters) sLog.outError("AuctionHouseBot: Item %u disabled (Item Level = %u)", prototype->ItemId, prototype->ItemLevel);
+                if (debug_Out_Filters) sLog.outString("AuctionHouseBot: Item %u disabled (Item Level = %u)", prototype->ItemId, prototype->ItemLevel);
                 continue;
             }
 
            // Disable Trade Goods below level X
             if ((DisableTGsBelowLevel) && (prototype->Class == ITEM_CLASS_TRADE_GOODS) && (prototype->ItemLevel < DisableTGsBelowLevel))
             {
-                if (debug_Out_Filters) sLog.outError("AuctionHouseBot: Trade Good %u disabled (Trade Good Level = %u)", prototype->ItemId, prototype->ItemLevel);
+                if (debug_Out_Filters) sLog.outString("AuctionHouseBot: Trade Good %u disabled (Trade Good Level = %u)", prototype->ItemId, prototype->ItemLevel);
                 continue;
             }
 
            // Disable Trade Goods above level X
             if ((DisableTGsAboveLevel) && (prototype->Class == ITEM_CLASS_TRADE_GOODS) && (prototype->ItemLevel > DisableTGsAboveLevel))
             {
-                if (debug_Out_Filters) sLog.outError("AuctionHouseBot: Trade Good %u disabled (Trade Good Level = %u)", prototype->ItemId, prototype->ItemLevel);
+                if (debug_Out_Filters) sLog.outString("AuctionHouseBot: Trade Good %u disabled (Trade Good Level = %u)", prototype->ItemId, prototype->ItemLevel);
                 continue;
             }
 
             // Disable Items below GUID X
             if ((DisableItemsBelowGUID) && (prototype->Class != ITEM_CLASS_TRADE_GOODS) && (prototype->ItemId < DisableItemsBelowGUID))
             {
-                if (debug_Out_Filters) sLog.outError("AuctionHouseBot: Item %u disabled (Item Level = %u)", prototype->ItemId, prototype->ItemLevel);
+                if (debug_Out_Filters) sLog.outString("AuctionHouseBot: Item %u disabled (Item Level = %u)", prototype->ItemId, prototype->ItemLevel);
                 continue;
             }
 
             // Disable Items above GUID X
             if ((DisableItemsAboveGUID) && (prototype->Class != ITEM_CLASS_TRADE_GOODS) && (prototype->ItemId > DisableItemsAboveGUID))
             {
-                if (debug_Out_Filters) sLog.outError("AuctionHouseBot: Item %u disabled (Item Level = %u)", prototype->ItemId, prototype->ItemLevel);
+                if (debug_Out_Filters) sLog.outString("AuctionHouseBot: Item %u disabled (Item Level = %u)", prototype->ItemId, prototype->ItemLevel);
                 continue;
             }
 
             // Disable Trade Goods below GUID X
             if ((DisableTGsBelowGUID) && (prototype->Class == ITEM_CLASS_TRADE_GOODS) && (prototype->ItemId < DisableTGsBelowGUID))
             {
-                if (debug_Out_Filters) sLog.outError("AuctionHouseBot: Item %u disabled (Trade Good Level = %u)", prototype->ItemId, prototype->ItemLevel);
+                if (debug_Out_Filters) sLog.outString("AuctionHouseBot: Item %u disabled (Trade Good Level = %u)", prototype->ItemId, prototype->ItemLevel);
                 continue;
             }
 
             // Disable Trade Goods above GUID X
             if ((DisableTGsAboveGUID) && (prototype->Class == ITEM_CLASS_TRADE_GOODS) && (prototype->ItemId > DisableTGsAboveGUID))
             {
-                if (debug_Out_Filters) sLog.outError("AuctionHouseBot: Item %u disabled (Trade Good Level = %u)", prototype->ItemId, prototype->ItemLevel);
+                if (debug_Out_Filters) sLog.outString("AuctionHouseBot: Item %u disabled (Trade Good Level = %u)", prototype->ItemId, prototype->ItemLevel);
                 continue;
             }
 
             // Disable Items for level lower than X
             if ((DisableItemsBelowReqLevel) && (prototype->RequiredLevel < DisableItemsBelowReqLevel))
             {
-                if (debug_Out_Filters) sLog.outError("AuctionHouseBot: Item %u disabled (RequiredLevel = %u)", prototype->ItemId, prototype->RequiredLevel);
+                if (debug_Out_Filters) sLog.outString("AuctionHouseBot: Item %u disabled (RequiredLevel = %u)", prototype->ItemId, prototype->RequiredLevel);
                 continue;
             }
 
             // Disable Items for level higher than X
             if ((DisableItemsAboveReqLevel) && (prototype->RequiredLevel > DisableItemsAboveReqLevel))
             {
-                if (debug_Out_Filters) sLog.outError("AuctionHouseBot: Item %u disabled (RequiredLevel = %u)", prototype->ItemId, prototype->RequiredLevel);
+                if (debug_Out_Filters) sLog.outString("AuctionHouseBot: Item %u disabled (RequiredLevel = %u)", prototype->ItemId, prototype->RequiredLevel);
                 continue;
             }
 
             // Disable Trade Goods for level lower than X
             if ((DisableTGsBelowReqLevel) && (prototype->RequiredLevel < DisableTGsBelowReqLevel))
             {
-                if (debug_Out_Filters) sLog.outError("AuctionHouseBot: Trade Good %u disabled (RequiredLevel = %u)", prototype->ItemId, prototype->RequiredLevel);
+                if (debug_Out_Filters) sLog.outString("AuctionHouseBot: Trade Good %u disabled (RequiredLevel = %u)", prototype->ItemId, prototype->RequiredLevel);
                 continue;
             }
 
             // Disable Trade Goods for level higher than X
             if ((DisableTGsAboveReqLevel) && (prototype->RequiredLevel > DisableTGsAboveReqLevel))
             {
-                if (debug_Out_Filters) sLog.outError("AuctionHouseBot: Trade Good %u disabled (RequiredLevel = %u)", prototype->ItemId, prototype->RequiredLevel);
+                if (debug_Out_Filters) sLog.outString("AuctionHouseBot: Trade Good %u disabled (RequiredLevel = %u)", prototype->ItemId, prototype->RequiredLevel);
                 continue;
             }
 
             // Disable Items that require skill lower than X
             if ((DisableItemsBelowReqSkillRank) && (prototype->RequiredSkillRank < DisableItemsBelowReqSkillRank))
             {
-                if (debug_Out_Filters) sLog.outError("AuctionHouseBot: Item %u disabled (RequiredSkillRank = %u)", prototype->ItemId, prototype->RequiredSkillRank);
+                if (debug_Out_Filters) sLog.outString("AuctionHouseBot: Item %u disabled (RequiredSkillRank = %u)", prototype->ItemId, prototype->RequiredSkillRank);
                 continue;
             }
 
             // Disable Items that require skill higher than X
             if ((DisableItemsAboveReqSkillRank) && (prototype->RequiredSkillRank > DisableItemsAboveReqSkillRank))
             {
-                if (debug_Out_Filters) sLog.outError("AuctionHouseBot: Item %u disabled (RequiredSkillRank = %u)", prototype->ItemId, prototype->RequiredSkillRank);
+                if (debug_Out_Filters) sLog.outString("AuctionHouseBot: Item %u disabled (RequiredSkillRank = %u)", prototype->ItemId, prototype->RequiredSkillRank);
                 continue;
             }
 
             // Disable Trade Goods that require skill lower than X
             if ((DisableTGsBelowReqSkillRank) && (prototype->RequiredSkillRank < DisableTGsBelowReqSkillRank))
             {
-                if (debug_Out_Filters) sLog.outError("AuctionHouseBot: Item %u disabled (RequiredSkillRank = %u)", prototype->ItemId, prototype->RequiredSkillRank);
+                if (debug_Out_Filters) sLog.outString("AuctionHouseBot: Item %u disabled (RequiredSkillRank = %u)", prototype->ItemId, prototype->RequiredSkillRank);
                 continue;
             }
 
             // Disable Trade Goods that require skill higher than X
             if ((DisableTGsAboveReqSkillRank) && (prototype->RequiredSkillRank > DisableTGsAboveReqSkillRank))
             {
-                if (debug_Out_Filters) sLog.outError("AuctionHouseBot: Item %u disabled (RequiredSkillRank = %u)", prototype->ItemId, prototype->RequiredSkillRank);
+                if (debug_Out_Filters) sLog.outString("AuctionHouseBot: Item %u disabled (RequiredSkillRank = %u)", prototype->ItemId, prototype->RequiredSkillRank);
                 continue;
             }
 
@@ -1316,7 +1304,7 @@ void AuctionHouseBot::Initialize()
             (orangeItemsBin.size() == 0) &&
             (yellowItemsBin.size() == 0))
         {
-            sLog.outString("AuctionHouseBot: No items");
+            sLog.outError("AuctionHouseBot: No items");
             AHBSeller = 0;
         }
         sLog.outString("AuctionHouseBot:");
@@ -1540,16 +1528,12 @@ void AuctionHouseBot::Commands(uint32 command, uint32 ahMapID, uint32 col, char*
 
 void AuctionHouseBot::LoadValues(AHBConfig *config)
 {
+    if (debug_Out) sLog.outString("Start Settings for %s Auctionhouses:", CharacterDatabase.PQuery("SELECT name FROM auctionhousebot WHERE auctionhouse = %u",config->GetAHID())->Fetch()->GetUInt32());
     if (AHBSeller)
     {
         //load min and max items
         config->SetMinItems(CharacterDatabase.PQuery("SELECT minitems FROM auctionhousebot WHERE auctionhouse = %u",config->GetAHID())->Fetch()->GetUInt32());
         config->SetMaxItems(CharacterDatabase.PQuery("SELECT maxitems FROM auctionhousebot WHERE auctionhouse = %u",config->GetAHID())->Fetch()->GetUInt32());
-        if (debug_Out)
-        {
-            sLog.outError("minItems = %u", config->GetMinItems());
-            sLog.outError("maxItems = %u", config->GetMaxItems());
-        }
         //load percentages
         uint32 greytg = CharacterDatabase.PQuery("SELECT percentgreytradegoods FROM auctionhousebot WHERE auctionhouse = %u",config->GetAHID())->Fetch()->GetUInt32();
         uint32 whitetg = CharacterDatabase.PQuery("SELECT percentwhitetradegoods FROM auctionhousebot WHERE auctionhouse = %u",config->GetAHID())->Fetch()->GetUInt32();
@@ -1566,179 +1550,97 @@ void AuctionHouseBot::LoadValues(AHBConfig *config)
         uint32 orangei = CharacterDatabase.PQuery("SELECT percentorangeitems FROM auctionhousebot WHERE auctionhouse = %u",config->GetAHID())->Fetch()->GetUInt32();
         uint32 yellowi = CharacterDatabase.PQuery("SELECT percentyellowitems FROM auctionhousebot WHERE auctionhouse = %u",config->GetAHID())->Fetch()->GetUInt32();
         config->SetPercentages(greytg, whitetg, greentg, bluetg, purpletg, orangetg, yellowtg, greyi, whitei, greeni, bluei, purplei, orangei, yellowi);
-        if (debug_Out)
-        {
-            sLog.outError("percentGreyTradeGoods = %u", config->GetPercentages(AHB_GREY_TG));
-            sLog.outError("percentWhiteTradeGoods = %u", config->GetPercentages(AHB_WHITE_TG));
-            sLog.outError("percentGreenTradeGoods = %u", config->GetPercentages(AHB_GREEN_TG));
-            sLog.outError("percentBlueTradeGoods = %u", config->GetPercentages(AHB_BLUE_TG));
-            sLog.outError("percentPurpleTradeGoods = %u", config->GetPercentages(AHB_PURPLE_TG));
-            sLog.outError("percentOrangeTradeGoods = %u", config->GetPercentages(AHB_ORANGE_TG));
-            sLog.outError("percentYellowTradeGoods = %u", config->GetPercentages(AHB_YELLOW_TG));
-            sLog.outError("percentGreyItems = %u", config->GetPercentages(AHB_GREY_I));
-            sLog.outError("percentWhiteItems = %u", config->GetPercentages(AHB_WHITE_I));
-            sLog.outError("percentGreenItems = %u", config->GetPercentages(AHB_GREEN_I));
-            sLog.outError("percentBlueItems = %u", config->GetPercentages(AHB_BLUE_I));
-            sLog.outError("percentPurpleItems = %u", config->GetPercentages(AHB_PURPLE_I));
-            sLog.outError("percentOrangeItems = %u", config->GetPercentages(AHB_ORANGE_I));
-            sLog.outError("percentYellowItems = %u", config->GetPercentages(AHB_YELLOW_I));
-        }
         //load min and max prices
         config->SetMinPrice(AHB_GREY, CharacterDatabase.PQuery("SELECT minpricegrey FROM auctionhousebot WHERE auctionhouse = %u",config->GetAHID())->Fetch()->GetUInt32());
         config->SetMaxPrice(AHB_GREY, CharacterDatabase.PQuery("SELECT maxpricegrey FROM auctionhousebot WHERE auctionhouse = %u",config->GetAHID())->Fetch()->GetUInt32());
-        if (debug_Out)
-        {
-            sLog.outError("minPriceGrey = %u", config->GetMinPrice(AHB_GREY));
-            sLog.outError("maxPriceGrey = %u", config->GetMaxPrice(AHB_GREY));
-        }
         config->SetMinPrice(AHB_WHITE, CharacterDatabase.PQuery("SELECT minpricewhite FROM auctionhousebot WHERE auctionhouse = %u",config->GetAHID())->Fetch()->GetUInt32());
         config->SetMaxPrice(AHB_WHITE, CharacterDatabase.PQuery("SELECT maxpricewhite FROM auctionhousebot WHERE auctionhouse = %u",config->GetAHID())->Fetch()->GetUInt32());
-        if (debug_Out)
-        {
-            sLog.outError("minPriceWhite = %u", config->GetMinPrice(AHB_WHITE));
-            sLog.outError("maxPriceWhite = %u", config->GetMaxPrice(AHB_WHITE));
-        }
         config->SetMinPrice(AHB_GREEN, CharacterDatabase.PQuery("SELECT minpricegreen FROM auctionhousebot WHERE auctionhouse = %u",config->GetAHID())->Fetch()->GetUInt32());
         config->SetMaxPrice(AHB_GREEN, CharacterDatabase.PQuery("SELECT maxpricegreen FROM auctionhousebot WHERE auctionhouse = %u",config->GetAHID())->Fetch()->GetUInt32());
-        if (debug_Out)
-        {
-            sLog.outError("minPriceGreen = %u", config->GetMinPrice(AHB_GREEN));
-            sLog.outError("maxPriceGreen = %u", config->GetMaxPrice(AHB_GREEN));
-        }
         config->SetMinPrice(AHB_BLUE, CharacterDatabase.PQuery("SELECT minpriceblue FROM auctionhousebot WHERE auctionhouse = %u",config->GetAHID())->Fetch()->GetUInt32());
         config->SetMaxPrice(AHB_BLUE, CharacterDatabase.PQuery("SELECT maxpriceblue FROM auctionhousebot WHERE auctionhouse = %u",config->GetAHID())->Fetch()->GetUInt32());
-        if (debug_Out)
-        {
-            sLog.outError("minPriceBlue = %u", config->GetMinPrice(AHB_BLUE));
-            sLog.outError("maxPriceBlue = %u", config->GetMaxPrice(AHB_BLUE));
-        }
         config->SetMinPrice(AHB_PURPLE, CharacterDatabase.PQuery("SELECT minpricepurple FROM auctionhousebot WHERE auctionhouse = %u",config->GetAHID())->Fetch()->GetUInt32());
         config->SetMaxPrice(AHB_PURPLE, CharacterDatabase.PQuery("SELECT maxpricepurple FROM auctionhousebot WHERE auctionhouse = %u",config->GetAHID())->Fetch()->GetUInt32());
-        if (debug_Out)
-        {
-            sLog.outError("minPricePurple = %u", config->GetMinPrice(AHB_PURPLE));
-            sLog.outError("maxPricePurple = %u", config->GetMaxPrice(AHB_PURPLE));
-        }
         config->SetMinPrice(AHB_ORANGE, CharacterDatabase.PQuery("SELECT minpriceorange FROM auctionhousebot WHERE auctionhouse = %u",config->GetAHID())->Fetch()->GetUInt32());
         config->SetMaxPrice(AHB_ORANGE, CharacterDatabase.PQuery("SELECT maxpriceorange FROM auctionhousebot WHERE auctionhouse = %u",config->GetAHID())->Fetch()->GetUInt32());
-        if (debug_Out)
-        {
-            sLog.outError("minPriceOrange = %u", config->GetMinPrice(AHB_ORANGE));
-            sLog.outError("maxPriceOrange = %u", config->GetMaxPrice(AHB_ORANGE));
-        }
         config->SetMinPrice(AHB_YELLOW, CharacterDatabase.PQuery("SELECT minpriceyellow FROM auctionhousebot WHERE auctionhouse = %u",config->GetAHID())->Fetch()->GetUInt32());
         config->SetMaxPrice(AHB_YELLOW, CharacterDatabase.PQuery("SELECT maxpriceyellow FROM auctionhousebot WHERE auctionhouse = %u",config->GetAHID())->Fetch()->GetUInt32());
-        if (debug_Out)
-        {
-            sLog.outError("minPriceYellow = %u", config->GetMinPrice(AHB_YELLOW));
-            sLog.outError("maxPriceYellow = %u", config->GetMaxPrice(AHB_YELLOW));
-        }
         //load min and max bid prices
         config->SetMinBidPrice(AHB_GREY, CharacterDatabase.PQuery("SELECT minbidpricegrey FROM auctionhousebot WHERE auctionhouse = %u",config->GetAHID())->Fetch()->GetUInt32());
-        if (debug_Out)
-        {
-            sLog.outError("minBidPriceGrey = %u", config->GetMinBidPrice(AHB_GREY));
-        }
         config->SetMaxBidPrice(AHB_GREY, CharacterDatabase.PQuery("SELECT maxbidpricegrey FROM auctionhousebot WHERE auctionhouse = %u",config->GetAHID())->Fetch()->GetUInt32());
-        if (debug_Out)
-        {
-            sLog.outError("maxBidPriceGrey = %u", config->GetMaxBidPrice(AHB_GREY));
-        }
         config->SetMinBidPrice(AHB_WHITE, CharacterDatabase.PQuery("SELECT minbidpricewhite FROM auctionhousebot WHERE auctionhouse = %u",config->GetAHID())->Fetch()->GetUInt32());
-        if (debug_Out)
-        {
-            sLog.outError("minBidPriceWhite = %u", config->GetMinBidPrice(AHB_WHITE));
-        }
         config->SetMaxBidPrice(AHB_WHITE, CharacterDatabase.PQuery("SELECT maxbidpricewhite FROM auctionhousebot WHERE auctionhouse = %u",config->GetAHID())->Fetch()->GetUInt32());
-        if (debug_Out)
-        {
-            sLog.outError("maxBidPriceWhite = %u", config->GetMaxBidPrice(AHB_WHITE));
-        }
         config->SetMinBidPrice(AHB_GREEN, CharacterDatabase.PQuery("SELECT minbidpricegreen FROM auctionhousebot WHERE auctionhouse = %u",config->GetAHID())->Fetch()->GetUInt32());
-        if (debug_Out)
-        {
-            sLog.outError("minBidPriceGreen = %u", config->GetMinBidPrice(AHB_GREEN));
-        }
         config->SetMaxBidPrice(AHB_GREEN, CharacterDatabase.PQuery("SELECT maxbidpricegreen FROM auctionhousebot WHERE auctionhouse = %u",config->GetAHID())->Fetch()->GetUInt32());
-        if (debug_Out)
-        {
-            sLog.outError("maxBidPriceGreen = %u", config->GetMaxBidPrice(AHB_GREEN));
-        }
         config->SetMinBidPrice(AHB_BLUE, CharacterDatabase.PQuery("SELECT minbidpriceblue FROM auctionhousebot WHERE auctionhouse = %u",config->GetAHID())->Fetch()->GetUInt32());
-        if (debug_Out)
-        {
-            sLog.outError("minBidPriceBlue = %u", config->GetMinBidPrice(AHB_BLUE));
-        }
         config->SetMaxBidPrice(AHB_BLUE, CharacterDatabase.PQuery("SELECT maxbidpriceblue FROM auctionhousebot WHERE auctionhouse = %u",config->GetAHID())->Fetch()->GetUInt32());
-        if (debug_Out)
-        {
-            sLog.outError("maxBidPriceBlue = %u", config->GetMinBidPrice(AHB_BLUE));
-        }
         config->SetMinBidPrice(AHB_PURPLE, CharacterDatabase.PQuery("SELECT minbidpricepurple FROM auctionhousebot WHERE auctionhouse = %u",config->GetAHID())->Fetch()->GetUInt32());
-        if (debug_Out)
-        {
-            sLog.outError("minBidPricePurple = %u", config->GetMinBidPrice(AHB_PURPLE));
-        }
         config->SetMaxBidPrice(AHB_PURPLE, CharacterDatabase.PQuery("SELECT maxbidpricepurple FROM auctionhousebot WHERE auctionhouse = %u",config->GetAHID())->Fetch()->GetUInt32());
-        if (debug_Out)
-        {
-            sLog.outError("maxBidPricePurple = %u", config->GetMaxBidPrice(AHB_PURPLE));
-        }
         config->SetMinBidPrice(AHB_ORANGE, CharacterDatabase.PQuery("SELECT minbidpriceorange FROM auctionhousebot WHERE auctionhouse = %u",config->GetAHID())->Fetch()->GetUInt32());
-        if (debug_Out)
-        {
-            sLog.outError("minBidPriceOrange = %u", config->GetMinBidPrice(AHB_ORANGE));
-        }
         config->SetMaxBidPrice(AHB_ORANGE, CharacterDatabase.PQuery("SELECT maxbidpriceorange FROM auctionhousebot WHERE auctionhouse = %u",config->GetAHID())->Fetch()->GetUInt32());
-        if (debug_Out)
-        {
-            sLog.outError("maxBidPriceOrange = %u", config->GetMaxBidPrice(AHB_ORANGE));
-        }
         config->SetMinBidPrice(AHB_YELLOW, CharacterDatabase.PQuery("SELECT minbidpriceyellow FROM auctionhousebot WHERE auctionhouse = %u",config->GetAHID())->Fetch()->GetUInt32());
-        if (debug_Out)
-        {
-            sLog.outError("minBidPriceYellow = %u", config->GetMinBidPrice(AHB_YELLOW));
-        }
         config->SetMaxBidPrice(AHB_YELLOW, CharacterDatabase.PQuery("SELECT maxbidpriceyellow FROM auctionhousebot WHERE auctionhouse = %u",config->GetAHID())->Fetch()->GetUInt32());
-        if (debug_Out)
-        {
-            sLog.outError("maxBidPriceYellow = %u", config->GetMaxBidPrice(AHB_YELLOW));
-        }
         //load max stacks
         config->SetMaxStack(AHB_GREY, CharacterDatabase.PQuery("SELECT maxstackgrey FROM auctionhousebot WHERE auctionhouse = %u",config->GetAHID())->Fetch()->GetUInt32());
-        if (debug_Out)
-        {
-            sLog.outError("maxStackGrey = %u", config->GetMaxStack(AHB_GREY));
-        }
         config->SetMaxStack(AHB_WHITE, CharacterDatabase.PQuery("SELECT maxstackwhite FROM auctionhousebot WHERE auctionhouse = %u",config->GetAHID())->Fetch()->GetUInt32());
-        if (debug_Out)
-        {
-            sLog.outError("maxStackWhite = %u", config->GetMaxStack(AHB_WHITE));
-        }
         config->SetMaxStack(AHB_GREEN, CharacterDatabase.PQuery("SELECT maxstackgreen FROM auctionhousebot WHERE auctionhouse = %u",config->GetAHID())->Fetch()->GetUInt32());
-        if (debug_Out)
-        {
-            sLog.outError("maxStackGreen = %u", config->GetMaxStack(AHB_GREEN));
-        }
         config->SetMaxStack(AHB_BLUE, CharacterDatabase.PQuery("SELECT maxstackblue FROM auctionhousebot WHERE auctionhouse = %u",config->GetAHID())->Fetch()->GetUInt32());
-        if (debug_Out)
-        {
-            sLog.outError("maxStackBlue = %u", config->GetMaxStack(AHB_BLUE));
-        }
         config->SetMaxStack(AHB_PURPLE, CharacterDatabase.PQuery("SELECT maxstackpurple FROM auctionhousebot WHERE auctionhouse = %u",config->GetAHID())->Fetch()->GetUInt32());
-        if (debug_Out)
-        {
-            sLog.outError("maxStackPurple = %u", config->GetMaxStack(AHB_PURPLE));
-        }
         config->SetMaxStack(AHB_ORANGE, CharacterDatabase.PQuery("SELECT maxstackorange FROM auctionhousebot WHERE auctionhouse = %u",config->GetAHID())->Fetch()->GetUInt32());
-        if (debug_Out)
-        {
-            sLog.outError("maxStackOrange = %u", config->GetMaxStack(AHB_ORANGE));
-        }
         config->SetMaxStack(AHB_YELLOW, CharacterDatabase.PQuery("SELECT maxstackyellow FROM auctionhousebot WHERE auctionhouse = %u",config->GetAHID())->Fetch()->GetUInt32());
         if (debug_Out)
         {
-            sLog.outError("maxStackYellow = %u", config->GetMaxStack(AHB_YELLOW));
+            sLog.outString("minItems                = %u", config->GetMinItems());
+            sLog.outString("maxItems                = %u", config->GetMaxItems());
+            sLog.outString("percentGreyTradeGoods   = %u", config->GetPercentages(AHB_GREY_TG));
+            sLog.outString("percentWhiteTradeGoods  = %u", config->GetPercentages(AHB_WHITE_TG));
+            sLog.outString("percentGreenTradeGoods  = %u", config->GetPercentages(AHB_GREEN_TG));
+            sLog.outString("percentBlueTradeGoods   = %u", config->GetPercentages(AHB_BLUE_TG));
+            sLog.outString("percentPurpleTradeGoods = %u", config->GetPercentages(AHB_PURPLE_TG));
+            sLog.outString("percentOrangeTradeGoods = %u", config->GetPercentages(AHB_ORANGE_TG));
+            sLog.outString("percentYellowTradeGoods = %u", config->GetPercentages(AHB_YELLOW_TG));
+            sLog.outString("percentGreyItems        = %u", config->GetPercentages(AHB_GREY_I));
+            sLog.outString("percentWhiteItems       = %u", config->GetPercentages(AHB_WHITE_I));
+            sLog.outString("percentGreenItems       = %u", config->GetPercentages(AHB_GREEN_I));
+            sLog.outString("percentBlueItems        = %u", config->GetPercentages(AHB_BLUE_I));
+            sLog.outString("percentPurpleItems      = %u", config->GetPercentages(AHB_PURPLE_I));
+            sLog.outString("percentOrangeItems      = %u", config->GetPercentages(AHB_ORANGE_I));
+            sLog.outString("percentYellowItems      = %u", config->GetPercentages(AHB_YELLOW_I));
+            sLog.outString("minPriceGrey            = %u", config->GetMinPrice(AHB_GREY));
+            sLog.outString("maxPriceGrey            = %u", config->GetMaxPrice(AHB_GREY));
+            sLog.outString("minPriceWhite           = %u", config->GetMinPrice(AHB_WHITE));
+            sLog.outString("maxPriceWhite           = %u", config->GetMaxPrice(AHB_WHITE));
+            sLog.outString("minPriceGreen           = %u", config->GetMinPrice(AHB_GREEN));
+            sLog.outString("maxPriceGreen           = %u", config->GetMaxPrice(AHB_GREEN));
+            sLog.outString("minPriceBlue            = %u", config->GetMinPrice(AHB_BLUE));
+            sLog.outString("maxPriceBlue            = %u", config->GetMaxPrice(AHB_BLUE));
+            sLog.outString("minPricePurple          = %u", config->GetMinPrice(AHB_PURPLE));
+            sLog.outString("maxPricePurple          = %u", config->GetMaxPrice(AHB_PURPLE));
+            sLog.outString("minPriceOrange          = %u", config->GetMinPrice(AHB_ORANGE));
+            sLog.outString("maxPriceOrange          = %u", config->GetMaxPrice(AHB_ORANGE));
+            sLog.outString("minPriceYellow          = %u", config->GetMinPrice(AHB_YELLOW));
+            sLog.outString("maxPriceYellow          = %u", config->GetMaxPrice(AHB_YELLOW));
+            sLog.outString("minBidPriceGrey         = %u", config->GetMinBidPrice(AHB_GREY));
+            sLog.outString("maxBidPriceGrey         = %u", config->GetMaxBidPrice(AHB_GREY));
+            sLog.outString("minBidPriceWhite        = %u", config->GetMinBidPrice(AHB_WHITE));
+            sLog.outString("maxBidPriceWhite        = %u", config->GetMaxBidPrice(AHB_WHITE));
+            sLog.outString("minBidPriceGreen        = %u", config->GetMinBidPrice(AHB_GREEN));
+            sLog.outString("maxBidPriceGreen        = %u", config->GetMaxBidPrice(AHB_GREEN));
+            sLog.outString("minBidPriceBlue         = %u", config->GetMinBidPrice(AHB_BLUE));
+            sLog.outString("maxBidPriceBlue         = %u", config->GetMinBidPrice(AHB_BLUE));
+            sLog.outString("minBidPricePurple       = %u", config->GetMinBidPrice(AHB_PURPLE));
+            sLog.outString("maxBidPricePurple       = %u", config->GetMaxBidPrice(AHB_PURPLE));
+            sLog.outString("minBidPriceOrange       = %u", config->GetMinBidPrice(AHB_ORANGE));
+            sLog.outString("maxBidPriceOrange       = %u", config->GetMaxBidPrice(AHB_ORANGE));
+            sLog.outString("minBidPriceYellow       = %u", config->GetMinBidPrice(AHB_YELLOW));
+            sLog.outString("maxBidPriceYellow       = %u", config->GetMaxBidPrice(AHB_YELLOW));
+            sLog.outString("maxStackGrey            = %u", config->GetMaxStack(AHB_GREY));
+            sLog.outString("maxStackWhite           = %u", config->GetMaxStack(AHB_WHITE));
+            sLog.outString("maxStackGreen           = %u", config->GetMaxStack(AHB_GREEN));
+            sLog.outString("maxStackBlue            = %u", config->GetMaxStack(AHB_BLUE));
+            sLog.outString("maxStackPurple          = %u", config->GetMaxStack(AHB_PURPLE));
+            sLog.outString("maxStackOrange          = %u", config->GetMaxStack(AHB_ORANGE));
+            sLog.outString("maxStackYellow          = %u", config->GetMaxStack(AHB_YELLOW));
         }
     }
     if (AHBBuyer)
@@ -1751,27 +1653,22 @@ void AuctionHouseBot::LoadValues(AHBConfig *config)
         config->SetBuyerPrice(AHB_PURPLE, CharacterDatabase.PQuery("SELECT buyerpricepurple FROM auctionhousebot WHERE auctionhouse = %u",config->GetAHID())->Fetch()->GetUInt32());
         config->SetBuyerPrice(AHB_ORANGE, CharacterDatabase.PQuery("SELECT buyerpriceorange FROM auctionhousebot WHERE auctionhouse = %u",config->GetAHID())->Fetch()->GetUInt32());
         config->SetBuyerPrice(AHB_YELLOW, CharacterDatabase.PQuery("SELECT buyerpriceyellow FROM auctionhousebot WHERE auctionhouse = %u",config->GetAHID())->Fetch()->GetUInt32());
-        if (debug_Out)
-        {
-            sLog.outError("buyerPriceGrey = %u", config->GetBuyerPrice(AHB_GREY));
-            sLog.outError("buyerPriceWhite = %u", config->GetBuyerPrice(AHB_WHITE));
-            sLog.outError("buyerPriceGreen = %u", config->GetBuyerPrice(AHB_GREEN));
-            sLog.outError("buyerPriceBlue = %u", config->GetBuyerPrice(AHB_BLUE));
-            sLog.outError("buyerPricePurple = %u", config->GetBuyerPrice(AHB_PURPLE));
-            sLog.outError("buyerPriceOrange = %u", config->GetBuyerPrice(AHB_ORANGE));
-            sLog.outError("buyerPriceYellow = %u", config->GetBuyerPrice(AHB_YELLOW));
-        }
         //load bidding interval
         config->SetBiddingInterval(CharacterDatabase.PQuery("SELECT buyerbiddinginterval FROM auctionhousebot WHERE auctionhouse = %u",config->GetAHID())->Fetch()->GetUInt32());
-        if (debug_Out)
-        {
-            sLog.outError("buyerBiddingInterval = %u", config->GetBiddingInterval());
-        }
         //load bids per interval
         config->SetBidsPerInterval(CharacterDatabase.PQuery("SELECT buyerbidsperinterval FROM auctionhousebot WHERE auctionhouse = %u",config->GetAHID())->Fetch()->GetUInt32());
         if (debug_Out)
         {
-            sLog.outError("buyerBidsPerInterval = %u", config->GetBidsPerInterval());
+            sLog.outString("buyerPriceGrey          = %u", config->GetBuyerPrice(AHB_GREY));
+            sLog.outString("buyerPriceWhite         = %u", config->GetBuyerPrice(AHB_WHITE));
+            sLog.outString("buyerPriceGreen         = %u", config->GetBuyerPrice(AHB_GREEN));
+            sLog.outString("buyerPriceBlue          = %u", config->GetBuyerPrice(AHB_BLUE));
+            sLog.outString("buyerPricePurple        = %u", config->GetBuyerPrice(AHB_PURPLE));
+            sLog.outString("buyerPriceOrange        = %u", config->GetBuyerPrice(AHB_ORANGE));
+            sLog.outString("buyerPriceYellow        = %u", config->GetBuyerPrice(AHB_YELLOW));
+            sLog.outString("buyerBiddingInterval    = %u", config->GetBiddingInterval());
+            sLog.outString("buyerBidsPerInterval    = %u", config->GetBidsPerInterval());
         }
     }
+    if (debug_Out) sLog.outString("End Settings for %s Auctionhouses:", CharacterDatabase.PQuery("SELECT name FROM auctionhousebot WHERE auctionhouse = %u",config->GetAHID())->Fetch()->GetUInt32());
 }
