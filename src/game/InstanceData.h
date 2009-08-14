@@ -149,6 +149,9 @@ class TRINITY_DLL_SPEC InstanceData : public ZoneScript
         //Respawns a GO having negative spawntimesecs in gameobject-table
         void DoRespawnGameObject(uint64 uiGuid, uint32 uiTimeToDespawn = MINUTE);
 
+        //sends world state update to all players in instance
+        void DoUpdateWorldState(uint32 uiStateId, uint32 uiStateData);
+
         virtual bool SetBossState(uint32 id, EncounterState state);
         EncounterState GetBossState(uint32 id) const { return id < bosses.size() ? bosses[id].state : TO_BE_DECIDED; }
         const BossBoundaryMap * GetBossBoundary(uint32 id) const { return id < bosses.size() ? &bosses[id].boundary : NULL; }
