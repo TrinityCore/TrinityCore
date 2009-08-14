@@ -71,6 +71,12 @@ enum BattleGroundMarksCount
     ITEM_LOSER_COUNT                = 1
 };
 
+enum BattleGroundCreatures
+{
+    BG_CREATURE_ENTRY_A_SPIRITGUIDE      = 13116,           // alliance
+    BG_CREATURE_ENTRY_H_SPIRITGUIDE      = 13117,           // horde
+};
+
 enum BattleGroundSpells
 {
     SPELL_WAITING_FOR_RESURRECT     = 2584,                 // Waiting to Resurrect

@@ -734,6 +734,11 @@ void BattleGround::EndBattleGround(uint32 winner)
         {
             plr->ResurrectPlayer(1.0f);
             plr->SpawnCorpseBones();
+        }else
+        {
+            //needed cause else in av some creatures will kill the players at the end
+            plr->CombatStop();
+            plr->getHostilRefManager().deleteReferences();
         }
 
         //this line is obsolete - team is set ALWAYS
@@ -1642,9 +1647,9 @@ bool BattleGround::AddSpiritGuide(uint32 type, float x, float y, float z, float 
     uint32 entry = 0;
 
     if (team == ALLIANCE)
-        entry = 13116;
+        entry = BG_CREATURE_ENTRY_A_SPIRITGUIDE;
     else
-        entry = 13117;
+        entry = BG_CREATURE_ENTRY_H_SPIRITGUIDE;
 
     Creature* pCreature = AddCreature(entry,type,team,x,y,z,o);
     if (!pCreature)
