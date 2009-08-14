@@ -298,10 +298,11 @@ UPDATE `creature_template` SET `ScriptName`='mob_webbed_creature' WHERE `entry`=
 UPDATE `creature_template` SET `ScriptName`='npc_captured_sunhawk_agent' WHERE `entry`=17824;
 
 /* BOREAN TUNDRA */
+UPDATE `creature_template` SET `ScriptName`='npc_fizzcrank_fullthrottle' WHERE `entry`=25590;
 UPDATE `creature_template` SET `ScriptName`='npc_surristrasz' WHERE `entry`=24795;
 UPDATE `creature_template` SET `ScriptName`='npc_tiare' WHERE `entry`=30051;
 UPDATE `creature_template` SET `ScriptName`='npc_sinkhole_kill_credit' WHERE `entry` IN (26248,26249);
-UPDATE `creature_template` SET `ScriptName`='npc_khunok_the_behemoth' WHERE (`entry`='25862');
+UPDATE `creature_template` SET `ScriptName`='npc_khunok_the_behemoth' WHERE `entry`=25862;
 
 /* BURNING STEPPES */
 UPDATE `creature_template` SET `ScriptName`='npc_ragged_john' WHERE `entry`=9563;
@@ -474,6 +475,9 @@ UPDATE `gameobject_template` SET `ScriptName`='go_gilded_brazier' WHERE `entry`=
 
 /* GNOMEREGAN */
 
+/* GRIZZLY HILLS */
+UPDATE `creature_template` SET `ScriptName`='npc_orsonn_and_kodian' WHERE `entry` IN (27274, 27275);
+
 /* GRUUL'S LAIR */
 UPDATE `instance_template` SET `script`='instance_gruuls_lair' WHERE `map`=565;
 UPDATE `creature_template` SET `ScriptName`='boss_gruul' WHERE `entry`=19044;
@@ -547,6 +551,9 @@ UPDATE `gameobject_template` SET `ScriptName`='go_haaleshi_altar' WHERE `entry`=
 
 /* HINTERLANDS */
 UPDATE `creature_template` SET `ScriptName`='npc_rinji' WHERE `entry`=7780;
+
+/* ICECROWN */
+UPDATE creature_template SET ScriptName='npc_arete' WHERE entry=29344;
 
 /* IRONFORGE */
 UPDATE `creature_template` SET `ScriptName`='npc_royal_historian_archesonus' WHERE `entry`=8879;
