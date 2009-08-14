@@ -1685,6 +1685,91 @@ CreatureAI* GetAI_npc_mirror_image(Creature* pCreature)
     return new npc_mirror_image (pCreature);
 }
 
+struct TRINITY_DLL_DECL npc_ebon_gargoyleAI : SpellCasterAI
+{
+    npc_ebon_gargoyleAI(Creature *c) : SpellCasterAI(c) {}
+
+    int despawnTimer;
+
+    void InitializeAI()
+    {
+        SpellCasterAI::InitializeAI();
+        Unit * owner = me->GetOwner();
+        if (!owner)
+            return;
+        // Not needed to be despawned now
+        despawnTimer = 0;
+        // Find victim of Summon Gargoyle spell
+        std::list<Unit*> targets;
+        Trinity::AnyUnfriendlyUnitInObjectRangeCheck u_check(m_creature, m_creature, 30);
+        Trinity::UnitListSearcher<Trinity::AnyUnfriendlyUnitInObjectRangeCheck> searcher(m_creature, targets, u_check);
+        m_creature->VisitNearbyObject(30, searcher);
+        for(std::list<Unit*>::iterator iter = targets.begin(); iter != targets.end(); ++iter)
+            if((*iter)->GetAura(49206,owner->GetGUID()))
+            {
+                me->Attack((*iter),false);
+                break;
+            }
+    }
+
+    void JustDied(Unit *killer)
+    {
+        // Stop Feeding Gargoyle when it dies
+        if (Unit *owner = me->GetOwner())
+            owner->RemoveAurasDueToSpell(50514);
+    }
+
+    // Fly away when dismissed
+    void SpellHit(Unit *source, const SpellEntry *spell)
+    {
+        if(spell->Id != 50515 || !me->isAlive() )
+            return;
+
+        Unit *owner = me->GetOwner();
+
+        if (!owner || owner != source)
+            return;
+
+        // Stop Fighting
+        me->ApplyModFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE, true);
+        // Sanctuary
+        me->CastSpell(m_creature, 54661, true);
+        me->SetReactState(REACT_PASSIVE);
+
+        // Fly Away
+        me->AddUnitMovementFlag(MOVEMENTFLAG_FLY_MODE);
+        me->SetSpeed(MOVE_FLIGHT, 0.25f, true);
+        me->SetSpeed(MOVE_RUN, 0.25f, true);
+        float x = me->GetPositionX() + 10 * cos(me->GetOrientation());
+        float y = me->GetPositionY() + 10 * sin(me->GetOrientation());
+        float z = me->GetPositionZ() + 25;
+        me->GetMotionMaster()->MovePoint(0, x, y, z);
+
+        // Despawn as soon as possible
+        despawnTimer = 4 * IN_MILISECONDS;
+    }
+
+    void UpdateAI(const uint32 diff)
+    {
+        if (despawnTimer > 0)
+        {
+            if (despawnTimer > diff)
+                despawnTimer -= diff;
+            else
+            {
+                me->ForcedDespawn();
+            }
+            return;
+        }
+        SpellCasterAI::UpdateAI(diff);
+    }
+};
+
+CreatureAI* GetAI_npc_ebon_gargoyle(Creature* pCreature)
+{
+    return new npc_ebon_gargoyleAI (pCreature);
+}
+
 //TODO: 30% Attackdamage check for Lightwell
 struct TRINITY_DLL_DECL npc_lightwellAI : public PassiveAI
 {
@@ -1853,13 +1938,18 @@ void AddSC_npcs_special()
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="npc_lightwell";
-    newscript->GetAI = &GetAI_npc_lightwellAI;
+    newscript->Name="npc_mirror_image";
+    newscript->GetAI = &GetAI_npc_mirror_image;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="npc_mirror_image";
-    newscript->GetAI = &GetAI_npc_mirror_image;
+    newscript->Name="npc_ebon_gargoyle";
+    newscript->GetAI = &GetAI_npc_ebon_gargoyle;
+    newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name="npc_lightwell";
+    newscript->GetAI = &GetAI_npc_lightwellAI;
     newscript->RegisterSelf();
 
     newscript = new Script;
