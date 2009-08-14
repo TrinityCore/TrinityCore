@@ -3727,6 +3727,9 @@ void SpellMgr::LoadSpellCustomAttr()
         case 48422:
             spellInfo->Stances = 1 << (FORM_TREE - 1);
             break;
+        case 30421:     // Nether Portal - Perseverence
+            spellInfo->EffectBasePoints[2] += 30000;
+            break;
         default:
             break;
         }
