@@ -60,7 +60,7 @@ struct TRINITY_DLL_DECL instance_shadow_labyrinth : public ScriptedInstance
         m_uiFelOverseerCount = 0;
     }
 
-    bool Ism_auiEncounterInProgress() const
+    bool IsEncounterInProgress() const
     {
         for(uint8 i = 0; i < MAX_ENCOUNTER; ++i)
             if (m_auiEncounter[i] == IN_PROGRESS) return true;
