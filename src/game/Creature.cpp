@@ -196,6 +196,14 @@ void Creature::RemoveFromWorld()
     }
 }
 
+void Creature::DisappearAndDie()
+{
+    //DestroyForNearbyPlayers();
+    SetVisibility(VISIBILITY_OFF);
+    ObjectAccessor::UpdateObjectVisibility(this);
+    setDeathState(JUST_DIED);
+}
+
 void Creature::SearchFormationAndPath()
 {
     if(isSummon())
