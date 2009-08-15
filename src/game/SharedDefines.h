@@ -444,6 +444,7 @@ enum ItemQualities
 #define SPELL_ATTR_EX6_UNK30                      0x40000000            // 30 not set in 3.0.3
 #define SPELL_ATTR_EX6_UNK31                      0x80000000            // 31 not set in 3.0.3
 
+#define MAX_TALENT_SPECS        2
 #define MAX_GLYPH_SLOT_INDEX    6
 
 enum SheathTypes
