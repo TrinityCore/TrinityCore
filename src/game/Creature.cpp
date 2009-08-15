@@ -1704,7 +1704,7 @@ bool Creature::IsWithinSightDist(Unit const* u) const
 
 bool Creature::canStartAttack(Unit const* who, bool force) const
 {
-    if(isCivilian() || !who->isInAccessiblePlaceFor(this))
+    if(isCivilian())
         return false;
     
     if(!canFly() && (GetDistanceZ(who) > CREATURE_Z_ATTACK_RANGE))
@@ -1716,7 +1716,7 @@ bool Creature::canStartAttack(Unit const* who, bool force) const
     if(!force && (IsNeutralToAll() || !IsWithinDistInMap(who, GetAttackDistance(who))))
         return false;
 
-    if(!canAttack(who, force))
+    if(!canCreatureAttack(who, force))
         return false;
 
     return IsWithinLOSInMap(who);
@@ -2180,29 +2180,29 @@ void Creature::SaveRespawnTime()
         objmgr.SaveCreatureRespawnTime(m_DBTableGuid,GetInstanceId(),time(NULL)+m_respawnDelay+m_deathTimer/IN_MILISECONDS);
 }
 
-bool Creature::IsOutOfThreatArea(Unit* pVictim) const
+// this should not be called by petAI or 
+bool Creature::canCreatureAttack(Unit const *pVictim, bool force) const
 {
-    if(!pVictim)
-        return true;
-
     if(!pVictim->IsInMap(this))
-        return true;
+        return false;
 
-    if(!canAttack(pVictim))
-        return true;
+    if(!canAttack(pVictim, force))
+        return false;
 
     if(!pVictim->isInAccessiblePlaceFor(this))
-        return true;
+        return false;
 
     if(sMapStore.LookupEntry(GetMapId())->IsDungeon())
-        return false;
+        return true;
 
     float AttackDist = GetAttackDistance(pVictim);
     uint32 ThreatRadius = sWorld.getConfig(CONFIG_THREAT_RADIUS);
 
     //Use AttackDistance in distance check if threat radius is lower. This prevents creature bounce in and out of combat every update tick.
-    return !pVictim->IsWithinDist3d(mHome_X,mHome_Y,mHome_Z,
-        ThreatRadius > AttackDist ? ThreatRadius : AttackDist);
+    if(Unit *unit = GetCharmerOrOwner())
+        return pVictim->IsWithinDist(unit, ThreatRadius > AttackDist ? ThreatRadius : AttackDist);
+    else
+        return pVictim->IsWithinDist3d(mHome_X, mHome_Y, mHome_Z, ThreatRadius > AttackDist ? ThreatRadius : AttackDist);
 }
 
 CreatureDataAddon const* Creature::GetCreatureAddon() const
