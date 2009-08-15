@@ -1352,13 +1352,11 @@ CreatureAI* GetAI_npc_dkc1_gothik(Creature* pCreature)
 #define SPELL_REVIVE 51918
 #define VALK_WHISPER "It is not yet your time, champion. Rise! Rise and fight once more!"
 
-struct TRINITY_DLL_DECL npc_valkyr_battle_maidenAI : public ScriptedAI
+struct TRINITY_DLL_DECL npc_valkyr_battle_maidenAI : public PassiveAI
 {
-    npc_valkyr_battle_maidenAI(Creature *c) : ScriptedAI(c) {}
+    npc_valkyr_battle_maidenAI(Creature *c) : PassiveAI(c) {}
 
-    Player *Owner;
     uint32 FlyBackTimer;
-    uint64 TargetGUID;
     float x, y, z;
     uint32 phase;
 
@@ -1370,76 +1368,59 @@ struct TRINITY_DLL_DECL npc_valkyr_battle_maidenAI : public ScriptedAI
         FlyBackTimer = 500;
         phase = 0;
 
-        Owner = NULL;
         m_creature->GetPosition(x, y, z);
         z += 4; x -= 3.5; y -= 5;
         m_creature->GetMotionMaster()->Clear(false);
         m_creature->GetMap()->CreatureRelocation(m_creature, x, y, z, 0.0f);
     }
 
-    void Aggro(Unit *who){}
-
-    void AttackStart(Unit *who){}
-
     void UpdateAI(const uint32 diff)
     {
-        if (!Owner)
+        if(FlyBackTimer < diff)
         {
-            TargetGUID = m_creature->GetOwnerGUID();
-            Owner = Unit::GetPlayer(TargetGUID);
-            return;
-        }
+            Player *plr = NULL;
+            if(me->isSummon())
+                if(Unit *summoner = CAST_SUM(me)->GetSummoner())
+                    if(summoner->GetTypeId() == TYPEID_PLAYER)
+                        plr = CAST_PLR(summoner);
 
-        if (Owner->isAlive())
-            phase = 4;
+            if(!plr)
+                phase = 3;
 
-        if (FlyBackTimer < diff)
-        {
             switch(phase)
             {
                 case 0:
                     m_creature->RemoveUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
                     m_creature->HandleEmoteCommand(EMOTE_STATE_FLYGRABCLOSED);
                     FlyBackTimer = 500;
-                    phase = 1;
                     break;
                 case 1:
-                    Owner->GetClosePoint(x,y,z, m_creature->GetObjectSize());
+                    plr->GetClosePoint(x,y,z, m_creature->GetObjectSize());
                     z += 2.5; x -= 2; y -= 1.5;
                     m_creature->GetMotionMaster()->MovePoint(0, x, y, z);
-                    m_creature->SetUInt64Value(UNIT_FIELD_TARGET, Owner->GetGUID());
+                    m_creature->SetUInt64Value(UNIT_FIELD_TARGET, plr->GetGUID());
                     m_creature->SetVisibility(VISIBILITY_ON);
                     FlyBackTimer = 4500;
-                    phase = 2;
                     break;
                 case 2:
-                    if (!Owner->isRessurectRequested())
+                    if (!plr->isRessurectRequested())
                     {
                         m_creature->HandleEmoteCommand(EMOTE_ONESHOT_CUSTOMSPELL01);
-                        DoCast(Owner, SPELL_REVIVE,true);
-                        m_creature->MonsterWhisper(VALK_WHISPER, Owner->GetGUID());
+                        DoCast(plr, SPELL_REVIVE, true);
+                        m_creature->MonsterWhisper(VALK_WHISPER, plr->GetGUID());
                     }
                     FlyBackTimer = 5000;
-                    phase = 3;
                     break;
                 case 3:
-                    m_creature->SetVisibility(VISIBILITY_OFF);
-                    FlyBackTimer = 2000;
-                    phase = 4;
-                    break;
-                case 4:
-                    m_creature->setDeathState(JUST_DIED);
-                    m_creature->RemoveCorpse();
+                    me->DisappearAndDie();
                     break;
                 default: 
                     //Nothing To DO
                     break;
             }
+            ++phase;
         }else FlyBackTimer-=diff;
     }
-
-    void MoveInLineOfSight(Unit *who){}
-
 };
 
 CreatureAI* GetAI_npc_valkyr_battle_maiden(Creature* pCreature)
