@@ -10391,18 +10391,20 @@ void Unit::SetInCombatState(bool PvP, Unit* enemy)
             if(((Creature*)this)->GetFormation())
                 ((Creature*)this)->GetFormation()->MemberAttackStart((Creature*)this, enemy);
         }
+
+        if(((Creature*)this)->isPet())
+        {
+            UpdateSpeed(MOVE_RUN, true);
+            UpdateSpeed(MOVE_SWIM, true);
+            UpdateSpeed(MOVE_FLIGHT, true);
+        }
     }
 
-    if(GetTypeId() != TYPEID_PLAYER && ((Creature*)this)->isPet())
+    for(Unit::ControlList::iterator itr = m_Controlled.begin(); itr != m_Controlled.end(); ++itr)
     {
-        UpdateSpeed(MOVE_RUN, true);
-        UpdateSpeed(MOVE_SWIM, true);
-        UpdateSpeed(MOVE_FLIGHT, true);
+        (*itr)->SetInCombatState(PvP, enemy);
+        (*itr)->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PET_IN_COMBAT);
     }
-    else if(!isCharmed())
-        return;
-
-    SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PET_IN_COMBAT);
 }
 
 void Unit::ClearInCombat()
