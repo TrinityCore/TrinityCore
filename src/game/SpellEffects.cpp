@@ -3424,9 +3424,11 @@ void Spell::EffectSummonType(uint32 i)
                         TempSummon * summon = m_originalCaster->SummonCreature(entry,px,py,pz,m_caster->GetOrientation(),summonType,duration);
                         if (!summon)
                             continue;
-                        summon->SetUInt64Value(UNIT_FIELD_SUMMONEDBY, m_originalCaster->GetGUID());
                         if (properties->Category == SUMMON_CATEGORY_ALLY)
+                        {
+                            summon->SetUInt64Value(UNIT_FIELD_SUMMONEDBY, m_originalCaster->GetGUID());
                             summon->setFaction(m_originalCaster->getFaction());
+                        }
                     }
                     break;
                 }
