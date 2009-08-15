@@ -914,6 +914,10 @@ void Creature::prepareGossipMenu( Player *pPlayer,uint32 gossipid )
                         if(!isCanTrainingOf(pPlayer,false))
                             cantalking=false;
                         break;
+                    case GOSSIP_OPTION_LEARNDUALSPEC:
+                        if(!(pPlayer->GetSpecsCount() == 1 && isCanTrainingAndResetTalentsOf(pPlayer) && !(pPlayer->getLevel() < 40)))
+                            cantalking=false;
+                        break;
                     case GOSSIP_OPTION_UNLEARNTALENTS:
                         if(!isCanTrainingAndResetTalentsOf(pPlayer))
                             cantalking=false;
@@ -1060,6 +1064,29 @@ void Creature::OnGossipSelect(Player* player, uint32 option)
         case GOSSIP_OPTION_UNLEARNTALENTS:
             player->PlayerTalkClass->CloseGossip();
             player->SendTalentWipeConfirm(guid);
+            break;
+        case GOSSIP_OPTION_LEARNDUALSPEC:
+            if(player->GetSpecsCount() == 1 && !(player->getLevel() < 40))
+            {
+                if (player->GetMoney() < 10000000)
+                {
+                    player->SendBuyError( BUY_ERR_NOT_ENOUGHT_MONEY, 0, 0, 0);
+                    player->PlayerTalkClass->CloseGossip();
+                    break;
+                }
+                else
+                {
+                    player->ModifyMoney(-10000000);
+
+                    // Cast spells that teach dual spec
+                    // Both are also ImplicitTarget self and must be cast by player
+                    player->CastSpell(player,63680,true,NULL,NULL,player->GetGUID());
+                    player->CastSpell(player,63624,true,NULL,NULL,player->GetGUID());
+
+                    // Should show another Gossip text with "Congratulations..."
+                    player->PlayerTalkClass->CloseGossip();
+                }
+            }
             break;
         case GOSSIP_OPTION_UNLEARNPETSKILLS:
             player->PlayerTalkClass->CloseGossip();
