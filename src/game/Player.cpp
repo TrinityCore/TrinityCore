@@ -14644,13 +14644,6 @@ bool Player::LoadFromDB( uint32 guid, SqlQueryHolder *holder )
         return false;
     }
 
-    m_specsCount = fields[42].GetUInt32();
-    m_activeSpec = fields[43].GetUInt32();
-
-    // sanity check
-    if (m_specsCount < 2) // Maybe better to check MAX_TALENT_SPECS?
-        m_activeSpec = 0;
-
     Object::_Create( guid, 0, HIGHGUID_PLAYER );
 
     m_name = fields[3].GetCppString();
@@ -15070,7 +15063,17 @@ bool Player::LoadFromDB( uint32 guid, SqlQueryHolder *holder )
 
     //mails are loaded only when needed ;-) - when player in game click on mailbox.
     //_LoadMail();
+   
+    m_specsCount = fields[42].GetUInt32();
+    m_activeSpec = fields[43].GetUInt32();
 
+    // sanity check
+    if (m_specsCount > MAX_TALENT_SPECS || m_activeSpec > MAX_TALENT_SPECS) // if (m_specsCount < 2) is not logical
+    {
+        m_activeSpec = 0;
+        sLog.outError("Player %s(GUID: %u) has SpecCount = %u and ActiveSpec = %u.", GetName(), GetGUIDLow(), m_specsCount, m_activeSpec);
+    }
+        
     _LoadTalents(holder->GetResult(PLAYER_LOGIN_QUERY_LOADTALENTS));
     _LoadSpells(holder->GetResult(PLAYER_LOGIN_QUERY_LOADSPELLS));
 
