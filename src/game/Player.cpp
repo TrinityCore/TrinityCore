@@ -15065,7 +15065,7 @@ bool Player::LoadFromDB( uint32 guid, SqlQueryHolder *holder )
     m_specsCount = fields[42].GetUInt32();
     m_activeSpec = fields[43].GetUInt32();
     delete result;
-
+    
     // sanity check
     if (m_specsCount > MAX_TALENT_SPECS || m_activeSpec > MAX_TALENT_SPECS) // if (m_specsCount < 2) is not logical
     {
@@ -21779,7 +21779,8 @@ void Player::ActivateSpec(uint8 spec)
     }
 
     SetActiveSpec(spec);
-
+    uint32 spentTalents = 0;
+    
     for(uint8 i = 0; i < 3; ++i)
     {
         uint32 talentTabId = talentTabIds[i];
@@ -21801,6 +21802,7 @@ void Player::ActivateSpec(uint8 spec)
                 if(talentInfo->RankID[k] && HasTalent(talentInfo->RankID[k], m_activeSpec))
                 {
                     learnSpell(talentInfo->RankID[k], false);
+                    spentTalents += k+1;
                 }
             }
         }
@@ -21821,7 +21823,7 @@ void Player::ActivateSpec(uint8 spec)
         SetGlyph(slot, glyph);
     }
 
-    m_usedTalentCount = (uint32)(sizeof(m_talents[spec]) / sizeof(m_talents[spec][0])); // This is not right, not factoring in talent ranks :(
+    m_usedTalentCount = spentTalents;
     InitTalentForLevel();
 
     QueryResult *result = CharacterDatabase.PQuery("SELECT button,action,type FROM character_action WHERE guid = '%u' AND spec = '%u' ORDER BY button", GetGUIDLow(), m_activeSpec);
