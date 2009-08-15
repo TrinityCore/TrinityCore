@@ -527,7 +527,7 @@ class TRINITY_DLL_SPEC Creature : public Unit
         bool isCanTrainingOf(Player* player, bool msg) const;
         bool isCanInteractWithBattleMaster(Player* player, bool msg) const;
         bool isCanTrainingAndResetTalentsOf(Player* pPlayer) const;
-        bool IsOutOfThreatArea(Unit* pVictim) const;
+        bool canCreatureAttack(Unit const *pVictim, bool force = true) const;
         bool IsImmunedToSpell(SpellEntry const* spellInfo);
                                                             // redefine Unit::IsImmunedToSpell
         bool IsImmunedToSpellEffect(SpellEntry const* spellInfo, uint32 index) const;
