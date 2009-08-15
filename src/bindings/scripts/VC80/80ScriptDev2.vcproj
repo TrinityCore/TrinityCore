@@ -54,8 +54,8 @@
 				UsePrecompiledHeader="2"
 				PrecompiledHeaderThrough="precompiled.h"
 				WarningLevel="3"
-				Detect64BitPortabilityProblems="false"
-				DebugInformationFormat="3"
+				Detect64BitPortabilityProblems="true"
+				DebugInformationFormat="4"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -75,8 +75,6 @@
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile="$(OutDir)/TrinityScript.pdb"
 				SubSystem="2"
-				RandomizedBaseAddress="1"
-				DataExecutionPrevention="0"
 				ImportLibrary="$(OutDir)/TrinityScript.lib"
 				TargetMachine="1"
 			/>
@@ -99,88 +97,7 @@
 				Name="VCAppVerifierTool"
 			/>
 			<Tool
-				Name="VCPostBuildEventTool"
-			/>
-		</Configuration>
-		<Configuration
-			Name="Release|Win32"
-			OutputDirectory="..\..\..\..\bin\$(PlatformName)_$(ConfigurationName)"
-			IntermediateDirectory=".\ScriptDev2__$(PlatformName)_$(ConfigurationName)"
-			ConfigurationType="2"
-			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
-			CharacterSet="2"
-			>
-			<Tool
-				Name="VCPreBuildEventTool"
-				CommandLine=""
-			/>
-			<Tool
-				Name="VCCustomBuildTool"
-			/>
-			<Tool
-				Name="VCXMLDataGeneratorTool"
-			/>
-			<Tool
-				Name="VCWebServiceProxyGeneratorTool"
-			/>
-			<Tool
-				Name="VCMIDLTool"
-			/>
-			<Tool
-				Name="VCCLCompilerTool"
-				AdditionalOptions="/MP"
-				AdditionalIncludeDirectories="..\..\..\..\dep\include\;..\..\..\shared\;..\..\..\framework\;..\..\..\game\;..\include\;..\..\..\..\dep\ACE_wrappers"
-				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;SCRIPT;_SECURE_SCL=0"
-				RuntimeLibrary="2"
-				EnableEnhancedInstructionSet="1"
-				FloatingPointModel="2"
-				UsePrecompiledHeader="2"
-				PrecompiledHeaderThrough="precompiled.h"
-				WarningLevel="3"
-				Detect64BitPortabilityProblems="true"
-				DebugInformationFormat="3"
-			/>
-			<Tool
-				Name="VCManagedResourceCompilerTool"
-			/>
-			<Tool
-				Name="VCResourceCompilerTool"
-			/>
-			<Tool
-				Name="VCPreLinkEventTool"
-			/>
-			<Tool
-				Name="VCLinkerTool"
-				AdditionalDependencies="TrinityCore.lib ace.lib"
-				OutputFile="$(OutDir)/TrinityScript.dll"
-				LinkIncremental="1"
-				AdditionalLibraryDirectories="..\..\..\..\win\VC80\trinitycore__$(PlatformName)_$(ConfigurationName);..\..\..\..\dep\lib\$(PlatformName)_$(ConfigurationName)"
-				GenerateDebugInformation="false"
-				SubSystem="2"
-				OptimizeReferences="2"
-				EnableCOMDATFolding="2"
-				RandomizedBaseAddress="1"
-				DataExecutionPrevention="0"
-				ImportLibrary="$(OutDir)/TrinityScript.lib"
-				TargetMachine="1"
-			/>
-			<Tool
-				Name="VCALinkTool"
-			/>
-			<Tool
-				Name="VCManifestTool"
-			/>
-			<Tool
-				Name="VCXDCMakeTool"
-			/>
-			<Tool
-				Name="VCBscMakeTool"
-			/>
-			<Tool
-				Name="VCFxCopTool"
-			/>
-			<Tool
-				Name="VCAppVerifierTool"
+				Name="VCWebDeploymentTool"
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
@@ -272,6 +189,90 @@
 			/>
 		</Configuration>
 		<Configuration
+			Name="Release|Win32"
+			OutputDirectory="..\..\..\..\bin\$(PlatformName)_$(ConfigurationName)"
+			IntermediateDirectory=".\ScriptDev2__$(PlatformName)_$(ConfigurationName)"
+			ConfigurationType="2"
+			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
+			CharacterSet="2"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+				CommandLine=""
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+			/>
+			<Tool
+				Name="VCCLCompilerTool"
+				AdditionalOptions="/MP"
+				AdditionalIncludeDirectories="..\..\..\..\dep\include\;..\..\..\shared\;..\..\..\framework\;..\..\..\game\;..\include\;..\..\..\..\dep\ACE_wrappers"
+				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;SCRIPT;_SECURE_SCL=0"
+				RuntimeLibrary="2"
+				UsePrecompiledHeader="2"
+				PrecompiledHeaderThrough="precompiled.h"
+				WarningLevel="3"
+				Detect64BitPortabilityProblems="true"
+				DebugInformationFormat="3"
+			/>
+			<Tool
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
+			<Tool
+				Name="VCLinkerTool"
+				AdditionalDependencies="TrinityCore.lib ace.lib"
+				OutputFile="$(OutDir)/TrinityScript.dll"
+				LinkIncremental="1"
+				AdditionalLibraryDirectories="..\..\..\..\win\VC80\trinitycore__$(PlatformName)_$(ConfigurationName);..\..\..\..\dep\lib\$(PlatformName)_$(ConfigurationName)"
+				GenerateDebugInformation="false"
+				SubSystem="2"
+				OptimizeReferences="2"
+				EnableCOMDATFolding="2"
+
+				ImportLibrary="$(OutDir)/TrinityScript.lib"
+				TargetMachine="1"
+			/>
+			<Tool
+				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCManifestTool"
+			/>
+			<Tool
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+			/>
+			<Tool
+				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCAppVerifierTool"
+			/>
+			<Tool
+				Name="VCWebDeploymentTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+			/>
+		</Configuration>
+		<Configuration
 			Name="Release|x64"
 			OutputDirectory="..\..\..\..\bin\$(PlatformName)_$(ConfigurationName)"
 			IntermediateDirectory=".\ScriptDev2__$(PlatformName)_$(ConfigurationName)"
@@ -302,7 +303,6 @@
 				AdditionalIncludeDirectories="..\..\..\..\dep\include\;..\..\..\shared\;..\..\..\framework\;..\..\..\game\;..\include\;..\..\..\..\dep\ACE_wrappers"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;SCRIPT;_SECURE_SCL=0"
 				RuntimeLibrary="2"
-				FloatingPointModel="2"
 				UsePrecompiledHeader="2"
 				PrecompiledHeaderThrough="precompiled.h"
 				WarningLevel="3"
@@ -360,9 +360,9 @@
 	<References>
 	</References>
 	<Files>
-		<Filter
-			Name="scripts"
-			>
+        <Filter
+            Name="scripts"
+            >
             <Filter
                 Name="areatrigger"
                 >
@@ -371,42 +371,42 @@
                     >
                 </File>
             </Filter>
-			<Filter
-				Name="boss"
-				>
-				<File
-					RelativePath="..\scripts\boss\boss_emeriss.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\scripts\boss\boss_lethon.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\scripts\boss\boss_taerar.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\scripts\boss\boss_ysondre.cpp"
-					>
-				</File>
-			</Filter>
-			<Filter
-				Name="creature"
-				>
-				<File
-					RelativePath="..\scripts\creature\mob_generic_creature.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\scripts\creature\simple_ai.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\scripts\creature\simple_ai.h"
-					>
-				</File>
-			</Filter>
+            <Filter
+                Name="boss"
+                >
+                <File
+                    RelativePath="..\scripts\boss\boss_emeriss.cpp"
+                    >
+                </File>
+                <File
+                    RelativePath="..\scripts\boss\boss_lethon.cpp"
+                    >
+                </File>
+                <File
+                    RelativePath="..\scripts\boss\boss_taerar.cpp"
+                    >
+                </File>
+                <File
+                    RelativePath="..\scripts\boss\boss_ysondre.cpp"
+                    >
+                </File>
+            </Filter>
+            <Filter
+                Name="creature"
+                >
+                <File
+                    RelativePath="..\scripts\creature\mob_generic_creature.cpp"
+                    >
+                </File>
+                <File
+                    RelativePath="..\scripts\creature\simple_ai.cpp"
+                    >
+                </File>
+                <File
+                    RelativePath="..\scripts\creature\simple_ai.h"
+                    >
+                </File>
+            </Filter>
             <Filter
                 Name="eastern_kingdoms"
                 >
@@ -499,26 +499,26 @@
                     >
                 </File>
             </Filter>
-			<Filter
-				Name="examples"
-				>
-				<File
-					RelativePath="..\scripts\examples\example_creature.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\scripts\examples\example_escort.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\scripts\examples\example_gossip_codebox.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\scripts\examples\example_misc.cpp"
-					>
-				</File>
-			</Filter>
+            <Filter
+                Name="examples"
+                >
+                <File
+                    RelativePath="..\scripts\examples\example_creature.cpp"
+                    >
+                </File>
+                <File
+                    RelativePath="..\scripts\examples\example_escort.cpp"
+                    >
+                </File>
+                <File
+                    RelativePath="..\scripts\examples\example_gossip_codebox.cpp"
+                    >
+                </File>
+                <File
+                    RelativePath="..\scripts\examples\example_misc.cpp"
+                    >
+                </File>
+            </Filter>
             <Filter
                 Name="go"
                 >
@@ -527,22 +527,22 @@
                     >
                 </File>
             </Filter>
-			<Filter
-				Name="guard"
-				>
-				<File
-					RelativePath="..\scripts\guard\guard_ai.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\scripts\guard\guard_ai.h"
-					>
-				</File>
-				<File
-					RelativePath="..\scripts\guard\guards.cpp"
-					>
-				</File>
-			</Filter>
+            <Filter
+                Name="guard"
+                >
+                <File
+                    RelativePath="..\scripts\guard\guard_ai.cpp"
+                    >
+                </File>
+                <File
+                    RelativePath="..\scripts\guard\guard_ai.h"
+                    >
+                </File>
+                <File
+                    RelativePath="..\scripts\guard\guards.cpp"
+                    >
+                </File>
+            </Filter>
             <Filter
                 Name="item"
                 >
@@ -666,34 +666,34 @@
                     >
                 </File>
             </Filter>
-			<Filter
-				Name="npc"
-				>
-				<File
-					RelativePath="..\scripts\npc\npc_escortAI.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\scripts\npc\npc_escortAI.h"
-					>
-				</File>
-				<File
-					RelativePath="..\scripts\npc\npc_innkeeper.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\scripts\npc\npc_professions.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\scripts\npc\npc_taxi.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\scripts\npc\npcs_special.cpp"
-					>
-				</File>
-			</Filter>
+            <Filter
+                Name="npc"
+                >
+                <File
+                    RelativePath="..\scripts\npc\npc_escortAI.cpp"
+                    >
+                </File>
+                <File
+                    RelativePath="..\scripts\npc\npc_escortAI.h"
+                    >
+                </File>
+                <File
+                    RelativePath="..\scripts\npc\npc_innkeeper.cpp"
+                    >
+                </File>
+                <File
+                    RelativePath="..\scripts\npc\npc_professions.cpp"
+                    >
+                </File>
+                <File
+                    RelativePath="..\scripts\npc\npc_taxi.cpp"
+                    >
+                </File>
+                <File
+                    RelativePath="..\scripts\npc\npcs_special.cpp"
+                    >
+                </File>
+            </Filter>
             <Filter
                 Name="outland"
                 >
@@ -2779,22 +2779,22 @@
                 Name="honor"
                 >
             </Filter>
-			<Filter
-				Name="servers"
-				>
-			</Filter>
-			<Filter
-				Name="custom"
-				>
-				<File
-					RelativePath="..\scripts\custom\npc_acherus_taxi.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\scripts\custom\npc_wyrmresttempel_taxi.cpp"
-					>
-				</File>
-			</Filter>
+            <Filter
+                Name="servers"
+                >
+            </Filter>
+            <Filter
+                Name="custom"
+                >
+                <File
+                    RelativePath="..\scripts\custom\npc_acherus_taxi.cpp"
+                    >
+                </File>
+                <File
+                    RelativePath="..\scripts\custom\npc_wyrmresttempel_taxi.cpp"
+                    >
+                </File>
+            </Filter>
         </Filter>
 		<Filter
 			Name="Include"
