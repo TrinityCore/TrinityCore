@@ -2547,7 +2547,7 @@ void Player::InitTalentForLevel()
     }
     else
     {
-        if (level < 40 || m_specsCount == 0)
+        if (level < sWorld.getConfig(CONFIG_MIN_DUALSPEC_LEVEL) || m_specsCount == 0)
         {
             m_specsCount = 1;
             m_activeSpec = 0;
