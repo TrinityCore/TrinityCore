@@ -209,6 +209,12 @@ enum ItemQualities
 
 #define MAX_ITEM_QUALITY                 8
 
+enum SpellCategory
+{
+    SPELL_CATEGORY_FOOD             = 11,
+    SPELL_CATEGORY_DRINK            = 59,
+};
+
 // ***********************************
 // Spell Attributes definitions
 // ***********************************
