@@ -1,116 +1,117 @@
 #include "precompiled.h"
 #include "def_vault_of_archavon.h"
 
-#define NUMBER_OF_ENCOUNTERS      2
+#define ENCOUNTERS 2
+
+/* Vault of Archavon encounters:
+1 - Archavon the Stone Watcher event
+2 - Emalon the Storm Watcher event
+*/
 
 struct TRINITY_DLL_DECL instance_archavon : public ScriptedInstance
 {
-    instance_archavon(Map* pMap) : ScriptedInstance(pMap) {Initialize();};
+    instance_archavon(Map *Map) : ScriptedInstance(Map) {Initialize();};
 
-    std::string strInstData;
+    uint32 Encounters[ENCOUNTERS];
+
     uint64 Archavon;
     uint64 Emalon;
-    uint32 m_auiEncounter[NUMBER_OF_ENCOUNTERS];
 
     void Initialize()
-    {
-        memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
-
+    {	
         Archavon = 0;
         Emalon = 0;
+
+        for(uint8 i = 0; i < ENCOUNTERS; i++)
+            Encounters[i] = NOT_STARTED;		
     }
 
     bool IsEncounterInProgress() const
     {
-        for(uint8 i = 0; i < NUMBER_OF_ENCOUNTERS; ++i)
-            if (m_auiEncounter[i] == IN_PROGRESS)
-                return true;
+        for(uint8 i = 0; i < ENCOUNTERS; i++)
+            if(Encounters[i] == IN_PROGRESS) return true;
 
         return false;
     }
 
-    void OnCreatureCreate(Creature* pCreature, bool add)
+    void OnCreatureCreate(Creature *creature, bool add)
     {
-        switch(pCreature->GetEntry())
+        switch(creature->GetEntry())
         {
-            case 31125:    Archavon = pCreature->GetGUID();        break;
-            case 33993:    Emalon = pCreature->GetGUID();        break;
+        case 31125: Archavon = creature->GetGUID(); break;
+        case 33993: Emalon = creature->GetGUID(); break;
         }
+    }
+
+    uint32 GetData(uint32 type)
+    {
+        switch(type)
+        {
+        case DATA_ARCHAVON_EVENT:    	return Encounters[0];
+        case DATA_EMALON_EVENT:    		return Encounters[1];
+        }
+        return 0;
     }
 
     uint64 GetData64(uint32 identifier)
     {
         switch(identifier)
         {
-            case DATA_ARCHAVON:    return Archavon;
-            case DATA_EMALON:        return Emalon;
+        case DATA_ARCHAVON:   	 return Archavon;
+        case DATA_EMALON:      	 return Emalon;
         }
         return 0;
     }
 
-    uint32 GetData(uint32 identifier)
+    void SetData(uint32 type, uint32 data)
     {
-        switch(identifier)
+        switch(type)
         {
-            case DATA_ARCHAVON_EVENT:    return m_auiEncounter[0];
-            case DATA_EMALON_EVENT:    return m_auiEncounter[1];
-        }
-        return 0;
-    }
-
-    void SetData(uint32 identifier, uint32 data)
-    {
-        switch(identifier)
-        {
-            case DATA_ARCHAVON_EVENT:    m_auiEncounter[0] = data;  break;
-            case DATA_EMALON_EVENT:    m_auiEncounter[1] = data;  break;
+        case DATA_ARCHAVON_EVENT:		Encounters[0] = data; break;
+        case DATA_EMALON_EVENT:			Encounters[1] = data; break;
         }
 
-        if (data == DONE)
-        {
-            OUT_SAVE_INST_DATA;
-
-            std::ostringstream saveStream;
-            saveStream << m_auiEncounter[0] << " " << m_auiEncounter[1];
-
-            strInstData = saveStream.str();
-
+        if(data == DONE)
             SaveToDB();
-            OUT_SAVE_INST_DATA_COMPLETE;
-        }
     }
 
     std::string GetSaveData()
     {
-        return strInstData;
+        OUT_SAVE_INST_DATA;
+        std::ostringstream stream;
+        stream << Encounters[0] << " " << Encounters[1];
+        char* out = new char[stream.str().length() + 1];
+        strcpy(out, stream.str().c_str());
+        if(out)
+        {
+            OUT_SAVE_INST_DATA_COMPLETE;
+            return out;
+        }
+
+        return NULL;
     }
 
-    void Load(const char* chrIn)
+    void Load(const char* in)
     {
-        if (!chrIn)
+        if(!in)
         {
             OUT_LOAD_INST_DATA_FAIL;
             return;
         }
 
-        OUT_LOAD_INST_DATA(chrIn);
-
-        std::istringstream loadStream(chrIn);
-        loadStream >> m_auiEncounter[0] >> m_auiEncounter[1];
-
-        for(uint8 i = 1; i < NUMBER_OF_ENCOUNTERS; ++i)
-        {
-            if (m_auiEncounter[i] == IN_PROGRESS)
-                m_auiEncounter[i] = NOT_STARTED;
-        }
-
+        OUT_LOAD_INST_DATA(in);
+        std::istringstream stream(in);
+        stream >> Encounters[0] >> Encounters[1];
+        for(uint8 i = 0; i < ENCOUNTERS; ++i)
+            if(Encounters[i] == IN_PROGRESS)
+                Encounters[i] = NOT_STARTED;
         OUT_LOAD_INST_DATA_COMPLETE;
     }
 };
 
-InstanceData* GetInstanceData_instance_archavon(Map* pMap)
+InstanceData* GetInstanceData_instance_archavon(Map* map)
 {
-    return new instance_archavon(pMap);
+    return new instance_archavon(map);
 }
 
 void AddSC_instance_archavon()
