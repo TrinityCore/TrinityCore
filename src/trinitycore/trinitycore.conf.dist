@@ -593,6 +593,10 @@ ChatLogTimestamp = 0
 #        Change not recommended
 #        Default: 80
 #
+#    MinDualSpecLevel
+#        Min level at which players can use Dual Spec functionality
+#        Default: 40
+#
 #    StartPlayerLevel
 #        Staring level that have character at creating (in range 1 to MaxPlayerLevel)
 #        Default: 1
@@ -755,6 +759,7 @@ HeroicCharactersPerRealm = 1
 MinLevelForHeroicCharacterCreating = 55
 SkipCinematics = 0
 MaxPlayerLevel = 80
+MinDualSpecLevel = 40
 StartPlayerLevel = 1
 StartHeroicPlayerLevel = 55
 StartPlayerMoney = 0
