@@ -31,7 +31,7 @@ mob_nestlewood_owlkin
 EndContentData */
 
 #include "precompiled.h"
-#include "../npc/npc_escortAI.h"
+#include "escortAI.h"
 #include <cmath>
 
 /*######

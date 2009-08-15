@@ -32,7 +32,7 @@ npc_slim
 EndContentData */
 
 #include "precompiled.h"
-#include "../npc/npc_escortAI.h"
+#include "escortAI.h"
 
 /*######
 ## mob_unkor_the_ruthless

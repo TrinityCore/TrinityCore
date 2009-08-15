@@ -30,7 +30,7 @@ npc_kayra_longmane
 EndContentData */
 
 #include "precompiled.h"
-#include "../npc/npc_escortAI.h"
+#include "escortAI.h"
 
 /*######
 ## npcs_ashyen_and_keleth

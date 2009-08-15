@@ -10,7 +10,7 @@ SDCategory: Npc
 EndScriptData */
 
 #include "precompiled.h"
-#include "npc_escortAI.h"
+#include "escortAI.h"
 
 enum
 {

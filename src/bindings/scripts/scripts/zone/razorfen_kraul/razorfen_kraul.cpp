@@ -26,7 +26,7 @@ npc_willix
 EndContentData */
 
 #include "precompiled.h"
-#include "../../npc/npc_escortAI.h"
+#include "escortAI.h"
 #include "def_razorfen_kraul.h"
 
 #define SAY_READY -1047000

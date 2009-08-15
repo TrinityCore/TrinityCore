@@ -38,7 +38,7 @@ npc_snake_trap_serpents 80%     AI for snakes that summoned by Snake Trap
 EndContentData */
 
 #include "precompiled.h"
-#include "../npc/npc_escortAI.h"
+#include "escortAI.h"
 #include "ObjectMgr.h"
 
 /*########

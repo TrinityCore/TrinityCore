@@ -4,14 +4,19 @@
 SET(trinityscript_LIB_SRCS
    ScriptMgr.cpp
    ScriptMgr.h
+   base/escortAI.cpp
+   base/escortAI.h
+   base/guard_ai.cpp
+   base/guard_ai.h
+   base/guards.cpp
+   base/simple_ai.cpp
+   base/simple_ai.h
    include/precompiled.cpp
    include/precompiled.h
    include/sc_creature.cpp
    include/sc_creature.h
    include/sc_gossip.h
    include/sc_instance.h
-   scripts/creature/simple_ai.cpp
-   scripts/creature/simple_ai.h
    scripts/eastern_kingdoms/alterac_mountains.cpp
    scripts/eastern_kingdoms/arathi_highlands.cpp
    scripts/eastern_kingdoms/blasted_lands.cpp
@@ -38,9 +43,6 @@ SET(trinityscript_LIB_SRCS
    scripts/examples/example_escort.cpp
    scripts/examples/example_gossip_codebox.cpp
    scripts/examples/example_misc.cpp
-   scripts/guard/guard_ai.cpp
-   scripts/guard/guard_ai.h
-   scripts/guard/guards.cpp
    scripts/kalimdor/ashenvale.cpp
    scripts/kalimdor/azshara.cpp
    scripts/kalimdor/azuremyst_isle.cpp
@@ -68,8 +70,6 @@ SET(trinityscript_LIB_SRCS
    scripts/northrend/icecrown.cpp
    scripts/northrend/sholazar_basin.cpp
    scripts/northrend/zuldrak.cpp
-   scripts/npc/npc_escortAI.cpp
-   scripts/npc/npc_escortAI.h
    scripts/outland/blades_edge_mountains.cpp
    scripts/outland/boss_doomlord_kazzak.cpp
    scripts/outland/boss_doomwalker.cpp
