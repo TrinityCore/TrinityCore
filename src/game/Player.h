@@ -1480,7 +1480,7 @@ class MANGOS_DLL_SPEC Player : public Unit
         // Dual Spec
         void UpdateSpecCount(uint8 count);
         uint32 GetActiveSpec() { return m_activeSpec; }
-        void SetActiveSpec(uint8 spec) { m_activeSpec = spec; }
+        void SetActiveSpec(uint8 spec){ m_activeSpec = spec; }
         uint8 GetSpecsCount() { return m_specsCount; }
         void SetSpecsCount(uint8 count) { m_specsCount = count; }
         void ActivateSpec(uint8 spec);
@@ -1568,7 +1568,7 @@ class MANGOS_DLL_SPEC Player : public Unit
         ActionButton* addActionButton(uint8 button, uint32 action, uint8 type);
         void removeActionButton(uint8 button);
         void SendInitialActionButtons() const { SendActionButtons(0); }
-        void SendActionButtons(uint32 spec) const;
+        void SendActionButtons(uint32 state) const;
 
         PvPInfo pvpInfo;
         void UpdatePvPState(bool onlyFFA = false);
