@@ -10,12 +10,6 @@ SET(trinityscript_LIB_SRCS
    include/sc_creature.h
    include/sc_gossip.h
    include/sc_instance.h
-   scripts/areatrigger/areatrigger_scripts.cpp
-   scripts/boss/boss_emeriss.cpp
-   scripts/boss/boss_lethon.cpp
-   scripts/boss/boss_taerar.cpp
-   scripts/boss/boss_ysondre.cpp
-   scripts/creature/mob_generic_creature.cpp
    scripts/creature/simple_ai.cpp
    scripts/creature/simple_ai.h
    scripts/eastern_kingdoms/alterac_mountains.cpp
@@ -44,11 +38,9 @@ SET(trinityscript_LIB_SRCS
    scripts/examples/example_escort.cpp
    scripts/examples/example_gossip_codebox.cpp
    scripts/examples/example_misc.cpp
-   scripts/go/go_scripts.cpp
    scripts/guard/guard_ai.cpp
    scripts/guard/guard_ai.h
    scripts/guard/guards.cpp
-   scripts/item/item_scripts.cpp
    scripts/kalimdor/ashenvale.cpp
    scripts/kalimdor/azshara.cpp
    scripts/kalimdor/azuremyst_isle.cpp
@@ -78,10 +70,6 @@ SET(trinityscript_LIB_SRCS
    scripts/northrend/zuldrak.cpp
    scripts/npc/npc_escortAI.cpp
    scripts/npc/npc_escortAI.h
-   scripts/npc/npc_innkeeper.cpp
-   scripts/npc/npc_professions.cpp
-   scripts/npc/npcs_special.cpp
-   scripts/npc/npc_taxi.cpp
    scripts/outland/blades_edge_mountains.cpp
    scripts/outland/boss_doomlord_kazzak.cpp
    scripts/outland/boss_doomwalker.cpp
@@ -508,6 +496,18 @@ SET(trinityscript_LIB_SRCS
    scripts/zone/ulduar/ulduar/boss_yoggsaron.cpp
    scripts/zone/ulduar/ulduar/def_ulduar.h
    scripts/zone/ulduar/ulduar/instance_ulduar.cpp
+   scripts/world/areatrigger_scripts.cpp
+   scripts/world/boss_emeriss.cpp
+   scripts/world/boss_lethon.cpp
+   scripts/world/boss_taerar.cpp
+   scripts/world/boss_ysondre.cpp
+   scripts/world/go_scripts.cpp
+   scripts/world/item_scripts.cpp
+   scripts/world/mob_generic_creature.cpp
+   scripts/world/npc_innkeeper.cpp
+   scripts/world/npc_professions.cpp
+   scripts/world/npcs_special.cpp
+   scripts/world/npc_taxi.cpp
    system.cpp
 )
 
