@@ -18,6 +18,28 @@ SET(trinityscript_LIB_SRCS
    scripts/creature/mob_generic_creature.cpp
    scripts/creature/simple_ai.cpp
    scripts/creature/simple_ai.h
+   scripts/eastern_kingdoms/alterac_mountains.cpp
+   scripts/eastern_kingdoms/arathi_highlands.cpp
+   scripts/eastern_kingdoms/blasted_lands.cpp
+   scripts/eastern_kingdoms/boss_kruul.cpp
+   scripts/eastern_kingdoms/burning_steppes.cpp
+   scripts/eastern_kingdoms/dun_morogh.cpp
+   scripts/eastern_kingdoms/eastern_plaguelands.cpp
+   scripts/eastern_kingdoms/elwynn_forest.cpp
+   scripts/eastern_kingdoms/eversong_woods.cpp
+   scripts/eastern_kingdoms/ghostlands.cpp
+   scripts/eastern_kingdoms/hinterlands.cpp
+   scripts/eastern_kingdoms/ironforge.cpp
+   scripts/eastern_kingdoms/loch_modan.cpp
+   scripts/eastern_kingdoms/searing_gorge.cpp
+   scripts/eastern_kingdoms/silvermoon_city.cpp
+   scripts/eastern_kingdoms/silverpine_forest.cpp
+   scripts/eastern_kingdoms/stormwind_city.cpp
+   scripts/eastern_kingdoms/stranglethorn_vale.cpp
+   scripts/eastern_kingdoms/tirisfal_glades.cpp
+   scripts/eastern_kingdoms/undercity.cpp
+   scripts/eastern_kingdoms/western_plaguelands.cpp
+   scripts/eastern_kingdoms/westfall.cpp
    scripts/examples/example_creature.cpp
    scripts/examples/example_escort.cpp
    scripts/examples/example_gossip_codebox.cpp
@@ -27,15 +49,50 @@ SET(trinityscript_LIB_SRCS
    scripts/guard/guard_ai.h
    scripts/guard/guards.cpp
    scripts/item/item_scripts.cpp
+   scripts/kalimdor/ashenvale.cpp
+   scripts/kalimdor/azshara.cpp
+   scripts/kalimdor/azuremyst_isle.cpp
+   scripts/kalimdor/bloodmyst_isle.cpp
+   scripts/kalimdor/boss_azuregos.cpp
+   scripts/kalimdor/darkshore.cpp
+   scripts/kalimdor/desolace.cpp
+   scripts/kalimdor/dustwallow_marsh.cpp
+   scripts/kalimdor/felwood.cpp
+   scripts/kalimdor/feralas.cpp
+   scripts/kalimdor/moonglade.cpp
+   scripts/kalimdor/mulgore.cpp
+   scripts/kalimdor/orgrimmar.cpp
+   scripts/kalimdor/silithus.cpp
+   scripts/kalimdor/stonetalon_mountains.cpp
+   scripts/kalimdor/tanaris.cpp
+   scripts/kalimdor/teldrassil.cpp
+   scripts/kalimdor/the_barrens.cpp
+   scripts/kalimdor/thousand_needles.cpp
+   scripts/kalimdor/thunder_bluff.cpp
+   scripts/kalimdor/winterspring.cpp
+   scripts/northrend/borean_tundra.cpp
+   scripts/northrend/dragonblight.cpp
+   scripts/northrend/grizzly_hills.cpp
+   scripts/northrend/icecrown.cpp
+   scripts/northrend/sholazar_basin.cpp
+   scripts/northrend/zuldrak.cpp
    scripts/npc/npc_escortAI.cpp
    scripts/npc/npc_escortAI.h
    scripts/npc/npc_innkeeper.cpp
    scripts/npc/npc_professions.cpp
    scripts/npc/npcs_special.cpp
    scripts/npc/npc_taxi.cpp
-   scripts/zone/arathi_highlands/arathi_highlands.cpp
-   scripts/zone/alterac_mountains/alterac_mountains.cpp
-   scripts/zone/ashenvale_forest/ashenvale.cpp
+   scripts/outland/blades_edge_mountains.cpp
+   scripts/outland/boss_doomlord_kazzak.cpp
+   scripts/outland/boss_doomwalker.cpp
+   scripts/outland/hellfire_peninsula.cpp
+   scripts/outland/isle_of_queldanas.cpp
+   scripts/outland/nagrand.cpp
+   scripts/outland/netherstorm.cpp
+   scripts/outland/shadowmoon_valley.cpp
+   scripts/outland/shattrath_city.cpp
+   scripts/outland/terokkar_forest.cpp
+   scripts/outland/zangarmarsh.cpp
    scripts/zone/aunchindoun/auchenai_crypts/boss_exarch_maladaar.cpp
    scripts/zone/aunchindoun/auchenai_crypts/boss_shirrak_the_dead_watcher.cpp
    scripts/zone/aunchindoun/mana_tombs/boss_nexusprince_shaffar.cpp
@@ -50,10 +107,6 @@ SET(trinityscript_LIB_SRCS
    scripts/zone/aunchindoun/shadow_labyrinth/boss_murmur.cpp
    scripts/zone/aunchindoun/shadow_labyrinth/def_shadow_labyrinth.h
    scripts/zone/aunchindoun/shadow_labyrinth/instance_shadow_labyrinth.cpp
-   scripts/zone/azshara/azshara.cpp
-   scripts/zone/azshara/boss_azuregos.cpp
-   scripts/zone/azuremyst_isle/azuremyst_isle.cpp
-   scripts/zone/barrens/the_barrens.cpp
    scripts/zone/black_temple/black_temple.cpp
    scripts/zone/black_temple/boss_bloodboil.cpp
    scripts/zone/black_temple/boss_illidan.cpp
@@ -103,12 +156,6 @@ SET(trinityscript_LIB_SRCS
    scripts/zone/blackwing_lair/boss_vaelastrasz.cpp
    scripts/zone/blackwing_lair/boss_victor_nefarius.cpp
    scripts/zone/blackwing_lair/instance_blackwing_lair.cpp
-   scripts/zone/blades_edge_mountains/blades_edge_mountains.cpp
-   scripts/zone/blasted_lands/blasted_lands.cpp
-   scripts/zone/blasted_lands/boss_kruul.cpp
-   scripts/zone/bloodmyst_isle/bloodmyst_isle.cpp
-   scripts/zone/borean_tundra/borean_tundra.cpp
-   scripts/zone/burning_steppes/burning_steppes.cpp
    scripts/zone/caverns_of_time/dark_portal/def_dark_portal.h
    scripts/zone/caverns_of_time/dark_portal/instance_dark_portal.cpp
    scripts/zone/caverns_of_time/dark_portal/dark_portal.cpp
@@ -148,21 +195,9 @@ SET(trinityscript_LIB_SRCS
    scripts/zone/coilfang_resevoir/steam_vault/instance_steam_vault.cpp
    scripts/zone/coilfang_resevoir/underbog/boss_hungarfen.cpp
    scripts/zone/coilfang_resevoir/underbog/boss_the_black_stalker.cpp
-   scripts/zone/darkshore/darkshore.cpp
    scripts/zone/deadmines/def_deadmines.h
    scripts/zone/deadmines/deadmines.cpp
-   scripts/zone/desolace/desolace.cpp
-   scripts/zone/dragonblight/dragonblight.cpp
-   scripts/zone/dun_morogh/dun_morogh.cpp
-   scripts/zone/dustwallow_marsh/dustwallow_marsh.cpp
-   scripts/zone/eastern_plaguelands/eastern_plaguelands.cpp
    scripts/zone/eastern_plaguelands/the_scarlet_enclave.cpp
-   scripts/zone/elwynn_forest/elwynn_forest.cpp
-   scripts/zone/eversong_woods/eversong_woods.cpp
-   scripts/zone/felwood/felwood.cpp
-   scripts/zone/feralas/feralas.cpp
-   scripts/zone/ghostlands/ghostlands.cpp
-   scripts/zone/grizzly_hills/grizzly_hills.cpp
    scripts/zone/gruuls_lair/boss_gruul.cpp
    scripts/zone/gruuls_lair/boss_high_king_maulgar.cpp
    scripts/zone/gruuls_lair/def_gruuls_lair.h
@@ -185,12 +220,6 @@ SET(trinityscript_LIB_SRCS
    scripts/zone/hellfire_citadel/shattered_halls/def_shattered_halls.h
    scripts/zone/hellfire_citadel/shattered_halls/instance_shattered_halls.cpp
    scripts/zone/hellfire_citadel/shattered_halls/boss_warchief_kargath_bladefist.cpp
-   scripts/zone/hellfire_peninsula/boss_doomlord_kazzak.cpp
-   scripts/zone/hellfire_peninsula/hellfire_peninsula.cpp
-   scripts/zone/hinterlands/hinterlands.cpp
-   scripts/zone/icecrown/icecrown.cpp
-   scripts/zone/ironforge/ironforge.cpp
-   scripts/zone/isle_of_queldanas/isle_of_queldanas.cpp
    scripts/zone/karazhan/boss_curator.cpp
    scripts/zone/karazhan/boss_maiden_of_virtue.cpp
    scripts/zone/karazhan/boss_midnight.cpp
@@ -204,7 +233,6 @@ SET(trinityscript_LIB_SRCS
    scripts/zone/karazhan/def_karazhan.h
    scripts/zone/karazhan/instance_karazhan.cpp
    scripts/zone/karazhan/karazhan.cpp
-   scripts/zone/loch_modan/loch_modan.cpp
    scripts/zone/magisters_terrace/boss_felblood_kaelthas.cpp
    scripts/zone/magisters_terrace/boss_priestess_delrissa.cpp
    scripts/zone/magisters_terrace/boss_selin_fireheart.cpp
@@ -229,9 +257,6 @@ SET(trinityscript_LIB_SRCS
    scripts/zone/molten_core/def_molten_core.h
    scripts/zone/molten_core/instance_molten_core.cpp
    scripts/zone/molten_core/molten_core.cpp
-   scripts/zone/moonglade/moonglade.cpp
-   scripts/zone/mulgore/mulgore.cpp
-   scripts/zone/nagrand/nagrand.cpp
    scripts/zone/naxxramas/boss_anubrekhan.cpp
    scripts/zone/naxxramas/boss_faerlina.cpp
    scripts/zone/naxxramas/boss_gluth.cpp
@@ -249,9 +274,7 @@ SET(trinityscript_LIB_SRCS
    scripts/zone/naxxramas/boss_thaddius.cpp
    scripts/zone/naxxramas/def_naxxramas.h
    scripts/zone/naxxramas/instance_naxxramas.cpp
-   scripts/zone/netherstorm/netherstorm.cpp
    scripts/zone/onyxias_lair/boss_onyxia.cpp
-   scripts/zone/orgrimmar/orgrimmar.cpp
    scripts/zone/razorfen_downs/boss_amnennar_the_coldbringer.cpp
    scripts/zone/razorfen_downs/razorfen_downs.cpp
    scripts/zone/razorfen_kraul/def_razorfen_kraul.h
@@ -290,20 +313,9 @@ SET(trinityscript_LIB_SRCS
    scripts/zone/scholomance/boss_vectus.cpp
    scripts/zone/scholomance/def_scholomance.h
    scripts/zone/scholomance/instance_scholomance.cpp
-   scripts/zone/searing_gorge/searing_gorge.cpp
    scripts/zone/shadowfang_keep/def_shadowfang_keep.h
    scripts/zone/shadowfang_keep/instance_shadowfang_keep.cpp
    scripts/zone/shadowfang_keep/shadowfang_keep.cpp
-   scripts/zone/shadowmoon_valley/boss_doomwalker.cpp
-   scripts/zone/shadowmoon_valley/shadowmoon_valley.cpp
-   scripts/zone/shattrath/shattrath_city.cpp
-   scripts/zone/sholazar_basin/sholazar_basin.cpp
-   scripts/zone/silithus/silithus.cpp
-   scripts/zone/silvermoon/silvermoon_city.cpp
-   scripts/zone/silverpine_forest/silverpine_forest.cpp
-   scripts/zone/stonetalon_mountains/stonetalon_mountains.cpp
-   scripts/zone/stormwind/stormwind_city.cpp
-   scripts/zone/stranglethorn_vale/stranglethorn_vale.cpp
    scripts/zone/stratholme/boss_baron_rivendare.cpp
    scripts/zone/stratholme/boss_baroness_anastari.cpp
    scripts/zone/stratholme/boss_cannon_master_willey.cpp
@@ -327,8 +339,6 @@ SET(trinityscript_LIB_SRCS
    scripts/zone/sunwell_plateau/sunwell_plateau.cpp
    scripts/zone/sunwell_plateau/def_sunwell_plateau.h
    scripts/zone/sunwell_plateau/instance_sunwell_plateau.cpp
-   scripts/zone/tanaris/tanaris.cpp
-   scripts/zone/teldrassil/teldrassil.cpp
    scripts/zone/tempest_keep/arcatraz/arcatraz.cpp
    scripts/zone/tempest_keep/arcatraz/boss_harbinger_skyriss.cpp
    scripts/zone/tempest_keep/arcatraz/def_arcatraz.h
@@ -361,23 +371,14 @@ SET(trinityscript_LIB_SRCS
    scripts/zone/temple_of_ahnqiraj/def_temple_of_ahnqiraj.h
    scripts/zone/temple_of_ahnqiraj/instance_temple_of_ahnqiraj.cpp
    scripts/zone/temple_of_ahnqiraj/mob_anubisath_sentinel.cpp
-   scripts/zone/terokkar_forest/terokkar_forest.cpp
-   scripts/zone/thunder_bluff/thunder_bluff.cpp
-   scripts/zone/tirisfal_glades/tirisfal_glades.cpp
-   scripts/zone/thousand_needles/thousand_needles.cpp
    scripts/zone/uldaman/boss_archaedas.cpp
    scripts/zone/uldaman/instance_uldaman.cpp
    scripts/zone/uldaman/boss_ironaya.cpp
    scripts/zone/uldaman/uldaman.cpp
-   scripts/zone/undercity/undercity.cpp
    scripts/zone/ungoro_crater/ungoro_crater.cpp
    scripts/zone/wailing_caverns/def_wailing_caverns.h
    scripts/zone/wailing_caverns/instance_wailing_caverns.cpp
    scripts/zone/wailing_caverns/wailing_caverns.cpp
-   scripts/zone/western_plaguelands/western_plaguelands.cpp
-   scripts/zone/westfall/westfall.cpp
-   scripts/zone/winterspring/winterspring.cpp
-   scripts/zone/zangarmarsh/zangarmarsh.cpp
    scripts/zone/zulaman/boss_akilzon.cpp
    scripts/zone/zulaman/boss_halazzi.cpp
    scripts/zone/zulaman/boss_hexlord.cpp
@@ -387,7 +388,6 @@ SET(trinityscript_LIB_SRCS
    scripts/zone/zulaman/def_zulaman.h
    scripts/zone/zulaman/instance_zulaman.cpp
    scripts/zone/zulaman/zulaman.cpp
-   scripts/zone/zuldrak/zuldrak.cpp
    scripts/zone/zulfarrak/zulfarrak.cpp
    scripts/zone/zulgurub/boss_arlokk.cpp
    scripts/zone/zulgurub/boss_gahzranka.cpp
