@@ -325,7 +325,7 @@ void Guardian::InitStats(uint32 duration)
     if(m_owner->GetTypeId() == TYPEID_PLAYER && HasSummonMask(SUMMON_MASK_CONTROLABLE_GUARDIAN))
         m_charmInfo->InitCharmCreateSpells();
 
-    SetReactState(REACT_AGGRESSIVE);
+    SetReactState(REACT_DEFENSIVE);
 }
 
 Puppet::Puppet(SummonPropertiesEntry const *properties, Unit *owner) : Minion(properties, owner)
