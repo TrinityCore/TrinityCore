@@ -751,15 +751,15 @@ bool Player::Create( uint32 guidlow, const std::string& name, uint8 race, uint8 
             // BuyCount by default
             uint32 count = iProto->BuyCount;
 
-            // special amount for foor/drink
+            // special amount for food/drink
             if(iProto->Class==ITEM_CLASS_CONSUMABLE && iProto->SubClass==ITEM_SUBCLASS_FOOD)
             {
                 switch(iProto->Spells[0].SpellCategory)
                 {
-                    case 11:                                // food
+                    case SPELL_CATEGORY_FOOD:                                // food
                         count = getClass()==CLASS_DEATH_KNIGHT ? 10 : 4;
                         break;
-                    case 59:                                // drink
+                    case SPELL_CATEGORY_DRINK:                                // drink
                         count = 2;
                         break;
                 }
