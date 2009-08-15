@@ -923,7 +923,7 @@ void Creature::prepareGossipMenu( Player *pPlayer,uint32 gossipid )
                             cantalking=false;
                         break;
                     case GOSSIP_OPTION_LEARNDUALSPEC:
-                        if(!(pPlayer->GetSpecsCount() == 1 && isCanTrainingAndResetTalentsOf(pPlayer) && !(pPlayer->getLevel() < 40)))
+                        if(!(pPlayer->GetSpecsCount() == 1 && isCanTrainingAndResetTalentsOf(pPlayer) && !(pPlayer->getLevel() < sWorld.getConfig(CONFIG_MIN_DUALSPEC_LEVEL))))
                             cantalking=false;
                         break;
                     case GOSSIP_OPTION_UNLEARNTALENTS:
@@ -1074,7 +1074,7 @@ void Creature::OnGossipSelect(Player* player, uint32 option)
             player->SendTalentWipeConfirm(guid);
             break;
         case GOSSIP_OPTION_LEARNDUALSPEC:
-            if(player->GetSpecsCount() == 1 && !(player->getLevel() < 40))
+            if(player->GetSpecsCount() == 1 && !(player->getLevel() < sWorld.getConfig(CONFIG_MIN_DUALSPEC_LEVEL)))
             {
                 if (player->GetMoney() < 10000000)
                 {
