@@ -27,7 +27,7 @@ npc_deathstalker_erland
 EndContentData */
 
 #include "precompiled.h"
-#include "../../npc/npc_escortAI.h"
+#include "../npc/npc_escortAI.h"
 
 /*######
 ## npc_astor_hadren
