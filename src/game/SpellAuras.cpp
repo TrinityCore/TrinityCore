@@ -2872,6 +2872,29 @@ void AuraEffect::HandleAuraDummy(bool apply, bool Real, bool changeAmount)
                     }
                     return;
                 }
+                case 57819: // Argent Champion
+                case 57820: // Ebon Champion
+                case 57821: // Champion of the Kirin Tor
+                case 57822: // Wyrmrest Champion
+                {
+                    if(!caster || caster->GetTypeId() != TYPEID_PLAYER)
+                        return;
+
+                    uint32 FactionID = 0;
+
+                    if(apply)
+                    {
+                        switch(m_spellProto->Id)
+                        {
+                            case 57819: FactionID = 1106; break; // Argent Crusade
+                            case 57820: FactionID = 1098; break; // Knights of the Ebon Blade
+                            case 57821: FactionID = 1090; break; // Kirin Tor
+                            case 57822: FactionID = 1091; break; // The Wyrmrest Accord
+                        }
+                    }
+                    ((Player*)caster)->SetChampioningFaction(FactionID);
+                    return;
+                }
                 // LK Intro VO (1)
                 case 58204:
                     if(m_target->GetTypeId() == TYPEID_PLAYER)
