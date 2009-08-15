@@ -29,7 +29,7 @@ npc_ranger_lilatha
 EndContentData */
 
 #include "precompiled.h"
-#include "../../npc/npc_escortAI.h"
+#include "../npc/npc_escortAI.h"
 
 /*######
 ## npc_blood_knight_dawnstar

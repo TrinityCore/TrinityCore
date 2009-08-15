@@ -33,7 +33,7 @@ npc_khadgar
 EndContentData */
 
 #include "precompiled.h"
-#include "../../npc/npc_escortAI.h"
+#include "../npc/npc_escortAI.h"
 
 /*######
 ## npc_raliq_the_drunk
