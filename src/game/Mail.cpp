@@ -336,11 +336,17 @@ void WorldSession::HandleMailDelete(WorldPacket & recv_data )
     if (!GetPlayer()->GetGameObjectIfCanInteractWith(mailbox, GAMEOBJECT_TYPE_MAILBOX))
         return;
 
+    Mail *m = _player->GetMail(mailId);
+    if(m)
+    {
+        if (m->COD > 0)
+            return;
+        m->state = MAIL_STATE_DELETED;
+    }    
+
     Player* pl = _player;
     pl->m_mailsUpdated = true;
-    Mail *m = pl->GetMail(mailId);
-    if(m)
-        m->state = MAIL_STATE_DELETED;
+
     pl->SendMailResult(mailId, MAIL_DELETED, MAIL_OK);
 }
 
