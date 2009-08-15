@@ -634,7 +634,7 @@ void AuctionHouseBot::addNewAuctionBuyerBotBid(Player *AHBplayer, AHBConfig *con
         if (debug_Out)
         {
             sLog.outString("-------------------------------------------------");
-            sLog.outString("AHBuyer: Auction Info for bid # %u:", auction->Id);
+            sLog.outString("AHBuyer: Info for Auction #%u:", auction->Id);
             sLog.outString("AHBuyer: AuctionHouse: %u", auction->GetHouseId());
             sLog.outString("AHBuyer: Auctioneer: %u", auction->auctioneer);
             sLog.outString("AHBuyer: Owner: %u", auction->owner);
