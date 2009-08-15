@@ -21819,6 +21819,7 @@ void Player::ActivateSpec(uint8 spec)
         SetGlyph(slot, glyph);
     }
 
+    m_usedTalentCount = (uint32)(sizeof(m_talents[spec]) / sizeof(m_talents[spec][0])); // This is not right, not factoring in talent ranks :(
     InitTalentForLevel();
 
     QueryResult *result = CharacterDatabase.PQuery("SELECT button,action,type FROM character_action WHERE guid = '%u' AND spec = '%u' ORDER BY button", GetGUIDLow(), m_activeSpec);
