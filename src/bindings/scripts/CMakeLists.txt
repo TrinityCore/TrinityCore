@@ -8,7 +8,6 @@ SET(trinityscript_LIB_SRCS
    base/escortAI.h
    base/guard_ai.cpp
    base/guard_ai.h
-   base/guards.cpp
    base/simple_ai.cpp
    base/simple_ai.h
    include/precompiled.cpp
@@ -502,12 +501,15 @@ SET(trinityscript_LIB_SRCS
    scripts/world/boss_taerar.cpp
    scripts/world/boss_ysondre.cpp
    scripts/world/go_scripts.cpp
+   scripts/world/guards.cpp
    scripts/world/item_scripts.cpp
    scripts/world/mob_generic_creature.cpp
    scripts/world/npc_innkeeper.cpp
    scripts/world/npc_professions.cpp
    scripts/world/npcs_special.cpp
    scripts/world/npc_taxi.cpp
+   system/ScriptLoader.cpp
+   system/ScriptLoader.h
    system.cpp
 )
 

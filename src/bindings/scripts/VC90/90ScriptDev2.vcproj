@@ -377,10 +377,6 @@
                 >
             </File>
             <File
-                RelativePath="..\base\guards.cpp"
-                >
-            </File>
-            <File
                 RelativePath="..\base\simple_ai.cpp"
                 >
             </File>
@@ -2741,6 +2737,10 @@
                 >
             </File>
             <File
+                RelativePath="..\scripts\world\guards.cpp"
+                >
+            </File>
+            <File
                 RelativePath="..\scripts\world\item_scripts.cpp"
                 >
             </File>
@@ -2829,6 +2829,18 @@
 				>
 			</File>
 		</Filter>
+        <Filter
+            Name="system"
+            >
+            <File
+                RelativePath="..\system\ScriptLoader.cpp"
+                >
+            </File>
+            <File
+                RelativePath="..\system\ScriptLoader.h"
+                >
+            </File>
+        </Filter>
 		<File
 			RelativePath="..\ScriptMgr.cpp"
 			>
