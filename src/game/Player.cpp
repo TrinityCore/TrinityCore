@@ -15018,8 +15018,6 @@ bool Player::LoadFromDB( uint32 guid, SqlQueryHolder *holder )
     if(m_deathExpireTime > now+MAX_DEATH_COUNT*DEATH_EXPIRE_STEP)
         m_deathExpireTime = now+MAX_DEATH_COUNT*DEATH_EXPIRE_STEP-1;
 
-    delete result;
-
     // clear channel spell data (if saved at channel spell casting)
     SetUInt64Value(UNIT_FIELD_CHANNEL_OBJECT, 0);
     SetUInt32Value(UNIT_CHANNEL_SPELL,0);
@@ -15066,6 +15064,7 @@ bool Player::LoadFromDB( uint32 guid, SqlQueryHolder *holder )
    
     m_specsCount = fields[42].GetUInt32();
     m_activeSpec = fields[43].GetUInt32();
+    delete result;
 
     // sanity check
     if (m_specsCount > MAX_TALENT_SPECS || m_activeSpec > MAX_TALENT_SPECS) // if (m_specsCount < 2) is not logical
