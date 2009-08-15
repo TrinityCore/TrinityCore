@@ -5771,12 +5771,12 @@ int16 Player::GetSkillTempBonusValue(uint32 skill) const
     return 0;
 }
 
-void Player::SendActionButtons(uint32 spec) const
+void Player::SendActionButtons(uint32 state) const
 {
-    sLog.outDetail( "Sending Action Buttons for '%u' spec '%u'", GetGUIDLow(), spec );
+    sLog.outDetail( "Sending Action Buttons for '%u' spec '%u'", GetGUIDLow(), m_activeSpec);
 
     WorldPacket data(SMSG_ACTION_BUTTONS, 1+(MAX_ACTION_BUTTONS*4));
-    data << uint8(spec);                                       // can be 0, 1, 2 (talent spec)
+    data << uint8(state);                                       // can be 0, 1, 2
     for(int button = 0; button < MAX_ACTION_BUTTONS; ++button)
     {
         ActionButtonList::const_iterator itr = m_actionButtons.find(button);
@@ -5787,7 +5787,7 @@ void Player::SendActionButtons(uint32 spec) const
     }
 
     GetSession()->SendPacket( &data );
-    sLog.outDetail( "Action Buttons for '%u' spec '%u' Sent", GetGUIDLow(), spec );
+    sLog.outDetail( "Action Buttons for '%u' spec '%u' Sent", GetGUIDLow(), m_activeSpec );
 }
 
 ActionButton* Player::addActionButton(uint8 button, uint32 action, uint8 type)
@@ -15067,7 +15067,8 @@ bool Player::LoadFromDB( uint32 guid, SqlQueryHolder *holder )
     delete result;
     
     // sanity check
-    if (m_specsCount > MAX_TALENT_SPECS || m_activeSpec > MAX_TALENT_SPECS) // if (m_specsCount < 2) is not logical
+    if (m_specsCount > MAX_TALENT_SPECS || m_activeSpec > MAX_TALENT_SPEC ||
+        m_specsCount < MIN_TALENT_SPECS || m_activeSpec < MIN_TALENT_SPEC ) // if (m_specsCount < 2) is not logical
     {
         m_activeSpec = 0;
         sLog.outError("Player %s(GUID: %u) has SpecCount = %u and ActiveSpec = %u.", GetName(), GetGUIDLow(), m_specsCount, m_activeSpec);
@@ -15231,9 +15232,7 @@ bool Player::isAllowedToLoot(Creature* creature)
 void Player::_LoadActions(QueryResult *result)
 {
     m_actionButtons.clear();
-
-    //QueryResult *result = CharacterDatabase.PQuery("SELECT button,action,type FROM character_action WHERE guid = '%u' ORDER BY button",GetGUIDLow());
-
+    
     if(result)
     {
         do
@@ -16382,7 +16381,7 @@ void Player::_SaveActions()
                 ++itr;
                 break;
             case ACTIONBUTTON_DELETED:
-                CharacterDatabase.PExecute("DELETE FROM character_action WHERE guid = '%u' and button = '%u'", GetGUIDLow(), (uint32)itr->first );
+                CharacterDatabase.PExecute("DELETE FROM character_action WHERE guid = '%u' and button = '%u' and spec = '%u'", GetGUIDLow(), (uint32)itr->first, (uint32)m_activeSpec );
                 m_actionButtons.erase(itr++);
                 break;
             default:
@@ -21703,20 +21702,21 @@ void Player::UpdateSpecCount(uint8 count)
     if(GetSpecsCount() == count)
         return;
 
-    if(count == 1)
+    if(count == MIN_TALENT_SPECS)
     {
         _SaveActions(); // make sure the button list is cleaned up
         // active spec becomes only spec?
         CharacterDatabase.PExecute("DELETE FROM character_action WHERE spec<>'%u' AND guid='%u'",m_activeSpec, GetGUIDLow());
-        CharacterDatabase.PExecute("UPDATE character_action SET spec='%u' WHERE guid='%u'", m_activeSpec, GetGUIDLow());
+        CharacterDatabase.PExecute("UPDATE character_action SET spec='0' WHERE guid='%u'", GetGUIDLow());
+        m_activeSpec = 0;
     }
-    else if (count == 2)
+    else if (count == MAX_TALENT_SPECS)
     {
         _SaveActions(); // make sure the button list is cleaned up
         for(ActionButtonList::iterator itr = m_actionButtons.begin(); itr != m_actionButtons.end(); ++itr)
         {
             CharacterDatabase.PExecute("INSERT INTO character_action (guid,button,action,type,spec) VALUES ('%u', '%u', '%u', '%u', '%u')",
-                GetGUIDLow(), (uint32)itr->first, (uint32)itr->second.GetAction(), (uint32)itr->second.GetType(), count );
+                GetGUIDLow(), (uint32)itr->first, (uint32)itr->second.GetAction(), (uint32)itr->second.GetType(), 1 );
         }
     }
     else
@@ -21737,6 +21737,8 @@ void Player::ActivateSpec(uint8 spec)
     if(GetSpecsCount() != MAX_TALENT_SPECS)
         return;
 
+    _SaveActions();
+    
     uint32 const* talentTabIds = GetTalentTabPages(getClass());
     
     for(uint8 i = 0; i < 3; ++i)
@@ -21832,6 +21834,6 @@ void Player::ActivateSpec(uint8 spec)
         _LoadActions(result);
     }
     UnsummonPetTemporaryIfAny();
-    SendActionButtons(m_activeSpec);
+    SendActionButtons(1);
     SetPower(getPowerType(), 0);
 }
