@@ -5,8 +5,8 @@
  * This program is free software licensed under GPL version 2
  * Please see the included DOCS/LICENSE.TXT for more information */
 
-#ifndef SCRIPTMGR_H
-#define SCRIPTMGR_H
+#ifndef SC_SCRIPTMGR_H
+#define SC_SCRIPTMGR_H
 
 #include "Common.h"
 #include "Platform/CompilerDefs.h"

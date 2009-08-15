@@ -23,7 +23,7 @@ EndScriptData */
 
 #include "precompiled.h"
 #include "def_old_hillsbrad.h"
-#include "../../../npc/npc_escortAI.h"
+#include "escortAI.h"
 
 /*######
 ## go_barrel_old_hillsbrad

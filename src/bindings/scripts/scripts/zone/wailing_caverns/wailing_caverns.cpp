@@ -25,7 +25,7 @@ EndScriptData */
 EndContentData */
 
 #include "precompiled.h"
-#include "../../npc/npc_escortAI.h"
+#include "escortAI.h"
 #include "def_wailing_caverns.h"
 
 /*######

@@ -27,7 +27,7 @@ npc_defias_traitor
 EndContentData */
 
 #include "precompiled.h"
-#include "../npc/npc_escortAI.h"
+#include "escortAI.h"
 
 /*######
 ## npc_daphne_stilwell

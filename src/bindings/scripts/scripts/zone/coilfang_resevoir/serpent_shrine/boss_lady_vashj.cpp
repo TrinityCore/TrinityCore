@@ -23,7 +23,7 @@ EndScriptData */
 
 #include "precompiled.h"
 #include "def_serpent_shrine.h"
-#include "../../../creature/simple_ai.h"
+#include "simple_ai.h"
 #include "Spell.h"
 
 #define SAY_INTRO                   -1548042

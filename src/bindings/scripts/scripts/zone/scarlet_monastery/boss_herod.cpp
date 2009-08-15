@@ -22,7 +22,7 @@ SDCategory: Scarlet Monastery
 EndScriptData */
 
 #include "precompiled.h"
-#include "../../npc/npc_escortAI.h"
+#include "escortAI.h"
 
 #define SAY_AGGRO                   -1189000
 #define SAY_WHIRLWIND               -1189001
