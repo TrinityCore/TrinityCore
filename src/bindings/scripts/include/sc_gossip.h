@@ -5,8 +5,8 @@
  * This program is free software licensed under GPL version 2
  * Please see the included DOCS/LICENSE.TXT for more information */
 
-#ifndef SC_PLAYER_H
-#define SC_PLAYER_H
+#ifndef SC_GOSSIP_H
+#define SC_GOSSIP_H
 
 #include "Player.h"
 #include "GossipDef.h"

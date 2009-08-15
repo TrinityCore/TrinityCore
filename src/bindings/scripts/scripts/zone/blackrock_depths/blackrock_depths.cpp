@@ -37,7 +37,7 @@ npc_rocknot
 EndContentData */
 
 #include "precompiled.h"
-#include "../../npc/npc_escortAI.h"
+#include "escortAI.h"
 #include "def_blackrock_depths.h"
 
 /*######

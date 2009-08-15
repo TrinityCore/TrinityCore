@@ -6,7 +6,7 @@
 #define SC_HYJALAI_H
 
 #include "def_hyjal.h"
-#include "../../../npc/npc_escortAI.h"
+#include "escortAI.h"
 
 // Trash Mobs summoned in waves
 #define NECROMANCER         17899//done

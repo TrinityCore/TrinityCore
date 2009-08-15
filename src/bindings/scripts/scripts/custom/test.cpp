@@ -22,7 +22,7 @@ SDCategory: Script Examples
 EndScriptData */
 
 #include "precompiled.h"
-#include "../npc/npc_escortAI.h"
+#include "escortAI.h"
 
 struct TRINITY_DLL_DECL npc_testAI : public npc_escortAI
 {

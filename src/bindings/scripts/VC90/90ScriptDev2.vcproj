@@ -46,7 +46,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\..\..\dep\include\;..\..\..\shared\;..\..\..\framework\;..\..\..\game\;..\include\;..\..\..\..\dep\ACE_wrappers"
+				AdditionalIncludeDirectories="..\..\..\..\dep\include\;..\..\..\shared\;..\..\..\framework\;..\..\..\game\;..\include\;..\base\;..\..\..\..\dep\ACE_wrappers"
 				PreprocessorDefinitions="WIN32;_DEBUG;TRINITY_DEBUG;_WINDOWS;_USRDLL;SCRIPT"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -130,7 +130,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\..\..\dep\include\;..\..\..\shared\;..\..\..\framework\;..\..\..\game\;..\include\;..\..\..\..\dep\ACE_wrappers"
+				AdditionalIncludeDirectories="..\..\..\..\dep\include\;..\..\..\shared\;..\..\..\framework\;..\..\..\game\;..\include\;..\base\;..\..\..\..\dep\ACE_wrappers"
 				PreprocessorDefinitions="WIN32;_DEBUG;TRINITY_DEBUG;_WINDOWS;_USRDLL;SCRIPT"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -213,7 +213,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				AdditionalOptions="/MP"
-				AdditionalIncludeDirectories="..\..\..\..\dep\include\;..\..\..\shared\;..\..\..\framework\;..\..\..\game\;..\include\;..\..\..\..\dep\ACE_wrappers"
+				AdditionalIncludeDirectories="..\..\..\..\dep\include\;..\..\..\shared\;..\..\..\framework\;..\..\..\game\;..\include\;..\base\;..\..\..\..\dep\ACE_wrappers"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;SCRIPT;_SECURE_SCL=0"
 				MinimalRebuild="false"
 				RuntimeLibrary="2"
@@ -297,7 +297,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				AdditionalOptions="/MP"
-				AdditionalIncludeDirectories="..\..\..\..\dep\include\;..\..\..\shared\;..\..\..\framework\;..\..\..\game\;..\include\;..\..\..\..\dep\ACE_wrappers"
+				AdditionalIncludeDirectories="..\..\..\..\dep\include\;..\..\..\shared\;..\..\..\framework\;..\..\..\game\;..\include\;..\base\;..\..\..\..\dep\ACE_wrappers"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;SCRIPT;_SECURE_SCL=0"
 				MinimalRebuild="false"
 				RuntimeLibrary="2"
@@ -358,20 +358,40 @@
 	</References>
 	<Files>
         <Filter
+            Name="base"
+            >
+            <File
+                RelativePath="..\base\escortAI.cpp"
+                >
+            </File>
+            <File
+                RelativePath="..\base\escortAI.h"
+                >
+            </File>
+            <File
+                RelativePath="..\base\guard_ai.cpp"
+                >
+            </File>
+            <File
+                RelativePath="..\base\guard_ai.h"
+                >
+            </File>
+            <File
+                RelativePath="..\base\guards.cpp"
+                >
+            </File>
+            <File
+                RelativePath="..\base\simple_ai.cpp"
+                >
+            </File>
+            <File
+                RelativePath="..\base\simple_ai.h"
+                >
+            </File>
+        </Filter>
+        <Filter
             Name="scripts"
             >
-            <Filter
-                Name="creature"
-                >
-                <File
-                    RelativePath="..\scripts\creature\simple_ai.cpp"
-                    >
-                </File>
-                <File
-                    RelativePath="..\scripts\creature\simple_ai.h"
-                    >
-                </File>
-            </Filter>
             <Filter
                 Name="eastern_kingdoms"
                 >
@@ -481,22 +501,6 @@
                 </File>
                 <File
                     RelativePath="..\scripts\examples\example_misc.cpp"
-                    >
-                </File>
-            </Filter>
-            <Filter
-                Name="guard"
-                >
-                <File
-                    RelativePath="..\scripts\guard\guard_ai.cpp"
-                    >
-                </File>
-                <File
-                    RelativePath="..\scripts\guard\guard_ai.h"
-                    >
-                </File>
-                <File
-                    RelativePath="..\scripts\guard\guards.cpp"
                     >
                 </File>
             </Filter>
@@ -612,18 +616,6 @@
                 </File>
                 <File
                     RelativePath="..\scripts\northrend\zuldrak.cpp"
-                    >
-                </File>
-            </Filter>
-            <Filter
-                Name="npc"
-                >
-                <File
-                    RelativePath="..\scripts\npc\npc_escortAI.cpp"
-                    >
-                </File>
-                <File
-                    RelativePath="..\scripts\npc\npc_escortAI.h"
                     >
                 </File>
             </Filter>

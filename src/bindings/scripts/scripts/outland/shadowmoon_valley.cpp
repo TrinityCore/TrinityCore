@@ -40,7 +40,7 @@ npc_enraged_spirit
 EndContentData */
 
 #include "precompiled.h"
-#include "../npc/npc_escortAI.h"
+#include "escortAI.h"
 
 /*#####
 # mob_mature_netherwing_drake

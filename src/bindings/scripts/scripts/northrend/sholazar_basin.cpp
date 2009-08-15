@@ -26,7 +26,7 @@ npc_injured_rainspeaker_oracle
 EndContentData */
 
 #include "precompiled.h"
-#include "../npc/npc_escortAI.h"
+#include "escortAI.h"
 
 /*######
 ## npc_injured_rainspeaker_oracle

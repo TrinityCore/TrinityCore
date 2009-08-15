@@ -26,7 +26,7 @@ mob_ancient_core_hound
 EndContentData */
 
 #include "precompiled.h"
-#include "../../creature/simple_ai.h"
+#include "simple_ai.h"
 
 #define SPELL_CONE_OF_FIRE          19630
 #define SPELL_BITE                  19771

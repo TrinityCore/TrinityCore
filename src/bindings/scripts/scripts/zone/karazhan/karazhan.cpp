@@ -29,7 +29,7 @@ EndContentData */
 
 #include "precompiled.h"
 #include "def_karazhan.h"
-#include "../../npc/npc_escortAI.h"
+#include "escortAI.h"
 
 /*######
 # npc_barnesAI
