@@ -130,7 +130,10 @@ struct TRINITY_DLL_DECL boss_skarvald_the_constructorAI : public ScriptedAI
                     //DoCast(m_creature,SPELL_SUMMON_SKARVALD_GHOST,true);
                     Creature* temp = m_creature->SummonCreature(MOB_SKARVALD_GHOST,m_creature->GetPositionX(),m_creature->GetPositionY(),m_creature->GetPositionZ(),0,TEMPSUMMON_CORPSE_DESPAWN,5000);
                     if (temp)
+                    {
+                        temp->SetFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_NON_ATTACKABLE);
                         temp->AI()->AttackStart(Killer);
+                    }
                 }
             }
         }
@@ -282,7 +285,10 @@ struct TRINITY_DLL_DECL boss_dalronn_the_controllerAI : public ScriptedAI
                     //DoCast(m_creature,SPELL_SUMMON_DALRONN_GHOST,true);
                     Creature* temp = m_creature->SummonCreature(MOB_DALRONN_GHOST,m_creature->GetPositionX(),m_creature->GetPositionY(),m_creature->GetPositionZ(),0,TEMPSUMMON_CORPSE_DESPAWN,5000);
                     if (temp)
+                    {
+                        temp->SetFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_NON_ATTACKABLE);
                         temp->AI()->AttackStart(Killer);
+                    }
                 }
         }
     }
