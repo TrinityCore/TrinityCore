@@ -4,7 +4,7 @@ DELETE FROM `character_spell` WHERE `spell` IN (11083,12351,11094,13043,11095,12
 ALTER TABLE `characters` ADD `speccount` tinyint(3) unsigned NOT NULL default 1 AFTER `arena_pending_points`;
 ALTER TABLE `characters` ADD `activespec` tinyint(3) unsigned NOT NULL default 0 AFTER `speccount`;
 
-DROP TABLE IF EXISTS `character_action`;
+ALTER TABLE `character_action` RENAME `character_action_old`;
 CREATE TABLE `character_action` (
   `guid` int(11) unsigned NOT NULL default '0',
   `spec` tinyint(3) unsigned NOT NULL default '0',
@@ -13,6 +13,8 @@ CREATE TABLE `character_action` (
   `type` tinyint(3) unsigned NOT NULL default '0',
   PRIMARY KEY  (`guid`,`spec`,`button`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
+INSERT INTO `character_action` (`guid`,`button`,`action`,`type`) SELECT `guid`,`button`,`action`,`type` FROM `character_action_old`;
+DROP TABLE `character_action_old`;
 
 DROP TABLE IF EXISTS `character_glyphs`;
 CREATE TABLE `character_glyphs` (
