@@ -11,14 +11,13 @@ EndScriptData */
 
 #include "precompiled.h"
 #include "escort_ai.h"
+#include "../system/system.h"
 
 enum
 {
     POINT_LAST_POINT    = 0xFFFFFF,
     POINT_HOME          = 0xFFFFFE
 };
-
-extern std::list<PointMovement> PointMovementList;
 
 void npc_escortAI::AttackStart(Unit* pWho)
 {
@@ -218,6 +217,11 @@ void npc_escortAI::UpdateAI(const uint32 uiDiff)
             m_uiPlayerCheckTimer -= uiDiff;
     }
 
+    UpdateEscortAI(uiDiff);
+}
+
+void npc_escortAI::UpdateEscortAI(const uint32 uiDiff)
+{
     if (CanMelee && UpdateVictim())
         DoMeleeAttackIfReady();
 }
@@ -308,17 +312,17 @@ void npc_escortAI::AddWaypoint(uint32 id, float x, float y, float z, uint32 Wait
 
 void npc_escortAI::FillPointMovementListForCreature()
 {
-    UNORDERED_MAP<uint32, std::vector<PointMovement> >::iterator pPointsEntries = PointMovementMap.find(m_creature->GetEntry());
+    std::vector<ScriptPointMove> const &pPointsEntries = pSystemMgr.GetPointMoveList(m_creature->GetEntry());
 
-    if (pPointsEntries != PointMovementMap.end())
+    if (pPointsEntries.empty())
+        return;
+
+    std::vector<ScriptPointMove>::const_iterator itr;
+
+    for (itr = pPointsEntries.begin(); itr != pPointsEntries.end(); ++itr)
     {
-        std::vector<PointMovement>::iterator itr;
-
-        for (itr = pPointsEntries->second.begin(); itr != pPointsEntries->second.end(); ++itr)
-        {
-            Escort_Waypoint pPoint(itr->m_uiPointId,itr->m_fX,itr->m_fY,itr->m_fZ,itr->m_uiWaitTime);
-            WaypointList.push_back(pPoint);
-        }
+        Escort_Waypoint pPoint(itr->uiPointId, itr->fX, itr->fY, itr->fZ, itr->uiWaitTime);
+        WaypointList.push_back(pPoint);
     }
 }
 
