@@ -25,6 +25,7 @@ EndScriptData */
 npc_aeranas
 go_haaleshi_altar
 npc_naladu
+npc_tracy_proudwell
 npc_wounded_blood_elf
 EndContentData */
 
@@ -157,6 +158,54 @@ bool GossipSelect_npc_naladu(Player* pPlayer, Creature* pCreature, uint32 uiSend
 }
 
 /*######
+## npc_tracy_proudwell
+######*/
+
+#define GOSSIP_TEXT_REDEEM_MARKS        "I have marks to redeem!"
+#define GOSSIP_TRACY_PROUDWELL_ITEM1    "I heard that your dog Fei Fei took Klatu's prayer beads..."
+#define GOSSIP_TRACY_PROUDWELL_ITEM2    "<back>"
+
+enum
+{
+    GOSSIP_TEXTID_TRACY_PROUDWELL1       = 10689,
+    QUEST_DIGGING_FOR_PRAYER_BEADS       = 10916
+};
+
+bool GossipHello_npc_tracy_proudwell(Player* pPlayer, Creature* pCreature)
+{
+    if (pCreature->isQuestGiver())
+        pPlayer->PrepareQuestMenu(pCreature->GetGUID());
+
+    if (pCreature->isVendor())
+        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_VENDOR, GOSSIP_TEXT_REDEEM_MARKS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
+
+    if (pPlayer->GetQuestStatus(QUEST_DIGGING_FOR_PRAYER_BEADS) == QUEST_STATUS_INCOMPLETE)
+        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TRACY_PROUDWELL_ITEM1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+
+    pPlayer->SEND_GOSSIP_MENU(pCreature->GetNpcTextId(), pCreature->GetGUID());
+    return true;
+}
+
+bool GossipSelect_npc_tracy_proudwell(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+{
+    switch(uiAction)
+    {
+        case GOSSIP_ACTION_INFO_DEF+1:
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TRACY_PROUDWELL_ITEM2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
+            pPlayer->SEND_GOSSIP_MENU(GOSSIP_TEXTID_TRACY_PROUDWELL1, pCreature->GetGUID());
+            break;
+        case GOSSIP_ACTION_INFO_DEF+2:
+            pPlayer->SEND_GOSSIP_MENU(pCreature->GetNpcTextId(), pCreature->GetGUID());
+            break;
+        case GOSSIP_ACTION_TRADE:
+            pPlayer->SEND_VENDORLIST(pCreature->GetGUID());
+            break;
+    }
+
+    return true;
+}
+
+/*######
 ## npc_wounded_blood_elf
 ######*/
 
@@ -266,6 +315,12 @@ void AddSC_hellfire_peninsula()
     newscript->Name = "npc_naladu";
     newscript->pGossipHello = &GossipHello_npc_naladu;
     newscript->pGossipSelect = &GossipSelect_npc_naladu;
+    newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name = "npc_tracy_proudwell";
+    newscript->pGossipHello = &GossipHello_npc_tracy_proudwell;
+    newscript->pGossipSelect = &GossipSelect_npc_tracy_proudwell;
     newscript->RegisterSelf();
 
     newscript = new Script;
