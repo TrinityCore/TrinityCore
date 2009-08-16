@@ -510,7 +510,8 @@ SET(trinityscript_LIB_SRCS
    scripts/world/npc_taxi.cpp
    system/ScriptLoader.cpp
    system/ScriptLoader.h
-   system.cpp
+   system/system.cpp
+   system/system.h
 )
 
 add_library(trinityscript SHARED ${trinityscript_LIB_SRCS})
