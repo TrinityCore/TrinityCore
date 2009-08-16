@@ -41,16 +41,6 @@ class SummonList : private std::list<uint64>
         Creature *m_creature;
 };
 
-struct PointMovement
-{
-    uint32 m_uiCreatureEntry;
-    uint32 m_uiPointId;
-    float m_fX;
-    float m_fY;
-    float m_fZ;
-    uint32 m_uiWaitTime;
-};
-
 struct TRINITY_DLL_DECL ScriptedAI : public CreatureAI
 {
     explicit ScriptedAI(Creature* creature);
