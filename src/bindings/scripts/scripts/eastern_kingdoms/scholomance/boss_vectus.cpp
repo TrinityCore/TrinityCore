@@ -23,65 +23,72 @@ EndScriptData */
 
 #include "precompiled.h"
 
-#define EMOTE_GENERIC_FRENZY_KILL   -1000001
+enum
+{
+    EMOTE_GENERIC_FRENZY_KILL   = -1000001,
 
-#define SPELL_FIRESHIELD        19626
-#define SPELL_BLASTWAVE         13021
-#define SPELL_FRENZY            28371
+    SPELL_FLAMESTRIKE            = 18399,
+    SPELL_BLAST_WAVE             = 16046,
+    SPELL_FIRESHIELD             = 19626,
+    SPELL_FRENZY                 = 8269 //28371,
+};
 
 struct TRINITY_DLL_DECL boss_vectusAI : public ScriptedAI
 {
     boss_vectusAI(Creature *c) : ScriptedAI(c) {}
 
-    uint32 FireShield_Timer;
-    uint32 BlastWave_Timer;
-    uint32 Frenzy_Timer;
+    uint32 m_uiFireShield_Timer;
+    uint32 m_uiBlastWave_Timer;
+    uint32 m_uiFrenzy_Timer;
 
     void Reset()
     {
-        FireShield_Timer = 2000;
-        BlastWave_Timer = 14000;
-        Frenzy_Timer = 0;
+        m_uiFireShield_Timer = 2000;
+        m_uiBlastWave_Timer = 14000;
+        m_uiFrenzy_Timer = 0;
     }
 
-    void EnterCombat(Unit *who)
-    {
-    }
-
-    void UpdateAI(const uint32 diff)
+    void UpdateAI(const uint32 uiDiff)
     {
         if (!UpdateVictim())
             return;
 
         //FireShield_Timer
-        if (FireShield_Timer < diff)
+        if (m_uiFireShield_Timer < uiDiff)
         {
             DoCast(m_creature, SPELL_FIRESHIELD);
-            FireShield_Timer = 90000;
-        }else FireShield_Timer -= diff;
+            m_uiFireShield_Timer = 90000;
+        }
+        else
+            m_uiFireShield_Timer -= uiDiff;
 
         //BlastWave_Timer
-        if (BlastWave_Timer < diff)
+        if (m_uiBlastWave_Timer < uiDiff)
         {
-            DoCast(m_creature->getVictim(),SPELL_BLASTWAVE);
-            BlastWave_Timer = 12000;
-        }else BlastWave_Timer -= diff;
+            DoCast(m_creature->getVictim(), SPELL_BLAST_WAVE);
+            m_uiBlastWave_Timer = 12000;
+        }
+        else
+            m_uiBlastWave_Timer -= uiDiff;
 
         //Frenzy_Timer
         if (m_creature->GetHealth()*100 / m_creature->GetMaxHealth() < 25)
         {
-            if (Frenzy_Timer < diff)
+            if (m_uiFrenzy_Timer < uiDiff)
             {
-                DoCast(m_creature,SPELL_FRENZY);
+                DoCast(m_creature, SPELL_FRENZY);
                 DoScriptText(EMOTE_GENERIC_FRENZY_KILL, m_creature);
 
-                Frenzy_Timer = 24000;
-            }else Frenzy_Timer -= diff;
+                m_uiFrenzy_Timer = 24000;
+            }
+            else
+                m_uiFrenzy_Timer -= uiDiff;
         }
 
         DoMeleeAttackIfReady();
     }
 };
+
 CreatureAI* GetAI_boss_vectus(Creature* pCreature)
 {
     return new boss_vectusAI (pCreature);

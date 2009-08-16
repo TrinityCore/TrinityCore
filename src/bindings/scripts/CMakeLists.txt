@@ -192,6 +192,7 @@ SET(trinityscript_LIB_SRCS
    scripts/eastern_kingdoms/undercity.cpp
    scripts/eastern_kingdoms/western_plaguelands.cpp
    scripts/eastern_kingdoms/westfall.cpp
+   scripts/eastern_kingdoms/wetlands.cpp
    scripts/examples/example_creature.cpp
    scripts/examples/example_escort.cpp
    scripts/examples/example_gossip_codebox.cpp

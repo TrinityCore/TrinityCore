@@ -28,12 +28,12 @@ struct Escort_Waypoint
 struct TRINITY_DLL_DECL npc_escortAI : public ScriptedAI
 {
     public:
-        explicit npc_escortAI(Creature* pCreature) : ScriptedAI(pCreature),
-          IsBeingEscorted(false), IsOnHold(false), PlayerGUID(0), MaxPlayerDistance(DEFAULT_MAX_PLAYER_DISTANCE), CanMelee(true), m_uiPlayerCheckTimer(1000), m_uiWPWaitTimer(2500), m_bIsReturning(false), m_bIsActiveAttacker(true), m_bIsRunning(false), DespawnAtEnd(true), DespawnAtFar(true), m_pQuestForEscort(NULL), m_bCanInstantRespawn(false), m_bCanReturnToStart(false), ScriptWP(false) {}
+        explicit npc_escortAI(Creature* pCreature);
         ~npc_escortAI() {}
 
         // Pure Virtual Functions
-        virtual void WaypointReached(uint32) = 0;
+        virtual void WaypointReached(uint32 uiPointId) = 0;
+        virtual void WaypointStart(uint32 uiPointId) {}
 
         // CreatureAI functions
         void AttackStart(Unit* who);

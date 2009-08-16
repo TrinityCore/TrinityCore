@@ -19,6 +19,25 @@ enum
     POINT_HOME          = 0xFFFFFE
 };
 
+npc_escortAI::npc_escortAI(Creature* pCreature) : ScriptedAI(pCreature),
+    IsBeingEscorted(false),
+    IsOnHold(false),
+    PlayerGUID(0),
+    MaxPlayerDistance(DEFAULT_MAX_PLAYER_DISTANCE),
+    CanMelee(true),
+    m_uiPlayerCheckTimer(1000),
+    m_uiWPWaitTimer(2500),
+    m_bIsReturning(false),
+    m_bIsActiveAttacker(true),
+    m_bIsRunning(false),
+    DespawnAtEnd(true),
+    DespawnAtFar(true),
+    m_pQuestForEscort(NULL),
+    m_bCanInstantRespawn(false),
+    m_bCanReturnToStart(false),
+    ScriptWP(false)
+{}
+
 void npc_escortAI::AttackStart(Unit* pWho)
 {
     if (!pWho)
@@ -159,7 +178,10 @@ void npc_escortAI::UpdateAI(const uint32 uiDiff)
             if (!IsOnHold)
             {
                 m_creature->GetMotionMaster()->MovePoint(CurrentWP->id, CurrentWP->x, CurrentWP->y, CurrentWP->z);
-                debug_log("TSCR: EscortAI Next WP is: %u, %f, %f, %f", CurrentWP->id, CurrentWP->x, CurrentWP->y, CurrentWP->z);
+                debug_log("TSCR: EscortAI start waypoint %u (%f, %f, %f).", CurrentWP->id, CurrentWP->x, CurrentWP->y, CurrentWP->z);
+
+                WaypointStart(CurrentWP->id);
+
                 m_uiWPWaitTimer = 0;
             }
         }

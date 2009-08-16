@@ -1086,6 +1086,8 @@ UPDATE `creature_template` SET `ScriptName`='npc_defias_traitor' WHERE `entry`=4
 UPDATE `creature_template` SET `ScriptName`='npc_daphne_stilwell' WHERE `entry`=6182;
 
 /* WETLANDS */
+UPDATE creature_template SET ScriptName='npc_tapoke_slim_jahn' WHERE entry=4962;
+UPDATE creature_template SET ScriptName='npc_mikhail' WHERE entry=4963;
 
 /* WINTERSPRING */
 UPDATE `creature_template` SET `ScriptName`='npc_lorax' WHERE `entry`=10918;

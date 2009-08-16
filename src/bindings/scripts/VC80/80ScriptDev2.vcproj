@@ -1162,6 +1162,10 @@
                     RelativePath="..\scripts\eastern_kingdoms\westfall.cpp"
                     >
                 </File>
+                <File
+                    RelativePath="..\scripts\eastern_kingdoms\wetlands.cpp"
+                    >
+                </File>
             </Filter>
             <Filter
                 Name="examples"
