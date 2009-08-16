@@ -51,7 +51,7 @@ struct TRINITY_DLL_DECL npc_willixAI : public npc_escortAI
 
     void WaypointReached(uint32 i)
     {
-        Player* pPlayer = Unit::GetPlayer(PlayerGUID);
+        Player* pPlayer = GetPlayerForEscort();
 
         if (!pPlayer)
             return;
@@ -114,16 +114,8 @@ struct TRINITY_DLL_DECL npc_willixAI : public npc_escortAI
 
     void JustDied(Unit* killer)
     {
-        if (PlayerGUID)
-        {
-            if (Player* pPlayer = Unit::GetPlayer(PlayerGUID))
-                CAST_PLR(pPlayer)->FailQuest(QUEST_WILLIX_THE_IMPORTER);
-        }
-    }
-
-    void UpdateAI(const uint32 diff)
-    {
-        npc_escortAI::UpdateAI(diff);
+        if (Player* pPlayer = GetPlayerForEscort())
+            CAST_PLR(pPlayer)->FailQuest(QUEST_WILLIX_THE_IMPORTER);
     }
 };
 
@@ -181,57 +173,7 @@ CreatureAI* GetAI_npc_deaths_head_ward_keeper(Creature* pCreature)
 
 CreatureAI* GetAI_npc_willix(Creature* pCreature)
 {
-    npc_willixAI* thisAI = new npc_willixAI(pCreature);
-
-    thisAI->AddWaypoint(0, 2194.38, 1791.65, 65.48, 5000);
-    thisAI->AddWaypoint(1, 2188.56, 1805.87, 64.45);
-    thisAI->AddWaypoint(2, 2187, 1843.49, 59.33);
-    thisAI->AddWaypoint(3, 2163.27, 1851.67, 56.73, 5000);
-    thisAI->AddWaypoint(4, 2137.66, 1843.98, 48.08, 5000);
-    thisAI->AddWaypoint(5, 2140.22, 1845.02, 48.32);
-    thisAI->AddWaypoint(6, 2131.5, 1804.29, 46.85);
-    thisAI->AddWaypoint(7, 2096.18, 1789.03, 51.13);
-    thisAI->AddWaypoint(8, 2074.46, 1780.09, 55.64, 3000);
-    thisAI->AddWaypoint(9, 2055.12, 1768.67, 58.46, 5000);
-    thisAI->AddWaypoint(10, 2037.83, 1748.62, 60.27);
-    thisAI->AddWaypoint(11, 2037.51, 1728.94, 60.85);
-    thisAI->AddWaypoint(12, 2044.7, 1711.71, 59.71);
-    thisAI->AddWaypoint(13, 2067.66, 1701.84, 57.77, 3000);
-    thisAI->AddWaypoint(14, 2078.91, 1704.54, 56.77, 3000);
-    thisAI->AddWaypoint(15, 2097.65, 1715.24, 54.74);
-    thisAI->AddWaypoint(16, 2106.44, 1720.98, 54.41);
-    thisAI->AddWaypoint(17, 2123.96, 1732.56, 52.27);
-    thisAI->AddWaypoint(18, 2153.82, 1728.73, 51.92);
-    thisAI->AddWaypoint(19, 2163.49, 1706.33, 54.42);
-    thisAI->AddWaypoint(20, 2158.75, 1695.98, 55.70);
-    thisAI->AddWaypoint(21, 2142.6, 1680.72, 58.24);
-    thisAI->AddWaypoint(22, 2118.31, 1671.54, 59.21);
-    thisAI->AddWaypoint(23, 2086.02, 1672.04, 61.24);
-    thisAI->AddWaypoint(24, 2068.81, 1658.93, 61.24);
-    thisAI->AddWaypoint(25, 2062.82, 1633.31, 64.35, 3000);
-    thisAI->AddWaypoint(26, 2063.05, 1589.16, 63.26);
-    thisAI->AddWaypoint(27, 2063.67, 1577.22, 65.89);
-    thisAI->AddWaypoint(28, 2057.94, 1560.68, 68.40);
-    thisAI->AddWaypoint(29, 2052.56, 1548.05, 73.35);
-    thisAI->AddWaypoint(30, 2045.22, 1543.4, 76.65);
-    thisAI->AddWaypoint(31, 2034.35, 1543.01, 79.70);
-    thisAI->AddWaypoint(32, 2029.95, 1542.94, 80.79);
-    thisAI->AddWaypoint(33, 2021.34, 1538.67, 80.8);
-    thisAI->AddWaypoint(34, 2012.45, 1549.48, 79.93);
-    thisAI->AddWaypoint(35, 2008.05, 1554.92, 80.44);
-    thisAI->AddWaypoint(36, 2006.54, 1562.72, 81.11);
-    thisAI->AddWaypoint(37, 2003.8, 1576.43, 81.57);
-    thisAI->AddWaypoint(38, 2000.57, 1590.06, 80.62);
-    thisAI->AddWaypoint(39, 1998.96, 1596.87, 80.22);
-    thisAI->AddWaypoint(40, 1991.19, 1600.82, 79.39);
-    thisAI->AddWaypoint(41, 1980.71, 1601.44, 79.77, 3000);
-    thisAI->AddWaypoint(42, 1967.22, 1600.18, 80.62, 3000);
-    thisAI->AddWaypoint(43, 1956.43, 1596.97, 81.75, 3000);
-    thisAI->AddWaypoint(44, 1954.87, 1592.02, 82.18);
-    thisAI->AddWaypoint(45, 1948.35, 1571.35, 80.96, 30000);
-    thisAI->AddWaypoint(46, 1947.02, 1566.42, 81.80, 30000);
-
-    return thisAI;
+    return new npc_willixAI(pCreature);
 }
 
 void AddSC_razorfen_kraul()
