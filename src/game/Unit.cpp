@@ -14643,6 +14643,7 @@ void Unit::ExitVehicle()
     {
         //((Player*)this)->SetClientControl(this, 1);
         ((Player*)this)->SendTeleportAckMsg();
+        ((Player*)this)->SetFallInformation(0, GetPositionZ());
     }
     WorldPacket data;
     BuildHeartBeatMsg(&data);
