@@ -32,7 +32,7 @@ npc_tooga
 EndContentData */
 
 #include "precompiled.h"
-#include "escortAI.h"
+#include "escort_ai.h"
 
 /*######
 ## mob_aquementas

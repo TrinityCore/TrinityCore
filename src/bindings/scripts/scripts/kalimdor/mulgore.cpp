@@ -28,7 +28,7 @@ npc_plains_vision
 EndContentData */
 
 #include "precompiled.h"
-#include "escortAI.h"
+#include "escort_ai.h"
 
 /*######
 # npc_skorn_whitecloud

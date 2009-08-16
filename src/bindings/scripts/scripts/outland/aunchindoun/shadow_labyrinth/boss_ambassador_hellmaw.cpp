@@ -22,7 +22,7 @@ SDCategory: Auchindoun, Shadow Labyrinth
 EndScriptData */
 
 #include "precompiled.h"
-#include "escortAI.h"
+#include "escort_ai.h"
 #include "def_shadow_labyrinth.h"
 
 enum
