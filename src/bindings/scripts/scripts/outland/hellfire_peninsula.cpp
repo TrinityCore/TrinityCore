@@ -26,6 +26,7 @@ npc_aeranas
 go_haaleshi_altar
 npc_naladu
 npc_tracy_proudwell
+npc_trollbane
 npc_wounded_blood_elf
 EndContentData */
 
@@ -204,6 +205,51 @@ bool GossipSelect_npc_tracy_proudwell(Player* pPlayer, Creature* pCreature, uint
 }
 
 /*######
+## npc_trollbane
+######*/
+
+#define GOSSIP_TROLLBANE_ITEM1      "Tell me of the Sons of Lothar."
+#define GOSSIP_TROLLBANE_ITEM2      "<more>"
+#define GOSSIP_TROLLBANE_ITEM3      "Tell me of your homeland."
+
+enum
+{
+    GOSSIP_TEXTID_TROLLBANE1        = 9932,
+    GOSSIP_TEXTID_TROLLBANE2        = 9933,
+    GOSSIP_TEXTID_TROLLBANE3        = 8772
+};
+
+bool GossipHello_npc_trollbane(Player* pPlayer, Creature* pCreature)
+{
+    if (pCreature->isQuestGiver())
+        pPlayer->PrepareQuestMenu(pCreature->GetGUID());
+
+    pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TROLLBANE_ITEM1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+    pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TROLLBANE_ITEM3, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
+    pPlayer->SEND_GOSSIP_MENU(pCreature->GetNpcTextId(), pCreature->GetGUID());
+    return true;
+}
+
+bool GossipSelect_npc_trollbane(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+{
+    switch(uiAction)
+    {
+        case GOSSIP_ACTION_INFO_DEF+1:
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TROLLBANE_ITEM2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
+            pPlayer->SEND_GOSSIP_MENU(GOSSIP_TEXTID_TROLLBANE1, pCreature->GetGUID());
+            break;
+        case GOSSIP_ACTION_INFO_DEF+2:
+            pPlayer->SEND_GOSSIP_MENU(GOSSIP_TEXTID_TROLLBANE2, pCreature->GetGUID());
+            break;
+        case GOSSIP_ACTION_INFO_DEF+3:
+            pPlayer->SEND_GOSSIP_MENU(GOSSIP_TEXTID_TROLLBANE3, pCreature->GetGUID());
+            break;
+    }
+
+    return true;
+}
+
+/*######
 ## npc_wounded_blood_elf
 ######*/
 
@@ -319,6 +365,12 @@ void AddSC_hellfire_peninsula()
     newscript->Name = "npc_tracy_proudwell";
     newscript->pGossipHello = &GossipHello_npc_tracy_proudwell;
     newscript->pGossipSelect = &GossipSelect_npc_tracy_proudwell;
+    newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name = "npc_trollbane";
+    newscript->pGossipHello = &GossipHello_npc_trollbane;
+    newscript->pGossipSelect = &GossipSelect_npc_trollbane;
     newscript->RegisterSelf();
 
     newscript = new Script;

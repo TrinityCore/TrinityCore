@@ -27,6 +27,7 @@ npc_cooshcoosh
 npc_elder_kuruti
 npc_mortog_steamhead
 npc_kayra_longmane
+npc_timothy_daniels
 EndContentData */
 
 #include "precompiled.h"
@@ -333,6 +334,47 @@ CreatureAI* GetAI_npc_kayra_longmaneAI(Creature* pCreature)
 {
     return new npc_kayra_longmaneAI(pCreature);
 }
+
+/*######
+## npc_timothy_daniels
+######*/
+
+#define GOSSIP_TIMOTHY_DANIELS_ITEM1    "Specialist, eh? Just what kind of specialist are you, anyway?"
+#define GOSSIP_TEXT_BROWSE_POISONS      "Let me browse your reagents and poison supplies."
+
+enum
+{
+    GOSSIP_TEXTID_TIMOTHY_DANIELS1      = 9239
+};
+
+bool GossipHello_npc_timothy_daniels(Player* pPlayer, Creature* pCreature)
+{
+    if (pCreature->isQuestGiver())
+        pPlayer->PrepareQuestMenu(pCreature->GetGUID());
+
+    if (pCreature->isVendor())
+        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_VENDOR, GOSSIP_TEXT_BROWSE_POISONS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
+
+    pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TIMOTHY_DANIELS_ITEM1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+    pPlayer->SEND_GOSSIP_MENU(pCreature->GetNpcTextId(), pCreature->GetGUID());
+    return true;
+}
+
+bool GossipSelect_npc_timothy_daniels(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+{
+    switch(uiAction)
+    {
+        case GOSSIP_ACTION_INFO_DEF+1:
+            pPlayer->SEND_GOSSIP_MENU(GOSSIP_TEXTID_TIMOTHY_DANIELS1, pCreature->GetGUID());
+            break;
+        case GOSSIP_ACTION_TRADE:
+            pPlayer->SEND_VENDORLIST(pCreature->GetGUID());
+            break;
+    }
+
+    return true;
+}
+
 /*######
 ## AddSC
 ######*/
@@ -370,6 +412,12 @@ void AddSC_zangarmarsh()
     newscript->Name="npc_kayra_longmane";
     newscript->GetAI = &GetAI_npc_kayra_longmaneAI;
     newscript->pQuestAccept = &QuestAccept_npc_kayra_longmane;
+    newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name = "npc_timothy_daniels";
+    newscript->pGossipHello =  &GossipHello_npc_timothy_daniels;
+    newscript->pGossipSelect = &GossipSelect_npc_timothy_daniels;
     newscript->RegisterSelf();
 }
 
