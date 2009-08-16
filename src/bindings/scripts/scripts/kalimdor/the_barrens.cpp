@@ -31,7 +31,7 @@ npc_wizzlecrank_shredder
 EndContentData */
 
 #include "precompiled.h"
-#include "escortAI.h"
+#include "escort_ai.h"
 
 /*######
 ## npc_beaten_corpse
@@ -94,7 +94,7 @@ struct TRINITY_DLL_DECL npc_giltharesAI : public npc_escortAI
 
     void WaypointReached(uint32 uiPointId)
     {
-        Player* pPlayer = (Player*)Unit::GetUnit(*m_creature, PlayerGUID);
+        Player* pPlayer = GetPlayerForEscort();
 
         if (!pPlayer)
             return;
@@ -507,74 +507,142 @@ CreatureAI* GetAI_npc_twiggy_flathead(Creature* pCreature)
 
 enum
 {
-    SAY_PROGRESS_1      = -1000272,
-    SAY_PROGRESS_2      = -1000273,
-    SAY_PROGRESS_3      = -1000274,
-
-    SAY_MERCENARY_4     = -1000275,
-
-    SAY_PROGRESS_5      = -1000276,
-    SAY_PROGRESS_6      = -1000277,
-    SAY_PROGRESS_7      = -1000278,
-    SAY_PROGRESS_8      = -1000279,
+    SAY_START           = -1000272,
+    SAY_STARTUP1        = -1000273,
+    SAY_STARTUP2        = -1000274,
+    SAY_MERCENARY       = -1000275,
+    SAY_PROGRESS_1      = -1000276,
+    SAY_PROGRESS_2      = -1000277,
+    SAY_PROGRESS_3      = -1000278,
+    SAY_END             = -1000279,
 
     QUEST_ESCAPE        = 863,
     FACTION_RATCHET     = 637,
-    NPC_PILOT           = 3451,
-    MOB_MERCENARY       = 3282,
+    NPC_PILOT_WIZZ      = 3451,
+    NPC_MERCENARY       = 3282,
 };
 
 struct TRINITY_DLL_DECL npc_wizzlecrank_shredderAI : public npc_escortAI
 {
-    npc_wizzlecrank_shredderAI(Creature* c) : npc_escortAI(c) { }
-
-    bool Completed;
-
-    void WaypointReached(uint32 i)
+    npc_wizzlecrank_shredderAI(Creature* pCreature) : npc_escortAI(pCreature)
     {
-        Player* pPlayer = Unit::GetPlayer(PlayerGUID);
-
-        if (!pPlayer)
-            return;
-
-        switch(i)
-        {
-        case 0: DoScriptText(SAY_PROGRESS_1, m_creature);
-            m_creature->RemoveUnitMovementFlag(MOVEMENTFLAG_WALK_MODE); break;
-        case 1: DoScriptText(SAY_PROGRESS_2, m_creature); break;
-        case 10: DoScriptText(SAY_PROGRESS_3, m_creature, pPlayer);
-            m_creature->AddUnitMovementFlag(MOVEMENTFLAG_WALK_MODE); break;
-        case 20:{
-            Unit* Mercenary = m_creature->FindNearestCreature(MOB_MERCENARY, 99);
-            if (Mercenary)
-            {
-                DoScriptText(SAY_MERCENARY_4, Mercenary);
-                CAST_CRE(Mercenary)->AI()->AttackStart(m_creature);
-                AttackStart(Mercenary);
-            }
-                }break;
-        case 21: DoScriptText(SAY_PROGRESS_5, m_creature);
-            m_creature->RemoveUnitMovementFlag(MOVEMENTFLAG_WALK_MODE); break;
-        case 28: DoScriptText(SAY_PROGRESS_6, m_creature); break;
-        case 29: DoScriptText(SAY_PROGRESS_7, m_creature); break;
-        case 30: DoScriptText(SAY_PROGRESS_8, m_creature); break;
-        case 31: m_creature->SummonCreature(NPC_PILOT, 1088.77, -2985.39, 91.84, 0.0f, TEMPSUMMON_TIMED_DESPAWN, 300000);
-            m_creature->setDeathState(JUST_DIED);
-            Completed = true;
-            pPlayer->GroupEventHappens(QUEST_ESCAPE, m_creature);
-            break;
-        }
+        m_bIsPostEvent = false;
+        m_uiPostEventTimer = 1000;
+        m_uiPostEventCount = 0;
     }
+
+    bool m_bIsPostEvent;
+    uint32 m_uiPostEventTimer;
+    uint32 m_uiPostEventCount;
 
     void Reset()
     {
-        m_creature->setDeathState(ALIVE);
-        Completed = false;
         if (!IsBeingEscorted)
         {
             if (m_creature->getStandState() == UNIT_STAND_STATE_DEAD)
                  m_creature->SetStandState(UNIT_STAND_STATE_STAND);
+
+            m_bIsPostEvent = false;
+            m_uiPostEventTimer = 1000;
+            m_uiPostEventCount = 0;
         }
+    }
+
+    void WaypointReached(uint32 uiPointId)
+    {
+        Player* pPlayer = GetPlayerForEscort();
+
+        if (!pPlayer)
+            return;
+
+        switch(uiPointId)
+        {
+        case 0:
+            DoScriptText(SAY_STARTUP1, m_creature);
+            break;
+        case 9:
+            SetRun(false);
+            break;
+        case 17:
+            if (Creature* pTemp = m_creature->SummonCreature(NPC_MERCENARY, 1128.489f, -3037.611f, 92.701f, 1.472f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 120000))
+            {
+                DoScriptText(SAY_MERCENARY, pTemp);
+                m_creature->SummonCreature(NPC_MERCENARY, 1160.172f, -2980.168f, 97.313f, 3.690f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 120000);
+            }
+            break;
+        case 24:
+            m_bIsPostEvent = true;
+            break;
+        }
+    }
+
+    void WaypointStart(uint32 uiPointId)
+    {
+        Player* pPlayer = GetPlayerForEscort();
+
+        if (!pPlayer)
+            return;
+
+        switch(uiPointId)
+        {
+            case 9:
+                DoScriptText(SAY_STARTUP2, m_creature, pPlayer);
+                break;
+            case 18:
+                DoScriptText(SAY_PROGRESS_1, m_creature, pPlayer);
+                SetRun();
+                break;
+        }
+    }
+
+    void JustSummoned(Creature* pSummoned)
+    {
+        if (pSummoned->GetEntry() == NPC_PILOT_WIZZ)
+            m_creature->SetStandState(UNIT_STAND_STATE_DEAD);
+
+        if (pSummoned->GetEntry() == NPC_MERCENARY)
+            pSummoned->AI()->AttackStart(m_creature);
+    }
+
+    void UpdateEscortAI(const uint32 uiDiff)
+    {
+        if (!UpdateVictim())
+        {
+            if (m_bIsPostEvent)
+            {
+                if (m_uiPostEventTimer < uiDiff)
+                {
+                    switch(m_uiPostEventCount)
+                    {
+                        case 0:
+                            DoScriptText(SAY_PROGRESS_2, m_creature);
+                            break;
+                        case 1:
+                            DoScriptText(SAY_PROGRESS_3, m_creature);
+                            break;
+                        case 2:
+                            DoScriptText(SAY_END, m_creature);
+                            break;
+                        case 3:
+                            if (Player* pPlayer = GetPlayerForEscort())
+                            {
+                                pPlayer->GroupEventHappens(QUEST_ESCAPE, m_creature);
+                                m_creature->SummonCreature(NPC_PILOT_WIZZ, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN, 180000);
+                            }
+                            break;
+                    }
+
+                    ++m_uiPostEventCount;
+                    m_uiPostEventTimer = 5000;
+                }
+                else
+                    m_uiPostEventTimer -= uiDiff;
+            }
+
+            return;
+        }
+
+        DoMeleeAttackIfReady();
     }
 };
 
@@ -591,42 +659,7 @@ bool QuestAccept_npc_wizzlecrank_shredder(Player* pPlayer, Creature* pCreature, 
 
 CreatureAI* GetAI_npc_wizzlecrank_shredderAI(Creature* pCreature)
 {
-    npc_wizzlecrank_shredderAI* thisAI = new npc_wizzlecrank_shredderAI(pCreature);
-
-    thisAI->AddWaypoint(0, 1109.15, -3104.11, 82.41, 6000);
-    thisAI->AddWaypoint(1, 1105.39, -3102.86, 82.74, 2000);
-    thisAI->AddWaypoint(2, 1104.97, -3108.52, 83.10, 1000);
-    thisAI->AddWaypoint(3, 1110.01, -3110.48, 82.81, 1000);
-    thisAI->AddWaypoint(4, 1111.72, -3103.03, 82.21, 1000);
-    thisAI->AddWaypoint(5, 1106.98, -3099.44, 82.18, 1000);
-    thisAI->AddWaypoint(6, 1103.74, -3103.29, 83.05, 1000);
-    thisAI->AddWaypoint(7, 1112.55, -3106.56, 82.31, 1000);
-    thisAI->AddWaypoint(8, 1108.12, -3111.04, 82.99, 1000);
-    thisAI->AddWaypoint(9, 1109.32, -3100.39, 82.08, 1000);
-    thisAI->AddWaypoint(10, 1109.32, -3100.39, 82.08, 6000);
-    thisAI->AddWaypoint(11, 1098.92, -3095.14, 82.97);
-    thisAI->AddWaypoint(12, 1100.94, -3082.60, 82.83);
-    thisAI->AddWaypoint(13, 1101.12, -3068.83, 82.53);
-    thisAI->AddWaypoint(14, 1096.97, -3051.99, 82.50);
-    thisAI->AddWaypoint(15, 1094.06, -3036.79, 82.70);
-    thisAI->AddWaypoint(16, 1098.22, -3027.84, 83.79);
-    thisAI->AddWaypoint(17, 1109.51, -3015.92, 85.73);
-    thisAI->AddWaypoint(18, 1119.87, -3007.21, 87.08);
-    thisAI->AddWaypoint(19, 1130.23, -3002.49, 91.27, 5000);
-    thisAI->AddWaypoint(20, 1130.23, -3002.49, 91.27, 3000);
-    thisAI->AddWaypoint(21, 1130.23, -3002.49, 91.27, 4000);
-    thisAI->AddWaypoint(22, 1129.73, -2985.89, 92.46);
-    thisAI->AddWaypoint(23, 1124.10, -2983.29, 92.81);
-    thisAI->AddWaypoint(24, 1111.74, -2992.38, 91.59);
-    thisAI->AddWaypoint(25, 1111.06, -2976.54, 91.81);
-    thisAI->AddWaypoint(26, 1099.91, -2991.17, 91.67);
-    thisAI->AddWaypoint(27, 1096.32, -2981.55, 91.73);
-    thisAI->AddWaypoint(28, 1091.28, -2985.82, 91.74, 4000);
-    thisAI->AddWaypoint(29, 1091.28, -2985.82, 91.74, 3000);
-    thisAI->AddWaypoint(30, 1091.28, -2985.82, 91.74, 7000);
-    thisAI->AddWaypoint(31, 1091.28, -2985.82, 91.74, 3000);
-
-    return thisAI;
+    return new npc_wizzlecrank_shredderAI(pCreature);
 }
 
 void AddSC_the_barrens()

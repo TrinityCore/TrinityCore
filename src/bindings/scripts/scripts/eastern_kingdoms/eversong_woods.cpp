@@ -30,7 +30,7 @@ go_harbinger_second_trial
 EndContentData */
 
 #include "precompiled.h"
-#include "escortAI.h"
+#include "escort_ai.h"
 
 /*######
 ## npc_prospector_anvilward
@@ -52,7 +52,7 @@ struct TRINITY_DLL_DECL npc_prospector_anvilwardAI : public npc_escortAI
     // Pure Virtual Functions
     void WaypointReached(uint32 i)
     {
-        Player* pPlayer = Unit::GetPlayer(PlayerGUID);
+        Player* pPlayer = GetPlayerForEscort();
 
         if (!pPlayer)
             return;
@@ -65,21 +65,14 @@ struct TRINITY_DLL_DECL npc_prospector_anvilwardAI : public npc_escortAI
         }
     }
 
-    void EnterCombat(Unit* who) { }
-
     void Reset()
     {
-        m_creature->setFaction(35);
+        me->RestoreFaction();
     }
 
     void JustDied(Unit* killer)
     {
-        m_creature->setFaction(35);
-    }
-
-    void UpdateAI(const uint32 diff)
-    {
-        npc_escortAI::UpdateAI(diff);
+        me->RestoreFaction();
     }
 };
 

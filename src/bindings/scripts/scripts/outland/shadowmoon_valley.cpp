@@ -40,7 +40,7 @@ npc_enraged_spirit
 EndContentData */
 
 #include "precompiled.h"
-#include "escortAI.h"
+#include "escort_ai.h"
 
 /*#####
 # mob_mature_netherwing_drake
@@ -82,8 +82,6 @@ struct TRINITY_DLL_DECL mob_mature_netherwing_drakeAI : public ScriptedAI
         EatTimer = 5000;
         CastTimer = 5000;
     }
-
-    void EnterCombat(Unit* who) { }
 
     void SpellHit(Unit* pCaster, SpellEntry const* pSpell)
     {
@@ -205,8 +203,6 @@ struct TRINITY_DLL_DECL mob_enslaved_netherwing_drakeAI : public ScriptedAI
         m_creature->SetVisibility(VISIBILITY_ON);
     }
 
-    void EnterCombat(Unit* who) { }
-
     void SpellHit(Unit* caster, const SpellEntry* spell)
     {
         if (!caster)
@@ -324,8 +320,6 @@ struct TRINITY_DLL_DECL mob_dragonmaw_peonAI : public ScriptedAI
         Tapped = false;
         PoisonTimer = 0;
     }
-
-    void EnterCombat(Unit* who) { }
 
     void SpellHit(Unit* caster, const SpellEntry* spell)
     {
@@ -696,8 +690,6 @@ struct TRINITY_DLL_DECL npc_overlord_morghorAI : public ScriptedAI
         Event = false;
     }
 
-    void EnterCombat(Unit* who){}
-
     void StartEvent()
     {
         m_creature->SetUInt32Value(UNIT_NPC_FLAGS, 0);
@@ -891,7 +883,7 @@ struct TRINITY_DLL_DECL npc_earthmender_wildaAI : public npc_escortAI
 
     void WaypointReached(uint32 uiPointId)
     {
-        Player* pPlayer = (Player*)Unit::GetUnit(*m_creature, PlayerGUID);
+        Player* pPlayer = GetPlayerForEscort();
 
         if (!pPlayer)
             return;
@@ -944,7 +936,7 @@ struct TRINITY_DLL_DECL npc_earthmender_wildaAI : public npc_escortAI
             case 50:
                 DoScriptText(SAY_WIL_END, m_creature, pPlayer);
 
-                if (Player* pPlayer = Unit::GetPlayer(PlayerGUID))
+                if (Player* pPlayer = GetPlayerForEscort())
                     pPlayer->GroupEventHappens(QUEST_ESCAPE_COILSCAR, m_creature);
                 break;
         }

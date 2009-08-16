@@ -29,7 +29,7 @@ npc_ranger_lilatha
 EndContentData */
 
 #include "precompiled.h"
-#include "escortAI.h"
+#include "escort_ai.h"
 
 /*######
 ## npc_blood_knight_dawnstar
@@ -159,7 +159,7 @@ struct TRINITY_DLL_DECL npc_ranger_lilathaAI : public npc_escortAI
 
     void WaypointReached(uint32 i)
     {
-        Player* pPlayer = Unit::GetPlayer(PlayerGUID);
+        Player* pPlayer = GetPlayerForEscort();
 
         if (!pPlayer)
             return;

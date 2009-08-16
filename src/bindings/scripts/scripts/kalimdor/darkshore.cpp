@@ -27,7 +27,7 @@ npc_threshwackonator
 EndContentData */
 
 #include "precompiled.h"
-#include "escortAI.h"
+#include "escort_ai.h"
 
 /*####
 # npc_prospector_remtravel
@@ -62,7 +62,7 @@ struct TRINITY_DLL_DECL npc_prospector_remtravelAI : public npc_escortAI
 
     void WaypointReached(uint32 i)
     {
-        Player* pPlayer = Unit::GetPlayer(PlayerGUID);
+        Player* pPlayer = GetPlayerForEscort();
 
         if (!pPlayer)
             return;
@@ -135,11 +135,6 @@ struct TRINITY_DLL_DECL npc_prospector_remtravelAI : public npc_escortAI
     {
         //unsure if it should be any
         //pSummoned->AI()->AttackStart(m_creature);
-    }
-
-    void UpdateAI(const uint32 diff)
-    {
-        npc_escortAI::UpdateAI(diff);
     }
 };
 

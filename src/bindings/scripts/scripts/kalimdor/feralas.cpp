@@ -22,7 +22,7 @@ SDCategory: Feralas
 EndScriptData */
 
 #include "precompiled.h"
-#include "escortAI.h"
+#include "escort_ai.h"
 
 /*######
 ## npc_gregan_brewspewer
@@ -111,7 +111,7 @@ struct TRINITY_DLL_DECL npc_oox22feAI : public npc_escortAI
             case 37:
                 DoScriptText(SAY_END,m_creature);
                 // Award quest credit
-                if (Player* pPlayer = Unit::GetPlayer(PlayerGUID))
+                if (Player* pPlayer = GetPlayerForEscort())
                 {
                         pPlayer->GroupEventHappens(QUEST_RESCUE_OOX22FE, m_creature);
                 }

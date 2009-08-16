@@ -5981,6 +5981,16 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                 target = this;
                 break;
             }
+            // Improved Mend Pet
+            if ( dummySpell->SpellIconID == 267 )
+            {
+                int32 chance = triggeredByAura->GetSpellProto()->EffectBasePoints[triggeredByAura->GetEffIndex()];
+                if(!roll_chance_i(chance))
+                    return false;
+
+                triggered_spell_id = 24406;
+                break;
+            }
             // Lock and Load
             if ( dummySpell->SpellIconID == 3579 )
             {
@@ -7013,43 +7023,48 @@ bool Unit::HandleProcTriggerSpell(Unit *pVictim, uint32 damage, AuraEffect* trig
         ? ((Player*)this)->GetItemByGuid(triggeredByAura->GetParentAura()->GetCastItemGUID()) : NULL;      
 
     // Try handle unknown trigger spells
-    if (sSpellStore.LookupEntry(trigger_spell_id)==NULL)
+    if (sSpellStore.LookupEntry(trigger_spell_id) == NULL)
     {
         switch (auraSpellInfo->SpellFamilyName)
         {
             case SPELLFAMILY_GENERIC:
-                if (auraSpellInfo->Id == 23780)             // Aegis of Preservation (Aegis of Preservation trinket)
-                    trigger_spell_id = 23781;
-                else if (auraSpellInfo->Id==43820)          // Charm of the Witch Doctor (Amani Charm of the Witch Doctor trinket)
+                switch (auraSpellInfo->Id)
                 {
-                    // Pct value stored in dummy
-                    basepoints0 = pVictim->GetCreateHealth() * auraSpellInfo->EffectBasePoints[1] / 100;
-                    target = pVictim;
-                    break;
-                }
-                else if (auraSpellInfo->Id==57345)          // Darkmoon Card: Greatness
-                {
-                    float stat = 0.0f;
-                    // strength
-                    if (GetStat(STAT_STRENGTH) > stat) { trigger_spell_id = 60229;stat = GetStat(STAT_STRENGTH); }
-                    // agility
-                    if (GetStat(STAT_AGILITY)  > stat) { trigger_spell_id = 60233;stat = GetStat(STAT_AGILITY);  }
-                    // intellect
-                    if (GetStat(STAT_INTELLECT)> stat) { trigger_spell_id = 60234;stat = GetStat(STAT_INTELLECT);}
-                    // spirit
-                    if (GetStat(STAT_SPIRIT)   > stat) { trigger_spell_id = 60235;stat = GetStat(STAT_SPIRIT);   }
-                }
-                else if (auraSpellInfo->Id == 33896)        // Desperate Defense (Stonescythe Whelp, Stonescythe Alpha, Stonescythe Ambusher)
-                    trigger_spell_id = 33898;
-                else if (auraSpellInfo->Id==27522 || auraSpellInfo->Id==40336)
-                                                            // Mana Drain Trigger
-                {
-                    // On successful melee or ranged attack gain $29471s1 mana and if possible drain $27526s1 mana from the target.
-                    if (this && this->isAlive())
-                        CastSpell(this, 29471, true, castItem, triggeredByAura);
-                    if (pVictim && pVictim->isAlive())
-                        CastSpell(pVictim, 27526, true, castItem, triggeredByAura);
-                    return true;
+                    case 23780:             // Aegis of Preservation (Aegis of Preservation trinket)
+                        trigger_spell_id = 23781;
+                        break;
+                    case 33896:             // Desperate Defense (Stonescythe Whelp, Stonescythe Alpha, Stonescythe Ambusher)
+                        trigger_spell_id = 33898;
+                        break;
+                    case 43820:             // Charm of the Witch Doctor (Amani Charm of the Witch Doctor trinket)
+                        // Pct value stored in dummy
+                        basepoints0 = pVictim->GetCreateHealth() * auraSpellInfo->EffectBasePoints[1] / 100;
+                        target = pVictim;
+                        break;
+                    case 57345:             // Darkmoon Card: Greatness
+                    {
+                        float stat = 0.0f;
+                        // strength
+                        if (GetStat(STAT_STRENGTH) > stat) { trigger_spell_id = 60229;stat = GetStat(STAT_STRENGTH); }
+                        // agility
+                        if (GetStat(STAT_AGILITY)  > stat) { trigger_spell_id = 60233;stat = GetStat(STAT_AGILITY);  }
+                        // intellect
+                        if (GetStat(STAT_INTELLECT)> stat) { trigger_spell_id = 60234;stat = GetStat(STAT_INTELLECT);}
+                        // spirit
+                        if (GetStat(STAT_SPIRIT)   > stat) { trigger_spell_id = 60235;stat = GetStat(STAT_SPIRIT);   }
+                        break;
+                    }
+                    // Mana Drain Trigger
+                    case 27522:
+                    case 40336:
+                    {
+                        // On successful melee or ranged attack gain $29471s1 mana and if possible drain $27526s1 mana from the target.
+                        if (this && this->isAlive())
+                            CastSpell(this, 29471, true, castItem, triggeredByAura);
+                        if (pVictim && pVictim->isAlive())
+                            CastSpell(pVictim, 27526, true, castItem, triggeredByAura);
+                        return true;
+                    }
                 }
                 break;
             case SPELLFAMILY_MAGE:
@@ -7073,9 +7088,10 @@ bool Unit::HandleProcTriggerSpell(Unit *pVictim, uint32 damage, AuraEffect* trig
                 break;
             case SPELLFAMILY_WARLOCK:
             {
-                // Improved Drain Soul
+                // Drain Soul
                 if (auraSpellInfo->SpellFamilyFlags[0] & 0x4000)
                 {
+                    // Improved Drain Soul
                     Unit::AuraEffectList const& mAddFlatModifier = GetAurasByType(SPELL_AURA_DUMMY);
                     for(Unit::AuraEffectList::const_iterator i = mAddFlatModifier.begin(); i != mAddFlatModifier.end(); ++i)
                     {
@@ -7174,161 +7190,154 @@ bool Unit::HandleProcTriggerSpell(Unit *pVictim, uint32 damage, AuraEffect* trig
                         return false;
                     basepoints0 = int32(damage * triggerAmount / 100 / (GetSpellMaxDuration(TriggerPS) / TriggerPS->EffectAmplitude[0]));
                     target = pVictim;
-                }                              
+                }
                 break;
             }
             case SPELLFAMILY_PALADIN:
             {
-                // Healing Discount
-                if (auraSpellInfo->Id==37705)
+                switch (auraSpellInfo->Id)
                 {
-                    trigger_spell_id = 37706;
-                    target = this;
-                }
-                // Soul Preserver
-                if (auraSpellInfo->Id==60510)
-                {
-                    trigger_spell_id = 60515;
-                    target = this;
-                }
-                // Illumination
-                else if (auraSpellInfo->SpellIconID==241)
-                {
-                    if(!procSpell)
-                        return false;
-                    // procspell is triggered spell but we need mana cost of original casted spell
-                    uint32 originalSpellId = procSpell->Id;
-                    // Holy Shock heal
-                    if(procSpell->SpellFamilyFlags[1] & 0x00010000)
+                    // Healing Discount
+                    case 37705:
                     {
-                        switch(procSpell->Id)
+                        trigger_spell_id = 37706;
+                        target = this;
+                        break;
+                    }
+                    // Soul Preserver
+                    case 60510:
+                    {
+                        trigger_spell_id = 60515;
+                        target = this;
+                        break;
+                    }
+                    // Lightning Capacitor
+                    case 37657:
+                    {
+                        if(!pVictim || !pVictim->isAlive())
+                            return false;
+                        // stacking
+                        CastSpell(this, 37658, true, NULL, triggeredByAura);
+
+                        Aura * dummy = GetAura(37658);
+                        // release at 3 aura in stack (cont contain in basepoint of trigger aura)
+                        if(!dummy || dummy->GetStackAmount() < triggerAmount)
+                            return false;
+
+                        RemoveAurasDueToSpell(37658);
+                        trigger_spell_id = 37661;
+                        target = pVictim;
+                        break;
+                    }
+                    // Thunder Capacitor
+                    case 54841:
+                    {
+                        if(!pVictim || !pVictim->isAlive())
+                            return false;
+                        // stacking
+                        CastSpell(this, 54842, true, NULL, triggeredByAura);
+
+                        // counting
+                        Aura * dummy = GetAura(54842);
+                        // release at 3 aura in stack (cont contain in basepoint of trigger aura)
+                        if(!dummy || dummy->GetStackAmount() < triggerAmount)
+                            return false;
+
+                        RemoveAurasDueToSpell(54842);
+                        trigger_spell_id = 54843;
+                        target = pVictim;
+                        break;
+                    }
+                    default:
+                        // Illumination
+                        if (auraSpellInfo->SpellIconID==241)
                         {
-                            case 25914: originalSpellId = 20473; break;
-                            case 25913: originalSpellId = 20929; break;
-                            case 25903: originalSpellId = 20930; break;
-                            case 27175: originalSpellId = 27174; break;
-                            case 33074: originalSpellId = 33072; break;
-                            case 48820: originalSpellId = 48824; break;
-                            case 48821: originalSpellId = 48825; break;
-                            default:
-                                sLog.outError("Unit::HandleProcTriggerSpell: Spell %u not handled in HShock",procSpell->Id);
-                               return false;
+                            if(!procSpell)
+                                return false;
+                            // procspell is triggered spell but we need mana cost of original casted spell
+                            uint32 originalSpellId = procSpell->Id;
+                            // Holy Shock heal
+                            if(procSpell->SpellFamilyFlags[1] & 0x00010000)
+                            {
+                                switch(procSpell->Id)
+                                {
+                                    case 25914: originalSpellId = 20473; break;
+                                    case 25913: originalSpellId = 20929; break;
+                                    case 25903: originalSpellId = 20930; break;
+                                    case 27175: originalSpellId = 27174; break;
+                                    case 33074: originalSpellId = 33072; break;
+                                    case 48820: originalSpellId = 48824; break;
+                                    case 48821: originalSpellId = 48825; break;
+                                    default:
+                                        sLog.outError("Unit::HandleProcTriggerSpell: Spell %u not handled in HShock",procSpell->Id);
+                                       return false;
+                                }
+                            }
+                            SpellEntry const *originalSpell = sSpellStore.LookupEntry(originalSpellId);
+                            if(!originalSpell)
+                            {
+                                sLog.outError("Unit::HandleProcTriggerSpell: Spell %u unknown but selected as original in Illu",originalSpellId);
+                                return false;
+                            }
+                            // percent stored in effect 1 (class scripts) base points
+                            int32 cost = originalSpell->manaCost + originalSpell->ManaCostPercentage * GetCreateMana() / 100;
+                            basepoints0 = cost*auraSpellInfo->CalculateSimpleValue(1)/100;
+                            trigger_spell_id = 20272;
+                            target = this;
                         }
-                    }
-                    SpellEntry const *originalSpell = sSpellStore.LookupEntry(originalSpellId);
-                    if(!originalSpell)
-                    {
-                        sLog.outError("Unit::HandleProcTriggerSpell: Spell %u unknown but selected as original in Illu",originalSpellId);
-                        return false;
-                    }
-                    // percent stored in effect 1 (class scripts) base points
-                    int32 cost = originalSpell->manaCost + originalSpell->ManaCostPercentage * GetCreateMana() / 100;
-                    basepoints0 = cost*auraSpellInfo->CalculateSimpleValue(1)/100;
-                    trigger_spell_id = 20272;
-                    target = this;
-                }
-                // Lightning Capacitor
-                else if (auraSpellInfo->Id==37657)
-                {
-                    if(!pVictim || !pVictim->isAlive())
-                        return false;
-                    // stacking
-                    CastSpell(this, 37658, true, NULL, triggeredByAura);
-
-                    Aura * dummy = GetAura(37658);
-                    // release at 3 aura in stack (cont contain in basepoint of trigger aura)
-                    if(!dummy || dummy->GetStackAmount() < triggerAmount)
-                        return false;
-
-                    RemoveAurasDueToSpell(37658);
-                    trigger_spell_id = 37661;
-                    target = pVictim;
-                }
-                // Thunder Capacitor
-                else if (auraSpellInfo->Id == 54841)
-                {
-                    if(!pVictim || !pVictim->isAlive())
-                        return false;
-                    // stacking
-                    CastSpell(this, 54842, true, NULL, triggeredByAura);
-
-                    // counting
-                    Aura * dummy = GetAura(54842);
-                    // release at 3 aura in stack (cont contain in basepoint of trigger aura)
-                    if(!dummy || dummy->GetStackAmount() < triggerAmount)
-                        return false;
-
-                    RemoveAurasDueToSpell(54842);
-                    trigger_spell_id = 54843;
-                    target = pVictim;
+                        break;
                 }
                 break;
             }
             case SPELLFAMILY_SHAMAN:
             {
-                // Lightning Shield (overwrite non existing triggered spell call in spell.dbc
-                if(auraSpellInfo->SpellFamilyFlags[0] & 0x400)
+                switch (auraSpellInfo->Id)
                 {
-                    switch(auraSpellInfo->Id)
+                    // Lightning Shield (The Ten Storms set)
+                    case 23551:
                     {
-                        case 324:                           // Rank 1
-                            trigger_spell_id = 26364; break;
-                        case 325:                           // Rank 2
-                            trigger_spell_id = 26365; break;
-                        case 905:                           // Rank 3
-                            trigger_spell_id = 26366; break;
-                        case 945:                           // Rank 4
-                            trigger_spell_id = 26367; break;
-                        case 8134:                          // Rank 5
-                            trigger_spell_id = 26369; break;
-                        case 10431:                         // Rank 6
-                            trigger_spell_id = 26370; break;
-                        case 10432:                         // Rank 7
-                            trigger_spell_id = 26363; break;
-                        case 25469:                         // Rank 8
-                            trigger_spell_id = 26371; break;
-                        case 25472:                         // Rank 9
-                            trigger_spell_id = 26372; break;
-                        case 49280:                         // Rank 10
-                            trigger_spell_id = 49278; break;
-                        case 49281:                         // Rank 11
-                            trigger_spell_id = 49279; break;
-                        default:
-                            sLog.outError("Unit::HandleProcTriggerSpell: Spell %u not handled in LShield", auraSpellInfo->Id);
-                        return false;
+                        trigger_spell_id = 23552;
+                        target = pVictim;
+                        break;
                     }
-                }
-                // Lightning Shield (The Ten Storms set)
-                else if (auraSpellInfo->Id == 23551)
-                {
-                    trigger_spell_id = 23552;
-                    target = pVictim;
-                }
-                // Damage from Lightning Shield (The Ten Storms set)
-                else if (auraSpellInfo->Id == 23552)
-                    trigger_spell_id = 27635;
-                // Mana Surge (The Earthfury set)
-                else if (auraSpellInfo->Id == 23572)
-                {
-                    if(!procSpell)
-                        return false;
-                    basepoints0 = procSpell->manaCost * 35 / 100;
-                    trigger_spell_id = 23571;
-                    target = this;
-                }
-                // Nature's Guardian
-                else if (auraSpellInfo->SpellIconID == 2013)
-                {
-                    // Check health condition - should drop to less 30% (damage deal after this!)
-                    if (!(10*(int32(GetHealth() - damage)) < 3 * GetMaxHealth()))
-                        return false;
+                    // Damage from Lightning Shield (The Ten Storms set)
+                    case 23552:
+                    {
+                        trigger_spell_id = 27635;
+                        break;
+                    }
+                    // Mana Surge (The Earthfury set)
+                    case 23572:
+                    {
+                        if(!procSpell)
+                            return false;
+                        basepoints0 = procSpell->manaCost * 35 / 100;
+                        trigger_spell_id = 23571;
+                        target = this;
+                        break;
+                    }
+                    default:
+                    {
+                        // Lightning Shield (overwrite non existing triggered spell call in spell.dbc
+                        if(auraSpellInfo->SpellFamilyFlags[0] & 0x400)
+                        {
+                            trigger_spell_id = spellmgr.GetSpellWithRank(26364, spellmgr.GetSpellRank(auraSpellInfo->Id));
+                        }
+                        // Nature's Guardian
+                        else if (auraSpellInfo->SpellIconID == 2013)
+                        {
+                            // Check health condition - should drop to less 30% (damage deal after this!)
+                            if (!(10*(int32(GetHealth() - damage)) < 3 * GetMaxHealth()))
+                                return false;
 
-                     if(pVictim && pVictim->isAlive())
-                         pVictim->getThreatManager().modifyThreatPercent(this,-10);
+                             if(pVictim && pVictim->isAlive())
+                                 pVictim->getThreatManager().modifyThreatPercent(this,-10);
 
-                    basepoints0 = triggerAmount * GetMaxHealth() / 100;
-                    trigger_spell_id = 31616;
-                    target = this;
+                            basepoints0 = triggerAmount * GetMaxHealth() / 100;
+                            trigger_spell_id = 31616;
+                            target = this;
+                        }
+                    }
                 }
                 break;
             }
@@ -7399,7 +7408,7 @@ bool Unit::HandleProcTriggerSpell(Unit *pVictim, uint32 damage, AuraEffect* trig
         // Cheat Death
         case 28845:
         {
-            // When your health drops below 20% ....
+            // When your health drops below 20%
             if (GetHealth() - damage > GetMaxHealth() / 5 || GetHealth() < GetMaxHealth() / 5)
                 return false;
             break;
@@ -7572,30 +7581,6 @@ bool Unit::HandleProcTriggerSpell(Unit *pVictim, uint32 damage, AuraEffect* trig
                 return false;
             break;
         }
-        // Brain Freeze
-        case 57761:
-        {
-            if(!procSpell)
-                return false;
-            // For trigger from Blizzard need exist Improved Blizzard
-            if (procSpell->SpellFamilyName==SPELLFAMILY_MAGE && procSpell->SpellFamilyFlags[0] & 0x80)
-            {
-                bool found = false;
-                AuraEffectList const& mOverrideClassScript = GetAurasByType(SPELL_AURA_OVERRIDE_CLASS_SCRIPTS);
-                for(AuraEffectList::const_iterator i = mOverrideClassScript.begin(); i != mOverrideClassScript.end(); ++i)
-                {
-                    int32 script = (*i)->GetMiscValue();
-                    if(script==836 || script==988 || script==989)
-                    {
-                        found=true;
-                        break;
-                    }
-                }
-                if(!found)
-                    return false;
-            }
-            break;
-        }
         // Astral Shift
         case 52179:
         {
@@ -7706,16 +7691,6 @@ bool Unit::HandleOverrideClassScriptAuraProc(Unit *pVictim, uint32 damage, AuraE
             triggered_spell_id = 12486;
             break;
         }
-        case 4086:                                          // Improved Mend Pet (Rank 1)
-        case 4087:                                          // Improved Mend Pet (Rank 2)
-        {
-            int32 chance = triggeredByAura->GetSpellProto()->EffectBasePoints[triggeredByAura->GetEffIndex()];
-            if(!roll_chance_i(chance))
-                return false;
-
-            triggered_spell_id = 24406;
-            break;
-        }
         case 4533:                                          // Dreamwalker Raiment 2 pieces bonus
         {
             // Chance 50%
@@ -7735,19 +7710,9 @@ bool Unit::HandleOverrideClassScriptAuraProc(Unit *pVictim, uint32 damage, AuraE
         case 4537:                                          // Dreamwalker Raiment 6 pieces bonus
             triggered_spell_id = 28750;                     // Blessing of the Claw
             break;
-        case 5497:                                          // Improved Mana Gems (Serpent-Coil Braid)
+        case 5497:                                          // Improved Mana Gems
             triggered_spell_id = 37445;                     // Mana Surge
             break;
-        case 8152:                                          // Serendipity
-        {
-            // if heal your target over maximum health
-            if (pVictim->GetHealth() + damage < pVictim->GetMaxHealth())
-                return false;
-            int32 cost = procSpell->manaCost + procSpell->ManaCostPercentage * GetCreateMana() / 100;
-            int32 basepoints0 = cost * triggeredByAura->GetAmount()/100;
-            CastCustomSpell(this, 47762, &basepoints0, 0, 0, true, 0, triggeredByAura);
-            return true;
-        }
         case 7010:  // Revitalize - can proc on full hp target
         case 7011:
         case 7012:
@@ -12852,77 +12817,6 @@ void Unit::SendMovementFlagUpdate()
     SendMessageToSet(&data, false);
 }
 
-/*
-void Unit::SetFeared(bool apply, uint64 casterGUID, uint32 spellID, uint32 time)
-{
-    if( apply )
-    {
-        if(HasAuraType(SPELL_AURA_PREVENTS_FLEEING))
-            return;
-
-        SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_FLEEING);
-
-        GetMotionMaster()->MovementExpired(false);
-        CastStop(GetGUID()==casterGUID ? spellID : 0);
-
-        Unit* caster = ObjectAccessor::GetUnit(*this,casterGUID);
-
-        GetMotionMaster()->MoveFleeing(caster, time);       // caster==NULL processed in MoveFleeing
-    }
-    else
-    {
-        RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_FLEEING);
-
-        GetMotionMaster()->MovementExpired(false);
-
-        if( GetTypeId() != TYPEID_PLAYER && isAlive() )
-        {
-            // restore appropriate movement generator
-            if(getVictim())
-                GetMotionMaster()->MoveChase(getVictim());
-            else
-                GetMotionMaster()->Initialize();
-
-            // attack caster if can
-            Unit* caster = ObjectAccessor::GetObjectInWorld(casterGUID, (Unit*)NULL);
-            if(caster && ((Creature*)this)->AI())
-                ((Creature*)this)->AI()->AttackedBy(caster);
-        }
-    }
-
-    if (GetTypeId() == TYPEID_PLAYER)
-        ((Player*)this)->SetClientControl(this, !apply);
-}
-
-void Unit::SetConfused(bool apply, uint64 casterGUID, uint32 spellID)
-{
-    if( apply )
-    {
-        SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_CONFUSED);
-
-        CastStop(GetGUID()==casterGUID ? spellID : 0);
-
-        GetMotionMaster()->MoveConfused();
-    }
-    else
-    {
-        RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_CONFUSED);
-
-        GetMotionMaster()->MovementExpired(false);
-
-        if (GetTypeId() == TYPEID_UNIT)
-        {
-            // if in combat restore movement generator
-            if(getVictim())
-                GetMotionMaster()->MoveChase(getVictim());
-        }
-    }
-
-    if(GetTypeId() == TYPEID_PLAYER)
-        ((Player*)this)->SetClientControl(this, !apply);
-}
-*/
-
 bool Unit::IsSitState() const
 {
     uint8 s = getStandState();
@@ -13847,7 +13741,7 @@ void Unit::SetRooted(bool apply)
 {
     if(apply)
     {
-        AddUnitMovementFlag(MOVEMENTFLAG_ROOT);        
+        AddUnitMovementFlag(MOVEMENTFLAG_ROOT);
 
         WorldPacket data(SMSG_FORCE_MOVE_ROOT, 10);
         data.append(GetPackGUID());

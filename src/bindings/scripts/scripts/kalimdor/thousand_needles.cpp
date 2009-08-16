@@ -29,7 +29,7 @@ npc_plucky
 EndContentData */
 
 #include "precompiled.h"
-#include "escortAI.h"
+#include "escort_ai.h"
 
 /*#####
 # npc_kanati
@@ -60,7 +60,7 @@ struct TRINITY_DLL_DECL npc_kanatiAI : public npc_escortAI
                 DoSpawnGalak();
                 break;
             case 1:
-                if (Player* pPlayer = Unit::GetPlayer(PlayerGUID))
+                if (Player* pPlayer = GetPlayerForEscort())
                     pPlayer->GroupEventHappens(QUEST_PROTECT_KANATI, m_creature);
                 break;
         }
@@ -149,7 +149,7 @@ struct TRINITY_DLL_DECL npc_lakota_windsongAI : public npc_escortAI
                 DoSpawnBandits(ID_AMBUSH_3);
                 break;
             case 45:
-                if (Player* pPlayer = (Player*)Unit::GetUnit(*m_creature, PlayerGUID))
+                if (Player* pPlayer = GetPlayerForEscort())
                     pPlayer->GroupEventHappens(QUEST_FREE_AT_LAST, m_creature);
                 break;
         }
@@ -222,7 +222,7 @@ struct TRINITY_DLL_DECL npc_paoka_swiftmountainAI : public npc_escortAI
                 DoScriptText(SAY_COMPLETE, m_creature);
                 break;
             case 27:
-                if (Player* pPlayer = (Player*)Unit::GetUnit(*m_creature, PlayerGUID))
+                if (Player* pPlayer = GetPlayerForEscort())
                     pPlayer->GroupEventHappens(QUEST_HOMEWARD, m_creature);
                 break;
         }
