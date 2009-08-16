@@ -550,6 +550,7 @@ UPDATE `creature_template` SET `ScriptName`='npc_wounded_blood_elf' WHERE `entry
 UPDATE `creature_template` SET `ScriptName`='npc_aeranas' WHERE `entry`=17085;
 UPDATE `gameobject_template` SET `ScriptName`='go_haaleshi_altar' WHERE `entry`=181606;
 UPDATE `creature_template` SET `ScriptName`='npc_naladu' WHERE `entry`=19361;
+UPDATE `creature_template` SET `ScriptName`='npc_tracy_proudwell' WHERE `entry`=18266;
 
 /* HILLSBRAD FOOTHILLS */
 
