@@ -234,7 +234,7 @@ struct TRINITY_DLL_DECL npc_koltira_deathweaverAI : public npc_escortAI
 
     void JustSummoned(Creature* pSummoned)
     {
-        if (Unit* pPlayer = Unit::GetUnit(*me, m_uiPlayerGUID))
+        if (Player* pPlayer = GetPlayerForEscort())
         {
             pSummoned->AI()->AttackStart(pPlayer);
             pSummoned->AddThreat(me, 0.0f);

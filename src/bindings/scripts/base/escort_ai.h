@@ -88,9 +88,8 @@ struct TRINITY_DLL_DECL npc_escortAI : public ScriptedAI
         bool IsBeingEscorted;
         bool IsOnHold;
 
-        uint64 m_uiPlayerGUID;
-
     private:
+        uint64 m_uiPlayerGUID;
         uint32 m_uiWPWaitTimer;
         uint32 m_uiPlayerCheckTimer;
         float MaxPlayerDistance;
