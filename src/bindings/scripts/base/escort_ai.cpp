@@ -22,7 +22,7 @@ enum
 npc_escortAI::npc_escortAI(Creature* pCreature) : ScriptedAI(pCreature),
     IsBeingEscorted(false),
     IsOnHold(false),
-    PlayerGUID(0),
+    m_uiPlayerGUID(0),
     MaxPlayerDistance(DEFAULT_MAX_PLAYER_DISTANCE),
     CanMelee(true),
     m_uiPlayerCheckTimer(1000),
@@ -63,10 +63,10 @@ void npc_escortAI::MoveInLineOfSight(Unit* pWho)
 
 void npc_escortAI::JustDied(Unit* pKiller)
 {
-    if (!IsBeingEscorted || !PlayerGUID || !m_pQuestForEscort)
+    if (!IsBeingEscorted || !m_uiPlayerGUID || !m_pQuestForEscort)
         return;
 
-    if (Player* pPlayer = Unit::GetPlayer(PlayerGUID))
+    if (Player* pPlayer = GetPlayerForEscort())
     {
         if (Group* pGroup = pPlayer->GetGroup())
         {
@@ -132,7 +132,7 @@ void npc_escortAI::EnterEvadeMode()
 
 bool npc_escortAI::IsPlayerOrGroupInRange()
 {
-    if (Player* pPlayer = Unit::GetPlayer(PlayerGUID))
+    if (Player* pPlayer = GetPlayerForEscort())
     {
         if (Group* pGroup = pPlayer->GetGroup())
         {
@@ -216,7 +216,7 @@ void npc_escortAI::UpdateAI(const uint32 uiDiff)
     }
 
     //Check if player or any member of his group is within range
-    if (IsBeingEscorted && PlayerGUID && !m_creature->getVictim() && !m_bIsReturning)
+    if (IsBeingEscorted && m_uiPlayerGUID && !m_creature->getVictim() && !m_bIsReturning)
     {
         if (m_uiPlayerCheckTimer < uiDiff)
         {
@@ -404,7 +404,7 @@ void npc_escortAI::Start(bool bIsActiveAttacker, bool bRun, uint64 uiPlayerGUID,
     m_bIsActiveAttacker = bIsActiveAttacker;
     m_bIsRunning = bRun;
 
-    PlayerGUID = uiPlayerGUID;
+    m_uiPlayerGUID = uiPlayerGUID;
     m_pQuestForEscort = pQuest;
 
     m_bCanInstantRespawn = bInstantRespawn;
@@ -423,7 +423,7 @@ void npc_escortAI::Start(bool bIsActiveAttacker, bool bRun, uint64 uiPlayerGUID,
     //disable npcflags
     m_creature->SetUInt32Value(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_NONE);
 
-    debug_log("TSCR: EscortAI started with %d waypoints. ActiveAttacker = %d, Run = %d, PlayerGUID = %d", WaypointList.size(), m_bIsActiveAttacker, m_bIsRunning, PlayerGUID);
+    debug_log("TSCR: EscortAI started with %d waypoints. ActiveAttacker = %d, Run = %d, PlayerGUID = %d", WaypointList.size(), m_bIsActiveAttacker, m_bIsRunning, m_uiPlayerGUID);
 
     CurrentWP = WaypointList.begin();
 

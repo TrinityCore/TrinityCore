@@ -329,14 +329,11 @@ struct TRINITY_DLL_DECL npc_thrall_old_hillsbradAI : public npc_escortAI
 
             case 106:
                 {
-                    if (!PlayerGUID)
-                        break;
-
                     //trigger taretha to run down outside
-                    if (uint64 TarethaGUID = pInstance->GetData64(DATA_TARETHA))
+                    if (Creature* Taretha = pInstance->instance->GetCreature(pInstance->GetData64(DATA_TARETHA)))
                     {
-                        if (Creature* Taretha = (Unit::GetCreature(*m_creature, TarethaGUID)))
-                            CAST_AI(npc_escortAI, (Taretha->AI()))->Start(false, true, PlayerGUID);
+                        if (Player* pPlayer = GetPlayerForEscort())
+                            CAST_AI(npc_escortAI, (Taretha->AI()))->Start(false, true, pPlayer->GetGUID());
                     }
 
                     //kill credit Creature for quest

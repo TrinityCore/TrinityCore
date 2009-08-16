@@ -70,8 +70,6 @@ struct TRINITY_DLL_DECL npc_aeranasAI : public ScriptedAI
         DoScriptText(SAY_SUMMON, m_creature);
     }
 
-    void EnterCombat(Unit *who) {}
-
     void UpdateAI(const uint32 diff)
     {
         if (Faction_Timer)
@@ -227,9 +225,9 @@ struct TRINITY_DLL_DECL npc_wounded_blood_elfAI : public npc_escortAI
 
     void WaypointReached(uint32 i)
     {
-        Player* pPlayer = Unit::GetPlayer(PlayerGUID);
+        Player* pPlayer = GetPlayerForEscort();
 
-        if (!pPlayer || pPlayer->GetTypeId() != TYPEID_PLAYER)
+        if (!pPlayer)
             return;
 
         switch (i)

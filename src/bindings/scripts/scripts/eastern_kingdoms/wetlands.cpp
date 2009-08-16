@@ -70,7 +70,7 @@ struct TRINITY_DLL_DECL npc_tapoke_slim_jahnAI : public npc_escortAI
 
     void Aggro(Unit* pWho)
     {
-        Unit* pPlayer = Unit::GetUnit(*m_creature, PlayerGUID);
+        Player* pPlayer = GetPlayerForEscort();
 
         if (IsBeingEscorted && !m_bFriendSummoned && pPlayer)
         {
@@ -83,7 +83,7 @@ struct TRINITY_DLL_DECL npc_tapoke_slim_jahnAI : public npc_escortAI
 
     void JustSummoned(Creature* pSummoned)
     {
-        if (Unit* pPlayer = Unit::GetPlayer(PlayerGUID))
+        if (Player* pPlayer = GetPlayerForEscort())
             pSummoned->AI()->AttackStart(pPlayer);
     }
 
@@ -102,7 +102,7 @@ struct TRINITY_DLL_DECL npc_tapoke_slim_jahnAI : public npc_escortAI
     {
         if (m_creature->GetHealth()*100 < m_creature->GetMaxHealth()*20)
         {
-            if (Unit* pPlayer = Unit::GetUnit(*m_creature, PlayerGUID))
+            if (Player* pPlayer = GetPlayerForEscort())
             {
                 if (pPlayer->GetTypeId() == TYPEID_PLAYER)
                     CAST_PLR(pPlayer)->GroupEventHappens(QUEST_MISSING_DIPLO_PT11, m_creature);

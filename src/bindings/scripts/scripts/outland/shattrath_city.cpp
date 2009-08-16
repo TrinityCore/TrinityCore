@@ -61,11 +61,8 @@ struct TRINITY_DLL_DECL npc_raliq_the_drunkAI : public ScriptedAI
     void Reset()
     {
         Uppercut_Timer = 5000;
-        if (m_creature->getFaction() != m_uiNormFaction)
-            m_creature->setFaction(m_uiNormFaction);
+        me->RestoreFaction();
     }
-
-    void EnterCombat(Unit *who) {}
 
     void UpdateAI(const uint32 diff)
     {
@@ -126,10 +123,8 @@ struct TRINITY_DLL_DECL npc_salsalabimAI : public ScriptedAI
     void Reset()
     {
         MagneticPull_Timer = 15000;
-        m_creature->setFaction(FACTION_FRIENDLY_SA);
+        me->RestoreFaction();
     }
-
-    void EnterCombat(Unit *who) {}
 
     void DamageTaken(Unit *done_by, uint32 &damage)
     {
@@ -288,71 +283,60 @@ public:
 
     void WaypointReached(uint32 i)
     {
-        Unit *pTemp = Unit::GetUnit(*m_creature,PlayerGUID);
+        Player* pPlayer = GetPlayerForEscort();
 
-        if (!pTemp)
+        if (!pPlayer)
             return;
 
         switch(i)
         {
-            case 0: DoScriptText(SAY1, m_creature, pTemp); break;
-            case 4: DoScriptText(WHISP1, m_creature, pTemp); break;
-            case 6: DoScriptText(WHISP2, m_creature, pTemp); break;
-            case 7: DoScriptText(WHISP3, m_creature, pTemp); break;
-            case 8: DoScriptText(WHISP4, m_creature, pTemp); break;
-            case 17: DoScriptText(WHISP5, m_creature, pTemp); break;
-            case 18: DoScriptText(WHISP6, m_creature, pTemp); break;
-            case 19: DoScriptText(WHISP7, m_creature, pTemp); break;
-            case 33: DoScriptText(WHISP8, m_creature, pTemp); break;
-            case 34: DoScriptText(WHISP9, m_creature, pTemp); break;
-            case 35: DoScriptText(WHISP10, m_creature, pTemp); break;
-            case 36: DoScriptText(WHISP11, m_creature, pTemp); break;
-            case 43: DoScriptText(WHISP12, m_creature, pTemp); break;
-            case 44: DoScriptText(WHISP13, m_creature, pTemp); break;
-            case 49: DoScriptText(WHISP14, m_creature, pTemp); break;
-            case 50: DoScriptText(WHISP15, m_creature, pTemp); break;
-            case 51: DoScriptText(WHISP16, m_creature, pTemp); break;
-            case 52: DoScriptText(WHISP17, m_creature, pTemp); break;
-            case 53: DoScriptText(WHISP18, m_creature, pTemp); break;
-            case 54: DoScriptText(WHISP19, m_creature, pTemp); break;
-            case 55: DoScriptText(WHISP20, m_creature, pTemp); break;
-            case 56: DoScriptText(WHISP21, m_creature, pTemp);
-                if (PlayerGUID)
-                {
-                    Player* pPlayer = (Unit::GetPlayer(PlayerGUID));
-                    if (pPlayer)
-                        pPlayer->GroupEventHappens(10211,m_creature);
-                }
+            case 0: DoScriptText(SAY1, m_creature, pPlayer); break;
+            case 4: DoScriptText(WHISP1, m_creature, pPlayer); break;
+            case 6: DoScriptText(WHISP2, m_creature, pPlayer); break;
+            case 7: DoScriptText(WHISP3, m_creature, pPlayer); break;
+            case 8: DoScriptText(WHISP4, m_creature, pPlayer); break;
+            case 17: DoScriptText(WHISP5, m_creature, pPlayer); break;
+            case 18: DoScriptText(WHISP6, m_creature, pPlayer); break;
+            case 19: DoScriptText(WHISP7, m_creature, pPlayer); break;
+            case 33: DoScriptText(WHISP8, m_creature, pPlayer); break;
+            case 34: DoScriptText(WHISP9, m_creature, pPlayer); break;
+            case 35: DoScriptText(WHISP10, m_creature, pPlayer); break;
+            case 36: DoScriptText(WHISP11, m_creature, pPlayer); break;
+            case 43: DoScriptText(WHISP12, m_creature, pPlayer); break;
+            case 44: DoScriptText(WHISP13, m_creature, pPlayer); break;
+            case 49: DoScriptText(WHISP14, m_creature, pPlayer); break;
+            case 50: DoScriptText(WHISP15, m_creature, pPlayer); break;
+            case 51: DoScriptText(WHISP16, m_creature, pPlayer); break;
+            case 52: DoScriptText(WHISP17, m_creature, pPlayer); break;
+            case 53: DoScriptText(WHISP18, m_creature, pPlayer); break;
+            case 54: DoScriptText(WHISP19, m_creature, pPlayer); break;
+            case 55: DoScriptText(WHISP20, m_creature, pPlayer); break;
+            case 56: DoScriptText(WHISP21, m_creature, pPlayer);
+                if (pPlayer)
+                    pPlayer->GroupEventHappens(10211,m_creature);
                 break;
         }
     }
 
-    void EnterCombat(Unit* who) {}
-
-    void MoveInLineOfSight(Unit *who)
+    void MoveInLineOfSight(Unit* pWho)
     {
         if (IsBeingEscorted)
             return;
 
-        if (who->GetTypeId() == TYPEID_PLAYER)
+        if (pWho->GetTypeId() == TYPEID_PLAYER)
         {
-            if (CAST_PLR(who)->GetQuestStatus(10211) == QUEST_STATUS_INCOMPLETE)
+            if (CAST_PLR(pWho)->GetQuestStatus(10211) == QUEST_STATUS_INCOMPLETE)
             {
                 float Radius = 10.0;
-                if (m_creature->IsWithinDistInMap(who, Radius))
+                if (m_creature->IsWithinDistInMap(pWho, Radius))
                 {
-                    Start(false, false, who->GetGUID());
+                    Start(false, false, pWho->GetGUID());
                 }
             }
         }
     }
 
     void Reset() {}
-
-    void UpdateAI(const uint32 diff)
-    {
-        npc_escortAI::UpdateAI(diff);
-    }
 };
 CreatureAI* GetAI_npc_kservantAI(Creature* pCreature)
 {

@@ -153,7 +153,7 @@ struct TRINITY_DLL_DECL npc_custodian_of_timeAI : public npc_escortAI
 
     void WaypointReached(uint32 i)
     {
-        Player *pPlayer = Unit::GetPlayer(PlayerGUID);
+        Player *pPlayer = GetPlayerForEscort();
         if (!pPlayer)
             return;
 
@@ -357,7 +357,7 @@ struct TRINITY_DLL_DECL npc_OOX17AI : public npc_escortAI
 
     void WaypointReached(uint32 i)
     {
-        Player* pPlayer = Unit::GetPlayer(PlayerGUID);
+        Player* pPlayer = GetPlayerForEscort();
 
         if (!pPlayer)
             return;
@@ -424,97 +424,7 @@ bool QuestAccept_npc_OOX17(Player* pPlayer, Creature* pCreature, Quest const* qu
 
 CreatureAI* GetAI_npc_OOX17(Creature* pCreature)
 {
-    npc_OOX17AI* OOX17AI = new npc_OOX17AI(pCreature);
-
-    OOX17AI->AddWaypoint(0, -8843.73, -4374.44, 43.71);
-    OOX17AI->AddWaypoint(1, -8834.68, -4373.88, 45.71);
-    OOX17AI->AddWaypoint(2, -8832.93, -4373.85, 45.67);
-    OOX17AI->AddWaypoint(3, -8829.21, -4373.72, 44.14);
-    OOX17AI->AddWaypoint(4, -8825.10, -4373.56, 41.44);
-    OOX17AI->AddWaypoint(5, -8818.88, -4372.75, 36.43);
-    OOX17AI->AddWaypoint(6, -8803.37, -4369.68, 30.06);
-    OOX17AI->AddWaypoint(7, -8786.68, -4366.18, 23.91);
-    OOX17AI->AddWaypoint(8, -8764.97, -4366.94, 25.23);
-    OOX17AI->AddWaypoint(9, -8745.49, -4363.16, 22.80);
-    OOX17AI->AddWaypoint(10, -8724.13, -4353.55, 20.72);
-    OOX17AI->AddWaypoint(11, -8706.77, -4346.14, 16.12);
-    OOX17AI->AddWaypoint(12, -8688.27, -4372.85, 13.64);
-    OOX17AI->AddWaypoint(13, -8668.76, -4380.38, 11.69);
-    OOX17AI->AddWaypoint(14, -8645.19, -4388.62, 12.56);
-    OOX17AI->AddWaypoint(15, -8614.73, -4398.60, 9.86);
-    OOX17AI->AddWaypoint(16, -8560.33, -4411.27, 13.17);
-    OOX17AI->AddWaypoint(17, -8536.45, -4416.49, 11.84);
-    OOX17AI->AddWaypoint(18, -8503.48, -4423.70, 13.59);
-    OOX17AI->AddWaypoint(19, -8471.91, -4430.60, 9.56);
-    OOX17AI->AddWaypoint(20, -8441.36, -4435.31, 9.40);
-    OOX17AI->AddWaypoint(21, -8403.41, -4441.16, 11.83);
-    OOX17AI->AddWaypoint(22, -8371.24, -4446.13, 9.47);
-    OOX17AI->AddWaypoint(23, -8353.96, -4448.79, 10.10); //Scorpid
-    OOX17AI->AddWaypoint(24, -8336.40, -4446.39, 8.98);
-    OOX17AI->AddWaypoint(25, -8303.78, -4441.96, 11.89);
-    OOX17AI->AddWaypoint(26, -8272.20, -4433.31, 9.60);
-    OOX17AI->AddWaypoint(27, -8224.76, -4419.39, 13.03);
-    OOX17AI->AddWaypoint(28, -8193.31, -4406.04, 10.17);
-    OOX17AI->AddWaypoint(29, -8155.65, -4397.74, 8.99);
-    OOX17AI->AddWaypoint(30, -8129.25, -4394.57, 10.92);
-    OOX17AI->AddWaypoint(31, -8104.86, -4399.03, 8.93);
-    OOX17AI->AddWaypoint(32, -8063.15, -4423.40, 10.07);
-    OOX17AI->AddWaypoint(33, -8032.15, -4443.47, 9.97);
-    OOX17AI->AddWaypoint(34, -8015.39, -4454.33, 9.39);
-    OOX17AI->AddWaypoint(35, -7981.64, -4482.44, 10.32);
-    OOX17AI->AddWaypoint(36, -7958.83, -4503.98, 9.69);
-    OOX17AI->AddWaypoint(37, -7932.45, -4528.91, 10.08);
-    OOX17AI->AddWaypoint(38, -7904.09, -4566.67, 12.59);
-    OOX17AI->AddWaypoint(39, -7883.33, -4593.91, 12.15);
-    OOX17AI->AddWaypoint(40, -7862.83, -4624.53, 10.21);
-    OOX17AI->AddWaypoint(41, -7840.79, -4654.26, 9.45);
-    OOX17AI->AddWaypoint(42, -7826.17, -4673.99, 10.61);
-    OOX17AI->AddWaypoint(43, -7807.86, -4698.69, 11.24);
-    OOX17AI->AddWaypoint(44, -7793.88, -4717.55, 10.48);
-    OOX17AI->AddWaypoint(45, -7778.68, -4738.05, 8.89);
-    OOX17AI->AddWaypoint(46, -7746.42, -4780.39, 9.84);
-    OOX17AI->AddWaypoint(47, -7724.11, -4772.75, 10.28);
-    OOX17AI->AddWaypoint(48, -7697.98, -4763.80, 9.52);
-    OOX17AI->AddWaypoint(49, -7665.33, -4752.62, 10.56);
-    OOX17AI->AddWaypoint(50, -7641.47, -4750.33, 8.94);
-    OOX17AI->AddWaypoint(51, -7620.08, -4753.96, 8.93);
-    OOX17AI->AddWaypoint(52, -7603.15, -4757.53, 9.06);
-    OOX17AI->AddWaypoint(53, -7579.43, -4767.07, 8.93);
-    OOX17AI->AddWaypoint(54, -7558.51, -4779.01, 9.64);
-    OOX17AI->AddWaypoint(55, -7536.40, -4789.32, 8.92);
-    OOX17AI->AddWaypoint(56, -7512.07, -4793.50, 9.35); //Wastewander
-    OOX17AI->AddWaypoint(57, -7490.79, -4788.80, 10.53);
-    OOX17AI->AddWaypoint(58, -7469.10, -4785.11, 10.42);
-    OOX17AI->AddWaypoint(59, -7453.18, -4782.41, 9.15);
-    OOX17AI->AddWaypoint(60, -7426.27, -4777.83, 9.54);
-    OOX17AI->AddWaypoint(61, -7393.84, -4770.19, 12.57);
-    OOX17AI->AddWaypoint(62, -7367.25, -4764.17, 11.92);
-    OOX17AI->AddWaypoint(63, -7341.00, -4752.11, 10.17);
-    OOX17AI->AddWaypoint(64, -7321.62, -4744.97, 11.58);
-    OOX17AI->AddWaypoint(65, -7302.35, -4744.35, 11.97);
-    OOX17AI->AddWaypoint(66, -7281.00, -4743.66, 11.21);
-    OOX17AI->AddWaypoint(67, -7258.33, -4742.93, 9.64);
-    OOX17AI->AddWaypoint(68, -7236.70, -4742.24, 10.16);
-    OOX17AI->AddWaypoint(69, -7217.52, -4743.87, 10.79);
-    OOX17AI->AddWaypoint(70, -7201.86, -4746.32, 9.58);
-    OOX17AI->AddWaypoint(71, -7182.01, -4749.41, 9.09);
-    OOX17AI->AddWaypoint(72, -7159.61, -4752.90, 9.52);
-    OOX17AI->AddWaypoint(73, -7139.58, -4756.02, 9.53);
-    OOX17AI->AddWaypoint(74, -7122.60, -4754.91, 9.66);
-    OOX17AI->AddWaypoint(75, -7101.06, -4753.87, 8.92);
-    OOX17AI->AddWaypoint(76, -7082.79, -4752.99, 9.97);
-    OOX17AI->AddWaypoint(77, -7061.81, -4751.98, 9.26);
-    OOX17AI->AddWaypoint(78, -7035.12, -4754.39, 9.19);
-    OOX17AI->AddWaypoint(79, -7013.90, -4758.64, 10.28);
-    OOX17AI->AddWaypoint(80, -7001.71, -4769.73, 10.59);
-    OOX17AI->AddWaypoint(81, -6984.95, -4788.61, 9.30);
-    OOX17AI->AddWaypoint(82, -6970.41, -4788.77, 9.42);
-    OOX17AI->AddWaypoint(83, -6957.16, -4788.92, 6.26);
-    OOX17AI->AddWaypoint(84, -6951.29, -4802.73, 4.45);
-    OOX17AI->AddWaypoint(85, -6944.81, -4816.58, 1.60);
-    OOX17AI->AddWaypoint(86, -6942.06, -4839.40, 0.66,5000);
-
-    return OOX17AI;
+    return new npc_OOX17AI(pCreature);
 }
 
 /*####
@@ -631,8 +541,7 @@ struct MANGOS_DLL_DECL npc_toogaAI : public ScriptedAI
 
     void JustRespawned()
     {
-        if (m_creature->getFaction() != m_creature->GetCreatureInfo()->faction_A)
-            m_creature->setFaction(m_creature->GetCreatureInfo()->faction_A);
+        me->RestoreFaction();
 
         m_creature->SetUInt32Value(UNIT_NPC_FLAGS, m_creature->GetCreatureInfo()->npcflag);
 
@@ -684,7 +593,10 @@ struct MANGOS_DLL_DECL npc_toogaAI : public ScriptedAI
     void JustDied(Unit* pKiller)
     {
         if (Player* pPlayer = Unit::GetPlayer(m_uiPlayerGUID))
-            pPlayer->FailQuest(QUEST_TOOGA);
+        {
+            if (pPlayer->GetQuestStatus(QUEST_TOOGA) == QUEST_STATUS_INCOMPLETE)
+                pPlayer->FailQuest(QUEST_TOOGA);
+        }
 
         m_uiPlayerGUID = 0;
         m_creature->GetMotionMaster()->MovementExpired();
