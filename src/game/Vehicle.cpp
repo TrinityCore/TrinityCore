@@ -300,7 +300,7 @@ bool Vehicle::AddPassenger(Unit *unit, int8 seatId)
         assert(!seat->second.passenger);
     }
 
-    sLog.outDebug("Unit %s enter vehicle entry %u id %u dbguid %u", unit->GetName(), GetEntry(), m_vehicleInfo->m_ID, GetDBTableGUIDLow());
+    sLog.outDebug("Unit %s enter vehicle entry %u id %u dbguid %u seat %d", unit->GetName(), GetEntry(), m_vehicleInfo->m_ID, GetDBTableGUIDLow(), (int32)seat->first);
 
     seat->second.passenger = unit;
     if(seat->second.seatInfo->IsUsable())
@@ -334,6 +334,9 @@ bool Vehicle::AddPassenger(Unit *unit, int8 seatId)
         unit->SendMonsterMoveTransport(this);
         GetMap()->CreatureRelocation(this, GetPositionX(), GetPositionY(), GetPositionZ(), GetOrientation());
     }
+
+    if(AI())
+        AI()->PassengerBoarded(unit, seat->first);
 
     //if(unit->GetTypeId() == TYPEID_PLAYER)
     //    ((Player*)unit)->SendTeleportAckMsg();
@@ -371,6 +374,9 @@ void Vehicle::RemovePassenger(Unit *unit)
 
     if(unit->GetTypeId() == TYPEID_PLAYER && seat->first == 0 && seat->second.seatInfo->m_flags & 0x800)
         RemoveCharmedBy(unit);
+
+    if(AI())
+        AI()->PassengerLeft(unit, seat->first);
 
     // only for flyable vehicles?
     //CastSpell(this, 45472, true);                           // Parachute

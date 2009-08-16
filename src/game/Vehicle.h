@@ -57,6 +57,7 @@ class TRINITY_DLL_SPEC Vehicle : public Creature
         int8 GetNextEmptySeat(int8 seatId, bool next) const;
         bool AddPassenger(Unit *passenger, int8 seatId = -1);
         void RemovePassenger(Unit *passenger);
+        void RemoveAllPassengers();
         void InstallAllAccessories();
         void Dismiss();
 
@@ -67,7 +68,6 @@ class TRINITY_DLL_SPEC Vehicle : public Creature
         VehicleEntry const *m_vehicleInfo;
         uint32 m_usableSeatNum;
 
-        void RemoveAllPassengers();
         void InstallAccessory(uint32 entry, int8 seatId);
 
     private:
