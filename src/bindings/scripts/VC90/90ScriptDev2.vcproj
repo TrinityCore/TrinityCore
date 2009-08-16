@@ -440,6 +440,10 @@
                     >
                 </File>
                 <File
+                    RelativePath="..\scripts\eastern_kingdoms\isle_of_queldanas.cpp"
+                    >
+                </File>
+                <File
                     RelativePath="..\scripts\eastern_kingdoms\loch_modan.cpp"
                     >
                 </File>
@@ -632,10 +636,6 @@
                 </File>
                 <File
                     RelativePath="..\scripts\outland\hellfire_peninsula.cpp"
-                    >
-                </File>
-                <File
-                    RelativePath="..\scripts\outland\isle_of_queldanas.cpp"
                     >
                 </File>
                 <File

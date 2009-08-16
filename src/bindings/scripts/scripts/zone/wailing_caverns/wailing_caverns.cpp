@@ -348,11 +348,7 @@ struct TRINITY_DLL_DECL npc_disciple_of_naralexAI : public npc_escortAI
 
 CreatureAI* GetAI_npc_disciple_of_naralex(Creature* pCreature)
 {
-    npc_disciple_of_naralexAI *disciple_of_naralexAI = new npc_disciple_of_naralexAI(pCreature);
-
-    disciple_of_naralexAI->FillPointMovementListForCreature();
-
-    return disciple_of_naralexAI;
+    return new npc_disciple_of_naralexAI(pCreature);
 }
 
 bool GossipHello_npc_disciple_of_naralex(Player* pPlayer, Creature* pCreature)

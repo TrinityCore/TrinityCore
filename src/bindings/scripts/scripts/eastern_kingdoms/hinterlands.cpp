@@ -215,11 +215,7 @@ bool QuestAccept_npc_rinji(Player* pPlayer, Creature* pCreature, const Quest* pQ
 
 CreatureAI* GetAI_npc_rinji(Creature* pCreature)
 {
-    npc_rinjiAI* pTempAI = new npc_rinjiAI(pCreature);
-
-    pTempAI->FillPointMovementListForCreature();
-
-    return (CreatureAI*)pTempAI;
+    return new npc_rinjiAI(pCreature);
 }
 
 void AddSC_hinterlands()
