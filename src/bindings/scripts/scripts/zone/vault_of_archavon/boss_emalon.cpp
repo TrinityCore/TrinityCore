@@ -2,30 +2,30 @@
 #include "def_vault_of_archavon.h"
 
 //Emalon spells
-#define SPELL_CHAIN_LIGHTNING			HEROIC(64213, 64215)
-#define SPELL_LIGHTNING_NOVA			HEROIC(64216, 65279)
-#define SPELL_OVERCHARGE				64218 					//Casted every 45 sec on a random Tempest Minion
-#define SPELL_BERSERK					26662
+#define SPELL_CHAIN_LIGHTNING           HEROIC(64213, 64215)
+#define SPELL_LIGHTNING_NOVA            HEROIC(64216, 65279)
+#define SPELL_OVERCHARGE                64218                   //Casted every 45 sec on a random Tempest Minion
+#define SPELL_BERSERK                   26662
 
 //Tempest Minion spells
-#define SPELL_SHOCK						64363
-#define SPELL_OVERCHARGED				64217
-#define SPELL_OVERCHARGED_BLAST			64219					//Casted when Overcharged reaches 10 stacks. Mob dies after that
+#define SPELL_SHOCK                     64363
+#define SPELL_OVERCHARGED               64217
+#define SPELL_OVERCHARGED_BLAST         64219                   //Casted when Overcharged reaches 10 stacks. Mob dies after that
 
 //Emotes
-#define EMOTE_OVERCHARGE		-1590000
-#define EMOTE_MINION_RESPAWN	-1590001
-#define EMOTE_BERSERK			-1590002
+#define EMOTE_OVERCHARGE        -1590000
+#define EMOTE_MINION_RESPAWN    -1590001
+#define EMOTE_BERSERK           -1590002
 
 //Events
-#define EVENT_CHAIN_LIGHTNING		1
-#define EVENT_LIGHTNING_NOVA		2
-#define EVENT_OVERCHARGE			3
-#define EVENT_BERSERK				4
-#define EVENT_SHOCK					5
+#define EVENT_CHAIN_LIGHTNING       1
+#define EVENT_LIGHTNING_NOVA        2
+#define EVENT_OVERCHARGE            3
+#define EVENT_BERSERK               4
+#define EVENT_SHOCK                 5
 
 //Creatures
-#define MOB_TEMPEST_MINION			33998
+#define MOB_TEMPEST_MINION          33998
 
 float TempestMinions[4][5] =
 {
@@ -52,7 +52,7 @@ struct TRINITY_DLL_DECL boss_emalonAI : public ScriptedAI
     SummonList summons;
 
     void Reset()
-    {	
+    {
         events.Reset();
         summons.DespawnAll();
         MinionList.clear();
@@ -66,7 +66,7 @@ struct TRINITY_DLL_DECL boss_emalonAI : public ScriptedAI
                 Minion->AI()->AttackStart(target);
         }
 
-        if (pInstance)	
+        if (pInstance)
             pInstance->SetData(DATA_EMALON_EVENT, NOT_STARTED);
     }
 

@@ -149,17 +149,17 @@ class Log : public Trinity::Singleton<Log, Trinity::ClassLevelLockable<Log, ACE_
         bool m_gmlog_per_account;
         std::string m_gmlog_filename_format;
 
-		bool m_enableLogDBLater;
-		bool m_enableLogDB;
+        bool m_enableLogDBLater;
+        bool m_enableLogDB;
         uint32 realm;
 
         // log coloring
         bool m_colored;
         ColorTypes m_colors[4];
 
-		// log levels:
-		// 0 minimum/string, 1 basic/error, 2 detail, 3 full/debug
-		uint8 m_dbLogLevel;
+        // log levels:
+        // 0 minimum/string, 1 basic/error, 2 detail, 3 full/debug
+        uint8 m_dbLogLevel;
         uint8 m_logLevel;
         uint8 m_logFileLevel;
         uint8 m_logFilter;

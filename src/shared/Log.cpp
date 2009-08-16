@@ -92,10 +92,10 @@ void Log::SetDBLogLevel(char *Level)
 {
     int32 NewLevel = atoi((char*)Level);
     if ( NewLevel < 0 )
-		NewLevel = 0;
-	m_dbLogLevel = NewLevel;
+        NewLevel = 0;
+    m_dbLogLevel = NewLevel;
 
-	outString( "DBLogLevel is %u",m_dbLogLevel );
+    outString( "DBLogLevel is %u",m_dbLogLevel );
 }
 
 void Log::Initialize()

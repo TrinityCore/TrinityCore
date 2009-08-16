@@ -746,7 +746,7 @@ bool ChatHandler::HandleDebugEnterVehicle(const char * args)
     {
         Creature *passenger = NULL;
         Trinity::AllCreaturesOfEntryInRange check(m_session->GetPlayer(), entry, 20.0f);
-	    Trinity::CreatureSearcher<Trinity::AllCreaturesOfEntryInRange> searcher(m_session->GetPlayer(), passenger, check);
+        Trinity::CreatureSearcher<Trinity::AllCreaturesOfEntryInRange> searcher(m_session->GetPlayer(), passenger, check);
         m_session->GetPlayer()->VisitNearbyObject(30.0f, searcher);
         if(!passenger || passenger == target)
             return false;
