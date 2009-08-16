@@ -2006,8 +2006,12 @@ INSERT INTO `npc_spellclick_spells` (`npc_entry`, `spell_id`, `quest_start`, `qu
 (28606, 52263, 12680, 1, 12680, 1),
 (28607, 52263, 12680, 1, 12680, 1),
 (28782, 52280, 12687, 1, 12687, 1), -- Unbound Charger
-(28833, 52447, 12701, 1, 12701, 1), -- Scarlet Cannon Master
-(28887, 52447, 12701, 1, 12701, 1);
+(28833, 52447, 12701, 1, 12701, 1); -- Scarlet Cannon Master
+# (28887, 52447, 12701, 1, 12701, 1); -- dead cannon
+
+UPDATE creature_template SET spell1=52435,spell2=52576,spell5=52588,VehicleId=79,speed=0 WHERE entry = 28833;
+UPDATE `creature_template` SET vehicleid=138 WHERE (`entry`='28817'); -- mine car
+
 
 -- --------
 -- NAXXARAMAS

@@ -1340,6 +1340,206 @@ CreatureAI* GetAI_npc_dkc1_gothik(Creature* pCreature)
     return new npc_dkc1_gothikAI(pCreature);
 }
 
+
+/*####
+## npc_scarlet_miner_cart
+####*/
+
+#define SPELL_CART_CHECK     54173
+#define SPELL_CART_DRAG      52465
+
+struct TRINITY_DLL_DECL npc_scarlet_miner_cartAI : public PassiveAI
+{
+    npc_scarlet_miner_cartAI(Creature *c) : PassiveAI(c), minerGUID(0)
+    {
+        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_ATTACKABLE_2);
+        me->SetDisplayId(me->GetCreatureInfo()->DisplayID_A[0]); // H0 is horse
+    }
+
+    uint64 minerGUID;
+
+    void SetGUID(const uint64 &guid, int32 id)
+    {
+        minerGUID = guid;
+    }
+
+    void DoAction(const int32 param)
+    {
+        if(Creature *miner = Unit::GetCreature(*me, minerGUID))
+        {
+            // very bad visual effect
+            me->RemoveUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
+            //me->SetSpeed(MOVE_WALK, miner->GetSpeed(MOVE_WALK));
+            me->SetSpeed(MOVE_RUN, miner->GetSpeed(MOVE_RUN));
+            me->GetMotionMaster()->MoveFollow(miner, 1.0f, 0);
+        }
+    }
+
+    void PassengerLeft(Unit *who, int8 seatId)
+    {
+        if(Creature *miner = Unit::GetCreature(*me, minerGUID))
+            miner->DisappearAndDie();
+    }
+};
+
+CreatureAI* GetAI_npc_scarlet_miner_cart(Creature *_Creature)
+{
+    return new npc_scarlet_miner_cartAI(_Creature);
+}
+
+/*####
+## npc_scarlet_miner
+####*/
+
+struct TRINITY_DLL_DECL npc_scarlet_minerAI : public npc_escortAI
+{
+    npc_scarlet_minerAI(Creature *c) : npc_escortAI(c)
+    {
+        me->SetReactState(REACT_PASSIVE);
+    }
+
+    uint32 IntroTimer;
+    uint32 IntroPhase;
+    uint64 carGUID;
+
+    void Reset()
+    {
+        carGUID = 0;
+        IntroTimer = 0;
+        IntroPhase = 0;
+    }
+
+    void InitWaypoint()
+    {
+        AddWaypoint(1, 2389.03,     -5902.74,     109.014, 5000);
+        AddWaypoint(2, 2341.812012, -5900.484863, 102.619743);
+        AddWaypoint(3, 2306.561279, -5901.738281, 91.792419 );
+        AddWaypoint(4, 2300.098389, -5912.618652, 86.014885 );
+        AddWaypoint(5, 2294.142090, -5927.274414, 75.316849 );
+        AddWaypoint(6, 2286.984375, -5944.955566, 63.714966 );
+        AddWaypoint(7, 2280.001709, -5961.186035, 54.228283 );
+        AddWaypoint(8, 2259.389648, -5974.197754, 42.359348 );
+        AddWaypoint(9, 2242.882812, -5984.642578, 32.827850 );
+        AddWaypoint(10, 2217.265625, -6028.959473, 7.675705 );
+        AddWaypoint(11, 2202.595947, -6061.325684, 5.882018 );
+        AddWaypoint(12, 2188.974609, -6080.866699, 3.370027 );
+
+        if(rand()%2)
+        {
+            AddWaypoint(13, 2176.483887, -6110.407227, 1.855181 );
+            AddWaypoint(14, 2172.516602, -6146.752441, 1.074235 );
+            AddWaypoint(15, 2138.918457, -6158.920898, 1.342926 );
+            AddWaypoint(16, 2129.866699, -6174.107910, 4.380779 );
+            AddWaypoint(17, 2117.709473, -6193.830078, 13.3542, 10000);
+        }
+        else
+        {
+            AddWaypoint(13, 2184.190186, -6166.447266, 0.968877 );
+            AddWaypoint(14, 2234.265625, -6163.741211, 0.916021 );
+            AddWaypoint(15, 2268.071777, -6158.750977, 1.822252 );
+            AddWaypoint(16, 2270.028320, -6176.505859, 6.340538 );
+            AddWaypoint(17, 2271.739014, -6195.401855, 13.3542, 10000);
+        }
+    }
+
+    void InitCartQuest(Player *who)
+    {
+        carGUID = who->m_Vehicle->GetGUID();
+        InitWaypoint();
+        Start(false, false, who->GetGUID());
+        SetDespawnAtFar(false);
+    }
+
+    void WaypointReached(uint32 i)
+    {
+        switch (i)
+        {
+            case 1:
+                if(Unit *car = Unit::GetCreature(*me, carGUID))
+                {
+                    me->SetInFront(car);
+                    me->SendMovementFlagUpdate();
+                }
+                me->MonsterSay("Where'd this come from? I better get this down to the ships before the foreman sees it!",LANG_UNIVERSAL,NULL);
+                SetRun(true);
+                IntroTimer = 4000;
+                IntroPhase = 1;
+                break;
+            case 17:
+                if(Unit *car = Unit::GetCreature(*me, carGUID))
+                {
+                    me->SetInFront(car);
+                    me->SendMovementFlagUpdate();
+                    car->Relocate(car->GetPositionX(), car->GetPositionY(), me->GetPositionZ());
+                    car->SendMonsterStop();
+                    //this make player fall under ground, dunno why
+                    //car->GetMotionMaster()->MovePoint(0, car->GetPositionX(), car->GetPositionY(), me->GetPositionZ());
+                    car->RemoveAura(SPELL_CART_DRAG);
+                }
+                me->MonsterSay("Now I can have a rest!",LANG_UNIVERSAL,NULL);
+                break;
+            default:
+                break;
+        }
+    }
+
+    void UpdateAI(const uint32 diff)
+    {
+        if (IntroPhase)
+        {
+            if (IntroTimer < diff)
+            {
+                if (IntroPhase == 1)
+                {
+                    if(Creature *car = Unit::GetCreature(*me, carGUID))
+                        DoCast(car, SPELL_CART_DRAG);
+                    IntroTimer = 800;
+                    IntroPhase = 2;
+                }
+                else
+                {
+                    if(Creature *car = Unit::GetCreature(*me, carGUID))
+                        car->AI()->DoAction();
+                    IntroPhase = 0;
+                }
+            }else IntroTimer-=diff;
+        }
+        npc_escortAI::UpdateAI(diff);
+    }
+};
+
+CreatureAI* GetAI_npc_scarlet_miner(Creature *_Creature)
+{
+    return new npc_scarlet_minerAI(_Creature);
+}
+
+/*######
+## go_inconspicuous_mine_car
+######*/
+
+#define SPELL_CART_SUMM   52463
+
+bool GOHello_go_inconspicuous_mine_car(Player* pPlayer, GameObject* pGO)
+{
+    if (pPlayer->GetQuestStatus(12701) == QUEST_STATUS_INCOMPLETE)
+    {
+        // Hack Why Trinity Dont Support Custom Summon Location
+        if(Creature *miner = pPlayer->SummonCreature(28841, 2383.869629, -5900.312500, 107.996086, pPlayer->GetOrientation(),TEMPSUMMON_DEAD_DESPAWN, 1))
+        {
+            pPlayer->CastSpell(pPlayer, SPELL_CART_SUMM, true);
+            if(Vehicle *car = pPlayer->m_Vehicle)
+            {
+                if(car->GetEntry() == 28817)
+                {
+                    car->AI()->SetGUID(miner->GetGUID());
+                    CAST_AI(npc_scarlet_minerAI, miner->AI())->InitCartQuest(pPlayer);
+                }else error_log("TSCR: GOHello_go_inconspicuous_mine_car vehicle entry is not correct.");
+            }else error_log("TSCR: GOHello_go_inconspicuous_mine_car player is not on the vehicle.");
+        }else error_log("TSCR: GOHello_go_inconspicuous_mine_car Scarlet Miner cant be found by script.");
+    }
+    return true;
+}
+
 // npc 28912 quest 17217 boss 29001 mob 29007 go 191092 
 
 /*####
@@ -1478,6 +1678,22 @@ void AddSC_the_scarlet_enclave()
     newscript = new Script;
     newscript->Name="npc_dkc1_gothik";
     newscript->GetAI = &GetAI_npc_dkc1_gothik;
+    newscript->RegisterSelf();
+
+    // Massacre At Light's Point
+    newscript = new Script;
+    newscript->Name="npc_scarlet_miner";
+    newscript->GetAI = &GetAI_npc_scarlet_miner;
+    newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name="npc_scarlet_miner_cart";
+    newscript->GetAI = &GetAI_npc_scarlet_miner_cart;
+    newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name="go_inconspicuous_mine_car";
+    newscript->pGOHello = &GOHello_go_inconspicuous_mine_car;
     newscript->RegisterSelf();
 
     // 12727 Bloody Breakout
