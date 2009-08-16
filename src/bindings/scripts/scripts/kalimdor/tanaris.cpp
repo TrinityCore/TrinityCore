@@ -582,6 +582,25 @@ struct MANGOS_DLL_DECL npc_toogaAI : public ScriptedAI
         }
     }
 
+    void AttackStart(Unit* pWho)
+    {
+        if (!pWho)
+            return;
+
+        if (m_creature->Attack(pWho, true))
+        {
+            m_creature->AddThreat(pWho, 0.0f);
+            m_creature->SetInCombatWith(pWho);
+            pWho->SetInCombatWith(m_creature);
+
+            if (m_creature->hasUnitState(UNIT_STAT_FOLLOW))
+                m_creature->clearUnitState(UNIT_STAT_FOLLOW);
+
+            if (IsCombatMovement())
+                m_creature->GetMotionMaster()->MoveChase(pWho);
+        }
+    }
+
     void EnterEvadeMode()
     {
         m_creature->RemoveAllAuras();
@@ -598,6 +617,9 @@ struct MANGOS_DLL_DECL npc_toogaAI : public ScriptedAI
             }
             else
             {
+                if (m_creature->hasUnitState(UNIT_STAT_FOLLOW))
+                    m_creature->clearUnitState(UNIT_STAT_FOLLOW);
+
                 m_creature->GetMotionMaster()->MoveTargetedHome();
             }
         }
@@ -622,7 +644,7 @@ struct MANGOS_DLL_DECL npc_toogaAI : public ScriptedAI
         m_uiPlayerGUID = pPlayer->GetGUID();
         m_creature->SetUInt32Value(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_NONE);
 
-        //m_creature->setFaction(FACTION_TOOG_ESCORTEE);
+        m_creature->setFaction(FACTION_TOOG_ESCORTEE);
 
         m_creature->GetMotionMaster()->MoveFollow(pPlayer, PET_FOLLOW_DIST, PET_FOLLOW_ANGLE);
     }

@@ -86,6 +86,7 @@ struct TRINITY_DLL_DECL boss_bjarngrimAI : public ScriptedAI
         m_pInstance = pCreature->GetInstanceData();
         m_bIsHeroic = pCreature->GetMap()->IsHeroic();
         m_uiStance = STANCE_DEFENSIVE;
+        memset(&m_auiStormforgedLieutenantGUID, 0, sizeof(m_auiStormforgedLieutenantGUID));
     }
 
     ScriptedInstance* m_pInstance;
@@ -111,7 +112,7 @@ struct TRINITY_DLL_DECL boss_bjarngrimAI : public ScriptedAI
     uint32 m_uiMortalStrike_Timer;
     uint32 m_uiSlam_Timer;
 
-    uint64 m_uiStormforgedLieutenantGUID[2];
+    uint64 m_auiStormforgedLieutenantGUID[2];
 
     void Reset()
     {
@@ -136,7 +137,7 @@ struct TRINITY_DLL_DECL boss_bjarngrimAI : public ScriptedAI
 
         for(uint8 i = 0; i < 2; ++i)
         {
-            if (Creature* pStormforgedLieutenant = (Unit::GetCreature((*m_creature), m_uiStormforgedLieutenantGUID[i])))
+            if (Creature* pStormforgedLieutenant = (Unit::GetCreature((*m_creature), m_auiStormforgedLieutenantGUID[i])))
             {
                 if (!pStormforgedLieutenant->isAlive())
                     pStormforgedLieutenant->Respawn();
