@@ -30,7 +30,7 @@ go_harbinger_second_trial
 EndContentData */
 
 #include "precompiled.h"
-#include "../npc/npc_escortAI.h"
+#include "escortAI.h"
 
 /*######
 ## npc_prospector_anvilward
@@ -85,11 +85,7 @@ struct TRINITY_DLL_DECL npc_prospector_anvilwardAI : public npc_escortAI
 
 CreatureAI* GetAI_npc_prospector_anvilward(Creature* pCreature)
 {
-    npc_prospector_anvilwardAI* thisAI = new npc_prospector_anvilwardAI(pCreature);
-
-    thisAI->FillPointMovementListForCreature();
-
-    return thisAI;
+    return new npc_prospector_anvilwardAI(pCreature);
 }
 
 bool GossipHello_npc_prospector_anvilward(Player* pPlayer, Creature* pCreature)

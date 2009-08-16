@@ -27,7 +27,7 @@ npc_ruul_snowhoof
 EndContentData */
 
 #include "precompiled.h"
-#include "../npc/npc_escortAI.h"
+#include "escortAI.h"
 
 /*####
 # npc_torek
@@ -144,11 +144,7 @@ bool QuestAccept_npc_torek(Player* pPlayer, Creature* pCreature, Quest const* qu
 
 CreatureAI* GetAI_npc_torek(Creature* pCreature)
 {
-    npc_torekAI* thisAI = new npc_torekAI(pCreature);
-
-    thisAI->FillPointMovementListForCreature();
- 
-    return thisAI;
+    return new npc_torekAI(pCreature);
 }
 
 /*####
@@ -230,11 +226,7 @@ bool QuestAccept_npc_ruul_snowhoof(Player* pPlayer, Creature* pCreature, Quest c
 
 CreatureAI* GetAI_npc_ruul_snowhoofAI(Creature* pCreature)
 {
-    npc_ruul_snowhoofAI* ruul_snowhoofAI = new npc_ruul_snowhoofAI(pCreature);
-
-    ruul_snowhoofAI->FillPointMovementListForCreature();
-
-    return ruul_snowhoofAI;
+    return new npc_ruul_snowhoofAI(pCreature);
 }
 
 void AddSC_ashenvale()

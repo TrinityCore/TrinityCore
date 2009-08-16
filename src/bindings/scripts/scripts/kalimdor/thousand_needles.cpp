@@ -29,7 +29,7 @@ npc_plucky
 EndContentData */
 
 #include "precompiled.h"
-#include "../npc/npc_escortAI.h"
+#include "escortAI.h"
 
 /*#####
 # npc_kanati
@@ -82,11 +82,7 @@ struct TRINITY_DLL_DECL npc_kanatiAI : public npc_escortAI
 
 CreatureAI* GetAI_npc_kanati(Creature* pCreature)
 {
-    npc_kanatiAI* pTempAI = new npc_kanatiAI(pCreature);
-
-    pTempAI->FillPointMovementListForCreature();
-
-    return (CreatureAI*)pTempAI;
+    return new npc_kanatiAI(pCreature);
 }
 
 bool QuestAccept_npc_kanati(Player* pPlayer, Creature* pCreature, const Quest* pQuest)
@@ -170,11 +166,7 @@ struct TRINITY_DLL_DECL npc_lakota_windsongAI : public npc_escortAI
 
 CreatureAI* GetAI_npc_lakota_windsong(Creature* pCreature)
 {
-    npc_lakota_windsongAI* pTempAI = new npc_lakota_windsongAI(pCreature);
-
-    pTempAI->FillPointMovementListForCreature();
-
-    return (CreatureAI*)pTempAI;
+    return new npc_lakota_windsongAI(pCreature);
 }
 
 bool QuestAccept_npc_lakota_windsong(Player* pPlayer, Creature* pCreature, const Quest* pQuest)
@@ -247,11 +239,7 @@ struct TRINITY_DLL_DECL npc_paoka_swiftmountainAI : public npc_escortAI
 
 CreatureAI* GetAI_npc_paoka_swiftmountain(Creature* pCreature)
 {
-    npc_paoka_swiftmountainAI* pTempAI = new npc_paoka_swiftmountainAI(pCreature);
-
-    pTempAI->FillPointMovementListForCreature();
-
-    return (CreatureAI*)pTempAI;
+    return new npc_paoka_swiftmountainAI(pCreature);
 }
 
 bool QuestAccept_npc_paoka_swiftmountain(Player* pPlayer, Creature* pCreature, const Quest* pQuest)

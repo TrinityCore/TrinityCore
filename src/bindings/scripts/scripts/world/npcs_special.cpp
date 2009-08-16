@@ -38,7 +38,7 @@ npc_snake_trap_serpents 80%     AI for snakes that summoned by Snake Trap
 EndContentData */
 
 #include "precompiled.h"
-#include "../npc/npc_escortAI.h"
+#include "escortAI.h"
 #include "ObjectMgr.h"
 
 /*########
@@ -1005,11 +1005,7 @@ struct TRINITY_DLL_DECL npc_garments_of_questsAI : public npc_escortAI
 
 CreatureAI* GetAI_npc_garments_of_quests(Creature* pCreature)
 {
-    npc_garments_of_questsAI* tempAI = new npc_garments_of_questsAI(pCreature);
-
-    tempAI->FillPointMovementListForCreature();
-
-    return tempAI;
+    return new npc_garments_of_questsAI(pCreature);
 }
 
 /*######

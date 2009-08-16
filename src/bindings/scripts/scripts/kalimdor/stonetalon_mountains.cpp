@@ -27,7 +27,7 @@ npc_kaya_flathoof
 EndContentData */
 
 #include "precompiled.h"
-#include "../npc/npc_escortAI.h"
+#include "escortAI.h"
 
 /*######
 ## npc_braug_dimspirit
@@ -146,11 +146,7 @@ bool QuestAccept_npc_kaya_flathoof(Player* pPlayer, Creature* pCreature, Quest c
 
 CreatureAI* GetAI_npc_kaya_flathoofAI(Creature* pCreature)
 {
-    npc_kaya_flathoofAI* kayaAI = new npc_kaya_flathoofAI(pCreature);
-
-    kayaAI->FillPointMovementListForCreature();
-
-    return kayaAI;
+    return new npc_kaya_flathoofAI(pCreature);
 }
 
 /*######

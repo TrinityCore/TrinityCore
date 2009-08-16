@@ -40,7 +40,7 @@ npc_enraged_spirit
 EndContentData */
 
 #include "precompiled.h"
-#include "../npc/npc_escortAI.h"
+#include "escortAI.h"
 
 /*#####
 # mob_mature_netherwing_drake
@@ -1017,11 +1017,7 @@ struct TRINITY_DLL_DECL npc_earthmender_wildaAI : public npc_escortAI
 
 CreatureAI* GetAI_npc_earthmender_wilda(Creature* pCreature)
 {
-    npc_earthmender_wildaAI* pTempAI = new npc_earthmender_wildaAI(pCreature);
-
-    pTempAI->FillPointMovementListForCreature();
-
-    return (CreatureAI*)pTempAI;
+    return new npc_earthmender_wildaAI(pCreature);
 }
 
 bool QuestAccept_npc_earthmender_wilda(Player* pPlayer, Creature* pCreature, const Quest* pQuest)
