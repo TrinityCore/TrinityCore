@@ -26,6 +26,7 @@ extern void AddSC_npcs_special();
 extern void AddSC_npc_taxi();
 
 //eastern kingdoms
+extern void AddSC_the_scarlet_enclave();
 //extern void AddSC_alterac_mountains();
 extern void AddSC_arathi_highlands();
 extern void AddSC_blasted_lands();
@@ -225,9 +226,6 @@ extern void AddSC_boss_the_black_stalker();
 
 //Deadmines
 extern void AddSC_instance_deadmines();
-
-//Scarlet Enclave
-extern void AddSC_the_scarlet_enclave();
 
 //Gruul's Lair
 extern void AddSC_boss_gruul();
@@ -539,6 +537,7 @@ void AddScripts()
     AddSC_npc_taxi();
 
     //eastern kingdoms
+    AddSC_the_scarlet_enclave();
     //AddSC_alterac_mountains();
     AddSC_arathi_highlands();
     AddSC_blasted_lands();
@@ -738,9 +737,6 @@ void AddScripts()
 
     //Deadmines
     AddSC_instance_deadmines();
-
-    //Scarlet Enclave
-    AddSC_the_scarlet_enclave();
 
     //Gruul's Lair
     AddSC_boss_gruul();
