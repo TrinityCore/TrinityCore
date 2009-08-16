@@ -14555,11 +14555,17 @@ void Unit::EnterVehicle(Vehicle *vehicle, int8 seatId)
         if(m_Vehicle == vehicle)
         {
             if(seatId >= 0)
+            {
+                sLog.outDebug("EnterVehicle: %u leave vehicle %u seat %d and enter %d.", GetEntry(), m_Vehicle->GetEntry(), GetTransSeat(), seatId);
                 ChangeSeat(seatId);
+            }
             return;
         }
         else
+        {
+            sLog.outDebug("EnterVehicle: %u exit %u and enter %u.", GetEntry(), m_Vehicle->GetEntry(), vehicle->GetEntry());
             ExitVehicle();
+        }
     }
 
     if(GetTypeId() == TYPEID_PLAYER)
