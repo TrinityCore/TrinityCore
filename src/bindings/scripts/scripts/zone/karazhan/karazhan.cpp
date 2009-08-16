@@ -29,7 +29,7 @@ EndContentData */
 
 #include "precompiled.h"
 #include "def_karazhan.h"
-#include "../../npc/npc_escortAI.h"
+#include "escortAI.h"
 
 /*######
 # npc_barnesAI
@@ -320,11 +320,7 @@ struct TRINITY_DLL_DECL npc_barnesAI : public npc_escortAI
 
 CreatureAI* GetAI_npc_barnesAI(Creature* pCreature)
 {
-    npc_barnesAI* Barnes_AI = new npc_barnesAI(pCreature);
-
-    Barnes_AI->FillPointMovementListForCreature();
-
-    return (CreatureAI*)Barnes_AI;
+    return new npc_barnesAI(pCreature);
 }
 
 bool GossipHello_npc_barnes(Player* pPlayer, Creature* pCreature)

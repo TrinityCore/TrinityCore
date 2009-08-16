@@ -22,7 +22,7 @@ SDCategory: Scarlet Monastery
 EndScriptData */
 
 #include "precompiled.h"
-#include "../../npc/npc_escortAI.h"
+#include "escortAI.h"
 
 #define SAY_AGGRO                   -1189000
 #define SAY_WHIRLWIND               -1189001
@@ -140,11 +140,7 @@ struct TRINITY_DLL_DECL mob_scarlet_traineeAI : public npc_escortAI
 
 CreatureAI* GetAI_mob_scarlet_trainee(Creature* pCreature)
 {
-    mob_scarlet_traineeAI* thisAI = new mob_scarlet_traineeAI(pCreature);
-
-    thisAI->FillPointMovementListForCreature();
-
-    return thisAI;
+    return new mob_scarlet_traineeAI(pCreature);
 }
 
 void AddSC_boss_herod()

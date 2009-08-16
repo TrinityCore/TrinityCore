@@ -29,7 +29,7 @@ npc_ranger_lilatha
 EndContentData */
 
 #include "precompiled.h"
-#include "../npc/npc_escortAI.h"
+#include "escortAI.h"
 
 /*######
 ## npc_blood_knight_dawnstar
@@ -234,11 +234,7 @@ bool QuestAccept_npc_ranger_lilatha(Player* pPlayer, Creature* pCreature, Quest 
 
 CreatureAI* GetAI_npc_ranger_lilathaAI(Creature* pCreature)
 {
-    npc_ranger_lilathaAI* ranger_lilathaAI = new npc_ranger_lilathaAI(pCreature);
-
-    ranger_lilathaAI->FillPointMovementListForCreature();
-
-    return ranger_lilathaAI;
+    return new npc_ranger_lilathaAI(pCreature);
 }
 
 void AddSC_ghostlands()

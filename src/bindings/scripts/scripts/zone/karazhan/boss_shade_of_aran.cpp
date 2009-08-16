@@ -22,7 +22,7 @@ SDCategory: Karazhan
 EndScriptData */
 
 #include "precompiled.h"
-#include "../../creature/simple_ai.h"
+#include "simple_ai.h"
 #include "def_karazhan.h"
 #include "GameObject.h"
 

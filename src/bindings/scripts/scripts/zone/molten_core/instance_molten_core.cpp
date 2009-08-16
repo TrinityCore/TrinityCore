@@ -183,7 +183,7 @@ struct TRINITY_DLL_DECL instance_molten_core : public ScriptedInstance
             case DATA_SULFURON:
                 return Sulfuron;
             case DATA_GOLEMAGG:
-                return Sulfuron;
+                return Golemagg;
 
             case DATA_FLAMEWAKERPRIEST:
                 return FlamewakerPriest;

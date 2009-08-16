@@ -31,7 +31,7 @@ mob_nestlewood_owlkin
 EndContentData */
 
 #include "precompiled.h"
-#include "../npc/npc_escortAI.h"
+#include "escortAI.h"
 #include <cmath>
 
 /*######
@@ -383,11 +383,7 @@ bool QuestAccept_npc_magwin(Player* pPlayer, Creature* pCreature, Quest const* q
 
 CreatureAI* GetAI_npc_magwinAI(Creature* pCreature)
 {
-    npc_magwinAI* magwinAI = new npc_magwinAI(pCreature);
-
-    magwinAI->FillPointMovementListForCreature();
-
-    return magwinAI;
+    return new npc_magwinAI(pCreature);
 }
 
 /*######

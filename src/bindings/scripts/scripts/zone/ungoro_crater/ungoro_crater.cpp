@@ -26,7 +26,7 @@ npc_a-me
 EndContentData */
 
 #include "precompiled.h"
-#include "../../npc/npc_escortAI.h"
+#include "escortAI.h"
 
 #define SAY_READY -1000200
 #define SAY_AGGRO1 -1000201
