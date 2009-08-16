@@ -16,7 +16,157 @@ SET(trinityscript_LIB_SRCS
    include/sc_creature.h
    include/sc_gossip.h
    include/sc_instance.h
+   scripts/eastern_kingdoms/blackrock_depths/blackrock_depths.cpp
+   scripts/eastern_kingdoms/blackrock_depths/boss_ambassador_flamelash.cpp
+   scripts/eastern_kingdoms/blackrock_depths/boss_anubshiah.cpp
+   scripts/eastern_kingdoms/blackrock_depths/boss_emperor_dagran_thaurissan.cpp
+   scripts/eastern_kingdoms/blackrock_depths/boss_general_angerforge.cpp
+   scripts/eastern_kingdoms/blackrock_depths/boss_gorosh_the_dervish.cpp
+   scripts/eastern_kingdoms/blackrock_depths/boss_grizzle.cpp
+   scripts/eastern_kingdoms/blackrock_depths/boss_high_interrogator_gerstahn.cpp
+   scripts/eastern_kingdoms/blackrock_depths/boss_magmus.cpp
+   scripts/eastern_kingdoms/blackrock_depths/boss_moira_bronzebeard.cpp
+   scripts/eastern_kingdoms/blackrock_depths/boss_tomb_of_seven.cpp
+   scripts/eastern_kingdoms/blackrock_depths/def_blackrock_depths.h
+   scripts/eastern_kingdoms/blackrock_depths/instance_blackrock_depths.cpp
+   scripts/eastern_kingdoms/blackrock_spire/boss_drakkisath.cpp
+   scripts/eastern_kingdoms/blackrock_spire/boss_gyth.cpp
+   scripts/eastern_kingdoms/blackrock_spire/boss_halycon.cpp
+   scripts/eastern_kingdoms/blackrock_spire/boss_highlord_omokk.cpp
+   scripts/eastern_kingdoms/blackrock_spire/boss_mother_smolderweb.cpp
+   scripts/eastern_kingdoms/blackrock_spire/boss_overlord_wyrmthalak.cpp
+   scripts/eastern_kingdoms/blackrock_spire/boss_pyroguard_emberseer.cpp
+   scripts/eastern_kingdoms/blackrock_spire/boss_quartermaster_zigris.cpp
+   scripts/eastern_kingdoms/blackrock_spire/boss_rend_blackhand.cpp
+   scripts/eastern_kingdoms/blackrock_spire/boss_shadow_hunter_voshgajin.cpp
+   scripts/eastern_kingdoms/blackrock_spire/boss_the_beast.cpp
+   scripts/eastern_kingdoms/blackrock_spire/boss_warmaster_voone.cpp
+   scripts/eastern_kingdoms/blackwing_lair/boss_broodlord_lashlayer.cpp
+   scripts/eastern_kingdoms/blackwing_lair/boss_chromaggus.cpp
+   scripts/eastern_kingdoms/blackwing_lair/boss_ebonroc.cpp
+   scripts/eastern_kingdoms/blackwing_lair/boss_firemaw.cpp
+   scripts/eastern_kingdoms/blackwing_lair/boss_flamegor.cpp
+   scripts/eastern_kingdoms/blackwing_lair/boss_nefarian.cpp
+   scripts/eastern_kingdoms/blackwing_lair/boss_razorgore.cpp
+   scripts/eastern_kingdoms/blackwing_lair/boss_vaelastrasz.cpp
+   scripts/eastern_kingdoms/blackwing_lair/boss_victor_nefarius.cpp
+   scripts/eastern_kingdoms/blackwing_lair/instance_blackwing_lair.cpp
+   scripts/eastern_kingdoms/deadmines/def_deadmines.h
+   scripts/eastern_kingdoms/deadmines/deadmines.cpp
+   scripts/eastern_kingdoms/karazhan/boss_curator.cpp
+   scripts/eastern_kingdoms/karazhan/boss_maiden_of_virtue.cpp
+   scripts/eastern_kingdoms/karazhan/boss_midnight.cpp
+   scripts/eastern_kingdoms/karazhan/boss_moroes.cpp
+   scripts/eastern_kingdoms/karazhan/boss_netherspite.cpp
+   scripts/eastern_kingdoms/karazhan/boss_nightbane.cpp
+   scripts/eastern_kingdoms/karazhan/boss_prince_malchezaar.cpp
+   scripts/eastern_kingdoms/karazhan/boss_shade_of_aran.cpp
+   scripts/eastern_kingdoms/karazhan/boss_terestian_illhoof.cpp
+   scripts/eastern_kingdoms/karazhan/bosses_opera.cpp
+   scripts/eastern_kingdoms/karazhan/def_karazhan.h
+   scripts/eastern_kingdoms/karazhan/instance_karazhan.cpp
+   scripts/eastern_kingdoms/karazhan/karazhan.cpp
+   scripts/eastern_kingdoms/magisters_terrace/boss_felblood_kaelthas.cpp
+   scripts/eastern_kingdoms/magisters_terrace/boss_priestess_delrissa.cpp
+   scripts/eastern_kingdoms/magisters_terrace/boss_selin_fireheart.cpp
+   scripts/eastern_kingdoms/magisters_terrace/boss_vexallus.cpp
+   scripts/eastern_kingdoms/magisters_terrace/def_magisters_terrace.h
+   scripts/eastern_kingdoms/magisters_terrace/instance_magisters_terrace.cpp
+   scripts/eastern_kingdoms/magisters_terrace/magisters_terrace.cpp
+   scripts/eastern_kingdoms/molten_core/boss_baron_geddon.cpp
+   scripts/eastern_kingdoms/molten_core/boss_garr.cpp
+   scripts/eastern_kingdoms/molten_core/boss_gehennas.cpp
+   scripts/eastern_kingdoms/molten_core/boss_golemagg.cpp
+   scripts/eastern_kingdoms/molten_core/boss_lucifron.cpp
+   scripts/eastern_kingdoms/molten_core/boss_magmadar.cpp
+   scripts/eastern_kingdoms/molten_core/boss_majordomo_executus.cpp
+   scripts/eastern_kingdoms/molten_core/boss_ragnaros.cpp
+   scripts/eastern_kingdoms/molten_core/boss_shazzrah.cpp
+   scripts/eastern_kingdoms/molten_core/boss_sulfuron_harbinger.cpp
+   scripts/eastern_kingdoms/molten_core/def_molten_core.h
+   scripts/eastern_kingdoms/molten_core/instance_molten_core.cpp
+   scripts/eastern_kingdoms/molten_core/molten_core.cpp
    scripts/eastern_kingdoms/scarlet_enclave/the_scarlet_enclave.cpp
+   scripts/eastern_kingdoms/scarlet_monastery/boss_arcanist_doan.cpp
+   scripts/eastern_kingdoms/scarlet_monastery/boss_azshir_the_sleepless.cpp
+   scripts/eastern_kingdoms/scarlet_monastery/boss_bloodmage_thalnos.cpp
+   scripts/eastern_kingdoms/scarlet_monastery/boss_herod.cpp
+   scripts/eastern_kingdoms/scarlet_monastery/boss_high_inquisitor_fairbanks.cpp
+   scripts/eastern_kingdoms/scarlet_monastery/boss_houndmaster_loksey.cpp
+   scripts/eastern_kingdoms/scarlet_monastery/boss_interrogator_vishas.cpp
+   scripts/eastern_kingdoms/scarlet_monastery/boss_scorn.cpp
+   scripts/eastern_kingdoms/scarlet_monastery/boss_headless_horseman.cpp
+   scripts/eastern_kingdoms/scarlet_monastery/boss_mograine_and_whitemane.cpp
+   scripts/eastern_kingdoms/scarlet_monastery/instance_scarlet_monastery.cpp
+   scripts/eastern_kingdoms/scarlet_monastery/def_scarlet_monastery.h
+   scripts/eastern_kingdoms/scholomance/boss_darkmaster_gandling.cpp
+   scripts/eastern_kingdoms/scholomance/boss_death_knight_darkreaver.cpp
+   scripts/eastern_kingdoms/scholomance/boss_doctor_theolen_krastinov.cpp
+   scripts/eastern_kingdoms/scholomance/boss_illucia_barov.cpp
+   scripts/eastern_kingdoms/scholomance/boss_instructor_malicia.cpp
+   scripts/eastern_kingdoms/scholomance/boss_jandice_barov.cpp
+   scripts/eastern_kingdoms/scholomance/boss_kormok.cpp
+   scripts/eastern_kingdoms/scholomance/boss_lord_alexei_barov.cpp
+   scripts/eastern_kingdoms/scholomance/boss_lorekeeper_polkelt.cpp
+   scripts/eastern_kingdoms/scholomance/boss_ras_frostwhisper.cpp
+   scripts/eastern_kingdoms/scholomance/boss_the_ravenian.cpp
+   scripts/eastern_kingdoms/scholomance/boss_vectus.cpp
+   scripts/eastern_kingdoms/scholomance/def_scholomance.h
+   scripts/eastern_kingdoms/scholomance/instance_scholomance.cpp
+   scripts/eastern_kingdoms/shadowfang_keep/def_shadowfang_keep.h
+   scripts/eastern_kingdoms/shadowfang_keep/instance_shadowfang_keep.cpp
+   scripts/eastern_kingdoms/shadowfang_keep/shadowfang_keep.cpp
+   scripts/eastern_kingdoms/stratholme/boss_baron_rivendare.cpp
+   scripts/eastern_kingdoms/stratholme/boss_baroness_anastari.cpp
+   scripts/eastern_kingdoms/stratholme/boss_cannon_master_willey.cpp
+   scripts/eastern_kingdoms/stratholme/boss_dathrohan_balnazzar.cpp
+   scripts/eastern_kingdoms/stratholme/boss_magistrate_barthilas.cpp
+   scripts/eastern_kingdoms/stratholme/boss_maleki_the_pallid.cpp
+   scripts/eastern_kingdoms/stratholme/boss_nerubenkan.cpp
+   scripts/eastern_kingdoms/stratholme/boss_order_of_silver_hand.cpp
+   scripts/eastern_kingdoms/stratholme/boss_postmaster_malown.cpp
+   scripts/eastern_kingdoms/stratholme/boss_ramstein_the_gorger.cpp
+   scripts/eastern_kingdoms/stratholme/boss_timmy_the_cruel.cpp
+   scripts/eastern_kingdoms/stratholme/def_stratholme.h
+   scripts/eastern_kingdoms/stratholme/instance_stratholme.cpp
+   scripts/eastern_kingdoms/stratholme/stratholme.cpp
+   scripts/eastern_kingdoms/sunwell_plateau/boss_kiljaeden.cpp
+   scripts/eastern_kingdoms/sunwell_plateau/boss_muru.cpp
+   scripts/eastern_kingdoms/sunwell_plateau/boss_eredar_twins.cpp
+   scripts/eastern_kingdoms/sunwell_plateau/boss_felmyst.cpp
+   scripts/eastern_kingdoms/sunwell_plateau/boss_brutallus.cpp
+   scripts/eastern_kingdoms/sunwell_plateau/boss_kalecgos.cpp
+   scripts/eastern_kingdoms/sunwell_plateau/sunwell_plateau.cpp
+   scripts/eastern_kingdoms/sunwell_plateau/def_sunwell_plateau.h
+   scripts/eastern_kingdoms/sunwell_plateau/instance_sunwell_plateau.cpp
+   scripts/eastern_kingdoms/uldaman/boss_archaedas.cpp
+   scripts/eastern_kingdoms/uldaman/instance_uldaman.cpp
+   scripts/eastern_kingdoms/uldaman/boss_ironaya.cpp
+   scripts/eastern_kingdoms/uldaman/uldaman.cpp
+   scripts/eastern_kingdoms/zulaman/boss_akilzon.cpp
+   scripts/eastern_kingdoms/zulaman/boss_halazzi.cpp
+   scripts/eastern_kingdoms/zulaman/boss_hexlord.cpp
+   scripts/eastern_kingdoms/zulaman/boss_janalai.cpp
+   scripts/eastern_kingdoms/zulaman/boss_nalorakk.cpp
+   scripts/eastern_kingdoms/zulaman/boss_zuljin.cpp
+   scripts/eastern_kingdoms/zulaman/def_zulaman.h
+   scripts/eastern_kingdoms/zulaman/instance_zulaman.cpp
+   scripts/eastern_kingdoms/zulaman/zulaman.cpp
+   scripts/eastern_kingdoms/zulgurub/boss_arlokk.cpp
+   scripts/eastern_kingdoms/zulgurub/boss_gahzranka.cpp
+   scripts/eastern_kingdoms/zulgurub/boss_grilek.cpp
+   scripts/eastern_kingdoms/zulgurub/boss_hakkar.cpp
+   scripts/eastern_kingdoms/zulgurub/boss_hazzarah.cpp
+   scripts/eastern_kingdoms/zulgurub/boss_jeklik.cpp
+   scripts/eastern_kingdoms/zulgurub/boss_jindo.cpp
+   scripts/eastern_kingdoms/zulgurub/boss_mandokir.cpp
+   scripts/eastern_kingdoms/zulgurub/boss_marli.cpp
+   scripts/eastern_kingdoms/zulgurub/boss_renataki.cpp
+   scripts/eastern_kingdoms/zulgurub/boss_thekal.cpp
+   scripts/eastern_kingdoms/zulgurub/boss_venoxis.cpp
+   scripts/eastern_kingdoms/zulgurub/boss_wushoolay.cpp
+   scripts/eastern_kingdoms/zulgurub/def_zulgurub.h
+   scripts/eastern_kingdoms/zulgurub/instance_zulgurub.cpp
    scripts/eastern_kingdoms/alterac_mountains.cpp
    scripts/eastern_kingdoms/arathi_highlands.cpp
    scripts/eastern_kingdoms/blasted_lands.cpp
@@ -109,41 +259,6 @@ SET(trinityscript_LIB_SRCS
    scripts/zone/black_temple/instance_black_temple.cpp
    scripts/zone/blackfathom_depths/instance_blackfathom_deeps.cpp
    scripts/zone/blackfathom_depths/def_blackfathom_deeps.h
-   scripts/zone/blackrock_depths/blackrock_depths.cpp
-   scripts/zone/blackrock_depths/boss_ambassador_flamelash.cpp
-   scripts/zone/blackrock_depths/boss_anubshiah.cpp
-   scripts/zone/blackrock_depths/boss_emperor_dagran_thaurissan.cpp
-   scripts/zone/blackrock_depths/boss_general_angerforge.cpp
-   scripts/zone/blackrock_depths/boss_gorosh_the_dervish.cpp
-   scripts/zone/blackrock_depths/boss_grizzle.cpp
-   scripts/zone/blackrock_depths/boss_high_interrogator_gerstahn.cpp
-   scripts/zone/blackrock_depths/boss_magmus.cpp
-   scripts/zone/blackrock_depths/boss_moira_bronzebeard.cpp
-   scripts/zone/blackrock_depths/boss_tomb_of_seven.cpp
-   scripts/zone/blackrock_depths/def_blackrock_depths.h
-   scripts/zone/blackrock_depths/instance_blackrock_depths.cpp
-   scripts/zone/blackrock_spire/boss_drakkisath.cpp
-   scripts/zone/blackrock_spire/boss_gyth.cpp
-   scripts/zone/blackrock_spire/boss_halycon.cpp
-   scripts/zone/blackrock_spire/boss_highlord_omokk.cpp
-   scripts/zone/blackrock_spire/boss_mother_smolderweb.cpp
-   scripts/zone/blackrock_spire/boss_overlord_wyrmthalak.cpp
-   scripts/zone/blackrock_spire/boss_pyroguard_emberseer.cpp
-   scripts/zone/blackrock_spire/boss_quartermaster_zigris.cpp
-   scripts/zone/blackrock_spire/boss_rend_blackhand.cpp
-   scripts/zone/blackrock_spire/boss_shadow_hunter_voshgajin.cpp
-   scripts/zone/blackrock_spire/boss_the_beast.cpp
-   scripts/zone/blackrock_spire/boss_warmaster_voone.cpp
-   scripts/zone/blackwing_lair/boss_broodlord_lashlayer.cpp
-   scripts/zone/blackwing_lair/boss_chromaggus.cpp
-   scripts/zone/blackwing_lair/boss_ebonroc.cpp
-   scripts/zone/blackwing_lair/boss_firemaw.cpp
-   scripts/zone/blackwing_lair/boss_flamegor.cpp
-   scripts/zone/blackwing_lair/boss_nefarian.cpp
-   scripts/zone/blackwing_lair/boss_razorgore.cpp
-   scripts/zone/blackwing_lair/boss_vaelastrasz.cpp
-   scripts/zone/blackwing_lair/boss_victor_nefarius.cpp
-   scripts/zone/blackwing_lair/instance_blackwing_lair.cpp
    scripts/zone/caverns_of_time/dark_portal/def_dark_portal.h
    scripts/zone/caverns_of_time/dark_portal/instance_dark_portal.cpp
    scripts/zone/caverns_of_time/dark_portal/dark_portal.cpp
@@ -183,8 +298,6 @@ SET(trinityscript_LIB_SRCS
    scripts/zone/coilfang_resevoir/steam_vault/instance_steam_vault.cpp
    scripts/zone/coilfang_resevoir/underbog/boss_hungarfen.cpp
    scripts/zone/coilfang_resevoir/underbog/boss_the_black_stalker.cpp
-   scripts/zone/deadmines/def_deadmines.h
-   scripts/zone/deadmines/deadmines.cpp
    scripts/zone/gruuls_lair/boss_gruul.cpp
    scripts/zone/gruuls_lair/boss_high_king_maulgar.cpp
    scripts/zone/gruuls_lair/def_gruuls_lair.h
@@ -207,43 +320,10 @@ SET(trinityscript_LIB_SRCS
    scripts/zone/hellfire_citadel/shattered_halls/def_shattered_halls.h
    scripts/zone/hellfire_citadel/shattered_halls/instance_shattered_halls.cpp
    scripts/zone/hellfire_citadel/shattered_halls/boss_warchief_kargath_bladefist.cpp
-   scripts/zone/karazhan/boss_curator.cpp
-   scripts/zone/karazhan/boss_maiden_of_virtue.cpp
-   scripts/zone/karazhan/boss_midnight.cpp
-   scripts/zone/karazhan/boss_moroes.cpp
-   scripts/zone/karazhan/boss_netherspite.cpp
-   scripts/zone/karazhan/boss_nightbane.cpp
-   scripts/zone/karazhan/boss_prince_malchezaar.cpp
-   scripts/zone/karazhan/boss_shade_of_aran.cpp
-   scripts/zone/karazhan/boss_terestian_illhoof.cpp
-   scripts/zone/karazhan/bosses_opera.cpp
-   scripts/zone/karazhan/def_karazhan.h
-   scripts/zone/karazhan/instance_karazhan.cpp
-   scripts/zone/karazhan/karazhan.cpp
-   scripts/zone/magisters_terrace/boss_felblood_kaelthas.cpp
-   scripts/zone/magisters_terrace/boss_priestess_delrissa.cpp
-   scripts/zone/magisters_terrace/boss_selin_fireheart.cpp
-   scripts/zone/magisters_terrace/boss_vexallus.cpp
-   scripts/zone/magisters_terrace/def_magisters_terrace.h
-   scripts/zone/magisters_terrace/instance_magisters_terrace.cpp
-   scripts/zone/magisters_terrace/magisters_terrace.cpp
    scripts/zone/maraudon/boss_celebras_the_cursed.cpp
    scripts/zone/maraudon/boss_landslide.cpp
    scripts/zone/maraudon/boss_noxxion.cpp
    scripts/zone/maraudon/boss_princess_theradras.cpp
-   scripts/zone/molten_core/boss_baron_geddon.cpp
-   scripts/zone/molten_core/boss_garr.cpp
-   scripts/zone/molten_core/boss_gehennas.cpp
-   scripts/zone/molten_core/boss_golemagg.cpp
-   scripts/zone/molten_core/boss_lucifron.cpp
-   scripts/zone/molten_core/boss_magmadar.cpp
-   scripts/zone/molten_core/boss_majordomo_executus.cpp
-   scripts/zone/molten_core/boss_ragnaros.cpp
-   scripts/zone/molten_core/boss_shazzrah.cpp
-   scripts/zone/molten_core/boss_sulfuron_harbinger.cpp
-   scripts/zone/molten_core/def_molten_core.h
-   scripts/zone/molten_core/instance_molten_core.cpp
-   scripts/zone/molten_core/molten_core.cpp
    scripts/zone/naxxramas/boss_anubrekhan.cpp
    scripts/zone/naxxramas/boss_faerlina.cpp
    scripts/zone/naxxramas/boss_gluth.cpp
@@ -274,58 +354,6 @@ SET(trinityscript_LIB_SRCS
    scripts/zone/ruins_of_ahnqiraj/boss_ossirian.cpp
    scripts/zone/ruins_of_ahnqiraj/boss_rajaxx.cpp
    scripts/zone/ruins_of_ahnqiraj/instance_ruins_of_ahnqiraj.cpp
-   scripts/zone/scarlet_monastery/boss_arcanist_doan.cpp
-   scripts/zone/scarlet_monastery/boss_azshir_the_sleepless.cpp
-   scripts/zone/scarlet_monastery/boss_bloodmage_thalnos.cpp
-   scripts/zone/scarlet_monastery/boss_herod.cpp
-   scripts/zone/scarlet_monastery/boss_high_inquisitor_fairbanks.cpp
-   scripts/zone/scarlet_monastery/boss_houndmaster_loksey.cpp
-   scripts/zone/scarlet_monastery/boss_interrogator_vishas.cpp
-   scripts/zone/scarlet_monastery/boss_scorn.cpp
-   scripts/zone/scarlet_monastery/boss_headless_horseman.cpp
-   scripts/zone/scarlet_monastery/boss_mograine_and_whitemane.cpp
-   scripts/zone/scarlet_monastery/instance_scarlet_monastery.cpp
-   scripts/zone/scarlet_monastery/def_scarlet_monastery.h
-   scripts/zone/scholomance/boss_darkmaster_gandling.cpp
-   scripts/zone/scholomance/boss_death_knight_darkreaver.cpp
-   scripts/zone/scholomance/boss_doctor_theolen_krastinov.cpp
-   scripts/zone/scholomance/boss_illucia_barov.cpp
-   scripts/zone/scholomance/boss_instructor_malicia.cpp
-   scripts/zone/scholomance/boss_jandice_barov.cpp
-   scripts/zone/scholomance/boss_kormok.cpp
-   scripts/zone/scholomance/boss_lord_alexei_barov.cpp
-   scripts/zone/scholomance/boss_lorekeeper_polkelt.cpp
-   scripts/zone/scholomance/boss_ras_frostwhisper.cpp
-   scripts/zone/scholomance/boss_the_ravenian.cpp
-   scripts/zone/scholomance/boss_vectus.cpp
-   scripts/zone/scholomance/def_scholomance.h
-   scripts/zone/scholomance/instance_scholomance.cpp
-   scripts/zone/shadowfang_keep/def_shadowfang_keep.h
-   scripts/zone/shadowfang_keep/instance_shadowfang_keep.cpp
-   scripts/zone/shadowfang_keep/shadowfang_keep.cpp
-   scripts/zone/stratholme/boss_baron_rivendare.cpp
-   scripts/zone/stratholme/boss_baroness_anastari.cpp
-   scripts/zone/stratholme/boss_cannon_master_willey.cpp
-   scripts/zone/stratholme/boss_dathrohan_balnazzar.cpp
-   scripts/zone/stratholme/boss_magistrate_barthilas.cpp
-   scripts/zone/stratholme/boss_maleki_the_pallid.cpp
-   scripts/zone/stratholme/boss_nerubenkan.cpp
-   scripts/zone/stratholme/boss_order_of_silver_hand.cpp
-   scripts/zone/stratholme/boss_postmaster_malown.cpp
-   scripts/zone/stratholme/boss_ramstein_the_gorger.cpp
-   scripts/zone/stratholme/boss_timmy_the_cruel.cpp
-   scripts/zone/stratholme/def_stratholme.h
-   scripts/zone/stratholme/instance_stratholme.cpp
-   scripts/zone/stratholme/stratholme.cpp
-   scripts/zone/sunwell_plateau/boss_kiljaeden.cpp
-   scripts/zone/sunwell_plateau/boss_muru.cpp
-   scripts/zone/sunwell_plateau/boss_eredar_twins.cpp
-   scripts/zone/sunwell_plateau/boss_felmyst.cpp
-   scripts/zone/sunwell_plateau/boss_brutallus.cpp
-   scripts/zone/sunwell_plateau/boss_kalecgos.cpp
-   scripts/zone/sunwell_plateau/sunwell_plateau.cpp
-   scripts/zone/sunwell_plateau/def_sunwell_plateau.h
-   scripts/zone/sunwell_plateau/instance_sunwell_plateau.cpp
    scripts/zone/tempest_keep/arcatraz/arcatraz.cpp
    scripts/zone/tempest_keep/arcatraz/boss_harbinger_skyriss.cpp
    scripts/zone/tempest_keep/arcatraz/def_arcatraz.h
@@ -358,39 +386,11 @@ SET(trinityscript_LIB_SRCS
    scripts/zone/temple_of_ahnqiraj/def_temple_of_ahnqiraj.h
    scripts/zone/temple_of_ahnqiraj/instance_temple_of_ahnqiraj.cpp
    scripts/zone/temple_of_ahnqiraj/mob_anubisath_sentinel.cpp
-   scripts/zone/uldaman/boss_archaedas.cpp
-   scripts/zone/uldaman/instance_uldaman.cpp
-   scripts/zone/uldaman/boss_ironaya.cpp
-   scripts/zone/uldaman/uldaman.cpp
    scripts/zone/ungoro_crater/ungoro_crater.cpp
    scripts/zone/wailing_caverns/def_wailing_caverns.h
    scripts/zone/wailing_caverns/instance_wailing_caverns.cpp
    scripts/zone/wailing_caverns/wailing_caverns.cpp
-   scripts/zone/zulaman/boss_akilzon.cpp
-   scripts/zone/zulaman/boss_halazzi.cpp
-   scripts/zone/zulaman/boss_hexlord.cpp
-   scripts/zone/zulaman/boss_janalai.cpp
-   scripts/zone/zulaman/boss_nalorakk.cpp
-   scripts/zone/zulaman/boss_zuljin.cpp
-   scripts/zone/zulaman/def_zulaman.h
-   scripts/zone/zulaman/instance_zulaman.cpp
-   scripts/zone/zulaman/zulaman.cpp
    scripts/zone/zulfarrak/zulfarrak.cpp
-   scripts/zone/zulgurub/boss_arlokk.cpp
-   scripts/zone/zulgurub/boss_gahzranka.cpp
-   scripts/zone/zulgurub/boss_grilek.cpp
-   scripts/zone/zulgurub/boss_hakkar.cpp
-   scripts/zone/zulgurub/boss_hazzarah.cpp
-   scripts/zone/zulgurub/boss_jeklik.cpp
-   scripts/zone/zulgurub/boss_jindo.cpp
-   scripts/zone/zulgurub/boss_mandokir.cpp
-   scripts/zone/zulgurub/boss_marli.cpp
-   scripts/zone/zulgurub/boss_renataki.cpp
-   scripts/zone/zulgurub/boss_thekal.cpp
-   scripts/zone/zulgurub/boss_venoxis.cpp
-   scripts/zone/zulgurub/boss_wushoolay.cpp
-   scripts/zone/zulgurub/def_zulgurub.h
-   scripts/zone/zulgurub/instance_zulgurub.cpp
    scripts/zone/utgarde_keep/utgarde_keep/instance_utgarde_keep.cpp
    scripts/zone/utgarde_keep/utgarde_keep/boss_keleseth.cpp
    scripts/zone/utgarde_keep/utgarde_keep/boss_skarvald_dalronn.cpp
