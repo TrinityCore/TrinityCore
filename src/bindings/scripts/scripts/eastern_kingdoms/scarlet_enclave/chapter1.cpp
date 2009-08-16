@@ -213,12 +213,14 @@ void npc_unworthy_initiateAI::UpdateAI(const uint32 diff)
             if (!prison)
                 return;
 
-            if (Creature* trigger = me->FindNearestCreature(29521, 30))
+            prison->ResetDoorOrButton();
+
+            if (Creature* anchor = me->FindNearestCreature(29521, 30))
             {
-                prison->ResetDoorOrButton();
-                trigger->AI()->SetGUID(m_creature->GetGUID());
-                trigger->CastSpell(me, SPELL_SOUL_PRISON_CHAIN, true);
-                anchorGUID = trigger->GetGUID();
+                anchor->GetPosition(targ_x, targ_y, targ_z);
+                anchor->AI()->SetGUID(m_creature->GetGUID());
+                anchor->CastSpell(me, SPELL_SOUL_PRISON_CHAIN, true);
+                anchorGUID = anchor->GetGUID();
             }
         }
         return;
