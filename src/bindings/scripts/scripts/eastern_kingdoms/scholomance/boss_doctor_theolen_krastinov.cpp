@@ -24,30 +24,33 @@ EndScriptData */
 #include "precompiled.h"
 #include "def_scholomance.h"
 
-#define EMOTE_GENERIC_FRENZY_KILL   -1000001
+enum
+{
+    EMOTE_GENERIC_FRENZY_KILL   = -1000001,
 
-#define SPELL_REND              18106
-#define SPELL_CLEAVE            15584
-#define SPELL_FRENZY            28371
+    SPELL_REND                  = 16509,
+    SPELL_BACKHAND              = 18103,
+    SPELL_FRENZY                = 8269
+};
 
 struct TRINITY_DLL_DECL boss_theolenkrastinovAI : public ScriptedAI
 {
     boss_theolenkrastinovAI(Creature *c) : ScriptedAI(c) {}
 
-    uint32 Rend_Timer;
-    uint32 Cleave_Timer;
-    uint32 Frenzy_Timer;
+    uint32 m_uiRend_Timer;
+    uint32 m_uiBackhand_Timer;
+    uint32 m_uiFrenzy_Timer;
 
     void Reset()
     {
-        Rend_Timer = 8000;
-        Cleave_Timer = 9000;
-        Frenzy_Timer =0;
+        m_uiRend_Timer = 8000;
+        m_uiBackhand_Timer = 9000;
+        m_uiFrenzy_Timer = 1000;
     }
 
-    void JustDied(Unit *killer)
+    void JustDied(Unit* pKiller)
     {
-        ScriptedInstance *pInstance = (m_creature->GetInstanceData()) ? (m_creature->GetInstanceData()) : NULL;
+        ScriptedInstance* pInstance = (m_creature->GetInstanceData()) ? (m_creature->GetInstanceData()) : NULL;
         if (pInstance)
         {
             pInstance->SetData(DATA_DOCTORTHEOLENKRASTINOV_DEATH, 0);
@@ -57,44 +60,47 @@ struct TRINITY_DLL_DECL boss_theolenkrastinovAI : public ScriptedAI
         }
     }
 
-    void EnterCombat(Unit *who)
-    {
-    }
-
-    void UpdateAI(const uint32 diff)
+    void UpdateAI(const uint32 uiDiff)
     {
         if (!UpdateVictim())
             return;
 
         //Rend_Timer
-        if (Rend_Timer < diff)
+        if (m_uiRend_Timer < uiDiff)
         {
-            DoCast(m_creature->getVictim(),SPELL_REND);
-            Rend_Timer = 10000;
-        }else Rend_Timer -= diff;
+            DoCast(m_creature->getVictim(), SPELL_REND);
+            m_uiRend_Timer = 10000;
+        }
+        else
+            m_uiRend_Timer -= uiDiff;
 
-        //Cleave_Timer
-        if (Cleave_Timer < diff)
+        //Backhand_Timer
+        if (m_uiBackhand_Timer < uiDiff)
         {
-            DoCast(m_creature->getVictim(),SPELL_CLEAVE);
-            Cleave_Timer = 10000;
-        }else Cleave_Timer -= diff;
+            DoCast(m_creature->getVictim(), SPELL_BACKHAND);
+            m_uiBackhand_Timer = 10000;
+        }
+        else
+            m_uiBackhand_Timer -= uiDiff;
 
         //Frenzy_Timer
         if (m_creature->GetHealth()*100 / m_creature->GetMaxHealth() < 26)
         {
-            if (Frenzy_Timer < diff)
+            if (m_uiFrenzy_Timer < uiDiff)
             {
                 DoCast(m_creature,SPELL_FRENZY);
                 DoScriptText(EMOTE_GENERIC_FRENZY_KILL, m_creature);
 
-                Frenzy_Timer = 8000;
-            }else Frenzy_Timer -= diff;
+                m_uiFrenzy_Timer = 120000;
+            }
+            else
+                m_uiFrenzy_Timer -= uiDiff;
         }
 
         DoMeleeAttackIfReady();
     }
 };
+
 CreatureAI* GetAI_boss_theolenkrastinov(Creature* pCreature)
 {
     return new boss_theolenkrastinovAI (pCreature);
