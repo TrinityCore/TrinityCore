@@ -43,7 +43,7 @@ class SummonList : private std::list<uint64>
 
 struct TRINITY_DLL_DECL ScriptedAI : public CreatureAI
 {
-    explicit ScriptedAI(Creature* creature);
+    explicit ScriptedAI(Creature* pCreature);
     ~ScriptedAI() {}
 
     //*************
