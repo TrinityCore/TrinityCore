@@ -44,48 +44,47 @@
 
 char * command_finder(const char* text, int state)
 {
-  static int idx,len;
-  const char* ret;
-  ChatCommand *cmd = ChatHandler::getCommandTable();
+    static int idx,len;
+    const char* ret;
+    ChatCommand *cmd = ChatHandler::getCommandTable();
 
-  if(!state)
-    {
-      idx = 0;
-      len = strlen(text);
-    }
+    if(!state)
+        {
+            idx = 0;
+            len = strlen(text);
+        }
 
-  while(ret = cmd[idx].Name)
-    {
-      if(!cmd[idx].AllowConsole)
-    {
-    idx++;
-    continue;
-    }
+    while(ret = cmd[idx].Name)
+        {
+            if(!cmd[idx].AllowConsole)
+            {
+                idx++;
+                continue;
+            }
 
-      idx++;
-      //printf("Checking %s \n", cmd[idx].Name);
-      if (strncmp(ret, text, len) == 0)
-    return strdup(ret);
-      if(cmd[idx].Name == NULL)
-    break;
-    }
+            idx++;
+            //printf("Checking %s \n", cmd[idx].Name);
+            if (strncmp(ret, text, len) == 0)
+                return strdup(ret);
+            if(cmd[idx].Name == NULL)
+                break;
+        }
 
-  return ((char*)NULL);
+        return ((char*)NULL);
 
 }
 
 char ** cli_completion(const char * text, int start, int end)
 {
-  char ** matches;
-  matches = (char**)NULL;
+    char ** matches;
+    matches = (char**)NULL;
   
-  if(start == 0)
-    matches = rl_completion_matches((char*)text,&command_finder);
-  else
-    rl_bind_key('\t',rl_abort);
-  return (matches);
+    if(start == 0)
+        matches = rl_completion_matches((char*)text,&command_finder);
+    else
+        rl_bind_key('\t',rl_abort);
+    return (matches);
 }
-
 #endif
 
 void utf8print(const char* str)
@@ -395,45 +394,45 @@ void CliRunnable::run()
 
         char *command_str ;             // = fgets(commandbuf,sizeof(commandbuf),stdin);
 
-    #if PLATFORM == WINDOWS
-    command_str = fgets(commandbuf,sizeof(commandbuf),stdin);
-    #else
-    command_str = readline("TC>");
-    rl_bind_key('\t',rl_complete);
-    #endif
-    if (command_str != NULL)
+        #if PLATFORM == WINDOWS
+        command_str = fgets(commandbuf,sizeof(commandbuf),stdin);
+        #else
+        command_str = readline("TC>");
+        rl_bind_key('\t',rl_complete);
+        #endif
+        if (command_str != NULL)
         {
             for(int x=0;command_str[x];x++)
                 if(command_str[x]=='\r'||command_str[x]=='\n')
-            {
-                command_str[x]=0;
-                break;
-            }
+                {
+                    command_str[x]=0;
+                    break;
+                }
 
 
             if(!*command_str)
             {
-          #if PLATFORM == WINDOWS
-            printf("TC>");
-          #endif
+                #if PLATFORM == WINDOWS
+                printf("TC>");
+                #endif
                 continue;
             }
 
             std::string command;
             if(!consoleToUtf8(command_str,command))         // convert from console encoding to utf8
             {
-          #if PLATFORM == WINDOWS
-            printf("TC>");
-          #endif
+                #if PLATFORM == WINDOWS
+                printf("TC>");
+                #endif
                 continue;
             }
-        fflush(stdout);
+            fflush(stdout);
             sWorld.QueueCliCommand(&utf8print,command.c_str());
-         #if PLATFORM != WINDOWS
-        add_history(command.c_str());
-         #endif
+            #if PLATFORM != WINDOWS
+            add_history(command.c_str());
+            #endif
 
-    }
+        }
         else if (feof(stdin))
         {
             World::StopNow(SHUTDOWN_EXIT_CODE);
