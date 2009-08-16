@@ -205,12 +205,6 @@ struct TRINITY_DLL_DECL boss_magtheridonAI : public ScriptedAI
 
     void Reset()
     {
-        if (pInstance)
-        {
-            pInstance->SetData(DATA_MAGTHERIDON_EVENT, NOT_STARTED);
-            pInstance->SetData(DATA_COLLAPSE, false);
-        }
-
         Berserk_Timer = 1320000;
         Quake_Timer = 40000;
         Debris_Timer = 10000;
@@ -227,6 +221,15 @@ struct TRINITY_DLL_DECL boss_magtheridonAI : public ScriptedAI
         m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_ATTACKABLE_2);
         m_creature->addUnitState(UNIT_STAT_STUNNED);
         m_creature->CastSpell(m_creature, SPELL_SHADOW_CAGE_C, true);
+    }
+
+    void JustReachedHome()
+    {
+        if (pInstance)
+        {
+            pInstance->SetData(DATA_MAGTHERIDON_EVENT, NOT_STARTED);
+            pInstance->SetData(DATA_COLLAPSE, false);
+        }
     }
 
     void SetClicker(uint64 cubeGUID, uint64 clickerGUID)
@@ -432,11 +435,6 @@ struct TRINITY_DLL_DECL mob_hellfire_channelerAI : public ScriptedAI
         Infernal_Timer = 10000 + rand()%40000;
 
         Check_Timer = 5000;
-
-        if (pInstance)
-            pInstance->SetData(DATA_CHANNELER_EVENT, NOT_STARTED);
-
-        m_creature->CastSpell(m_creature, SPELL_SHADOW_GRASP_C, false);
     }
 
     void EnterCombat(Unit *who)
@@ -448,9 +446,18 @@ struct TRINITY_DLL_DECL mob_hellfire_channelerAI : public ScriptedAI
         DoZoneInCombat();
     }
 
-    void JustSummoned(Creature *summon) {summon->AI()->AttackStart(m_creature->getVictim());}
+    void JustReachedHome()
+    {
+        if (pInstance)
+            pInstance->SetData(DATA_CHANNELER_EVENT, NOT_STARTED);
 
-    void MoveInLineOfSight(Unit* who) {}
+        m_creature->CastSpell(m_creature, SPELL_SHADOW_GRASP_C, false);
+    }
+
+    void JustSummoned(Creature *summon)
+    {
+        summon->AI()->AttackStart(m_creature->getVictim());
+    }
 
     void DamageTaken(Unit*, uint32 &damage)
     {

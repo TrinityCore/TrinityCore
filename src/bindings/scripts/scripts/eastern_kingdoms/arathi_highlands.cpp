@@ -26,7 +26,7 @@ npc_professor_phizzlethorpe
 EndContentData */
 
 #include "precompiled.h"
-#include "escortAI.h"
+#include "escort_ai.h"
 
 /*######
 ## npc_professor_phizzlethorpe

@@ -364,11 +364,19 @@
             Name="base"
             >
             <File
-                RelativePath="..\base\escortAI.cpp"
+                RelativePath="..\base\escort_ai.cpp"
                 >
             </File>
             <File
-                RelativePath="..\base\escortAI.h"
+                RelativePath="..\base\escort_ai.h"
+                >
+            </File>
+            <File
+                RelativePath="..\base\follower_ai.cpp"
+                >
+            </File>
+            <File
+                RelativePath="..\base\follower_ai.h"
                 >
             </File>
             <File

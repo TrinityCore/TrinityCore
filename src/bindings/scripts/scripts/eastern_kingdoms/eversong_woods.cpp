@@ -30,7 +30,7 @@ go_harbinger_second_trial
 EndContentData */
 
 #include "precompiled.h"
-#include "escortAI.h"
+#include "escort_ai.h"
 
 /*######
 ## npc_prospector_anvilward
