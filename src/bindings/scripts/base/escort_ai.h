@@ -7,8 +7,6 @@
 
 #define DEFAULT_MAX_PLAYER_DISTANCE 50
 
-extern UNORDERED_MAP<uint32, std::vector<PointMovement> > PointMovementMap;
-
 struct Escort_Waypoint
 {
     Escort_Waypoint(uint32 _id, float _x, float _y, float _z, uint32 _w)
@@ -50,7 +48,8 @@ struct TRINITY_DLL_DECL npc_escortAI : public ScriptedAI
 
         void EnterEvadeMode();
 
-        void UpdateAI(const uint32);
+        void UpdateAI(const uint32);                        //the "internal" update, calls UpdateEscortAI()
+        virtual void UpdateEscortAI(const uint32);          //used when it's needed to add code in update (abilities, scripted events, etc)
 
         void MovementInform(uint32, uint32);
 
