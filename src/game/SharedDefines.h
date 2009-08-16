@@ -2308,11 +2308,11 @@ enum CorpseDynFlags
 #define SPELL_ID_FROST_PRESENCE                 48263       // Frost Presence
 #define SPELL_ID_UNHOLY_PRESENCE                48265       // Unholy Presence
 #define SPELL_ID_NE_GHOST                       20584       // Night Elf Ghost Aura
-#define SPELL_ID_GHOST                          8326       // Ghost
+#define SPELL_ID_GHOST                          8326        // Ghost
 #define SPELL_ID_DESERTER                       26013       // Deserter
-#define SPELL_ID_LOGINEFFECT                    836       // LOGINEFFECT
-#define SPELL_ID_HONORLESS_TARGET               2479       // Honorless target
-#define SPELL_ID_DUEL_BEG                       7267       // Beg
+#define SPELL_ID_LOGINEFFECT                    836         // LOGINEFFECT
+#define SPELL_ID_HONORLESS_TARGET               2479        // Honorless target
+#define SPELL_ID_DUEL_BEG                       7267        // Beg
 
 enum WeatherType
 {
