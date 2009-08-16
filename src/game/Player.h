@@ -157,10 +157,11 @@ enum ActionButtonType
 
 struct ActionButton
 {
-    ActionButton() : packedData(0), uState( ACTIONBUTTON_NEW ) {}
+    ActionButton() : packedData(0), uState( ACTIONBUTTON_NEW ), canRemoveByClient(true){}
 
     uint32 packedData;
     ActionButtonUpdateState uState;
+    bool canRemoveByClient;
 
     // helpers
     ActionButtonType GetType() const { return ActionButtonType(ACTION_BUTTON_TYPE(packedData)); }
@@ -2240,7 +2241,7 @@ class MANGOS_DLL_SPEC Player : public Unit
         /***                   LOAD SYSTEM                     ***/
         /*********************************************************/
 
-        void _LoadActions(QueryResult *result);
+        void _LoadActions(QueryResult *result, bool startup);
         void _LoadAuras(QueryResult *result, uint32 timediff);
         void _LoadGlyphAuras();
         void _LoadBoundInstances(QueryResult *result);
