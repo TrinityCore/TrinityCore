@@ -56,6 +56,8 @@ struct TRINITY_DLL_DECL npc_escortAI : public ScriptedAI
         // EscortAI functions
         void AddWaypoint(uint32 id, float x, float y, float z, uint32 WaitTimeMs = 0);
 
+        bool IsPlayerOrGroupInRange();
+
         void FillPointMovementListForCreature();
 
         void Start(bool bIsActiveAttacker = true, bool bRun = false, uint64 uiPlayerGUID = 0, const Quest* pQuest = NULL, bool bInstantRespawn = false, bool bCanLoopPath = false);

@@ -2169,11 +2169,11 @@
                         Name="Auchenai Crypts"
                         >
                         <File
-                            RelativePath="..\scripts\outland\aunchindoun\auchenai_crypts\boss_exarch_maladaar.cpp"
+                            RelativePath="..\scripts\outland\auchindoun\auchenai_crypts\boss_exarch_maladaar.cpp"
                             >
                         </File>
                         <File
-                            RelativePath="..\scripts\outland\aunchindoun\auchenai_crypts\boss_shirrak_the_dead_watcher.cpp"
+                            RelativePath="..\scripts\outland\auchindoun\auchenai_crypts\boss_shirrak_the_dead_watcher.cpp"
                             >
                         </File>
                     </Filter>
@@ -2181,11 +2181,11 @@
                         Name="Mana Tombs"
                         >
                         <File
-                            RelativePath="..\scripts\outland\aunchindoun\mana_tombs\boss_nexusprince_shaffar.cpp"
+                            RelativePath="..\scripts\outland\auchindoun\mana_tombs\boss_nexusprince_shaffar.cpp"
                             >
                         </File>
                         <File
-                            RelativePath="..\scripts\outland\aunchindoun\mana_tombs\boss_pandemonius.cpp"
+                            RelativePath="..\scripts\outland\auchindoun\mana_tombs\boss_pandemonius.cpp"
                             >
                         </File>
                     </Filter>
@@ -2193,19 +2193,19 @@
                         Name="Sethekk Halls"
                         >
                         <File
-                            RelativePath="..\scripts\outland\aunchindoun\sethekk_halls\boss_darkweaver_syth.cpp"
+                            RelativePath="..\scripts\outland\auchindoun\sethekk_halls\boss_darkweaver_syth.cpp"
                             >
                         </File>
                         <File
-                            RelativePath="..\scripts\outland\aunchindoun\sethekk_halls\boss_tailonking_ikiss.cpp"
+                            RelativePath="..\scripts\outland\auchindoun\sethekk_halls\boss_tailonking_ikiss.cpp"
                             >
                         </File>
                         <File
-                            RelativePath="..\scripts\outland\aunchindoun\sethekk_halls\def_sethekk_halls.h"
+                            RelativePath="..\scripts\outland\auchindoun\sethekk_halls\def_sethekk_halls.h"
                             >
                         </File>
                         <File
-                            RelativePath="..\scripts\outland\aunchindoun\sethekk_halls\instance_sethekk_halls.cpp"
+                            RelativePath="..\scripts\outland\auchindoun\sethekk_halls\instance_sethekk_halls.cpp"
                             >
                         </File>
                     </Filter>
@@ -2213,27 +2213,27 @@
                         Name="Shadow Labyrinth"
                         >
                         <File
-                            RelativePath="..\scripts\outland\aunchindoun\shadow_labyrinth\boss_ambassador_hellmaw.cpp"
+                            RelativePath="..\scripts\outland\auchindoun\shadow_labyrinth\boss_ambassador_hellmaw.cpp"
                             >
                         </File>
                         <File
-                            RelativePath="..\scripts\outland\aunchindoun\shadow_labyrinth\boss_blackheart_the_inciter.cpp"
+                            RelativePath="..\scripts\outland\auchindoun\shadow_labyrinth\boss_blackheart_the_inciter.cpp"
                             >
                         </File>
                         <File
-                            RelativePath="..\scripts\outland\aunchindoun\shadow_labyrinth\boss_grandmaster_vorpil.cpp"
+                            RelativePath="..\scripts\outland\auchindoun\shadow_labyrinth\boss_grandmaster_vorpil.cpp"
                             >
                         </File>
                         <File
-                            RelativePath="..\scripts\outland\aunchindoun\shadow_labyrinth\boss_murmur.cpp"
+                            RelativePath="..\scripts\outland\auchindoun\shadow_labyrinth\boss_murmur.cpp"
                             >
                         </File>
                         <File
-                            RelativePath="..\scripts\outland\aunchindoun\shadow_labyrinth\def_shadow_labyrinth.h"
+                            RelativePath="..\scripts\outland\auchindoun\shadow_labyrinth\def_shadow_labyrinth.h"
                             >
                         </File>
                         <File
-                            RelativePath="..\scripts\outland\aunchindoun\shadow_labyrinth\instance_shadow_labyrinth.cpp"
+                            RelativePath="..\scripts\outland\auchindoun\shadow_labyrinth\instance_shadow_labyrinth.cpp"
                             >
                         </File>
                     </Filter>

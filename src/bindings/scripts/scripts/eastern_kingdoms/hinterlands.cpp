@@ -17,16 +17,124 @@
 /* ScriptData
 SDName: Hinterlands
 SD%Complete: 100
-SDComment: Quest support: 2742
+SDComment: Quest support: 863, 2742
 SDCategory: The Hinterlands
 EndScriptData */
 
 /* ContentData
+npc_00x09hl
 npc_rinji
 EndContentData */
 
 #include "precompiled.h"
 #include "escort_ai.h"
+
+/*######
+## npc_00x09hl
+######*/
+
+enum
+{
+    SAY_OOX_START           = -1000416,
+    SAY_OOX_AGGRO           = -1000417,
+    SAY_OOX_DANGER          = -1000418,
+    SAY_OOX_COMPLETE        = -1000419,
+
+    QUEST_RESQUE_OOX_09     = 836,
+
+    NPC_MARAUDING_OWL       = 7808,
+    NPC_VILE_AMBUSHER       = 7809,
+
+    FACTION_ESCORTEE_A      = 774,
+    FACTION_ESCORTEE_H      = 775
+};
+
+struct MANGOS_DLL_DECL npc_00x09hlAI : public npc_escortAI
+{
+    npc_00x09hlAI(Creature* pCreature) : npc_escortAI(pCreature) { }
+
+    void Reset() { }
+
+    void WaypointReached(uint32 uiPointId)
+    {
+        switch(uiPointId)
+        {
+            case 26:
+                DoScriptText(SAY_OOX_DANGER, m_creature);
+                break;
+            case 43:
+                DoScriptText(SAY_OOX_DANGER, m_creature);
+                break;
+            case 64:
+                DoScriptText(SAY_OOX_COMPLETE, m_creature);
+                if (Player* pPlayer = Unit::GetPlayer(PlayerGUID))
+                    pPlayer->GroupEventHappens(QUEST_RESQUE_OOX_09, m_creature);
+                break;
+        }
+    }
+
+    void WaypointStart(uint32 uiPointId)
+    {
+        switch(uiPointId)
+        {
+            case 27:
+                for(int i = 0; i < 3; ++i)
+                {
+                    float fX, fY, fZ;
+                    m_creature->GetRandomPoint(147.927444, -3851.513428, 130.893, 7.0f, fX, fY, fZ);
+
+                    m_creature->SummonCreature(NPC_MARAUDING_OWL, fX, fY, fZ, 0.0f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 25000);
+                }
+                break;
+            case 44:
+                for(int i = 0; i < 3; ++i)
+                {
+                    float fX, fY, fZ;
+                    m_creature->GetRandomPoint(-141.151581, -4291.213867, 120.130, 7.0f, fX, fY, fZ);
+
+                    m_creature->SummonCreature(NPC_VILE_AMBUSHER, fX, fY, fZ, 0.0f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 25000);
+                }
+                break;
+        }
+    }
+
+    void Aggro(Unit* pWho)
+    {
+        if (pWho->GetEntry() == NPC_MARAUDING_OWL || pWho->GetEntry() == NPC_VILE_AMBUSHER)
+            return;
+
+        DoScriptText(SAY_OOX_AGGRO, m_creature);
+    }
+
+    void JustSummoned(Creature* pSummoned)
+    {
+        pSummoned->GetMotionMaster()->MovePoint(0, m_creature->GetPositionX(), m_creature->GetPositionY(), m_creature->GetPositionZ());
+    }
+};
+
+bool QuestAccept_npc_00x09hl(Player* pPlayer, Creature* pCreature, const Quest* pQuest)
+{
+    if (pQuest->GetQuestId() == QUEST_RESQUE_OOX_09)
+    {
+        pCreature->SetStandState(UNIT_STAND_STATE_STAND);
+
+        if (pPlayer->GetTeam() == ALLIANCE)
+            pCreature->setFaction(FACTION_ESCORTEE_A);
+        else if (pPlayer->GetTeam() == HORDE)
+            pCreature->setFaction(FACTION_ESCORTEE_H);
+
+        DoScriptText(SAY_OOX_START, pCreature, pPlayer);
+
+        if (npc_00x09hlAI* pEscortAI = CAST_AI(npc_00x09hlAI, pCreature->AI()))
+            pEscortAI->Start(false, false, pPlayer->GetGUID(), pQuest);
+    }
+    return true;
+}
+
+CreatureAI* GetAI_npc_00x09hl(Creature* pCreature)
+{
+    return new npc_00x09hlAI(pCreature);
+}
 
 /*######
 ## npc_rinji
@@ -164,39 +272,45 @@ struct TRINITY_DLL_DECL npc_rinjiAI : public npc_escortAI
         }
     }
 
-    void UpdateAI(const uint32 uiDiff)
+    void UpdateEscortAI(const uint32 uiDiff)
     {
-        npc_escortAI::UpdateAI(uiDiff);
-
-        if (IsBeingEscorted && m_uiPostEventCount && !m_creature->getVictim())
+        //Check if we have a current target
+        if (!UpdateVictim())
         {
-            if (m_uiPostEventTimer < uiDiff)
+            if (IsBeingEscorted && m_uiPostEventCount)
             {
-                m_uiPostEventTimer = 3000;
-
-                if (Unit* pPlayer = Unit::GetUnit(*m_creature, PlayerGUID))
+                if (m_uiPostEventTimer < uiDiff)
                 {
-                    switch(m_uiPostEventCount)
+                    m_uiPostEventTimer = 3000;
+
+                    if (Unit* pPlayer = Unit::GetUnit(*m_creature, PlayerGUID))
                     {
-                        case 1:
-                            DoScriptText(SAY_RIN_PROGRESS_1, m_creature, pPlayer);
-                            ++m_uiPostEventCount;
-                            break;
-                        case 2:
-                            DoScriptText(SAY_RIN_PROGRESS_2, m_creature, pPlayer);
-                            m_uiPostEventCount = 0;
-                            break;
+                        switch(m_uiPostEventCount)
+                        {
+                            case 1:
+                                DoScriptText(SAY_RIN_PROGRESS_1, m_creature, pPlayer);
+                                ++m_uiPostEventCount;
+                                break;
+                            case 2:
+                                DoScriptText(SAY_RIN_PROGRESS_2, m_creature, pPlayer);
+                                m_uiPostEventCount = 0;
+                                break;
+                        }
+                    }
+                    else
+                    {
+                        m_creature->ForcedDespawn();
+                        return;
                     }
                 }
                 else
-                {
-                    m_creature->ForcedDespawn();
-                    return;
-                }
+                    m_uiPostEventTimer -= uiDiff;
             }
-            else
-                m_uiPostEventTimer -= uiDiff;
+
+            return;
         }
+
+        DoMeleeAttackIfReady();
     }
 };
 
@@ -221,6 +335,12 @@ CreatureAI* GetAI_npc_rinji(Creature* pCreature)
 void AddSC_hinterlands()
 {
     Script* newscript;
+
+    newscript = new Script;
+    newscript->Name = "npc_00x09hl";
+    newscript->GetAI = &GetAI_npc_00x09hl;
+    newscript->pQuestAccept = &QuestAccept_npc_00x09hl;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name = "npc_rinji";

@@ -555,6 +555,7 @@ UPDATE `creature_template` SET `ScriptName`='npc_tracy_proudwell' WHERE `entry`=
 /* HILLSBRAD FOOTHILLS */
 
 /* HINTERLANDS */
+UPDATE `creature_template` SET `ScriptName`='npc_00x09hl' WHERE `entry`=7806;
 UPDATE `creature_template` SET `ScriptName`='npc_rinji' WHERE `entry`=7780;
 
 /* ICECROWN */
