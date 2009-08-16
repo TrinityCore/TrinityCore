@@ -164,6 +164,7 @@ extern void AddSC_boss_hazzarah();
 extern void AddSC_boss_renataki();
 extern void AddSC_boss_wushoolay();
 extern void AddSC_instance_zulgurub();
+
 //extern void AddSC_alterac_mountains();
 extern void AddSC_arathi_highlands();
 extern void AddSC_blasted_lands();
@@ -189,6 +190,46 @@ extern void AddSC_western_plaguelands();
 extern void AddSC_westfall();
 
 //kalimdor
+extern void AddSC_instance_blackfathom_deeps();     //Blackfathom Depths
+extern void AddSC_hyjal();                          //CoT Battle for Mt. Hyjal
+extern void AddSC_boss_archimonde();
+extern void AddSC_instance_mount_hyjal();
+extern void AddSC_hyjal_trash();
+extern void AddSC_boss_rage_winterchill();
+extern void AddSC_boss_anetheron();
+extern void AddSC_boss_kazrogal();
+extern void AddSC_boss_azgalor();
+extern void AddSC_boss_captain_skarloc();           //CoT Old Hillsbrad
+extern void AddSC_boss_epoch_hunter();
+extern void AddSC_boss_lieutenant_drake();
+extern void AddSC_instance_old_hillsbrad();
+extern void AddSC_old_hillsbrad();
+extern void AddSC_boss_aeonus();                    //CoT The Dark Portal
+extern void AddSC_boss_chrono_lord_deja();
+extern void AddSC_boss_temporus();
+extern void AddSC_dark_portal();
+extern void AddSC_instance_dark_portal();
+extern void AddSC_boss_celebras_the_cursed();       //Maraudon
+extern void AddSC_boss_landslide();
+extern void AddSC_boss_noxxion();
+extern void AddSC_boss_ptheradras();
+extern void AddSC_boss_onyxia();                    //Onyxia's Lair
+extern void AddSC_boss_amnennar_the_coldbringer();  //Razorfen Downs
+extern void AddSC_razorfen_downs();
+extern void AddSC_razorfen_kraul();                 //Razorfen Kraul
+extern void AddSC_boss_cthun();                     //Temple of ahn'qiraj
+extern void AddSC_boss_fankriss();
+extern void AddSC_boss_huhuran();
+extern void AddSC_bug_trio();
+extern void AddSC_boss_sartura();
+extern void AddSC_boss_skeram();
+extern void AddSC_boss_twinemperors();
+extern void AddSC_mob_anubisath_sentinel();
+extern void AddSC_instance_temple_of_ahnqiraj();
+extern void AddSC_wailing_caverns();                //Wailing caverns
+extern void AddSC_instance_wailing_caverns();
+extern void AddSC_zulfarrak();                      //Zul'Farrak
+
 extern void AddSC_ashenvale();
 extern void AddSC_azshara();
 extern void AddSC_azuremyst_isle();
@@ -272,34 +313,6 @@ extern void AddSC_boss_najentus();
 extern void AddSC_boss_illidari_council();
 extern void AddSC_instance_black_temple();
 
-//Blackfathom Depths
-extern void AddSC_instance_blackfathom_deeps();
-
-//Caverns of Time
-//--Battle for Mt. Hyjal
-extern void AddSC_hyjal();
-extern void AddSC_boss_archimonde();
-extern void AddSC_instance_mount_hyjal();
-extern void AddSC_hyjal_trash();
-extern void AddSC_boss_rage_winterchill();
-extern void AddSC_boss_anetheron();
-extern void AddSC_boss_kazrogal();
-extern void AddSC_boss_azgalor();
-
-//--Old Hillsbrad
-extern void AddSC_boss_captain_skarloc();
-extern void AddSC_boss_epoch_hunter();
-extern void AddSC_boss_lieutenant_drake();
-extern void AddSC_instance_old_hillsbrad();
-extern void AddSC_old_hillsbrad();
-
-//--The Dark Portal
-extern void AddSC_boss_aeonus();
-extern void AddSC_boss_chrono_lord_deja();
-extern void AddSC_boss_temporus();
-extern void AddSC_dark_portal();
-extern void AddSC_instance_dark_portal();
-
 //Coilfang Resevoir
 //--Serpent Shrine Cavern
 extern void AddSC_boss_fathomlord_karathress();
@@ -350,12 +363,6 @@ extern void AddSC_boss_omor_the_unscarred();
 extern void AddSC_boss_vazruden_the_herald();
 extern void AddSC_instance_ramparts();
 
-//Maraudon
-extern void AddSC_boss_celebras_the_cursed();
-extern void AddSC_boss_landslide();
-extern void AddSC_boss_noxxion();
-extern void AddSC_boss_ptheradras();
-
 //Naxxramas
 extern void AddSC_boss_anubrekhan();
 extern void AddSC_boss_maexxna();
@@ -390,17 +397,6 @@ extern void AddSC_instance_nexus();
 extern void AddSC_boss_sartharion();
 extern void AddSC_instance_obsidian_sanctum();
 
-//Onyxia's Lair
-extern void AddSC_boss_onyxia();
-
-//Ragefire Chasm
-//Razorfen Downs
-extern void AddSC_boss_amnennar_the_coldbringer();
-extern void AddSC_razorfen_downs();
-
-//Razorfen Kraul
-extern void AddSC_razorfen_kraul();
-
 //Tempest Keep
 //--Arcatraz
 extern void AddSC_arcatraz();
@@ -426,16 +422,6 @@ extern void AddSC_boss_nethermancer_sepethrea();
 extern void AddSC_boss_pathaleon_the_calculator();
 extern void AddSC_instance_mechanar();
 
-//Temple of ahn'qiraj
-extern void AddSC_boss_cthun();
-extern void AddSC_boss_fankriss();
-extern void AddSC_boss_huhuran();
-extern void AddSC_bug_trio();
-extern void AddSC_boss_sartura();
-extern void AddSC_boss_skeram();
-extern void AddSC_boss_twinemperors();
-extern void AddSC_mob_anubisath_sentinel();
-extern void AddSC_instance_temple_of_ahnqiraj();
 
 //Ulduar
 extern void AddSC_boss_auriaya();
@@ -456,13 +442,6 @@ extern void AddSC_boss_skarvald_dalronn();
 extern void AddSC_boss_ingvar_the_plunderer();
 extern void AddSC_instance_utgarde_keep();
 extern void AddSC_utgarde_keep();
-
-//Wailing caverns
-extern void AddSC_wailing_caverns();
-extern void AddSC_instance_wailing_caverns();
-
-//Zul'Farrak
-extern void AddSC_zulfarrak();
 
 //Vault of Archavon
 extern void AddSC_boss_archavon();
@@ -639,6 +618,7 @@ void AddScripts()
     AddSC_boss_renataki();
     AddSC_boss_wushoolay();
     AddSC_instance_zulgurub();
+
     //AddSC_alterac_mountains();
     AddSC_arathi_highlands();
     AddSC_blasted_lands();
@@ -664,6 +644,46 @@ void AddScripts()
     AddSC_westfall();
 
     //kalimdor
+    AddSC_instance_blackfathom_deeps();     //Blackfathom Depths
+    AddSC_hyjal();                          //CoT Battle for Mt. Hyjal
+    AddSC_boss_archimonde();
+    AddSC_instance_mount_hyjal();
+    AddSC_hyjal_trash();
+    AddSC_boss_rage_winterchill();
+    AddSC_boss_anetheron();
+    AddSC_boss_kazrogal();
+    AddSC_boss_azgalor();
+    AddSC_boss_captain_skarloc();           //CoT Old Hillsbrad
+    AddSC_boss_epoch_hunter();
+    AddSC_boss_lieutenant_drake();
+    AddSC_instance_old_hillsbrad();
+    AddSC_old_hillsbrad();
+    AddSC_boss_aeonus();                    //CoT The Dark Portal
+    AddSC_boss_chrono_lord_deja();
+    AddSC_boss_temporus();
+    AddSC_dark_portal();
+    AddSC_instance_dark_portal();
+    AddSC_boss_celebras_the_cursed();       //Maraudon
+    AddSC_boss_landslide();
+    AddSC_boss_noxxion();
+    AddSC_boss_ptheradras();
+    AddSC_boss_onyxia();                    //Onyxia's Lair
+    AddSC_boss_amnennar_the_coldbringer();  //Razorfen Downs
+    AddSC_razorfen_downs();
+    AddSC_razorfen_kraul();                 //Razorfen Kraul
+    AddSC_boss_cthun();                     //Temple of ahn'qiraj
+    AddSC_boss_fankriss();
+    AddSC_boss_huhuran();
+    AddSC_bug_trio();
+    AddSC_boss_sartura();
+    AddSC_boss_skeram();
+    AddSC_boss_twinemperors();
+    AddSC_mob_anubisath_sentinel();
+    AddSC_instance_temple_of_ahnqiraj();
+    AddSC_wailing_caverns();                //Wailing caverns
+    AddSC_instance_wailing_caverns();
+    AddSC_zulfarrak();                      //Zul'Farrak
+
     AddSC_ashenvale();
     AddSC_azshara();
     AddSC_azuremyst_isle();
@@ -747,34 +767,6 @@ void AddScripts()
     AddSC_boss_illidari_council();
     AddSC_instance_black_temple();
 
-    //Blackfathom Depths
-    AddSC_instance_blackfathom_deeps();
-
-    //Caverns of Time
-    //--Battle for Mt. Hyjal
-    AddSC_hyjal();
-    AddSC_boss_archimonde();
-    AddSC_instance_mount_hyjal();
-    AddSC_hyjal_trash();
-    AddSC_boss_rage_winterchill();
-    AddSC_boss_anetheron();
-    AddSC_boss_kazrogal();
-    AddSC_boss_azgalor();
-
-    //--Old Hillsbrad
-    AddSC_boss_captain_skarloc();
-    AddSC_boss_epoch_hunter();
-    AddSC_boss_lieutenant_drake();
-    AddSC_instance_old_hillsbrad();
-    AddSC_old_hillsbrad();
-
-    //--The Dark Portal
-    AddSC_boss_aeonus();
-    AddSC_boss_chrono_lord_deja();
-    AddSC_boss_temporus();
-    AddSC_dark_portal();
-    AddSC_instance_dark_portal();
-
     //Coilfang Resevoir
     //--Serpent Shrine Cavern
     AddSC_boss_fathomlord_karathress();
@@ -825,12 +817,6 @@ void AddScripts()
     AddSC_boss_vazruden_the_herald();
     AddSC_instance_ramparts();
 
-    //Maraudon
-    AddSC_boss_celebras_the_cursed();
-    AddSC_boss_landslide();
-    AddSC_boss_noxxion();
-    AddSC_boss_ptheradras();
-
     //Naxxramas
     AddSC_boss_anubrekhan();
     AddSC_boss_maexxna();
@@ -865,17 +851,6 @@ void AddScripts()
     AddSC_boss_sartharion();
     AddSC_instance_obsidian_sanctum();
 
-    //Onyxia's Lair
-    AddSC_boss_onyxia();
-
-    //Ragefire Chasm
-    //Razorfen Downs
-    AddSC_boss_amnennar_the_coldbringer();
-    AddSC_razorfen_downs();
-
-    //Razorfen Kraul
-    AddSC_razorfen_kraul();
-
     //Tempest Keep
     //--Arcatraz
     AddSC_arcatraz();
@@ -901,16 +876,6 @@ void AddScripts()
     AddSC_boss_pathaleon_the_calculator();
     AddSC_instance_mechanar();
 
-    //Temple of ahn'qiraj
-    AddSC_boss_cthun();
-    AddSC_boss_fankriss();
-    AddSC_boss_huhuran();
-    AddSC_bug_trio();
-    AddSC_boss_sartura();
-    AddSC_boss_skeram();
-    AddSC_boss_twinemperors();
-    AddSC_mob_anubisath_sentinel();
-    AddSC_instance_temple_of_ahnqiraj();
 
     //Ulduar
     AddSC_boss_auriaya();
@@ -931,13 +896,6 @@ void AddScripts()
     AddSC_boss_ingvar_the_plunderer();
     AddSC_instance_utgarde_keep();
     AddSC_utgarde_keep();
-
-    //Wailing caverns
-    AddSC_wailing_caverns();
-    AddSC_instance_wailing_caverns();
-
-    //Zul'Farrak
-    AddSC_zulfarrak();
 
     //Vault of Archavon
     AddSC_boss_archavon();
