@@ -101,7 +101,7 @@ struct TRINITY_DLL_DECL npc_kaya_flathoofAI : public npc_escortAI
 
     void WaypointReached(uint32 i)
     {
-        Player* pPlayer = Unit::GetPlayer(PlayerGUID);
+        Player* pPlayer = GetPlayerForEscort();
 
         if (!pPlayer)
             return;
@@ -116,8 +116,8 @@ struct TRINITY_DLL_DECL npc_kaya_flathoofAI : public npc_escortAI
             break;
         case 18: m_creature->SetInFront(pPlayer);
             DoScriptText(SAY_END, m_creature, pPlayer);
-            if (pPlayer && pPlayer->GetTypeId() == TYPEID_PLAYER)
-                CAST_PLR(pPlayer)->GroupEventHappens(QUEST_PROTECT_KAYA, m_creature);
+            if (pPlayer)
+                pPlayer->GroupEventHappens(QUEST_PROTECT_KAYA, m_creature);
             break;
         }
     }

@@ -67,7 +67,7 @@ struct MANGOS_DLL_DECL npc_00x09hlAI : public npc_escortAI
                 break;
             case 64:
                 DoScriptText(SAY_OOX_COMPLETE, m_creature);
-                if (Player* pPlayer = Unit::GetPlayer(PlayerGUID))
+                if (Player* pPlayer = GetPlayerForEscort())
                     pPlayer->GroupEventHappens(QUEST_RESQUE_OOX_09, m_creature);
                 break;
         }
@@ -247,7 +247,7 @@ struct TRINITY_DLL_DECL npc_rinjiAI : public npc_escortAI
 
     void WaypointReached(uint32 uiPointId)
     {
-        Player* pPlayer = (Player*)Unit::GetUnit(*m_creature, PlayerGUID);
+        Player* pPlayer = GetPlayerForEscort();
 
         if (!pPlayer)
             return;
@@ -283,7 +283,7 @@ struct TRINITY_DLL_DECL npc_rinjiAI : public npc_escortAI
                 {
                     m_uiPostEventTimer = 3000;
 
-                    if (Unit* pPlayer = Unit::GetUnit(*m_creature, PlayerGUID))
+                    if (Unit* pPlayer = GetPlayerForEscort())
                     {
                         switch(m_uiPostEventCount)
                         {

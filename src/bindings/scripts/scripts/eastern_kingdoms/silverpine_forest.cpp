@@ -119,7 +119,7 @@ struct TRINITY_DLL_DECL npc_deathstalker_erlandAI : public npc_escortAI
 
     void WaypointReached(uint32 i)
     {
-        Player* pPlayer = Unit::GetPlayer(PlayerGUID);
+        Player* pPlayer = GetPlayerForEscort();
 
         if (!pPlayer)
             return;
@@ -176,37 +176,7 @@ bool QuestAccept_npc_deathstalker_erland(Player* pPlayer, Creature* pCreature, Q
 
 CreatureAI* GetAI_npc_deathstalker_erlandAI(Creature* pCreature)
 {
-    npc_deathstalker_erlandAI* deathstalker_erlandAI = new npc_deathstalker_erlandAI(pCreature);
-
-    deathstalker_erlandAI->AddWaypoint(0, 1406.32, 1083.10, 52.55);
-    deathstalker_erlandAI->AddWaypoint(1, 1400.49, 1080.42, 52.50); //first say
-    deathstalker_erlandAI->AddWaypoint(2, 1388.48, 1083.10, 52.52);
-    deathstalker_erlandAI->AddWaypoint(3, 1370.16, 1084.02, 52.30);
-    deathstalker_erlandAI->AddWaypoint(4, 1359.02, 1080.85, 52.46);
-    deathstalker_erlandAI->AddWaypoint(5, 1341.43, 1087.39, 52.69);
-    deathstalker_erlandAI->AddWaypoint(6, 1321.93, 1090.51, 50.66);
-    deathstalker_erlandAI->AddWaypoint(7, 1312.98, 1095.91, 47.49);
-    deathstalker_erlandAI->AddWaypoint(8, 1301.09, 1102.94, 47.76);
-    deathstalker_erlandAI->AddWaypoint(9, 1297.73, 1106.35, 50.18);
-    deathstalker_erlandAI->AddWaypoint(10, 1295.49, 1124.32, 50.49);
-    deathstalker_erlandAI->AddWaypoint(11, 1294.84, 1137.25, 51.75);
-    deathstalker_erlandAI->AddWaypoint(12, 1292.89, 1158.99, 52.65);
-    deathstalker_erlandAI->AddWaypoint(13, 1290.75, 1168.67, 52.56, 1000); //complete quest and say last
-    deathstalker_erlandAI->AddWaypoint(14, 1287.12, 1203.49, 52.66, 5000);
-    deathstalker_erlandAI->AddWaypoint(15, 1287.12, 1203.49, 52.66, 4000);
-    deathstalker_erlandAI->AddWaypoint(16, 1287.12, 1203.49, 52.66, 5000);
-    deathstalker_erlandAI->AddWaypoint(17, 1287.12, 1203.49, 52.66, 4000);
-    deathstalker_erlandAI->AddWaypoint(18, 1290.72, 1207.44, 52.69);
-    deathstalker_erlandAI->AddWaypoint(19, 1297.50, 1207.18, 53.74);
-    deathstalker_erlandAI->AddWaypoint(20, 1301.32, 1220.90, 53.74);
-    deathstalker_erlandAI->AddWaypoint(21, 1298.55, 1220.43, 53.74);
-    deathstalker_erlandAI->AddWaypoint(22, 1297.59, 1211.23, 58.47);
-    deathstalker_erlandAI->AddWaypoint(23, 1305.01, 1206.10, 58.51);
-    deathstalker_erlandAI->AddWaypoint(24, 1310.51, 1207.36, 58.51, 5000);
-    deathstalker_erlandAI->AddWaypoint(25, 1310.51, 1207.36, 58.51, 5000);
-    deathstalker_erlandAI->AddWaypoint(26, 1310.51, 1207.36, 58.51, 2000);
-
-    return deathstalker_erlandAI;
+    return new npc_deathstalker_erlandAI(pCreature);
 }
 
 /*######

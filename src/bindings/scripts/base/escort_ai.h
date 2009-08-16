@@ -58,6 +58,11 @@ struct TRINITY_DLL_DECL npc_escortAI : public ScriptedAI
 
         bool IsPlayerOrGroupInRange();
 
+        Player* GetPlayerForEscort()
+        {
+            return Unit::GetPlayer(m_uiPlayerGUID);
+        }
+
         void FillPointMovementListForCreature();
 
         void Start(bool bIsActiveAttacker = true, bool bRun = false, uint64 uiPlayerGUID = 0, const Quest* pQuest = NULL, bool bInstantRespawn = false, bool bCanLoopPath = false);
@@ -76,15 +81,15 @@ struct TRINITY_DLL_DECL npc_escortAI : public ScriptedAI
         bool GetIsBeingEscorted() { return IsBeingEscorted; }//used in EnterEvadeMode override
         void SetReturning(bool returning) { m_bIsReturning = returning; }//used in EnterEvadeMode override
         void SetCanAttack(bool attack) { m_bIsActiveAttacker = attack; }
-        uint64 GetEventStarterGUID() { return PlayerGUID; }
+        uint64 GetEventStarterGUID() { return m_uiPlayerGUID; }
 
     // EscortAI variables
     protected:
-        uint64 PlayerGUID;
         bool IsBeingEscorted;
         bool IsOnHold;
 
     private:
+        uint64 m_uiPlayerGUID;
         uint32 m_uiWPWaitTimer;
         uint32 m_uiPlayerCheckTimer;
         float MaxPlayerDistance;
