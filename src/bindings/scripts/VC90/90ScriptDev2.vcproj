@@ -391,6 +391,14 @@
             <Filter
                 Name="eastern_kingdoms"
                 >
+                <Filter
+                    Name="scarlet_enclave"
+                    >
+                    <File
+                        RelativePath="..\scripts\eastern_kingdoms\scarlet_enclave\the_scarlet_enclave.cpp"
+                        >
+                    </File>
+                </Filter>
                 <File
                     RelativePath="..\scripts\eastern_kingdoms\alterac_mountains.cpp"
                     >
@@ -1321,22 +1329,6 @@
                             RelativePath="..\scripts\zone\blackwing_lair\instance_blackwing_lair.cpp"
                             >
                         </File>
-                    </Filter>
-                    <Filter
-                        Name="Duskwood"
-                        >
-                    </Filter>
-                    <Filter
-                        Name="Eastern Plaguelands"
-                        >
-                        <File
-                            RelativePath="..\scripts\zone\eastern_plaguelands\the_scarlet_enclave.cpp"
-                            >
-                        </File>
-                    </Filter>
-                    <Filter
-                        Name="Redridge Mountains"
-                        >
                     </Filter>
                     <Filter
                         Name="Scarlet Monastery"

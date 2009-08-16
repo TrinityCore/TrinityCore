@@ -16,6 +16,7 @@ SET(trinityscript_LIB_SRCS
    include/sc_creature.h
    include/sc_gossip.h
    include/sc_instance.h
+   scripts/eastern_kingdoms/scarlet_enclave/the_scarlet_enclave.cpp
    scripts/eastern_kingdoms/alterac_mountains.cpp
    scripts/eastern_kingdoms/arathi_highlands.cpp
    scripts/eastern_kingdoms/blasted_lands.cpp
@@ -184,7 +185,6 @@ SET(trinityscript_LIB_SRCS
    scripts/zone/coilfang_resevoir/underbog/boss_the_black_stalker.cpp
    scripts/zone/deadmines/def_deadmines.h
    scripts/zone/deadmines/deadmines.cpp
-   scripts/zone/eastern_plaguelands/the_scarlet_enclave.cpp
    scripts/zone/gruuls_lair/boss_gruul.cpp
    scripts/zone/gruuls_lair/boss_high_king_maulgar.cpp
    scripts/zone/gruuls_lair/def_gruuls_lair.h
