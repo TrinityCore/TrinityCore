@@ -28,6 +28,7 @@ SET(trinityscript_LIB_SRCS
    scripts/eastern_kingdoms/ghostlands.cpp
    scripts/eastern_kingdoms/hinterlands.cpp
    scripts/eastern_kingdoms/ironforge.cpp
+   scripts/eastern_kingdoms/isle_of_queldanas.cpp
    scripts/eastern_kingdoms/loch_modan.cpp
    scripts/eastern_kingdoms/searing_gorge.cpp
    scripts/eastern_kingdoms/silvermoon_city.cpp
@@ -73,7 +74,6 @@ SET(trinityscript_LIB_SRCS
    scripts/outland/boss_doomlord_kazzak.cpp
    scripts/outland/boss_doomwalker.cpp
    scripts/outland/hellfire_peninsula.cpp
-   scripts/outland/isle_of_queldanas.cpp
    scripts/outland/nagrand.cpp
    scripts/outland/netherstorm.cpp
    scripts/outland/shadowmoon_valley.cpp

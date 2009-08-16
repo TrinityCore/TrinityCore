@@ -356,11 +356,7 @@ public:
 };
 CreatureAI* GetAI_npc_kservantAI(Creature* pCreature)
 {
-    npc_kservantAI* kservantAI = new npc_kservantAI(pCreature);
-
-    kservantAI->FillPointMovementListForCreature();
-
-    return kservantAI;
+    return new npc_kservantAI(pCreature);
 }
 
 /*######

@@ -483,11 +483,7 @@ struct TRINITY_DLL_DECL npc_thrall_old_hillsbradAI : public npc_escortAI
 
 CreatureAI* GetAI_npc_thrall_old_hillsbrad(Creature* pCreature)
 {
-    npc_thrall_old_hillsbradAI* thrall_walkAI = new npc_thrall_old_hillsbradAI(pCreature);
-
-    thrall_walkAI->FillPointMovementListForCreature();
-
-    return thrall_walkAI;
+    return new npc_thrall_old_hillsbradAI(pCreature);
 }
 
 bool GossipHello_npc_thrall_old_hillsbrad(Player* pPlayer, Creature* pCreature)
@@ -611,11 +607,7 @@ struct TRINITY_DLL_DECL npc_tarethaAI : public npc_escortAI
 };
 CreatureAI* GetAI_npc_taretha(Creature* pCreature)
 {
-    npc_tarethaAI* taretha_walkAI = new npc_tarethaAI(pCreature);
-
-    taretha_walkAI->FillPointMovementListForCreature();
-
-    return taretha_walkAI;
+    return new npc_tarethaAI(pCreature);
 }
 
 bool GossipHello_npc_taretha(Player* pPlayer, Creature* pCreature)

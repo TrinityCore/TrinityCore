@@ -331,11 +331,7 @@ bool QuestAccept_npc_kayra_longmane(Player* pPlayer, Creature* pCreature, Quest 
 
 CreatureAI* GetAI_npc_kayra_longmaneAI(Creature* pCreature)
 {
-    npc_kayra_longmaneAI* thisAI = new npc_kayra_longmaneAI(pCreature);
-
-    thisAI->FillPointMovementListForCreature();
-
-    return thisAI;
+    return new npc_kayra_longmaneAI(pCreature);
 }
 /*######
 ## AddSC

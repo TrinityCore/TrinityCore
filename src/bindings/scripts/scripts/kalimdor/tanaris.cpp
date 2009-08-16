@@ -214,11 +214,7 @@ struct TRINITY_DLL_DECL npc_custodian_of_timeAI : public npc_escortAI
 
 CreatureAI* GetAI_npc_custodian_of_time(Creature* pCreature)
 {
-    npc_custodian_of_timeAI* custodian_of_timeAI = new npc_custodian_of_timeAI(pCreature);
-
-    custodian_of_timeAI->FillPointMovementListForCreature();
-
-    return custodian_of_timeAI;
+    return new npc_custodian_of_timeAI(pCreature);
 }
 
 /*######
