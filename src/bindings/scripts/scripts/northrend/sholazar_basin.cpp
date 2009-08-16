@@ -26,7 +26,7 @@ npc_injured_rainspeaker_oracle
 EndContentData */
 
 #include "precompiled.h"
-#include "escortAI.h"
+#include "escort_ai.h"
 
 /*######
 ## npc_injured_rainspeaker_oracle
@@ -64,7 +64,7 @@ struct TRINITY_DLL_DECL npc_injured_rainspeaker_oracleAI : public npc_escortAI
 
     void WaypointReached(uint32 i)
     {
-        Player* pPlayer = Unit::GetPlayer(PlayerGUID);
+        Player* pPlayer = GetPlayerForEscort();
 
         if (!pPlayer)
             return;
@@ -90,7 +90,7 @@ struct TRINITY_DLL_DECL npc_injured_rainspeaker_oracleAI : public npc_escortAI
             m_creature->SetUnitMovementFlags(MOVEMENTFLAG_JUMPING);
             break;
         case 28:
-            if (Player* pPlayer = Unit::GetPlayer(PlayerGUID))
+            if (Player* pPlayer = GetPlayerForEscort())
                 pPlayer->GroupEventHappens(QUEST_FORTUNATE_MISUNDERSTANDINGS, m_creature);
           //  me->RestoreFaction();
             DoScriptText(SAY_END_IRO,m_creature);
@@ -104,16 +104,11 @@ struct TRINITY_DLL_DECL npc_injured_rainspeaker_oracleAI : public npc_escortAI
         if (!IsBeingEscorted)
             return;
 
-        if (Player* pPlayer = Unit::GetPlayer(PlayerGUID))
+        if (Player* pPlayer = GetPlayerForEscort())
         {            
           if (pPlayer->GetQuestStatus(QUEST_FORTUNATE_MISUNDERSTANDINGS) != QUEST_STATUS_COMPLETE)
             pPlayer->FailQuest(QUEST_FORTUNATE_MISUNDERSTANDINGS);
         }
-    }
-
-    void UpdateAI(Player* pPlayer, Creature* pCreature,const uint32 diff)
-    {
-        npc_escortAI::UpdateAI(diff);
     }
 };
 

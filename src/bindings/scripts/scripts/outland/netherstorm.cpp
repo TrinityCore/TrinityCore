@@ -29,7 +29,7 @@ npc_bessy
 EndContentData */
 
 #include "precompiled.h"
-#include "escortAI.h"
+#include "escort_ai.h"
 
 /*######
 ## npc_manaforge_control_console
@@ -803,20 +803,15 @@ struct TRINITY_DLL_DECL npc_bessyAI : public npc_escortAI
 
     npc_bessyAI(Creature *c) : npc_escortAI(c) {}
 
-    bool Completed;
-
     void JustDied(Unit* killer)
     {
-        if (PlayerGUID)
-        {
-            if (Player* pPlayer = Unit::GetPlayer(PlayerGUID))
-                CAST_PLR(pPlayer)->FailQuest(Q_ALMABTRIEB);
-        }
+        if (Player* pPlayer = GetPlayerForEscort())
+            pPlayer->FailQuest(Q_ALMABTRIEB);
     }
 
     void WaypointReached(uint32 i)
     {
-        Player* pPlayer = Unit::GetPlayer(PlayerGUID);
+        Player* pPlayer = GetPlayerForEscort();
 
         if (!pPlayer)
             return;
@@ -836,17 +831,12 @@ struct TRINITY_DLL_DECL npc_bessyAI : public npc_escortAI
 
             case 12:
                 if (pPlayer)
-                {
-                    CAST_PLR(pPlayer)->GroupEventHappens(Q_ALMABTRIEB, m_creature);
-                    Completed = true;
-                }
-                {Unit* Thadell = me->FindNearestCreature(N_THADELL, 30);
-                if (Thadell)
-                    DoScriptText(SAY_THADELL_1, m_creature);}break;
+                    pPlayer->GroupEventHappens(Q_ALMABTRIEB, m_creature);
+                if (Unit* Thadell = me->FindNearestCreature(N_THADELL, 30))
+                    DoScriptText(SAY_THADELL_1, m_creature); break;
             case 13:
-                {Unit* Thadell = me->FindNearestCreature(N_THADELL, 30);
-                if (Thadell)
-                    DoScriptText(SAY_THADELL_2, m_creature, pPlayer);}break;
+                if (Unit* Thadell = me->FindNearestCreature(N_THADELL, 30))
+                    DoScriptText(SAY_THADELL_2, m_creature, pPlayer); break;
         }
     }
 
@@ -855,17 +845,9 @@ struct TRINITY_DLL_DECL npc_bessyAI : public npc_escortAI
         summoned->AI()->AttackStart(m_creature);
     }
 
-    void EnterCombat(Unit* who){}
-
     void Reset()
     {
-        Completed = false;
-        m_creature->setFaction(35);
-    }
-
-    void UpdateAI(const uint32 diff)
-    {
-        npc_escortAI::UpdateAI(diff);
+        me->RestoreFaction();
     }
 
 };
@@ -883,24 +865,7 @@ bool QuestAccept_npc_bessy(Player* pPlayer, Creature* pCreature, Quest const* qu
 
 CreatureAI* GetAI_npc_bessy(Creature* pCreature)
 {
-    npc_bessyAI* bessyAI = new npc_bessyAI(pCreature);
-
-    bessyAI->AddWaypoint(0, 2488.77, 2184.89, 104.64);
-    bessyAI->AddWaypoint(1, 2478.72, 2184.77, 98.58);
-    bessyAI->AddWaypoint(2, 2473.52, 2184.71, 99.00);
-    bessyAI->AddWaypoint(3, 2453.15, 2184.96, 97.09,4000);
-    bessyAI->AddWaypoint(4, 2424.18, 2184.15, 94.11);
-    bessyAI->AddWaypoint(5, 2413.18, 2184.15, 93.42);
-    bessyAI->AddWaypoint(6, 2402.02, 2183.90, 87.59);
-    bessyAI->AddWaypoint(7, 2333.31, 2181.63, 90.03,4000);
-    bessyAI->AddWaypoint(8, 2308.73, 2184.34, 92.04);
-    bessyAI->AddWaypoint(9, 2303.10, 2196.89, 94.94);
-    bessyAI->AddWaypoint(10, 2304.58, 2272.23, 96.67);
-    bessyAI->AddWaypoint(11, 2297.09, 2271.40, 95.16);
-    bessyAI->AddWaypoint(12, 2297.68, 2266.79, 95.07,4000);
-    bessyAI->AddWaypoint(13, 2297.67, 2266.76, 95.07,4000);
-
-    return bessyAI;
+    return new npc_bessyAI(pCreature);
 }
 
 /*######

@@ -30,7 +30,7 @@ npc_kayra_longmane
 EndContentData */
 
 #include "precompiled.h"
-#include "escortAI.h"
+#include "escort_ai.h"
 
 /*######
 ## npcs_ashyen_and_keleth
@@ -284,34 +284,34 @@ struct TRINITY_DLL_DECL npc_kayra_longmaneAI : public npc_escortAI
 
     void WaypointReached(uint32 i)
     {
-        Player* pUnit = Unit::GetPlayer(PlayerGUID);
+        Player* pPlayer = GetPlayerForEscort();
 
-        if (!pUnit)
+        if (!pPlayer)
             return;
 
         switch(i)
         {
             case 4:
-                DoScriptText(SAY_AMBUSH1, m_creature, pUnit);
+                DoScriptText(SAY_AMBUSH1, m_creature, pPlayer);
                 DoSpawnCreature(NPC_SLAVEBINDER, -10.0f, -5.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000);
                 DoSpawnCreature(NPC_SLAVEBINDER, -8.0f, 5.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000);
                 break;
             case 5:
-                DoScriptText(SAY_PROGRESS, m_creature, pUnit);
+                DoScriptText(SAY_PROGRESS, m_creature, pPlayer);
                 SetRun();
                 break;
             case 16:
-                DoScriptText(SAY_AMBUSH2, m_creature, pUnit);
+                DoScriptText(SAY_AMBUSH2, m_creature, pPlayer);
                 DoSpawnCreature(NPC_SLAVEBINDER, -10.0f, -5.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000);
                 DoSpawnCreature(NPC_SLAVEBINDER, -8.0f, 5.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000);
                 break;
             case 17:
                 SetRun(false);
-                DoScriptText(SAY_NEAR_END, m_creature, pUnit);
+                DoScriptText(SAY_NEAR_END, m_creature, pPlayer);
                 break;
             case 25:
-                DoScriptText(SAY_END, m_creature, pUnit);
-                pUnit->GroupEventHappens(QUEST_ESCAPE_FROM, m_creature);
+                DoScriptText(SAY_END, m_creature, pPlayer);
+                pPlayer->GroupEventHappens(QUEST_ESCAPE_FROM, m_creature);
                 break;
         }
     }

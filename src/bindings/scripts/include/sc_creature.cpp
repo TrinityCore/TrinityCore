@@ -80,7 +80,11 @@ void SummonList::DespawnAll()
     }
 }
 
-ScriptedAI::ScriptedAI(Creature* creature) : CreatureAI(creature), m_creature(creature), IsFleeing(false), m_bCombatMovement(true), m_uiEvadeCheckCooldown(2500)
+ScriptedAI::ScriptedAI(Creature* pCreature) : CreatureAI(pCreature),
+    m_creature(pCreature),
+    IsFleeing(false),
+    m_bCombatMovement(true),
+    m_uiEvadeCheckCooldown(2500)
 {
     HeroicMode = m_creature->GetMap()->IsHeroic();
 }
