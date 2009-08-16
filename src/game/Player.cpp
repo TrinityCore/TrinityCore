@@ -3804,8 +3804,8 @@ bool Player::resetTalents(bool no_cost)
         PlayerTalentMap::iterator itr2 = m_talents[m_activeSpec]->begin();
         for (; itr2 != m_talents[m_activeSpec]->end(); ++itr2)
         {
-			removeSpell(itr2->first, !IsPassiveSpell(itr2->first),false);
-			itr2->second->state = PLAYERSPELL_REMOVED;
+            removeSpell(itr2->first, !IsPassiveSpell(itr2->first),false);
+            itr2->second->state = PLAYERSPELL_REMOVED;
         }
     }
 
@@ -21859,7 +21859,7 @@ void Player::ActivateSpec(uint8 spec)
         _LoadActions(result);
     }
     UnsummonPetTemporaryIfAny();
-	AutoUnequipOffhandIfNeed();
+    AutoUnequipOffhandIfNeed();
     SendActionButtons(1);
     SetPower(getPowerType(), 0);
 }

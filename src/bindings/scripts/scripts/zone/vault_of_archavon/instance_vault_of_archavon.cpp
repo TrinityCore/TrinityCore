@@ -18,12 +18,12 @@ struct TRINITY_DLL_DECL instance_archavon : public ScriptedInstance
     uint64 Emalon;
 
     void Initialize()
-    {	
+    {
         Archavon = 0;
         Emalon = 0;
 
         for(uint8 i = 0; i < ENCOUNTERS; i++)
-            Encounters[i] = NOT_STARTED;		
+            Encounters[i] = NOT_STARTED;
     }
 
     bool IsEncounterInProgress() const
@@ -47,8 +47,8 @@ struct TRINITY_DLL_DECL instance_archavon : public ScriptedInstance
     {
         switch(type)
         {
-        case DATA_ARCHAVON_EVENT:    	return Encounters[0];
-        case DATA_EMALON_EVENT:    		return Encounters[1];
+        case DATA_ARCHAVON_EVENT: return Encounters[0];
+        case DATA_EMALON_EVENT: return Encounters[1];
         }
         return 0;
     }
@@ -57,8 +57,8 @@ struct TRINITY_DLL_DECL instance_archavon : public ScriptedInstance
     {
         switch(identifier)
         {
-        case DATA_ARCHAVON:   	 return Archavon;
-        case DATA_EMALON:      	 return Emalon;
+        case DATA_ARCHAVON: return Archavon;
+        case DATA_EMALON: return Emalon;
         }
         return 0;
     }
@@ -67,8 +67,8 @@ struct TRINITY_DLL_DECL instance_archavon : public ScriptedInstance
     {
         switch(type)
         {
-        case DATA_ARCHAVON_EVENT:		Encounters[0] = data; break;
-        case DATA_EMALON_EVENT:			Encounters[1] = data; break;
+            case DATA_ARCHAVON_EVENT: Encounters[0] = data; break;
+            case DATA_EMALON_EVENT: Encounters[1] = data; break;
         }
 
         if(data == DONE)

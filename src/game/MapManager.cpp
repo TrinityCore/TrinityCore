@@ -255,7 +255,7 @@ MapManager::Update(uint32 diff)
     uint32 i=0;
     MapMapType::iterator iter;
     std::vector<Map*> update_queue(i_maps.size());
-	int omp_set_num_threads(sWorld.getConfig(CONFIG_NUMTHREADS));
+    int omp_set_num_threads(sWorld.getConfig(CONFIG_NUMTHREADS));
     for(iter = i_maps.begin(), i=0;iter != i_maps.end(); ++iter, i++)
         update_queue[i]=iter->second;
 /*
@@ -294,13 +294,13 @@ void MapManager::DoDelayedMovesAndRemoves()
     std::vector<Map*> update_queue(i_maps.size());
     MapMapType::iterator iter;
     for(iter = i_maps.begin();iter != i_maps.end(); ++iter, i++)
-	update_queue[i] = iter->second;
+    update_queue[i] = iter->second;
 
     omp_set_num_threads(sWorld.getConfig(CONFIG_NUMTHREADS));
     
 #pragma omp parallel for schedule(dynamic) private(i) shared(update_queue)
     for(i=0;i<i_maps.size();i++)
-	update_queue[i]->DoDelayedMovesAndRemoves();
+    update_queue[i]->DoDelayedMovesAndRemoves();
     */
 }
 

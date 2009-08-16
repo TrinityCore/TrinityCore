@@ -60,7 +60,7 @@ struct TRINITY_DLL_DECL boss_netherspiteAI : public ScriptedAI
 {
     boss_netherspiteAI(Creature* c) : ScriptedAI(c)
     {
-		pInstance = ((ScriptedInstance*)c->GetInstanceData());
+        pInstance = ((ScriptedInstance*)c->GetInstanceData());
 
         for(int i=0; i<3; ++i)
         { 
@@ -76,7 +76,7 @@ struct TRINITY_DLL_DECL boss_netherspiteAI : public ScriptedAI
         }
     }
 
-	ScriptedInstance* pInstance;
+    ScriptedInstance* pInstance;
 
     bool PortalPhase;
     bool Berserk;
@@ -117,7 +117,7 @@ struct TRINITY_DLL_DECL boss_netherspiteAI : public ScriptedAI
 
     void Reset()
     {
-		Berserk = false;
+        Berserk = false;
         NetherInfusionTimer = 540000;
         VoidZoneTimer = 15000;
         NetherbreathTimer = 3000;
@@ -249,23 +249,23 @@ struct TRINITY_DLL_DECL boss_netherspiteAI : public ScriptedAI
             m_creature->RemoveAurasDueToSpell(NetherBuff[i]);
     }
 
-	void HandleDoors(bool open) // Massive Door switcher
+    void HandleDoors(bool open) // Massive Door switcher
     {
-		if(GameObject *Door = GameObject::GetGameObject((*m_creature),pInstance->GetData64(DATA_GO_MASSIVE_DOOR)))
-			Door->SetGoState(open ? GO_STATE_ACTIVE : GO_STATE_READY);
+        if(GameObject *Door = GameObject::GetGameObject((*m_creature),pInstance->GetData64(DATA_GO_MASSIVE_DOOR)))
+            Door->SetGoState(open ? GO_STATE_ACTIVE : GO_STATE_READY);
     }
 
     void Aggro(Unit *who)
-	{
-		HandleDoors(false);
+    {
+        HandleDoors(false);
         SwitchToPortalPhase();
-	}
+    }
 
-	void JustDied(Unit* killer)
-	{		
-		HandleDoors(true);
+    void JustDied(Unit* killer)
+    {
+        HandleDoors(true);
         DestroyPortals();
-	}
+    }
 
     void UpdateAI(const uint32 diff)
     {
