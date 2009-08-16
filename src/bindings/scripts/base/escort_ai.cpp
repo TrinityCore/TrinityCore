@@ -130,6 +130,32 @@ void npc_escortAI::EnterEvadeMode()
     Reset();
 }
 
+bool npc_escortAI::IsPlayerOrGroupInRange()
+{
+    if (Player* pPlayer = Unit::GetPlayer(PlayerGUID))
+    {
+        if (Group* pGroup = pPlayer->GetGroup())
+        {
+            for(GroupReference* pRef = pGroup->GetFirstMember(); pRef != NULL; pRef = pRef->next())
+            {
+                Player* pMember = pRef->getSource();
+
+                if (pMember && m_creature->IsWithinDistInMap(pMember, GetMaxPlayerDistance()))
+                {
+                    return true;
+                    break;
+                }
+            }
+        }
+        else
+        {
+            if (m_creature->IsWithinDistInMap(pPlayer, GetMaxPlayerDistance()))
+                return true;
+        }
+    }
+    return false;
+}
+
 void npc_escortAI::UpdateAI(const uint32 uiDiff)
 {
     //Waypoint Updating
@@ -194,31 +220,7 @@ void npc_escortAI::UpdateAI(const uint32 uiDiff)
     {
         if (m_uiPlayerCheckTimer < uiDiff)
         {
-            bool bIsMaxRangeExceeded = true;
-
-            if (Player* pPlayer = Unit::GetPlayer(PlayerGUID))
-            {
-                if (Group* pGroup = pPlayer->GetGroup())
-                {
-                    for(GroupReference* pRef = pGroup->GetFirstMember(); pRef != NULL; pRef = pRef->next())
-                    {
-                        Player* pMember = pRef->getSource();
-
-                        if (pMember && m_creature->IsWithinDistInMap(pMember, GetMaxPlayerDistance()))
-                        {
-                            bIsMaxRangeExceeded = false;
-                            break;
-                        }
-                    }
-                }
-                else
-                {
-                    if (m_creature->IsWithinDistInMap(pPlayer, GetMaxPlayerDistance()))
-                        bIsMaxRangeExceeded = false;
-                }
-            }
-
-            if (DespawnAtFar && bIsMaxRangeExceeded)
+            if (DespawnAtFar && !IsPlayerOrGroupInRange())
             {
                 debug_log("TSCR: EscortAI failed because player/group was to far away or not found");
 

@@ -405,20 +405,20 @@ SET(trinityscript_LIB_SRCS
    scripts/northrend/sholazar_basin.cpp
    scripts/northrend/wintergrasp.cpp
    scripts/northrend/zuldrak.cpp
-   scripts/outland/aunchindoun/auchenai_crypts/boss_exarch_maladaar.cpp
-   scripts/outland/aunchindoun/auchenai_crypts/boss_shirrak_the_dead_watcher.cpp
-   scripts/outland/aunchindoun/mana_tombs/boss_nexusprince_shaffar.cpp
-   scripts/outland/aunchindoun/mana_tombs/boss_pandemonius.cpp
-   scripts/outland/aunchindoun/sethekk_halls/boss_darkweaver_syth.cpp
-   scripts/outland/aunchindoun/sethekk_halls/boss_tailonking_ikiss.cpp
-   scripts/outland/aunchindoun/sethekk_halls/def_sethekk_halls.h
-   scripts/outland/aunchindoun/sethekk_halls/instance_sethekk_halls.cpp
-   scripts/outland/aunchindoun/shadow_labyrinth/boss_ambassador_hellmaw.cpp
-   scripts/outland/aunchindoun/shadow_labyrinth/boss_blackheart_the_inciter.cpp
-   scripts/outland/aunchindoun/shadow_labyrinth/boss_grandmaster_vorpil.cpp
-   scripts/outland/aunchindoun/shadow_labyrinth/boss_murmur.cpp
-   scripts/outland/aunchindoun/shadow_labyrinth/def_shadow_labyrinth.h
-   scripts/outland/aunchindoun/shadow_labyrinth/instance_shadow_labyrinth.cpp
+   scripts/outland/auchindoun/auchenai_crypts/boss_exarch_maladaar.cpp
+   scripts/outland/auchindoun/auchenai_crypts/boss_shirrak_the_dead_watcher.cpp
+   scripts/outland/auchindoun/mana_tombs/boss_nexusprince_shaffar.cpp
+   scripts/outland/auchindoun/mana_tombs/boss_pandemonius.cpp
+   scripts/outland/auchindoun/sethekk_halls/boss_darkweaver_syth.cpp
+   scripts/outland/auchindoun/sethekk_halls/boss_tailonking_ikiss.cpp
+   scripts/outland/auchindoun/sethekk_halls/def_sethekk_halls.h
+   scripts/outland/auchindoun/sethekk_halls/instance_sethekk_halls.cpp
+   scripts/outland/auchindoun/shadow_labyrinth/boss_ambassador_hellmaw.cpp
+   scripts/outland/auchindoun/shadow_labyrinth/boss_blackheart_the_inciter.cpp
+   scripts/outland/auchindoun/shadow_labyrinth/boss_grandmaster_vorpil.cpp
+   scripts/outland/auchindoun/shadow_labyrinth/boss_murmur.cpp
+   scripts/outland/auchindoun/shadow_labyrinth/def_shadow_labyrinth.h
+   scripts/outland/auchindoun/shadow_labyrinth/instance_shadow_labyrinth.cpp
    scripts/outland/black_temple/black_temple.cpp
    scripts/outland/black_temple/boss_bloodboil.cpp
    scripts/outland/black_temple/boss_illidan.cpp

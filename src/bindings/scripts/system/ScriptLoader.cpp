@@ -307,14 +307,14 @@ extern void AddSC_wintergrasp();
 extern void AddSC_zuldrak();
 
 //outland
-extern void AddSC_boss_exarch_maladaar();           //Aunchindoun Auchenai Crypts
+extern void AddSC_boss_exarch_maladaar();           //Auchindoun Auchenai Crypts
 extern void AddSC_boss_shirrak_the_dead_watcher();
-extern void AddSC_boss_nexusprince_shaffar();       //Aunchindoun Mana Tombs
+extern void AddSC_boss_nexusprince_shaffar();       //Auchindoun Mana Tombs
 extern void AddSC_boss_pandemonius();
-extern void AddSC_boss_darkweaver_syth();           //Aunchindoun Sekketh Halls
+extern void AddSC_boss_darkweaver_syth();           //Auchindoun Sekketh Halls
 extern void AddSC_boss_talon_king_ikiss();
 extern void AddSC_instance_sethekk_halls();
-extern void AddSC_instance_shadow_labyrinth();      //Aunchindoun Shadow Labyrinth
+extern void AddSC_instance_shadow_labyrinth();      //Auchindoun Shadow Labyrinth
 extern void AddSC_boss_ambassador_hellmaw();
 extern void AddSC_boss_blackheart_the_inciter();
 extern void AddSC_boss_grandmaster_vorpil();
@@ -693,14 +693,14 @@ void AddScripts()
     AddSC_zuldrak();
 
     //outland
-    AddSC_boss_exarch_maladaar();           //Aunchindoun Auchenai Crypts
+    AddSC_boss_exarch_maladaar();           //Auchindoun Auchenai Crypts
     AddSC_boss_shirrak_the_dead_watcher();
-    AddSC_boss_nexusprince_shaffar();       //Aunchindoun Mana Tombs
+    AddSC_boss_nexusprince_shaffar();       //Auchindoun Mana Tombs
     AddSC_boss_pandemonius();
-    AddSC_boss_darkweaver_syth();           //Aunchindoun Sekketh Halls
+    AddSC_boss_darkweaver_syth();           //Auchindoun Sekketh Halls
     AddSC_boss_talon_king_ikiss();
     AddSC_instance_sethekk_halls();
-    AddSC_instance_shadow_labyrinth();      //Aunchindoun Shadow Labyrinth
+    AddSC_instance_shadow_labyrinth();      //Auchindoun Shadow Labyrinth
     AddSC_boss_ambassador_hellmaw();
     AddSC_boss_blackheart_the_inciter();
     AddSC_boss_grandmaster_vorpil();
