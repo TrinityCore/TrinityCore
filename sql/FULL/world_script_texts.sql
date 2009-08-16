@@ -568,7 +568,7 @@ INSERT INTO `script_texts` (`entry`, `content_default`, `content_loc1`, `content
 INSERT INTO `script_texts` (`entry`, `content_default`, `content_loc1`, `content_loc2`, `content_loc3`, `content_loc4`, `content_loc5`, `content_loc6`, `content_loc7`, `content_loc8`, `sound`, `type`, `language`, `emote`, `comment`) VALUES
 (-1409000,'%s performs one last service for Ragnaros.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 2, 0, 0,'geddon EMOTE_SERVICE'),
 (-1409001,'%s goes into a killing frenzy!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 2, 0, 0,'magmadar EMOTE_FRENZY'),
-(-1409002,'%s refuses to die while its master is in trouble.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 2, 0, 0,'core rager EMOTE_AEGIS'),
+(-1409002,'%s refuses to die while its master is in trouble.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 2, 0, 0,'core rager EMOTE_LOWHP'),
 (-1409003,'Reckless mortals, none may challenge the sons of the living flame!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 8035, 1, 0, 0,'majordomo SAY_AGGRO'),
 (-1409004,'The runes of warding have been destroyed! Hunt down the infedels my bretheren.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 8039, 1, 0, 0,'majordomo SAY_SPAWN'),
 (-1409005,'Ashes to Ashes!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 8037, 1, 0, 0,'majordomo SAY_SLAY'),

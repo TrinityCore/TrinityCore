@@ -24,6 +24,7 @@ EndScriptData */
 /* ContentData
 npc_aeranas
 go_haaleshi_altar
+npc_naladu
 npc_wounded_blood_elf
 EndContentData */
 
@@ -124,6 +125,35 @@ bool GOHello_go_haaleshi_altar(Player* pPlayer, GameObject* pGo)
 {
     pGo->SummonCreature(C_AERANAS,-1321.79, 4043.80, 116.24, 1.25, TEMPSUMMON_TIMED_DESPAWN, 180000);
     return false;
+}
+
+/*######
+## npc_naladu
+######*/
+
+#define GOSSIP_NALADU_ITEM1 "Why don't you escape?"
+
+enum
+{
+    GOSSIP_TEXTID_NALADU1   = 9788
+};
+
+bool GossipHello_npc_naladu(Player* pPlayer, Creature* pCreature)
+{
+    if (pCreature->isQuestGiver())
+        pPlayer->PrepareQuestMenu(pCreature->GetGUID());
+
+    pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_NALADU_ITEM1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+    pPlayer->SEND_GOSSIP_MENU(pCreature->GetNpcTextId(), pCreature->GetGUID());
+    return true;
+}
+
+bool GossipSelect_npc_naladu(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+{
+    if (uiAction == GOSSIP_ACTION_INFO_DEF+1)
+        pPlayer->SEND_GOSSIP_MENU(GOSSIP_TEXTID_NALADU1, pCreature->GetGUID());
+
+    return true;
 }
 
 /*######
@@ -230,6 +260,12 @@ void AddSC_hellfire_peninsula()
     newscript = new Script;
     newscript->Name = "go_haaleshi_altar";
     newscript->pGOHello = &GOHello_go_haaleshi_altar;
+    newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name = "npc_naladu";
+    newscript->pGossipHello = &GossipHello_npc_naladu;
+    newscript->pGossipSelect = &GossipSelect_npc_naladu;
     newscript->RegisterSelf();
 
     newscript = new Script;
