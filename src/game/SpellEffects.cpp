@@ -2009,9 +2009,22 @@ void Spell::EffectForceCast(uint32 i)
     }
 
     if (damage)
-        unitTarget->CastCustomSpell(unitTarget, spellInfo->Id, &damage, NULL, NULL, true, NULL, NULL, m_originalCasterGUID);
-    else
-        unitTarget->CastSpell(unitTarget, spellInfo, true, NULL, NULL, m_originalCasterGUID);
+    {
+        if(m_spellInfo->EffectBasePoints[i] > 0)
+        {
+            switch(m_spellInfo->Id)
+            {
+                case 52588: unitTarget->RemoveAura(damage); break;
+            }
+        }
+        else
+        {
+            unitTarget->CastCustomSpell(unitTarget, spellInfo->Id, &damage, NULL, NULL, true, NULL, NULL, m_originalCasterGUID);
+            return;
+        }
+    }
+
+    unitTarget->CastSpell(unitTarget, spellInfo, true, NULL, NULL, m_originalCasterGUID);
 }
 
 void Spell::EffectTriggerSpell(uint32 i)
