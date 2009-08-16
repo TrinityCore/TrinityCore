@@ -1684,6 +1684,10 @@ void AchievementMgr::SetCriteriaProgress(AchievementCriteriaEntry const* entry, 
 void AchievementMgr::CompletedAchievement(AchievementEntry const* achievement)
 {
     sLog.outDetail("AchievementMgr::CompletedAchievement(%u)", achievement->ID);
+
+    if(!sWorld.getConfig(CONFIG_GM_ALLOW_ACHIEVEMENT_GAINS) && m_player->GetSession()->GetSecurity() > SEC_PLAYER)
+        return;
+    
     if(achievement->flags & ACHIEVEMENT_FLAG_COUNTER || m_completedAchievements.find(achievement->ID)!=m_completedAchievements.end())
         return;
 
