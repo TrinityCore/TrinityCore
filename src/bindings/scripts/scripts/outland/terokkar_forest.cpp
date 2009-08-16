@@ -221,11 +221,7 @@ public:
 
 CreatureAI* GetAI_npc_skywingAI(Creature* pCreature)
 {
-    npc_skywingAI* skywingAI = new npc_skywingAI(pCreature);
-
-    skywingAI->FillPointMovementListForCreature();
-
-    return skywingAI;
+    return new npc_skywingAI(pCreature);
 }
 
 /*######
@@ -675,11 +671,7 @@ bool QuestAccept_npc_akuno(Player* pPlayer, Creature* pCreature, Quest const* pQ
 
 CreatureAI* GetAI_npc_akuno(Creature* pCreature)
 {
-    npc_akunoAI* thisAI = new npc_akunoAI(pCreature);
-
-    thisAI->FillPointMovementListForCreature();
-
-    return(CreatureAI*)thisAI;
+    return new npc_akunoAI(pCreature);
 }
 
 void AddSC_terokkar_forest()

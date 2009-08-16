@@ -114,11 +114,7 @@ bool QuestAccept_npc_professor_phizzlethorpe(Player* pPlayer, Creature* pCreatur
 
 CreatureAI* GetAI_npc_professor_phizzlethorpeAI(Creature* pCreature)
 {
-    npc_professor_phizzlethorpeAI* professor_phizzlethorpeAI = new npc_professor_phizzlethorpeAI(pCreature);
-
-    professor_phizzlethorpeAI->FillPointMovementListForCreature();
-
-    return professor_phizzlethorpeAI;
+    return new npc_professor_phizzlethorpeAI(pCreature);
 }
 
 void AddSC_arathi_highlands()

@@ -234,11 +234,7 @@ bool QuestAccept_npc_ranger_lilatha(Player* pPlayer, Creature* pCreature, Quest 
 
 CreatureAI* GetAI_npc_ranger_lilathaAI(Creature* pCreature)
 {
-    npc_ranger_lilathaAI* ranger_lilathaAI = new npc_ranger_lilathaAI(pCreature);
-
-    ranger_lilathaAI->FillPointMovementListForCreature();
-
-    return ranger_lilathaAI;
+    return new npc_ranger_lilathaAI(pCreature);
 }
 
 void AddSC_ghostlands()

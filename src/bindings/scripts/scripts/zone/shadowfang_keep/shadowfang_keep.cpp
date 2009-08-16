@@ -102,11 +102,7 @@ struct TRINITY_DLL_DECL npc_shadowfang_prisonerAI : public npc_escortAI
 
 CreatureAI* GetAI_npc_shadowfang_prisoner(Creature* pCreature)
 {
-    npc_shadowfang_prisonerAI* prisonerAI = new npc_shadowfang_prisonerAI(pCreature);
-
-    prisonerAI->FillPointMovementListForCreature();
-
-    return prisonerAI;
+    return new npc_shadowfang_prisonerAI(pCreature);
 }
 
 bool GossipHello_npc_shadowfang_prisoner(Player* pPlayer, Creature* pCreature)
