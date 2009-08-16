@@ -2205,8 +2205,8 @@ class MANGOS_DLL_SPEC Player : public Unit
         //bool isActiveObject() const { return true; }
         bool canSeeSpellClickOn(Creature const* creature) const;
 
-        inline uint32 GetChampioningFaction() const { return m_ChampioningFaction; }
-        inline void SetChampioningFaction(uint32 faction) { m_ChampioningFaction = faction; }
+        uint32 GetChampioningFaction() const { return m_ChampioningFaction; }
+        void SetChampioningFaction(uint32 faction) { m_ChampioningFaction = faction; }
     protected:
 
         uint32 m_contestedPvPTimer;
