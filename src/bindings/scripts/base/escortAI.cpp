@@ -293,6 +293,17 @@ void npc_escortAI::AddWaypoint(uint32 id, float x, float y, float z, uint32 Wait
     Escort_Waypoint t(id, x, y, z, WaitTimeMs);
 
     WaypointList.push_back(t);
+
+    // i think SD2 no longer uses this function
+    ScriptWP = true;
+    /*PointMovement wp;
+    wp.m_uiCreatureEntry = me->GetEntry();
+    wp.m_uiPointId = id;
+    wp.m_fX = x;
+    wp.m_fY = y;
+    wp.m_fZ = z;
+    wp.m_uiWaitTime = WaitTimeMs;
+    PointMovementMap[wp.m_uiCreatureEntry].push_back(wp);*/
 }
 
 void npc_escortAI::FillPointMovementListForCreature()
@@ -345,10 +356,15 @@ void npc_escortAI::Start(bool bIsActiveAttacker, bool bRun, uint64 uiPlayerGUID,
         return;
     }
 
+    if(!ScriptWP) // sd2 never adds wp in script, but tc does
+    {
+
     if (!WaypointList.empty())
         WaypointList.clear();
 
     FillPointMovementListForCreature();
+
+    }
 
     if (WaypointList.empty())
     {
