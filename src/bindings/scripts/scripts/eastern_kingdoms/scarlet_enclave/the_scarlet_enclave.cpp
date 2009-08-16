@@ -19,7 +19,7 @@
 #include "precompiled.h"
 #include "Vehicle.h"
 #include "ObjectMgr.h"
-#include "escortAI.h"
+#include "escort_ai.h"
 
 #define GCD_CAST    1
 

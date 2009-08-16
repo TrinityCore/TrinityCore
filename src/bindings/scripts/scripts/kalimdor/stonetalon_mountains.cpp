@@ -27,7 +27,7 @@ npc_kaya_flathoof
 EndContentData */
 
 #include "precompiled.h"
-#include "escortAI.h"
+#include "escort_ai.h"
 
 /*######
 ## npc_braug_dimspirit

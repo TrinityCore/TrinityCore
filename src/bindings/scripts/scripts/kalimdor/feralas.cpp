@@ -22,7 +22,7 @@ SDCategory: Feralas
 EndScriptData */
 
 #include "precompiled.h"
-#include "escortAI.h"
+#include "escort_ai.h"
 
 /*######
 ## npc_gregan_brewspewer

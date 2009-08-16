@@ -27,7 +27,7 @@ npc_threshwackonator
 EndContentData */
 
 #include "precompiled.h"
-#include "escortAI.h"
+#include "escort_ai.h"
 
 /*####
 # npc_prospector_remtravel
