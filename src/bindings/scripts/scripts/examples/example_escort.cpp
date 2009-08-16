@@ -22,7 +22,7 @@ SDCategory: Script Examples
 EndScriptData */
 
 #include "precompiled.h"
-#include "../npc/npc_escortAI.h"
+#include "escortAI.h"
 
 enum
 {
@@ -169,18 +169,7 @@ struct TRINITY_DLL_DECL example_escortAI : public npc_escortAI
 
 CreatureAI* GetAI_example_escort(Creature* pCreature)
 {
-    example_escortAI* pTestAI = new example_escortAI(pCreature);
-
-    // this should be done over the db table scriptdev2.script_waypoint
-    // when using the db, you have to call this line instead of the ->AddWaypoint():
-    // pTestAI->FillPointMovementListForCreature();
-    pTestAI->AddWaypoint(0, 1231.0f, -4419.0f, 23.0f);
-    pTestAI->AddWaypoint(1, 1198.0f, -4440.0f, 23.0f);
-    pTestAI->AddWaypoint(2, 1208.0f, -4392.0f, 23.0f);
-    pTestAI->AddWaypoint(3, 1231.0f, -4419.0f, 23.0f, 5000);
-    pTestAI->AddWaypoint(4, 1208.0f, -4392.0f, 23.0f, 5000);
-
-    return pTestAI;
+    return new example_escortAI(pCreature);
 }
 
 bool GossipHello_example_escort(Player* pPlayer, Creature* pCreature)

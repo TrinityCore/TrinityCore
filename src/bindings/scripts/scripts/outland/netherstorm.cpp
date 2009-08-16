@@ -29,7 +29,7 @@ npc_bessy
 EndContentData */
 
 #include "precompiled.h"
-#include "../npc/npc_escortAI.h"
+#include "escortAI.h"
 
 /*######
 ## npc_manaforge_control_console

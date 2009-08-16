@@ -27,7 +27,7 @@ npc_defias_traitor
 EndContentData */
 
 #include "precompiled.h"
-#include "../npc/npc_escortAI.h"
+#include "escortAI.h"
 
 /*######
 ## npc_daphne_stilwell
@@ -176,11 +176,7 @@ bool QuestAccept_npc_daphne_stilwell(Player* pPlayer, Creature* pCreature, const
 
 CreatureAI* GetAI_npc_daphne_stilwell(Creature* pCreature)
 {
-    npc_daphne_stilwellAI* thisAI = new npc_daphne_stilwellAI(pCreature);
-
-    thisAI->FillPointMovementListForCreature();
-
-    return thisAI;
+    return new npc_daphne_stilwellAI(pCreature);
 }
 
 /*######
@@ -250,11 +246,7 @@ bool QuestAccept_npc_defias_traitor(Player* pPlayer, Creature* pCreature, Quest 
 
 CreatureAI* GetAI_npc_defias_traitor(Creature* pCreature)
 {
-    npc_defias_traitorAI* thisAI = new npc_defias_traitorAI(pCreature);
-
-    thisAI->FillPointMovementListForCreature();
-
-    return thisAI;
+    return new npc_defias_traitorAI(pCreature);
 }
 
 void AddSC_westfall()

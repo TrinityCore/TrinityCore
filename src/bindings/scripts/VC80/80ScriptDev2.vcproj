@@ -46,7 +46,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\..\..\dep\include\;..\..\..\shared\;..\..\..\framework\;..\..\..\game\;..\include\;..\..\..\..\dep\ACE_wrappers"
+				AdditionalIncludeDirectories="..\..\..\..\dep\include\;..\..\..\shared\;..\..\..\framework\;..\..\..\game\;..\include\;..\base\;..\..\..\..\dep\ACE_wrappers"
 				PreprocessorDefinitions="WIN32;_DEBUG;TRINITY_DEBUG;_WINDOWS;_USRDLL;SCRIPT"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -131,7 +131,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\..\..\dep\include\;..\..\..\shared\;..\..\..\framework\;..\..\..\game\;..\include\;..\..\..\..\dep\ACE_wrappers"
+				AdditionalIncludeDirectories="..\..\..\..\dep\include\;..\..\..\shared\;..\..\..\framework\;..\..\..\game\;..\include\;..\base\;..\..\..\..\dep\ACE_wrappers"
 				PreprocessorDefinitions="WIN32;_DEBUG;TRINITY_DEBUG;_WINDOWS;_USRDLL;SCRIPT"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -215,7 +215,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				AdditionalOptions="/MP"
-				AdditionalIncludeDirectories="..\..\..\..\dep\include\;..\..\..\shared\;..\..\..\framework\;..\..\..\game\;..\include\;..\..\..\..\dep\ACE_wrappers"
+				AdditionalIncludeDirectories="..\..\..\..\dep\include\;..\..\..\shared\;..\..\..\framework\;..\..\..\game\;..\include\;..\base\;..\..\..\..\dep\ACE_wrappers"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;SCRIPT;_SECURE_SCL=0"
 				RuntimeLibrary="2"
 				UsePrecompiledHeader="2"
@@ -300,7 +300,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				AdditionalOptions="/MP"
-				AdditionalIncludeDirectories="..\..\..\..\dep\include\;..\..\..\shared\;..\..\..\framework\;..\..\..\game\;..\include\;..\..\..\..\dep\ACE_wrappers"
+				AdditionalIncludeDirectories="..\..\..\..\dep\include\;..\..\..\shared\;..\..\..\framework\;..\..\..\game\;..\include\;..\base\;..\..\..\..\dep\ACE_wrappers"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;SCRIPT;_SECURE_SCL=0"
 				RuntimeLibrary="2"
 				UsePrecompiledHeader="2"
@@ -361,55 +361,47 @@
 	</References>
 	<Files>
         <Filter
+            Name="base"
+            >
+            <File
+                RelativePath="..\base\escortAI.cpp"
+                >
+            </File>
+            <File
+                RelativePath="..\base\escortAI.h"
+                >
+            </File>
+            <File
+                RelativePath="..\base\guard_ai.cpp"
+                >
+            </File>
+            <File
+                RelativePath="..\base\guard_ai.h"
+                >
+            </File>
+            <File
+                RelativePath="..\base\simple_ai.cpp"
+                >
+            </File>
+            <File
+                RelativePath="..\base\simple_ai.h"
+                >
+            </File>
+        </Filter>
+        <Filter
             Name="scripts"
             >
             <Filter
-                Name="areatrigger"
-                >
-                <File
-                    RelativePath="..\scripts\areatrigger\areatrigger_scripts.cpp"
-                    >
-                </File>
-            </Filter>
-            <Filter
-                Name="boss"
-                >
-                <File
-                    RelativePath="..\scripts\boss\boss_emeriss.cpp"
-                    >
-                </File>
-                <File
-                    RelativePath="..\scripts\boss\boss_lethon.cpp"
-                    >
-                </File>
-                <File
-                    RelativePath="..\scripts\boss\boss_taerar.cpp"
-                    >
-                </File>
-                <File
-                    RelativePath="..\scripts\boss\boss_ysondre.cpp"
-                    >
-                </File>
-            </Filter>
-            <Filter
-                Name="creature"
-                >
-                <File
-                    RelativePath="..\scripts\creature\mob_generic_creature.cpp"
-                    >
-                </File>
-                <File
-                    RelativePath="..\scripts\creature\simple_ai.cpp"
-                    >
-                </File>
-                <File
-                    RelativePath="..\scripts\creature\simple_ai.h"
-                    >
-                </File>
-            </Filter>
-            <Filter
                 Name="eastern_kingdoms"
                 >
+                <Filter
+                    Name="scarlet_enclave"
+                    >
+                    <File
+                        RelativePath="..\scripts\eastern_kingdoms\scarlet_enclave\the_scarlet_enclave.cpp"
+                        >
+                    </File>
+                </Filter>
                 <File
                     RelativePath="..\scripts\eastern_kingdoms\alterac_mountains.cpp"
                     >
@@ -456,6 +448,10 @@
                 </File>
                 <File
                     RelativePath="..\scripts\eastern_kingdoms\ironforge.cpp"
+                    >
+                </File>
+                <File
+                    RelativePath="..\scripts\eastern_kingdoms\isle_of_queldanas.cpp"
                     >
                 </File>
                 <File
@@ -516,38 +512,6 @@
                 </File>
                 <File
                     RelativePath="..\scripts\examples\example_misc.cpp"
-                    >
-                </File>
-            </Filter>
-            <Filter
-                Name="go"
-                >
-                <File
-                    RelativePath="..\scripts\go\go_scripts.cpp"
-                    >
-                </File>
-            </Filter>
-            <Filter
-                Name="guard"
-                >
-                <File
-                    RelativePath="..\scripts\guard\guard_ai.cpp"
-                    >
-                </File>
-                <File
-                    RelativePath="..\scripts\guard\guard_ai.h"
-                    >
-                </File>
-                <File
-                    RelativePath="..\scripts\guard\guards.cpp"
-                    >
-                </File>
-            </Filter>
-            <Filter
-                Name="item"
-                >
-                <File
-                    RelativePath="..\scripts\item\item_scripts.cpp"
                     >
                 </File>
             </Filter>
@@ -667,34 +631,6 @@
                 </File>
             </Filter>
             <Filter
-                Name="npc"
-                >
-                <File
-                    RelativePath="..\scripts\npc\npc_escortAI.cpp"
-                    >
-                </File>
-                <File
-                    RelativePath="..\scripts\npc\npc_escortAI.h"
-                    >
-                </File>
-                <File
-                    RelativePath="..\scripts\npc\npc_innkeeper.cpp"
-                    >
-                </File>
-                <File
-                    RelativePath="..\scripts\npc\npc_professions.cpp"
-                    >
-                </File>
-                <File
-                    RelativePath="..\scripts\npc\npc_taxi.cpp"
-                    >
-                </File>
-                <File
-                    RelativePath="..\scripts\npc\npcs_special.cpp"
-                    >
-                </File>
-            </Filter>
-            <Filter
                 Name="outland"
                 >
                 <File
@@ -711,10 +647,6 @@
                 </File>
                 <File
                     RelativePath="..\scripts\outland\hellfire_peninsula.cpp"
-                    >
-                </File>
-                <File
-                    RelativePath="..\scripts\outland\isle_of_queldanas.cpp"
                     >
                 </File>
                 <File
@@ -1400,22 +1332,6 @@
                             RelativePath="..\scripts\zone\blackwing_lair\instance_blackwing_lair.cpp"
                             >
                         </File>
-                    </Filter>
-                    <Filter
-                        Name="Duskwood"
-                        >
-                    </Filter>
-                    <Filter
-                        Name="Eastern Plaguelands"
-                        >
-                        <File
-                            RelativePath="..\scripts\zone\eastern_plaguelands\the_scarlet_enclave.cpp"
-                            >
-                        </File>
-                    </Filter>
-                    <Filter
-                        Name="Redridge Mountains"
-                        >
                     </Filter>
                     <Filter
                         Name="Scarlet Monastery"
@@ -2776,14 +2692,6 @@
                 </Filter>
             </Filter>
             <Filter
-                Name="honor"
-                >
-            </Filter>
-            <Filter
-                Name="servers"
-                >
-            </Filter>
-            <Filter
                 Name="custom"
                 >
                 <File
@@ -2795,6 +2703,62 @@
                     >
                 </File>
             </Filter>
+        </Filter>
+        <Filter
+            Name="world"
+            >
+            <File
+                RelativePath="..\scripts\world\areatrigger_scripts.cpp"
+                >
+            </File>
+            <File
+                RelativePath="..\scripts\world\boss_emeriss.cpp"
+                >
+            </File>
+            <File
+                RelativePath="..\scripts\world\boss_lethon.cpp"
+                >
+            </File>
+            <File
+                RelativePath="..\scripts\world\boss_taerar.cpp"
+                >
+            </File>
+            <File
+                RelativePath="..\scripts\world\boss_ysondre.cpp"
+                >
+            </File>
+            <File
+                RelativePath="..\scripts\world\go_scripts.cpp"
+                >
+            </File>
+            <File
+                RelativePath="..\scripts\world\guards.cpp"
+                >
+            </File>
+            <File
+                RelativePath="..\scripts\world\item_scripts.cpp"
+                >
+            </File>
+            <File
+                RelativePath="..\scripts\world\mob_generic_creature.cpp"
+                >
+            </File>
+            <File
+                RelativePath="..\scripts\world\npc_innkeeper.cpp"
+                >
+            </File>
+            <File
+                RelativePath="..\scripts\world\npc_professions.cpp"
+                >
+            </File>
+            <File
+                RelativePath="..\scripts\world\npc_taxi.cpp"
+                >
+            </File>
+            <File
+                RelativePath="..\scripts\world\npcs_special.cpp"
+                >
+            </File>
         </Filter>
 		<Filter
 			Name="Include"
@@ -2860,6 +2824,18 @@
 				>
 			</File>
 		</Filter>
+        <Filter
+            Name="system"
+            >
+            <File
+                RelativePath="..\system\ScriptLoader.cpp"
+                >
+            </File>
+            <File
+                RelativePath="..\system\ScriptLoader.h"
+                >
+            </File>
+        </Filter>
 		<File
 			RelativePath="..\ScriptMgr.cpp"
 			>

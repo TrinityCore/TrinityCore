@@ -31,7 +31,7 @@ npc_wizzlecrank_shredder
 EndContentData */
 
 #include "precompiled.h"
-#include "../npc/npc_escortAI.h"
+#include "escortAI.h"
 
 /*######
 ## npc_beaten_corpse
@@ -146,11 +146,7 @@ struct TRINITY_DLL_DECL npc_giltharesAI : public npc_escortAI
 
 CreatureAI* GetAI_npc_gilthares(Creature* pCreature)
 {
-    npc_giltharesAI* pTempAI = new npc_giltharesAI(pCreature);
-
-    pTempAI->FillPointMovementListForCreature();
-
-    return (CreatureAI*)pTempAI;
+    return new npc_giltharesAI(pCreature);
 }
 
 bool QuestAccept_npc_gilthares(Player* pPlayer, Creature* pCreature, const Quest* pQuest)

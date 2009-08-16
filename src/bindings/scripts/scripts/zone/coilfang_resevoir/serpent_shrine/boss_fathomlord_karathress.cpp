@@ -23,7 +23,7 @@ EndScriptData */
 
 #include "precompiled.h"
 #include "def_serpent_shrine.h"
-#include "../../../npc/npc_escortAI.h"
+#include "escortAI.h"
 
 #define SAY_AGGRO                   -1548021
 #define SAY_GAIN_BLESSING           -1548022

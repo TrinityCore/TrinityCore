@@ -3,7 +3,7 @@
 #define SC_HYJAL_TRASH_AI_H
 
 #include "def_hyjal.h"
-#include "../../../npc/npc_escortAI.h"
+#include "escortAI.h"
 
 #define MINRAIDDAMAGE  700000//minimal damage before trash can drop loot and reputation, resets if faction leader dies
 

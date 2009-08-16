@@ -10,7 +10,7 @@ SDCategory: Npc
 EndScriptData */
 
 #include "precompiled.h"
-#include "npc_escortAI.h"
+#include "escortAI.h"
 
 enum
 {
@@ -344,6 +344,11 @@ void npc_escortAI::Start(bool bIsActiveAttacker, bool bRun, uint64 uiPlayerGUID,
         error_log("TSCR: EscortAI attempt to Start while already escorting");
         return;
     }
+
+    if (!WaypointList.empty())
+        WaypointList.clear();
+
+    FillPointMovementListForCreature();
 
     if (WaypointList.empty())
     {

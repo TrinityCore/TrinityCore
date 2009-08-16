@@ -27,7 +27,7 @@ npc_threshwackonator
 EndContentData */
 
 #include "precompiled.h"
-#include "../npc/npc_escortAI.h"
+#include "escortAI.h"
 
 /*####
 # npc_prospector_remtravel
@@ -145,11 +145,7 @@ struct TRINITY_DLL_DECL npc_prospector_remtravelAI : public npc_escortAI
 
 CreatureAI* GetAI_npc_prospector_remtravel(Creature* pCreature)
 {
-    npc_prospector_remtravelAI* tempAI = new npc_prospector_remtravelAI(pCreature);
-
-    tempAI->FillPointMovementListForCreature();
-
-    return tempAI;
+    return new npc_prospector_remtravelAI(pCreature);
 }
 
 bool QuestAccept_npc_prospector_remtravel(Player* pPlayer, Creature* pCreature, const Quest* pQuest)

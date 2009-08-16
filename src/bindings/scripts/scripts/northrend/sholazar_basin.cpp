@@ -26,7 +26,7 @@ npc_injured_rainspeaker_oracle
 EndContentData */
 
 #include "precompiled.h"
-#include "../npc/npc_escortAI.h"
+#include "escortAI.h"
 
 /*######
 ## npc_injured_rainspeaker_oracle
@@ -160,11 +160,7 @@ bool QuestAccept_npc_injured_rainspeaker_oracle(Player* pPlayer, Creature* pCrea
 
 CreatureAI* GetAI_npc_injured_rainspeaker_oracle(Creature* pCreature)
 {
-    npc_injured_rainspeaker_oracleAI* thisAI = new npc_injured_rainspeaker_oracleAI(pCreature);
-
-    thisAI->FillPointMovementListForCreature();
-
-    return thisAI;
+    return new npc_injured_rainspeaker_oracleAI(pCreature);
 }
 
 void AddSC_sholazar_basin()
