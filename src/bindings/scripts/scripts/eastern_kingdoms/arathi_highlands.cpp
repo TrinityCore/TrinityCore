@@ -26,7 +26,7 @@ npc_professor_phizzlethorpe
 EndContentData */
 
 #include "precompiled.h"
-#include "escortAI.h"
+#include "escort_ai.h"
 
 /*######
 ## npc_professor_phizzlethorpe
@@ -55,7 +55,10 @@ struct TRINITY_DLL_DECL npc_professor_phizzlethorpeAI : public npc_escortAI
 
     void WaypointReached(uint32 uiPointId)
     {
-        Player* pPlayer = Unit::GetPlayer(PlayerGUID);
+        Player* pPlayer = GetPlayerForEscort();
+
+        if (!pPlayer)
+            return;
 
         switch(uiPointId)
         {

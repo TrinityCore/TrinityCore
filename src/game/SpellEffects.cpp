@@ -2014,10 +2014,11 @@ void Spell::EffectForceCast(uint32 i)
         {
             switch(m_spellInfo->Id)
             {
+                // 52463 also use custom damage and the summon veh spell use that damamge and cast mount aura?
                 case 52588: unitTarget->RemoveAura(damage); break;
             }
         }
-        else
+        else // this was for 52463, need further study
         {
             unitTarget->CastCustomSpell(unitTarget, spellInfo->Id, &damage, NULL, NULL, true, NULL, NULL, m_originalCasterGUID);
             return;

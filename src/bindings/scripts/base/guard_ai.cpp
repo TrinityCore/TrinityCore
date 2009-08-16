@@ -32,6 +32,11 @@ EndScriptData */
 #define SAY_GUARD_SIL_AGGRO2        -1070002
 #define SAY_GUARD_SIL_AGGRO3        -1070003
 
+guardAI::guardAI(Creature* pCreature) : ScriptedAI(pCreature),
+    GlobalCooldown(0),
+    BuffTimer(0)
+{}
+
 void guardAI::Reset()
 {
     GlobalCooldown = 0;
