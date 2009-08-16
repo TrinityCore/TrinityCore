@@ -49,29 +49,28 @@ char * command_finder(const char* text, int state)
     ChatCommand *cmd = ChatHandler::getCommandTable();
 
     if(!state)
-        {
-            idx = 0;
-            len = strlen(text);
-        }
+    {
+        idx = 0;
+        len = strlen(text);
+    }
 
     while(ret = cmd[idx].Name)
+    {
+        if(!cmd[idx].AllowConsole)
         {
-            if(!cmd[idx].AllowConsole)
-            {
-                idx++;
-                continue;
-            }
-
             idx++;
-            //printf("Checking %s \n", cmd[idx].Name);
-            if (strncmp(ret, text, len) == 0)
-                return strdup(ret);
-            if(cmd[idx].Name == NULL)
-                break;
+            continue;
         }
 
-        return ((char*)NULL);
+        idx++;
+        //printf("Checking %s \n", cmd[idx].Name);
+        if (strncmp(ret, text, len) == 0)
+            return strdup(ret);
+        if(cmd[idx].Name == NULL)
+            break;
+    }
 
+    return ((char*)NULL);
 }
 
 char ** cli_completion(const char * text, int start, int end)
