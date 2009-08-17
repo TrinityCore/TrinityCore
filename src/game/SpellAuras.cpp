@@ -105,7 +105,7 @@ pAuraHandler AuraHandler[TOTAL_AURAS]=
     &Aura::HandleAuraModDodgePercent,                       // 49 SPELL_AURA_MOD_DODGE_PERCENT
     &Aura::HandleNoImmediateEffect,                         // 50 SPELL_AURA_MOD_CRITICAL_HEALING_AMOUNT implemented in Unit::SpellCriticalHealingBonus
     &Aura::HandleAuraModBlockPercent,                       // 51 SPELL_AURA_MOD_BLOCK_PERCENT
-    &Aura::HandleAuraModCritPercent,                        // 52 SPELL_AURA_MOD_CRIT_PERCENT
+    &Aura::HandleAuraModWeaponCritPercent,                  // 52 SPELL_AURA_MOD_WEAPON_CRIT_PERCENT
     &Aura::HandlePeriodicLeech,                             // 53 SPELL_AURA_PERIODIC_LEECH
     &Aura::HandleModHitChance,                              // 54 SPELL_AURA_MOD_HIT_CHANCE
     &Aura::HandleModSpellHitChance,                         // 55 SPELL_AURA_MOD_SPELL_HIT_CHANCE
@@ -337,13 +337,13 @@ pAuraHandler AuraHandler[TOTAL_AURAS]=
     &Aura::HandleNoImmediateEffect,                         //281 SPELL_AURA_MOD_HONOR_GAIN_PCT implemented in Player::RewardHonor
     &Aura::HandleAuraIncreaseBaseHealthPercent,             //282 SPELL_AURA_INCREASE_BASE_HEALTH_PERCENT
     &Aura::HandleNoImmediateEffect,                         //283 SPELL_AURA_MOD_HEALING_RECEIVED       implemented in Unit::SpellHealingBonus
-    &Aura::HandleNULL,                                      //284 SPELL_AURA_LINKED - probably not sent to client
+    &Aura::HandleNULL,                                      //284 SPELL_AURA_LINKED
     &Aura::HandleAuraModAttackPowerOfArmor,                 //285 SPELL_AURA_MOD_ATTACK_POWER_OF_ARMOR  implemented in Player::UpdateAttackPowerAndDamage
     &Aura::HandleNoImmediateEffect,                         //286 SPELL_AURA_ABILITY_PERIODIC_CRIT implemented in AuraEffect::PeriodicTick
     &Aura::HandleNoImmediateEffect,                         //287 SPELL_AURA_DEFLECT_SPELLS             implemented in Unit::MagicSpellHitResult and Unit::MeleeSpellHitResult
     &Aura::HandleUnused,                                    //288 unused
     &Aura::HandleUnused,                                    //289 unused
-    &Aura::HandleNULL,                                      //290 mod all critical hit chances?
+    &Aura::HandleAuraModCritPct,                            //290 SPELL_AURA_MOD_CRIT_PCT
     &Aura::HandleNoImmediateEffect,                         //291 SPELL_AURA_MOD_XP_QUEST_PCT  implemented in Player::RewardQuest
     &Aura::HandleNULL,                                      //292 call stabled pet
     &Aura::HandleNULL,                                      //293 2 test spells
@@ -4950,7 +4950,7 @@ void AuraEffect::HandleAuraModRegenInterrupt(bool /*apply*/, bool Real, bool cha
     ((Player*)m_target)->UpdateManaRegen();
 }
 
-void AuraEffect::HandleAuraModCritPercent(bool apply, bool Real, bool changeAmount)
+void AuraEffect::HandleAuraModWeaponCritPercent(bool apply, bool Real, bool changeAmount)
 {
     if(m_target->GetTypeId()!=TYPEID_PLAYER)
         return;
@@ -6828,6 +6828,22 @@ void AuraEffect::HandleAuraCloneCaster( bool Apply, bool Real , bool /*changeAmo
         m_target->SetDisplayId(m_target->GetNativeDisplayId());
         m_target->RemoveFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_MIRROR_IMAGE);
     }
+}
+
+void AuraEffect::HandleAuraModCritPct(bool apply, bool Real, bool changeAmount)
+{
+    if(m_target->GetTypeId() != TYPEID_PLAYER)
+    {
+        m_target->m_baseSpellCritChance += apply ? m_amount:-m_amount;
+        return;
+    }
+
+    if(Real || changeAmount)
+        ((Player*)m_target)->UpdateAllSpellCritChances();
+
+    ((Player*)m_target)->HandleBaseModValue(CRIT_PERCENTAGE,         FLAT_MOD, float (m_amount), apply);
+    ((Player*)m_target)->HandleBaseModValue(OFFHAND_CRIT_PERCENTAGE, FLAT_MOD, float (m_amount), apply);
+    ((Player*)m_target)->HandleBaseModValue(RANGED_CRIT_PERCENTAGE,  FLAT_MOD, float (m_amount), apply);
 }
 
 int32 AuraEffect::CalculateCrowdControlAuraAmount(Unit * caster)

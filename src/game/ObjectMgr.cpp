@@ -130,7 +130,6 @@ bool SpellClickInfo::IsFitToRequirements(Player const* player, Creature const * 
         if (!player->HasAura(auraRequired))
             return false;
 
-    sLog.outError("Aura forbid: %d", auraForbidden);
     if (auraForbidden)
         if (player->HasAura(auraForbidden))
             return false;

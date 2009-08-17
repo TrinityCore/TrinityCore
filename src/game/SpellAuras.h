@@ -248,7 +248,7 @@ class TRINITY_DLL_SPEC AuraEffect
         void HandleAuraModParryPercent(bool Apply, bool Real, bool changeAmount);
         void HandleAuraModDodgePercent(bool Apply, bool Real, bool changeAmount);
         void HandleAuraModBlockPercent(bool Apply, bool Real, bool changeAmount);
-        void HandleAuraModCritPercent(bool Apply, bool Real, bool changeAmount);
+        void HandleAuraModWeaponCritPercent(bool Apply, bool Real, bool changeAmount);
         void HandlePeriodicLeech(bool Apply, bool Real, bool changeAmount);
         void HandleModHitChance(bool Apply, bool Real, bool changeAmount);
         void HandleModSpellHitChance(bool Apply, bool Real, bool changeAmount);
@@ -327,6 +327,7 @@ class TRINITY_DLL_SPEC AuraEffect
         void HandleCharmConvert(bool apply, bool Real, bool changeAmount);
         void HandleAuraInitializeImages(bool Apply, bool Real, bool changeAmount);
         void HandleAuraCloneCaster(bool Apply, bool Real, bool changeAmount);
+        void HandleAuraModCritPct(bool Apply, bool Real, bool changeAmount);
 
         void HandleAuraEffectSpecificMods(bool apply, bool Real, bool changeAmount);
         int32 CalculateCrowdControlAuraAmount(Unit * caster);
