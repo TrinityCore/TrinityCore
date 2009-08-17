@@ -2021,6 +2021,8 @@ INSERT INTO `npc_spellclick_spells` (npc_entry, spell_id, quest_start, quest_sta
 (31896, 60123, 0, 0, 0, 0x2, 0, 27873, 2),
 (31897, 60123, 0, 0, 0, 0x2, 0, 7001, 2);
 
+update item_template set spellppmRate_1 = 1 where entry = 39371; -- persuader
+
 -- --------
 -- NAXXARAMAS
 -- --------

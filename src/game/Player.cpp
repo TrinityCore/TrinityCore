@@ -7334,6 +7334,18 @@ void Player::CastItemCombatSpell(Unit *target, WeaponAttackType attType, uint32 
 
             if(spellData.SpellPPMRate)
             {
+                if(spellData.SpellId == 52781) // Persuasive Strike
+                {
+                    switch(target->GetEntry())
+                    {
+                        default:
+                            return;
+                        case 28939:
+                        case 28940:
+                        case 28610:
+                            break;
+                    }
+                }
                 uint32 WeaponSpeed = GetAttackTime(attType);
                 chance = GetPPMProcChance(WeaponSpeed, spellData.SpellPPMRate, spellInfo);
             }
@@ -7383,10 +7395,13 @@ void Player::CastItemCombatSpell(Unit *target, WeaponAttackType attType, uint32 
 
             float chance = pEnchant->amount[s] != 0 ? float(pEnchant->amount[s]) : GetWeaponProcChance();
 
-            if (entry && entry->PPMChance)
-                chance = GetPPMProcChance(proto->Delay, entry->PPMChance, spellInfo);
-            else if (entry && entry->customChance)
-                chance = entry->customChance;
+            if (entry)
+            {
+                if(entry->PPMChance)
+                    chance = GetPPMProcChance(proto->Delay, entry->PPMChance, spellInfo);
+                else if(entry->customChance)
+                    chance = entry->customChance;
+            }
 
             // Apply spell mods
             ApplySpellMod(pEnchant->spellid[s],SPELLMOD_CHANCE_OF_SUCCESS,chance);
