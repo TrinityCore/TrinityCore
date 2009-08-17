@@ -121,7 +121,7 @@ bool GossipHello_npc_taxi(Player* pPlayer, Creature* pCreature)
         if (!pPlayer->GetQuestRewardStatus(11229))
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I need to fly to the Windrunner Official business!", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 23);
         if (pPlayer->GetQuestStatus(11170) == QUEST_STATUS_INCOMPLETE)
-            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I need to commandeer a riding bat for special assignment for us.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 24);
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "<The riding bat for the special task is necessary to me.>", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 24);
         break;
     case 23704: // Dustwallow Marsh - Cassa Crimsonwing
         if (pPlayer->GetQuestStatus(11142) == QUEST_STATUS_INCOMPLETE)
@@ -239,7 +239,8 @@ bool GossipSelect_npc_taxi(Player* pPlayer, Creature* pCreature, uint32 uiSender
         break;
     case GOSSIP_ACTION_INFO_DEF + 24:
         pPlayer->CLOSE_GOSSIP_MENU();
-        pPlayer->ActivateTaxiPathTo(738);
+        //pPlayer->ActivateTaxiPathTo(738);
+        pPlayer->CastSpell(pPlayer, 43136, false);
         break;
     case GOSSIP_ACTION_INFO_DEF + 25:
         pPlayer->CLOSE_GOSSIP_MENU();
