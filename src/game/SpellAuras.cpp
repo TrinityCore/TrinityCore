@@ -3178,8 +3178,12 @@ void AuraEffect::HandleAuraFeatherFall(bool apply, bool Real, bool /*changeAmoun
     else
         data.Initialize(SMSG_MOVE_NORMAL_FALL, 8+4);
     data.append(m_target->GetPackGUID());
-    data << (uint32)0;
-    m_target->SendMessageToSet(&data,true);
+    data << uint32(0);
+    m_target->SendMessageToSet(&data, true);
+
+    // start fall from current height
+    if(!apply && m_target->GetTypeId() == TYPEID_PLAYER)
+        ((Player*)m_target)->SetFallInformation(0, m_target->GetPositionZ());
 }
 
 void AuraEffect::HandleAuraHover(bool apply, bool Real, bool /*changeAmount*/)
