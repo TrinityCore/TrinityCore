@@ -3806,10 +3806,17 @@ bool Unit::RemoveNoStackAurasDueToAura(Aura *Aur)
         }
 
         bool is_triggered_by_spell = false;
-        // prevent triggered aura of removing aura that triggered it
+        // prevent triggering aura of removing aura that triggered it
+        // prevent triggered aura of removing aura that triggering it (triggered effect early some aura of parent spell
         for(uint8 j = 0; j < MAX_SPELL_EFFECTS; ++j)
-            if (i_spellProto->EffectTriggerSpell[j] == spellProto->Id)
+        {
+            if (i_spellProto->EffectTriggerSpell[j] == spellProto->Id
+                || spellProto->EffectTriggerSpell[j] == i_spellProto->Id) // I do not know what is this for
+            {
                 is_triggered_by_spell = true;
+                break;
+            }
+        }
 
         // check if they can stack
 
