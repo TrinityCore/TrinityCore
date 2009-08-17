@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="9,00"
+	Version="9.00"
 	Name="game"
 	ProjectGUID="{1DC6C4DA-A028-41F3-877D-D5400C594F88}"
 	RootNamespace="game"
@@ -1334,18 +1334,6 @@
 				RelativePath="..\..\src\game\ZoneScript.h"
 				>
 			</File>
-			<Filter
-				Name="AuctionHouseBot"
-				>
-				<File
-					RelativePath="..\..\src\game\AuctionHouseBot.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\..\src\game\AuctionHouseBot.h"
-					>
-				</File>
-			</Filter>
 		</Filter>
 		<Filter
 			Name="Server"
@@ -1622,6 +1610,18 @@
 				RelativePath="..\..\src\game\UnitAI.h"
 				>
 			</File>
+			<Filter
+				Name="AuctionHouseBot"
+				>
+				<File
+					RelativePath="..\..\src\game\AuctionHouseBot.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\game\AuctionHouseBot.h"
+					>
+				</File>
+			</Filter>
 		</Filter>
 		<Filter
 			Name="OutdoorPvP"

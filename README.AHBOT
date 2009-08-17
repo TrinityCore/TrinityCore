@@ -39,8 +39,11 @@ AuctionHouseBot.ItemsPerCycle determines how many items are added each time AHBo
 
 #These are the Filters For filtering certain items/trade goods from the AH
 AuctionHouseBot.VendorItems = 0
+AuctionHouseBot.VendorTradeGoods = 0
 AuctionHouseBot.LootItems = 1
+AuctionHouseBot.LootTradeGoods = 1
 AuctionHouseBot.OtherItems = 0
+AuctionHouseBot.OtherTradeGoods = 0
 AuctionHouseBot.No_Bind = 1
 AuctionHouseBot.Bind_When_Picked_Up = 0
 AuctionHouseBot.Bind_When_Equipped = 1
@@ -58,8 +61,11 @@ AuctionHouseBot.DisableDuration = 0
 AuctionHouseBot.DisableBOP_Or_Quest_NoReqLevel = 0
 
 AuctionHouseBot.VendorItems is a boolean value (0 or 1) that indicates whether to include Vendor only items
+AuctionHouseBot.VendorTradeGoods is a boolean value (0 or 1) that indicates whether to include Vendor only Trade Goods
 AuctionHouseBot.LootItems  is a boolean value (0 or 1) that indicates whether to include Loot/Fish/Skin/etc. only items
+AuctionHouseBot.LootTradeGoods  is a boolean value (0 or 1) that indicates whether to include Loot/Fish/Skin/etc. only Trade Goods
 AuctionHouseBot.OtherItems  is a boolean value (0 or 1) that indicates whether to include Other items not covered by the first 2
+AuctionHouseBot.OtherTradeGoods  is a boolean value (0 or 1) that indicates whether to include Other Trade Goods not covered by the first 2
 AuctionHouseBot.No_Bind is a boolean value (0 or 1) that indicates whether to include items with a bonding of 0
 AuctionHouseBot.Bind_When_Picked_Up = is a boolean value (0 or 1) that indicates whether to include items with a bonding of 1
 AuctionHouseBot.Bind_When_Equipped = is a boolean value (0 or 1) that indicates whether to include items with a bonding of 2

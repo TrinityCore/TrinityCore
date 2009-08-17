@@ -925,6 +925,9 @@ private:
     bool Vendor_Items;
     bool Loot_Items;
     bool Other_Items;
+    bool Vendor_TGs;
+    bool Loot_TGs;
+    bool Other_TGs;
 
     bool No_Bind;
     bool Bind_When_Picked_Up;
