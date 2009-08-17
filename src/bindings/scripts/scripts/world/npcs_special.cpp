@@ -1766,33 +1766,14 @@ CreatureAI* GetAI_npc_ebon_gargoyle(Creature* pCreature)
     return new npc_ebon_gargoyleAI (pCreature);
 }
 
-//TODO: 30% Attackdamage check for Lightwell
 struct TRINITY_DLL_DECL npc_lightwellAI : public PassiveAI
 {
     npc_lightwellAI(Creature *c) : PassiveAI(c) {}
 
-    //uint32 desummon_timer;
-
     void Reset()
     {
-        //desummon_timer = 180000;
         m_creature->CastSpell(m_creature, 59907, false); // Spell for Lightwell Charges
     }
-
-    /*
-    void UpdateAI(const uint32 diff)
-    {
-        if (desummon_timer < diff)
-        {
-            m_creature->Kill(m_creature);
-        }else desummon_timer -= diff;
-
-        if (!m_creature->HasAura(59907))
-        {
-            m_creature->Kill(m_creature);
-        }
-    }
-    */
 };
 
 CreatureAI* GetAI_npc_lightwellAI(Creature* pCreature)

@@ -1715,6 +1715,7 @@ INSERT INTO `spell_bonus_data` (`entry`, `direct_bonus`, `dot_bonus`, `ap_bonus`
 (34433, 0.65, -1, -1, -1, 'Priest - Shadowfiend'),
 (585, 0.714, -1, -1, -1, 'Priest - Smite'),
 (34914, -1, 0.4, -1, -1, 'Priest - Vampiric Touch'),
+(7001, -1, 0.3333, -1, -1, 'Priest - Lightwell Renew Rank 1'),
 (2818, -1, -1, -1, 0.03, 'Rogue - Deadly Poison Rank 1($AP*0.12 / number of ticks)'),
 (2819, -1, -1, -1, 0.03, 'Rogue - Deadly Poison Rank 2($AP*0.12 / number of ticks)'),
 (11353, -1, -1, -1, 0.03, 'Rogue - Deadly Poison Rank 3($AP*0.12 / number of ticks)'),
@@ -2006,12 +2007,17 @@ INSERT INTO `npc_spellclick_spells` (`npc_entry`, `spell_id`, `quest_start`, `qu
 (28606, 52263, 12680, 1, 12680, 1),
 (28607, 52263, 12680, 1, 12680, 1),
 (28782, 52280, 12687, 1, 12687, 1), -- Unbound Charger
-(28833, 52447, 12701, 1, 12701, 1); -- Scarlet Cannon Master
-# (28887, 52447, 12701, 1, 12701, 1); -- dead cannon
+(28833, 52447, 12701, 1, 12701, 1), -- Scarlet Cannon Master
+(28887, 52447, 12701, 1, 12701, 1);
 
-UPDATE creature_template SET spell1=52435,spell2=52576,spell5=52588,VehicleId=79,speed=0 WHERE entry = 28833;
-UPDATE `creature_template` SET vehicleid=138 WHERE (`entry`='28817'); -- mine car
-
+DELETE FROM `npc_spellclick_spells` WHERE `npc_entry` IN(31883, 31893, 31894, 31895, 31896, 31897);
+INSERT INTO `npc_spellclick_spells` (npc_entry, spell_id, quest_start, quest_start_active, quest_end, cast_flags, aura_required, aura_forbidden, user_type) VALUES
+(31883, 60123, 0, 0, 0, 0x2, 0, 48085, 2),
+(31893, 60123, 0, 0, 0, 0x2, 0, 48084, 2),
+(31894, 60123, 0, 0, 0, 0x2, 0, 28276, 2),
+(31895, 60123, 0, 0, 0, 0x2, 0, 27874, 2),
+(31896, 60123, 0, 0, 0, 0x2, 0, 27873, 2),
+(31897, 60123, 0, 0, 0, 0x2, 0, 7001, 2);
 
 -- --------
 -- NAXXARAMAS
@@ -2129,21 +2135,3 @@ REPLACE INTO `npc_spellclick_spells` (npc_entry, spell_id, quest_start, quest_st
 (31895, 60123, 0, 0, 0, 2, 0),
 (31896, 60123, 0, 0, 0, 2, 0),
 (31897, 60123, 0, 0, 0, 2, 0);
-
-
--- temp
-
-UPDATE `creature_template` SET `ScriptName`='boss_netherspite', `RegenHealth` = '1' WHERE `entry`='15689';
-UPDATE `creature_template` SET `faction_A` = '35', `faction_H` = '35', `modelid_A`='11686', `modelid_H`='11686', `unit_flags` = '33554496', `ScriptName` = '' WHERE `entry` IN ('17367','17368','17369');
-UPDATE `creature_template` SET `minlevel` = '70', `maxlevel` = '70',`flags_extra`= '2', `speed`= '0.0001', `faction_A` = '16', `faction_H` = '16', `ScriptName` = 'mob_eventai'  WHERE `entry` = '16697';
-DELETE FROM `creature_ai_scripts` WHERE `creature_id` = '16697';
-INSERT INTO `creature_ai_scripts`
-(`id`,`creature_id`,`event_type`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`action1_type`,`action1_param1`,`action1_param2`,`action1_param3`,`comment`) VALUES
-('1669701', '16697',         '0',         '100',          '3',        '3000',        '3000',        '3000',        '3000',          '11',         '46264',             '0',             '2','Void Zone - Cast Void Zone Effect'),
-('1669702', '16697',         '1',         '100',          '3',        '3000',        '3000',        '3000',        '3000',          '11',         '46264',             '0',             '2','Void Zone - Cast Void Zone Effect');
-DELETE FROM `spell_linked_spell` WHERE `spell_trigger` IN ('-30421','-30422','-30423','38637','38638','38639');
-INSERT INTO `spell_linked_spell`(`spell_trigger`,`spell_effect`,`type`,`comment`) VALUES
-('-30421','38637','0','Netherspite\'s Perseverence'),
-('-30422','38638','0','Netherspite\'s Serenity'),
-('-30423','38639','0','Netherspite\'s Dominance');
-UPDATE `script_texts` SET `type` = '3' WHERE `entry` IN ('-1532089','-1532090');

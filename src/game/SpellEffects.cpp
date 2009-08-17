@@ -5177,56 +5177,34 @@ void Spell::EffectScriptEffect(uint32 effIndex)
                         if(Unit *passenger = ((Vehicle*)m_caster)->GetPassenger(0))
                             passenger->CastSpell(m_caster->m_Vehicle, damage, true);
                     return;
-                case 60123:                                 // Lightwell Renew, TODO: 30% Attackdamage check for Lightwell
+                case 60123: // Lightwell
                 {
-                    if(unitTarget && m_originalCaster)
+                    if (m_caster->GetTypeId() != TYPEID_UNIT || !((Creature*)m_caster)->isSummon())
+                        return;
+
+                    uint32 spell_heal;
+
+                    switch(m_caster->GetEntry())
                     {
-                        Unit* owner = m_originalCaster->GetOwner();
-                        uint32 spell_heal;
-                        uint32 spell_charges = 59907;
-
-                        switch(m_originalCaster->GetEntry())
-                        {
-                            case 31897: spell_heal = 7001; break;
-                            case 31896: spell_heal = 27873; break;
-                            case 31895: spell_heal = 27874; break;
-                            case 31894: spell_heal = 28276; break;
-                            case 31893: spell_heal = 48084; break;
-                            case 31883: spell_heal = 48085; break;
-                        }
-
-                        if(owner && spell_heal && spell_charges)
-                        {
-                            if(owner->GetTypeId() == TYPEID_PLAYER && unitTarget->GetTypeId() == TYPEID_PLAYER)
-                            {
-                                if(((Player*)owner)->IsInSameRaidWith(((Player*)unitTarget)) && (!((Player*)unitTarget)->duel || unitTarget == owner) && !unitTarget->HasAura(spell_heal))
-                                {
-                                    Aura *chargesaura = m_originalCaster->GetAura(spell_charges);
-                                    if(chargesaura)
-                                    {
-                                        if(chargesaura->GetAuraCharges() > 1)
-                                        {
-                                            chargesaura->SetAuraCharges(chargesaura->GetAuraCharges() - 1);
-                                            owner->CastSpell(unitTarget, spell_heal, true);
-                                            if(unitTarget->IsPvP() && !owner->IsPvP())
-                                            {
-                                                owner->SetPvP(true);
-                                            }
-                                        }
-                                        else
-                                        {
-                                            m_originalCaster->RemoveAura(chargesaura);
-                                            owner->CastSpell(unitTarget, spell_heal, true);
-                                            if(unitTarget->IsPvP() && !owner->IsPvP())
-                                            {
-                                                owner->SetPvP(true);
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
+                        case 31897: spell_heal = 7001; break;
+                        case 31896: spell_heal = 27873; break;
+                        case 31895: spell_heal = 27874; break;
+                        case 31894: spell_heal = 28276; break;
+                        case 31893: spell_heal = 48084; break;
+                        case 31883: spell_heal = 48085; break;
+                        default:
+                            sLog.outError("Unknown Lightwell spell caster %u", m_caster->GetEntry());
+                            return;
                     }
+                    Aura * chargesaura = m_caster->GetAura(59907);
+
+                    if(chargesaura && chargesaura->GetAuraCharges() > 1)
+                    {
+                        chargesaura->SetAuraCharges(chargesaura->GetAuraCharges() - 1);
+                        m_caster->CastSpell(unitTarget, spell_heal, true, NULL, NULL, ((TempSummon*)m_caster)->GetSummonerGUID());
+                    }
+                    else
+                        ((TempSummon*)m_caster)->UnSummon();
                 }
             }
             break;

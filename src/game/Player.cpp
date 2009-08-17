@@ -21297,7 +21297,7 @@ bool Player::canSeeSpellClickOn(Creature const *c) const
         return true;
 
     for(SpellClickInfoMap::const_iterator itr = clickPair.first; itr != clickPair.second; ++itr)
-        if(itr->second.IsFitToRequirements(this))
+        if(itr->second.IsFitToRequirements(this, c))
             return true;
 
     return false;
