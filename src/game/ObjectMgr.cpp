@@ -110,7 +110,7 @@ LanguageDesc const* GetLanguageDescByID(uint32 lang)
     return NULL;
 }
 
-bool SpellClickInfo::IsFitToRequirements(Player const* player) const
+bool SpellClickInfo::IsFitToRequirements(Player const* player, Creature const * clickNpc) const
 {
     if(questStart)
     {
@@ -124,6 +124,38 @@ bool SpellClickInfo::IsFitToRequirements(Player const* player) const
         // not in expected forbidden quest state
         if(!player || player->GetQuestRewardStatus(questEnd))
             return false;
+    }
+
+    if (auraRequired)
+        if (!player->HasAura(auraRequired))
+            return false;
+
+    sLog.outError("Aura forbid: %d", auraForbidden);
+    if (auraForbidden)
+        if (player->HasAura(auraForbidden))
+            return false;
+
+    Unit const * summoner = NULL;
+    // Check summoners for party
+    if (clickNpc->isSummon())
+        summoner = ((TempSummon*)clickNpc)->GetSummoner();
+    if (!summoner)
+        summoner = clickNpc;
+
+    switch (userType)
+    {
+        case SPELL_CLICK_USER_FRIEND:
+            if (!player->IsFriendlyTo(summoner))
+                return false;
+            break;
+        case SPELL_CLICK_USER_RAID:
+            if (!player->IsInRaidWith(summoner))
+                return false;
+            break;
+        case SPELL_CLICK_USER_PARTY:
+            if (!player->IsInPartyWith(summoner))
+                return false;
+            break;
     }
 
     return true;
@@ -6642,8 +6674,8 @@ void ObjectMgr::LoadNPCSpellClickSpells()
     uint32 count = 0;
 
     mSpellClickInfoMap.clear();
-    //                                                0          1         2            3                   4          5
-    QueryResult *result = WorldDatabase.Query("SELECT npc_entry, spell_id, quest_start, quest_start_active, quest_end, cast_flags FROM npc_spellclick_spells");
+    //                                                0          1         2            3                   4          5           6              7               8
+    QueryResult *result = WorldDatabase.Query("SELECT npc_entry, spell_id, quest_start, quest_start_active, quest_end, cast_flags, aura_required, aura_forbidden, user_type FROM npc_spellclick_spells");
 
     if(!result)
     {
@@ -6682,6 +6714,28 @@ void ObjectMgr::LoadNPCSpellClickSpells()
             continue;
         }
 
+        uint32 auraRequired = fields[6].GetUInt32();
+        if (auraRequired)
+        {
+            SpellEntry const *aurReqInfo = sSpellStore.LookupEntry(auraRequired);
+            if (!aurReqInfo)
+            {
+                sLog.outErrorDb("Table npc_spellclick_spells references unknown aura required %u. Skipping entry.", auraRequired);
+                continue;
+            }
+        }
+
+        uint32 auraForbidden = fields[7].GetUInt32();
+        if (auraForbidden)
+        {
+            SpellEntry const *aurForInfo = sSpellStore.LookupEntry(auraForbidden);
+            if (!aurForInfo)
+            {
+                sLog.outErrorDb("Table npc_spellclick_spells references unknown aura forbidden %u. Skipping entry.", auraForbidden);
+                continue;
+            }
+        }
+
         uint32 quest_start = fields[2].GetUInt32();
 
         // quest might be 0 to enable spellclick independent of any quest
@@ -6692,7 +6746,6 @@ void ObjectMgr::LoadNPCSpellClickSpells()
                 sLog.outErrorDb("Table npc_spellclick_spells references unknown start quest %u. Skipping entry.", quest_start);
                 continue;
             }
-
         }
 
         bool quest_start_active = fields[3].GetBool();
@@ -6706,8 +6759,11 @@ void ObjectMgr::LoadNPCSpellClickSpells()
                 sLog.outErrorDb("Table npc_spellclick_spells references unknown end quest %u. Skipping entry.", quest_end);
                 continue;
             }
-
         }
+
+        uint8 userType = fields[8].GetUInt8();
+        if (userType >= SPELL_CLICK_USER_MAX)
+            sLog.outErrorDb("Table npc_spellclick_spells references unknown user type %u. Skipping entry.", uint32(userType));
 
         uint8 castFlags = fields[5].GetUInt8();
         SpellClickInfo info;
@@ -6716,6 +6772,9 @@ void ObjectMgr::LoadNPCSpellClickSpells()
         info.questStartCanActive = quest_start_active;
         info.questEnd = quest_end;
         info.castFlags = castFlags;
+        info.auraRequired = auraRequired;
+        info.auraForbidden = auraForbidden;
+        info.userType = SpellClickUserTypes(castFlags);
         mSpellClickInfoMap.insert(SpellClickInfoMap::value_type(npc_entry, info));
 
         // mark creature template as spell clickable
