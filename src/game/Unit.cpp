@@ -4185,6 +4185,16 @@ bool Unit::HasAuraTypeWithMiscvalue(AuraType auratype, uint32 miscvalue) const
     return false;
 }
 
+bool Unit::HasAuraTypeWithValue(AuraType auratype, uint32 value) const
+{
+    AuraEffectList const& mTotalAuraList = GetAurasByType(auratype);
+    for(AuraEffectList::const_iterator i = mTotalAuraList.begin();i != mTotalAuraList.end(); ++i)
+        if (value == (*i)->GetAmount())
+            return true;
+    return false;
+}
+
+
 bool Unit::HasAuraType(AuraType auraType) const
 {
     return (!m_modAuras[auraType].empty());

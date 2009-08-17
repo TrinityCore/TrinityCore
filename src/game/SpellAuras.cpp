@@ -347,7 +347,7 @@ pAuraHandler AuraHandler[TOTAL_AURAS]=
     &Aura::HandleNoImmediateEffect,                         //291 SPELL_AURA_MOD_XP_QUEST_PCT  implemented in Player::RewardQuest
     &Aura::HandleNULL,                                      //292 call stabled pet
     &Aura::HandleNULL,                                      //293 2 test spells
-    &Aura::HandleNULL                                       //294 2 spells, possible prevent mana regen
+    &Aura::HandleNoImmediateEffect                          //294 SPELL_AURA_PREVENT_REGENERATE_POWER implemented in Player::Regenerate(Powers power)
 };
 #undef Aura
 
