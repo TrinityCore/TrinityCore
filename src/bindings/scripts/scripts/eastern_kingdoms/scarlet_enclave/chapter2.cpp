@@ -331,7 +331,7 @@ bool QuestAccept_npc_koltira_deathweaver(Player* pPlayer, Creature* pCreature, c
 }
 
 //Scarlet courier
-enum scarletcourier
+enum ScarletCourierEnum
 {
     SAY_TREE1                          = -1609531,
     SAY_TREE2                          = -1609532,
@@ -342,104 +342,69 @@ enum scarletcourier
 
 struct TRINITY_DLL_DECL mob_scarlet_courierAI : public ScriptedAI
 {
-    mob_scarlet_courierAI(Creature *pCreature) : ScriptedAI(pCreature)
-    {
-        Reset();
-    }
+    mob_scarlet_courierAI(Creature *pCreature) : ScriptedAI(pCreature) {}
 
     uint32 uiStage;
     uint32 uiStage_timer;
-    uint64 pPlayer;
 
-    void Reset() {
-        uiStage = 0;
+    void Reset()
+    {
+        me->Mount(14338); // not sure about this id
+        uiStage = 1;
         uiStage_timer = 3000;
-        pPlayer = 0;
+    }
+
+    void EnterCombat(Unit *who)
+    {
+        DoScriptText(SAY_TREE2, me);
+        me->Unmount();
+        uiStage = 0;
     }
 
     void MovementInform(uint32 type, uint32 id)
     {
         if(type != POINT_MOTION_TYPE)
-                return;
+            return;
 
-        switch(id)
-        {
-            case 0:
-                uiStage = 1;
-                break;
-            case 1:
-                uiStage = 2;
-                break;
-        }
+        if(id == 1)
+            uiStage = 2;
     }
 
     void UpdateAI(const uint32 diff) 
     {
-        if (uiStage_timer < diff)
+        if(uiStage && !me->isInCombat())
         {
-            switch(uiStage)
+            if (uiStage_timer < diff)
             {
-                case 1:
+                switch(uiStage)
                 {
-                    me->GetMotionMaster()->Clear(false);
-                    me->GetMotionMaster()->MoveIdle();
+                case 1:
                     me->AddUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
-
-                    if (GameObject* treeGO = me->FindNearestGameObject(GO_INCONSPICUOUS_TREE, 40.0f))
+                    if (GameObject* tree = me->FindNearestGameObject(GO_INCONSPICUOUS_TREE, 40.0f))
                     {
                         DoScriptText(SAY_TREE1, me);
-                        me->GetMotionMaster()->MovePoint(1, treeGO->GetPositionX(), treeGO->GetPositionY(), treeGO->GetPositionZ());
+                        float x, y, z;
+                        tree->GetContactPoint(me, x, y, z);
+                        me->GetMotionMaster()->MovePoint(1, x, y, z);
                     }
-                    uiStage = 0;
-                } break;
+                    break;
                 case 2:
-                {
-                    me->GetMotionMaster()->Clear(false);
-                    me->GetMotionMaster()->MoveIdle();
-                    DoScriptText(SAY_TREE2, me);
-                    me->Unmount();
-                    //who->RemoveSpellsCausingAura(SPELL_AURA_MOD_STEALTH);
-                    uiStage = 0;
-                } break;
-            }
-            uiStage_timer = 3000;
-        }else uiStage_timer -= diff;
+                    if (GameObject* tree = me->FindNearestGameObject(GO_INCONSPICUOUS_TREE, 40.0f))
+                        if(Unit *unit = tree->GetOwner())
+                            AttackStart(unit);
+                    break;
+                }
+                uiStage_timer = 3000;
+                uiStage = 0;
+            }else uiStage_timer -= diff;
+        }
+
+        if(!UpdateVictim())
+            return;
 
         DoMeleeAttackIfReady();
     }
 };
-struct TRINITY_DLL_DECL mob_scarlet_courier_controllerAI : public ScriptedAI
-{
-    mob_scarlet_courier_controllerAI(Creature *pCreature) : ScriptedAI(pCreature)
-    {
-        Reset();
-    }
-
-    bool bAmbush_overlook;
-
-    void Reset() {
-        bAmbush_overlook = false;
-    }
-
-    void UpdateAI(const uint32 diff) 
-    {
-        GameObject* treeGO = me->FindNearestGameObject(GO_INCONSPICUOUS_TREE, 40.0f);
-        if(treeGO && bAmbush_overlook == false)
-        {
-            Unit* pCourier = me->SummonCreature(NPC_SCARLET_COURIER, 1461.65, -6010.34, 116.369, 0, TEMPSUMMON_TIMED_DESPAWN, 180000);
-            pCourier->RemoveUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
-            pCourier->Mount(14338); // not sure about this id
-            pCourier->GetMotionMaster()->MovePoint(0, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ());
-            bAmbush_overlook = true;
-        }
-        if(!treeGO && bAmbush_overlook == true)
-            bAmbush_overlook = false;
-    }
-};
-CreatureAI* GetAI_mob_scarlet_courier_controller(Creature* pCreature)
-{
-    return new mob_scarlet_courier_controllerAI (pCreature);
-}
 
 CreatureAI* GetAI_mob_scarlet_courier(Creature* pCreature)
 {
@@ -447,7 +412,6 @@ CreatureAI* GetAI_mob_scarlet_courier(Creature* pCreature)
 }
 
 //Koltira & Valroth- Breakout
-
 
 enum valroth
 {
@@ -2176,9 +2140,16 @@ void AddSC_the_scarlet_enclave_c2()
 {
     Script *newscript;
 
+    // How to win friends and influence enemies
     newscript = new Script;
     newscript->Name="npc_crusade_persuaded";
     newscript->GetAI = &GetAI_npc_crusade_persuaded;
+    newscript->RegisterSelf();
+
+    // Ambush At The Overlook
+    newscript = new Script;
+    newscript->Name="mob_scarlet_courier";
+    newscript->GetAI = &GetAI_mob_scarlet_courier;
     newscript->RegisterSelf();
 
     // 12727 Bloody Breakout
@@ -2188,15 +2159,7 @@ void AddSC_the_scarlet_enclave_c2()
     newscript->pQuestAccept = &QuestAccept_npc_koltira_deathweaver;
     newscript->RegisterSelf();
 
-    newscript = new Script;
-    newscript->Name="mob_scarlet_courier_controller";
-    newscript->GetAI = &GetAI_mob_scarlet_courier_controller;
-    newscript->RegisterSelf();
 
-    newscript = new Script;
-    newscript->Name="mob_scarlet_courier";
-    newscript->GetAI = &GetAI_mob_scarlet_courier;
-    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name="npc_koltira_deathweaver";
