@@ -6465,6 +6465,16 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                     break;
                 }
             }
+            // Frozen Power
+            if (dummySpell->SpellIconID == 3780)
+            {
+                float chance = triggerAmount;
+                if (!roll_chance_f(chance))
+                    return false;
+
+                triggered_spell_id = 63685;
+                break;
+            }
             // Storm, Earth and Fire
             if (dummySpell->SpellIconID == 3063)
             {
