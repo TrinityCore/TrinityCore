@@ -106,9 +106,12 @@ struct SpellClickInfo
     uint32 questEnd;                                        // quest end (quest don't must be rewarded for spell apply)
     bool   questStartCanActive;                             // if true then quest start can be active (not only rewarded)
     uint8 castFlags;
+    uint32 auraRequired;
+    uint32 auraForbidden;
+    SpellClickUserTypes userType;
 
     // helpers
-    bool IsFitToRequirements(Player const* player) const;
+    bool IsFitToRequirements(Player const* player, Creature const * clickNpc) const;
 };
 
 typedef std::multimap<uint32, SpellClickInfo> SpellClickInfoMap;

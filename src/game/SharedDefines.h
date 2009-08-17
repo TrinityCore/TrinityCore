@@ -456,6 +456,20 @@ enum SpellCategory
 #define MAX_TALENT_SPECS        2
 #define MAX_GLYPH_SLOT_INDEX    6
 
+// Custom values
+enum SpellClickUserTypes
+{
+    SPELL_CLICK_USER_ANY = 0,
+    SPELL_CLICK_USER_FRIEND = 1,
+    SPELL_CLICK_USER_RAID = 2,
+    SPELL_CLICK_USER_PARTY = 3,
+    SPELL_CLICK_USER_MAX = 4
+};
+
+#define NPC_CLICK_CAST_CASTER_PLAYER              0x01
+#define NPC_CLICK_CAST_TARGET_PLAYER              0x02
+#define NPC_CLICK_CAST_ORIG_CASTER_OWNER          0x04
+
 enum SheathTypes
 {
     SHEATHETYPE_NONE                   = 0,
