@@ -275,8 +275,42 @@ bool IsDispelableBySpell(SpellEntry const * dispelSpell, uint32 spellId, bool de
 bool IsSingleTargetSpell(SpellEntry const *spellInfo);
 bool IsSingleTargetSpells(SpellEntry const *spellInfo1, SpellEntry const *spellInfo2);
 
-
 extern bool IsAreaEffectTarget[TOTAL_SPELL_TARGETS];
+extern SpellEffectTargetTypes EffectTargetType[TOTAL_SPELL_EFFECTS];
+extern SpellSelectTargetTypes SpellTargetType[TOTAL_SPELL_TARGETS];
+
+inline bool IsCasterSourceTarget(uint32 target)
+{
+    switch (SpellTargetType[target])
+    {
+        case TARGET_TYPE_UNIT_CASTER:
+        case TARGET_TYPE_AREA_SRC:
+        case TARGET_TYPE_AREA_CONE:
+        case TARGET_TYPE_DEST_CASTER:
+            return true;
+        default:
+            break;
+    }
+    return false;
+}
+
+inline bool IsSpellWithCasterSourceTargetsOnly(SpellEntry const* spellInfo)
+{
+    for(int i = 0; i < 3; ++i)
+    {
+        uint32 targetA = spellInfo->EffectImplicitTargetA[i];
+        if(targetA && !IsCasterSourceTarget(targetA))
+            return false;
+
+        uint32 targetB = spellInfo->EffectImplicitTargetB[i];
+        if(targetB && !IsCasterSourceTarget(targetB))
+            return false;
+
+        if(!targetA && !targetB)
+            return false;
+    }
+    return true;
+}
 
 inline bool IsAreaOfEffectSpell(SpellEntry const *spellInfo)
 {
@@ -1022,9 +1056,6 @@ class SpellMgr
             SpellLinkedMap::const_iterator itr = mSpellLinkedMap.find(spell_id);
             return itr != mSpellLinkedMap.end() ? &(itr->second) : NULL;
         }
-
-        SpellEffectTargetTypes EffectTargetType[TOTAL_SPELL_EFFECTS];
-        SpellSelectTargetTypes SpellTargetType[TOTAL_SPELL_TARGETS];
 
         // < 0 for petspelldata id, > 0 for creature_id
         PetDefaultSpellsEntry const* GetPetDefaultSpellsEntry(int32 id) const

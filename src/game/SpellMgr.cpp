@@ -30,6 +30,8 @@
 #include "CreatureAI.h"
 
 bool IsAreaEffectTarget[TOTAL_SPELL_TARGETS];
+SpellEffectTargetTypes EffectTargetType[TOTAL_SPELL_EFFECTS];
+SpellSelectTargetTypes SpellTargetType[TOTAL_SPELL_TARGETS];
 
 SpellMgr::SpellMgr()
 {

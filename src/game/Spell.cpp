@@ -519,7 +519,7 @@ void Spell::FillTargetMap()
         if(!m_spellInfo->Effect[i])
             continue;
 
-        uint32 effectTargetType = spellmgr.EffectTargetType[m_spellInfo->Effect[i]];
+        uint32 effectTargetType = EffectTargetType[m_spellInfo->Effect[i]];
 
         // is it possible that areaaura is not applied to caster?
         if(effectTargetType == SPELL_REQUIRE_NONE)
@@ -1812,7 +1812,7 @@ void Spell::SetTargetMap(uint32 i, uint32 cur)
     if(m_originalCaster)
         modOwner = m_originalCaster->GetSpellModOwner();
 
-    switch(spellmgr.SpellTargetType[cur])
+    switch(SpellTargetType[cur])
     {
         case TARGET_TYPE_UNIT_CASTER:
         {
@@ -2224,7 +2224,7 @@ void Spell::SetTargetMap(uint32 i, uint32 cur)
     else if(pushType)
     {
         // Dummy, just for client
-        if(spellmgr.EffectTargetType[m_spellInfo->Effect[i]] != SPELL_REQUIRE_UNIT)
+        if(EffectTargetType[m_spellInfo->Effect[i]] != SPELL_REQUIRE_UNIT)
             return;
 
         float radius;
@@ -2695,7 +2695,7 @@ void Spell::prepare(SpellCastTargets const* targets, AuraEffect* triggeredByAura
             m_caster->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_CAST);
             for(uint32 i = 0; i < 3; ++i)
             {
-                if(spellmgr.EffectTargetType[m_spellInfo->Effect[i]] == SPELL_REQUIRE_UNIT)
+                if(EffectTargetType[m_spellInfo->Effect[i]] == SPELL_REQUIRE_UNIT)
                 {
                     m_caster->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_SPELL_ATTACK);
                     break;
@@ -3097,14 +3097,14 @@ void Spell::_handle_immediate_phase()
     // process ground
     for(uint32 j = 0; j < 3; ++j)
     {
-        if(spellmgr.EffectTargetType[m_spellInfo->Effect[j]] == SPELL_REQUIRE_DEST)
+        if(EffectTargetType[m_spellInfo->Effect[j]] == SPELL_REQUIRE_DEST)
         {
             if(!m_targets.HasDst()) // FIXME: this will ignore dest set in effect
                 m_targets.setDestination(m_caster);
             HandleEffects(m_originalCaster, NULL, NULL, j);
             m_effectMask |= (1<<j);
         }
-        else if(spellmgr.EffectTargetType[m_spellInfo->Effect[j]] == SPELL_REQUIRE_NONE)
+        else if(EffectTargetType[m_spellInfo->Effect[j]] == SPELL_REQUIRE_NONE)
         {
             HandleEffects(m_originalCaster, NULL, NULL, j);
             m_effectMask |= (1<<j);
@@ -5202,8 +5202,8 @@ SpellCastResult Spell::CheckPetCast(Unit* target)
 
         for(uint32 i = 0; i < 3; ++i)
         {
-            if(spellmgr.SpellTargetType[m_spellInfo->EffectImplicitTargetA[i]] == TARGET_TYPE_UNIT_TARGET
-                || spellmgr.SpellTargetType[m_spellInfo->EffectImplicitTargetA[i]] == TARGET_TYPE_DEST_TARGET)
+            if(SpellTargetType[m_spellInfo->EffectImplicitTargetA[i]] == TARGET_TYPE_UNIT_TARGET
+                || SpellTargetType[m_spellInfo->EffectImplicitTargetA[i]] == TARGET_TYPE_DEST_TARGET)
             {
                 if(!target)
                     return SPELL_FAILED_BAD_IMPLICIT_TARGETS;
