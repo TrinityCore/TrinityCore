@@ -1890,7 +1890,9 @@ SET character_set_client = utf8;
 CREATE TABLE `npc_spellclick_spells` (
   `npc_entry` int(10) unsigned NOT NULL COMMENT 'reference to creature_template',
   `spell_id` int(10) unsigned NOT NULL COMMENT 'spell which should be casted ',
-  `quest_id` int(10) unsigned NOT NULL COMMENT 'reference to quest_template',
+  `quest_start`        mediumint(8) unsigned NOT NULL COMMENT 'reference to quest_template',
+  `quest_start_active` tinyint(1) unsigned NOT NULL default '0',
+  `quest_end`          mediumint(8) unsigned NOT NULL default '0',  
   `cast_flags` tinyint(3) unsigned NOT NULL COMMENT 'first bit defines caster: 1=player, 0=creature; second bit defines target, same mapping as caster bit',
   `aura_required` int(11) unsigned NOT NULL default '0' COMMENT 'player without aura cant click',
   `aura_forbidden` int(11) unsigned NOT NULL default '0' COMMENT 'player with aura cant click',
