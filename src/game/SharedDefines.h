@@ -1921,7 +1921,7 @@ enum CreatureFamily
 enum CreatureTypeFlags
 {
     CREATURE_TYPEFLAGS_TAMEABLE        = 0x00001,           //tameable by any hunter
-    CREATURE_TYPEFLAGS_UNK2            = 0x00002,           //related to spirits/ghosts in any form?
+    CREATURE_TYPEFLAGS_UNK2            = 0x00002,           //? Related to spirits/ghosts in any form? Allow gossip interaction if player is also ghost? Visibility?
     CREATURE_TYPEFLAGS_UNK3            = 0x00004,
     CREATURE_TYPEFLAGS_UNK4            = 0x00008,
     CREATURE_TYPEFLAGS_UNK5            = 0x00010,
@@ -1931,14 +1931,14 @@ enum CreatureTypeFlags
     CREATURE_TYPEFLAGS_HERBLOOT        = 0x00100,           //can be looted by herbalist
     CREATURE_TYPEFLAGS_MININGLOOT      = 0x00200,           //can be looted by miner
     CREATURE_TYPEFLAGS_UNK11           = 0x00400,
-    CREATURE_TYPEFLAGS_UNK12           = 0x00800,
-    CREATURE_TYPEFLAGS_UNK13           = 0x01000,           //can aid any player in combat if in range?
+    CREATURE_TYPEFLAGS_UNK12           = 0x00800,           //? Related to mounts in some way. If mounted, fight mounted, mount appear as independant when rider dies?
+    CREATURE_TYPEFLAGS_UNK13           = 0x01000,           //? Can aid any player in combat if in range?
     CREATURE_TYPEFLAGS_UNK14           = 0x02000,
-    CREATURE_TYPEFLAGS_UNK15           = 0x04000,
+    CREATURE_TYPEFLAGS_UNK15           = 0x04000,           //? Possibly not in use
     CREATURE_TYPEFLAGS_ENGINEERLOOT    = 0x08000,           //can be looted by engineer
     CREATURE_TYPEFLAGS_EXOTIC          = 0x10000,           //can be tamed by hunter as exotic pet
-    CREATURE_TYPEFLAGS_UNK18           = 0x20000,
-    CREATURE_TYPEFLAGS_UNK19           = 0x40000,
+    CREATURE_TYPEFLAGS_UNK18           = 0x20000,           //? Related to veichles/pvp?
+    CREATURE_TYPEFLAGS_UNK19           = 0x40000,           //? Related to veichle/siege weapons?
     CREATURE_TYPEFLAGS_UNK20           = 0x80000
 };
 
