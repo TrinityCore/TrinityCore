@@ -340,16 +340,20 @@ bool GossipSelect_npc_stone_watcher_of_norgannon(Player* pPlayer, Creature* pCre
 ## npc_OOX17
 ######*/
 
-#define Q_OOX17             648
-#define SPAWN_FIRST         7803
-#define SPAWN_SECOND_1      5617
-#define SPAWN_SECOND_2      7805
-#define SAY_SCOFF           -1060004
-#define SAY_CHICKEN_ACC     -1060000
-#define SAY_CHICKEN_AGGRO_1 -1060001
-#define SAY_CHICKEN_AGGRO_2 -1060002
-#define SAY_CHICKEN_AMB     -1060003
-#define SAY_CHICKEN_COMP    -1060005
+enum
+{
+    SAY_OOX_START           = -1000287,
+    SAY_OOX_AGGRO1          = -1000288,
+    SAY_OOX_AGGRO2          = -1000289,
+    SAY_OOX_AMBUSH          = -1000290,
+    SAY_OOX17_AMBUSH_REPLY  = -1000291,
+    SAY_OOX_END             = -1000292,
+
+    Q_OOX17                 = 648,
+    SPAWN_FIRST             = 7803,
+    SPAWN_SECOND_1          = 5617,
+    SPAWN_SECOND_2          = 7805
+};
 
 struct TRINITY_DLL_DECL npc_OOX17AI : public npc_escortAI
 {
@@ -367,22 +371,22 @@ struct TRINITY_DLL_DECL npc_OOX17AI : public npc_escortAI
                 m_creature->SummonCreature(SPAWN_FIRST, -8350.96, -4445.79, 10.10, 6.20, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
                 m_creature->SummonCreature(SPAWN_FIRST, -8355.96, -4447.79, 10.10, 6.27, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
                 m_creature->SummonCreature(SPAWN_FIRST, -8353.96, -4442.79, 10.10, 6.08, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
-                DoScriptText(SAY_CHICKEN_AMB, m_creature);
+                DoScriptText(SAY_OOX_AMBUSH, m_creature);
                 break;
 
             case 56:
                 m_creature->SummonCreature(SPAWN_SECOND_1, -7510.07, -4795.50, 9.35, 6.06, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
                 m_creature->SummonCreature(SPAWN_SECOND_2, -7515.07, -4797.50, 9.35, 6.22, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
                 m_creature->SummonCreature(SPAWN_SECOND_2, -7518.07, -4792.50, 9.35, 6.22, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
-                DoScriptText(SAY_CHICKEN_AMB, m_creature);
+                DoScriptText(SAY_OOX_AMBUSH, m_creature);
                 if (Unit* scoff = me->FindNearestCreature(SPAWN_SECOND_2, 30))
-                    DoScriptText(SAY_SCOFF, scoff);
+                    DoScriptText(SAY_OOX17_AMBUSH_REPLY, scoff);
                 break;
 
             case 86:
                 if (pPlayer)
                 {
-                    DoScriptText(SAY_CHICKEN_COMP, m_creature);
+                    DoScriptText(SAY_OOX_END, m_creature);
                     pPlayer->GroupEventHappens(Q_OOX17, m_creature);
                 }
                 break;
@@ -395,8 +399,8 @@ struct TRINITY_DLL_DECL npc_OOX17AI : public npc_escortAI
     {
         switch (rand()%2)
         {
-        case 0: DoScriptText(SAY_CHICKEN_AGGRO_1, m_creature); break;
-        case 1: DoScriptText(SAY_CHICKEN_AGGRO_2, m_creature); break;
+        case 0: DoScriptText(SAY_OOX_AGGRO1, m_creature); break;
+        case 1: DoScriptText(SAY_OOX_AGGRO2, m_creature); break;
         }
     }
 
@@ -414,7 +418,7 @@ bool QuestAccept_npc_OOX17(Player* pPlayer, Creature* pCreature, Quest const* qu
         pCreature->SetHealth(pCreature->GetMaxHealth());
         pCreature->SetUInt32Value(UNIT_FIELD_BYTES_1,0);
         pCreature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_ATTACKABLE_2);
-        DoScriptText(SAY_CHICKEN_ACC, pCreature);
+        DoScriptText(SAY_OOX_START, pCreature);
 
         if (npc_escortAI* pEscortAI = CAST_AI(npc_OOX17AI, pCreature->AI()))
             pEscortAI->Start(true, false, pPlayer->GetGUID());
