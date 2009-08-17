@@ -115,6 +115,7 @@ UPDATE `creature_template` SET `ScriptName`='npc_scarlet_miner_cart' WHERE (`ent
 UPDATE `creature_template` SET `ScriptName`='npc_scarlet_miner' WHERE (`entry`='28841');
 UPDATE `creature_template` SET `ScriptName`='npc_crusade_persuaded' WHERE `entry` IN (28939,28940,28610);
 
+UPDATE `creature_template` SET `ScriptName`='mob_scarlet_courier' WHERE `entry`='29076';
 
 /*  */
 /* ZONE */
