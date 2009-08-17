@@ -58,6 +58,7 @@ struct TRINITY_DLL_DECL npc_crusade_persuadedAI : public ScriptedAI
         uiSpeech_counter = 0;
         uiPlayerGUID = 0;
         me->SetReactState(REACT_AGGRESSIVE);
+        me->RestoreFaction();
     }
 
     void SpellHit(Unit *caster, const SpellEntry *spell)
@@ -66,36 +67,34 @@ struct TRINITY_DLL_DECL npc_crusade_persuadedAI : public ScriptedAI
         {
             if(CAST_PLR(caster)->GetQuestStatus(12720) == QUEST_STATUS_INCOMPLETE)
             {
-                if (rand()%100 < 5) // chance
+                uiPlayerGUID = caster->GetGUID();
+                uiSpeech_timer = 1000;
+                uiSpeech_counter = 1;
+                me->setFaction(caster->getFaction());
+                me->CombatStop(true);
+                me->GetMotionMaster()->MoveIdle();
+                me->SetReactState(REACT_PASSIVE);
+                DoCastAOE(58111, true);
+
+                switch(rand()%6)
                 {
-                    uiPlayerGUID = caster->GetGUID();
-                    uiSpeech_timer = 1000;
-                    uiSpeech_counter = 1;
-                    me->setFaction(35);
-                    me->CombatStop(true);
-                    me->GetMotionMaster()->MoveIdle();
-                    me->SetReactState(REACT_PASSIVE);
+                    case 0: DoScriptText(SAY_PERSUADE1, caster);break;
+                    case 1: DoScriptText(SAY_PERSUADE2, caster);break;
+                    case 2: DoScriptText(SAY_PERSUADE3, caster);break;
+                    case 3: DoScriptText(SAY_PERSUADE4, caster);break;
+                    case 4: DoScriptText(SAY_PERSUADE5, caster);break;
+                    case 5: DoScriptText(SAY_PERSUADE6, caster);break;
+                    case 6: DoScriptText(SAY_PERSUADE7, caster);break;
+                }
 
-                    switch(rand()%6)
-                    {
-                        case 0: DoScriptText(SAY_PERSUADE1, caster);break;
-                        case 1: DoScriptText(SAY_PERSUADE2, caster);break;
-                        case 2: DoScriptText(SAY_PERSUADE3, caster);break;
-                        case 3: DoScriptText(SAY_PERSUADE4, caster);break;
-                        case 4: DoScriptText(SAY_PERSUADE5, caster);break;
-                        case 5: DoScriptText(SAY_PERSUADE6, caster);break;
-                        case 6: DoScriptText(SAY_PERSUADE7, caster);break;
-                    }
-
-                    switch(rand()%5)
-                    {
-                        case 0: DoScriptText(SAY_CRUSADER1, me);break;
-                        case 1: DoScriptText(SAY_CRUSADER2, me);break;
-                        case 2: DoScriptText(SAY_CRUSADER3, me);break;
-                        case 3: DoScriptText(SAY_CRUSADER4, me);break;
-                        case 4: DoScriptText(SAY_CRUSADER5, me);break;
-                        case 5: DoScriptText(SAY_CRUSADER6, me);break;
-                    }
+                switch(rand()%5)
+                {
+                    case 0: DoScriptText(SAY_CRUSADER1, me);break;
+                    case 1: DoScriptText(SAY_CRUSADER2, me);break;
+                    case 2: DoScriptText(SAY_CRUSADER3, me);break;
+                    case 3: DoScriptText(SAY_CRUSADER4, me);break;
+                    case 4: DoScriptText(SAY_CRUSADER5, me);break;
+                    case 5: DoScriptText(SAY_CRUSADER6, me);break;
                 }
             }
         }
@@ -122,17 +121,16 @@ struct TRINITY_DLL_DECL npc_crusade_persuadedAI : public ScriptedAI
                     case 4: DoScriptText(SAY_PERSUADED4, me); uiSpeech_timer = 8000; break;
                     case 5: DoScriptText(SAY_PERSUADED5, pPlayer); uiSpeech_timer = 8000; break;
                     case 6: DoScriptText(SAY_PERSUADED6, me);
-                        me->RestoreFaction();
                         pPlayer->Kill(me);
                         //me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                         //me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                         uiSpeech_counter = 0;
-                        if(pPlayer->GetQuestStatus(12720) == QUEST_STATUS_INCOMPLETE)
-                            pPlayer->AreaExploredOrEventHappens(12720);
+                        pPlayer->GroupEventHappens(12720, me);
                         return;
                 }
 
                 ++uiSpeech_counter;
+                DoCastAOE(58111, true);
             }else uiSpeech_timer -= diff;
 
             return;
