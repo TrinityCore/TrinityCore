@@ -906,7 +906,7 @@ void Unit::CastSpell(Unit* Victim,SpellEntry const *spellInfo, bool triggered, I
     //if(targetMask & (TARGET_FLAG_UNIT|TARGET_FLAG_UNK2))
     for(uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
     {
-        if(spellmgr.SpellTargetType[spellInfo->EffectImplicitTargetA[i]] == TARGET_TYPE_UNIT_TARGET)
+        if(SpellTargetType[spellInfo->EffectImplicitTargetA[i]] == TARGET_TYPE_UNIT_TARGET)
         {
             /*SpellRangeEntry const* srange = sSpellRangeStore.LookupEntry(spellInfo->rangeIndex);
             if(srange && GetSpellMaxRange(srange) == 0.0f)
@@ -978,7 +978,7 @@ void Unit::CastCustomSpell(uint32 spellId, CustomSpellValues const &value, Unit*
     //check unit target
     for(uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
     {
-        if(spellmgr.SpellTargetType[spellInfo->EffectImplicitTargetA[i]] == TARGET_TYPE_UNIT_TARGET)
+        if(SpellTargetType[spellInfo->EffectImplicitTargetA[i]] == TARGET_TYPE_UNIT_TARGET)
         {
             if(!Victim)
             {
@@ -6076,6 +6076,10 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
             // Judgements of the Wise
             if (dummySpell->SpellIconID == 3017)
             {
+                //Mangos code, do not know if we need it
+                // triggered only at casted Judgement spells, not at additional Judgement effects
+                //if(!procSpell || procSpell->Category != 1210)
+                //    return;
                 target = this;
                 triggered_spell_id = 31930;
                 // replenishment
@@ -12181,7 +12185,7 @@ void CharmInfo::InitCharmCreateSpells()
                 {
                     bool autocast = false;
                     for(uint32 i = 0; i < MAX_SPELL_EFFECTS && !autocast; ++i)
-                        if(spellmgr.SpellTargetType[spellInfo->EffectImplicitTargetA[i]] == TARGET_TYPE_UNIT_TARGET)
+                        if(SpellTargetType[spellInfo->EffectImplicitTargetA[i]] == TARGET_TYPE_UNIT_TARGET)
                             autocast = true;
 
                     if(autocast)
