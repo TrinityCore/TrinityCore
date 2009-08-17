@@ -2041,6 +2041,9 @@ void Player::RegenerateAll()
 
 void Player::Regenerate(Powers power)
 {
+    // TODO: possible use of miscvalueb instead of amount
+    if (HasAuraTypeWithValue(SPELL_AURA_PREVENT_REGENERATE_POWER, power))
+        return;
     uint32 curValue = GetPower(power);
     uint32 maxValue = GetMaxPower(power);
 
