@@ -12,6 +12,6 @@ INSERT INTO `npc_spellclick_spells` (npc_entry, spell_id, quest_start, quest_sta
 (31896, 60123, 0, 0, 0, 0x2, 0, 27873, 2),
 (31897, 60123, 0, 0, 0, 0x2, 0, 7001, 2);
 
-DELETE FROM `spell_bonus_data` WHERE `npc_entry` IN(7001);
+DELETE FROM `spell_bonus_data` WHERE `entry` IN(7001);
 REPLACE INTO `spell_bonus_data` (entry, direct_bonus, dot_bonus, ap_bonus, ap_dot_bonus, comments) VALUES
 (7001, -1, 0.3333, -1, -1, 'Priest - Lightwell Renew Rank 1');
