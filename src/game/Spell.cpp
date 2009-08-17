@@ -1058,7 +1058,11 @@ void Spell::DoAllEffectOnTarget(TargetInfo *target)
     else if (missInfo == SPELL_MISS_REFLECT)                // In case spell reflect from target, do all effect on caster (if hit)
     {
         if (target->reflectResult == SPELL_MISS_NONE)       // If reflected spell hit caster -> do all effect on him
+        {
             spellHitTarget = m_caster;
+            if(m_caster->GetTypeId() == TYPEID_UNIT)
+                ((Creature*)m_caster)->LowerPlayerDamageReq(target->damage);
+        }
     }
 
     if(spellHitTarget)
