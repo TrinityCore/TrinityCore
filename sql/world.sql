@@ -1892,7 +1892,9 @@ CREATE TABLE `npc_spellclick_spells` (
   `spell_id` int(10) unsigned NOT NULL COMMENT 'spell which should be casted ',
   `quest_id` int(10) unsigned NOT NULL COMMENT 'reference to quest_template',
   `cast_flags` tinyint(3) unsigned NOT NULL COMMENT 'first bit defines caster: 1=player, 0=creature; second bit defines target, same mapping as caster bit',
-  `quest_status` int(11) unsigned NOT NULL default '3' COMMENT 'Quest status: 3 incompleted, 1 completed/rewarded'
+  `aura_required` int(11) unsigned NOT NULL default '0' COMMENT 'player without aura cant click',
+  `aura_forbidden` int(11) unsigned NOT NULL default '0' COMMENT 'player with aura cant click',
+  `user_type` smallint(3) unsigned NOT NULL default '0' COMMENT 'relation with summoner: 0-no 1-friendly 2-raid 3-party player can click'
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 SET character_set_client = @saved_cs_client;
 
