@@ -5761,6 +5761,19 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
         {
             switch(dummySpell->Id)
             {
+                // Glyph of Rake
+                case 54821:
+                {
+                    if (procSpell->SpellVisual[0] == 750 && procSpell->EffectApplyAuraName[1] == 3)
+                    {
+                        if (target->GetTypeId() == TYPEID_UNIT)  
+                        {
+                            triggered_spell_id = 54820;
+                            break;                    
+                        }
+                    }
+                    return false;
+                }
                 // Savage Roar (aura recast on return to cat form)
                 case 52610:
                 {
