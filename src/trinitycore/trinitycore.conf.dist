@@ -1,7 +1,7 @@
 ##########################################
 # Trinity Core worldd configuration file #
 ##########################################
-ConfVersion=2009081701
+ConfVersion=2009081702
 
 ###################################################################################################################
 # CONNECTIONS AND DIRECTORIES
@@ -1556,12 +1556,24 @@ AuctionHouseBot.ItemsPerCycle = 200
 #        Include items that can be bought from vendors.
 #    Default 0 (False)
 #
+#    AuctionHouseBot.VendorTradeGoods
+#        Include Trade Goods that can be bought from vendors.
+#    Default 0 (False)
+#
 #    AuctionHouseBot.LootItems
 #        Include items that can be looted or fished for.
 #    Default 1 (True)
 #
+#    AuctionHouseBot.LootTradeGoods
+#        Include Trade Goods that can be looted or fished for.
+#    Default 1 (True)
+#
 #    AuctionHouseBot.OtherItems
 #        Include misc. items.
+#    Default 0 (False)
+#
+#    AuctionHouseBot.OtherTradeGoods
+#        Include misc. Trade Goods.
 #    Default 0 (False)
 #
 #    AuctionHouseBot.Bonding_types
@@ -1623,8 +1635,11 @@ AuctionHouseBot.ItemsPerCycle = 200
 ###################################################################################################################
 
 AuctionHouseBot.VendorItems = 0
+AuctionHouseBot.VendorTradeGoods = 0
 AuctionHouseBot.LootItems = 1
+AuctionHouseBot.LootTradeGoods = 1
 AuctionHouseBot.OtherItems = 0
+AuctionHouseBot.OtherTradeGoods = 0
 AuctionHouseBot.No_Bind = 1
 AuctionHouseBot.Bind_When_Picked_Up = 0
 AuctionHouseBot.Bind_When_Equipped = 1
