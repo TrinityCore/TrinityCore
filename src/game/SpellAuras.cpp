@@ -2728,6 +2728,21 @@ void AuraEffect::HandleAuraDummy(bool apply, bool Real, bool changeAmount)
                             if(BattleGround *bg = ((Player*)m_target)->GetBattleGround())
                                 bg->RemovePlayerFromResurrectQueue(m_target->GetGUID());
                         return;
+                    case 36730:                                     // Flame Strike
+                    {
+                        m_target->CastSpell(m_target, 36731, true, NULL, this);
+                        return;
+                    }
+                    case 44191:                                     // Flame Strike
+                    {
+                        if (m_target->GetMap()->IsDungeon())
+                        {
+                            uint32 spellId = m_target->GetMap()->IsHeroic() ? 46163 : 44190;
+
+                            m_target->CastSpell(m_target, spellId, true, NULL, this);
+                        }
+                        return;
+                    }
                     case 42783: // Wrath of the Astromancer
                         m_target->CastSpell(m_target,m_amount,true,NULL,this);
                         return;
