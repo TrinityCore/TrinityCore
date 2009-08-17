@@ -19,6 +19,9 @@ AuctionHouseBot::AuctionHouseBot()
     Vendor_Items = false;
     Loot_Items = false;
     Other_Items = false;
+    Vendor_TGs = false;
+    Loot_TGs = false;
+    Other_TGs = false;
 
     No_Bind = false;
     Bind_When_Picked_Up = false;
@@ -776,6 +779,9 @@ void AuctionHouseBot::Initialize()
     Vendor_Items = sConfig.GetBoolDefault("AuctionHouseBot.VendorItems", false);
     Loot_Items = sConfig.GetBoolDefault("AuctionHouseBot.LootItems", true);
     Other_Items = sConfig.GetBoolDefault("AuctionHouseBot.OtherItems", false);
+    Vendor_TGs = sConfig.GetBoolDefault("AuctionHouseBot.VendorTradeGoods", false);
+    Loot_TGs = sConfig.GetBoolDefault("AuctionHouseBot.LootTradeGoods", true);
+    Other_TGs = sConfig.GetBoolDefault("AuctionHouseBot.OtherTradeGoods", false);
 
     No_Bind = sConfig.GetBoolDefault("AuctionHouseBot.No_Bind", true);
     Bind_When_Picked_Up = sConfig.GetBoolDefault("AuctionHouseBot.Bind_When_Picked_Up", false);
@@ -929,7 +935,7 @@ void AuctionHouseBot::Initialize()
             if ((prototype->Quality < 0) || (prototype->Quality > 6))
                 continue;
 
-            if (Vendor_Items == 0)
+            if ((Vendor_Items == 0) && !(prototype->Class == ITEM_CLASS_TRADE_GOODS))
             {
                 bool isVendorItem = false;
 
@@ -943,7 +949,21 @@ void AuctionHouseBot::Initialize()
                     continue;
             }
 
-            if (Loot_Items == 0)
+            if ((Vendor_TGs == 0) && (prototype->Class == ITEM_CLASS_TRADE_GOODS))
+            {
+                bool isVendorTG = false;
+
+                for (unsigned int i = 0; (i < npcItems.size()) && (!isVendorTG); i++)
+                {
+                    if (itemID == npcItems[i])
+                        isVendorTG = true;
+                }
+
+                if (isVendorTG)
+                    continue;
+            }
+
+            if ((Loot_Items == 0) && !(prototype->Class == ITEM_CLASS_TRADE_GOODS))
             {
                 bool isLootItem = false;
 
@@ -957,7 +977,21 @@ void AuctionHouseBot::Initialize()
                     continue;
             }
 
-            if (Other_Items == 0)
+            if ((Loot_TGs == 0) && (prototype->Class == ITEM_CLASS_TRADE_GOODS))
+            {
+                bool isLootTG = false;
+
+                for (unsigned int i = 0; (i < lootItems.size()) && (!isLootTG); i++)
+                {
+                    if (itemID == lootItems[i])
+                        isLootTG = true;
+                }
+
+                if (isLootTG)
+                    continue;
+            }
+
+            if ((Other_Items == 0) && !(prototype->Class == ITEM_CLASS_TRADE_GOODS))
             {
                 bool isVendorItem = false;
                 bool isLootItem = false;
@@ -973,6 +1007,25 @@ void AuctionHouseBot::Initialize()
                         isLootItem = true;
                 }
                 if ((!isLootItem) && (!isVendorItem))
+                    continue;
+            }
+
+            if ((Other_TGs == 0) && (prototype->Class == ITEM_CLASS_TRADE_GOODS))
+            {
+                bool isVendorTG = false;
+                bool isLootTG = false;
+
+                for (unsigned int i = 0; (i < npcItems.size()) && (!isVendorTG); i++)
+                {
+                    if (itemID == npcItems[i])
+                        isVendorTG = true;
+                }
+                for (unsigned int i = 0; (i < lootItems.size()) && (!isLootTG); i++)
+                {
+                    if (itemID == lootItems[i])
+                        isLootTG = true;
+                }
+                if ((!isLootTG) && (!isVendorTG))
                     continue;
             }
 
