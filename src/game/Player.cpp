@@ -14836,6 +14836,9 @@ bool Player::LoadFromDB( uint32 guid, SqlQueryHolder *holder )
             const WorldLocation& _loc = GetBattleGroundEntryPoint();
             mapId = _loc.mapid; instanceId = 0;
             Relocate(_loc.coord_x, _loc.coord_y, _loc.coord_z, _loc.orientation);
+
+            // We are not in BG anymore
+            m_bgData.bgInstanceID = 0;
         }
     }
     // currently we do not support transport in bg
