@@ -181,7 +181,10 @@ enum eKoltira
 
 struct TRINITY_DLL_DECL npc_koltira_deathweaverAI : public npc_escortAI
 {
-    npc_koltira_deathweaverAI(Creature *pCreature) : npc_escortAI(pCreature) { }
+    npc_koltira_deathweaverAI(Creature *pCreature) : npc_escortAI(pCreature)
+    {
+        me->SetReactState(REACT_DEFENSIVE);
+    }
 
     uint32 m_uiWave;
     uint32 m_uiWave_Timer;
@@ -194,6 +197,9 @@ struct TRINITY_DLL_DECL npc_koltira_deathweaverAI : public npc_escortAI
             m_uiWave = 0;
             m_uiWave_Timer = 3000;
             m_uiValrothGUID = 0;
+            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+            me->LoadEquipment(0, true);
+            me->RemoveAura(SPELL_ANTI_MAGIC_ZONE);
         }
     }
 
@@ -203,6 +209,7 @@ struct TRINITY_DLL_DECL npc_koltira_deathweaverAI : public npc_escortAI
         {
             case 0:
                 DoScriptText(SAY_BREAKOUT1, me);
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                 break;
             case 1:
                 me->SetStandState(UNIT_STAND_STATE_KNEEL);
@@ -211,6 +218,7 @@ struct TRINITY_DLL_DECL npc_koltira_deathweaverAI : public npc_escortAI
                 me->SetStandState(UNIT_STAND_STATE_STAND);
                 //me->UpdateEntry(NPC_KOLTIRA_ALT); //unclear if we must update or not
                 DoCast(me, SPELL_KOLTIRA_TRANSFORM);
+                me->LoadEquipment(me->GetEquipmentId());
                 break;
             case 3:
                 IsOnHold = true;
@@ -235,11 +243,13 @@ struct TRINITY_DLL_DECL npc_koltira_deathweaverAI : public npc_escortAI
         if (Player* pPlayer = GetPlayerForEscort())
         {
             pSummoned->AI()->AttackStart(pPlayer);
-            pSummoned->AddThreat(me, 0.0f);
         }
 
         if (pSummoned->GetEntry() == NPC_HIGH_INQUISITOR_VALROTH)
             m_uiValrothGUID = pSummoned->GetGUID();
+
+        pSummoned->AddThreat(me, 0.0f);
+        pSummoned->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_ATTACKABLE_2);
     }
 
     void SummonAcolyte(uint32 uiAmount)
@@ -280,7 +290,7 @@ struct TRINITY_DLL_DECL npc_koltira_deathweaverAI : public npc_escortAI
                         break;
                     case 4:
                     {
-                        Unit* pTemp = Unit::GetUnit(*me, m_uiValrothGUID);
+                        Creature* pTemp = Unit::GetCreature(*me, m_uiValrothGUID);
 
                         if (!pTemp || !pTemp->isAlive())
                         {
@@ -297,6 +307,7 @@ struct TRINITY_DLL_DECL npc_koltira_deathweaverAI : public npc_escortAI
                     case 5:
                         DoScriptText(SAY_BREAKOUT9, me);
                         me->RemoveAurasDueToSpell(SPELL_ANTI_MAGIC_ZONE);
+                        // i do not know why the armor will also be removed
                         m_uiWave_Timer = 2500;
                         break;
                     case 6:
@@ -429,22 +440,21 @@ enum valroth
 
 struct TRINITY_DLL_DECL mob_high_inquisitor_valrothAI : public ScriptedAI
 {
-    mob_high_inquisitor_valrothAI(Creature *pCreature) : ScriptedAI(pCreature)
-    {
-        Reset();
-    }
+    mob_high_inquisitor_valrothAI(Creature *pCreature) : ScriptedAI(pCreature) {}
 
     uint32 uiRenew_timer;
     uint32 uiInquisitor_Penance_timer;
     uint32 uiValroth_Smite_timer;
 
-    void Reset() {
+    void Reset()
+    {
         uiRenew_timer = 1000;
         uiInquisitor_Penance_timer = 2000;
         uiValroth_Smite_timer = 1000;
     }
 
-    void Aggro(Unit* who){
+    void EnterCombat(Unit* who)
+    {
         DoScriptText(SAY_VALROTH2, me);
         DoCast(who, SPELL_VALROTH_SMITE);
     }
