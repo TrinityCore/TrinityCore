@@ -2149,7 +2149,7 @@ void Unit::CalcAbsorbResist(Unit *pVictim,SpellSchoolMask schoolMask, DamageEffe
         }
     }
 
-    *absorb = damage - RemainingDamage - *resist;
+    *absorb = RemainingDamage > 0 ? (damage - RemainingDamage - *resist) : (damage - *resist);
 
     if (*absorb)
     {
