@@ -979,10 +979,6 @@ void Aura::HandleAuraSpecificMods(bool apply)
             }
         }
 
-        // Buffeting Winds of Susurrus
-        if(GetId()==32474 && m_target->GetTypeId()==TYPEID_PLAYER)
-            ((Player*)m_target)->ActivateTaxiPathTo(506,GetId());
-
         if (m_spellProto->SpellFamilyName == SPELLFAMILY_MAGE)
         {
             if (m_spellProto->SpellFamilyFlags[0] & 0x00000001 && m_spellProto->SpellFamilyFlags[2] & 0x00000008)
@@ -1017,23 +1013,35 @@ void Aura::HandleAuraSpecificMods(bool apply)
                 }
             }
         }
-        // Gronn Lord's Grasp, becomes stoned
-        else if (GetId() == 33572)
+        // Sprint (skip non player casted spells by category)
+        else if (GetSpellProto()->SpellFamilyFlags[0] & 0x40 && GetSpellProto()->Category == 44)
         {
-            if (GetStackAmount() >= 5 && !m_target->HasAura(33652))
-                m_target->CastSpell(m_target, 33652, true);
+            // in official you may only see one icon
+            if(m_target->HasAura(58039)) // Glyph of Blurred Speed
+                m_target->CastSpell(m_target, 61922, true); // Sprint (waterwalk)
         }
-        // Heroic Fury (remove Intercept cooldown)
-        else if(GetId() == 60970 && m_target->GetTypeId() == TYPEID_PLAYER )
+        else
         {
-            ((Player*)m_target)->RemoveSpellCooldown(20252, true);
-        }
-        // Demonic Circle
-        else if (GetId() == 48020 && m_target->GetTypeId() == TYPEID_PLAYER )
-        {
-            GameObject* obj = m_target->GetGameObject(48018);
-            if (obj)
-                ((Player*)m_target)->TeleportTo(obj->GetMapId(),obj->GetPositionX(),obj->GetPositionY(),obj->GetPositionZ(),obj->GetOrientation());
+            switch(GetId())
+            {
+                case 32474: // Buffeting Winds of Susurrus
+                    if(m_target->GetTypeId() == TYPEID_PLAYER)
+                        ((Player*)m_target)->ActivateTaxiPathTo(506, GetId());
+                    break;
+                case 33572: // Gronn Lord's Grasp, becomes stoned
+                    if(GetStackAmount() >= 5 && !m_target->HasAura(33652))
+                        m_target->CastSpell(m_target, 33652, true);
+                    break;
+                case 48020: // Demonic Circle
+                    if(m_target->GetTypeId() == TYPEID_PLAYER)
+                        if(GameObject* obj = m_target->GetGameObject(48018))
+                            ((Player*)m_target)->TeleportTo(obj->GetMapId(),obj->GetPositionX(),obj->GetPositionY(),obj->GetPositionZ(),obj->GetOrientation());
+                    break;
+                case 60970: // Heroic Fury (remove Intercept cooldown)
+                    if(m_target->GetTypeId() == TYPEID_PLAYER)
+                        ((Player*)m_target)->RemoveSpellCooldown(20252, true);
+                    break;
+            }
         }
     }
 
