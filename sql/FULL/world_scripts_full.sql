@@ -113,6 +113,8 @@ UPDATE `creature_template` SET `ScriptName`='npc_ebon_gargoyle' WHERE `entry`=27
 UPDATE `gameobject_template` SET `ScriptName`='go_inconspicuous_mine_car' WHERE (`entry`='190767');
 UPDATE `creature_template` SET `ScriptName`='npc_scarlet_miner_cart' WHERE (`entry`='28817');
 UPDATE `creature_template` SET `ScriptName`='npc_scarlet_miner' WHERE (`entry`='28841');
+UPDATE `creature_template` SET `ScriptName`='npc_crusade_persuaded' WHERE `entry` IN (28939,28940,28610);
+
 
 /*  */
 /* ZONE */
