@@ -337,7 +337,7 @@ pAuraHandler AuraHandler[TOTAL_AURAS]=
     &Aura::HandleNoImmediateEffect,                         //281 SPELL_AURA_MOD_HONOR_GAIN_PCT implemented in Player::RewardHonor
     &Aura::HandleAuraIncreaseBaseHealthPercent,             //282 SPELL_AURA_INCREASE_BASE_HEALTH_PERCENT
     &Aura::HandleNoImmediateEffect,                         //283 SPELL_AURA_MOD_HEALING_RECEIVED       implemented in Unit::SpellHealingBonus
-    &Aura::HandleNULL,                                      //284 SPELL_AURA_LINKED
+    &Aura::HandleAuraLinked,                                //284 SPELL_AURA_LINKED
     &Aura::HandleAuraModAttackPowerOfArmor,                 //285 SPELL_AURA_MOD_ATTACK_POWER_OF_ARMOR  implemented in Player::UpdateAttackPowerAndDamage
     &Aura::HandleNoImmediateEffect,                         //286 SPELL_AURA_ABILITY_PERIODIC_CRIT implemented in AuraEffect::PeriodicTick
     &Aura::HandleNoImmediateEffect,                         //287 SPELL_AURA_DEFLECT_SPELLS             implemented in Unit::MagicSpellHitResult and Unit::MeleeSpellHitResult
@@ -6844,6 +6844,26 @@ void AuraEffect::HandleAuraModCritPct(bool apply, bool Real, bool changeAmount)
     ((Player*)m_target)->HandleBaseModValue(CRIT_PERCENTAGE,         FLAT_MOD, float (m_amount), apply);
     ((Player*)m_target)->HandleBaseModValue(OFFHAND_CRIT_PERCENTAGE, FLAT_MOD, float (m_amount), apply);
     ((Player*)m_target)->HandleBaseModValue(RANGED_CRIT_PERCENTAGE,  FLAT_MOD, float (m_amount), apply);
+}
+
+void AuraEffect::HandleAuraLinked(bool apply, bool Real, bool /*changeAmount*/)
+{
+    if (!Real)
+        return;
+
+    if (apply)
+    {
+        Unit * caster = GetCaster();
+        if (!caster)
+            return;
+        // If amount avalible cast with basepoints (Crypt Fever for example)
+        if (m_amount)
+            caster->CastCustomSpell(m_target, m_spellProto->EffectTriggerSpell[m_effIndex], &m_amount, NULL, NULL, true, NULL, this);
+        else
+            caster->CastSpell(m_target, m_spellProto->EffectTriggerSpell[m_effIndex],true, NULL, this);
+    }
+    else
+        m_target->RemoveAura(m_spellProto->EffectTriggerSpell[m_effIndex], GetCasterGUID(), AuraRemoveMode(GetParentAura()->GetRemoveMode()));
 }
 
 int32 AuraEffect::CalculateCrowdControlAuraAmount(Unit * caster)
