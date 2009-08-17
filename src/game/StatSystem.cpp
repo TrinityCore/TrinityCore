@@ -619,6 +619,8 @@ void Player::UpdateSpellCritChance(uint32 school)
     crit += GetSpellCritFromIntellect();
     // Increase crit from SPELL_AURA_MOD_SPELL_CRIT_CHANCE
     crit += GetTotalAuraModifier(SPELL_AURA_MOD_SPELL_CRIT_CHANCE);
+    // Increase crit from SPELL_AURA_MOD_CRIT_PCT
+    crit += GetTotalAuraModifier(SPELL_AURA_MOD_CRIT_PCT);
     // Increase crit by school from SPELL_AURA_MOD_SPELL_CRIT_CHANCE_SCHOOL
     crit += GetTotalAuraModifierByMiscMask(SPELL_AURA_MOD_SPELL_CRIT_CHANCE_SCHOOL, 1<<school);
     // Increase crit from spell crit ratings

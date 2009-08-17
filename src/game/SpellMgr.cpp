@@ -795,6 +795,7 @@ bool SpellMgr::_isPositiveEffect(uint32 spellId, uint32 effIndex, bool deep) con
                     if(spellproto->CalculateSimpleValue(effIndex) > 0)
                         return false;
                     break;
+                case SPELL_AURA_MOD_CRIT_PCT:
                 case SPELL_AURA_MOD_SPELL_CRIT_CHANCE:
                     if(spellproto->CalculateSimpleValue(effIndex) > 0)
                         return true;                        // some expected positive spells have SPELL_ATTR_EX_NEGATIVE

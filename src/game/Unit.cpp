@@ -3082,7 +3082,8 @@ float Unit::GetUnitCriticalChance(WeaponAttackType attackType, const Unit *pVict
     else
     {
         crit = 5.0f;
-        crit += GetTotalAuraModifier(SPELL_AURA_MOD_CRIT_PERCENT);
+        crit += GetTotalAuraModifier(SPELL_AURA_MOD_WEAPON_CRIT_PERCENT);
+        crit += GetTotalAuraModifier(SPELL_AURA_MOD_CRIT_PCT);
     }
 
     // flat aura mods
