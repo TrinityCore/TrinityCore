@@ -38,7 +38,7 @@
 // Format is YYYYMMDDRR where RR is the change in the conf file
 // for that day.
 #ifndef _REALMDCONFVERSION
-# define _REALMDCONFVERSION 2007062001
+# define _REALMDCONFVERSION 2009081701
 #endif
 
 #ifndef _TRINITY_REALM_CONFIG
