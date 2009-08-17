@@ -60,11 +60,11 @@ bool GossipSelect_npc_gregan_brewspewer(Player* pPlayer, Creature* pCreature, ui
 
 enum
 {
-    SAY_START               = -1060000,
-    SAY_AGGRO               = -1060001,
-    SAY_AGGRO2              = -1060002,
-    SAY_AMBUSH              = -1060003,
-    SAY_END                 = -1060005,
+    SAY_OOX_START           = -1000287,
+    SAY_OOX_AGGRO1          = -1000288,
+    SAY_OOX_AGGRO2          = -1000289,
+    SAY_OOX_AMBUSH          = -1000290,
+    SAY_OOX_END             = -1000292,
 
     NPC_YETI                = 7848,
     NPC_GORILLA             = 5260,
@@ -88,28 +88,28 @@ struct TRINITY_DLL_DECL npc_oox22feAI : public npc_escortAI
         {
             // First Ambush(3 Yetis)
             case 11:
-                DoScriptText(SAY_AMBUSH,m_creature);
+                DoScriptText(SAY_OOX_AMBUSH, m_creature);
                 m_creature->SummonCreature(NPC_YETI, -4841.01, 1593.91, 73.42, 3.98, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000);
                 m_creature->SummonCreature(NPC_YETI, -4837.61, 1568.58, 78.21, 3.13, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000);
                 m_creature->SummonCreature(NPC_YETI, -4841.89, 1569.95, 76.53, 0.68, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000);
                 break;
             //Second Ambush(3 Gorillas)
             case 21:
-                DoScriptText(SAY_AMBUSH,m_creature);
+                DoScriptText(SAY_OOX_AMBUSH, m_creature);
                 m_creature->SummonCreature(NPC_GORILLA, -4595.81, 2005.99, 53.08, 3.74, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000);
                 m_creature->SummonCreature(NPC_GORILLA, -4597.53, 2008.31, 52.70, 3.78, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000);
                 m_creature->SummonCreature(NPC_GORILLA, -4599.37, 2010.59, 52.77, 3.84, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000);
                 break;
             //Third Ambush(4 Gnolls)
             case 30:
-                DoScriptText(SAY_AMBUSH,m_creature);
+                DoScriptText(SAY_OOX_AMBUSH, m_creature);
                 m_creature->SummonCreature(NPC_WOODPAW_REAVER, -4425.14, 2075.87, 47.77, 3.77, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000);
                 m_creature->SummonCreature(NPC_WOODPAW_BRUTE , -4426.68, 2077.98, 47.57, 3.77, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000);
                 m_creature->SummonCreature(NPC_WOODPAW_MYSTIC, -4428.33, 2080.24, 47.43, 3.87, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000);
                 m_creature->SummonCreature(NPC_WOODPAW_ALPHA , -4430.04, 2075.54, 46.83, 3.81, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000);
                 break;
             case 37:
-                DoScriptText(SAY_END,m_creature);
+                DoScriptText(SAY_OOX_END, m_creature);
                 // Award quest credit
                 if (Player* pPlayer = GetPlayerForEscort())
                 {
@@ -130,8 +130,8 @@ struct TRINITY_DLL_DECL npc_oox22feAI : public npc_escortAI
         //For an small probability the npc says something when he get aggro
         switch(rand()%10)
         {
-           case 0: DoScriptText(SAY_AGGRO,m_creature); break;
-           case 1: DoScriptText(SAY_AGGRO2,m_creature); break;
+           case 0: DoScriptText(SAY_OOX_AGGRO1, m_creature); break;
+           case 1: DoScriptText(SAY_OOX_AGGRO1, m_creature); break;
         }
     }
 
@@ -150,7 +150,7 @@ bool QuestAccept_npc_oox22fe(Player* pPlayer, Creature* pCreature, const Quest* 
 {
     if (pQuest->GetQuestId() == QUEST_RESCUE_OOX22FE)
     {
-        DoScriptText(SAY_START, pCreature);
+        DoScriptText(SAY_OOX_START, pCreature);
         //change that the npc is not lying dead on the ground
         pCreature->SetStandState(UNIT_STAND_STATE_STAND);
 

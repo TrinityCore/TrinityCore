@@ -561,7 +561,6 @@ UPDATE `creature_template` SET `ScriptName`='npc_rinji' WHERE `entry`=7780;
 
 /* ICECROWN */
 UPDATE creature_template SET ScriptName='npc_arete' WHERE entry=29344;
-UPDATE creature_template SET ScriptName='npc_vekjik' WHERE entry=28315;
 
 /* IRONFORGE */
 UPDATE `creature_template` SET `ScriptName`='npc_royal_historian_archesonus' WHERE `entry`=8879;
@@ -836,6 +835,7 @@ UPDATE `creature_template` SET `ScriptName`='npc_khadgar' WHERE `entry`=18166;
 
 /* Sholazar Basin */
 UPDATE `creature_template` SET `ScriptName`='npc_injured_rainspeaker_oracle' WHERE `entry`=28217;
+UPDATE `creature_template` SET `ScriptName`='npc_vekjik' WHERE `entry`=28315;
 
 /* SILITHUS */
 UPDATE `creature_template` SET `ScriptName`='npcs_rutgar_and_frankal' WHERE `entry` IN (15170,15171);
