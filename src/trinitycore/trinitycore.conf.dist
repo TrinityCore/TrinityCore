@@ -712,10 +712,10 @@ ChatLogTimestamp = 0
 #        Default: 0 - no skilups
 #                 1 - skilups possible
 #
-#    OffhandCheckAtTalentsReset
-#        Talent reset can change offhand weapon restrictions for equip slots.
+#    OffhandCheckAtSpellUnlearn
+#        Unlearning certain spells can change offhand weapon restrictions for equip slots.
 #        Default: 0 - recheck offhand slot weapon only at zone update
-#                 1 - recheck offhand slot weapon at talent reset also
+#                 1 - recheck offhand slot weapon at unlearning a spell
 #
 #    ClientCacheVersion
 #        Client cache version for client cache data reset. Use any different from DB value and not recently used for triggering reset.
@@ -785,7 +785,7 @@ MaxGroupXPDistance = 74
 MailDeliveryDelay = 3600
 SkillChance.Prospecting = 0
 SkillChance.Milling = 0
-OffhandCheckAtTalentsReset = 0
+OffhandCheckAtSpellUnlearn = 0
 ClientCacheVersion = 0
 Event.Announce = 0
 BeepAtStart = 1
