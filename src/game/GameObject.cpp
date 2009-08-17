@@ -460,6 +460,7 @@ void GameObject::Update(uint32 /*p_time*/)
             if(!m_spawnedByDefault)
             {
                 m_respawnTime = 0;
+                ObjectAccessor::UpdateObjectVisibility(this);
                 return;
             }
 
@@ -634,18 +635,18 @@ bool GameObject::LoadFromDB(uint32 guid, Map *map)
     if (!Create(guid,entry, map, phaseMask, x, y, z, ang, rotation0, rotation1, rotation2, rotation3, animprogress, go_state, ArtKit) )
         return false;
 
-    if(!GetGOInfo()->GetDespawnPossibility() && !GetGOInfo()->IsDespawnAtAction())
+    if(data->spawntimesecs >= 0)
     {
-        SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NODESPAWN);
         m_spawnedByDefault = true;
-        m_respawnDelayTime = 0;
-        m_respawnTime = 0;
-    }
-    else
-    {
-        if(data->spawntimesecs >= 0)
+        
+        if(!GetGOInfo()->GetDespawnPossibility() && !GetGOInfo()->IsDespawnAtAction())
         {
-            m_spawnedByDefault = true;
+            SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NODESPAWN);
+            m_respawnDelayTime = 0;
+            m_respawnTime = 0;
+        }
+        else
+        {
             m_respawnDelayTime = data->spawntimesecs;
             m_respawnTime = objmgr.GetGORespawnTime(m_DBTableGuid, map->GetInstanceId());
 
@@ -656,12 +657,12 @@ bool GameObject::LoadFromDB(uint32 guid, Map *map)
                 objmgr.SaveGORespawnTime(m_DBTableGuid,GetInstanceId(),0);
             }
         }
-        else
-        {
-            m_spawnedByDefault = false;
-            m_respawnDelayTime = -data->spawntimesecs;
-            m_respawnTime = 0;
-        }
+    }
+    else
+    {
+        m_spawnedByDefault = false;
+        m_respawnDelayTime = -data->spawntimesecs;
+        m_respawnTime = 0;
     }
 
     m_goData = data;
