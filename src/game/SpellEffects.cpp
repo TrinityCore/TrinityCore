@@ -669,23 +669,6 @@ void Spell::EffectDummy(uint32 i)
                                     m_caster->DealDamage(casttarget, damage, NULL, SPELL_DIRECT_DAMAGE, SPELL_SCHOOL_MASK_ARCANE, spellInfo, false);
                             }
                 }
-                // Demon Broiled Surprise
-                case 43723:
-                {
-                    if (!unitTarget || unitTarget->isAlive() || unitTarget->GetTypeId() != TYPEID_UNIT ||
-                        ((Creature*)unitTarget)->isPet()) return;
-
-                    Player *player = (Player*)m_caster;
-
-                    if (!player) return;
-
-                    player->CastSpell(unitTarget, 43753, true);
-
-                    if (player->GetQuestStatus(11379) == QUEST_STATUS_INCOMPLETE && unitTarget->GetEntry() == 19973)
-                        player->CastedCreatureOrGO(19973, unitTarget->GetGUID(), 43723);
-
-                    return;
-                }
                 case 8063:                                  // Deviate Fish
                 {
                     if(m_caster->GetTypeId() != TYPEID_PLAYER)
@@ -1068,16 +1051,26 @@ void Spell::EffectDummy(uint32 i)
                     return;
                 }
                 // Demon Broiled Surprise
-                /* FIX ME: Required for correct work implementing implicit target 7 (in pair (22,7))
                 case 43723:
                 {
                     if (m_caster->GetTypeId() != TYPEID_PLAYER)
                         return;
 
-                    ((Player*)m_caster)->CastSpell(unitTarget, 43753, true);
+                    Player *player = (Player*)m_caster;
+
+                    if (player && player->GetQuestStatus(11379) == QUEST_STATUS_INCOMPLETE)
+                    {
+                        Creature *creature = player->FindNearestCreature(19973, 10, false);
+                        if (!creature)
+                        {
+                            SendCastResult(SPELL_FAILED_NOT_HERE);
+                            return;
+                        }
+
+                        player->CastSpell(player, 43753, false);
+                    }
                     return;
                 }
-                */
                 case 44875:                                 // Complete Raptor Capture
                 {
                     if(!unitTarget || unitTarget->GetTypeId() != TYPEID_UNIT)
