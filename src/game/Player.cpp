@@ -3561,12 +3561,11 @@ void Player::removeSpell(uint32 spell_id, bool disabled, bool learn_low_rank)
     }
     
     if(spell_id == 46917 && m_canTitanGrip)
-    {
         SetCanTitanGrip(false);
-        if(sWorld.getConfig(CONFIG_OFFHAND_CHECK_AT_TALENTS_RESET))
-            AutoUnequipOffhandIfNeed();
-    }
-    
+
+    if(sWorld.getConfig(CONFIG_OFFHAND_CHECK_AT_SPELL_UNLEARN))
+        AutoUnequipOffhandIfNeed();
+
     // remove from spell book if not replaced by lesser rank
     if(!prev_activate)
     {
@@ -21867,7 +21866,6 @@ void Player::ActivateSpec(uint8 spec)
         _LoadActions(result, false);
     }
     UnsummonPetTemporaryIfAny();
-    AutoUnequipOffhandIfNeed();
     SendActionButtons(1);
     SetPower(getPowerType(), 0);
 }
