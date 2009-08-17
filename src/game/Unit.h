@@ -1613,6 +1613,7 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
         bool HasAura(Aura * aur) const;
         bool HasAuraType(AuraType auraType) const;
         bool HasAuraTypeWithMiscvalue(AuraType auratype, uint32 miscvalue) const;
+        bool HasAuraTypeWithValue(AuraType auratype, uint32 value) const;
         inline AuraEffect* GetDummyAura(SpellFamilyNames name, uint32 iconId, uint8 effIndex) const { return GetAuraEffect(SPELL_AURA_DUMMY, name, iconId, effIndex);}
         AuraEffect* GetAuraEffect(AuraType type, SpellFamilyNames name, uint32 iconId, uint8 effIndex) const;
         uint32 GetDiseasesByCaster(uint64 casterGUID, bool remove = false);
