@@ -52,22 +52,17 @@ Channel::Channel(const std::string& name, uint32 channel_id, uint32 Team)
     {
         m_flags |= CHANNEL_FLAG_CUSTOM;
         //load not built in channel if saved
-        QueryResult *result = CharacterDatabase.PQuery("SELECT m_name, m_team, m_ownerGUID, m_announce, m_moderate, m_password, BannedList FROM channels WHERE m_name = '%s' AND m_team = '%u'", name.c_str(), m_Team);
+        QueryResult *result = CharacterDatabase.PQuery("SELECT m_name, m_team, m_announce, m_moderate, m_password, BannedList FROM channels WHERE m_name = '%s' AND m_team = '%u'", name.c_str(), m_Team);
         if (result)//load
         {
             Field *fields = result->Fetch();
             const char* db_name = fields[0].GetString();
             uint32 db_team = fields[1].GetUInt32();
-            uint64 db_owner = fields[2].GetUInt64();
-            bool db_announce = fields[3].GetBool();
-            bool db_moderate = fields[4].GetBool();
-            const char* db_password = fields[5].GetString();
-            const char* db_BannedList = fields[6].GetString();
+            m_announce = fields[2].GetBool();
+            m_moderate = fields[3].GetBool();
+            m_password  = fields[4].GetString();
+            const char* db_BannedList = fields[5].GetString();
             
-            m_ownerGUID = db_owner;
-            m_announce = db_announce;
-            m_moderate = db_moderate;
-            m_password = db_password;
             m_IsSaved = true;
 
             if(db_BannedList)
@@ -86,8 +81,8 @@ Channel::Channel(const std::string& name, uint32 channel_id, uint32 Team)
             }
         }else{//save
             std::ostringstream ss;
-            ss << "INSERT INTO channels (m_name,m_team,m_ownerGUID,m_announce,m_moderate,m_password) VALUES ('"
-                 << name.c_str() << "','" << m_Team << "','0','1','0','')";
+            ss << "INSERT INTO channels (m_name,m_team,m_announce,m_moderate,m_password) VALUES ('"
+                 << name.c_str() << "','" << m_Team << "','1','0','')";
             if(CharacterDatabase.PExecute( ss.str( ).c_str( ) ))
             {
                 sLog.outDebug("New Channel(%s) saved", name.c_str());
@@ -153,7 +148,7 @@ void Channel::Join(uint64 p, const char *pass)
 
     PlayerInfo pinfo;
     pinfo.player = p;
-    pinfo.flags = 0;
+    pinfo.flags = MEMBER_FLAG_NONE;
     players[p] = pinfo;
 
     MakeYouJoined(&data);
@@ -166,11 +161,13 @@ void Channel::Join(uint64 p, const char *pass)
     {
         SetOwner(p, (players.size() > 1 ? true : false));
         players[p].SetModerator(true);        
-    }else if(!IsConstant() && m_ownerGUID && plr && m_ownerGUID == plr->GetGUID())
+    }
+    /*
+    else if(!IsConstant() && m_ownerGUID && plr && m_ownerGUID == plr->GetGUID() ))
     {
         SetOwner(p, (players.size() > 1 ? true : false));
         players[p].SetModerator(true);
-    }
+    }*/
 }
 
 void Channel::Leave(uint64 p, bool send)
@@ -210,9 +207,10 @@ void Channel::Leave(uint64 p, bool send)
 
         LeaveNotify(p);
 
-        if(changeowner && !m_IsSaved)
+        if(changeowner)
         {
             uint64 newowner = !players.empty() ? players.begin()->second.player : 0;
+            players[newowner].SetModerator(true);
             SetOwner(newowner);
         }
     }
@@ -290,6 +288,7 @@ void Channel::KickOrBan(uint64 good, const char *badname, bool ban)
             if(changeowner)
             {
                 uint64 newowner = !players.empty() ? good : false;
+                players[newowner].SetModerator(true);
                 SetOwner(newowner);
             }
         }
@@ -759,6 +758,7 @@ void Channel::SetOwner(uint64 guid, bool exclaim)
     if(m_ownerGUID)
     {
         uint8 oldFlag = GetPlayerFlags(m_ownerGUID);
+        players[m_ownerGUID].SetModerator(true);
         players[m_ownerGUID].SetOwner(true);
 
         WorldPacket data;
@@ -770,7 +770,7 @@ void Channel::SetOwner(uint64 guid, bool exclaim)
             MakeOwnerChanged(&data, m_ownerGUID);
             SendToAll(&data);
         }
-        if(m_IsSaved)
+        /*if(m_IsSaved)
         {
             std::ostringstream ss;
             ss << "UPDATE channels SET m_ownerGUID = '" << guid << "' WHERE m_name = '"<<m_name.c_str()<<"' AND m_team = '"<<m_Team<<"'";
@@ -778,7 +778,7 @@ void Channel::SetOwner(uint64 guid, bool exclaim)
             {
                 sLog.outDebug("Channel(%s) owner saved", m_name.c_str());
             }   
-        }
+        }*/
 
     }
 }
