@@ -525,12 +525,12 @@ void WorldSession::HandleSpellClick( WorldPacket & recv_data )
     SpellClickInfoMapBounds clickPair = objmgr.GetSpellClickInfoMapBounds(unit->GetEntry());
     for(SpellClickInfoMap::const_iterator itr = clickPair.first; itr != clickPair.second; ++itr)
     {
-        if(itr->second.IsFitToRequirements(_player))
+        if(itr->second.IsFitToRequirements(_player, unit))
         {
-            Unit *caster = (itr->second.castFlags & 0x1) ? (Unit*)_player : (Unit*)unit;
-            Unit *target = (itr->second.castFlags & 0x2) ? (Unit*)_player : (Unit*)unit;
-
-            caster->CastSpell(target, itr->second.spellId, true);
+            Unit *caster = (itr->second.castFlags & NPC_CLICK_CAST_CASTER_PLAYER) ? (Unit*)_player : (Unit*)unit;
+            Unit *target = (itr->second.castFlags & NPC_CLICK_CAST_TARGET_PLAYER) ? (Unit*)_player : (Unit*)unit;
+            uint64 origCasterGUID = (itr->second.castFlags & NPC_CLICK_CAST_ORIG_CASTER_OWNER) ? unit->GetOwnerGUID() : 0;
+            caster->CastSpell(target, itr->second.spellId, true, NULL, NULL, origCasterGUID);
         }
     }
 
