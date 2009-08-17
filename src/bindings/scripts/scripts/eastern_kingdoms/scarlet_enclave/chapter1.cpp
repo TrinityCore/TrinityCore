@@ -474,7 +474,7 @@ bool GossipSelect_npc_death_knight_initiate(Player* pPlayer, Creature* pCreature
         int32 uiSayId = rand()% (sizeof(m_auiRandomSay)/sizeof(int32));
         DoScriptText(m_auiRandomSay[uiSayId], pCreature, pPlayer);
 
-        pCreature->CastSpell(pPlayer, SPELL_DUEL, false);
+        pPlayer->CastSpell(pCreature, SPELL_DUEL, false);
         pPlayer->CastSpell(pPlayer, SPELL_DUEL_FLAG, true);
     }
     return true;
