@@ -1014,11 +1014,12 @@ void Aura::HandleAuraSpecificMods(bool apply)
             }
         }
         // Sprint (skip non player casted spells by category)
-        else if (GetSpellProto()->SpellFamilyFlags[0] & 0x40 && GetSpellProto()->Category == 44)
+        else if (GetSpellProto()->SpellFamilyName == SPELLFAMILY_ROGUE)
         {
-            // in official you may only see one icon
-            if(m_target->HasAura(58039)) // Glyph of Blurred Speed
-                m_target->CastSpell(m_target, 61922, true); // Sprint (waterwalk)
+            if(GetSpellProto()->SpellFamilyFlags[0] & 0x40 && GetSpellProto()->Category == 44)
+                // in official maybe there is only one icon?
+                if(m_target->HasAura(58039)) // Glyph of Blurred Speed
+                    m_target->CastSpell(m_target, 61922, true); // Sprint (waterwalk)
         }
         else
         {
