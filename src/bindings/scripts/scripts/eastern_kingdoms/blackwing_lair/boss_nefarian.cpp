@@ -70,6 +70,8 @@ struct TRINITY_DLL_DECL boss_nefarianAI : public ScriptedAI
     uint32 ClassCall_Timer;
     bool Phase3;
 
+    uint32 DespawnTimer;
+
     void Reset()
     {
         ShadowFlame_Timer = 12000;                          //These times are probably wrong
@@ -79,6 +81,8 @@ struct TRINITY_DLL_DECL boss_nefarianAI : public ScriptedAI
         TailLash_Timer = 10000;
         ClassCall_Timer = 35000;                            //35-40 seconds
         Phase3 = false;
+
+        DespawnTimer = 5000;
     }
 
     void KilledUnit(Unit* Victim)
@@ -109,6 +113,13 @@ struct TRINITY_DLL_DECL boss_nefarianAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
+        if(DespawnTimer < diff)
+        {
+            if(!UpdateVictim())
+                m_creature->ForcedDespawn();
+            DespawnTimer = 5000;
+        }else DespawnTimer -= diff;
+
         if (!UpdateVictim())
             return;
 
