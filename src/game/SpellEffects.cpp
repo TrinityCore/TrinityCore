@@ -1549,6 +1549,13 @@ void Spell::EffectDummy(uint32 i)
                     ((Player*)m_caster)->SendAttackSwingCancelAttack();
                     return;
                 }
+                // Last Stand (pet)
+                case 53478:
+                {
+                    int32 healthModSpellBasePoints0 = int32(m_caster->GetMaxHealth()*0.3);
+                    m_caster->CastCustomSpell(m_caster, 53479, &healthModSpellBasePoints0, NULL, NULL, true, NULL);
+                    return;
+                }
             }
             break;
         case SPELLFAMILY_PALADIN:
