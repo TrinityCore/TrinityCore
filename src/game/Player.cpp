@@ -21882,6 +21882,11 @@ void Player::ActivateSpec(uint8 spec)
     }
     UnsummonPetTemporaryIfAny();
     SendActionButtons(1);
-    SetPower(getPowerType(), 0);
+
+    Powers pw = getPowerType();
+    if(pw != POWER_MANA)
+        SetPower(POWER_MANA, 0);
+    
+    SetPower(pw, 0);
 }
 
