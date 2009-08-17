@@ -328,6 +328,7 @@ class TRINITY_DLL_SPEC AuraEffect
         void HandleAuraInitializeImages(bool Apply, bool Real, bool changeAmount);
         void HandleAuraCloneCaster(bool Apply, bool Real, bool changeAmount);
         void HandleAuraModCritPct(bool Apply, bool Real, bool changeAmount);
+        void HandleAuraLinked(bool Apply, bool Real, bool changeAmount);
 
         void HandleAuraEffectSpecificMods(bool apply, bool Real, bool changeAmount);
         int32 CalculateCrowdControlAuraAmount(Unit * caster);
