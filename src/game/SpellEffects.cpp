@@ -4046,6 +4046,8 @@ void Spell::EffectTameCreature(uint32 /*i*/)
 
     // caster have pet now
     m_caster->SetMinion(pet, true);
+    
+    pet->InitTalentForLevel();
 
     if(m_caster->GetTypeId() == TYPEID_PLAYER)
     {
