@@ -224,28 +224,32 @@ void npc_unworthy_initiateAI::UpdateAI(const uint32 diff)
     case PHASE_TO_EQUIP:
         if (wait_timer)
         {
-            if (wait_timer < diff)
+            if (wait_timer > diff)
+                wait_timer -= diff;
+            else
             {
                 me->GetMotionMaster()->MovePoint(1, anchorX, anchorY, me->GetPositionZ());
-                debug_log("npc_unworthy_initiateAI: move to %f %f %f", anchorX, anchorY, me->GetPositionZ());
+                //debug_log("npc_unworthy_initiateAI: move to %f %f %f", anchorX, anchorY, me->GetPositionZ());
                 phase = PHASE_EQUIPING;
                 wait_timer = 0;
-            }else wait_timer -= diff;
+            }
         }
         return;
     case PHASE_TO_ATTACK:
         if (wait_timer)
         {
-            if (wait_timer < diff)
+            if (wait_timer > diff)
+                wait_timer -= diff;
+            else
             {
                 me->setFaction(14);
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_ATTACKABLE_2);
                 phase = PHASE_ATTACKING;
 
-                if (Unit* target = Unit::GetUnit((*me),playerGUID))
+                if (Player* target = Unit::GetPlayer(playerGUID))
                     me->AI()->AttackStart(target);
                 wait_timer = 0;
-            }else wait_timer -= diff;
+            }
         }
         return;
     case PHASE_ATTACKING:
@@ -282,7 +286,6 @@ void npc_unworthy_initiateAI::UpdateAI(const uint32 diff)
         }
 
         DoMeleeAttackIfReady();
-        return;
     }
 }
 
