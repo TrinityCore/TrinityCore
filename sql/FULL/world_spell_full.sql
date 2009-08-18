@@ -1984,7 +1984,8 @@ INSERT INTO `spell_script_target` (`entry`, `type`, `targetEntry`) VALUES
 (52479, 1, 28822),
 (52576, 1, 28834), -- Electro-magnetic Pulse
 (52576, 1, 28886),
-(53110, 1, 28940); -- Devour Humanoid
+(53110, 1, 29102),
+(53110, 1, 29103); -- Devour Humanoid
 
 -- Eye of Acherus
 DELETE FROM `spell_target_position` WHERE `id`=51852;
@@ -2039,6 +2040,8 @@ UPDATE `quest_template` SET `PrevQuestId`=12751 WHERE `entry`=12754;
 
 update spell_area set quest_end = 12756 where spell=53081;
 
+update creature_template set spell1=53117 where entry=29104;
+update creature_template set spell1=53348,killcredit1=29150 where entry IN (29102,29103);
 
 -- --------
 -- NAXXARAMAS
