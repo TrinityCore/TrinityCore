@@ -165,13 +165,13 @@ static bool LoadDBC_assert_print(uint32 fsize,uint32 rsize, const std::string& f
 }
 
 template<class T>
-inline void LoadDBC(uint32& availableDbcLocales,barGoLink& bar, StoreProblemList& errlist, DBCStorage<T>& storage, const std::string& dbc_path, const std::string& filename)
+inline void LoadDBC(uint32& availableDbcLocales,barGoLink& bar, StoreProblemList& errlist, DBCStorage<T>& storage, const std::string& dbc_path, const std::string& filename, uint32 customEntriesCount = 0)
 {
     // compatibility format and C++ structure sizes
     assert(DBCFileLoader::GetFormatRecordSize(storage.GetFormat()) == sizeof(T) || LoadDBC_assert_print(DBCFileLoader::GetFormatRecordSize(storage.GetFormat()),sizeof(T),filename));
 
     std::string dbc_filename = dbc_path + filename;
-    if(storage.Load(dbc_filename.c_str()))
+    if(storage.Load(dbc_filename.c_str()), customEntriesCount)
     {
         bar.step();
         for(uint8 i = 0; i < MAX_LOCALE; ++i)
@@ -322,12 +322,6 @@ void LoadDBCStores(const std::string& dataPath)
         SpellEntry const * spell = sSpellStore.LookupEntry(i);
         if(spell && spell->Category)
             sSpellCategoryStore[spell->Category].insert(i);
-
-        /*// DBC not support uint64 fields but SpellEntry have SpellFamilyFlags mapped at 2 uint32 fields
-        // uint32 field already converted to bigendian if need, but must be swapped for correct uint64 bigendian view
-        #if TRINITY_ENDIAN == TRINITY_BIGENDIAN
-        std::swap(*((uint32*)(&spell->SpellFamilyFlags)),*(((uint32*)(&spell->SpellFamilyFlags))+1));
-        #endif*/
     }
 
     for (uint32 j = 0; j < sSkillLineAbilityStore.GetNumRows(); ++j)
