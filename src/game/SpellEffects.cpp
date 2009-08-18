@@ -2642,6 +2642,10 @@ void Spell::EffectHealPct( uint32 /*i*/ )
         if (!caster)
             return;
 
+        // Rune Tap - Party
+        if (m_spellInfo->Id == 59754 && unitTarget == m_caster)
+            return;
+
         uint32 addhealth = unitTarget->GetMaxHealth() * damage / 100;
         if(Player* modOwner = m_caster->GetSpellModOwner())
             modOwner->ApplySpellMod(m_spellInfo->Id, SPELLMOD_DAMAGE, addhealth, this);
