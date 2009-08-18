@@ -85,7 +85,7 @@ struct TRINITY_DLL_DECL boss_sapphironAI : public BossAI
         me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
         me->SetReactState(REACT_PASSIVE);
 
-        Reset();
+        ScriptedAI::InitializeAI();
     }
 
     void Reset()

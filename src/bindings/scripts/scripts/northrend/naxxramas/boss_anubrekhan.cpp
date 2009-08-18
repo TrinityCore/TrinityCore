@@ -45,7 +45,7 @@ struct TRINITY_DLL_DECL boss_anubrekhanAI : public BossAI
             DoSpawnCreature(MOB_CRYPT_GUARD, 0, -10, 0, me->GetOrientation(), TEMPSUMMON_CORPSE_TIMED_DESPAWN, 60000);
     }
 
-    void InitializeAI() { Prepare(); }
+    void InitializeAI() { Prepare(); BossAI::InitializeAI(); }
     void JustReachedHome() { Prepare(); _JustReachedHome(); }
 
     void KilledUnit(Unit* victim)
