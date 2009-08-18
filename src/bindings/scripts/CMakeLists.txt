@@ -91,6 +91,7 @@ SET(trinityscript_LIB_SRCS
    scripts/eastern_kingdoms/scarlet_enclave/the_scarlet_enclave.cpp
    scripts/eastern_kingdoms/scarlet_enclave/chapter1.cpp
    scripts/eastern_kingdoms/scarlet_enclave/chapter2.cpp
+   scripts/eastern_kingdoms/scarlet_enclave/chapter5.cpp
    scripts/eastern_kingdoms/scarlet_monastery/boss_arcanist_doan.cpp
    scripts/eastern_kingdoms/scarlet_monastery/boss_azshir_the_sleepless.cpp
    scripts/eastern_kingdoms/scarlet_monastery/boss_bloodmage_thalnos.cpp

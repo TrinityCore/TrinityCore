@@ -162,4 +162,7 @@ void AddSC_the_scarlet_enclave()
     newscript->Name="mob_anti_air";
     newscript->GetAI = &GetAI_mob_anti_air;
     newscript->RegisterSelf();
+
+    // Chapter 3: Scarlet Armies Approach... - An End To All Things...
+    // Chapter 4: An End To All Things... - An End To All Things...
 }
