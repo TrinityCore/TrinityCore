@@ -1107,6 +1107,7 @@ void Map::RemoveAllPlayers()
 {
     if(HavePlayers())
     {
+        // this is happening for bg
         sLog.outError("Map::UnloadAll: there are still players in the instance at unload, should not happen!");
 
         for(MapRefManager::iterator itr = m_mapRefManager.begin(); itr != m_mapRefManager.end(); ++itr)
