@@ -722,6 +722,10 @@
 						RelativePath="..\scripts\eastern_kingdoms\scarlet_enclave\chapter2.cpp"
 						>
 					</File>
+					<File
+						RelativePath="..\scripts\eastern_kingdoms\scarlet_enclave\chapter5.cpp"
+						>
+					</File>					
 				</Filter>
 				<Filter
 					Name="Scarlet Monastery"
