@@ -3758,6 +3758,8 @@ void SpellMgr::LoadSpellCustomAttr()
 
     SummonPropertiesEntry *properties = const_cast<SummonPropertiesEntry*>(sSummonPropertiesStore.LookupEntry(121));
     properties->Type = SUMMON_TYPE_TOTEM;
+    properties = const_cast<SummonPropertiesEntry*>(sSummonPropertiesStore.LookupEntry(647)); // 52893
+    properties->Type = SUMMON_TYPE_TOTEM;
 
     CreatureAI::FillAISpellInfo();
 }
