@@ -69,6 +69,8 @@ class TRINITY_DLL_SPEC UnitAI
         void DoCast(Unit* victim, uint32 spellId, bool triggered = false);
         void DoCastAOE(uint32 spellId, bool triggered = false);
 
+        float DoGetSpellMaxRange(uint32 spellId, bool positive = false);
+
         void DoMeleeAttackIfReady();
         bool DoSpellAttackIfReady(uint32 spell);
 
