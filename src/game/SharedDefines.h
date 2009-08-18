@@ -2327,6 +2327,7 @@ enum CorpseDynFlags
 #define SPELL_ID_LOGINEFFECT                    836         // LOGINEFFECT
 #define SPELL_ID_HONORLESS_TARGET               2479        // Honorless target
 #define SPELL_ID_DUEL_BEG                       7267        // Beg
+#define SPELL_ID_DEATH_GATE                     50977       // Death Gate
 
 enum WeatherType
 {
