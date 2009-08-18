@@ -13175,7 +13175,7 @@ void Player::RewardQuest( Quest const *pQuest, uint32 reward, Object* questGiver
     // handle SPELL_AURA_MOD_XP_QUEST_PCT auras
     Unit::AuraEffectList const& ModXPPctAuras = GetAurasByType(SPELL_AURA_MOD_XP_QUEST_PCT);
     for(Unit::AuraEffectList::const_iterator i = ModXPPctAuras.begin();i != ModXPPctAuras.end(); ++i)
-        XP = uint32(XP*(100.0f + (*i)->GetAmount() / 100.0f));
+        XP = uint32(XP*(1.0f + (*i)->GetAmount() / 100.0f));
 
     if (getLevel() < sWorld.getConfig(CONFIG_MAX_PLAYER_LEVEL))
         GiveXP( XP , NULL );
@@ -20054,7 +20054,7 @@ bool Player::RewardPlayerAndGroupAtKill(Unit* pVictim)
                         // handle SPELL_AURA_MOD_XP_PCT auras
                         Unit::AuraEffectList const& ModXPPctAuras = GetAurasByType(SPELL_AURA_MOD_XP_PCT);
                         for(Unit::AuraEffectList::const_iterator i = ModXPPctAuras.begin();i != ModXPPctAuras.end(); ++i)
-                            itr_xp = uint32(itr_xp*(100.0f + (*i)->GetAmount() / 100.0f));
+                            itr_xp = uint32(itr_xp*(1.0f + (*i)->GetAmount() / 100.0f));
 
                         pGroupGuy->GiveXP(itr_xp, pVictim);
                         if(Pet* pet = pGroupGuy->GetPet())
@@ -20088,7 +20088,7 @@ bool Player::RewardPlayerAndGroupAtKill(Unit* pVictim)
             // handle SPELL_AURA_MOD_XP_PCT auras
             Unit::AuraEffectList const& ModXPPctAuras = GetAurasByType(SPELL_AURA_MOD_XP_PCT);
             for(Unit::AuraEffectList::const_iterator i = ModXPPctAuras.begin();i != ModXPPctAuras.end(); ++i)
-                xp = uint32(xp*(100.0f + (*i)->GetAmount() / 100.0f));
+                xp = uint32(xp*(1.0f + (*i)->GetAmount() / 100.0f));
 
             GiveXP(xp, pVictim);
 
