@@ -1767,6 +1767,13 @@ uint16 Map::GetAreaFlag(float x, float y, float z) const
                     }
                 }
 
+                // The Violet Hold (Dalaran), fast check
+                if (x < 5791.0f && y > 404.0f && y < 595.0f)
+                {    
+                    areaflag = 2540;
+                    break;
+                }
+
                 // Dalaran
                 areaflag = 2153;
             }
@@ -1786,6 +1793,20 @@ uint16 Map::GetAreaFlag(float x, float y, float z) const
                         areaflag = 2696;
                         break;
                     }
+                }
+
+                // The Eventide (Dalaran), fast check against diagonal box with lower limit
+                if (z > 635.0f && x+y < 6375.0f && x+y > 6295.0f && x-y < 5106.0f && x-y > 4972.0f)
+                {    
+                    areaflag = 2543;
+                    break;
+                }
+
+                // The Violet Hold (Dalaran), fast check
+                if (x < 5791.0f && y > 404.0f && y < 595.0f)
+                {    
+                    areaflag = 2540;
+                    break;
                 }
 
                 // Dalaran
