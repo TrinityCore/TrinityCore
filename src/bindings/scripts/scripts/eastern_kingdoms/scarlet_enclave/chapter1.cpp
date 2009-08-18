@@ -969,3 +969,10 @@ void AddSC_the_scarlet_enclave_c1()
     newscript->pGOHello = &GOHello_go_inconspicuous_mine_car;
     newscript->RegisterSelf();
 }
+
+/*   
+DELETE FROM `script_texts` WHERE `entry` IN(-1609301, -1609302);
+INSERT INTO `script_texts` (`entry`,`content_default`,`type`,`language`,`emote`,`comment`) VALUES
+(-1609301, 'Come, weakling! Strike me down!', 0, 0, 0, 'SAY_DEATH_RIDER_FINAL'),
+(-1609302, '%s rears up, beckoning you to ride it.', 2, 0, 0, 'SAY_DEATH_CHARGER');
+*/
