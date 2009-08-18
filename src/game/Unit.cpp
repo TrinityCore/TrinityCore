@@ -8562,7 +8562,9 @@ void Unit::SetMinion(Minion *minion, bool apply)
                 //Check if there is another minion
                 for(ControlList::iterator itr = m_Controlled.begin(); itr != m_Controlled.end(); ++itr)
                 {
-                    if(GetCharmGUID() == (*itr)->GetGUID())
+                    // do not use this check, creature do not have charm guid
+                    //if(GetCharmGUID() == (*itr)->GetGUID())
+                    if(GetGUID() == (*itr)->GetCharmerGUID())
                         continue;
 
                     //assert((*itr)->GetOwnerGUID() == GetGUID());
