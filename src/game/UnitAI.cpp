@@ -223,6 +223,11 @@ void UnitAI::SelectTargetList(std::list<Unit*> &targetList, uint32 num, SelectAg
     }
 }
 
+float UnitAI::DoGetSpellMaxRange(uint32 spellId, bool positive)
+{
+    return GetSpellMaxRange(spellId, positive);
+}
+
 void UnitAI::DoCast(uint32 spellId)
 {
     Unit *target = NULL;

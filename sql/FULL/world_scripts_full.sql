@@ -117,6 +117,9 @@ UPDATE `creature_template` SET `ScriptName`='npc_scarlet_miner' WHERE (`entry`='
 UPDATE `creature_template` SET `ScriptName`='npc_crusade_persuaded' WHERE `entry` IN (28939,28940,28610);
 
 UPDATE `creature_template` SET `ScriptName`='mob_scarlet_courier' WHERE `entry`='29076';
+update creature_template set scriptname="mob_anti_air" where entry in (29102,29103,29104);
+
+
 
 /*  */
 /* ZONE */
