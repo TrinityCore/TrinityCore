@@ -241,6 +241,7 @@ struct TRINITY_DLL_DECL boss_alarAI : public ScriptedAI
                         WaitEvent = WE_DUMMY;
                         return;
                     case WE_DIE:
+                        ForceMove = false;
                         m_creature->SetUInt32Value(UNIT_FIELD_BYTES_1, UNIT_STAND_STATE_DEAD);
                         WaitTimer = 5000;
                         WaitEvent = WE_REVIVE;
@@ -250,7 +251,6 @@ struct TRINITY_DLL_DECL boss_alarAI : public ScriptedAI
                         m_creature->SetHealth(m_creature->GetMaxHealth());
                         m_creature->SetSpeed(MOVE_RUN, DefaultMoveSpeedRate);
                         m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                        DoResetThreat();
                         DoZoneInCombat();
                         m_creature->CastSpell(m_creature, SPELL_REBIRTH, true);
                         MeltArmor_Timer = 60000;
@@ -270,8 +270,9 @@ struct TRINITY_DLL_DECL boss_alarAI : public ScriptedAI
                         {
                             m_creature->RemoveAurasDueToSpell(SPELL_DIVE_BOMB_VISUAL);
                             m_creature->CastSpell(target, SPELL_DIVE_BOMB, true);
-                            float dist;
-                            if (m_creature->IsWithinDist3d(target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 5.0f)) dist = 5.0f;
+                            float dist = 3.0f;
+                            if (m_creature->IsWithinDist3d(target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 5.0f))
+                                dist = 5.0f;
                             WaitTimer = 1000 + floor(dist / 80 * 1000.0f);
                             m_creature->GetMap()->CreatureRelocation(m_creature, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(),0.0f);
                             m_creature->StopMoving();
@@ -347,9 +348,6 @@ struct TRINITY_DLL_DECL boss_alarAI : public ScriptedAI
         }
         else
         {
-            if (!UpdateVictim())
-                return;
-
             if (Charge_Timer < diff)
             {
                 Unit *target= SelectTarget(SELECT_TARGET_RANDOM, 1, 100, true);
@@ -411,7 +409,7 @@ struct TRINITY_DLL_DECL boss_alarAI : public ScriptedAI
             {
                 Unit *target = NULL;
                 target = m_creature->SelectNearestTarget(5);
-                if (Phase1 && target)
+                if (target)
                     m_creature->AI()->AttackStart(target);
                 else
                 {
