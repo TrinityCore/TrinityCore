@@ -323,6 +323,8 @@ struct TRINITY_DLL_DECL boss_kalecgos_kjAI : public ScriptedAI
         m_creature->setActive(true);
         Searched = false;
         FindOrbs();
+
+        ScriptedAI::InitializeAI();
     }
 
     void Reset(){}
@@ -753,6 +755,8 @@ struct TRINITY_DLL_DECL mob_kiljaeden_controllerAI : public Scripted_NoMovementA
         m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
         m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
         m_creature->addUnitState(UNIT_STAT_STUNNED);
+
+        ScriptedAI::InitializeAI();
     }
 
     void Reset(){
@@ -914,6 +918,8 @@ struct TRINITY_DLL_DECL mob_felfire_portalAI : public Scripted_NoMovementAI
         SpawnFiendTimer = 5000;
         m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
         m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+
+        ScriptedAI::InitializeAI();
     }
 
     // TODO: Timers
@@ -1066,6 +1072,8 @@ struct TRINITY_DLL_DECL mob_shield_orbAI : public ScriptedAI
         my = ShieldOrbLocations[0][1];
         if (rand()%2 == 0)Clockwise = true;
         else Clockwise = false;
+
+        ScriptedAI::InitializeAI();
     }
 
     void Reset(){}
