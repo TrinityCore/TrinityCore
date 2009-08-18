@@ -34,11 +34,11 @@ class DBCStorage
         char const* GetFormat() const { return fmt; }
         uint32 GetFieldCount() const { return fieldCount; }
 
-        bool Load(char const* fn, uint32 customEntriesCount = 0)
+        bool Load(char const* fn)
         {
             DBCFileLoader dbc;
             // Check if load was sucessful, only then continue
-            if(!dbc.Load(fn, fmt, customEntriesCount))
+            if(!dbc.Load(fn, fmt))
                 return false;
 
             fieldCount = dbc.GetCols();
