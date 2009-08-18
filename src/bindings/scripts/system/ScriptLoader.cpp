@@ -93,6 +93,7 @@ extern void AddSC_molten_core();
 extern void AddSC_the_scarlet_enclave();            //Scarlet Enclave
 extern void AddSC_the_scarlet_enclave_c1();
 extern void AddSC_the_scarlet_enclave_c2();
+extern void AddSC_the_scarlet_enclave_c5();
 extern void AddSC_boss_arcanist_doan();             //Scarlet Monastery
 extern void AddSC_boss_azshir_the_sleepless();
 extern void AddSC_boss_bloodmage_thalnos();
@@ -481,6 +482,7 @@ void AddScripts()
     AddSC_the_scarlet_enclave();            //Scarlet Enclave
     AddSC_the_scarlet_enclave_c1();
     AddSC_the_scarlet_enclave_c2();
+    AddSC_the_scarlet_enclave_c5();
     AddSC_boss_arcanist_doan();             //Scarlet Monastery
     AddSC_boss_azshir_the_sleepless();
     AddSC_boss_bloodmage_thalnos();
