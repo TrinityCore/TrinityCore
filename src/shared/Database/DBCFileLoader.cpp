@@ -30,7 +30,7 @@ DBCFileLoader::DBCFileLoader()
     fieldsOffset = NULL;
 }
 
-bool DBCFileLoader::Load(const char *filename, const char *fmt, uint32 customEntriesCount)
+bool DBCFileLoader::Load(const char *filename, const char *fmt)
 {
 
     uint32 header;
@@ -54,8 +54,6 @@ bool DBCFileLoader::Load(const char *filename, const char *fmt, uint32 customEnt
         return false;
 
     EndianConvert(recordCount);
-
-    recordCount += customEntriesCount;
 
     if(fread(&fieldCount,4,1,f)!=1)                         // Number of fields
         return false;
