@@ -41,7 +41,7 @@ class DBCFileLoader
         DBCFileLoader();
         ~DBCFileLoader();
 
-        bool Load(const char *filename, const char *fmt);
+        bool Load(const char *filename, const char *fmt, uint32 customEntriesCount = 0);
 
         class Record
         {
