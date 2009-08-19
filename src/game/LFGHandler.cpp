@@ -207,8 +207,6 @@ void WorldSession::HandleLfmClearOpcode( WorldPacket & /*recv_data */)
 
 void WorldSession::HandleSetLfmOpcode( WorldPacket & recv_data )
 {
-    CHECK_PACKET_SIZE(recv_data, 4+1+1+1+1);
-
     sLog.outDebug("CMSG_SET_LOOKING_FOR_MORE");
     //recv_data.hexlike();
     uint32 temp, entry, type;
@@ -231,8 +229,6 @@ void WorldSession::HandleSetLfmOpcode( WorldPacket & recv_data )
 
 void WorldSession::HandleSetLfgCommentOpcode( WorldPacket & recv_data )
 {
-    CHECK_PACKET_SIZE(recv_data, 1);
-
     sLog.outDebug("CMSG_SET_LFG_COMMENT");
     //recv_data.hexlike();
 
@@ -245,8 +241,6 @@ void WorldSession::HandleSetLfgCommentOpcode( WorldPacket & recv_data )
 
 void WorldSession::HandleLookingForGroup(WorldPacket& recv_data)
 {
-    CHECK_PACKET_SIZE(recv_data, 4+4+4);
-
     sLog.outDebug("MSG_LOOKING_FOR_GROUP");
     //recv_data.hexlike();
     uint32 type, entry, unk;
@@ -399,8 +393,6 @@ void WorldSession::SendLfgResult(uint32 type, uint32 entry, uint8 lfg_type)
 
 void WorldSession::HandleSetLfgOpcode( WorldPacket & recv_data )
 {
-    CHECK_PACKET_SIZE(recv_data, 4+4+1+1);
-
     sLog.outDebug("CMSG_SET_LOOKING_FOR_GROUP");
     recv_data.hexlike();
     uint32 slot, temp, entry, type;
@@ -427,8 +419,6 @@ void WorldSession::HandleSetLfgOpcode( WorldPacket & recv_data )
 
 void WorldSession::HandleLfgSetRoles(WorldPacket &recv_data)
 {
-    CHECK_PACKET_SIZE(recv_data, 1);
-
     sLog.outDebug("CMSG_LFG_SET_ROLES");
 
     uint8 roles;

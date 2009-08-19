@@ -173,8 +173,6 @@ void WorldSession::HandleMoveWorldportAckOpcode()
 
 void WorldSession::HandleMoveTeleportAck(WorldPacket& recv_data)
 {
-    CHECK_PACKET_SIZE(recv_data, 8+4+4);
-
     sLog.outDebug("MSG_MOVE_TELEPORT_ACK");
     uint64 guid;
     uint32 flags, time;
@@ -372,8 +370,6 @@ void WorldSession::HandleForceSpeedChangeAck(WorldPacket &recv_data)
 {
     //sLog.outDebug("WORLD: Recvd %s (%u, 0x%X) opcode", LookupOpcodeName(recv_data.GetOpcode()), recv_data.GetOpcode(), recv_data.GetOpcode());
 
-    CHECK_PACKET_SIZE(recv_data, recv_data.rpos()+8+4);
-
     /* extract packet */
     uint64 guid;
     uint32 unk1;
@@ -391,9 +387,6 @@ void WorldSession::HandleForceSpeedChangeAck(WorldPacket &recv_data)
 
     MovementInfo movementInfo;
     ReadMovementInfo(recv_data, &movementInfo);
-
-    // recheck
-    CHECK_PACKET_SIZE(recv_data, recv_data.rpos()+4);
 
     recv_data >> newspeed;
     /*----------------*/
@@ -452,8 +445,6 @@ void WorldSession::HandleSetActiveMoverOpcode(WorldPacket &recv_data)
 {
     sLog.outDebug("WORLD: Recvd CMSG_SET_ACTIVE_MOVER");
 
-    CHECK_PACKET_SIZE(recv_data, 8);
-
     uint64 guid;
     recv_data >> guid;
 
@@ -472,8 +463,6 @@ void WorldSession::HandleSetActiveMoverOpcode(WorldPacket &recv_data)
 void WorldSession::HandleMoveNotActiveMover(WorldPacket &recv_data)
 {
     sLog.outDebug("WORLD: Recvd CMSG_MOVE_NOT_ACTIVE_MOVER");
-
-    CHECK_PACKET_SIZE(recv_data, recv_data.rpos()+8);
 
     uint64 old_mover_guid;
     recv_data >> old_mover_guid;
@@ -522,12 +511,10 @@ void WorldSession::HandleChangeSeatsOnControlledVehicle(WorldPacket &recv_data)
     else if(recv_data.GetOpcode() == CMSG_CHANGE_SEATS_ON_CONTROLLED_VEHICLE)
         ReadMovementInfo(recv_data, &GetPlayer()->m_Vehicle->m_movementInfo);
 
-    CHECK_PACKET_SIZE(recv_data, recv_data.rpos()+1);
     uint64 guid;
     if(!recv_data.readPackGUID(guid))
         return;
 
-    CHECK_PACKET_SIZE(recv_data, recv_data.rpos()+1);
     int8 seatId;
     recv_data >> seatId;
 
@@ -559,7 +546,6 @@ void WorldSession::HandleMountSpecialAnimOpcode(WorldPacket& /*recvdata*/)
 
 void WorldSession::HandleMoveKnockBackAck( WorldPacket & /*recv_data*/ )
 {
-    // CHECK_PACKET_SIZE(recv_data,?);
     sLog.outDebug("CMSG_MOVE_KNOCK_BACK_ACK");
     // Currently not used but maybe use later for recheck final player position
     // (must be at call same as into "recv_data >> x >> y >> z >> orientation;"
@@ -599,8 +585,6 @@ void WorldSession::HandleMoveWaterWalkAck(WorldPacket& /*recv_data*/)
 
 void WorldSession::HandleSummonResponseOpcode(WorldPacket& recv_data)
 {
-    CHECK_PACKET_SIZE(recv_data, 8+1);
-
     if(!_player->isAlive() || _player->isInCombat() )
         return;
 

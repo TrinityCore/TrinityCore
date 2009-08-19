@@ -49,8 +49,6 @@
 
 void WorldSession::HandlePetitionBuyOpcode(WorldPacket & recv_data)
 {
-    CHECK_PACKET_SIZE(recv_data, 8+8+4+1+5*8+2+1+4+4);
-
     sLog.outDebug("Received opcode CMSG_PETITION_BUY");
     //recv_data.hexlike();
 
@@ -66,9 +64,6 @@ void WorldSession::HandlePetitionBuyOpcode(WorldPacket & recv_data)
     recv_data >> unk1;                                      // 0
     recv_data >> unk2;                                      // 0
     recv_data >> name;                                      // name
-
-    // recheck
-    CHECK_PACKET_SIZE(recv_data, 8+8+4+(name.size()+1)+5*8+2+1+4+4);
 
     recv_data >> unk3;                                      // 0
     recv_data >> unk4;                                      // 0
@@ -238,8 +233,6 @@ void WorldSession::HandlePetitionBuyOpcode(WorldPacket & recv_data)
 
 void WorldSession::HandlePetitionShowSignOpcode(WorldPacket & recv_data)
 {
-    CHECK_PACKET_SIZE(recv_data, 8);
-
                                                             // ok
     sLog.outDebug("Received opcode CMSG_PETITION_SHOW_SIGNATURES");
     //recv_data.hexlike();
@@ -295,8 +288,6 @@ void WorldSession::HandlePetitionShowSignOpcode(WorldPacket & recv_data)
 
 void WorldSession::HandlePetitionQueryOpcode(WorldPacket & recv_data)
 {
-    CHECK_PACKET_SIZE(recv_data, 4+8);
-
     sLog.outDebug("Received opcode CMSG_PETITION_QUERY");   // ok
     //recv_data.hexlike();
 
@@ -372,8 +363,6 @@ void WorldSession::SendPetitionQueryOpcode(uint64 petitionguid)
 
 void WorldSession::HandlePetitionRenameOpcode(WorldPacket & recv_data)
 {
-    CHECK_PACKET_SIZE(recv_data, 8+1);
-
     sLog.outDebug("Received opcode MSG_PETITION_RENAME");   // ok
     //recv_data.hexlike();
 
@@ -443,8 +432,6 @@ void WorldSession::HandlePetitionRenameOpcode(WorldPacket & recv_data)
 
 void WorldSession::HandlePetitionSignOpcode(WorldPacket & recv_data)
 {
-    CHECK_PACKET_SIZE(recv_data, 8+1);
-
     sLog.outDebug("Received opcode CMSG_PETITION_SIGN");    // ok
     //recv_data.hexlike();
 
@@ -573,8 +560,6 @@ void WorldSession::HandlePetitionSignOpcode(WorldPacket & recv_data)
 
 void WorldSession::HandlePetitionDeclineOpcode(WorldPacket & recv_data)
 {
-    CHECK_PACKET_SIZE(recv_data, 8);
-
     sLog.outDebug("Received opcode MSG_PETITION_DECLINE");  // ok
     //recv_data.hexlike();
 
@@ -602,8 +587,6 @@ void WorldSession::HandlePetitionDeclineOpcode(WorldPacket & recv_data)
 
 void WorldSession::HandleOfferPetitionOpcode(WorldPacket & recv_data)
 {
-    CHECK_PACKET_SIZE(recv_data, 4+8+8);
-
     sLog.outDebug("Received opcode CMSG_OFFER_PETITION");   // ok
     //recv_data.hexlike();
 
@@ -707,8 +690,6 @@ void WorldSession::HandleOfferPetitionOpcode(WorldPacket & recv_data)
 
 void WorldSession::HandleTurnInPetitionOpcode(WorldPacket & recv_data)
 {
-    CHECK_PACKET_SIZE(recv_data, 8);
-
     sLog.outDebug("Received opcode CMSG_TURN_IN_PETITION"); // ok
     //recv_data.hexlike();
 
@@ -855,7 +836,6 @@ void WorldSession::HandleTurnInPetitionOpcode(WorldPacket & recv_data)
             return;
         }
 
-        CHECK_PACKET_SIZE(recv_data, 8+5*4);
         uint32 icon, iconcolor, border, bordercolor, backgroud;
         recv_data >> backgroud >> icon >> iconcolor >> border >> bordercolor;
 
@@ -893,8 +873,6 @@ void WorldSession::HandleTurnInPetitionOpcode(WorldPacket & recv_data)
 
 void WorldSession::HandlePetitionShowListOpcode(WorldPacket & recv_data)
 {
-    CHECK_PACKET_SIZE(recv_data, 8);
-
     sLog.outDebug("Received CMSG_PETITION_SHOWLIST");       // ok
     //recv_data.hexlike();
 
