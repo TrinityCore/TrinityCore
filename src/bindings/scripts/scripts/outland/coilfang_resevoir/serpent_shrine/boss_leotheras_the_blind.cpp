@@ -686,7 +686,7 @@ struct TRINITY_DLL_DECL mob_greyheart_spellbinderAI : public ScriptedAI
 
     void CastChanneling()
     {
-        if (!m_creature->isInCombat() && !m_creature->m_currentSpells[CURRENT_CHANNELED_SPELL])
+        if (!m_creature->isInCombat() && !m_creature->GetCurrentSpell(CURRENT_CHANNELED_SPELL))
         {
             if (leotherasGUID)
             {
@@ -745,7 +745,7 @@ struct TRINITY_DLL_DECL mob_greyheart_spellbinderAI : public ScriptedAI
                 {
                     bool isCasting = false;
                     for(uint8 i = 0; i < CURRENT_MAX_SPELL; ++i)
-                        if (i_pl->m_currentSpells[i])
+                        if (i_pl->GetCurrentSpell(i))
                             isCasting = true;
 
                     if (isCasting)

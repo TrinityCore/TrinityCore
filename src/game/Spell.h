@@ -243,6 +243,7 @@ enum SpellTargets
 class Spell
 {
     friend struct Trinity::SpellNotifierCreatureAndPlayer;
+    friend void Unit::SetCurrentCastedSpell( Spell * pSpell );
     public:
 
         void EffectNULL(uint32 );
