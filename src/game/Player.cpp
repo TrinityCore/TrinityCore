@@ -3774,8 +3774,9 @@ bool Player::resetTalents(bool no_cost)
         // to prevent unexpected lost normal learned spell skip another class talents
         if( (getClassMask() & talentTabInfo->ClassMask) == 0 )
             continue;
-
-     /* for (int j = 0; j < MAX_TALENT_RANK; j++)
+        
+        // Re-use pre-dual talent way of resetting talents, to ensure talents aren't being stored in spell storage.
+        for (int j = 0; j < MAX_TALENT_RANK; j++)
         {
             for(PlayerSpellMap::iterator itr = GetSpellMap().begin(); itr != GetSpellMap().end();)
             {
@@ -3804,7 +3805,8 @@ bool Player::resetTalents(bool no_cost)
                 else
                     ++itr;
             }
-        } */
+        }
+        
         PlayerTalentMap::iterator itr2 = m_talents[m_activeSpec]->begin();
         for (; itr2 != m_talents[m_activeSpec]->end(); ++itr2)
         {
