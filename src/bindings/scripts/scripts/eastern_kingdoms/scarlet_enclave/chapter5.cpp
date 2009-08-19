@@ -330,9 +330,6 @@ struct TRINITY_DLL_DECL npc_highlord_darion_mograineAI : public npc_escortAI
     uint64 uiGhoulGUID[ENCOUNTER_GHOUL_NUMBER];
     uint64 uiWarriorGUID[ENCOUNTER_WARRIOR_NUMBER];
 
-    // Misc
-    uint64 uiDawnofLightGUID;
-
     void Reset()
     {
         if (!IsBeingEscorted)
@@ -344,8 +341,6 @@ struct TRINITY_DLL_DECL npc_highlord_darion_mograineAI : public npc_escortAI
             uiTotal_dawn = ENCOUNTER_TOTAL_DAWN;
             uiTotal_scourge = ENCOUNTER_TOTAL_SCOURGE;
             uiSummon_counter = 0;
-
-            uiDawnofLightGUID = 0;
 
             uiAnti_magic_zone = 1000 + rand()%5000;
             uiDeath_strike = 5000 + rand()%5000;
@@ -476,12 +471,6 @@ struct TRINITY_DLL_DECL npc_highlord_darion_mograineAI : public npc_escortAI
                 break;
             case 1:
                 SetHoldState(true);
-
-                if (GameObject* pGo = me->FindNearestGameObject(GO_LIGHT_OF_DAWN, 100.0f)) // make dawn of light effect off
-                {
-                    uiDawnofLightGUID = pGo->GetGUID();
-                    pGo->SetPhaseMask(0, true);
-                }
 
                 SpawnNPC();
                 if (Creature* pTemp = Unit::GetCreature(*me, uiKorfaxGUID))
@@ -1098,8 +1087,9 @@ struct TRINITY_DLL_DECL npc_highlord_darion_mograineAI : public npc_escortAI
                         break;
 
                     case 48: // Show the cleansing effect (dawn of light)
-                        if (GameObject* pGo = me->GetMap()->GetGameObject(uiDawnofLightGUID))
-                            pGo->SetPhaseMask(128, true);
+                        //if (GameObject* pGo = me->GetMap()->GetGameObject(uiDawnofLightGUID))
+                        //    pGo->SetPhaseMask(128, true);
+                        me->SummonGameObject(GO_LIGHT_OF_DAWN, 2283.896, -5287.914, 83.066, 0, 0, 0, 0, 0, 30000);
                         if (Creature* pTemp = Unit::GetCreature(*me, uiTirionGUID))
                         {
                             if (pTemp->HasAura(SPELL_REBIRTH_OF_THE_ASHBRINGER, 0))
@@ -1273,8 +1263,8 @@ struct TRINITY_DLL_DECL npc_highlord_darion_mograineAI : public npc_escortAI
                         break;
 
                     case 71:
-                        if (GameObject* pGo = me->GetMap()->GetGameObject(uiDawnofLightGUID)) // Turn off dawn of light
-                            pGo->SetPhaseMask(0, true);
+                        //if (GameObject* pGo = me->GetMap()->GetGameObject(uiDawnofLightGUID)) // Turn off dawn of light
+                        //    pGo->SetPhaseMask(0, true);
 
                         {
                             Map *map = me->GetMap(); // search players with in 50 yards for quest credit
