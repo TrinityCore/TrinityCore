@@ -71,6 +71,10 @@ AuctionHouseBot::AuctionHouseBot()
 
     //End Filters
 
+    _lastrun_a = time(NULL);
+    _lastrun_h = time(NULL);
+    _lastrun_n = time(NULL);
+
     AllianceConfig = AHBConfig(2);
     HordeConfig = AHBConfig(6);
     NeutralConfig = AHBConfig(7);
@@ -709,6 +713,7 @@ void AuctionHouseBot::addNewAuctionBuyerBotBid(Player *AHBplayer, AHBConfig *con
             auction->bid = auction->buyout;
 
             // Send mails to buyer & seller
+            auctionmgr.SendAuctionSalePendingMail(auction);
             auctionmgr.SendAuctionSuccessfulMail(auction);
             auctionmgr.SendAuctionWonMail(auction);
 
@@ -738,23 +743,29 @@ void AuctionHouseBot::Update()
     if (!sWorld.getConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_AUCTION))
     {
         addNewAuctions(&_AHBplayer, &AllianceConfig);
-        if (((_newrun - _lastrun_a) > (AllianceConfig.GetBiddingInterval() * 60)) && (AllianceConfig.GetBidsPerInterval() > 0))
+        if (((_newrun - _lastrun_a) >= (AllianceConfig.GetBiddingInterval() * MINUTE)) && (AllianceConfig.GetBidsPerInterval() > 0))
         {
+            //if (debug_Out) sLog.outString("AHBuyer: %u seconds have passed since last bid", (_newrun - _lastrun_a));
+            //if (debug_Out) sLog.outString("AHBuyer: Bidding on Alliance Auctions");
             addNewAuctionBuyerBotBid(&_AHBplayer, &AllianceConfig, &_session);
             _lastrun_a = _newrun;
         }
 
         addNewAuctions(&_AHBplayer, &HordeConfig);
-        if (((_newrun - _lastrun_h) > (HordeConfig.GetBiddingInterval() *60)) && (HordeConfig.GetBidsPerInterval() > 0))
+        if (((_newrun - _lastrun_h) >= (HordeConfig.GetBiddingInterval() * MINUTE)) && (HordeConfig.GetBidsPerInterval() > 0))
         {
+            //if (debug_Out) sLog.outString("AHBuyer: %u seconds have passed since last bid", (_newrun - _lastrun_h));
+            //if (debug_Out) sLog.outString("AHBuyer: Bidding on Horde Auctions");
             addNewAuctionBuyerBotBid(&_AHBplayer, &HordeConfig, &_session);
             _lastrun_h = _newrun;
         }
     }
 
     addNewAuctions(&_AHBplayer, &NeutralConfig);
-    if (((_newrun - _lastrun_n) > (NeutralConfig.GetBiddingInterval() * 60)) && (NeutralConfig.GetBidsPerInterval() > 0))
+    if (((_newrun - _lastrun_n) >= (NeutralConfig.GetBiddingInterval() * MINUTE)) && (NeutralConfig.GetBidsPerInterval() > 0))
     {
+        //if (debug_Out) sLog.outString("AHBuyer: %u seconds have passed since last bid", (_newrun - _lastrun_n));
+        //if (debug_Out) sLog.outString("AHBuyer: Bidding on Neutral Auctions");
         addNewAuctionBuyerBotBid(&_AHBplayer, &NeutralConfig, &_session);
         _lastrun_n = _newrun;
     }
