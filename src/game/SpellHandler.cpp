@@ -355,10 +355,9 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& recvPacket)
 
 void WorldSession::HandleCancelCastOpcode(WorldPacket& recvPacket)
 {
-    // increments with every CANCEL packet, don't use for now
-    uint8 counter;
     uint32 spellId;
-    recvPacket >> counter;
+
+    recvPacket.read_skip<uint8>();                          // counter, increments with every CANCEL packet, don't use for now
     recvPacket >> spellId;
 
     if(_player->IsNonMeleeSpellCasted(false))
