@@ -33,8 +33,17 @@ enum CreatureEntry
 
 const TeamPair CreatureEntryPair[] =
 {
-    {30739, 30740},
-    //{30400, 30499},
+    {31151, 31153}, // Tactical Officer
+    {32307, 32308}, // Guards
+    {30739, 30740}, // Champions
+    //{30400, 30499}, // Engineers
+    {30870, 30869}, // Flight Masters
+    {31101, 31051}, // Item Enhancement Vendors
+    {31102, 31054}, // Quest Givers
+    {32296, 32294}, // Quartermaster
+    {31107, 31036}, // Lieutenant & Commander
+    {31053, 31108}, // Primalist & Siege Master
+    {31106, 31109}, // Siegesmith & Senior Demolitionist
     {0,0}
 };
 
@@ -709,4 +718,18 @@ void OPvPWintergrasp::EndBattle()
             REMOVE_RANK_AURAS(*itr);
         }
     }
+}
+
+uint32 OPvPWintergrasp::GetData(uint32 id)
+{
+    for(OutdoorPvP::OPvPCapturePointMap::iterator itr = m_capturePoints.begin(); itr != m_capturePoints.end(); ++itr)
+        if(SiegeWorkshop *workshop = dynamic_cast<SiegeWorkshop*>(itr->second))
+            if(workshop->m_engGuid == id)
+                return itr->first;
+    return 0;
+}
+
+void OPvPWintergrasp::SetData(uint32 id, uint32 value)
+{
+
 }

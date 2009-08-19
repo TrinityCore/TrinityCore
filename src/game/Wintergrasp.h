@@ -130,6 +130,9 @@ class OPvPWintergrasp : public OutdoorPvP
         bool Update(uint32 diff);
 
         void BroadcastStateChange(BuildingState *state);
+
+        uint32 GetData(uint32 id);
+        void SetData(uint32 id, uint32 value);
     protected:
         TeamId m_defender;
         int32 m_tenacityStack;
