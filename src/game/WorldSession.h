@@ -722,7 +722,9 @@ class TRINITY_DLL_SPEC WorldSession
         void moveItems(Item* myItems[], Item* hisItems[]);
 
         // logging helper
-        void logUnexpectedOpcode(WorldPacket *packet, const char * reason);
+        void LogUnexpectedOpcode(WorldPacket *packet, const char * reason);
+        void LogUnprocessedTail(WorldPacket *packet);
+
         Player *_player;
         WorldSocket *m_Socket;
         std::string m_Address;
