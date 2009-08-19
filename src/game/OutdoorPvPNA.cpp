@@ -207,7 +207,7 @@ OPvPCapturePoint(pvp), m_capturable(true), m_GuardsAlive(0), m_ControllingFactio
 m_HalaaState(HALAA_N), m_WyvernStateSouth(0), m_WyvernStateNorth(0), m_WyvernStateWest(0),
 m_WyvernStateEast(0), m_RespawnTimer(NA_RESPAWN_TIME), m_GuardCheckTimer(NA_GUARD_CHECK_TIME)
 {
-    AddCapturePoint(182210,530,-1572.57,7945.3,-22.475,2.05949,0,0,0.857167,0.515038);
+    SetCapturePointData(182210,530,-1572.57,7945.3,-22.475,2.05949,0,0,0.857167,0.515038);
 }
 
 bool OutdoorPvPNA::SetupOutdoorPvP()
@@ -220,7 +220,7 @@ bool OutdoorPvPNA::SetupOutdoorPvP()
     m_obj = new OPvPCapturePointNA(this);
     if(!m_obj)
         return false;
-    m_capturePoints.push_back(m_obj);
+    AddCapturePoint(m_obj);
 
     return true;
 }
