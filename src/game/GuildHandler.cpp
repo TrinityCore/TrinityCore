@@ -608,8 +608,6 @@ void WorldSession::HandleGuildRankOpcode(WorldPacket& recvPacket)
     std::string rankname;
     uint32 rankId;
     uint32 rights, MoneyPerDay;
-    uint32 BankRights;
-    uint32 BankSlotPerDay;
 
     //sLog.outDebug("WORLD: Received CMSG_GUILD_RANK");
 
@@ -633,10 +631,14 @@ void WorldSession::HandleGuildRankOpcode(WorldPacket& recvPacket)
 
     for (int i = 0; i < GUILD_BANK_MAX_TABS; ++i)
     {
+        uint32 BankRights;
+        uint32 BankSlotPerDay;
+
         recvPacket >> BankRights;
         recvPacket >> BankSlotPerDay;
         guild->SetBankRightsAndSlots(rankId, uint8(i), uint16(BankRights & 0xFF), uint16(BankSlotPerDay), true);
     }
+
     sLog.outDebug("WORLD: Changed RankName to %s , Rights to 0x%.4X", rankname.c_str(), rights);
 
     guild->SetBankMoneyPerDay(rankId, MoneyPerDay);

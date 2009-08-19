@@ -27,8 +27,7 @@
 
 void WorldSession::HandleCalendarGetCalendar(WorldPacket &recv_data)
 {
-    sLog.outDebug("WORLD: CMSG_CALENDAR_GET_CALENDAR");
-    recv_data.hexlike();
+    sLog.outDebug("WORLD: CMSG_CALENDAR_GET_CALENDAR");     // empty
 
     time_t cur_time = time(NULL);
 
@@ -75,27 +74,23 @@ void WorldSession::HandleCalendarGetEvent(WorldPacket &recv_data)
 {
     sLog.outDebug("WORLD: CMSG_CALENDAR_GET_EVENT");
     recv_data.hexlike();
-    //uint64  unk1;
-    //recv_data >> (uint64)unk1;
+    recv_data.read_skip<uint64>();                          // unk
 }
 
 void WorldSession::HandleCalendarGuildFilter(WorldPacket &recv_data)
 {
     sLog.outDebug("WORLD: CMSG_CALENDAR_GUILD_FILTER");
     recv_data.hexlike();
-    //uint32  unk1, unk2, unk3;
-    //recv_data >> (uint32)unk1;
-    //recv_data >> (uint32)unk2;
-    //recv_data >> (uint32)unk3;
+    recv_data.read_skip<uint32>();                          // unk1
+    recv_data.read_skip<uint32>();                          // unk2
+    recv_data.read_skip<uint32>();                          // unk3
 }
 
 void WorldSession::HandleCalendarArenaTeam(WorldPacket &recv_data)
 {
     sLog.outDebug("WORLD: CMSG_CALENDAR_ARENA_TEAM");
     recv_data.hexlike();
-    //uint32  unk;
-    //recv_data >> (uint32)unk;
-
+    recv_data.read_skip<uint32>();                          // unk
 }
 
 void WorldSession::HandleCalendarAddEvent(WorldPacket &recv_data)
@@ -242,10 +237,9 @@ void WorldSession::HandleCalendarComplain(WorldPacket &recv_data)
     //recv_data >> uint64
 }
 
-void WorldSession::HandleCalendarGetNumPending(WorldPacket &recv_data)
+void WorldSession::HandleCalendarGetNumPending(WorldPacket & /*recv_data*/)
 {
-    sLog.outDebug("WORLD: CMSG_CALENDAR_GET_NUM_PENDING");
-    recv_data.hexlike();
+    sLog.outDebug("WORLD: CMSG_CALENDAR_GET_NUM_PENDING");  // empty
 
     WorldPacket data(SMSG_CALENDAR_SEND_NUM_PENDING, 4);
     data << uint32(0);                                      // 0 - no pending invites, 1 - some pending invites

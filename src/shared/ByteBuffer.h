@@ -261,6 +261,32 @@ class ByteBuffer
             return _wpos;
         }
 
+        template<typename T>
+        void read_skip() { read_skip(sizeof(T)); }
+
+        template<typename T1, typename T2>
+        void read_skip2() { read_skip(sizeof(T1)+sizeof(T2)); }
+
+        template<>
+        void read_skip<char*>()
+        {
+            uint8 size = read<uint8>();
+            read_skip(size);
+        }
+
+        template<>
+        void read_skip<char const*>() { read_skip<char*>(); }
+
+        template<>
+        void read_skip<std::string>() { read_skip<char*>(); }
+
+        void read_skip(size_t skip)
+        {
+            if(_rpos + skip > size())
+                throw ByteBufferException(false, _rpos, skip, size());
+            _rpos += skip;
+        }
+
         template <typename T> T read()
         {
             T r = read<T>(_rpos);
