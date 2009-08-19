@@ -265,9 +265,6 @@ class ByteBuffer
         template<typename T>
         void read_skip() { read_skip(sizeof(T)); }
 
-        template<typename T1, typename T2>
-        void read_skip2() { read_skip(sizeof(T1)+sizeof(T2)); }
-
         void read_skip(size_t skip)
         {
             if(_rpos + skip > size())

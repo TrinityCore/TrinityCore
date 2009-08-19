@@ -32,7 +32,8 @@
 void WorldSession::HandleSplitItemOpcode( WorldPacket & recv_data )
 {
     //sLog.outDebug("WORLD: CMSG_SPLIT_ITEM");
-    uint8 srcbag, srcslot, dstbag, dstslot, count;
+    uint8 srcbag, srcslot, dstbag, dstslot;
+    uint32 count;
 
     recv_data >> srcbag >> srcslot >> dstbag >> dstslot >> count;
     //sLog.outDebug("STORAGE: receive srcbag = %u, srcslot = %u, dstbag = %u, dstslot = %u, count = %u", srcbag, srcslot, dstbag, dstslot, count);
@@ -490,12 +491,9 @@ void WorldSession::HandleSellItemOpcode( WorldPacket & recv_data )
 {
     sLog.outDebug(  "WORLD: Received CMSG_SELL_ITEM" );
     uint64 vendorguid, itemguid;
-    uint8 _count;
+    uint32 count;
 
-    recv_data >> vendorguid >> itemguid >> _count;
-
-    // prevent possible overflow, as Trinity uses uint32 for item count
-    uint32 count = _count;
+    recv_data >> vendorguid >> itemguid >> count;
 
     if(!itemguid)
         return;
@@ -971,6 +969,8 @@ void WorldSession::HandleItemNameQueryOpcode(WorldPacket & recv_data)
 {
     uint32 itemid;
     recv_data >> itemid;
+    recv_data.read_skip<uint64>();                          // guid
+
     sLog.outDebug("WORLD: CMSG_ITEM_NAME_QUERY %u", itemid);
     ItemPrototype const *pProto = objmgr.GetItemPrototype( itemid );
     if( pProto )

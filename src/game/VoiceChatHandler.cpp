@@ -28,7 +28,8 @@ void WorldSession::HandleVoiceSessionEnableOpcode( WorldPacket & recv_data )
 {
     sLog.outDebug("WORLD: CMSG_VOICE_SESSION_ENABLE");
     // uint8 isVoiceEnabled, uint8 isMicrophoneEnabled
-    recv_data.read_skip2<uint8,uint8>();
+    recv_data.read_skip<uint8>();
+    recv_data.read_skip<uint8>();
     recv_data.hexlike();
 }
 
