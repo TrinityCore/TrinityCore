@@ -519,7 +519,7 @@ class MANGOS_DLL_SPEC Map : public GridRefManager<NGridType>, public MaNGOS::Obj
         time_t i_gridExpiry;
         IntervalTimer m_notifyTimer;
 
-        bool i_lock;
+        bool i_notifyLock, i_scriptLock;
         std::vector<Unit*> i_unitsToNotifyBacklog;
         std::vector<Unit*> i_unitsToNotify;
         std::set<WorldObject *> i_objectsToRemove;

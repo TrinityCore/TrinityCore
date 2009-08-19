@@ -211,7 +211,7 @@ Map::Map(uint32 id, time_t expiry, uint32 InstanceId, uint8 SpawnMode, Map* _par
   : i_mapEntry (sMapStore.LookupEntry(id)), i_spawnMode(SpawnMode), i_InstanceId(InstanceId), m_unloadTimer(0),
   m_activeNonPlayersIter(m_activeNonPlayers.end()),
   i_gridExpiry(expiry), m_parentMap(_parent ? _parent : this)
-   , i_lock(false)
+   , i_notifyLock(false), i_scriptLock(false)
 {
     m_notifyTimer.SetInterval(IN_MILISECONDS/2);
 
@@ -493,7 +493,7 @@ bool Map::loaded(const GridPair &p) const
 
 void Map::RelocationNotify()
 {
-    i_lock = true;
+    i_notifyLock = true;
 
     //Notify
     for(std::vector<Unit*>::iterator iter = i_unitsToNotify.begin(); iter != i_unitsToNotify.end(); ++iter)
@@ -537,7 +537,7 @@ void Map::RelocationNotify()
             (*iter)->m_Notified = false;
     i_unitsToNotify.clear();
 
-    i_lock = false;
+    i_notifyLock = false;
 
     if(!i_unitsToNotifyBacklog.empty())
     {
@@ -553,7 +553,7 @@ void Map::AddUnitToNotify(Unit* u)
         u->oldX = u->GetPositionX();
         u->oldY = u->GetPositionY();
 
-        if(i_lock)
+        if(i_notifyLock)
         {
             u->m_NotifyListPos = i_unitsToNotifyBacklog.size();
             i_unitsToNotifyBacklog.push_back(u);
@@ -569,7 +569,7 @@ void Map::AddUnitToNotify(Unit* u)
 void Map::RemoveUnitFromNotify(Unit *unit)
 {
     int32 slot = unit->m_NotifyListPos;
-    if(i_lock)
+    if(i_notifyLock)
     {
         if(slot < i_unitsToNotifyBacklog.size() && i_unitsToNotifyBacklog[slot] == unit)
             i_unitsToNotifyBacklog[slot] = NULL;
@@ -728,7 +728,11 @@ void Map::Update(const uint32 &t_diff)
 
     ///- Process necessary scripts
     if (!m_scriptSchedule.empty())
+    {
+        i_scriptLock = true;
         ScriptsProcess();
+        i_scriptLock = false;
+    }
 }
 
 void Map::Remove(Player *player, bool remove)
@@ -2717,8 +2721,12 @@ void Map::ScriptsStart(ScriptMapMap const& scripts, uint32 id, Object* source, O
         sWorld.IncreaseScheduledScriptsCount();
     }
     ///- If one of the effects should be immediate, launch the script execution
-    if (/*start &&*/ immedScript)
+    if (/*start &&*/ immedScript && !i_scriptLock)
+    {
+        i_scriptLock = true;
         ScriptsProcess();
+        i_scriptLock = false;
+    }
 }
 
 void Map::ScriptCommandStart(ScriptInfo const& script, uint32 delay, Object* source, Object* target)
@@ -2741,8 +2749,12 @@ void Map::ScriptCommandStart(ScriptInfo const& script, uint32 delay, Object* sou
     sWorld.IncreaseScheduledScriptsCount();
 
     ///- If effects should be immediate, launch the script execution
-    if(delay == 0)
+    if(delay == 0 && !i_scriptLock)
+    {
+        i_scriptLock = true;
         ScriptsProcess();
+        i_scriptLock = false;
+    }
 }
 
 /// Process queued scripts
@@ -3513,7 +3525,6 @@ void Map::ScriptsProcess()
 
         iter = m_scriptSchedule.begin();
     }
-    return;
 }
 
 Creature*
