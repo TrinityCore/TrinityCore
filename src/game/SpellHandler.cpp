@@ -443,13 +443,16 @@ void WorldSession::HandleCancelAutoRepeatSpellOpcode( WorldPacket& /*recvPacket*
     _player->InterruptSpell(CURRENT_AUTOREPEAT_SPELL);
 }
 
-/// \todo Complete HandleCancelChanneling function
-void WorldSession::HandleCancelChanneling( WorldPacket & /*recv_data */)
+void WorldSession::HandleCancelChanneling( WorldPacket & recv_data)
 {
-    /*
-        uint32 spellid;
-        recv_data >> spellid;
-    */
+    recv_data.read_skip<uint32>();                          // spellid, not used
+
+    // ignore for remote control state (for player case)
+    Unit* mover = _player->m_mover;
+    if(mover != _player && mover->GetTypeId()==TYPEID_PLAYER)
+        return;
+
+    mover->InterruptSpell(CURRENT_CHANNELED_SPELL);
 }
 
 void WorldSession::HandleTotemDestroyed( WorldPacket& recvPacket)
