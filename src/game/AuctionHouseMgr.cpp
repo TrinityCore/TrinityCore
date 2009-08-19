@@ -209,7 +209,7 @@ void AuctionHouseMgr::SendAuctionSalePendingMail( AuctionEntry * auction )
         std::ostringstream msgAuctionSalePendingBody;
         uint32 auctionCut = auction->GetAuctionCut();
 
-        time_t distrTime = time(NULL) + HOUR;
+        time_t distrTime = time(NULL) + sWorld.getConfig(CONFIG_MAIL_DELIVERY_DELAY);
 
         msgAuctionSalePendingBody.width(16);
         msgAuctionSalePendingBody << std::right << std::hex << auction->bidder;
@@ -263,7 +263,7 @@ void AuctionHouseMgr::SendAuctionSuccessfulMail( AuctionEntry * auction )
             owner->GetSession()->SendAuctionOwnerNotification( auction );
         }
 
-        WorldSession::SendMailTo(owner, MAIL_AUCTION, MAIL_STATIONERY_AUCTION, auction->GetHouseId(), auction->owner, msgAuctionSuccessfulSubject.str(), itemTextId, NULL, profit, 0, MAIL_CHECK_MASK_AUCTION, HOUR);
+        WorldSession::SendMailTo(owner, MAIL_AUCTION, MAIL_STATIONERY_AUCTION, auction->GetHouseId(), auction->owner, msgAuctionSuccessfulSubject.str(), itemTextId, NULL, profit, 0, MAIL_CHECK_MASK_AUCTION, sWorld.getConfig(CONFIG_MAIL_DELIVERY_DELAY));
     }
 }
 
