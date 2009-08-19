@@ -253,7 +253,7 @@ bool OPvPWintergrasp::SetupOutdoorPvP()
             }
 
             SiegeWorkshop *workshop = new SiegeWorkshop(this, m_buildingStates[guid]);
-            if(!workshop->AddCapturePoint(capturePointEntry, goData->mapid, goData->posX, goData->posY, goData->posZ))
+            if(!workshop->SetCapturePointData(capturePointEntry, goData->mapid, goData->posX, goData->posY, goData->posZ))
             {
                 delete workshop;
                 sLog.outError("Cannot add capture point!");
@@ -269,7 +269,7 @@ bool OPvPWintergrasp::SetupOutdoorPvP()
             workshop->m_engGuid = engGuid;
             //workshop->AddCre(0, engGuid, creData->id);
             //sLog.outDebug("Demolisher Engineerer lowguid %u is linked to workshop lowguid %u.", engGuid, guid);
-            m_capturePoints.push_back(workshop);
+            AddCapturePoint(workshop);
             workshop->SetStateByBuildingState();
         }
     }while(result->NextRow());
@@ -375,7 +375,7 @@ void OPvPWintergrasp::OnCreatureCreate(Creature *creature, bool add)
     else if(entry == CRE_ENG_A || entry == CRE_ENG_H) // demolisher engineers
     {
         for(OutdoorPvP::OPvPCapturePointMap::iterator itr = m_capturePoints.begin(); itr != m_capturePoints.end(); ++itr)
-            if(SiegeWorkshop *workshop = dynamic_cast<SiegeWorkshop*>(*itr))
+            if(SiegeWorkshop *workshop = dynamic_cast<SiegeWorkshop*>(itr->second))
                 if(workshop->m_engGuid == creature->GetDBTableGUIDLow())
                 {
                     workshop->m_engineer = add ? creature : NULL;
@@ -427,7 +427,7 @@ void OPvPWintergrasp::UpdateAllWorldObject()
 
     // update capture points
     for(OPvPCapturePointMap::iterator itr = m_capturePoints.begin(); itr != m_capturePoints.end(); ++itr)
-        if(SiegeWorkshop *workshop = dynamic_cast<SiegeWorkshop*>(*itr))
+        if(SiegeWorkshop *workshop = dynamic_cast<SiegeWorkshop*>(itr->second))
             workshop->SetStateByBuildingState();
 
     SendInitWorldStatesTo();

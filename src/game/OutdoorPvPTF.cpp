@@ -32,7 +32,7 @@ OutdoorPvPTF::OutdoorPvPTF()
 OPvPCapturePointTF::OPvPCapturePointTF(OutdoorPvP *pvp, OutdoorPvPTF_TowerType type)
 : OPvPCapturePoint(pvp), m_TowerType(type), m_TowerState(TF_TOWERSTATE_N)
 {
-    AddCapturePoint(TFCapturePoints[type].entry,TFCapturePoints[type].map,TFCapturePoints[type].x,TFCapturePoints[type].y,TFCapturePoints[type].z,TFCapturePoints[type].o,TFCapturePoints[type].rot0,TFCapturePoints[type].rot1,TFCapturePoints[type].rot2,TFCapturePoints[type].rot3);
+    SetCapturePointData(TFCapturePoints[type].entry,TFCapturePoints[type].map,TFCapturePoints[type].x,TFCapturePoints[type].y,TFCapturePoints[type].z,TFCapturePoints[type].o,TFCapturePoints[type].rot0,TFCapturePoints[type].rot1,TFCapturePoints[type].rot2,TFCapturePoints[type].rot3);
 }
 
 void OPvPCapturePointTF::FillInitialWorldStates(WorldPacket &data)
@@ -62,7 +62,7 @@ void OutdoorPvPTF::FillInitialWorldStates(WorldPacket &data)
 
     for(OPvPCapturePointMap::iterator itr = m_capturePoints.begin(); itr != m_capturePoints.end(); ++itr)
     {
-        (*itr)->FillInitialWorldStates(data);
+        itr->second->FillInitialWorldStates(data);
     }
 }
 
@@ -223,11 +223,11 @@ bool OutdoorPvPTF::SetupOutdoorPvP()
     for(int i = 0; i < OutdoorPvPTFBuffZonesNum; ++i)
         RegisterZone(OutdoorPvPTFBuffZones[i]);
 
-    m_capturePoints.push_back(new OPvPCapturePointTF(this,TF_TOWER_NW));
-    m_capturePoints.push_back(new OPvPCapturePointTF(this,TF_TOWER_N));
-    m_capturePoints.push_back(new OPvPCapturePointTF(this,TF_TOWER_NE));
-    m_capturePoints.push_back(new OPvPCapturePointTF(this,TF_TOWER_SE));
-    m_capturePoints.push_back(new OPvPCapturePointTF(this,TF_TOWER_S));
+    AddCapturePoint(new OPvPCapturePointTF(this,TF_TOWER_NW));
+    AddCapturePoint(new OPvPCapturePointTF(this,TF_TOWER_N));
+    AddCapturePoint(new OPvPCapturePointTF(this,TF_TOWER_NE));
+    AddCapturePoint(new OPvPCapturePointTF(this,TF_TOWER_SE));
+    AddCapturePoint(new OPvPCapturePointTF(this,TF_TOWER_S));
 
     return true;
 }

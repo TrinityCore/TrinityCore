@@ -113,7 +113,7 @@ public:
 
     void AddGO(uint32 type, uint32 guid, uint32 entry = 0);
     void AddCre(uint32 type, uint32 guid, uint32 entry = 0);
-    bool AddCapturePoint(uint32 entry, uint32 map, float x, float y, float z, float o = 0, float rotation0 = 0, float rotation1 = 0, float rotation2 = 0, float rotation3 = 0);
+    bool SetCapturePointData(uint32 entry, uint32 map, float x, float y, float z, float o = 0, float rotation0 = 0, float rotation1 = 0, float rotation2 = 0, float rotation3 = 0);
 
 protected:
 
@@ -165,7 +165,7 @@ public:
     // deletes all gos/creatures spawned by the pvp
     void DeleteSpawns();
 
-    typedef std::vector<OPvPCapturePoint*> OPvPCapturePointMap;
+    typedef std::map<uint32/*lowguid*/, OPvPCapturePoint*> OPvPCapturePointMap;
 
     virtual void FillInitialWorldStates(WorldPacket & data) {}
     // called when a player triggers an areatrigger
@@ -220,6 +220,11 @@ protected:
 
     virtual void HandlePlayerEnterZone(Player * plr, uint32 zone);
     virtual void HandlePlayerLeaveZone(Player * plr, uint32 zone);
+
+    void AddCapturePoint(OPvPCapturePoint* cp)
+    {
+        m_capturePoints[cp->m_CapturePointGUID] = cp;
+    }
 
     void RegisterZone(uint32 zoneid);
     bool HasPlayer(Player *plr) const;
