@@ -90,7 +90,7 @@ void FollowerAI::MoveInLineOfSight(Unit* pWho)
 
 void FollowerAI::JustDied(Unit* pKiller)
 {
-    if (!m_bIsFollowing || !m_uiLeaderGUID)
+    if (!m_bIsFollowing || !m_uiLeaderGUID || !m_pQuestForFollow)
         return;
 
     //TODO: need a better check for quests with time limit.
