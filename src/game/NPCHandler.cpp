@@ -40,8 +40,6 @@
 
 void WorldSession::HandleTabardVendorActivateOpcode( WorldPacket & recv_data )
 {
-    CHECK_PACKET_SIZE(recv_data,8);
-
     uint64 guid;
     recv_data >> guid;
 
@@ -68,8 +66,6 @@ void WorldSession::SendTabardVendorActivate( uint64 guid )
 
 void WorldSession::HandleBankerActivateOpcode( WorldPacket & recv_data )
 {
-    CHECK_PACKET_SIZE(recv_data,8);
-
     uint64 guid;
 
     sLog.outDebug(  "WORLD: Received CMSG_BANKER_ACTIVATE" );
@@ -99,8 +95,6 @@ void WorldSession::SendShowBank( uint64 guid )
 
 void WorldSession::HandleTrainerListOpcode( WorldPacket & recv_data )
 {
-    CHECK_PACKET_SIZE(recv_data,8);
-
     uint64 guid;
 
     recv_data >> guid;
@@ -198,8 +192,6 @@ void WorldSession::SendTrainerList( uint64 guid, const std::string& strTitle )
 
 void WorldSession::HandleTrainerBuySpellOpcode( WorldPacket & recv_data )
 {
-    CHECK_PACKET_SIZE(recv_data,8+4);
-
     uint64 guid;
     uint32 spellId = 0;
 
@@ -265,8 +257,6 @@ void WorldSession::HandleTrainerBuySpellOpcode( WorldPacket & recv_data )
 
 void WorldSession::HandleGossipHelloOpcode( WorldPacket & recv_data )
 {
-    CHECK_PACKET_SIZE(recv_data,8);
-
     sLog.outDebug(  "WORLD: Received CMSG_GOSSIP_HELLO" );
 
     uint64 guid;
@@ -311,8 +301,6 @@ void WorldSession::HandleGossipHelloOpcode( WorldPacket & recv_data )
 
 /*void WorldSession::HandleGossipSelectOptionOpcode( WorldPacket & recv_data )
 {
-    CHECK_PACKET_SIZE(recv_data,8+4+4);
-
     sLog.outDebug("WORLD: CMSG_GOSSIP_SELECT_OPTION");
 
     uint32 option;
@@ -324,8 +312,6 @@ void WorldSession::HandleGossipHelloOpcode( WorldPacket & recv_data )
 
     if(_player->PlayerTalkClass->GossipOptionCoded( option ))
     {
-        // recheck
-        CHECK_PACKET_SIZE(recv_data,8+4+1);
         sLog.outDebug("reading string");
         recv_data >> code;
         sLog.outDebug("string read: %s", code.c_str());
@@ -356,8 +342,6 @@ void WorldSession::HandleGossipHelloOpcode( WorldPacket & recv_data )
 
 void WorldSession::HandleSpiritHealerActivateOpcode( WorldPacket & recv_data )
 {
-    CHECK_PACKET_SIZE(recv_data,8);
-
     sLog.outDebug("WORLD: CMSG_SPIRIT_HEALER_ACTIVATE");
 
     uint64 guid;
@@ -417,8 +401,6 @@ void WorldSession::SendSpiritResurrect()
 
 void WorldSession::HandleBinderActivateOpcode( WorldPacket & recv_data )
 {
-    CHECK_PACKET_SIZE(recv_data,8);
-
     uint64 npcGUID;
     recv_data >> npcGUID;
 
@@ -490,8 +472,6 @@ void WorldSession::SendBindPoint(Creature *npc)
 
 void WorldSession::HandleListStabledPetsOpcode( WorldPacket & recv_data )
 {
-    CHECK_PACKET_SIZE(recv_data,8);
-
     sLog.outDebug("WORLD: Recv MSG_LIST_STABLED_PETS");
     uint64 npcGUID;
 
@@ -570,8 +550,6 @@ void WorldSession::SendStablePet(uint64 guid )
 
 void WorldSession::HandleStablePet( WorldPacket & recv_data )
 {
-    CHECK_PACKET_SIZE(recv_data, 8);
-
     sLog.outDebug("WORLD: Recv CMSG_STABLE_PET");
     uint64 npcGUID;
 
@@ -639,8 +617,6 @@ void WorldSession::HandleStablePet( WorldPacket & recv_data )
 
 void WorldSession::HandleUnstablePet( WorldPacket & recv_data )
 {
-    CHECK_PACKET_SIZE(recv_data, 8+4);
-
     sLog.outDebug("WORLD: Recv CMSG_UNSTABLE_PET.");
     uint64 npcGUID;
     uint32 petnumber;
@@ -719,8 +695,6 @@ void WorldSession::HandleUnstablePet( WorldPacket & recv_data )
 
 void WorldSession::HandleBuyStableSlot( WorldPacket & recv_data )
 {
-    CHECK_PACKET_SIZE(recv_data, 8);
-
     sLog.outDebug("WORLD: Recv CMSG_BUY_STABLE_SLOT.");
     uint64 npcGUID;
 
@@ -764,8 +738,6 @@ void WorldSession::HandleStableRevivePet( WorldPacket &/* recv_data */)
 
 void WorldSession::HandleStableSwapPet( WorldPacket & recv_data )
 {
-    CHECK_PACKET_SIZE(recv_data, 8+4);
-
     sLog.outDebug("WORLD: Recv CMSG_STABLE_SWAP_PET.");
     uint64 npcGUID;
     uint32 pet_number;
@@ -837,8 +809,6 @@ void WorldSession::HandleStableSwapPet( WorldPacket & recv_data )
 
 void WorldSession::HandleRepairItemOpcode( WorldPacket & recv_data )
 {
-    CHECK_PACKET_SIZE(recv_data, 8+8+1);
-
     sLog.outDebug("WORLD: CMSG_REPAIR_ITEM");
 
     uint64 npcGUID, itemGUID;

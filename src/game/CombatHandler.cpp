@@ -28,8 +28,6 @@
 
 void WorldSession::HandleAttackSwingOpcode( WorldPacket & recv_data )
 {
-    CHECK_PACKET_SIZE(recv_data,8);
-
     uint64 guid;
     recv_data >> guid;
 
@@ -68,8 +66,6 @@ void WorldSession::HandleAttackStopOpcode( WorldPacket & /*recv_data*/ )
 
 void WorldSession::HandleSetSheathedOpcode( WorldPacket & recv_data )
 {
-    CHECK_PACKET_SIZE(recv_data,4);
-
     uint32 sheathed;
     recv_data >> sheathed;
 

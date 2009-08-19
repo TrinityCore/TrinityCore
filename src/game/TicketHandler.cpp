@@ -27,8 +27,6 @@
 
 void WorldSession::HandleGMTicketCreateOpcode( WorldPacket & recv_data )
 {
-    CHECK_PACKET_SIZE(recv_data, 4*4+1+2*4);
-    
     if(GM_Ticket *ticket = objmgr.GetGMTicketByPlayer(GetPlayer()->GetGUID()))
     {
         WorldPacket data( SMSG_GMTICKET_CREATE, 4 );
@@ -75,7 +73,6 @@ void WorldSession::HandleGMTicketCreateOpcode( WorldPacket & recv_data )
 
 void WorldSession::HandleGMTicketUpdateOpcode( WorldPacket & recv_data)
 {
-    CHECK_PACKET_SIZE(recv_data, 1);
     WorldPacket data(SMSG_GMTICKET_UPDATETEXT, 4);
 
     std::string message;
