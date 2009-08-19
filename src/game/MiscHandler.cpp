@@ -822,21 +822,31 @@ void WorldSession::HandleAreaTriggerOpcode(WorldPacket & recv_data)
     else
     {
         // we have only extent
-        float dx = pl->GetPositionX() - atEntry->x;
-        float dy = pl->GetPositionY() - atEntry->y;
-        float dz = pl->GetPositionZ() - atEntry->z;
-        double es = sin(atEntry->box_orientation);
-        double ec = cos(atEntry->box_orientation);
-        // calc rotated vector based on extent axis
-        double rotateDx = dx*ec - dy*es;
-        double rotateDy = dx*es + dy*ec;
 
-        if( (fabs(rotateDx) > atEntry->box_x/2 + delta) ||
-            (fabs(rotateDy) > atEntry->box_y/2 + delta) ||
+        // rotate the players position instead of rotating the whole cube, that way we can make a simplified
+        // is-in-cube check and we have to calculate only one point instead of 4
+
+        // 2PI = 360°, keep in mind that ingame orientation is counter-clockwise
+        double rotation = 2*M_PI-atEntry->box_orientation;
+        double sinVal = sin(rotation);
+        double cosVal = cos(rotation);
+
+        float playerBoxDistX = pl->GetPositionX() - atEntry->x;
+        float playerBoxDistY = pl->GetPositionY() - atEntry->y;
+
+        float rotPlayerX = atEntry->x + playerBoxDistX * cosVal - playerBoxDistY*sinVal;
+        float rotPlayerY = atEntry->y + playerBoxDistY * cosVal + playerBoxDistX*sinVal;
+
+        // box edges are parallel to coordiante axis, so we can treat every dimension independently :D
+        float dz = pl->GetPositionZ() - atEntry->z;
+        float dx = rotPlayerX - atEntry->x;
+        float dy = rotPlayerY - atEntry->y;
+        if( (fabs(dx) > atEntry->box_x/2 + delta) ||
+            (fabs(dy) > atEntry->box_y/2 + delta) ||
             (fabs(dz) > atEntry->box_z/2 + delta) )
         {
-            sLog.outDebug("Player '%s' (GUID: %u) too far (1/2 box X: %f 1/2 box Y: %f 1/2 box Z: %f rotate dX: %f rotate dY: %f dZ:%f), ignore Area Trigger ID: %u",
-                pl->GetName(), pl->GetGUIDLow(), atEntry->box_x/2, atEntry->box_y/2, atEntry->box_z/2, rotateDx, rotateDy, dz, Trigger_ID);
+            sLog.outDebug("Player '%s' (GUID: %u) too far (1/2 box X: %f 1/2 box Y: %f 1/2 box Z: %f rotatedPlayerX: %f rotatedPlayerY: %f dZ:%f), ignore Area Trigger ID: %u",
+                pl->GetName(), pl->GetGUIDLow(), atEntry->box_x/2, atEntry->box_y/2, atEntry->box_z/2, rotPlayerX, rotPlayerY, dz, Trigger_ID);
             return;
         }
     }
