@@ -285,32 +285,7 @@ std::wstring GetMainPartOfName(std::wstring wname, uint32 declension);
 bool utf8ToConsole(const std::string& utf8str, std::string& conStr);
 bool consoleToUtf8(const std::string& conStr,std::string& utf8str);
 bool Utf8FitTo(const std::string& str, std::wstring search);
-
-#if PLATFORM == PLATFORM_WINDOWS
-#define UTF8PRINTF(OUT,FRM,RESERR)                         \
-{                                                          \
-    char temp_buf[32*1024];                                \
-    va_list ap;                                            \
-    va_start(ap, FRM);                                     \
-    size_t temp_len = vsnprintf(temp_buf,32*1024,FRM,ap);  \
-    va_end(ap);                                            \
-                                                           \
-    wchar_t wtemp_buf[32*1024];                            \
-    size_t wtemp_len = 32*1024-1;                          \
-    if(!Utf8toWStr(temp_buf,temp_len,wtemp_buf,wtemp_len)) \
-        return RESERR;                                     \
-    CharToOemBuffW(&wtemp_buf[0],&temp_buf[0],wtemp_len+1);\
-    fprintf(OUT,temp_buf);                                 \
-}
-#else
-#define UTF8PRINTF(OUT,FRM,RESERR)                      \
-{                                                       \
-    va_list ap;                                         \
-    va_start(ap, FRM);                                  \
-    vfprintf(OUT, FRM, ap );                            \
-    va_end(ap);                                         \
-}
-#endif
+void utf8printf(FILE *out, const char *str, ...);
 
 bool IsIPAddress(char const* ipaddress);
 uint32 CreatePIDFile(const std::string& filename);
