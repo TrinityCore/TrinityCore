@@ -857,7 +857,7 @@ void WorldSession::SendMailTo(Player* receiver, uint8 messageType, uint8 station
     //expire time if COD 3 days, if no COD 30 days, if auction sale pending 1 hour
     uint32 expire_delay;
     if(messageType == MAIL_AUCTION && !mi && !money)        // auction mail without any items and money
-        expire_delay = HOUR;
+        expire_delay = sWorld.getConfig(CONFIG_MAIL_DELIVERY_DELAY);
     else
         expire_delay = (COD > 0) ? 3*DAY : 30*DAY;
 
