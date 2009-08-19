@@ -2053,11 +2053,6 @@ insert into spell_script_target values (53706, 1, 29183);
 insert into spell_script_target values (53677, 1, 29227);
 insert into spell_script_target values (53685, 1, 29175);
 
-DELETE FROM `gameobject` WHERE `id` IN (191330);
-INSERT INTO `gameobject` (`id`, `map`, `spawnMask`, `phaseMask`, `position_x`, `position_y`, `position_z`, `orientation`, `rotation0`, `rotation1`, `rotation2`, `rotation3`, `spawntimesecs`, `animprogress`, `state`) VALUES
-('','609','1','128','2283.896','-5287.914','83.066','1','0.0','0.0','0.0','1.0','180','0','1');
-
-
 -- --------
 -- NAXXARAMAS
 -- --------
