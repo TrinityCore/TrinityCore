@@ -154,6 +154,7 @@ void WorldSession::HandleCreatureQueryOpcode( WorldPacket & recv_data )
 {
     uint32 entry;
     recv_data >> entry;
+    recv_data.read_skip<uint64>();                          // guid
 
     CreatureInfo const *ci = objmgr.GetCreatureTemplate(entry);
     if (ci)
@@ -221,6 +222,7 @@ void WorldSession::HandleGameObjectQueryOpcode( WorldPacket & recv_data )
 {
     uint32 entryID;
     recv_data >> entryID;
+    recv_data.read_skip<uint64>();                          // guid
 
     const GameObjectInfo *info = objmgr.GetGameObjectInfo(entryID);
     if(info)
