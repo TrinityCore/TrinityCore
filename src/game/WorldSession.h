@@ -46,8 +46,6 @@ class QueryResult;
 class LoginQueryHolder;
 class CharacterHandler;
 
-#define CHECK_PACKET_SIZE(P,S) if((P).size() < (S)) return SizeError((P),(S));
-
 #define NUM_ACCOUNT_DATA_TYPES 8
 
 struct AccountData

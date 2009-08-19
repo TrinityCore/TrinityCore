@@ -617,45 +617,55 @@ int WorldSocket::ProcessIncoming (WorldPacket* new_pct)
         sWorldLog.outLog ("\n");
     }
 
-    // like one switch ;)
-    if (opcode == CMSG_PING)
-    {
-        return HandlePing (*new_pct);
-    }
-    else if (opcode == CMSG_AUTH_SESSION)
-    {
-        if (m_Session)
+    try {
+        switch(opcode)
         {
-            sLog.outError ("WorldSocket::ProcessIncoming: Player send CMSG_AUTH_SESSION again");
-            return -1;
+            case CMSG_PING:
+                return HandlePing (*new_pct);
+            case CMSG_AUTH_SESSION:
+                if (m_Session)
+                {
+                    sLog.outError ("WorldSocket::ProcessIncoming: Player send CMSG_AUTH_SESSION again");
+                    return -1;
+                }
+
+                return HandleAuthSession (*new_pct);
+            case CMSG_KEEP_ALIVE:
+                DEBUG_LOG ("CMSG_KEEP_ALIVE ,size: %d", new_pct->size ());
+
+                return 0;
+            default:
+            {
+                ACE_GUARD_RETURN (LockType, Guard, m_SessionLock, -1);
+
+                if (m_Session != NULL)
+                {
+                    // OK ,give the packet to WorldSession
+                    aptr.release ();
+                    // WARNINIG here we call it with locks held.
+                    // Its possible to cause deadlock if QueuePacket calls back
+                    m_Session->QueuePacket (new_pct);
+                    return 0;
+                }
+                else
+                {
+                    sLog.outError ("WorldSocket::ProcessIncoming: Client not authed opcode = %u", uint32(opcode));
+                    return -1;
+                }
+            }
+        }
+    }
+    catch(ByteBufferException &exception)
+    {
+        sLog.outError("WorldSocket::ProcessIncoming ByteBufferException occured while parsing an instant handled packet (opcode: %u) from client %s, accountid=%i. Disconnected client.",
+                opcode, GetRemoteAddress().c_str(), m_Session?m_Session->GetAccountId():-1);
+        if(sLog.IsOutDebug())
+        {
+            sLog.outDebug("Dumping error causing packet:");
+            new_pct->hexlike();
         }
 
-        return HandleAuthSession (*new_pct);
-    }
-    else if (opcode == CMSG_KEEP_ALIVE)
-    {
-        DEBUG_LOG ("CMSG_KEEP_ALIVE ,size: %d", new_pct->size ());
-
-        return 0;
-    }
-    else
-    {
-        ACE_GUARD_RETURN (LockType, Guard, m_SessionLock, -1);
-
-        if (m_Session != NULL)
-        {
-            // OK ,give the packet to WorldSession
-            aptr.release ();
-            // WARNINIG here we call it with locks held.
-            // Its possible to cause deadlock if QueuePacket calls back
-            m_Session->QueuePacket (new_pct);
-            return 0;
-        }
-        else
-        {
-            sLog.outError ("WorldSocket::ProcessIncoming: Client not authed opcode = %u", uint32(opcode));
-            return -1;
-        }
+        return -1;
     }
 
     ACE_NOTREACHED (return 0);
@@ -678,12 +688,6 @@ int WorldSocket::HandleAuthSession (WorldPacket& recvPacket)
 
     BigNumber K;
 
-    if (recvPacket.size () < (4 + 4 + 1 + 4 + 4 + 20))
-    {
-        sLog.outError ("WorldSocket::HandleAuthSession: wrong packet size");
-        return -1;
-    }
-
     if(sWorld.IsClosed())
     {
         packet.Initialize(SMSG_AUTH_RESPONSE, 1);
@@ -699,13 +703,6 @@ int WorldSocket::HandleAuthSession (WorldPacket& recvPacket)
     recvPacket >> unk2;
     recvPacket >> account;
     recvPacket >> unk3;
-
-    if (recvPacket.size () < (4 + 4 + (account.size () + 1) + 4 + 4 + 20))
-    {
-        sLog.outError ("WorldSocket::HandleAuthSession: wrong packet size second check");
-        return -1;
-    }
-
     recvPacket >> clientSeed;
     recvPacket.read (digest, 20);
 
@@ -939,12 +936,6 @@ int WorldSocket::HandlePing (WorldPacket& recvPacket)
 {
     uint32 ping;
     uint32 latency;
-
-    if (recvPacket.size () < 8)
-    {
-        sLog.outError ("WorldSocket::_HandlePing wrong packet size");
-        return -1;
-    }
 
     // Get the ping packet content
     recvPacket >> ping;
