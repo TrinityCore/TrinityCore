@@ -481,25 +481,25 @@ bool Utf8FitTo(const std::string& str, std::wstring search)
 void utf8printf(FILE *out, const char *str, ...)
 {
     va_list ap;
+    va_start(ap, str);
+    vutf8printf(stdout, str, &ap);
+    va_end(ap);
+}
 
+void vutf8printf(FILE *out, const char *str, va_list* ap)
+{
 #if PLATFORM == PLATFORM_WINDOWS
     char temp_buf[32*1024];
     wchar_t wtemp_buf[32*1024];
-    size_t temp_len;
-    size_t wtemp_len;
 
-    va_start(ap, str);
-    temp_len = vsnprintf(temp_buf, 32*1024, str, ap);
-    va_end(ap);
+    size_t temp_len = vsnprintf(temp_buf, 32*1024, str, *ap);
 
-    wtemp_len = 32*1024-1;
+    size_t wtemp_len = 32*1024-1;
     Utf8toWStr(temp_buf, temp_len, wtemp_buf, wtemp_len);
 
     CharToOemBuffW(&wtemp_buf[0], &temp_buf[0], wtemp_len+1);
     fprintf(out, temp_buf);
 #else
-    va_start(ap, str);
-    vfprintf(out, str, ap);
-    va_end(ap);
+    vfprintf(out, str, *ap);
 #endif
 }
