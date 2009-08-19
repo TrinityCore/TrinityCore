@@ -2124,7 +2124,7 @@ void Spell::SetTargetMap(uint32 i, uint32 cur)
 
         case TARGET_TYPE_CHANNEL:
         {
-            if(!m_originalCaster || !m_originalCaster->m_currentSpells[CURRENT_CHANNELED_SPELL])
+            if(!m_originalCaster || !m_originalCaster->GetCurrentSpell(CURRENT_CHANNELED_SPELL))
             {
                 sLog.outError( "SPELL: no current channeled spell for spell ID %u", m_spellInfo->Id );
                 break;
@@ -2133,15 +2133,15 @@ void Spell::SetTargetMap(uint32 i, uint32 cur)
             switch(cur)
             {
                 case TARGET_UNIT_CHANNEL:
-                    if(Unit* target = m_originalCaster->m_currentSpells[CURRENT_CHANNELED_SPELL]->m_targets.getUnitTarget())
+                    if(Unit* target = m_originalCaster->GetCurrentSpell(CURRENT_CHANNELED_SPELL)->m_targets.getUnitTarget())
                         AddUnitTarget(target, i);
                     else
                         sLog.outError( "SPELL: cannot find channel spell target for spell ID %u", m_spellInfo->Id );
                     break;
                 case TARGET_DEST_CHANNEL:
-                    if(m_originalCaster->m_currentSpells[CURRENT_CHANNELED_SPELL]->m_targets.HasDst())
-                        m_targets = m_originalCaster->m_currentSpells[CURRENT_CHANNELED_SPELL]->m_targets;
-                    else if(Unit* target = m_originalCaster->m_currentSpells[CURRENT_CHANNELED_SPELL]->m_targets.getUnitTarget())
+                    if(m_originalCaster->GetCurrentSpell(CURRENT_CHANNELED_SPELL)->m_targets.HasDst())
+                        m_targets = m_originalCaster->GetCurrentSpell(CURRENT_CHANNELED_SPELL)->m_targets;
+                    else if(Unit* target = m_originalCaster->GetCurrentSpell(CURRENT_CHANNELED_SPELL)->m_targets.getUnitTarget())
                         m_targets.setDestination(target);
                     else
                         sLog.outError( "SPELL: cannot find channel spell destination for spell ID %u", m_spellInfo->Id );
@@ -2704,7 +2704,6 @@ void Spell::prepare(SpellCastTargets const* targets, AuraEffect* triggeredByAura
         }
 
         m_caster->SetCurrentCastedSpell( this );
-        m_selfContainer = &(m_caster->m_currentSpells[GetCurrentContainer()]);
         SendSpellStart();
 
         if(!m_casttime && !m_spellInfo->StartRecoveryTime

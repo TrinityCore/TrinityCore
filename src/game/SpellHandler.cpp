@@ -325,8 +325,8 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& recvPacket)
 
     // Client is resending autoshot cast opcode when other spell is casted during shoot rotation
     // Skip it to prevent "interrupt" message
-    if (IsAutoRepeatRangedSpell(spellInfo) && _player->m_currentSpells[CURRENT_AUTOREPEAT_SPELL]
-        && _player->m_currentSpells[CURRENT_AUTOREPEAT_SPELL]->m_spellInfo == spellInfo)
+    if (IsAutoRepeatRangedSpell(spellInfo) && _player->GetCurrentSpell(CURRENT_AUTOREPEAT_SPELL)
+        && _player->GetCurrentSpell(CURRENT_AUTOREPEAT_SPELL)->m_spellInfo == spellInfo)
         return;
 
     // can't use our own spells when we're in possession of another unit,
@@ -381,9 +381,9 @@ void WorldSession::HandleCancelAuraOpcode( WorldPacket& recvPacket)
     // channeled spell case (it currently casted then)
     if (IsChanneledSpell(spellInfo))
     {
-        if (_player->m_currentSpells[CURRENT_CHANNELED_SPELL] &&
-            _player->m_currentSpells[CURRENT_CHANNELED_SPELL]->m_spellInfo->Id==spellId)
-            _player->InterruptSpell(CURRENT_CHANNELED_SPELL);
+        if (Spell* curSpell = _player->GetCurrentSpell(CURRENT_CHANNELED_SPELL))
+            if (curSpell->m_spellInfo->Id==spellId)
+                _player->InterruptSpell(CURRENT_CHANNELED_SPELL);
         return;
     }
 

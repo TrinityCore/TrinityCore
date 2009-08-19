@@ -486,11 +486,11 @@ struct TRINITY_DLL_DECL boss_essence_of_desireAI : public ScriptedAI
 
     void SpellHit(Unit *caster, const SpellEntry *spell)
     {
-        if (m_creature->m_currentSpells[CURRENT_GENERIC_SPELL])
+        if (m_creature->GetCurrentSpell(CURRENT_GENERIC_SPELL))
             for(uint8 i = 0; i < 3; ++i)
                 if (spell->Effect[i] == SPELL_EFFECT_INTERRUPT_CAST)
-                    if (m_creature->m_currentSpells[CURRENT_GENERIC_SPELL]->m_spellInfo->Id == SPELL_SOUL_SHOCK
-                        || m_creature->m_currentSpells[CURRENT_GENERIC_SPELL]->m_spellInfo->Id == SPELL_DEADEN)
+                    if (m_creature->GetCurrentSpell(CURRENT_GENERIC_SPELL)->m_spellInfo->Id == SPELL_SOUL_SHOCK
+                        || m_creature->GetCurrentSpell(CURRENT_GENERIC_SPELL)->m_spellInfo->Id == SPELL_DEADEN)
                         m_creature->InterruptSpell(CURRENT_GENERIC_SPELL, false);
     }
 
