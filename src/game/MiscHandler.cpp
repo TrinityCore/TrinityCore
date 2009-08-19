@@ -1078,76 +1078,50 @@ void WorldSession::HandleFeatherFallAck(WorldPacket &/*recv_data*/)
 
 void WorldSession::HandleMoveUnRootAck(WorldPacket& recv_data)
 {
+    // no used
+    recv_data.rpos(recv_data.wpos());                       // prevent warnings spam
+/*
+    uint64 guid;
+    recv_data >> guid;
+
+    // now can skip not our packet
+    if(_player->GetGUID() != guid)
+    {
+        recv_data.rpos(recv_data.wpos());                   // prevent warnings spam
+        return;
+    }
+
     sLog.outDebug( "WORLD: CMSG_FORCE_MOVE_UNROOT_ACK" );
 
-    recv_data.read_skip<uint64>();                          // guid
-    recv_data.read_skip<uint64>();                          // unknown1
-    recv_data.read_skip<uint32>();                          // unknown2
-    recv_data.read_skip<float>();                           // PositionX
-    recv_data.read_skip<float>();                           // PositionY
-    recv_data.read_skip<float>();                           // PositionZ
-    recv_data.read_skip<float>();                           // Orientation
-    
-    /*
-        recv_data.hexlike();
+    recv_data.read_skip<uint32>();                          // unk
 
-        recv_data >> guid;
-        recv_data >> unknown1;
-        recv_data >> unknown2;
-        recv_data >> PositionX;
-        recv_data >> PositionY;
-        recv_data >> PositionZ;
-        recv_data >> Orientation;
-
-        // TODO for later may be we can use for anticheat
-        DEBUG_LOG("Guid " UI64FMTD,guid);
-        DEBUG_LOG("unknown1 " UI64FMTD,unknown1);
-        DEBUG_LOG("unknown2 %u",unknown2);
-        DEBUG_LOG("X %f",PositionX);
-        DEBUG_LOG("Y %f",PositionY);
-        DEBUG_LOG("Z %f",PositionZ);
-        DEBUG_LOG("O %f",Orientation);
-    */
+    MovementInfo movementInfo;
+    ReadMovementInfo(recv_data, &movementInfo);
+*/
 }
 
 void WorldSession::HandleMoveRootAck(WorldPacket& recv_data)
 {
-    recv_data.read_skip<uint64>();                          // guid
-    recv_data.read_skip<uint64>();                          // unknown1
-    recv_data.read_skip<uint32>();                          // unknown2
-    recv_data.read_skip<float>();                           // PositionX
-    recv_data.read_skip<float>();                           // PositionY
-    recv_data.read_skip<float>();                           // PositionZ
-    recv_data.read_skip<float>();                           // Orientation
+    // no used
+    recv_data.rpos(recv_data.wpos());                       // prevent warnings spam
+/*
+    uint64 guid;
+    recv_data >> guid;
 
-    /*
-        sLog.outDebug( "WORLD: CMSG_FORCE_MOVE_ROOT_ACK" );
-        recv_data.hexlike();
-        uint64 guid;
-        uint64 unknown1;
-        uint32 unknown2;
-        float PositionX;
-        float PositionY;
-        float PositionZ;
-        float Orientation;
+    // now can skip not our packet
+    if(_player->GetGUID() != guid)
+    {
+        recv_data.rpos(recv_data.wpos());                   // prevent warnings spam
+        return;
+    }
 
-        recv_data >> guid;
-        recv_data >> unknown1;
-        recv_data >> unknown2;
-        recv_data >> PositionX;
-        recv_data >> PositionY;
-        recv_data >> PositionZ;
-        recv_data >> Orientation;
+    sLog.outDebug( "WORLD: CMSG_FORCE_MOVE_ROOT_ACK" );
 
-        // for later may be we can use for anticheat
-        DEBUG_LOG("Guid " UI64FMTD,guid);
-        DEBUG_LOG("unknown1 " UI64FMTD,unknown1);
-        DEBUG_LOG("unknown1 %u",unknown2);
-        DEBUG_LOG("X %f",PositionX);
-        DEBUG_LOG("Y %f",PositionY);
-        DEBUG_LOG("Z %f",PositionZ);
-        DEBUG_LOG("O %f",Orientation);
-    */
+    recv_data.read_skip<uint32>();                          // unk
+
+    MovementInfo movementInfo;
+    ReadMovementInfo(recv_data, &movementInfo);
+*/
 }
 
 void WorldSession::HandleSetActionBarToggles(WorldPacket& recv_data)
