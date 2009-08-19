@@ -388,7 +388,7 @@ void Log::outString( const char * str, ... )
     if(m_colored)
         SetColor(true,m_colors[LOGL_NORMAL]);
 
-    UTF8PRINTF(stdout,str,);
+    utf8printf(stdout, str);
 
     if(m_colored)
         ResetColor(true);
@@ -438,7 +438,7 @@ void Log::outCrash( const char * err, ... )
     if(m_colored)
         SetColor(false,RED);
 
-    UTF8PRINTF(stderr,err,);
+    utf8printf(stdout, err);
 
     if(m_colored)
         ResetColor(false);
@@ -478,7 +478,7 @@ void Log::outError( const char * err, ... )
     if(m_colored)
         SetColor(false,RED);
 
-    UTF8PRINTF(stderr,err,);
+    utf8printf(stderr, err);
 
     if(m_colored)
         ResetColor(false);
@@ -526,7 +526,7 @@ void Log::outErrorDb( const char * err, ... )
     if(m_colored)
         SetColor(false,RED);
 
-    UTF8PRINTF(stderr,err,);
+    utf8printf(stderr, err);
 
     if(m_colored)
         ResetColor(false);
@@ -581,7 +581,7 @@ void Log::outBasic( const char * str, ... )
         if(m_colored)
             SetColor(true,m_colors[LOGL_BASIC]);
 
-        UTF8PRINTF(stdout,str,);
+        utf8printf(stdout, str);
 
         if(m_colored)
             ResetColor(true);
@@ -622,7 +622,7 @@ void Log::outDetail( const char * str, ... )
         if(m_colored)
             SetColor(true,m_colors[LOGL_DETAIL]);
 
-        UTF8PRINTF(stdout,str,);
+        utf8printf(stdout, str);
 
         if(m_colored)
             ResetColor(true);
@@ -650,7 +650,7 @@ void Log::outDebugInLine( const char * str, ... )
 
     if( m_logLevel > LOGL_DETAIL )
     {
-        UTF8PRINTF(stdout,str,);
+        utf8printf(stdout, str);
     }
     if(logfile && m_logFileLevel > LOGL_DETAIL)
     {
@@ -681,7 +681,7 @@ void Log::outDebug( const char * str, ... )
         if(m_colored)
             SetColor(true,m_colors[LOGL_DEBUG]);
 
-        UTF8PRINTF(stdout,str,);
+        utf8printf(stdout, str);
 
         if(m_colored)
             ResetColor(true);
@@ -707,7 +707,7 @@ void Log::outStringInLine( const char * str, ... )
     if( !str )
         return;
 
-    UTF8PRINTF(stdout,str,);
+    utf8printf(stdout, str);
 
     if(logfile)
     {
@@ -739,7 +739,7 @@ void Log::outCommand( uint32 account, const char * str, ... )
         if(m_colored)
             SetColor(true,m_colors[LOGL_BASIC]);
 
-        UTF8PRINTF(stdout,str,);
+        utf8printf(stdout, str);
 
         if(m_colored)
             ResetColor(true);
