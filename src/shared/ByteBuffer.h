@@ -29,15 +29,16 @@
 class ByteBufferException
 {
     public:
-        ByteBufferException(bool add, size_t pos, size_t esize, size_t size):add(add), pos(pos), esize(esize), size(size)
+        ByteBufferException(bool _add, size_t _pos, size_t _esize, size_t _size)
+            : add(_add), pos(_pos), esize(_esize), size(_size)
         {
             PrintPosError();
         }
 
         void PrintPosError() const
         {
-            sLog.outError("ERROR: Attempted to %s in ByteBuffer (pos: %lu size: %lu) value with size: %lu",(add ? "put" : "get"),(unsigned long)pos, (unsigned long)size, (unsigned long)esize);
-
+            sLog.outError("ERROR: Attempted to %s in ByteBuffer (pos: " SIZEFMTD " size: "SIZEFMTD") value with size: " SIZEFMTD,
+                (add ? "put" : "get"), pos, size, esize);
         }
     private:
         bool add;
@@ -267,19 +268,6 @@ class ByteBuffer
         template<typename T1, typename T2>
         void read_skip2() { read_skip(sizeof(T1)+sizeof(T2)); }
 
-        template<>
-        void read_skip<char*>()
-        {
-            uint8 size = read<uint8>();
-            read_skip(size);
-        }
-
-        template<>
-        void read_skip<char const*>() { read_skip<char*>(); }
-
-        template<>
-        void read_skip<std::string>() { read_skip<char*>(); }
-
         void read_skip(size_t skip)
         {
             if(_rpos + skip > size())
@@ -507,7 +495,8 @@ class ByteBuffer
         std::vector<uint8> _storage;
 };
 
-template <typename T> ByteBuffer &operator<<(ByteBuffer &b, std::vector<T> v)
+template <typename T>
+inline ByteBuffer &operator<<(ByteBuffer &b, std::vector<T> v)
 {
     b << (uint32)v.size();
     for (typename std::vector<T>::iterator i = v.begin(); i != v.end(); ++i)
@@ -517,7 +506,8 @@ template <typename T> ByteBuffer &operator<<(ByteBuffer &b, std::vector<T> v)
     return b;
 }
 
-template <typename T> ByteBuffer &operator>>(ByteBuffer &b, std::vector<T> &v)
+template <typename T>
+inline ByteBuffer &operator>>(ByteBuffer &b, std::vector<T> &v)
 {
     uint32 vsize;
     b >> vsize;
@@ -531,7 +521,8 @@ template <typename T> ByteBuffer &operator>>(ByteBuffer &b, std::vector<T> &v)
     return b;
 }
 
-template <typename T> ByteBuffer &operator<<(ByteBuffer &b, std::list<T> v)
+template <typename T>
+inline ByteBuffer &operator<<(ByteBuffer &b, std::list<T> v)
 {
     b << (uint32)v.size();
     for (typename std::list<T>::iterator i = v.begin(); i != v.end(); ++i)
@@ -541,7 +532,8 @@ template <typename T> ByteBuffer &operator<<(ByteBuffer &b, std::list<T> v)
     return b;
 }
 
-template <typename T> ByteBuffer &operator>>(ByteBuffer &b, std::list<T> &v)
+template <typename T>
+inline ByteBuffer &operator>>(ByteBuffer &b, std::list<T> &v)
 {
     uint32 vsize;
     b >> vsize;
@@ -555,7 +547,8 @@ template <typename T> ByteBuffer &operator>>(ByteBuffer &b, std::list<T> &v)
     return b;
 }
 
-template <typename K, typename V> ByteBuffer &operator<<(ByteBuffer &b, std::map<K, V> &m)
+template <typename K, typename V>
+inline ByteBuffer &operator<<(ByteBuffer &b, std::map<K, V> &m)
 {
     b << (uint32)m.size();
     for (typename std::map<K, V>::iterator i = m.begin(); i != m.end(); ++i)
@@ -565,7 +558,8 @@ template <typename K, typename V> ByteBuffer &operator<<(ByteBuffer &b, std::map
     return b;
 }
 
-template <typename K, typename V> ByteBuffer &operator>>(ByteBuffer &b, std::map<K, V> &m)
+template <typename K, typename V>
+inline ByteBuffer &operator>>(ByteBuffer &b, std::map<K, V> &m)
 {
     uint32 msize;
     b >> msize;
@@ -586,6 +580,25 @@ template<> inline std::string ByteBuffer::read<std::string>()
     std::string tmp;
     *this >> tmp;
     return tmp;
+}
+
+template<>
+inline void ByteBuffer::read_skip<char*>()
+{
+    std::string temp;
+    *this >> temp;
+}
+
+template<>
+inline void ByteBuffer::read_skip<char const*>()
+{
+    read_skip<char*>();
+}
+
+template<>
+inline void ByteBuffer::read_skip<std::string>()
+{
+    read_skip<char*>();
 }
 #endif
 
