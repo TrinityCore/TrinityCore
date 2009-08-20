@@ -386,7 +386,8 @@ INSERT INTO `script_texts` (`entry`, `content_default`, `content_loc1`, `content
 (-1000441,'You don\'t mind if I stop here for a moment, do you?', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,0,0,0,0,'kerlonian SAY_KER_SLEEP_4'),
 (-1000442,'Be on the alert! The Blackwood furbolgs are numerous in the area...', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,0,0,0,0,'kerlonian SAY_KER_ALERT_1'),
 (-1000443,'It\'s quiet... Too quiet...', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,0,0,0,0,'kerlonian SAY_KER_ALERT_2'),
-(-1000444,'Oh, I can see Liladris from here... Tell her I\'m here, won\'t you?', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,0,0,0,0,'kerlonian SAY_KER_END');
+(-1000444,'Oh, I can see Liladris from here... Tell her I\'m here, won\'t you?', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,0,0,0,0,'kerlonian SAY_KER_END'),
+(-1000445,'%s wakes up!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,0,2,0,0,'kerlonian EMOTE_KER_AWAKEN');
 
 -- -1 033 000 SHADOWFANG KEEP
 INSERT INTO `script_texts` (`entry`, `content_default`, `content_loc1`, `content_loc2`, `content_loc3`, `content_loc4`, `content_loc5`, `content_loc6`, `content_loc7`, `content_loc8`, `sound`, `type`, `language`, `emote`, `comment`) VALUES
