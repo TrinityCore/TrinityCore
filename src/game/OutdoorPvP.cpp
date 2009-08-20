@@ -584,7 +584,6 @@ void OutdoorPvP::OnGameObjectCreate(GameObject *go, bool add)
     if(go->GetGoType() != GAMEOBJECT_TYPE_CAPTURE_POINT)
         return;
 
-    OutdoorPvP::OPvPCapturePointMap::iterator itr = m_capturePoints.find(go->GetDBTableGUIDLow());
-    if(itr != m_capturePoints.end())
-        itr->second->m_capturePoint = add ? go : NULL;
+    if(OPvPCapturePoint *cp = GetCapturePoint(go->GetDBTableGUIDLow()))
+        cp->m_capturePoint = add ? go : NULL;
 }
