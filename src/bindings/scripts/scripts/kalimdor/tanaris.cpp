@@ -479,7 +479,7 @@ struct TRINITY_DLL_DECL npc_toogaAI : public FollowerAI
     {
         FollowerAI::MoveInLineOfSight(pWho);
 
-        if (!m_creature->getVictim() && !IsFollowComplete() && !IsEndEventInProgress() && pWho->GetEntry() == NPC_TORTA)
+        if (!m_creature->getVictim() && !HasFollowState(STATE_FOLLOW_COMPLETE | STATE_FOLLOW_POSTEVENT) && pWho->GetEntry() == NPC_TORTA)
         {
             if (m_creature->IsWithinDistInMap(pWho, INTERACTION_DISTANCE))
             {
@@ -511,7 +511,7 @@ struct TRINITY_DLL_DECL npc_toogaAI : public FollowerAI
         if (!UpdateVictim())
         {
             //we are doing the post-event, or...
-            if (IsEndEventInProgress())
+            if (HasFollowState(STATE_FOLLOW_POSTEVENT))
             {
                 if (m_uiPostEventTimer < uiDiff)
                 {
@@ -553,7 +553,7 @@ struct TRINITY_DLL_DECL npc_toogaAI : public FollowerAI
                     m_uiPostEventTimer -= uiDiff;
             }
             //...we are doing regular speech check
-            else if (!IsFollowComplete())
+            else if (HasFollowState(STATE_FOLLOW_INPROGRESS))
             {
                 if (m_uiCheckSpeechTimer < uiDiff)
                 {
