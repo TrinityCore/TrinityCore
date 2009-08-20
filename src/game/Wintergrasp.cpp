@@ -380,13 +380,14 @@ void OPvPWintergrasp::OnCreatureCreate(Creature *creature, bool add)
                     {
                         if(add)
                         {
-                            if(workshop->m_vehicles.size() >= MAX_VEHICLE_PER_WORKSHOP)
+                            if(m_wartime && workshop->m_vehicles.size() < MAX_VEHICLE_PER_WORKSHOP)
+                                workshop->m_vehicles.insert((Vehicle*)creature);
+                            else
                             {
                                 creature->setDeathState(DEAD);
                                 creature->SetRespawnTime(DAY);
                                 return;
-                            }
-                            workshop->m_vehicles.insert((Vehicle*)creature);
+                            }                            
                         }
                         // TODO: now you have to wait until the corpse of vehicle disappear to build a new one
                         else if(!workshop->m_vehicles.erase((Vehicle*)creature))
@@ -768,7 +769,7 @@ uint32 OPvPWintergrasp::GetData(uint32 id)
 {
     // if can build more vehicles
     if(SiegeWorkshop *workshop = GetWorkshopByEngGuid(id))
-        return workshop->m_vehicles.size() < MAX_VEHICLE_PER_WORKSHOP ? 1 : 0;
+        return m_wartime && workshop->m_vehicles.size() < MAX_VEHICLE_PER_WORKSHOP ? 1 : 0;
 
     return 0;
 }
