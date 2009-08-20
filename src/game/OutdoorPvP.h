@@ -226,6 +226,14 @@ protected:
         m_capturePoints[cp->m_CapturePointGUID] = cp;
     }
 
+    OPvPCapturePoint * GetCapturePoint(uint32 lowguid) const
+    {
+        OutdoorPvP::OPvPCapturePointMap::const_iterator itr = m_capturePoints.find(lowguid);
+        if(itr != m_capturePoints.end())
+            return itr->second;
+        return NULL;
+    }
+
     void RegisterZone(uint32 zoneid);
     bool HasPlayer(Player *plr) const;
     void TeamCastSpell(TeamId team, int32 spellId);

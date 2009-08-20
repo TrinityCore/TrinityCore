@@ -17,19 +17,43 @@
 #include "precompiled.h"
 #include "Wintergrasp.h"
 
+
+struct TRINITY_DLL_DECL npc_demolisher_engineererAI : public ScriptedAI
+{
+    npc_demolisher_engineererAI(Creature* pCreature) : ScriptedAI(pCreature) {}
+
+    /*
+    void JustDied(Unit *killer)
+    {
+        if(me->GetZoneScript())
+            me->GetZoneScript()->SetData(DATA_ENGINEER_DIE, me->GetDBTableGUIDLow());
+    }
+    */
+};
+
+CreatureAI* GetAI_npc_demolisher_engineerer(Creature* pCreature)
+{
+    return new npc_demolisher_engineererAI (pCreature);
+}
+
 bool GossipHello_npc_demolisher_engineerer(Player* pPlayer, Creature* pCreature)
 {
     if (pCreature->isQuestGiver())
         pPlayer->PrepareQuestMenu(pCreature->GetGUID());
 
-    if (pPlayer->HasAura(SPELL_CORPORAL))
-        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Build catapult.", GOSSIP_SENDER_MAIN,   GOSSIP_ACTION_INFO_DEF);
-    else if (pPlayer->HasAura(SPELL_LIEUTENANT))
+    if(pPlayer->isGameMaster() || pCreature->GetZoneScript() && pCreature->GetZoneScript()->GetData(pCreature->GetDBTableGUIDLow()))
     {
-        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Build catapult.", GOSSIP_SENDER_MAIN,   GOSSIP_ACTION_INFO_DEF);
-        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Build demolisher.", GOSSIP_SENDER_MAIN,   GOSSIP_ACTION_INFO_DEF+1);
-        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Build siege engine.", GOSSIP_SENDER_MAIN,   GOSSIP_ACTION_INFO_DEF+2);
+        if (pPlayer->HasAura(SPELL_CORPORAL))
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Build catapult.", GOSSIP_SENDER_MAIN,   GOSSIP_ACTION_INFO_DEF);
+        else if (pPlayer->HasAura(SPELL_LIEUTENANT))
+        {
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Build catapult.", GOSSIP_SENDER_MAIN,   GOSSIP_ACTION_INFO_DEF);
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Build demolisher.", GOSSIP_SENDER_MAIN,   GOSSIP_ACTION_INFO_DEF+1);
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Build siege engine.", GOSSIP_SENDER_MAIN,   GOSSIP_ACTION_INFO_DEF+2);
+        }
     }
+    else
+        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I cannot build more!", GOSSIP_SENDER_MAIN,   GOSSIP_ACTION_INFO_DEF+9);
 
     pPlayer->SEND_GOSSIP_MENU(pCreature->GetNpcTextId(), pCreature->GetGUID());
     return true;
@@ -54,6 +78,7 @@ void AddSC_wintergrasp()
 
     newscript = new Script;
     newscript->Name = "npc_demolisher_engineerer";
+    newscript->GetAI = &GetAI_npc_demolisher_engineerer;
     newscript->pGossipHello = &GossipHello_npc_demolisher_engineerer;
     newscript->pGossipSelect = &GossipSelect_npc_demolisher_engineerer;
     newscript->RegisterSelf();
