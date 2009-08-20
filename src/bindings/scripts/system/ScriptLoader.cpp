@@ -306,6 +306,7 @@ extern void AddSC_dragonblight();
 extern void AddSC_grizzly_hills();
 extern void AddSC_icecrown();
 extern void AddSC_sholazar_basin();
+extern void AddSC_storm_peaks();
 extern void AddSC_wintergrasp();
 extern void AddSC_zuldrak();
 
@@ -695,6 +696,7 @@ void AddScripts()
     AddSC_grizzly_hills();
     AddSC_icecrown();
     AddSC_sholazar_basin();
+    AddSC_storm_peaks();
     AddSC_wintergrasp();
     AddSC_zuldrak();
 
