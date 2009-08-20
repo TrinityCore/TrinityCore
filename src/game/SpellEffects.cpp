@@ -3364,13 +3364,18 @@ void Spell::EffectSummonType(uint32 i)
                 case SUMMON_TYPE_VEHICLE:
                 case SUMMON_TYPE_VEHICLE2:
                 {
-                    Vehicle *vehicle = m_caster->SummonVehicle(entry, x, y, z, m_caster->GetOrientation());
+                    if(!m_originalCaster)
+                        return;
+
+                    Vehicle *vehicle = m_originalCaster->SummonVehicle(entry, x, y, z, m_caster->GetOrientation());
                     if(!vehicle)
                         return;
 
-                    //vehicle->SetUInt64Value(UNIT_FIELD_SUMMONEDBY, m_caster->GetGUID());
-                    if(m_originalCaster)
-                        vehicle->setFaction(m_originalCaster->getFaction());
+                    // this is for wintergrasp, need to find a better way
+                    // in the future, we can just use getsummoner
+                    //vehicle->SetUInt64Value(UNIT_FIELD_SUMMONEDBY, m_originalCasterGUID);
+                    //if(m_originalCaster)
+                    //    vehicle->setFaction(m_originalCaster->getFaction());
                     vehicle->SetUInt32Value(UNIT_CREATED_BY_SPELL, m_spellInfo->Id);
                     break;
                 }
@@ -3463,8 +3468,8 @@ void Spell::EffectSummonType(uint32 i)
             if(!vehicle)
                 return;
 
-            vehicle->SetUInt64Value(UNIT_FIELD_SUMMONEDBY, m_caster->GetGUID());
-            vehicle->setFaction(m_caster->getFaction());
+            //vehicle->SetUInt64Value(UNIT_FIELD_SUMMONEDBY, m_caster->GetGUID());
+            //vehicle->setFaction(m_caster->getFaction());
             vehicle->SetUInt32Value(UNIT_CREATED_BY_SPELL, m_spellInfo->Id);
 
             if(damage)
