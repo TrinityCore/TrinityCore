@@ -31,8 +31,9 @@ class TRINITY_DLL_DECL FollowerAI : public ScriptedAI
         void StartFollow(Player* pPlayer, uint32 uiFactionForFollower = 0, const Quest* pQuest = NULL);
 
     protected:
-        void SetFollowComplete() { m_bIsFollowComplete = true; }
+        void SetFollowComplete(bool bWithEndEvent = false);
         bool IsFollowComplete() { return m_bIsFollowComplete; }
+        bool IsEndEventInProgress() { return m_bIsEndEvent; }
 
         Player* GetLeaderForFollower();
 
@@ -43,6 +44,7 @@ class TRINITY_DLL_DECL FollowerAI : public ScriptedAI
         bool m_bIsFollowing;
         bool m_bIsReturnToLeader;
         bool m_bIsFollowComplete;
+        bool m_bIsEndEvent;
 
         const Quest* m_pQuestForFollow;                     //normally we have a quest
 };
