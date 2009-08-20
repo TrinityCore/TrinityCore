@@ -18,6 +18,57 @@
 #include "precompiled.h"
 
 /*######
+## npc_agnetta_tyrsdottar
+######*/
+
+#define SAY_AGGRO                  -1571003
+#define GOSSIP_AGNETTA             "Skip the warmup, sister... or are you too scared to face soemeone your own size?"
+
+enum
+{
+    QUEST_ITS_THAT_YOUR_GOBLIN      = 12969,
+    FACTION_HOSTILE_AT1             = 45
+};
+
+
+struct TRINITY_DLL_DECL npc_agnetta_tyrsdottarAI : public ScriptedAI
+{
+    npc_agnetta_tyrsdottarAI(Creature* pCreature) : ScriptedAI(pCreature) { }
+    
+    void Reset()
+    {
+        me->RestoreFaction();
+    }
+};
+
+CreatureAI* GetAI_npc_agnetta_tyrsdottar(Creature* pCreature)
+{
+    return new npc_agnetta_tyrsdottarAI(pCreature);
+}
+
+bool GossipHello_npc_agnetta_tyrsdottar(Player* pPlayer, Creature* pCreature)
+{
+    if (pPlayer->GetQuestStatus(QUEST_ITS_THAT_YOUR_GOBLIN) == QUEST_STATUS_INCOMPLETE)
+        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_AGNETTA, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+
+    pPlayer->SEND_GOSSIP_MENU(13691, pCreature->GetGUID());
+    return true;
+}
+
+bool GossipSelect_npc_agnetta_tyrsdottar(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction )
+{
+    if (uiAction == GOSSIP_ACTION_INFO_DEF+1)
+    {
+        DoScriptText(SAY_AGGRO, pCreature);
+        pPlayer->CLOSE_GOSSIP_MENU();
+        pCreature->setFaction(FACTION_HOSTILE_AT1);
+        pCreature->AI()->AttackStart(pPlayer);
+    }
+
+    return true;
+}
+
+/*######
 ## npc_frostborn_scout
 ######*/
 
@@ -67,6 +118,13 @@ bool GossipSelect_npc_frostborn_scout(Player* pPlayer, Creature* pCreature, uint
 void AddSC_storm_peaks()
 {
     Script* newscript;
+
+    newscript = new Script;
+    newscript->Name = "npc_agnetta_tyrsdottar";
+    newscript->GetAI = &GetAI_npc_agnetta_tyrsdottar;
+    newscript->pGossipHello = &GossipHello_npc_agnetta_tyrsdottar;
+    newscript->pGossipSelect = &GossipSelect_npc_agnetta_tyrsdottar;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name = "npc_frostborn_scout";
