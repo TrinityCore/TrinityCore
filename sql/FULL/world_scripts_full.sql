@@ -864,6 +864,9 @@ UPDATE `creature_template` SET `ScriptName`='npc_deathstalker_erland' WHERE `ent
 UPDATE `creature_template` SET `ScriptName`='npc_braug_dimspirit' WHERE `entry`=4489;
 UPDATE `creature_template` SET `ScriptName`='npc_kaya_flathoof' WHERE `entry`=11856;
 
+/* Storm Peaks */
+UPDATE `creature_template` SET `ScriptName` = 'npc_frostborn_scout' WHERE `entry` = 29811;
+
 /* STORMWIND CITY */
 UPDATE `creature_template` SET `ScriptName`='npc_archmage_malin' WHERE `entry`=2708;
 UPDATE `creature_template` SET `ScriptName`='npc_bartleby' WHERE `entry`=6090;
