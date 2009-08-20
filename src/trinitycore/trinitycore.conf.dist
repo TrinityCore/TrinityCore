@@ -1,7 +1,7 @@
 ##########################################
 # Trinity Core worldd configuration file #
 ##########################################
-ConfVersion=2009081702
+ConfVersion=2009082013
 
 ###################################################################################################################
 # CONNECTIONS AND DIRECTORIES
@@ -1295,6 +1295,13 @@ Visibility.Distance.Grey.Object = 10
 #         Default: 1 (enabled)
 #                  0 (disabled)
 #
+#    Die.Command.Mode
+#         Switch between two possible .die modes, where mode 1 kills
+#         and does not trigger anything such as loot, and mode 0 does
+#         damage and does trigger things such as loot
+#         Default: 1
+#                  0
+#
 ###################################################################################################################
 
 Rate.Health = 1
@@ -1356,6 +1363,7 @@ Death.CorpseReclaimDelay.PvP = 1
 Death.CorpseReclaimDelay.PvE = 0
 Death.Bones.World = 1
 Death.Bones.BattlegroundOrArena = 1
+Die.Command.Mode = 1
 
 ###################################################################################################################
 # AUTO BROADCAST
