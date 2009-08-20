@@ -20,7 +20,10 @@
 
 struct TRINITY_DLL_DECL npc_demolisher_engineererAI : public ScriptedAI
 {
-    npc_demolisher_engineererAI(Creature* pCreature) : ScriptedAI(pCreature) {}
+    npc_demolisher_engineererAI(Creature* pCreature) : ScriptedAI(pCreature)
+    {
+        me->SetReactState(REACT_PASSIVE);
+    }
 
     /*
     void JustDied(Unit *killer)

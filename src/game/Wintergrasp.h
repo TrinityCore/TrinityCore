@@ -192,6 +192,9 @@ class SiegeWorkshop : public OPvPCapturePoint
         void SetStateByBuildingState();
         void ChangeState();
         void DespawnAllVehicles();
+
+        bool CanBuildVehicle() const { return m_vehicles.size() < MAX_VEHICLE_PER_WORKSHOP && m_buildingState->damageState != DAMAGE_DESTROYED; }
+
         uint32 *m_engEntry;
         uint32 m_engGuid;
         Creature *m_engineer;
