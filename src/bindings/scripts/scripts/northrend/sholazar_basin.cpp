@@ -221,7 +221,7 @@ bool GossipSelect_npc_vekjik(Player* pPlayer, Creature* pCreature, uint32 uiSend
 ######*/
 
 #define GOSSIP_ITEM_AOF1 "I want to stop the Scourge as much as you do. How can I help?"
-#define GOSSIP_ITEM_AOF2 "You can trust me. I am no friend of the Lich King's."
+#define GOSSIP_ITEM_AOF2 "You can trust me. I am no friend of the Lich King."
 #define GOSSIP_ITEM_AOF3 "I will not fail."
 
 enum
@@ -251,9 +251,7 @@ bool GossipHello_npc_avatar_of_freya(Player* pPlayer, Creature* pCreature)
 bool GossipSelect_npc_avatar_of_freya(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
 {
     switch (uiAction)
-
     {
-
     case GOSSIP_ACTION_INFO_DEF+1:
         pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_AOF2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
         pPlayer->PlayerTalkClass->SendGossipMenu(GOSSIP_TEXTID_AVATAR2, pCreature->GetGUID());
@@ -266,7 +264,6 @@ bool GossipSelect_npc_avatar_of_freya(Player* pPlayer, Creature* pCreature, uint
         pPlayer->CastSpell(pPlayer, SPELL_FREYA_CONVERSATION, true);
         pPlayer->CLOSE_GOSSIP_MENU();
         break;
-
     }
     return true;
 }
