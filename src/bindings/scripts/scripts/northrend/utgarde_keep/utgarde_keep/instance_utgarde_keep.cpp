@@ -40,6 +40,9 @@ EndScriptData */
 #define ENTRY_GLOWING_ANVIL_2   186610
 #define ENTRY_GLOWING_ANVIL_3   186611
 
+#define ENTRY_GIANT_PORTCULLIS_1    186756
+#define ENTRY_GIANT_PORTCULLIS_2    186694
+
 /* Utgarde Keep encounters:
 0 - Prince Keleseth
 1 - Skarvald Dalronn
@@ -58,6 +61,7 @@ struct TRINITY_DLL_DECL instance_utgarde_keep : public ScriptedInstance
     uint64 forge_bellow[3];
     uint64 forge_fire[3];
     uint64 forge_anvil[3];
+    uint64 portcullis[2];
 
     uint32 m_auiEncounter[MAX_ENCOUNTER];
     std::string str_data;
@@ -68,15 +72,18 @@ struct TRINITY_DLL_DECL instance_utgarde_keep : public ScriptedInstance
 
         Keleseth = 0;
         Skarvald = 0;
-        Dalronn =0;
-        Ingvar =0;
+        Dalronn = 0;
+        Ingvar = 0;
 
-        for(uint8 i= 0; i < 3; ++i)
+        for(uint8 i = 0; i < 3; ++i)
         {
             forge_bellow[i] = 0;
             forge_fire[i] = 0;
             forge_anvil[i] = 0;
         }
+        
+        portcullis[0] = 0;
+        portcullis[1] = 0;
     }
 
     bool IsEncounterInProgress() const
@@ -129,6 +136,8 @@ struct TRINITY_DLL_DECL instance_utgarde_keep : public ScriptedInstance
         case ENTRY_GLOWING_ANVIL_1: forge_anvil[0] = pGo->GetGUID(); break;
         case ENTRY_GLOWING_ANVIL_2: forge_anvil[1] = pGo->GetGUID(); break;
         case ENTRY_GLOWING_ANVIL_3: forge_anvil[2] = pGo->GetGUID(); break;
+        case ENTRY_GIANT_PORTCULLIS_1: portcullis[0] = pGo->GetGUID(); break;
+        case ENTRY_GIANT_PORTCULLIS_2: portcullis[1] = pGo->GetGUID(); break;
         }
     }
 
@@ -166,7 +175,8 @@ struct TRINITY_DLL_DECL instance_utgarde_keep : public ScriptedInstance
         case DATA_INGVAR_EVENT:
             if (data == DONE)
             {
-                //HandleGameObject(doorname, 0);
+                HandleGameObject(portcullis[0], true);
+                HandleGameObject(portcullis[1], true);
             }
             m_auiEncounter[2] = data;
             break;
