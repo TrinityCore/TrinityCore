@@ -17,17 +17,98 @@
 /* ScriptData
 SDName: Darkshore
 SD%Complete: 100
-SDComment: Quest support: 731, 2078
+SDComment: Quest support: 731, 2078, 5321
 SDCategory: Darkshore
 EndScriptData */
 
 /* ContentData
+npc_kerlonian
 npc_prospector_remtravel
 npc_threshwackonator
 EndContentData */
 
 #include "precompiled.h"
 #include "escort_ai.h"
+#include "follower_ai.h"
+
+/*####
+# npc_kerlonian
+####*/
+
+enum
+{
+    SAY_KER_START               = -1000434,
+
+    EMOTE_KER_SLEEP_1           = -1000435,
+    EMOTE_KER_SLEEP_2           = -1000436,
+    EMOTE_KER_SLEEP_3           = -1000437,
+
+    SAY_KER_SLEEP_1             = -1000438,
+    SAY_KER_SLEEP_2             = -1000439,
+    SAY_KER_SLEEP_3             = -1000440,
+    SAY_KER_SLEEP_4             = -1000441,
+
+    SAY_KER_ALERT_1             = -1000442,
+    SAY_KER_ALERT_2             = -1000443,
+
+    SAY_KER_END                 = -1000444,
+
+    SPELL_AWAKEN                = 17536,
+    QUEST_SLEEPER_AWAKENED      = 5321,
+    NPC_LILADRIS                = 11219,                    //attackers entries unknown
+    FACTION_KER_ESCORTEE        = 113
+};
+
+//TODO: make concept similar as "ringo" -escort. Find a way to run the scripted attacks, _if_ player are choosing road.
+struct TRINITY_DLL_DECL npc_kerlonianAI : public FollowerAI
+{
+    npc_kerlonianAI(Creature* pCreature) : FollowerAI(pCreature) { }
+
+    void Reset()
+    {
+    }
+
+    void MoveInLineOfSight(Unit *pWho)
+    {
+        FollowerAI::MoveInLineOfSight(pWho);
+
+        if (!m_creature->getVictim() && !IsFollowComplete() && pWho->GetEntry() == NPC_LILADRIS)
+        {
+            if (m_creature->IsWithinDistInMap(pWho, INTERACTION_DISTANCE*2))
+            {
+                if (Player* pPlayer = GetLeaderForFollower())
+                {
+                    if (pPlayer->GetQuestStatus(QUEST_SLEEPER_AWAKENED) == QUEST_STATUS_INCOMPLETE)
+                        pPlayer->GroupEventHappens(QUEST_SLEEPER_AWAKENED, m_creature);
+
+                    DoScriptText(SAY_KER_END, m_creature);
+                }
+
+                SetFollowComplete();
+            }
+        }
+    }
+};
+
+CreatureAI* GetAI_npc_kerlonian(Creature* pCreature)
+{
+    return new npc_kerlonianAI(pCreature);
+}
+
+bool QuestAccept_npc_kerlonian(Player* pPlayer, Creature* pCreature, const Quest* pQuest)
+{
+    if (pQuest->GetQuestId() == QUEST_SLEEPER_AWAKENED)
+    {
+        if (npc_kerlonianAI* pKerlonianAI = CAST_AI(npc_kerlonianAI, pCreature->AI()))
+        {
+            pCreature->SetStandState(UNIT_STAND_STATE_STAND);
+            DoScriptText(SAY_KER_START, pCreature);
+            pKerlonianAI->StartFollow(pPlayer, FACTION_KER_ESCORTEE, pQuest);
+        }
+    }
+
+    return true;
+}
 
 /*####
 # npc_prospector_remtravel
@@ -171,124 +252,34 @@ enum
 
 #define GOSSIP_ITEM_INSERT_KEY  "[PH] Insert key"
 
-struct TRINITY_DLL_DECL npc_threshwackonatorAI : public ScriptedAI
+struct TRINITY_DLL_DECL npc_threshwackonatorAI : public FollowerAI
 {
-    npc_threshwackonatorAI(Creature* pCreature) : ScriptedAI(pCreature)
+    npc_threshwackonatorAI(Creature* pCreature) : FollowerAI(pCreature) { }
+
+    void Reset() { }
+
+    void MoveInLineOfSight(Unit* pWho)
     {
-        Faction = pCreature->getFaction();
-        NpcFlags = pCreature->GetUInt32Value(UNIT_NPC_FLAGS);
-        PlayerGUID = 0;
-    }
+        FollowerAI::MoveInLineOfSight(pWho);
 
-    uint64 PlayerGUID;
-    uint32 Faction;
-    uint32 NpcFlags;
-    uint32 CheckPlayerTimer;
-
-    void Reset()
-    {
-        CheckPlayerTimer = 2500;
-
-        if (!PlayerGUID)
+        if (!m_creature->getVictim() && !IsFollowComplete() && pWho->GetEntry() == NPC_GELKAK)
         {
-            me->setFaction(Faction);
-            me->SetUInt32Value(UNIT_NPC_FLAGS, NpcFlags);
-        }
-    }
-
-    void MoveInLineOfSight(Unit* who)
-    {
-        if (who->GetEntry() == NPC_GELKAK)
-        {
-            if (PlayerGUID && me->IsWithinDistInMap(who, 10.0f))
+            if (m_creature->IsWithinDistInMap(pWho, 10.0f))
             {
-                DoScriptText(SAY_AT_CLOSE, who);
+                DoScriptText(SAY_AT_CLOSE, pWho);
                 DoAtEnd();
             }
         }
-
-        ScriptedAI::MoveInLineOfSight(who);
-    }
-
-    void EnterEvadeMode()
-    {
-        me->RemoveAllAuras();
-        me->DeleteThreatList();
-        me->CombatStop(true);
-        me->LoadCreaturesAddon();
-
-        if (me->isAlive())
-        {
-            if (Player* pPlayer = Unit::GetPlayer(PlayerGUID))
-                me->GetMotionMaster()->MoveFollow(pPlayer, PET_FOLLOW_DIST, m_creature->GetFollowAngle());
-            else
-            {
-                me->GetMotionMaster()->MovementExpired();
-                me->GetMotionMaster()->MoveTargetedHome();
-            }
-        }
-
-        me->SetLootRecipient(NULL);
-
-        Reset();
-    }
-
-    void DoStart(uint64 Starter)
-    {
-        PlayerGUID = Starter;
-        me->SetUInt32Value(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_NONE);
-
-        if (Player* pPlayer = Unit::GetPlayer(PlayerGUID))
-            me->GetMotionMaster()->MoveFollow(pPlayer, PET_FOLLOW_DIST, m_creature->GetFollowAngle());
-
-        DoScriptText(EMOTE_START, me);
     }
 
     void DoAtEnd()
     {
         me->setFaction(FACTION_HOSTILE);
 
-        if (Player* pHolder = Unit::GetPlayer(PlayerGUID))
+        if (Player* pHolder = GetLeaderForFollower())
             me->AI()->AttackStart(pHolder);
 
-        PlayerGUID = 0;
-    }
-
-    void JustDied(Unit* pKiller)
-    {
-        if (PlayerGUID)
-        {
-            PlayerGUID = 0;
-            me->GetMotionMaster()->MovementExpired();
-        }
-    }
-
-    void UpdateAI(const uint32 diff)
-    {
-        if (PlayerGUID)
-        {
-            if (!me->isInCombat())
-            {
-                if (CheckPlayerTimer < diff)
-                {
-                    CheckPlayerTimer = 5000;
-
-                    Player* pPlayer = Unit::GetPlayer(PlayerGUID);
-
-                    if (pPlayer && !pPlayer->isAlive())
-                    {
-                        PlayerGUID = 0;
-                        EnterEvadeMode();
-                        return;
-                    }
-                }else CheckPlayerTimer -= diff;
-            }
-        }
-
-        if (!UpdateVictim())
-            return;
-
-        DoMeleeAttackIfReady();
+        SetFollowComplete();
     }
 };
 
@@ -310,8 +301,13 @@ bool GossipSelect_npc_threshwackonator(Player* pPlayer, Creature* pCreature, uin
 {
     if (uiAction == GOSSIP_ACTION_INFO_DEF+1)
     {
-        CAST_AI(npc_threshwackonatorAI, pCreature->AI())->DoStart(pPlayer->GetGUID());
         pPlayer->CLOSE_GOSSIP_MENU();
+
+        if (npc_threshwackonatorAI* pThreshAI = CAST_AI(npc_threshwackonatorAI, pCreature->AI()))
+        {
+            DoScriptText(EMOTE_START, pCreature);
+            pThreshAI->StartFollow(pPlayer);
+        }
     }
 
     return true;
@@ -320,6 +316,12 @@ bool GossipSelect_npc_threshwackonator(Player* pPlayer, Creature* pCreature, uin
 void AddSC_darkshore()
 {
     Script *newscript;
+
+    newscript = new Script;
+    newscript->Name = "npc_kerlonian";
+    newscript->GetAI = &GetAI_npc_kerlonian;
+    newscript->pQuestAccept = &QuestAccept_npc_kerlonian;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name = "npc_prospector_remtravel";

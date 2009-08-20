@@ -25,7 +25,8 @@ FollowerAI::FollowerAI(Creature* pCreature) : ScriptedAI(pCreature),
     m_uiUpdateFollowTimer(2500),
     m_bIsFollowing(false),
     m_bIsReturnToLeader(false),
-    m_bIsFollowComplete(false)
+    m_bIsFollowComplete(false),
+    m_bIsEndEvent(false)
 {}
 
 void FollowerAI::AttackStart(Unit* pWho)
@@ -120,6 +121,7 @@ void FollowerAI::JustRespawned()
     m_bIsFollowing = false;
     m_bIsReturnToLeader = false;
     m_bIsFollowComplete = false;
+    m_bIsEndEvent = false;
 
     if (!IsCombatMovement())
         SetCombatMovement(true);
@@ -139,7 +141,7 @@ void FollowerAI::EnterEvadeMode()
 
     if (m_bIsFollowing)
     {
-        debug_log("SD2: FollowerAI left combat, returning to CombatStartPosition.");
+        debug_log("TSCR: FollowerAI left combat, returning to CombatStartPosition.");
 
         if (m_creature->GetMotionMaster()->GetCurrentMovementGeneratorType() == TARGETED_MOTION_TYPE)
         {
@@ -163,9 +165,9 @@ void FollowerAI::UpdateAI(const uint32 uiDiff)
     {
         if (m_uiUpdateFollowTimer < uiDiff)
         {
-            if (m_bIsFollowComplete)
+            if (m_bIsFollowComplete && !m_bIsEndEvent)
             {
-                debug_log("SD2: FollowerAI is set completed, despawns.");
+                debug_log("TSCR: FollowerAI is set completed, despawns.");
                 m_creature->ForcedDespawn();
                 return;
             }
@@ -176,7 +178,7 @@ void FollowerAI::UpdateAI(const uint32 uiDiff)
             {
                 if (m_bIsReturnToLeader)
                 {
-                    debug_log("SD2: FollowerAI is returning to leader.");
+                    debug_log("TSCR: FollowerAI is returning to leader.");
                     m_creature->GetMotionMaster()->MoveFollow(pPlayer, PET_FOLLOW_DIST, PET_FOLLOW_ANGLE);
                     m_bIsReturnToLeader = false;
                     return;
@@ -204,7 +206,7 @@ void FollowerAI::UpdateAI(const uint32 uiDiff)
 
             if (bIsMaxRangeExceeded)
             {
-                debug_log("SD2: FollowerAI failed because player/group was to far away or not found");
+                debug_log("TSCR: FollowerAI failed because player/group was to far away or not found");
                 m_creature->ForcedDespawn();
                 return;
             }
@@ -244,13 +246,13 @@ void FollowerAI::StartFollow(Player* pLeader, uint32 uiFactionForFollower, const
 {
     if (m_creature->getVictim())
     {
-        debug_log("SD2: FollowerAI attempt to StartFollow while in combat.");
+        debug_log("TSCR: FollowerAI attempt to StartFollow while in combat.");
         return;
     }
 
     if (m_bIsFollowing)
     {
-        error_log("SD2: FollowerAI attempt to StartFollow while already following.");
+        error_log("TSCR: FollowerAI attempt to StartFollow while already following.");
         return;
     }
 
@@ -266,7 +268,7 @@ void FollowerAI::StartFollow(Player* pLeader, uint32 uiFactionForFollower, const
     {
         m_creature->GetMotionMaster()->Clear();
         m_creature->GetMotionMaster()->MoveIdle();
-        debug_log("SD2: FollowerAI start with WAYPOINT_MOTION_TYPE, set to MoveIdle.");
+        debug_log("TSCR: FollowerAI start with WAYPOINT_MOTION_TYPE, set to MoveIdle.");
     }
 
     m_creature->SetUInt32Value(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_NONE);
@@ -275,7 +277,7 @@ void FollowerAI::StartFollow(Player* pLeader, uint32 uiFactionForFollower, const
 
     m_bIsFollowing = true;
 
-    debug_log("SD2: FollowerAI start follow %s (GUID %u)", pLeader->GetName(), m_uiLeaderGUID);
+    debug_log("TSCR: FollowerAI start follow %s (GUID %u)", pLeader->GetName(), m_uiLeaderGUID);
 }
 
 Player* FollowerAI::GetLeaderForFollower()
@@ -294,7 +296,7 @@ Player* FollowerAI::GetLeaderForFollower()
 
                     if (pMember && pMember->isAlive() && m_creature->IsWithinDistInMap(pMember, MAX_PLAYER_DISTANCE))
                     {
-                        debug_log("SD2: FollowerAI GetLeader changed and returned new leader.");
+                        debug_log("TSCR: FollowerAI GetLeader changed and returned new leader.");
                         m_uiLeaderGUID = pMember->GetGUID();
                         return pMember;
                         break;
@@ -304,6 +306,20 @@ Player* FollowerAI::GetLeaderForFollower()
         }
     }
 
-    debug_log("SD2: FollowerAI GetLeader can not find suitable leader.");
+    debug_log("TSCR: FollowerAI GetLeader can not find suitable leader.");
     return NULL;
+}
+
+void FollowerAI::SetFollowComplete(bool bWithEndEvent)
+{
+    if (m_creature->hasUnitState(UNIT_STAT_FOLLOW))
+    {
+        m_creature->clearUnitState(UNIT_STAT_FOLLOW);
+
+        m_creature->GetMotionMaster()->MovementExpired();
+        m_creature->GetMotionMaster()->MoveIdle();
+    }
+
+    m_bIsEndEvent = bWithEndEvent;
+    m_bIsFollowComplete = true;
 }
