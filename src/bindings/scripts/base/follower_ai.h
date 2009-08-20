@@ -43,16 +43,17 @@ class TRINITY_DLL_DECL FollowerAI : public ScriptedAI
 
         void SetFollowPaused(bool bPaused);                 //if special event require follow mode to hold/resume during the follow
 
-    protected:
         bool HasFollowState(uint32 uiFollowState) { return (m_uiFollowState & uiFollowState); }
-        void AddFollowState(uint32 uiFollowState) { m_uiFollowState |= uiFollowState; }
-        void RemoveFollowState(uint32 uiFollowState) { m_uiFollowState &= ~uiFollowState; }
 
+    protected:
         void SetFollowComplete(bool bWithEndEvent = false);
 
         Player* GetLeaderForFollower();
 
     private:
+        void AddFollowState(uint32 uiFollowState) { m_uiFollowState |= uiFollowState; }
+        void RemoveFollowState(uint32 uiFollowState) { m_uiFollowState &= ~uiFollowState; }
+
         uint64 m_uiLeaderGUID;
         uint32 m_uiUpdateFollowTimer;
         uint32 m_uiFollowState;
