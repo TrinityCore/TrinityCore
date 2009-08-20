@@ -58,6 +58,11 @@ enum OutdoorPvP_WG_Sounds
 */
 };
 
+enum DataId
+{
+    DATA_ENGINEER_DIE,
+};
+
 enum OutdoorPvP_WG_KeepStatus
 {
     OutdoorPvP_WG_KEEP_TYPE_NEUTRAL             = 0,
@@ -67,6 +72,13 @@ enum OutdoorPvP_WG_KeepStatus
     OutdoorPvP_WG_KEEP_TYPE_OCCUPIED            = 3,
     OutdoorPvP_WG_KEEP_STATUS_ALLY_OCCUPIED     = 3,
     OutdoorPvP_WG_KEEP_STATUS_HORDE_OCCUPIED    = 4
+};
+
+enum BuildingType
+{
+    BUILDING_WALL,
+    BUILDING_WORKSHOP,
+    BUILDING_TOWER,
 };
 
 enum DamageState
@@ -83,13 +95,14 @@ struct BuildingState
     explicit BuildingState(uint32 _worldState, TeamId _team, bool asDefault)
         : worldState(_worldState), health(0)
         , defaultTeam(asDefault ? _team : OTHER_TEAM(_team)), team(_team), damageState(DAMAGE_INTACT)
-        , building(NULL)
+        , building(NULL), type(BUILDING_WALL)
     {}
     uint32 worldState;
     uint32 health;
     TeamId team, defaultTeam;
     DamageState damageState;
     GameObject *building;
+    BuildingType type;
 
     void SendUpdate(Player *player)
     {
@@ -104,12 +117,15 @@ struct BuildingState
 
 typedef std::map<uint32, uint32> TeamPairMap;
 
+class SiegeWorkshop;
+
+typedef std::set<Vehicle*> VehicleSet;
+
 class OPvPWintergrasp : public OutdoorPvP
 {
     protected:
         typedef std::map<uint32, BuildingState *> BuildingStateMap;
         typedef std::set<Creature*> CreatureSet;
-        typedef std::set<Vehicle*> VehicleSet;
         typedef std::set<GameObject*> GameObjectSet;
     public:
         explicit OPvPWintergrasp() : m_tenacityStack(0) {}
@@ -148,6 +164,10 @@ class OPvPWintergrasp : public OutdoorPvP
         bool m_wartime;
         uint32 m_timer;
 
+        SiegeWorkshop *GetWorkshop(uint32 lowguid) const;
+        SiegeWorkshop *GetWorkshopByEngGuid(uint32 lowguid) const;
+        SiegeWorkshop *GetWorkshopByGOGuid(uint32 lowguid) const;
+
         void ChangeDefender();
 
         void UpdateTenacityStack();
@@ -171,10 +191,12 @@ class SiegeWorkshop : public OPvPCapturePoint
         explicit SiegeWorkshop(OPvPWintergrasp *opvp, BuildingState *state);
         void SetStateByBuildingState();
         void ChangeState();
-        uint32 m_vehNum;
+        void DespawnAllVehicles();
         uint32 *m_engEntry;
         uint32 m_engGuid;
         Creature *m_engineer;
+        uint32 m_workshopGuid;
+        VehicleSet m_vehicles;
     protected:
         BuildingState *m_buildingState;
         OPvPWintergrasp *m_wintergrasp;

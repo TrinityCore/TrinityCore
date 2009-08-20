@@ -74,7 +74,7 @@ typedef std::list<const AreaPOIEntry *> AreaPOIList;
 
 SiegeWorkshop::SiegeWorkshop(OPvPWintergrasp *opvp, BuildingState *state)
 : OPvPCapturePoint(opvp), m_buildingState(state), m_wintergrasp(opvp)
-, m_vehNum(0), m_engineer(NULL), m_engGuid(0)
+, m_engineer(NULL), m_engGuid(0)
 {
 }
 
@@ -133,10 +133,19 @@ void SiegeWorkshop::ChangeState()
     {
         m_engineer->SetOriginalEntry(entry);
         if(entry != m_engineer->GetEntry() || !m_engineer->isAlive())
+        {
             m_engineer->Respawn(true);
+            DespawnAllVehicles();
+        }
     }
 
     sLog.outDebug("Wintergrasp workshop now belongs to %u.", (uint32)m_buildingState->team);
+}
+
+void SiegeWorkshop::DespawnAllVehicles()
+{
+    while(!m_vehicles.empty())
+        (*m_vehicles.begin())->Dismiss();
 }
 
 bool OPvPWintergrasp::SetupOutdoorPvP()
@@ -277,11 +286,13 @@ bool OPvPWintergrasp::SetupOutdoorPvP()
 
             workshop->m_engEntry = const_cast<uint32*>(&creData->id);
             const_cast<CreatureData*>(creData)->displayid = 0;
-            workshop->AddGO(0, guid, goData->id);
+            workshop->m_workshopGuid = guid;
             workshop->m_engGuid = engGuid;
+            //workshop->AddGO(0, guid, goData->id);
             //workshop->AddCre(0, engGuid, creData->id);
             //sLog.outDebug("Demolisher Engineerer lowguid %u is linked to workshop lowguid %u.", engGuid, guid);
             AddCapturePoint(workshop);
+            m_buildingStates[guid]->type = BUILDING_WORKSHOP;
             workshop->SetStateByBuildingState();
         }
     }while(result->NextRow());
@@ -322,6 +333,10 @@ void OPvPWintergrasp::ProcessEvent(GameObject *obj, uint32 eventId)
             else
                 itr->second->damageState = DAMAGE_DESTROYED;
             BroadcastStateChange(itr->second);
+
+            if(itr->second->type == BUILDING_WORKSHOP)
+                if(SiegeWorkshop *workshop = GetWorkshop(obj->GetDBTableGUIDLow()))
+                    workshop->DespawnAllVehicles();
         }
     }
 }
@@ -359,6 +374,25 @@ void OPvPWintergrasp::OnCreatureCreate(Creature *creature, bool add)
             case 28094:
             case 28312:
             case 32627:
+                if(uint32 engLowguid = GUID_LOPART(creature->GetOwnerGUID()))
+                {
+                    if(SiegeWorkshop *workshop = GetWorkshopByEngGuid(engLowguid))
+                    {
+                        if(add)
+                        {
+                            if(workshop->m_vehicles.size() >= MAX_VEHICLE_PER_WORKSHOP)
+                            {
+                                creature->setDeathState(DEAD);
+                                creature->SetRespawnTime(DAY);
+                                return;
+                            }
+                            workshop->m_vehicles.insert((Vehicle*)creature);
+                        }
+                        // TODO: now you have to wait until the corpse of vehicle disappear to build a new one
+                        else if(!workshop->m_vehicles.erase((Vehicle*)creature))
+                            sLog.outError("OPvPWintergrasp::OnCreatureCreate: a vehicle is removed but it does not have record in workshop!");
+                    }
+                }
             //case 28366: tower
                 if(add)
                 {
@@ -723,16 +757,43 @@ void OPvPWintergrasp::EndBattle()
     }
 }
 
+void OPvPWintergrasp::SetData(uint32 id, uint32 value)
+{
+    if(id == DATA_ENGINEER_DIE)
+        if(SiegeWorkshop *workshop = GetWorkshopByEngGuid(value))
+            workshop->DespawnAllVehicles();
+}
+
 uint32 OPvPWintergrasp::GetData(uint32 id)
 {
-    for(OutdoorPvP::OPvPCapturePointMap::iterator itr = m_capturePoints.begin(); itr != m_capturePoints.end(); ++itr)
-        if(SiegeWorkshop *workshop = dynamic_cast<SiegeWorkshop*>(itr->second))
-            if(workshop->m_engGuid == id)
-                return itr->first;
+    // if can build more vehicles
+    if(SiegeWorkshop *workshop = GetWorkshopByEngGuid(id))
+        return workshop->m_vehicles.size() < MAX_VEHICLE_PER_WORKSHOP ? 1 : 0;
+
     return 0;
 }
 
-void OPvPWintergrasp::SetData(uint32 id, uint32 value)
+SiegeWorkshop *OPvPWintergrasp::GetWorkshop(uint32 lowguid) const
 {
+    if(OPvPCapturePoint *cp = GetCapturePoint(lowguid))
+        return dynamic_cast<SiegeWorkshop*>(cp);
+    return NULL;
+}
 
+SiegeWorkshop *OPvPWintergrasp::GetWorkshopByEngGuid(uint32 lowguid) const
+{
+    for(OutdoorPvP::OPvPCapturePointMap::const_iterator itr = m_capturePoints.begin(); itr != m_capturePoints.end(); ++itr)
+        if(SiegeWorkshop *workshop = dynamic_cast<SiegeWorkshop*>(itr->second))
+            if(workshop->m_engGuid == lowguid)
+                return workshop;
+    return NULL;  
+}
+
+SiegeWorkshop *OPvPWintergrasp::GetWorkshopByGOGuid(uint32 lowguid) const
+{
+    for(OutdoorPvP::OPvPCapturePointMap::const_iterator itr = m_capturePoints.begin(); itr != m_capturePoints.end(); ++itr)
+        if(SiegeWorkshop *workshop = dynamic_cast<SiegeWorkshop*>(itr->second))
+            if(workshop->m_workshopGuid == lowguid)
+                return workshop;
+    return NULL;  
 }
