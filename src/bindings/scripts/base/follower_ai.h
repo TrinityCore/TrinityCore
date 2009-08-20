@@ -5,6 +5,17 @@
 #ifndef SC_FOLLOWERAI_H
 #define SC_FOLLOWERAI_H
 
+enum eFollowState
+{
+    STATE_FOLLOW_NONE       = 0x000,
+    STATE_FOLLOW_INPROGRESS = 0x001,                        //must always have this state for any follow
+    STATE_FOLLOW_RETURNING  = 0x002,                        //when returning to combat start after being in combat
+    STATE_FOLLOW_PAUSED     = 0x004,                        //disables following
+    STATE_FOLLOW_COMPLETE   = 0x008,                        //follow is completed and may end
+    STATE_FOLLOW_PREEVENT   = 0x010,                        //not implemented (allow pre event to run, before follow is initiated)
+    STATE_FOLLOW_POSTEVENT  = 0x020                         //can be set at complete and allow post event to run
+};
+
 class TRINITY_DLL_DECL FollowerAI : public ScriptedAI
 {
     public:
@@ -30,21 +41,21 @@ class TRINITY_DLL_DECL FollowerAI : public ScriptedAI
 
         void StartFollow(Player* pPlayer, uint32 uiFactionForFollower = 0, const Quest* pQuest = NULL);
 
+        void SetFollowPaused(bool bPaused);                 //if special event require follow mode to hold/resume during the follow
+
     protected:
+        bool HasFollowState(uint32 uiFollowState) { return (m_uiFollowState & uiFollowState); }
+        void AddFollowState(uint32 uiFollowState) { m_uiFollowState |= uiFollowState; }
+        void RemoveFollowState(uint32 uiFollowState) { m_uiFollowState &= ~uiFollowState; }
+
         void SetFollowComplete(bool bWithEndEvent = false);
-        bool IsFollowComplete() { return m_bIsFollowComplete; }
-        bool IsEndEventInProgress() { return m_bIsEndEvent; }
 
         Player* GetLeaderForFollower();
 
     private:
         uint64 m_uiLeaderGUID;
         uint32 m_uiUpdateFollowTimer;
-
-        bool m_bIsFollowing;
-        bool m_bIsReturnToLeader;
-        bool m_bIsFollowComplete;
-        bool m_bIsEndEvent;
+        uint32 m_uiFollowState;
 
         const Quest* m_pQuestForFollow;                     //normally we have a quest
 };

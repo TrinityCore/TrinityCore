@@ -23,10 +23,7 @@ FollowerAI::FollowerAI(Creature* pCreature) : ScriptedAI(pCreature),
     m_uiLeaderGUID(0),
     m_pQuestForFollow(NULL),
     m_uiUpdateFollowTimer(2500),
-    m_bIsFollowing(false),
-    m_bIsReturnToLeader(false),
-    m_bIsFollowComplete(false),
-    m_bIsEndEvent(false)
+    m_uiFollowState(STATE_FOLLOW_NONE)
 {}
 
 void FollowerAI::AttackStart(Unit* pWho)
@@ -60,14 +57,21 @@ void FollowerAI::MoveInLineOfSight(Unit* pWho)
         //It will cause m_creature to attack pWho that are attacking _any_ player (which has been confirmed may happen also on offi)
         //The flag (type_flag) is unconfirmed, but used here for further research and is a good candidate.
         if (m_creature->hasUnitState(UNIT_STAT_FOLLOW) &&
-            m_creature->GetCreatureInfo()->type_flags & 0x01000 &&
+            m_creature->GetCreatureInfo()->type_flags & CREATURE_TYPEFLAGS_UNK13 &&
             pWho->getVictim() &&
             pWho->getVictim()->GetCharmerOrOwnerPlayerOrPlayerItself() &&
             m_creature->IsWithinDistInMap(pWho, MAX_PLAYER_DISTANCE) &&
             m_creature->IsWithinLOSInMap(pWho))
         {
-             pWho->RemoveAurasDueToSpell(SPELL_AURA_MOD_STEALTH);
-             AttackStart(pWho);
+            if (!m_creature->getVictim())
+            {
+                AttackStart(pWho);
+            }
+            else
+            {
+                pWho->SetInCombatWith(m_creature);
+                m_creature->AddThreat(pWho, 0.0f);
+            }
         }
         else
         {
@@ -91,7 +95,7 @@ void FollowerAI::MoveInLineOfSight(Unit* pWho)
 
 void FollowerAI::JustDied(Unit* pKiller)
 {
-    if (!m_bIsFollowing || !m_uiLeaderGUID || !m_pQuestForFollow)
+    if (!HasFollowState(STATE_FOLLOW_INPROGRESS) || !m_uiLeaderGUID || !m_pQuestForFollow)
         return;
 
     //TODO: need a better check for quests with time limit.
@@ -118,10 +122,7 @@ void FollowerAI::JustDied(Unit* pKiller)
 
 void FollowerAI::JustRespawned()
 {
-    m_bIsFollowing = false;
-    m_bIsReturnToLeader = false;
-    m_bIsFollowComplete = false;
-    m_bIsEndEvent = false;
+    m_uiFollowState = STATE_FOLLOW_NONE;
 
     if (!IsCombatMovement())
         SetCombatMovement(true);
@@ -139,7 +140,7 @@ void FollowerAI::EnterEvadeMode()
     m_creature->CombatStop(true);
     m_creature->SetLootRecipient(NULL);
 
-    if (m_bIsFollowing)
+    if (HasFollowState(STATE_FOLLOW_INPROGRESS))
     {
         debug_log("TSCR: FollowerAI left combat, returning to CombatStartPosition.");
 
@@ -161,11 +162,13 @@ void FollowerAI::EnterEvadeMode()
 
 void FollowerAI::UpdateAI(const uint32 uiDiff)
 {
-    if (m_bIsFollowing && !m_creature->getVictim())
+    Unit* pUnit = m_creature->getVictim();
+
+    if (HasFollowState(STATE_FOLLOW_INPROGRESS) && !m_creature->getVictim())
     {
         if (m_uiUpdateFollowTimer < uiDiff)
         {
-            if (m_bIsFollowComplete && !m_bIsEndEvent)
+            if (HasFollowState(STATE_FOLLOW_COMPLETE) && !HasFollowState(STATE_FOLLOW_POSTEVENT))
             {
                 debug_log("TSCR: FollowerAI is set completed, despawns.");
                 m_creature->ForcedDespawn();
@@ -176,11 +179,12 @@ void FollowerAI::UpdateAI(const uint32 uiDiff)
 
             if (Player* pPlayer = GetLeaderForFollower())
             {
-                if (m_bIsReturnToLeader)
+                if (HasFollowState(STATE_FOLLOW_RETURNING))
                 {
                     debug_log("TSCR: FollowerAI is returning to leader.");
+
+                    RemoveFollowState(STATE_FOLLOW_RETURNING);
                     m_creature->GetMotionMaster()->MoveFollow(pPlayer, PET_FOLLOW_DIST, PET_FOLLOW_ANGLE);
-                    m_bIsReturnToLeader = false;
                     return;
                 }
 
@@ -230,13 +234,16 @@ void FollowerAI::UpdateFollowerAI(const uint32 uiDiff)
 
 void FollowerAI::MovementInform(uint32 uiMotionType, uint32 uiPointId)
 {
-    if (uiMotionType != POINT_MOTION_TYPE || !m_bIsFollowing)
+    if (uiMotionType != POINT_MOTION_TYPE || !HasFollowState(STATE_FOLLOW_INPROGRESS))
         return;
 
     if (uiPointId == POINT_COMBAT_START)
     {
         if (GetLeaderForFollower())
-            m_bIsReturnToLeader = true;
+        {
+            if (!HasFollowState(STATE_FOLLOW_PAUSED))
+                AddFollowState(STATE_FOLLOW_RETURNING);
+        }
         else
             m_creature->ForcedDespawn();
     }
@@ -250,7 +257,7 @@ void FollowerAI::StartFollow(Player* pLeader, uint32 uiFactionForFollower, const
         return;
     }
 
-    if (m_bIsFollowing)
+    if (HasFollowState(STATE_FOLLOW_INPROGRESS))
     {
         error_log("TSCR: FollowerAI attempt to StartFollow while already following.");
         return;
@@ -273,9 +280,9 @@ void FollowerAI::StartFollow(Player* pLeader, uint32 uiFactionForFollower, const
 
     m_creature->SetUInt32Value(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_NONE);
 
-    m_creature->GetMotionMaster()->MoveFollow(pLeader, PET_FOLLOW_DIST, PET_FOLLOW_ANGLE);
+    AddFollowState(STATE_FOLLOW_INPROGRESS);
 
-    m_bIsFollowing = true;
+    m_creature->GetMotionMaster()->MoveFollow(pLeader, PET_FOLLOW_DIST, PET_FOLLOW_ANGLE);
 
     debug_log("TSCR: FollowerAI start follow %s (GUID %u)", pLeader->GetName(), m_uiLeaderGUID);
 }
@@ -316,10 +323,45 @@ void FollowerAI::SetFollowComplete(bool bWithEndEvent)
     {
         m_creature->clearUnitState(UNIT_STAT_FOLLOW);
 
-        m_creature->GetMotionMaster()->MovementExpired();
+        m_creature->StopMoving();
+        m_creature->GetMotionMaster()->Clear();
         m_creature->GetMotionMaster()->MoveIdle();
     }
 
-    m_bIsEndEvent = bWithEndEvent;
-    m_bIsFollowComplete = true;
+    if (bWithEndEvent)
+        AddFollowState(STATE_FOLLOW_POSTEVENT);
+    else
+    {
+        if (HasFollowState(STATE_FOLLOW_POSTEVENT))
+            RemoveFollowState(STATE_FOLLOW_POSTEVENT);
+    }
+
+    AddFollowState(STATE_FOLLOW_COMPLETE);
+}
+
+void FollowerAI::SetFollowPaused(bool bPaused)
+{
+    if (!HasFollowState(STATE_FOLLOW_INPROGRESS) || HasFollowState(STATE_FOLLOW_COMPLETE))
+        return;
+
+    if (bPaused)
+    {
+        AddFollowState(STATE_FOLLOW_PAUSED);
+
+        if (m_creature->hasUnitState(UNIT_STAT_FOLLOW))
+        {
+            m_creature->clearUnitState(UNIT_STAT_FOLLOW);
+
+            m_creature->StopMoving();
+            m_creature->GetMotionMaster()->Clear();
+            m_creature->GetMotionMaster()->MoveIdle();
+        }
+    }
+    else
+    {
+        RemoveFollowState(STATE_FOLLOW_PAUSED);
+
+        if (Player* pLeader = GetLeaderForFollower())
+            m_creature->GetMotionMaster()->MoveFollow(pLeader, PET_FOLLOW_DIST, PET_FOLLOW_ANGLE);
+    }
 }
