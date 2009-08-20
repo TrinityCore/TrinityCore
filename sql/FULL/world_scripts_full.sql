@@ -1050,7 +1050,7 @@ UPDATE `gameobject_template` SET `ScriptName`='go_altar_of_the_keepers' WHERE `e
 UPDATE `gameobject_template` SET `ScriptName`='go_altar_of_archaedas' WHERE `entry`=133234;
 
 /* ULDUAR */
-/* UPDATE `instance_template` SET `script`='instance_ulduar' WHERE `map`=603; */
+UPDATE `instance_template` SET `script`='instance_ulduar' WHERE `map`=603;
 UPDATE `creature_template` SET `ScriptName` = 'boss_auriaya' WHERE `entry` = 33515;
 UPDATE `creature_template` SET `ScriptName` = 'boss_flame_leviathan' WHERE `entry` = 33113;
 UPDATE `creature_template` SET `ScriptName` = 'boss_flame_leviathan_turret' WHERE entry=33139;
@@ -1060,6 +1060,12 @@ UPDATE `creature_template` SET `ScriptName` = 'boss_flame_leviathan_overload_dev
 UPDATE `creature_template` SET `ScriptName` = 'boss_ignis' WHERE `entry` = 33118;
 UPDATE `creature_template` SET `ScriptName` = 'boss_razorscale' WHERE `entry` = 33186;
 UPDATE `creature_template` SET `ScriptName` = 'boss_xt002' WHERE `entry` = 33293;
+UPDATE `creature_template` SET `ScriptName` = 'boss_steelbreaker' WHERE `entry` = 32867;
+UPDATE `creature_template` SET `ScriptName` = 'boss_runemaster_molgeim' WHERE `entry` = 32927;
+UPDATE `creature_template` SET `ScriptName` = 'boss_stormcaller_brundir' WHERE `entry` = 32857;
+UPDATE `creature_template` SET `ScriptName` = 'mob_lightning_elemental' WHERE `entry` = 32958;
+UPDATE `creature_template` SET `ScriptName` = 'mob_rune_of_summoning' WHERE `entry` = 33051;
+
 
 /* UN'GORO CRATER */
 UPDATE `creature_template` SET `ScriptName`='npc_ame' WHERE `entry`=9623;

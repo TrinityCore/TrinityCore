@@ -291,7 +291,8 @@ extern void AddSC_boss_flame_leviathan();
 extern void AddSC_boss_ignis();
 extern void AddSC_boss_razorscale();
 extern void AddSC_boss_xt002();
-//extern void AddSC_instance_ulduar();
+extern void AddSC_boss_assembly_of_iron();
+extern void AddSC_instance_ulduar();
 extern void AddSC_boss_keleseth();              //Utgarde Keep
 extern void AddSC_boss_skarvald_dalronn();
 extern void AddSC_boss_ingvar_the_plunderer();
@@ -681,7 +682,8 @@ void AddScripts()
     AddSC_boss_ignis();
     AddSC_boss_razorscale();
     AddSC_boss_xt002();
-    //AddSC_instance_ulduar();
+    AddSC_boss_assembly_of_iron();
+    AddSC_instance_ulduar();
     AddSC_boss_keleseth();              //Utgarde Keep
     AddSC_boss_skarvald_dalronn();
     AddSC_boss_ingvar_the_plunderer();
