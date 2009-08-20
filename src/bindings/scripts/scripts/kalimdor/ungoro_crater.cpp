@@ -168,11 +168,11 @@ enum
     FACTION_ESCORTEE            = 113
 };
 
-//Script not fully complete. Need more development of followerAI to accomplish misc tasks.
 struct TRINITY_DLL_DECL npc_ringoAI : public FollowerAI
 {
     npc_ringoAI(Creature* pCreature) : FollowerAI(pCreature) { }
 
+    uint32 m_uiFaintTimer;
     uint32 m_uiEndEventProgress;
     uint32 m_uiEndEventTimer;
 
@@ -180,6 +180,7 @@ struct TRINITY_DLL_DECL npc_ringoAI : public FollowerAI
 
     void Reset()
     {
+        m_uiFaintTimer = urand(30000, 60000);
         m_uiEndEventProgress = 0;
         m_uiEndEventTimer = 1000;
         pSpraggle = NULL;
@@ -205,6 +206,49 @@ struct TRINITY_DLL_DECL npc_ringoAI : public FollowerAI
         }
     }
 
+    void SpellHit(Unit* pCaster, const SpellEntry* pSpell)
+    {
+        if (HasFollowState(STATE_FOLLOW_INPROGRESS | STATE_FOLLOW_PAUSED) && pSpell->Id == SPELL_REVIVE_RINGO)
+            ClearFaint();
+    }
+
+    void SetFaint()
+    {
+        if (!HasFollowState(STATE_FOLLOW_POSTEVENT))
+        {
+            SetFollowPaused(true);
+
+            switch(rand()%4)
+            {
+                case 0: DoScriptText(SAY_FAINT_1, m_creature); break;
+                case 1: DoScriptText(SAY_FAINT_2, m_creature); break;
+                case 2: DoScriptText(SAY_FAINT_3, m_creature); break;
+                case 3: DoScriptText(SAY_FAINT_4, m_creature); break;
+            }
+        }
+
+        //what does actually happen here? Emote? Aura?
+        m_creature->SetStandState(UNIT_STAND_STATE_SLEEP);
+    }
+
+    void ClearFaint()
+    {
+        m_creature->SetStandState(UNIT_STAND_STATE_STAND);
+
+        if (HasFollowState(STATE_FOLLOW_POSTEVENT))
+            return;
+
+        switch(rand()%4)
+        {
+            case 0: DoScriptText(SAY_WAKE_1, m_creature); break;
+            case 1: DoScriptText(SAY_WAKE_2, m_creature); break;
+            case 2: DoScriptText(SAY_WAKE_3, m_creature); break;
+            case 3: DoScriptText(SAY_WAKE_4, m_creature); break;
+        }
+
+        SetFollowPaused(false);
+    }
+
     void UpdateFollowerAI(const uint32 uiDiff)
     {
         if (!UpdateVictim())
@@ -215,7 +259,6 @@ struct TRINITY_DLL_DECL npc_ringoAI : public FollowerAI
                 {
                     if (!pSpraggle || !pSpraggle->isAlive())
                     {
-                        m_uiEndEventTimer = 1000;
                         SetFollowComplete();
                         return;
                     }
@@ -236,10 +279,12 @@ struct TRINITY_DLL_DECL npc_ringoAI : public FollowerAI
                             break;
                         case 4:
                             DoScriptText(EMOTE_RIN_END_4, m_creature);
+                            SetFaint();
                             m_uiEndEventTimer = 9000;
                             break;
                         case 5:
                             DoScriptText(EMOTE_RIN_END_5, m_creature);
+                            ClearFaint();
                             m_uiEndEventTimer = 1000;
                             break;
                         case 6:
@@ -263,6 +308,19 @@ struct TRINITY_DLL_DECL npc_ringoAI : public FollowerAI
                 }
                 else
                     m_uiEndEventTimer -= uiDiff;
+            }
+            else if (HasFollowState(STATE_FOLLOW_INPROGRESS))
+            {
+                if (!HasFollowState(STATE_FOLLOW_PAUSED))
+                {
+                    if (m_uiFaintTimer < uiDiff)
+                    {
+                        SetFaint();
+                        m_uiFaintTimer = urand(60000, 120000);
+                    }
+                    else
+                        m_uiFaintTimer -= uiDiff;
+                }
             }
 
             return;
