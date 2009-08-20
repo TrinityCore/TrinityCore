@@ -1852,6 +1852,11 @@ Vehicle* WorldObject::SummonVehicle(uint32 entry, float x, float y, float z, flo
         return NULL;
     }
 
+    if(isType(TYPEMASK_UNIT))
+    {
+        v->SetUInt64Value(UNIT_FIELD_SUMMONEDBY, GetGUID());
+        v->setFaction(((Unit*)this)->getFaction());
+    }
     map->Add((Creature*)v);
 
     //ObjectAccessor::UpdateObjectVisibility(v);
