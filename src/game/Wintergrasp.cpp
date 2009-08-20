@@ -72,82 +72,6 @@ void LoadTeamPair(TeamPairMap &pairMap, const TeamPair *pair)
 
 typedef std::list<const AreaPOIEntry *> AreaPOIList;
 
-SiegeWorkshop::SiegeWorkshop(OPvPWintergrasp *opvp, BuildingState *state)
-: OPvPCapturePoint(opvp), m_buildingState(state), m_wintergrasp(opvp)
-, m_engineer(NULL), m_engGuid(0)
-{
-}
-
-void SiegeWorkshop::SetStateByBuildingState()
-{
-    if(m_buildingState->team == TEAM_ALLIANCE)
-    {
-        m_value = m_maxValue;
-        m_State = OBJECTIVESTATE_ALLIANCE;
-    }
-    else if(m_buildingState->team == TEAM_HORDE)
-    {
-        m_value = -m_maxValue;
-        m_State = OBJECTIVESTATE_HORDE;
-    }
-    else
-    {
-        m_value = 0;
-        m_State = OBJECTIVESTATE_NEUTRAL;
-    }
-
-    ChangeState();
-    SendChangePhase();
-}
-
-void SiegeWorkshop::ChangeState()
-{
-    uint32 entry = 0;
-    if(m_State == OBJECTIVESTATE_ALLIANCE) // to do m_buildingState->team == TEAM_ALLIANCE;
-    {
-        m_buildingState->team = TEAM_ALLIANCE;
-        entry = CRE_ENG_A;
-    }
-    else if(m_State == OBJECTIVESTATE_HORDE)
-    {
-        m_buildingState->team = TEAM_HORDE;
-        entry = CRE_ENG_H;
-    }
-    else
-        return;
-
-    *m_engEntry = entry;
-
-    // TODO: this may be sent twice
-    m_wintergrasp->BroadcastStateChange(m_buildingState);
-
-    // does not work, entry may change
-    /*Creature *creature = ObjectAccessor::GetObjectInWorld(m_Creatures[0], (Creature*)NULL);
-    if(!creature)
-    {
-        sLog.outError("SiegeWorkshop::ChangeState cannot find creature " I64FMT " !", m_Creatures[0]);
-        return;
-    }*/
-
-    if(m_engineer)
-    {
-        m_engineer->SetOriginalEntry(entry);
-        if(entry != m_engineer->GetEntry() || !m_engineer->isAlive())
-        {
-            m_engineer->Respawn(true);
-            DespawnAllVehicles();
-        }
-    }
-
-    sLog.outDebug("Wintergrasp workshop now belongs to %u.", (uint32)m_buildingState->team);
-}
-
-void SiegeWorkshop::DespawnAllVehicles()
-{
-    while(!m_vehicles.empty())
-        (*m_vehicles.begin())->Dismiss();
-}
-
 bool OPvPWintergrasp::SetupOutdoorPvP()
 {
     m_defender = TeamId(rand()%2);
@@ -380,7 +304,7 @@ void OPvPWintergrasp::OnCreatureCreate(Creature *creature, bool add)
                     {
                         if(add)
                         {
-                            if(m_wartime && workshop->m_vehicles.size() < MAX_VEHICLE_PER_WORKSHOP)
+                            if(m_wartime && workshop->CanBuildVehicle())
                                 workshop->m_vehicles.insert((Vehicle*)creature);
                             else
                             {
@@ -769,7 +693,7 @@ uint32 OPvPWintergrasp::GetData(uint32 id)
 {
     // if can build more vehicles
     if(SiegeWorkshop *workshop = GetWorkshopByEngGuid(id))
-        return m_wartime && workshop->m_vehicles.size() < MAX_VEHICLE_PER_WORKSHOP ? 1 : 0;
+        return m_wartime && workshop->CanBuildVehicle() ? 1 : 0;
 
     return 0;
 }
@@ -798,3 +722,84 @@ SiegeWorkshop *OPvPWintergrasp::GetWorkshopByGOGuid(uint32 lowguid) const
                 return workshop;
     return NULL;  
 }
+
+/*######
+##SiegeWorkshop
+######*/
+
+SiegeWorkshop::SiegeWorkshop(OPvPWintergrasp *opvp, BuildingState *state)
+: OPvPCapturePoint(opvp), m_buildingState(state), m_wintergrasp(opvp)
+, m_engineer(NULL), m_engGuid(0)
+{
+}
+
+void SiegeWorkshop::SetStateByBuildingState()
+{
+    if(m_buildingState->team == TEAM_ALLIANCE)
+    {
+        m_value = m_maxValue;
+        m_State = OBJECTIVESTATE_ALLIANCE;
+    }
+    else if(m_buildingState->team == TEAM_HORDE)
+    {
+        m_value = -m_maxValue;
+        m_State = OBJECTIVESTATE_HORDE;
+    }
+    else
+    {
+        m_value = 0;
+        m_State = OBJECTIVESTATE_NEUTRAL;
+    }
+
+    ChangeState();
+    SendChangePhase();
+}
+
+void SiegeWorkshop::ChangeState()
+{
+    uint32 entry = 0;
+    if(m_State == OBJECTIVESTATE_ALLIANCE) // to do m_buildingState->team == TEAM_ALLIANCE;
+    {
+        m_buildingState->team = TEAM_ALLIANCE;
+        entry = CRE_ENG_A;
+    }
+    else if(m_State == OBJECTIVESTATE_HORDE)
+    {
+        m_buildingState->team = TEAM_HORDE;
+        entry = CRE_ENG_H;
+    }
+    else
+        return;
+
+    *m_engEntry = entry;
+
+    // TODO: this may be sent twice
+    m_wintergrasp->BroadcastStateChange(m_buildingState);
+
+    // does not work, entry may change
+    /*Creature *creature = ObjectAccessor::GetObjectInWorld(m_Creatures[0], (Creature*)NULL);
+    if(!creature)
+    {
+        sLog.outError("SiegeWorkshop::ChangeState cannot find creature " I64FMT " !", m_Creatures[0]);
+        return;
+    }*/
+
+    if(m_engineer)
+    {
+        m_engineer->SetOriginalEntry(entry);
+        if(entry != m_engineer->GetEntry() || !m_engineer->isAlive())
+        {
+            m_engineer->Respawn(true);
+            DespawnAllVehicles();
+        }
+    }
+
+    sLog.outDebug("Wintergrasp workshop now belongs to %u.", (uint32)m_buildingState->team);
+}
+
+void SiegeWorkshop::DespawnAllVehicles()
+{
+    while(!m_vehicles.empty())
+        (*m_vehicles.begin())->Dismiss();
+}
+
