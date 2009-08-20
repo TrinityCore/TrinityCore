@@ -33,6 +33,7 @@ EndContentData */
 
 #include "precompiled.h"
 #include "escort_ai.h"
+#include "follower_ai.h"
 
 /*######
 ## mob_aquementas
@@ -455,18 +456,11 @@ enum
 
 const float m_afToWaterLoc[] = {-7032.664551, -4906.199219, -1.606446};
 
-//Script not fully complete, need to change faction.
-struct MANGOS_DLL_DECL npc_toogaAI : public ScriptedAI
+struct TRINITY_DLL_DECL npc_toogaAI : public FollowerAI
 {
-    npc_toogaAI(Creature* pCreature) : ScriptedAI(pCreature)
-    {
-        m_uiNpcFlags = pCreature->GetUInt32Value(UNIT_NPC_FLAGS);
-        m_uiPlayerGUID = 0;
-    }
+    npc_toogaAI(Creature* pCreature) : FollowerAI(pCreature) { }
 
-    uint64 m_uiPlayerGUID;
-    uint32 m_uiNpcFlags;
-    uint32 m_uiCheckPlayerTimer;
+    uint32 m_uiCheckSpeechTimer;
     uint32 m_uiPostEventTimer;
     uint32 m_uiPhasePostEvent;
 
@@ -474,8 +468,8 @@ struct MANGOS_DLL_DECL npc_toogaAI : public ScriptedAI
 
     void Reset()
     {
-        m_uiCheckPlayerTimer = 2500;
-        m_uiPostEventTimer = 5000;
+        m_uiCheckSpeechTimer = 2500;
+        m_uiPostEventTimer = 1000;
         m_uiPhasePostEvent = 0;
 
         pTorta = NULL;
@@ -483,135 +477,41 @@ struct MANGOS_DLL_DECL npc_toogaAI : public ScriptedAI
 
     void MoveInLineOfSight(Unit *pWho)
     {
-        if (pWho->GetEntry() == NPC_TORTA)
+        FollowerAI::MoveInLineOfSight(pWho);
+
+        if (!m_creature->getVictim() && !IsFollowComplete() && !IsEndEventInProgress() && pWho->GetEntry() == NPC_TORTA)
         {
             if (m_creature->IsWithinDistInMap(pWho, INTERACTION_DISTANCE))
             {
-                if (!pTorta && CanDoComplete())
+                if (Player* pPlayer = GetLeaderForFollower())
                 {
-                    pTorta = pWho;
-                    m_uiPhasePostEvent = 1;
-                }
-            }
-        }
-    }
-
-    void AttackStart(Unit* pWho)
-    {
-        if (!pWho)
-            return;
-
-        if (m_creature->Attack(pWho, true))
-        {
-            m_creature->AddThreat(pWho, 0.0f);
-            m_creature->SetInCombatWith(pWho);
-            pWho->SetInCombatWith(m_creature);
-
-            if (m_creature->hasUnitState(UNIT_STAT_FOLLOW))
-                m_creature->clearUnitState(UNIT_STAT_FOLLOW);
-
-            if (IsCombatMovement())
-                m_creature->GetMotionMaster()->MoveChase(pWho);
-        }
-    }
-
-    void EnterEvadeMode()
-    {
-        m_creature->RemoveAllAuras();
-        m_creature->DeleteThreatList();
-        m_creature->CombatStop(true);
-        m_creature->LoadCreaturesAddon();
-
-        if (m_creature->isAlive())
-        {
-            if (Unit* pUnit = Unit::GetUnit(*m_creature, m_uiPlayerGUID))
-            {
-                //for later development, it appear this kind return to combatStart, then resume to MoveFollow
-                m_creature->GetMotionMaster()->MoveFollow(pUnit, PET_FOLLOW_DIST, PET_FOLLOW_ANGLE);
-            }
-            else
-            {
-                if (m_creature->hasUnitState(UNIT_STAT_FOLLOW))
-                    m_creature->clearUnitState(UNIT_STAT_FOLLOW);
-
-                m_creature->GetMotionMaster()->MoveTargetedHome();
-            }
-        }
-
-        m_creature->SetLootRecipient(NULL);
-
-        Reset();
-    }
-
-    void JustRespawned()
-    {
-        me->RestoreFaction();
-
-        m_creature->SetUInt32Value(UNIT_NPC_FLAGS, m_creature->GetCreatureInfo()->npcflag);
-
-        Reset();
-    }
-
-    void DoStart(Player* pPlayer)
-    {
-        m_uiPlayerGUID = pPlayer->GetGUID();
-        m_creature->SetUInt32Value(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_NONE);
-
-        m_creature->setFaction(FACTION_TOOG_ESCORTEE);
-
-        m_creature->GetMotionMaster()->MoveFollow(pPlayer, PET_FOLLOW_DIST, PET_FOLLOW_ANGLE);
-    }
-
-    bool CanDoComplete()
-    {
-        if (Player* pPlayer = (Player*)Unit::GetUnit(*m_creature, m_uiPlayerGUID))
-        {
-            if (pPlayer->GetQuestStatus(QUEST_TOOGA) == QUEST_STATUS_INCOMPLETE)
-            {
-                uint16 uiQuestLogSlot = pPlayer->FindQuestSlot(QUEST_TOOGA);
-
-                if (uiQuestLogSlot < MAX_QUEST_LOG_SIZE)
-                {
-                    if (pPlayer->GetQuestSlotState(uiQuestLogSlot) != QUEST_STATE_FAIL)
-                    {
+                    if (pPlayer->GetQuestStatus(QUEST_TOOGA) == QUEST_STATUS_INCOMPLETE)
                         pPlayer->GroupEventHappens(QUEST_TOOGA, m_creature);
-                        m_creature->GetMotionMaster()->MovementExpired();
-                        return true;
-                    }
                 }
+
+                pTorta = pWho;
+                SetFollowComplete(true);
             }
         }
-
-        return false;
     }
 
-    void MovementInform(uint32 uiMoveType, uint32 uiPointId)
+    void MovementInform(uint32 uiMotionType, uint32 uiPointId)
     {
-        if (uiMoveType != POINT_MOTION_TYPE || !m_uiPlayerGUID)
+        FollowerAI::MovementInform(uiMotionType, uiPointId);
+
+        if (uiMotionType != POINT_MOTION_TYPE)
             return;
 
         if (uiPointId == POINT_ID_TO_WATER)
-            m_creature->ForcedDespawn();
+            SetFollowComplete();
     }
 
-    void JustDied(Unit* pKiller)
-    {
-        if (Player* pPlayer = Unit::GetPlayer(m_uiPlayerGUID))
-        {
-            if (pPlayer->GetQuestStatus(QUEST_TOOGA) == QUEST_STATUS_INCOMPLETE)
-                pPlayer->FailQuest(QUEST_TOOGA);
-        }
-
-        m_uiPlayerGUID = 0;
-        m_creature->GetMotionMaster()->MovementExpired();
-    }
-
-    void UpdateAI(const uint32 uiDiff)
+    void UpdateFollowerAI(const uint32 uiDiff)
     {
         if (!UpdateVictim())
         {
             //we are doing the post-event, or...
-            if (m_uiPhasePostEvent)
+            if (IsEndEventInProgress())
             {
                 if (m_uiPostEventTimer < uiDiff)
                 {
@@ -619,8 +519,8 @@ struct MANGOS_DLL_DECL npc_toogaAI : public ScriptedAI
 
                     if (!pTorta || !pTorta->isAlive())
                     {
-                        //something happened, so just despawn (what can go wrong?)
-                        m_creature->ForcedDespawn();
+                        //something happened, so just complete
+                        SetFollowComplete();
                         return;
                     }
 
@@ -643,7 +543,6 @@ struct MANGOS_DLL_DECL npc_toogaAI : public ScriptedAI
                             break;
                         case 6:
                             DoScriptText(SAY_TORT_POST_6, pTorta);
-                            m_creature->GetMotionMaster()->MovementExpired();
                             m_creature->GetMotionMaster()->MovePoint(POINT_ID_TO_WATER, m_afToWaterLoc[0], m_afToWaterLoc[1], m_afToWaterLoc[2]);
                             break;
                     }
@@ -653,29 +552,21 @@ struct MANGOS_DLL_DECL npc_toogaAI : public ScriptedAI
                 else
                     m_uiPostEventTimer -= uiDiff;
             }
-            //...we are doing regular player check
-            else if (m_uiPlayerGUID)
+            //...we are doing regular speech check
+            else if (!IsFollowComplete())
             {
-                if (m_uiCheckPlayerTimer < uiDiff)
+                if (m_uiCheckSpeechTimer < uiDiff)
                 {
-                    m_uiCheckPlayerTimer = 5000;
+                    m_uiCheckSpeechTimer = 5000;
 
                     switch(rand()%50)
                     {
                         case 10: DoScriptText(SAY_TOOG_THIRST, m_creature); break;
                         case 25: DoScriptText(SAY_TOOG_WORRIED, m_creature); break;
                     }
-
-                    Unit* pUnit = Unit::GetUnit(*m_creature, m_uiPlayerGUID);
-
-                    if (pUnit && !pUnit->isAlive())
-                    {
-                        m_uiPlayerGUID = 0;
-                        m_creature->ForcedDespawn();
-                    }
                 }
                 else
-                    m_uiCheckPlayerTimer -= uiDiff;
+                    m_uiCheckSpeechTimer -= uiDiff;
             }
 
             return;
@@ -695,7 +586,7 @@ bool QuestAccept_npc_tooga(Player* pPlayer, Creature* pCreature, const Quest* pQ
     if (pQuest->GetQuestId() == QUEST_TOOGA)
     {
         if (npc_toogaAI* pToogaAI = CAST_AI(npc_toogaAI, pCreature->AI()))
-            pToogaAI->DoStart(pPlayer);
+            pToogaAI->StartFollow(pPlayer, FACTION_TOOG_ESCORTEE, pQuest);
     }
 
     return true;
