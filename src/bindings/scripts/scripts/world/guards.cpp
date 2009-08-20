@@ -25,6 +25,7 @@ EndScriptData */
 guard_azuremyst
 guard_bluffwatcher
 guard_contested
+guard_dalaran
 guard_darnassus
 guard_dunmorogh
 guard_durotar
