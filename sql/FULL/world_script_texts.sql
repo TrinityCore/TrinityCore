@@ -373,7 +373,7 @@ INSERT INTO `script_texts` (`entry`, `content_default`, `content_loc1`, `content
 (-1000428,'Oh... I\'m feeling faint...', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,0,0,0,0,'ringo SAY_RIN_END_3'),
 (-1000429,'%s collapses onto the ground.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,0,2,0,0,'ringo EMOTE_RIN_END_4'),
 (-1000430,'%s stands up after a short pause.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,0,2,0,0,'ringo EMOTE_RIN_END_5'),
-(-1000431,'Ugh.',0,0,0,0,'ringo SAY_RIN_END_6'),
+(-1000431,'Ugh.',NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,0,0,0,0,'ringo SAY_RIN_END_6'),
 (-1000432,'Ringo? Wake up! Don\'t worry, I\'ll take care of you.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,0,0,0,0,'ringo SAY_SPR_END_7'),
 (-1000433,'%s fades away after a long pause.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,0,2,0,0,'ringo EMOTE_RIN_END_8'),
 (-1000434,'Liladris has been waiting for me at Maestra\'s Post, so we should make haste, $N.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,0,0,0,0,'kerlonian SAY_KER_START'),
