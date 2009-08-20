@@ -48,6 +48,8 @@ enum
     SAY_KER_SLEEP_3             = -1000440,
     SAY_KER_SLEEP_4             = -1000441,
 
+    EMOTE_KER_AWAKEN            = -1000445,
+
     SAY_KER_ALERT_1             = -1000442,
     SAY_KER_ALERT_2             = -1000443,
 
