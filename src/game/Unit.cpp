@@ -8612,6 +8612,19 @@ void Unit::SetMinion(Minion *minion, bool apply)
     }
 }
 
+void Unit::RemoveAllMinionsByEntry(uint32 entry)
+{
+    for(Unit::ControlList::iterator itr = m_Controlled.begin(); itr != m_Controlled.end();)
+    {
+        Unit *unit = *itr;
+        ++itr;
+        if(unit->GetEntry() == entry && unit->GetTypeId() == TYPEID_UNIT
+            && ((Creature*)unit)->isSummon()) // minion, actually
+            ((TempSummon*)unit)->UnSummon();
+        // i think this is safe because i have never heard that a despawned minion will trigger a same minion
+    }
+}
+
 void Unit::SetCharm(Unit* charm, bool apply)
 {
     if(apply)
