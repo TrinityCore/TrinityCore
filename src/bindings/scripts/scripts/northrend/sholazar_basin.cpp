@@ -1,4 +1,5 @@
-/* Copyright (C) 2006 - 2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+/* Copyright (C) 2008-2009 Trinity <http://www.trinitycore.org/>
+ *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -17,13 +18,14 @@
 /* ScriptData
 SDName: Sholazar_Basin
 SD%Complete: 100
-SDComment: Quest support: 12570, 12573
+SDComment: Quest support: 12570, 12573, 12621.
 SDCategory: Sholazar_Basin
 EndScriptData */
 
 /* ContentData
 npc_injured_rainspeaker_oracle
 npc_vekjik
+avatar_of_freya
 EndContentData */
 
 #include "precompiled.h"
@@ -213,6 +215,62 @@ bool GossipSelect_npc_vekjik(Player* pPlayer, Creature* pCreature, uint32 uiSend
     return true;
 }
 
+
+/*######
+## avatar_of_freya
+######*/
+
+#define GOSSIP_ITEM_AOF1 "I want to stop the Scourge as much as you do. How can I help?"
+#define GOSSIP_ITEM_AOF2 "You can trust me. I am no friend of the Lich King's."
+#define GOSSIP_ITEM_AOF3 "I will not fail."
+
+enum
+{    
+    QUEST_FREYA_PACT         = 12621,
+
+    SPELL_FREYA_CONVERSATION = 52045, 
+
+    GOSSIP_TEXTID_AVATAR1    = 13303,
+    GOSSIP_TEXTID_AVATAR2    = 13304,
+    GOSSIP_TEXTID_AVATAR3    = 13305
+};
+
+
+bool GossipHello_npc_avatar_of_freya(Player* pPlayer, Creature* pCreature)
+{
+    if (pCreature->isQuestGiver())
+        pPlayer->PrepareQuestMenu(pCreature->GetGUID());
+
+    if (pPlayer->GetQuestStatus(QUEST_FREYA_PACT) == QUEST_STATUS_INCOMPLETE)
+        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_AOF1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+
+    pPlayer->PlayerTalkClass->SendGossipMenu(GOSSIP_TEXTID_AVATAR1, pCreature->GetGUID());
+    return true;
+}
+
+bool GossipSelect_npc_avatar_of_freya(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+{
+    switch (uiAction)
+
+    {
+
+    case GOSSIP_ACTION_INFO_DEF+1:
+        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_AOF2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
+        pPlayer->PlayerTalkClass->SendGossipMenu(GOSSIP_TEXTID_AVATAR2, pCreature->GetGUID());
+        break;
+    case GOSSIP_ACTION_INFO_DEF+2:
+        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_AOF3, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+3);
+        pPlayer->PlayerTalkClass->SendGossipMenu(GOSSIP_TEXTID_AVATAR3, pCreature->GetGUID());
+        break;
+    case GOSSIP_ACTION_INFO_DEF+3:
+        pPlayer->CastSpell(pPlayer, SPELL_FREYA_CONVERSATION, true);
+        pPlayer->CLOSE_GOSSIP_MENU();
+        break;
+
+    }
+    return true;
+}
+
 void AddSC_sholazar_basin()
 {
     Script *newscript;
@@ -228,5 +286,11 @@ void AddSC_sholazar_basin()
     newscript->Name = "npc_vekjik";
     newscript->pGossipHello = &GossipHello_npc_vekjik;
     newscript->pGossipSelect = &GossipSelect_npc_vekjik;
+    newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name = "npc_avatar_of_freya";
+    newscript->pGossipHello = &GossipHello_npc_avatar_of_freya;
+    newscript->pGossipSelect = &GossipSelect_npc_avatar_of_freya;
     newscript->RegisterSelf();
 }

@@ -845,6 +845,7 @@ UPDATE `creature_template` SET `ScriptName`='npc_khadgar' WHERE `entry`=18166;
 /* Sholazar Basin */
 UPDATE `creature_template` SET `ScriptName`='npc_injured_rainspeaker_oracle' WHERE `entry`=28217;
 UPDATE `creature_template` SET `ScriptName`='npc_vekjik' WHERE `entry`=28315;
+UPDATE `creature_template` SET `ScriptName`='npc_avatar_of_freya' WHERE `entry`=27801;
 
 /* SILITHUS */
 UPDATE `creature_template` SET `ScriptName`='npcs_rutgar_and_frankal' WHERE `entry` IN (15170,15171);
