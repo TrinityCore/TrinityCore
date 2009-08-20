@@ -33,17 +33,20 @@ enum CreatureEntry
 
 const TeamPair CreatureEntryPair[] =
 {
-    {31151, 31153}, // Tactical Officer
     {32307, 32308}, // Guards
     {30739, 30740}, // Champions
     //{30400, 30499}, // Engineers
     {30870, 30869}, // Flight Masters
-    {31101, 31051}, // Item Enhancement Vendors
-    {31102, 31054}, // Quest Givers
+    {31101, 31051}, // Hoodoo Master & Sorceress
+    {31102, 31052}, // Vieron Blazefeather & Bowyer
     {32296, 32294}, // Quartermaster
-    {31107, 31036}, // Lieutenant & Commander
-    {31053, 31108}, // Primalist & Siege Master
-    {31106, 31109}, // Siegesmith & Senior Demolitionist
+    {31107, 31109}, // Lieutenant & Senior Demolitionist
+    {31151, 31153}, // Tactical Officer
+    {31106, 31108}, // Siegesmith & Siege Master
+    {31053, 31054}, // Primalist & Anchorite
+    {31091, 31036}, // Commander
+    {32615, 32626}, // Warbringer & Brigadier General
+    //{31841, 31842), // Spirit Guide
     {0,0}
 };
 
