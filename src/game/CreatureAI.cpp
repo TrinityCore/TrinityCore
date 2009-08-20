@@ -112,7 +112,7 @@ void CreatureAI::MoveInLineOfSight(Unit *who)
     else if(who->getVictim() && me->IsFriendlyTo(who)
         && me->IsWithinDistInMap(who, sWorld.getConfig(CONFIG_CREATURE_FAMILY_ASSISTANCE_RADIUS))
         && me->canStartAttack(who->getVictim(), true))
-        AttackStart(who->getVictim());
+        me->GetMotionMaster()->MoveChase(who->getVictim());
 }
 
 void CreatureAI::SelectNearestTarget(Unit *who)
