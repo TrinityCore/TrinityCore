@@ -144,6 +144,9 @@ void Vehicle::Update(uint32 diff)
     //310
     if(getPowerType() == POWER_ENERGY) // m_vehicleInfo->36
         ModifyPower(POWER_ENERGY, 100);
+
+    if(m_deathState == DEAD && !GetDBTableGUIDLow())
+        Dismiss();
 }
 
 bool Vehicle::Create(uint32 guidlow, Map *map, uint32 phaseMask, uint32 Entry, uint32 vehicleId, uint32 team, float x, float y, float z, float o, const CreatureData * data)
