@@ -26,6 +26,9 @@ EndScriptData */
 npc_plaguehound_tracker
 EndContentData */
 
+#include "precompiled.h"
+#include "escort_ai.h"
+
 /*######
 ## npc_plaguehound_tracker
 ######*/
