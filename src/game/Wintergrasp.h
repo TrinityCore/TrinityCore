@@ -187,6 +187,8 @@ class OPvPWintergrasp : public OutdoorPvP
         bool UpdateCreatureInfo(Creature *creature) const;
         bool UpdateGameObjectInfo(GameObject *go) const;
 
+        bool CanBuildVehicle(SiegeWorkshop *workshop) const;
+
         void RebuildAllBuildings();
 
         void VehicleCastSpell(TeamId team, int32 spellId) const;
@@ -201,15 +203,15 @@ class SiegeWorkshop : public OPvPCapturePoint
         void SetTeamByBuildingState();
         void ChangeState() {}
         void ChangeTeam(TeamId oldteam);
-        void DespawnAllVehicles();
+        //void DespawnAllVehicles();
 
-        bool CanBuildVehicle() const { return m_vehicles.size() < MAX_VEHICLE_PER_WORKSHOP && m_buildingState->damageState != DAMAGE_DESTROYED; }
+        //bool CanBuildVehicle() const { return m_vehicles.size() < MAX_VEHICLE_PER_WORKSHOP && m_buildingState->damageState != DAMAGE_DESTROYED; }
 
         uint32 *m_engEntry;
         uint32 m_engGuid;
         Creature *m_engineer;
         uint32 m_workshopGuid;
-        VehicleSet m_vehicles;
+        //VehicleSet m_vehicles;
         BuildingState *m_buildingState;
     protected:
         OPvPWintergrasp *m_wintergrasp;
