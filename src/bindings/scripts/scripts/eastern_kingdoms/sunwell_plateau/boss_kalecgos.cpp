@@ -291,6 +291,9 @@ struct TRINITY_DLL_DECL boss_sathrovarrAI : public ScriptedAI
 
         if (pInstance)
             pInstance->SetData(DATA_KALECGOS_EVENT, NOT_STARTED);
+
+        me->CastSpell(me, AURA_SPECTRAL_INVISIBILITY, true);
+        me->CastSpell(me, AURA_DEMONIC_VISUAL, true);
     }
 
     void EnterCombat(Unit* who)
@@ -457,7 +460,8 @@ struct TRINITY_DLL_DECL boss_kalecAI : public ScriptedAI
 
     bool isEnraged; // if demon is enraged
 
-    boss_kalecAI(Creature *c) : ScriptedAI(c){
+    boss_kalecAI(Creature *c) : ScriptedAI(c)
+    {
         pInstance = c->GetInstanceData();
     }
 
@@ -472,9 +476,9 @@ struct TRINITY_DLL_DECL boss_kalecAI : public ScriptedAI
         YellSequence = 0;
 
         isEnraged = false;
-    }
 
-    void EnterCombat(Unit* who) {}
+        me->CastSpell(me, AURA_SPECTRAL_INVISIBILITY, true);
+    }
 
     void DamageTaken(Unit *done_by, uint32 &damage)
     {
