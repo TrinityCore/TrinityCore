@@ -591,6 +591,19 @@ void Spell::SpellDamageSchoolDmg(uint32 effect_idx)
                     //TODO: should this be put on taken but not done?
                     if(found)
                         damage += m_spellInfo->EffectBasePoints[1];
+                        
+                    if (m_caster->GetTypeId() == TYPEID_PLAYER)
+                    {
+                        // Add Ammo and Weapon damage
+                        Item *item = ((Player*)m_caster)->GetWeaponForAttack(RANGED_ATTACK);
+                        if(item)
+                        {
+                            damage += urand(uint32(item->GetProto()->Damage->DamageMin), uint32(item->GetProto()->Damage->DamageMax));
+                            damage += ((Player*)m_caster)->GetAmmoDPS()*item->GetProto()->Delay/1000;
+                            damage += ((Player*)m_caster)->GetTotalAttackPowerValue(RANGED_ATTACK)*0.1f;
+                        }
+                    }
+
                 }
                 break;
             }
