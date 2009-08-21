@@ -7633,7 +7633,7 @@ void Player::_ApplyAmmoBonuses()
     if( !ammo_proto || ammo_proto->Class!=ITEM_CLASS_PROJECTILE || !CheckAmmoCompatibility(ammo_proto))
         currentAmmoDPS = 0.0f;
     else
-        currentAmmoDPS = ammo_proto->Damage[0].DamageMin;
+        currentAmmoDPS = ( ammo_proto->Damage[0].DamageMin + ammo_proto->Damage[0].DamageMax ) / 2;
 
     if(currentAmmoDPS == GetAmmoDPS())
         return;
