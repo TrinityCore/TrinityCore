@@ -1361,9 +1361,10 @@ void AuraEffect::HandleAuraEffectSpecificMods(bool apply, bool Real, bool change
 
                         m_amount += int32(caster->GetTotalAttackPowerValue(BASE_ATTACK) * cp / 100);
                     }
+                    // TODO: i do not know what is this for so i simply disable it
                     // Lifebloom
-                    else if (m_spellProto->SpellFamilyFlags[1] & 0x10 && GetAuraName() == SPELL_AURA_PERIODIC_HEAL)
-                        m_amount = caster->SpellHealingBonus(m_target, GetSpellProto(), m_amount, SPELL_DIRECT_DAMAGE);
+                    //else if (m_spellProto->SpellFamilyFlags[1] & 0x10 && GetAuraName() == SPELL_AURA_PERIODIC_HEAL)
+                    //    m_amount = caster->SpellHealingBonus(m_target, GetSpellProto(), m_amount, SPELL_DIRECT_DAMAGE);
                     // Innervate
                     else if (m_spellProto->Id == 29166 && GetAuraName() == SPELL_AURA_PERIODIC_ENERGIZE)
                         m_amount = m_target->GetCreatePowers(POWER_MANA) * m_amount / (GetTotalTicks() * 100.0f);
