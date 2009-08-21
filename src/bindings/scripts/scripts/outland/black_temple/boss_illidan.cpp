@@ -769,7 +769,8 @@ struct TRINITY_DLL_DECL boss_illidan_stormrageAI : public ScriptedAI
                 break;
 
             case EVENT_SHEAR:
-                DoCast(m_creature->getVictim(), SPELL_SHEAR);
+                // no longer exists in 3.0.2
+                //DoCast(m_creature->getVictim(), SPELL_SHEAR);
                 Timer[EVENT_SHEAR] = 25000 + (rand()%16 * 1000);
                 break;
 
