@@ -62,14 +62,17 @@ bool GossipHello_npc_demolisher_engineerer(Player* pPlayer, Creature* pCreature)
     return true;
 }
 
-bool GossipSelect_npc_demolisher_engineerer(Player* pPlayer, Creature* me, uint32 uiSender, uint32 uiAction)
+bool GossipSelect_npc_demolisher_engineerer(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
 {
     pPlayer->CLOSE_GOSSIP_MENU();
-    switch(uiAction - GOSSIP_ACTION_INFO_DEF)
+    if(pPlayer->isGameMaster() || pCreature->GetZoneScript() && pCreature->GetZoneScript()->GetData(pCreature->GetDBTableGUIDLow()))
     {
-        case 0: pPlayer->CastSpell(pPlayer, 56663, false, NULL, NULL, me->GetGUID()); break;
-        case 1: pPlayer->CastSpell(pPlayer, 56575, false, NULL, NULL, me->GetGUID()); break;
-        case 2: pPlayer->CastSpell(pPlayer, pPlayer->GetTeamId() ? 61408 : 56661, false, NULL, NULL, me->GetGUID()); break;
+        switch(uiAction - GOSSIP_ACTION_INFO_DEF)
+        {
+            case 0: pPlayer->CastSpell(pPlayer, 56663, false, NULL, NULL, pCreature->GetGUID()); break;
+            case 1: pPlayer->CastSpell(pPlayer, 56575, false, NULL, NULL, pCreature->GetGUID()); break;
+            case 2: pPlayer->CastSpell(pPlayer, pPlayer->GetTeamId() ? 61408 : 56661, false, NULL, NULL, pCreature->GetGUID()); break;
+        }
     }
 
     return true;

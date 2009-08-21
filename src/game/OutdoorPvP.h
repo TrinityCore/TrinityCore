@@ -36,6 +36,17 @@ enum OutdoorPvPTypes
     OPVP_WINTERGRASP,
 };
 
+enum ObjectiveStates
+{
+    OBJECTIVESTATE_NEUTRAL = 0,
+    OBJECTIVESTATE_ALLIANCE,
+    OBJECTIVESTATE_HORDE,
+    OBJECTIVESTATE_NEUTRAL_ALLIANCE_CHALLENGE,
+    OBJECTIVESTATE_NEUTRAL_HORDE_CHALLENGE,
+    OBJECTIVESTATE_ALLIANCE_HORDE_CHALLENGE,
+    OBJECTIVESTATE_HORDE_ALLIANCE_CHALLENGE,
+};
+
 // struct for go spawning
 struct go_type{
     uint32 entry;
@@ -137,8 +148,8 @@ protected:
     // phase before update, used to check which faction is in conquer / control
     float m_oldValue;
     // objective states
-    uint32 m_OldState;
-    uint32 m_State;
+    ObjectiveStates m_OldState;
+    ObjectiveStates m_State;
     // neutral value on capture bar
     uint32 m_neutralValuePct;
 
@@ -182,7 +193,7 @@ public:
     void OnCreatureCreate(Creature *, bool add) {}
 
     // send world state update to all players present
-    virtual void SendUpdateWorldState(uint32 field, uint32 value);
+    void SendUpdateWorldState(uint32 field, uint32 value);
 
     // called by OutdoorPvPMgr, updates the objectives and if needed, sends new worldstateui information
     virtual bool Update(uint32 diff);
@@ -213,10 +224,12 @@ protected:
     PlayerSet m_players[2];
     uint32 m_TypeId;
 
+    bool m_sendUpdate;
+
     // world state stuff
     virtual void SendRemoveWorldStates(Player * plr) {}
 
-    void BroadcastPacket(WorldPacket & data);
+    void BroadcastPacket(WorldPacket & data) const;
 
     virtual void HandlePlayerEnterZone(Player * plr, uint32 zone);
     virtual void HandlePlayerLeaveZone(Player * plr, uint32 zone);
