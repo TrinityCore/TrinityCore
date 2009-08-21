@@ -281,6 +281,9 @@ void OPvPWintergrasp::ProcessEvent(GameObject *obj, uint32 eventId)
 
 void OPvPWintergrasp::ModifyWorkshopCount(TeamId team, bool add)
 {
+    if(team == TEAM_NEUTRAL)
+        return;
+
     if(add)
         ++m_workshopCount[team];
     else if(m_workshopCount[team])
