@@ -74,6 +74,10 @@ enum OutdoorPvP_WG_KeepStatus
     OutdoorPvP_WG_KEEP_STATUS_HORDE_OCCUPIED    = 4
 };
 
+const uint32 VehNumWorldState[2] = {3680,3490};
+const uint32 MaxVehNumWorldState[2] = {3681,3491};
+const uint32 ClockWorldState[5] = {3785,3784,3782,3976,3975};
+
 enum BuildingType
 {
     BUILDING_WALL,
@@ -104,12 +108,12 @@ struct BuildingState
     GameObject *building;
     BuildingType type;
 
-    void SendUpdate(Player *player)
+    void SendUpdate(Player *player) const
     {
         player->SendUpdateWorldState(worldState, AreaPOIIconId[team][damageState]);
     }
 
-    void FillData(WorldPacket &data)
+    void FillData(WorldPacket &data) const
     {
         data << worldState << AreaPOIIconId[team][damageState];
     }
@@ -145,10 +149,12 @@ class OPvPWintergrasp : public OutdoorPvP
 
         bool Update(uint32 diff);
 
-        void BroadcastStateChange(BuildingState *state);
+        void BroadcastStateChange(BuildingState *state) const;
 
         uint32 GetData(uint32 id);
         void SetData(uint32 id, uint32 value);
+
+        void ModifyWorkshopCount(TeamId team, bool add);
     protected:
         TeamId m_defender;
         int32 m_tenacityStack;
@@ -162,34 +168,37 @@ class OPvPWintergrasp : public OutdoorPvP
         TeamPairMap m_creEntryPair, m_goDisplayPair;
 
         bool m_wartime;
+        bool m_changeDefender;
         uint32 m_timer;
+        uint32 m_clock[5];
+        uint32 m_workshopCount[2];
 
         SiegeWorkshop *GetWorkshop(uint32 lowguid) const;
         SiegeWorkshop *GetWorkshopByEngGuid(uint32 lowguid) const;
         SiegeWorkshop *GetWorkshopByGOGuid(uint32 lowguid) const;
 
-        void ChangeDefender();
-
-        void UpdateTenacityStack();
-        bool UpdateCreatureInfo(Creature *creature);
-        void UpdateAllWorldObject();
-        bool UpdateGameObjectInfo(GameObject *go);
-
-        void RebuildAllBuildings();
         void StartBattle();
         void EndBattle();
-        void GiveReward();
 
-        void VehicleCastSpell(TeamId team, int32 spellId);
+        void UpdateClock();
+        void UpdateClockDigit(uint32 &timer, uint32 digit, uint32 mod);
+        void UpdateTenacityStack();
+        void UpdateAllWorldObject();
+        bool UpdateCreatureInfo(Creature *creature) const;
+        bool UpdateGameObjectInfo(GameObject *go) const;
 
-        void SendInitWorldStatesTo(Player *player = NULL);
+        void RebuildAllBuildings();
+
+        void VehicleCastSpell(TeamId team, int32 spellId) const;
+
+        void SendInitWorldStatesTo(Player *player = NULL) const;
 };
 
 class SiegeWorkshop : public OPvPCapturePoint
 {
     public:
         explicit SiegeWorkshop(OPvPWintergrasp *opvp, BuildingState *state);
-        void SetStateByBuildingState();
+        void SetTeamByBuildingState();
         void ChangeState();
         void DespawnAllVehicles();
 
@@ -200,8 +209,8 @@ class SiegeWorkshop : public OPvPCapturePoint
         Creature *m_engineer;
         uint32 m_workshopGuid;
         VehicleSet m_vehicles;
-    protected:
         BuildingState *m_buildingState;
+    protected:
         OPvPWintergrasp *m_wintergrasp;
 };
 
