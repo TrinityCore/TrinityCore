@@ -199,7 +199,8 @@ class SiegeWorkshop : public OPvPCapturePoint
     public:
         explicit SiegeWorkshop(OPvPWintergrasp *opvp, BuildingState *state);
         void SetTeamByBuildingState();
-        void ChangeState();
+        void ChangeState() {}
+        void ChangeTeam(TeamId oldteam);
         void DespawnAllVehicles();
 
         bool CanBuildVehicle() const { return m_vehicles.size() < MAX_VEHICLE_PER_WORKSHOP && m_buildingState->damageState != DAMAGE_DESTROYED; }

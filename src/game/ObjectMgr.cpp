@@ -1444,6 +1444,7 @@ uint32 ObjectMgr::AddGOData(uint32 entry, uint32 mapId, float x, float y, float 
     data.spawnMask      = 1;
     data.go_state       = GO_STATE_READY;
     data.phaseMask      = PHASEMASK_NORMAL;
+    data.artKit         = goinfo->type == GAMEOBJECT_TYPE_CAPTURE_POINT ? 21 : 0;
     data.dbData = false;
 
     AddGameobjectToGrid(guid, &data);
@@ -1581,7 +1582,7 @@ void ObjectMgr::LoadGameobjects()
         }
 
         data.animprogress   = fields[12].GetUInt32();
-        data.ArtKit         = 0;
+        data.artKit         = 0;
 
         uint32 go_state     = fields[13].GetUInt32();
         if (go_state >= MAX_GO_STATE)

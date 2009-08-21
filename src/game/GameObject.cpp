@@ -133,7 +133,7 @@ void GameObject::RemoveFromWorld()
     }
 }
 
-bool GameObject::Create(uint32 guidlow, uint32 name_id, Map *map, uint32 phaseMask, float x, float y, float z, float ang, float rotation0, float rotation1, float rotation2, float rotation3, uint32 animprogress, GOState go_state, uint32 ArtKit)
+bool GameObject::Create(uint32 guidlow, uint32 name_id, Map *map, uint32 phaseMask, float x, float y, float z, float ang, float rotation0, float rotation1, float rotation2, float rotation3, uint32 animprogress, GOState go_state, uint32 artKit)
 {
     ASSERT(map);
     SetMap(map);
@@ -183,7 +183,7 @@ bool GameObject::Create(uint32 guidlow, uint32 name_id, Map *map, uint32 phaseMa
 
     SetGoAnimProgress(animprogress);
 
-    SetByteValue(GAMEOBJECT_BYTES_1, 2, ArtKit);
+    SetByteValue(GAMEOBJECT_BYTES_1, 2, artKit);
 
     switch(goinfo->type)
     {
@@ -570,7 +570,7 @@ void GameObject::SaveToDB(uint32 mapid, uint8 spawnMask, uint32 phaseMask)
     data.animprogress = GetGoAnimProgress();
     data.go_state = GetGoState();
     data.spawnMask = spawnMask;
-    data.ArtKit = GetGoArtKit();
+    data.artKit = GetGoArtKit();
 
     // updated in DB
     std::ostringstream ss;
@@ -623,12 +623,12 @@ bool GameObject::LoadFromDB(uint32 guid, Map *map)
 
     uint32 animprogress = data->animprogress;
     GOState go_state = data->go_state;
-    uint32 ArtKit = data->ArtKit;
+    uint32 artKit = data->artKit;
 
     m_DBTableGuid = guid;
     if (map->GetInstanceId() != 0) guid = objmgr.GenerateLowGuid(HIGHGUID_GAMEOBJECT);
 
-    if (!Create(guid,entry, map, phaseMask, x, y, z, ang, rotation0, rotation1, rotation2, rotation3, animprogress, go_state, ArtKit) )
+    if (!Create(guid,entry, map, phaseMask, x, y, z, ang, rotation0, rotation1, rotation2, rotation3, animprogress, go_state, artKit) )
         return false;
 
     if(data->spawntimesecs >= 0)
@@ -915,7 +915,22 @@ void GameObject::SetGoArtKit(uint8 kit)
     SetByteValue(GAMEOBJECT_BYTES_1, 2, kit);
     GameObjectData *data = const_cast<GameObjectData*>(objmgr.GetGOData(m_DBTableGuid));
     if(data)
-        data->ArtKit = kit;
+        data->artKit = kit;
+}
+
+void GameObject::SetGoArtKit(uint8 artkit, GameObject *go, uint32 lowguid)
+{
+    const GameObjectData *data = NULL;
+    if(go)
+    {
+        go->SetGoArtKit(artkit);
+        data = go->GetGOData();
+    }
+    else if(lowguid)
+        data = objmgr.GetGOData(lowguid);
+
+    if(data)
+        const_cast<GameObjectData*>(data)->artKit = artkit;
 }
 
 void GameObject::SwitchDoorOrButton(bool activate, bool alternative /* = false */)

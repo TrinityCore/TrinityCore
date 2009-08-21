@@ -32,8 +32,8 @@
 #include "CellImpl.h"
 
 OPvPCapturePoint::OPvPCapturePoint(OutdoorPvP * pvp)
-: m_PvP(pvp), m_value(0), m_maxValue(0), m_oldValue(0),
-m_State(OBJECTIVESTATE_NEUTRAL), m_OldState(OBJECTIVESTATE_NEUTRAL), m_CapturePointGUID(0), m_neutralValuePct(0),
+: m_PvP(pvp), m_value(0), m_maxValue(0), m_team(TEAM_NEUTRAL),
+m_State(OBJECTIVESTATE_NEUTRAL), m_OldState(OBJECTIVESTATE_NEUTRAL), m_capturePointGUID(0), m_neutralValuePct(0),
 m_maxSpeed(0), m_capturePoint(NULL)
 {
 }
@@ -129,8 +129,8 @@ bool OPvPCapturePoint::SetCapturePointData(uint32 entry, uint32 map, float x, fl
         return false;
     }
 
-    m_CapturePointGUID = objmgr.AddGOData(entry, map, x, y, z, o, 0, rotation0, rotation1, rotation2, rotation3);
-    if(!m_CapturePointGUID)
+    m_capturePointGUID = objmgr.AddGOData(entry, map, x, y, z, o, 0, rotation0, rotation1, rotation2, rotation3);
+    if(!m_capturePointGUID)
         return false;
 
     // get the needed values from goinfo
@@ -198,8 +198,8 @@ bool OPvPCapturePoint::DelObject(uint32 type)
 
 bool OPvPCapturePoint::DelCapturePoint()
 {
-    objmgr.DeleteGOData(m_CapturePointGUID);
-    m_CapturePointGUID = 0;
+    objmgr.DeleteGOData(m_capturePointGUID);
+    m_capturePointGUID = 0;
 
     if(m_capturePoint)
     {
@@ -257,10 +257,7 @@ bool OutdoorPvP::Update(uint32 diff)
     for(OPvPCapturePointMap::iterator itr = m_capturePoints.begin(); itr != m_capturePoints.end(); ++itr)
     {
         if(itr->second->Update(diff))
-        {
-            itr->second->ChangeState();
             objective_changed = true;
-        }
     }
     return objective_changed;
 }
@@ -328,7 +325,8 @@ bool OPvPCapturePoint::Update(uint32 diff)
         Challenger = ALLIANCE;
     }
 
-    m_oldValue = m_value;
+    float oldValue = m_value;
+    TeamId oldTeam = m_team;
 
     m_OldState = m_State;
 
@@ -339,14 +337,16 @@ bool OPvPCapturePoint::Update(uint32 diff)
         if(m_value < -m_maxValue)
             m_value = -m_maxValue;
         m_State = OBJECTIVESTATE_HORDE;
+        m_team = TEAM_HORDE;
     }
     else if(m_value > m_minValue) // blue
     {
         if(m_value > m_maxValue)
             m_value = m_maxValue;
         m_State = OBJECTIVESTATE_ALLIANCE;
+        m_team = TEAM_ALLIANCE;
     }
-    else if(m_oldValue * m_value <= 0) // grey, go through mid point
+    else if(oldValue * m_value <= 0) // grey, go through mid point
     {
         // if challenger is ally, then n->a challenge
         if(Challenger == ALLIANCE)
@@ -354,6 +354,7 @@ bool OPvPCapturePoint::Update(uint32 diff)
         // if challenger is horde, then n->h challenge
         else if(Challenger == HORDE)
             m_State = OBJECTIVESTATE_NEUTRAL_HORDE_CHALLENGE;
+        m_team = TEAM_NEUTRAL;
     }
     else // grey, did not go through mid point
     {
@@ -362,15 +363,22 @@ bool OPvPCapturePoint::Update(uint32 diff)
             m_State = OBJECTIVESTATE_HORDE_ALLIANCE_CHALLENGE;
         else if(Challenger == HORDE && (m_OldState == OBJECTIVESTATE_ALLIANCE || m_OldState == OBJECTIVESTATE_NEUTRAL_ALLIANCE_CHALLENGE))
             m_State = OBJECTIVESTATE_ALLIANCE_HORDE_CHALLENGE;
+        m_team = TEAM_NEUTRAL;
     }
 
-    if(m_value != m_oldValue)
+    if(m_value != oldValue)
         SendChangePhase();
 
-    //if(m_OldState != m_State)
-    //    sLog.outError("%u->%u", m_OldState, m_State);
+    if(m_OldState != m_State)
+    {
+        //sLog.outError("%u->%u", m_OldState, m_State);
+        if(oldTeam != m_team)
+            ChangeTeam(oldTeam);
+        ChangeState();
+        return true;
+    }
 
-    return m_OldState != m_State;
+    return false;
 }
 
 void OutdoorPvP::SendUpdateWorldState(uint32 field, uint32 value)
