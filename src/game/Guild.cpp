@@ -1680,15 +1680,13 @@ void Guild::AppendDisplayGuildBankSlot( WorldPacket& data, GuildBankTab const *t
     data << uint32(entry);
     if (entry)
     {
-        // random item property id +8
-        data << (uint32) pItem->GetItemRandomPropertyId();
+        data << (uint32) pItem->GetItemRandomPropertyId();  // random item property id +8
         if (pItem->GetItemRandomPropertyId())
-            // SuffixFactor +4
-            data << (uint32) pItem->GetItemSuffixFactor();
-        // +12 // ITEM_FIELD_STACK_COUNT
-        data << uint32(pItem->GetCount());
+            data << (uint32) pItem->GetItemSuffixFactor();  // SuffixFactor +4
+        
+        data << uint32(pItem->GetCount());                  // +12 // ITEM_FIELD_STACK_COUNT
         data << uint32(0);                                  // +16 // Unknown value
-        data << uint8(0);                                   // unknown 2.4.2
+        data << uint8(abs(pItem->GetSpellCharges()));       // spell charges
         if (uint32 Enchant0 = pItem->GetEnchantmentId(PERM_ENCHANTMENT_SLOT))
         {
             data << uint8(1);                               // number of enchantments (max 3) why max 3?
