@@ -600,7 +600,6 @@ void Spell::SpellDamageSchoolDmg(uint32 effect_idx)
                         {
                             damage += urand(uint32(item->GetProto()->Damage->DamageMin), uint32(item->GetProto()->Damage->DamageMax));
                             damage += ((Player*)m_caster)->GetAmmoDPS()*item->GetProto()->Delay/1000;
-                            damage += ((Player*)m_caster)->GetTotalAttackPowerValue(RANGED_ATTACK)*0.1f;
                         }
                     }
 
