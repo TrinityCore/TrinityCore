@@ -104,16 +104,11 @@ struct TRINITY_DLL_DECL mob_anti_airAI : public ScriptedAI
 {
     mob_anti_airAI(Creature *c) : ScriptedAI(c)
     {
-        if(!me->m_spells[0])
-            spell = NULL;
-        else
-            spell = me->m_spells[0];
-            
+        assert(me->m_spells[0]);
         range = DoGetSpellMaxRange(me->m_spells[0]);
     }
 
     float range;
-    uint32 spell;
 
     void MoveInLineOfSight(Unit *who)
     {
@@ -141,7 +136,7 @@ struct TRINITY_DLL_DECL mob_anti_airAI : public ScriptedAI
 
         if(me->getVictim()->IsFlying() || !me->IsWithinMeleeRange(me->getVictim()))
         {
-            if(!DoSpellAttackIfReady(spell))
+            if(!DoSpellAttackIfReady(me->m_spells[0]))
                 EnterEvadeMode();
         }
         else
