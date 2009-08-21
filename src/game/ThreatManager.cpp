@@ -214,8 +214,6 @@ void ThreatContainer::clearReferences()
 HostilReference* ThreatContainer::getReferenceByTarget(Unit* pVictim)
 {
     HostilReference* result = NULL;
-    if(!pVictim)
-        return NULL;
         
     uint64 guid = pVictim->GetGUID();
     for(std::list<HostilReference*>::const_iterator i = iThreatList.begin(); i != iThreatList.end(); ++i)
