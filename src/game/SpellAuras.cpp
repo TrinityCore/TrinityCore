@@ -5454,7 +5454,9 @@ void AuraEffect::HandleAuraAllowFlight(bool apply, bool Real, bool /*changeAmoun
 
     if(m_target->GetTypeId() == TYPEID_UNIT)
         m_target->SetFlying(apply);
-
+    
+    if(Player *plr = m_target->GetMoverSource())
+    {
     // allow fly
     WorldPacket data;
     if(apply)
@@ -5463,7 +5465,10 @@ void AuraEffect::HandleAuraAllowFlight(bool apply, bool Real, bool /*changeAmoun
         data.Initialize(SMSG_MOVE_UNSET_CAN_FLY, 12);
     data.append(m_target->GetPackGUID());
     data << uint32(0);                                      // unk
-    m_target->SendMessageToSet(&data, true);
+        plr->SendDirectMessage(&data);
+    }
+
+    //m_target->SendMessageToSet(&data, true);
 }
 
 void AuraEffect::HandleModRating(bool apply, bool Real, bool changeAmount)
