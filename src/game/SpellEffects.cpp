@@ -594,7 +594,7 @@ void Spell::SpellDamageSchoolDmg(uint32 effect_idx)
                         
                     if (m_caster->GetTypeId() == TYPEID_PLAYER)
                     {
-                        // Add Ammo and Weapon damage
+                        // Add Ammo and Weapon damage plus RAP * 0.1
                         Item *item = ((Player*)m_caster)->GetWeaponForAttack(RANGED_ATTACK);
                         if(item)
                         {
