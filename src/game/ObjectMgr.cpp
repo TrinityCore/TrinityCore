@@ -3765,8 +3765,6 @@ void ObjectMgr::LoadQuests()
                         qinfo->GetQuestId(),j+1,id,id);
                     // no changes, quest can't be done for this requirement
                 }
-                else if(!qinfo->ReqSourceCount[j])
-                    qinfo->ReqSourceCount[j] = 1;
             }
             else
             {
