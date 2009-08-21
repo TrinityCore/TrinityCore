@@ -736,7 +736,12 @@ void OPvPWintergrasp::EndBattle()
 
     for(uint32 team = 0; team < 2; ++team)
     {
-        VehicleCastSpell(TeamId(team), SPELL_SHUTDOWN_VEHICLE);
+        while(!m_vehicles[team].empty())
+        {
+            Vehicle *veh = *m_vehicles[team].begin();
+            m_vehicles[team].erase(m_vehicles[team].begin());
+            veh->CastSpell(veh, SPELL_SHUTDOWN_VEHICLE, true);
+        }
 
         for(PlayerSet::iterator itr = m_players[team].begin(); itr != m_players[team].end(); ++itr)
         {
