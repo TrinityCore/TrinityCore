@@ -88,7 +88,7 @@ void OPvPCapturePointEP_EWT::ChangeState()
             break;
         }
 
-        GameObject* flag = HashMapHolder<GameObject>::Find(m_CapturePointGUID);
+        GameObject* flag = HashMapHolder<GameObject>::Find(m_capturePointGUID);
         GameObject* flag2 = HashMapHolder<GameObject>::Find(m_Objects[EP_EWT_FLAGS]);
         if(flag)
         {
@@ -244,7 +244,7 @@ void OPvPCapturePointEP_NPT::ChangeState()
             break;
         }
 
-        GameObject* flag = HashMapHolder<GameObject>::Find(m_CapturePointGUID);
+        GameObject* flag = HashMapHolder<GameObject>::Find(m_capturePointGUID);
         GameObject* flag2 = HashMapHolder<GameObject>::Find(m_Objects[EP_NPT_FLAGS]);
         if(flag)
         {
@@ -391,7 +391,7 @@ void OPvPCapturePointEP_CGT::ChangeState()
             break;
         }
 
-        GameObject* flag = HashMapHolder<GameObject>::Find(m_CapturePointGUID);
+        GameObject* flag = HashMapHolder<GameObject>::Find(m_capturePointGUID);
         GameObject* flag2 = HashMapHolder<GameObject>::Find(m_Objects[EP_CGT_FLAGS]);
         if(flag)
         {
@@ -537,7 +537,7 @@ void OPvPCapturePointEP_PWT::ChangeState()
             break;
         }
 
-        GameObject* flag = HashMapHolder<GameObject>::Find(m_CapturePointGUID);
+        GameObject* flag = HashMapHolder<GameObject>::Find(m_capturePointGUID);
         GameObject* flag2 = HashMapHolder<GameObject>::Find(m_Objects[EP_PWT_FLAGS]);
         if(flag)
         {

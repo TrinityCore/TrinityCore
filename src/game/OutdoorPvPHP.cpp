@@ -244,7 +244,7 @@ void OPvPCapturePointHP::ChangeState()
         break;
     }
 
-    GameObject* flag = HashMapHolder<GameObject>::Find(m_CapturePointGUID);
+    GameObject* flag = HashMapHolder<GameObject>::Find(m_capturePointGUID);
     GameObject* flag2 = HashMapHolder<GameObject>::Find(m_Objects[m_TowerType]);
     if(flag)
     {
