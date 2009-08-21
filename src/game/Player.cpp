@@ -13133,6 +13133,17 @@ void Player::RewardQuest( Quest const *pQuest, uint32 reward, Object* questGiver
             DestroyItemCount( pQuest->ReqItemId[i], pQuest->ReqItemCount[i], true);
     }
 
+    //TakeQuestSourceItem() ?
+
+    for(uint8 i = 0; i < QUEST_SOURCE_ITEM_IDS_COUNT; ++i)
+    {
+        if (pQuest->ReqSourceId[i])
+        {
+            uint32 count = pQuest->ReqSourceCount[i];
+            DestroyItemCount(pQuest->ReqSourceId[i], count ? count : 9999, true);
+        }
+    }
+
     //if( qInfo->HasSpecialFlag( QUEST_FLAGS_TIMED ) )
     //    SetTimedQuest( 0 );
     m_timedquests.erase(pQuest->GetQuestId());
