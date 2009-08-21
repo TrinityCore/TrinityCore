@@ -127,6 +127,12 @@ bool GossipHello_npc_taxi(Player* pPlayer, Creature* pCreature)
         if (pPlayer->GetQuestStatus(11142) == QUEST_STATUS_INCOMPLETE)
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT,"<Ride the gryphons to Survey Alcaz Island>",GOSSIP_SENDER_MAIN,GOSSIP_ACTION_INFO_DEF+25);
         break;
+    case 26602:
+        if (pCreature->isTaxi())
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TAXI, "Do you think I could take a ride on one of those flying machines?", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 26);
+        if (pPlayer->GetQuestStatus(11692) == QUEST_STATUS_COMPLETE)
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Kara, I need to be flown out the Dens of Dying to find Bixie.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 27);
+        break;
     }
 
     pPlayer->SEND_GOSSIP_MENU(pCreature->GetNpcTextId(), pCreature->GetGUID());
@@ -245,6 +251,13 @@ bool GossipSelect_npc_taxi(Player* pPlayer, Creature* pCreature, uint32 uiSender
     case GOSSIP_ACTION_INFO_DEF + 25:
         pPlayer->CLOSE_GOSSIP_MENU();
         pPlayer->CastSpell(pPlayer,42295,true);
+        break;
+    case GOSSIP_ACTION_INFO_DEF + 26:
+        pPlayer->GetSession()->SendTaxiMenu(pCreature);
+        break;
+    case GOSSIP_ACTION_INFO_DEF + 27:
+        pPlayer->CLOSE_GOSSIP_MENU();
+        pPlayer->CastSpell(pPlayer, 51446, false);
         break;
     }
 
