@@ -412,7 +412,7 @@ void BattleGroundQueue::AnnounceWorld(GroupQueueInfo *ginfo, const uint64& playe
             uint32 qHorde = 0;
             uint32 qAlliance = 0;
             uint32 q_min_level = (queue_id + 1) * 10;
-            uint32 q_max_level = std::max(q_min_level + 10, sWorld.getConfig(CONFIG_MAX_PLAYER_LEVEL));
+            uint32 q_max_level = std::max(q_min_level + 9, sWorld.getConfig(CONFIG_MAX_PLAYER_LEVEL));
             GroupsQueueType::const_iterator itr;
             for(itr = m_QueuedGroups[queue_id][BG_QUEUE_NORMAL_ALLIANCE].begin(); itr != m_QueuedGroups[queue_id][BG_QUEUE_NORMAL_ALLIANCE].end(); ++itr)
                 if (!(*itr)->IsInvitedToBGInstanceGUID)
