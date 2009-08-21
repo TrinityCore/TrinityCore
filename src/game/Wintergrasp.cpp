@@ -806,6 +806,9 @@ void OPvPWintergrasp::EndBattle()
             REMOVE_RANK_AURAS(*itr);
         }
     }
+
+    // remove auras from players who are not online
+    CharacterDatabase.PExecute("DELETE FROM character_aura WHERE spell IN (%u,%u,%u)", SPELL_RECRUIT, SPELL_CORPORAL, SPELL_LIEUTENANT);
 }
 
 void OPvPWintergrasp::SetData(uint32 id, uint32 value)
