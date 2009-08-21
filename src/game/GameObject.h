@@ -551,7 +551,7 @@ struct GameObjectData
     uint32 animprogress;
     GOState go_state;
     uint8 spawnMask;
-    uint8 ArtKit;
+    uint8 artKit;
     bool dbData;
 };
 
@@ -582,7 +582,7 @@ class TRINITY_DLL_SPEC GameObject : public WorldObject
         void RemoveFromWorld();
         void CleanupsBeforeDelete();
 
-        bool Create(uint32 guidlow, uint32 name_id, Map *map, uint32 phaseMask, float x, float y, float z, float ang, float rotation0, float rotation1, float rotation2, float rotation3, uint32 animprogress, GOState go_state, uint32 ArtKit = 0);
+        bool Create(uint32 guidlow, uint32 name_id, Map *map, uint32 phaseMask, float x, float y, float z, float ang, float rotation0, float rotation1, float rotation2, float rotation3, uint32 animprogress, GOState go_state, uint32 artKit = 0);
         void Update(uint32 p_time);
         static GameObject* GetGameObject(WorldObject& object, uint64 guid);
         GameObjectInfo const* GetGOInfo() const { return m_goInfo; }
@@ -666,6 +666,7 @@ class TRINITY_DLL_SPEC GameObject : public WorldObject
         void SetGoArtKit(uint8 artkit);
         uint8 GetGoAnimProgress() const { return GetByteValue(GAMEOBJECT_BYTES_1, 3); }
         void SetGoAnimProgress(uint8 animprogress) { SetByteValue(GAMEOBJECT_BYTES_1, 3, animprogress); }
+        static void SetGoArtKit(uint8 artkit, GameObject *go, uint32 lowguid = 0);
 
         void Use(Unit* user);
 

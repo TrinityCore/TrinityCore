@@ -36,6 +36,8 @@ enum OutdoorPvPTypes
     OPVP_WINTERGRASP,
 };
 
+const uint8 CapturePointArtKit[3] = {2, 1, 21};
+
 enum ObjectiveStates
 {
     OBJECTIVESTATE_NEUTRAL = 0,
@@ -109,6 +111,7 @@ public:
     // returns true if the state of the objective has changed, in this case, the OutdoorPvP must send a world state ui update.
     virtual bool Update(uint32 diff);
     virtual void ChangeState() = 0;
+    virtual void ChangeTeam(TeamId oldTeam) {}
     virtual void SendChangePhase();
 
     virtual bool HandleGossipOption(Player *plr, uint64 guid, uint32 gossipid);
@@ -119,7 +122,7 @@ public:
 
     virtual void DeleteSpawns();
 
-    uint32 m_CapturePointGUID;
+    uint32 m_capturePointGUID;
     GameObject *m_capturePoint;
 
     void AddGO(uint32 type, uint32 guid, uint32 entry = 0);
@@ -145,8 +148,7 @@ protected:
     float m_maxSpeed;
     // the status of the objective
     float m_value;
-    // phase before update, used to check which faction is in conquer / control
-    float m_oldValue;
+    TeamId m_team;
     // objective states
     ObjectiveStates m_OldState;
     ObjectiveStates m_State;
@@ -236,7 +238,7 @@ protected:
 
     void AddCapturePoint(OPvPCapturePoint* cp)
     {
-        m_capturePoints[cp->m_CapturePointGUID] = cp;
+        m_capturePoints[cp->m_capturePointGUID] = cp;
     }
 
     OPvPCapturePoint * GetCapturePoint(uint32 lowguid) const
