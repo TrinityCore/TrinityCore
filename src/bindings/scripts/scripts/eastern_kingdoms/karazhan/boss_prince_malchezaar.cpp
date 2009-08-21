@@ -498,11 +498,8 @@ struct TRINITY_DLL_DECL boss_malchezaarAI : public ScriptedAI
                         if (axe)
                         {
                             float threat = 1000000.0f;
-                            if (axe->getVictim() && DoGetThreat(axe->getVictim()))
-                            {
-                                threat = axe->getThreatManager().getThreat(axe->getVictim());
-                                axe->getThreatManager().modifyThreatPercent(axe->getVictim(), -100);
-                            }
+                            if (axe->getVictim())
+                                DoModifyThreatPercent(axe->getVictim(), -100);
                             if (target)
                                 axe->AddThreat(target, threat);
                             //axe->getThreatManager().tauntFadeOut(axe->getVictim());

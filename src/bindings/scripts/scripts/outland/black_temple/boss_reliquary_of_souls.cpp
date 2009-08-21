@@ -195,8 +195,7 @@ struct TRINITY_DLL_DECL boss_reliquary_of_soulsAI : public ScriptedAI
             Unit* pUnit = Unit::GetUnit((*m_creature), (*itr)->getUnitGuid());
             if (pUnit)
             {
-                m_creature->AddThreat(pUnit, 1.0f);         // This is so that we make sure the unit is in Reliquary's threat list before we reset the unit's threat.
-                m_creature->getThreatManager().modifyThreatPercent(pUnit, -100);
+                DoModifyThreatPercent(pUnit, -100);
                 float threat = target->getThreatManager().getThreat(pUnit);
                 m_creature->AddThreat(pUnit, threat);       // This makes it so that the unit has the same amount of threat in Reliquary's threatlist as in the target creature's (One of the Essences).
             }
