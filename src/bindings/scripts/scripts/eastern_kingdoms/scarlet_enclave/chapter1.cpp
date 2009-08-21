@@ -604,20 +604,13 @@ struct TRINITY_DLL_DECL npc_salanar_the_horsemanAI : public ScriptedAI
             {
                 if (charmer->GetTypeId() == TYPEID_PLAYER)
                 {
-                    switch(me->GetEntry())
-                    {
-                        // for quest Into the Realm of Shadows(12687)
-                        case 28788:
-                            if (CAST_PLR(charmer)->GetQuestStatus(12687) == QUEST_STATUS_INCOMPLETE)
-                            {
-                                if (CAST_PLR(charmer)->HasAura(REALM_OF_SHADOWS))
-                                    charmer->RemoveAurasDueToSpell(REALM_OF_SHADOWS);
-                                CAST_PLR(charmer)->GroupEventHappens(12687, me);
-                            }
-                            break;
-                        default:
-                            return;
-                    }
+                    // for quest Into the Realm of Shadows(12687)
+                    if(me->GetEntry() == 28788 && CAST_PLR(charmer)->GetQuestStatus(12687) == QUEST_STATUS_INCOMPLETE)
+                        CAST_PLR(charmer)->GroupEventHappens(12687, me);
+
+                    if (CAST_PLR(charmer)->HasAura(REALM_OF_SHADOWS))
+                        charmer->RemoveAurasDueToSpell(REALM_OF_SHADOWS);
+
                     CAST_PLR(charmer)->ExitVehicle();
                     CAST_CRE(who)->Respawn(true);
                 }
