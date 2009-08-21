@@ -79,6 +79,7 @@ bool OPvPWintergrasp::SetupOutdoorPvP()
 
     m_workshopCount[TEAM_ALLIANCE] = 0;
     m_workshopCount[TEAM_HORDE] = 0;
+    m_towerCount = 3;
 
     // Load buildings
     AreaPOIList areaPOIs;
@@ -259,22 +260,37 @@ void OPvPWintergrasp::ProcessEvent(GameObject *obj, uint32 eventId)
         BuildingStateMap::const_iterator itr = m_buildingStates.find(obj->GetDBTableGUIDLow());
         if(itr != m_buildingStates.end())
         {
-            if(obj->HasFlag(GAMEOBJECT_FLAGS, GO_FLAG_DAMAGED))
-                itr->second->damageState = DAMAGE_DAMAGED;
-            else if(obj->HasFlag(GAMEOBJECT_FLAGS, GO_FLAG_DESTROYED)
-                && itr->second->damageState != DAMAGE_DESTROYED)
+            BuildingState *state = itr->second;
+            if(eventId == obj->GetGOInfo()->building.damagedEvent)
             {
-                itr->second->damageState = DAMAGE_DESTROYED;
+                state->damageState = DAMAGE_DAMAGED;
 
-                if(itr->second->type == BUILDING_WORKSHOP)
+                if(state->type == BUILDING_TOWER)
+                    LieutenantCastSpell(m_defender, SPELL_DAMAGED_TOWER);
+            }
+            else if(eventId == obj->GetGOInfo()->building.destroyedEvent)
+            {
+                state->damageState = DAMAGE_DESTROYED;
+
+                if(state->type == BUILDING_WORKSHOP)
                 {
                     //if(SiegeWorkshop *workshop = GetWorkshop(obj->GetDBTableGUIDLow()))
                     //    workshop->DespawnAllVehicles();
-                    ModifyWorkshopCount(itr->second->team, false);
+                    ModifyWorkshopCount(state->team, false);
+                }
+                else if(state->type == BUILDING_TOWER)
+                {
+                    if(!m_towerCount)
+                        sLog.outError("OPvPWintergrasp::ProcessEvent: negative tower count!");
+                    else
+                    {
+                        --m_towerCount;
+                        LieutenantCastSpell(m_defender, SPELL_DESTROYED_TOWER);
+                    }
                 }
             }
 
-            BroadcastStateChange(itr->second);
+            BroadcastStateChange(state);
         }
     }
 }
@@ -457,6 +473,8 @@ void OPvPWintergrasp::RebuildAllBuildings()
         itr->second->damageState = DAMAGE_INTACT;
         itr->second->team = m_defender == TEAM_ALLIANCE ? OTHER_TEAM(itr->second->defaultTeam) : itr->second->defaultTeam;
     }
+
+    m_towerCount = 3;
 }
 
 void OPvPWintergrasp::SendInitWorldStatesTo(Player *player) const
@@ -650,6 +668,13 @@ void OPvPWintergrasp::VehicleCastSpell(TeamId team, int32 spellId) const
             (*itr)->RemoveAura((uint32)-spellId); // by stack?
 }
 
+void OPvPWintergrasp::LieutenantCastSpell(TeamId team, int32 spellId) const
+{
+    for(PlayerSet::const_iterator itr = m_players[team].begin(); itr != m_players[team].end(); ++itr)
+        if((*itr)->HasAura(SPELL_LIEUTENANT))
+            (*itr)->CastSpell(*itr, (uint32)spellId, true);
+}
+
 void OPvPWintergrasp::UpdateClockDigit(uint32 &timer, uint32 digit, uint32 mod)
 {
     uint32 value = timer%mod;
@@ -743,9 +768,10 @@ void OPvPWintergrasp::EndBattle()
 {
     m_wartime = false;
     m_timer = sWorld.getConfig(CONFIG_OUTDOORPVP_WINTERGRASP_INTERVAL) * MINUTE * IN_MILISECONDS;
-
+   
     for(uint32 team = 0; team < 2; ++team)
     {
+        // destroyed all vehicles
         while(!m_vehicles[team].empty())
         {
             Vehicle *veh = *m_vehicles[team].begin();
@@ -753,10 +779,30 @@ void OPvPWintergrasp::EndBattle()
             veh->CastSpell(veh, SPELL_SHUTDOWN_VEHICLE, true);
         }
 
+        // calculate rewards
+        uint32 intactNum = 0;
+        uint32 damagedNum = 0;
+        for(OutdoorPvP::OPvPCapturePointMap::const_iterator itr = m_capturePoints.begin(); itr != m_capturePoints.end(); ++itr)
+        {
+            if(SiegeWorkshop *workshop = dynamic_cast<SiegeWorkshop*>(itr->second))
+                if(workshop->m_buildingState->team == team)
+                    if(workshop->m_buildingState->damageState == DAMAGE_DAMAGED)
+                        ++damagedNum;
+                    else if(workshop->m_buildingState->damageState == DAMAGE_INTACT)
+                        ++intactNum;
+        }
+
+        // give rewards
         for(PlayerSet::iterator itr = m_players[team].begin(); itr != m_players[team].end(); ++itr)
         {
             if((*itr)->HasAura(SPELL_LIEUTENANT))
+            {
                 (*itr)->CastSpell(*itr, team == m_defender ? SPELL_VICTORY_REWARD : SPELL_DEFEAT_REWARD, true);
+                for(uint32 i = 0; i < intactNum; ++i)
+                    (*itr)->CastSpell(*itr, SPELL_INTACT_BUILDING, true);
+                for(uint32 i = 0; i < damagedNum; ++i)
+                    (*itr)->CastSpell(*itr, SPELL_DAMAGED_BUILDING, true);
+            }
             REMOVE_RANK_AURAS(*itr);
         }
     }
