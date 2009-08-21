@@ -404,6 +404,7 @@ SET(trinityscript_LIB_SRCS
    scripts/northrend/borean_tundra.cpp
    scripts/northrend/dragonblight.cpp
    scripts/northrend/grizzly_hills.cpp
+   scripts/northrend/howling_fjord.cpp
    scripts/northrend/icecrown.cpp
    scripts/northrend/sholazar_basin.cpp
    scripts/northrend/storm_peaks.cpp

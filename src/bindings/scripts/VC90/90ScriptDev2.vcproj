@@ -2154,6 +2154,10 @@
 					RelativePath="..\scripts\northrend\grizzly_hills.cpp"
 					>
 				</File>
+                <File
+                    RelativePath="..\scripts\northrend\howling_fjord.cpp"
+                    >
+                </File>
 				<File
 					RelativePath="..\scripts\northrend\icecrown.cpp"
 					>

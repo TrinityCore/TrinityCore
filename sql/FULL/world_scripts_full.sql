@@ -568,6 +568,9 @@ UPDATE `creature_template` SET `ScriptName`='npc_trollbane' WHERE `entry`=16819;
 UPDATE `creature_template` SET `ScriptName`='npc_00x09hl' WHERE `entry`=7806;
 UPDATE `creature_template` SET `ScriptName`='npc_rinji' WHERE `entry`=7780;
 
+/* Howling Fjord */
+UPDATE `creature_template` SET `ScriptName` = 'npc_plaguehound_tracker' WHERE `entry` = 24156;
+
 /* ICECROWN */
 UPDATE creature_template SET ScriptName='npc_arete' WHERE entry=29344;
 
