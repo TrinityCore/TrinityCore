@@ -8860,6 +8860,16 @@ Unit* Unit::GetNextRandomRaidMemberOrPet(float radius)
     return nearMembers[randTarget];
 }
 
+Player * Unit::GetMoverSource() const
+{
+    if(GetTypeId() == TYPEID_PLAYER && ((Player*)this)->m_mover == this)
+        return (Player*)this;
+    if(Unit *charmer = GetCharmer())
+        if(charmer->GetTypeId() == TYPEID_PLAYER && ((Player*)charmer)->m_mover == this)
+            return (Player*)charmer;
+    return NULL;
+}
+
 //only called in Player::SetSeer
 void Unit::AddPlayerToVision(Player* plr)
 {
@@ -14725,12 +14735,12 @@ void Unit::SetFlying(bool apply)
     if(apply)
     {
         SetByteFlag(UNIT_FIELD_BYTES_1, 3, 0x02);
-        AddUnitMovementFlag(MOVEMENTFLAG_FLYING);
+        AddUnitMovementFlag(MOVEMENTFLAG_FLY_MODE + MOVEMENTFLAG_FLYING);
     }
     else
     {
         RemoveByteFlag(UNIT_FIELD_BYTES_1, 3, 0x02);
-        RemoveUnitMovementFlag(MOVEMENTFLAG_FLYING);
+        RemoveUnitMovementFlag(MOVEMENTFLAG_FLY_MODE + MOVEMENTFLAG_FLYING);
     }
 }
 
