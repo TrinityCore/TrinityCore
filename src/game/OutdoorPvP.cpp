@@ -33,7 +33,7 @@
 
 OPvPCapturePoint::OPvPCapturePoint(OutdoorPvP * pvp)
 : m_PvP(pvp), m_value(0), m_maxValue(0), m_oldValue(0),
-m_State(0), m_OldState(0), m_CapturePointGUID(0), m_neutralValuePct(0),
+m_State(OBJECTIVESTATE_NEUTRAL), m_OldState(OBJECTIVESTATE_NEUTRAL), m_CapturePointGUID(0), m_neutralValuePct(0),
 m_maxSpeed(0), m_capturePoint(NULL)
 {
 }
@@ -225,7 +225,7 @@ void OutdoorPvP::DeleteSpawns()
         itr->second->DeleteSpawns();
 }
 
-OutdoorPvP::OutdoorPvP()
+OutdoorPvP::OutdoorPvP() : m_sendUpdate(true)
 {
 }
 
@@ -375,13 +375,10 @@ bool OPvPCapturePoint::Update(uint32 diff)
 
 void OutdoorPvP::SendUpdateWorldState(uint32 field, uint32 value)
 {
-    // send to both factions
-    for(int i = 0; i < 2; ++i)
-    {
-        // send to all players present in the area
-        for(PlayerSet::iterator itr = m_players[i].begin(); itr != m_players[i].end(); ++itr)
-            (*itr)->SendUpdateWorldState(field,value);
-    }
+    if(m_sendUpdate)
+        for(int i = 0; i < 2; ++i)
+            for(PlayerSet::iterator itr = m_players[i].begin(); itr != m_players[i].end(); ++itr)
+                (*itr)->SendUpdateWorldState(field, value);
 }
 
 void OPvPCapturePoint::SendUpdateWorldState(uint32 field, uint32 value)
@@ -545,11 +542,11 @@ bool OutdoorPvP::HandleAreaTrigger(Player *plr, uint32 trigger)
     return false;
 }
 
-void OutdoorPvP::BroadcastPacket(WorldPacket &data)
+void OutdoorPvP::BroadcastPacket(WorldPacket &data) const
 {
     // This is faster than sWorld.SendZoneMessage
     for(uint32 team = 0; team < 2; ++team)
-        for(PlayerSet::iterator itr = m_players[team].begin(); itr != m_players[team].end(); ++itr)
+        for(PlayerSet::const_iterator itr = m_players[team].begin(); itr != m_players[team].end(); ++itr)
             (*itr)->GetSession()->SendPacket(&data);
 }
 
