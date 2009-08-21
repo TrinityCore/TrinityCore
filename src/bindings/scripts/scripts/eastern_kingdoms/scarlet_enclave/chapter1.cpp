@@ -598,7 +598,7 @@ struct TRINITY_DLL_DECL npc_salanar_the_horsemanAI : public ScriptedAI
     {
         ScriptedAI::MoveInLineOfSight(who);
 
-        if (who->GetTypeId() == TYPEID_UNIT && CAST_CRE(who)->isVehicle() && me->IsWithinDistInMap(who, 10.0f))
+        if (who->GetTypeId() == TYPEID_UNIT && CAST_CRE(who)->isVehicle() && me->IsWithinDistInMap(who, 5.0f))
         {
             if (Unit *charmer = who->GetCharmer())
             {
