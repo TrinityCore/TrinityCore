@@ -1490,7 +1490,7 @@ void GameObject::TakenDamage(uint32 damage)
 
             SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_DAMAGED);
             SetUInt32Value(GAMEOBJECT_DISPLAYID, m_goInfo->building.damagedDisplayId);
-            EventInform(m_goInfo->building.intactEvent);
+            EventInform(m_goInfo->building.destroyedEvent);
         }
     }
 }
@@ -1500,6 +1500,7 @@ void GameObject::Rebuild()
     RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_DAMAGED + GO_FLAG_DESTROYED);
     SetUInt32Value(GAMEOBJECT_DISPLAYID, m_goInfo->displayId);
     m_goValue->building.health = m_goInfo->building.intactNumHits + m_goInfo->building.damagedNumHits;
+    EventInform(m_goInfo->building.rebuildingEvent);
 }
 
 void GameObject::EventInform(uint32 eventId)
