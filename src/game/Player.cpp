@@ -21559,8 +21559,9 @@ void Player::BuildEnchantmentsInfoData(WorldPacket *data)
 
         data->put<uint16>(enchantmentMaskPos, enchantmentMask);
 
-        *data << uint16(0);                                 // ?
-        *data << uint8(0);                                  // PGUID!
+
+        *data << uint16(0);                                 // unknown
+        data->appendPackGUID(item->GetUInt64Value(ITEM_FIELD_CREATOR)); // item creator
         *data << uint32(0);                                 // seed?
     }
 
