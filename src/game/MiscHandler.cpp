@@ -1176,7 +1176,7 @@ void WorldSession::HandleInspectOpcode(WorldPacket& recv_data)
 
     uint32 talent_points = 0x47;
     uint32 guid_size = plr->GetPackGUID().wpos(); 
-    WorldPacket data(SMSG_INSPECT_TALENT, guid_size+4+talent_points+19*2); 
+    WorldPacket data(SMSG_INSPECT_TALENT, guid_size+4+talent_points); 
     data.append(plr->GetPackGUID());
 
     if(sWorld.getConfig(CONFIG_TALENTS_INSPECTING) || _player->isGameMaster())
