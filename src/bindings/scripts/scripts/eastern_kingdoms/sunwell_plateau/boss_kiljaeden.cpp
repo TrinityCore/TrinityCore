@@ -268,14 +268,16 @@ public:
 
 bool GOHello_go_orb_of_the_blue_flight(Player* pPlayer, GameObject* pGo)
 {
-    if (pGo->GetUInt32Value(GAMEOBJECT_FACTION) == 35){
+    if (pGo->GetUInt32Value(GAMEOBJECT_FACTION) == 35)
+    {
         ScriptedInstance* pInstance = pGo->GetInstanceData();
         float x,y,z;
         //float dx,dy,dz;
         pGo->SummonCreature(CREATURE_POWER_OF_THE_BLUE_DRAGONFLIGHT, pPlayer->GetPositionX(), pPlayer->GetPositionY(), pPlayer->GetPositionZ(), 0.0f, TEMPSUMMON_TIMED_DESPAWN, 121000);
         pPlayer->CastSpell(pPlayer, SPELL_VENGEANCE_OF_THE_BLUE_FLIGHT, true);
         pGo->SetUInt32Value(GAMEOBJECT_FACTION, 0);
-        Creature* Kalec = Unit::GetCreature(*pPlayer, pInstance->GetData64(DATA_KALECGOS_KJ));
+        if(pInstance)
+            Creature* Kalec = Unit::GetCreature(*pPlayer, pInstance->GetData64(DATA_KALECGOS_KJ));
         //Kalec->RemoveDynObject(SPELL_RING_OF_BLUE_FLAMES);
         pGo->GetPosition(x,y,z);
         // this won't work. need rewritten
@@ -301,7 +303,8 @@ bool GOHello_go_orb_of_the_blue_flight(Player* pPlayer, GameObject* pGo)
 //AI for Kalecgos
 struct TRINITY_DLL_DECL boss_kalecgos_kjAI : public ScriptedAI
 {
-    boss_kalecgos_kjAI(Creature* c) : ScriptedAI(c){
+    boss_kalecgos_kjAI(Creature* c) : ScriptedAI(c)
+    {
         pInstance = c->GetInstanceData();
     }
 
@@ -345,7 +348,7 @@ struct TRINITY_DLL_DECL boss_kalecgos_kjAI : public ScriptedAI
             return;
         uint8 i = 0;
         for(std::list<GameObject*>::iterator itr = orbList.begin(); itr != orbList.end(); ++itr, ++i){
-            Orb[i] = pInstance->instance->GetGameObject(pInstance->GetData64((*itr)->GetGUID()));
+            Orb[i] = pInstance ? pInstance->instance->GetGameObject(pInstance->GetData64((*itr)->GetGUID())) : NULL;
         }
     }
 
@@ -386,10 +389,13 @@ struct TRINITY_DLL_DECL boss_kalecgos_kjAI : public ScriptedAI
                      }
                  }
             }*/
-        Orb[random]->CastSpell(m_creature, SPELL_RING_OF_BLUE_FLAMES);
-        Orb[random]->SetUInt32Value(GAMEOBJECT_FACTION, 35);
-        Orb[random]->setActive(true);
-        Orb[random]->Refresh();
+        if(Orb[random])
+        {
+            Orb[random]->CastSpell(m_creature, SPELL_RING_OF_BLUE_FLAMES);
+            Orb[random]->SetUInt32Value(GAMEOBJECT_FACTION, 35);
+            Orb[random]->setActive(true);
+            Orb[random]->Refresh();
+        }
         ++OrbsEmpowered;
         }
         ++EmpowerCount;
@@ -420,7 +426,8 @@ CreatureAI* GetAI_boss_kalecgos_kj(Creature* pCreature)
 //AI for Kil'jaeden
 struct TRINITY_DLL_DECL boss_kiljaedenAI : public Scripted_NoMovementAI
 {
-    boss_kiljaedenAI(Creature* c) : Scripted_NoMovementAI(c), Summons(m_creature){
+    boss_kiljaedenAI(Creature* c) : Scripted_NoMovementAI(c), Summons(m_creature)
+    {
         pInstance = c->GetInstanceData();
     }
 
@@ -472,7 +479,8 @@ struct TRINITY_DLL_DECL boss_kiljaedenAI : public Scripted_NoMovementAI
         IsWaiting     = false;
         OrbActivated  = false;
 
-        Kalec = CAST_CRE(Unit::GetUnit(*m_creature, pInstance->GetData64(DATA_KALECGOS_KJ)));
+        if(pInstance)
+            Kalec = CAST_CRE(Unit::GetUnit(*m_creature, pInstance->GetData64(DATA_KALECGOS_KJ)));
         ChangeTimers(false, 0);
     }
 
@@ -716,7 +724,7 @@ struct TRINITY_DLL_DECL boss_kiljaedenAI : public Scripted_NoMovementAI
         if (Phase <= PHASE_ARMAGEDDON){
             if (Phase == PHASE_ARMAGEDDON && ((m_creature->GetHealth()*100 / m_creature->GetMaxHealth()) < 25)){
                 Phase = PHASE_SACRIFICE;
-                Creature* Anveena = (Unit::GetCreature((*m_creature), pInstance->GetData64(DATA_ANVEENA)));
+                Creature* Anveena = (Unit::GetCreature(*m_creature, pInstance ? pInstance->GetData64(DATA_ANVEENA) : 0));
                 if (Anveena)Anveena->CastSpell(m_creature, SPELL_SACRIFICE_OF_ANVEENA, false);
                 OrbActivated = false;
                 ChangeTimers(true, 10000);// He shouldn't cast spells for ~10 seconds after Anveena's sacrifice. This will be done within Anveena's script
@@ -735,7 +743,8 @@ CreatureAI* GetAI_boss_kiljaeden(Creature* pCreature)
 //AI for Kil'jaeden Event Controller
 struct TRINITY_DLL_DECL mob_kiljaeden_controllerAI : public Scripted_NoMovementAI
 {
-    mob_kiljaeden_controllerAI(Creature* c) : Scripted_NoMovementAI(c), Summons(m_creature){
+    mob_kiljaeden_controllerAI(Creature* c) : Scripted_NoMovementAI(c), Summons(m_creature)
+    {
         pInstance = c->GetInstanceData();
     }
 
@@ -750,8 +759,10 @@ struct TRINITY_DLL_DECL mob_kiljaeden_controllerAI : public Scripted_NoMovementA
     uint32 Phase;
     uint8 DeceiverDeathCount;
 
-    void InitializeAI(){
-        KalecKJ = Unit::GetCreature((*m_creature), pInstance->GetData64(DATA_KALECGOS_KJ));
+    void InitializeAI()
+    {
+        if(pInstance)
+            KalecKJ = Unit::GetCreature((*m_creature), pInstance->GetData64(DATA_KALECGOS_KJ));
         m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
         m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
         m_creature->addUnitState(UNIT_STAT_STUNNED);
@@ -790,7 +801,7 @@ struct TRINITY_DLL_DECL mob_kiljaeden_controllerAI : public Scripted_NoMovementA
 
     void UpdateAI(const uint32 diff)
     {
-        if (RandomSayTimer < diff && pInstance->GetData(DATA_MURU_EVENT) != DONE && pInstance->GetData(DATA_KILJAEDEN_EVENT) == NOT_STARTED){
+        if (RandomSayTimer < diff && pInstance && pInstance->GetData(DATA_MURU_EVENT) != DONE && pInstance->GetData(DATA_KILJAEDEN_EVENT) == NOT_STARTED){
             switch(rand()%5){
                 case 0: DoScriptText(SAY_KJ_OFFCOMBAT1, m_creature); break;
                 case 1: DoScriptText(SAY_KJ_OFFCOMBAT2, m_creature); break;
@@ -826,7 +837,8 @@ CreatureAI* GetAI_mob_kiljaeden_controller(Creature* pCreature)
 //AI for Hand of the Deceiver
 struct TRINITY_DLL_DECL mob_hand_of_the_deceiverAI : public ScriptedAI
 {
-    mob_hand_of_the_deceiverAI(Creature* c) : ScriptedAI(c){
+    mob_hand_of_the_deceiverAI(Creature* c) : ScriptedAI(c)
+    {
         pInstance = c->GetInstanceData();
     }
     ScriptedInstance* pInstance;
@@ -838,7 +850,8 @@ struct TRINITY_DLL_DECL mob_hand_of_the_deceiverAI : public ScriptedAI
         // TODO: Timers!
         ShadowBoltVolleyTimer = 8000 + rand()%6000; // So they don't all cast it in the same moment.
         FelfirePortalTimer = 20000;
-        if (pInstance)pInstance->SetData(DATA_KILJAEDEN_EVENT, NOT_STARTED);
+        if (pInstance)
+            pInstance->SetData(DATA_KILJAEDEN_EVENT, NOT_STARTED);
     }
 
     void JustSummoned(Creature* summoned){
@@ -847,7 +860,8 @@ struct TRINITY_DLL_DECL mob_hand_of_the_deceiverAI : public ScriptedAI
     }
 
     void EnterCombat(Unit* who){
-        if (pInstance){
+        if (pInstance)
+        {
             pInstance->SetData(DATA_KILJAEDEN_EVENT, IN_PROGRESS);
             Creature* Control = CAST_CRE(Unit::GetUnit(*m_creature, pInstance->GetData64(DATA_KILJAEDEN_CONTROLLER)));
             if (Control)
@@ -856,7 +870,8 @@ struct TRINITY_DLL_DECL mob_hand_of_the_deceiverAI : public ScriptedAI
         m_creature->InterruptNonMeleeSpells(true);
     }
 
-    void JustDied(Unit* killer){
+    void JustDied(Unit* killer)
+    {
         if (!pInstance)
             return;
 
@@ -1050,7 +1065,8 @@ CreatureAI* GetAI_mob_armageddon(Creature* pCreature)
 //AI for Shield Orbs
 struct TRINITY_DLL_DECL mob_shield_orbAI : public ScriptedAI
 {
-    mob_shield_orbAI(Creature* c) : ScriptedAI(c) {
+    mob_shield_orbAI(Creature* c) : ScriptedAI(c)
+    {
         pInstance = c->GetInstanceData();
     }
 
@@ -1101,7 +1117,7 @@ struct TRINITY_DLL_DECL mob_shield_orbAI : public ScriptedAI
         }
 
         if (Timer < diff){
-            Unit* random = (Unit::GetUnit((*m_creature), pInstance->GetData64(DATA_PLAYER_GUID)));
+            Unit* random = (Unit::GetUnit(*m_creature, pInstance ? pInstance->GetData64(DATA_PLAYER_GUID) : 0));
             if (random)DoCast(random, SPELL_SHADOW_BOLT, false);
             Timer = 500+ rand()%500;
         }else Timer -= diff;
@@ -1316,4 +1332,4 @@ void AddSC_boss_kiljaeden()
     newscript->GetAI = &GetAI_mob_sinster_reflection;
     newscript->Name = "mob_sinster_reflection";
     newscript->RegisterSelf();
-};
+}

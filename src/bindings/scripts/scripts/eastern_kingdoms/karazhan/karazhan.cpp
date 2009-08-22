@@ -325,7 +325,7 @@ CreatureAI* GetAI_npc_barnesAI(Creature* pCreature)
 
 bool GossipHello_npc_barnes(Player* pPlayer, Creature* pCreature)
 {
-    if (ScriptedInstance* pInstance = (ScriptedInstance*)pCreature->GetInstanceData())
+    if (ScriptedInstance* pInstance = pCreature->GetInstanceData())
     {
         // Check for death of Moroes and if opera event is not done already
         if (pInstance->GetData(TYPE_MOROES) == DONE && pInstance->GetData(TYPE_OPERA) != DONE)
@@ -402,7 +402,7 @@ enum
 
 bool GossipHello_npc_berthold(Player* pPlayer, Creature* pCreature)
 {
-    if (ScriptedInstance* pInstance = (ScriptedInstance*)pCreature->GetInstanceData())
+    if (ScriptedInstance* pInstance = pCreature->GetInstanceData())
     {
         // Check if Shade of Aran event is done
         if (pInstance->GetData(TYPE_ARAN) == DONE)

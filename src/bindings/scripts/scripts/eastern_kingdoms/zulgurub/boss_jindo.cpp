@@ -41,12 +41,7 @@ EndScriptData */
 
 struct TRINITY_DLL_DECL boss_jindoAI : public ScriptedAI
 {
-    boss_jindoAI(Creature *c) : ScriptedAI(c)
-    {
-        pInstance = c->GetInstanceData();
-    }
-
-    ScriptedInstance *pInstance;
+    boss_jindoAI(Creature *c) : ScriptedAI(c) {}
 
     uint32 BrainWashTotem_Timer;
     uint32 HealingWard_Timer;
@@ -168,7 +163,7 @@ struct TRINITY_DLL_DECL mob_healing_wardAI : public ScriptedAI
 {
     mob_healing_wardAI(Creature *c) : ScriptedAI(c)
     {
-         pInstance = c->GetInstanceData();
+        pInstance = c->GetInstanceData();
     }
 
     uint32 Heal_Timer;
@@ -205,14 +200,9 @@ struct TRINITY_DLL_DECL mob_healing_wardAI : public ScriptedAI
 //Shade of Jindo
 struct TRINITY_DLL_DECL mob_shade_of_jindoAI : public ScriptedAI
 {
-    mob_shade_of_jindoAI(Creature *c) : ScriptedAI(c)
-    {
-        pInstance = c->GetInstanceData();
-    }
+    mob_shade_of_jindoAI(Creature *c) : ScriptedAI(c) {}
 
     uint32 ShadowShock_Timer;
-
-    ScriptedInstance *pInstance;
 
     void Reset()
     {

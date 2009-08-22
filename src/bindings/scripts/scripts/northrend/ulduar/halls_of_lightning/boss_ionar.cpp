@@ -63,7 +63,6 @@ struct TRINITY_DLL_DECL boss_ionarAI : public ScriptedAI
     {
         m_pInstance = pCreature->GetInstanceData();
         m_bIsHeroic = pCreature->GetMap()->IsHeroic();
-        Reset();
     }
 
     ScriptedInstance* m_pInstance;
@@ -346,7 +345,6 @@ struct TRINITY_DLL_DECL mob_spark_of_ionarAI : public ScriptedAI
     mob_spark_of_ionarAI(Creature *pCreature) : ScriptedAI(pCreature)
     {
         m_pInstance = pCreature->GetInstanceData();
-        Reset();
     }
 
     ScriptedInstance* m_pInstance;

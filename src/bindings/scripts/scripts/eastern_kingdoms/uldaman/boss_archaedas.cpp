@@ -51,7 +51,7 @@ struct TRINITY_DLL_DECL boss_archaedasAI : public ScriptedAI
 {
     boss_archaedasAI(Creature *c) : ScriptedAI(c)
     {
-        pInstance = (m_creature->GetInstanceData());
+        pInstance = m_creature->GetInstanceData();
     }
 
     uint32 Tremor_Timer;
@@ -73,7 +73,8 @@ struct TRINITY_DLL_DECL boss_archaedasAI : public ScriptedAI
         guardiansAwake = false;
         vaultWalkersAwake = false;
 
-        if (pInstance) pInstance->SetData (NULL, 5);    // respawn any dead minions
+        if (pInstance)
+            pInstance->SetData (NULL, 5);    // respawn any dead minions
         m_creature->setFaction(35);
         m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
         m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
@@ -208,7 +209,7 @@ struct TRINITY_DLL_DECL mob_archaedas_minionsAI : public ScriptedAI
 {
     mob_archaedas_minionsAI(Creature *c) : ScriptedAI(c)
     {
-        pInstance = (m_creature->GetInstanceData());
+        pInstance = m_creature->GetInstanceData();
     }
 
     uint32 Arcing_Timer;
@@ -264,7 +265,7 @@ struct TRINITY_DLL_DECL mob_archaedas_minionsAI : public ScriptedAI
         } else if (wakingUp && Awaken_Timer <= 0) {
             wakingUp = false;
             amIAwake = true;
-            AttackStart(Unit::GetUnit(*m_creature, pInstance->GetData64(0))); // whoWokeArchaedasGUID
+            // AttackStart(Unit::GetUnit(*m_creature, pInstance->GetData64(0))); // whoWokeArchaedasGUID
             return;     // dont want to continue until we finish the AttackStart method
         }
 
@@ -332,8 +333,10 @@ bool GOHello_go_altar_of_archaedas(Player* pPlayer, GameObject* pGo)
         return false;            // not enough people
     }
 
-    ScriptedInstance* pInstance = (pPlayer->GetInstanceData());
-    if (!pInstance) return false;
+    ScriptedInstance* pInstance = pPlayer->GetInstanceData();
+    if (!pInstance)
+        return false;
+
     pInstance->SetData(NULL,0);
     pInstance->SetData64(0,pPlayer->GetGUID());     // activate archaedas
 
@@ -416,8 +419,9 @@ static uint32 altarOfTheKeeperCounter=0;
 
 bool GOHello_go_altar_of_the_keepers(Player* pPlayer, GameObject* pGo)
 {
-    ScriptedInstance* pInstance = (pPlayer->GetInstanceData());
-    if (!pInstance) return true;
+    ScriptedInstance* pInstance = pPlayer->GetInstanceData();
+    if (!pInstance)
+        return true;
 
     bool alreadyUsed;
 

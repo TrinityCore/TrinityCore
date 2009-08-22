@@ -257,7 +257,7 @@ struct TRINITY_DLL_DECL mob_chaotic_riftAI : public Scripted_NoMovementAI
 
         if (SPELL_CHAOTIC_ENERGY_BURST_Timer < diff)
         {
-            Unit* Anomalus = Unit::GetUnit((*m_creature), pInstance->GetData64(DATA_ANOMALUS));
+            Unit* Anomalus = Unit::GetUnit(*m_creature, pInstance ? pInstance->GetData64(DATA_ANOMALUS) : 0);
             if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0))
                 if (Anomalus && Anomalus->HasAura(SPELL_RIFT_SHIELD))
                     DoCast(target, SPELL_CHARGED_CHAOTIC_ENERGY_BURST);
@@ -272,7 +272,7 @@ struct TRINITY_DLL_DECL mob_chaotic_riftAI : public Scripted_NoMovementAI
             if (Wraith)
                 if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0))
                     Wraith->AI()->AttackStart(target);
-            Unit* Anomalus = Unit::GetUnit((*m_creature), pInstance->GetData64(DATA_ANOMALUS));
+            Unit* Anomalus = Unit::GetUnit(*m_creature, pInstance ? pInstance->GetData64(DATA_ANOMALUS) : 0);
             if (Anomalus && Anomalus->HasAura(SPELL_RIFT_SHIELD))
                 SUMMON_CRAZED_MANA_WRAITH_Timer = 5000;
             else

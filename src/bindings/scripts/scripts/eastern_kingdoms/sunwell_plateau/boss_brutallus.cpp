@@ -66,7 +66,8 @@ enum Spells
 
 struct TRINITY_DLL_DECL boss_brutallusAI : public ScriptedAI
 {
-    boss_brutallusAI(Creature *c) : ScriptedAI(c){
+    boss_brutallusAI(Creature *c) : ScriptedAI(c)
+    {
         pInstance = c->GetInstanceData();
     }
 
@@ -141,7 +142,8 @@ struct TRINITY_DLL_DECL boss_brutallusAI : public ScriptedAI
     {
         DoScriptText(YELL_DEATH, m_creature);
 
-        if (pInstance){
+        if (pInstance)
+        {
             pInstance->SetData(DATA_BRUTALLUS_EVENT, DONE);
             float x,y,z;
             m_creature->GetPosition(x,y,z);
@@ -245,7 +247,8 @@ struct TRINITY_DLL_DECL boss_brutallusAI : public ScriptedAI
         }
     }
 
-    void MoveInLineOfSight(Unit *who){
+    void MoveInLineOfSight(Unit *who)
+    {
         if (pInstance && Intro)
             pInstance->SetData(DATA_BRUTALLUS_EVENT, SPECIAL);
     }

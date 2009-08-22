@@ -326,7 +326,7 @@ struct TRINITY_DLL_DECL mob_fel_crystalAI : public ScriptedAI
 
     void JustDied(Unit* killer)
     {
-        if (ScriptedInstance* pInstance = (m_creature->GetInstanceData()))
+        if (ScriptedInstance* pInstance = m_creature->GetInstanceData())
         {
             Creature* Selin = (Unit::GetCreature(*m_creature, pInstance->GetData64(DATA_SELIN)));
             if (Selin && Selin->isAlive())

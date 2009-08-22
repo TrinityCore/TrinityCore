@@ -59,7 +59,13 @@ EndScriptData */
 
 struct TRINITY_DLL_DECL boss_twinemperorsAI : public ScriptedAI
 {
+    boss_twinemperorsAI(Creature *c): ScriptedAI(c)
+    {
+        pInstance = c->GetInstanceData();
+    }
+
     ScriptedInstance *pInstance;
+
     uint32 Heal_Timer;
     uint32 Teleport_Timer;
     bool AfterTeleport;
@@ -72,11 +78,6 @@ struct TRINITY_DLL_DECL boss_twinemperorsAI : public ScriptedAI
     virtual bool IAmVeklor() = 0;
     virtual void Reset() = 0;
     virtual void CastSpellOnBug(Creature *target) = 0;
-
-    boss_twinemperorsAI(Creature *c): ScriptedAI(c)
-    {
-        pInstance = c->GetInstanceData();
-    }
 
     void TwinReset()
     {
@@ -95,13 +96,9 @@ struct TRINITY_DLL_DECL boss_twinemperorsAI : public ScriptedAI
     Creature *GetOtherBoss()
     {
         if (pInstance)
-        {
             return Unit::GetCreature(*m_creature, pInstance->GetData64(IAmVeklor() ? DATA_VEKNILASH : DATA_VEKLOR));
-        }
         else
-        {
             return NULL;
-        }
     }
 
     void DamageTaken(Unit *done_by, uint32 &damage)

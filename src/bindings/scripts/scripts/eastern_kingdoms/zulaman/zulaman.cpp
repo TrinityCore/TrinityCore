@@ -139,7 +139,7 @@ bool GossipSelect_npc_zulaman_hostage(Player* pPlayer, Creature* pCreature, uint
         return true;
     pCreature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
 
-    ScriptedInstance* pInstance = (pCreature->GetInstanceData());
+    ScriptedInstance* pInstance = pCreature->GetInstanceData();
     if (pInstance)
     {
         //uint8 progress = pInstance->GetData(DATA_CHESTLOOTED);

@@ -44,11 +44,8 @@ struct TRINITY_DLL_DECL boss_gatewatcher_iron_handAI : public ScriptedAI
 {
     boss_gatewatcher_iron_handAI(Creature *c) : ScriptedAI(c)
     {
-        pInstance = c->GetInstanceData();
-        HeroicMode = m_creature->GetMap()->IsHeroic();
+        HeroicMode = c->GetMap()->IsHeroic();
     }
-
-    ScriptedInstance *pInstance;
 
     bool HeroicMode;
 
@@ -83,10 +80,6 @@ struct TRINITY_DLL_DECL boss_gatewatcher_iron_handAI : public ScriptedAI
     void JustDied(Unit* Killer)
     {
         DoScriptText(SAY_DEATH_1, m_creature);
-
-        if (!pInstance)
-            return;
-
         //TODO: Add door check/open code
     }
 

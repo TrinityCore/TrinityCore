@@ -380,7 +380,10 @@ struct TRINITY_DLL_DECL npc_warden_mellicharAI : public ScriptedAI
             if (pInstance)
             {
                 if (pInstance->GetData(TYPE_HARBINGERSKYRISS) == FAIL)
+                {
                     Reset();
+                    return;
+                }
             }
 
             if (CanSpawn)

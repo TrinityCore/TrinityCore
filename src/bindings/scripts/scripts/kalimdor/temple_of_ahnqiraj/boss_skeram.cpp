@@ -53,11 +53,8 @@ struct TRINITY_DLL_DECL boss_skeramAI : public ScriptedAI
 {
     boss_skeramAI(Creature *c) : ScriptedAI(c)
     {
-        pInstance = c->GetInstanceData();
         IsImage = false;
     }
-
-    ScriptedInstance *pInstance;
 
     uint32 ArcaneExplosion_Timer;
     uint32 EarthShock_Timer;

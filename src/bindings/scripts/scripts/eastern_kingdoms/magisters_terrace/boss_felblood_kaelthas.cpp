@@ -79,7 +79,8 @@ struct TRINITY_DLL_DECL boss_felblood_kaelthasAI : public ScriptedAI
 {
     boss_felblood_kaelthasAI(Creature* c) : ScriptedAI(c)
     {
-        pInstance = c->GetInstanceData();        Heroic = c->GetMap()->IsHeroic();
+        pInstance = c->GetInstanceData();
+        Heroic = c->GetMap()->IsHeroic();
     }
 
     ScriptedInstance* pInstance;

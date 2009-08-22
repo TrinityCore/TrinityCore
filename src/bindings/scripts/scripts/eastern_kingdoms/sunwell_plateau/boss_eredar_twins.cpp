@@ -93,7 +93,8 @@ enum Creatures
 
 struct TRINITY_DLL_DECL boss_sacrolashAI : public ScriptedAI
 {
-    boss_sacrolashAI(Creature *c) : ScriptedAI(c){
+    boss_sacrolashAI(Creature *c) : ScriptedAI(c)
+    {
         pInstance = c->GetInstanceData();
     }
 
@@ -350,7 +351,8 @@ CreatureAI* GetAI_boss_sacrolash(Creature* pCreature)
 
 struct TRINITY_DLL_DECL boss_alythessAI : public Scripted_NoMovementAI
 {
-    boss_alythessAI(Creature *c) : Scripted_NoMovementAI(c){
+    boss_alythessAI(Creature *c) : Scripted_NoMovementAI(c)
+    {
         pInstance = c->GetInstanceData();
         IntroStepCounter = 10;
     }
@@ -527,7 +529,7 @@ struct TRINITY_DLL_DECL boss_alythessAI : public Scripted_NoMovementAI
 
     uint32 IntroStep(uint32 step)
     {
-        Creature* Sacrolash = Unit::GetCreature((*m_creature),pInstance->GetData64(DATA_SACROLASH));
+        Creature* Sacrolash = Unit::GetCreature(*m_creature, pInstance ? pInstance->GetData64(DATA_SACROLASH) : 0);
         switch (step)
         {
         case 0: return 0;

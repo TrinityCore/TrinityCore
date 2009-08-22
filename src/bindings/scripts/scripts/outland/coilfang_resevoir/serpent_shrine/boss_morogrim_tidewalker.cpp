@@ -104,6 +104,7 @@ struct TRINITY_DLL_DECL boss_morogrim_tidewalkerAI : public ScriptedAI
     }
 
     ScriptedInstance* pInstance;
+
     Map::PlayerList const *PlayerList;
 
     uint32 TidalWave_Timer;
