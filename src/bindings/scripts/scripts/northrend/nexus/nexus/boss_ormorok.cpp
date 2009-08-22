@@ -16,8 +16,8 @@
 
 /* ScriptData
 SDName: Boss_Ormorok
-SD%Complete: 
-SDComment: 
+SD%Complete:
+SDComment:
 SDCategory: The Nexus, The Nexus
 EndScriptData */
 
@@ -55,7 +55,7 @@ enum
 
 struct TRINITY_DLL_DECL boss_ormorokAI : public ScriptedAI
 {
-    boss_ormorokAI(Creature *c) : ScriptedAI(c) 
+    boss_ormorokAI(Creature *c) : ScriptedAI(c)
     {
         pInstance = c->GetInstanceData();
         HeroicMode = c->GetMap()->IsHeroic();
@@ -79,9 +79,9 @@ struct TRINITY_DLL_DECL boss_ormorokAI : public ScriptedAI
     uint32 SPELL_SPELL_REFLECTION_Timer;
     uint32 SPELL_SUMMON_CRYSTALLINE_TANGLER_Timer;
 
-    void Reset() 
+    void Reset()
     {
-        SPELL_CRYSTAL_SPIKES_Timer = 12000;                         
+        SPELL_CRYSTAL_SPIKES_Timer = 12000;
         SPELL_TRAMPLE_Timer = 10000;
         SPELL_SPELL_REFLECTION_Timer = 30000;
         SPELL_SUMMON_CRYSTALLINE_TANGLER_Timer = 17000;
@@ -92,7 +92,7 @@ struct TRINITY_DLL_DECL boss_ormorokAI : public ScriptedAI
             pInstance->SetData(DATA_ORMOROK_EVENT, NOT_STARTED);
     }
 
-    void EnterCombat(Unit* who) 
+    void EnterCombat(Unit* who)
     {
         DoScriptText(SAY_AGGRO, m_creature);
 
@@ -100,7 +100,7 @@ struct TRINITY_DLL_DECL boss_ormorokAI : public ScriptedAI
             pInstance->SetData(DATA_ORMOROK_EVENT, IN_PROGRESS);
     }
 
-    void JustDied(Unit* killer)  
+    void JustDied(Unit* killer)
     {
         DoScriptText(SAY_DEATH, m_creature);
 
@@ -113,7 +113,7 @@ struct TRINITY_DLL_DECL boss_ormorokAI : public ScriptedAI
         DoScriptText(SAY_KILL, m_creature);
     }
 
-    void UpdateAI(const uint32 diff) 
+    void UpdateAI(const uint32 diff)
     {
         if (!UpdateVictim())
         {
@@ -209,7 +209,7 @@ struct TRINITY_DLL_DECL boss_ormorokAI : public ScriptedAI
             SPELL_SUMMON_CRYSTALLINE_TANGLER_Timer = 17000;
         }else SPELL_SUMMON_CRYSTALLINE_TANGLER_Timer -=diff;
 
-        DoMeleeAttackIfReady();    
+        DoMeleeAttackIfReady();
     }
 };
 
@@ -235,7 +235,7 @@ struct TRINITY_DLL_DECL mob_crystal_spikeAI : public Scripted_NoMovementAI
         m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE); //
     }
 
-    void UpdateAI(const uint32 diff) 
+    void UpdateAI(const uint32 diff)
     {
         if (SPELL_CRYSTAL_SPIKE_PREVISUAL_Timer < diff)
         {
@@ -248,8 +248,8 @@ struct TRINITY_DLL_DECL mob_crystal_spikeAI : public Scripted_NoMovementAI
             DoCast(m_creature, HeroicMode ? SPELL_CRYSTALL_SPIKE_DAMAGE_H : SPELL_CRYSTALL_SPIKE_DAMAGE_N);
             SPELL_CRYSTALL_SPIKE_DAMAGE_Timer = 10000;
         }else SPELL_CRYSTALL_SPIKE_DAMAGE_Timer -=diff;
-    } 
-}; 
+    }
+};
 
 struct TRINITY_DLL_DECL mob_crystalline_tanglerAI : public ScriptedAI
 {
@@ -262,7 +262,7 @@ struct TRINITY_DLL_DECL mob_crystalline_tanglerAI : public ScriptedAI
         SPELL_ROOTS_Timer = 1000;
     }
 
-    void UpdateAI(const uint32 diff) 
+    void UpdateAI(const uint32 diff)
     {
         if (SPELL_ROOTS_Timer < diff)
         {
@@ -272,8 +272,8 @@ struct TRINITY_DLL_DECL mob_crystalline_tanglerAI : public ScriptedAI
                 SPELL_ROOTS_Timer = 15000;
             }
         }else SPELL_ROOTS_Timer -=diff;
-    } 
-}; 
+    }
+};
 
 CreatureAI* GetAI_mob_crystal_spike(Creature* pCreature)
 {

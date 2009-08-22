@@ -70,7 +70,7 @@ struct TRINITY_DLL_DECL boss_renatakiAI : public ScriptedAI
 
             SetEquipmentSlots(false, EQUIP_UNEQUIP, EQUIP_NO_CHANGE, EQUIP_NO_CHANGE);
             m_creature->SetDisplayId(11686);
-            
+
             m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             Invisible = true;
 

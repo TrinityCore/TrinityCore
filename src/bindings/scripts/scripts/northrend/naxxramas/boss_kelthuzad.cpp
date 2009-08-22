@@ -254,7 +254,7 @@ struct TRINITY_DLL_DECL boss_kelthuzadAI : public BossAI
                         }
 
                         events.RepeatEvent(20000);
-                        return;                        
+                        return;
                     }
                     case EVENT_FISSURE:
                         if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM,0))

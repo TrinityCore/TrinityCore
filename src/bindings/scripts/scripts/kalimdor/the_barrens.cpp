@@ -17,7 +17,7 @@
 /* ScriptData
 SDName: The_Barrens
 SD%Complete: 90
-SDComment: Quest support: 863, 898, 1719, 2458, 4921, 6981, 
+SDComment: Quest support: 863, 898, 1719, 2458, 4921, 6981,
 SDCategory: Barrens
 EndScriptData */
 

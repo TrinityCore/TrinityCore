@@ -15,10 +15,10 @@ pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_FLIGHT, GOSSIP_SENDER_MAIN, GO
 bool GossipSelect_npc_acherus_taxi(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
 {
     if (uiAction == GOSSIP_ACTION_INFO_DEF + 1)
-    { 
-       if (pPlayer->GetPositionZ() >=316)       
+    {
+       if (pPlayer->GetPositionZ() >=316)
         {
-        pPlayer->GetSession()->SendDoFlight(24446, 1053); 
+        pPlayer->GetSession()->SendDoFlight(24446, 1053);
         }else{
         pPlayer->GetSession()->SendDoFlight(24446, 1054);
         }

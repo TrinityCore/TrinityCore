@@ -579,9 +579,9 @@ struct TRINITY_DLL_DECL npc_akunoAI : public npc_escortAI
 
         if(IsWalking && !m_creature->HasUnitMovementFlag(MOVEMENTFLAG_WALK_MODE))
             m_creature->AddUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
-    
-        
-        switch(i) 
+
+
+        switch(i)
         {
         case 0: m_creature->setFaction(5); break;
         case 3:

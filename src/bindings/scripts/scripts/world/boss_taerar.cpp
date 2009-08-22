@@ -27,7 +27,7 @@ enum
 {
     SAY_AGGRO               = -1000399,
     SAY_SUMMONSHADE         = -1000400,
- 
+
     //Spells of Taerar
     SPELL_SLEEP             = 24777,
     SPELL_NOXIOUSBREATH     = 24818,

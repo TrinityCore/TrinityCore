@@ -1053,7 +1053,7 @@ struct TRINITY_DLL_DECL boss_romuloAI : public ScriptedAI
         EntryYellTimer = 8000;
         AggroYellTimer = 15000;
     }
-    
+
     ScriptedInstance* pInstance;
 
     uint64 JulianneGUID;
@@ -1286,7 +1286,7 @@ void boss_julianneAI::UpdateAI(const uint32 diff)
             DrinkPoisonTimer = 0;
         }else DrinkPoisonTimer -= diff;
     }
-    
+
     if (Phase == PHASE_ROMULO && !SummonedRomulo)
     {
         if (SummonRomuloTimer < diff)
@@ -1319,7 +1319,7 @@ void boss_julianneAI::UpdateAI(const uint32 diff)
             ResurrectTimer = 1000;
         }else ResurrectSelfTimer -= diff;
     }
-    
+
     if (!UpdateVictim() || IsFakingDeath)
         return;
 

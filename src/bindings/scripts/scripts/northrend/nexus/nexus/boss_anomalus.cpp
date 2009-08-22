@@ -16,8 +16,8 @@
 
 /* ScriptData
 SDName: Boss_Anomalus
-SD%Complete: 
-SDComment: 
+SD%Complete:
+SDComment:
 SDCategory: The Nexus, The Nexus
 EndScriptData */
 
@@ -73,11 +73,11 @@ struct TRINITY_DLL_DECL boss_anomalusAI : public ScriptedAI
     bool HeroicMode;
 
     uint8 Phase;
-    uint32 SPELL_SPARK_Timer;                    
+    uint32 SPELL_SPARK_Timer;
     uint32 SPELL_CREATE_RIFT_Timer;
     uint64 ChaoticRiftGUID;
 
-    void Reset() 
+    void Reset()
     {
         Phase = 0;
         SPELL_SPARK_Timer = 5000;
@@ -90,7 +90,7 @@ struct TRINITY_DLL_DECL boss_anomalusAI : public ScriptedAI
             pInstance->SetData(DATA_ANOMALUS_EVENT, NOT_STARTED);
     }
 
-    void EnterCombat(Unit* who) 
+    void EnterCombat(Unit* who)
     {
         DoScriptText(SAY_AGGRO, m_creature);
 
@@ -98,7 +98,7 @@ struct TRINITY_DLL_DECL boss_anomalusAI : public ScriptedAI
             pInstance->SetData(DATA_ANOMALUS_EVENT, IN_PROGRESS);
     }
 
-    void JustDied(Unit* killer)  
+    void JustDied(Unit* killer)
     {
         DoScriptText(SAY_DEATH, m_creature);
 
@@ -121,7 +121,7 @@ struct TRINITY_DLL_DECL boss_anomalusAI : public ScriptedAI
             pInstance->SetData(DATA_ANOMALUS_EVENT, DONE);
     }
 
-    void UpdateAI(const uint32 diff) 
+    void UpdateAI(const uint32 diff)
     {
         if (!UpdateVictim())
             return;
@@ -214,7 +214,7 @@ struct TRINITY_DLL_DECL boss_anomalusAI : public ScriptedAI
             SPELL_CREATE_RIFT_Timer = 25000;
         }else SPELL_CREATE_RIFT_Timer -=diff;
 
-        DoMeleeAttackIfReady();    
+        DoMeleeAttackIfReady();
     }
 };
 
@@ -250,7 +250,7 @@ struct TRINITY_DLL_DECL mob_chaotic_riftAI : public Scripted_NoMovementAI
         DeadChaoticRift = true;
     }
 
-    void UpdateAI(const uint32 diff) 
+    void UpdateAI(const uint32 diff)
     {
         if (!UpdateVictim())
             return;
@@ -294,7 +294,7 @@ void AddSC_boss_anomalus()
     newscript->Name="boss_anomalus";
     newscript->GetAI = &GetAI_boss_anomalus;
     newscript->RegisterSelf();
-    
+
     newscript = new Script;
     newscript->Name="mob_chaotic_rift";
     newscript->GetAI = &GetAI_mob_chaotic_rift;

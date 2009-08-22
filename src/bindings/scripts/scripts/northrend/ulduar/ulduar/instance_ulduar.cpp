@@ -22,19 +22,19 @@
 struct TRINITY_DLL_DECL instance_ulduar : public ScriptedInstance
 {
     instance_ulduar(Map* pMap) : ScriptedInstance(pMap) {Initialize();};
-    
+
     uint32 m_auiEncounter[MAX_ENCOUNTER];
-    
+
     uint64 boss_assembly[3];
-    
+
     void Initialize()
     {
         memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
-        
+
         for(uint8 i = 0; i < 3; ++i)
             boss_assembly[i] = 0;
     }
-    
+
     bool IsEncounterInProgress() const
     {
         for(uint8 i = 0; i < MAX_ENCOUNTER; ++i)
@@ -42,7 +42,7 @@ struct TRINITY_DLL_DECL instance_ulduar : public ScriptedInstance
 
         return false;
     }
-    
+
     void OnCreatureCreate(Creature* pCreature, bool add)
     {
         switch(pCreature->GetEntry())
@@ -51,7 +51,7 @@ struct TRINITY_DLL_DECL instance_ulduar : public ScriptedInstance
             case 32927: boss_assembly[1] = pCreature->GetGUID();    break;
             case 32857: boss_assembly[2] = pCreature->GetGUID();    break;
         }
-        
+
      }
 
     uint64 GetData64(uint32 identifier)
@@ -64,7 +64,7 @@ struct TRINITY_DLL_DECL instance_ulduar : public ScriptedInstance
             default:    return 0;
         }
     }
-    
+
     uint32 GetData(uint32 type)
     {
         switch(type)
@@ -85,10 +85,10 @@ struct TRINITY_DLL_DECL instance_ulduar : public ScriptedInstance
             case BOSS_ALGALON:
                 return m_auiEncounter[type];
         }
-        
+
         return 0;
     }
-    
+
     void SetData(uint32 type, uint32 data)
     {
         switch(type)

@@ -96,7 +96,7 @@ struct TRINITY_DLL_DECL instance_nexus : public ScriptedInstance
                         pCreature->SetDisplayId(24352);
                     break;
                 }
-            case 26796: 
+            case 26796:
                 {
                     //26798
                     pCreature->setFaction(16);

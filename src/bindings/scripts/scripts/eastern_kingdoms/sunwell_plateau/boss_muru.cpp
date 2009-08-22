@@ -231,7 +231,7 @@ struct TRINITY_DLL_DECL boss_muruAI : public Scripted_NoMovementAI
         Timer[TIMER_HUMANOIDES] = 10000;
         Timer[TIMER_PHASE] = 2000;
         Timer[TIMER_SENTINEL] = 31500;
-        
+
         m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
         m_creature->SetVisibility(VISIBILITY_ON);
 
@@ -485,7 +485,7 @@ struct TRINITY_DLL_DECL npc_dark_fiendAI : public ScriptedAI
             }
             else
             {
-            
+
                 if (m_creature->IsWithinDist(m_creature->getVictim(), 5))
                 {
                     DoCastAOE(SPELL_DARKFIEND_AOE, false);

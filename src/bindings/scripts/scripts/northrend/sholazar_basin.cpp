@@ -38,7 +38,7 @@ EndContentData */
 #define GOSSIP_ITEM1 "I am ready to travel to your village now."
 
 enum
-{    
+{
     SAY_START_IRO                       = -1571000,
     SAY_QUEST_ACCEPT_IRO                = -1571001,
     SAY_END_IRO                         = -1571002,
@@ -83,13 +83,13 @@ struct TRINITY_DLL_DECL npc_injured_rainspeaker_oracleAI : public npc_escortAI
         case 15:
         case 16:
         case 17:
-        case 18:        
+        case 18:
             m_creature->RemoveUnitMovementFlag(MOVEMENTFLAG_SWIMMING);
             m_creature->RemoveUnitMovementFlag(MOVEMENTFLAG_JUMPING);
             m_creature->SetSpeed(MOVE_SWIM, 0.85f, true);
             m_creature->AddUnitMovementFlag(MOVEMENTFLAG_SWIMMING + MOVEMENTFLAG_LEVITATING);
             break;
-        case 19: 
+        case 19:
             m_creature->SetUnitMovementFlags(MOVEMENTFLAG_JUMPING);
             break;
         case 28:
@@ -108,7 +108,7 @@ struct TRINITY_DLL_DECL npc_injured_rainspeaker_oracleAI : public npc_escortAI
             return;
 
         if (Player* pPlayer = GetPlayerForEscort())
-        {            
+        {
           if (pPlayer->GetQuestStatus(QUEST_FORTUNATE_MISUNDERSTANDINGS) != QUEST_STATUS_COMPLETE)
             pPlayer->FailQuest(QUEST_FORTUNATE_MISUNDERSTANDINGS);
         }
@@ -225,10 +225,10 @@ bool GossipSelect_npc_vekjik(Player* pPlayer, Creature* pCreature, uint32 uiSend
 #define GOSSIP_ITEM_AOF3 "I will not fail."
 
 enum
-{    
+{
     QUEST_FREYA_PACT         = 12621,
 
-    SPELL_FREYA_CONVERSATION = 52045, 
+    SPELL_FREYA_CONVERSATION = 52045,
 
     GOSSIP_TEXTID_AVATAR1    = 13303,
     GOSSIP_TEXTID_AVATAR2    = 13304,

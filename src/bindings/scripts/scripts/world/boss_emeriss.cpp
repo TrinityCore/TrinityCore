@@ -120,7 +120,7 @@ struct TRINITY_DLL_DECL boss_emerissAI : public ScriptedAI
         //CorruptionofEarth_Timer
         //CorruptionofEarth at 75%, 50% and 25%
         if ((m_creature->GetHealth()*100 / m_creature->GetMaxHealth()) <= (100-(25*m_uiCorruptionsCasted)))
-        { 
+        {
             ++m_uiCorruptionsCasted;                        // prevent casting twice on same hp
             DoScriptText(SAY_CASTCORRUPTION, m_creature);
             DoCast(m_creature->getVictim(), SPELL_CORRUPTIONOFEARTH);

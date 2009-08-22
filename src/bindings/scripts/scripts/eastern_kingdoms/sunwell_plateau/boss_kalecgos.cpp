@@ -131,7 +131,7 @@ struct TRINITY_DLL_DECL boss_kalecgosAI : public ScriptedAI
         {
             SathGUID = pInstance->GetData64(DATA_SATHROVARR);
             DoorGUID = pInstance->GetData64(DATA_GO_FORCEFIELD);
-            
+
             if (GameObject *Door = pInstance->instance->GetGameObject(pInstance->GetData64(DoorGUID)))
                 Door->SetLootState(GO_JUST_DEACTIVATED);
         }

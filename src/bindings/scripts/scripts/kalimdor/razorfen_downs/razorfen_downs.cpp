@@ -45,7 +45,7 @@ enum
 #define GOSSIP_ITEM_POTION  "Teach me the alchemy recipe"
 
 bool GossipHello_npc_henry_stern (Player* pPlayer, Creature* pCreature)
-{   
+{
     if (pPlayer->GetBaseSkillValue(SKILL_COOKING) >= 175 && !pPlayer->HasSpell(SPELL_GOLDTHORN_TEA))
         pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_TEA, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
 

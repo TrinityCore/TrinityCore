@@ -120,8 +120,8 @@ struct TRINITY_DLL_DECL boss_elder_nadoxAI : public ScriptedAI
                     Map::PlayerList const &players = pMap->GetPlayers();
                     for(Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
                         itr->getSource()->CompletedAchievement(AchievRespectYourElders);
-                }            
-            }        
+                }
+            }
         }
 
         if (pInstance)

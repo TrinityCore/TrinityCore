@@ -156,13 +156,13 @@ struct TRINITY_DLL_DECL instance_stratholme : public ScriptedInstance
         case GO_ZIGGURAT1:          ziggurat1GUID = pGo->GetGUID(); break;
         case GO_ZIGGURAT2:          ziggurat2GUID = pGo->GetGUID(); break;
         case GO_ZIGGURAT3:          ziggurat3GUID = pGo->GetGUID(); break;
-        case GO_ZIGGURAT4:          
-            ziggurat4GUID = pGo->GetGUID(); 
+        case GO_ZIGGURAT4:
+            ziggurat4GUID = pGo->GetGUID();
             if (TYPE_BARON == DONE || TYPE_RAMSTEIN == DONE)
                 HandleGameObject(0, true, pGo);
             break;
-        case GO_ZIGGURAT5:          
-            ziggurat5GUID = pGo->GetGUID(); 
+        case GO_ZIGGURAT5:
+            ziggurat5GUID = pGo->GetGUID();
             if (TYPE_BARON == DONE || TYPE_RAMSTEIN == DONE)
                 HandleGameObject(0, true, pGo);
             break;
@@ -313,7 +313,7 @@ struct TRINITY_DLL_DECL instance_stratholme : public ScriptedInstance
         std::ostringstream saveStream;
         saveStream << Encounter[0] << " " << Encounter[1] << " " << Encounter[2] << " "
             << Encounter[3] << " " << Encounter[4] << " " << Encounter[5];
-      
+
         OUT_SAVE_INST_DATA_COMPLETE;
         return saveStream.str();
     }
