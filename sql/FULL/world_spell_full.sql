@@ -1972,6 +1972,9 @@ INSERT INTO `spell_elixir` (`entry`, `mask`) VALUES
 -- --------
 -- Death Knight
 -- --------
+# endless hunger
+UPDATE `creature_template` SET `KillCredit1` = '29519' WHERE `entry` IN ('29519','29520','29565','29566','29567');
+
 DELETE FROM `spell_script_target` WHERE entry IN
 (51859, 48743, 52124, 52479, 52576, 53110);
 INSERT INTO `spell_script_target` (`entry`, `type`, `targetEntry`) VALUES
