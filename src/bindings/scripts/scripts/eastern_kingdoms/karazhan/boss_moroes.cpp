@@ -187,7 +187,7 @@ struct TRINITY_DLL_DECL boss_moroesAI : public ScriptedAI
         {
             for(uint8 i = 0; i < 4; ++i)
             {
-                Creature *pCreature = m_creature->SummonCreature(AddId[i], Locations[i][0], Locations[i][1], POS_Z, Locations[i][2], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000);                
+                Creature *pCreature = m_creature->SummonCreature(AddId[i], Locations[i][0], Locations[i][1], POS_Z, Locations[i][2], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000);
                 if (pCreature)
                 {
                     AddGUID[i] = pCreature->GetGUID();

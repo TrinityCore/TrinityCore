@@ -65,7 +65,7 @@ struct TRINITY_DLL_DECL boss_emalonAI : public ScriptedAI
         if (pInstance)
             pInstance->SetData(DATA_EMALON_EVENT, NOT_STARTED);
     }
-    
+
     void DespawnAllMinions()
     {
         if(!MinionList.empty())
@@ -155,10 +155,10 @@ struct TRINITY_DLL_DECL boss_emalonAI : public ScriptedAI
                         DoScriptText(EMOTE_OVERCHARGE, m_creature);
                         events.ScheduleEvent(EVENT_OVERCHARGE, 45000);
                     }
-                }                
+                }
                 return;
             case EVENT_BERSERK:
-                DoCast(m_creature, SPELL_BERSERK);  
+                DoCast(m_creature, SPELL_BERSERK);
                 DoScriptText(EMOTE_BERSERK, m_creature);
                 return;
             }
@@ -173,7 +173,7 @@ struct TRINITY_DLL_DECL boss_emalonAI : public ScriptedAI
 ######*/
 struct TRINITY_DLL_DECL mob_tempest_minionAI : public ScriptedAI
 {
-    mob_tempest_minionAI(Creature *c) : ScriptedAI(c) 
+    mob_tempest_minionAI(Creature *c) : ScriptedAI(c)
     {
         pInstance = c->GetInstanceData();
         EmalonGUID = pInstance ? pInstance->GetData64(DATA_EMALON) : 0;

@@ -1,12 +1,12 @@
 /* Script Data Start
 SDName: Boss moragg
 SDAuthor: LordVanMartin
-SD%Complete: 
-SDComment: 
-SDCategory: 
+SD%Complete:
+SDComment:
+SDCategory:
 Script Data End */
 
-/*** SQL START *** 
+/*** SQL START ***
 update creature_template set scriptname = '' where entry = '';
 *** SQL END ***/
 #include "precompiled.h"
@@ -18,18 +18,18 @@ update creature_template set scriptname = '' where entry = '';
 struct TRINITY_DLL_DECL boss_moraggAI : public ScriptedAI
 {
     boss_moraggAI(Creature *c) : ScriptedAI(c) {}
-    
+
     void Reset() {}
     void EnterCombat(Unit* who) {}
     void AttackStart(Unit* who) {}
     void MoveInLineOfSight(Unit* who) {}
-    void UpdateAI(const uint32 diff) 
+    void UpdateAI(const uint32 diff)
     {
         //Return since we have no target
         if (!UpdateVictim())
-            return;    
-        
-        DoMeleeAttackIfReady();    
+            return;
+
+        DoMeleeAttackIfReady();
     }
     void JustDied(Unit* killer) {}
 };

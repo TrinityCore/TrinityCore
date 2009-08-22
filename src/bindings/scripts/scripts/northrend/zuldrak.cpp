@@ -37,7 +37,7 @@ struct TRINITY_DLL_DECL npc_drakuru_shacklesAI : public ScriptedAI
     npc_drakuru_shacklesAI(Creature *c) : ScriptedAI(c) {}
 
     Unit* Rageclaw;
-    
+
     void Reset()
     {
         m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
@@ -124,7 +124,7 @@ struct TRINITY_DLL_DECL npc_captured_rageclawAI : public ScriptedAI
     }
 
     void MoveInLineOfSight(Unit *who){}
-    
+
     void SpellHit(Unit *caster, const SpellEntry *spell)
     {
         if (spell->Id == SPELL_FREE_RAGECLAW)
@@ -156,7 +156,7 @@ struct TRINITY_DLL_DECL npc_captured_rageclawAI : public ScriptedAI
 
         if (!Despawn)
             return;
-        
+
         if (DespawnTimer < diff)
             m_creature->setDeathState(JUST_DIED);
         else DespawnTimer-=diff;

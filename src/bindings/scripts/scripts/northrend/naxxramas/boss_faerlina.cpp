@@ -28,7 +28,7 @@
 
 #define SPELL_POSION_BOLT_VOLLEY    HEROIC(28796,54098)
 #define SPELL_RAIN_OF_FIRE          HEROIC(28794,54099)
-#define SPELL_FRENZY                HEROIC(28798,54100)           
+#define SPELL_FRENZY                HEROIC(28798,54100)
 #define SPELL_WIDOWS_EMBRACE        HEROIC(28732,54097)
 
 enum Events
@@ -97,7 +97,7 @@ struct TRINITY_DLL_DECL boss_faerlinaAI : public BossAI
                     events.ScheduleEvent(EVENT_FIRE, 5000 + rand()%15000);
                     return;
                 case EVENT_FRENZY:
-                    DoCast(me,SPELL_FRENZY);         
+                    DoCast(me,SPELL_FRENZY);
                     events.ScheduleEvent(EVENT_FRENZY, 60000 + rand()%20000);
                     return;
             }

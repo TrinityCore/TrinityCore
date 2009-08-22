@@ -1354,7 +1354,7 @@ struct TRINITY_DLL_DECL mob_torloth_the_magnificentAI : public ScriptedAI
             switch(slayer->GetTypeId())
         {
             case TYPEID_UNIT:
-                if (Unit *owner = slayer->GetOwner()) 
+                if (Unit *owner = slayer->GetOwner())
                     if (owner->GetTypeId() == TYPEID_PLAYER)
                         CAST_PLR(owner)->GroupEventHappens(QUEST_BATTLE_OF_THE_CRIMSON_WATCH, m_creature);
                 break;

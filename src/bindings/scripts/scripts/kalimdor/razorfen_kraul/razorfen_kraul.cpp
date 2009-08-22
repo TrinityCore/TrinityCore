@@ -184,7 +184,7 @@ void AddSC_razorfen_kraul()
     newscript->GetAI = &GetAI_npc_willix;
     newscript->pQuestAccept = &QuestAccept_npc_willix;
     newscript->RegisterSelf();
-    
+
     newscript = new Script;
     newscript->Name = "npc_deaths_head_ward_keeper";
     newscript->GetAI = &GetAI_npc_deaths_head_ward_keeper;

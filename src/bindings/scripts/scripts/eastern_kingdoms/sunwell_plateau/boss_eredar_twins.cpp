@@ -145,7 +145,7 @@ struct TRINITY_DLL_DECL boss_sacrolashAI : public ScriptedAI
         if (pInstance)
             pInstance->SetData(DATA_EREDAR_TWINS_EVENT, NOT_STARTED);
     }
-    
+
     void EnterCombat(Unit *who)
     {
         DoZoneInCombat();
@@ -408,7 +408,7 @@ struct TRINITY_DLL_DECL boss_alythessAI : public Scripted_NoMovementAI
         if (pInstance)
             pInstance->SetData(DATA_EREDAR_TWINS_EVENT, NOT_STARTED);
     }
-    
+
     void EnterCombat(Unit *who)
     {
         DoZoneInCombat();

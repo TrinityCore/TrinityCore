@@ -141,7 +141,7 @@ struct TRINITY_DLL_DECL boss_aranAI : public ScriptedAI
         {
             // Not in progress
             pInstance->SetData(TYPE_ARAN, NOT_STARTED);
-            pInstance->HandleGameObject(pInstance->GetData64(DATA_GO_LIBRARY_DOOR), true); 
+            pInstance->HandleGameObject(pInstance->GetData64(DATA_GO_LIBRARY_DOOR), true);
         }
     }
 

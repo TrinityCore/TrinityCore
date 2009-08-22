@@ -151,7 +151,7 @@ struct TRINITY_DLL_DECL npc_air_force_botsAI : public ScriptedAI
 
         return pSummoned;
     }
-    
+
     Creature* GetSummonedGuard()
     {
         Creature* pCreature = Unit::GetCreature(*m_creature, m_uiSpawnedGUID);
@@ -1572,7 +1572,7 @@ CreatureAI* GetAI_npc_snake_trap_serpents(Creature* pCreature)
 }
 
 struct TRINITY_DLL_DECL mob_mojoAI : public ScriptedAI
-{    
+{
     mob_mojoAI(Creature *c) : ScriptedAI(c) {Reset();}
     uint32 hearts;
     uint64 victimGUID;
@@ -1628,11 +1628,11 @@ struct TRINITY_DLL_DECL mob_mojoAI : public ScriptedAI
                     victim->RemoveAura(43906);//remove polymorph frog thing
             }
             m_creature->AddAura(43906,pPlayer);//add polymorph frog thing
-            victimGUID = pPlayer->GetGUID();            
+            victimGUID = pPlayer->GetGUID();
             m_creature->CastSpell(m_creature,20372,true);//tag.hearts
             m_creature->GetMotionMaster()->MoveFollow(pPlayer,0,0);
             hearts = 15000;
-        }   
+        }
     }
 };
 
@@ -1870,7 +1870,7 @@ void AddSC_npcs_special()
     newscript->pGossipHello =  &GossipHello_npc_kingdom_of_dalaran_quests;
     newscript->pGossipSelect = &GossipSelect_npc_kingdom_of_dalaran_quests;
     newscript->RegisterSelf();
-    
+
     newscript = new Script;
     newscript->Name="npc_mount_vendor";
     newscript->pGossipHello =  &GossipHello_npc_mount_vendor;

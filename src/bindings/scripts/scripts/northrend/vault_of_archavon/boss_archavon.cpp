@@ -13,7 +13,7 @@ UPDATE `creature_template` SET `ScriptName`='mob_archavon_warder' WHERE `entry`=
 #define SPELL_STOMP              HEROIC(58663,60880)
 #define SPELL_IMPALE             HEROIC(58666,60882) //Lifts an enemy off the ground with a spiked fist, inflicting 47125 to 52875 Physical damage and 9425 to 10575 additional damage each second for 8 sec.
 #define SPELL_BERSERK            47008
-//Spells Archavon Warders                      
+//Spells Archavon Warders
 #define SPELL_ROCK_SHOWER        HEROIC(60919,60923)
 #define SPELL_SHIELD_CRUSH       HEROIC(60897,60899)
 #define SPELL_WHIRL              HEROIC(60902,60916)
@@ -28,7 +28,7 @@ UPDATE `creature_template` SET `ScriptName`='mob_archavon_warder' WHERE `entry`=
 #define EVENT_CHOKING_CLOUD      2  //30s cd
 #define EVENT_STOMP              3  //45s cd
 #define EVENT_IMPALE             4
-#define EVENT_BERSERK            5  //300s cd 
+#define EVENT_BERSERK            5  //300s cd
 
 //mob
 #define EVENT_ROCK_SHOWER        5  //set = 20s cd,unkown cd
@@ -37,7 +37,7 @@ UPDATE `creature_template` SET `ScriptName`='mob_archavon_warder' WHERE `entry`=
 
 struct TRINITY_DLL_DECL boss_archavonAI : public ScriptedAI
 {
-    boss_archavonAI(Creature *c) : ScriptedAI(c) 
+    boss_archavonAI(Creature *c) : ScriptedAI(c)
     {
         pInstance = c->GetInstanceData();
     }
@@ -109,7 +109,7 @@ struct TRINITY_DLL_DECL boss_archavonAI : public ScriptedAI
                     return;
                 case EVENT_BERSERK:
                     DoCast(m_creature, SPELL_BERSERK);
-                    DoScriptText(EMOTE_BERSERK, m_creature);  
+                    DoScriptText(EMOTE_BERSERK, m_creature);
                     return;
             }
         }

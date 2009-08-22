@@ -232,12 +232,12 @@ struct TRINITY_DLL_DECL npc_sinkhole_kill_creditAI : public ScriptedAI
                     DoCast(m_creature, SPELL_EXPLODE_CART, true);
                     DoCast(m_creature, SPELL_SUMMON_CART, true);
                     if (GameObject* cart = m_creature->FindNearestGameObject(188160,3))
-                        cart->SetUInt32Value(GAMEOBJECT_FACTION, 14);                        
+                        cart->SetUInt32Value(GAMEOBJECT_FACTION, 14);
                     Phase_Timer = 3000;
                     Phase = 2;
                     break;
                 case 2:
-                    if (GameObject* cart = m_creature->FindNearestGameObject(188160,3)) 
+                    if (GameObject* cart = m_creature->FindNearestGameObject(188160,3))
                         cart->UseDoorOrButton();
                     DoCast(m_creature, SPELL_EXPLODE_CART, true);
                     Phase_Timer = 3000;
@@ -278,7 +278,7 @@ struct TRINITY_DLL_DECL npc_sinkhole_kill_creditAI : public ScriptedAI
                     break;
             }
         } else Phase_Timer -= diff;
-        
+
     }
 
 };

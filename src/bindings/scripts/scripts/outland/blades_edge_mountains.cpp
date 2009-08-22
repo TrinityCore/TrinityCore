@@ -33,7 +33,7 @@ EndContentData */
 #include "precompiled.h"
 
 //Support for quest: You're Fired! (10821)
-bool     obelisk_one, obelisk_two, obelisk_three, obelisk_four, obelisk_five;    
+bool     obelisk_one, obelisk_two, obelisk_three, obelisk_four, obelisk_five;
 
 #define LEGION_OBELISK_ONE           185193
 #define LEGION_OBELISK_TWO           185195
@@ -336,7 +336,7 @@ bool GossipSelect_npc_saikkal_the_elder(Player* pPlayer, Creature* pCreature, ui
 ######*/
 
 bool GOHello_go_legion_obelisk(Player* pPlayer, GameObject* pGo)
-{    
+{
     if (pPlayer->GetQuestStatus(10821) == QUEST_STATUS_INCOMPLETE)
     {
         switch(pGo->GetEntry())
@@ -357,7 +357,7 @@ bool GOHello_go_legion_obelisk(Player* pPlayer, GameObject* pGo)
                   obelisk_five = true;
                  break;
         }
-    
+
         if (obelisk_one == true && obelisk_two == true && obelisk_three == true && obelisk_four == true && obelisk_five == true)
         {
             pGo->SummonCreature(19963,2943.40f,4778.20f,284.49f,0.94f,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,120000);
@@ -369,7 +369,7 @@ bool GOHello_go_legion_obelisk(Player* pPlayer, GameObject* pGo)
             obelisk_five = false;
         }
     }
-    
+
     return true;
 }
 
@@ -407,7 +407,7 @@ void AddSC_blades_edge_mountains()
     newscript->pGossipHello = &GossipHello_npc_saikkal_the_elder;
     newscript->pGossipSelect = &GossipSelect_npc_saikkal_the_elder;
     newscript->RegisterSelf();
-    
+
     newscript = new Script;
     newscript->Name="go_legion_obelisk";
     newscript->pGOHello =           &GOHello_go_legion_obelisk;

@@ -1,12 +1,12 @@
 /* Script Data Start
 SDName: Boss ichoron
 SDAuthor: LordVanMartin
-SD%Complete: 
-SDComment: 
-SDCategory: 
+SD%Complete:
+SDComment:
+SDCategory:
 Script Data End */
 
-/*** SQL START *** 
+/*** SQL START ***
 update creature_template set scriptname = '' where entry = '';
 *** SQL END ***/
 #include "precompiled.h"
@@ -16,7 +16,7 @@ update creature_template set scriptname = '' where entry = '';
 #define SPELL_FRENZY                                   54312
 #define SPELL_PROTECTIVE_BUBBLE                        54306
 #define SPELL_WATER_BLAST                              54237
-#define SPELL_WATER_BOLT_VOLLEY                        54241           
+#define SPELL_WATER_BOLT_VOLLEY                        54241
 
 //Yells
 #define SAY_AGGRO                                   -1608018
@@ -34,21 +34,21 @@ struct TRINITY_DLL_DECL boss_ichoronAI : public ScriptedAI
     boss_ichoronAI(Creature *c) : ScriptedAI(c) {}
 
     void Reset() {}
-    void EnterCombat(Unit* who) 
+    void EnterCombat(Unit* who)
     {
         DoScriptText(SAY_AGGRO, m_creature);
     }
     void AttackStart(Unit* who) {}
     void MoveInLineOfSight(Unit* who) {}
-    void UpdateAI(const uint32 diff) 
+    void UpdateAI(const uint32 diff)
     {
         //Return since we have no target
         if (!UpdateVictim())
             return;
-                
-        DoMeleeAttackIfReady();    
+
+        DoMeleeAttackIfReady();
     }
-    void JustDied(Unit* killer)  
+    void JustDied(Unit* killer)
     {
         DoScriptText(SAY_DEATH, m_creature);
     }
