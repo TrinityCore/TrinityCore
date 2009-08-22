@@ -13,7 +13,7 @@ CREATE TABLE script_waypoint (
   PRIMARY KEY (entry, pointid)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Script Creature waypoints';
 
-DELETE FROM script_waypoint entry = 24156;
+DELETE FROM script_waypoint WHERE entry = 24156;
 INSERT INTO script_waypoint VALUES
 (24156,1,1859.74, -6178.15, 24.3033, 0, ''),
 (24156,2,1866.06, -6172.81, 23.9216, 0, ''),
