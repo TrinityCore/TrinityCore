@@ -99,10 +99,17 @@ void WaypointStore::Load()
 
 void WaypointStore::UpdatePath(uint32 id)
 {
-    // TODO: this will cause memory leak
-    if(WaypointPathHolder.find(id) != WaypointPathHolder.end())
-        WaypointPathHolder[id]->clear();
-
+    // Prevent memory leak, deallocate allocated memory instead of just clearing from object holder
+    WaypointPathMap::iterator itr = WaypointPathHolder.find(id);
+    if(itr != WaypointPathHolder.end())
+    {
+        for(WaypointPath::iterator jtr = WaypointPathHolder[id]->begin(); jtr != WaypointPathHolder[id]->end(); ++jtr)
+        {
+            delete (*jtr);
+        }
+        delete itr->second;
+    }
+    
     QueryResult *result;
 
     result = WorldDatabase.PQuery("SELECT `id`,`point`,`position_x`,`position_y`,`position_z`,`move_flag`,`delay`,`action`,`action_chance` FROM `waypoint_data` WHERE id = %u ORDER BY `point`", id);
@@ -111,9 +118,7 @@ void WaypointStore::UpdatePath(uint32 id)
         return;
 
     WaypointPath* path_data;
-
     path_data = new WaypointPath;
-
     Field *fields;
 
     do
@@ -142,7 +147,8 @@ void WaypointStore::UpdatePath(uint32 id)
 
         path_data->push_back(wp);
 
-    }while (result->NextRow());
+    }
+    while (result->NextRow());
 
     WaypointPathHolder[id] = path_data;
 
