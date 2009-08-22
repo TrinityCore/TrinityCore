@@ -566,9 +566,11 @@ CreatureAI* GetAI_npc_dark_rider_of_acherus(Creature* pCreature)
 
 enum
 {
-    REALM_OF_SHADOWS     = 52693,
-    DELIVER_STOLEN_HORSE = 52264,
-    CALL_DARK_RIDER      = 52266
+    REALM_OF_SHADOWS            = 52693,
+    EFFECT_STOLEN_HORSE         = 52263,
+    DELIVER_STOLEN_HORSE        = 52264,
+    CALL_DARK_RIDER             = 52266,
+    SPELL_EFFECT_OVERTAKE       = 52349
 };
 
 struct TRINITY_DLL_DECL npc_salanar_the_horsemanAI : public ScriptedAI
@@ -583,7 +585,7 @@ struct TRINITY_DLL_DECL npc_salanar_the_horsemanAI : public ScriptedAI
             {
                 if (Unit *charmer = caster->GetCharmer())
                 {
-                    charmer->ExitVehicle();
+                    charmer->RemoveAurasDueToSpell(EFFECT_STOLEN_HORSE);
                     caster->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
                     caster->setFaction(35);
                     DoCast(caster, CALL_DARK_RIDER, true);
@@ -608,8 +610,9 @@ struct TRINITY_DLL_DECL npc_salanar_the_horsemanAI : public ScriptedAI
                     if(me->GetEntry() == 28788 && CAST_PLR(charmer)->GetQuestStatus(12687) == QUEST_STATUS_INCOMPLETE)
                     {
                         CAST_PLR(charmer)->GroupEventHappens(12687, me);
-                        CAST_PLR(charmer)->ExitVehicle();
-                        CAST_CRE(who)->Respawn(true);
+                        charmer->RemoveAurasDueToSpell(SPELL_EFFECT_OVERTAKE);
+                        CAST_CRE(who)->ForcedDespawn();
+                        //CAST_CRE(who)->Respawn(true);
                     }
 
                     if (CAST_PLR(charmer)->HasAura(REALM_OF_SHADOWS))
