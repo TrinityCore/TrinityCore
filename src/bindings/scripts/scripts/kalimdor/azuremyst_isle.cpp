@@ -199,7 +199,7 @@ struct TRINITY_DLL_DECL npc_engineer_spark_overgrindAI : public ScriptedAI
         NpcFlags = c->GetUInt32Value(UNIT_NPC_FLAGS);
 
         if (c->GetAreaId() == AREA_COVE || c->GetAreaId() == AREA_ISLE)
-            IsTreeEvent = true; 
+            IsTreeEvent = true;
     }
 
     uint32 NormFaction;

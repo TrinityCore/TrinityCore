@@ -62,7 +62,7 @@ struct TRINITY_DLL_DECL instance_blackfathom_deeps : public ScriptedInstance
 
     void OnCreatureCreate(Creature* pCreature, bool add)
     {
-        if (pCreature->GetEntry() == 4832) 
+        if (pCreature->GetEntry() == 4832)
             m_uiTwilightLordKelrisGUID = pCreature->GetGUID();
     }
 

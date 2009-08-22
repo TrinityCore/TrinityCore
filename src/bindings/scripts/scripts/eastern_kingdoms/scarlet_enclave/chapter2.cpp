@@ -100,7 +100,7 @@ struct TRINITY_DLL_DECL npc_crusade_persuadedAI : public ScriptedAI
         }
     }
 
-    void UpdateAI(const uint32 diff) 
+    void UpdateAI(const uint32 diff)
     {
         if (uiSpeech_counter)
         {
@@ -135,7 +135,7 @@ struct TRINITY_DLL_DECL npc_crusade_persuadedAI : public ScriptedAI
 
             return;
         }
-        
+
         if(!UpdateVictim())
             return;
 
@@ -381,7 +381,7 @@ struct TRINITY_DLL_DECL mob_scarlet_courierAI : public ScriptedAI
             uiStage = 2;
     }
 
-    void UpdateAI(const uint32 diff) 
+    void UpdateAI(const uint32 diff)
     {
         if(uiStage && !me->isInCombat())
         {
@@ -459,7 +459,7 @@ struct TRINITY_DLL_DECL mob_high_inquisitor_valrothAI : public ScriptedAI
         DoCast(who, SPELL_VALROTH_SMITE);
     }
 
-    void UpdateAI(const uint32 diff) 
+    void UpdateAI(const uint32 diff)
     {
         if (uiRenew_timer < diff)
         {
@@ -647,7 +647,7 @@ struct TRINITY_DLL_DECL npc_a_special_surpriseAI : public ScriptedAI
             PlayerGUID = pWho->GetGUID();
     }
 
-    void UpdateAI(const uint32 diff) 
+    void UpdateAI(const uint32 diff)
     {
         if (PlayerGUID && !me->getVictim() && me->isAlive())
         {

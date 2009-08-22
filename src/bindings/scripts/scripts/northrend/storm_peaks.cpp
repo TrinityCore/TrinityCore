@@ -34,7 +34,7 @@ enum
 struct TRINITY_DLL_DECL npc_agnetta_tyrsdottarAI : public ScriptedAI
 {
     npc_agnetta_tyrsdottarAI(Creature* pCreature) : ScriptedAI(pCreature) { }
-    
+
     void Reset()
     {
         me->RestoreFaction();
@@ -83,8 +83,8 @@ enum
 
 
 bool GossipHello_npc_frostborn_scout(Player* pPlayer, Creature* pCreature)
-{    
-    
+{
+
     if (pPlayer->GetQuestStatus(QUEST_MISSING_SCOUTS) == QUEST_STATUS_INCOMPLETE)
     {
         pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);

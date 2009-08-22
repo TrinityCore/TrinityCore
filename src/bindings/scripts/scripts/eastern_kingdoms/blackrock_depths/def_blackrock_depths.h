@@ -17,7 +17,7 @@ enum
     TYPE_TOMB_OF_SEVEN      = 4,
     TYPE_LYCEUM             = 5,
     TYPE_IRON_HALL          = 6,
- 
+
     DATA_EMPEROR            = 10,
     DATA_PHALANX            = 11,
 

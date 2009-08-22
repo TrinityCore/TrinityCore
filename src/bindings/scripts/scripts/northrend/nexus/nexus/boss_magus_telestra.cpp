@@ -16,8 +16,8 @@
 
 /* ScriptData
 SDName: Boss_Magus_Telestra
-SD%Complete: 
-SDComment: 
+SD%Complete:
+SDComment:
 SDCategory: The Nexus, The Nexus
 EndScriptData */
 
@@ -59,7 +59,7 @@ float CenterOfRoom[1][4] =
 
 struct TRINITY_DLL_DECL boss_magus_telestraAI : public ScriptedAI
 {
-    boss_magus_telestraAI(Creature* c) : ScriptedAI(c) 
+    boss_magus_telestraAI(Creature* c) : ScriptedAI(c)
     {
         pInstance = c->GetInstanceData();
         HeroicMode = c->GetMap()->IsHeroic();
@@ -80,8 +80,8 @@ struct TRINITY_DLL_DECL boss_magus_telestraAI : public ScriptedAI
 
     uint8 Phase;
 
-    uint32 SPELL_ICE_NOVA_Timer;                    
-    uint32 SPELL_FIREBOMB_Timer;                    
+    uint32 SPELL_ICE_NOVA_Timer;
+    uint32 SPELL_FIREBOMB_Timer;
     uint32 SPELL_GRAVITY_WELL_Timer;
     uint32 Cooldown;
 
@@ -89,8 +89,8 @@ struct TRINITY_DLL_DECL boss_magus_telestraAI : public ScriptedAI
     {
         Phase = 0;
         //These times are probably wrong
-        SPELL_ICE_NOVA_Timer =  7000;                  
-        SPELL_FIREBOMB_Timer =  0;                
+        SPELL_ICE_NOVA_Timer =  7000;
+        SPELL_FIREBOMB_Timer =  0;
         SPELL_GRAVITY_WELL_Timer = 15000;
         Cooldown = 0;
 
@@ -107,7 +107,7 @@ struct TRINITY_DLL_DECL boss_magus_telestraAI : public ScriptedAI
             pInstance->SetData(DATA_MAGUS_TELESTRA_EVENT, NOT_STARTED);
     }
 
-    void EnterCombat(Unit* who) 
+    void EnterCombat(Unit* who)
     {
         DoScriptText(SAY_AGGRO, m_creature);
 
@@ -157,8 +157,8 @@ struct TRINITY_DLL_DECL boss_magus_telestraAI : public ScriptedAI
         }
         return 0;
     }
-    
-    void UpdateAI(const uint32 diff) 
+
+    void UpdateAI(const uint32 diff)
     {
         //Return since we have no target
         if (!UpdateVictim())
@@ -217,13 +217,13 @@ struct TRINITY_DLL_DECL boss_magus_telestraAI : public ScriptedAI
         }
 
         if ((Phase == 0) && (m_creature->GetHealth() <= (m_creature->GetMaxHealth() * 0.5)))
-        {     
+        {
             Phase = 1;
             m_creature->CastStop();
             m_creature->SetVisibility(VISIBILITY_OFF);
             m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             FireMagusGUID = SplitPersonality(MOB_FIRE_MAGUS);
-            FrostMagusGUID = SplitPersonality(MOB_FROST_MAGUS); 
+            FrostMagusGUID = SplitPersonality(MOB_FROST_MAGUS);
             ArcaneMagusGUID = SplitPersonality(MOB_ARCANE_MAGUS);
             FireMagusDead = false;
             FrostMagusDead = false;
@@ -236,14 +236,14 @@ struct TRINITY_DLL_DECL boss_magus_telestraAI : public ScriptedAI
             return;
         }
 
-        if (HeroicMode && (Phase == 2) && (m_creature->GetHealth() <= (m_creature->GetMaxHealth() * 0.1))) 
-        {     
+        if (HeroicMode && (Phase == 2) && (m_creature->GetHealth() <= (m_creature->GetMaxHealth() * 0.1)))
+        {
             Phase = 3;
             m_creature->CastStop();
             m_creature->SetVisibility(VISIBILITY_OFF);
             m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             FireMagusGUID = SplitPersonality(MOB_FIRE_MAGUS);
-            FrostMagusGUID = SplitPersonality(MOB_FROST_MAGUS); 
+            FrostMagusGUID = SplitPersonality(MOB_FROST_MAGUS);
             ArcaneMagusGUID = SplitPersonality(MOB_ARCANE_MAGUS);
             FireMagusDead = false;
             FrostMagusDead = false;
@@ -263,7 +263,7 @@ struct TRINITY_DLL_DECL boss_magus_telestraAI : public ScriptedAI
             else
             {
                 Cooldown -= diff;
-                return;                                     
+                return;
             }
         }
 
@@ -297,7 +297,7 @@ struct TRINITY_DLL_DECL boss_magus_telestraAI : public ScriptedAI
             SPELL_FIREBOMB_Timer = 2000;
         }else SPELL_FIREBOMB_Timer -=diff;
 
-        DoMeleeAttackIfReady();    
+        DoMeleeAttackIfReady();
     }
 };
 

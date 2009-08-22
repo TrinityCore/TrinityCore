@@ -124,7 +124,7 @@ struct TRINITY_DLL_DECL npc_disciple_of_naralexAI : public npc_escortAI
 
     void Reset()
     {
-        
+
     }
 
     void EnterCombat(Unit* who)
@@ -149,11 +149,11 @@ struct TRINITY_DLL_DECL npc_disciple_of_naralexAI : public npc_escortAI
     }
 
     void EnterEvadeMode()
-    {        
+    {
         m_creature->RemoveAllAuras();
         m_creature->DeleteThreatList();
         m_creature->CombatStop(false);//do not interrupt channeling
-        m_creature->SetLootRecipient(NULL);        
+        m_creature->SetLootRecipient(NULL);
         if (GetIsBeingEscorted())
         {
             SetReturning(true);
@@ -161,7 +161,7 @@ struct TRINITY_DLL_DECL npc_disciple_of_naralexAI : public npc_escortAI
             debug_log("TSCR: EscortAI (EnterEvadeMode() Override) has left combat and is now returning to last point");
         }
         else
-            m_creature->GetMotionMaster()->MoveTargetedHome();        
+            m_creature->GetMotionMaster()->MoveTargetedHome();
     }
 
     void UpdateAI(const uint32 diff)
@@ -192,7 +192,7 @@ struct TRINITY_DLL_DECL npc_disciple_of_naralexAI : public npc_escortAI
                         {
                             eventProgress++;
                             DoScriptText(SAY_BANISH_THE_SPIRITS, m_creature);
-                            DoCast(m_creature, SPELL_SERPENTINE_CLEANSING);        
+                            DoCast(m_creature, SPELL_SERPENTINE_CLEANSING);
                             //CAST_AI(npc_escortAI, m_creature->AI())->SetCanDefend(false);
                             eventTimer = 30000;
                             m_creature->SummonCreature(NPC_DEVIATE_VIPER, -61.5261, 273.676, -92.8442, 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 5000);
@@ -279,7 +279,7 @@ struct TRINITY_DLL_DECL npc_disciple_of_naralexAI : public npc_escortAI
                                         Map::PlayerList const &players = pMap->GetPlayers();
                                         for(Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
                                             itr->getSource()->CompletedAchievement(AchievWC);
-                                    }            
+                                    }
                                 }
                                 if (m_creature->HasAura(SPELL_NARALEXS_AWAKENING))
                                     m_creature->RemoveAura(SPELL_NARALEXS_AWAKENING);

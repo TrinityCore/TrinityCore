@@ -612,7 +612,7 @@ struct TRINITY_DLL_DECL boss_ellris_duskhallowAI : public boss_priestess_lackey_
     {
         DoCast(m_creature,SPELL_SUMMON_IMP);
     }
- 
+
     void UpdateAI(const uint32 diff)
     {
         if (!UpdateVictim())
@@ -960,7 +960,7 @@ enum
     SPELL_MULTI_SHOT            = 31942,
     SPELL_WING_CLIP             = 44286,
     SPELL_FREEZING_TRAP         = 44136,
- 
+
     NPC_SLIVER                  = 24552
 };
 
@@ -1163,7 +1163,7 @@ CreatureAI* GetAI_apoko(Creature* pCreature)
 {
     return new boss_apokoAI(pCreature);
 }
- 
+
 enum
 {
     SPELL_GOBLIN_DRAGON_GUN     = 44272,

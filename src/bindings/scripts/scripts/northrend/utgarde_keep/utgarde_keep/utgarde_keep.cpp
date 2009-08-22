@@ -19,7 +19,7 @@
 #include "precompiled.h"
 #include "def_utgarde_keep.h"
 
-uint32 entry_search[3] = 
+uint32 entry_search[3] =
 {
     186609,
     186610,
@@ -28,7 +28,7 @@ uint32 entry_search[3] =
 
 struct TRINITY_DLL_DECL npc_dragonflayer_forge_masterAI : public ScriptedAI
 {
-    npc_dragonflayer_forge_masterAI(Creature *c) : ScriptedAI(c) 
+    npc_dragonflayer_forge_masterAI(Creature *c) : ScriptedAI(c)
     {
         pInstance = c->GetInstanceData();
         fm_Type = 0;
@@ -118,11 +118,11 @@ struct TRINITY_DLL_DECL npc_dragonflayer_forge_masterAI : public ScriptedAI
                 {
                     near_f = i + 1;
                     diff = m_creature->GetDistance2d(temp);
-                    
+
                 }
             }
         }
-    
+
         switch (near_f)
         {
         case 1:  return 1;

@@ -86,7 +86,7 @@ struct TRINITY_DLL_DECL npc_valkyr_battle_maidenAI : public PassiveAI
                 case 3:
                     me->DisappearAndDie();
                     break;
-                default: 
+                default:
                     //Nothing To DO
                     break;
             }

@@ -376,7 +376,7 @@ struct TRINITY_DLL_DECL npc_death_knight_initiateAI : public SpellAI
         {
             if (pDoneBy->GetGUID() != m_uiDuelerGUID && pDoneBy->GetOwnerGUID() != m_uiDuelerGUID) // other players cannot help
                 uiDamage = 0;
-            else if (uiDamage >= m_creature->GetHealth()) 
+            else if (uiDamage >= m_creature->GetHealth())
             {
                 uiDamage = 0;
 
@@ -541,7 +541,7 @@ struct TRINITY_DLL_DECL npc_dark_rider_of_acherusAI : public ScriptedAI
     }
 
     void InitDespawnHorse(Unit *who)
-    {   
+    {
         if (!who)
             return;
 
@@ -900,7 +900,7 @@ bool GOHello_go_inconspicuous_mine_car(Player* pPlayer, GameObject* pGO)
     return true;
 }
 
-// npc 28912 quest 17217 boss 29001 mob 29007 go 191092 
+// npc 28912 quest 17217 boss 29001 mob 29007 go 191092
 
 void AddSC_the_scarlet_enclave_c1()
 {
@@ -970,7 +970,7 @@ void AddSC_the_scarlet_enclave_c1()
     newscript->RegisterSelf();
 }
 
-/*   
+/*
 DELETE FROM `script_texts` WHERE `entry` IN(-1609301, -1609302);
 INSERT INTO `script_texts` (`entry`,`content_default`,`type`,`language`,`emote`,`comment`) VALUES
 (-1609301, 'Come, weakling! Strike me down!', 0, 0, 0, 'SAY_DEATH_RIDER_FINAL'),

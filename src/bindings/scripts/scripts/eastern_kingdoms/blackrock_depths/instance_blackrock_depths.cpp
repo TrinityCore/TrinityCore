@@ -47,7 +47,7 @@ enum
     NPC_SEETHREL            = 9038,
     NPC_GLOOMREL            = 9037,
     NPC_DOOMREL             = 9039,
- 
+
     GO_ARENA1               = 161525,
     GO_ARENA2               = 161522,
     GO_ARENA3               = 161524,
@@ -65,7 +65,7 @@ enum
     GO_GOLEM_ROOM_N         = 170573,
     GO_GOLEM_ROOM_S         = 170574,
     GO_THONE_ROOM           = 170575,
- 
+
     GO_SPECTRAL_CHALICE     = 164869,
     GO_CHEST_SEVEN          = 169243
 };
@@ -174,7 +174,7 @@ struct TRINITY_DLL_DECL instance_blackrock_depths : public ScriptedInstance
         case GO_BAR_KEG_TRAP: GoBarKegTrapGUID = pGo->GetGUID(); break;
         case GO_BAR_DOOR: GoBarDoorGUID = pGo->GetGUID(); break;
         case GO_TOMB_ENTER: GoTombEnterGUID = pGo->GetGUID(); break;
-        case GO_TOMB_EXIT: 
+        case GO_TOMB_EXIT:
             GoTombExitGUID = pGo->GetGUID();
             if (GhostKillCount >= 7)
                 HandleGameObject(0, true, pGo);
@@ -346,7 +346,7 @@ struct TRINITY_DLL_DECL instance_blackrock_depths : public ScriptedInstance
                 if (Unit* target = boss->SelectNearestTarget(500))
                     boss->AI()->AttackStart(target);
             }
-        }        
+        }
     }
 
     void TombOfSevenReset()
@@ -367,7 +367,7 @@ struct TRINITY_DLL_DECL instance_blackrock_depths : public ScriptedInstance
                     boss->GetMotionMaster()->MoveTargetedHome();
                     boss->SetLootRecipient(NULL);
                 }
-                boss->setFaction(FACTION_FRIEND);                
+                boss->setFaction(FACTION_FRIEND);
             }
         }
         GhostKillCount = 0;
@@ -386,7 +386,7 @@ struct TRINITY_DLL_DECL instance_blackrock_depths : public ScriptedInstance
 
     void TombOfSevenEnd()
     {
-        DoRespawnGameObject(GoChestGUID,DAY);        
+        DoRespawnGameObject(GoChestGUID,DAY);
         HandleGameObject(GoTombExitGUID,true);//event done, open exit door
         HandleGameObject(GoTombEnterGUID,true);//event done, open entrance door
         TombEventStarterGUID = 0;

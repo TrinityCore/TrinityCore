@@ -81,7 +81,7 @@ struct TRINITY_DLL_DECL instance_utgarde_keep : public ScriptedInstance
             forge_fire[i] = 0;
             forge_anvil[i] = 0;
         }
-        
+
         portcullis[0] = 0;
         portcullis[1] = 0;
     }
