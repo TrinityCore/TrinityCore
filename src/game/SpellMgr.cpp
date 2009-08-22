@@ -2691,6 +2691,12 @@ SpellCastResult SpellMgr::GetSpellAllowedInLocationError(SpellEntry const *spell
         }
     }
 
+    // wintergrasp
+    if(zone_id == 4197)
+        for(uint32 i = 0; i < 3; ++i)
+            if(spellInfo->EffectApplyAuraName[i] == SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED)
+                return SPELL_FAILED_INCORRECT_AREA;
+
     return SPELL_CAST_OK;
 }
 
