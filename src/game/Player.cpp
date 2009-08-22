@@ -20247,6 +20247,18 @@ void Player::UpdateAreaDependentAuras( uint32 newArea )
         if(itr->second->autocast && itr->second->IsFitToRequirements(this,m_zoneUpdateId,newArea))
             if( !HasAura(itr->second->spellId) )
                 CastSpell(this,itr->second->spellId,true);
+
+    if(newArea == 4273 && m_Vehicle && GetPositionX() > 400) // Ulduar
+    {
+        switch(m_Vehicle->GetEntry())
+        {
+            case 33062:
+            case 33109:
+            case 33060:
+                m_Vehicle->Dismiss();
+                break;
+        }
+    }
 }
 
 uint32 Player::GetCorpseReclaimDelay(bool pvp) const
