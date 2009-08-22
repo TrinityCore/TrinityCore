@@ -36,7 +36,7 @@ const TeamPair CreatureEntryPair[] =
     {32307, 32308}, // Guards
     {30739, 30740}, // Champions
     //{30400, 30499}, // Engineers
-    {30870, 30869}, // Flight Masters
+    //{30870, 30869}, // Flight Masters
     {31101, 31051}, // Hoodoo Master & Sorceress
     {31102, 31052}, // Vieron Blazefeather & Bowyer
     {32296, 32294}, // Quartermaster
