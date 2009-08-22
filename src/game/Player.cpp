@@ -21754,12 +21754,14 @@ void Player::_LoadGlyphs(QueryResult *result)
 
 void Player::_SaveGlyphs()
 {
+    CharacterDatabase.BeginTransaction();
     CharacterDatabase.PExecute("DELETE FROM character_glyphs WHERE guid='%u'",GetGUIDLow());
     for (uint8 spec = 0; spec < m_specsCount; ++spec)
     {
         CharacterDatabase.PExecute("INSERT INTO character_glyphs VALUES('%u', '%u', '%u', '%u', '%u', '%u', '%u', '%u')",
             GetGUIDLow(), spec, m_Glyphs[spec][0], m_Glyphs[spec][1], m_Glyphs[spec][2], m_Glyphs[spec][3], m_Glyphs[spec][4], m_Glyphs[spec][5]);
     }
+    CharacterDatabase.CommitTransaction();
 }
 
 void Player::_LoadTalents(QueryResult *result)
@@ -21815,7 +21817,6 @@ void Player::UpdateSpecCount(uint8 count)
         _SaveActions(); // make sure the button list is cleaned up
         // active spec becomes only spec?
         CharacterDatabase.PExecute("DELETE FROM character_action WHERE spec<>'%u' AND guid='%u'",m_activeSpec, GetGUIDLow());
-        CharacterDatabase.PExecute("UPDATE character_action SET spec='0' WHERE guid='%u'", GetGUIDLow());
         m_activeSpec = 0;
     }
     else if (count == MAX_TALENT_SPECS)
