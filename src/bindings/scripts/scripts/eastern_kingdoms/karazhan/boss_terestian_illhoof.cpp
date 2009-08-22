@@ -266,7 +266,7 @@ struct TRINITY_DLL_DECL boss_terestianAI : public ScriptedAI
                 uint64 KilrekGUID = pInstance->GetData64(DATA_KILREK);
             else ERROR_INST_DATA(m_creature);
 
-            Creature* Kilrek = Unit::GetCreature(*m_creature, pInstance : pInstance->GetData64(DATA_KILREK) ? 0);
+            Creature* Kilrek = Unit::GetCreature(*m_creature, pInstance ? pInstance->GetData64(DATA_KILREK) : 0);
             if (SummonKilrek && Kilrek)
             {
                 Kilrek->Respawn();

@@ -251,7 +251,7 @@ struct TRINITY_DLL_DECL boss_netherspiteAI : public ScriptedAI
 
     void HandleDoors(bool open) // Massive Door switcher
     {
-        if(GameObject *Door = GameObject::GetGameObject(*m_creature, pInstance : pInstance->GetData64(DATA_GO_MASSIVE_DOOR) ? 0))
+        if(GameObject *Door = GameObject::GetGameObject(*m_creature, pInstance ? pInstance->GetData64(DATA_GO_MASSIVE_DOOR) : 0))
             Door->SetGoState(open ? GO_STATE_ACTIVE : GO_STATE_READY);
     }
 
