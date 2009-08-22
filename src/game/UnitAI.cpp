@@ -165,7 +165,16 @@ Unit* UnitAI::SelectTarget(SelectAggroTarget targetType, uint32 position, float 
                 if(targetType == SELECT_TARGET_TOPAGGRO)
                     advance(i, position);
                 else // random
-                    advance(i, position + rand()%(m_threatlist.size() - position));
+                {
+                    //advance(i, position + rand()%(m_threatlist.size() - position));
+                    //if we use "random, 1", usually we want random except current victim
+                    advance(i, rand()%m_threatlist.size());
+                    if(position && (*i)->getTarget() == me->getVictim())
+                    {
+                        m_threatlist.erase(i);
+                        continue;
+                    }
+                }
             }
 
             if(SelectTargetHelper(me, (*i)->getTarget(), playerOnly, dist, aura))
