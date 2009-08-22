@@ -46,7 +46,7 @@ EndContentData */
 
 bool GOHello_go_shadowforge_brazier(Player* pPlayer, GameObject* pGo)
 {
-    if (ScriptedInstance* pInstance = (ScriptedInstance*)pGo->GetInstanceData())
+    if (ScriptedInstance* pInstance = pGo->GetInstanceData())
     {
         if (pInstance->GetData(TYPE_LYCEUM) == IN_PROGRESS)
             pInstance->SetData(TYPE_LYCEUM, DONE);
@@ -91,8 +91,6 @@ uint32 RingBoss[]=
 
 bool AreaTrigger_at_ring_of_law(Player* pPlayer, AreaTriggerEntry *at)
 {
-    ScriptedInstance* pInstance = (pPlayer->GetInstanceData());
-
     if (ScriptedInstance* pInstance = pPlayer->GetInstanceData())
     {
         if (pInstance->GetData(TYPE_RING_OF_LAW) == IN_PROGRESS || pInstance->GetData(TYPE_RING_OF_LAW) == DONE)
@@ -1192,7 +1190,7 @@ CreatureAI* GetAI_npc_rocknot(Creature* pCreature)
 
 bool ChooseReward_npc_rocknot(Player* pPlayer, Creature* pCreature, const Quest *_Quest, uint32 item)
 {
-    ScriptedInstance* pInstance = (pCreature->GetInstanceData());
+    ScriptedInstance* pInstance = pCreature->GetInstanceData();
 
     if (!pInstance)
         return true;

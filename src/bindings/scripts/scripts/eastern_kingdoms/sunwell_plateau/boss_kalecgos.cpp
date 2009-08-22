@@ -169,7 +169,7 @@ struct TRINITY_DLL_DECL boss_kalecgosAI : public ScriptedAI
     {
         m_creature->SetStandState(UNIT_STAND_STATE_STAND);
         DoScriptText(SAY_EVIL_AGGRO, m_creature);
-        if (GameObject *Door = pInstance->instance->GetGameObject(pInstance->GetData64(DoorGUID)))
+        if (GameObject *Door = pInstance ? pInstance->instance->GetGameObject(pInstance->GetData64(DoorGUID)) : NULL)
             Door->SetLootState(GO_ACTIVATED);
         DoZoneInCombat();
 
@@ -548,7 +548,7 @@ void boss_kalecgosAI::UpdateAI(const uint32 diff)
             m_creature->RemoveAllAuras();
             m_creature->DeleteThreatList();
             m_creature->CombatStop();
-            if (GameObject *Door = pInstance->instance->GetGameObject(pInstance->GetData64(DoorGUID)))
+            if (GameObject *Door = pInstance ? pInstance->instance->GetGameObject(pInstance->GetData64(DoorGUID)) : NULL)
                 Door->SetLootState(GO_JUST_DEACTIVATED);
             TalkSequence++;
         }

@@ -311,7 +311,7 @@ struct TRINITY_DLL_DECL mob_annhylde_the_callerAI : public ScriptedAI
         m_creature->GetPosition(x,y,z);
         DoTeleportTo(x+1,y,z+30);
 
-        Unit* ingvar = Unit::GetUnit((*m_creature), pInstance->GetData64(DATA_INGVAR));
+        Unit* ingvar = Unit::GetUnit(*m_creature, pInstance ? pInstance->GetData64(DATA_INGVAR) : 0);
         if (ingvar)
         {
             m_creature->GetMotionMaster()->MovePoint(1,x,y,z+15);
@@ -324,7 +324,7 @@ struct TRINITY_DLL_DECL mob_annhylde_the_callerAI : public ScriptedAI
     {
         if (type != POINT_MOTION_TYPE)
             return;
-        Unit* ingvar = Unit::GetUnit((*m_creature), pInstance->GetData64(DATA_INGVAR));
+        Unit* ingvar = Unit::GetUnit((*m_creature), pInstance ? pInstance->GetData64(DATA_INGVAR) : 0);
         if (ingvar)
         {
             switch (id)
@@ -354,7 +354,7 @@ struct TRINITY_DLL_DECL mob_annhylde_the_callerAI : public ScriptedAI
             {
                 if (Resurect_Phase == 1)
                 {
-                    Unit* ingvar = Unit::GetUnit((*m_creature), pInstance->GetData64(DATA_INGVAR));
+                    Unit* ingvar = Unit::GetUnit(*m_creature, pInstance ? pInstance->GetData64(DATA_INGVAR) : 0);
                     if (ingvar)
                     {
                         ingvar->SetStandState(UNIT_STAND_STATE_STAND);
@@ -364,7 +364,7 @@ struct TRINITY_DLL_DECL mob_annhylde_the_callerAI : public ScriptedAI
                     Resurect_Phase = 2;
                 }else if (Resurect_Phase == 2)
                 {
-                    Creature* ingvar = Unit::GetCreature((*m_creature), pInstance->GetData64(DATA_INGVAR));
+                    Creature* ingvar = Unit::GetCreature(*m_creature, pInstance ? pInstance->GetData64(DATA_INGVAR) : 0);
                     if (ingvar)
                     {
                         ingvar->RemoveAurasDueToSpell(SPELL_SCOURG_RESURRECTION_DUMMY);
@@ -398,14 +398,11 @@ struct TRINITY_DLL_DECL mob_ingvar_throw_dummyAI : public ScriptedAI
 {
     mob_ingvar_throw_dummyAI(Creature *c) : ScriptedAI(c)
     {
-        pInstance = c->GetInstanceData();
         HeroicMode = c->GetMap()->IsHeroic();
     }
 
     bool HeroicMode;
     uint32 Despawn_Timer;
-
-    ScriptedInstance* pInstance;
 
     void Reset()
     {

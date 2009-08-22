@@ -61,7 +61,7 @@ struct TRINITY_DLL_DECL boss_skarvald_the_constructorAI : public ScriptedAI
     boss_skarvald_the_constructorAI(Creature *c) : ScriptedAI(c)
     {
         pInstance = c->GetInstanceData();
-        HeroicMode = m_creature->GetMap()->IsHeroic();
+        HeroicMode = c->GetMap()->IsHeroic();
     }
 
     ScriptedInstance* pInstance;
@@ -82,20 +82,19 @@ struct TRINITY_DLL_DECL boss_skarvald_the_constructorAI : public ScriptedAI
         Check_Timer = 5000;
 
         ghost = (m_creature->GetEntry() == MOB_SKARVALD_GHOST);
-        if (!ghost)
+        if (!ghost && pInstance)
         {
             Unit* dalronn = Unit::GetUnit((*m_creature),pInstance->GetData64(DATA_DALRONN));
             if (dalronn && dalronn->isDead())
                 CAST_CRE(dalronn)->Respawn();
 
-            if (pInstance)
-                pInstance->SetData(DATA_SKARVALD_DALRONN_EVENT, NOT_STARTED);
+            pInstance->SetData(DATA_SKARVALD_DALRONN_EVENT, NOT_STARTED);
         }
     }
 
     void EnterCombat(Unit *who)
     {
-        if (!ghost)
+        if (!ghost && pInstance)
         {
             DoScriptText(YELL_SKARVALD_AGGRO,m_creature);
 
@@ -103,14 +102,13 @@ struct TRINITY_DLL_DECL boss_skarvald_the_constructorAI : public ScriptedAI
             if (dalronn && dalronn->isAlive() && !dalronn->getVictim())
                 dalronn->getThreatManager().addThreat(who,0.0f);
 
-            if (pInstance)
-                pInstance->SetData(DATA_SKARVALD_DALRONN_EVENT, IN_PROGRESS);
+            pInstance->SetData(DATA_SKARVALD_DALRONN_EVENT, IN_PROGRESS);
         }
     }
 
     void JustDied(Unit* Killer)
     {
-        if (!ghost)
+        if (!ghost && pInstance)
         {
             Unit* dalronn = Unit::GetUnit((*m_creature),pInstance->GetData64(DATA_DALRONN));
             if (dalronn)
@@ -119,8 +117,7 @@ struct TRINITY_DLL_DECL boss_skarvald_the_constructorAI : public ScriptedAI
                 {
                     DoScriptText(YELL_SKARVALD_DAL_DIED,m_creature);
 
-                    if (pInstance)
-                        pInstance->SetData(DATA_SKARVALD_DALRONN_EVENT, DONE);
+                    pInstance->SetData(DATA_SKARVALD_DALRONN_EVENT, DONE);
                 }
                 else
                 {
@@ -151,10 +148,8 @@ struct TRINITY_DLL_DECL boss_skarvald_the_constructorAI : public ScriptedAI
     {
         if (ghost)
         {
-            if (pInstance->GetData(DATA_SKARVALD_DALRONN_EVENT) != IN_PROGRESS)
-            {
+            if (pInstance && pInstance->GetData(DATA_SKARVALD_DALRONN_EVENT) != IN_PROGRESS)
                 m_creature->DealDamage(m_creature, m_creature->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
-            }
         }
 
         if (!UpdateVictim())
@@ -166,7 +161,7 @@ struct TRINITY_DLL_DECL boss_skarvald_the_constructorAI : public ScriptedAI
                 if (Check_Timer < diff)
                 {
                     Check_Timer = 5000;
-                    Unit* dalronn = Unit::GetUnit((*m_creature),pInstance->GetData64(DATA_DALRONN));
+                    Unit* dalronn = Unit::GetUnit(*m_creature, pInstance ? pInstance->GetData64(DATA_DALRONN) : 0);
                     if (dalronn && dalronn->isDead())
                     {
                         Dalronn_isDead = true;
@@ -211,7 +206,7 @@ struct TRINITY_DLL_DECL boss_dalronn_the_controllerAI : public ScriptedAI
     boss_dalronn_the_controllerAI(Creature *c) : ScriptedAI(c)
     {
         pInstance = c->GetInstanceData();
-        HeroicMode = m_creature->GetMap()->IsHeroic();
+        HeroicMode = c->GetMap()->IsHeroic();
     }
 
     ScriptedInstance* pInstance;
@@ -238,14 +233,13 @@ struct TRINITY_DLL_DECL boss_dalronn_the_controllerAI : public ScriptedAI
         AggroYell_Timer = 0;
 
         ghost = m_creature->GetEntry() == MOB_DALRONN_GHOST;
-        if (!ghost)
+        if (!ghost && pInstance)
         {
             Unit* skarvald = Unit::GetUnit((*m_creature),pInstance->GetData64(DATA_SKARVALD));
             if (skarvald && skarvald->isDead())
                 CAST_CRE(skarvald)->Respawn();
 
-            if (pInstance)
-                pInstance->SetData(DATA_SKARVALD_DALRONN_EVENT, NOT_STARTED);
+            pInstance->SetData(DATA_SKARVALD_DALRONN_EVENT, NOT_STARTED);
         }
     }
 
@@ -305,10 +299,8 @@ struct TRINITY_DLL_DECL boss_dalronn_the_controllerAI : public ScriptedAI
     {
         if (ghost)
         {
-            if (pInstance->GetData(DATA_SKARVALD_DALRONN_EVENT) != IN_PROGRESS)
-            {
+            if (pInstance && pInstance->GetData(DATA_SKARVALD_DALRONN_EVENT) != IN_PROGRESS)
                 m_creature->DealDamage(m_creature, m_creature->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
-            }
         }
 
         if (!UpdateVictim())
@@ -328,7 +320,7 @@ struct TRINITY_DLL_DECL boss_dalronn_the_controllerAI : public ScriptedAI
                 if (Check_Timer < diff)
                 {
                     Check_Timer = 5000;
-                    Unit* skarvald = Unit::GetUnit((*m_creature),pInstance->GetData64(DATA_SKARVALD));
+                    Unit* skarvald = Unit::GetUnit(*m_creature, pInstance ? pInstance->GetData64(DATA_SKARVALD) : 0);
                     if (skarvald && skarvald->isDead())
                     {
                         Skarvald_isDead = true;

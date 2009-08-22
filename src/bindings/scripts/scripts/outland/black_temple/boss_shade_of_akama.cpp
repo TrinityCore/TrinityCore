@@ -231,7 +231,7 @@ struct TRINITY_DLL_DECL boss_shade_of_akamaAI : public ScriptedAI
         //m_creature->GetMotionMaster()->MoveIdle();
         m_creature->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_STUN);
 
-        if (pInstance && m_creature->isAlive())
+        if (pInstance)
             pInstance->SetData(DATA_SHADEOFAKAMAEVENT, NOT_STARTED);
 
         reseting = false;
@@ -667,7 +667,8 @@ struct TRINITY_DLL_DECL npc_akamaAI : public ScriptedAI
 
         if (ShadeHasDied && (WayPointId == 1))
         {
-            if (pInstance) pInstance->SetData(DATA_SHADEOFAKAMAEVENT, DONE);
+            if (pInstance)
+                pInstance->SetData(DATA_SHADEOFAKAMAEVENT, DONE);
             m_creature->GetMotionMaster()->MovePoint(WayPointId, AkamaWP[1].x, AkamaWP[1].y, AkamaWP[1].z);
             ++WayPointId;
         }

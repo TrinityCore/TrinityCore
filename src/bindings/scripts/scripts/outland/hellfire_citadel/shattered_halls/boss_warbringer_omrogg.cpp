@@ -138,7 +138,7 @@ struct TRINITY_DLL_DECL boss_warbringer_omroggAI : public ScriptedAI
         LeftHeadGUID  = 0;
         RightHeadGUID = 0;
         pInstance = c->GetInstanceData();
-        HeroicMode = m_creature->GetMap()->IsHeroic();
+        HeroicMode = c->GetMap()->IsHeroic();
     }
 
     ScriptedInstance* pInstance;

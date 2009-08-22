@@ -169,7 +169,7 @@ struct TRINITY_DLL_DECL boss_magtheridonAI : public ScriptedAI
 {
     boss_magtheridonAI(Creature *c) : ScriptedAI(c)
     {
-        pInstance =m_creature->GetInstanceData();
+        pInstance = c->GetInstanceData();
         m_creature->SetFloatValue(UNIT_FIELD_BOUNDINGRADIUS, 10);
         m_creature->SetFloatValue(UNIT_FIELD_COMBATREACH, 10);
 
@@ -511,7 +511,8 @@ struct TRINITY_DLL_DECL mob_hellfire_channelerAI : public ScriptedAI
 bool GOHello_go_Manticron_Cube(Player* pPlayer, GameObject* pGo)
 {
     ScriptedInstance* pInstance = pGo->GetInstanceData();
-    if (!pInstance) return true;
+    if (!pInstance)
+        return true;
     if (pInstance->GetData(DATA_MAGTHERIDON_EVENT) != IN_PROGRESS) return true;
     Creature *Magtheridon =Unit::GetCreature(*pGo, pInstance->GetData64(DATA_MAGTHERIDON));
     if (!Magtheridon || !Magtheridon->isAlive()) return true;

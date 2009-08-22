@@ -126,7 +126,8 @@ static EventFelmyst MaxTimer[]=
 
 struct TRINITY_DLL_DECL boss_felmystAI : public ScriptedAI
 {
-    boss_felmystAI(Creature *c) : ScriptedAI(c){
+    boss_felmystAI(Creature *c) : ScriptedAI(c)
+    {
         pInstance = c->GetInstanceData();
 
         // wait for core patch be accepted
@@ -307,7 +308,7 @@ struct TRINITY_DLL_DECL boss_felmystAI : public ScriptedAI
             error_log("Summon Vapor case 2");
             Unit* target;
             target = SelectTarget(SELECT_TARGET_RANDOM, 0, 150, true);
-            if (!target) target = Unit::GetUnit((*m_creature), pInstance->GetData64(DATA_PLAYER_GUID));
+            if (!target) target = Unit::GetUnit(*m_creature, pInstance ? pInstance->GetData64(DATA_PLAYER_GUID) : 0);
             if (target)
             {
                 Creature* Vapor = m_creature->SummonCreature(MOB_VAPOR, target->GetPositionX()-5+rand()%10, target->GetPositionY()-5+rand()%10, target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 9000);
@@ -332,7 +333,7 @@ struct TRINITY_DLL_DECL boss_felmystAI : public ScriptedAI
             //m_creature->CastSpell(m_creature, SPELL_VAPOR_SELECT); need core support
             Unit* target;
             target = SelectTarget(SELECT_TARGET_RANDOM, 0, 150, true);
-            if (!target) target = Unit::GetUnit((*m_creature), pInstance->GetData64(DATA_PLAYER_GUID));
+            if (!target) target = Unit::GetUnit(*m_creature, pInstance ? pInstance->GetData64(DATA_PLAYER_GUID) : 0);
             if (target)
             {
                 //target->CastSpell(target, SPELL_VAPOR_SUMMON, true); need core support
@@ -359,7 +360,7 @@ struct TRINITY_DLL_DECL boss_felmystAI : public ScriptedAI
         case 5:{
             Unit* target;
             target = SelectTarget(SELECT_TARGET_RANDOM, 0, 150, true);
-            if (!target) target = Unit::GetUnit((*m_creature), pInstance->GetData64(DATA_PLAYER_GUID));
+            if (!target) target = Unit::GetUnit(*m_creature, pInstance ? pInstance->GetData64(DATA_PLAYER_GUID) : 0);
             if (target)
             {
                 BreathX = target->GetPositionX();

@@ -393,7 +393,7 @@ struct TRINITY_DLL_DECL boss_headless_horsemanAI : public ScriptedAI
         }
 
         if (pInstance)
-            pInstance->SetData(DATA_HORSEMAN_EVENT, 0);
+            pInstance->SetData(DATA_HORSEMAN_EVENT, NOT_STARTED);
     }
 
     void FlyMode()

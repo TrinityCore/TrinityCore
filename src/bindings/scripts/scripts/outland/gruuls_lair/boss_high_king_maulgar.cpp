@@ -193,11 +193,14 @@ struct TRINITY_DLL_DECL boss_high_king_maulgarAI : public ScriptedAI
 
     void GetCouncil()
     {
-        //get council member's guid to respawn them if needed
-        Council[0] = pInstance->GetData64(DATA_KIGGLERTHECRAZED);
-        Council[1] = pInstance->GetData64(DATA_BLINDEYETHESEER);
-        Council[2] = pInstance->GetData64(DATA_OLMTHESUMMONER);
-        Council[3] = pInstance->GetData64(DATA_KROSHFIREHAND);
+        if(pInstance)
+        {
+            //get council member's guid to respawn them if needed
+            Council[0] = pInstance->GetData64(DATA_KIGGLERTHECRAZED);
+            Council[1] = pInstance->GetData64(DATA_BLINDEYETHESEER);
+            Council[2] = pInstance->GetData64(DATA_OLMTHESUMMONER);
+            Council[3] = pInstance->GetData64(DATA_KROSHFIREHAND);
+        }
     }
 
     void StartEvent(Unit *who)

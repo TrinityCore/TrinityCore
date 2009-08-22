@@ -53,12 +53,7 @@ EndScriptData */
 
 struct TRINITY_DLL_DECL boss_majordomoAI : public ScriptedAI
 {
-    boss_majordomoAI(Creature *c) : ScriptedAI(c)
-    {
-        pInstance = c->GetInstanceData();
-    }
-
-    ScriptedInstance* pInstance;
+    boss_majordomoAI(Creature *c) : ScriptedAI(c) {}
 
     uint32 MagicReflection_Timer;
     uint32 DamageReflection_Timer;

@@ -113,14 +113,14 @@ struct TRINITY_DLL_DECL boss_nightbaneAI : public ScriptedAI
         m_creature->RemoveUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
         m_creature->setActive(true);
 
-        if (pInstance->GetData(TYPE_NIGHTBANE) == DONE || pInstance->GetData(TYPE_NIGHTBANE) == IN_PROGRESS)
+        if (pInstance)
         {
-            m_creature->DealDamage(m_creature, m_creature->GetMaxHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
-            m_creature->RemoveCorpse();
-        }
-        else
-        {
-            if (pInstance)
+            if (pInstance->GetData(TYPE_NIGHTBANE) == DONE || pInstance->GetData(TYPE_NIGHTBANE) == IN_PROGRESS)
+            {
+                m_creature->DealDamage(m_creature, m_creature->GetMaxHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+                m_creature->RemoveCorpse();
+            }
+            else
                 pInstance->SetData(TYPE_NIGHTBANE, NOT_STARTED);
         }
 
@@ -138,8 +138,11 @@ struct TRINITY_DLL_DECL boss_nightbaneAI : public ScriptedAI
 
     void HandleTerraceDoors(bool open)
     {
-        pInstance->HandleGameObject(pInstance->GetData64(DATA_MASTERS_TERRACE_DOOR_1), open);
-        pInstance->HandleGameObject(pInstance->GetData64(DATA_MASTERS_TERRACE_DOOR_2), open);
+        if(pInstance)
+        {
+            pInstance->HandleGameObject(pInstance->GetData64(DATA_MASTERS_TERRACE_DOOR_1), open);
+            pInstance->HandleGameObject(pInstance->GetData64(DATA_MASTERS_TERRACE_DOOR_2), open);
+        }
     }
 
     void EnterCombat(Unit *who)

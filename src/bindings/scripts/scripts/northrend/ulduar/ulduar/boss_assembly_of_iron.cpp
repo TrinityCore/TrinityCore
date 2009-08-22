@@ -118,9 +118,6 @@ struct TRINITY_DLL_DECL boss_steelbreakerAI : public ScriptedAI
     boss_steelbreakerAI(Creature *c) : ScriptedAI(c)
     {
         pInstance = c->GetInstanceData();
-        if(!pInstance)
-            return;
-        Reset();
     }
     
     void Reset()
@@ -128,7 +125,8 @@ struct TRINITY_DLL_DECL boss_steelbreakerAI : public ScriptedAI
         events.Reset();
         phase = 0;
         m_creature->RemoveAllAuras();
-        pInstance->SetData(DATA_ASSEMBLY, NOT_STARTED);
+        if(pInstance)
+            pInstance->SetData(DATA_ASSEMBLY, NOT_STARTED);
     }
     
     EventMap events;
@@ -158,13 +156,13 @@ struct TRINITY_DLL_DECL boss_steelbreakerAI : public ScriptedAI
     {
         if(damage >= m_creature->GetHealth())
         {
-            if(Creature* Brundir = Unit::GetCreature((*m_creature), pInstance->GetData64(DATA_STORMCALLER_BRUNDIR)))
+            if(Creature* Brundir = Unit::GetCreature(*m_creature, pInstance ? pInstance->GetData64(DATA_STORMCALLER_BRUNDIR) : 0))
                 if(Brundir->isAlive())
                 {
                     Brundir->SetHealth(Brundir->GetMaxHealth());
                 }
             
-            if(Creature* Molgeim = Unit::GetCreature((*m_creature), pInstance->GetData64(DATA_RUNEMASTER_MOLGEIM)))
+            if(Creature* Molgeim = Unit::GetCreature(*m_creature, pInstance ? pInstance->GetData64(DATA_RUNEMASTER_MOLGEIM) : 0))
                 if(Molgeim->isAlive())
                 {
                     Molgeim->SetHealth(Molgeim->GetMaxHealth());
@@ -175,7 +173,7 @@ struct TRINITY_DLL_DECL boss_steelbreakerAI : public ScriptedAI
     
     void JustDied(Unit* Killer)
     {
-        if(IsEncounterComplete(pInstance, m_creature))
+        if(IsEncounterComplete(pInstance, m_creature) && pInstance)
             pInstance->SetData(DATA_ASSEMBLY, DONE);
     }
     
@@ -232,16 +230,12 @@ struct TRINITY_DLL_DECL boss_runemaster_molgeimAI : public ScriptedAI
     boss_runemaster_molgeimAI(Creature *c) : ScriptedAI(c)
     {
         pInstance = c->GetInstanceData();
-        if(!pInstance)
-            return;
-            
-        Reset();
-       
     }
     
     void Reset()
     {
-        pInstance->SetData(DATA_ASSEMBLY, NOT_STARTED);
+        if(pInstance)
+            pInstance->SetData(DATA_ASSEMBLY, NOT_STARTED);
         events.Reset();
         m_creature->RemoveAllAuras();
         phase = 0;
@@ -274,13 +268,13 @@ struct TRINITY_DLL_DECL boss_runemaster_molgeimAI : public ScriptedAI
     {
         if(damage >= m_creature->GetHealth())
         {   
-        if(Creature* Steelbreaker = Unit::GetCreature((*m_creature), pInstance->GetData64(DATA_STEELBREAKER)))
+        if(Creature* Steelbreaker = Unit::GetCreature(*m_creature, pInstance ? pInstance->GetData64(DATA_STEELBREAKER) : 0))
                 if(Steelbreaker->isAlive())
                 {
                     Steelbreaker->SetHealth(Steelbreaker->GetMaxHealth());
                 }
             
-            if(Creature* Brundir = Unit::GetCreature((*m_creature), pInstance->GetData64(DATA_STORMCALLER_BRUNDIR)))
+            if(Creature* Brundir = Unit::GetCreature((*m_creature), pInstance ? pInstance->GetData64(DATA_STORMCALLER_BRUNDIR) : 0))
                 if(Brundir->isAlive())
                 {
                     Brundir->SetHealth(Brundir->GetMaxHealth());
@@ -291,7 +285,7 @@ struct TRINITY_DLL_DECL boss_runemaster_molgeimAI : public ScriptedAI
     
     void JustDied(Unit* Killer)
     {
-        if(IsEncounterComplete(pInstance, m_creature))
+        if(IsEncounterComplete(pInstance, m_creature) && pInstance)
             pInstance->SetData(DATA_ASSEMBLY, DONE);
     }
     
@@ -400,15 +394,12 @@ struct TRINITY_DLL_DECL boss_stormcaller_brundirAI : public ScriptedAI
     boss_stormcaller_brundirAI(Creature *c) : ScriptedAI(c)
     {
         pInstance = c->GetInstanceData();
-        if(!pInstance)
-            return;
-
-        Reset();   
     }
     
     void Reset()
     {
-        pInstance->SetData(DATA_ASSEMBLY, NOT_STARTED);
+        if(pInstance)
+            pInstance->SetData(DATA_ASSEMBLY, NOT_STARTED);
         m_creature->RemoveAllAuras();
         events.Reset();
         phase = 0;
@@ -445,13 +436,13 @@ struct TRINITY_DLL_DECL boss_stormcaller_brundirAI : public ScriptedAI
     {
         if(damage >= m_creature->GetHealth())
         {
-            if(Creature* Steelbreaker = Unit::GetCreature((*m_creature), pInstance->GetData64(DATA_STEELBREAKER)))
+            if(Creature* Steelbreaker = Unit::GetCreature(*m_creature, pInstance ? pInstance->GetData64(DATA_STEELBREAKER) : 0))
                 if(Steelbreaker->isAlive())
                 {
                     Steelbreaker->SetHealth(Steelbreaker->GetMaxHealth());
                 }
             
-            if(Creature* Molgeim = Unit::GetCreature((*m_creature), pInstance->GetData64(DATA_RUNEMASTER_MOLGEIM)))
+            if(Creature* Molgeim = Unit::GetCreature(*m_creature, pInstance ? pInstance->GetData64(DATA_RUNEMASTER_MOLGEIM) : 0))
                 if(Molgeim->isAlive())
                 {
                     Molgeim->SetHealth(Molgeim->GetMaxHealth());
@@ -463,7 +454,7 @@ struct TRINITY_DLL_DECL boss_stormcaller_brundirAI : public ScriptedAI
     
     void JustDied(Unit* Killer)
     {
-        if(IsEncounterComplete(pInstance, m_creature))
+        if(IsEncounterComplete(pInstance, m_creature) && pInstance)
             pInstance->SetData(DATA_ASSEMBLY, DONE);
     }
     

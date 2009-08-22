@@ -135,7 +135,7 @@ struct TRINITY_DLL_DECL boss_lady_vashjAI : public ScriptedAI
         pInstance = c->GetInstanceData();
         Intro = false;
         JustCreated = true;
-        m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE); //set it only once on Creature create (no need do intro if wiped)
+        c->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE); //set it only once on Creature create (no need do intro if wiped)
     }
 
     ScriptedInstance *pInstance;
@@ -924,7 +924,7 @@ struct TRINITY_DLL_DECL mob_shield_generator_channelAI : public ScriptedAI
 
 bool ItemUse_item_tainted_core(Player* pPlayer, Item* _Item, SpellCastTargets const& targets)
 {
-    ScriptedInstance *pInstance = (pPlayer->GetInstanceData()) ? (pPlayer->GetInstanceData()) : NULL;
+    ScriptedInstance *pInstance = pPlayer->GetInstanceData();
 
     if (!pInstance)
     {

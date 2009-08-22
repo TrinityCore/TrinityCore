@@ -127,6 +127,9 @@ struct TRINITY_DLL_DECL boss_keristraszaAI : public ScriptedAI
 
     bool CheckContainmentSpheres(bool remove_prison = false)
     {
+        if(!pInstance)
+            return false;
+
         ContainmentSphereGUIDs[0] = pInstance->GetData64(ANOMALUS_CONTAINMET_SPHERE);
         ContainmentSphereGUIDs[1] = pInstance->GetData64(ORMOROKS_CONTAINMET_SPHERE);
         ContainmentSphereGUIDs[2] = pInstance->GetData64(TELESTRAS_CONTAINMET_SPHERE);
@@ -230,7 +233,7 @@ bool GOHello_containment_sphere(Player *pPlayer, GameObject *pGO)
 {
     ScriptedInstance *pInstance = pGO->GetInstanceData();
 
-    Creature *Keristrasza = Unit::GetCreature(*pGO, pInstance->GetData64(DATA_KERISTRASZA));
+    Creature *Keristrasza = Unit::GetCreature(*pGO, pInstance ? pInstance->GetData64(DATA_KERISTRASZA) : 0);
     if (Keristrasza && Keristrasza->isAlive())
     {
         // maybe these are hacks :(

@@ -48,7 +48,7 @@ struct TRINITY_DLL_DECL boss_lorekeeperpolkeltAI : public ScriptedAI
 
     void JustDied(Unit *killer)
     {
-        ScriptedInstance *pInstance = (m_creature->GetInstanceData()) ? (m_creature->GetInstanceData()) : NULL;
+        ScriptedInstance *pInstance = m_creature->GetInstanceData();
         if (pInstance)
         {
             pInstance->SetData(DATA_LOREKEEPERPOLKELT_DEATH, 0);

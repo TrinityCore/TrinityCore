@@ -372,7 +372,7 @@ struct TRINITY_DLL_DECL boss_priestess_lackey_commonAI : public ScriptedAI
         ResetThreatTimer = 5000 + rand()%15000;
 
         // in case she is not alive and Reset was for some reason called, respawn her (most likely party wipe after killing her)
-        if (Creature* pDelrissa = Unit::GetCreature(*m_creature, pInstance->GetData64(DATA_DELRISSA)))
+        if (Creature* pDelrissa = Unit::GetCreature(*m_creature, pInstance ? pInstance->GetData64(DATA_DELRISSA) : 0))
         {
             if (!pDelrissa->isAlive())
                 pDelrissa->Respawn();

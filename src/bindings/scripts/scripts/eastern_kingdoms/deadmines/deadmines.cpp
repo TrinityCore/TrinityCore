@@ -196,7 +196,7 @@ struct TRINITY_DLL_DECL instance_deadmines : public ScriptedInstance
 
 bool ItemUse_item_defias_gunpowder(Player* pPlayer, Item* _Item, SpellCastTargets const& targets)
 {
-    ScriptedInstance *pInstance = (pPlayer->GetInstanceData()) ? (pPlayer->GetInstanceData()) : NULL;
+    ScriptedInstance *pInstance = pPlayer->GetInstanceData();
 
     if (!pInstance)
     {
@@ -233,5 +233,3 @@ void AddSC_instance_deadmines()
     newscript->pItemUse = &ItemUse_item_defias_gunpowder;
     newscript->RegisterSelf();
 }
-
-

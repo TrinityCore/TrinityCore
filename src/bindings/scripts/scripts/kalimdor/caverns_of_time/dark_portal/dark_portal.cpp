@@ -279,7 +279,7 @@ struct TRINITY_DLL_DECL npc_time_riftAI : public ScriptedAI
         if (!creature_entry)
             return;
 
-        if (pInstance->GetData(TYPE_MEDIVH) != IN_PROGRESS)
+        if (pInstance && pInstance->GetData(TYPE_MEDIVH) != IN_PROGRESS)
         {
             m_creature->InterruptNonMeleeSpells(true);
             m_creature->RemoveAllAuras();
@@ -297,7 +297,7 @@ struct TRINITY_DLL_DECL npc_time_riftAI : public ScriptedAI
 
         if (Summon)
         {
-            if (Unit *temp = Unit::GetUnit(*m_creature,pInstance->GetData64(DATA_MEDIVH)))
+            if (Unit *temp = Unit::GetUnit(*m_creature, pInstance ? pInstance->GetData64(DATA_MEDIVH) : 0))
                 Summon->AddThreat(temp,0.0f);
         }
     }
