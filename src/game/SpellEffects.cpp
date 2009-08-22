@@ -3706,7 +3706,7 @@ void Spell::EffectAddFarsight(uint32 i)
 
     // Need to update visibility of object for client to accept farsight guid
     ((Player*)m_caster)->SetViewpoint(dynObj, true);
-    ((Player*)m_caster)->UpdateVisibilityOf(dynObj);
+    //((Player*)m_caster)->UpdateVisibilityOf(dynObj);
 }
 
 void Spell::EffectTeleUnitsFaceCaster(uint32 i)

@@ -18887,8 +18887,13 @@ bool Player::canSeeOrDetect(Unit const* u, bool detect, bool inVisibleList, bool
         return false;
 
     // always seen by owner
-    if(GetGUID() == u->GetCharmerOrOwnerGUID())
-        return true;
+    if(uint64 guid = u->GetCharmerOrOwnerGUID())
+        if(GetGUID() == guid)
+            return true;
+
+    if(uint64 guid = GetUInt64Value(PLAYER_FARSIGHT))
+        if(u->GetGUID() == guid)
+            return true;
 
     // different visible distance checks
     if(isInFlight())                                     // what see player in flight
@@ -20524,6 +20529,9 @@ void Player::SetViewpoint(WorldObject* target, bool apply)
             sLog.outCrash("Player::CreateViewpoint: Player %s cannot add new viewpoint!", GetName());
             return;
         }
+
+        // farsight dynobj or puppet may be very far away
+        UpdateVisibilityOf(target);
 
         if(target->isType(TYPEMASK_UNIT) && !m_Vehicle)
             ((Unit*)target)->AddPlayerToVision(this);
