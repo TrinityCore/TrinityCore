@@ -37,17 +37,13 @@ EndScriptData */
 
 struct TRINITY_DLL_DECL boss_sulfuronAI : public ScriptedAI
 {
-    boss_sulfuronAI(Creature *c) : ScriptedAI(c)
-    {
-        pInstance = c->GetInstanceData();
-    }
+    boss_sulfuronAI(Creature *c) : ScriptedAI(c) {}
 
     uint32 Darkstrike_Timer;
     uint32 DemoralizingShout_Timer;
     uint32 Inspire_Timer;
     uint32 Knockdown_Timer;
     uint32 Flamespear_Timer;
-    ScriptedInstance *pInstance;
 
     void Reset()
     {
@@ -124,16 +120,11 @@ struct TRINITY_DLL_DECL boss_sulfuronAI : public ScriptedAI
 
 struct TRINITY_DLL_DECL mob_flamewaker_priestAI : public ScriptedAI
 {
-    mob_flamewaker_priestAI(Creature *c) : ScriptedAI(c)
-    {
-        pInstance = c->GetInstanceData();
-    }
+    mob_flamewaker_priestAI(Creature *c) : ScriptedAI(c) {}
 
     uint32 Heal_Timer;
     uint32 ShadowWordPain_Timer;
     uint32 Immolate_Timer;
-
-    ScriptedInstance *pInstance;
 
     void Reset()
     {

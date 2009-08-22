@@ -286,11 +286,9 @@ struct TRINITY_DLL_DECL mob_shadowmoon_channelerAI : public ScriptedAI
 {
     mob_shadowmoon_channelerAI(Creature *c) : ScriptedAI(c)
     {
-        pInstance = c->GetInstanceData();
         HeroicMode = c->GetMap()->IsHeroic();
     }
 
-    ScriptedInstance* pInstance;
     bool HeroicMode;
 
     uint32 ShadowBolt_Timer;

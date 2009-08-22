@@ -50,7 +50,7 @@ struct TRINITY_DLL_DECL boss_theolenkrastinovAI : public ScriptedAI
 
     void JustDied(Unit* pKiller)
     {
-        ScriptedInstance* pInstance = (m_creature->GetInstanceData()) ? (m_creature->GetInstanceData()) : NULL;
+        ScriptedInstance* pInstance = m_creature->GetInstanceData();
         if (pInstance)
         {
             pInstance->SetData(DATA_DOCTORTHEOLENKRASTINOV_DEATH, 0);

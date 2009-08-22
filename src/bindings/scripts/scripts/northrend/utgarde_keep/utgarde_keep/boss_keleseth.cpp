@@ -297,7 +297,7 @@ struct TRINITY_DLL_DECL mob_vrykul_skeletonAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
-        if (pInstance->GetData(DATA_PRINCEKELESETH_EVENT) == IN_PROGRESS)
+        if (pInstance && pInstance->GetData(DATA_PRINCEKELESETH_EVENT) == IN_PROGRESS)
         {
             if (isDead)
             {

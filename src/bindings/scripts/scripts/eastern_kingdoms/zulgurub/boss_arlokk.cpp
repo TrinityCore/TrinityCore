@@ -26,7 +26,7 @@ EndScriptData */
 
 bool GOHello_go_gong_of_bethekk(Player* pPlayer, GameObject* pGo)
 {
-    if (ScriptedInstance* m_pInstance = (ScriptedInstance*)pGo->GetInstanceData())
+    if (ScriptedInstance* m_pInstance = pGo->GetInstanceData())
     {
         if (m_pInstance->GetData(TYPE_ARLOKK) == DONE || m_pInstance->GetData(TYPE_ARLOKK) == IN_PROGRESS)
             return true;

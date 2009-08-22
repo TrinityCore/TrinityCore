@@ -363,7 +363,8 @@ void hyjal_trashAI::UpdateAI(const uint32 diff)
 
 void hyjal_trashAI::JustDied(Unit *victim)
 {
-    if (!pInstance)return;
+    if (!pInstance)
+        return;
     if (IsEvent && !m_creature->isWorldBoss())
         pInstance->SetData(DATA_TRASH, 0);//signal trash is dead
 

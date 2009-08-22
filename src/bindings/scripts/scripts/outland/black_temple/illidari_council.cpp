@@ -137,7 +137,7 @@ struct TRINITY_DLL_DECL mob_blood_elf_council_voice_triggerAI : public ScriptedA
     // finds and stores the GUIDs for each Council member using instance data system.
     void LoadCouncilGUIDs()
     {
-        if (ScriptedInstance* pInstance = (m_creature->GetInstanceData()))
+        if (ScriptedInstance* pInstance = m_creature->GetInstanceData())
         {
             Council[0] = pInstance->GetData64(DATA_GATHIOSTHESHATTERER);
             Council[1] = pInstance->GetData64(DATA_VERASDARKSHADOW);
@@ -251,7 +251,8 @@ struct TRINITY_DLL_DECL mob_illidari_councilAI : public ScriptedAI
 
     void StartEvent(Unit *target)
     {
-        if (!pInstance) return;
+        if (!pInstance)
+            return;
 
         if (target && target->isAlive())
         {

@@ -222,7 +222,7 @@ struct TRINITY_DLL_DECL boss_the_lurker_belowAI : public Scripted_NoMovementAI
          }else SpoutAnimTimer-=diff;
 
          Map* pMap = m_creature->GetMap();
-         if (pMap->IsDungeon() && pInstance->GetData(DATA_THELURKERBELOWEVENT) == IN_PROGRESS)
+         if (pMap->IsDungeon() && pInstance && pInstance->GetData(DATA_THELURKERBELOWEVENT) == IN_PROGRESS)
          {
              Map::PlayerList const &PlayerList = pMap->GetPlayers();
              for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
@@ -258,7 +258,7 @@ struct TRINITY_DLL_DECL boss_the_lurker_belowAI : public Scripted_NoMovementAI
 
           //Check if players in water and if in water cast spell
          Map* pMap = m_creature->GetMap();
-         if (pMap->IsDungeon() && pInstance->GetData(DATA_THELURKERBELOWEVENT) == IN_PROGRESS)
+         if (pMap->IsDungeon() && pInstance && pInstance->GetData(DATA_THELURKERBELOWEVENT) == IN_PROGRESS)
          {
              Map::PlayerList const &PlayerList = pMap->GetPlayers();
 

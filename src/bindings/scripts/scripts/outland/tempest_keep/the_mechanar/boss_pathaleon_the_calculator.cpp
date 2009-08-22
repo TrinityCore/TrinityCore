@@ -52,7 +52,7 @@ struct TRINITY_DLL_DECL boss_pathaleon_the_calculatorAI : public ScriptedAI
 {
     boss_pathaleon_the_calculatorAI(Creature *c) : ScriptedAI(c), summons(m_creature)
     {
-        HeroicMode = m_creature->GetMap()->IsHeroic();
+        HeroicMode = c->GetMap()->IsHeroic();
     }
 
     uint32 Summon_Timer;
@@ -178,8 +178,6 @@ CreatureAI* GetAI_boss_pathaleon_the_calculator(Creature* pCreature)
 struct TRINITY_DLL_DECL mob_nether_wraithAI : public ScriptedAI
 {
     mob_nether_wraithAI(Creature *c) : ScriptedAI(c) {}
-
-    ScriptedInstance *pInstance;
 
     uint32 ArcaneMissiles_Timer;
     uint32 Detonation_Timer;

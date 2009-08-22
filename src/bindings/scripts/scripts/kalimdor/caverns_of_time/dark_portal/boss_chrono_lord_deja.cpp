@@ -46,7 +46,7 @@ struct TRINITY_DLL_DECL boss_chrono_lord_dejaAI : public ScriptedAI
     boss_chrono_lord_dejaAI(Creature *c) : ScriptedAI(c)
     {
         pInstance = c->GetInstanceData();
-        HeroicMode = m_creature->GetMap()->IsHeroic();
+        HeroicMode = c->GetMap()->IsHeroic();
     }
 
     ScriptedInstance *pInstance;

@@ -46,7 +46,7 @@ struct TRINITY_DLL_DECL boss_nethermancer_sepethreaAI : public ScriptedAI
     boss_nethermancer_sepethreaAI(Creature *c) : ScriptedAI(c)
     {
         pInstance = c->GetInstanceData();
-        HeroicMode = m_creature->GetMap()->IsHeroic();
+        HeroicMode = c->GetMap()->IsHeroic();
     }
 
     ScriptedInstance *pInstance;

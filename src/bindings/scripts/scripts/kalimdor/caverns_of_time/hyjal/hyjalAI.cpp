@@ -708,7 +708,8 @@ void hyjalAI::SpawnVeins()
 
 void hyjalAI::DeSpawnVeins()
 {
-    if (!pInstance)return;
+    if (!pInstance)
+        return;
     if (Faction == 1)
     {
         Creature* pUnit=Unit::GetCreature((*m_creature),pInstance->GetData64(DATA_JAINAPROUDMOORE));
@@ -751,7 +752,7 @@ void hyjalAI::UpdateAI(const uint32 diff)
         switch(m_creature->GetEntry())
         {
             case JAINA:
-                if (pInstance->GetData(DATA_ALLIANCE_RETREAT))
+                if (pInstance && pInstance->GetData(DATA_ALLIANCE_RETREAT))
                 {
                     m_creature->SetVisibility(VISIBILITY_OFF);
                     HideNearPos(m_creature->GetPositionX(), m_creature->GetPositionY());
@@ -763,7 +764,7 @@ void hyjalAI::UpdateAI(const uint32 diff)
                 else m_creature->SetVisibility(VISIBILITY_ON);
                 break;
             case THRALL: //thrall
-                if (pInstance->GetData(DATA_HORDE_RETREAT))
+                if (pInstance && pInstance->GetData(DATA_HORDE_RETREAT))
                 {
                     m_creature->SetVisibility(VISIBILITY_OFF);
                     HideNearPos(m_creature->GetPositionX(), m_creature->GetPositionY());
@@ -867,7 +868,8 @@ void hyjalAI::UpdateAI(const uint32 diff)
                     CheckTimer = 0;
                     m_creature->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                     BossGUID[i] = 0;
-                    pInstance->DoUpdateWorldState(WORLD_STATE_ENEMY, 0); // Reset world state for enemies to disable it
+                    if(pInstance)
+                        pInstance->DoUpdateWorldState(WORLD_STATE_ENEMY, 0); // Reset world state for enemies to disable it
                 }
             }
         }

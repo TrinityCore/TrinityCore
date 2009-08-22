@@ -51,7 +51,7 @@ struct TRINITY_DLL_DECL boss_mekgineer_steamriggerAI : public ScriptedAI
     boss_mekgineer_steamriggerAI(Creature *c) : ScriptedAI(c)
     {
         pInstance = c->GetInstanceData();
-        HeroicMode = m_creature->GetMap()->IsHeroic();
+        HeroicMode = c->GetMap()->IsHeroic();
     }
 
     ScriptedInstance *pInstance;
@@ -74,7 +74,7 @@ struct TRINITY_DLL_DECL boss_mekgineer_steamriggerAI : public ScriptedAI
         Summon50 = false;
         Summon25 = false;
 
-        if (pInstance && m_creature->isAlive())
+        if (pInstance)
             pInstance->SetData(TYPE_MEKGINEER_STEAMRIGGER, NOT_STARTED);
     }
 
@@ -200,7 +200,7 @@ struct TRINITY_DLL_DECL mob_steamrigger_mechanicAI : public ScriptedAI
     mob_steamrigger_mechanicAI(Creature *c) : ScriptedAI(c)
     {
         pInstance = c->GetInstanceData();
-        HeroicMode = m_creature->GetMap()->IsHeroic();
+        HeroicMode = c->GetMap()->IsHeroic();
     }
 
     ScriptedInstance* pInstance;

@@ -148,7 +148,7 @@ struct TRINITY_DLL_DECL boss_leotheras_the_blindAI : public ScriptedAI
 {
     boss_leotheras_the_blindAI(Creature *c) : ScriptedAI(c)
     {
-        m_creature->GetPosition(x,y,z);
+        c->GetPosition(x,y,z);
         pInstance = c->GetInstanceData();
         Demon = 0;
 

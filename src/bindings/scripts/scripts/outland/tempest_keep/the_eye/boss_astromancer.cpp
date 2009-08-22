@@ -75,8 +75,8 @@ struct TRINITY_DLL_DECL boss_high_astromancer_solarianAI : public ScriptedAI
     {
         pInstance = c->GetInstanceData();
 
-        defaultarmor = m_creature->GetArmor();
-        defaultsize = m_creature->GetFloatValue(OBJECT_FIELD_SCALE_X);
+        defaultarmor = c->GetArmor();
+        defaultsize = c->GetFloatValue(OBJECT_FIELD_SCALE_X);
     }
 
     ScriptedInstance *pInstance;

@@ -355,9 +355,9 @@ struct TRINITY_DLL_DECL boss_sartharionAI : public ScriptedAI
         if (!UpdateVictim())
             return;
 
-        Unit* pTene = Unit::GetUnit(*m_creature, m_pInstance->GetData64(DATA_TENEBRON));
-        Unit* pShad = Unit::GetUnit(*m_creature, m_pInstance->GetData64(DATA_SHADRON));
-        Unit* pVesp = Unit::GetUnit(*m_creature, m_pInstance->GetData64(DATA_VESPERON));
+        Unit* pTene = Unit::GetUnit(*m_creature, m_pInstance ? m_pInstance->GetData64(DATA_TENEBRON) : 0);
+        Unit* pShad = Unit::GetUnit(*m_creature, m_pInstance ? m_pInstance->GetData64(DATA_SHADRON) : 0);
+        Unit* pVesp = Unit::GetUnit(*m_creature, m_pInstance ? m_pInstance->GetData64(DATA_VESPERON) : 0);
 
         //spell will target dragons, if they are still alive at 35%
         if (!m_bIsBerserk && (m_creature->GetHealth()*100 / m_creature->GetMaxHealth()) <= 35 && (pTene->isAlive() || pShad->isAlive() || pVesp->isAlive()))

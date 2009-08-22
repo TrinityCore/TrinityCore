@@ -52,11 +52,9 @@ struct TRINITY_DLL_DECL boss_warchief_kargath_bladefistAI : public ScriptedAI
 {
     boss_warchief_kargath_bladefistAI(Creature *c) : ScriptedAI(c)
     {
-        pInstance = c->GetInstanceData();
-        HeroicMode = m_creature->GetMap()->IsHeroic();
+        HeroicMode = c->GetMap()->IsHeroic();
     }
 
-    ScriptedInstance* pInstance;
     bool HeroicMode;
 
     std::vector<uint64> adds;

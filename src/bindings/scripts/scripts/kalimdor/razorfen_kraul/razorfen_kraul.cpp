@@ -136,7 +136,6 @@ struct TRINITY_DLL_DECL npc_deaths_head_ward_keeperAI : public ScriptedAI
     npc_deaths_head_ward_keeperAI(Creature *c) : ScriptedAI(c)
     {
         pInstance = c->GetInstanceData();
-        Reset();
     }
 
     ScriptedInstance *pInstance;

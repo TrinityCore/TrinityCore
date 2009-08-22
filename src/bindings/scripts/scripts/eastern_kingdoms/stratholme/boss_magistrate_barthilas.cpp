@@ -34,12 +34,7 @@ EndScriptData */
 
 struct TRINITY_DLL_DECL boss_magistrate_barthilasAI : public ScriptedAI
 {
-    boss_magistrate_barthilasAI(Creature *c) : ScriptedAI(c)
-    {
-        pInstance = m_creature->GetInstanceData();
-    }
-
-    ScriptedInstance* pInstance;
+    boss_magistrate_barthilasAI(Creature *c) : ScriptedAI(c) {}
 
     uint32 DrainingBlow_Timer;
     uint32 CrowdPummel_Timer;

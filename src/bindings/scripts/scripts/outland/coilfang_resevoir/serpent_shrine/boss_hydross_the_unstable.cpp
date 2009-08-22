@@ -82,6 +82,7 @@ struct TRINITY_DLL_DECL boss_hydross_the_unstableAI : public ScriptedAI
     }
 
     ScriptedInstance* pInstance;
+
     uint64 beams[2];
     uint32 PosCheck_Timer;
     uint32 MarkOfHydross_Timer;

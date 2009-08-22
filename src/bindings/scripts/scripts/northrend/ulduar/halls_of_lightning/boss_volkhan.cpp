@@ -76,7 +76,6 @@ struct TRINITY_DLL_DECL boss_volkhanAI : public ScriptedAI
     {
         m_pInstance = pCreature->GetInstanceData();
         m_bIsHeroic = pCreature->GetMap()->IsHeroic();
-        Reset();
     }
 
     ScriptedInstance* m_pInstance;
@@ -366,12 +365,8 @@ struct TRINITY_DLL_DECL mob_molten_golemAI : public ScriptedAI
 {
     mob_molten_golemAI(Creature *pCreature) : ScriptedAI(pCreature)
     {
-        m_pInstance = pCreature->GetInstanceData();
         m_bIsHeroic = pCreature->GetMap()->IsHeroic();
-        Reset();
     }
-
-    ScriptedInstance* m_pInstance;
 
     bool m_bIsHeroic;
     bool m_bIsFrozen;
