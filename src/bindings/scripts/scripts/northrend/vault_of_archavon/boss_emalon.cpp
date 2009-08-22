@@ -27,12 +27,14 @@
 //Creatures
 #define MOB_TEMPEST_MINION          33998
 
-float TempestMinions[4][5] =
+#define MAX_TEMPEST_MINIONS         4
+
+float TempestMinions[4][4] =
 {
-    {33998, -203.980103, -281.287720, 91.650223, 1.598807},
-    {33998, -233.489410, -281.139282, 91.652412, 1.598807},
-    {33998, -233.267578, -297.104645, 91.681915, 1.598807},
-    {33998, -203.842529, -297.097015, 91.745163, 1.598807}
+    {-203.980103, -281.287720, 91.650223, 1.598807},
+    {-233.489410, -281.139282, 91.652412, 1.598807},
+    {-233.267578, -297.104645, 91.681915, 1.598807},
+    {-203.842529, -297.097015, 91.745163, 1.598807}
 };
 
 /*######
@@ -40,7 +42,7 @@ float TempestMinions[4][5] =
 ######*/
 struct TRINITY_DLL_DECL boss_emalonAI : public ScriptedAI
 {
-    boss_emalonAI(Creature *c) : ScriptedAI(c), summons(m_creature) 
+    boss_emalonAI(Creature *c) : ScriptedAI(c)
     {
         pInstance = c->GetInstanceData();
     }
@@ -48,38 +50,47 @@ struct TRINITY_DLL_DECL boss_emalonAI : public ScriptedAI
     ScriptedInstance* pInstance;
 
     EventMap events;
+
     std::list<uint64> MinionList;
-    SummonList summons;
 
     void Reset()
     {
         events.Reset();
-        summons.DespawnAll();
-        MinionList.clear();
 
-        Creature* Minion;
-        for (uint32 i = 0; i < 4; ++i)
-        {
-            Minion = m_creature->SummonCreature(((uint32)TempestMinions[i][0]),TempestMinions[i][1],TempestMinions[i][2],TempestMinions[i][3],TempestMinions[i][4],TEMPSUMMON_DEAD_DESPAWN, 0);
-            MinionList.push_back(Minion->GetGUID());
-            if(Unit* target = m_creature->getVictim())
-                Minion->AI()->AttackStart(target);
-        }
+        DespawnAllMinions();
+
+        for (uint8 i = 0; i < MAX_TEMPEST_MINIONS; ++i)
+            m_creature->SummonCreature(MOB_TEMPEST_MINION, TempestMinions[i][0], TempestMinions[i][1], TempestMinions[i][2], TempestMinions[i][3], TEMPSUMMON_CORPSE_DESPAWN, 0);
 
         if (pInstance)
             pInstance->SetData(DATA_EMALON_EVENT, NOT_STARTED);
     }
-
-    void JustSummoned(Creature* summoned)
+    
+    void DespawnAllMinions()
     {
-        summons.Summon(summoned);
+        if(!MinionList.empty())
+        {
+            for(std::list<uint64>::const_iterator itr = MinionList.begin(); itr != MinionList.end(); itr++)
+            {
+                Creature *Minion = Unit::GetCreature(*m_creature, *itr);
+                if(Minion && Minion->isAlive())
+                    Minion->ForcedDespawn();
+            }
+        }
+        MinionList.clear();
     }
 
-    void SummonedCreatureDespawn(Creature *summon) {summons.Despawn(summon);}
+    void JustSummoned(Creature *summoned)
+    {
+        MinionList.push_back(summoned->GetGUID());
+
+        if(m_creature->getVictim())
+            summoned->AI()->AttackStart(m_creature->getVictim());
+    }
 
     void JustDied(Unit* Killer)
     {
-        summons.DespawnAll();
+        DespawnAllMinions();
 
         if (pInstance)
             pInstance->SetData(DATA_EMALON_EVENT, DONE);
@@ -91,8 +102,9 @@ struct TRINITY_DLL_DECL boss_emalonAI : public ScriptedAI
         {
             for(std::list<uint64>::const_iterator itr = MinionList.begin(); itr != MinionList.end(); ++itr)
             {
-                Creature* Minion = (Unit::GetCreature(*m_creature, *itr));            
-                Minion->AI()->AttackStart(who);
+                Creature *Minion = Unit::GetCreature(*m_creature, *itr);
+                if(Minion && Minion->isAlive() && !Minion->getVictim())
+                    Minion->AI()->AttackStart(who);
             }
         }
 
@@ -131,13 +143,19 @@ struct TRINITY_DLL_DECL boss_emalonAI : public ScriptedAI
                 events.ScheduleEvent(EVENT_LIGHTNING_NOVA, 40000);
                 return;
             case EVENT_OVERCHARGE:
-                if(Creature* Minion = GetClosestCreatureWithEntry(me, MOB_TEMPEST_MINION, 1000.0f))
+                if(!MinionList.empty())
                 {
-                    Minion->CastSpell(me, SPELL_OVERCHARGED, true);
-                    Minion->SetHealth(Minion->GetMaxHealth());
-                    DoScriptText(EMOTE_OVERCHARGE, m_creature);
-                }
-                events.ScheduleEvent(EVENT_OVERCHARGE, 45000);
+                    std::list<uint64>::const_iterator itr = MinionList.begin();
+                    std::advance(itr, rand() % MinionList.size());
+                    Creature *Minion = Unit::GetCreature(*m_creature, *itr);
+                    if(Minion && Minion->isAlive())
+                    {
+                        Minion->CastSpell(me, SPELL_OVERCHARGED, true);
+                        Minion->SetHealth(Minion->GetMaxHealth());
+                        DoScriptText(EMOTE_OVERCHARGE, m_creature);
+                        events.ScheduleEvent(EVENT_OVERCHARGE, 45000);
+                    }
+                }                
                 return;
             case EVENT_BERSERK:
                 DoCast(m_creature, SPELL_BERSERK);  
@@ -180,12 +198,11 @@ struct TRINITY_DLL_DECL mob_tempest_minionAI : public ScriptedAI
 
     void JustDied(Unit* Killer)
     {
-        Creature* Emalon;
-        Emalon = Unit::GetCreature(*m_creature, EmalonGUID);
-        float x,y,z;
-        Emalon->GetPosition(x,y,z);
-        Emalon->SummonCreature(MOB_TEMPEST_MINION,x,y,z,m_creature->GetOrientation(),TEMPSUMMON_DEAD_DESPAWN,0);
-        DoScriptText(EMOTE_MINION_RESPAWN, m_creature);
+        if(Emalon && Emalon->isAlive())
+        {
+            Emalon->SummonCreature(MOB_TEMPEST_MINION, Emalon->GetPositionX(), Emalon->GetPositionY(), Emalon->GetPositionZ(), Emalon->GetOrientation(), TEMPSUMMON_CORPSE_DESPAWN, 0);
+            DoScriptText(EMOTE_MINION_RESPAWN, m_creature);
+        }
     }
 
     void EnterCombat(Unit *who)
@@ -193,7 +210,7 @@ struct TRINITY_DLL_DECL mob_tempest_minionAI : public ScriptedAI
         DoZoneInCombat();
         events.ScheduleEvent(EVENT_SHOCK, 20000);
 
-        if(Emalon)
+        if(Emalon && !Emalon->getVictim())
             Emalon->AI()->AttackStart(who);
     }
 
@@ -223,12 +240,7 @@ struct TRINITY_DLL_DECL mob_tempest_minionAI : public ScriptedAI
                 if(OverchargedAura->GetStackAmount() == 10)
                 {
                     DoCast(me,SPELL_OVERCHARGED_BLAST);
-                    m_creature->setDeathState(JUST_DIED);
-                    Creature* Emalon;
-                    Emalon = Unit::GetCreature(*m_creature, EmalonGUID);
-                    float x,y,z;
-                    Emalon->GetPosition(x,y,z);
-                    Emalon->SummonCreature(MOB_TEMPEST_MINION,x,y,z,m_creature->GetOrientation(),TEMPSUMMON_DEAD_DESPAWN,0);
+                    m_creature->ForcedDespawn();
                     DoScriptText(EMOTE_MINION_RESPAWN, m_creature);
                 }
             }
