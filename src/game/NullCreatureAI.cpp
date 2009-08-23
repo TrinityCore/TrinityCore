@@ -22,10 +22,9 @@
 #include "Creature.h"
 #include "TemporarySummon.h"
 
-PassiveAI::PassiveAI(Creature *c) : CreatureAI(c)
-{
-    me->SetReactState(REACT_PASSIVE);
-}
+PassiveAI::PassiveAI(Creature *c) : CreatureAI(c) { me->SetReactState(REACT_PASSIVE); }
+PossessedAI::PossessedAI(Creature *c) : CreatureAI(c) { me->SetReactState(REACT_PASSIVE); }
+NullCreatureAI::NullCreatureAI(Creature *c) : CreatureAI(c) { me->SetReactState(REACT_PASSIVE); }
 
 void PassiveAI::UpdateAI(const uint32)
 {
@@ -75,12 +74,8 @@ void CritterAI::EnterEvadeMode()
     CreatureAI::EnterEvadeMode();
 }
 
-void TriggerAI::UpdateAI(const uint32 diff)
+void TriggerAI::IsSummonedBy(Unit *summoner)
 {
-    if(!casted)
-    {
-        casted = true;
-        if(me->m_spells[0] && me->isSummon())
-            me->CastSpell(me, me->m_spells[0], false, 0, 0, ((TempSummon*)me)->GetSummonerGUID());
-    }
+    if(me->m_spells[0])
+        me->CastSpell(me, me->m_spells[0], false, 0, 0, summoner->GetGUID());
 }

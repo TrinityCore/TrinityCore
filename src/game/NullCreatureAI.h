@@ -39,7 +39,7 @@ class TRINITY_DLL_SPEC PassiveAI : public CreatureAI
 class TRINITY_DLL_DECL PossessedAI : public CreatureAI
 {
     public:
-        explicit PossessedAI(Creature *c) : CreatureAI(c) {}
+        explicit PossessedAI(Creature *c);
 
         void MoveInLineOfSight(Unit *) {}
         void AttackStart(Unit *target);
@@ -52,10 +52,10 @@ class TRINITY_DLL_DECL PossessedAI : public CreatureAI
         static int Permissible(const Creature *) { return PERMIT_BASE_IDLE;  }
 };
 
-class TRINITY_DLL_DECL NullCreatureAI : public CreatureAI
+class TRINITY_DLL_SPEC NullCreatureAI : public CreatureAI
 {
     public:
-        explicit NullCreatureAI(Creature *c) : CreatureAI(c) {}
+        explicit NullCreatureAI(Creature *c);
 
         void MoveInLineOfSight(Unit *) {}
         void AttackStart(Unit *) {}
@@ -75,13 +75,11 @@ class TRINITY_DLL_DECL CritterAI : public PassiveAI
         void EnterEvadeMode();
 };
 
-class TRINITY_DLL_DECL TriggerAI : public NullCreatureAI
+class TRINITY_DLL_SPEC TriggerAI : public NullCreatureAI
 {
     public:
-        explicit TriggerAI(Creature *c) : NullCreatureAI(c), casted(false) {}
-        void UpdateAI(const uint32);
-    private:
-        bool casted;
+        explicit TriggerAI(Creature *c) : NullCreatureAI(c) {}
+        void IsSummonedBy(Unit *summoner);
 };
 
 #endif
