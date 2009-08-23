@@ -10524,6 +10524,9 @@ bool Unit::canAttack(Unit const* target, bool force) const
     if(target->GetVisibility() == VISIBILITY_GROUP_STEALTH && !canDetectStealthOf(target, GetDistance(target)))
         return false;
 
+    if(target == m_Vehicle)
+        return false;
+
     return true;
 }
 
@@ -11246,6 +11249,9 @@ Unit* Creature::SelectVictim()
         if(canCreatureAttack(*itr) && ((*itr)->GetTypeId() != TYPEID_PLAYER && (!((Creature*)(*itr))->HasSummonMask(SUMMON_MASK_CONTROLABLE_GUARDIAN))))
             return NULL;
     }
+
+    if(m_Vehicle)
+        return NULL;
 
     // search nearby enemy before enter evade mode
     if(HasReactState(REACT_AGGRESSIVE))
