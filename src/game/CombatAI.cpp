@@ -38,7 +38,18 @@ void AggressorAI::UpdateAI(const uint32 /*diff*/)
     DoMeleeAttackIfReady();
 }
 
+// some day we will delete these useless things
 int CombatAI::Permissible(const Creature *creature)
+{
+    return PERMIT_BASE_NO;
+}
+
+int ArchorAI::Permissible(const Creature *creature)
+{
+    return PERMIT_BASE_NO;
+}
+
+int TurretAI::Permissible(const Creature *creature)
 {
     return PERMIT_BASE_NO;
 }
@@ -158,35 +169,31 @@ void CasterAI::UpdateAI(const uint32 diff)
 //ArchorAI
 //////////////
 
-ArchorAI::ArchorAI(Creature *c) : CreatureAI(c), m_canMelee(true)
+ArchorAI::ArchorAI(Creature *c) : CreatureAI(c)
 {
     assert(me->m_spells[0]);
     m_minRange = GetSpellMinRange(me->m_spells[0], false);
-    m_maxRange = GetSpellMaxRange(me->m_spells[0], false);
     if(!m_minRange)
         m_minRange = MELEE_RANGE;
-}
-
-void ArchorAI::MoveInLineOfSight(Unit *who)
-{
-    if(!me->getVictim() && me->canAttack(who)
-        && me->IsWithinCombatRange(who, m_maxRange)
-        && me->IsWithinLOSInMap(who))
-        AttackStart(who);
+    me->m_CombatDistance = GetSpellMaxRange(me->m_spells[0], false);
+    me->m_SightDistance = me->m_CombatDistance;
 }
 
 void ArchorAI::AttackStart(Unit *who)
 {
-    if(who->IsFlying() || !me->IsWithinCombatRange(who, m_minRange))
+    if(me->IsWithinCombatRange(who, m_minRange))
     {
-        if(me->Attack(who, false))
-            me->GetMotionMaster()->MoveIdle();
-    }
-    else if(m_canMelee)
-    {
-        if(me->Attack(who, true))
+        if(me->Attack(who, true) && !who->IsFlying())
             me->GetMotionMaster()->MoveChase(who);
     }
+    else
+    {
+        if(me->Attack(who, false) && !who->IsFlying())
+            me->GetMotionMaster()->MoveChase(who, me->m_CombatDistance);
+    }
+
+    if(who->IsFlying())
+        me->GetMotionMaster()->MoveIdle();
 }
 
 void ArchorAI::UpdateAI(const uint32 diff)
@@ -194,18 +201,37 @@ void ArchorAI::UpdateAI(const uint32 diff)
     if(!UpdateVictim())
         return;
 
-    if(me->getVictim()->IsFlying() || !me->IsWithinCombatRange(me->getVictim(), m_minRange))
-    {
-        if(!DoSpellAttackIfReady(me->m_spells[0]))
-        {
-            if(HostilReference *ref = me->getThreatManager().getCurrentVictim())
-                ref->removeReference();
-            else // i do not know when this could happen
-                EnterEvadeMode();
-        }
-    }
-    else if(m_canMelee)
+    if(!me->IsWithinCombatRange(me->getVictim(), m_minRange))
+        DoSpellAttackIfReady(me->m_spells[0]);
+    else
         DoMeleeAttackIfReady();
-    else if(HostilReference *ref = me->getThreatManager().getCurrentVictim())
-        ref->removeReference();
+}
+
+
+//////////////
+//TurretAI
+//////////////
+
+TurretAI::TurretAI(Creature *c) : CreatureAI(c)
+{
+    assert(me->m_spells[0]);
+    m_minRange = GetSpellMinRange(me->m_spells[0], false);
+    me->m_CombatDistance = GetSpellMaxRange(me->m_spells[0], false);
+    me->m_SightDistance = me->m_CombatDistance;
+    sLog.outError("turret ai begins!");
+}
+
+void TurretAI::AttackStart(Unit *who)
+{
+    me->Attack(who, false);
+}
+
+void TurretAI::UpdateAI(const uint32 diff)
+{
+    if(!UpdateVictim())
+        return;
+
+    if(m_minRange && me->IsWithinCombatRange(me->getVictim(), m_minRange) || !DoSpellAttackIfReady(me->m_spells[0]))
+        if(HostilReference *ref = me->getThreatManager().getCurrentVictim())
+            ref->removeReference();
 }

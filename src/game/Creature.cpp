@@ -155,7 +155,7 @@ m_creatureInfo(NULL), m_reactState(REACT_AGGRESSIVE), m_formation(NULL), m_summo
     //m_unit_movement_flags = MONSTER_MOVE_WALK;
 
     m_SightDistance = sWorld.getConfig(CONFIG_SIGHT_MONSTER);
-    m_CombatDistance = MELEE_RANGE;
+    m_CombatDistance = 0;//MELEE_RANGE;
 }
 
 Creature::~Creature()
@@ -1705,13 +1705,13 @@ bool Creature::canStartAttack(Unit const* who, bool force) const
     if(isCivilian())
         return false;
     
-    if(!canFly() && (GetDistanceZ(who) > CREATURE_Z_ATTACK_RANGE))
+    if(!canFly() && (GetDistanceZ(who) > CREATURE_Z_ATTACK_RANGE + m_CombatDistance))
         //|| who->IsControlledByPlayer() && who->IsFlying()))
         // we cannot check flying for other creatures, too much map/vmap calculation
         // TODO: should switch to range attack
         return false;
 
-    if(!force && (IsNeutralToAll() || !IsWithinDistInMap(who, GetAttackDistance(who))))
+    if(!force && (IsNeutralToAll() || !IsWithinDistInMap(who, GetAttackDistance(who) + m_CombatDistance)))
         return false;
 
     if(!canCreatureAttack(who, force))
@@ -2193,14 +2193,13 @@ bool Creature::canCreatureAttack(Unit const *pVictim, bool force) const
     if(sMapStore.LookupEntry(GetMapId())->IsDungeon())
         return true;
 
-    float AttackDist = GetAttackDistance(pVictim);
-    uint32 ThreatRadius = sWorld.getConfig(CONFIG_THREAT_RADIUS);
-
     //Use AttackDistance in distance check if threat radius is lower. This prevents creature bounce in and out of combat every update tick.
+    float dist = std::max(GetAttackDistance(pVictim), (float)sWorld.getConfig(CONFIG_THREAT_RADIUS)) + m_CombatDistance;
+
     if(Unit *unit = GetCharmerOrOwner())
-        return pVictim->IsWithinDist(unit, ThreatRadius > AttackDist ? ThreatRadius : AttackDist);
+        return pVictim->IsWithinDist(unit, dist);
     else
-        return pVictim->IsWithinDist3d(mHome_X, mHome_Y, mHome_Z, ThreatRadius > AttackDist ? ThreatRadius : AttackDist);
+        return pVictim->IsWithinDist3d(mHome_X, mHome_Y, mHome_Z, dist);
 }
 
 CreatureDataAddon const* Creature::GetCreatureAddon() const

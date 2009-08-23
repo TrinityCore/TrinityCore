@@ -66,8 +66,21 @@ TargetedMovementGenerator<T>::_setTargetLocation(T &owner)
         if(i_destinationHolder.HasArrived())
         {
             // prevent redundant micro-movement
-            if(i_offset ? i_target->IsWithinDistInMap(&owner, i_offset + 1.0f) : i_target->IsWithinMeleeRange(&owner))
-                return false;
+            if(!i_offset)
+            {
+                if(i_target->IsWithinMeleeRange(&owner))
+                    return false;
+            }
+            else if(!i_angle && !owner.hasUnitState(UNIT_STAT_FOLLOW))
+            {
+                if(i_target->IsWithinDistInMap(&owner, i_offset))
+                    return false;
+            }
+            else
+            {
+                if(i_target->IsWithinDistInMap(&owner, i_offset + 1.0f))
+                    return false;
+            }
         }
         else
         {
@@ -79,7 +92,7 @@ TargetedMovementGenerator<T>::_setTargetLocation(T &owner)
             }
             else if(!i_angle && !owner.hasUnitState(UNIT_STAT_FOLLOW))
             {
-                if(i_target->IsWithinDist(&owner, i_offset * 0.8))
+                if(i_target->IsWithinDist(&owner, i_offset * 0.8f))
                     stop = true;
             }
 
@@ -105,7 +118,7 @@ TargetedMovementGenerator<T>::_setTargetLocation(T &owner)
     else if(!i_angle && !owner.hasUnitState(UNIT_STAT_FOLLOW))
     {
         // caster chase
-        i_target->GetContactPoint(&owner, x, y, z, i_offset * urand(80, 100) * 0.01f);
+        i_target->GetContactPoint(&owner, x, y, z, i_offset * urand(80, 95) * 0.01f);
     }
     else
     {
