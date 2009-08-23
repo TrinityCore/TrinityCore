@@ -69,12 +69,24 @@ struct TRINITY_DLL_SPEC ArchorAI : public CreatureAI
 {
     public:
         explicit ArchorAI(Creature *c);
-        void MoveInLineOfSight(Unit *who);
         void AttackStart(Unit *who);
         void UpdateAI(const uint32 diff);
+
+        static int Permissible(const Creature *);
     protected:
-        float m_maxRange, m_minRange;
-        bool m_canMelee;
+        float m_minRange;
+};
+
+struct TRINITY_DLL_SPEC TurretAI : public CreatureAI
+{
+    public:
+        explicit TurretAI(Creature *c);
+        void AttackStart(Unit *who);
+        void UpdateAI(const uint32 diff);
+
+        static int Permissible(const Creature *);
+    protected:
+        float m_minRange;
 };
 
 #endif
