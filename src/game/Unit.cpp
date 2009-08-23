@@ -171,6 +171,8 @@ Unit::Unit()
     // remove aurastates allowing special moves
     for(uint8 i=0; i < MAX_REACTIVE; ++i)
         m_reactiveTimer[i] = 0;
+
+    IsRotating = 0;
 }
 
 Unit::~Unit()
@@ -253,7 +255,10 @@ void Unit::Update( uint32 p_time )
     ModifyAuraState(AURA_STATE_HEALTHLESS_35_PERCENT, GetHealth() < GetMaxHealth()*0.35f);
     ModifyAuraState(AURA_STATE_HEALTH_ABOVE_75_PERCENT, GetHealth() > GetMaxHealth()*0.75f);
 
-    i_motionMaster.UpdateMotion(p_time);
+    if(!IsUnitRotating())
+        i_motionMaster.UpdateMotion(p_time);
+    else
+        AutoRotate(p_time);
 }
 
 bool Unit::haveOffhandWeapon() const
@@ -497,6 +502,42 @@ void Unit::GetRandomContactPoint( const Unit* obj, float &x, float &y, float &z,
         , GetAngle(obj) + (attacker_number ? (M_PI/2 - M_PI * rand_norm()) * (float)attacker_number / combat_reach * 0.3 : 0));
 }
 
+void Unit::StartAutoRotate(uint8 type, uint32 fulltime)
+{
+    if(getVictim())
+        RotateAngle = GetAngle(getVictim());
+    else
+        RotateAngle = GetOrientation();
+    RotateTimer = fulltime;    
+    RotateTimerFull = fulltime;    
+    IsRotating = type;
+    LastTargetGUID = GetUInt64Value(UNIT_FIELD_TARGET);
+    SetUInt64Value(UNIT_FIELD_TARGET, 0);
+}
+
+void Unit::AutoRotate(uint32 time)
+{
+    if(!IsRotating)return;
+    if(IsRotating == CREATURE_ROTATE_LEFT)
+    {
+        RotateAngle += (double)time/RotateTimerFull*(double)M_PI*2;
+        if (RotateAngle >= M_PI*2)RotateAngle = 0;
+    }
+    else
+    {
+        RotateAngle -= (double)time/RotateTimerFull*(double)M_PI*2;
+        if (RotateAngle < 0)RotateAngle = M_PI*2;
+    }    
+    SetOrientation(RotateAngle);
+    StopMoving();
+    if(RotateTimer <= time)
+    {
+        IsRotating = CREATURE_ROTATE_NONE;
+        RotateAngle = 0;
+        RotateTimer = RotateTimerFull;
+        SetUInt64Value(UNIT_FIELD_TARGET, LastTargetGUID);
+    }else RotateTimer -= time;
+}
 void Unit::RemoveMovementImpairingAuras()
 {
     for(AuraMap::iterator iter = m_Auras.begin(); iter != m_Auras.end();)
@@ -3422,7 +3463,8 @@ bool Unit::isInFrontInMap(Unit const* target, float distance,  float arc) const
 
 void Unit::SetInFront(Unit const* target)
 {
-    SetOrientation(GetAngle(target));
+    if(!IsUnitRotating())
+        SetOrientation(GetAngle(target));
 }
 
 bool Unit::isInBackInMap(Unit const* target, float distance, float arc) const
