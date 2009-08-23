@@ -19075,6 +19075,9 @@ void Player::UpdateVisibilityOf(WorldObject* target)
     {
         if(target->isVisibleForInState(this,false))
         {
+            //if(target->isType(TYPEMASK_UNIT) && ((Unit*)target)->m_Vehicle)
+            //    UpdateVisibilityOf(((Unit*)target)->m_Vehicle);
+                
             target->SendUpdateToPlayer(this);
             UpdateVisibilityOf_helper(m_clientGUIDs, target);
 
@@ -19123,6 +19126,9 @@ void Player::UpdateVisibilityOf(T* target, UpdateData& data, std::set<WorldObjec
     {
         if(target->isVisibleForInState(this,false))
         {
+            //if(target->isType(TYPEMASK_UNIT) && ((Unit*)target)->m_Vehicle)
+            //    UpdateVisibilityOf(((Unit*)target)->m_Vehicle, data, visibleNow);
+
             visibleNow.insert(target);
             target->BuildCreateUpdateBlockForPlayer(&data, this);
             UpdateVisibilityOf_helper(m_clientGUIDs,target);

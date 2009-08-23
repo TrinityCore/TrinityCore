@@ -1216,6 +1216,42 @@ void Spell::EffectDummy(uint32 i)
                     m_caster->CastSpell(m_caster,spell_id,true,NULL);
                     return;
                 }
+                case 62324: // Throw Passenger
+                    if(m_targets.HasTraj())
+                    {
+                        if(Vehicle *vehicle = dynamic_cast<Vehicle*>(m_caster))
+                            if(Unit *passenger = vehicle->GetPassenger(damage - 1))
+                            {
+                                std::list<Unit*> unitList;
+                                // use 99 because it is 3d search
+                                SearchAreaTarget(unitList, 99, PUSH_DST_CENTER, SPELL_TARGETS_ENTRY, 33114);
+                                float minDist = 99 * 99;
+                                Vehicle *target = NULL;
+                                for(std::list<Unit*>::iterator itr = unitList.begin(); itr != unitList.end(); ++itr)
+                                {
+                                    if(Vehicle *seat = dynamic_cast<Vehicle*>(*itr))
+                                        if(!seat->GetPassenger(0))
+                                            if(Unit *device = seat->GetPassenger(2))
+                                                if(!device->GetCurrentSpell(CURRENT_CHANNELED_SPELL))
+                                                {
+                                                    float dist = seat->GetExactDistSq(m_targets.m_destX, m_targets.m_destY, m_targets.m_destZ);
+                                                    if(dist < minDist)
+                                                    {
+                                                        minDist = dist;
+                                                        target = seat;
+                                                    }
+                                                }
+                                }
+                                if(target && target->IsWithinDist2d(m_targets.m_destX, m_targets.m_destY, GetSpellRadius(m_spellInfo, i, false) * 2)) // now we use *2 because the location of the seat is not correct
+                                    passenger->EnterVehicle(target, 0);
+                                else
+                                {
+                                    passenger->ExitVehicle();
+                                    passenger->GetMotionMaster()->MoveJump(m_targets.m_destX, m_targets.m_destY, m_targets.m_destZ, m_targets.GetSpeedXY(), m_targets.GetSpeedZ());
+                                }
+                            }
+                    }
+                    return;
             }
 
             //All IconID Check in there
@@ -5195,9 +5231,10 @@ void Spell::EffectScriptEffect(uint32 effIndex)
                     return;
                 }
                 case 62428: // Load into Catapult
-                    if(m_caster->m_Vehicle && m_caster->GetTypeId() == TYPEID_UNIT && ((Creature*)m_caster)->isVehicle())
-                        if(Unit *passenger = ((Vehicle*)m_caster)->GetPassenger(0))
-                            passenger->CastSpell(m_caster->m_Vehicle, damage, true);
+                    if(Vehicle *demolisher = m_caster->m_Vehicle)
+                        if(Vehicle *seat = dynamic_cast<Vehicle*>(m_caster))
+                            if(Unit *passenger = seat->GetPassenger(0))
+                                passenger->CastSpell(demolisher, damage, true);
                     return;
                 case 60123: // Lightwell
                 {
@@ -5227,6 +5264,7 @@ void Spell::EffectScriptEffect(uint32 effIndex)
                     }
                     else
                         ((TempSummon*)m_caster)->UnSummon();
+                    return;
                 }
             }
             break;

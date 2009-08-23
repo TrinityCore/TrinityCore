@@ -3729,6 +3729,10 @@ void SpellMgr::LoadSpellCustomAttr()
         case 30421:     // Nether Portal - Perseverence
             spellInfo->EffectBasePoints[2] += 30000;
             break;
+        // some dummy spell only has dest, should push caster in this case
+        case 62324: // Throw Passenger
+            spellInfo->Targets |= TARGET_FLAG_CASTER;
+            break;
         default:
             break;
         }
