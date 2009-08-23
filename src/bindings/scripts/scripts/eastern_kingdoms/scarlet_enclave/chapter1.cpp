@@ -488,6 +488,7 @@ bool GossipSelect_npc_death_knight_initiate(Player* pPlayer, Creature* pCreature
 ######*/
 
 #define DESPAWN_HORSE 52267
+#define SAY_DARK_RIDER      "The realm of shadows awaits..."
 
 struct TRINITY_DLL_DECL npc_dark_rider_of_acherusAI : public ScriptedAI
 {
@@ -516,7 +517,7 @@ struct TRINITY_DLL_DECL npc_dark_rider_of_acherusAI : public ScriptedAI
             switch(Phase)
             {
                case 0:
-                    m_creature->MonsterSay("The realm of shadows awaits...", LANG_UNIVERSAL, 0);
+                    m_creature->MonsterSay(SAY_DARK_RIDER, LANG_UNIVERSAL, 0);
                     PhaseTimer = 5000;
                     Phase = 1;
                     break;
@@ -754,6 +755,9 @@ CreatureAI* GetAI_npc_scarlet_miner_cart(Creature *_Creature)
 ## npc_scarlet_miner
 ####*/
 
+#define SAY_SCARLET_MINER1  "Where'd this come from? I better get this down to the ships before the foreman sees it!"
+#define SAY_SCARLET_MINER2  "Now I can have a rest!"
+
 struct TRINITY_DLL_DECL npc_scarlet_minerAI : public npc_escortAI
 {
     npc_scarlet_minerAI(Creature *c) : npc_escortAI(c)
@@ -823,7 +827,7 @@ struct TRINITY_DLL_DECL npc_scarlet_minerAI : public npc_escortAI
                     me->SetInFront(car);
                     me->SendMovementFlagUpdate();
                 }
-                me->MonsterSay("Where'd this come from? I better get this down to the ships before the foreman sees it!",LANG_UNIVERSAL,NULL);
+                me->MonsterSay(SAY_SCARLET_MINER1,LANG_UNIVERSAL,NULL);
                 SetRun(true);
                 IntroTimer = 4000;
                 IntroPhase = 1;
@@ -839,7 +843,7 @@ struct TRINITY_DLL_DECL npc_scarlet_minerAI : public npc_escortAI
                     //car->GetMotionMaster()->MovePoint(0, car->GetPositionX(), car->GetPositionY(), me->GetPositionZ());
                     car->RemoveAura(SPELL_CART_DRAG);
                 }
-                me->MonsterSay("Now I can have a rest!",LANG_UNIVERSAL,NULL);
+                me->MonsterSay(SAY_SCARLET_MINER2,LANG_UNIVERSAL,NULL);
                 break;
             default:
                 break;
