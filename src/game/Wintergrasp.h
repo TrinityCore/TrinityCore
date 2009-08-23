@@ -86,6 +86,15 @@ const uint32 VehNumWorldState[2] = {3680,3490};
 const uint32 MaxVehNumWorldState[2] = {3681,3491};
 const uint32 ClockWorldState[5] = {3785,3784,3782,3976,3975};
 
+enum WintergraspCreType
+{
+    CREATURE_OTHER,
+    CREATURE_SIEGE_VEHICLE,
+    CREATURE_TURRET,
+    CREATURE_ENGINEER,
+    CREATURE_GUARD,
+};
+
 enum BuildingType
 {
     BUILDING_WALL,
@@ -197,6 +206,7 @@ class OPvPWintergrasp : public OutdoorPvP
         bool UpdateGameObjectInfo(GameObject *go) const;
 
         bool CanBuildVehicle(SiegeWorkshop *workshop) const;
+        WintergraspCreType GetCreatureType(uint32 entry) const;
 
         void RebuildAllBuildings();
 
