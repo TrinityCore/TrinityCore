@@ -20215,13 +20215,6 @@ void Player::SetClientControl(Unit* target, uint8 allowMove)
     GetSession()->SendPacket(&data);
     if(target == this)
         SetMover(this);
-    else if(target->canFly())
-    {
-        WorldPacket data(SMSG_MOVE_SET_CAN_FLY, 12);
-        data.append(target->GetPackGUID());
-        data << uint32(0);
-        SendDirectMessage(&data);
-    }
 }
 
 void Player::UpdateZoneDependentAuras( uint32 newZone )
