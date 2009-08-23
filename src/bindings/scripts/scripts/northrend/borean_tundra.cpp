@@ -322,6 +322,39 @@ CreatureAI* GetAI_npc_khunok_the_behemoth(Creature* pCreature)
     return new npc_khunok_the_behemothAI(pCreature);
 }
 
+/*######
+## npc_keristrasza
+######*/
+
+enum
+{
+    SPELL_TELEPORT_TO_SARAGOSA = 46772
+};
+
+bool GossipHello_npc_keristrasza(Player* pPlayer, Creature* pCreature)
+{
+    if (pCreature->isQuestGiver())
+        pPlayer->PrepareQuestMenu(pCreature->GetGUID());
+
+    if (pPlayer->GetQuestStatus(11957) == QUEST_STATUS_INCOMPLETE)
+        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I am prepared to face Saragosa!", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+
+    pPlayer->SEND_GOSSIP_MENU(pCreature->GetNpcTextId(), pCreature->GetGUID());
+
+    return true;
+}
+
+bool GossipSelect_npc_keristrasza(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+{
+    if (uiAction == GOSSIP_ACTION_INFO_DEF + 1)
+    {
+        pPlayer->CLOSE_GOSSIP_MENU();
+        pPlayer->CastSpell(pPlayer, SPELL_TELEPORT_TO_SARAGOSA, true);
+    }
+
+    return true;
+}
+
 void AddSC_borean_tundra()
 {
     Script *newscript;
@@ -352,5 +385,11 @@ void AddSC_borean_tundra()
     newscript = new Script;
     newscript->Name="npc_khunok_the_behemoth";
     newscript->GetAI = &GetAI_npc_khunok_the_behemoth;
+    newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name = "npc_keristrasza";
+    newscript->pGossipHello = &GossipHello_npc_keristrasza;
+    newscript->pGossipSelect = &GossipSelect_npc_keristrasza;
     newscript->RegisterSelf();
 }

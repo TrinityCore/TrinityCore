@@ -314,6 +314,7 @@ UPDATE `creature_template` SET `ScriptName`='npc_surristrasz' WHERE `entry`=2479
 UPDATE `creature_template` SET `ScriptName`='npc_tiare' WHERE `entry`=30051;
 UPDATE `creature_template` SET `ScriptName`='npc_sinkhole_kill_credit' WHERE `entry` IN (26248,26249);
 UPDATE `creature_template` SET `ScriptName`='npc_khunok_the_behemoth' WHERE `entry`=25862;
+UPDATE `creature_template` SET `ScriptName`='npc_keristrasza' WHERE `entry`=26206;
 
 /* BURNING STEPPES */
 UPDATE `creature_template` SET `ScriptName`='npc_ragged_john' WHERE `entry`=9563;
