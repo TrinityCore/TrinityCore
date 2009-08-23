@@ -150,7 +150,7 @@ MessageDistDeliverer::Visit(PlayerMapType &m)
         if(!target->InSamePhase(i_phaseMask))
             continue;
 
-        if(target->GetDistanceSq(i_source) > i_distSq)
+        if(target->GetExactDistSq(i_source) > i_distSq)
             continue;
 
         // Send packet to all who are sharing the player's vision
@@ -175,7 +175,7 @@ MessageDistDeliverer::Visit(CreatureMapType &m)
         if(!iter->getSource()->InSamePhase(i_phaseMask))
             continue;
 
-        if(iter->getSource()->GetDistanceSq(i_source) > i_distSq)
+        if(iter->getSource()->GetExactDistSq(i_source) > i_distSq)
             continue;
 
         // Send packet to all who are sharing the creature's vision
@@ -197,7 +197,7 @@ MessageDistDeliverer::Visit(DynamicObjectMapType &m)
         if(!iter->getSource()->InSamePhase(i_phaseMask))
             continue;
 
-        if(iter->getSource()->GetDistanceSq(i_source) > i_distSq)
+        if(iter->getSource()->GetExactDistSq(i_source) > i_distSq)
             continue;
 
         if (IS_PLAYER_GUID(iter->getSource()->GetCasterGUID()))

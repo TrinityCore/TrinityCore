@@ -3540,14 +3540,12 @@ void SpellMgr::LoadSpellCustomAttr()
                     mSpellCustomAttr[i] |= SPELL_ATTR_CU_CHARGE;
                     break;
                 case SPELL_EFFECT_TRIGGER_SPELL:
-                    if (SpellTargetType[spellInfo->EffectImplicitTargetA[j]]== TARGET_TYPE_DEST_CASTER ||
-                        SpellTargetType[spellInfo->EffectImplicitTargetA[j]]== TARGET_TYPE_DEST_TARGET ||
-                        SpellTargetType[spellInfo->EffectImplicitTargetA[j]]== TARGET_TYPE_DEST_DEST ||
+                    if (IsPositionTarget(spellInfo->EffectImplicitTargetA[j]) ||
                         spellInfo->Targets & (TARGET_FLAG_SOURCE_LOCATION|TARGET_FLAG_DEST_LOCATION))
                         spellInfo->Effect[j] = SPELL_EFFECT_TRIGGER_MISSILE;
                     break;
             }
-            
+
             switch(SpellTargetType[spellInfo->EffectImplicitTargetA[j]])
             {
                 case TARGET_TYPE_UNIT_TARGET:

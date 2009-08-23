@@ -3427,11 +3427,11 @@ bool Unit::isInBackInMap(Unit const* target, float distance, float arc) const
     return IsWithinDistInMap(target, distance) && !HasInArc( 2 * M_PI - arc, target );
 }
 
-bool Unit::isInLine(Unit const* target, float distance) const
+bool Unit::isInLine(Unit const* target, float distance, float width) const
 {
     if(!HasInArc(M_PI, target) || !IsWithinDistInMap(target, distance)) return false;
-    float width = GetObjectSize() + target->GetObjectSize() * 0.5f;
-    float angle = GetAngle(target) - GetOrientation();
+    width += target->GetObjectSize() * 0.5f;
+    float angle = GetRelativeAngle(target);
     return abs(sin(angle)) * GetExactDistance2d(target->GetPositionX(), target->GetPositionY()) < width;
 }
 

@@ -93,7 +93,7 @@ TargetedMovementGenerator<T>::_setTargetLocation(T &owner)
             }
         }
 
-        if(i_target->GetDistanceSq(i_targetX, i_targetY, i_targetZ) < 0.01f)
+        if(i_target->GetExactDistSq(i_targetX, i_targetY, i_targetZ) < 0.01f)
             return false;
     }
 
