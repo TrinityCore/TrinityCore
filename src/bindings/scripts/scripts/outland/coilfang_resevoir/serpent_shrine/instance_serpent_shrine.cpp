@@ -130,6 +130,10 @@ struct TRINITY_DLL_DECL instance_serpentshrine_cavern : public ScriptedInstance
                 StrangePool = pGo->GetGUID();
                 if (pGo->isActiveObject())
                     SetData(DATA_STRANGE_POOL, DONE);
+                break;
+            case GAMEOBJECT_FISHINGNODE_ENTRY:
+                //todo (yes this works)
+                break;
         }
     }
 
