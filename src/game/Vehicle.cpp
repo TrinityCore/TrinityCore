@@ -254,8 +254,12 @@ void Vehicle::InstallAccessory(uint32 entry, int8 seatId)
     {
         // already installed
         if(passenger->GetEntry() == entry)
+        {
+            assert(passenger->GetTypeId() == TYPEID_UNIT);
+            if(IsInEvadeMode() && ((Creature*)passenger)->AI())
+                ((Creature*)passenger)->AI()->EnterEvadeMode();
             return;
-
+        }
         passenger->ExitVehicle(); // this should not happen
     }
 

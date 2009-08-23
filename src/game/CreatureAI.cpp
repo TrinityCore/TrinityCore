@@ -23,6 +23,7 @@
 #include "Creature.h"
 #include "World.h"
 #include "SpellMgr.h"
+#include "Vehicle.h"
 
 //Disable CreatureAI when charmed
 void CreatureAI::OnCharmed(bool apply)
@@ -210,6 +211,9 @@ void CreatureAI::EnterEvadeMode()
         else
             me->GetMotionMaster()->MoveTargetedHome();
     }
+
+    if(me->isVehicle())
+        ((Vehicle*)me)->InstallAllAccessories();
 
     Reset();
 }
