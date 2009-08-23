@@ -21853,6 +21853,8 @@ void Player::ActivateSpec(uint8 spec)
 
     _SaveActions();
     
+    UnsummonPetTemporaryIfAny();
+    
     uint32 const* talentTabIds = GetTalentTabPages(getClass());
     
     for(uint8 i = 0; i < 3; ++i)
@@ -21948,7 +21950,8 @@ void Player::ActivateSpec(uint8 spec)
     {
         _LoadActions(result, false);
     }
-    UnsummonPetTemporaryIfAny();
+    
+    ResummonPetTemporaryUnSummonedIfAny();
     SendActionButtons(1);
 
     Powers pw = getPowerType();
