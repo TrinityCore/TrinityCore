@@ -18,7 +18,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-#include "AggressorAI.h"
+#include "CombatAI.h"
 #include "SpellMgr.h"
 
 int AggressorAI::Permissible(const Creature *creature)
@@ -38,12 +38,12 @@ void AggressorAI::UpdateAI(const uint32 /*diff*/)
     DoMeleeAttackIfReady();
 }
 
-int SpellAI::Permissible(const Creature *creature)
+int CombatAI::Permissible(const Creature *creature)
 {
     return PERMIT_BASE_NO;
 }
 
-void SpellAI::InitializeAI()
+void CombatAI::InitializeAI()
 {
     for(uint32 i = 0; i < CREATURE_MAX_SPELLS; ++i)
         if(me->m_spells[i] && GetSpellStore()->LookupEntry(me->m_spells[i]))
@@ -52,19 +52,19 @@ void SpellAI::InitializeAI()
     CreatureAI::InitializeAI();
 }
 
-void SpellAI::Reset()
+void CombatAI::Reset()
 {
     events.Reset();
 }
 
-void SpellAI::JustDied(Unit *killer)
+void CombatAI::JustDied(Unit *killer)
 {
     for(SpellVct::iterator i = spells.begin(); i != spells.end(); ++i)
         if(AISpellInfo[*i].condition == AICOND_DIE)
             me->CastSpell(killer, *i, true);
 }
 
-void SpellAI::EnterCombat(Unit *who)
+void CombatAI::EnterCombat(Unit *who)
 {
     for(SpellVct::iterator i = spells.begin(); i != spells.end(); ++i)
     {
@@ -75,7 +75,7 @@ void SpellAI::EnterCombat(Unit *who)
     }
 }
 
-void SpellAI::UpdateAI(const uint32 diff)
+void CombatAI::UpdateAI(const uint32 diff)
 {
     if(!UpdateVictim())
         return;
@@ -94,25 +94,29 @@ void SpellAI::UpdateAI(const uint32 diff)
         DoMeleeAttackIfReady();
 }
 
-void SpellCasterAI::InitializeAI()
+
+/////////////////
+//CasterAI
+/////////////////
+
+void CasterAI::InitializeAI()
 {
-    SpellAI::InitializeAI();
+    CombatAI::InitializeAI();
+
     float m_attackDist = 30.0f;
     for(SpellVct::iterator itr = spells.begin(); itr != spells.end(); ++itr)
-    {
         if (AISpellInfo[*itr].condition == AICOND_COMBAT && m_attackDist > GetAISpellInfo(*itr)->maxRange)
             m_attackDist = GetAISpellInfo(*itr)->maxRange;
-    }
     if (m_attackDist == 30.0f)
         m_attackDist = MELEE_RANGE;
 }
 
-void SpellCasterAI::EnterCombat(Unit *who)
+void CasterAI::EnterCombat(Unit *who)
 {
     if (spells.empty())
         return;
 
-    uint32 spell = rand() % spells.size();
+    uint32 spell = rand()%spells.size();
     uint32 count = 0;
     for(SpellVct::iterator itr = spells.begin(); itr != spells.end(); ++itr, ++count)
     {
@@ -131,7 +135,7 @@ void SpellCasterAI::EnterCombat(Unit *who)
     }
 }
 
-void SpellCasterAI::UpdateAI(const uint32 diff)
+void CasterAI::UpdateAI(const uint32 diff)
 {
     if(!UpdateVictim())
         return;
@@ -147,4 +151,61 @@ void SpellCasterAI::UpdateAI(const uint32 diff)
         uint32 casttime = me->GetCurrentSpellCastTime(spellId);
         events.ScheduleEvent(spellId, (casttime ? casttime : 500) + GetAISpellInfo(spellId)->realCooldown);
     }
+}
+
+
+//////////////
+//ArchorAI
+//////////////
+
+ArchorAI::ArchorAI(Creature *c) : CreatureAI(c), m_canMelee(true)
+{
+    assert(me->m_spells[0]);
+    m_minRange = GetSpellMinRange(me->m_spells[0], false);
+    m_maxRange = GetSpellMaxRange(me->m_spells[0], false);
+    if(!m_minRange)
+        m_minRange = MELEE_RANGE;
+}
+
+void ArchorAI::MoveInLineOfSight(Unit *who)
+{
+    if(!me->getVictim() && me->canAttack(who)
+        && me->IsWithinCombatRange(who, m_maxRange)
+        && me->IsWithinLOSInMap(who))
+        AttackStart(who);
+}
+
+void ArchorAI::AttackStart(Unit *who)
+{
+    if(who->IsFlying() || !me->IsWithinCombatRange(who, m_minRange))
+    {
+        if(me->Attack(who, false))
+            me->GetMotionMaster()->MoveIdle();
+    }
+    else if(m_canMelee)
+    {
+        if(me->Attack(who, true))
+            me->GetMotionMaster()->MoveChase(who);
+    }
+}
+
+void ArchorAI::UpdateAI(const uint32 diff)
+{
+    if(!UpdateVictim())
+        return;
+
+    if(me->getVictim()->IsFlying() || !me->IsWithinCombatRange(me->getVictim(), m_minRange))
+    {
+        if(!DoSpellAttackIfReady(me->m_spells[0]))
+        {
+            if(HostilReference *ref = me->getThreatManager().getCurrentVictim())
+                ref->removeReference();
+            else // i do not know when this could happen
+                EnterEvadeMode();
+        }
+    }
+    else if(m_canMelee)
+        DoMeleeAttackIfReady();
+    else if(HostilReference *ref = me->getThreatManager().getCurrentVictim())
+        ref->removeReference();
 }

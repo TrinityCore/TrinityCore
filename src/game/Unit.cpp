@@ -48,7 +48,7 @@
 #include "Path.h"
 #include "CreatureGroups.h"
 #include "PetAI.h"
-#include "NullCreatureAI.h"
+#include "PassiveAI.h"
 #include "Traveller.h"
 #include "TemporarySummon.h"
 #include "Vehicle.h"
