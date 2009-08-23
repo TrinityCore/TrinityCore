@@ -1372,11 +1372,10 @@ bool SpellMgr::IsSpellProcEventCanTriggeredBy(SpellProcEventEntry const* spellPr
             if (!(procExtra & PROC_EX_INTERNAL_DOT))
                 return false;
         }
-        else if (EventProcFlag & PROC_FLAG_TAKEN_POSITIVE_MAGIC_SPELL
-            && !(procExtra & PROC_EX_INTERNAL_HOT))
-            return false;
         else if (procExtra & PROC_EX_INTERNAL_HOT)
             procExtra |= PROC_EX_INTERNAL_REQ_FAMILY;
+        else if (EventProcFlag & PROC_FLAG_SUCCESSFUL_POSITIVE_MAGIC_SPELL)
+            return false;
     }
 
     if (procFlags & PROC_FLAG_ON_TAKE_PERIODIC)
@@ -1386,11 +1385,10 @@ bool SpellMgr::IsSpellProcEventCanTriggeredBy(SpellProcEventEntry const* spellPr
             if (!(procExtra & PROC_EX_INTERNAL_DOT))
                 return false;
         }
-        else if (EventProcFlag & PROC_FLAG_TAKEN_POSITIVE_MAGIC_SPELL
-            && !(procExtra & PROC_EX_INTERNAL_HOT))
-            return false;
         else if (procExtra & PROC_EX_INTERNAL_HOT)
             procExtra |= PROC_EX_INTERNAL_REQ_FAMILY;
+        else if (EventProcFlag & PROC_FLAG_TAKEN_POSITIVE_MAGIC_SPELL)
+            return false;
     }
     // Trap casts are active by default
     if (procFlags & PROC_FLAG_ON_TRAP_ACTIVATION)
