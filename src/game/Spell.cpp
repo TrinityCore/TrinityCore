@@ -2528,7 +2528,12 @@ void Spell::SelectEffectTargets(uint32 i, uint32 cur)
                     }
 
                     unitList.clear();
-                    while(!healedMembers.empty() && unitList.size()<5)
+                    uint32 maxsize = 5;
+
+                    if (m_spellInfo->SpellFamilyName == SPELLFAMILY_DRUID && m_spellInfo->SpellFamilyFlags[1] & 0x04000000)
+                        maxsize += m_caster->HasAura(62970) ? 1 : 0;
+
+                    while(!healedMembers.empty() && unitList.size()<maxsize)
                     {
                         unitList.push_back(healedMembers.top().getUnit());
                         healedMembers.pop();
