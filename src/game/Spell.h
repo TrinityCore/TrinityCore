@@ -660,7 +660,7 @@ namespace Trinity
         std::list<Unit*> *i_data;
         Spell &i_spell;
         SpellNotifyPushType i_push_type;
-        float i_radius, i_radiusSq;
+        float i_radius;
         SpellTargets i_TargetType;
         Unit* i_source;
         uint32 i_entry;
@@ -668,7 +668,7 @@ namespace Trinity
 
         SpellNotifierCreatureAndPlayer(Spell &spell, std::list<Unit*> &data, float radius, SpellNotifyPushType type,
             SpellTargets TargetType = SPELL_TARGETS_ENEMY, uint32 entry = 0, float x = 0, float y = 0, float z = 0)
-            : i_data(&data), i_spell(spell), i_push_type(type), i_radius(radius), i_radiusSq(radius*radius)
+            : i_data(&data), i_spell(spell), i_push_type(type), i_radius(radius)
             , i_TargetType(TargetType), i_entry(entry), i_x(x), i_y(y), i_z(z)
         {
             i_source = spell.GetCaster();
@@ -723,7 +723,7 @@ namespace Trinity
                     case PUSH_DST_CENTER:
                     case PUSH_CHAIN:
                     default:
-                        if((target->GetDistanceSq(i_x, i_y, i_z) < i_radiusSq))
+                        if(target->IsWithinDist3d(i_x, i_y, i_z, i_radius))
                             i_data->push_back(target);
                         break;
                     case PUSH_IN_FRONT:
