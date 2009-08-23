@@ -79,11 +79,18 @@ CreatureAI* GetAI_mob_webbed_creature(Creature* pCreature)
 
 #define C_SUNHAWK_TRIGGER 17974
 
+#define GOSSIP_HELLO_CSA     "[PH] "
+#define GOSSIP_SELECT_CSA1   "[PH] "
+#define GOSSIP_SELECT_CSA2   "[PH] "
+#define GOSSIP_SELECT_CSA3   "[PH] "
+#define GOSSIP_SELECT_CSA4   "[PH] "
+#define GOSSIP_SELECT_CSA5   "[PH] "
+
 bool GossipHello_npc_captured_sunhawk_agent(Player* pPlayer, Creature* pCreature)
 {
     if (pPlayer->HasAura(31609) && pPlayer->GetQuestStatus(9756) == QUEST_STATUS_INCOMPLETE)
     {
-        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "[PH] ", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_HELLO_CSA, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
         pPlayer->SEND_GOSSIP_MENU(9136, pCreature->GetGUID());
     }
     else
@@ -97,23 +104,23 @@ bool GossipSelect_npc_captured_sunhawk_agent(Player* pPlayer, Creature* pCreatur
     switch (uiAction)
     {
         case GOSSIP_ACTION_INFO_DEF+1:
-            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "[PH] ", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SELECT_CSA1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
             pPlayer->SEND_GOSSIP_MENU(9137, pCreature->GetGUID());
             break;
         case GOSSIP_ACTION_INFO_DEF+2:
-            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "[PH] ", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+3);
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SELECT_CSA2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+3);
             pPlayer->SEND_GOSSIP_MENU(9138, pCreature->GetGUID());
             break;
         case GOSSIP_ACTION_INFO_DEF+3:
-            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "[PH] ", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+4);
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SELECT_CSA3, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+4);
             pPlayer->SEND_GOSSIP_MENU(9139, pCreature->GetGUID());
             break;
         case GOSSIP_ACTION_INFO_DEF+4:
-            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "[PH] ", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+5);
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SELECT_CSA4, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+5);
             pPlayer->SEND_GOSSIP_MENU(9140, pCreature->GetGUID());
             break;
         case GOSSIP_ACTION_INFO_DEF+5:
-            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "[PH] ", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+6);
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SELECT_CSA5, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+6);
             pPlayer->SEND_GOSSIP_MENU(9141, pCreature->GetGUID());
             break;
         case GOSSIP_ACTION_INFO_DEF+6:
