@@ -160,18 +160,28 @@ inline float GetSpellRadius(SpellEntry const *spellInfo, uint32 effectIdx, bool 
         ? GetSpellRadiusForFriend(sSpellRadiusStore.LookupEntry(spellInfo->EffectRadiusIndex[effectIdx]))
         : GetSpellRadiusForHostile(sSpellRadiusStore.LookupEntry(spellInfo->EffectRadiusIndex[effectIdx]));
 }
+
 inline float GetSpellMaxRange(SpellEntry const *spellInfo, bool positive)
 {
     return positive
         ? GetSpellMaxRangeForFriend(sSpellRangeStore.LookupEntry(spellInfo->rangeIndex))
         : GetSpellMaxRangeForHostile(sSpellRangeStore.LookupEntry(spellInfo->rangeIndex));
 }
+
 inline float GetSpellMinRange(SpellEntry const *spellInfo, bool positive)
 {
     return positive
         ? GetSpellMinRangeForFriend(sSpellRangeStore.LookupEntry(spellInfo->rangeIndex))
         : GetSpellMinRangeForHostile(sSpellRangeStore.LookupEntry(spellInfo->rangeIndex));
 }
+
+inline float GetSpellMinRange(uint32 id, bool positive)
+{
+    SpellEntry const *spellInfo = GetSpellStore()->LookupEntry(id);
+    if(!spellInfo) return 0;
+    return GetSpellMinRange(spellInfo, positive);
+}
+
 inline float GetSpellMaxRange(uint32 id, bool positive)
 {
     SpellEntry const *spellInfo = GetSpellStore()->LookupEntry(id);

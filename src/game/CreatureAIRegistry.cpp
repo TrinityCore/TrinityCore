@@ -18,9 +18,9 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include "NullCreatureAI.h"
+#include "PassiveAI.h"
 #include "ReactorAI.h"
-#include "AggressorAI.h"
+#include "CombatAI.h"
 #include "GuardAI.h"
 #include "PetAI.h"
 #include "TotemAI.h"
@@ -45,7 +45,7 @@ namespace AIRegistry
         (new CreatureAIFactory<GuardAI>("GuardAI"))->RegisterSelf();
         (new CreatureAIFactory<PetAI>("PetAI"))->RegisterSelf();
         (new CreatureAIFactory<TotemAI>("TotemAI"))->RegisterSelf();
-        (new CreatureAIFactory<SpellAI>("SpellAI"))->RegisterSelf();
+        (new CreatureAIFactory<CombatAI>("CombatAI"))->RegisterSelf();
         (new CreatureAIFactory<CreatureEventAI>("EventAI"))->RegisterSelf();
 
         (new MovementGeneratorFactory<RandomMovementGenerator<Creature> >(RANDOM_MOTION_TYPE))->RegisterSelf();

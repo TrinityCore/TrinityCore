@@ -336,9 +336,9 @@ int32 m_auiRandomSay[] =
     SAY_DUEL_A, SAY_DUEL_B, SAY_DUEL_C, SAY_DUEL_D, SAY_DUEL_E, SAY_DUEL_F, SAY_DUEL_G, SAY_DUEL_H, SAY_DUEL_I
 };
 
-struct TRINITY_DLL_DECL npc_death_knight_initiateAI : public SpellAI
+struct TRINITY_DLL_DECL npc_death_knight_initiateAI : public CombatAI
 {
-    npc_death_knight_initiateAI(Creature* pCreature) : SpellAI(pCreature)
+    npc_death_knight_initiateAI(Creature* pCreature) : CombatAI(pCreature)
     {
         m_bIsDuelInProgress = false;
     }
@@ -352,7 +352,7 @@ struct TRINITY_DLL_DECL npc_death_knight_initiateAI : public SpellAI
     {
         lose = false;
         me->RestoreFaction();
-        SpellAI::Reset();
+        CombatAI::Reset();
 
         m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_15);
 
@@ -432,7 +432,7 @@ struct TRINITY_DLL_DECL npc_death_knight_initiateAI : public SpellAI
 
         // TODO: spells
 
-        SpellAI::UpdateAI(uiDiff);
+        CombatAI::UpdateAI(uiDiff);
     }
 };
 

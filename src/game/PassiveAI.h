@@ -18,11 +18,11 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-#ifndef TRINITY_NULLCREATUREAI_H
-#define TRINITY_NULLCREATUREAI_H
+#ifndef TRINITY_PASSIVEAI_H
+#define TRINITY_PASSIVEAI_H
 
 #include "CreatureAI.h"
-#include "CreatureAIImpl.h"
+//#include "CreatureAIImpl.h"
 
 class TRINITY_DLL_SPEC PassiveAI : public CreatureAI
 {
