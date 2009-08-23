@@ -4714,6 +4714,61 @@ void Spell::EffectScriptEffect(uint32 effIndex)
         {
             switch(m_spellInfo->Id)
             {
+                // Glyph of Starfire
+                case 54846:
+                {
+                    if (AuraEffect const * aurEff = unitTarget->GetAura(SPELL_AURA_PERIODIC_DAMAGE,SPELLFAMILY_DRUID,0x00000002,0,0,m_caster->GetGUID()))
+                    {
+                        uint32 countMin = aurEff->GetParentAura()->GetAuraMaxDuration();
+                        uint32 countMax = 18000;
+                        countMax += m_caster->HasAura(38414) ? 3000 : 0;
+                        countMax += m_caster->HasAura(57865) ? 3000 : 0;
+
+                        if (countMin < countMax)
+                        {
+                            aurEff->GetParentAura()->SetAuraDuration(uint32(aurEff->GetParentAura()->GetAuraDuration()+3000));
+                            aurEff->GetParentAura()->SetAuraMaxDuration(countMin+3000);
+                        }
+                    }
+                    return;
+                }
+                // Glyph of Shred
+                case 63974:
+                {
+                    if (AuraEffect const * aurEff = unitTarget->GetAura(SPELL_AURA_PERIODIC_DAMAGE,SPELLFAMILY_DRUID,0x00800000,0,0,m_caster->GetGUID()))
+                    {
+                        uint32 countMin = aurEff->GetParentAura()->GetAuraMaxDuration();
+                        uint32 countMax = 20000;
+                        countMax += m_caster->HasAura(54818) ? 4000 : 0;
+                        countMax += m_caster->HasAura(60141) ? 4000 : 0;
+
+                        if (countMin < countMax)
+                        {
+                            aurEff->GetParentAura()->SetAuraDuration(uint32(aurEff->GetParentAura()->GetAuraDuration()+3000));
+                            aurEff->GetParentAura()->SetAuraMaxDuration(countMin+2000);
+                        }
+
+                    }
+                    return;
+                }
+                // Glyph of Backstab
+                case 63975:
+                {
+                    if (AuraEffect const * aurEff = unitTarget->GetAura(SPELL_AURA_PERIODIC_DAMAGE,SPELLFAMILY_ROGUE,0x00100000,0,0,m_caster->GetGUID()))
+                    {
+                        uint32 countMin = aurEff->GetParentAura()->GetAuraMaxDuration();
+                        uint32 countMax = 12000;
+                        countMax += m_caster->HasAura(56801) ? 4000 : 0;
+
+                        if (countMin < countMax)
+                        {
+                            aurEff->GetParentAura()->SetAuraDuration(uint32(aurEff->GetParentAura()->GetAuraDuration()+3000));
+                            aurEff->GetParentAura()->SetAuraMaxDuration(countMin+2000);
+                        }
+
+                    }
+                    return;
+                }
                 // Dispelling Analysis
                 case 37028:
                 {
