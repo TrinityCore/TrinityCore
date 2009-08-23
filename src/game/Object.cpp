@@ -1196,7 +1196,7 @@ float WorldObject::GetDistance(float x, float y, float z) const
     return ( dist > 0 ? dist : 0);
 }
 
-float WorldObject::GetDistanceSq(const float &x, const float &y, const float &z) const
+float WorldObject::GetExactDistSq(float x, float y, float z) const
 {
     float dx = GetPositionX() - x;
     float dy = GetPositionY() - y;
@@ -1204,7 +1204,14 @@ float WorldObject::GetDistanceSq(const float &x, const float &y, const float &z)
     return dx*dx + dy*dy + dz*dz;
 }
 
-float WorldObject::GetDistanceSq(const WorldObject *obj) const
+float WorldObject::GetDistance2dSq(float x, float y) const
+{
+    float dx = GetPositionX() - x;
+    float dy = GetPositionY() - y;
+    return dx*dx + dy*dy;
+}
+
+float WorldObject::GetExactDistSq(const WorldObject *obj) const
 {
     float dx = GetPositionX() - obj->GetPositionX();
     float dy = GetPositionY() - obj->GetPositionY();
@@ -1236,8 +1243,7 @@ bool WorldObject::IsWithinDist3d(float x, float y, float z, float dist2compare) 
     float dz = GetPositionZ() - z;
     float distsq = dx*dx + dy*dy + dz*dz;
 
-    float sizefactor = GetObjectSize();
-    float maxdist = dist2compare + sizefactor;
+    float maxdist = dist2compare + GetObjectSize();
 
     return distsq < maxdist * maxdist;
 }
@@ -1248,8 +1254,7 @@ bool WorldObject::IsWithinDist2d(float x, float y, float dist2compare) const
     float dy = GetPositionY() - y;
     float distsq = dx*dx + dy*dy;
 
-    float sizefactor = GetObjectSize();
-    float maxdist = dist2compare + sizefactor;
+    float maxdist = dist2compare + GetObjectSize();
 
     return distsq < maxdist * maxdist;
 }

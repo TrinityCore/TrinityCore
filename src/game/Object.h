@@ -460,8 +460,9 @@ class TRINITY_DLL_SPEC WorldObject : public Object
 
         float GetDistance( const WorldObject* obj ) const;
         float GetDistance(float x, float y, float z) const;
-        float GetDistanceSq(const float &x, const float &y, const float &z) const;
-        float GetDistanceSq(const WorldObject *obj) const;
+        float GetDistance2dSq(float x, float y) const;
+        float GetExactDistSq(float x, float y, float z) const;
+        float GetExactDistSq(const WorldObject *obj) const;
         float GetDistance2d(const WorldObject* obj) const;
         float GetDistance2d(float x, float y) const;
         float GetExactDistance2d(const float x, const float y) const;
@@ -491,6 +492,7 @@ class TRINITY_DLL_SPEC WorldObject : public Object
 
         float GetAngle( const WorldObject* obj ) const;
         float GetAngle( const float x, const float y ) const;
+        float GetRelativeAngle(const WorldObject *obj) const { return GetAngle(obj) - GetOrientation(); }
         void GetSinCos(const float x, const float y, float &vsin, float &vcos);
         bool HasInArc( const float arcangle, const WorldObject* obj ) const;
         bool IsInBetween(const WorldObject *obj1, const WorldObject *obj2, float size = 0) const;

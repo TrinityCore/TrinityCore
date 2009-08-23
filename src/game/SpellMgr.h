@@ -294,6 +294,20 @@ inline bool IsCasterSourceTarget(uint32 target)
     return false;
 }
 
+inline bool IsPositionTarget(uint32 target)
+{
+    switch (SpellTargetType[target])
+    {
+        case TARGET_TYPE_DEST_CASTER:
+        case TARGET_TYPE_DEST_TARGET:
+        case TARGET_TYPE_DEST_DEST:
+            return true;
+        default:
+            break;
+    }
+    return false;
+}
+
 inline bool IsSpellWithCasterSourceTargetsOnly(SpellEntry const* spellInfo)
 {
     for(int i = 0; i < 3; ++i)
