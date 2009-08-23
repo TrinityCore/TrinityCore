@@ -459,7 +459,16 @@ void WorldSession::HandleSetActiveMoverOpcode(WorldPacket &recv_data)
         return;
 
     if(Unit *mover = ObjectAccessor::GetUnit(*GetPlayer(), guid))
+    {
         GetPlayer()->SetMover(mover);
+        if(mover != GetPlayer() && mover->canFly())
+        {
+            WorldPacket data(SMSG_MOVE_SET_CAN_FLY, 12);
+            data.append(mover->GetPackGUID());
+            data << uint32(0);
+            SendPacket(&data);
+        }
+    }
     else
     {
         sLog.outError("HandleSetActiveMoverOpcode: incorrect mover guid: mover is " I64FMT " and should be " I64FMT, guid, _player->m_mover->GetGUID());
