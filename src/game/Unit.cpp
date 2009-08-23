@@ -2155,26 +2155,25 @@ void Unit::CalcAbsorbResist(Unit *pVictim,SpellSchoolMask schoolMask, DamageEffe
 
     if (*absorb)
     {
-        bool found = false;
-        int32 spell_dmg = 0;
         // Incanter's Absorption
         // TODO: move this code to procflag
-        if (AuraEffect const * aurEff = GetDummyAura(SPELLFAMILY_GENERIC, 2941, 0))
+        if (AuraEffect const * aurEff = pVictim->GetDummyAura(SPELLFAMILY_GENERIC, 2941, 0))
         {
-            int32 total_dmg = 0;
-            // Get total bonus from auras
-            for(AuraMap::const_iterator iter = m_Auras.lower_bound(44413); iter != m_Auras.upper_bound(44413);++iter)
-            {
+            // Get total damage bonus from auras
+            int32 current_dmg = 0;
+            std::pair<AuraMap::const_iterator, AuraMap::const_iterator> range = pVictim->GetAuras().equal_range(44413);
+            for(AuraMap::const_iterator iter = range.first; iter != range.second; ++iter)
                 if (AuraEffect const * bonusEff = iter->second->GetPartAura(0))
-                    total_dmg += bonusEff->GetAmount();
-            }
-            spell_dmg = int32(*absorb * aurEff->GetAmount() / 100);
+                    current_dmg += bonusEff->GetAmount();
+
+            int32 new_dmg = (int32)*absorb * aurEff->GetAmount() / 100;
+            int32 max_dmg = (int32)pVictim->GetMaxHealth() * 5 / 100;
             // Do not apply more auras if more than 5% hp
-            if(total_dmg+spell_dmg <= int32(GetMaxHealth() * 5 / 100))
-                found = true;
+            if(current_dmg + new_dmg > max_dmg)
+                new_dmg = max_dmg - current_dmg;
+            if(new_dmg > 0)
+                pVictim->CastCustomSpell(pVictim, 44413, &new_dmg, NULL, NULL, true);
         }
-        if (found)
-            pVictim->CastCustomSpell(pVictim, 44413, &spell_dmg, NULL, NULL, true);
     }
 }
 
