@@ -15,8 +15,8 @@
 #include "sc_creature.h"
 #include "sc_gossip.h"
 #include "sc_instance.h"
-#include "AggressorAI.h"
-#include "NullCreatureAI.h"
+#include "CombatAI.h"
+#include "PassiveAI.h"
 
 #ifdef WIN32
 #include <windows.h>

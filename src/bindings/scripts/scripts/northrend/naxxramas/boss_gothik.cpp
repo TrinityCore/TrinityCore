@@ -249,9 +249,9 @@ struct TRINITY_DLL_DECL boss_gothikAI : public BossAI
     }
 };
 
-struct TRINITY_DLL_DECL mob_gothik_minionAI : public SpellAI
+struct TRINITY_DLL_DECL mob_gothik_minionAI : public CombatAI
 {
-    mob_gothik_minionAI(Creature *c) : SpellAI(c)
+    mob_gothik_minionAI(Creature *c) : CombatAI(c)
     {
         liveSide = me->GetPositionY() < POS_Y_GATE;
     }
@@ -277,7 +277,7 @@ struct TRINITY_DLL_DECL mob_gothik_minionAI : public SpellAI
         if (me->isSummon())
         {
             if (Unit *owner = CAST_SUM(me)->GetSummoner())
-                SpellAI::JustDied(owner);
+                CombatAI::JustDied(owner);
         }
     }
 
@@ -285,7 +285,7 @@ struct TRINITY_DLL_DECL mob_gothik_minionAI : public SpellAI
     {
         if (!gateClose)
         {
-            SpellAI::EnterEvadeMode();
+            CombatAI::EnterEvadeMode();
             return;
         }
 
@@ -318,7 +318,7 @@ struct TRINITY_DLL_DECL mob_gothik_minionAI : public SpellAI
             return;
         }
 
-        SpellAI::UpdateAI(diff);
+        CombatAI::UpdateAI(diff);
     }
 };
 

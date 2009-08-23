@@ -20,7 +20,7 @@
 
 #include "Creature.h"
 #include "CreatureAISelector.h"
-#include "NullCreatureAI.h"
+#include "PassiveAI.h"
 #include "Policies/SingletonImp.h"
 #include "MovementGenerator.h"
 #include "ScriptCalls.h"
@@ -81,7 +81,7 @@ namespace FactorySelector
             {
                 if(creature->m_spells[i])
                 {
-                    ai_factory = ai_registry.GetRegistryItem("SpellAI");
+                    ai_factory = ai_registry.GetRegistryItem("CombatAI");
                     break;
                 }
             }

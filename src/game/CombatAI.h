@@ -18,8 +18,8 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-#ifndef TRINITY_AGGRESSORAI_H
-#define TRINITY_AGGRESSORAI_H
+#ifndef TRINITY_COMBATAI_H
+#define TRINITY_COMBATAI_H
 
 #include "CreatureAI.h"
 #include "CreatureAIImpl.h"
@@ -37,10 +37,10 @@ class TRINITY_DLL_DECL AggressorAI : public CreatureAI
 
 typedef std::vector<uint32> SpellVct;
 
-class TRINITY_DLL_SPEC SpellAI : public CreatureAI
+class TRINITY_DLL_SPEC CombatAI : public CreatureAI
 {
     public:
-        explicit SpellAI(Creature *c) : CreatureAI(c) {}
+        explicit CombatAI(Creature *c) : CreatureAI(c) {}
 
         void InitializeAI();
         void Reset();
@@ -53,16 +53,28 @@ class TRINITY_DLL_SPEC SpellAI : public CreatureAI
         SpellVct spells;
 };
 
-class TRINITY_DLL_SPEC SpellCasterAI : public SpellAI
+class TRINITY_DLL_SPEC CasterAI : public CombatAI
 {
     public:
-        explicit SpellCasterAI(Creature *c) : SpellAI(c) {m_attackDist = MELEE_RANGE;}
+        explicit CasterAI(Creature *c) : CombatAI(c) { m_attackDist = MELEE_RANGE; }
         void InitializeAI();
-        void AttackStart(Unit * victim){SpellAI::AttackStartCaster(victim, m_attackDist);}
+        void AttackStart(Unit * victim) { AttackStartCaster(victim, m_attackDist); }
         void UpdateAI(const uint32 diff);
         void EnterCombat(Unit *who);
     private:
         float m_attackDist;
+};
+
+struct TRINITY_DLL_SPEC ArchorAI : public CreatureAI
+{
+    public:
+        explicit ArchorAI(Creature *c);
+        void MoveInLineOfSight(Unit *who);
+        void AttackStart(Unit *who);
+        void UpdateAI(const uint32 diff);
+    protected:
+        float m_maxRange, m_minRange;
+        bool m_canMelee;
 };
 
 #endif
