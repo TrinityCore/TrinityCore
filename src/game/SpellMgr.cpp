@@ -2764,6 +2764,9 @@ DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellEntry const* spellproto
             // Howl of Terror
             else if (spellproto->SpellFamilyFlags[1] & 0x8)
                 return DIMINISHING_FEAR_BLIND;
+            // Seduction
+            else if (spellproto->SpellFamilyFlags[0] & 0x40000000)
+                return DIMINISHING_FEAR_BLIND;
             break;
         }
         case SPELLFAMILY_DRUID:
