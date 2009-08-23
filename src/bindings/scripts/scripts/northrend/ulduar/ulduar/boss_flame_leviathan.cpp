@@ -20,6 +20,7 @@
 #include "def_ulduar.h"
 #include "Vehicle.h"
 
+
 #define SPELL_PURSUED           62374
 #define SPELL_GATHERING_SPEED   62375
 #define SPELL_BATTERING_RAM     62376
@@ -27,11 +28,14 @@
 #define SPELL_MISSILE_BARRAGE   62400
 #define SPELL_SYSTEMS_SHUTDOWN  62475
 
-#define SPELL_CANNON            62397
+#define SPELL_FLAME_CANNON      62395
+//#define SPELL_FLAME_CANNON      64692 trigger the same spell
 
 #define SPELL_OVERLOAD_CIRCUIT  62399
 
 #define SPELL_SEARING_FLAME     62402
+
+#define SPELL_BLAZE             62292
 
 enum Events
 {
@@ -40,14 +44,20 @@ enum Events
     EVENT_VENT,
 };
 
+enum Seats
+{
+    SEAT_PLAYER = 0,
+    SEAT_TURRET = 1,
+    SEAT_DEVICE = 2,
+};
+
 struct TRINITY_DLL_DECL boss_flame_leviathanAI : public BossAI
 {
     boss_flame_leviathanAI(Creature *c) : BossAI(c, BOSS_LEVIATHAN)
     {
         assert(c->isVehicle());
+        me->SetReactState(REACT_DEFENSIVE);
     }
-
-    void MoveInLineOfSight(Unit* who) {}
 
     void EnterCombat(Unit *who)
     {
@@ -64,6 +74,12 @@ struct TRINITY_DLL_DECL boss_flame_leviathanAI : public BossAI
     {
         if (spell->Id == SPELL_PURSUED)
             AttackStart(target);
+    }
+
+    void SpellHit(Unit *caster, const SpellEntry *spell)
+    {
+        if(spell->Id == 62472)
+            CAST_VEH(me)->InstallAllAccessories();
     }
 
     void UpdateAI(const uint32 diff)
@@ -133,6 +149,12 @@ struct TRINITY_DLL_DECL boss_flame_leviathan_turretAI : public ScriptedAI
         events.ScheduleEvent(1, 5000);
     }
 
+    void AttackStart(Unit *who)
+    {
+        if(who)
+            me->Attack(who, false);
+    }
+
     void UpdateAI(const uint32 diff)
     {
         if (!UpdateCombatState())
@@ -148,8 +170,9 @@ struct TRINITY_DLL_DECL boss_flame_leviathan_turretAI : public ScriptedAI
             switch(eventId)
             {
                 case 1:
-                    DoCast(SelectTarget(SELECT_TARGET_RANDOM), SPELL_CANNON);
-                    events.RepeatEvent(10000);
+                    DoCast(me->getVictim(), SPELL_FLAME_CANNON);
+                    AttackStart(SelectTarget(SELECT_TARGET_RANDOM));
+                    events.RepeatEvent(3000);
                     return;
                 default:
                     events.PopEvent();
@@ -160,44 +183,63 @@ struct TRINITY_DLL_DECL boss_flame_leviathan_turretAI : public ScriptedAI
 };
 
 
-struct TRINITY_DLL_DECL boss_flame_leviathan_seatAI : public ScriptedAI
+struct TRINITY_DLL_DECL boss_flame_leviathan_seatAI : public PassiveAI
 {
-    boss_flame_leviathan_seatAI(Creature *c) : ScriptedAI(c)
+    boss_flame_leviathan_seatAI(Creature *c) : PassiveAI(c)
     {
         assert(c->isVehicle());
         if (const CreatureInfo *cInfo = me->GetCreatureInfo())
             me->SetDisplayId(cInfo->DisplayID_A[0]); // 0 invisible, 1 visible
+        //me->SetReactState(REACT_AGGRESSIVE);
     }
 
-    void Reset()
+    /*
+    void MoveInLineOfSight(Unit *who)
     {
-        me->SetReactState(REACT_AGGRESSIVE);
+        if(who->GetTypeId() == TYPEID_PLAYER && CAST_PLR(who)->isGameMaster()
+            && !who->m_Vehicle && CAST_VEH(me)->GetPassenger(SEAT_TURRET))
+            who->EnterVehicle((Vehicle*)me, 0);
+    }
+    */
+
+    void PassengerBoarded(Unit *who, int8 seatId)
+    {
+        if(!me->m_Vehicle)
+            return;
+
+        if(seatId == SEAT_PLAYER)
+        {
+            if(Unit *turret = CAST_VEH(me)->GetPassenger(SEAT_TURRET))
+            {
+                turret->setFaction(me->m_Vehicle->getFaction());
+                turret->SetUInt32Value(UNIT_FIELD_FLAGS, 0); // unselectable
+            }
+            if(Unit *device = CAST_VEH(me)->GetPassenger(SEAT_DEVICE))
+            {
+                device->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
+                device->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+            }
+        }
     }
 
-    void MoveInLineOfSight(Unit *who) // for test
+    void PassengerLeft(Unit *who, int8 seatId)
     {
-        if (who->GetTypeId() == TYPEID_PLAYER && !who->m_Vehicle
-            && !CAST_VEH(me)->GetPassenger(0) && CAST_VEH(me)->GetPassenger(2))
-            who->EnterVehicle(CAST_VEH(me), 0);
-    }
-
-    void UpdateAI(const uint32 diff)
-    {
-        if (!CAST_VEH(me)->GetPassenger(2))
-            if (Unit *who = CAST_VEH(me)->GetPassenger(0))
-                who->ExitVehicle();
+        if(seatId == SEAT_TURRET)
+        {
+            if(Unit *device = CAST_VEH(me)->GetPassenger(SEAT_DEVICE))
+            {
+                device->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
+                device->SetUInt32Value(UNIT_FIELD_FLAGS, 0); // unselectable
+            }
+        }
     }
 };
 
 struct TRINITY_DLL_DECL boss_flame_leviathan_defense_turretAI : public ScriptedAI
 {
-    boss_flame_leviathan_defense_turretAI(Creature *c) : ScriptedAI(c)
-    {
-    }
+    boss_flame_leviathan_defense_turretAI(Creature *c) : ScriptedAI(c), timer(2000) {}
 
-    void Reset()
-    {
-    }
+    uint32 timer;
 
     void DamageTaken(Unit *who, uint32 &damage)
     {
@@ -216,6 +258,12 @@ struct TRINITY_DLL_DECL boss_flame_leviathan_defense_turretAI : public ScriptedA
         AttackStart(who);
     }
 
+    void AttackStart(Unit *who)
+    {
+        if(who)
+            me->Attack(who, false);
+    }
+
     void UpdateAI(const uint32 diff)
     {
         if (!UpdateVictim())
@@ -224,30 +272,53 @@ struct TRINITY_DLL_DECL boss_flame_leviathan_defense_turretAI : public ScriptedA
         if (me->hasUnitState(UNIT_STAT_CASTING))
             return;
 
-        DoCast(me->getVictim(), SPELL_SEARING_FLAME);
+        if(timer > diff)
+            timer -= diff;
+        else
+        {
+            timer = 2000;
+            DoCast(me->getVictim(), SPELL_SEARING_FLAME);
+        }
     }
 };
 
-struct TRINITY_DLL_DECL boss_flame_leviathan_overload_deviceAI : public ScriptedAI
+struct TRINITY_DLL_DECL boss_flame_leviathan_overload_deviceAI : public PassiveAI
 {
-    boss_flame_leviathan_overload_deviceAI(Creature *c) : ScriptedAI(c)
+    boss_flame_leviathan_overload_deviceAI(Creature *c) : PassiveAI(c)
     {
         if (const CreatureInfo *cInfo = me->GetCreatureInfo())
             me->SetDisplayId(cInfo->DisplayID_H[0]); // A0 gm, H0 device
     }
 
-    void Reset()
+    void DoAction(const int32 param)
     {
+        if(param == EVENT_SPELLCLICK)
+        {
+            me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
+            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+            if(me->m_Vehicle)
+                if(Unit *player = me->m_Vehicle->GetPassenger(SEAT_PLAYER))
+                    player->ExitVehicle();
+        }
+    }
+};
+
+struct TRINITY_DLL_DECL spell_pool_of_tarAI : public TriggerAI
+{
+    spell_pool_of_tarAI(Creature *c) : TriggerAI(c)
+    {
+        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
     }
 
     void DamageTaken(Unit *who, uint32 &damage)
     {
-        if (damage >= me->GetHealth())
-        {
-            damage = 0;
-            if (!me->hasUnitState(UNIT_STAT_CASTING))
-                DoCastAOE(SPELL_OVERLOAD_CIRCUIT);
-        }
+        damage = 0;
+    }
+
+    void SpellHit(Unit* caster, const SpellEntry *spell)
+    {
+        if(spell->SchoolMask & SPELL_SCHOOL_MASK_FIRE && !me->HasAura(SPELL_BLAZE))
+            me->CastSpell(me, SPELL_BLAZE, true);
     }
 };
 
@@ -276,6 +347,11 @@ CreatureAI* GetAI_boss_flame_leviathan_overload_device(Creature* pCreature)
     return new boss_flame_leviathan_overload_deviceAI (pCreature);
 }
 
+CreatureAI* GetAI_spell_pool_of_tar(Creature* pCreature)
+{
+    return new spell_pool_of_tarAI (pCreature);
+}
+
 void AddSC_boss_flame_leviathan()
 {
     Script *newscript;
@@ -302,5 +378,10 @@ void AddSC_boss_flame_leviathan()
     newscript = new Script;
     newscript->Name="boss_flame_leviathan_overload_device";
     newscript->GetAI = &GetAI_boss_flame_leviathan_overload_device;
+    newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name="spell_pool_of_tar";
+    newscript->GetAI = &GetAI_spell_pool_of_tar;
     newscript->RegisterSelf();
 }
