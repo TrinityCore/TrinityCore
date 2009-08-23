@@ -3865,7 +3865,7 @@ bool Unit::RemoveNoStackAurasDueToAura(Aura *Aur)
         if (is_triggered_by_spell)
             continue;
 
-        if(!spellmgr.IsNoStackSpellDueToSpell(spellId, i_spellId, sameCaster))
+        if(spellmgr.CanAurasStack(spellProto, i_spellProto, sameCaster))
             continue;
 
         //some spells should be not removed by lower rank of them (totem, paladin aura)

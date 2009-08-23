@@ -780,8 +780,7 @@ void AreaAuraEffect::Update(uint32 diff)
                     bool skip = false;
                     for(Unit::AuraMap::iterator iter = (*tIter)->GetAuras().begin(); iter != (*tIter)->GetAuras().end();++iter)
                     {
-                        bool samecaster = iter->second->GetCasterGUID() == GetCasterGUID();
-                        if(spellmgr.IsNoStackSpellDueToSpell(GetId(), iter->first, samecaster))
+                        if(!spellmgr.CanAurasStack(GetSpellProto(), iter->second->GetSpellProto(), iter->second->GetCasterGUID() == GetCasterGUID()))
                         {
                             skip = true;
                             break;
