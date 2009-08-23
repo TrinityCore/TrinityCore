@@ -24,11 +24,18 @@ EndScriptData */
 #include "precompiled.h"
 #include <cstring>
 
+#define GOSSIP_ITEM_EXTENDED    "A quiz: what's your name?"
+#define GOSSIP_ITEM             "I'm not interested"
+
+#define SAY_NOT_INTERESTED      "Normal select, guess you're not interested."
+#define SAY_WRONG               "Wrong!"
+#define SAY_RIGHT               "You're right, you are allowed to see my inner secrets."
+
 //This function is called when the player opens the gossip menubool
 bool GossipHello_custom_gossip_codebox(Player* pPlayer, Creature* pCreature)
 {
-    pPlayer->ADD_GOSSIP_ITEM_EXTENDED(0, "A quiz: what's your name?", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1, "", 0, true);
-    pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I'm not interested", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
+    pPlayer->ADD_GOSSIP_ITEM_EXTENDED(0, GOSSIP_ITEM, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1, "", 0, true);
+    pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
 
     pPlayer->PlayerTalkClass->SendGossipMenu(907, pCreature->GetGUID());
     return true;
@@ -39,7 +46,7 @@ bool GossipSelect_custom_gossip_codebox(Player* pPlayer, Creature* pCreature, ui
 {
     if (uiAction == GOSSIP_ACTION_INFO_DEF+2)
     {
-        pCreature->Say("Normal select, guess you're not interested.", LANG_UNIVERSAL, 0);
+        pCreature->Say(SAY_NOT_INTERESTED, LANG_UNIVERSAL, 0);
         pPlayer->CLOSE_GOSSIP_MENU();
     }
     return true;
@@ -53,12 +60,12 @@ bool GossipSelectWithCode_custom_gossip_codebox(Player* pPlayer, Creature* pCrea
         {
             if (std::strcmp(sCode, pPlayer->GetName())!=0)
             {
-                pCreature->Say("Wrong!", LANG_UNIVERSAL, 0);
+                pCreature->Say(SAY_WRONG, LANG_UNIVERSAL, 0);
                 pCreature->CastSpell(pPlayer, 12826, true);
             }
             else
             {
-                pCreature->Say("You're right, you are allowed to see my inner secrets.", LANG_UNIVERSAL, 0);
+                pCreature->Say(SAY_RIGHT, LANG_UNIVERSAL, 0);
                 pCreature->CastSpell(pPlayer, 26990, true);
             }
             pPlayer->CLOSE_GOSSIP_MENU();
