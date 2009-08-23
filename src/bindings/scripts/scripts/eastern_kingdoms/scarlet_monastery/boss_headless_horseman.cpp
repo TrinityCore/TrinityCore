@@ -128,6 +128,8 @@ static Summon Text[]=
     {"Now, know demise!"}
 };
 
+#define EMOTE_LAUGHS    "laughs"
+
 struct TRINITY_DLL_DECL mob_wisp_invisAI : public ScriptedAI
 {
     mob_wisp_invisAI(Creature *c) : ScriptedAI(c)
@@ -298,7 +300,7 @@ struct TRINITY_DLL_DECL mob_headAI : public ScriptedAI
                 Creature *speaker = DoSpawnCreature(HELPER,0,0,0,0,TEMPSUMMON_TIMED_DESPAWN,1000);
                 if (speaker)
                     speaker->CastSpell(speaker,SPELL_HEAD_SPEAKS,false);
-                m_creature->MonsterTextEmote("laughs",NULL);
+                m_creature->MonsterTextEmote(EMOTE_LAUGHS,NULL);
             } else laugh -= diff;
 
         } else {
@@ -338,7 +340,8 @@ struct TRINITY_DLL_DECL boss_headless_horsemanAI : public ScriptedAI
         {
             speed->Effect[1] = SPELL_EFFECT_APPLY_AURA;
             speed->EffectApplyAuraName[1] = SPELL_AURA_MOD_CONFUSE;
-        }*/
+        }
+*/
         pInstance = c->GetInstanceData();
     }
 
@@ -654,7 +657,7 @@ struct TRINITY_DLL_DECL boss_headless_horsemanAI : public ScriptedAI
 
             if (laugh < diff) {
                 laugh = 11000 + rand()%12 * 1000;
-                m_creature->MonsterTextEmote("laughs",NULL);
+                m_creature->MonsterTextEmote(EMOTE_LAUGHS,NULL);
                 DoPlaySoundToSet(m_creature, RandomLaugh[rand()%3]);
             } else laugh -= diff;
 

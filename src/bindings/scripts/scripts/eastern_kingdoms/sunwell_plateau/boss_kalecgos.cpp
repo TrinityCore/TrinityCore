@@ -85,6 +85,8 @@ enum Creatures
 
 #define GO_FAILED   "You are unable to use this currently."
 
+#define EMOTE_UNABLE_TO_FIND    "is unable to find Kalecgos"
+
 #define FLY_X   1679
 #define FLY_Y   900
 #define FLY_Z   82
@@ -390,7 +392,7 @@ struct TRINITY_DLL_DECL boss_sathrovarrAI : public ScriptedAI
                 }
                 else
                 {
-                    me->MonsterTextEmote("is unable to find Kalecgos", NULL);
+                    me->MonsterTextEmote(EMOTE_UNABLE_TO_FIND, NULL);
                     EnterEvadeMode();
                     return;
                 }

@@ -41,6 +41,8 @@ enum Events
     EVENT_SUMMON,
 };
 
+#define EMOTE_NEARBY    " spots a nearby zombie to devour!"
+
 struct TRINITY_DLL_DECL boss_gluthAI : public BossAI
 {
     boss_gluthAI(Creature *c) : BossAI(c, BOSS_GLUTH)
@@ -62,7 +64,7 @@ struct TRINITY_DLL_DECL boss_gluthAI : public BossAI
         if (who->GetEntry() == MOB_ZOMBIE && me->IsWithinDistInMap(who, 20))
         {
             SetGazeOn(who);
-            me->MonsterTextEmote(" spots a nearby zombie to devour!", 0, true);
+            me->MonsterTextEmote(EMOTE_NEARBY, 0, true);
         }
         else
             BossAI::MoveInLineOfSight(who);

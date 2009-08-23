@@ -89,13 +89,13 @@ struct TRINITY_DLL_DECL aqsentinelAI : public ScriptedAI
 
     aqsentinelAI(Creature *c) : ScriptedAI(c)
     {
-        ClearBudyList();
+        ClearBuddyList();
         abselected = 0;                                     // just initialization of variable
     }
 
     Creature *nearby[3];
 
-    void ClearBudyList()
+    void ClearBuddyList()
     {
         nearby[0] = nearby[1] = nearby[2] = NULL;
     }
@@ -183,7 +183,7 @@ struct TRINITY_DLL_DECL aqsentinelAI : public ScriptedAI
         memset(chosenAbilities, 0, 9*sizeof(bool));
         selectAbility(pickAbilityRandom(chosenAbilities));
 
-        ClearBudyList();
+        ClearBuddyList();
         AddSentinelsNear(m_creature);
         int bli;
         for (bli = 0; bli < 3; ++bli)
@@ -216,7 +216,7 @@ struct TRINITY_DLL_DECL aqsentinelAI : public ScriptedAI
                     nearby[i]->Respawn();
             }
         }
-        ClearBudyList();
+        ClearBuddyList();
         gatherOthersWhenAggro = true;
     }
 
