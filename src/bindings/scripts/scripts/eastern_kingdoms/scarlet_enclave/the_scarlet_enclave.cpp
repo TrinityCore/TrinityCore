@@ -100,55 +100,6 @@ CreatureAI* GetAI_npc_valkyr_battle_maiden(Creature* pCreature)
     return new npc_valkyr_battle_maidenAI (pCreature);
 }
 
-struct TRINITY_DLL_DECL mob_anti_airAI : public ScriptedAI
-{
-    mob_anti_airAI(Creature *c) : ScriptedAI(c)
-    {
-        assert(me->m_spells[0]);
-        range = DoGetSpellMaxRange(me->m_spells[0]);
-    }
-
-    float range;
-
-    void MoveInLineOfSight(Unit *who)
-    {
-        if(!me->getVictim() && me->canAttack(who)
-            && me->IsWithinCombatRange(who, range)
-            && me->IsWithinLOSInMap(who))
-            AttackStart(who);
-    }
-
-    void AttackStart(Unit *who)
-    {
-        if(who->IsFlying() || !me->IsWithinMeleeRange(who))
-        {
-            if(me->Attack(who, false))
-                me->GetMotionMaster()->MoveIdle();
-        }
-        else if(me->Attack(who, true))
-            me->GetMotionMaster()->MoveChase(who);
-    }
-
-    void UpdateAI(const uint32 diff)
-    {
-        if(!UpdateVictim())
-            return;
-
-        if(me->getVictim()->IsFlying() || !me->IsWithinMeleeRange(me->getVictim()))
-        {
-            if(!DoSpellAttackIfReady(me->m_spells[0]))
-                EnterEvadeMode();
-        }
-        else
-            DoMeleeAttackIfReady();
-    }
-};
-
-CreatureAI* GetAI_mob_anti_air(Creature* pCreature)
-{
-    return new mob_anti_airAI (pCreature);
-}
-
 void AddSC_the_scarlet_enclave()
 {
     Script *newscript;
@@ -156,11 +107,6 @@ void AddSC_the_scarlet_enclave()
     newscript = new Script;
     newscript->Name="npc_valkyr_battle_maiden";
     newscript->GetAI = &GetAI_npc_valkyr_battle_maiden;
-    newscript->RegisterSelf();
-
-    newscript = new Script;
-    newscript->Name="mob_anti_air";
-    newscript->GetAI = &GetAI_mob_anti_air;
     newscript->RegisterSelf();
 
     // Chapter 3: Scarlet Armies Approach... - An End To All Things...
