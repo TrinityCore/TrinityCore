@@ -943,6 +943,13 @@ enum ActionBarIndex
     ACTION_BAR_INDEX_END = 10,
 };
 
+enum Rotation
+{
+    CREATURE_ROTATE_NONE = 0,
+    CREATURE_ROTATE_LEFT = 1,
+    CREATURE_ROTATE_RIGHT = 2
+};
+
 #define MAX_UNIT_ACTION_BAR_INDEX (ACTION_BAR_INDEX_END-ACTION_BAR_INDEX_START)
 
 struct CharmInfo
@@ -1067,6 +1074,9 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
         void GetRandomContactPoint( const Unit* target, float &x, float &y, float &z, float distance2dMin, float distance2dMax ) const;
         uint32 m_extraAttacks;
         bool m_canDualWield;
+        void StartAutoRotate(uint8 type, uint32 fulltime);
+        void AutoRotate(uint32 time);
+        bool IsUnitRotating() {return IsRotating;}
 
         void _addAttacker(Unit *pAttacker)                  // must be called only from Unit::Attack(Unit*)
         {
@@ -1092,7 +1102,13 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
         void RemoveAllAttackers();
         AttackerSet const& getAttackers() const { return m_attackers; }
         bool isAttackingPlayer() const;
-        Unit* getVictim() const { return m_attacking; }
+        Unit* getVictim() const 
+        { 
+            if(IsRotating)return NULL;
+            return m_attacking; 
+        }
+
+
         void CombatStop(bool includingCast = false);
         void CombatStopWithPets(bool includingCast = false);
         Unit* SelectNearbyTarget(float dist = NOMINAL_MELEE_RANGE) const;
@@ -1928,6 +1944,12 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
 
         uint32 m_reducedThreatPercent;
         uint64 m_misdirectionTargetGUID;
+
+        uint8 IsRotating;//0none 1left 2right
+        uint32 RotateTimer;
+        uint32 RotateTimerFull;
+        double RotateAngle;
+        uint64 LastTargetGUID;
 };
 
 namespace Trinity
