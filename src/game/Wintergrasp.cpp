@@ -324,84 +324,104 @@ uint32 OPvPWintergrasp::GetCreatureEntry(uint32 guidlow, const CreatureData *dat
     return data->id;
 }
 
+WintergraspCreType OPvPWintergrasp::GetCreatureType(uint32 entry) const
+{
+    switch(entry)
+    {
+        case 27881:
+        case 28094:
+        case 28312:
+        case 32627:
+            return CREATURE_SIEGE_VEHICLE;
+        case 28366:
+            return CREATURE_TURRET;
+        case CRE_ENG_A:
+        case CRE_ENG_H:
+            return CREATURE_ENGINEER;
+        case 30739:
+        case 30740:
+            return CREATURE_GUARD;
+        default:
+            return CREATURE_OTHER;
+    }
+}
+
 void OPvPWintergrasp::OnCreatureCreate(Creature *creature, bool add)
 {
     uint32 entry = creature->GetEntry();
-    if(creature->isVehicle()) // vehicles
+    switch(GetCreatureType(entry))
     {
-        TeamId team;
-        if(creature->getFaction() == WintergraspFaction[TEAM_ALLIANCE])
-            team = TEAM_ALLIANCE;
-        else if(creature->getFaction() == WintergraspFaction[TEAM_HORDE])
-            team = TEAM_HORDE;
-        else
-            return;
-
-        switch(entry)
+        case CREATURE_SIEGE_VEHICLE:
         {
-            case 27881:
-            case 28094:
-            case 28312:
-            case 32627:
-                if(uint32 engLowguid = GUID_LOPART(creature->GetOwnerGUID()))
+            TeamId team;
+            if(creature->getFaction() == WintergraspFaction[TEAM_ALLIANCE])
+                team = TEAM_ALLIANCE;
+            else if(creature->getFaction() == WintergraspFaction[TEAM_HORDE])
+                team = TEAM_HORDE;
+            else
+                return;
+
+            if(uint32 engLowguid = GUID_LOPART(creature->GetOwnerGUID()))
+            {
+                if(SiegeWorkshop *workshop = GetWorkshopByEngGuid(engLowguid))
                 {
-                    if(SiegeWorkshop *workshop = GetWorkshopByEngGuid(engLowguid))
+                    if(add)
                     {
-                        if(add)
+                        if(CanBuildVehicle(workshop))
                         {
-                            if(CanBuildVehicle(workshop))
-                            {
-                                m_vehicles[team].insert((Vehicle*)creature);
-                                //workshop->m_vehicles.insert((Vehicle*)creature);
-                            }
-                            else
-                            {
-                                creature->setDeathState(DEAD);
-                                creature->SetRespawnTime(DAY);
-                                return;
-                            }                            
+                            m_vehicles[team].insert((Vehicle*)creature);
+                            //workshop->m_vehicles.insert((Vehicle*)creature);
                         }
-                        // TODO: now you have to wait until the corpse of vehicle disappear to build a new one
                         else
                         {
-                            m_vehicles[team].erase((Vehicle*)creature);
-                            //if(!workshop->m_vehicles.erase((Vehicle*)creature))
-                            //    sLog.outError("OPvPWintergrasp::OnCreatureCreate: a vehicle is removed but it does not have record in workshop!");
-                        }
+                            creature->setDeathState(DEAD);
+                            creature->SetRespawnTime(DAY);
+                            return;
+                        }                            
+                    }
+                    // TODO: now you have to wait until the corpse of vehicle disappear to build a new one
+                    else
+                    {
+                        m_vehicles[team].erase((Vehicle*)creature);
+                        //if(!workshop->m_vehicles.erase((Vehicle*)creature))
+                        //    sLog.outError("OPvPWintergrasp::OnCreatureCreate: a vehicle is removed but it does not have record in workshop!");
                     }
                 }
-            //case 28366: tower
-                if(add)
+            }
+            if(add)
+            {
+                if(m_tenacityStack > 0)
                 {
-                    if(m_tenacityStack > 0)
-                    {
-                        if(team == TEAM_ALLIANCE)
-                            creature->SetAuraStack(SPELL_TENACITY_VEHICLE, creature, m_tenacityStack);
-                    }
-                    else if(m_tenacityStack < 0)
-                    {
-                        if(team == TEAM_HORDE)
-                            creature->SetAuraStack(SPELL_TENACITY_VEHICLE, creature, -m_tenacityStack);
-                    }
-                }                   
-                SendUpdateWorldState(VehNumWorldState[team], m_vehicles[team].size());
-                break;
+                    if(team == TEAM_ALLIANCE)
+                        creature->SetAuraStack(SPELL_TENACITY_VEHICLE, creature, m_tenacityStack);
+                }
+                else if(m_tenacityStack < 0)
+                {
+                    if(team == TEAM_HORDE)
+                        creature->SetAuraStack(SPELL_TENACITY_VEHICLE, creature, -m_tenacityStack);
+                }
+            }                   
+            SendUpdateWorldState(VehNumWorldState[team], m_vehicles[team].size());
+            break;
         }
-    }
-    else if(m_creEntryPair.find(entry) != m_creEntryPair.end()) // guards and npc
-    {
-        if(add) m_creatures.insert(creature);
-        else m_creatures.erase(creature);
-    }
-    else if(entry == CRE_ENG_A || entry == CRE_ENG_H) // demolisher engineers
-    {
-        for(OutdoorPvP::OPvPCapturePointMap::iterator itr = m_capturePoints.begin(); itr != m_capturePoints.end(); ++itr)
-            if(SiegeWorkshop *workshop = dynamic_cast<SiegeWorkshop*>(itr->second))
-                if(workshop->m_engGuid == creature->GetDBTableGUIDLow())
-                {
-                    workshop->m_engineer = add ? creature : NULL;
-                    break;
-                }
+        case CREATURE_ENGINEER:
+            for(OutdoorPvP::OPvPCapturePointMap::iterator itr = m_capturePoints.begin(); itr != m_capturePoints.end(); ++itr)
+            {
+                if(SiegeWorkshop *workshop = dynamic_cast<SiegeWorkshop*>(itr->second))
+                    if(workshop->m_engGuid == creature->GetDBTableGUIDLow())
+                    {
+                        workshop->m_engineer = add ? creature : NULL;
+                        break;
+                    }
+            }
+            break;
+        default:
+            if(m_creEntryPair.find(entry) != m_creEntryPair.end()) // guards and npc
+            {
+                if(add) m_creatures.insert(creature);
+                else m_creatures.erase(creature);
+            }
+            break;
     }
 }
 
@@ -578,35 +598,49 @@ void OPvPWintergrasp::HandlePlayerLeaveZone(Player * plr, uint32 zone)
 
 void OPvPWintergrasp::HandleKill(Player *killer, Unit *victim)
 {
+    bool ok = false;
     if(victim->GetTypeId() == TYPEID_PLAYER)
     {
-        // We handle promotion here because player should not get promotion if he has buff but do the kill outside the zone
         if(victim->getLevel() >= 70)
+            ok = true;
+    }
+    else
+    {
+        switch(GetCreatureType(victim->GetEntry()))
         {
-            Aura *aur;
-            if(aur = killer->GetAura(SPELL_RECRUIT))
-            {
-                if(aur->GetStackAmount() >= 5)
-                {
-                    killer->RemoveAura(SPELL_RECRUIT);
-                    killer->CastSpell(killer, SPELL_CORPORAL, true);
-                }
-                else
-                    killer->CastSpell(killer, SPELL_RECRUIT, true);
-            }
-            else if(aur = killer->GetAura(SPELL_CORPORAL))
-            {
-                if(aur->GetStackAmount() >= 5)
-                {
-                    killer->RemoveAura(SPELL_CORPORAL);
-                    killer->CastSpell(killer, SPELL_LIEUTENANT, true);
-                }
-                else
-                    killer->CastSpell(killer, SPELL_CORPORAL, true);
-            }
-            else if(killer->HasAura(SPELL_LIEUTENANT))
-                killer->CastSpell(killer, SPELL_LIEUTENANT, true);
+            case CREATURE_SIEGE_VEHICLE:
+            case CREATURE_GUARD:
+            case CREATURE_TURRET:
+                ok = true;
+                break;
         }
+    }
+
+    if(ok)
+    {
+        Aura *aur;
+        if(aur = killer->GetAura(SPELL_RECRUIT))
+        {
+            if(aur->GetStackAmount() >= 5)
+            {
+                killer->RemoveAura(SPELL_RECRUIT);
+                killer->CastSpell(killer, SPELL_CORPORAL, true);
+            }
+            else
+                killer->CastSpell(killer, SPELL_RECRUIT, true);
+        }
+        else if(aur = killer->GetAura(SPELL_CORPORAL))
+        {
+            if(aur->GetStackAmount() >= 5)
+            {
+                killer->RemoveAura(SPELL_CORPORAL);
+                killer->CastSpell(killer, SPELL_LIEUTENANT, true);
+            }
+            else
+                killer->CastSpell(killer, SPELL_CORPORAL, true);
+        }
+        else if(killer->HasAura(SPELL_LIEUTENANT))
+            killer->CastSpell(killer, SPELL_LIEUTENANT, true);
     }
 }
 
