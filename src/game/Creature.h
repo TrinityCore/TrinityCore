@@ -649,7 +649,6 @@ class TRINITY_DLL_SPEC Creature : public Unit
         uint32 m_GlobalCooldown;
 
         bool canSeeOrDetect(Unit const* u, bool detect, bool inVisibleList = false, bool is3dDistance = true) const;
-        bool IsWithinSightDist(Unit const* u) const;
         bool canStartAttack(Unit const* u, bool force) const;
         float GetAttackDistance(Unit const* pl) const;
 
@@ -746,6 +745,7 @@ class TRINITY_DLL_SPEC Creature : public Unit
 
         static float _GetDamageMod(int32 Rank);
 
+        float m_SightDistance, m_CombatDistance;
     protected:
         bool CreateFromProto(uint32 guidlow,uint32 Entry,uint32 team, const CreatureData *data = NULL);
         bool InitEntry(uint32 entry, uint32 team=ALLIANCE, const CreatureData* data=NULL);
