@@ -2497,6 +2497,11 @@ enum SummonType
     SUMMON_TYPE_OBJECT      = 11,
 };
 
+enum EventId
+{
+    EVENT_SPELLCLICK        = 1001,
+};
+
 enum ResponseCodes
 {
     RESPONSE_SUCCESS                                       = 0x00,

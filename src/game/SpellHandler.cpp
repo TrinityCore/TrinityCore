@@ -31,6 +31,7 @@
 #include "Totem.h"
 #include "TemporarySummon.h"
 #include "SpellAuras.h"
+#include "CreatureAI.h"
 
 void WorldSession::HandleUseItemOpcode(WorldPacket& recvPacket)
 {
@@ -516,6 +517,8 @@ void WorldSession::HandleSpellClick( WorldPacket & recv_data )
 
     if(unit->isVehicle())
         _player->EnterVehicle((Vehicle*)unit);
+
+    unit->AI()->DoAction(EVENT_SPELLCLICK);
 }
 
 void WorldSession::HandleMirrrorImageDataRequest( WorldPacket & recv_data )

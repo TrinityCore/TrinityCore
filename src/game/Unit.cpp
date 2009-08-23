@@ -10524,8 +10524,9 @@ bool Unit::canAttack(Unit const* target, bool force) const
     if(target->GetVisibility() == VISIBILITY_GROUP_STEALTH && !canDetectStealthOf(target, GetDistance(target)))
         return false;
 
-    if(target == m_Vehicle)
-        return false;
+    if(m_Vehicle)
+        if(target == m_Vehicle || m_Vehicle->m_Vehicle && target == m_Vehicle->m_Vehicle)
+            return false;
 
     return true;
 }

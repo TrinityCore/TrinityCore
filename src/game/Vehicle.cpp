@@ -90,11 +90,8 @@ void Vehicle::InstallAllAccessories()
             InstallAccessory(33139,7);
             break;
         case 33114:
-            InstallAccessory(33142,0);
-            //InstallAccessory(33143,1);
-            //InstallAccessory(33142,2);
-            InstallAccessory(33143,2);
-            InstallAccessory(33142,1);
+            InstallAccessory(33143,2); // Overload Control Device
+            InstallAccessory(33142,1); // Leviathan Defense Turret
             break;
     }
 }
@@ -122,7 +119,8 @@ void Vehicle::setDeathState(DeathState s)                       // overwrite vir
                 if(passenger->GetOwnerGUID() == GetGUID())
                 {
                     passenger->ExitVehicle();
-                    ((Vehicle*)passenger)->setDeathState(s);
+                    passenger->setDeathState(s);
+                    passenger->AddObjectToRemoveList();
                 }
         }
         RemoveAllPassengers();
@@ -266,7 +264,6 @@ void Vehicle::InstallAccessory(uint32 entry, int8 seatId)
     const CreatureInfo *cInfo = objmgr.GetCreatureTemplate(entry);
     if(!cInfo)
         return;
-
     Creature *accessory;
     if(cInfo->VehicleId)
         accessory = SummonVehicle(entry, GetPositionX(), GetPositionY(), GetPositionZ());
@@ -274,7 +271,6 @@ void Vehicle::InstallAccessory(uint32 entry, int8 seatId)
         accessory = SummonCreature(entry, GetPositionX(), GetPositionY(), GetPositionZ());
     if(!accessory)
         return;
-
     accessory->EnterVehicle(this, seatId);
     // This is not good, we have to send update twice
     accessory->SendMovementFlagUpdate();

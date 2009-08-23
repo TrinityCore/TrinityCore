@@ -4480,6 +4480,20 @@ void AuraEffect::HandleAuraPeriodicDummy(bool apply, bool Real, bool changeAmoun
     SpellEntry const*spell = GetSpellProto();
     switch( spell->SpellFamilyName)
     {
+        case SPELLFAMILY_GENERIC:
+        {
+            if(spell->Id == 62399) // Overload Circuit
+            {
+                if(m_target->GetMap()->IsDungeon())
+                    if(m_target->GetAuras().count(62399) >= (m_target->GetMap()->IsHeroic() ? 4 : 2))
+                    {
+                        m_target->CastSpell(m_target, 62475, true); // System Shutdown
+                        if(m_target->m_Vehicle)
+                            m_target->m_Vehicle->CastSpell(m_target, 62475, true);
+                    }
+            }
+            break;
+        }
         case SPELLFAMILY_WARLOCK:
         {
             switch (spell->Id)
@@ -6343,6 +6357,10 @@ void AuraEffect::PeriodicDummyTick()
             case 58549: // Tenacity
             case 59911: // Tenacity (vehicle)
                 GetParentAura()->RefreshAura();
+                break;
+            case 62292: // Blaze (Pool of Tar)
+                // should we use custom damage?
+                m_target->CastSpell((Unit*)NULL, m_spellProto->EffectTriggerSpell[m_effIndex], true);
                 break;
             default:
                 break;

@@ -1062,6 +1062,7 @@ UPDATE `creature_template` SET `ScriptName` = 'boss_flame_leviathan_turret' WHER
 UPDATE `creature_template` SET `ScriptName` = 'boss_flame_leviathan_seat' WHERE entry=33114;
 UPDATE `creature_template` SET `ScriptName` = 'boss_flame_leviathan_defense_turret' WHERE entry=33142;
 UPDATE `creature_template` SET `ScriptName` = 'boss_flame_leviathan_overload_device' WHERE entry=33143;
+UPDATE `creature_template` SET `ScriptName` = 'spell_pool_of_tar' WHERE `entry` = 33090;
 UPDATE `creature_template` SET `ScriptName` = 'boss_ignis' WHERE `entry` = 33118;
 UPDATE `creature_template` SET `ScriptName` = 'boss_razorscale' WHERE `entry` = 33186;
 UPDATE `creature_template` SET `ScriptName` = 'boss_xt002' WHERE `entry` = 33293;
