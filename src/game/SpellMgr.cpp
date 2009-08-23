@@ -3002,94 +3002,98 @@ bool SpellArea::IsFitToRequirements(Player const* player, uint32 newZone, uint32
 
 //-----------TRINITY-------------
 
-bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2, bool sameCaster) const
+bool SpellMgr::CanAurasStack(SpellEntry const *spellInfo_1, SpellEntry const *spellInfo_2, bool sameCaster) const
 {
-    SpellEntry const *spellInfo_1 = sSpellStore.LookupEntry(spellId_1);
-    SpellEntry const *spellInfo_2 = sSpellStore.LookupEntry(spellId_2);
-
-    if(!spellInfo_1 || !spellInfo_2)
-        return false;
-
-    SpellSpecific spellId_spec_1 = GetSpellSpecific(spellId_1);
-    SpellSpecific spellId_spec_2 = GetSpellSpecific(spellId_2);
-    if (spellId_spec_1 && spellId_spec_2)
-        if (IsSingleFromSpellSpecificPerTarget(spellId_spec_1, spellId_spec_2)
-            ||(sameCaster && IsSingleFromSpellSpecificPerCaster(spellId_spec_1, spellId_spec_2)))
-            return true;
+    SpellSpecific spellSpec_1 = GetSpellSpecific(spellInfo_1->Id);
+    SpellSpecific spellSpec_2 = GetSpellSpecific(spellInfo_2->Id);
+    if (spellSpec_1 && spellSpec_2)
+        if (IsSingleFromSpellSpecificPerTarget(spellSpec_1, spellSpec_2)
+            || sameCaster && IsSingleFromSpellSpecificPerCaster(spellSpec_1, spellSpec_2))
+            return false;
 
     if(spellInfo_1->SpellFamilyName != spellInfo_2->SpellFamilyName)
-        return false;
+        return true;
 
     if(!sameCaster)
     {
+        if(spellInfo_1->AttributesEx & SPELL_ATTR_EX3_STACK_FOR_DIFF_CASTERS
+            || spellInfo_1->AttributesEx3 & SPELL_ATTR_EX3_STACK_FOR_DIFF_CASTERS)
+            return true;
+            
+        // check same periodic auras
         for(uint32 i = 0; i < 3; ++i)
-            if (spellInfo_1->Effect[i] == SPELL_EFFECT_APPLY_AURA
-                || spellInfo_1->Effect[i] == SPELL_EFFECT_PERSISTENT_AREA_AURA)
+        {
+            // area auras should not stack (shaman totem)
+            if(spellInfo_1->Effect[i] != SPELL_EFFECT_APPLY_AURA
+                && spellInfo_1->Effect[i] != SPELL_EFFECT_PERSISTENT_AREA_AURA)
+                continue;
+
+            // not channeled AOE effects should not stack (blizzard should, but Consecration should not)
+            if((IsAreaEffectTarget[spellInfo_1->EffectImplicitTargetA[i]] || IsAreaEffectTarget[spellInfo_1->EffectImplicitTargetB[i]])
+                && !IsChanneledSpell(spellInfo_1))
+                continue;
+
+            switch(spellInfo_1->EffectApplyAuraName[i])
             {
-                // not channeled AOE effects can stack
-                if(IsAreaEffectTarget[spellInfo_1->EffectImplicitTargetA[i]] || IsAreaEffectTarget[spellInfo_1->EffectImplicitTargetB[i]]
-                    && !IsChanneledSpell(spellInfo_1))
-                        continue;
-                // not area auras (shaman totem)
-                switch(spellInfo_1->EffectApplyAuraName[i])
-                {
-                    // DOT or HOT from different casters will stack
-                    case SPELL_AURA_PERIODIC_DAMAGE:
-                    case SPELL_AURA_PERIODIC_HEAL:
-                    case SPELL_AURA_PERIODIC_TRIGGER_SPELL:
-                    case SPELL_AURA_PERIODIC_ENERGIZE:
-                    case SPELL_AURA_PERIODIC_MANA_LEECH:
-                    case SPELL_AURA_PERIODIC_LEECH:
-                    case SPELL_AURA_POWER_BURN_MANA:
-                    case SPELL_AURA_OBS_MOD_ENERGY:
-                    case SPELL_AURA_OBS_MOD_HEALTH:
-                    case SPELL_AURA_PERIODIC_TRIGGER_SPELL_WITH_VALUE:
-                        return false;
-                    default:
-                        break;
-                }
+                // DOT or HOT from different casters will stack
+                case SPELL_AURA_PERIODIC_DAMAGE:
+                case SPELL_AURA_PERIODIC_HEAL:
+                case SPELL_AURA_PERIODIC_TRIGGER_SPELL:
+                case SPELL_AURA_PERIODIC_ENERGIZE:
+                case SPELL_AURA_PERIODIC_MANA_LEECH:
+                case SPELL_AURA_PERIODIC_LEECH:
+                case SPELL_AURA_POWER_BURN_MANA:
+                case SPELL_AURA_OBS_MOD_ENERGY:
+                case SPELL_AURA_OBS_MOD_HEALTH:
+                case SPELL_AURA_PERIODIC_TRIGGER_SPELL_WITH_VALUE:
+                    return true;
+                default:
+                    break;
             }
+        }
     }
 
-    spellId_2 = GetLastSpellInChain(spellId_2);
-    spellId_1 = GetLastSpellInChain(spellId_1);
+    uint32 spellId_1 = GetLastSpellInChain(spellInfo_1->Id);
+    uint32 spellId_2 = GetLastSpellInChain(spellInfo_2->Id);
 
-    // Hack for Incanter's Absorption
-    if (spellId_1 == spellId_2 && (spellId_1 == 44413 || (!sameCaster && spellInfo_1->AttributesEx3 & SPELL_ATTR_EX3_STACKS_FOR_DIFFERENT_CASTERS)))
-        return false;
-
+    // same spell
     if (spellId_1 == spellId_2)
-        return true;
+    {
+        // Hack for Incanter's Absorption
+        if(spellId_1 == 44413)
+            return true;
+        // same spell with same caster should not stack
+        return false;
+    }
 
-    // generic spells
+    // use icon to check generic spells
     if(!spellInfo_1->SpellFamilyName)
     {
-        if(!spellInfo_1->SpellIconID
-            || spellInfo_1->SpellIconID == 1
+        if(!spellInfo_1->SpellIconID || spellInfo_1->SpellIconID == 1
             || spellInfo_1->SpellIconID != spellInfo_2->SpellIconID)
-            return false;
+            return true;
     }
-    // check for class spells
+    // use familyflag to check class spells
     else
     {
-        if (spellInfo_1->SpellFamilyFlags != spellInfo_2->SpellFamilyFlags)
-            return false;
-        if (!spellInfo_1->SpellFamilyFlags)
-            return false;
+        if(!spellInfo_1->SpellFamilyFlags
+            || spellInfo_1->SpellFamilyFlags != spellInfo_2->SpellFamilyFlags)
+            return true;
     }
 
     //use data of highest rank spell(needed for spells which ranks have different effects)
-    spellInfo_1=sSpellStore.LookupEntry(spellId_1);
-    spellInfo_2=sSpellStore.LookupEntry(spellId_2);
+    spellInfo_1 = sSpellStore.LookupEntry(spellId_1);
+    spellInfo_2 = sSpellStore.LookupEntry(spellId_2);
 
-    //if spells have exactly the same effect they cannot stack
+    //if spells do not have the same effect or aura or miscvalue, they will stack
     for(uint32 i = 0; i < 3; ++i)
         if(spellInfo_1->Effect[i] != spellInfo_2->Effect[i]
             || spellInfo_1->EffectApplyAuraName[i] != spellInfo_2->EffectApplyAuraName[i]
             || spellInfo_1->EffectMiscValue[i] != spellInfo_2->EffectMiscValue[i]) // paladin resist aura
-            return false; // need itemtype check? need an example to add that check
+            return true; // need itemtype check? need an example to add that check
 
-    return (!(!sameCaster && spellInfo_1->AttributesEx3 & SPELL_ATTR_EX3_STACKS_FOR_DIFFERENT_CASTERS));
+    // different spells with same effect
+    return false;
 }
 
 bool IsDispelableBySpell(SpellEntry const * dispelSpell, uint32 spellId, bool def)
