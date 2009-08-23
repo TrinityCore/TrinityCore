@@ -1855,7 +1855,7 @@ Vehicle* WorldObject::SummonVehicle(uint32 entry, float x, float y, float z, flo
     if(isType(TYPEMASK_UNIT))
     {
         v->SetUInt64Value(UNIT_FIELD_SUMMONEDBY, GetGUID());
-        v->setFaction(((Unit*)this)->getFaction());
+        //v->setFaction(((Unit*)this)->getFaction());
     }
     map->Add((Creature*)v);
 
