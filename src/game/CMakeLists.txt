@@ -8,8 +8,8 @@ SET(game_STAT_SRCS
    AchievementMgr.cpp
    AddonHandler.cpp
    AddonHandler.h
-   AggressorAI.cpp
-   AggressorAI.h
+   CombatAI.cpp
+   CombatAI.h
    AnimalRandomMovementGenerator.h
    ArenaTeam.cpp
    ArenaTeam.h
@@ -162,8 +162,8 @@ SET(game_STAT_SRCS
    MovementHandler.cpp
    NPCHandler.cpp
    NPCHandler.h
-   NullCreatureAI.cpp
-   NullCreatureAI.h
+   PassiveAI.cpp
+   PassiveAI.h
    ObjectAccessor.cpp
    ObjectAccessor.h
    Object.cpp
