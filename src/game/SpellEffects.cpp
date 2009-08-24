@@ -3411,21 +3411,9 @@ void Spell::EffectSummonType(uint32 i)
                     break;
                 case SUMMON_TYPE_VEHICLE:
                 case SUMMON_TYPE_VEHICLE2:
-                {
-                    if(!m_originalCaster)
-                        return;
-
-                    Creature *vehicle = m_originalCaster->SummonCreature(entry, x, y, z, 0, 0);
-                    if(!vehicle)
-                        return;
-
-                    // this is for wintergrasp, need to find a better way
-                    // in the future, we can just use getsummoner
-                    vehicle->SetUInt64Value(UNIT_FIELD_SUMMONEDBY, m_originalCasterGUID);
-                    vehicle->setFaction(m_originalCaster->getFaction());
-                    vehicle->SetUInt32Value(UNIT_CREATED_BY_SPELL, m_spellInfo->Id);
+                    if(m_originalCaster)
+                        summon = m_caster->GetMap()->SummonCreature(entry, x, y, z, m_caster->GetOrientation(), 0, properties, duration, m_originalCaster);
                     break;
-                }
                 case SUMMON_TYPE_TOTEM:
                 {
                     summon = m_caster->GetMap()->SummonCreature(entry, x, y, z, m_caster->GetOrientation(), 0, properties, duration, m_originalCaster);
@@ -3511,17 +3499,13 @@ void Spell::EffectSummonType(uint32 i)
         {
             float x, y, z;
             m_caster->GetClosePoint(x, y, z, DEFAULT_WORLD_OBJECT_SIZE);
-            Creature *vehicle = m_caster->SummonCreature(entry, x, y, z, m_caster->GetOrientation(), 0);
-            if(!vehicle || !vehicle->IsVehicle())
+            summon = m_caster->GetMap()->SummonCreature(entry, x, y, z, m_caster->GetOrientation(), 0, properties, duration, m_caster);
+            if(!summon || !summon->IsVehicle())
                 return;
 
-            vehicle->SetUInt64Value(UNIT_FIELD_SUMMONEDBY, m_caster->GetGUID());
-            vehicle->setFaction(m_caster->getFaction());
-            vehicle->SetUInt32Value(UNIT_CREATED_BY_SPELL, m_spellInfo->Id);
-
             if(damage)
-                m_caster->CastSpell(vehicle, damage, true);
-            m_caster->EnterVehicle(vehicle->GetVehicleKit());
+                m_caster->CastSpell(summon, damage, true);
+            m_caster->EnterVehicle(summon->GetVehicleKit());
             break;
         }
     }

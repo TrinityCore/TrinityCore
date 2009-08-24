@@ -353,6 +353,9 @@ void OPvPWintergrasp::OnCreatureCreate(Creature *creature, bool add)
     {
         case CREATURE_SIEGE_VEHICLE:
         {
+            if(!creature->isSummon())
+                return;
+
             TeamId team;
             if(creature->getFaction() == WintergraspFaction[TEAM_ALLIANCE])
                 team = TEAM_ALLIANCE;
@@ -361,7 +364,7 @@ void OPvPWintergrasp::OnCreatureCreate(Creature *creature, bool add)
             else
                 return;
 
-            if(uint32 engLowguid = GUID_LOPART(creature->GetOwnerGUID()))
+            if(uint32 engLowguid = GUID_LOPART(((TempSummon*)creature)->GetSummonerGUID()))
             {
                 if(SiegeWorkshop *workshop = GetWorkshopByEngGuid(engLowguid))
                 {
