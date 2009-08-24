@@ -33,6 +33,8 @@ EndScriptData */
 
 #define MAX_ENCOUNTER 2
 
+#define EMOTE_BONDS_WEAKEN          "'s bonds begin to weaken!"
+
 struct TRINITY_DLL_DECL instance_magtheridons_lair : public ScriptedInstance
 {
     instance_magtheridons_lair(Map* pMap) : ScriptedInstance(pMap)
@@ -161,7 +163,7 @@ struct TRINITY_DLL_DECL instance_magtheridons_lair : public ScriptedInstance
                     Creature *Magtheridon = instance->GetCreature(MagtheridonGUID);
                     if (Magtheridon && Magtheridon->isAlive())
                     {
-                        Magtheridon->MonsterTextEmote("'s bonds begin to weaken!", 0);
+                        Magtheridon->MonsterTextEmote(EMOTE_BONDS_WEAKEN, 0);
                         CageTimer = 120000;
                     }
                     HandleGameObject(DoorGUID, false);
