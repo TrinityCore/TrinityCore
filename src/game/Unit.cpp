@@ -3476,7 +3476,7 @@ bool Unit::isInBackInMap(Unit const* target, float distance, float arc) const
 bool Unit::isInLine(Unit const* target, float distance, float width) const
 {
     if(!HasInArc(M_PI, target) || !IsWithinDistInMap(target, distance)) return false;
-    width += target->GetObjectSize() * 0.5f;
+    width += target->GetObjectSize();
     float angle = GetRelativeAngle(target);
     return abs(sin(angle)) * GetExactDistance2d(target->GetPositionX(), target->GetPositionY()) < width;
 }
