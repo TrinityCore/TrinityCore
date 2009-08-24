@@ -540,11 +540,12 @@ void Pet::Update(uint32 diff)
                             m_regenTimer += 4000 - diff;
                             if(!m_regenTimer) ++m_regenTimer;
                             break;
-                        case POWER_ENERGY:
-                            Regenerate(POWER_ENERGY);
-                            m_regenTimer += 2000 - diff;
-                            if(!m_regenTimer) ++m_regenTimer;
-                            break;
+                        // in creature::update
+                        //case POWER_ENERGY:
+                        //    Regenerate(POWER_ENERGY);
+                        //    m_regenTimer += 2000 - diff;
+                        //    if(!m_regenTimer) ++m_regenTimer;
+                        //    break;
                         default:
                             m_regenTimer = 0;
                             break;
