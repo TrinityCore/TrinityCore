@@ -69,6 +69,9 @@ EndScriptData */
 #define TOXIC_SPOREBAT                22140
 #define TOXIC_SPORES_TRIGGER          22207
 
+#define TEXT_NOT_INITIALIZED          "Instance script not initialized"
+#define TEXT_ALREADY_DEACTIVATED      "Already deactivated"
+
 float ElementPos[8][4] =
 {
     {8.3, -835.3, 21.9, 5},
@@ -263,7 +266,7 @@ struct TRINITY_DLL_DECL boss_lady_vashjAI : public ScriptedAI
         StartEvent();//this is EnterCombat(), so were are 100% in combat, start the event
 
         if (Phase != 2)
-            AttackStart(who);        
+            AttackStart(who);
     }
 
     void MoveInLineOfSight(Unit *who)
@@ -290,7 +293,7 @@ struct TRINITY_DLL_DECL boss_lady_vashjAI : public ScriptedAI
                     StartEvent();
 
                 if (Phase != 2)
-                    AttackStart(who);                
+                    AttackStart(who);
             }
         }
     }
@@ -928,7 +931,7 @@ bool ItemUse_item_tainted_core(Player* pPlayer, Item* _Item, SpellCastTargets co
 
     if (!pInstance)
     {
-        pPlayer->GetSession()->SendNotification("Instance script not initialized");
+        pPlayer->GetSession()->SendNotification(TEXT_NOT_INITIALIZED);
         return true;
     }
 
@@ -964,7 +967,7 @@ bool ItemUse_item_tainted_core(Player* pPlayer, Item* _Item, SpellCastTargets co
 
             if (pInstance->GetData(identifier))
             {
-                pPlayer->GetSession()->SendNotification("Already deactivated");
+                pPlayer->GetSession()->SendNotification(TEXT_ALREADY_DEACTIVATED);
                 return true;
             }
 

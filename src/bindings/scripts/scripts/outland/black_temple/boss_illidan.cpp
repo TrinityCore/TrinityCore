@@ -359,6 +359,9 @@ static Animation DemonTransformation[]=
     {0, SPELL_DEMON_TRANSFORM_3, 0, 0, 0, 8, true}
 };
 
+#define EMOTE_SETS_GAZE_ON     "sets its gaze on $N!"
+#define EMOTE_UNABLE_TO_SUMMON "is unable to summon Maiev Shadowsong and enter Phase 4. Resetting Encounter."
+
 
 
 /************************************** Illidan's AI ***************************************/
@@ -909,7 +912,7 @@ struct TRINITY_DLL_DECL flame_of_azzinothAI : public ScriptedAI
             m_creature->AddThreat(target, 5000000.0f);
             AttackStart(target);
             DoCast(target, SPELL_CHARGE);
-            m_creature->MonsterTextEmote("sets its gaze on $N!", target->GetGUID());
+            m_creature->MonsterTextEmote(EMOTE_SETS_GAZE_ON, target->GetGUID());
         }
     }
 
@@ -1070,7 +1073,7 @@ struct TRINITY_DLL_DECL npc_akama_illidanAI : public ScriptedAI
     {
         if (!pInstance)
             return;
-            
+
         pInstance->SetData(DATA_ILLIDANSTORMRAGEEVENT, IN_PROGRESS);
 
         for(uint8 i = 0; i < 2; ++i)
@@ -2027,7 +2030,7 @@ void boss_illidan_stormrageAI::SummonMaiev()
     if (!MaievGUID) // If Maiev cannot be summoned, reset the encounter and post some errors to the console.
     {
         EnterEvadeMode();
-        m_creature->MonsterTextEmote("is unable to summon Maiev Shadowsong and enter Phase 4. Resetting Encounter.", 0);
+        m_creature->MonsterTextEmote(EMOTE_UNABLE_TO_SUMMON, 0);
         error_log("SD2 ERROR: Unable to summon Maiev Shadowsong (entry: 23197). Check your database to see if you have the proper SQL for Maiev Shadowsong (entry: 23197)");
     }
 }
