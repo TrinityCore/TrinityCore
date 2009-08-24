@@ -82,6 +82,10 @@ void Vehicle::InstallAllAccessories()
         case 28782:InstallAccessory(28768,0);break; // Acherus Deathcharger
         case 28312:InstallAccessory(28319,7);break;
         case 32627:InstallAccessory(32629,7);break;
+        case 32930:
+            InstallAccessory(32933,2);
+            InstallAccessory(32934,1);
+            break;
         case 33109:InstallAccessory(33167,1);break;
         case 33060:InstallAccessory(33067,7);break;
         case 33113:
@@ -95,6 +99,7 @@ void Vehicle::InstallAllAccessories()
             InstallAccessory(33143,2); // Overload Control Device
             InstallAccessory(33142,1); // Leviathan Defense Turret
             break;
+        case 33214:InstallAccessory(33218,1);break;
     }
 }
 
