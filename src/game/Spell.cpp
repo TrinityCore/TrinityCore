@@ -6573,12 +6573,27 @@ void Spell::SetSpellValue(SpellValueMod mod, int32 value)
     }
 }
 
+float tangent(float x)
+{
+    x = tan(x);
+    //if(x < std::numeric_limits<float>::max() && x > -std::numeric_limits<float>::max()) return x;
+    //if(x >= std::numeric_limits<float>::max()) return std::numeric_limits<float>::max();
+    //if(x <= -std::numeric_limits<float>::max()) return -std::numeric_limits<float>::max();
+    if(x < 100000.0f && x > -100000.0f) return x;
+    if(x >= 100000.0f) return 100000.0f;
+    if(x <= 100000.0f) return -100000.0f;
+    return 0.0f;
+} 
+
 void Spell::SelectTrajTargets()
 {
     if(!m_targets.HasTraj())
         return;
 
     float dist2d = m_targets.GetDist2d();
+    if(!dist2d)
+        return;
+
     float dz = m_targets.m_destZ - m_targets.m_srcZ;
 
     UnitList unitList;
@@ -6588,13 +6603,10 @@ void Spell::SelectTrajTargets()
 
     unitList.sort(TargetDistanceOrder(m_caster));
 
-    float sinE = sin(m_targets.m_elevation);
-    float dcosE = 2 * cos(m_targets.m_elevation);
-    float divisor = dist2d * (dist2d - dcosE);
-    if(abs(divisor) < 0.0001f) divisor = 0.0001f;
-    float a = (dz - dist2d * sinE) / divisor;
-    float b = sinE - dcosE * a;
-    if(a > -0.0001f) a = -0.0001f;
+    float b = tangent(m_targets.m_elevation);
+    float a = (dz - dist2d * b) / (dist2d * dist2d);
+    if(a > -0.0001f) a = 0;
+    //sLog.outError("Spell::SelectTrajTargets: a %f b %f", a, b);
 
     float bestDist;
     UnitList::const_iterator itr = unitList.begin();
@@ -6603,16 +6615,38 @@ void Spell::SelectTrajTargets()
         if(m_caster == *itr || m_caster->IsOnVehicle(*itr) || (*itr)->IsOnVehicle(m_caster))
             continue;
 
-        const float size = (*itr)->GetObjectSize() * 0.6f; // 1/sqrt(3)
+        const float size = std::max((*itr)->GetObjectSize() * 0.7f, 1.0f); // 1/sqrt(3)
         const float objDist2d = m_caster->GetExactDistance2d((*itr)->GetPositionX(), (*itr)->GetPositionY()) * cos(m_caster->GetRelativeAngle(*itr));
         const float dz = (*itr)->GetPositionZ() - m_caster->GetPositionZ();
 
+        //sLog.outError("Spell::SelectTrajTargets: check %u, dist between %f %f, height between %f %f.", (*itr)->GetEntry(), objDist2d - size, objDist2d + size, dz - size, dz + size);
+
         float dist = objDist2d - size;
         float height = dist * (a * dist + b);
+        //sLog.outError("Spell::SelectTrajTargets: dist %f, height %f.", dist, height);
         if(height < dz + size && height > dz - size)
         {
             bestDist = dist > 0 ? dist : 0;
             break;
+        }
+
+#define CHECK_DIST {\
+    //sLog.outError("Spell::SelectTrajTargets: dist %f, height %f.", dist, height);
+    if(dist < objDist2d + size && dist > objDist2d - size)\
+        { bestDist = dist; break; }\
+        }
+
+        if(!a)
+        {
+            height = dz - size;
+            dist = height / b;
+            CHECK_DIST;
+
+            height = dz + size;
+            dist = height / b;
+            CHECK_DIST;
+
+            continue;
         }
 
         height = dz - size;
@@ -6621,11 +6655,7 @@ void Spell::SelectTrajTargets()
         {
             sqrt1 = sqrt(sqrt1);
             dist = (sqrt1 - b) / (2 * a);
-            if(dist < objDist2d + size && dist > objDist2d - size)
-            {
-                bestDist = dist;
-                break;
-            }
+            CHECK_DIST;
         }
 
         height = dz + size;
@@ -6634,28 +6664,16 @@ void Spell::SelectTrajTargets()
         {
             sqrt2 = sqrt(sqrt2);
             dist = (sqrt2 - b) / (2 * a);
-            if(dist < objDist2d + size && dist > objDist2d - size)
-            {
-                bestDist = dist;
-                break;
-            }
+            CHECK_DIST;
 
             dist = (-sqrt2 - b) / (2 * a);
-            if(dist < objDist2d + size && dist > objDist2d - size)
-            {
-                bestDist = dist;
-                break;
-            }
+            CHECK_DIST;
         }
 
         if(sqrt1 > 0)
         {
             dist = (-sqrt1 - b) / (2 * a);
-            if(dist < objDist2d + size && dist > objDist2d - size)
-            {
-                bestDist = dist;
-                break;
-            }
+            CHECK_DIST;
         }
     }
 
