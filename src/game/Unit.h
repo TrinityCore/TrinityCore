@@ -1838,7 +1838,7 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
         bool CreateVehicleKit(uint32 id);
         Vehicle *GetVehicleKit()const { return m_vehicleKit; }
         Vehicle *GetVehicle()   const { return m_vehicle; }
-        bool IsOnVehicle(const Unit *unit) const { return m_vehicle == unit->GetVehicleKit(); }
+        bool IsOnVehicle(const Unit *unit) const { return m_vehicle && m_vehicle == unit->GetVehicleKit(); }
         Unit *GetVehicleBase()  const;
         Creature *GetVehicleCreatureBase() const;
         float GetTransOffsetX() const { return m_movementInfo.t_x; }
