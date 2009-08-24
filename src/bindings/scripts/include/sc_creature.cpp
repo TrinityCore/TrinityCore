@@ -179,7 +179,7 @@ Creature *ScriptedAI::DoSummonFlyer(uint32 uiEntry, WorldObject *obj, float _fZ,
 {
     float fX, fY, fZ;
     obj->GetGroundPointAroundUnit(fX, fY, fZ, fRadius * rand_norm(), rand_norm()*2*M_PI);
-    return me->SummonCreature(uiEntry, fX, fY, _fZ, me->GetOrientation(), uiType, uiDespawntime);
+    return me->SummonCreature(uiEntry, fX, fY, fZ + _fZ, me->GetOrientation(), uiType, uiDespawntime);
 }
 
 

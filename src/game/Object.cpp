@@ -1757,10 +1757,11 @@ TempSummon *Map::SummonCreature(uint32 entry, float x, float y, float z, float a
             mask = UNIT_MASK_GUARDIAN;
         else if(properties->Type == SUMMON_TYPE_TOTEM)
             mask = UNIT_MASK_TOTEM;
-        else if(properties->Category == SUMMON_CATEGORY_VEHICLE
-            || properties->Type == SUMMON_TYPE_VEHICLE
+        else if(properties->Category == SUMMON_CATEGORY_VEHICLE)
+            mask = UNIT_MASK_MINION;
+        else if(properties->Type == SUMMON_TYPE_VEHICLE
             || properties->Type == SUMMON_TYPE_VEHICLE2)
-            mask = UNIT_MASK_VEHICLE;
+            mask = UNIT_MASK_SUMMON;
         else if(properties->Category == SUMMON_CATEGORY_PUPPET)
             mask = UNIT_MASK_PUPPET;
         else if(properties->Type == SUMMON_TYPE_MINIPET)
