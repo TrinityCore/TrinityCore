@@ -10550,8 +10550,12 @@ void Unit::ClearInCombat()
     RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IN_COMBAT);
 
     // Player's state will be cleared in Player::UpdateContestedPvP
-    if(GetTypeId()!=TYPEID_PLAYER)
+    if(GetTypeId() != TYPEID_PLAYER)
+    {
         clearUnitState(UNIT_STAT_ATTACK_PLAYER);
+        if(HasFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_OTHER_TAGGER))
+            SetUInt32Value(UNIT_DYNAMIC_FLAGS, ((Creature*)this)->GetCreatureInfo()->dynamicflags);
+    }
     else
         ((Player*)this)->UpdatePotionCooldown();
 

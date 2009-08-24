@@ -537,17 +537,19 @@ void Pet::Update(uint32 diff)
                     {
                         case POWER_FOCUS:
                             Regenerate(POWER_FOCUS);
-                            m_regenTimer = 4000;
+                            m_regenTimer += 4000 - diff;
+                            if(!m_regenTimer) ++m_regenTimer;
                             break;
                         case POWER_ENERGY:
                             Regenerate(POWER_ENERGY);
-                            m_regenTimer = 2000;
+                            m_regenTimer += 2000 - diff;
+                            if(!m_regenTimer) ++m_regenTimer;
                             break;
                         default:
                             m_regenTimer = 0;
                             break;
                     }
-                }
+                }                   
             }
 
             if(getPetType() != HUNTER_PET)
@@ -569,7 +571,7 @@ void Pet::Update(uint32 diff)
     Creature::Update(diff);
 }
 
-void Pet::Regenerate(Powers power)
+void Creature::Regenerate(Powers power)
 {
     uint32 curValue = GetPower(power);
     uint32 maxValue = GetMaxPower(power);
