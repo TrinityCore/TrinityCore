@@ -1219,7 +1219,7 @@ void Spell::EffectDummy(uint32 i)
                 case 62324: // Throw Passenger
                     if(m_targets.HasTraj())
                     {
-                        if(Vehicle *vehicle = dynamic_cast<Vehicle*>(m_caster))
+                        if(Vehicle *vehicle = m_caster->GetVehicleKit())
                             if(Unit *passenger = vehicle->GetPassenger(damage - 1))
                             {
                                 std::list<Unit*> unitList;
@@ -1229,12 +1229,12 @@ void Spell::EffectDummy(uint32 i)
                                 Vehicle *target = NULL;
                                 for(std::list<Unit*>::iterator itr = unitList.begin(); itr != unitList.end(); ++itr)
                                 {
-                                    if(Vehicle *seat = dynamic_cast<Vehicle*>(*itr))
+                                    if(Vehicle *seat = (*itr)->GetVehicleKit())
                                         if(!seat->GetPassenger(0))
                                             if(Unit *device = seat->GetPassenger(2))
                                                 if(!device->GetCurrentSpell(CURRENT_CHANNELED_SPELL))
                                                 {
-                                                    float dist = seat->GetExactDistSq(m_targets.m_destX, m_targets.m_destY, m_targets.m_destZ);
+                                                    float dist = (*itr)->GetExactDistSq(m_targets.m_destX, m_targets.m_destY, m_targets.m_destZ);
                                                     if(dist < minDist)
                                                     {
                                                         minDist = dist;
@@ -1242,7 +1242,7 @@ void Spell::EffectDummy(uint32 i)
                                                     }
                                                 }
                                 }
-                                if(target && target->IsWithinDist2d(m_targets.m_destX, m_targets.m_destY, GetSpellRadius(m_spellInfo, i, false) * 2)) // now we use *2 because the location of the seat is not correct
+                                if(target && target->GetBase()->IsWithinDist2d(m_targets.m_destX, m_targets.m_destY, GetSpellRadius(m_spellInfo, i, false) * 2)) // now we use *2 because the location of the seat is not correct
                                     passenger->EnterVehicle(target, 0);
                                 else
                                 {
@@ -1888,8 +1888,8 @@ void Spell::EffectDummy(uint32 i)
             // Death Grip
             if(m_spellInfo->Id == 49560)
             {
-                if (unitTarget->m_Vehicle)
-                    unitTarget->m_Vehicle->CastSpell(m_caster, damage, true);
+                if (Unit *unit = unitTarget->GetVehicleBase()) // what is this for?
+                    unit->CastSpell(m_caster, damage, true);
                 else
                     unitTarget->CastSpell(m_caster, damage, true);
                 return;
@@ -3415,20 +3415,20 @@ void Spell::EffectSummonType(uint32 i)
                     if(!m_originalCaster)
                         return;
 
-                    Vehicle *vehicle = m_originalCaster->SummonVehicle(entry, x, y, z, m_caster->GetOrientation());
+                    Creature *vehicle = m_originalCaster->SummonCreature(entry, x, y, z, 0, 0);
                     if(!vehicle)
                         return;
 
                     // this is for wintergrasp, need to find a better way
                     // in the future, we can just use getsummoner
-                    //vehicle->SetUInt64Value(UNIT_FIELD_SUMMONEDBY, m_originalCasterGUID);
+                    vehicle->SetUInt64Value(UNIT_FIELD_SUMMONEDBY, m_originalCasterGUID);
                     vehicle->setFaction(m_originalCaster->getFaction());
                     vehicle->SetUInt32Value(UNIT_CREATED_BY_SPELL, m_spellInfo->Id);
                     break;
                 }
                 case SUMMON_TYPE_TOTEM:
                 {
-                    summon = m_caster->GetMap()->SummonCreature(entry, x, y, z, m_caster->GetOrientation(), properties, duration, m_originalCaster);
+                    summon = m_caster->GetMap()->SummonCreature(entry, x, y, z, m_caster->GetOrientation(), 0, properties, duration, m_originalCaster);
                     if(!summon || !summon->isTotem())
                         return;
 
@@ -3456,8 +3456,8 @@ void Spell::EffectSummonType(uint32 i)
                 }
                 case SUMMON_TYPE_MINIPET:
                 {
-                    summon = m_caster->GetMap()->SummonCreature(entry, x, y, z, m_caster->GetOrientation(), properties, duration, m_originalCaster);
-                    if(!summon || !summon->HasSummonMask(SUMMON_MASK_MINION))
+                    summon = m_caster->GetMap()->SummonCreature(entry, x, y, z, m_caster->GetOrientation(), 0, properties, duration, m_originalCaster);
+                    if(!summon || !summon->HasUnitTypeMask(UNIT_MASK_MINION))
                         return;
 
                     //summon->InitPetCreateSpells();                         // e.g. disgusting oozeling has a create spell as summon...
@@ -3505,23 +3505,23 @@ void Spell::EffectSummonType(uint32 i)
             SummonGuardian(entry, properties);
             break;
         case SUMMON_CATEGORY_PUPPET:
-            summon = m_caster->GetMap()->SummonCreature(entry, x, y, z, m_caster->GetOrientation(), properties, duration, m_originalCaster);
+            summon = m_caster->GetMap()->SummonCreature(entry, x, y, z, m_caster->GetOrientation(), 0, properties, duration, m_originalCaster);
             break;
         case SUMMON_CATEGORY_VEHICLE:
         {
             float x, y, z;
             m_caster->GetClosePoint(x, y, z, DEFAULT_WORLD_OBJECT_SIZE);
-            Vehicle *vehicle = m_caster->SummonVehicle(entry, x, y, z, m_caster->GetOrientation());
-            if(!vehicle)
+            Creature *vehicle = m_caster->SummonCreature(entry, x, y, z, m_caster->GetOrientation(), 0);
+            if(!vehicle || !vehicle->IsVehicle())
                 return;
 
-            //vehicle->SetUInt64Value(UNIT_FIELD_SUMMONEDBY, m_caster->GetGUID());
+            vehicle->SetUInt64Value(UNIT_FIELD_SUMMONEDBY, m_caster->GetGUID());
             vehicle->setFaction(m_caster->getFaction());
             vehicle->SetUInt32Value(UNIT_CREATED_BY_SPELL, m_spellInfo->Id);
 
             if(damage)
                 m_caster->CastSpell(vehicle, damage, true);
-            m_caster->EnterVehicle(vehicle);
+            m_caster->EnterVehicle(vehicle->GetVehicleKit());
             break;
         }
     }
@@ -5286,8 +5286,8 @@ void Spell::EffectScriptEffect(uint32 effIndex)
                     return;
                 }
                 case 62428: // Load into Catapult
-                    if(Vehicle *demolisher = m_caster->m_Vehicle)
-                        if(Vehicle *seat = dynamic_cast<Vehicle*>(m_caster))
+                    if(Unit *demolisher = m_caster->GetVehicleBase())
+                        if(Vehicle *seat = m_caster->GetVehicleKit())
                             if(Unit *passenger = seat->GetPassenger(0))
                                 passenger->CastSpell(demolisher, damage, true);
                     return;
@@ -6986,14 +6986,14 @@ void Spell::SummonGuardian(uint32 entry, SummonPropertiesEntry const *properties
         float px, py, pz;
         GetSummonPosition(0, px, py, pz, radius, count);
 
-        TempSummon *summon = map->SummonCreature(entry, px, py, pz, m_caster->GetOrientation(), properties, duration, caster);
+        TempSummon *summon = map->SummonCreature(entry, px, py, pz, m_caster->GetOrientation(), 0, properties, duration, caster);
         if(!summon)
             return;
-        if(summon->HasSummonMask(SUMMON_MASK_GUARDIAN))
+        if(summon->HasUnitTypeMask(UNIT_MASK_GUARDIAN))
             ((Guardian*)summon)->InitStatsForLevel(level);
 
         summon->SetUInt32Value(UNIT_CREATED_BY_SPELL, m_spellInfo->Id);
-        if(summon->HasSummonMask(SUMMON_MASK_MINION) && m_targets.m_targetMask & TARGET_FLAG_DEST_LOCATION)
+        if(summon->HasUnitTypeMask(UNIT_MASK_MINION) && m_targets.m_targetMask & TARGET_FLAG_DEST_LOCATION)
             ((Minion*)summon)->SetFollowAngle(m_caster->GetAngle(summon));
 
         summon->AI()->EnterEvadeMode();

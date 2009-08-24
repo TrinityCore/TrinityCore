@@ -139,28 +139,6 @@ void LoadHelper(CellGuidSet const& guid_set, CellPair &cell, GridRefManager<T> &
     }
 }
 
-void LoadHelper(CellGuidSet const& guid_set, CellPair &cell, CreatureMapType &m, uint32 &count, Map* map)
-{
-    for(CellGuidSet::const_iterator i_guid = guid_set.begin(); i_guid != guid_set.end(); ++i_guid)
-    {
-        Creature* obj = new Creature;
-        uint32 guid = *i_guid;
-        //sLog.outString("DEBUG: LoadHelper from table: %s for (guid: %u) Loading",table,guid);
-        if(!obj->LoadFromDB(guid, map))
-        {
-            delete obj;
-            obj = new Vehicle;
-            if(!((Vehicle*)obj)->LoadFromDB(guid, map))
-            {
-                delete (Vehicle*)obj;
-                continue;
-            }
-        }
-
-        AddObjectHelper(cell, m, count, map, obj);
-    }
-}
-
 void LoadHelper(CellCorpseSet const& cell_corpses, CellPair &cell, CorpseMapType &m, uint32 &count, Map* map)
 {
     if(cell_corpses.empty())

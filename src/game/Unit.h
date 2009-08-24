@@ -36,7 +36,6 @@
 #include "DBCStructure.h"
 #include <list>
 
-class Vehicle;
 
 #define WORLD_TRIGGER   12999
 
@@ -326,6 +325,7 @@ class Minion;
 class Guardian;
 class UnitAI;
 class Transport;
+class Vehicle;
 
 struct SpellImmune
 {
@@ -744,6 +744,21 @@ struct MovementInfo
     bool HasMovementFlag(uint32 flag) const { return flags & flag; }
 };
 
+enum UnitTypeMask
+{
+    UNIT_MASK_NONE                  = 0x00000000,
+    UNIT_MASK_SUMMON                = 0x00000001,
+    UNIT_MASK_MINION                = 0x00000002,
+    UNIT_MASK_GUARDIAN              = 0x00000004,
+    UNIT_MASK_TOTEM                 = 0x00000008,
+    UNIT_MASK_PET                   = 0x00000010,
+    UNIT_MASK_VEHICLE               = 0x00000020,
+    UNIT_MASK_PUPPET                = 0x00000040,
+    UNIT_MASK_HUNTER_PET            = 0x00000080,
+    UNIT_MASK_CONTROLABLE_GUARDIAN  = 0x00000100,
+    UNIT_MASK_ACCESSORY             = 0x00000200,
+};
+
 enum DiminishingLevels
 {
     DIMINISHING_LEVEL_1             = 0,
@@ -1125,6 +1140,15 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
                 UNIT_STAT_ROOT | UNIT_STAT_STUNNED | UNIT_STAT_DISTRACTED ) && GetOwnerGUID()==0;
         }
 
+        uint32 HasUnitTypeMask(uint32 mask) const { return mask & m_unitTypeMask; }
+        void AddUnitTypeMask(uint32 mask) { m_unitTypeMask |= mask; }
+        bool isSummon() const   { return m_unitTypeMask & UNIT_MASK_SUMMON; }
+        bool isGuardian() const { return m_unitTypeMask & UNIT_MASK_GUARDIAN; }
+        bool isPet() const      { return m_unitTypeMask & UNIT_MASK_PET; }
+        bool isHunterPet() const{ return m_unitTypeMask & UNIT_MASK_HUNTER_PET; }
+        bool isTotem() const    { return m_unitTypeMask & UNIT_MASK_TOTEM; }
+        bool IsVehicle() const  { return m_unitTypeMask & UNIT_MASK_VEHICLE; }
+
         uint32 getLevel() const { return GetUInt32Value(UNIT_FIELD_LEVEL); }
         virtual uint32 getLevelForTarget(Unit const* /*target*/) const { return getLevel(); }
         void SetLevel(uint32 lvl);
@@ -1363,7 +1387,7 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
         void SendMonsterMove(float NewPosX, float NewPosY, float NewPosZ, uint32 MoveFlags, uint32 time, float speedZ, Player *player = NULL);
         //void SendMonsterMove(float NewPosX, float NewPosY, float NewPosZ, uint8 type, uint32 MovementFlags, uint32 Time, Player* player = NULL);
         void SendMonsterMoveByPath(Path const& path, uint32 start, uint32 end);
-        void SendMonsterMoveTransport(Vehicle *vehicle);
+        void SendMonsterMoveTransport(Unit *vehicleOwner);
         void SendMonsterMoveWithSpeed(float x, float y, float z, uint32 transitTime = 0, Player* player = NULL);
         void SendMonsterMoveWithSpeedToCurrentDestination(Player* player = NULL);
         void SendMovementFlagUpdate();
@@ -1811,7 +1835,12 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
 
         bool IsAIEnabled, NeedChangeAI;
         MovementInfo m_movementInfo;
-        Vehicle *m_Vehicle;
+        bool CreateVehicleKit(uint32 id);
+        Vehicle *GetVehicleKit()const { return m_vehicleKit; }
+        Vehicle *GetVehicle()   const { return m_vehicle; }
+        bool IsOnVehicle(const Unit *unit) const { return m_vehicle == unit->GetVehicleKit(); }
+        Unit *GetVehicleBase()  const;
+        Creature *GetVehicleCreatureBase() const;
         float GetTransOffsetX() const { return m_movementInfo.t_x; }
         float GetTransOffsetY() const { return m_movementInfo.t_y; }
         float GetTransOffsetZ() const { return m_movementInfo.t_z; }
@@ -1821,6 +1850,7 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
 
         bool m_ControlledByPlayer;
 
+        void EnterVehicle(Unit *base, int8 seatId = -1) { EnterVehicle(base->GetVehicleKit(), seatId); }
         void EnterVehicle(Vehicle *vehicle, int8 seatId = -1);
         void ExitVehicle();
         void ChangeSeat(int8 seatId, bool next = true);
@@ -1906,6 +1936,11 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
         uint32 m_regenTimer;
 
         ThreatManager m_ThreatManager;
+
+        Vehicle *m_vehicle;
+        Vehicle *m_vehicleKit;
+
+        uint32 m_unitTypeMask;
 
     private:
         bool IsTriggeredAtSpellProcEvent(Unit *pVictim, Aura* aura, SpellEntry const * procSpell, uint32 procFlag, uint32 procExtra, WeaponAttackType attType, bool isVictim, bool active, SpellProcEventEntry const *& spellProcEvent );

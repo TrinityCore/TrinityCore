@@ -201,7 +201,7 @@ void CreatureAI::EnterEvadeMode()
     if(!_EnterEvadeMode())
         return;
 
-    if(!me->m_Vehicle) // otherwise me will be in evade mode forever
+    if(!me->GetVehicle()) // otherwise me will be in evade mode forever
     {
         if(Unit *owner = me->GetCharmerOrOwner())
         {
@@ -212,8 +212,8 @@ void CreatureAI::EnterEvadeMode()
             me->GetMotionMaster()->MoveTargetedHome();
     }
 
-    if(me->isVehicle())
-        ((Vehicle*)me)->InstallAllAccessories();
+    if(me->IsVehicle())
+        me->GetVehicleKit()->InstallAllAccessories();
 
     Reset();
 }

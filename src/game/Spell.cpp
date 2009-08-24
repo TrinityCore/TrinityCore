@@ -1860,12 +1860,12 @@ void Spell::SelectEffectTargets(uint32 i, uint32 cur)
                     pushType = PUSH_CASTER_CENTER;
                     break;
                 case TARGET_UNIT_VEHICLE:
-                    if(Vehicle *vehicle = m_caster->m_Vehicle)
+                    if(Unit *vehicle = m_caster->GetVehicleBase())
                         AddUnitTarget(vehicle, i);
                     break;
                 case TARGET_UNIT_PASSENGER:
-                    if(m_caster->GetTypeId() == TYPEID_UNIT && ((Creature*)m_caster)->isVehicle())
-                        if(Unit *unit = ((Vehicle*)m_caster)->GetPassenger(1)) // maybe not right
+                    if(m_caster->GetTypeId() == TYPEID_UNIT && ((Creature*)m_caster)->IsVehicle())
+                        if(Unit *unit = m_caster->GetVehicleKit()->GetPassenger(1)) // maybe not right
                             AddUnitTarget(unit, i);
                     break;
             }
@@ -3275,7 +3275,7 @@ void Spell::update(uint32 difftime)
                         for(std::list<TargetInfo>::iterator ihit = m_UniqueTargetInfo.begin(); ihit != m_UniqueTargetInfo.end(); ++ihit)
                         {
                             TargetInfo* target = &*ihit;
-                            if(!IS_CREATURE_GUID(target->targetGUID))
+                            if(!IS_CRE_OR_VEH_GUID(target->targetGUID))
                                 continue;
 
                             Unit* unit = m_caster->GetGUID() == target->targetGUID ? m_caster : ObjectAccessor::GetUnit(*m_caster, target->targetGUID);
@@ -3327,7 +3327,7 @@ void Spell::finish(bool ok)
     {
         if(Unit *charm = m_caster->GetCharm())
             if(charm->GetTypeId() == TYPEID_UNIT
-                && ((Creature*)charm)->HasSummonMask(SUMMON_MASK_PUPPET)
+                && ((Creature*)charm)->HasUnitTypeMask(UNIT_MASK_PUPPET)
                 && charm->GetUInt32Value(UNIT_CREATED_BY_SPELL) == m_spellInfo->Id)
                 ((Puppet*)charm)->UnSummon();
     }
@@ -5128,7 +5128,7 @@ SpellCastResult Spell::CheckCast(bool strict)
 
                 if(Unit *target = m_targets.getUnitTarget())
                 {
-                    if(target->GetTypeId() == TYPEID_UNIT && ((Creature*)target)->isVehicle())
+                    if(target->GetTypeId() == TYPEID_UNIT && ((Creature*)target)->IsVehicle())
                         return SPELL_FAILED_BAD_IMPLICIT_TARGETS;
 
                     if(target->GetCharmerGUID())
@@ -6133,7 +6133,7 @@ bool Spell::CheckTarget(Unit* target, uint32 eff)
         case SPELL_AURA_MOD_CHARM:
         case SPELL_AURA_MOD_POSSESS_PET:
         case SPELL_AURA_AOE_CHARM:
-            if(target->GetTypeId() == TYPEID_UNIT && ((Creature*)target)->isVehicle())
+            if(target->GetTypeId() == TYPEID_UNIT && ((Creature*)target)->IsVehicle())
                 return false;
             if(target->GetCharmerGUID())
                 return false;
@@ -6600,7 +6600,7 @@ void Spell::SelectTrajTargets()
     UnitList::const_iterator itr = unitList.begin();
     for(; itr != unitList.end(); ++itr)
     {
-        if(m_caster == *itr || m_caster == (*itr)->m_Vehicle || m_caster->m_Vehicle == *itr)
+        if(m_caster == *itr || m_caster->IsOnVehicle(*itr) || (*itr)->IsOnVehicle(m_caster))
             continue;
 
         const float size = (*itr)->GetObjectSize() * 0.6f; // 1/sqrt(3)

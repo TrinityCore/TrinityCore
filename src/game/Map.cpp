@@ -648,7 +648,7 @@ void Map::Update(const uint32 &t_diff)
             }
         }
 
-        if(plr->m_seer != plr && !plr->m_Vehicle)
+        if(plr->m_seer != plr && !plr->GetVehicle())
             AddUnitToNotify(plr);
     }
 
@@ -879,9 +879,9 @@ Map::CreatureRelocation(Creature *creature, float x, float y, float z, float ang
         AddUnitToNotify(creature);
     }
 
-    if(creature->isVehicle())
+    if(creature->IsVehicle())
     {
-        for(SeatMap::iterator itr = ((Vehicle*)creature)->m_Seats.begin(); itr != ((Vehicle*)creature)->m_Seats.end(); ++itr)
+        for(SeatMap::iterator itr = creature->GetVehicleKit()->m_Seats.begin(); itr != creature->GetVehicleKit()->m_Seats.end(); ++itr)
             if(Unit *passenger = itr->second.passenger)
             {
                 if(passenger->GetTypeId() == TYPEID_PLAYER)
@@ -2790,9 +2790,9 @@ void Map::ScriptsProcess()
                 case HIGHGUID_PET:
                     source = HashMapHolder<Pet>::Find(step.sourceGUID);
                     break;
-                case HIGHGUID_VEHICLE:
-                    source = HashMapHolder<Vehicle>::Find(step.sourceGUID);
-                    break;
+                //case HIGHGUID_VEHICLE:
+                //    source = HashMapHolder<Vehicle>::Find(step.sourceGUID);
+                //    break;
                 case HIGHGUID_PLAYER:
                     source = HashMapHolder<Player>::Find(step.sourceGUID);
                     break;
@@ -2832,9 +2832,9 @@ void Map::ScriptsProcess()
                 case HIGHGUID_PET:
                     target = HashMapHolder<Pet>::Find(step.targetGUID);
                     break;
-                case HIGHGUID_VEHICLE:
-                    target = HashMapHolder<Vehicle>::Find(step.targetGUID);
-                    break;
+                //case HIGHGUID_VEHICLE:
+                //    target = HashMapHolder<Vehicle>::Find(step.targetGUID);
+                //    break;
                 case HIGHGUID_PLAYER:                       // empty GUID case also
                     target = HashMapHolder<Player>::Find(step.targetGUID);
                     break;
@@ -3531,10 +3531,8 @@ Creature*
 Map::GetCreature(uint64 guid)
 {
     Creature * ret = NULL;
-    if(IS_CREATURE_GUID(guid))
+    if(IS_CRE_OR_VEH_GUID(guid))
         ret = ObjectAccessor::GetObjectInWorld(guid, (Creature*)NULL);
-    else if(IS_VEHICLE_GUID(guid))
-        ret = ObjectAccessor::GetObjectInWorld(guid, (Vehicle*)NULL);
 
     if(!ret)
         return NULL;

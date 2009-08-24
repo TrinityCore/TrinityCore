@@ -276,7 +276,7 @@ void WorldSession::HandleMovementOpcodes( WorldPacket & recv_data )
             }
         }
 
-        if(!mover->GetTransport() && !mover->m_Vehicle)
+        if(!mover->GetTransport() && !mover->GetVehicle())
             movementInfo.flags &= ~MOVEMENTFLAG_ONTRANSPORT;
     }
     else if (plMover && plMover->m_transport)               // if we were on a transport, leave
@@ -312,7 +312,7 @@ void WorldSession::HandleMovementOpcodes( WorldPacket & recv_data )
 
     mover->m_movementInfo = movementInfo;
 
-    if(mover->m_Vehicle)
+    if(mover->GetVehicle())
     {
         mover->SetOrientation(movementInfo.o);
         return;
@@ -515,7 +515,7 @@ void WorldSession::HandleChangeSeatsOnControlledVehicle(WorldPacket &recv_data)
     sLog.outDebug("WORLD: Recvd CMSG_CHANGE_SEATS_ON_CONTROLLED_VEHICLE");
     recv_data.hexlike();
 
-    if(!GetPlayer()->m_Vehicle)
+    if(!GetPlayer()->GetVehicle())
         return;
 
     if(recv_data.GetOpcode() == CMSG_REQUEST_VEHICLE_PREV_SEAT)
@@ -529,7 +529,7 @@ void WorldSession::HandleChangeSeatsOnControlledVehicle(WorldPacket &recv_data)
         return;
     }
     else if(recv_data.GetOpcode() == CMSG_CHANGE_SEATS_ON_CONTROLLED_VEHICLE)
-        ReadMovementInfo(recv_data, &GetPlayer()->m_Vehicle->m_movementInfo);
+        ReadMovementInfo(recv_data, &GetPlayer()->GetVehicleBase()->m_movementInfo);
 
     uint64 guid;
     if(!recv_data.readPackGUID(guid))
@@ -540,11 +540,10 @@ void WorldSession::HandleChangeSeatsOnControlledVehicle(WorldPacket &recv_data)
 
     if(!guid)
         GetPlayer()->ChangeSeat(-1, seatId > 0); // prev/next
-    else if(Vehicle *vehicle = ObjectAccessor::GetVehicle(guid))
-    {
-        if(vehicle->HasEmptySeat(seatId))
-            GetPlayer()->EnterVehicle(vehicle, seatId);
-    }
+    else if(Unit *vehUnit = ObjectAccessor::GetUnit(*GetPlayer(), guid))
+        if(Vehicle *vehicle = vehUnit->GetVehicleKit())
+            if(vehicle->HasEmptySeat(seatId))
+                GetPlayer()->EnterVehicle(vehicle, seatId);
 }
 
 void WorldSession::HandleRequestVehicleExit(WorldPacket &recv_data)
