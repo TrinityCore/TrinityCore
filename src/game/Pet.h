@@ -159,7 +159,6 @@ class Pet : public Guardian
                 return m_autospells[pos];
         }
 
-        void Regenerate(Powers power);
         void LooseHappiness();
         HappinessState GetHappinessState();
         void GivePetXP(uint32 xp);
@@ -238,7 +237,7 @@ class Pet : public Guardian
         int32   m_duration;                                 // time until unsummon (used mostly for summoned guardians and not used for controlled pets)
         uint64  m_auraRaidUpdateMask;
         bool    m_loading;
-        uint32  m_regenTimer;
+        int32  m_regenTimer;
 
         DeclinedName *m_declinedname;
 
