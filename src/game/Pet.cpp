@@ -227,7 +227,9 @@ bool Pet::LoadPetFromDB( Player* owner, uint32 petentry, uint32 petnumber, bool 
             setPowerType(POWER_FOCUS);
             break;
         default:
-            sLog.outError("Pet have incorrect type (%u) for pet loading.", getPetType());
+            if(!IsPetGhoul())
+                sLog.outError("Pet have incorrect type (%u) for pet loading.", getPetType());
+            break;
     }
 
     SetUInt32Value(UNIT_FIELD_PET_NAME_TIMESTAMP, time(NULL));
