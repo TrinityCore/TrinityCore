@@ -32,6 +32,9 @@ EndScriptData */
 #define SPAWN_GARG_GATE 0
 #define SPAWN_WYRM_GATE 1
 #define SPAWN_NEAR_TOWER 2
+
+#define YELL_HURRY  "Hurry, we don't have much time"
+
 // Locations for summoning gargoyls and frost wyrms in special cases
 float SpawnPointSpecial[3][3]=
 {
@@ -975,7 +978,7 @@ void hyjalAI::WaypointReached(uint32 i)
 {
     if (i == 1 || (i == 0 && m_creature->GetEntry() == THRALL))
     {
-        m_creature->MonsterYell("Hurry, we don't have much time",0,0);
+        m_creature->MonsterYell(YELL_HURRY,0,0);
         WaitForTeleport = true;
         TeleportTimer = 20000;
         if (m_creature->GetEntry() == JAINA)

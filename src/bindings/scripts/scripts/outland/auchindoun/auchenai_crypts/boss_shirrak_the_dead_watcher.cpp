@@ -36,6 +36,8 @@ EndScriptData */
 #define SPELL_FIERY_BLAST           (HeroicMode?H_SPELL_FIERY_BLAST:N_SPELL_FIERY_BLAST)
 #define SPELL_FOCUS_FIRE_VISUAL     42075 //need to find better visual
 
+#define EMOTE_FOCUSES_ON            "focuses on "
+
 struct TRINITY_DLL_DECL boss_shirrak_the_dead_watcherAI : public ScriptedAI
 {
     boss_shirrak_the_dead_watcherAI(Creature *c) : ScriptedAI(c)
@@ -131,7 +133,7 @@ struct TRINITY_DLL_DECL boss_shirrak_the_dead_watcherAI : public ScriptedAI
 
                 // TODO: Find better way to handle emote
                 // Emote
-                std::string *emote = new std::string("focuses on ");
+                std::string *emote = new std::string(EMOTE_FOCUSES_ON);
                 emote->append(target->GetName());
                 emote->append("!");
                 const char* text = emote->c_str();

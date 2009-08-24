@@ -68,6 +68,9 @@ struct TRINITY_DLL_DECL instance_mount_hyjal : public ScriptedInstance
 
     uint32 RaidDamage;
 
+    #define YELL_EFFORTS        "All of your efforts have been in vain, for the draining of the World Tree has already begun. Soon the heart of your world will beat no more."
+    #define YELL_EFFORTS_NAME   "Archimonde"
+
     void Initialize()
     {
         memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
@@ -192,7 +195,7 @@ struct TRINITY_DLL_DECL instance_mount_hyjal : public ScriptedInstance
                                      if (i->getSource())
                                      {
                                         WorldPacket data(SMSG_MESSAGECHAT, 200);
-                                        pUnit->BuildMonsterChat(&data,CHAT_MSG_MONSTER_YELL,"All of your efforts have been in vain, for the draining of the World Tree has already begun. Soon the heart of your world will beat no more.",0,"Archimonde",i->getSource()->GetGUID());
+                                        pUnit->BuildMonsterChat(&data,CHAT_MSG_MONSTER_YELL,YELL_EFFORTS,0,YELL_EFFORTS_NAME,i->getSource()->GetGUID());
                                         i->getSource()->GetSession()->SendPacket(&data);
 
                                         WorldPacket data2(SMSG_PLAY_SOUND, 4);

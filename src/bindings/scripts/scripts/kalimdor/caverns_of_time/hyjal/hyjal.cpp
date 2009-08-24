@@ -41,6 +41,8 @@ EndContentData */
 #define GOSSIP_ITEM_TYRANDE         "Aid us in defending Nordrassil"
 #define ITEM_TEAR_OF_GODDESS        24494
 
+#define GOSSIP_ITEM_GM1             "[GM] Toggle Debug Timers"
+
 
 CreatureAI* GetAI_npc_jaina_proudmoore(Creature* pCreature)
 {
@@ -80,7 +82,7 @@ bool GossipHello_npc_jaina_proudmoore(Player* pPlayer, Creature* pCreature)
         pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_RETREAT, GOSSIP_SENDER_MAIN,    GOSSIP_ACTION_INFO_DEF + 3);
 
     if (pPlayer->isGameMaster())
-        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TRAINER, "[GM] Toggle Debug Timers", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
+        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TRAINER, GOSSIP_ITEM_GM1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
 
     pPlayer->SEND_GOSSIP_MENU(907, pCreature->GetGUID());
     return true;
@@ -149,7 +151,7 @@ bool GossipHello_npc_thrall(Player* pPlayer, Creature* pCreature)
     }
 
     if (pPlayer->isGameMaster())
-        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TRAINER, "[GM] Toggle Debug Timers", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
+        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TRAINER, GOSSIP_ITEM_GM1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
 
     pPlayer->SEND_GOSSIP_MENU(907, pCreature->GetGUID());
     return true;
