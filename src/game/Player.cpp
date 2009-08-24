@@ -14061,7 +14061,7 @@ void Player::KilledMonsterCredit( uint32 entry, uint64 guid )
 
 void Player::CastedCreatureOrGO( uint32 entry, uint64 guid, uint32 spell_id )
 {
-    bool isCreature = IS_CREATURE_GUID(guid);
+    bool isCreature = IS_CRE_OR_VEH_GUID(guid);
 
     uint32 addCastCount = 1;
     for( uint8 i = 0; i < MAX_QUEST_LOG_SIZE; ++i)
@@ -17111,9 +17111,9 @@ void Player::StopCastingCharm()
 
     if(charm->GetTypeId() == TYPEID_UNIT)
     {
-        if(((Creature*)charm)->HasSummonMask(SUMMON_MASK_PUPPET))
+        if(((Creature*)charm)->HasUnitTypeMask(UNIT_MASK_PUPPET))
             ((Puppet*)charm)->UnSummon();
-        else if(((Creature*)charm)->isVehicle())
+        else if(charm->IsVehicle())
             ExitVehicle();
     }
     if(GetCharmGUID())
@@ -17321,19 +17321,19 @@ void Player::PossessSpellInitialize()
 
 void Player::VehicleSpellInitialize()
 {
-    Unit* charm = m_Vehicle;
-    if(!charm)
+    Creature* veh = GetVehicleCreatureBase();
+    if(!veh)
         return;
 
     WorldPacket data(SMSG_PET_SPELLS, 8+2+4+4+4*10+1+1);
-    data << uint64(charm->GetGUID());
+    data << uint64(veh->GetGUID());
     data << uint16(0);
     data << uint32(0);
     data << uint32(0x00000101);
 
     for(uint32 i = 0; i < CREATURE_MAX_SPELLS; ++i)
     {
-        uint32 spellId = ((Creature*)charm)->m_spells[i];
+        uint32 spellId = ((Creature*)veh)->m_spells[i];
         if(!spellId)
             continue;
 
@@ -17343,7 +17343,7 @@ void Player::VehicleSpellInitialize()
 
         if(IsPassiveSpell(spellId))
         {
-            charm->CastSpell(charm, spellId, true);
+            veh->CastSpell(veh, spellId, true);
             data << uint16(0) << uint8(0) << uint8(i+8);
         }
         else
@@ -19122,7 +19122,7 @@ void Player::UpdateVisibilityOf(T* target, UpdateData& data, std::set<WorldObjec
             #endif
         }
     }
-    else //if(visibleNow.size() < 30 || target->GetTypeId() == TYPEID_UNIT && ((Creature*)target)->isVehicle())
+    else //if(visibleNow.size() < 30 || target->GetTypeId() == TYPEID_UNIT && ((Creature*)target)->IsVehicle())
     {
         if(target->isVisibleForInState(this,false))
         {
@@ -19750,7 +19750,7 @@ void Player::UpdateForQuestWorldObjects()
             if(obj)
                 obj->BuildValuesUpdateBlockForPlayer(&udata,this);
         }
-        else if(IS_CREATURE_GUID(*itr) || IS_VEHICLE_GUID(*itr))
+        else if(IS_CRE_OR_VEH_GUID(*itr))
         {
             Creature *obj = ObjectAccessor::GetCreatureOrPetOrVehicle(*this, *itr);
             if(!obj)
@@ -20252,14 +20252,14 @@ void Player::UpdateAreaDependentAuras( uint32 newArea )
             if( !HasAura(itr->second->spellId) )
                 CastSpell(this,itr->second->spellId,true);
 
-    if(newArea == 4273 && m_Vehicle && GetPositionX() > 400) // Ulduar
+    if(newArea == 4273 && GetVehicle() && GetPositionX() > 400) // Ulduar
     {
-        switch(m_Vehicle->GetEntry())
+        switch(GetVehicleBase()->GetEntry())
         {
             case 33062:
             case 33109:
             case 33060:
-                m_Vehicle->Dismiss();
+                GetVehicle()->Dismiss();
                 break;
         }
     }
@@ -20532,7 +20532,7 @@ void Player::SetViewpoint(WorldObject* target, bool apply)
         // farsight dynobj or puppet may be very far away
         UpdateVisibilityOf(target);
 
-        if(target->isType(TYPEMASK_UNIT) && !m_Vehicle)
+        if(target->isType(TYPEMASK_UNIT) && !GetVehicle())
             ((Unit*)target)->AddPlayerToVision(this);
     }
     else
@@ -20545,7 +20545,7 @@ void Player::SetViewpoint(WorldObject* target, bool apply)
             return;
         }
 
-        if(target->isType(TYPEMASK_UNIT) && !m_Vehicle)
+        if(target->isType(TYPEMASK_UNIT) && !GetVehicle())
             ((Unit*)target)->RemovePlayerFromVision(this);
 
         //must immediately set seer back otherwise may crash

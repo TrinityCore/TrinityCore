@@ -175,6 +175,13 @@ Creature *ScriptedAI::DoSummon(uint32 uiEntry, WorldObject* pGo, float fRadius, 
     return me->SummonCreature(uiEntry, fX, fY, fZ, me->GetOrientation(), uiType, uiDespawntime);
 }
 
+Creature *ScriptedAI::DoSummonFlyer(uint32 uiEntry, WorldObject *obj, float _fZ, float fRadius, uint32 uiDespawntime, TempSummonType uiType)
+{
+    float fX, fY, fZ;
+    obj->GetGroundPointAroundUnit(fX, fY, fZ, fRadius * rand_norm(), rand_norm()*2*M_PI);
+    return me->SummonCreature(uiEntry, fX, fY, _fZ, me->GetOrientation(), uiType, uiDespawntime);
+}
+
 
 Unit* ScriptedAI::SelectUnit(SelectAggroTarget target, uint32 uiPosition)
 {

@@ -542,8 +542,11 @@ class TRINITY_DLL_SPEC WorldObject : public Object
         void SetZoneScript();
         ZoneScript * GetZoneScript() const { return m_zoneScript; }
 
-        TempSummon* SummonCreature(uint32 id, float x, float y, float z, float ang = 0,TempSummonType spwtype = TEMPSUMMON_MANUAL_DESPAWN,uint32 despwtime = 0);
-        Vehicle*    SummonVehicle(uint32 entry, float x, float y, float z, float ang = 0);
+        TempSummon* SummonCreature(uint32 id, float x, float y, float z, float ang = 0, uint32 vehId = 0, TempSummonType spwtype = TEMPSUMMON_MANUAL_DESPAWN, uint32 despwtime = 0);
+        TempSummon* SummonCreature(uint32 id, float x, float y, float z, float ang = 0, TempSummonType spwtype = TEMPSUMMON_MANUAL_DESPAWN, uint32 despwtime = 0)
+        { 
+            return SummonCreature(id, x, y, z, ang, 0, spwtype, despwtime);
+        }
         GameObject* SummonGameObject(uint32 entry, float x, float y, float z, float ang, float rotation0, float rotation1, float rotation2, float rotation3, uint32 respawnTime);
         Creature*   SummonTrigger(float x, float y, float z, float ang, uint32 dur, CreatureAI* (*GetAI)(Creature*) = NULL);
 

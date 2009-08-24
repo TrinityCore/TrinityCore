@@ -3017,7 +3017,7 @@ bool SpellMgr::CanAurasStack(SpellEntry const *spellInfo_1, SpellEntry const *sp
 
     if(!sameCaster)
     {
-        if(spellInfo_1->AttributesEx & SPELL_ATTR_EX3_STACK_FOR_DIFF_CASTERS
+        if(spellInfo_1->AttributesEx & SPELL_ATTR_EX_STACK_FOR_DIFF_CASTERS
             || spellInfo_1->AttributesEx3 & SPELL_ATTR_EX3_STACK_FOR_DIFF_CASTERS)
             return true;
             

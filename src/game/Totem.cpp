@@ -28,7 +28,7 @@
 
 Totem::Totem(SummonPropertiesEntry const *properties, Unit *owner) : Minion(properties, owner)
 {
-    m_summonMask |= SUMMON_MASK_TOTEM;
+    m_unitTypeMask |= UNIT_MASK_TOTEM;
     m_duration = 0;
     m_type = TOTEM_PASSIVE;
 }

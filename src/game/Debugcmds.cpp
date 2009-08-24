@@ -705,7 +705,7 @@ bool ChatHandler::HandleDebugHostilRefList(const char * /*args*/)
 bool ChatHandler::HandleDebugSetVehicleId(const char *args)
 {
     Unit* target = getSelectedUnit();
-    if(!target || target->GetTypeId() != TYPEID_UNIT || !((Creature*)target)->isVehicle())
+    if(!target || target->IsVehicle())
         return false;
 
     if(!args)
@@ -716,7 +716,7 @@ bool ChatHandler::HandleDebugSetVehicleId(const char *args)
         return false;
 
     uint32 id = (uint32)atoi(i);
-    ((Vehicle*)target)->SetVehicleId(id);
+    //target->SetVehicleId(id);
     target->SendUpdateObjectToAllExcept(NULL);
     PSendSysMessage("Vehicle id set to %u", id);
     return true;
@@ -725,7 +725,7 @@ bool ChatHandler::HandleDebugSetVehicleId(const char *args)
 bool ChatHandler::HandleDebugEnterVehicle(const char * args)
 {
     Unit* target = getSelectedUnit();
-    if(!target || target->GetTypeId() != TYPEID_UNIT || !((Creature*)target)->isVehicle())
+    if(!target || !target->IsVehicle())
         return false;
 
     if(!args)
@@ -741,7 +741,7 @@ bool ChatHandler::HandleDebugEnterVehicle(const char * args)
     int8 seatId = j ? (int8)atoi(j) : -1;
 
     if(!entry)
-        m_session->GetPlayer()->EnterVehicle((Vehicle*)target, seatId);
+        m_session->GetPlayer()->EnterVehicle(target, seatId);
     else
     {
         Creature *passenger = NULL;
@@ -750,7 +750,7 @@ bool ChatHandler::HandleDebugEnterVehicle(const char * args)
         m_session->GetPlayer()->VisitNearbyObject(30.0f, searcher);
         if(!passenger || passenger == target)
             return false;
-        passenger->EnterVehicle((Vehicle*)target, seatId);
+        passenger->EnterVehicle(target, seatId);
     }
 
     PSendSysMessage("Unit %u entered vehicle %d", entry, (int32)seatId);
@@ -774,7 +774,7 @@ bool ChatHandler::HandleDebugSpawnVehicle(const char* args)
     m_session->GetPlayer()->GetClosePoint(x, y, z, m_session->GetPlayer()->GetObjectSize());
 
     if(!i)
-        return m_session->GetPlayer()->SummonVehicle(entry, x, y, z, o);
+        return m_session->GetPlayer()->SummonCreature(entry, x, y, z, o, 0);
 
     uint32 id = (uint32)atoi(i);
 
@@ -788,7 +788,8 @@ bool ChatHandler::HandleDebugSpawnVehicle(const char* args)
     if (!ve)
         return false;
 
-    Vehicle *v = new Vehicle;
+    Creature *v = new Creature;
+
     Map *map = m_session->GetPlayer()->GetMap();
 
     if(!v->Create(objmgr.GenerateLowGuid(HIGHGUID_VEHICLE), map, m_session->GetPlayer()->GetPhaseMask(), entry, id, m_session->GetPlayer()->GetTeam(), x, y, z, o))

@@ -18,7 +18,6 @@
 
 #define CAST_PLR(a)     (SCRIPT_CAST_TYPE<Player*>(a))
 #define CAST_CRE(a)     (SCRIPT_CAST_TYPE<Creature*>(a))
-#define CAST_VEH(a)     (SCRIPT_CAST_TYPE<Vehicle*>(a))
 #define CAST_SUM(a)     (SCRIPT_CAST_TYPE<TempSummon*>(a))
 #define CAST_PET(a)     (SCRIPT_CAST_TYPE<Pet*>(a))
 #define CAST_AI(a,b)    (SCRIPT_CAST_TYPE<a*>(b))
@@ -27,7 +26,7 @@
 
 class ScriptedInstance;
 
-class SummonList : private std::list<uint64>
+class SummonList : public std::list<uint64>
 {
     public:
         explicit SummonList(Creature* creature) : m_creature(creature) {}
@@ -154,6 +153,7 @@ struct TRINITY_DLL_DECL ScriptedAI : public CreatureAI
     Creature* DoSpawnCreature(uint32 uiId, float fX, float fY, float fZ, float fAngle, uint32 uiType, uint32 uiDespawntime);
     Creature *DoSummon(uint32 uiEntry, const float fPos[4], uint32 uiDespawntime = 30000, TempSummonType uiType = TEMPSUMMON_CORPSE_TIMED_DESPAWN);
     Creature *DoSummon(uint32 uiEntry, WorldObject *obj, float fRadius = 5.0f, uint32 uiDespawntime = 30000, TempSummonType uiType = TEMPSUMMON_CORPSE_TIMED_DESPAWN);
+    Creature *DoSummonFlyer(uint32 uiEntry, WorldObject *obj, float fZ, float fRadius = 5.0f, uint32 uiDespawntime = 30000, TempSummonType uiType = TEMPSUMMON_CORPSE_TIMED_DESPAWN);
 
     //Selects a unit from the creature's current aggro list
     Unit* SelectUnit(SelectAggroTarget target, uint32 uiPosition);

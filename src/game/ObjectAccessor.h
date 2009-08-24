@@ -41,7 +41,6 @@ class Corpse;
 class Unit;
 class GameObject;
 class DynamicObject;
-class Vehicle;
 class WorldObject;
 class Map;
 
@@ -112,13 +111,10 @@ class MANGOS_DLL_DECL ObjectAccessor : public MaNGOS::Singleton<ObjectAccessor, 
                 return u;
             }
 
-            if(IS_CREATURE_GUID(guid))
-                return (Unit*)HashMapHolder<Creature>::Find(guid);
-
             if(IS_PET_GUID(guid))
                 return (Unit*)HashMapHolder<Pet>::Find(guid);
 
-            return (Unit*)HashMapHolder<Vehicle>::Find(guid);
+            return (Unit*)HashMapHolder<Creature>::Find(guid);
         }
 
         static Unit* GetUnitInOrOutOfWorld(uint64 guid, Unit* /*fake*/)
@@ -173,7 +169,6 @@ class MANGOS_DLL_DECL ObjectAccessor : public MaNGOS::Singleton<ObjectAccessor, 
         static Player* GetPlayer(Unit const &, uint64 guid) { return FindPlayer(guid); }
         static Corpse* GetCorpse(WorldObject const &u, uint64 guid);
         static Pet* GetPet(uint64 guid);
-        static Vehicle* GetVehicle(uint64 guid);
         static Player* FindPlayer(uint64);
 
         Player* FindPlayerByName(const char *name) ;

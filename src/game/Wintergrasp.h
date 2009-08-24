@@ -140,8 +140,6 @@ typedef std::map<uint32, uint32> TeamPairMap;
 
 class SiegeWorkshop;
 
-typedef std::set<Vehicle*> VehicleSet;
-
 class OPvPWintergrasp : public OutdoorPvP
 {
     protected:
@@ -179,7 +177,7 @@ class OPvPWintergrasp : public OutdoorPvP
         BuildingStateMap m_buildingStates;
 
         CreatureSet m_creatures;
-        VehicleSet m_vehicles[2];
+        CreatureSet m_vehicles[2];
         GameObjectSet m_gobjects;
 
         TeamPairMap m_creEntryPair, m_goDisplayPair;
@@ -231,7 +229,7 @@ class SiegeWorkshop : public OPvPCapturePoint
         uint32 m_engGuid;
         Creature *m_engineer;
         uint32 m_workshopGuid;
-        //VehicleSet m_vehicles;
+        //CreatureSet m_vehicles;
         BuildingState *m_buildingState;
     protected:
         OPvPWintergrasp *m_wintergrasp;

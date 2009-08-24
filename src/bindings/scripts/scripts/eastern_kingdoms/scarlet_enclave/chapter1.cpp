@@ -582,7 +582,7 @@ struct TRINITY_DLL_DECL npc_salanar_the_horsemanAI : public ScriptedAI
     {
         if (spell->Id == DELIVER_STOLEN_HORSE)
         {
-            if (caster->GetTypeId() == TYPEID_UNIT && CAST_CRE(caster)->isVehicle())
+            if (caster->GetTypeId() == TYPEID_UNIT && caster->IsVehicle())
             {
                 if (Unit *charmer = caster->GetCharmer())
                 {
@@ -601,7 +601,7 @@ struct TRINITY_DLL_DECL npc_salanar_the_horsemanAI : public ScriptedAI
     {
         ScriptedAI::MoveInLineOfSight(who);
 
-        if (who->GetTypeId() == TYPEID_UNIT && CAST_CRE(who)->isVehicle() && me->IsWithinDistInMap(who, 5.0f))
+        if (who->GetTypeId() == TYPEID_UNIT && who->IsVehicle() && me->IsWithinDistInMap(who, 5.0f))
         {
             if (Unit *charmer = who->GetCharmer())
             {
@@ -649,15 +649,15 @@ struct TRINITY_DLL_DECL npc_ros_dark_riderAI : public ScriptedAI
         deathcharger->RestoreFaction();
         deathcharger->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
         deathcharger->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-        if (!me->m_Vehicle && deathcharger->isVehicle() && CAST_VEH(deathcharger)->HasEmptySeat(0))
-            me->EnterVehicle(CAST_VEH(deathcharger));
+        if (!me->GetVehicle() && deathcharger->IsVehicle() && deathcharger->GetVehicleKit()->HasEmptySeat(0))
+            me->EnterVehicle(deathcharger);
     }
 
     void JustDied(Unit *killer)
     {
         Creature* deathcharger = me->FindNearestCreature(28782, 30);
         if (!deathcharger) return;
-        if (killer->GetTypeId() == TYPEID_PLAYER && deathcharger->GetTypeId() == TYPEID_UNIT && deathcharger->isVehicle())
+        if (killer->GetTypeId() == TYPEID_PLAYER && deathcharger->GetTypeId() == TYPEID_UNIT && deathcharger->IsVehicle())
         {
             deathcharger->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
             deathcharger->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
@@ -811,7 +811,7 @@ struct TRINITY_DLL_DECL npc_scarlet_minerAI : public npc_escortAI
 
     void InitCartQuest(Player *who)
     {
-        carGUID = who->m_Vehicle->GetGUID();
+        carGUID = who->GetVehicleBase()->GetGUID();
         InitWaypoint();
         Start(false, false, who->GetGUID());
         SetDespawnAtFar(false);
@@ -894,7 +894,7 @@ bool GOHello_go_inconspicuous_mine_car(Player* pPlayer, GameObject* pGO)
         if(Creature *miner = pPlayer->SummonCreature(28841, 2383.869629, -5900.312500, 107.996086, pPlayer->GetOrientation(),TEMPSUMMON_DEAD_DESPAWN, 1))
         {
             pPlayer->CastSpell(pPlayer, SPELL_CART_SUMM, true);
-            if(Vehicle *car = pPlayer->m_Vehicle)
+            if(Creature *car = pPlayer->GetVehicleCreatureBase())
             {
                 if(car->GetEntry() == 28817)
                 {

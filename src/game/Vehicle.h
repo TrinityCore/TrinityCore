@@ -20,11 +20,10 @@
 #define MANGOSSERVER_VEHICLE_H
 
 #include "ObjectDefines.h"
-#include "Creature.h"
-#include "Unit.h"
 
 struct VehicleEntry;
 struct VehicleSeatEntry;
+class Unit;
 
 struct VehicleSeat
 {
@@ -35,22 +34,19 @@ struct VehicleSeat
 
 typedef std::map<int8, VehicleSeat> SeatMap;
 
-class TRINITY_DLL_SPEC Vehicle : public Creature
+class TRINITY_DLL_SPEC Vehicle
 {
     public:
-        explicit Vehicle();
+        explicit Vehicle(Unit *unit, VehicleEntry const *vehInfo);
         virtual ~Vehicle();
 
-        void AddToWorld();
-        void RemoveFromWorld();
+        void Install();
+        void Uninstall();
 
-        bool Create(uint32 guidlow, Map *map, uint32 phaseMask, uint32 Entry, uint32 vehicleId, uint32 team, float x, float y, float z, float o, const CreatureData * data = NULL);
-
-        void setDeathState(DeathState s);                   // overwrite virtual Creature::setDeathState and Unit::setDeathState
-        void Update(uint32 diff);                           // overwrite virtual Creature::Update and Unit::Update
+        void Reset();
+        void Die();
 
         VehicleEntry const *GetVehicleInfo() { return m_vehicleInfo; }
-        void SetVehicleId(uint32 vehicleid);
 
         bool HasEmptySeat(int8 seatId) const;
         Unit *GetPassenger(int8 seatId) const;
@@ -61,23 +57,14 @@ class TRINITY_DLL_SPEC Vehicle : public Creature
         void InstallAllAccessories();
         void Dismiss();
 
-        bool LoadFromDB(uint32 guid, Map *map);
-
         SeatMap m_Seats;
+
+        Unit *GetBase() const { return me; }
     protected:
+        Unit *me;
         VehicleEntry const *m_vehicleInfo;
         uint32 m_usableSeatNum;
 
         void InstallAccessory(uint32 entry, int8 seatId);
-
-    private:
-        void SaveToDB(uint32, uint8)                        // overwrited of Creature::SaveToDB     - don't must be called
-        {
-            assert(false);
-        }
-        void DeleteFromDB()                                 // overwrited of Creature::DeleteFromDB - don't must be called
-        {
-            assert(false);
-        }
 };
 #endif

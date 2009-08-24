@@ -46,13 +46,13 @@ m_petType(type), m_removed(false), m_happinessTimer(7500), m_duration(0),
 m_resetTalentsCost(0), m_resetTalentsTime(0), m_usedTalentCount(0), m_auraRaidUpdateMask(0), m_loading(false),
 m_declinedname(NULL), m_owner(owner)
 {
-    m_summonMask |= SUMMON_MASK_PET;
+    m_unitTypeMask |= UNIT_MASK_PET;
     if(type == HUNTER_PET)
-        m_summonMask |= SUMMON_MASK_HUNTER_PET;
+        m_unitTypeMask |= UNIT_MASK_HUNTER_PET;
 
-    if (!(m_summonMask & SUMMON_MASK_CONTROLABLE_GUARDIAN))
+    if (!(m_unitTypeMask & UNIT_MASK_CONTROLABLE_GUARDIAN))
     {
-        m_summonMask |= SUMMON_MASK_CONTROLABLE_GUARDIAN;
+        m_unitTypeMask |= UNIT_MASK_CONTROLABLE_GUARDIAN;
         InitCharmInfo();
     }
 
@@ -780,14 +780,14 @@ bool Guardian::InitStatsForLevel(uint32 petlevel)
 
     //Determine pet type
     PetType petType = MAX_PET_TYPE;
-    if(HasSummonMask(SUMMON_MASK_PET) && m_owner->GetTypeId() == TYPEID_PLAYER)
+    if(HasUnitTypeMask(UNIT_MASK_PET) && m_owner->GetTypeId() == TYPEID_PLAYER)
     {
         if(m_owner->getClass() == CLASS_WARLOCK)
             petType = SUMMON_PET;
         else if(m_owner->getClass() == CLASS_HUNTER)
         {
             petType = HUNTER_PET;
-            m_summonMask |= SUMMON_MASK_HUNTER_PET;
+            m_unitTypeMask |= UNIT_MASK_HUNTER_PET;
         }
         else
             sLog.outError("Unknown type pet %u is summoned by player class %u", GetEntry(), m_owner->getClass());

@@ -4487,8 +4487,8 @@ void AuraEffect::HandleAuraPeriodicDummy(bool apply, bool Real, bool changeAmoun
                     if(m_target->GetAuras().count(62399) >= (m_target->GetMap()->IsHeroic() ? 4 : 2))
                     {
                         m_target->CastSpell(m_target, 62475, true); // System Shutdown
-                        if(m_target->m_Vehicle)
-                            m_target->m_Vehicle->CastSpell(m_target, 62475, true);
+                        if(Unit *veh = m_target->GetVehicleBase())
+                            veh->CastSpell(m_target, 62475, true);
                     }
             }
             break;
@@ -6619,27 +6619,25 @@ void AuraEffect::HandleAuraControlVehicle(bool apply, bool Real, bool /*changeAm
     if(!Real)
         return;
 
-    if(m_target->GetTypeId() != TYPEID_UNIT || !((Creature*)m_target)->isVehicle())
+    if(!m_target->IsVehicle())
         return;
 
     Unit *caster = GetSource();
     if(!caster || caster == m_target)
         return;
 
-    Vehicle * const vehicle = dynamic_cast<Vehicle * const>(m_target);
-
     if (apply)
     {
         //if(caster->GetTypeId() == TYPEID_PLAYER)
         //    if(Pet *pet = ((Player*)caster)->GetPet())
         //        pet->Remove(PET_SAVE_AS_CURRENT);
-        caster->EnterVehicle(vehicle, m_amount - 1);
+        caster->EnterVehicle(m_target->GetVehicleKit(), m_amount - 1);
     }
     else
     {
         if(GetId() == 53111) // Devour Humanoid
         {
-            vehicle->Kill(caster);
+            m_target->Kill(caster);
             if(caster->GetTypeId() == TYPEID_UNIT)
                 ((Creature*)caster)->RemoveCorpse();
         }
