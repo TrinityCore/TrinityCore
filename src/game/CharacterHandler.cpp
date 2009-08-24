@@ -437,8 +437,20 @@ void WorldSession::HandleCharCreateOpcode( WorldPacket & recv_data )
 
     // extract other data required for player creating
     uint8 gender, skin, face, hairStyle, hairColor, facialHair, outfitId;
-    recv_data >> gender >> skin >> face;
-    recv_data >> hairStyle >> hairColor >> facialHair >> outfitId;
+    recv_data >> gender;
+    recv_data >> skin;
+    recv_data >> face;
+    recv_data >> hairStyle;
+    recv_data >> hairColor;
+    recv_data >> facialHair;
+    recv_data >> outfitId;
+    
+    if(recv_data.rpos() < recv_data.wpos())
+    {
+        uint8 unk;
+        recv_data >> unk;
+        sLog.outDebug("Character creation %s (account %u) has unhandled tail data: [%u]", name.c_str(), GetAccountId(), unk);
+    }
 
     Player * pNewChar = new Player(this);
     if(!pNewChar->Create( objmgr.GenerateLowGuid(HIGHGUID_PLAYER), name, race_, class_, gender, skin, face, hairStyle, hairColor, facialHair, outfitId ))
