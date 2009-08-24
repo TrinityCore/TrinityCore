@@ -515,8 +515,8 @@ void WorldSession::HandleSpellClick( WorldPacket & recv_data )
         }
     }
 
-    if(unit->isVehicle())
-        _player->EnterVehicle((Vehicle*)unit);
+    if(unit->IsVehicle())
+        _player->EnterVehicle(unit);
 
     unit->AI()->DoAction(EVENT_SPELLCLICK);
 }

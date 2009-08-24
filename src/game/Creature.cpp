@@ -138,7 +138,7 @@ m_deathTimer(0), m_respawnTime(0), m_respawnDelay(25), m_corpseDelay(60), m_resp
 m_gossipOptionLoaded(false),
 m_defaultMovementType(IDLE_MOTION_TYPE), m_DBTableGuid(0), m_equipmentId(0), m_AlreadyCallAssistance(false),
 m_regenHealth(true), m_AI_locked(false), m_isDeadByDefault(false), m_meleeDamageSchoolMask(SPELL_SCHOOL_MASK_NORMAL),
-m_creatureInfo(NULL), m_reactState(REACT_AGGRESSIVE), m_formation(NULL), m_summonMask(SUMMON_MASK_NONE)
+m_creatureInfo(NULL), m_reactState(REACT_AGGRESSIVE), m_formation(NULL)
 , m_AlreadySearchedAssistance(false)
 , m_creatureData(NULL), m_PlayerDamageReq(0)
 {
@@ -700,7 +700,7 @@ void Creature::Motion_Initialize()
         i_motionMaster.Initialize();
 }
 
-bool Creature::Create(uint32 guidlow, Map *map, uint32 phaseMask, uint32 Entry, uint32 team, float x, float y, float z, float ang, const CreatureData *data)
+bool Creature::Create(uint32 guidlow, Map *map, uint32 phaseMask, uint32 Entry, uint32 vehId, uint32 team, float x, float y, float z, float ang, const CreatureData *data)
 {
     ASSERT(map);
     SetMap(map);
@@ -715,7 +715,7 @@ bool Creature::Create(uint32 guidlow, Map *map, uint32 phaseMask, uint32 Entry, 
     }
 
     //oX = x;     oY = y;    dX = x;    dY = y;    m_moveTime = 0;    m_startMove = 0;
-    const bool bResult = CreateFromProto(guidlow, Entry, team, data);
+    const bool bResult = CreateFromProto(guidlow, Entry, vehId, team, data);
 
     if (bResult)
     {
@@ -1500,7 +1500,7 @@ float Creature::GetSpellDamageMod(int32 Rank)
     }
 }
 
-bool Creature::CreateFromProto(uint32 guidlow, uint32 Entry, uint32 team, const CreatureData *data)
+bool Creature::CreateFromProto(uint32 guidlow, uint32 Entry, uint32 vehId, uint32 team, const CreatureData *data)
 {
     SetZoneScript();
     if(m_zoneScript && data)
@@ -1519,10 +1519,13 @@ bool Creature::CreateFromProto(uint32 guidlow, uint32 Entry, uint32 team, const 
 
     SetOriginalEntry(Entry);
 
-    if(isVehicle())
-        Object::_Create(guidlow, Entry, HIGHGUID_VEHICLE);
-    else
-        Object::_Create(guidlow, Entry, HIGHGUID_UNIT);
+    if(!vehId)
+        vehId = cinfo->VehicleId;
+
+    if(vehId && !CreateVehicleKit(vehId))
+        vehId = 0;
+
+    Object::_Create(guidlow, Entry, vehId ? HIGHGUID_VEHICLE : HIGHGUID_UNIT);
 
     if(!UpdateEntry(Entry, team, data))
         return false;
@@ -1540,15 +1543,11 @@ bool Creature::LoadFromDB(uint32 guid, Map *map)
         return false;
     }
 
-    if(const CreatureInfo *cInfo = objmgr.GetCreatureTemplate(data->id))
-        if(cInfo->VehicleId)
-            return false;
-
     m_DBTableGuid = guid;
     if (map->GetInstanceId() != 0) guid = objmgr.GenerateLowGuid(HIGHGUID_UNIT);
 
     uint16 team = 0;
-    if(!Create(guid,map,data->phaseMask,data->id,team,data->posX,data->posY,data->posZ,data->orientation,data))
+    if(!Create(guid,map,data->phaseMask,data->id,team,0,data->posX,data->posY,data->posZ,data->orientation,data))
         return false;
 
     //We should set first home position, because then AI calls home movement

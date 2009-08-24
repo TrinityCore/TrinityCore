@@ -154,20 +154,6 @@ enum CreatureFlagsExtra
     CREATURE_FLAG_EXTRA_NO_SKILLGAIN    = 0x00040000,       // creature won't increase weapon skills
 };
 
-enum SummonMask
-{
-    SUMMON_MASK_NONE                  = 0x00000000,
-    SUMMON_MASK_SUMMON                = 0x00000001,
-    SUMMON_MASK_MINION                = 0x00000002,
-    SUMMON_MASK_GUARDIAN              = 0x00000004,
-    SUMMON_MASK_TOTEM                 = 0x00000008,
-    SUMMON_MASK_PET                   = 0x00000010,
-    SUMMON_MASK_VEHICLE               = 0x00000020,
-    SUMMON_MASK_PUPPET                = 0x00000040,
-    SUMMON_MASK_HUNTER_PET            = 0x00000080,
-    SUMMON_MASK_CONTROLABLE_GUARDIAN  = 0x00000100,
-};
-
 // GCC have alternative #pragma pack(N) syntax and old gcc version not support pack(push,N), also any gcc version not support it at some platform
 #if defined( __GNUC__ )
 #pragma pack(1)
@@ -493,7 +479,7 @@ class TRINITY_DLL_SPEC Creature : public Unit
 
         void DisappearAndDie();
 
-        bool Create(uint32 guidlow, Map *map, uint32 phaseMask, uint32 Entry, uint32 team, float x, float y, float z, float ang, const CreatureData *data = NULL);
+        bool Create(uint32 guidlow, Map *map, uint32 phaseMask, uint32 Entry, uint32 vehId, uint32 team, float x, float y, float z, float ang, const CreatureData *data = NULL);
         bool LoadCreaturesAddon(bool reload = false);
         void SelectLevel(const CreatureInfo *cinfo);
         void LoadEquipment(uint32 equip_entry, bool force=false);
@@ -504,14 +490,6 @@ class TRINITY_DLL_SPEC Creature : public Unit
         void Update( uint32 time );                         // overwrited Unit::Update
         void GetRespawnCoord(float &x, float &y, float &z, float* ori = NULL, float* dist =NULL) const;
         uint32 GetEquipmentId() const { return GetCreatureInfo()->equipmentId; }
-
-        uint32 HasSummonMask(uint32 mask) const { return mask & m_summonMask; }
-        bool isSummon() const   { return m_summonMask & SUMMON_MASK_SUMMON; }
-        bool isGuardian() const { return m_summonMask & SUMMON_MASK_GUARDIAN; }
-        bool isPet() const      { return m_summonMask & SUMMON_MASK_PET; }
-        bool isHunterPet() const{ return m_summonMask & SUMMON_MASK_HUNTER_PET; }
-        bool isVehicle() const  { return m_summonMask & SUMMON_MASK_VEHICLE; }
-        bool isTotem() const    { return m_summonMask & SUMMON_MASK_TOTEM; }
 
         void SetCorpseDelay(uint32 delay) { m_corpseDelay = delay; }
         bool isRacialLeader() const { return GetCreatureInfo()->RacialLeader; }
@@ -747,7 +725,7 @@ class TRINITY_DLL_SPEC Creature : public Unit
 
         float m_SightDistance, m_CombatDistance;
     protected:
-        bool CreateFromProto(uint32 guidlow,uint32 Entry,uint32 team, const CreatureData *data = NULL);
+        bool CreateFromProto(uint32 guidlow, uint32 Entry, uint32 vehId, uint32 team, const CreatureData *data = NULL);
         bool InitEntry(uint32 entry, uint32 team=ALLIANCE, const CreatureData* data=NULL);
 
         // vendor items
@@ -770,7 +748,6 @@ class TRINITY_DLL_SPEC Creature : public Unit
         bool m_gossipOptionLoaded;
         GossipOptionList m_goptions;
 
-        uint32 m_summonMask;
         ReactStates m_reactState;                           // for AI, not charmInfo
         void RegenerateMana();
         void RegenerateHealth();

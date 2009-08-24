@@ -81,8 +81,8 @@ static bool procPrepared = InitTriggerAuraData();
 Unit::Unit()
 : WorldObject(), i_motionMaster(this), m_ThreatManager(this), m_HostilRefManager(this)
 , m_NotifyListPos(-1), m_Notified(false), IsAIEnabled(false), NeedChangeAI(false)
-, i_AI(NULL), i_disabledAI(NULL), m_removedAurasCount(0), m_Vehicle(NULL), m_transport(NULL)
-, m_ControlledByPlayer(false), m_procDeep(0)
+, i_AI(NULL), i_disabledAI(NULL), m_removedAurasCount(0), m_vehicle(NULL), m_transport(NULL)
+, m_ControlledByPlayer(false), m_procDeep(0), m_unitTypeMask(UNIT_MASK_NONE), m_vehicleKit(NULL)
 {
     m_objectType |= TYPEMASK_UNIT;
     m_objectTypeId = TYPEID_UNIT;
@@ -192,6 +192,7 @@ Unit::~Unit()
     _DeleteAuras();
 
     if(m_charmInfo) delete m_charmInfo;
+    if(m_vehicleKit) delete m_vehicleKit;
 
     assert(!m_attacking);
     assert(m_attackers.empty());
@@ -430,16 +431,16 @@ void Unit::SendMonsterMoveByPath(Path const& path, uint32 start, uint32 end)
     addUnitState(UNIT_STAT_MOVE);
 }
 
-void Unit::SendMonsterMoveTransport(Vehicle *vehicle)
+void Unit::SendMonsterMoveTransport(Unit *vehicleOwner)
 {
-    WorldPacket data(SMSG_MONSTER_MOVE_TRANSPORT, GetPackGUID().size()+vehicle->GetPackGUID().size());
+    WorldPacket data(SMSG_MONSTER_MOVE_TRANSPORT, GetPackGUID().size()+vehicleOwner->GetPackGUID().size());
     data.append(GetPackGUID());
-    data.append(vehicle->GetPackGUID());
+    data.append(vehicleOwner->GetPackGUID());
     data << int8(GetTransSeat());
     data << uint8(0);
-    data << GetPositionX() - vehicle->GetPositionX();
-    data << GetPositionY() - vehicle->GetPositionY();
-    data << GetPositionZ() - vehicle->GetPositionZ();
+    data << GetPositionX() - vehicleOwner->GetPositionX();
+    data << GetPositionY() - vehicleOwner->GetPositionY();
+    data << GetPositionZ() - vehicleOwner->GetPositionZ();
     data << uint32(getMSTime());
     data << uint8(4);
     data << GetTransOffsetO();
@@ -8502,7 +8503,7 @@ Minion *Unit::GetFirstMinion() const
     if(uint64 pet_guid = GetMinionGUID())
     {
         if(Creature* pet = ObjectAccessor::GetCreatureOrPetOrVehicle(*this, pet_guid))
-            if(pet->HasSummonMask(SUMMON_MASK_MINION))
+            if(pet->HasUnitTypeMask(UNIT_MASK_MINION))
                 return (Minion*)pet;
 
         sLog.outError("Unit::GetFirstMinion: Minion %u not exist.",GUID_LOPART(pet_guid));
@@ -8517,7 +8518,7 @@ Guardian* Unit::GetGuardianPet() const
     if(uint64 pet_guid = GetPetGUID())
     {
         if(Creature* pet = ObjectAccessor::GetCreatureOrPetOrVehicle(*this, pet_guid))
-            if(pet->HasSummonMask(SUMMON_MASK_GUARDIAN))
+            if(pet->HasUnitTypeMask(UNIT_MASK_GUARDIAN))
                 return (Guardian*)pet;
 
         sLog.outError("Unit::GetGuardianPet: Guardian %u not exist.",GUID_LOPART(pet_guid));
@@ -8584,7 +8585,7 @@ void Unit::SetMinion(Minion *minion, bool apply)
             }
         }
 
-        if(minion->HasSummonMask(SUMMON_MASK_GUARDIAN))
+        if(minion->HasUnitTypeMask(UNIT_MASK_GUARDIAN))
         {
             if(AddUInt64Value(UNIT_FIELD_SUMMON, minion->GetGUID()))
             {
@@ -8597,7 +8598,7 @@ void Unit::SetMinion(Minion *minion, bool apply)
         minion->SetByteValue(UNIT_FIELD_BYTES_2, 1, GetByteValue(UNIT_FIELD_BYTES_2, 1));
 
         // FIXME: hack, speed must be set only at follow
-        if(GetTypeId() == TYPEID_PLAYER && minion->HasSummonMask(SUMMON_MASK_PET))
+        if(GetTypeId() == TYPEID_PLAYER && minion->HasUnitTypeMask(UNIT_MASK_PET))
             for(uint8 i = 0; i < MAX_MOVE_TYPE; ++i)
                 minion->SetSpeed(UnitMoveType(i), m_speed_rate[i], true);
 
@@ -8643,7 +8644,7 @@ void Unit::SetMinion(Minion *minion, bool apply)
             }
         }
 
-        //if(minion->HasSummonMask(SUMMON_MASK_GUARDIAN))
+        //if(minion->HasUnitTypeMask(UNIT_MASK_GUARDIAN))
         {
             if(RemoveUInt64Value(UNIT_FIELD_SUMMON, minion->GetGUID()))
             {
@@ -8664,13 +8665,13 @@ void Unit::SetMinion(Minion *minion, bool apply)
                     }
                     assert((*itr)->GetTypeId() == TYPEID_UNIT);
 
-                    if(!((Creature*)(*itr))->HasSummonMask(SUMMON_MASK_CONTROLABLE_GUARDIAN))
+                    if(!((Creature*)(*itr))->HasUnitTypeMask(UNIT_MASK_CONTROLABLE_GUARDIAN))
                         continue;
 
                     if(AddUInt64Value(UNIT_FIELD_SUMMON, (*itr)->GetGUID()))
                     {
                         //show another pet bar if there is no charm bar
-                        if(GetTypeId() == TYPEID_PLAYER && !GetCharmGUID() && ((Creature*)(*itr))->HasSummonMask(SUMMON_MASK_CONTROLABLE_GUARDIAN))
+                        if(GetTypeId() == TYPEID_PLAYER && !GetCharmGUID() && ((Creature*)(*itr))->HasUnitTypeMask(UNIT_MASK_CONTROLABLE_GUARDIAN))
                         {
                             if(((Creature*)(*itr))->isPet())
                                 ((Player*)this)->PetSpellInitialize();
@@ -8761,7 +8762,7 @@ void Unit::SetCharm(Unit* charm, bool apply)
             sLog.outCrash("Unit %u is being uncharmed, but it has another charmer %u", charm->GetEntry(), charm->GetCharmerGUID());
 
         if(charm->GetTypeId() == TYPEID_PLAYER
-            || !((Creature*)charm)->HasSummonMask(SUMMON_MASK_MINION)
+            || !((Creature*)charm)->HasUnitTypeMask(UNIT_MASK_MINION)
             || charm->GetOwnerGUID() != GetGUID())
             m_Controlled.erase(charm);
     }
@@ -8865,7 +8866,7 @@ void Unit::RemoveAllControlled()
         }
         else if(target->GetOwnerGUID() == GetGUID()
             && target->GetTypeId() == TYPEID_UNIT
-            && ((Creature*)target)->HasSummonMask(SUMMON_MASK_SUMMON))
+            && ((Creature*)target)->HasUnitTypeMask(UNIT_MASK_SUMMON))
         {
             ((TempSummon*)target)->UnSummon();
         }
@@ -9303,7 +9304,7 @@ uint32 Unit::SpellDamageBonus(Unit *pVictim, SpellEntry const *spellProto, uint3
     int32 TakenAdvertisedBenefit = SpellBaseDamageBonusForVictim(GetSpellSchoolMask(spellProto), pVictim);
     // Pets just add their bonus damage to their spell damage
     // note that their spell damage is just gain of their own auras
-    if (GetTypeId() == TYPEID_UNIT && ((Creature*)this)->HasSummonMask(SUMMON_MASK_GUARDIAN))
+    if (HasUnitTypeMask(UNIT_MASK_GUARDIAN))
         DoneAdvertisedBenefit += ((Guardian*)this)->GetBonusDamage();
 
     // Check for table values
@@ -10599,8 +10600,8 @@ bool Unit::canAttack(Unit const* target, bool force) const
     if(target->GetVisibility() == VISIBILITY_GROUP_STEALTH && !canDetectStealthOf(target, GetDistance(target)))
         return false;
 
-    if(m_Vehicle)
-        if(target == m_Vehicle || m_Vehicle->m_Vehicle && target == m_Vehicle->m_Vehicle)
+    if(m_vehicle)
+        if(IsOnVehicle(target) || m_vehicle->GetBase()->IsOnVehicle(target)) 
             return false;
 
     return true;
@@ -10891,9 +10892,8 @@ void Unit::UpdateSpeed(UnitMoveType mtype, bool forced)
             non_stack_bonus = (100.0 + GetMaxPositiveAuraModifier(SPELL_AURA_MOD_FLIGHT_SPEED_NOT_STACK))/100.0f;
 
             // Update speed for vehicle if avalible
-            if (GetTypeId()==TYPEID_PLAYER)
-                if (Unit * vehicle = ((Player*)this)->m_Vehicle)
-                    vehicle->UpdateSpeed(MOVE_FLIGHT, true);
+            if (GetTypeId()==TYPEID_PLAYER && GetVehicle())
+                GetVehicleBase()->UpdateSpeed(MOVE_FLIGHT, true);
             break;
         }
         default:
@@ -11095,12 +11095,14 @@ void Unit::setDeathState(DeathState s)
         ClearDiminishings();
         GetMotionMaster()->Clear(false);
         GetMotionMaster()->MoveIdle();
+        if(m_vehicleKit) m_vehicleKit->Die();
         //without this when removing IncreaseMaxHealth aura player may stuck with 1 hp
         //do not why since in IncreaseMaxHealth currenthealth is checked
         SetHealth(0);
     }
     else if(s == JUST_ALIVED)
     {
+        if(m_vehicleKit) m_vehicleKit->Reset();
         RemoveFlag (UNIT_FIELD_FLAGS, UNIT_FLAG_SKINNABLE); // clear skinnable for creature and player (at battleground)
     }
 
@@ -11133,11 +11135,11 @@ bool Unit::CanHaveThreatList() const
         return false;
 
     // vehicles can not have threat list
-    //if( ((Creature*)this)->isVehicle() )
+    //if( ((Creature*)this)->IsVehicle() )
     //    return false;
 
     // summons can not have a threat list, unless they are controlled by a creature
-    if( ((Creature*)this)->HasSummonMask(SUMMON_MASK_MINION | SUMMON_MASK_GUARDIAN | SUMMON_MASK_CONTROLABLE_GUARDIAN) && IS_PLAYER_GUID(((Pet*)this)->GetOwnerGUID()) )
+    if( HasUnitTypeMask(UNIT_MASK_MINION | UNIT_MASK_GUARDIAN | UNIT_MASK_CONTROLABLE_GUARDIAN) && IS_PLAYER_GUID(((Pet*)this)->GetOwnerGUID()) )
         return false;
 
     return true;
@@ -11322,11 +11324,12 @@ Unit* Creature::SelectVictim()
     // Note: creature not have targeted movement generator but have attacker in this case
     for(AttackerSet::const_iterator itr = m_attackers.begin(); itr != m_attackers.end(); ++itr)
     {
-        if(canCreatureAttack(*itr) && ((*itr)->GetTypeId() != TYPEID_PLAYER && (!((Creature*)(*itr))->HasSummonMask(SUMMON_MASK_CONTROLABLE_GUARDIAN))))
+        if(canCreatureAttack(*itr) && ((*itr)->GetTypeId() != TYPEID_PLAYER && (!((Creature*)(*itr))->HasUnitTypeMask(UNIT_MASK_CONTROLABLE_GUARDIAN))))
             return NULL;
     }
 
-    if(m_Vehicle)
+    // TODO: a vehicle may eat some mob, so mob should not evade
+    if(GetVehicle())
         return NULL;
 
     // search nearby enemy before enter evade mode
@@ -12120,6 +12123,8 @@ void Unit::AddToWorld()
         assert(m_NotifyListPos < 0); //instance : crash
         //m_NotifyListPos = -1;
         SetToNotify();
+        if(IsVehicle())
+            GetVehicleKit()->Install();
     }
 }
 
@@ -12130,6 +12135,9 @@ void Unit::RemoveFromWorld()
 
     if(IsInWorld())
     {
+        if(IsVehicle())
+            GetVehicleKit()->Uninstall();
+
         RemoveCharmAuras();
         RemoveBindSightAuras();
         RemoveNotOwnSingleTargetAuras();
@@ -12191,7 +12199,7 @@ void Unit::UpdateCharmAI()
         if(isCharmed())
         {
             i_disabledAI = i_AI;
-            if(isPossessed() || ((Creature*)this)->isVehicle())
+            if(isPossessed() || IsVehicle())
                 i_AI = new PossessedAI((Creature*)this);
             else
                 i_AI = new PetAI((Creature*)this);
@@ -13847,7 +13855,7 @@ void Unit::SetControlled(bool apply, UnitState state)
         {
             case UNIT_STAT_STUNNED: if(HasAuraType(SPELL_AURA_MOD_STUN))    return;
                                     else    SetStunned(false);    break;
-            case UNIT_STAT_ROOT:    if(HasAuraType(SPELL_AURA_MOD_ROOT) || m_Vehicle)    return;
+            case UNIT_STAT_ROOT:    if(HasAuraType(SPELL_AURA_MOD_ROOT) || GetVehicle())    return;
                                     else    SetRooted(false);     break;
             case UNIT_STAT_CONFUSED:if(HasAuraType(SPELL_AURA_MOD_CONFUSE)) return;
                                     else    SetConfused(false);   break;
@@ -14000,7 +14008,7 @@ bool Unit::SetCharmedBy(Unit* charmer, CharmType type)
         return false;
 
     assert(type != CHARM_TYPE_POSSESS || charmer->GetTypeId() == TYPEID_PLAYER);
-    assert(type != CHARM_TYPE_VEHICLE || GetTypeId() == TYPEID_UNIT && ((Creature*)this)->isVehicle());
+    assert(type != CHARM_TYPE_VEHICLE || GetTypeId() == TYPEID_UNIT && IsVehicle());
 
     sLog.outDebug("SetCharmedBy: charmer %u, charmed %u, type %u.", charmer->GetEntry(), GetEntry(), (uint32)type);
 
@@ -14128,7 +14136,7 @@ void Unit::RemoveCharmedBy(Unit *charmer)
     CharmType type;
     if(hasUnitState(UNIT_STAT_POSSESSED))
         type = CHARM_TYPE_POSSESS;
-    else if(this == charmer->m_Vehicle)
+    else if(charmer->IsOnVehicle(this))
         type = CHARM_TYPE_VEHICLE;
     else
         type = CHARM_TYPE_CHARM;
@@ -14169,7 +14177,7 @@ void Unit::RemoveCharmedBy(Unit *charmer)
         return;
 
     assert(type != CHARM_TYPE_POSSESS || charmer->GetTypeId() == TYPEID_PLAYER);
-    assert(type != CHARM_TYPE_VEHICLE || GetTypeId() == TYPEID_UNIT && ((Creature*)this)->isVehicle());
+    assert(type != CHARM_TYPE_VEHICLE || GetTypeId() == TYPEID_UNIT && IsVehicle());
 
     charmer->SetCharm(this, false);
 
@@ -14219,7 +14227,7 @@ void Unit::RestoreFaction()
         ((Player*)this)->setFactionForRace(getRace());
     else
     {
-        if(((Creature*)this)->HasSummonMask(SUMMON_MASK_MINION))
+        if(HasUnitTypeMask(UNIT_MASK_MINION))
         {
             if(Unit* owner = GetOwner())
             {
@@ -14231,6 +14239,31 @@ void Unit::RestoreFaction()
         if(CreatureInfo const *cinfo = ((Creature*)this)->GetCreatureInfo())  // normal creature
             setFaction(cinfo->faction_A);
     }
+}
+
+bool Unit::CreateVehicleKit(uint32 id)
+{
+    VehicleEntry const *vehInfo = sVehicleStore.LookupEntry(id);
+    if(!vehInfo)
+        return false;
+
+    m_vehicleKit = new Vehicle(this, vehInfo);
+    m_updateFlag |= UPDATEFLAG_VEHICLE;
+    m_unitTypeMask |= UNIT_MASK_VEHICLE;
+    return true;
+}
+
+Unit *Unit::GetVehicleBase() const
+{
+    return m_vehicle ? m_vehicle->GetBase() : NULL;
+}
+
+Creature *Unit::GetVehicleCreatureBase() const
+{
+    Unit *veh = GetVehicleBase();
+    if(veh->GetTypeId() == TYPEID_UNIT)
+        return (Creature*)veh;
+    return NULL;
 }
 
 bool Unit::IsInPartyWith(Unit const *unit) const
@@ -14619,23 +14652,23 @@ void Unit::JumpTo(WorldObject *obj, float speedZ)
 
 void Unit::EnterVehicle(Vehicle *vehicle, int8 seatId)
 {
-    if(!isAlive() || this == vehicle)
+    if(!isAlive() || GetVehicleKit() == vehicle)
         return;
 
-    if(m_Vehicle)
+    if(m_vehicle)
     {
-        if(m_Vehicle == vehicle)
+        if(m_vehicle == vehicle)
         {
             if(seatId >= 0)
             {
-                sLog.outDebug("EnterVehicle: %u leave vehicle %u seat %d and enter %d.", GetEntry(), m_Vehicle->GetEntry(), GetTransSeat(), seatId);
+                sLog.outDebug("EnterVehicle: %u leave vehicle %u seat %d and enter %d.", GetEntry(), m_vehicle->GetBase()->GetEntry(), GetTransSeat(), seatId);
                 ChangeSeat(seatId);
             }
             return;
         }
         else
         {
-            sLog.outDebug("EnterVehicle: %u exit %u and enter %u.", GetEntry(), m_Vehicle->GetEntry(), vehicle->GetEntry());
+            sLog.outDebug("EnterVehicle: %u exit %u and enter %u.", GetEntry(), m_vehicle->GetBase()->GetEntry(), vehicle->GetBase()->GetEntry());
             ExitVehicle();
         }
     }
@@ -14646,11 +14679,11 @@ void Unit::EnterVehicle(Vehicle *vehicle, int8 seatId)
         ((Player*)this)->StopCastingBindSight();
     }
 
-    assert(!m_Vehicle);
-    m_Vehicle = vehicle;
-    if(!m_Vehicle->AddPassenger(this, seatId))
+    assert(!m_vehicle);
+    m_vehicle = vehicle;
+    if(!m_vehicle->AddPassenger(this, seatId))
     {
-        m_Vehicle = NULL;
+        m_vehicle = NULL;
         return;
     }
 
@@ -14668,35 +14701,35 @@ void Unit::EnterVehicle(Vehicle *vehicle, int8 seatId)
 
 void Unit::ChangeSeat(int8 seatId, bool next)
 {
-    if(!m_Vehicle)
+    if(!m_vehicle)
         return;
 
     if(seatId < 0)
     {
-        seatId = m_Vehicle->GetNextEmptySeat(GetTransSeat(), next);
+        seatId = m_vehicle->GetNextEmptySeat(GetTransSeat(), next);
         if(seatId < 0)
             return;
     }
-    else if(seatId == GetTransSeat() || !m_Vehicle->HasEmptySeat(seatId))
+    else if(seatId == GetTransSeat() || !m_vehicle->HasEmptySeat(seatId))
         return;
 
-    m_Vehicle->RemovePassenger(this);
-    if(!m_Vehicle->AddPassenger(this, seatId))
+    m_vehicle->RemovePassenger(this);
+    if(!m_vehicle->AddPassenger(this, seatId))
         assert(false);
 }
 
 void Unit::ExitVehicle()
 {
-    if(!m_Vehicle)
+    if(!m_vehicle)
         return;
 
     //sLog.outError("exit vehicle");
 
-    m_Vehicle->RemovePassenger(this);
+    m_vehicle->RemovePassenger(this);
 
     // This should be done before dismiss, because there may be some aura removal
-    Vehicle *vehicle = m_Vehicle;
-    m_Vehicle = NULL;
+    Vehicle *vehicle = m_vehicle;
+    m_vehicle = NULL;
 
     SetControlled(false, UNIT_STAT_ROOT);
 
@@ -14708,7 +14741,7 @@ void Unit::ExitVehicle()
     m_movementInfo.t_time = 0;
     m_movementInfo.t_seat = 0;
 
-    Relocate(vehicle->GetPositionX(), vehicle->GetPositionY(), vehicle->GetPositionZ(), GetOrientation());
+    Relocate(vehicle->GetBase());
 
     //Send leave vehicle, not correct
     if(GetTypeId() == TYPEID_PLAYER)
@@ -14721,7 +14754,7 @@ void Unit::ExitVehicle()
     BuildHeartBeatMsg(&data);
     SendMessageToSet(&data, false);
 
-    if(vehicle->GetOwnerGUID() == GetGUID())
+    if(vehicle->GetBase()->GetOwnerGUID() == GetGUID())
         vehicle->Dismiss();
 }
 
@@ -14755,8 +14788,8 @@ void Unit::BuildMovementPacket(ByteBuffer *data) const
     // 0x00000200
     if(GetUnitMovementFlags() & MOVEMENTFLAG_ONTRANSPORT)
     {
-        if(m_Vehicle)
-            data->append(m_Vehicle->GetPackGUID());
+        if(m_vehicle)
+            data->append(m_vehicle->GetBase()->GetPackGUID());
         else if(GetTransport())
             data->append(GetTransport()->GetPackGUID());
         else

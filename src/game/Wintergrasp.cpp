@@ -369,8 +369,8 @@ void OPvPWintergrasp::OnCreatureCreate(Creature *creature, bool add)
                     {
                         if(CanBuildVehicle(workshop))
                         {
-                            m_vehicles[team].insert((Vehicle*)creature);
-                            //workshop->m_vehicles.insert((Vehicle*)creature);
+                            m_vehicles[team].insert(creature);
+                            //workshop->m_vehicles.insert(creature);
                         }
                         else
                         {
@@ -382,8 +382,8 @@ void OPvPWintergrasp::OnCreatureCreate(Creature *creature, bool add)
                     // TODO: now you have to wait until the corpse of vehicle disappear to build a new one
                     else
                     {
-                        m_vehicles[team].erase((Vehicle*)creature);
-                        //if(!workshop->m_vehicles.erase((Vehicle*)creature))
+                        m_vehicles[team].erase(creature);
+                        //if(!workshop->m_vehicles.erase(creature))
                         //    sLog.outError("OPvPWintergrasp::OnCreatureCreate: a vehicle is removed but it does not have record in workshop!");
                     }
                 }
@@ -587,8 +587,8 @@ void OPvPWintergrasp::HandlePlayerLeaveZone(Player * plr, uint32 zone)
 {
     if(!plr->GetSession()->PlayerLogout())
     {
-        if(plr->m_Vehicle) // dismiss in change zone case
-            plr->m_Vehicle->Dismiss();
+        if(plr->GetVehicle()) // dismiss in change zone case
+            plr->GetVehicle()->Dismiss();
         REMOVE_RANK_AURAS(plr);
     }
     plr->RemoveAura(SPELL_TENACITY);
@@ -687,7 +687,7 @@ void OPvPWintergrasp::UpdateTenacityStack()
         if(newStack < 0) newStack = -newStack;
         for(PlayerSet::iterator itr = m_players[team].begin(); itr != m_players[team].end(); ++itr)
             (*itr)->SetAuraStack(SPELL_TENACITY, *itr, newStack);
-        for(VehicleSet::iterator itr = m_vehicles[team].begin(); itr != m_vehicles[team].end(); ++itr)
+        for(CreatureSet::iterator itr = m_vehicles[team].begin(); itr != m_vehicles[team].end(); ++itr)
             (*itr)->SetAuraStack(SPELL_TENACITY_VEHICLE, *itr, newStack);
     }
 }
@@ -695,10 +695,10 @@ void OPvPWintergrasp::UpdateTenacityStack()
 void OPvPWintergrasp::VehicleCastSpell(TeamId team, int32 spellId) const
 {
     if(spellId > 0)
-        for(VehicleSet::const_iterator itr = m_vehicles[team].begin(); itr != m_vehicles[team].end(); ++itr)
+        for(CreatureSet::const_iterator itr = m_vehicles[team].begin(); itr != m_vehicles[team].end(); ++itr)
             (*itr)->CastSpell(*itr, (uint32)spellId, true);
     else
-        for(VehicleSet::const_iterator itr = m_vehicles[team].begin(); itr != m_vehicles[team].end(); ++itr)
+        for(CreatureSet::const_iterator itr = m_vehicles[team].begin(); itr != m_vehicles[team].end(); ++itr)
             (*itr)->RemoveAura((uint32)-spellId); // by stack?
 }
 
@@ -808,7 +808,7 @@ void OPvPWintergrasp::EndBattle()
         // destroyed all vehicles
         while(!m_vehicles[team].empty())
         {
-            Vehicle *veh = *m_vehicles[team].begin();
+            Creature *veh = *m_vehicles[team].begin();
             m_vehicles[team].erase(m_vehicles[team].begin());
             veh->CastSpell(veh, SPELL_SHUTDOWN_VEHICLE, true);
         }

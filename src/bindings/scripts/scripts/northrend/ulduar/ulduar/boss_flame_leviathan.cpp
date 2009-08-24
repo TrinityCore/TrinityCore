@@ -37,6 +37,15 @@
 
 #define SPELL_BLAZE             62292
 
+#define SPELL_SMOKE_TRAIL       63575
+
+enum Mobs
+{
+    MOB_MECHANOLIFT = 33214,
+    MOB_LIQUID      = 33189,
+    MOB_CONTAINER   = 33218,
+};
+
 enum Events
 {
     EVENT_PURSUE = 1,
@@ -53,11 +62,13 @@ enum Seats
 
 struct TRINITY_DLL_DECL boss_flame_leviathanAI : public BossAI
 {
-    boss_flame_leviathanAI(Creature *c) : BossAI(c, BOSS_LEVIATHAN)
+    boss_flame_leviathanAI(Creature *c) : BossAI(c, BOSS_LEVIATHAN), vehicle(me->GetVehicleKit())
     {
-        assert(c->isVehicle());
+        assert(vehicle);
         me->SetReactState(REACT_DEFENSIVE);
     }
+
+    Vehicle *vehicle;
 
     void EnterCombat(Unit *who)
     {
@@ -65,7 +76,7 @@ struct TRINITY_DLL_DECL boss_flame_leviathanAI : public BossAI
         events.ScheduleEvent(EVENT_PURSUE, 0);
         events.ScheduleEvent(EVENT_MISSILE, 1500);
         events.ScheduleEvent(EVENT_VENT, 20000);
-        if (Creature *turret = CAST_CRE(CAST_VEH(me)->GetPassenger(7)))
+        if (Creature *turret = CAST_CRE(vehicle->GetPassenger(7)))
             turret->AI()->DoZoneInCombat();
     }
 
@@ -79,7 +90,25 @@ struct TRINITY_DLL_DECL boss_flame_leviathanAI : public BossAI
     void SpellHit(Unit *caster, const SpellEntry *spell)
     {
         if(spell->Id == 62472)
-            CAST_VEH(me)->InstallAllAccessories();
+            vehicle->InstallAllAccessories();
+    }
+
+    void JustSummoned(Creature *summon)
+    {
+        if(summon->GetEntry() == MOB_MECHANOLIFT)
+        {
+            summons.Summon(summon);
+        }
+    }
+
+    void SummonedCreatureDespawn(Creature *summon)
+    {
+        if(summon->GetEntry() == MOB_MECHANOLIFT)
+        {
+            summons.Despawn(summon);
+            if(Creature* container = DoSummon(MOB_CONTAINER, summon, 0, 0))
+                container->GetMotionMaster()->MovePoint(1, container->GetPositionX(), container->GetPositionY(), me->GetPositionZ());
+        }
     }
 
     void UpdateAI(const uint32 diff)
@@ -92,6 +121,10 @@ struct TRINITY_DLL_DECL boss_flame_leviathanAI : public BossAI
             EnterEvadeMode();
             return;
         }
+
+        if(summons.size() < 4)
+            if(Creature *lift = DoSummonFlyer(MOB_MECHANOLIFT, me, 50, rand()%20 + 20, 0))
+                lift->GetMotionMaster()->MoveRandom(100);
 
         events.Update(diff);
 
@@ -182,39 +215,45 @@ struct TRINITY_DLL_DECL boss_flame_leviathan_turretAI : public ScriptedAI
     }
 };
 
+//#define BOSS_DEBUG
 
 struct TRINITY_DLL_DECL boss_flame_leviathan_seatAI : public PassiveAI
 {
-    boss_flame_leviathan_seatAI(Creature *c) : PassiveAI(c)
+    boss_flame_leviathan_seatAI(Creature *c) : PassiveAI(c), vehicle(c->GetVehicleKit())
     {
-        assert(c->isVehicle());
+        assert(vehicle);
         if (const CreatureInfo *cInfo = me->GetCreatureInfo())
             me->SetDisplayId(cInfo->DisplayID_A[0]); // 0 invisible, 1 visible
-        //me->SetReactState(REACT_AGGRESSIVE);
+#ifdef BOSS_DEBUG
+        me->SetReactState(REACT_AGGRESSIVE);
+#endif
     }
 
-    /*
+    Vehicle *vehicle;
+
+#ifdef BOSS_DEBUG
     void MoveInLineOfSight(Unit *who)
     {
         if(who->GetTypeId() == TYPEID_PLAYER && CAST_PLR(who)->isGameMaster()
-            && !who->m_Vehicle && CAST_VEH(me)->GetPassenger(SEAT_TURRET))
-            who->EnterVehicle((Vehicle*)me, 0);
+            && !who->GetVehicle() && vehicle->GetPassenger(SEAT_TURRET))
+            who->EnterVehicle(vehicle, SEAT_PLAYER);
     }
-    */
+#endif
 
     void PassengerBoarded(Unit *who, int8 seatId)
     {
-        if(!me->m_Vehicle)
+        if(!me->GetVehicle())
             return;
 
         if(seatId == SEAT_PLAYER)
         {
-            if(Unit *turret = CAST_VEH(me)->GetPassenger(SEAT_TURRET))
+            if(Creature *turret = CAST_CRE(vehicle->GetPassenger(SEAT_TURRET)))
             {
-                turret->setFaction(me->m_Vehicle->getFaction());
+                turret->setFaction(me->GetVehicleBase()->getFaction());
                 turret->SetUInt32Value(UNIT_FIELD_FLAGS, 0); // unselectable
+                turret->AI()->AttackStart(who);
             }
-            if(Unit *device = CAST_VEH(me)->GetPassenger(SEAT_DEVICE))
+            if(Unit *device = vehicle->GetPassenger(SEAT_DEVICE))
             {
                 device->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
                 device->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
@@ -226,7 +265,7 @@ struct TRINITY_DLL_DECL boss_flame_leviathan_seatAI : public PassiveAI
     {
         if(seatId == SEAT_TURRET)
         {
-            if(Unit *device = CAST_VEH(me)->GetPassenger(SEAT_DEVICE))
+            if(Unit *device = vehicle->GetPassenger(SEAT_DEVICE))
             {
                 device->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
                 device->SetUInt32Value(UNIT_FIELD_FLAGS, 0); // unselectable
@@ -243,7 +282,7 @@ struct TRINITY_DLL_DECL boss_flame_leviathan_defense_turretAI : public ScriptedA
 
     void DamageTaken(Unit *who, uint32 &damage)
     {
-        if (!who->m_Vehicle || who->m_Vehicle->GetEntry() != 33114)
+        if (!who->GetVehicle() || who->GetVehicleBase()->GetEntry() != 33114)
             damage = 0;
     }
 
@@ -252,7 +291,7 @@ struct TRINITY_DLL_DECL boss_flame_leviathan_defense_turretAI : public ScriptedA
         if (me->getVictim())
             return;
 
-        if (who->GetTypeId() != TYPEID_PLAYER || !who->m_Vehicle || who->m_Vehicle->GetEntry() != 33114)
+        if (who->GetTypeId() != TYPEID_PLAYER || !who->GetVehicle() || who->GetVehicleBase()->GetEntry() != 33114)
             return;
 
         AttackStart(who);
@@ -296,9 +335,16 @@ struct TRINITY_DLL_DECL boss_flame_leviathan_overload_deviceAI : public PassiveA
         {
             me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-            if(me->m_Vehicle)
-                if(Unit *player = me->m_Vehicle->GetPassenger(SEAT_PLAYER))
+            if(me->GetVehicle())
+            {
+                if(Unit *player = me->GetVehicle()->GetPassenger(SEAT_PLAYER))
+                {
                     player->ExitVehicle();
+                    me->GetVehicleBase()->CastSpell(player, SPELL_SMOKE_TRAIL, true);
+                    if(Unit *leviathan = me->GetVehicleBase()->GetVehicleBase())
+                        player->GetMotionMaster()->MoveKnockbackFrom(leviathan->GetPositionX(), leviathan->GetPositionY(), 30, 30);
+                }
+            }                    
         }
     }
 };
