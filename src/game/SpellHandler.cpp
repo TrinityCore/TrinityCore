@@ -292,7 +292,10 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& recvPacket)
     // ignore for remote control state (for player case)
     Unit* mover = _player->m_mover;
     if(mover != _player && mover->GetTypeId()==TYPEID_PLAYER)
+    {
+        recvPacket.rpos(recvPacket.wpos());                 // prevent spam at ignore packet
         return;
+    }
 
     sLog.outDebug("WORLD: got cast spell packet, spellId - %u, cast_count: %u, unk_flags %u, data length = %i",
         spellId, cast_count, unk_flags, (uint32)recvPacket.size());
@@ -302,6 +305,7 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& recvPacket)
     if(!spellInfo)
     {
         sLog.outError("WORLD: unknown spell id %u", spellId);
+        recvPacket.rpos(recvPacket.wpos());                 // prevent spam at ignore packet
         return;
     }
 
@@ -311,6 +315,7 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& recvPacket)
         if (!((Player*)mover)->HasActiveSpell (spellId) || IsPassiveSpell(spellId) )
         {
             //cheater? kick? ban?
+            recvPacket.rpos(recvPacket.wpos());                 // prevent spam at ignore packet
             return;
         }
     }
@@ -320,6 +325,7 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& recvPacket)
         if (!((Creature*)mover)->HasSpell(spellId) || IsPassiveSpell(spellId) )
         {
             //cheater? kick? ban?
+            recvPacket.rpos(recvPacket.wpos());                 // prevent spam at ignore packet
             return;
         }
     }
@@ -337,7 +343,21 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& recvPacket)
     // client provided targets
     SpellCastTargets targets;
     if(!targets.read(&recvPacket,mover))
+    {
+        recvPacket.rpos(recvPacket.wpos());                 // prevent spam at ignore packet
         return;
+    }
+
+    // some spell cast packet including more data (for projectiles?)
+    if (unk_flags & 0x02)
+    {
+        //recvPacket.read_skip<float>();                      // unk1, coords?
+        //recvPacket.read_skip<float>();                      // unk1, coords?
+        recvPacket.read_skip<uint8>();                      // >> 1
+        recvPacket.read_skip<uint32>();                     // >> MSG_MOVE_STOP
+        MovementInfo movementInfo;
+        ReadMovementInfo(recvPacket, &movementInfo);
+    }
 
     // auto-selection buff level base at target level (in spellInfo)
     if(targets.getUnitTarget())
