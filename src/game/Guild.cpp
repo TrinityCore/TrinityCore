@@ -95,7 +95,7 @@ bool Guild::Create(Player* leader, std::string gname)
     // CharacterDatabase.PExecute("DELETE FROM guild WHERE guildid='%u'", Id); - MAX(guildid)+1 not exist
     CharacterDatabase.PExecute("DELETE FROM guild_member WHERE guildid='%u'", m_Id);
     CharacterDatabase.PExecute("INSERT INTO guild (guildid,name,leaderguid,info,motd,createdate,EmblemStyle,EmblemColor,BorderStyle,BorderColor,BackgroundColor,BankMoney) "
-        "VALUES('%u','%s','%u', '%s', '%s', NOW(),'%u','%u','%u','%u','%u','" UI64FMTD "')",
+        "VALUES('%u','%s','%u', '%s', '%s', UNIX_TIMESTAMP(NOW()),'%u','%u','%u','%u','%u','" UI64FMTD "')",
         m_Id, gname.c_str(), GUID_LOPART(m_LeaderGuid), dbGINFO.c_str(), dbMOTD.c_str(), m_EmblemStyle, m_EmblemColor, m_BorderStyle, m_BorderColor, m_BackgroundColor, m_GuildBankMoney);
     CharacterDatabase.CommitTransaction();
 
@@ -157,7 +157,6 @@ bool Guild::AddMember(uint64 plGuid, uint32 plRank)
         newmember.Class  = fields[3].GetUInt32();
         delete result;
         if(newmember.level < 1 || newmember.level > STRONG_MAX_LEVEL
-            || !newmember.zoneId
             || newmember.Class < CLASS_WARRIOR || newmember.Class >= MAX_CLASSES)
         {
             sLog.outError("Player (GUID: %u) has a broken data in field `characters` table, cannot add him to guild.",GUID_LOPART(plGuid));
@@ -215,11 +214,11 @@ bool Guild::LoadGuildFromDB(uint32 GuildId)
     //set m_Id in case guild data are broken in DB and Guild will be Disbanded (deleted from DB)
     m_Id = GuildId;
 
-    QueryResult *result = CharacterDatabase.PQuery("SELECT MAX(TabId) FROM guild_bank_tab WHERE guildid='%u'", GuildId);
+    QueryResult *result = CharacterDatabase.PQuery("SELECT COUNT(TabId) FROM guild_bank_tab WHERE guildid='%u'", GuildId);
     if(result)
     {
         Field *fields = result->Fetch();
-        m_PurchasedTabs = fields[0].GetUInt8() + 1;         // Because TabId begins at 0
+        m_PurchasedTabs = fields[0].GetUInt32();
         if (m_PurchasedTabs > GUILD_BANK_MAX_TABS)
             m_PurchasedTabs = GUILD_BANK_MAX_TABS;
         delete result;
@@ -233,9 +232,9 @@ bool Guild::LoadGuildFromDB(uint32 GuildId)
 
     LoadBankRightsFromDB(GuildId);                          // Must be after LoadRanksFromDB because it populates rank struct
 
-    //                                        0        1     2           3            4            5           6
-    result = CharacterDatabase.PQuery("SELECT guildid, name, leaderguid, EmblemStyle, EmblemColor, BorderStyle, BorderColor,"
-    //   7                8     9     10          11
+    //                                                     0     1           2            3            4            5
+    result = CharacterDatabase.PQuery("SELECT name, leaderguid, EmblemStyle, EmblemColor, BorderStyle, BorderColor,"
+    //   6                7     8     9           10
         "BackgroundColor, info, motd, createdate, BankMoney FROM guild WHERE guildid = '%u'", GuildId);
 
     if(!result)
@@ -243,32 +242,34 @@ bool Guild::LoadGuildFromDB(uint32 GuildId)
 
     Field *fields = result->Fetch();
 
-    m_Id = fields[0].GetUInt32();
-    m_Name = fields[1].GetCppString();
-    m_LeaderGuid  = MAKE_NEW_GUID(fields[2].GetUInt32(), 0, HIGHGUID_PLAYER);
+    m_Name = fields[0].GetCppString();
+    m_LeaderGuid  = MAKE_NEW_GUID(fields[1].GetUInt32(), 0, HIGHGUID_PLAYER);
 
-    m_EmblemStyle = fields[3].GetUInt32();
-    m_EmblemColor = fields[4].GetUInt32();
-    m_BorderStyle = fields[5].GetUInt32();
-    m_BorderColor = fields[6].GetUInt32();
-    m_BackgroundColor = fields[7].GetUInt32();
-    GINFO = fields[8].GetCppString();
-    MOTD = fields[9].GetCppString();
-    uint64 time = fields[10].GetUInt64();                   //datetime is uint64 type ... YYYYmmdd:hh:mm:ss
-    m_GuildBankMoney = fields[11].GetUInt64();
+    m_EmblemStyle = fields[2].GetUInt32();
+    m_EmblemColor = fields[3].GetUInt32();
+    m_BorderStyle = fields[4].GetUInt32();
+    m_BorderColor = fields[5].GetUInt32();
+    m_BackgroundColor = fields[6].GetUInt32();
+    GINFO = fields[7].GetCppString();
+    MOTD = fields[8].GetCppString();
+    time_t time = fields[9].GetUInt64();
+    m_GuildBankMoney = fields[10].GetUInt64();
 
     delete result;
 
-    uint64 dTime = time /1000000;
-    m_CreatedDay   = dTime%100;
-    m_CreatedMonth = (dTime/100)%100;
-    m_CreatedYear  = (dTime/10000)%10000;
+    if (time > 0)
+    {
+        tm local = *(localtime(&time));                     // dereference and assign
+        m_CreatedDay   = local.tm_mday;
+        m_CreatedMonth = local.tm_mon + 1;
+        m_CreatedYear  = local.tm_year + 1900;
+    }
 
     // Repair the structure of guild
-    // If the guildmaster does not exist attempt to promote another member
-    // or guildmaster isn't present in guild
+    // If the guildmaster doesn't exist or isn't the member of guild
+    // attempt to promote another member
     int32 GM_rights = GetRank(GUID_LOPART(m_LeaderGuid));
-    if(!objmgr.GetPlayerAccountIdByGUID(m_LeaderGuid) || GM_rights == -1)
+    if(GM_rights == -1)
     {
         DelMember(m_LeaderGuid);
         // check no members case (disbanded)
@@ -395,6 +396,7 @@ bool Guild::LoadMembersFromDB(uint32 GuildId)
         newmember.Class                 = fields[21].GetUInt32();
         newmember.logout_time           = fields[22].GetUInt64();
 
+        //this code will remove unexisting character guids from guild
         if(newmember.level < 1 || newmember.level > STRONG_MAX_LEVEL) // can be at broken `data` field
         {
             sLog.outError("Player (GUID: %u) has a broken data in field `characters`.`data`, deleting him from guild!",GUID_LOPART(guid));
