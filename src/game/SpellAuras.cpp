@@ -851,6 +851,7 @@ void AreaAuraEffect::Update(uint32 diff)
 
 void PersistentAreaAuraEffect::Update(uint32 diff)
 {
+    /*
     if(Unit *caster = GetParentAura()->GetCaster())
     {
         if(DynamicObject *dynObj = caster->GetDynObject(GetId(), GetEffIndex()))
@@ -860,6 +861,15 @@ void PersistentAreaAuraEffect::Update(uint32 diff)
                 AuraEffect::Update(diff);
                 return;
             }
+        }
+    }
+    */
+    if(DynamicObject *dynObj = GetSource())
+    {
+        if(m_target->IsWithinDistInMap(dynObj, dynObj->GetRadius()))
+        {
+            AuraEffect::Update(diff);
+            return;
         }
     }
 
