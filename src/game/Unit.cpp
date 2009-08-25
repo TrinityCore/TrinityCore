@@ -14744,6 +14744,8 @@ void Unit::EnterVehicle(Vehicle *vehicle, int8 seatId)
     {
         ((Player*)this)->StopCastingCharm();
         ((Player*)this)->StopCastingBindSight();
+        ((Player*)this)->Unmount();
+        ((Player*)this)->RemoveAurasByType(SPELL_AURA_MOUNTED);
     }
 
     assert(!m_vehicle);
