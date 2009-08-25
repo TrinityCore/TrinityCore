@@ -38,8 +38,6 @@ Corpse::Corpse(CorpseType type) : WorldObject()
 
     m_valuesCount = CORPSE_END;
 
-    m_mapId = 0;
-
     m_time = time(NULL);
 
     lootForBody = false;
@@ -193,6 +191,7 @@ bool Corpse::LoadFromDB(uint32 guid, Field *fields)
     float positionY = fields[1].GetFloat();
     float positionZ = fields[2].GetFloat();
     float ort       = fields[3].GetFloat();
+    uint32 mapid    = fields[4].GetUInt32();
 
     Object::_Create(guid, 0, HIGHGUID_CORPSE);
 
@@ -201,9 +200,6 @@ bool Corpse::LoadFromDB(uint32 guid, Field *fields)
         sLog.outError("Corpse #%d have broken data in `data` field. Can't be loaded.",guid);
         return false;
     }
-
-    SetMapId(fields[4].GetUInt32());
-    SetInstanceId(fields[8].GetUInt32());
 
     m_time = time_t(fields[6].GetUInt64());
     m_type = CorpseType(fields[7].GetUInt32());
@@ -217,11 +213,16 @@ bool Corpse::LoadFromDB(uint32 guid, Field *fields)
     if(m_type != CORPSE_BONES)
         m_isWorldObject = true;
 
+    uint32 instanceid  = fields[8].GetUInt32();
+
     uint32 phaseMask   = fields[9].GetUInt32();
 
     // overwrite possible wrong/corrupted guid
     SetUInt64Value(OBJECT_FIELD_GUID, MAKE_NEW_GUID(guid, 0, HIGHGUID_CORPSE));
 
+    // place
+    SetLocationInstanceId(instanceid);
+    SetLocationMapId(mapid);
     SetPhaseMask(phaseMask, false);
     Relocate(positionX, positionY, positionZ, ort);
 

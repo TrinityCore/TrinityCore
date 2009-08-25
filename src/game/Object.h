@@ -439,8 +439,8 @@ class TRINITY_DLL_SPEC WorldObject : public Object
 
         void GetRandomPoint( float x, float y, float z, float distance, float &rand_x, float &rand_y, float &rand_z ) const;
 
-        virtual uint32 GetMapId() const { return m_currMap ? m_currMap->GetId() : 0; }
-        virtual uint32 GetInstanceId() const { return m_currMap ? m_currMap->GetInstanceId() : 0; }
+        uint32 GetMapId() const { return m_mapId; }
+        uint32 GetInstanceId() const { return m_InstanceId; }
 
         virtual void SetPhaseMask(uint32 newPhaseMask, bool update);
         uint32 GetPhaseMask() const { return m_phaseMask; }
@@ -578,8 +578,17 @@ class TRINITY_DLL_SPEC WorldObject : public Object
         bool m_isActive;
         ZoneScript *m_zoneScript;
 
+        //these functions are used mostly for Relocate() and Corpse/Player specific stuff...
+        //use them ONLY in LoadFromDB()/Create() funcs and nowhere else!
+        //mapId/instanceId should be set in SetMap() function!
+        void SetLocationMapId(uint32 _mapId) { m_mapId = _mapId; }
+        void SetLocationInstanceId(uint32 _instanceId) { m_InstanceId = _instanceId; }
+
     private:
         Map * m_currMap;                                    //current object's Map location
+
+        uint32 m_mapId;                                     // object at map with map_id
+        uint32 m_InstanceId;                                // in map copy with instance id
         uint32 m_phaseMask;                                 // in area phase state
 
         float m_positionX;
