@@ -60,31 +60,21 @@ void MapInstanced::Update(const uint32& t)
     }
 }
 
-void MapInstanced::MoveAllCreaturesInMoveList()
+void MapInstanced::DelayedUpdate(const uint32 diff)
 {
     for (InstancedMaps::iterator i = m_InstancedMaps.begin(); i != m_InstancedMaps.end(); ++i)
-    {
-        i->second->MoveAllCreaturesInMoveList();
-    }
+        i->second->DelayedUpdate(diff);
 
-    Map::MoveAllCreaturesInMoveList();
+    Map::DelayedUpdate(diff); // this may be removed
 }
 
-void MapInstanced::RemoveAllObjectsInRemoveList()
-{
-    for (InstancedMaps::iterator i = m_InstancedMaps.begin(); i != m_InstancedMaps.end(); ++i)
-    {
-        i->second->RemoveAllObjectsInRemoveList();
-    }
-
-    Map::RemoveAllObjectsInRemoveList();
-}
-
+/*
 void MapInstanced::RelocationNotify()
 {
     for (InstancedMaps::iterator i = m_InstancedMaps.begin(); i != m_InstancedMaps.end(); ++i)
         i->second->RelocationNotify();
 }
+*/
 
 bool MapInstanced::RemoveBones(uint64 guid, float x, float y)
 {
