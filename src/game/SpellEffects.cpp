@@ -6376,6 +6376,14 @@ void Spell::EffectKnockBack(uint32 i)
             return;
     }
 
+    float ratio = m_caster->GetCombatReach() / unitTarget->GetCombatReach();
+    ratio = ratio * ratio * ratio; // volume = length^3
+    ratio *= 0.1f; // dbc value
+    float speedxy = float(m_spellInfo->EffectMiscValue[i]) * ratio;
+    float speedz = float(damage) * ratio;
+    if(speedxy < 0.1f && speedz < 0.1f)
+        return;
+
     float x, y;
     if(m_targets.m_targetMask & TARGET_FLAG_DEST_LOCATION)
     {
@@ -6387,9 +6395,6 @@ void Spell::EffectKnockBack(uint32 i)
         x = m_caster->GetPositionX();
         y = m_caster->GetPositionY();
     }
-
-    float speedxy = float(m_spellInfo->EffectMiscValue[i])/10;
-    float speedz = float(damage/10);
 
     unitTarget->KnockbackFrom(x, y, speedxy, speedz);
 }
