@@ -666,7 +666,7 @@ struct TRINITY_DLL_DECL mob_enchanted_elementalAI : public ScriptedAI
                                 continue;
                             eff_mask|=1<<i;
                         }
-                        Vashj->AddAura(new Aura(spell, eff_mask, NULL, Vashj, Vashj));
+                        Vashj->AddAura(new Aura(spell, eff_mask, Vashj, Vashj, Vashj));
                     }
                     m_creature->DealDamage(m_creature, m_creature->GetMaxHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
                 }

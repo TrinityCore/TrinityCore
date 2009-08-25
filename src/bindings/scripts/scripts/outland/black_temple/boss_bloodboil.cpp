@@ -168,7 +168,7 @@ struct TRINITY_DLL_DECL boss_gurtogg_bloodboilAI : public ScriptedAI
                     if (eff>=TOTAL_SPELL_EFFECTS)
                         continue;
 
-                    Aura *Aur = new Aura(spellInfo, i, NULL, target);
+                    Aura *Aur = new Aura(spellInfo, i, target, target, target);
                     target->AddAura(Aur);
                 }
             }

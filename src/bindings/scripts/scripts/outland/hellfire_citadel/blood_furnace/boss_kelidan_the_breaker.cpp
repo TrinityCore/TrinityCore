@@ -248,7 +248,7 @@ struct TRINITY_DLL_DECL boss_kelidan_the_breakerAI : public ScriptedAI
                         continue;
                     eff_mask|=1<<i;
                 }
-                m_creature->AddAura(new Aura(nova, eff_mask, NULL, m_creature, m_creature));
+                m_creature->AddAura(new Aura(nova, eff_mask, me, me, me));
             }
 
             if (HeroicMode)

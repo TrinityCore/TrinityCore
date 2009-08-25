@@ -515,7 +515,7 @@ struct TRINITY_DLL_DECL boss_leotheras_the_blindAI : public ScriptedAI
                                     continue;
                                 eff_mask|=1<<i;
                             }
-                            (*itr)->AddAura(new Aura(spell, eff_mask, NULL, (*itr), (*itr)));
+                            (*itr)->AddAura(new Aura(spell, eff_mask, *itr, *itr, *itr));
                             if (InnderDemon_Count > 4) InnderDemon_Count = 0;
 
                             //Safe storing of creatures
