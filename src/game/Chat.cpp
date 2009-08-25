@@ -36,16 +36,21 @@
 #include "UpdateMask.h"
 
 // Supported shift-links (client generated and server side)
+// |color|Hachievement:achievement_id:player_guid:0:0:0:0:0:0:0:0|h[name]|h|r
+//                                                                        - client, item icon shift click, not used in server currently
 // |color|Harea:area_id|h[name]|h|r
 // |color|Hcreature:creature_guid|h[name]|h|r
 // |color|Hcreature_entry:creature_id|h[name]|h|r
+// |color|Henchant:recipe_spell_id|h[prof_name: recipe_name]|h|r          - client, at shift click in recipes list dialog
 // |color|Hgameevent:id|h[name]|h|r
 // |color|Hgameobject:go_guid|h[name]|h|r
 // |color|Hgameobject_entry:go_id|h[name]|h|r
-// |color|Hitem:item_id:perm_ench_id:0:0|h[name]|h|r
+// |color|Hglyph:glyph_slot_id:glyph_prop_id|h[%s]|h|r                    - client, at shift click in glyphs dialog, GlyphSlot.dbc, GlyphProperties.dbc
+// |color|Hitem:item_id:perm_ench_id:gem1:gem2:gem3:0:0:0:reporter_level|h[name]|h|r
+//                                                                        - client, item icon shift click
 // |color|Hitemset:itemset_id|h[name]|h|r
 // |color|Hplayer:name|h[name]|h|r                                        - client, in some messages, at click copy only name instead link
-// |color|Hquest:quest_id|h[name]|h|r
+// |color|Hquest:quest_id:quest_level|h[name]|h|r                         - client, quest list name shift-click
 // |color|Hskill:skill_id|h[name]|h|r
 // |color|Hspell:spell_id|h[name]|h|r                                     - client, spellbook spell icon shift-click
 // |color|Htalent:talent_id,rank|h[name]|h|r                              - client, talent icon shift-click
@@ -1480,9 +1485,11 @@ GameObject* ChatHandler::GetObjectGlobalyWithGuidOrNearWithDbGuid(uint32 lowguid
 
 enum SpellLinkType
 {
-    SPELL_LINK_SPELL  = 0,
-    SPELL_LINK_TALENT = 1,
-    SPELL_LINK_TRADE  = 2
+    SPELL_LINK_SPELL   = 0,
+    SPELL_LINK_TALENT  = 1,
+    SPELL_LINK_TRADE   = 2,
+    SPELL_LINK_ENCHANT = 3,
+    SPELL_LINK_GLYPH   = 4
 };
 
 static char const* const spellKeys[] =
@@ -1490,11 +1497,15 @@ static char const* const spellKeys[] =
     "Hspell",                                               // normal spell
     "Htalent",                                              // talent spell
     "Htrade",                                               // profession/skill spell
+    "Henchant",                                             // enchanting recipe spell
+    "Hglyph",                                               // glyph
     0
 };
 
 uint32 ChatHandler::extractSpellIdFromLink(char* text)
 {
+    // number or [name] Shift-click form |color|Henchant:recipe_spell_id|h[prof_name: recipe_name]|h|r
+    // number or [name] Shift-click form |color|Hglyph:glyph_slot_id:glyph_prop_id|h[%s]|h|r
     // number or [name] Shift-click form |color|Hspell:spell_id|h[name]|h|r
     // number or [name] Shift-click form |color|Htalent:talent_id,rank|h[name]|h|r
     // number or [name] Shift-click form |color|Htrade:spell_id,skill_id,max_value,cur_value|h[name]|h|r
@@ -1527,7 +1538,18 @@ uint32 ChatHandler::extractSpellIdFromLink(char* text)
             return talentEntry->RankID[rank];
         }
         case SPELL_LINK_TRADE:
+        case SPELL_LINK_ENCHANT:
             return id;
+        case SPELL_LINK_GLYPH:
+        {
+            uint32 glyph_prop_id = param1_str ? (uint32)atol(param1_str) : 0;
+
+            GlyphPropertiesEntry const* glyphPropEntry = sGlyphPropertiesStore.LookupEntry(glyph_prop_id);
+            if(!glyphPropEntry)
+                return 0;
+
+            return glyphPropEntry->SpellId;
+        }
     }
 
     // unknown type?
