@@ -1793,6 +1793,9 @@ bool Aura::CanBeSaved() const
     if (IsPassive())
         return false;
 
+    if(IsPersistent())
+        return false;
+
     if (GetCasterGUID() != m_target->GetGUID())
         if (IsSingleTargetSpell(GetSpellProto()) || IsAreaAura())
             return false;
