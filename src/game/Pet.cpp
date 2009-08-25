@@ -1189,7 +1189,7 @@ void Pet::_LoadAuras(uint32 timediff)
             else
                 remaincharges = 0;
 
-            Aura* aura = new Aura(spellproto, effmask, NULL, this, NULL, NULL);
+            Aura* aura = new Aura(spellproto, effmask, this, this, this);
             aura->SetLoadedState(caster_guid,maxduration,remaintime,remaincharges, stackcount, &damage[0]);
             if(!aura->CanBeSaved())
             {

@@ -1362,22 +1362,23 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit *unit, const uint32 effectMask, bool 
             }
         }
 
-        Unit * caster = m_originalCaster ? m_originalCaster : m_caster;
-        Aura * Aur = new Aura(aurSpellInfo, aura_effmask, basePoints, unit, m_caster, caster, m_CastItem);
+        if(m_originalCaster)
+        {
+            Aura *Aur = new Aura(aurSpellInfo, aura_effmask, unit, m_caster, m_originalCaster, basePoints, m_CastItem);
 
         if (!Aur->IsAreaAura())
         {
             // Now Reduce spell duration using data received at spell hit
             int32 duration = Aur->GetAuraMaxDuration();
             int32 limitduration = GetDiminishingReturnsLimitDuration(m_diminishGroup,aurSpellInfo);
-            unitTarget->ApplyDiminishingToDuration(m_diminishGroup, duration, caster, m_diminishLevel,limitduration);
+            unitTarget->ApplyDiminishingToDuration(m_diminishGroup, duration, m_originalCaster, m_diminishLevel,limitduration);
             Aur->setDiminishGroup(m_diminishGroup);
 
-            duration = caster->ModSpellDuration(aurSpellInfo, unit, duration, Aur->IsPositive());
+            duration = m_originalCaster->ModSpellDuration(aurSpellInfo, unit, duration, Aur->IsPositive());
 
             //mod duration of channeled aura by spell haste
             if (IsChanneledSpell(m_spellInfo))
-                caster->ModSpellCastTime(aurSpellInfo, duration, this);
+                m_originalCaster->ModSpellCastTime(aurSpellInfo, duration, this);
 
             if(duration != Aur->GetAuraMaxDuration())
             {
@@ -1395,6 +1396,8 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit *unit, const uint32 effectMask, bool 
         // Set aura only when successfully applied
         if (unit->AddAura(Aur, false))
             m_spellAura = Aur;
+
+        }
     }
 
     for(uint32 effectNumber = 0; effectNumber < 3; ++effectNumber)

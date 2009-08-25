@@ -4382,7 +4382,7 @@ bool ChatHandler::HandleAuraCommand(const char* args)
                 eff_mask|=1<<i;
             }
         }
-        Aura *Aur = new Aura(spellInfo, eff_mask, NULL, target);
+        Aura *Aur = new Aura(spellInfo, eff_mask, target, target, target);
         target->AddAura(Aur);
     }
 
@@ -7352,7 +7352,7 @@ bool ChatHandler::HandleFreezeCommand(const char *args)
 
         //m_session->GetPlayer()->CastSpell(player,spellID,false);
         SpellEntry const *spellInfo = sSpellStore.LookupEntry( 9454 );
-        Aura *Aur = new Aura(spellInfo, 1, NULL, player);
+        Aura *Aur = new Aura(spellInfo, 1, player, player, player);
         player->AddAura(Aur);
 
         //save player

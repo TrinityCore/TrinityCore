@@ -1363,7 +1363,7 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
         void AddAura(uint32 spellId, Unit *target);
         void SetAuraStack(uint32 spellId, Unit *target, uint32 stack);
         void HandleAuraEffect(AuraEffect * aureff, bool apply);
-        Aura *AddAuraEffect(const SpellEntry * spellInfo, uint8 effIndex, Unit* caster, int32 * basePoints=NULL, Unit * source=NULL);
+        Aura *AddAuraEffect(const SpellEntry *spellInfo, uint8 effIndex, WorldObject *source, Unit *caster, int32 *basePoints = NULL);
 
         bool IsDamageToThreatSpell(SpellEntry const * spellInfo) const;
 
