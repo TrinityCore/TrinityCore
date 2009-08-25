@@ -148,7 +148,7 @@ enum GuildBankRights
     GUILD_BANK_RIGHT_FULL           = 0xFF,
 };
 
-enum GuildBankLogEntries
+enum GuildBankEventLogTypes
 {
     GUILD_BANK_LOG_DEPOSIT_ITEM     = 1,
     GUILD_BANK_LOG_WITHDRAW_ITEM    = 2,
@@ -161,7 +161,7 @@ enum GuildBankLogEntries
     GUILD_BANK_LOG_UNK2             = 9,
 };
 
-enum GuildEventLogEntryTypes
+enum GuildEventLogTypes
 {
     GUILD_EVENT_LOG_INVITE_PLAYER     = 1,
     GUILD_EVENT_LOG_JOIN_GUILD        = 2,
@@ -169,16 +169,6 @@ enum GuildEventLogEntryTypes
     GUILD_EVENT_LOG_DEMOTE_PLAYER     = 4,
     GUILD_EVENT_LOG_UNINVITE_PLAYER   = 5,
     GUILD_EVENT_LOG_LEAVE_GUILD       = 6,
-};
-
-struct GuildEventlogEntry
-{
-    uint32 LogGuid;
-    uint8  EventType;
-    uint32 PlayerGuid1;
-    uint32 PlayerGuid2;
-    uint8  NewRank;
-    uint64 TimeStamp;
 };
 
 enum GuildEmblem
@@ -207,11 +197,18 @@ inline uint32 GetGuildBankTabPrice(uint8 Index)
     return 0;
 }
 
-struct GuildBankEvent
+struct GuildEventLogEntry
 {
-    uint32 LogGuid;
-    uint8  LogEntry;
-    uint8  TabId;
+    uint8  EventType;
+    uint32 PlayerGuid1;
+    uint32 PlayerGuid2;
+    uint8  NewRank;
+    uint64 TimeStamp;
+};
+
+struct GuildBankEventLogEntry
+{
+    uint8  EventType;
     uint32 PlayerGuid;
     uint32 ItemOrMoney;
     uint8  ItemStackCount;
@@ -220,9 +217,9 @@ struct GuildBankEvent
 
     const bool isMoneyEvent()
     {
-        return LogEntry == GUILD_BANK_LOG_DEPOSIT_MONEY ||
-            LogEntry == GUILD_BANK_LOG_WITHDRAW_MONEY ||
-            LogEntry == GUILD_BANK_LOG_REPAIR_MONEY;
+        return EventType == GUILD_BANK_LOG_DEPOSIT_MONEY ||
+            EventType == GUILD_BANK_LOG_WITHDRAW_MONEY ||
+            EventType == GUILD_BANK_LOG_REPAIR_MONEY;
     }
 };
 
@@ -285,27 +282,27 @@ class Guild
         Guild();
         ~Guild();
 
-        bool create(Player* leader, std::string gname);
+        bool Create(Player* leader, std::string gname);
         void Disband();
 
         typedef std::map<uint32, MemberSlot> MemberList;
         typedef std::vector<RankInfo> RankList;
 
-        uint32 GetId(){ return Id; }
-        const uint64& GetLeader(){ return leaderGuid; }
-        std::string GetName(){ return name; }
+        uint32 GetId(){ return m_Id; }
+        const uint64& GetLeader(){ return m_LeaderGuid; }
+        std::string GetName(){ return m_Name; }
         std::string GetMOTD(){ return MOTD; }
         std::string GetGINFO(){ return GINFO; }
 
-        uint32 GetCreatedYear(){ return CreatedYear; }
-        uint32 GetCreatedMonth(){ return CreatedMonth; }
-        uint32 GetCreatedDay(){ return CreatedDay; }
+        uint32 GetCreatedYear(){ return m_CreatedYear; }
+        uint32 GetCreatedMonth(){ return m_CreatedMonth; }
+        uint32 GetCreatedDay(){ return m_CreatedDay; }
 
-        uint32 GetEmblemStyle(){ return EmblemStyle; }
-        uint32 GetEmblemColor(){ return EmblemColor; }
-        uint32 GetBorderStyle(){ return BorderStyle; }
-        uint32 GetBorderColor(){ return BorderColor; }
-        uint32 GetBackgroundColor(){ return BackgroundColor; }
+        uint32 GetEmblemStyle(){ return m_EmblemStyle; }
+        uint32 GetEmblemColor(){ return m_EmblemColor; }
+        uint32 GetBorderStyle(){ return m_BorderStyle; }
+        uint32 GetBorderColor(){ return m_BorderColor; }
+        uint32 GetBackgroundColor(){ return m_BackgroundColor; }
 
         void SetLeader(uint64 guid);
         bool AddMember(uint64 plGuid, uint32 plRank);
@@ -315,8 +312,8 @@ class Guild
 
         void SetMOTD(std::string motd);
         void SetGINFO(std::string ginfo);
-        void SetPNOTE(uint64 guid,std::string pnote);
-        void SetOFFNOTE(uint64 guid,std::string offnote);
+        void SetPNOTE(uint64 guid, std::string pnote);
+        void SetOFFNOTE(uint64 guid, std::string offnote);
         void SetEmblem(uint32 emblemStyle, uint32 emblemColor, uint32 borderStyle, uint32 borderColor, uint32 backgroundColor);
 
         uint32 GetMemberSize() const { return members.size(); }
@@ -346,7 +343,7 @@ class Guild
         void DelRank();
         std::string GetRankName(uint32 rankId);
         uint32 GetRankRights(uint32 rankId);
-        uint32 GetNrRanks() const { return m_ranks.size(); }
+        uint32 GetNrRanks() const { return m_Ranks.size(); }
 
         void SetRankName(uint32 rankId, std::string name);
         void SetRankRights(uint32 rankId, uint32 rights);
@@ -375,13 +372,12 @@ class Guild
         void Roster(WorldSession *session);
         void Query(WorldSession *session);
 
-        void UpdateLogoutTime(uint64 guid);
-        // Guild eventlog
+        void   UpdateLogoutTime(uint64 guid);
+        // Guild EventLog
         void   LoadGuildEventLogFromDB();
-        void   UnloadGuildEventlog();
-        void   DisplayGuildEventlog(WorldSession *session);
+        void   UnloadGuildEventLog();
+        void   DisplayGuildEventLog(WorldSession *session);
         void   LogGuildEvent(uint8 EventType, uint32 PlayerGuid1, uint32 PlayerGuid2, uint8 NewRank);
-        void   RenumGuildEventlog();
 
         // ** Guild bank **
         // Content & item deposit/withdraw
@@ -403,18 +399,18 @@ class Guild
         void   SetGuildBankTabInfo(uint8 TabId, std::string name, std::string icon);
         void   CreateBankRightForTab(uint32 rankid, uint8 TabId);
         const  GuildBankTab *GetBankTab(uint8 index) { if(index >= m_TabListMap.size()) return NULL; return m_TabListMap[index]; }
-        const  uint8 GetPurchasedTabs() const { return purchased_tabs; }
+        const  uint8  GetPurchasedTabs() const { return m_PurchasedTabs; }
         uint32 GetBankRights(uint32 rankId, uint8 TabId) const;
         bool   IsMemberHaveRights(uint32 LowGuid, uint8 TabId,uint32 rights) const;
         bool   CanMemberViewTab(uint32 LowGuid, uint8 TabId) const;
         // Load/unload
         void   LoadGuildBankFromDB();
         void   UnloadGuildBank();
-        void   IncOnlineMemberCount() { ++m_onlinemembers; }
+        void   IncOnlineMemberCount() { ++m_OnlineMembers; }
         // Money deposit/withdraw
         void   SendMoneyInfo(WorldSession *session, uint32 LowGuid);
         bool   MemberMoneyWithdraw(uint32 amount, uint32 LowGuid);
-        uint64 GetGuildBankMoney() { return guildbank_money; }
+        uint64 GetGuildBankMoney() { return m_GuildBankMoney; }
         void   SetBankMoney(int64 money);
         // per days
         bool   MemberItemWithdraw(uint8 TabId, uint32 LowGuid);
@@ -426,33 +422,32 @@ class Guild
         uint32 GetBankSlotPerDay(uint32 rankId, uint8 TabId);
         // rights per day
         void   LoadBankRightsFromDB(uint32 GuildId);
-        // logs
+        // Guild Bank Event Logs
         void   LoadGuildBankEventLogFromDB();
         void   UnloadGuildBankEventLog();
         void   DisplayGuildBankLogs(WorldSession *session, uint8 TabId);
-        void   LogBankEvent(uint8 LogEntry, uint8 TabId, uint32 PlayerGuidLow, uint32 ItemOrMoney, uint8 ItemStackCount=0, uint8 DestTabId=0);
-        void   RenumBankLogs();
+        void   LogBankEvent(uint8 EventType, uint8 TabId, uint32 PlayerGuidLow, uint32 ItemOrMoney, uint8 ItemStackCount=0, uint8 DestTabId=0);
         bool   AddGBankItemToDB(uint32 GuildId, uint32 BankTab , uint32 BankTabSlot , uint32 GUIDLow, uint32 Entry );
 
     protected:
         void AddRank(const std::string& name,uint32 rights,uint32 money);
 
-        uint32 Id;
-        std::string name;
-        uint64 leaderGuid;
+        uint32 m_Id;
+        std::string m_Name;
+        uint64 m_LeaderGuid;
         std::string MOTD;
         std::string GINFO;
-        uint32 CreatedYear;
-        uint32 CreatedMonth;
-        uint32 CreatedDay;
+        uint32 m_CreatedYear;
+        uint32 m_CreatedMonth;
+        uint32 m_CreatedDay;
 
-        uint32 EmblemStyle;
-        uint32 EmblemColor;
-        uint32 BorderStyle;
-        uint32 BorderColor;
-        uint32 BackgroundColor;
+        uint32 m_EmblemStyle;
+        uint32 m_EmblemColor;
+        uint32 m_BorderStyle;
+        uint32 m_BorderColor;
+        uint32 m_BackgroundColor;
 
-        RankList m_ranks;
+        RankList m_Ranks;
 
         MemberList members;
 
@@ -460,20 +455,22 @@ class Guild
         TabListMap m_TabListMap;
 
         /** These are actually ordered lists. The first element is the oldest entry.*/
-        typedef std::list<GuildEventlogEntry> GuildEventlog;
-        typedef std::list<GuildBankEvent> GuildBankEventLog;
-        GuildEventlog m_GuildEventlog;
+        typedef std::list<GuildEventLogEntry> GuildEventLog;
+        typedef std::list<GuildBankEventLogEntry> GuildBankEventLog;
+        GuildEventLog m_GuildEventLog;
         GuildBankEventLog m_GuildBankEventLog_Money;
         GuildBankEventLog m_GuildBankEventLog_Item[GUILD_BANK_MAX_TABS];
 
-        bool m_bankloaded;
-        bool m_eventlogloaded;
-        uint32 m_onlinemembers;
-        uint64 guildbank_money;
-        uint8 purchased_tabs;
+        uint32 m_GuildEventLogNextGuid;
+        uint32 m_GuildBankEventLogNextGuid_Money;
+        uint32 m_GuildBankEventLogNextGuid_Item[GUILD_BANK_MAX_TABS];
 
-        uint32 LogMaxGuid;
-        uint32 GuildEventlogMaxGuid;
+        bool m_GuildBankLoaded;
+        bool m_EventLogLoaded;
+        uint32 m_OnlineMembers;
+        uint64 m_GuildBankMoney;
+        uint8 m_PurchasedTabs;
+
     private:
         // internal common parts for CanStore/StoreItem functions
         void AppendDisplayGuildBankSlot( WorldPacket& data, GuildBankTab const *tab, int32 slot );

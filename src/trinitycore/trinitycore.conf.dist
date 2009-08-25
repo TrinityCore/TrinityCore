@@ -685,6 +685,18 @@ ChatLogTimestamp = 0
 #        Default: 7
 #                -1 (show all available quests marks)
 #
+#    Guild.EventLogRecordsCount
+#        Count of guild event log records stored in guild_eventlog table
+#        Increase to store more guild events in table, minimum is 100
+#        You can set it to very high value to prevent oldest guild events to be rewritten by latest guild events - but it can slow down performance
+#        Default: 100
+#
+#    Guild.BankEventLogRecordsCount
+#        Count of guild_bank event log records stored in guild_bank_eventlog table
+#        Increase to store more guild_bank events in table - minimum is 25 (GUILD_BANK_MAX_LOGS) for each guild_bank tab
+#        Useful when you don't want old log events to be overwritten by new, but increasing can slow down performance
+#        Default: 25
+#
 #    MaxPrimaryTradeSkill
 #        Max count that player can learn the primary trade skill.
 #        Default: 2
@@ -779,6 +791,8 @@ Instance.ResetTimeHour = 4
 Instance.UnloadDelay = 1800000
 Quests.LowLevelHideDiff = 4
 Quests.HighLevelHideDiff = 7
+Guild.EventLogRecordsCount = 100
+Guild.BankEventLogRecordsCount = 25
 MaxPrimaryTradeSkill = 2
 MinPetitionSigns = 9
 MaxGroupXPDistance = 74
