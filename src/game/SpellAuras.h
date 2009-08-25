@@ -60,10 +60,11 @@ class TRINITY_DLL_SPEC Aura
         uint32 GetId() const{ return m_spellProto->Id; }
         uint64 GetCastItemGUID() const { return m_castItemGuid; }
 
-        uint64 const& GetCasterGUID() const { return m_caster_guid; }
+        uint64 const& GetCasterGUID() const { return m_casterGuid; }
         Unit* GetCaster() const;
+        uint64 const& GetSourceGUID() const { return m_sourceGuid; }
+        Unit *GetUnitSource() const;
         Unit* GetTarget() const { return m_target; }
-        WorldObject *GetSource() const { return m_source; }
         time_t GetAuraApplyTime() const { return m_applyTime; }
 
         int32 GetAuraMaxDuration() const { return m_maxduration; }
@@ -136,8 +137,9 @@ class TRINITY_DLL_SPEC Aura
     private:
         const SpellEntry * const m_spellProto;
         Unit * const m_target;
-        WorldObject * const m_source;
-        const uint64 m_caster_guid;
+        //WorldObject * const m_source;
+        const uint64 m_sourceGuid;
+        const uint64 m_casterGuid;
         const uint64 m_castItemGuid;                              // it is NOT safe to keep a pointer to the item because it may get deleted
         const time_t m_applyTime;
 
@@ -407,7 +409,7 @@ class TRINITY_DLL_SPEC AreaAuraEffect : public AuraEffect
     public:
         friend AuraEffect* CreateAuraEffect(Aura * parentAura, uint32 effIndex, int32 *currentBasePoints);
         void Update(uint32 diff);
-        Unit *GetSource() const;
+        Unit *GetSource() const { return GetParentAura()->GetUnitSource(); }
     protected:
         explicit AreaAuraEffect(Aura * parentAura, uint32 effIndex, int32 *currentBasePoints = NULL);
         float m_radius;

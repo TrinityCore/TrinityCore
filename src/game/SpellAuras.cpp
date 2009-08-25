@@ -353,13 +353,12 @@ pAuraHandler AuraHandler[TOTAL_AURAS]=
 
 Aura::Aura(SpellEntry const* spellproto, uint32 effMask, Unit *target, WorldObject *source, Unit *caster, int32 *currentBasePoints, Item* castItem) :
     m_spellProto(spellproto),
-    m_target(target), m_source(source), m_caster_guid(caster->GetGUID()), m_castItemGuid(castItem ? castItem->GetGUID() : 0),
+    m_target(target), m_sourceGuid(source->GetGUID()), m_casterGuid(caster->GetGUID()), m_castItemGuid(castItem ? castItem->GetGUID() : 0),
     m_applyTime(time(NULL)),
     m_timeCla(0), m_removeMode(AURA_REMOVE_BY_DEFAULT), m_AuraDRGroup(DIMINISHING_NONE),
     m_auraSlot(MAX_AURAS), m_auraLevel(1), m_procCharges(0), m_stackAmount(1), m_isRemoved(false)
 {
     assert(target);
-    assert(source);
     assert(spellproto && spellproto == sSpellStore.LookupEntry( spellproto->Id ) && "`info` must be pointer to sSpellStore element");
 
     m_auraFlags = effMask;
@@ -561,32 +560,38 @@ AreaAuraEffect::AreaAuraEffect(Aura * parentAura, uint32 effIndex, int32 *curren
     }
 }
 
-Unit *AreaAuraEffect::GetSource() const { return dynamic_cast<Unit*>(GetParentAura()->GetSource()); }
-
 PersistentAreaAuraEffect::PersistentAreaAuraEffect(Aura * parentAura, uint32 effIndex, int32 *currentBasePoints)
 : AuraEffect(parentAura, effIndex, currentBasePoints)
 {
     m_isPersistent = true;
 }
 
-DynamicObject *PersistentAreaAuraEffect::GetSource() const { return dynamic_cast<DynamicObject*>(GetParentAura()->GetSource()); }
+DynamicObject *PersistentAreaAuraEffect::GetSource() const
+{
+    uint64 guid = GetParentAura()->GetSourceGUID();
+    if(IS_DYNAMICOBJECT_GUID(guid))
+        return ObjectAccessor::GetObjectInWorld(guid, (DynamicObject*)NULL);
+    return NULL;
+}
 
 AuraEffect* CreateAuraEffect(Aura * parentAura, uint32 effIndex, int32 *currentBasePoints)
 {
     // TODO: source should belong to aura, but not areaeffect. multiple areaaura/persistent aura should use one source
     assert(parentAura);
-    WorldObject *source = parentAura->GetSource();
-    assert(source);
+    uint64 sourceGuid = parentAura->GetSourceGUID();
+    //assert(source);
     if (IsAreaAuraEffect(parentAura->GetSpellProto()->Effect[effIndex]))
     {
-        assert(source->isType(TYPEMASK_UNIT));
+        //assert(source->isType(TYPEMASK_UNIT));
+        assert(IS_UNIT_GUID(sourceGuid));
         return new AreaAuraEffect(parentAura, effIndex, currentBasePoints);
     }
     else if (parentAura->GetSpellProto()->Effect[effIndex] == SPELL_EFFECT_APPLY_AURA)
         return new AuraEffect(parentAura, effIndex, currentBasePoints);
     else if (parentAura->GetSpellProto()->Effect[effIndex] == SPELL_EFFECT_PERSISTENT_AREA_AURA)
     {
-        assert(source->isType(TYPEMASK_DYNAMICOBJECT));
+        //assert(source->isType(TYPEMASK_DYNAMICOBJECT));
+        assert(IS_DYNAMICOBJECT_GUID(sourceGuid));
         return new PersistentAreaAuraEffect(parentAura, effIndex, currentBasePoints);
     }
     return NULL;
@@ -594,13 +599,20 @@ AuraEffect* CreateAuraEffect(Aura * parentAura, uint32 effIndex, int32 *currentB
 
 Unit* Aura::GetCaster() const
 {
-    if(m_caster_guid==m_target->GetGUID())
+    if(m_casterGuid == m_target->GetGUID())
         return m_target;
 
-    //return ObjectAccessor::GetUnit(*m_target,m_caster_guid);
+    //return ObjectAccessor::GetUnit(*m_target,m_casterGuid);
     //must return caster even if it's in another grid/map
-    Unit *unit = ObjectAccessor::GetObjectInWorld(m_caster_guid, (Unit*)NULL);
-    return unit && unit->IsInWorld() ? unit : NULL;
+    return ObjectAccessor::GetObjectInWorld(m_casterGuid, (Unit*)NULL);
+}
+
+Unit* Aura::GetUnitSource() const
+{
+    if(m_sourceGuid == m_target->GetGUID())
+        return m_target;
+
+    return ObjectAccessor::GetObjectInWorld(m_casterGuid, (Unit*)NULL);
 }
 
 void Aura::Update(uint32 diff)
@@ -1819,7 +1831,7 @@ bool Aura::IsAuraType(AuraType type) const
 
 void Aura::SetLoadedState(uint64 caster_guid,int32 maxduration,int32 duration,int32 charges, uint8 stackamount, int32 * amount)
 {
-    *const_cast<uint64*>(&m_caster_guid) = caster_guid;
+    *const_cast<uint64*>(&m_casterGuid) = caster_guid;
     m_maxduration = maxduration;
     m_duration = duration;
     m_procCharges = charges;
@@ -6599,7 +6611,7 @@ void AuraEffect::HandleAuraControlVehicle(bool apply, bool Real, bool /*changeAm
     if(!m_target->IsVehicle())
         return;
 
-    Unit *caster = dynamic_cast<Unit*>(GetParentAura()->GetSource());
+    Unit *caster = GetParentAura()->GetUnitSource();
     if(!caster || caster == m_target)
         return;
 
