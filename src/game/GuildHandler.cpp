@@ -178,6 +178,13 @@ void WorldSession::HandleGuildRemoveOpcode(WorldPacket& recvPacket)
         return;
     }
 
+    //do not allow to kick player with same or higher rights
+    if(GetPlayer()->GetRank() >= slot->RankId)
+    {
+        SendGuildCommandResult(GUILD_QUIT_S, plName, GUILD_RANK_TOO_HIGH_S);
+        return;
+    }
+
     guild->DelMember(plGuid);
     // Put record into guildlog
     guild->LogGuildEvent(GUILD_EVENT_LOG_UNINVITE_PLAYER, GetPlayer()->GetGUIDLow(), GUID_LOPART(plGuid), 0);
@@ -212,7 +219,7 @@ void WorldSession::HandleGuildAcceptOpcode(WorldPacket& /*recvPacket*/)
 
     WorldPacket data(SMSG_GUILD_EVENT, (2+10));             // guess size
     data << (uint8)GE_JOINED;
-    data << (uint8)1;
+    data << (uint8)1;                                       // strings count
     data << player->GetName();
     guild->BroadcastPacket(&data);
 
@@ -299,14 +306,20 @@ void WorldSession::HandleGuildPromoteOpcode(WorldPacket& recvPacket)
         return;
     }
 
-    if(slot->RankId < 2 || (slot->RankId-1) < GetPlayer()->GetRank())
+    //allow to promote only to lower rank than member's rank
+    //guildmaster's rank = 0
+    //GetPlayer()->GetRank() + 1 is highest rank that current player can promote to
+    if(GetPlayer()->GetRank() + 1 >= slot->RankId)
+    {
+        SendGuildCommandResult(GUILD_INVITE_S, plName, GUILD_RANK_TOO_HIGH_S);
         return;
+    }
 
-    uint32 newRankId = slot->RankId < guild->GetNrRanks() ? slot->RankId-1 : guild->GetNrRanks()-1;
+    uint32 newRankId = slot->RankId - 1;                    //when promoting player, rank is decreased
 
     WorldPacket data(SMSG_GUILD_EVENT, (2+30));             // guess size
     data << (uint8)GE_PROMOTION;
-    data << (uint8)3;
+    data << (uint8)3;                                       // strings count
     data << GetPlayer()->GetName();
     data << plName;
     data << guild->GetRankName(newRankId);
@@ -357,16 +370,29 @@ void WorldSession::HandleGuildDemoteOpcode(WorldPacket& recvPacket)
         return;
     }
 
-    if((slot->RankId+1) >= guild->GetNrRanks() || slot->RankId <= GetPlayer()->GetRank())
+    //do not allow to demote same or higher rank
+    if(GetPlayer()->GetRank() >= slot->RankId)
+    {
+        SendGuildCommandResult(GUILD_INVITE_S, plName, GUILD_RANK_TOO_HIGH_S);
         return;
+    }
 
-    guild->ChangeRank(plGuid, (slot->RankId+1));
+    //do not allow to demote lowest rank
+    if(slot->RankId >= guild->GetLowestRank())
+    {
+        SendGuildCommandResult(GUILD_INVITE_S, plName, GUILD_ALREADY_LOWEST_RANK_S);
+        return;
+    }
+
+    uint32 newRankId = slot->RankId + 1;                    //when demoting player, rank is increased
+
+    guild->ChangeRank(plGuid, newRankId);
     // Put record into guildlog
-    guild->LogGuildEvent(GUILD_EVENT_LOG_DEMOTE_PLAYER, GetPlayer()->GetGUIDLow(), GUID_LOPART(plGuid), slot->RankId);
+    guild->LogGuildEvent(GUILD_EVENT_LOG_DEMOTE_PLAYER, GetPlayer()->GetGUIDLow(), GUID_LOPART(plGuid), newRankId);
 
     WorldPacket data(SMSG_GUILD_EVENT, (2+30));             // guess size
     data << (uint8)GE_DEMOTION;
-    data << (uint8)3;
+    data << (uint8)3;                                       // strings count
     data << GetPlayer()->GetName();
     data << plName;
     data << guild->GetRankName(slot->RankId);
@@ -406,7 +432,7 @@ void WorldSession::HandleGuildLeaveOpcode(WorldPacket& /*recvPacket*/)
 
     WorldPacket data(SMSG_GUILD_EVENT, (2+10));             // guess size
     data << (uint8)GE_LEFT;
-    data << (uint8)1;
+    data << (uint8)1;                                       // strings count
     data << plName;
     guild->BroadcastPacket(&data);
 
@@ -480,7 +506,7 @@ void WorldSession::HandleGuildLeaderOpcode(WorldPacket& recvPacket)
 
     WorldPacket data(SMSG_GUILD_EVENT, (2+20));             // guess size
     data << (uint8)GE_LEADER_CHANGED;
-    data << (uint8)2;
+    data << (uint8)2;                                       // strings count
     data << oldLeader->GetName();
     data << name.c_str();
     guild->BroadcastPacket(&data);
@@ -516,7 +542,7 @@ void WorldSession::HandleGuildMOTDOpcode(WorldPacket& recvPacket)
 
     WorldPacket data(SMSG_GUILD_EVENT, (2+MOTD.size()+1));
     data << (uint8)GE_MOTD;
-    data << (uint8)1;
+    data << (uint8)1;                                       // strings count
     data << MOTD;
     guild->BroadcastPacket(&data);
 
@@ -646,7 +672,7 @@ void WorldSession::HandleGuildRankOpcode(WorldPacket& recvPacket)
     guild->SetBankMoneyPerDay(rankId, MoneyPerDay);
     guild->SetRankName(rankId, rankname);
 
-    if(rankId==GR_GUILDMASTER)                              // prevent loss leader rights
+    if (rankId == GR_GUILDMASTER)                           // prevent loss leader rights
         rights = GR_RIGHT_ALL;
 
     guild->SetRankRights(rankId, rights);
@@ -675,7 +701,7 @@ void WorldSession::HandleGuildAddRankOpcode(WorldPacket& recvPacket)
         return;
     }
 
-    if(guild->GetNrRanks() >= GUILD_MAX_RANKS)              // client not let create more 10 than ranks
+    if(guild->GetRanksSize() >= GUILD_RANKS_MAX_COUNT)      // client not let create more 10 than ranks
         return;
 
     recvPacket >> rankname;
@@ -866,6 +892,7 @@ void WorldSession::HandleGuildPermissions( WorldPacket& /* recv_data */ )
                                                             // money per day left
     data << uint32(pGuild->GetMemberMoneyWithdrawRem(GetPlayer()->GetGUIDLow()));
     data << uint8(pGuild->GetPurchasedTabs());              // tabs count
+    // why sending all info when not all tabs are purchased???
     for(int i = 0; i < GUILD_BANK_MAX_TABS; ++i)
     {
         data << uint32(pGuild->GetBankRights(rankId, uint8(i)));
