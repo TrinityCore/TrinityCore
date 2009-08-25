@@ -35,9 +35,8 @@ class TRINITY_DLL_DECL MapInstanced : public Map
 
         // functions overwrite Map versions
         void Update(const uint32&);
-        void MoveAllCreaturesInMoveList();
-        void RemoveAllObjectsInRemoveList();
-        void RelocationNotify();
+        void DelayedUpdate(const uint32 diff);
+        //void RelocationNotify();
         bool RemoveBones(uint64 guid, float x, float y);
         void UnloadAll();
         bool CanEnter(Player* player);

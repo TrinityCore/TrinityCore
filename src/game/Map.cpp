@@ -597,6 +597,13 @@ void Map::Update(const uint32 &t_diff)
             plr->Update(t_diff);
     }
 
+    m_notifyTimer.Update(t_diff);
+    if(m_notifyTimer.Passed())
+    {
+        m_notifyTimer.Reset();
+        RelocationNotify();
+    }
+
     /// update active cells around players and active objects
     resetMarkedCells();
 
@@ -702,30 +709,6 @@ void Map::Update(const uint32 &t_diff)
         }
     }
 
-    MoveAllCreaturesInMoveList();
-    RemoveAllObjectsInRemoveList();
-
-    m_notifyTimer.Update(t_diff);
-    if(m_notifyTimer.Passed())
-    {
-        m_notifyTimer.Reset();
-        RelocationNotify();
-    }
-
-    // Don't unload grids if it's battleground, since we may have manually added GOs,creatures, those doesn't load from DB at grid re-load !
-    // This isn't really bother us, since as soon as we have instanced BG-s, the whole map unloads as the BG gets ended
-    if (!IsBattleGroundOrArena())
-    {
-        for (GridRefManager<NGridType>::iterator i = GridRefManager<NGridType>::begin(); i != GridRefManager<NGridType>::end(); )
-        {
-            NGridType *grid = i->getSource();
-            GridInfo *info = i->getSource()->getGridInfoRef();
-            ++i;                                                // The update might delete the map and we need the next map before the iterator gets invalid
-            assert(grid->GetGridState() >= 0 && grid->GetGridState() < MAX_GRID_STATE);
-            si_GridStates[grid->GetGridState()]->Update(*this, *grid, *info, grid->getX(), grid->getY(), t_diff);
-        }
-    }
-
     ///- Process necessary scripts
     if (!m_scriptSchedule.empty())
     {
@@ -733,6 +716,8 @@ void Map::Update(const uint32 &t_diff)
         ScriptsProcess();
         i_scriptLock = false;
     }
+
+    MoveAllCreaturesInMoveList();
 }
 
 void Map::Remove(Player *player, bool remove)
@@ -2111,11 +2096,24 @@ inline void Map::setNGrid(NGridType *grid, uint32 x, uint32 y)
     i_grids[x][y] = grid;
 }
 
-//void Map::DoDelayedMovesAndRemoves()
-//{
-    //MoveAllCreaturesInMoveList();
-    //RemoveAllObjectsInRemoveList();
-//}
+void Map::DelayedUpdate(const uint32 t_diff)
+{
+    RemoveAllObjectsInRemoveList();
+
+    // Don't unload grids if it's battleground, since we may have manually added GOs,creatures, those doesn't load from DB at grid re-load !
+    // This isn't really bother us, since as soon as we have instanced BG-s, the whole map unloads as the BG gets ended
+    if (!IsBattleGroundOrArena())
+    {
+        for (GridRefManager<NGridType>::iterator i = GridRefManager<NGridType>::begin(); i != GridRefManager<NGridType>::end(); )
+        {
+            NGridType *grid = i->getSource();
+            GridInfo *info = i->getSource()->getGridInfoRef();
+            ++i;                                                // The update might delete the map and we need the next map before the iterator gets invalid
+            assert(grid->GetGridState() >= 0 && grid->GetGridState() < MAX_GRID_STATE);
+            si_GridStates[grid->GetGridState()]->Update(*this, *grid, *info, grid->getX(), grid->getY(), t_diff);
+        }
+    }
+}
 
 void Map::AddObjectToRemoveList(WorldObject *obj)
 {
