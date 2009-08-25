@@ -4652,7 +4652,7 @@ void Unit::SendPeriodicAuraLog(SpellPeriodicAuraLogInfo *pInfo)
             data << uint32(pInfo->overDamage);              // overheal?
             data << uint8(pInfo->critical);                 // new 3.1.2 critical tick
             break;
-        case SPELL_AURA_OBS_MOD_ENERGY:
+        case SPELL_AURA_OBS_MOD_POWER:
         case SPELL_AURA_PERIODIC_ENERGIZE:
             data << uint32(aura->GetMiscValue());           // power type
             data << uint32(pInfo->damage);                  // damage
@@ -12818,7 +12818,7 @@ void Unit::ProcDamageAndSpellFor( bool isVictim, Unit * pTarget, uint32 procFlag
                     }
                     break;
                 }
-                case SPELL_AURA_OBS_MOD_ENERGY:
+                case SPELL_AURA_OBS_MOD_POWER:
                     sLog.outDebug("ProcDamageAndSpell: casting spell id %u (triggered by %s aura of spell %u)", spellInfo->Id,(isVictim?"a victim's":"an attacker's"), triggeredByAura->GetId());
                     if (HandleObsModEnergyAuraProc(pTarget, damage, triggeredByAura, procSpell, procFlag, procExtra, cooldown))
                     {

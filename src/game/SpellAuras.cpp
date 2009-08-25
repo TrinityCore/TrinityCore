@@ -74,7 +74,7 @@ pAuraHandler AuraHandler[TOTAL_AURAS]=
     &Aura::HandleInvisibility,                              // 18 SPELL_AURA_MOD_INVISIBILITY
     &Aura::HandleInvisibilityDetect,                        // 19 SPELL_AURA_MOD_INVISIBILITY_DETECTION
     &Aura::HandleAuraModTotalHealthPercentRegen,            // 20 SPELL_AURA_OBS_MOD_HEALTH
-    &Aura::HandleAuraModTotalEnergyPercentRegen,            // 21 SPELL_AURA_OBS_MOD_ENERGY
+    &Aura::HandleAuraModTotalEnergyPercentRegen,            // 21 SPELL_AURA_OBS_MOD_POWER
     &Aura::HandleAuraModResistance,                         // 22 SPELL_AURA_MOD_RESISTANCE
     &Aura::HandlePeriodicTriggerSpell,                      // 23 SPELL_AURA_PERIODIC_TRIGGER_SPELL
     &Aura::HandlePeriodicEnergize,                          // 24 SPELL_AURA_PERIODIC_ENERGIZE
@@ -6081,7 +6081,7 @@ void AuraEffect::PeriodicTick()
             }
             break;
         }
-        case SPELL_AURA_OBS_MOD_ENERGY:
+        case SPELL_AURA_OBS_MOD_POWER:
         {
             if(GetMiscValue() < 0)
                 return;
