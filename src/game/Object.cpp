@@ -1080,7 +1080,7 @@ bool Object::PrintIndexError(uint32 index, bool set) const
 }
 
 WorldObject::WorldObject()
-    : m_phaseMask(PHASEMASK_NORMAL),
+    : m_mapId(0), m_InstanceId(0), m_phaseMask(PHASEMASK_NORMAL),
     m_positionX(0.0f), m_positionY(0.0f), m_positionZ(0.0f), m_orientation(0.0f), m_currMap(NULL)
     , m_zoneScript(NULL)
     , m_isActive(false), m_isWorldObject(false)
@@ -1713,6 +1713,8 @@ void WorldObject::SetMap(Map * map)
 
     ASSERT(!m_currMap);
     m_currMap = map;
+    m_mapId = map->GetId();
+    m_InstanceId = map->GetInstanceId();
     if(m_isWorldObject)
         m_currMap->AddWorldObject(this);
 }
@@ -1724,6 +1726,8 @@ void WorldObject::ResetMap()
     if(m_isWorldObject)
         m_currMap->RemoveWorldObject(this);
     m_currMap = NULL;
+    m_mapId = 0;
+    m_InstanceId = 0;
 }
 
 Map const* WorldObject::GetBaseMap() const
