@@ -23,7 +23,7 @@
 
 DROP TABLE IF EXISTS `character_db_version`;
 CREATE TABLE `character_db_version` (
-  `required_8402_02_characters_guild_bank_eventlog` bit(1) default NULL
+  `required_8409_01_characters_guild` bit(1) default NULL
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Last applied sql update to DB';
 
 --
@@ -1117,7 +1117,7 @@ CREATE TABLE `guild` (
   `BackgroundColor` int(5) NOT NULL default '0',
   `info` text NOT NULL,
   `motd` varchar(255) NOT NULL default '',
-  `createdate` datetime default NULL,
+  `createdate` bigint(20) NOT NULL default '0',
   `BankMoney` bigint(20) NOT NULL default '0',
   PRIMARY KEY  (`guildid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT='Guild System';
