@@ -46,7 +46,7 @@
 // |color|Hgameobject:go_guid|h[name]|h|r
 // |color|Hgameobject_entry:go_id|h[name]|h|r
 // |color|Hglyph:glyph_slot_id:glyph_prop_id|h[%s]|h|r                    - client, at shift click in glyphs dialog, GlyphSlot.dbc, GlyphProperties.dbc
-// |color|Hitem:item_id:perm_ench_id:gem1:gem2:gem3:0:0:0:reporter_level|h[name]|h|r
+// |color|Hitem:item_id:perm_ench_id:gem1:gem2:gem3:0:0:0:0:reporter_level|h[name]|h|r
 //                                                                        - client, item icon shift click
 // |color|Hitemset:itemset_id|h[name]|h|r
 // |color|Hplayer:name|h[name]|h|r                                        - client, in some messages, at click copy only name instead link
@@ -1487,8 +1487,8 @@ enum SpellLinkType
 {
     SPELL_LINK_SPELL   = 0,
     SPELL_LINK_TALENT  = 1,
-    SPELL_LINK_TRADE   = 2,
-    SPELL_LINK_ENCHANT = 3,
+    SPELL_LINK_ENCHANT = 2,
+    SPELL_LINK_TRADE   = 3,
     SPELL_LINK_GLYPH   = 4
 };
 
@@ -1496,8 +1496,8 @@ static char const* const spellKeys[] =
 {
     "Hspell",                                               // normal spell
     "Htalent",                                              // talent spell
-    "Htrade",                                               // profession/skill spell
     "Henchant",                                             // enchanting recipe spell
+    "Htrade",                                               // profession/skill spell
     "Hglyph",                                               // glyph
     0
 };
@@ -1537,8 +1537,8 @@ uint32 ChatHandler::extractSpellIdFromLink(char* text)
 
             return talentEntry->RankID[rank];
         }
-        case SPELL_LINK_TRADE:
         case SPELL_LINK_ENCHANT:
+        case SPELL_LINK_TRADE:
             return id;
         case SPELL_LINK_GLYPH:
         {
