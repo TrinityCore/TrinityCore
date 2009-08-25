@@ -6214,7 +6214,7 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
             // Light's Beacon - Beacon of Light
             if ( dummySpell->Id == 53651 )
             {
-                if (Unit *source = dynamic_cast<Unit*>(triggeredByAura->GetParentAura()->GetSource()))
+                if (Unit *source = triggeredByAura->GetParentAura()->GetUnitSource())
                 {
                     // do not proc when target of beacon of light is healed
                     if (source == this)
@@ -8877,7 +8877,7 @@ Unit* Unit::SelectMagnetTarget(Unit *victim, SpellEntry const *spellInfo)
 
         Unit::AuraEffectList const& magnetAuras = victim->GetAurasByType(SPELL_AURA_SPELL_MAGNET);
         for(Unit::AuraEffectList::const_iterator itr = magnetAuras.begin(); itr != magnetAuras.end(); ++itr)
-            if(Unit* magnet = dynamic_cast<Unit*>((*itr)->GetParentAura()->GetSource()))
+            if(Unit* magnet = (*itr)->GetParentAura()->GetUnitSource())
                 if(magnet->isAlive())
                     return magnet;
     }
@@ -8886,7 +8886,7 @@ Unit* Unit::SelectMagnetTarget(Unit *victim, SpellEntry const *spellInfo)
     {
         AuraEffectList const& hitTriggerAuras = victim->GetAurasByType(SPELL_AURA_ADD_CASTER_HIT_TRIGGER);
         for(AuraEffectList::const_iterator i = hitTriggerAuras.begin(); i != hitTriggerAuras.end(); ++i)
-            if(Unit* magnet = dynamic_cast<Unit*>((*i)->GetParentAura()->GetSource()))
+            if(Unit* magnet = (*i)->GetParentAura()->GetUnitSource())
                 if(magnet->isAlive() && magnet->IsWithinLOSInMap(this))
                     if(roll_chance_i((*i)->GetAmount()))
                     {
