@@ -1989,6 +1989,418 @@ void Guild::SendGuildBankTabText(WorldSession *session, uint8 TabId)
 
 }
 
+void Guild::SwapItems(Player * pl, uint8 BankTab, uint8 BankTabSlot, uint8 BankTabDst, uint8 BankTabSlotDst, uint32 SplitedAmount )
+{
+    // empty operation
+    if(BankTab==BankTabDst && BankTabSlot==BankTabSlotDst)
+        return;
+
+    Item *pItemSrc = GetItem(BankTab, BankTabSlot);
+    if (!pItemSrc)                                      // may prevent crash
+        return;
+
+    if(SplitedAmount > pItemSrc->GetCount())
+        return;                                         // cheating?
+    else if(SplitedAmount == pItemSrc->GetCount())
+        SplitedAmount = 0;                              // no split
+
+    Item *pItemDst = GetItem(BankTabDst, BankTabSlotDst);
+
+    if(BankTab!=BankTabDst)
+    {
+        // check dest pos rights (if different tabs)
+        if(!IsMemberHaveRights(pl->GetGUIDLow(), BankTabDst, GUILD_BANK_RIGHT_DEPOSIT_ITEM))
+            return;
+
+        // check source pos rights (if different tabs)
+        uint32 remRight = GetMemberSlotWithdrawRem(pl->GetGUIDLow(), BankTab);
+        if(remRight <= 0)
+            return;
+    }
+
+    if (SplitedAmount)
+    {                                                   // Bank -> Bank item split (in empty or non empty slot
+        GuildItemPosCountVec dest;
+        uint8 msg = CanStoreItem(BankTabDst,BankTabSlotDst,dest,SplitedAmount,pItemSrc,false);
+        if( msg != EQUIP_ERR_OK )
+        {
+            pl->SendEquipError( msg, pItemSrc, NULL );
+            return;
+        }
+
+        Item *pNewItem = pItemSrc->CloneItem( SplitedAmount );
+        if( !pNewItem )
+        {
+            pl->SendEquipError( EQUIP_ERR_ITEM_NOT_FOUND, pItemSrc, NULL );
+            return;
+        }
+
+        CharacterDatabase.BeginTransaction();
+        LogBankEvent(GUILD_BANK_LOG_MOVE_ITEM, BankTab, pl->GetGUIDLow(), pItemSrc->GetEntry(), SplitedAmount, BankTabDst);
+
+        pl->ItemRemovedQuestCheck( pItemSrc->GetEntry(), SplitedAmount );
+        pItemSrc->SetCount( pItemSrc->GetCount() - SplitedAmount );
+        pItemSrc->FSetState(ITEM_CHANGED);
+        pItemSrc->SaveToDB();                           // not in inventory and can be save standalone
+        StoreItem(BankTabDst,dest,pNewItem);
+        CharacterDatabase.CommitTransaction();
+    }
+    else                                                // non split
+    {
+        GuildItemPosCountVec gDest;
+        uint8 msg = CanStoreItem(BankTabDst,BankTabSlotDst,gDest,pItemSrc->GetCount(),pItemSrc,false);
+        if( msg == EQUIP_ERR_OK )                       // merge to
+        {
+            CharacterDatabase.BeginTransaction();
+            LogBankEvent(GUILD_BANK_LOG_MOVE_ITEM, BankTab,    pl->GetGUIDLow(), pItemSrc->GetEntry(), pItemSrc->GetCount(), BankTabDst);
+
+            RemoveItem(BankTab, BankTabSlot);
+            StoreItem(BankTabDst, gDest, pItemSrc);
+            CharacterDatabase.CommitTransaction();
+        }
+        else                                            // swap
+        {
+            gDest.clear();
+            msg = CanStoreItem(BankTabDst,BankTabSlotDst,gDest,pItemSrc->GetCount(),pItemSrc,true);
+            if( msg != EQUIP_ERR_OK )
+            {
+                pl->SendEquipError( msg, pItemSrc, NULL );
+                return;
+            }
+
+            GuildItemPosCountVec gSrc;
+            msg = CanStoreItem(BankTab,BankTabSlot,gSrc,pItemDst->GetCount(),pItemDst,true);
+            if( msg != EQUIP_ERR_OK )
+            {
+                pl->SendEquipError( msg, pItemDst, NULL );
+                return;
+            }
+
+            if(BankTab!=BankTabDst)
+            {
+                // check source pos rights (item swapped to src)
+                if(!IsMemberHaveRights(pl->GetGUIDLow(), BankTab, GUILD_BANK_RIGHT_DEPOSIT_ITEM))
+                    return;
+
+                // check dest pos rights (item swapped to src)
+                uint32 remRightDst = GetMemberSlotWithdrawRem(pl->GetGUIDLow(), BankTabDst);
+                if(remRightDst <= 0)
+                    return;
+            }
+
+            CharacterDatabase.BeginTransaction();
+            LogBankEvent(GUILD_BANK_LOG_MOVE_ITEM, BankTab,    pl->GetGUIDLow(), pItemSrc->GetEntry(), pItemSrc->GetCount(), BankTabDst);
+            LogBankEvent(GUILD_BANK_LOG_MOVE_ITEM, BankTabDst, pl->GetGUIDLow(), pItemDst->GetEntry(), pItemDst->GetCount(), BankTab);
+
+            RemoveItem(BankTab, BankTabSlot);
+            RemoveItem(BankTabDst, BankTabSlotDst);
+            StoreItem(BankTab, gSrc, pItemDst);
+            StoreItem(BankTabDst, gDest, pItemSrc);
+            CharacterDatabase.CommitTransaction();
+        }
+    }
+    DisplayGuildBankContentUpdate(BankTab,BankTabSlot,BankTab==BankTabDst ? BankTabSlotDst : -1);
+    if(BankTab!=BankTabDst)
+        DisplayGuildBankContentUpdate(BankTabDst,BankTabSlotDst);
+}
+
+
+void Guild::MoveFromBankToChar( Player * pl, uint8 BankTab, uint8 BankTabSlot, uint8 PlayerBag, uint8 PlayerSlot, uint32 SplitedAmount)
+{
+    Item *pItemBank = GetItem(BankTab, BankTabSlot);
+    Item *pItemChar = pl->GetItemByPos(PlayerBag, PlayerSlot);
+
+    if (!pItemBank)                                     // Problem to get bank item
+        return;
+
+    if(SplitedAmount > pItemBank->GetCount())
+        return;                                         // cheating?
+    else if(SplitedAmount == pItemBank->GetCount())
+        SplitedAmount = 0;                              // no split
+
+    if (SplitedAmount)
+    {                                                   // Bank -> Char split to slot (patly move)
+        Item *pNewItem = pItemBank->CloneItem( SplitedAmount );
+        if( !pNewItem )
+        {
+            pl->SendEquipError( EQUIP_ERR_ITEM_NOT_FOUND, pItemBank, NULL );
+            return;
+        }
+
+        ItemPosCountVec dest;
+        uint8 msg = pl->CanStoreItem(PlayerBag, PlayerSlot, dest, pNewItem, false);
+        if( msg != EQUIP_ERR_OK )
+        {
+            pl->SendEquipError( msg, pNewItem, NULL );
+            delete pNewItem;
+            return;
+        }
+
+        // check source pos rights (item moved to inventory)
+        uint32 remRight = GetMemberSlotWithdrawRem(pl->GetGUIDLow(), BankTab);
+        if(remRight <= 0)
+        {
+            delete pNewItem;
+            return;
+        }
+
+        CharacterDatabase.BeginTransaction();
+        LogBankEvent(GUILD_BANK_LOG_WITHDRAW_ITEM, BankTab, pl->GetGUIDLow(), pItemBank->GetEntry(), SplitedAmount);
+
+        pItemBank->SetCount(pItemBank->GetCount()-SplitedAmount);
+        pItemBank->FSetState(ITEM_CHANGED);
+        pItemBank->SaveToDB();                          // not in inventory and can be save standalone
+        pl->MoveItemToInventory(dest,pNewItem,true);
+        pl->SaveInventoryAndGoldToDB();
+
+        MemberItemWithdraw(BankTab, pl->GetGUIDLow());
+        CharacterDatabase.CommitTransaction();
+    }
+    else                                                // Bank -> Char swap with slot (move)
+    {
+        ItemPosCountVec dest;
+        uint8 msg = pl->CanStoreItem(PlayerBag, PlayerSlot, dest, pItemBank, false);
+        if( msg == EQUIP_ERR_OK )                       // merge case
+        {
+            // check source pos rights (item moved to inventory)
+            uint32 remRight = GetMemberSlotWithdrawRem(pl->GetGUIDLow(), BankTab);
+            if(remRight <= 0)
+                return;
+
+            CharacterDatabase.BeginTransaction();
+            LogBankEvent(GUILD_BANK_LOG_WITHDRAW_ITEM, BankTab, pl->GetGUIDLow(), pItemBank->GetEntry(), pItemBank->GetCount());
+
+            RemoveItem(BankTab, BankTabSlot);
+            pl->MoveItemToInventory(dest,pItemBank,true);
+            pl->SaveInventoryAndGoldToDB();
+
+            MemberItemWithdraw(BankTab, pl->GetGUIDLow());
+            CharacterDatabase.CommitTransaction();
+        }
+        else                                            // Bank <-> Char swap items
+        {
+            // check source pos rights (item swapped to bank)
+            if(!IsMemberHaveRights(pl->GetGUIDLow(), BankTab, GUILD_BANK_RIGHT_DEPOSIT_ITEM))
+                return;
+
+            if(pItemChar)
+            {
+                if(!pItemChar->CanBeTraded())
+                {
+                    pl->SendEquipError( EQUIP_ERR_ITEMS_CANT_BE_SWAPPED, pItemChar, NULL );
+                    return;
+                }
+            }
+
+            ItemPosCountVec iDest;
+            msg = pl->CanStoreItem(PlayerBag, PlayerSlot, iDest, pItemBank, true);
+            if( msg != EQUIP_ERR_OK )
+            {
+                pl->SendEquipError( msg, pItemBank, NULL );
+                return;
+            }
+
+            GuildItemPosCountVec gDest;
+            if(pItemChar)
+            {
+                msg = CanStoreItem(BankTab,BankTabSlot,gDest,pItemChar->GetCount(),pItemChar,true);
+                if( msg != EQUIP_ERR_OK )
+                {
+                    pl->SendEquipError( msg, pItemChar, NULL );
+                    return;
+                }
+            }
+
+            // check source pos rights (item moved to inventory)
+            uint32 remRight = GetMemberSlotWithdrawRem(pl->GetGUIDLow(), BankTab);
+            if(remRight <= 0)
+                return;
+
+            if(pItemChar)
+            {
+                // logging item move to bank
+                if(pl->GetSession()->GetSecurity() > SEC_PLAYER && sWorld.getConfig(CONFIG_GM_LOG_TRADE))
+                {
+                    sLog.outCommand(pl->GetSession()->GetAccountId(),"GM %s (Account: %u) deposit item: %s (Entry: %d Count: %u) to guild bank (Guild ID: %u )",
+                        pl->GetName(),pl->GetSession()->GetAccountId(),
+                        pItemChar->GetProto()->Name1,pItemChar->GetEntry(),pItemChar->GetCount(),
+                        m_Id);
+                }
+            }
+
+            CharacterDatabase.BeginTransaction();
+            LogBankEvent(GUILD_BANK_LOG_WITHDRAW_ITEM, BankTab, pl->GetGUIDLow(), pItemBank->GetEntry(), pItemBank->GetCount());
+            if(pItemChar)
+                LogBankEvent(GUILD_BANK_LOG_DEPOSIT_ITEM, BankTab, pl->GetGUIDLow(), pItemChar->GetEntry(), pItemChar->GetCount());
+
+            RemoveItem(BankTab, BankTabSlot);
+            if(pItemChar)
+            {
+                pl->MoveItemFromInventory(PlayerBag, PlayerSlot, true);
+                pItemChar->DeleteFromInventoryDB();
+            }
+
+            if(pItemChar)
+                StoreItem(BankTab, gDest, pItemChar);
+            pl->MoveItemToInventory(iDest,pItemBank,true);
+            pl->SaveInventoryAndGoldToDB();
+
+            MemberItemWithdraw(BankTab, pl->GetGUIDLow());
+            CharacterDatabase.CommitTransaction();
+        }
+    }
+    DisplayGuildBankContentUpdate(BankTab,BankTabSlot);
+}
+
+
+void Guild::MoveFromCharToBank( Player * pl, uint8 PlayerBag, uint8 PlayerSlot, uint8 BankTab, uint8 BankTabSlot, uint32 SplitedAmount )
+{
+    Item *pItemBank = GetItem(BankTab, BankTabSlot);
+    Item *pItemChar = pl->GetItemByPos(PlayerBag, PlayerSlot);
+
+    if (!pItemChar)                                         // Problem to get item from player
+        return;
+
+    if(!pItemChar->CanBeTraded())
+    {
+        pl->SendEquipError( EQUIP_ERR_ITEMS_CANT_BE_SWAPPED, pItemChar, NULL );
+        return;
+    }
+
+    // check source pos rights (item moved to bank)
+    if(!IsMemberHaveRights(pl->GetGUIDLow(), BankTab, GUILD_BANK_RIGHT_DEPOSIT_ITEM))
+        return;
+
+    if(SplitedAmount > pItemChar->GetCount())
+        return;                                             // cheating?
+    else if(SplitedAmount == pItemChar->GetCount())
+        SplitedAmount = 0;                                  // no split
+
+    if (SplitedAmount)
+    {                                                       // Char -> Bank split to empty or non-empty slot (partly move)
+        GuildItemPosCountVec dest;
+        uint8 msg = CanStoreItem(BankTab,BankTabSlot,dest,SplitedAmount,pItemChar,false);
+        if( msg != EQUIP_ERR_OK )
+        {
+            pl->SendEquipError( msg, pItemChar, NULL );
+            return;
+        }
+
+        Item *pNewItem = pItemChar->CloneItem( SplitedAmount );
+        if( !pNewItem )
+        {
+            pl->SendEquipError( EQUIP_ERR_ITEM_NOT_FOUND, pItemChar, NULL );
+            return;
+        }
+
+        // logging item move to bank (before items merge
+        if(pl->GetSession()->GetSecurity() > SEC_PLAYER && sWorld.getConfig(CONFIG_GM_LOG_TRADE))
+        {
+            sLog.outCommand(pl->GetSession()->GetAccountId(),"GM %s (Account: %u) deposit item: %s (Entry: %d Count: %u) to guild bank (Guild ID: %u )",
+                pl->GetName(),pl->GetSession()->GetAccountId(),
+                pItemChar->GetProto()->Name1,pItemChar->GetEntry(),SplitedAmount,m_Id);
+        }
+
+        CharacterDatabase.BeginTransaction();
+        LogBankEvent(GUILD_BANK_LOG_DEPOSIT_ITEM, BankTab, pl->GetGUIDLow(), pItemChar->GetEntry(), SplitedAmount);
+
+        pl->ItemRemovedQuestCheck( pItemChar->GetEntry(), SplitedAmount );
+        pItemChar->SetCount(pItemChar->GetCount()-SplitedAmount);
+        pItemChar->SetState(ITEM_CHANGED);
+        pl->SaveInventoryAndGoldToDB();
+        StoreItem(BankTab, dest, pNewItem);
+        CharacterDatabase.CommitTransaction();
+
+        DisplayGuildBankContentUpdate(BankTab,dest);
+    }
+    else                                                    // Char -> Bank swap with empty or non-empty (move)
+    {
+        GuildItemPosCountVec dest;
+        uint8 msg = CanStoreItem(BankTab,BankTabSlot,dest,pItemChar->GetCount(),pItemChar,false);
+        if( msg == EQUIP_ERR_OK )                           // merge
+        {
+            // logging item move to bank
+            if(pl->GetSession()->GetSecurity() > SEC_PLAYER && sWorld.getConfig(CONFIG_GM_LOG_TRADE))
+            {
+                sLog.outCommand(pl->GetSession()->GetAccountId(),"GM %s (Account: %u) deposit item: %s (Entry: %d Count: %u) to guild bank (Guild ID: %u )",
+                    pl->GetName(),pl->GetSession()->GetAccountId(),
+                    pItemChar->GetProto()->Name1,pItemChar->GetEntry(),pItemChar->GetCount(),
+                    m_Id);
+            }
+
+            CharacterDatabase.BeginTransaction();
+            LogBankEvent(GUILD_BANK_LOG_DEPOSIT_ITEM, BankTab, pl->GetGUIDLow(), pItemChar->GetEntry(), pItemChar->GetCount());
+
+            pl->MoveItemFromInventory(PlayerBag, PlayerSlot, true);
+            pItemChar->DeleteFromInventoryDB();
+
+            StoreItem(BankTab,dest,pItemChar);
+            pl->SaveInventoryAndGoldToDB();
+            CharacterDatabase.CommitTransaction();
+
+            DisplayGuildBankContentUpdate(BankTab,dest);
+        }
+        else                                                // Char <-> Bank swap items (posible NULL bank item)
+        {
+            ItemPosCountVec iDest;
+            if(pItemBank)
+            {
+                msg = pl->CanStoreItem(PlayerBag, PlayerSlot, iDest, pItemBank, true);
+                if( msg != EQUIP_ERR_OK )
+                {
+                    pl->SendEquipError( msg, pItemBank, NULL );
+                    return;
+                }
+            }
+
+            GuildItemPosCountVec gDest;
+            msg = CanStoreItem(BankTab,BankTabSlot,gDest,pItemChar->GetCount(),pItemChar,true);
+            if( msg != EQUIP_ERR_OK )
+            {
+                pl->SendEquipError( msg, pItemChar, NULL );
+                return;
+            }
+
+            if(pItemBank)
+            {
+                // check bank pos rights (item swapped with inventory)
+                uint32 remRight = GetMemberSlotWithdrawRem(pl->GetGUIDLow(), BankTab);
+                if(remRight <= 0)
+                    return;
+            }
+
+            // logging item move to bank
+            if(pl->GetSession()->GetSecurity() > SEC_PLAYER && sWorld.getConfig(CONFIG_GM_LOG_TRADE))
+            {
+                sLog.outCommand(pl->GetSession()->GetAccountId(),"GM %s (Account: %u) deposit item: %s (Entry: %d Count: %u) to guild bank (Guild ID: %u )",
+                    pl->GetName(),pl->GetSession()->GetAccountId(),
+                    pItemChar->GetProto()->Name1,pItemChar->GetEntry(),pItemChar->GetCount(),
+                    m_Id);
+            }
+
+            CharacterDatabase.BeginTransaction();
+            if(pItemBank)
+                LogBankEvent(GUILD_BANK_LOG_WITHDRAW_ITEM, BankTab, pl->GetGUIDLow(), pItemBank->GetEntry(), pItemBank->GetCount());
+            LogBankEvent(GUILD_BANK_LOG_DEPOSIT_ITEM, BankTab, pl->GetGUIDLow(), pItemChar->GetEntry(), pItemChar->GetCount());
+
+            pl->MoveItemFromInventory(PlayerBag, PlayerSlot, true);
+            pItemChar->DeleteFromInventoryDB();
+            if(pItemBank)
+                RemoveItem(BankTab, BankTabSlot);
+
+            StoreItem(BankTab,gDest,pItemChar);
+            if(pItemBank)
+                pl->MoveItemToInventory(iDest,pItemBank,true);
+            pl->SaveInventoryAndGoldToDB();
+            if(pItemBank)
+                MemberItemWithdraw(BankTab, pl->GetGUIDLow());
+            CharacterDatabase.CommitTransaction();
+
+            DisplayGuildBankContentUpdate(BankTab,gDest);
+        }
+    }
+}
+
 bool GuildItemPosCount::isContainedIn(GuildItemPosCountVec const &vec) const
 {
     for(GuildItemPosCountVec::const_iterator itr = vec.begin(); itr != vec.end();++itr)
