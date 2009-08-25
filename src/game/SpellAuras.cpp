@@ -591,8 +591,9 @@ AuraEffect* CreateAuraEffect(Aura * parentAura, uint32 effIndex, int32 *currentB
     else if (parentAura->GetSpellProto()->Effect[effIndex] == SPELL_EFFECT_PERSISTENT_AREA_AURA)
     {
         //assert(source->isType(TYPEMASK_DYNAMICOBJECT));
-        assert(IS_DYNAMICOBJECT_GUID(sourceGuid));
-        return new PersistentAreaAuraEffect(parentAura, effIndex, currentBasePoints);
+        // TODO: creature addon or save? may add persistent AA without correct source
+        if(IS_DYNAMICOBJECT_GUID(sourceGuid));
+            return new PersistentAreaAuraEffect(parentAura, effIndex, currentBasePoints);
     }
     return NULL;
 }
