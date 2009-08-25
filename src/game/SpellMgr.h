@@ -116,16 +116,17 @@ enum SpellSpecific
     SPELL_FLASK_ELIXIR      = 16,
     SPELL_WARLOCK_CORRUPTION= 17,
     SPELL_WELL_FED          = 18,
-    SPELL_DRINK             = 19,
-    SPELL_FOOD              = 20,
-    SPELL_PRESENCE          = 21,
-    SPELL_CHARM             = 22,
-    SPELL_SCROLL            = 23,
-    SPELL_MAGE_ARCANE_BRILLANCE = 24,
-    SPELL_WARRIOR_ENRAGE    = 25,
-    SPELL_PRIEST_DIVINE_SPIRIT = 26,
-    SPELL_HAND              = 27,
-    SPELL_PHASE             = 28,
+    SPELL_FOOD              = 19,
+    SPELL_DRINK             = 20,
+    SPELL_FOOD_AND_DRINK    = 21,
+    SPELL_PRESENCE          = 22,
+    SPELL_CHARM             = 23,
+    SPELL_SCROLL            = 24,
+    SPELL_MAGE_ARCANE_BRILLANCE = 25,
+    SPELL_WARRIOR_ENRAGE    = 26,
+    SPELL_PRIEST_DIVINE_SPIRIT = 27,
+    SPELL_HAND              = 28,
+    SPELL_PHASE             = 29,
 };
 
 #define SPELL_LINKED_MAX_SPELLS  200000
@@ -251,8 +252,8 @@ inline bool IsLootCraftingSpell(SpellEntry const *spellInfo)
 }
 
 bool IsHigherHankOfSpell(uint32 spellId_1,uint32 spellId_2);
-bool IsSingleFromSpellSpecificPerCaster(uint32 spellSpec1, uint32 spellSpec2);
-bool IsSingleFromSpellSpecificPerTarget(uint32 spellSpec1, uint32 spellSpec2);
+bool IsSingleFromSpellSpecificPerCaster(SpellSpecific spellSpec1, SpellSpecific spellSpec2);
+bool IsSingleFromSpellSpecificPerTarget(SpellSpecific spellSpec1, SpellSpecific spellSpec2);
 bool IsPassiveSpell(uint32 spellId);
 bool IsAutocastableSpell(uint32 spellId);
 
