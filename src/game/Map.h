@@ -347,9 +347,9 @@ class MANGOS_DLL_SPEC Map : public GridRefManager<NGridType>, public MaNGOS::Obj
             GetZoneAndAreaIdByAreaFlag(zoneid,areaid,GetAreaFlag(x,y,z),GetId());
         }
 
-        virtual void MoveAllCreaturesInMoveList();
-        virtual void RemoveAllObjectsInRemoveList();
-        virtual void RelocationNotify();
+        void MoveAllCreaturesInMoveList();
+        void RemoveAllObjectsInRemoveList();
+        void RelocationNotify();
         virtual void RemoveAllPlayers();
 
         bool CreatureRespawnRelocation(Creature *c);        // used only in MoveAllCreaturesInMoveList and ObjectGridUnloader
@@ -384,7 +384,7 @@ class MANGOS_DLL_SPEC Map : public GridRefManager<NGridType>, public MaNGOS::Obj
 
         void AddObjectToRemoveList(WorldObject *obj);
         void AddObjectToSwitchList(WorldObject *obj, bool on);
-        //void DoDelayedMovesAndRemoves();
+        virtual void DelayedUpdate(const uint32 diff);
 
         virtual bool RemoveBones(uint64 guid, float x, float y);
 
