@@ -60,7 +60,7 @@ void WorldSession::HandleGuildCreateOpcode(WorldPacket& recvPacket)
         return;
 
     Guild *guild = new Guild;
-    if(!guild->create(GetPlayer(),gname))
+    if(!guild->Create(GetPlayer(),gname))
     {
         delete guild;
         return;
@@ -825,7 +825,7 @@ void WorldSession::HandleGuildEventLogQueryOpcode(WorldPacket& /* recvPacket */)
     if(!pGuild)
         return;
 
-    pGuild->DisplayGuildEventlog(this);
+    pGuild->DisplayGuildEventLog(this);
 }
 
 /******  GUILD BANK  *******/
@@ -1546,7 +1546,7 @@ void WorldSession::HandleGuildBankBuyTab( WorldPacket & recv_data )
     if (pGuild->GetPurchasedTabs() >= GUILD_BANK_MAX_TABS)
         return;
 
-    if (TabId != pGuild->GetPurchasedTabs())                // purchased_tabs = 0 when buying Tab 0, that is why this check can be made
+    if (TabId != pGuild->GetPurchasedTabs())                // m_PurchasedTabs = 0 when buying Tab 0, that is why this check can be made
     {
         sLog.outError("Error: trying to buy a tab non contigous to owned ones");
         return;
