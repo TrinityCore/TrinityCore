@@ -421,7 +421,7 @@ struct TRINITY_DLL_DECL boss_veknilashAI : public boss_twinemperorsAI
                 continue;
             eff_mask|=1<<i;
         }
-        target->AddAura(new Aura(spell, eff_mask, NULL, target, target));
+        target->AddAura(new Aura(spell, eff_mask, target, target, target));
         target->SetHealth(target->GetMaxHealth());
     }
 
@@ -506,7 +506,7 @@ struct TRINITY_DLL_DECL boss_veklorAI : public boss_twinemperorsAI
                 continue;
             eff_mask|=1<<i;
         }
-        target->AddAura(new Aura(spell, eff_mask, NULL, target, target));
+        target->AddAura(new Aura(spell, eff_mask, target, target, target));
         target->SetHealth(target->GetMaxHealth());
     }
 

@@ -94,7 +94,7 @@ struct TRINITY_DLL_DECL mob_voidtravelerAI : public ScriptedAI
             {
                 SpellEntry *spell = GET_SPELL(HeroicMode?H_SPELL_EMPOWERING_SHADOWS:SPELL_EMPOWERING_SHADOWS);
                 if (spell)
-                    Vorpil->AddAura(new Aura(spell, 1, NULL, Vorpil, m_creature));
+                    Vorpil->AddAura(new Aura(spell, 1, Vorpil, me, me));
                 Vorpil->SetHealth(Vorpil->GetHealth()+Vorpil->GetMaxHealth()/25);
                 DoCast(m_creature, SPELL_SHADOW_NOVA, true);
                 m_creature->DealDamage(m_creature, m_creature->GetMaxHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);

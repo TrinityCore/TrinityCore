@@ -2275,7 +2275,7 @@ bool Creature::LoadCreaturesAddon(bool reload)
                 continue;
             }
 
-            AddAuraEffect(AdditionalSpellInfo, cAura->effect_idx, this);
+            AddAuraEffect(AdditionalSpellInfo, cAura->effect_idx, this, this);
             sLog.outDebug("Spell: %u with Aura %u added to creature (GUIDLow: %u Entry: %u )", cAura->spell_id, AdditionalSpellInfo->EffectApplyAuraName[cAura->effect_idx],GetGUIDLow(),GetEntry());
         }
     }
