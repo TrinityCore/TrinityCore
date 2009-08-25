@@ -382,14 +382,11 @@ class Guild
         // ** Guild bank **
         // Content & item deposit/withdraw
         void   DisplayGuildBankContent(WorldSession *session, uint8 TabId);
-        void   DisplayGuildBankContentUpdate(uint8 TabId, int32 slot1, int32 slot2 = -1);
-        void   DisplayGuildBankContentUpdate(uint8 TabId, GuildItemPosCountVec const& slots);
         void   DisplayGuildBankMoneyUpdate();
 
-        Item*  GetItem(uint8 TabId, uint8 SlotId);
-        uint8  CanStoreItem( uint8 tab, uint8 slot, GuildItemPosCountVec& dest, uint32 count, Item *pItem, bool swap = false) const;
-        Item*  StoreItem( uint8 tab, GuildItemPosCountVec const& pos, Item *pItem );
-        void   RemoveItem(uint8 tab, uint8 slot );
+        void   SwapItems( Player * pl, uint8 BankTab, uint8 BankTabSlot, uint8 BankTabDst, uint8 BankTabSlotDst, uint32 SplitedAmount);
+        void   MoveFromBankToChar( Player * pl, uint8 BankTab, uint8 BankTabSlot, uint8 PlayerBag, uint8 PlayerSlot, uint32 SplitedAmount);
+        void   MoveFromCharToBank( Player * pl, uint8 PlayerBag, uint8 PlayerSlot, uint8 BankTab, uint8 BankTabSlot, uint32 SplitedAmount);
 
         // Tabs
         void   DisplayGuildBankTabsInfo(WorldSession *session);
@@ -472,6 +469,14 @@ class Guild
         uint8 m_PurchasedTabs;
 
     private:
+        // used only from high level Swap/Move functions
+        Item*  GetItem(uint8 TabId, uint8 SlotId);
+        uint8  CanStoreItem( uint8 tab, uint8 slot, GuildItemPosCountVec& dest, uint32 count, Item *pItem, bool swap = false) const;
+        Item*  StoreItem( uint8 tab, GuildItemPosCountVec const& pos, Item *pItem );
+        void   RemoveItem(uint8 tab, uint8 slot );
+        void   DisplayGuildBankContentUpdate(uint8 TabId, int32 slot1, int32 slot2 = -1);
+        void   DisplayGuildBankContentUpdate(uint8 TabId, GuildItemPosCountVec const& slots);
+
         // internal common parts for CanStore/StoreItem functions
         void AppendDisplayGuildBankSlot( WorldPacket& data, GuildBankTab const *tab, int32 slot );
         uint8 _CanStoreItem_InSpecificSlot( uint8 tab, uint8 slot, GuildItemPosCountVec& dest, uint32& count, bool swap, Item *pSrcItem ) const;
