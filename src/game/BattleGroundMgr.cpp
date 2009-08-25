@@ -1095,7 +1095,7 @@ bool BGQueueRemoveEvent::Execute(uint64 /*e_time*/, uint32 /*p_time*/)
             sBattleGroundMgr.m_BattleGroundQueues[m_BgQueueTypeId].RemovePlayer(m_PlayerGuid, true);
             //update queues if battleground isn't ended
             if (bg)
-                sBattleGroundMgr.m_BattleGroundQueues[m_BgQueueTypeId].Update(m_BgTypeId, bg->GetQueueId());
+                sBattleGroundMgr.ScheduleQueueUpdate(m_BgQueueTypeId, m_BgTypeId, bg->GetQueueId());
 
             WorldPacket data;
             sBattleGroundMgr.BuildBattleGroundStatusPacket(&data, bg, queueSlot, STATUS_NONE, 0, 0, 0);
@@ -1179,6 +1179,22 @@ void BattleGroundMgr::Update(uint32 diff)
             }
         }
     }
+
+    // update scheduled queues
+    if (!m_QueueUpdateScheduler.empty())
+    {
+        //copy vector and clear the other
+        std::vector<uint32> scheduled(m_QueueUpdateScheduler);
+        m_QueueUpdateScheduler.clear();
+        for (uint8 i = 0; i < scheduled.size(); i++)
+        {
+            BattleGroundQueueTypeId bgQueueTypeId = BattleGroundQueueTypeId(scheduled[i] / 65536);
+            BattleGroundTypeId bgTypeId = BattleGroundTypeId((scheduled[i] % 65536) / 256);
+            BGQueueIdBasedOnLevel queue_id = BGQueueIdBasedOnLevel(scheduled[i] % 256);
+            m_BattleGroundQueues[bgQueueTypeId].Update(bgTypeId, queue_id);
+        }
+    }
+
     // if rating difference counts, maybe force-update queues
     if (sWorld.getConfig(CONFIG_ARENA_MAX_RATING_DIFFERENCE) && sWorld.getConfig(CONFIG_ARENA_RATING_DISCARD_TIMER))
     {
@@ -2016,6 +2032,24 @@ void BattleGroundMgr::SetHolidayWeekends(uint32 mask)
             bg->SetHoliday(mask & (1 << bgtype));
         }
     }
+}
+
+void BattleGroundMgr::ScheduleQueueUpdate(BattleGroundQueueTypeId bgQueueTypeId, BattleGroundTypeId bgTypeId, BGQueueIdBasedOnLevel queue_id)
+{
+    //This method must be atomic!
+    //we will use only 1 number created of bgTypeId and queue_id
+    uint32 schedule_id = (bgQueueTypeId * 65536) + (bgTypeId * 256) + queue_id;
+    bool found = false;
+    for (uint8 i = 0; i < m_QueueUpdateScheduler.size(); i++)
+    {
+        if (m_QueueUpdateScheduler[i] == schedule_id)
+        {
+            found = true;
+            break;
+        }
+    }
+    if (!found)
+        m_QueueUpdateScheduler.push_back(schedule_id);
 }
 
 uint32 BattleGroundMgr::GetMaxRatingDifference() const
