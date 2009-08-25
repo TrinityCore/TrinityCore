@@ -28,13 +28,19 @@
 
 class Item;
 
+#define GUILD_RANKS_MIN_COUNT   5
+#define GUILD_RANKS_MAX_COUNT   10
+
 enum GuildDefaultRanks
 {
+    //these ranks can be modified, but they cannot be deleted
     GR_GUILDMASTER  = 0,
     GR_OFFICER      = 1,
-    //GR_VETERAN      = 2, -- not used anywhere and possible incorrect in modified rank list
-    //GR_MEMBER       = 3,
-    //GR_INITIATE     = 4, -- use Guild::GetLowestRank() instead for lowest rank
+    GR_VETERAN      = 2,
+    GR_MEMBER       = 3,
+    GR_INITIATE     = 4,
+    //When promoting member server does: rank--;!
+    //When demoting member server does: rank++;!
 };
 
 enum GuildRankRights
@@ -283,6 +289,7 @@ class Guild
         ~Guild();
 
         bool Create(Player* leader, std::string gname);
+        void CreateDefaultGuildRanks(int locale_idx);
         void Disband();
 
         typedef std::map<uint32, MemberSlot> MemberList;
@@ -307,8 +314,9 @@ class Guild
         void SetLeader(uint64 guid);
         bool AddMember(uint64 plGuid, uint32 plRank);
         void ChangeRank(uint64 guid, uint32 newRank);
-        void DelMember(uint64 guid, bool isDisbanding=false);
-        uint32 GetLowestRank() const { return GetNrRanks()-1; }
+        void DelMember(uint64 guid, bool isDisbanding = false);
+        //lowest rank is the count of ranks - 1 (the highest rank_id in table)
+        uint32 GetLowestRank() const { return m_Ranks.size() - 1; }
 
         void SetMOTD(std::string motd);
         void SetGINFO(std::string ginfo);
@@ -322,8 +330,7 @@ class Guild
         bool LoadRanksFromDB(uint32 GuildId);
         bool LoadMembersFromDB(uint32 GuildId);
 
-        bool FillPlayerData(uint64 guid, MemberSlot* memslot);
-        void LoadPlayerStatsByGuid(uint64 guid);
+        void SetMemberStats(uint64 guid);
 
         void BroadcastToGuild(WorldSession *session, const std::string& msg, uint32 language = LANG_UNIVERSAL);
         void BroadcastToOfficers(WorldSession *session, const std::string& msg, uint32 language = LANG_UNIVERSAL);
@@ -343,7 +350,7 @@ class Guild
         void DelRank();
         std::string GetRankName(uint32 rankId);
         uint32 GetRankRights(uint32 rankId);
-        uint32 GetNrRanks() const { return m_Ranks.size(); }
+        uint32 GetRanksSize() const { return m_Ranks.size(); }
 
         void SetRankName(uint32 rankId, std::string name);
         void SetRankRights(uint32 rankId, uint32 rights);
@@ -394,7 +401,6 @@ class Guild
         void   SetGuildBankTabText(uint8 TabId, std::string text);
         void   SendGuildBankTabText(WorldSession *session, uint8 TabId);
         void   SetGuildBankTabInfo(uint8 TabId, std::string name, std::string icon);
-        void   CreateBankRightForTab(uint32 rankid, uint8 TabId);
         const  GuildBankTab *GetBankTab(uint8 index) { if(index >= m_TabListMap.size()) return NULL; return m_TabListMap[index]; }
         const  uint8  GetPurchasedTabs() const { return m_PurchasedTabs; }
         uint32 GetBankRights(uint32 rankId, uint8 TabId) const;

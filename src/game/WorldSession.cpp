@@ -368,7 +368,7 @@ void WorldSession::LogoutPlayer(bool Save)
         Guild *guild = objmgr.GetGuildById(_player->GetGuildId());
         if(guild)
         {
-            guild->LoadPlayerStatsByGuid(_player->GetGUID());
+            guild->SetMemberStats(_player->GetGUID());
             guild->UpdateLogoutTime(_player->GetGUID());
 
             WorldPacket data(SMSG_GUILD_EVENT, (1+1+12+8)); // name limited to 12 in character table.
