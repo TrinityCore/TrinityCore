@@ -472,7 +472,7 @@ SpellSpecific GetSpellSpecific(uint32 spellId)
             //food/drink
             if (spellInfo->AuraInterruptFlags & AURA_INTERRUPT_FLAG_NOT_SEATED)
             {
-                for(int i = 0; i < 3; i++)
+                for(int i = 0; i < 3; ++i)
                     if( spellInfo->EffectApplyAuraName[i] == SPELL_AURA_MOD_POWER_REGEN
                         || spellInfo->EffectApplyAuraName[i] == SPELL_AURA_OBS_MOD_ENERGY)
                         return SPELL_DRINK;
@@ -480,10 +480,14 @@ SpellSpecific GetSpellSpecific(uint32 spellId)
                         || spellInfo->EffectApplyAuraName[i] == SPELL_AURA_OBS_MOD_HEALTH)
                         return SPELL_FOOD;
             }
-            // this may be a hack
-            else if((spellInfo->AttributesEx2 & SPELL_ATTR_EX2_FOOD)
-                && !spellInfo->Category)
+            // Well Fed buffs (must be exclusive with Food / Drink replenishment effects, or else Well Fed will cause them to be removed)
+            // SpellIcon 2560 is Spell 46687, does not have this flag
+            else if (spellInfo->AttributesEx2 & SPELL_ATTR_EX2_FOOD_BUFF || spellInfo->SpellIconID == 2560)
                 return SPELL_WELL_FED;
+            // this may be a hack
+            //else if((spellInfo->AttributesEx2 & SPELL_ATTR_EX2_FOOD_BUFF)
+            //    && !spellInfo->Category)
+            //    return SPELL_WELL_FED;
             // scrolls effects
             else
             {
@@ -519,14 +523,6 @@ SpellSpecific GetSpellSpecific(uint32 spellId)
 
             break;
         }
-        case SPELLFAMILY_PRIEST:
-        {
-            // Divine Spirit and Prayer of Spirit
-            if (spellInfo->SpellFamilyFlags[0] & 0x20)
-                return SPELL_PRIEST_DIVINE_SPIRIT;
-
-            break;
-        }
         case SPELLFAMILY_WARRIOR:
         {
             if (spellInfo->SpellFamilyFlags[1] & 0x000080 || spellInfo->SpellFamilyFlags[0] & 0x10000)
@@ -549,6 +545,20 @@ SpellSpecific GetSpellSpecific(uint32 spellId)
             //seed of corruption and corruption
             if (spellInfo->SpellFamilyFlags[1] & 0x10 || spellInfo->SpellFamilyFlags[0] & 0x2)
                 return SPELL_WARLOCK_CORRUPTION;
+            break;
+        }
+        case SPELLFAMILY_PRIEST:
+        {
+            // "Well Fed" buff from Blessed Sunfruit, Blessed Sunfruit Juice, Alterac Spring Water
+            if ((spellInfo->Attributes & SPELL_ATTR_CASTABLE_WHILE_SITTING) &&
+                (spellInfo->InterruptFlags & SPELL_INTERRUPT_FLAG_AUTOATTACK) &&
+                (spellInfo->SpellIconID == 52 || spellInfo->SpellIconID == 79))
+                return SPELL_WELL_FED;
+
+            // Divine Spirit and Prayer of Spirit
+            if (spellInfo->SpellFamilyFlags[0] & 0x20)
+                return SPELL_PRIEST_DIVINE_SPIRIT;
+
             break;
         }
         case SPELLFAMILY_HUNTER:
