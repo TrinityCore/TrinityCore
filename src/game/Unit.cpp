@@ -2643,7 +2643,9 @@ SpellMissInfo Unit::MeleeSpellHitResult(Unit *pVictim, SpellEntry const *spell)
 {
     WeaponAttackType attType = BASE_ATTACK;
 
-    if (spell->DmgClass == SPELL_DAMAGE_CLASS_RANGED && IsRangedWeaponSpell(spell))
+    // Check damage class instead of attack type to correctly handle judgements 
+    // - they are meele, but can't be dodged/parried/deflected because of ranged dmg class
+    if (spell->DmgClass == SPELL_DAMAGE_CLASS_RANGED)
         attType = RANGED_ATTACK;
 
     int32 attackerWeaponSkill;
