@@ -592,7 +592,7 @@ AuraEffect* CreateAuraEffect(Aura * parentAura, uint32 effIndex, int32 *currentB
     {
         //assert(source->isType(TYPEMASK_DYNAMICOBJECT));
         // TODO: creature addon or save? may add persistent AA without correct source
-        if(IS_DYNAMICOBJECT_GUID(sourceGuid));
+        if(IS_DYNAMICOBJECT_GUID(sourceGuid))
             return new PersistentAreaAuraEffect(parentAura, effIndex, currentBasePoints);
     }
     return NULL;
@@ -613,7 +613,7 @@ Unit* Aura::GetUnitSource() const
     if(m_sourceGuid == m_target->GetGUID())
         return m_target;
 
-    return ObjectAccessor::GetObjectInWorld(m_casterGuid, (Unit*)NULL);
+    return ObjectAccessor::GetObjectInWorld(m_sourceGuid, (Unit*)NULL);
 }
 
 void Aura::Update(uint32 diff)
@@ -705,16 +705,10 @@ void AuraEffect::Update(uint32 diff)
 
 void AreaAuraEffect::Update(uint32 diff)
 {
-    Unit *source = GetSource();
-    if(!source) // this should never happen
-    {
-        m_target->RemoveAura(GetParentAura());
-        return;
-    }
-
     // update for the source of the aura
-    if(source == m_target)
+    if(GetParentAura()->GetSourceGUID() == m_target->GetGUID())
     {
+        Unit *source = m_target;
         Unit *caster = GetCaster();
         if (!caster)
         {
