@@ -160,6 +160,11 @@ void WorldSession::HandleMoveWorldportAckOpcode()
     if(!mEntry->IsMountAllowed())
         _player->RemoveAurasByType(SPELL_AURA_MOUNTED);
 
+    // update zone immediately, otherwise leave channel will cause crash in mtmap
+    uint32 newzone, newarea;
+    GetPlayer()->GetZoneAndAreaId(newzone, newarea);
+    GetPlayer()->UpdateZone(newzone, newarea);
+
     // honorless target
     if(GetPlayer()->pvpInfo.inHostileArea)
         GetPlayer()->CastSpell(GetPlayer(), SPELL_ID_HONORLESS_TARGET, true);
