@@ -39,6 +39,10 @@
 
 #define SPELL_SMOKE_TRAIL       63575
 
+#define SPELL_MIMIRON_INFERNO   62910 // Not Blizzlike
+
+#define SPELL_HODIR_FURY        62297 // Not Blizzlike
+
 enum Mobs
 {
     MOB_MECHANOLIFT = 33214,
@@ -51,6 +55,8 @@ enum Events
     EVENT_PURSUE = 1,
     EVENT_MISSILE,
     EVENT_VENT,
+    EVENT_MIMIRON_INFERNO, // Not Blizzlike
+    EVENT_HODIR_FURY,      // Not Blizzlike
 };
 
 enum Seats
@@ -82,6 +88,8 @@ struct TRINITY_DLL_DECL boss_flame_leviathanAI : public BossAI
         events.ScheduleEvent(EVENT_PURSUE, 0);
         events.ScheduleEvent(EVENT_MISSILE, 1500);
         events.ScheduleEvent(EVENT_VENT, 20000);
+        events.ScheduleEvent(EVENT_MIMIRON_INFERNO, 60000 + (rand()%30000)); // Not Blizzlike
+        events.ScheduleEvent(EVENT_HODIR_FURY, 60000 + (rand()%30000));      // Not Blizzlike
         if (Creature *turret = CAST_CRE(vehicle->GetPassenger(7)))
             turret->AI()->DoZoneInCombat();
     }
@@ -122,9 +130,9 @@ struct TRINITY_DLL_DECL boss_flame_leviathanAI : public BossAI
         if (!me->isInCombat())
             return;
 
-        if (me->getThreatManager().isThreatListEmpty())
+        if (me->getThreatManager().isThreatListEmpty()) // This is wrong, Flame Leviathan isn't even supposed to have a threat list, he just "switches to another Siege Engine/Demolisher every 30 seconds"
         {
-            EnterEvadeMode();
+            m_creature->SetHealth(m_creature->GetMaxHealth()); // EnterEvadeMode() does not work against vehicles
             return;
         }
 
@@ -158,6 +166,13 @@ struct TRINITY_DLL_DECL boss_flame_leviathanAI : public BossAI
                 DoCastAOE(SPELL_FLAME_VENTS);
                 events.RepeatEvent(20000);
                 return;
+            case EVENT_MIMIRON_INFERNO: // Not Blizzlike
+                DoCast(me->getVictim(), SPELL_MIMIRON_INFERNO);
+                events.RepeatEvent(60000 + (rand()%30000));
+                return;
+            case EVENT_HODIR_FURY:      // Not Blizzlike
+                DoCast(me->getVictim(), SPELL_HODIR_FURY);
+                events.RepeatEvent(60000 + (rand()%30000));
             default:
                 events.PopEvent();
                 break;
