@@ -420,6 +420,9 @@ bool Creature::UpdateEntry(uint32 Entry, uint32 team, const CreatureData *data )
         ApplySpellImmune(0, IMMUNITY_EFFECT,SPELL_EFFECT_ATTACK_ME, true);
     }
 
+    if(GetCreatureInfo()->InhabitType & INHABIT_AIR)
+        AddUnitMovementFlag(MOVEMENTFLAG_FLY_MODE + MOVEMENTFLAG_FLYING);
+
     return true;
 }
 
@@ -2250,9 +2253,6 @@ bool Creature::LoadCreaturesAddon(bool reload)
 
     if (cainfo->move_flags != 0)
         SetUnitMovementFlags(cainfo->move_flags);
-
-    if(GetCreatureInfo()->InhabitType & INHABIT_AIR)
-        AddUnitMovementFlag(MOVEMENTFLAG_FLY_MODE + MOVEMENTFLAG_FLYING);
 
     if(cainfo->auras)
     {
