@@ -63,8 +63,10 @@ struct TRINITY_DLL_DECL boss_ignis_AI : public ScriptedAI
             return;
 
         if(m_creature->GetPositionY() < 150 || m_creature->GetPositionX() < 450) // Not Blizzlike, anti-exploit to prevent players from pulling bosses to vehicles.
+        {
             m_creature->SetHealth(m_creature->GetMaxHealth());
             DoCast(m_creature,SPELL_FLAME_JETS);
+        }
 
         if (FLAME_JETS_Timer < diff)
         {
