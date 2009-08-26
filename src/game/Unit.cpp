@@ -14793,6 +14793,20 @@ void Unit::ExitVehicle()
     if(!m_vehicle)
         return;
 
+    Unit *vehicleBase = m_vehicle->GetBase();
+    const AuraEffectList &modAuras = vehicleBase->GetAurasByType(SPELL_AURA_CONTROL_VEHICLE);
+    for(AuraEffectList::const_iterator itr = modAuras.begin(); itr != modAuras.end(); ++itr)
+    {
+        if((*itr)->GetParentAura()->GetSourceGUID() == GetGUID())
+        {
+            vehicleBase->RemoveAura((*itr)->GetParentAura());
+            break; // there should be no case that a vehicle has two auras for one source
+        }
+    }
+
+    if(!m_vehicle)
+        return;
+
     //sLog.outError("exit vehicle");
 
     m_vehicle->RemovePassenger(this);
