@@ -122,6 +122,10 @@ struct TRINITY_DLL_DECL boss_razorscaleAI : public ScriptedAI
         if (!UpdateVictim())
             return;
 
+        if(m_creature->GetPositionY() > -60 || m_creature->GetPositionX() < 450) // Not Blizzlike, anti-exploit to prevent players from pulling bosses to vehicles.
+            m_creature->SetHealth(m_creature->GetMaxHealth());
+            DoCast(m_creature->getVictim(), SPELL_FIREBALL);
+
         if (((m_creature->GetHealth()*100 / m_creature->GetMaxHealth()) < 99) && (Phase == 1))
         {
             Phase = 2;
