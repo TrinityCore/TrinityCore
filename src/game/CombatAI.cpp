@@ -223,6 +223,15 @@ TurretAI::TurretAI(Creature *c) : CreatureAI(c)
     me->m_SightDistance = me->m_CombatDistance;
 }
 
+bool TurretAI::CanAIAttack(const Unit *who) const
+{
+    // TODO: use one function to replace it
+    if(!me->IsWithinCombatRange(me->getVictim(), me->m_CombatDistance)
+        || m_minRange && me->IsWithinCombatRange(me->getVictim(), m_minRange))
+        return false;
+    return true;
+}
+
 void TurretAI::AttackStart(Unit *who)
 {
     if(who)
@@ -234,7 +243,9 @@ void TurretAI::UpdateAI(const uint32 diff)
     if(!UpdateVictim())
         return;
 
-    if(m_minRange && me->IsWithinCombatRange(me->getVictim(), m_minRange) || !DoSpellAttackIfReady(me->m_spells[0]))
-        if(HostilReference *ref = me->getThreatManager().getCurrentVictim())
-            ref->removeReference();
+    DoSpellAttackIfReady(me->m_spells[0]);
+
+    //if(!DoSpellAttackIfReady(me->m_spells[0]))
+        //if(HostilReference *ref = me->getThreatManager().getCurrentVictim())
+            //ref->removeReference();
 }
