@@ -14554,6 +14554,8 @@ void Unit::SetAuraStack(uint32 spellId, Unit *target, uint32 stack)
         aur->SetStackAmount(stack);
 }
 
+// This function is only used for area aura and creature addon
+// it should be removed in the future
 Aura * Unit::AddAuraEffect(const SpellEntry * spellInfo, uint8 effIndex, WorldObject *source, Unit* caster, int32 * basePoints)
 {
     // can't do that for passive auras - they stack from same caster so there is no way to get exact aura which should get effect
@@ -14562,8 +14564,14 @@ Aura * Unit::AddAuraEffect(const SpellEntry * spellInfo, uint8 effIndex, WorldOb
     sLog.outDebug("AddAuraEffect: spell id: %u, effect index: %u", spellInfo->Id, (uint32)effIndex);
 
     Aura *aur = GetAura(spellInfo->Id, caster->GetGUID());
+    // without this it may crash when shaman refresh totem? source is NULL
+    if(aur && aur->GetSourceGUID() != source->GetGUID())
+    {
+        RemoveAura(aur);
+        aur = NULL;
+    }
 
-    if (aur)
+    if(aur)
     {
         if(AuraEffect *aurEffect = CreateAuraEffect(aur, effIndex, basePoints))
             if(!aur->SetPartAura(aurEffect, effIndex))
