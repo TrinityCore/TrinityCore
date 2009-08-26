@@ -61,7 +61,7 @@ struct TRINITY_DLL_DECL boss_xt002_AI : public ScriptedAI
         if(m_creature->GetPositionX() < 700) // Not Blizzlike, anti-exploit to prevent players from pulling bosses to vehicles.
         {
             m_creature->SetHealth(m_creature->GetMaxHealth());
-            DoCast(m_creature,SPELL_SONIC_BOOM);
+            DoCast(m_creature->getVictim(),SPELL_SONIC_BOOM);
         }
 
         if (SEARING_LIGHT_Timer < diff)
