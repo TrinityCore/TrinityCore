@@ -539,6 +539,7 @@ void Unit::AutoRotate(uint32 time)
         SetUInt64Value(UNIT_FIELD_TARGET, LastTargetGUID);
     }else RotateTimer -= time;
 }
+
 void Unit::RemoveMovementImpairingAuras()
 {
     for(AuraMap::iterator iter = m_Auras.begin(); iter != m_Auras.end();)
@@ -11168,13 +11169,13 @@ void Unit::setDeathState(DeathState s)
     }
     else if(s == JUST_ALIVED)
     {
-        if(m_vehicleKit) m_vehicleKit->Reset();
         RemoveFlag (UNIT_FIELD_FLAGS, UNIT_FLAG_SKINNABLE); // clear skinnable for creature and player (at battleground)
     }
 
     if (m_deathState != ALIVE && s == ALIVE)
     {
         //_ApplyAllAuraMods();
+        if(m_vehicleKit) m_vehicleKit->Reset();
         // Reset display id on resurection - needed by corpse explosion to cleanup after display change
         SetDisplayId(GetNativeDisplayId());
     }
