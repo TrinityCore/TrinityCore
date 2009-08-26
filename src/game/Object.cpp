@@ -1726,8 +1726,9 @@ void WorldObject::ResetMap()
     if(m_isWorldObject)
         m_currMap->RemoveWorldObject(this);
     m_currMap = NULL;
-    m_mapId = 0;
-    m_InstanceId = 0;
+    //maybe not for corpse
+    //m_mapId = 0;
+    //m_InstanceId = 0;
 }
 
 Map const* WorldObject::GetBaseMap() const
