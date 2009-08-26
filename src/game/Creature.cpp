@@ -2252,7 +2252,7 @@ bool Creature::LoadCreaturesAddon(bool reload)
         SetUnitMovementFlags(cainfo->move_flags);
 
     if(GetCreatureInfo()->InhabitType & INHABIT_AIR)
-        AddUnitMovementFlag(MOVEMENTFLAG_FLY_MODE);
+        AddUnitMovementFlag(MOVEMENTFLAG_FLY_MODE + MOVEMENTFLAG_FLYING);
 
     if(cainfo->auras)
     {
