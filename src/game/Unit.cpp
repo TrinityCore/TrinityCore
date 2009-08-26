@@ -5757,7 +5757,7 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                     if( procSpell->SpellFamilyFlags[0] & 0x8000 )
                         triggered_spell_id = 40441;
                     // Renew
-                    else if( procSpell->SpellFamilyFlags[0] & 0x10 )
+                    else if( procSpell->SpellFamilyFlags[0] & 0x40 )
                         triggered_spell_id = 40440;
                     else
                         return false;
