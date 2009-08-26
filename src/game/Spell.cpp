@@ -3493,7 +3493,7 @@ void Spell::SendSpellStart()
          && m_spellInfo->powerType != POWER_HEALTH )
         castFlags |= CAST_FLAG_POWER_LEFT_SELF;
 
-    if(m_spellInfo->runeCostID)
+    if(m_spellInfo->runeCostID && m_spellInfo->powerType == POWER_RUNE)
         castFlags |= CAST_FLAG_UNKNOWN10;
 
     WorldPacket data(SMSG_SPELL_START, (8+8+4+4+2));
@@ -3540,7 +3540,7 @@ void Spell::SendSpellGo()
         && m_spellInfo->powerType != POWER_HEALTH )
         castFlags |= CAST_FLAG_POWER_LEFT_SELF; // should only be sent to self, but the current messaging doesn't make that possible
 
-    if((m_caster->GetTypeId() == TYPEID_PLAYER) && (m_caster->getClass() == CLASS_DEATH_KNIGHT) && m_spellInfo->runeCostID)
+    if((m_caster->GetTypeId() == TYPEID_PLAYER) && (m_caster->getClass() == CLASS_DEATH_KNIGHT) && m_spellInfo->runeCostID && m_spellInfo->powerType == POWER_RUNE)
     {
         castFlags |= CAST_FLAG_UNKNOWN10;                   // same as in SMSG_SPELL_START
         castFlags |= CAST_FLAG_UNKNOWN7;                    // rune cooldowns list
@@ -4093,6 +4093,9 @@ void Spell::TakeAmmo()
 
 SpellCastResult Spell::CheckRuneCost(uint32 runeCostID)
 {
+    if(m_spellInfo->powerType != POWER_RUNE || !runeCostID)
+        return SPELL_CAST_OK;
+
     if(m_caster->GetTypeId() != TYPEID_PLAYER)
         return SPELL_CAST_OK;
 
