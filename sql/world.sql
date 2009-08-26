@@ -2705,23 +2705,6 @@ CREATE TABLE `skinning_loot_template` (
 SET character_set_client = @saved_cs_client;
 
 --
--- Table structure for table `spell_affect`
---
-
-DROP TABLE IF EXISTS `spell_affect`;
-SET @saved_cs_client     = @@character_set_client;
-SET character_set_client = utf8;
-CREATE TABLE `spell_affect` (
-  `entry` smallint(5) unsigned NOT NULL default '0',
-  `effectId` tinyint(3) unsigned NOT NULL default '0',
-  `SpellClassMask0` int(5) unsigned NOT NULL default '0',
-  `SpellClassMask1` int(5) unsigned NOT NULL default '0',
-  `SpellClassMask2` int(5) unsigned NOT NULL default '0',
-  PRIMARY KEY  (`entry`,`effectId`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
-SET character_set_client = @saved_cs_client;
-
---
 -- Table structure for table `spell_area`
 --
 
