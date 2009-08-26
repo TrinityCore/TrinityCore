@@ -132,7 +132,7 @@ struct TRINITY_DLL_DECL boss_flame_leviathanAI : public BossAI
 
         if (me->getThreatManager().isThreatListEmpty()) // This is wrong, Flame Leviathan isn't even supposed to have a threat list, he just "switches to another Siege Engine/Demolisher every 30 seconds"
         {
-            me->EnterEvadeMode();
+            EnterEvadeMode();
             me->SetHealth(me->GetMaxHealth()); // EnterEvadeMode(); does not work against vehicles
             return;
         }
