@@ -542,6 +542,9 @@ void Unit::AutoRotate(uint32 time)
 
 void Unit::RemoveMovementImpairingAuras()
 {
+    RemoveAurasWithMechanic((1<<MECHANIC_SNARE)|(1<<MECHANIC_ROOT));
+    return;
+
     for(AuraMap::iterator iter = m_Auras.begin(); iter != m_Auras.end();)
     {
         if(spellmgr.GetSpellCustomAttr(iter->second->GetId()) & SPELL_ATTR_CU_MOVEMENT_IMPAIR)
