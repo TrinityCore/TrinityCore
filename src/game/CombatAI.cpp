@@ -171,7 +171,7 @@ void CasterAI::UpdateAI(const uint32 diff)
 
 ArchorAI::ArchorAI(Creature *c) : CreatureAI(c)
 {
-    assert(me->m_spells[0]);
+    ASSERT(me->m_spells[0]);
     m_minRange = GetSpellMinRange(me->m_spells[0], false);
     if(!m_minRange)
         m_minRange = MELEE_RANGE;
@@ -181,6 +181,9 @@ ArchorAI::ArchorAI(Creature *c) : CreatureAI(c)
 
 void ArchorAI::AttackStart(Unit *who)
 {
+    if(!who)
+        return;
+
     if(me->IsWithinCombatRange(who, m_minRange))
     {
         if(me->Attack(who, true) && !who->IsFlying())
@@ -214,16 +217,16 @@ void ArchorAI::UpdateAI(const uint32 diff)
 
 TurretAI::TurretAI(Creature *c) : CreatureAI(c)
 {
-    assert(me->m_spells[0]);
+    ASSERT(me->m_spells[0]);
     m_minRange = GetSpellMinRange(me->m_spells[0], false);
     me->m_CombatDistance = GetSpellMaxRange(me->m_spells[0], false);
     me->m_SightDistance = me->m_CombatDistance;
-    sLog.outError("turret ai begins!");
 }
 
 void TurretAI::AttackStart(Unit *who)
 {
-    me->Attack(who, false);
+    if(who)
+        me->Attack(who, false);
 }
 
 void TurretAI::UpdateAI(const uint32 diff)

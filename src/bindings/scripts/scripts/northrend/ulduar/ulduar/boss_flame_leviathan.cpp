@@ -65,14 +65,20 @@ struct TRINITY_DLL_DECL boss_flame_leviathanAI : public BossAI
     boss_flame_leviathanAI(Creature *c) : BossAI(c, BOSS_LEVIATHAN), vehicle(me->GetVehicleKit())
     {
         assert(vehicle);
-        me->SetReactState(REACT_DEFENSIVE);
     }
 
     Vehicle *vehicle;
 
+    void Reset()
+    {
+        _Reset();
+        me->SetReactState(REACT_AGGRESSIVE);
+    }
+
     void EnterCombat(Unit *who)
     {
         _EnterCombat();
+        me->SetReactState(REACT_DEFENSIVE);
         events.ScheduleEvent(EVENT_PURSUE, 0);
         events.ScheduleEvent(EVENT_MISSILE, 1500);
         events.ScheduleEvent(EVENT_VENT, 20000);
@@ -137,8 +143,7 @@ struct TRINITY_DLL_DECL boss_flame_leviathanAI : public BossAI
 
         switch(eventId)
         {
-            case 0:
-                return;
+            case 0: break; // this is a must
             case EVENT_PURSUE:
                 DoCastAOE(SPELL_PURSUED);
                 events.RepeatEvent(35000);
@@ -222,8 +227,6 @@ struct TRINITY_DLL_DECL boss_flame_leviathan_seatAI : public PassiveAI
     boss_flame_leviathan_seatAI(Creature *c) : PassiveAI(c), vehicle(c->GetVehicleKit())
     {
         assert(vehicle);
-        if (const CreatureInfo *cInfo = me->GetCreatureInfo())
-            me->SetDisplayId(cInfo->DisplayID_A[0]); // 0 invisible, 1 visible
 #ifdef BOSS_DEBUG
         me->SetReactState(REACT_AGGRESSIVE);
 #endif
@@ -323,11 +326,7 @@ struct TRINITY_DLL_DECL boss_flame_leviathan_defense_turretAI : public ScriptedA
 
 struct TRINITY_DLL_DECL boss_flame_leviathan_overload_deviceAI : public PassiveAI
 {
-    boss_flame_leviathan_overload_deviceAI(Creature *c) : PassiveAI(c)
-    {
-        if (const CreatureInfo *cInfo = me->GetCreatureInfo())
-            me->SetDisplayId(cInfo->DisplayID_H[0]); // A0 gm, H0 device
-    }
+    boss_flame_leviathan_overload_deviceAI(Creature *c) : PassiveAI(c) {}
 
     void DoAction(const int32 param)
     {
