@@ -2185,6 +2185,9 @@ bool Creature::canCreatureAttack(Unit const *pVictim, bool force) const
     if(!pVictim->isInAccessiblePlaceFor(this))
         return false;
 
+    if(!AI()->CanAIAttack(pVictim))
+        return false;
+
     if(sMapStore.LookupEntry(GetMapId())->IsDungeon())
         return true;
 
