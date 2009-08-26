@@ -85,9 +85,6 @@ void WaypointMovementGenerator<Creature>::InitTraveller(Creature &unit, const Wa
     unit.SetUInt32Value(UNIT_NPC_EMOTESTATE, 0);
     unit.SetUInt32Value(UNIT_FIELD_BYTES_1, 0);
 
-    if(unit.canFly())
-        unit.AddUnitMovementFlag(MOVEMENTFLAG_FLYING);
-
     unit.addUnitState(UNIT_STAT_ROAMING);
 }
 
