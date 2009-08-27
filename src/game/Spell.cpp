@@ -450,6 +450,7 @@ Spell::Spell( Unit* Caster, SpellEntry const *info, bool triggered, uint64 origi
     m_preCastSpell = 0;
     m_triggeredByAuraSpell  = NULL;
     m_spellAura = NULL;
+    m_spellDynObj = NULL;
 
     //Auto Shot & Shoot (wand)
     m_autoRepeat = IsAutoRepeatRangedSpell(m_spellInfo);
@@ -6048,13 +6049,9 @@ void Spell::DelayedChannel()
         }
     }
 
-    for(int j = 0; j < 3; ++j)
-    {
-        // partially interrupt persistent area auras
-        DynamicObject* dynObj = m_caster->GetDynObject(m_spellInfo->Id, j);
-        if(dynObj)
-            dynObj->Delay(delaytime);
-    }
+    // partially interrupt persistent area auras
+    if(DynamicObject* dynObj = m_caster->GetDynObject(m_spellInfo->Id))
+        dynObj->Delay(delaytime);
 
     SendChannelUpdate(m_timer);
 }

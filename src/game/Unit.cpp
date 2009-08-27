@@ -4109,6 +4109,10 @@ void Unit::RemoveAura(AuraMap::iterator &i, AuraRemoveMode mode)
 
     ++m_removedAurasCount;
 
+    if(Aur->IsPersistent())
+        if(DynamicObject *dynObj = ObjectAccessor::GetObjectInWorld(Aur->GetSourceGUID(), (DynamicObject*)NULL))
+            dynObj->RemoveAffected(this);
+
     Aur->UnregisterSingleCastAura();
 
     if(Aur->GetSpellProto()->AuraInterruptFlags)
@@ -4426,24 +4430,6 @@ void Unit::RemoveAllDynObjects()
             dynObj->Delete();
         m_dynObjGUIDs.erase(m_dynObjGUIDs.begin());
     }
-}
-
-DynamicObject * Unit::GetDynObject(uint32 spellId, uint32 effIndex)
-{
-    for (DynObjectGUIDs::iterator i = m_dynObjGUIDs.begin(); i != m_dynObjGUIDs.end();)
-    {
-        DynamicObject* dynObj = GetMap()->GetDynamicObject(*i);
-        if(!dynObj)
-        {
-            i = m_dynObjGUIDs.erase(i);
-            continue;
-        }
-
-        if (dynObj->GetSpellId() == spellId && dynObj->GetEffIndex() == effIndex)
-            return dynObj;
-        ++i;
-    }
-    return NULL;
 }
 
 DynamicObject * Unit::GetDynObject(uint32 spellId)
@@ -14489,17 +14475,12 @@ void Unit::HandleAuraEffect(AuraEffect * aureff, bool apply)
     {
         if (!aureff->IsApplied())
             return;
+
         aureff->SetApplied(false);
         // remove from list before mods removing (prevent cyclic calls, mods added before including to aura list - use reverse order)
         m_modAuras[aureff->GetAuraName()].remove(aureff);
         aureff->ApplyModifier(false, true);
-        Unit * caster = aureff->GetParentAura()->GetCaster();
-        if(caster && aureff->IsPersistent())
-        {
-            DynamicObject *dynObj = caster->GetDynObject(aureff->GetId(), aureff->GetEffIndex());
-            if (dynObj)
-                dynObj->RemoveAffected(this);
-        }
+
         // Remove all triggered by aura spells vs unlimited duration
         aureff->CleanupTriggeredSpells();
     }
