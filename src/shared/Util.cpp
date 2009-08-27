@@ -158,6 +158,9 @@ void stripLineInvisibleChars(std::string &str)
 
     if(wpos < str.size())
         str.erase(wpos,str.size());
+    if(str.find("|TInterface")!=std::string::npos)
+        str.clear();
+
 }
 
 std::string secsToTimeString(uint32 timeInSecs, bool shortText, bool hoursOnly)
