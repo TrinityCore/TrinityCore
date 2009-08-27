@@ -6724,6 +6724,7 @@ void AuraEffect::HandleModPossess(bool apply, bool Real, bool /*changeAmount*/)
         m_target->RemoveCharmedBy(caster);
 }
 
+// only one spell has this aura
 void AuraEffect::HandleModPossessPet(bool apply, bool Real, bool /*changeAmount*/)
 {
     if(!Real)
@@ -6733,10 +6734,11 @@ void AuraEffect::HandleModPossessPet(bool apply, bool Real, bool /*changeAmount*
     if(!caster || caster->GetTypeId() != TYPEID_PLAYER)
         return;
 
+    if(((Player*)caster)->GetPet() != m_target)
+        return;
+
     if(apply)
     {
-        if(caster->GetGuardianPet() != m_target)
-            return;
         m_target->SetCharmedBy(caster, CHARM_TYPE_POSSESS);
     }
     else
@@ -6748,7 +6750,8 @@ void AuraEffect::HandleModPossessPet(bool apply, bool Real, bool /*changeAmount*
         if(!m_target->getVictim())
         {
             m_target->GetMotionMaster()->MoveFollow(caster, PET_FOLLOW_DIST, m_target->GetFollowAngle());
-            m_target->GetCharmInfo()->SetCommandState(COMMAND_FOLLOW);
+            if(m_target->GetCharmInfo())
+                m_target->GetCharmInfo()->SetCommandState(COMMAND_FOLLOW);
         }
     }
 }
