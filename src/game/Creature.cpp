@@ -204,7 +204,8 @@ void Creature::DisappearAndDie()
     //DestroyForNearbyPlayers();
     SetVisibility(VISIBILITY_OFF);
     ObjectAccessor::UpdateObjectVisibility(this);
-    setDeathState(JUST_DIED);
+    if(isAlive())
+        setDeathState(JUST_DIED);
 }
 
 void Creature::SearchFormationAndPath()
@@ -561,10 +562,6 @@ void Creature::Update(uint32 diff)
             break;
         }
         case DEAD_FALLING:
-        {
-            if (!FallGround())
-                setDeathState(JUST_DIED);
-        }
         default:
             break;
     }
@@ -1763,9 +1760,6 @@ void Creature::setDeathState(DeathState s)
         // always save boss respawn time at death to prevent crash cheating
         if(sWorld.getConfig(CONFIG_SAVE_RESPAWN_TIME_IMMEDIATELY) || isWorldBoss())
             SaveRespawnTime();
-
-        if (canFly() && FallGround())
-            return;
     }
     Unit::setDeathState(s);
 
@@ -1780,17 +1774,18 @@ void Creature::setDeathState(DeathState s)
             if ( LootTemplates_Skinning.HaveLootFor(GetCreatureInfo()->SkinLootId) )
                 SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SKINNABLE);
 
-        if (canFly() && FallGround())
-            return;
-
         SetNoSearchAssistance(false);
-        Unit::setDeathState(CORPSE);
     
         //Dismiss group if is leader
         if(m_formation && m_formation->getLeader() == this)
             m_formation->FormationReset(true);
+
+        if (canFly() && FallGround())
+            return;
+
+        Unit::setDeathState(CORPSE);
     }
-    if(s == JUST_ALIVED)
+    else if(s == JUST_ALIVED)
     {
         //if(isPet())
         //    setActive(true);
@@ -1822,9 +1817,8 @@ bool Creature::FallGround()
     if (fabs(ground_Z - z) < 0.1f)
         return false;
 
+    GetMotionMaster()->MovePoint(EVENT_FALL_GROUND, x, y, ground_Z);
     Unit::setDeathState(DEAD_FALLING);
-    GetMotionMaster()->MovePoint(0, x, y, ground_Z);
-    Relocate(x, y, ground_Z);
     return true;
 }
 

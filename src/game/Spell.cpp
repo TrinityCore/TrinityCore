@@ -6154,7 +6154,7 @@ bool Spell::CheckTarget(Unit* target, uint32 eff)
         case SPELL_AURA_MOD_CHARM:
         case SPELL_AURA_MOD_POSSESS_PET:
         case SPELL_AURA_AOE_CHARM:
-            if(target->GetTypeId() == TYPEID_UNIT && ((Creature*)target)->IsVehicle())
+            if(target->GetTypeId() == TYPEID_UNIT && target->IsVehicle())
                 return false;
             if(target->GetCharmerGUID())
                 return false;
