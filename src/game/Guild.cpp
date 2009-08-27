@@ -678,7 +678,7 @@ void Guild::SetRankName(uint32 rankId, std::string name_)
 
     // name now can be used for encoding to DB
     CharacterDatabase.escape_string(name_);
-    CharacterDatabase.PExecute("UPDATE guild_rank SET rname='%s' WHERE rid='%u' AND guildid='%u'", name_.c_str(), (rankId+1), m_Id);
+    CharacterDatabase.PExecute("UPDATE guild_rank SET rname='%s' WHERE rid='%u' AND guildid='%u'", name_.c_str(), rankId, m_Id);
 }
 
 void Guild::SetRankRights(uint32 rankId, uint32 rights)
@@ -688,7 +688,7 @@ void Guild::SetRankRights(uint32 rankId, uint32 rights)
 
     m_Ranks[rankId].rights = rights;
 
-    CharacterDatabase.PExecute("UPDATE guild_rank SET rights='%u' WHERE rid='%u' AND guildid='%u'", rights, (rankId+1), m_Id);
+    CharacterDatabase.PExecute("UPDATE guild_rank SET rights='%u' WHERE rid='%u' AND guildid='%u'", rights, rankId, m_Id);
 }
 
 int32 Guild::GetRank(uint32 LowGuid)
@@ -946,7 +946,7 @@ void Guild::LogGuildEvent(uint8 EventType, uint32 PlayerGuid1, uint32 PlayerGuid
 // Bank content related
 void Guild::DisplayGuildBankContent(WorldSession *session, uint8 TabId)
 {
-    WorldPacket data(SMSG_GUILD_BANK_LIST,1200);
+    WorldPacket data(SMSG_GUILD_BANK_LIST, 1300);
 
     GuildBankTab const* tab = GetBankTab(TabId);
     if (!tab)
@@ -957,8 +957,7 @@ void Guild::DisplayGuildBankContent(WorldSession *session, uint8 TabId)
 
     data << uint64(GetGuildBankMoney());
     data << uint8(TabId);
-                                                            // remaining slots for today
-    data << uint32(GetMemberSlotWithdrawRem(session->GetPlayer()->GetGUIDLow(), TabId));
+    data << uint32(GetMemberSlotWithdrawRem(session->GetPlayer()->GetGUIDLow(), TabId)); // remaining slots for today
     data << uint8(0);                                       // Tell client this is a tab content packet
 
     data << uint8(GUILD_BANK_MAX_SLOTS);
@@ -967,20 +966,6 @@ void Guild::DisplayGuildBankContent(WorldSession *session, uint8 TabId)
         AppendDisplayGuildBankSlot(data, tab, i);
 
     session->SendPacket(&data);
-
-    sLog.outDebug("WORLD: Sent (SMSG_GUILD_BANK_LIST)");
-}
-
-void Guild::DisplayGuildBankMoneyUpdate()
-{
-    WorldPacket data(SMSG_GUILD_BANK_LIST, 8+1+4+1+1);
-
-    data << uint64(GetGuildBankMoney());
-    data << uint8(0);                                       // TabId, default 0
-    data << uint32(0);                                      // slot withdrow, default 0
-    data << uint8(0);                                       // Tell client this is a tab content packet
-    data << uint8(0);                                       // not send items
-    BroadcastPacket(&data);
 
     sLog.outDebug("WORLD: Sent (SMSG_GUILD_BANK_LIST)");
 }
@@ -1093,9 +1078,9 @@ void Guild::DisplayGuildBankTabsInfo(WorldSession *session)
 
     data << uint64(GetGuildBankMoney());
     data << uint8(0);                                       // TabInfo packet must be for TabId 0
-    data << uint32(0xFFFFFFFF);                             // bit 9 must be set for this packet to work
+    //data << uint32(0xFFFFFFFF);                             // bit 9 must be set for this packet to work
+    data << uint32(0);
     data << uint8(1);                                       // Tell Client this is a TabInfo packet
-
     data << uint8(m_PurchasedTabs);                          // here is the number of tabs
 
     for(int i = 0; i < m_PurchasedTabs; ++i)
@@ -1400,7 +1385,7 @@ void Guild::SetBankMoneyPerDay(uint32 rankId, uint32 money)
         if (itr->second.RankId == rankId)
             itr->second.BankResetTimeMoney = 0;
 
-    CharacterDatabase.PExecute("UPDATE guild_rank SET BankMoneyPerDay='%u' WHERE rid='%u' AND guildid='%u'", money, (rankId+1), m_Id);
+    CharacterDatabase.PExecute("UPDATE guild_rank SET BankMoneyPerDay='%u' WHERE rid='%u' AND guildid='%u'", money, rankId, m_Id);
     CharacterDatabase.PExecute("UPDATE guild_member SET BankResetTimeMoney='0' WHERE guildid='%u' AND rank='%u'", m_Id, rankId);
 }
 
