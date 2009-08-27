@@ -1706,8 +1706,16 @@ bool Creature::canStartAttack(Unit const* who, bool force) const
         // TODO: should switch to range attack
         return false;
 
-    if(!force && (IsNeutralToAll() || !IsWithinDistInMap(who, GetAttackDistance(who) + m_CombatDistance)))
-        return false;
+    if(!force)
+    {
+        if(who->isInCombat())
+            if(Unit *victim = who->getAttackerForHelper())
+                if(IsWithinDistInMap(victim, sWorld.getConfig(CONFIG_CREATURE_FAMILY_ASSISTANCE_RADIUS)))
+                    force = true;
+
+        if(!force && (IsNeutralToAll() || !IsWithinDistInMap(who, GetAttackDistance(who) + m_CombatDistance)))
+            return false;
+    }
 
     if(!canCreatureAttack(who, force))
         return false;
