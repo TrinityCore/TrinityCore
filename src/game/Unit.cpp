@@ -14885,6 +14885,7 @@ void Unit::BuildMovementPacket(ByteBuffer *data) const
         else
         {
             sLog.outError("Unit %u does not have transport!", GetEntry());
+            OutDebugInfo();
             *data << (uint8)0;
         }
         *data << float (GetTransOffsetX());
@@ -15069,22 +15070,38 @@ void Unit::RewardRage( uint32 damage, uint32 weaponSpeedHitFactor, bool attacker
     ModifyPower(POWER_RAGE, uint32(addRage*10));
 }
 
-void Unit::OutDebugInfo()
+void Unit::OutDebugInfo() const
 {
     sLog.outError("Unit::OutDebugInfo");
     sLog.outString("GUID "UI64FMTD", entry %u, type %u, name %s", GetGUID(), GetEntry(), (uint32)GetTypeId(), GetName());
     sLog.outString("OwnerGUID "UI64FMTD", MinionGUID "UI64FMTD", CharmerGUID "UI64FMTD", CharmedGUID "UI64FMTD, GetOwnerGUID(), GetMinionGUID(), GetCharmerGUID(), GetCharmGUID());
+    sLog.outString("In world %u, unit type mask %u", (uint32)(IsInWorld() ? 1 : 0), m_unitTypeMask);
+
     sLog.outStringInLine("Summon Slot: ");
     for(uint32 i = 0; i < MAX_SUMMON_SLOT; ++i)
         sLog.outStringInLine(UI64FMTD", ", m_SummonSlot[i]);
     sLog.outString();
+
     sLog.outStringInLine("Controlled List: ");
     for(ControlList::const_iterator itr = m_Controlled.begin(); itr != m_Controlled.end(); ++itr)
         sLog.outStringInLine(UI64FMTD", ", (*itr)->GetGUID());
     sLog.outString();
+
     sLog.outStringInLine("Aura List: ");
     for(AuraMap::const_iterator itr = m_Auras.begin(); itr != m_Auras.end(); ++itr)
         sLog.outStringInLine("%u, ", itr->first);
     sLog.outString();
+
+    if(IsVehicle())
+    {
+        sLog.outStringInLine("Passenger List: ");
+        for(SeatMap::iterator itr = GetVehicleKit()->m_Seats.begin(); itr != GetVehicleKit()->m_Seats.end(); ++itr)
+            if(Unit *passenger = itr->second.passenger)
+                sLog.outStringInLine(UI64FMTD", ", passenger->GetGUID());
+        sLog.outString();
+    }
+
+    if(GetVehicle())
+        sLog.outString("On vehicle %u.", GetVehicleBase()->GetEntry());
 }
 
