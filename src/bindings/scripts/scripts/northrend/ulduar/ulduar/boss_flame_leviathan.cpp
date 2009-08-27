@@ -55,6 +55,8 @@ enum Events
     EVENT_PURSUE = 1,
     EVENT_MISSILE,
     EVENT_VENT,
+    EVENT_SPEED,
+    EVENT_SUMMON,
     EVENT_MIMIRON_INFERNO, // Not Blizzlike
     EVENT_HODIR_FURY,      // Not Blizzlike
 };
@@ -88,8 +90,10 @@ struct TRINITY_DLL_DECL boss_flame_leviathanAI : public BossAI
         events.ScheduleEvent(EVENT_PURSUE, 0);
         events.ScheduleEvent(EVENT_MISSILE, 1500);
         events.ScheduleEvent(EVENT_VENT, 20000);
-        events.ScheduleEvent(EVENT_MIMIRON_INFERNO, 60000 + (rand()%60000)); // Not Blizzlike
-        events.ScheduleEvent(EVENT_HODIR_FURY, 60000 + (rand()%60000));      // Not Blizzlike
+        events.ScheduleEvent(EVENT_SPEED, 15000);
+        events.ScheduleEvent(EVENT_SUMMON, 0);
+        //events.ScheduleEvent(EVENT_MIMIRON_INFERNO, 60000 + (rand()%60000)); // Not Blizzlike
+        //events.ScheduleEvent(EVENT_HODIR_FURY, 60000 + (rand()%60000));      // Not Blizzlike
         if (Creature *turret = CAST_CRE(vehicle->GetPassenger(7)))
             turret->AI()->DoZoneInCombat();
     }
@@ -120,8 +124,8 @@ struct TRINITY_DLL_DECL boss_flame_leviathanAI : public BossAI
         if(summon->GetEntry() == MOB_MECHANOLIFT)
         {
             summons.Despawn(summon);
-            if(Creature* container = DoSummon(MOB_CONTAINER, summon, 0, 0))
-                container->GetMotionMaster()->MovePoint(1, container->GetPositionX(), container->GetPositionY(), me->GetPositionZ());
+            //if(Creature* container = DoSummon(MOB_CONTAINER, summon, 0, 0))
+            //    container->GetMotionMaster()->MovePoint(1, container->GetPositionX(), container->GetPositionY(), me->GetPositionZ());
         }
     }
 
@@ -130,16 +134,11 @@ struct TRINITY_DLL_DECL boss_flame_leviathanAI : public BossAI
         if (!me->isInCombat())
             return;
 
-        if (me->getThreatManager().isThreatListEmpty()) // This is wrong, Flame Leviathan isn't even supposed to have a threat list, he just "switches to another Siege Engine/Demolisher every 30 seconds"
+        if (me->getThreatManager().isThreatListEmpty())
         {
             EnterEvadeMode();
-            me->SetHealth(me->GetMaxHealth()); // EnterEvadeMode(); does not work against vehicles
             return;
         }
-
-        if(summons.size() < 4)
-            if(Creature *lift = DoSummonFlyer(MOB_MECHANOLIFT, me, 50, rand()%20 + 20, 0))
-                lift->GetMotionMaster()->MoveRandom(100);
 
         events.Update(diff);
 
@@ -154,8 +153,11 @@ struct TRINITY_DLL_DECL boss_flame_leviathanAI : public BossAI
         {
             case 0: break; // this is a must
             case EVENT_PURSUE:
-                DoCastAOE(SPELL_PURSUED);
-                events.RepeatEvent(35000);
+                DoCastAOE(SPELL_PURSUED, true);
+                //events.RepeatEvent(35000); // this should not be used because eventId may be overriden
+                events.RescheduleEvent(EVENT_PURSUE, 35000);
+                if(!me->getVictim()) // all siege engines and demolishers are dead
+                    UpdateVictim(); // begin to kill other things
                 return;
             case EVENT_MISSILE:
                 //TODO: without unittarget no visual effect
@@ -166,6 +168,16 @@ struct TRINITY_DLL_DECL boss_flame_leviathanAI : public BossAI
             case EVENT_VENT:
                 DoCastAOE(SPELL_FLAME_VENTS);
                 events.RepeatEvent(20000);
+                return;
+            case EVENT_SPEED:
+                DoCastAOE(SPELL_GATHERING_SPEED);
+                events.RepeatEvent(15000);
+                return;
+            case EVENT_SUMMON:
+                if(summons.size() < 10)
+                    if(Creature *lift = DoSummonFlyer(MOB_MECHANOLIFT, me, rand()%20 + 20, 50, 0))
+                        lift->GetMotionMaster()->MoveRandom(100);
+                events.RepeatEvent(2000);
                 return;
             case EVENT_MIMIRON_INFERNO: // Not Blizzlike
                 DoCast(me->getVictim(), SPELL_MIMIRON_INFERNO);
@@ -180,59 +192,6 @@ struct TRINITY_DLL_DECL boss_flame_leviathanAI : public BossAI
         }
 
         DoSpellAttackIfReady(SPELL_BATTERING_RAM);
-    }
-};
-
-
-struct TRINITY_DLL_DECL boss_flame_leviathan_turretAI : public ScriptedAI
-{
-    boss_flame_leviathan_turretAI(Creature *c) : ScriptedAI(c)
-    {
-        me->SetReactState(REACT_PASSIVE);
-    }
-
-    void Reset()
-    {
-        events.Reset();
-    }
-
-    EventMap events;
-
-    void EnterCombat(Unit *who)
-    {
-        events.ScheduleEvent(1, 5000);
-    }
-
-    void AttackStart(Unit *who)
-    {
-        if(who)
-            me->Attack(who, false);
-    }
-
-    void UpdateAI(const uint32 diff)
-    {
-        if (!UpdateCombatState())
-            return;
-
-        events.Update(diff);
-
-        if (me->hasUnitState(UNIT_STAT_CASTING))
-            return;
-
-        if (uint32 eventId = events.GetEvent())
-        {
-            switch(eventId)
-            {
-                case 1:
-                    DoCast(me->getVictim(), SPELL_FLAME_CANNON);
-                    AttackStart(SelectTarget(SELECT_TARGET_RANDOM));
-                    events.RepeatEvent(3000);
-                    return;
-                default:
-                    events.PopEvent();
-                    break;
-            }
-        }
     }
 };
 
@@ -293,50 +252,21 @@ struct TRINITY_DLL_DECL boss_flame_leviathan_seatAI : public PassiveAI
     }
 };
 
-struct TRINITY_DLL_DECL boss_flame_leviathan_defense_turretAI : public ScriptedAI
+struct TRINITY_DLL_DECL boss_flame_leviathan_defense_turretAI : public TurretAI
 {
-    boss_flame_leviathan_defense_turretAI(Creature *c) : ScriptedAI(c), timer(2000) {}
-
-    uint32 timer;
+    boss_flame_leviathan_defense_turretAI(Creature *c) : TurretAI(c) {}
 
     void DamageTaken(Unit *who, uint32 &damage)
     {
-        if (!who->GetVehicle() || who->GetVehicleBase()->GetEntry() != 33114)
+        if(!CanAIAttack(who))
             damage = 0;
     }
 
-    void MoveInLineOfSight(Unit *who)
+    bool CanAIAttack(const Unit *who) const
     {
-        if (me->getVictim())
-            return;
-
         if (who->GetTypeId() != TYPEID_PLAYER || !who->GetVehicle() || who->GetVehicleBase()->GetEntry() != 33114)
-            return;
-
-        AttackStart(who);
-    }
-
-    void AttackStart(Unit *who)
-    {
-        if(who)
-            me->Attack(who, false);
-    }
-
-    void UpdateAI(const uint32 diff)
-    {
-        if (!UpdateVictim())
-            return;
-
-        if (me->hasUnitState(UNIT_STAT_CASTING))
-            return;
-
-        if(timer > diff)
-            timer -= diff;
-        else
-        {
-            timer = 2000;
-            DoCast(me->getVictim(), SPELL_SEARING_FLAME);
-        }
+            return false;
+        return true;
     }
 };
 
@@ -388,11 +318,6 @@ CreatureAI* GetAI_boss_flame_leviathan(Creature* pCreature)
     return new boss_flame_leviathanAI (pCreature);
 }
 
-CreatureAI* GetAI_boss_flame_leviathan_turret(Creature* pCreature)
-{
-    return new boss_flame_leviathan_turretAI (pCreature);
-}
-
 CreatureAI* GetAI_boss_flame_leviathan_seat(Creature* pCreature)
 {
     return new boss_flame_leviathan_seatAI (pCreature);
@@ -419,11 +344,6 @@ void AddSC_boss_flame_leviathan()
     newscript = new Script;
     newscript->Name="boss_flame_leviathan";
     newscript->GetAI = &GetAI_boss_flame_leviathan;
-    newscript->RegisterSelf();
-
-    newscript = new Script;
-    newscript->Name="boss_flame_leviathan_turret";
-    newscript->GetAI = &GetAI_boss_flame_leviathan_turret;
     newscript->RegisterSelf();
 
     newscript = new Script;

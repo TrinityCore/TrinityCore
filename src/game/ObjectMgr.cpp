@@ -1034,8 +1034,9 @@ uint32 ObjectMgr::ChooseDisplayId(uint32 team, const CreatureInfo *cinfo, const 
             case 33114: // Flame Leviathan Seat (model 24914 chair)
             case 33167: // Salvaged Demolisher Mechanic Seat
                 return cinfo->DisplayID_A[0];
-            case 33143: // Overload Control Device
             case 33218: // Pyrite Safety Container
+                return cinfo->DisplayID_A[1];
+            case 33143: // Overload Control Device
                 return cinfo->DisplayID_H[0];
             default:
                 return cinfo->GetRandomValidModelId();
