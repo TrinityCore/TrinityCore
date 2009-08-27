@@ -1710,8 +1710,11 @@ void WorldObject::SetMap(Map * map)
     ASSERT(!IsInWorld() || GetTypeId() == TYPEID_CORPSE);
     if(m_currMap == map) // command add npc: first create, than loadfromdb
         return;
-
-    ASSERT(!m_currMap);
+    if(m_currMap)
+    {
+        sLog.outCrash("WorldObject::SetMap: obj %u new map %u %u, old map %u %u", (uint32)GetTypeId(), map->GetId(), map->GetInstanceId(), m_currMap->GetId(), m_currMap->GetInstanceId());
+        assert(false);
+    }
     m_currMap = map;
     m_mapId = map->GetId();
     m_InstanceId = map->GetInstanceId();
