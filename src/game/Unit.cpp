@@ -3666,25 +3666,6 @@ int32 Unit::GetMaxNegativeAuraModifierByMiscValue(AuraType auratype, int32 misc_
     return modifier;
 }
 
-void Unit::SendAuraVisualForSelf(bool apply, uint32 id, uint8 effmask)
-{
-    WorldPacket data(SMSG_AURA_UPDATE);
-    data.append(GetPackGUID());
-    // use always free 64+ slots
-    data << uint8(MAX_AURAS);
-    if (!apply)
-    {
-        data << uint32(0);
-        SendMessageToSet(&data, true);
-        return;
-    }
-    data << uint32(id);
-    data << uint8(AFLAG_CASTER | AFLAG_POSITIVE | effmask);
-    data << uint8(getLevel());
-    data << uint8(1);
-    SendMessageToSet(&data, true);
-}
-
 bool Unit::AddAura(Aura *Aur, bool handleEffects)
 {
     // aura doesn't apply effects-return
@@ -4274,9 +4255,6 @@ bool Unit::HasAura(uint32 spellId, uint64 caster) const
     //Special case for non existing spell
     if (spellId==61988)
         return HasAura(61987, caster) || HasAura(25771, caster);
-    // Demonic Circle - special aura for client
-    else if (spellId==62388)
-        return HasAura(48018, caster);
 
     if (Aura * aur = GetAura(spellId, caster))
         return true;
