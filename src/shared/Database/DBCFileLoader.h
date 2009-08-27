@@ -32,7 +32,9 @@ enum
     FT_BYTE='b',                                            //uint8
     FT_SORT='d',                                            //sorted by this field, field is not included
     FT_IND='n',                                             //the same,but parsed to data
-    FT_LOGIC='l'                                            //Logical (boolean)
+    FT_LOGIC='l',                                            //Logical (boolean)
+    FT_SQL_PRESENT='p',                                      //Used in sql format to mark column present in sql dbc
+    FT_SQL_ABSENT='a'                                       //Used in sql format to mark column absent in sql dbc
 };
 
 class DBCFileLoader
@@ -88,10 +90,11 @@ class DBCFileLoader
         /// Get begin iterator over records
 
         uint32 GetNumRows() const { return recordCount;}
+        uint32 GetRowSize() const { return recordSize;}
         uint32 GetCols() const { return fieldCount; }
         uint32 GetOffset(size_t id) const { return (fieldsOffset != NULL && id < fieldCount) ? fieldsOffset[id] : 0; }
         bool IsLoaded() {return (data!=NULL);}
-        char* AutoProduceData(const char* fmt, uint32& count, char**& indexTable);
+        char* AutoProduceData(const char* fmt, uint32& count, char**& indexTable, uint32 sqlRecordCount, uint32 sqlHighestIndex, char *& sqlDataTable);
         char* AutoProduceStrings(const char* fmt, char* dataTable);
         static uint32 GetFormatRecordSize(const char * format, int32 * index_pos = NULL);
     private:

@@ -1336,7 +1336,7 @@ struct SpellEntry
     uint32    Category;                                     // 1        m_category
     uint32    Dispel;                                       // 2        m_dispelType
     uint32    Mechanic;                                     // 3        m_mechanic
-    uint32    Attributes;                                   // 4        m_attribute
+    uint32    Attributes;                                   // 4        m_attributes
     uint32    AttributesEx;                                 // 5        m_attributesEx
     uint32    AttributesEx2;                                // 6        m_attributesExB
     uint32    AttributesEx3;                                // 7        m_attributesExC

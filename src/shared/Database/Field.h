@@ -65,6 +65,17 @@ class Field
             else
                 return 0;
         }
+        uint64 GetInt64() const
+        {
+            if(mValue)
+            {
+                int64 value;
+                sscanf(mValue,SI64FMTD,&value);
+                return value;
+            }
+            else
+                return 0;
+        }
 
         void SetType(enum DataTypes type) { mType = type; }
 
