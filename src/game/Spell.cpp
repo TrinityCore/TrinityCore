@@ -4488,17 +4488,6 @@ SpellCastResult Spell::CheckCast(bool strict)
                         return SPELL_FAILED_BAD_TARGETS;
                 }
             }
-
-            // Some special spells with non-caster only mode
-
-            // Fire Shield
-            if (m_spellInfo->SpellFamilyName == SPELLFAMILY_WARLOCK &&
-                m_spellInfo->SpellIconID == 16)
-                return SPELL_FAILED_BAD_TARGETS;
-
-            // Focus Magic (main spell)
-            if (m_spellInfo->Id == 54646)
-                return SPELL_FAILED_BAD_TARGETS;
         }
 
         // check pet presents
