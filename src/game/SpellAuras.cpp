@@ -4468,9 +4468,6 @@ void AuraEffect::HandleAuraPeriodicDummy(bool apply, bool Real, bool changeAmoun
     if(!Real && !changeAmount)
         return;
 
-    // For prevent double apply bonuses
-    bool loading = (m_target->GetTypeId() == TYPEID_PLAYER && ((Player*)m_target)->GetSession()->PlayerLoading());
-
     Unit* caster = GetCaster();
 
     SpellEntry const*spell = GetSpellProto();
@@ -4496,17 +4493,14 @@ void AuraEffect::HandleAuraPeriodicDummy(bool apply, bool Real, bool changeAmoun
             {
                 // Demonic Circle
                 case 48018:
-                    if (apply)
-                        // set to false at initial cast to enable button at next enable in periodic handler
-                        m_target->SendAuraVisualForSelf(false,62388);
-                    else
+                    if (!apply)
                     {
                         // Do not remove GO when aura is removed by stack
                         // to prevent remove GO added by new spell
                         // old one is already removed
                         if (GetParentAura()->GetRemoveMode()!=AURA_REMOVE_BY_STACK)
                             m_target->RemoveGameObject(spell->Id,true);
-                        m_target->SendAuraVisualForSelf(false,62388);
+                        m_target->RemoveAura(62388);
                     }
                 break;
             }
@@ -6380,8 +6374,15 @@ void AuraEffect::PeriodicDummyTick()
                 // Demonic Circle
                 case 48018:
                     if(GameObject* obj = m_target->GetGameObject(spell->Id))
-                        // We must take a range of teleport spell, not summon.
-                        m_target->SendAuraVisualForSelf(m_target->IsWithinDist(obj, GetSpellMaxRange(48020, true)), 62388, 1);
+                    {
+                        if (m_target->IsWithinDist(obj, GetSpellMaxRange(48020, true)))
+                        {
+                            if (!m_target->HasAura(62388))
+                                m_target->CastSpell(m_target, 62388, true);
+                        }
+                        else
+                            m_target->RemoveAura(62388);
+                    }
                     return;
             }
             break;

@@ -1642,7 +1642,6 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
         }
         void SetVisibleAura(uint8 slot, Aura * aur){ m_visibleAuras[slot]=aur; }
         void RemoveVisibleAura(uint8 slot){ m_visibleAuras.erase(slot); }
-        void SendAuraVisualForSelf(bool apply, uint32 id, uint8 effmask = 0);
 
         AuraMap      & GetAuras()       { return m_Auras; }
         AuraMap const& GetAuras() const { return m_Auras; }

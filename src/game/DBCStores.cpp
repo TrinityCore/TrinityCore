@@ -165,13 +165,17 @@ static bool LoadDBC_assert_print(uint32 fsize,uint32 rsize, const std::string& f
 }
 
 template<class T>
-inline void LoadDBC(uint32& availableDbcLocales,barGoLink& bar, StoreProblemList& errlist, DBCStorage<T>& storage, const std::string& dbc_path, const std::string& filename)
+inline void LoadDBC(uint32& availableDbcLocales,barGoLink& bar, StoreProblemList& errlist, DBCStorage<T>& storage, const std::string& dbc_path, const std::string& filename, const std::string * custom_entries = NULL, const std::string * idname = NULL)
 {
     // compatibility format and C++ structure sizes
     assert(DBCFileLoader::GetFormatRecordSize(storage.GetFormat()) == sizeof(T) || LoadDBC_assert_print(DBCFileLoader::GetFormatRecordSize(storage.GetFormat()),sizeof(T),filename));
 
     std::string dbc_filename = dbc_path + filename;
-    if(storage.Load(dbc_filename.c_str()))
+    SqlDbc * sql = NULL;
+    if (custom_entries)
+        sql = new SqlDbc(&filename,custom_entries, idname,storage.GetFormat());
+
+    if(storage.Load(dbc_filename.c_str(), sql))
     {
         bar.step();
         for(uint8 i = 0; i < MAX_LOCALE; ++i)
@@ -198,6 +202,8 @@ inline void LoadDBC(uint32& availableDbcLocales,barGoLink& bar, StoreProblemList
         else
             errlist.push_back(dbc_filename);
     }
+    if (sql)
+       delete sql;
 }
 
 void LoadDBCStores(const std::string& dataPath)
@@ -316,7 +322,7 @@ void LoadDBCStores(const std::string& dataPath)
     LoadDBC(availableDbcLocales,bar,bad_dbc_files,sSkillLineStore,           dbcPath,"SkillLine.dbc");
     LoadDBC(availableDbcLocales,bar,bad_dbc_files,sSkillLineAbilityStore,    dbcPath,"SkillLineAbility.dbc");
     LoadDBC(availableDbcLocales,bar,bad_dbc_files,sSoundEntriesStore,        dbcPath,"SoundEntries.dbc");
-    LoadDBC(availableDbcLocales,bar,bad_dbc_files,sSpellStore,               dbcPath,"Spell.dbc");
+    LoadDBC(availableDbcLocales,bar,bad_dbc_files,sSpellStore,               dbcPath,"Spell.dbc", &CustomSpellEntryfmt, &CustomSpellEntryIndex);
     for(uint32 i = 1; i < sSpellStore.GetNumRows(); ++i)
     {
         SpellEntry const * spell = sSpellStore.LookupEntry(i);

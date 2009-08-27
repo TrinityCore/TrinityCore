@@ -1846,6 +1846,14 @@ INSERT INTO `spell_bonus_data` (`entry`, `direct_bonus`, `dot_bonus`, `ap_bonus`
 (6343, -1, -1, 0.12, -1, 'Warrior - Thunder Clap');
 
 -- --------
+-- SPELL DBC
+-- --------
+
+TRUNCATE TABLE `spell_dbc`;
+INSERT INTO `spell_dbc` (`Id`, `DurationIndex`, `Effect1`, `EffectImplicitTargetA1`, `EffectApplyAuraName1`, `Comment`) VALUES 
+(62388, 21, 6, 1, 4, 'Demonic Circle: Teleport(48020) - casterAuraSpell');
+
+-- --------
 -- SPELL ELIXIR
 -- --------
 

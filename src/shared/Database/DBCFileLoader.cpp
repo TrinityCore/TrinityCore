@@ -137,7 +137,7 @@ uint32 DBCFileLoader::GetFormatRecordSize(const char * format,int32* index_pos)
     return recordsize;
 }
 
-char* DBCFileLoader::AutoProduceData(const char* format, uint32& records, char**& indexTable)
+char* DBCFileLoader::AutoProduceData(const char* format, uint32& records, char**& indexTable, uint32 sqlRecordCount, uint32 sqlHighestIndex, char *& sqlDataTable)
 {
     /*
     format STRING, NA, FLOAT,NA,INT <=>
@@ -168,6 +168,10 @@ char* DBCFileLoader::AutoProduceData(const char* format, uint32& records, char**
             if(ind>maxi)maxi=ind;
         }
 
+        // If higher index avalible from sql - use it instead of dbcs
+        if (sqlHighestIndex > maxi)
+            maxi = sqlHighestIndex;
+
         ++maxi;
         records=maxi;
         indexTable=new ptr[maxi];
@@ -175,15 +179,15 @@ char* DBCFileLoader::AutoProduceData(const char* format, uint32& records, char**
     }
     else
     {
-        records = recordCount;
-        indexTable = new ptr[recordCount];
+        records = recordCount + sqlRecordCount;
+        indexTable = new ptr[recordCount+ sqlRecordCount];
     }
 
-    char* dataTable= new char[recordCount*recordsize];
+    char* dataTable= new char[(recordCount + sqlRecordCount)*recordsize];
 
     uint32 offset=0;
 
-    for(uint32 y =0;y<recordCount;y++)
+    for(uint32 y =0;y<recordCount;++y)
     {
         if(i>=0)
         {
@@ -216,6 +220,7 @@ char* DBCFileLoader::AutoProduceData(const char* format, uint32& records, char**
             }
         }
     }
+    sqlDataTable = dataTable + offset;
 
     return dataTable;
 }
