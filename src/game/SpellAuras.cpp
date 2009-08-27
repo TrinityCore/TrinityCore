@@ -1854,21 +1854,20 @@ bool Aura::CanBeSaved() const
 
 bool Aura::IsPersistent() const
 {
+    return IS_DYNAMICOBJECT_GUID(m_sourceGuid);
+    /*
     for(uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-    {
         if(m_partAuras[i] && m_partAuras[i]->IsPersistent())
             return true;
-    }
     return false;
+    */
 }
 
 bool Aura::IsAreaAura() const
 {
     for(uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-    {
         if(m_partAuras[i] && m_partAuras[i]->IsAreaAura())
             return true;
-    }
     return false;
 }
 
