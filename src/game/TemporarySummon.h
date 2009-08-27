@@ -38,7 +38,7 @@ class TRINITY_DLL_SPEC TempSummon : public Creature
         Unit* GetSummoner() const;
         uint64 const& GetSummonerGUID() { return m_summonerGUID; }
 
-        SummonPropertiesEntry const *m_Properties;
+        const SummonPropertiesEntry * const m_Properties;
     private:
         TempSummonType m_type;
         uint32 m_timer;
@@ -56,6 +56,7 @@ class Minion : public TempSummon
         float GetFollowAngle() const { return m_followAngle; }
         void SetFollowAngle(float angle) { m_followAngle = angle; }
         bool IsPetGhoul() const {return GetEntry() == 26125;} // Ghoul may be guardian or pet
+        bool IsGuardianPet() const;
     protected:
         Unit * const m_owner;
         float m_followAngle;
