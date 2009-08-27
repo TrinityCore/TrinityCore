@@ -1006,13 +1006,58 @@ void Aura::HandleAuraSpecificMods(bool apply)
                 }
             }
         }
-        // Sprint (skip non player casted spells by category)
         else if (GetSpellProto()->SpellFamilyName == SPELLFAMILY_ROGUE)
         {
+            // Sprint (skip non player casted spells by category)
             if(GetSpellProto()->SpellFamilyFlags[0] & 0x40 && GetSpellProto()->Category == 44)
                 // in official maybe there is only one icon?
                 if(m_target->HasAura(58039)) // Glyph of Blurred Speed
                     m_target->CastSpell(m_target, 61922, true); // Sprint (waterwalk)
+        }
+        else if (GetSpellProto()->SpellFamilyName == SPELLFAMILY_DEATHKNIGHT)
+        {
+            // Frost Fever and Blood Plague
+            if(GetSpellProto()->SpellFamilyFlags[2] & 0x2)
+            {
+                // Can't proc on self
+                if (GetCasterGUID() == m_target->GetGUID())
+                    return;
+                Unit * caster = GetCaster();
+                if (!caster)
+                    return;
+
+                AuraEffect * aurEff = NULL;
+                // Ebon Plaguebringer / Crypt Fever
+                Unit::AuraEffectList const& TalentAuras = caster->GetAurasByType(SPELL_AURA_OVERRIDE_CLASS_SCRIPTS);
+                for(Unit::AuraEffectList::const_iterator itr = TalentAuras.begin(); itr != TalentAuras.end(); ++itr)
+                {
+                    if ((*itr)->GetMiscValue() == 7282)
+                    {
+                        aurEff = *itr;
+                        // Ebon Plaguebringer - end search if found
+                        if ((*itr)->GetSpellProto()->SpellIconID == 1766)
+                            break;
+                    }
+                }
+                if (aurEff)
+                {
+                    uint32 spellId = 0;
+                    switch (aurEff->GetId())
+                    {
+                        // Ebon Plague
+                        case 51161: spellId = 51735; break;
+                        case 51160: spellId = 51734; break;
+                        case 51099: spellId = 51726; break;
+                        // Crypt Fever
+                        case 49632: spellId = 50510; break;
+                        case 49631: spellId = 50509; break;
+                        case 49032: spellId = 50508; break;
+                        default:
+                            sLog.outError("Unknown rank of Crypt Fever/Ebon Plague %d", aurEff->GetId());
+                    }
+                    caster->CastSpell(m_target, spellId, true, 0, GetPartAura(0));
+                }
+            }
         }
         else
         {
