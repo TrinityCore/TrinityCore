@@ -995,7 +995,6 @@ void WorldSession::HandleGuildBankDepositMoney( WorldPacket & recv_data )
 
     pGuild->DisplayGuildBankTabsInfo(this);
     pGuild->DisplayGuildBankContent(this, 0);
-    pGuild->DisplayGuildBankMoneyUpdate();
 }
 
 void WorldSession::HandleGuildBankWithdrawMoney( WorldPacket & recv_data )
@@ -1043,8 +1042,7 @@ void WorldSession::HandleGuildBankWithdrawMoney( WorldPacket & recv_data )
 
     pGuild->SendMoneyInfo(this, GetPlayer()->GetGUIDLow());
     pGuild->DisplayGuildBankTabsInfo(this);
-    pGuild->DisplayGuildBankContent(this, 0);
-    pGuild->DisplayGuildBankMoneyUpdate();
+    pGuild->DisplayGuildBankContent(this,0);
 }
 
 void WorldSession::HandleGuildBankSwapItems( WorldPacket & recv_data )
