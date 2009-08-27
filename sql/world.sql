@@ -2840,7 +2840,7 @@ CREATE TABLE `spell_dbc` (
 	`AreaGroupId` INT NOT NULL DEFAULT 0,
 	`SchoolMask` INT UNSIGNED NOT NULL DEFAULT 0,
 	`Comment` TEXT NOT NULL,
-	PRIMARY KEY (`id`)
+	PRIMARY KEY (`Id`)
 )ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Custom spell.dbc entries';
 
 --
