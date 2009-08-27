@@ -4131,14 +4131,17 @@ void Spell::EffectSummonPet(uint32 i)
             if( OldSummon->isDead() )
                 return;
 
-            OldSummon->GetMap()->Remove((Creature*)OldSummon,false);
+            assert(OldSummon->GetMap() == owner->GetMap());
+
+            //OldSummon->GetMap()->Remove((Creature*)OldSummon,false);
 
             float px, py, pz;
             owner->GetClosePoint(px, py, pz, OldSummon->GetObjectSize());
 
-            OldSummon->Relocate(px, py, pz, OldSummon->GetOrientation());
-            OldSummon->SetMap(owner->GetMap());
-            owner->GetMap()->Add((Creature*)OldSummon);
+            OldSummon->NearTeleportTo(px, py, pz, OldSummon->GetOrientation());
+            //OldSummon->Relocate(px, py, pz, OldSummon->GetOrientation());
+            //OldSummon->SetMap(owner->GetMap());
+            //owner->GetMap()->Add((Creature*)OldSummon);
 
             if(owner->GetTypeId() == TYPEID_PLAYER && OldSummon->isControlled() )
             {
