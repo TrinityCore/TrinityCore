@@ -1058,7 +1058,7 @@ UPDATE `gameobject_template` SET `ScriptName`='go_altar_of_archaedas' WHERE `ent
 UPDATE `instance_template` SET `script`='instance_ulduar' WHERE `map`=603;
 UPDATE `creature_template` SET `ScriptName` = 'boss_auriaya' WHERE `entry` = 33515;
 UPDATE `creature_template` SET `ScriptName` = 'boss_flame_leviathan' WHERE `entry` = 33113;
-UPDATE `creature_template` SET `ScriptName` = 'boss_flame_leviathan_turret' WHERE entry=33139;
+UPDATE `creature_template` SET AIName = 'TurretAI',`ScriptName` = '' WHERE entry=33139;
 UPDATE `creature_template` SET `ScriptName` = 'boss_flame_leviathan_seat' WHERE entry=33114;
 UPDATE `creature_template` SET `ScriptName` = 'boss_flame_leviathan_defense_turret' WHERE entry=33142;
 UPDATE `creature_template` SET `ScriptName` = 'boss_flame_leviathan_overload_device' WHERE entry=33143;

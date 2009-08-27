@@ -562,6 +562,8 @@ void Creature::Update(uint32 diff)
             break;
         }
         case DEAD_FALLING:
+            GetMotionMaster()->UpdateMotion(diff);
+            break;
         default:
             break;
     }
@@ -1817,6 +1819,7 @@ bool Creature::FallGround()
     if (fabs(ground_Z - z) < 0.1f)
         return false;
 
+    RemoveUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
     GetMotionMaster()->MovePoint(EVENT_FALL_GROUND, x, y, ground_Z);
     Unit::setDeathState(DEAD_FALLING);
     return true;

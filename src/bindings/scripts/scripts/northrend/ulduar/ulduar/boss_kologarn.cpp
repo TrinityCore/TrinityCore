@@ -18,3 +18,50 @@
 
 #include "precompiled.h"
 #include "def_ulduar.h"
+#include "Vehicle.h"
+
+#define SPELL_ARM_DEAD_DAMAGE   HEROIC(63629,63979)
+#define SPELL_TWO_ARM_SMASH     HEROIC(63356,64003)
+#define SPELL_ONE_ARM_SMASH     HEROIC(63573,64006)
+#define SPELL_STONE_SHOUT       HEROIC(63716,64005)
+#define SPELL_PETRIFY_BREATH    HEROIC(62030,63980)
+
+#define SPELL_STONE_GRIP        HEROIC(62166,63981)
+#define SPELL_ARM_SWEEP         HEROIC(63766,63983)
+
+struct TRINITY_DLL_DECL boss_kologarnAI : public BossAI
+{
+    boss_kologarnAI(Creature *c) : BossAI(c, BOSS_KOLOGARN), vehicle(me->GetVehicleKit())
+    {
+        assert(vehicle);
+    }
+
+    Vehicle *vehicle;
+
+    void AttackStart(Unit *who)
+    {
+        me->Attack(who, true);
+    }
+
+    void UpdateAI(const uint32 diff)
+    {
+        if(!UpdateVictim())
+            return;
+
+        DoMeleeAttackIfReady();
+    }
+};
+
+CreatureAI* GetAI_boss_kologarn(Creature* pCreature)
+{
+    return new boss_kologarnAI (pCreature);
+}
+
+void AddSC_boss_kologarn()
+{
+    Script *newscript;
+    newscript = new Script;
+    newscript->Name="boss_kologarn";
+    newscript->GetAI = &GetAI_boss_kologarn;
+    newscript->RegisterSelf();
+}
