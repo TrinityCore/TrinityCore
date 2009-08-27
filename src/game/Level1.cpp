@@ -814,9 +814,10 @@ bool ChatHandler::HandleNamegoCommand(const char* args)
             // if both players are in different bgs
             else if (target->GetBattleGroundId() && m_session->GetPlayer()->GetBattleGroundId() != target->GetBattleGroundId())
             {
-                PSendSysMessage(LANG_CANNOT_GO_TO_BG_FROM_BG,nameLink.c_str());
-                SetSentErrorMessage(true);
-                return false;
+                target->LeaveBattleground(false); // Note: should be changed so target gets no Deserter debuff
+                //PSendSysMessage(LANG_CANNOT_GO_TO_BG_FROM_BG,nameLink.c_str());
+                //SetSentErrorMessage(true);
+                //return false;
             }
             // all's well, set bg id
             // when porting out from the bg, it will be reset to 0
@@ -829,10 +830,11 @@ bool ChatHandler::HandleNamegoCommand(const char* args)
             Map* cMap = target->GetMap();
             if (cMap->Instanceable() && cMap->GetInstanceId() != pMap->GetInstanceId())
             {
+                target->UnbindInstance(pMap->GetInstanceId(), target->GetDifficulty(), true);
                 // cannot summon from instance to instance
-                PSendSysMessage(LANG_CANNOT_SUMMON_TO_INST,nameLink.c_str());
-                SetSentErrorMessage(true);
-                return false;
+                //PSendSysMessage(LANG_CANNOT_SUMMON_TO_INST,nameLink.c_str());
+                //SetSentErrorMessage(true);
+                //return false;
             }
 
             // we are in instance, and can summon only player in our group with us as lead
@@ -865,6 +867,7 @@ bool ChatHandler::HandleNamegoCommand(const char* args)
         float x,y,z;
         m_session->GetPlayer()->GetClosePoint(x,y,z,target->GetObjectSize());
         target->TeleportTo(m_session->GetPlayer()->GetMapId(),x,y,z,target->GetOrientation());
+        target->SetPhaseMask(m_session->GetPlayer()->GetPhaseMask(), true);
     }
     else
     {
@@ -928,9 +931,10 @@ bool ChatHandler::HandleGonameCommand(const char* args)
             // if both players are in different bgs
             else if (_player->GetBattleGroundId() && _player->GetBattleGroundId() != target->GetBattleGroundId())
             {
-                PSendSysMessage(LANG_CANNOT_GO_TO_BG_FROM_BG,chrNameLink.c_str());
-                SetSentErrorMessage(true);
-                return false;
+                _player->LeaveBattleground(false); // Note: should be changed so _player gets no Deserter debuff
+                //PSendSysMessage(LANG_CANNOT_GO_TO_BG_FROM_BG,chrNameLink.c_str());
+                //SetSentErrorMessage(true);
+                //return false;
             }
             // all's well, set bg id
             // when porting out from the bg, it will be reset to 0
@@ -1002,6 +1006,7 @@ bool ChatHandler::HandleGonameCommand(const char* args)
         target->GetContactPoint(_player,x,y,z);
 
         _player->TeleportTo(target->GetMapId(), x, y, z, _player->GetAngle(target), TELE_TO_GM_MODE);
+        _player->SetPhaseMask(target->GetPhaseMask(), true);
     }
     else
     {
