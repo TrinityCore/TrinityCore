@@ -1101,7 +1101,7 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
         {
             m_attackers.erase(pAttacker);
         }
-        Unit * getAttackerForHelper()                       // If someone wants to help, who to give them
+        Unit * getAttackerForHelper() const                 // If someone wants to help, who to give them
         {
             if (getVictim() != NULL)
                 return getVictim();
@@ -1869,7 +1869,7 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
 
         virtual float GetFollowAngle() const { return M_PI/2; }
 
-        void OutDebugInfo();
+        void OutDebugInfo() const;
         virtual bool isBeingLoaded() const { return false;}
     protected:
         explicit Unit ();
