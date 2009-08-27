@@ -14844,8 +14844,9 @@ void Unit::ExitVehicle()
     BuildHeartBeatMsg(&data);
     SendMessageToSet(&data, false);
 
-    if(vehicle->GetBase()->GetOwnerGUID() == GetGUID())
-        vehicle->Dismiss();
+    if(vehicle->GetBase()->HasUnitTypeMask(UNIT_MASK_MINION))
+        if(((Minion*)vehicle->GetBase())->GetOwner() == this)
+            vehicle->Dismiss();
 }
 
 void Unit::BuildMovementPacket(ByteBuffer *data) const
@@ -14885,7 +14886,6 @@ void Unit::BuildMovementPacket(ByteBuffer *data) const
         else
         {
             sLog.outError("Unit %u does not have transport!", GetEntry());
-            OutDebugInfo();
             *data << (uint8)0;
         }
         *data << float (GetTransOffsetX());
