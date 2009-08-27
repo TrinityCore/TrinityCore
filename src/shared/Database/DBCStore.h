@@ -21,7 +21,44 @@
 
 #include "DBCFileLoader.h"
 #include "Log.h"
-struct SqlDbc;
+
+struct SqlDbc
+{
+    const std::string * formatString;
+    const std::string * indexName;
+    std::string sqlTableName;
+    int32 indexPos;
+    int32 sqlIndexPos;
+    SqlDbc(const std::string * _filename, const std::string * _format, const std::string * _idname, const char * fmt)
+        :formatString(_format),sqlIndexPos(0), indexName (_idname)
+    {
+        // Convert dbc file name to sql table name
+        sqlTableName = *_filename;
+        for (uint32 i = 0;i< sqlTableName.size();++i)
+        {
+            if (isalpha(sqlTableName[i]))
+                sqlTableName[i] = tolower(sqlTableName[i]);
+            else if (sqlTableName[i] == '.')
+                sqlTableName[i] = '_';
+        }
+
+        // Get sql index position
+        DBCFileLoader::GetFormatRecordSize(fmt, &indexPos);
+        if (indexPos>=0)
+        {
+            for(uint32 x=0;x < formatString->size();x++)
+            {
+                // Count only fields present in sql
+                if ((*formatString)[x] == FT_SQL_PRESENT)
+                {
+                    if (x == indexPos)
+                        break;
+                    ++sqlIndexPos;
+                }
+            }
+        }
+    }
+};
 
 template<class T>
 class DBCStorage
@@ -229,41 +266,4 @@ class DBCStorage
         StringPoolList m_stringPoolList;
 };
 
-struct SqlDbc
-{
-    const std::string * formatString;
-    const std::string * indexName;
-    std::string sqlTableName;
-    int32 indexPos;
-    int32 sqlIndexPos;
-    SqlDbc(const std::string * _filename, const std::string * _format, const std::string * _idname, const char * fmt)
-        :formatString(_format),sqlIndexPos(0), indexName (_idname)
-    {
-        // Convert dbc file name to sql table name
-        sqlTableName = *_filename;
-        for (uint32 i = 0;i< sqlTableName.size();++i)
-        {
-            if (isalpha(sqlTableName[i]))
-                sqlTableName[i] = tolower(sqlTableName[i]);
-            else if (sqlTableName[i] == '.')
-                sqlTableName[i] = '_';
-        }
-
-        // Get sql index position
-        DBCFileLoader::GetFormatRecordSize(fmt, &indexPos);
-        if (indexPos>=0)
-        {
-            for(uint32 x=0;x < formatString->size();x++)
-            {
-                // Count only fields present in sql
-                if ((*formatString)[x] == FT_SQL_PRESENT)
-                {
-                    if (x == indexPos)
-                        break;
-                    ++sqlIndexPos;
-                }
-            }
-        }
-    }
-};
 #endif
