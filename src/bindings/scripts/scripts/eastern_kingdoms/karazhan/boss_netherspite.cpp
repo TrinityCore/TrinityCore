@@ -147,17 +147,9 @@ struct TRINITY_DLL_DECL boss_netherspiteAI : public ScriptedAI
         for(int i=0; i<3; ++i)
         {
             if(Creature *portal = Unit::GetCreature(*m_creature, PortalGUID[i]))
-            {
-                portal->SetVisibility(VISIBILITY_OFF);
-                portal->DealDamage(portal, portal->GetMaxHealth());
-                portal->RemoveFromWorld();
-            }
+                portal->DisappearAndDie();
             if(Creature *portal = Unit::GetCreature(*m_creature, BeamerGUID[i]))
-            {
-                portal->SetVisibility(VISIBILITY_OFF);
-                portal->DealDamage(portal, portal->GetMaxHealth());
-                portal->RemoveFromWorld();
-            }
+                portal->DisappearAndDie();
             PortalGUID[i] = 0;
             BeamTarget[i] = 0;
         }
@@ -204,9 +196,7 @@ struct TRINITY_DLL_DECL boss_netherspiteAI : public ScriptedAI
                     if(Creature *beamer = Unit::GetCreature(*portal, BeamerGUID[j]))
                     {
                         beamer->CastSpell(target, PortalBeam[j], false);
-                        beamer->SetVisibility(VISIBILITY_OFF);
-                        beamer->DealDamage(beamer, beamer->GetMaxHealth());
-                        beamer->RemoveFromWorld();
+                        beamer->DisappearAndDie();
                         BeamerGUID[j] = 0;
                     }
                     // create new one and start beaming on the target
