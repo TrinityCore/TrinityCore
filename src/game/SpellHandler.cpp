@@ -518,7 +518,9 @@ void WorldSession::HandleSpellClick( WorldPacket & recv_data )
     uint64 guid;
     recv_data >> guid;
 
-    Creature *unit = ObjectAccessor::GetCreatureOrPetOrVehicle(*_player, guid);
+    // this will get something not in world. crash
+    //Creature *unit = ObjectAccessor::GetCreatureOrPetOrVehicle(*_player, guid);
+    Creature *unit = Unit::GetCreature(*_player, guid);
 
     if(!unit)
         return;
