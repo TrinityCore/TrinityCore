@@ -110,11 +110,10 @@ void CreatureAI::MoveInLineOfSight(Unit *who)
 
     if(me->canStartAttack(who, false))
         AttackStart(who);
-    else if(who->getVictim() && me->IsFriendlyTo(who)
-        && me->IsWithinDistInMap(who, sWorld.getConfig(CONFIG_CREATURE_FAMILY_ASSISTANCE_RADIUS))
-        //&& me->canStartAttack(who->getVictim(), true))
-        && me->canStartAttack(who->getVictim(), false)) // TODO: if we use true, it will not attack it when it arrives
-        me->GetMotionMaster()->MoveChase(who->getVictim());
+    //else if(who->getVictim() && me->IsFriendlyTo(who)
+    //    && me->IsWithinDistInMap(who, sWorld.getConfig(CONFIG_CREATURE_FAMILY_ASSISTANCE_RADIUS))
+    //    && me->canStartAttack(who->getVictim(), true)) // TODO: if we use true, it will not attack it when it arrives
+    //    me->GetMotionMaster()->MoveChase(who->getVictim());
 }
 
 void CreatureAI::SelectNearestTarget(Unit *who)

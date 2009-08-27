@@ -450,6 +450,7 @@ Spell::Spell( Unit* Caster, SpellEntry const *info, bool triggered, uint64 origi
     m_preCastSpell = 0;
     m_triggeredByAuraSpell  = NULL;
     m_spellAura = NULL;
+    m_spellDynObj = NULL;
 
     //Auto Shot & Shoot (wand)
     m_autoRepeat = IsAutoRepeatRangedSpell(m_spellInfo);
@@ -4487,17 +4488,6 @@ SpellCastResult Spell::CheckCast(bool strict)
                         return SPELL_FAILED_BAD_TARGETS;
                 }
             }
-
-            // Some special spells with non-caster only mode
-
-            // Fire Shield
-            if (m_spellInfo->SpellFamilyName == SPELLFAMILY_WARLOCK &&
-                m_spellInfo->SpellIconID == 16)
-                return SPELL_FAILED_BAD_TARGETS;
-
-            // Focus Magic (main spell)
-            if (m_spellInfo->Id == 54646)
-                return SPELL_FAILED_BAD_TARGETS;
         }
 
         // check pet presents
@@ -6048,13 +6038,9 @@ void Spell::DelayedChannel()
         }
     }
 
-    for(int j = 0; j < 3; ++j)
-    {
-        // partially interrupt persistent area auras
-        DynamicObject* dynObj = m_caster->GetDynObject(m_spellInfo->Id, j);
-        if(dynObj)
-            dynObj->Delay(delaytime);
-    }
+    // partially interrupt persistent area auras
+    if(DynamicObject* dynObj = m_caster->GetDynObject(m_spellInfo->Id))
+        dynObj->Delay(delaytime);
 
     SendChannelUpdate(m_timer);
 }

@@ -2926,6 +2926,13 @@ void Spell::EffectCreateRandomItem(uint32 i)
 
 void Spell::EffectPersistentAA(uint32 i)
 {
+    if(m_spellDynObj)
+    {
+        assert(ObjectAccessor::GetObjectInWorld(m_spellDynObj->GetGUID(), (DynamicObject*)NULL) == m_spellDynObj);
+        m_spellDynObj->AddEffect(i);
+        return;
+    }
+
     float radius = GetSpellRadiusForFriend(sSpellRadiusStore.LookupEntry(m_spellInfo->EffectRadiusIndex[i]));
     if(Player* modOwner = m_originalCaster->GetSpellModOwner())
         modOwner->ApplySpellMod(m_spellInfo->Id, SPELLMOD_RADIUS, radius);
@@ -2933,7 +2940,7 @@ void Spell::EffectPersistentAA(uint32 i)
     Unit *caster = m_caster->GetEntry() == WORLD_TRIGGER ? m_originalCaster : m_caster;
     int32 duration = GetSpellDuration(m_spellInfo);
     DynamicObject* dynObj = new DynamicObject;
-    if(!dynObj->Create(objmgr.GenerateLowGuid(HIGHGUID_DYNAMICOBJECT), caster, m_spellInfo->Id, i, m_targets.m_destX, m_targets.m_destY, m_targets.m_destZ, duration, radius))
+    if(!dynObj->Create(objmgr.GenerateLowGuid(HIGHGUID_DYNAMICOBJECT), caster, m_spellInfo->Id, 1<<i, m_targets.m_destX, m_targets.m_destY, m_targets.m_destZ, duration, radius, false))
     {
         delete dynObj;
         return;
@@ -2941,6 +2948,7 @@ void Spell::EffectPersistentAA(uint32 i)
     dynObj->SetUInt32Value(DYNAMICOBJECT_BYTES, 0x01eeeeee);
     caster->AddDynObject(dynObj);
     dynObj->GetMap()->Add(dynObj);
+    m_spellDynObj = dynObj;
 }
 
 void Spell::EffectEnergize(uint32 i)
@@ -3718,7 +3726,7 @@ void Spell::EffectAddFarsight(uint32 i)
     float radius = GetSpellRadiusForFriend(sSpellRadiusStore.LookupEntry(m_spellInfo->EffectRadiusIndex[i]));
     int32 duration = GetSpellDuration(m_spellInfo);
     DynamicObject* dynObj = new DynamicObject;
-    if(!dynObj->Create(objmgr.GenerateLowGuid(HIGHGUID_DYNAMICOBJECT), m_caster, m_spellInfo->Id, 4, m_targets.m_destX, m_targets.m_destY, m_targets.m_destZ, duration, radius))
+    if(!dynObj->Create(objmgr.GenerateLowGuid(HIGHGUID_DYNAMICOBJECT), m_caster, m_spellInfo->Id, 0, m_targets.m_destX, m_targets.m_destY, m_targets.m_destZ, duration, radius, true))
     {
         delete dynObj;
         return;

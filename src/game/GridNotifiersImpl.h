@@ -178,8 +178,16 @@ inline void Trinity::DynamicObjectUpdater::VisitHelper(Unit* target)
     if (i_dynobject.IsAffecting(target))
         return;
 
-    uint32 eff_index  = i_dynobject.GetEffIndex();
-    if(target->HasAuraEffect(i_dynobject.GetSpellId(), eff_index, i_check->GetGUID()))
+    if(target->HasAura(i_dynobject.GetSpellId(), i_check->GetGUID()))
+        return;
+
+
+    uint32 eff_index = 0;
+    for(; eff_index < MAX_SPELL_EFFECTS; ++eff_index)
+        if(i_dynobject.HasEffect(eff_index))
+            break;
+
+    if(eff_index == MAX_SPELL_EFFECTS)
         return;
 
     SpellEntry const *spellInfo = sSpellStore.LookupEntry(i_dynobject.GetSpellId());
@@ -207,11 +215,12 @@ inline void Trinity::DynamicObjectUpdater::VisitHelper(Unit* target)
     // Check target immune to spell or aura
     if (target->IsImmunedToSpell(spellInfo) || target->IsImmunedToSpellEffect(spellInfo, eff_index))
         return;
-    // Apply PersistentAreaAura on target
-    if(Aura *aur = target->AddAuraEffect(spellInfo, eff_index, &i_dynobject, i_dynobject.GetCaster()))
-        aur->SetAuraDuration(i_dynobject.GetDuration());
 
-    i_dynobject.AddAffected(target);
+    // Apply PersistentAreaAura on target
+    Aura *aur = new Aura(spellInfo, i_dynobject.GetEffectMask(), target, &i_dynobject, i_check);
+    aur->SetAuraDuration(i_dynobject.GetDuration());
+    if(target->AddAura(aur, true))
+        i_dynobject.AddAffected(target);
 }
 
 template<>

@@ -27,6 +27,7 @@
 class Unit;
 class Player;
 class GameObject;
+class DynamicObject;
 class Aura;
 
 enum SpellCastTargetFlags
@@ -555,6 +556,7 @@ class Spell
         GameObject* gameObjTarget;
         int32 damage;
         Aura * m_spellAura; // only used in DoAllEffectOnTarget
+        DynamicObject *m_spellDynObj; // only used in DoAllEffectOnTarget
 
         // this is set in Spell Hit, but used in Apply Aura handler
         DiminishingLevels m_diminishLevel;

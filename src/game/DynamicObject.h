@@ -35,11 +35,13 @@ class DynamicObject : public WorldObject
         void AddToWorld();
         void RemoveFromWorld();
 
-        bool Create(uint32 guidlow, Unit *caster, uint32 spellId, uint32 effIndex, float x, float y, float z, int32 duration, float radius);
+        bool Create(uint32 guidlow, Unit *caster, uint32 spellId, uint32 effMask, float x, float y, float z, int32 duration, float radius, bool active);
         void Update(uint32 p_time);
         void Delete();
         uint32 GetSpellId() const { return m_spellId; }
-        uint32 GetEffIndex() const { return m_effIndex; }
+        uint32 GetEffectMask() const { return m_effMask; }
+        void AddEffect(uint32 effIndex) { m_effMask |= (1<<effIndex); }
+        bool HasEffect(uint32 effIndex) const { return m_effMask & (1<<effIndex); }
         uint32 GetDuration() const { return m_aliveDuration; }
         uint64 GetCasterGUID() const { return GetUInt64Value(DYNAMICOBJECT_CASTER); }
         Unit* GetCaster() const;
@@ -59,7 +61,7 @@ class DynamicObject : public WorldObject
         GridReference<DynamicObject> &GetGridRef() { return m_gridRef; }
     protected:
         uint32 m_spellId;
-        uint32 m_effIndex;
+        uint32 m_effMask;
         int32 m_aliveDuration;
         uint32 m_updateTimer;
         time_t m_nextThinkTime;
