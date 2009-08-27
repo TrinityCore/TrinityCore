@@ -389,7 +389,6 @@ class Guild
         // ** Guild bank **
         // Content & item deposit/withdraw
         void   DisplayGuildBankContent(WorldSession *session, uint8 TabId);
-        void   DisplayGuildBankMoneyUpdate();
 
         void   SwapItems( Player * pl, uint8 BankTab, uint8 BankTabSlot, uint8 BankTabDst, uint8 BankTabSlotDst, uint32 SplitedAmount);
         void   MoveFromBankToChar( Player * pl, uint8 BankTab, uint8 BankTabSlot, uint8 PlayerBag, uint8 PlayerSlot, uint32 SplitedAmount);
