@@ -8589,7 +8589,7 @@ Guardian* Unit::GetGuardianPet() const
             if(pet->HasUnitTypeMask(UNIT_MASK_GUARDIAN))
                 return (Guardian*)pet;
 
-        sLog.outError("Unit::GetGuardianPet: Guardian %u not exist.",GUID_LOPART(pet_guid));
+        sLog.outCrash("Unit::GetGuardianPet: Guardian " I64FMT " not exist.", pet_guid);
         const_cast<Unit*>(this)->SetPetGUID(0);
     }
 
@@ -8631,7 +8631,7 @@ void Unit::SetMinion(Minion *minion, bool apply)
         }
 
         // Can only have one pet. If a new one is summoned, dismiss the old one.
-        if(minion->isPet() || minion->m_Properties && minion->m_Properties->Category == SUMMON_CATEGORY_PET)
+        if(minion->IsGuardianPet())
         {
             if(Guardian* oldPet = GetGuardianPet())
             {
@@ -8653,7 +8653,7 @@ void Unit::SetMinion(Minion *minion, bool apply)
             }
         }
 
-        if(minion->HasUnitTypeMask(UNIT_MASK_GUARDIAN))
+        if(minion->HasUnitTypeMask(UNIT_MASK_CONTROLABLE_GUARDIAN))
         {
             if(AddUInt64Value(UNIT_FIELD_SUMMON, minion->GetGUID()))
             {
@@ -8666,7 +8666,7 @@ void Unit::SetMinion(Minion *minion, bool apply)
         minion->SetByteValue(UNIT_FIELD_BYTES_2, 1, GetByteValue(UNIT_FIELD_BYTES_2, 1));
 
         // FIXME: hack, speed must be set only at follow
-        if(GetTypeId() == TYPEID_PLAYER && minion->HasUnitTypeMask(UNIT_MASK_PET))
+        if(GetTypeId() == TYPEID_PLAYER && minion->isPet())
             for(uint8 i = 0; i < MAX_MOVE_TYPE; ++i)
                 minion->SetSpeed(UnitMoveType(i), m_speed_rate[i], true);
 
@@ -8696,11 +8696,9 @@ void Unit::SetMinion(Minion *minion, bool apply)
 
         m_Controlled.erase(minion);
 
-        if(minion->isPet() || minion->m_Properties && minion->m_Properties->Category == SUMMON_CATEGORY_PET)
-        {
+        if(minion->IsGuardianPet())
             if(GetPetGUID() == minion->GetGUID())
                 SetPetGUID(0);
-        }
 
         if (GetTypeId() == TYPEID_PLAYER)
         {
@@ -8733,15 +8731,15 @@ void Unit::SetMinion(Minion *minion, bool apply)
                     }
                     assert((*itr)->GetTypeId() == TYPEID_UNIT);
 
-                    if(!((Creature*)(*itr))->HasUnitTypeMask(UNIT_MASK_CONTROLABLE_GUARDIAN))
+                    if(!(*itr)->HasUnitTypeMask(UNIT_MASK_CONTROLABLE_GUARDIAN))
                         continue;
 
                     if(AddUInt64Value(UNIT_FIELD_SUMMON, (*itr)->GetGUID()))
                     {
                         //show another pet bar if there is no charm bar
-                        if(GetTypeId() == TYPEID_PLAYER && !GetCharmGUID() && ((Creature*)(*itr))->HasUnitTypeMask(UNIT_MASK_CONTROLABLE_GUARDIAN))
+                        if(GetTypeId() == TYPEID_PLAYER && !GetCharmGUID())
                         {
-                            if(((Creature*)(*itr))->isPet())
+                            if((*itr)->isPet())
                                 ((Player*)this)->PetSpellInitialize();
                             else
                                 ((Player*)this)->CharmSpellInitialize();
@@ -8930,9 +8928,7 @@ void Unit::RemoveAllControlled()
         {
             target->RemoveCharmAuras();
         }
-        else if(target->GetOwnerGUID() == GetGUID()
-            && target->GetTypeId() == TYPEID_UNIT
-            && ((Creature*)target)->HasUnitTypeMask(UNIT_MASK_SUMMON))
+        else if(target->GetOwnerGUID() == GetGUID() && target->isSummon())
         {
             ((TempSummon*)target)->UnSummon();
         }
@@ -12225,6 +12221,15 @@ void Unit::RemoveFromWorld()
             assert(false);
         }
 
+        if(Unit *owner = GetOwner())
+        {
+            if(owner->m_Controlled.find(this) != owner->m_Controlled.end())
+            {
+                sLog.outCrash("Unit %u is in controlled list of %u when removed from world", GetEntry(), owner->GetEntry());
+                assert(false);
+            }
+        }
+
         WorldObject::RemoveFromWorld();
     }
 }
@@ -14084,17 +14089,26 @@ bool Unit::SetCharmedBy(Unit* charmer, CharmType type)
     sLog.outDebug("SetCharmedBy: charmer %u, charmed %u, type %u.", charmer->GetEntry(), GetEntry(), (uint32)type);
 
     if(this == charmer)
+    {
+        sLog.outCrash("Unit::SetCharmedBy: Unit %u is trying to charm itself!", GetEntry());
         return false;
+    }
 
     //if(hasUnitState(UNIT_STAT_UNATTACKABLE))
     //    return false;
 
     if(GetTypeId() == TYPEID_PLAYER && ((Player*)this)->GetTransport())
+    {
+        sLog.outCrash("Unit::SetCharmedBy: Player on transport is trying to charm %u", GetEntry());
         return false;
+    }
 
     // Already charmed
     if(GetCharmerGUID())
+    {
+        sLog.outCrash("Unit::SetCharmedBy: %u has already been charmed but %u is trying to charm it!", GetEntry(), charmer->GetEntry());
         return false;
+    }
 
     CastStop();
     CombatStop(); //TODO: CombatStop(true) may cause crash (interrupt spells)
@@ -14116,7 +14130,10 @@ bool Unit::SetCharmedBy(Unit* charmer, CharmType type)
 
     // StopCastingCharm may remove a possessed pet?
     if(!IsInWorld())
+    {
+        sLog.outCrash("Unit::SetCharmedBy: %u is not in world but %u is trying to charm it!", GetEntry(), charmer->GetEntry());
         return false;
+    }
 
     // Set charmed
     setFaction(charmer->getFaction());

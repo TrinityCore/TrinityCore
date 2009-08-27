@@ -1756,23 +1756,31 @@ TempSummon *Map::SummonCreature(uint32 entry, float x, float y, float z, float a
     uint32 mask = UNIT_MASK_SUMMON;
     if(properties)
     {
-        if(properties->Category == SUMMON_CATEGORY_PET
-            || properties->Type == SUMMON_TYPE_GUARDIAN
-            || properties->Type == SUMMON_TYPE_MINION)
-            mask = UNIT_MASK_GUARDIAN;
-        else if(properties->Type == SUMMON_TYPE_TOTEM)
-            mask = UNIT_MASK_TOTEM;
-        else if(properties->Category == SUMMON_CATEGORY_VEHICLE)
-            mask = UNIT_MASK_MINION;
-        else if(properties->Type == SUMMON_TYPE_VEHICLE
-            || properties->Type == SUMMON_TYPE_VEHICLE2)
-            mask = UNIT_MASK_SUMMON;
-        else if(properties->Category == SUMMON_CATEGORY_PUPPET)
-            mask = UNIT_MASK_PUPPET;
-        else if(properties->Type == SUMMON_TYPE_MINIPET)
-            mask = UNIT_MASK_MINION;
-        else if (properties->Flags & 512) // Mirror Image, Summon Gargoyle
-            mask = UNIT_MASK_GUARDIAN;
+        switch(properties->Category)
+        {
+            case SUMMON_CATEGORY_PET:       mask = UNIT_MASK_GUARDIAN;  break;
+            case SUMMON_CATEGORY_PUPPET:    mask = UNIT_MASK_PUPPET;    break;
+            case SUMMON_CATEGORY_VEHICLE:   mask = UNIT_MASK_MINION;    break;
+            default:
+                switch(properties->Type)
+                {
+                    case SUMMON_TYPE_MINION:
+                    case SUMMON_TYPE_GUARDIAN:
+                        mask = UNIT_MASK_GUARDIAN;  break;
+                    case SUMMON_TYPE_TOTEM:
+                        mask = UNIT_MASK_TOTEM;     break;
+                    case SUMMON_TYPE_VEHICLE:
+                    case SUMMON_TYPE_VEHICLE2:
+                        mask = UNIT_MASK_SUMMON;    break;
+                    case SUMMON_TYPE_MINIPET:
+                        mask = UNIT_MASK_MINION;    break;
+                    default:
+                        if(properties->Flags & 512) // Mirror Image, Summon Gargoyle
+                            mask = UNIT_MASK_GUARDIAN;
+                        break;
+                }
+                break;
+        }
     }
 
     uint32 phase = PHASEMASK_NORMAL, team = 0;
@@ -1872,20 +1880,19 @@ Pet* Player::SummonPet(uint32 entry, float x, float y, float z, float ang, PetTy
         return NULL;
     }
 
+    pet->Relocate(x, y, z, ang);
+    if(!pet->IsPositionValid())
+    {
+        sLog.outError("ERROR: Pet (guidlow %d, entry %d) not summoned. Suggested coordinates isn't valid (X: %f Y: %f)",pet->GetGUIDLow(),pet->GetEntry(),pet->GetPositionX(),pet->GetPositionY());
+        delete pet;
+        return NULL;
+    }
+
     Map *map = GetMap();
     uint32 pet_number = objmgr.GeneratePetNumber();
     if(!pet->Create(objmgr.GenerateLowGuid(HIGHGUID_PET), map, GetPhaseMask(), entry, pet_number))
     {
         sLog.outError("no such creature entry %u", entry);
-        delete pet;
-        return NULL;
-    }
-
-    pet->Relocate(x, y, z, ang);
-
-    if(!pet->IsPositionValid())
-    {
-        sLog.outError("ERROR: Pet (guidlow %d, entry %d) not summoned. Suggested coordinates isn't valid (X: %f Y: %f)",pet->GetGUIDLow(),pet->GetEntry(),pet->GetPositionX(),pet->GetPositionY());
         delete pet;
         return NULL;
     }
