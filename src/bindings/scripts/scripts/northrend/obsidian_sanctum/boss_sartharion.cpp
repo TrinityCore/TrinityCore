@@ -145,8 +145,9 @@ Waypoint m_aVesp[]=
     {3227.268, 533.238, 59.995}
 };
 
+#define MAX_WAYPOINT 6
 //points around raid "isle", counter clockwise. should probably be adjusted to be more alike
-Waypoint m_aDragonCommon[]=
+Waypoint m_aDragonCommon[6]=
 {
     {3214.012, 468.932, 98.652},
     {3244.950, 468.427, 98.652},
@@ -700,8 +701,9 @@ struct TRINITY_DLL_DECL dummy_dragonAI : public ScriptedAI
         {
             if (m_uiMoveNextTimer < uiDiff)
             {
-                m_creature->GetMotionMaster()->MovePoint(m_uiWaypointId,
-                    m_aDragonCommon[m_uiWaypointId].m_fX, m_aDragonCommon[m_uiWaypointId].m_fY, m_aDragonCommon[m_uiWaypointId].m_fZ);
+                if(m_uiWaypointId < MAX_WAYPOINT)
+                    m_creature->GetMotionMaster()->MovePoint(m_uiWaypointId,
+                        m_aDragonCommon[m_uiWaypointId].m_fX, m_aDragonCommon[m_uiWaypointId].m_fY, m_aDragonCommon[m_uiWaypointId].m_fZ);
 
                 debug_log("dummy_dragonAI: %s moving to point %u", m_creature->GetName(), m_uiWaypointId);
                 m_uiMoveNextTimer = 0;
