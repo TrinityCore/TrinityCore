@@ -53,7 +53,7 @@ void DynamicObject::RemoveFromWorld()
     ///- Remove the dynamicObject from the accessor
     if(IsInWorld())
     {
-        if(m_effIndex == 4)
+        if(m_isWorldObject)
         {
             if(Unit *caster = GetCaster())
             {
@@ -70,7 +70,7 @@ void DynamicObject::RemoveFromWorld()
     }
 }
 
-bool DynamicObject::Create( uint32 guidlow, Unit *caster, uint32 spellId, uint32 effIndex, float x, float y, float z, int32 duration, float radius )
+bool DynamicObject::Create(uint32 guidlow, Unit *caster, uint32 spellId, uint32 effMask, float x, float y, float z, int32 duration, float radius, bool active)
 {
     SetMap(caster->GetMap());
 
@@ -78,7 +78,7 @@ bool DynamicObject::Create( uint32 guidlow, Unit *caster, uint32 spellId, uint32
 
     if(!IsPositionValid())
     {
-        sLog.outError("DynamicObject (spell %u eff %u) not created. Suggested coordinates isn't valid (X: %f Y: %f)",spellId,effIndex,GetPositionX(),GetPositionY());
+        sLog.outError("DynamicObject (spell %u eff %u) not created. Suggested coordinates isn't valid (X: %f Y: %f)",spellId,effMask,GetPositionX(),GetPositionY());
         return false;
     }
 
@@ -97,12 +97,11 @@ bool DynamicObject::Create( uint32 guidlow, Unit *caster, uint32 spellId, uint32
 
     m_aliveDuration = duration;
     m_radius = radius;
-    m_effIndex = effIndex;
+    m_effMask = effMask;
     m_spellId = spellId;
     m_updateTimer = 0;
 
-    if(m_effIndex == 4)
-        m_isWorldObject = true;
+    m_isWorldObject = active;
     return true;
 }
 
@@ -129,7 +128,7 @@ void DynamicObject::Update(uint32 p_time)
     else
         deleteThis = true;
 
-    if(m_effIndex < 4)
+    if(m_effMask)
     {
         if(m_updateTimer < p_time)
         {

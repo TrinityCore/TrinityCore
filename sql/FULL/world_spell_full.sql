@@ -1850,8 +1850,9 @@ INSERT INTO `spell_bonus_data` (`entry`, `direct_bonus`, `dot_bonus`, `ap_bonus`
 -- --------
 
 TRUNCATE TABLE `spell_dbc`;
-INSERT INTO `spell_dbc` (`Id`, `DurationIndex`, `Effect1`, `EffectImplicitTargetA1`, `EffectApplyAuraName1`, `Comment`) VALUES 
-(62388, 21, 6, 1, 4, 'Demonic Circle: Teleport(48020) - casterAuraSpell');
+INSERT INTO `spell_dbc` (`Id`, `Dispel`, `Mechanic`, `AttributesEx3`, `DurationIndex`, `RangeIndex`, `Effect1`, `EffectImplicitTargetA1`, `EffectApplyAuraName1`, `EffectMiscValue1`, `SpellFamilyName`, `SchoolMask`, `Comment`) VALUES 
+(62388, 0,  0, 0x00000000, 21,  1, 6, 1,   4,  0,  0, 0, 'Demonic Circle: Teleport(48020) - casterAuraSpell'),
+(65142, 3, 22, 0x00000080, 21, 13, 6, 6, 255, 22, 15, 8, 'Crypt Fever - SPELL_AURA_LINKED');
 
 -- --------
 -- SPELL ELIXIR
