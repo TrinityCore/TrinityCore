@@ -218,13 +218,16 @@ struct TRINITY_DLL_DECL boss_flame_leviathan_seatAI : public PassiveAI
     }
 #endif
 
-    void PassengerBoarded(Unit *who, int8 seatId)
+    void PassengerBoarded(Unit *who, int8 seatId, bool apply)
     {
         if(!me->GetVehicle())
             return;
 
         if(seatId == SEAT_PLAYER)
         {
+            if(!apply)
+                return;
+
             if(Creature *turret = CAST_CRE(vehicle->GetPassenger(SEAT_TURRET)))
             {
                 turret->setFaction(me->GetVehicleBase()->getFaction());
@@ -237,12 +240,11 @@ struct TRINITY_DLL_DECL boss_flame_leviathan_seatAI : public PassiveAI
                 device->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             }
         }
-    }
-
-    void PassengerLeft(Unit *who, int8 seatId)
-    {
-        if(seatId == SEAT_TURRET)
+        else if(seatId == SEAT_TURRET)
         {
+            if(apply)
+                return;
+
             if(Unit *device = vehicle->GetPassenger(SEAT_DEVICE))
             {
                 device->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
