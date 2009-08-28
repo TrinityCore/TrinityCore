@@ -9844,13 +9844,13 @@ uint32 Unit::SpellHealingBonus(Unit *pVictim, SpellEntry const *spellProto, uint
     else // scripted bonus
     {
         // Gift of the Naaru
-        if (spellProto->Id==59547)
+        if (spellProto->SpellFamilyFlags[2] & 0x80000000 && spellProto->SpellIconID == 329)
         {
             scripted = true;
-            uint32 apBonus = GetTotalAttackPowerValue(BASE_ATTACK);
+            int32 apBonus = std::max(GetTotalAttackPowerValue(BASE_ATTACK), GetTotalAttackPowerValue(RANGED_ATTACK));
             if (apBonus > DoneAdvertisedBenefit)
             {
-                DoneTotal+=apBonus * stack;
+                DoneTotal += apBonus * stack;
                 coeff = 0.0f;
             }
             else
