@@ -4,7 +4,12 @@
 
 #ifndef DEF_SERPENT_SHRINE_H
 #define DEF_SERPENT_SHRINE_H
-
+enum LurkerEventState
+{
+    LURKER_NOT_STARTED = 0,
+    LURKER_FISHING     = 1,
+    LURKER_HOOKED      = 2,
+};
 #define DATA_CANSTARTPHASE3 1
 #define DATA_CARIBDIS 2
 #define DATA_HYDROSSTHEUNSTABLEEVENT 3
