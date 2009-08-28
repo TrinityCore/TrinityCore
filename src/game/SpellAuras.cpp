@@ -1006,6 +1006,23 @@ void Aura::HandleAuraSpecificMods(bool apply)
                 }
             }
         }
+        else if (GetSpellProto()->SpellFamilyName == SPELLFAMILY_PRIEST)
+        {
+            // Devouring Plague
+            if (GetSpellProto()->SpellFamilyFlags[0] & 0x02000000 && GetPartAura(0))
+            {
+                Unit * caster = GetCaster();
+                if (!caster)
+                    return;
+
+                // Improved Devouring Plague
+                if (AuraEffect const * aurEff = caster->GetDummyAura(SPELLFAMILY_PRIEST, 3790, 1))
+                {
+                    int32 basepoints0 = aurEff->GetAmount() * GetPartAura(0)->GetTotalTicks() * GetPartAura(0)->GetAmount() / 100;
+                    caster->CastCustomSpell(m_target, 63675, &basepoints0, NULL, NULL, true, NULL, GetPartAura(0));
+                }
+            }
+        }
         else if (GetSpellProto()->SpellFamilyName == SPELLFAMILY_ROGUE)
         {
             // Sprint (skip non player casted spells by category)
