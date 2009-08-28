@@ -1210,18 +1210,18 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
             }
             case ACHIEVEMENT_CRITERIA_TYPE_EQUIP_ITEM:
                 // miscvalue1 = item_id
-                if(!miscvalue1)
+                if (!miscvalue1)
                     continue;
-                if(miscvalue1 != achievementCriteria->equip_item.itemID)
+                if (miscvalue1 != achievementCriteria->equip_item.itemID)
                     continue;
 
                 SetCriteriaProgress(achievementCriteria, 1);
                 break;
             case ACHIEVEMENT_CRITERIA_TYPE_USE_GAMEOBJECT:
                 // miscvalue1 = go entry
-                if(!miscvalue1)
+                if (!miscvalue1)
                     continue;
-                if(miscvalue1 != achievementCriteria->use_gameobject.goEntry)
+                if (miscvalue1 != achievementCriteria->use_gameobject.goEntry)
                     continue;
 
                 SetCriteriaProgress(achievementCriteria, 1, PROGRESS_ACCUMULATE);
@@ -1236,7 +1236,7 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
                 break;
             case ACHIEVEMENT_CRITERIA_TYPE_LEARN_SKILLLINE_SPELLS:
             {
-                if(miscvalue1 && miscvalue1 != achievementCriteria->learn_skillline_spell.skillLine)
+                if (miscvalue1 && miscvalue1 != achievementCriteria->learn_skillline_spell.skillLine)
                     continue;
 
                 uint32 spellCount = 0;
@@ -1244,9 +1244,8 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
                     spellIter != GetPlayer()->GetSpellMap().end();
                     ++spellIter)
                 {
-                    for(SkillLineAbilityMap::const_iterator skillIter = spellmgr.GetBeginSkillLineAbilityMap(spellIter->first);
-                        skillIter != spellmgr.GetEndSkillLineAbilityMap(spellIter->first);
-                        ++skillIter)
+                    SkillLineAbilityMapBounds bounds = spellmgr.GetSkillLineAbilityMapBounds(spellIter->first);
+                    for(SkillLineAbilityMap::const_iterator skillIter = bounds.first; skillIter != bounds.second; ++skillIter)
                     {
                         if(skillIter->second->skillId == achievementCriteria->learn_skillline_spell.skillLine)
                             spellCount++;
@@ -1257,17 +1256,17 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
             }
             case ACHIEVEMENT_CRITERIA_TYPE_WIN_DUEL:
                 // AchievementMgr::UpdateAchievementCriteria might also be called on login - skip in this case
-                if(!miscvalue1)
+                if (!miscvalue1)
                     continue;
 
-                if(achievementCriteria->win_duel.duelCount)
+                if (achievementCriteria->win_duel.duelCount)
                 {
                     // those requirements couldn't be found in the dbc
                     AchievementCriteriaDataSet const* data = achievementmgr.GetCriteriaDataSet(achievementCriteria);
-                    if(!data)
+                    if (!data)
                         continue;
 
-                    if(!data->Meets(GetPlayer(),unit))
+                    if (!data->Meets(GetPlayer(),unit))
                         continue;
                 }
 
@@ -1303,7 +1302,7 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
             }
             case ACHIEVEMENT_CRITERIA_TYPE_LEARN_SKILL_LINE:
             {
-                if(miscvalue1 && miscvalue1 != achievementCriteria->learn_skill_line.skillLine)
+                if (miscvalue1 && miscvalue1 != achievementCriteria->learn_skill_line.skillLine)
                     continue;
 
                 uint32 spellCount = 0;
@@ -1311,13 +1310,10 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
                     spellIter != GetPlayer()->GetSpellMap().end();
                     ++spellIter)
                 {
-                    for(SkillLineAbilityMap::const_iterator skillIter = spellmgr.GetBeginSkillLineAbilityMap(spellIter->first);
-                        skillIter != spellmgr.GetEndSkillLineAbilityMap(spellIter->first);
-                        ++skillIter)
-                    {
-                        if(skillIter->second->skillId == achievementCriteria->learn_skill_line.skillLine)
+                    SkillLineAbilityMapBounds bounds = spellmgr.GetSkillLineAbilityMapBounds(spellIter->first);
+                    for(SkillLineAbilityMap::const_iterator skillIter = bounds.first; skillIter != bounds.second; ++skillIter)
+                        if (skillIter->second->skillId == achievementCriteria->learn_skill_line.skillLine)
                             spellCount++;
-                    }
                 }
                 SetCriteriaProgress(achievementCriteria, spellCount);
                 break;
