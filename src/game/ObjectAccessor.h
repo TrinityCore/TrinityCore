@@ -161,6 +161,7 @@ class MANGOS_DLL_DECL ObjectAccessor : public MaNGOS::Singleton<ObjectAccessor, 
             else return NULL;
         }
 
+        static WorldObject* GetWorldObject(WorldObject const &, uint64);
         static Object*   GetObjectByTypeMask(WorldObject const &, uint64, uint32 typemask);
         static Creature* GetCreatureOrPetOrVehicle(WorldObject const &, uint64);
         static Unit* GetUnit(WorldObject const &, uint64 guid) { return GetObjectInWorld(guid, (Unit*)NULL); }

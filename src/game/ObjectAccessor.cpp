@@ -91,43 +91,58 @@ ObjectAccessor::GetCorpse(WorldObject const &u, uint64 guid)
     return ret;
 }
 
+WorldObject* ObjectAccessor::GetWorldObject(WorldObject const &p, uint64 guid)
+{
+    switch(GUID_HIPART(guid))
+    {
+        case HIGHGUID_PLAYER:       return FindPlayer(guid);
+        case HIGHGUID_GAMEOBJECT:   return p.GetMap()->GetGameObject(guid);
+        case HIGHGUID_VEHICLE:
+        case HIGHGUID_UNIT:         return p.GetMap()->GetCreature(guid);
+        case HIGHGUID_PET:          return GetPet(guid);
+        case HIGHGUID_DYNAMICOBJECT:return p.GetMap()->GetDynamicObject(guid);
+        case HIGHGUID_TRANSPORT:    return NULL;
+        case HIGHGUID_CORPSE:       return GetCorpse(p,guid);
+        case HIGHGUID_MO_TRANSPORT: return NULL;
+        default: break;
+    }
+
+    return NULL;
+}
+
 Object* ObjectAccessor::GetObjectByTypeMask(WorldObject const &p, uint64 guid, uint32 typemask)
 {
-    Object *obj = NULL;
-
-    if(typemask & TYPEMASK_PLAYER)
+    switch(GUID_HIPART(guid))
     {
-        obj = FindPlayer(guid);
-        if(obj)
-            return obj;
-    }
-
-    if(typemask & TYPEMASK_UNIT)
-    {
-        obj = GetCreatureOrPetOrVehicle(p,guid);
-        if(obj)
-            return obj;
-    }
-
-    if(typemask & TYPEMASK_GAMEOBJECT)
-    {
-        obj = p.GetMap()->GetGameObject(guid);
-        if(obj)
-            return obj;
-    }
-
-    if(typemask & TYPEMASK_DYNAMICOBJECT)
-    {
-        obj = p.GetMap()->GetDynamicObject(guid);
-        if(obj)
-            return obj;
-    }
-
-    if(typemask & TYPEMASK_ITEM && p.GetTypeId() == TYPEID_PLAYER)
-    {
-        obj = ((Player const &)p).GetItemByGuid( guid );
-        if(obj)
-            return obj;
+        case HIGHGUID_ITEM:
+            if(typemask & TYPEMASK_ITEM && p.GetTypeId() == TYPEID_PLAYER)
+                return ((Player const &)p).GetItemByGuid( guid );
+            break;
+        case HIGHGUID_PLAYER:
+            if(typemask & TYPEMASK_PLAYER)
+                return FindPlayer(guid);
+            break;
+        case HIGHGUID_GAMEOBJECT:
+            if(typemask & TYPEMASK_GAMEOBJECT)
+                return p.GetMap()->GetGameObject(guid);
+            break;
+        case HIGHGUID_UNIT:
+        case HIGHGUID_VEHICLE:
+            if(typemask & TYPEMASK_UNIT)
+                return p.GetMap()->GetCreature(guid);
+            break;
+        case HIGHGUID_PET:
+            if(typemask & TYPEMASK_UNIT)
+                return GetPet(guid);
+            break;
+        case HIGHGUID_DYNAMICOBJECT:
+            if(typemask & TYPEMASK_DYNAMICOBJECT)
+                return p.GetMap()->GetDynamicObject(guid);
+            break;
+        case HIGHGUID_TRANSPORT:
+        case HIGHGUID_CORPSE:
+        case HIGHGUID_MO_TRANSPORT:
+            break;
     }
 
     return NULL;
