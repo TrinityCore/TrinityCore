@@ -521,6 +521,14 @@ void Spell::SpellDamageSchoolDmg(uint32 effect_idx)
                     damage += int32(energy * multiple);
                     damage += int32(((Player*)m_caster)->GetComboPoints() * ap * 7 / 100);
                 }
+                // Wrath
+                else if (m_spellInfo->SpellFamilyFlags[0] & 0x00000001)
+                {
+                    // Improved Insect Swarm
+                    if (AuraEffect const * aurEff = m_caster->GetDummyAura(SPELLFAMILY_DRUID, 1771, 0))
+                        if (unitTarget->GetAura(SPELL_AURA_PERIODIC_DAMAGE, SPELLFAMILY_DRUID, 0x00200000))
+                            damage = int32(damage*(100.0f+aurEff->GetAmount())/100.0f);
+                }
                 break;
             }
             case SPELLFAMILY_ROGUE:
