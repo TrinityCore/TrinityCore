@@ -8848,7 +8848,7 @@ Unit* Unit::SelectMagnetTarget(Unit *victim, SpellEntry const *spellInfo)
             if(Unit* magnet = (*itr)->GetParentAura()->GetUnitSource())
                 if(magnet->isAlive())
                 {
-                    (*i)->GetParentAura()->DropAuraCharge();
+                    (*itr)->GetParentAura()->DropAuraCharge();
                     return magnet;
                 }
     }
