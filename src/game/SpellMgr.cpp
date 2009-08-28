@@ -1233,9 +1233,7 @@ void SpellMgr::LoadSpellTargetPositions()
         }
         if(found)
         {
-            SpellScriptTarget::const_iterator lower = spellmgr.GetBeginSpellScriptTarget(i);
-            SpellScriptTarget::const_iterator upper = spellmgr.GetEndSpellScriptTarget(i);
-            if(lower == upper)
+            if(!spellmgr.GetSpellTargetPosition(i))
                 sLog.outDetail("Spell (ID: %u) does not have record in `spell_target_position`", i);
         }
     }
@@ -1704,10 +1702,9 @@ bool SpellMgr::IsPrimaryProfessionFirstRankSpell(uint32 spellId) const
 
 bool SpellMgr::IsSkillBonusSpell(uint32 spellId) const
 {
-    SkillLineAbilityMap::const_iterator lower = GetBeginSkillLineAbilityMap(spellId);
-    SkillLineAbilityMap::const_iterator upper = GetEndSkillLineAbilityMap(spellId);
+    SkillLineAbilityMapBounds bounds = GetSkillLineAbilityMapBounds(spellId);
 
-    for(SkillLineAbilityMap::const_iterator _spell_idx = lower; _spell_idx != upper; ++_spell_idx)
+    for(SkillLineAbilityMap::const_iterator _spell_idx = bounds.first; _spell_idx != bounds.second; ++_spell_idx)
     {
         SkillLineAbilityEntry const *pAbility = _spell_idx->second;
         if (!pAbility || pAbility->learnOnGetSkill != ABILITY_LEARNED_ON_GET_PROFESSION_SKILL)
@@ -1885,11 +1882,10 @@ void SpellMgr::LoadSpellLearnSpells()
                 // other required explicit dependent learning
                 dbc_node.autoLearned = entry->EffectImplicitTargetA[i] == TARGET_UNIT_PET || GetTalentSpellCost(spell) > 0 || IsPassiveSpell(spell) || IsSpellHaveEffect(entry,SPELL_EFFECT_SKILL_STEP);
 
-                SpellLearnSpellMap::const_iterator db_node_begin = GetBeginSpellLearnSpell(spell);
-                SpellLearnSpellMap::const_iterator db_node_end   = GetEndSpellLearnSpell(spell);
+                SpellLearnSpellMapBounds db_node_bounds = GetSpellLearnSpellMapBounds(spell);
 
                 bool found = false;
-                for(SpellLearnSpellMap::const_iterator itr = db_node_begin; itr != db_node_end; ++itr)
+                for(SpellLearnSpellMap::const_iterator itr = db_node_bounds.first; itr != db_node_bounds.second; ++itr)
                 {
                     if(itr->second.spell == dbc_node.spell)
                     {
@@ -2060,9 +2056,8 @@ void SpellMgr::LoadSpellScriptTarget()
         }
         if(found)
         {
-            SpellScriptTarget::const_iterator lower = spellmgr.GetBeginSpellScriptTarget(i);
-            SpellScriptTarget::const_iterator upper = spellmgr.GetEndSpellScriptTarget(i);
-            if(lower == upper)
+            SpellScriptTargetBounds bounds = spellmgr.GetSpellScriptTargetBounds(i);
+            if(bounds.first==bounds.second)
                 sLog.outDetail("Spell (ID: %u) does not have record in `spell_script_target`", i);
         }
     }
@@ -3852,13 +3847,12 @@ void SpellMgr::LoadEnchantCustomAttr()
 
 bool SpellMgr::IsSkillTypeSpell(uint32 spellId, SkillType type) const
 {
-    SkillLineAbilityMap::const_iterator lower = GetBeginSkillLineAbilityMap(spellId);
-    SkillLineAbilityMap::const_iterator upper = GetEndSkillLineAbilityMap(spellId);
-    for (;lower!=upper;++lower)
-    {
-        if (lower->second->skillId==type)
+    SkillLineAbilityMapBounds bounds = GetSkillLineAbilityMapBounds(spellId);
+
+    for(SkillLineAbilityMap::const_iterator _spell_idx = bounds.first; _spell_idx != bounds.second; ++_spell_idx)
+        if (_spell_idx->second->skillId == type)
             return true;
-    }
+
     return false;
 }
 
@@ -3937,9 +3931,8 @@ void SpellMgr::LoadSpellLinked()
 
 bool SpellMgr::CheckDB() const
 {
-    SpellScriptTarget::const_iterator lower = GetBeginSpellScriptTarget(30531);
-    SpellScriptTarget::const_iterator upper = GetEndSpellScriptTarget(30531);
-    if(lower == upper || lower->second.targetEntry != 17256)
+    SpellScriptTargetBounds bounds = spellmgr.GetSpellScriptTargetBounds(30531);
+    if(bounds.first == bounds.second || bounds.first->second.targetEntry != 17256)
         return false;
 
     return true;
