@@ -6988,7 +6988,7 @@ int32 AuraEffect::CalculateCrowdControlAuraAmount(Unit * caster)
     return damageCap;
 }
 
-int32 AuraEffect::IsPeriodicTickCrit(Unit const * pCaster) const
+bool AuraEffect::IsPeriodicTickCrit(Unit const * pCaster) const
 {
     Unit::AuraEffectList const& mPeriodicCritAuras= pCaster->GetAurasByType(SPELL_AURA_ABILITY_PERIODIC_CRIT);
     for(Unit::AuraEffectList::const_iterator itr = mPeriodicCritAuras.begin(); itr != mPeriodicCritAuras.end(); ++itr)
