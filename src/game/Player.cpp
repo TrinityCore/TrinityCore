@@ -19387,7 +19387,7 @@ void Player::ApplyEquipCooldown( Item * pItem )
     }
 }
 
-void Player::resetSpells()
+void Player::resetSpells(bool myClassOnly)
 {
     // not need after this call
     if(HasAtLoginFlag(AT_LOGIN_RESET_SPELLS))
@@ -19397,8 +19397,44 @@ void Player::resetSpells()
     // and we can't use original map for safe iterative with visit each spell at loop end
     PlayerSpellMap smap = GetSpellMap();
 
+    if(myClassOnly){
+        ChrClassesEntry const* clsEntry = sChrClassesStore.LookupEntry(m_session->GetPlayer()->getClass());
+        if(!clsEntry)
+            return;
+        uint32 family = clsEntry->spellfamily;
+    }
+
     for(PlayerSpellMap::const_iterator iter = smap.begin();iter != smap.end(); ++iter)
+    {
+        if(myClassOnly)
+        {
+            SpellEntry const *spellInfo = sSpellStore.LookupEntry(iter->first);
+            if(!spellInfo)
+                continue;
+
+            // skip server-side/triggered spells
+            if(spellInfo->spellLevel == 0)
+                continue;
+
+            // skip wrong class/race skills
+            if(!m_session->GetPlayer()->IsSpellFitByClassAndRace(spellInfo->Id))
+                continue;
+
+            // skip other spell families
+            if( spellInfo->SpellFamilyName != family)
+                continue;
+
+            // skip spells with first rank learned as talent (and all talents then also)
+            uint32 first_rank = spellmgr.GetFirstSpellInChain(spellInfo->Id);
+            if(GetTalentSpellCost(first_rank) > 0)
+                continue;
+
+            // skip broken spells
+            if(!SpellMgr::IsSpellValid(spellInfo,m_session->GetPlayer(),false))
+                continue;
+        }
         removeSpell(iter->first,false,false);               // only iter->first can be accessed, object by iter->second can be deleted already
+    }
 
     learnDefaultSpells();
     learnQuestRewardedSpells();
