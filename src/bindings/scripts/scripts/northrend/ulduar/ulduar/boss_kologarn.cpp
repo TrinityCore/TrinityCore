@@ -31,16 +31,33 @@
 
 struct TRINITY_DLL_DECL boss_kologarnAI : public BossAI
 {
-    boss_kologarnAI(Creature *c) : BossAI(c, BOSS_KOLOGARN), vehicle(me->GetVehicleKit())
+    boss_kologarnAI(Creature *c) : BossAI(c, BOSS_KOLOGARN), vehicle(me->GetVehicleKit()),
+        leftArm(NULL), rightArm(NULL)
     {
         assert(vehicle);
+        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED);
+    }
+
+    void Reset()
+    {
+        _Reset();
+        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED);
     }
 
     Vehicle *vehicle;
+    Creature *leftArm, *rightArm;
 
     void AttackStart(Unit *who)
     {
-        me->Attack(who, true);
+        me->Attack(who, false);
+    }
+
+    void PassengerBoarded(Unit *who, int8 seatId, bool apply)
+    {
+        if(who->GetEntry() == 32933)
+            leftArm = apply ? CAST_CRE(who) : NULL;
+        else if(who->GetEntry() == 32934)
+            rightArm = apply ? CAST_CRE(who) : NULL;
     }
 
     void UpdateAI(const uint32 diff)
@@ -48,7 +65,18 @@ struct TRINITY_DLL_DECL boss_kologarnAI : public BossAI
         if(!UpdateVictim())
             return;
 
-        DoMeleeAttackIfReady();
+        if (me->isAttackReady())
+        {
+            //If we are within range melee the target
+            if (me->IsWithinMeleeRange(me->getVictim()))
+            {
+                Unit *attacker = me;
+                if(leftArm) attacker = leftArm;
+                if(rightArm && rand()%2) attacker = rightArm;
+                attacker->AttackerStateUpdate(me->getVictim());
+                me->resetAttackTimer();
+            }
+        }
     }
 };
 

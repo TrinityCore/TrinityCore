@@ -275,7 +275,7 @@ bool Vehicle::AddPassenger(Unit *unit, int8 seatId)
         }
 
         if(((Creature*)me)->IsAIEnabled)
-            ((Creature*)me)->AI()->PassengerBoarded(unit, seat->first);
+            ((Creature*)me)->AI()->PassengerBoarded(unit, seat->first, true);
     }
 
     //if(unit->GetTypeId() == TYPEID_PLAYER)
@@ -316,7 +316,7 @@ void Vehicle::RemovePassenger(Unit *unit)
         me->RemoveCharmedBy(unit);
 
     if(me->GetTypeId() == TYPEID_UNIT && ((Creature*)me)->IsAIEnabled)
-        ((Creature*)me)->AI()->PassengerLeft(unit, seat->first);
+        ((Creature*)me)->AI()->PassengerBoarded(unit, seat->first, false);
 
     // only for flyable vehicles?
     //CastSpell(this, 45472, true);                           // Parachute
