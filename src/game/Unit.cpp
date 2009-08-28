@@ -11149,7 +11149,6 @@ void Unit::setDeathState(DeathState s)
     if (m_deathState != ALIVE && s == ALIVE)
     {
         //_ApplyAllAuraMods();
-        if(m_vehicleKit) m_vehicleKit->Reset();
         // Reset display id on resurection - needed by corpse explosion to cleanup after display change
         SetDisplayId(GetNativeDisplayId());
     }
@@ -12164,8 +12163,6 @@ void Unit::AddToWorld()
         assert(m_NotifyListPos < 0); //instance : crash
         //m_NotifyListPos = -1;
         SetToNotify();
-        if(IsVehicle())
-            GetVehicleKit()->Install();
     }
 }
 
@@ -14642,7 +14639,17 @@ void Unit::SetPhaseMask(uint32 newPhaseMask, bool update)
 
 void Unit::KnockbackFrom(float x, float y, float speedXY, float speedZ)
 {
-    if(GetTypeId() == TYPEID_UNIT)
+    Player *player = NULL;
+    if(GetTypeId() == TYPEID_PLAYER)
+        player = (Player*)this;
+    else
+    {
+        player = dynamic_cast<Player*>(GetCharmer());
+        if(player && player->m_mover != this)
+            player = NULL;
+    }
+
+    if(!player)
     {
         GetMotionMaster()->MoveKnockbackFrom(x, y, speedXY, speedZ);
     }
@@ -14659,7 +14666,7 @@ void Unit::KnockbackFrom(float x, float y, float speedXY, float speedZ)
         data << float(speedXY);                                 // Horizontal speed
         data << float(-speedZ);                                 // Z Movement speed (vertical)
 
-        ((Player*)this)->GetSession()->SendPacket(&data);
+        player->GetSession()->SendPacket(&data);
     }
 }
 

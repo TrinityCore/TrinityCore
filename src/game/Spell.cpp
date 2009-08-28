@@ -6600,7 +6600,9 @@ float tangent(float x)
     if(x >= 100000.0f) return 100000.0f;
     if(x <= 100000.0f) return -100000.0f;
     return 0.0f;
-} 
+}
+
+#define DEBUG_TRAJ(a) //a
 
 void Spell::SelectTrajTargets()
 {
@@ -6623,24 +6625,25 @@ void Spell::SelectTrajTargets()
     float b = tangent(m_targets.m_elevation);
     float a = (dz - dist2d * b) / (dist2d * dist2d);
     if(a > -0.0001f) a = 0;
-    //sLog.outError("Spell::SelectTrajTargets: a %f b %f", a, b);
+    DEBUG_TRAJ(sLog.outError("Spell::SelectTrajTargets: a %f b %f", a, b);)
 
     float bestDist;
     UnitList::const_iterator itr = unitList.begin();
     for(; itr != unitList.end(); ++itr)
     {
-        if(m_caster == *itr || m_caster->IsOnVehicle(*itr) || (*itr)->IsOnVehicle(m_caster))
+        if(m_caster == *itr || m_caster->IsOnVehicle(*itr) || (*itr)->GetVehicle())//(*itr)->IsOnVehicle(m_caster))
             continue;
 
         const float size = std::max((*itr)->GetObjectSize() * 0.7f, 1.0f); // 1/sqrt(3)
-        const float objDist2d = m_caster->GetExactDistance2d((*itr)->GetPositionX(), (*itr)->GetPositionY()) * cos(m_caster->GetRelativeAngle(*itr));
-        const float dz = (*itr)->GetPositionZ() - m_caster->GetPositionZ();
+        // TODO: all calculation should be based on src instead of m_caster
+        const float objDist2d = (*itr)->GetExactDistance2d(m_targets.m_srcX, m_targets.m_srcY) * cos(m_caster->GetRelativeAngle(*itr));
+        const float dz = (*itr)->GetPositionZ() - m_targets.m_srcZ;
 
-        //sLog.outError("Spell::SelectTrajTargets: check %u, dist between %f %f, height between %f %f.", (*itr)->GetEntry(), objDist2d - size, objDist2d + size, dz - size, dz + size);
+        DEBUG_TRAJ(sLog.outError("Spell::SelectTrajTargets: check %u, dist between %f %f, height between %f %f.", (*itr)->GetEntry(), objDist2d - size, objDist2d + size, dz - size, dz + size);)
 
         float dist = objDist2d - size;
         float height = dist * (a * dist + b);
-        //sLog.outError("Spell::SelectTrajTargets: dist %f, height %f.", dist, height);
+        DEBUG_TRAJ(sLog.outError("Spell::SelectTrajTargets: dist %f, height %f.", dist, height);)
         if(height < dz + size && height > dz - size)
         {
             bestDist = dist > 0 ? dist : 0;
@@ -6648,6 +6651,7 @@ void Spell::SelectTrajTargets()
         }
 
 #define CHECK_DIST {\
+    DEBUG_TRAJ(sLog.outError("Spell::SelectTrajTargets: dist %f, height %f.", dist, height);)\
     if(dist < objDist2d + size && dist > objDist2d - size)\
         { bestDist = dist; break; }\
         }
@@ -6698,9 +6702,11 @@ void Spell::SelectTrajTargets()
         float x = m_targets.m_srcX + cos(m_caster->GetOrientation()) * bestDist;
         float y = m_targets.m_srcY + sin(m_caster->GetOrientation()) * bestDist;
         float z = m_targets.m_srcZ + bestDist * (a * bestDist + b);
+
         float distSq = (*itr)->GetExactDistSq(x, y, z);
         float sizeSq = (*itr)->GetObjectSize();
         sizeSq *= sizeSq;
+        DEBUG_TRAJ(sLog.outError("Initial %f %f %f %f %f", x, y, z, distSq, sizeSq);)
         if(distSq > sizeSq)
         {
             float factor = 1 - sqrt(sizeSq / distSq);
@@ -6709,6 +6715,7 @@ void Spell::SelectTrajTargets()
             z += factor * ((*itr)->GetPositionZ() - z);
 
             distSq = (*itr)->GetExactDistSq(x, y, z);
+            DEBUG_TRAJ(sLog.outError("Initial %f %f %f %f %f", x, y, z, distSq, sizeSq);)
         }
 
         m_targets.setDestination(x, y, z);

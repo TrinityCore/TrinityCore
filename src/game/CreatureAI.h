@@ -75,6 +75,13 @@ class TRINITY_DLL_SPEC CreatureAI : public UnitAI
         bool UpdateCombatState();
 
         void SelectNearestTarget(Unit *who);
+
+        void SetGazeOn(Unit *target);
+
+        Creature *DoSummon(uint32 uiEntry, const Position fPos, uint32 uiDespawntime = 30000, TempSummonType uiType = TEMPSUMMON_CORPSE_TIMED_DESPAWN);
+        Creature *DoSummon(uint32 uiEntry, WorldObject *obj, float fRadius = 5.0f, uint32 uiDespawntime = 30000, TempSummonType uiType = TEMPSUMMON_CORPSE_TIMED_DESPAWN);
+        Creature *DoSummonFlyer(uint32 uiEntry, WorldObject *obj, float fZ, float fRadius = 5.0f, uint32 uiDespawntime = 30000, TempSummonType uiType = TEMPSUMMON_CORPSE_TIMED_DESPAWN);
+
     public:
         explicit CreatureAI(Creature *c) : UnitAI((Unit*)c), me(c), m_creature(c) {}
 
@@ -151,14 +158,12 @@ class TRINITY_DLL_SPEC CreatureAI : public UnitAI
         //virtual bool IsVisible(Unit *) const { return false; }
 
         // Called when victim entered water and creature can not enter water
-        virtual bool canReachByRangeAttack(Unit*) { return false; }
+        //virtual bool canReachByRangeAttack(Unit*) { return false; }
 
         ///== Fields =======================================
 
         // Pointer to controlled by AI creature
         //Creature* const m_creature;
-
-        void SetGazeOn(Unit *target);
 
         virtual void PassengerBoarded(Unit *who, int8 seatId, bool apply) {}
 

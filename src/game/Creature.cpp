@@ -46,6 +46,7 @@
 #include "OutdoorPvPMgr.h"
 #include "GameEventMgr.h"
 #include "CreatureGroups.h"
+#include "Vehicle.h"
 // apply implementation of the singletons
 #include "Policies/SingletonImp.h"
 
@@ -169,7 +170,7 @@ Creature::~Creature()
     }
 
     //if(m_uint32Values)
-    //    sLog.outDetail("Deconstruct Creature Entry = %u", GetEntry());
+    //    sLog.outError("Deconstruct Creature Entry = %u", GetEntry());
 }
 
 void Creature::AddToWorld()
@@ -183,6 +184,8 @@ void Creature::AddToWorld()
         Unit::AddToWorld();
         SearchFormationAndPath();
         AIM_Initialize();
+        if(IsVehicle())
+            GetVehicleKit()->Install();
     }
 }
 
@@ -201,11 +204,12 @@ void Creature::RemoveFromWorld()
 
 void Creature::DisappearAndDie()
 {
-    //DestroyForNearbyPlayers();
-    SetVisibility(VISIBILITY_OFF);
-    ObjectAccessor::UpdateObjectVisibility(this);
+    DestroyForNearbyPlayers();
+    //SetVisibility(VISIBILITY_OFF);
+    //ObjectAccessor::UpdateObjectVisibility(this);
     if(isAlive())
         setDeathState(JUST_DIED);
+    RemoveCorpse();
 }
 
 void Creature::SearchFormationAndPath()
@@ -1804,6 +1808,8 @@ void Creature::setDeathState(DeathState s)
         ResetPlayerDamageReq();
         CreatureInfo const *cinfo = GetCreatureInfo();
         AddUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
+        if(GetCreatureInfo()->InhabitType & INHABIT_AIR)
+            AddUnitMovementFlag(MOVEMENTFLAG_FLY_MODE + MOVEMENTFLAG_FLYING);
         SetUInt32Value(UNIT_NPC_FLAGS, cinfo->npcflag);
         clearUnitState(UNIT_STAT_ALL_STATE);
         SetMeleeDamageSchool(SpellSchools(cinfo->dmgschool));
@@ -1811,6 +1817,7 @@ void Creature::setDeathState(DeathState s)
         Motion_Initialize();
         if(GetCreatureData() && GetPhaseMask() != GetCreatureData()->phaseMask)
             SetPhaseMask(GetCreatureData()->phaseMask, false);
+        if(m_vehicleKit) m_vehicleKit->Reset();
         Unit::setDeathState(ALIVE);
     }
 }
@@ -1827,7 +1834,10 @@ bool Creature::FallGround()
     if (fabs(ground_Z - z) < 0.1f)
         return false;
 
+    SetFlying(false);
     RemoveUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
+    SendMovementFlagUpdate();
+    //AddUnitMovementFlag(MOVEMENTFLAG_FALLING);
     GetMotionMaster()->MovePoint(EVENT_FALL_GROUND, x, y, ground_Z);
     Unit::setDeathState(DEAD_FALLING);
     return true;

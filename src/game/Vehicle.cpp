@@ -81,7 +81,7 @@ void Vehicle::InstallAllAccessories()
     switch(me->GetEntry())
     {
         //case 27850:InstallAccessory(27905,1);break;
-        case 28782:InstallAccessory(28768,0);break; // Acherus Deathcharger
+        case 28782:InstallAccessory(28768,0,false);break; // Acherus Deathcharger
         case 28312:InstallAccessory(28319,7);break;
         case 32627:InstallAccessory(32629,7);break;
         case 32930:
@@ -101,28 +101,33 @@ void Vehicle::InstallAllAccessories()
             InstallAccessory(33143,2); // Overload Control Device
             InstallAccessory(33142,1); // Leviathan Defense Turret
             break;
-        case 33214:InstallAccessory(33218,1);break;
+        case 33214:InstallAccessory(33218,1,false);break; // Mechanolift 304-A
     }
 }
 
 void Vehicle::Uninstall()
 {
+    sLog.outDebug("Vehicle::Uninstall %u", me->GetEntry());
+    for(SeatMap::iterator itr = m_Seats.begin(); itr != m_Seats.end(); ++itr)
+        if(Unit *passenger = itr->second.passenger)
+            if(passenger->HasUnitTypeMask(UNIT_MASK_ACCESSORY))
+                ((TempSummon*)passenger)->UnSummon();
     RemoveAllPassengers();
 }
 
 void Vehicle::Die()
 {
+    sLog.outDebug("Vehicle::Die %u", me->GetEntry());
     for(SeatMap::iterator itr = m_Seats.begin(); itr != m_Seats.end(); ++itr)
-    {
         if(Unit *passenger = itr->second.passenger)
             if(passenger->HasUnitTypeMask(UNIT_MASK_ACCESSORY))
                 passenger->setDeathState(JUST_DIED);
-    }
     RemoveAllPassengers();
 }
 
 void Vehicle::Reset()
 {
+    sLog.outDebug("Vehicle::Reset");
     InstallAllAccessories();
     if(m_usableSeatNum)
         me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
@@ -130,6 +135,7 @@ void Vehicle::Reset()
 
 void Vehicle::RemoveAllPassengers()
 {
+    sLog.outDebug("Vehicle::RemoveAllPassengers");
     for(SeatMap::iterator itr = m_Seats.begin(); itr != m_Seats.end(); ++itr)
         if(Unit *passenger = itr->second.passenger)
         {
@@ -185,7 +191,7 @@ int8 Vehicle::GetNextEmptySeat(int8 seatId, bool next) const
     return seat->first;
 }
 
-void Vehicle::InstallAccessory(uint32 entry, int8 seatId)
+void Vehicle::InstallAccessory(uint32 entry, int8 seatId, bool minion)
 {
     if(Unit *passenger = GetPassenger(seatId))
     {
@@ -200,13 +206,15 @@ void Vehicle::InstallAccessory(uint32 entry, int8 seatId)
         passenger->ExitVehicle(); // this should not happen
     }
 
-    Creature *accessory = me->SummonCreature(entry, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 0, 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 30000);
-    if(!accessory)
-        return;
-    accessory->AddUnitTypeMask(UNIT_MASK_ACCESSORY);
-    accessory->EnterVehicle(this, seatId);
-    // This is not good, we have to send update twice
-    accessory->SendMovementFlagUpdate();
+    //TODO: accessory should be minion
+    if(Creature *accessory = me->SummonCreature(entry, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 0, 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 30000))
+    {
+        if(minion)
+            accessory->AddUnitTypeMask(UNIT_MASK_ACCESSORY);
+        accessory->EnterVehicle(this, seatId);
+        // This is not good, we have to send update twice
+        accessory->SendMovementFlagUpdate();
+    }
 }
 
 bool Vehicle::AddPassenger(Unit *unit, int8 seatId)
@@ -324,16 +332,8 @@ void Vehicle::RemovePassenger(Unit *unit)
 
 void Vehicle::Dismiss()
 {
-    for(SeatMap::iterator itr = m_Seats.begin(); itr != m_Seats.end(); ++itr)
-    {
-        if(Unit *passenger = itr->second.passenger)
-            if(passenger->GetTypeId() == TYPEID_UNIT && ((Creature*)passenger)->IsVehicle())
-            {
-                passenger->ExitVehicle();
-                passenger->GetVehicleKit()->Dismiss();
-            }
-    }
-    RemoveAllPassengers();
+    sLog.outDebug("Vehicle::Dismiss %u", me->GetEntry());
+    Uninstall();
     me->SendObjectDeSpawnAnim(me->GetGUID());
     me->CombatStop();
     me->AddObjectToRemoveList();
