@@ -8847,7 +8847,10 @@ Unit* Unit::SelectMagnetTarget(Unit *victim, SpellEntry const *spellInfo)
         for(Unit::AuraEffectList::const_iterator itr = magnetAuras.begin(); itr != magnetAuras.end(); ++itr)
             if(Unit* magnet = (*itr)->GetParentAura()->GetUnitSource())
                 if(magnet->isAlive())
+                {
+                    (*i)->GetParentAura()->DropAuraCharge();
                     return magnet;
+                }
     }
     // Melee && ranged case
     else
