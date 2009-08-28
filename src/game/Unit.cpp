@@ -12757,7 +12757,6 @@ void Unit::ProcDamageAndSpellFor( bool isVictim, Unit * pTarget, uint32 procFlag
             takeCharges = true;
         }
 
-        uint32 procDebug = 0;
         if (!handled)
         for (uint8 effIndex = 0; effIndex<MAX_SPELL_EFFECTS;++effIndex)
         {
@@ -12794,56 +12793,31 @@ void Unit::ProcDamageAndSpellFor( bool isVictim, Unit * pTarget, uint32 procFlag
                 {
                     sLog.outDebug("ProcDamageAndSpell: casting spell id %u (triggered by %s dummy aura of spell %u)", spellInfo->Id,(isVictim?"a victim's":"an attacker's"), triggeredByAura->GetId());
                     if (HandleDummyAuraProc(pTarget, damage, triggeredByAura, procSpell, procFlag, procExtra, cooldown))
-                    {
                         takeCharges=true;
-                        if (procDebug & 1)
-                            sLog.outError("Dummy aura of spell %d procs twice from one effect!",spellInfo->Id);
-                        procDebug |= 1;
-                    }
                     break;
                 }
                 case SPELL_AURA_OBS_MOD_POWER:
                     sLog.outDebug("ProcDamageAndSpell: casting spell id %u (triggered by %s aura of spell %u)", spellInfo->Id,(isVictim?"a victim's":"an attacker's"), triggeredByAura->GetId());
                     if (HandleObsModEnergyAuraProc(pTarget, damage, triggeredByAura, procSpell, procFlag, procExtra, cooldown))
-                    {
                         takeCharges=true;
-                        if (procDebug & 2)
-                            sLog.outError("ObsModEnergy aura of spell %d procs twice from one effect!",spellInfo->Id);
-                        procDebug |= 2;
-                    }
                     break;
                 case SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN:
                     sLog.outDebug("ProcDamageAndSpell: casting spell id %u (triggered by %s aura of spell %u)", spellInfo->Id,(isVictim?"a victim's":"an attacker's"), triggeredByAura->GetId());
                     if (HandleModDamagePctTakenAuraProc(pTarget, damage, triggeredByAura, procSpell, procFlag, procExtra, cooldown))
-                    {
                         takeCharges=true;
-                        if (procDebug & 16)
-                            sLog.outError("ModDamagePctTaken aura of spell %d procs twice from one effect!",spellInfo->Id);
-                        procDebug |= 16;
-                    }
                     break;
                 case SPELL_AURA_MOD_HASTE:
                 {
                     sLog.outDebug("ProcDamageAndSpell: casting spell id %u (triggered by %s haste aura of spell %u)", spellInfo->Id,(isVictim?"a victim's":"an attacker's"), triggeredByAura->GetId());
                     if (HandleHasteAuraProc(pTarget, damage, triggeredByAura, procSpell, procFlag, procExtra, cooldown))
-                    {
                         takeCharges=true;
-                        if (procDebug & 4)
-                            sLog.outError("Haste aura of spell %d procs twice from one effect!",spellInfo->Id);
-                        procDebug |= 4;
-                    }
                     break;
                 }
                 case SPELL_AURA_OVERRIDE_CLASS_SCRIPTS:
                 {
                     sLog.outDebug("ProcDamageAndSpell: casting spell id %u (triggered by %s aura of spell %u)", spellInfo->Id,(isVictim?"a victim's":"an attacker's"), triggeredByAura->GetId());
                     if (HandleOverrideClassScriptAuraProc(pTarget, damage, triggeredByAura, procSpell, cooldown))
-                    {
                         takeCharges=true;
-                        if (procDebug & 8)
-                            sLog.outError("OverrideClassScripts aura of spell %d procs twice from one effect!",spellInfo->Id);
-                        procDebug |= 8;
-                    }
                     break;
                 }
                 case SPELL_AURA_RAID_PROC_FROM_CHARGE_WITH_VALUE:
