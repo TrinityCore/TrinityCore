@@ -310,7 +310,7 @@ Unit* SentinelAbilityAura::GetTriggerTarget() const
 }
 
 SentinelAbilityAura::SentinelAbilityAura(aqsentinelAI *abilityOwner, SpellEntry *spell, uint32 ability, uint32 eff)
-: Aura(spell, eff, NULL, abilityOwner->m_creature, abilityOwner->m_creature, NULL)
+: Aura(spell, eff, abilityOwner->m_creature, abilityOwner->m_creature, abilityOwner->m_creature, NULL)
 {
     aOwner = abilityOwner;
     abilityId = ability;
