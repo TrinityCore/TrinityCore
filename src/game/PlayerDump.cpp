@@ -337,6 +337,7 @@ std::string PlayerDumpWriter::GetDump(uint32 guid)
     dump += "IMPORTANT NOTE: NOT APPLY ITS DIRECTLY to character DB or you will DAMAGE and CORRUPT character DB\n\n";
 
     // revision check guard
+    /*
     QueryNamedResult* result = CharacterDatabase.QueryNamed("SELECT * FROM character_db_version LIMIT 1");
     if(result)
     {
@@ -363,7 +364,7 @@ std::string PlayerDumpWriter::GetDump(uint32 guid)
     }
     else
         sLog.outError("Character DB not have 'character_db_version' table, revision guard query not added to pdump.");
-
+    */
     for(int i = 0; i < DUMP_TABLE_COUNT; ++i)
         DumpTable(dump, guid, dumpTables[i].name, dumpTables[i].name, dumpTables[i].type);
 
@@ -482,6 +483,7 @@ DumpReturn PlayerDumpReader::LoadDump(const std::string& file, uint32 account, s
             continue;
 
         // add required_ check
+        /*
         if(line.substr(nw_pos,41)=="UPDATE character_db_version SET required_")
         {
             if(!CharacterDatabase.Execute(line.c_str()))
@@ -489,6 +491,7 @@ DumpReturn PlayerDumpReader::LoadDump(const std::string& file, uint32 account, s
 
             continue;
         }
+        */
 
         // determine table name and load type
         std::string tn = gettablename(line);
