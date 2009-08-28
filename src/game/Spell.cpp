@@ -2944,7 +2944,7 @@ void Spell::cast(bool skipCheck)
                 case SPELL_EFFECT_CHARGE:
                 case SPELL_EFFECT_JUMP:
                 case SPELL_EFFECT_JUMP2:
-                case SPELL_EFFECT_138:
+                case SPELL_EFFECT_LEAP_BACK:
                     HandleEffects(NULL,NULL,NULL,i);
                     m_effectMask |= (1<<i);
                     break;
