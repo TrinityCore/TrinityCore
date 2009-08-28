@@ -5775,20 +5775,9 @@ void AuraEffect::PeriodicTick()
             else
                 pdamage = uint32(m_target->GetMaxHealth()*pdamage/100);
 
-            bool crit = false;
-            Unit::AuraEffectList const& mPeriodicCritAuras= pCaster->GetAurasByType(SPELL_AURA_ABILITY_PERIODIC_CRIT);
-            for(Unit::AuraEffectList::const_iterator itr = mPeriodicCritAuras.begin(); itr != mPeriodicCritAuras.end(); ++itr)
-            {
-                if (!(*itr)->isAffectedOnSpell(m_spellProto))
-                    continue;
-
-                if (pCaster->isSpellCrit(m_target, m_spellProto, GetSpellSchoolMask(m_spellProto)))
-                {
-                    crit = true;
-                    pdamage = pCaster->SpellCriticalDamageBonus(m_spellProto, pdamage, m_target);
-                }
-                break;
-            }
+            bool crit = IsPeriodicTickCrit(pCaster);
+            if (crit)
+                pdamage = pCaster->SpellCriticalDamageBonus(m_spellProto, pdamage, m_target);
 
             //As of 2.2 resilience reduces damage from DoT ticks as much as the chance to not be critically hit
             // Reduce dot damage from resilience for players
@@ -5845,6 +5834,10 @@ void AuraEffect::PeriodicTick()
             uint32 pdamage = GetAmount() > 0 ? GetAmount() : 0;
             pdamage = pCaster->SpellDamageBonus(m_target, GetSpellProto(), pdamage, DOT, GetParentAura()->GetStackAmount());
 
+            bool crit = IsPeriodicTickCrit(pCaster);
+            if (crit)
+                pdamage = pCaster->SpellCriticalDamageBonus(m_spellProto, pdamage, m_target);
+
             //Calculate armor mitigation if it is a physical spell
             if (GetSpellSchoolMask(GetSpellProto()) & SPELL_SCHOOL_MASK_NORMAL)
             {
@@ -5866,7 +5859,7 @@ void AuraEffect::PeriodicTick()
             sLog.outDetail("PeriodicTick: %u (TypeId: %u) health leech of %u (TypeId: %u) for %u dmg inflicted by %u abs is %u",
                 GUID_LOPART(GetCasterGUID()), GuidHigh2TypeId(GUID_HIPART(GetCasterGUID())), m_target->GetGUIDLow(), m_target->GetTypeId(), pdamage, GetId(),absorb);
 
-            pCaster->SendSpellNonMeleeDamageLog(m_target, GetId(), pdamage, GetSpellSchoolMask(GetSpellProto()), absorb, resist, false, 0);
+            pCaster->SendSpellNonMeleeDamageLog(m_target, GetId(), pdamage, GetSpellSchoolMask(GetSpellProto()), absorb, resist, false, 0, crit);
 
             Unit* target = m_target;                        // aura can be deleted in DealDamage
             SpellEntry const* spellProto = GetSpellProto();
@@ -5955,20 +5948,9 @@ void AuraEffect::PeriodicTick()
                 pdamage = pCaster->SpellHealingBonus(m_target, GetSpellProto(), pdamage, DOT, GetParentAura()->GetStackAmount());
             }
 
-            bool crit = false;
-            Unit::AuraEffectList const& mPeriodicCritAuras= pCaster->GetAurasByType(SPELL_AURA_ABILITY_PERIODIC_CRIT);
-            for(Unit::AuraEffectList::const_iterator itr = mPeriodicCritAuras.begin(); itr != mPeriodicCritAuras.end(); ++itr)
-            {
-                if (!(*itr)->isAffectedOnSpell(m_spellProto))
-                    continue;
-
-                if (pCaster->isSpellCrit(m_target, m_spellProto, GetSpellSchoolMask(m_spellProto)))
-                {
-                    crit = true;
-                    pdamage = pCaster->SpellCriticalHealingBonus(m_spellProto, pdamage, m_target);
-                }
-                break;
-            }
+            bool crit = IsPeriodicTickCrit(pCaster);
+            if (crit)
+                pdamage = pCaster->SpellCriticalHealingBonus(m_spellProto, pdamage, m_target);
 
             sLog.outDetail("PeriodicTick: %u (TypeId: %u) heal of %u (TypeId: %u) for %u health inflicted by %u",
                 GUID_LOPART(GetCasterGUID()), GuidHigh2TypeId(GUID_HIPART(GetCasterGUID())), m_target->GetGUIDLow(), m_target->GetTypeId(), pdamage, GetId());
@@ -7004,5 +6986,16 @@ int32 AuraEffect::CalculateCrowdControlAuraAmount(Unit * caster)
         }
     }
     return damageCap;
+}
+
+int32 AuraEffect::IsPeriodicTickCrit(Unit const * pCaster) const
+{
+    Unit::AuraEffectList const& mPeriodicCritAuras= pCaster->GetAurasByType(SPELL_AURA_ABILITY_PERIODIC_CRIT);
+    for(Unit::AuraEffectList::const_iterator itr = mPeriodicCritAuras.begin(); itr != mPeriodicCritAuras.end(); ++itr)
+    {
+        if ((*itr)->isAffectedOnSpell(m_spellProto) && pCaster->isSpellCrit(m_target, m_spellProto, GetSpellSchoolMask(m_spellProto)))
+            return true;
+    }
+    return false;
 }
 
