@@ -988,6 +988,19 @@ ListenRange.Yell = 300
 #        Default: 0 (disible fake messages preventing)
 #                 1 (enabled fake messages preventing)
 #
+#    ChatStrictLinkChecking.Severity
+#        Check chat messages for ingame links to spells, items, quests, achievements etc.
+#        Default: 0 (disable link checking)
+#                 1 (check if only valid pipe commands are used. This prevents posting pictures for example)
+#                 2 (verifiy that pipe commands are used in a correct order)
+#                 3 (check if color, entry and name don't contradict each other. For correct work, please assure
+#                    that you have extracted locale DBCs of every language specific client playing on this server.)
+#
+#    ChatStrictLinkChecking.Kick
+#        Defines, what should be done if a message is considered to contain invalid pipe commands.
+#        Default: 0 (silently ignore message)
+#                 1 (kick players who sent invalid formed messages)
+#
 #    ChatFlood.MessageCount
 #        Chat anti-flood protection, haste message count to activate protection
 #        Default: 10
@@ -1014,6 +1027,8 @@ ListenRange.Yell = 300
 ###################################################################################################################
 
 ChatFakeMessagePreventing = 0
+ChatStrictLinkChecking.Severity = 0
+ChatStrictLinkChecking.Kick = 0
 ChatFlood.MessageCount = 10
 ChatFlood.MessageDelay = 1
 ChatFlood.MuteTime = 10
