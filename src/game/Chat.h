@@ -74,6 +74,8 @@ class ChatHandler
         int ParseCommands(const char* text);
 
         static ChatCommand* getCommandTable();
+
+        bool isValidChatMessage(const char* msg);
     protected:
         explicit ChatHandler() : m_session(NULL) {}      // for CLI subclass
 
