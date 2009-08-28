@@ -739,10 +739,11 @@ struct TRINITY_DLL_DECL npc_scarlet_miner_cartAI : public PassiveAI
         }
     }
 
-    void PassengerLeft(Unit *who, int8 seatId)
+    void PassengerBoarded(Unit *who, int8 seatId, bool apply)
     {
-        if(Creature *miner = Unit::GetCreature(*me, minerGUID))
-            miner->DisappearAndDie();
+        if(!apply)
+            if(Creature *miner = Unit::GetCreature(*me, minerGUID))
+                miner->DisappearAndDie();
     }
 };
 

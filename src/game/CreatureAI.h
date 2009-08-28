@@ -160,8 +160,7 @@ class TRINITY_DLL_SPEC CreatureAI : public UnitAI
 
         void SetGazeOn(Unit *target);
 
-        virtual void PassengerBoarded(Unit *who, int8 seatId) {}
-        virtual void PassengerLeft(Unit *who, int8 seatId) {}
+        virtual void PassengerBoarded(Unit *who, int8 seatId, bool apply) {}
 
     protected:
         bool _EnterEvadeMode();
