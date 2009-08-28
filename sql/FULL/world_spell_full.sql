@@ -1127,8 +1127,8 @@ INSERT INTO `spell_proc_event` (`entry`, `SchoolMask`, `SpellFamilyName`, `Spell
 ( 47535, 0x00,   6, 0x00000001, 0x00000000, 0x00000000, 0x00004000, 0x00002000,   0,   0,  12), -- Rapture (Rank 1)
 ( 47536, 0x00,   6, 0x00000001, 0x00000000, 0x00000000, 0x00004000, 0x00002000,   0,   0,  12), -- Rapture (Rank 2)
 ( 47537, 0x00,   6, 0x00000001, 0x00000000, 0x00000000, 0x00004000, 0x00002000,   0,   0,  12), -- Rapture (Rank 3)
-( 47569, 0x00,   6, 0x00004000, 0x00000000, 0x00000000, 0x00004000, 0x00000000,   0,  50,   0), -- Improved Shadowform (Rank 1)
-( 47570, 0x00,   6, 0x00004000, 0x00000000, 0x00000000, 0x00004000, 0x00000000,   0, 100,   0), -- Improved Shadowform (Rank 2)
+( 47569, 0x00,   6, 0x00004000, 0x00000000, 0x00000000, 0x00004000, 0x00000000,   0,   0,   0), -- Improved Shadowform (Rank 1)
+( 47570, 0x00,   6, 0x00004000, 0x00000000, 0x00000000, 0x00004000, 0x00000000,   0,   0,   0), -- Improved Shadowform (Rank 2)
 ( 47580, 0x00,   6, 0x00000000, 0x00000000, 0x00000040, 0x00000000, 0x00010000,   0,   0,   0), -- Pain and Suffering (Rank 1)
 ( 47581, 0x00,   6, 0x00000000, 0x00000000, 0x00000040, 0x00000000, 0x00010000,   0,   0,   0), -- Pain and Suffering (Rank 2)
 ( 47582, 0x00,   6, 0x00000000, 0x00000000, 0x00000040, 0x00000000, 0x00010000,   0,   0,   0), -- Pain and Suffering (Rank 3)
@@ -1569,7 +1569,41 @@ INSERT INTO spell_enchant_proc_data (`entry`, `customChance`, `PPMChance`,`procE
 (625, 0, 8.53,0),
 (2641, 0, 8.53,0),
 (3768, 0, 8.53,0),
-(3769, 0, 8.53,0);
+(3769, 0, 8.53,0),
+ -- Fiery Weapon
+(803, 0, 6.0,0),
+ -- Demonslaying
+(912, 0, 6.0,0),
+ -- Icy Weapon
+(1894, 0, 3.0,0),
+ -- Lifestealing
+(1898, 0, 6.0,0),
+ -- Unholy Weapon
+(1899, 0, 1.0,0),
+ -- Crusader
+(1900, 0, 1.0,0),
+ -- Mongoose
+(2673, 0, 1.0,0),
+ -- Battlemaster
+(2675, 0, 1.0,0),
+ -- Executioner
+(3225, 0, 1.0,0),
+ -- Icebreaker Weapon
+(3239, 0, 3.0,0),
+ -- Lifeward
+(3241, 0, 3.0,0),
+ -- Giantslaying
+(3251, 0, 3.0,0),
+ -- Deathfrost
+(3273, 0, 3.0,0),
+ -- Rune of the Fallen Crusader
+(3368, 0, 1.0,0),
+ -- Rune of Cinderglacier
+(3369, 0, 1.0,0),
+ -- Berserking
+(3789, 0, 1.0,0),
+ -- Blade Ward
+(3869, 0, 1.0,0);
 
 -- --------
 -- SPELL BONUS DATA
