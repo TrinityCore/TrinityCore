@@ -5888,10 +5888,10 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                 {
                     if (procSpell->SpellVisual[0] == 750 && procSpell->EffectApplyAuraName[1] == 3)
                     {
-                        if (target->GetTypeId() == TYPEID_UNIT)  
+                        if (target->GetTypeId() == TYPEID_UNIT)
                         {
                             triggered_spell_id = 54820;
-                            break;                    
+                            break;
                         }
                     }
                     return false;
@@ -9568,10 +9568,22 @@ bool Unit::isSpellCrit(Unit *pVictim, SpellEntry const *spellProto, SpellSchoolM
                 // Custom crit by class
                 switch(spellProto->SpellFamilyName)
                 {
+                    case SPELLFAMILY_DRUID:
+                        // Starfire
+                        if (spellProto->SpellFamilyFlags[0] & 0x4 && spellProto->SpellIconID == 1485)
+                        {
+                            // Improved Insect Swarm
+                            if (AuraEffect const * aurEff = GetDummyAura(SPELLFAMILY_DRUID, 1771, 0))
+                                if (pVictim->GetAura(SPELL_AURA_PERIODIC_DAMAGE, SPELLFAMILY_DRUID, 0x00000002))
+                                    crit_chance+=aurEff->GetAmount();
+                           break;
+                        }
+                    break;
                     case SPELLFAMILY_PALADIN:
-                        // Sacred Shield
+                        // Flash of light
                         if (spellProto->SpellFamilyFlags[0] & 0x40000000)
                         {
+                            // Sacred Shield
                             AuraEffect const* aura = pVictim->GetAuraEffect(58597,1);
                             if (aura && aura->GetCasterGUID() == GetGUID())
                                 crit_chance+=aura->GetAmount();
@@ -9599,7 +9611,6 @@ bool Unit::isSpellCrit(Unit *pVictim, SpellEntry const *spellProto, SpellSchoolM
                             break;
                         }
                     break;
-
                 }
             }
             break;
@@ -14499,11 +14510,16 @@ void Unit::AddAura(uint32 spellId, Unit *target)
         return;
 
     uint8 eff_mask=0;
+    Unit * source = this;
 
     for(uint32 i = 0; i < MAX_SPELL_EFFECTS; ++i)
     {
         if(spellInfo->Effect[i] == SPELL_EFFECT_APPLY_AURA || IsAreaAuraEffect(spellInfo->Effect[i]))
         {
+            // Area auras applied as linked should have target as source (otherwise they'll be removed after first aura update)
+            if (spellInfo->Effect[i] != SPELL_EFFECT_APPLY_AURA)
+                source = target;
+
             if(target->IsImmunedToSpellEffect(spellInfo, i))
                 continue;
             eff_mask|=1<<i;
@@ -14514,7 +14530,7 @@ void Unit::AddAura(uint32 spellId, Unit *target)
         return;
 
     // Because source is not give, use caster as source
-    Aura *Aur = new Aura(spellInfo, eff_mask, target, this, this);
+    Aura *Aur = new Aura(spellInfo, eff_mask, target, source, this);
     target->AddAura(Aur);
 }
 
