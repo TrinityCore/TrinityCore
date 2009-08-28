@@ -76,7 +76,7 @@ struct TRINITY_DLL_DECL boss_the_lurker_belowAI : public Scripted_NoMovementAI
             TempSpell->Effect[0] = 0;//remove all spell effect, only anim is needed
             TempSpell->Effect[1] = 0;
             TempSpell->Effect[2] = 0;
-        }
+        }        
     }
 
     ScriptedInstance* pInstance;
@@ -85,6 +85,7 @@ struct TRINITY_DLL_DECL boss_the_lurker_belowAI : public Scripted_NoMovementAI
     bool Spawned;
     bool Submerged;
     bool InRange;
+    bool CanStartEvent;
     uint32 RotTimer;
     uint32 SpoutAnimTimer;
     uint32 WaterboltTimer;
@@ -93,14 +94,18 @@ struct TRINITY_DLL_DECL boss_the_lurker_belowAI : public Scripted_NoMovementAI
     uint32 PhaseTimer;
     uint32 GeyserTimer;
     uint32 CheckTimer;
+    uint32 WaitTimer;
+    uint32 WaitTimer2;
 
+    bool CheckCanStart()//check if players fished
+    {
+        if(pInstance && pInstance->GetData(DATA_STRANGE_POOL) == NOT_STARTED)
+            return false;
+        return true;
+    }
     void Reset()
     {
-        m_creature->AddUnitMovementFlag(MOVEMENTFLAG_SWIMMING + MOVEMENTFLAG_LEVITATING);
-        m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-        m_creature->RemoveFlag(UNIT_NPC_EMOTESTATE,EMOTE_STATE_SUBMERGED);
-        m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_ATTACKABLE_2);
-
+        m_creature->AddUnitMovementFlag(MOVEMENTFLAG_SWIMMING + MOVEMENTFLAG_LEVITATING);        
         SpoutAnimTimer = 1000;
         RotTimer = 0;
         WaterboltTimer = 15000;//give time to get in range when fight starts
@@ -109,24 +114,25 @@ struct TRINITY_DLL_DECL boss_the_lurker_belowAI : public Scripted_NoMovementAI
         PhaseTimer = 120000;
         GeyserTimer = rand()%5000 + 15000;
         CheckTimer = 15000;//give time to get in range when fight starts
+        WaitTimer = 60000;//never reached
+        WaitTimer2 = 60000;//never reached
 
-        Submerged = false;
+        Submerged = true;//will be false at combat start
         Spawned = false;
         InRange = false;
+        CanStartEvent = false;
 
         Summons.DespawnAll();
 
         if (pInstance)
-            pInstance->SetData(DATA_THELURKERBELOWEVENT, NOT_STARTED);
-
-        /*if (pInstance->GetData(DATA_STRANGE_POOL) != DONE)
         {
-            m_creature->SetReactState(REACT_PASSIVE);
-            m_creature->SetVisibility(VISIBILITY_OFF);
-        }else {
-            m_creature->SetVisibility(VISIBILITY_ON);
-            m_creature->SetReactState(REACT_AGGRESSIVE);
-        }*/
+            pInstance->SetData(DATA_THELURKERBELOWEVENT, NOT_STARTED);
+            pInstance->SetData(DATA_STRANGE_POOL, NOT_STARTED);
+        }
+        DoCast(m_creature,SPELL_SUBMERGE);//submerge anim
+        m_creature->SetVisibility(VISIBILITY_OFF);//we start invis under water, submerged
+        m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+        m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_ATTACKABLE_2);
     }
 
     void JustDied(Unit* Killer)
@@ -135,7 +141,28 @@ struct TRINITY_DLL_DECL boss_the_lurker_belowAI : public Scripted_NoMovementAI
             pInstance->SetData(DATA_THELURKERBELOWEVENT, DONE);
 
         Summons.DespawnAll();
-     }
+    }
+
+    void EnterCombat(Unit *who)
+    {
+        if (pInstance)
+            pInstance->SetData(DATA_THELURKERBELOWEVENT, IN_PROGRESS);
+        Scripted_NoMovementAI::EnterCombat(who);
+    }
+
+    void MoveInLineOfSight(Unit *who)
+    {
+        if(!CanStartEvent)//boss is invisible, don't attack
+            return;
+        if (!m_creature->getVictim() && who->isTargetableForAttack() && (m_creature->IsHostileTo(who)))
+        {
+            float attackRadius = m_creature->GetAttackDistance(who);
+            if (m_creature->IsWithinDistInMap(who, attackRadius))
+            {
+                AttackStart(who);
+            }
+        }
+    }
 
     void UpdateAI(const uint32 diff)
     {
@@ -158,9 +185,37 @@ struct TRINITY_DLL_DECL boss_the_lurker_belowAI : public Scripted_NoMovementAI
             }
         }*/
 
-        //Rotate(diff);//always check rotate things
+        if(!CanStartEvent)//boss is invisible, don't attack
+        {
+            if(CheckCanStart())
+            {
+                if(Submerged)
+                {
+                    m_creature->SetVisibility(VISIBILITY_ON);                    
+                    Submerged = false;
+                    WaitTimer2 = 500;
+                }
+                if(!Submerged && WaitTimer2 < diff)//wait 500ms before emerge anim
+                {
+                    m_creature->RemoveAllAuras();
+                    m_creature->RemoveFlag(UNIT_NPC_EMOTESTATE,EMOTE_STATE_SUBMERGED);
+                    DoCast(m_creature,SPELL_EMERGE,false);
+                    WaitTimer2 = 60000;//never reached    
+                    WaitTimer = 3000;
+                }else WaitTimer2 -= diff;
 
-        //Return since we have no target
+                if(WaitTimer < diff)//wait 3secs for emerge anim, then attack
+                {
+                    WaitTimer = 3000;
+                    CanStartEvent=true;//fresh fished from pool
+                    m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_ATTACKABLE_2);
+                    m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                }else WaitTimer -= diff;
+            }            
+            return;
+        }
+        
+
 
         if(m_creature->getThreatManager().getThreatList().empty())//check if should evade
         {

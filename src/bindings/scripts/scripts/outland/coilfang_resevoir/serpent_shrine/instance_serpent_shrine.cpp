@@ -64,7 +64,9 @@ struct TRINITY_DLL_DECL instance_serpentshrine_cavern : public ScriptedInstance
 
     uint64 ControlConsole;
     uint64 BridgePart[3];
-    uint64 StrangePool;
+    uint32 StrangePool;
+    uint32 FishingTimer;
+    uint32 LurkerSubEvent;
 
     bool ShieldGeneratorDeactivated[4];
     uint32 m_auiEncounter[MAX_ENCOUNTER];
@@ -93,6 +95,8 @@ struct TRINITY_DLL_DECL instance_serpentshrine_cavern : public ScriptedInstance
         ShieldGeneratorDeactivated[1] = false;
         ShieldGeneratorDeactivated[2] = false;
         ShieldGeneratorDeactivated[3] = false;
+        FishingTimer = 1000;
+        LurkerSubEvent = 0;
     }
 
     bool IsEncounterInProgress() const
@@ -101,6 +105,19 @@ struct TRINITY_DLL_DECL instance_serpentshrine_cavern : public ScriptedInstance
             if (m_auiEncounter[i] == IN_PROGRESS) return true;
 
         return false;
+    }
+
+    void Update (uint32 diff)
+    {
+        //Lurker Fishing event
+        if(LurkerSubEvent == LURKER_FISHING)
+        {
+            if(FishingTimer < diff)
+            {
+                LurkerSubEvent == LURKER_HOOKED;
+                SetData(DATA_STRANGE_POOL, IN_PROGRESS);//just fished, signal Lurker script to emerge and start fight, we use IN_PROGRESS so it won't get saved and lurker will be alway invis at start if server restarted
+            }else FishingTimer -= diff;
+        }
     }
 
     void OnGameObjectCreate(GameObject* pGo, bool add)
@@ -126,13 +143,12 @@ struct TRINITY_DLL_DECL instance_serpentshrine_cavern : public ScriptedInstance
                 BridgePart[2] = pGo->GetGUID();
                 pGo->setActive(true);
             break;
-            case 184956:
-                StrangePool = pGo->GetGUID();
-                if (pGo->isActiveObject())
-                    SetData(DATA_STRANGE_POOL, DONE);
-                break;
-            case GAMEOBJECT_FISHINGNODE_ENTRY:
-                //todo (yes this works)
+            case GAMEOBJECT_FISHINGNODE_ENTRY://no way checking if fish is hooked, so we create a timed event                
+                if(LurkerSubEvent == LURKER_NOT_STARTED)
+                {
+                    FishingTimer = 10000+rand()%30000;//random time before lurker emerges
+                    LurkerSubEvent = LURKER_FISHING;
+                }
                 break;
         }
     }
@@ -179,7 +195,12 @@ struct TRINITY_DLL_DECL instance_serpentshrine_cavern : public ScriptedInstance
     {
         switch(type)
         {
-        case DATA_STRANGE_POOL: StrangePool = data;
+        case DATA_STRANGE_POOL: 
+            {
+                StrangePool = data;
+                if(data == NOT_STARTED)
+                    LurkerSubEvent = LURKER_NOT_STARTED;
+            }
         case DATA_CONTROL_CONSOLE:
             if (data == DONE)
             {
@@ -230,6 +251,7 @@ struct TRINITY_DLL_DECL instance_serpentshrine_cavern : public ScriptedInstance
             case DATA_SHIELDGENERATOR4:         return ShieldGeneratorDeactivated[3];
             case DATA_CANSTARTPHASE3:
                 if (ShieldGeneratorDeactivated[0] && ShieldGeneratorDeactivated[1] && ShieldGeneratorDeactivated[2] && ShieldGeneratorDeactivated[3])return 1;break;
+            case DATA_STRANGE_POOL:           return StrangePool;
         }
         return 0;
     }
