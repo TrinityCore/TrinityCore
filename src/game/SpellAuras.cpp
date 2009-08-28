@@ -1936,8 +1936,6 @@ void AuraEffect::HandleShapeshiftBoosts(bool apply)
             break;
         case FORM_MOONKIN:
             spellId = 24905;
-            // aura from effect trigger spell
-            spellId2 = 24907;
             break;
         case FORM_FLIGHT:
             spellId = 33948;
