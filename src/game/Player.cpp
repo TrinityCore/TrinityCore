@@ -19397,11 +19397,13 @@ void Player::resetSpells(bool myClassOnly)
     // and we can't use original map for safe iterative with visit each spell at loop end
     PlayerSpellMap smap = GetSpellMap();
 
+    uint32 family;
+
     if(myClassOnly){
         ChrClassesEntry const* clsEntry = sChrClassesStore.LookupEntry(m_session->GetPlayer()->getClass());
         if(!clsEntry)
             return;
-        uint32 family = clsEntry->spellfamily;
+        family = clsEntry->spellfamily;
     }
 
     for(PlayerSpellMap::const_iterator iter = smap.begin();iter != smap.end(); ++iter)
