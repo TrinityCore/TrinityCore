@@ -1423,6 +1423,10 @@ void AuraEffect::HandleAuraEffectSpecificMods(bool apply, bool Real, bool change
                     // Innervate
                     else if (m_spellProto->Id == 29166 && GetAuraName() == SPELL_AURA_PERIODIC_ENERGIZE)
                         m_amount = m_target->GetCreatePowers(POWER_MANA) * m_amount / (GetTotalTicks() * 100.0f);
+                    // Thorns
+                    else if (m_spellProto->SpellFamilyFlags[0] & 0x100 && GetAuraName() == SPELL_AURA_DAMAGE_SHIELD)
+                        // 3.3% from sp bonus
+                        DoneActualBenefit = caster->SpellBaseDamageBonus(GetSpellSchoolMask(m_spellProto)) * 0.033f;
                     break;
                 }
                 case SPELLFAMILY_ROGUE:
