@@ -1878,6 +1878,12 @@ void Unit::CalcAbsorbResist(Unit *pVictim,SpellSchoolMask schoolMask, DamageEffe
                         RemainingDamage -= RemainingDamage * currentAbsorb / 100;
                     continue;
                 }
+                // Savage Defense (amount store original percent of attack power applied)
+                if (spellProto->SpellIconID == 50)    // only spell with this aura fit
+                {
+                    RemainingDamage -= int32(currentAbsorb * pVictim->GetTotalAttackPowerValue(BASE_ATTACK) / 100);
+                    continue;
+                }
                 break;
             }
             case SPELLFAMILY_ROGUE:
@@ -1954,56 +1960,50 @@ void Unit::CalcAbsorbResist(Unit *pVictim,SpellSchoolMask schoolMask, DamageEffe
             }
             case SPELLFAMILY_DEATHKNIGHT:
             {
-                // Unbreakable Armor
-                if (spellProto->Id == 51271)
+                switch(spellProto->Id)
                 {
-                    Unit* caster = (*i)->GetCaster();
-                    if (!caster)
+                    case 51271: // Unbreakable Armor
+                        if(Unit *caster = (*i)->GetCaster())
+                        {
+                            uint32 absorbed = uint32( currentAbsorb * caster->GetArmor() * 0.01f );
+
+                            // Glyph of Unbreakable Armor
+                            if (AuraEffect *aurEff = caster->GetAuraEffect(58635, 0))
+                                absorbed += uint32( absorbed * aurEff->GetAmount() / 100 );
+
+                            RemainingDamage -= absorbed;
+                        }
                         continue;
-
-                    uint32 absorbed = uint32( currentAbsorb * caster->GetArmor() * 0.01f );
-
-                    // Glyph of Unbreakable Armor
-                    if (AuraEffect *aurEff = caster->GetAuraEffect(58635, 0))
-                        absorbed += uint32( absorbed * aurEff->GetAmount() / 100 );
-
-                    RemainingDamage -= absorbed;
-                    continue;
-                }
-                // Anti-Magic Shell (on self)
-                if (spellProto->Id == 48707)
-                {
-                    // damage absorbed by Anti-Magic Shell energizes the DK with additional runic power.
-                    // This, if I'm not mistaken, shows that we get back ~2% of the absorbed damage as runic power.
-                    int32 absorbed = RemainingDamage * currentAbsorb / 100;
-                    int32 regen = absorbed * 2 / 10;
-                    pVictim->CastCustomSpell(pVictim, 49088, &regen, 0, 0, true, 0, (*i));
-                    RemainingDamage -= absorbed;
-                    continue;
-                }
-                // Anti-Magic Shell (on single party/raid member)
-                if (spellProto->Id == 50462)
-                {
-                    RemainingDamage -= RemainingDamage * currentAbsorb / 100;
-                    continue;
-                }
-                // Anti-Magic Zone
-                if (spellProto->Id == 50461)
-                {
-                    Unit* caster = (*i)->GetCaster();
-                    if (!caster)
+                    case 48707: // Anti-Magic Shell (on self)
+                    {
+                        // damage absorbed by Anti-Magic Shell energizes the DK with additional runic power.
+                        // This, if I'm not mistaken, shows that we get back ~2% of the absorbed damage as runic power.
+                        int32 absorbed = RemainingDamage * currentAbsorb / 100;
+                        int32 regen = absorbed * 2 / 10;
+                        pVictim->CastCustomSpell(pVictim, 49088, &regen, 0, 0, true, 0, (*i));
+                        RemainingDamage -= absorbed;
                         continue;
-                    int32 absorbed = RemainingDamage * currentAbsorb / 100;
-                    int32 canabsorb = caster->GetHealth();
-                    if (canabsorb < absorbed)
-                        absorbed = canabsorb;
+                    }
+                    case 50462: // Anti-Magic Shell (on single party/raid member)
+                        RemainingDamage -= RemainingDamage * currentAbsorb / 100;
+                        continue;
+                    case 50461: // Anti-Magic Zone
+                        if(Unit *caster = (*i)->GetCaster())
+                        {
+                            int32 absorbed = RemainingDamage * currentAbsorb / 100;
+                            int32 canabsorb = caster->GetHealth();
+                            if (canabsorb < absorbed)
+                                absorbed = canabsorb;
 
-                    RemainingDamage -= absorbed;
+                            RemainingDamage -= absorbed;
 
-                    uint32 ab_damage = absorbed;
-                    DealDamageMods(caster,ab_damage,NULL);
-                    DealDamage(caster, ab_damage, NULL, damagetype, schoolMask, 0, false);
-                    continue;
+                            uint32 ab_damage = absorbed;
+                            DealDamageMods(caster,ab_damage,NULL);
+                            DealDamage(caster, ab_damage, NULL, damagetype, schoolMask, 0, false);
+                        }
+                        continue;
+                    default:
+                        break;
                 }
                 break;
             }
