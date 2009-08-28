@@ -971,7 +971,7 @@ void BattleGroundAV::EventPlayerAssaultsPoint(Player* player, uint32 object)
                     if( !plr )
                         continue;
                     if(!ClosestGrave)
-                        ClosestGrave = GetClosestGraveYard(plr->GetPositionX(), plr->GetPositionY(), plr->GetPositionZ(), team);
+                        ClosestGrave = GetClosestGraveYard(plr);
                     else
                         plr->TeleportTo(GetMapId(), ClosestGrave->x, ClosestGrave->y, ClosestGrave->z, plr->GetOrientation());
                 }
@@ -1095,7 +1095,7 @@ void BattleGroundAV::SendMineWorldStates(uint32 mine)
 }
 
 
-WorldSafeLocsEntry const* BattleGroundAV::GetClosestGraveYard(float x, float y, float z, uint32 team)
+WorldSafeLocsEntry const* BattleGroundAV::GetClosestGraveYard(Player* player)
 {
     WorldSafeLocsEntry const* good_entry = NULL;
     if( GetStatus() == STATUS_IN_PROGRESS)
@@ -1104,12 +1104,12 @@ WorldSafeLocsEntry const* BattleGroundAV::GetClosestGraveYard(float x, float y, 
         float mindist = 9999999.0f;
         for (uint8 i = BG_AV_NODES_FIRSTAID_STATION; i <= BG_AV_NODES_FROSTWOLF_HUT; ++i)
         {
-            if (m_Nodes[i].Owner != team || m_Nodes[i].State != POINT_CONTROLED)
+            if (m_Nodes[i].Owner != player->GetTeam() || m_Nodes[i].State != POINT_CONTROLED)
                 continue;
             WorldSafeLocsEntry const*entry = sWorldSafeLocsStore.LookupEntry( BG_AV_GraveyardIds[i] );
             if( !entry )
                 continue;
-            float dist = (entry->x - x)*(entry->x - x)+(entry->y - y)*(entry->y - y);
+            float dist = (entry->x - player->GetPositionX())*(entry->x - player->GetPositionX())+(entry->y - player->GetPositionY())*(entry->y - player->GetPositionY());
             if( mindist > dist )
             {
                 mindist = dist;
@@ -1119,7 +1119,7 @@ WorldSafeLocsEntry const* BattleGroundAV::GetClosestGraveYard(float x, float y, 
     }
     // If not, place ghost on starting location
     if( !good_entry )
-        good_entry = sWorldSafeLocsStore.LookupEntry( BG_AV_GraveyardIds[GetTeamIndexByTeamId(team)+7] );
+        good_entry = sWorldSafeLocsStore.LookupEntry( BG_AV_GraveyardIds[GetTeamIndexByTeamId(player->GetTeam())+7] );
 
     return good_entry;
 }
