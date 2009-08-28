@@ -2303,3 +2303,32 @@ void WorldObject::PlayDirectSound( uint32 sound_id, Player* target /*= NULL*/ )
     else
         SendMessageToSet( &data, true );
 }
+
+void WorldObject::DestroyForNearbyPlayers()
+{
+    if(!IsInWorld())
+        return;
+
+    std::list<Unit*> targets;
+    Trinity::AnyUnitInObjectRangeCheck check(this, World::GetMaxVisibleDistance());
+    Trinity::UnitListSearcher<Trinity::AnyUnitInObjectRangeCheck> searcher(this, targets, check);
+    VisitNearbyWorldObject(World::GetMaxVisibleDistance(), searcher);
+    for(std::list<Unit*>::const_iterator iter = targets.begin(); iter != targets.end(); ++iter)
+    {
+        Player *plr = dynamic_cast<Player*>(*iter);
+        if(!plr)
+            continue;
+
+        if(plr == this)
+            continue;
+
+        if(!plr->HaveAtClient(this))
+            continue;
+
+        if(isType(TYPEMASK_UNIT) && ((Unit*)this)->GetCharmerGUID() == plr->GetGUID()) // TODO: this is for puppet
+            continue;
+         
+        DestroyForPlayer(plr);            
+        plr->m_clientGUIDs.erase(GetGUID());       
+    }
+}
