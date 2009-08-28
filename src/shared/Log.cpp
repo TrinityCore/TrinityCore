@@ -439,7 +439,7 @@ void Log::outCrash( const char * err, ... )
     }
 
     if(m_colored)
-        SetColor(false,RED);
+        SetColor(false,LRED);
 
     va_list ap;
 
@@ -482,7 +482,7 @@ void Log::outError( const char * err, ... )
     }
 
     if(m_colored)
-        SetColor(false,RED);
+        SetColor(false,LRED);
 
     va_list ap;
 
@@ -533,7 +533,7 @@ void Log::outErrorDb( const char * err, ... )
         return;
 
     if(m_colored)
-        SetColor(false,RED);
+        SetColor(false,LRED);
 
     va_list ap;
 
