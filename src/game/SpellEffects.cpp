@@ -5295,10 +5295,22 @@ void Spell::EffectScriptEffect(uint32 effIndex)
                     return;
                 }
                 case 62428: // Load into Catapult
-                    if(Unit *demolisher = m_caster->GetVehicleBase())
-                        if(Vehicle *seat = m_caster->GetVehicleKit())
-                            if(Unit *passenger = seat->GetPassenger(0))
+                    if(Vehicle *seat = m_caster->GetVehicleKit())
+                        if(Unit *passenger = seat->GetPassenger(0))
+                            if(Unit *demolisher = m_caster->GetVehicleBase())
                                 passenger->CastSpell(demolisher, damage, true);
+                    return;
+                case 62482: // Grab Crate
+                    if(unitTarget)
+                    {
+                        if(Vehicle *seat = m_caster->GetVehicleKit())
+                        {
+                            if(Creature *oldContainer = dynamic_cast<Creature*>(seat->GetPassenger(1)))
+                                oldContainer->DisappearAndDie();
+                            unitTarget->CastSpell(seat->GetBase(), 62473, true);
+                            unitTarget->EnterVehicle(seat, 1);
+                        }
+                    }
                     return;
                 case 60123: // Lightwell
                 {

@@ -35,12 +35,7 @@ struct TRINITY_DLL_DECL boss_kologarnAI : public BossAI
         leftArm(NULL), rightArm(NULL)
     {
         assert(vehicle);
-        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED);
-    }
-
-    void Reset()
-    {
-        _Reset();
+        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
         me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED);
     }
 
@@ -58,6 +53,7 @@ struct TRINITY_DLL_DECL boss_kologarnAI : public BossAI
             leftArm = apply ? CAST_CRE(who) : NULL;
         else if(who->GetEntry() == 32934)
             rightArm = apply ? CAST_CRE(who) : NULL;
+        who->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED);
     }
 
     void UpdateAI(const uint32 diff)

@@ -42,10 +42,11 @@ class TRINITY_DLL_SPEC Vehicle
 
         void Install();
         void Uninstall();
-
         void Reset();
         void Die();
+        void InstallAllAccessories();
 
+        Unit *GetBase() const { return me; }
         VehicleEntry const *GetVehicleInfo() { return m_vehicleInfo; }
 
         bool HasEmptySeat(int8 seatId) const;
@@ -54,17 +55,15 @@ class TRINITY_DLL_SPEC Vehicle
         bool AddPassenger(Unit *passenger, int8 seatId = -1);
         void RemovePassenger(Unit *passenger);
         void RemoveAllPassengers();
-        void InstallAllAccessories();
         void Dismiss();
 
         SeatMap m_Seats;
 
-        Unit *GetBase() const { return me; }
     protected:
         Unit *me;
         VehicleEntry const *m_vehicleInfo;
         uint32 m_usableSeatNum;
 
-        void InstallAccessory(uint32 entry, int8 seatId);
+        void InstallAccessory(uint32 entry, int8 seatId, bool minion = true);
 };
 #endif
