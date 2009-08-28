@@ -70,12 +70,13 @@ void SummonList::DespawnAll()
         else
         {
             erase(begin());
-            summon->SetVisibility(VISIBILITY_OFF);
-            if(summon->isSummon() && !summon->isPet())
+            if(summon->isSummon())
+            {
+                summon->DestroyForNearbyPlayers();
                 CAST_SUM(summon)->UnSummon();
+            }
             else
-                summon->setDeathState(JUST_DIED);
-            summon->RemoveCorpse();
+                summon->DisappearAndDie();
         }
     }
 }
@@ -162,26 +163,6 @@ Creature* ScriptedAI::DoSpawnCreature(uint32 uiId, float fX, float fY, float fZ,
 {
     return m_creature->SummonCreature(uiId, m_creature->GetPositionX()+fX, m_creature->GetPositionY()+fY, m_creature->GetPositionZ()+fZ, fAngle, (TempSummonType)uiType, uiDespawntime);
 }
-
-Creature *ScriptedAI::DoSummon(uint32 uiEntry, const float fPos[4], uint32 uiDespawntime, TempSummonType uiType)
-{
-    return me->SummonCreature(uiEntry, fPos[0], fPos[1], fPos[2], fPos[3], uiType, uiDespawntime);
-}
-
-Creature *ScriptedAI::DoSummon(uint32 uiEntry, WorldObject* pGo, float fRadius, uint32 uiDespawntime, TempSummonType uiType)
-{
-    float fX, fY, fZ;
-    pGo->GetGroundPointAroundUnit(fX, fY, fZ, fRadius * rand_norm(), rand_norm()*2*M_PI);
-    return me->SummonCreature(uiEntry, fX, fY, fZ, me->GetOrientation(), uiType, uiDespawntime);
-}
-
-Creature *ScriptedAI::DoSummonFlyer(uint32 uiEntry, WorldObject *obj, float _fZ, float fRadius, uint32 uiDespawntime, TempSummonType uiType)
-{
-    float fX, fY, fZ;
-    obj->GetGroundPointAroundUnit(fX, fY, fZ, fRadius * rand_norm(), rand_norm()*2*M_PI);
-    return me->SummonCreature(uiEntry, fX, fY, fZ + _fZ, me->GetOrientation(), uiType, uiDespawntime);
-}
-
 
 Unit* ScriptedAI::SelectUnit(SelectAggroTarget target, uint32 uiPosition)
 {

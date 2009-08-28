@@ -20,6 +20,8 @@
 
 #include "Common.h"
 #include "Platform/Define.h"
+#include "Creature.h"
+#include "CreatureAI.h"
 
 #define HEROIC(n,h) (HeroicMode ? h : n)
 
@@ -256,6 +258,77 @@ struct AISpellInfoType
 };
 
 TRINITY_DLL_SPEC AISpellInfoType * GetAISpellInfo(uint32 i);
+
+
+inline void CreatureAI::SetGazeOn(Unit *target)
+{
+    if(me->canAttack(target))
+    {
+        AttackStart(target);
+        me->SetReactState(REACT_PASSIVE);
+    }
+}
+
+inline bool CreatureAI::UpdateVictimWithGaze()
+{
+    if(!me->isInCombat())
+        return false;
+
+    if(me->HasReactState(REACT_PASSIVE))
+    {
+        if(me->getVictim())
+            return true;
+        else
+            me->SetReactState(REACT_AGGRESSIVE);
+    }
+
+    if(Unit *victim = me->SelectVictim())
+        AttackStart(victim);
+    return me->getVictim();
+}
+
+inline bool CreatureAI::UpdateVictim()
+{
+    if(!me->isInCombat())
+        return false;
+    if(Unit *victim = me->SelectVictim())
+        AttackStart(victim);
+    return me->getVictim();
+}
+
+inline bool CreatureAI::_EnterEvadeMode()
+{
+    if(me->IsInEvadeMode() || !me->isAlive())
+        return false;
+
+    me->RemoveAllAuras();
+    me->DeleteThreatList();
+    me->CombatStop(true);
+    me->LoadCreaturesAddon();
+    me->SetLootRecipient(NULL);
+    me->ResetPlayerDamageReq();
+
+    return true;
+}
+
+inline Creature *CreatureAI::DoSummon(uint32 uiEntry, const Position fPos, uint32 uiDespawntime, TempSummonType uiType)
+{
+    return me->SummonCreature(uiEntry, fPos[0], fPos[1], fPos[2], fPos[3], uiType, uiDespawntime);
+}
+
+inline Creature *CreatureAI::DoSummon(uint32 uiEntry, WorldObject* pGo, float fRadius, uint32 uiDespawntime, TempSummonType uiType)
+{
+    float fX, fY, fZ;
+    pGo->GetGroundPointAroundUnit(fX, fY, fZ, fRadius * rand_norm(), rand_norm()*2*M_PI);
+    return me->SummonCreature(uiEntry, fX, fY, fZ, me->GetOrientation(), uiType, uiDespawntime);
+}
+
+inline Creature *CreatureAI::DoSummonFlyer(uint32 uiEntry, WorldObject *obj, float _fZ, float fRadius, uint32 uiDespawntime, TempSummonType uiType)
+{
+    float fX, fY, fZ;
+    obj->GetGroundPointAroundUnit(fX, fY, fZ, fRadius * rand_norm(), rand_norm()*2*M_PI);
+    return me->SummonCreature(uiEntry, fX, fY, fZ + _fZ, me->GetOrientation(), uiType, uiDespawntime);
+}
 
 #endif
 

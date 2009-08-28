@@ -136,7 +136,7 @@ void HostilReference::updateOnlineStatus()
         online = getTarget()->isInAccessiblePlaceFor(creature);
         if(!online)
         {
-            if(creature->AI()->canReachByRangeAttack(getTarget()))
+            if(creature->IsWithinCombatRange(getTarget(), creature->m_CombatDistance))
                 online = true;                              // not accessible but stays online
         }
         else

@@ -80,7 +80,10 @@ void PointMovementGenerator<T>::MovementInform(T &unit)
 template <> void PointMovementGenerator<Creature>::MovementInform(Creature &unit)
 {
     if(id == EVENT_FALL_GROUND)
+    {
         unit.setDeathState(JUST_DIED);
+        unit.SetFlying(true);
+    }
     unit.AI()->MovementInform(POINT_MOTION_TYPE, id);
 }
 

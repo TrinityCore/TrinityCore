@@ -2161,7 +2161,8 @@ INSERT INTO `spell_script_target` (`entry`, `type`, `targetEntry`) VALUES
 -- ULDUAR
 -- --------
 INSERT INTO creature_template (entry, vehicleid) VALUES
-(32930, 312), # Kologarn
+(32930, 338), # Kologarn
+(32934, 380), # Right Arm
 (33113, 340), # Flame Leviathan
 (33114, 341), # Flame Leviathan Seat
 (33214, 348) # Mechanolift 304-A
@@ -2192,12 +2193,14 @@ spell5 = VALUES(spell5),
 spell6 = VALUES(spell6),
 vehicleid = VALUES(vehicleid);
 
-DELETE FROM `spell_script_target` WHERE `entry` IN (62427,62374,62399);
+DELETE FROM `spell_script_target` WHERE `entry` IN (62427,62374,62399,62056,63985);
 INSERT INTO `spell_script_target` (`entry`, `type`, `targetEntry`) VALUES
 (62427, 1, 33109), # Load into Catapult
 (62374, 1, 33060), # Pursued
 (62374, 1, 33109),
-(62399, 1, 33139); # Overload Circuit
+(62399, 1, 33139), # Overload Circuit
+(63985, 1, 32934), # Stone Grip
+(62056, 1, 32934);
 
 DELETE FROM `spell_linked_spell` WHERE `spell_trigger` IN (-62475,62427);
 INSERT INTO `spell_linked_spell` (`spell_trigger`, `spell_effect`, `type`, `comment`) VALUES
@@ -2213,6 +2216,7 @@ INSERT INTO `npc_spellclick_spells` (`npc_entry`, `spell_id`, `quest_start`, `qu
 update creature_template set spell1=62395, AIName = 'TurretAI', scriptname='' where entry = 33139;
 update creature_template set spell1=62402 where entry = 33142;
 update creature_template set ScriptName = 'boss_kologarn' where entry = 32930;
+update creature_template set scriptname = "boss_flame_leviathan_safety_container" where entry = 33218;
 
 
 -- --------
