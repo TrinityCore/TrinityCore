@@ -732,7 +732,13 @@ void WorldSession::HandleBattlemasterJoinArena( WorldPacket & recv_data )
     {
         sLog.outDebug("Battleground: arena join as group start");
         if (isRated)
+        {
             sLog.outDebug("Battleground: arena team id %u, leader %s queued with rating %u for type %u",_player->GetArenaTeamId(arenaslot),_player->GetName(),arenaRating,arenatype);
+            bg->SetRated(true);
+        }
+        else
+            bg->SetRated(false);
+            
         for(GroupReference *itr = grp->GetFirstMember(); itr != NULL; itr = itr->next())
         {
             Player *member = itr->getSource();
