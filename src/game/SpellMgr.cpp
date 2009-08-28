@@ -84,7 +84,7 @@ SpellMgr::SpellMgr()
             case SPELL_EFFECT_CHARGE:
             case SPELL_EFFECT_JUMP:
             case SPELL_EFFECT_JUMP2:
-            case SPELL_EFFECT_138:
+            case SPELL_EFFECT_LEAP_BACK:
                 EffectTargetType[i] = SPELL_REQUIRE_CASTER;
                 break;
             //case SPELL_EFFECT_WMO_DAMAGE:
@@ -3578,7 +3578,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 case SPELL_EFFECT_CHARGE:
                 case SPELL_EFFECT_JUMP:
                 case SPELL_EFFECT_JUMP2:
-                case SPELL_EFFECT_138:
+                case SPELL_EFFECT_LEAP_BACK:
                     if(!spellInfo->speed && !spellInfo->SpellFamilyName)
                         spellInfo->speed = SPEED_CHARGE;
                     mSpellCustomAttr[i] |= SPELL_ATTR_CU_CHARGE;
