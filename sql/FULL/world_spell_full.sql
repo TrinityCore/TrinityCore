@@ -81,6 +81,8 @@ INSERT INTO `spell_linked_spell` (`spell_trigger`, `spell_effect`, `type`, `comm
 ( 34471, 24397, 2, 'The Beast Within'),
 ( 34471, 26592, 2, 'The Beast Within'),
 (-59907,     7, 0, 'Lightwell Charges - Suicide'),
+( 26022, 61417, 2, 'Pursuit of Justice'),
+( 26023, 61418, 2, 'Pursuit of Justice'),
 -- Quest
 ( 40214, 40216, 2, 'Dragonmaw Illusion'),
 ( 40214, 42016, 2, 'Dragonmaw Illusion'),
