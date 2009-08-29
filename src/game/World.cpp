@@ -2509,46 +2509,20 @@ void World::ResetDailyQuests()
             itr->second->GetPlayer()->ResetDailyQuestStatus();
 }
 
-void World::SetPlayerLimit( int32 limit, bool needUpdate )
+void World::UpdateAllowedSecurity()
 {
-    //if(limit < -SEC_ADMINISTRATOR)
-        //limit = -SEC_ADMINISTRATOR;
- 
-    // lock update need
-    //bool db_update_need = needUpdate || (limit < 0) != (m_playerLimit < 0) || (limit < 0 && m_playerLimit < 0 && limit != m_playerLimit);
-
-    m_playerLimit = limit;
     QueryResult *result = loginDatabase.PQuery("SELECT allowedSecurityLevel from realmlist WHERE id = '%d'", realmID);
     if (result)
     {
-        switch (result->Fetch()->GetUInt8())
-        {
-        case SEC_ADMINISTRATOR:
-            {
-                m_allowedSecurityLevel = SEC_ADMINISTRATOR;
-            }
-        case SEC_MODERATOR:
-            {
-                m_allowedSecurityLevel = SEC_MODERATOR;
-            }
-        case SEC_GAMEMASTER:
-            {
-                m_allowedSecurityLevel = SEC_GAMEMASTER;
-            }
-        case SEC_PLAYER:
-            {
-                m_allowedSecurityLevel = SEC_PLAYER;
-            }
-        default:
-            {
-                m_allowedSecurityLevel = SEC_ADMINISTRATOR;
-            }
-        }
+        m_allowedSecurityLevel = AccountTypes(result->Fetch()->GetUInt16());
+        sLog.outDebug("Allowed Level: %u Result %u", m_allowedSecurityLevel, result->Fetch()->GetUInt16());
         delete result;
     }
+}
 
-    //if(db_update_need)
-        //loginDatabase.PExecute("UPDATE realmlist SET allowedSecurityLevel = '%u' WHERE id = '%d'",uint8(GetPlayerSecurityLimit()),realmID);
+void World::SetPlayerLimit( int32 limit, bool needUpdate )
+{
+    m_playerLimit = limit;
 }
 
 void World::UpdateMaxSessionCounters()
