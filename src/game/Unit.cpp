@@ -13699,7 +13699,9 @@ void Unit::Kill(Unit *pVictim, bool durabilityLoss)
         if(!cVictim->isPet())
         {
             cVictim->DeleteThreatList();
-            cVictim->SetFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
+            CreatureInfo const* cInfo = cVictim->GetCreatureInfo();
+            if (cInfo && (cInfo->lootid || cInfo->maxgold > 0))
+                cVictim->SetFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
         }
 
         // Call KilledUnit for creatures, this needs to be called after the lootable flag is set
