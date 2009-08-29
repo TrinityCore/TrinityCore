@@ -392,6 +392,10 @@ CreatureAI* GetAI_npc_magwinAI(Creature* pCreature)
 
 enum
 {
+    QUEST_TREES_COMPANY = 9531,
+
+    SPELL_TREE_DISGUISE = 30298,
+
     GEEZLE_SAY_1    = -1000259,
     SPARK_SAY_2     = -1000260,
     SPARK_SAY_3     = -1000261,
@@ -406,7 +410,7 @@ enum
     GO_NAGA_FLAG    = 181694
 };
 
-static float SparkPos[3] = {-5030.95, -11291.99, 7.97};
+static float SparkPos[3] = {-5029.91, -11291.79, 8.096};
 
 struct TRINITY_DLL_DECL npc_geezleAI : public ScriptedAI
 {
@@ -430,7 +434,7 @@ struct TRINITY_DLL_DECL npc_geezleAI : public ScriptedAI
 
     void StartEvent()
     {
-        Step = 1;
+        Step = 0;
         EventStarted = true;
         Creature* Spark = m_creature->SummonCreature(MOB_SPARK, SparkPos[0], SparkPos[1], SparkPos[2], 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 1000);
         if (Spark)
@@ -438,21 +442,23 @@ struct TRINITY_DLL_DECL npc_geezleAI : public ScriptedAI
             SparkGUID = Spark->GetGUID();
             Spark->setActive(true);
             Spark->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-            Spark->GetMotionMaster()->MovePoint(0, -5080.70, -11253.61, 0.56);
         }
-        m_creature->GetMotionMaster()->MovePoint(0, -5092.26, -11252, 0.71);
-        SayTimer = 23000;
+        SayTimer = 8000;
     }
 
     uint32 NextStep(uint32 Step)
     {
-        Unit* Spark = Unit::GetUnit((*m_creature), SparkGUID);
+        Creature* Spark = (Creature*)Unit::GetUnit(*m_creature, SparkGUID);
 
         switch(Step)
         {
-        case 0: return 99999;
+        case 0: 
+            if (Spark)
+                Spark->GetMotionMaster()->MovePoint(0, -5080.70, -11253.61, 0.56);
+            m_creature->GetMotionMaster()->MovePoint(0, -5092.26, -11252, 0.71);
+            return 9000; // NPCs are walking up to fire
         case 1:
-            //DespawnNagaFlag(true);
+            DespawnNagaFlag(true);
             DoScriptText(EMOTE_SPARK, Spark);
             return 1000;
         case 2:
@@ -472,30 +478,50 @@ struct TRINITY_DLL_DECL npc_geezleAI : public ScriptedAI
         case 9:
             m_creature->GetMotionMaster()->MoveTargetedHome();
             if (Spark)
-                Spark->GetMotionMaster()->MovePoint(0, -5030.95, -11291.99, 7.97);
-            return 20000;
+                Spark->GetMotionMaster()->MovePoint(0, SparkPos[0], SparkPos[1], SparkPos[2]);
+            CompleteQuest();
+            return 9000;
         case 10:
             if (Spark)
-                Spark->DealDamage(Spark,Spark->GetHealth(),NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
-            //DespawnNagaFlag(false);
-            m_creature->SetVisibility(VISIBILITY_OFF);
+                Spark->DisappearAndDie();
+            DespawnNagaFlag(false); 
+            m_creature->DisappearAndDie();
         default: return 99999999;
+        }
+    }
+
+    // will complete Tree's company quest for all nearby players that are disguised as trees
+    void CompleteQuest()
+    {
+        float radius = 50.0f;
+        std::list<Player*> players;
+        Trinity::AnyPlayerInObjectRangeCheck checker(m_creature, radius);
+        Trinity::PlayerListSearcher<Trinity::AnyPlayerInObjectRangeCheck> searcher(m_creature, players, checker);
+        m_creature->VisitNearbyWorldObject(radius, searcher);
+
+        for(std::list<Player*>::iterator itr = players.begin(); itr != players.end(); ++itr)
+        {
+            if((*itr)->GetQuestStatus(QUEST_TREES_COMPANY)==QUEST_STATUS_INCOMPLETE
+                &&(*itr)->HasAuraEffect(SPELL_TREE_DISGUISE,3) )
+            {       
+                (*itr)->KilledMonsterCredit(MOB_SPARK,0);
+            }
         }
     }
 
     void DespawnNagaFlag(bool despawn)
     {
         std::list<GameObject*> FlagList;
-        m_creature->GetGameObjectListWithEntryInGrid(FlagList,GO_NAGA_FLAG, 50.0f);
+        m_creature->GetGameObjectListWithEntryInGrid(FlagList,GO_NAGA_FLAG, 100.0f);
 
-        Player* pPlayer = NULL;
         if (!FlagList.empty())
         {
             for(std::list<GameObject*>::iterator itr = FlagList.begin(); itr != FlagList.end(); ++itr)
             {
-                //TODO: Found how to despawn and respawn
                 if (despawn)
-                    (*itr)->Delete();
+                {
+                    (*itr)->SetLootState(GO_JUST_DEACTIVATED);
+                }
                 else
                     (*itr)->Respawn();
             }
@@ -508,7 +534,7 @@ struct TRINITY_DLL_DECL npc_geezleAI : public ScriptedAI
         {
             if (EventStarted)
             {
-                SayTimer = NextStep(++Step);
+                SayTimer = NextStep(Step++);
             }
         }else SayTimer -= diff;
     }
