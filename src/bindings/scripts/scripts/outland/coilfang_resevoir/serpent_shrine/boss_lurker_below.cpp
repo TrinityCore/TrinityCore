@@ -163,6 +163,12 @@ struct TRINITY_DLL_DECL boss_the_lurker_belowAI : public Scripted_NoMovementAI
         }
     }
 
+    void MovementInform(uint32 type, uint32 id)
+    {
+        if(type == ROTATE_MOTION_TYPE)
+            me->SetReactState(REACT_AGGRESSIVE);
+    }
+
     void UpdateAI(const uint32 diff)
     {
         if(!CanStartEvent)//boss is invisible, don't attack
@@ -216,10 +222,8 @@ struct TRINITY_DLL_DECL boss_the_lurker_belowAI : public Scripted_NoMovementAI
             if (SpoutTimer < diff)
             {
                 m_creature->MonsterTextEmote(EMOTE_SPOUT,0,true);
-                if(rand()%2)
-                    m_creature->StartAutoRotate(CREATURE_ROTATE_LEFT,20000);
-                else
-                    m_creature->StartAutoRotate(CREATURE_ROTATE_RIGHT,20000);
+                me->SetReactState(REACT_PASSIVE);
+                me->GetMotionMaster()->MoveRotate(20000, rand()%2 ? ROTATE_DIRECTION_LEFT : ROTATE_DIRECTION_RIGHT);
                 SpoutTimer = 45000;
                 WhirlTimer = 20000;//whirl directly after spout
                 RotTimer = 20000;
@@ -298,7 +302,7 @@ struct TRINITY_DLL_DECL boss_the_lurker_belowAI : public Scripted_NoMovementAI
                 }else WaterboltTimer -= diff;
             }
 
-            if (!UpdateVictim())
+            if (!UpdateCombatState())
                 return;
 
             DoMeleeAttackIfReady();

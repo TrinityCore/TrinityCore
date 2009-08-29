@@ -454,13 +454,14 @@ enum UnitState
     UNIT_STAT_JUMPING         = 0x00040000,
     UNIT_STAT_ONVEHICLE       = 0x00080000,
     UNIT_STAT_MOVE            = 0x00100000,
-    //UNIT_STAT_WALK            = 0x00200000,
+    UNIT_STAT_ROTATING        = 0x00200000,
     UNIT_STAT_UNATTACKABLE    = (UNIT_STAT_IN_FLIGHT | UNIT_STAT_ONVEHICLE),
     UNIT_STAT_MOVING          = (UNIT_STAT_ROAMING | UNIT_STAT_CHASE),
     UNIT_STAT_CONTROLLED      = (UNIT_STAT_CONFUSED | UNIT_STAT_STUNNED | UNIT_STAT_FLEEING),
     UNIT_STAT_LOST_CONTROL    = (UNIT_STAT_CONTROLLED | UNIT_STAT_JUMPING | UNIT_STAT_CHARGING),
     UNIT_STAT_SIGHTLESS       = (UNIT_STAT_LOST_CONTROL),
     UNIT_STAT_CANNOT_AUTOATTACK     = (UNIT_STAT_LOST_CONTROL | UNIT_STAT_CASTING),
+    UNIT_STAT_CANNOT_TURN     = (UNIT_STAT_LOST_CONTROL | UNIT_STAT_ROTATING),
     UNIT_STAT_ALL_STATE       = 0xffffffff                      //(UNIT_STAT_STOPPED | UNIT_STAT_MOVING | UNIT_STAT_IN_COMBAT | UNIT_STAT_IN_FLIGHT)
 };
 
@@ -958,13 +959,6 @@ enum ActionBarIndex
     ACTION_BAR_INDEX_END = 10,
 };
 
-enum Rotation
-{
-    CREATURE_ROTATE_NONE = 0,
-    CREATURE_ROTATE_LEFT = 1,
-    CREATURE_ROTATE_RIGHT = 2
-};
-
 #define MAX_UNIT_ACTION_BAR_INDEX (ACTION_BAR_INDEX_END-ACTION_BAR_INDEX_START)
 
 struct CharmInfo
@@ -1089,9 +1083,6 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
         void GetRandomContactPoint( const Unit* target, float &x, float &y, float &z, float distance2dMin, float distance2dMax ) const;
         uint32 m_extraAttacks;
         bool m_canDualWield;
-        void StartAutoRotate(uint8 type, uint32 fulltime);
-        void AutoRotate(uint32 time);
-        bool IsUnitRotating() {return IsRotating;}
 
         void _addAttacker(Unit *pAttacker)                  // must be called only from Unit::Attack(Unit*)
         {
@@ -1117,12 +1108,7 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
         void RemoveAllAttackers();
         AttackerSet const& getAttackers() const { return m_attackers; }
         bool isAttackingPlayer() const;
-        Unit* getVictim() const 
-        { 
-            if(IsRotating)return NULL;
-            return m_attacking; 
-        }
-
+        Unit* getVictim() const { return m_attacking; }
 
         void CombatStop(bool includingCast = false);
         void CombatStopWithPets(bool includingCast = false);
@@ -1595,7 +1581,11 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
         void SetBaseWeaponDamage(WeaponAttackType attType ,WeaponDamageRange damageRange, float value) { m_weaponDamage[attType][damageRange] = value; }
 
         bool isInFrontInMap(Unit const* target,float distance, float arc = M_PI) const;
-        void SetInFront(Unit const* target);
+        void SetInFront(Unit const* target)
+        {
+            if(!hasUnitState(UNIT_STAT_CANNOT_TURN))
+                SetOrientation(GetAngle(target));
+        }
         bool isInBackInMap(Unit const* target, float distance, float arc = M_PI) const;
 
         // Visibility system
@@ -1975,12 +1965,6 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
 
         uint32 m_reducedThreatPercent;
         uint64 m_misdirectionTargetGUID;
-
-        uint8 IsRotating;//0none 1left 2right
-        uint32 RotateTimer;
-        uint32 RotateTimerFull;
-        double RotateAngle;
-        uint64 LastTargetGUID;
 };
 
 namespace Trinity
