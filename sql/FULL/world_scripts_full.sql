@@ -1294,3 +1294,11 @@ INSERT INTO `creature_ai_scripts` VALUES ('2918102', '29181', '14', '0', '100', 
 INSERT INTO `creature_ai_scripts` VALUES ('2918103', '29181', '0', '0', '100', '3', '10000', '20000', '10000', '20000', '11', '20678', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', 'Rayne - SPELL_STARFALL');
 INSERT INTO `creature_ai_scripts` VALUES ('2918104', '29181', '0', '0', '100', '3', '10000', '20000', '10000', '20000', '11', '21807', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', 'Rayne - SPELL_WRATH');
 
+
+-- spell 30298 tries to start event script 10675 but it doesn't exist. create it & make it spawn Geezle
+delete from event_scripts where id = 10675;
+insert into `event_scripts` (`id`, `delay`, `command`, `datalong`, `datalong2`, `x`, `y`, `z`, `o`) values 
+(10675, 0, 10, 17318, 90000, '-5139.79','-11248.27','5.23', '6.27609');
+
+-- geezle should not spawn by default
+update creature set spawnMask=0 where guid = 85587;
