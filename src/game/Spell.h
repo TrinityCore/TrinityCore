@@ -637,8 +637,8 @@ class Spell
         void SpellDamageWeaponDmg(uint32 i);
         void SpellDamageHeal(uint32 i);
 
-        void GetSummonPosition(uint32 i, float &x, float &y, float &z, float radius = 0.0f, uint32 count = 0);
-        void SummonGuardian (uint32 entry, SummonPropertiesEntry const *properties);
+        void GetSummonPosition(uint32 i, Position &pos, float radius = 0.0f, uint32 count = 0);
+        void SummonGuardian(uint32 i, uint32 entry, SummonPropertiesEntry const *properties);
 
         SpellCastResult CanOpenLock(uint32 effIndex, uint32 lockid, SkillType& skillid, int32& reqSkillValue, int32& skillValue);
         // -------------------------------------------
@@ -756,11 +756,11 @@ namespace Trinity
                             i_data->push_back(target);
                         break;
                     case PUSH_IN_LINE:
-                        if(i_source->isInLine(target, i_radius, i_source->GetObjectSize()))
+                        if(i_source->IsInLine(target, i_radius, i_source->GetObjectSize()))
                             i_data->push_back(target);
                         break;
                     case PUSH_IN_THIN_LINE:
-                        if(i_source->isInLine(target, i_radius, 0))
+                        if(i_source->IsInLine(target, i_radius, 0))
                             i_data->push_back(target);
                         break;
                 }

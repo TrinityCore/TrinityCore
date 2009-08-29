@@ -50,6 +50,7 @@ class Player;
 class CreatureGroup;
 struct ScriptInfo;
 struct ScriptAction;
+struct Position;
 
 
 typedef ACE_RW_Thread_Mutex GridRWLock;
@@ -441,7 +442,7 @@ class MANGOS_DLL_SPEC Map : public GridRefManager<NGridType>, public MaNGOS::Obj
         double rand_chance()                    { return mtRand.randExc(100.0); }
 #endif
 
-        TempSummon *SummonCreature(uint32 entry, float x, float y, float z, float angle = 0, uint32 vehId = 0, SummonPropertiesEntry const *properties = NULL, uint32 duration = 0, Unit *summoner = NULL);
+        TempSummon *SummonCreature(uint32 entry, const Position &pos, SummonPropertiesEntry const *properties = NULL, uint32 duration = 0, Unit *summoner = NULL, uint32 vehId = 0);
         Creature* GetCreature(uint64 guid);
         GameObject* GetGameObject(uint64 guid);
         DynamicObject* GetDynamicObject(uint64 guid);

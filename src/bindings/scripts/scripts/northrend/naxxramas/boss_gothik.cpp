@@ -82,14 +82,14 @@ enum Events
 #define POS_LIVE 3
 #define POS_DEAD 5
 
-const float PosSummonLive[POS_LIVE][4] =
+const Position PosSummonLive[POS_LIVE] =
 {
     {2669.7, -3430.9, 268.56, 1.6},
     {2692.0, -3430.9, 268.56, 1.6},
     {2714.1, -3430.9, 268.56, 1.6},
 };
 
-const float PosSummonDead[POS_DEAD][4] =
+const Position PosSummonDead[POS_DEAD] =
 {
     {2725.1, -3310.0, 268.85, 3.4},
     {2699.3, -3322.8, 268.60, 3.3},

@@ -275,22 +275,6 @@ void UnitAI::DoCast(uint32 spellId)
         me->CastSpell(target, spellId, false);
 }
 
-void UnitAI::DoCast(Unit* victim, uint32 spellId, bool triggered)
-{
-    if(!victim || me->hasUnitState(UNIT_STAT_CASTING) && !triggered)
-        return;
-
-    me->CastSpell(victim, spellId, triggered);
-}
-
-void UnitAI::DoCastAOE(uint32 spellId, bool triggered)
-{
-    if(!triggered && me->hasUnitState(UNIT_STAT_CASTING))
-        return;
-
-    me->CastSpell((Unit*)NULL, spellId, triggered);
-}
-
 #define UPDATE_TARGET(a) {if(AIInfo->target<a) AIInfo->target=a;}
 
 void UnitAI::FillAISpellInfo()

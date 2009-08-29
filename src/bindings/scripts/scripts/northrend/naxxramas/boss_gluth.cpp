@@ -25,7 +25,7 @@
 
 #define MOB_ZOMBIE  16360
 
-const float PosSummon[3][4] =
+const Position PosSummon[3] =
 {
     {3267.9, -3172.1, 297.42, 0.94},
     {3253.2, -3132.3, 297.42, 0},
