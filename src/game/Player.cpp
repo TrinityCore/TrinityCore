@@ -21873,6 +21873,9 @@ void Player::ActivateSpec(uint8 spec)
     if(GetSpecsCount() != MAX_TALENT_SPECS)
         return;
 
+    if(GetMap()->IsBattleGround() && !HasAura(45521)) // In BattleGround with no Preparation buff
+        return;
+
     _SaveActions();
     
     UnsummonPetTemporaryIfAny();
