@@ -850,6 +850,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\src\game\pchdef.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\src\game\PetHandler.cpp"
 				>
 			</File>
@@ -995,24 +999,8 @@
 			</File>
 		</Filter>
 		<Filter
-			Name="AuctionHouseBot"
-			>
-			<File
-				RelativePath="..\..\src\game\AuctionHouseBot.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\game\AuctionHouseBot.h"
-				>
-			</File>
-		</Filter>
-		<Filter
 			Name="Object"
 			>
-			<File
-				RelativePath="..\..\src\game\AnimalRandomMovementGenerator.h"
-				>
-			</File>
 			<File
 				RelativePath="..\..\src\game\ArenaTeam.cpp"
 				>
@@ -1046,14 +1034,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\game\ConfusedMovementGenerator.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\game\ConfusedMovementGenerator.h"
-				>
-			</File>
-			<File
 				RelativePath="..\..\src\game\Corpse.cpp"
 				>
 			</File>
@@ -1078,31 +1058,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\game\DestinationHolder.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\game\DestinationHolder.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\game\DestinationHolderImp.h"
-				>
-			</File>
-			<File
 				RelativePath="..\..\src\game\DynamicObject.cpp"
 				>
 			</File>
 			<File
 				RelativePath="..\..\src\game\DynamicObject.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\game\FleeingMovementGenerator.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\game\FleeingMovementGenerator.h"
 				>
 			</File>
 			<File
@@ -1123,22 +1083,6 @@
 			</File>
 			<File
 				RelativePath="..\..\src\game\Guild.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\game\HomeMovementGenerator.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\game\HomeMovementGenerator.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\game\IdleMovementGenerator.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\game\IdleMovementGenerator.h"
 				>
 			</File>
 			<File
@@ -1167,22 +1111,6 @@
 			</File>
 			<File
 				RelativePath="..\..\src\game\LootMgr.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\game\MotionMaster.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\game\MotionMaster.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\game\MovementGenerator.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\game\MovementGenerator.h"
 				>
 			</File>
 			<File
@@ -1230,22 +1158,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\game\PointMovementGenerator.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\game\PointMovementGenerator.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\game\RandomMovementGenerator.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\game\RandomMovementGenerator.h"
-				>
-			</File>
-			<File
 				RelativePath="..\..\src\game\ReputationMgr.cpp"
 				>
 			</File>
@@ -1271,14 +1183,6 @@
 			</File>
 			<File
 				RelativePath="..\..\src\game\StatSystem.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\game\TargetedMovementGenerator.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\game\TargetedMovementGenerator.h"
 				>
 			</File>
 			<File
@@ -1330,17 +1234,109 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\game\WaypointMovementGenerator.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\game\WaypointMovementGenerator.h"
-				>
-			</File>
-			<File
 				RelativePath="..\..\src\game\ZoneScript.h"
 				>
 			</File>
+			<Filter
+				Name="Movement"
+				>
+				<File
+					RelativePath="..\..\src\game\AnimalRandomMovementGenerator.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\game\ConfusedMovementGenerator.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\game\ConfusedMovementGenerator.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\game\DestinationHolder.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\game\DestinationHolder.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\game\DestinationHolderImp.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\game\FleeingMovementGenerator.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\game\FleeingMovementGenerator.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\game\HomeMovementGenerator.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\game\HomeMovementGenerator.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\game\IdleMovementGenerator.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\game\IdleMovementGenerator.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\game\MotionMaster.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\game\MotionMaster.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\game\MovementGenerator.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\game\MovementGenerator.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\game\PointMovementGenerator.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\game\PointMovementGenerator.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\game\RandomMovementGenerator.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\game\RandomMovementGenerator.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\game\TargetedMovementGenerator.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\game\TargetedMovementGenerator.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\game\WaypointMovementGenerator.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\game\WaypointMovementGenerator.h"
+					>
+				</File>
+			</Filter>
 		</Filter>
 		<Filter
 			Name="Server"
@@ -1617,6 +1613,18 @@
 				RelativePath="..\..\src\game\UnitAI.h"
 				>
 			</File>
+			<Filter
+				Name="AuctionHouseBot"
+				>
+				<File
+					RelativePath="..\..\src\game\AuctionHouseBot.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\game\AuctionHouseBot.h"
+					>
+				</File>
+			</Filter>
 		</Filter>
 		<Filter
 			Name="OutdoorPvP"
@@ -1737,10 +1745,6 @@
 					PrecompiledHeaderThrough="pchdef.h"
 				/>
 			</FileConfiguration>
-		</File>
-		<File
-			RelativePath="..\..\src\game\pchdef.h"
-			>
 		</File>
 	</Files>
 	<Globals>
