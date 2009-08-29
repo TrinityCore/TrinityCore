@@ -592,6 +592,8 @@ class World
 
         void UpdateRealmCharCount(uint32 accid);
 
+        void UpdateAllowedSecurity();
+
         LocaleConstant GetAvailableDbcLocale(LocaleConstant locale) const { if(m_availableDbcLocaleMask & (1 << locale)) return locale; else return m_defaultDbcLocale; }
 
         //used World DB version
