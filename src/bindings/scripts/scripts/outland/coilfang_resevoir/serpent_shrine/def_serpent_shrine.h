@@ -8,7 +8,13 @@ enum LurkerEventState
 {
     LURKER_NOT_STARTED = 0,
     LURKER_FISHING     = 1,
-    LURKER_HOOKED      = 2,
+    LURKER_HOOKED      = 2
+};
+enum WaterEventState
+{
+    WATERSTATE_NONE     = 0,
+    WATERSTATE_FRENZY   = 1,
+    WATERSTATE_SCALDING = 2
 };
 #define DATA_CANSTARTPHASE3 1
 #define DATA_CARIBDIS 2
@@ -33,5 +39,7 @@ enum LurkerEventState
 #define DATA_LEOTHERAS_EVENT_STARTER 21
 #define DATA_CONTROL_CONSOLE 22
 #define DATA_STRANGE_POOL 23
+#define DATA_WATER 24
+#define DATA_TRASH 25
 #endif
 
