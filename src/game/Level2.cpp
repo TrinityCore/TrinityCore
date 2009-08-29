@@ -4138,14 +4138,11 @@ bool ChatHandler::HandleTempAddSpwCommand(const char* args)
 
     Player *chr = m_session->GetPlayer();
 
-    float x = chr->GetPositionX();
-    float y = chr->GetPositionY();
-    float z = chr->GetPositionZ();
-    float ang = chr->GetOrientation();
-
     uint32 id = atoi(charID);
+    if(!id)
+        return false;
 
-    chr->SummonCreature(id,x,y,z,ang,0,TEMPSUMMON_CORPSE_DESPAWN,120);
+    chr->SummonCreature(id, *chr, TEMPSUMMON_CORPSE_DESPAWN, 120);
 
     return true;
 }

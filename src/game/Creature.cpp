@@ -2212,7 +2212,7 @@ bool Creature::canCreatureAttack(Unit const *pVictim, bool force) const
     if(Unit *unit = GetCharmerOrOwner())
         return pVictim->IsWithinDist(unit, dist);
     else
-        return pVictim->IsWithinDist3d(mHome_X, mHome_Y, mHome_Z, dist);
+        return pVictim->IsInDist(&m_homePosition, dist);
 }
 
 CreatureDataAddon const* Creature::GetCreatureAddon() const

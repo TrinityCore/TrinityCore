@@ -207,7 +207,7 @@ void Vehicle::InstallAccessory(uint32 entry, int8 seatId, bool minion)
     }
 
     //TODO: accessory should be minion
-    if(Creature *accessory = me->SummonCreature(entry, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 0, 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 30000))
+    if(Creature *accessory = me->SummonCreature(entry, *me, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 30000))
     {
         if(minion)
             accessory->AddUnitTypeMask(UNIT_MASK_ACCESSORY);
