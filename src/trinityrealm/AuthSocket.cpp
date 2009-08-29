@@ -473,13 +473,13 @@ bool AuthSocket::_HandleLogonChallenge()
                     uint8 securityFlags = 0;
                     pkt << uint8(securityFlags);            // security flags (0x0...0x04)
 
-                    if(securityFlags & 0x01)                // PIN input
+                    if(securityFlags & REALM_AUTH_FAILURE)                // PIN input
                     {
                         pkt << uint32(0);
                         pkt << uint64(0) << uint64(0);      // 16 bytes hash?
                     }
 
-                    if(securityFlags & 0x02)                // Matrix input
+                    if(securityFlags & REALM_AUTH_UNKNOWN1)                // Matrix input
                     {
                         pkt << uint8(0);
                         pkt << uint8(0);
@@ -488,7 +488,7 @@ bool AuthSocket::_HandleLogonChallenge()
                         pkt << uint64(0);
                     }
 
-                    if(securityFlags & 0x04)                // Security token input
+                    if(securityFlags & REALM_AUTH_NO_MATCH)                // Security token input
                     {
                         pkt << uint8(1);
                     }
