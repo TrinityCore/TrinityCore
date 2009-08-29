@@ -368,7 +368,7 @@ struct TRINITY_DLL_DECL boss_sapphironAI : public BossAI
                 if (GameObject* pGo = GameObject::GetGameObject(*me, itr->second))
                 {
                     if (pGo->IsInBetween(me, target, 2.0f)
-                        && me->GetExactDistance2d(target->GetPositionX(), target->GetPositionY()) - me->GetExactDistance2d(pGo->GetPositionX(), pGo->GetPositionY()) < 5.0f)
+                        && me->GetExactDist2d(target->GetPositionX(), target->GetPositionY()) - me->GetExactDist2d(pGo->GetPositionX(), pGo->GetPositionY()) < 5.0f)
                     {
                         target->ApplySpellImmune(0, IMMUNITY_ID, SPELL_FROST_EXPLOSION, true);
                         targets.push_back(target);

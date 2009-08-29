@@ -83,7 +83,7 @@ enum Event
 #define MOB_WEAVER                  16429 // Soul Weavers
 #define MOB_ICECROWN                16441 // Guardians of Icecrown
 
-float Pos[12][4] =
+const Position Pos[12] =
 {
     {3783.272705, -5062.697266, 143.711203,3.617599},//LEFT_FAR
     {3730.291260, -5027.239258,143.956909,4.461900},//LEFT_MIDDLE

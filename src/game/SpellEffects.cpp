@@ -2325,7 +2325,7 @@ void Spell::EffectJump(uint32 i)
         speedZ = float(m_spellInfo->EffectMiscValueB[i])/10;
     else
         speedZ = 10.0f;
-    float speedXY = m_caster->GetExactDistance2d(x, y) * 10.0f / speedZ;
+    float speedXY = m_caster->GetExactDist2d(x, y) * 10.0f / speedZ;
     m_caster->GetMotionMaster()->MoveJump(x, y, z, speedXY, speedZ);
 }
 
@@ -3390,8 +3390,8 @@ void Spell::EffectSummonType(uint32 i)
     if(Player* modOwner = m_originalCaster->GetSpellModOwner())
         modOwner->ApplySpellMod(m_spellInfo->Id, SPELLMOD_DURATION, duration);
 
-    float x, y, z;
-    GetSummonPosition(i, x, y, z);
+    Position pos;
+    GetSummonPosition(i, pos);
 
     /*//totem must be at same Z in case swimming caster and etc.
         if( fabs( z - m_caster->GetPositionZ() ) > 5 )
@@ -3420,7 +3420,7 @@ void Spell::EffectSummonType(uint32 i)
         default:
             if (properties->Flags & 512)
             {
-                SummonGuardian(entry, properties);
+                SummonGuardian(i, entry, properties);
                 break;
             }
             switch(properties->Type)
@@ -3428,16 +3428,16 @@ void Spell::EffectSummonType(uint32 i)
                 case SUMMON_TYPE_PET:
                 case SUMMON_TYPE_GUARDIAN:
                 case SUMMON_TYPE_MINION:
-                    SummonGuardian(entry, properties);
+                    SummonGuardian(i, entry, properties);
                     break;
                 case SUMMON_TYPE_VEHICLE:
                 case SUMMON_TYPE_VEHICLE2:
                     if(m_originalCaster)
-                        summon = m_caster->GetMap()->SummonCreature(entry, x, y, z, m_caster->GetOrientation(), 0, properties, duration, m_originalCaster);
+                        summon = m_caster->GetMap()->SummonCreature(entry, pos, properties, duration, m_originalCaster);
                     break;
                 case SUMMON_TYPE_TOTEM:
                 {
-                    summon = m_caster->GetMap()->SummonCreature(entry, x, y, z, m_caster->GetOrientation(), 0, properties, duration, m_originalCaster);
+                    summon = m_caster->GetMap()->SummonCreature(entry, pos, properties, duration, m_originalCaster);
                     if(!summon || !summon->isTotem())
                         return;
 
@@ -3465,7 +3465,7 @@ void Spell::EffectSummonType(uint32 i)
                 }
                 case SUMMON_TYPE_MINIPET:
                 {
-                    summon = m_caster->GetMap()->SummonCreature(entry, x, y, z, m_caster->GetOrientation(), 0, properties, duration, m_originalCaster);
+                    summon = m_caster->GetMap()->SummonCreature(entry, pos, properties, duration, m_originalCaster);
                     if(!summon || !summon->HasUnitTypeMask(UNIT_MASK_MINION))
                         return;
 
@@ -3492,12 +3492,11 @@ void Spell::EffectSummonType(uint32 i)
 
                     for(uint32 count = 0; count < amount; ++count)
                     {
-                        float px, py, pz;
-                        GetSummonPosition(i, px, py, pz, radius, count);
+                        GetSummonPosition(i, pos, radius, count);
 
                         TempSummonType summonType = (duration == 0) ? TEMPSUMMON_DEAD_DESPAWN : TEMPSUMMON_TIMED_DESPAWN;
 
-                        TempSummon * summon = m_originalCaster->SummonCreature(entry,px,py,pz,m_caster->GetOrientation(),summonType,duration);
+                        TempSummon * summon = m_originalCaster->SummonCreature(entry, pos, summonType, duration);
                         if (!summon)
                             continue;
                         if (properties->Category == SUMMON_CATEGORY_ALLY)
@@ -3512,16 +3511,16 @@ void Spell::EffectSummonType(uint32 i)
             }//switch
             break;
         case SUMMON_CATEGORY_PET:
-            SummonGuardian(entry, properties);
+            SummonGuardian(i, entry, properties);
             break;
         case SUMMON_CATEGORY_PUPPET:
-            summon = m_caster->GetMap()->SummonCreature(entry, x, y, z, m_caster->GetOrientation(), 0, properties, duration, m_originalCaster);
+            summon = m_caster->GetMap()->SummonCreature(entry, pos, properties, duration, m_originalCaster);
             break;
         case SUMMON_CATEGORY_VEHICLE:
         {
             float x, y, z;
             m_caster->GetClosePoint(x, y, z, DEFAULT_WORLD_OBJECT_SIZE);
-            summon = m_caster->GetMap()->SummonCreature(entry, x, y, z, m_caster->GetOrientation(), 0, properties, duration, m_caster);
+            summon = m_caster->GetMap()->SummonCreature(entry, pos, properties, duration, m_caster);
             if(!summon || !summon->IsVehicle())
                 return;
 
@@ -4132,7 +4131,7 @@ void Spell::EffectSummonPet(uint32 i)
     {
         SummonPropertiesEntry const *properties = sSummonPropertiesStore.LookupEntry(67);
         if(properties)
-            SummonGuardian(petentry, properties);
+            SummonGuardian(i, petentry, properties);
         return;
     }
 
@@ -6955,13 +6954,14 @@ void Spell::EffectWMORepair(uint32 /*i*/)
         gameObjTarget->Rebuild();
 }
 
-void Spell::SummonGuardian(uint32 entry, SummonPropertiesEntry const *properties)
+void Spell::SummonGuardian(uint32 i, uint32 entry, SummonPropertiesEntry const *properties)
 {
     Unit *caster = m_originalCaster;
-    if(caster && caster->GetTypeId() == TYPEID_UNIT && ((Creature*)caster)->isTotem())
-        caster = ((Totem*)caster)->GetOwner();
     if(!caster)
         return;
+
+    if(caster->isTotem())
+        caster = ((Totem*)caster)->GetOwner();
 
     // in another case summon new
     uint32 level = caster->getLevel();
@@ -6995,10 +6995,10 @@ void Spell::SummonGuardian(uint32 entry, SummonPropertiesEntry const *properties
 
     for(uint32 count = 0; count < amount; ++count)
     {
-        float px, py, pz;
-        GetSummonPosition(0, px, py, pz, radius, count);
+        Position pos;
+        GetSummonPosition(i, pos, radius, count);
 
-        TempSummon *summon = map->SummonCreature(entry, px, py, pz, m_caster->GetOrientation(), 0, properties, duration, caster);
+        TempSummon *summon = map->SummonCreature(entry, pos, properties, duration, caster);
         if(!summon)
             return;
         if(summon->HasUnitTypeMask(UNIT_MASK_GUARDIAN))
@@ -7012,17 +7012,13 @@ void Spell::SummonGuardian(uint32 entry, SummonPropertiesEntry const *properties
     }
 }
 
-void Spell::GetSummonPosition(uint32 i, float &x, float &y, float &z, float radius, uint32 count)
+void Spell::GetSummonPosition(uint32 i, Position &pos, float radius, uint32 count)
 {
     if (m_targets.m_targetMask & TARGET_FLAG_DEST_LOCATION)
     {
         // Summon 1 unit in dest location
         if (count == 0)
-        {
-            x = m_targets.m_destX;
-            y = m_targets.m_destY;
-            z = m_targets.m_destZ;
-        }
+            pos.Relocate(m_targets.m_destX, m_targets.m_destY, m_targets.m_destZ, m_caster->GetOrientation());
         // Summon in random point all other units if location present
         else
         {
@@ -7031,23 +7027,33 @@ void Spell::GetSummonPosition(uint32 i, float &x, float &y, float &z, float radi
             {
                 case TARGET_MINION:
                 case TARGET_DEST_CASTER_RANDOM:
+                {
+                    float x, y, z;
                     m_caster->GetGroundPointAroundUnit(x, y, z, radius * rand_norm(), rand_norm()*2*M_PI);
+                    pos.Relocate(x, y, z, m_caster->GetOrientation());
                     break;
+                }
                 case TARGET_DEST_DEST_RANDOM:
                 case TARGET_DEST_TARGET_RANDOM:
+                {
+                    float x, y, z;
                     m_caster->GetRandomPoint(m_targets.m_destX,m_targets.m_destY,m_targets.m_destZ,radius,x,y,z);
+                    pos.Relocate(x, y, z, m_caster->GetOrientation());
                     break;
+                }
                 default:
-                    x = m_targets.m_destX;
-                    y = m_targets.m_destY;
-                    z = m_targets.m_destZ;
+                    pos.Relocate(m_targets.m_destX, m_targets.m_destY, m_targets.m_destZ, m_caster->GetOrientation());
                     break;
             }
         }
     }
     // Summon if dest location not present near caster
     else
+    {
+        float x, y, z;
         m_caster->GetClosePoint(x,y,z,3.0f);
+        pos.Relocate(x, y, z, m_caster->GetOrientation());
+    }
 }
 
 void Spell::EffectRenamePet(uint32 /*eff_idx*/)

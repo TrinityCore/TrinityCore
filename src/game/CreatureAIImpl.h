@@ -311,9 +311,25 @@ inline bool CreatureAI::_EnterEvadeMode()
     return true;
 }
 
-inline Creature *CreatureAI::DoSummon(uint32 uiEntry, const Position fPos, uint32 uiDespawntime, TempSummonType uiType)
+inline void UnitAI::DoCast(Unit* victim, uint32 spellId, bool triggered)
 {
-    return me->SummonCreature(uiEntry, fPos[0], fPos[1], fPos[2], fPos[3], uiType, uiDespawntime);
+    if(!victim || me->hasUnitState(UNIT_STAT_CASTING) && !triggered)
+        return;
+
+    me->CastSpell(victim, spellId, triggered);
+}
+
+inline void UnitAI::DoCastAOE(uint32 spellId, bool triggered)
+{
+    if(!triggered && me->hasUnitState(UNIT_STAT_CASTING))
+        return;
+
+    me->CastSpell((Unit*)NULL, spellId, triggered);
+}
+
+inline Creature *CreatureAI::DoSummon(uint32 uiEntry, const Position &pos, uint32 uiDespawntime, TempSummonType uiType)
+{
+    return me->SummonCreature(uiEntry, pos, uiType, uiDespawntime);
 }
 
 inline Creature *CreatureAI::DoSummon(uint32 uiEntry, WorldObject* pGo, float fRadius, uint32 uiDespawntime, TempSummonType uiType)

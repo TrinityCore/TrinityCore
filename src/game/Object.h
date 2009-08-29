@@ -105,23 +105,9 @@ class TempSummon;
 class Vehicle;
 class CreatureAI;
 class ZoneScript;
+class Unit;
 
 typedef UNORDERED_MAP<Player*, UpdateData> UpdateDataMapType;
-
-struct WorldLocation
-{
-    uint32 mapid;
-    float coord_x;
-    float coord_y;
-    float coord_z;
-    float orientation;
-    explicit WorldLocation(uint32 _mapid = 0, float _x = 0, float _y = 0, float _z = 0, float _o = 0)
-        : mapid(_mapid), coord_x(_x), coord_y(_y), coord_z(_z), orientation(_o) {}
-    WorldLocation(WorldLocation const &loc)
-        : mapid(loc.mapid), coord_x(loc.coord_x), coord_y(loc.coord_y), coord_z(loc.coord_z), orientation(loc.orientation) {}
-};
-
-typedef float Position[4];
 
 class TRINITY_DLL_SPEC Object
 {
@@ -364,7 +350,93 @@ class TRINITY_DLL_SPEC Object
         Object& operator=(Object const&);                   // prevent generation assigment operator
 };
 
-class TRINITY_DLL_SPEC WorldObject : public Object
+struct TRINITY_DLL_SPEC Position
+{
+    float m_positionX;
+    float m_positionY;
+    float m_positionZ;
+    float m_orientation;
+
+    void Relocate(float x, float y)
+        { m_positionX = x; m_positionY = y;}
+    void Relocate(float x, float y, float z)
+        { m_positionX = x; m_positionY = y; m_positionZ = z; }
+    void Relocate(float x, float y, float z, float orientation)
+        { m_positionX = x; m_positionY = y; m_positionZ = z; m_orientation = orientation; }
+    void Relocate(const Position &pos)
+        { m_positionX = pos.m_positionX; m_positionY = pos.m_positionY; m_positionZ = pos.m_positionZ; m_orientation = pos.m_orientation; }
+    void Relocate(const Position *pos)
+        { m_positionX = pos->m_positionX; m_positionY = pos->m_positionY; m_positionZ = pos->m_positionZ; m_orientation = pos->m_orientation; }
+    void SetOrientation(float orientation)
+        { m_orientation = orientation; }
+
+    float GetPositionX() const { return m_positionX; }
+    float GetPositionY() const { return m_positionY; }
+    float GetPositionZ() const { return m_positionZ; }
+    float GetOrientation() const { return m_orientation; }
+
+    void GetPosition(float &x, float &y) const
+        { x = m_positionX; y = m_positionY; }
+    void GetPosition(float &x, float &y, float &z) const
+        { x = m_positionX; y = m_positionY; z = m_positionZ; }
+    void GetPosition(float &x, float &y, float &z, float &o) const
+        { x = m_positionX; y = m_positionY; z = m_positionZ; o = m_orientation; }
+    void GetPosition(Position *pos) const
+        { pos->Relocate(m_positionX, m_positionY, m_positionZ, m_orientation); }
+
+    bool IsPositionValid() const;
+
+    float GetExactDist2dSq(float x, float y) const
+        { float dx = m_positionX - x; float dy = m_positionY - y; return dx*dx + dy*dy; }
+    float GetExactDist2d(const float x, const float y) const
+        { return sqrt(GetExactDist2dSq(x, y)); }
+    float GetExactDist2dSq(const Position *pos) const
+        { float dx = m_positionX - pos->m_positionX; float dy = m_positionY - pos->m_positionY; return dx*dx + dy*dy; }
+    float GetExactDist2d(const Position *pos) const
+        { return sqrt(GetExactDist2dSq(pos)); }
+    float GetExactDistSq(float x, float y, float z) const
+        { float dz = m_positionZ - z; return GetExactDist2dSq(x, y) + dz*dz; }
+    float GetExactDist(float x, float y, float z) const
+        { return sqrt(GetExactDistSq(x, y, z)); }
+    float GetExactDistSq(const Position *pos) const
+        { float dx = m_positionX - pos->m_positionX; float dy = m_positionY - pos->m_positionY; float dz = m_positionZ - pos->m_positionZ; return dx*dx + dy*dy + dz*dz; }
+    float GetExactDist(const Position *pos) const
+        { return sqrt(GetExactDistSq(pos)); }
+
+    float GetAngle(const Position *pos) const;
+    float GetAngle(float x, float y) const;
+    float GetRelativeAngle(const Position *pos) const { return GetAngle(pos) - m_orientation; }
+    void GetSinCos(float x, float y, float &vsin, float &vcos) const;
+
+    bool IsInDist2d(float x, float y, float dist) const
+        { return GetExactDist2dSq(x, y) < dist * dist; }
+    bool IsInDist2d(const Position *pos, float dist) const
+        { return GetExactDist2dSq(pos) < dist * dist; }
+    bool IsInDist(float x, float y, float z, float dist) const
+        { return GetExactDistSq(x, y, z) < dist * dist; }
+    bool IsInDist(const Position *pos, float dist) const
+        { return GetExactDistSq(pos) < dist * dist; }
+    bool HasInArc(float arcangle, const Position *pos) const;
+    bool IsInLine(const Unit *target, float distance, float width) const;
+};
+
+class WorldLocation : public Position
+{
+    public:
+        explicit WorldLocation(uint32 _mapid = 0, float _x = 0, float _y = 0, float _z = 0, float _o = 0)
+            : m_mapId(_mapid) { Relocate(_x, _y, _z, _o); }
+        WorldLocation(const WorldLocation &loc)
+            : m_mapId(loc.GetMapId()) { Relocate(&loc); }
+
+        //void GetPosition(const WorldLocation &loc) const
+        //    { loc.mapid = GetMapId(); Position::GetPosition(loc.coord_x, loc.coord_y, loc.coord_z); loc.orientation = GetOrientation(); }
+        uint32 GetMapId() const { return m_mapId; }
+
+    protected:
+        uint32 m_mapId;
+};
+
+class TRINITY_DLL_SPEC WorldObject : public Object, public WorldLocation
 {
     public:
         virtual ~WorldObject();
@@ -373,44 +445,6 @@ class TRINITY_DLL_SPEC WorldObject : public Object
 
         void _Create( uint32 guidlow, HighGuid guidhigh, uint32 phaseMask);
 
-        void Relocate(WorldObject *obj)
-        {
-            m_positionX = obj->GetPositionX();
-            m_positionY = obj->GetPositionY();
-            m_positionZ = obj->GetPositionZ();
-            m_orientation = obj->GetOrientation();
-        }
-
-        void Relocate(float x, float y, float z, float orientation)
-        {
-            m_positionX = x;
-            m_positionY = y;
-            m_positionZ = z;
-            m_orientation = orientation;
-        }
-
-        void Relocate(float x, float y, float z)
-        {
-            m_positionX = x;
-            m_positionY = y;
-            m_positionZ = z;
-        }
-
-        void Relocate(Position pos)
-            { m_positionX = pos[0]; m_positionY = pos[1]; m_positionZ = pos[2]; m_orientation = pos[3]; }
-
-        void SetOrientation(float orientation) { m_orientation = orientation; }
-
-        float GetPositionX( ) const { return m_positionX; }
-        float GetPositionY( ) const { return m_positionY; }
-        float GetPositionZ( ) const { return m_positionZ; }
-        void GetPosition( float &x, float &y, float &z ) const
-            { x = m_positionX; y = m_positionY; z = m_positionZ; }
-        void GetPosition( WorldLocation &loc ) const
-            { loc.mapid = GetMapId(); GetPosition(loc.coord_x, loc.coord_y, loc.coord_z); loc.orientation = GetOrientation(); }
-        void GetPosition(Position pos) const
-            { pos[0] = m_positionX; pos[1] = m_positionY; pos[2] = m_positionZ; pos[3] = m_orientation; }
-        float GetOrientation( ) const { return m_orientation; }
         void GetNearPoint2D( float &x, float &y, float distance, float absAngle) const;
         void GetNearPoint( WorldObject const* searcher, float &x, float &y, float &z, float searcher_size, float distance2d,float absAngle) const;
         void GetClosePoint(float &x, float &y, float &z, float size, float distance2d = 0, float angle = 0) const
@@ -434,12 +468,10 @@ class TRINITY_DLL_SPEC WorldObject : public Object
         {
             return ( m_valuesCount > UNIT_FIELD_COMBATREACH ) ? m_floatValues[UNIT_FIELD_COMBATREACH] : DEFAULT_WORLD_OBJECT_SIZE;
         }
-        bool IsPositionValid() const;
         void UpdateGroundPositionZ(float x, float y, float &z) const;
 
         void GetRandomPoint( float x, float y, float z, float distance, float &rand_x, float &rand_y, float &rand_z ) const;
 
-        uint32 GetMapId() const { return m_mapId; }
         uint32 GetInstanceId() const { return m_InstanceId; }
 
         virtual void SetPhaseMask(uint32 newPhaseMask, bool update);
@@ -458,21 +490,24 @@ class TRINITY_DLL_SPEC WorldObject : public Object
 
         virtual const char* GetNameForLocaleIdx(int32 /*locale_idx*/) const { return GetName(); }
 
-        float GetDistance( const WorldObject* obj ) const;
-        float GetDistance(float x, float y, float z) const;
-        float GetDistance2dSq(float x, float y) const;
-        float GetExactDistSq(float x, float y, float z) const;
-        float GetExactDistSq(const WorldObject *obj) const;
-        float GetDistance2d(const WorldObject* obj) const;
-        float GetDistance2d(float x, float y) const;
-        float GetExactDistance2d(const float x, const float y) const;
+        float GetDistance( const WorldObject* obj ) const
+            { return GetExactDist(obj) + GetObjectSize() + obj->GetObjectSize(); }
+        float GetDistance(float x, float y, float z) const
+            { return GetExactDist(x, y, z) + GetObjectSize(); }
+        float GetDistance2d(const WorldObject* obj) const
+            { return GetExactDist2d(obj) + GetObjectSize() + obj->GetObjectSize(); }
+        float GetDistance2d(float x, float y) const
+            { return GetExactDist2d(x, y) + GetObjectSize(); }
         float GetDistanceZ(const WorldObject* obj) const;
+
         bool IsInMap(const WorldObject* obj) const
         {
             return IsInWorld() && obj->IsInWorld() && (GetMap() == obj->GetMap()) && InSamePhase(obj);
         }
-        bool IsWithinDist3d(float x, float y, float z, float dist2compare) const;
-        bool IsWithinDist2d(float x, float y, float dist2compare) const;
+        bool IsWithinDist3d(float x, float y, float z, float dist) const
+            { return IsInDist(x, y, z, dist + GetObjectSize()); }
+        bool IsWithinDist2d(float x, float y, float dist) const
+            { return IsInDist2d(x, y, dist + GetObjectSize()); }
         bool _IsWithinDist(WorldObject const* obj, float dist2compare, bool is3D) const;
         bool IsWithinDist(WorldObject const* obj, float dist2compare, bool is3D = true) const
                                                             // use only if you will sure about placing both object at same map
@@ -490,11 +525,6 @@ class TRINITY_DLL_SPEC WorldObject : public Object
         bool IsInRange2d(float x, float y, float minRange, float maxRange) const;
         bool IsInRange3d(float x, float y, float z, float minRange, float maxRange) const;
 
-        float GetAngle( const WorldObject* obj ) const;
-        float GetAngle( const float x, const float y ) const;
-        float GetRelativeAngle(const WorldObject *obj) const { return GetAngle(obj) - GetOrientation(); }
-        void GetSinCos(const float x, const float y, float &vsin, float &vcos);
-        bool HasInArc( const float arcangle, const WorldObject* obj ) const;
         bool IsInBetween(const WorldObject *obj1, const WorldObject *obj2, float size = 0) const;
 
         virtual void CleanupsBeforeDelete();                // used in destructor or explicitly before mass creature delete to remove cross-references to already deleted units
@@ -542,10 +572,16 @@ class TRINITY_DLL_SPEC WorldObject : public Object
         void SetZoneScript();
         ZoneScript * GetZoneScript() const { return m_zoneScript; }
 
-        TempSummon* SummonCreature(uint32 id, float x, float y, float z, float ang = 0, uint32 vehId = 0, TempSummonType spwtype = TEMPSUMMON_MANUAL_DESPAWN, uint32 despwtime = 0);
+        TempSummon* SummonCreature(uint32 id, const Position &pos, TempSummonType spwtype = TEMPSUMMON_MANUAL_DESPAWN, uint32 despwtime = 0, uint32 vehId = 0) const;
         TempSummon* SummonCreature(uint32 id, float x, float y, float z, float ang = 0, TempSummonType spwtype = TEMPSUMMON_MANUAL_DESPAWN, uint32 despwtime = 0)
-        { 
-            return SummonCreature(id, x, y, z, ang, 0, spwtype, despwtime);
+        {
+            if(!x && !y && !z)
+            {
+                GetClosePoint(x, y, z, GetObjectSize());
+                ang = GetOrientation();
+            }
+            Position pos = {x, y, z, ang};
+            return SummonCreature(id, pos, spwtype, despwtime, 0);
         }
         GameObject* SummonGameObject(uint32 entry, float x, float y, float z, float ang, float rotation0, float rotation1, float rotation2, float rotation3, uint32 respawnTime);
         Creature*   SummonTrigger(float x, float y, float z, float ang, uint32 dur, CreatureAI* (*GetAI)(Creature*) = NULL);
@@ -589,14 +625,9 @@ class TRINITY_DLL_SPEC WorldObject : public Object
     private:
         Map * m_currMap;                                    //current object's Map location
 
-        uint32 m_mapId;                                     // object at map with map_id
+        //uint32 m_mapId;                                     // object at map with map_id
         uint32 m_InstanceId;                                // in map copy with instance id
         uint32 m_phaseMask;                                 // in area phase state
-
-        float m_positionX;
-        float m_positionY;
-        float m_positionZ;
-        float m_orientation;
 };
 #endif
 

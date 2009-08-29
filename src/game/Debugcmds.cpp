@@ -774,7 +774,7 @@ bool ChatHandler::HandleDebugSpawnVehicle(const char* args)
     m_session->GetPlayer()->GetClosePoint(x, y, z, m_session->GetPlayer()->GetObjectSize());
 
     if(!i)
-        return m_session->GetPlayer()->SummonCreature(entry, x, y, z, o, 0);
+        return m_session->GetPlayer()->SummonCreature(entry, x, y, z, o);
 
     uint32 id = (uint32)atoi(i);
 

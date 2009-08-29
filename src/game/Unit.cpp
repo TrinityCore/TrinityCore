@@ -3479,14 +3479,6 @@ bool Unit::isInBackInMap(Unit const* target, float distance, float arc) const
     return IsWithinDistInMap(target, distance) && !HasInArc( 2 * M_PI - arc, target );
 }
 
-bool Unit::isInLine(Unit const* target, float distance, float width) const
-{
-    if(!HasInArc(M_PI, target) || !IsWithinDistInMap(target, distance)) return false;
-    width += target->GetObjectSize();
-    float angle = GetRelativeAngle(target);
-    return abs(sin(angle)) * GetExactDistance2d(target->GetPositionX(), target->GetPositionY()) < width;
-}
-
 bool Unit::isInAccessiblePlaceFor(Creature const* c) const
 {
     if(IsInWater())
@@ -14682,7 +14674,7 @@ void Unit::JumpTo(WorldObject *obj, float speedZ)
 {
     float x, y, z;
     obj->GetContactPoint(this, x, y, z);
-    float speedXY = GetExactDistance2d(x, y) * 10.0f / speedZ;
+    float speedXY = GetExactDist2d(x, y) * 10.0f / speedZ;
     GetMotionMaster()->MoveJump(x, y, z, speedXY, speedZ);
 }
 

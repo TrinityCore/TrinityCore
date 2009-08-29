@@ -31,7 +31,7 @@
 #include "WaypointMovementGenerator.h"
 #include "CreatureAIFactory.h"
 
-#include "CreatureAIImpl.h"
+//#include "CreatureAIImpl.h"
 namespace AIRegistry
 {
     void Initialize()
