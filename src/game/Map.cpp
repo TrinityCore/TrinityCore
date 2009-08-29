@@ -1096,14 +1096,15 @@ void Map::RemoveAllPlayers()
 {
     if(HavePlayers())
     {
-        // this is happening for bg
-        sLog.outError("Map::UnloadAll: there are still players in the instance at unload, should not happen!");
-
         for(MapRefManager::iterator itr = m_mapRefManager.begin(); itr != m_mapRefManager.end(); ++itr)
         {
             Player* plr = itr->getSource();
             if(!plr->IsBeingTeleportedFar())
+            {
+                // this is happening for bg
+                sLog.outError("Map::UnloadAll: player %s is still in map %u during unload, should not happen!", plr->GetName(), GetId());
                 plr->TeleportTo(plr->m_homebindMapId, plr->m_homebindX, plr->m_homebindY, plr->m_homebindZ, plr->GetOrientation());
+            }
         }
     }
 }
@@ -3328,13 +3329,7 @@ void Map::ScriptsProcess()
 
                 Object* cmdTarget = step.script->datalong2 & 0x01 ? source : target;
 
-                if(!cmdTarget)
-                {
-                    sLog.outError("SCRIPT_COMMAND_CAST_SPELL %u call for NULL %s.", step.script->datalong, step.script->datalong2 & 0x01 ? "source" : "target");
-                    break;
-                }
-
-                if(!cmdTarget->isType(TYPEMASK_UNIT))
+                if(cmdTarget && !cmdTarget->isType(TYPEMASK_UNIT))
                 {
                     sLog.outError("SCRIPT_COMMAND_CAST_SPELL %s isn't unit (TypeId: %u), skipping.",step.script->datalong2 & 0x01 ? "source" : "target",cmdTarget->GetTypeId());
                     break;
