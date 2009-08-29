@@ -357,18 +357,18 @@ void OPvPWintergrasp::OnCreatureCreate(Creature *creature, bool add)
                 return;
 
             TeamId team;
-            if(creature->getFaction() == WintergraspFaction[TEAM_ALLIANCE])
-                team = TEAM_ALLIANCE;
-            else if(creature->getFaction() == WintergraspFaction[TEAM_HORDE])
-                team = TEAM_HORDE;
-            else
-                return;
-
-            if(uint32 engLowguid = GUID_LOPART(((TempSummon*)creature)->GetSummonerGUID()))
+            if(add)
             {
-                if(SiegeWorkshop *workshop = GetWorkshopByEngGuid(engLowguid))
+                if(creature->getFaction() == WintergraspFaction[TEAM_ALLIANCE])
+                    team = TEAM_ALLIANCE;
+                else if(creature->getFaction() == WintergraspFaction[TEAM_HORDE])
+                    team = TEAM_HORDE;
+                else
+                    return;
+
+                if(uint32 engLowguid = GUID_LOPART(((TempSummon*)creature)->GetSummonerGUID()))
                 {
-                    if(add)
+                    if(SiegeWorkshop *workshop = GetWorkshopByEngGuid(engLowguid))
                     {
                         if(CanBuildVehicle(workshop))
                         {
@@ -382,17 +382,8 @@ void OPvPWintergrasp::OnCreatureCreate(Creature *creature, bool add)
                             return;
                         }                            
                     }
-                    // TODO: now you have to wait until the corpse of vehicle disappear to build a new one
-                    else
-                    {
-                        m_vehicles[team].erase(creature);
-                        //if(!workshop->m_vehicles.erase(creature))
-                        //    sLog.outError("OPvPWintergrasp::OnCreatureCreate: a vehicle is removed but it does not have record in workshop!");
-                    }
                 }
-            }
-            if(add)
-            {
+
                 if(m_tenacityStack > 0)
                 {
                     if(team == TEAM_ALLIANCE)
@@ -403,7 +394,17 @@ void OPvPWintergrasp::OnCreatureCreate(Creature *creature, bool add)
                     if(team == TEAM_HORDE)
                         creature->SetAuraStack(SPELL_TENACITY_VEHICLE, creature, -m_tenacityStack);
                 }
-            }                   
+            }
+            else // the faction may be changed in uncharm
+            {
+                // TODO: now you have to wait until the corpse of vehicle disappear to build a new one
+                if(m_vehicles[TEAM_ALLIANCE].erase(creature))
+                    team = TEAM_ALLIANCE;
+                else if(m_vehicles[TEAM_HORDE].erase(creature))
+                    team = TEAM_HORDE;
+                else
+                    return;
+            }
             SendUpdateWorldState(VehNumWorldState[team], m_vehicles[team].size());
             break;
         }
