@@ -286,14 +286,14 @@ CreatureAI* GetAI_mob_archaedas_minions(Creature* pCreature)
 /* ScriptData
 SDName: go_altar_archaedas
 SD%Complete: 100
-SDComment: Needs 3 people to activate the Archaedas script
+SDComment: Needs 1 person to activate the Archaedas script
 SDCategory: Uldaman
 EndScriptData */
 
 
 #define OBJECT_ALTAR_OF_ARCHAEDAS   133234
 
-#define NUMBER_NEEDED_TO_ACTIVATE 3
+#define NUMBER_NEEDED_TO_ACTIVATE 1 // as of patch 3.0.8 the altars can be opened by a single player (previously 3)
 
 #define SPELL_BOSS_OBJECT_VISUAL    11206
 
