@@ -106,12 +106,12 @@ struct TRINITY_DLL_DECL boss_brutallusAI : public ScriptedAI
         m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
         Madrigosa = Unit::GetUnit(*m_creature, pInstance->GetData64(DATA_MADRIGOSA));
         //Creature* boss = Unit::GetCreature((*m_creature),AzgalorGUID);
-        if (!Madrigosa) error_log("Madrigosa ist nicht zu finden");
+        if (!Madrigosa) error_log("Madrigosa was not found");
 
         if (Intro && Madrigosa){
             if (!Madrigosa->isAlive())
                 EndIntro();
-            else error_log("Madrigosa is Tod");
+            else error_log("Madrigosa is dead");
         }
         else
             EndIntro();
@@ -160,15 +160,15 @@ struct TRINITY_DLL_DECL boss_brutallusAI : public ScriptedAI
             Madrigosa->setActive(true);
             IsIntro = true;
         }
-        error_log("Starte das Intro");
+        error_log("Start Intro");
     }
 
     void EndIntro()
     {
-        error_log("Beende das Intro");
         m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
         Intro = false;
         IsIntro = false;
+        error_log("End Intro");
     }
 
     void DoIntro()
@@ -251,13 +251,13 @@ struct TRINITY_DLL_DECL boss_brutallusAI : public ScriptedAI
     {
         if (pInstance && Intro)
             pInstance->SetData(DATA_BRUTALLUS_EVENT, SPECIAL);
+
+        if (Intro && !IsIntro)
+            StartIntro();
     }
 
     void UpdateAI(const uint32 diff)
     {
-        if (Intro && !IsIntro)
-            StartIntro();
-
         if (IsIntro)
         {
             if (IntroPhaseTimer < diff){
