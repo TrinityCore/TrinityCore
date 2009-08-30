@@ -411,7 +411,7 @@ struct TRINITY_DLL_DECL mob_coilfang_ambusherAI : public Scripted_NoMovementAI
             if (m_creature->getVictim())
                 DoCast(m_creature->getVictim(), SPELL_SPREAD_SHOT, true);
 
-            MultiShotTimer = 10000;
+            MultiShotTimer = 10000+rand()%10000;
             ShootBowTimer += 1500;//add global cooldown
         }else MultiShotTimer -= diff;
 
@@ -422,7 +422,7 @@ struct TRINITY_DLL_DECL mob_coilfang_ambusherAI : public Scripted_NoMovementAI
             int bp0 = 1100;
             if (target)
                 m_creature->CastCustomSpell(target,SPELL_SHOOT,&bp0,NULL,NULL,true);
-            ShootBowTimer = 4000;
+            ShootBowTimer = 4000+rand()%5000;
             MultiShotTimer += 1500;//add global cooldown
         }else ShootBowTimer -= diff;
     }
