@@ -2900,15 +2900,15 @@ bool Player::AddTalent(uint32 spell_id, uint8 spec, bool learning)
     {
         itr->second->state = PLAYERSPELL_UNCHANGED;
     }
-    else if(TalentSpellPos const* talentPos = GetTalentSpellPos(spell_id))
+    else if(TalentSpellPos const *talentPos = GetTalentSpellPos(spell_id))
     {
         if(TalentEntry const *talentInfo = sTalentStore.LookupEntry( talentPos->talent_id ))
         {
-            for(int i=0; i < MAX_TALENT_RANK; ++i)
+            for(uint8 rank = 0; rank < MAX_TALENT_RANK; ++rank)
             {
                 // skip learning spell and no rank spell case
-                uint32 rankSpellId = talentInfo->RankID[i];
-                if(!rankSpellId || rankSpellId==spell_id)
+                uint32 rankSpellId = talentInfo->RankID[rank];
+                if(!rankSpellId || rankSpellId == spell_id)
                     continue;
 
                 PlayerTalentMap::iterator itr = m_talents[spec]->find(rankSpellId);
@@ -3081,15 +3081,15 @@ bool Player::addSpell(uint32 spell_id, bool active, bool learning, bool dependen
     if(!disabled_case) // skip new spell adding if spell already known (disabled spells case)
     {
         // talent: unlearn all other talent ranks (high and low)
-        if(TalentSpellPos const* talentPos = GetTalentSpellPos(spell_id))
+        if(TalentSpellPos const *talentPos = GetTalentSpellPos(spell_id))
         {
             if(TalentEntry const *talentInfo = sTalentStore.LookupEntry( talentPos->talent_id ))
             {
-                for(uint8 i=0; i < MAX_TALENT_RANK; ++i)
+                for(uint8 rank = 0; rank < MAX_TALENT_RANK; ++rank)
                 {
                     // skip learning spell and no rank spell case
-                    uint32 rankSpellId = talentInfo->RankID[i];
-                    if(!rankSpellId || rankSpellId==spell_id)
+                    uint32 rankSpellId = talentInfo->RankID[rank];
+                    if(!rankSpellId || rankSpellId == spell_id)
                         continue;
 
                     removeSpell(rankSpellId,false,false);
@@ -3754,7 +3754,7 @@ bool Player::resetTalents(bool no_cost)
             continue;
         
         // Re-use pre-dual talent way of resetting talents, to ensure talents aren't being stored in spell storage.
-        for (int j = 0; j < MAX_TALENT_RANK; j++)
+        for(uint8 rank = 0; rank < MAX_TALENT_RANK; rank++)
         {
             for(PlayerSpellMap::iterator itr = GetSpellMap().begin(); itr != GetSpellMap().end();)
             {
@@ -3768,13 +3768,13 @@ bool Player::resetTalents(bool no_cost)
                 uint32 itrFirstId = spellmgr.GetFirstSpellInChain(itr->first);
 
                 // unlearn if first rank is talent or learned by talent
-                if (itrFirstId == talentInfo->RankID[j])
+                if (itrFirstId == talentInfo->RankID[rank])
                 {
                     removeSpell(itr->first,!IsPassiveSpell(itr->first),false);
                     itr = GetSpellMap().begin();
                     continue;
                 }
-                else if (spellmgr.IsSpellLearnToSpell(talentInfo->RankID[j],itrFirstId))
+                else if (spellmgr.IsSpellLearnToSpell(talentInfo->RankID[rank],itrFirstId))
                 {
                     removeSpell(itr->first,!IsPassiveSpell(itr->first));
                     itr = GetSpellMap().begin();
@@ -3784,9 +3784,8 @@ bool Player::resetTalents(bool no_cost)
                     ++itr;
             }
         }
-        
-        PlayerTalentMap::iterator itr2 = m_talents[m_activeSpec]->begin();
-        for (; itr2 != m_talents[m_activeSpec]->end(); ++itr2)
+
+        for (PlayerTalentMap::iterator itr2 = m_talents[m_activeSpec]->begin(); itr2 != m_talents[m_activeSpec]->end(); ++itr2)
         {
             removeSpell(itr2->first, !IsPassiveSpell(itr2->first),false);
             itr2->second->state = PLAYERSPELL_REMOVED;
@@ -19399,8 +19398,9 @@ void Player::resetSpells(bool myClassOnly)
 
     uint32 family;
 
-    if(myClassOnly){
-        ChrClassesEntry const* clsEntry = sChrClassesStore.LookupEntry(m_session->GetPlayer()->getClass());
+    if(myClassOnly)
+    {
+        ChrClassesEntry const* clsEntry = sChrClassesStore.LookupEntry(getClass());
         if(!clsEntry)
             return;
         family = clsEntry->spellfamily;
@@ -19419,11 +19419,11 @@ void Player::resetSpells(bool myClassOnly)
                 continue;
 
             // skip wrong class/race skills
-            if(!m_session->GetPlayer()->IsSpellFitByClassAndRace(spellInfo->Id))
+            if(!IsSpellFitByClassAndRace(spellInfo->Id))
                 continue;
 
             // skip other spell families
-            if( spellInfo->SpellFamilyName != family)
+            if(spellInfo->SpellFamilyName != family)
                 continue;
 
             // skip spells with first rank learned as talent (and all talents then also)
@@ -19432,7 +19432,7 @@ void Player::resetSpells(bool myClassOnly)
                 continue;
 
             // skip broken spells
-            if(!SpellMgr::IsSpellValid(spellInfo,m_session->GetPlayer(),false))
+            if(!SpellMgr::IsSpellValid(spellInfo,this,false))
                 continue;
         }
         removeSpell(iter->first,false,false);               // only iter->first can be accessed, object by iter->second can be deleted already
@@ -21113,12 +21113,12 @@ void Player::LearnTalent(uint32 talentId, uint32 talentRank)
         return;
 
     // find current max talent rank
-    int32 curtalent_maxrank = 0;
-    for(int8 k = MAX_TALENT_RANK-1; k > -1; --k)
+    uint8 curtalent_maxrank = 0;
+    for(uint8 rank = MAX_TALENT_RANK-1; rank >= 0; --rank)
     {
-        if(talentInfo->RankID[k] && HasSpell(talentInfo->RankID[k]))
+        if(talentInfo->RankID[rank] && HasSpell(talentInfo->RankID[rank]))
         {
-            curtalent_maxrank = k + 1;
+            curtalent_maxrank = (rank + 1);
             break;
         }
     }
@@ -21137,10 +21137,10 @@ void Player::LearnTalent(uint32 talentId, uint32 talentRank)
         if(TalentEntry const *depTalentInfo = sTalentStore.LookupEntry(talentInfo->DependsOn))
         {
             bool hasEnoughRank = false;
-            for (uint32 i = talentInfo->DependsOnRank; i < MAX_TALENT_RANK; i++)
+            for (uint8 rank = talentInfo->DependsOnRank; rank < MAX_TALENT_RANK; rank++)
             {
-                if (depTalentInfo->RankID[i] != 0)
-                    if (HasSpell(depTalentInfo->RankID[i]))
+                if (depTalentInfo->RankID[rank] != 0)
+                    if (HasSpell(depTalentInfo->RankID[rank]))
                         hasEnoughRank = true;
             }
             if (!hasEnoughRank)
@@ -21250,12 +21250,12 @@ void Player::LearnPetTalent(uint64 petGuid, uint32 talentId, uint32 talentRank)
         return;
 
     // find current max talent rank
-    int32 curtalent_maxrank = 0;
-    for(int8 k = MAX_TALENT_RANK-1; k > -1; --k)
+    uint8 curtalent_maxrank = 0;
+    for(uint8 rank = MAX_TALENT_RANK-1; rank >= 0; --rank)
     {
-        if(talentInfo->RankID[k] && pet->HasSpell(talentInfo->RankID[k]))
+        if(talentInfo->RankID[rank] && pet->HasSpell(talentInfo->RankID[rank]))
         {
-            curtalent_maxrank = k + 1;
+            curtalent_maxrank = (rank + 1);
             break;
         }
     }
@@ -21274,10 +21274,10 @@ void Player::LearnPetTalent(uint64 petGuid, uint32 talentId, uint32 talentRank)
         if(TalentEntry const *depTalentInfo = sTalentStore.LookupEntry(talentInfo->DependsOn))
         {
             bool hasEnoughRank = false;
-            for (uint32 i = talentInfo->DependsOnRank; i < MAX_TALENT_RANK; i++)
+            for (uint8 rank = talentInfo->DependsOnRank; rank < MAX_TALENT_RANK; rank++)
             {
-                if (depTalentInfo->RankID[i] != 0)
-                    if (pet->HasSpell(depTalentInfo->RankID[i]))
+                if (depTalentInfo->RankID[rank] != 0)
+                    if (pet->HasSpell(depTalentInfo->RankID[rank]))
                         hasEnoughRank = true;
             }
             if (!hasEnoughRank)
@@ -21300,13 +21300,13 @@ void Player::LearnPetTalent(uint64 petGuid, uint32 talentId, uint32 talentRank)
             {
                 if (tmpTalent->TalentTab == tTab)
                 {
-                    for (int j = 0; j < MAX_TALENT_RANK; j++)
+                    for (uint8 rank = 0; rank < MAX_TALENT_RANK; rank++)
                     {
-                        if (tmpTalent->RankID[j] != 0)
+                        if (tmpTalent->RankID[rank] != 0)
                         {
-                            if (pet->HasSpell(tmpTalent->RankID[j]))
+                            if (pet->HasSpell(tmpTalent->RankID[rank]))
                             {
-                                spentPoints += j + 1;
+                                spentPoints += (rank + 1);
                             }
                         }
                     }
@@ -21439,18 +21439,18 @@ void Player::BuildPlayerTalentsInfoData(WorldPacket *data)
                         continue;
 
                     // find max talent rank
-                    int32 curtalent_maxrank = -1;
-                    for(int32 k = MAX_TALENT_RANK-1; k > -1; --k)
+                    uint8 curtalent_maxrank = 0;
+                    for(uint8 rank = MAX_TALENT_RANK-1; rank > 0; --rank)
                     {
-                        if(talentInfo->RankID[k] && HasTalent(talentInfo->RankID[k], specIdx))
+                        if(talentInfo->RankID[rank] && HasTalent(talentInfo->RankID[rank], specIdx))
                         {
-                            curtalent_maxrank = k;
+                            curtalent_maxrank = rank;
                             break;
                         }
                     }
 
                     // not learned talent
-                    if(curtalent_maxrank < 0)
+                    if(!curtalent_maxrank)
                         continue;
 
                     *data << uint32(talentInfo->TalentID);  // Talent.dbc
@@ -21516,18 +21516,18 @@ void Player::BuildPetTalentsInfoData(WorldPacket *data)
                 continue;
 
             // find max talent rank
-            int32 curtalent_maxrank = -1;
-            for(int32 k = 4; k > -1; --k)
+            uint8 curtalent_maxrank = 0;
+            for(uint8 rank = MAX_TALENT_RANK-1; rank > 0; --rank)
             {
-                if(talentInfo->RankID[k] && pet->HasSpell(talentInfo->RankID[k]))
+                if(talentInfo->RankID[rank] && pet->HasSpell(talentInfo->RankID[rank]))
                 {
-                    curtalent_maxrank = k;
+                    curtalent_maxrank = rank;
                     break;
                 }
             }
 
             // not learned talent
-            if(curtalent_maxrank < 0)
+            if(!curtalent_maxrank)
                 continue;
 
             *data << uint32(talentInfo->TalentID);          // Talent.dbc
@@ -21896,13 +21896,12 @@ void Player::ActivateSpec(uint8 spec)
             if(talentInfo->TalentTab != talentTabId)
                 continue;
 
-            // find max talent rank
-            int32 curtalent_maxrank = -1;
-            for(int32 k = 4; k > -1; --k)
+            // remove all talent ranks, starting at highest rank
+            for(uint8 rank = MAX_TALENT_RANK-1; rank >= 0; --rank)
             {
-                if(talentInfo->RankID[k] && HasTalent(talentInfo->RankID[k], m_activeSpec))
+                if(talentInfo->RankID[rank] != 0 && HasTalent(talentInfo->RankID[rank], m_activeSpec))
                 {
-                    removeSpell(talentInfo->RankID[k],true);
+                    removeSpell(talentInfo->RankID[rank],true);
                 }
             }
         }
@@ -21938,14 +21937,13 @@ void Player::ActivateSpec(uint8 spec)
             if(talentInfo->TalentTab != talentTabId)
                 continue;
 
-            // find max talent rank
-            int32 curtalent_maxrank = -1;
-            for(int32 k = 4; k > -1; --k)
+            // learn highest talent rank that exists in newly activated spec
+            for(uint8 rank = MAX_TALENT_RANK-1; rank >= 0; --rank)
             {
-                if(talentInfo->RankID[k] && HasTalent(talentInfo->RankID[k], m_activeSpec))
+                if(talentInfo->RankID[rank] && HasTalent(talentInfo->RankID[rank], m_activeSpec))
                 {
-                    learnSpell(talentInfo->RankID[k], false);
-                    spentTalents += k+1;
+                    learnSpell(talentInfo->RankID[rank], false);
+                    spentTalents += (rank + 1);
                 }
             }
         }
