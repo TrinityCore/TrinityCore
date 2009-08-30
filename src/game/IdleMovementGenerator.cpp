@@ -57,14 +57,14 @@ bool RotateMovementGenerator::Update(Unit& owner, const uint32& diff)
     float angle = owner.GetOrientation();
     if(m_direction == ROTATE_DIRECTION_LEFT)
     {
-        angle += diff / m_duration * M_PI * 2;
-        if(angle >= M_PI * 2 ) angle = 0;
+        angle += (float)diff * M_PI * 2 / m_maxDuration;
+        while(angle >= M_PI * 2 ) angle -= M_PI * 2;
     }
     else
     {
-        angle -= diff / m_duration * M_PI * 2;
-        if(angle < 0) angle = M_PI * 2;
-    }    
+        angle -= (float)diff * M_PI * 2 / m_maxDuration;
+        while(angle < 0) angle += M_PI * 2;
+    }
     owner.SetOrientation(angle);
     owner.SendMovementFlagUpdate(); // this is a hack. we do not have anything correct to send in the beginning
 
