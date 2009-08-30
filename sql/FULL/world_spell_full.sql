@@ -2161,7 +2161,7 @@ INSERT INTO `spell_script_target` (`entry`, `type`, `targetEntry`) VALUES
 -- ULDUAR
 -- --------
 INSERT INTO creature_template (entry, vehicleid) VALUES
-(32930, 338), # Kologarn
+(32930, 328), # Kologarn
 (32934, 380), # Right Arm
 (33113, 340), # Flame Leviathan
 (33114, 341), # Flame Leviathan Seat
