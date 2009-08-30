@@ -35,7 +35,7 @@ class DynamicObject : public WorldObject
         void AddToWorld();
         void RemoveFromWorld();
 
-        bool Create(uint32 guidlow, Unit *caster, uint32 spellId, uint32 effMask, float x, float y, float z, int32 duration, float radius, bool active);
+        bool Create(uint32 guidlow, Unit *caster, uint32 spellId, uint32 effMask, const Position &pos, int32 duration, float radius, bool active);
         void Update(uint32 p_time);
         void Delete();
         uint32 GetSpellId() const { return m_spellId; }

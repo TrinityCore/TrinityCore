@@ -1079,7 +1079,7 @@ bool Object::PrintIndexError(uint32 index, bool set) const
     return false;
 }
 
-bool Position::IsInLine(const Unit * const target, float distance, float width) const
+bool Position::HasInLine(const Unit * const target, float distance, float width) const
 {
     if(!HasInArc(M_PI, target) || !target->IsWithinDist3d(m_positionX, m_positionY, m_positionZ, distance)) return false;
     width += target->GetObjectSize();
@@ -1382,13 +1382,11 @@ bool WorldObject::IsInBetween(const WorldObject *obj1, const WorldObject *obj2, 
     return abs(sin(angle)) * GetExactDist2d(obj1->GetPositionX(), obj1->GetPositionY()) < size;
 }
 
-void WorldObject::GetRandomPoint( float x, float y, float z, float distance, float &rand_x, float &rand_y, float &rand_z) const
+void WorldObject::GetRandomPoint(const Position &pos, float distance, float &rand_x, float &rand_y, float &rand_z) const
 {
-    if(distance == 0)
+    if(!distance)
     {
-        rand_x = x;
-        rand_y = y;
-        rand_z = z;
+        pos.GetPosition(rand_x, rand_y, rand_z);
         return;
     }
 
@@ -1396,9 +1394,9 @@ void WorldObject::GetRandomPoint( float x, float y, float z, float distance, flo
     float angle = rand_norm()*2*M_PI;
     float new_dist = rand_norm()*distance;
 
-    rand_x = x + new_dist * cos(angle);
-    rand_y = y + new_dist * sin(angle);
-    rand_z = z;
+    rand_x = pos.m_positionX + new_dist * cos(angle);
+    rand_y = pos.m_positionY + new_dist * sin(angle);
+    rand_z = pos.m_positionZ;
 
     Trinity::NormalizeMapCoord(rand_x);
     Trinity::NormalizeMapCoord(rand_y);
@@ -2175,14 +2173,15 @@ void WorldObject::GetNearPoint(WorldObject const* searcher, float &x, float &y, 
     */
 }
 
-void WorldObject::GetGroundPoint(float &x, float &y, float &z, float dist, float angle)
+void WorldObject::MovePosition(Position &pos, float dist, float angle)
 {
-    angle += GetOrientation();
-    x += dist * cos(angle);
-    y += dist * sin(angle);
-    Trinity::NormalizeMapCoord(x);
-    Trinity::NormalizeMapCoord(y);
-    UpdateGroundPositionZ(x, y, z);
+    angle += m_orientation;
+    pos.m_positionX += dist * cos(angle);
+    pos.m_positionY += dist * sin(angle);
+    Trinity::NormalizeMapCoord(pos.m_positionX);
+    Trinity::NormalizeMapCoord(pos.m_positionY);
+    UpdateGroundPositionZ(pos.m_positionX, pos.m_positionY, pos.m_positionZ);
+    pos.m_orientation = m_orientation;
 }
 
 void WorldObject::SetPhaseMask(uint32 newPhaseMask, bool update)

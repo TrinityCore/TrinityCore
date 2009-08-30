@@ -25,6 +25,12 @@ struct VehicleEntry;
 struct VehicleSeatEntry;
 class Unit;
 
+enum PowerType
+{
+    POWER_STEAM     = 61,
+    POWER_PYRITE    = 41,
+};
+
 struct VehicleSeat
 {
     explicit VehicleSeat(VehicleSeatEntry const *_seatInfo) : seatInfo(_seatInfo), passenger(NULL) {}

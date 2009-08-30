@@ -654,11 +654,9 @@ struct TRINITY_DLL_DECL mob_cycloneAI : public ScriptedAI
 
         if (MoveTimer < diff)
         {
-            float x,y,z;
-            m_creature->GetPosition(x,y,z);
-            float PosX, PosY, PosZ;
-            m_creature->GetRandomPoint(x,y,z,10, PosX, PosY, PosZ);
-            m_creature->GetMotionMaster()->MovePoint(0, PosX, PosY, PosZ);
+            Position pos;
+            m_creature->GetRandomNearPosition(pos, 10);
+            m_creature->GetMotionMaster()->MovePoint(0, pos);
             MoveTimer = 5000 + rand()%3000;
         }else MoveTimer -= diff;
     }

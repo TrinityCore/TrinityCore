@@ -245,25 +245,23 @@ struct TRINITY_DLL_DECL instance_dark_portal : public ScriptedInstance
         return 0;
     }
 
-    Creature* SummonedPortalBoss(Creature* pSource)
+    Creature* SummonedPortalBoss(Creature* m_creature)
     {
         uint32 entry = RiftWaves[GetRiftWaveId()].PortalBoss;
 
         if (entry == RIFT_BOSS)
             entry = RandRiftBoss();
 
-        float x,y,z;
-        pSource->GetRandomPoint(pSource->GetPositionX(),pSource->GetPositionY(),pSource->GetPositionZ(),10.0f,x,y,z);
-        //normalize Z-level if we can, if rift is not at ground level.
-        z = std::max(instance->GetHeight(x, y, MAX_HEIGHT), instance->GetWaterLevel(x, y));
-
         debug_log("TSCR: Instance Dark Portal: Summoning rift boss entry %u.",entry);
 
-        Creature* pSummoned = pSource->SummonCreature(entry,x,y,z,pSource->GetOrientation(),
-            TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,600000);
+        Position pos;
+        m_creature->GetRandomNearPosition(pos, 10.0f);
 
-        if (pSummoned)
-            return pSummoned;
+        //normalize Z-level if we can, if rift is not at ground level.
+        pos.m_positionZ = std::max(m_creature->GetMap()->GetHeight(pos.m_positionX, pos.m_positionY, MAX_HEIGHT), m_creature->GetMap()->GetWaterLevel(pos.m_positionX, pos.m_positionY));
+
+        if(Creature *summon = m_creature->SummonCreature(entry, pos, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 600000))
+            return summon;
 
         debug_log("TSCR: Instance Dark Portal: what just happened there? No boss, no loot, no fun...");
         return NULL;

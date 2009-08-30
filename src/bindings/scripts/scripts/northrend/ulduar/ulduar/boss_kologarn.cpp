@@ -44,7 +44,20 @@ struct TRINITY_DLL_DECL boss_kologarnAI : public BossAI
 
     void AttackStart(Unit *who)
     {
-        me->Attack(who, false);
+        me->Attack(who, true);
+        if(leftArm)
+            leftArm->Attack(who, true);
+        if(rightArm)
+            rightArm->Attack(who, true);
+    }
+
+    void MeleeSwing(WeaponAttackType type)
+    {
+        me->AttackerStateUpdate(me->getVictim(), type);
+        if(leftArm)
+            leftArm->AttackerStateUpdate(me->getVictim(), type);
+        if(rightArm)
+            rightArm->AttackerStateUpdate(me->getVictim(), type);
     }
 
     void PassengerBoarded(Unit *who, int8 seatId, bool apply)
@@ -66,10 +79,9 @@ struct TRINITY_DLL_DECL boss_kologarnAI : public BossAI
             //If we are within range melee the target
             if (me->IsWithinMeleeRange(me->getVictim()))
             {
-                Unit *attacker = me;
-                if(leftArm) attacker = leftArm;
-                if(rightArm && rand()%2) attacker = rightArm;
-                attacker->AttackerStateUpdate(me->getVictim());
+                WeaponAttackType type = BASE_ATTACK;
+                if(leftArm && (!rightArm || rand()%2)) type = OFF_ATTACK;
+                MeleeSwing(type);
                 me->resetAttackTimer();
             }
         }

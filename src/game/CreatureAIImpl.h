@@ -332,18 +332,19 @@ inline Creature *CreatureAI::DoSummon(uint32 uiEntry, const Position &pos, uint3
     return me->SummonCreature(uiEntry, pos, uiType, uiDespawntime);
 }
 
-inline Creature *CreatureAI::DoSummon(uint32 uiEntry, WorldObject* pGo, float fRadius, uint32 uiDespawntime, TempSummonType uiType)
+inline Creature *CreatureAI::DoSummon(uint32 uiEntry, WorldObject* obj, float fRadius, uint32 uiDespawntime, TempSummonType uiType)
 {
-    float fX, fY, fZ;
-    pGo->GetGroundPointAroundUnit(fX, fY, fZ, fRadius * rand_norm(), rand_norm()*2*M_PI);
-    return me->SummonCreature(uiEntry, fX, fY, fZ, me->GetOrientation(), uiType, uiDespawntime);
+    Position pos;
+    obj->GetRandomNearPosition(pos, fRadius);
+    return me->SummonCreature(uiEntry, pos, uiType, uiDespawntime);
 }
 
 inline Creature *CreatureAI::DoSummonFlyer(uint32 uiEntry, WorldObject *obj, float _fZ, float fRadius, uint32 uiDespawntime, TempSummonType uiType)
 {
-    float fX, fY, fZ;
-    obj->GetGroundPointAroundUnit(fX, fY, fZ, fRadius * rand_norm(), rand_norm()*2*M_PI);
-    return me->SummonCreature(uiEntry, fX, fY, fZ + _fZ, me->GetOrientation(), uiType, uiDespawntime);
+    Position pos;
+    obj->GetRandomNearPosition(pos, fRadius);
+    pos.m_positionZ += _fZ;
+    return me->SummonCreature(uiEntry, pos, uiType, uiDespawntime);
 }
 
 #endif

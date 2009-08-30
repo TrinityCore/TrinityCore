@@ -417,22 +417,22 @@ struct TRINITY_DLL_SPEC Position
     bool IsInDist(const Position *pos, float dist) const
         { return GetExactDistSq(pos) < dist * dist; }
     bool HasInArc(float arcangle, const Position *pos) const;
-    bool IsInLine(const Unit *target, float distance, float width) const;
+    bool HasInLine(const Unit *target, float distance, float width) const;
 };
+
+#define MAPID_INVALID 0xFFFFFFFF
 
 class WorldLocation : public Position
 {
     public:
-        explicit WorldLocation(uint32 _mapid = 0, float _x = 0, float _y = 0, float _z = 0, float _o = 0)
+        explicit WorldLocation(uint32 _mapid = MAPID_INVALID, float _x = 0, float _y = 0, float _z = 0, float _o = 0)
             : m_mapId(_mapid) { Relocate(_x, _y, _z, _o); }
-        WorldLocation(const WorldLocation &loc)
-            : m_mapId(loc.GetMapId()) { Relocate(&loc); }
+        WorldLocation(const WorldLocation &loc) { WorldRelocate(loc); }
 
-        //void GetPosition(const WorldLocation &loc) const
-        //    { loc.mapid = GetMapId(); Position::GetPosition(loc.coord_x, loc.coord_y, loc.coord_z); loc.orientation = GetOrientation(); }
+        void WorldRelocate(const WorldLocation &loc)
+            { m_mapId = loc.GetMapId(); Relocate(loc); }
         uint32 GetMapId() const { return m_mapId; }
 
-    protected:
         uint32 m_mapId;
 };
 
@@ -452,12 +452,18 @@ class TRINITY_DLL_SPEC WorldObject : public Object, public WorldLocation
             // angle calculated from current orientation
             GetNearPoint(NULL,x,y,z,size,distance2d,GetOrientation() + angle);
         }
-        void GetGroundPoint(float &x, float &y, float &z, float dist, float angle);
-        void GetGroundPointAroundUnit(float &x, float &y, float &z, float dist, float angle)
+        void MovePosition(Position &pos, float dist, float angle);
+        void GetNearPosition(Position &pos, float dist, float angle)
         {
-            GetPosition(x, y, z);
-            GetGroundPoint(x, y, z, dist, angle);
+            GetPosition(&pos);
+            MovePosition(pos, dist, angle);
         }
+        void GetRandomNearPosition(Position &pos, float radius)
+        {
+            GetPosition(&pos);
+            MovePosition(pos, radius * rand_norm(), rand_norm() * 2 * M_PI);
+        }
+
         void GetContactPoint( const WorldObject* obj, float &x, float &y, float &z, float distance2d = CONTACT_DISTANCE) const
         {
             // angle to face `obj` to `this` using distance includes size of `obj`
@@ -470,7 +476,13 @@ class TRINITY_DLL_SPEC WorldObject : public Object, public WorldLocation
         }
         void UpdateGroundPositionZ(float x, float y, float &z) const;
 
-        void GetRandomPoint( float x, float y, float z, float distance, float &rand_x, float &rand_y, float &rand_z ) const;
+        void GetRandomPoint(const Position &srcPos, float distance, float &rand_x, float &rand_y, float &rand_z) const;
+        void GetRandomPoint(const Position &srcPos, float distance, Position &pos) const
+        {
+            float x, y, z;
+            GetRandomPoint(srcPos, distance, x, y, z);
+            pos.Relocate(x, y, z, GetOrientation());
+        }
 
         uint32 GetInstanceId() const { return m_InstanceId; }
 
@@ -490,8 +502,10 @@ class TRINITY_DLL_SPEC WorldObject : public Object, public WorldLocation
 
         virtual const char* GetNameForLocaleIdx(int32 /*locale_idx*/) const { return GetName(); }
 
-        float GetDistance( const WorldObject* obj ) const
+        float GetDistance(const WorldObject *obj) const
             { return GetExactDist(obj) + GetObjectSize() + obj->GetObjectSize(); }
+        float GetDistance(const Position &pos) const
+            { return GetExactDist(&pos) + GetObjectSize(); }
         float GetDistance(float x, float y, float z) const
             { return GetExactDist(x, y, z) + GetObjectSize(); }
         float GetDistance2d(const WorldObject* obj) const
@@ -506,8 +520,12 @@ class TRINITY_DLL_SPEC WorldObject : public Object, public WorldLocation
         }
         bool IsWithinDist3d(float x, float y, float z, float dist) const
             { return IsInDist(x, y, z, dist + GetObjectSize()); }
+        bool IsWithinDist3d(const Position *pos, float dist) const
+            { return IsInDist(pos, dist + GetObjectSize()); }
         bool IsWithinDist2d(float x, float y, float dist) const
             { return IsInDist2d(x, y, dist + GetObjectSize()); }
+        bool IsWithinDist2d(const Position *pos, float dist) const
+            { return IsInDist2d(pos, dist + GetObjectSize()); }
         bool _IsWithinDist(WorldObject const* obj, float dist2compare, bool is3D) const;
         bool IsWithinDist(WorldObject const* obj, float dist2compare, bool is3D = true) const
                                                             // use only if you will sure about placing both object at same map
