@@ -2416,18 +2416,17 @@ bool ChatHandler::HandleLearnAllMyTalentsCommand(const char* /*args*/)
             continue;
 
         // search highest talent rank
-        uint32 spellid = 0;
-
+        uint32 spellId = 0;
         for(uint8 rank = MAX_TALENT_RANK-1; rank >= 0; --rank)
         {
-            if(talentInfo->RankID[rank]!=0)
+            if(talentInfo->RankID[rank] != 0)
             {
-                spellid = talentInfo->RankID[rank];
+                spellId = talentInfo->RankID[rank];
                 break;
             }
         }
 
-        if(!spellid)                                        // ??? none spells in talent
+        if(!spellId)                                        // ??? none spells in talent
             continue;
 
         SpellEntry const* spellInfo = sSpellStore.LookupEntry(spellid);
@@ -5276,10 +5275,10 @@ bool ChatHandler::HandleResetSpellsCommand(const char * args)
 
     if(target)
     {
-        target->resetSpells();
+        target->resetSpells(/* bool myClassOnly */);
 
         ChatHandler(target).SendSysMessage(LANG_RESET_SPELLS);
-        if(!m_session || m_session->GetPlayer()!=target)
+        if(!m_session || m_session->GetPlayer() != target)
             PSendSysMessage(LANG_RESET_SPELLS_ONLINE,GetNameLink(target).c_str());
     }
     else
