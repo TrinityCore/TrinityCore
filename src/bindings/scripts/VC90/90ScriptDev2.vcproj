@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="windows-1250"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="9,00"
+	Version="9.00"
 	Name="TrinityScript"
 	ProjectGUID="{4295C8A9-79B7-4354-8064-F05FB9CA0C96}"
 	RootNamespace="ScriptDev2"
@@ -103,6 +103,89 @@
 			/>
 		</Configuration>
 		<Configuration
+			Name="Release|Win32"
+			OutputDirectory="..\..\..\..\bin\$(PlatformName)_$(ConfigurationName)"
+			IntermediateDirectory=".\ScriptDev2__$(PlatformName)_$(ConfigurationName)"
+			ConfigurationType="2"
+			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
+			CharacterSet="2"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+				CommandLine=""
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+			/>
+			<Tool
+				Name="VCCLCompilerTool"
+				AdditionalOptions="/MP"
+				AdditionalIncludeDirectories="..\..\..\..\dep\include\;..\..\..\shared\;..\..\..\framework\;..\..\..\game\;..\include\;..\base\;..\..\..\..\dep\ACE_wrappers"
+				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;SCRIPT;_SECURE_SCL=0"
+				MinimalRebuild="false"
+				RuntimeLibrary="2"
+				UsePrecompiledHeader="2"
+				PrecompiledHeaderThrough="precompiled.h"
+				WarningLevel="3"
+				Detect64BitPortabilityProblems="false"
+				DebugInformationFormat="3"
+			/>
+			<Tool
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
+			<Tool
+				Name="VCLinkerTool"
+				AdditionalDependencies="trinitycore.lib ace.lib"
+				OutputFile="$(OutDir)/TrinityScript.dll"
+				LinkIncremental="1"
+				AdditionalLibraryDirectories="..\..\..\..\win\VC90\trinitycore__$(PlatformName)_$(ConfigurationName);..\..\..\..\dep\lib\$(PlatformName)_$(ConfigurationName)"
+				GenerateDebugInformation="false"
+				SubSystem="2"
+				OptimizeReferences="2"
+				EnableCOMDATFolding="2"
+				RandomizedBaseAddress="1"
+				DataExecutionPrevention="0"
+				ImportLibrary="$(OutDir)/TrinityScript.lib"
+				TargetMachine="1"
+			/>
+			<Tool
+				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCManifestTool"
+			/>
+			<Tool
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+			/>
+			<Tool
+				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCAppVerifierTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+			/>
+		</Configuration>
+		<Configuration
 			Name="Debug|x64"
 			OutputDirectory="..\..\..\..\bin\$(PlatformName)_$(ConfigurationName)"
 			IntermediateDirectory=".\ScriptDev2__$(PlatformName)_$(ConfigurationName)"
@@ -163,89 +246,6 @@
 				DataExecutionPrevention="0"
 				ImportLibrary="$(OutDir)/TrinityScript.lib"
 				TargetMachine="17"
-			/>
-			<Tool
-				Name="VCALinkTool"
-			/>
-			<Tool
-				Name="VCManifestTool"
-			/>
-			<Tool
-				Name="VCXDCMakeTool"
-			/>
-			<Tool
-				Name="VCBscMakeTool"
-			/>
-			<Tool
-				Name="VCFxCopTool"
-			/>
-			<Tool
-				Name="VCAppVerifierTool"
-			/>
-			<Tool
-				Name="VCPostBuildEventTool"
-			/>
-		</Configuration>
-		<Configuration
-			Name="Release|Win32"
-			OutputDirectory="..\..\..\..\bin\$(PlatformName)_$(ConfigurationName)"
-			IntermediateDirectory=".\ScriptDev2__$(PlatformName)_$(ConfigurationName)"
-			ConfigurationType="2"
-			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
-			CharacterSet="2"
-			>
-			<Tool
-				Name="VCPreBuildEventTool"
-				CommandLine=""
-			/>
-			<Tool
-				Name="VCCustomBuildTool"
-			/>
-			<Tool
-				Name="VCXMLDataGeneratorTool"
-			/>
-			<Tool
-				Name="VCWebServiceProxyGeneratorTool"
-			/>
-			<Tool
-				Name="VCMIDLTool"
-			/>
-			<Tool
-				Name="VCCLCompilerTool"
-				AdditionalOptions="/MP"
-				AdditionalIncludeDirectories="..\..\..\..\dep\include\;..\..\..\shared\;..\..\..\framework\;..\..\..\game\;..\include\;..\base\;..\..\..\..\dep\ACE_wrappers"
-				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;SCRIPT;_SECURE_SCL=0"
-				MinimalRebuild="false"
-				RuntimeLibrary="2"
-				UsePrecompiledHeader="2"
-				PrecompiledHeaderThrough="precompiled.h"
-				WarningLevel="3"
-				Detect64BitPortabilityProblems="false"
-				DebugInformationFormat="3"
-			/>
-			<Tool
-				Name="VCManagedResourceCompilerTool"
-			/>
-			<Tool
-				Name="VCResourceCompilerTool"
-			/>
-			<Tool
-				Name="VCPreLinkEventTool"
-			/>
-			<Tool
-				Name="VCLinkerTool"
-				AdditionalDependencies="trinitycore.lib ace.lib"
-				OutputFile="$(OutDir)/TrinityScript.dll"
-				LinkIncremental="1"
-				AdditionalLibraryDirectories="..\..\..\..\win\VC90\trinitycore__$(PlatformName)_$(ConfigurationName);..\..\..\..\dep\lib\$(PlatformName)_$(ConfigurationName)"
-				GenerateDebugInformation="false"
-				SubSystem="2"
-				OptimizeReferences="2"
-				EnableCOMDATFolding="2"
-				RandomizedBaseAddress="1"
-				DataExecutionPrevention="0"
-				ImportLibrary="$(OutDir)/TrinityScript.lib"
-				TargetMachine="1"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -399,6 +399,102 @@
 			<Filter
 				Name="eastern_kingdoms"
 				>
+				<File
+					RelativePath="..\scripts\eastern_kingdoms\alterac_mountains.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\scripts\eastern_kingdoms\arathi_highlands.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\scripts\eastern_kingdoms\blasted_lands.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\scripts\eastern_kingdoms\boss_kruul.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\scripts\eastern_kingdoms\burning_steppes.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\scripts\eastern_kingdoms\dun_morogh.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\scripts\eastern_kingdoms\eastern_plaguelands.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\scripts\eastern_kingdoms\elwynn_forest.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\scripts\eastern_kingdoms\eversong_woods.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\scripts\eastern_kingdoms\ghostlands.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\scripts\eastern_kingdoms\hinterlands.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\scripts\eastern_kingdoms\ironforge.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\scripts\eastern_kingdoms\isle_of_queldanas.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\scripts\eastern_kingdoms\loch_modan.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\scripts\eastern_kingdoms\searing_gorge.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\scripts\eastern_kingdoms\silvermoon_city.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\scripts\eastern_kingdoms\silverpine_forest.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\scripts\eastern_kingdoms\stormwind_city.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\scripts\eastern_kingdoms\stranglethorn_vale.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\scripts\eastern_kingdoms\tirisfal_glades.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\scripts\eastern_kingdoms\undercity.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\scripts\eastern_kingdoms\western_plaguelands.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\scripts\eastern_kingdoms\westfall.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\scripts\eastern_kingdoms\wetlands.cpp"
+					>
+				</File>
 				<Filter
 					Name="Blackrock Depths"
 					>
@@ -711,10 +807,6 @@
 					Name="scarlet_enclave"
 					>
 					<File
-						RelativePath="..\scripts\eastern_kingdoms\scarlet_enclave\the_scarlet_enclave.cpp"
-						>
-					</File>
-					<File
 						RelativePath="..\scripts\eastern_kingdoms\scarlet_enclave\chapter1.cpp"
 						>
 					</File>
@@ -725,7 +817,11 @@
 					<File
 						RelativePath="..\scripts\eastern_kingdoms\scarlet_enclave\chapter5.cpp"
 						>
-					</File>					
+					</File>
+					<File
+						RelativePath="..\scripts\eastern_kingdoms\scarlet_enclave\the_scarlet_enclave.cpp"
+						>
+					</File>
 				</Filter>
 				<Filter
 					Name="Scarlet Monastery"
@@ -1079,102 +1175,6 @@
 						>
 					</File>
 				</Filter>
-				<File
-					RelativePath="..\scripts\eastern_kingdoms\alterac_mountains.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\scripts\eastern_kingdoms\arathi_highlands.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\scripts\eastern_kingdoms\blasted_lands.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\scripts\eastern_kingdoms\boss_kruul.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\scripts\eastern_kingdoms\burning_steppes.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\scripts\eastern_kingdoms\dun_morogh.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\scripts\eastern_kingdoms\eastern_plaguelands.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\scripts\eastern_kingdoms\elwynn_forest.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\scripts\eastern_kingdoms\eversong_woods.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\scripts\eastern_kingdoms\ghostlands.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\scripts\eastern_kingdoms\hinterlands.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\scripts\eastern_kingdoms\ironforge.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\scripts\eastern_kingdoms\isle_of_queldanas.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\scripts\eastern_kingdoms\loch_modan.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\scripts\eastern_kingdoms\searing_gorge.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\scripts\eastern_kingdoms\silvermoon_city.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\scripts\eastern_kingdoms\silverpine_forest.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\scripts\eastern_kingdoms\stormwind_city.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\scripts\eastern_kingdoms\stranglethorn_vale.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\scripts\eastern_kingdoms\tirisfal_glades.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\scripts\eastern_kingdoms\undercity.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\scripts\eastern_kingdoms\western_plaguelands.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\scripts\eastern_kingdoms\westfall.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\scripts\eastern_kingdoms\wetlands.cpp"
-					>
-				</File>
 			</Filter>
 			<Filter
 				Name="examples"
@@ -1199,15 +1199,103 @@
 			<Filter
 				Name="kalimdor"
 				>
+				<File
+					RelativePath="..\scripts\kalimdor\ashenvale.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\scripts\kalimdor\azshara.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\scripts\kalimdor\azuremyst_isle.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\scripts\kalimdor\bloodmyst_isle.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\scripts\kalimdor\boss_azuregos.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\scripts\kalimdor\darkshore.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\scripts\kalimdor\desolace.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\scripts\kalimdor\dustwallow_marsh.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\scripts\kalimdor\felwood.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\scripts\kalimdor\feralas.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\scripts\kalimdor\moonglade.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\scripts\kalimdor\mulgore.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\scripts\kalimdor\orgrimmar.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\scripts\kalimdor\silithus.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\scripts\kalimdor\stonetalon_mountains.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\scripts\kalimdor\tanaris.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\scripts\kalimdor\teldrassil.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\scripts\kalimdor\the_barrens.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\scripts\kalimdor\thousand_needles.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\scripts\kalimdor\thunder_bluff.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\scripts\kalimdor\ungoro_crater.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\scripts\kalimdor\winterspring.cpp"
+					>
+				</File>
 				<Filter
 					Name="Blackfathom Depths"
 					>
 					<File
-						RelativePath="..\scripts\kalimdor\blackfathom_depths\instance_blackfathom_deeps.cpp"
+						RelativePath="..\scripts\kalimdor\blackfathom_depths\def_blackfathom_deeps.h"
 						>
 					</File>
 					<File
-						RelativePath="..\scripts\kalimdor\blackfathom_depths\def_blackfathom_deeps.h"
+						RelativePath="..\scripts\kalimdor\blackfathom_depths\instance_blackfathom_deeps.cpp"
 						>
 					</File>
 				</Filter>
@@ -1395,7 +1483,7 @@
 					Name="Razorfen Kraul"
 					>
 					<File
-						RelativePath="..\scripts\kalimdor\razorfen_kraul\razorfen_kraul.cpp"
+						RelativePath="..\scripts\kalimdor\razorfen_kraul\def_razorfen_kraul.h"
 						>
 					</File>
 					<File
@@ -1403,7 +1491,7 @@
 						>
 					</File>
 					<File
-						RelativePath="..\scripts\kalimdor\razorfen_kraul\def_razorfen_kraul.h"
+						RelativePath="..\scripts\kalimdor\razorfen_kraul\razorfen_kraul.cpp"
 						>
 					</File>
 				</Filter>
@@ -1515,97 +1603,46 @@
 						>
 					</File>
 				</Filter>
-				<File
-					RelativePath="..\scripts\kalimdor\ashenvale.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\scripts\kalimdor\azshara.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\scripts\kalimdor\azuremyst_isle.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\scripts\kalimdor\bloodmyst_isle.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\scripts\kalimdor\boss_azuregos.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\scripts\kalimdor\darkshore.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\scripts\kalimdor\desolace.cpp">
-				</File>
-				<File
-					RelativePath="..\scripts\kalimdor\dustwallow_marsh.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\scripts\kalimdor\felwood.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\scripts\kalimdor\feralas.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\scripts\kalimdor\moonglade.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\scripts\kalimdor\mulgore.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\scripts\kalimdor\orgrimmar.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\scripts\kalimdor\silithus.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\scripts\kalimdor\stonetalon_mountains.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\scripts\kalimdor\tanaris.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\scripts\kalimdor\teldrassil.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\scripts\kalimdor\the_barrens.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\scripts\kalimdor\thousand_needles.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\scripts\kalimdor\thunder_bluff.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\scripts\kalimdor\ungoro_crater.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\scripts\kalimdor\winterspring.cpp"
-					>
-				</File>
 			</Filter>
 			<Filter
 				Name="northrend"
 				>
+				<File
+					RelativePath="..\scripts\northrend\borean_tundra.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\scripts\northrend\dragonblight.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\scripts\northrend\grizzly_hills.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\scripts\northrend\howling_fjord.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\scripts\northrend\icecrown.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\scripts\northrend\sholazar_basin.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\scripts\northrend\storm_peaks.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\scripts\northrend\wintergrasp.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\scripts\northrend\zuldrak.cpp"
+					>
+				</File>
 				<Filter
 					Name="Azjol-Nerub"
 					>
@@ -2142,46 +2179,50 @@
 						>
 					</File>
 				</Filter>
-				<File
-					RelativePath="..\scripts\northrend\borean_tundra.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\scripts\northrend\dragonblight.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\scripts\northrend\grizzly_hills.cpp"
-					>
-				</File>
-                <File
-                    RelativePath="..\scripts\northrend\howling_fjord.cpp"
-                    >
-                </File>
-				<File
-					RelativePath="..\scripts\northrend\icecrown.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\scripts\northrend\sholazar_basin.cpp"
-					>
-				</File>
-                <File
-                    RelativePath="..\scripts\northrend\storm_peaks.cpp"
-                    >
-                </File>
-				<File
-					RelativePath="..\scripts\northrend\wintergrasp.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\scripts\northrend\zuldrak.cpp"
-					>
-				</File>
 			</Filter>
 			<Filter
 				Name="outland"
 				>
+				<File
+					RelativePath="..\scripts\outland\blades_edge_mountains.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\scripts\outland\boss_doomlord_kazzak.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\scripts\outland\boss_doomwalker.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\scripts\outland\hellfire_peninsula.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\scripts\outland\nagrand.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\scripts\outland\netherstorm.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\scripts\outland\shadowmoon_valley.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\scripts\outland\shattrath_city.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\scripts\outland\terokkar_forest.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\scripts\outland\zangarmarsh.cpp"
+					>
+				</File>
 				<Filter
 					Name="Aunchindoun"
 					>
@@ -2598,46 +2639,6 @@
 						</File>
 					</Filter>
 				</Filter>
-				<File
-					RelativePath="..\scripts\outland\blades_edge_mountains.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\scripts\outland\boss_doomlord_kazzak.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\scripts\outland\boss_doomwalker.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\scripts\outland\hellfire_peninsula.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\scripts\outland\nagrand.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\scripts\outland\netherstorm.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\scripts\outland\shadowmoon_valley.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\scripts\outland\shattrath_city.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\scripts\outland\terokkar_forest.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\scripts\outland\zangarmarsh.cpp"
-					>
-				</File>
 			</Filter>
 			<Filter
 				Name="custom"
@@ -2798,6 +2799,10 @@
 		</File>
 		<File
 			RelativePath="..\ScriptMgr.h"
+			>
+		</File>
+		<File
+			RelativePath="..\trinityscripts.rc"
 			>
 		</File>
 	</Files>
