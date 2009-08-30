@@ -98,7 +98,7 @@ void Vehicle::InstallAllAccessories()
         case 28312:InstallAccessory(28319,7);break;
         case 32627:InstallAccessory(32629,7);break;
         case 32930:
-            InstallAccessory(32933,2);
+            InstallAccessory(32933,0);
             InstallAccessory(32934,1);
             break;
         case 33109:InstallAccessory(33167,1);break;
@@ -268,7 +268,7 @@ bool Vehicle::AddPassenger(Unit *unit, int8 seatId)
             me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
     }
 
-    if(!(seat->second.seatInfo->m_flags & 0x4000))
+    if(seat->second.seatInfo->m_flags && !(seat->second.seatInfo->m_flags & 0x4000))
         unit->addUnitState(UNIT_STAT_ONVEHICLE);
 
     //SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_24);
@@ -328,8 +328,7 @@ void Vehicle::RemovePassenger(Unit *unit)
         ++m_usableSeatNum;
     }
 
-    if(!(seat->second.seatInfo->m_flags & 0x4000))
-        unit->clearUnitState(UNIT_STAT_ONVEHICLE);
+    unit->clearUnitState(UNIT_STAT_ONVEHICLE);
 
     //SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
 
