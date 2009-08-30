@@ -131,13 +131,8 @@ class SpellCastTargets
 
             m_itemTargetEntry  = target.m_itemTargetEntry;
 
-            m_srcX = target.m_srcX;
-            m_srcY = target.m_srcY;
-            m_srcZ = target.m_srcZ;
-
-            m_destX = target.m_destX;
-            m_destY = target.m_destY;
-            m_destZ = target.m_destZ;
+            m_srcPos = target.m_srcPos;
+            m_dstPos.Relocate(target.m_dstPos);
 
             m_elevation = target.m_elevation;
             m_speed = target.m_speed;
@@ -146,8 +141,6 @@ class SpellCastTargets
 
             m_targetMask = target.m_targetMask;
 
-            m_mapId = -1;
-
             return *this;
         }
 
@@ -155,9 +148,9 @@ class SpellCastTargets
         Unit *getUnitTarget() const { return m_unitTarget; }
         void setUnitTarget(Unit *target);
         void setSrc(float x, float y, float z);
-        void setSrc(WorldObject *target);
-        void setDestination(float x, float y, float z, int32 mapId = -1);
-        void setDestination(WorldObject *target);
+        void setSrc(Position *pos);
+        void setDst(float x, float y, float z, uint32 mapId = MAPID_INVALID);
+        void setDst(Position *pos);
 
         uint64 getGOTargetGUID() const { return m_GOTargetGUID; }
         GameObject *getGOTarget() const { return m_GOTarget; }
@@ -183,22 +176,15 @@ class SpellCastTargets
         bool HasDst() const { return m_targetMask & TARGET_FLAG_DEST_LOCATION; }
         bool HasTraj() const { return m_speed != 0; }
 
-        float GetDist2d() const
-        {
-            float dx = m_destX - m_srcX;
-            float dy = m_destY - m_srcY;
-            return sqrt(dx*dx + dy*dy);
-        }
-
+        float GetDist2d() const { return m_srcPos.GetExactDist2d(&m_dstPos); }
         float GetSpeedXY() const { return m_speed * cos(m_elevation); }
         float GetSpeedZ() const { return m_speed * sin(m_elevation); }
 
         void Update(Unit* caster);
 
-        float m_srcX, m_srcY, m_srcZ;
-        float m_destX, m_destY, m_destZ;
+        Position m_srcPos;
+        WorldLocation m_dstPos;
         float m_elevation, m_speed;
-        int32 m_mapId;
         std::string m_strTarget;
 
         uint32 m_targetMask;
@@ -434,7 +420,7 @@ class Spell
         bool CheckTarget( Unit* target, uint32 eff );
         bool CanAutoCast(Unit* target);
         void CheckSrc() { if(!m_targets.HasSrc()) m_targets.setSrc(m_caster); }
-        void CheckDst() { if(!m_targets.HasDst()) m_targets.setDestination(m_caster); }
+        void CheckDst() { if(!m_targets.HasDst()) m_targets.setDst(m_caster); }
 
         static void MANGOS_DLL_SPEC SendCastResult(Player* caster, SpellEntry const* spellInfo, uint8 cast_count, SpellCastResult result);
         void SendCastResult(SpellCastResult result);
@@ -678,20 +664,18 @@ namespace Trinity
     struct TRINITY_DLL_DECL SpellNotifierCreatureAndPlayer
     {
         std::list<Unit*> *i_data;
-        Spell &i_spell;
         SpellNotifyPushType i_push_type;
         float i_radius;
         SpellTargets i_TargetType;
-        Unit* i_source;
+        const Unit * const i_source;
         uint32 i_entry;
-        float i_x, i_y, i_z;
+        const Position * const i_pos;
 
-        SpellNotifierCreatureAndPlayer(Spell &spell, std::list<Unit*> &data, float radius, SpellNotifyPushType type,
-            SpellTargets TargetType = SPELL_TARGETS_ENEMY, uint32 entry = 0, float x = 0, float y = 0, float z = 0)
-            : i_data(&data), i_spell(spell), i_push_type(type), i_radius(radius)
-            , i_TargetType(TargetType), i_entry(entry), i_x(x), i_y(y), i_z(z)
+        SpellNotifierCreatureAndPlayer(Unit *source, std::list<Unit*> &data, float radius, SpellNotifyPushType type,
+            SpellTargets TargetType = SPELL_TARGETS_ENEMY, const Position *pos = NULL, uint32 entry = 0)
+            : i_source(source), i_data(&data), i_radius(radius), i_push_type(type)
+            , i_TargetType(TargetType), i_pos(pos), i_entry(entry)
         {
-            i_source = spell.GetCaster();
             assert(i_source);
         }
 
@@ -701,14 +685,13 @@ namespace Trinity
             {
                 Unit *target = (Unit*)itr->getSource();
 
-                // mostly phase check
-                if(!itr->getSource()->IsInMap(i_source))
+                if(!target->InSamePhase(i_source))
                     continue;
 
                 switch (i_TargetType)
                 {
                     case SPELL_TARGETS_ENEMY:
-                        if(target->GetTypeId() == TYPEID_UNIT && ((Creature*)target)->isTotem())
+                        if(target->isTotem())
                             continue;
                         if(!target->isAttackableByAOE())
                             continue;
@@ -724,7 +707,7 @@ namespace Trinity
                         }
                         break;
                     case SPELL_TARGETS_ALLY:
-                        if(target->GetTypeId() == TYPEID_UNIT && ((Creature*)target)->isTotem())
+                        if(target->isTotem())
                             continue;
                         if(!target->isAttackableByAOE() || !i_source->IsFriendlyTo(target))
                             continue;
@@ -744,7 +727,7 @@ namespace Trinity
                     case PUSH_DST_CENTER:
                     case PUSH_CHAIN:
                     default:
-                        if(target->IsWithinDist3d(i_x, i_y, i_z, i_radius))
+                        if(target->IsWithinDist3d(i_pos, i_radius))
                             i_data->push_back(target);
                         break;
                     case PUSH_IN_FRONT:
@@ -756,11 +739,11 @@ namespace Trinity
                             i_data->push_back(target);
                         break;
                     case PUSH_IN_LINE:
-                        if(i_source->IsInLine(target, i_radius, i_source->GetObjectSize()))
+                        if(i_source->HasInLine(target, i_radius, i_source->GetObjectSize()))
                             i_data->push_back(target);
                         break;
-                    case PUSH_IN_THIN_LINE:
-                        if(i_source->IsInLine(target, i_radius, 0))
+                    case PUSH_IN_THIN_LINE: // only traj
+                        if(i_pos->HasInLine(target, i_radius, 0))
                             i_data->push_back(target);
                         break;
                 }

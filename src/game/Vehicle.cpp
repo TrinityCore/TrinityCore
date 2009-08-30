@@ -52,23 +52,36 @@ void Vehicle::Install()
 {
     if(Creature *cre = dynamic_cast<Creature*>(me))
     {
-        for(uint32 i = 0; i < MAX_SPELL_VEHICLE; ++i)
+        if(m_vehicleInfo->m_powerType == POWER_STEAM)
         {
-            if(!cre->m_spells[i])
-                continue;
-
-            SpellEntry const *spellInfo = sSpellStore.LookupEntry(cre->m_spells[i]);
-            if(!spellInfo)
-                continue;
-
-            if(spellInfo->powerType == POWER_MANA)
-                break;
-
-            if(spellInfo->powerType == POWER_ENERGY)
+            me->setPowerType(POWER_ENERGY);
+            me->SetMaxPower(POWER_ENERGY, 100);
+        }
+        else if(m_vehicleInfo->m_powerType == POWER_PYRITE)
+        {
+            me->setPowerType(POWER_ENERGY);
+            me->SetMaxPower(POWER_ENERGY, 50);
+        }
+        else
+        {
+            for(uint32 i = 0; i < MAX_SPELL_VEHICLE; ++i)
             {
-                me->setPowerType(POWER_ENERGY);
-                me->SetMaxPower(POWER_ENERGY, 100);
-                break;
+                if(!cre->m_spells[i])
+                    continue;
+
+                SpellEntry const *spellInfo = sSpellStore.LookupEntry(cre->m_spells[i]);
+                if(!spellInfo)
+                    continue;
+
+                if(spellInfo->powerType == POWER_MANA)
+                    break;
+
+                if(spellInfo->powerType == POWER_ENERGY)
+                {
+                    me->setPowerType(POWER_ENERGY);
+                    me->SetMaxPower(POWER_ENERGY, 100);
+                    break;
+                }
             }
         }
     }

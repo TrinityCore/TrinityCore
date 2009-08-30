@@ -936,7 +936,7 @@ void Unit::CastSpell(Unit* Victim,SpellEntry const *spellInfo, bool triggered, I
             sLog.outError("CastSpell: spell id %i by caster: %s %u) does not have destination", spellInfo->Id,(GetTypeId()==TYPEID_PLAYER ? "player (GUID:" : "creature (Entry:"),(GetTypeId()==TYPEID_PLAYER ? GetGUIDLow() : GetEntry()));
             return;
         }
-        targets.setDestination(Victim);
+        targets.setDst(Victim);
     }
 
     if (castItem)
@@ -1003,7 +1003,7 @@ void Unit::CastCustomSpell(uint32 spellId, CustomSpellValues const &value, Unit*
             sLog.outError("CastSpell: spell id %i by caster: %s %u) does not have destination", spellInfo->Id,(GetTypeId()==TYPEID_PLAYER ? "player (GUID:" : "creature (Entry:"),(GetTypeId()==TYPEID_PLAYER ? GetGUIDLow() : GetEntry()));
             return;
         }
-        targets.setDestination(Victim);
+        targets.setDst(Victim);
     }
 
     if(!originalCaster && triggeredByAura)
@@ -1043,7 +1043,7 @@ void Unit::CastSpell(float x, float y, float z, uint32 spellId, bool triggered, 
     Spell *spell = new Spell(this, spellInfo, triggered, originalCaster );
 
     SpellCastTargets targets;
-    targets.setDestination(x, y, z);
+    targets.setDst(x, y, z);
     if(OriginalVictim)
         targets.setUnitTarget(OriginalVictim);
     spell->m_CastItem = castItem;

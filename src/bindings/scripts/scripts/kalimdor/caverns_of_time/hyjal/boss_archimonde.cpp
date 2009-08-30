@@ -165,9 +165,9 @@ struct TRINITY_DLL_DECL mob_doomfire_targettingAI : public ScriptedAI
             }
             else
             {
-                float x,y,z = 0.0;
-                m_creature->GetRandomPoint(m_creature->GetPositionX(), m_creature->GetPositionY(), m_creature->GetPositionZ(), 40, x, y, z);
-                m_creature->GetMotionMaster()->MovePoint(0, x, y, z);
+                Position pos;
+                m_creature->GetRandomNearPosition(pos, 40);
+                m_creature->GetMotionMaster()->MovePoint(0, pos.m_positionX, pos.m_positionY, pos.m_positionZ);
             }
 
             ChangeTargetTimer = 5000;

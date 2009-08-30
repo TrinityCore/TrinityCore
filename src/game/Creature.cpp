@@ -556,7 +556,10 @@ void Creature::Update(uint32 diff)
                     RegenerateHealth();
 
                 if(getPowerType() == POWER_ENERGY)
-                    Regenerate(POWER_ENERGY);
+                {
+                    if(!IsVehicle() || GetVehicleKit()->GetVehicleInfo()->m_powerType != POWER_PYRITE)
+                        Regenerate(POWER_ENERGY);
+                }
                 else
                     RegenerateMana();
 
@@ -1834,11 +1837,7 @@ bool Creature::FallGround()
     if (fabs(ground_Z - z) < 0.1f)
         return false;
 
-    SetFlying(false);
-    RemoveUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
-    SendMovementFlagUpdate();
-    //AddUnitMovementFlag(MOVEMENTFLAG_FALLING);
-    GetMotionMaster()->MovePoint(EVENT_FALL_GROUND, x, y, ground_Z);
+    GetMotionMaster()->MoveFall(ground_Z, EVENT_FALL_GROUND);
     Unit::setDeathState(DEAD_FALLING);
     return true;
 }

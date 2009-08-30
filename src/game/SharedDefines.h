@@ -2525,6 +2525,7 @@ enum EventId
 {
     EVENT_SPELLCLICK        = 1001,
     EVENT_FALL_GROUND       = 1002,
+    EVENT_CHARGE            = 1003,
 };
 
 enum ResponseCodes

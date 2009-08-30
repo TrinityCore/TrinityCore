@@ -344,7 +344,7 @@ void MotionMaster::MoveJump(float x, float y, float z, float speedXY, float spee
 }
 
 void
-MotionMaster::MoveCharge(float x, float y, float z, float speed)
+MotionMaster::MoveCharge(float x, float y, float z, float speed, uint32 id)
 {
     if(Impl[MOTION_SLOT_CONTROLLED] && Impl[MOTION_SLOT_CONTROLLED]->GetMovementGeneratorType() != DISTRACT_MOTION_TYPE)
         return;
@@ -354,14 +354,22 @@ MotionMaster::MoveCharge(float x, float y, float z, float speed)
     if(i_owner->GetTypeId()==TYPEID_PLAYER)
     {
         DEBUG_LOG("Player (GUID: %u) charge point (X: %f Y: %f Z: %f)", i_owner->GetGUIDLow(), x, y, z );
-        Mutate(new PointMovementGenerator<Player>(0,x,y,z), MOTION_SLOT_CONTROLLED);
+        Mutate(new PointMovementGenerator<Player>(id,x,y,z), MOTION_SLOT_CONTROLLED);
     }
     else
     {
         DEBUG_LOG("Creature (Entry: %u GUID: %u) charge point (X: %f Y: %f Z: %f)",
             i_owner->GetEntry(), i_owner->GetGUIDLow(), x, y, z );
-        Mutate(new PointMovementGenerator<Creature>(0,x,y,z), MOTION_SLOT_CONTROLLED);
+        Mutate(new PointMovementGenerator<Creature>(id,x,y,z), MOTION_SLOT_CONTROLLED);
     }
+}
+
+void MotionMaster::MoveFall(float z, uint32 id)
+{
+    i_owner->SetFlying(false);
+    i_owner->SendMovementFlagUpdate();
+    //AddUnitMovementFlag(MOVEMENTFLAG_FALLING);
+    MoveCharge(i_owner->GetPositionX(), i_owner->GetPositionY(), z, SPEED_CHARGE, id);
 }
 
 void

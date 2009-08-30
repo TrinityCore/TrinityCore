@@ -339,23 +339,18 @@ struct TRINITY_DLL_DECL boss_malchezaarAI : public ScriptedAI
     void SummonInfernal(const uint32 diff)
     {
         InfernalPoint *point = NULL;
-        float posX,posY,posZ;
+        Position pos;
         if ((m_creature->GetMapId() != 532) || positions.empty())
-        {
-            m_creature->GetRandomPoint(m_creature->GetPositionX(), m_creature->GetPositionY(), m_creature->GetPositionZ(), 60, posX, posY, posZ);
-        }
+            me->GetRandomNearPosition(pos, 60);
         else
         {
             std::vector<InfernalPoint*>::iterator itr = positions.begin()+rand()%positions.size();
             point = *itr;
             positions.erase(itr);
-
-            posX = point->x;
-            posY = point->y;
-            posZ = INFERNAL_Z;
+            pos.Relocate(point->x, point->y, INFERNAL_Z);
         }
 
-        Creature *Infernal = m_creature->SummonCreature(NETHERSPITE_INFERNAL, posX, posY, posZ, 0, TEMPSUMMON_TIMED_DESPAWN, 180000);
+        Creature *Infernal = m_creature->SummonCreature(NETHERSPITE_INFERNAL, pos, TEMPSUMMON_TIMED_DESPAWN, 180000);
 
         if (Infernal)
         {

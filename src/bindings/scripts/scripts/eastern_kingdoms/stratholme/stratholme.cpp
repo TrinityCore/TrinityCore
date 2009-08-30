@@ -205,13 +205,10 @@ struct TRINITY_DLL_DECL mobs_spectral_ghostly_citizenAI : public ScriptedAI
         {
             for(uint32 i = 1; i <= 4; ++i)
             {
-                float x,y,z;
-                 m_creature->GetRandomPoint(m_creature->GetPositionX(),m_creature->GetPositionY(),m_creature->GetPositionZ(),20.0f,x,y,z);
-
                  //100%, 50%, 33%, 25% chance to spawn
                  uint32 j = urand(1,i);
                  if (j==1)
-                     m_creature->SummonCreature(ENTRY_RESTLESS,x,y,z,0,TEMPSUMMON_CORPSE_DESPAWN,600000);
+                     DoSummon(ENTRY_RESTLESS, me, 20.0f, 600000);
             }
         }
     }

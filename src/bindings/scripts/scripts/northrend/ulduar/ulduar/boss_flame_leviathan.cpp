@@ -295,12 +295,7 @@ struct TRINITY_DLL_DECL boss_flame_leviathan_safety_containerAI : public Passive
     void UpdateAI(const uint32 diff)
     {
         if(!me->GetVehicle() && me->isSummon() && me->GetMotionMaster()->GetCurrentMovementGeneratorType() != POINT_MOTION_TYPE)
-        {
-            //me->AddUnitMovementFlag(MOVEMENTFLAG_FALLING);
-            me->RemoveUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
-            me->SendMovementFlagUpdate();
-            me->GetMotionMaster()->MovePoint(me->GetEntry(), me->GetPositionX(), me->GetPositionY(), 409.8f);
-        }
+            me->GetMotionMaster()->MoveFall(409.8f, me->GetEntry());
     }
 };
 
