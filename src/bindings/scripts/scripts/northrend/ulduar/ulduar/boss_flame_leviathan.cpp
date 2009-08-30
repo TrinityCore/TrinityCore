@@ -43,6 +43,8 @@
 
 #define SPELL_HODIR_FURY        62297 // Not Blizzlike
 
+#define SPELL_ELECTROSHOCK      62522
+
 enum Mobs
 {
     MOB_MECHANOLIFT = 33214,
@@ -109,6 +111,8 @@ struct TRINITY_DLL_DECL boss_flame_leviathanAI : public BossAI
     {
         if(spell->Id == 62472)
             vehicle->InstallAllAccessories();
+        else if(spell->Id == SPELL_ELECTROSHOCK)
+            me->InterruptSpell(CURRENT_CHANNELED_SPELL);
     }
 
     void UpdateAI(const uint32 diff)
