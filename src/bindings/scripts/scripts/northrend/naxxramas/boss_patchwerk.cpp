@@ -33,11 +33,16 @@
 #define EVENT_HATEFUL   2
 #define EVENT_SLIME     3
 
+#define ACHIEVEMENT_MAKE_QUICK_WERK_OF_HIM  HEROIC(1856, 1857)
+#define MAX_ENCOUNTER_TIME                    3 * 60 * 1000
+
 struct TRINITY_DLL_DECL boss_patchwerkAI : public BossAI
 {
     boss_patchwerkAI(Creature *c) : BossAI(c, BOSS_PATCHWERK) {}
 
     bool Enraged;
+
+    uint32 EncounterTime;
 
     void KilledUnit(Unit* Victim)
     {
@@ -49,12 +54,28 @@ struct TRINITY_DLL_DECL boss_patchwerkAI : public BossAI
     {
         _JustDied();
         DoScriptText(SAY_DEATH, me);
+
+        if(EncounterTime <= MAX_ENCOUNTER_TIME)
+        {
+            AchievementEntry const *AchievMakeQuickWerkOfHim = GetAchievementStore()->LookupEntry(ACHIEVEMENT_MAKE_QUICK_WERK_OF_HIM);
+            if(AchievMakeQuickWerkOfHim)
+            {
+                Map *pMap = m_creature->GetMap();
+                if(pMap && pMap->IsDungeon())
+                {
+                    Map::PlayerList const &players = pMap->GetPlayers();
+                    for(Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr) 
+                        itr->getSource()->CompletedAchievement(AchievMakeQuickWerkOfHim);
+                }
+            }
+        }
     }
 
     void EnterCombat(Unit *who)
     {
         _EnterCombat();
         Enraged = false;
+        EncounterTime = 0;
         DoScriptText(SAY_AGGRO, me);
         events.ScheduleEvent(EVENT_HATEFUL, 1200);
         events.ScheduleEvent(EVENT_BERSERK, 360000);
@@ -66,6 +87,8 @@ struct TRINITY_DLL_DECL boss_patchwerkAI : public BossAI
             return;
 
         events.Update(diff);
+
+        EncounterTime += diff;
 
         while(uint32 eventId = events.ExecuteEvent())
         {
