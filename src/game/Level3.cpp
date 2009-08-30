@@ -2429,12 +2429,12 @@ bool ChatHandler::HandleLearnAllMyTalentsCommand(const char* /*args*/)
         if(!spellId)                                        // ??? none spells in talent
             continue;
 
-        SpellEntry const* spellInfo = sSpellStore.LookupEntry(spellid);
+        SpellEntry const* spellInfo = sSpellStore.LookupEntry(spellId);
         if(!spellInfo || !SpellMgr::IsSpellValid(spellInfo,m_session->GetPlayer(),false))
             continue;
 
         // learn highest rank of talent and learn all non-talent spell ranks (recursive by tree)
-        player->learnSpellHighRank(spellid);
+        player->learnSpellHighRank(spellId);
     }
 
     SendSysMessage(LANG_COMMAND_LEARN_CLASS_TALENTS);
