@@ -521,6 +521,9 @@ void MotionMaster::MovePath(uint32 path_id, bool repeatable)
 
 void MotionMaster::MoveRotate(uint32 time, RotateDirection direction)
 {
+    if(!time)
+        return;
+
     Mutate(new RotateMovementGenerator(time, direction), MOTION_SLOT_ACTIVE);
 }
 

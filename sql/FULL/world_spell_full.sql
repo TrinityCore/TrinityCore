@@ -2271,3 +2271,6 @@ UPDATE `script_texts` SET `type` = '3' WHERE `entry` IN ('-1532089','-1532090');
 # Chicken Net
 DELETE FROM `spell_script_target` WHERE `entry` = '51959' and `type` = '1';
 INSERT INTO `spell_script_target` ( `entry`, `type`, `targetEntry`) VALUES ('51959', '1', '28161');
+
+# the lurker below
+update creature_template set inhabittype=3 where entry=21217;

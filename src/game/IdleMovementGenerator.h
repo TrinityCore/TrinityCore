@@ -39,7 +39,7 @@ extern IdleMovementGenerator si_idleMovement;
 class TRINITY_DLL_SPEC RotateMovementGenerator : public MovementGenerator
 {
     public:
-        explicit RotateMovementGenerator(uint32 time, RotateDirection direction) : m_duration(time), m_direction(direction) {}
+        explicit RotateMovementGenerator(uint32 time, RotateDirection direction) : m_duration(time), m_maxDuration(time), m_direction(direction) {}
 
         void Initialize(Unit& owner);
         void Finalize(Unit& owner);
@@ -48,7 +48,7 @@ class TRINITY_DLL_SPEC RotateMovementGenerator : public MovementGenerator
         MovementGeneratorType GetMovementGeneratorType() { return ROTATE_MOTION_TYPE; }
 
     private:
-        uint32 m_duration;
+        uint32 m_duration, m_maxDuration;
         RotateDirection m_direction;
 };
 
