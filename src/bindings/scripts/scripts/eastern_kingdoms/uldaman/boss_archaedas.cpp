@@ -17,7 +17,7 @@
 /* ScriptData
 SDName: boss_archaedas
 SD%Complete: 100
-SDComment: Archaedas is activated when 3 prople click on his altar.
+SDComment: Archaedas is activated when 1 person (was 3, changed in 3.0.8) clicks on his altar.
 Every 10 seconds he will awaken one of his minions along the wall.
 At 66%, he will awaken the 6 Guardians.
 At 33%, he will awaken the Vault Walkers
@@ -405,14 +405,14 @@ CreatureAI* GetAI_mob_stonekeepers(Creature* pCreature)
 /* ScriptData
 SDName: go_altar_of_the_keepers
 SD%Complete: 100
-SDComment: Need 3 people to activate to open the altar.  One by one the StoneKeepers will activate.  After all four are dead than the door will open.
+SDComment: Need 1 person to activate to open the altar.  One by one the StoneKeepers will activate.  After all four are dead than the door will open.
 SDCategory: Uldaman
 EndScriptData */
 
 
 #define SPELL_BOSS_OBJECT_VISUAL    11206
 
-#define NUMBER_NEEDED_TO_ACTIVATE 3
+#define NUMBER_NEEDED_TO_ACTIVATE 1 // as of patch 3.0.8 the altars can be opened by a single player (previously 3)
 
 static uint64 altarOfTheKeeperCount[5];
 static uint32 altarOfTheKeeperCounter=0;
