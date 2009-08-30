@@ -24,6 +24,8 @@ EndScriptData */
 #include "precompiled.h"
 #include "def_halls_of_lightning.h"
 
+#define MAX_ENCOUNTER_TIME  2 * 60 * 1000
+
 enum
 {
     ACHIEVEMENT_TIMELY_DEATH            = 1867,
@@ -76,7 +78,7 @@ struct TRINITY_DLL_DECL boss_lokenAI : public ScriptedAI
 
     uint32 m_uiHealthAmountModifier;
 
-    uint32 EncounterTimer;
+    uint32 EncounterTime;
 
     void Reset()
     {
@@ -89,8 +91,6 @@ struct TRINITY_DLL_DECL boss_lokenAI : public ScriptedAI
 
         m_uiHealthAmountModifier = 1;
 
-        EncounterTimer = 0;
-
         if (m_pInstance)
             m_pInstance->SetData(TYPE_LOKEN, NOT_STARTED);
     }
@@ -99,7 +99,7 @@ struct TRINITY_DLL_DECL boss_lokenAI : public ScriptedAI
     {
         DoScriptText(SAY_AGGRO, m_creature);
 
-        EncounterTimer = 1;
+        EncounterTime = 0;
 
         if (m_pInstance)
             m_pInstance->SetData(TYPE_LOKEN, IN_PROGRESS);
@@ -109,7 +109,7 @@ struct TRINITY_DLL_DECL boss_lokenAI : public ScriptedAI
     {
         DoScriptText(SAY_DEATH, m_creature);
 
-        if (m_bIsHeroic && EncounterTimer <= 120000)
+        if (m_bIsHeroic && EncounterTime <= MAX_ENCOUNTER_TIME)
         {
             AchievementEntry const *AchievTimelyDeath = GetAchievementStore()->LookupEntry(ACHIEVEMENT_TIMELY_DEATH);
             if (AchievTimelyDeath)
@@ -144,8 +144,7 @@ struct TRINITY_DLL_DECL boss_lokenAI : public ScriptedAI
         if (!UpdateVictim())
             return;
 
-        if (EncounterTimer)
-            EncounterTimer += uiDiff;
+        EncounterTime += uiDiff;
 
         if (m_bIsAura)
         {
