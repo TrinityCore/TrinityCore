@@ -2417,7 +2417,7 @@ bool ChatHandler::HandleLearnAllMyTalentsCommand(const char* /*args*/)
 
         // search highest talent rank
         uint32 spellId = 0;
-        for(uint8 rank = MAX_TALENT_RANK-1; rank >= 0; --rank)
+        for(int8 rank = MAX_TALENT_RANK-1; rank >= 0; --rank)
         {
             if(talentInfo->RankID[rank] != 0)
             {
@@ -2493,7 +2493,7 @@ bool ChatHandler::HandleLearnAllMyPetTalentsCommand(const char* /*args*/)
         // search highest talent rank
         uint32 spellid = 0;
 
-        for(uint8 rank = MAX_TALENT_RANK-1; rank >= 0; --rank)
+        for(int8 rank = MAX_TALENT_RANK-1; rank >= 0; --rank)
         {
             if(talentInfo->RankID[rank]!=0)
             {
