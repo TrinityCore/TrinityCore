@@ -68,7 +68,8 @@ void PointMovementGenerator<T>:: Finalize(T &unit)
 {
     if(unit.hasUnitState(UNIT_STAT_CHARGING))
         unit.clearUnitState(UNIT_STAT_CHARGING | UNIT_STAT_JUMPING);
-    MovementInform(unit);
+    if(arrived) // without this crash!
+        MovementInform(unit);
 }
 
 template<class T>
