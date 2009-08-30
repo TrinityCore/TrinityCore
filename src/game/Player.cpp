@@ -21112,9 +21112,9 @@ void Player::LearnTalent(uint32 talentId, uint32 talentRank)
     if( (getClassMask() & talentTabInfo->ClassMask) == 0 )
         return;
 
-    // find current max talent rank
-    uint8 curtalent_maxrank = 0;
-    for(int8 rank = MAX_TALENT_RANK-1; rank >= 0; --rank)
+    // find current max talent rank (1~5)
+    uint8 curtalent_maxrank = 1;
+    for(uint8 rank = MAX_TALENT_RANK-1; rank > 0; --rank)
     {
         if(talentInfo->RankID[rank] && HasSpell(talentInfo->RankID[rank]))
         {
@@ -21249,9 +21249,9 @@ void Player::LearnPetTalent(uint64 petGuid, uint32 talentId, uint32 talentRank)
     if(!((1 << pet_family->petTalentType) & talentTabInfo->petTalentMask))
         return;
 
-    // find current max talent rank
-    uint8 curtalent_maxrank = 0;
-    for(int8 rank = MAX_TALENT_RANK-1; rank >= 0; --rank)
+    // find current max talent rank (1~5)
+    uint8 curtalent_maxrank = 1;
+    for(uint8 rank = MAX_TALENT_RANK-1; rank > 0; --rank)
     {
         if(talentInfo->RankID[rank] && pet->HasSpell(talentInfo->RankID[rank]))
         {
@@ -21438,7 +21438,7 @@ void Player::BuildPlayerTalentsInfoData(WorldPacket *data)
                     if(talentInfo->TalentTab != talentTabId)
                         continue;
 
-                    // find max talent rank
+                    // find max talent rank (0~4)
                     int8 curtalent_maxrank = -1;
                     for(int8 rank = MAX_TALENT_RANK-1; rank >= 0; --rank)
                     {
@@ -21515,7 +21515,7 @@ void Player::BuildPetTalentsInfoData(WorldPacket *data)
             if(talentInfo->TalentTab != talentTabId)
                 continue;
 
-            // find max talent rank
+            // find max talent rank (0~4)
             int8 curtalent_maxrank = -1;
             for(int8 rank = MAX_TALENT_RANK-1; rank >= 0; --rank)
             {
