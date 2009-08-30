@@ -17,6 +17,7 @@
  */
 
 #include "resource.h"
+#include "../shared/revision.h"
 
 #define APSTUDIO_READONLY_SYMBOLS
 /////////////////////////////////////////////////////////////////////////////
@@ -52,8 +53,8 @@ LANGUAGE LANG_NEUTRAL, SUBLANG_SYS_DEFAULT
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 0,4,6743,685
- PRODUCTVERSION 0,4,6743,685
+ FILEVERSION FILEVER
+ PRODUCTVERSION PRODUCTVER
  FILEFLAGSMASK 0x17L
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -69,12 +70,12 @@ BEGIN
         BLOCK "080004b0"
         BEGIN
             VALUE "FileDescription", "TrinityRealm"
-            VALUE "FileVersion", "0, 4, 6743, 685"
+            VALUE "FileVersion", STRFILEVER
             VALUE "InternalName", "TrinityRealm"
-            VALUE "LegalCopyright", "Copyright (C) 2008"
+            VALUE "LegalCopyright", "Copyright (C) 2008-2009"
             VALUE "OriginalFilename", "TrinityRealm.exe"
             VALUE "ProductName", "TrinityRealm"
-            VALUE "ProductVersion", "0, 4, 6743, 685"
+            VALUE "ProductVersion", STRPRODUCTVER
         END
     END
     BLOCK "VarFileInfo"

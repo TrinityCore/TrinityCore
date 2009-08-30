@@ -302,7 +302,20 @@ std::string generateHeader(char const* rev_str, char const* date_str, char const
     newData << " #define _HASH \"" << hash_str << "\"" << std::endl;
     newData << " #define _REVISION_DATE \"" << date_str << "\"" << std::endl;
     newData << " #define _REVISION_TIME \"" << time_str << "\""<< std::endl;
+    if (!strcmp(rev_str,"Archive") || !strcmp(rev_str,"*"))
+    {
+        newData << " #define FILEVER        0,0,0,0"<< std::endl;
+        newData << " #define PRODUCTVER     0,0,0,0"<< std::endl;
+    }
+    else
+    {
+        newData << " #define FILEVER        0,0," << rev_str << ",0"<< std::endl;
+        newData << " #define PRODUCTVER     0,0," << rev_str << ",0"<< std::endl;
+    }
+    newData << " #define STRFILEVER     \"0, 0, " << rev_str << " ," << hash_str << "\""<< std::endl;
+    newData << " #define STRPRODUCTVER  \"0, 0, " << rev_str << " ," << hash_str << "\""<< std::endl;
     newData << "#endif // __REVISION_H__" << std::endl;
+
     return newData.str();
 }
 
