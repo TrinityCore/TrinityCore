@@ -2193,12 +2193,13 @@ spell5 = VALUES(spell5),
 spell6 = VALUES(spell6),
 vehicleid = VALUES(vehicleid);
 
-DELETE FROM `spell_script_target` WHERE `entry` IN (62427,62374,62399,62056,63985);
+DELETE FROM `spell_script_target` WHERE `entry` IN (62427,62496,62374,62399,62056,63985);
 INSERT INTO `spell_script_target` (`entry`, `type`, `targetEntry`) VALUES
 (62427, 1, 33109), # Load into Catapult
 (62374, 1, 33060), # Pursued
 (62374, 1, 33109),
 (62399, 1, 33139), # Overload Circuit
+(62496, 1, 33167), # Liquid Pyrite - Salvaged Demolisher Mechanic Seat
 (63985, 1, 32934), # Stone Grip
 (62056, 1, 32934);
 

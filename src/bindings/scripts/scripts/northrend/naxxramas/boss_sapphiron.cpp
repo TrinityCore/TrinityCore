@@ -255,9 +255,7 @@ struct TRINITY_DLL_DECL boss_sapphironAI : public BossAI
                     case EVENT_BLIZZARD:
                     {
                         //DoCastAOE(SPELL_SUMMON_BLIZZARD);
-                        float x, y, z;
-                        me->GetGroundPointAroundUnit(x, y, z, rand_norm()*20, rand_norm()*2*M_PI);
-                        if (Creature *summon = me->SummonCreature(MOB_BLIZZARD, x, y, z, 0, TEMPSUMMON_TIMED_DESPAWN, 25000+rand()%5000))
+                        if(Creature *summon = DoSummon(MOB_BLIZZARD, me, 25000+rand()%5000, TEMPSUMMON_TIMED_DESPAWN))
                             summon->GetMotionMaster()->MoveRandom(40);
                         events.ScheduleEvent(EVENT_BLIZZARD, HEROIC(20000,7000), 0, PHASE_GROUND);
                         break;

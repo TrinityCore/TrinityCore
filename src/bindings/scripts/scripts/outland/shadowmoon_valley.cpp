@@ -274,19 +274,17 @@ struct TRINITY_DLL_DECL mob_enslaved_netherwing_drakeAI : public ScriptedAI
                         m_creature->GetRandomPoint(x, y, z, 20, dx, dy, dz);
                         dz += 20; // so it's in the air, not ground*/
 
-                        float dx, dy, dz;
-
-                        Unit* EscapeDummy = me->FindNearestCreature(CREATURE_ESCAPE_DUMMY, 30);
-                        if (EscapeDummy)
-                            EscapeDummy->GetPosition(dx, dy, dz);
+                        Position pos;
+                        if(Unit* EscapeDummy = me->FindNearestCreature(CREATURE_ESCAPE_DUMMY, 30))
+                            EscapeDummy->GetPosition(&pos);
                         else
                         {
-                            m_creature->GetRandomPoint(m_creature->GetPositionX(), m_creature->GetPositionY(), m_creature->GetPositionZ(), 20, dx, dy, dz);
-                            dz += 25;
+                            m_creature->GetRandomNearPosition(pos, 20);
+                            pos.m_positionZ += 25;
                         }
 
                         m_creature->AddUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
-                        m_creature->GetMotionMaster()->MovePoint(1, dx, dy, dz);
+                        m_creature->GetMotionMaster()->MovePoint(1, pos);
                     }
                 }
             }else FlyTimer -= diff;
@@ -962,10 +960,7 @@ struct TRINITY_DLL_DECL npc_earthmender_wildaAI : public npc_escortAI
     void DoSpawnAssassin()
     {
         //unknown where they actually appear
-        float fX, fY, fZ;
-        m_creature->GetRandomPoint(m_creature->GetPositionX(), m_creature->GetPositionY(), m_creature->GetPositionZ(), 15.0f, fX, fY, fZ);
-
-        m_creature->SummonCreature(NPC_COILSKAR_ASSASSIN, fX, fY, fZ, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000);
+        DoSummon(NPC_COILSKAR_ASSASSIN, me, 15.0f, 5000, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT);
     }
 
     void Aggro(Unit* pWho)
