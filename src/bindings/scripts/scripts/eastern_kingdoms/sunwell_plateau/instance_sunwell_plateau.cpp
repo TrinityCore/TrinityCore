@@ -43,9 +43,11 @@ struct TRINITY_DLL_DECL instance_sunwell_plateau : public ScriptedInstance
     uint64 KilJaedenController;
     uint64 Anveena;
     uint64 KalecgosKJ;
+    uint32 SpectralPlayers;
 
     /** GameObjects **/
     uint64 ForceField;                                      // Kalecgos Encounter
+    uint64 KalecgosWall[2];
     uint64 FireBarrier;                                     // Felmysts Encounter
     uint64 MurusGate[2];                                    // Murus Encounter
 
@@ -71,12 +73,15 @@ struct TRINITY_DLL_DECL instance_sunwell_plateau : public ScriptedInstance
         KilJaedenController     = 0;
         Anveena                 = 0;
         KalecgosKJ              = 0;
+        SpectralPlayers         = 0;
 
         /*** GameObjects ***/
         ForceField  = 0;
         FireBarrier = 0;
         MurusGate[0] = 0;
         MurusGate[1] = 0;
+        KalecgosWall[0] = 0;
+        KalecgosWall[1] = 0;
 
         /*** Misc ***/
         SpectralRealmTimer = 5000;
@@ -134,6 +139,8 @@ struct TRINITY_DLL_DECL instance_sunwell_plateau : public ScriptedInstance
         switch(pGo->GetEntry())
         {
             case 188421: ForceField     = pGo->GetGUID(); break;
+            case 188523: KalecgosWall[0] = pGo->GetGUID(); break;
+            case 188524: KalecgosWall[0] = pGo->GetGUID(); break;
             case 188075:
                 if (m_auiEncounter[2] == DONE)
                     HandleGameObject(NULL, true, pGo);
@@ -191,7 +198,22 @@ struct TRINITY_DLL_DECL instance_sunwell_plateau : public ScriptedInstance
     {
         switch(id)
         {
-            case DATA_KALECGOS_EVENT:      m_auiEncounter[0] = data; break;
+            case DATA_KALECGOS_EVENT:
+                {
+                    if(data == NOT_STARTED || data == DONE)
+                    {
+                        HandleGameObject(ForceField,true);
+                        HandleGameObject(KalecgosWall[0],true);
+                        HandleGameObject(KalecgosWall[1],true);
+                    }
+                    else if(data == IN_PROGRESS)
+                    {
+                        HandleGameObject(ForceField,false);
+                        HandleGameObject(KalecgosWall[0],false);
+                        HandleGameObject(KalecgosWall[1],false);
+                    }
+                    m_auiEncounter[0] = data; 
+                }break;
             case DATA_BRUTALLUS_EVENT:     m_auiEncounter[1] = data; break;
             case DATA_FELMYST_EVENT:
                 if (data == DONE)
