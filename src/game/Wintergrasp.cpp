@@ -81,7 +81,7 @@ bool OPvPWintergrasp::SetupOutdoorPvP()
     m_workshopCount[TEAM_HORDE] = 0;
     m_towerCount = 3;
 
-    // Load buildings
+    // Select POI
     AreaPOIList areaPOIs;
     float minX = 9999, minY = 9999, maxX = -9999, maxY = -9999;
     for(uint32 i = 0; i < sAreaPOIStore.GetNumRows(); ++i)
@@ -139,6 +139,8 @@ bool OPvPWintergrasp::SetupOutdoorPvP()
         // add building to the list
         TeamId teamId = x > POS_X_CENTER ? m_defender : OTHER_TEAM(m_defender);
         m_buildingStates[guid] = new BuildingState((*poi)->worldState, teamId, m_defender != TEAM_ALLIANCE);
+        if((*poi)->id == 2246)
+            m_gate = m_buildingStates[guid];
         areaPOIs.erase(poi);
 
         //disable for now
@@ -227,13 +229,48 @@ bool OPvPWintergrasp::SetupOutdoorPvP()
     }while(result->NextRow());
     delete result;
 
+    // Load Graveyard
+    GraveYardMap::const_iterator graveLow  = objmgr.mGraveYardMap.lower_bound(ZONE_WINTERGRASP);
+    GraveYardMap::const_iterator graveUp   = objmgr.mGraveYardMap.upper_bound(ZONE_WINTERGRASP);
+    for(AreaPOIList::iterator itr = areaPOIs.begin(); itr != areaPOIs.end();)
+    {
+        if((*itr)->icon[1] == 8)
+        {
+            // find or create grave yard
+            const WorldSafeLocsEntry *loc = objmgr.GetClosestGraveYard((*itr)->x, (*itr)->y, (*itr)->z, (*itr)->mapId, 0);
+            GraveYardMap::const_iterator graveItr;
+            for(graveItr = graveLow; graveItr != graveUp; ++graveItr)
+                if(graveItr->second.safeLocId == loc->ID)
+                    break;
+            if(graveItr == graveUp)
+            {
+                GraveYardData graveData;
+                graveData.safeLocId = loc->ID;
+                graveData.team = 0;
+                graveItr = objmgr.mGraveYardMap.insert(std::make_pair(ZONE_WINTERGRASP, graveData));
+            }
+
+            for(BuildingStateMap::iterator stateItr = m_buildingStates.begin(); stateItr != m_buildingStates.end(); ++stateItr)
+            {
+                if(stateItr->second->worldState == (*itr)->worldState)
+                {
+                    stateItr->second->graveTeam = const_cast<uint32*>(&graveItr->second.team);
+                    break;
+                }
+            }
+            areaPOIs.erase(itr++);
+        }
+        else
+            ++itr;
+    }
+
     //for(AreaPOIList::iterator itr = areaPOIs.begin(); itr != areaPOIs.end(); ++itr)
     //    sLog.outError("not assigned %u %f %f", (*itr)->id, (*itr)->x, (*itr)->y);
 
     //gameeventmgr.StartInternalEvent(GameEventWintergraspDefender[m_defender]);
 
     //Titan Relic eventid = 19982
-    objmgr.AddGOData(192829, 571, 5440, 2840.8, 420.43, 0);
+    objmgr.AddGOData(192829, 571, 5440, 2840.8, 420.43 + 10, 0);
 
     LoadTeamPair(m_goDisplayPair, GODisplayPair);
     LoadTeamPair(m_creEntryPair, CreatureEntryPair);
@@ -249,7 +286,7 @@ void OPvPWintergrasp::ProcessEvent(GameObject *obj, uint32 eventId)
 {
     if(eventId == 19982)
     {
-        if(m_wartime)
+        if(m_wartime && m_gate->damageState == DAMAGE_DESTROYED)
         {
             m_changeDefender = true;
             m_timer = 0;
@@ -276,7 +313,7 @@ void OPvPWintergrasp::ProcessEvent(GameObject *obj, uint32 eventId)
                 {
                     //if(SiegeWorkshop *workshop = GetWorkshop(obj->GetDBTableGUIDLow()))
                     //    workshop->DespawnAllVehicles();
-                    ModifyWorkshopCount(state->team, false);
+                    ModifyWorkshopCount(state->GetTeam(), false);
                 }
                 else if(state->type == BUILDING_TOWER)
                 {
@@ -491,11 +528,11 @@ void OPvPWintergrasp::RebuildAllBuildings()
         if(itr->second->damageState == DAMAGE_DESTROYED)
         {
             if(itr->second->type == BUILDING_WORKSHOP)
-                ModifyWorkshopCount(itr->second->team, true);
+                ModifyWorkshopCount(itr->second->GetTeam(), true);
         }
 
         itr->second->damageState = DAMAGE_INTACT;
-        itr->second->team = m_defender == TEAM_ALLIANCE ? OTHER_TEAM(itr->second->defaultTeam) : itr->second->defaultTeam;
+        itr->second->SetTeam(m_defender == TEAM_ALLIANCE ? OTHER_TEAM(itr->second->defaultTeam) : itr->second->defaultTeam);
     }
 
     m_towerCount = 3;
@@ -823,7 +860,7 @@ void OPvPWintergrasp::EndBattle()
         for(OutdoorPvP::OPvPCapturePointMap::const_iterator itr = m_capturePoints.begin(); itr != m_capturePoints.end(); ++itr)
         {
             if(SiegeWorkshop *workshop = dynamic_cast<SiegeWorkshop*>(itr->second))
-                if(workshop->m_buildingState->team == team)
+                if(workshop->m_buildingState->GetTeam() == team)
                     if(workshop->m_buildingState->damageState == DAMAGE_DAMAGED)
                         ++damagedNum;
                     else if(workshop->m_buildingState->damageState == DAMAGE_INTACT)
@@ -858,7 +895,7 @@ void OPvPWintergrasp::SetData(uint32 id, uint32 value)
 
 bool OPvPWintergrasp::CanBuildVehicle(SiegeWorkshop *workshop) const
 {
-    TeamId team = workshop->m_buildingState->team;
+    TeamId team = workshop->m_buildingState->GetTeam();
     if(team == TEAM_NEUTRAL)
         return false;
 
@@ -913,12 +950,12 @@ SiegeWorkshop::SiegeWorkshop(OPvPWintergrasp *opvp, BuildingState *state)
 
 void SiegeWorkshop::SetTeamByBuildingState()
 {
-    if(m_buildingState->team == TEAM_ALLIANCE)
+    if(m_buildingState->GetTeam() == TEAM_ALLIANCE)
     {
         m_value = m_maxValue;
         m_State = OBJECTIVESTATE_ALLIANCE;
     }
-    else if(m_buildingState->team == TEAM_HORDE)
+    else if(m_buildingState->GetTeam() == TEAM_HORDE)
     {
         m_value = -m_maxValue;
         m_State = OBJECTIVESTATE_HORDE;
@@ -929,10 +966,10 @@ void SiegeWorkshop::SetTeamByBuildingState()
         m_State = OBJECTIVESTATE_NEUTRAL;
     }
 
-    if(m_team != m_buildingState->team)
+    if(m_team != m_buildingState->GetTeam())
     {
         TeamId oldTeam = m_team;
-        m_team = m_buildingState->team;
+        m_team = m_buildingState->GetTeam();
         ChangeTeam(oldTeam);
     }
 
@@ -952,7 +989,7 @@ void SiegeWorkshop::ChangeTeam(TeamId oldTeam)
 
     GameObject::SetGoArtKit(CapturePointArtKit[m_team], m_capturePoint, m_capturePointGUID);
 
-    m_buildingState->team = m_team;
+    m_buildingState->SetTeam(m_team);
     // TODO: this may be sent twice
     m_wintergrasp->BroadcastStateChange(m_buildingState);
 
@@ -982,7 +1019,7 @@ void SiegeWorkshop::ChangeTeam(TeamId oldTeam)
     else if(m_engineer)
         m_engineer->SetVisibility(VISIBILITY_OFF);
 
-    sLog.outDebug("Wintergrasp workshop now belongs to %u.", (uint32)m_buildingState->team);
+    sLog.outDebug("Wintergrasp workshop now belongs to %u.", (uint32)m_buildingState->GetTeam());
 }
 
 /*
