@@ -30,7 +30,6 @@ void LoadDatabase()
 {
     //Get db string from file
     std::string dbstring = TScriptConfig.GetStringDefault("WorldDatabaseInfo", "");
-    explode()
 
     if (dbstring.empty())
     {

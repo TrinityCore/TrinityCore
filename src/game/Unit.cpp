@@ -58,15 +58,15 @@
 
 float baseMoveSpeed[MAX_MOVE_TYPE] =
 {
-    2.5f * sWorld.getRate(RATE_MOVESPEED),                  // MOVE_WALK
-    7.0f * sWorld.getRate(RATE_MOVESPEED),                  // MOVE_RUN
-    3.0f * sWorld.getRate(RATE_MOVESPEED),                  // MOVE_RUN_BACK
-    4.722222f * sWorld.getRate(RATE_MOVESPEED),             // MOVE_SWIM
-    4.5f * sWorld.getRate(RATE_MOVESPEED),                  // MOVE_SWIM_BACK
-    3.141594f * sWorld.getRate(RATE_MOVESPEED),             // MOVE_TURN_RATE
-    7.0f * sWorld.getRate(RATE_MOVESPEED),                  // MOVE_FLIGHT
-    4.5f * sWorld.getRate(RATE_MOVESPEED),                  // MOVE_FLIGHT_BACK
-    3.14f * sWorld.getRate(RATE_MOVESPEED)                  // MOVE_PITCH_RATE
+    2.5f,                  // MOVE_WALK
+    7.0f,                  // MOVE_RUN
+    3.0f,                  // MOVE_RUN_BACK
+    4.722222f,             // MOVE_SWIM
+    4.5f,                  // MOVE_SWIM_BACK
+    3.141594f,             // MOVE_TURN_RATE
+    7.0f,                  // MOVE_FLIGHT
+    4.5f,                  // MOVE_FLIGHT_BACK
+    3.14f                  // MOVE_PITCH_RATE
 };
 
 // Used for prepare can/can`t triggr aura
@@ -10899,6 +10899,9 @@ void Unit::UpdateSpeed(UnitMoveType mtype, bool forced)
         default:
             break;
     }
+
+    // Only players and pets should get speed increase from Rate.MoveSpeed
+    if(GetTypeId() != TYPEID_PLAYER && GetOwner()->GetTypeId() != TYPEID_PLAYER) speed /= sWorld.getRate(RATE_MOVESPEED);
 
     // Apply strongest slow aura mod to speed
     int32 slow = GetMaxNegativeAuraModifier(SPELL_AURA_MOD_DECREASE_SPEED);

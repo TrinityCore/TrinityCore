@@ -1259,8 +1259,7 @@ Visibility.Distance.Grey.Object = 10
 #         Default: 1
 #
 #    Rate.MoveSpeed
-#        Multiply the default unit (player,pet,...) speed.
-#        Shouldn't affect creatures, as their speed is set in the database.
+#        Multiply the default movement speed for players and their pets.
 #        Default: 1   - no change
 #                 1.4 - 40% increase
 #
@@ -1374,9 +1373,9 @@ Rate.Mining.Amount = 1
 Rate.Mining.Next   = 1
 Rate.Talent = 1
 Rate.Reputation.Gain = 1
-Rate.MoveSpeed = 1
 Rate.Reputation.LowLevel.Kill    = 1
 Rate.Reputation.LowLevel.Quest   = 1
+Rate.MoveSpeed = 1
 Rate.InstanceResetTime = 1
 SkillGain.Crafting = 1
 SkillGain.Defense = 1
