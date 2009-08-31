@@ -2249,6 +2249,8 @@ DELETE FROM `spell_linked_spell` WHERE `spell_trigger` IN (54643);
 INSERT INTO `spell_linked_spell` (`spell_trigger`, `spell_effect`, `type`, `comment`) VALUES
 ( 54643,-54643, 2, 'Wintergrasp Defender Teleport');
 
+update game_graveyard_zone set ghost_zone = 4603 where id = 1474;
+
 
 -- temp
 
