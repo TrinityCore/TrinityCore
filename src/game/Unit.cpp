@@ -68,6 +68,17 @@ float baseMoveSpeed[MAX_MOVE_TYPE] =
     4.5f,                  // MOVE_FLIGHT_BACK
     3.14f                  // MOVE_PITCH_RATE
 };
+float playerBaseMoveSpeed[MAX_MOVE_TYPE] = {
+    2.5f,                  // MOVE_WALK
+    7.0f,                  // MOVE_RUN
+    3.0f,                  // MOVE_RUN_BACK
+    4.722222f,             // MOVE_SWIM
+    4.5f,                  // MOVE_SWIM_BACK
+    3.141594f,             // MOVE_TURN_RATE
+    7.0f,                  // MOVE_FLIGHT
+    4.5f,                  // MOVE_FLIGHT_BACK
+    3.14f                  // MOVE_PITCH_RATE
+};
 
 // Used for prepare can/can`t triggr aura
 static bool InitTriggerAuraData();
@@ -10860,7 +10871,7 @@ void Unit::UpdateSpeed(UnitMoveType mtype, bool forced)
 
             non_stack_bonus = (100.0 + GetMaxPositiveAuraModifier(SPELL_AURA_MOD_FLIGHT_SPEED_NOT_STACK))/100.0f;
 
-            // Update speed for vehicle if avalible
+            // Update speed for vehicle if available
             if (GetTypeId()==TYPEID_PLAYER && GetVehicle())
                 GetVehicleBase()->UpdateSpeed(MOVE_FLIGHT, true);
             break;
@@ -10890,7 +10901,7 @@ void Unit::UpdateSpeed(UnitMoveType mtype, bool forced)
             if(int32 normalization = GetMaxPositiveAuraModifier(SPELL_AURA_USE_NORMAL_MOVEMENT_SPEED))
             {
                 // Use speed from aura
-                float max_speed = normalization / baseMoveSpeed[mtype];
+                float max_speed = normalization / (IsControlledByPlayer() ? playerBaseMoveSpeed[mtype] : baseMoveSpeed[mtype]);
                 if (speed > max_speed)
                     speed = max_speed;
             }
@@ -10899,9 +10910,6 @@ void Unit::UpdateSpeed(UnitMoveType mtype, bool forced)
         default:
             break;
     }
-
-    // Only players and pets should get speed increase from Rate.MoveSpeed
-    if(GetTypeId() != TYPEID_PLAYER && GetOwner()->GetTypeId() != TYPEID_PLAYER) speed /= sWorld.getRate(RATE_MOVESPEED);
 
     // Apply strongest slow aura mod to speed
     int32 slow = GetMaxNegativeAuraModifier(SPELL_AURA_MOD_DECREASE_SPEED);

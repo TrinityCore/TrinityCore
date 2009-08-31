@@ -1259,7 +1259,7 @@ Visibility.Distance.Grey.Object = 10
 #         Default: 1
 #
 #    Rate.MoveSpeed
-#        Multiply the default movement speed for players and their pets.
+#        Multiply the default movement speed for players, and whatever they're controlling.
 #        Default: 1   - no change
 #                 1.4 - 40% increase
 #
