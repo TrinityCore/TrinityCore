@@ -17592,10 +17592,7 @@ void Player::SetSpellModTakingSpell(Spell * spell, bool apply)
     if (apply && spell->getState() == SPELL_STATE_FINISHED)
         return;
 
-    if (apply)
-        m_spellModTakingSpell = spell;
-    else
-        m_spellModTakingSpell = NULL;
+    m_spellModTakingSpell = apply ? spell : NULL;
 }
 
 // send Proficiency

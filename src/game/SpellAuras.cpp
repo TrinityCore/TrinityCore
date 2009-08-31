@@ -665,23 +665,18 @@ void Aura::Update(uint32 diff)
 
     // Apply charged spellmods for channeled auras
     // used for example when triggered spell of spell:10 is modded
-    Spell * modSpell = NULL;
-    Unit* caster = NULL;
-    if (IS_PLAYER_GUID(GetCasterGUID()))
-    {
-        caster = GetCaster();
-        if (caster)
-        {
-            modSpell = ((Player*)caster)->FindCurrentSpellBySpellId(GetId());
-            ((Player*)caster)->SetSpellModTakingSpell(modSpell, true);
-        }
-    }
+    Spell *modSpell = NULL;
+    Player *modOwner = NULL;
+    if(IS_PLAYER_GUID(GetCasterGUID()) && (modOwner = (Player*)GetCaster())
+        && (modSpell = modOwner->FindCurrentSpellBySpellId(GetId())))
+        modOwner->SetSpellModTakingSpell(modSpell, true);
+
     for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
         if (m_partAuras[i])
             m_partAuras[i]->Update(diff);
 
-    if (caster)
-        ((Player*)caster)->SetSpellModTakingSpell(modSpell, false);
+    if (modOwner)
+        modOwner->SetSpellModTakingSpell(modSpell, false);
 }
 
 void AuraEffect::Update(uint32 diff)
