@@ -21099,7 +21099,7 @@ void Player::HandleFall(MovementInfo const& movementInfo)
                 EnvironmentalDamage(DAMAGE_FALL, damage);
 
                 // recheck alive, might have died of EnvironmentalDamage
-                if (isAlive())
+                if (damage < GetHealth())
                     GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_FALL_WITHOUT_DYING, uint32(z_diff*100));
             }
 
