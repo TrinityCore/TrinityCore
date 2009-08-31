@@ -483,6 +483,8 @@ Spell::Spell( Unit* Caster, SpellEntry const *info, bool triggered, uint64 origi
 
 Spell::~Spell()
 {
+    if(m_caster && m_caster->GetTypeId() == TYPEID_PLAYER)
+        assert(((Player*)m_caster)->m_spellModTakingSpell != this);
     delete m_spellValue;
 }
 
