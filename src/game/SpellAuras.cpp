@@ -584,6 +584,12 @@ AuraEffect* CreateAuraEffect(Aura * parentAura, uint32 effIndex, int32 *currentB
     {
         //assert(source->isType(TYPEMASK_UNIT));
         assert(IS_UNIT_GUID(sourceGuid));
+        if(!parentAura->GetUnitSource())
+        {
+            // TODO: there is a crash here when a new aura is added by source aura update, confirmed
+            sLog.outCrash("CreateAuraEffect: cannot find source " I64FMT " in world for spell %u", sourceGuid, parentAura->GetId());
+            return NULL;
+        }
         return new AreaAuraEffect(parentAura, effIndex, currentBasePoints);
     }
     else if (parentAura->GetSpellProto()->Effect[effIndex] == SPELL_EFFECT_APPLY_AURA)
