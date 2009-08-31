@@ -32,6 +32,6 @@
 #define DATA_GO_FORCEFIELD          20
 
 /*** Misc ***/
-#define DATA_PLAYER_GUID            27
+#define DATA_PLAYER_GUID            21
 #endif
 
