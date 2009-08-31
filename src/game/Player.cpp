@@ -21128,8 +21128,8 @@ void Player::LearnTalent(uint32 talentId, uint32 talentRank)
         return;
 
     // find current max talent rank (1~5)
-    uint8 curtalent_maxrank = 1;
-    for(uint8 rank = MAX_TALENT_RANK-1; rank > 0; --rank)
+    uint8 curtalent_maxrank = 0; // Maybe start at 6 and have rank start at MAX_TALENT_RANK-2? Not sure
+    for(uint8 rank = MAX_TALENT_RANK-1; rank >= 0; --rank)
     {
         if(talentInfo->RankID[rank] && HasSpell(talentInfo->RankID[rank]))
         {
