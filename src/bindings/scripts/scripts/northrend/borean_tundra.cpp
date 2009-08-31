@@ -196,13 +196,13 @@ struct TRINITY_DLL_DECL npc_sinkhole_kill_creditAI : public ScriptedAI
 
     uint32 Phase_Timer;
     uint8  Phase;
-    Unit* Caster;
+    uint64 casterGuid;
 
     void Reset()
     {
         Phase_Timer = 500;
         Phase = 0;
-        Caster = NULL;
+        casterGuid = 0;
     }
 
     void SpellHit(Unit *caster, const SpellEntry *spell)
@@ -210,10 +210,11 @@ struct TRINITY_DLL_DECL npc_sinkhole_kill_creditAI : public ScriptedAI
         if (Phase)
             return;
 
-        if (spell->Id == SPELL_SET_CART && CAST_PLR(caster)->GetQuestStatus(11897) == QUEST_STATUS_INCOMPLETE)
+        if (spell->Id == SPELL_SET_CART && caster->GetTypeId() == TYPEID_PLAYER
+            && CAST_PLR(caster)->GetQuestStatus(11897) == QUEST_STATUS_INCOMPLETE)
         {
             Phase = 1;
-            Caster = caster;
+            casterGuid = caster->GetGUID();
         }
     }
 
@@ -269,7 +270,8 @@ struct TRINITY_DLL_DECL npc_sinkhole_kill_creditAI : public ScriptedAI
                     break;
                 case 7:
                     DoCast(m_creature, SPELL_EXPLODE_CART, true);
-                    CAST_PLR(Caster)->KilledMonster(m_creature->GetCreatureInfo(),m_creature->GetGUID());
+                    if(Player *caster = Unit::GetPlayer(casterGuid))
+                        CAST_PLR(caster)->KilledMonster(m_creature->GetCreatureInfo(),m_creature->GetGUID());
                     Phase_Timer = 5000;
                     Phase = 8;
                     break;
