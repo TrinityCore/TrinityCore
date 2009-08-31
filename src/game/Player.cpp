@@ -2425,6 +2425,14 @@ void Player::GiveXP(uint32 xp, Unit* victim)
 
     uint32 level = getLevel();
 
+    // Favored experience increase START
+    uint32 zone = GetZoneId();
+    uint32 tealm = GetTeam();
+    float favored_exp_mult = 0;
+    if( (HasAura(32096) || HasAura(32098)) && (zone == 3483 || zone == 3562 || zone == 3836 || zone == 3713 || zone == 3714) ) favored_exp_mult = 0.05; // Thrallmar's Favor and Honor Hold's Favor
+    xp *= (1 + favored_exp_mult);
+    // Favored experience increase END
+
     // XP to money conversion processed in Player::RewardQuest
     if(level >= sWorld.getConfig(CONFIG_MAX_PLAYER_LEVEL))
         return;
@@ -6118,15 +6126,21 @@ void Player::RewardReputation(Unit *pVictim, float rate)
         }
     }
 
-    // Increase reputation gain on kill under certain conditions
+    // Favored reputation increase START
     uint32 zone = GetZoneId();
-    float zonerepmult = 0;
-    if(HasAura(32096) && (zone == 3483 || zone == 3562 || zone == 3836 || zone == 3713 || zone == 3714)) zonerepmult = 0.25; // Thrallmar's Favor
-   
-    if(Rep->repfaction1 && (!Rep->team_dependent || GetTeam()==ALLIANCE))
+    uint32 team = GetTeam();
+    float favored_rep_mult = 0;
+
+    if( (HasAura(32096) || HasAura(32098)) && (zone == 3483 || zone == 3562 || zone == 3836 || zone == 3713 || zone == 3714) ) favored_rep_mult = 0.25; // Thrallmar's Favor and Honor Hold's Favor
+    else if( HasAura(30754) && (Rep->repfaction1 == 609 || Rep->repfaction2 == 609) && !ChampioningFaction )                   favored_rep_mult = 0.25; // Cenarion Favor
+
+    if(favored_rep_mult > 0) favored_rep_mult *= 2; // Multiplied by 2 because the reputation is divided by 2 for some reason (See "donerep1 / 2" and "donerep2 / 2") -- if you know why this is done, please update/explain :)
+    // Favored reputation increase END
+
+    if(Rep->repfaction1 && (!Rep->team_dependent || team == ALLIANCE))
     {
         int32 donerep1 = CalculateReputationGain(pVictim->getLevel(), Rep->repvalue1, ChampioningFaction ? ChampioningFaction : Rep->repfaction1, false);
-        donerep1 = int32(donerep1*(rate + zonerepmult));
+        donerep1 = int32(donerep1*(rate + favored_rep_mult));
         FactionEntry const *factionEntry1 = sFactionStore.LookupEntry(ChampioningFaction ? ChampioningFaction : Rep->repfaction1);
         uint32 current_reputation_rank1 = GetReputationMgr().GetRank(factionEntry1);
         if (factionEntry1 && current_reputation_rank1 <= Rep->reputation_max_cap1)
@@ -6141,10 +6155,10 @@ void Player::RewardReputation(Unit *pVictim, float rate)
         }
     }
 
-    if(Rep->repfaction2 && (!Rep->team_dependent || GetTeam()==HORDE))
+    if(Rep->repfaction2 && (!Rep->team_dependent || team == HORDE))
     {
         int32 donerep2 = CalculateReputationGain(pVictim->getLevel(), Rep->repvalue2, ChampioningFaction ? ChampioningFaction : Rep->repfaction2, false);
-        donerep2 = int32(donerep2*(rate + zonerepmult));
+        donerep2 = int32(donerep2*(rate + favored_rep_mult));
         FactionEntry const *factionEntry2 = sFactionStore.LookupEntry(ChampioningFaction ? ChampioningFaction : Rep->repfaction2);
         uint32 current_reputation_rank2 = GetReputationMgr().GetRank(factionEntry2);
         if (factionEntry2 && current_reputation_rank2 <= Rep->reputation_max_cap2)
