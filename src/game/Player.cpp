@@ -14822,9 +14822,9 @@ bool Player::LoadFromDB( uint32 guid, SqlQueryHolder *holder )
     _LoadBGData(holder->GetResult(PLAYER_LOGIN_QUERY_LOADBGDATA));
 
     MapEntry const * mapEntry = sMapStore.LookupEntry(mapId);
-    if(!IsPositionValid())
+    if(!mapEntry || !IsPositionValid())
     {
-        sLog.outError("Player (guidlow %d) have invalid coordinates (X: %f Y: %f Z: %f O: %f). Teleport to default race/class locations.",guid,GetPositionX(),GetPositionY(),GetPositionZ(),GetOrientation());
+        sLog.outError("Player (guidlow %d) have invalid coordinates (MapId: %u X: %f Y: %f Z: %f O: %f). Teleport to default race/class locations.",guid,mapId,GetPositionX(),GetPositionY(),GetPositionZ(),GetOrientation());
         RelocateToHomebind();
     }
     // Player was saved in Arena or Bg
@@ -14950,7 +14950,7 @@ bool Player::LoadFromDB( uint32 guid, SqlQueryHolder *holder )
     // Map could be changed before
     mapEntry = sMapStore.LookupEntry(mapId);
     // client without expansion support
-    if(GetSession()->Expansion() < mapEntry->Expansion())
+    if(mapEntry && GetSession()->Expansion() < mapEntry->Expansion())
     {
         sLog.outDebug("Player %s using client without required expansion tried login at non accessible map %u", GetName(), mapId);
         RelocateToHomebind();
