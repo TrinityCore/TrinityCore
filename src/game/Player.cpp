@@ -14854,7 +14854,7 @@ bool Player::LoadFromDB( uint32 guid, SqlQueryHolder *holder )
             const WorldLocation& _loc = GetBattleGroundEntryPoint();
             mapId = _loc.GetMapId(); instanceId = 0;
 
-            if(mapId == 4294967295/*UINT32_MAX*/) // Battleground Entry Point not found (???)
+            if(mapId == MAPID_INVALID) // Battleground Entry Point not found (???)
             {
                 sLog.outError("Player (guidlow %d) was in BG in database, but BG was not found, and entry point was invalid! Teleport to default race/class locations.",guid);
                 RelocateToHomebind();
