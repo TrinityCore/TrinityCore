@@ -1,7 +1,7 @@
 ##########################################
 # Trinity Core worldd configuration file #
 ##########################################
-ConfVersion=2009082901
+ConfVersion=2009083001
 
 ###################################################################################################################
 # CONNECTIONS AND DIRECTORIES
@@ -1258,6 +1258,12 @@ Visibility.Distance.Grey.Object = 10
 #         Reputation Gain rate
 #         Default: 1
 #
+#    Rate.MoveSpeed
+#        Multiply the default unit (player,pet,...) speed.
+#        Shouldn't affect creatures, as their speed is set in the database.
+#        Default: 1   - no change
+#                 1.4 - 40% increase
+#
 #    Rate.InstanceResetTime
 #        Multiplier for the number of days in between global raid/heroic instance resets.
 #        Default: 1
@@ -1368,6 +1374,7 @@ Rate.Mining.Amount = 1
 Rate.Mining.Next   = 1
 Rate.Talent = 1
 Rate.Reputation.Gain = 1
+Rate.MoveSpeed = 1
 Rate.Reputation.LowLevel.Kill    = 1
 Rate.Reputation.LowLevel.Quest   = 1
 Rate.InstanceResetTime = 1

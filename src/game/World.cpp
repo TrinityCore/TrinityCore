@@ -515,8 +515,14 @@ void World::LoadConfigSettings(bool reload)
     rate_values[RATE_TALENT] = sConfig.GetFloatDefault("Rate.Talent",1.0f);
     if(rate_values[RATE_TALENT] < 0.0f)
     {
-        sLog.outError("Rate.Talent (%f) mustbe > 0. Using 1 instead.",rate_values[RATE_TALENT]);
+        sLog.outError("Rate.Talent (%f) must be > 0. Using 1 instead.",rate_values[RATE_TALENT]);
         rate_values[RATE_TALENT] = 1.0f;
+    }
+    rate_values[RATE_MOVESPEED] = sConfig.GetFloatDefault("Rate.MoveSpeed",1.0f);
+    if(rate_values[RATE_MOVESPEED] < 0)
+    {
+        sLog.outError("Rate.MoveSpeed (%f) must be > 0. Using 1 instead.",rate_values[RATE_MOVESPEED]);
+        rate_values[RATE_MOVESPEED] = 1.0f;
     }
     rate_values[RATE_CORPSE_DECAY_LOOTED] = sConfig.GetFloatDefault("Rate.Corpse.Decay.Looted",0.5f);
 
