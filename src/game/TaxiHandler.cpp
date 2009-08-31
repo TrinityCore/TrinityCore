@@ -101,6 +101,9 @@ void WorldSession::SendTaxiMenu( Creature* unit )
     if ( curloc == 0 )
         return;
 
+    bool lastTaxiCheaterState = GetPlayer()->isTaxiCheater();
+    if(unit->GetEntry() == 29480) GetPlayer()->SetTaxiCheater(true); // Grimwing in Ebon Hold, special case. NOTE: Not perfect, Zul'Aman should not be included according to WoWhead, and I think taxicheat includes it.
+
     sLog.outDebug( "WORLD: CMSG_TAXINODE_STATUS_QUERY %u ",curloc);
 
     WorldPacket data( SMSG_SHOWTAXINODES, (4+8+4+8*4) );
@@ -111,6 +114,8 @@ void WorldSession::SendTaxiMenu( Creature* unit )
     SendPacket( &data );
 
     sLog.outDebug( "WORLD: Sent SMSG_SHOWTAXINODES" );
+
+    GetPlayer()->SetTaxiCheater(lastTaxiCheaterState);
 }
 
 void WorldSession::SendDoFlight( uint32 mountDisplayId, uint32 path, uint32 pathNode )
