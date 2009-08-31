@@ -10920,7 +10920,7 @@ void Unit::UpdateSpeed(UnitMoveType mtype, bool forced)
 
 float Unit::GetSpeed( UnitMoveType mtype ) const
 {
-    return m_speed_rate[mtype]*baseMoveSpeed[mtype];
+    return m_speed_rate[mtype]*(IsControlledByPlayer() ? playerBaseMoveSpeed[mtype] : baseMoveSpeed[mtype]);
 }
 
 void Unit::SetSpeed(UnitMoveType mtype, float rate, bool forced)
