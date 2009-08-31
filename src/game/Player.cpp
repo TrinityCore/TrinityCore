@@ -3761,7 +3761,7 @@ bool Player::resetTalents(bool no_cost)
             continue;
         
         // Re-use pre-dual talent way of resetting talents, to ensure talents aren't being stored in spell storage.
-        for(uint8 rank = 0; rank < MAX_TALENT_RANK; rank++)
+        for(uint8 rank = 0; rank < MAX_TALENT_RANK; ++rank)
         {
             for(PlayerSpellMap::iterator itr = GetSpellMap().begin(); itr != GetSpellMap().end();)
             {
@@ -14790,7 +14790,7 @@ bool Player::LoadFromDB( uint32 guid, SqlQueryHolder *holder )
     SetDifficulty(fields[39].GetUInt32());                  // may be changed in _LoadGroup
     std::string taxi_nodes = fields[38].GetCppString();
 
-#define RelocateToHomebind() mapId = m_homebindMapId; instanceId = 0; Relocate(m_homebindX, m_homebindY, m_homebindZ)
+#define RelocateToHomebind(){ mapId = m_homebindMapId; instanceId = 0; Relocate(m_homebindX, m_homebindY, m_homebindZ); }
 
     _LoadGroup(holder->GetResult(PLAYER_LOGIN_QUERY_LOADGROUP));
 
@@ -14853,7 +14853,14 @@ bool Player::LoadFromDB( uint32 guid, SqlQueryHolder *holder )
             // Do not look for instance if bg not found
             const WorldLocation& _loc = GetBattleGroundEntryPoint();
             mapId = _loc.GetMapId(); instanceId = 0;
-            Relocate(&_loc);
+
+            if(mapId == 4294967295/*UINT32_MAX*/) // Battleground Entry Point not found (???)
+            {
+                sLog.outError("Player (guidlow %d) was in BG in database, but BG was not found, and entry point was invalid! Teleport to default race/class locations.",guid);
+                RelocateToHomebind();
+            } else {
+                Relocate(&_loc);
+            }
 
             // We are not in BG anymore
             m_bgData.bgInstanceID = 0;
