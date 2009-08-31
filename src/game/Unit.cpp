@@ -4512,7 +4512,8 @@ void Unit::SendSpellNonMeleeDamageLog(SpellNonMeleeDamage *log)
     data.append(log->attacker->GetPackGUID());
     data << uint32(log->SpellID);
     data << uint32(log->damage);                            // damage amount
-    data << uint32(int32 (log->target->GetHealth()-log->damage ) >0 ? 0 : log->damage - log->target->GetHealth());
+    int32 overkill = log->damage - log->target->GetHealth();
+    data << uint32(overkill > 0 ? overkill : 0);
     //data << uint32(log->overkill);                          // overkill
     data << uint8 (log->schoolMask);                        // damage school
     data << uint32(log->absorb);                            // AbsorbedDamage
