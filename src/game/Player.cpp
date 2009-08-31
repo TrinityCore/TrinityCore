@@ -21265,8 +21265,8 @@ void Player::LearnPetTalent(uint64 petGuid, uint32 talentId, uint32 talentRank)
         return;
 
     // find current max talent rank (1~5)
-    uint8 curtalent_maxrank = 1;
-    for(uint8 rank = MAX_TALENT_RANK-1; rank > 0; --rank)
+    uint8 curtalent_maxrank = 0;
+    for(uint8 rank = MAX_TALENT_RANK-1; rank >= 0; --rank)
     {
         if(talentInfo->RankID[rank] && pet->HasSpell(talentInfo->RankID[rank]))
         {
