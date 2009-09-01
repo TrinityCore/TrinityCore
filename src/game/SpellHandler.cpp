@@ -289,6 +289,12 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& recvPacket)
     recvPacket >> spellId;
     recvPacket >> unk_flags;                                // flags (if 0x02 - some additional data are received)
 
+    if(_player->getDeathState() == DEAD) // If DEAD player is casting spells, they're hacking. Better fix would be to prevent this from happening in the first place.
+    {
+        recvPacket.rpos(recvPacket.wpos());                   // prevent warnings spam
+        return;
+    }
+
     // ignore for remote control state (for player case)
     Unit* mover = _player->m_mover;
     if(mover != _player && mover->GetTypeId()==TYPEID_PLAYER)
