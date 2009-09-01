@@ -249,7 +249,7 @@ struct TRINITY_DLL_DECL npc_koltira_deathweaverAI : public npc_escortAI
             m_uiValrothGUID = pSummoned->GetGUID();
 
         pSummoned->AddThreat(me, 0.0f);
-        pSummoned->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_ATTACKABLE_2);
+        pSummoned->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
     }
 
     void SummonAcolyte(uint32 uiAmount)
@@ -586,7 +586,7 @@ struct TRINITY_DLL_DECL npc_a_special_surpriseAI : public ScriptedAI
         ExecuteSpeech_Counter = 0;
         PlayerGUID = 0;
 
-        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_ATTACKABLE_2);
+        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
     }
 
     bool MeetQuestCondition(Unit* pPlayer)
@@ -683,7 +683,7 @@ struct TRINITY_DLL_DECL npc_a_special_surpriseAI : public ScriptedAI
                             case 9:
                                 DoScriptText(SAY_EXEC_TIME_6, me, pPlayer);
                                 me->SetStandState(UNIT_STAND_STATE_KNEEL);
-                                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_ATTACKABLE_2);
+                                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
                                 break;
                             case 10: DoScriptText(SAY_EXEC_WAITING, me, pPlayer); break;
                             case 11:
@@ -711,7 +711,7 @@ struct TRINITY_DLL_DECL npc_a_special_surpriseAI : public ScriptedAI
                             case 9:
                                 DoScriptText(SAY_EXEC_TIME_8, me, pPlayer);
                                 me->SetStandState(UNIT_STAND_STATE_KNEEL);
-                                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_ATTACKABLE_2);
+                                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
                                 break;
                             case 10: DoScriptText(SAY_EXEC_WAITING, me, pPlayer); break;
                             case 11:
@@ -739,7 +739,7 @@ struct TRINITY_DLL_DECL npc_a_special_surpriseAI : public ScriptedAI
                             case 9:
                                 DoScriptText(SAY_EXEC_TIME_3, me, pPlayer);
                                 me->SetStandState(UNIT_STAND_STATE_KNEEL);
-                                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_ATTACKABLE_2);
+                                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
                                 break;
                             case 10: DoScriptText(SAY_EXEC_WAITING, me, pPlayer); break;
                             case 11:
@@ -767,7 +767,7 @@ struct TRINITY_DLL_DECL npc_a_special_surpriseAI : public ScriptedAI
                             case 9:
                                 DoScriptText(SAY_EXEC_TIME_7, me, pPlayer);
                                 me->SetStandState(UNIT_STAND_STATE_KNEEL);
-                                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_ATTACKABLE_2);
+                                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
                                 break;
                             case 10: DoScriptText(SAY_EXEC_WAITING, me, pPlayer); break;
                             case 11:
@@ -795,7 +795,7 @@ struct TRINITY_DLL_DECL npc_a_special_surpriseAI : public ScriptedAI
                             case 9:
                                 DoScriptText(SAY_EXEC_TIME_4, me, pPlayer);
                                 me->SetStandState(UNIT_STAND_STATE_KNEEL);
-                                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_ATTACKABLE_2);
+                                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
                                 break;
                             case 10: DoScriptText(SAY_EXEC_WAITING, me, pPlayer); break;
                             case 11:
@@ -823,7 +823,7 @@ struct TRINITY_DLL_DECL npc_a_special_surpriseAI : public ScriptedAI
                             case 9:
                                 DoScriptText(SAY_EXEC_TIME_9, me, pPlayer);
                                 me->SetStandState(UNIT_STAND_STATE_KNEEL);
-                                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_ATTACKABLE_2);
+                                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
                                 break;
                             case 10: DoScriptText(SAY_EXEC_WAITING, me, pPlayer); break;
                             case 11:
@@ -851,7 +851,7 @@ struct TRINITY_DLL_DECL npc_a_special_surpriseAI : public ScriptedAI
                             case 9:
                                 DoScriptText(SAY_EXEC_TIME_5, me, pPlayer);
                                 me->SetStandState(UNIT_STAND_STATE_KNEEL);
-                                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_ATTACKABLE_2);
+                                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
                                 break;
                             case 10: DoScriptText(SAY_EXEC_WAITING, me, pPlayer); break;
                             case 11:
@@ -879,7 +879,7 @@ struct TRINITY_DLL_DECL npc_a_special_surpriseAI : public ScriptedAI
                             case 9:
                                 DoScriptText(SAY_EXEC_TIME_10, me, pPlayer);
                                 me->SetStandState(UNIT_STAND_STATE_KNEEL);
-                                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_ATTACKABLE_2);
+                                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
                                 break;
                             case 10: DoScriptText(SAY_EXEC_WAITING, me, pPlayer); break;
                             case 11:
@@ -907,7 +907,7 @@ struct TRINITY_DLL_DECL npc_a_special_surpriseAI : public ScriptedAI
                             case 9:
                                 DoScriptText(SAY_EXEC_TIME_1, me, pPlayer);
                                 me->SetStandState(UNIT_STAND_STATE_KNEEL);
-                                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_ATTACKABLE_2);
+                                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
                                 break;
                             case 10: DoScriptText(SAY_EXEC_WAITING, me, pPlayer); break;
                             case 11:
@@ -935,7 +935,7 @@ struct TRINITY_DLL_DECL npc_a_special_surpriseAI : public ScriptedAI
                             case 9:
                                 DoScriptText(SAY_EXEC_TIME_2, me, pPlayer);
                                 me->SetStandState(UNIT_STAND_STATE_KNEEL);
-                                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_ATTACKABLE_2);
+                                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
                                 break;
                             case 10: DoScriptText(SAY_EXEC_WAITING, me, pPlayer); break;
                             case 11:

@@ -139,7 +139,7 @@ bool QuestAccept_npc_kaya_flathoof(Player* pPlayer, Creature* pCreature, Quest c
 
         DoScriptText(SAY_START, pCreature);
         pCreature->setFaction(113);
-        pCreature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_ATTACKABLE_2);
+        pCreature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
     }
     return true;
 }

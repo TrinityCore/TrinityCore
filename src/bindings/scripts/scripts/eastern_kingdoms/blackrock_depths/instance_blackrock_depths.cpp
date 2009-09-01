@@ -342,7 +342,7 @@ struct TRINITY_DLL_DECL instance_blackrock_depths : public ScriptedInstance
             if (Creature* boss = instance->GetCreature(TombBossGUIDs[TombEventCounter]))
             {
                 boss->setFaction(FACTION_HOSTILE);
-                boss->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_ATTACKABLE_2);
+                boss->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
                 if (Unit* target = boss->SelectNearestTarget(500))
                     boss->AI()->AttackStart(target);
             }
