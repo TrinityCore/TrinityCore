@@ -1115,6 +1115,14 @@ void Player::Update( uint32 p_time )
     if(!IsInWorld())
         return;
 
+    if(GetHealth() && (isDead() || HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_GHOST)))
+    {
+        sLog.outError("Player %s(GUID: %u) was dead and had health > 0. This _might_ be an exploit attempt. They have been kicked.", GetName(), GetGUIDLow());
+        SetHealth(0);
+        GetSession()->KickPlayer();
+        return;
+    }
+
     // undelivered mail
     if(m_nextMailDelivereTime && m_nextMailDelivereTime <= time(NULL))
     {
