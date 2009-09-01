@@ -632,7 +632,12 @@ void WorldSession::HandlePetCastSpellOpcode( WorldPacket& recvPacket )
     spell->m_cast_count = spellid == 33395 ? 0 : cast_count;                       // probably pending spell cast
     spell->m_targets = targets;
 
-    SpellCastResult result = spell->CheckPetCast(NULL);
+    // TODO: need to check victim?
+    SpellCastResult result;
+    if(caster->m_movedPlayer)
+        result = spell->CheckPetCast(caster->m_movedPlayer->GetSelectedUnit());
+    else
+        result = spell->CheckPetCast(NULL);
     if(result == SPELL_CAST_OK)
     {
         if(caster->GetTypeId() == TYPEID_UNIT)
