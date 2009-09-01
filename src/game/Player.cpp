@@ -3496,7 +3496,8 @@ void Player::removeSpell(uint32 spell_id, bool disabled, bool learn_low_rank)
             if (!pSkill)
                 continue;
 
-            if (_spell_idx->second->learnOnGetSkill == ABILITY_LEARNED_ON_GET_RACE_OR_CLASS_SKILL ||
+            if(_spell_idx->second->learnOnGetSkill == ABILITY_LEARNED_ON_GET_RACE_OR_CLASS_SKILL &&
+                pSkill->categoryId != SKILL_CATEGORY_CLASS ||// not unlearn class skills (spellbook/talent pages)
                 // lockpicking/runeforging special case, not have ABILITY_LEARNED_ON_GET_RACE_OR_CLASS_SKILL
                 (pSkill->id==SKILL_LOCKPICKING || pSkill->id==SKILL_RUNEFORGING) && _spell_idx->second->max_value==0 )
             {
