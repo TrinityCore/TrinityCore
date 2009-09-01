@@ -79,7 +79,7 @@ struct TRINITY_DLL_DECL boss_harbinger_skyrissAI : public ScriptedAI
     void Reset()
     {
         if (!Intro)
-            m_creature->SetFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_NOT_ATTACKABLE_2);
+            m_creature->SetFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_OOC_NOT_ATTACKABLE);
 
         IsImage33 = false;
         IsImage66 = false;
@@ -179,7 +179,7 @@ struct TRINITY_DLL_DECL boss_harbinger_skyrissAI : public ScriptedAI
                         Intro_Timer = 3000;
                         break;
                     case 3:
-                        m_creature->RemoveFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_NOT_ATTACKABLE_2);
+                        m_creature->RemoveFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_OOC_NOT_ATTACKABLE);
                         Intro = true;
                         break;
                 }

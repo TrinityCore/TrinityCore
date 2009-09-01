@@ -271,7 +271,7 @@ bool Vehicle::AddPassenger(Unit *unit, int8 seatId)
     if(seat->second.seatInfo->m_flags && !(seat->second.seatInfo->m_flags & 0x4000))
         unit->addUnitState(UNIT_STAT_ONVEHICLE);
 
-    //SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_24);
+    //SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PLAYER_CONTROLLED);
 
     unit->AddUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT);
     VehicleSeatEntry const *veSeat = seat->second.seatInfo;

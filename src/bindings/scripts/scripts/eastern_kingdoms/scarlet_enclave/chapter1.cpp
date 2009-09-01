@@ -115,7 +115,7 @@ struct TRINITY_DLL_DECL npc_unworthy_initiateAI : public ScriptedAI
         phase = PHASE_CHAINED;
         events.Reset();
         me->setFaction(7);
-        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_ATTACKABLE_2);
+        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
         me->SetUInt32Value(UNIT_FIELD_BYTES_1, 8);
         me->LoadEquipment(0, true);
     }
@@ -243,7 +243,7 @@ void npc_unworthy_initiateAI::UpdateAI(const uint32 diff)
             else
             {
                 me->setFaction(14);
-                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_ATTACKABLE_2);
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
                 phase = PHASE_ATTACKING;
 
                 if (Player* target = Unit::GetPlayer(playerGUID))
@@ -716,7 +716,7 @@ struct TRINITY_DLL_DECL npc_scarlet_miner_cartAI : public PassiveAI
 {
     npc_scarlet_miner_cartAI(Creature *c) : PassiveAI(c), minerGUID(0)
     {
-        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_ATTACKABLE_2);
+        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
         me->SetDisplayId(me->GetCreatureInfo()->DisplayID_A[0]); // H0 is horse
     }
 

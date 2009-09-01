@@ -97,7 +97,7 @@ struct TRINITY_DLL_DECL boss_ingvar_the_plundererAI : public ScriptedAI
         undead = false;
         event_inProgress = false;
 
-        m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_ATTACKABLE_2);
+        m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
         m_creature->SetStandState(UNIT_STAND_STATE_STAND);
 
         Cleave_Timer = 2000;
@@ -122,7 +122,7 @@ struct TRINITY_DLL_DECL boss_ingvar_the_plundererAI : public ScriptedAI
             m_creature->SetHealth(0);
             m_creature->InterruptNonMeleeSpells(true);
             m_creature->RemoveAllAuras();
-            m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_ATTACKABLE_2);
+            m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
             m_creature->GetMotionMaster()->MovementExpired(false);
             m_creature->GetMotionMaster()->MoveIdle();
             m_creature->SetStandState(UNIT_STAND_STATE_DEAD);
@@ -144,7 +144,7 @@ struct TRINITY_DLL_DECL boss_ingvar_the_plundererAI : public ScriptedAI
     {
         undead = true;
         event_inProgress = false;
-        m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_ATTACKABLE_2);
+        m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
         m_creature->GetMotionMaster()->MoveChase(m_creature->getVictim());
         m_creature->AI()->AttackStart(m_creature->getVictim());
 

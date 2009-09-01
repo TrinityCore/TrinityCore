@@ -69,7 +69,7 @@ struct TRINITY_DLL_DECL boss_thaddiusAI : public BossAI
     boss_thaddiusAI(Creature *c) : BossAI(c, BOSS_THADDIUS)
     {
         // temp
-        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_ATTACKABLE_2 | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_STUNNED);
+        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_STUNNED);
     }
 
     void KilledUnit(Unit* victim)
