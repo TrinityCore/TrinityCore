@@ -1796,6 +1796,7 @@ void Aura::SetStackAmount(uint8 stackAmount, bool applied)
         SendAuraUpdate();
 }
 
+// TODO: lifebloom should bloom when each stack is dispelled
 bool Aura::modStackAmount(int32 num)
 {
     // Can`t mod
@@ -3099,7 +3100,9 @@ void AuraEffect::HandleAuraDummy(bool apply, bool Real, bool changeAmount)
                         return;
 
                     // final heal
-                    if(m_target->IsInWorld())
+                    //if(m_target->IsInWorld())
+                    // This may be a hack, but we need a way to count healing bonus three times
+                    for(uint8 i = 0; i < GetParentAura()->GetStackAmount(); ++i)
                         m_target->CastCustomSpell(m_target,33778,&m_amount,NULL,NULL,true,NULL,this,GetCasterGUID());
 
                     // restore mana
