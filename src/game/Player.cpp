@@ -1117,9 +1117,9 @@ void Player::Update( uint32 p_time )
 
     if(GetHealth() && (isDead() || HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_GHOST)))
     {
-        sLog.outError("Player %s(GUID: %u) was dead and had health > 0. This _might_ be an exploit attempt. They have been kicked.", GetName(), GetGUIDLow());
+        sLog.outError("Player %s(GUID: %u) was dead(isDead() = %u, PLAYER_FLAGS_GHOST = %u) and had health > 0. This _might_ be an exploit attempt. They have been kicked.", GetName(), GetGUIDLow(), uint8(isDead()), uint8(HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_GHOST)));
         SetHealth(0);
-        GetSession()->KickPlayer();
+        if(!isGameMaster() && GetSession()->GetSecurity() < SEC_GAMEMASTER) GetSession()->KickPlayer();
         return;
     }
 
