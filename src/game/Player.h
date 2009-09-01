@@ -2062,7 +2062,12 @@ class MANGOS_DLL_SPEC Player : public Unit
 
         void SetClientControl(Unit* target, uint8 allowMove);
 
-        void SetMover(Unit* target) { m_mover = target; }
+        void SetMover(Unit* target)
+        {
+            m_mover->m_movedPlayer = NULL;
+            m_mover = target;
+            m_mover->m_movedPlayer = this;
+        }
         void SetSeer(WorldObject *target) { m_seer = target; }
         void SetViewpoint(WorldObject *target, bool apply);
         WorldObject* GetViewpoint() const;
