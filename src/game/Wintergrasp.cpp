@@ -140,7 +140,9 @@ bool OPvPWintergrasp::SetupOutdoorPvP()
         TeamId teamId = x > POS_X_CENTER ? m_defender : OTHER_TEAM(m_defender);
         m_buildingStates[guid] = new BuildingState((*poi)->worldState, teamId, m_defender != TEAM_ALLIANCE);
         if((*poi)->id == 2246)
+        {
             m_gate = m_buildingStates[guid];
+        }
         areaPOIs.erase(poi);
 
         //disable for now
@@ -229,6 +231,12 @@ bool OPvPWintergrasp::SetupOutdoorPvP()
     }while(result->NextRow());
     delete result;
 
+    if(!m_gate)
+    {
+        sLog.outError("Cannot find wintergrasp fortress gate!");
+        return false;
+    }
+
     // Load Graveyard
     GraveYardMap::const_iterator graveLow  = objmgr.mGraveYardMap.lower_bound(ZONE_WINTERGRASP);
     GraveYardMap::const_iterator graveUp   = objmgr.mGraveYardMap.upper_bound(ZONE_WINTERGRASP);
@@ -286,7 +294,7 @@ void OPvPWintergrasp::ProcessEvent(GameObject *obj, uint32 eventId)
 {
     if(eventId == 19982)
     {
-        if(m_wartime && m_gate->damageState == DAMAGE_DESTROYED)
+        if(m_wartime && m_gate && m_gate->damageState == DAMAGE_DESTROYED)
         {
             m_changeDefender = true;
             m_timer = 0;

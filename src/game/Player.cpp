@@ -463,6 +463,7 @@ Player::Player (WorldSession *session): Unit(), m_achievementMgr(this), m_reputa
     //m_unit_movement_flags = 0;
 
     m_mover = this;
+    m_movedPlayer = this;
     m_seer = this;
 
     m_contestedPvPTimer = 0;
@@ -19172,7 +19173,14 @@ void Player::SendComboPoints()
     Unit *combotarget = ObjectAccessor::GetUnit(*this, m_comboTarget);
     if (combotarget)
     {
-        WorldPacket data(SMSG_UPDATE_COMBO_POINTS, combotarget->GetPackGUID().size()+1);
+        WorldPacket data;
+        if(m_mover != this)
+        {
+            data.Initialize(SMSG_PET_UPDATE_COMBO_POINTS, m_mover->GetPackGUID().size()+combotarget->GetPackGUID().size()+1);
+            data.append(m_mover->GetPackGUID());
+        }
+        else
+            data.Initialize(SMSG_UPDATE_COMBO_POINTS, combotarget->GetPackGUID().size()+1);
         data.append(combotarget->GetPackGUID());
         data << uint8(m_comboPoints);
         GetSession()->SendPacket(&data);

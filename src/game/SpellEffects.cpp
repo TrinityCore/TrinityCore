@@ -5737,13 +5737,13 @@ void Spell::EffectAddComboPoints(uint32 /*i*/)
     if(!unitTarget)
         return;
 
-    if(m_caster->GetTypeId() != TYPEID_PLAYER)
+    if(!m_caster->m_movedPlayer)
         return;
 
     if(damage <= 0)
         return;
 
-    ((Player*)m_caster)->AddComboPoints(unitTarget, damage, this);
+    m_caster->m_movedPlayer->AddComboPoints(unitTarget, damage, this);
 }
 
 void Spell::EffectDuel(uint32 i)

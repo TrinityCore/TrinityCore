@@ -1458,7 +1458,8 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
         CharmInfo* InitCharmInfo();
         void       DeleteCharmInfo();
         void UpdateCharmAI();
-        Player * GetMoverSource() const;
+        //Player * GetMoverSource() const;
+        Player *m_movedPlayer;
         SharedVisionList const& GetSharedVisionList() { return m_sharedVision; }
         void AddPlayerToVision(Player* plr);
         void RemovePlayerFromVision(Player* plr);
