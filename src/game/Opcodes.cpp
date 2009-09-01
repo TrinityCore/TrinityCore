@@ -1007,7 +1007,7 @@ OpcodeHandler opcodeTable[NUM_MSG_TYPES] =
     /*0x3D0*/ { "CMSG_TARGET_CAST",                             STATUS_NEVER,    &WorldSession::Handle_NULL                     },
     /*0x3D1*/ { "CMSG_TARGET_SCRIPT_CAST",                      STATUS_NEVER,    &WorldSession::Handle_NULL                     },
     /*0x3D2*/ { "CMSG_CHANNEL_DISPLAY_LIST",                    STATUS_LOGGEDIN, &WorldSession::HandleChannelDisplayListQuery   },
-    /*0x3D3*/ { "CMSG_SET_ACTIVE_VOICE_CHANNEL",                STATUS_LOGGEDIN_OR_RECENTLY_LOGGOUT, &WorldSession::HandleSetActiveVoiceChannel     },
+    /*0x3D3*/ { "CMSG_SET_ACTIVE_VOICE_CHANNEL",                STATUS_AUTHED,   &WorldSession::HandleSetActiveVoiceChannel     },
     /*0x3D4*/ { "CMSG_GET_CHANNEL_MEMBER_COUNT",                STATUS_LOGGEDIN, &WorldSession::HandleGetChannelMemberCount     },
     /*0x3D5*/ { "SMSG_CHANNEL_MEMBER_COUNT",                    STATUS_NEVER,    &WorldSession::Handle_ServerSide               },
     /*0x3D6*/ { "CMSG_CHANNEL_VOICE_ON",                        STATUS_LOGGEDIN, &WorldSession::HandleChannelVoiceOnOpcode      },
