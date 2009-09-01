@@ -57,8 +57,8 @@ struct TRINITY_DLL_DECL npc_calvin_montagueAI : public ScriptedAI
 
         me->RestoreFaction();
 
-        if (!m_creature->HasFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_NOT_ATTACKABLE_2))
-            m_creature->SetFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_NOT_ATTACKABLE_2);
+        if (!m_creature->HasFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_OOC_NOT_ATTACKABLE))
+            m_creature->SetFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_OOC_NOT_ATTACKABLE);
     }
 
     void EnterCombat(Unit* who) { }
@@ -78,7 +78,7 @@ struct TRINITY_DLL_DECL npc_calvin_montagueAI : public ScriptedAI
             uiDamage = 0;
 
             me->RestoreFaction();
-            m_creature->SetFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_NOT_ATTACKABLE_2);
+            m_creature->SetFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_OOC_NOT_ATTACKABLE);
             m_creature->CombatStop(true);
 
             m_uiPhase = 1;
@@ -137,7 +137,7 @@ bool QuestAccept_npc_calvin_montague(Player* pPlayer, Creature* pCreature, Quest
     if (quest->GetQuestId() == QUEST_590)
     {
         pCreature->setFaction(FACTION_HOSTILE);
-        pCreature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_ATTACKABLE_2);
+        pCreature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
         CAST_AI(npc_calvin_montagueAI, pCreature->AI())->AttackStart(pPlayer);
     }
     return true;

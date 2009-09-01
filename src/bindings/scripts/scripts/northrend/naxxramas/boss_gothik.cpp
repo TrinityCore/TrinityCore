@@ -113,7 +113,7 @@ struct TRINITY_DLL_DECL boss_gothikAI : public BossAI
     {
         liveTrigger.clear();
         deadTrigger.clear();
-        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_ATTACKABLE_2);
+        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
         me->SetReactState(REACT_PASSIVE);
         _Reset();
     }
@@ -135,7 +135,7 @@ struct TRINITY_DLL_DECL boss_gothikAI : public BossAI
         }
 
         _EnterCombat();
-        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_ATTACKABLE_2);
+        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
         waveCount = 0;
         events.ScheduleEvent(EVENT_SUMMON, 30000);
         DoTeleportTo(PosPlatform);
@@ -225,7 +225,7 @@ struct TRINITY_DLL_DECL boss_gothikAI : public BossAI
                         DoScriptText(SAY_TELEPORT, me);
                         DoTeleportTo(PosGround);
                         me->SetReactState(REACT_AGGRESSIVE);
-                        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_ATTACKABLE_2);
+                        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
                         if (instance)
                             instance->SetData(DATA_GOTHIK_GATE, 0);
                         summons.DoAction(0, 0);

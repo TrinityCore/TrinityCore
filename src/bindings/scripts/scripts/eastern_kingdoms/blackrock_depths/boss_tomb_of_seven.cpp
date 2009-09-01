@@ -115,7 +115,7 @@ struct TRINITY_DLL_DECL boss_doomrelAI : public ScriptedAI
         m_creature->setFaction(FACTION_FRIEND);
 
         // was set before event start, so set again
-        m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_ATTACKABLE_2);
+        m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
 
         if (pInstance)
             if (pInstance->GetData(DATA_GHOSTKILL) >= 7)
@@ -221,7 +221,7 @@ bool GossipSelect_boss_doomrel(Player* pPlayer, Creature* pCreature, uint32 uiSe
             pPlayer->CLOSE_GOSSIP_MENU();
             //start event here
             pCreature->setFaction(FACTION_HOSTILE);
-            pCreature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_ATTACKABLE_2);
+            pCreature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
             pCreature->AI()->AttackStart(pPlayer);
             ScriptedInstance* pInstance = pCreature->GetInstanceData();
             if (pInstance)

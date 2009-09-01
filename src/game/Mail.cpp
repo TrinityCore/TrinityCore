@@ -319,6 +319,8 @@ void WorldSession::HandleMailDelete(WorldPacket & recv_data )
         return;
 
     Mail *m = _player->GetMail(mailId);
+    Player* pl = _player;
+    pl->m_mailsUpdated = true;
     if(m)
     {
         // delete shouldn't show up for COD mails
