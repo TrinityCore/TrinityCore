@@ -453,7 +453,7 @@ void WorldSession::SendCancelTrade()
 void WorldSession::HandleCancelTradeOpcode(WorldPacket& /*recvPacket*/)
 {
     // sended also after LOGOUT COMPLETE
-    if(_player)                                             // needed because STATUS_AUTHED
+    if(_player)                                             // needed because STATUS_LOGGEDIN_OR_RECENTLY_LOGGOUT
         _player->TradeCancel(true);
 }
 
