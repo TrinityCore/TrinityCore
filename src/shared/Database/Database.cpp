@@ -192,3 +192,42 @@ bool Database::DirectPExecute(const char * format,...)
     return DirectExecute(szQuery);
 }
 
+bool Database::CheckRequiredField( char const* table_name, char const* required_name )
+{
+    // check required field
+    QueryResult* result = PQuery("SELECT %s FROM %s LIMIT 1",required_name,table_name);
+    if(result)
+    {
+        delete result;
+        return true;
+    }
+
+    // check fail, prepare readabale error message
+
+    // search current required_* field in DB
+    QueryNamedResult* result2 = PQueryNamed("SELECT * FROM %s LIMIT 1",table_name);
+    if(result2)
+    {
+        QueryFieldNames const& namesMap = result2->GetFieldNames();
+        std::string reqName;
+        for(QueryFieldNames::const_iterator itr = namesMap.begin(); itr != namesMap.end(); ++itr)
+        {
+            if(itr->substr(0,9)=="required_")
+            {
+                reqName = *itr;
+                break;
+            }
+        }
+
+        delete result;
+
+        if(!reqName.empty())
+        {
+            sLog.outErrorDb("Table `%s` have field `%s` but expected `%s`! Not all sql updates applied?",table_name,reqName.c_str(),required_name);
+            return false;
+        }
+    }
+
+    sLog.outErrorDb("Table `%s` not have required_* field but expected `%s`! Not all sql updates applied?",table_name,required_name);
+    return false;
+}
