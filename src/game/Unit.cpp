@@ -12639,8 +12639,12 @@ void Unit::ProcDamageAndSpellFor( bool isVictim, Unit * pTarget, uint32 procFlag
         if (procAura && procAura->Id == itr->first)
             continue;
         ProcTriggeredData triggerData(itr->second);
-        if(!IsTriggeredAtSpellProcEvent(pTarget, triggerData.aura, procSpell, procFlag, procExtra, attType, isVictim, (damage > 0), triggerData.spellProcEvent))
+
+        // Defensive procs are active on absorbs (so absorption effects are not a hindrance)
+        bool active = (damage > 0) || ((procExtra & PROC_EX_ABSORB) && isVictim);
+        if(!IsTriggeredAtSpellProcEvent(pTarget, triggerData.aura, procSpell, procFlag, procExtra, attType, isVictim, active, triggerData.spellProcEvent))
             continue;
+
         for (uint8 i=0; i<MAX_SPELL_EFFECTS;++i)
         {
             if (AuraEffect * aurEff = itr->second->GetPartAura(i))
