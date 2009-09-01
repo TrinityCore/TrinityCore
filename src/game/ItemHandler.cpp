@@ -855,9 +855,10 @@ void WorldSession::HandleBuyBankSlotOpcode(WorldPacket& recvPacket)
     if (_player->GetMoney() < price)
         return;
 
-    _player->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BUY_BANK_SLOT, slot);
     _player->SetBankBagSlotCount(slot);
     _player->ModifyMoney(-int32(price));
+
+    _player->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BUY_BANK_SLOT);
 }
 
 void WorldSession::HandleAutoBankItemOpcode(WorldPacket& recvPacket)
