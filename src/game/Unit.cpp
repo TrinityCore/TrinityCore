@@ -94,6 +94,7 @@ Unit::Unit()
 , m_NotifyListPos(-1), m_Notified(false), IsAIEnabled(false), NeedChangeAI(false)
 , i_AI(NULL), i_disabledAI(NULL), m_removedAurasCount(0), m_vehicle(NULL), m_transport(NULL)
 , m_ControlledByPlayer(false), m_procDeep(0), m_unitTypeMask(UNIT_MASK_NONE), m_vehicleKit(NULL)
+, m_movedPlayer(NULL)
 {
     m_objectType |= TYPEMASK_UNIT;
     m_objectTypeId = TYPEID_UNIT;
@@ -8921,6 +8922,7 @@ Unit* Unit::GetNextRandomRaidMemberOrPet(float radius)
     return nearMembers[randTarget];
 }
 
+/*
 Player * Unit::GetMoverSource() const
 {
     if(GetTypeId() == TYPEID_PLAYER && ((Player*)this)->m_mover == this)
@@ -8930,6 +8932,7 @@ Player * Unit::GetMoverSource() const
             return (Player*)charmer;
     return NULL;
 }
+*/
 
 //only called in Player::SetSeer
 void Unit::AddPlayerToVision(Player* plr)
@@ -11340,10 +11343,6 @@ Unit* Creature::SelectVictim()
 
 int32 Unit::CalculateSpellDamage(SpellEntry const* spellProto, uint8 effect_index, int32 effBasePoints, Unit const* /*target*/)
 {
-    Player* unitPlayer = (GetTypeId() == TYPEID_PLAYER) ? (Player*)this : NULL;
-
-    uint8 comboPoints = unitPlayer ? unitPlayer->GetComboPoints() : 0;
-
     int32 level = int32(getLevel());
     if (level > (int32)spellProto->maxLevel && spellProto->maxLevel > 0)
         level = (int32)spellProto->maxLevel;
@@ -11355,7 +11354,6 @@ int32 Unit::CalculateSpellDamage(SpellEntry const* spellProto, uint8 effect_inde
     float randomPointsPerLevel = spellProto->EffectDicePerLevel[effect_index];
     int32 basePoints = int32(effBasePoints + level * basePointsPerLevel);
     int32 randomPoints = int32(spellProto->EffectDieSides[effect_index] + level * randomPointsPerLevel);
-    float comboDamage = spellProto->EffectPointsPerComboPoint[effect_index];
 
     // range can have possitive and negative values, so order its for irand
     int32 randvalue = int32(spellProto->EffectBaseDice[effect_index]) >= randomPoints
@@ -11364,8 +11362,11 @@ int32 Unit::CalculateSpellDamage(SpellEntry const* spellProto, uint8 effect_inde
 
     int32 value = basePoints + randvalue;
     //random damage
-    if(comboDamage != 0 && unitPlayer /*&& target && (target->GetGUID() == unitPlayer->GetComboTarget())*/)
-        value += (int32)(comboDamage * comboPoints);
+    //if(comboDamage != 0 && unitPlayer /*&& target && (target->GetGUID() == unitPlayer->GetComboTarget())*/)
+    if(m_movedPlayer)
+        if(uint8 comboPoints = m_movedPlayer->GetComboPoints())
+            if(float comboDamage = spellProto->EffectPointsPerComboPoint[effect_index])
+                value += (int32)(comboDamage * comboPoints);
 
     if(Player* modOwner = GetSpellModOwner())
     {
@@ -11400,16 +11401,14 @@ int32 Unit::CalculateSpellDamage(SpellEntry const* spellProto, uint8 effect_inde
 
 int32 Unit::CalcSpellDuration(SpellEntry const* spellProto)
 {
-    Player* unitPlayer = (GetTypeId() == TYPEID_PLAYER) ? (Player*)this : NULL;
-
-    uint8 comboPoints = unitPlayer ? unitPlayer->GetComboPoints() : 0;
+    uint8 comboPoints = m_movedPlayer ? m_movedPlayer->GetComboPoints() : 0;
 
     int32 minduration = GetSpellDuration(spellProto);
     int32 maxduration = GetSpellMaxDuration(spellProto);
 
     int32 duration;
 
-    if( minduration != -1 && minduration != maxduration )
+    if(comboPoints && minduration != -1 && minduration != maxduration)
         duration = minduration + int32((maxduration - minduration) * comboPoints / 5);
     else
         duration = minduration;

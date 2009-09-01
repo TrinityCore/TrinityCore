@@ -2675,7 +2675,7 @@ void Spell::prepare(SpellCastTargets const* targets, AuraEffect* triggeredByAura
     prepareDataForTriggerSystem(triggeredByAura);
 
     // Set combo point requirement
-    if (m_IsTriggeredSpell || m_CastItem || m_caster->GetTypeId()!=TYPEID_PLAYER)
+    if (m_IsTriggeredSpell || m_CastItem || !m_caster->m_movedPlayer)
         m_needComboPoints = false;
 
     // calculate cast time (calculated after first CheckCast check to prevent charge counting for first CheckCast fail)
@@ -3173,13 +3173,16 @@ void Spell::_handle_immediate_phase()
 
 void Spell::_handle_finish_phase()
 {
-    // Take for real after all targets are processed
-    if (m_needComboPoints)
-        ((Player*)m_caster)->ClearComboPoints();
+    if(m_caster->m_movedPlayer)
+    {
+        // Take for real after all targets are processed
+        if (m_needComboPoints)
+            m_caster->m_movedPlayer->ClearComboPoints();
 
-    // Real add combo points from effects
-    if (m_caster->GetTypeId()==TYPEID_PLAYER)
-        ((Player*)m_caster)->GainSpellComboPoints(m_comboPointGain);
+        // Real add combo points from effects
+        if (m_comboPointGain)
+            m_caster->m_movedPlayer->GainSpellComboPoints(m_comboPointGain);
+    }
 
     // spell log
     if(m_needSpellLog)

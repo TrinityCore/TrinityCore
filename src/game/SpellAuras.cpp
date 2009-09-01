@@ -5524,7 +5524,7 @@ void AuraEffect::HandleAuraAllowFlight(bool apply, bool Real, bool /*changeAmoun
     if(m_target->GetTypeId() == TYPEID_UNIT)
         m_target->SetFlying(apply);
     
-    if(Player *plr = m_target->GetMoverSource())
+    if(Player *plr = m_target->m_movedPlayer)
     {
     // allow fly
     WorldPacket data;
