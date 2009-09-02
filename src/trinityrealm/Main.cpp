@@ -148,6 +148,7 @@ extern int main(int argc, char **argv)
         sLog.outError("Could not find configuration file %s.", cfg_file);
         return 1;
     }
+    sLog.Initialize();
 
     sLog.outString( "%s (realm-daemon)", _FULLVERSION );
     sLog.outString( "<Ctrl-C> to stop.\n" );
