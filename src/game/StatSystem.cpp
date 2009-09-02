@@ -110,19 +110,14 @@ bool Player::UpdateStats(Stats stat)
     return true;
 }
 
-void Player::ApplySpellDamageBonus(int32 amount, bool apply)
+void Player::ApplySpellPowerBonus(int32 amount, bool apply)
 {
-    m_baseSpellDamage+=apply?amount:-amount;
-    // For speed just update for client
-    for(int i = SPELL_SCHOOL_HOLY; i < MAX_SPELL_SCHOOL; i++)
-        ApplyModUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_POS+i, amount, apply);
-}
+    m_baseSpellPower+=apply?amount:-amount;
 
-void Player::ApplySpellHealingBonus(int32 amount, bool apply)
-{
-    m_baseSpellHealing+=apply?amount:-amount;
     // For speed just update for client
     ApplyModUInt32Value(PLAYER_FIELD_MOD_HEALING_DONE_POS, amount, apply);
+    for(int i = SPELL_SCHOOL_HOLY; i < MAX_SPELL_SCHOOL; ++i)
+        ApplyModUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_POS+i, amount, apply);;
 }
 
 void Player::UpdateSpellDamageAndHealingBonus()
