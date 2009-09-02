@@ -153,11 +153,11 @@ bool Guild::AddMember(uint64 plGuid, uint32 plRank)
         Field *fields    = result->Fetch();
         newmember.name   = fields[0].GetCppString();
         newmember.zoneId = fields[1].GetUInt32();
-        newmember.level  = fields[2].GetUInt32();
-        newmember.Class  = fields[3].GetUInt32();
+        newmember.level  = fields[2].GetUInt8();
+        newmember.Class  = fields[3].GetUInt8();
         delete result;
-        if(newmember.level < 1 || newmember.level > STRONG_MAX_LEVEL
-            || newmember.Class < CLASS_WARRIOR || newmember.Class >= MAX_CLASSES)
+        if (newmember.level < 1 || newmember.level > STRONG_MAX_LEVEL ||
+            newmember.Class < CLASS_WARRIOR || newmember.Class >= MAX_CLASSES)
         {
             sLog.outError("Player (GUID: %u) has a broken data in field `characters` table, cannot add him to guild.",GUID_LOPART(plGuid));
             return false;
@@ -391,9 +391,9 @@ bool Guild::LoadMembersFromDB(uint32 GuildId)
         }
 
         newmember.name                  = fields[18].GetCppString();
-        newmember.level                 = fields[19].GetUInt32();
+        newmember.level                 = fields[19].GetUInt8();
         newmember.zoneId                = fields[20].GetUInt32();
-        newmember.Class                 = fields[21].GetUInt32();
+        newmember.Class                 = fields[21].GetUInt8();
         newmember.logout_time           = fields[22].GetUInt64();
 
         //this code will remove unexisting character guids from guild
