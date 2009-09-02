@@ -10597,8 +10597,10 @@ bool Unit::canAttack(Unit const* target, bool force) const
     if(!target->isAttackableByAOE() || target->hasUnitState(UNIT_STAT_DIED))
         return false;
 
-    if((m_invisibilityMask || target->m_invisibilityMask) && !canDetectInvisibilityOf(target))
-        return false;
+    // shaman totem quests: spell 8898, shaman can detect elementals but elementals cannot see shaman
+    if(m_invisibilityMask || target->m_invisibilityMask)
+        if(!canDetectInvisibilityOf(target) && !target->canDetectInvisibilityOf(target))
+            return false;
 
     if(target->GetVisibility() == VISIBILITY_GROUP_STEALTH && !canDetectStealthOf(target, GetDistance(target)))
         return false;
