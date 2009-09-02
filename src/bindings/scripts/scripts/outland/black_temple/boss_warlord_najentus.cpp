@@ -200,7 +200,7 @@ bool GOHello_go_najentus_spine(Player* pPlayer, GameObject* pGo)
             if (CAST_AI(boss_najentusAI, Najentus->AI())->RemoveImpalingSpine())
             {
                 pPlayer->CastSpell(pPlayer, SPELL_CREATE_NAJENTUS_SPINE, true);
-                pGo->DeleteObjectWithOwner();
+                pGo->Delete();
             }
     return true;
 }

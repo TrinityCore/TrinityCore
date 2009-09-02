@@ -489,17 +489,13 @@ void GameObject::AddUniqueUse(Player* player)
     m_unique_users.insert(player->GetGUIDLow());
 }
 
-void GameObject::DeleteObjectWithOwner()
+void GameObject::Delete()
 {
     SetLootState(GO_NOT_READY);
     if (GetOwnerGUID())
         if (Unit * owner = GetOwner(false))
             owner->RemoveGameObject(this, false);
-    Delete();
-}
 
-void GameObject::Delete()
-{
     assert (!GetOwnerGUID());
     SendObjectDeSpawnAnim(GetGUID());
 

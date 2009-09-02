@@ -656,7 +656,6 @@ class TRINITY_DLL_SPEC GameObject : public WorldObject
         uint32 GetRespawnDelay() const { return m_respawnDelayTime; }
         void Refresh();
         void Delete();
-        void DeleteObjectWithOwner();
         void getFishLoot(Loot *loot, Player* loot_owner);
         GameobjectTypes GetGoType() const { return GameobjectTypes(GetByteValue(GAMEOBJECT_BYTES_1, 1)); }
         void SetGoType(GameobjectTypes type) { SetByteValue(GAMEOBJECT_BYTES_1, 1, type); }
