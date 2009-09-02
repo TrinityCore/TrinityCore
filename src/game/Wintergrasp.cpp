@@ -385,6 +385,8 @@ WintergraspCreType OPvPWintergrasp::GetCreatureType(uint32 entry) const
             return CREATURE_ENGINEER;
         case 30739:
         case 30740:
+        case 32307:
+        case 32308:
             return CREATURE_GUARD;
         default:
             return CREATURE_OTHER;
