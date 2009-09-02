@@ -7677,7 +7677,7 @@ bool Unit::HandleProcTriggerSpell(Unit *pVictim, uint32 damage, AuraEffect* trig
         case 48090:
         {
             // Get talent aura from owner
-            if (GetTypeId() == TYPEID_UNIT && ((Creature*)this)->isPet())
+            if (isPet())
                 if (Unit * owner = GetOwner())
                 {
                     if (AuraEffect * aurEff = owner->GetDummyAura(SPELLFAMILY_WARLOCK, 3220, 0))
