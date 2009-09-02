@@ -2394,11 +2394,6 @@ bool Creature::HasSpellCooldown(uint32 spell_id) const
     return (itr != m_CreatureSpellCooldowns.end() && itr->second > time(NULL)) || HasCategoryCooldown(spell_id);
 }
 
-bool Creature::IsInEvadeMode() const
-{
-    return /*!i_motionMaster.empty() &&*/ i_motionMaster.GetCurrentMovementGeneratorType() == HOME_MOTION_TYPE;
-}
-
 bool Creature::HasSpell(uint32 spellID) const
 {
     uint8 i;
