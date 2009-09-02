@@ -17553,7 +17553,9 @@ void Player::RemoveSpellMods(Spell * spell)
             checkedSpells.find(aur->GetParentAura()) != checkedSpells.end())
             continue;
 
-        if (spell->m_spellInfo->SpellFamilyFlags & spellInfo->EffectSpellClassMask[aur->GetEffIndex()])
+        if (spell->m_spellInfo->SpellFamilyFlags & spellInfo->EffectSpellClassMask[aur->GetEffIndex()]
+        // this is for fingers of frost, look at spell::finish part, a charge will be taken by the triggering spell
+            && aur->GetParentAura()->GetAuraDuration() != aur->GetParentAura()->GetAuraMaxDuration())
         {
             checkedSpells.insert(aur->GetParentAura());
             spell->m_appliedMods.erase(aur->GetParentAura());
