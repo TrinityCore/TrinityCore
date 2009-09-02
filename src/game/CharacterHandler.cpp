@@ -126,9 +126,6 @@ class CharacterHandler
 
 void WorldSession::HandleCharEnum(QueryResult * result)
 {
-    // keys can be non cleared if player open realm list and close it by 'cancel'
-    loginDatabase.PExecute("UPDATE account SET v = '0', s = '0' WHERE id = '%u'", GetAccountId());
-
     WorldPacket data(SMSG_CHAR_ENUM, 100);                  // we guess size
 
     uint8 num = 0;

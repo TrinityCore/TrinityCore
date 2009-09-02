@@ -161,6 +161,11 @@ uint32 BigNumber::AsDword()
     return (uint32)BN_get_word(_bn);
 }
 
+bool BigNumber::isZero() const
+{
+    return BN_is_zero(_bn)!=0;
+}
+
 uint8 *BigNumber::AsByteArray(int minSize)
 {
     int length = (minSize >= GetNumBytes()) ? minSize : GetNumBytes();
