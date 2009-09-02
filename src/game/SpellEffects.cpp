@@ -6416,7 +6416,7 @@ void Spell::EffectKnockBack(uint32 i)
         return;
 
     float x, y;
-    if(m_targets.HasDst())
+    if(m_targets.HasDst() && !m_targets.HasTraj())
         m_targets.m_dstPos.GetPosition(x, y);
     else
         m_caster->GetPosition(x, y);
