@@ -53,6 +53,7 @@ class AccountMgr
         uint32 GetId(std::string username);
         uint32 GetSecurity(uint32 acc_id);
         bool GetName(uint32 acc_id, std::string &name);
+        std::string CalculateShaPassHash(std::string& name, std::string& password);
 
         static bool normalizeString(std::string& utf8str);
 };
