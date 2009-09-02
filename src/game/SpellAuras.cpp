@@ -3671,7 +3671,7 @@ void AuraEffect::HandleAuraTransform(bool apply, bool Real, bool /*changeAmount*
             // for players, start regeneration after 1s (in polymorph fast regeneration case)
             // only if caster is Player (after patch 2.4.2)
             if (IS_PLAYER_GUID(GetCasterGUID()) )
-                ((Player*)m_target)->setRegenTimer(1*IN_MILISECONDS);
+                ((Player*)m_target)->setRegenTimerCount(1*IN_MILISECONDS);
 
             //dismount polymorphed target (after patch 2.4.2)
             if (m_target->IsMounted())

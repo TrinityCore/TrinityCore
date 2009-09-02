@@ -1359,7 +1359,7 @@ class MANGOS_DLL_SPEC Player : public Unit
         void RegenerateAll();
         void Regenerate(Powers power);
         void RegenerateHealth();
-        void setRegenTimer(uint32 time) {m_regenTimer = time;}
+        void setRegenTimerCount(uint32 time) {m_regenTimerCount = time;}
         void setWeaponChangeTimer(uint32 time) {m_weaponChangeTimer = time;}
 
         uint32 GetMoney() { return GetUInt32Value (PLAYER_FIELD_COINAGE); }
@@ -2222,6 +2222,7 @@ class MANGOS_DLL_SPEC Player : public Unit
 Spell * m_spellModTakingSpell;
     protected:
 
+        uint32 m_regenTimerCount;
         uint32 m_contestedPvPTimer;
 
         /*********************************************************/
