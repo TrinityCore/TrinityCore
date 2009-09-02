@@ -2140,7 +2140,8 @@ void Spell::SelectEffectTargets(uint32 i, uint32 cur)
             switch(cur)
             {
                 case TARGET_UNIT_CHANNEL:
-                    if(Unit* target = m_originalCaster->GetCurrentSpell(CURRENT_CHANNELED_SPELL)->m_targets.getUnitTarget())
+                    // in some cases unittarget is invalid and crash. do not know why it happens.
+                    if(Unit* target = Unit::GetUnit(*m_caster, m_originalCaster->GetCurrentSpell(CURRENT_CHANNELED_SPELL)->m_targets.getUnitTargetGUID()))
                         AddUnitTarget(target, i);
                     else
                         sLog.outError( "SPELL: cannot find channel spell target for spell ID %u", m_spellInfo->Id );
@@ -2148,7 +2149,7 @@ void Spell::SelectEffectTargets(uint32 i, uint32 cur)
                 case TARGET_DEST_CHANNEL:
                     if(m_originalCaster->GetCurrentSpell(CURRENT_CHANNELED_SPELL)->m_targets.HasDst())
                         m_targets = m_originalCaster->GetCurrentSpell(CURRENT_CHANNELED_SPELL)->m_targets;
-                    else if(Unit* target = m_originalCaster->GetCurrentSpell(CURRENT_CHANNELED_SPELL)->m_targets.getUnitTarget())
+                    else if(Unit* target = Unit::GetUnit(*m_caster, m_originalCaster->GetCurrentSpell(CURRENT_CHANNELED_SPELL)->m_targets.getUnitTargetGUID()))
                         m_targets.setDst(target);
                     else
                         sLog.outError( "SPELL: cannot find channel spell destination for spell ID %u", m_spellInfo->Id );
