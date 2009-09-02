@@ -683,7 +683,7 @@ int WorldSocket::HandleAuthSession (WorldPacket& recvPacket)
     LocaleConstant locale;
     std::string account;
     Sha1Hash sha1;
-    BigNumber v, s, g, N, x, I;
+    BigNumber v, s, g, N;
     WorldPacket packet, SendAddonPacked;
 
     BigNumber K;
@@ -725,12 +725,11 @@ int WorldSocket::HandleAuthSession (WorldPacket& recvPacket)
                                 "sessionkey, "              //2
                                 "last_ip, "                 //3
                                 "locked, "                  //4
-                                "sha_pass_hash, "           //5
-                                "v, "                       //6
-                                "s, "                       //7
-                                "expansion, "               //8
-                                "mutetime, "                //9
-                                "locale "                   //10
+                                "v, "                       //5
+                                "s, "                       //6
+                                "expansion, "               //7
+                                "mutetime, "                //8
+                                "locale "                   //9
                                 "FROM account "
                                 "WHERE username = '%s'",
                                 safe_account.c_str ());
@@ -749,60 +748,24 @@ int WorldSocket::HandleAuthSession (WorldPacket& recvPacket)
 
     Field* fields = result->Fetch ();
 
-    uint8 expansion = fields[8].GetUInt8();
+    uint8 expansion = fields[7].GetUInt8();
     uint32 world_expansion = sWorld.getConfig(CONFIG_EXPANSION);
     if(expansion > world_expansion)
         expansion = world_expansion;
-    //expansion = ((sWorld.getConfig(CONFIG_EXPANSION) > fields[8].GetUInt8()) ? fields[8].GetUInt8() : sWorld.getConfig(CONFIG_EXPANSION));
+    //expansion = ((sWorld.getConfig(CONFIG_EXPANSION) > fields[7].GetUInt8()) ? fields[7].GetUInt8() : sWorld.getConfig(CONFIG_EXPANSION));
 
     N.SetHexStr ("894B645E89E1535BBDAD5B8B290650530801B18EBFBF5E8FAB3C82872A3E9BB7");
     g.SetDword (7);
-    I.SetHexStr (fields[5].GetString ());
 
-    //In case of leading zeros in the I hash, restore them
-    uint8 mDigest[SHA_DIGEST_LENGTH];
-    memset (mDigest, 0, SHA_DIGEST_LENGTH);
-
-    if (I.GetNumBytes () <= SHA_DIGEST_LENGTH)
-        memcpy (mDigest, I.AsByteArray (), I.GetNumBytes ());
-
-    std::reverse (mDigest, mDigest + SHA_DIGEST_LENGTH);
-
-    s.SetHexStr (fields[7].GetString ());
-    sha1.UpdateData (s.AsByteArray (), s.GetNumBytes ());
-    sha1.UpdateData (mDigest, SHA_DIGEST_LENGTH);
-    sha1.Finalize ();
-    x.SetBinary (sha1.GetDigest (), sha1.GetLength ());
-    v = g.ModExp (x, N);
+    v.SetHexStr(fields[5].GetString());
+    s.SetHexStr (fields[6].GetString ());
 
     const char* sStr = s.AsHexStr ();                       //Must be freed by OPENSSL_free()
     const char* vStr = v.AsHexStr ();                       //Must be freed by OPENSSL_free()
-    const char* vold = fields[6].GetString ();
 
-    DEBUG_LOG ("WorldSocket::HandleAuthSession: (s,v) check s: %s v_old: %s v_new: %s",
+    DEBUG_LOG ("WorldSocket::HandleAuthSession: (s,v) check s: %s v: %s",
                 sStr,
-                vold,
                 vStr);
-
-    loginDatabase.PExecute ("UPDATE account "
-                            "SET "
-                            "v = '0', "
-                            "s = '0' "
-                            "WHERE username = '%s'",
-                            safe_account.c_str ());
-
-    if (!vold || strcmp (vStr, vold))
-    {
-        packet.Initialize (SMSG_AUTH_RESPONSE, 1);
-        packet << uint8 (AUTH_UNKNOWN_ACCOUNT);
-        SendPacket (packet);
-        delete result;
-        OPENSSL_free ((void*) sStr);
-        OPENSSL_free ((void*) vStr);
-
-        sLog.outBasic ("WorldSocket::HandleAuthSession: User not logged.");
-        return -1;
-    }
 
     OPENSSL_free ((void*) sStr);
     OPENSSL_free ((void*) vStr);
@@ -831,9 +794,9 @@ int WorldSocket::HandleAuthSession (WorldPacket& recvPacket)
 
     K.SetHexStr (fields[2].GetString ());
 
-    time_t mutetime = time_t (fields[9].GetUInt64 ());
+    time_t mutetime = time_t (fields[8].GetUInt64 ());
 
-    locale = LocaleConstant (fields[10].GetUInt8 ());
+    locale = LocaleConstant (fields[9].GetUInt8 ());
     if (locale >= MAX_LOCALE)
         locale = LOCALE_enUS;
 
