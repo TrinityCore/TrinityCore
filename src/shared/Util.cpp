@@ -502,3 +502,23 @@ void vutf8printf(FILE *out, const char *str, va_list* ap)
     vfprintf(out, str, *ap);
 #endif
 }
+
+void hexEncodeByteArray(uint8* bytes, uint32 arrayLen, std::string& result)
+{
+    std::ostringstream ss;
+    for(uint32 i=0; i<arrayLen; ++i)
+    {
+        for(uint8 j=0; j<2; ++j)
+        {
+            unsigned char nibble = 0x0F & (bytes[i]>>((1-j)*4));
+            char encodedNibble;
+            if(nibble < 0x0A)
+                encodedNibble = '0'+nibble;
+            else
+                encodedNibble = 'A'+nibble-0x0A;
+            ss << encodedNibble;
+        }
+    }
+    result = ss.str();
+}
+
