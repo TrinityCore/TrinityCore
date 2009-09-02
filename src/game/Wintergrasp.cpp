@@ -647,6 +647,33 @@ void OPvPWintergrasp::HandlePlayerLeaveZone(Player * plr, uint32 zone)
     UpdateTenacityStack();
 }
 
+void OPvPWintergrasp::PromotePlayer(Player *killer) const
+{
+    Aura *aur;
+    if(aur = killer->GetAura(SPELL_RECRUIT))
+    {
+        if(aur->GetStackAmount() >= 5)
+        {
+            killer->RemoveAura(SPELL_RECRUIT);
+            killer->CastSpell(killer, SPELL_CORPORAL, true);
+        }
+        else
+            killer->CastSpell(killer, SPELL_RECRUIT, true);
+    }
+    else if(aur = killer->GetAura(SPELL_CORPORAL))
+    {
+        if(aur->GetStackAmount() >= 5)
+        {
+            killer->RemoveAura(SPELL_CORPORAL);
+            killer->CastSpell(killer, SPELL_LIEUTENANT, true);
+        }
+        else
+            killer->CastSpell(killer, SPELL_CORPORAL, true);
+    }
+    else if(killer->HasAura(SPELL_LIEUTENANT))
+        killer->CastSpell(killer, SPELL_LIEUTENANT, true);
+}
+
 void OPvPWintergrasp::HandleKill(Player *killer, Unit *victim)
 {
     bool ok = false;
@@ -669,29 +696,14 @@ void OPvPWintergrasp::HandleKill(Player *killer, Unit *victim)
 
     if(ok)
     {
-        Aura *aur;
-        if(aur = killer->GetAura(SPELL_RECRUIT))
+        if(Group *pGroup = killer->GetGroup())
         {
-            if(aur->GetStackAmount() >= 5)
-            {
-                killer->RemoveAura(SPELL_RECRUIT);
-                killer->CastSpell(killer, SPELL_CORPORAL, true);
-            }
-            else
-                killer->CastSpell(killer, SPELL_RECRUIT, true);
+            for(GroupReference *itr = pGroup->GetFirstMember(); itr != NULL; itr = itr->next())
+                if(itr->getSource()->IsAtGroupRewardDistance(victim))
+                    PromotePlayer(itr->getSource());
         }
-        else if(aur = killer->GetAura(SPELL_CORPORAL))
-        {
-            if(aur->GetStackAmount() >= 5)
-            {
-                killer->RemoveAura(SPELL_CORPORAL);
-                killer->CastSpell(killer, SPELL_LIEUTENANT, true);
-            }
-            else
-                killer->CastSpell(killer, SPELL_CORPORAL, true);
-        }
-        else if(killer->HasAura(SPELL_LIEUTENANT))
-            killer->CastSpell(killer, SPELL_LIEUTENANT, true);
+        else
+            PromotePlayer(killer);
     }
 }
 
