@@ -328,7 +328,8 @@ enum TrinityStrings
     LANG_CUSTOMIZE_PLAYER               = 345,
     LANG_CUSTOMIZE_PLAYER_GUID          = 346,
     LANG_COMMAND_GOTAXINODENOTFOUND     = 347,
-    // Room for more level 2              348-399 not used
+    LANG_GAMEOBJECT_HAVE_INVALID_DATA   = 348,
+    // Room for more level 2              349-399 not used
 
     // level 3 chat
     LANG_SCRIPTS_RELOADED               = 400,
