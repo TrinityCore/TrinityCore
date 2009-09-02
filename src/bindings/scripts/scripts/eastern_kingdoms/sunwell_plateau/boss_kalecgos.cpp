@@ -530,7 +530,7 @@ struct TRINITY_DLL_DECL boss_sathrovarrAI : public ScriptedAI
         Map::PlayerList const &PlayerList = pMap->GetPlayers();
         for(Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
         {
-            if(i->getSource()->HasAura(AURA_SPECTRAL_REALM))
+            if(i->getSource()->GetPositionZ() <= DRAGON_REALM_Z-5)
             {
                 i->getSource()->RemoveAura(AURA_SPECTRAL_REALM);
                 i->getSource()->TeleportTo(me->GetMap()->GetId(),i->getSource()->GetPositionX(),i->getSource()->GetPositionY(),DRAGON_REALM_Z+5,i->getSource()->GetOrientation());
