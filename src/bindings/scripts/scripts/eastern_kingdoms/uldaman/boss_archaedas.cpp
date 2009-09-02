@@ -414,8 +414,8 @@ EndScriptData */
 
 #define NUMBER_NEEDED_TO_ACTIVATE 1 // as of patch 3.0.8 the altars can be opened by a single player (previously 3)
 
-static uint64 altarOfTheKeeperCount[5];
-static uint32 altarOfTheKeeperCounter=0;
+//static uint64 altarOfTheKeeperCount[5];
+//static uint32 altarOfTheKeeperCounter=0;
 
 bool GOHello_go_altar_of_the_keepers(Player* pPlayer, GameObject* pGo)
 {
@@ -427,22 +427,22 @@ bool GOHello_go_altar_of_the_keepers(Player* pPlayer, GameObject* pGo)
 
     pGo->AddUse ();
 
-    alreadyUsed = false;
-    for (uint32 loop=0; loop<5; ++loop)
-    {
-        if (altarOfTheKeeperCount[loop] == pPlayer->GetGUID())
+    //alreadyUsed = false;
+    //for (uint32 loop=0; loop<5; ++loop)
+    //{
+    //    if (altarOfTheKeeperCount[loop] == pPlayer->GetGUID())
             alreadyUsed = true;
-    }
-    if (!alreadyUsed && altarOfTheKeeperCounter < 5)
-        altarOfTheKeeperCount[altarOfTheKeeperCounter++] = pPlayer->GetGUID();
+    //}
+    //if (!alreadyUsed && altarOfTheKeeperCounter < 5)
+    //    altarOfTheKeeperCount[altarOfTheKeeperCounter++] = pPlayer->GetGUID();
     pPlayer->CastSpell (pPlayer, SPELL_BOSS_OBJECT_VISUAL, false);
 
-    if (altarOfTheKeeperCounter < NUMBER_NEEDED_TO_ACTIVATE)
-    {
+    //if (altarOfTheKeeperCounter < NUMBER_NEEDED_TO_ACTIVATE)
+    //{
         //error_log ("not enough people yet, altarOfTheKeeperCounter = %d", altarOfTheKeeperCounter);
-        return false;        // not enough people yet
-    }
-
+    //    return false;        // not enough people yet
+    //}
+/*
     // Check to make sure at least three people are still casting
     uint32 count=0;
     Unit *pTarget;
@@ -460,7 +460,7 @@ bool GOHello_go_altar_of_the_keepers(Player* pPlayer, GameObject* pGo)
         // error_log ("still not enough people");
         return true;            // not enough people
     }
-
+*/
     //error_log ("activating stone keepers");
     pInstance->SetData(NULL,1);        // activate the Stone Keepers
     return true;
