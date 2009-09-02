@@ -206,7 +206,7 @@ struct TRINITY_DLL_DECL boss_sapphironAI : public BossAI
             if (Player* pPlayer = Unit::GetPlayer(itr->first))
                 pPlayer->RemoveAura(SPELL_ICEBOLT);
             if (GameObject* pGo = GameObject::GetGameObject(*me, itr->second))
-                pGo->DeleteObjectWithOwner();
+                pGo->Delete();
         }
         iceblocks.clear();
     }
