@@ -799,6 +799,13 @@ void Object::SetUInt32Value( uint16 index, uint32 value )
     }
 }
 
+void Object::UpdateUInt32Value( uint16 index, uint32 value )
+{
+    ASSERT( index < m_valuesCount || PrintIndexError( index, true ) );
+
+    m_uint32Values[ index ] = value;
+}
+
 void Object::SetUInt64Value( uint16 index, const uint64 &value )
 {
     ASSERT( index + 1 < m_valuesCount || PrintIndexError( index, true ) );
