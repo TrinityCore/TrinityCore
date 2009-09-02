@@ -210,6 +210,7 @@ class OPvPWintergrasp : public OutdoorPvP
 
         void UpdateClock();
         void UpdateClockDigit(uint32 &timer, uint32 digit, uint32 mod);
+        void PromotePlayer(Player *player) const;
         void UpdateTenacityStack();
         void UpdateAllWorldObject();
         bool UpdateCreatureInfo(Creature *creature) const;
