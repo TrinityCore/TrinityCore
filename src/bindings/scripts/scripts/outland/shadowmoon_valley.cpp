@@ -55,6 +55,8 @@ enum
     SPELL_NETHER_BREATH         = 38467,
     POINT_ID                    = 1,
 
+    GO_CARCASS                  = 185155,
+
     QUEST_KINDNESS              = 10804,
     NPC_EVENT_PINGER            = 22131
 };
@@ -118,7 +120,7 @@ struct TRINITY_DLL_DECL mob_mature_netherwing_drakeAI : public ScriptedAI
                 {
                     if (Unit* pUnit = Unit::GetUnit(*m_creature, uiPlayerGUID))
                     {
-                        if (GameObject* pGo = pUnit->GetGameObject(SPELL_PLACE_CARCASS))
+                        if (GameObject* pGo = pUnit->FindNearestGameObject(GO_CARCASS, 10))
                         {
                             if (m_creature->GetMotionMaster()->GetCurrentMovementGeneratorType() == WAYPOINT_MOTION_TYPE)
                                 m_creature->GetMotionMaster()->MovementExpired();
@@ -137,7 +139,12 @@ struct TRINITY_DLL_DECL mob_mature_netherwing_drakeAI : public ScriptedAI
                     DoScriptText(SAY_JUST_EATEN, m_creature);
 
                     if (Player* pPlr = Unit::GetPlayer(uiPlayerGUID))
+                    {
                         pPlr->KilledMonsterCredit(NPC_EVENT_PINGER, m_creature->GetGUID());
+
+                        if (GameObject* pGo = pPlr->FindNearestGameObject(GO_CARCASS, 10))
+                            pGo->Delete();
+                    }
 
                     Reset();
                     m_creature->GetMotionMaster()->Clear();
