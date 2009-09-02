@@ -529,7 +529,7 @@ class TRINITY_DLL_SPEC Creature : public Unit
 
         uint32 getLevelForTarget(Unit const* target) const; // overwrite Unit::getLevelForTarget for boss level support
 
-        bool IsInEvadeMode() const;
+        bool IsInEvadeMode() const { return hasUnitState(UNIT_STAT_EVADE); }
 
         bool AIM_Initialize(CreatureAI* ai = NULL);
         void Motion_Initialize();

@@ -31,6 +31,7 @@ HomeMovementGenerator<Creature>::Initialize(Creature & owner)
     float x, y, z;
     owner.GetHomePosition(x, y, z, ori);
     owner.RemoveUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
+    owner.addUnitState(UNIT_STAT_EVADE);
     _setTargetLocation(owner);
 }
 
@@ -78,6 +79,7 @@ HomeMovementGenerator<Creature>::Update(Creature &owner, const uint32& time_diff
             owner.SendMessageToSet(&packet, false);
         }
 
+        owner.clearUnitState(UNIT_STAT_EVADE);
         owner.AI()->JustReachedHome();
         return false;
     }
