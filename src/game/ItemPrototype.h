@@ -61,8 +61,8 @@ enum ItemModType
     ITEM_MOD_ATTACK_POWER             = 38,
     ITEM_MOD_RANGED_ATTACK_POWER      = 39,
     ITEM_MOD_FERAL_ATTACK_POWER       = 40,
-    ITEM_MOD_SPELL_HEALING_DONE       = 41,
-    ITEM_MOD_SPELL_DAMAGE_DONE        = 42,
+    ITEM_MOD_SPELL_HEALING_DONE       = 41,                 // deprecated
+    ITEM_MOD_SPELL_DAMAGE_DONE        = 42,                 // deprecated
     ITEM_MOD_MANA_REGENERATION        = 43,
     ITEM_MOD_ARMOR_PENETRATION_RATING = 44,
     ITEM_MOD_SPELL_POWER              = 45
