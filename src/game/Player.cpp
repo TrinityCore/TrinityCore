@@ -1115,14 +1115,6 @@ void Player::Update( uint32 p_time )
     if(!IsInWorld())
         return;
 
-    if(GetHealth() && getDeathState() != JUST_ALIVED && (!isAlive() || HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_GHOST)))
-    {
-        sLog.outError("Player %s(GUID: %u) was dead(getDeathState() = %u, PLAYER_FLAGS_GHOST = %u) and had health = %u. This _might_ be an exploit attempt, if you think this information is useful, please report it.", GetName(), GetGUIDLow(), uint8(getDeathState()), uint8(HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_GHOST)), GetHealth());
-        //SetHealth(0); <- Don't use unless you're damn sure they're exploiting..
-        //if(!isGameMaster() && GetSession()->GetSecurity() < SEC_GAMEMASTER) GetSession()->KickPlayer();
-        //return;
-    }
-
     // undelivered mail
     if(m_nextMailDelivereTime && m_nextMailDelivereTime <= time(NULL))
     {
