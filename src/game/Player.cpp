@@ -483,6 +483,9 @@ Player::Player (WorldSession *session): Unit(), m_achievementMgr(this), m_reputa
     sWorld.IncreasePlayerCount();
 
     m_ChampioningFaction = 0;
+
+    for(int i = 0; i < MAX_POWERS; ++i)
+        m_powerFraction[i] = 0;
 }
 
 Player::~Player ()
@@ -2048,11 +2051,17 @@ void Player::RegenerateAll()
 
 void Player::Regenerate(Powers power)
 {
+    uint32 maxValue = GetMaxPower(power);
+    if(!maxValue)
+        return;
+
+    uint32 curValue = GetPower(power);
+    if(curValue == maxValue)
+        return;
+
     // TODO: possible use of miscvalueb instead of amount
     if (HasAuraTypeWithValue(SPELL_AURA_PREVENT_REGENERATE_POWER, power))
         return;
-    uint32 curValue = GetPower(power);
-    uint32 maxValue = GetMaxPower(power);
 
     float addvalue = 0.0f;
 
@@ -2107,22 +2116,33 @@ void Player::Regenerate(Powers power)
                 addvalue *= ((*i)->GetAmount() + 100) / 100.0f;
     }
 
+    addvalue += m_powerFraction[power];
+    uint32 integerValue = (uint32)addvalue;
+
     if (power != POWER_RAGE && power != POWER_RUNIC_POWER)
     {
-        if((addvalue-uint32(addvalue)) >= 0.50f)
-            curValue += uint32(addvalue+1);
-        else
-            curValue += uint32(addvalue);
+        curValue += integerValue;
 
         if (curValue > maxValue)
+        {
             curValue = maxValue;
+            m_powerFraction[power] = 0;
+        }
+        else
+            m_powerFraction[power] = addvalue - integerValue;
     }
     else
     {
-        if(curValue <= uint32(addvalue))
-            curValue = 0;
+        if(curValue > integerValue)
+        {
+            curValue -= integerValue;
+            m_powerFraction[power] = addvalue - integerValue;
+        }
         else
-            curValue -= uint32(addvalue);
+        {
+            curValue = 0;
+            m_powerFraction[power] = 0;
+        }            
     }
     if(m_regenTimerCount >= 2000)
         SetPower(power, curValue);
