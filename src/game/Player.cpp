@@ -2051,6 +2051,13 @@ void Player::RegenerateAll()
 
 void Player::Regenerate(Powers power)
 {
+    if(power == POWER_RUNE)
+    {
+        for(uint32 i = 0; i < MAX_RUNES; ++i)
+            if(uint8 cd = GetRuneCooldown(i))           // if we have cooldown, reduce it...
+                SetRuneCooldown(i, cd - 1);             // ... by 2 sec (because update is every 2 sec)
+    }
+
     uint32 maxValue = GetMaxPower(power);
     if(!maxValue)
         return;
@@ -2095,11 +2102,6 @@ void Player::Regenerate(Powers power)
             addvalue = 30 * RunicPowerDecreaseRate;         // 3 RunicPower by tick
         }   break;
         case POWER_RUNE:
-        {
-            for(uint32 i = 0; i < MAX_RUNES; ++i)
-                if(uint8 cd = GetRuneCooldown(i))           // if we have cooldown, reduce it...
-                    SetRuneCooldown(i, cd - 1);             // ... by 2 sec (because update is every 2 sec)
-        }   break;
         case POWER_FOCUS:
         case POWER_HAPPINESS:
         case POWER_HEALTH:
