@@ -904,6 +904,14 @@ void OPvPWintergrasp::EndBattle()
         }
     }
 
+    TeamId loser = OTHER_TEAM(m_defender);
+    for(PlayerSet::iterator itr = m_players[loser].begin(); itr != m_players[loser].end();)
+    {
+        Player *plr = *itr;
+        ++itr;
+        plr->CastSpell(plr, SPELL_TELEPORT_DALARAN, true);
+    }
+
     // remove auras from players who are not online
     CharacterDatabase.PExecute("DELETE FROM character_aura WHERE spell IN (%u,%u,%u)", SPELL_RECRUIT, SPELL_CORPORAL, SPELL_LIEUTENANT);
 }
