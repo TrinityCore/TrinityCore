@@ -25,4 +25,3 @@ UPDATE creature_template SET ScriptName='mob_molten_golem' WHERE entry=28695;
 UPDATE creature_template SET ScriptName='npc_volkhan_anvil' WHERE entry=28823;
 UPDATE creature_template SET ScriptName='boss_ionar' WHERE entry=28546;
 UPDATE creature_template SET ScriptName='mob_spark_of_ionar' WHERE entry=28926;
-

@@ -49,4 +49,3 @@ UPDATE `merge_creature`, `creature_template` SET
 ALTER TABLE merge_creature DROP COLUMN guid_new;
 
 INSERT creature SELECT * FROM merge_creature;
-
