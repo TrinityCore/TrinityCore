@@ -7,5 +7,3 @@ INSERT INTO `creature_ai_scripts` () VALUES
 (2122005, 21220, 6, 0, 100, 3, 0, 0, 0, 0, 34, 25, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Coilfang Priestess - Set Instance Data 1'),
 (2130101, 21301, 0, 0, 100, 3, 14100, 14100, 21000, 21500, 11, 38591, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Coilfang Shatterer - Casts Shatter Armor'),
 (2130102, 21301, 6, 0, 100, 3, 0, 0, 0, 0, 34, 25, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Coilfang Shatterer - Set Instance Data 1');
-
-

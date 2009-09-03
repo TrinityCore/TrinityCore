@@ -2200,4 +2200,3 @@ INSERT INTO `script_texts` (`entry`,`content_default`,`sound`,`type`,`language`,
    (-1609284, 'charges towards the Lich King, Ashbringer in hand and strikes the Lich King.',0,2,0,0,'Highlord Tirion Fordring'),
    (-1609285, 'disappears. Tirion walks over to where Darion lay',0,2,0,0,'The Lich King'),
    (-1609286, 'Light washes over the chapel  the Light of Dawn is uncovered.',0,2,0,0,'');
-

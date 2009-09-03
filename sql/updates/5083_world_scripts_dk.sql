@@ -8,4 +8,3 @@ UPDATE `creature_template` SET vehicleid=138 WHERE (`entry`='28817');
 UPDATE `gameobject_template` SET `ScriptName`='go_inconspicuous_mine_car' WHERE (`entry`='190767');
 UPDATE `creature_template` SET `ScriptName`='npc_scarlet_miner_cart' WHERE (`entry`='28817');
 UPDATE `creature_template` SET `ScriptName`='npc_scarlet_miner' WHERE (`entry`='28841');
-

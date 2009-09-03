@@ -25,5 +25,3 @@ insert into `quest_end_scripts` (`id`, `delay`, `command`, `datalong`, `datalong
 insert into `quest_end_scripts` (`id`, `delay`, `command`, `datalong`, `datalong2`, `dataint`, `x`, `y`, `z`, `o`) values('308','58','3','0','0','0','-5601.64','-541.38','392.42','0.5');
 insert into `quest_end_scripts` (`id`, `delay`, `command`, `datalong`, `datalong2`, `dataint`, `x`, `y`, `z`, `o`) values('308','60','3','0','0','0','-5605.96','-544.45','392.43','0.9');
 insert into `quest_end_scripts` (`id`, `delay`, `command`, `datalong`, `datalong2`, `dataint`, `x`, `y`, `z`, `o`) values('308','62','0','0','0','2000000079','0','0','0','0');
-
-
