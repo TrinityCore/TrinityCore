@@ -246,6 +246,12 @@ bool OPvPWintergrasp::SetupOutdoorPvP()
         {
             // find or create grave yard
             const WorldSafeLocsEntry *loc = objmgr.GetClosestGraveYard((*itr)->x, (*itr)->y, (*itr)->z, (*itr)->mapId, 0);
+            if(!loc)
+            {
+                ++itr;
+                continue;
+            }
+
             GraveYardMap::const_iterator graveItr;
             for(graveItr = graveLow; graveItr != graveUp; ++graveItr)
                 if(graveItr->second.safeLocId == loc->ID)
