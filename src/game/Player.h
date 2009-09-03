@@ -2221,6 +2221,7 @@ Spell * m_spellModTakingSpell;
     protected:
 
         uint32 m_regenTimerCount;
+        float m_powerFraction[MAX_POWERS];
         uint32 m_contestedPvPTimer;
 
         /*********************************************************/
