@@ -340,12 +340,17 @@ inline bool CreatureAI::UpdateVictim()
 
 inline bool CreatureAI::_EnterEvadeMode()
 {
-    if(me->IsInEvadeMode() || !me->isAlive())
+    if(!me->isAlive())
+        return false;
+
+    // sometimes bosses stuck in combat?
+    me->DeleteThreatList();
+    me->CombatStop(true);
+
+    if(me->IsInEvadeMode())
         return false;
 
     me->RemoveAllAuras();
-    me->DeleteThreatList();
-    me->CombatStop(true);
     me->LoadCreaturesAddon();
     me->SetLootRecipient(NULL);
     me->ResetPlayerDamageReq();
