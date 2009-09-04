@@ -173,15 +173,16 @@ bool GameObject::Create(uint32 guidlow, uint32 name_id, Map *map, uint32 phaseMa
 
     SetUInt32Value(GAMEOBJECT_FACTION, goinfo->faction);
     SetUInt32Value(GAMEOBJECT_FLAGS, goinfo->flags);
-    SetUInt16Value(GAMEOBJECT_DYNAMIC, 1, uint16(-1));
 
     SetEntry(goinfo->id);
 
     SetUInt32Value(GAMEOBJECT_DISPLAYID, goinfo->displayId);
 
+    // GAMEOBJECT_BYTES_1, index at 0, 1, 2 and 3
     SetGoState(go_state);
     SetGoType(GameobjectTypes(goinfo->type));
 
+    SetGoArtKit(0);                                         // unknown what this is
     SetGoAnimProgress(animprogress);
 
     SetByteValue(GAMEOBJECT_BYTES_1, 2, artKit);
