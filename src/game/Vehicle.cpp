@@ -268,7 +268,7 @@ bool Vehicle::AddPassenger(Unit *unit, int8 seatId)
             me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
     }
 
-    if(seat->second.seatInfo->m_flags && !(seat->second.seatInfo->m_flags & 0x4000))
+    if(seat->second.seatInfo->m_flags && !(seat->second.seatInfo->m_flags & 0x400))
         unit->addUnitState(UNIT_STAT_ONVEHICLE);
 
     //SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PLAYER_CONTROLLED);

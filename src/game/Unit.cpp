@@ -538,8 +538,8 @@ void Unit::RemoveAurasWithInterruptFlags(uint32 flag, uint32 except)
         {
             uint32 removedAuras = m_removedAurasCount;
             RemoveAura(aur, AURA_REMOVE_BY_ENEMY_SPELL);
-            if (removedAuras+1 < m_removedAurasCount)
-                iter=m_interruptableAuras.begin();
+            if (m_removedAurasCount > removedAuras + 1)
+                iter = m_interruptableAuras.begin();
         }
     }
 
@@ -589,11 +589,9 @@ void Unit::RemoveAurasWithMechanic(uint32 mechanic_mask, AuraRemoveMode removemo
 void Unit::UpdateInterruptMask()
 {
     m_interruptMask = 0;
-    for(AuraList::iterator i = m_interruptableAuras.begin(); i != m_interruptableAuras.end(); ++i)
-    {
-        if(*i)
-            m_interruptMask |= (*i)->GetSpellProto()->AuraInterruptFlags;
-    }
+    for(AuraList::const_iterator i = m_interruptableAuras.begin(); i != m_interruptableAuras.end(); ++i)
+        m_interruptMask |= (*i)->GetSpellProto()->AuraInterruptFlags;
+
     if(Spell* spell = m_currentSpells[CURRENT_CHANNELED_SPELL])
         if(spell->getState() == SPELL_STATE_CASTING)
             m_interruptMask |= spell->m_spellInfo->ChannelInterruptFlags;
@@ -1567,7 +1565,7 @@ void Unit::DealMeleeDamage(CalcDamageInfo *damageInfo, bool durabilityLoss)
         AuraEffectList const& vDamageShields = pVictim->GetAurasByType(SPELL_AURA_DAMAGE_SHIELD);
         for(AuraEffectList::const_iterator i = vDamageShields.begin(), next = vDamageShields.begin(); i != vDamageShields.end(); i = next)
         {
-           next++;
+           ++next;
            if (alreadyDone.find(*i) == alreadyDone.end())
            {
                alreadyDone.insert(*i);
@@ -3942,8 +3940,6 @@ void Unit::RemoveAurasDueToSpellByDispel(uint32 spellId, uint64 casterGUID, Unit
                     // backfire damage and silence
                     dispeler->CastCustomSpell(dispeler, 31117, &damage, NULL, NULL, true, NULL, NULL,GetGUID());
                 }
-                RemoveAuraFromStack(iter, AURA_REMOVE_BY_ENEMY_SPELL);
-                return;
             }
             RemoveAuraFromStack(iter, AURA_REMOVE_BY_ENEMY_SPELL);
             return;
@@ -4004,7 +4000,7 @@ void Unit::RemoveAurasDueToItemSpell(Item* castItem,uint32 spellId)
 
 void Unit::RemoveAurasByType(AuraType auraType, uint64 casterGUID, Aura * except, bool negative, bool positive)
 {
-    for (AuraEffectList::iterator iter = m_modAuras[auraType].begin(); iter != m_modAuras[auraType].end();)
+    for (AuraEffectList::const_iterator iter = m_modAuras[auraType].begin(); iter != m_modAuras[auraType].end();)
     {
         Aura * aur = (*iter)->GetParentAura();
         ++iter;
@@ -4013,8 +4009,8 @@ void Unit::RemoveAurasByType(AuraType auraType, uint64 casterGUID, Aura * except
         {
             uint32 removedAuras = m_removedAurasCount;
             RemoveAura(aur);
-            if (removedAuras+1< m_removedAurasCount)
-                iter=m_modAuras[auraType].begin();
+            if (m_removedAurasCount > removedAuras + 1)
+                iter = m_modAuras[auraType].begin();
         }
     }
 }
@@ -4051,8 +4047,8 @@ void Unit::RemoveNotOwnSingleTargetAuras(uint32 newPhase)
         {
             uint32 removedAuras = m_removedAurasCount;
             aura->GetTarget()->RemoveAura(aura);
-            if (removedAuras+1<m_removedAurasCount)
-                iter=scAuras.begin();
+            if (m_removedAurasCount > removedAuras + 1)
+                iter = scAuras.begin();
         }
     }
 }
@@ -4123,7 +4119,8 @@ void Unit::RemoveAura(AuraMap::iterator &i, AuraRemoveMode mode)
     }
 
     // only way correctly remove all auras from list
-    i = m_Auras.begin();
+    //if(removedAuras != m_removedAurasCount) new aura may be casted
+        i = m_Auras.begin();
 }
 
 void Unit::RemoveAllAuras()

@@ -2098,7 +2098,8 @@ update spell_area set quest_end = 12756 where spell=53081;
 
 update creature_template set spell1=53117 where entry=29104;
 update creature_template set spell1=53348,killcredit1=29150 where entry IN (29102,29103);
-
+UPDATE creature_template SET spell1=52435,spell2=52576,spell5=52588,VehicleId=79,speed=0 WHERE entry = 28833;
+UPDATE `creature_template` SET vehicleid=87 WHERE (`entry`='28817'); -- mine car
 
 DELETE FROM `spell_script_target` WHERE `entry` in (53658, 53679, 53701, 53705, 53706, 53677, 53685);
 -- insert into spell_script_target values (53658, 1, 29173);
