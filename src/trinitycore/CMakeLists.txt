@@ -48,6 +48,7 @@ vmaps
 ZThread
 g3dlite
 ${READLINE_LIBRARY}
+${TERMCAP_LIBRARY}
 gomp
 ${SCRIPT_LIB}
 ${MYSQL_LIBRARIES}
@@ -57,13 +58,6 @@ ${ACE_LIBRARY}
 ${ZLIB}
 ${OSX_LIBS}
 )
-
-IF (CENTOS)
-    target_link_libraries(
-        trinity-core
-        termcap
-    )
-ENDIF (CENTOS)
 
 install(TARGETS trinity-core DESTINATION bin)
 
