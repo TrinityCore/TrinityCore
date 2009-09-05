@@ -1,18 +1,23 @@
+# find Readline (terminal input library) includes and library
+#
+# READLINE_INCLUDE_DIR - where the directory containing the READLINE headers can be found
+# READLINE_LIBRARY     - full path to the READLINE library
+# READLINE_FOUND       - TRUE if READLINE was found
+
 MACRO(FIND_READLINE)
-FIND_PATH(READLINE_INCLUDE_DIR readline/readline.h)
+
+FIND_PATH(READLINE_INCLUDE_DIR radline/readline.h)
 FIND_LIBRARY(READLINE_LIBRARY NAMES readline) 
 
 IF (READLINE_INCLUDE_DIR AND READLINE_LIBRARY)
-   SET(READLINE_FOUND TRUE)
+    SET(READLINE_FOUND TRUE)
+    MESSAGE(STATUS "Found Readline library: ${READLINE_LIBRARY}")
+    MESSAGE(STATUS "Include dir is: ${READLINE_INCLUDE_DIR}")
+    INCLUDE_DIRECTORIES(${READLINE_INCLUDE_DIR})
+ELSE (READLINE_INCLUDE_DIR AND READLINE_LIBRARY)
+    SET(READLINE_FOUND FALSE)
+    MESSAGE(FATAL_ERROR "** Readline library not found!")
+    MESSAGE(FATAL_ERROR "** Your distro may provide a binary for Readline e.g. for ubuntu try apt-get install libreadline5-dev")
 ENDIF (READLINE_INCLUDE_DIR AND READLINE_LIBRARY)
 
-IF (READLINE_FOUND)
-   IF (NOT Readline_FIND_QUIETLY)
-      MESSAGE(STATUS "Found GNU readline: ${READLINE_LIBRARY}")
-   ENDIF (NOT Readline_FIND_QUIETLY)
-ELSE (READLINE_FOUND)
-   IF (Readline_FIND_REQUIRED)
-      MESSAGE(FATAL_ERROR "Could not find GNU readline")
-   ENDIF (Readline_FIND_REQUIRED)
-ENDIF (READLINE_FOUND)
 ENDMACRO(FIND_READLINE)
