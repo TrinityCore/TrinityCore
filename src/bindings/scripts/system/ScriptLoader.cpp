@@ -285,6 +285,8 @@ extern void AddSC_boss_sartharion();            //Obsidian Sanctum
 extern void AddSC_instance_obsidian_sanctum();
 extern void AddSC_boss_bjarngrim();             //Ulduar Halls of Lightning
 extern void AddSC_boss_loken();
+extern void AddSC_boss_ionar();
+extern void AddSC_boss_volkhan();
 extern void AddSC_instance_halls_of_lightning();
 extern void AddSC_boss_auriaya();               //Ulduar Ulduar
 extern void AddSC_boss_flame_leviathan();
@@ -678,6 +680,8 @@ void AddScripts()
     AddSC_instance_obsidian_sanctum();
     AddSC_boss_bjarngrim();             //Ulduar Halls of Lightning
     AddSC_boss_loken();
+    AddSC_boss_ionar();
+    AddSC_boss_volkhan();
     AddSC_instance_halls_of_lightning();
     AddSC_boss_auriaya();               //Ulduar Ulduar
     AddSC_boss_flame_leviathan();
