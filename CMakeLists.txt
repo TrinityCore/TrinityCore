@@ -7,6 +7,7 @@ include(cmake/FindAce.cmake)
 include(cmake/FindMySql.cmake)
 include(cmake/FindPostgreSql.cmake)
 include(cmake/FindReadline.cmake)
+include(cmake/FindTermcap.cmake)
 CONFIGURE_FILE(
   "${CMAKE_CURRENT_SOURCE_DIR}/cmake/cmake_uninstall.cmake.in"
   "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake"
@@ -159,17 +160,13 @@ ELSE(EXISTS ${ACE_INCLUDE_DIR}/ace/Stack_Trace.h)
     message(STATUS "** Your libace is out of date. Please update your libace!")
 ENDIF(EXISTS ${ACE_INCLUDE_DIR}/ace/Stack_Trace.h)
 
-IF(UNIX AND NOT CENTOS)
-  FIND_READLINE()
-  IF(READLINE_FOUND)
-  message(STATUS "Found Readline library: ${READLINE_LIBRARY}")
-  message(STATUS "Include dir is: ${READLINE_INCLUDE_DIR}")
-  ELSE(READLINE_FOUND)
-  message(SEND_ERROR "** Readline library not found!")
-  message(SEND_ERROR "** Your distro may provide a binary for Readline e.g. for ubuntu try apt-get install libreadline5-dev")
-  return()
-  ENDIF(READLINE_FOUND)
-ENDIF(UNIX AND NOT CENTOS)
+IF(UNIX)
+    IF(CENTOS)
+        FIND_TERMCAP()
+    ELSE(CENTOS)
+        FIND_READLINE()
+    ENDIF(CENTOS)
+ENDIF(UNIX)
 
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/config.h.cmake ${CMAKE_CURRENT_BINARY_DIR}/config.h)
 
@@ -198,7 +195,6 @@ ${POSTGRESQL_INCLUDE_DIR}
 ${CMAKE_CURRENT_BINARY_DIR}/src/shared 
 ${CMAKE_CURRENT_SOURCE_DIR}/..
 ${ACE_INCLUDE_DIR}
-${READLINE_INCLUDE_DIR}
 )
 
 SET(CMAKE_SKIP_BUILD_RPATH FALSE)
