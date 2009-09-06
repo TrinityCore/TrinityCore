@@ -688,7 +688,8 @@ struct TRINITY_DLL_DECL npc_dkc1_gothikAI : public ScriptedAI
                 {
                     if (CAST_PLR(owner)->GetQuestStatus(12698) == QUEST_STATUS_INCOMPLETE)
                     {
-                        CAST_CRE(who)->CastSpell(owner, 52517, true);
+                        //CAST_CRE(who)->CastSpell(owner, 52517, true);
+                        CAST_PLR(owner)->KilledMonsterCredit(28845, me->GetGUID());
                         CAST_CRE(who)->ForcedDespawn();
 
                         if (CAST_PLR(owner)->GetQuestStatus(12698) == QUEST_STATUS_COMPLETE)
@@ -703,6 +704,27 @@ struct TRINITY_DLL_DECL npc_dkc1_gothikAI : public ScriptedAI
 CreatureAI* GetAI_npc_dkc1_gothik(Creature* pCreature)
 {
     return new npc_dkc1_gothikAI(pCreature);
+}
+
+struct TRINITY_DLL_DECL npc_scarlet_ghoulAI : public ScriptedAI
+{
+    npc_scarlet_ghoulAI(Creature *c) : ScriptedAI(c) {}
+
+    void MoveInLineOfSight(Unit *target)
+    {
+        EnterEvadeMode();
+        return;
+    }
+    void Aggro(Unit *who)
+    {
+        EnterEvadeMode();
+        return;
+    }
+};
+
+CreatureAI* GetAI_npc_scarlet_ghoul(Creature* pCreature)
+{
+    return new npc_scarlet_ghoulAI(pCreature);
 }
 
 /*####
@@ -959,6 +981,11 @@ void AddSC_the_scarlet_enclave_c1()
     newscript = new Script;
     newscript->Name="npc_dkc1_gothik";
     newscript->GetAI = &GetAI_npc_dkc1_gothik;
+    newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name="npc_scarlet_ghoul";
+    newscript->GetAI = &GetAI_npc_scarlet_ghoul;
     newscript->RegisterSelf();
 
     // Massacre At Light's Point
