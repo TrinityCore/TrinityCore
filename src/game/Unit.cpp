@@ -3928,10 +3928,12 @@ void Unit::RemoveAurasDueToSpellByDispel(uint32 spellId, uint64 casterGUID, Unit
 {
     for(AuraMap::iterator iter = m_Auras.lower_bound(spellId); iter != m_Auras.upper_bound(spellId);)
     {
-        Aura * aur= iter->second;
+        Aura *aur = iter->second;
         if (casterGUID == aur->GetCasterGUID())
         {
-            // Unstable Affliction
+            RemoveAuraFromStack(iter, AURA_REMOVE_BY_ENEMY_SPELL);
+
+            // Unstable Affliction (crash if before removeaura?)
             if (aur->GetSpellProto()->SpellFamilyName == SPELLFAMILY_WARLOCK && (aur->GetSpellProto()->SpellFamilyFlags[1] & 0x0100))
             {
                 if (AuraEffect const * aurEff = aur->GetPartAura(0))
@@ -3941,7 +3943,6 @@ void Unit::RemoveAurasDueToSpellByDispel(uint32 spellId, uint64 casterGUID, Unit
                     dispeler->CastCustomSpell(dispeler, 31117, &damage, NULL, NULL, true, NULL, NULL,GetGUID());
                 }
             }
-            RemoveAuraFromStack(iter, AURA_REMOVE_BY_ENEMY_SPELL);
             return;
         }
         else
