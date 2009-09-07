@@ -721,19 +721,19 @@ void OPvPWintergrasp::UpdateTenacityStack()
     int32 newStack = 0;
     if(allianceNum && hordeNum)
     {
-        if(allianceNum > hordeNum)
-            newStack = allianceNum / hordeNum - 1;
-        else if(allianceNum < hordeNum)
-            newStack = 1 - int32(hordeNum / allianceNum);
+        if(allianceNum < hordeNum)
+            newStack = hordeNum / allianceNum - 1; // positive, should cast on alliance
+        else if(allianceNum > hordeNum)
+            newStack = 1 - int32(allianceNum / hordeNum); // negative, should cast on horde
     }
 
     if(newStack == m_tenacityStack)
         return;
 
     // Remove old buff
-    if(m_tenacityStack > 0)
+    if(m_tenacityStack > 0) // old buff was on alliance
     {
-        if(newStack <= 0)
+        if(newStack <= 0) // new buff should on horde
         {
             TeamCastSpell(TEAM_ALLIANCE, -SPELL_TENACITY);
             VehicleCastSpell(TEAM_ALLIANCE, -SPELL_TENACITY_VEHICLE);
@@ -752,7 +752,7 @@ void OPvPWintergrasp::UpdateTenacityStack()
     // Apply new buff
     if(newStack)
     {
-        TeamId team = newStack > 0 ? TEAM_HORDE : TEAM_ALLIANCE;
+        TeamId team = newStack > 0 ? TEAM_ALLIANCE : TEAM_HORDE;
         if(newStack < 0) newStack = -newStack;
         for(PlayerSet::iterator itr = m_players[team].begin(); itr != m_players[team].end(); ++itr)
             (*itr)->SetAuraStack(SPELL_TENACITY, *itr, newStack);
