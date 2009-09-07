@@ -1760,18 +1760,12 @@ void Unit::CalcAbsorbResist(Unit *pVictim,SpellSchoolMask schoolMask, DamageEffe
     int32 TotalAbsorb = RemainingDamage;
     // Get unit state (need for some absorb check)
     uint32 unitflag = pVictim->GetUInt32Value(UNIT_FIELD_FLAGS);
-    // Reflect damage spells (not cast any damage spell in aura lookup)
-    uint32 reflectSpell = 0;
-    int32  reflectDamage = 0;
-    AuraEffect*  reflectTriggeredBy = NULL;                       // expected as not expired at reflect as in current cases
-    uint32 healSpell = 0;
-    int32  healAmount = 0;
-    Unit * healCaster = NULL;
     // Death Prevention Aura
-    SpellEntry const*  preventDeathSpell = NULL;
-    int32  preventDeathAmount = 0;
+    SpellEntry const* preventDeathSpell = NULL;
+    int32 preventDeathAmount = 0;
     // Need remove expired auras after
     bool existExpired = false;
+    TriggeredSpellInfoVct triggeredSpells;
     // absorb without mana cost
     AuraEffectList const& vSchoolAbsorb = pVictim->GetAurasByType(SPELL_AURA_SCHOOL_ABSORB);
     for(AuraEffectList::const_iterator i = vSchoolAbsorb.begin(); i != vSchoolAbsorb.end() && RemainingDamage > 0; ++i)
@@ -1824,12 +1818,8 @@ void Unit::CalcAbsorbResist(Unit *pVictim,SpellSchoolMask schoolMask, DamageEffe
                 // Reflective Shield (Lady Malande boss)
                 if (spellProto->Id == 41475)
                 {
-                    if(RemainingDamage < currentAbsorb)
-                        reflectDamage = RemainingDamage / 2;
-                    else
-                        reflectDamage = currentAbsorb / 2;
-                    reflectSpell = 33619;
-                    reflectTriggeredBy = *i;
+                    triggeredSpells.push_back(TriggeredSpellInfo(33619, pVictim, this,
+                        std::min(RemainingDamage, currentAbsorb) / 2, *i));
                     break;
                 }
                 if (spellProto->Id == 39228 || // Argussian Compass
@@ -1903,18 +1893,12 @@ void Unit::CalcAbsorbResist(Unit *pVictim,SpellSchoolMask schoolMask, DamageEffe
                         {
                             case 5065:                          // Rank 1
                             case 5064:                          // Rank 2
-                            {
-                                if(RemainingDamage >= currentAbsorb)
-                                    reflectDamage = (aurEff)->GetAmount() * currentAbsorb/100;
-                                else
-                                    reflectDamage = (aurEff)->GetAmount() * RemainingDamage/100;
-                                reflectSpell = 33619;
-                                reflectTriggeredBy = *i;
+                                triggeredSpells.push_back(TriggeredSpellInfo(33619, pVictim, this, 
+                                    std::min(RemainingDamage, currentAbsorb) * aurEff->GetAmount() / 100, *i));
                                 break;
-                            }
                             default:
                                 sLog.outError("Unit::CalcAbsorbResist: unknown Reflective Shield spell %d", aurEff->GetId());
-                            break;
+                                break;
                         }
                     }
                 }
@@ -1953,9 +1937,8 @@ void Unit::CalcAbsorbResist(Unit *pVictim,SpellSchoolMask schoolMask, DamageEffe
                         // damage absorbed by Anti-Magic Shell energizes the DK with additional runic power.
                         // This, if I'm not mistaken, shows that we get back ~2% of the absorbed damage as runic power.
                         int32 absorbed = RemainingDamage * currentAbsorb / 100;
-                        int32 regen = absorbed * 2 / 10;
-                        pVictim->CastCustomSpell(pVictim, 49088, &regen, 0, 0, true, 0, (*i));
                         RemainingDamage -= absorbed;
+                        triggeredSpells.push_back(TriggeredSpellInfo(49088, pVictim, pVictim, absorbed * 2 / 10, *i));
                         continue;
                     }
                     case 50462: // Anti-Magic Shell (on single party/raid member)
@@ -1970,10 +1953,7 @@ void Unit::CalcAbsorbResist(Unit *pVictim,SpellSchoolMask schoolMask, DamageEffe
                                 absorbed = canabsorb;
 
                             RemainingDamage -= absorbed;
-
-                            uint32 ab_damage = absorbed;
-                            DealDamageMods(caster,ab_damage,NULL);
-                            DealDamage(caster, ab_damage, NULL, damagetype, schoolMask, 0, false);
+                            triggeredSpells.push_back(TriggeredSpellInfo(0, this, caster, absorbed, *i));
                         }
                         continue;
                     default:
@@ -1998,8 +1978,20 @@ void Unit::CalcAbsorbResist(Unit *pVictim,SpellSchoolMask schoolMask, DamageEffe
         if ((*i)->GetAmount()<=0)
             existExpired = true;
     }
-    if(healSpell && healCaster)
-       healCaster->CastCustomSpell(healCaster, healSpell, &healAmount, NULL, NULL, true);
+
+    for(TriggeredSpellInfoVct::const_iterator itr = triggeredSpells.begin(); itr != triggeredSpells.end(); ++itr)
+    {
+        if(itr->spell)
+        {
+            itr->source->CastCustomSpell(itr->spell, SPELLVALUE_BASE_POINT0, itr->amount, itr->target, true, NULL, itr->auraEff);
+        }
+        else if(itr->amount > 0)
+        {
+            uint32 damage = (uint32)itr->amount;
+            itr->source->DealDamageMods(itr->target, damage, NULL);
+            itr->source->DealDamage(itr->target, damage, NULL, damagetype, schoolMask, 0, false);
+        }
+    }
 
     // Remove all expired absorb auras
     if (existExpired)
@@ -2018,10 +2010,6 @@ void Unit::CalcAbsorbResist(Unit *pVictim,SpellSchoolMask schoolMask, DamageEffe
             }
         }
     }
-
-    // Cast back reflect damage spell
-    if (reflectSpell)
-        pVictim->CastCustomSpell(this,  reflectSpell, &reflectDamage, NULL, NULL, true, NULL, reflectTriggeredBy);
 
     // absorb by mana cost
     AuraEffectList const& vManaShield = pVictim->GetAurasByType(SPELL_AURA_MANA_SHIELD);

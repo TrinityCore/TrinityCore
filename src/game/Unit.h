@@ -859,6 +859,18 @@ struct SpellPeriodicAuraLogInfo
     bool   critical;
 };
 
+struct TriggeredSpellInfo
+{
+    TriggeredSpellInfo(uint32 _spell, Unit *_source, Unit *_target, int32 _amount = 0, AuraEffect *_auraEff = NULL)
+        : spell(_spell), amount(_amount), source(_source), target(_target), auraEff(_auraEff) {}
+    uint32 spell;
+    int32 amount;
+    Unit *source, *target;
+    AuraEffect *auraEff;
+};
+
+typedef std::vector<TriggeredSpellInfo> TriggeredSpellInfoVct;
+
 uint32 createProcExtendMask(SpellNonMeleeDamage *damageInfo, SpellMissInfo missCondition);
 
 #define MAX_DECLINED_NAME_CASES 5
