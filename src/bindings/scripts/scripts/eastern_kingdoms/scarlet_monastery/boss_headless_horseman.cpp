@@ -25,6 +25,7 @@ EndScriptData */
 #include "SpellMgr.h"
 #include "def_scarlet_monastery.h"
 
+//this texts are already used by 3975 and 3976
 #define SAY_ENTRANCE                -1189001
 #define SAY_REJOINED                -1189002
 #define SAY_LOST_HEAD               -1189003

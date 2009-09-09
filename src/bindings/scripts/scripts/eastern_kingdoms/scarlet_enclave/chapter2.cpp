@@ -20,6 +20,7 @@
 #include "escort_ai.h"
 
 //How to win friends and influence enemies
+// texts signed for creature 28939 but used for 28939,28940,28610
 enum win_friends
 {
     SAY_PERSUADE1                     = -1609501,
@@ -511,7 +512,7 @@ CreatureAI* GetAI_mob_high_inquisitor_valroth(Creature* pCreature)
 /*######
 ## npc_a_special_surprise
 ######*/
-
+//used by 29032,29061,29065,29067,29068,29070,29074,29072,29073,29071 but signed for 29032
 enum SpecialSurprise
 {
     SAY_EXEC_START_1            = -1609025,                 // speech for all

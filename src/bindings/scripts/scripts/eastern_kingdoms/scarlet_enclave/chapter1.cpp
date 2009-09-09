@@ -44,6 +44,7 @@ enum
 #define EVENT_BLOOD_STRIKE              3
 #define EVENT_DEATH_COIL                4
 
+//used by 29519,29520,29565,29566,29567 but signed for 29519
 int32 say_event_start[8] =
 {
     -1609000,-1609001,-1609002,-1609003,

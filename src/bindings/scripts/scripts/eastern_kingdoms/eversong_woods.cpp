@@ -139,6 +139,7 @@ bool GossipSelect_npc_prospector_anvilward(Player* pPlayer, Creature* pCreature,
 #define FACTION_HOSTILE    45
 #define FACTION_FRIENDLY   7
 
+// missing from db
 #define TEXT_SECOND_TRIAL_1 -1645006
 #define TEXT_SECOND_TRIAL_2 -1645007
 #define TEXT_SECOND_TRIAL_3 -1645008

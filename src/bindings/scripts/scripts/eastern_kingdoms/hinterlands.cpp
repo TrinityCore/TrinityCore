@@ -146,10 +146,10 @@ CreatureAI* GetAI_npc_00x09hl(Creature* pCreature)
 
 enum
 {
-    SAY_RIN_FREE            = -1000403,
+    SAY_RIN_FREE            = -1000403, //from here
     SAY_RIN_BY_OUTRUNNER    = -1000404,
     SAY_RIN_HELP_1          = -1000405,
-    SAY_RIN_HELP_2          = -1000406,
+    SAY_RIN_HELP_2          = -1000406, //to here, are used also by 6182 but this is wrong...
     SAY_RIN_COMPLETE        = -1000407,
     SAY_RIN_PROGRESS_1      = -1000408,
     SAY_RIN_PROGRESS_2      = -1000409,
