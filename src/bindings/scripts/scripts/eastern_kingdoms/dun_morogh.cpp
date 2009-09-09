@@ -31,6 +31,7 @@ EndContentData */
 ## npc_narm_faulk
 ######*/
 
+// signed for 6172
 #define SAY_HEAL -1000280
 
 struct TRINITY_DLL_DECL npc_narm_faulkAI : public ScriptedAI
