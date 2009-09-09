@@ -1,6 +1,7 @@
 -- Up to TC2 5408
 
 -- This file contains all waypoints used by escortAI scripts
+/*
 DROP TABLE IF EXISTS script_waypoint;
 CREATE TABLE script_waypoint (
   entry mediumint(8) unsigned NOT NULL DEFAULT '0' COMMENT 'creature_template entry',
@@ -12,6 +13,7 @@ CREATE TABLE script_waypoint (
   point_comment text,
   PRIMARY KEY (entry, pointid)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Script Creature waypoints';
+*/
 
 DELETE FROM script_waypoint WHERE entry = 24156;
 INSERT INTO script_waypoint VALUES
