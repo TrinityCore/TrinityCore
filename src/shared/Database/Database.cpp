@@ -219,7 +219,7 @@ bool Database::CheckRequiredField( char const* table_name, char const* required_
             }
         }
 
-        delete result;
+        delete result2;
 
         if(!reqName.empty())
             sLog.outErrorDb("Table `%s` have field `%s` but expected `%s`! Not all sql updates applied?",table_name,reqName.c_str(),required_name);
