@@ -13167,7 +13167,7 @@ void Player::RewardQuest( Quest const *pQuest, uint32 reward, Object* questGiver
             DestroyItemCount( pQuest->ReqItemId[i], pQuest->ReqItemCount[i], true);
     }
 
-    //TakeQuestSourceItem() ?
+    TakeQuestSourceItem(quest_id, true); // take quest src item from player on completing quest
 
     for(uint8 i = 0; i < QUEST_SOURCE_ITEM_IDS_COUNT; ++i)
     {
