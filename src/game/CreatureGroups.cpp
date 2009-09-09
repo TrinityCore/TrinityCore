@@ -154,7 +154,7 @@ void CreatureGroupManager::LoadCreatureFormations()
 
 void CreatureGroup::AddMember(Creature *member)
 {
-    sLog.outDebug("CreatureGroup::AddMember: Adding unit GUIDLow: %u.", member->GetGUIDLow());
+    sLog.outDebug("CreatureGroup::AddMember: Adding unit GUID: %u.", member->GetGUIDLow());
 
     //Check if it is a leader
     if(member->GetDBTableGUIDLow() == m_groupID)
