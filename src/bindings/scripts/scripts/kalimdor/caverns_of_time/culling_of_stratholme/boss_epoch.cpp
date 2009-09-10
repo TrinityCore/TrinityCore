@@ -18,6 +18,7 @@ update creature_template set scriptname = '' where entry = '';
 #define SPELL_WOUNDING_STRIKE_N                   52771 //Used only on the tank
 #define SPELL_WOUNDING_STRIKE_H                   58830
 
+//not in db
 //Say
 #define SAY_INTRO                                -1595000 //"Prince Arthas Menethil, on this day, a powerful darkness has taken hold of your soul. The death you are destined to visit upon others will this day be your own."
 #define SAY_AGGRO                                -1595001 //"We'll see about that, young prince."

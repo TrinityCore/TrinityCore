@@ -229,8 +229,9 @@ bool GossipSelect_npc_nat_pagle(Player* pPlayer, Creature* pCreature, uint32 uiS
 
 enum
 {
-    SAY_PROGRESS_1_TER          = -1000411,
-    SAY_PROGRESS_2_HEN          = -1000412,
+    // looks like all this text ids are wrong.
+    SAY_PROGRESS_1_TER          = -1000411, // signed for 3568
+    SAY_PROGRESS_2_HEN          = -1000412, // signed for 3568
     SAY_PROGRESS_3_TER          = -1000413,
     SAY_PROGRESS_4_TER          = -1000414,
     EMOTE_SURRENDER             = -1000415,

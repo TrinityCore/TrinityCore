@@ -60,6 +60,7 @@ bool GossipSelect_npc_gregan_brewspewer(Player* pPlayer, Creature* pCreature, ui
 
 enum
 {
+    //signed for 7806
     SAY_OOX_START           = -1000287,
     SAY_OOX_AGGRO1          = -1000288,
     SAY_OOX_AGGRO2          = -1000289,

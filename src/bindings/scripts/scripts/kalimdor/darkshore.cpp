@@ -185,19 +185,19 @@ bool QuestAccept_npc_kerlonian(Player* pPlayer, Creature* pCreature, const Quest
 
 enum
 {
-    SAY_REM_START               = -1000415,
-    SAY_REM_AGGRO               = -1000427,
-    SAY_REM_RAMP1_1             = -1000416,
-    SAY_REM_RAMP1_2             = -1000417,
-    SAY_REM_BOOK                = -1000418,
-    SAY_REM_TENT1_1             = -1000419,
-    SAY_REM_TENT1_2             = -1000420,
-    SAY_REM_MOSS                = -1000421,
-    EMOTE_REM_MOSS              = -1000422,
-    SAY_REM_MOSS_PROGRESS       = -1000423,
-    SAY_REM_PROGRESS            = -1000424,
-    SAY_REM_REMEMBER            = -1000425,
-    EMOTE_REM_END               = -1000426,
+    SAY_REM_START               = -1000415, // signed for 4966
+    SAY_REM_AGGRO               = -1000427, // signed for 9999
+    SAY_REM_RAMP1_1             = -1000416, // signed for 9999
+    SAY_REM_RAMP1_2             = -1000417, // signed for 9999
+    SAY_REM_BOOK                = -1000418, // signed for 9999
+    SAY_REM_TENT1_1             = -1000419, // signed for 9999
+    SAY_REM_TENT1_2             = -1000420, // signed for 9999
+    SAY_REM_MOSS                = -1000421, // signed for 9999
+    EMOTE_REM_MOSS              = -1000422, // signed for 9999
+    SAY_REM_MOSS_PROGRESS       = -1000423, // signed for 9999
+    SAY_REM_PROGRESS            = -1000424, // signed for 9999
+    SAY_REM_REMEMBER            = -1000425, // signed for 9999
+    EMOTE_REM_END               = -1000426, // signed for 9999
 
     FACTION_ESCORTEE            = 10,
     QUEST_ABSENT_MINDED_PT2     = 731,
@@ -312,8 +312,8 @@ bool QuestAccept_npc_prospector_remtravel(Player* pPlayer, Creature* pCreature, 
 
 enum
 {
-    EMOTE_START             = -1000413,
-    SAY_AT_CLOSE            = -1000414,
+    EMOTE_START             = -1000413, //signed for 4966
+    SAY_AT_CLOSE            = -1000414, //signed for 4966
     QUEST_GYROMAST_REV      = 2078,
     NPC_GELKAK              = 6667,
     FACTION_HOSTILE         = 14

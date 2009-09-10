@@ -158,7 +158,7 @@ enum
     SAY_RIN_END_3               = -1000428,
     EMOTE_RIN_END_4             = -1000429,
     EMOTE_RIN_END_5             = -1000430,
-    SAY_RIN_END_6               = -1000431,
+    SAY_RIN_END_6               = -1000431, // signed for 6784
     SAY_SPR_END_7               = -1000432,
     EMOTE_RIN_END_8             = -1000433,
 
