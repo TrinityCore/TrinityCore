@@ -87,9 +87,9 @@ class DBCStorage
             // Load data from sql
             if (sql)
             {
-                std::string query = "SELECT * FROM `" + sql->sqlTableName;
+                std::string query = "SELECT * FROM " + sql->sqlTableName;
                 if (sql->indexPos >= 0)
-                    query +="` ORDER BY + `" + *sql->indexName + "` DESC";
+                    query +=" ORDER BY + " + *sql->indexName + " DESC";
                 query += ";";
 
                 result = WorldDatabase.Query(query.c_str());

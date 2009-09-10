@@ -98,12 +98,12 @@ bool OPvPWintergrasp::SetupOutdoorPvP()
     }
     minX -= 20; minY -= 20; maxX += 20; maxY += 20;
 
-    QueryResult *result = WorldDatabase.PQuery("SELECT `guid` FROM `gameobject`,`gameobject_template`"
-        " WHERE `gameobject`.`map`=571"
-        " AND `gameobject`.`position_x`>%f AND `gameobject`.`position_y`>%f"
-        " AND `gameobject`.`position_x`<%f AND `gameobject`.`position_y`<%f"
-        " AND `gameobject_template`.`type`=33"
-        " AND `gameobject`.`id`=`gameobject_template`.`entry`",
+    QueryResult *result = WorldDatabase.PQuery("SELECT guid FROM gameobject,gameobject_template"
+        " WHERE gameobject.map=571"
+        " AND gameobject.position_x>%f AND gameobject.position_y>%f"
+        " AND gameobject.position_x<%f AND gameobject.position_y<%f"
+        " AND gameobject_template.type=33"
+        " AND gameobject.id=gameobject_template.entry",
         minX, minY, maxX, maxY);
     if(!result)
         return false;
@@ -172,9 +172,9 @@ bool OPvPWintergrasp::SetupOutdoorPvP()
         {
             uint32 engGuid = 0;
 
-            QueryResult *result = WorldDatabase.PQuery("SELECT `guid` FROM `creature`"
-                " WHERE `creature`.`map`=571"
-                " AND `creature`.`id` IN (%u, %u);", CRE_ENG_A, CRE_ENG_H);
+            QueryResult *result = WorldDatabase.PQuery("SELECT guid FROM creature"
+                " WHERE creature.map=571"
+                " AND creature.id IN (%u, %u);", CRE_ENG_A, CRE_ENG_H);
 
             if(!result)
             {
