@@ -20,16 +20,16 @@
 #include "def_naxxramas.h"
 
 //Stalagg
-#define SAY_STAL_AGGRO          -1533023
-#define SAY_STAL_SLAY           -1533024
-#define SAY_STAL_DEATH          -1533025
+#define SAY_STAL_AGGRO          -1533023 //not used
+#define SAY_STAL_SLAY           -1533024 //not used
+#define SAY_STAL_DEATH          -1533025 //not used
 
 #define SPELL_POWERSURGE        28134
 
 //Feugen
-#define SAY_FEUG_AGGRO          -1533026
-#define SAY_FEUG_SLAY           -1533027
-#define SAY_FEUG_DEATH          -1533028
+#define SAY_FEUG_AGGRO          -1533026 //not used
+#define SAY_FEUG_SLAY           -1533027 //not used
+#define SAY_FEUG_DEATH          -1533028 //not used
 
 #define SPELL_MANABURN          28135
 
@@ -42,15 +42,15 @@
 
 
 //Thaddus
-#define SAY_GREET               -1533029
+#define SAY_GREET               -1533029 //not used
 #define SAY_AGGRO               RAND(-1533030,-1533031,-1533032)
 #define SAY_SLAY                -1533033
-#define SAY_ELECT               -1533034
+#define SAY_ELECT               -1533034 //not used
 #define SAY_DEATH               -1533035
-#define SAY_SCREAM1             -1533036
-#define SAY_SCREAM2             -1533037
-#define SAY_SCREAM3             -1533038
-#define SAY_SCREAM4             -1533039
+#define SAY_SCREAM1             -1533036 //not used
+#define SAY_SCREAM2             -1533037 //not used
+#define SAY_SCREAM3             -1533038 //not used
+#define SAY_SCREAM4             -1533039 //not used
 
 #define SPELL_POLARITY_SHIFT        28089
 #define SPELL_BALL_LIGHTNING        28299

@@ -23,6 +23,7 @@ update creature_template set scriptname = '' where entry = '';
 #define SPELL_CALL_AMPLIFY_MAGIC                  51054
 #define SPELL_CALL_AMPLIFY_MAGIC_2                59371
 
+//not in db
 //Yell
 #define SAY_AGGRO                              -1578022
 #define SAY_KILL_1                             -1578023

@@ -32,13 +32,14 @@ update creature_template set scriptname = 'boss_jedoga' where entry = '';
 #include "def_ahnkahet.h"
 
 #define SPELL_CYCLONE_STRIKE                    56855
-#define H_SPELL_CYCLONE_STRIKE                  60030//kein unterschied zu 56855 auﬂer das 60030 1,5sec cast ist
+#define H_SPELL_CYCLONE_STRIKE                  60030//kein unterschied zu 56855 au√üer das 60030 1,5sec cast ist
 #define SPELL_LIGHTNING_BOLT                    56891
 #define H_SPELL_LIGHTNING_BOLT                  60032
 #define SPELL_THUNDERSHOCK                      56926//AOE works
 #define H_SPELL_THUNDERSHOCK                    60029//AOE works
 #define SPELL_GIFT_OF_THE_HERALD                56219//triggert if sucessfull sacreficed
 
+//not in db
 #define SAY_AGGRO                                 -1619000
 #define SAY_C_SACRIFICE_1                         -1619001
 #define SAY_C_SACRIFICE_2                         -1619002

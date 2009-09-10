@@ -28,12 +28,14 @@ EndScriptData */
 
 enum
 {
+    //signed for 24200, but used by 24200,27390
     YELL_SKARVALD_AGGRO                         = -1574011,
     YELL_SKARVALD_DAL_DIED                      = -1574012,
     YELL_SKARVALD_SKA_DIEDFIRST                 = -1574013,
     YELL_SKARVALD_KILL                          = -1574014,
     YELL_SKARVALD_DAL_DIEDFIRST                 = -1574015,
 
+    //signed for 24201, but used by 24201,27389
     YELL_DALRONN_AGGRO                          = -1574016,
     YELL_DALRONN_SKA_DIED                       = -1574017,
     YELL_DALRONN_DAL_DIEDFIRST                  = -1574018,

@@ -25,22 +25,22 @@ EndScriptData */
 #include "def_naxxramas.h"
 
 //when shappiron dies. dialog between kel and lich king (in this order)
-#define SAY_SAPP_DIALOG1            -1533084
-#define SAY_SAPP_DIALOG2_LICH       -1533085
-#define SAY_SAPP_DIALOG3            -1533086
-#define SAY_SAPP_DIALOG4_LICH       -1533087
-#define SAY_SAPP_DIALOG5            -1533088
+#define SAY_SAPP_DIALOG1            -1533084 //not used
+#define SAY_SAPP_DIALOG2_LICH       -1533085 //not used
+#define SAY_SAPP_DIALOG3            -1533086 //not used
+#define SAY_SAPP_DIALOG4_LICH       -1533087 //not used
+#define SAY_SAPP_DIALOG5            -1533088 //not used
 
 //when cat dies
-#define SAY_CAT_DIED                -1533089
+#define SAY_CAT_DIED                -1533089 //not used
 
 //when each of the 4 wing bosses dies
-#define SAY_TAUNT1                  -1533090
-#define SAY_TAUNT2                  -1533091
-#define SAY_TAUNT3                  -1533092
-#define SAY_TAUNT4                  -1533093
+#define SAY_TAUNT1                  -1533090 //not used
+#define SAY_TAUNT2                  -1533091 //not used
+#define SAY_TAUNT3                  -1533092 //not used
+#define SAY_TAUNT4                  -1533093 //not used
 
-#define SAY_SUMMON_MINIONS          -1533105                //start of phase 1
+#define SAY_SUMMON_MINIONS          -1533105                //start of phase 1 not used
 
 #define SAY_AGGRO   RAND(-1533094,-1533095,-1533096)       //start of phase 2
 #define SAY_SLAY    RAND(-1533097,-1533098)

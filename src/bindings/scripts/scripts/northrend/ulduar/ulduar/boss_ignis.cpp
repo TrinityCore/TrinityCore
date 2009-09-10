@@ -23,6 +23,7 @@
 #define SPELL_SCORCH                62546
 #define SPELL_SLAG_POT              62717
 
+//wrong ids. not in db
 #define SAY_AGGRO                   -10000002
 #define SAY_SLAY                    -1000003
 

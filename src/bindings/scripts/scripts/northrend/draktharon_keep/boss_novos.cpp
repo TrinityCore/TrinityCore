@@ -23,6 +23,7 @@ update creature_template set scriptname = 'boss_novos' where entry = '';
 #define SPELL_WRATH_OF_MISERY_H                   59856
 #define SPELL_SUMMON_MINIONS                      59910 //Summons an army of Fetid Troll Corpses to assist the caster.
 
+//not in db
 //Yell
 #define SAY_AGGRO                              -1600000
 #define SAY_KILL                               -1600001

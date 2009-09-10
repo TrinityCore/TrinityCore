@@ -20,6 +20,7 @@ update creature_template set scriptname = 'boss_maiden_of_grief' where entry = '
 #define SPELL_PILLAR_OF_WOE                                 50761
 #define SPELL_PILLAR_OF_WOE_2                               59727
 
+//not in db
 //Yell
 #define SAY_AGGRO                                        -1599004
 #define SAY_SLAY_1                                       -1599005

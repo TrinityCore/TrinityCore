@@ -23,6 +23,7 @@ update creature_template set scriptname = 'boss_moorabi' where entry = '';
 #define SPELL_TRANSFORMATION                        55098 //Periodic, The caster transforms into a powerful mammoth, increasing Physical damage done by 25% and granting immunity to Stun effects.
 #define SPELL_QUAKE                                 55101
 
+//not in db
 //Yell
 #define SAY_AGGRO                                 -1604010
 #define SAY_SLAY_1                                -1604011

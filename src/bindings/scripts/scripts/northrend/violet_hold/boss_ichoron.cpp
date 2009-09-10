@@ -18,6 +18,7 @@ update creature_template set scriptname = '' where entry = '';
 #define SPELL_WATER_BLAST                              54237
 #define SPELL_WATER_BOLT_VOLLEY                        54241
 
+//not in db
 //Yells
 #define SAY_AGGRO                                   -1608018
 #define SAY_SLAY_1                                  -1608019

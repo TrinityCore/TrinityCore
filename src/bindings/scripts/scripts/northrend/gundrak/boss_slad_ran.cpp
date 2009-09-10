@@ -22,6 +22,7 @@ update creature_template set scriptname = 'boss_slad_ran' where entry = '';
 #define SPELL_VENOM_BOLT_2                          59839
 //At 30% HPStart summoning small serpents
 
+//not in db
 //Yell
 #define SAY_AGGRO                                 -1604017
 #define SAY_SLAY_1                                -1604018

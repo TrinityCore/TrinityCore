@@ -41,6 +41,7 @@ update creature_template set scriptname = 'boss_volazj' where entry = '';
 #define SPELL_SHIVER_N                         57949
 #define SPELL_SHIVER_H                         59978
 
+//not in db
 //Yell
 #define SAY_AGGRO                               -1619030
 #define SAY_SLAY_1                              -1619031

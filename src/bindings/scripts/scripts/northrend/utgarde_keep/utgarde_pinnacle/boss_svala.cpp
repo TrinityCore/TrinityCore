@@ -16,6 +16,7 @@ update creature_template set scriptname = 'boss_svala' where entry = '';
 #define SPELL_RITUAL_OF_THE_SWORD                48276 //Effect #1 Teleport,  Effect #2 Dummy
 #define SPELL_SINSTER_STRIKE                     15667
 
+//not in db
 //Yells
 #define SAY_DIALOG_WITH_ARTHAS_1              -1575015
 #define SAY_DIALOG_WITH_ARTHAS_2              -1575016
