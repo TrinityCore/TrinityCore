@@ -32,7 +32,7 @@ EndScriptData */
 #define SAY_GATH_SPECIAL2       -1564081
 
 #define SAY_VERA_SLAY           -1564086
-#define SAY_VERA_COMNT          -1564089
+#define SAY_VERA_COMNT          -1564089 //signed for 22949
 #define SAY_VERA_DEATH          -1564094
 #define SAY_VERA_SPECIAL1       -1564078
 #define SAY_VERA_SPECIAL2       -1564082

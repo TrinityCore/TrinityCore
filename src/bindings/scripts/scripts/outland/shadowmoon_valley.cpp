@@ -654,7 +654,7 @@ bool QuestAccept_npc_karynaku(Player* pPlayer, Creature* pCreature, Quest const*
 
 #define OVERLORD_SAY_1 -1000206
 #define OVERLORD_SAY_2 -1000207
-#define OVERLORD_SAY_3 -1000208
+#define OVERLORD_SAY_3 -1000208 //signed for 28315
 #define OVERLORD_SAY_4 -1000209
 #define OVERLORD_SAY_5 -1000210
 #define OVERLORD_SAY_6 -1000211
@@ -1039,7 +1039,7 @@ npc_lord_illidan_stormrage : Creature that controls the event.
 go_crystal_prison : GameObject that begins the event and hands out quest
 EndContentData */
 
-#define END_TEXT -1000366
+#define END_TEXT -1000366 //signed for 10646
 
 #define QUEST_BATTLE_OF_THE_CRIMSON_WATCH 10781
 #define EVENT_AREA_RADIUS 65 //65yds

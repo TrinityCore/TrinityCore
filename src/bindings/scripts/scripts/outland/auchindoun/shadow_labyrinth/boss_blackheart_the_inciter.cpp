@@ -29,17 +29,18 @@ EndScriptData */
 #define SPELL_CHARGE          33709
 #define SPELL_WAR_STOMP       33707
 
-#define SAY_INTRO1          -1555008
-#define SAY_INTRO2          -1555009
-#define SAY_INTRO3          -1555010
+#define SAY_INTRO1          -1555008 //not used
+#define SAY_INTRO2          -1555009 //not used
+#define SAY_INTRO3          -1555010 //not used
 #define SAY_AGGRO1          -1555011
 #define SAY_AGGRO2          -1555012
 #define SAY_AGGRO3          -1555013
 #define SAY_SLAY1           -1555014
 #define SAY_SLAY2           -1555015
-#define SAY_HELP            -1555016
+#define SAY_HELP            -1555016 //not used
 #define SAY_DEATH           -1555017
 
+//below, not used
 #define SAY2_INTRO1         -1555018
 #define SAY2_INTRO2         -1555019
 #define SAY2_INTRO3         -1555020

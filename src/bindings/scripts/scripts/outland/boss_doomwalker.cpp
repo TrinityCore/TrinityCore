@@ -23,15 +23,15 @@ EndScriptData */
 
 #include "precompiled.h"
 
-#define SAY_AGGRO                   -1000387
-#define SAY_EARTHQUAKE_1            -1000388
-#define SAY_EARTHQUAKE_2            -1000389
-#define SAY_OVERRUN_1               -1000390
-#define SAY_OVERRUN_2               -1000391
-#define SAY_SLAY_1                  -1000392
-#define SAY_SLAY_2                  -1000393
-#define SAY_SLAY_3                  -1000394
-#define SAY_DEATH                   -1000395
+#define SAY_AGGRO                   -1000387 //signed for 21027
+#define SAY_EARTHQUAKE_1            -1000388 //signed for 21027
+#define SAY_EARTHQUAKE_2            -1000389 //signed for 21027
+#define SAY_OVERRUN_1               -1000390 //signed for 21027
+#define SAY_OVERRUN_2               -1000391 //signed for 5955
+#define SAY_SLAY_1                  -1000392 //signed for 5955
+#define SAY_SLAY_2                  -1000393 //signed for 5955
+#define SAY_SLAY_3                  -1000394 //signed for 5955
+#define SAY_DEATH                   -1000395 //signed for 5955
 
 #define SPELL_EARTHQUAKE            32686
 #define SPELL_SUNDER_ARMOR          33661
