@@ -35,6 +35,7 @@ EndContentData */
 ## npc_manaforge_control_console
 ######*/
 
+//used by 20209,20417,20418,20440, signed for 20209
 #define EMOTE_START     -1000296
 #define EMOTE_60        -1000297
 #define EMOTE_30        -1000298

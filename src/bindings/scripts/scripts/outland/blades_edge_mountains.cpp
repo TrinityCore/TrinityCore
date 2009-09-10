@@ -71,11 +71,11 @@ CreatureAI* GetAI_mobs_bladespire_ogre(Creature* pCreature)
 
 enum
 {
-    SAY_NIHIL_1                 = -1000396,
-    SAY_NIHIL_2                 = -1000397,
-    SAY_NIHIL_3                 = -1000398,
-    SAY_NIHIL_4                 = -1000399,
-    SAY_NIHIL_INTERRUPT         = -1000400,
+    SAY_NIHIL_1                 = -1000396, //signed for 5955
+    SAY_NIHIL_2                 = -1000397, //signed for 5955
+    SAY_NIHIL_3                 = -1000398, //signed for 5955
+    SAY_NIHIL_4                 = -1000399, //signed for 20021, used by 20021,21817,21820,21821,21823
+    SAY_NIHIL_INTERRUPT         = -1000400, //signed for 20021, used by 20021,21817,21820,21821,21823
 
     ENTRY_WHELP                 = 20021,
     ENTRY_PROTO                 = 21821,
