@@ -709,18 +709,26 @@ CreatureAI* GetAI_npc_dkc1_gothik(Creature* pCreature)
 
 struct TRINITY_DLL_DECL npc_scarlet_ghoulAI : public ScriptedAI
 {
-    npc_scarlet_ghoulAI(Creature *c) : ScriptedAI(c) {}
+    npc_scarlet_ghoulAI(Creature *c) : ScriptedAI(c)
+    {
+        me->SetReactState(REACT_DEFENSIVE);
+    }
 
-    void MoveInLineOfSight(Unit *target)
+    void UpdateAI(const uint32 diff)
     {
-        EnterEvadeMode();
-        return;
-    }
-    void Aggro(Unit *who)
-    {
-        EnterEvadeMode();
-        return;
-    }
+        if (Unit *owner = m_creature->GetOwner())
+        {
+            if (owner->GetTypeId() == TYPEID_PLAYER)
+            {
+                if (CAST_PLR(owner)->GetQuestStatus(12698) != QUEST_STATUS_INCOMPLETE)
+                {
+                    m_creature->ForcedDespawn();
+                    m_creature->GetOwner()->RemoveAllMinionsByEntry(28845);
+                }
+            }
+        }
+         ScriptedAI::UpdateAI(diff);
+   }
 };
 
 CreatureAI* GetAI_npc_scarlet_ghoul(Creature* pCreature)

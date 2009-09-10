@@ -2599,6 +2599,7 @@ DROP TABLE IF EXISTS `script_texts`;
 SET @saved_cs_client     = @@character_set_client;
 SET character_set_client = utf8;
 CREATE TABLE `script_texts` (
+  `npc_entry` mediumint(8) NOT NULL default '0' COMMENT 'creature_template entry',
   `entry` mediumint(8) NOT NULL,
   `content_default` text NOT NULL,
   `content_loc1` text,
@@ -2614,9 +2615,10 @@ CREATE TABLE `script_texts` (
   `language` tinyint(3) unsigned NOT NULL default '0',
   `emote` smallint(5) unsigned NOT NULL default '0',
   `comment` text,
-  PRIMARY KEY  (`entry`)
+  PRIMARY KEY  (`npc_entry`,`entry`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Script Texts';
 SET character_set_client = @saved_cs_client;
+
 
 --
 -- Table structure for table `script_waypoint`
