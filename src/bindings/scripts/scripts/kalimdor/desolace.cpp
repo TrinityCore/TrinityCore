@@ -29,6 +29,7 @@ EndContentData */
 
 enum
 {
+    // signed for 9999
     SAY_SMEED_HOME_1                = -1000428,
     SAY_SMEED_HOME_2                = -1000429,
     SAY_SMEED_HOME_3                = -1000430,

@@ -19,6 +19,7 @@ update creature_template set scriptname = 'boss_mal_ganis' where entry = '';
 #define SPELL_SLEEP                                   52721 //Puts an enemy to sleep for up to 10 sec. Any damage caused will awaken the target.
 #define SPELL_VAMPIRIC_TOUCH                          52723 //Heals the caster for half the damage dealt by a melee attack.
 
+//not in db
 //Yell Mal'ganis
 #define SAY_INTRO_1                                  -1595009
 #define SAY_INTRO_2                                  -1595010

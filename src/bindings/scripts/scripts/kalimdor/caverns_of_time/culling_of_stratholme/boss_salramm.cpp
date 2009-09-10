@@ -20,6 +20,7 @@ update creature_template set scriptname = 'boss_salramm' where entry = '';
 #define SPELL_STEAL_FLESH                           52708
 #define SPELL_SUMMON_GHOULS                         52451
 
+//not in db
 //Yell
 #define SAY_AGGRO                                -1595032
 #define SAY_SPAWN                                -1595033

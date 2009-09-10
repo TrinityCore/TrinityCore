@@ -248,6 +248,7 @@ float Clintar_spirit_WP[41][5] =
 #define CLINTAR_SPIRIT_SUMMON_Z 438.9842
 #define CLINTAR_SPIRIT_SUMMON_O 0.8594
 
+//from -1000292 to -1000287 are signed for 7806. but all this texts ids wrong.
 #define CLINTAR_SPIRIT_SAY_START -1000286
 #define CLINTAR_SPIRIT_SAY_UNDER_ATTACK_1 -1000287
 #define CLINTAR_SPIRIT_SAY_UNDER_ATTACK_2 -1000288
