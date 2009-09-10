@@ -7402,7 +7402,7 @@ bool ChatHandler::HandleUnFreezeCommand(const char *args)
         if (TargetName)
         {
             //check for offline players
-            QueryResult *result = CharacterDatabase.PQuery("SELECT characters.guid FROM `characters` WHERE characters.name = '%s'",name.c_str());
+            QueryResult *result = CharacterDatabase.PQuery("SELECT characters.guid FROM characters WHERE characters.name = '%s'",name.c_str());
             if(!result)
             {
                 SendSysMessage(LANG_COMMAND_FREEZE_WRONG);
@@ -7412,7 +7412,7 @@ bool ChatHandler::HandleUnFreezeCommand(const char *args)
             Field *fields=result->Fetch();
             uint64 pguid = fields[0].GetUInt64();
             delete result;
-            CharacterDatabase.PQuery("DELETE FROM `character_aura` WHERE character_aura.spell = 9454 AND character_aura.guid = '%u'",pguid);
+            CharacterDatabase.PQuery("DELETE FROM character_aura WHERE character_aura.spell = 9454 AND character_aura.guid = '%u'",pguid);
             PSendSysMessage(LANG_COMMAND_UNFREEZE,name.c_str());
             return true;
         }
@@ -7429,7 +7429,7 @@ bool ChatHandler::HandleUnFreezeCommand(const char *args)
 bool ChatHandler::HandleListFreezeCommand(const char* args)
 {
     //Get names from DB
-    QueryResult *result = CharacterDatabase.PQuery("SELECT characters.name FROM `characters` LEFT JOIN `character_aura` ON (characters.guid = character_aura.guid) WHERE character_aura.spell = 9454");
+    QueryResult *result = CharacterDatabase.PQuery("SELECT characters.name FROM characters LEFT JOIN character_aura ON (characters.guid = character_aura.guid) WHERE character_aura.spell = 9454");
     if(!result)
     {
         SendSysMessage(LANG_COMMAND_NO_FROZEN_PLAYERS);

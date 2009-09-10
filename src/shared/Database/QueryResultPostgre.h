@@ -25,7 +25,6 @@
 #define FD_SETSIZE 1024
 #include <winsock2.h>
 #include <postgre/libpq-fe.h>
-#include <postgre/postgres.h>
 #include <postgre/pg_type.h>
 #else
 #include <libpq-fe.h>

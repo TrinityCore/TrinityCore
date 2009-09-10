@@ -1214,14 +1214,14 @@ bool ObjectMgr::SetCreatureLinkedRespawn(uint32 guid, uint32 linkedGuid)
     if(!linkedGuid) // we're removing the linking
     {
         mCreatureLinkedRespawnMap.erase(guid);
-        WorldDatabase.DirectPExecute("DELETE FROM `creature_linked_respawn` WHERE `guid` = '%u'",guid);
+        WorldDatabase.DirectPExecute("DELETE FROM creature_linked_respawn WHERE guid = '%u'",guid);
         return true;
     }
 
     if(CheckCreatureLinkedRespawn(guid,linkedGuid)) // we add/change linking
     {
         mCreatureLinkedRespawnMap[guid] = linkedGuid;
-        WorldDatabase.DirectPExecute("REPLACE INTO `creature_linked_respawn`(`guid`,`linkedGuid`) VALUES ('%u','%u')",guid,linkedGuid);
+        WorldDatabase.DirectPExecute("REPLACE INTO creature_linked_respawn (guid,linkedGuid) VALUES ('%u','%u')",guid,linkedGuid);
         return true;
     }
     return false;
@@ -4637,7 +4637,7 @@ void ObjectMgr::LoadWaypointScripts()
 
     for(ScriptMapMap::const_iterator itr = sWaypointScripts.begin(); itr != sWaypointScripts.end(); ++itr)
     {
-        QueryResult *query = WorldDatabase.PQuery("SELECT * FROM `waypoint_scripts` WHERE `id` = %u", itr->first);
+        QueryResult *query = WorldDatabase.PQuery("SELECT * FROM waypoint_scripts WHERE id = %u", itr->first);
         if(!query || !query->GetRowCount())
             sLog.outErrorDb("There is no waypoint which links to the waypoint script %u", itr->first);
     }
@@ -8540,7 +8540,7 @@ void ObjectMgr::LoadGMTickets()
 {
     m_GMTicketList.clear();
     
-    QueryResult *result = CharacterDatabase.Query( "SELECT `guid`, `playerGuid`, `name`, `message`, `createtime`, `map`, `posX`, `posY`, `posZ`, `timestamp`, `closed`, `assignedto`, `comment` FROM `gm_tickets`" );
+    QueryResult *result = CharacterDatabase.Query( "SELECT guid, playerGuid, name, message, createtime, map, posX, posY, posZ, timestamp, closed, assignedto, comment FROM gm_tickets" );
     
     if(!result)
     {
@@ -8575,7 +8575,7 @@ void ObjectMgr::LoadGMTickets()
 
     } while( result->NextRow() );
 
-    result = CharacterDatabase.PQuery("SELECT MAX(`guid`) from `gm_tickets`");
+    result = CharacterDatabase.PQuery("SELECT MAX(guid) from gm_tickets");
     m_GMticketid = (*result)[0].GetUInt64(); 
 
     sLog.outString(">>> %u GM Tickets loaded from the database.", count);
@@ -8597,7 +8597,7 @@ void ObjectMgr::_AddOrUpdateGMTicket(GM_Ticket &ticket)
     CharacterDatabase.escape_string(name);
     CharacterDatabase.escape_string(comment);
     std::ostringstream ss;
-    ss << "REPLACE INTO `gm_tickets` (`guid`, `playerGuid`, `name`, `message`, `createtime`, `map`, `posX`, `posY`, `posZ`, `timestamp`, `closed`, `assignedto`, `comment`) VALUES('";
+    ss << "REPLACE INTO gm_tickets (guid, playerGuid, name, message, createtime, map, posX, posY, posZ, timestamp, closed, assignedto, comment) VALUES('";
     ss << ticket.guid << "', '";
     ss << ticket.playerGuid << "', '";
     ss << name << "', '";
@@ -8623,7 +8623,7 @@ void ObjectMgr::RemoveGMTicket(GM_Ticket *ticket, int64 source, bool permanently
         {
             if(permanently)
             {
-                CharacterDatabase.PExecute("DELETE FROM `gm_tickets` WHERE `guid` = '%u'", ticket->guid);
+                CharacterDatabase.PExecute("DELETE FROM gm_tickets WHERE guid = '%u'", ticket->guid);
                 i = m_GMTicketList.erase(i);
                 ticket = NULL;
                 return;

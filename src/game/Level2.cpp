@@ -2490,7 +2490,7 @@ bool ChatHandler::HandleWpEventCommand(const char* args)
 
         if(id)
         {
-            QueryResult *result = WorldDatabase.PQuery( "SELECT `id` FROM waypoint_scripts WHERE guid = %u", id);
+            QueryResult *result = WorldDatabase.PQuery( "SELECT id FROM waypoint_scripts WHERE guid = %u", id);
 
             if( !result )
             {
@@ -2528,7 +2528,7 @@ bool ChatHandler::HandleWpEventCommand(const char* args)
         float a8, a9, a10, a11;
         char const* a7;
 
-        QueryResult *result = WorldDatabase.PQuery( "SELECT `guid`, `delay`, `command`, `datalong`, `datalong2`, `dataint`, `x`, `y`, `z`, `o` FROM waypoint_scripts WHERE id = %u", id);
+        QueryResult *result = WorldDatabase.PQuery( "SELECT guid, delay, command, datalong, datalong2, dataint, x, y, z, o FROM waypoint_scripts WHERE id = %u", id);
 
         if( !result )
         {
@@ -2563,7 +2563,7 @@ bool ChatHandler::HandleWpEventCommand(const char* args)
     {
         id = atoi(arg_id);
 
-        QueryResult *result = WorldDatabase.PQuery( "SELECT `guid` FROM waypoint_scripts WHERE guid = %u", id);
+        QueryResult *result = WorldDatabase.PQuery( "SELECT guid FROM waypoint_scripts WHERE guid = %u", id);
 
         if( result )
         {
@@ -4225,7 +4225,7 @@ bool ChatHandler::HandleNpcAddFormationCommand(const char* args)
     CreatureGroupMap[lowguid] = group_member;
     pCreature->SearchFormationAndPath();
 
-    WorldDatabase.PExecuteLog("INSERT INTO `creature_formations` (`leaderGUID`, `memberGUID`, `dist`, `angle`, `groupAI`) VALUES ('%u','%u','%f', '%f', '%u')",
+    WorldDatabase.PExecuteLog("INSERT INTO creature_formations (leaderGUID, memberGUID, dist, angle, groupAI) VALUES ('%u','%u','%f', '%f', '%u')",
         leaderGUID, lowguid, group_member->follow_dist, group_member->follow_angle, group_member->groupAI);
 
     PSendSysMessage("Creature %u added to formation with leader %u", lowguid, leaderGUID);
@@ -4251,7 +4251,7 @@ bool ChatHandler::HandleNpcSetLinkCommand(const char* args)
 
     if(!pCreature->GetDBTableGUIDLow())
     {
-        PSendSysMessage("Selected creature isn't in `creature` table", pCreature->GetGUIDLow());
+        PSendSysMessage("Selected creature isn't in creature table", pCreature->GetGUIDLow());
         SetSentErrorMessage(true);
         return false;
     }
