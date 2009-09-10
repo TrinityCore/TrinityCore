@@ -26,6 +26,8 @@ EndScriptData */
 #include "precompiled.h"
 #include "def_ulduar.h"
 
+//wrong text ids. correct are beetwen -1000000 AND -1999999
+//beetwen -2000000 and -2999999 are custom texts so wtf?
 #define SAY_AGGRO                   -2000000
 #define SAY_KILL                    -2000001
 #define SAY_PHASE_2_TRANS           -2000002

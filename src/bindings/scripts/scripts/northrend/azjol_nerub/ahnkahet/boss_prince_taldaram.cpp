@@ -44,6 +44,7 @@ EndScriptData */
 
 #define SPELL_VANISH                        55964
 
+//not in db
 //Yell
 #define SAY_AGGRO                                -1619021
 #define SAY_SLAY_1                               -1619022

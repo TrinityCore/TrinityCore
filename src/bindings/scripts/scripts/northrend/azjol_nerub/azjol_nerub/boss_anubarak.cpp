@@ -37,6 +37,7 @@ update creature_template set scriptname = 'boss_anub_arak' where entry = '';
 #define SPELL_IMPALE                                  53454
 #define SPELL_POUND                                   53472
 
+// not in db
 //Yell
 #define SAY_INTRO                                  -1601010
 #define SAY_AGGRO                                  -1601000

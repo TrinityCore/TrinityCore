@@ -18,6 +18,7 @@ update creature_template set scriptname = '' where entry = '';
 #define SPELL_SUMMON_ETHEREAL_SPHERE_2                 54137
 #define SPELL_SUMMON_ETHEREAL_SPHERE_3                 54138
 
+//not in db
 //Yells
 #define SAY_AGGRO                                   -1608027
 #define SAY_SLAY_1                                  -1608028

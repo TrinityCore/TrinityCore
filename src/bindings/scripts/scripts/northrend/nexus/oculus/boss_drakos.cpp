@@ -16,6 +16,7 @@ update creature_template set scriptname = '' where entry = '';
 #define SPELL_THUNDERING_STOMP                     50774
 #define SPELL_THUNDERING_STOMP_2                   59370
 
+//not in db
 //Yell
 #define SAY_AGGRO                               -1578000
 #define SAY_KILL_1                              -1578001

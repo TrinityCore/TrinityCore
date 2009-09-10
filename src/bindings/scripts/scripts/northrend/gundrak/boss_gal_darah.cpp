@@ -20,6 +20,7 @@ update creature_template set scriptname = '' where entry = '';
 #define SPELL_STAMPEDE                                55218
 #define SPELL_WHIRLING_SLASH                          55285
 
+//not in db
 //Yells
 #define SAY_AGGRO                                  -1604000
 #define SAY_SLAY_1                                 -1604001

@@ -22,6 +22,8 @@
 //boss_auriaya
 #define SPELL_TERRIFYING_SCREECH    64386
 #define SPELL_SONIC_BOOM            38897
+//wrong text ids. correct are beetwen -1000000 AND -1999999
+//beetwen -2000000 and -2999999 are custom texts so wtf?
 #define SAY_AGGRO                   -2615016
 #define SAY_SLAY_1                  -2615017
 

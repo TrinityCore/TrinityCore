@@ -33,7 +33,7 @@ update creature_template set scriptname = '' where entry = '';
 #define SPELL_DMOUNT_FLAME_SHIELD                    57108
 //#define SPELL_DMOUNT_UNKNOWN                      XYZ //Increases your drake's flight speed by 500%.
 
-
+//not in db
 //Yell
 //-->Other
 #define SAY_ANTI_MAGIC_SHELL                       -1616000
@@ -69,6 +69,7 @@ It is recommended to let melee take the first disks, then ranged. As those mobs 
 The Scions will continually cast Arcane Blast on random targets on the floor, which is mitigated by the anti-magic zones. While mounted on a disk, you will not take damage.
 After all of the NPCs riding on the disks die, the players on the disks need to dismount as Phase 3 is about to begin.*/
 
+//not in db
 #define SAY_PHASE2_AGGRO                           -1616018
 #define SAY_PHASE2_END                             -1616019
 #define SAY_PHASE2_SLAY_1                          -1616020

@@ -16,6 +16,7 @@ update creature_template set scriptname = 'boss_palehoof' where entry = '';
 #define SPELL_IMPALE                                48261
 #define SPELL_WITHERING_ROAR                        48256
 
+//not in db
 //Yell
 #define SAY_AGGRO                                -1575000
 #define SAY_SLAY_1                               -1575001

@@ -23,6 +23,7 @@ update creature_template set scriptname = '' where entry = '';
 #define SPELL_TIME_BOMB                          51121 //Deals arcane damage to a random player, and after 6 seconds, deals zone damage to nearby equal to the health missing of the target afflicted by the debuff.
 #define SPELL_TIME_BOMB_2                        59376
 
+//not in db
 //Yell
 #define SAY_AGGRO                             -1578012
 #define SAY_KILL_1                            -1578013

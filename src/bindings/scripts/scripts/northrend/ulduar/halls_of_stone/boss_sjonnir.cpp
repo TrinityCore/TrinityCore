@@ -24,6 +24,7 @@ update creature_template set scriptname = 'boss_sjonnir' where entry = '';
 #define SPELL_LIGHTING_SHIELD_2                    59845
 #define SPELL_FRENZY                               28747
 
+//not in db
 //Yell
 #define SAY_AGGRO                               -1599011
 #define SAY_SLAY_1                              -1599012

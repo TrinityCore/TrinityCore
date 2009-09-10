@@ -17,10 +17,11 @@ update creature_template set scriptname = 'boss_commander_stoutbeard' where entr
 #define SPELL_WHIRLWIND_1                                        38619
 #define SPELL_WHIRLWIND_2                                        38618
 
+//not used
 //Yell
-#define SAY_AGGRO                                              1576021
-#define SAY_KILL                                               1576022
-#define SAY_DEATH                                              1576023
+#define SAY_AGGRO                                              -1576021
+#define SAY_KILL                                               -1576022
+#define SAY_DEATH                                              -1576023
 
 struct TRINITY_DLL_DECL boss_commander_stoutbeardAI : public ScriptedAI
 {

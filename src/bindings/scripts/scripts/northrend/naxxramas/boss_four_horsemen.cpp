@@ -43,6 +43,7 @@ const uint32 SPELL_SECONDARY_H[]=   {0, 57464, 0, 57465};
 const uint32 SPELL_PUNISH[]     =   {0, 57381, 0, 57377};
 #define SPELL_BERSERK               26662
 
+// used by 16063,16064,16065,30549, but signed for 16063
 const int32 SAY_AGGRO[]     =   {-1533051, -1533044, -1533065, -1533058};
 const int32 SAY_TAUNT[3][4] ={  {-1533052, -1533045, -1533071, -1533059},
                                 {-1533053, -1533046, -1533072, -1533060},

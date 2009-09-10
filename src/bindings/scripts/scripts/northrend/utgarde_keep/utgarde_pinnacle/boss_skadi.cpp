@@ -20,6 +20,7 @@ update creature_template set scriptname = 'boss_skadi' where entry = '';
 #define SPELL_POISONED_SPEAR                     50225
 #define SPELL_WHIRLWIND                          50228 //random target,  but not the tank approx. every 20s
 
+//not in db
 //Yell
 #define SAY_AGGRO                             -1575004
 #define SAY_KILL_1                            -1575005
