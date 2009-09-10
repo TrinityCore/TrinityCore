@@ -705,10 +705,10 @@ void OPvPWintergrasp::HandleKill(Player *killer, Unit *victim)
         if(Group *pGroup = killer->GetGroup())
         {
             for(GroupReference *itr = pGroup->GetFirstMember(); itr != NULL; itr = itr->next())
-                if(itr->getSource()->IsAtGroupRewardDistance(victim))
+                if(itr->getSource()->IsAtGroupRewardDistance(victim) && (itr->getSource()->getLevel() > 69))
                     PromotePlayer(itr->getSource());
         }
-        else
+        else if(killer->getLevel() > 69)
             PromotePlayer(killer);
     }
 }
@@ -755,7 +755,8 @@ void OPvPWintergrasp::UpdateTenacityStack()
         TeamId team = newStack > 0 ? TEAM_ALLIANCE : TEAM_HORDE;
         if(newStack < 0) newStack = -newStack;
         for(PlayerSet::iterator itr = m_players[team].begin(); itr != m_players[team].end(); ++itr)
-            (*itr)->SetAuraStack(SPELL_TENACITY, *itr, newStack);
+            if((*itr)->getLevel() > 69)
+                (*itr)->SetAuraStack(SPELL_TENACITY, *itr, newStack);
         for(CreatureSet::iterator itr = m_vehicles[team].begin(); itr != m_vehicles[team].end(); ++itr)
             (*itr)->SetAuraStack(SPELL_TENACITY_VEHICLE, *itr, newStack);
     }
@@ -774,7 +775,7 @@ void OPvPWintergrasp::VehicleCastSpell(TeamId team, int32 spellId) const
 void OPvPWintergrasp::LieutenantCastSpell(TeamId team, int32 spellId) const
 {
     for(PlayerSet::const_iterator itr = m_players[team].begin(); itr != m_players[team].end(); ++itr)
-        if((*itr)->HasAura(SPELL_LIEUTENANT))
+        if((*itr)->HasAura(SPELL_LIEUTENANT) && ((*itr)->getLevel() > 69))
             (*itr)->CastSpell(*itr, (uint32)spellId, true);
 }
 
