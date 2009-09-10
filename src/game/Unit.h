@@ -1010,6 +1010,19 @@ struct CharmInfo
         void ToggleCreatureAutocast(uint32 spellid, bool apply);
 
         CharmSpellEntry* GetCharmSpell(uint8 index) { return &(m_charmspells[index]); }
+
+        // MrSmite 09-05-2009 PetAI_v1.0
+        void SetIsCommandAttack(bool val);
+        bool IsCommandAttack();
+        void SetIsAtStay(bool val);
+        bool IsAtStay();
+        void SetIsFollowing(bool val);
+        bool IsFollowing();
+        void SetIsReturning(bool val);
+        bool IsReturning();
+        void SaveStayPosition();
+        void GetStayPosition(float &x, float &y, float &z);
+
     private:
 
         Unit* m_unit;
@@ -1022,6 +1035,15 @@ struct CharmInfo
 
         //for restoration after charmed
         ReactStates     m_oldReactState;
+
+        // MrSmite 09-05-2009 PetAI_v1.0
+        bool m_isCommandAttack;
+        bool m_isAtStay;
+        bool m_isFollowing;
+        bool m_isReturning;
+        float m_stayX;
+        float m_stayY;
+        float m_stayZ;
 };
 
 // for clearing special attacks

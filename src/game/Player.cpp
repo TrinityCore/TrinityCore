@@ -17962,14 +17962,22 @@ bool Player::ActivateTaxiPathTo(std::vector<uint32> const& nodes, Creature* npc 
     // prevent stealth flight
     //RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_TALK);
 
-    WorldPacket data(SMSG_ACTIVATETAXIREPLY, 4);
-    data << uint32(ERR_TAXIOK);
-    GetSession()->SendPacket(&data);
-
-    sLog.outDebug("WORLD: Sent SMSG_ACTIVATETAXIREPLY");
-
-    GetSession()->SendDoFlight(mount_display_id, sourcepath);
-
+    //Hawthorne - Instant Taxi Option
+    if ((bool)sWorld.getConfig(CONFIG_INSTANT_TAXI))
+    {
+        TaxiNodesEntry const* lastnode = sTaxiNodesStore.LookupEntry(nodes[nodes.size()-1]);
+        m_taxi.ClearTaxiDestinations();
+        TeleportTo(lastnode->map_id, lastnode->x, lastnode->y, lastnode->z, GetOrientation());
+        return false;
+    }
+    else
+    {
+        WorldPacket data(SMSG_ACTIVATETAXIREPLY, 4);
+        data << uint32(ERR_TAXIOK);
+        GetSession()->SendPacket(&data);
+        sLog.outDebug("WORLD: Sent SMSG_ACTIVATETAXIREPLY");
+        GetSession()->SendDoFlight(mount_display_id, sourcepath);
+    }
     return true;
 }
 

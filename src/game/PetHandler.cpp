@@ -96,12 +96,23 @@ void WorldSession::HandlePetActionHelper(Unit *pet, uint64 guid1, uint16 spellid
                     pet->InterruptNonMeleeSpells(false);
                     pet->GetMotionMaster()->MoveIdle();
                     charmInfo->SetCommandState( COMMAND_STAY );
+                    // MrSmite 09-05-2009 PetAI_v1.0
+                    charmInfo->SetIsCommandAttack(false);
+                    charmInfo->SetIsAtStay(true);
+                    charmInfo->SetIsFollowing(false);
+                    charmInfo->SetIsReturning(false);
+                    charmInfo->SaveStayPosition();
                     break;
                 case COMMAND_FOLLOW:                        //spellid=1792  //FOLLOW
                     pet->AttackStop();
                     pet->InterruptNonMeleeSpells(false);
                     pet->GetMotionMaster()->MoveFollow(_player,PET_FOLLOW_DIST,pet->GetFollowAngle());
                     charmInfo->SetCommandState( COMMAND_FOLLOW );
+                    // MrSmite 09-05-2009 PetAI_v1.0
+                    charmInfo->SetIsCommandAttack(false);
+                    charmInfo->SetIsAtStay(false);
+                    charmInfo->SetIsReturning(true);
+                    charmInfo->SetIsFollowing(false);
                     break;
                 case COMMAND_ATTACK:                        //spellid=1792  //ATTACK
                 {
@@ -139,6 +150,12 @@ void WorldSession::HandlePetActionHelper(Unit *pet, uint64 guid1, uint16 spellid
 
                         if(pet->GetTypeId() != TYPEID_PLAYER && ((Creature*)pet)->IsAIEnabled)
                         {
+                            // MrSmite 09-05-2009 PetAI_v1.0
+                            charmInfo->SetIsCommandAttack(true);
+                            charmInfo->SetIsAtStay(false);
+                            charmInfo->SetIsFollowing(false);
+                            charmInfo->SetIsReturning(false);
+
                             ((Creature*)pet)->AI()->AttackStart(TargetUnit);
 
                             //10% chance to play special pet attack talk, else growl
@@ -154,6 +171,12 @@ void WorldSession::HandlePetActionHelper(Unit *pet, uint64 guid1, uint16 spellid
                         {
                             if(pet->getVictim() && pet->getVictim() != TargetUnit)
                                 pet->AttackStop();
+
+                            // MrSmite 09-05-2009 PetAI_v1.0
+                            charmInfo->SetIsCommandAttack(true);
+                            charmInfo->SetIsAtStay(false);
+                            charmInfo->SetIsFollowing(false);
+                            charmInfo->SetIsReturning(false);
 
                             pet->Attack(TargetUnit,true);
                             pet->SendPetAIReaction(guid1);
@@ -189,6 +212,9 @@ void WorldSession::HandlePetActionHelper(Unit *pet, uint64 guid1, uint16 spellid
             switch(spellid)
             {
                 case REACT_PASSIVE:                         //passive
+                    // MrSmite 09-05-2009 PetAI_v1.0
+                    pet->AttackStop();
+
                 case REACT_DEFENSIVE:                       //recovery
                 case REACT_AGGRESSIVE:                      //activete
                     if(pet->GetTypeId() == TYPEID_UNIT)
@@ -225,7 +251,16 @@ void WorldSession::HandlePetActionHelper(Unit *pet, uint64 guid1, uint16 spellid
             if(!pet->HasSpell(spellid) || IsPassiveSpell(spellid))
                 return;
 
-            pet->clearUnitState(UNIT_STAT_FOLLOW);
+            // MrSmite 09-08-2009 PetAI_v1.1
+            //  Clear the flags as if owner clicked 'attack'. AI will reset them
+            //  after AttackStart, even if spell failed
+            if (pet->GetCharmInfo())
+            {
+                pet->GetCharmInfo()->SetIsAtStay(false);
+                pet->GetCharmInfo()->SetIsCommandAttack(true);
+                pet->GetCharmInfo()->SetIsReturning(false);
+                pet->GetCharmInfo()->SetIsFollowing(false);
+            }
 
             Spell *spell = new Spell(pet, spellInfo, false);
 
@@ -294,6 +329,11 @@ void WorldSession::HandlePetActionHelper(Unit *pet, uint64 guid1, uint16 spellid
 
                 spell->finish(false);
                 delete spell;
+
+                // MrSmite 09-08-2009 PetAI_v1.1
+                // reset specific flags in case of spell fail. AI will reset other flags
+                if (pet->GetCharmInfo())
+                    pet->GetCharmInfo()->SetIsCommandAttack(false);
             }
             break;
         }
