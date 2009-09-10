@@ -415,6 +415,7 @@ CreatureAI* GetAI_npc_dancing_flames(Creature* pCreature)
 ## Triage quest
 ######*/
 
+//signed for 9623
 #define SAY_DOC1    -1000201
 #define SAY_DOC2    -1000202
 #define SAY_DOC3    -1000203
@@ -819,6 +820,7 @@ enum
     ENTRY_KORJA             = 12430,
     ENTRY_DG_KEL            = 12428,
 
+    //used by 12429,12423,12427,12430,12428, but signed for 12429
     SAY_COMMON_HEALED       = -1000164,
     SAY_DG_KEL_THANKS       = -1000165,
     SAY_DG_KEL_GOODBYE      = -1000166,
@@ -829,7 +831,7 @@ enum
     SAY_DOLF_THANKS         = -1000171,
     SAY_DOLF_GOODBYE        = -1000172,
     SAY_SHAYA_THANKS        = -1000173,
-    SAY_SHAYA_GOODBYE       = -1000174,
+    SAY_SHAYA_GOODBYE       = -1000174, //signed for 21469
 };
 
 struct TRINITY_DLL_DECL npc_garments_of_questsAI : public npc_escortAI
