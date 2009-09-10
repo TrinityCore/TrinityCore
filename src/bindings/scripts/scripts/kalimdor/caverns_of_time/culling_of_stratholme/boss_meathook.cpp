@@ -18,6 +18,7 @@ update creature_template set scriptname = 'boss_meathook' where entry = '';
 #define SPELL_DISEASE_EXPULSION_H                    58824
 #define SPELL_FRENZY                                 58841 //Increases the caster's Physical damage by 10% for 30 sec.
 
+//not in db
 //Yell
 #define SAY_AGGRO                                 -1595026
 #define SAY_SLAY_1                                -1595027
