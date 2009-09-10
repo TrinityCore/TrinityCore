@@ -49,6 +49,9 @@ class TRINITY_DLL_SPEC TargetedMovementGenerator
         bool Update(T &, const uint32 &);
         MovementGeneratorType GetMovementGeneratorType() { return TARGETED_MOTION_TYPE; }
 
+        // MrSmite 09-05-2009 PetAI_v1.0
+        void MovementInform(T &);
+
         Unit* GetTarget() const;
 
         bool GetDestination(float &x, float &y, float &z) const
