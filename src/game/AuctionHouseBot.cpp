@@ -854,7 +854,7 @@ void AuctionHouseBot::Initialize()
     if (AHBSeller)
     {
         QueryResult* results = (QueryResult*) NULL;
-        char npcQuery[] = "SELECT distinct `item` FROM `npc_vendor`";
+        char npcQuery[] = "SELECT distinct item FROM npc_vendor";
         results = WorldDatabase.PQuery(npcQuery);
         if (results != NULL)
         {
@@ -872,15 +872,15 @@ void AuctionHouseBot::Initialize()
             if (debug_Out) sLog.outString("AuctionHouseBot: \"%s\" failed", npcQuery);
         }
 
-        char lootQuery[] = "SELECT `item` FROM `creature_loot_template` UNION "
-            "SELECT `item` FROM `disenchant_loot_template` UNION "
-            "SELECT `item` FROM `fishing_loot_template` UNION "
-            "SELECT `item` FROM `gameobject_loot_template` UNION "
-            "SELECT `item` FROM `item_loot_template` UNION "
-            "SELECT `item` FROM `milling_loot_template` UNION "
-            "SELECT `item` FROM `pickpocketing_loot_template` UNION "
-            "SELECT `item` FROM `prospecting_loot_template` UNION "
-            "SELECT `item` FROM `skinning_loot_template`";
+        char lootQuery[] = "SELECT item FROM creature_loot_template UNION "
+            "SELECT item FROM disenchant_loot_template UNION "
+            "SELECT item FROM fishing_loot_template UNION "
+            "SELECT item FROM gameobject_loot_template UNION "
+            "SELECT item FROM item_loot_template UNION "
+            "SELECT item FROM milling_loot_template UNION "
+            "SELECT item FROM pickpocketing_loot_template UNION "
+            "SELECT item FROM prospecting_loot_template UNION "
+            "SELECT item FROM skinning_loot_template";
 
         results = WorldDatabase.PQuery(lootQuery);
         if (results != NULL)
