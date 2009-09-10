@@ -26,7 +26,7 @@ EndScriptData */
 enum
 {
     SAY_AGGRO               = -1000401,
-    SAY_CASTCORRUPTION      = -1000402,
+    SAY_CASTCORRUPTION      = -1000402, //signed for 6182
 
     SPELL_SLEEP             = 24777,
     SPELL_NOXIOUSBREATH     = 24818,
