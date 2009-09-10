@@ -1,7 +1,7 @@
 ##########################################
 # Trinity Core worldd configuration file #
 ##########################################
-ConfVersion=2009083001
+ConfVersion=2009091001
 
 ###################################################################################################################
 # CONNECTIONS AND DIRECTORIES
@@ -639,6 +639,11 @@ ChatLogTimestamp = 0
 #        Default: 0 (false)
 #                 1 (true)
 #
+#    InstantFlightPaths
+#        Flight paths will take players to their destination instantly, instead of making them wait to fly there.
+#        Default: 0 (false)
+#                 1 (true)
+#
 #    AlwaysMaxSkillForLevel
 #        Players will automatically gain max level dependent (weapon/defense) skill when logging in, leveling up etc.
 #        Default: 0 (false)
@@ -782,6 +787,7 @@ StartArenaPoints = 0
 InstantLogout = 1
 DisableWaterBreath = 4
 AllFlightPaths = 0
+InstantFlightPaths = 0
 AlwaysMaxSkillForLevel = 0
 ActivateWeather = 1
 CastUnstuck = 1
@@ -1885,7 +1891,6 @@ Ra.Secure = 1
 #
 #	NoResetTalentsCost
 #		Enable or disable no cost when reseting talents
-#
 #
 #   OutdoorPvP.Wintergrasp.StartTime = 30
 #       The start time of the first battle after server starts (default: 30 minutes)
