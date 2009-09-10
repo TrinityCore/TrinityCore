@@ -43,6 +43,7 @@ update creature_template set scriptname = 'boss_krik_thir' where entry = '';
 #define SPELL_SUMMON_SKITTERING_SWARMER     52438//AOE Effekt 140, maybe 52439
 #define SPELL_SUMMON_SKITTERING_SWARMER     52439//Summon 3x 28735
 
+// not in db
 //Yell
 #define SAY_AGGRO                                    -1601011
 #define SAY_SLAY_1                                   -1601012

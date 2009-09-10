@@ -20,6 +20,7 @@ update creature_template set scriptname = 'boss_ymiron' where entry = '';
 #define SPELL_SPIRIT_STRIKE                       48423
 //every 20% stuns the party and runs to a boat
 
+//not in db
 //Yell
 #define SAY_AGGRO                               -1575028
 #define SAY_SLAY_1                              -1575029

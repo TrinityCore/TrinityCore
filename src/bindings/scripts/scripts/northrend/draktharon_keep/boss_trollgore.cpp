@@ -21,6 +21,7 @@ update creature_template set scriptname = 'boss_trollgore' where entry = '';
 #define SPELL_CORPSE_EXPLODE_H                        59807
 #define SPELL_CONSUME_H                               59803
 
+//not in db
 //Yell
 #define SAY_AGGRO                                  -1600006
 #define SAY_KILL                                   -1600007

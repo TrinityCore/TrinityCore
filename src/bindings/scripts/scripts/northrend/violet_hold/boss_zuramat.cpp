@@ -18,6 +18,7 @@ update creature_template set scriptname = '' where entry = '';
 
 #define NPC_VOID_SENTRY                                29364
 
+//not in db
 //Yells
 #define SAY_AGGRO                                   -1608037
 #define SAY_SLAY_1                                  -1608038

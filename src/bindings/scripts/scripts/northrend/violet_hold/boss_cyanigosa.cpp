@@ -18,6 +18,7 @@ update creature_template set scriptname = '' where entry = '';
 #define SPELL_TAIL_SWEEP                               58690
 #define SPELL_UNCONTROLLABLE_ENERGY                    58688
 
+//not in db
 //Yells
 #define SAY_AGGRO                                   -1608000
 #define SAY_SLAY_1                                  -1608001

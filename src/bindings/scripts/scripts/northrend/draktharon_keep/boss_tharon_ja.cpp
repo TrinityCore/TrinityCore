@@ -37,15 +37,16 @@ update creature_template set scriptname = 'boss_tharon_ja' where entry = '';
 //Phase 1 all abilities except Eye beam
 //Phase 2 turns players to skeletons with new abilities, boss grows skin
 
+//not in db
 //Yell
-#define SAY_AGGRO                                   1600011
-#define SAY_KILL_1                                  1600012
-#define SAY_KILL_2                                  1600013
-#define SAY_FLESH_1                                 1600014
-#define SAY_FLESH_2                                 1600015
-#define SAY_SKELETON_1                              1600016
-#define SAY_SKELETON_2                              1600017
-#define SAY_DEATH                                   1600018
+#define SAY_AGGRO                                   -1600011
+#define SAY_KILL_1                                  -1600012
+#define SAY_KILL_2                                  -1600013
+#define SAY_FLESH_1                                 -1600014
+#define SAY_FLESH_2                                 -1600015
+#define SAY_SKELETON_1                              -1600016
+#define SAY_SKELETON_2                              -1600017
+#define SAY_DEATH                                   -1600018
 
 struct TRINITY_DLL_DECL boss_tharon_jaAI : public ScriptedAI
 {

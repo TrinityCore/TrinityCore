@@ -20,6 +20,7 @@ update creature_template set scriptname = 'boss_krystallus' where entry = '';
 #define SPELL_STOMP                                    48131
 #define SPELL_STOMP_2                                  59744
 
+//not in db
 //Yell
 #define SAY_AGGRO                                   -1599000
 #define SAY_KILL                                    -1599001
