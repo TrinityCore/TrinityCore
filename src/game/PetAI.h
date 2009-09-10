@@ -34,10 +34,15 @@ class TRINITY_DLL_DECL PetAI : public CreatureAI
         explicit PetAI(Creature *c);
 
         void EnterEvadeMode();
-        void JustDied(Unit* who) { _stopAttack(); }
+        void JustDied(Unit *who) { _stopAttack(); }
 
         void UpdateAI(const uint32);
         static int Permissible(const Creature *);
+
+        // MrSmite 09-05-2009 PetAI_v1.0
+        void KilledUnit(Unit *victim);
+        void AttackStart(Unit *target);
+        void MovementInform(uint32 moveType, uint32 data);
 
     private:
         bool _isVisible(Unit *) const;
@@ -50,6 +55,12 @@ class TRINITY_DLL_DECL PetAI : public CreatureAI
         bool inCombat;
         std::set<uint64> m_AllySet;
         uint32 m_updateAlliesTimer;
+
+        // MrSmite 09-05-2009 PetAI_v1.0
+        Unit *SelectNextTarget();
+        void HandleReturnMovement();
+        void DoAttack(Unit *target, bool chase);
+        bool _CanAttack(Unit *target);
 };
 #endif
 

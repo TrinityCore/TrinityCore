@@ -12214,6 +12214,7 @@ CharmInfo::CharmInfo(Unit* unit)
         m_oldReactState = ((Creature*)m_unit)->GetReactState();
         ((Creature*)m_unit)->SetReactState(REACT_PASSIVE);
     }
+
 }
 
 CharmInfo::~CharmInfo()
@@ -13609,6 +13610,16 @@ void Unit::Kill(Unit *pVictim, bool durabilityLoss)
     // Prevent killing unit twice (and giving reward from kill twice)
     if (!pVictim->GetHealth())
         return;
+
+    // MrSmite 09-09-2009 PetAI_v1.2
+    // Inform pets (if any) when player kills target)
+    if (this->GetTypeId() == TYPEID_PLAYER && ((Player*)this)->GetPet())
+    {
+        Pet *pPet = ((Player *)this)->GetPet();
+
+        if (pPet && pPet->isAlive() && pPet->isControlled())
+            pPet->AI()->KilledUnit(pVictim);
+    }
 
     //sLog.outError("%u kill %u", GetEntry(), pVictim->GetEntry());
 
@@ -15022,3 +15033,55 @@ void Unit::OutDebugInfo() const
         sLog.outString("On vehicle %u.", GetVehicleBase()->GetEntry());
 }
 
+// MrSmite 09-05-2009 PetAI_v1.0
+void CharmInfo::SetIsCommandAttack(bool val)
+{
+    m_isCommandAttack = val;
+}
+
+bool CharmInfo::IsCommandAttack()
+{
+    return m_isCommandAttack;
+}
+
+void CharmInfo::SaveStayPosition()
+{
+    m_unit->GetPosition(m_stayX, m_stayY, m_stayZ);
+}
+
+void CharmInfo::GetStayPosition(float &x, float &y, float &z)
+{
+    x = m_stayX;
+    y = m_stayY;
+    z = m_stayZ;
+}
+
+void CharmInfo::SetIsAtStay(bool val)
+{
+    m_isAtStay = val;
+}
+
+bool CharmInfo::IsAtStay()
+{
+    return m_isAtStay;
+}
+
+void CharmInfo::SetIsFollowing(bool val)
+{
+    m_isFollowing = val;
+}
+
+bool CharmInfo::IsFollowing()
+{
+    return m_isFollowing;
+}
+
+void CharmInfo::SetIsReturning(bool val)
+{
+    m_isReturning = val;
+}
+
+bool CharmInfo::IsReturning()
+{
+    return m_isReturning;
+}
