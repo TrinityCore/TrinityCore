@@ -39,6 +39,7 @@ EndContentData */
 
 #define GOSSIP_ITEM_BLESS_ASH     "Grant me your mark, wise ancient."
 #define GOSSIP_ITEM_BLESS_KEL     "Grant me your mark, mighty ancient."
+//signed for 17900 but used by 17900,17901
 #define GOSSIP_REWARD_BLESS       -1000359
 //#define TEXT_BLESSINGS        "<You need higher standing with Cenarion Expedition to recive a blessing.>"
 
@@ -271,7 +272,7 @@ enum
     SAY_PROGRESS        = -1000362,
     SAY_AMBUSH2         = -1000363,
     SAY_NEAR_END        = -1000364,
-    SAY_END             = -1000365,
+    SAY_END             = -1000365, //this is signed for 10646
 
     QUEST_ESCAPE_FROM   = 9752,
     NPC_SLAVEBINDER     = 18042

@@ -23,6 +23,7 @@ EndScriptData */
 
 #include "precompiled.h"
 
+//not used
 #define SAY_AGGRO                       -1554000
 #define SAY_SAW_ATTACK1                 -1554001
 #define SAY_SAW_ATTACK2                 -1554002

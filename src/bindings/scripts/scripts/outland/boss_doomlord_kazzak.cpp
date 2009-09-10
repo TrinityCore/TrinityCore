@@ -23,18 +23,18 @@ EndScriptData */
 
 #include "precompiled.h"
 
-#define SAY_INTRO                       -1000375
-#define SAY_AGGRO1                      -1000376
-#define SAY_AGGRO2                      -1000377
-#define SAY_SURPREME1                   -1000378
-#define SAY_SURPREME2                   -1000379
-#define SAY_KILL1                       -1000380
-#define SAY_KILL2                       -1000381
-#define SAY_KILL3                       -1000382
-#define SAY_DEATH                       -1000383
-#define EMOTE_FRENZY                    -1000384
-#define SAY_RAND1                       -1000385
-#define SAY_RAND2                       -1000386
+#define SAY_INTRO                       -1000375 //signed for 3465
+#define SAY_AGGRO1                      -1000376 //signed for 3465
+#define SAY_AGGRO2                      -1000377 //signed for 3465
+#define SAY_SURPREME1                   -1000378 //signed for 3465
+#define SAY_SURPREME2                   -1000379 //signed for 3465
+#define SAY_KILL1                       -1000380 //signed for 3465
+#define SAY_KILL2                       -1000381 //signed for 21027
+#define SAY_KILL3                       -1000382 //signed for 21027
+#define SAY_DEATH                       -1000383 //signed for 21027
+#define EMOTE_FRENZY                    -1000384 //signed for 21027
+#define SAY_RAND1                       -1000385 //signed for 21027
+#define SAY_RAND2                       -1000386 //signed for 21027
 
 #define SPELL_SHADOWVOLLEY              32963
 #define SPELL_CLEAVE                    31779
