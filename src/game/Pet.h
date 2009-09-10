@@ -148,7 +148,7 @@ class Pet : public Guardian
         static void DeleteFromDB(uint32 guidlow);
 
         void setDeathState(DeathState s);                   // overwrite virtual Creature::setDeathState and Unit::setDeathState
-        void Update(int32 diff);                            // overwrite virtual Creature::Update and Unit::Update
+        void Update(uint32 diff);                           // overwrite virtual Creature::Update and Unit::Update
 
         uint8 GetPetAutoSpellSize() const { return m_autospells.size(); }
         uint32 GetPetAutoSpellOnPos(uint8 pos) const
@@ -237,7 +237,7 @@ class Pet : public Guardian
         int32   m_duration;                                 // time until unsummon (used mostly for summoned guardians and not used for controlled pets)
         uint64  m_auraRaidUpdateMask;
         bool    m_loading;
-        int32  m_regenTimer;
+        uint32  m_regenTimer;
 
         DeclinedName *m_declinedname;
 
