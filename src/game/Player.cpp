@@ -17962,8 +17962,7 @@ bool Player::ActivateTaxiPathTo(std::vector<uint32> const& nodes, Creature* npc 
     // prevent stealth flight
     //RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_TALK);
 
-    //Hawthorne - Instant Taxi Option
-    if ((bool)sWorld.getConfig(CONFIG_INSTANT_TAXI))
+    if (sWorld.getConfig(CONFIG_INSTANT_TAXI))
     {
         TaxiNodesEntry const* lastnode = sTaxiNodesStore.LookupEntry(nodes[nodes.size()-1]);
         m_taxi.ClearTaxiDestinations();
