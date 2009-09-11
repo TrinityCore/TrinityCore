@@ -2624,7 +2624,7 @@ SpellCastResult SpellMgr::GetSpellAllowedInLocationError(SpellEntry const *spell
         while (groupEntry)
         {
             for (uint32 i=0; i<6; ++i)
-                if( groupEntry->AreaId[i] == zone_id || groupEntry->AreaId[i] == area_id )
+                if (groupEntry->AreaId[i] == zone_id || groupEntry->AreaId[i] == area_id)
                     found = true;
             if (found || !groupEntry->nextGroup)
                 break;
@@ -2632,7 +2632,7 @@ SpellCastResult SpellMgr::GetSpellAllowedInLocationError(SpellEntry const *spell
             groupEntry = sAreaGroupStore.LookupEntry(groupEntry->nextGroup);
         }
         
-        if(!found)
+        if (!found)
             return SPELL_FAILED_INCORRECT_AREA;
     }
 
@@ -2641,8 +2641,16 @@ SpellCastResult SpellMgr::GetSpellAllowedInLocationError(SpellEntry const *spell
     {
         uint32 v_map = GetVirtualMapForMapAndZone(map_id, zone_id);
         MapEntry const* mapEntry = sMapStore.LookupEntry(v_map);
-        if(!mapEntry || mapEntry->addon < 1 || !mapEntry->IsContinent())
+        if (!mapEntry || mapEntry->addon < 1 || !mapEntry->IsContinent())
             return SPELL_FAILED_INCORRECT_AREA;
+    }
+
+    // raid instance limitation
+    if (spellInfo->AttributesEx6 & SPELL_ATTR_EX6_NOT_IN_RAID_INSTANCE)
+    {
+        MapEntry const* mapEntry = sMapStore.LookupEntry(map_id);
+        if (!mapEntry || mapEntry->IsRaid())
+            return SPELL_FAILED_NOT_IN_RAID_INSTANCE;
     }
 
     // DB base check (if non empty then must fit at least single for allow)
