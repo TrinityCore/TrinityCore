@@ -88,6 +88,66 @@ CreatureAI* GetAI_npc_plaguehound_tracker(Creature* pCreature)
     return new npc_plaguehound_trackerAI(pCreature);
 }
 
+/*######
+## npc_razael_and_lyana
+######*/
+
+#define GOSSIP_RAZAEL_REPORT "High Executor Anselm wants a report on the situation."
+#define GOSSIP_LYANA_REPORT "High Executor Anselm requests your report."
+
+enum
+{
+    QUEST_REPORTS_FROM_THE_FIELD = 11221,
+    NPC_RAZAEL = 23998,
+    NPC_LYANA = 23778,
+    GOSSIP_TEXTID_RAZAEL1 = 11562,
+    GOSSIP_TEXTID_RAZAEL2 = 11564,
+    GOSSIP_TEXTID_LYANA1 = 11586,
+    GOSSIP_TEXTID_LYANA2 = 11588
+};
+
+bool GossipHello_npc_razael_and_lyana(Player* pPlayer, Creature* pCreature)
+{
+    if (pPlayer->GetQuestStatus(QUEST_REPORTS_FROM_THE_FIELD) == QUEST_STATUS_INCOMPLETE)
+        switch (pCreature->GetEntry())
+        {
+            case NPC_RAZAEL:
+                if (!pPlayer->GetReqKillOrCastCurrentCount(QUEST_REPORTS_FROM_THE_FIELD, NPC_RAZAEL))
+                {
+                    pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_RAZAEL_REPORT, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                    pPlayer->SEND_GOSSIP_MENU(GOSSIP_TEXTID_RAZAEL1, pCreature->GetGUID());
+                    return true;
+                }
+            break;
+            case NPC_LYANA:
+                if (!pPlayer->GetReqKillOrCastCurrentCount(QUEST_REPORTS_FROM_THE_FIELD, NPC_LYANA))
+                {
+                    pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_LYANA_REPORT, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
+                    pPlayer->SEND_GOSSIP_MENU(GOSSIP_TEXTID_LYANA1, pCreature->GetGUID());
+                    return true;
+                }
+            break;
+        }
+    pPlayer->SEND_GOSSIP_MENU(pCreature->GetNpcTextId(), pCreature->GetGUID());
+    return true;
+}
+
+bool GossipSelect_npc_razael_and_lyana(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+{
+    switch (uiAction)
+    {
+        case GOSSIP_ACTION_INFO_DEF + 1:
+            pPlayer->SEND_GOSSIP_MENU(GOSSIP_TEXTID_RAZAEL2, pCreature->GetGUID());
+            pPlayer->TalkedToCreature(NPC_RAZAEL, pCreature->GetGUID());
+            break;
+        case GOSSIP_ACTION_INFO_DEF + 2:
+            pPlayer->SEND_GOSSIP_MENU(GOSSIP_TEXTID_LYANA2, pCreature->GetGUID());
+            pPlayer->TalkedToCreature(NPC_LYANA, pCreature->GetGUID());
+            break;
+    }
+    return true;
+}
+
 void AddSC_howling_fjord()
 {
     Script *newscript;
@@ -96,4 +156,10 @@ void AddSC_howling_fjord()
     newscript->Name = "npc_plaguehound_tracker";
     newscript->GetAI = &GetAI_npc_plaguehound_tracker;
     newscript->RegisterSelf();
-}
+
+    newscript = new Script;
+    newscript->Name="npc_razael_and_lyana";
+    newscript->pGossipHello =  &GossipHello_npc_razael_and_lyana;
+    newscript->pGossipSelect = &GossipSelect_npc_razael_and_lyana;
+    newscript->RegisterSelf();
+ }
