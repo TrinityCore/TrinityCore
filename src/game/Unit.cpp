@@ -9170,7 +9170,7 @@ uint32 Unit::SpellDamageBonus(Unit *pVictim, SpellEntry const *spellProto, uint3
         }
     }
 
-     // Custom scripted damage
+    // Custom scripted damage
     switch(spellProto->SpellFamilyName)
     {
         case SPELLFAMILY_MAGE:
@@ -9183,18 +9183,16 @@ uint32 Unit::SpellDamageBonus(Unit *pVictim, SpellEntry const *spellProto, uint3
 
             // Torment the weak
             if (spellProto->SpellFamilyFlags[0]&0x20200021 || spellProto->SpellFamilyFlags[1]& 0x9000)
-            {
                 if(pVictim->HasAuraType(SPELL_AURA_MOD_DECREASE_SPEED))
                 {
                     AuraEffectList const& mDumyAuras = GetAurasByType(SPELL_AURA_DUMMY);
                     for(AuraEffectList::const_iterator i = mDumyAuras.begin(); i != mDumyAuras.end(); ++i)
                         if ((*i)->GetSpellProto()->SpellIconID == 3263)
                         {
-                            DoneTotalMod *=float((*i)->GetAmount() + 100.f) / 100.f;
+                            DoneTotalMod *= float((*i)->GetAmount() + 100.f) / 100.f;
                             break;
                         }
                 }
-            }
         break;
         // Glyph of Shadow Word: Pain
         case SPELLFAMILY_PRIEST:
@@ -9209,7 +9207,7 @@ uint32 Unit::SpellDamageBonus(Unit *pVictim, SpellEntry const *spellProto, uint3
         break;
 
         case SPELLFAMILY_PALADIN:
-            // Judgement of Vengeance/ Judgement of Corruption
+            // Judgement of Vengeance/Judgement of Corruption
             if((spellProto->SpellFamilyFlags[1] & 0x400000) && spellProto->SpellIconID==2292)
             {
                 // Get stack of Holy Vengeance/Blood Corruption on the target added by caster
@@ -9226,19 +9224,31 @@ uint32 Unit::SpellDamageBonus(Unit *pVictim, SpellEntry const *spellProto, uint3
                     DoneTotalMod *= (10.0f + (float)stacks) / 10.0f;
             }
         break;
+        case SPELLFAMILY_WARLOCK:
+            //Fire and Brimstone
+            if(spellProto->SpellFamilyFlags[1] & 0x00020040)
+                if(pVictim->HasAuraState(AURA_STATE_CONFLAGRATE))
+                {
+                    AuraEffectList const& mDumyAuras = GetAurasByType(SPELL_AURA_DUMMY);
+                    for(AuraEffectList::const_iterator i = mDumyAuras.begin(); i != mDumyAuras.end(); ++i)
+                        if ((*i)->GetSpellProto()->SpellIconID == 3173)
+                        {
+                            DoneTotalMod *= float((*i)->GetAmount() + 100.f) / 100.f;
+                            break;
+                        }
+                }
+        break;
         case SPELLFAMILY_DEATHKNIGHT:
             // Improved Icy Touch
             if (spellProto->SpellFamilyFlags[0] & 0x2)
-            {
                 if (AuraEffect * aurEff = GetDummyAura(SPELLFAMILY_DEATHKNIGHT, 2721, 0))
-                    DoneTotalMod *= (100.0f + aurEff->GetAmount()) / 100.0f ;
-            }
+                    DoneTotalMod *= (100.0f + aurEff->GetAmount()) / 100.0f;
+
             // Glacier Rot
             if (spellProto->SpellFamilyFlags[0] & 0x2 || spellProto->SpellFamilyFlags[1] & 0x6)
-            {
                 if (AuraEffect * aurEff = GetDummyAura(SPELLFAMILY_DEATHKNIGHT, 196, 0))
                     DoneTotalMod *= (100.0f + aurEff->GetAmount()) / 100.0f;
-            }
+
             // This is not a typo - Impurity has SPELLFAMILY_DRUID
             if (AuraEffect * aurEff = GetDummyAura(SPELLFAMILY_DRUID, 1986, 0))
                 ApCoeffMod *= (100.0f + aurEff->GetAmount()) / 100.0f;
