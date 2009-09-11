@@ -1577,7 +1577,7 @@ valid examples:
                         bool foundName = false;
                         for(uint8 i=0; i<MAX_LOCALE; ++i)
                         {
-                            if (*linkedAchievement->name[i], strcmp(linkedAchievement->name[i], buffer) == 0)
+                            if (*linkedAchievement->name[i] && strcmp(linkedAchievement->name[i], buffer) == 0)
                             {
                                 foundName = true;
                                 break;
