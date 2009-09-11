@@ -43,7 +43,7 @@ class PoolGroup
     public:
         PoolGroup();
         ~PoolGroup() {};
-        bool isEmpty() { return ExplicitlyChanced.size()==0 && EqualChanced.size()==0; }
+        bool isEmpty() { return ExplicitlyChanced.empty() && EqualChanced.empty(); }
         void AddEntry(PoolObject& poolitem, uint32 maxentries);
         bool CheckPool(void);
         uint32 RollOne(void);
