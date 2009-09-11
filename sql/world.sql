@@ -325,7 +325,7 @@ CREATE TABLE `creature_ai_texts` (
   `sound` mediumint(8) unsigned NOT NULL default '0',
   `type` tinyint(3) unsigned NOT NULL default '0',
   `language` tinyint(3) unsigned NOT NULL default '0',
-  `emote` tinyint(3) unsigned NOT NULL default '0',
+  `emote` smallint(5) unsigned NOT NULL default '0',
   `comment` text,
   PRIMARY KEY  (`entry`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Script Texts';
