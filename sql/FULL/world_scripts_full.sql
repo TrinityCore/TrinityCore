@@ -519,6 +519,10 @@ UPDATE `creature_template` SET `ScriptName`='npc_volkhan_anvil' WHERE `entry`=28
 UPDATE `creature_template` SET `ScriptName`='boss_ionar' WHERE `entry`=28546;
 UPDATE `creature_template` SET `ScriptName`='mob_spark_of_ionar' WHERE `entry`=28926;
 
+/* HALLS OF STONE */
+/* Maiden of Grief */
+UPDATE `creature_template` SET `ScriptName`='boss_maiden_of_grief' WHERE `entry`=27975;
+
 /* HELLFIRE CITADEL */
 
 /* BLOOD FURNACE */
