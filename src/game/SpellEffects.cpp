@@ -4804,7 +4804,7 @@ void Spell::EffectScriptEffect(uint32 effIndex)
                     return;
                 }
                 case 55693:                                 // Remove Collapsing Cave Aura
-                    if(unitTarget)
+                    if(!unitTarget)
                         return;
                     unitTarget->RemoveAurasDueToSpell(m_spellInfo->CalculateSimpleValue(effIndex));
                     break;
