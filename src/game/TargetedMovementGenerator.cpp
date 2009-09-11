@@ -182,14 +182,14 @@ TargetedMovementGenerator<T>::Update(T &owner, const uint32 & time_diff)
     if (!i_target.isValid() || !i_target->IsInWorld())
         return false;
 
-    if( !&owner || !owner.isAlive())
+    if (!&owner || !owner.isAlive())
         return true;
 
-    if( owner.hasUnitState(UNIT_STAT_ROOT | UNIT_STAT_STUNNED | UNIT_STAT_FLEEING | UNIT_STAT_DISTRACTED) )
+    if (owner.hasUnitState(UNIT_STAT_ROOT | UNIT_STAT_STUNNED | UNIT_STAT_FLEEING | UNIT_STAT_DISTRACTED))
         return true;
 
     // prevent movement while casting spells with cast time or channel time
-    if(owner.hasUnitState(UNIT_STAT_CASTING))
+    if (owner.hasUnitState(UNIT_STAT_CASTING))
     {
         if (!owner.IsStopped())
             owner.StopMoving();
@@ -202,9 +202,9 @@ TargetedMovementGenerator<T>::Update(T &owner, const uint32 & time_diff)
 
     Traveller<T> traveller(owner);
 
-    if( !i_destinationHolder.HasDestination() )
+    if (!i_destinationHolder.HasDestination())
         _setTargetLocation(owner);
-    else if( owner.IsStopped() && !i_destinationHolder.HasArrived() )
+    else if (owner.IsStopped() && !i_destinationHolder.HasArrived())
     {
         owner.addUnitState(UNIT_STAT_CHASE);
         i_destinationHolder.StartTravel(traveller);
@@ -218,7 +218,7 @@ TargetedMovementGenerator<T>::Update(T &owner, const uint32 & time_diff)
         //i_destinationHolder.ResetUpdate(50);
 
         // target moved
-        if(i_targetX != i_target->GetPositionX() || i_targetY != i_target->GetPositionY()
+        if (i_targetX != i_target->GetPositionX() || i_targetY != i_target->GetPositionY()
             || i_targetZ != i_target->GetPositionZ())
         {
             if(_setTargetLocation(owner) || !owner.hasUnitState(UNIT_STAT_FOLLOW))
@@ -226,7 +226,7 @@ TargetedMovementGenerator<T>::Update(T &owner, const uint32 & time_diff)
             i_target->GetPosition(i_targetX, i_targetY, i_targetZ);
         }
 
-        if(( owner.IsStopped() && !i_destinationHolder.HasArrived() ) || i_recalculateTravel )
+        if ((owner.IsStopped() && !i_destinationHolder.HasArrived()) || i_recalculateTravel)
         {
             i_recalculateTravel = false;
             //Angle update will take place into owner.StopMoving()
