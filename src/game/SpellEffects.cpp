@@ -154,7 +154,7 @@ pEffect SpellEffects[TOTAL_SPELL_EFFECTS]=
     &Spell::EffectWMODamage,                                // 87 SPELL_EFFECT_WMO_DAMAGE
     &Spell::EffectWMORepair,                                // 88 SPELL_EFFECT_WMO_REPAIR
     &Spell::EffectUnused,                                   // 89 SPELL_EFFECT_WMO_CHANGE
-    &Spell::EffectKillCredit,                               // 90 SPELL_EFFECT_KILL_CREDIT
+    &Spell::EffectKillCreditPersonal,                       // 90 SPELL_EFFECT_KILL_CREDIT              Kill credit but only for single person
     &Spell::EffectUnused,                                   // 91 SPELL_EFFECT_THREAT_ALL               one spell: zzOLDBrainwash
     &Spell::EffectEnchantHeldItem,                          // 92 SPELL_EFFECT_ENCHANT_HELD_ITEM
     &Spell::EffectUnused,                                   // 93 SPELL_EFFECT_SUMMON_PHANTASM
@@ -6874,6 +6874,14 @@ void Spell::EffectStealBeneficialBuff(uint32 i)
             m_caster->SendMessageToSet(&data, true);
         }
     }
+}
+
+void Spell::EffectKillCreditPersonal(uint32 i)
+{
+    if(!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
+        return;
+
+    ((Player*)unitTarget)->KilledMonsterCredit(m_spellInfo->EffectMiscValue[i], unitTarget);
 }
 
 void Spell::EffectKillCredit(uint32 i)
