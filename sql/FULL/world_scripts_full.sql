@@ -1170,8 +1170,9 @@ UPDATE `creature_template` SET `ScriptName`='npc_zulaman_hostage' WHERE `entry` 
 UPDATE `creature_template` SET `ScriptName`='mob_mojo' WHERE `entry`=24480;
 
 /* ZUL'DRAK */
-UPDATE `creature_template` SET `ScriptName`='npc_captured_rageclaw' WHERE (`entry`='29686');
-UPDATE `creature_template` SET `ScriptName`='npc_drakuru_shackles' WHERE (`entry`='29700');
+UPDATE `creature_template` SET `ScriptName`='npc_captured_rageclaw' WHERE `entry`=29686;
+UPDATE `creature_template` SET `ScriptName`='npc_drakuru_shackles' WHERE `entry`=29700;
+UPDATE `creature_template` SET `ScriptName`='npc_gymer' WHERE `entry`=29647;
 
 /* ZUL'FARRAK */
 UPDATE `creature_template` SET `ScriptName`='npc_sergeant_bly' WHERE `entry`=7604;
