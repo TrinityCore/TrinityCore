@@ -127,8 +127,9 @@ World::~World()
 
     m_weathers.clear();
 
-    while (!cliCmdQueue.empty())
-        delete cliCmdQueue.next();
+    CliCommandHolder* command;
+    while (cliCmdQueue.next(command))
+        delete command;
 
     VMAP::VMapFactory::clear();
 
@@ -2359,11 +2360,9 @@ void World::SendServerMessage(ServerMessageType type, const char *text, Player* 
 void World::UpdateSessions( uint32 diff )
 {
     ///- Add new sessions
-    while(!addSessQueue.empty())
-    {
-        WorldSession* sess = addSessQueue.next ();
+    WorldSession* sess;
+    while(addSessQueue.next(sess))
         AddSession_ (sess);
-    }
 
     ///- Then send an update signal to remaining ones
     for (SessionMap::iterator itr = m_sessions.begin(), next; itr != m_sessions.end(); itr = next)
@@ -2388,25 +2387,20 @@ void World::UpdateSessions( uint32 diff )
 // This handles the issued and queued CLI commands
 void World::ProcessCliCommands()
 {
-    if (cliCmdQueue.empty())
-        return;
+    CliCommandHolder::Print* zprint = NULL;
 
-    CliCommandHolder::Print* zprint;
-
-    while (!cliCmdQueue.empty())
+    CliCommandHolder* command;
+    while (cliCmdQueue.next(command))
     {
         sLog.outDebug("CLI command under processing...");
-        CliCommandHolder *command = cliCmdQueue.next();
-
         zprint = command->m_print;
-
         CliHandler(zprint).ParseCommands(command->m_command);
-
         delete command;
     }
 
     // print the console message here so it looks right
-    zprint("TC> ");
+    if (zprint)
+        zprint("TC> ");
 }
 
 void World::SendRNDBroadcast()
