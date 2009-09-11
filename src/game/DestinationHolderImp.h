@@ -107,24 +107,24 @@ DestinationHolder<TRAVELLER>::UpdateTraveller(TRAVELLER &traveller, uint32 diff,
     if(!i_destSet) return true;
 
     float x, y, z;
-    if(!micro_movement)
+    if (!micro_movement)
     {
         GetLocationNowNoMicroMovement(x, y, z);
 
-        if( x == -431602080 )
+        if (x == -431602080)
             return false;
     }
     else
     {
-        if(!traveller.GetTraveller().hasUnitState(UNIT_STAT_MOVING | UNIT_STAT_IN_FLIGHT))
+        if (!traveller.GetTraveller().hasUnitState(UNIT_STAT_MOVING | UNIT_STAT_IN_FLIGHT))
             return true;
 
-        if(traveller.GetTraveller().hasUnitState(UNIT_STAT_IN_FLIGHT))
+        if (traveller.GetTraveller().hasUnitState(UNIT_STAT_IN_FLIGHT))
             GetLocationNow(traveller.GetTraveller().GetBaseMap() ,x, y, z, true);                  // Should reposition Object with right Coord, so I can bypass some Grid Relocation
         else
             GetLocationNow(traveller.GetTraveller().GetBaseMap(), x, y, z, false);
 
-        if( x == -431602080 )
+        if (x == -431602080)
             return false;
 
         // Change movement computation to micro movement based on last tick coords, this makes system work
@@ -142,7 +142,7 @@ DestinationHolder<TRAVELLER>::UpdateTraveller(TRAVELLER &traveller, uint32 diff,
         i_fromZ = z;
     }
 
-    if( traveller.GetTraveller().GetPositionX() != x || traveller.GetTraveller().GetPositionY() != y || traveller.GetTraveller().GetPositionZ() != z)
+    if (traveller.GetTraveller().GetPositionX() != x || traveller.GetTraveller().GetPositionY() != y || traveller.GetTraveller().GetPositionZ() != z)
     {
         float ori = traveller.GetTraveller().GetAngle(x, y);
         traveller.Relocation(x, y, z, ori);
@@ -155,13 +155,13 @@ template<typename TRAVELLER>
 void
 DestinationHolder<TRAVELLER>::GetLocationNow(const Map * map, float &x, float &y, float &z, bool is3D) const
 {
-    if( HasArrived() )
+    if (HasArrived())
     {
         x = i_destX;
         y = i_destY;
         z = i_destZ;
     }
-    else if(HasDestination())
+    else if (HasDestination())
     {
         double percent_passed = (double)i_timeElapsed / (double)i_totalTravelTime;
         const float distanceX = ((i_destX - i_fromX) * percent_passed);
@@ -171,7 +171,7 @@ DestinationHolder<TRAVELLER>::GetLocationNow(const Map * map, float &x, float &y
         y = i_fromY + distanceY;
         float z2 = i_fromZ + distanceZ;
         // All that is not finished but previous code neither... Traveller need be able to swim.
-        if(is3D)
+        if (is3D)
             z = z2;
         else
         {
@@ -188,11 +188,11 @@ DestinationHolder<TRAVELLER>::GetLocationNow(const Map * map, float &x, float &y
 
 template<typename TRAVELLER>
 float
-DestinationHolder<TRAVELLER>::GetDistance2dFromDestSq(const WorldObject &obj) const
+DestinationHolder<TRAVELLER>::GetDistance3dFromDestSq(const WorldObject &obj) const
 {
     float x,y,z;
     obj.GetPosition(x,y,z);
-    return (i_destX-x)*(i_destX-x)+(i_destY-y)*(i_destY-y);
+    return (i_destX-x)*(i_destX-x)+(i_destY-y)*(i_destY-y)+(i_destZ-z)*(i_destZ-z);
 }
 
 template<typename TRAVELLER>
