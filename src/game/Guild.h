@@ -239,24 +239,24 @@ struct GuildBankTab
 
 struct GuildItemPosCount
 {
-    GuildItemPosCount(uint8 _slot, uint32 _count) : slot(_slot), count(_count) {}
+    GuildItemPosCount(uint8 _slot, uint32 _count) : Slot(_slot), Count(_count) {}
 
     bool isContainedIn(std::vector<GuildItemPosCount> const& vec) const;
 
-    uint8 slot;
-    uint32 count;
+    uint8 Slot;
+    uint32 Count;
 };
 typedef std::vector<GuildItemPosCount> GuildItemPosCountVec;
 
 struct MemberSlot
 {
-    uint64 logout_time;
-    std::string name;
+    uint64 LogoutTime;
+    std::string Name;
     std::string Pnote;
     std::string OFFnote;
     uint32 RankId;
-    uint32 zoneId;
-    uint8 level;
+    uint32 ZoneId;
+    uint8 Level;
     uint8 Class;
     uint32 BankResetTimeMoney;
     uint32 BankRemMoney;
@@ -266,7 +266,7 @@ struct MemberSlot
 
 struct RankInfo
 {
-    RankInfo(const std::string& _name, uint32 _rights, uint32 _money) : name(_name), rights(_rights), BankMoneyPerDay(_money)
+    RankInfo(const std::string& _name, uint32 _rights, uint32 _money) : Name(_name), Rights(_rights), BankMoneyPerDay(_money)
     {
         for(uint8 i = 0; i < GUILD_BANK_MAX_TABS; ++i)
         {
@@ -275,8 +275,8 @@ struct RankInfo
         }
     }
 
-    std::string name;
-    uint32 rights;
+    std::string Name;
+    uint32 Rights;
     uint32 BankMoneyPerDay;
     uint32 TabRight[GUILD_BANK_MAX_TABS];
     uint32 TabSlotPerDay[GUILD_BANK_MAX_TABS];
@@ -367,7 +367,7 @@ class Guild
         {
             for(MemberList::iterator itr = members.begin(); itr != members.end(); ++itr)
             {
-                if(itr->second.name == name)
+                if(itr->second.Name == name)
                 {
                     guid = itr->first;
                     return &itr->second;
