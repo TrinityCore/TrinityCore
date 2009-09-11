@@ -6881,7 +6881,7 @@ void Spell::EffectKillCreditPersonal(uint32 i)
     if(!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
         return;
 
-    ((Player*)unitTarget)->KilledMonsterCredit(m_spellInfo->EffectMiscValue[i], unitTarget);
+    ((Player*)unitTarget)->KilledMonsterCredit(m_spellInfo->EffectMiscValue[i], 0);
 }
 
 void Spell::EffectKillCredit(uint32 i)
