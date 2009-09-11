@@ -158,19 +158,12 @@ void BattleGroundAB::Update(uint32 diff)
                     UpdateWorldState(BG_AB_OP_RESOURCES_ALLY, m_TeamScores[team]);
                 if (team == BG_TEAM_HORDE)
                     UpdateWorldState(BG_AB_OP_RESOURCES_HORDE, m_TeamScores[team]);
+                // update achievement flags
+                // we increased m_TeamScores[team] so we just need to check if it is 500 more than other teams resources
+                uint8 otherTeam = (team + 1) % BG_TEAMS_COUNT;
+                if (m_TeamScores[team] > m_TeamScores[otherTeam] + 500)
+                    m_TeamScores500Disadvantage[otherTeam] = true;
             }
-        }
-
-        // achievements flags
-        if (m_TeamScores[BG_TEAM_ALLIANCE] > m_TeamScores[BG_TEAM_HORDE])
-        {
-            if (m_TeamScores[BG_TEAM_ALLIANCE] - m_TeamScores[BG_TEAM_HORDE] >= 500)
-                m_TeamScores500disadvantage[BG_TEAM_HORDE] = true;
-        }
-        else
-        {
-            if (m_TeamScores[BG_TEAM_HORDE] - m_TeamScores[BG_TEAM_ALLIANCE] >= 500)
-                m_TeamScores500disadvantage[BG_TEAM_ALLIANCE] = true;
         }
 
         // Test win condition
@@ -603,8 +596,8 @@ void BattleGroundAB::Reset()
     bool isBGWeekend = false;           //TODO FIXME - call sBattleGroundMgr.IsBGWeekend(m_TypeID); - you must also implement that call!
     m_HonorTics = (isBGWeekend) ? BG_AB_ABBGWeekendHonorTicks : BG_AB_NotABBGWeekendHonorTicks;
     m_ReputationTics = (isBGWeekend) ? BG_AB_ABBGWeekendReputationTicks : BG_AB_NotABBGWeekendReputationTicks;
-    m_TeamScores500disadvantage[BG_TEAM_ALLIANCE] = false;
-    m_TeamScores500disadvantage[BG_TEAM_HORDE]    = false;
+    m_TeamScores500Disadvantage[BG_TEAM_ALLIANCE] = false;
+    m_TeamScores500Disadvantage[BG_TEAM_HORDE]    = false;
 
     for (uint8 i = 0; i < BG_AB_DYNAMIC_NODES_COUNT; ++i)
     {

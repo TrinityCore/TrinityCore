@@ -264,7 +264,7 @@ class BattleGroundAB : public BattleGround
 
         /* achievement req. */
         bool IsAllNodesConrolledByTeam(uint32 team) const;  // overwrited
-        bool IsTeamScores500disadvantage(uint32 team) const { return m_TeamScores500disadvantage[GetTeamIndexByTeamId(team)]; }
+        bool IsTeamScores500Disadvantage(uint32 team) const { return m_TeamScores500Disadvantage[GetTeamIndexByTeamId(team)]; }
     private:
         /* Gameobject spawning/despawning */
         void _CreateBanner(uint8 node, uint8 type, uint8 teamIndex, bool delay);
@@ -295,7 +295,7 @@ class BattleGroundAB : public BattleGround
         uint32              m_HonorTics;
         uint32              m_ReputationTics;
         // need for achievements
-        bool                m_TeamScores500disadvantage[BG_TEAMS_COUNT];
+        bool                m_TeamScores500Disadvantage[BG_TEAMS_COUNT];
 };
 #endif
 

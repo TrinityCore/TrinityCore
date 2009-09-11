@@ -2749,7 +2749,7 @@ void Spell::EffectHealthLeech(uint32 i)
     if (m_spellInfo->SpellFamilyFlags[0] & 0x80000)
         new_damage = damage;
     else
-        int32 new_damage = int32(damage*multiplier);
+        new_damage = int32(damage*multiplier);
     uint32 curHealth = unitTarget->GetHealth();
     new_damage = m_caster->SpellNonMeleeDamageLog(unitTarget, m_spellInfo->Id, new_damage );
     if(curHealth < new_damage)

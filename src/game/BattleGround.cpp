@@ -237,9 +237,22 @@ BattleGround::~BattleGround()
 
 void BattleGround::Update(uint32 diff)
 {
-    if (!GetPlayersSize() && !GetReviveQueueSize())
+    if (!GetPlayersSize())
+    {
         //BG is empty
+        // if there are no players invited, delete BG
+        // this will delete arena or bg object, where any player entered
+        // [[   but if you use battleground object again (more battles possible to be played on 1 instance)
+        //      then this condition should be removed and code:
+        //      if (!GetInvitedCount(HORDE) && !GetInvitedCount(ALLIANCE))
+        //          this->AddToFreeBGObjectsQueue(); // not yet implemented
+        //      should be used instead of current
+        // ]]
+        // BattleGround Template instance cannot be updated, because it would be deleted
+        if (!GetInvitedCount(HORDE) && !GetInvitedCount(ALLIANCE))
+            m_SetDeleteThis = true;
         return;
+    }
 
     // remove offline players from bg after 5 minutes
     if (!m_OfflineQueue.empty())
@@ -1061,7 +1074,11 @@ void BattleGround::RemovePlayerAtLeave(uint64 guid, bool Transport, bool SendPac
         DecreaseInvitedCount(team);
         //we should update battleground queue, but only if bg isn't ending
         if (isBattleGround() && GetStatus() < STATUS_WAIT_LEAVE)
+        {
+            // a player has left the battleground, so there are free slots -> add to queue
+            AddToBGFreeSlotQueue();
             sBattleGroundMgr.m_BattleGroundQueues[bgQueueTypeId].Update(bgTypeId, GetQueueId());
+        }
         // Let others know
         WorldPacket data;
         sBattleGroundMgr.BuildPlayerLeftBattleGroundPacket(&data, guid);
@@ -1081,17 +1098,7 @@ void BattleGround::RemovePlayerAtLeave(uint64 guid, bool Transport, bool SendPac
         sLog.outDetail("BATTLEGROUND: Removed player %s from BattleGround.", plr->GetName());
     }
 
-    if (!GetPlayersSize() && !GetInvitedCount(HORDE) && !GetInvitedCount(ALLIANCE))
-    {
-        // if no players left AND no invitees left, set this bg to delete in next update
-        // direct deletion could cause crashes
-        m_SetDeleteThis = true;
-        // return to prevent addition to freeslotqueue
-        return;
-    }
-
-    // a player exited the battleground, so there are free slots. add to queue
-    this->AddToBGFreeSlotQueue();
+    //battleground object will be deleted next BattleGround::Update() call
 }
 
 // this method is called when no players remains in battleground
@@ -1126,9 +1133,15 @@ void BattleGround::Reset()
 
 void BattleGround::StartBattleGround()
 {
-    ///this method should spawn spirit guides and so on
     SetStartTime(0);
     SetLastResurrectTime(0);
+    // add BG to free slot queue
+    AddToBGFreeSlotQueue();
+
+    // add bg to update list
+    // This must be done here, because we need to have already invited some players when first BG::Update() method is executed
+    // and it doesn't matter if we call StartBattleGround() more times, because m_BattleGrounds is a map and instance id never changes
+    sBattleGroundMgr.AddBattleGround(GetInstanceID(), GetTypeID(), this);
     if(m_IsRated)
         sLog.outArena("Arena match type: %u for Team1Id: %u - Team2Id: %u started.", m_ArenaType, m_ArenaTeamIds[BG_TEAM_ALLIANCE], m_ArenaTeamIds[BG_TEAM_HORDE]);
 }
