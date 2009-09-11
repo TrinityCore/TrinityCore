@@ -2744,7 +2744,12 @@ void Spell::EffectHealthLeech(uint32 i)
     if(Player *modOwner = m_caster->GetSpellModOwner())
         modOwner->ApplySpellMod(m_spellInfo->Id, SPELLMOD_MULTIPLE_VALUE, multiplier);
 
-    int32 new_damage = int32(damage*multiplier);
+    // Do not apply multiplier to damage if it's Death Coil
+    int32 new_damage;
+    if (m_spellInfo->SpellFamilyFlags[0] & 0x80000)
+        new_damage = damage;
+    else
+        int32 new_damage = int32(damage*multiplier);
     uint32 curHealth = unitTarget->GetHealth();
     new_damage = m_caster->SpellNonMeleeDamageLog(unitTarget, m_spellInfo->Id, new_damage );
     if(curHealth < new_damage)
@@ -2752,6 +2757,9 @@ void Spell::EffectHealthLeech(uint32 i)
 
     if(m_caster->isAlive())
     {
+        // Insead add it just to healing if it's Death Coil
+        if (m_spellInfo->SpellFamilyFlags[0] & 0x80000)
+            new_damage = int32(new_damage*multiplier);
         new_damage = m_caster->SpellHealingBonus(m_caster, m_spellInfo, new_damage, HEAL);
         m_caster->DealHeal(m_caster, uint32(new_damage), m_spellInfo);
     }

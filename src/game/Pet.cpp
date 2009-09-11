@@ -78,7 +78,6 @@ void Pet::AddToWorld()
         AIM_Initialize();
     }
 
-    // MrSmite 09-09-2009 PetAI_v1.1
     // Prevent stuck pets when zoning. Pets default to "follow" when added to world
     // so we'll reset flags and let the AI handle things
     if (this->GetCharmInfo() && this->GetCharmInfo()->HasCommandState(COMMAND_FOLLOW))
