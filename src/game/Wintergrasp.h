@@ -50,6 +50,17 @@ enum WintergraspSpell
     SPELL_SHUTDOWN_VEHICLE  = 21247,
 };
 
+enum WintergraspRewardEvent
+{
+    WIN_BATTLE,
+    LOSE_BATTLE,
+    DAMAGED_TOWER,
+    DESTROYED_TOWER,
+    DAMAGED_BUILDING,
+    INTACT_BUILDING,
+    WG_REWARD_EVENT_MAX
+};
+
 #define MAX_VEHICLE_PER_WORKSHOP    4
 
 const uint32 WG_KEEP_CM = 0; //Need data
@@ -202,6 +213,7 @@ class OPvPWintergrasp : public OutdoorPvP
         uint32 m_clock[5];
         uint32 m_workshopCount[2];
         uint32 m_towerCount;
+        uint32 m_customHonorReward[WG_REWARD_EVENT_MAX];
 
         SiegeWorkshop *GetWorkshop(uint32 lowguid) const;
         SiegeWorkshop *GetWorkshopByEngGuid(uint32 lowguid) const;

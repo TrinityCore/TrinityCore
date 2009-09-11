@@ -292,6 +292,10 @@ bool OPvPWintergrasp::SetupOutdoorPvP()
     m_wartime = false;
     m_timer = sWorld.getConfig(CONFIG_OUTDOORPVP_WINTERGRASP_START_TIME) * MINUTE * IN_MILISECONDS;
 
+    if(sWorld.getConfig(CONFIG_OUTDOORPVP_WINTERGRASP_CUSTOM_HONOR))
+        for(int i = 0; i < WG_REWARD_EVENT_MAX; ++i)
+            m_customHonorReward[i] = sWorld.getConfig(CONFIG_OUTDOORPVP_WINTERGRASP_CUSTOM_HONOR_0 + i);
+
     RegisterZone(ZONE_WINTERGRASP);
     return true;
 }
@@ -317,7 +321,16 @@ void OPvPWintergrasp::ProcessEvent(GameObject *obj, uint32 eventId)
                 state->damageState = DAMAGE_DAMAGED;
 
                 if(state->type == BUILDING_TOWER)
-                    LieutenantCastSpell(m_defender, SPELL_DAMAGED_TOWER);
+                {
+                    if(sWorld.getConfig(CONFIG_OUTDOORPVP_WINTERGRASP_CUSTOM_HONOR))
+                    {
+                        for(PlayerSet::const_iterator itr = m_players[m_defender].begin(); itr != m_players[m_defender].end(); ++itr)
+                            if((*itr)->HasAura(SPELL_LIEUTENANT) && ((*itr)->getLevel() > 69))
+                                (*itr)->ModifyHonorPoints(m_customHonorReward[DAMAGED_TOWER]);
+                    }
+                    else
+                        LieutenantCastSpell(m_defender, SPELL_DAMAGED_TOWER);
+                }
             }
             else if(eventId == obj->GetGOInfo()->building.destroyedEvent)
             {
@@ -336,7 +349,14 @@ void OPvPWintergrasp::ProcessEvent(GameObject *obj, uint32 eventId)
                     else
                     {
                         --m_towerCount;
-                        LieutenantCastSpell(m_defender, SPELL_DESTROYED_TOWER);
+                        if(sWorld.getConfig(CONFIG_OUTDOORPVP_WINTERGRASP_CUSTOM_HONOR))
+                        {
+                            for(PlayerSet::const_iterator itr = m_players[m_defender].begin(); itr != m_players[m_defender].end(); ++itr)
+                                if((*itr)->HasAura(SPELL_LIEUTENANT) && ((*itr)->getLevel() > 69))
+                                    (*itr)->ModifyHonorPoints(m_customHonorReward[DESTROYED_TOWER]);
+                        }
+                        else
+                            LieutenantCastSpell(m_defender, SPELL_DESTROYED_TOWER);
                     }
                 }
             }
@@ -901,11 +921,22 @@ void OPvPWintergrasp::EndBattle()
         {
             if((*itr)->HasAura(SPELL_LIEUTENANT))
             {
-                (*itr)->CastSpell(*itr, team == m_defender ? SPELL_VICTORY_REWARD : SPELL_DEFEAT_REWARD, true);
-                for(uint32 i = 0; i < intactNum; ++i)
-                    (*itr)->CastSpell(*itr, SPELL_INTACT_BUILDING, true);
-                for(uint32 i = 0; i < damagedNum; ++i)
-                    (*itr)->CastSpell(*itr, SPELL_DAMAGED_BUILDING, true);
+                if(!sWorld.getConfig(CONFIG_OUTDOORPVP_WINTERGRASP_CUSTOM_HONOR))
+                {
+                   (*itr)->CastSpell(*itr, team == m_defender ? SPELL_VICTORY_REWARD : SPELL_DEFEAT_REWARD, true);
+                    for(uint32 i = 0; i < intactNum; ++i)
+                        (*itr)->CastSpell(*itr, SPELL_INTACT_BUILDING, true);
+                    for(uint32 i = 0; i < damagedNum; ++i)
+                        (*itr)->CastSpell(*itr, SPELL_DAMAGED_BUILDING, true);
+                }
+                else if(sWorld.getConfig(CONFIG_OUTDOORPVP_WINTERGRASP_CUSTOM_HONOR))
+                {
+                    (*itr)->ModifyHonorPoints( team == m_defender ? m_customHonorReward[WIN_BATTLE] : m_customHonorReward[LOSE_BATTLE] );
+                    for(uint32 i = 0; i < intactNum; ++i)
+                        (*itr)->ModifyHonorPoints(m_customHonorReward[INTACT_BUILDING]);
+                    for(uint32 i = 0; i < damagedNum; ++i)
+                        (*itr)->ModifyHonorPoints(m_customHonorReward[DAMAGED_BUILDING]);
+                }
             }
             REMOVE_RANK_AURAS(*itr);
         }
