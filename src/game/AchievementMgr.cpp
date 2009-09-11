@@ -1019,10 +1019,22 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
                 SetCriteriaProgress(achievementCriteria, 1, PROGRESS_ACCUMULATE);
                 break;
             case ACHIEVEMENT_CRITERIA_TYPE_CAST_SPELL:
+            case ACHIEVEMENT_CRITERIA_TYPE_CAST_SPELL2:
+            {
                 if (!miscvalue1 || miscvalue1 != achievementCriteria->cast_spell.spellID)
                     continue;
+
+                // those requirements couldn't be found in the dbc
+                AchievementCriteriaDataSet const* data = achievementmgr.GetCriteriaDataSet(achievementCriteria);
+                if(!data)
+                    continue;
+
+                if(!data->Meets(GetPlayer(),unit))
+                    continue;
+
                 SetCriteriaProgress(achievementCriteria, 1, PROGRESS_ACCUMULATE);
                 break;
+            }
             case ACHIEVEMENT_CRITERIA_TYPE_LEARN_SPELL:
                 if(miscvalue1 && miscvalue1!=achievementCriteria->learn_spell.spellID)
                     continue;
@@ -1281,25 +1293,6 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
             case ACHIEVEMENT_CRITERIA_TYPE_KNOWN_FACTIONS:
                 SetCriteriaProgress(achievementCriteria, GetPlayer()->GetReputationMgr().GetVisibleFactionCount());
                 break;
-            case ACHIEVEMENT_CRITERIA_TYPE_CAST_SPELL2:
-            {
-                if (!miscvalue1)
-                    continue;
-
-                if (!miscvalue1 || miscvalue1 != achievementCriteria->cast_spell.spellID)
-                    continue;
-
-                // those requirements couldn't be found in the dbc
-                AchievementCriteriaDataSet const* data = achievementmgr.GetCriteriaDataSet(achievementCriteria);
-                if(!data)
-                    continue;
-
-                if(!data->Meets(GetPlayer(),unit))
-                    continue;
-
-                SetCriteriaProgress(achievementCriteria, 1, PROGRESS_ACCUMULATE);
-                break;
-            }
             case ACHIEVEMENT_CRITERIA_TYPE_LEARN_SKILL_LINE:
             {
                 if (miscvalue1 && miscvalue1 != achievementCriteria->learn_skill_line.skillLine)
