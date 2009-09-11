@@ -73,9 +73,9 @@ void SqlQuery::Execute(Database *db)
 void SqlResultQueue::Update()
 {
     /// execute the callbacks waiting in the synchronization queue
-    while(!empty())
+    Trinity::IQueryCallback* callback;
+    while (next(callback))
     {
-        Trinity::IQueryCallback * callback = next();
         callback->Execute();
         delete callback;
     }
