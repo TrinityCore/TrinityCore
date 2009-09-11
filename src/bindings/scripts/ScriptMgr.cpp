@@ -454,7 +454,6 @@ bool EffectDummyGameObj(Unit *caster, uint32 spellId, uint32 effIndex, GameObjec
     return tmpscript->pEffectDummyGameObj(caster, spellId, effIndex, gameObjTarget);
 }
 
-
 TRINITY_DLL_EXPORT
 bool EffectDummyItem(Unit *caster, uint32 spellId, uint32 effIndex, Item *itemTarget)
 {
