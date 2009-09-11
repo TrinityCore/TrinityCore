@@ -20,7 +20,6 @@ update creature_template set scriptname = 'boss_maiden_of_grief' where entry = '
 #define SPELL_PILLAR_OF_WOE_N                               50761
 #define SPELL_PILLAR_OF_WOE_H                               59727
 
-//not in db
 //Yell
 #define SAY_AGGRO                                        -1603000
 #define SAY_SLAY_1                                       -1603001
@@ -120,13 +119,8 @@ struct TRINITY_DLL_DECL boss_maiden_of_griefAI : public ScriptedAI
     {
         if (victim == m_creature)
             return;
-        switch(rand()%4)
-        {
-            case 0: DoScriptText(SAY_SLAY_1, m_creature);break;
-            case 1: DoScriptText(SAY_SLAY_2, m_creature);break;
-            case 2: DoScriptText(SAY_SLAY_3, m_creature);break;
-            case 3: DoScriptText(SAY_SLAY_4, m_creature);break;
-        }
+
+        DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2,SAY_SLAY_3,SAY_SLAY_4), m_creature);
     }
 };
 
