@@ -70,7 +70,6 @@ void PetAI::_stopAttack()
         return;
     }
 
-    // MrSmite 09-05-2009 PetAI_v1.0
     m_creature->AttackStop();
     me->GetCharmInfo()->SetIsCommandAttack(false);
     HandleReturnMovement();
@@ -100,8 +99,6 @@ void PetAI::UpdateAI(const uint32 diff)
     }
     else if(owner && m_creature->GetCharmInfo()) //no victim
     {
-        // MrSmite 05-09-2009 PetAI_v1.0
-
         Unit *nextTarget = SelectNextTarget();
 
         if (nextTarget)
@@ -165,7 +162,7 @@ void PetAI::UpdateAI(const uint32 diff)
 
             Spell *spell = new Spell(m_creature, spellInfo, false, 0);
 
-            // MrSmite 09-05-2009 PetAI_v1.0 - Fix to allow pets on STAY to autocast
+            // Fix to allow pets on STAY to autocast
             if (inCombat && _CanAttack(me->getVictim()) && spell->CanAutoCast(me->getVictim()))
             {
                 targetSpellStore.push_back(std::make_pair<Unit*, Spell*>(m_creature->getVictim(), spell));
@@ -269,8 +266,6 @@ void PetAI::UpdateAllies()
 
 void PetAI::KilledUnit(Unit *victim)
 {
-    // MrSmite 09-09-2009 PetAI_v1.2
-
     // Called from Unit::Kill() in case where pet or owner kills something
     // if owner killed this victim, pet may still be attacking something else
     if (me->getVictim() && me->getVictim() != victim)
@@ -290,7 +285,6 @@ void PetAI::KilledUnit(Unit *victim)
 
 void PetAI::AttackStart(Unit *target)
 {
-    // MrSmite 09-05-2009 PetAI_v1.0
     // Overrides Unit::AttackStart to correctly evaluate Pet states
 
     // Check all pet states to decide if we can attack this target
@@ -311,8 +305,6 @@ void PetAI::AttackStart(Unit *target)
 
 Unit *PetAI::SelectNextTarget()
 {
-    // MrSmite 09-05-2009 PetAI_v1.0
-
     // Provides next target selection after current target death
 
     // Passive pets don't do next target selection
@@ -334,8 +326,6 @@ Unit *PetAI::SelectNextTarget()
 
 void PetAI::HandleReturnMovement()
 {
-    // MrSmite 09-05-2009 PetAI_v1.0
-
     // Handles moving the pet back to stay or owner
 
     if (me->GetCharmInfo()->HasCommandState(COMMAND_STAY))
@@ -402,7 +392,6 @@ void PetAI::DoAttack(Unit *target, bool chase)
 
 void PetAI::MovementInform(uint32 moveType, uint32 data)
 {
-    // MrSmite 09-05-2009 PetAI_v1.0
     // Receives notification when pet reaches stay or follow owner
     switch (moveType)
     {
@@ -467,4 +456,4 @@ bool PetAI::_CanAttack(Unit *target)
 
     // default, though we shouldn't ever get here
     return false;
-}
+}

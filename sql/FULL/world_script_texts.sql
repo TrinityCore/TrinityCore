@@ -294,7 +294,7 @@ INSERT INTO `script_texts` (`npc_entry`,`entry`,`content_default`,`content_loc1`
    (1978,-1000346,'Look out, $N! Enemies ahead!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,'kayra SAY_AMBUSH2'),
    (11856,-1000347,'We''re almost to the refuge! Let''s go.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,'kayra SAY_END'),
    (11856,-1000348,'Ah...the wondrous sound of kodos. I love the way they make the ground shake... inspect the beast for me.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,'kodo round SAY_SMEED_HOME_1'),
-   (11856,-1000349,'Hey, look out with that kodo! You had better inspect that beast before i give you credit!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,'kodo round SAY_SMEED_HOME_2'),
+   (11856,-1000349,'Hey, look out with that kodo! You had better inspect that beast before I give you credit!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,'kodo round SAY_SMEED_HOME_2'),
    (9453,-1000350,'That kodo sure is a beauty. Wait a minute, where are my bifocals? Perhaps you should inspect the beast for me.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,'kodo round SAY_SMEED_HOME_3'),
    (18262,-1000351,'You, there! Hand over that moonstone and nobody gets hurt!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,1,0,0,'sprysprocket SAY_START'),
    (18588,-1000352,'%s takes the Southfury moonstone and escapes into the river. Follow her!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,3,0,0,'sprysprocket EMOTE_START'),
@@ -317,7 +317,7 @@ INSERT INTO `script_texts` (`npc_entry`,`entry`,`content_default`,`content_loc1`
    (10646,-1000369,'Finally, free at last... I must be going now, thanks for helping me escape. I can get back to Freewind Post by myself.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,1,0,'lakota SAY_LAKO_END'),
    (3465,-1000370,'Stay close, $n. I''ll need all the help I can get to break out of here. Let''s go!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,1,1,'gilthares SAY_GIL_START'),
    (3465,-1000371,'At last! Free from Northwatch Hold! I need a moment to catch my breath...',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,1,5,'gilthares SAY_GIL_AT_LAST'),
-   (3465,-1000372,'Now i feel better. Let''s get back to Ratchet. Come on, $n.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,1,23,'gilthares SAY_GIL_PROCEED'),
+   (3465,-1000372,'Now I feel better. Let''s get back to Ratchet. Come on, $n.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,1,23,'gilthares SAY_GIL_PROCEED'),
    (3465,-1000373,'Looks like the Southsea Freeboters are heavily entrenched on the coast. This could get rough.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,1,25,'gilthares SAY_GIL_FREEBOOTERS'),
    (3465,-1000374,'Help! $C attacking!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,1,0,'gilthares SAY_GIL_AGGRO_1'),
    (3465,-1000375,'$C heading this way fast! Time for revenge!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,1,0,'gilthares SAY_GIL_AGGRO_2'),
@@ -329,7 +329,7 @@ INSERT INTO `script_texts` (`npc_entry`,`entry`,`content_default`,`content_loc1`
    (21027,-1000381,'I sense the tortured spirits, $n. They are this way, come quickly!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,1,'wilda SAY_WIL_START'),
    (21027,-1000382,'Watch out!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,'wilda SAY_WIL_AGGRO1'),
    (21027,-1000383,'Naga attackers! Defend yourself!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,'wilda SAY_WIL_AGGRO2'),
-   (21027,-1000384,'Grant me protection $n, i must break trough their foul magic!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,'wilda SAY_WIL_PROGRESS1'),
+   (21027,-1000384,'Grant me protection $n, I must break trough their foul magic!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,'wilda SAY_WIL_PROGRESS1'),
    (21027,-1000385,'The naga of Coilskar are exceptionally cruel to their prisoners. It is a miracle that I survived inside that watery prison for as long as I did. Earthmother be praised.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,'wilda SAY_WIL_PROGRESS2'),
    (21027,-1000386,'Now we must find the exit.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,'wilda SAY_WIL_FIND_EXIT'),
    (21027,-1000387,'Lady Vashj must answer for these atrocities. She must be brought to justice!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,'wilda SAY_WIL_PROGRESS4'),
@@ -1074,7 +1074,7 @@ INSERT INTO `script_texts` (`npc_entry`,`entry`,`content_default`,`content_loc1`
 
 -- -1 544 000 MAGTHERIDON'S LAIR
 INSERT INTO `script_texts` (`npc_entry`,`entry`,`content_default`,`content_loc1`,`content_loc2`,`content_loc3`,`content_loc4`,`content_loc5`,`content_loc6`,`content_loc7`,`content_loc8`,`sound`,`type`,`language`,`emote`,`comment`) VALUES
-   (17257,-1544000,'Wretched, meddling insects. Release me and perhaps i will grant you a merciful death!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,10247,1,0,0,'magtheridon SAY_TAUNT1'),
+   (17257,-1544000,'Wretched, meddling insects. Release me and perhaps I will grant you a merciful death!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,10247,1,0,0,'magtheridon SAY_TAUNT1'),
    (17257,-1544001,'Vermin! Leeches! Take my blood and choke on it!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,10248,1,0,0,'magtheridon SAY_TAUNT2'),
    (17257,-1544002,'Illidan is an arrogant fool. I will crush him and reclaim Outland as my own.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,10249,1,0,0,'magtheridon SAY_TAUNT3'),
    (17257,-1544003,'Away, you mindless parasites. My blood is my own!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,10250,1,0,0,'magtheridon SAY_TAUNT4'),
