@@ -1170,6 +1170,7 @@ UPDATE `creature_template` SET `ScriptName`='npc_drakuru_shackles' WHERE (`entry
 /* ZUL'FARRAK */
 UPDATE `creature_template` SET `ScriptName`='npc_sergeant_bly' WHERE `entry`=7604;
 UPDATE `creature_template` SET `ScriptName`='npc_weegli_blastfuse' WHERE `entry`=7607;
+UPDATE `gameobject_template` SET `ScriptName`='go_shallow_grave' WHERE `entry` IN (128308,128403);
 
 /* ZUL'GURUB */
 UPDATE `instance_template` SET `script`='instance_zulgurub' WHERE `map`=309;
