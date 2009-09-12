@@ -241,6 +241,7 @@ void AuctionHouseBot::addNewAuctions(Player *AHBplayer, AHBConfig *config)
         while (itemID == 0 && loopBreaker < 50)
         {
             uint32 choice = urand(0, 13);
+            itemColor = choice;
             switch (choice)
             {
             case 0:
