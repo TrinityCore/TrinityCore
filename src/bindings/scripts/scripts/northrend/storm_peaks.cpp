@@ -115,6 +115,62 @@ bool GossipSelect_npc_frostborn_scout(Player* pPlayer, Creature* pCreature, uint
     return true;
 }
 
+/*######
+## npc_thorim
+######*/
+
+#define GOSSIP_HN "Thorim?"
+#define GOSSIP_SN1 "Can you tell me what became of Sif?"
+#define GOSSIP_SN2 "He did more than that, Thorim. He controls Ulduar now."
+#define GOSSIP_SN3 "It needn't end this way."
+
+enum
+{
+    QUEST_SIBLING_RIVALRY = 13064,
+    NPC_THORIM = 29445,
+    GOSSIP_TEXTID_THORIM1 = 13799,
+    GOSSIP_TEXTID_THORIM2 = 13801,
+    GOSSIP_TEXTID_THORIM3 = 13802,
+    GOSSIP_TEXTID_THORIM4 = 13803
+};
+
+bool GossipHello_npc_thorim(Player* pPlayer, Creature* pCreature)
+{
+    if (pCreature->isQuestGiver())
+        pPlayer->PrepareQuestMenu(pCreature->GetGUID());
+
+    if (pPlayer->GetQuestStatus(QUEST_SIBLING_RIVALRY) == QUEST_STATUS_INCOMPLETE) {
+        pPlayer->ADD_GOSSIP_ITEM(0, GOSSIP_HN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+        pPlayer->SEND_GOSSIP_MENU(GOSSIP_TEXTID_THORIM1, pCreature->GetGUID());
+        return true;
+    }
+    return false;
+}
+
+bool GossipSelect_npc_thorim(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+{
+    switch (uiAction)
+    {
+        case GOSSIP_ACTION_INFO_DEF+1:
+            pPlayer->ADD_GOSSIP_ITEM(0, GOSSIP_SN1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
+            pPlayer->SEND_GOSSIP_MENU(GOSSIP_TEXTID_THORIM2, pCreature->GetGUID());
+            break;
+        case GOSSIP_ACTION_INFO_DEF+2:
+            pPlayer->ADD_GOSSIP_ITEM(0, GOSSIP_SN2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+3);
+            pPlayer->SEND_GOSSIP_MENU(GOSSIP_TEXTID_THORIM3, pCreature->GetGUID());
+            break;
+        case GOSSIP_ACTION_INFO_DEF+3:
+            pPlayer->ADD_GOSSIP_ITEM(0, GOSSIP_SN3, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+4);
+            pPlayer->SEND_GOSSIP_MENU(GOSSIP_TEXTID_THORIM4, pCreature->GetGUID());
+            break;
+        case GOSSIP_ACTION_INFO_DEF+4:
+            pPlayer->CLOSE_GOSSIP_MENU();
+            pPlayer->AreaExploredOrEventHappens(QUEST_SIBLING_RIVALRY);
+            break;
+    }
+    return true;
+}
+
 void AddSC_storm_peaks()
 {
     Script* newscript;
@@ -130,5 +186,11 @@ void AddSC_storm_peaks()
     newscript->Name = "npc_frostborn_scout";
     newscript->pGossipHello = &GossipHello_npc_frostborn_scout;
     newscript->pGossipSelect = &GossipSelect_npc_frostborn_scout;
+    newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name = "npc_thorim";
+    newscript->pGossipHello = &GossipHello_npc_thorim;
+    newscript->pGossipSelect = &GossipSelect_npc_thorim;
     newscript->RegisterSelf();
 }
