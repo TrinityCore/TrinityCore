@@ -139,7 +139,7 @@ bool OPvPWintergrasp::SetupOutdoorPvP()
         // add building to the list
         TeamId teamId = x > POS_X_CENTER ? m_defender : OTHER_TEAM(m_defender);
         m_buildingStates[guid] = new BuildingState((*poi)->worldState, teamId, m_defender != TEAM_ALLIANCE);
-        if((*poi)->id == 2229)
+        if((*poi)->id == 2246)
         {
             m_gate = m_buildingStates[guid];
         }
