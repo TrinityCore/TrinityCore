@@ -34,8 +34,8 @@ INSERT INTO `spell_linked_spell` (`spell_trigger`, `spell_effect`, `type`, `comm
 (-49012, 49010, 0, 'Wyvern Sting'),
 ( 47585, 60069, 2, 'Dispersion (transform/regen)'),
 ( 47585, 63230, 2, 'Dispersion (immunity)'),
-( 61847, 61848, 2, 'Aspect of te dragonhawk'),
-( 61846, 61848, 2, 'Aspect of te dragonhawk'),
+( 61847, 61848, 2, 'Aspect of the dragonhawk'),
+( 61846, 61848, 2, 'Aspect of the dragonhawk'),
 ( 47988, 54501, 2, 'Consume Shadows - Rank 9'),
 ( 47987, 54501, 2, 'Consume Shadows - Rank 8'),
 ( 27272, 54501, 2, 'Consume Shadows - Rank 7'),
@@ -90,9 +90,9 @@ INSERT INTO `spell_linked_spell` (`spell_trigger`, `spell_effect`, `type`, `comm
 ( 36574, 36650, 0, 'Apply Phase Slip Vulnerability'),
 -- instance
 (-30410, 44032, 0, 'Manticron Cube Mind Exhaustion'),
-(-33711, 33686, 0, 'Murmur\'s Shockwave (Normal)'),
-(-38794, 33686, 0, 'Murmur\'s Shockwave (Heroic)'),
-( 33686, 31705, 0, 'Murmur\'s Shockwave Jump'),
+(-33711, 33686, 0, 'Murmur''s Shockwave (Normal)'),
+(-38794, 33686, 0, 'Murmur''s Shockwave (Heroic)'),
+( 33686, 31705, 0, 'Murmur''s Shockwave Jump'),
 -- Zul'aman
 ( 44008, 45265, 1, 'Static Disruption Visual'),
 ( 43648, 44007, 1, 'Storm Eye Safe Zone'),
@@ -141,8 +141,8 @@ INSERT INTO `spell_linked_spell` (`spell_trigger`, `spell_effect`, `type`, `comm
 ( 46262, 46265, 0, 'Void Zone Visual'),
 -- naxx
 (-28169, 28206, 0, 'Mutating Injection - Mutagen Explosion'),
-( 28732,-28798, 1, 'Widow\'s Embrace - Frenzy'),
-( 54097,-54100, 1, 'Widow\'s Embrace - Frenzy (H)'),
+( 28732,-28798, 1, 'Widow''s Embrace - Frenzy'),
+( 54097,-54100, 1, 'Widow''s Embrace - Frenzy (H)'),
 (-28169, 28240, 0, 'Mutating Injection - Poison Cloud'),
 -- Archavon
 ( 58666, 58672, 1, 'Impale (Archavon)'),
@@ -2118,8 +2118,8 @@ DELETE FROM `spell_linked_spell` WHERE `spell_trigger` IN
 (28732,54097,-29865,-55053,-28169,28059,39088,-28059,-39088,28062,39090,28084,
 39091,-28084,-39091,28085,39093);
 INSERT INTO `spell_linked_spell` (`spell_trigger`, `spell_effect`, `type`, `comment`) VALUES
-( 28732,-28798,  1, 'Widow\'s Embrace - Frenzy'),
-( 54097,-54100,  1, 'Widow\'s Embrace - Frenzy (H)'),
+( 28732,-28798,  1, 'Widow''s Embrace - Frenzy'),
+( 54097,-54100,  1, 'Widow''s Embrace - Frenzy (H)'),
 (-29865, 55594,  0, 'Deathbloom'),
 (-55053, 55601,  0, 'Deathbloom (H)'),
 (-28169, 28206,  0, 'Mutating Injection - Mutagen Explosion'),
@@ -2265,9 +2265,9 @@ INSERT INTO `creature_ai_scripts`
 ('1669702', '16697',         '1',         '100',          '3',        '3000',        '3000',        '3000',        '3000',          '11',         '46264',             '0',             '2','Void Zone - Cast Void Zone Effect');
 DELETE FROM `spell_linked_spell` WHERE `spell_trigger` IN ('-30421','-30422','-30423','38637','38638','38639');
 INSERT INTO `spell_linked_spell`(`spell_trigger`,`spell_effect`,`type`,`comment`) VALUES
-('-30421','38637','0','Netherspite\'s Perseverence'),
-('-30422','38638','0','Netherspite\'s Serenity'),
-('-30423','38639','0','Netherspite\'s Dominance');
+('-30421','38637','0','Netherspite''s Perseverence'),
+('-30422','38638','0','Netherspite''s Serenity'),
+('-30423','38639','0','Netherspite''s Dominance');
 UPDATE `script_texts` SET `type` = '3' WHERE `entry` IN ('-1532089','-1532090');
 
 
