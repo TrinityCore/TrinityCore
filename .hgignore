@@ -3,12 +3,16 @@ syntax: glob
 
 src/shared/revision.h
 build/
+bin/
 .directory
 *.orig
 *.rej
 *~
 .git/
 win/VC90/*/
+*.ncb
+*.suo
+dep/lib/win32*
 src/bindings/scripts/VC90/*/
 src/mangosd/
 src/realmd/
