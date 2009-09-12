@@ -133,6 +133,16 @@ typedef struct AUTH_LOGON_PROOF_S
     uint16  unk3;
 } sAuthLogonProof_S;
 
+typedef struct AUTH_LOGON_PROOF_S_OLD
+{
+    uint8   cmd;
+    uint8   error;
+    uint8   M2[20];
+    //uint32  unk1;
+    uint32  unk2;
+    //uint16  unk3;
+} sAuthLogonProof_S_Old;
+
 typedef struct AUTH_RECONNECT_PROOF_C
 {
     uint8   cmd;
@@ -696,15 +706,26 @@ bool AuthSocket::_HandleLogonProof()
         sha.UpdateBigNumbers(&A, &M, &K, NULL);
         sha.Finalize();
 
-        sAuthLogonProof_S proof;
-        memcpy(proof.M2, sha.GetDigest(), 20);
-        proof.cmd = AUTH_LOGON_PROOF;
-        proof.error = 0;
-        proof.unk1 = 0x00800000;
-        proof.unk2 = 0x00;
-        proof.unk3 = 0x00;
-
-        SendBuf((char *)&proof, sizeof(proof));
+        if(_build == 8606 || _build == 9947)//2.4.3 and 3.1.3 cliens
+        {
+            sAuthLogonProof_S proof;
+            memcpy(proof.M2, sha.GetDigest(), 20);
+            proof.cmd = AUTH_LOGON_PROOF;
+            proof.error = 0;
+            proof.unk1 = 0x00800000;
+            proof.unk2 = 0x00;
+            proof.unk3 = 0x00;
+            SendBuf((char *)&proof, sizeof(proof));
+        }else{
+            sAuthLogonProof_S_Old proof;
+            memcpy(proof.M2, sha.GetDigest(), 20);
+            proof.cmd = AUTH_LOGON_PROOF;
+            proof.error = 0;
+            //proof.unk1 = 0x00800000;
+            proof.unk2 = 0x00;
+            //proof.unk3 = 0x00;
+            SendBuf((char *)&proof, sizeof(proof));
+        }
 
         ///- Set _authed to true!
         _authed = true;
@@ -884,12 +905,32 @@ bool AuthSocket::_HandleRealmList()
     ///- Update realm list if need
     m_realmList.UpdateIfNeed();
 
+    RealmList::RealmMap::const_iterator rlm;
+    RealmList built_realmList;
+    for( rlm = m_realmList.begin(); rlm != m_realmList.end(); ++rlm )
+    {
+        if(_build == 8606 || _build == 9947)//2.4.3 and 3.1.3 cliens
+        {
+            if(rlm->second.gamebuild == _build)
+                built_realmList.AddRealm(rlm->second);
+        }
+        else if(_build == 5875 || _build == 6005)//1.12.1 and 1.12.2 clients are compatible with eachother
+        {
+            if(rlm->second.gamebuild == 5875 || rlm->second.gamebuild == 6005)
+                built_realmList.AddRealm(rlm->second);
+        }
+
+    }
+
     ///- Circle through realms in the RealmList and construct the return packet (including # of user characters in each realm)
     ByteBuffer pkt;
     pkt << (uint32) 0;
-    pkt << (uint16) m_realmList.size();
+    if(_build == 8606 || _build == 9947)//only 2.4.3 and 3.1.3 cliens
+        pkt << (uint16) built_realmList.size();
+    else
+        pkt << (uint32) built_realmList.size();
     RealmList::RealmMap::const_iterator i;
-    for( i = m_realmList.begin(); i != m_realmList.end(); ++i )
+    for( i = built_realmList.begin(); i != built_realmList.end(); ++i )
     {
         uint8 AmountOfCharacters;
 
@@ -907,17 +948,28 @@ bool AuthSocket::_HandleRealmList()
         uint8 lock = (i->second.allowedSecurityLevel > _accountSecurityLevel) ? 1 : 0;
 
         pkt << i->second.icon;                             // realm type
-        pkt << lock;                                       // if 1, then realm locked
+        if(i->second.gamebuild == 9947 || i->second.gamebuild == 8606)//only 2.4.3 and 3.1.3 cliens
+            pkt << lock;                                       // if 1, then realm locked
         pkt << i->second.color;                            // if 2, then realm is offline
         pkt << i->first;
         pkt << i->second.address;
         pkt << i->second.populationLevel;
         pkt << AmountOfCharacters;
         pkt << i->second.timezone;                          // realm category
-        pkt << (uint8) 0x2C;                                // unk, may be realm number/id?
+        if(i->second.gamebuild == 9947 || i->second.gamebuild == 8606)//2.4.3 and 3.1.3 clients
+            pkt << (uint8) 0x2C;                                // unk, may be realm number/id?
+        else
+            pkt << (uint8) 0x0; //1.12.1 and 1.12.2 clients
     }
-    pkt << (uint8) 0x10;
-    pkt << (uint8) 0x00;
+
+    if(_build == 9947 || _build == 8606)//2.4.3 and 3.1.3 cliens
+    {
+        pkt << (uint8) 0x10;
+        pkt << (uint8) 0x00;
+    }else{//1.12.1 and 1.12.2 clients
+        pkt << (uint8) 0x00;
+        pkt << (uint8) 0x02;
+    }
 
     ByteBuffer hdr;
     hdr << (uint8) REALM_LIST;
