@@ -1,7 +1,7 @@
 ##########################################
 # Trinity Core worldd configuration file #
 ##########################################
-ConfVersion=2009091101
+ConfVersion=2009091201
 
 ###################################################################################################################
 # CONNECTIONS AND DIRECTORIES
@@ -1892,6 +1892,12 @@ Ra.Secure = 1
 #	NoResetTalentsCost
 #		Enable or disable no cost when reseting talents
 #
+#   Guild.AllowMultipleGuildMaster
+#       Allow override of 1 Guild Master limit. Additional Guild Masters must
+#       be set using the ".guild rank" command, not through the UI
+#       Default: 0 = Only 1 Guild Master per guild
+#                1 = Allow more than one Guild Master
+#
 #   OutdoorPvP.Wintergrasp.StartTime = 30
 #       The start time of the first battle after server starts (default: 30 minutes)
 #
@@ -1969,6 +1975,7 @@ PvPToken.Enable = 0
 PvPToken.MapAllowType = 4
 PvPToken.ItemID = 29434
 PvPToken.ItemCount = 1
+Guild.AllowMultipleGuildMaster = 0
 OutdoorPvP.Wintergrasp.StartTime = 30
 OutdoorPvP.Wintergrasp.BattleTime = 30
 OutdoorPvP.Wintergrasp.Interval = 150

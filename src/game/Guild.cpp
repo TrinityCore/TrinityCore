@@ -30,6 +30,7 @@
 #include "Util.h"
 #include "Language.h"
 #include "World.h"
+#include "Config/ConfigEnv.h"
 
 Guild::Guild()
 {
@@ -279,13 +280,11 @@ bool Guild::LoadGuildFromDB(uint32 GuildId)
     else if (GM_rights != GR_GUILDMASTER)
         SetLeader(m_LeaderGuid);
 
-    // Allow only 1 guildmaster
-    for (MemberList::const_iterator itr = members.begin(); itr != members.end(); ++itr)
-    {
-        if (itr->second.RankId == GR_GUILDMASTER && GUID_LOPART(m_LeaderGuid) != itr->first)
-            //set right of member to officer
-            ChangeRank(itr->first, GR_OFFICER);
-    }
+    // Check config if multiple guildmasters are allowed
+    if (sConfig.GetBoolDefault("Guild.AllowMultipleGuildMaster", 0) == 0)
+        for (MemberList::const_iterator itr = members.begin(); itr != members.end(); ++itr)
+            if (itr->second.RankId == GR_GUILDMASTER && GUID_LOPART(m_LeaderGuid) != itr->first) // Allow only 1 guildmaster
+                ChangeRank(itr->first, GR_OFFICER); // set right of member to officer
 
     sLog.outDebug("Guild %u Creation time Loaded day: %u, month: %u, year: %u", GuildId, m_CreatedDay, m_CreatedMonth, m_CreatedYear);
 
