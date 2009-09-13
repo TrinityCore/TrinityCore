@@ -18,6 +18,7 @@ SET(trinityscript_LIB_SRCS
    include/sc_creature.h
    include/sc_gossip.h
    include/sc_instance.h
+   scripts/custom/on_events.cpp
    scripts/eastern_kingdoms/blackrock_depths/blackrock_depths.cpp
    scripts/eastern_kingdoms/blackrock_depths/boss_ambassador_flamelash.cpp
    scripts/eastern_kingdoms/blackrock_depths/boss_anubshiah.cpp
