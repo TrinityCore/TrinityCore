@@ -551,7 +551,7 @@ bool AuthSocket::_HandleLogonProof()
 
     ///- Check if the client has one of the expected version numbers
     bool valid_version = false;
-    int accepted_versions[] = EXPECTED_MANGOS_CLIENT_BUILD;
+    int accepted_versions[] = EXPECTED_TRINITY_CLIENT_BUILD;
     for(int i = 0; accepted_versions[i]; ++i)
     {
         if(_build == accepted_versions[i])
