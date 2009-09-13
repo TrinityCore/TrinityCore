@@ -43,6 +43,9 @@ struct Script
     std::string Name;
 
     //Methods to be scripted
+    void (*pOnLogin             )(Player*);
+    void (*pOnLogout            )(Player*);
+    void (*pOnPVPKill           )(Player*, Player*);
     bool (*pGossipHello         )(Player*, Creature*);
     bool (*pQuestAccept         )(Player*, Creature*, Quest const* );
     bool (*pGossipSelect        )(Player*, Creature*, uint32 , uint32 );
