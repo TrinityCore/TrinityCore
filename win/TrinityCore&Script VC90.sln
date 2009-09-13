@@ -47,14 +47,18 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ACE_Wrappers", "VC90\ACE_vc
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Release|Win32 = Release|Win32
+		Release|x64 = Release|x64
 		Debug|Win32 = Debug|Win32
 		Debug|x64 = Debug|x64
 		Debug_NoPCH|Win32 = Debug_NoPCH|Win32
 		Debug_NoPCH|x64 = Debug_NoPCH|x64
-		Release|Win32 = Release|Win32
-		Release|x64 = Release|x64
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{1DC6C4DA-A028-41F3-877D-D5400C594F88}.Release|Win32.ActiveCfg = Release|Win32
+		{1DC6C4DA-A028-41F3-877D-D5400C594F88}.Release|Win32.Build.0 = Release|Win32
+		{1DC6C4DA-A028-41F3-877D-D5400C594F88}.Release|x64.ActiveCfg = Release|x64
+		{1DC6C4DA-A028-41F3-877D-D5400C594F88}.Release|x64.Build.0 = Release|x64
 		{1DC6C4DA-A028-41F3-877D-D5400C594F88}.Debug_NoPCH|Win32.ActiveCfg = Debug_NoPCH|Win32
 		{1DC6C4DA-A028-41F3-877D-D5400C594F88}.Debug_NoPCH|Win32.Build.0 = Debug_NoPCH|Win32
 		{1DC6C4DA-A028-41F3-877D-D5400C594F88}.Debug_NoPCH|x64.ActiveCfg = Debug_NoPCH|x64
@@ -63,10 +67,6 @@ Global
 		{1DC6C4DA-A028-41F3-877D-D5400C594F88}.Debug|Win32.Build.0 = Debug|Win32
 		{1DC6C4DA-A028-41F3-877D-D5400C594F88}.Debug|x64.ActiveCfg = Debug|x64
 		{1DC6C4DA-A028-41F3-877D-D5400C594F88}.Debug|x64.Build.0 = Debug|x64
-		{1DC6C4DA-A028-41F3-877D-D5400C594F88}.Release|Win32.ActiveCfg = Release|Win32
-		{1DC6C4DA-A028-41F3-877D-D5400C594F88}.Release|Win32.Build.0 = Release|Win32
-		{1DC6C4DA-A028-41F3-877D-D5400C594F88}.Release|x64.ActiveCfg = Release|x64
-		{1DC6C4DA-A028-41F3-877D-D5400C594F88}.Release|x64.Build.0 = Release|x64
 		{90297C34-F231-4DF4-848E-A74BCC0E40ED}.Debug_NoPCH|Win32.ActiveCfg = Debug_NoPCH|Win32
 		{90297C34-F231-4DF4-848E-A74BCC0E40ED}.Debug_NoPCH|Win32.Build.0 = Debug_NoPCH|Win32
 		{90297C34-F231-4DF4-848E-A74BCC0E40ED}.Debug_NoPCH|x64.ActiveCfg = Debug_NoPCH|x64
