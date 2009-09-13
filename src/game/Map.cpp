@@ -2866,7 +2866,7 @@ void Map::ScriptsProcess()
                     sLog.outError("SCRIPT_COMMAND_TALK call for non-creature (TypeId: %u, Entry: %u, GUID: %u), skipping.",source->GetTypeId(),source->GetEntry(),source->GetGUIDLow());
                     break;
                 }
-                if(step.script->datalong > 3)
+                if(step.script->datalong > 4)
                 {
                     sLog.outError("SCRIPT_COMMAND_TALK invalid chat type (%u), skipping.",step.script->datalong);
                     break;

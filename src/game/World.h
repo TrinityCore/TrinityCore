@@ -386,7 +386,7 @@ enum RealmZone
 };
 
 // DB scripting commands
-#define SCRIPT_COMMAND_TALK                  0              // source = unit, target=any, datalong ( 0=say, 1=whisper, 2=yell, 3=emote text)
+#define SCRIPT_COMMAND_TALK                  0              // source = unit, target=any, datalong (0=say, 1=whisper, 2=yell, 3=emote text, 4=boss emote text)
 #define SCRIPT_COMMAND_EMOTE                 1              // source = unit, datalong = anim_id
 #define SCRIPT_COMMAND_FIELD_SET             2              // source = any, datalong = field_id, datalog2 = value
 #define SCRIPT_COMMAND_MOVE_TO               3              // source = Creature, datalog2 = time, x/y/z

@@ -59,6 +59,9 @@ bool LoadScriptingModule(char const* libName)
     }
 
     if(   !(testScript->ScriptsInit         =(scriptCallScriptsInit         )TRINITY_GET_PROC_ADDR(testScript->hScriptsLib,"ScriptsInit"         ))
+        ||!(testScript->OnLogin             =(scriptCallOnLogin             )TRINITY_GET_PROC_ADDR(testScript->hScriptsLib,"OnLogin"             ))
+        ||!(testScript->OnLogout            =(scriptCallOnLogout            )TRINITY_GET_PROC_ADDR(testScript->hScriptsLib,"OnLogout"            ))
+        ||!(testScript->OnPVPKill           =(scriptCallOnPVPKill           )TRINITY_GET_PROC_ADDR(testScript->hScriptsLib,"OnPVPKill"           ))
         ||!(testScript->ScriptsFree         =(scriptCallScriptsFree         )TRINITY_GET_PROC_ADDR(testScript->hScriptsLib,"ScriptsFree"         ))
         ||!(testScript->ScriptsVersion      =(scriptCallScriptsVersion      )TRINITY_GET_PROC_ADDR(testScript->hScriptsLib,"ScriptsVersion"      ))
         ||!(testScript->GossipHello         =(scriptCallGossipHello         )TRINITY_GET_PROC_ADDR(testScript->hScriptsLib,"GossipHello"         ))

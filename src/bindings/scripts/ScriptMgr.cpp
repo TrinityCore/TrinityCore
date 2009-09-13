@@ -221,6 +221,30 @@ void Script::RegisterSelf()
 //*** Functions to be Exported ***
 
 TRINITY_DLL_EXPORT
+void OnLogin(Player *pPlayer)
+{
+    Script *tmpscript = m_scripts[GetScriptId("scripted_on_events")];
+    if (!tmpscript || !tmpscript->pOnLogin) return;
+    tmpscript->pOnLogin(pPlayer);
+}
+
+TRINITY_DLL_EXPORT
+void OnLogout(Player *pPlayer)
+{
+    Script *tmpscript = m_scripts[GetScriptId("scripted_on_events")];
+    if (!tmpscript || !tmpscript->pOnLogout) return;
+    tmpscript->pOnLogout(pPlayer);
+}
+
+TRINITY_DLL_EXPORT
+void OnPVPKill(Player *killer, Player *killed)
+{
+    Script *tmpscript = m_scripts[GetScriptId("scripted_on_events")];
+    if (!tmpscript || !tmpscript->pOnPVPKill) return;
+    tmpscript->pOnPVPKill(killer, killed);
+}
+
+TRINITY_DLL_EXPORT
 char const* ScriptsVersion()
 {
     return "Default Trinity scripting library";
