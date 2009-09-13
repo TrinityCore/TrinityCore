@@ -137,6 +137,7 @@ struct TRINITY_DLL_DECL instance_naxxramas : public InstanceData
             case GO_BIRTH: if (!add && Sapphiron) Sapphiron->AI()->DoAction(DATA_SAPPHIRON_BIRTH); return;
             case GO_GOTHIK_GATE: pGothikGate = add ? pGo : NULL; break;
             case GO_HORSEMEN_CHEST: HorsemenChest = add ? pGo : NULL; break;
+            case GO_HORSEMEN_CHEST_HERO: HorsemenChest = add ? pGo : NULL; break;
         }
 
         AddDoor(pGo, add);
