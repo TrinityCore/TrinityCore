@@ -72,6 +72,6 @@ enum LoginResult
 //2.4.3 build 8606
 //3.1.3 build 9947
 
-#define EXPECTED_MANGOS_CLIENT_BUILD        {9947, 8606, 5875, 6005, 0}
+#define EXPECTED_TRINITY_CLIENT_BUILD        {9947, 8606, 5875, 6005, 0}
 
 #endif
