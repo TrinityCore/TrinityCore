@@ -4297,7 +4297,7 @@ void ObjectMgr::LoadScripts(ScriptMapMap& scripts, char const* tablename)
         {
             case SCRIPT_COMMAND_TALK:
             {
-                if(tmp.datalong > 3)
+                if(tmp.datalong > 4)
                 {
                     sLog.outErrorDb("Table `%s` has invalid talk type (datalong = %u) in SCRIPT_COMMAND_TALK for script id %u",tablename,tmp.datalong,tmp.id);
                     continue;
@@ -8377,7 +8377,10 @@ void ObjectMgr::LoadScriptNames()
     }
 
     barGoLink bar( result->GetRowCount() );
-    uint32 count = 0;
+
+    //OnEvent Changes
+    m_scriptNames.push_back("scripted_on_events");
+    uint32 count = 1;
 
     do
     {

@@ -2646,6 +2646,10 @@
 				Name="custom"
 				>
 				<File
+					RelativePath="..\scripts\custom\on_events.cpp"
+					>
+				</File>
+				<File
 					RelativePath="..\scripts\custom\npc_acherus_taxi.cpp"
 					>
 				</File>

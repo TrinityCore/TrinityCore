@@ -40,6 +40,7 @@
 #include "MapManager.h"
 #include "SocialMgr.h"
 #include "zlib/zlib.h"
+#include "ScriptCalls.h"
 
 /// WorldSession constructor
 WorldSession::WorldSession(uint32 id, WorldSocket *sock, AccountTypes sec, uint8 expansion, time_t mute_time, LocaleConstant locale) :
@@ -450,6 +451,9 @@ void WorldSession::LogoutPlayer(bool Save)
             GetAccountId());
         sLog.outDebug( "SESSION: Sent SMSG_LOGOUT_COMPLETE Message" );
     }
+
+    //Hook for OnLogout Event
+    Script->OnLogout(_player);
 
     m_playerLogout = false;
     m_playerRecentlyLogout = true;
