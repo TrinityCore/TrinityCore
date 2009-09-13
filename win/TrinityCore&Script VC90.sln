@@ -47,10 +47,10 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ACE_Wrappers", "VC90\ACE_vc
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
-		Debug_NoPCH|Win32 = Debug_NoPCH|Win32
-		Debug_NoPCH|x64 = Debug_NoPCH|x64
 		Debug|Win32 = Debug|Win32
 		Debug|x64 = Debug|x64
+		Debug_NoPCH|Win32 = Debug_NoPCH|Win32
+		Debug_NoPCH|x64 = Debug_NoPCH|x64
 		Release|Win32 = Release|Win32
 		Release|x64 = Release|x64
 	EndGlobalSection
@@ -127,18 +127,15 @@ Global
 		{563E9905-3657-460C-AE63-0AC39D162E23}.Release|Win32.Build.0 = Release|Win32
 		{563E9905-3657-460C-AE63-0AC39D162E23}.Release|x64.ActiveCfg = Release|x64
 		{563E9905-3657-460C-AE63-0AC39D162E23}.Release|x64.Build.0 = Release|x64
-		{4295C8A9-79B7-4354-8064-F05FB9CA0C96}.Debug_NoPCH|Win32.ActiveCfg = Debug_NoPCH|Win32
-		{4295C8A9-79B7-4354-8064-F05FB9CA0C96}.Debug_NoPCH|Win32.Build.0 = Debug_NoPCH|Win32
-		{4295C8A9-79B7-4354-8064-F05FB9CA0C96}.Debug_NoPCH|x64.ActiveCfg = Debug_NoPCH|x64
-		{4295C8A9-79B7-4354-8064-F05FB9CA0C96}.Debug_NoPCH|x64.Build.0 = Debug_NoPCH|x64
+		{4295C8A9-79B7-4354-8064-F05FB9CA0C96}.Debug_NoPCH|Win32.ActiveCfg = Debug|Win32
+		{4295C8A9-79B7-4354-8064-F05FB9CA0C96}.Debug_NoPCH|Win32.Build.0 = Debug|Win32
+		{4295C8A9-79B7-4354-8064-F05FB9CA0C96}.Debug_NoPCH|x64.ActiveCfg = Debug|Win32
 		{4295C8A9-79B7-4354-8064-F05FB9CA0C96}.Debug|Win32.ActiveCfg = Debug|Win32
 		{4295C8A9-79B7-4354-8064-F05FB9CA0C96}.Debug|Win32.Build.0 = Debug|Win32
-		{4295C8A9-79B7-4354-8064-F05FB9CA0C96}.Debug|x64.ActiveCfg = Debug|x64
-		{4295C8A9-79B7-4354-8064-F05FB9CA0C96}.Debug|x64.Build.0 = Debug|x64
+		{4295C8A9-79B7-4354-8064-F05FB9CA0C96}.Debug|x64.ActiveCfg = Debug|Win32
 		{4295C8A9-79B7-4354-8064-F05FB9CA0C96}.Release|Win32.ActiveCfg = Release|Win32
 		{4295C8A9-79B7-4354-8064-F05FB9CA0C96}.Release|Win32.Build.0 = Release|Win32
-		{4295C8A9-79B7-4354-8064-F05FB9CA0C96}.Release|x64.ActiveCfg = Release|x64
-		{4295C8A9-79B7-4354-8064-F05FB9CA0C96}.Release|x64.Build.0 = Release|x64
+		{4295C8A9-79B7-4354-8064-F05FB9CA0C96}.Release|x64.ActiveCfg = Release|Win32
 		{8072769E-CF10-48BF-B9E1-12752A5DAC6E}.Debug_NoPCH|Win32.ActiveCfg = Debug_NoPCH|Win32
 		{8072769E-CF10-48BF-B9E1-12752A5DAC6E}.Debug_NoPCH|Win32.Build.0 = Debug_NoPCH|Win32
 		{8072769E-CF10-48BF-B9E1-12752A5DAC6E}.Debug_NoPCH|x64.ActiveCfg = Debug_NoPCH|x64
