@@ -151,7 +151,7 @@ bool Player::UpdateAllStats()
     UpdateAllSpellCritChances();
     UpdateDefenseBonusesMod();
     UpdateShieldBlockValue();
-    UpdateArmorPenetration();
+	UpdateArmorPenetration();
     UpdateSpellDamageAndHealingBonus();
     UpdateManaRegen();
     UpdateExpertise(BASE_ATTACK);
@@ -689,26 +689,26 @@ void Player::UpdateExpertise(WeaponAttackType attack)
 
 void Player::UpdateArmorPenetration()
 {
-    m_armorPenetrationPct = GetRatingBonusValue(CR_ARMOR_PENETRATION);
+	m_armorPenetrationPct = GetRatingBonusValue(CR_ARMOR_PENETRATION);
 
-    AuraList const& armorAuras = GetAurasByType(SPELL_AURA_MOD_TARGET_ARMOR_PCT);
-    for(AuraList::const_iterator itr = armorAuras.begin(); itr != armorAuras.end(); ++itr)
-    {
-        // affects all weapons
-        if((*itr)->GetSpellProto()->EquippedItemClass == -1)
-        {
-            m_armorPenetrationPct += (*itr)->GetModifier()->m_amount;
-            continue;
-        }
+	AuraList const& armorAuras = GetAurasByType(SPELL_AURA_MOD_TARGET_ARMOR_PCT);
+	for(AuraList::const_iterator itr = armorAuras.begin(); itr != armorAuras.end(); ++itr)
+	{
+		// affects all weapons
+		if((*itr)->GetSpellProto()->EquippedItemClass == -1)
+		{
+			m_armorPenetrationPct += (*itr)->GetModifier()->m_amount;
+			continue;
+		}
 
-        // dependent on weapon class
-        for(uint8 i = 0; i < MAX_ATTACK; ++i)
-        {
-            Item *weapon = GetWeaponForAttack(WeaponAttackType(i));
-            if(weapon && weapon->IsFitToSpellRequirements((*itr)->GetSpellProto()))
-                m_armorPenetrationPct += (*itr)->GetModifier()->m_amount;
-        }
-    }
+		// dependent on weapon class
+		for(uint8 i = 0; i < MAX_ATTACK; ++i)
+		{
+			Item *weapon = GetWeaponForAttack(WeaponAttackType(i));
+			if(weapon && weapon->IsFitToSpellRequirements((*itr)->GetSpellProto()))
+				m_armorPenetrationPct += (*itr)->GetModifier()->m_amount;
+		}
+	}
 }
 
 void Player::ApplyManaRegenBonus(int32 amount, bool apply)
