@@ -728,7 +728,7 @@ void Guild::Disband()
     objmgr.RemoveGuild(m_Id);
 }
 
-void Guild::Roster(WorldSession *session)
+void Guild::Roster(WorldSession *session /*= NULL*/)
 {
                                                             // we can only guess size
     WorldPacket data(SMSG_GUILD_ROSTER, (4+MOTD.length()+1+GINFO.length()+1+4+m_Ranks.size()*(4+4+GUILD_BANK_MAX_TABS*(4+4))+members.size()*50));
@@ -777,7 +777,10 @@ void Guild::Roster(WorldSession *session)
             data << itr->second.OFFnote;
         }
     }
-    session->SendPacket(&data);;
+    if (session)
+        session->SendPacket(&data);
+    else
+        BroadcastPacket(&data);
     sLog.outDebug( "WORLD: Sent (SMSG_GUILD_ROSTER)" );
 }
 
@@ -1085,7 +1088,7 @@ void Guild::DisplayGuildBankTabsInfo(WorldSession *session)
     //data << uint32(0xFFFFFFFF);                             // bit 9 must be set for this packet to work
     data << uint32(0);
     data << uint8(1);                                       // Tell Client this is a TabInfo packet
-    data << uint8(m_PurchasedTabs);                          // here is the number of tabs
+    data << uint8(m_PurchasedTabs);                         // here is the number of tabs
 
     for (uint8 i = 0; i < m_PurchasedTabs; ++i)
     {
@@ -1975,7 +1978,6 @@ void Guild::SendGuildBankTabText(WorldSession *session, uint8 TabId)
         session->SendPacket(&data);
     else
         BroadcastPacket(&data);
-
 }
 
 void Guild::SwapItems(Player * pl, uint8 BankTab, uint8 BankTabSlot, uint8 BankTabDst, uint8 BankTabSlotDst, uint32 SplitedAmount )
