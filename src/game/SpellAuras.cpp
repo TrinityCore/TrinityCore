@@ -3436,7 +3436,7 @@ void AuraEffect::HandleAuraModShapeshift(bool apply, bool Real, bool changeAmoun
 
                     if (GetMiscValue() == FORM_CAT)
                     {
-                        int32 basePoints = std::min(FurorChance, oldVal);
+                        int32 basePoints = (FurorChance < oldVal ? FurorChance : oldVal);
                         m_target->CastCustomSpell(m_target,17099,&basePoints,NULL,NULL,true,NULL,this);
                     }
                     else
