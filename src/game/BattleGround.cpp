@@ -1906,6 +1906,5 @@ WorldSafeLocsEntry const* BattleGround::GetClosestGraveYard( Player* player )
 bool BattleGround::IsTeamScoreInRange(uint32 team, uint32 minScore, uint32 maxScore) const
 {
     BattleGroundTeamId team_idx = GetTeamIndexByTeamId(team);
-    uint32 score = (m_TeamScores[team_idx] < 0) ? 0 : uint32(m_TeamScores[team_idx]);
-	return score >= minScore && score <= maxScore;
+    return m_TeamScores[team_idx] >= minScore && m_TeamScores[team_idx] <= maxScore;
 }

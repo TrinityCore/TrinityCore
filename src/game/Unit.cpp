@@ -1671,9 +1671,21 @@ uint32 Unit::CalcArmorReducedDamage(Unit* pVictim, const uint32 damage, SpellEnt
         }
     }
 
-    // Apply Player CR_ARMOR_PENETRATION rating and percent talents
+    // Apply Player CR_ARMOR_PENETRATION rating
     if (GetTypeId()==TYPEID_PLAYER)
-		armor *= 1.0f - ((Player*)this)->GetArmorPenetrationPct() / 100.0f;
+    {
+        float maxArmorPen=0;
+        if (getLevel()<60)
+            maxArmorPen=400+85*pVictim->getLevel();
+        else
+            maxArmorPen=400+85*pVictim->getLevel()+4.5*85*(pVictim->getLevel()-59); 
+        // Cap armor penetration to this number
+        maxArmorPen = std::min(((armor+maxArmorPen)/3),armor);
+        // Figure out how much armor do we ignore
+        float armorPen = maxArmorPen*((Player*)this)->GetRatingBonusValue(CR_ARMOR_PENETRATION) / 100.0f;
+        // Got the value, apply it
+        armor -= armorPen;
+    }
 
     // Ignore enemy armor by SPELL_AURA_MOD_TARGET_ARMOR_PCT
     //armor *= 1.0f - GetTotalAuraModifier(SPELL_AURA_MOD_ARMOR_PENETRATION_PCT) / 100.0f;
