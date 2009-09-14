@@ -1023,6 +1023,20 @@ void Aura::HandleAuraSpecificMods(bool apply)
                     caster->CastCustomSpell(m_target, 63675, &basepoints0, NULL, NULL, true, NULL, GetPartAura(0));
                 }
             }
+            // Renew 
+            else if (GetSpellProto()->SpellFamilyFlags[0] & 0x00000040 && GetPartAura(0))
+            {
+                Unit * caster = GetCaster();
+                if (!caster)
+                    return;
+
+                // Empowered Renew
+                if (AuraEffect const * aurEff = caster->GetDummyAura(SPELLFAMILY_PRIEST, 3021, 1))
+                {
+                    int32 basepoints0 = aurEff->GetAmount() * GetPartAura(0)->GetTotalTicks() * caster->SpellHealingBonus(m_target, GetSpellProto(), GetPartAura(0)->GetAmount(), HEAL) / 100;
+                    caster->CastCustomSpell(m_target, 63544, &basepoints0, NULL, NULL, true, NULL, GetPartAura(0));
+                }
+            }
         }
         else if (GetSpellProto()->SpellFamilyName == SPELLFAMILY_ROGUE)
         {
