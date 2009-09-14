@@ -149,8 +149,8 @@ class BGQueueInviteEvent : public BasicEvent
     private:
         uint64 m_PlayerGuid;
         uint32 m_BgInstanceGUID;
-        uint32 m_RemoveTime;
         BattleGroundTypeId m_BgTypeId;
+		uint32 m_RemoveTime;
 };
 
 /*
