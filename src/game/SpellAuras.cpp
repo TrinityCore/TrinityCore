@@ -3445,9 +3445,11 @@ void AuraEffect::HandleAuraModShapeshift(bool apply, bool Real, bool changeAmoun
 
                     if (GetMiscValue() == FORM_CAT)
                     {
-                        m_target->SetPower(POWER_ENERGY,0);
-                        if(urand(1,100) <= FurorChance)
-                            m_target->CastCustomSpell(m_target,17099,&FurorChance, NULL, NULL,true,NULL,this);
+                        if(m_target->GetPower(POWER_ENERGY) > FurorChance)
+                        {
+                            m_target->SetPower(POWER_ENERGY, 0);
+                            m_target->CastCustomSpell(m_target,17099,&FurorChance,NULL,NULL,true,NULL,this);
+                        }
                     }
                     else
                     {
