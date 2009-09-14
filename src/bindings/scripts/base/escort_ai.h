@@ -72,8 +72,6 @@ struct TRINITY_DLL_DECL npc_escortAI : public ScriptedAI
         void SetMaxPlayerDistance(float newMax) { MaxPlayerDistance = newMax; }
         float GetMaxPlayerDistance() { return MaxPlayerDistance; }
 
-        bool IsEscorted() {return IsBeingEscorted;}
-
         void SetCanMelee(bool usemelee) { CanMelee = usemelee; }
         void SetDespawnAtEnd(bool despawn) { DespawnAtEnd = despawn; }
         void SetDespawnAtFar(bool despawn) { DespawnAtFar = despawn; }
