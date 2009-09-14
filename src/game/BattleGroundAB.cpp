@@ -689,8 +689,8 @@ bool BattleGroundAB::IsAllNodesConrolledByTeam(uint32 team) const
 {
     uint32 count = 0;
     for(int i = 0; i < BG_AB_DYNAMIC_NODES_COUNT; ++i)
-        if ((team == ALLIANCE && m_Nodes[i] == BG_AB_NODE_STATUS_ALLY_OCCUPIED) ||
-            (team == HORDE    && m_Nodes[i] == BG_AB_NODE_STATUS_HORDE_OCCUPIED))
+        if (team == ALLIANCE && m_Nodes[i] == BG_AB_NODE_STATUS_ALLY_OCCUPIED ||
+            team == HORDE    && m_Nodes[i] == BG_AB_NODE_STATUS_HORDE_OCCUPIED)
             ++count;
 
     return count == BG_AB_DYNAMIC_NODES_COUNT;

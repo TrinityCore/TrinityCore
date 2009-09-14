@@ -95,7 +95,7 @@ MotionMaster::UpdateMotion(uint32 diff)
 
     if (m_expList)
     {
-        for (size_t i = 0; i < m_expList->size(); ++i)
+        for (int i = 0; i < m_expList->size(); ++i)
         {
             MovementGenerator* mg = (*m_expList)[i];
             DirectDelete(mg);

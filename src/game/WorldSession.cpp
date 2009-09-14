@@ -603,14 +603,14 @@ void WorldSession::LoadAccountData(QueryResult* result, uint32 mask)
         if (type >= NUM_ACCOUNT_DATA_TYPES)
         {
             sLog.outError("Table `%s` have invalid account data type (%u), ignore.",
-                mask == GLOBAL_CACHE_MASK ? "account_data" : "character_account_data", type);
+                mask == GLOBAL_CACHE_MASK ? "account_data" : "character_account_data");
             continue;
         }
 
         if ((mask & (1 << type))==0)
         {
             sLog.outError("Table `%s` have non appropriate for table  account data type (%u), ignore.",
-                mask == GLOBAL_CACHE_MASK ? "account_data" : "character_account_data", type);
+                mask == GLOBAL_CACHE_MASK ? "account_data" : "character_account_data");
             continue;
         }
 
