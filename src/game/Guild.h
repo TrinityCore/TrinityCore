@@ -376,7 +376,7 @@ class Guild
             return NULL;
         }
 
-        void Roster(WorldSession *session);
+        void Roster(WorldSession *session = NULL);          // NULL = broadcast
         void Query(WorldSession *session);
 
         void   UpdateLogoutTime(uint64 guid);
