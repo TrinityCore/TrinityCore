@@ -100,7 +100,7 @@ uint32 PoolGroup<T>::RollOne(void)
 template<class T>
 void PoolGroup<T>::DespawnObject(uint32 guid)
 {
-    for (size_t i=0; i < EqualChanced.size(); ++i)
+    for (int i=0; i<EqualChanced.size(); ++i)
     {
         if (EqualChanced[i].spawned)
         {
@@ -189,7 +189,7 @@ void PoolGroup<T>::SpawnObject(uint32 limit, bool cache)
     else if (limit < EqualChanced.size() && Spawned < limit)
     {
         std::vector<uint32> IndexList;
-        for (size_t i=0; i < EqualChanced.size(); ++i)
+        for (int i=0; i<EqualChanced.size(); ++i)
             if (!EqualChanced[i].spawned)
                 IndexList.push_back(i);
 
@@ -215,7 +215,7 @@ void PoolGroup<T>::SpawnObject(uint32 limit, bool cache)
     }
     else  // Not enough objects in pool, so spawn all
     {
-        for (size_t i = 0; i < EqualChanced.size(); ++i)
+        for (int i=0; i<EqualChanced.size(); ++i)
             EqualChanced[i].spawned = Spawn1Object(EqualChanced[i].guid);
     }
 }
