@@ -7000,8 +7000,8 @@ bool AuraEffect::IsPeriodicTickCrit(Unit const * pCaster) const
 
 void Aura::HandleModTargetArmorPct(bool apply, bool Real)
 {
-    if(m_target->GetTypeId() != TYPEID_PLAYER)
-        return;
+	if(m_target->GetTypeId() != TYPEID_PLAYER)
+		return;
 
-    ((Player*)m_target)->UpdateArmorPenetration();
+	((Player*)m_target)->UpdateArmorPenetration();
 }

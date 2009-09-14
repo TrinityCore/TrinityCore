@@ -1870,8 +1870,8 @@ uint16 Map::GetAreaFlag(float x, float y, float z) const
             // Makers' Overlook (ground and cave)
             else if (x > 5634.48f && x < 5774.53f  && y < 3475.0f && z > 300.0f)
             {
-                if(y > 3380.26f || y > 3265.0f && z < 360.0f)
-                    areaflag = 2187;
+				if(y > 3380.26f || y > 3265.0f && z < 360.0f)
+					areaflag = 2187;
             }
             break;
         // The Makers' Perch (underground)
