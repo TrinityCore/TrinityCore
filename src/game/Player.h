@@ -1699,7 +1699,6 @@ class MANGOS_DLL_SPEC Player : public Unit
         void UpdateSpellCritChance(uint32 school);
         void UpdateArmorPenetration(int32 amount);
         void UpdateExpertise(WeaponAttackType attType);
-		void UpdateArmorPenetration();
         void ApplyManaRegenBonus(int32 amount, bool apply);
         void UpdateManaRegen();
 
@@ -1866,7 +1865,6 @@ class MANGOS_DLL_SPEC Player : public Unit
         float GetTotalPercentageModValue(BaseModGroup modGroup) const { return m_auraBaseMod[modGroup][FLAT_MOD] + m_auraBaseMod[modGroup][PCT_MOD]; }
         void _ApplyAllStatBonuses();
         void _RemoveAllStatBonuses();
-		float GetArmorPenetrationPct() const { return m_armorPenetrationPct; }
 
         void _ApplyWeaponDependentAuraMods(Item *item, WeaponAttackType attackType, bool apply);
         void _ApplyWeaponDependentAuraCritMod(Item *item, WeaponAttackType attackType, AuraEffect* aura, bool apply);
@@ -2355,7 +2353,6 @@ Spell * m_spellModTakingSpell;
         uint16 m_baseSpellPower;
         uint16 m_baseFeralAP;
         uint16 m_baseManaRegen;
-		float m_armorPenetrationPct;
 
         SpellModList m_spellMods[MAX_SPELLMOD];
         uint32 m_pad;
