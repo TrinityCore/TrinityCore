@@ -1673,7 +1673,7 @@ uint32 Unit::CalcArmorReducedDamage(Unit* pVictim, const uint32 damage, SpellEnt
 
     // Apply Player CR_ARMOR_PENETRATION rating and percent talents
     if (GetTypeId()==TYPEID_PLAYER)
-		armor *= 1.0f - ((Player*)this)->GetArmorPenetrationPct() / 100.0f;
+        armor *= 1.0f - ((Player*)this)->GetArmorPenetrationPct() / 100.0f;
 
     // Ignore enemy armor by SPELL_AURA_MOD_TARGET_ARMOR_PCT
     //armor *= 1.0f - GetTotalAuraModifier(SPELL_AURA_MOD_ARMOR_PENETRATION_PCT) / 100.0f;

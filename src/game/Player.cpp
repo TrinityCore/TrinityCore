@@ -448,7 +448,7 @@ Player::Player (WorldSession *session): Unit(), m_achievementMgr(this), m_reputa
     m_baseSpellPower = 0;
     m_baseFeralAP = 0;
     m_baseManaRegen = 0;
-	m_armorPenetrationPct = 0.0f;
+    m_armorPenetrationPct = 0.0f;
 
     // Honor System
     m_lastHonorUpdateTime = time(NULL);
@@ -2398,8 +2398,8 @@ bool Player::IsGroupVisibleFor(Player* p) const
 
 bool Player::IsInSameGroupWith(Player const* p) const
 {
-	return (p==this || (GetGroup() != NULL &&
-		GetGroup()->SameSubGroup((Player*)this, (Player*)p)));
+    return (p==this || (GetGroup() != NULL &&
+        GetGroup()->SameSubGroup((Player*)this, (Player*)p)));
 }
 
 ///- If the player is invited, remove him. If the group if then only 1 person, disband the group.
@@ -10996,15 +10996,15 @@ Item* Player::EquipItem( uint16 pos, Item *pItem, bool update )
          // update expertise and armor penetration - passive auras may need it
 
         if( slot == EQUIPMENT_SLOT_MAINHAND )
-		{
+        {
             UpdateExpertise(BASE_ATTACK);
-			UpdateArmorPenetration();
-		}
+            UpdateArmorPenetration();
+        }
         else if( slot == EQUIPMENT_SLOT_OFFHAND )
-		{
+        {
             UpdateExpertise(OFF_ATTACK);
-			UpdateArmorPenetration();
-		}
+            UpdateArmorPenetration();
+        }
 
         switch(slot)
         {
@@ -11154,13 +11154,13 @@ void Player::RemoveItem( uint8 bag, uint8 slot, bool update )
                         }
 
                         UpdateExpertise(BASE_ATTACK);
-						UpdateArmorPenetration();
+                        UpdateArmorPenetration();
                     }
                     else if( slot == EQUIPMENT_SLOT_OFFHAND )
-					{
+                    {
                         UpdateExpertise(OFF_ATTACK);
-						UpdateArmorPenetration();
-					}
+                        UpdateArmorPenetration();
+                    }
                     // update armor penetration - passive auras may need it
                     switch(slot)
                     {
@@ -11290,15 +11290,15 @@ void Player::DestroyItem( uint8 bag, uint8 slot, bool update )
                 }
 
                 if( slot == EQUIPMENT_SLOT_MAINHAND )
-				{
+                {
                     UpdateExpertise(BASE_ATTACK);
-					UpdateArmorPenetration();
-				}
+                    UpdateArmorPenetration();
+                }
                 else if( slot == EQUIPMENT_SLOT_OFFHAND )
-				{
+                {
                     UpdateExpertise(OFF_ATTACK);
-					UpdateArmorPenetration();
-				}
+                    UpdateArmorPenetration();
+                }
 
                 // equipment visual show
                 SetVisibleItemSlot(slot, NULL);
