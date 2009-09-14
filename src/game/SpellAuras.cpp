@@ -3628,26 +3628,27 @@ void AuraEffect::HandleAuraTransform(bool apply, bool Real, bool /*changeAmount*
             CreatureInfo const * ci = objmgr.GetCreatureTemplate(GetMiscValue());
             if(!ci)
             {
-                                                            //pig pink ^_^
-                m_target->SetDisplayId(16358);
+                m_target->SetDisplayId(16358);              // pig pink ^_^
                 sLog.outError("Auras: unknown creature id = %d (only need its modelid) Form Spell Aura Transform in Spell ID = %d", GetMiscValue(), GetId());
             }
             else
             {
-                                                            // Will use the default model here
-                if (uint32 modelid = ci->GetRandomValidModelId())
-                    m_target->SetDisplayId(modelid);
+                uint32 model_id;
 
-                // Dragonmaw Illusion (set mount model also)
-                if(GetId()==42016 && m_target->GetMountID() && !m_target->GetAurasByType(SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED).empty())
-                    m_target->SetUInt32Value(UNIT_FIELD_MOUNTDISPLAYID,16314);
+                if (uint32 modelid = ci->GetRandomValidModelId())
+                    model_id = modelid;                     // Will use the default model here
 
                 // Polymorph (sheep)
                 if (GetSpellProto()->SpellFamilyName == SPELLFAMILY_MAGE && GetSpellProto()->SpellIconID == 82 && GetSpellProto()->SpellVisual[0] == 12978)
                     if (Unit * caster = GetCaster())
-                        // Glyph of the Penguin
-                        if (caster->HasAura(52648))
-                            m_target->SetDisplayId(26452);
+                        if (caster->HasAura(52648))         // Glyph of the Penguin
+                            model_id = 26452;
+
+                m_target->SetDisplayId(model_id);
+
+                // Dragonmaw Illusion (set mount model also)
+                if(GetId()==42016 && m_target->GetMountID() && !m_target->GetAurasByType(SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED).empty())
+                    m_target->SetUInt32Value(UNIT_FIELD_MOUNTDISPLAYID,16314);
             }
         }
 
