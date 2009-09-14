@@ -3395,34 +3395,10 @@ void AuraEffect::HandleAuraModShapeshift(bool apply, bool Real, bool changeAmoun
         {
             // remove movement affects
             m_target->RemoveMovementImpairingAuras();
-/*
-            m_target->RemoveSpellsCausingAura(SPELL_AURA_MOD_ROOT);
-            Unit::AuraList const& slowingAuras = m_target->GetAurasByType(SPELL_AURA_MOD_DECREASE_SPEED);
-            for (Unit::AuraList::const_iterator iter = slowingAuras.begin(); iter != slowingAuras.end();)
-            {
-                SpellEntry const* aurSpellInfo = (*iter)->GetSpellProto();
-
-                uint32 aurMechMask = GetAllSpellMechanicMask(aurSpellInfo);
-
-                // If spell that caused this aura has Croud Control or Daze effect
-                if((aurMechMask & MECHANIC_NOT_REMOVED_BY_SHAPESHIFT) ||
-                    // some Daze spells have these parameters instead of MECHANIC_DAZE (skip snare spells)
-                    aurSpellInfo->SpellIconID == 15 && aurSpellInfo->Dispel == 0 && (aurMechMask & (1 << MECHANIC_SNARE))==0)
-                {
-                    ++iter;
-                    continue;
-                }
-
-                // All OK, remove aura now
-                m_target->RemoveAurasDueToSpellByCancel(aurSpellInfo->Id);
-                iter = slowingAuras.begin();
-            }
-*/
 
             // and polymorphic affects
             if(m_target->IsPolymorphed())
                 m_target->RemoveAurasDueToSpell(m_target->getTransForm());
-
             break;
         }
         default:
@@ -3442,6 +3418,7 @@ void AuraEffect::HandleAuraModShapeshift(bool apply, bool Real, bool changeAmoun
 
         if(PowerType != POWER_MANA)
         {
+            uint32 oldVal = m_target->GetPower(PowerType);
             // reset power to default values only at power change
             if(m_target->getPowerType()!=PowerType)
                 m_target->setPowerType(PowerType);
@@ -3459,11 +3436,8 @@ void AuraEffect::HandleAuraModShapeshift(bool apply, bool Real, bool changeAmoun
 
                     if (GetMiscValue() == FORM_CAT)
                     {
-                        if(m_target->GetPower(POWER_ENERGY) > FurorChance)
-                        {
-                            m_target->SetPower(POWER_ENERGY, 0);
-                            m_target->CastCustomSpell(m_target,17099,&FurorChance,NULL,NULL,true,NULL,this);
-                        }
+                        int32 basePoints = std::min(FurorChance, oldVal);
+                        m_target->CastCustomSpell(m_target,17099,&basePoints,NULL,NULL,true,NULL,this);
                     }
                     else
                     {
