@@ -402,6 +402,7 @@ void GameObject::Update(uint32 /*p_time*/)
                     if (GetGOInfo()->GetAutoCloseTime() && (m_cooldownTime < time(NULL)))
                         ResetDoorOrButton();
                     break;
+				default: break;
             }
             break;
         }

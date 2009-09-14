@@ -852,9 +852,9 @@ struct SpellPeriodicAuraLogInfo
 
     AuraEffect *auraEff;
     uint32 damage;
+	uint32 overDamage;                                      // overkill/overheal
     uint32 absorb;
     uint32 resist;
-    uint32 overDamage;                                      // overkill/overheal
     float  multiplier;
     bool   critical;
 };

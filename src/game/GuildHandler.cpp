@@ -1074,7 +1074,7 @@ void WorldSession::HandleGuildBankSwapItems( WorldPacket & recv_data )
         recv_data >> unk2;                                  // always 0
         recv_data >> SplitedAmount;
 
-        if (BankTabSlotDst >= GUILD_BANK_MAX_SLOTS || BankTabDst == BankTab && BankTabSlotDst == BankTabSlot)
+        if (BankTabSlotDst >= GUILD_BANK_MAX_SLOTS || (BankTabDst == BankTab && BankTabSlotDst == BankTabSlot))
         {
             recv_data.rpos(recv_data.wpos());               // prevent additional spam at rejected packet
             return;
