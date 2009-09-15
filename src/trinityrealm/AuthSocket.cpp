@@ -706,7 +706,7 @@ bool AuthSocket::_HandleLogonProof()
         sha.UpdateBigNumbers(&A, &M, &K, NULL);
         sha.Finalize();
 
-        if(_build == 8606 || _build == 9947)//2.4.3 and 3.1.3 cliens
+        if(_build == 8606 || _build == 9947 || _build == 10146)//2.4.3 and 3.1.3 clients (10146 is Chinese build for 3.1.3)
         {
             sAuthLogonProof_S proof;
             memcpy(proof.M2, sha.GetDigest(), 20);
