@@ -272,8 +272,11 @@ void PetAI::KilledUnit(Unit *victim)
         return;
 
     // Clear target just in case. May help problem where health / focus / mana
-    //  regen gets stuck. Also resets attack command.
-    _stopAttack();
+    // regen gets stuck. Also resets attack command.
+    // Can't use _stopAttack() because that activates movement handlers and ignores
+    // next target selection
+    me->AttackStop();
+    me->GetCharmInfo()->SetIsCommandAttack(false);
 
     Unit *nextTarget = SelectNextTarget();
 
