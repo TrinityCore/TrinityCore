@@ -1582,7 +1582,7 @@ class MANGOS_DLL_SPEC Player : public Unit
             for(ControlList::iterator itr = m_Controlled.begin(); itr != m_Controlled.end(); ++itr)
                 (*itr)->SetPvP(state);
         }
-        void UpdatePvP(bool state, bool ovrride=false);
+        void UpdatePvP(bool state, bool override=false);
         void UpdateZone(uint32 newZone,uint32 newArea);
         void UpdateArea(uint32 newArea);
 
