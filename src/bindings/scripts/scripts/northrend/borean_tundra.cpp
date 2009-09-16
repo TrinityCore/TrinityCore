@@ -369,19 +369,19 @@ bool GossipSelect_npc_keristrasza(Player* pPlayer, Creature* pCreature, uint32 u
 
 enum
 {
-    SPELL_SUMMON_WYRMREST_SKYTALON                = 61240,
+    SPELL_SUMMON_WYRMREST_SKYTALON               = 61240,
     SPELL_WYRMREST_SKYTALON_RIDE_PERIODIC        = 61244,
 
-    QUEST_ACES_HIGH                                = 13414
-
+    QUEST_ACES_HIGH_DAILY                        = 13414,
+    QUEST_ACES_HIGH                              = 13413
 };
 
 bool GossipHello_npc_corastrasza(Player* pPlayer, Creature* pCreature)
 {
     if (pCreature->isQuestGiver())
         pPlayer->PrepareQuestMenu(pCreature->GetGUID());
-
-    if (pPlayer->GetQuestStatus(QUEST_ACES_HIGH) == QUEST_STATUS_INCOMPLETE)
+    
+    if (pPlayer->GetQuestStatus(QUEST_ACES_HIGH) == QUEST_STATUS_INCOMPLETE || pPlayer->GetQuestStatus(QUEST_ACES_HIGH_DAILY) == QUEST_STATUS_INCOMPLETE) //It's the same dragon for both quests.
     {
         pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_C_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
     }
@@ -408,7 +408,7 @@ bool GossipSelect_npc_corastrasza(Player* pPlayer, Creature* pCreature, uint32 u
 ## npc_iruk
 ######*/
 
-#define GOSSIP_ITEM_I  "Give me the Issliruk's Totem" // This is not offilike.
+#define GOSSIP_ITEM_I  "<Search corpse for Issliruk's Totem.>"
 
 enum
 {
@@ -417,7 +417,7 @@ enum
 
     SPELL_CREATURE_TOTEM_OF_ISSLIRUK        = 46816,
 
-    GOSSIP_TEXT_I                           = 12585 // This is blizzlike.
+    GOSSIP_TEXT_I                           = 12585
 
 };
 
