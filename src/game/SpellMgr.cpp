@@ -1233,7 +1233,7 @@ void SpellMgr::LoadSpellTargetPositions()
         if(found)
         {
             if(!spellmgr.GetSpellTargetPosition(i))
-                sLog.outDetail("Spell (ID: %u) does not have record in `spell_target_position`", i);
+                sLog.outDebug("Spell (ID: %u) does not have record in `spell_target_position`", i);
         }
     }
 
@@ -2057,7 +2057,7 @@ void SpellMgr::LoadSpellScriptTarget()
         {
             SpellScriptTargetBounds bounds = spellmgr.GetSpellScriptTargetBounds(i);
             if(bounds.first==bounds.second)
-                sLog.outDetail("Spell (ID: %u) does not have record in `spell_script_target`", i);
+                sLog.outDebug("Spell (ID: %u) does not have record in `spell_script_target`", i);
         }
     }
 
