@@ -122,6 +122,7 @@ struct TRINITY_DLL_DECL boss_ingvar_the_plundererAI : public ScriptedAI
             m_creature->SetHealth(0);
             m_creature->InterruptNonMeleeSpells(true);
             m_creature->RemoveAllAuras();
+            m_creature->SetDisplayId(MODEL_INGVAR_UNDEAD);
             m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
             m_creature->GetMotionMaster()->MovementExpired(false);
             m_creature->GetMotionMaster()->MoveIdle();
@@ -369,7 +370,7 @@ struct TRINITY_DLL_DECL mob_annhylde_the_callerAI : public ScriptedAI
                     {
                         ingvar->RemoveAurasDueToSpell(SPELL_SCOURG_RESURRECTION_DUMMY);
                         //ingvar->CastSpell(ingvar,SPELL_INGVAR_TRANSFORM,false);
-                        ingvar->SetDisplayId(MODEL_INGVAR_UNDEAD); // Visual Hack - when he dies he becomes human model -> wrong
+                        //ingvar->SetDisplayId(MODEL_INGVAR_UNDEAD); // Visual Hack - when he dies he becomes human model -> wrong
                         Creature* c_ingvar = ingvar;
 
                         CAST_AI(boss_ingvar_the_plundererAI, (c_ingvar->AI()))->StartZombiePhase();
