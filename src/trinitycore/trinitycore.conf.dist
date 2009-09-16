@@ -1,7 +1,7 @@
 ##########################################
 # Trinity Core worldd configuration file #
 ##########################################
-ConfVersion=2009091201
+ConfVersion=2009091601
 
 ###################################################################################################################
 # CONNECTIONS AND DIRECTORIES
@@ -431,7 +431,7 @@ RaLogFile = "ra_commands.log"
 ArenaLogFile = ""
 LogColors = ""
 EnableLogDB = 0
-DBLogLevel = 1
+DBLogLevel = 2
 LogDB.Char   = 0
 LogDB.GM     = 0
 LogDB.RA     = 0
