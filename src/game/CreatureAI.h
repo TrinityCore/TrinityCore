@@ -123,6 +123,7 @@ class TRINITY_DLL_SPEC CreatureAI : public UnitAI
 
         // Called when the creature is target of hostile action: swing, hostile spell landed, fear/etc)
         //virtual void AttackedBy(Unit* attacker);
+        virtual bool IsEscorted() {return false;}
 
         // Called when creature is spawned or respawned (for reseting variables)
         virtual void JustRespawned() { Reset(); }
