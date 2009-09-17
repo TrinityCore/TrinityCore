@@ -725,7 +725,7 @@ void OPvPWintergrasp::HandleKill(Player *killer, Unit *victim)
         if(Group *pGroup = killer->GetGroup())
         {
             for(GroupReference *itr = pGroup->GetFirstMember(); itr != NULL; itr = itr->next())
-                if(itr->getSource()->IsAtGroupRewardDistance(victim) && (itr->getSource()->getLevel() > 69))
+                if(itr->getSource()->IsAtGroupRewardDistance(killer) && itr->getSource()->getLevel() > 69)
                     PromotePlayer(itr->getSource());
         }
         else if(killer->getLevel() > 69)
