@@ -61,7 +61,7 @@ struct TRINITY_DLL_DECL boss_gluthAI : public BossAI
 
     void MoveInLineOfSight(Unit *who)
     {
-        if (who->GetEntry() == MOB_ZOMBIE && me->IsWithinDistInMap(who, 20))
+        if (who->GetEntry() == MOB_ZOMBIE && me->IsWithinDistInMap(who, 15))
         {
             SetGazeOn(who);
             me->MonsterTextEmote(EMOTE_NEARBY, 0, true);
