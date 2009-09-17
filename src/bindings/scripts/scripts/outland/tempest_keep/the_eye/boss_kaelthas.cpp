@@ -780,15 +780,6 @@ struct TRINITY_DLL_DECL boss_kaelthasAI : public ScriptedAI
                 if (Phoenix_Timer < diff)
                 {
                     DoCast(m_creature, SPELL_PHOENIX_ANIMATION);
-
-                    if (Creature* pPhoenix = m_creature->SummonCreature(NPC_PHOENIX, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 45000))
-                    {
-                        if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
-                            pPhoenix->AI()->AttackStart(pTarget);
-                    }
-                    else
-                        error_log("SD2: Kael'Thas Phoenix could not be spawned");
-
                     switch(rand()%2)
                     {
                         case 0: DoScriptText(SAY_SUMMON_PHOENIX1, m_creature); break;
