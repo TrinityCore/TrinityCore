@@ -3,8 +3,8 @@
 -- This file contains all waypoints used by escortAI scripts
 /*
 DROP TABLE IF EXISTS script_waypoint;
-CREATE TABLE script_waypoint (
-  entry mediumint(8) unsigned NOT NULL DEFAULT '0' COMMENT 'creature_template entry',
+CREATE TABLE `script_waypoint` (
+  `entry` mediumint(8) unsigned NOT NULL DEFAULT '0' COMMENT 'creature_template `entry`',
   pointid mediumint(8) unsigned NOT NULL DEFAULT '0',
   location_x float NOT NULL DEFAULT '0',
   location_y float NOT NULL DEFAULT '0',
@@ -15,8 +15,8 @@ CREATE TABLE script_waypoint (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Script Creature waypoints';
 */
 
-DELETE FROM script_waypoint WHERE entry = 24156;
-INSERT INTO script_waypoint VALUES
+DELETE FROM `script_waypoint` WHERE `entry`=24156;
+INSERT INTO `script_waypoint` VALUES
    (24156,1,1859.74, -6178.15, 24.3033, 0, ''),
    (24156,2,1866.06, -6172.81, 23.9216, 0, ''),
    (24156,3,1876.43, -6167.42, 23.7332, 0, ''),
@@ -44,8 +44,8 @@ INSERT INTO script_waypoint VALUES
    (24156,25,2307.53, -6031.23, 2.93796, 0, ''),
    (24156,26,2309.46, -6024.45, 3.65369, 5000, '');
 
-DELETE FROM script_waypoint WHERE entry = 20415;
-INSERT INTO script_waypoint VALUES
+DELETE FROM `script_waypoint` WHERE `entry`=20415;
+INSERT INTO `script_waypoint` VALUES
    (20415 ,0, 2488.77, 2184.89, 104.64, 0, ''),
    (20415 ,1, 2478.72, 2184.77, 98.58, 0, ''),
    (20415 ,2, 2473.52, 2184.71, 99.00, 0, ''),
@@ -61,8 +61,8 @@ INSERT INTO script_waypoint VALUES
    (20415 ,12, 2297.68, 2266.79, 95.07,4000, ''),
    (20415 ,13, 2297.67, 2266.76, 95.07,4000, '');
 
-DELETE FROM script_waypoint WHERE entry = 18760;
-INSERT INTO script_waypoint VALUES
+DELETE FROM `script_waypoint` WHERE `entry`=18760;
+INSERT INTO `script_waypoint` VALUES
    (18760 ,0, -2265.21, 3091.14, 13.91, 0, ''),
    (18760 ,1, -2266.80, 3091.33, 13.82, 1000, ''),
    (18760 ,2, -2268.20, 3091.14, 13.82, 7000, 'progress1'),
@@ -99,8 +99,8 @@ INSERT INTO script_waypoint VALUES
    (18760 ,33, -2396.81, 3517.17, -3.55, 0, ''),
    (18760 ,34, -2439.23, 3523.00, -1.05, 0, '');
 
-DELETE FROM script_waypoint WHERE entry = 9623;
-INSERT INTO script_waypoint VALUES
+DELETE FROM `script_waypoint` WHERE `entry`=9623;
+INSERT INTO `script_waypoint` VALUES
    (9623 ,1, -6380.38, -1965.14, -258.292, 5000, ''),
    (9623 ,2, -6383.06, -1962.9, -258.936, 0, ''),
    (9623 ,3, -6391.09, -1956.13, -260.291, 0, ''),
@@ -158,8 +158,8 @@ INSERT INTO script_waypoint VALUES
    (9623 ,55, -6302.43, -1181.32, -269.328, 5000, ''),
    (9623 ,56, -6298.87, -1185.79, -269.278, 0, '');
 
-DELETE FROM script_waypoint WHERE entry = 4508;
-INSERT INTO script_waypoint VALUES
+DELETE FROM `script_waypoint` WHERE `entry`=4508;
+INSERT INTO `script_waypoint` VALUES
    (4508 ,0, 2194.38, 1791.65, 65.48, 5000, ''),
    (4508 ,1, 2188.56, 1805.87, 64.45, 0, ''),
    (4508 ,2, 2187, 1843.49, 59.33, 0, ''),
@@ -208,8 +208,8 @@ INSERT INTO script_waypoint VALUES
    (4508 ,45, 1948.35, 1571.35, 80.96, 30000, ''),
    (4508 ,46, 1947.02, 1566.42, 81.80, 30000, '');
 
-DELETE FROM script_waypoint WHERE entry = 7784;
-INSERT INTO script_waypoint VALUES
+DELETE FROM `script_waypoint` WHERE `entry`=7784;
+INSERT INTO `script_waypoint` VALUES
    (7784 ,0, -8843.73, -4374.44, 43.71, 0, ''),
    (7784 ,1, -8834.68, -4373.88, 45.71, 0, ''),
    (7784 ,2, -8832.93, -4373.85, 45.67, 0, ''),
@@ -298,8 +298,8 @@ INSERT INTO script_waypoint VALUES
    (7784 ,85, -6944.81, -4816.58, 1.60, 0, ''),
    (7784 ,86, -6942.06, -4839.40, 0.66, 5000, '');
 
-DELETE FROM script_waypoint WHERE entry = 1978;
-INSERT INTO script_waypoint VALUES
+DELETE FROM `script_waypoint` WHERE `entry`=1978;
+INSERT INTO `script_waypoint` VALUES
    (1978, 0, 1406.32, 1083.10, 52.55, 0, ''),
    (1978, 1, 1400.49, 1080.42, 52.50, 0, 'first say'),
    (1978, 2, 1388.48, 1083.10, 52.52, 0, ''),
@@ -328,8 +328,8 @@ INSERT INTO script_waypoint VALUES
    (1978, 25, 1310.51, 1207.36, 58.51, 5000, ''),
    (1978, 26, 1310.51, 1207.36, 58.51, 2000, '');
 
-DELETE FROM script_waypoint WHERE entry=3439;
-INSERT INTO script_waypoint VALUES
+DELETE FROM `script_waypoint` WHERE `entry`=3439;
+INSERT INTO `script_waypoint` VALUES
    (3439, 0, 1105.090332, -3101.254150, 82.706, 1000, 'SAY_STARTUP1'),
    (3439, 1, 1103.204468, -3104.345215, 83.113, 1000, ''),
    (3439, 2, 1107.815186, -3106.495361, 82.739, 1000, ''),
@@ -356,8 +356,8 @@ INSERT INTO script_waypoint VALUES
    (3439, 23, 1096.366211, -2978.306885, 91.873, 0, ''),
    (3439, 24, 1091.971558, -2985.919189, 91.730, 40000, 'SAY_PROGRESS_2');
 
-DELETE FROM script_waypoint WHERE entry=7806;
-INSERT INTO script_waypoint VALUES
+DELETE FROM `script_waypoint` WHERE `entry`=7806;
+INSERT INTO `script_waypoint` VALUES
    (7806, 0, 495.404358, -3478.350830, 114.837, 0, ''),
    (7806, 1, 492.704742, -3486.112549, 108.627, 0, ''),
    (7806, 2, 487.249756, -3485.764404, 107.890, 0, ''),
@@ -424,8 +424,8 @@ INSERT INTO script_waypoint VALUES
    (7806, 63, -106.908669, -4600.407715, 11.046, 0, ''),
    (7806, 64, -106.831703, -4620.503418, 11.057, 3000, 'SAY_OOX_COMPLETE');
 
-DELETE FROM script_waypoint WHERE entry=4962;
-INSERT INTO script_waypoint VALUES
+DELETE FROM `script_waypoint` WHERE `entry`=4962;
+INSERT INTO `script_waypoint` VALUES
    (4962, 0, -3804.438965, -828.048035, 10.093068, 0, ''),
    (4962, 1, -3803.934326, -835.772400, 10.077722, 0, ''),
    (4962, 2, -3792.629150, -835.670898,  9.655657, 0, ''),
@@ -434,13 +434,13 @@ INSERT INTO script_waypoint VALUES
    (4962, 5, -3738.633789, -830.997498, 11.057384, 0, ''),
    (4962, 6, -3690.224121, -862.261597,  9.960449, 0, '');
 
-DELETE FROM script_waypoint WHERE entry=10638;
-INSERT INTO script_waypoint VALUES
+DELETE FROM `script_waypoint` WHERE `entry`=10638;
+INSERT INTO `script_waypoint` VALUES
    (10638, 0, -4903.521973, -1368.339844, -52.611, 5000, 'SAY_KAN_START'),
    (10638, 1, -4906.004395, -1367.048096, -52.611, 0, '');
 
-DELETE FROM script_waypoint WHERE entry=7780;
-INSERT INTO script_waypoint VALUES
+DELETE FROM `script_waypoint` WHERE `entry`=7780;
+INSERT INTO `script_waypoint` VALUES
    (7780, 0, 261.058868, -2757.876221, 122.553, 0, ''),
    (7780, 1, 259.812195, -2758.249023, 122.555, 0, 'SAY_RIN_FREE'),
    (7780, 2, 253.823441, -2758.619141, 122.562, 0, ''),
@@ -466,8 +466,8 @@ INSERT INTO script_waypoint VALUES
    (7780, 22, -135.993637, -2955.743652, 115.788, 0, ''),
    (7780, 23, -171.561600, -2951.417480, 115.451, 0, '');
 
-DELETE FROM script_waypoint WHERE entry=18731;
-INSERT INTO script_waypoint VALUES
+DELETE FROM `script_waypoint` WHERE `entry`=18731;
+INSERT INTO `script_waypoint` VALUES
    (18731, 0, -157.366, 2.177, 8.073, 0, ''),
    (18731, 1, -172.266, -18.280, 8.073, 0, ''),
    (18731, 2, -171.051, -38.748, 8.073, 0, ''),
@@ -478,8 +478,8 @@ INSERT INTO script_waypoint VALUES
    (18731, 7, -142.922, -18.950, 8.073, 0, ''),
    (18731, 8, -157.366, 2.177, 8.073, 0, '');
 
-DELETE FROM script_waypoint WHERE entry=21027;
-INSERT INTO script_waypoint VALUES
+DELETE FROM `script_waypoint` WHERE `entry`=21027;
+INSERT INTO `script_waypoint` VALUES
    (21027, 0, -2714.697266, 1326.879395, 34.306953, 0, ''),
    (21027, 1, -2666.364990, 1348.222656, 34.445557, 0, ''),
    (21027, 2, -2693.789307, 1336.964966, 34.445557, 0, ''),
@@ -532,8 +532,8 @@ INSERT INTO script_waypoint VALUES
    (21027, 49, -2841.754883, 1289.832520, 6.990304, 0, ''),
    (21027, 50, -2871.398438, 1302.348145, 6.807335, 7500, 'SAY_WIL_END');
 
-DELETE FROM script_waypoint WHERE entry=3465;
-INSERT INTO script_waypoint VALUES
+DELETE FROM `script_waypoint` WHERE `entry`=3465;
+INSERT INTO `script_waypoint` VALUES
    (3465, 0, -2095.840820, -3650.001221, 61.716, 0, ''),
    (3465, 1, -2100.193604, -3613.949219, 61.604, 0, ''),
    (3465, 2, -2098.549561, -3601.557129, 59.154, 0, ''),
@@ -589,8 +589,8 @@ INSERT INTO script_waypoint VALUES
    (3465, 52, -1040.260986, -3690.739014, 25.342, 0, ''),
    (3465, 53, -1028.146606, -3688.718750, 23.843, 7500, 'SAY_GIL_FREED');
 
-DELETE FROM script_waypoint WHERE entry=10646;
-INSERT INTO script_waypoint VALUES
+DELETE FROM `script_waypoint` WHERE `entry`=10646;
+INSERT INTO `script_waypoint` VALUES
    (10646, 0, -4792.401855, -2137.775146, 82.423, 0, ''),
    (10646, 1, -4813.508301, -2141.543457, 80.774, 0, ''),
    (10646, 2, -4828.630859, -2154.309814, 82.074, 0, ''),
@@ -638,8 +638,8 @@ INSERT INTO script_waypoint VALUES
    (10646, 44, -5062.093750, -1794.399780, -56.515, 0, ''),
    (10646, 45, -5052.657227, -1797.044800, -54.734, 5000, 'SAY_LAKO_END');
 
-DELETE FROM script_waypoint WHERE entry=10427;
-INSERT INTO script_waypoint VALUES
+DELETE FROM `script_waypoint` WHERE `entry`=10427;
+INSERT INTO `script_waypoint` VALUES
    (10427, 0, -5185.463, -1185.927, 45.951, 0, ''),
    (10427, 1, -5184.880, -1154.210, 45.035, 0, ''),
    (10427, 2, -5175.880, -1126.526, 43.701, 0, ''),
@@ -669,8 +669,8 @@ INSERT INTO script_waypoint VALUES
    (10427, 26, -4920.679, -1100.028, -51.944, 10000, 'SAY_COMPLETE'),
    (10427, 27, -4920.679, -1100.028, -51.944, 0, 'quest complete');
 
-DELETE FROM script_waypoint WHERE entry=16812;
-INSERT INTO script_waypoint VALUES
+DELETE FROM `script_waypoint` WHERE `entry`=16812;
+INSERT INTO `script_waypoint` VALUES
    (16812, 0, -10868.260, -1779.836, 90.476, 2500, 'Open door, begin walking'),
    (16812, 1, -10875.585, -1779.581, 90.478, 0, ''),
    (16812, 2, -10887.447, -1779.258, 90.476, 0, ''),
@@ -682,8 +682,8 @@ INSERT INTO script_waypoint VALUES
    (16812, 8, -10868.260, -1779.836, 90.476, 5000, 'close door'),
    (16812, 9, -10866.799, -1780.958, 90.470, 2000, 'Summon mobs, open curtains');
 
-DELETE FROM script_waypoint WHERE entry=28912;
-INSERT INTO script_waypoint VALUES
+DELETE FROM `script_waypoint` WHERE `entry`=28912;
+INSERT INTO `script_waypoint` VALUES
    (28912, 0, 1653.518, -6038.374, 127.585, 0, 'Jump off'),
    (28912, 1, 1653.978, -6034.614, 127.585, 5000, 'To Box'),
    (28912, 2, 1653.854, -6034.726, 127.585, 500, 'Equip'),
@@ -696,8 +696,8 @@ INSERT INTO script_waypoint VALUES
    (28912, 9, 1653.063, -5974.844, 132.652, 5000, 'Mount'),
    (28912, 10, 1654.747, -5926.424, 121.191, 0, 'Disappear');
 
-DELETE FROM script_waypoint WHERE entry=11856;
-INSERT INTO script_waypoint VALUES
+DELETE FROM `script_waypoint` WHERE `entry`=11856;
+INSERT INTO `script_waypoint` VALUES
    (11856, 0, 113.91, -350.13, 4.55, 0, ''),
    (11856, 1, 109.54, -350.08, 3.74, 0, ''),
    (11856, 2, 106.95, -353.40, 3.60, 0, ''),
@@ -718,16 +718,16 @@ INSERT INTO script_waypoint VALUES
    (11856, 17, -40.25, -510.07, -46.05, 0, ''),
    (11856, 18, -38.88, -520.72, -46.06, 5000, 'END');
 
-DELETE FROM script_waypoint WHERE entry=24358;
-INSERT INTO script_waypoint VALUES
+DELETE FROM `script_waypoint` WHERE `entry`=24358;
+INSERT INTO `script_waypoint` VALUES
    (24358, 0, 121.193970, 1645.619385, 42.021, 0, ''),
    (24358, 1, 132.051468, 1642.176025, 42.021, 5000, 'SAY_AT_GONG'),
    (24358, 2, 120.670631, 1636.346802, 42.415, 0, ''),
    (24358, 3, 120.536003, 1611.654663, 43.473, 10000, 'SAY_OPEN_ENTRANCE'),
    (24358, 4, 120.536003, 1611.654663, 43.473, 0, '');
 
-DELETE FROM script_waypoint WHERE entry=16295;
-INSERT INTO script_waypoint VALUES
+DELETE FROM `script_waypoint` WHERE `entry`=16295;
+INSERT INTO `script_waypoint` VALUES
    (16295, 0, 7545.070000, -7359.870000, 162.354000, 4000, 'SAY_START'),
    (16295, 1, 7550.048340, -7362.237793, 162.235657, 0, ''),
    (16295, 2, 7566.976074, -7364.315430, 161.738770, 0, ''),
@@ -764,8 +764,8 @@ INSERT INTO script_waypoint VALUES
    (16295, 33, 7603.768066, -7667.000488, 153.997726, 8000, 'SAY_END_2'),
    (16295, 34, 7603.768066, -7667.000488, 153.997726, 0, '');
 
-DELETE FROM script_waypoint WHERE entry=17969;
-INSERT INTO script_waypoint VALUES
+DELETE FROM `script_waypoint` WHERE `entry`=17969;
+INSERT INTO `script_waypoint` VALUES
    (17969, 0, -930.048950, 5288.080078, 23.848402, 0, ''),
    (17969, 1, -925.677917, 5296.482910, 18.183748, 0, ''),
    (17969, 2, -924.297180, 5299.016113, 17.710915, 0, ''),
@@ -793,8 +793,8 @@ INSERT INTO script_waypoint VALUES
    (17969, 24, -472.463959, 5449.546875, 22.561453, 0, ''),
    (17969, 25, -454.533264, 5461.302246, 22.602837, 30000, 'quest complete');
 
-DELETE FROM script_waypoint WHERE entry=467;
-INSERT INTO script_waypoint VALUES
+DELETE FROM `script_waypoint` WHERE `entry`=467;
+INSERT INTO `script_waypoint` VALUES
    (467, 0, -10508.40, 1068.00, 55.21, 0, ''),
    (467, 1, -10518.30, 1074.84, 53.96, 0, ''),
    (467, 2, -10534.82, 1081.92, 49.88, 0, ''),
@@ -841,8 +841,8 @@ INSERT INTO script_waypoint VALUES
    (467, 43, -11060.68, 1526.72, 43.19, 0, ''),
    (467, 44, -11072.75, 1527.77, 43.20, 5000, 'say and quest credit');
 
-DELETE FROM script_waypoint WHERE entry=2768;
-INSERT INTO script_waypoint VALUES
+DELETE FROM `script_waypoint` WHERE `entry`=2768;
+INSERT INTO `script_waypoint` VALUES
    (2768, 0, -2077.73, -2091.17, 9.49, 0, ''),
    (2768, 1, -2077.99, -2105.33, 13.24, 0, ''),
    (2768, 2, -2074.60, -2109.67, 14.24, 0, ''),
@@ -865,8 +865,8 @@ INSERT INTO script_waypoint VALUES
    (2768, 19, -2066.41, -2086.21, 8.97, 6000, ''),
    (2768, 20, -2066.41, -2086.21, 8.97, 2000, '');
 
-DELETE FROM script_waypoint WHERE entry=12818;
-INSERT INTO script_waypoint VALUES
+DELETE FROM `script_waypoint` WHERE `entry`=12818;
+INSERT INTO `script_waypoint` VALUES
    (12818, 0, 3347.250089, -694.700989, 159.925995, 0, ''),
    (12818, 1, 3341.527039, -694.725891, 161.124542, 4000, ''),
    (12818, 2, 3338.351074, -686.088138, 163.444000, 0, ''),
@@ -890,8 +890,8 @@ INSERT INTO script_waypoint VALUES
    (12818, 20,3498.498047, -497.787506, 185.806274, 0, ''),
    (12818, 21,3484.218750, -489.717529, 182.389862, 4000, '');
 
-DELETE FROM script_waypoint WHERE entry=12858;
-INSERT INTO script_waypoint VALUES
+DELETE FROM `script_waypoint` WHERE `entry`=12858;
+INSERT INTO `script_waypoint` VALUES
    (12858, 0, 1782.63, -2241.11, 109.73, 5000, ''),
    (12858, 1, 1788.88, -2240.17, 111.71, 0, ''),
    (12858, 2, 1797.49, -2238.11, 112.31, 0, ''),
@@ -916,8 +916,8 @@ INSERT INTO script_waypoint VALUES
    (12858, 21, 1776.87, -2028.31, 109.83,60000, 'stay'),
    (12858, 22, 1776.90, -2028.30, 109.83, 0, '');
 
-DELETE FROM script_waypoint WHERE entry=15420;
-INSERT INTO script_waypoint VALUES
+DELETE FROM `script_waypoint` WHERE `entry`=15420;
+INSERT INTO `script_waypoint` VALUES
    (15420, 0, 9294.78, -6682.51, 22.42, 0, ''),
    (15420, 1, 9298.27, -6667.99, 22.42, 0, ''),
    (15420, 2, 9309.63, -6658.84, 22.43, 0, ''),
@@ -927,8 +927,8 @@ INSERT INTO script_waypoint VALUES
    (15420, 6, 9289.08, -6660.17, 31.85,5000, ''),
    (15420, 7, 9291.06, -6653.46, 31.83, 0, '');
 
-DELETE FROM script_waypoint WHERE entry=16993;
-INSERT INTO script_waypoint VALUES
+DELETE FROM `script_waypoint` WHERE `entry`=16993;
+INSERT INTO `script_waypoint` VALUES
    (16993, 0, -1137.72, 4272.10, 14.04, 5000, ''),
    (16993, 1, -1141.34, 4232.42, 14.63, 0, ''),
    (16993, 2, -1133.47, 4220.88, 11.78, 0, ''),
@@ -958,8 +958,8 @@ INSERT INTO script_waypoint VALUES
    (16993, 26, -652.22, 4137.50, 64.58, 0, ''),
    (16993, 27, -649.99, 4136.38, 64.63, 30000, 'Quest Credit');
 
-DELETE FROM script_waypoint WHERE entry=17312;
-INSERT INTO script_waypoint VALUES
+DELETE FROM `script_waypoint` WHERE `entry`=17312;
+INSERT INTO `script_waypoint` VALUES
    (17312, 0, -4784.532227, -11051.060547, 3.484263, 0, ''),
    (17312, 1, -4805.509277, -11037.293945, 3.043942, 0, ''),
    (17312, 2, -4827.826172, -11034.398438, 1.741959, 0, ''),
@@ -992,8 +992,8 @@ INSERT INTO script_waypoint VALUES
    (17312, 29, -5353.874512, -11171.595703, 6.903912, 20000, ''),
    (17312, 30, -5354.240000, -11171.940000, 6.890000, 0, '');
 
-DELETE FROM script_waypoint WHERE entry=19685;
-INSERT INTO script_waypoint VALUES
+DELETE FROM `script_waypoint` WHERE `entry`=19685;
+INSERT INTO `script_waypoint` VALUES
    (19685, 0, -1863.369019, 5419.517090, -10.463668, 5000, ''),
    (19685, 1, -1861.749023, 5416.465332, -10.508068, 0, ''),
    (19685, 2, -1857.036133, 5410.966309, -12.428039, 0, ''),
@@ -1053,8 +1053,8 @@ INSERT INTO script_waypoint VALUES
    (19685, 56, -1850.060669, 5472.610840, 0.857320, 9000, ''),
    (19685, 57, -1850.060669, 5472.610840, 0.857320, 4000, '');
 
-DELETE FROM script_waypoint WHERE entry=20129;
-INSERT INTO script_waypoint VALUES
+DELETE FROM `script_waypoint` WHERE `entry`=20129;
+INSERT INTO `script_waypoint` VALUES
    (20129, 0, -8374.93,-4250.21, -204.38,5000, ''),
    (20129, 1, -8374.93,-4250.21, -204.38,16000, ''),
    (20129, 2, -8374.93,-4250.21, -204.38,10000, ''),
@@ -1082,8 +1082,8 @@ INSERT INTO script_waypoint VALUES
    (20129, 24, -8375.42,-4250.41, -205.14,5000, ''),
    (20129, 25, -8375.42,-4250.41, -205.14,5000, '');
 
-DELETE FROM script_waypoint WHERE entry=6575;
-INSERT INTO script_waypoint VALUES
+DELETE FROM `script_waypoint` WHERE `entry`=6575;
+INSERT INTO `script_waypoint` VALUES
    (6575, 0, 1945.81, -431.54, 16.36, 0, ''),
    (6575, 1, 1946.21, -436.41, 16.36, 0, ''),
    (6575, 2, 1950.01, -444.11, 14.63, 0, ''),
@@ -1097,8 +1097,8 @@ INSERT INTO script_waypoint VALUES
    (6575, 10, 1961.22, -422.74, 6.17, 0, ''),
    (6575, 11, 1964.80, -431.26, 6.17, 300000, '');
 
-DELETE FROM script_waypoint WHERE entry=3849;
-INSERT INTO script_waypoint VALUES
+DELETE FROM `script_waypoint` WHERE `entry`=3849;
+INSERT INTO `script_waypoint` VALUES
    (3849, 0, -252.92, 2126.82, 81.17, 0, ''),
    (3849, 1, -253.88, 2131.11, 81.21, 0, ''),
    (3849, 2, -249.66, 2142.45, 87.01, 0, ''),
@@ -1107,8 +1107,8 @@ INSERT INTO script_waypoint VALUES
    (3849, 5, -235.47, 2149.18, 90.59, 0, ''),
    (3849, 6, -239.89, 2156.06, 90.62, 20000, 'SAY_FREE');
 
-DELETE FROM script_waypoint WHERE entry=3850;
-INSERT INTO script_waypoint VALUES
+DELETE FROM `script_waypoint` WHERE `entry`=3850;
+INSERT INTO `script_waypoint` VALUES
    (3850, 0, -255.33, 2117.99, 81.17, 0, ''),
    (3850, 1, -253.88, 2131.11, 81.21, 0, ''),
    (3850, 2, -249.66, 2142.45, 87.01, 0, ''),
@@ -1117,8 +1117,8 @@ INSERT INTO script_waypoint VALUES
    (3850, 5, -235.47, 2149.18, 90.59, 0, ''),
    (3850, 6, -239.89, 2156.06, 90.62, 20000, 'SAY_FREE');
 
-DELETE FROM script_waypoint WHERE entry=3849;
-INSERT INTO script_waypoint VALUES
+DELETE FROM `script_waypoint` WHERE `entry`=3849;
+INSERT INTO `script_waypoint` VALUES
    (3849, 0, -250.923431, 2116.264160, 81.179, 0, 'SAY_FREE_AD'),
    (3849, 1, -255.048538, 2119.392578, 81.179, 0, ''),
    (3849, 2, -254.129105, 2123.454346, 81.179, 0, ''),
@@ -1134,8 +1134,8 @@ INSERT INTO script_waypoint VALUES
    (3849, 12, -241.129700, 2154.562988, 90.624, 5000, 'SAY_POST1_DOOR_AD'),
    (3849, 13, -241.129700, 2154.562988, 90.624, 25000, 'SAY_POST2_DOOR_AD');
 
-DELETE FROM script_waypoint WHERE entry=3850;
-INSERT INTO script_waypoint VALUES
+DELETE FROM `script_waypoint` WHERE `entry`=3850;
+INSERT INTO `script_waypoint` VALUES
    (3850, 0, -241.816895, 2122.904053, 81.179, 0, 'SAY_FREE_AS'),
    (3850, 1, -247.139297, 2124.886475, 81.179, 0, ''),
    (3850, 2, -253.179184, 2127.406738, 81.179, 0, ''),
@@ -1151,8 +1151,8 @@ INSERT INTO script_waypoint VALUES
    (3850, 12, -241.129700, 2154.562988, 90.624, 5000, 'SAY_POST_DOOR_AS'),
    (3850, 13, -241.129700, 2154.562988, 90.624, 25000, '');
 
-DELETE FROM script_waypoint WHERE entry=17876;
-INSERT INTO script_waypoint VALUES
+DELETE FROM `script_waypoint` WHERE `entry`=17876;
+INSERT INTO `script_waypoint` VALUES
    (17876, 0, 2230.91, 118.765, 82.2947,5000, ''),
    (17876, 1, 2230.33, 114.980, 82.2946, 0, ''),
    (17876, 2, 2233.36, 111.057, 82.2996, 0, ''),
@@ -1263,8 +1263,8 @@ INSERT INTO script_waypoint VALUES
    (17876, 107, 2631.72, 665.629, 54.2923, 0, 'run off'),
    (17876, 108, 2647.40, 640.530, 55.7634, 0, '');
 
-DELETE FROM script_waypoint WHERE entry=18887;
-INSERT INTO script_waypoint VALUES
+DELETE FROM `script_waypoint` WHERE `entry`=18887;
+INSERT INTO `script_waypoint` VALUES
    (18887, 0, 2650.06, 665.473, 61.9305, 0, ''),
    (18887, 1, 2652.44, 670.761, 61.9370, 0, ''),
    (18887, 2, 2655.96, 676.913, 57.1725, 0, ''),
@@ -1274,8 +1274,8 @@ INSERT INTO script_waypoint VALUES
    (18887, 6, 2644.37, 668.167, 55.4182, 0, ''),
    (18887, 7, 2640.96, 669.890, 54.7567, 60000, '');
 
-DELETE FROM script_waypoint WHERE entry=10096;
-INSERT INTO script_waypoint VALUES
+DELETE FROM `script_waypoint` WHERE `entry`=10096;
+INSERT INTO `script_waypoint` VALUES
    (10096, 0, 604.802673, -191.081985, -54.058590, 0,'ring'),
    (10096, 1, 604.072998, -222.106918, -52.743759, 0,'first gate'),
    (10096, 2, 621.400391, -214.499054, -52.814453, 0,'hiding in corner'),
@@ -1283,8 +1283,8 @@ INSERT INTO script_waypoint VALUES
    (10096, 4, 631.818359, -180.548126, -52.654770, 0,'second gate'),
    (10096, 5, 627.390381, -201.075974, -52.692917, 0,'hiding in corner');
 
-DELETE FROM script_waypoint WHERE entry=9503;
-INSERT INTO script_waypoint VALUES
+DELETE FROM `script_waypoint` WHERE `entry`=9503;
+INSERT INTO `script_waypoint` VALUES
    (9503, 0, 883.294861, -188.926300, -43.703655, 0,''),
    (9503, 1, 872.763550, -185.605621, -43.703655, 5000,'b1'),
    (9503, 2, 867.923401, -188.006393, -43.703655, 5000,'b2'),
@@ -1294,28 +1294,28 @@ INSERT INTO script_waypoint VALUES
    (9503, 6, 877.035217, -187.048080, -43.703655, 0,''),
    (9503, 7, 891.198000, -197.924000, -43.620400, 0,'home');
 
-DELETE FROM script_waypoint WHERE entry=12423;
-INSERT INTO script_waypoint VALUES
+DELETE FROM `script_waypoint` WHERE `entry`=12423;
+INSERT INTO `script_waypoint` VALUES
    (12423, 0, -9509.72, -147.03, 58.74, 0, ''),
    (12423, 1, -9517.07, -172.82, 58.66, 0, '');
-DELETE FROM script_waypoint WHERE entry=12427;
-INSERT INTO script_waypoint VALUES
+DELETE FROM `script_waypoint` WHERE `entry`=12427;
+INSERT INTO `script_waypoint` VALUES
    (12427, 0, -5689.20, -456.44, 391.08, 0, ''),
    (12427, 1, -5700.37, -450.77, 393.19, 0, '');
-DELETE FROM script_waypoint WHERE entry=12428;
-INSERT INTO script_waypoint VALUES
+DELETE FROM `script_waypoint` WHERE `entry`=12428;
+INSERT INTO `script_waypoint` VALUES
    (12428, 0, 2454.09, 361.26, 31.51, 0, ''),
    (12428, 1, 2472.03, 378.08, 30.98, 0, '');
-DELETE FROM script_waypoint WHERE entry=12429;
-INSERT INTO script_waypoint VALUES
+DELETE FROM `script_waypoint` WHERE `entry`=12429;
+INSERT INTO `script_waypoint` VALUES
    (12429, 0, 9654.19, 909.58, 1272.11, 0, ''),
    (12429, 1, 9642.53, 908.11, 1269.10, 0, '');
-DELETE FROM script_waypoint WHERE entry=12430;
-INSERT INTO script_waypoint VALUES
+DELETE FROM `script_waypoint` WHERE `entry`=12430;
+INSERT INTO `script_waypoint` VALUES
    (12430, 0, 161.65, -4779.34, 14.64, 0, ''),
    (12430, 1, 140.71, -4813.56, 17.04, 0, '');
 
-DELETE FROM `script_waypoint` WHERE `entry` = 6182;
+DELETE FROM `script_waypoint` WHERE `entry`=6182;
 INSERT INTO `script_waypoint` VALUES
    (6182, 0, -11480.684570, 1545.091187, 49.898571, 0, ''),
    (6182, 1, -11466.825195, 1530.151733, 50.263611, 0, ''),
@@ -1337,7 +1337,7 @@ INSERT INTO `script_waypoint` VALUES
    (6182, 17, -11475.581055, 1548.678833, 50.184380, 0, 'complete quest'),
    (6182, 18, -11482.299805, 1557.410034, 48.624519, 0, '');
 
-DELETE FROM `script_waypoint` WHERE `entry` = 7807;
+DELETE FROM `script_waypoint` WHERE `entry`=7807;
 INSERT INTO `script_waypoint` VALUES
    (7807, 0, -4943.74, 1715.74, 62.74, 0, 'SAY_START'),
    (7807, 1, -4944.93, 1706.66, 63.16, 0, ''),
@@ -1378,7 +1378,7 @@ INSERT INTO `script_waypoint` VALUES
    (7807, 36, -4405.25, 2231.77, 5.94, 0, ''),
    (7807, 37, -4377.61, 2265.45, 06.71, 15000, 'complete quest SAY_END');
 
-DELETE FROM `script_waypoint` WHERE `entry` = 2917;
+DELETE FROM `script_waypoint` WHERE `entry`=2917;
 INSERT INTO `script_waypoint` VALUES
    (2917, 0, 4675.812500, 598.614563, 17.645658, 0, 'SAY_REM_START'),
    (2917, 1, 4672.844238, 599.325378, 16.417622, 0, ''),
@@ -1424,7 +1424,7 @@ INSERT INTO `script_waypoint` VALUES
    (2917, 41, 4671.924316, 599.752197, 16.01242, 5000, 'SAY_REM_REMEMBER'),
    (2917, 42, 4676.976074, 600.649780, 17.82566, 5000, 'EMOTE_REM_END');
 
-DELETE FROM `script_waypoint` WHERE `entry` = 28217;
+DELETE FROM `script_waypoint` WHERE `entry`=28217;
 INSERT INTO `script_waypoint` VALUES
    (28217, 0, 5399.96,4509.07,-131.053, 0, ''),
    (28217, 1, 5396.95,4514.84,-131.791,  0, ''),
@@ -1456,7 +1456,7 @@ INSERT INTO `script_waypoint` VALUES
    (28217, 27, 5596.56,4642.26,-136.593, 0, ''),
    (28217, 28, 5634.02,4600.35,-137.291,2000,'');
 
-DELETE FROM `script_waypoint` WHERE `entry` = 3678;
+DELETE FROM `script_waypoint` WHERE `entry`=3678;
 INSERT INTO `script_waypoint` VALUES
    (3678, 0, -120.864, 132.825, -79.2972, 5000, 'TYPE_NARALEX_EVENT'),
    (3678, 1, -109.944, 155.417, -80.4659, 0, ''),
@@ -1484,7 +1484,7 @@ INSERT INTO `script_waypoint` VALUES
    (3678, 23, 114.619, 235.908, -96.0495, 0, ''),
    (3678, 24, 114.777, 237.155, -96.0304, 2500, 'NARALEX_EVENT_FINISHED');
 
-DELETE FROM `script_waypoint` WHERE `entry` = 22424;
+DELETE FROM `script_waypoint` WHERE `entry`=22424;
 INSERT INTO `script_waypoint` VALUES
    (22424,0,-3605.719971,4175.580078,-0.031817,0,'START_SKYWING'),
    (22424,1,-3602.311279,4253.213867,0.562436,0,''),
@@ -1496,7 +1496,7 @@ INSERT INTO `script_waypoint` VALUES
    (22424,7,-3399.274658,4055.948975,18.603474,0,''),
    (22424,8,-3432.678223,4054.069824,29.588032,10000,'');
 
-DELETE FROM `script_waypoint` WHERE `entry` = 22377;
+DELETE FROM `script_waypoint` WHERE `entry`=22377;
 INSERT INTO `script_waypoint` VALUES
    (22377, 0, -2766.31, 5429.65, -34.53, 0, ''),
    (22377, 1, -2769.35, 5416.25, -34.53, 0, ''),
@@ -1510,11 +1510,34 @@ INSERT INTO `script_waypoint` VALUES
    (22377, 9, -2896.50, 5396.76, -8.77, 0, ''),
    (22377, 10, -2896.67, 5366.20, -9.59, 0, ''),
    (22377, 11, -2888.23, 5330.39, -11.19, 2000, '');
+   
+DELETE FROM `script_waypoint` WHERE `entry`=18210;
+INSERT INTO `script_waypoint` VALUES
+   (18210, 0, -1581.410034, 8557.933594, 2.726, 0, ''),
+   (18210, 1, -1579.908447, 8553.716797, 2.559, 0, ''),
+   (18210, 2, -1577.829102, 8549.880859, 2.001, 0, ''),
+   (18210, 3, -1571.161987, 8543.494141, 2.001, 0, ''),
+   (18210, 4, -1563.944824, 8530.334961, 1.605, 0, ''),
+   (18210, 5, -1554.565552, 8518.413086, 0.364, 0, ''),
+   (18210, 6, -1549.239136, 8515.518555, 0.293, 0, ''),
+   (18210, 7, -1518.490112, 8516.771484, 0.683, 2000, 'SAY_MAG_MORE'),
+   (18210, 8, -1505.038940, 8513.247070, 0.672, 0, ''),
+   (18210, 9, -1476.161133, 8496.066406, 2.157, 0, ''),
+   (18210, 10, -1464.450684, 8492.601563, 3.529, 0, ''),
+   (18210, 11, -1457.568359, 8492.183594, 4.449, 0, ''),
+   (18210, 12, -1444.100342, 8499.031250, 6.177, 0, ''),
+   (18210, 13, -1426.472168, 8510.116211, 7.686, 0, ''),
+   (18210, 14, -1403.685303, 8524.146484, 9.680, 0, ''),
+   (18210, 15, -1384.890503, 8542.014648, 11.180, 0, ''),
+   (18210, 16, -1382.286133, 8539.869141, 11.139, 7500, 'SAY_MAG_COMPLETE'),
+   (18210, 17, -1361.224609, 8521.440430, 11.144, 0, ''),
+   (18210, 18, -1324.803589, 8510.688477, 13.050, 0, ''),
+   (18210, 19, -1312.075439, 8492.709961, 14.235, 0, '');
 
 /* EOF */
 
-DELETE FROM script_waypoint WHERE entry=28912;
-INSERT INTO script_waypoint VALUES
+DELETE FROM `script_waypoint` WHERE `entry`=28912;
+INSERT INTO `script_waypoint` VALUES
    (28912, 0, 1653.518, -6038.374, 127.585, 1000, 'Jump off'),
    (28912, 1, 1653.978, -6034.614, 127.585, 5000, 'To Box'),
    (28912, 2, 1653.854, -6034.726, 127.585, 0, 'Equip'),
@@ -1528,8 +1551,8 @@ INSERT INTO script_waypoint VALUES
    (28912, 10, 1654.747, -5926.424, 121.191, 0, 'Disappear');
 
 
-DELETE FROM script_waypoint WHERE entry=29173;
-INSERT INTO script_waypoint VALUES
+DELETE FROM `script_waypoint` WHERE `entry`=29173;
+INSERT INTO `script_waypoint` VALUES
    (29173, 0, 2431.639, -5137.05, 83.843, 0, 'intro'),
    (29173, 1, 2319.242, -5266.486, 82.825, 0, 'summon & on hold'),
    (29173, 2, 2318.775, -5266.832, 82.783, 0, 'cast light of dawn'),
