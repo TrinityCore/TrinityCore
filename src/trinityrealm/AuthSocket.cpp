@@ -492,9 +492,9 @@ bool AuthSocket::_HandleLogonChallenge()
                     pkt << uint8(1);
                     pkt.append(g.AsByteArray(), 1);
                     pkt << uint8(32);
-                    pkt.append(N.AsByteArray(), 32);
+                    pkt.append(N.AsByteArray(32), 32);
                     pkt.append(s.AsByteArray(), s.GetNumBytes());   // 32 bytes
-                    pkt.append(unk3.AsByteArray(), 16);
+                    pkt.append(unk3.AsByteArray(16), 16);
                     uint8 securityFlags = 0;
                     pkt << uint8(securityFlags);            // security flags (0x0...0x04)
 
@@ -829,7 +829,7 @@ bool AuthSocket::_HandleReconnectChallenge()
     pkt << (uint8)  AUTH_RECONNECT_CHALLENGE;
     pkt << (uint8)  0x00;
     _reconnectProof.SetRand(16 * 8);
-    pkt.append(_reconnectProof.AsByteBuffer());             // 16 bytes random
+    pkt.append(_reconnectProof.AsByteArray(16), 16);             // 16 bytes random
     pkt << (uint64) 0x00 << (uint64) 0x00;                  // 16 bytes zeros
     SendBuf((char const*)pkt.contents(), pkt.size());
     return true;

@@ -23,7 +23,6 @@
 #include <ace/TSS_T.h>
 #include "ace/Atomic_Op.h"
 #include <assert.h>
-#include "Errors.h"
 
 namespace ACE_Based
 {

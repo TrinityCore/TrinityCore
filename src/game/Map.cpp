@@ -1870,7 +1870,8 @@ uint16 Map::GetAreaFlag(float x, float y, float z) const
             // Makers' Overlook (ground and cave)
             else if (x > 5634.48f && x < 5774.53f  && y < 3475.0f && z > 300.0f)
             {
-                if(y > 3380.26f || y > 3265.0f && z < 360.0f) areaflag = 2187;
+                if(y > 3380.26f || (y > 3265.0f && z < 360.0f))
+                    areaflag = 2187;
             }
             break;
         // The Makers' Perch (underground)
@@ -1949,7 +1950,7 @@ void Map::GetZoneAndAreaIdByAreaFlag(uint32& zoneid, uint32& areaid, uint16 area
 bool Map::IsInWater(float x, float y, float pZ, float min_depth) const
 {
     // Check surface in x, y point for liquid
-    if (GridMap* gmap = const_cast<Map*>(this)->GetGrid(x, y))
+    if (const_cast<Map*>(this)->GetGrid(x, y))
     {
         LiquidData liquid_status;
         if (getLiquidStatus(x, y, pZ, MAP_ALL_LIQUIDS, &liquid_status))
@@ -1963,7 +1964,7 @@ bool Map::IsInWater(float x, float y, float pZ, float min_depth) const
 
 bool Map::IsUnderWater(float x, float y, float z) const
 {
-    if (GridMap* gmap = const_cast<Map*>(this)->GetGrid(x, y))
+    if (const_cast<Map*>(this)->GetGrid(x, y))
     {
         if (getLiquidStatus(x, y, z, MAP_LIQUID_TYPE_WATER|MAP_LIQUID_TYPE_OCEAN)&LIQUID_MAP_UNDER_WATER)
             return true;
