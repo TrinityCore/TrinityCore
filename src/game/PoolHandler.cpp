@@ -31,7 +31,7 @@ INSTANTIATE_SINGLETON_1(PoolHandler);
 template <class T>
 PoolGroup<T>::PoolGroup()
 {
-    Spawned = 0;
+    m_SpawnedPoolAmount = 0;
 }
 
 // Method to add a gameobject/creature guid to the proper list depending on pool type and chance value
@@ -100,7 +100,7 @@ uint32 PoolGroup<T>::RollOne(void)
 template<class T>
 void PoolGroup<T>::DespawnObject(uint32 guid)
 {
-    for (int i=0; i<EqualChanced.size(); ++i)
+    for (size_t i=0; i<EqualChanced.size(); ++i)
     {
         if (EqualChanced[i].spawned)
         {
@@ -112,7 +112,8 @@ void PoolGroup<T>::DespawnObject(uint32 guid)
                     Despawn1Object(EqualChanced[i].guid);
 
                 EqualChanced[i].spawned = false;
-                Spawned--;
+                if (m_SpawnedPoolAmount > 0)
+                    --m_SpawnedPoolAmount;
             }
         }
     }
@@ -186,14 +187,14 @@ void PoolGroup<T>::SpawnObject(uint32 limit, bool cache)
             Despawn1Object(CacheValue);
         CacheValue = Spawn1Object(roll);
     }
-    else if (limit < EqualChanced.size() && Spawned < limit)
+    else if (limit < EqualChanced.size() && m_SpawnedPoolAmount < limit)
     {
         std::vector<uint32> IndexList;
-        for (int i=0; i<EqualChanced.size(); ++i)
+        for (size_t i=0; i<EqualChanced.size(); ++i)
             if (!EqualChanced[i].spawned)
                 IndexList.push_back(i);
 
-        while (Spawned < limit && IndexList.size() > 0)
+        while (m_SpawnedPoolAmount < limit && IndexList.size() > 0)
         {
             uint32 roll = urand(1, IndexList.size()) - 1;
             uint32 index = IndexList[roll];
@@ -207,7 +208,8 @@ void PoolGroup<T>::SpawnObject(uint32 limit, bool cache)
                 EqualChanced[index].spawned = ReSpawn1Object(EqualChanced[index].guid);
 
             if (EqualChanced[index].spawned)
-                ++Spawned;                                  // limited group use the Spawned variable to store the number of actualy spawned creatures
+                ++m_SpawnedPoolAmount;                      // limited group use the Spawned variable to store the number of actualy spawned creatures
+
             std::vector<uint32>::iterator itr = IndexList.begin()+roll;
             IndexList.erase(itr);
         }
@@ -215,7 +217,7 @@ void PoolGroup<T>::SpawnObject(uint32 limit, bool cache)
     }
     else  // Not enough objects in pool, so spawn all
     {
-        for (int i=0; i<EqualChanced.size(); ++i)
+        for (size_t i=0; i<EqualChanced.size(); ++i)
             EqualChanced[i].spawned = Spawn1Object(EqualChanced[i].guid);
     }
 }

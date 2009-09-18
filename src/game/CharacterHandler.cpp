@@ -1333,7 +1333,7 @@ void WorldSession::HandleEquipmentSetUse(WorldPacket &recv_data)
         uint8 srcbag, srcslot;
         recv_data >> srcbag >> srcslot;
 
-        sLog.outDebug("Item " I64FMT ": srcbag %u, srcslot %u", itemGuid, srcbag, srcslot);
+        sLog.outDebug("Item " UI64FMTD ": srcbag %u, srcslot %u", itemGuid, srcbag, srcslot);
 
         Item *item = _player->GetItemByGuid(itemGuid);
 

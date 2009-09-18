@@ -305,11 +305,7 @@ int Master::Run()
     uint32 realCurrTime, realPrevTime;
     realCurrTime = realPrevTime = getMSTime();
 
-    uint32 socketSelecttime = sWorld.getConfig(CONFIG_SOCKET_SELECTTIME);
-
-    // maximum counter for next ping
-    uint32 numLoops = (sConfig.GetIntDefault( "MaxPingTime", 30 ) * (MINUTE * 1000000 / socketSelecttime));
-    uint32 loopCounter = 0;
+    uint32 socketSelecttime = sWorld.getConfig(CONFIG_SOCKET_SELECTTIME);    
 
     ///- Start up freeze catcher thread
     if(uint32 freeze_delay = sConfig.GetIntDefault("MaxCoreStuckTime", 0))

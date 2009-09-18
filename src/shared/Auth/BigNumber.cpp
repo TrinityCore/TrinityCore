@@ -188,21 +188,6 @@ uint8 *BigNumber::AsByteArray(int minSize)
     return _array;
 }
 
-ByteBuffer BigNumber::AsByteBuffer()
-{
-    ByteBuffer ret(GetNumBytes());
-    ret.append(AsByteArray(), GetNumBytes());
-    return ret;
-}
-
-std::vector<uint8> BigNumber::AsByteVector()
-{
-    std::vector<uint8> ret;
-    ret.resize(GetNumBytes());
-    memcpy(&ret[0], AsByteArray(), GetNumBytes());
-    return ret;
-}
-
 const char *BigNumber::AsHexStr()
 {
     return BN_bn2hex(_bn);
