@@ -59,7 +59,7 @@ class PoolGroup
         uint32 CacheValue;                                  // Store the guid of the removed creature/gameobject during a pool update
         PoolObjectList ExplicitlyChanced;
         PoolObjectList EqualChanced;
-        uint32 Spawned;                                     // Used to know the number of spawned objects
+        uint32 m_SpawnedPoolAmount;                         // Used to know the number of spawned objects
 };
 
 class Pool                                                  // for Pool of Pool case

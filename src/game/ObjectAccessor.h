@@ -27,7 +27,6 @@
 #include "Utilities/UnorderedMap.h"
 #include "Policies/ThreadingModel.h"
 
-#include "ByteBuffer.h"
 #include "UpdateData.h"
 
 #include "GridDefines.h"

@@ -327,6 +327,7 @@ void Player::UpdateAttackPowerAndDamage(bool ranged )
                         }
                         break;
                     }
+                    default: break;
                 }
 
                 switch(m_form)

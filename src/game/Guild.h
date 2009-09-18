@@ -297,19 +297,21 @@ class Guild
 
         uint32 GetId(){ return m_Id; }
         const uint64& GetLeader(){ return m_LeaderGuid; }
-        std::string GetName(){ return m_Name; }
-        std::string GetMOTD(){ return MOTD; }
-        std::string GetGINFO(){ return GINFO; }
+		std::string const& GetName() const { return m_Name; }
+        std::string const& GetMOTD() const { return MOTD; }
+        std::string const& GetGINFO() const { return GINFO; }
 
-        uint32 GetCreatedYear(){ return m_CreatedYear; }
-        uint32 GetCreatedMonth(){ return m_CreatedMonth; }
-        uint32 GetCreatedDay(){ return m_CreatedDay; }
 
-        uint32 GetEmblemStyle(){ return m_EmblemStyle; }
-        uint32 GetEmblemColor(){ return m_EmblemColor; }
-        uint32 GetBorderStyle(){ return m_BorderStyle; }
-        uint32 GetBorderColor(){ return m_BorderColor; }
-        uint32 GetBackgroundColor(){ return m_BackgroundColor; }
+        uint32 GetCreatedYear() const { return m_CreatedYear; }
+        uint32 GetCreatedMonth() const { return m_CreatedMonth; }
+        uint32 GetCreatedDay() const { return m_CreatedDay; }
+
+		
+		uint32 GetEmblemStyle() const { return m_EmblemStyle; }
+        uint32 GetEmblemColor() const { return m_EmblemColor; }
+        uint32 GetBorderStyle() const { return m_BorderStyle; }
+        uint32 GetBorderColor() const { return m_BorderColor; }
+        uint32 GetBackgroundColor() const { return m_BackgroundColor; }
 
         void SetLeader(uint64 guid);
         bool AddMember(uint64 plGuid, uint32 plRank);
