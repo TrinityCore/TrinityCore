@@ -303,7 +303,7 @@ void PetAI::AttackStart(Unit *target)
             DoAttack(target,true); // STAY or FOLLOW, player clicked "attack" so attack with chase
         else
             DoAttack(target,false); // STAY, target in range, attack not clicked so attack without chase
-	}
+    }
 }
 
 Unit *PetAI::SelectNextTarget()
