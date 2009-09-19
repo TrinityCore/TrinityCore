@@ -539,24 +539,9 @@ bool AuthSocket::_HandleLogonChallenge()
     return true;
 }
 
-bool valid_pre_version = false;
-bool valid_tbc_version = false;
-bool valid_wlk_version = false;
 /// Logon Proof command handler
 bool AuthSocket::_HandleLogonProof()
 {
-    for (int a = 0; a < 3; ++a)
-    {
-        accepted_versions[0][a] = 5875, 6005, 0;
-    }
-    for (int a = 0; a < 3; ++a)
-    {
-        accepted_versions[1][a] = 8606, 0, 0;
-    }
-    for (int a = 0; a < 3; ++a)
-    {
-        accepted_versions[2][a] = 10146, 9947, 0;
-    }
     DEBUG_LOG("Entering _HandleLogonProof");
     ///- Read the packet
     if (ibuf.GetLength() < sizeof(sAuthLogonProof_C))
@@ -565,34 +550,19 @@ bool AuthSocket::_HandleLogonProof()
     ibuf.Read((char *)&lp, sizeof(sAuthLogonProof_C));
 
     ///- Check if the client has one of the expected version numbers
-    //int accepted_versions[] = EXPECTED_TRINITY_CLIENT_BUILD;
-    for (int i = 0; accepted_versions[0][i]; ++i)
+    bool valid_version = false;
+    int accepted_versions[] = EXPECTED_TRINITY_CLIENT_BUILD;
+    for (int i = 0; accepted_versions[i]; ++i)
     {
-        if (_build == accepted_versions[0][i])
+        if (_build == accepted_versions[i])
         {
-            valid_pre_version = true;
-            break;
-        }
-    }
-    for (int i = 0; accepted_versions[1][i]; ++i)
-    {
-        if (_build == accepted_versions[1][i])
-        {
-            valid_tbc_version = true;
-            break;
-        }
-    }
-    for (int i = 0; accepted_versions[2][i]; ++i)
-    {
-        if (_build == accepted_versions[2][i])
-        {
-            valid_wlk_version = true;
+            valid_version = true;
             break;
         }
     }
 
     /// <ul><li> If the client has no valid version
-    if (!valid_pre_version && !valid_tbc_version && !valid_wlk_version)
+    if (!valid_version)
     {
         ///- Check if we have the apropriate patch on the disk
 
@@ -736,7 +706,7 @@ bool AuthSocket::_HandleLogonProof()
         sha.UpdateBigNumbers(&A, &M, &K, NULL);
         sha.Finalize();
 
-        if (valid_tbc_version || valid_wlk_version)//2.4.3 and 3.1.3 cliens
+        if (_build == 8606 || _build == 9947 || _build == 10146)//2.4.3 and 3.1.3 clients (10146 is Chinese build for 3.1.3)
         {
             sAuthLogonProof_S proof;
             memcpy(proof.M2, sha.GetDigest(), 20);
@@ -746,9 +716,7 @@ bool AuthSocket::_HandleLogonProof()
             proof.unk2 = 0x00;
             proof.unk3 = 0x00;
             SendBuf((char *)&proof, sizeof(proof));
-        }
-        else if (valid_pre_version)
-        {
+        }else{
             sAuthLogonProof_S_Old proof;
             memcpy(proof.M2, sha.GetDigest(), 20);
             proof.cmd = AUTH_LOGON_PROOF;
@@ -941,29 +909,15 @@ bool AuthSocket::_HandleRealmList()
     RealmList built_realmList;
     for (rlm = m_realmList.begin(); rlm != m_realmList.end(); ++rlm)
     {
-        if (valid_pre_version)//1.12.1 and 1.12.2
+        if (_build == 8606 || _build == 9947 || _build == 10146)//2.4.3 and 3.1.3 cliens
         {
-            for (int i = 0; accepted_versions[1][i]; ++i)
-            {
-                if (rlm->second.gamebuild == accepted_versions[1][i])
-                    built_realmList.AddRealm(rlm->second);
-            }
+            if (rlm->second.gamebuild == _build)
+                built_realmList.AddRealm(rlm->second);
         }
-        else if (valid_tbc_version)//2.4.3
+        else if (_build == 5875 || _build == 6005)//1.12.1 and 1.12.2 clients are compatible with eachother
         {
-            for (int i = 0; accepted_versions[2][i]; ++i)
-            {
-                if (rlm->second.gamebuild == accepted_versions[2][i])
-                    built_realmList.AddRealm(rlm->second);
-            }
-        }
-        else if (valid_wlk_version)//3.1.3
-        {
-            for (int i = 0; accepted_versions[3][i]; ++i)
-            {
-                if (rlm->second.gamebuild == accepted_versions[3][i])
-                    built_realmList.AddRealm(rlm->second);
-            }
+            if (rlm->second.gamebuild == 5875 || rlm->second.gamebuild == 6005)
+                built_realmList.AddRealm(rlm->second);
         }
 
     }
@@ -971,9 +925,9 @@ bool AuthSocket::_HandleRealmList()
     ///- Circle through realms in the RealmList and construct the return packet (including # of user characters in each realm)
     ByteBuffer pkt;
     pkt << (uint32) 0;
-    if (valid_tbc_version || valid_wlk_version)//only 2.4.3 and 3.1.3 cliens
+    if (_build == 8606 || _build == 9947 || _build == 10146)//only 2.4.3 and 3.1.3 cliens
         pkt << (uint16) built_realmList.size();
-    else if (valid_pre_version)
+    else
         pkt << (uint32) built_realmList.size();
     RealmList::RealmMap::const_iterator i;
     for (i = built_realmList.begin(); i != built_realmList.end(); ++i)
@@ -994,7 +948,7 @@ bool AuthSocket::_HandleRealmList()
         uint8 lock = (i->second.allowedSecurityLevel > _accountSecurityLevel) ? 1 : 0;
 
         pkt << i->second.icon;                             // realm type
-        if (valid_tbc_version || valid_wlk_version)// only 2.4.3 and 3.1.3
+        if (i->second.gamebuild == 9947 || i->second.gamebuild == 10146 || i->second.gamebuild == 8606)//only 2.4.3 and 3.1.3 cliens
             pkt << lock;                                       // if 1, then realm locked
         pkt << i->second.color;                            // if 2, then realm is offline
         pkt << i->first;
@@ -1002,19 +956,17 @@ bool AuthSocket::_HandleRealmList()
         pkt << i->second.populationLevel;
         pkt << AmountOfCharacters;
         pkt << i->second.timezone;                          // realm category
-        if (valid_tbc_version || valid_wlk_version)//2.4.3 and 3.1.3 clients
+        if (i->second.gamebuild == 9947 || i->second.gamebuild == 10146 || i->second.gamebuild == 8606)//2.4.3 and 3.1.3 clients
             pkt << (uint8) 0x2C;                                // unk, may be realm number/id?
-        else if (valid_tbc_version)
+        else
             pkt << (uint8) 0x0; //1.12.1 and 1.12.2 clients
     }
 
-    if (valid_tbc_version || valid_wlk_version)//2.4.3 and 3.1.3 cliens
+    if (_build == 9947 || _build == 10146 || _build == 8606)//2.4.3 and 3.1.3 cliens
     {
         pkt << (uint8) 0x10;
         pkt << (uint8) 0x00;
-    }
-    else if (valid_tbc_version)//1.12.1 and 1.12.2 clients
-    {
+    }else{//1.12.1 and 1.12.2 clients
         pkt << (uint8) 0x00;
         pkt << (uint8) 0x02;
     }

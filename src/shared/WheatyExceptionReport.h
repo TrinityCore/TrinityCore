@@ -72,37 +72,37 @@ class WheatyExceptionReport
 {
     public:
 
-        WheatyExceptionReport( );
-        ~WheatyExceptionReport( );
+        WheatyExceptionReport();
+        ~WheatyExceptionReport();
 
         // entry point where control comes on an unhandled exception
         static LONG WINAPI WheatyUnhandledExceptionFilter(
-            PEXCEPTION_POINTERS pExceptionInfo );
+            PEXCEPTION_POINTERS pExceptionInfo);
 
         static void printTracesForAllThreads();
     private:
         // where report info is extracted and generated
-        static void GenerateExceptionReport( PEXCEPTION_POINTERS pExceptionInfo );
+        static void GenerateExceptionReport(PEXCEPTION_POINTERS pExceptionInfo);
         static void PrintSystemInfo();
         static BOOL _GetWindowsVersion(TCHAR* szVersion, DWORD cntMax);
         static BOOL _GetProcessorName(TCHAR* sProcessorName, DWORD maxcount);
 
         // Helper functions
-        static LPTSTR GetExceptionString( DWORD dwCode );
-        static BOOL GetLogicalAddress(  PVOID addr, PTSTR szModule, DWORD len,
-            DWORD& section, DWORD_PTR& offset );
+        static LPTSTR GetExceptionString(DWORD dwCode);
+        static BOOL GetLogicalAddress(PVOID addr, PTSTR szModule, DWORD len,
+            DWORD& section, DWORD_PTR& offset);
 
-        static void WriteStackDetails( PCONTEXT pContext, bool bWriteVariables, HANDLE pThreadHandle);
+        static void WriteStackDetails(PCONTEXT pContext, bool bWriteVariables, HANDLE pThreadHandle);
 
         static BOOL CALLBACK EnumerateSymbolsCallback(PSYMBOL_INFO,ULONG, PVOID);
 
-        static bool FormatSymbolValue( PSYMBOL_INFO, STACKFRAME *, char * pszBuffer, unsigned cbBuffer );
+        static bool FormatSymbolValue(PSYMBOL_INFO, STACKFRAME *, char * pszBuffer, unsigned cbBuffer);
 
-        static char * DumpTypeIndex( char *, DWORD64, DWORD, unsigned, DWORD_PTR, bool & , char*);
+        static char * DumpTypeIndex(char *, DWORD64, DWORD, unsigned, DWORD_PTR, bool & , char*);
 
-        static char * FormatOutputValue( char * pszCurrBuffer, BasicType basicType, DWORD64 length, PVOID pAddress );
+        static char * FormatOutputValue(char * pszCurrBuffer, BasicType basicType, DWORD64 length, PVOID pAddress);
 
-        static BasicType GetBasicType( DWORD typeIndex, DWORD64 modBase );
+        static BasicType GetBasicType(DWORD typeIndex, DWORD64 modBase);
 
         static int __cdecl _tprintf(const TCHAR * format, ...);
 
