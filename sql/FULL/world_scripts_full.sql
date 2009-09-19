@@ -300,6 +300,8 @@ UPDATE `creature_template` SET `ScriptName`='mobs_nether_drake' WHERE `entry` IN
 UPDATE `creature_template` SET `ScriptName`='npc_daranelle' WHERE `entry`=21469;
 UPDATE `creature_template` SET `ScriptName`='npc_overseer_nuaar' WHERE `entry`=21981;
 UPDATE `creature_template` SET `ScriptName`='npc_saikkal_the_elder' WHERE `entry`=22932;
+UPDATE `gameobject_template` SET `ScriptName`='go_fel_crystalforge' WHERE `entry`=185919;
+UPDATE `gameobject_template` SET `ScriptName`='go_bashir_crystalforge' WHERE `entry`=185921;
 
 /* BLASTED LANDS */
 UPDATE `creature_template` SET `ScriptName`='npc_deathly_usher' WHERE `entry`=8816;
