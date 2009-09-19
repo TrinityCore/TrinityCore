@@ -89,11 +89,11 @@ extern int main(int argc, char **argv)
     ///- Command line parsing to get the configuration file name
     char const* cfg_file = _TRINITY_REALM_CONFIG;
     int c=1;
-    while( c < argc )
+    while(c < argc)
     {
-        if( strcmp(argv[c],"-c") == 0)
+        if (strcmp(argv[c],"-c") == 0)
         {
-            if( ++c >= argc )
+            if (++c >= argc)
             {
                 sLog.outError("Runtime-Error: -c option requires an input argument");
                 usage(argv[0]);
@@ -107,23 +107,23 @@ extern int main(int argc, char **argv)
         ////////////
         //Services//
         ////////////
-        if( strcmp(argv[c],"-s") == 0)
+        if (strcmp(argv[c],"-s") == 0)
         {
-            if( ++c >= argc )
+            if (++c >= argc)
             {
                 sLog.outError("Runtime-Error: -s option requires an input argument");
                 usage(argv[0]);
                 return 1;
             }
-            if( strcmp(argv[c],"install") == 0)
+            if (strcmp(argv[c],"install") == 0)
             {
                 if (WinServiceInstall())
                     sLog.outString("Installing service");
                 return 1;
             }
-            else if( strcmp(argv[c],"uninstall") == 0)
+            else if (strcmp(argv[c],"uninstall") == 0)
             {
-                if(WinServiceUninstall())
+                if (WinServiceUninstall())
                     sLog.outString("Uninstalling service");
                 return 1;
             }
@@ -134,7 +134,7 @@ extern int main(int argc, char **argv)
                 return 1;
             }
         }
-        if( strcmp(argv[c],"--service") == 0)
+        if (strcmp(argv[c],"--service") == 0)
         {
             WinServiceRun();
         }
@@ -150,8 +150,8 @@ extern int main(int argc, char **argv)
     }
     sLog.Initialize();
 
-    sLog.outString( "%s (realm-daemon)", _FULLVERSION );
-    sLog.outString( "<Ctrl-C> to stop.\n" );
+    sLog.outString("%s (realm-daemon)", _FULLVERSION);
+    sLog.outString("<Ctrl-C> to stop.\n");
     sLog.outString("Using configuration file %s.", cfg_file);
 
     ///- Check the version of the configuration file
@@ -169,7 +169,7 @@ extern int main(int argc, char **argv)
     }
 
     sLog.outDetail("%s (Library: %s)", OPENSSL_VERSION_TEXT, SSLeay_version(SSLEAY_VERSION));
-    if (SSLeay() < 0x009080bfL )
+    if (SSLeay() < 0x009080bfL)
     {
         sLog.outError("Outdated version of OpenSSL lib. Logins to server impossible!");
         sLog.outError("Minimal required version [OpenSSL 0.9.8k]");
@@ -180,24 +180,24 @@ extern int main(int argc, char **argv)
 
     /// realmd PID file creation
     std::string pidfile = sConfig.GetStringDefault("PidFile", "");
-    if(!pidfile.empty())
+    if (!pidfile.empty())
     {
         uint32 pid = CreatePIDFile(pidfile);
-        if( !pid )
+        if (!pid)
         {
-            sLog.outError( "Cannot create PID file %s.\n", pidfile.c_str() );
+            sLog.outError("Cannot create PID file %s.\n", pidfile.c_str());
             return 1;
         }
 
-        sLog.outString( "Daemon PID: %u\n", pid );
+        sLog.outString("Daemon PID: %u\n", pid);
     }
 
     ///- Initialize the database connection
-    if(!StartDB())
+    if (!StartDB())
         return 1;
 
     ///- Initialize the log database
-    if(sConfig.GetBoolDefault("EnableLogDB", false))
+    if (sConfig.GetBoolDefault("EnableLogDB", false))
     {
         // everything successful - set var to enable DB logging once startup finished.
         sLog.SetLogDBLater(true);
@@ -221,14 +221,14 @@ extern int main(int argc, char **argv)
     }
 
     ///- Launch the listening network socket
-    port_t rmport = sConfig.GetIntDefault( "RealmServerPort", DEFAULT_REALMSERVER_PORT );
+    port_t rmport = sConfig.GetIntDefault("RealmServerPort", DEFAULT_REALMSERVER_PORT);
     std::string bind_ip = sConfig.GetStringDefault("BindIP", "0.0.0.0");
 
     SocketHandler h;
     ListenSocket<AuthSocket> authListenSocket(h);
-    if ( authListenSocket.Bind(bind_ip.c_str(),rmport))
+    if (authListenSocket.Bind(bind_ip.c_str(),rmport))
     {
-        sLog.outError( "Trinity realm can not bind to %s:%d",bind_ip.c_str(), rmport );
+        sLog.outError("Trinity realm can not bind to %s:%d",bind_ip.c_str(), rmport);
         return 1;
     }
 
@@ -243,22 +243,22 @@ extern int main(int argc, char **argv)
         HANDLE hProcess = GetCurrentProcess();
 
         uint32 Aff = sConfig.GetIntDefault("UseProcessors", 0);
-        if(Aff > 0)
+        if (Aff > 0)
         {
             ULONG_PTR appAff;
             ULONG_PTR sysAff;
 
-            if(GetProcessAffinityMask(hProcess,&appAff,&sysAff))
+            if (GetProcessAffinityMask(hProcess,&appAff,&sysAff))
             {
                 ULONG_PTR curAff = Aff & appAff;            // remove non accessible processors
 
-                if(!curAff )
+                if (!curAff)
                 {
                     sLog.outError("Processors marked in UseProcessors bitmask (hex) %x not accessible for realmd. Accessible processors bitmask (hex): %x",Aff,appAff);
                 }
                 else
                 {
-                    if(SetProcessAffinityMask(hProcess,curAff))
+                    if (SetProcessAffinityMask(hProcess,curAff))
                         sLog.outString("Using processors (bitmask, hex): %x", curAff);
                     else
                         sLog.outError("Can't set used processors (hex): %x", curAff);
@@ -269,9 +269,9 @@ extern int main(int argc, char **argv)
 
         bool Prio = sConfig.GetBoolDefault("ProcessPriority", false);
 
-        if(Prio)
+        if (Prio)
         {
-            if(SetPriorityClass(hProcess,HIGH_PRIORITY_CLASS))
+            if (SetPriorityClass(hProcess,HIGH_PRIORITY_CLASS))
                 sLog.outString("TrinityRealm process priority class set to HIGH");
             else
                 sLog.outError("ERROR: Can't set realmd process priority class.");
@@ -281,7 +281,7 @@ extern int main(int argc, char **argv)
     #endif
 
     // maximum counter for next ping
-    uint32 numLoops = (sConfig.GetIntDefault( "MaxPingTime", 30 ) * (MINUTE * 1000000 / 100000));
+    uint32 numLoops = (sConfig.GetIntDefault("MaxPingTime", 30) * (MINUTE * 1000000 / 100000));
     uint32 loopCounter = 0;
 
     // possibly enable db logging; avoid massive startup spam by doing it here.
@@ -304,7 +304,7 @@ extern int main(int argc, char **argv)
 
         h.Select(0, 100000);
 
-        if( (++loopCounter) == numLoops )
+        if ((++loopCounter) == numLoops)
         {
             loopCounter = 0;
             sLog.outDetail("Ping MySQL to keep connection alive");
@@ -323,7 +323,7 @@ extern int main(int argc, char **argv)
     ///- Remove signal handling before leaving
     UnhookSignals();
 
-    sLog.outString( "Halting process..." );
+    sLog.outString("Halting process...");
     return 0;
 }
 
@@ -351,13 +351,13 @@ void OnSignal(int s)
 bool StartDB()
 {
     std::string dbstring = sConfig.GetStringDefault("loginDatabaseInfo", "");
-    if(dbstring.empty())
+    if (dbstring.empty())
     {
         sLog.outError("Database not specified");
         return false;
     }
 
-    if(!loginDatabase.Initialize(dbstring.c_str()))
+    if (!loginDatabase.Initialize(dbstring.c_str()))
     {
         sLog.outError("Cannot connect to database");
         return false;
