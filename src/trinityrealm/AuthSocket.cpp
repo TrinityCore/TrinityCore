@@ -63,7 +63,7 @@ enum eStatus
 };
 
 // GCC have alternative #pragma pack(N) syntax and old gcc version not support pack(push,N), also any gcc version not support it at some paltform
-#if defined( __GNUC__ )
+#if defined(__GNUC__)
 #pragma pack(1)
 #else
 #pragma pack(push,1)
@@ -176,7 +176,7 @@ typedef struct AuthHandler
 }AuthHandler;
 
 // GCC have alternative #pragma pack() syntax and old gcc version not support pack(pop), also any gcc version not support it at some paltform
-#if defined( __GNUC__ )
+#if defined(__GNUC__)
 #pragma pack()
 #else
 #pragma pack(pop)
@@ -248,7 +248,7 @@ AuthSocket::~AuthSocket()
 {
     ACE_Guard<ACE_Thread_Mutex> g(patcherLock);
 
-    if(pPatch)
+    if (pPatch)
         fclose(pPatch);
 }
 
@@ -330,7 +330,7 @@ void AuthSocket::_SetVSFields(const std::string& rI)
     const char *v_hex, *s_hex;
     v_hex = v.AsHexStr();
     s_hex = s.AsHexStr();
-    loginDatabase.PExecute("UPDATE account SET v = '%s', s = '%s' WHERE username = '%s'", v_hex, s_hex, _safelogin.c_str() );
+    loginDatabase.PExecute("UPDATE account SET v = '%s', s = '%s' WHERE username = '%s'", v_hex, s_hex, _safelogin.c_str());
     OPENSSL_free((void*)v_hex);
     OPENSSL_free((void*)s_hex);
 }
@@ -397,8 +397,8 @@ bool AuthSocket::_HandleLogonChallenge()
 
     std::string address = GetRemoteAddress();
     loginDatabase.escape_string(address);
-    QueryResult *result = loginDatabase.PQuery(  "SELECT * FROM ip_banned WHERE ip = '%s'",address.c_str());
-    if(result)
+    QueryResult *result = loginDatabase.PQuery("SELECT * FROM ip_banned WHERE ip = '%s'",address.c_str());
+    if (result)
     {
         pkt << (uint8)REALM_AUTH_ACCOUNT_BANNED;
         sLog.outBasic("[AuthChallenge] Banned ip %s tries to login!",GetRemoteAddress().c_str ());
@@ -410,15 +410,15 @@ bool AuthSocket::_HandleLogonChallenge()
         // No SQL injection (escaped user name)
 
         result = loginDatabase.PQuery("SELECT sha_pass_hash,id,locked,last_ip,gmlevel,v,s FROM account WHERE username = '%s'",_safelogin.c_str ());
-        if( result )
+        if (result)
         {
             ///- If the IP is 'locked', check that the player comes indeed from the correct IP address
             bool locked = false;
-            if((*result)[2].GetUInt8() == 1)            // if ip is locked
+            if ((*result)[2].GetUInt8() == 1)            // if ip is locked
             {
                 DEBUG_LOG("[AuthChallenge] Account '%s' is locked to IP - '%s'", _login.c_str(), (*result)[3].GetString());
                 DEBUG_LOG("[AuthChallenge] Player address is '%s'", GetRemoteAddress().c_str());
-                if ( strcmp((*result)[3].GetString(),GetRemoteAddress().c_str()) )
+                if (strcmp((*result)[3].GetString(),GetRemoteAddress().c_str()))
                 {
                     DEBUG_LOG("[AuthChallenge] Account IP differs");
                     pkt << (uint8) REALM_AUTH_ACCOUNT_FREEZED;
@@ -440,9 +440,9 @@ bool AuthSocket::_HandleLogonChallenge()
                 loginDatabase.Execute("UPDATE account_banned SET active = 0 WHERE unbandate<=UNIX_TIMESTAMP() AND unbandate<>bandate");
                 ///- If the account is banned, reject the logon attempt
                 QueryResult *banresult = loginDatabase.PQuery("SELECT bandate,unbandate FROM account_banned WHERE id = %u AND active = 1", (*result)[1].GetUInt32());
-                if(banresult)
+                if (banresult)
                 {
-                    if((*banresult)[0].GetUInt64() == (*banresult)[1].GetUInt64())
+                    if ((*banresult)[0].GetUInt64() == (*banresult)[1].GetUInt64())
                     {
                         pkt << (uint8) REALM_AUTH_ACCOUNT_BANNED;
                         sLog.outBasic("[AuthChallenge] Banned account %s tries to login!",_login.c_str ());
@@ -467,7 +467,7 @@ bool AuthSocket::_HandleLogonChallenge()
                     sLog.outDebug("database authentication values: v='%s' s='%s'", databaseV.c_str(), databaseS.c_str());
 
                     // multiply with 2, bytes are stored as hexstring
-                    if(databaseV.size() != s_BYTE_SIZE*2 || databaseS.size() != s_BYTE_SIZE*2)
+                    if (databaseV.size() != s_BYTE_SIZE*2 || databaseS.size() != s_BYTE_SIZE*2)
                         _SetVSFields(rI);
                     else
                     {
@@ -498,13 +498,13 @@ bool AuthSocket::_HandleLogonChallenge()
                     uint8 securityFlags = 0;
                     pkt << uint8(securityFlags);            // security flags (0x0...0x04)
 
-                    if(securityFlags & REALM_AUTH_FAILURE)                // PIN input
+                    if (securityFlags & REALM_AUTH_FAILURE)                // PIN input
                     {
                         pkt << uint32(0);
                         pkt << uint64(0) << uint64(0);      // 16 bytes hash?
                     }
 
-                    if(securityFlags & REALM_AUTH_UNKNOWN1)                // Matrix input
+                    if (securityFlags & REALM_AUTH_UNKNOWN1)                // Matrix input
                     {
                         pkt << uint8(0);
                         pkt << uint8(0);
@@ -513,7 +513,7 @@ bool AuthSocket::_HandleLogonChallenge()
                         pkt << uint64(0);
                     }
 
-                    if(securityFlags & REALM_AUTH_NO_MATCH)                // Security token input
+                    if (securityFlags & REALM_AUTH_NO_MATCH)                // Security token input
                     {
                         pkt << uint8(1);
                     }
@@ -522,7 +522,7 @@ bool AuthSocket::_HandleLogonChallenge()
                     _accountSecurityLevel = secLevel <= SEC_ADMINISTRATOR ? AccountTypes(secLevel) : SEC_ADMINISTRATOR;
 
                     _localizationName.resize(4);
-                    for(int i = 0; i < 4; ++i)
+                    for (int i = 0; i < 4; ++i)
                         _localizationName[i] = ch->country[4-i-1];
 
                     sLog.outBasic("[AuthChallenge] account %s is using '%c%c%c%c' locale (%u)", _login.c_str (), ch->country[3], ch->country[2], ch->country[1], ch->country[0], GetLocaleByName(_localizationName));
@@ -550,19 +550,37 @@ bool AuthSocket::_HandleLogonProof()
     ibuf.Read((char *)&lp, sizeof(sAuthLogonProof_C));
 
     ///- Check if the client has one of the expected version numbers
-    bool valid_version = false;
-    int accepted_versions[] = EXPECTED_TRINITY_CLIENT_BUILD;
-    for(int i = 0; accepted_versions[i]; ++i)
+    bool valid_pre_version = false;
+    bool valid_tbc_version = false;
+    bool valid_wlk_version = false;
+    //int accepted_versions[] = EXPECTED_TRINITY_CLIENT_BUILD;
+    for (int i = 0; accepted_versions[1][i]; ++i)
     {
-        if(_build == accepted_versions[i])
+        if (_build == accepted_versions[1][i])
         {
-            valid_version = true;
+            valid_pre_version = true;
+            break;
+        }
+    }
+    for (int i = 0; accepted_versions[2][i]; ++i)
+    {
+        if (_build == accepted_versions[2][i])
+        {
+            valid_tbc_version = true;
+            break;
+        }
+    }
+    for (int i = 0; accepted_versions[3][i]; ++i)
+    {
+        if (_build == accepted_versions[3][i])
+        {
+            valid_wlk_version = true;
             break;
         }
     }
 
     /// <ul><li> If the client has no valid version
-    if(!valid_version)
+    if (!valid_pre_version && !valid_tbc_version && !valid_wlk_version)
     {
         ///- Check if we have the apropriate patch on the disk
 
@@ -573,7 +591,7 @@ bool AuthSocket::_HandleLogonProof()
         // This will be closed at the destruction of the AuthSocket (client disconnection)
         FILE *pFile = fopen(tmp, "rb");
 
-        if(!pFile)
+        if (!pFile)
         {
             ByteBuffer pkt;
             pkt << (uint8) AUTH_LOGON_CHALLENGE;
@@ -590,7 +608,7 @@ bool AuthSocket::_HandleLogonProof()
             XFER_INIT xferh;
 
             ///- Get the MD5 hash of the patch file (get it from preloaded Patcher cache or calculate it)
-            if(PatchesCache.GetHash(tmp, (uint8*)&xferh.md5))
+            if (PatchesCache.GetHash(tmp, (uint8*)&xferh.md5))
             {
                 DEBUG_LOG("\n[AuthChallenge] Found precached patch info for patch %s", tmp);
             }
@@ -698,7 +716,7 @@ bool AuthSocket::_HandleLogonProof()
         ///- Update the sessionkey, last_ip, last login time and reset number of failed logins in the account table for this account
         // No SQL injection (escaped user name) and IP address as received by socket
         const char* K_hex = K.AsHexStr();
-        loginDatabase.PExecute("UPDATE account SET sessionkey = '%s', last_ip = '%s', last_login = NOW(), locale = '%u', failed_logins = 0 WHERE username = '%s'", K_hex, GetRemoteAddress().c_str(), GetLocaleByName(_localizationName), _safelogin.c_str() );
+        loginDatabase.PExecute("UPDATE account SET sessionkey = '%s', last_ip = '%s', last_login = NOW(), locale = '%u', failed_logins = 0 WHERE username = '%s'", K_hex, GetRemoteAddress().c_str(), GetLocaleByName(_localizationName), _safelogin.c_str());
         OPENSSL_free((void*)K_hex);
 
         ///- Finish SRP6 and send the final result to the client
@@ -706,7 +724,7 @@ bool AuthSocket::_HandleLogonProof()
         sha.UpdateBigNumbers(&A, &M, &K, NULL);
         sha.Finalize();
 
-        if(_build == 8606 || _build == 9947 || _build == 10146)//2.4.3 and 3.1.3 clients (10146 is Chinese build for 3.1.3)
+        if (valid_tbc_version || valid_wlk_version)//2.4.3 and 3.1.3 cliens
         {
             sAuthLogonProof_S proof;
             memcpy(proof.M2, sha.GetDigest(), 20);
@@ -716,7 +734,9 @@ bool AuthSocket::_HandleLogonProof()
             proof.unk2 = 0x00;
             proof.unk3 = 0x00;
             SendBuf((char *)&proof, sizeof(proof));
-        }else{
+        }
+        else if (valid_pre_version)
+        {
             sAuthLogonProof_S_Old proof;
             memcpy(proof.M2, sha.GetDigest(), 20);
             proof.cmd = AUTH_LOGON_PROOF;
@@ -737,22 +757,22 @@ bool AuthSocket::_HandleLogonProof()
         sLog.outBasic("[AuthChallenge] account %s tried to login with wrong password!",_login.c_str ());
 
         uint32 MaxWrongPassCount = sConfig.GetIntDefault("WrongPass.MaxCount", 0);
-        if(MaxWrongPassCount > 0)
+        if (MaxWrongPassCount > 0)
         {
             //Increment number of failed logins by one and if it reaches the limit temporarily ban that account or IP
             loginDatabase.PExecute("UPDATE account SET failed_logins = failed_logins + 1 WHERE username = '%s'",_safelogin.c_str());
 
-            if(QueryResult *loginfail = loginDatabase.PQuery("SELECT id, failed_logins FROM account WHERE username = '%s'", _safelogin.c_str()))
+            if (QueryResult *loginfail = loginDatabase.PQuery("SELECT id, failed_logins FROM account WHERE username = '%s'", _safelogin.c_str()))
             {
                 Field* fields = loginfail->Fetch();
                 uint32 failed_logins = fields[1].GetUInt32();
 
-                if( failed_logins >= MaxWrongPassCount )
+                if (failed_logins >= MaxWrongPassCount)
                 {
                     uint32 WrongPassBanTime = sConfig.GetIntDefault("WrongPass.BanTime", 600);
                     bool WrongPassBanType = sConfig.GetBoolDefault("WrongPass.BanType", false);
 
-                    if(WrongPassBanType)
+                    if (WrongPassBanType)
                     {
                         uint32 acc_id = fields[0].GetUInt32();
                         loginDatabase.PExecute("INSERT INTO account_banned VALUES ('%u',UNIX_TIMESTAMP(),UNIX_TIMESTAMP()+'%u','Trinity realmd','Failed login autoban',1)",
@@ -891,7 +911,7 @@ bool AuthSocket::_HandleRealmList()
     // No SQL injection (escaped user name)
 
     QueryResult *result = loginDatabase.PQuery("SELECT id,sha_pass_hash FROM account WHERE username = '%s'",_safelogin.c_str());
-    if(!result)
+    if (!result)
     {
         sLog.outError("[ERROR] user %s tried to login and we cannot find him in the database.",_login.c_str());
         SetCloseAndDelete();
@@ -907,17 +927,31 @@ bool AuthSocket::_HandleRealmList()
 
     RealmList::RealmMap::const_iterator rlm;
     RealmList built_realmList;
-    for( rlm = m_realmList.begin(); rlm != m_realmList.end(); ++rlm )
+    for (rlm = m_realmList.begin(); rlm != m_realmList.end(); ++rlm)
     {
-        if(_build == 8606 || _build == 9947)//2.4.3 and 3.1.3 cliens
+        if (valid_pre_version)//1.12.1 and 1.12.2
         {
-            if(rlm->second.gamebuild == _build)
-                built_realmList.AddRealm(rlm->second);
+            for (int i = 0; accepted_versions[1][i]; ++i)
+            {
+                if (rlm->second.gamebuild == accepted_versions[1][i])
+                    built_realmList.AddRealm(rlm->second);
+            }
         }
-        else if(_build == 5875 || _build == 6005)//1.12.1 and 1.12.2 clients are compatible with eachother
+        else if (valid_tbc_version)//2.4.3
         {
-            if(rlm->second.gamebuild == 5875 || rlm->second.gamebuild == 6005)
-                built_realmList.AddRealm(rlm->second);
+            for (int i = 0; accepted_versions[2][i]; ++i)
+            {
+                if (rlm->second.gamebuild == accepted_versions[2][i])
+                    built_realmList.AddRealm(rlm->second);
+            }
+        }
+        else if (valid_wlk_version)//3.1.3
+        {
+            for (int i = 0; accepted_versions[3][i]; ++i)
+            {
+                if (rlm->second.gamebuild == accepted_versions[3][i])
+                    built_realmList.AddRealm(rlm->second);
+            }
         }
 
     }
@@ -925,18 +959,18 @@ bool AuthSocket::_HandleRealmList()
     ///- Circle through realms in the RealmList and construct the return packet (including # of user characters in each realm)
     ByteBuffer pkt;
     pkt << (uint32) 0;
-    if(_build == 8606 || _build == 9947)//only 2.4.3 and 3.1.3 cliens
+    if (valid_tbc_version || valid_wlk_version)//only 2.4.3 and 3.1.3 cliens
         pkt << (uint16) built_realmList.size();
-    else
+    else if (valid_pre_version)
         pkt << (uint32) built_realmList.size();
     RealmList::RealmMap::const_iterator i;
-    for( i = built_realmList.begin(); i != built_realmList.end(); ++i )
+    for (i = built_realmList.begin(); i != built_realmList.end(); ++i)
     {
         uint8 AmountOfCharacters;
 
         // No SQL injection. id of realm is controlled by the database.
-        result = loginDatabase.PQuery( "SELECT numchars FROM realmcharacters WHERE realmid = '%d' AND acctid='%u'",i->second.m_ID,id);
-        if( result )
+        result = loginDatabase.PQuery("SELECT numchars FROM realmcharacters WHERE realmid = '%d' AND acctid='%u'",i->second.m_ID,id);
+        if (result)
         {
             Field *fields = result->Fetch();
             AmountOfCharacters = fields[0].GetUInt8();
@@ -948,7 +982,7 @@ bool AuthSocket::_HandleRealmList()
         uint8 lock = (i->second.allowedSecurityLevel > _accountSecurityLevel) ? 1 : 0;
 
         pkt << i->second.icon;                             // realm type
-        if(i->second.gamebuild == 9947 || i->second.gamebuild == 8606)//only 2.4.3 and 3.1.3 cliens
+        if (valid_tbc_version || valid_wlk_version)// only 2.4.3 and 3.1.3
             pkt << lock;                                       // if 1, then realm locked
         pkt << i->second.color;                            // if 2, then realm is offline
         pkt << i->first;
@@ -956,17 +990,19 @@ bool AuthSocket::_HandleRealmList()
         pkt << i->second.populationLevel;
         pkt << AmountOfCharacters;
         pkt << i->second.timezone;                          // realm category
-        if(i->second.gamebuild == 9947 || i->second.gamebuild == 8606)//2.4.3 and 3.1.3 clients
+        if (valid_tbc_version || valid_wlk_version)//2.4.3 and 3.1.3 clients
             pkt << (uint8) 0x2C;                                // unk, may be realm number/id?
-        else
+        else if (valid_tbc_version)
             pkt << (uint8) 0x0; //1.12.1 and 1.12.2 clients
     }
 
-    if(_build == 9947 || _build == 8606)//2.4.3 and 3.1.3 cliens
+    if (valid_tbc_version || valid_wlk_version)//2.4.3 and 3.1.3 cliens
     {
         pkt << (uint8) 0x10;
         pkt << (uint8) 0x00;
-    }else{//1.12.1 and 1.12.2 clients
+    }
+    else if (valid_tbc_version)//1.12.1 and 1.12.2 clients
+    {
         pkt << (uint8) 0x00;
         pkt << (uint8) 0x02;
     }
@@ -1077,7 +1113,7 @@ void Patcher::LoadPatchesInfo()
     //int errno;
     struct dirent * dp;
     dirp = opendir("./patches/");
-    if(!dirp)
+    if (!dirp)
         return;
     while (dirp)
     {
@@ -1085,14 +1121,14 @@ void Patcher::LoadPatchesInfo()
         if ((dp = readdir(dirp)) != NULL)
         {
             int l = strlen(dp->d_name);
-            if(l < 8)
+            if (l < 8)
                 continue;
-            if(!memcmp(&dp->d_name[l-4],".mpq",4))
+            if (!memcmp(&dp->d_name[l-4],".mpq",4))
                 LoadPatchMD5(dp->d_name);
         }
         else
         {
-            if(errno != 0)
+            if (errno != 0)
             {
                 closedir(dirp);
                 return;
@@ -1101,7 +1137,7 @@ void Patcher::LoadPatchesInfo()
         }
     }
 
-    if(dirp)
+    if (dirp)
         closedir(dirp);
 }
 
@@ -1110,7 +1146,7 @@ void Patcher::LoadPatchesInfo()
 {
     WIN32_FIND_DATA fil;
     HANDLE hFil=FindFirstFile("./patches/*.mpq", &fil);
-    if(hFil == INVALID_HANDLE_VALUE)
+    if (hFil == INVALID_HANDLE_VALUE)
         return;                                             // no patches were found
 
     do
@@ -1129,7 +1165,7 @@ void Patcher::LoadPatchMD5(char * szFileName)
     path += szFileName;
     FILE *pPatch = fopen(path.c_str(), "rb");
     sLog.outDebug("Loading patch info from %s\n", path.c_str());
-    if(!pPatch)
+    if (!pPatch)
     {
         sLog.outError("Error loading patch %s\n", path.c_str());
         return;
@@ -1156,8 +1192,8 @@ void Patcher::LoadPatchMD5(char * szFileName)
 /// Get cached MD5 hash for a given patch file
 bool Patcher::GetHash(char * pat, uint8 mymd5[16])
 {
-    for( Patches::iterator i = _patches.begin(); i != _patches.end(); ++i )
-        if(!stricmp(pat, i->first.c_str()))
+    for (Patches::iterator i = _patches.begin(); i != _patches.end(); ++i)
+        if (!stricmp(pat, i->first.c_str()))
     {
         memcpy(mymd5, i->second->md5, 16);
         return true;
@@ -1175,6 +1211,6 @@ Patcher::Patcher()
 /// Empty and delete the patch map on termination
 Patcher::~Patcher()
 {
-    for(Patches::iterator i = _patches.begin(); i != _patches.end(); ++i )
+    for (Patches::iterator i = _patches.begin(); i != _patches.end(); ++i)
         delete i->second;
 }
