@@ -17,12 +17,13 @@
 /* ScriptData
 SDName: Hellfire_Peninsula
 SD%Complete: 100
- SDComment: Quest support: 9375, 9418, 10129, 10146, 10162, 10163, 10340, 10346, 10347, 10382 (Special flight paths)
+SDComment: Quest support: 9375, 9410, 9418, 10129, 10146, 10162, 10163, 10340, 10346, 10347, 10382 (Special flight paths)
 SDCategory: Hellfire Peninsula
 EndScriptData */
 
 /* ContentData
 npc_aeranas
+npc_ancestral_wolf
 go_haaleshi_altar
 npc_naladu
 npc_tracy_proudwell
@@ -337,17 +338,18 @@ bool QuestAccept_npc_wounded_blood_elf(Player* pPlayer, Creature* pCreature, Que
     return true;
 }
 
-/*######
-##
-######*/
-
 void AddSC_hellfire_peninsula()
 {
     Script *newscript;
 
     newscript = new Script;
-     newscript->Name = "npc_aeranas";
+    newscript->Name = "npc_aeranas";
     newscript->GetAI = &GetAI_npc_aeranas;
+    newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name = "npc_ancestral_wolf";
+    newscript->GetAI = &GetAI_npc_ancestral_wolf;
     newscript->RegisterSelf();
 
     newscript = new Script;

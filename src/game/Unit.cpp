@@ -7533,6 +7533,14 @@ bool Unit::HandleProcTriggerSpell(Unit *pVictim, uint32 damage, AuraEffect* trig
             trigger_spell_id = 26470;
             break;
         }
+        // Deflection 
+        case 52420:
+        {
+            if(GetHealth()*100 / GetMaxHealth() >= 35)
+            return false;
+            break;
+        }
+
         // Cheat Death
         case 28845:
         {

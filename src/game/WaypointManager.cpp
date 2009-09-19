@@ -24,12 +24,12 @@
 #include "ProgressBar.h"
 #include "MapManager.h"
 
-WaypointPathMap WaypointPathHolder;
+UNORDERED_MAP<uint32, WaypointPath*> waypoint_map;
 WaypointStore WaypointMgr;
 
 void WaypointStore::Free()
 {
-    WaypointPathHolder.clear();
+    waypoint_map.clear();
 }
 
 void WaypointStore::Load()
@@ -88,7 +88,7 @@ void WaypointStore::Load()
         path_data->push_back(wp);
 
         if(id != last_id)
-            WaypointPathHolder[id] = path_data;
+            waypoint_map[id] = path_data;
 
         last_id = id;
 
@@ -99,16 +99,8 @@ void WaypointStore::Load()
 
 void WaypointStore::UpdatePath(uint32 id)
 {
-    // Prevent memory leak, deallocate allocated memory instead of just clearing from object holder
-    WaypointPathMap::iterator itr = WaypointPathHolder.find(id);
-    if(itr != WaypointPathHolder.end())
-    {
-        for(WaypointPath::iterator jtr = WaypointPathHolder[id]->begin(); jtr != WaypointPathHolder[id]->end(); ++jtr)
-        {
-            delete (*jtr);
-        }
-        delete itr->second;
-    }
+    if(waypoint_map.find(id)!= waypoint_map.end())
+        waypoint_map[id]->clear();
     
     QueryResult *result;
 
@@ -150,7 +142,7 @@ void WaypointStore::UpdatePath(uint32 id)
     }
     while (result->NextRow());
 
-    WaypointPathHolder[id] = path_data;
+    waypoint_map[id] = path_data;
 
     delete result;
 }

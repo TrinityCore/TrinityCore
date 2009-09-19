@@ -228,6 +228,25 @@ bool GOHello_go_shallow_grave(Player* pPlayer, GameObject* pGo)
     return false;
 }
 
+/*######
+## at_zumrah
+######*/
+
+enum {
+    ZUMRAH_ID = 7271,
+    ZUMRAH_HOSTILE_FACTION = 37
+};
+
+bool AreaTrigger_at_zumrah(Player* pPlayer, AreaTriggerEntry *at)
+{
+        Creature* Zumrah = pPlayer->FindNearestCreature(ZUMRAH_ID, 30.0f);
+
+        if (!Zumrah)
+            return false;
+
+        Zumrah->setFaction(ZUMRAH_HOSTILE_FACTION);
+}
+
 void AddSC_zulfarrak()
 {
     Script *newscript;
@@ -250,4 +269,10 @@ void AddSC_zulfarrak()
     newscript->Name="go_shallow_grave";
     newscript->pGOHello = &GOHello_go_shallow_grave;
     newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name = "at_zumrah";
+    newscript->pAreaTrigger = &AreaTrigger_at_zumrah;
+    newscript->RegisterSelf();
+
 }
