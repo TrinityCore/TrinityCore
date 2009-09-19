@@ -449,6 +449,9 @@ UPDATE `creature_template` SET `ScriptName`='npc_narm_faulk' WHERE `entry`=6177;
 /* DUROTAR */
 
 /* DUSKWOOD */
+DELETE FROM `areatrigger_scripts` WHERE `entry`=4017;
+INSERT INTO `areatrigger_scripts` (`entry`,`ScriptName`) VALUES (4017,'at_twilight_grove');
+UPDATE `creature_template` SET `ScriptName`='boss_twilight_corrupter' WHERE `entry`=15625;
 
 /* DUSTWALLOW MARSH */
 UPDATE `creature_template` SET `ScriptName`='mobs_risen_husk_spirit' WHERE `entry` IN (23554,23555);
@@ -867,6 +870,10 @@ UPDATE `creature_template` SET `ScriptName`='npc_avatar_of_freya' WHERE `entry`=
 UPDATE `creature_template` SET `ScriptName`='npcs_rutgar_and_frankal' WHERE `entry` IN (15170,15171);
 UPDATE `creature_template` SET `ScriptName`='npc_highlord_demitrian' WHERE `entry`=14347;
 UPDATE `gameobject_template` SET `ScriptName`='go_gauntlet_gate' WHERE `entry`=175357;
+UPDATE `gameobject_template` SET `ScriptName`='go_crystalline_tear' WHERE `entry`=180633;
+UPDATE `creature_template` SET `ScriptName`='mob_qiraj_war_spawn' WHERE `entry` IN (15414,15422,15424,15423);
+UPDATE `creature_template` SET `ScriptName`='npc_anachronos_the_ancient' WHERE `entry`=15381;
+UPDATE `creature_template` SET `ScriptName`='npc_anachronos_quest_trigger' WHERE `entry`=15454;
 
 /* SILVERMOON */
 UPDATE `creature_template` SET `ScriptName`='npc_blood_knight_stillblade' WHERE `entry`=17768;
@@ -915,6 +922,11 @@ UPDATE `creature_template` SET `ScriptName`='mob_restless_soul' WHERE `entry`=11
 UPDATE `creature_template` SET `ScriptName`='mob_freed_soul' WHERE `entry`=11136;
 
 /* SUNKEN TEMPLE */
+UPDATE `instance_template` SET `script`='instance_sunken_temple' WHERE `map`=109;
+UPDATE `gameobject_template` SET `ScriptName`='go_atalai_statue' WHERE `entry` IN (148830,148831,148832,148833,148834,148835);
+UPDATE `creature_template` SET `ScriptName`='boss_twilight_corrupter' WHERE `entry`=15625;
+DELETE FROM `areatrigger_scripts` WHERE `entry`=4016;
+INSERT INTO `areatrigger_scripts` (`entry`,`ScriptName`) VALUES (4016,'at_malfurion_stormrage');
 
 /* SUNWELL PLATEAU */
 UPDATE `instance_template` SET `script`='instance_sunwell_plateau' WHERE `map`=580;
@@ -1323,4 +1335,3 @@ INSERT INTO `creature_ai_scripts`
 (`id`, `creature_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_type`, `action1_param1`, `action1_param2`, `action1_param3`, `action2_type`, `action2_param1`, `action2_param2`, `action2_param3`, `action3_type`, `action3_param1`, `action3_param2`, `action3_param3`, `comment`)
 VALUES
 (2566901, 25669, 10, 0, 100, 3, 1, 20, 2000, 2000, 33, 25669, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Scout Warsong Granary - Killed Moster at LOS'),(2567101, 25671, 10, 0, 100, 3, 1, 20, 2000, 2000, 33, 25671, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Scout Torp''s Farm - Killed Moster at LOS'),(2567201, 25672, 10, 0, 100, 3, 1, 20, 2000, 2000, 33, 25672, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Scout Warsong Slaughterhouse - Killed Moster at LOS');
-

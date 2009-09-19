@@ -245,6 +245,7 @@ bool AreaTrigger_at_zumrah(Player* pPlayer, AreaTriggerEntry *at)
             return false;
 
         Zumrah->setFaction(ZUMRAH_HOSTILE_FACTION);
+        return true;
 }
 
 void AddSC_zulfarrak()
