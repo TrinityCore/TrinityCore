@@ -569,6 +569,7 @@ UPDATE `gameobject_template` SET `ScriptName`='go_haaleshi_altar' WHERE `entry`=
 UPDATE `creature_template` SET `ScriptName`='npc_naladu' WHERE `entry`=19361;
 UPDATE `creature_template` SET `ScriptName`='npc_tracy_proudwell' WHERE `entry`=18266;
 UPDATE `creature_template` SET `ScriptName`='npc_trollbane' WHERE `entry`=16819;
+UPDATE `creature_template` SET `ScriptName`='npc_ancestral_wolf' WHERE `entry`=17077;
 
 /* HILLSBRAD FOOTHILLS */
 
