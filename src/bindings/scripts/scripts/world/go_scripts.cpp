@@ -472,5 +472,15 @@ void AddSC_go_scripts()
     newscript->Name = "go_tele_to_violet_stand";
     newscript->pGOHello =           &GOHello_go_tele_to_violet_stand;
     newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name = "go_fel_crystalforge";
+    newscript->pGOHello =           &GOHello_go_fel_crystalforge;
+    newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name = "go_bashir_crystalforge";
+    newscript->pGOHello =           &GOHello_go_bashir_crystalforge;
+    newscript->RegisterSelf();
 }
 
