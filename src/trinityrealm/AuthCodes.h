@@ -72,12 +72,5 @@ enum LoginResult
 //2.4.3 build 8606
 //3.1.3 build 9947
 //3.1.3 build 10146 Chinese build
-
-int accepted_versions[3][3]
-{
-    {5875, 6005, 0}
-    {8606, 0, 0}
-    {10146, 9947, 0}
-}
-
+int accepted_versions[3][3];
 #endif
