@@ -634,6 +634,10 @@ bool OPvPWintergrasp::UpdateGameObjectInfo(GameObject *go) const
         case 190763:
             go->SetUInt32Value(GAMEOBJECT_FACTION, WintergraspFaction[m_defender]);
             return true;
+        // Titan relic
+        case 192829:
+            go->SetUInt32Value(GAMEOBJECT_FACTION, WintergraspFaction[OTHER_TEAM(m_defender)]);
+            return true;
     }
 
     // Note: this is only for test, still need db support
@@ -742,9 +746,9 @@ void OPvPWintergrasp::UpdateTenacityStack()
     if(allianceNum && hordeNum)
     {
         if(allianceNum < hordeNum)
-            newStack = hordeNum / allianceNum - 1; // positive, should cast on alliance
+            newStack = (hordeNum / allianceNum - 1)*4; // positive, should cast on alliance
         else if(allianceNum > hordeNum)
-            newStack = 1 - int32(allianceNum / hordeNum); // negative, should cast on horde
+            newStack = (1 - int32(allianceNum / hordeNum))*4; // negative, should cast on horde
     }
 
     if(newStack == m_tenacityStack)
@@ -774,11 +778,12 @@ void OPvPWintergrasp::UpdateTenacityStack()
     {
         TeamId team = newStack > 0 ? TEAM_ALLIANCE : TEAM_HORDE;
         if(newStack < 0) newStack = -newStack;
+        int32 auraStack = newStack > 20 ? 20 : newStack; //Dont let it be higher than 20
         for(PlayerSet::iterator itr = m_players[team].begin(); itr != m_players[team].end(); ++itr)
             if((*itr)->getLevel() > 69)
-                (*itr)->SetAuraStack(SPELL_TENACITY, *itr, newStack);
+                (*itr)->SetAuraStack(SPELL_TENACITY, *itr, auraStack);
         for(CreatureSet::iterator itr = m_vehicles[team].begin(); itr != m_vehicles[team].end(); ++itr)
-            (*itr)->SetAuraStack(SPELL_TENACITY_VEHICLE, *itr, newStack);
+            (*itr)->SetAuraStack(SPELL_TENACITY_VEHICLE, *itr, auraStack);
     }
 }
 
@@ -942,13 +947,13 @@ void OPvPWintergrasp::EndBattle()
         }
     }
 
-    TeamId loser = OTHER_TEAM(m_defender);
+    /*TeamId loser = OTHER_TEAM(m_defender);
     for(PlayerSet::iterator itr = m_players[loser].begin(); itr != m_players[loser].end();)
     {
         Player *plr = *itr;
         ++itr;
         plr->CastSpell(plr, SPELL_TELEPORT_DALARAN, true);
-    }
+    }*/
 
     // remove auras from players who are not online
     CharacterDatabase.PExecute("DELETE FROM character_aura WHERE spell IN (%u,%u,%u)", SPELL_RECRUIT, SPELL_CORPORAL, SPELL_LIEUTENANT);

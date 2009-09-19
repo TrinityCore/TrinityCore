@@ -317,6 +317,7 @@ struct CreatureDataAddonAura
 struct CreatureDataAddon
 {
     uint32 guidOrEntry;
+    uint32 path_id;
     uint32 mount;
     uint32 bytes1;
     uint32 bytes2;
@@ -696,13 +697,13 @@ class TRINITY_DLL_SPEC Creature : public Unit
 
         uint32 GetGlobalCooldown() const { return m_GlobalCooldown; }
 
-        uint32 GetWaypointPathId() const { return m_pathId; }
-        void SetWaypointPathId(uint32 pathid) { m_pathId = pathid; }
+        uint32 GetWaypointPath(){return m_path_id;}
+        void LoadPath(uint32 pathid) { m_path_id = pathid; }
 
         uint32 GetCurrentWaypointID(){return m_waypointID;}
         void UpdateWaypointID(uint32 wpID){m_waypointID = wpID;}
 
-        void SearchFormationAndPath();
+        void SearchFormation();
         CreatureGroup *GetFormation() {return m_formation;}
         void SetFormation(CreatureGroup *formation) {m_formation = formation;}
 
@@ -777,7 +778,7 @@ class TRINITY_DLL_SPEC Creature : public Unit
     private:
         //WaypointMovementGenerator vars
         uint32 m_waypointID;
-        uint32 m_pathId;
+        uint32 m_path_id;
 
         //Formation var
         CreatureGroup *m_formation;

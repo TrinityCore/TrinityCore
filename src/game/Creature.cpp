@@ -182,7 +182,7 @@ void Creature::AddToWorld()
             m_zoneScript->OnCreatureCreate(this, true);
         ObjectAccessor::Instance().AddObject(this);
         Unit::AddToWorld();
-        SearchFormationAndPath();
+        SearchFormation();
         AIM_Initialize();
         if(IsVehicle())
             GetVehicleKit()->Install();
@@ -212,7 +212,7 @@ void Creature::DisappearAndDie()
     RemoveCorpse();
 }
 
-void Creature::SearchFormationAndPath()
+void Creature::SearchFormation()
 {
     if(isSummon())
         return;
@@ -221,28 +221,9 @@ void Creature::SearchFormationAndPath()
     if(!lowguid)
         return;
 
-    bool usePath = (GetDefaultMovementType() == WAYPOINT_MOTION_TYPE);
     CreatureGroupInfoType::iterator frmdata = CreatureGroupMap.find(lowguid);
     if(frmdata != CreatureGroupMap.end())
-    {
-        if(usePath && lowguid != frmdata->second->leaderGUID)
-        {
-            SetDefaultMovementType(IDLE_MOTION_TYPE);
-            usePath = false;
-        }
         formation_mgr.AddCreatureToGroup(frmdata->second->leaderGUID, this);
-    }
-
-    if(usePath)
-    {
-        if(WaypointMgr.GetPath(lowguid * 10))
-            SetWaypointPathId(lowguid * 10);
-        else
-        {
-            sLog.outErrorDb("Creature DBGUID %u has waypoint motion type, but it does not have a waypoint path!", lowguid);
-            SetDefaultMovementType(IDLE_MOTION_TYPE);
-        }
-    }
 }
 
 void Creature::RemoveCorpse()
@@ -2270,6 +2251,10 @@ bool Creature::LoadCreaturesAddon(bool reload)
 
     if (cainfo->move_flags != 0)
         SetUnitMovementFlags(cainfo->move_flags);
+
+    //Load Path
+    if (cainfo->path_id != 0)
+        m_path_id = cainfo->path_id;
 
     if(cainfo->auras)
     {

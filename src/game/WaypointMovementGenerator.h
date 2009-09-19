@@ -50,7 +50,7 @@ class TRINITY_DLL_SPEC PathMovementBase
 
         bool MovementInProgress(void) const { return i_currentNode < i_path.Size(); }
 
-        void SetWaypointPathId(T &);
+        void LoadPath(T &);
         void ReloadPath(T &);
         uint32 GetCurrentNode() const { return i_currentNode; }
 
@@ -104,7 +104,7 @@ public PathMovementBase<Player>
         bool Update(Player &, const uint32 &);
         MovementGeneratorType GetMovementGeneratorType() { return FLIGHT_MOTION_TYPE; }
 
-        void SetWaypointPathId(Player &);
+        void LoadPath(Player &);
         void ReloadPath(Player &) { /* don't reload flight path */ }
 
         Path& GetPath() { return i_path; }
