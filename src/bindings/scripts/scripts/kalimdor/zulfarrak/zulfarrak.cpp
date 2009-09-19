@@ -239,13 +239,13 @@ enum {
 
 bool AreaTrigger_at_zumrah(Player* pPlayer, AreaTriggerEntry *at)
 {
-        Creature* Zumrah = pPlayer->FindNearestCreature(ZUMRAH_ID, 30.0f);
+    Creature* Zumrah = pPlayer->FindNearestCreature(ZUMRAH_ID, 30.0f);
 
-        if (!Zumrah)
-            return false;
+    if (!Zumrah)
+        return false;
 
-        Zumrah->setFaction(ZUMRAH_HOSTILE_FACTION);
-        return true;
+    Zumrah->setFaction(ZUMRAH_HOSTILE_FACTION);
+    return true;
 }
 
 void AddSC_zulfarrak()
