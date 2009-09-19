@@ -467,13 +467,13 @@ struct TRINITY_DLL_DECL mob_nerubar_victimAI : public ScriptedAI
         {
             if( CAST_PLR(Killer)->GetQuestStatus(11611) == QUEST_STATUS_INCOMPLETE)
             {
-                uint8 rand = rand()%100;
-                if(rand < 25)
+                uint8 uiRand = rand()%100;
+                if(uiRand < 25)
                 {
                     Killer->CastSpell(m_creature,45532,true);
                     CAST_PLR(Killer)->KilledMonsterCredit(WARSONG_PEON, 0);
                 }
-                else if(rand < 75)
+                else if(uiRand < 75)
                     Killer->CastSpell(m_creature,nerubarVictims[rand()%3],true);            
             }
         }
