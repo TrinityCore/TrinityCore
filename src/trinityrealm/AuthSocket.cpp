@@ -539,9 +539,24 @@ bool AuthSocket::_HandleLogonChallenge()
     return true;
 }
 
+bool valid_pre_version = false;
+bool valid_tbc_version = false;
+bool valid_wlk_version = false;
 /// Logon Proof command handler
 bool AuthSocket::_HandleLogonProof()
 {
+    for (int a = 0; a < 3; ++a)
+    {
+        accepted_versions[0][a] = 5875, 6005, 0;
+    }
+    for (int a = 0; a < 3; ++a)
+    {
+        accepted_versions[1][a] = 8606, 0, 0;
+    }
+    for (int a = 0; a < 3; ++a)
+    {
+        accepted_versions[2][a] = 10146, 9947, 0;
+    }
     DEBUG_LOG("Entering _HandleLogonProof");
     ///- Read the packet
     if (ibuf.GetLength() < sizeof(sAuthLogonProof_C))
@@ -550,29 +565,26 @@ bool AuthSocket::_HandleLogonProof()
     ibuf.Read((char *)&lp, sizeof(sAuthLogonProof_C));
 
     ///- Check if the client has one of the expected version numbers
-    bool valid_pre_version = false;
-    bool valid_tbc_version = false;
-    bool valid_wlk_version = false;
     //int accepted_versions[] = EXPECTED_TRINITY_CLIENT_BUILD;
+    for (int i = 0; accepted_versions[0][i]; ++i)
+    {
+        if (_build == accepted_versions[0][i])
+        {
+            valid_pre_version = true;
+            break;
+        }
+    }
     for (int i = 0; accepted_versions[1][i]; ++i)
     {
         if (_build == accepted_versions[1][i])
         {
-            valid_pre_version = true;
+            valid_tbc_version = true;
             break;
         }
     }
     for (int i = 0; accepted_versions[2][i]; ++i)
     {
         if (_build == accepted_versions[2][i])
-        {
-            valid_tbc_version = true;
-            break;
-        }
-    }
-    for (int i = 0; accepted_versions[3][i]; ++i)
-    {
-        if (_build == accepted_versions[3][i])
         {
             valid_wlk_version = true;
             break;
