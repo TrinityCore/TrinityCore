@@ -73,6 +73,11 @@ enum LoginResult
 //3.1.3 build 9947
 //3.1.3 build 10146 Chinese build
 
-#define EXPECTED_TRINITY_CLIENT_BUILD        {10146, 9947, 8606, 5875, 6005, 0}
+int accepted_versions[3][3]
+{
+    {5875, 6005, 0}
+    {8606, 0, 0}
+    {10146, 9947, 0}
+}
 
 #endif
