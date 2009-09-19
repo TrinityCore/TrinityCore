@@ -31,6 +31,7 @@ go_ethereum_prison
 go_ethereum_stasis
 go_sacred_fire_of_life
 go_shrine_of_the_birds
+go_southfury_moonstone
 go_field_repair_bot_74A
 go_orb_of_command
 go_resonite_cask
@@ -349,6 +350,29 @@ bool GOHello_go_shrine_of_the_birds(Player* pPlayer, GameObject* pGo)
 }
 
 /*######
+## go_southfury_moonstone
+######*/
+
+enum
+{
+    NPC_RIZZLE                  = 23002,
+    SPELL_BLACKJACK             = 39865, //stuns player
+    SPELL_SUMMON_RIZZLE         = 39866
+
+};
+
+bool GOHello_go_southfury_moonstone(Player* pPlayer, GameObject* pGo)
+{
+    //implicitTarget=48 not implemented as of writing this code, and manual summon may be just ok for our purpose
+    //pPlayer->CastSpell(pPlayer,SPELL_SUMMON_RIZZLE,false);
+
+    if (Creature* pCreature = pPlayer->SummonCreature(NPC_RIZZLE, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_DEAD_DESPAWN, 0))
+        pCreature->CastSpell(pPlayer,SPELL_BLACKJACK,false);
+
+    return false;
+}
+
+/*######
 ## go_tele_to_dalaran_crystal
 ######*/
 
@@ -458,6 +482,11 @@ void AddSC_go_scripts()
     newscript = new Script;
     newscript->Name = "go_shrine_of_the_birds";
     newscript->pGOHello =           &GOHello_go_shrine_of_the_birds;
+    newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name = "go_southfury_moonstone";
+    newscript->pGOHello =           &GOHello_go_southfury_moonstone;
     newscript->RegisterSelf();
 
     newscript = new Script;
