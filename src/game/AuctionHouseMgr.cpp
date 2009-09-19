@@ -537,8 +537,16 @@ void AuctionHouseObject::Update()
 {
     time_t curTime = sWorld.GetGameTime();
     ///- Handle expired auctions
-    AuctionEntryMap::iterator next;
-    for (AuctionEntryMap::iterator itr = AuctionsMap.begin(); itr != AuctionsMap.end();itr = next)
+
+    // reset next if at end of map
+    if (next == AuctionsMap.end())
+        next = AuctionsMap.begin();
+
+    uint32 loopBreaker = 0;
+
+    // Initialize itr with next. next is stored for future calls to Update() after
+    // 50 items are checked
+    for (AuctionEntryMap::const_iterator itr = next; itr != AuctionsMap.end(); itr = next)
     {
         next = itr;
         ++next;
@@ -565,6 +573,12 @@ void AuctionHouseObject::Update()
             delete itr->second;
             RemoveAuction(itr->first);
         }
+
+        // only check 50 items per update to not peg the CPU
+        ++loopBreaker;
+
+        if (loopBreaker > 50)
+            break;
     }
 }
 

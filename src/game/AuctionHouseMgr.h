@@ -76,7 +76,8 @@ struct AuctionEntry
 class AuctionHouseObject
 {
   public:
-    AuctionHouseObject() {}
+    // Initialize storage
+    AuctionHouseObject() { next = AuctionsMap.begin(); }
     ~AuctionHouseObject()
     {
         for (AuctionEntryMap::iterator itr = AuctionsMap.begin(); itr != AuctionsMap.end(); ++itr)
@@ -118,6 +119,9 @@ class AuctionHouseObject
 
   private:
     AuctionEntryMap AuctionsMap;
+
+    // storage for "next" auction item for next Update()
+    AuctionEntryMap::const_iterator next;
 };
 
 class AuctionHouseMgr
