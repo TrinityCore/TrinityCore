@@ -499,10 +499,17 @@ struct TRINITY_DLL_DECL npc_anachronos_the_ancientAI : public ScriptedAI
     void HandleAnimation()
     {
         Player* plr = Unit::GetPlayer(PlayerGUID);
+        if(!plr)
+            return;
+
         Unit* Fandral = plr->FindNearestCreature(C_FANDRAL_STAGHELM, 100, m_creature);
         Unit* Arygos = plr->FindNearestCreature(C_ARYGOS, 100,m_creature);
         Unit* Caelestrasz = plr->FindNearestCreature(C_CAELESTRASZ, 100, m_creature);
         Unit* Merithra = plr->FindNearestCreature(C_MERITHRA, 100,m_creature);
+
+        if(!Fandral || !Arygos || !Caelestrasz || !Merithra)
+            return;
+
         Unit* mob;
         AnimationTimer = EventAnim[AnimationCount].Timer;
         if (eventEnd == false)
@@ -1027,36 +1034,47 @@ bool GOQuestAccept_GO_crystalline_tear(Player* plr, GameObject* go, Quest const*
     if(quest->GetQuestId() == QUEST_A_PAWN_ON_THE_ETERNAL_BOARD)
     {
 
-        Unit* Anachronos_Quest_Trigger = go->FindNearestCreature(15454, 100, plr);
-
-        Unit *Merithra = Anachronos_Quest_Trigger->SummonCreature(15378,-8034.535,1535.14,2.61,0,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,150000);
-        Unit *Caelestrasz = Anachronos_Quest_Trigger->SummonCreature(15379,-8032.767, 1533.148,2.61, 1.5,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,150000);
-        Unit *Arygos = Anachronos_Quest_Trigger->SummonCreature(15380,-8034.52, 1537.843, 2.61, 5.7,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,150000);
-        Unit *Fandral = Anachronos_Quest_Trigger->SummonCreature(15382,-8028.462, 1535.843, 2.61, 3.141592,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,215000);
-        Unit *Anachronos = Anachronos_Quest_Trigger->SummonCreature(15381,-8028.75, 1538.795, 2.61, 4,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,220000);
-        
-        Merithra->SetUInt32Value(UNIT_NPC_FLAGS, 0);
-        Merithra->SetUInt32Value(UNIT_FIELD_BYTES_1,0);
-        Merithra->SetUInt32Value(UNIT_FIELD_DISPLAYID,15420);
-        Merithra->setFaction(35);
-
-        Caelestrasz->SetUInt32Value(UNIT_NPC_FLAGS, 0);
-        Caelestrasz->SetUInt32Value(UNIT_FIELD_BYTES_1,0);
-        Caelestrasz->SetUInt32Value(UNIT_FIELD_DISPLAYID,15419);
-        Caelestrasz->setFaction(35);
-
-        Arygos->SetUInt32Value(UNIT_NPC_FLAGS, 0);
-        Arygos->SetUInt32Value(UNIT_FIELD_BYTES_1,0);
-        Arygos->SetUInt32Value(UNIT_FIELD_DISPLAYID,15418);
-        Arygos->setFaction(35);
-
-        if(Anachronos_Quest_Trigger && Anachronos)
+        if(Unit* Anachronos_Quest_Trigger = go->FindNearestCreature(15454, 100, plr))
         {
-            ((npc_anachronos_the_ancientAI*)((Creature*)Anachronos)->AI())->PlayerGUID = plr->GetGUID();
-            ((npc_anachronos_quest_triggerAI*)((Creature*)Anachronos_Quest_Trigger)->AI())->Failed=false;
-            ((npc_anachronos_quest_triggerAI*)((Creature*)Anachronos_Quest_Trigger)->AI())->PlayerGUID = plr->GetGUID();
-            ((npc_anachronos_quest_triggerAI*)((Creature*)Anachronos_Quest_Trigger)->AI())->EventStarted=true;
-            ((npc_anachronos_quest_triggerAI*)((Creature*)Anachronos_Quest_Trigger)->AI())->Announced=true;
+
+            Unit *Merithra = Anachronos_Quest_Trigger->SummonCreature(15378,-8034.535,1535.14,2.61,0,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,150000);
+            Unit *Caelestrasz = Anachronos_Quest_Trigger->SummonCreature(15379,-8032.767, 1533.148,2.61, 1.5,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,150000);
+            Unit *Arygos = Anachronos_Quest_Trigger->SummonCreature(15380,-8034.52, 1537.843, 2.61, 5.7,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,150000);
+            Unit *Fandral = Anachronos_Quest_Trigger->SummonCreature(15382,-8028.462, 1535.843, 2.61, 3.141592,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,215000);
+            Unit *Anachronos = Anachronos_Quest_Trigger->SummonCreature(15381,-8028.75, 1538.795, 2.61, 4,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,220000);
+
+            if(Merithra)
+            {
+                Merithra->SetUInt32Value(UNIT_NPC_FLAGS, 0);
+                Merithra->SetUInt32Value(UNIT_FIELD_BYTES_1,0);
+                Merithra->SetUInt32Value(UNIT_FIELD_DISPLAYID,15420);
+                Merithra->setFaction(35);
+            }
+
+            if(Caelestrasz)
+            {
+                Caelestrasz->SetUInt32Value(UNIT_NPC_FLAGS, 0);
+                Caelestrasz->SetUInt32Value(UNIT_FIELD_BYTES_1,0);
+                Caelestrasz->SetUInt32Value(UNIT_FIELD_DISPLAYID,15419);
+                Caelestrasz->setFaction(35);
+            }
+
+            if(Arygos)
+            {
+                Arygos->SetUInt32Value(UNIT_NPC_FLAGS, 0);
+                Arygos->SetUInt32Value(UNIT_FIELD_BYTES_1,0);
+                Arygos->SetUInt32Value(UNIT_FIELD_DISPLAYID,15418);
+                Arygos->setFaction(35);
+            }
+
+            if(Anachronos)
+            {
+                ((npc_anachronos_the_ancientAI*)((Creature*)Anachronos)->AI())->PlayerGUID = plr->GetGUID();
+                ((npc_anachronos_quest_triggerAI*)((Creature*)Anachronos_Quest_Trigger)->AI())->Failed=false;
+                ((npc_anachronos_quest_triggerAI*)((Creature*)Anachronos_Quest_Trigger)->AI())->PlayerGUID = plr->GetGUID();
+                ((npc_anachronos_quest_triggerAI*)((Creature*)Anachronos_Quest_Trigger)->AI())->EventStarted=true;
+                (   (npc_anachronos_quest_triggerAI*)((Creature*)Anachronos_Quest_Trigger)->AI())->Announced=true;
+            }
         }
     }
  return true;
