@@ -1041,7 +1041,7 @@ bool GOQuestAccept_GO_crystalline_tear(Player* plr, GameObject* go, Quest const*
             Unit *Caelestrasz = Anachronos_Quest_Trigger->SummonCreature(15379,-8032.767, 1533.148,2.61, 1.5,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,150000);
             Unit *Arygos = Anachronos_Quest_Trigger->SummonCreature(15380,-8034.52, 1537.843, 2.61, 5.7,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,150000);
             Unit *Fandral = Anachronos_Quest_Trigger->SummonCreature(15382,-8028.462, 1535.843, 2.61, 3.141592,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,215000);
-            Unit *Anachronos = Anachronos_Quest_Trigger->SummonCreature(15381,-8028.75, 1538.795, 2.61, 4,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,220000);
+            Creature *Anachronos = Anachronos_Quest_Trigger->SummonCreature(15381,-8028.75, 1538.795, 2.61, 4,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,220000);
 
             if(Merithra)
             {
@@ -1069,11 +1069,11 @@ bool GOQuestAccept_GO_crystalline_tear(Player* plr, GameObject* go, Quest const*
 
             if(Anachronos)
             {
-                ((npc_anachronos_the_ancientAI*)((Creature*)Anachronos)->AI())->PlayerGUID = plr->GetGUID();
-                ((npc_anachronos_quest_triggerAI*)((Creature*)Anachronos_Quest_Trigger)->AI())->Failed=false;
-                ((npc_anachronos_quest_triggerAI*)((Creature*)Anachronos_Quest_Trigger)->AI())->PlayerGUID = plr->GetGUID();
-                ((npc_anachronos_quest_triggerAI*)((Creature*)Anachronos_Quest_Trigger)->AI())->EventStarted=true;
-                (   (npc_anachronos_quest_triggerAI*)((Creature*)Anachronos_Quest_Trigger)->AI())->Announced=true;
+                ((npc_anachronos_the_ancientAI*)Anachronos->AI())->PlayerGUID = plr->GetGUID();
+                ((npc_anachronos_quest_triggerAI*)CAST_CRE(Anachronos_Quest_Trigger)->AI())->Failed=false;
+                ((npc_anachronos_quest_triggerAI*)CAST_CRE(Anachronos_Quest_Trigger)->AI())->PlayerGUID = plr->GetGUID();
+                ((npc_anachronos_quest_triggerAI*)CAST_CRE(Anachronos_Quest_Trigger)->AI())->EventStarted=true;
+                ((npc_anachronos_quest_triggerAI*)CAST_CRE(Anachronos_Quest_Trigger)->AI())->Announced=true;
             }
         }
     }

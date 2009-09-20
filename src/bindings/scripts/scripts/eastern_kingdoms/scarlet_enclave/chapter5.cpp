@@ -945,7 +945,7 @@ struct TRINITY_DLL_DECL npc_highlord_darion_mograineAI : public npc_escortAI
                             DoScriptText(SAY_LIGHT_OF_DAWN51, pTemp);
                             if (Unit* pTirion = Unit::GetCreature(*me, uiTirionGUID))
                             {
-                                ((Unit*)pTirion)->SetStandState(UNIT_STAND_STATE_KNEEL);
+                                pTirion->SetStandState(UNIT_STAND_STATE_KNEEL);
                                 //pTemp->CastSpell(pTirion, SPELL_APOCALYPSE, false); // not working
                                 pTemp->CastSpell(pTirion, SPELL_SOUL_FEAST_TIRION, false);
                                 DoScriptText(EMOTE_LIGHT_OF_DAWN12, pTirion);
@@ -1018,33 +1018,33 @@ struct TRINITY_DLL_DECL npc_highlord_darion_mograineAI : public npc_escortAI
                         {
                             pTemp->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_NONE);
                             pTemp->SetSpeed(MOVE_RUN, 6.0f);
-                            ((Unit*)pTemp)->SetStandState(UNIT_STAND_STATE_DEAD);
+                            pTemp->SetStandState(UNIT_STAND_STATE_DEAD);
                             pTemp->GetMotionMaster()->MovePoint(0, LightofDawnLoc[14].x, LightofDawnLoc[14].y, LightofDawnLoc[14].z);
                         }
                         if (Creature* pTemp = Unit::GetCreature(*me, uiKorfaxGUID))
                         {
                             pTemp->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_NONE);
                             pTemp->SetSpeed(MOVE_RUN, 6.0f);
-                            ((Unit*)pTemp)->SetStandState(UNIT_STAND_STATE_DEAD);
+                            pTemp->SetStandState(UNIT_STAND_STATE_DEAD);
                             pTemp->GetMotionMaster()->MovePoint(0, LightofDawnLoc[11].x, LightofDawnLoc[11].y, LightofDawnLoc[11].z);
                         }
                         if (Creature* pTemp = Unit::GetCreature(*me, uiEligorGUID))
                         {
                             pTemp->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_NONE);
                             pTemp->SetSpeed(MOVE_RUN, 6.0f);
-                            ((Unit*)pTemp)->SetStandState(UNIT_STAND_STATE_DEAD);
+                            pTemp->SetStandState(UNIT_STAND_STATE_DEAD);
                             pTemp->GetMotionMaster()->MovePoint(0, LightofDawnLoc[17].x, LightofDawnLoc[17].y, LightofDawnLoc[17].z);
                         }
                         if (Creature* pTemp = Unit::GetCreature(*me, uiDefenderGUID[0]))
                         {
                             pTemp->SetSpeed(MOVE_RUN, 6.0f);
-                            ((Unit*)pTemp)->SetStandState(UNIT_STAND_STATE_DEAD);
+                            pTemp->SetStandState(UNIT_STAND_STATE_DEAD);
                             pTemp->GetMotionMaster()->MovePoint(0, LightofDawnLoc[0].x+rand()%10, LightofDawnLoc[0].y+rand()%10, LightofDawnLoc[0].z);
                         }
                         if (Creature* pTemp = Unit::GetCreature(*me, uiEarthshatterGUID[0]))
                         {
                             pTemp->SetSpeed(MOVE_RUN, 6.0f);
-                            ((Unit*)pTemp)->SetStandState(UNIT_STAND_STATE_DEAD);
+                            pTemp->SetStandState(UNIT_STAND_STATE_DEAD);
                             pTemp->GetMotionMaster()->MovePoint(0, LightofDawnLoc[0].x+rand()%10, LightofDawnLoc[0].y+rand()%10, LightofDawnLoc[0].z);
                         }
                         JumpToNextStep(3000);
@@ -1052,11 +1052,11 @@ struct TRINITY_DLL_DECL npc_highlord_darion_mograineAI : public npc_escortAI
 
                     case 44: // make them stand up
                         if (Creature* pTemp = Unit::GetCreature(*me, uiMaxwellGUID))
-                            ((Unit*)pTemp)->SetStandState(UNIT_STAND_STATE_STAND);
+                            pTemp->SetStandState(UNIT_STAND_STATE_STAND);
                         if (Creature* pTemp = Unit::GetCreature(*me, uiKorfaxGUID))
-                            ((Unit*)pTemp)->SetStandState(UNIT_STAND_STATE_STAND);
+                            pTemp->SetStandState(UNIT_STAND_STATE_STAND);
                         if (Creature* pTemp = Unit::GetCreature(*me, uiEligorGUID))
-                            ((Unit*)pTemp)->SetStandState(UNIT_STAND_STATE_STAND);
+                            pTemp->SetStandState(UNIT_STAND_STATE_STAND);
                         JumpToNextStep(1000);
                         break;
 
@@ -1079,7 +1079,7 @@ struct TRINITY_DLL_DECL npc_highlord_darion_mograineAI : public npc_escortAI
                         DoScriptText(EMOTE_LIGHT_OF_DAWN15, me);
                         if (Creature* pTemp = Unit::GetCreature(*me, uiTirionGUID))
                         {
-                            ((Unit*)pTemp)->SetStandState(UNIT_STAND_STATE_STAND);
+                            pTemp->SetStandState(UNIT_STAND_STATE_STAND);
                             pTemp->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 0, uint32(EQUIP_HIGHLORD_TIRION_FORDRING));
                             pTemp->CastSpell(pTemp, SPELL_REBIRTH_OF_THE_ASHBRINGER, false);
                         }
@@ -1153,13 +1153,13 @@ struct TRINITY_DLL_DECL npc_highlord_darion_mograineAI : public npc_escortAI
 
                     case 55:
                         if (Creature* pTemp = Unit::GetCreature(*me, uiLichKingGUID))
-                            ((Unit*)pTemp)->SetStandState(UNIT_STAND_STATE_KNEEL);
+                            pTemp->SetStandState(UNIT_STAND_STATE_KNEEL);
                         JumpToNextStep(2000);
                         break;
 
                     case 56:
                         if (Creature* pTemp = Unit::GetCreature(*me, uiLichKingGUID))
-                            ((Unit*)pTemp)->SetStandState(UNIT_STAND_STATE_STAND);
+                            pTemp->SetStandState(UNIT_STAND_STATE_STAND);
                         JumpToNextStep(1500);
                         break;
 
@@ -1495,12 +1495,12 @@ struct TRINITY_DLL_DECL npc_highlord_darion_mograineAI : public npc_escortAI
                 if (Unit* pTarger = SelectUnit(SELECT_TARGET_RANDOM,0))
                     if (pTarger->isAlive())
                     {
-                        //((Creature*)pTemp)->DeleteThreatList();
-                        ((Creature*)pTemp)->AddThreat(pTarger, 0.0f);
-                        ((Creature*)pTemp)->AI()->AttackStart(pTarger);
-                        ((Creature*)pTemp)->SetInCombatWith(pTarger);
+                        // pTemp->DeleteThreatList();
+                        pTemp->AddThreat(pTarger, 0.0f);
+                        pTemp->AI()->AttackStart(pTarger);
+                        pTemp->SetInCombatWith(pTarger);
                         pTarger->SetInCombatWith(pTemp);
-                        //((Creature*)pTemp)->GetMotionMaster()->MoveChase(pTarger, 20.0f);
+                        // pTemp->GetMotionMaster()->MoveChase(pTarger, 20.0f);
                     }
     }
 
