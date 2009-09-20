@@ -31,15 +31,19 @@ bool AreaTrigger_at_twilight_grove(Player* pPlayer, AreaTriggerEntry *at)
 {
     if (pPlayer->HasQuestForItem(21149))
     {
-        Unit* TCorrupter = pPlayer->SummonCreature(15625,-10328.16,-489.57,49.95,0,TEMPSUMMON_MANUAL_DESPAWN,60000);
-        TCorrupter->setFaction(14);
-        TCorrupter->SetMaxHealth(832750);
-        Unit* CorrupterSpeaker = pPlayer->SummonCreature(1,pPlayer->GetPositionX(),pPlayer->GetPositionY(),pPlayer->GetPositionZ()-1,0,TEMPSUMMON_TIMED_DESPAWN,15000);
-        CorrupterSpeaker->SetName("Twilight Corrupter");
-        CorrupterSpeaker->SetVisibility(VISIBILITY_ON);
-        CorrupterSpeaker->MonsterYell("Come, $N. See what the Nightmare brings...",0,pPlayer->GetGUID());
+        if(Unit* TCorrupter = pPlayer->SummonCreature(15625,-10328.16,-489.57,49.95,0,TEMPSUMMON_MANUAL_DESPAWN,60000))
+        {
+            TCorrupter->setFaction(14);
+            TCorrupter->SetMaxHealth(832750);
+        }
+        if(Unit* CorrupterSpeaker = pPlayer->SummonCreature(1,pPlayer->GetPositionX(),pPlayer->GetPositionY(),pPlayer->GetPositionZ()-1,0,TEMPSUMMON_TIMED_DESPAWN,15000))
+        {
+            CorrupterSpeaker->SetName("Twilight Corrupter");
+            CorrupterSpeaker->SetVisibility(VISIBILITY_ON);
+            CorrupterSpeaker->MonsterYell("Come, $N. See what the Nightmare brings...",0,pPlayer->GetGUID());
+        }
     }
-return false;
+    return false;
 };
 
 /*######

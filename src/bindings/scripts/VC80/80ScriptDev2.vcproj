@@ -919,6 +919,19 @@
 					</File>
 				</Filter>
 				<Filter
+					Name="Sunken Temple"
+					>
+					<File
+						RelativePath="..\scripts\eastern_kingdoms\sunken_temple\def_sunken_temple.h"
+						>
+					<File
+						RelativePath="..\scripts\eastern_kingdoms\sunken_temple\instance_sunken_temple.cpp"
+						>
+					<File
+						RelativePath="..\scripts\eastern_kingdoms\sunken_temple\sunken_temple.cpp"
+						>
+				</Filter>
+				<Filter
 					Name="Sunwell Plateau"
 					>
 					<File
@@ -1104,6 +1117,10 @@
 				</File>
 				<File
 					RelativePath="..\scripts\eastern_kingdoms\dun_morogh.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\scripts\eastern_kingdoms\duskwood.cpp.cpp"
 					>
 				</File>
 				<File
