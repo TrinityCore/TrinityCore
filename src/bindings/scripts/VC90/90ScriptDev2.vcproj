@@ -1021,12 +1021,15 @@
 					<File
 						RelativePath="..\scripts\eastern_kingdoms\sunken_temple\def_sunken_temple.h"
 						>
+					</File>
 					<File
 						RelativePath="..\scripts\eastern_kingdoms\sunken_temple\instance_sunken_temple.cpp"
 						>
+					</File>
 					<File
 						RelativePath="..\scripts\eastern_kingdoms\sunken_temple\sunken_temple.cpp"
 						>
+					</File>
 				</Filter>
 				<Filter
 					Name="Sunwell Plateau"
