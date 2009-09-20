@@ -133,6 +133,8 @@ extern void AddSC_boss_dathrohan_balnazzar();
 extern void AddSC_boss_order_of_silver_hand();
 extern void AddSC_instance_stratholme();
 extern void AddSC_stratholme();
+extern void AddSC_sunken_temple();                  // Sunken Temple
+extern void AddSC_instance_sunken_temple();
 extern void AddSC_instance_sunwell_plateau();       //Sunwell Plateau
 extern void AddSC_boss_kalecgos();
 extern void AddSC_boss_brutallus();
@@ -174,6 +176,7 @@ extern void AddSC_blasted_lands();
 extern void AddSC_boss_kruul();
 extern void AddSC_burning_steppes();
 extern void AddSC_dun_morogh();
+extern void AddSC_duskwood();
 extern void AddSC_eastern_plaguelands();
 extern void AddSC_elwynn_forest();
 extern void AddSC_eversong_woods();
@@ -530,6 +533,8 @@ void AddScripts()
     AddSC_boss_order_of_silver_hand();
     AddSC_instance_stratholme();
     AddSC_stratholme();
+    AddSC_sunken_temple();                  // Sunken Temple
+    AddSC_instance_sunken_temple();
     AddSC_instance_sunwell_plateau();       //Sunwell Plateau
     AddSC_boss_kalecgos();
     AddSC_boss_brutallus();
@@ -571,6 +576,7 @@ void AddScripts()
     AddSC_boss_kruul();
     AddSC_burning_steppes();
     AddSC_dun_morogh();
+    AddSC_duskwood();
     AddSC_eastern_plaguelands();
     AddSC_elwynn_forest();
     AddSC_eversong_woods();
