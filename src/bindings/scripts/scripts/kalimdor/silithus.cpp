@@ -852,7 +852,8 @@ struct TRINITY_DLL_DECL mob_qiraj_war_spawnAI : public ScriptedAI
                     target = m_creature->FindNearestCreature(15414,20,true);
             }
             hasTarget = true;
-            m_creature->AI()->AttackStart(target);
+            if(target)
+                m_creature->AI()->AttackStart(target);
         }
         if (!(trigger = m_creature->FindNearestCreature(15379,100)))
             DoCast(m_creature, 33652);
@@ -930,12 +931,12 @@ struct TRINITY_DLL_DECL npc_anachronos_quest_triggerAI : public ScriptedAI
                 if (i >= 33) WaveCount = 2;
                 if (i >= 45) WaveCount = 3;
                 if (i >= 51) WaveCount = 4;
-            }
 
-            if(WaveCount < 5) //1-4 Wave
-            {
-                ((mob_qiraj_war_spawnAI*)Spawn->AI())->MobGUID = m_creature->GetGUID();
-                ((mob_qiraj_war_spawnAI*)Spawn->AI())->PlayerGUID = PlayerGUID;
+                if(WaveCount < 5) //1-4 Wave
+                {
+                    ((mob_qiraj_war_spawnAI*)Spawn->AI())->MobGUID = m_creature->GetGUID();
+                    ((mob_qiraj_war_spawnAI*)Spawn->AI())->PlayerGUID = PlayerGUID;
+                }
             }
         }
         WaveTimer = WavesInfo[WaveCount].SpawnTimer;
