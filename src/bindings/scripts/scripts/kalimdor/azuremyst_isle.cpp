@@ -448,7 +448,7 @@ struct TRINITY_DLL_DECL npc_geezleAI : public ScriptedAI
 
     uint32 NextStep(uint32 Step)
     {
-        Creature* Spark = (Creature*)Unit::GetUnit(*m_creature, SparkGUID);
+        Creature* Spark = Unit::GetCreature(*m_creature, SparkGUID);
 
         switch(Step)
         {
