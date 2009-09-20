@@ -173,9 +173,12 @@ UPDATE `creature_template` SET `ScriptName`='mob_voidtraveler' WHERE `entry`=192
 /* AZJOL-NERUB */
 
 /* AHN'KAHET: THE OLD KINGDOM */
+UPDATE `instance_template` SET `script`='instance_ahnkahet' WHERE `map`=619;
 UPDATE `creature_template` SET `ScriptName`='boss_elder_nadox' WHERE `entry`=29309;
 UPDATE `creature_template` SET `ScriptName`='mob_ahnkahar_nerubian' WHERE `entry` IN (30176,30178);
-UPDATE `instance_template` SET `script`='instance_ahnkahet' WHERE `map`=619;
+UPDATE `creature_template` SET `ScriptName`='boss_taldaram' WHERE `entry`=29308;
+UPDATE `creature_template` SET `ScriptName`='mob_taldaram_flamesphere' WHERE `entry` IN (30106,31686,31687);
+UPDATE `gameobject_template` SET `ScriptName`='prince_taldaram_sphere' WHERE `entry` IN (193093,193094);
 
 /* AZSHARA */
 UPDATE `creature_template` SET `ScriptName`='mobs_spitelashes' WHERE `entry` IN (6190,6193,6194,6195,6196,7885,7886,12204,12205);
@@ -1099,7 +1102,6 @@ UPDATE `creature_template` SET `ScriptName`='boss_stormcaller_brundir' WHERE `en
 UPDATE `creature_template` SET `ScriptName`='mob_lightning_elemental' WHERE `entry`=32958;
 UPDATE `creature_template` SET `ScriptName`='mob_rune_of_summoning' WHERE `entry`=33051;
 UPDATE `creature_template` SET `ScriptName`='boss_kologarn' WHERE `entry`=32930;
-
 
 /* UN'GORO CRATER */
 UPDATE `creature_template` SET `ScriptName`='npc_ame' WHERE `entry`=9623;

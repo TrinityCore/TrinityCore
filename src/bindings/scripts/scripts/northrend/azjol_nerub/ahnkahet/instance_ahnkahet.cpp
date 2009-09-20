@@ -45,19 +45,26 @@ struct TRINITY_DLL_DECL instance_ahnkahet : public ScriptedInstance
     uint64 Jedoga_Shadowseeker;
     uint64 Herald_Volazj;
     uint64 Amanitar;
+   
+    uint64 Prince_TaldaramSpheres[2];
+    uint64 Prince_TaldaramPlatform;
+    uint64 Prince_TaldaramGate;
 
     uint32 m_auiEncounter[MAX_ENCOUNTER];
+    uint32 spheres[2];
 
-   void Initialize()
-   {
-        Elder_Nadox =0;
-        Prince_Taldaram =0;
-        Jedoga_Shadowseeker =0;
-        Herald_Volazj =0;
-        Amanitar =0;
-
-        for(uint8 i = 0; i < MAX_ENCOUNTER; ++i)
-            m_auiEncounter[i] = NOT_STARTED;
+    void Initialize()
+    {
+         Elder_Nadox =0;
+         Prince_Taldaram =0;
+         Jedoga_Shadowseeker =0;
+         Herald_Volazj =0;
+         Amanitar =0;
+         
+         for(uint8 i = 0; i < MAX_ENCOUNTER; ++i)
+             m_auiEncounter[i] = NOT_STARTED;
+        spheres[0] = NOT_STARTED;
+        spheres[1] = NOT_STARTED;
     }
 
     bool IsEncounterInProgress() const
@@ -75,9 +82,33 @@ struct TRINITY_DLL_DECL instance_ahnkahet : public ScriptedInstance
         {
             case 29309:    Elder_Nadox = pCreature->GetGUID();                   break;
             case 29308:    Prince_Taldaram = pCreature->GetGUID();               break;
-            case 29310:    Jedoga_Shadowseeker = pCreature->GetGUID();   break;
+            case 29310:    Jedoga_Shadowseeker = pCreature->GetGUID();           break;
             case 29311:    Herald_Volazj = pCreature->GetGUID();                 break;
             case 30258:    Amanitar = pCreature->GetGUID();                      break;
+        }
+    }
+    
+    void OnGameObjectCreate(GameObject* pGo, bool add)
+    {
+        switch(pGo->GetEntry())
+        {
+            case 193564:     Prince_TaldaramPlatform = pGo->GetGUID();break;
+            case 193093:     Prince_TaldaramSpheres[0] = pGo->GetGUID();
+                if (spheres[0] == IN_PROGRESS)
+                {
+                    pGo->SetGoState(GO_STATE_ACTIVE);
+                    pGo->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_UNK1);
+                }
+                break;
+            case 193094:     Prince_TaldaramSpheres[1] = pGo->GetGUID();
+                if (spheres[1] == IN_PROGRESS)
+                {
+                    pGo->SetGoState(GO_STATE_ACTIVE);
+                    pGo->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_UNK1);
+                }
+                break;
+            case 192236:    Prince_TaldaramGate = pGo->GetGUID(); // Web gate past Prince Taldaram
+                if (m_auiEncounter[1] == DONE)HandleGameObject(NULL,true,pGo);break;
         }
     }
 
@@ -85,11 +116,14 @@ struct TRINITY_DLL_DECL instance_ahnkahet : public ScriptedInstance
     {
         switch(identifier)
         {
-            case DATA_ELDER_NADOX:          return Elder_Nadox;
-            case DATA_PRINCE_TALDARAM:      return Prince_Taldaram;
-            case DATA_JEDOGA_SHADOWSEEKER:  return Jedoga_Shadowseeker;
-            case DATA_HERALD_VOLAZJ:        return Herald_Volazj;
-            case DATA_AMANITAR:             return Amanitar;
+            case DATA_ELDER_NADOX:                return Elder_Nadox;
+            case DATA_PRINCE_TALDARAM:            return Prince_Taldaram;
+            case DATA_JEDOGA_SHADOWSEEKER:        return Jedoga_Shadowseeker;
+            case DATA_HERALD_VOLAZJ:              return Herald_Volazj;
+            case DATA_AMANITAR:                   return Amanitar;
+            case DATA_SPHERE1:		          return Prince_TaldaramSpheres[0];
+            case DATA_SPHERE2:                    return Prince_TaldaramSpheres[1];
+            case DATA_PRINCE_TALDARAM_PLATFORM:   return Prince_TaldaramPlatform;
         }
         return 0;
     }
@@ -101,6 +135,10 @@ struct TRINITY_DLL_DECL instance_ahnkahet : public ScriptedInstance
         case DATA_ELDER_NADOX_EVENT:
             m_auiEncounter[0] = data;break;
         case DATA_PRINCE_TALDARAM_EVENT:
+	    if (data == DONE)
+	    {
+	        HandleGameObject(Prince_TaldaramGate,true);
+	    }
             m_auiEncounter[1] = data; break;
         case DATA_JEDOGA_SHADOWSEEKER_EVENT:
             m_auiEncounter[2] = data; break;
@@ -108,7 +146,11 @@ struct TRINITY_DLL_DECL instance_ahnkahet : public ScriptedInstance
             m_auiEncounter[3] = data; break;
         case DATA_AMANITAR:
             m_auiEncounter[4] = data; break;
-        }
+        case DATA_SPHERE1_EVENT:
+            spheres[0] = data; break;
+        case DATA_SPHERE2_EVENT:
+            spheres[1] = data; break;
+	}
 
         if (data == DONE)
         {
@@ -125,6 +167,8 @@ struct TRINITY_DLL_DECL instance_ahnkahet : public ScriptedInstance
             case DATA_JEDOGA_SHADOWSEEKER_EVENT:    return m_auiEncounter[2];
             case DATA_HERALD_VOLAZJ:                return m_auiEncounter[3];
             case DATA_AMANITAR:                     return m_auiEncounter[4];
+            case DATA_SPHERE1_EVENT:                return spheres[0];
+            case DATA_SPHERE2_EVENT:                return spheres[1];
         }
         return 0;
     }
@@ -137,7 +181,8 @@ struct TRINITY_DLL_DECL instance_ahnkahet : public ScriptedInstance
 
         std::ostringstream saveStream;
         saveStream << "A K " << m_auiEncounter[0] << " " << m_auiEncounter[1] << " "
-            << m_auiEncounter[2] << m_auiEncounter[3] << m_auiEncounter[4];
+            << m_auiEncounter[2] << " " << m_auiEncounter[3] << " " << m_auiEncounter[4] << " "
+            << spheres[0] << " " << spheres[1];
 
         str_data = saveStream.str();
 
@@ -156,10 +201,10 @@ struct TRINITY_DLL_DECL instance_ahnkahet : public ScriptedInstance
         OUT_LOAD_INST_DATA(in);
 
         char dataHead1, dataHead2;
-        uint16 data0,data1,data2,data3,data4;
+        uint16 data0,data1,data2,data3,data4, data5, data6;
 
         std::istringstream loadStream(in);
-        loadStream >> dataHead1 >> dataHead2 >> data0 >> data1 >> data2 >> data3 >> data4;
+        loadStream >> dataHead1 >> dataHead2 >> data0 >> data1 >> data2 >> data3 >> data4 >> data5 >> data6;
 
         if (dataHead1 == 'A' && dataHead2 == 'K')
         {
@@ -172,6 +217,9 @@ struct TRINITY_DLL_DECL instance_ahnkahet : public ScriptedInstance
             for(uint8 i = 0; i < MAX_ENCOUNTER; ++i)
                 if (m_auiEncounter[i] == IN_PROGRESS)
                     m_auiEncounter[i] = NOT_STARTED;
+
+            spheres[0] = data5;
+            spheres[1] = data6;
 
         }else OUT_LOAD_INST_DATA_FAIL;
 
