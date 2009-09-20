@@ -30,4 +30,11 @@
 #define DATA_JEDOGA_SHADOWSEEKER_EVENT  8
 #define DATA_HERALD_VOLAZJ_EVENT        9
 #define DATA_AMANITAR_EVENT             10
+
+#define DATA_SPHERE1                    11
+#define DATA_SPHERE2                    12
+#define DATA_SPHERE1_EVENT              13
+#define DATA_SPHERE2_EVENT              14
+#define DATA_PRINCE_TALDARAM_PLATFORM   15
+
 #endif
