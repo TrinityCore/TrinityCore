@@ -64,7 +64,7 @@ struct TRINITY_DLL_DECL boss_kologarnAI : public BossAI
             else if(who->GetEntry() == 32934)
                 right = apply;
             who->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED);
-            ((Creature*)who)->SetReactState(REACT_PASSIVE);
+            CAST_CRE(who)->SetReactState(REACT_PASSIVE);
         }
     }
 
