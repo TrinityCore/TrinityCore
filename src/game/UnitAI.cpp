@@ -83,10 +83,10 @@ bool UnitAI::DoSpellAttackIfReady(uint32 spell)
 
 inline bool SelectTargetHelper(const Unit * me, const Unit * target, const bool &playerOnly, const float &dist, const int32 &aura)
 {
-    if(playerOnly && target->GetTypeId() != TYPEID_PLAYER)
+    if(playerOnly && (!target || target->GetTypeId() != TYPEID_PLAYER))
         return false;
 
-    if(dist && !me->IsWithinCombatRange(target, dist))
+    if(dist && (!me || !target || !me->IsWithinCombatRange(target, dist)))
         return false;
 
     if(aura)
