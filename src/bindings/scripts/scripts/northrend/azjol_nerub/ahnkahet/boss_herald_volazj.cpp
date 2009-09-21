@@ -49,7 +49,12 @@ EndScriptData */
 
 struct TRINITY_DLL_DECL boss_volazjAI : public ScriptedAI
 {
-    boss_volazjAI(Creature *c) : ScriptedAI(c) {}
+    boss_volazjAI(Creature* pCreature) : ScriptedAI(pCreature)
+    {
+        pInstance = pCreature->GetInstanceData();
+    }
+
+    ScriptedInstance *pInstance;
 
     uint32 uiMindFlayTimer;
     uint32 uiShadowBoltVolleyTimer;
@@ -81,7 +86,7 @@ struct TRINITY_DLL_DECL boss_volazjAI : public ScriptedAI
 
         if (uiMindFlayTimer < diff)
         {
-            DoCast(m_creature->GetVictim(), HeroicMode ? H_SPELL_MIND_FLAY : SPELL_MIND_FLAY);
+            DoCast(m_creature->getVictim(), HeroicMode ? H_SPELL_MIND_FLAY : SPELL_MIND_FLAY);
             uiMindFlayTimer = 20000; 
         } else uiMindFlayTimer -= diff;
         
@@ -112,7 +117,7 @@ struct TRINITY_DLL_DECL boss_volazjAI : public ScriptedAI
         if (victim == m_creature)
             return;
 
-        DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2,SAY_SLAY3), m_creature);
+        DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2,SAY_SLAY_3), m_creature);
     }
 };
 
