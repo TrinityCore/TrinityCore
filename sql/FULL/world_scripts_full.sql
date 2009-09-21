@@ -179,6 +179,7 @@ UPDATE `creature_template` SET `ScriptName`='mob_ahnkahar_nerubian' WHERE `entry
 UPDATE `creature_template` SET `ScriptName`='boss_taldaram' WHERE `entry`=29308;
 UPDATE `creature_template` SET `ScriptName`='mob_taldaram_flamesphere' WHERE `entry` IN (30106,31686,31687);
 UPDATE `gameobject_template` SET `ScriptName`='prince_taldaram_sphere' WHERE `entry` IN (193093,193094);
+UPDATE `creature_template` SET `ScriptName`='boss_volazj' WHERE `entry`=29311;
 
 /* AZSHARA */
 UPDATE `creature_template` SET `ScriptName`='mobs_spitelashes' WHERE `entry` IN (6190,6193,6194,6195,6196,7885,7886,12204,12205);

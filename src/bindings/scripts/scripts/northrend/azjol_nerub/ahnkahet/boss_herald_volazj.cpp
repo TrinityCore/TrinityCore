@@ -18,15 +18,11 @@
 
 /* ScriptData
 SDName: boss_herald_volazj
-SDAuthor: LordVanMartin
-SD%Complete: 0
-SDComment:
+SDAuthor: Tartalo
+SD%Complete: 20
+SDComment: Coded all but Insanity
 SDCategory: Ahn'kahet
 EndScriptData */
-
-/*** SQL START ***
-update creature_template set scriptname = 'boss_volazj' where entry = '';
-*** SQL END ***/
 
 #include "precompiled.h"
 #include "def_ahnkahet.h"
@@ -34,12 +30,12 @@ update creature_template set scriptname = 'boss_volazj' where entry = '';
 //Spells
 #define SPELL_INSANITY                         57496 //Dummy
 #define INSANITY_VISUAL                        57561
-#define SPELL_MIND_FLAY_N                      57941
-#define SPELL_MIND_FLAY_H                      59974
-#define SPELL_SHADOW_BOLT_VOLLEY_1             57942
-#define SPELL_SHADOW_BOLT_VOLLEY_2             59975
-#define SPELL_SHIVER_N                         57949
-#define SPELL_SHIVER_H                         59978
+#define SPELL_MIND_FLAY                        57941
+#define H_SPELL_MIND_FLAY                      59974
+#define SPELL_SHADOW_BOLT_VOLLEY               57942
+#define H_SPELL_SHADOW_BOLT_VOLLEY             59975
+#define SPELL_SHIVER                           57949
+#define H_SPELL_SHIVER                         59978
 
 //not in db
 //Yell
@@ -55,31 +51,60 @@ struct TRINITY_DLL_DECL boss_volazjAI : public ScriptedAI
 {
     boss_volazjAI(Creature *c) : ScriptedAI(c) {}
 
-    uint32 phase;
+    uint32 uiMindFlayTimer;
+    uint32 uiShadowBoltVolleyTimer;
+    uint32 uiShiverTimer;
 
-    void Reset() {}
+    void Reset()
+    {
+        uiMindFlayTimer = 8000;
+        uiShadowBoltVolleyTimer = 5000;
+        uiShiverTimer = 15000;
+        
+        if (pInstance)
+            pInstance->SetData(DATA_HERALD_VOLAZJ, NOT_STARTED);
+    }
+    
     void EnterCombat(Unit* who)
     {
         DoScriptText(SAY_AGGRO, m_creature);
+        
+        if (pInstance)
+            pInstance->SetData(DATA_HERALD_VOLAZJ, IN_PROGRESS);
     }
-    void AttackStart(Unit* who) {}
-    void MoveInLineOfSight(Unit* who) {}
+    
     void UpdateAI(const uint32 diff)
     {
         //Return since we have no target
         if (!UpdateVictim())
             return;
 
-        phase =1;
+        if (uiMindFlayTimer < diff)
+        {
+            DoCast(m_creature->GetVictim(), HeroicMode ? H_SPELL_MIND_FLAY : SPELL_MIND_FLAY);
+            uiMindFlayTimer = 20000; 
+        } else uiMindFlayTimer -= diff;
+        
+        if (uiShadowBoltVolleyTimer < diff)
+        {
+            DoCast(m_creature, HeroicMode ? H_SPELL_SHADOW_BOLT_VOLLEY : SPELL_SHADOW_BOLT_VOLLEY);
+            uiShadowBoltVolleyTimer = 5000;
+        } else uiShadowBoltVolleyTimer -= diff;
+        
+        if (uiShiverTimer < diff)
+        {
+            DoCast(m_creature, HeroicMode ? H_SPELL_SHIVER : SPELL_SHIVER);
+            uiShiverTimer = 15000;
+        } else uiShiverTimer -= diff;
 
         DoMeleeAttackIfReady();
     }
     void JustDied(Unit* killer)
     {
-        if (phase == 1)
         DoScriptText(SAY_DEATH_1, m_creature);
-        else
-        DoScriptText(SAY_DEATH_2, m_creature);
+        
+        if (pInstance)
+            pInstance->SetData(DATA_HERALD_VOLAZJ, DONE);
     }
 
     void KilledUnit(Unit *victim)
@@ -87,12 +112,7 @@ struct TRINITY_DLL_DECL boss_volazjAI : public ScriptedAI
         if (victim == m_creature)
             return;
 
-        switch(rand()%3)
-        {
-            case 0: DoScriptText(SAY_SLAY_1, m_creature);break;
-            case 1: DoScriptText(SAY_SLAY_2, m_creature);break;
-            case 2: DoScriptText(SAY_SLAY_3, m_creature);break;
-        }
+        DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2,SAY_SLAY3), m_creature);
     }
 };
 
