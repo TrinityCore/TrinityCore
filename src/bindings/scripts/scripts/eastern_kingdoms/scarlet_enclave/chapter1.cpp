@@ -748,7 +748,7 @@ struct TRINITY_DLL_DECL npc_scarlet_miner_cartAI : public PassiveAI
     npc_scarlet_miner_cartAI(Creature *c) : PassiveAI(c), minerGUID(0)
     {
         me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
-        me->SetDisplayId(me->GetCreatureInfo()->DisplayID_A[0]); // H0 is horse
+        me->SetDisplayId(me->GetCreatureInfo()->Modelid1); // H0 is horse
     }
 
     uint64 minerGUID;

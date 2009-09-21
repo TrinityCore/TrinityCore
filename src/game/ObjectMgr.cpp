@@ -670,72 +670,72 @@ void ObjectMgr::LoadCreatureTemplates()
         // used later for scale
         CreatureDisplayInfoEntry const* displayScaleEntry = NULL;
 
-        if (cInfo->DisplayID_A[0])
+        if (cInfo->Modelid1)
         {
-            CreatureDisplayInfoEntry const* displayEntry = sCreatureDisplayInfoStore.LookupEntry(cInfo->DisplayID_A[0]);
+            CreatureDisplayInfoEntry const* displayEntry = sCreatureDisplayInfoStore.LookupEntry(cInfo->Modelid1);
             if(!displayEntry)
             {
-                sLog.outErrorDb("Creature (Entry: %u) has non-existing DisplayID_A id (%u), can crash client", cInfo->Entry, cInfo->DisplayID_A[0]);
-                const_cast<CreatureInfo*>(cInfo)->DisplayID_A[0] = 0;
+                sLog.outErrorDb("Creature (Entry: %u) has non-existing Modelid1 id (%u), can crash client", cInfo->Entry, cInfo->Modelid1);
+                const_cast<CreatureInfo*>(cInfo)->Modelid1 = 0;
             }
             else if(!displayScaleEntry)
                 displayScaleEntry = displayEntry;
 
-            CreatureModelInfo const* minfo = sCreatureModelStorage.LookupEntry<CreatureModelInfo>(cInfo->DisplayID_A[0]);
+            CreatureModelInfo const* minfo = sCreatureModelStorage.LookupEntry<CreatureModelInfo>(cInfo->Modelid1);
             if (!minfo)
-                sLog.outErrorDb("Creature (Entry: %u) not has model data for DisplayID_A (%u)", cInfo->Entry, cInfo->DisplayID_A[0]);
+                sLog.outErrorDb("Creature (Entry: %u) not has model data for Modelid1 (%u)", cInfo->Entry, cInfo->Modelid1);
         }
 
-        if (cInfo->DisplayID_A[1])
+        if (cInfo->Modelid2)
         {
-            CreatureDisplayInfoEntry const* displayEntry = sCreatureDisplayInfoStore.LookupEntry(cInfo->DisplayID_A[1]);
+            CreatureDisplayInfoEntry const* displayEntry = sCreatureDisplayInfoStore.LookupEntry(cInfo->Modelid2);
             if(!displayEntry)
             {
-                sLog.outErrorDb("Creature (Entry: %u) has non-existing DisplayID_A2 id (%u), can crash client", cInfo->Entry, cInfo->DisplayID_A[1]);
-                const_cast<CreatureInfo*>(cInfo)->DisplayID_A[1] = 0;
+                sLog.outErrorDb("Creature (Entry: %u) has non-existing Modelid2 id (%u), can crash client", cInfo->Entry, cInfo->Modelid2);
+                const_cast<CreatureInfo*>(cInfo)->Modelid2 = 0;
             }
             else if(!displayScaleEntry)
                 displayScaleEntry = displayEntry;
 
-            CreatureModelInfo const* minfo = sCreatureModelStorage.LookupEntry<CreatureModelInfo>(cInfo->DisplayID_A[1]);
+            CreatureModelInfo const* minfo = sCreatureModelStorage.LookupEntry<CreatureModelInfo>(cInfo->Modelid2);
             if (!minfo)
-                sLog.outErrorDb("Creature (Entry: %u) not has model data for DisplayID_A2 (%u)", cInfo->Entry, cInfo->DisplayID_A[1]);
+                sLog.outErrorDb("Creature (Entry: %u) not has model data for Modelid2 (%u)", cInfo->Entry, cInfo->Modelid2);
         }
 
-        if (cInfo->DisplayID_H[0])
+        if (cInfo->Modelid3)
         {
-            CreatureDisplayInfoEntry const* displayEntry = sCreatureDisplayInfoStore.LookupEntry(cInfo->DisplayID_H[0]);
+            CreatureDisplayInfoEntry const* displayEntry = sCreatureDisplayInfoStore.LookupEntry(cInfo->Modelid3);
             if(!displayEntry)
             {
-                sLog.outErrorDb("Creature (Entry: %u) has non-existing DisplayID_H id (%u), can crash client", cInfo->Entry, cInfo->DisplayID_H[0]);
-                const_cast<CreatureInfo*>(cInfo)->DisplayID_H[0] = 0;
+                sLog.outErrorDb("Creature (Entry: %u) has non-existing Modelid3 id (%u), can crash client", cInfo->Entry, cInfo->Modelid3);
+                const_cast<CreatureInfo*>(cInfo)->Modelid3 = 0;
             }
             else if(!displayScaleEntry)
                 displayScaleEntry = displayEntry;
 
-            CreatureModelInfo const* minfo = sCreatureModelStorage.LookupEntry<CreatureModelInfo>(cInfo->DisplayID_H[0]);
+            CreatureModelInfo const* minfo = sCreatureModelStorage.LookupEntry<CreatureModelInfo>(cInfo->Modelid3);
             if (!minfo)
-                sLog.outErrorDb("Creature (Entry: %u) not has model data for DisplayID_H (%u)", cInfo->Entry, cInfo->DisplayID_H[0]);
+                sLog.outErrorDb("Creature (Entry: %u) not has model data for Modelid3 (%u)", cInfo->Entry, cInfo->Modelid3);
         }
 
-        if (cInfo->DisplayID_H[1])
+        if (cInfo->Modelid4)
         {
-            CreatureDisplayInfoEntry const* displayEntry = sCreatureDisplayInfoStore.LookupEntry(cInfo->DisplayID_H[1]);
+            CreatureDisplayInfoEntry const* displayEntry = sCreatureDisplayInfoStore.LookupEntry(cInfo->Modelid4);
             if(!displayEntry)
             {
-                sLog.outErrorDb("Creature (Entry: %u) has non-existing DisplayID_H2 id (%u), can crash client", cInfo->Entry, cInfo->DisplayID_H[1]);
-                const_cast<CreatureInfo*>(cInfo)->DisplayID_H[1] = 0;
+                sLog.outErrorDb("Creature (Entry: %u) has non-existing Modelid4 id (%u), can crash client", cInfo->Entry, cInfo->Modelid4);
+                const_cast<CreatureInfo*>(cInfo)->Modelid4 = 0;
             }
             else if(!displayScaleEntry)
                 displayScaleEntry = displayEntry;
 
-            CreatureModelInfo const* minfo = sCreatureModelStorage.LookupEntry<CreatureModelInfo>(cInfo->DisplayID_H[1]);
+            CreatureModelInfo const* minfo = sCreatureModelStorage.LookupEntry<CreatureModelInfo>(cInfo->Modelid4);
             if (!minfo)
-                sLog.outErrorDb("Creature (Entry: %u) not has model data for DisplayID_H2 (%u)", cInfo->Entry, cInfo->DisplayID_H[1]);
+                sLog.outErrorDb("Creature (Entry: %u) not has model data for Modelid4 (%u)", cInfo->Entry, cInfo->Modelid4);
         }
 
         if (!displayScaleEntry)
-            sLog.outErrorDb("Creature (Entry: %u) not has any existed display id in DisplayID_A/DisplayID_A2/DisplayID_H/DisplayID_H2", cInfo->Entry);
+            sLog.outErrorDb("Creature (Entry: %u) not has any existed display id in Modelid1/Modelid2/Modelid3/Modelid4", cInfo->Entry);
 
         for(int k = 0; k < MAX_KILL_CREDIT; ++k)
         {
@@ -1023,10 +1023,16 @@ CreatureModelInfo const* ObjectMgr::GetCreatureModelInfo(uint32 modelid)
 uint32 ObjectMgr::ChooseDisplayId(uint32 team, const CreatureInfo *cinfo, const CreatureData *data /*= NULL*/)
 {
     // Load creature model (display id)
-    if (data && data->displayid)
+    uint32 display_id = 0;
+
+    if (!data || data->displayid == 0)
+    {
+        display_id = cinfo->GetRandomValidModelId();
+    }
+    else
         return data->displayid;
 
-    if(!team)
+    /*if(!team)
     {
         switch(cinfo->Entry)
         {
@@ -1034,40 +1040,15 @@ uint32 ObjectMgr::ChooseDisplayId(uint32 team, const CreatureInfo *cinfo, const 
             case 33114: // Flame Leviathan Seat (model 24914 chair)
             case 33167: // Salvaged Demolisher Mechanic Seat
             case 33189: // Liquid Pryite
-                return cinfo->DisplayID_A[0];
+                return cinfo->Modelid1;
             case 33218: // Pyrite Safety Container
-                return cinfo->DisplayID_A[1];
+                return cinfo->Modelid2;
             case 33143: // Overload Control Device
-                return cinfo->DisplayID_H[0];
+                return cinfo->Modelid3;
             default:
                 return cinfo->GetRandomValidModelId();
         }
-    }
-
-    // use defaults from the template
-    uint32 display_id;
-
-    // DisplayID_A is used if no team is given
-    if (team == HORDE)
-    {
-        if(cinfo->DisplayID_H[0])
-            display_id = cinfo->DisplayID_H[1] ? cinfo->DisplayID_H[urand(0,1)] : cinfo->DisplayID_H[0];
-        else
-            display_id = cinfo->DisplayID_H[1];
-
-        if(!display_id)
-            display_id = cinfo->DisplayID_A[0] ? cinfo->DisplayID_A[0] : cinfo->DisplayID_A[1];
-    }
-    else if(team == ALLIANCE)
-    {
-        if(cinfo->DisplayID_A[0])
-            display_id = cinfo->DisplayID_A[1] ? cinfo->DisplayID_A[urand(0,1)] : cinfo->DisplayID_A[0];
-        else
-            display_id = cinfo->DisplayID_A[1];
-
-        if(!display_id)
-            display_id = cinfo->DisplayID_H[0] ? cinfo->DisplayID_H[0] : cinfo->DisplayID_H[1];
-    }
+    }*/
 
     return display_id;
 }
@@ -5291,34 +5272,28 @@ void ObjectMgr::GetTaxiPath( uint32 source, uint32 destination, uint32 &path, ui
 
 uint32 ObjectMgr::GetTaxiMountDisplayId( uint32 id, uint32 team, bool allowed_alt_team /* = false */)
 {
-    uint16 mount_entry = 0;
+    uint32 mount_entry = 0;
+    uint32 mount_id = 0;
 
     // select mount creature id
     TaxiNodesEntry const* node = sTaxiNodesStore.LookupEntry(id);
     if(node)
     {
         if (team == ALLIANCE)
-        {
             mount_entry = node->MountCreatureID[1];
-            if(!mount_entry && allowed_alt_team)
-                mount_entry = node->MountCreatureID[0];
-        }
-        else if (team == HORDE)
-        {
+        else
             mount_entry = node->MountCreatureID[0];
 
-            if(!mount_entry && allowed_alt_team)
-                mount_entry = node->MountCreatureID[1];
+        CreatureInfo const *mount_info = GetCreatureTemplate(mount_entry);
+        if (mount_info)
+        {
+            if (! (mount_id = mount_info->GetRandomValidModelId()))
+            {
+                sLog.outErrorDb("No displayid found for the taxi mount with the entry %u! Can't load it!", mount_entry);
+                return false;
+            }
         }
     }
-
-    CreatureInfo const *mount_info = GetCreatureTemplate(mount_entry);
-    if (!mount_info)
-        return 0;
-
-    uint16 mount_id = objmgr.ChooseDisplayId(team,mount_info);
-    if (!mount_id)
-        return 0;
 
     CreatureModelInfo const *minfo = objmgr.GetCreatureModelRandomGender(mount_id);
     if (minfo)
