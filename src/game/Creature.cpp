@@ -93,20 +93,20 @@ uint32 CreatureInfo::GetRandomValidModelId() const
     uint32 c = 0;
     uint32 modelIDs[4];
 
-    if (DisplayID_A[0]) modelIDs[c++] = DisplayID_A[0];
-    if (DisplayID_A[1]) modelIDs[c++] = DisplayID_A[1];
-    if (DisplayID_H[0]) modelIDs[c++] = DisplayID_H[0];
-    if (DisplayID_H[1]) modelIDs[c++] = DisplayID_H[1];
+    if (Modelid1) modelIDs[c++] = Modelid1;
+    if (Modelid2) modelIDs[c++] = Modelid2;
+    if (Modelid3) modelIDs[c++] = Modelid3;
+    if (Modelid4) modelIDs[c++] = Modelid4;
 
     return ((c>0) ? modelIDs[urand(0,c-1)] : 0);
 }
 
 uint32 CreatureInfo::GetFirstValidModelId() const
 {
-    if(DisplayID_A[0]) return DisplayID_A[0];
-    if(DisplayID_A[1]) return DisplayID_A[1];
-    if(DisplayID_H[0]) return DisplayID_H[0];
-    if(DisplayID_H[1]) return DisplayID_H[1];
+    if(Modelid1) return Modelid1;
+    if(Modelid2) return Modelid2;
+    if(Modelid3) return Modelid3;
+    if(Modelid4) return Modelid4;
     return 0;
 }
 
@@ -1295,30 +1295,8 @@ void Creature::SaveToDB(uint32 mapid, uint8 spawnMask, uint32 phaseMask)
     CreatureInfo const *cinfo = GetCreatureInfo();
     if (cinfo)
     {
-        if (displayId != cinfo->DisplayID_A[0] && displayId != cinfo->DisplayID_A[1] &&
-            displayId != cinfo->DisplayID_H[0] && displayId != cinfo->DisplayID_H[1])
-        {
-            if (cinfo->DisplayID_A[0])
-                if (CreatureModelInfo const *minfo = objmgr.GetCreatureModelInfo(cinfo->DisplayID_A[0]))
-                    if(displayId == minfo->modelid_other_gender)
-                        displayId = 0;
-
-            if (displayId && cinfo->DisplayID_A[1])
-                if (CreatureModelInfo const *minfo = objmgr.GetCreatureModelInfo(cinfo->DisplayID_A[1]))
-                    if(displayId == minfo->modelid_other_gender)
-                        displayId = 0;
-
-            if (displayId && cinfo->DisplayID_H[0])
-                if (CreatureModelInfo const *minfo = objmgr.GetCreatureModelInfo(cinfo->DisplayID_H[0]))
-                    if(displayId == minfo->modelid_other_gender)
-                        displayId = 0;
-
-            if (displayId && cinfo->DisplayID_H[1])
-                if (CreatureModelInfo const *minfo = objmgr.GetCreatureModelInfo(cinfo->DisplayID_H[1]))
-                    if(displayId == minfo->modelid_other_gender)
-                        displayId = 0;
-        }
-        else
+        if (displayId == cinfo->Modelid1 || displayId == cinfo->Modelid2 ||
+            displayId == cinfo->Modelid3 || displayId == cinfo->Modelid4)
             displayId = 0;
     }
 

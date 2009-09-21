@@ -169,8 +169,10 @@ struct CreatureInfo
     uint32  Entry;
     uint32  HeroicEntry;
     uint32  KillCredit[MAX_KILL_CREDIT];
-    uint32  DisplayID_A[2];
-    uint32  DisplayID_H[2];
+    uint32  Modelid1;
+    uint32  Modelid2;
+    uint32  Modelid3;
+    uint32  Modelid4;
     char*   Name;
     char*   SubName;
     char*   IconName;
