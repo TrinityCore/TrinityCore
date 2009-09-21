@@ -116,8 +116,6 @@ enum ITEM_FLAGS
     ITEM_FLAGS_USEABLE_IN_ARENA               = 0x00200000,
     ITEM_FLAGS_THROWABLE                      = 0x00400000, // not used in game for check trow possibility, only for item in game tooltip
     ITEM_FLAGS_SPECIALUSE                     = 0x00800000, // last used flag in 2.3.0
-    ITEM_FLAGS_NO_STACK_LIMIT                 = 0x00FFFFFF, // items which not have stack limit
-    ITEM_FLAGS_NO_STACK_LIMIT2                = 0x07FFFFFF, // We aren't sure exactly why they need two yet
     ITEM_FLAGS_BOA                            = 0x08000000, // bind on account (set in template for items that can binded in like way)
     ITEM_FLAGS_TRIGGERED_CAST                 = 0x10000000, // used by enchanting scrolls made with vellum
     ITEM_FLAGS_MILLABLE                       = 0x20000000
@@ -606,10 +604,7 @@ struct ItemPrototype
 
     uint32 GetMaxStackSize() const
     {
-        if (Flags & ITEM_FLAGS_NO_STACK_LIMIT || Flags & ITEM_FLAGS_NO_STACK_LIMIT2)
-            return uint32(0x7FFFFFFF-1);
-        else
-            return Stackable > 0 ? uint32(Stackable) : uint32(0x7FFFFFFF-1);
+        return (Stackable == 2147483647 || Stackable <= 0) ? uint32(0x7FFFFFFF-1) : uint32(Stackable);
     }
 
     float getDPS() const
