@@ -92,13 +92,14 @@ struct TRINITY_DLL_DECL boss_volazjAI : public ScriptedAI
         
         if (uiShadowBoltVolleyTimer < diff)
         {
-            DoCast(m_creature, HeroicMode ? H_SPELL_SHADOW_BOLT_VOLLEY : SPELL_SHADOW_BOLT_VOLLEY);
+            DoCast(m_creature->getVictim(), HeroicMode ? H_SPELL_SHADOW_BOLT_VOLLEY : SPELL_SHADOW_BOLT_VOLLEY);
             uiShadowBoltVolleyTimer = 5000;
         } else uiShadowBoltVolleyTimer -= diff;
         
         if (uiShiverTimer < diff)
         {
-            DoCast(m_creature, HeroicMode ? H_SPELL_SHIVER : SPELL_SHIVER);
+            if (Unit * target = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                DoCast(target, HeroicMode ? H_SPELL_SHIVER : SPELL_SHIVER);
             uiShiverTimer = 15000;
         } else uiShiverTimer -= diff;
 
