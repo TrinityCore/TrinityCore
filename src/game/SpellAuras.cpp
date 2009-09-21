@@ -6709,14 +6709,14 @@ void AuraEffect::HandleAuraConvertRune(bool apply, bool Real, bool changeAmount)
                 continue;
             if(!plr->GetRuneCooldown(i))
             {
-                plr->ConvertRune(i, GetSpellProto()->EffectMiscValueB[m_effIndex]);
+                plr->ConvertRune(i, RuneType(GetSpellProto()->EffectMiscValueB[m_effIndex]));
                 runes |= 1<<i;
                 --m_amount;
             }
         }
         else
         {
-            if(plr->GetCurrentRune(i) == GetSpellProto()->EffectMiscValueB[m_effIndex])
+            if(plr->GetCurrentRune(i) == RuneType(GetSpellProto()->EffectMiscValueB[m_effIndex]))
             {
                 if (m_amount & (1<<i))
                     plr->ConvertRune(i, plr->GetBaseRune(i));
