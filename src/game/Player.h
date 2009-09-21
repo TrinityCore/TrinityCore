@@ -2191,15 +2191,16 @@ class MANGOS_DLL_SPEC Player : public Unit
 
         DeclinedName const* GetDeclinedNames() const { return m_declinedname; }
         uint8 GetRunesState() const { return m_runes->runeState; }
-        uint8 GetBaseRune(uint8 index) const { return m_runes->runes[index].BaseRune; }
-        uint8 GetCurrentRune(uint8 index) const { return m_runes->runes[index].CurrentRune; }
+        RuneType GetBaseRune(uint8 index) const { return RuneType(m_runes->runes[index].BaseRune); }
+        RuneType GetCurrentRune(uint8 index) const { return RuneType(m_runes->runes[index].CurrentRune); }
         uint8 GetRuneCooldown(uint8 index) const { return m_runes->runes[index].Cooldown; }
+        bool IsBaseRuneSlotsOnCooldown(RuneType runeType) const;
         RuneType GetLastUsedRune() { return m_runes->lastUsedRune; }
         void SetLastUsedRune(RuneType type) { m_runes->lastUsedRune = type; }
-        void SetBaseRune(uint8 index, uint8 baseRune) { m_runes->runes[index].BaseRune = baseRune; }
-        void SetCurrentRune(uint8 index, uint8 currentRune) { m_runes->runes[index].CurrentRune = currentRune; }
+        void SetBaseRune(uint8 index, RuneType baseRune) { m_runes->runes[index].BaseRune = baseRune; }
+        void SetCurrentRune(uint8 index, RuneType currentRune) { m_runes->runes[index].CurrentRune = currentRune; }
         void SetRuneCooldown(uint8 index, uint8 cooldown) { m_runes->runes[index].Cooldown = cooldown; m_runes->SetRuneState(index, (cooldown == 0) ? true : false); }
-        void ConvertRune(uint8 index, uint8 newType);
+        void ConvertRune(uint8 index, RuneType newType);
         void ResyncRunes(uint8 count);
         void AddRunePower(uint8 index);
         void InitRunes();

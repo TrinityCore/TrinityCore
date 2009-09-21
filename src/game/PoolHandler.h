@@ -56,9 +56,9 @@ class PoolGroup
         void RemoveOneRelation(uint16 child_pool_id);
     private:
         typedef std::vector<PoolObject> PoolObjectList;
-        uint32 CacheValue;                                  // Store the guid of the removed creature/gameobject during a pool update
         PoolObjectList ExplicitlyChanced;
         PoolObjectList EqualChanced;
+        uint32 m_LastDespawnedNode ;                        // Store the guid of the removed creature/gameobject during a pool update
         uint32 m_SpawnedPoolAmount;                         // Used to know the number of spawned objects
 };
 
@@ -81,7 +81,7 @@ class PoolHandler
         void Initialize();
 
     protected:
-        bool isSystemInit;
+        bool m_IsPoolSystemStarted;
         uint16 max_pool_id;
         typedef std::vector<PoolTemplateData> PoolTemplateDataMap;
         typedef std::vector<PoolGroup<Creature> >   PoolGroupCreatureMap;

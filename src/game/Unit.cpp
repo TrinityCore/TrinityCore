@@ -7604,6 +7604,11 @@ bool Unit::HandleProcTriggerSpell(Unit *pVictim, uint32 damage, AuraEffect* trig
             break;
     }
 
+    // Blade Barrier
+    if (auraSpellInfo->SpellFamilyName == SPELLFAMILY_DEATHKNIGHT && auraSpellInfo->SpellIconID == 85)
+        if (this->GetTypeId() != TYPEID_PLAYER || !((Player*)this)->IsBaseRuneSlotsOnCooldown(RUNE_BLOOD))
+            return false;
+
     // Custom basepoints/target for exist spell
     // dummy basepoints or other customs
     switch(trigger_spell_id)

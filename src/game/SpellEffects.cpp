@@ -1619,6 +1619,15 @@ void Spell::EffectDummy(uint32 i)
                     m_caster->CastCustomSpell(m_caster, 53479, &healthModSpellBasePoints0, NULL, NULL, true, NULL);
                     return;
                 }
+                // Master's Call
+                case 53271:
+                {
+                    if (!m_caster->isHunterPet() || !unitTarget)
+                        return;
+                    else
+                        m_caster->CastSpell(unitTarget, m_spellInfo->CalculateSimpleValue(i), true);
+                        return;
+                }
             }
             break;
         case SPELLFAMILY_PALADIN:
@@ -5588,6 +5597,16 @@ void Spell::EffectScriptEffect(uint32 effIndex)
                         m_caster->CastCustomSpell(unitTarget, spellId, &basePoint, 0, 0, true);
                     return;
                 }
+                // Master's Call
+                case 53271:
+                {
+                    if (!unitTarget)
+                        return;
+
+                    // script effect have in value, but this outdated removed part
+                    unitTarget->CastSpell(unitTarget, 62305, true);
+                    return;
+                }
                 default:
                     break;
             }
@@ -6953,7 +6972,7 @@ void Spell::EffectActivateRune(uint32  eff_idx)
 
     for(uint32 j = 0; j < MAX_RUNES; ++j)
     {
-        if(plr->GetRuneCooldown(j) && plr->GetCurrentRune(j) == m_spellInfo->EffectMiscValue[eff_idx])
+        if(plr->GetRuneCooldown(j) && plr->GetCurrentRune(j) == RuneType(m_spellInfo->EffectMiscValue[eff_idx]))
         {
             plr->SetRuneCooldown(j, 0);
         }
