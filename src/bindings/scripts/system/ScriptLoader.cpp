@@ -264,6 +264,7 @@ extern void AddSC_winterspring();
 extern void AddSC_instance_ahnkahet();          //Azjol-Nerub Ahn'kahet
 extern void AddSC_boss_taldaram();
 extern void AddSC_boss_elder_nadox();
+extern void AddSC_boss_volazj();
 extern void AddSC_boss_anubrekhan();            //Naxxramas
 extern void AddSC_boss_maexxna();
 extern void AddSC_boss_patchwerk();
@@ -665,6 +666,7 @@ void AddScripts()
     AddSC_instance_ahnkahet();          //Azjol-Nerub Ahn'kahet
     AddSC_boss_taldaram();
     AddSC_boss_elder_nadox();
+    AddSC_boss_volazj();
     AddSC_boss_anubrekhan();            //Naxxramas
     AddSC_boss_maexxna();
     AddSC_boss_patchwerk();
