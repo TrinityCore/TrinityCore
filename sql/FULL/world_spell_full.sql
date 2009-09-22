@@ -2257,7 +2257,7 @@ update game_graveyard_zone set ghost_zone = 4603 where id = 1474;
 -- temp
 
 UPDATE `creature_template` SET `ScriptName`='boss_netherspite', `RegenHealth` = '1' WHERE `entry`='15689';
-UPDATE `creature_template` SET `faction_A` = '35', `faction_H` = '35', `modelid_A`='11686', `modelid_H`='11686', `unit_flags` = '33554496', `ScriptName` = '' WHERE `entry` IN ('17367','17368','17369');
+UPDATE `creature_template` SET `faction_A` = '35', `faction_H` = '35', `modelid1`='11686', `modelid3`='11686', `unit_flags` = '33554496', `ScriptName` = '' WHERE `entry` IN ('17367','17368','17369');
 UPDATE `creature_template` SET `minlevel` = '70', `maxlevel` = '70',`flags_extra`= '2', `speed`= '0.0001', `faction_A` = '16', `faction_H` = '16', `ScriptName` = 'mob_eventai'  WHERE `entry` = '16697';
 DELETE FROM `creature_ai_scripts` WHERE `creature_id` = '16697';
 INSERT INTO `creature_ai_scripts`
