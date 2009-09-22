@@ -529,22 +529,23 @@ void Creature::Update(uint32 diff)
             if(!isAlive())
                 break;
 
-            if(m_regenTimer > diff)
+            bool bNotInCombatOrIsPolymorphed = (!isInCombat() || IsPolymorphed());
+
+            if(m_regenTimer > diff || bNotInCombatOrIsPolymorphed)
                 m_regenTimer -= diff;
             else
             {
-                if (!isInCombat() || IsPolymorphed())
+                if(bNotInCombatOrIsPolymorphed)
                     RegenerateHealth();
 
                 if(getPowerType() == POWER_ENERGY)
-                {
                     if(!IsVehicle() || GetVehicleKit()->GetVehicleInfo()->m_powerType != POWER_PYRITE)
                         Regenerate(POWER_ENERGY);
-                }
                 else
                     RegenerateMana();
 
-                m_regenTimer += 2000 - diff;
+                if(!bNotInCombatOrIsPolymorphed)
+                    m_regenTimer += 2000 - diff;
             }
 
             break;
