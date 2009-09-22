@@ -306,6 +306,11 @@ extern void AddSC_boss_keleseth();              //Utgarde Keep
 extern void AddSC_boss_skarvald_dalronn();
 extern void AddSC_boss_ingvar_the_plunderer();
 extern void AddSC_instance_utgarde_keep();
+extern void AddSC_boss_svala();                 //Utgarde pinnacle
+extern void AddSC_boss_palehoof();
+extern void AddSC_boss_skadi();
+extern void AddSC_boss_ymiron();
+extern void AddSC_instance_utgarde_pinnacle();
 extern void AddSC_utgarde_keep();
 extern void AddSC_boss_archavon();              //Vault of Archavon
 extern void AddSC_boss_emalon();

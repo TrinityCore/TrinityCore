@@ -447,6 +447,10 @@ bool PetAI::_CanAttack(Unit *target)
     if (me->HasReactState(REACT_PASSIVE))
         return me->GetCharmInfo()->IsCommandAttack();
 
+    //  Pets commanded to attack should not stop their approach if attacked by another creature
+    if (me->getVictim() && (me->getVictim() != target))
+        return !me->GetCharmInfo()->IsCommandAttack();
+
     // From this point on, pet will always be either aggressive or defensive
 
     // Stay - can attack if target is within range or commanded to

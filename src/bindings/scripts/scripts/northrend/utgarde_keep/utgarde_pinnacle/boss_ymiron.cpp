@@ -10,6 +10,7 @@ Script Data End */
 update creature_template set scriptname = 'boss_ymiron' where entry = '';
 *** SQL END ***/
 #include "precompiled.h"
+#include "def_pinnacle.h"
 
 //Spells
 #define SPELL_BANE                                48294
@@ -35,15 +36,27 @@ update creature_template set scriptname = 'boss_ymiron' where entry = '';
 
 struct TRINITY_DLL_DECL boss_ymironAI : public ScriptedAI
 {
-    boss_ymironAI(Creature *c) : ScriptedAI(c) {}
+    boss_ymironAI(Creature *c) : ScriptedAI(c)
+    {
+        pInstance = c->GetInstanceData();
+    }
 
-    void Reset() {}
+    ScriptedInstance *pInstance;
+
+    void Reset()
+    {
+        if (pInstance)
+            pInstance->SetData(DATA_KING_YMIRON_EVENT, NOT_STARTED);
+    }
+
     void EnterCombat(Unit* who)
     {
         DoScriptText(SAY_AGGRO, m_creature);
+
+        if (pInstance)
+            pInstance->SetData(DATA_KING_YMIRON_EVENT, IN_PROGRESS);
     }
-    void AttackStart(Unit* who) {}
-    void MoveInLineOfSight(Unit* who) {}
+
     void UpdateAI(const uint32 diff)
     {
         //Return since we have no target
@@ -52,27 +65,24 @@ struct TRINITY_DLL_DECL boss_ymironAI : public ScriptedAI
 
         DoMeleeAttackIfReady();
     }
+
     void JustDied(Unit* killer)
     {
         DoScriptText(SAY_DEATH, m_creature);
+
+        if (pInstance)
+            pInstance->SetData(DATA_KING_YMIRON_EVENT, DONE);
     }
+
     void KilledUnit(Unit *victim)
     {
-        if (victim == m_creature)
-            return;
-        switch(rand()%4)
-        {
-            case 0: DoScriptText(SAY_SLAY_1, m_creature);break;
-            case 1: DoScriptText(SAY_SLAY_2, m_creature);break;
-            case 2: DoScriptText(SAY_SLAY_3, m_creature);break;
-            case 3: DoScriptText(SAY_SLAY_4, m_creature);break;
-        }
+        DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2,SAY_SLAY_3,SAY_SLAY_4), m_creature);
     }
 };
 
 CreatureAI* GetAI_boss_ymiron(Creature* pCreature)
 {
-    return new boss_ymironAI (pCreature);
+    return new boss_ymironAI(pCreature);
 }
 
 void AddSC_boss_ymiron()
