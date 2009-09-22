@@ -531,7 +531,7 @@ void Creature::Update(uint32 diff)
 
             bool bNotInCombatOrIsPolymorphed = (!isInCombat() || IsPolymorphed());
 
-            if(m_regenTimer > diff || bNotInCombatOrIsPolymorphed)
+            if(m_regenTimer > diff && !bNotInCombatOrIsPolymorphed)
                 m_regenTimer -= diff;
             else
             {
