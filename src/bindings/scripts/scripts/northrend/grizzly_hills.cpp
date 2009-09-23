@@ -17,7 +17,7 @@
 /* ScriptData
 SDName: Grizzly_Hills
 SD%Complete: 80
-SDComment: Quest support: 12247
+SDComment: Quest support: 12231, 12247
 SDCategory: Grizzly Hills
 EndScriptData */
 
@@ -49,7 +49,8 @@ enum
     NPC_ORSONN_CREDIT           = 27322,
     NPC_KODIAN_CREDIT           = 27321,
 
-    QUEST_CHILDREN_OF_URSOC     = 12247
+    QUEST_CHILDREN_OF_URSOC     = 12247,
+    QUEST_THE_BEAR_GODS_OFFSPRING        = 12231
 };
 
 bool GossipHello_npc_orsonn_and_kodian(Player* pPlayer, Creature* pCreature)
@@ -57,12 +58,12 @@ bool GossipHello_npc_orsonn_and_kodian(Player* pPlayer, Creature* pCreature)
     if (pCreature->isQuestGiver())
         pPlayer->PrepareQuestMenu(pCreature->GetGUID());
 
-    if (pPlayer->GetQuestStatus(QUEST_CHILDREN_OF_URSOC) == QUEST_STATUS_INCOMPLETE)
+    if (pPlayer->GetQuestStatus(QUEST_CHILDREN_OF_URSOC) == QUEST_STATUS_INCOMPLETE || pPlayer->GetQuestStatus(QUEST_THE_BEAR_GODS_OFFSPRING) == QUEST_STATUS_INCOMPLETE)
     {
         switch(pCreature->GetEntry())
         {
             case NPC_ORSONN:
-                if (!pPlayer->GetReqKillOrCastCurrentCount(QUEST_CHILDREN_OF_URSOC, NPC_ORSONN_CREDIT))
+                if (!pPlayer->GetReqKillOrCastCurrentCount(QUEST_CHILDREN_OF_URSOC, NPC_ORSONN_CREDIT) || !pPlayer->GetReqKillOrCastCurrentCount(QUEST_THE_BEAR_GODS_OFFSPRING, NPC_ORSONN_CREDIT))
                 {
                     pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
                     pPlayer->SEND_GOSSIP_MENU(GOSSIP_TEXTID_ORSONN1, pCreature->GetGUID());
@@ -70,7 +71,7 @@ bool GossipHello_npc_orsonn_and_kodian(Player* pPlayer, Creature* pCreature)
                 }
                 break;
             case NPC_KODIAN:
-                if (!pPlayer->GetReqKillOrCastCurrentCount(QUEST_CHILDREN_OF_URSOC, NPC_KODIAN_CREDIT))
+                if (!pPlayer->GetReqKillOrCastCurrentCount(QUEST_CHILDREN_OF_URSOC, NPC_KODIAN_CREDIT) || !pPlayer->GetReqKillOrCastCurrentCount(QUEST_THE_BEAR_GODS_OFFSPRING, NPC_KODIAN_CREDIT))
                 {
                     pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM4, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+4);
                     pPlayer->SEND_GOSSIP_MENU(GOSSIP_TEXTID_KODIAN1, pCreature->GetGUID());
