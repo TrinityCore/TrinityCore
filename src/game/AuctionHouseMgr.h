@@ -93,24 +93,15 @@ class AuctionHouseObject
     AuctionEntryMap::iterator GetAuctionsBegin() {return AuctionsMap.begin();}
     AuctionEntryMap::iterator GetAuctionsEnd() {return AuctionsMap.end();}
 
-    void AddAuction(AuctionEntry *ah)
-    {
-        ASSERT(ah);
-        AuctionsMap[ah->Id] = ah;
-        auctionbot.IncrementItemCounts(ah);
-    }
-
     AuctionEntry* GetAuction(uint32 id) const
     {
         AuctionEntryMap::const_iterator itr = AuctionsMap.find(id);
         return itr != AuctionsMap.end() ? itr->second : NULL;
     }
 
-    bool RemoveAuction(AuctionEntry *auction, uint32 item_template)
-    {
-        auctionbot.DecrementItemCounts(auction, item_template);
-        return AuctionsMap.erase(auction->Id) ? true : false;
-    }
+    void AddAuction(AuctionEntry *ah);
+
+    bool RemoveAuction(AuctionEntry *auction, uint32 item_template);
 
     void Update();
 
