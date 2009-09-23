@@ -2730,12 +2730,19 @@ SpellCastResult SpellMgr::GetSpellAllowedInLocationError(SpellEntry const *spell
         }
     }
 
-    // wintergrasp
-    if(zone_id == 4197)
-        for(uint32 i = 0; i < 3; ++i)
-            if(spellInfo->EffectApplyAuraName[i] == SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED
-                || spellInfo->EffectApplyAuraName[i] == SPELL_AURA_FLY)
-                return SPELL_FAILED_INCORRECT_AREA;
+    // aura limitations
+    for (uint32 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+    {
+        switch(spellInfo->EffectApplyAuraName[i])
+        {
+            case SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED:
+            case SPELL_AURA_FLY:
+            {
+                if (player && !player->IsKnowHowFlyIn(map_id, zone_id))
+                    return SPELL_FAILED_INCORRECT_AREA;
+            }
+        }
+    }
 
     return SPELL_CAST_OK;
 }
