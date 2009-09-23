@@ -182,7 +182,7 @@ struct TRINITY_DLL_DECL boss_ingvar_the_plundererAI : public ScriptedAI
         if (event_inProgress)
         {
             if (SpawnResTimer)
-                if (SpawnResTimer< diff)
+                if (SpawnResTimer <= diff)
                 {
                     DoCast(m_creature,SPELL_SUMMON_BANSHEE); // Summons direktly on caster position
                     //DoCast(m_creature,SPELL_SCOURG_RESURRECTION_EFFEKTSPAWN); // Dont needet ?
@@ -351,7 +351,7 @@ struct TRINITY_DLL_DECL mob_annhylde_the_callerAI : public ScriptedAI
     void UpdateAI(const uint32 diff)
     {
         if (Resurect_Timer)
-            if (Resurect_Timer < diff)
+            if (Resurect_Timer <= diff)
             {
                 if (Resurect_Phase == 1)
                 {
