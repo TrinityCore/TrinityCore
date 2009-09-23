@@ -137,7 +137,7 @@ typedef uint32      DWORD;
 
 typedef uint64 OBJECT_HANDLE;
 
-//#define MULTI_THREAD_MAP
+#define MULTI_THREAD_MAP
 #ifdef MULTI_THREAD_MAP
 #define MAP_BASED_RAND_GEN
 #endif
@@ -154,6 +154,10 @@ typedef uint64 OBJECT_HANDLE;
 #  ifndef MANGOS_DEBUG
 #    define MANGOS_DEBUG
 #  endif
+#endif
+
+#ifndef CLIENT_VER
+#define CLIENT_VER 313
 #endif
 
 
