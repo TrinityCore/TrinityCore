@@ -3,6 +3,7 @@
 
 #include "World.h"
 #include "Config/ConfigEnv.h"
+#include "ItemPrototype.h"
 #if CLIENT_VER > 300
 #include "ace/Vector_T.h"
 #else if CLIENT_VER > 100
@@ -901,7 +902,7 @@ public:
     {
         switch(Class)
         {
-        case 7:
+        case ITEM_CLASS_TRADE_GOODS:
             DecItemCounts(Quality);
             break;
         default:
@@ -965,7 +966,7 @@ public:
     {
         switch(Class)
         {
-        case 7:
+        case ITEM_CLASS_TRADE_GOODS:
             IncItemCounts(Quality);
             break;
         default:
