@@ -486,6 +486,18 @@ AuctionHouseEntry const* AuctionHouseMgr::GetAuctionHouseEntry(uint32 factionTem
 
     return sAuctionHouseStore.LookupEntry(houseid);
 }
+    void AuctionHouseObject::AddAuction(AuctionEntry *ah)
+    {
+        ASSERT(ah);
+        AuctionsMap[ah->Id] = ah;
+        auctionbot.IncrementItemCounts(ah);
+    }
+
+    bool AuctionHouseObject::RemoveAuction(AuctionEntry *auction, uint32 item_template)
+    {
+        auctionbot.DecrementItemCounts(auction, item_template);
+        return AuctionsMap.erase(auction->Id) ? true : false;
+    }
 
 void AuctionHouseObject::Update()
 {
