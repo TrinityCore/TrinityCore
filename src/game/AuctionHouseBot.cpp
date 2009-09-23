@@ -1,6 +1,6 @@
+#include "ObjectMgr.h"
 #include "AuctionHouseMgr.h"
 #include "AuctionHouseBot.h"
-#include "ObjectMgr.h"
 #if CLIENT_VER > 300
 #else if CLIENT_VER > 100
 #include <vector>
