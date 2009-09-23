@@ -17,6 +17,7 @@
 #include "sc_instance.h"
 #include "CombatAI.h"
 #include "PassiveAI.h"
+#include "Chat.h"
 
 #ifdef WIN32
 #include <windows.h>
