@@ -6079,6 +6079,10 @@ bool Spell::CheckTargetCreatureType(Unit* target) const
     if(m_spellInfo->Id == 2641 || m_spellInfo->Id == 23356)
         spellCreatureTargetMask =  0;
 
+    // Polymorph and Grounding Totem
+    if (target->GetEntry() == 5925 && m_spellInfo->SpellFamilyName == SPELLFAMILY_MAGE && (m_spellInfo->SpellFamilyFlags[0] & 0x1000000) && m_spellInfo->EffectApplyAuraName[0] == SPELL_AURA_MOD_CONFUSE)
+        return true;
+
     if (spellCreatureTargetMask)
     {
         uint32 TargetCreatureType = target->GetCreatureTypeMask();
@@ -6200,6 +6204,8 @@ bool Spell::CheckTarget(Unit* target, uint32 eff)
                 caster = m_caster->GetMap()->GetGameObject(m_originalCasterGUID);
             if (!caster)
                 caster = m_caster;
+            if(target->GetEntry() == 5925)
+                return true;
             if(target != m_caster && !target->IsWithinLOSInMap(caster))
                 return false;
             break;
