@@ -901,7 +901,7 @@ public:
     {
         switch(Class)
         {
-        case ITEM_CLASS_TRADE_GOODS:
+        case 7:
             DecItemCounts(Quality);
             break;
         default:
@@ -965,7 +965,7 @@ public:
     {
         switch(Class)
         {
-        case ITEM_CLASS_TRADE_GOODS:
+        case 7:
             IncItemCounts(Quality);
             break;
         default:
