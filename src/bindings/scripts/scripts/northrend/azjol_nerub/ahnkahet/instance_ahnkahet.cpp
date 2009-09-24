@@ -92,13 +92,15 @@ struct TRINITY_DLL_DECL instance_ahnkahet : public ScriptedInstance
     {
         switch(pGo->GetEntry())
         {
-            case 193564:     Prince_TaldaramPlatform = pGo->GetGUID();break;
+            case 193564:     Prince_TaldaramPlatform = pGo->GetGUID();
+                if (m_auiEncounter[1] == DONE) HandleGameObject(NULL,true,pGo); break;
             case 193093:     Prince_TaldaramSpheres[0] = pGo->GetGUID();
                 if (spheres[0] == IN_PROGRESS)
                 {
                     pGo->SetGoState(GO_STATE_ACTIVE);
                     pGo->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_UNK1);
                 }
+                else pGo->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_UNK1);
                 break;
             case 193094:     Prince_TaldaramSpheres[1] = pGo->GetGUID();
                 if (spheres[1] == IN_PROGRESS)
@@ -106,6 +108,7 @@ struct TRINITY_DLL_DECL instance_ahnkahet : public ScriptedInstance
                     pGo->SetGoState(GO_STATE_ACTIVE);
                     pGo->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_UNK1);
                 }
+                else pGo->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_UNK1);
                 break;
             case 192236:    Prince_TaldaramGate = pGo->GetGUID(); // Web gate past Prince Taldaram
                 if (m_auiEncounter[1] == DONE)HandleGameObject(NULL,true,pGo);break;
@@ -121,7 +124,7 @@ struct TRINITY_DLL_DECL instance_ahnkahet : public ScriptedInstance
             case DATA_JEDOGA_SHADOWSEEKER:        return Jedoga_Shadowseeker;
             case DATA_HERALD_VOLAZJ:              return Herald_Volazj;
             case DATA_AMANITAR:                   return Amanitar;
-            case DATA_SPHERE1:		          return Prince_TaldaramSpheres[0];
+            case DATA_SPHERE1:                    return Prince_TaldaramSpheres[0];
             case DATA_SPHERE2:                    return Prince_TaldaramSpheres[1];
             case DATA_PRINCE_TALDARAM_PLATFORM:   return Prince_TaldaramPlatform;
         }
