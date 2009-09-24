@@ -239,6 +239,7 @@ class OPvPWintergrasp : public OutdoorPvP
         void VehicleCastSpell(TeamId team, int32 spellId) const;
 
         void SendInitWorldStatesTo(Player *player = NULL) const;
+        void RemoveOfflinePlayerWGAuras();
 };
 
 class SiegeWorkshop : public OPvPCapturePoint
