@@ -141,7 +141,7 @@ struct TRINITY_DLL_DECL boss_taldaramAI : public ScriptedAI
                     pSphereTarget = SelectUnit(SELECT_TARGET_RANDOM, 0);
                     while (pSphereTarget && pSphereTarget->GetTypeId() != TYPEID_PLAYER)
                         pSphereTarget = SelectUnit(SELECT_TARGET_RANDOM,0);
-                    if (pSphereTarget)
+                    if (pSphereTarget && pSpheres[0])
                     {
                         float angle,x,y;
                         angle = pSpheres[0]->GetAngle(pSphereTarget);
@@ -155,7 +155,7 @@ struct TRINITY_DLL_DECL boss_taldaramAI : public ScriptedAI
                         pSpheres[1] = DoSpawnCreature(H_CREATURE_FLAME_SPHERE_1, 0, 0, 5, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 10000);
                         //DoCast(m_creature, H_SPELL_FLAME_SPHERE_SUMMON_2);
                         pSpheres[2] = DoSpawnCreature(H_CREATURE_FLAME_SPHERE_2, 0, 0, 5, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 10000);
-                        if (pSphereTarget)
+                        if (pSphereTarget && pSpheres[1] && pSpheres[2])
                         {
                             float angle,x,y;
                             angle = pSpheres[1]->GetAngle(pSphereTarget) + DATA_SPHERE_ANGLE_OFFSET;
@@ -173,13 +173,17 @@ struct TRINITY_DLL_DECL boss_taldaramAI : public ScriptedAI
                     uiPhaseTimer = 0;
                 break;
                 case JUST_VANISHED:
-                    DoModifyThreatPercent(pEmbraceTarget, 100);
-                    DoTeleportTo(pEmbraceTarget->GetPositionX(),pEmbraceTarget->GetPositionY(),pEmbraceTarget->GetPositionZ());
+                    if(pEmbraceTarget)
+                    {
+                        DoModifyThreatPercent(pEmbraceTarget, 100);
+                        DoTeleportTo(pEmbraceTarget->GetPositionX(),pEmbraceTarget->GetPositionY(),pEmbraceTarget->GetPositionZ());
+                    }
                     Phase = VANISHED;
                     uiPhaseTimer = 1400;
                 break;
                 case VANISHED:
-                    DoCast(pEmbraceTarget,HeroicMode ? H_SPELL_EMBRACE_OF_THE_VAMPYR : SPELL_EMBRACE_OF_THE_VAMPYR );
+                    if(pEmbraceTarget)
+                        DoCast(pEmbraceTarget,HeroicMode ? H_SPELL_EMBRACE_OF_THE_VAMPYR : SPELL_EMBRACE_OF_THE_VAMPYR );
                     Phase = FEEDING;
                     uiPhaseTimer = 20000;
                 break;
