@@ -46,7 +46,7 @@ class WorldSession;
 class QueryResult;
 class LoginQueryHolder;
 class CharacterHandler;
-class AreaTableEntry;
+struct AreaTableEntry;
 
 enum AccountDataType
 {
