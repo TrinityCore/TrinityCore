@@ -46,6 +46,17 @@ struct Script
     void (*pOnLogin             )(Player*);
     void (*pOnLogout            )(Player*);
     void (*pOnPVPKill           )(Player*, Player*);
+    bool (*pOnSpellCast         )(Unit*, Item*, GameObject*, uint32, SpellEntry const*);
+    uint32 (*pOnGetXP           )(Player*, uint32);
+    int32 (*pOnGetMoney         )(Player*, int32);
+    bool (*pOnPlayerChat        )(Player*, const char*);
+    void (*pOnServerStartup     )();
+    void (*pOnServerShutdown    )();
+    void (*pOnAreaChange        )(Player*, AreaTableEntry const*);
+    bool (*pOnItemClick         )(Player*, Item*);
+    bool (*pOnItemOpen          )(Player*, Item*);
+    bool (*pOnGoClick           )(Player*, GameObject*);
+    void (*pOnCreatureKill      )(Player*, Creature*);
     bool (*pGossipHello         )(Player*, Creature*);
     bool (*pQuestAccept         )(Player*, Creature*, Quest const* );
     bool (*pGossipSelect        )(Player*, Creature*, uint32 , uint32 );

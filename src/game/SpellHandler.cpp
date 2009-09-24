@@ -189,6 +189,9 @@ void WorldSession::HandleOpenItemOpcode(WorldPacket& recvPacket)
         return;
     }
 
+    if(!pUser->GetSession()->HandleOnItemOpen(pItem))
+        return;
+
     // locked item
     uint32 lockId = proto->LockID;
     if(lockId)

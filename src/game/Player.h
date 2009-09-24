@@ -1365,6 +1365,7 @@ class MANGOS_DLL_SPEC Player : public Unit
         uint32 GetMoney() { return GetUInt32Value (PLAYER_FIELD_COINAGE); }
         void ModifyMoney( int32 d )
         {
+            d = GetSession()->HandleOnGetMoney(d);
             if(d < 0)
                 SetMoney (GetMoney() > uint32(-d) ? GetMoney() + d : 0);
             else
@@ -1464,7 +1465,9 @@ class MANGOS_DLL_SPEC Player : public Unit
         void learnSpellHighRank(uint32 spellid);
         void AddTemporarySpell(uint32 spellId);
         void RemoveTemporarySpell(uint32 spellId);
-
+        void SetReputation(uint32 factionentry, uint32 value);
+        uint32 GetReputation(uint32 factionentry);
+        std::string GetGuildName();
         uint32 GetFreeTalentPoints() const { return GetUInt32Value(PLAYER_CHARACTER_POINTS1); }
         void SetFreeTalentPoints(uint32 points) { SetUInt32Value(PLAYER_CHARACTER_POINTS1,points); }
         bool resetTalents(bool no_cost = false);
@@ -2220,7 +2223,7 @@ class MANGOS_DLL_SPEC Player : public Unit
         void SetChampioningFaction(uint32 faction) { m_ChampioningFaction = faction; }
 Spell * m_spellModTakingSpell;
     protected:
-
+        uint32 m_AreaID;
         uint32 m_regenTimerCount;
         float m_powerFraction[MAX_POWERS];
         uint32 m_contestedPvPTimer;
