@@ -221,8 +221,10 @@ void AuctionHouseBot::addNewAuctions(Player *AHBplayer, AHBConfig *config)
     if (debug_Out) sLog.outString("AHSeller: %u count", cnt);
         uint32 itemID = 0;
         uint32 itemColor = 99;
-        while (itemID == 0)
+        uint32 loopbreaker = 0;
+        while (itemID == 0 && loopbreaker <= 50)
         {
+            ++loopbreaker;
             uint32 choice = urand(0, 13);
             itemColor = choice;
             switch (choice)
@@ -489,27 +491,6 @@ void AuctionHouseBot::addNewAuctionBuyerBotBid(Player *AHBplayer, AHBConfig *con
         return;
     }
     
-    /*
-    uint32 AuctioneerGUID = 0;
-
-    switch (config->GetAHID())
-    {
-    case 2:
-        AuctioneerGUID = 79707; //Human in stormwind.
-        break;
-    case 6:
-        AuctioneerGUID = 4656; //orc in Orgrimmar
-        break;
-    case 7:
-        AuctioneerGUID = 23442; //goblin in GZ
-        break;
-    default:
-        if (debug_Out) sLog.outError("AHSeller: GetAHID() - Default switch reached");
-        AuctioneerGUID = 23442; //default to neutral 7
-        break;
-    }
-    */
-
     QueryResult* result = CharacterDatabase.PQuery("SELECT id FROM auctionhouse WHERE itemowner<>%u AND buyguid<>%u", AHBplayerGUID, AHBplayerGUID);
 
     if (!result)
@@ -1422,25 +1403,25 @@ void AuctionHouseBot::IncrementItemCounts(AuctionEntry* ah)
 
     AHBConfig *config;
 
-    FactionTemplateEntry const* u_entry = sFactionTemplateStore.LookupEntry(ah->GetHouseId());
+    FactionTemplateEntry const* u_entry = sFactionTemplateStore.LookupEntry(ah->GetHouseFaction());
     if (!u_entry)
     {
-        if (debug_Out) sLog.outError("AHBot: %u returned as House ID. No Entry", ah->GetHouseId());
+        if (debug_Out) sLog.outError("AHBot: %u returned as House Faction. Neutral", ah->GetHouseFaction());
         config = &NeutralConfig;
     }
     else if (u_entry->ourMask & FACTION_MASK_ALLIANCE)
     {
-        if (debug_Out) sLog.outError("AHBot: %u returned as House ID. Alliance", ah->GetHouseId());
+        if (debug_Out) sLog.outError("AHBot: %u returned as House Faction. Alliance", ah->GetHouseFaction());
         config = &AllianceConfig;
     }
     else if (u_entry->ourMask & FACTION_MASK_HORDE)
     {
-        if (debug_Out) sLog.outError("AHBot: %u returned as House ID. Horde", ah->GetHouseId());
+        if (debug_Out) sLog.outError("AHBot: %u returned as House Faction. Horde", ah->GetHouseFaction());
         config = &HordeConfig;
     }
     else
     {
-        if (debug_Out) sLog.outError("AHBot: %u returned as House ID. Neutral", ah->GetHouseId());
+        if (debug_Out) sLog.outError("AHBot: %u returned as House Faction. Neutral", ah->GetHouseFaction());
         config = &NeutralConfig;
     }
 
@@ -1454,25 +1435,25 @@ void AuctionHouseBot::DecrementItemCounts(AuctionEntry* ah, uint32 item_template
 
     AHBConfig *config;
 
-    FactionTemplateEntry const* u_entry = sFactionTemplateStore.LookupEntry(ah->GetHouseId());
+    FactionTemplateEntry const* u_entry = sFactionTemplateStore.LookupEntry(ah->GetHouseFaction());
     if (!u_entry)
     {
-        if (debug_Out) sLog.outError("AHBot: %u returned as House ID. No Entry", ah->GetHouseId());
+        if (debug_Out) sLog.outError("AHBot: %u returned as House Faction. Neutral", ah->GetHouseFaction());
         config = &NeutralConfig;
     }
     else if (u_entry->ourMask & FACTION_MASK_ALLIANCE)
     {
-        if (debug_Out) sLog.outError("AHBot: %u returned as House ID. Alliance", ah->GetHouseId());
+        if (debug_Out) sLog.outError("AHBot: %u returned as House Faction. Alliance", ah->GetHouseFaction());
         config = &AllianceConfig;
     }
     else if (u_entry->ourMask & FACTION_MASK_HORDE)
     {
-        if (debug_Out) sLog.outError("AHBot: %u returned as House ID. Horde", ah->GetHouseId());
+        if (debug_Out) sLog.outError("AHBot: %u returned as House Faction. Horde", ah->GetHouseFaction());
         config = &HordeConfig;
     }
     else
     {
-        if (debug_Out) sLog.outError("AHBot: %u returned as House ID. Neutral", ah->GetHouseId());
+        if (debug_Out) sLog.outError("AHBot: %u returned as House Faction. Neutral", ah->GetHouseFaction());
         config = &NeutralConfig;
     }
 

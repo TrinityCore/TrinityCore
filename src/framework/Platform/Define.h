@@ -137,11 +137,6 @@ typedef uint32      DWORD;
 
 typedef uint64 OBJECT_HANDLE;
 
-#define MULTI_THREAD_MAP
-#ifdef MULTI_THREAD_MAP
-#define MAP_BASED_RAND_GEN
-#endif
-
 #define MaNGOS              Trinity
 #define MANGOS_DLL_DECL     TRINITY_DLL_DECL
 #define MANGOS_DLL_SPEC     TRINITY_DLL_SPEC
@@ -154,6 +149,14 @@ typedef uint64 OBJECT_HANDLE;
 #  ifndef MANGOS_DEBUG
 #    define MANGOS_DEBUG
 #  endif
+#endif
+
+#if !defined(DEBUG) && !defined(MANGOS_DEBUG) && !defined(TRINITY_DEBUG)
+#define MULTI_THREAD_MAP
+#endif
+
+#ifdef MULTI_THREAD_MAP
+#define MAP_BASED_RAND_GEN
 #endif
 
 #ifndef CLIENT_VER
