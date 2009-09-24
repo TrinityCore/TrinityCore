@@ -724,6 +724,7 @@ bool Creature::Create(uint32 guidlow, Map *map, uint32 phaseMask, uint32 Entry, 
         }
         LoadCreaturesAddon();
     }
+    SetDisplayId(GetCreatureInfo()->GetRandomValidModelId());
     return bResult;
 }
 
@@ -1842,6 +1843,8 @@ void Creature::Respawn(bool force)
         }
         else
             setDeathState( JUST_ALIVED );
+
+        SetDisplayId(cinfo->GetRandomValidModelId());
 
         //Call AI respawn virtual function
         AI()->JustRespawned();

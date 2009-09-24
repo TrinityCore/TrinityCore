@@ -870,8 +870,8 @@ void Creature::UpdateDamagePhysical(WeaponAttackType attType)
         weapon_maxdamage = 0;
     }
 
-    float mindamage = ((base_value * dmg_multiplier + weapon_mindamage) * base_pct + total_value) * total_pct;
-    float maxdamage = ((base_value * dmg_multiplier + weapon_maxdamage) * base_pct + total_value) * total_pct;
+    float mindamage = ((base_value + weapon_mindamage) * dmg_multiplier * base_pct + total_value) * total_pct;
+    float maxdamage = ((base_value + weapon_maxdamage) * dmg_multiplier * base_pct + total_value) * total_pct;
 
     switch(attType)
     {
