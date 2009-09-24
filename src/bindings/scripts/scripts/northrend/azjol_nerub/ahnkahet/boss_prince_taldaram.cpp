@@ -53,7 +53,10 @@ EndScriptData */
 #define H_DATA_EMBRACE_DMG                  40000
 
 #define DATA_GROUND_POSITION_Z               11.4
-#define DATA_SPHERE_DISTANCE                100.0
+#define DATA_SPHERE_DISTANCE                   20
+#define DATA_SPHERE_ANGLE_OFFSET                1
+
+#define ACHIEVEMENT_THE_PARTY_IS_OVER        1861
 
 //not in db
 //Yell
@@ -95,6 +98,9 @@ struct TRINITY_DLL_DECL boss_taldaramAI : public ScriptedAI
     uint64 uiSphereGuids[2];
 
     Unit *pEmbraceTarget;
+    Unit *pSphereTarget;
+    
+    Creature* pSpheres[3];
     
     CombatPhase Phase;
     
@@ -131,14 +137,38 @@ struct TRINITY_DLL_DECL boss_taldaramAI : public ScriptedAI
             {
                 case CASTING_FLAME_SPHERES:
                     //DoCast(m_creature, SPELL_FLAME_SPHERE_SUMMON_1);
-                    DoSpawnCreature(CREATURE_FLAME_SPHERE, 0, 0, 5, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 10000);
+                    pSpheres[0] = DoSpawnCreature(CREATURE_FLAME_SPHERE, 0, 0, 5, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 10000);
+                    pSphereTarget = SelectUnit(SELECT_TARGET_RANDOM, 0);
+                    while (pSphereTarget && pSphereTarget->GetTypeId() != TYPEID_PLAYER)
+                        pSphereTarget = SelectUnit(SELECT_TARGET_RANDOM,0);
+                    if (pSphereTarget)
+                    {
+                        float angle,x,y;
+                        angle = pSpheres[0]->GetAngle(pSphereTarget);
+                        x = pSpheres[0]->GetPositionX() + DATA_SPHERE_DISTANCE * cos(angle);
+                        y = pSpheres[0]->GetPositionY() + DATA_SPHERE_DISTANCE * sin(angle);
+                        pSpheres[0]->GetMotionMaster()->MovePoint(0, x, y, pSpheres[0]->GetPositionZ());
+                    }
                     if (HeroicMode)
                     {
                         //DoCast(m_creature, H_SPELL_FLAME_SPHERE_SUMMON_1);
-                        DoSpawnCreature(H_CREATURE_FLAME_SPHERE_1, 0, 0, 5, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 10000);
+                        pSpheres[1] = DoSpawnCreature(H_CREATURE_FLAME_SPHERE_1, 0, 0, 5, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 10000);
                         //DoCast(m_creature, H_SPELL_FLAME_SPHERE_SUMMON_2);
-                        DoSpawnCreature(H_CREATURE_FLAME_SPHERE_2, 0, 0, 5, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 10000);
+                        pSpheres[2] = DoSpawnCreature(H_CREATURE_FLAME_SPHERE_2, 0, 0, 5, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 10000);
+                        if (pSphereTarget)
+                        {
+                            float angle,x,y;
+                            angle = pSpheres[1]->GetAngle(pSphereTarget) + DATA_SPHERE_ANGLE_OFFSET;
+                            x = pSpheres[1]->GetPositionX() + DATA_SPHERE_DISTANCE/2 * cos(angle);
+                            y = pSpheres[1]->GetPositionY() + DATA_SPHERE_DISTANCE/2 * sin(angle);
+                            pSpheres[1]->GetMotionMaster()->MovePoint(0, x, y, pSpheres[1]->GetPositionZ());
+                            angle = pSpheres[2]->GetAngle(pSphereTarget) - DATA_SPHERE_ANGLE_OFFSET;
+                            x = pSpheres[2]->GetPositionX() + DATA_SPHERE_DISTANCE/2 * cos(angle);
+                            y = pSpheres[2]->GetPositionY() + DATA_SPHERE_DISTANCE/2 * sin(angle);
+                            pSpheres[2]->GetMotionMaster()->MovePoint(0, x, y, pSpheres[2]->GetPositionZ());
+                        }
                     }
+                    
                     Phase = NORMAL;
                     uiPhaseTimer = 0;
                 break;
@@ -227,7 +257,31 @@ struct TRINITY_DLL_DECL boss_taldaramAI : public ScriptedAI
         DoScriptText(SAY_DEATH, m_creature);
         
         if (pInstance)
+        {
             pInstance->SetData(DATA_PRINCE_TALDARAM_EVENT, DONE);
+            
+            //Count players
+            Unit *target = NULL;
+            std::list<HostilReference *> t_list = m_creature->getThreatManager().getThreatList();
+            std::vector<Unit *> target_list;
+            for(std::list<HostilReference *>::iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)
+            {
+                target = Unit::GetUnit(*m_creature, (*itr)->getUnitGuid());
+                // exclude pets & totems
+                if (target && target->GetTypeId() == TYPEID_PLAYER)
+                  target_list.push_back(target);
+                target = NULL;
+            }
+            if (HeroicMode && target_list.size() < 5)
+            {
+                AchievementEntry const *AchievThePartyIsOver = GetAchievementStore()->LookupEntry(ACHIEVEMENT_THE_PARTY_IS_OVER);
+                if (AchievThePartyIsOver)
+                {
+                    for(std::vector<Unit *>::iterator itr = target_list.begin(); itr!= target_list.end(); ++itr)
+                        ((Player*)(*itr))->CompletedAchievement(AchievThePartyIsOver);
+                }
+            }
+        }
     }
 
     void KilledUnit(Unit *victim)
@@ -268,6 +322,7 @@ struct TRINITY_DLL_DECL boss_taldaramAI : public ScriptedAI
         m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
         m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
         m_creature->RemoveAurasDueToSpell(SPELL_BEAM_VISUAL);
+        m_creature->SetUnitMovementFlags(MOVEMENTFLAG_WALK_MODE);
         m_creature->SetHomePosition(m_creature->GetPositionX(), m_creature->GetPositionY(), DATA_GROUND_POSITION_Z, m_creature->GetOrientation());
         uint64 prison_GUID = pInstance->GetData64(DATA_PRINCE_TALDARAM_PLATFORM);
         pInstance->HandleGameObject(prison_GUID,true);
@@ -287,21 +342,13 @@ struct TRINITY_DLL_DECL mob_taldaram_flamesphereAI : public ScriptedAI
     void Reset()
     {
         m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-        m_creature->AddUnitMovementFlag(MOVEMENTFLAG_FLYING + MOVEMENTFLAG_HOVER);
+        m_creature->AddUnitMovementFlag(MOVEMENTFLAG_FLYING);
         m_creature->setFaction(16);
+        m_creature->SetFloatValue(OBJECT_FIELD_SCALE_X, 1.0f);
         DoCast(m_creature, SPELL_FLAME_SPHERE_VISUAL);
         DoCast(m_creature, SPELL_FLAME_SPHERE_SPAWN_EFFECT);
         DoCast(m_creature, HeroicMode ? H_SPELL_FLAME_SPHERE_PERIODIC : SPELL_FLAME_SPHERE_PERIODIC);
         uiDespawnTimer = 10000;
-        Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0);
-        if (pTarget)
-        {
-            float angle,x,y;
-            angle = m_creature->GetAngle(pTarget);
-            x = m_creature->GetPositionX() + DATA_SPHERE_DISTANCE * cos(angle);
-            y = m_creature->GetPositionY() + DATA_SPHERE_DISTANCE * sin(angle);
-            m_creature->GetMotionMaster()->MovePoint(0, x, y, m_creature->GetPositionZ());
-        }
     }
     
     void EnterCombat(Unit *who) {}

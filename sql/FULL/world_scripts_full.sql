@@ -171,6 +171,7 @@ UPDATE `creature_template` SET `ScriptName`='boss_ambassador_hellmaw' WHERE `ent
 UPDATE `creature_template` SET `ScriptName`='mob_voidtraveler' WHERE `entry`=19226;
 
 /* AZJOL-NERUB */
+UPDATE `creature_template` SET `ScriptName`='boss_krik_thir' where `entry`=28684;
 
 /* AHN'KAHET: THE OLD KINGDOM */
 UPDATE `instance_template` SET `script`='instance_ahnkahet' WHERE `map`=619;
