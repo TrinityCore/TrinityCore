@@ -39,12 +39,14 @@ class Item;
 class Object;
 class Player;
 class Unit;
+class GameObject;
 class WorldPacket;
 class WorldSocket;
 class WorldSession;
 class QueryResult;
 class LoginQueryHolder;
 class CharacterHandler;
+class AreaTableEntry;
 
 enum AccountDataType
 {
