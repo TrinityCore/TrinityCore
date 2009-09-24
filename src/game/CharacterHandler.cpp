@@ -1368,3 +1368,48 @@ void WorldSession::HandleEquipmentSetUse(WorldPacket &recv_data)
     data << uint8(0);                                       // 4 - equipment swap failed - inventory is full
     SendPacket(&data);
 }
+
+void WorldSession::HandleOnPVPKill(Player *killed)
+{
+    Script->OnPVPKill(GetPlayer(), killed);
+}
+
+bool WorldSession::HandleOnPlayerChat(const char *text)
+{
+    return Script->OnPlayerChat(GetPlayer(), text);
+}
+
+uint32 WorldSession::HandleOnGetXP(uint32 amount)
+{
+    return Script->OnGetXP(GetPlayer(), amount);
+}
+
+int32 WorldSession::HandleOnGetMoney(int32 amount)
+{
+    return Script->OnGetMoney(GetPlayer(), amount);
+}
+
+void WorldSession::HandleOnAreaChange(AreaTableEntry const *pArea)
+{
+    Script->OnAreaChange(GetPlayer(), pArea);
+}
+
+bool WorldSession::HandleOnItemClick(Item *pItem)
+{
+    return Script->OnItemClick(GetPlayer(), pItem);
+}
+
+bool WorldSession::HandleOnItemOpen(Item *pItem)
+{
+    return Script->OnItemOpen(GetPlayer(), pItem);
+}
+
+bool WorldSession::HandleOnGoClick(GameObject *pGameObject)
+{
+    return Script->OnGoClick(GetPlayer(), pGameObject);
+}
+
+void WorldSession::HandleOnCreatureKill(Creature *pCreature)
+{
+    Script->OnCreatureKill(GetPlayer(), pCreature);
+}

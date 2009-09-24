@@ -41,6 +41,17 @@ void UnloadScriptingModule();
 typedef void(TRINITY_IMPORT * scriptCallOnLogin) (Player *pPlayer);
 typedef void(TRINITY_IMPORT * scriptCallOnLogout) (Player *pPlayer);
 typedef void(TRINITY_IMPORT * scriptCallOnPVPKill) (Player *killer, Player *killed);
+typedef bool(TRINITY_IMPORT * scriptCallOnSpellCast)(Unit *pUnitTarget, Item *pItemTarget, GameObject *pGoTarget, uint32 i, SpellEntry const *spell);
+typedef uint32(TRINITY_IMPORT * scriptCallOnGetXP) (Player *pPlayer, uint32 amount);
+typedef int32(TRINITY_IMPORT * scriptCallOnGetMoney) (Player *pPlayer, int32 amount);
+typedef bool(TRINITY_IMPORT * scriptCallOnPlayerChat) (Player *pPlayer, const char *text);
+typedef void(TRINITY_IMPORT * scriptCallOnServerStartup) ();
+typedef void(TRINITY_IMPORT * scriptCallOnServerShutdown) ();
+typedef void(TRINITY_IMPORT * scriptCallOnAreaChange) (Player *pPlayer, AreaTableEntry const *pArea);
+typedef bool(TRINITY_IMPORT * scriptCallOnItemClick) (Player *pPlayer, Item *pItem);
+typedef bool(TRINITY_IMPORT * scriptCallOnItemOpen) (Player *pPlayer, Item *pItem);
+typedef bool(TRINITY_IMPORT * scriptCallOnGoClick) (Player *pPlayer, GameObject *pGameObject);
+typedef void(TRINITY_IMPORT * scriptCallOnCreatureKill) (Player *pPlayer, Creature *pCreature);
 
 typedef void(TRINITY_IMPORT * scriptCallScriptsInit) (char const*);
 typedef void(TRINITY_IMPORT * scriptCallScriptsFree) ();
@@ -80,7 +91,17 @@ typedef struct
     scriptCallOnLogin OnLogin;
     scriptCallOnLogout OnLogout;
     scriptCallOnPVPKill OnPVPKill;
-
+    scriptCallOnSpellCast OnSpellCast;
+    scriptCallOnGetXP OnGetXP;
+    scriptCallOnGetMoney OnGetMoney;
+    scriptCallOnPlayerChat OnPlayerChat;
+    scriptCallOnServerStartup OnServerStartup;
+    scriptCallOnServerShutdown OnServerShutdown;
+    scriptCallOnAreaChange OnAreaChange;
+    scriptCallOnItemClick OnItemClick;
+    scriptCallOnItemOpen OnItemOpen;
+    scriptCallOnGoClick OnGoClick;
+    scriptCallOnCreatureKill OnCreatureKill;
     scriptCallGossipHello GossipHello;
     scriptCallGOChooseReward GOChooseReward;
     scriptCallQuestAccept QuestAccept;
