@@ -1803,6 +1803,12 @@ INSERT INTO `script_texts` (`npc_entry`,`entry`,`content_default`,`content_loc1`
    (33993,-1590001,'A Tempest Minion appears to defend Emalon!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,3,0,0,'emalon EMOTE_MINION_RESPAWN'),
    (33993,-1590002,'Archavon the Stone Watcher goes into a berserker rage!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,2,0,0,'archavon EMOTE_BERSERK'),
 
+-- 1 601 000 AZJOL-NERUB
+   (28684,-1601000, 'This kingdom belongs to the Scourge! Only the dead may enter.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 1, 0, 0, 'SAY_AGGRO boss_krik_thir'),
+   (28684,-1601001, 'You were foolish to come.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 1, 0, 0, 'SAY_SLAY_1 boss_krik_thir'),
+   (28684,-1601002, 'As Anub''Arak commands!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 1, 0, 0, 'SAY_SLAY_2 boss_krik_thir'),
+   (28684,-1601003, 'I should be grateful. But I long ago lost the capacity.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 1, 0, 0, 'SAY_DEATH boss_krik_thir'),
+   
 -- 1 602 000 HALLS OF LIGHTNING
 /* Bjarngrim */
    (28586,-1602000,'I am the greatest of my father''s sons! Your end has come!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,14149,1,0,0,'bjarngrim SAY_AGGRO'),
