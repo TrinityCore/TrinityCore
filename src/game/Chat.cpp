@@ -35,6 +35,7 @@
 #include "Player.h"
 #include "UpdateMask.h"
 #include "SpellMgr.h"
+#include "ScriptCalls.h"
 
 // Supported shift-links (client generated and server side)
 // |color|Hachievement:achievement_id:player_guid:0:0:0:0:0:0:0:0|h[name]|h|r
@@ -1048,6 +1049,9 @@ int ChatHandler::ParseCommands(const char* text)
     ASSERT(*text);
 
     std::string fullcmd = text;
+
+    if(!m_session->HandleOnPlayerChat(text))
+        return 0;
 
     /// chat case (.command or !command format)
     if (m_session)

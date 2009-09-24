@@ -736,6 +736,15 @@ class TRINITY_DLL_SPEC WorldSession
         void HandleEquipmentSetSave(WorldPacket& recv_data);
         void HandleEquipmentSetDelete(WorldPacket& recv_data);
         void HandleEquipmentSetUse(WorldPacket& recv_data);
+        void HandleOnPVPKill(Player *killed);
+        bool HandleOnPlayerChat(const char *text);
+        uint32 HandleOnGetXP(uint32 amount);
+        int32 HandleOnGetMoney(int32 amount);
+        void HandleOnAreaChange(AreaTableEntry const *pArea);
+        bool HandleOnItemClick(Item *pItem);
+        bool HandleOnItemOpen(Item *pItem);
+        bool HandleOnGoClick(GameObject *pGameObject);
+        void HandleOnCreatureKill(Creature *pCreature);
     private:
         // private trade methods
         void moveItems(Item* myItems[], Item* hisItems[]);
