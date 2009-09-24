@@ -37,6 +37,9 @@ enum Spells
     SPELL_CURSE_OF_FATIGUE                 =   52592,
     H_SPELL_CURSE_OF_FATIGUE               =   59368,
     SPELL_FRENZY                           =   28747, //maybe 53361
+
+    SPELL_SUMMON_SKITTERING_SWARMER        =   52438, //AOE Effect 140, maybe 52439
+    SPELL_SUMMON_SKITTERING_SWARMER_1      =   52439, //Summon 3x 28735
 };
 
 enum Mobs
@@ -44,12 +47,6 @@ enum Mobs
     MOB_SKITTERING_SWARMER                 =   28735,
     MOB_SKITTERING_SWARMER_CONTROLLER      =   32593,
     MOB_SKITTERING_INFECTIOR               =   28736,
-};
-
-enum Spells
-{
-    SPELL_SUMMON_SKITTERING_SWARMER        =   52438, //AOE Effect 140, maybe 52439
-    SPELL_SUMMON_SKITTERING_SWARMER_1      =   52439, //Summon 3x 28735
 };
 
 enum Yells
