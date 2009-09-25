@@ -738,8 +738,8 @@ bool Creature::Create(uint32 guidlow, Map *map, uint32 phaseMask, uint32 Entry, 
                 break;
         }
         LoadCreaturesAddon();
+        SetDisplayId(GetCreatureInfo()->GetRandomValidModelIdIncludingNativeId(GetNativeDisplayId()));
     }
-    SetDisplayId(GetCreatureInfo()->GetRandomValidModelIdIncludingNativeId(GetNativeDisplayId()));
     return bResult;
 }
 
