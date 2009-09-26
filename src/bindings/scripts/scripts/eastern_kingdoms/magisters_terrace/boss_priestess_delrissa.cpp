@@ -1110,21 +1110,16 @@ struct TRINITY_DLL_DECL boss_apokoAI : public boss_priestess_lackey_commonAI
 
         if (Totem_Timer < diff)
         {
-            switch(rand()%3)
-            {
-                case 0: DoCast(m_creature, SPELL_WINDFURY_TOTEM); break;
-                case 1: DoCast(m_creature, SPELL_FIRE_NOVA_TOTEM); break;
-                case 2: DoCast(m_creature, SPELL_EARTHBIND_TOTEM); break;
-            }
+            DoCast(m_creature, RAND(SPELL_WINDFURY_TOTEM,SPELL_FIRE_NOVA_TOTEM,SPELL_EARTHBIND_TOTEM));
             ++Totem_Amount;
             Totem_Timer = Totem_Amount*2000;
-        }else Totem_Timer -= diff;
+        } else Totem_Timer -= diff;
 
         if (War_Stomp_Timer < diff)
         {
             DoCast(m_creature, SPELL_WAR_STOMP);
             War_Stomp_Timer = 10000;
-        }else War_Stomp_Timer -= diff;
+        } else War_Stomp_Timer -= diff;
 
         if (Purge_Timer < diff)
         {
@@ -1132,13 +1127,13 @@ struct TRINITY_DLL_DECL boss_apokoAI : public boss_priestess_lackey_commonAI
                 DoCast(pUnit, SPELL_PURGE);
 
             Purge_Timer = 15000;
-        }else Purge_Timer -= diff;
+        } else Purge_Timer -= diff;
 
         if (Frost_Shock_Timer < diff)
         {
             DoCast(m_creature->getVictim(), SPELL_FROST_SHOCK);
             Frost_Shock_Timer = 7000;
-        }else Frost_Shock_Timer -= diff;
+        } else Frost_Shock_Timer -= diff;
 
         if (Healing_Wave_Timer < diff)
         {
@@ -1153,7 +1148,7 @@ struct TRINITY_DLL_DECL boss_apokoAI : public boss_priestess_lackey_commonAI
             Healing_Wave_Timer = 5000;
             //    }
             // }
-        }else Healing_Wave_Timer -= diff;
+        } else Healing_Wave_Timer -= diff;
 
         DoMeleeAttackIfReady();
     }

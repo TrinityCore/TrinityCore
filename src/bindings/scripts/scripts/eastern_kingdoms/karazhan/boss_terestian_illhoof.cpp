@@ -226,11 +226,7 @@ struct TRINITY_DLL_DECL boss_terestianAI : public ScriptedAI
 
     void KilledUnit(Unit *victim)
     {
-        switch(rand()%2)
-        {
-        case 0: DoScriptText(SAY_SLAY1, m_creature); break;
-        case 1: DoScriptText(SAY_SLAY2, m_creature); break;
-        }
+        DoScriptText(RAND(SAY_SLAY1,SAY_SLAY2), m_creature);
     }
 
     void JustDied(Unit *killer)
@@ -297,11 +293,7 @@ struct TRINITY_DLL_DECL boss_terestianAI : public ScriptedAI
                 {
                     CAST_AI(mob_demon_chainAI, Chains->AI())->SacrificeGUID = target->GetGUID();
                     Chains->CastSpell(Chains, SPELL_DEMON_CHAINS, true);
-                    switch(rand()%2)
-                    {
-                    case 0: DoScriptText(SAY_SACRIFICE1, m_creature); break;
-                    case 1: DoScriptText(SAY_SACRIFICE2, m_creature); break;
-                    }
+                    DoScriptText(RAND(SAY_SACRIFICE1,SAY_SACRIFICE2), m_creature);
                     SacrificeTimer = 30000;
                 }
             }
@@ -324,11 +316,7 @@ struct TRINITY_DLL_DECL boss_terestianAI : public ScriptedAI
                         PortalGUID[i] = Portal->GetGUID();
                 }
                 SummonedPortals = true;
-                switch(rand()%2)
-                {
-                case 0: DoScriptText(SAY_SUMMON1, m_creature); break;
-                case 1: DoScriptText(SAY_SUMMON2, m_creature); break;
-                }
+                DoScriptText(RAND(SAY_SUMMON1,SAY_SUMMON2), m_creature);
             }
             uint32 random = rand()%2;
             Creature* Imp = m_creature->SummonCreature(CREATURE_FIENDISHIMP, PortalLocations[random][0], PortalLocations[random][1], PORTAL_Z, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 15000);

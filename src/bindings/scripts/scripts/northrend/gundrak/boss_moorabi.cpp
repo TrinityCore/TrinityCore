@@ -10,19 +10,19 @@ Script Data End */
 
 //Spells
 
-#define SPELL_DETERMINED_STAB                     55104 
-#define SPELL_GROUND_TREMOR                       55142 
-#define SPELL_NUMBING_SHOUT                       55106 
+#define SPELL_DETERMINED_STAB                        55104 
+#define SPELL_GROUND_TREMOR                          55142 
+#define SPELL_NUMBING_SHOUT                          55106 
 
-#define SPELL_DETERMINED_GORE                     55102 
-#define SPELL_DETERMINED_GORE_1                   59444 
-#define SPELL_QUAKE                               55101 
-#define SPELL_NUMBING_ROAR                        55100 
+#define SPELL_DETERMINED_GORE                        55102 
+#define SPELL_DETERMINED_GORE_1                      59444 
+#define SPELL_QUAKE                                  55101 
+#define SPELL_NUMBING_ROAR                           55100 
 
-#define SPELL_MOJO_FRENZY                         55163 
-#define SPELL_TRANSFORMATION                      55098 //Periodic, The caster transforms into a powerful mammoth, increasing Physical damage done by 25% and granting immunity to Stun effects.
+#define SPELL_MOJO_FRENZY                            55163 
+#define SPELL_TRANSFORMATION                         55098 //Periodic, The caster transforms into a powerful mammoth, increasing Physical damage done by 25% and granting immunity to Stun effects.
 
-#define ACHIEVEMENT_LESS_RABI                     2040
+#define ACHIEVEMENT_LESS_RABI                         2040
 
 //Yell
 #define SAY_AGGRO                                 -1604010

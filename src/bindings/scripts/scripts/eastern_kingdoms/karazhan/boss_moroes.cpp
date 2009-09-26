@@ -121,12 +121,7 @@ struct TRINITY_DLL_DECL boss_moroesAI : public ScriptedAI
 
     void KilledUnit(Unit* victim)
     {
-        switch (rand()%3)
-        {
-        case 0: DoScriptText(SAY_KILL_1, m_creature); break;
-        case 1: DoScriptText(SAY_KILL_2, m_creature); break;
-        case 2: DoScriptText(SAY_KILL_3, m_creature); break;
-        }
+        DoScriptText(RAND(SAY_KILL_1,SAY_KILL_2,SAY_KILL_3), m_creature);
     }
 
     void JustDied(Unit* victim)
@@ -237,7 +232,7 @@ struct TRINITY_DLL_DECL boss_moroesAI : public ScriptedAI
                 {
                     Temp->AI()->AttackStart(m_creature->getVictim());
                     DoZoneInCombat(Temp);
-                }else
+                } else
                     EnterEvadeMode();
             }
         }
@@ -274,7 +269,7 @@ struct TRINITY_DLL_DECL boss_moroesAI : public ScriptedAI
                 }
             }
             CheckAdds_Timer = 5000;
-        }else CheckAdds_Timer -= diff;
+        } else CheckAdds_Timer -= diff;
 
         if (!Enrage)
         {
@@ -285,13 +280,13 @@ struct TRINITY_DLL_DECL boss_moroesAI : public ScriptedAI
                 InVanish = true;
                 Vanish_Timer = 30000;
                 Wait_Timer = 5000;
-            }else Vanish_Timer -= diff;
+            } else Vanish_Timer -= diff;
 
             if (Gouge_Timer < diff)
             {
                 DoCast(m_creature->getVictim(), SPELL_GOUGE);
                 Gouge_Timer = 40000;
-            }else Gouge_Timer -= diff;
+            } else Gouge_Timer -= diff;
 
             if (Blind_Timer < diff)
             {
@@ -304,24 +299,20 @@ struct TRINITY_DLL_DECL boss_moroesAI : public ScriptedAI
                 }
                 else
                     Blind_Timer = 1000;
-            }else Blind_Timer -= diff;
+            } else Blind_Timer -= diff;
         }
 
         if (InVanish)
         {
             if (Wait_Timer < diff)
             {
-                switch(rand()%2)
-                {
-                    case 0: DoScriptText(SAY_SPECIAL_1, m_creature); break;
-                    case 1: DoScriptText(SAY_SPECIAL_2, m_creature); break;
-                }
+                DoScriptText(RAND(SAY_SPECIAL_1,SAY_SPECIAL_2), m_creature);
 
                 if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0))
                    target->CastSpell(target, SPELL_GARROTE,true);
 
                 InVanish = false;
-            }else Wait_Timer -= diff;
+            } else Wait_Timer -= diff;
         }
 
         if (!InVanish)

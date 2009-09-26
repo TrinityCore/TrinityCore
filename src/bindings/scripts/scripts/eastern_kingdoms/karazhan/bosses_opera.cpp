@@ -580,11 +580,7 @@ struct TRINITY_DLL_DECL boss_croneAI : public ScriptedAI
 
     void EnterCombat(Unit* who)
     {
-        switch(rand()%2)
-        {
-        case 0: DoScriptText(SAY_CRONE_AGGRO, m_creature); break;
-        case 1: DoScriptText(SAY_CRONE_AGGRO2, m_creature); break;
-        }
+        DoScriptText(RAND(SAY_CRONE_AGGRO,SAY_CRONE_AGGRO2), m_creature);
         m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
         m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
     }

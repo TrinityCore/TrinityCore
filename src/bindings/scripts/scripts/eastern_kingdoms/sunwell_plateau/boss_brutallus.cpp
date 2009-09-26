@@ -130,12 +130,7 @@ struct TRINITY_DLL_DECL boss_brutallusAI : public ScriptedAI
 
     void KilledUnit(Unit* victim)
     {
-        switch(rand()%3)
-        {
-            case 0: DoScriptText(YELL_KILL1, m_creature); break;
-            case 1: DoScriptText(YELL_KILL2, m_creature); break;
-            case 2: DoScriptText(YELL_KILL3, m_creature); break;
-        }
+        DoScriptText(RAND(YELL_KILL1,YELL_KILL2,YELL_KILL3), m_creature);
     }
 
     void JustDied(Unit* Killer)
@@ -155,7 +150,8 @@ struct TRINITY_DLL_DECL boss_brutallusAI : public ScriptedAI
     {
         if (!Intro)
             return;
-        if (Madrigosa){
+        if (Madrigosa)
+        {
             Madrigosa->setDeathState(ALIVE);
             Madrigosa->setActive(true);
             IsIntro = true;
@@ -176,7 +172,7 @@ struct TRINITY_DLL_DECL boss_brutallusAI : public ScriptedAI
         if (!Madrigosa)
             return;
 
-        switch(IntroPhase)
+        switch (IntroPhase)
         {
             case 0:
                 DoScriptText(YELL_MADR_ICE_BARRIER, Madrigosa);
@@ -260,17 +256,20 @@ struct TRINITY_DLL_DECL boss_brutallusAI : public ScriptedAI
     {
         if (IsIntro)
         {
-            if (IntroPhaseTimer < diff){
+            if (IntroPhaseTimer < diff)
                 DoIntro();
-            }else IntroPhaseTimer -= diff;
+            else IntroPhaseTimer -= diff;
 
-            if (IntroPhase == 3 + 1){
-                if (IntroFrostBoltTimer < diff){
-                    if (Madrigosa){
+            if (IntroPhase == 3 + 1)
+            {
+                if (IntroFrostBoltTimer < diff)
+                {
+                    if (Madrigosa)
+                    {
                         Madrigosa->CastSpell(m_creature, SPELL_INTRO_FROSTBOLT, false);
                         IntroFrostBoltTimer = 2000;
                     }
-                }else IntroFrostBoltTimer -= diff;
+                } else IntroFrostBoltTimer -= diff;
             }
         }
 
@@ -281,33 +280,28 @@ struct TRINITY_DLL_DECL boss_brutallusAI : public ScriptedAI
         {
             DoCast(m_creature->getVictim(), SPELL_METEOR_SLASH);
             SlashTimer = 11000;
-        }else SlashTimer -= diff;
+        } else SlashTimer -= diff;
 
         if (StompTimer < diff)
         {
-            switch(rand()%3)
-            {
-                case 0: DoScriptText(YELL_LOVE1, m_creature); break;
-                case 1: DoScriptText(YELL_LOVE2, m_creature); break;
-                case 2: DoScriptText(YELL_LOVE3, m_creature); break;
-            }
+            DoScriptText(RAND(YELL_LOVE1,YELL_LOVE2,YELL_LOVE3), m_creature);
             DoCast(m_creature->getVictim(), SPELL_STOMP);
             StompTimer = 30000;
-        }else StompTimer -= diff;
+        } else StompTimer -= diff;
 
         if (BurnTimer < diff)
         {
             if (Unit *target = SelectUnit(SELECT_TARGET_RANDOM, 0))
                 target->CastSpell(target, SPELL_BURN, true);
             BurnTimer = 60000;
-        }else BurnTimer -= diff;
+        } else BurnTimer -= diff;
 
         if (BerserkTimer < diff && !Enraged)
         {
             DoScriptText(YELL_BERSERK, m_creature);
             DoCast(m_creature, SPELL_BERSERK);
             Enraged = true;
-        }else BerserkTimer -= diff;
+        } else BerserkTimer -= diff;
 
         DoMeleeAttackIfReady();
     }

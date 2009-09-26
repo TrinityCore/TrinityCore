@@ -212,12 +212,7 @@ struct TRINITY_DLL_DECL boss_malchezaarAI : public ScriptedAI
 
     void KilledUnit(Unit *victim)
     {
-        switch(rand()%3)
-        {
-        case 0: DoScriptText(SAY_SLAY1, m_creature); break;
-        case 1: DoScriptText(SAY_SLAY2, m_creature); break;
-        case 2: DoScriptText(SAY_SLAY3, m_creature); break;
-        }
+        DoScriptText(RAND(SAY_SLAY1,SAY_SLAY2,SAY_SLAY3), m_creature);
     }
 
     void JustDied(Unit *victim)
@@ -364,11 +359,7 @@ struct TRINITY_DLL_DECL boss_malchezaarAI : public ScriptedAI
             DoCast(Infernal, SPELL_INFERNAL_RELAY);
         }
 
-        switch(rand()%2)
-        {
-        case 0: DoScriptText(SAY_SUMMON1, m_creature); break;
-        case 1: DoScriptText(SAY_SUMMON2, m_creature); break;
-        }
+        DoScriptText(RAND(SAY_SUMMON1,SAY_SUMMON2), m_creature);
     }
 
     void UpdateAI(const uint32 diff)

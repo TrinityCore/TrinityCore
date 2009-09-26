@@ -77,26 +77,12 @@ struct TRINITY_DLL_DECL npc_crusade_persuadedAI : public ScriptedAI
                 me->SetReactState(REACT_PASSIVE);
                 DoCastAOE(58111, true);
 
-                switch(rand()%6)
-                {
-                    case 0: DoScriptText(SAY_PERSUADE1, caster);break;
-                    case 1: DoScriptText(SAY_PERSUADE2, caster);break;
-                    case 2: DoScriptText(SAY_PERSUADE3, caster);break;
-                    case 3: DoScriptText(SAY_PERSUADE4, caster);break;
-                    case 4: DoScriptText(SAY_PERSUADE5, caster);break;
-                    case 5: DoScriptText(SAY_PERSUADE6, caster);break;
-                    case 6: DoScriptText(SAY_PERSUADE7, caster);break;
-                }
+                DoScriptText(RAND(SAY_PERSUADE1,SAY_PERSUADE2,SAY_PERSUADE3,
+                                  SAY_PERSUADE4,SAY_PERSUADE5,SAY_PERSUADE6,
+                                  SAY_PERSUADE7), caster);
 
-                switch(rand()%5)
-                {
-                    case 0: DoScriptText(SAY_CRUSADER1, me);break;
-                    case 1: DoScriptText(SAY_CRUSADER2, me);break;
-                    case 2: DoScriptText(SAY_CRUSADER3, me);break;
-                    case 3: DoScriptText(SAY_CRUSADER4, me);break;
-                    case 4: DoScriptText(SAY_CRUSADER5, me);break;
-                    case 5: DoScriptText(SAY_CRUSADER6, me);break;
-                }
+                DoScriptText(RAND(SAY_CRUSADER1,SAY_CRUSADER2,SAY_CRUSADER3,
+                                  SAY_CRUSADER4,SAY_CRUSADER5,SAY_CRUSADER6), me);
             }
         }
     }
@@ -488,12 +474,8 @@ struct TRINITY_DLL_DECL mob_high_inquisitor_valrothAI : public ScriptedAI
 
     void Shout()
     {
-        switch(rand()%20)
-        {
-            case 0: DoScriptText(SAY_VALROTH3, me);break;
-            case 1: DoScriptText(SAY_VALROTH4, me);break;
-            case 2: DoScriptText(SAY_VALROTH5, me);break;
-        }
+        if(rand()%100 < 15)
+            DoScriptText(RAND(SAY_VALROTH3,SAY_VALROTH4,SAY_VALROTH5), me);
     }
 
     void JustDied(Unit* killer)

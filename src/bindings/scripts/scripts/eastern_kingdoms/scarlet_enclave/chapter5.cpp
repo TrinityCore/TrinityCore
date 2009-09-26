@@ -1297,62 +1297,49 @@ struct TRINITY_DLL_DECL npc_highlord_darion_mograineAI : public npc_escortAI
             {
                 DoCast(me, SPELL_ANTI_MAGIC_ZONE1);
                 uiAnti_magic_zone = 25000 + rand()%5000;
-            }else uiAnti_magic_zone -= diff;
+            } else uiAnti_magic_zone -= diff;
 
             if (uiDeath_strike < diff)
             {
                 DoCast(me->getVictim(), SPELL_DEATH_STRIKE);
                 uiDeath_strike = 5000 + rand()%5000;
-            }else uiDeath_strike -= diff;
+            } else uiDeath_strike -= diff;
 
             if (uiDeath_embrace < diff)
             {
                 DoCast(me->getVictim(), SPELL_DEATH_EMBRACE);
                 uiDeath_embrace = 5000 + rand()%5000;
-            }else uiDeath_embrace -= diff;
+            } else uiDeath_embrace -= diff;
 
             if (uiIcy_touch < diff)
             {
                 DoCast(me->getVictim(), SPELL_ICY_TOUCH1);
                 uiIcy_touch = 5000 + rand()%5000;
-            }else uiIcy_touch -= diff;
+            } else uiIcy_touch -= diff;
 
             if (uiUnholy_blight < diff)
             {
                 DoCast(me->getVictim(), SPELL_UNHOLY_BLIGHT);
                 uiUnholy_blight = 5000 + rand()%5000;
-            }else uiUnholy_blight -= diff;
+            } else uiUnholy_blight -= diff;
 
             if (uiFight_speech < diff)
             {
-                switch(rand()%15)
-                {
-                    case 0: DoScriptText(SAY_LIGHT_OF_DAWN09, me);break;
-                    case 1: DoScriptText(SAY_LIGHT_OF_DAWN10, me);break;
-                    case 2: DoScriptText(SAY_LIGHT_OF_DAWN11, me);break;
-                    case 3: DoScriptText(SAY_LIGHT_OF_DAWN12, me);break;
-                    case 4: DoScriptText(SAY_LIGHT_OF_DAWN13, me);break;
-                    case 5: DoScriptText(SAY_LIGHT_OF_DAWN14, me);break;
-                    case 6: DoScriptText(SAY_LIGHT_OF_DAWN15, me);break;
-                    case 7: DoScriptText(SAY_LIGHT_OF_DAWN16, me);break;
-                    case 8: DoScriptText(SAY_LIGHT_OF_DAWN17, me);break;
-                    case 9: DoScriptText(SAY_LIGHT_OF_DAWN18, me);break;
-                    case 10: DoScriptText(SAY_LIGHT_OF_DAWN19, me);break;
-                    case 11: DoScriptText(SAY_LIGHT_OF_DAWN20, me);break;
-                    case 12: DoScriptText(SAY_LIGHT_OF_DAWN21, me);break;
-                    case 13: DoScriptText(SAY_LIGHT_OF_DAWN22, me);break;
-                    case 14: DoScriptText(SAY_LIGHT_OF_DAWN23, me);break;
-                    case 15: DoScriptText(SAY_LIGHT_OF_DAWN24, me);break;
-                }
+                DoScriptText(RAND(SAY_LIGHT_OF_DAWN09,SAY_LIGHT_OF_DAWN10,SAY_LIGHT_OF_DAWN11,
+                                  SAY_LIGHT_OF_DAWN12,SAY_LIGHT_OF_DAWN13,SAY_LIGHT_OF_DAWN14,
+                                  SAY_LIGHT_OF_DAWN15,SAY_LIGHT_OF_DAWN16,SAY_LIGHT_OF_DAWN17,
+                                  SAY_LIGHT_OF_DAWN18,SAY_LIGHT_OF_DAWN19,SAY_LIGHT_OF_DAWN20,
+                                  SAY_LIGHT_OF_DAWN21,SAY_LIGHT_OF_DAWN22,SAY_LIGHT_OF_DAWN23,
+                                  SAY_LIGHT_OF_DAWN24), me);
                 uiFight_speech = 15000 + rand()%5000;
-            }else uiFight_speech -= diff;
+            } else uiFight_speech -= diff;
 
             // Check spawns
             if (uiSpawncheck < diff)
             {
                 SpawnNPC();
                 uiSpawncheck = 1000;
-            }else uiSpawncheck -= diff;
+            } else uiSpawncheck -= diff;
 
             // Check targets
             if (uiTargetcheck < diff)
@@ -1370,7 +1357,7 @@ struct TRINITY_DLL_DECL npc_highlord_darion_mograineAI : public npc_escortAI
                 NPCChangeTarget(uiThassarianGUID);
 
                 uiTargetcheck = 10000;
-            }else uiTargetcheck -= diff;
+            } else uiTargetcheck -= diff;
 
             // Battle end
             if (uiFight_duration < diff + 5000)
@@ -1476,7 +1463,7 @@ struct TRINITY_DLL_DECL npc_highlord_darion_mograineAI : public npc_escortAI
 
                 SetHoldState(false);
 
-            }else uiFight_duration -= diff;
+            } else uiFight_duration -= diff;
 
             DoMeleeAttackIfReady();
         }
