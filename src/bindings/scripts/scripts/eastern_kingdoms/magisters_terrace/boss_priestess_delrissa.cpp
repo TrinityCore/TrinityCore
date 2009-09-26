@@ -1066,7 +1066,7 @@ CreatureAI* GetAI_garaxxas(Creature* pCreature)
     return new boss_garaxxasAI(pCreature);
 }
 
-enum
+enum Spells
 {
     SPELL_WINDFURY_TOTEM        = 27621,
     SPELL_WAR_STOMP             = 46026,
