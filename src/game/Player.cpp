@@ -4442,8 +4442,27 @@ void Player::ResurrectPlayer(float restore_percent, bool applySickness)
     }
 }
 
+bool Player::FallGround(bool noDeath/* = false*/)
+{
+    // Let's abort after we called this function one time
+    if (getDeathState() == DEAD_FALLING && !noDeath)
+        return false;
+
+    float x, y, z;
+    GetPosition(x, y, z);
+    float ground_Z = GetMap()->GetVmapHeight(x, y, z, true);
+    if (fabs(ground_Z - z) < 0.1f)
+        return false;
+
+    GetMotionMaster()->MoveFall(ground_Z, EVENT_FALL_GROUND);
+    if(!noDeath) Unit::setDeathState(DEAD_FALLING);
+    return true;
+}
+
 void Player::KillPlayer()
 {
+    if(IsFlying()) FallGround();
+
     SetMovement(MOVE_ROOT);
 
     StopMirrorTimers();                                     //disable timers(bars)
