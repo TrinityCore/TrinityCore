@@ -521,10 +521,10 @@ void Master::_OnSignal(int s)
             break;
         case SIGTERM:
         #ifdef _WIN32
-        if (m_ServiceStatus != 1)
            case SIGBREAK:
         #endif
-            World::StopNow(SHUTDOWN_EXIT_CODE);
+            if (m_ServiceStatus != 1)
+                World::StopNow(SHUTDOWN_EXIT_CODE);
             break;
     }
 
