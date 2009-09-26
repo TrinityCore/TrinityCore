@@ -2007,7 +2007,7 @@ bool Creature::IsVisibleInGridForPlayer(Player const* pl) const
     // Live player (or with not release body see live creatures or death creatures with corpse disappearing time > 0
     if(pl->isAlive() || pl->GetDeathTimer() > 0)
     {
-        if( GetEntry() == VISUAL_WAYPOINT && !pl->isGameMaster() )
+        if( GetEntry() == VISUAL_WAYPOINT )
             return false;
         return (isAlive() || m_deathTimer > 0 || (m_isDeadByDefault && m_deathState==CORPSE));
     }
