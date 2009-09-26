@@ -339,7 +339,8 @@ void OnSignal(int s)
             break;
         #ifdef _WIN32
         case SIGBREAK:
-            stopEvent = true;
+            if (m_ServiceStatus != 1)
+                stopEvent = true;
             break;
         #endif
     }
