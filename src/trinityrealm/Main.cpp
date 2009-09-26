@@ -335,12 +335,14 @@ void OnSignal(int s)
     {
         case SIGINT:
         case SIGTERM:
+            stopEvent = true;
+            break;
         #ifdef _WIN32
         case SIGBREAK:
             if (m_ServiceStatus != 1)
-        #endif
                 stopEvent = true;
             break;
+        #endif
     }
 
     signal(s, OnSignal);
