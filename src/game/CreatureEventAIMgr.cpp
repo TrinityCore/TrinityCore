@@ -147,13 +147,14 @@ void CreatureEventAIMgr::LoadCreatureEventAI_Summons()
             //Add to map
             m_CreatureEventAI_Summon_Map[i] = temp;
             ++Count;
-        }while (result->NextRow());
+        } while (result->NextRow());
 
         delete result;
 
         sLog.outString();
         sLog.outString(">> Loaded %u CreatureEventAI summon definitions", Count);
-    }else
+    }
+    else
     {
         barGoLink bar(1);
         bar.step();
@@ -728,7 +729,8 @@ void CreatureEventAIMgr::LoadCreatureEventAI_Scripts()
 
         sLog.outString();
         sLog.outString(">> Loaded %u CreatureEventAI scripts", Count);
-    }else
+    }
+    else
     {
         barGoLink bar(1);
         bar.step();

@@ -113,7 +113,7 @@ void DynamicObject::Update(uint32 p_time)
 {
     // caster can be not in world at time dynamic object update, but dynamic object not yet deleted in Unit destructor
     Unit* caster = GetCaster();
-    if(!caster)
+    if (!caster)
     {
         Delete();
         return;
@@ -126,17 +126,17 @@ void DynamicObject::Update(uint32 p_time)
     else
         deleteThis = true;
 
-    if(m_effMask)
+    if (m_effMask)
     {
-        if(m_updateTimer < p_time)
+        if (m_updateTimer < p_time)
         {
             Trinity::DynamicObjectUpdater notifier(*this,caster);
             VisitNearbyObject(GetRadius(), notifier);
             m_updateTimer = 500; // is this official-like?
-        }else m_updateTimer -= p_time;
+        } else m_updateTimer -= p_time;
     }
 
-    if(deleteThis)
+    if (deleteThis)
     {
         caster->RemoveDynObjectWithGUID(GetGUID());
         Delete();
@@ -153,9 +153,9 @@ void DynamicObject::Delete()
 void DynamicObject::Delay(int32 delaytime)
 {
     m_aliveDuration -= delaytime;
-    for(AffectedSet::iterator iunit= m_affected.begin(); iunit != m_affected.end(); ++iunit)
+    for (AffectedSet::iterator iunit = m_affected.begin(); iunit != m_affected.end(); ++iunit)
         if (*iunit)
-            (*iunit)->DelayAura(m_spellId, GetCaster()->GetGUID() , delaytime);
+            (*iunit)->DelayAura(m_spellId, GetCaster()->GetGUID(), delaytime);
 }
 
 bool DynamicObject::isVisibleForInState(Player const* u, bool inVisibleList) const

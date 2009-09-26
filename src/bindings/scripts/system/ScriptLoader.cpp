@@ -261,7 +261,12 @@ extern void AddSC_ungoro_crater();
 extern void AddSC_winterspring();
 
 //northrend
+extern void AddSC_boss_slad_ran();
 extern void AddSC_boss_moorabi();
+extern void AddSC_boss_drakkari_colossus();
+extern void AddSC_boss_gal_darah();
+extern void AddSC_boss_eck();
+extern void AddSC_instance_gundrak();
 extern void AddSC_instance_ahnkahet();          //Azjol-Nerub Ahn'kahet
 extern void AddSC_boss_krik_thir();
 extern void AddSC_boss_taldaram();
@@ -670,12 +675,17 @@ void AddScripts()
     AddSC_winterspring();
 
     //northrend
+    AddSC_boss_slad_ran();               //Gundrak
     AddSC_boss_moorabi();
-    AddSC_instance_ahnkahet();          //Azjol-Nerub Ahn'kahet
-    AddSC_boss_krik_thir();
-    AddSC_boss_taldaram();
+    AddSC_boss_drakkari_colossus();
+    AddSC_boss_gal_darah();
+    AddSC_boss_eck();
+    AddSC_instance_gundrak();           
+    AddSC_boss_taldaram();              //Azjol-Nerub Ahn'kahet
     AddSC_boss_elder_nadox();
     AddSC_boss_volazj();
+    AddSC_instance_ahnkahet();          
+    AddSC_boss_krik_thir();             //Azjol-Nerub Azjol-Nerub 
     AddSC_boss_anubrekhan();            //Naxxramas
     AddSC_boss_maexxna();
     AddSC_boss_patchwerk();
@@ -717,6 +727,11 @@ void AddScripts()
     AddSC_boss_skarvald_dalronn();
     AddSC_boss_ingvar_the_plunderer();
     AddSC_instance_utgarde_keep();
+    AddSC_boss_svala();                 //Utgarde pinnacle
+    AddSC_boss_palehoof();
+    AddSC_boss_skadi();
+    AddSC_boss_ymiron();
+    AddSC_instance_utgarde_pinnacle();
     AddSC_utgarde_keep();
     AddSC_boss_archavon();              //Vault of Archavon
     AddSC_boss_emalon();

@@ -10,79 +10,212 @@ Script Data End */
 update creature_template set scriptname = 'boss_slad_ran' where entry = '';
 *** SQL END ***/
 #include "precompiled.h"
+#include "def_gundrak.h"
 
 //Spells
-#define SPELL_POISON_NOVA                           55081
-#define SPELL_POISON_NOVA_2                         59842
-//--
-#define SPELL_POWERFUL_BITE                         48287
-#define SPELL_POWERFUL_BITE_2                       59840
-//--
-#define SPELL_VENOM_BOLT                            54970
-#define SPELL_VENOM_BOLT_2                          59839
-//At 30% HPStart summoning small serpents
+enum Spells
+{
+    SPELL_POISON_NOVA                           = 55081,
+    H_SPELL_POISON_NOVA                         = 59842,
+    SPELL_POWERFULL_BITE                        = 48287,
+    H_SPELL_POWERFULL_BITE                      = 59840,
+    SPELL_VENOM_BOLT                            = 54970,
+    H_SPELL_VENOM_BOLT                          = 59839
+};
 
-//not in db
 //Yell
-#define SAY_AGGRO                                 -1604017
-#define SAY_SLAY_1                                -1604018
-#define SAY_SLAY_2                                -1604019
-#define SAY_SLAY_3                                -1604020
-#define SAY_DEATH                                 -1604021
-#define SAY_SUMMON_SNAKES                         -1604022  //npc 29680
-#define SAY_SUMMON_CONSTRICTORS                   -1604023  //npc 29713, can cast Grip of Slad'ran (spell 55093)
+enum Yells
+{
+    SAY_AGGRO                                 = -1604017,
+    SAY_SLAY_1                                = -1604018,
+    SAY_SLAY_2                                = -1604019,
+    SAY_SLAY_3                                = -1604020,
+    SAY_DEATH                                 = -1604021,
+    SAY_SUMMON_SNAKES                         = -1604022,
+    SAY_SUMMON_CONSTRICTORS                   = -1604023
+};
+
+//Creatures
+enum Creatures
+{
+    CREATURE_SNAKE                            = 29680,
+    CREATURE_CONSTRICTORS                     = 29713
+};
+
+//Creatures' spells
+enum ConstrictorSpells
+{
+    SPELL_GRIP_OF_SLAD_RAN                    = 55093,
+    SPELL_VENOMOUS_BITE                       = 54987,
+    H_SPELL_VENOMOUS_BITE                     = 58996
+};
 
 struct TRINITY_DLL_DECL boss_slad_ranAI : public ScriptedAI
 {
-    boss_slad_ranAI(Creature *c) : ScriptedAI(c) {}
+    boss_slad_ranAI(Creature *c) : ScriptedAI(c)
+    {
+        pInstance = c->GetInstanceData();
+    }
+    
+    uint32 uiPoisonNovaTimer;
+    uint32 uiPowerfullBiteTimer;
+    uint32 uiVenomBoltTimer;
+    uint32 uiSpawnTimer;
+    
+    uint8 uiPhase;
 
-    void Reset() {}
+    ScriptedInstance* pInstance;
+    
+    void Reset()
+    {
+        uiPoisonNovaTimer = 10000;
+        uiPowerfullBiteTimer = 3000;
+        uiVenomBoltTimer = 15000;
+        uiSpawnTimer = 5000;
+        uiPhase = 0;
+        
+        if (pInstance)
+            pInstance->SetData(DATA_SLAD_RAN_EVENT, NOT_STARTED);
+    }
+    
     void EnterCombat(Unit* who)
     {
         DoScriptText(SAY_AGGRO, m_creature);
+        
+        if (pInstance)
+            pInstance->SetData(DATA_SLAD_RAN_EVENT, IN_PROGRESS);
     }
-    void AttackStart(Unit* who) {}
-    void MoveInLineOfSight(Unit* who) {}
+    
     void UpdateAI(const uint32 diff)
     {
         //Return since we have no target
         if (!UpdateVictim())
             return;
-
-        if ((m_creature->GetHealth()*100 / m_creature->GetMaxHealth()) < 30)
+        
+        if (uiPoisonNovaTimer < diff)
         {
-            //Summon 3 snakes --> npc 29680
-            DoScriptText(SAY_SUMMON_SNAKES,m_creature);
+            DoCast(m_creature->getVictim(), HeroicMode ? H_SPELL_POISON_NOVA : SPELL_POISON_NOVA);
+            uiPoisonNovaTimer = 15000;
+        } else uiPoisonNovaTimer -= diff;
+        
+        if (uiPowerfullBiteTimer < diff)
+        {
+            DoCast(m_creature->getVictim(), HeroicMode ? H_SPELL_POWERFULL_BITE : SPELL_POWERFULL_BITE);
+            uiPowerfullBiteTimer = 10000;
+        } else uiPowerfullBiteTimer -= diff;
+        
+        if (uiVenomBoltTimer < diff)
+        {
+            DoCast(m_creature->getVictim(), HeroicMode ? H_SPELL_VENOM_BOLT : SPELL_VENOM_BOLT);
+            uiVenomBoltTimer = 10000;
+        } else uiVenomBoltTimer -= diff;
+        
+        if (uiPhase)
+        {
+            if(uiSpawnTimer < diff)
+            {
+                if (uiPhase == 1)
+                    for (uint8 i = 0;i< HeroicMode ? 5 : 3;++i)
+                        m_creature->SummonCreature(CREATURE_SNAKE, rand()%5, rand()%5, 0, 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN,20000);
+                if (uiPhase == 2)
+                    for (uint8 i = 0;i< HeroicMode ? 5 : 3;++i)
+                        m_creature->SummonCreature(CREATURE_CONSTRICTORS, rand()%5, rand()%5, 0, 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN,20000);
+                uiSpawnTimer = 5000;
+            } else uiSpawnTimer -= diff;
         }
-        if ((m_creature->GetHealth()*100 / m_creature->GetMaxHealth()) < 25)
+
+        if ((uiPhase == 0) && (m_creature->GetHealth()*100 / m_creature->GetMaxHealth()) < 30)
         {
-            //Summon 3 constrictors --> npc 29713
+            DoScriptText(SAY_SUMMON_SNAKES,m_creature);
+            uiPhase = 1;
+        }
+        if ((uiPhase == 1) && (m_creature->GetHealth()*100 / m_creature->GetMaxHealth()) < 25)
+        {
             DoScriptText(SAY_SUMMON_CONSTRICTORS,m_creature);
+            uiPhase = 2;
         }
 
         DoMeleeAttackIfReady();
     }
+    
     void JustDied(Unit* killer)
     {
         DoScriptText(SAY_DEATH, m_creature);
+        
+        if (pInstance)
+            pInstance->SetData(DATA_SLAD_RAN_EVENT, DONE);
     }
+    
     void KilledUnit(Unit *victim)
     {
-        if (victim == m_creature)
-            return;
+        DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2,SAY_SLAY_3), m_creature);
+    }
+};
 
-        switch(rand()%3)
+struct TRINITY_DLL_DECL mob_slad_ran_constrictorAI : public ScriptedAI
+{
+    mob_slad_ran_constrictorAI(Creature *c) : ScriptedAI(c) {}
+    
+    uint32 uiGripOfSladRanTimer;
+    
+    void Reset()
+    {
+        uiGripOfSladRanTimer = 1000;
+    }
+    
+    void UpdateAI(const uint32 diff)
+    {
+        if (!UpdateVictim())
+            return;
+        if (uiGripOfSladRanTimer < diff)
         {
-            case 0:DoScriptText(SAY_SLAY_1, m_creature);break;
-            case 1:DoScriptText(SAY_SLAY_2, m_creature);break;
-            case 2:DoScriptText(SAY_SLAY_3, m_creature);break;
-        }
+            DoCast(m_creature->getVictim(), SPELL_GRIP_OF_SLAD_RAN);
+            uiGripOfSladRanTimer = 5000;
+        } else uiGripOfSladRanTimer -= diff;;
+    }
+    
+    ScriptedInstance* pInstance;
+};
+
+struct TRINITY_DLL_DECL mob_slad_ran_viperAI : public ScriptedAI
+{
+    mob_slad_ran_viperAI(Creature *c) : ScriptedAI(c) {}
+    
+    uint32 uiVenomousBiteTimer;
+    
+    ScriptedInstance* pInstance;
+    
+    void Reset()
+    {
+        uiVenomousBiteTimer = 2000;
+    }
+    
+    void UpdateAI(const uint32 diff)
+    {
+        if (!UpdateVictim())
+            return;
+        
+        if (uiVenomousBiteTimer < diff)
+        {
+            DoCast(m_creature->getVictim(), HeroicMode ? H_SPELL_VENOMOUS_BITE : SPELL_VENOMOUS_BITE);
+            uiVenomousBiteTimer = 10000;
+        } else uiVenomousBiteTimer -= diff;
     }
 };
 
 CreatureAI* GetAI_boss_slad_ran(Creature* pCreature)
 {
     return new boss_slad_ranAI (pCreature);
+}
+
+CreatureAI* GetAI_mob_slad_ran_constrictor(Creature* pCreature)
+{
+    return new mob_slad_ran_constrictorAI (pCreature);
+}
+
+CreatureAI* GetAI_mob_slad_ran_viper(Creature* pCreature)
+{
+    return new mob_slad_ran_viperAI (pCreature);
 }
 
 void AddSC_boss_slad_ran()
@@ -92,5 +225,15 @@ void AddSC_boss_slad_ran()
     newscript = new Script;
     newscript->Name="boss_slad_ran";
     newscript->GetAI = &GetAI_boss_slad_ran;
+    newscript->RegisterSelf();
+    
+    newscript = new Script;
+    newscript->Name="mob_slad_ran_constrictor";
+    newscript->GetAI = &GetAI_mob_slad_ran_constrictor;
+    newscript->RegisterSelf();
+    
+    newscript = new Script;
+    newscript->Name="mob_slad_ran_viper";
+    newscript->GetAI = &GetAI_mob_slad_ran_viper;
     newscript->RegisterSelf();
 }
