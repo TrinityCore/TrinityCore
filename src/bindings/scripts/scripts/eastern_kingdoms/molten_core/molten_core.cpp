@@ -49,16 +49,8 @@ CreatureAI* GetAI_mob_ancient_core_hound(Creature* pCreature)
     ai->Spell[0].First_Cast       = 10000;
     ai->Spell[0].Cast_Target_Type = CAST_HOSTILE_TARGET;
 
-    uint32 RandDebuff = 0;
-    switch(rand()%6)
-    {
-        case 0 : RandDebuff = SPELL_GROUND_STOMP;       break;
-        case 1 : RandDebuff = SPELL_ANCIENT_DREAD;      break;
-        case 2 : RandDebuff = SPELL_CAUTERIZING_FLAMES; break;
-        case 3 : RandDebuff = SPELL_WITHERING_HEAT;     break;
-        case 4 : RandDebuff = SPELL_ANCIENT_DESPAIR;    break;
-        case 5 : RandDebuff = SPELL_ANCIENT_HYSTERIA;   break;
-    }
+    uint32 RandDebuff = RAND(SPELL_GROUND_STOMP,SPELL_ANCIENT_DREAD,SPELL_CAUTERIZING_FLAMES,
+                             SPELL_WITHERING_HEAT,SPELL_ANCIENT_DESPAIR,SPELL_ANCIENT_HYSTERIA);
 
     ai->Spell[1].Enabled          = true;
     ai->Spell[1].Spell_Id         = RandDebuff;

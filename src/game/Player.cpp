@@ -4461,7 +4461,7 @@ bool Player::FallGround(bool noDeath/* = false*/)
 
 void Player::KillPlayer()
 {
-    if(IsFlying()) FallGround();
+    if(IsFlying() && !GetTransport()) FallGround();
 
     SetMovement(MOVE_ROOT);
 

@@ -354,14 +354,7 @@ void CreatureEventAI::ProcessAction(CreatureEventAI_Action const& action, uint32
             int32 temp = 0;
 
             if (action.text.TextId2 && action.text.TextId3)
-            {
-                switch( rand()%3 )
-                {
-                    case 0: temp = action.text.TextId1; break;
-                    case 1: temp = action.text.TextId2; break;
-                    case 2: temp = action.text.TextId3; break;
-                }
-            }
+                temp = RAND(action.text.TextId1,action.text.TextId2,action.text.TextId3);
             else if (action.text.TextId2 && urand(0,1))
                 temp = action.text.TextId2;
             else

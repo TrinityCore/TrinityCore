@@ -65,11 +65,7 @@ struct  TRINITY_DLL_DECL boss_curatorAI : public ScriptedAI
 
     void KilledUnit(Unit *victim)
     {
-        switch(rand()%2)
-        {
-            case 0: DoScriptText(SAY_KILL1, m_creature); break;
-            case 1: DoScriptText(SAY_KILL2, m_creature); break;
-        }
+        DoScriptText(RAND(SAY_KILL1,SAY_KILL2), m_creature);
     }
 
     void JustDied(Unit *victim)
@@ -151,10 +147,9 @@ struct  TRINITY_DLL_DECL boss_curatorAI : public ScriptedAI
                     }
                     else
                     {
-                        switch(rand()%4)
+                        if(urand(0,1) == 0)
                         {
-                            case 0: DoScriptText(SAY_SUMMON1, m_creature); break;
-                            case 1: DoScriptText(SAY_SUMMON2, m_creature); break;
+                            DoScriptText(RAND(SAY_SUMMON1,SAY_SUMMON2), m_creature);
                         }
                     }
                 }

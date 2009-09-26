@@ -62,15 +62,8 @@ struct TRINITY_DLL_DECL boss_maiden_of_virtueAI : public ScriptedAI
 
     void KilledUnit(Unit* Victim)
     {
-        if (rand()%2)
-            return;
-
-        switch(rand()%3)
-        {
-        case 0: DoScriptText(SAY_SLAY1, m_creature);break;
-        case 1: DoScriptText(SAY_SLAY2, m_creature);break;
-        case 2: DoScriptText(SAY_SLAY3, m_creature);break;
-        }
+        if (urand(0,1) == 0)
+            DoScriptText(RAND(SAY_SLAY1,SAY_SLAY2,SAY_SLAY3), m_creature);
     }
 
     void JustDied(Unit* Killer)
@@ -80,7 +73,7 @@ struct TRINITY_DLL_DECL boss_maiden_of_virtueAI : public ScriptedAI
 
     void EnterCombat(Unit *who)
     {
-         DoScriptText(SAY_AGGRO, m_creature);
+        DoScriptText(SAY_AGGRO, m_creature);
     }
 
     void UpdateAI(const uint32 diff)
@@ -92,25 +85,21 @@ struct TRINITY_DLL_DECL boss_maiden_of_virtueAI : public ScriptedAI
         {
             DoCast(m_creature, SPELL_BERSERK,true);
             Enraged = true;
-        }else Enrage_Timer -=diff;
+        } else Enrage_Timer -=diff;
 
         if (Holyground_Timer < diff)
         {
             DoCast(m_creature, SPELL_HOLYGROUND, true);     //Triggered so it doesn't interrupt her at all
             Holyground_Timer = 3000;
-        }else Holyground_Timer -= diff;
+        } else Holyground_Timer -= diff;
 
         if (Repentance_Timer < diff)
         {
             DoCast(m_creature->getVictim(),SPELL_REPENTANCE);
+            DoScriptText(RAND(SAY_REPENTANCE1,SAY_REPENTANCE2), m_creature);
 
-            switch(rand()%2)
-            {
-            case 0: DoScriptText(SAY_REPENTANCE1, m_creature);break;
-            case 1: DoScriptText(SAY_REPENTANCE2, m_creature);break;
-            }
             Repentance_Timer = 25000 + rand()%10000;        //A little randomness on that spell
-        }else Repentance_Timer -= diff;
+        } else Repentance_Timer -= diff;
 
         if (Holyfire_Timer < diff)
         {
@@ -118,7 +107,7 @@ struct TRINITY_DLL_DECL boss_maiden_of_virtueAI : public ScriptedAI
                 DoCast(target,SPELL_HOLYFIRE);
 
                 Holyfire_Timer = 8000 + rand()%15000;           //Anywhere from 8 to 23 seconds, good luck having several of those in a row!
-        }else Holyfire_Timer -= diff;
+        } else Holyfire_Timer -= diff;
 
         if (Holywrath_Timer < diff)
         {
@@ -127,7 +116,7 @@ struct TRINITY_DLL_DECL boss_maiden_of_virtueAI : public ScriptedAI
 
             Holywrath_Timer = 20000+(rand()%5000);     //20-30 secs sounds nice
 
-        }else Holywrath_Timer -= diff;
+        } else Holywrath_Timer -= diff;
 
         DoMeleeAttackIfReady();
     }
