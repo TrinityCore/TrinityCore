@@ -373,7 +373,8 @@ void HookSignals()
     signal(SIGINT, OnSignal);
     signal(SIGTERM, OnSignal);
     #ifdef _WIN32
-    signal(SIGBREAK, OnSignal);
+    if (m_ServiceStatus != 1)
+       signal(SIGBREAK, OnSignal);
     #endif
 }
 
@@ -383,7 +384,8 @@ void UnhookSignals()
     signal(SIGINT, 0);
     signal(SIGTERM, 0);
     #ifdef _WIN32
-    signal(SIGBREAK, 0);
+    if (m_ServiceStatus != 1)
+       signal(SIGBREAK, 0);
     #endif
 }
 

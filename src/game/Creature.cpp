@@ -2000,6 +2000,10 @@ bool Creature::IsVisibleInGridForPlayer(Player const* pl) const
     if(pl->isGameMaster())
         return true;
 
+    // Trigger shouldn't be visible for players
+    if(isTrigger())
+        return false;
+
     // Live player (or with not release body see live creatures or death creatures with corpse disappearing time > 0
     if(pl->isAlive() || pl->GetDeathTimer() > 0)
     {
