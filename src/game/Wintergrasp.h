@@ -21,12 +21,15 @@
 
 #include "OutdoorPvPImpl.h"
 
-#define ZONE_WINTERGRASP    4197
+#define ZONE_WINTERGRASP         4197
+#define POS_X_CENTER             4700
+#define MAX_VEHICLE_PER_WORKSHOP    4
 
-const uint16 GameEventWintergraspDefender[2] = {50, 51};
 const uint32 WintergraspFaction[2] = {1732, 1735};
-
-#define POS_X_CENTER        4700
+const uint32 WG_MARK_OF_HONOR = 43589;
+const uint32 VehNumWorldState[2] = {3680,3490};
+const uint32 MaxVehNumWorldState[2] = {3681,3491};
+const uint32 ClockWorldState[5] = {3785,3784,3782,3976,3975};
 
 enum WintergraspSpell
 {
@@ -36,18 +39,21 @@ enum WintergraspSpell
 
     SPELL_TENACITY          = 58549,
     SPELL_TENACITY_VEHICLE  = 59911,
-    SPELL_TOWER_CONTROL     = 62064,
 
+    SPELL_TELEPORT_DALARAN  = 53360,
+    SPELL_SHUTDOWN_VEHICLE  = 21247,
+
+    SPELL_TOWER_CONTROL     = 62064,
     SPELL_VICTORY_REWARD    = 56902,
     SPELL_DEFEAT_REWARD     = 58494,
     SPELL_DAMAGED_TOWER     = 59135,
     SPELL_DESTROYED_TOWER   = 59136,
     SPELL_DAMAGED_BUILDING  = 59201,
     SPELL_INTACT_BUILDING   = 59203,
-
-    SPELL_TELEPORT_DALARAN  = 53360,
-
-    SPELL_SHUTDOWN_VEHICLE  = 21247,
+// Unused: Not implemented
+//    SPELL_VICTORY_AURA      = 60044,
+//    SPELL_RULERS_OF_WG      = 52108,
+//    SPELL_ESSENCE_OF_WG     = 58045,
 };
 
 enum WintergraspRewardEvent
@@ -61,22 +67,18 @@ enum WintergraspRewardEvent
     WG_REWARD_EVENT_MAX
 };
 
-#define MAX_VEHICLE_PER_WORKSHOP    4
+/* Not used / Not implemented
 
-const uint32 WG_KEEP_CM = 0; //Need data
-const uint32 WG_RULERS_BUFF   = 52108;
-//some cosmetics :
-const uint32 WG_VICTORY_AURA  = 60044;
+const uint16 GameEventWintergraspDefender[2] = {50, 51};
 
 enum OutdoorPvP_WG_Sounds
 {
-/*TODO    OutdoorPvP_WG_SOUND_KEEP_CLAIMED            = 8192,
+    OutdoorPvP_WG_SOUND_KEEP_CLAIMED            = 8192,
     OutdoorPvP_WG_SOUND_KEEP_CAPTURED_ALLIANCE  = 8173,
     OutdoorPvP_WG_SOUND_KEEP_CAPTURED_HORDE     = 8213,
     OutdoorPvP_WG_SOUND_KEEP_ASSAULTED_ALLIANCE = 8212,
     OutdoorPvP_WG_SOUND_KEEP_ASSAULTED_HORDE    = 8174,
     OutdoorPvP_WG_SOUND_NEAR_VICTORY            = 8456
-*/
 };
 
 enum DataId
@@ -94,10 +96,7 @@ enum OutdoorPvP_WG_KeepStatus
     OutdoorPvP_WG_KEEP_STATUS_ALLY_OCCUPIED     = 3,
     OutdoorPvP_WG_KEEP_STATUS_HORDE_OCCUPIED    = 4
 };
-
-const uint32 VehNumWorldState[2] = {3680,3490};
-const uint32 MaxVehNumWorldState[2] = {3681,3491};
-const uint32 ClockWorldState[5] = {3785,3784,3782,3976,3975};
+*/
 
 enum WintergraspCreType
 {
@@ -226,6 +225,7 @@ class OPvPWintergrasp : public OutdoorPvP
         void UpdateClockDigit(uint32 &timer, uint32 digit, uint32 mod);
         void PromotePlayer(Player *player) const;
         void UpdateTenacityStack();
+        void CastTenacity(Unit *utr, int32 newStack);
         void UpdateAllWorldObject();
         bool UpdateCreatureInfo(Creature *creature) const;
         bool UpdateGameObjectInfo(GameObject *go) const;
