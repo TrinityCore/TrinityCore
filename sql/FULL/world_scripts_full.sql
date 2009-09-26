@@ -516,8 +516,21 @@ UPDATE `creature_template` SET `ScriptName`='boss_olm_the_summoner' WHERE `entry
 UPDATE `creature_template` SET `ScriptName`='boss_krosh_firehand' WHERE `entry`=18832;
 
 /* GUNDRAK */
+UPDATE `instance_template` SET `script`='instance_gundrak' WHERE `map`=604;
 /* Moorabi */
-UPDATE `creature_template` SET `ScriptName`='boss_moorabi' where entry=29305;
+UPDATE `creature_template` SET `ScriptName`='boss_moorabi' WHERE `entry`=29305;
+/* Slad'ran */
+UPDATE `creature_template` SET `ScriptName`='boss_slad_ran' WHERE `entry`=29304;
+UPDATE `creature_template` SET `ScriptName`='mob_slad_ran_viper' WHERE `entry`=29304;
+UPDATE `creature_template` SET `ScriptName`='mob_slad_ran_constrictor' WHERE `entry`=29713;
+/* Gal'darah */
+UPDATE `creature_template` SET `ScriptName`='boss_gal_darah' WHERE `entry`=29306;
+/* Drakkari Colossus */
+UPDATE `creature_template` SET `ScriptName`='boss_drakkari_colossus' WHERE `entry`=29307;
+
+UPDATE `gameobject_template` SET `ScriptName`='go_gundrak_altar' WHERE `entry`=192518;
+UPDATE `gameobject_template` SET `ScriptName`='go_gundrak_altar' WHERE `entry`=192519;
+UPDATE `gameobject_template` SET `ScriptName`='go_gundrak_altar' WHERE `entry`=192520;
 
 /* HALLS OF LIGHTNING */
 UPDATE `instance_template` SET `script`='instance_halls_of_lightning' WHERE `map`=602;
@@ -551,7 +564,7 @@ UPDATE `creature_template` SET `ScriptName`='mob_shadowmoon_channeler' WHERE `en
 /* HELLFIRE RAMPARTS */
 UPDATE `instance_template` SET `script`='instance_ramparts' WHERE `map`=543;
 
-/* Vazruden,Omor the Unscarred,Watchkeeper Gargolmar */
+/* Vazruden, Omor the Unscarred, Watchkeeper Gargolmar */
 UPDATE `creature_template` SET `ScriptName`='boss_omor_the_unscarred' WHERE `entry`=17308;
 UPDATE `creature_template` SET `ScriptName`='boss_watchkeeper_gargolmar' WHERE `entry`=17306;
 UPDATE `creature_template` SET `ScriptName`='boss_vazruden_the_herald' WHERE `entry`=17307;
@@ -560,7 +573,7 @@ UPDATE `creature_template` SET `ScriptName`='boss_nazan' WHERE `entry`=17536;
 UPDATE `creature_template` SET `ScriptName`='mob_hellfire_sentry' WHERE `entry`=17517;
 	
 /* SHATTERED HALLS */
-/* Nethekurse and his spawned shadowfissure */
+/* Nethekurse and his spawned shadow fissure */
 UPDATE `creature_template` SET `ScriptName`='boss_grand_warlock_nethekurse' WHERE `entry`=16807;
 UPDATE `creature_template` SET `ScriptName`='boss_warchief_kargath_bladefist' WHERE `entry`=16808;
 UPDATE `creature_template` SET `ScriptName`='boss_warbringer_omrogg' WHERE `entry`=16809;
