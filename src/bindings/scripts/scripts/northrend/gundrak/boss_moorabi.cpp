@@ -7,6 +7,7 @@ SDCategory: Gundrak
 Script Data End */
 
 #include "precompiled.h"
+#include "def_gundrak.h"
 
 //Spells
 
@@ -38,10 +39,10 @@ struct TRINITY_DLL_DECL boss_moorabiAI : public ScriptedAI
 {
     boss_moorabiAI(Creature *c) : ScriptedAI(c)
     {
-        HeroicMode = c->GetMap()->IsHeroic();
+        pInstance = c->GetInstanceData();
     }
 
-    bool HeroicMode;
+    ScriptedInstance* pInstance;
     bool Phase;
     uint32 SPELL_QUAKE_TIMER;
     uint32 SPELL_NUMBING_SHOUT_TIMER;
@@ -56,12 +57,18 @@ struct TRINITY_DLL_DECL boss_moorabiAI : public ScriptedAI
           SPELL_DETERMINED_STAB_TIMER = 20000;
           SPELL_TRANSFORMATION_TIMER = 12000;
           Phase = false;
+          
+          if (pInstance)
+            pInstance->SetData(DATA_DRAKKARI_COLOSSUS_EVENT, NOT_STARTED);
     }
 
     void EnterCombat(Unit *who)
     {
         DoScriptText(SAY_AGGRO, m_creature);
         m_creature->CastSpell(m_creature,SPELL_MOJO_FRENZY,true);
+        
+        if (pInstance)
+            pInstance->SetData(DATA_DRAKKARI_COLOSSUS_EVENT, IN_PROGRESS);
     }
 
     void UpdateAI(const uint32 diff)
@@ -149,6 +156,9 @@ struct TRINITY_DLL_DECL boss_moorabiAI : public ScriptedAI
                 }
             }
         }
+        
+        if (pInstance)
+            pInstance->SetData(DATA_DRAKKARI_COLOSSUS_EVENT, DONE);
     }
     void KilledUnit(Unit *victim)
     {

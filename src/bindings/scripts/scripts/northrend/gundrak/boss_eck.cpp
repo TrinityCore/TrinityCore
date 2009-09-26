@@ -10,6 +10,7 @@ Script Data End */
 update creature_template set scriptname = '' where entry = '';
 *** SQL END ***/
 #include "precompiled.h"
+#include "def_gundrak.h"
 
 #define SPELL_ECK_BERSERK                       55816 //Eck goes berserk, increasing his attack speed by 150% and all damage he deals by 500%.
 #define SPELL_ECK_BITE                          55813 //Eck bites down hard, inflicting 150% of his normal damage to an enemy.
@@ -19,34 +20,50 @@ update creature_template set scriptname = '' where entry = '';
 
 struct TRINITY_DLL_DECL boss_eckAI : public ScriptedAI
 {
-    boss_eckAI(Creature *c) : ScriptedAI(c) {}
+    boss_eckAI(Creature *c) : ScriptedAI(c)
+    {
+        pInstance = c->GetInstanceData();
+    }
 
-    uint32 berserk;
+    uint32 uiBerserkTimer;
+    
+    ScriptedInstance* pInstance;
 
     void Reset()
     {
         //Source Deadly Boss Mod
-        berserk = 120000; //2min
+        uiBerserkTimer = 120000; //2min
+        
+        if (pInstance)
+            pInstance->SetData(DATA_ECK_THE_FEROCIOUS_EVENT, NOT_STARTED);
     }
 
-    void EnterCombat(Unit* who) {}
-    void AttackStart(Unit* who) {}
-    void MoveInLineOfSight(Unit* who) {}
+    void EnterCombat(Unit* who)
+    {
+        if (pInstance)
+            pInstance->SetData(DATA_ECK_THE_FEROCIOUS_EVENT, IN_PROGRESS);
+    }
+    
     void UpdateAI(const uint32 diff)
     {
         //Return since we have no target
         if (!UpdateVictim())
             return;
 
-        if (berserk < diff)
+        if (uiBerserkTimer < diff)
         {
             DoCast(m_creature,SPELL_ECK_BERSERK);
-            berserk = 120000;
-        }else berserk -= diff;
+            uiBerserkTimer = 120000;
+        }else uiBerserkTimer -= diff;
 
         DoMeleeAttackIfReady();
     }
-    void JustDied(Unit* killer)  {}
+    
+    void JustDied(Unit* killer)  
+    {
+        if (pInstance)
+            pInstance->SetData(DATA_ECK_THE_FEROCIOUS_EVENT, DONE);
+    }
 };
 
 CreatureAI* GetAI_boss_eck(Creature* pCreature)

@@ -1393,7 +1393,7 @@ bool ChatHandler::HandleAccountSetGmLevelCommand(const char* args)
     char* arg1 = strtok((char*)args, " ");
     char* arg2 = strtok(NULL, " ");
 
-    if(getSelectedPlayer() && arg1 && !arg2)
+    if (getSelectedPlayer() && arg1 && !arg2)
     {
         targetAccountId = getSelectedPlayer()->GetSession()->GetAccountId();
         accmgr.GetName(targetAccountId, targetAccountName);
@@ -1401,7 +1401,7 @@ bool ChatHandler::HandleAccountSetGmLevelCommand(const char* args)
         gm = atoi(arg1);
 
         // Check for invalid specified GM level.
-        if ( (gm < SEC_PLAYER || gm > SEC_ADMINISTRATOR) )
+        if (gm < SEC_PLAYER || gm > SEC_ADMINISTRATOR)
         {
             SendSysMessage(LANG_BAD_VALUE);
             SetSentErrorMessage(true);
@@ -1410,7 +1410,7 @@ bool ChatHandler::HandleAccountSetGmLevelCommand(const char* args)
 
         // Check if targets GM level and specified GM level is not higher than current gm level
         targetSecurity = targetPlayer->GetSession()->GetSecurity();
-        if(targetSecurity >= m_session->GetSecurity() || gm >= m_session->GetSecurity() )
+        if (targetSecurity >= m_session->GetSecurity() || gm >= m_session->GetSecurity())
         {
             SendSysMessage(LANG_YOURS_SECURITY_IS_LOW);
             SetSentErrorMessage(true);
@@ -1418,24 +1418,23 @@ bool ChatHandler::HandleAccountSetGmLevelCommand(const char* args)
         }
 
         // Decide which string to show
-        if(m_session->GetPlayer()!=targetPlayer)
-        {
+        if (m_session->GetPlayer() != targetPlayer)
             PSendSysMessage(LANG_YOU_CHANGE_SECURITY, targetAccountName.c_str(), gm);
-        }else{
+        else
             PSendSysMessage(LANG_YOURS_SECURITY_CHANGED, m_session->GetPlayer()->GetName(), gm);
-        }
 
         loginDatabase.PExecute("UPDATE account SET gmlevel = '%d' WHERE id = '%u'", gm, targetAccountId);
         return true;
-    }else
+    }
+    else
     {
         // Check for second parameter
-        if(!arg2)
+        if (!arg2)
             return false;
 
         // Check for account
         targetAccountName = arg1;
-        if(!AccountMgr::normalizeString(targetAccountName))
+        if (!AccountMgr::normalizeString(targetAccountName))
         {
             PSendSysMessage(LANG_ACCOUNT_NOT_EXIST,targetAccountName.c_str());
             SetSentErrorMessage(true);
@@ -1444,7 +1443,7 @@ bool ChatHandler::HandleAccountSetGmLevelCommand(const char* args)
 
         // Check for invalid specified GM level.
         gm = atoi(arg2);
-        if ( (gm < SEC_PLAYER || gm > SEC_ADMINISTRATOR) )
+        if (gm < SEC_PLAYER || gm > SEC_ADMINISTRATOR)
         {
             SendSysMessage(LANG_BAD_VALUE);
             SetSentErrorMessage(true);
@@ -1458,7 +1457,7 @@ bool ChatHandler::HandleAccountSetGmLevelCommand(const char* args)
         /// can set security level only for target with less security and to less security that we have
         /// This is also reject self apply in fact
         targetSecurity = accmgr.GetSecurity(targetAccountId);
-        if(targetSecurity >= plSecurity || gm >= plSecurity )
+        if (targetSecurity >= plSecurity || gm >= plSecurity)
         {
             SendSysMessage(LANG_YOURS_SECURITY_IS_LOW);
             SetSentErrorMessage(true);
@@ -1486,7 +1485,7 @@ bool ChatHandler::HandleAccountSetPasswordCommand(const char* args)
         return false;
 
     std::string account_name = szAccount;
-    if(!AccountMgr::normalizeString(account_name))
+    if (!AccountMgr::normalizeString(account_name))
     {
         PSendSysMessage(LANG_ACCOUNT_NOT_EXIST,account_name.c_str());
         SetSentErrorMessage(true);
@@ -1503,7 +1502,7 @@ bool ChatHandler::HandleAccountSetPasswordCommand(const char* args)
 
     /// can set password only for target with less security
     /// This is also reject self apply in fact
-    if(HasLowerSecurityAccount (NULL,targetAccountId,true))
+    if (HasLowerSecurityAccount (NULL,targetAccountId,true))
         return false;
 
     if (strcmp(szPassword1,szPassword2))
@@ -1515,7 +1514,7 @@ bool ChatHandler::HandleAccountSetPasswordCommand(const char* args)
 
     AccountOpResult result = accmgr.ChangePassword(targetAccountId, szPassword1);
 
-    switch(result)
+    switch (result)
     {
         case AOR_OK:
             SendSysMessage(LANG_COMMAND_PASSWORD);
@@ -1556,12 +1555,12 @@ bool ChatHandler::HandleSetSkillCommand(const char* args)
 {
     // number or [name] Shift-click form |color|Hskill:skill_id|h[name]|h|r
     char* skill_p = extractKeyFromLink((char*)args,"Hskill");
-    if(!skill_p)
+    if (!skill_p)
         return false;
 
     char *level_p = strtok (NULL, " ");
 
-    if( !level_p)
+    if (!level_p)
         return false;
 
     char *max_p   = strtok (NULL, " ");
@@ -1577,7 +1576,7 @@ bool ChatHandler::HandleSetSkillCommand(const char* args)
     int32 level = atol (level_p);
 
     Player * target = getSelectedPlayer();
-    if(!target)
+    if (!target)
     {
         SendSysMessage(LANG_NO_CHAR_SELECTED);
         SetSentErrorMessage(true);
@@ -1585,7 +1584,7 @@ bool ChatHandler::HandleSetSkillCommand(const char* args)
     }
 
     SkillLineEntry const* sl = sSkillLineStore.LookupEntry(skill);
-    if(!sl)
+    if (!sl)
     {
         PSendSysMessage(LANG_INVALID_SKILL_ID, skill);
         SetSentErrorMessage(true);
@@ -1594,7 +1593,7 @@ bool ChatHandler::HandleSetSkillCommand(const char* args)
 
     std::string tNameLink = GetNameLink(target);
 
-    if(!target->GetSkillValue(skill))
+    if (!target->GetSkillValue(skill))
     {
         PSendSysMessage(LANG_SET_SKILL_ERROR, tNameLink.c_str(), skill, sl->name[0]);
         SetSentErrorMessage(true);
@@ -1603,7 +1602,7 @@ bool ChatHandler::HandleSetSkillCommand(const char* args)
 
     int32 max   = max_p ? atol (max_p) : target->GetPureMaxSkillValue(skill);
 
-    if( level <= 0 || level > max || max <= 0 )
+    if (level <= 0 || level > max || max <= 0)
         return false;
 
     target->SetSkill(skill, level, max);
@@ -1619,21 +1618,21 @@ bool ChatHandler::HandleUnLearnCommand(const char* args)
 
     // number or [name] Shift-click form |color|Hspell:spell_id|h[name]|h|r
     uint32 spell_id = extractSpellIdFromLink((char*)args);
-    if(!spell_id)
+    if (!spell_id)
         return false;
 
     char const* allStr = strtok(NULL," ");
     bool allRanks = allStr ? (strncmp(allStr, "all", strlen(allStr)) == 0) : false;
 
     Player* target = getSelectedPlayer();
-    if(!target)
+    if (!target)
     {
         SendSysMessage(LANG_NO_CHAR_SELECTED);
         SetSentErrorMessage(true);
         return false;
     }
 
-    if(allRanks)
+    if (allRanks)
         spell_id = spellmgr.GetFirstSpellInChain (spell_id);
 
     if (target->HasSpell(spell_id))
@@ -1641,7 +1640,7 @@ bool ChatHandler::HandleUnLearnCommand(const char* args)
     else
         SendSysMessage(LANG_FORGET_SPELL);
 
-    if(GetTalentSpellCost(spell_id))
+    if (GetTalentSpellCost(spell_id))
         target->SendTalentsInfoData(false);
 
     return true;
@@ -1650,7 +1649,7 @@ bool ChatHandler::HandleUnLearnCommand(const char* args)
 bool ChatHandler::HandleCooldownCommand(const char* args)
 {
     Player* target = getSelectedPlayer();
-    if(!target)
+    if (!target)
     {
         SendSysMessage(LANG_PLAYER_NOT_FOUND);
         SetSentErrorMessage(true);
@@ -1668,10 +1667,10 @@ bool ChatHandler::HandleCooldownCommand(const char* args)
     {
         // number or [name] Shift-click form |color|Hspell:spell_id|h[name]|h|r or Htalent form
         uint32 spell_id = extractSpellIdFromLink((char*)args);
-        if(!spell_id)
+        if (!spell_id)
             return false;
 
-        if(!sSpellStore.LookupEntry(spell_id))
+        if (!sSpellStore.LookupEntry(spell_id))
         {
             PSendSysMessage(LANG_UNKNOWN_SPELL, target==m_session->GetPlayer() ? GetMangosString(LANG_YOU) : tNameLink.c_str());
             SetSentErrorMessage(true);

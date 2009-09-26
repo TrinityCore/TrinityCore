@@ -217,7 +217,7 @@ void Unit::Update( uint32 p_time )
     {
     m_AurasCheck = 2000;
     _UpdateAura();
-    }else
+    } else
     m_AurasCheck -= p_time;*/
 
     // WARNING! Order of execution here is important, do not change.

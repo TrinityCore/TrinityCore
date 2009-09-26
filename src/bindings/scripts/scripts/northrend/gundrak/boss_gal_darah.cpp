@@ -10,40 +10,58 @@ Script Data End */
 update creature_template set scriptname = '' where entry = '';
 *** SQL END ***/
 #include "precompiled.h"
+#include "def_gundrak.h"
 
 //Spells
-#define SPELL_ENRAGE                                  55285
-#define SPELL_IMPALING_CHARGE                         54956
-#define SPELL_STOMP                                   55292
+enum Spells
+{
+    SPELL_ENRAGE                                  = 55285,
+    SPELL_IMPALING_CHARGE                         = 54956,
+    SPELL_STOMP                                   = 55292,
+    SPELL_PUNCTURE                                = 55276,
+    SPELL_STAMPEDE                                = 55218,
+    SPELL_WHIRLING_SLASH                          = 55249,
+    H_SPELL_WHIRLING_SLASH                        = 55825
+};
 
-#define SPELL_PUNCTURE                                55276
-#define SPELL_STAMPEDE                                55218
-#define SPELL_WHIRLING_SLASH                          55285
-
-//not in db
 //Yells
-#define SAY_AGGRO                                  -1604000
-#define SAY_SLAY_1                                 -1604001
-#define SAY_SLAY_2                                 -1604002
-#define SAY_SLAY_3                                 -1604003
-#define SAY_DEATH                                  -1604004
-#define SAY_SUMMON_RHINO_1                         -1604005
-#define SAY_SUMMON_RHINO_2                         -1604006
-#define SAY_SUMMON_RHINO_3                         -1604007
-#define SAY_TRANSFORM_1                            -1604008  //Phase change
-#define SAY_TRANSFORM_2                            -1604009
+enum Yells
+{
+    SAY_AGGRO                                  = -1604000,
+    SAY_SLAY_1                                 = -1604001,
+    SAY_SLAY_2                                 = -1604002,
+    SAY_SLAY_3                                 = -1604003,
+    SAY_DEATH                                  = -1604004,
+    SAY_SUMMON_RHINO_1                         = -1604005,
+    SAY_SUMMON_RHINO_2                         = -1604006,
+    SAY_SUMMON_RHINO_3                         = -1604007,
+    SAY_TRANSFORM_1                            = -1604008,  //Phase change
+    SAY_TRANSFORM_2                            = -1604009
+};
 
 struct TRINITY_DLL_DECL boss_gal_darahAI : public ScriptedAI
 {
-    boss_gal_darahAI(Creature *c) : ScriptedAI(c) {}
+    boss_gal_darahAI(Creature *c) : ScriptedAI(c)
+    {
+        pInstance = c->GetInstanceData();
+    }
+    
+    ScriptedInstance* pInstance;
 
-    void Reset() {}
+    void Reset()
+    {
+        if (pInstance)
+            pInstance->SetData(DATA_GAL_DARAH_EVENT, NOT_STARTED);
+    }
+    
     void EnterCombat(Unit* who)
     {
         DoScriptText(SAY_AGGRO, m_creature);
+        
+        if (pInstance)
+            pInstance->SetData(DATA_GAL_DARAH_EVENT, IN_PROGRESS);
     }
-    void AttackStart(Unit* who) {}
-    void MoveInLineOfSight(Unit* who) {}
+    
     void UpdateAI(const uint32 diff)
     {
         //Return since we have no target
@@ -52,21 +70,21 @@ struct TRINITY_DLL_DECL boss_gal_darahAI : public ScriptedAI
 
         DoMeleeAttackIfReady();
     }
+    
     void JustDied(Unit* killer)
     {
         DoScriptText(SAY_DEATH, m_creature);
+        
+        if (pInstance)
+            pInstance->SetData(DATA_GAL_DARAH_EVENT, DONE);
     }
+    
     void KilledUnit(Unit *victim)
     {
         if (victim == m_creature)
             return;
 
-        switch(rand()%3)
-        {
-            case 0: DoScriptText(SAY_SLAY_1, m_creature);break;
-            case 1: DoScriptText(SAY_SLAY_2, m_creature);break;
-            case 2: DoScriptText(SAY_SLAY_3, m_creature);break;
-        }
+        DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2,SAY_SLAY_3), m_creature);
     }
 };
 
