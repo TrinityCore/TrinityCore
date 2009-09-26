@@ -46,14 +46,7 @@ void guardAI::Reset()
 void guardAI::EnterCombat(Unit *who)
 {
     if (m_creature->GetEntry() == 15184)
-    {
-        switch(rand()%3)
-        {
-            case 0: DoScriptText(SAY_GUARD_SIL_AGGRO1, m_creature, who); break;
-            case 1: DoScriptText(SAY_GUARD_SIL_AGGRO1, m_creature, who); break;
-            case 2: DoScriptText(SAY_GUARD_SIL_AGGRO1, m_creature, who); break;
-        }
-    }
+        DoScriptText(RAND(SAY_GUARD_SIL_AGGRO1,SAY_GUARD_SIL_AGGRO2,SAY_GUARD_SIL_AGGRO3), m_creature, who);
 
     if (SpellEntry const *spell = m_creature->reachWithSpellAttack(who))
         DoCastSpell(who, spell);

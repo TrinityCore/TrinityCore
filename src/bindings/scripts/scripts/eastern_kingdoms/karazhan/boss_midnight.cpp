@@ -86,12 +86,7 @@ struct TRINITY_DLL_DECL boss_midnightAI : public ScriptedAI
                 Attumen = pAttumen->GetGUID();
                 pAttumen->AI()->AttackStart(m_creature->getVictim());
                 SetMidnight(pAttumen, m_creature->GetGUID());
-                switch(rand()%3)
-                {
-                case 0: DoScriptText(SAY_APPEAR1, pAttumen); break;
-                case 1: DoScriptText(SAY_APPEAR2, pAttumen); break;
-                case 2: DoScriptText(SAY_APPEAR3, pAttumen); break;
-                }
+                DoScriptText(RAND(SAY_APPEAR1,SAY_APPEAR2,SAY_APPEAR3), pAttumen);
             }
         }
         else if (Phase == 2 && (m_creature->GetHealth()*100)/m_creature->GetMaxHealth() < 25)
@@ -190,11 +185,7 @@ struct TRINITY_DLL_DECL boss_attumenAI : public ScriptedAI
 
     void KilledUnit(Unit *victim)
     {
-        switch(rand()%2)
-        {
-        case 0: DoScriptText(SAY_KILL1, m_creature); break;
-        case 1: DoScriptText(SAY_KILL2, m_creature); break;
-        }
+        DoScriptText(RAND(SAY_KILL1,SAY_KILL2), m_creature);
     }
 
     void JustDied(Unit *victim)
@@ -244,11 +235,7 @@ struct TRINITY_DLL_DECL boss_attumenAI : public ScriptedAI
 
         if (RandomYellTimer < diff)
         {
-            switch(rand()%2)
-            {
-            case 0: DoScriptText(SAY_RANDOM1, m_creature); break;
-            case 1: DoScriptText(SAY_RANDOM2, m_creature); break;
-            }
+            DoScriptText(RAND(SAY_RANDOM1,SAY_RANDOM2), m_creature);
             RandomYellTimer = 30000 + (rand()%31)*1000;
         } else RandomYellTimer -= diff;
 
