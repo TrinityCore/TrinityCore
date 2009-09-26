@@ -4461,15 +4461,16 @@ bool Player::FallGround(uint8 FallMode)
     if ((z_diff = fabs(ground_Z - z)) < 0.1f)
         return false;
 
+    GetMotionMaster()->MoveFall(ground_Z, EVENT_FALL_GROUND);
+
     // Below formula for falling damage is from Player::HandleFall
     if(FallMode == 2 && z_diff >= 14.57f)
     {
         uint32 damage = std::min(GetMaxHealth(), (uint32)((0.018f*z_diff-0.2426f)*GetMaxHealth()*sWorld.getRate(RATE_DAMAGE_FALL)));
         if(damage > 0) EnvironmentalDamage(DAMAGE_FALL, damage);
     }
-
-    GetMotionMaster()->MoveFall(ground_Z, EVENT_FALL_GROUND);
-    if(FallMode == 0) Unit::setDeathState(DEAD_FALLING);
+    else if(FallMode == 0)
+        Unit::setDeathState(DEAD_FALLING);
     return true;
 }
 
