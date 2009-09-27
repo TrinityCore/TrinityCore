@@ -26,13 +26,22 @@ struct TRINITY_DLL_DECL boss_eckAI : public ScriptedAI
     }
 
     uint32 uiBerserkTimer;
+    uint32 uiBiteTimer;
+    uint32 uiSpitTimer;
+    uint32 uiSpringTimer;
+    
+    bool bBerserk;
     
     ScriptedInstance* pInstance;
 
     void Reset()
     {
-        //Source Deadly Boss Mod
-        uiBerserkTimer = 120000; //2min
+        uiBerserkTimer = 60000 + rand()%30000; //60-90 secs according to wowwiki
+        uiBiteTimer = 5000;
+        uiSpitTimer = 10000;
+        uiSpringTimer = 8000;
+        
+        bBerserk = false;
         
         if (pInstance)
             pInstance->SetData(DATA_ECK_THE_FEROCIOUS_EVENT, NOT_STARTED);
@@ -49,11 +58,31 @@ struct TRINITY_DLL_DECL boss_eckAI : public ScriptedAI
         //Return since we have no target
         if (!UpdateVictim())
             return;
-
-        if (uiBerserkTimer < diff)
+        
+        if (uiBiteTimer < diff)
+        {
+            DoCast(m_creature->getVictim(),SPELL_ECK_BITE);
+            uiBiteTimer = 8000 + rand()%4000;
+        } else uiBiteTimer -= diff;
+        if (uiSpitTimer < diff)
+        {
+            DoCast(m_creature->getVictim(),SPELL_ECK_SPIT);
+            uiSpitTimer = 6000 + rand()%8000;
+        } else uiSpitTimer -= diff;
+        if (uiSpringTimer < diff)
+        {
+            Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM,0);
+            while (pTarget && (pTarget->GetTypeId() != TYPEID_PLAYER || pTarget == m_creature->getVictim()))
+                pTarget = SelectUnit(SELECT_TARGET_RANDOM,0);
+            if (pTarget)
+                DoCast(pTarget,RAND(SPELL_ECK_SPRING_1,SPELL_ECK_SPRING_2));
+            uiSpringTimer = 5000 + rand()%10000;
+        } else uiSpringTimer -= diff;
+        //Berserk on timer or 20% of health
+        if (!bBerserk && (uiBerserkTimer < diff || m_creature->GetHealth()*100 / m_creature->GetMaxHealth() < 20))
         {
             DoCast(m_creature,SPELL_ECK_BERSERK);
-            uiBerserkTimer = 120000;
+            bBerserk = true;
         }else uiBerserkTimer -= diff;
 
         DoMeleeAttackIfReady();
