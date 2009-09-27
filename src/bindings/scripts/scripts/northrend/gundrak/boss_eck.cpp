@@ -71,12 +71,12 @@ struct TRINITY_DLL_DECL boss_eckAI : public ScriptedAI
         } else uiSpitTimer -= diff;
         if (uiSpringTimer < diff)
         {
-            Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM,0);
-            while (pTarget && (pTarget->GetTypeId() != TYPEID_PLAYER || pTarget == m_creature->getVictim()))
-                pTarget = SelectUnit(SELECT_TARGET_RANDOM,0);
-            if (pTarget)
+            Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM,1);
+            if(pTarget && pTarget->GetTypeId() == TYPEID_PLAYER)
+            {
                 DoCast(pTarget,RAND(SPELL_ECK_SPRING_1,SPELL_ECK_SPRING_2));
-            uiSpringTimer = 5000 + rand()%10000;
+                uiSpringTimer = 5000 + rand()%10000;
+            }
         } else uiSpringTimer -= diff;
         //Berserk on timer or 20% of health
         if (!bBerserk && (uiBerserkTimer < diff || m_creature->GetHealth()*100 / m_creature->GetMaxHealth() < 20))
