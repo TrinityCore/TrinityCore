@@ -76,6 +76,12 @@ MapManager::Initialize()
     InitMaxInstanceId();
 }
 
+void MapManager::InitializeVisibilityDistanceInfo()
+{
+    for(MapMapType::iterator iter=i_maps.begin(); iter != i_maps.end(); ++iter)
+        (*iter).second->InitVisibilityDistance();
+}
+
 // debugging code, should be deleted some day
 void MapManager::checkAndCorrectGridStatesArray()
 {

@@ -1,7 +1,7 @@
 ##########################################
 # Trinity Core worldd configuration file #
 ##########################################
-ConfVersion=2009091601
+ConfVersion=2009092701
 
 ###################################################################################################################
 # CONNECTIONS AND DIRECTORIES
@@ -1142,12 +1142,12 @@ GM.AllowAchievementGain  = 1
 #                 1 (raid members 100% auto detect invisible player from same raid)
 #                 2 (players from same team can 100% auto detect invisible player)
 #
-#    Visibility.Distance.Creature
-#    Visibility.Distance.Player
-#        Visibility distance for different in game object
-#        Max limited by active player zone: ~ 166
-#        Min limit dependent from objects
-#        Default: 66 (cell size)
+#    Visibility.Distance.Continents
+#    Visibility.Distance.Instances
+#    Visibility.Distance.BGArenas
+#    Visibility distance for different ingame object in different maps.
+#    Visibility on continents on offy ~90 yards. In BG/Arenas ~180. For instances default ~120.
+#        Max limited by active player zone: ~ 333
 #        Min limit is max aggro radius (45) * Rate.Creature.Aggro
 #
 #    Visibility.Distance.Object
@@ -1173,10 +1173,11 @@ GM.AllowAchievementGain  = 1
 ###################################################################################################################
 
 Visibility.GroupMode = 0
-Visibility.Distance.Creature      = 999
-Visibility.Distance.Player        = 66
-Visibility.Distance.Object        = 999
-Visibility.Distance.InFlight      = 66
+Visibility.Distance.Continents = 90
+Visibility.Distance.Instances = 120
+Visibility.Distance.BGArenas = 180
+Visibility.Distance.Object = 100
+Visibility.Distance.InFlight = 100
 Visibility.Distance.Grey.Unit   = 1
 Visibility.Distance.Grey.Object = 10
 
