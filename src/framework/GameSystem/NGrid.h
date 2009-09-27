@@ -81,8 +81,19 @@ class TRINITY_DLL_DECL NGrid
             i_GridInfo = GridInfo(expiry, unload);
         }
 
-        const GridType& operator()(unsigned short x, unsigned short y) const { return i_cells[x][y]; }
-        GridType& operator()(unsigned short x, unsigned short y) { return i_cells[x][y]; }
+        const GridType& operator()(unsigned short x, unsigned short y) const
+        {
+            ASSERT(x < N);
+            ASSERT(y < N);
+            return i_cells[x][y];
+        }
+ 
+        GridType& operator()(unsigned short x, unsigned short y)
+        {
+            ASSERT(x < N);
+            ASSERT(y < N);
+            return i_cells[x][y];
+        }
 
         const uint32& GetGridId(void) const { return i_gridId; }
         void SetGridId(const uint32 id) const { i_gridId = id; }
@@ -110,24 +121,24 @@ class TRINITY_DLL_DECL NGrid
 
         template<class SPECIFIC_OBJECT> void AddWorldObject(const uint32 x, const uint32 y, SPECIFIC_OBJECT *obj, OBJECT_HANDLE hdl)
         {
-            i_cells[x][y].AddWorldObject(obj, hdl);
+            getGridType(x, y).AddWorldObject(obj, hdl);
         }
 
         template<class SPECIFIC_OBJECT> void RemoveWorldObject(const uint32 x, const uint32 y, SPECIFIC_OBJECT *obj, OBJECT_HANDLE hdl)
         {
-            i_cells[x][y].RemoveWorldObject(obj, hdl);
+            getGridType(x, y).RemoveWorldObject(obj, hdl);
         }
 
         template<class T, class TT> void Visit(TypeContainerVisitor<T, TypeMapContainer<TT> > &visitor)
         {
             for(unsigned int x=0; x < N; ++x)
                 for(unsigned int y=0; y < N; ++y)
-                    i_cells[x][y].Visit(visitor);
+                    getGridType(x, y).Visit(visitor);
         }
 
         template<class T, class TT> void Visit(const uint32 &x, const uint32 &y, TypeContainerVisitor<T, TypeMapContainer<TT> > &visitor)
         {
-            i_cells[x][y].Visit(visitor);
+            getGridType(x, y).Visit(visitor);
         }
 
         unsigned int ActiveObjectsInGrid(void) const
@@ -141,25 +152,32 @@ class TRINITY_DLL_DECL NGrid
 
         template<class SPECIFIC_OBJECT> const SPECIFIC_OBJECT* GetGridObject(const uint32 x, const uint32 y, OBJECT_HANDLE hdl) const
         {
-            return i_cells[x][y].template GetGridObject<SPECIFIC_OBJECT>(hdl);
+            return getGridType(x, y).template GetGridObject<SPECIFIC_OBJECT>(hdl);
         }
 
         template<class SPECIFIC_OBJECT> SPECIFIC_OBJECT* GetGridObject(const uint32 x, const uint32 y, OBJECT_HANDLE hdl)
         {
-            return i_cells[x][y].template GetGridObject<SPECIFIC_OBJECT>(hdl);
+            return getGridType(x, y).template GetGridObject<SPECIFIC_OBJECT>(hdl);
         }
 
         template<class SPECIFIC_OBJECT> bool AddGridObject(const uint32 x, const uint32 y, SPECIFIC_OBJECT *obj, OBJECT_HANDLE hdl)
         {
-            return i_cells[x][y].AddGridObject(hdl, obj);
+            return getGridType(x, y).AddGridObject(hdl, obj);
         }
 
         template<class SPECIFIC_OBJECT> bool RemoveGridObject(const uint32 x, const uint32 y, SPECIFIC_OBJECT *obj, OBJECT_HANDLE hdl)
         {
-            return i_cells[x][y].RemoveGridObject(obj, hdl);
+            return getGridType(x, y).RemoveGridObject(obj, hdl);
         }
 
     private:
+
+        GridType& getGridType(const uint32& x, const uint32& y)
+        {
+            ASSERT(x < N);
+            ASSERT(y < N);
+            return i_cells[x][y];
+        }
 
         uint32 i_gridId;
         GridInfo i_GridInfo;

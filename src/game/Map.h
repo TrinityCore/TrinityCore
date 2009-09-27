@@ -283,6 +283,17 @@ class MANGOS_DLL_SPEC Map : public GridRefManager<NGridType>, public MaNGOS::Obj
 
         virtual void Update(const uint32&);
 
+        /*
+        void MessageBroadcast(Player *, WorldPacket *, bool to_self);
+        void MessageBroadcast(WorldObject *, WorldPacket *);
+        void MessageDistBroadcast(Player *, WorldPacket *, float dist, bool to_self, bool own_team_only = false);
+        void MessageDistBroadcast(WorldObject *, WorldPacket *, float dist);
+        */
+ 
+        float GetVisibilityDistance() const { return m_VisibleDistance; }
+        //function for setting up visibility distance for maps on per-type/per-Id basis
+        virtual void InitVisibilityDistance();
+
         void PlayerRelocation(Player *, float x, float y, float z, float angl);
         void CreatureRelocation(Creature *creature, float x, float y, float, float);
 
@@ -453,7 +464,6 @@ class MANGOS_DLL_SPEC Map : public GridRefManager<NGridType>, public MaNGOS::Obj
         GridMap *GetGrid(float x, float y);
 
         void SetTimer(uint32 t) { i_gridExpiry = t < MIN_GRID_DELAY ? MIN_GRID_DELAY : t; }
-        //uint64 CalculateGridMask(const uint32 &y) const;
 
         void SendInitSelf( Player * player );
 
@@ -477,6 +487,8 @@ class MANGOS_DLL_SPEC Map : public GridRefManager<NGridType>, public MaNGOS::Obj
 
         NGridType* getNGrid(uint32 x, uint32 y) const
         {
+            ASSERT(x < MAX_NUMBER_OF_GRIDS);
+            ASSERT(y < MAX_NUMBER_OF_GRIDS);
             return i_grids[x][y];
         }
 
@@ -496,6 +508,7 @@ class MANGOS_DLL_SPEC Map : public GridRefManager<NGridType>, public MaNGOS::Obj
         uint8 i_spawnMode;
         uint32 i_InstanceId;
         uint32 m_unloadTimer;
+        float m_VisibleDistance;
 
         MapRefManager m_mapRefManager;
         MapRefManager::iterator m_mapRefIter;
@@ -594,6 +607,8 @@ class TRINITY_DLL_SPEC InstanceMap : public Map
         void SendResetWarnings(uint32 timeLeft) const;
         void SetResetSchedule(bool on);
         uint32 GetMaxPlayers() const;
+
+        virtual void InitVisibilityDistance();
     private:
         bool m_resetAfterUnload;
         bool m_unloadWhenEmpty;
@@ -611,7 +626,10 @@ class TRINITY_DLL_SPEC BattleGroundMap : public Map
         void Remove(Player *, bool);
         bool CanEnter(Player* player);
         void SetUnload();
+        //void UnloadAll(bool pForce);
         void RemoveAllPlayers();
+
+        virtual void InitVisibilityDistance();
 };
 
 /*inline

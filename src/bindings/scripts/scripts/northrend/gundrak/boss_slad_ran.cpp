@@ -115,10 +115,10 @@ struct TRINITY_DLL_DECL boss_slad_ranAI : public ScriptedAI
             if(uiSpawnTimer < diff)
             {
                 if (uiPhase == 1)
-                    for (uint8 i = 0;i< HeroicMode ? 5 : 3;++i)
+                    for (uint8 i = 0;i < (HeroicMode ? 5 : 3); ++i)
                         m_creature->SummonCreature(CREATURE_SNAKE, rand()%5, rand()%5, 0, 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN,20000);
                 if (uiPhase == 2)
-                    for (uint8 i = 0;i< HeroicMode ? 5 : 3;++i)
+                    for (uint8 i = 0;i < (HeroicMode ? 5 : 3); ++i)
                         m_creature->SummonCreature(CREATURE_CONSTRICTORS, rand()%5, rand()%5, 0, 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN,20000);
                 uiSpawnTimer = 5000;
             } else uiSpawnTimer -= diff;

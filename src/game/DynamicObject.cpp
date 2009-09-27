@@ -126,6 +126,27 @@ void DynamicObject::Update(uint32 p_time)
     else
         deleteThis = true;
 
+    /*
+    // have radius and work as persistent effect
+    if(m_radius)
+    {
+        // TODO: make a timer and update this in larger intervals
+        CellPair p(MaNGOS::ComputeCellPair(GetPositionX(), GetPositionY()));
+        Cell cell(p);
+        cell.data.Part.reserved = ALL_DISTRICT;
+        cell.SetNoCreate();
+ 
+        MaNGOS::DynamicObjectUpdater notifier(*this, caster);
+ 
+        TypeContainerVisitor<MaNGOS::DynamicObjectUpdater, WorldTypeMapContainer > world_object_notifier(notifier);
+        TypeContainerVisitor<MaNGOS::DynamicObjectUpdater, GridTypeMapContainer > grid_object_notifier(notifier);
+ 
+        CellLock<GridReadGuard> cell_lock(cell, p);
+        cell_lock->Visit(cell_lock, world_object_notifier, *GetMap(), *this, m_radius);
+        cell_lock->Visit(cell_lock, grid_object_notifier, *GetMap(), *this, m_radius);
+    }
+    */
+
     if (m_effMask)
     {
         if (m_updateTimer < p_time)

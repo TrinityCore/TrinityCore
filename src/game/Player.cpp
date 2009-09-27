@@ -5988,8 +5988,9 @@ void Player::SendMessageToSet(WorldPacket *data, bool self)
         GetSession()->SendPacket(data);
 
     // we use World::GetMaxVisibleDistance() because i cannot see why not use a distance
-    Trinity::MessageDistDeliverer notifier(this, data, World::GetMaxVisibleDistance());
-    VisitNearbyWorldObject(World::GetMaxVisibleDistance(), notifier);
+    // update: replaced by GetMap()->GetVisibilityDistance()
+    Trinity::MessageDistDeliverer notifier(this, data, GetMap()->GetVisibilityDistance());
+    VisitNearbyWorldObject(GetMap()->GetVisibilityDistance(), notifier);
 }
 
 void Player::SendMessageToSetInRange(WorldPacket *data, float dist, bool self)
@@ -17776,7 +17777,7 @@ void Player::HandleStealthedUnitsDetection()
     std::list<Unit*> stealthedUnits;
     Trinity::AnyStealthedCheck u_check;
     Trinity::UnitListSearcher<Trinity::AnyStealthedCheck > searcher(this, stealthedUnits, u_check);
-    VisitNearbyObject(World::GetMaxVisibleDistance(), searcher);
+    VisitNearbyObject(GetMap()->GetVisibilityDistance(), searcher);
 
     for (std::list<Unit*>::const_iterator i = stealthedUnits.begin(); i != stealthedUnits.end(); ++i)
     {
@@ -18972,6 +18973,7 @@ bool Player::canSeeOrDetect(Unit const* u, bool detect, bool inVisibleList, bool
     //if(u->GetVisibility() == VISIBILITY_RESPAWN)
     //    return false;
 
+    Map& _map = *u->GetMap();
     // Grid dead/alive checks
     // non visible at grid for any stealth state
     if(!u->IsVisibleInGridForPlayer(this))
@@ -18987,34 +18989,34 @@ bool Player::canSeeOrDetect(Unit const* u, bool detect, bool inVisibleList, bool
             return true;
 
     // different visible distance checks
-    if(isInFlight())                                     // what see player in flight
+    if(isInFlight())                                           // what see player in flight
     {
-        if (!m_seer->IsWithinDistInMap(u,World::GetMaxVisibleDistanceInFlight()+(inVisibleList ? World::GetVisibleObjectGreyDistance() : 0.0f), is3dDistance))
+        if (!m_seer->IsWithinDistInMap(u, _map.GetVisibilityDistance() + (inVisibleList ? World::GetVisibleObjectGreyDistance() : 0.0f), is3dDistance))
             return false;
     }
     else if(!u->isAlive())                                     // distance for show body
     {
-        if (!m_seer->IsWithinDistInMap(u,World::GetMaxVisibleDistanceForObject()+(inVisibleList ? World::GetVisibleObjectGreyDistance() : 0.0f), is3dDistance))
+        if (!m_seer->IsWithinDistInMap(u, _map.GetVisibilityDistance() + (inVisibleList ? World::GetVisibleObjectGreyDistance() : 0.0f), is3dDistance))
             return false;
     }
     else if(u->GetTypeId()==TYPEID_PLAYER)                     // distance for show player
     {
         // Players far than max visible distance for player or not in our map are not visible too
-        if (!at_same_transport && !m_seer->IsWithinDistInMap(u,World::GetMaxVisibleDistanceForPlayer()+(inVisibleList ? World::GetVisibleUnitGreyDistance() : 0.0f), is3dDistance))
+        if (!at_same_transport && !m_seer->IsWithinDistInMap(u, _map.GetVisibilityDistance() + (inVisibleList ? World::GetVisibleUnitGreyDistance() : 0.0f), is3dDistance))
             return false;
     }
     else if(u->GetCharmerOrOwnerGUID())                        // distance for show pet/charmed
     {
         // Pet/charmed far than max visible distance for player or not in our map are not visible too
-        if (!m_seer->IsWithinDistInMap(u,World::GetMaxVisibleDistanceForPlayer()+(inVisibleList ? World::GetVisibleUnitGreyDistance() : 0.0f), is3dDistance))
+        if (!m_seer->IsWithinDistInMap(u, _map.GetVisibilityDistance() + (inVisibleList ? World::GetVisibleUnitGreyDistance() : 0.0f), is3dDistance))
             return false;
     }
     else                                                    // distance for show creature
     {
-        // Units far than max visible distance for creature or not in our map are not visible too
+        // Units farther than max visible distance for creature or not in our map are not visible too
         if (!m_seer->IsWithinDistInMap(u
             , u->isActiveObject() ? (MAX_VISIBILITY_DISTANCE - (inVisibleList ? 0.0f : World::GetVisibleUnitGreyDistance()))
-            : (World::GetMaxVisibleDistanceForCreature() + (inVisibleList ? World::GetVisibleUnitGreyDistance() : 0.0f))
+            : (_map.GetVisibilityDistance() + (inVisibleList ? World::GetVisibleUnitGreyDistance() : 0.0f))
             , is3dDistance))
             return false;
     }

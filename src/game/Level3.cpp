@@ -686,6 +686,7 @@ bool ChatHandler::HandleReloadConfigCommand(const char* /*args*/)
 {
     sLog.outString( "Re-Loading config settings..." );
     sWorld.LoadConfigSettings(true);
+    MapManager::Instance().InitializeVisibilityDistanceInfo();
     SendGlobalGMSysMessage("World config settings reloaded.");
     return true;
 }
