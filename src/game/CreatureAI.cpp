@@ -93,13 +93,12 @@ void CreatureAI::DoZoneInCombat(Creature* creature)
                 creature->AddThreat(pPlayer, 0.0f);
             }
 
-            // TC2 commit 4821 / 9d0967884f0b, disabled (causes some NPCs to not regenerate HP):
-            /* for(Unit::ControlList::const_iterator itr = pPlayer->m_Controlled.begin(); itr != pPlayer->m_Controlled.end(); ++itr)
+            for(Unit::ControlList::const_iterator itr = pPlayer->m_Controlled.begin(); itr != pPlayer->m_Controlled.end(); ++itr)
             {
                 creature->SetInCombatWith(*itr);
                 (*itr)->SetInCombatWith(creature);
                 creature->AddThreat(*itr, 0.0f);
-            } */
+            }
         }
     }
 }
