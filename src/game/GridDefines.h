@@ -33,11 +33,7 @@ class GameObject;
 class Pet;
 class Player;
 
-#ifdef LARGE_CELL
-#define MAX_NUMBER_OF_CELLS     4
-#else
 #define MAX_NUMBER_OF_CELLS     8
-#endif
 
 #define MAX_NUMBER_OF_GRIDS      64
 
@@ -93,7 +89,7 @@ struct TRINITY_DLL_DECL CoordPair
 
     void operator<<(const uint32 val)
     {
-        if( x_coord >= val )
+        if( x_coord > val )
             x_coord -= val;
         else
             x_coord = 0;
@@ -109,7 +105,7 @@ struct TRINITY_DLL_DECL CoordPair
 
     void operator-=(const uint32 val)
     {
-        if( y_coord >= val )
+        if( y_coord > val )
             y_coord -= val;
         else
             y_coord = 0;
