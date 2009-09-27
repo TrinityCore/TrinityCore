@@ -127,6 +127,9 @@ struct TRINITY_DLL_DECL boss_svalaAI : public ScriptedAI
     {
         if (uiIntroTimer < diff)
         {
+            if(!pArthas)
+                return;
+
             switch (uiIntroPhase)
             {
                 case 0:
@@ -171,7 +174,7 @@ struct TRINITY_DLL_DECL boss_svalaAI : public ScriptedAI
                         Phase = FINISHED;
                     }
                     else Reset();
-                    break;
+                    return;
             }
         } else uiIntroTimer -= diff;
     }
