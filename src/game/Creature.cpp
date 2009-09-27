@@ -529,15 +529,19 @@ void Creature::Update(uint32 diff)
             if(!isAlive())
                 break;
 
-            bool bNotInCombatOrIsPolymorphed = (!isInCombat() || IsPolymorphed() || getThreatManager().isThreatListEmpty() ||
-                                               (getVictim() && getVictim()->GetCharmerOrOwnerPlayerOrPlayerItself() &&
-                                               getVictim()->GetCharmerOrOwnerPlayerOrPlayerItself()->isGameMaster()));
+            bool bIsPolymorphed = IsPolymorphed();
+            bool bNotInCombat = !isInCombat() || getThreatManager().isThreatListEmpty() ||
+                                (getVictim() && getVictim()->GetCharmerOrOwnerPlayerOrPlayerItself() &&
+                                getVictim()->GetCharmerOrOwnerPlayerOrPlayerItself()->isGameMaster());
+            bool bControlledOrOwnedByPlayer = GetCharmerOrOwner() && GetCharmerOrOwner()->GetTypeId() == TYPEID_PLAYER;
 
-            if(m_regenTimer > diff && !bNotInCombatOrIsPolymorphed)
+            if(m_regenTimer > diff && !bIsPolymorphed &&        // if polymorphed, skip the timer
+              ((bNotInCombat && bControlledOrOwnedByPlayer) ||  // if not in combat and a pet, do not skip the timer 
+              !bNotInCombat))                                   // if in combat, do not skip the timer
                 m_regenTimer -= diff;
             else
             {
-                if(bNotInCombatOrIsPolymorphed)
+                if(bNotInCombat || bIsPolymorphed)   // regenerate health if not in combat or polymorphed
                     RegenerateHealth();
 
                 if(getPowerType() == POWER_ENERGY)
@@ -546,7 +550,7 @@ void Creature::Update(uint32 diff)
                 else
                     RegenerateMana();
 
-                if(!bNotInCombatOrIsPolymorphed)
+                if(!bNotInCombat && !bIsPolymorphed) // only increase the timer if not in combat and not polymorphed
                     m_regenTimer += 2000 - diff;
             }
 
