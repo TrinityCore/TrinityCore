@@ -544,8 +544,8 @@ void Creature::Update(uint32 diff)
             if(!isAlive())
                 break;
 
-            bool bNotInCombatOrIsPolymorphed = (!isInCombat() || IsPolymorphed() || getVictim() == NULL ||
-                                               (getVictim()->GetCharmerOrOwnerPlayerOrPlayerItself() != NULL &&
+            bool bNotInCombatOrIsPolymorphed = (!isInCombat() || IsPolymorphed() || getThreatManager().isThreatListEmpty() ||
+                                               (getVictim() && getVictim()->GetCharmerOrOwnerPlayerOrPlayerItself() &&
                                                getVictim()->GetCharmerOrOwnerPlayerOrPlayerItself()->isGameMaster()));
 
             if(m_regenTimer > diff && !bNotInCombatOrIsPolymorphed)
