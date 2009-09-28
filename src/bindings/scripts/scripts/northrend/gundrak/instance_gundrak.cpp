@@ -85,7 +85,7 @@ struct TRINITY_DLL_DECL instance_gundrak : public ScriptedInstance
             case 29305: uiMoorabi = pCreature->GetGUID(); break;
             case 29306: uiGalDarah = pCreature->GetGUID(); break;
             case 29307: uiDrakkariColossus = pCreature->GetGUID(); break;
-            case 29332: uiEckTheFerocious = pCreature->GetGUID(); break;
+            case 29932: uiEckTheFerocious = pCreature->GetGUID(); break;
         }
     }
     
@@ -104,7 +104,7 @@ struct TRINITY_DLL_DECL instance_gundrak : public ScriptedInstance
                     pGo->RemoveFlag(GAMEOBJECT_FLAGS,GO_FLAG_UNK1);
                 break;
             case 192520:
-                uiDrakkariColossus = pGo->GetGUID();
+                uiDrakkariColossusAltar = pGo->GetGUID();
                 if (m_auiEncounter[2] == DONE)
                     pGo->RemoveFlag(GAMEOBJECT_FLAGS,GO_FLAG_UNK1);
                 break;
@@ -115,7 +115,7 @@ struct TRINITY_DLL_DECL instance_gundrak : public ScriptedInstance
                 uiMoorabiStatue = pGo->GetGUID();
                 break;
             case 192567:
-                uiDrakkariColossus = pGo->GetGUID();
+                uiDrakkariColossusStatue = pGo->GetGUID();
                 break;
             case 192632:
                 uiEckTheFerociousDoor = pGo->GetGUID();
@@ -136,7 +136,7 @@ struct TRINITY_DLL_DECL instance_gundrak : public ScriptedInstance
                 uiBridge = pGo->GetGUID();
                 break;
             case 192633:
-                uiBridge = pGo->GetGUID();
+                uiCollision = pGo->GetGUID();
                 break;
         }
     }

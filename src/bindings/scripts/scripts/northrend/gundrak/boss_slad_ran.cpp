@@ -50,6 +50,21 @@ enum ConstrictorSpells
     H_SPELL_VENOMOUS_BITE                     = 58996
 };
 
+// Spawning locations
+struct Locations
+{
+    float x, y, z, orientation;
+};
+
+static Locations SpawnLoc[]=
+{
+  {1783.81, 646.637, 133.948, 3.71755},
+  {1775.03, 606.586, 134.165, 1.43117},
+  {1717.39, 630.041, 129.282, 5.96903},
+  {1765.66, 646.542, 134.02,  5.11381},
+  {1716.76, 635.159, 129.282, 0.191986}
+};
+
 struct TRINITY_DLL_DECL boss_slad_ranAI : public ScriptedAI
 {
     boss_slad_ranAI(Creature *c) : ScriptedAI(c)
@@ -116,10 +131,10 @@ struct TRINITY_DLL_DECL boss_slad_ranAI : public ScriptedAI
             {
                 if (uiPhase == 1)
                     for (uint8 i = 0;i < (HeroicMode ? 5 : 3); ++i)
-                        m_creature->SummonCreature(CREATURE_SNAKE, rand()%5, rand()%5, 0, 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN,20000);
+                        m_creature->SummonCreature(CREATURE_SNAKE, SpawnLoc[i].x, SpawnLoc[i].y, SpawnLoc[i].z, SpawnLoc[i].orientation, TEMPSUMMON_CORPSE_TIMED_DESPAWN,20000);
                 if (uiPhase == 2)
                     for (uint8 i = 0;i < (HeroicMode ? 5 : 3); ++i)
-                        m_creature->SummonCreature(CREATURE_CONSTRICTORS, rand()%5, rand()%5, 0, 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN,20000);
+                        m_creature->SummonCreature(CREATURE_CONSTRICTORS, SpawnLoc[i].x, SpawnLoc[i].y, SpawnLoc[i].z, SpawnLoc[i].orientation, TEMPSUMMON_CORPSE_TIMED_DESPAWN,20000);
                 uiSpawnTimer = 5000;
             } else uiSpawnTimer -= diff;
         }
@@ -149,6 +164,12 @@ struct TRINITY_DLL_DECL boss_slad_ranAI : public ScriptedAI
     void KilledUnit(Unit *victim)
     {
         DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2,SAY_SLAY_3), m_creature);
+    }
+
+    void JustSummoned(Creature* summoned)
+    {
+        summoned->GetMotionMaster()->MovePoint(0,m_creature->GetPositionX(),m_creature->GetPositionY(),m_creature->GetPositionZ());
+        
     }
 };
 

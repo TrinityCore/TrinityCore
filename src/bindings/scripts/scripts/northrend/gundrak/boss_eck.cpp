@@ -12,12 +12,14 @@ update creature_template set scriptname = '' where entry = '';
 #include "precompiled.h"
 #include "def_gundrak.h"
 
-#define SPELL_ECK_BERSERK                       55816 //Eck goes berserk, increasing his attack speed by 150% and all damage he deals by 500%.
-#define SPELL_ECK_BITE                          55813 //Eck bites down hard, inflicting 150% of his normal damage to an enemy.
-#define SPELL_ECK_SPIT                          55814 //Eck spits toxic bile at enemies in a cone in front of him, inflicting 2970 Nature damage and draining 220 mana every 1 sec for 3 sec.
-#define SPELL_ECK_SPRING_1                      55815 //Eck leaps at a distant target.  --> Drops aggro and charges a random player. Tank can simply taunt him back.
-#define SPELL_ECK_SPRING_2                      55837 //Eck leaps at a distant target.
-
+enum Spells
+{
+    SPELL_ECK_BERSERK                       = 55816, //Eck goes berserk, increasing his attack speed by 150% and all damage he deals by 500%.
+    SPELL_ECK_BITE                          = 55813, //Eck bites down hard, inflicting 150% of his normal damage to an enemy.
+    SPELL_ECK_SPIT                          = 55814, //Eck spits toxic bile at enemies in a cone in front of him, inflicting 2970 Nature damage and draining 220 mana every 1 sec for 3 sec.
+    SPELL_ECK_SPRING_1                      = 55815, //Eck leaps at a distant target.  --> Drops aggro and charges a random player. Tank can simply taunt him back.
+    SPELL_ECK_SPRING_2                      = 55837  //Eck leaps at a distant target.
+};
 struct TRINITY_DLL_DECL boss_eckAI : public ScriptedAI
 {
     boss_eckAI(Creature *c) : ScriptedAI(c)
@@ -64,11 +66,13 @@ struct TRINITY_DLL_DECL boss_eckAI : public ScriptedAI
             DoCast(m_creature->getVictim(),SPELL_ECK_BITE);
             uiBiteTimer = 8000 + rand()%4000;
         } else uiBiteTimer -= diff;
+
         if (uiSpitTimer < diff)
         {
             DoCast(m_creature->getVictim(),SPELL_ECK_SPIT);
             uiSpitTimer = 6000 + rand()%8000;
         } else uiSpitTimer -= diff;
+
         if (uiSpringTimer < diff)
         {
             Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM,1);
@@ -78,12 +82,25 @@ struct TRINITY_DLL_DECL boss_eckAI : public ScriptedAI
                 uiSpringTimer = 5000 + rand()%10000;
             }
         } else uiSpringTimer -= diff;
+
         //Berserk on timer or 20% of health
-        if (!bBerserk && (uiBerserkTimer < diff || m_creature->GetHealth()*100 / m_creature->GetMaxHealth() < 20))
+        if (!bBerserk)
         {
-            DoCast(m_creature,SPELL_ECK_BERSERK);
-            bBerserk = true;
-        }else uiBerserkTimer -= diff;
+            if (uiBerserkTimer < diff)
+            {
+                DoCast(m_creature,SPELL_ECK_BERSERK);
+                bBerserk = true;
+            }
+            else 
+            {
+                uiBerserkTimer -= diff;
+                if (m_creature->GetHealth()*100 / m_creature->GetMaxHealth() < 20)
+                {
+                    DoCast(m_creature,SPELL_ECK_BERSERK);
+                    bBerserk = true;
+                }
+            }
+        }
 
         DoMeleeAttackIfReady();
     }
