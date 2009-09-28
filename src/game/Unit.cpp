@@ -11356,9 +11356,9 @@ Unit* Creature::SelectVictim()
     // Note: creature not have targeted movement generator but have attacker in this case
     for(AttackerSet::const_iterator itr = m_attackers.begin(); itr != m_attackers.end(); ++itr)
     {
-        if(canCreatureAttack(*itr) && (*itr)->GetTypeId() != TYPEID_PLAYER
+        if((*itr) && canCreatureAttack(*itr) && (*itr)->GetTypeId() != TYPEID_PLAYER
           && !((Creature*)(*itr))->HasUnitTypeMask(UNIT_MASK_CONTROLABLE_GUARDIAN)
-          && (!(*itr)->getVictim() || !(*itr)->isAttackingPlayer() || IsFriendlyTo(target->getVictim()))) // if the victim of target is a player, only defend the victim if we are friendly
+          && (!(*itr)->getVictim() || !(*itr)->isAttackingPlayer() || IsFriendlyTo((*itr)->getVictim()))) // if the victim of target is a player, only defend the victim if we are friendly
             return NULL;
     }
 

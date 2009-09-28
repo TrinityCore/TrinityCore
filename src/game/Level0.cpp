@@ -244,7 +244,7 @@ bool ChatHandler::HandleAccountAddonCommand(const char* args)
     uint32 account_id = m_session->GetAccountId();
 
     int lev=atoi(szExp);                                    //get int anyway (0 if error)
-    if(lev < 0)
+    if(lev < 0 || lev > sWorld.getConfig(CONFIG_EXPANSION))
         return false;
 
     // No SQL injection
