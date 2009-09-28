@@ -530,27 +530,26 @@ void Creature::Update(uint32 diff)
                 break;
 
             bool bIsPolymorphed = IsPolymorphed();
-            bool bNotInCombat = !isInCombat() || getThreatManager().isThreatListEmpty() ||
-                                (getVictim() && getVictim()->GetCharmerOrOwnerPlayerOrPlayerItself() &&
-                                getVictim()->GetCharmerOrOwnerPlayerOrPlayerItself()->isGameMaster());
-            bool bControlledOrOwnedByPlayer = GetCharmerOrOwner() && GetCharmerOrOwner()->GetTypeId() == TYPEID_PLAYER;
+            bool bInCombat = isInCombat() && (!getVictim() ||                                        // if isInCombat() is true and this has no victim
+                             !getVictim()->GetCharmerOrOwnerPlayerOrPlayerItself() ||                // or the victim/owner/charmer is not a player
+                             !getVictim()->GetCharmerOrOwnerPlayerOrPlayerItself()->isGameMaster()); // or the victim/owner/charmer is not a GameMaster
 
-            if(m_regenTimer > diff && !bIsPolymorphed &&        // if polymorphed, skip the timer
-              ((bNotInCombat && bControlledOrOwnedByPlayer) ||  // if not in combat and a pet, do not skip the timer 
-              !bNotInCombat))                                   // if in combat, do not skip the timer
+            if(m_regenTimer > diff && !bIsPolymorphed) // if polymorphed, skip the timer
                 m_regenTimer -= diff;
             else
             {
-                if(bNotInCombat || bIsPolymorphed)   // regenerate health if not in combat or polymorphed
+                if(!bInCombat || bIsPolymorphed) // regenerate health if not in combat or if polymorphed
                     RegenerateHealth();
 
                 if(getPowerType() == POWER_ENERGY)
+                {
                     if(!IsVehicle() || GetVehicleKit()->GetVehicleInfo()->m_powerType != POWER_PYRITE)
                         Regenerate(POWER_ENERGY);
+                }
                 else
                     RegenerateMana();
 
-                if(!bNotInCombat && !bIsPolymorphed) // only increase the timer if not in combat and not polymorphed
+                if(!bIsPolymorphed) // only increase the timer if not polymorphed
                     m_regenTimer += 2000 - diff;
             }
 
