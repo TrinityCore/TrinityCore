@@ -101,6 +101,7 @@ class TRINITY_DLL_SPEC ChatHandler
         bool ShowHelpForSubCommands(ChatCommand *table, char const* cmd, char const* subcmd);
 
         bool HandleAccountCommand(const char* args);
+        bool HandleAccountAddonCommand(const char* args);
         bool HandleAccountCreateCommand(const char* args);
         bool HandleAccountDeleteCommand(const char* args);
         bool HandleAccountLockCommand(const char* args);
