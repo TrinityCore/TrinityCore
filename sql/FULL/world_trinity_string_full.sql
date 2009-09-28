@@ -62,6 +62,7 @@ INSERT INTO `trinity_string` (`entry`, `content_default`, `content_loc1`, `conte
 (58, 'Using script library: %s', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (59, 'Using creature EventAI: %s', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (60, 'Online players: %u (max: %u)', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(61, 'Up to %u expansion allowed now.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (100, 'Global notify: ', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (101, 'Map: %u (%s) Zone: %u (%s) Area: %u (%s) Phase: %u\nX: %f Y: %f Z: %f Orientation: %f\ngrid[%u,%u]cell[%u,%u] InstanceID: %u\n ZoneX: %f ZoneY: %f\nGroundZ: %f FloorZ: %f Have height data (Map: %u VMap: %u)', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (102, '%s is already being teleported.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),

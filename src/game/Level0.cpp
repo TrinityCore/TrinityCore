@@ -234,6 +234,25 @@ bool ChatHandler::HandleAccountPasswordCommand(const char* args)
     return true;
 }
 
+bool ChatHandler::HandleAccountAddonCommand(const char* args)
+{
+    if(!*args)
+        return false;
+
+    char *szExp = strtok((char*)args," ");
+
+    uint32 account_id = m_session->GetAccountId();
+
+    int lev=atoi(szExp);                                    //get int anyway (0 if error)
+    if(lev < 0)
+        return false;
+
+    // No SQL injection
+    loginDatabase.PExecute("UPDATE account SET expansion = '%d' WHERE id = '%u'",lev,account_id);
+    PSendSysMessage(LANG_ACCOUNT_ADDON,lev);
+    return true;
+}
+
 bool ChatHandler::HandleAccountLockCommand(const char* args)
 {
     if (!*args)
