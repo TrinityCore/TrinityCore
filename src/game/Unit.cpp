@@ -11314,7 +11314,7 @@ Unit* Creature::SelectVictim()
     if (CanHaveThreatList())
     {
         if ( !target && !m_ThreatManager.isThreatListEmpty() )
-            // No taunt aura or taunt aura caster is dead standart target selection
+            // No taunt aura or taunt aura caster is dead standard target selection
             target = m_ThreatManager.getHostilTarget();
     }
     else if(!HasReactState(REACT_PASSIVE))
@@ -11344,7 +11344,7 @@ Unit* Creature::SelectVictim()
     else
         return NULL;
 
-    if(target && (!target->isAttackingPlayer() || IsFriendlyTo(target->getVictim()))) // if the victim of target is a player, only defend the victim if we are friendly
+    if(target && (!target->getVictim() || !target->isAttackingPlayer() || IsFriendlyTo(target->getVictim()))) // if the victim of target is a player, only defend the victim if we are friendly
     {
         SetInFront(target);
         return target;
@@ -11358,7 +11358,7 @@ Unit* Creature::SelectVictim()
     {
         if(canCreatureAttack(*itr) && (*itr)->GetTypeId() != TYPEID_PLAYER
           && !((Creature*)(*itr))->HasUnitTypeMask(UNIT_MASK_CONTROLABLE_GUARDIAN)
-          && (!(*itr)->isAttackingPlayer() || IsFriendlyTo(target->getVictim()))) // if the victim of target is a player, only defend the victim if we are friendly
+          && (!(*itr)->getVictim() || !(*itr)->isAttackingPlayer() || IsFriendlyTo(target->getVictim()))) // if the victim of target is a player, only defend the victim if we are friendly
             return NULL;
     }
 
@@ -11369,7 +11369,7 @@ Unit* Creature::SelectVictim()
     // search nearby enemy before enter evade mode
     if(HasReactState(REACT_AGGRESSIVE))
         if(target = SelectNearestTarget())
-            if(!target->isAttackingPlayer() || IsFriendlyTo(target->getVictim())) // if the victim of target is a player, only defend the victim if we are friendly
+            if(!target->getVictim() || !target->isAttackingPlayer() || IsFriendlyTo(target->getVictim())) // if the victim of target is a player, only defend the victim if we are friendly
                 return target;
 
     if(m_invisibilityMask)
