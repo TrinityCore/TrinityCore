@@ -286,12 +286,9 @@ struct TRINITY_DLL_DECL boss_svala_sorrowgraveAI : public ScriptedAI
                     Phase = SACRIFICING;
 
                     for (uint8 i = 0; i < 3; ++i)
-                    {
                         if (pRitualChanneler[i] = m_creature->SummonCreature(CREATURE_RITUAL_CHANNELER, RitualChannelerLocations[i].x, RitualChannelerLocations[i].y, RitualChannelerLocations[i].z, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 360000))
-                        {
-                            CAST_AI(mob_ritual_channelerAI,pRitualChanneler[i])->AttackStartNoMove(pSacrificeTarget);
-                        }
-                    }
+                            if (mob_ritual_channelerAI *pChannelerAI = CAST_AI(mob_ritual_channelerAI,pRitualChanneler[i]))
+                                pChannelerAI->AttackStartNoMove(pSacrificeTarget);
                 }
                 uiRitualOfSwordTimer = 18000 + rand()%4000;
             } else uiRitualOfSwordTimer -= diff;

@@ -1690,7 +1690,7 @@ bool Creature::canStartAttack(Unit const* who, bool force) const
     if(!force)
     {
         // if victim(1) has a victim(2), and victim(2) is a non-friendly player, don't attack victim(1) unless forced
-        if(who->getVictim() && who->getVictim()->GetCharmerOrOwnerPlayerOrPlayerItself() && !IsFriendlyTo(who->getVictim())
+        if(who->getVictim() && who->getVictim()->GetCharmerOrOwnerPlayerOrPlayerItself() && !IsFriendlyTo(who->getVictim()))
             return false;
 
         if(who->isInCombat())
