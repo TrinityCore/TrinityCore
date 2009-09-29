@@ -11344,7 +11344,7 @@ Unit* Creature::SelectVictim()
     else
         return NULL;
 
-    if(target && (!target->getVictim() || IsFriendlyTo(target->getVictim()))) // if victim(1) has a victim(2), only attack victim(1) if we are friendly with victim(2)
+    if(target && _IsTargetAcceptable(target))
     {
         SetInFront(target);
         return target;
@@ -11358,7 +11358,6 @@ Unit* Creature::SelectVictim()
     {
         if((*itr) && canCreatureAttack(*itr) && (*itr)->GetTypeId() != TYPEID_PLAYER
           && !((Creature*)(*itr))->HasUnitTypeMask(UNIT_MASK_CONTROLABLE_GUARDIAN))
-          // && (!(*itr)->getVictim() || IsFriendlyTo((*itr)->getVictim()))) // if victim(1) has a victim(2), only attack victim(1) if we are friendly with victim(2)
             return NULL;
     }
 
@@ -11369,7 +11368,7 @@ Unit* Creature::SelectVictim()
     // search nearby enemy before enter evade mode
     if(HasReactState(REACT_AGGRESSIVE))
         if(target = SelectNearestTarget())
-            if(!target->getVictim() || IsFriendlyTo(target->getVictim())) // if victim(1) has a victim(2), only attack victim(1) if we are friendly with victim(2)
+            if(_IsTargetAcceptable(target))
                 return target;
 
     if(m_invisibilityMask)
