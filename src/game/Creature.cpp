@@ -1524,7 +1524,7 @@ bool Creature::LoadFromDB(uint32 guid, Map *map)
     if (map->GetInstanceId() != 0) guid = objmgr.GenerateLowGuid(HIGHGUID_UNIT);
 
     uint16 team = 0;
-    if(!Create(guid,map,data->phaseMask,data->id,team,0,data->posX,data->posY,data->posZ,data->orientation,data))
+    if(!Create(guid,map,data->phaseMask,data->id,0,team,data->posX,data->posY,data->posZ,data->orientation,data))
         return false;
 
     //We should set first home position, because then AI calls home movement
@@ -1689,6 +1689,10 @@ bool Creature::canStartAttack(Unit const* who, bool force) const
 
     if(!force)
     {
+        // if victim(1) has a victim(2), and victim(2) is a non-friendly player, don't attack victim(1) unless forced
+        if(who->getVictim() && who->getVictim()->GetCharmerOrOwnerPlayerOrPlayerItself() && !IsFriendlyTo(who->getVictim())
+            return false;
+
         if(who->isInCombat())
             if(Unit *victim = who->getAttackerForHelper())
                 if(IsWithinDistInMap(victim, sWorld.getConfig(CONFIG_CREATURE_FAMILY_ASSISTANCE_RADIUS)))
