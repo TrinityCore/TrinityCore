@@ -11344,7 +11344,7 @@ Unit* Creature::SelectVictim()
     else
         return NULL;
 
-    if(target && (!target->getVictim() || IsFriendlyTo(target->getVictim())) // if victim(1) has a victim(2), only attack victim(1) if we are friendly with victim(2)
+    if(target && (!target->getVictim() || IsFriendlyTo(target->getVictim()))) // if victim(1) has a victim(2), only attack victim(1) if we are friendly with victim(2)
     {
         SetInFront(target);
         return target;
@@ -11357,7 +11357,7 @@ Unit* Creature::SelectVictim()
     for(AttackerSet::const_iterator itr = m_attackers.begin(); itr != m_attackers.end(); ++itr)
     {
         if((*itr) && canCreatureAttack(*itr) && (*itr)->GetTypeId() != TYPEID_PLAYER
-          && !((Creature*)(*itr))->HasUnitTypeMask(UNIT_MASK_CONTROLABLE_GUARDIAN)
+          && !((Creature*)(*itr))->HasUnitTypeMask(UNIT_MASK_CONTROLABLE_GUARDIAN))
           // && (!(*itr)->getVictim() || IsFriendlyTo((*itr)->getVictim()))) // if victim(1) has a victim(2), only attack victim(1) if we are friendly with victim(2)
             return NULL;
     }
