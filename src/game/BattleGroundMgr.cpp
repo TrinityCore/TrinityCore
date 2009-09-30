@@ -1816,22 +1816,25 @@ void BattleGroundMgr::DistributeArenaPoints()
 
     //at first update all points for all team members
     for(ObjectMgr::ArenaTeamMap::iterator team_itr = objmgr.GetArenaTeamMapBegin(); team_itr != objmgr.GetArenaTeamMapEnd(); ++team_itr)
-    {
         if (ArenaTeam * at = team_itr->second)
-        {
             at->UpdateArenaPointsHelper(PlayerPoints);
-        }
-    }
 
     //cycle that gives points to all players
     for (std::map<uint32, uint32>::iterator plr_itr = PlayerPoints.begin(); plr_itr != PlayerPoints.end(); ++plr_itr)
     {
-        //update to database
-        CharacterDatabase.PExecute("UPDATE characters SET arena_pending_points = '%u' WHERE guid = '%u'", plr_itr->second, plr_itr->first);
-        //add points if player is online
+        //add points to player
         Player* pl = objmgr.GetPlayer(plr_itr->first);
         if (pl)
+        {
+            CharacterDatabase.PExecute("UPDATE characters SET arena_pending_points = '%u' WHERE guid = '%u'", plr_itr->second, plr_itr->first);
             pl->ModifyArenaPoints(plr_itr->second);
+        }
+        else
+        {
+            CharacterDatabase.PExecute("UPDATE characters SET arena_pending_points = 0 WHERE guid = '%u'", plr_itr->first);
+            CharacterDatabase._UpdateDataBlobValue(plr_itr->first, PLAYER_FIELD_ARENA_CURRENCY,
+            std::max(std::min(int32(plr_itr->second),int32(sWorld.getConfig(CONFIG_MAX_ARENA_POINTS))),0));
+        }
     }
 
     PlayerPoints.clear();
