@@ -1193,9 +1193,9 @@ void Spell::DoAllEffectOnTarget(TargetInfo *target)
         caster->DealSpellDamage(&damageInfo, true);
 
         // Judgement of Blood
-        if (m_spellInfo->SpellFamilyName == SPELLFAMILY_PALADIN && m_spellInfo->SpellFamilyFlags[1] & 0x00000008 && m_spellInfo->SpellIconID==153)
+        if (m_caster && m_spellInfo->SpellFamilyName == SPELLFAMILY_PALADIN && m_spellInfo->SpellFamilyFlags[1] & 0x00000008 && m_spellInfo->SpellIconID==153)
         {
-            int32 damagePoint  = damageInfo.damage * 33 / 100;
+            int32 damagePoint = damageInfo.damage * 33 / 100;
             m_caster->CastCustomSpell(m_caster, 32220, &damagePoint, NULL, NULL, true);
         }
     }
@@ -1210,15 +1210,13 @@ void Spell::DoAllEffectOnTarget(TargetInfo *target)
             caster->ProcDamageAndSpell(unit, procAttacker, procVictim, procEx, 0, m_attackType, m_spellInfo, m_triggeredByAuraSpell);
     }
 
-    if( !m_caster->IsFriendlyTo(unit) && !IsPositiveSpell(m_spellInfo->Id))
+    if(m_caster && !m_caster->IsFriendlyTo(unit) && !IsPositiveSpell(m_spellInfo->Id))
     {
         m_caster->CombatStart(unit, !(m_spellInfo->AttributesEx3 & SPELL_ATTR_EX3_NO_INITIAL_AGGRO));
 
         if(m_customAttr & SPELL_ATTR_CU_AURA_CC)
-        {
             if(!unit->IsStandState())
                 unit->SetStandState(UNIT_STAND_STATE_STAND);
-        }
     }
 
     if(spellHitTarget)
@@ -1231,16 +1229,12 @@ void Spell::DoAllEffectOnTarget(TargetInfo *target)
 
             // cast at creature (or GO) quest objectives update at successful cast finished (+channel finished)
             // ignore pets or autorepeat/melee casts for speed (not exist quest for spells (hm... )
-            if(m_originalCaster && m_originalCaster->IsControlledByPlayer() && !((Creature*)spellHitTarget)->isPet() && !IsAutoRepeat() && !IsNextMeleeSwingSpell() && !IsChannelActive() )
-            {
-                if ( Player* p = m_originalCaster->GetCharmerOrOwnerPlayerOrPlayerItself() )
-                {
+            if(m_originalCaster && m_originalCaster->IsControlledByPlayer() && !((Creature*)spellHitTarget)->isPet() && !IsAutoRepeat() && !IsNextMeleeSwingSpell() && !IsChannelActive())
+                if(Player* p = m_originalCaster->GetCharmerOrOwnerPlayerOrPlayerItself())
                     p->CastedCreatureOrGO(spellHitTarget->GetEntry(),spellHitTarget->GetGUID(),m_spellInfo->Id);
-                }
-            }
         }
 
-        if(m_caster->GetTypeId() == TYPEID_UNIT && ((Creature*)m_caster)->IsAIEnabled)
+        if(m_caster && m_caster->GetTypeId() == TYPEID_UNIT && ((Creature*)m_caster)->IsAIEnabled)
             ((Creature*)m_caster)->AI()->SpellHitTarget(spellHitTarget, m_spellInfo);
 
         // Needs to be called after dealing damage/healing to not remove breaking on damage auras
