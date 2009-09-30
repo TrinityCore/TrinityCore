@@ -26,7 +26,7 @@
 #include "ObjectMgr.h"
 
 // Character Dump tables
-#define DUMP_TABLE_COUNT 24
+#define DUMP_TABLE_COUNT 26
 
 struct DumpTable
 {
@@ -37,6 +37,7 @@ struct DumpTable
 static DumpTable dumpTables[DUMP_TABLE_COUNT] =
 {
     { "characters",                       DTT_CHARACTER  },
+    { "character_declinedname",           DTT_CHAR_TABLE },
     { "character_achievement",            DTT_CHAR_TABLE },
     { "character_achievement_progress",   DTT_CHAR_TABLE },
     { "character_queststatus",            DTT_CHAR_TABLE },
@@ -50,12 +51,14 @@ static DumpTable dumpTables[DUMP_TABLE_COUNT] =
     { "character_glyphs",                 DTT_CHAR_TABLE },
     { "character_talent",                 DTT_CHAR_TABLE },
     { "character_inventory",              DTT_INVENTORY  },
+    { "character_equipmentsets",          DTT_INVENTORY  },
     { "mail",                             DTT_MAIL       },
     { "mail_items",                       DTT_MAIL_ITEM  },
     { "item_instance",                    DTT_ITEM       },
     { "character_gifts",                  DTT_ITEM_GIFT  },
     { "item_text",                        DTT_ITEM_TEXT  },
     { "character_pet",                    DTT_PET        },
+    { "character_pet_declinedname",       DTT_PET        },
     { "pet_aura",                         DTT_PET_TABLE  },
     { "pet_spell",                        DTT_PET_TABLE  },
     { "pet_spell_cooldown",               DTT_PET_TABLE  },
