@@ -2171,6 +2171,9 @@ bool Creature::CanAssistTo(const Unit* u, const Unit* enemy, bool checkfaction /
 // friendlies and other mobs they shouldn't attack
 bool Creature::_IsTargetAcceptable(const Unit* target) const
 {
+    if(IsFriendlyTo(target)) // friends shouldn't fight friends
+        return false;
+
     const Unit* targetVictim = target->getAttackerForHelper();
 
     if(!targetVictim) // if target does not have a victim, the target is acceptable
