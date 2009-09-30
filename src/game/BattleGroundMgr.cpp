@@ -1833,7 +1833,7 @@ void BattleGroundMgr::DistributeArenaPoints()
         {
             CharacterDatabase.PExecute("UPDATE characters SET arena_pending_points = 0 WHERE guid = '%u'", plr_itr->first);
             CharacterDatabase._UpdateDataBlobValue(plr_itr->first, PLAYER_FIELD_ARENA_CURRENCY,
-            std::max(std::min(int32(plr_itr->second),int32(sWorld.getConfig(CONFIG_MAX_ARENA_POINTS))),0));
+            std::min(int32(plr_itr->second),int32(sWorld.getConfig(CONFIG_MAX_ARENA_POINTS))));
         }
     }
 

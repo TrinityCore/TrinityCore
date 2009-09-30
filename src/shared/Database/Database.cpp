@@ -175,12 +175,12 @@ bool Database::PExecute(const char * format,...)
     return Execute(szQuery);
 }
 
-bool Database::_UpdateDataBlobValue(const uint32 guid, const uint32 field, const uint32 value)
+bool Database::_UpdateDataBlobValue(const uint32 guid, const uint32 field, const int32 value)
 {
     return PExecute(
         "UPDATE characters SET data="
         "CONCAT(SUBSTRING_INDEX(`data`,' ',%u),' ',"
-        "SUBSTRING_INDEX(SUBSTRING_INDEX(`data`,' ',%u),' ',-1)+%u,"
+        "GREATEST(SUBSTRING_INDEX(SUBSTRING_INDEX(`data`,' ',%u),' ',-1)+%u,0),"
         "' ',SUBSTRING_INDEX(`data`,' ',%u)) WHERE guid=%u",
         field, field+1, value, -int32(PLAYER_END-field)-1, guid);
 }
