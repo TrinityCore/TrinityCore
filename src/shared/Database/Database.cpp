@@ -192,7 +192,7 @@ bool Database::_SetDataBlobValue(const uint32 guid, const uint32 field, const ui
         "CONCAT(SUBSTRING_INDEX(`data`,' ',%u),' ',"
         "%u,' ',SUBSTRING_INDEX(`data`,' ',%u)),"
         "WHERE guid=%u",
-        field, field+1, value, -int32(PLAYER_END-field)-1, guid);
+        field, value, -int32(PLAYER_END-field)-1, guid);
 }
 
 bool Database::DirectPExecute(const char * format,...)
