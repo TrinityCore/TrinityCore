@@ -2289,7 +2289,7 @@ bool Creature::LoadCreaturesAddon(bool reload)
         SetUnitMovementFlags(cainfo->move_flags);
 
     if (cainfo->move_flags & (MOVEMENTFLAG_FLY_MODE | MOVEMENTFLAG_FLYING))
-        sLog.outErrorDb("Creature (GUID: %u Entry: %u) has improper `moveflags` value in `creature_template_addon`. Use `InhabitType` = 4 (Flying) in `creature_template`, not MOVEMENTFLAG_FLY_MODE or MOVEMENTFLAG_FLYING in `creature_addon`.",GetGUIDLow(),GetEntry());
+        sLog.outErrorDb("Creature (GUID: %u Entry: %u) has improper `moveflags` value in `creature_template_addon`. Use `InhabitType` = 4 (Flying) in `creature_template`, not MOVEMENTFLAG_FLY_MODE or MOVEMENTFLAG_FLYING in `creature_template_addon`.",GetGUIDLow(),GetEntry());
 
     //Load Path
     if (cainfo->path_id != 0)
