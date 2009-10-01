@@ -180,8 +180,8 @@ bool Database::_UpdateDataBlobValue(const uint32 guid, const uint32 field, const
     return PExecute(
         "UPDATE characters SET data="
         "CONCAT(SUBSTRING_INDEX(`data`,' ',%u),' ',"
-        "GREATEST(SUBSTRING_INDEX(SUBSTRING_INDEX(`data`,' ',%u),' ',-1)+%u,0),"
-        "' ',SUBSTRING_INDEX(`data`,' ',%u)) WHERE guid=%u",
+        "SUBSTRING_INDEX(SUBSTRING_INDEX(`data`,' ',%u),' ',-1)+%i,"
+        "' ',SUBSTRING_INDEX(`data`,' ',%i)) WHERE guid=%u",
         field, field+1, value, -int32(PLAYER_END-field)-1, guid);
 }
 
@@ -190,7 +190,7 @@ bool Database::_SetDataBlobValue(const uint32 guid, const uint32 field, const ui
     return PExecute(
         "UPDATE characters SET data="
         "CONCAT(SUBSTRING_INDEX(`data`,' ',%u),' ',"
-        "%u,' ',SUBSTRING_INDEX(`data`,' ',%u)),"
+        "%u,' ',SUBSTRING_INDEX(`data`,' ',%i)),"
         "WHERE guid=%u",
         field, value, -int32(PLAYER_END-field)-1, guid);
 }
