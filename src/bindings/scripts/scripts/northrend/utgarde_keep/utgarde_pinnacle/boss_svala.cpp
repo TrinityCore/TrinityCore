@@ -40,9 +40,9 @@ update creature_template set scriptname = 'boss_svala' where entry = '';
 #define SAY_DIALOG_OF_ARTHAS_2                -1575029
 
 //creatures
-#define CREATURE_ARTHAS                          24266
-#define CREATURE_SVALA_SORROWGRAVE               24668
-#define CREATURE_SVALA                           29281
+#define CREATURE_ARTHAS                          24266 // Image of Arthas
+#define CREATURE_SVALA_SORROWGRAVE               26668 // Svala after transformation
+#define CREATURE_SVALA                           29281 // Svala before transformation
 #define CREATURE_RITUAL_CHANNELER                27281
 //ritual channeler's spells
 #define SPELL_PARALYZE                           48278

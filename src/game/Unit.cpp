@@ -9857,7 +9857,7 @@ uint32 Unit::SpellHealingBonus(Unit *pVictim, SpellEntry const *spellProto, uint
             int32 apBonus = std::max(GetTotalAttackPowerValue(BASE_ATTACK), GetTotalAttackPowerValue(RANGED_ATTACK));
             if (apBonus > DoneAdvertisedBenefit)
             {
-                DoneTotal += apBonus * stack;
+                DoneTotal += apBonus * 0.2f;
                 coeff = 0.0f;
             }
             else
