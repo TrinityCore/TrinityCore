@@ -407,6 +407,12 @@ bool GOHello_go_tele_to_violet_stand(Player* pPlayer, GameObject* pGo)
 ## go_fel_crystalforge
 ######*/
 
+#define GOSSIP_FEL_CRYSTALFORGE_TEXT 31000
+#define GOSSIP_FEL_CRYSTALFORGE_ITEM_TEXT_RETURN 31001
+#define GOSSIP_FEL_CRYSTALFORGE_ITEM_1 "Purchase 1 Unstable Flask of the Beast for the cost of 10 Apexis Shards"
+#define GOSSIP_FEL_CRYSTALFORGE_ITEM_5 "Purchase 5 Unstable Flask of the Beast for the cost of 50 Apexis Shards"
+#define GOSSIP_FEL_CRYSTALFORGE_ITEM_RETURN "Use the fel crystalforge to make another purchase."
+
 enum
 {
     SPELL_CREATE_1_FLASK_OF_BEAST   = 40964,
@@ -415,8 +421,38 @@ enum
 
 bool GOHello_go_fel_crystalforge(Player* pPlayer, GameObject* pGO)
 {
-    pPlayer->CastSpell(pPlayer,SPELL_CREATE_1_FLASK_OF_BEAST,false);
-    return false;
+    if ( pGO->GetGoType() == GAMEOBJECT_TYPE_QUESTGIVER ) /* != GAMEOBJECT_TYPE_QUESTGIVER) */
+        pPlayer->PrepareQuestMenu(pGO->GetGUID()); /* return true*/
+
+    pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_FEL_CRYSTALFORGE_ITEM_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
+    pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_FEL_CRYSTALFORGE_ITEM_5, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+
+    pPlayer->SEND_GOSSIP_MENU(GOSSIP_FEL_CRYSTALFORGE_TEXT, pGO->GetGUID());
+
+    return true;
+}
+
+bool GOSelect_go_fel_crystalforge(Player* pPlayer, GameObject* pGO, uint32 uiSender, uint32 uiAction)
+{
+    switch(uiAction)
+    {
+        case GOSSIP_ACTION_INFO_DEF:
+            pPlayer->CastSpell(pPlayer,SPELL_CREATE_1_FLASK_OF_BEAST,false);
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_FEL_CRYSTALFORGE_ITEM_RETURN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
+            pPlayer->SEND_GOSSIP_MENU(GOSSIP_FEL_CRYSTALFORGE_ITEM_TEXT_RETURN, pGO->GetGUID());
+            break;
+        case GOSSIP_ACTION_INFO_DEF + 1:
+            pPlayer->CastSpell(pPlayer,SPELL_CREATE_5_FLASK_OF_BEAST,false);
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_FEL_CRYSTALFORGE_ITEM_RETURN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
+            pPlayer->SEND_GOSSIP_MENU(GOSSIP_FEL_CRYSTALFORGE_ITEM_TEXT_RETURN, pGO->GetGUID());
+            break;
+    case GOSSIP_ACTION_INFO_DEF + 2:
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_FEL_CRYSTALFORGE_ITEM_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_FEL_CRYSTALFORGE_ITEM_5, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+            pPlayer->SEND_GOSSIP_MENU(GOSSIP_FEL_CRYSTALFORGE_TEXT, pGO->GetGUID());
+            break;
+    }
+    return true;
 }
 
 /*######
@@ -537,6 +573,7 @@ void AddSC_go_scripts()
     newscript = new Script;
     newscript->Name = "go_fel_crystalforge";
     newscript->pGOHello =           &GOHello_go_fel_crystalforge;
+    newscript->pGOSelect =          &GOSelect_go_fel_crystalforge;
     newscript->RegisterSelf();
 
     newscript = new Script;
