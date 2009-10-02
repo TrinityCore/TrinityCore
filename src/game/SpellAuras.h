@@ -154,7 +154,7 @@ class TRINITY_DLL_SPEC Aura
         uint8 m_auraFlags;                                  // Aura info flag (for send data to client)
         uint8 m_auraLevel;                                  // Aura level (store caster level for correct show level dep amount)
         uint8 m_procCharges;                                // Aura charges (0 for infinite)
-        
+        uint8 m_stackAmount;                                // Aura stack amount
         AuraEffect * m_partAuras[3];
 
         uint32 m_procDamage;                                // used in aura proc code

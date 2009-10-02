@@ -3116,7 +3116,7 @@ void AuraEffect::HandleAuraDummy(bool apply, bool Real, bool changeAmount)
                     // final heal
                     //if(m_target->IsInWorld())
                     // This may be a hack, but we need a way to count healing bonus three times
-                    for(uint8 i = 0; i < GetParentAura()->GetStackAmount(); ++i)
+                    //for(uint8 i = 0; i < GetParentAura()->GetStackAmount(); ++i)
                     // Update: apparently not anymore, it should only count once, so.. commented out.
                     m_target->CastCustomSpell(m_target,33778,&m_amount,NULL,NULL,true,NULL,this,GetCasterGUID());
 
