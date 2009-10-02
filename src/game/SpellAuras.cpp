@@ -3107,7 +3107,7 @@ void AuraEffect::HandleAuraDummy(bool apply, bool Real, bool changeAmount)
             // Lifebloom
             if ( GetSpellProto()->SpellFamilyFlags[1] & 0x10 )
             {
-                if (!apply )
+                if (!apply)
                 {
                     // Final heal only on dispelled or duration end
                     if (GetParentAura()->GetRemoveMode() != AURA_REMOVE_BY_EXPIRE && GetParentAura()->GetRemoveMode() != AURA_REMOVE_BY_ENEMY_SPELL)
@@ -3117,7 +3117,8 @@ void AuraEffect::HandleAuraDummy(bool apply, bool Real, bool changeAmount)
                     //if(m_target->IsInWorld())
                     // This may be a hack, but we need a way to count healing bonus three times
                     for(uint8 i = 0; i < GetParentAura()->GetStackAmount(); ++i)
-                        m_target->CastCustomSpell(m_target,33778,&m_amount,NULL,NULL,true,NULL,this,GetCasterGUID());
+                    // Update: apparently not anymore, it should only count once, so.. commented out.
+                    m_target->CastCustomSpell(m_target,33778,&m_amount,NULL,NULL,true,NULL,this,GetCasterGUID());
 
                     // restore mana
                     if (caster)
