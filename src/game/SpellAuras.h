@@ -83,7 +83,7 @@ class TRINITY_DLL_SPEC Aura
         void SetProcDamage(uint32 val) { m_procDamage = val; }
         uint32 GetProcDamage() const { return m_procDamage; }
 
-        int8 GetStackAmount() const {return m_stackAmount;}
+        uint8 GetStackAmount() const { return m_stackAmount; }
         void SetStackAmount(uint8 num, bool applied = true);
         bool modStackAmount(int32 num); // return true if last charge dropped
 
@@ -154,7 +154,7 @@ class TRINITY_DLL_SPEC Aura
         uint8 m_auraFlags;                                  // Aura info flag (for send data to client)
         uint8 m_auraLevel;                                  // Aura level (store caster level for correct show level dep amount)
         uint8 m_procCharges;                                // Aura charges (0 for infinite)
-        uint8 m_stackAmount;                                // Aura stack amount
+        
         AuraEffect * m_partAuras[3];
 
         uint32 m_procDamage;                                // used in aura proc code
