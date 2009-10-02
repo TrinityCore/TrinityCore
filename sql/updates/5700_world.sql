@@ -20,6 +20,7 @@ UPDATE `creature_template` SET `ScriptName`='npc_anachronos_the_ancient' WHERE `
 UPDATE `creature_template` SET `ScriptName`='npc_anachronos_quest_trigger' WHERE `entry`=15454;
 
 -- Already in world_script_texts.sql
+DELETE FROM `script_texts` WHERE `entry` BETWEEN -1350030 AND -1350000;
 INSERT INTO `script_texts` (`npc_entry`,`entry`,`content_default`,`type`,`emote`,`comment`) VALUES
    (15381,-1350000,'We must act quickly or all shall be lost!',0,1,'ANACHRONOS_SAY_1'),
    (15381,-1350001,'NOW, STAGHELM! WE GO NOW! Prepare your magic!',0,81,'ANACHRONOS_SAY_2'),

@@ -1,5 +1,6 @@
 UPDATE `creature_template` SET `ScriptName`='npc_maghar_captive' WHERE `entry`=18210;
 
+DELETE FROM `script_texts` WHERE `entry` BETWEEN -1000488 AND -1000482;
 INSERT INTO `script_texts` (`npc_entry`,`entry`,`content_default`,`sound`,`type`,`language`,`emote`,`comment`) VALUES
    (18210,-1000482,'Look out!',0,0,0,0,'maghar captive SAY_MAG_START'),
    (18210,-1000483,'Don''t let them escape! Kill the strong one first!',0,0,0,0,'maghar captive SAY_MAG_NO_ESCAPE'),
