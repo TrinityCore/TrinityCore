@@ -190,7 +190,7 @@ bool Database::_SetDataBlobValue(const uint32 guid, const uint32 field, const ui
     return PExecute(
         "UPDATE characters SET data="
         "CONCAT(SUBSTRING_INDEX(`data`,' ',%u),' ',"
-        "%u,' ',SUBSTRING_INDEX(`data`,' ',%i)),"
+        "%u,' ',SUBSTRING_INDEX(`data`,' ',%i))"
         "WHERE guid=%u",
         field, value, -int32(PLAYER_END-field)-1, guid);
 }
