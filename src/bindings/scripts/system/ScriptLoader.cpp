@@ -267,8 +267,9 @@ extern void AddSC_boss_drakkari_colossus();
 extern void AddSC_boss_gal_darah();
 extern void AddSC_boss_eck();
 extern void AddSC_instance_gundrak();
+extern void AddSC_boss_krik_thir();             //Azjol-Nerub
+extern void AddSC_instance_azjol_nerub();
 extern void AddSC_instance_ahnkahet();          //Azjol-Nerub Ahn'kahet
-extern void AddSC_boss_krik_thir();
 extern void AddSC_boss_taldaram();
 extern void AddSC_boss_elder_nadox();
 extern void AddSC_boss_volazj();
@@ -301,6 +302,10 @@ extern void AddSC_boss_ionar();
 extern void AddSC_boss_volkhan();
 extern void AddSC_instance_halls_of_lightning();
 extern void AddSC_boss_maiden_of_grief();       //Ulduar Halls of Stone
+extern void AddSC_boss_krystallus();
+extern void AddSC_boss_sjonnir();
+extern void AddSC_instance_halls_of_stone();
+extern void AddSC_halls_of_stone();
 extern void AddSC_boss_auriaya();               //Ulduar Ulduar
 extern void AddSC_boss_flame_leviathan();
 extern void AddSC_boss_ignis();
@@ -685,7 +690,8 @@ void AddScripts()
     AddSC_boss_elder_nadox();
     AddSC_boss_volazj();
     AddSC_instance_ahnkahet();          
-    AddSC_boss_krik_thir();             //Azjol-Nerub Azjol-Nerub 
+    AddSC_boss_krik_thir();             //Azjol-Nerub Azjol-Nerub
+    AddSC_instance_azjol_nerub();
     AddSC_boss_anubrekhan();            //Naxxramas
     AddSC_boss_maexxna();
     AddSC_boss_patchwerk();
@@ -715,6 +721,10 @@ void AddScripts()
     AddSC_boss_volkhan();
     AddSC_instance_halls_of_lightning();
     AddSC_boss_maiden_of_grief();       //Ulduar Halls of Stone
+    AddSC_boss_krystallus();
+    AddSC_boss_sjonnir();
+    AddSC_instance_halls_of_stone();
+    AddSC_halls_of_stone();
     AddSC_boss_auriaya();               //Ulduar Ulduar
     AddSC_boss_flame_leviathan();
     AddSC_boss_ignis();

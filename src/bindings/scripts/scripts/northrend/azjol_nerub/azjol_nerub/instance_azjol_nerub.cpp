@@ -41,6 +41,8 @@ struct TRINITY_DLL_DECL instance_azjol_nerub : public ScriptedInstance
     uint64 m_uiKrikthir;
     uint64 m_uiHadronox;
     uint64 m_uiAnubarak;
+    
+    uint64 m_uiKrikthirDoor;
 
     uint32 m_auiEncounter[MAX_ENCOUNTER];
 
@@ -51,6 +53,7 @@ struct TRINITY_DLL_DECL instance_azjol_nerub : public ScriptedInstance
         m_uiKrikthir = 0;
         m_uiHadronox = 0;
         m_uiAnubarak =0;
+        m_uiKrikthirDoor = 0;
     }
 
     bool IsEncounterInProgress() const
@@ -72,6 +75,18 @@ struct TRINITY_DLL_DECL instance_azjol_nerub : public ScriptedInstance
 
         }
     }
+    
+    void OnGameObjectCreate(GameObject* pGo, bool add)
+    {
+        switch (pGo->GetEntry())
+        {
+            case 192395:
+                m_uiKrikthirDoor = pGo->GetGUID();
+                if (m_auiEncounter[0] == DONE)
+                    HandleGameObject(NULL,true,pGo);
+                break;
+        }
+    }
 
     uint64 GetData64(uint32 identifier)
     {
@@ -90,7 +105,10 @@ struct TRINITY_DLL_DECL instance_azjol_nerub : public ScriptedInstance
         switch(type)
         {
         case DATA_KRIKTHIR_THE_GATEWATCHER_EVENT:
-            m_auiEncounter[0] = data;break;
+            m_auiEncounter[0] = data;
+            if (data == DONE)
+                HandleGameObject(m_uiKrikthirDoor,true);
+            break;
         case DATA_HADRONOX_EVENT:
             m_auiEncounter[1] = data; break;
         case DATA_ANUBARAK_EVENT:
