@@ -1986,12 +1986,12 @@ INSERT INTO `script_texts` (`npc_entry`,`entry`,`content_default`,`content_loc1`
 -- -1 619 000 AHN'KAHET: THE OLD KINGDOM
    (29308,-1619021,'I will feast on your remains.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,'prince taldaram SAY_AGGRO'),
    (29308,-1619022,'I will drink no blood before it''s time.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,'prince taldaram SAY_SLAY_1'),
-   (29308,-1618023,'One final embrace.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,'prince taldaram SAY_SLAY_2'),
-   (29308,-1618024,'Still I hunger, still I thirst.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,'prince taldaram SAY_DEATH'),
-   (29308,-1618025,'So appetizing.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,'prince taldaram SAY_FEED1'),
-   (29308,-1618026,'Fresh, warm blood. It has been too long.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,'prince taldaram SAY_FEED2'),
-   (29308,-1618027,'Your heartbeat is music to my ears.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,'prince taldaram SAY_VANISH1'),
-   (29308,-1618028,'I am nowhere. I am everywhere. I am the watcher, unseen.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,'prince taldaram SAY_VANISH2'),
+   (29308,-1619023,'One final embrace.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,'prince taldaram SAY_SLAY_2'),
+   (29308,-1619024,'Still I hunger, still I thirst.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,'prince taldaram SAY_DEATH'),
+   (29308,-1619025,'So appetizing.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,'prince taldaram SAY_FEED1'),
+   (29308,-1619026,'Fresh, warm blood. It has been too long.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,'prince taldaram SAY_FEED2'),
+   (29308,-1619027,'Your heartbeat is music to my ears.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,'prince taldaram SAY_VANISH1'),
+   (29308,-1619028,'I am nowhere. I am everywhere. I am the watcher, unseen.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,'prince taldaram SAY_VANISH2'),
    
 -- -1 999 900+ - RANDOM
    (0,-1999900,'Let the games begin.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,8280,1,0,0,'example_creature SAY_AGGRO'),
