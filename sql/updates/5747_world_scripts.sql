@@ -1,6 +1,7 @@
 
 UPDATE `creature_template` SET `ScriptName`='boss_moorabi' where entry=29305;
 
+DELETE FROM `script_texts` WHERE `entry` BETWEEN -1604017 AND -1604010;
 INSERT INTO `script_texts` (`npc_entry`,`entry`,`content_default`,`content_loc1`,`content_loc2`,`content_loc3`,`content_loc4`,`content_loc5`,`content_loc6`,`content_loc7`,`content_loc8`,`sound`,`type`,`language`,`emote`,`comment`) VALUES
    (29305,-1604010,'We fought back da Scourge. What chance joo be thinkin'' JOO got?',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,1,0,0,'SAY_AGGRO boss_moorabi'),
    (29305,-1604012,'Who gonna stop me; you? ',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,1,0,0,'SAY_SLAY_2 boss_moorabi'),
