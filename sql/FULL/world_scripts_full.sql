@@ -171,7 +171,15 @@ UPDATE `creature_template` SET `ScriptName`='boss_ambassador_hellmaw' WHERE `ent
 UPDATE `creature_template` SET `ScriptName`='mob_voidtraveler' WHERE `entry`=19226;
 
 /* AZJOL-NERUB */
-UPDATE `creature_template` SET `ScriptName`='boss_krik_thir' where `entry`=28684;
+UPDATE `instance_template` SET `script`='instance_azjol_nerub' WHERE `map`=601;
+UPDATE creature_template SET `ScriptName`='npc_watcher_narjil' WHERE `entry`=28729;
+UPDATE creature_template SET `ScriptName`='npc_watcher_silthik' WHERE `entry`=28731;
+UPDATE creature_template SET `ScriptName`='npc_anub_ar_warrior' WHERE `entry`=28732;
+UPDATE creature_template SET `ScriptName`='npc_watcher_gashra' WHERE `entry`=28730;
+UPDATE creature_template SET `ScriptName`='boss_krik_thir' WHERE `entry`=28684;
+UPDATE creature_template SET `ScriptName`='npc_skittering_infector' WHERE `entry`=28736;
+UPDATE creature_template SET `ScriptName`='npc_anub_ar_skirmisher' WHERE `entry`=28734;
+UPDATE creature_template SET `ScriptName`='npc_anub_ar_shadowcaster' WHERE `entry`=28733;
 
 /* AHN'KAHET: THE OLD KINGDOM */
 UPDATE `instance_template` SET `script`='instance_ahnkahet' WHERE `map`=619;
@@ -550,6 +558,13 @@ UPDATE `creature_template` SET `ScriptName`='boss_ionar' WHERE `entry`=28546;
 UPDATE `creature_template` SET `ScriptName`='mob_spark_of_ionar' WHERE `entry`=28926;
 
 /* HALLS OF STONE */
+UPDATE `instance_template` SET `script`='instance_halls_of_stone' WHERE `map`=599;
+/* Krystallus */
+UPDATE `creature_template` SET `ScriptName`='boss_krystallus' WHERE `entry`=27977;
+/* Sjonnir */
+UPDATE `creature_template` SET `ScriptName`='boss_sjonnir' WHERE `entry`=27978;
+UPDATE `creature_template` SET `ScriptName`='mob_tribuna_controller' WHERE `entry`=28234;
+UPDATE `creature_template` SET `ScriptName`='npc_brann_hos' WHERE `entry`=28070;
 /* Maiden of Grief */
 UPDATE `creature_template` SET `ScriptName`='boss_maiden_of_grief' WHERE `entry`=27975;
 
