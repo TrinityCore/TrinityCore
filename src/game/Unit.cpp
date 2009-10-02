@@ -11958,7 +11958,7 @@ void Unit::SetLevel(uint32 lvl)
 
 void Unit::SetHealth(uint32 val)
 {
-    if(getDeathState() == JUST_DIED)
+    if((getDeathState() & (JUST_DIED | DEAD | DEAD_FALLING)) != 0)
         val = 0;
     else
     {
