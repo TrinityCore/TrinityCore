@@ -123,32 +123,32 @@ struct TRINITY_DLL_DECL mob_tribuna_controllerAI : public ScriptedAI
         pInstance = c->GetInstanceData();
         SetCombatMovement(false);
     }
-    
+
     ScriptedInstance* pInstance;
-    
+
     uint32 uiKaddrakEncounterTimer;
     uint32 uiMarnakEncounterTimer;
     uint32 uiAbedneumEncounterTimer;
-    
+
     bool bKaddrakActivated;
     bool bMarnakActivated;
     bool bAbedneumActivated;
-    
+
     std::list<Creature*> lKaddrakGUIDList;
-    
+
     void Reset()
     {
         uiKaddrakEncounterTimer = 1500;
         uiMarnakEncounterTimer = 10000;
         uiAbedneumEncounterTimer = 10000;
-        
+
         bKaddrakActivated = false;
         bMarnakActivated = false;
         bAbedneumActivated = false;
-        
+
         lKaddrakGUIDList.clear();
     }
-    
+
     void UpdateFacesList()
    {
         /*GetCreatureListWithEntryInGrid(lKaddrakGUIDList, m_creature, CREATURE_KADDRAK, 50.0f);
@@ -174,7 +174,7 @@ struct TRINITY_DLL_DECL mob_tribuna_controllerAI : public ScriptedAI
             }
         }*/
     }
-    
+
     void UpdateAI(const uint32 diff)
     {
         if(bKaddrakActivated)
@@ -238,18 +238,18 @@ struct TRINITY_DLL_DECL npc_brann_hosAI : public npc_escortAI
     {
         pInstance = c->GetInstanceData();
     }
-    
+
     uint32 uiStep;
     uint32 uiPhaseTimer;
-    
+
     uint64 uiControllerGUID;
     std::list<uint64> lDwarfGUIDList;
-    
+
     ScriptedInstance* pInstance;
-    
+
     bool bIsBattle;
     bool bIsLowHP;
-    
+
     void Reset()
     {
         if (!IsBeingEscorted)
@@ -259,14 +259,14 @@ struct TRINITY_DLL_DECL npc_brann_hosAI : public npc_escortAI
             uiStep = 0;
             uiPhaseTimer = 0;
             uiControllerGUID = 0;
-            
+
             DespawnDwarf();
-            
+
             if (pInstance)
                 pInstance->SetData(DATA_BRANN_EVENT, NOT_STARTED);
         }
     }
-    
+
     void DespawnDwarf()
     {
         if (lDwarfGUIDList.empty())
@@ -279,7 +279,7 @@ struct TRINITY_DLL_DECL npc_brann_hosAI : public npc_escortAI
         }
         lDwarfGUIDList.clear();
     }
-    
+
     void WaypointReached(uint32 uiPointId)
     {
         switch(uiPointId)
@@ -312,7 +312,7 @@ struct TRINITY_DLL_DECL npc_brann_hosAI : public npc_escortAI
                 break;
         }
      }
-     
+
      void SpawnDwarf(uint32 uiType)
      {
        switch(uiType)
@@ -341,20 +341,20 @@ struct TRINITY_DLL_DECL npc_brann_hosAI : public npc_escortAI
         pSummoned->AddThreat(m_creature, 0.0f);
         pSummoned->AI()->AttackStart(m_creature);
     }
-    
+
     void JumpToNextStep(uint32 uiTimer)
     {
       uiPhaseTimer = uiTimer;
       uiStep++;
     }
-    
+
     void StartWP()
     {
         m_creature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
         IsOnHold = false;
         uiStep = 1;
     }
-    
+
     void UpdateEscortAI(const uint32 uiDiff)
     {
         if (uiPhaseTimer < uiDiff)
@@ -633,7 +633,7 @@ struct TRINITY_DLL_DECL npc_brann_hosAI : public npc_escortAI
                     break;
             }
         } else uiPhaseTimer -= uiDiff;
-      
+
         if (!bIsLowHP && (m_creature->GetHealth()*100 / m_creature->GetMaxHealth()) <= 30)
         {
             DoScriptText(SAY_LOW_HEALTH, m_creature);
@@ -647,9 +647,11 @@ bool GossipHello_npc_brann_hos(Player* pPlayer, Creature* pCreature)
 {
     if (pCreature->isQuestGiver())
         pPlayer->PrepareQuestMenu(pCreature->GetGUID());
-    
+
     pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_START, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
     pPlayer->SEND_GOSSIP_MENU(TEXT_ID_START, pCreature->GetGUID());
+
+    return true;
 }
 
 bool GossipSelect_npc_brann_hos(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
@@ -676,14 +678,14 @@ CreatureAI* GetAI_npc_brann_hos(Creature* pCreature)
 void AddSC_halls_of_stone()
 {
     Script *newscript;
-    
+
     newscript = new Script;
     newscript->Name = "npc_brann_hos";
     newscript->GetAI = &GetAI_npc_brann_hos;
     newscript->pGossipHello = &GossipHello_npc_brann_hos;
     newscript->pGossipSelect = &GossipSelect_npc_brann_hos;
     newscript->RegisterSelf();
-    
+
     newscript = new Script;
     newscript->Name = "mob_tribuna_controller";
     newscript->GetAI = &GetAI_mob_tribuna_controller;
