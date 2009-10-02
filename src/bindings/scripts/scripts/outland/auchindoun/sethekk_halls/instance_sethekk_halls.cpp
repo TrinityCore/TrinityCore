@@ -45,12 +45,17 @@ struct TRINITY_DLL_DECL instance_sethekk_halls : public ScriptedInstance
 
     void OnCreatureCreate(Creature* pCreature, bool add)
     {
-        if (pCreature->GetEntry() == NPC_ANZU && AnzuEncounter >= IN_PROGRESS)
+        if (pCreature->GetEntry() == NPC_ANZU)
         {
-            pCreature->DealDamage(pCreature, pCreature->GetMaxHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
-            pCreature->RemoveCorpse();
-        } else {
-            AnzuEncounter = IN_PROGRESS;
+            if (AnzuEncounter >= IN_PROGRESS)
+            {
+                pCreature->DealDamage(pCreature, pCreature->GetMaxHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+                pCreature->RemoveCorpse();
+            } 
+            else 
+            {
+                AnzuEncounter = IN_PROGRESS;
+            }
         }
     }
 
