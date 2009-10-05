@@ -6997,13 +6997,13 @@ bool ChatHandler::HandleAccountSetAddonCommand(const char* args)
         HasLowerSecurityAccount (NULL,account_id,true))
         return false;
 
-    int lev=atoi(szExp);                                    //get int anyway (0 if error)
-    if(lev < 0 || lev > sWorld.getConfig(CONFIG_EXPANSION))
-        return false;
+    int expansion = atoi(szExp);                                    //get int anyway (0 if error)
+    if(expansion < 0 || expansion > sWorld.getConfig(CONFIG_EXPANSION))
+         return false;
 
     // No SQL injection
-    loginDatabase.PExecute("UPDATE account SET expansion = '%d' WHERE id = '%u'",lev,account_id);
-    PSendSysMessage(LANG_ACCOUNT_SETADDON,account_name.c_str(),account_id,lev);
+    loginDatabase.PExecute("UPDATE account SET expansion = '%d' WHERE id = '%u'",expansion,account_id);
+    PSendSysMessage(LANG_ACCOUNT_SETADDON,account_name.c_str(),account_id,expansion);
     return true;
 }
 
