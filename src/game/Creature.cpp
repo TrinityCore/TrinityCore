@@ -729,7 +729,7 @@ bool Creature::Create(uint32 guidlow, Map *map, uint32 phaseMask, uint32 Entry, 
         }
         LoadCreaturesAddon();
         CreatureModelInfo const *minfo = objmgr.GetCreatureModelRandomGender(GetNativeDisplayId());
-        if (minfo)                                             // Cancel load if no model defined
+        if (minfo && !isTotem())                               // Cancel load if no model defined or if totem
         {
             uint32 display_id = minfo->modelid;                // it can be different (for another gender)
 
