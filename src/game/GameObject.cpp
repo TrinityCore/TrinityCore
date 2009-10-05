@@ -1119,14 +1119,14 @@ void GameObject::Use(Unit* user)
 
                     DEBUG_LOG("Fishing check (skill: %i zone min skill: %i chance %i roll: %i",skill,zone_skill,chance,roll);
 
+                    player->UpdateFishingSkill();
+                    // 3.1 changes, you can now fish anywhere and get fishing skillups
+                    // but you will likely cause junk in areas that require a high fishing skill (not yet implemented)
                     if(skill >= zone_skill && chance >= roll)
                     {
                         // prevent removing GO at spell cancel
                         player->RemoveGameObject(this,false);
                         SetOwnerGUID(player->GetGUID());
-
-                        //fish catched
-                        player->UpdateFishingSkill();
 
                         //TODO: find reasonable value for fishing hole search
                         GameObject* ok = LookupFishingHoleAround(20.0f + CONTACT_DISTANCE);
@@ -1138,14 +1138,6 @@ void GameObject::Use(Unit* user)
                         }
                         else
                             player->SendLoot(GetGUID(),LOOT_FISHING);
-                    }
-                    else
-                    {
-                        // fish escaped, can be deleted now
-                        SetLootState(GO_JUST_DEACTIVATED);
-
-                        WorldPacket data(SMSG_FISH_ESCAPED, 0);
-                        player->GetSession()->SendPacket(&data);
                     }
                     break;
                 }
