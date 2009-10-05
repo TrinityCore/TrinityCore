@@ -6770,7 +6770,7 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
             // Improved Blood Presence
             if (dummySpell->SpellIconID == 2636)
             {
-                if (GetTypeId() != TYPEID_PLAYER || !((Player*)this)->isHonorOrXPTarget(pVictim))
+                if (GetTypeId() != TYPEID_PLAYER)
                     return false;
                 basepoints0 = triggerAmount * damage / 100;
                 // Blood Aura
@@ -7519,8 +7519,7 @@ bool Unit::HandleProcTriggerSpell(Unit *pVictim, uint32 damage, AuraEffect* trig
                 {
                     if (GetTypeId() != TYPEID_PLAYER)
                         return false;
-                    if (!((Player*)this)->isHonorOrXPTarget(pVictim))
-                        return false;
+
                     trigger_spell_id = 50475;
                     basepoints0 = damage * triggerAmount / 100;
                 }
