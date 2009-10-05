@@ -651,7 +651,7 @@ void InstanceSaveManager::_ResetOrWarnAll(uint32 mapid, bool warn, uint32 timeLe
 
         // schedule next reset.
         m_resetTimeByMapId[mapid] = (time_t) next_reset;
-        ScheduleReset(true, (time_t) next_reset, InstResetEvent(1, mapid));
+        ScheduleReset(true, (time_t) (next_reset-3600), InstResetEvent(1, mapid));
     }
 
     MapInstanced::InstancedMaps &instMaps = ((MapInstanced*)map)->GetInstancedMaps();
