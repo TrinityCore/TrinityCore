@@ -1569,7 +1569,7 @@ bool ChatHandler::HandleModifyASpeedCommand(const char* args)
 
     float ASpeed = (float)atof((char*)args);
 
-    if (ASpeed > 50 || ASpeed < 0)
+    if (ASpeed > 50.0f || ASpeed < 0.1f)
     {
         SendSysMessage(LANG_BAD_VALUE);
         SetSentErrorMessage(true);
@@ -1617,7 +1617,7 @@ bool ChatHandler::HandleModifySpeedCommand(const char* args)
 
     float Speed = (float)atof((char*)args);
 
-    if (Speed > 10 || Speed < 0.1)
+    if (Speed > 50.0f || Speed < 0.1f)
     {
         SendSysMessage(LANG_BAD_VALUE);
         SetSentErrorMessage(true);
@@ -1662,7 +1662,7 @@ bool ChatHandler::HandleModifySwimCommand(const char* args)
 
     float Swim = (float)atof((char*)args);
 
-    if (Swim > 10.0f || Swim < 0.01f)
+    if (Swim > 50.0f || Swim < 0.1f)
     {
         SendSysMessage(LANG_BAD_VALUE);
         SetSentErrorMessage(true);
@@ -1707,7 +1707,7 @@ bool ChatHandler::HandleModifyBWalkCommand(const char* args)
 
     float BSpeed = (float)atof((char*)args);
 
-    if (BSpeed > 10.0f || BSpeed < 0.1f)
+    if (BSpeed > 50.0f || BSpeed < 0.1f)
     {
         SendSysMessage(LANG_BAD_VALUE);
         SetSentErrorMessage(true);
@@ -1752,7 +1752,7 @@ bool ChatHandler::HandleModifyFlyCommand(const char* args)
 
     float FSpeed = (float)atof((char*)args);
 
-    if (FSpeed > 10.0f || FSpeed < 0.1f)
+    if (FSpeed > 50.0f || FSpeed < 0.1f)
     {
         SendSysMessage(LANG_BAD_VALUE);
         SetSentErrorMessage(true);
@@ -1787,7 +1787,7 @@ bool ChatHandler::HandleModifyScaleCommand(const char* args)
         return false;
 
     float Scale = (float)atof((char*)args);
-    if (Scale > 10.0f || Scale <= 0.0f)
+    if (Scale > 10.0f || Scale <= 0.1f)
     {
         SendSysMessage(LANG_BAD_VALUE);
         SetSentErrorMessage(true);
