@@ -27,48 +27,49 @@ EndScriptData */
 #include "precompiled.h"
 #include "def_ahnkahet.h"
 
-#define SPELL_BLOODTHIRST                   55968 //Trigger Spell + add aura
-#define SPELL_CONJURE_FLAME_SPHERE          55931
-
-#define SPELL_FLAME_SPHERE_SUMMON_1         55895// 1x 30106
-#define H_SPELL_FLAME_SPHERE_SUMMON_1       59511// 1x 31686
-#define H_SPELL_FLAME_SPHERE_SUMMON_2       59512// 1x 31687
-#define SPELL_FLAME_SPHERE_SPAWN_EFFECT     55891
-#define SPELL_FLAME_SPHERE_VISUAL           55928
-#define SPELL_FLAME_SPHERE_PERIODIC         55926
-#define H_SPELL_FLAME_SPHERE_PERIODIC       59508
-#define SPELL_FLAME_SPHERE_DEATH_EFFECT     55947
-#define SPELL_BEAM_VISUAL                   60342
-
-#define SPELL_EMBRACE_OF_THE_VAMPYR         55959
-#define H_SPELL_EMBRACE_OF_THE_VAMPYR       59513
-
-#define SPELL_VANISH                        55964
-
-#define CREATURE_FLAME_SPHERE               30106
-#define H_CREATURE_FLAME_SPHERE_1           31686
-#define H_CREATURE_FLAME_SPHERE_2           31687
-
-#define DATA_EMBRACE_DMG                    20000
-#define H_DATA_EMBRACE_DMG                  40000
-
-#define DATA_GROUND_POSITION_Z               11.4
-#define DATA_SPHERE_DISTANCE                   20
-#define DATA_SPHERE_ANGLE_OFFSET                1
-
-#define ACHIEVEMENT_THE_PARTY_IS_OVER        1861
-
-//not in db
-//Yell
-#define SAY_AGGRO                                -1619021
-#define SAY_SLAY_1                               -1619022
-#define SAY_SLAY_2                               -1619023
-#define SAY_DEATH                                -1619024
-#define SAY_FEED_1                               -1619025
-#define SAY_FEED_2                               -1619026
-#define SAY_VANISH_1                             -1619027
-#define SAY_VANISH_2                             -1619028
-
+enum Spells
+{
+    SPELL_BLOODTHIRST                   = 55968, //Trigger Spell + add aura
+    SPELL_CONJURE_FLAME_SPHERE          = 55931,
+    SPELL_FLAME_SPHERE_SUMMON_1         = 55895,// 1x 30106
+    H_SPELL_FLAME_SPHERE_SUMMON_1       = 59511,// 1x 31686
+    H_SPELL_FLAME_SPHERE_SUMMON_2       = 59512,// 1x 31687
+    SPELL_FLAME_SPHERE_SPAWN_EFFECT     = 55891,
+    SPELL_FLAME_SPHERE_VISUAL           = 55928,
+    SPELL_FLAME_SPHERE_PERIODIC         = 55926,
+    H_SPELL_FLAME_SPHERE_PERIODIC       = 59508,
+    SPELL_FLAME_SPHERE_DEATH_EFFECT     = 55947,
+    SPELL_BEAM_VISUAL                   = 60342,
+    SPELL_EMBRACE_OF_THE_VAMPYR         = 55959,
+    H_SPELL_EMBRACE_OF_THE_VAMPYR       = 59513,
+    SPELL_VANISH                        = 55964,
+    CREATURE_FLAME_SPHERE               = 30106,
+    H_CREATURE_FLAME_SPHERE_1           = 31686,
+    H_CREATURE_FLAME_SPHERE_2           = 31687
+};
+enum Misc
+{ 
+    DATA_EMBRACE_DMG                    = 20000,
+    H_DATA_EMBRACE_DMG                  = 40000,
+    DATA_SPHERE_DISTANCE                =    20,
+    DATA_SPHERE_ANGLE_OFFSET            =     1
+};
+#define DATA_GROUND_POSITION_Z             11.4
+enum Achievements
+{
+    ACHIEVEMENT_THE_PARTY_IS_OVER       = 1861
+};
+enum Yells
+{
+    SAY_AGGRO                                = -1619021,
+    SAY_SLAY_1                               = -1619022,
+    SAY_SLAY_2                               = -1619023,
+    SAY_DEATH                                = -1619024,
+    SAY_FEED_1                               = -1619025,
+    SAY_FEED_2                               = -1619026,
+    SAY_VANISH_1                             = -1619027,
+    SAY_VANISH_2                             = -1619028
+};
 enum CombatPhase 
 {
     NORMAL,
@@ -264,26 +265,18 @@ struct TRINITY_DLL_DECL boss_taldaramAI : public ScriptedAI
         {
             pInstance->SetData(DATA_PRINCE_TALDARAM_EVENT, DONE);
             
-            //Count players
-            Unit *target = NULL;
-            std::list<HostilReference *> t_list = m_creature->getThreatManager().getThreatList();
-            std::vector<Unit *> target_list;
-            for(std::list<HostilReference *>::iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)
+            //The Party's Over achievement:
+            AchievementEntry const *AchievThePartyIsOver = GetAchievementStore()->LookupEntry(ACHIEVEMENT_THE_PARTY_IS_OVER);
+            Map* pMap = m_creature->GetMap();
+            if (pMap && pMap->IsDungeon() && HeroicMode && AchievThePartyIsOver)
             {
-                target = Unit::GetUnit(*m_creature, (*itr)->getUnitGuid());
-                // exclude pets & totems
-                if (target && target->GetTypeId() == TYPEID_PLAYER)
-                  target_list.push_back(target);
-                target = NULL;
-            }
-            if (HeroicMode && target_list.size() < 5)
-            {
-                AchievementEntry const *AchievThePartyIsOver = GetAchievementStore()->LookupEntry(ACHIEVEMENT_THE_PARTY_IS_OVER);
-                if (AchievThePartyIsOver)
-                {
-                    for(std::vector<Unit *>::iterator itr = target_list.begin(); itr!= target_list.end(); ++itr)
-                        ((Player*)(*itr))->CompletedAchievement(AchievThePartyIsOver);
-                }
+                Map::PlayerList const &players = pMap->GetPlayers();
+                uint8 count = 0;
+                for(Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
+                  ++count;
+                if (count < 5)
+                    for(Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
+                        itr->getSource()->CompletedAchievement(AchievThePartyIsOver);
             }
         }
     }

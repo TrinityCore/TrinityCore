@@ -154,8 +154,8 @@ struct TRINITY_DLL_DECL instance_halls_of_stone : public ScriptedInstance
     {
         switch(type)
         {
-            case DATA_MAIDEN_OF_GRIEF_EVENT:           return m_auiEncounter[0];
-            case DATA_KRYSTALLUS_EVENT:                return m_auiEncounter[1];
+            case DATA_KRYSTALLUS_EVENT:                return m_auiEncounter[0];
+            case DATA_MAIDEN_OF_GRIEF_EVENT:           return m_auiEncounter[1];
             case DATA_SJONNIR_EVENT:                   return m_auiEncounter[2];
             case DATA_BRANN_EVENT:                     return m_auiEncounter[3];
         }

@@ -34,6 +34,11 @@ enum Yells
     SAY_STUN                                         = -1603006
 };
 
+enum Achievements
+{
+    ACHIEVEMENT_GOOD_GRIEF                           = 1866
+};
+
 struct TRINITY_DLL_DECL boss_maiden_of_griefAI : public ScriptedAI
 {
     boss_maiden_of_griefAI(Creature *c) : ScriptedAI(c) 
@@ -49,6 +54,7 @@ struct TRINITY_DLL_DECL boss_maiden_of_griefAI : public ScriptedAI
     uint32 StormOfGriefTimer;
     uint32 ShockOfSorrowTimer;
     uint32 PillarOfWoeTimer;
+    uint32 AchievTimer;
 
     void Reset() 
     {
@@ -56,6 +62,7 @@ struct TRINITY_DLL_DECL boss_maiden_of_griefAI : public ScriptedAI
         StormOfGriefTimer = 10000;
         ShockOfSorrowTimer = 20000+rand()%5000;
         PillarOfWoeTimer = 5000 + rand()%10000;
+        AchievTimer = 0;
 
         if (pInstance)
             pInstance->SetData(DATA_MAIDEN_OF_GRIEF_EVENT, NOT_STARTED);
@@ -74,6 +81,11 @@ struct TRINITY_DLL_DECL boss_maiden_of_griefAI : public ScriptedAI
         //Return since we have no target
         if (!UpdateVictim())
             return;
+        
+        //Achievement counter
+        if (pInstance)
+            if (pInstance->GetData(DATA_MAIDEN_OF_GRIEF_EVENT) == IN_PROGRESS)
+                AchievTimer += diff;
 
         if(IsHeroic)
         {
@@ -122,6 +134,16 @@ struct TRINITY_DLL_DECL boss_maiden_of_griefAI : public ScriptedAI
 
         if (pInstance)
             pInstance->SetData(DATA_MAIDEN_OF_GRIEF_EVENT, DONE);
+        
+        AchievementEntry const *AchievGoodGrief = GetAchievementStore()->LookupEntry(ACHIEVEMENT_GOOD_GRIEF);
+        Map* pMap = m_creature->GetMap();
+        
+        if (HeroicMode && AchievTimer < 60000 && pMap && pMap->IsDungeon() && AchievGoodGrief)
+        {
+            Map::PlayerList const &players = pMap->GetPlayers();
+                    for(Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
+                        itr->getSource()->CompletedAchievement(AchievGoodGrief);
+        }
     }
     void KilledUnit(Unit *victim)
     {

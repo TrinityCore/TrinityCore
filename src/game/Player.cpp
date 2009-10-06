@@ -17965,7 +17965,12 @@ bool Player::ActivateTaxiPathTo(std::vector<uint32> const& nodes, Creature* npc 
     }
 
     // get mount model (in case non taximaster (npc==NULL) allow more wide lookup)
-    uint32 mount_display_id = objmgr.GetTaxiMountDisplayId(sourcenode, GetTeam(), npc == NULL);
+    //
+    // Hack-Fix for Alliance not being able to use Acherus taxi. There is
+    // only one mount ID for both sides. Probably not good to use 315 in case DBC nodes
+    // change but I couldn't find a suitable alternative. OK to use class because only DK
+    // can use this taxi.
+    uint32 mount_display_id = objmgr.GetTaxiMountDisplayId(sourcenode, GetTeam(), npc == NULL || (sourcenode == 315 && getClass() == CLASS_DEATH_KNIGHT));
 
     // in spell case allow 0 model
     if ((mount_display_id == 0 && spellid == 0) || sourcepath == 0)
