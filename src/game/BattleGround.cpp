@@ -319,6 +319,7 @@ void BattleGround::Update(uint32 diff)
             if (!plr)
                 continue;
             plr->ResurrectPlayer(1.0f);
+            plr->CastSpell(plr, 6962, true);
             plr->CastSpell(plr, SPELL_SPIRIT_HEAL_MANA, true);
             ObjectAccessor::Instance().ConvertCorpseForPlayer(*itr);
         }
