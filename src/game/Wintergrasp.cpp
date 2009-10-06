@@ -75,6 +75,9 @@ typedef std::list<const AreaPOIEntry *> AreaPOIList;
 
 bool OPvPWintergrasp::SetupOutdoorPvP()
 {
+    if(!sWorld.getConfig(CONFIG_OUTDOORPVP_WINTERGRASP_ENABLED))
+        return false;
+
     m_defender = TeamId(rand()%2);
     m_changeDefender = false;
 
