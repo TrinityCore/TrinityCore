@@ -5284,6 +5284,15 @@ uint32 ObjectMgr::GetTaxiMountDisplayId( uint32 id, uint32 team, bool allowed_al
         else
             mount_entry = node->MountCreatureID[0];
 
+    	// Fix for Alliance not being able to use Acherus taxi
+    	// only one mount type for both sides
+    	if (mount_entry == 0 && allowed_alt_team)
+    	{
+    		// Simply reverse the selection. At least one team in theory should
+    		//  have a valid mount ID to choose
+    		mount_entry = (team == ALLIANCE) ? node->MountCreatureID[0] : node->MountCreatureID[1];
+    	}
+
         CreatureInfo const *mount_info = GetCreatureTemplate(mount_entry);
         if (mount_info)
         {

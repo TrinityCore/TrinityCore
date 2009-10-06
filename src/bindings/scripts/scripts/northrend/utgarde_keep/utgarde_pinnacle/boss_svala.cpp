@@ -12,63 +12,63 @@ update creature_template set scriptname = 'boss_svala' where entry = '';
 #include "precompiled.h"
 #include "def_pinnacle.h"
 
-//Spells
-#define SPELL_CALL_FLAMES                        48258
-#define SPELL_RITUAL_OF_THE_SWORD                48276 //Effect #1 Teleport,  Effect #2 Dummy
-#define SPELL_SINSTER_STRIKE                     15667
-#define H_SPELL_SINSTER_STRIKE                   59409
-
-#define SPELL_SVALA_TRANSFORMING1                54140
-#define SPELL_SVALA_TRANSFORMING2                54205
-
+enum Spells
+{
+    SPELL_CALL_FLAMES                        = 48258,
+    SPELL_RITUAL_OF_THE_SWORD                = 48276, //Effect #1 Teleport,  Effect #2 Dummy
+    SPELL_SINSTER_STRIKE                     = 15667,
+    H_SPELL_SINSTER_STRIKE                   = 59409,
+    SPELL_SVALA_TRANSFORMING1                = 54140,
+    SPELL_SVALA_TRANSFORMING2                = 54205
+};
 //not in db
-//Yells
-#define SAY_DIALOG_WITH_ARTHAS_1              -1575015
-#define SAY_DIALOG_WITH_ARTHAS_2              -1575016
-#define SAY_DIALOG_WITH_ARTHAS_3              -1575017
-#define SAY_AGGRO                             -1575018
-#define SAY_SLAY_1                            -1575019
-#define SAY_SLAY_2                            -1575020
-#define SAY_SLAY_3                            -1575021
-#define SAY_DEATH                             -1575022
-#define SAY_SACRIFICE_PLAYER_1                -1575023
-#define SAY_SACRIFICE_PLAYER_2                -1575024
-#define SAY_SACRIFICE_PLAYER_3                -1575025
-#define SAY_SACRIFICE_PLAYER_4                -1575026
-#define SAY_SACRIFICE_PLAYER_5                -1575027
-#define SAY_DIALOG_OF_ARTHAS_1                -1575028
-#define SAY_DIALOG_OF_ARTHAS_2                -1575029
-
-//creatures
-#define CREATURE_ARTHAS                          24266 // Image of Arthas
-#define CREATURE_SVALA_SORROWGRAVE               26668 // Svala after transformation
-#define CREATURE_SVALA                           29281 // Svala before transformation
-#define CREATURE_RITUAL_CHANNELER                27281
-//ritual channeler's spells
-#define SPELL_PARALYZE                           48278
-#define SPELL_SHADOWS_IN_THE_DARK                59407
-
-//other data
-#define DATA_SVALA_DISPLAY_ID                    11686
-
+enum Yells
+{
+    SAY_DIALOG_WITH_ARTHAS_1              = -1575015,
+    SAY_DIALOG_WITH_ARTHAS_2              = -1575016,
+    SAY_DIALOG_WITH_ARTHAS_3              = -1575017,
+    SAY_AGGRO                             = -1575018,
+    SAY_SLAY_1                            = -1575019,
+    SAY_SLAY_2                            = -1575020,
+    SAY_SLAY_3                            = -1575021,
+    SAY_DEATH                             = -1575022,
+    SAY_SACRIFICE_PLAYER_1                = -1575023,
+    SAY_SACRIFICE_PLAYER_2                = -1575024,
+    SAY_SACRIFICE_PLAYER_3                = -1575025,
+    SAY_SACRIFICE_PLAYER_4                = -1575026,
+    SAY_SACRIFICE_PLAYER_5                = -1575027,
+    SAY_DIALOG_OF_ARTHAS_1                = -1575028,
+    SAY_DIALOG_OF_ARTHAS_2                = -1575029
+};
+enum Creatures
+{
+    CREATURE_ARTHAS                          = 24266, // Image of Arthas
+    CREATURE_SVALA_SORROWGRAVE               = 26668, // Svala after transformation
+    CREATURE_SVALA                           = 29281, // Svala before transformation
+    CREATURE_RITUAL_CHANNELER                = 27281,
+    //ritual channeler's spells
+    SPELL_PARALYZE                           = 48278,
+    SPELL_SHADOWS_IN_THE_DARK                = 59407
+};
+enum Misc
+{
+    DATA_SVALA_DISPLAY_ID                    = 11686
+};
 enum IntroPhase
 {
     IDLE,
     INTRO,
     FINISHED
 };
-
 enum CombatPhase
 {
     NORMAL,
     SACRIFICING
 };
-
 struct Locations
 {
     float x, y, z;
 };
-
 static Locations RitualChannelerLocations[]=
 {
     {296.42, -355.01, 90.94},
@@ -107,7 +107,7 @@ struct TRINITY_DLL_DECL boss_svalaAI : public ScriptedAI
     {
         if (!pWho)
             return;
-        if (pWho->isTargetableForAttack() && m_creature->IsHostileTo(pWho) && Phase == IDLE && m_creature->IsWithinDistInMap(pWho, 40))
+        if (Phase == IDLE && pWho->isTargetableForAttack() && m_creature->IsHostileTo(pWho) && Phase == IDLE && m_creature->IsWithinDistInMap(pWho, 40))
         {
             Phase = INTRO;
             m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
@@ -125,6 +125,8 @@ struct TRINITY_DLL_DECL boss_svalaAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
+        if (Phase != INTRO)
+            return;
         if (uiIntroTimer < diff)
         {
             if(!pArthas)
@@ -279,7 +281,9 @@ struct TRINITY_DLL_DECL boss_svala_sorrowgraveAI : public ScriptedAI
                 {
                     DoScriptText(RAND(SAY_SACRIFICE_PLAYER_1,SAY_SACRIFICE_PLAYER_2,SAY_SACRIFICE_PLAYER_3,SAY_SACRIFICE_PLAYER_4,SAY_SACRIFICE_PLAYER_5),m_creature);
                     DoCast(pSacrificeTarget,SPELL_RITUAL_OF_THE_SWORD);
-                    m_creature->AddUnitMovementFlag(MOVEMENTFLAG_FLYING);
+                    //Spell doesn't teleport
+                    DoTeleportPlayer(pSacrificeTarget, 296.632, -346.075, 90.63, 4.6);
+                    m_creature->SetUnitMovementFlags(MOVEMENTFLAG_FLY_MODE);
                     DoTeleportTo(296.632, -346.075, 120.85);
                     Phase = SACRIFICING;
 
@@ -309,6 +313,16 @@ struct TRINITY_DLL_DECL boss_svala_sorrowgraveAI : public ScriptedAI
                 }
                 if (bSacrificed && pSacrificeTarget && pSacrificeTarget->isAlive())
                     m_creature->DealDamage(pSacrificeTarget, pSacrificeTarget->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+                
+                //go down
+                Phase = NORMAL;
+                pSacrificeTarget = NULL;
+                m_creature->SetUnitMovementFlags(MOVEMENTFLAG_WALK_MODE);
+                Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0);
+                while (pTarget && pTarget->GetTypeId() != TYPEID_PLAYER)
+                    pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0);
+                if (pTarget)
+                    m_creature->GetMotionMaster()->MoveChase(pTarget);
 
                 uiSacrificeTimer = 8000;
             }
