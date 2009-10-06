@@ -265,19 +265,17 @@ struct TRINITY_DLL_DECL boss_svala_sorrowgraveAI : public ScriptedAI
             if (uiCallFlamesTimer < diff)
             {
                 Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0);
-                while (pTarget && pTarget->GetTypeId() != TYPEID_PLAYER)
-                    pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0);
-                if (pTarget)
+                if (pTarget && pTarget->GetTypeId() != TYPEID_PLAYER)
+                {
                     DoCast(pTarget, SPELL_CALL_FLAMES);
-                uiCallFlamesTimer = 8000 + rand()%4000;
+                    uiCallFlamesTimer = 8000 + rand()%4000;
+                }
             } else uiCallFlamesTimer -= diff;
 
             if (uiRitualOfSwordTimer < diff)
             {
                 pSacrificeTarget = SelectUnit(SELECT_TARGET_RANDOM, 0);
-                while (pSacrificeTarget && pSacrificeTarget->GetTypeId() != TYPEID_PLAYER)
-                    pSacrificeTarget = SelectUnit(SELECT_TARGET_RANDOM, 0);
-                if (pSacrificeTarget)
+                if (pSacrificeTarget && pSacrificeTarget->GetTypeId() != TYPEID_PLAYER)
                 {
                     DoScriptText(RAND(SAY_SACRIFICE_PLAYER_1,SAY_SACRIFICE_PLAYER_2,SAY_SACRIFICE_PLAYER_3,SAY_SACRIFICE_PLAYER_4,SAY_SACRIFICE_PLAYER_5),m_creature);
                     DoCast(pSacrificeTarget,SPELL_RITUAL_OF_THE_SWORD);
@@ -289,8 +287,9 @@ struct TRINITY_DLL_DECL boss_svala_sorrowgraveAI : public ScriptedAI
                         if (pRitualChanneler[i] = m_creature->SummonCreature(CREATURE_RITUAL_CHANNELER, RitualChannelerLocations[i].x, RitualChannelerLocations[i].y, RitualChannelerLocations[i].z, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 360000))
                             if (mob_ritual_channelerAI *pChannelerAI = CAST_AI(mob_ritual_channelerAI,pRitualChanneler[i]))
                                 pChannelerAI->AttackStartNoMove(pSacrificeTarget);
+
+                    uiRitualOfSwordTimer = 18000 + rand()%4000;
                 }
-                uiRitualOfSwordTimer = 18000 + rand()%4000;
             } else uiRitualOfSwordTimer -= diff;
 
             DoMeleeAttackIfReady();
