@@ -1119,25 +1119,28 @@ void GameObject::Use(Unit* user)
 
                     DEBUG_LOG("Fishing check (skill: %i zone min skill: %i chance %i roll: %i",skill,zone_skill,chance,roll);
 
-                    player->UpdateFishingSkill();
-                    // 3.1 changes, you can now fish anywhere and get fishing skillups
-                    // but you will likely cause junk in areas that require a high fishing skill (not yet implemented)
-                    if(skill >= zone_skill && chance >= roll)
+                    if(chance >= roll)
                     {
-                        // prevent removing GO at spell cancel
-                        player->RemoveGameObject(this,false);
-                        SetOwnerGUID(player->GetGUID());
-
-                        //TODO: find reasonable value for fishing hole search
-                        GameObject* ok = LookupFishingHoleAround(20.0f + CONTACT_DISTANCE);
-                        if (ok)
+                        player->UpdateFishingSkill();
+                        // 3.1 changes, you can now fish anywhere and get fishing skillups
+                        // but you will likely cause junk in areas that require a high fishing skill (not yet implemented)
+                        if(skill >= zone_skill)
                         {
-                            player->SendLoot(ok->GetGUID(),LOOT_FISHINGHOLE);
-                            player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_FISH_IN_GAMEOBJECT, ok->GetGOInfo()->id);
-                            SetLootState(GO_JUST_DEACTIVATED);
+                            // prevent removing GO at spell cancel
+                            player->RemoveGameObject(this,false);
+                            SetOwnerGUID(player->GetGUID());
+
+                            //TODO: find reasonable value for fishing hole search
+                            GameObject* ok = LookupFishingHoleAround(20.0f + CONTACT_DISTANCE);
+                            if (ok)
+                            {
+                                player->SendLoot(ok->GetGUID(),LOOT_FISHINGHOLE);
+                                player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_FISH_IN_GAMEOBJECT, ok->GetGOInfo()->id);
+                                SetLootState(GO_JUST_DEACTIVATED);
+                            }
+                            else
+                                player->SendLoot(GetGUID(),LOOT_FISHING);
                         }
-                        else
-                            player->SendLoot(GetGUID(),LOOT_FISHING);
                     }
                     break;
                 }
