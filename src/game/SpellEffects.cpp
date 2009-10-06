@@ -1682,23 +1682,7 @@ void Spell::EffectDummy(uint32 i)
                     if(!spell_proto)
                         return;
 
-                    if(unitTarget->hasUnitState(UNIT_STAT_STUNNED) && m_caster->GetTypeId()==TYPEID_PLAYER)
-                    {
-                        // always critical for stunned target
-                        SpellModifier *mod = new SpellModifier;
-                        mod->op = SPELLMOD_CRITICAL_CHANCE;
-                        mod->value = 100;
-                        mod->type = SPELLMOD_FLAT;
-                        mod->spellId = m_spellInfo->Id;
-                        mod->mask[1] = 0x00000200;
-
-                        ((Player*)m_caster)->AddSpellMod(mod, true);
-                        m_caster->CastSpell(unitTarget,spell_proto,true,NULL);
-                        ((Player*)m_caster)->AddSpellMod(mod, false);
-                    }
-                    else
-                        m_caster->CastSpell(unitTarget, spell_proto, true, NULL);
-
+                    m_caster->CastSpell(unitTarget, spell_proto, true, NULL);
                     return;
                 }
                 case 31789:                                 // Righteous Defense (step 1)
@@ -4420,6 +4404,24 @@ void Spell::SpellDamageWeaponDmg(uint32 i)
                 spell_bonus += int32(0.25f*m_caster->SpellBaseDamageBonus(GetSpellSchoolMask(m_spellInfo)));
             }
             break;
+            // Judgement of Blood/of the Martyr backlash damage (33%)
+            if(m_spellInfo->SpellFamilyFlags[0] & 0x0000000800000000LL && m_spellInfo->SpellIconID==153)
+            {
+                int32 damagePoint  = m_damage * 33 / 100;
+                if(m_spellInfo->Id == 31898)
+                    m_caster->CastCustomSpell(m_caster, 32220, &damagePoint, NULL, NULL, true);
+                else
+                    m_caster->CastCustomSpell(m_caster, 53725, &damagePoint, NULL, NULL, true);
+            }
+            // Seal of Blood/of the Martyr backlash damage (10%)
+            else if(m_spellInfo->SpellIconID==2293)
+            {
+                int32 damagePoint  = m_damage * 10 / 100;
+                if(m_spellInfo->Id == 31893)
+                    m_caster->CastCustomSpell(m_caster, 32221, &damagePoint, NULL, NULL, true);
+                else
+                    m_caster->CastCustomSpell(m_caster, 53718, &damagePoint, NULL, NULL, true);
+            }
         }
         case SPELLFAMILY_SHAMAN:
         {
