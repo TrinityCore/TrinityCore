@@ -1168,6 +1168,8 @@ void World::LoadConfigSettings(bool reload)
     m_configs[CONFIG_PVP_TOKEN_COUNT] = sConfig.GetIntDefault("PvPToken.ItemCount", 1);
     if (m_configs[CONFIG_PVP_TOKEN_COUNT] < 1)
         m_configs[CONFIG_PVP_TOKEN_COUNT] = 1;
+        
+    m_configs[CONFIG_OUTDOORPVP_WINTERGRASP_ENABLED]        = sConfig.GetBoolDefault("OutdoorPvP.Wintergrasp.Enabled", true);
     m_configs[CONFIG_OUTDOORPVP_WINTERGRASP_START_TIME]     = sConfig.GetIntDefault("OutdoorPvP.Wintergrasp.StartTime", 30);
     m_configs[CONFIG_OUTDOORPVP_WINTERGRASP_BATTLE_TIME]    = sConfig.GetIntDefault("OutdoorPvP.Wintergrasp.BattleTime", 30); 
     m_configs[CONFIG_OUTDOORPVP_WINTERGRASP_INTERVAL]       = sConfig.GetIntDefault("OutdoorPvP.Wintergrasp.Interval", 150);
