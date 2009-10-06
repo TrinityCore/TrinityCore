@@ -11960,8 +11960,8 @@ void Unit::SetHealth(uint32 val)
     if(getDeathState() == JUST_DIED)
         val = 0;
     // causes instant permadeath if you exit game while in combat?! :-|
-    //else if((getDeathState() & (DEAD | DEAD_FALLING)) != 0)
-    //    val = 1;
+    else if((GetTypeId() == TYPEID_PLAYER) && (getDeathState() & (DEAD | DEAD_FALLING)) != 0)
+        val = 1;
     else
     {
         uint32 maxHealth = GetMaxHealth();
