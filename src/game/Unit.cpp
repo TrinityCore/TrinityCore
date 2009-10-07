@@ -6632,9 +6632,9 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                 basepoints0 = triggerAmount;
 
                 // Glyph of Earth Shield
-                if (Aura* aur = GetDummyAura(63279))
+                if (AuraEffect* aur = GetAuraEffect(63279,0))
                 {
-                    int32 aur_mod = aur->GetModifier()->m_amount;
+                    int32 aur_mod = aur->GetAmount();
                     basepoints0 = int32(basepoints0 * (aur_mod + 100.0f) / 100.0f);
                 }
                 triggered_spell_id = 379;
