@@ -1723,7 +1723,7 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
         void RemoveGameObject(uint32 spellid, bool del);
         void RemoveAllGameObjects();
 
-        uint32 CalculateDamage(WeaponAttackType attType, bool normalized);
+        uint32 CalculateDamage(WeaponAttackType attType, bool normalized, bool addTotalPct);
         float GetAPMultiplier(WeaponAttackType attType, bool normalized);
         void ModifyAuraState(AuraState flag, bool apply);
         uint32 BuildAuraStateUpdateForTarget(Unit * target) const;
