@@ -6628,8 +6628,15 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
             {
                 // 3.0.8: Now correctly uses the Shaman's own spell critical strike chance to determine the chance of a critical heal.
                 originalCaster = triggeredByAura->GetCasterGUID();
-                basepoints0 = triggerAmount;
                 target = this;
+                basepoints0 = triggerAmount;
+
+                // Glyph of Earth Shield
+                if (Aura* aur = GetDummyAura(63279))
+                {
+                    int32 aur_mod = aur->GetModifier()->m_amount;
+                    basepoints0 = int32(basepoints0 * (aur_mod + 100.0f) / 100.0f);
+                }
                 triggered_spell_id = 379;
                 break;
             }
