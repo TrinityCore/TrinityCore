@@ -1322,7 +1322,7 @@ void Unit::CalculateMeleeDamage(Unit *pVictim, uint32 damage, CalcDamageInfo *da
        damageInfo->cleanDamage    = 0;
        return;
     }
-    damage += CalculateDamage (damageInfo->attackType, false);
+    damage += CalculateDamage (damageInfo->attackType, false, true);
     // Add melee damage bonus
     MeleeDamageBonus(damageInfo->target, &damage, damageInfo->attackType);
     // Calculate armor reduction
@@ -1473,7 +1473,7 @@ void Unit::CalculateMeleeDamage(Unit *pVictim, uint32 damage, CalcDamageInfo *da
             damageInfo->HitInfo|=HITINFO_RESIST;
 
     }
-    else // Umpossible get negative result but....
+    else // Impossible get negative result but....
         damageInfo->damage = 0;
 }
 
@@ -2434,12 +2434,12 @@ MeleeHitOutcome Unit::RollMeleeOutcomeAgainst (const Unit *pVictim, WeaponAttack
     return MELEE_HIT_NORMAL;
 }
 
-uint32 Unit::CalculateDamage (WeaponAttackType attType, bool normalized)
+uint32 Unit::CalculateDamage (WeaponAttackType attType, bool normalized, bool addTotalPct)
 {
     float min_damage, max_damage;
 
-    if (normalized && GetTypeId()==TYPEID_PLAYER)
-        ((Player*)this)->CalculateMinMaxDamage(attType,normalized,min_damage, max_damage);
+    if (GetTypeId()==TYPEID_PLAYER && (normalized || !addTotalPct))
+        ((Player*)this)->CalculateMinMaxDamage(attType,normalized,addTotalPct,min_damage, max_damage);
     else
     {
         switch (attType)
