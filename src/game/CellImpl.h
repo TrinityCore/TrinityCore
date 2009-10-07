@@ -233,6 +233,9 @@ Cell::Visit(const CellLock<LOCK_TYPE> &l, TypeContainerVisitor<T, CONTAINER> &vi
         m.Visit(l, visitor);
         return;
     }
+    //lets limit the upper value for search radius
+    if(radius > 333.0f)
+        radius = 333.0f;
  
     //lets calculate object coord offsets from cell borders.
     CellArea area = Cell::CalculateCellArea(obj, radius);
