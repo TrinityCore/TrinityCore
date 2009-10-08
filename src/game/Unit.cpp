@@ -7141,24 +7141,6 @@ bool Unit::HandleAuraProc(Unit *pVictim, uint32 damage, Aura* triggeredByAura, S
             }
             break;
         }
-        
-        case SPELLFAMILY_PALADIN:
-        {
-            // Seal of Command should only proc from melee hits.
-            if(dummySpell->Id == 20375)
-            {
-                if (procFlag && ( procFlag & PROC_FLAG_SUCCESSFUL_MELEE_HIT ))
-                {
-                    *handled = false;
-                    return true;
-                }
-                else
-                {
-                    *handled = true;
-                    return false;
-                }
-            }
-        }
     }
     return false;
 }
