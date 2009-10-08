@@ -1233,6 +1233,14 @@ void Spell::DoAllEffectOnTarget(TargetInfo *target)
 
         // Needs to be called after dealing damage/healing to not remove breaking on damage auras
         DoTriggersOnSpellHit(spellHitTarget);
+        
+        // if target is fallged for pvp also flag caster if a player
+        if(unit->IsPvP())
+        {
+            if (m_caster->GetTypeId() == TYPEID_PLAYER)
+            ((Player*)m_caster)->UpdatePvP(true);
+        }
+
     }
 }
 
