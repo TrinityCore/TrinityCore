@@ -1745,10 +1745,60 @@ void AchievementMgr::CompletedAchievement(AchievementEntry const* achievement)
 
 void AchievementMgr::SendAllAchievementData()
 {
+    uint32 size = 18 + m_completedAchievements.size()*8 + m_criteriaProgress.size() * 36;
+
+    bool send = false;
+
+    WorldPacket data(SMSG_ALL_ACHIEVEMENT_DATA);
+    if( size < 0x8000 )
+        data.resize( size );
+    else
+        data.resize( 0x7fff );
+        // More than this causes client trouble
+    
+    CompletedAchievementMap::const_iterator iter = m_completedAchievements.begin();
+    CriteriaProgressMap::const_iterator iter2 = m_criteriaProgress.begin();
+
+    bool cAchievements = false;
+    bool cProgress = false;
+    while( !cAchievements || !cProgress )
+    {
+        data.clear();
+        send = false;
+        
+        if( !cAchievements )
+        {
+            for(; iter != m_completedAchievements.end() && !send; ++iter)
+            {
+                data << uint32(iter->first);
+                data << uint32(secsToTimeBitFields(iter->second.date));
+                send = data.size() > 0x7f00;
+            }
+            data << int32(-1);
+            
+            if( iter == m_completedAchievements.end() )
+                cAchievements = true;
+        }
+
+        for(; iter2 != m_criteriaProgress.end() && !send; ++iter2)
+        {
+            data << uint32(iter2->first);
+            data.appendPackGUID(iter2->second.counter);
+            data.append(GetPlayer()->GetPackGUID());
+            data << uint32(0);
+            data << uint32(secsToTimeBitFields(iter2->second.date));
+            data << uint32(0);
+            data << uint32(0);
+            send = data.size() > 0x7f00;
+        }
+        
+        if( iter2 == m_criteriaProgress.end() )
+            cProgress = true;
+
+        data << int32(-1);
+        GetPlayer()->GetSession()->SendPacket(&data);
+    }
     // since we don't know the exact size of the packed GUIDs this is just an approximation
-    WorldPacket data(SMSG_ALL_ACHIEVEMENT_DATA, 4*2+m_completedAchievements.size()*4*2+m_completedAchievements.size()*7*4);
-    BuildAllDataPacket(&data);
-    GetPlayer()->GetSession()->SendPacket(&data);
 }
 
 void AchievementMgr::SendRespondInspectAchievements(Player* player)
@@ -1761,7 +1811,7 @@ void AchievementMgr::SendRespondInspectAchievements(Player* player)
 }
 
 /**
- * used by both SMSG_ALL_ACHIEVEMENT_DATA  and SMSG_RESPOND_INSPECT_ACHIEVEMENT
+ * used by SMSG_RESPOND_INSPECT_ACHIEVEMENT
  */
 void AchievementMgr::BuildAllDataPacket(WorldPacket *data)
 {
