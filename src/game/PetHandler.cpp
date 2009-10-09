@@ -143,7 +143,7 @@ void WorldSession::HandlePetActionHelper(Unit *pet, uint64 guid1, uint16 spellid
                     
                     pet->clearUnitState(UNIT_STAT_FOLLOW);
                     // This is true if pet has no target or has target but targets differs.
-                    if(pet->getVictim() != TargetUnit)
+                    if(pet->getVictim() != TargetUnit || ( pet->getVictim() == TargetUnit && !pet->GetCharmInfo()->IsCommandAttack() ))
                     {
                         if (pet->getVictim())
                             pet->AttackStop();
