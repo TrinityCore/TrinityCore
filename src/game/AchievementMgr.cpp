@@ -1774,12 +1774,12 @@ void AchievementMgr::SendAllAchievementData()
                 data << uint32(secsToTimeBitFields(iter->second.date));
                 send = data.size() > 0x7f00;
             }
-            data << int32(-1);
-            
+
             if( iter == m_completedAchievements.end() )
                 cAchievements = true;
         }
 
+        data << int32(-1);
         for(; iter2 != m_criteriaProgress.end() && !send; ++iter2)
         {
             data << uint32(iter2->first);
@@ -1798,7 +1798,6 @@ void AchievementMgr::SendAllAchievementData()
         data << int32(-1);
         GetPlayer()->GetSession()->SendPacket(&data);
     }
-    // since we don't know the exact size of the packed GUIDs this is just an approximation
 }
 
 void AchievementMgr::SendRespondInspectAchievements(Player* player)
