@@ -323,6 +323,10 @@ Unit *PetAI::SelectNextTarget()
     if (me->GetCharmerOrOwner()->getAttackerForHelper())
         return me->GetCharmerOrOwner()->getAttackerForHelper();
 
+    // 3.0.2 - Pets now start attacking their owners target in defensive mode as soon as the hunter does
+    if (me->GetCharmerOrOwner()->getVictim())
+        return me->GetCharmerOrOwner()->getVictim();
+
     // Default
     return NULL;
 }
