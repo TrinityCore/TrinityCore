@@ -8703,6 +8703,18 @@ void Unit::SetMinion(Minion *minion, bool apply)
     }
 }
 
+void Unit::GetAllMinionsByEntry(std::list<Creature*>& Minions, uint32 entry)
+{
+    for(Unit::ControlList::iterator itr = m_Controlled.begin(); itr != m_Controlled.end();)
+    {
+        Unit *unit = *itr;
+        ++itr;
+        if(unit->GetEntry() == entry && unit->GetTypeId() == TYPEID_UNIT
+            && ((Creature*)unit)->isSummon()) // minion, actually
+            Minions.push_back((Creature*)unit);
+    }
+}
+
 void Unit::RemoveAllMinionsByEntry(uint32 entry)
 {
     for(Unit::ControlList::iterator itr = m_Controlled.begin(); itr != m_Controlled.end();)

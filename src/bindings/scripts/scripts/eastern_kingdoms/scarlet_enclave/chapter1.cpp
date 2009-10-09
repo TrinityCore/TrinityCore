@@ -673,6 +673,11 @@ CreatureAI* GetAI_npc_ros_dark_rider(Creature* pCreature)
 }
 
 // correct way: 52312 52314 52555 ...
+enum SG
+{
+    GHOULS = 28845,
+    GHOSTS = 28846,
+};
 struct TRINITY_DLL_DECL npc_dkc1_gothikAI : public ScriptedAI
 {
     npc_dkc1_gothikAI(Creature *c) : ScriptedAI(c) {}
@@ -681,7 +686,7 @@ struct TRINITY_DLL_DECL npc_dkc1_gothikAI : public ScriptedAI
     {
         ScriptedAI::MoveInLineOfSight(who);
 
-        if (who->GetEntry() == 28845 && me->IsWithinDistInMap(who, 10.0f))
+        if (who->GetEntry() == GHOULS && me->IsWithinDistInMap(who, 10.0f))
         {
             if (Unit *owner = who->GetOwner())
             {
@@ -690,12 +695,15 @@ struct TRINITY_DLL_DECL npc_dkc1_gothikAI : public ScriptedAI
                     if (CAST_PLR(owner)->GetQuestStatus(12698) == QUEST_STATUS_INCOMPLETE)
                     {
                         //CAST_CRE(who)->CastSpell(owner, 52517, true);
-                        CAST_PLR(owner)->KilledMonsterCredit(28845, me->GetGUID());
-                        CAST_CRE(who)->ForcedDespawn();
-
-                        if (CAST_PLR(owner)->GetQuestStatus(12698) == QUEST_STATUS_COMPLETE)
-                            owner->RemoveAllMinionsByEntry(28845);
+                        CAST_PLR(owner)->KilledMonsterCredit(GHOULS, me->GetGUID());
                     }
+                    //Todo: Creatures must not be removed, but, must instead
+                    //      stand next to Gothik and be commanded into the pit
+                    //      and dig into the ground.
+                    CAST_CRE(who)->ForcedDespawn();
+
+                    if (CAST_PLR(owner)->GetQuestStatus(12698) == QUEST_STATUS_COMPLETE)
+                        owner->RemoveAllMinionsByEntry(GHOULS);
                 }
             }
         }
@@ -711,24 +719,71 @@ struct TRINITY_DLL_DECL npc_scarlet_ghoulAI : public ScriptedAI
 {
     npc_scarlet_ghoulAI(Creature *c) : ScriptedAI(c)
     {
-        me->SetReactState(REACT_DEFENSIVE);
+        // Ghouls should display their Birth Animation
+        // Crawling out of the ground
+        //m_creature->CastSpell(m_creature,35177,true);
+        //m_creature->MonsterSay("Mommy?",LANG_UNIVERSAL,0);
+        m_creature->SetReactState(REACT_DEFENSIVE);
+    }
+
+    void FindMinions(Unit *owner)
+    {
+        std::list<Creature*> MinionList;
+        owner->GetAllMinionsByEntry(MinionList,GHOULS);
+
+        if (!MinionList.empty())
+        {
+            for(std::list<Creature*>::iterator itr = MinionList.begin(); itr != MinionList.end(); ++itr)
+            {
+                if (CAST_CRE(*itr)->GetOwner()->GetGUID() == m_creature->GetOwner()->GetGUID())
+                {
+                    if (CAST_CRE(*itr)->isInCombat() && CAST_CRE(*itr)->getAttackerForHelper())
+                    {
+                        AttackStart(CAST_CRE(*itr)->getAttackerForHelper());
+                    }
+                }
+            }
+        }
     }
 
     void UpdateAI(const uint32 diff)
     {
-        if (Unit *owner = m_creature->GetOwner())
+        if (!m_creature->isInCombat())
         {
-            if (owner->GetTypeId() == TYPEID_PLAYER)
+            if (Unit *owner = m_creature->GetOwner())
             {
-                if (CAST_PLR(owner)->GetQuestStatus(12698) != QUEST_STATUS_INCOMPLETE)
+                if (owner->GetTypeId() == TYPEID_PLAYER && CAST_PLR(owner)->isInCombat())
                 {
-                    m_creature->ForcedDespawn();
-                    m_creature->GetOwner()->RemoveAllMinionsByEntry(28845);
+                    if (CAST_PLR(owner)->getAttackerForHelper() && CAST_PLR(owner)->getAttackerForHelper()->GetEntry() == GHOSTS)
+                    {
+                        AttackStart(CAST_PLR(owner)->getAttackerForHelper());
+                    }
+                    else
+                    {
+                        FindMinions(owner);
+                    }
                 }
             }
         }
-         ScriptedAI::UpdateAI(diff);
-   }
+ 
+        if (!UpdateVictim())
+            return;
+
+        //ScriptedAI::UpdateAI(diff);
+        //Check if we have a current target
+        if (m_creature->getVictim()->GetEntry() == GHOSTS)
+        {
+            if (m_creature->isAttackReady())
+            {
+                //If we are within range melee the target
+                if (m_creature->IsWithinMeleeRange(m_creature->getVictim()))
+                {
+                    m_creature->AttackerStateUpdate(m_creature->getVictim());
+                    m_creature->resetAttackTimer();
+                }
+            }
+        }
+    }
 };
 
 CreatureAI* GetAI_npc_scarlet_ghoul(Creature* pCreature)
