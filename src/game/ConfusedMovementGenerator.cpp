@@ -23,6 +23,7 @@
 #include "Opcodes.h"
 #include "ConfusedMovementGenerator.h"
 #include "DestinationHolderImp.h"
+#include "VMapFactory.h"
 
 #ifdef MAP_BASED_RAND_GEN
 #define rand_norm() unit.rand_norm()
@@ -46,10 +47,19 @@ ConfusedMovementGenerator<T>::Initialize(T &unit)
     bool is_water_ok, is_land_ok;
     _InitSpecific(unit, is_water_ok, is_land_ok);
 
+    VMAP::IVMapManager *vMaps = VMAP::VMapFactory::createOrGetVMapManager();
+
     for(unsigned int idx=0; idx < MAX_CONF_WAYPOINTS+1; ++idx)
     {
         const float wanderX=wander_distance*rand_norm() - wander_distance/2;
         const float wanderY=wander_distance*rand_norm() - wander_distance/2;
+
+        const bool isInLoS = vMaps->isInLineOfSight(unit.GetMapId(), x, y, z + 2.0f, i_waypoints[idx][0], i_waypoints[idx][1], z + 2.0f); 
+        if (!isInLoS)
+        {
+            i_waypoints[idx][0] = x; 
+            i_waypoints[idx][1] = y;
+        }
 
         i_waypoints[idx][0] = x + wanderX;
         i_waypoints[idx][1] = y + wanderY;
