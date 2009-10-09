@@ -1464,6 +1464,7 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
         Player* GetCharmerOrOwnerPlayerOrPlayerItself() const;
 
         void SetMinion(Minion *minion, bool apply);
+        void GetAllMinionsByEntry(std::list<Creature*>& Minions, uint32 entry);
         void RemoveAllMinionsByEntry(uint32 entry);
         void SetCharm(Unit* target, bool apply);
         Unit* GetNextRandomRaidMemberOrPet(float radius);

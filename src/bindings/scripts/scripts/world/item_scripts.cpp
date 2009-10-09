@@ -206,6 +206,38 @@ bool ItemExpire_item_disgusting_jar(Player* pPlayer, ItemPrototype const * _Item
     return true;
 }
 
+/*#####
+# item_harvesters_gift
+#####*/
+#define GHOULS 28845
+bool ItemUse_item_harvesters_gift(Player* pPlayer, Item* _Item, SpellCastTargets const& targets)
+{
+    std::list<Creature*> MinionList;
+    pPlayer->GetAllMinionsByEntry(MinionList,GHOULS);
+
+    if (pPlayer->GetQuestStatus(12698) == QUEST_STATUS_INCOMPLETE)
+    {
+        if (!MinionList.empty())
+        {
+            if (MinionList.size() < 5)
+            {
+                return false;
+            }
+            else
+            {
+                //This should be sent to the player as red text.
+                pPlayer->Say("You have created enough ghouls. Return to Gothik the Harvester at Death's Breach.",LANG_UNIVERSAL);
+                return true;
+            }
+        }
+        else return false;
+    }
+    else
+    {
+        return true;
+    }
+}
+
 void AddSC_item_scripts()
 {
     Script *newscript;
@@ -248,6 +280,11 @@ void AddSC_item_scripts()
     newscript = new Script;
     newscript->Name="item_disgusting_jar";
     newscript->pItemExpire = &ItemExpire_item_disgusting_jar;
+    newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name="item_harvesters_gift";
+    newscript->pItemUse = &ItemUse_item_harvesters_gift;
     newscript->RegisterSelf();
 }
 
