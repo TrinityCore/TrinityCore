@@ -108,6 +108,9 @@ void CreatureAI::MoveInLineOfSight(Unit *who)
 {
     if(me->getVictim())
         return;
+        
+    if (me->GetTypeId() == CREATURE_TYPE_NON_COMBAT_PET) // non-combat pets should just stand there and look good;)
+        return;
 
     if(me->canStartAttack(who, false))
         AttackStart(who);
