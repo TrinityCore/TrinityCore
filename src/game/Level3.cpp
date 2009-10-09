@@ -6188,7 +6188,7 @@ bool ChatHandler::HandleRespawnCommand(const char* /*args*/)
     Unit* target = getSelectedUnit();
     if(pl->GetSelection() && target)
     {
-        if(target->GetTypeId()!=TYPEID_UNIT)
+        if(target->GetTypeId()!=TYPEID_UNIT || target->isPet())
         {
             SendSysMessage(LANG_SELECT_CREATURE);
             SetSentErrorMessage(true);
