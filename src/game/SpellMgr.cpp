@@ -761,6 +761,8 @@ bool SpellMgr::_isPositiveEffect(uint32 spellId, uint32 effIndex, bool deep) con
         case 31719:                                         // Suspension
         case 61987:                                         // Avenging Wrath Marker
         case 50524:                                         // Runic Power Feed
+        case 52671:                                         // Arcing Burn
+        case 59834:                                         // Arcing Burn
             return false;
         case 12042:                                         // Arcane Power
             return true;

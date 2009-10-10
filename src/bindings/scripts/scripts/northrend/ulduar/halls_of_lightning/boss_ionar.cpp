@@ -219,11 +219,11 @@ struct TRINITY_DLL_DECL boss_ionarAI : public ScriptedAI
         // Splitted
         if (m_creature->GetVisibility() == VISIBILITY_OFF)
         {
-            if (!m_creature->getVictim())
+            /*if (!m_creature->getVictim())
             {
                 Reset();
                 return;
-            }
+            }*/
 
             if (m_uiSplit_Timer < uiDiff)
             {
@@ -316,13 +316,8 @@ bool EffectDummyCreature_boss_ionar(Unit* pCaster, uint32 uiSpellId, uint32 uiEf
         if (pCreatureTarget->GetEntry() != NPC_IONAR)
             return true;
 
-        for(uint8 i = 0; i < MAX_SPARKS; ++i)
-        {
+        for (uint8 i = 0; i < MAX_SPARKS; ++i)
             pCreatureTarget->CastSpell(pCreatureTarget, SPELL_SUMMON_SPARK, true);
-
-            //TODO: remove this line of hack when summon implemented
-            pCreatureTarget->SummonCreature(NPC_SPARK_OF_IONAR, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000);
-        }
 
         pCreatureTarget->AttackStop();
         pCreatureTarget->SetVisibility(VISIBILITY_OFF);
