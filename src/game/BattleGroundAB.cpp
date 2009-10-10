@@ -20,7 +20,7 @@
 
 #include "World.h"
 #include "WorldPacket.h"
-#include "GameObject.h"
+#include "ObjectMgr.h"
 #include "BattleGroundMgr.h"
 #include "BattleGround.h"
 #include "BattleGroundAB.h"
