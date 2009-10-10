@@ -449,6 +449,7 @@ Player::Player (WorldSession *session): Unit(), m_achievementMgr(this), m_reputa
     m_baseSpellPower = 0;
     m_baseFeralAP = 0;
     m_baseManaRegen = 0;
+    m_armorPenetrationPct = 0.0f;
 
     // Honor System
     m_lastHonorUpdateTime = time(NULL);
@@ -5287,7 +5288,7 @@ void Player::ApplyRatingMod(CombatRating cr, int32 value, bool apply)
             break;
         case CR_ARMOR_PENETRATION:
             if(affectStats)
-                UpdateArmorPenetration(amount);
+                UpdateArmorPenetration();
             break;
     }
 }
@@ -7081,6 +7082,13 @@ void Player::_ApplyItemBonuses(ItemPrototype const *proto, uint8 slot, bool appl
             case ITEM_MOD_SPELL_DAMAGE_DONE:
                 break;
         }
+    }
+
+    // Apply Spell Power from ScalingStatValue if set
+    if(ssv)
+    {
+        if (int32 spellbonus = ssv->getSpellBonus(proto->ScalingStatValue))
+            ApplySpellPowerBonus(spellbonus, apply);
     }
 
     // If set ScalingStatValue armor get it or use item armor
@@ -11043,9 +11051,15 @@ Item* Player::EquipItem( uint16 pos, Item *pItem, bool update )
          // update expertise and armor penetration - passive auras may need it
 
         if( slot == EQUIPMENT_SLOT_MAINHAND )
+        {
             UpdateExpertise(BASE_ATTACK);
+            UpdateArmorPenetration();
+        }
         else if( slot == EQUIPMENT_SLOT_OFFHAND )
+        {
             UpdateExpertise(OFF_ATTACK);
+            UpdateArmorPenetration();
+        }
 
         switch(slot)
         {
@@ -11195,6 +11209,7 @@ void Player::RemoveItem( uint8 bag, uint8 slot, bool update )
                         }
 
                         UpdateExpertise(BASE_ATTACK);
+                        UpdateArmorPenetration();
                     }
                     else if( slot == EQUIPMENT_SLOT_OFFHAND )
                         UpdateExpertise(OFF_ATTACK);
@@ -11204,7 +11219,7 @@ void Player::RemoveItem( uint8 bag, uint8 slot, bool update )
                     case EQUIPMENT_SLOT_MAINHAND:
                     case EQUIPMENT_SLOT_OFFHAND:
                     case EQUIPMENT_SLOT_RANGED:
-                      RecalculateRating(CR_ARMOR_PENETRATION);
+                      UpdateArmorPenetration();
                     default:
                         break;
                     }
@@ -11321,15 +11336,21 @@ void Player::DestroyItem( uint8 bag, uint8 slot, bool update )
                 case EQUIPMENT_SLOT_MAINHAND:
                 case EQUIPMENT_SLOT_OFFHAND:
                 case EQUIPMENT_SLOT_RANGED:
-                    RecalculateRating(CR_ARMOR_PENETRATION);
+                    UpdateArmorPenetration();
                 default:
                     break;
                 }
 
-                if ( slot == EQUIPMENT_SLOT_MAINHAND )
+                if( slot == EQUIPMENT_SLOT_MAINHAND )
+                {
                     UpdateExpertise(BASE_ATTACK);
+                    UpdateArmorPenetration();
+                }
                 else if( slot == EQUIPMENT_SLOT_OFFHAND )
+                {
                     UpdateExpertise(OFF_ATTACK);
+                    UpdateArmorPenetration();
+                }
 
                 // equipment visual show
                 SetVisibleItemSlot(slot, NULL);
@@ -13216,9 +13237,7 @@ void Player::RewardQuest( Quest const *pQuest, uint32 reward, Object* questGiver
         }
     }
 
-    //if( qInfo->HasSpecialFlag( QUEST_FLAGS_TIMED ) )
-    //    SetTimedQuest( 0 );
-    m_timedquests.erase(pQuest->GetQuestId());
+    RemoveTimedQuest(quest_id);
 
     if (pQuest->GetRewChoiceItemsCount() > 0)
     {
@@ -13430,6 +13449,7 @@ void Player::FailQuest(uint32 questId)
         {
             QuestStatusData& q_status = mQuestStatus[questId];
 
+            RemoveTimedQuest(questId);
             q_status.m_timer = 0;
 
             SendQuestTimerFailed(questId);
@@ -13655,12 +13675,12 @@ bool Player::SatisfyQuestStatus( Quest const* qInfo, bool msg )
     return true;
 }
 
-bool Player::SatisfyQuestTimed( Quest const* qInfo, bool msg )
+bool Player::SatisfyQuestTimed(Quest const* qInfo, bool msg)
 {
-    if ( (find(m_timedquests.begin(), m_timedquests.end(), qInfo->GetQuestId()) != m_timedquests.end()) && qInfo->HasFlag(QUEST_TRINITY_FLAGS_TIMED) )
+    if (m_timedquests.empty() && qInfo->HasFlag(QUEST_TRINITY_FLAGS_TIMED))
     {
-        if( msg )
-            SendCanTakeQuestResponse( INVALIDREASON_QUEST_ONLY_ONE_TIMED );
+        if (msg)
+            SendCanTakeQuestResponse(INVALIDREASON_QUEST_ONLY_ONE_TIMED);
         return false;
     }
     return true;
@@ -13888,12 +13908,6 @@ void Player::SetQuestStatus(uint32 quest_id, QuestStatus status)
 {
     if (Quest const* qInfo = objmgr.GetQuestTemplate(quest_id))
     {
-        if (status == QUEST_STATUS_NONE || status == QUEST_STATUS_INCOMPLETE || status == QUEST_STATUS_COMPLETE || status == QUEST_STATUS_FAILED)
-        {
-            if (qInfo->HasFlag(QUEST_TRINITY_FLAGS_TIMED))
-                m_timedquests.erase(qInfo->GetQuestId());
-        }
-
         QuestStatusData& q_status = mQuestStatus[quest_id];
 
         q_status.m_status = status;

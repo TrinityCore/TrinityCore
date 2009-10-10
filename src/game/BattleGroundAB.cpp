@@ -18,10 +18,10 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-#include "ObjectMgr.h"
 #include "World.h"
 #include "WorldPacket.h"
-
+#include "GameObject.h"
+#include "BattleGroundMgr.h"
 #include "BattleGround.h"
 #include "BattleGroundAB.h"
 #include "Creature.h"
@@ -593,7 +593,7 @@ void BattleGroundAB::Reset()
     m_ReputationScoreTics[BG_TEAM_ALLIANCE] = 0;
     m_ReputationScoreTics[BG_TEAM_HORDE]    = 0;
     m_IsInformedNearVictory                 = false;
-    bool isBGWeekend = false;           //TODO FIXME - call sBattleGroundMgr.IsBGWeekend(m_TypeID); - you must also implement that call!
+    bool isBGWeekend = sBattleGroundMgr.IsBGWeekend(GetTypeID());
     m_HonorTics = (isBGWeekend) ? BG_AB_ABBGWeekendHonorTicks : BG_AB_NotABBGWeekendHonorTicks;
     m_ReputationTics = (isBGWeekend) ? BG_AB_ABBGWeekendReputationTicks : BG_AB_NotABBGWeekendReputationTicks;
     m_TeamScores500Disadvantage[BG_TEAM_ALLIANCE] = false;

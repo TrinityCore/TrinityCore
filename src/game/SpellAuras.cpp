@@ -333,7 +333,7 @@ pAuraHandler AuraHandler[TOTAL_AURAS]=
     &Aura::HandleNoImmediateEffect,                         //277 SPELL_AURA_MOD_ABILITY_AFFECTED_TARGETS implemented in spell::settargetmap
     &Aura::HandleAuraModDisarm,                             //278 SPELL_AURA_MOD_DISARM_RANGED disarm ranged weapon
     &Aura::HandleAuraInitializeImages,                      //279 SPELL_AURA_INITIALIZE_IMAGES
-    &Aura::HandleNoImmediateEffect,                         //280 SPELL_AURA_MOD_TARGET_ARMOR_PCT       implemented in Unit::CalcArmorReducedDamage
+    &Aura::HandleModTargetArmorPct,                         //280 SPELL_AURA_MOD_TARGET_ARMOR_PCT
     &Aura::HandleNoImmediateEffect,                         //281 SPELL_AURA_MOD_HONOR_GAIN_PCT implemented in Player::RewardHonor
     &Aura::HandleAuraIncreaseBaseHealthPercent,             //282 SPELL_AURA_INCREASE_BASE_HEALTH_PERCENT
     &Aura::HandleNoImmediateEffect,                         //283 SPELL_AURA_MOD_HEALING_RECEIVED       implemented in Unit::SpellHealingBonus
@@ -747,7 +747,7 @@ void AreaAuraEffect::Update(uint32 diff)
                 case AREA_AURA_PET:
                 {
                     if(Unit *owner = caster->GetCharmerOrOwner())
-                        if (owner->IsWithinDistInMap(source, m_radius))
+                        if (caster->IsWithinDistInMap(owner, m_radius))
                             targets.push_back(owner);
                     break;
                 }
@@ -6919,6 +6919,7 @@ void AuraEffect::HandleAuraCloneCaster( bool Apply, bool Real , bool /*changeAmo
 
 void AuraEffect::HandleAuraModCritPct(bool apply, bool Real, bool changeAmount)
 {
+    /*
     if(m_target->GetTypeId() != TYPEID_PLAYER)
     {
         m_target->m_baseSpellCritChance += apply ? m_amount:-m_amount;
@@ -6931,6 +6932,20 @@ void AuraEffect::HandleAuraModCritPct(bool apply, bool Real, bool changeAmount)
     ((Player*)m_target)->HandleBaseModValue(CRIT_PERCENTAGE,         FLAT_MOD, float (m_amount), apply);
     ((Player*)m_target)->HandleBaseModValue(OFFHAND_CRIT_PERCENTAGE, FLAT_MOD, float (m_amount), apply);
     ((Player*)m_target)->HandleBaseModValue(RANGED_CRIT_PERCENTAGE,  FLAT_MOD, float (m_amount), apply);
+    */
+    // spells required only Real aura add/remove
+    if(!Real)
+        return;
+
+    if(m_target->GetTypeId() != TYPEID_PLAYER)
+        return;
+
+    ((Player*)m_target)->HandleBaseModValue(CRIT_PERCENTAGE,         FLAT_MOD, float (m_amount), apply);
+    ((Player*)m_target)->HandleBaseModValue(OFFHAND_CRIT_PERCENTAGE, FLAT_MOD, float (m_amount), apply);
+    ((Player*)m_target)->HandleBaseModValue(RANGED_CRIT_PERCENTAGE,  FLAT_MOD, float (m_amount), apply);
+
+    // included in Player::UpdateSpellCritChance calculation
+    ((Player*)m_target)->UpdateAllSpellCritChances();
 }
 
 void AuraEffect::HandleAuraLinked(bool apply, bool Real, bool /*changeAmount*/)
@@ -6997,5 +7012,13 @@ bool AuraEffect::IsPeriodicTickCrit(Unit const * pCaster) const
             return true;
     }
     return false;
+}
+
+void AuraEffect::HandleModTargetArmorPct(bool apply, bool Real, bool changeAmount)
+{
+    if(m_target->GetTypeId() != TYPEID_PLAYER)
+        return;
+
+    ((Player*)m_target)->UpdateArmorPenetration();
 }
 

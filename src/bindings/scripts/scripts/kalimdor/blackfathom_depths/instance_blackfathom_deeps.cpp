@@ -128,11 +128,36 @@ struct TRINITY_DLL_DECL instance_blackfathom_deeps : public ScriptedInstance
 
         return 0;
     }
+    
+    void CheckFires()
+    {
+        GameObject *pShrine1 = instance->GetGameObject(m_uiShrine1GUID);
+        GameObject *pShrine2 = instance->GetGameObject(m_uiShrine2GUID);
+        GameObject *pShrine3 = instance->GetGameObject(m_uiShrine3GUID);
+        GameObject *pShrine4 = instance->GetGameObject(m_uiShrine4GUID);
+        if (pShrine1 && pShrine1->GetGoState() == GO_STATE_ACTIVE &&
+            pShrine2 && pShrine2->GetGoState() == GO_STATE_ACTIVE &&
+            pShrine3 && pShrine3->GetGoState() == GO_STATE_ACTIVE &&
+            pShrine4 && pShrine4->GetGoState() == GO_STATE_ACTIVE)
+            HandleGameObject(m_uiMainDoorGUID,true);
+    }
 };
 
 InstanceData* GetInstanceData_instance_blackfathom_deeps(Map* pMap)
 {
     return new instance_blackfathom_deeps(pMap);
+}
+
+bool GoHello_fire(Player *pPlayer, GameObject* pGo)
+{
+    ScriptedInstance *pInstance = pGo->GetInstanceData();
+    
+    if (pInstance)
+    {
+        pGo->SetGoState(GO_STATE_ACTIVE);
+        ((instance_blackfathom_deeps*)pInstance)->CheckFires();
+    }
+    return false;
 }
 
 void AddSC_instance_blackfathom_deeps()
@@ -141,5 +166,10 @@ void AddSC_instance_blackfathom_deeps()
     newscript = new Script;
     newscript->Name = "instance_blackfathom_deeps";
     newscript->GetInstanceData = &GetInstanceData_instance_blackfathom_deeps;
+    newscript->RegisterSelf();
+    
+    newscript = new Script;
+    newscript->Name = "go_blackfathom_fire";
+    newscript->pGOHello = &GoHello_fire;
     newscript->RegisterSelf();
 }

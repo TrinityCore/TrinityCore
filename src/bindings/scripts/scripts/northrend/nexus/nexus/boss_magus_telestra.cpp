@@ -49,7 +49,11 @@ enum
     SAY_DEATH                 = -1576002,
     SAY_MERGE                 = -1576003,
     SAY_SPLIT_1               = -1576004,
-    SAY_SPLIT_2               = -1576005
+    SAY_SPLIT_2               = -1576005,
+
+//Achievement
+    ACHIEV_SPLIT_PERSONALITY  = 2150,
+    ACHIEV_TIMER              = 5 * 1000
 };
 
 float CenterOfRoom[1][4] =
@@ -85,6 +89,10 @@ struct TRINITY_DLL_DECL boss_magus_telestraAI : public ScriptedAI
     uint32 SPELL_GRAVITY_WELL_Timer;
     uint32 Cooldown;
 
+    bool AchievementTimerRunning;
+    uint8 AchievementProgress;
+    uint32 AchievementTimer; 
+
     void Reset()
     {
         Phase = 0;
@@ -98,6 +106,10 @@ struct TRINITY_DLL_DECL boss_magus_telestraAI : public ScriptedAI
         FrostMagusGUID = 0;
         ArcaneMagusGUID = 0;
 
+        AchievementProgress = 0;
+        AchievementTimer = 0;
+        AchievementTimerRunning = false;
+        
         AppearDelay = false;
 
         m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
@@ -118,6 +130,21 @@ struct TRINITY_DLL_DECL boss_magus_telestraAI : public ScriptedAI
     void JustDied(Unit* killer)
     {
         DoScriptText(SAY_DEATH, m_creature);
+
+        if (HeroicMode && AchievementProgress == 2)
+        {
+            AchievementEntry const *AchievSplitPersonality = GetAchievementStore()->LookupEntry(ACHIEV_SPLIT_PERSONALITY);
+            if (AchievSplitPersonality)
+            {
+                Map* pMap = m_creature->GetMap();
+                if (pMap && pMap->IsDungeon())
+                {
+                    Map::PlayerList const &players = pMap->GetPlayers();
+                    for(Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
+                        itr->getSource()->CompletedAchievement(AchievSplitPersonality);
+                }
+            }
+        }
 
         if (pInstance)
             pInstance->SetData(DATA_MAGUS_TELESTRA_EVENT, DONE);
@@ -191,13 +218,29 @@ struct TRINITY_DLL_DECL boss_magus_telestraAI : public ScriptedAI
             if (ArcaneMagusGUID)
                 ArcaneMagus = Unit::GetUnit((*m_creature), ArcaneMagusGUID);
             if (FireMagus && FireMagus->isDead())
+            {    
                 FireMagusDead = true;
+                if (!AchievementTimerRunning)
+                    AchievementTimerRunning = true;
+            }
             if (FrostMagus && FrostMagus->isDead())
+            {
                 FrostMagusDead = true;
+                if (!AchievementTimerRunning)
+                    AchievementTimerRunning = true;
+            }
             if (ArcaneMagus && ArcaneMagus->isDead())
+            {
                 ArcaneMagusDead = true;
+                if (!AchievementTimerRunning)
+                    AchievementTimerRunning = true;
+            }
+            if (AchievementTimerRunning)
+                AchievementTimer += diff;
             if (FireMagusDead && FrostMagusDead && ArcaneMagusDead)
             {
+                if (AchievementTimer <= ACHIEV_TIMER)
+                    AchievementProgress +=1;
                 m_creature->GetMotionMaster()->Clear();
                 m_creature->GetMap()->CreatureRelocation(m_creature, CenterOfRoom[0][0], CenterOfRoom[0][1], CenterOfRoom[0][2], CenterOfRoom[0][3]);
                 DoCast(m_creature, SPELL_TELESTRA_BACK);
@@ -212,6 +255,8 @@ struct TRINITY_DLL_DECL boss_magus_telestraAI : public ScriptedAI
                 AppearDelay = true;
                 AppearDelay_Timer = 4000;
                 DoScriptText(SAY_MERGE, m_creature);
+                AchievementTimerRunning = false;
+                AchievementTimer = 0;
             }else
                 return;
         }
@@ -220,6 +265,7 @@ struct TRINITY_DLL_DECL boss_magus_telestraAI : public ScriptedAI
         {
             Phase = 1;
             m_creature->CastStop();
+            m_creature->RemoveAllAuras();
             m_creature->SetVisibility(VISIBILITY_OFF);
             m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             FireMagusGUID = SplitPersonality(MOB_FIRE_MAGUS);
@@ -240,6 +286,7 @@ struct TRINITY_DLL_DECL boss_magus_telestraAI : public ScriptedAI
         {
             Phase = 3;
             m_creature->CastStop();
+            m_creature->RemoveAllAuras();
             m_creature->SetVisibility(VISIBILITY_OFF);
             m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             FireMagusGUID = SplitPersonality(MOB_FIRE_MAGUS);
