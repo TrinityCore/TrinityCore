@@ -488,7 +488,7 @@ inline void CreatureAI::SetGazeOn(Unit *target)
     if(me->canAttack(target))
     {
         AttackStart(target);
-        me->SetReactState(REACT_AGGRESSIVE);
+        me->SetReactState(REACT_PASSIVE);
     }
 }
 
@@ -524,7 +524,6 @@ inline bool CreatureAI::UpdateCombatState()
     else if(me->getThreatManager().isThreatListEmpty())
     {
         EnterEvadeMode();
-        me->SetReactState(REACT_PASSIVE);
         return false;
     }
 
@@ -545,7 +544,6 @@ inline bool CreatureAI::UpdateVictim()
     else if(me->getThreatManager().isThreatListEmpty())
     {
         EnterEvadeMode();
-        me->SetReactState(REACT_PASSIVE);
         return false;
     }
 
@@ -569,17 +567,15 @@ inline bool CreatureAI::_EnterEvadeMode()
         return false;
 
     // sometimes bosses stuck in combat?
+    me->RemoveAllAuras();
     me->DeleteThreatList();
     me->CombatStop(true);
-    me->ResetPlayerDamageReq();
-
-    if(me->IsInEvadeMode())
-        return false;
-
-    me->RemoveAllAuras();
     me->LoadCreaturesAddon();
     me->SetLootRecipient(NULL);
-    me->SetReactState(REACT_AGGRESSIVE);
+    me->ResetPlayerDamageReq();
+    
+    if(me->IsInEvadeMode())
+        return false;
 
     return true;
 }
