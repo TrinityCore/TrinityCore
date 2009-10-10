@@ -1653,7 +1653,7 @@ uint32 Unit::CalcArmorReducedDamage(Unit* pVictim, const uint32 damage, SpellEnt
 
     if ( GetTypeId() == TYPEID_PLAYER )
     {
-        AuraEffectList const& ResIgnoreAuras = GetAurasByType(SPELL_AURA_MOD_ARMOR_PENETRATION_PCT);
+        AuraEffectList const& ResIgnoreAuras = GetAurasByType(SPELL_AURA_MOD_TARGET_ARMOR_PCT);
         for(AuraEffectList::const_iterator itr = ResIgnoreAuras.begin();itr != ResIgnoreAuras.end(); ++itr)
         {
             // item neutral spell
@@ -1694,7 +1694,7 @@ uint32 Unit::CalcArmorReducedDamage(Unit* pVictim, const uint32 damage, SpellEnt
     }
 
     // Ignore enemy armor by SPELL_AURA_MOD_TARGET_ARMOR_PCT
-    //armor *= 1.0f - GetTotalAuraModifier(SPELL_AURA_MOD_ARMOR_PENETRATION_PCT) / 100.0f;
+    armor *= 1.0f - ((Player*)this)->GetArmorPenetrationPct() / 100.0f;
 
     if (armor < 0.0f)
         armor = 0.0f;

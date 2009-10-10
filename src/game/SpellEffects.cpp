@@ -371,7 +371,8 @@ void Spell::SpellDamageSchoolDmg(uint32 effect_idx)
                                     aur->SetStackAmount(count);
                             }
                         }
-                        else if(unitTarget->HasAura(m_triggeredByAuraSpell->Id))
+
+                        if(unitTarget->HasAura(m_triggeredByAuraSpell->Id))
                             damage = 0;
                         break;
                     // Consumption
@@ -409,8 +410,16 @@ void Spell::SpellDamageSchoolDmg(uint32 effect_idx)
                     }
                     // Cataclysmic Bolt
                     case 38441:
+                    {
                         damage = unitTarget->GetMaxHealth() / 2;
                         break;
+                    }
+                    // Tympanic Tantrum
+                    case 62775:
+                    {
+                        damage = unitTarget->GetMaxHealth() / 10;
+                        break;
+                    }
                 }
                 break;
             }

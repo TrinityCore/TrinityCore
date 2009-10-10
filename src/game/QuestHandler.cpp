@@ -354,6 +354,12 @@ void WorldSession::HandleQuestLogRemoveQuest(WorldPacket& recv_data)
             if(!_player->TakeQuestSourceItem( quest, true ))
                 return;                                     // can't un-equip some items, reject quest cancel
 
+            if (const Quest *pQuest = objmgr.GetQuestTemplate(quest))
+            {
+                if (pQuest->HasFlag(QUEST_TRINITY_FLAGS_TIMED))
+                    _player->RemoveTimedQuest(quest);
+            }
+
             _player->TakeQuestSourceItem(quest, true); // remove quest src item from player
             _player->SetQuestStatus( quest, QUEST_STATUS_NONE);
         }

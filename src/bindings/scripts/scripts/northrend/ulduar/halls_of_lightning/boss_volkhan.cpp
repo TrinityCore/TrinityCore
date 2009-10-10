@@ -63,7 +63,9 @@ enum
     NPC_BRITTLE_GOLEM                       = 28681,
 
     POINT_ID_ANVIL                          = 0,
-    MAX_GOLEM                               = 2
+    MAX_GOLEM                               = 2,
+
+    ACHIEVEMENT_SHATTER_RESISTANT            = 2042
 };
 
 /*######
@@ -87,6 +89,7 @@ struct TRINITY_DLL_DECL boss_volkhanAI : public ScriptedAI
     bool m_bIsStriking;
     bool m_bCanShatterGolem;
 
+    uint8 GolemsShattered;
     uint32 m_uiPause_Timer;
     uint32 m_uiShatteringStomp_Timer;
     uint32 m_uiShatter_Timer;
@@ -102,6 +105,7 @@ struct TRINITY_DLL_DECL boss_volkhanAI : public ScriptedAI
         m_uiPause_Timer = 3500;
         m_uiShatteringStomp_Timer = 0;
         m_uiShatter_Timer = 5000;
+        GolemsShattered = 0;
 
         m_uiHealthAmountModifier = 1;
 
@@ -112,7 +116,7 @@ struct TRINITY_DLL_DECL boss_volkhanAI : public ScriptedAI
             m_pInstance->SetData(TYPE_VOLKHAN, NOT_STARTED);
     }
 
-    void Aggro(Unit* pWho)
+    void EnterCombat(Unit* pWho)
     {
         DoScriptText(SAY_AGGRO, m_creature);
 
@@ -140,6 +144,21 @@ struct TRINITY_DLL_DECL boss_volkhanAI : public ScriptedAI
 
         if (m_pInstance)
             m_pInstance->SetData(TYPE_VOLKHAN, DONE);
+
+        if (HeroicMode && GolemsShattered < 5)
+        {
+            AchievementEntry const *AchievShatterResistant = GetAchievementStore()->LookupEntry(ACHIEVEMENT_SHATTER_RESISTANT);
+            if (AchievShatterResistant)
+            {
+                Map* pMap = m_creature->GetMap();
+                if (pMap && pMap->IsDungeon())
+                {
+                    Map::PlayerList const &players = pMap->GetPlayers();
+                    for(Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
+                        itr->getSource()->CompletedAchievement(AchievShatterResistant);
+                }
+            }
+        }
     }
 
     void KilledUnit(Unit* pVictim)
@@ -178,9 +197,12 @@ struct TRINITY_DLL_DECL boss_volkhanAI : public ScriptedAI
         {
             if (Creature* pTemp = Unit::GetCreature(*m_creature, *itr))
             {
-                 // only shatter brittle golems
+                // only shatter brittle golems
                 if (pTemp->isAlive() && pTemp->GetEntry() == NPC_BRITTLE_GOLEM)
+                {
                     pTemp->CastSpell(pTemp, m_bIsHeroic ? SPELL_SHATTER_H : SPELL_SHATTER_N, false);
+                    GolemsShattered += 1;
+                }
             }
         }
     }
@@ -307,11 +329,6 @@ bool EffectDummyCreature_boss_volkhan(Unit* pCaster, uint32 uiSpellId, uint32 ui
         for(uint8 i = 0; i < MAX_GOLEM; ++i)
         {
             pCreatureTarget->CastSpell(pCaster, SPELL_SUMMON_MOLTEN_GOLEM, true);
-
-            //TODO: remove this line of hack when summon effect implemented
-            pCreatureTarget->SummonCreature(NPC_MOLTEN_GOLEM,
-                pCaster->GetPositionX(), pCaster->GetPositionY(), pCaster->GetPositionZ(), 0.0f,
-                TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 10000);
         }
 
         //always return true when we are handling this spell and effect
@@ -399,30 +416,19 @@ struct TRINITY_DLL_DECL mob_molten_golemAI : public ScriptedAI
 
     void DamageTaken(Unit* pDoneBy, uint32 &uiDamage)
     {
-        if (m_bIsFrozen)
-        {
-            //workaround for now, brittled should be immune to any kind of attacks
-            uiDamage = 0;
-            return;
-        }
-
         if (uiDamage > m_creature->GetHealth())
         {
-            m_bIsFrozen = true;
-
-            if (m_creature->IsNonMeleeSpellCasted(false))
-                m_creature->InterruptNonMeleeSpells(false);
-
-            m_creature->RemoveAllAuras();
-            m_creature->AttackStop();
-
-            if (m_creature->GetMotionMaster()->GetCurrentMovementGeneratorType() == TARGETED_MOTION_TYPE)
-                m_creature->GetMotionMaster()->MovementExpired();
-
-            uiDamage = m_creature->GetHealth()-1;
-
             m_creature->UpdateEntry(NPC_BRITTLE_GOLEM);
             m_creature->SetHealth(1);
+            uiDamage = 0;
+            m_creature->RemoveAllAuras();
+            m_creature->AttackStop();
+            m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED);
+            if (m_creature->IsNonMeleeSpellCasted(false))
+                m_creature->InterruptNonMeleeSpells(false);
+            if (m_creature->GetMotionMaster()->GetCurrentMovementGeneratorType() == TARGETED_MOTION_TYPE)
+                m_creature->GetMotionMaster()->MovementExpired();
+            m_bIsFrozen = true;
         }
     }
 

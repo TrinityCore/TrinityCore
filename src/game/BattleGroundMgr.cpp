@@ -42,6 +42,7 @@
 #include "MapInstanced.h"
 #include "MapManager.h"
 #include "Player.h"
+#include "GameEventMgr.h"
 #include "ProgressBar.h"
 #include "SharedDefines.h"
 
@@ -2112,4 +2113,20 @@ void BattleGroundMgr::LoadBattleMastersEntry()
 
     sLog.outString();
     sLog.outString( ">> Loaded %u battlemaster entries", count );
+}
+bool BattleGroundMgr::IsBGWeekend(BattleGroundTypeId bgTypeId)
+{
+    switch (bgTypeId)
+    {
+        case BATTLEGROUND_AV:
+            return IsHolidayActive(HOLIDAY_CALL_TO_ARMS_AV);
+        case BATTLEGROUND_EY:
+            return IsHolidayActive(HOLIDAY_CALL_TO_ARMS_EY);
+        case BATTLEGROUND_WS:
+            return IsHolidayActive(HOLIDAY_CALL_TO_ARMS_WS);
+        case BATTLEGROUND_SA:
+            return IsHolidayActive(HOLIDAY_CALL_TO_ARMS_SA);
+        default:
+            return false;
+    }
 }

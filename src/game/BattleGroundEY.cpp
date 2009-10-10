@@ -21,7 +21,7 @@
 #include "ObjectMgr.h"
 #include "World.h"
 #include "WorldPacket.h"
-
+#include "BattleGroundMgr.h"
 #include "BattleGround.h"
 #include "BattleGroundEY.h"
 #include "Creature.h"
@@ -529,7 +529,7 @@ void BattleGroundEY::Reset()
     m_DroppedFlagGUID = 0;
     m_PointAddingTimer = 0;
     m_TowerCapCheckTimer = 0;
-    bool isBGWeekend = false;           //TODO FIXME - call sBattleGroundMgr.IsBGWeekend(m_TypeID); - you must also implement that call!
+    bool isBGWeekend = sBattleGroundMgr.IsBGWeekend(GetTypeID());
     m_HonorTics = (isBGWeekend) ? BG_EY_EYWeekendHonorTicks : BG_EY_NotEYWeekendHonorTicks;
 
     for(uint8 i = 0; i < EY_POINTS_MAX; ++i)
