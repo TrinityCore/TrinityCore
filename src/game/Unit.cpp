@@ -1691,9 +1691,10 @@ uint32 Unit::CalcArmorReducedDamage(Unit* pVictim, const uint32 damage, SpellEnt
         float armorPen = maxArmorPen*((Player*)this)->GetRatingBonusValue(CR_ARMOR_PENETRATION) / 100.0f;
         // Got the value, apply it
         armor -= armorPen;
-        // Ignore enemy armor by SPELL_AURA_MOD_TARGET_ARMOR_PCT
     }
-
+    // Ignore enemy armor by SPELL_AURA_MOD_TARGET_ARMOR_PCT
+    //armor *= 1.0f - GetTotalAuraModifier(SPELL_AURA_MOD_ARMOR_PENETRATION_PCT) / 100.0f;
+        
     if (armor < 0.0f)
         armor = 0.0f;
 
