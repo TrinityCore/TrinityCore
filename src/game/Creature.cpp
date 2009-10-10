@@ -533,30 +533,41 @@ void Creature::Update(uint32 diff)
             if(!isAlive())
                 break;
 
+            if(m_regenTimer > 0)
+            {
+                if(diff >= m_regenTimer)
+                    m_regenTimer = 0;
+                else
+                    m_regenTimer -= diff;
+            }
+
+            if (m_regenTimer != 0)
+               break;
+
             bool bIsPolymorphed = IsPolymorphed();
             bool bInCombat = isInCombat() && (!getVictim() ||                                        // if isInCombat() is true and this has no victim
                              !getVictim()->GetCharmerOrOwnerPlayerOrPlayerItself() ||                // or the victim/owner/charmer is not a player
                              !getVictim()->GetCharmerOrOwnerPlayerOrPlayerItself()->isGameMaster()); // or the victim/owner/charmer is not a GameMaster
 
-            if(m_regenTimer > diff && !bIsPolymorphed) // if polymorphed, skip the timer
-                m_regenTimer -= diff;
-            else
+            /*if(m_regenTimer <= diff) 
+            {*/
+            if(!bInCombat || bIsPolymorphed) // regenerate health if not in combat or if polymorphed
+                RegenerateHealth();
+
+            if(getPowerType() == POWER_ENERGY)
             {
-                if(!bInCombat || bIsPolymorphed) // regenerate health if not in combat or if polymorphed
-                    RegenerateHealth();
-
-                if(getPowerType() == POWER_ENERGY)
-                {
-                    if(!IsVehicle() || GetVehicleKit()->GetVehicleInfo()->m_powerType != POWER_PYRITE)
-                        Regenerate(POWER_ENERGY);
-                }
-                else
-                    RegenerateMana();
-
-                if(!bIsPolymorphed) // only increase the timer if not polymorphed
-                    m_regenTimer += 2000 - diff;
+                if(!IsVehicle() || GetVehicleKit()->GetVehicleInfo()->m_powerType != POWER_PYRITE)
+                    Regenerate(POWER_ENERGY);
             }
+            else
+                RegenerateMana();
 
+            /*if(!bIsPolymorphed) // only increase the timer if not polymorphed
+                    m_regenTimer += 2000 - diff;
+            }   
+            else
+                if(!bIsPolymorphed) // if polymorphed, skip the timer
+                    m_regenTimer -= diff;*/
             break;
         }
         case DEAD_FALLING:
@@ -2173,31 +2184,38 @@ bool Creature::CanAssistTo(const Unit* u, const Unit* enemy, bool checkfaction /
 
 // use this function to avoid having hostile creatures attack
 // friendlies and other mobs they shouldn't attack
-bool Creature::_IsTargetAcceptable(const Unit* target) const
+bool Creature::_IsTargetAcceptable(const Unit *target) const
 {
-    if(IsFriendlyTo(target)) // friends shouldn't fight friends
-        return false;
+    const Unit *myVictim = getAttackerForHelper();
 
-    const Unit* targetVictim = target->getAttackerForHelper();
-
-    if(!targetVictim) // if target does not have a victim, the target is acceptable
+    // if I'm already fighting target, the target is acceptable
+    if (myVictim == target)
         return true;
 
-    const Player* targetVictimPlayer = targetVictim->GetCharmerOrOwnerPlayerOrPlayerItself();
-
-    if(!targetVictimPlayer) // if the victim is not a player, the target is acceptable
-        return true;
-
-    // if the victim is a non-friendly player, the target is not acceptable
-    if(!IsFriendlyTo(targetVictim))
+    // if I'm not aggressive, the target is not acceptable
+    if (GetReactState() != REACT_AGGRESSIVE)
         return false;
+
+    // if I'm hostile towards the target, the target is acceptable
+    if (IsHostileTo(target))
+        return true;
 
     // if the target is passive, the target is not acceptable
-    if(((Creature*)target)->GetReactState() == REACT_PASSIVE)
+    if (((Creature*)target)->GetReactState() == REACT_PASSIVE)
         return false;
-    
-    // otherwise, the target is acceptable
-    return true;
+
+    const Unit *targetVictim = target->getAttackerForHelper();
+
+    // if the target does not have a victim, the target is not acceptable
+    if (!targetVictim)
+        return false;
+
+    // if the target's victim is friendly, and the target is neutral, the target is acceptable
+    if (IsFriendlyTo(targetVictim) && !IsFriendlyTo(target))
+        return true;
+
+    // if the target's victim is not friendly, or the target is friendly, the target is not acceptable
+    return false;
 }
 
 void Creature::SaveRespawnTime()
