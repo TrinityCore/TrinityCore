@@ -93,7 +93,7 @@ struct TRINITY_DLL_DECL boss_krystallusAI : public ScriptedAI
                 pTarget = SelectUnit(SELECT_TARGET_RANDOM,0);
             if (pTarget)
                 DoCast(pTarget, SPELL_GROUND_SPIKE);
-            uiBoulderTossTimer = 12000 + rand()%5000;
+            uiGroundSpikeTimer = 12000 + rand()%5000;
         } else uiGroundSpikeTimer -= diff;
         
         if (uiStompTimer < diff)
