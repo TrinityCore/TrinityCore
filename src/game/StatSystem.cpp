@@ -151,7 +151,6 @@ bool Player::UpdateAllStats()
     UpdateAllSpellCritChances();
     UpdateDefenseBonusesMod();
     UpdateShieldBlockValue();
-    UpdateArmorPenetration();
     UpdateSpellDamageAndHealingBonus();
     UpdateManaRegen();
     UpdateExpertise(BASE_ATTACK);
@@ -626,13 +625,13 @@ void Player::UpdateSpellCritChance(uint32 school)
     // Store crit value
     SetFloatValue(PLAYER_SPELL_CRIT_PERCENTAGE1 + school, crit);
 }
-/*
+
 void Player::UpdateArmorPenetration(int32 amount)
 {
     // Store Rating Value
     SetUInt32Value(PLAYER_FIELD_COMBAT_RATING_1 + CR_ARMOR_PENETRATION, amount);
 }
-*/
+
 void Player::UpdateMeleeHitChances()
 {
     m_modMeleeHitChance = GetTotalAuraModifier(SPELL_AURA_MOD_HIT_CHANCE);
@@ -685,33 +684,6 @@ void Player::UpdateExpertise(WeaponAttackType attack)
         case BASE_ATTACK: SetUInt32Value(PLAYER_EXPERTISE, expertise);         break;
         case OFF_ATTACK:  SetUInt32Value(PLAYER_OFFHAND_EXPERTISE, expertise); break;
         default: break;
-    }
-}
-
-void Player::UpdateArmorPenetration()
-{
-    m_armorPenetrationPct = GetRatingBonusValue(CR_ARMOR_PENETRATION);
-
-    AuraEffectList const& armorAuras = GetAurasByType(SPELL_AURA_MOD_TARGET_ARMOR_PCT);
-    for(AuraEffectList::const_iterator itr = armorAuras.begin(); itr != armorAuras.end(); ++itr)
-    {
-        // affects all weapons
-        if((*itr)->GetSpellProto()->EquippedItemClass == -1)
-        {
-            m_armorPenetrationPct += (*itr)->GetAmount();
-            continue;
-        }
-
-        // dependent on weapon class
-        for(uint8 i = 0; i < MAX_ATTACK; ++i)
-        {
-            Item *weapon = GetWeaponForAttack(WeaponAttackType(i));
-            if(weapon && weapon->IsFitToSpellRequirements((*itr)->GetSpellProto()))
-            {
-                m_armorPenetrationPct += (*itr)->GetAmount();
-                break;
-            }
-        }
     }
 }
 
