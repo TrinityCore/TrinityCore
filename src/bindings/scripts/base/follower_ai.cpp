@@ -45,38 +45,60 @@ void FollowerAI::AttackStart(Unit* pWho)
     }
 }
 
-void FollowerAI::MoveInLineOfSight(Unit* pWho)
+//This part provides assistance to a player that are attacked by pWho, even if out of normal aggro range
+//It will cause m_creature to attack pWho that are attacking _any_ player (which has been confirmed may happen also on offi)
+//The flag (type_flag) is unconfirmed, but used here for further research and is a good candidate.
+bool FollowerAI::AssistPlayerInCombat(Unit* pWho)
 {
-    if (!m_creature->hasUnitState(UNIT_STAT_STUNNED) && pWho->isTargetableForAttack() &&
-        m_creature->IsHostileTo(pWho) && pWho->isInAccessiblePlaceFor(m_creature))
-    {
-        if (!m_creature->canFly() && m_creature->GetDistanceZ(pWho) > CREATURE_Z_ATTACK_RANGE)
-            return;
+    if (!pWho || !pWho->getVictim())
+        return false;
 
-        //This part provides assistance to a player that are attacked by pWho, even if out of normal aggro range
-        //It will cause m_creature to attack pWho that are attacking _any_ player (which has been confirmed may happen also on offi)
-        //The flag (type_flag) is unconfirmed, but used here for further research and is a good candidate.
-        if (m_creature->hasUnitState(UNIT_STAT_FOLLOW) &&
-            m_creature->GetCreatureInfo()->type_flags & CREATURE_TYPEFLAGS_UNK13 &&
-            pWho->getVictim() &&
-            pWho->getVictim()->GetCharmerOrOwnerPlayerOrPlayerItself() &&
-            m_creature->IsWithinDistInMap(pWho, MAX_PLAYER_DISTANCE) &&
-            m_creature->IsWithinLOSInMap(pWho))
+    //experimental (unknown) flag not present
+    if (!(m_creature->GetCreatureInfo()->type_flags & CREATURE_TYPEFLAGS_UNK13))
+        return false;
+
+    //not a player
+    if (!pWho->getVictim()->GetCharmerOrOwnerPlayerOrPlayerItself())
+        return false;
+
+    //never attack friendly
+    if (m_creature->IsFriendlyTo(pWho))
+        return false;
+
+    //too far away and no free sight?
+    if (m_creature->IsWithinDistInMap(pWho, MAX_PLAYER_DISTANCE) && m_creature->IsWithinLOSInMap(pWho))
+    {
+        //already fighting someone?
+        if (!m_creature->getVictim())
         {
-            if (!m_creature->getVictim())
-            {
-                AttackStart(pWho);
-            }
-            else
-            {
-                pWho->SetInCombatWith(m_creature);
-                m_creature->AddThreat(pWho, 0.0f);
-            }
+            AttackStart(pWho);
+            return true;
         }
         else
         {
-            float attackRadius = m_creature->GetAttackDistance(pWho);
-            if (m_creature->IsWithinDistInMap(pWho, attackRadius) && m_creature->IsWithinLOSInMap(pWho))
+            pWho->SetInCombatWith(m_creature);
+            m_creature->AddThreat(pWho, 0.0f);
+            return true;
+        }
+    }
+
+    return false;
+}
+
+void FollowerAI::MoveInLineOfSight(Unit* pWho)
+{
+    if (!m_creature->hasUnitState(UNIT_STAT_STUNNED) && pWho->isTargetableForAttack() && pWho->isInAccessiblePlaceFor(m_creature))
+    {
+        if (HasFollowState(STATE_FOLLOW_INPROGRESS) && AssistPlayerInCombat(pWho))
+            return;
+
+        if (!m_creature->canFly() && m_creature->GetDistanceZ(pWho) > CREATURE_Z_ATTACK_RANGE)
+            return;
+
+        if (m_creature->IsHostileTo(pWho))
+        {
+            float fAttackRadius = m_creature->GetAttackDistance(pWho);
+            if (m_creature->IsWithinDistInMap(pWho, fAttackRadius) && m_creature->IsWithinLOSInMap(pWho))
             {
                 if (!m_creature->getVictim())
                 {
@@ -162,8 +184,6 @@ void FollowerAI::EnterEvadeMode()
 
 void FollowerAI::UpdateAI(const uint32 uiDiff)
 {
-    Unit* pUnit = m_creature->getVictim();
-
     if (HasFollowState(STATE_FOLLOW_INPROGRESS) && !m_creature->getVictim())
     {
         if (m_uiUpdateFollowTimer < uiDiff)

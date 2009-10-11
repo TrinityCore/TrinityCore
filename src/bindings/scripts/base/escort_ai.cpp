@@ -11,7 +11,6 @@ EndScriptData */
 
 #include "precompiled.h"
 #include "escort_ai.h"
-#include "../system/system.h"
 
 enum
 {
@@ -20,14 +19,12 @@ enum
 };
 
 npc_escortAI::npc_escortAI(Creature* pCreature) : ScriptedAI(pCreature),
-    IsBeingEscorted(false),
-    IsOnHold(false),
     m_uiPlayerGUID(0),
     MaxPlayerDistance(DEFAULT_MAX_PLAYER_DISTANCE),
     CanMelee(true),
     m_uiPlayerCheckTimer(1000),
     m_uiWPWaitTimer(2500),
-    m_bIsReturning(false),
+    m_uiEscortState(STATE_ESCORT_NONE),
     m_bIsActiveAttacker(true),
     m_bIsRunning(false),
     DespawnAtEnd(true),
@@ -53,17 +50,77 @@ void npc_escortAI::AttackStart(Unit* pWho)
     }
 }
 
+//see followerAI
+bool npc_escortAI::AssistPlayerInCombat(Unit* pWho)
+{
+    if (!pWho || !pWho->getVictim())
+        return false;
+
+    //experimental (unknown) flag not present
+    if (!(m_creature->GetCreatureInfo()->type_flags & CREATURE_TYPEFLAGS_UNK13))
+        return false;
+
+    //not a player
+    if (!pWho->getVictim()->GetCharmerOrOwnerPlayerOrPlayerItself())
+        return false;
+
+    //never attack friendly
+    if (m_creature->IsFriendlyTo(pWho))
+        return false;
+
+    //too far away and no free sight?
+    if (m_creature->IsWithinDistInMap(pWho, GetMaxPlayerDistance()) && m_creature->IsWithinLOSInMap(pWho))
+    {
+        //already fighting someone?
+        if (!m_creature->getVictim())
+        {
+            AttackStart(pWho);
+            return true;
+        }
+        else
+        {
+            pWho->SetInCombatWith(m_creature);
+            m_creature->AddThreat(pWho, 0.0f);
+            return true;
+        }
+    }
+
+    return false;
+}
+
 void npc_escortAI::MoveInLineOfSight(Unit* pWho)
 {
-    if (IsBeingEscorted && !m_bIsActiveAttacker)
-        return;
+    if (!m_creature->hasUnitState(UNIT_STAT_STUNNED) && pWho->isTargetableForAttack() && pWho->isInAccessiblePlaceFor(m_creature))
+    {
+        if (HasEscortState(STATE_ESCORT_ESCORTING) && AssistPlayerInCombat(pWho))
+            return;
 
-    ScriptedAI::MoveInLineOfSight(pWho);    
+        if (!m_creature->canFly() && m_creature->GetDistanceZ(pWho) > CREATURE_Z_ATTACK_RANGE)
+            return;
+
+        if (m_creature->IsHostileTo(pWho))
+        {
+            float fAttackRadius = m_creature->GetAttackDistance(pWho);
+            if (m_creature->IsWithinDistInMap(pWho, fAttackRadius) && m_creature->IsWithinLOSInMap(pWho))
+            {
+                if (!m_creature->getVictim())
+                {
+                    pWho->RemoveAurasDueToSpell(SPELL_AURA_MOD_STEALTH);
+                    AttackStart(pWho);
+                }
+                else if (m_creature->GetMap()->IsDungeon())
+                {
+                    pWho->SetInCombatWith(m_creature);
+                    m_creature->AddThreat(pWho, 0.0f);
+                }
+            }
+        }
+    }
 }
 
 void npc_escortAI::JustDied(Unit* pKiller)
 {
-    if (!IsBeingEscorted || !m_uiPlayerGUID || !m_pQuestForEscort)
+    if (!HasEscortState(STATE_ESCORT_ESCORTING) || !m_uiPlayerGUID || !m_pQuestForEscort)
         return;
 
     if (Player* pPlayer = GetPlayerForEscort())
@@ -74,8 +131,8 @@ void npc_escortAI::JustDied(Unit* pKiller)
             {
                 if (Player* pMember = pRef->getSource())
                 {
-                    if (pPlayer->GetQuestStatus(m_pQuestForEscort->GetQuestId()) == QUEST_STATUS_INCOMPLETE)
-                        pPlayer->FailQuest(m_pQuestForEscort->GetQuestId());
+                    if (pMember->GetQuestStatus(m_pQuestForEscort->GetQuestId()) == QUEST_STATUS_INCOMPLETE)
+                        pMember->FailQuest(m_pQuestForEscort->GetQuestId());
                 }
             }
         }
@@ -89,8 +146,7 @@ void npc_escortAI::JustDied(Unit* pKiller)
 
 void npc_escortAI::JustRespawned()
 {
-    IsBeingEscorted = false;
-    IsOnHold = false;
+    m_uiEscortState = STATE_ESCORT_NONE;
 
     if (!IsCombatMovement())
         SetCombatMovement(true);
@@ -118,9 +174,9 @@ void npc_escortAI::EnterEvadeMode()
     m_creature->CombatStop(true);
     m_creature->SetLootRecipient(NULL);
 
-    if (IsBeingEscorted)
+    if (HasEscortState(STATE_ESCORT_ESCORTING))
     {
-        m_bIsReturning = true;
+        AddEscortState(STATE_ESCORT_RETURNING);
         ReturnToLastPoint();
         debug_log("TSCR: EscortAI has left combat and is now returning to last point");
     }
@@ -159,7 +215,7 @@ bool npc_escortAI::IsPlayerOrGroupInRange()
 void npc_escortAI::UpdateAI(const uint32 uiDiff)
 {
     //Waypoint Updating
-    if (IsBeingEscorted && !m_creature->getVictim() && m_uiWPWaitTimer && !m_bIsReturning)
+    if (HasEscortState(STATE_ESCORT_ESCORTING) && !m_creature->getVictim() && m_uiWPWaitTimer && !HasEscortState(STATE_ESCORT_RETURNING))
     {
         if (m_uiWPWaitTimer <= uiDiff)
         {
@@ -201,7 +257,7 @@ void npc_escortAI::UpdateAI(const uint32 uiDiff)
                 }
             }
 
-            if (!IsOnHold)
+            if (!HasEscortState(STATE_ESCORT_PAUSED))
             {
                 m_creature->GetMotionMaster()->MovePoint(CurrentWP->id, CurrentWP->x, CurrentWP->y, CurrentWP->z);
                 debug_log("TSCR: EscortAI start waypoint %u (%f, %f, %f).", CurrentWP->id, CurrentWP->x, CurrentWP->y, CurrentWP->z);
@@ -216,7 +272,7 @@ void npc_escortAI::UpdateAI(const uint32 uiDiff)
     }
 
     //Check if player or any member of his group is within range
-    if (IsBeingEscorted && m_uiPlayerGUID && !m_creature->getVictim() && !m_bIsReturning)
+    if (HasEscortState(STATE_ESCORT_ESCORTING) && m_uiPlayerGUID && !m_creature->getVictim() && !HasEscortState(STATE_ESCORT_RETURNING))
     {
         if (m_uiPlayerCheckTimer < uiDiff)
         {
@@ -252,7 +308,7 @@ void npc_escortAI::UpdateEscortAI(const uint32 uiDiff)
 
 void npc_escortAI::MovementInform(uint32 uiMoveType, uint32 uiPointId)
 {
-    if (uiMoveType != POINT_MOTION_TYPE || !IsBeingEscorted)
+    if (uiMoveType != POINT_MOTION_TYPE || !HasEscortState(STATE_ESCORT_ESCORTING))
         return;
 
     //Combat start position reached, continue waypoint movement
@@ -265,7 +321,7 @@ void npc_escortAI::MovementInform(uint32 uiMoveType, uint32 uiPointId)
         else if (!m_bIsRunning && !m_creature->HasUnitMovementFlag(MOVEMENTFLAG_WALK_MODE))
             m_creature->AddUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
 
-        m_bIsReturning = false;
+        RemoveEscortState(STATE_ESCORT_RETURNING);
 
         if (!m_uiWPWaitTimer)
             m_uiWPWaitTimer = 1;
@@ -282,11 +338,11 @@ void npc_escortAI::MovementInform(uint32 uiMoveType, uint32 uiPointId)
         //Make sure that we are still on the right waypoint
         if (CurrentWP->id != uiPointId)
         {
-            debug_log("TSCR ERROR: EscortAI reached waypoint out of order %d, expected %d", uiPointId, CurrentWP->id);
+            error_log("TSCR ERROR: EscortAI reached waypoint out of order %u, expected %u", uiPointId, CurrentWP->id);
             return;
         }
 
-        debug_log("TSCR: EscortAI Waypoint %d reached", CurrentWP->id);
+        debug_log("TSCR: EscortAI Waypoint %u reached", CurrentWP->id);
 
         //Call WP function
         WaypointReached(CurrentWP->id);
@@ -302,7 +358,7 @@ void npc_escortAI::OnPossess(bool apply)
 {
     // We got possessed in the middle of being escorted, store the point
     // where we left off to come back to when possess is removed
-    if (IsBeingEscorted)
+    if (HasEscortState(STATE_ESCORT_ESCORTING))
     {
         if (apply)
             m_creature->GetPosition(LastPos.x, LastPos.y, LastPos.z);
@@ -374,13 +430,13 @@ void npc_escortAI::Start(bool bIsActiveAttacker, bool bRun, uint64 uiPlayerGUID,
 {
     if (m_creature->getVictim())
     {
-        debug_log("TSCR ERROR: EscortAI attempt to Start while in combat");
+        error_log("TSCR ERROR: EscortAI attempt to Start while in combat.");
         return;
     }
 
-    if (IsBeingEscorted)
+    if (HasEscortState(STATE_ESCORT_ESCORTING))
     {
-        error_log("TSCR: EscortAI attempt to Start while already escorting");
+        error_log("TSCR: EscortAI attempt to Start while already escorting.");
         return;
     }
 
@@ -396,7 +452,7 @@ void npc_escortAI::Start(bool bIsActiveAttacker, bool bRun, uint64 uiPlayerGUID,
 
     if (WaypointList.empty())
     {
-        error_db_log("TSCR: EscortAI Start with 0 waypoints (possible missing entry in script_waypoint)");
+        error_db_log("TSCR: EscortAI Start with 0 waypoints (possible missing entry in script_waypoint).");
         return;
     }
 
@@ -423,7 +479,7 @@ void npc_escortAI::Start(bool bIsActiveAttacker, bool bRun, uint64 uiPlayerGUID,
     //disable npcflags
     m_creature->SetUInt32Value(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_NONE);
 
-    debug_log("TSCR: EscortAI started with %d waypoints. ActiveAttacker = %d, Run = %d, PlayerGUID = %d", WaypointList.size(), m_bIsActiveAttacker, m_bIsRunning, m_uiPlayerGUID);
+    debug_log("TSCR: EscortAI started with %u waypoints. ActiveAttacker = %d, Run = %d, PlayerGUID = %u", WaypointList.size(), m_bIsActiveAttacker, m_bIsRunning, m_uiPlayerGUID);
 
     CurrentWP = WaypointList.begin();
 
@@ -433,5 +489,16 @@ void npc_escortAI::Start(bool bIsActiveAttacker, bool bRun, uint64 uiPlayerGUID,
     else
         m_creature->AddUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
 
-    IsBeingEscorted = true;
+    AddEscortState(STATE_ESCORT_ESCORTING);
+}
+
+void npc_escortAI::SetEscortPaused(bool bPaused)
+{
+    if (!HasEscortState(STATE_ESCORT_ESCORTING))
+        return;
+
+    if (bPaused)
+        AddEscortState(STATE_ESCORT_PAUSED);
+    else
+        RemoveEscortState(STATE_ESCORT_PAUSED);
 }

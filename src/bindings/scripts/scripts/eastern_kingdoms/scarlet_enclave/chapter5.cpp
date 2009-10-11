@@ -332,7 +332,7 @@ struct TRINITY_DLL_DECL npc_highlord_darion_mograineAI : public npc_escortAI
 
     void Reset()
     {
-        if (!IsBeingEscorted)
+        if (!HasEscortState(STATE_ESCORT_ESCORTING))
         {
             bIsBattle = false;
             uiStep = 0;
@@ -458,7 +458,7 @@ struct TRINITY_DLL_DECL npc_highlord_darion_mograineAI : public npc_escortAI
 
     void SetHoldState(bool bOnHold)
     {
-        IsOnHold = bOnHold;
+        SetEscortPaused(bOnHold);
     }
 
     void WaypointReached(uint32 i)

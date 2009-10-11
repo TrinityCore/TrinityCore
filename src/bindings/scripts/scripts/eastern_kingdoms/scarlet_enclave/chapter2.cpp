@@ -179,7 +179,7 @@ struct TRINITY_DLL_DECL npc_koltira_deathweaverAI : public npc_escortAI
 
     void Reset()
     {
-        if (!IsBeingEscorted)
+        if (!HasEscortState(STATE_ESCORT_ESCORTING))
         {
             m_uiWave = 0;
             m_uiWave_Timer = 3000;
@@ -208,7 +208,7 @@ struct TRINITY_DLL_DECL npc_koltira_deathweaverAI : public npc_escortAI
                 me->LoadEquipment(me->GetEquipmentId());
                 break;
             case 3:
-                IsOnHold = true;
+                SetEscortPaused(true);
                 me->SetStandState(UNIT_STAND_STATE_KNEEL);
                 DoScriptText(SAY_BREAKOUT2, me);
                 DoCast(me, SPELL_ANTI_MAGIC_ZONE);  // cast again that makes bubble up
@@ -249,7 +249,7 @@ struct TRINITY_DLL_DECL npc_koltira_deathweaverAI : public npc_escortAI
     {
         npc_escortAI::UpdateAI(uiDiff);
 
-        if (IsOnHold)
+        if (HasEscortState(STATE_ESCORT_PAUSED))
         {
             if (m_uiWave_Timer < uiDiff)
             {
@@ -299,7 +299,7 @@ struct TRINITY_DLL_DECL npc_koltira_deathweaverAI : public npc_escortAI
                         break;
                     case 6:
                         DoScriptText(SAY_BREAKOUT10, me);
-                        IsOnHold = false;
+                        SetEscortPaused(false);
                         break;
                 }
 
