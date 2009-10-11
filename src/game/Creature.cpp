@@ -2192,17 +2192,9 @@ bool Creature::_IsTargetAcceptable(const Unit *target) const
     if (myVictim == target)
         return true;
 
-    // if I'm not aggressive, the target is not acceptable
-    if (((Creature*)this)->GetReactState() != REACT_AGGRESSIVE)
-        return false;
-
     // if I'm hostile towards the target, the target is acceptable
     if (IsHostileTo(target))
         return true;
-
-    // if the target is passive, the target is not acceptable
-    if (((Creature*)target)->GetReactState() == REACT_PASSIVE)
-        return false;
 
     const Unit *targetVictim = target->getAttackerForHelper();
 
