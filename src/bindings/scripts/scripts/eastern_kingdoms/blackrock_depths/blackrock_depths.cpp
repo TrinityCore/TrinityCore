@@ -715,7 +715,7 @@ struct TRINITY_DLL_DECL npc_marshal_windsorAI : public npc_escortAI
     {
         if (pInstance->GetData(DATA_QUEST_JAIL_BREAK) == ENCOUNTER_STATE_NOT_STARTED) return;
         if (pInstance->GetData(DATA_DUGHAL) == ENCOUNTER_STATE_OBJECTIVE_COMPLETED)
-            IsOnHold = false;
+            SetEscortPaused(false);
         if (!pInstance->GetData(DATA_GATE_D) && pInstance->GetData(DATA_DUGHAL) == ENCOUNTER_STATE_NOT_STARTED)
             {
             m_creature->Say(SAY_WINDSOR_4_2, LANG_UNIVERSAL, PlayerGUID);
@@ -873,7 +873,7 @@ struct TRINITY_DLL_DECL npc_marshal_reginald_windsorAI : public npc_escortAI
 
     void MoveInLineOfSight(Unit *who)
     {
-        if (IsBeingEscorted)
+        if (HasEscortState(STATE_ESCORT_ESCORTING))
             return;
 
         if (who->GetTypeId() == TYPEID_PLAYER)
@@ -883,7 +883,7 @@ struct TRINITY_DLL_DECL npc_marshal_reginald_windsorAI : public npc_escortAI
                 float Radius = 10.0;
                 if (m_creature->IsWithinDistInMap(who, Radius))
                 {
-                    IsOnHold = false;
+                    SetEscortPaused(false);
                     Start(true, false, who->GetGUID());
                 }
             }
@@ -918,7 +918,7 @@ struct TRINITY_DLL_DECL npc_marshal_reginald_windsorAI : public npc_escortAI
                 }
             if (pInstance->GetData(DATA_CREATURE_JAZ) && pInstance->GetData(DATA_CREATURE_OGRABISI) && pInstance->GetData(DATA_JAZ) == ENCOUNTER_STATE_IN_PROGRESS)
                 {
-                    IsOnHold = false;
+                    SetEscortPaused(false);
                     pInstance->SetData(DATA_JAZ,ENCOUNTER_STATE_ENDED);
                 }
             }
@@ -932,7 +932,7 @@ struct TRINITY_DLL_DECL npc_marshal_reginald_windsorAI : public npc_escortAI
             if (pInstance->GetData(DATA_CREATURE_SHILL) && pInstance->GetData(DATA_SHILL) == ENCOUNTER_STATE_IN_PROGRESS)
                 {
                     pInstance->SetData(DATA_SHILL,ENCOUNTER_STATE_ENDED);
-                    IsOnHold = false;
+                    SetEscortPaused(false);
                 }
             }
         else if (wp==20)
@@ -945,11 +945,11 @@ struct TRINITY_DLL_DECL npc_marshal_reginald_windsorAI : public npc_escortAI
                 }
             if (pInstance->GetData(DATA_CREATURE_CREST) && pInstance->GetData(DATA_CREST) == ENCOUNTER_STATE_IN_PROGRESS)
                 {
-                    IsOnHold = false;
+                    SetEscortPaused(false);
                     pInstance->SetData(DATA_CREST,ENCOUNTER_STATE_ENDED);
                 }
             }
-        if (pInstance->GetData(DATA_TOBIAS)==ENCOUNTER_STATE_OBJECTIVE_COMPLETED) IsOnHold = false;
+        if (pInstance->GetData(DATA_TOBIAS)==ENCOUNTER_STATE_OBJECTIVE_COMPLETED) SetEscortPaused(false);
         npc_escortAI::UpdateAI(diff);
     }
 };
@@ -1113,7 +1113,7 @@ struct TRINITY_DLL_DECL npc_rocknotAI : public npc_escortAI
 
     void Reset()
     {
-        if (IsBeingEscorted)
+        if (HasEscortState(STATE_ESCORT_ESCORTING))
             return;
 
         BreakKeg_Timer = 0;

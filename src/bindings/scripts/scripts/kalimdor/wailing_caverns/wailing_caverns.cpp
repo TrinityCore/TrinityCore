@@ -148,22 +148,6 @@ struct TRINITY_DLL_DECL npc_disciple_of_naralexAI : public npc_escortAI
          summoned->AI()->AttackStart(m_creature);
     }
 
-    void EnterEvadeMode()
-    {
-        m_creature->RemoveAllAuras();
-        m_creature->DeleteThreatList();
-        m_creature->CombatStop(false);//do not interrupt channeling
-        m_creature->SetLootRecipient(NULL);
-        if (GetIsBeingEscorted())
-        {
-            SetReturning(true);
-            ReturnToLastPoint();
-            debug_log("TSCR: EscortAI (EnterEvadeMode() Override) has left combat and is now returning to last point");
-        }
-        else
-            m_creature->GetMotionMaster()->MoveTargetedHome();
-    }
-
     void UpdateAI(const uint32 diff)
     {
         if (currentEvent != TYPE_NARALEX_PART3)

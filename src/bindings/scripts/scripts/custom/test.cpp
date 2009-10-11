@@ -87,7 +87,7 @@ struct TRINITY_DLL_DECL npc_testAI : public npc_escortAI
 
         void Aggro(Unit*)
         {
-            if (IsBeingEscorted)
+            if (HasEscortState(STATE_ESCORT_ESCORTING))
                 m_creature->Say(SAY_AGGRO1, LANG_UNIVERSAL, PlayerGUID);
             else m_creature->Say(SAY_AGGRO2, LANG_UNIVERSAL, 0);
         }
@@ -100,7 +100,7 @@ struct TRINITY_DLL_DECL npc_testAI : public npc_escortAI
 
         void JustDied(Unit* killer)
         {
-            if (IsBeingEscorted)
+            if (HasEscortState(STATE_ESCORT_ESCORTING))
             {
                 //killer = m_creature when player got to far from creature
                 if (killer == m_creature)
@@ -132,7 +132,7 @@ struct TRINITY_DLL_DECL npc_testAI : public npc_escortAI
             }else
             {
                 //Out of combat but being escorted
-                if (IsBeingEscorted)
+                if (HasEscortState(STATE_ESCORT_ESCORTING))
                     if (ChatTimer < diff)
                 {
                     if (m_creature->HasAura(3593, 0))

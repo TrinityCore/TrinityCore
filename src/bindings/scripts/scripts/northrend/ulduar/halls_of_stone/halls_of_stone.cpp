@@ -252,7 +252,7 @@ struct TRINITY_DLL_DECL npc_brann_hosAI : public npc_escortAI
 
     void Reset()
     {
-        if (!IsBeingEscorted)
+        if (!HasEscortState(STATE_ESCORT_ESCORTING))
         {
             bIsLowHP = false;
             bIsBattle = false;
@@ -295,7 +295,7 @@ struct TRINITY_DLL_DECL npc_brann_hosAI : public npc_escortAI
                 break;
             case 13:
                 DoScriptText(SAY_EVENT_INTRO_1, m_creature);
-                IsOnHold = true;
+                SetEscortPaused(true);
                 SetRun(true);
                 JumpToNextStep(20000);
                 break;
@@ -304,11 +304,11 @@ struct TRINITY_DLL_DECL npc_brann_hosAI : public npc_escortAI
                 if (pInstance)
                     pInstance->HandleGameObject(pInstance->GetData64(DATA_GO_TRIBUNAL_CONSOLE),true);
                 m_creature->SetStandState(UNIT_STAND_STATE_KNEEL);
-                IsOnHold = true;
+                SetEscortPaused(true);
                 JumpToNextStep(8500);
                 break;
             case 18:
-                IsOnHold = true;
+                SetEscortPaused(true);
                 break;
         }
      }
@@ -351,7 +351,7 @@ struct TRINITY_DLL_DECL npc_brann_hosAI : public npc_escortAI
     void StartWP()
     {
         m_creature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-        IsOnHold = false;
+        SetEscortPaused(false);
         uiStep = 1;
     }
 
@@ -373,7 +373,7 @@ struct TRINITY_DLL_DECL npc_brann_hosAI : public npc_escortAI
                     JumpToNextStep(0);
                     break;
                 case 3:
-                    IsOnHold = false;
+                    SetEscortPaused(false);
                     JumpToNextStep(0);
                     break;
                 case 5:
@@ -507,7 +507,7 @@ struct TRINITY_DLL_DECL npc_brann_hosAI : public npc_escortAI
                     if (Creature* pTemp = Unit::GetCreature(*m_creature, uiControllerGUID))
                         pTemp->DealDamage(pTemp, pTemp->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
                     bIsBattle = true;
-                    IsOnHold = false;
+                    SetEscortPaused(false);
                     JumpToNextStep(6500);
                     break;
                 case 29:
@@ -629,7 +629,7 @@ struct TRINITY_DLL_DECL npc_brann_hosAI : public npc_escortAI
                     break;
                 }
                 case 50:
-                    IsOnHold = false;
+                    SetEscortPaused(false);
                     break;
             }
         } else uiPhaseTimer -= uiDiff;
