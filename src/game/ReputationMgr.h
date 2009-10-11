@@ -33,6 +33,7 @@ static uint32 ReputationRankStrIndex[MAX_REPUTATION_RANK] =
 
 enum FactionFlags
 {
+    FACTION_FLAG_NONE               = 0x00,                 // no faction flag
     FACTION_FLAG_VISIBLE            = 0x01,                 // makes visible in client (set or can be set at interaction with target of this faction)
     FACTION_FLAG_AT_WAR             = 0x02,                 // enable AtWar-button in client. player controlled (except opposition team always war state), Flag only set on initial creation
     FACTION_FLAG_HIDDEN             = 0x04,                 // hidden faction from reputation pane in client (player can gain reputation, but this update not sent to client)
@@ -48,14 +49,12 @@ struct FactionState
 {
     uint32 ID;
     RepListID ReputationListID;
-    uint32 Flags;
+    uint8 Flags;
     int32  Standing;
     bool Changed;
 };
 
 typedef std::map<RepListID,FactionState> FactionStateList;
-typedef std::pair<FactionStateList::const_iterator,FactionStateList::const_iterator> FactionStateListPair;
-
 typedef std::map<uint32,ReputationRank> ForcedReactions;
 
 class Player;
@@ -133,7 +132,7 @@ class ReputationMgr
 
     private:                                                // internal helper functions
         void Initialize();
-        uint32 GetDefaultStateFlags(const FactionEntry *factionEntry) const;
+        uint32 GetDefaultStateFlags(FactionEntry const* factionEntry) const;
         bool SetReputation(FactionEntry const* factionEntry, int32 standing, bool incremental);
         bool SetOneFactionReputation(FactionEntry const* factionEntry, int32 standing, bool incremental);
         void SetVisible(FactionState* faction);
