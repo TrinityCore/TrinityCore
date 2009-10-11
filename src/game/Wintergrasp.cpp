@@ -851,6 +851,9 @@ void OPvPWintergrasp::UpdateClock()
 
 bool OPvPWintergrasp::Update(uint32 diff)
 {
+    if(!sWorld.getConfig(CONFIG_OUTDOORPVP_WINTERGRASP_ENABLED))
+        return false;
+
     if (m_timer > diff)
     {
         m_timer -= diff;
