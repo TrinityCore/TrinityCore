@@ -357,7 +357,9 @@ void ReputationMgr::SetVisible(FactionTemplateEntry const*factionTemplateEntry)
         return;
 
     if(FactionEntry const *factionEntry = sFactionStore.LookupEntry(factionTemplateEntry->faction))
-        SetVisible(factionEntry);
+        // Never show factions of the opposing team
+        if(!(factionEntry->BaseRepRaceMask[1] & m_player->getRaceMask() && factionEntry->BaseRepValue[1] == Reputation_Bottom) )
+            SetVisible(factionEntry);
 }
 
 void ReputationMgr::SetVisible(FactionEntry const *factionEntry)
@@ -376,10 +378,7 @@ void ReputationMgr::SetVisible(FactionState* faction)
 {
     // always invisible or hidden faction can't be make visible
     // except if faction has FACTION_FLAG_SPECIAL
-    if(faction->Flags & FACTION_FLAG_INVISIBLE_FORCED && !(faction->Flags & FACTION_FLAG_SPECIAL) )
-        return;
-    
-    if(faction->Flags & FACTION_FLAG_HIDDEN)
+    if(faction->Flags & (FACTION_FLAG_INVISIBLE_FORCED|FACTION_FLAG_HIDDEN) && !(faction->Flags & FACTION_FLAG_SPECIAL) )
         return;
 
     // already set
