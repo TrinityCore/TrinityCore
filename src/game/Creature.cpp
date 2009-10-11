@@ -2193,7 +2193,7 @@ bool Creature::_IsTargetAcceptable(const Unit *target) const
         return true;
 
     // if I'm not aggressive, the target is not acceptable
-    if (GetReactState() != REACT_AGGRESSIVE)
+    if (((Creature*)this)->GetReactState() != REACT_AGGRESSIVE)
         return false;
 
     // if I'm hostile towards the target, the target is acceptable
