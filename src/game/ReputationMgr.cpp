@@ -112,9 +112,12 @@ uint32 ReputationMgr::GetDefaultStateFlags(FactionEntry const* factionEntry) con
     uint32 classMask = m_player->getClassMask();
     for (int i=0; i < 4; i++)
     {
-        if( (factionEntry->BaseRepRaceMask[i] & raceMask) &&
-            (factionEntry->BaseRepClassMask[i]==0 ||
-            (factionEntry->BaseRepClassMask[i] & classMask) ) )
+        if( (factionEntry->BaseRepRaceMask[i] & raceMask  ||
+            (factionEntry->BaseRepRaceMask[i] == 0  &&
+             factionEntry->BaseRepClassMask[i] != 0 ) ) &&
+            (factionEntry->BaseRepClassMask[i] & classMask ||
+             factionEntry->BaseRepClassMask[i] == 0 )
+            )
             return factionEntry->ReputationFlags[i];
     }
     return 0;
@@ -199,7 +202,7 @@ void ReputationMgr::SendVisible(FactionState const* faction) const
     m_player->SendDirectMessage(&data);
 }
 
-void ReputationMgr::Initilize()
+void ReputationMgr::Initialize()
 {
     m_factions.clear();
     m_visibleFactionCount = 0;
@@ -372,7 +375,11 @@ void ReputationMgr::SetVisible(FactionEntry const *factionEntry)
 void ReputationMgr::SetVisible(FactionState* faction)
 {
     // always invisible or hidden faction can't be make visible
-    if(faction->Flags & (FACTION_FLAG_INVISIBLE_FORCED|FACTION_FLAG_HIDDEN))
+    // except if faction has FACTION_FLAG_SPECIAL
+    if(faction->Flags & FACTION_FLAG_INVISIBLE_FORCED && !(faction->Flags & FACTION_FLAG_SPECIAL) )
+        return;
+    
+    if(faction->Flags & FACTION_FLAG_HIDDEN)
         return;
 
     // already set
@@ -448,7 +455,7 @@ void ReputationMgr::SetInactive(FactionState* faction, bool inactive)
 void ReputationMgr::LoadFromDB(QueryResult *result)
 {
     // Set initial reputations (so everything is nifty before DB data load)
-    Initilize();
+    Initialize();
 
     //QueryResult *result = CharacterDatabase.PQuery("SELECT faction,standing,flags FROM character_reputation WHERE guid = '%u'",GetGUIDLow());
 
