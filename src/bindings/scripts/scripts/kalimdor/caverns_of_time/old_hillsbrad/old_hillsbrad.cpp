@@ -244,7 +244,7 @@ struct TRINITY_DLL_DECL npc_thrall_old_hillsbradAI : public npc_escortAI
                 //temporary,skarloc should rather be triggered to walk up to thrall
                 break;
             case 30:
-                IsOnHold = true;
+                SetEscortPaused(true);
                 m_creature->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                 SetRun(false);
                 break;
@@ -268,7 +268,7 @@ struct TRINITY_DLL_DECL npc_thrall_old_hillsbradAI : public npc_escortAI
             case 60:
                 m_creature->HandleEmoteCommand(EMOTE_ONESHOT_EXCLAMATION);
                 //make horsie run off
-                IsOnHold = true;
+                SetEscortPaused(true);
                 m_creature->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                 pInstance->SetData(TYPE_THRALL_PART2, DONE);
                 SetRun();
@@ -318,7 +318,7 @@ struct TRINITY_DLL_DECL npc_thrall_old_hillsbradAI : public npc_escortAI
             case 95:
                 DoScriptText(SAY_TH_MEET_TARETHA, m_creature);
                 pInstance->SetData(TYPE_THRALL_PART3,DONE);
-                IsOnHold = true;
+                SetEscortPaused(true);
                 break;
             case 96:
                 DoScriptText(SAY_TH_EPOCH_WONDER, m_creature);
@@ -372,7 +372,7 @@ struct TRINITY_DLL_DECL npc_thrall_old_hillsbradAI : public npc_escortAI
         if (HadMount)
             DoMount();
 
-        if (!IsBeingEscorted)
+        if (!HasEscortState(STATE_ESCORT_ESCORTING))
         {
             DoUnmount();
             HadMount = false;
@@ -380,7 +380,7 @@ struct TRINITY_DLL_DECL npc_thrall_old_hillsbradAI : public npc_escortAI
             m_creature->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID+1, 0);
             m_creature->SetDisplayId(THRALL_MODEL_UNEQUIPPED);
         }
-        if (IsBeingEscorted)
+        if (HasEscortState(STATE_ESCORT_ESCORTING))
         {
             switch(rand()%3)
             {
@@ -393,7 +393,7 @@ struct TRINITY_DLL_DECL npc_thrall_old_hillsbradAI : public npc_escortAI
     void StartWP()
     {
         m_creature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-        IsOnHold = false;
+        SetEscortPaused(false);
     }
     void DoMount()
     {

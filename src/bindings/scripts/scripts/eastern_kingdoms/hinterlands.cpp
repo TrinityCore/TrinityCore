@@ -206,7 +206,7 @@ struct TRINITY_DLL_DECL npc_rinjiAI : public npc_escortAI
 
     void EnterCombat(Unit* pWho)
     {
-        if (IsBeingEscorted)
+        if (HasEscortState(STATE_ESCORT_ESCORTING))
         {
             if (pWho->GetEntry() == NPC_OUTRUNNER && !m_bIsByOutrunner)
             {
@@ -281,7 +281,7 @@ struct TRINITY_DLL_DECL npc_rinjiAI : public npc_escortAI
         //Check if we have a current target
         if (!UpdateVictim())
         {
-            if (IsBeingEscorted && m_uiPostEventCount)
+            if (HasEscortState(STATE_ESCORT_ESCORTING) && m_uiPostEventCount)
             {
                 if (m_uiPostEventTimer < uiDiff)
                 {

@@ -51,7 +51,7 @@ struct TRINITY_DLL_DECL npc_tapoke_slim_jahnAI : public npc_escortAI
 
     void Reset()
     {
-        if (!IsBeingEscorted)
+        if (!HasEscortState(STATE_ESCORT_ESCORTING))
             m_bFriendSummoned = false;
     }
 
@@ -73,7 +73,7 @@ struct TRINITY_DLL_DECL npc_tapoke_slim_jahnAI : public npc_escortAI
     {
         Player* pPlayer = GetPlayerForEscort();
 
-        if (IsBeingEscorted && !m_bFriendSummoned && pPlayer)
+        if (HasEscortState(STATE_ESCORT_ESCORTING) && !m_bFriendSummoned && pPlayer)
         {
             for(uint8 i = 0; i < 3; ++i)
                 m_creature->CastSpell(m_creature, SPELL_CALL_FRIENDS, true);

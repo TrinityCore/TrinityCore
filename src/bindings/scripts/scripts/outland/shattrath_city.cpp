@@ -320,7 +320,7 @@ public:
 
     void MoveInLineOfSight(Unit* pWho)
     {
-        if (IsBeingEscorted)
+        if (HasEscortState(STATE_ESCORT_ESCORTING))
             return;
 
         if (pWho->GetTypeId() == TYPEID_PLAYER)

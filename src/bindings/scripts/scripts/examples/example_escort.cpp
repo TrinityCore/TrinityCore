@@ -89,7 +89,7 @@ struct TRINITY_DLL_DECL example_escortAI : public npc_escortAI
 
     void EnterCombat(Unit* pWho)
     {
-        if (IsBeingEscorted)
+        if (HasEscortState(STATE_ESCORT_ESCORTING))
         {
             if (Player* pPlayer = GetPlayerForEscort())
                 DoScriptText(SAY_AGGRO1, m_creature, pPlayer);
@@ -106,7 +106,7 @@ struct TRINITY_DLL_DECL example_escortAI : public npc_escortAI
 
     void JustDied(Unit* pKiller)
     {
-        if (IsBeingEscorted)
+        if (HasEscortState(STATE_ESCORT_ESCORTING))
         {
             if (Player* pPlayer = GetPlayerForEscort())
             {
@@ -143,7 +143,7 @@ struct TRINITY_DLL_DECL example_escortAI : public npc_escortAI
         else
         {
             //Out of combat but being escorted
-            if (IsBeingEscorted)
+            if (HasEscortState(STATE_ESCORT_ESCORTING))
             {
                 if (m_uiChatTimer < uiDiff)
                 {

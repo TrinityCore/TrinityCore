@@ -5,6 +5,8 @@
 #ifndef SC_FOLLOWERAI_H
 #define SC_FOLLOWERAI_H
 
+#include "../system/system.h"
+
 enum eFollowState
 {
     STATE_FOLLOW_NONE       = 0x000,
@@ -42,17 +44,18 @@ class TRINITY_DLL_DECL FollowerAI : public ScriptedAI
         void StartFollow(Player* pPlayer, uint32 uiFactionForFollower = 0, const Quest* pQuest = NULL);
 
         void SetFollowPaused(bool bPaused);                 //if special event require follow mode to hold/resume during the follow
+        void SetFollowComplete(bool bWithEndEvent = false);
 
         bool HasFollowState(uint32 uiFollowState) { return (m_uiFollowState & uiFollowState); }
 
     protected:
-        void SetFollowComplete(bool bWithEndEvent = false);
-
         Player* GetLeaderForFollower();
 
     private:
         void AddFollowState(uint32 uiFollowState) { m_uiFollowState |= uiFollowState; }
         void RemoveFollowState(uint32 uiFollowState) { m_uiFollowState &= ~uiFollowState; }
+
+        bool AssistPlayerInCombat(Unit* pWho);
 
         uint64 m_uiLeaderGUID;
         uint32 m_uiUpdateFollowTimer;

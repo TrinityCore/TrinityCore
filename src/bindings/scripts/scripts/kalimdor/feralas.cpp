@@ -122,7 +122,7 @@ struct TRINITY_DLL_DECL npc_oox22feAI : public npc_escortAI
 
     void Reset()
     {
-        if (!IsBeingEscorted)
+        if (!HasEscortState(STATE_ESCORT_ESCORTING))
             m_creature->SetStandState(UNIT_STAND_STATE_DEAD);
     }
 
