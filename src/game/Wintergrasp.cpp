@@ -960,6 +960,12 @@ void OPvPWintergrasp::EndBattle()
             REMOVE_WARTIME_AURAS(*itr);
             REMOVE_TENACITY_AURA(*itr);
             (*itr)->CombatStop(true);
+            
+            // When WG ends the zone is cleaned including corpses, revive all players if dead
+            if (((*itr)->isDead()) || ((*itr)->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_GHOST))) 
+            {
+                (*itr)->ResurrectPlayer(1.0f);
+            }
         }
 
         // destroyed all vehicles
