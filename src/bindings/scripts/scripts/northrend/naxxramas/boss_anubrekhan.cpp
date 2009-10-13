@@ -33,16 +33,19 @@
 
 struct TRINITY_DLL_DECL boss_anubrekhanAI : public BossAI
 {
-    boss_anubrekhanAI(Creature *c) : BossAI(c, BOSS_ANUBREKHAN) { HasTaunted = false; }
+    boss_anubrekhanAI(Creature *c) : BossAI(c, BOSS_ANUBREKHAN) { Prepare(); }
 
     bool HasTaunted;
 
     void Prepare()
     {
         HasTaunted = false;
-        DoSpawnCreature(MOB_CRYPT_GUARD, 0, 10, 0, me->GetOrientation(), TEMPSUMMON_CORPSE_TIMED_DESPAWN, 60000);
+        
         if (HeroicMode)
+        {
             DoSpawnCreature(MOB_CRYPT_GUARD, 0, -10, 0, me->GetOrientation(), TEMPSUMMON_CORPSE_TIMED_DESPAWN, 60000);
+            DoSpawnCreature(MOB_CRYPT_GUARD, 0, 10, 0, me->GetOrientation(), TEMPSUMMON_CORPSE_TIMED_DESPAWN, 60000);
+        }
     }
 
     void InitializeAI() { Prepare(); BossAI::InitializeAI(); }
