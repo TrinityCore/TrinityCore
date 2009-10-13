@@ -4,11 +4,6 @@
 #include "World.h"
 #include "Config/ConfigEnv.h"
 #include "ItemPrototype.h"
-#if CLIENT_VER > 300
-#include "ace/Vector_T.h"
-#else if CLIENT_VER > 100
-#include <vector>
-#endif
 
 #define AHB_GREY        0
 #define AHB_WHITE       1
@@ -1131,24 +1126,6 @@ public:
 class AuctionHouseBot
 {
 private:
-#if CLIENT_VER > 300
-    ACE_Vector<uint32> npcItems;
-    ACE_Vector<uint32> lootItems;
-    ACE_Vector<uint32> greyTradeGoodsBin;
-    ACE_Vector<uint32> whiteTradeGoodsBin;
-    ACE_Vector<uint32> greenTradeGoodsBin;
-    ACE_Vector<uint32> blueTradeGoodsBin;
-    ACE_Vector<uint32> purpleTradeGoodsBin;
-    ACE_Vector<uint32> orangeTradeGoodsBin;
-    ACE_Vector<uint32> yellowTradeGoodsBin;
-    ACE_Vector<uint32> greyItemsBin;
-    ACE_Vector<uint32> whiteItemsBin;
-    ACE_Vector<uint32> greenItemsBin;
-    ACE_Vector<uint32> blueItemsBin;
-    ACE_Vector<uint32> purpleItemsBin;
-    ACE_Vector<uint32> orangeItemsBin;
-    ACE_Vector<uint32> yellowItemsBin;
-#endif
 
     bool debug_Out;
     bool debug_Out_Filters;
