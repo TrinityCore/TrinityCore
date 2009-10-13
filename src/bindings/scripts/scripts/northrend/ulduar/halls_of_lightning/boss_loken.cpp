@@ -163,12 +163,12 @@ struct TRINITY_DLL_DECL boss_lokenAI : public ScriptedAI
                         if (i->getSource()->isAlive() && i->getSource()->isTargetableForAttack())
                         {
                             int32 dmg;
-                            float m_fDist = m_creature->GetDistance(i->getSource());
+                            float m_fDist = (m_creature->GetDistance(i->getSource()) - 7.8f);
 
                             if (m_fDist <= 1.0f) // Less than 1 yard
-                                dmg = (m_bIsHeroic ? 850 : 800); // need to correct damage
+                                dmg = (m_bIsHeroic ? 150 : 100); // need to correct damage
                             else // Further from 1 yard
-                                dmg = ((m_bIsHeroic ? 250 : 200) * m_fDist) + (m_bIsHeroic ? 850 : 800); // need to correct damage
+                                dmg = ((m_bIsHeroic ? 150 : 100) * m_fDist) + (m_bIsHeroic ? 150 : 100); // need to correct damage
 
                             m_creature->CastCustomSpell(i->getSource(), (m_bIsHeroic ? 59837 : 52942), &dmg, 0, 0, false);
                         }
@@ -209,7 +209,7 @@ struct TRINITY_DLL_DECL boss_lokenAI : public ScriptedAI
                 case 1: DoScriptText(SAY_NOVA_2, m_creature);break;
                 case 2: DoScriptText(SAY_NOVA_3, m_creature);break;
             }
-
+            DoScriptText(EMOTE_NOVA, m_creature);
             DoCast(m_creature, m_bIsHeroic ? SPELL_LIGHTNING_NOVA_H : SPELL_LIGHTNING_NOVA_N);
 
             m_bIsAura = false;
