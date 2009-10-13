@@ -506,7 +506,7 @@ void AuctionHouseObject::Update()
     if (AuctionsMap.empty())
         return;
 
-    QueryResult* result = CharacterDatabase.PQuery("SELECT id FROM auctionhouse WHERE time <= %u ORDER BY TIME ASC", (uint32)curTime);
+    QueryResult* result = CharacterDatabase.PQuery("SELECT id FROM auctionhouse WHERE time <= %u ORDER BY TIME ASC", (uint32)curTime+60);
 
     if (!result)
     {
@@ -530,15 +530,8 @@ void AuctionHouseObject::Update()
     delete result;
 
     vector<uint32>::iterator iter = expiredAuctions.begin();
-    for (uint32 count = 1;count <= 50;++count)
+    while (!expiredAuctions.empty())
     {
-        // Do we have any expired auctions? If not, stop here.
-        if (expiredAuctions.empty())
-        {
-            count = 50;
-            continue;
-        }
-
         // from auctionhousehandler.cpp, creates auction pointer & player pointer
         AuctionEntry* auction = GetAuction(*iter);
 
