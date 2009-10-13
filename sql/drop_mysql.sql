@@ -1,8 +1,8 @@
 REVOKE ALL PRIVILEGES ON * . * FROM 'trinity'@'localhost';
 
-REVOKE ALL PRIVILEGES ON `mangos` . * FROM 'trinity'@'localhost';
+REVOKE ALL PRIVILEGES ON `world` . * FROM 'trinity'@'localhost';
 
-REVOKE GRANT OPTION ON `mangos` . * FROM 'trinity'@'localhost';
+REVOKE GRANT OPTION ON `world` . * FROM 'trinity'@'localhost';
 
 REVOKE ALL PRIVILEGES ON `characters` . * FROM 'trinity'@'localhost';
 
