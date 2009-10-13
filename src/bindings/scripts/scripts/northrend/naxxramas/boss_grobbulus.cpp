@@ -23,6 +23,7 @@
 #define SPELL_MUTATING_INJECTION    28169
 #define SPELL_SLIME_SPRAY           HEROIC(28157,54364)
 #define SPELL_BERSERK               26662
+#define SPELL_POISON_CLOUD_ADD      59116
 
 #define EVENT_BERSERK   1
 #define EVENT_CLOUD     2
@@ -33,7 +34,10 @@
 
 struct TRINITY_DLL_DECL boss_grobbulusAI : public BossAI
 {
-    boss_grobbulusAI(Creature *c) : BossAI(c, BOSS_GROBBULUS) {}
+    boss_grobbulusAI(Creature *c) : BossAI(c, BOSS_GROBBULUS) 
+    {
+        me->ApplySpellImmune(0, IMMUNITY_ID, SPELL_POISON_CLOUD_ADD, true);
+    }
 
     void EnterCombat(Unit *who)
     {
@@ -88,9 +92,39 @@ struct TRINITY_DLL_DECL boss_grobbulusAI : public BossAI
     }
 };
 
+struct TRINITY_DLL_DECL npc_grobbulus_poison_cloudAI : public Scripted_NoMovementAI
+{
+    npc_grobbulus_poison_cloudAI(Creature* pCreature) : Scripted_NoMovementAI(pCreature)
+    {
+        Reset();
+    }
+
+    uint32 Cloud_Timer;
+
+    void Reset()
+    {
+        Cloud_Timer = 1000;
+        m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+    }
+
+    void UpdateAI(const uint32 diff)
+    {
+        if (Cloud_Timer < diff)
+        {
+            DoCast(m_creature, SPELL_POISON_CLOUD_ADD);
+            Cloud_Timer = 10000;
+        } else Cloud_Timer -= diff;
+    }
+};
+
 CreatureAI* GetAI_boss_grobbulus(Creature* pCreature)
 {
     return new boss_grobbulusAI (pCreature);
+}
+
+CreatureAI* GetAI_npc_grobbulus_poison_cloud(Creature* pCreature)
+{
+    return new npc_grobbulus_poison_cloudAI(pCreature);
 }
 
 void AddSC_boss_grobbulus()
@@ -99,5 +133,10 @@ void AddSC_boss_grobbulus()
     newscript = new Script;
     newscript->Name="boss_grobbulus";
     newscript->GetAI = &GetAI_boss_grobbulus;
+    newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name = "npc_grobbulus_poison_cloud";
+    newscript->GetAI = &GetAI_npc_grobbulus_poison_cloud;
     newscript->RegisterSelf();
 }

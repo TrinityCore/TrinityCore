@@ -769,6 +769,7 @@ UPDATE `creature_template` SET `ScriptName`='mob_gothik_minion' where `entry` IN
 UPDATE `creature_template` SET `ScriptName`='boss_four_horsemen' WHERE `entry` IN (16063,16064,16065,30549);
 UPDATE `creature_template` SET `ScriptName`='boss_patchwerk' WHERE `entry`=16028;
 UPDATE `creature_template` SET `ScriptName`='boss_grobbulus' WHERE `entry`=15931;
+UPDATE `creature_template` SET `ScriptName`='npc_grobbulus_poison_cloud' WHERE `entry`=16363;
 UPDATE `creature_template` SET `ScriptName`='boss_gluth' WHERE `entry`=15932;
 UPDATE `creature_template` SET `ScriptName`='boss_thaddius' WHERE `entry`=15928;
 UPDATE `creature_template` SET `ScriptName`='boss_stalagg' WHERE `entry`=15929;
