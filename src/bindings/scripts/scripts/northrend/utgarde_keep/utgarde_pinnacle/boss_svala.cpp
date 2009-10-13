@@ -312,8 +312,8 @@ struct TRINITY_DLL_DECL boss_svala_sorrowgraveAI : public ScriptedAI
                     }
                 }
                 if (bSacrificed && pSacrificeTarget && pSacrificeTarget->isAlive())
-                    m_creature->DealDamage(pSacrificeTarget, pSacrificeTarget->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
-                
+                    m_creature->Kill(pSacrificeTarget, false);
+
                 //go down
                 Phase = NORMAL;
                 pSacrificeTarget = NULL;
