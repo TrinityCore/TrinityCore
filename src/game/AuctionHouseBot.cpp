@@ -1,17 +1,12 @@
 #include "ObjectMgr.h"
 #include "AuctionHouseMgr.h"
 #include "AuctionHouseBot.h"
-#if CLIENT_VER > 300
-#else if CLIENT_VER > 100
 #include <vector>
-#endif
 
 #include "Policies/SingletonImp.h"
 INSTANTIATE_SINGLETON_1(AuctionHouseBot);
 
 using namespace std;
-#if CLIENT_VER > 300
-#else if CLIENT_VER > 100
 vector<uint32> npcItems;
 vector<uint32> lootItems;
 vector<uint32> greyTradeGoodsBin;
@@ -28,7 +23,6 @@ vector<uint32> blueItemsBin;
 vector<uint32> purpleItemsBin;
 vector<uint32> orangeItemsBin;
 vector<uint32> yellowItemsBin;
-#endif
 AuctionHouseBot::AuctionHouseBot()
 {
     debug_Out = false;
