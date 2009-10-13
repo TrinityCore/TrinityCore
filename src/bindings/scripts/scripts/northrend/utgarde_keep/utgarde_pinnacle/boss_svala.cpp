@@ -52,7 +52,7 @@ enum Creatures
 };
 enum Misc
 {
-    DATA_SVALA_DISPLAY_ID                    = 11686
+    DATA_SVALA_DISPLAY_ID                    = 25944
 };
 enum IntroPhase
 {
@@ -98,6 +98,7 @@ struct TRINITY_DLL_DECL boss_svalaAI : public ScriptedAI
         Phase = IDLE;
         uiIntroTimer = 1000;
         uiIntroPhase = 0;
+        pArthas = NULL;
 
         if (pInstance)
             pInstance->SetData(DATA_SVALA_SORROWGRAVE_EVENT, NOT_STARTED);
@@ -112,7 +113,7 @@ struct TRINITY_DLL_DECL boss_svalaAI : public ScriptedAI
             Phase = INTRO;
             m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
 
-            if (pArthas = m_creature->SummonCreature(CREATURE_ARTHAS, 295.81, -366.16, 92.57, 1.58, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 16000))
+            if (pArthas = m_creature->SummonCreature(CREATURE_ARTHAS, 295.81, -366.16, 92.57, 1.58, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 20000))
             {
                 pArthas->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                 pArthas->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
@@ -127,6 +128,7 @@ struct TRINITY_DLL_DECL boss_svalaAI : public ScriptedAI
     {
         if (Phase != INTRO)
             return;
+
         if (uiIntroTimer < diff)
         {
             if(!pArthas)
@@ -289,7 +291,7 @@ struct TRINITY_DLL_DECL boss_svala_sorrowgraveAI : public ScriptedAI
 
                     for (uint8 i = 0; i < 3; ++i)
                         if (pRitualChanneler[i] = m_creature->SummonCreature(CREATURE_RITUAL_CHANNELER, RitualChannelerLocations[i].x, RitualChannelerLocations[i].y, RitualChannelerLocations[i].z, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 360000))
-                            if (mob_ritual_channelerAI *pChannelerAI = CAST_AI(mob_ritual_channelerAI,pRitualChanneler[i]))
+                            if (mob_ritual_channelerAI *pChannelerAI = CAST_AI(mob_ritual_channelerAI,pRitualChanneler[i]->AI()))
                                 pChannelerAI->AttackStartNoMove(pSacrificeTarget);
 
                     uiRitualOfSwordTimer = 18000 + rand()%4000;
@@ -375,7 +377,7 @@ void AddSC_boss_svala()
 
     newscript = new Script;
     newscript->Name="mob_ritual_channeler";
-    newscript->GetAI = &GetAI_boss_svala;
+    newscript->GetAI = &GetAI_mob_ritual_channeler;
     newscript->RegisterSelf();
 
     newscript = new Script;
