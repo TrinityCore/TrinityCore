@@ -630,6 +630,7 @@ bool OPvPWintergrasp::UpdateCreatureInfo(Creature *creature) const
 
 bool OPvPWintergrasp::UpdateGameObjectInfo(GameObject *go) const
 {
+/*
     switch(go->GetEntry())
     {
         // Defender's Portal
@@ -640,6 +641,27 @@ bool OPvPWintergrasp::UpdateGameObjectInfo(GameObject *go) const
         case 192829:
             go->SetUInt32Value(GAMEOBJECT_FACTION, WintergraspFaction[OTHER_TEAM(m_defender)]);
             return true;
+    }
+*/
+    const GameObjectInfo *gInfo = objmgr.GetGameObjectInfo(go->GetEntry());
+    if (!gInfo)
+        return false;
+      
+    switch(gInfo->displayId)
+    {
+        case 8165: // Wintergrasp Keep Door
+        case 7877: // Wintergrasp Fortress Wall
+        case 7878: // Wintergrasp Keep Tower
+        case 7906: // Wintergrasp Fortress Gate
+        case 7909: // Wintergrasp Wall
+        case 8244: // Defender's Portal - Vehicle Teleporter
+            go->SetUInt32Value(GAMEOBJECT_FACTION, WintergraspFaction[m_defender]);
+            return true;       
+        case 7900: // Flamewatch Tower - Shadowsight Tower - Winter's Edge Tower
+        case 7967: // Titan relic
+            go->SetUInt32Value(GAMEOBJECT_FACTION, WintergraspFaction[OTHER_TEAM(m_defender)]);
+            return true;
+//        case 8208: // Goblin Workshop
     }
 
     // Note: this is only for test, still need db support
