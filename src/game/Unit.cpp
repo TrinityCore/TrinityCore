@@ -14291,7 +14291,10 @@ void Unit::RestoreFaction()
         }
 
         if(CreatureInfo const *cinfo = ((Creature*)this)->GetCreatureInfo())  // normal creature
-            setFaction(cinfo->faction_A);
+        {
+            FactionTemplateEntry const *faction = getFactionTemplateEntry();
+            setFaction((faction && faction->friendlyMask & 0x004) ? cinfo->faction_H : cinfo->faction_A);
+        }
     }
 }
 
