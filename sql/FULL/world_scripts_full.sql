@@ -537,6 +537,8 @@ UPDATE `creature_template` SET `ScriptName`='mob_slad_ran_constrictor' WHERE `en
 UPDATE `creature_template` SET `ScriptName`='boss_gal_darah' WHERE `entry`=29306;
 /* Drakkari Colossus */
 UPDATE `creature_template` SET `ScriptName`='boss_drakkari_colossus' WHERE `entry`=29307;
+UPDATE `creature_template` SET `ScriptName`='boss_drakkari_elemental' WHERE `entry`=29573;
+UPDATE `creature_template` SET `ScriptName`='npc_living_mojo' WHERE `entry`=29830;
 /* Eck the Ferocious */
 UPDATE `creature_template` SET `ScriptName`='boss_eck' WHERE `entry`=29932;
 
@@ -1379,12 +1381,12 @@ INSERT INTO `creature_ai_scripts` VALUES ('2918103', '29181', '0', '0', '100', '
 INSERT INTO `creature_ai_scripts` VALUES ('2918104', '29181', '0', '0', '100', '3', '10000', '20000', '10000', '20000', '11', '21807', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', 'Rayne - SPELL_WRATH');
 
 -- spell 30298 tries to start event script 10675 but it doesn't exist. create it & make it spawn Geezle
-delete from event_scripts where id = 10675;
-insert into `event_scripts` (`id`, `delay`, `command`, `datalong`, `datalong2`, `x`, `y`, `z`, `o`) values 
+DELETE FROM `event_scripts` where `id`=10675;
+INSERT INTO `event_scripts` (`id`, `delay`, `command`, `datalong`, `datalong2`, `x`, `y`, `z`, `o`) values 
 (10675, 0, 10, 17318, 90000, '-5139.79','-11248.27','5.23', '6.27609');
 
 -- geezle should not spawn by default
-update creature set spawnMask=0 where guid = 85587;
+UPDATE `creature` SET `spawnMask`=0 WHERE `id`=17318;
 
 -- Quest - The Warsong Farms
 DELETE FROM `creature_ai_scripts` WHERE `creature_id` IN (25669,25671,25672);
@@ -1392,3 +1394,8 @@ INSERT INTO `creature_ai_scripts`
 (`id`, `creature_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_type`, `action1_param1`, `action1_param2`, `action1_param3`, `action2_type`, `action2_param1`, `action2_param2`, `action2_param3`, `action3_type`, `action3_param1`, `action3_param2`, `action3_param3`, `comment`)
 VALUES
 (2566901, 25669, 10, 0, 100, 3, 1, 20, 2000, 2000, 33, 25669, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Scout Warsong Granary - Killed Moster at LOS'),(2567101, 25671, 10, 0, 100, 3, 1, 20, 2000, 2000, 33, 25671, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Scout Torp''s Farm - Killed Moster at LOS'),(2567201, 25672, 10, 0, 100, 3, 1, 20, 2000, 2000, 33, 25672, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Scout Warsong Slaughterhouse - Killed Moster at LOS');
+
+-- WOTLK Naxxramas Worshipper update
+DELETE FROM `creature_ai_scripts` WHERE `id` = 1650612;
+INSERT INTO `creature_ai_scripts` (`id`, `creature_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_type`, `action1_param1`, `action1_param2`, `action1_param3`, `action2_type`, `action2_param1`, `action2_param2`, `action2_param3`, `action3_type`, `action3_param1`, `action3_param2`, `action3_param3`, `comment`) VALUES
+(1650612, 16506, 6, 0, 100, 0, 0, 0, 0, 0, 11, 28732, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Naxxramas Worshipper - Widow Embrace');
