@@ -94,7 +94,10 @@ enum Yells
     H_SPELL_POSION_SPRAY                   =   59366,
 
 };
-
+enum Misc
+{
+    ACHIEVEMENT_WATCH_HIM_DIE              =   1296
+};
 struct TRINITY_DLL_DECL boss_krik_thirAI : public ScriptedAI
 {
     boss_krik_thirAI(Creature *c) : ScriptedAI(c)
@@ -194,7 +197,22 @@ struct TRINITY_DLL_DECL boss_krik_thirAI : public ScriptedAI
         DoScriptText(SAY_DEATH, m_creature);
 
         if (pInstance)
+        {
             pInstance->SetData(DATA_KRIKTHIR_THE_GATEWATCHER_EVENT, DONE);
+            //Achievement: Watch him die
+            AchievementEntry const *AchievWatchHimDie = GetAchievementStore()->LookupEntry(ACHIEVEMENT_WATCH_HIM_DIE);
+            Map* pMap = m_creature->GetMap();
+            Creature *pAdd1, *pAdd2, *pAdd3;
+            if ((pAdd1 = Unit::GetCreature(*m_creature, pInstance->GetData64(DATA_WATCHER_GASHRA))) && pAdd1->isAlive() &&
+                (pAdd2 = Unit::GetCreature(*m_creature, pInstance->GetData64(DATA_WATCHER_SILTHIK))) && pAdd2->isAlive() &&
+                (pAdd3 = Unit::GetCreature(*m_creature, pInstance->GetData64(DATA_WATCHER_NARJIL))) && pAdd3->isAlive() &&
+                HeroicMode && pMap && pMap->IsDungeon() && AchievWatchHimDie)
+            {
+                Map::PlayerList const &players = pMap->GetPlayers();
+                for(Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
+                    itr->getSource()->CompletedAchievement(AchievWatchHimDie);
+            }
+        }
     }
     void KilledUnit(Unit *victim)
     {
