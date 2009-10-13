@@ -171,7 +171,7 @@ struct TRINITY_DLL_DECL boss_svalaAI : public ScriptedAI
                         m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                         m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                         m_creature->SetDisplayId(DATA_SVALA_DISPLAY_ID);
-                        pArthas->DealDamage(pArthas, pArthas->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+                        pArthas->Kill(pArthas, false);
                         pArthas->RemoveCorpse();
                         Phase = FINISHED;
                     }
@@ -303,7 +303,7 @@ struct TRINITY_DLL_DECL boss_svala_sorrowgraveAI : public ScriptedAI
             if (uiSacrificeTimer < diff)
             {
                 bool bSacrificed = false;
-                for (uint8 i=0; i < 3; ++i)
+                for (uint8 i = 0; i < 3; ++i)
                 {
                     if (pRitualChanneler[i] && pRitualChanneler[i]->isAlive())
                     {
@@ -341,7 +341,8 @@ struct TRINITY_DLL_DECL boss_svala_sorrowgraveAI : public ScriptedAI
         {
             Creature* pSvala = Unit::GetCreature((*m_creature), pInstance->GetData64(DATA_SVALA));
             if (pSvala && pSvala->isAlive())
-                pKiller->DealDamage(pSvala, pSvala->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+                pKiller->Kill(pSvala, false);
+
             pInstance->SetData(DATA_SVALA_SORROWGRAVE_EVENT, IN_PROGRESS);
         }
         DoScriptText(SAY_DEATH, m_creature);

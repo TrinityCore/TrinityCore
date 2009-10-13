@@ -944,6 +944,10 @@ void OPvPWintergrasp::EndBattle()
 
         for (PlayerSet::iterator itr = m_players[team].begin(); itr != m_players[team].end(); ++itr)
         {
+            // When WG ends the zone is cleaned including corpses, revive all players if dead
+            if ((*itr)->isDead()) 
+                (*itr)->ResurrectPlayer(1.0f);
+
             if ((*itr)->HasAura(SPELL_LIEUTENANT))
             {
                 if (!sWorld.getConfig(CONFIG_OUTDOORPVP_WINTERGRASP_CUSTOM_HONOR))
@@ -960,12 +964,6 @@ void OPvPWintergrasp::EndBattle()
             REMOVE_WARTIME_AURAS(*itr);
             REMOVE_TENACITY_AURA(*itr);
             (*itr)->CombatStop(true);
-            
-            // When WG ends the zone is cleaned including corpses, revive all players if dead
-            if (((*itr)->isDead()) || ((*itr)->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_GHOST))) 
-            {
-                (*itr)->ResurrectPlayer(1.0f);
-            }
         }
 
         // destroyed all vehicles
