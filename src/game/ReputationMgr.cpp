@@ -251,6 +251,14 @@ bool ReputationMgr::SetReputation(FactionEntry const* factionEntry, int32 standi
     uint32 team = factionEntry->team;
      
     int32 sharedStanding = standing;            // Here we decide what the amount is to send to the others of the group.
+    switch(factionEntry->ID)
+    {
+        case 1037:                              // Alliance Vanguard
+        case 1052:                              // Horde Expedition
+            extraTarget = -1;                   // Make possible to earn rep with this two factions
+            break;                              
+
+    }
     switch(team)
     {
         case HORDE:                             // When earning reputation with home city factions, 25% of the earned reputation
