@@ -479,6 +479,65 @@ bool GOHello_go_wg2voa_portal(Player* pPlayer, GameObject* pGO)
     return false;
 }
 
+/*######
+## matrix_punchograph
+######*/
+
+enum
+{
+    ITEM_WHITE_PUNCH_CARD = 9279,
+    ITEM_YELLOW_PUNCH_CARD = 9280,
+    ITEM_BLUE_PUNCH_CARD = 9282,
+    ITEM_RED_PUNCH_CARD = 9281,
+    ITEM_PRISMATIC_PUNCH_CARD = 9316,
+    SPELL_YELLOW_PUNCH_CARD = 11512,
+    SPELL_BLUE_PUNCH_CARD = 11525,
+    SPELL_RED_PUNCH_CARD = 11528,
+    SPELL_PRISMATIC_PUNCH_CARD = 11545,
+    MATRIX_PUNCHOGRAPH_3005_A = 142345,
+    MATRIX_PUNCHOGRAPH_3005_B = 142475,
+    MATRIX_PUNCHOGRAPH_3005_C = 142476,
+    MATRIX_PUNCHOGRAPH_3005_D = 142696,
+};
+
+bool GOHello_go_matrix_punchograph(Player* pPlayer, GameObject* pGo)
+{
+    switch(pGo->GetEntry())
+    {
+        case MATRIX_PUNCHOGRAPH_3005_A:
+            if(pPlayer->HasItemCount(ITEM_WHITE_PUNCH_CARD, 1))    
+            {
+                pPlayer->DestroyItemCount(ITEM_WHITE_PUNCH_CARD, 1, true);
+                pPlayer->CastSpell(pPlayer,SPELL_YELLOW_PUNCH_CARD,true);
+            }
+            break;
+        case MATRIX_PUNCHOGRAPH_3005_B:
+            if(pPlayer->HasItemCount(ITEM_YELLOW_PUNCH_CARD, 1))
+            {
+                pPlayer->DestroyItemCount(ITEM_YELLOW_PUNCH_CARD, 1, true);
+                pPlayer->CastSpell(pPlayer,SPELL_BLUE_PUNCH_CARD,true);
+            }
+            break;
+        case MATRIX_PUNCHOGRAPH_3005_C:
+            if(pPlayer->HasItemCount(ITEM_BLUE_PUNCH_CARD, 1))
+            {
+                pPlayer->DestroyItemCount(ITEM_BLUE_PUNCH_CARD, 1, true);
+                pPlayer->CastSpell(pPlayer,SPELL_RED_PUNCH_CARD,true);
+            }
+            break;
+        case MATRIX_PUNCHOGRAPH_3005_D:
+            if(pPlayer->HasItemCount(ITEM_RED_PUNCH_CARD, 1))
+            {
+                pPlayer->DestroyItemCount(ITEM_RED_PUNCH_CARD, 1, true);
+                pPlayer->CastSpell(pPlayer,SPELL_PRISMATIC_PUNCH_CARD,true);
+            }
+            break;
+        default:
+            break;
+    }
+    return false;
+}
+
 void AddSC_go_scripts()
 {
     Script *newscript;
@@ -592,6 +651,11 @@ void AddSC_go_scripts()
     newscript = new Script;
     newscript->Name = "go_wg2voa_portal";
     newscript->pGOHello =           &GOHello_go_wg2voa_portal;
+    newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name = "go_matrix_punchograph";
+    newscript->pGOHello =           &GOHello_go_matrix_punchograph;
     newscript->RegisterSelf();
 }
 
