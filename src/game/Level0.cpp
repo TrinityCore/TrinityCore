@@ -78,6 +78,13 @@ bool ChatHandler::HandleStartCommand(const char* /*args*/)
         SetSentErrorMessage(true);
         return false;
     }
+    
+    if((chr->isDead()) || (chr->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_GHOST)))
+    {
+    // if player is dead and stuck, send ghost to graveyard
+    chr->RepopAtGraveyard();
+    return true;
+    }
 
     // cast spell Stuck
     chr->CastSpell(chr,7355,false);
