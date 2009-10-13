@@ -7038,7 +7038,22 @@ void Spell::EffectRedirectThreat(uint32 /*i*/)
 void Spell::EffectWMODamage(uint32 /*i*/)
 {
     if(gameObjTarget && gameObjTarget->GetGoType() == GAMEOBJECT_TYPE_DESTRUCTIBLE_BUILDING)
-        gameObjTarget->TakenDamage((uint32)damage);
+    {
+        Unit *caster = m_originalCaster;
+        if(!caster)
+            return;
+
+        const GameObjectInfo *gInfo = objmgr.GetGameObjectInfo(gameObjTarget->GetEntry());
+        if (!gInfo)
+            return;
+       
+        FactionTemplateEntry const *casterft, *goft;
+        casterft = caster->getFactionTemplateEntry();
+        goft = sFactionTemplateStore.LookupEntry(gInfo->faction);
+        // Do not allow to damage GO's of friendly factions (ie: Wintergrasp Walls)
+        if (casterft && goft && !casterft->IsFriendlyTo(*goft))
+            gameObjTarget->TakenDamage((uint32)damage);
+    }
 }
 
 void Spell::EffectWMORepair(uint32 /*i*/)
