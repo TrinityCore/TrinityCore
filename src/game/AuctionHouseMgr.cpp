@@ -33,9 +33,12 @@
 #include "Language.h"
 #include "Log.h"
 #include "ProgressBar.h"
+#include <vector>
 
 
 INSTANTIATE_SINGLETON_1(AuctionHouseMgr);
+
+using namespace std;
 
 AuctionHouseMgr::AuctionHouseMgr()
 {
@@ -71,13 +74,10 @@ uint32 AuctionHouseMgr::GetAuctionDeposit(AuctionHouseEntry const* entry, uint32
     uint32 timeHr = (((time / 60) / 60) / 12);
 
     if (MSV > 0)
-    {
         deposit = (int32)floor((double)MSV * (((double)(entry->depositPercent * 3) / 100.0f * (double)sWorld.getRate(RATE_AUCTION_DEPOSIT) * (double)pItem->GetCount()))) * timeHr;
-    }
     else
-    {
         deposit = 0;
-    }
+
     sLog.outDebug("SellPrice:\t\t%u", MSV);
     sLog.outDebug("Deposit Percent:\t%f", ((double)entry->depositPercent / 100.0f));
     sLog.outDebug("Auction Time1:\t\t%u", time);
@@ -309,8 +309,7 @@ void AuctionHouseMgr::LoadAuctionItems()
         AddAItem(item);
 
         ++count;
-    }
-    while(result->NextRow());
+    } while (result->NextRow());
     delete result;
 
     sLog.outString();
@@ -433,9 +432,8 @@ bool AuctionHouseMgr::RemoveAItem(uint32 id)
 {
     ItemMap::iterator i = mAitems.find(id);
     if (i == mAitems.end())
-    {
         return false;
-    }
+
     mAitems.erase(i);
     return true;
 }
@@ -508,49 +506,66 @@ void AuctionHouseObject::Update()
     if (AuctionsMap.empty())
         return;
 
-    // reset next if at end of map
-    if (next == AuctionsMap.end())
-        next = AuctionsMap.begin();
+    QueryResult* result = CharacterDatabase.PQuery("SELECT id FROM auctionhouse WHERE time <= %u ORDER BY TIME ASC", (uint32)curTime);
 
-    ASSERT(next != AuctionsMap.end());
-
-    uint32 loopBreaker = 0;
-
-    // Initialize itr with next. next is stored for future calls to Update() after
-    // 50 items are checked
-    for (AuctionEntryMap::const_iterator itr = next; itr != AuctionsMap.end(); itr = next)
+    if (!result)
     {
-        next = itr;
-        ++next;
-        if (curTime > (itr->second->expire_time))
-        {
-            ///- Either cancel the auction if there was no bidder
-            if (itr->second->bidder == 0)
-            {
-                auctionmgr.SendAuctionExpiredMail(itr->second);
-            }
-            ///- Or perform the transaction
-            else
-            {
-                //we should send an "item sold" message if the seller is online
-                //we send the item to the winner
-                //we send the money to the seller
-                auctionmgr.SendAuctionSuccessfulMail(itr->second);
-                auctionmgr.SendAuctionWonMail(itr->second);
-            }
+        delete result;
+        return;
+    }
 
-            ///- In any case clear the auction
-            itr->second->DeleteFromDB();
-            uint32 item_template = itr->second->item_template;
-            auctionmgr.RemoveAItem(itr->second->item_guidlow);
-            RemoveAuction(itr->second, item_template);
+    if (result->GetRowCount() == 0)
+    {
+        delete result;
+        return;
+    }
+
+    vector<uint32> expiredAuctions;
+
+    do
+    {
+        uint32 tmpdata = result->Fetch()->GetUInt32();
+        expiredAuctions.push_back(tmpdata);
+    } while (result->NextRow());
+    delete result;
+
+    vector<uint32>::iterator iter = expiredAuctions.begin();
+    for (uint32 count = 1;count <= 50;++count)
+    {
+        // Do we have any expired auctions? If not, stop here.
+        if (expiredAuctions.empty())
+        {
+            count = 50;
+            continue;
         }
 
-        // only check 50 items per update to not peg the CPU
-        ++loopBreaker;
+        // from auctionhousehandler.cpp, creates auction pointer & player pointer
+        AuctionEntry* auction = GetAuction(*iter);
 
-        if (loopBreaker > 50)
-            break;
+        // Erase the auction from the vector.
+        expiredAuctions.erase(iter);
+
+        if (!auction)
+            continue;
+
+        ///- Either cancel the auction if there was no bidder
+        if (auction->bidder == 0)
+            auctionmgr.SendAuctionExpiredMail(auction);
+        ///- Or perform the transaction
+        else
+        {
+            //we should send an "item sold" message if the seller is online
+            //we send the item to the winner
+            //we send the money to the seller
+            auctionmgr.SendAuctionSuccessfulMail(auction);
+            auctionmgr.SendAuctionWonMail(auction);
+        }
+
+        ///- In any case clear the auction
+        auction->DeleteFromDB();
+        uint32 item_template = auction->item_template;
+        auctionmgr.RemoveAItem(auction->item_guidlow);
+        RemoveAuction(auction, item_template);
     }
 }
 
@@ -563,6 +578,7 @@ void AuctionHouseObject::BuildListBidderItems(WorldPacket& data, Player* player,
         {
             if (itr->second->BuildAuctionInfo(data))
                 ++count;
+
             ++totalcount;
         }
     }
@@ -577,6 +593,7 @@ void AuctionHouseObject::BuildListOwnerItems(WorldPacket& data, Player* player, 
         {
             if (Aentry->BuildAuctionInfo(data))
                 ++count;
+
             ++totalcount;
         }
     }
