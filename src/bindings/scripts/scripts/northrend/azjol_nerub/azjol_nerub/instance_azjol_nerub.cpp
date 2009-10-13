@@ -41,6 +41,9 @@ struct TRINITY_DLL_DECL instance_azjol_nerub : public ScriptedInstance
     uint64 m_uiKrikthir;
     uint64 m_uiHadronox;
     uint64 m_uiAnubarak;
+    uint64 m_uiWatcherGashra;
+    uint64 m_uiWatcherSilthik;
+    uint64 m_uiWatcherNarjil;
     
     uint64 m_uiKrikthirDoor;
 
@@ -52,7 +55,10 @@ struct TRINITY_DLL_DECL instance_azjol_nerub : public ScriptedInstance
 
         m_uiKrikthir = 0;
         m_uiHadronox = 0;
-        m_uiAnubarak =0;
+        m_uiAnubarak = 0;
+        m_uiWatcherGashra = 0;
+        m_uiWatcherSilthik = 0;
+        m_uiWatcherNarjil = 0;
         m_uiKrikthirDoor = 0;
     }
 
@@ -69,10 +75,12 @@ struct TRINITY_DLL_DECL instance_azjol_nerub : public ScriptedInstance
     {
         switch(pCreature->GetEntry())
         {
-            case 28684:    m_uiKrikthir = pCreature->GetGUID();  break;
-            case 28921:    m_uiHadronox = pCreature->GetGUID();  break;
-            case 29120:    m_uiAnubarak = pCreature->GetGUID();  break;
-
+            case 28684:    m_uiKrikthir = pCreature->GetGUID();        break;
+            case 28921:    m_uiHadronox = pCreature->GetGUID();        break;
+            case 29120:    m_uiAnubarak = pCreature->GetGUID();        break;
+            case 28730:    m_uiWatcherGashra = pCreature->GetGUID();   break;
+            case 28731:    m_uiWatcherSilthik = pCreature->GetGUID();  break;
+            case 28729:    m_uiWatcherNarjil = pCreature->GetGUID();   break;
         }
     }
     
@@ -95,6 +103,9 @@ struct TRINITY_DLL_DECL instance_azjol_nerub : public ScriptedInstance
             case DATA_KRIKTHIR_THE_GATEWATCHER:     return m_uiKrikthir;
             case DATA_HADRONOX:                     return m_uiHadronox;
             case DATA_ANUBARAK:                     return m_uiAnubarak;
+            case DATA_WATCHER_GASHRA:               return m_uiWatcherGashra;
+            case DATA_WATCHER_SILTHIK:              return m_uiWatcherSilthik;
+            case DATA_WATCHER_NARJIL:               return m_uiWatcherNarjil;
         }
 
         return 0;
