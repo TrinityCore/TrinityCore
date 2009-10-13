@@ -558,6 +558,7 @@ bool ChatHandler::HandleReloadAllCommand(const char*)
     HandleReloadAllItemCommand("");
     HandleReloadAllLocalesCommand("");
 
+    HandleReloadAccessRequirementCommand("");
     HandleReloadCommandCommand("");
     HandleReloadReservedNameCommand("");
     HandleReloadTrinityStringCommand("");
