@@ -137,7 +137,7 @@ struct TRINITY_DLL_DECL boss_kelthuzadAI : public BossAI
         Phase=1;
         me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
         me->SetReactState(REACT_PASSIVE);
-        events.ScheduleEvent(EVENT_WASTE, 3000);
+        events.ScheduleEvent(EVENT_WASTE, 5000);
         events.ScheduleEvent(EVENT_ABOMIN, 25000);
         events.ScheduleEvent(EVENT_WEAVER, 20000);
         events.ScheduleEvent(EVENT_PHASE, 228000);
@@ -158,7 +158,7 @@ struct TRINITY_DLL_DECL boss_kelthuzadAI : public BossAI
                 {
                     case EVENT_WASTE:
                         DoSummon(MOB_WASTE, Pos[RAND(0,3,6,9)]);
-                        events.RepeatEvent(3000);
+                        events.RepeatEvent(5000);
                         break;
                     case EVENT_ABOMIN:
                         DoSummon(MOB_ABOMINATION, Pos[RAND(1,4,7,10)]);
@@ -170,15 +170,14 @@ struct TRINITY_DLL_DECL boss_kelthuzadAI : public BossAI
                         break;
                     case EVENT_PHASE:
                         events.Reset();
-                        events.ScheduleEvent(EVENT_BOLT, 2000);
-                        events.ScheduleEvent(EVENT_NOVA, 15000);
-                        events.ScheduleEvent(EVENT_DETONATE, 20000);
-                        events.ScheduleEvent(EVENT_FISSURE, 25000);
-                        events.ScheduleEvent(EVENT_BLAST, (rand()%30+30)*1000);
-                        if (HeroicMode)
-                            events.ScheduleEvent(EVENT_CHAIN, (rand()%30+30)*1000);
                         me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                         me->SetReactState(REACT_AGGRESSIVE);
+                        events.ScheduleEvent(EVENT_BOLT, urand(1000,10000));
+                        events.ScheduleEvent(EVENT_NOVA, urand(10000,15000));
+                        events.ScheduleEvent(EVENT_DETONATE, 20000);
+                        events.ScheduleEvent(EVENT_FISSURE, 25000);
+                        events.ScheduleEvent(EVENT_BLAST, urand(30000,60000));
+                        events.ScheduleEvent(EVENT_CHAIN, urand(30000,60000));
                         Phase = 2;
                         return;
                     default:
@@ -221,17 +220,17 @@ struct TRINITY_DLL_DECL boss_kelthuzadAI : public BossAI
                 {
                     case EVENT_BOLT:
                         DoCast(m_creature->getVictim(),SPELL_FROST_BOLT);
-                        events.RepeatEvent(2000);
+                        events.RepeatEvent(urand(1000,10000));
                         return;
                     case EVENT_NOVA:
                         DoCastAOE(SPELL_FROST_BOLT_AOE);
-                        events.RepeatEvent(15000);
+                        events.RepeatEvent(urand(10000,20000));
                         return;
                     case EVENT_CHAIN:
                         if (Unit *target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0, true))
                             DoCast(target, SPELL_CHAINS_OF_KELTHUZAD);
                         DoScriptText(SAY_CHAIN, me);
-                        events.RepeatEvent((rand()%30+30)*1000);
+                        events.RepeatEvent(urand(30000,60000));
                         return;
                     case EVENT_DETONATE:
                     {
@@ -266,7 +265,7 @@ struct TRINITY_DLL_DECL boss_kelthuzadAI : public BossAI
                             DoCast(target, SPELL_FROST_BLAST);
                         if (rand()%2)
                             DoScriptText(SAY_FROST_BLAST, m_creature);
-                        events.RepeatEvent((rand()%30+30)*1000);
+                        events.RepeatEvent(urand(30000,60000));
                         return;
                     default:
                         events.PopEvent();
