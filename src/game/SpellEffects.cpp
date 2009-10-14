@@ -7043,13 +7043,9 @@ void Spell::EffectWMODamage(uint32 /*i*/)
         if(!caster)
             return;
 
-        const GameObjectInfo *gInfo = objmgr.GetGameObjectInfo(gameObjTarget->GetEntry());
-        if (!gInfo)
-            return;
-       
         FactionTemplateEntry const *casterft, *goft;
         casterft = caster->getFactionTemplateEntry();
-        goft = sFactionTemplateStore.LookupEntry(gInfo->faction);
+        goft = sFactionTemplateStore.LookupEntry(gameObjTarget->GetUInt32Value(GAMEOBJECT_FACTION));
         // Do not allow to damage GO's of friendly factions (ie: Wintergrasp Walls)
         if (casterft && goft && !casterft->IsFriendlyTo(*goft))
             gameObjTarget->TakenDamage((uint32)damage);
