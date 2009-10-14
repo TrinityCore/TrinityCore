@@ -195,7 +195,7 @@ WaypointMovementGenerator<Creature>::Update(Creature &unit, const uint32 &diff)
                 i_nextMoveTime.Reset(node->delay);
 
             //note: disable "start" for mtmap
-            if(node->event_id && rand()%100 < node->event_chance)
+            if(node->event_id && urand(0,99) < node->event_chance)
                 unit.GetMap()->ScriptsStart(sWaypointScripts, node->event_id, &unit, NULL/*, false*/);
 
             MovementInform(unit);
