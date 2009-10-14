@@ -14886,7 +14886,7 @@ bool Player::LoadFromDB( uint32 guid, SqlQueryHolder *holder )
                 continue;
 
         // arena team not exist or not member, cleanup fields
-        for(int j =0; j < 6; ++j)
+        for(int j = 0; j < 6; ++j)
             SetUInt32Value(PLAYER_FIELD_ARENA_TEAM_INFO_1_1 + arena_slot * 6 + j, 0);
     }
 
@@ -15183,6 +15183,8 @@ bool Player::LoadFromDB( uint32 guid, SqlQueryHolder *holder )
     SetUInt32Value(PLAYER_TRACK_CREATURES, 0 );
     SetUInt32Value(PLAYER_TRACK_RESOURCES, 0 );
 
+    _LoadSkills();
+
     // make sure the unit is considered out of combat for proper loading
     ClearInCombat();
 
@@ -15221,11 +15223,6 @@ bool Player::LoadFromDB( uint32 guid, SqlQueryHolder *holder )
         
     _LoadTalents(holder->GetResult(PLAYER_LOGIN_QUERY_LOADTALENTS));
     _LoadSpells(holder->GetResult(PLAYER_LOGIN_QUERY_LOADSPELLS));
-
-    // Moved _LoadSkills() to be after _LoadSpells() because certain Tradeskill passive buffs
-    // would learn but not apply when calling _LoadSkills() first.
-    // Example: 53125 (Master of Anatomy) which is learned at skinning 75/75
-    _LoadSkills();
 
     _LoadGlyphs(holder->GetResult(PLAYER_LOGIN_QUERY_LOADGLYPHS));
     _LoadAuras(holder->GetResult(PLAYER_LOGIN_QUERY_LOADAURAS), time_diff);
