@@ -41,7 +41,6 @@ enum WintergraspSpell
     SPELL_TENACITY_VEHICLE  = 59911,
 
     SPELL_TELEPORT_DALARAN  = 53360,
-    SPELL_SHUTDOWN_VEHICLE  = 21247,
 
     SPELL_TOWER_CONTROL     = 62064,
     SPELL_VICTORY_REWARD    = 56902,
@@ -155,7 +154,7 @@ struct BuildingState
         if(graveTeam)
             *graveTeam = TeamId2Team[t];
     }
-    GameObject * GetBuilding() { return building; }
+
 private:
     TeamId team;
 };
@@ -194,6 +193,9 @@ class OPvPWintergrasp : public OutdoorPvP
         void SetData(uint32 id, uint32 value);
 
         void ModifyWorkshopCount(TeamId team, bool add);
+        uint32 GetTimer() { return m_timer / 1000; };
+        TeamId GetTeam() { return m_defender; };
+        bool isWarTime() { return m_wartime; };
     protected:
         TeamId m_defender;
         int32 m_tenacityStack;
