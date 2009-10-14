@@ -10,33 +10,49 @@ Script Data End */
 update creature_template set scriptname = 'boss_trollgore' where entry = '';
 *** SQL END ***/
 #include "precompiled.h"
+#include "def_drak_tharon_keep.h"
 
-//Spell
-#define SPELL_INFECTED_WOUND                          49637
-#define SPELL_CRUSH                                   49639
-#define SPELL_CORPSE_EXPLODE_N                        49555
-#define SPELL_CONSUME_N                               49380
-
+enum Spells
+{
+    SPELL_INFECTED_WOUND                          = 49637,
+    SPELL_CRUSH                                   = 49639,
+    SPELL_CORPSE_EXPLODE                          = 49555,
+    SPELL_CONSUME                                 = 49380,
 //Spell Heroic
-#define SPELL_CORPSE_EXPLODE_H                        59807
-#define SPELL_CONSUME_H                               59803
-
+    H_SPELL_CORPSE_EXPLODE                        = 59807,
+    H_SPELL_CONSUME                               = 59803
+};
 //not in db
-//Yell
-#define SAY_AGGRO                                  -1600006
-#define SAY_KILL                                   -1600007
-#define SAY_CONSUME                                -1600008
-#define SAY_EXPLODE                                -1600009
-#define SAY_DEATH                                  -1600010
+enum Yells
+{
+    SAY_AGGRO                                  = -1600006,
+    SAY_KILL                                   = -1600007,
+    SAY_CONSUME                                = -1600008,
+    SAY_EXPLODE                                = -1600009,
+    SAY_DEATH                                  = -1600010
+};
 
 struct TRINITY_DLL_DECL boss_trollgoreAI : public ScriptedAI
 {
-    boss_trollgoreAI(Creature *c) : ScriptedAI(c) {}
+    boss_trollgoreAI(Creature *c) : ScriptedAI(c)
+    {
+        pInstance = c->GetInstanceData();
+    }
+    
+    ScriptedInstance* pInstance;
 
-    void Reset() {}
+    void Reset()
+    {
+        if (pInstance)
+            pInstance->SetData(DATA_TROLLGORE_EVENT, NOT_STARTED);
+    }
+    
     void EnterCombat(Unit* who)
     {
         DoScriptText(SAY_AGGRO, m_creature);
+        
+        if (pInstance)
+            pInstance->SetData(DATA_TROLLGORE_EVENT, IN_PROGRESS);
     }
     void AttackStart(Unit* who) {}
     void MoveInLineOfSight(Unit* who) {}
@@ -51,6 +67,9 @@ struct TRINITY_DLL_DECL boss_trollgoreAI : public ScriptedAI
     void JustDied(Unit* killer)
     {
         DoScriptText(SAY_DEATH, m_creature);
+        
+        if (pInstance)
+            pInstance->SetData(DATA_TROLLGORE_EVENT, DONE);
     }
     void KilledUnit(Unit *victim)
     {

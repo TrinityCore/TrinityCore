@@ -327,6 +327,8 @@ extern void AddSC_utgarde_keep();
 extern void AddSC_boss_archavon();              //Vault of Archavon
 extern void AddSC_boss_emalon();
 extern void AddSC_instance_archavon();
+extern void AddSC_boss_novos();                 //Drak'Tharon Keep
+extern void AddSC_instance_drak_tharon();
 
 extern void AddSC_borean_tundra();
 extern void AddSC_dragonblight();
@@ -746,6 +748,8 @@ void AddScripts()
     AddSC_boss_archavon();              //Vault of Archavon
     AddSC_boss_emalon();
     AddSC_instance_archavon();
+    AddSC_boss_novos();                 //Drak'Tharon Keep
+    AddSC_instance_drak_tharon();
 
     AddSC_borean_tundra();
     AddSC_dragonblight();
