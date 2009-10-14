@@ -95,7 +95,7 @@ void SimpleAI::EnterCombat(Unit *who)
                 Spell_Timer[9] = Spell[9].First_Cast;
             else Spell_Timer[9] = 1000;
 
-            uint32 random_text = rand()%3;
+            uint8 random_text = urand(0,2);
 
             //Random text
             if (Aggro_TextId[random_text])
@@ -108,7 +108,7 @@ void SimpleAI::EnterCombat(Unit *who)
 
 void SimpleAI::KilledUnit(Unit *victim)
 {
-    uint32 random_text = rand()%3;
+    uint8 random_text = urand(0,2);
 
     //Random yell
     if (Kill_TextId[random_text])
@@ -156,7 +156,7 @@ void SimpleAI::DamageTaken(Unit *killer, uint32 &damage)
     if (m_creature->GetHealth() > damage)
         return;
 
-    uint32 random_text = rand()%3;
+    uint8 random_text = urand(0,2);
 
     //Random yell
     if (Death_TextId[random_text])
@@ -251,7 +251,7 @@ void SimpleAI::UpdateAI(const uint32 diff)
 
                     //Yell and sound use the same number so that you can make
                     //the Creature yell with the correct sound effect attached
-                    uint32 random_text = rand()%3;
+                    uint8 random_text = urand(0,2);
 
                     //Random yell
                     if (Spell[i].TextId[random_text])
