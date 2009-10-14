@@ -102,6 +102,7 @@ bool OPvPWintergrasp::SetupOutdoorPvP()
     }
     minX -= 20; minY -= 20; maxX += 20; maxY += 20;
 
+    // Coords: 4290.330078, 1790.359985 - 5558.379883, 4048.889893
     QueryResult *result = WorldDatabase.PQuery("SELECT guid FROM gameobject,gameobject_template"
         " WHERE gameobject.map=571"
         " AND gameobject.position_x>%f AND gameobject.position_y>%f"
@@ -144,9 +145,7 @@ bool OPvPWintergrasp::SetupOutdoorPvP()
         TeamId teamId = x > POS_X_CENTER ? m_defender : OTHER_TEAM(m_defender);
         m_buildingStates[guid] = new BuildingState((*poi)->worldState, teamId, m_defender != TEAM_ALLIANCE);
         if ((*poi)->id == 2246)
-        {
             m_gate = m_buildingStates[guid];
-        }
         areaPOIs.erase(poi);
 
         // add capture point
@@ -154,13 +153,18 @@ bool OPvPWintergrasp::SetupOutdoorPvP()
 
         switch(goData->id)
         {
-            case 192028: capturePointEntry = 190475; break;
-            case 192029: capturePointEntry = 190487; break; // not sure
-            case 192030: capturePointEntry = 190475; break;
-            case 192031: capturePointEntry = 190487; break;
-            case 192032: capturePointEntry = 190475; break;
-            case 192033: capturePointEntry = 190487; break;
+            case 192028: // NW
+            case 192030: // W
+            case 192032: // SW
+                capturePointEntry = 190475;
+                break;
+            case 192029: // NE
+            case 192031: // E
+            case 192033: // SE
+                capturePointEntry = 190487;
+                break;
         }
+        // TODO - Get Engs from DB only 1 time, not 6
         if (capturePointEntry)
         {
             uint32 engGuid = 0;
@@ -333,11 +337,7 @@ void OPvPWintergrasp::ProcessEvent(GameObject *obj, uint32 eventId)
                 state->damageState = DAMAGE_DESTROYED;
 
                 if (state->type == BUILDING_WORKSHOP)
-                {
-                    //if (SiegeWorkshop *workshop = GetWorkshop(obj->GetDBTableGUIDLow()))
-                    //    workshop->DespawnAllVehicles();
                     ModifyWorkshopCount(state->GetTeam(), false);
-                }
                 else if (state->type == BUILDING_TOWER)
                 {
                     if (!m_towerCount)
@@ -346,11 +346,9 @@ void OPvPWintergrasp::ProcessEvent(GameObject *obj, uint32 eventId)
                     {
                         --m_towerCount;
                         if (sWorld.getConfig(CONFIG_OUTDOORPVP_WINTERGRASP_CUSTOM_HONOR))
-                        {
                             for (PlayerSet::const_iterator itr = m_players[m_defender].begin(); itr != m_players[m_defender].end(); ++itr)
                                 if ((*itr)->HasAura(SPELL_LIEUTENANT) && ((*itr)->getLevel() > 69))
                                     (*itr)->ModifyHonorPoints(m_customHonorReward[DESTROYED_TOWER]);
-                        }
                         else
                             LieutenantCastSpell(m_defender, SPELL_DESTROYED_TOWER);
                     }
@@ -619,6 +617,14 @@ void OPvPWintergrasp::BroadcastStateChange(BuildingState *state) const
 
 bool OPvPWintergrasp::UpdateCreatureInfo(Creature *creature) const
 {
+    if (GetCreatureType(creature->GetEntry()) == CREATURE_TURRET)
+    {
+        if (!creature->isAlive())
+            creature->Respawn(true);
+        creature->setFaction(WintergraspFaction[m_defender]);
+        return true;
+    }
+
     TeamPairMap::const_iterator itr = m_creEntryPair.find(creature->GetCreatureData()->id);
     if (itr != m_creEntryPair.end())
     {
@@ -635,25 +641,29 @@ bool OPvPWintergrasp::UpdateGameObjectInfo(GameObject *go) const
 {
     switch(go->GetGOInfo()->displayId)
     {
+        case 8244: // Defender's Portal - Vehicle Teleporter
+            go->SetUInt32Value(GAMEOBJECT_FACTION, WintergraspFaction[m_defender]);
+            return true;
+        case 7967: // Titan relic
+            go->SetUInt32Value(GAMEOBJECT_FACTION, WintergraspFaction[OTHER_TEAM(m_defender)]);
+            return true;
+        // Return False = we need to rebuild at battle End
+
         case 8165: // Wintergrasp Keep Door
         case 7877: // Wintergrasp Fortress Wall
         case 7878: // Wintergrasp Keep Tower
         case 7906: // Wintergrasp Fortress Gate
         case 7909: // Wintergrasp Wall
-        case 8244: // Defender's Portal - Vehicle Teleporter
             go->SetUInt32Value(GAMEOBJECT_FACTION, WintergraspFaction[m_defender]);
-            return true;
+            return false;
         case 7900: // Flamewatch Tower - Shadowsight Tower - Winter's Edge Tower
-        case 7967: // Titan relic
             go->SetUInt32Value(GAMEOBJECT_FACTION, WintergraspFaction[OTHER_TEAM(m_defender)]);
-            return true;
+            return false;
         case 8208: // Goblin Workshop
             SiegeWorkshop *workshop = GetWorkshopByGOGuid(go->GetGUID());
             if (workshop)
-            {
                 go->SetUInt32Value(GAMEOBJECT_FACTION, WintergraspFaction[workshop->m_buildingState->GetTeam()]);
-                return true;
-            }
+            return false;
     }
 
     // Note: this is only for test, still need db support
@@ -664,7 +674,6 @@ bool OPvPWintergrasp::UpdateGameObjectInfo(GameObject *go) const
             itr->second : itr->first);
         return true;
     }
-
     return false;
 }
 
@@ -753,19 +762,19 @@ void OPvPWintergrasp::HandleKill(Player *killer, Unit *victim)
 }
 
 // Cast or removes Tenacity. MaxHP Modified, HP keeps it's % ratio
-void OPvPWintergrasp::CastTenacity(Unit *utr, int32 newStack)
+void OPvPWintergrasp::CastTenacity(Unit *unit, int32 newStack)
 {
-    if (!utr)
+    if (!unit)
         return;
 
-    uint32 spellId = utr->GetTypeId() == TYPEID_PLAYER ? SPELL_TENACITY : SPELL_TENACITY_VEHICLE;
-    float percent = (0.0f + utr->GetHealth()) / utr->GetMaxHealth();
+    uint32 spellId = unit->GetTypeId() == TYPEID_PLAYER ? SPELL_TENACITY : SPELL_TENACITY_VEHICLE;
 
     if (newStack)
-        utr->SetAuraStack(spellId, utr, newStack);
+        unit->SetAuraStack(spellId, unit, newStack);
     else
-        utr->RemoveAura(spellId);
-    utr->SetHealth(uint32(utr->GetMaxHealth()*percent));
+        unit->RemoveAura(spellId);
+    if (!unit->GetTypeId() == TYPEID_PLAYER || unit->isAlive())
+        unit->SetHealth(uint32(unit->GetMaxHealth()*((float)unit->GetHealth()) / unit->GetMaxHealth()));
 }
 
 // Recalculates Tenacity and applies it to Players / Vehicles
@@ -936,6 +945,14 @@ void OPvPWintergrasp::EndBattle()
 
     for (uint32 team = 0; team < 2; ++team)
     {
+        // destroyed all vehicles
+        while(!m_vehicles[team].empty())
+        {
+            Creature *veh = *m_vehicles[team].begin();
+            m_vehicles[team].erase(m_vehicles[team].begin());
+            veh->setDeathState(JUST_DIED);
+        }
+
         // calculate rewards
         uint32 intactNum = 0;
         uint32 damagedNum = 0;
@@ -980,14 +997,6 @@ void OPvPWintergrasp::EndBattle()
             REMOVE_WARTIME_AURAS(*itr);
             REMOVE_TENACITY_AURA(*itr);
             (*itr)->CombatStop(true);
-        }
-
-        // destroyed all vehicles
-        while(!m_vehicles[team].empty())
-        {
-            Creature *veh = *m_vehicles[team].begin();
-            m_vehicles[team].erase(m_vehicles[team].begin());
-            veh->CastSpell(veh, SPELL_SHUTDOWN_VEHICLE, true);
         }
     }
 
@@ -1102,13 +1111,8 @@ void SiegeWorkshop::ChangeTeam(TeamId oldTeam)
     // TODO: this may be sent twice
     m_wintergrasp->BroadcastStateChange(m_buildingState);
 
-    // does not work, entry may change
-    /*Creature *creature = ObjectAccessor::GetObjectInWorld(m_Creatures[0], (Creature*)NULL);
-    if (!creature)
-    {
-        sLog.outError("SiegeWorkshop::ChangeState cannot find creature " I64FMT " !", m_Creatures[0]);
-        return;
-    }*/
+    if (m_buildingState->building)
+        m_buildingState->building->SetUInt32Value(GAMEOBJECT_FACTION, WintergraspFaction[m_team]);
 
     if (entry)
     {
