@@ -494,6 +494,9 @@ void OPvPWintergrasp::OnCreatureCreate(Creature *creature, bool add)
                     }
             }
             break;
+        case CREATURE_TURRET:
+            creature->setFaction(WintergraspFaction[m_defender]);
+            break;
         default:
             if (m_creEntryPair.find(entry) != m_creEntryPair.end()) // guards and npc
             {
