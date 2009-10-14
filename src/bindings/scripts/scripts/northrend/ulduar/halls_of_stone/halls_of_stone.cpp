@@ -353,6 +353,7 @@ struct TRINITY_DLL_DECL npc_brann_hosAI : public npc_escortAI
         m_creature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
         SetEscortPaused(false);
         uiStep = 1;
+        Start();
     }
 
     void UpdateEscortAI(const uint32 uiDiff)
