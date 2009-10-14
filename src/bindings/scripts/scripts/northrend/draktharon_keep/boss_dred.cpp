@@ -10,25 +10,40 @@ Script Data End */
 update creature_template set scriptname = '' where entry = '';
 *** SQL END ***/
 #include "precompiled.h"
+#include "def_drak_tharon_keep.h"
 
-//Spells
-#define SPELL_BELLOWING_ROAR                     44863 // fears the group, can be resisted/dispelled
-#define SPELL_GRIEVOUS_BITE                      48920
-#define SPELL_MANGLING_SLASH                     48873 //casted on the current tank, adds debuf
-#define SPELL_FEARSOME_ROAR_N                    48849
-#define SPELL_FEARSOME_ROAR_H                    48849 //Not stacking, debuff
-#define SPELL_PIERCING_SLASH                     48878 //debuff -->Armor reduced by 75%
-#define SPELL_RAPTOR_CALL                        59416 //dummy
-
+enum Spells
+{
+    SPELL_BELLOWING_ROAR                     = 44863, // fears the group, can be resisted/dispelled
+    SPELL_GRIEVOUS_BITE                      = 48920,
+    SPELL_MANGLING_SLASH                     = 48873, //casted on the current tank, adds debuf
+    SPELL_FEARSOME_ROAR                      = 48849,
+    H_SPELL_FEARSOME_ROAR                    = 48849, //Not stacking, debuff
+    SPELL_PIERCING_SLASH                     = 48878, //debuff -->Armor reduced by 75%
+    SPELL_RAPTOR_CALL                        = 59416 //dummy
+};
 
 struct TRINITY_DLL_DECL boss_dredAI : public ScriptedAI
 {
-    boss_dredAI(Creature *c) : ScriptedAI(c) {}
+    boss_dredAI(Creature *c) : ScriptedAI(c)
+    {
+        pInstance = c->GetInstanceData();
+    }
+    
+    ScriptedInstance* pInstance;
 
-    void Reset() {}
-    void EnterCombat(Unit* who) {}
-    void AttackStart(Unit* who) {}
-    void MoveInLineOfSight(Unit* who) {}
+    void Reset()
+    {
+        if (pInstance)
+            pInstance->SetData(DATA_DRED_EVENT,NOT_STARTED);
+    }
+    
+    void EnterCombat(Unit* who)
+    {
+        if (pInstance)
+            pInstance->SetData(DATA_DRED_EVENT,IN_PROGRESS);
+    }
+    
     void UpdateAI(const uint32 diff)
     {
         //Return since we have no target
@@ -37,7 +52,12 @@ struct TRINITY_DLL_DECL boss_dredAI : public ScriptedAI
 
         DoMeleeAttackIfReady();
     }
-    void JustDied(Unit* killer)  {}
+    
+    void JustDied(Unit* killer)
+    {
+        if (pInstance)
+            pInstance->SetData(DATA_DRED_EVENT,DONE);
+    }
 };
 
 CreatureAI* GetAI_boss_dred(Creature* pCreature)
