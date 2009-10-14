@@ -161,9 +161,9 @@ struct TRINITY_DLL_DECL boss_attumenAI : public ScriptedAI
     {
         Phase = 1;
 
-        CleaveTimer = 10000 + (rand()%6)*1000;
+        CleaveTimer = urand(10000,15000);
         CurseTimer = 30000;
-        RandomYellTimer = 30000 + (rand()%31)*1000;         //Occasionally yell
+        RandomYellTimer = urand(30000,60000);              //Occasionally yell
         ChargeTimer = 20000;
         ResetTimer = 0;
     }
@@ -224,7 +224,7 @@ struct TRINITY_DLL_DECL boss_attumenAI : public ScriptedAI
         if (CleaveTimer < diff)
         {
             DoCast(m_creature->getVictim(), SPELL_SHADOWCLEAVE);
-            CleaveTimer = 10000 + (rand()%6)*1000;
+            CleaveTimer = urand(10000,15000);
         } else CleaveTimer -= diff;
 
         if (CurseTimer < diff)
@@ -236,7 +236,7 @@ struct TRINITY_DLL_DECL boss_attumenAI : public ScriptedAI
         if (RandomYellTimer < diff)
         {
             DoScriptText(RAND(SAY_RANDOM1,SAY_RANDOM2), m_creature);
-            RandomYellTimer = 30000 + (rand()%31)*1000;
+            RandomYellTimer = urand(30000,60000);
         } else RandomYellTimer -= diff;
 
         if (m_creature->GetUInt32Value(UNIT_FIELD_DISPLAYID) == MOUNTED_DISPLAYID)
