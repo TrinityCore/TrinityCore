@@ -941,11 +941,11 @@ namespace Trinity
                     return;
 
                 // too far
-                if (!i_funit->IsWithinDistInMap(u, i_range))
+                if (!u->IsWithinDistInMap(i_enemy, i_range))
                     return;
 
-                // only if see assisted creature
-                if (!i_funit->IsWithinLOSInMap(u))
+                // only if see assisted creature's enemy
+                if (!u->IsWithinLOSInMap(i_enemy))
                     return;
 
                 if (u->AI())
