@@ -11368,7 +11368,7 @@ Unit* Creature::SelectVictim()
     // Note: creature not have targeted movement generator but have attacker in this case
     for(AttackerSet::const_iterator itr = m_attackers.begin(); itr != m_attackers.end(); ++itr)
     {
-        if((*itr) && canCreatureAttack(*itr) && (*itr)->GetTypeId() != TYPEID_PLAYER
+        if((*itr) && !canCreatureAttack(*itr) && (*itr)->GetTypeId() != TYPEID_PLAYER
           && !((Creature*)(*itr))->HasUnitTypeMask(UNIT_MASK_CONTROLABLE_GUARDIAN))
             return NULL;
     }
