@@ -6277,8 +6277,8 @@ void AuraEffect::PeriodicTick()
 
             if (pCaster->GetTypeId() == TYPEID_UNIT && ((Creature*)pCaster)->isTotem() && ((Totem*)pCaster)->GetTotemType() != TOTEM_STATUE)
             {
-                uint32 procAttacker = PROC_FLAG_SUCCESSFUL_NEGATIVE_SPELL_HIT; //  | PROC_FLAG_SUCCESSFUL_HARMFUL_SPELL_HIT;
-                uint32 procVictim   = PROC_FLAG_SUCCESSFUL_AOE_SPELL_HIT; //       | PROC_FLAG_TAKEN_HARMFUL_SPELL_HIT;
+                uint32 procAttacker = PROC_FLAG_SUCCESSFUL_NEGATIVE_SPELL_HIT;
+                uint32 procVictim   = PROC_FLAG_TAKEN_NEGATIVE_SPELL_HIT;
                 SpellEntry const *spellProto = GetSpellProto();
 
                 if (spellProto->SpellFamilyName == SPELLFAMILY_GENERIC) // SPELLFAMILY_GENERIC proc by triggered spell
