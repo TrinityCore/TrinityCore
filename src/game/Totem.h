@@ -27,6 +27,7 @@ enum TotemType
 {
     TOTEM_PASSIVE    = 0,
     TOTEM_ACTIVE     = 1,
+    TOTEM_STATUE     = 2 // copied straight from MaNGOS, may need more implementation to work
 };
 
 #define SENTRY_TOTEM_ENTRY  3968
