@@ -245,9 +245,9 @@ struct TRINITY_DLL_DECL mob_malformed_oozeAI : public ScriptedAI
                 if (Creature* pTemp = m_creature->FindNearestCreature(CREATURE_MALFORMED_OOZE, 1.0f, true))
                 {
                     DoSpawnCreature(CREATURE_IRON_SLUDGE, 0, 0, 0, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 20000);
-                    pTemp->DealDamage(pTemp, pTemp->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+                    pTemp->Kill(pTemp, false);
                     pTemp->RemoveCorpse();
-                    m_creature->DealDamage(m_creature, m_creature->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+                    m_creature->Kill(m_creature, false);
                     m_creature->RemoveCorpse();
                 } else bIsMerging = false;
             } else uiMergeTimer -= diff;
@@ -283,8 +283,9 @@ struct TRINITY_DLL_DECL mob_iron_sludgeAI : public ScriptedAI
     
     void JustDied(Unit* pKiller)
     {
-        if (pInstance ? Creature* pSjonnir = Unit::GetCreature(*m_creature, pInstance->GetData64(DATA_SJONNIR)) : false)
-            CAST_AI(boss_sjonnirAI, pSjonnir->AI())->KilledIronSludge();
+        if (pInstance)
+            if(Creature* pSjonnir = Unit::GetCreature(*m_creature, pInstance->GetData64(DATA_SJONNIR)))
+                CAST_AI(boss_sjonnirAI, pSjonnir->AI())->KilledIronSludge();
     }
 };
 

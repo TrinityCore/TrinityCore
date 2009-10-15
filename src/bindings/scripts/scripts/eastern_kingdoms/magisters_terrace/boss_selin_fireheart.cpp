@@ -174,9 +174,9 @@ struct TRINITY_DLL_DECL boss_selin_fireheartAI : public ScriptedAI
         for(std::list<uint64>::iterator itr = Crystals.begin(); itr != Crystals.end(); ++itr)
         {
             //Creature* pCrystal = (Unit::GetCreature(*m_creature, FelCrystals[i]));
-            Creature* pCrystal = (Unit::GetCreature(*m_creature, *itr));
+            Creature* pCrystal = Unit::GetCreature(*m_creature, *itr);
             if (pCrystal && pCrystal->isAlive())
-                pCrystal->DealDamage(pCrystal, pCrystal->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+                pCrystal->Kill(pCrystal);
         }
     }
 
@@ -243,7 +243,7 @@ struct TRINITY_DLL_DECL boss_selin_fireheartAI : public ScriptedAI
                 {
                     DoCast(SelectUnit(SELECT_TARGET_RANDOM, 0), SPELL_DRAIN_LIFE);
                     DrainLifeTimer = 10000;
-                }else DrainLifeTimer -= diff;
+                } else DrainLifeTimer -= diff;
 
                 // Heroic only
                 if (Heroic)
@@ -252,7 +252,7 @@ struct TRINITY_DLL_DECL boss_selin_fireheartAI : public ScriptedAI
                     {
                         DoCast(SelectUnit(SELECT_TARGET_RANDOM, 1), SPELL_DRAIN_MANA);
                         DrainManaTimer = 10000;
-                    }else DrainManaTimer -= diff;
+                    } else DrainManaTimer -= diff;
                 }
             }
 
@@ -263,7 +263,7 @@ struct TRINITY_DLL_DECL boss_selin_fireheartAI : public ScriptedAI
                     DoCast(m_creature, SPELL_FEL_EXPLOSION);
                     FelExplosionTimer = 2000;
                 }
-            }else FelExplosionTimer -= diff;
+            } else FelExplosionTimer -= diff;
 
             // If below 10% mana, start recharging
             maxPowerMana = m_creature->GetMaxPower(POWER_MANA);
@@ -274,7 +274,7 @@ struct TRINITY_DLL_DECL boss_selin_fireheartAI : public ScriptedAI
                     SelectNearestCrystal();
                     if (Heroic) DrainCrystalTimer = 10000 + rand()%5000;
                     else        DrainCrystalTimer = 20000 + rand()%5000;
-                }else DrainCrystalTimer -= diff;
+                } else DrainCrystalTimer -= diff;
             }
 
         }else
@@ -291,13 +291,13 @@ struct TRINITY_DLL_DECL boss_selin_fireheartAI : public ScriptedAI
                     Unit* CrystalChosen = Unit::GetUnit(*m_creature, CrystalGUID);
                     if (CrystalChosen && CrystalChosen->isAlive())
                         // Use Deal Damage to kill it, not setDeathState.
-                        CrystalChosen->DealDamage(CrystalChosen, CrystalChosen->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+                        CrystalChosen->Kill(CrystalChosen);
 
                     CrystalGUID = 0;
 
                     m_creature->GetMotionMaster()->Clear();
                     m_creature->GetMotionMaster()->MoveChase(m_creature->getVictim());
-                }else EmpowerTimer -= diff;
+                } else EmpowerTimer -= diff;
             }
         }
 
@@ -340,7 +340,7 @@ struct TRINITY_DLL_DECL mob_fel_crystalAI : public ScriptedAI
                     }
                 }
             }
-        }else error_log(ERROR_INST_DATA);
+        } else error_log(ERROR_INST_DATA);
     }
 };
 

@@ -192,7 +192,7 @@ struct TRINITY_DLL_DECL boss_attumenAI : public ScriptedAI
     {
         DoScriptText(SAY_DEATH, m_creature);
         if (Unit *pMidnight = Unit::GetUnit(*m_creature, Midnight))
-            pMidnight->DealDamage(pMidnight, pMidnight->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+            pMidnight->Kill(pMidnight);
     }
 
     void UpdateAI(const uint32 diff)
@@ -210,7 +210,7 @@ struct TRINITY_DLL_DECL boss_attumenAI : public ScriptedAI
                 }
                 Midnight = 0;
                 m_creature->SetVisibility(VISIBILITY_OFF);
-                m_creature->DealDamage(m_creature, m_creature->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+                m_creature->Kill(m_creature);
             }
         } else ResetTimer -= diff;
 

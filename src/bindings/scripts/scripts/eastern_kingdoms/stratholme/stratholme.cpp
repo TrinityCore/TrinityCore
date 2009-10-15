@@ -125,7 +125,7 @@ struct TRINITY_DLL_DECL mob_restless_soulAI : public ScriptedAI
         Tagged = false;
     }
 
-    void EnterCombat(Unit* who) { }
+    void EnterCombat(Unit* who) {}
 
     void SpellHit(Unit *caster, const SpellEntry *spell)
     {
@@ -156,9 +156,9 @@ struct TRINITY_DLL_DECL mob_restless_soulAI : public ScriptedAI
         {
             if (Die_Timer < diff)
             {
-                if (Unit* temp = Unit::GetUnit(*m_creature,Tagger))
-                    temp->DealDamage(m_creature, m_creature->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
-            }else Die_Timer -= diff;
+                if (Unit* pTemp = Unit::GetUnit(*m_creature,Tagger))
+                    pTemp->Kill(pTemp);
+            } else Die_Timer -= diff;
         }
     }
 };
@@ -191,7 +191,7 @@ struct TRINITY_DLL_DECL mobs_spectral_ghostly_citizenAI : public ScriptedAI
         Tagged = false;
     }
 
-    void EnterCombat(Unit* who) { }
+    void EnterCombat(Unit* who) {}
 
     void SpellHit(Unit *caster, const SpellEntry *spell)
     {
@@ -206,8 +206,7 @@ struct TRINITY_DLL_DECL mobs_spectral_ghostly_citizenAI : public ScriptedAI
             for(uint32 i = 1; i <= 4; ++i)
             {
                  //100%, 50%, 33%, 25% chance to spawn
-                 uint32 j = urand(1,i);
-                 if (j==1)
+                 if (urand(1,i) == 1)
                      DoSummon(ENTRY_RESTLESS, me, 20.0f, 600000);
             }
         }
@@ -218,9 +217,8 @@ struct TRINITY_DLL_DECL mobs_spectral_ghostly_citizenAI : public ScriptedAI
         if (Tagged)
         {
             if (Die_Timer < diff)
-            {
-                m_creature->DealDamage(m_creature, m_creature->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
-            }else Die_Timer -= diff;
+                m_creature->Kill(m_creature);
+            else Die_Timer -= diff;
         }
 
         if (!UpdateVictim())
