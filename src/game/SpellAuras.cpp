@@ -1407,13 +1407,34 @@ void AuraEffect::HandleAuraEffectSpecificMods(bool apply, bool Real, bool change
                     }
                     break;
                 case SPELLFAMILY_PRIEST:
+                {
                     // Power Word: Shield
                     if(m_spellProto->SpellFamilyFlags[0] & 0x1 && m_spellProto->SpellFamilyFlags[2] & 0x400 && GetAuraName() == SPELL_AURA_SCHOOL_ABSORB)
                     {
-                        // +80.68% from sp bonus
+                        //+80.68% from sp bonus
                         DoneActualBenefit = caster->SpellBaseHealingBonus(GetSpellSchoolMask(m_spellProto)) * 0.8068f;
                     }
+                    // Borrowed Time
+                    else if(m_spellProto->SpellFamilyFlags[0] & 0x1 && GetAuraName() == SPELL_AURA_SCHOOL_ABSORB)
+                    {
+                        switch(m_spellProto->Id)
+                        {
+                            case 52795:
+                                DoneActualBenefit = caster->SpellBaseHealingBonus(GetSpellSchoolMask(m_spellProto)) * 0.08f; break;
+                            case 52797:
+                                DoneActualBenefit = caster->SpellBaseHealingBonus(GetSpellSchoolMask(m_spellProto)) * 0.16f; break;
+                            case 52798:
+                                DoneActualBenefit = caster->SpellBaseHealingBonus(GetSpellSchoolMask(m_spellProto)) * 0.24f; break;
+                            case 52799:
+                                DoneActualBenefit = caster->SpellBaseHealingBonus(GetSpellSchoolMask(m_spellProto)) * 0.32f; break;
+                            case 52800:
+                                DoneActualBenefit = caster->SpellBaseHealingBonus(GetSpellSchoolMask(m_spellProto)) * 0.40f; break;
+                            default:
+                                sLog.outDetail("Unhandled spell '%u' (possibly a new rank of Borrowed Time?) found.",m_spellProto->Id); break;
+                        }
+                    }
                     break;
+                }
                 case SPELLFAMILY_DRUID:
                 {
                     // Rip
