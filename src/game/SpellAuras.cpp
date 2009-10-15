@@ -6271,6 +6271,26 @@ void AuraEffect::PeriodicTick()
         }
         case SPELL_AURA_PERIODIC_TRIGGER_SPELL:
         {
+            Unit *pCaster = GetCaster();
+            if (!pCaster)
+                return;
+
+            if (pCaster->GetTypeId() == TYPEID_UNIT && ((Creature*)pCaster)->isTotem() && ((Totem*)pCaster)->GetTotemType() != TOTEM_STATUE)
+            {
+                uint32 procAttacker = PROC_FLAG_SUCCESSFUL_NEGATIVE_SPELL_HIT; //  | PROC_FLAG_SUCCESSFUL_HARMFUL_SPELL_HIT;
+                uint32 procVictim   = PROC_FLAG_SUCCESSFUL_AOE_SPELL_HIT; //       | PROC_FLAG_TAKEN_HARMFUL_SPELL_HIT;
+                SpellEntry const *spellProto = GetSpellProto();
+
+                if (spellProto->SpellFamilyName == SPELLFAMILY_GENERIC) // SPELLFAMILY_GENERIC proc by triggered spell
+                {
+                    uint32 trigger_spell_id = spellProto->EffectTriggerSpell[m_effIndex];
+                    SpellEntry const *triggeredSpellInfo = sSpellStore.LookupEntry(trigger_spell_id);
+                    ((Totem*)pCaster)->GetOwner()->ProcDamageAndSpell(pCaster, procAttacker, procVictim, PROC_EX_NORMAL_HIT, 0, BASE_ATTACK, triggeredSpellInfo);
+                }
+                else
+                    ((Totem*)pCaster)->GetOwner()->ProcDamageAndSpell(pCaster, procAttacker, procVictim, PROC_EX_NORMAL_HIT, 0, BASE_ATTACK, spellProto);
+            }
+
             TriggerSpell();
             break;
         }
