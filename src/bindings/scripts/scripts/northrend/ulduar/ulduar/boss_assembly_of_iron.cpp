@@ -367,7 +367,7 @@ struct TRINITY_DLL_DECL mob_lightning_elementalAI : public ScriptedAI
         if(m_creature->IsWithinMeleeRange(Target))
         {
             DoCast(Target, (HeroicMode) ? SPELL_LIGHTNING_BLAST_H : SPELL_LIGHTNING_BLAST);
-            m_creature->DealDamage(m_creature, m_creature->GetMaxHealth()); // hack untill spell works
+            m_creature->Kill(m_creature); // hack until spell works
         }
 
         m_creature->GetMotionMaster()->MoveChase(Target); // needed at every update?

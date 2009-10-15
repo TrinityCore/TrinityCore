@@ -85,7 +85,7 @@ struct TRINITY_DLL_DECL mob_voidtravelerAI : public ScriptedAI
     {
         if (!Vorpil)
         {
-            m_creature->DealDamage(m_creature, m_creature->GetMaxHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+            m_creature->Kill(m_creature);
             return;
         }
         if (move < diff)
@@ -97,7 +97,7 @@ struct TRINITY_DLL_DECL mob_voidtravelerAI : public ScriptedAI
                     Vorpil->AddAura(new Aura(spell, 1, Vorpil, me, me));
                 Vorpil->SetHealth(Vorpil->GetHealth()+Vorpil->GetMaxHealth()/25);
                 DoCast(m_creature, SPELL_SHADOW_NOVA, true);
-                m_creature->DealDamage(m_creature, m_creature->GetMaxHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+                m_creature->Kill(m_creature);
                 return;
             }
             m_creature->GetMotionMaster()->MoveFollow(Vorpil,0,0);
@@ -110,11 +110,11 @@ struct TRINITY_DLL_DECL mob_voidtravelerAI : public ScriptedAI
             }
             if (!Vorpil->isInCombat() || Vorpil->isDead())
             {
-                m_creature->DealDamage(m_creature, m_creature->GetMaxHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+                m_creature->Kill(m_creature);
                 return;
             }
             move = 1000;
-        }else move -= diff;
+        } else move -= diff;
     }
 };
 CreatureAI* GetAI_mob_voidtraveler(Creature* pCreature)
@@ -159,7 +159,7 @@ struct TRINITY_DLL_DECL boss_grandmaster_vorpilAI : public ScriptedAI
     {
         if (!sumportals)
         {
-            for (int i = 0;i<5; ++i)
+            for (uint8 i = 0; i < 5; ++i)
             {
                 Creature *Portal = NULL;
                 Portal = m_creature->SummonCreature(MOB_VOID_PORTAL,VoidPortalCoords[i][0],VoidPortalCoords[i][1],VoidPortalCoords[i][2],0,TEMPSUMMON_CORPSE_DESPAWN,3000000);
@@ -178,7 +178,7 @@ struct TRINITY_DLL_DECL boss_grandmaster_vorpilAI : public ScriptedAI
     {
         if (sumportals)
         {
-            for (int i = 0;i < 5; i ++)
+            for (uint8 i = 0; i < 5; ++i)
             {
                 Unit *Portal = Unit::GetUnit((*m_creature), PortalsGuid[i]);
                 if (Portal && Portal->isAlive())
@@ -191,7 +191,7 @@ struct TRINITY_DLL_DECL boss_grandmaster_vorpilAI : public ScriptedAI
 
     void spawnVoidTraveler()
     {
-        int pos = rand()%5;
+        int pos = urand(0,4);
         m_creature->SummonCreature(MOB_VOID_TRAVELER,VoidPortalCoords[pos][0],VoidPortalCoords[pos][1],VoidPortalCoords[pos][2],0,TEMPSUMMON_CORPSE_TIMED_DESPAWN,5000);
         if (!HelpYell)
         {
@@ -208,11 +208,7 @@ struct TRINITY_DLL_DECL boss_grandmaster_vorpilAI : public ScriptedAI
 
     void KilledUnit(Unit *victim)
     {
-        switch(rand()%2)
-        {
-            case 0: DoScriptText(SAY_SLAY1, m_creature); break;
-            case 1: DoScriptText(SAY_SLAY2, m_creature); break;
-        }
+        DoScriptText(RAND(SAY_SLAY1,SAY_SLAY2), m_creature);
     }
 
     void JustDied(Unit *victim)
@@ -226,12 +222,7 @@ struct TRINITY_DLL_DECL boss_grandmaster_vorpilAI : public ScriptedAI
 
     void EnterCombat(Unit *who)
     {
-        switch(rand()%3)
-        {
-            case 0: DoScriptText(SAY_AGGRO1, m_creature); break;
-            case 1: DoScriptText(SAY_AGGRO2, m_creature); break;
-            case 2: DoScriptText(SAY_AGGRO3, m_creature); break;
-        }
+        DoScriptText(RAND(SAY_AGGRO1,SAY_AGGRO2,SAY_AGGRO3), m_creature);
         summonPortals();
 
         if (pInstance)
@@ -258,7 +249,7 @@ struct TRINITY_DLL_DECL boss_grandmaster_vorpilAI : public ScriptedAI
         {
             DoCast(m_creature,SPELL_SHADOWBOLT_VOLLEY);
             ShadowBoltVolley_Timer = 15000 + rand()%15000;;
-        }else ShadowBoltVolley_Timer -= diff;
+        } else ShadowBoltVolley_Timer -= diff;
 
         if (HeroicMode && banish_Timer < diff)
         {
@@ -268,7 +259,7 @@ struct TRINITY_DLL_DECL boss_grandmaster_vorpilAI : public ScriptedAI
                 DoCast(target,SPELL_BANISH);
                 banish_Timer = 16000;
             }
-        }else banish_Timer -= diff;
+        } else banish_Timer -= diff;
 
         if (DrawShadows_Timer < diff)
         {
@@ -286,7 +277,7 @@ struct TRINITY_DLL_DECL boss_grandmaster_vorpilAI : public ScriptedAI
 
             ShadowBoltVolley_Timer = 6000;
             DrawShadows_Timer = 30000;
-        }else DrawShadows_Timer -= diff;
+        } else DrawShadows_Timer -= diff;
 
         if (summonTraveler_Timer < diff)
         {
@@ -295,7 +286,7 @@ struct TRINITY_DLL_DECL boss_grandmaster_vorpilAI : public ScriptedAI
             //enrage at 20%
             if ((m_creature->GetHealth()*5) < m_creature->GetMaxHealth())
                 summonTraveler_Timer = 5000;
-        }else summonTraveler_Timer -=diff;
+        } else summonTraveler_Timer -=diff;
 
         DoMeleeAttackIfReady();
     }
@@ -309,12 +300,12 @@ void AddSC_boss_grandmaster_vorpil()
 {
     Script *newscript;
     newscript = new Script;
-    newscript->Name="boss_grandmaster_vorpil";
+    newscript->Name = "boss_grandmaster_vorpil";
     newscript->GetAI = &GetAI_boss_grandmaster_vorpil;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="mob_voidtraveler";
+    newscript->Name = "mob_voidtraveler";
     newscript->GetAI = &GetAI_mob_voidtraveler;
     newscript->RegisterSelf();
 }

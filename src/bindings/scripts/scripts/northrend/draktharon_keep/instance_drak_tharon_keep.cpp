@@ -128,13 +128,14 @@ struct TRINITY_DLL_DECL instance_drak_tharon : public ScriptedInstance
     
     uint32 GetData(uint32 type)
     {
-        switch(type)
+        switch (type)
         {
             case DATA_TROLLGORE_EVENT:    return m_auiEncounter[0];
             case DATA_NOVOS_EVENT:        return m_auiEncounter[1];
             case DATA_DRED_EVENT:         return m_auiEncounter[2];
             case DATA_THARON_JA_EVENT:    return m_auiEncounter[3];
         }
+        return 0;
     }
     
     std::string GetSaveData()
@@ -164,10 +165,10 @@ struct TRINITY_DLL_DECL instance_drak_tharon : public ScriptedInstance
         OUT_LOAD_INST_DATA(in);
 
         char dataHead1, dataHead2;
-        uint16 data0,data1,data2,data3,data4, data5, data6;
+        uint16 data0,data1,data2,data3,data4;//,data5,data6;
 
         std::istringstream loadStream(in);
-        loadStream >> dataHead1 >> dataHead2 >> data0 >> data1 >> data2 >> data3;
+        loadStream >> dataHead1 >> dataHead2 >> data0 >> data1 >> data2 >> data3 >> data4;
 
         if (dataHead1 == 'D' && dataHead2 == 'K')
         {

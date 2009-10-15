@@ -226,7 +226,7 @@ struct TRINITY_DLL_DECL mob_headAI : public ScriptedAI
         die = false;
         withbody = true;
         wait = 1000;
-        laugh = 15000 + rand()%16 * 1000;
+        laugh = urand(15000,30000);
     }
 
     void EnterCombat(Unit *who) {}
@@ -324,8 +324,8 @@ struct TRINITY_DLL_DECL mob_headAI : public ScriptedAI
                 {
                     die = false;
                     if (Unit *body = Unit::GetUnit((*m_creature), bodyGUID))
-                        body->DealDamage(body, body->GetMaxHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
-                    m_creature->setDeathState(JUST_DIED);
+                        body->Kill(body);
+                    m_creature->Kill(m_creature);
                 } else wait -= diff;
             }
         }
@@ -400,11 +400,9 @@ struct TRINITY_DLL_DECL boss_headless_horsemanAI : public ScriptedAI
         DoCast(m_creature,SPELL_HEAD);
         if (headGUID)
         {
-            if (Unit* Head = Unit::GetUnit((*m_creature), headGUID))
-            {
-                Head->SetVisibility(VISIBILITY_OFF);
-                Head->setDeathState(JUST_DIED);
-            }
+            if (Creature* Head = Unit::GetCreature((*m_creature), headGUID))
+                Head->DisappearAndDie();
+
             headGUID = 0;
         }
 
@@ -661,7 +659,7 @@ struct TRINITY_DLL_DECL boss_headless_horsemanAI : public ScriptedAI
                     {
                         if (Unit *plr = SelectRandomPlayer(30.0f))
                             m_creature->CastSpell(plr,SPELL_CONFLAGRATION,false);
-                        conflagrate = 10000 + rand()%7 * 1000;
+                        conflagrate = urand(10000,16000);
                     } else conflagrate -= diff;
                     break;
                 case 3:
@@ -670,7 +668,7 @@ struct TRINITY_DLL_DECL boss_headless_horsemanAI : public ScriptedAI
                         m_creature->InterruptNonMeleeSpells(false);
                         DoCast(m_creature,SPELL_SUMMON_PUMPKIN);
                         SaySound(SAY_SPROUTING_PUMPKINS);
-                        summonadds = 25000 + rand()%11 *1000;
+                        summonadds = urand(25000,35000);
                     } else summonadds -= diff;
                     break;
             }

@@ -359,11 +359,9 @@ struct TRINITY_DLL_DECL mob_taldaram_flamesphereAI : public ScriptedAI
     void UpdateAI(const uint32 diff)
     {
         if (uiDespawnTimer < diff)
-        {
-            m_creature->DealDamage(m_creature, m_creature->GetMaxHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
-            m_creature->RemoveCorpse();
-        }
-        else uiDespawnTimer -= diff;
+            m_creature->DisappearAndDie();
+        else
+            uiDespawnTimer -= diff;
     }
 };
 

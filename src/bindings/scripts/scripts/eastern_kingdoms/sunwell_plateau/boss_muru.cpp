@@ -296,8 +296,7 @@ struct TRINITY_DLL_DECL boss_muruAI : public Scripted_NoMovementAI
                         break;
                     case DONE:
                         Phase = 4;
-                        m_creature->DealDamage(m_creature, m_creature->GetMaxHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
-                        m_creature->RemoveCorpse();
+                        m_creature->DisappearAndDie();
                         break;
                 }
                 Timer[TIMER_PHASE] = 3000;
@@ -396,9 +395,9 @@ struct TRINITY_DLL_DECL npc_muru_portalAI : public Scripted_NoMovementAI
 
     void JustSummoned(Creature* summoned)
     {
-        Player* Target = Unit::GetPlayer(pInstance ? pInstance->GetData64(DATA_PLAYER_GUID) : 0);
-        if (Target)
-            summoned->AI()->AttackStart(Target);
+        if (pInstance)
+            if (Player* Target = Unit::GetPlayer(pInstance->GetData64(DATA_PLAYER_GUID)))
+                summoned->AI()->AttackStart(Target);
 
         Summons.Summon(summoned);
     }
@@ -462,10 +461,7 @@ struct TRINITY_DLL_DECL npc_dark_fiendAI : public ScriptedAI
     {
         for(uint8 i = 0; i < 3; ++i)
             if (Spell->Effect[i] == 38)
-            {
-                m_creature->DealDamage(m_creature, m_creature->GetMaxHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
-                m_creature->RemoveCorpse();
-            }
+                m_creature->DisappearAndDie();
     }
 
     void UpdateAI(const uint32 diff)
@@ -489,12 +485,11 @@ struct TRINITY_DLL_DECL npc_dark_fiendAI : public ScriptedAI
                 if (m_creature->IsWithinDist(m_creature->getVictim(), 5))
                 {
                     DoCastAOE(SPELL_DARKFIEND_AOE, false);
-                    m_creature->DealDamage(m_creature, m_creature->GetMaxHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
-                    m_creature->RemoveCorpse();
+                    m_creature->DisappearAndDie();
                 }
                 WaitTimer = 500;
             }
-        }else WaitTimer -= diff;
+        } else WaitTimer -= diff;
     }
 };
 
@@ -522,9 +517,8 @@ struct TRINITY_DLL_DECL npc_void_sentinelAI : public ScriptedAI
 
     void JustDied(Unit* killer)
     {
-        for (uint8 i = 0; i < 8; ++i){
+        for (uint8 i = 0; i < 8; ++i)
             m_creature->SummonCreature(CREATURE_VOID_SPAWN, m_creature->GetPositionX(),m_creature->GetPositionY(),m_creature->GetPositionZ(), rand()%6, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 180000);
-        }
     }
 
     void UpdateAI(const uint32 diff)
@@ -536,13 +530,13 @@ struct TRINITY_DLL_DECL npc_void_sentinelAI : public ScriptedAI
         {
             DoCastAOE(SPELL_SHADOW_PULSE, true);
             PulseTimer = 3000;
-        }else PulseTimer -= diff;
+        } else PulseTimer -= diff;
 
         if (VoidBlastTimer < diff)
         {
             DoCast(m_creature->getVictim(), SPELL_VOID_BLAST, false);
             VoidBlastTimer = 45000;
-        }else VoidBlastTimer -= diff;
+        } else VoidBlastTimer -= diff;
 
         DoMeleeAttackIfReady();
     }
@@ -582,7 +576,7 @@ struct TRINITY_DLL_DECL npc_blackholeAI : public ScriptedAI
         if (SpellTimer < diff)
         {
             Unit* Victim = Unit::GetUnit(*m_creature, pInstance ? pInstance->GetData64(DATA_PLAYER_GUID) : 0);
-            switch(NeedForAHack)
+            switch (NeedForAHack)
             {
                 case 0:
                     m_creature->clearUnitState(UNIT_STAT_STUNNED);
@@ -603,21 +597,20 @@ struct TRINITY_DLL_DECL npc_blackholeAI : public ScriptedAI
                     m_creature->RemoveAura(SPELL_BLACKHOLE_GROW, 1);
                     break;
                 case 3:
-                    SpellTimer = 400+rand()%500;
+                    SpellTimer = urand(400,900);
                     NeedForAHack = 1;
-                    Unit* Temp = m_creature->getVictim();
-                    if (!Temp)
+                    if (Unit* Temp = m_creature->getVictim())
+                    {
+                        if (Temp->GetPositionZ() > 73 && Victim)
+                            AttackStart(Victim);
+                    } else
                         return;
-                    if (Temp->GetPositionZ() > 73 && Victim)
-                        AttackStart(Victim);
             }
-        }else SpellTimer -= diff;
+        } else SpellTimer -= diff;
 
         if (DespawnTimer < diff)
-        {
-            m_creature->DealDamage(m_creature, m_creature->GetMaxHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
-            m_creature->RemoveCorpse();
-        }else DespawnTimer -= diff;
+            m_creature->DisappearAndDie();
+        else DespawnTimer -= diff;
     }
 };
 
