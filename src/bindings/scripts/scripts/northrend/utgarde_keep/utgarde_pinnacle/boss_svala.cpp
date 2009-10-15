@@ -173,8 +173,7 @@ struct TRINITY_DLL_DECL boss_svalaAI : public ScriptedAI
                         m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                         m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                         m_creature->SetDisplayId(DATA_SVALA_DISPLAY_ID);
-                        pArthas->Kill(pArthas, false);
-                        pArthas->RemoveCorpse();
+                        pArthas->DisappearAndDie();
                         Phase = FINISHED;
                     }
                     else Reset();
@@ -294,7 +293,7 @@ struct TRINITY_DLL_DECL boss_svala_sorrowgraveAI : public ScriptedAI
                             if (mob_ritual_channelerAI *pChannelerAI = CAST_AI(mob_ritual_channelerAI,pRitualChanneler[i]->AI()))
                                 pChannelerAI->AttackStartNoMove(pSacrificeTarget);
 
-                    uiRitualOfSwordTimer = 18000 + rand()%4000;
+                    uiRitualOfSwordTimer = urand(18000,22000);
                 }
             } else uiRitualOfSwordTimer -= diff;
 
@@ -314,7 +313,7 @@ struct TRINITY_DLL_DECL boss_svala_sorrowgraveAI : public ScriptedAI
                     }
                 }
                 if (bSacrificed && pSacrificeTarget && pSacrificeTarget->isAlive())
-                    m_creature->Kill(pSacrificeTarget, false);
+                    m_creature->Kill(pSacrificeTarget, false); // durability damage?
 
                 //go down
                 Phase = NORMAL;
@@ -343,7 +342,7 @@ struct TRINITY_DLL_DECL boss_svala_sorrowgraveAI : public ScriptedAI
         {
             Creature* pSvala = Unit::GetCreature((*m_creature), pInstance->GetData64(DATA_SVALA));
             if (pSvala && pSvala->isAlive())
-                pKiller->Kill(pSvala, false);
+                pKiller->Kill(pSvala);
 
             pInstance->SetData(DATA_SVALA_SORROWGRAVE_EVENT, IN_PROGRESS);
         }

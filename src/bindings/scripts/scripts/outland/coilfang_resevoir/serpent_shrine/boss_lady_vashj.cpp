@@ -639,13 +639,9 @@ struct TRINITY_DLL_DECL mob_enchanted_elementalAI : public ScriptedAI
         {
             m_creature->AddUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
             if (phase == 1)
-            {
                 m_creature->GetMotionMaster()->MovePoint(0, x, y, z);
-            }
             if (phase == 1 && m_creature->IsWithinDist3d(x,y,z, 0.1))
-            {
                 phase = 2;
-            }
             if (phase == 2)
             {
                 m_creature->GetMotionMaster()->MovePoint(0, MIDDLE_X, MIDDLE_Y, MIDDLE_Z);
@@ -660,7 +656,7 @@ struct TRINITY_DLL_DECL mob_enchanted_elementalAI : public ScriptedAI
                     if (spell)
                     {
                         uint8 eff_mask=0;
-                        for (int i=0; i<3; ++i)
+                        for (uint8 i = 0; i < 3; ++i)
                         {
                             if (!spell->Effect[i])
                                 continue;
@@ -668,16 +664,16 @@ struct TRINITY_DLL_DECL mob_enchanted_elementalAI : public ScriptedAI
                         }
                         Vashj->AddAura(new Aura(spell, eff_mask, Vashj, Vashj, Vashj));
                     }
-                    m_creature->DealDamage(m_creature, m_creature->GetMaxHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+                    m_creature->Kill(m_creature);
                 }
             }
             if (!Vashj->isInCombat() || CAST_AI(boss_lady_vashjAI, Vashj->AI())->Phase != 2 || Vashj->isDead())
             {
                 //call Unsummon()
-                m_creature->DealDamage(m_creature, m_creature->GetMaxHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+                m_creature->Kill(m_creature);
             }
             move = 1000;
-        }else move -= diff;
+        } else move -= diff;
     }
 };
 

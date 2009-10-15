@@ -245,10 +245,8 @@ struct TRINITY_DLL_DECL mob_malformed_oozeAI : public ScriptedAI
                 if (Creature* pTemp = m_creature->FindNearestCreature(CREATURE_MALFORMED_OOZE, 1.0f, true))
                 {
                     DoSpawnCreature(CREATURE_IRON_SLUDGE, 0, 0, 0, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 20000);
-                    pTemp->Kill(pTemp, false);
-                    pTemp->RemoveCorpse();
-                    m_creature->Kill(m_creature, false);
-                    m_creature->RemoveCorpse();
+                    pTemp->DisappearAndDie();
+                    m_creature->DisappearAndDie();
                 } else bIsMerging = false;
             } else uiMergeTimer -= diff;
         }
@@ -262,7 +260,7 @@ struct TRINITY_DLL_DECL mob_malformed_oozeAI : public ScriptedAI
     void MovementInform(uint32 type, uint32 id)
     {
         if(type != POINT_MOTION_TYPE)
-                return;
+            return;
         bIsMerging = true;
     }
 };

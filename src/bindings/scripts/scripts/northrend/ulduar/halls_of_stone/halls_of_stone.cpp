@@ -691,4 +691,4 @@ void AddSC_halls_of_stone()
     newscript->Name = "mob_tribuna_controller";
     newscript->GetAI = &GetAI_mob_tribuna_controller;
     newscript->RegisterSelf();
-}
+}
