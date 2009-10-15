@@ -61,7 +61,7 @@ static Locations PipeLocations[] =
   {1297.7,  595.6,  199.9} //right
 };
 
-static Locations CenterPoint = {295.21, 667.157, 189.691};
+static Locations CenterPoint = {1295.21, 667.157, 189.691};
 
 struct TRINITY_DLL_DECL boss_sjonnirAI : public ScriptedAI
 {
