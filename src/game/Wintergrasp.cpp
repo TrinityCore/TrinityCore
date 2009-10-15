@@ -773,7 +773,7 @@ void OPvPWintergrasp::CastTenacity(Unit *unit, int32 newStack)
         unit->SetAuraStack(spellId, unit, newStack);
     else
         unit->RemoveAura(spellId);
-    if (!unit->GetTypeId() == TYPEID_PLAYER || unit->isAlive())
+    if (unit->GetTypeId() != TYPEID_PLAYER || unit->isAlive())
         unit->SetHealth(uint32(unit->GetMaxHealth()*((float)unit->GetHealth()) / unit->GetMaxHealth()));
 }
 
