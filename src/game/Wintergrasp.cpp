@@ -931,6 +931,11 @@ void OPvPWintergrasp::StartBattle()
     m_wartime = true;
     m_timer = sWorld.getConfig(CONFIG_OUTDOORPVP_WINTERGRASP_BATTLE_TIME) * MINUTE * IN_MILISECONDS;
 
+    // make sure all building are rebuild as battle starts
+    RebuildAllBuildings();
+    // update all GOs make sure they have correct faction for wartime
+    UpdateAllWorldObject();    
+ 
     // Add recruit Aura, Add Tenacity
     TeamCastSpell(m_defender, SPELL_RECRUIT);
     TeamCastSpell(OTHER_TEAM(m_defender), SPELL_RECRUIT);
