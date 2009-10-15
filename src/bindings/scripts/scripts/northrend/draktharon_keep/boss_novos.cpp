@@ -48,6 +48,10 @@ enum CombatPhase
     PHASE_1,
     PHASE_2
 };
+enum Achievement
+{
+    ACHIEVEMENT_OH_NOVOS                   = 2057
+};
 
 struct Location
 {
@@ -55,6 +59,7 @@ struct Location
 };
 
 static Location AddSpawnPoint = { -379.20, -816.76, 59.70};
+static Location AddDestinyPoint = { -282.169, -711.369, 27.375};
 
 struct TRINITY_DLL_DECL boss_novosAI : public Scripted_NoMovementAI
 {
@@ -67,6 +72,8 @@ struct TRINITY_DLL_DECL boss_novosAI : public Scripted_NoMovementAI
     uint32 uiTimer;
     uint32 uiCrystalHandlerTimer;
     
+    bool bAchiev;
+    
     std::list<uint64> luiCrystals;
     
     CombatPhase Phase;
@@ -77,6 +84,7 @@ struct TRINITY_DLL_DECL boss_novosAI : public Scripted_NoMovementAI
     {
         Phase = IDLE;
         luiCrystals.clear();
+        bAchiev = true;
         if (pInstance)
         {
             pInstance->SetData(DATA_NOVOS_EVENT, NOT_STARTED);
@@ -121,7 +129,7 @@ struct TRINITY_DLL_DECL boss_novosAI : public Scripted_NoMovementAI
                 if (uiTimer < diff)
                 {
                     Creature *pSummon = m_creature->SummonCreature(RAND(CREATURE_FETID_TROLL_CORPSE,CREATURE_HULKING_CORPSE,CREATURE_RISEN_SHADOWCASTER), AddSpawnPoint.x, AddSpawnPoint.y , AddSpawnPoint.z, 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN,20000);
-                    pSummon->GetMotionMaster()->MovePoint(0, m_creature->GetPositionX(), m_creature->GetPositionY() , m_creature->GetPositionZ());
+                    pSummon->GetMotionMaster()->MovePoint(0, AddDestinyPoint.x, AddDestinyPoint.y, AddDestinyPoint.z);
                     //If spell is casted stops casting arcane field so no spell casting
                     //DoCast(m_creature,SPELL_SUMMON_MINIONS);
                     uiTimer = 3000;
@@ -130,8 +138,8 @@ struct TRINITY_DLL_DECL boss_novosAI : public Scripted_NoMovementAI
                 {
                     //TODO: say
                     Creature *pCrystalHandler = m_creature->SummonCreature(CREATURE_CRYSTAL_HANDLER, AddSpawnPoint.x, AddSpawnPoint.y , AddSpawnPoint.z, 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN,20000);
-                    pCrystalHandler->GetMotionMaster()->MovePoint(0, m_creature->GetPositionX(), m_creature->GetPositionY() , m_creature->GetPositionZ());
-                    uiCrystalHandlerTimer = 20000+rand()%10000;
+                    pCrystalHandler->GetMotionMaster()->MovePoint(0, AddDestinyPoint.x, AddDestinyPoint.y, AddDestinyPoint.z);
+                    uiCrystalHandlerTimer = urand(20000,30000);
                 } else uiCrystalHandlerTimer -= diff;
                 break;
             case PHASE_2:
@@ -143,7 +151,7 @@ struct TRINITY_DLL_DECL boss_novosAI : public Scripted_NoMovementAI
                     if (pTarget)
                         DoCast(pTarget, HeroicMode ? RAND(H_SPELL_ARCANE_BLAST,H_SPELL_BLIZZARD,H_SPELL_FROSTBOLT,H_SPELL_WRATH_OF_MISERY) :
                                RAND(SPELL_ARCANE_BLAST,SPELL_BLIZZARD,SPELL_FROSTBOLT,SPELL_WRATH_OF_MISERY));
-                    uiTimer = 1000 + rand()%2000;
+                    uiTimer = urand(1000,3000);
                 } else uiTimer -= diff;
                 break;
         }
@@ -152,6 +160,21 @@ struct TRINITY_DLL_DECL boss_novosAI : public Scripted_NoMovementAI
     {
         if (pInstance)
             pInstance->SetData(DATA_NOVOS_EVENT, DONE);
+        
+        if (HeroicMode && bAchiev)
+        {
+            AchievementEntry const *AchievOhNovos = GetAchievementStore()->LookupEntry(ACHIEVEMENT_OH_NOVOS);
+            if (AchievOhNovos)
+            {
+                Map* pMap = m_creature->GetMap();
+                if (pMap && pMap->IsDungeon())
+                {
+                    Map::PlayerList const &players = pMap->GetPlayers();
+                    for(Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
+                        itr->getSource()->CompletedAchievement(AchievOhNovos);
+                }
+            }
+        }
     }
     
     void KilledUnit(Unit *victim)
@@ -198,6 +221,24 @@ struct TRINITY_DLL_DECL mob_crystal_handlerAI : public ScriptedAI
     }
 };
 
+struct TRINITY_DLL_DECL mob_novos_minionAI : public ScriptedAI
+{
+    mob_novos_minionAI(Creature *c) : ScriptedAI(c)
+    {
+        pInstance = c->GetInstanceData();
+    }
+    
+    ScriptedInstance *pInstance;
+    
+    void MovementInform(uint32 type, uint32 id)
+    {
+        if(type != POINT_MOTION_TYPE)
+            return;
+        if (Creature* pNovos = Unit::GetCreature(*m_creature, pInstance ? pInstance->GetData64(DATA_NOVOS) : 0))
+            CAST_AI(boss_novosAI, pNovos->AI())->bAchiev = false;
+    }
+};
+
 CreatureAI* GetAI_boss_novos(Creature* pCreature)
 {
     return new boss_novosAI (pCreature);
@@ -206,6 +247,11 @@ CreatureAI* GetAI_boss_novos(Creature* pCreature)
 CreatureAI* GetAI_mob_crystal_handler(Creature* pCreature)
 {
     return new mob_crystal_handlerAI (pCreature);
+}
+
+CreatureAI* GetAI_mob_novos_minion(Creature* pCreature)
+{
+    return new mob_novos_minionAI (pCreature);
 }
 
 void AddSC_boss_novos()
@@ -220,5 +266,10 @@ void AddSC_boss_novos()
     newscript = new Script;
     newscript->Name="mob_crystal_handler";
     newscript->GetAI = &GetAI_mob_crystal_handler;
+    newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name="mob_novos_minion";
+    newscript->GetAI = &GetAI_mob_novos_minion;
     newscript->RegisterSelf();
 }

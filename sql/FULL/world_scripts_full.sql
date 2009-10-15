@@ -519,6 +519,7 @@ UPDATE `creature_template` SET `ScriptName`='npc_orsonn_and_kodian' WHERE `entry
 UPDATE `instance_template` SET `script`='instance_drak_tharon' WHERE `map`=600;
 UPDATE `creature_template` SET `ScriptName`='boss_novos' WHERE `entry`=26631;
 UPDATE `creature_template` SET `ScriptName`='mob_crystal_handler' WHERE `entry`=26627;
+UPDATE `creature_template` SET `ScriptName`='mob_novos_minion' WHERE `entry` IN (27600,27597,27598);
 
 /* GRUUL'S LAIR */
 UPDATE `instance_template` SET `script`='instance_gruuls_lair' WHERE `map`=565;
