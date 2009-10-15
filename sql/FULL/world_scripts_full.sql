@@ -575,6 +575,8 @@ UPDATE `creature_template` SET `ScriptName`='boss_krystallus' WHERE `entry`=2797
 UPDATE `creature_template` SET `ScriptName`='boss_sjonnir' WHERE `entry`=27978;
 UPDATE `creature_template` SET `ScriptName`='mob_tribuna_controller' WHERE `entry`=28234;
 UPDATE `creature_template` SET `ScriptName`='npc_brann_hos' WHERE `entry`=28070;
+UPDATE `creature_template` SET `ScriptName`='mob_malformed_ooze' WHERE `entry`=27981;
+UPDATE `creature_template` SET `ScriptName`='mob_iron_sludge' WHERE `entry`=28165;
 /* Maiden of Grief */
 UPDATE `creature_template` SET `ScriptName`='boss_maiden_of_grief' WHERE `entry`=27975;
 
