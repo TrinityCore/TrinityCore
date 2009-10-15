@@ -18,17 +18,133 @@
 /* ScriptData
 SDName: Sholazar_Basin
 SD%Complete: 100
-SDComment: Quest support: 11253.
+SDComment: Quest support: 11253, 11241.
 SDCategory: howling_fjord
 EndScriptData */
 
 /* ContentData
 npc_plaguehound_tracker
+npc_apothecary_hanes
 EndContentData */
 
 #include "precompiled.h"
 #include "escort_ai.h"
 
+/*######
+## npc_apothecary_hanes
+######*/
+enum Entries
+{
+    NPC_APOTHECARY_HANES         = 23784,
+    FACTION_ESCORTEE_A           = 774,
+    FACTION_ESCORTEE_H           = 775,
+    NPC_HANES_FIRE_TRIGGER       = 23968,
+    QUEST_TRAIL_OF_FIRE          = 11241,
+    SPELL_COSMETIC_LOW_POLY_FIRE = 56274
+};
+
+bool QuestAccept_npc_apothecary_hanes(Player* pPlayer, Creature* pCreature, Quest const* quest)
+{    
+    if (quest->GetQuestId() == QUEST_TRAIL_OF_FIRE)
+    {
+        switch (pPlayer->GetTeam())
+        {
+            case ALLIANCE:
+                pCreature->setFaction(FACTION_ESCORTEE_A);
+                break;
+            case HORDE:
+                pCreature->setFaction(FACTION_ESCORTEE_H);
+                break;
+        }
+        CAST_AI(npc_escortAI, (pCreature->AI()))->Start(true, false, pPlayer->GetGUID());
+    }
+    return true;
+}
+
+struct TRINITY_DLL_DECL npc_Apothecary_HanesAI : public npc_escortAI
+{
+    npc_Apothecary_HanesAI(Creature* pCreature) : npc_escortAI(pCreature){}
+    uint32 PotTimer;
+
+    void Reset ()
+    {
+        SetDespawnAtFar(false);
+        PotTimer = 10000; //10 sec cooldown on potion
+    }
+
+    void JustDied(Unit* killer)
+    {
+        if (Player* pPlayer = GetPlayerForEscort())
+            pPlayer->FailQuest(QUEST_TRAIL_OF_FIRE);
+    }
+
+    void UpdateEscortAI(const uint32 diff)
+    {
+        if(HealthBelowPct(75))
+        {    
+            if(PotTimer < diff)
+            {
+                DoCast(me,17534,true);
+                PotTimer = 10000;
+            } else PotTimer -= diff;
+        }
+        if (GetAttack() && UpdateVictim())
+            DoMeleeAttackIfReady();
+    }
+
+    void WaypointReached(uint32 i)
+    {
+        Player* pPlayer = GetPlayerForEscort();
+        if (!pPlayer)
+            return;
+        switch(i)
+        {
+            case 1:
+                me->SetReactState(REACT_AGGRESSIVE);
+                SetRun(true);
+                break;
+            case 23:
+                if (pPlayer)
+                    pPlayer->GroupEventHappens(QUEST_TRAIL_OF_FIRE, m_creature);
+                me->ForcedDespawn();
+                break;
+            case 5:
+                if (Unit* Trigger = m_creature->FindNearestCreature(NPC_HANES_FIRE_TRIGGER,10.0f))
+                    Trigger->CastSpell(Trigger, SPELL_COSMETIC_LOW_POLY_FIRE, false);
+                SetRun(false);
+                break;
+            case 6: 
+                if (Unit* Trigger = m_creature->FindNearestCreature(NPC_HANES_FIRE_TRIGGER,10.0f))
+                    Trigger->CastSpell(Trigger, SPELL_COSMETIC_LOW_POLY_FIRE, false);
+                SetRun(true);
+                break;
+            case 8: 
+                if (Unit* Trigger = m_creature->FindNearestCreature(NPC_HANES_FIRE_TRIGGER,10.0f))
+                    Trigger->CastSpell(Trigger, SPELL_COSMETIC_LOW_POLY_FIRE, false);
+                SetRun(false);
+                break;
+            case 9:    
+                if (Unit* Trigger = m_creature->FindNearestCreature(NPC_HANES_FIRE_TRIGGER,10.0f))
+                    Trigger->CastSpell(Trigger, SPELL_COSMETIC_LOW_POLY_FIRE, false);
+                break;
+            case 10:
+                SetRun(true);
+                break;
+            case 13: 
+                SetRun(false);
+                break;
+            case 14: 
+                if (Unit* Trigger = m_creature->FindNearestCreature(NPC_HANES_FIRE_TRIGGER,10.0f))
+                    Trigger->CastSpell(Trigger, SPELL_COSMETIC_LOW_POLY_FIRE, false);
+                SetRun(true);
+                break;    
+        }
+    }
+};
+CreatureAI* GetAI_npc_apothecary_hanes(Creature* pCreature)
+{
+    return new npc_Apothecary_HanesAI(pCreature);
+}
 /*######
 ## npc_plaguehound_tracker
 ######*/
@@ -151,6 +267,12 @@ bool GossipSelect_npc_razael_and_lyana(Player* pPlayer, Creature* pCreature, uin
 void AddSC_howling_fjord()
 {
     Script *newscript;
+
+    newscript = new Script;
+    newscript->Name = "npc_apothecary_hanes";
+    newscript->GetAI = &GetAI_npc_apothecary_hanes;
+    newscript->pQuestAccept = &QuestAccept_npc_apothecary_hanes;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name = "npc_plaguehound_tracker";
