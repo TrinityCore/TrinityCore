@@ -278,8 +278,8 @@ struct TRINITY_DLL_DECL boss_svala_sorrowgraveAI : public ScriptedAI
 
             if (uiRitualOfSwordTimer < diff)
             {
-                pSacrificeTarget = SelectUnit(SELECT_TARGET_RANDOM, 0);
-                if (pSacrificeTarget && pSacrificeTarget->GetTypeId() != TYPEID_PLAYER)
+                pSacrificeTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true);
+                if (pSacrificeTarget)
                 {
                     DoScriptText(RAND(SAY_SACRIFICE_PLAYER_1,SAY_SACRIFICE_PLAYER_2,SAY_SACRIFICE_PLAYER_3,SAY_SACRIFICE_PLAYER_4,SAY_SACRIFICE_PLAYER_5),m_creature);
                     DoCast(pSacrificeTarget,SPELL_RITUAL_OF_THE_SWORD);
