@@ -51,9 +51,9 @@ enum Misc
 { 
     DATA_EMBRACE_DMG                    = 20000,
     H_DATA_EMBRACE_DMG                  = 40000,
-    DATA_SPHERE_DISTANCE                =    20,
-    DATA_SPHERE_ANGLE_OFFSET            =     1
+    DATA_SPHERE_DISTANCE                =    15
 };
+#define DATA_SPHERE_ANGLE_OFFSET            0.7
 #define DATA_GROUND_POSITION_Z             11.4
 enum Achievements
 {
@@ -139,9 +139,7 @@ struct TRINITY_DLL_DECL boss_taldaramAI : public ScriptedAI
                 case CASTING_FLAME_SPHERES:
                     //DoCast(m_creature, SPELL_FLAME_SPHERE_SUMMON_1);
                     pSpheres[0] = DoSpawnCreature(CREATURE_FLAME_SPHERE, 0, 0, 5, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 10000);
-                    pSphereTarget = SelectUnit(SELECT_TARGET_RANDOM, 0);
-                    while (pSphereTarget && pSphereTarget->GetTypeId() != TYPEID_PLAYER)
-                        pSphereTarget = SelectUnit(SELECT_TARGET_RANDOM,0);
+                    pSphereTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true);
                     if (pSphereTarget && pSpheres[0])
                     {
                         float angle,x,y;
@@ -229,11 +227,9 @@ struct TRINITY_DLL_DECL boss_taldaramAI : public ScriptedAI
                             DoCast(m_creature,SPELL_VANISH);
                             Phase = JUST_VANISHED;
                             uiPhaseTimer = 1000;
-                            pEmbraceTarget = SelectUnit(SELECT_TARGET_RANDOM, 0);
-                            while (pEmbraceTarget && pEmbraceTarget->GetTypeId() != TYPEID_PLAYER)
-                                pEmbraceTarget = SelectUnit(SELECT_TARGET_RANDOM, 0);
+                            pEmbraceTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true);
                         }
-                        uiVanishTimer = (25 + rand()%10)*1000;
+                        uiVanishTimer = urand(25000,35000);
                     } else uiVanishTimer -= diff;
                     
                     DoMeleeAttackIfReady();
