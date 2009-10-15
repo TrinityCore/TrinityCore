@@ -224,8 +224,7 @@ struct TRINITY_DLL_DECL boss_felmystAI : public ScriptedAI
         {
             float x, y, z;
             caster->GetPosition(x, y, z);
-            Unit* summon = m_creature->SummonCreature(MOB_DEAD, x, y, z, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000);
-            if (summon)
+            if (Unit* summon = m_creature->SummonCreature(MOB_DEAD, x, y, z, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000))
             {
                 summon->SetMaxHealth(caster->GetMaxHealth());
                 summon->SetHealth(caster->GetMaxHealth());

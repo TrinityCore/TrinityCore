@@ -1,5 +1,8 @@
 -- Up to TC2 5408
 
+-- Cleanup first
+UPDATE `creature_template` SET `ScriptName`='';
+
 /* WORLD BOSS */
 UPDATE `creature_template` SET `ScriptName`='boss_ysondre' WHERE `entry`=14887;
 UPDATE `creature_template` SET `ScriptName`='boss_emeriss' WHERE `entry`=14889;

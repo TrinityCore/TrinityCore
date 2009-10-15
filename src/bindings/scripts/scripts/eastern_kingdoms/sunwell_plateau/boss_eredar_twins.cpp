@@ -697,7 +697,7 @@ struct TRINITY_DLL_DECL mob_shadow_imageAI : public ScriptedAI
                 {
                     target->RemoveAurasDueToSpell(SPELL_FLAME_TOUCHED);
                     target->CastSpell(target, SPELL_DARK_FLAME, true);
-                }else target->CastSpell(target,SPELL_DARK_TOUCHED,true);
+                } else target->CastSpell(target,SPELL_DARK_TOUCHED,true);
             }
             break;
         }
@@ -710,9 +710,9 @@ struct TRINITY_DLL_DECL mob_shadow_imageAI : public ScriptedAI
 
         if (KillTimer < diff)
         {
-            m_creature->DealDamage(m_creature, m_creature->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+            m_creature->Kill(m_creature);
             KillTimer = 9999999;
-        }else KillTimer -=diff;
+        } else KillTimer -= diff;
 
         if (!UpdateVictim())
             return;
@@ -721,7 +721,7 @@ struct TRINITY_DLL_DECL mob_shadow_imageAI : public ScriptedAI
         {
             DoCast(m_creature, SPELL_SHADOW_FURY);
             ShadowfuryTimer = 10000;
-        }else ShadowfuryTimer -=diff;
+        } else ShadowfuryTimer -=diff;
 
         if (DarkstrikeTimer < diff)
         {
@@ -732,8 +732,7 @@ struct TRINITY_DLL_DECL mob_shadow_imageAI : public ScriptedAI
                     DoCast(m_creature->getVictim(), SPELL_DARK_STRIKE);
             }
             DarkstrikeTimer = 3000;
-        }
-        else DarkstrikeTimer -= diff;
+        } else DarkstrikeTimer -= diff;
     }
 };
 

@@ -611,7 +611,7 @@ struct TRINITY_DLL_DECL mob_arcane_sphereAI : public ScriptedAI
     void UpdateAI(const uint32 diff)
     {
         if (DespawnTimer < diff)
-            m_creature->DealDamage(m_creature, m_creature->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+            m_creature->Kill(m_creature);
         else DespawnTimer -= diff;
 
         //Return since we have no target
@@ -627,7 +627,7 @@ struct TRINITY_DLL_DECL mob_arcane_sphereAI : public ScriptedAI
                 AttackStart(target);
             }
 
-            ChangeTargetTimer = 5000 + rand()%10000;
+            ChangeTargetTimer = urand(5000,15000);
         }else ChangeTargetTimer -= diff;
     }
 };
