@@ -2385,7 +2385,7 @@ void AuraEffect::TriggerSpell()
                     case 31347:
                     {
                         m_target->CastSpell(m_target,31350,true, NULL, this);
-                        m_target->DealDamage(m_target, m_target->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+                        m_target->Kill(m_target);
                         return;
                     }
                     // Spellcloth

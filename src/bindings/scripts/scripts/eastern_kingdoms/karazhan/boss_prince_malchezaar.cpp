@@ -260,7 +260,7 @@ struct TRINITY_DLL_DECL boss_malchezaarAI : public ScriptedAI
         {
             Unit *axe = Unit::GetUnit(*m_creature, axes[i]);
             if (axe && axe->isAlive())
-                axe->DealDamage(axe, axe->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+                axe->Kill(axe);
             axes[i] = 0;
         }
     }

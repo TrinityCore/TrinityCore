@@ -1191,7 +1191,7 @@ struct TRINITY_DLL_DECL npc_highlord_darion_mograineAI : public npc_escortAI
                         if (Creature* pTemp = Unit::GetCreature(*me, uiLichKingGUID)) // Lich king disappears here
                         {
                             DoScriptText(EMOTE_LIGHT_OF_DAWN17, pTemp);
-                            pTemp->DealDamage(pTemp, pTemp->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+                            pTemp->Kill(pTemp);
                         }
                         JumpToNextStep(10000);
                         break;
@@ -1590,7 +1590,7 @@ struct TRINITY_DLL_DECL npc_highlord_darion_mograineAI : public npc_escortAI
             if (pTemp->isAlive())
             {
                 pTemp->SetVisibility(VISIBILITY_OFF);
-                pTemp->DealDamage(pTemp, pTemp->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+                pTemp->Kill(pTemp);
             }
     }
 };
