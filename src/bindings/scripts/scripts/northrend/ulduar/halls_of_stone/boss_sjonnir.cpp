@@ -42,12 +42,14 @@ enum Creatures
 {
     CREATURE_FORGED_IRON_TROGG              = 27979,
     CREATURE_MALFORMED_OOZE                 = 27981,
-    CREATURE_FORGED_IRON_DWARF              = 27982
+    CREATURE_FORGED_IRON_DWARF              = 27982,
+    CREATURE_IRON_SLUDGE                    = 28165
 };
 
 enum Misc
 {
-    DATA_TIME_BEFORE_OOZE                   = 150000 //2min 30 secs
+    DATA_TIME_BEFORE_OOZE                   = 150000, //2min 30 secs
+    ACHIEVEMENT_ABUSE_THE_OOZE              = 2155
 };
 
 struct Locations
@@ -79,6 +81,7 @@ struct TRINITY_DLL_DECL boss_sjonnirAI : public ScriptedAI
     uint32 uiSummonTimer;
     uint32 uiFrenzyTimer;
     uint32 uiEncounterTimer;
+    uint32 uiKilledIronSludges;
     
     ScriptedInstance* pInstance;
 
@@ -93,6 +96,7 @@ struct TRINITY_DLL_DECL boss_sjonnirAI : public ScriptedAI
         uiLightningRingTimer = 30000 + rand()%5000;
         uiSummonTimer = 5000;
         uiFrenzyTimer = 300000; //5 minutes
+        uiKilledIronSludges = 0;
         
         if (pInstance)
             pInstance->SetData(DATA_SJONNIR_EVENT, NOT_STARTED);
@@ -183,6 +187,21 @@ struct TRINITY_DLL_DECL boss_sjonnirAI : public ScriptedAI
     {
         DoScriptText(SAY_DEATH, m_creature);
         
+        if (HeroicMode && uiKilledIronSludges > 4)
+        {
+            AchievementEntry const *AchievAbuseTheOoze = GetAchievementStore()->LookupEntry(ACHIEVEMENT_ABUSE_THE_OOZE);
+            if (AchievAbuseTheOoze)
+            {
+                Map* pMap = m_creature->GetMap();
+                if (pMap && pMap->IsDungeon())
+                {
+                    Map::PlayerList const &players = pMap->GetPlayers();
+                    for(Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
+                        itr->getSource()->CompletedAchievement(AchievAbuseTheOoze);
+                }
+            }
+        }
+        
         if (pInstance)
             pInstance->SetData(DATA_SJONNIR_EVENT, DONE);
     }
@@ -192,11 +211,86 @@ struct TRINITY_DLL_DECL boss_sjonnirAI : public ScriptedAI
             return;
         DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2,SAY_SLAY_3), m_creature);
     }
+    
+    void KilledIronSludge()
+    {
+        ++uiKilledIronSludges;
+    }
 };
 
 CreatureAI* GetAI_boss_sjonnir(Creature* pCreature)
 {
     return new boss_sjonnirAI (pCreature);
+}
+
+struct TRINITY_DLL_DECL mob_malformed_oozeAI : public ScriptedAI
+{
+    mob_malformed_oozeAI(Creature *c) : ScriptedAI(c) {}
+    
+    uint32 uiMergeTimer;
+    bool bIsMerging;
+    
+    void Reset()
+    {
+        uiMergeTimer = 5000;
+        bIsMerging = false;
+    }
+    
+    void UpdateAI(const uint32 diff)
+    {
+        if (bIsMerging)
+        {
+            if (uiMergeTimer < diff)
+            {
+                if (Creature* pTemp = m_creature->FindNearestCreature(CREATURE_MALFORMED_OOZE, 1.0f, true))
+                {
+                    DoSpawnCreature(CREATURE_IRON_SLUDGE, 0, 0, 0, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 20000);
+                    pTemp->DealDamage(pTemp, pTemp->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+                    pTemp->RemoveCorpse();
+                    m_creature->DealDamage(m_creature, m_creature->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+                    m_creature->RemoveCorpse();
+                } else bIsMerging = false;
+            } else uiMergeTimer -= diff;
+        }
+        
+        if (!UpdateVictim())
+            return;
+        
+        DoMeleeAttackIfReady();
+    }
+    
+    void MovementInform(uint32 type, uint32 id)
+    {
+        if(type != POINT_MOTION_TYPE)
+                return;
+        bIsMerging = true;
+    }
+};
+
+CreatureAI* GetAI_mob_malformed_ooze(Creature* pCreature)
+{
+    return new mob_malformed_oozeAI(pCreature);
+}
+
+struct TRINITY_DLL_DECL mob_iron_sludgeAI : public ScriptedAI
+{
+    mob_iron_sludgeAI(Creature *c) : ScriptedAI(c)
+    {
+        pInstance = c->GetInstanceData();
+    }
+    
+    ScriptedInstance* pInstance;
+    
+    void JustDied(Unit* pKiller)
+    {
+        if (pInstance ? Creature* pSjonnir = Unit::GetCreature(*m_creature, pInstance->GetData64(DATA_SJONNIR)) : false)
+            CAST_AI(boss_sjonnirAI, pSjonnir->AI())->KilledIronSludge();
+    }
+};
+
+CreatureAI* GetAI_mob_iron_sludge(Creature* pCreature)
+{
+    return new mob_iron_sludgeAI(pCreature);
 }
 
 void AddSC_boss_sjonnir()
@@ -206,5 +300,15 @@ void AddSC_boss_sjonnir()
     newscript = new Script;
     newscript->Name="boss_sjonnir";
     newscript->GetAI = &GetAI_boss_sjonnir;
+    newscript->RegisterSelf();
+    
+    newscript = new Script;
+    newscript->Name="mob_malformed_ooze";
+    newscript->GetAI = &GetAI_mob_malformed_ooze;
+    newscript->RegisterSelf();
+    
+    newscript = new Script;
+    newscript->Name = "mob_iron_sludge";
+    newscript->GetAI = &GetAI_mob_iron_sludge;
     newscript->RegisterSelf();
 }
