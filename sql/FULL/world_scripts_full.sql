@@ -634,10 +634,10 @@ UPDATE `creature_template` SET `ScriptName`='npc_ancestral_wolf' WHERE `entry`=1
 UPDATE `creature_template` SET `ScriptName`='npc_00x09hl' WHERE `entry`=7806;
 UPDATE `creature_template` SET `ScriptName`='npc_rinji' WHERE `entry`=7780;
 
-/* Howling Fjord */
+/* HOWLING FJORD */
 UPDATE `creature_template` SET `ScriptName`='npc_plaguehound_tracker' WHERE `entry`=24156;
 UPDATE `creature_template` SET `ScriptName`='npc_razael_and_lyana',`npcflag`=`npcflag`|1 WHERE `entry` IN (23778,23998);
-
+UPDATE `creature_template` SET `ScriptName`='npc_apothecary_hanes' WHERE `entry`=23784;
 
 /* ICECROWN */
 UPDATE `creature_template` SET `ScriptName`='npc_arete' WHERE `entry`=29344;
