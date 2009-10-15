@@ -48,14 +48,9 @@ struct TRINITY_DLL_DECL instance_sethekk_halls : public ScriptedInstance
         if (pCreature->GetEntry() == NPC_ANZU)
         {
             if (AnzuEncounter >= IN_PROGRESS)
-            {
-                pCreature->DealDamage(pCreature, pCreature->GetMaxHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
-                pCreature->RemoveCorpse();
-            } 
-            else 
-            {
+                pCreature->DisappearAndDie();
+            else
                 AnzuEncounter = IN_PROGRESS;
-            }
         }
     }
 

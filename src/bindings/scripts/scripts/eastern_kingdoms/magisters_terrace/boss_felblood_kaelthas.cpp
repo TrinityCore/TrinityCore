@@ -445,8 +445,8 @@ struct TRINITY_DLL_DECL mob_felkael_flamestrikeAI : public ScriptedAI
         if (FlameStrikeTimer < diff)
         {
             DoCast(m_creature, Heroic ? SPELL_FLAMESTRIKE1_HEROIC : SPELL_FLAMESTRIKE1_NORMAL, true);
-            m_creature->DealDamage(m_creature, m_creature->GetMaxHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
-        }else FlameStrikeTimer -= diff;
+            m_creature->Kill(m_creature);
+        } else FlameStrikeTimer -= diff;
     }
 };
 
@@ -580,8 +580,8 @@ struct TRINITY_DLL_DECL mob_felkael_phoenix_eggAI : public ScriptedAI
         if (HatchTimer < diff)
         {
             m_creature->SummonCreature(CREATURE_PHOENIX, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 60000);
-            m_creature->DealDamage(m_creature, m_creature->GetMaxHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
-        }else HatchTimer -= diff;
+            m_creature->Kill(m_creature);
+        } else HatchTimer -= diff;
 
     }
 };
@@ -596,7 +596,7 @@ struct TRINITY_DLL_DECL mob_arcane_sphereAI : public ScriptedAI
     void Reset()
     {
         DespawnTimer = 30000;
-        ChangeTargetTimer = 6000 + rand()%6000;
+        ChangeTargetTimer = urand(6000,12000);
 
         m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
         m_creature->AddUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
@@ -604,9 +604,7 @@ struct TRINITY_DLL_DECL mob_arcane_sphereAI : public ScriptedAI
         DoCast(m_creature, SPELL_ARCANE_SPHERE_PASSIVE, true);
     }
 
-
     void EnterCombat(Unit* who) {}
-
 
     void UpdateAI(const uint32 diff)
     {
@@ -628,7 +626,7 @@ struct TRINITY_DLL_DECL mob_arcane_sphereAI : public ScriptedAI
             }
 
             ChangeTargetTimer = urand(5000,15000);
-        }else ChangeTargetTimer -= diff;
+        } else ChangeTargetTimer -= diff;
     }
 };
 

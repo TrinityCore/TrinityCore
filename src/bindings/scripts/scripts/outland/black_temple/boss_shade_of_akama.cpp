@@ -472,7 +472,7 @@ struct TRINITY_DLL_DECL boss_shade_of_akamaAI : public ScriptedAI
                 {
                     EnterEvadeMode();// Reset a little while after killing Akama, evade and respawn Akama
                     return;
-                }else ResetTimer -= diff;
+                } else ResetTimer -= diff;
             }
 
             DoMeleeAttackIfReady();

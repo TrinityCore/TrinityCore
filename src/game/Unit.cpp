@@ -13733,7 +13733,7 @@ void Unit::Kill(Unit *pVictim, bool durabilityLoss)
 
     // if talent known but not triggered (check priest class for speedup check)
     bool SpiritOfRedemption = false;
-    if(pVictim->GetTypeId()==TYPEID_PLAYER && pVictim->getClass()==CLASS_PRIEST )
+    if(pVictim->GetTypeId()==TYPEID_PLAYER && pVictim->getClass()==CLASS_PRIEST)
     {
         AuraEffectList const& vDummyAuras = pVictim->GetAurasByType(SPELL_AURA_DUMMY);
         for(AuraEffectList::const_iterator itr = vDummyAuras.begin(); itr != vDummyAuras.end(); ++itr)
