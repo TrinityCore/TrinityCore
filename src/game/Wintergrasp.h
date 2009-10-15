@@ -63,6 +63,8 @@ enum WintergraspRewardEvent
     DESTROYED_TOWER,
     DAMAGED_BUILDING,
     INTACT_BUILDING,
+    WIN_BATTLE_MARKS,
+    LOSE_BATTLE_MARKS,
     WG_REWARD_EVENT_MAX
 };
 
@@ -204,6 +206,7 @@ class OPvPWintergrasp : public OutdoorPvP
         BuildingState *m_gate;
 
         CreatureSet m_creatures;
+        CreatureSet m_turrets;
         CreatureSet m_vehicles[2];
         GameObjectSet m_gobjects;
 
@@ -215,6 +218,7 @@ class OPvPWintergrasp : public OutdoorPvP
         uint32 m_clock[5];
         uint32 m_workshopCount[2];
         uint32 m_towerCount;
+        uint32 m_towerDamagedCount;
         uint32 m_customHonorReward[WG_REWARD_EVENT_MAX];
 
         SiegeWorkshop *GetWorkshop(uint32 lowguid) const;
@@ -243,6 +247,7 @@ class OPvPWintergrasp : public OutdoorPvP
 
         void SendInitWorldStatesTo(Player *player = NULL) const;
         void RemoveOfflinePlayerWGAuras();
+        void RewardMarkOfHonor(Player *player, uint32 count);
 };
 
 class SiegeWorkshop : public OPvPCapturePoint
