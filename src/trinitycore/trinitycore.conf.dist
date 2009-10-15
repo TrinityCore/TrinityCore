@@ -1925,7 +1925,7 @@ Ra.Secure = 1
 #       Defines the amount of honor points that should be given to the team for damaging a tower. Requires OutdoorPvP.Wintergrasp.CustomHonorRewards = 1.
 #
 #   OutdoorPvP.Wintergrasp.CustomHonorDestroyedTower
-#       Defines the amount of honor points that should be given fto the team or destroying a tower. Requires OutdoorPvP.Wintergrasp.CustomHonorRewards = 1.
+#       Defines the amount of honor points that should be given to the team for destroying a tower. Requires OutdoorPvP.Wintergrasp.CustomHonorRewards = 1.
 #
 #   OutdoorPvP.Wintergrasp.CustomHonorDamagedBuilding
 #       Defines the amount of honor points that should be given to the team for damaged buildings after the battle. Requires OutdoorPvP.Wintergrasp.CustomHonorRewards = 1.
