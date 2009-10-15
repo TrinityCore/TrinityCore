@@ -17516,22 +17516,22 @@ bool Player::IsAffectedBySpellmod(SpellEntry const *spellInfo, SpellModifier *mo
 
 void Player::AddSpellMod(SpellModifier* mod, bool apply)
 {
-    uint16 Opcode= (mod->type == SPELLMOD_FLAT) ? SMSG_SET_FLAT_SPELL_MODIFIER : SMSG_SET_PCT_SPELL_MODIFIER;
+    uint16 Opcode = (mod->type == SPELLMOD_FLAT) ? SMSG_SET_FLAT_SPELL_MODIFIER : SMSG_SET_PCT_SPELL_MODIFIER;
 
-    uint8 i=0;
-    flag96 _mask;
-    for(int eff=0;eff<96;++eff)
+    int i = 0;
+    flag96 _mask = 0;
+    for (int eff = 0; eff < 96; ++eff)
     {
-        if ((eff!=0) && (eff%32==0))
-            i++;
+        if (eff != 0 && eff%32 == 0)
+            _mask[i++] = 0;
 
         _mask[i] = uint32(1) << (eff-(32*i));
-        if ( mod->mask & _mask)
+        if (mod->mask & _mask)
         {
             int32 val = 0;
             for (SpellModList::iterator itr = m_spellMods[mod->op].begin(); itr != m_spellMods[mod->op].end(); ++itr)
             {
-                if ((*itr)->type == mod->type && (*itr)->mask & _mask )
+                if ((*itr)->type == mod->type && (*itr)->mask & _mask)
                     val += (*itr)->value;
             }
             val += apply ? mod->value : -(mod->value);
