@@ -84,6 +84,7 @@ bool OPvPWintergrasp::SetupOutdoorPvP()
     m_workshopCount[TEAM_ALLIANCE] = 0;
     m_workshopCount[TEAM_HORDE] = 0;
     m_towerCount = 3;
+    m_towerDamagedCount = 0;
 
     // Select POI
     AreaPOIList areaPOIs;
@@ -321,16 +322,7 @@ void OPvPWintergrasp::ProcessEvent(GameObject *obj, uint32 eventId)
                 state->damageState = DAMAGE_DAMAGED;
 
                 if (state->type == BUILDING_TOWER)
-                {
-                    if (sWorld.getConfig(CONFIG_OUTDOORPVP_WINTERGRASP_CUSTOM_HONOR))
-                    {
-                        for (PlayerSet::const_iterator itr = m_players[m_defender].begin(); itr != m_players[m_defender].end(); ++itr)
-                            if ((*itr)->HasAura(SPELL_LIEUTENANT) && ((*itr)->getLevel() > 69))
-                               (*itr)->ModifyHonorPoints(m_customHonorReward[DAMAGED_TOWER]);
-                    }
-                    else
-                        LieutenantCastSpell(m_defender, SPELL_DAMAGED_TOWER);
-                }
+                    ++m_towerDamagedCount;
             }
             else if (eventId == obj->GetGOInfo()->building.destroyedEvent)
             {
@@ -339,20 +331,13 @@ void OPvPWintergrasp::ProcessEvent(GameObject *obj, uint32 eventId)
                 if (state->type == BUILDING_WORKSHOP)
                     ModifyWorkshopCount(state->GetTeam(), false);
                 else if (state->type == BUILDING_TOWER)
-                {
                     if (!m_towerCount)
                         sLog.outError("OPvPWintergrasp::ProcessEvent: negative tower count!");
                     else
                     {
                         --m_towerCount;
-                        if (sWorld.getConfig(CONFIG_OUTDOORPVP_WINTERGRASP_CUSTOM_HONOR))
-                            for (PlayerSet::const_iterator itr = m_players[m_defender].begin(); itr != m_players[m_defender].end(); ++itr)
-                                if ((*itr)->HasAura(SPELL_LIEUTENANT) && ((*itr)->getLevel() > 69))
-                                    (*itr)->ModifyHonorPoints(m_customHonorReward[DESTROYED_TOWER]);
-                        else
-                            LieutenantCastSpell(m_defender, SPELL_DESTROYED_TOWER);
+                        --m_towerDamagedCount;
                     }
-                }
             }
             BroadcastStateChange(state);
         }
@@ -493,7 +478,9 @@ void OPvPWintergrasp::OnCreatureCreate(Creature *creature, bool add)
             }
             break;
         case CREATURE_TURRET:
-            creature->setFaction(WintergraspFaction[m_defender]);
+            if (add) m_turrets.insert(creature);
+            else m_turrets.erase(creature);
+            UpdateCreatureInfo(creature);
             break;
         default:
             if (m_creEntryPair.find(entry) != m_creEntryPair.end()) // guards and npc
@@ -541,6 +528,8 @@ void OPvPWintergrasp::UpdateAllWorldObject()
     for (GameObjectSet::iterator itr = m_gobjects.begin(); itr != m_gobjects.end(); ++itr)
         UpdateGameObjectInfo(*itr);
     for (CreatureSet::iterator itr = m_creatures.begin(); itr != m_creatures.end(); ++itr)
+        UpdateCreatureInfo(*itr);
+    for (CreatureSet::iterator itr = m_turrets.begin(); itr != m_turrets.end(); ++itr)
         UpdateCreatureInfo(*itr);
 
     // rebuild and update building states
@@ -615,14 +604,24 @@ void OPvPWintergrasp::BroadcastStateChange(BuildingState *state) const
                 state->SendUpdate(*p_itr);
 }
 
+// Called at Start and Battle End
 bool OPvPWintergrasp::UpdateCreatureInfo(Creature *creature) const
 {
     if (GetCreatureType(creature->GetEntry()) == CREATURE_TURRET)
     {
         if (!creature->isAlive())
-            creature->Respawn(true);
-        creature->setFaction(WintergraspFaction[m_defender]);
-        return true;
+            creature->Respawn(true);        
+        if (m_wartime)
+        {
+            creature->SetVisibility(VISIBILITY_ON);
+            creature->setFaction(WintergraspFaction[m_defender]);
+        }
+        else
+        {
+            creature->SetVisibility(VISIBILITY_OFF);
+            creature->setFaction(35);
+        }
+        return false;
     }
 
     TeamPairMap::const_iterator itr = m_creEntryPair.find(creature->GetCreatureData()->id);
@@ -953,25 +952,42 @@ void OPvPWintergrasp::EndBattle()
             veh->setDeathState(JUST_DIED);
         }
 
+        if (m_players[team].empty())
+            continue;
+
         // calculate rewards
         uint32 intactNum = 0;
         uint32 damagedNum = 0;
         for (OutdoorPvP::OPvPCapturePointMap::const_iterator itr = m_capturePoints.begin(); itr != m_capturePoints.end(); ++itr)
-        {
             if (SiegeWorkshop *workshop = dynamic_cast<SiegeWorkshop*>(itr->second))
                 if (workshop->m_buildingState->GetTeam() == team)
                     if (workshop->m_buildingState->damageState == DAMAGE_DAMAGED)
                         ++damagedNum;
                     else if (workshop->m_buildingState->damageState == DAMAGE_INTACT)
                         ++intactNum;
-        }
 
-        // give rewards
-        uint32 honor = ( team == m_defender ? m_customHonorReward[WIN_BATTLE] : m_customHonorReward[LOSE_BATTLE] );
-        for (uint32 i = 0; i < intactNum; ++i)
-            honor += m_customHonorReward[INTACT_BUILDING];
-        for (uint32 i = 0; i < damagedNum; ++i)
-            honor += m_customHonorReward[DAMAGED_BUILDING];
+        uint32 spellRewardId = (team == m_defender) ? SPELL_VICTORY_REWARD : SPELL_DEFEAT_REWARD;
+        int32 honor;
+        uint32 marks;
+
+        if (sWorld.getConfig(CONFIG_OUTDOORPVP_WINTERGRASP_CUSTOM_HONOR))
+        {
+            if (team == m_defender)
+            {
+                honor = m_customHonorReward[WIN_BATTLE];
+                marks = m_customHonorReward[WIN_BATTLE_MARKS];
+                honor += (m_customHonorReward[DAMAGED_TOWER] * m_towerDamagedCount);
+                honor += (m_customHonorReward[DESTROYED_TOWER] * (3 - m_towerCount));
+            }
+            else
+            {
+                honor = m_customHonorReward[LOSE_BATTLE];
+                marks = m_customHonorReward[LOSE_BATTLE_MARKS];;
+            }
+            honor += (m_customHonorReward[INTACT_BUILDING] * intactNum);
+            honor += (m_customHonorReward[DAMAGED_BUILDING] * damagedNum);
+            honor = int32(honor / m_players[team].size());
+        }
 
         for (PlayerSet::iterator itr = m_players[team].begin(); itr != m_players[team].end(); ++itr)
         {
@@ -981,18 +997,31 @@ void OPvPWintergrasp::EndBattle()
                 (*itr)->ResurrectPlayer(1.0f);
                 ObjectAccessor::Instance().ConvertCorpseForPlayer((*itr)->GetGUID());
             }
-            if ((*itr)->HasAura(SPELL_LIEUTENANT))
+
+            // give rewards
+            if ((*itr)->HasAura(SPELL_LIEUTENANT) && (*itr)->getLevel() > 69)
             {
                 if (!sWorld.getConfig(CONFIG_OUTDOORPVP_WINTERGRASP_CUSTOM_HONOR))
                 {
-                   (*itr)->CastSpell(*itr, team == m_defender ? SPELL_VICTORY_REWARD : SPELL_DEFEAT_REWARD, true);
+                   (*itr)->CastSpell(*itr, spellRewardId, true);
                     for (uint32 i = 0; i < intactNum; ++i)
                         (*itr)->CastSpell(*itr, SPELL_INTACT_BUILDING, true);
                     for (uint32 i = 0; i < damagedNum; ++i)
                         (*itr)->CastSpell(*itr, SPELL_DAMAGED_BUILDING, true);
+                    if (team == m_defender)
+                    {
+                        for (uint32 i = 0; i < m_towerDamagedCount; ++i)
+                            (*itr)->CastSpell(*itr, SPELL_DAMAGED_TOWER, true);
+                        for (uint32 i = 3; i > m_towerCount; --i)
+                            (*itr)->CastSpell(*itr, SPELL_DESTROYED_TOWER, true);
+                    }
                 }
-                else if (sWorld.getConfig(CONFIG_OUTDOORPVP_WINTERGRASP_CUSTOM_HONOR))
+                else
+                {
                     (*itr)->ModifyHonorPoints(honor);
+                    (*itr)->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET, spellRewardId);
+                    RewardMarkOfHonor(*itr, marks);
+                }
             }
             REMOVE_WARTIME_AURAS(*itr);
             REMOVE_TENACITY_AURA(*itr);
@@ -1029,6 +1058,30 @@ uint32 OPvPWintergrasp::GetData(uint32 id)
         return CanBuildVehicle(workshop) ? 1 : 0;
 
     return 0;
+}
+
+void OPvPWintergrasp::RewardMarkOfHonor(Player *plr, uint32 count)
+{
+    // 'Inactive' this aura prevents the player from gaining honor points and battleground tokens
+    if (plr->HasAura(SPELL_AURA_PLAYER_INACTIVE))
+        return;
+
+    ItemPosCountVec dest;
+    uint32 no_space_count = 0;
+    uint8 msg = plr->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, WG_MARK_OF_HONOR, count, &no_space_count);
+
+    if (msg == EQUIP_ERR_ITEM_NOT_FOUND)
+    {
+        sLog.outErrorDb("Wintergrasp reward item (Entry %u) not exist in `item_template`.", WG_MARK_OF_HONOR);
+        return;
+    }
+
+    if (msg != EQUIP_ERR_OK) // convert to possible store amount
+        count -= no_space_count;
+
+    if (count != 0 && !dest.empty()) // can add some
+        if (Item* item = plr->StoreNewItem(dest, WG_MARK_OF_HONOR, true, 0))
+            plr->SendNewItem(item, count, true, false);
 }
 
 SiegeWorkshop *OPvPWintergrasp::GetWorkshop(uint32 lowguid) const

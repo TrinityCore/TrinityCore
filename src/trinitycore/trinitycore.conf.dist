@@ -1,7 +1,7 @@
 ##########################################
 # Trinity Core worldd configuration file #
 ##########################################
-ConfVersion=2009100601
+ConfVersion=2009101501
 
 ###################################################################################################################
 # CONNECTIONS AND DIRECTORIES
@@ -1922,16 +1922,22 @@ Ra.Secure = 1
 #       Defines the amount of honor points that should be given to the team losing the Wintergrasp Battle. Requires OutdoorPvP.Wintergrasp.CustomHonorRewards = 1.
 #
 #   OutdoorPvP.Wintergrasp.CustomHonorDamageTower
-#       Defines the amount of honor points that should be given for damaging a tower. Requires OutdoorPvP.Wintergrasp.CustomHonorRewards = 1.
+#       Defines the amount of honor points that should be given to the team for damaging a tower. Requires OutdoorPvP.Wintergrasp.CustomHonorRewards = 1.
 #
 #   OutdoorPvP.Wintergrasp.CustomHonorDestroyedTower
-#       Defines the amount of honor points that should be given for destroying a tower. Requires OutdoorPvP.Wintergrasp.CustomHonorRewards = 1.
+#       Defines the amount of honor points that should be given fto the team or destroying a tower. Requires OutdoorPvP.Wintergrasp.CustomHonorRewards = 1.
 #
 #   OutdoorPvP.Wintergrasp.CustomHonorDamagedBuilding
-#       Defines the amount of honor points that should be given for damaged buildings after the battle. Requires OutdoorPvP.Wintergrasp.CustomHonorRewards = 1.
+#       Defines the amount of honor points that should be given to the team for damaged buildings after the battle. Requires OutdoorPvP.Wintergrasp.CustomHonorRewards = 1.
 #
 #   OutdoorPvP.Wintergrasp.CustomHonorIntactBuilding
-#       Defines the amount of honor points that should be given for intact buildings after the battle. Requires OutdoorPvP.Wintergrasp.CustomHonorRewards = 1.
+#       Defines the amount of honor points that should be given to the team for intact buildings after the battle. Requires OutdoorPvP.Wintergrasp.CustomHonorRewards = 1.
+#
+#   OutdoorPvP.Wintergrasp.CustomHonorBattleWinMarks
+#       Defines the amount of wintergrasp reward marks that should be given to the team winning the Wintergrasp Battle. Requires OutdoorPvP.Wintergrasp.CustomHonorRewards = 1.
+#
+#   OutdoorPvP.Wintergrasp.CustomHonorBattleLoseMarks
+#       Defines the amount of wintergrasp reward marks that should be given to the team losing the Wintergrasp Battle. Requires OutdoorPvP.Wintergrasp.CustomHonorRewards = 1.
 #
 #   ForbiddenMaps
 #       map ids that users below SEC_GAMEMASTER cannot enter, with delimiter ','
@@ -1985,12 +1991,14 @@ OutdoorPvP.Wintergrasp.StartTime = 30
 OutdoorPvP.Wintergrasp.BattleTime = 30
 OutdoorPvP.Wintergrasp.Interval = 150
 OutdoorPvP.Wintergrasp.CustomHonorRewards = 0
-OutdoorPvP.Wintergrasp.CustomHonorBattleWin = 0
-OutdoorPvP.Wintergrasp.CustomHonorBattleLose = 0
-OutdoorPvP.Wintergrasp.CustomHonorDamageTower = 0
-OutdoorPvP.Wintergrasp.CustomHonorDestroyedTower = 0
-OutdoorPvP.Wintergrasp.CustomHonorDamagedBuilding = 0
-OutdoorPvP.Wintergrasp.CustomHonorIntactBuilding = 0
+OutdoorPvP.Wintergrasp.CustomHonorBattleWin = 3000
+OutdoorPvP.Wintergrasp.CustomHonorBattleLose = 1250
+OutdoorPvP.Wintergrasp.CustomHonorDamageTower = 750
+OutdoorPvP.Wintergrasp.CustomHonorDestroyedTower = 750
+OutdoorPvP.Wintergrasp.CustomHonorDamagedBuilding = 750
+OutdoorPvP.Wintergrasp.CustomHonorIntactBuilding = 1500
+OutdoorPvP.Wintergrasp.CustomHonorBattleWinMarks = 3
+OutdoorPvP.Wintergrasp.CustomHonorBattleLoseMarks = 1
 NoResetTalentsCost = 0
 ShowKickInWorld = 0
 RecordUpdateTimeDiffInterval = 60000
