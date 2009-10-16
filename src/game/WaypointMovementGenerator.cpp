@@ -177,7 +177,7 @@ WaypointMovementGenerator<Creature>::Update(Creature &unit, const uint32 &diff)
                 }
             }
             else
-                i_currentNode++;
+                ++i_currentNode;
 
             node = waypoints->at(i_currentNode);
             InitTraveller(unit, *node);
