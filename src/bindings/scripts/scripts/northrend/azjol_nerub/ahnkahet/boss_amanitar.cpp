@@ -63,6 +63,8 @@ struct MANGOS_DLL_DECL boss_amanitarAI : public ScriptedAI
         bolttimer,
         spawntimer;
 
+    bool FirstTime;
+
     void Reset()
     {
         roottimer = urand(5000,9000);
@@ -73,11 +75,13 @@ struct MANGOS_DLL_DECL boss_amanitarAI : public ScriptedAI
         m_creature->SetMeleeDamageSchool(SPELL_SCHOOL_NATURE);
         m_creature->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_NATURE, true);
 
-        if (pInstance && !FirstTime) pInstance->SetData(DATA_AMANITAR, FAIL);
+        if (pInstance && !FirstTime)
+            pInstance->SetData(DATA_AMANITAR, FAIL);
 
         FirstTime = false;
 
-        if (pInstance) pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_MINI);
+        if (pInstance)
+            pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_MINI);
     }
 
     void JustDied(Unit *Killer)
