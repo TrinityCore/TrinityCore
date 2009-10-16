@@ -15,6 +15,12 @@ CREATE TABLE `script_waypoint` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Script Creature waypoints';
 */
 
+-- 
+-- Not sure why we don't just run
+-- DELETE FROM `script_waypoint`;
+-- I mean seriously, who has custom waypoint creatures?
+-- 
+
 DELETE FROM `script_waypoint` WHERE `entry`=24156;
 INSERT INTO `script_waypoint` VALUES
    (24156,1,1859.74, -6178.15, 24.3033, 0, ''),
@@ -1670,3 +1676,17 @@ INSERT INTO `script_waypoint` VALUES
    (23784, 22, 1619.15, -6167.6, 9.39125, 5, 'Apothecary Hanes'),
    (23784, 23, 1634.05, -6153.81, 8.08527, 5, 'Apothecary Hanes');
 
+-- New waypoint format as of 5696:
+ALTER IGNORE TABLE `creature_addon`
+    ADD `path_id` int(11) unsigned NOT NULL default '0' AFTER `guid`;
+ALTER IGNORE TABLE `creature_template_addon`
+    ADD `path_id` int(11) unsigned NOT NULL default '0' AFTER `entry`;
+
+ALTER TABLE `waypoint_data` ADD COLUMN `id_old` int(10) unsigned NOT NULL default '0' COMMENT 'Creature GUID' AFTER `wpguid`;
+UPDATE `waypoint_data` SET `id_old`=`id`*0.1;
+
+REPLACE INTO `creature_addon` ( `guid` ) SELECT `id_old` FROM `waypoint_data`;
+
+UPDATE `creature_addon`,`waypoint_data` SET `creature_addon`.`path_id` = `waypoint_data`.`id` WHERE `creature_addon`.`guid`=`waypoint_data`.`id_old`;
+
+ALTER TABLE `waypoint_data` DROP COLUMN `id_old`;   
