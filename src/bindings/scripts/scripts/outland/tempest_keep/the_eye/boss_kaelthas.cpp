@@ -25,7 +25,7 @@ EndScriptData */
 #include "def_the_eye.h"
 #include "WorldPacket.h"
 
-enum
+enum eEnums
 {
     //kael'thas Speech
     SAY_INTRO                           = -1550016,
