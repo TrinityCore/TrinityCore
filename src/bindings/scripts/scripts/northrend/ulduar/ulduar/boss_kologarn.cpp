@@ -39,13 +39,16 @@ enum Events
 
 struct TRINITY_DLL_DECL boss_kologarnAI : public BossAI
 {
-    boss_kologarnAI(Creature *c) : BossAI(c, BOSS_KOLOGARN), vehicle(me->GetVehicleKit()),
+    boss_kologarnAI(Creature *pCreature) : BossAI(pCreature, TYPE_KOLOGARN), vehicle(me->GetVehicleKit()),
         left(false), right(false)
     {
+        m_pInstance = me->GetInstanceData();
         assert(vehicle);
         me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
         me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED); // i think this is a hack, but there is no other way to disable his rotation
     }
+
+    ScriptedInstance* m_pInstance;
 
     Vehicle *vehicle;
     bool left, right;
@@ -53,6 +56,12 @@ struct TRINITY_DLL_DECL boss_kologarnAI : public BossAI
     void AttackStart(Unit *who)
     {
         me->Attack(who, true);
+    }
+
+    void JustDied(Unit *victim)
+    {
+        if (m_pInstance)
+            m_pInstance->SetData(TYPE_KOLOGARN, DONE);
     }
 
     void PassengerBoarded(Unit *who, int8 seatId, bool apply)

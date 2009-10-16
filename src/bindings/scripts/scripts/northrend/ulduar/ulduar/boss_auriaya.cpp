@@ -27,9 +27,14 @@
 #define SAY_AGGRO                   -2615016
 #define SAY_SLAY_1                  -2615017
 
-struct TRINITY_DLL_DECL boss_auriaya_AI : public ScriptedAI
+struct TRINITY_DLL_DECL boss_auriaya_AI : public BossAI
 {
-    boss_auriaya_AI(Creature *c) : ScriptedAI(c) {}
+    boss_auriaya_AI(Creature *pCreature) : BossAI(pCreature, TYPE_AURIAYA)
+    {
+        m_pInstance = pCreature->GetInstanceData();
+    }
+
+    ScriptedInstance* m_pInstance;
 
     uint32 TERRIFYING_SCREECH_Timer;
     uint32 SONIC_BOOM_Timer;
@@ -52,6 +57,9 @@ struct TRINITY_DLL_DECL boss_auriaya_AI : public ScriptedAI
     void JustDied(Unit *victim)
     {
         DoScriptText(SAY_SLAY_1, m_creature);
+
+        if (m_pInstance)
+            m_pInstance->SetData(TYPE_AURIAYA, DONE);
     }
 
     void MoveInLineOfSight(Unit* who) {}

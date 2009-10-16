@@ -313,6 +313,7 @@ extern void AddSC_boss_razorscale();
 extern void AddSC_boss_xt002();
 extern void AddSC_boss_kologarn();
 extern void AddSC_boss_assembly_of_iron();
+extern void AddSC_ulduar_teleporter();
 extern void AddSC_instance_ulduar();
 extern void AddSC_boss_keleseth();              //Utgarde Keep
 extern void AddSC_boss_skarvald_dalronn();
@@ -734,6 +735,7 @@ void AddScripts()
     AddSC_boss_xt002();
     AddSC_boss_assembly_of_iron();
     AddSC_boss_kologarn();
+    AddSC_ulduar_teleporter();
     AddSC_instance_ulduar();
     AddSC_boss_keleseth();              //Utgarde Keep
     AddSC_boss_skarvald_dalronn();
