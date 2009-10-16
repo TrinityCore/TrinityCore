@@ -72,10 +72,13 @@ enum Seats
 
 struct TRINITY_DLL_DECL boss_flame_leviathanAI : public BossAI
 {
-    boss_flame_leviathanAI(Creature *c) : BossAI(c, BOSS_LEVIATHAN), vehicle(me->GetVehicleKit())
+    boss_flame_leviathanAI(Creature *pCreature) : BossAI(pCreature, TYPE_LEVIATHAN), vehicle(me->GetVehicleKit())
     {
+        m_pInstance = pCreature->GetInstanceData();
         assert(vehicle);
     }
+
+    ScriptedInstance* m_pInstance;
 
     Vehicle *vehicle;
 
@@ -105,6 +108,12 @@ struct TRINITY_DLL_DECL boss_flame_leviathanAI : public BossAI
     {
         if (spell->Id == SPELL_PURSUED)
             AttackStart(target);
+    }
+
+    void JustDied(Unit *victim)
+    {
+        if (m_pInstance)
+            m_pInstance->SetData(TYPE_LEVIATHAN, DONE);
     }
 
     void SpellHit(Unit *caster, const SpellEntry *spell)

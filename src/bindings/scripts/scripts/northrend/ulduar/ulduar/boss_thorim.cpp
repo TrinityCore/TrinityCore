@@ -18,3 +18,71 @@
 
 #include "precompiled.h"
 #include "def_ulduar.h"
+
+/*
+#define SAY_AGGRO -1
+#define SAY_SLAY -1
+*/
+
+struct TRINITY_DLL_DECL boss_thorimAI : public BossAI
+{
+    boss_thorimAI(Creature* pCreature) : BossAI(pCreature, TYPE_THORIM)
+    {
+        m_pInstance = pCreature->GetInstanceData();
+        Reset();
+    }
+
+    ScriptedInstance* m_pInstance;
+
+    void Reset()
+    {
+    }
+
+    void KilledUnit(Unit *victim)
+    {
+    }
+
+    void JustDied(Unit *victim)
+    {
+        if (m_pInstance)
+            m_pInstance->SetData(TYPE_THORIM, DONE);
+    }
+
+    void Aggro(Unit* pWho)
+    {
+//        DoScriptText(SAY_AGGRO, m_creature);
+        m_creature->SetInCombatWithZone();
+
+        if (m_pInstance)
+            m_pInstance->SetData(TYPE_THORIM, IN_PROGRESS);
+    }
+
+    void UpdateAI(const uint32 diff)
+    {
+        if (!UpdateVictim())
+            return;
+//SPELLS TODO:
+
+//
+        DoMeleeAttackIfReady();
+
+        EnterEvadeIfOutOfCombatArea(diff);
+
+    }
+
+};
+
+CreatureAI* GetAI_boss_thorim(Creature* pCreature)
+{
+    return new boss_thorimAI(pCreature);
+}
+
+void AddSC_boss_thorim()
+{
+    Script *newscript;
+    newscript = new Script;
+    newscript->Name = "boss_thorim";
+    newscript->GetAI = &GetAI_boss_thorim;
+    newscript->RegisterSelf();
+
+}

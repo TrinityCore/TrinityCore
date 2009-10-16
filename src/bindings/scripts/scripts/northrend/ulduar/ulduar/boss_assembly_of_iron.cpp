@@ -126,7 +126,7 @@ struct TRINITY_DLL_DECL boss_steelbreakerAI : public ScriptedAI
         phase = 0;
         m_creature->RemoveAllAuras();
         if(pInstance)
-            pInstance->SetData(DATA_ASSEMBLY, NOT_STARTED);
+            pInstance->SetData(TYPE_ASSEMBLY, NOT_STARTED);
     }
 
     EventMap events;
@@ -174,7 +174,7 @@ struct TRINITY_DLL_DECL boss_steelbreakerAI : public ScriptedAI
     void JustDied(Unit* Killer)
     {
         if(IsEncounterComplete(pInstance, m_creature) && pInstance)
-            pInstance->SetData(DATA_ASSEMBLY, DONE);
+            pInstance->SetData(TYPE_ASSEMBLY, DONE);
     }
 
     void KilledUnit(Unit *who)
@@ -235,7 +235,7 @@ struct TRINITY_DLL_DECL boss_runemaster_molgeimAI : public ScriptedAI
     void Reset()
     {
         if(pInstance)
-            pInstance->SetData(DATA_ASSEMBLY, NOT_STARTED);
+            pInstance->SetData(TYPE_ASSEMBLY, NOT_STARTED);
         events.Reset();
         m_creature->RemoveAllAuras();
         phase = 0;
@@ -286,7 +286,7 @@ struct TRINITY_DLL_DECL boss_runemaster_molgeimAI : public ScriptedAI
     void JustDied(Unit* Killer)
     {
         if(IsEncounterComplete(pInstance, m_creature) && pInstance)
-            pInstance->SetData(DATA_ASSEMBLY, DONE);
+            pInstance->SetData(TYPE_ASSEMBLY, DONE);
     }
 
     void SpellHit(Unit *from, const SpellEntry *spell)
@@ -399,7 +399,7 @@ struct TRINITY_DLL_DECL boss_stormcaller_brundirAI : public ScriptedAI
     void Reset()
     {
         if(pInstance)
-            pInstance->SetData(DATA_ASSEMBLY, NOT_STARTED);
+            pInstance->SetData(TYPE_ASSEMBLY, NOT_STARTED);
         m_creature->RemoveAllAuras();
         events.Reset();
         phase = 0;
@@ -455,7 +455,7 @@ struct TRINITY_DLL_DECL boss_stormcaller_brundirAI : public ScriptedAI
     void JustDied(Unit* Killer)
     {
         if(IsEncounterComplete(pInstance, m_creature) && pInstance)
-            pInstance->SetData(DATA_ASSEMBLY, DONE);
+            pInstance->SetData(TYPE_ASSEMBLY, DONE);
     }
 
     void SpellHit(Unit *from, const SpellEntry *spell)
