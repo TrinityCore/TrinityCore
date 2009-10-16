@@ -975,7 +975,30 @@ void Aura::HandleAuraSpecificMods(bool apply)
 
         if (m_spellProto->SpellFamilyName == SPELLFAMILY_MAGE)
         {
-            if (m_spellProto->SpellFamilyFlags[0] & 0x00000001 && m_spellProto->SpellFamilyFlags[2] & 0x00000008)
+            if (m_spellProto->SpellFamilyFlags[1] & 0x00000002 && m_spellProto->SpellFamilyFlags[2] & 0x00000008)
+            {
+                // Arcane Potency
+                if (Unit * caster = GetCaster())
+                {
+                    if (AuraEffect* aureff = caster->GetAuraEffect(SPELL_AURA_DUMMY, SPELLFAMILY_MAGE, 2120, 0))
+                    {
+                        if (roll_chance_i(aureff->GetAmount()))
+                        {
+                            uint32 spell_id = 0;
+
+                            switch (aureff->GetId())
+                            {
+                                case 31571: spell_id = 57529; break;
+                                case 31572: spell_id = 57531; break;
+                                default: return;
+                            }
+                            if(spell_id)
+                                caster->CastSpell(caster,spell_id,true);
+                        }
+                    }
+                }
+            }
+            else if (m_spellProto->SpellFamilyFlags[0] & 0x00000001 && m_spellProto->SpellFamilyFlags[2] & 0x00000008)
             {
                 // Glyph of Fireball
                 if (Unit * caster = GetCaster())
@@ -1318,7 +1341,7 @@ void Aura::HandleAuraSpecificMods(bool apply)
             m_target->CastSpell(m_target, GetPartAura(0)->GetAmount(), true, NULL, GetPartAura(0));
         }
         // Curse of Doom
-        else if(m_spellProto->SpellFamilyName==SPELLFAMILY_WARLOCK && m_spellProto->SpellFamilyFlags[1] & 0x02)
+        else if (m_spellProto->SpellFamilyName==SPELLFAMILY_WARLOCK && m_spellProto->SpellFamilyFlags[1] & 0x02)
         {
             if (GetRemoveMode()==AURA_REMOVE_BY_DEATH)
             {
@@ -1326,6 +1349,28 @@ void Aura::HandleAuraSpecificMods(bool apply)
                 {
                     if (caster->GetTypeId()==TYPEID_PLAYER && ((Player*)caster)->isHonorOrXPTarget(m_target))
                         caster->CastSpell(m_target, 18662, true, NULL, GetPartAura(0));
+                }
+            }
+        }
+        // Improved Fear
+        else if (m_spellProto->SpellFamilyName==SPELLFAMILY_WARLOCK && m_spellProto->SpellFamilyFlags[1] & 0x00000400)
+        {
+            if (Unit * caster = GetCaster())
+            {
+                if (caster->GetTypeId() != TYPEID_PLAYER)
+                {
+                    if (AuraEffect* aureff = caster->GetAuraEffect(SPELL_AURA_DUMMY, SPELLFAMILY_WARLOCK, 98, 0))
+                    {
+                        uint32 spell_id = 0;
+                        switch (aureff->GetId())
+                        {
+                            case 53759: spell_id = 60947; break;
+                            case 53754: spell_id = 60946; break;
+                            default: return;
+                        }
+                        if (spell_id)
+                            caster->CastSpell(caster,spell_id,true);
+                    }
                 }
             }
         }
