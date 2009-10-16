@@ -25,10 +25,20 @@
 
 typedef uint32 TeamPair[2];
 
+enum WintergraspQuest
+{
+    SLAY_THEM_ALL_1 = 13180, //Horde Quest
+    SLAY_THEM_ALL_2 = 13178, //Horde Quest
+
+    NO_MERCY_MERCILESS = 13177,   //Alliance Quest
+    NO_MERCY_MERCILESS_1 = 13179  //Alliance Quest
+};
+
 enum CreatureEntry
 {
     CRE_ENG_A = 30499,
     CRE_ENG_H = 30400,
+    CRE_PVP_KILL = 31086 //Quest Objective
 };
 
 const TeamPair CreatureEntryPair[] =
@@ -734,6 +744,9 @@ void OPvPWintergrasp::HandleKill(Player *killer, Unit *victim)
     {
         if (victim->getLevel() >= 70)
             ok = true;
+
+        if(killer->GetQuestStatus(SLAY_THEM_ALL_1) == QUEST_STATUS_INCOMPLETE || killer->GetQuestStatus(SLAY_THEM_ALL_2) == QUEST_STATUS_INCOMPLETE || killer->GetQuestStatus(NO_MERCY_MERCILESS_1) == QUEST_STATUS_INCOMPLETE || killer->GetQuestStatus(NO_MERCY_MERCILESS) == QUEST_STATUS_INCOMPLETE)
+            killer->KilledMonsterCredit(CRE_PVP_KILL,0);
     }
     else
     {
