@@ -65,9 +65,9 @@ struct MANGOS_DLL_DECL boss_amanitarAI : public ScriptedAI
 
     void Reset()
     {
-        roottimer = RandTime(5,4);
-        bashtimer = RandTime(10,4);
-        bolttimer = RandTime();
+        roottimer = urand(5000,9000);
+        bashtimer = urand(10000,14000);
+        bolttimer = urand(15000,30000);
         spawntimer = 0;
 
         m_creature->SetMeleeDamageSchool(SPELL_SCHOOL_NATURE);
@@ -127,27 +127,27 @@ struct MANGOS_DLL_DECL boss_amanitarAI : public ScriptedAI
         if (spawntimer < diff)
         {
             SpawnAdds();
-            spawntimer = RandTime(35,5);
+            spawntimer = urand(35000,40000);
         } else spawntimer -= diff;
 
         if (roottimer < diff)
         {
             Unit* target = SelectRandomPlayer(100.0f);
             if (target) m_creature->CastSpell(target, SPELL_ENTANGLING_ROOTS, false);
-            roottimer = RandTime();
+            roottimer = urand(15000,30000);
         }
 
         if (bashtimer < diff)
         {
             m_creature->CastSpell(m_creature->getVictim(), SPELL_BASH, false);
-            bashtimer = RandTime();
+            bashtimer = urand(15000,30000);
         } else bashtimer -= diff;
 
         if (bolttimer < diff)
         {
             Unit* target = SelectRandomPlayer(100.0f);
             if (target) m_creature->CastSpell(target, SPELL_VENOM_BOLT_VOLLEY, false);
-            bolttimer = RandTime();
+            bolttimer = urand(15000,30000);
         } else bolttimer -= diff;
 
         DoMeleeAttackIfReady();
