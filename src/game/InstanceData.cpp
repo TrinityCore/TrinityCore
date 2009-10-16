@@ -296,3 +296,39 @@ void InstanceData::DoUpdateWorldState(uint32 uiStateId, uint32 uiStateData)
     else
         debug_log("TSCR: DoUpdateWorldState attempt send data but no players in map.");
 }
+
+/* Not used anywhere yet, not sure if they're needed:
+// Send Notify to all players in instance
+void InstanceData::DoSendNotifyToInstance(const char *format, ...)
+{
+    InstanceMap::PlayerList const &PlayerList = instance->GetPlayers();
+    InstanceMap::PlayerList::const_iterator i;
+
+    if (!PlayerList.isEmpty())
+        for (i = PlayerList.begin(); i != PlayerList.end(); ++i)
+            if ((*i).getSource() && (*i).getSource()->GetSession())
+                (*i).getSource()->GetSession()->SendNotification(format);
+}
+
+// Complete Achievement for all players in instance
+void InstanceData::DoCompleteAchievement(uint32 achievement)
+{
+    AchievementEntry const* AE = GetAchievementStore()->LookupEntry(achievement);
+    Map::PlayerList const &PlayerList = instance->GetPlayers();
+
+    if (!PlayerList.isEmpty())
+        for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
+            if (i->getSource())
+                i->getSource()->CompletedAchievement(AE);
+}
+*/
+
+// Remove Auras due to Spell on all players in instance
+void InstanceData::DoRemoveAurasDueToSpellOnPlayers(uint32 spell)
+{
+    Map::PlayerList const &PlayerList = instance->GetPlayers();
+
+    if (!PlayerList.isEmpty())
+        for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
+            if (i->getSource() && i->getSource()->HasAura(spell)) i->getSource()->RemoveAurasDueToSpell(spell);
+}
