@@ -2073,6 +2073,10 @@
 							RelativePath="..\scripts\northrend\ulduar\ulduar\boss_yoggsaron.cpp"
 							>
 						</File>
+                        <File
+                            RelativePath="..\scripts\northrend\ulduar\ulduar\ulduar_teleporter.cpp"
+                        >
+                        </File>    
 						<File
 							RelativePath="..\scripts\northrend\ulduar\ulduar\def_ulduar.h"
 							>

@@ -380,6 +380,7 @@ SET(trinityscript_LIB_SRCS
    scripts/northrend/ulduar/ulduar/boss_thorim.cpp
    scripts/northrend/ulduar/ulduar/boss_xt002.cpp
    scripts/northrend/ulduar/ulduar/boss_yoggsaron.cpp
+   scripts/northrend/ulduar/ulduar/ulduar_teleporter.cpp
    scripts/northrend/ulduar/ulduar/def_ulduar.h
    scripts/northrend/ulduar/ulduar/instance_ulduar.cpp
    scripts/northrend/utgarde_keep/utgarde_keep/instance_utgarde_keep.cpp

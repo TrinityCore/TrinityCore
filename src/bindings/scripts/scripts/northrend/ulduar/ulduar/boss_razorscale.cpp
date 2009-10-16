@@ -66,9 +66,9 @@ static float SpawnLocations[4][3]=
     {626.6, -271.5, 391.4},
 };
 
-struct TRINITY_DLL_DECL boss_razorscaleAI : public ScriptedAI
+struct TRINITY_DLL_DECL boss_razorscaleAI : public BossAI
 {
-    boss_razorscaleAI(Creature* c) : ScriptedAI(c) {}
+    boss_razorscaleAI(Creature *pCreature) : BossAI(pCreature, TYPE_RAZORSCALE) {}
 
     uint32 Phase;
 
@@ -126,8 +126,10 @@ struct TRINITY_DLL_DECL boss_razorscaleAI : public ScriptedAI
 
         if(m_creature->GetPositionY() > -60 || m_creature->GetPositionX() < 450) // Not Blizzlike, anti-exploit to prevent players from pulling bosses to vehicles.
         {
-            m_creature->SetHealth(m_creature->GetMaxHealth());
-            DoCast(m_creature->getVictim(), SPELL_FIREBALL);
+            m_creature->RemoveAllAuras();
+            m_creature->DeleteThreatList();
+            m_creature->CombatStop(false);
+            m_creature->GetMotionMaster()->MoveTargetedHome();
         }
 
         if (((m_creature->GetHealth()*100 / m_creature->GetMaxHealth()) < 99) && (Phase == 1))

@@ -1643,7 +1643,7 @@ void Spell::EffectDummy(uint32 i)
             if (m_spellInfo->SpellFamilyFlags[1] & 0x20000 && i == 1)
             {
                 int32 dmg = m_damage * damage / 100;
-                m_caster->CastCustomSpell(unitTarget, 54171, &dmg , 0, 0, true);
+                m_caster->CastCustomSpell(unitTarget, 54171, &dmg, 0, 0, true);
                 return;
             }
             switch(m_spellInfo->SpellIconID)
@@ -1683,7 +1683,7 @@ void Spell::EffectDummy(uint32 i)
             {
                 case 54171:                                   //Divine Storm
                 {
-                    m_caster->CastCustomSpell(unitTarget, 54172, damage , 0, 0, true);
+                    m_caster->CastCustomSpell(unitTarget, 54172, &damage, 0, 0, true);
                 }
                 case 20425:                                   // Judgement of command
                 {

@@ -19,31 +19,47 @@
 #ifndef DEF_ULDUAR_H
 #define DEF_ULDUAR_H
 
-enum Encounter
+enum eEnums
 {
-    BOSS_LEVIATHAN,
-    BOSS_IGNIS,
-    BOSS_RAZORSCALE,
-    BOSS_XT002,
-    BOSS_ASSEMBLY,
-    BOSS_KOLOGARN,
-    BOSS_AURIAYA,
-    BOSS_MIMIRON,
-    BOSS_HODIR,
-    BOSS_THORIM,
-    BOSS_FREYA,
-    BOSS_VEZAX,
-    BOSS_YOGGSARON,
-    BOSS_ALGALON,
-    MAX_ENCOUNTER
+    MAX_ENCOUNTER               = 14,
+
+    TYPE_LEVIATHAN              = 0,
+    TYPE_IGNIS                  = 1,
+    TYPE_RAZORSCALE             = 2,
+    TYPE_XT002                  = 3,
+    TYPE_ASSEMBLY               = 4,
+    TYPE_KOLOGARN               = 5,
+    TYPE_AURIAYA                = 6,
+    TYPE_MIMIRON                = 7,
+    TYPE_HODIR                  = 8,
+    TYPE_THORIM                 = 9,
+    TYPE_FREYA                  = 10,
+    TYPE_VEZAX                  = 11,
+    TYPE_YOGGSARON              = 12,
+    TYPE_ALGALON                = 13,
+
+    DATA_STEELBREAKER           = 20,
+    DATA_MOLGEIM                = 21,
+    DATA_BRUNDIR                = 22,
+    DATA_RUNEMASTER_MOLGEIM     = 23,
+    DATA_STORMCALLER_BRUNDIR    = 24,
+
+    NPC_LEVIATHAN               = 33113,
+    NPC_IGNIS                   = 33118,
+    NPC_RAZORSCALE              = 33186,
+    NPC_XT002                   = 33293,
+    NPC_STEELBREAKER            = 32867,
+    NPC_MOLGEIM                 = 32927,
+    NPC_BRUNDIR                 = 32857,
+    NPC_KOLOGARN                = 32930,
+    NPC_AURIAYA                 = 33515,
+    NPC_MIMIRON                 = 33350,
+    NPC_HODIR                   = 32845,
+    NPC_THORIM                  = 32865,
+    NPC_FREYA                   = 32906,
+    NPC_VEZAX                   = 33271,
+    NPC_YOGGSARON               = 33288,
+    NPC_ALGALON                 = 32871
 };
 
-enum
-{
-    DATA_ASSEMBLY,
-    DATA_STEELBREAKER,
-    DATA_RUNEMASTER_MOLGEIM,
-    DATA_STORMCALLER_BRUNDIR
-
-};
 #endif
