@@ -987,6 +987,8 @@ void OPvPWintergrasp::EndBattle()
         uint32 spellRewardId = (team == m_defender) ? SPELL_VICTORY_REWARD : SPELL_DEFEAT_REWARD;
         int32 honor;
         uint32 marks;
+        m_towerDamagedCount = 0; //until a function calculate it
+        m_towerCount = 3;
 
         if (sWorld.getConfig(CONFIG_OUTDOORPVP_WINTERGRASP_CUSTOM_HONOR))
         {
