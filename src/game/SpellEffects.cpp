@@ -1642,8 +1642,8 @@ void Spell::EffectDummy(uint32 i)
             // Divine Storm
             if (m_spellInfo->SpellFamilyFlags[1] & 0x20000 && i == 1)
             {
-                int32 dmg= m_damage * damage /100;
-                m_caster->CastCustomSpell(unitTarget, 54172, &dmg , 0, 0, true);
+                int32 dmg = m_damage * damage / 100;
+                m_caster->CastCustomSpell(unitTarget, 54171, &dmg , 0, 0, true);
                 return;
             }
             switch(m_spellInfo->SpellIconID)
@@ -1681,6 +1681,10 @@ void Spell::EffectDummy(uint32 i)
 
             switch(m_spellInfo->Id)
             {
+                case 54171:                                   //Divine Storm
+                {
+                    m_caster->CastCustomSpell(unitTarget, 54172, damage , 0, 0, true);
+                }
                 case 20425:                                   // Judgement of command
                 {
                     if(!unitTarget)
@@ -1708,15 +1712,15 @@ void Spell::EffectDummy(uint32 i)
 
                     // Righteous Defense (step 2) (in old version 31980 dummy effect)
                     // Clear targets for eff 1
-                    for(std::list<TargetInfo>::iterator ihit= m_UniqueTargetInfo.begin();ihit != m_UniqueTargetInfo.end();++ihit)
+                    for(std::list<TargetInfo>::iterator ihit= m_UniqueTargetInfo.begin(); ihit != m_UniqueTargetInfo.end(); ++ihit)
                         ihit->effectMask &= ~(1<<1);
 
                     // not empty (checked)
                     Unit::AttackerSet const& attackers = unitTarget->getAttackers();
 
                     // chance to be selected from list
-                    float chance = 100.0f/attackers.size();
-                    uint32 count=0;
+                    float chance = 100.0f / attackers.size();
+                    uint32 count = 0;
                     for(Unit::AttackerSet::const_iterator aItr = attackers.begin(); aItr != attackers.end() && count < 3; ++aItr)
                     {
                         if(!roll_chance_f(chance))
@@ -1827,9 +1831,9 @@ void Spell::EffectDummy(uint32 i)
                 // Glyph of Mana Tide
                 if(Unit *owner = m_caster->GetOwner())
                     if (AuraEffect *dummy = owner->GetAuraEffect(55441, 0))
-                        damage+=dummy->GetAmount();
+                        damage += dummy->GetAmount();
                 // Regenerate 6% of Total Mana Every 3 secs
-                int32 EffectBasePoints0 = unitTarget->GetMaxPower(POWER_MANA)  * damage / 100;
+                int32 EffectBasePoints0 = unitTarget->GetMaxPower(POWER_MANA) * damage / 100;
                 m_caster->CastCustomSpell(unitTarget, 39609, &EffectBasePoints0, NULL, NULL, true, NULL, NULL, m_originalCasterGUID);
                 return;
             }
@@ -1838,14 +1842,12 @@ void Spell::EffectDummy(uint32 i)
             {
                 if (m_caster->GetTypeId()!=TYPEID_PLAYER)
                     return;
-                Item *item = ((Player*)m_caster)->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND);
-                if (item)
+
+                if (Item *item = ((Player*)m_caster)->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND))
                 {
                     // Damage is increased by 25% if your off-hand weapon is enchanted with Flametongue.
                     if (m_caster->GetAura(SPELL_AURA_DUMMY, SPELLFAMILY_SHAMAN, 0x200000))
-                    {
-                           m_damage += m_damage * damage / 100;
-                    }
+                        m_damage += m_damage * damage / 100;
                 }
                 return;
             }
