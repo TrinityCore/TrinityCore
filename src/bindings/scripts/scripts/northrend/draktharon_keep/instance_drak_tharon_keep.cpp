@@ -165,10 +165,10 @@ struct TRINITY_DLL_DECL instance_drak_tharon : public ScriptedInstance
         OUT_LOAD_INST_DATA(in);
 
         char dataHead1, dataHead2;
-        uint16 data0,data1,data2,data3,data4;//,data5,data6;
+        uint16 data0,data1,data2,data3;
 
         std::istringstream loadStream(in);
-        loadStream >> dataHead1 >> dataHead2 >> data0 >> data1 >> data2 >> data3 >> data4;
+        loadStream >> dataHead1 >> dataHead2 >> data0 >> data1 >> data2 >> data3;
 
         if (dataHead1 == 'D' && dataHead2 == 'K')
         {
@@ -176,7 +176,6 @@ struct TRINITY_DLL_DECL instance_drak_tharon : public ScriptedInstance
             m_auiEncounter[1] = data1;
             m_auiEncounter[2] = data2;
             m_auiEncounter[3] = data3;
-            m_auiEncounter[4] = data4;
 
             for(uint8 i = 0; i < MAX_ENCOUNTER; ++i)
                 if (m_auiEncounter[i] == IN_PROGRESS)
