@@ -19,7 +19,7 @@
 #include "precompiled.h"
 #include "def_ulduar.h"
 
-enum eEnums
+enum eGameObjects
 {
     GO_Kologarn_CHEST_HERO  = 195047,
     GO_Kologarn_CHEST       = 195046,

@@ -24,7 +24,7 @@ EndScriptData */
 #include "precompiled.h"
 #include "def_obsidian_sanctum.h"
 
-enum
+enum eEnums
 {
     //Sartharion Yell
     SAY_SARTHARION_AGGRO                        = -1615018,
@@ -147,7 +147,7 @@ Waypoint m_aVesp[]=
 
 #define MAX_WAYPOINT 6
 //points around raid "isle", counter clockwise. should probably be adjusted to be more alike
-Waypoint m_aDragonCommon[6]=
+Waypoint m_aDragonCommon[MAX_WAYPOINT]=
 {
     {3214.012, 468.932, 98.652},
     {3244.950, 468.427, 98.652},
@@ -197,7 +197,7 @@ struct TRINITY_DLL_DECL boss_sartharionAI : public ScriptedAI
         m_bIsBerserk = false;
         m_bIsSoftEnraged = false;
 
-        m_uiEnrageTimer = MINUTE*15*IN_MILISECONDS;
+        m_uiEnrageTimer = 15*MINUTE*IN_MILISECONDS;
         m_bIsHardEnraged = false;
 
         m_uiTenebronTimer = 30000;
@@ -246,12 +246,7 @@ struct TRINITY_DLL_DECL boss_sartharionAI : public ScriptedAI
 
     void KilledUnit(Unit* pVictim)
     {
-        switch(rand()%3)
-        {
-            case 0: DoScriptText(SAY_SARTHARION_SLAY_1, m_creature); break;
-            case 1: DoScriptText(SAY_SARTHARION_SLAY_2, m_creature); break;
-            case 2: DoScriptText(SAY_SARTHARION_SLAY_3, m_creature); break;
-        }
+        DoScriptText(RAND(SAY_SARTHARION_SLAY_1,SAY_SARTHARION_SLAY_2,SAY_SARTHARION_SLAY_3), m_creature);
     }
 
     void FetchDragons()
@@ -343,7 +338,7 @@ struct TRINITY_DLL_DECL boss_sartharionAI : public ScriptedAI
             {
                 for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
                 {
-                    if (i->getSource()->isAlive())
+                    if (i->getSource() && i->getSource()->isAlive())
                         DoScriptText(WHISPER_LAVA_CHURN,m_creature,i->getSource());
                 }
             }
@@ -361,7 +356,8 @@ struct TRINITY_DLL_DECL boss_sartharionAI : public ScriptedAI
         Unit* pVesp = Unit::GetUnit(*m_creature, m_pInstance ? m_pInstance->GetData64(DATA_VESPERON) : 0);
 
         //spell will target dragons, if they are still alive at 35%
-        if (!m_bIsBerserk && (m_creature->GetHealth()*100 / m_creature->GetMaxHealth()) <= 35 && (pTene->isAlive() || pShad->isAlive() || pVesp->isAlive()))
+        if (!m_bIsBerserk && (m_creature->GetHealth()*100 / m_creature->GetMaxHealth()) <= 35
+            && ((pTene && pTene->isAlive()) || (pShad && pShad->isAlive()) || (pVesp && pVesp->isAlive())))
         {
             DoScriptText(SAY_SARTHARION_BERSERK, m_creature);
             DoCast(m_creature, SPELL_BERSERK);
@@ -401,7 +397,7 @@ struct TRINITY_DLL_DECL boss_sartharionAI : public ScriptedAI
         {
             DoScriptText(SAY_SARTHARION_BREATH, m_creature);
             DoCast(m_creature->getVictim(), m_bIsHeroic ? SPELL_FLAME_BREATH_H : SPELL_FLAME_BREATH);
-            m_uiFlameBreathTimer = 25000 + rand()%10000;
+            m_uiFlameBreathTimer = urand(25000,35000);
         }
         else
             m_uiFlameBreathTimer -= uiDiff;
@@ -410,7 +406,7 @@ struct TRINITY_DLL_DECL boss_sartharionAI : public ScriptedAI
         if (m_uiTailSweepTimer < uiDiff)
         {
             DoCast(m_creature->getVictim(), m_bIsHeroic ? SPELL_TAIL_LASH_H : SPELL_TAIL_LASH);
-            m_uiTailSweepTimer = 15000 + rand()%5000;
+            m_uiTailSweepTimer = urand(15000,20000);
         }
         else
             m_uiTailSweepTimer -= uiDiff;
@@ -419,7 +415,7 @@ struct TRINITY_DLL_DECL boss_sartharionAI : public ScriptedAI
         if (m_uiCleaveTimer < uiDiff)
         {
             DoCast(m_creature->getVictim(), SPELL_CLEAVE);
-            m_uiCleaveTimer = 7000 + rand()%3000;
+            m_uiCleaveTimer = urand(7000,10000);
         }
         else
             m_uiCleaveTimer -= uiDiff;
@@ -438,7 +434,7 @@ struct TRINITY_DLL_DECL boss_sartharionAI : public ScriptedAI
                     case 2: DoScriptText(SAY_SARTHARION_SPECIAL_3, m_creature); break;
                 }
             }
-            m_uiLavaStrikeTimer = 5000 + rand()%15000;
+            m_uiLavaStrikeTimer = urand(5000,20000);
         }
         else
             m_uiLavaStrikeTimer -= uiDiff;
@@ -688,10 +684,8 @@ struct TRINITY_DLL_DECL dummy_dragonAI : public ScriptedAI
 
             // Twilight Revenge to main boss
             if (Unit* pSartharion = Unit::GetUnit((*m_creature), m_pInstance->GetData64(DATA_SARTHARION)))
-            {
                 if (pSartharion->isAlive())
                     m_creature->CastSpell(pSartharion,SPELL_TWILIGHT_REVENGE,true);
-            }
         }
     }
 
@@ -742,11 +736,7 @@ struct TRINITY_DLL_DECL mob_tenebronAI : public dummy_dragonAI
 
     void KilledUnit(Unit* pVictim)
     {
-        switch(rand()%2)
-        {
-            case 0: DoScriptText(SAY_TENEBRON_SLAY_1, m_creature); break;
-            case 1: DoScriptText(SAY_TENEBRON_SLAY_2, m_creature); break;
-        }
+        DoScriptText(RAND(SAY_TENEBRON_SLAY_1,SAY_TENEBRON_SLAY_2), m_creature);
     }
 
     void UpdateAI(const uint32 uiDiff)
@@ -764,7 +754,7 @@ struct TRINITY_DLL_DECL mob_tenebronAI : public dummy_dragonAI
             if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
                 DoCast(pTarget, m_bIsHeroic ? SPELL_SHADOW_FISSURE_H : SPELL_SHADOW_FISSURE);
 
-            m_uiShadowFissureTimer = 15000 + rand()%5000;
+            m_uiShadowFissureTimer = urand(15000,20000);
         }
         else
             m_uiShadowFissureTimer -= uiDiff;
@@ -774,7 +764,7 @@ struct TRINITY_DLL_DECL mob_tenebronAI : public dummy_dragonAI
         {
             DoScriptText(SAY_TENEBRON_BREATH, m_creature);
             DoCast(m_creature->getVictim(), m_bIsHeroic ? SPELL_SHADOW_BREATH_H : SPELL_SHADOW_BREATH);
-            m_uiShadowBreathTimer = 20000 + rand()%5000;
+            m_uiShadowBreathTimer = urand(20000,25000);
         }
         else
             m_uiShadowBreathTimer -= uiDiff;
@@ -822,11 +812,7 @@ struct TRINITY_DLL_DECL mob_shadronAI : public dummy_dragonAI
 
     void KilledUnit(Unit* pVictim)
     {
-        switch(rand()%2)
-        {
-            case 0: DoScriptText(SAY_SHADRON_SLAY_1, m_creature); break;
-            case 1: DoScriptText(SAY_SHADRON_SLAY_2, m_creature); break;
-        }
+        DoScriptText(RAND(SAY_SHADRON_SLAY_1,SAY_SHADRON_SLAY_2), m_creature);
     }
 
     void UpdateAI(const uint32 uiDiff)
@@ -844,7 +830,7 @@ struct TRINITY_DLL_DECL mob_shadronAI : public dummy_dragonAI
             if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
                 DoCast(pTarget, m_bIsHeroic ? SPELL_SHADOW_FISSURE_H : SPELL_SHADOW_FISSURE);
 
-            m_uiShadowFissureTimer = 15000 + rand()%5000;
+            m_uiShadowFissureTimer = urand(15000,20000);
         }
         else
             m_uiShadowFissureTimer -= uiDiff;
@@ -854,7 +840,7 @@ struct TRINITY_DLL_DECL mob_shadronAI : public dummy_dragonAI
         {
             DoScriptText(SAY_SHADRON_BREATH, m_creature);
             DoCast(m_creature->getVictim(), m_bIsHeroic ? SPELL_SHADOW_BREATH_H : SPELL_SHADOW_BREATH);
-            m_uiShadowBreathTimer = 20000 + rand()%5000;
+            m_uiShadowBreathTimer = urand(20000,25000);
         }
         else
             m_uiShadowBreathTimer -= uiDiff;
@@ -896,11 +882,7 @@ struct TRINITY_DLL_DECL mob_vesperonAI : public dummy_dragonAI
 
     void KilledUnit(Unit* pVictim)
     {
-        switch(rand()%2)
-        {
-            case 0: DoScriptText(SAY_VESPERON_SLAY_1, m_creature); break;
-            case 1: DoScriptText(SAY_VESPERON_SLAY_2, m_creature); break;
-        }
+        DoScriptText(RAND(SAY_VESPERON_SLAY_1,SAY_VESPERON_SLAY_2), m_creature);
     }
 
     void UpdateAI(const uint32 uiDiff)
@@ -918,7 +900,7 @@ struct TRINITY_DLL_DECL mob_vesperonAI : public dummy_dragonAI
             if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
                 DoCast(pTarget, m_bIsHeroic ? SPELL_SHADOW_FISSURE_H : SPELL_SHADOW_FISSURE);
 
-            m_uiShadowFissureTimer = 15000 + rand()%5000;
+            m_uiShadowFissureTimer = urand(15000,20000);
         }
         else
             m_uiShadowFissureTimer -= uiDiff;
@@ -928,7 +910,7 @@ struct TRINITY_DLL_DECL mob_vesperonAI : public dummy_dragonAI
         {
             DoScriptText(SAY_VESPERON_BREATH, m_creature);
             DoCast(m_creature->getVictim(), m_bIsHeroic ? SPELL_SHADOW_BREATH_H : SPELL_SHADOW_BREATH);
-            m_uiShadowBreathTimer = 20000 + rand()%5000;
+            m_uiShadowBreathTimer = urand(20000,25000);
         }
         else
             m_uiShadowBreathTimer -= uiDiff;
@@ -1099,7 +1081,7 @@ struct TRINITY_DLL_DECL mob_twilight_whelpAI : public ScriptedAI
         if (m_uiFadeArmorTimer < uiDiff)
         {
             DoCast(m_creature->getVictim(), SPELL_FADE_ARMOR);
-            m_uiFadeArmorTimer = 5000 + rand()%5000;
+            m_uiFadeArmorTimer = urand(5000,10000);
         }
         else
             m_uiFadeArmorTimer -= uiDiff;
