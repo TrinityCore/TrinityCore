@@ -30,7 +30,7 @@ CREATE TABLE `script_texts` (
 -- 
 -- -1 000 000 First 100 entries are reserved for special use, do not add regular text here.
 -- 
-DELETE FROM `script_texts` WHERE entry between -1999925 and -1000000;
+DELETE FROM `script_texts` WHERE entry BETWEEN -1999925 AND -1000000;
 INSERT INTO `script_texts` (`npc_entry`,`entry`,`content_default`,`content_loc1`,`content_loc2`,`content_loc3`,`content_loc4`,`content_loc5`,`content_loc6`,`content_loc7`,`content_loc8`,`sound`,`type`,`language`,`emote`,`comment`) VALUES
    (0,-1000000,'<TrinityScript Text Entry Missing!>',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,'DEFAULT_TEXT'),
    (0,-1000001,'%s goes into a killing frenzy!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,2,0,0,'EMOTE_GENERIC_FRENZY_KILL'),
