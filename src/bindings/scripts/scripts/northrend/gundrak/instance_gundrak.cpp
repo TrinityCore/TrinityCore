@@ -27,17 +27,17 @@ struct TRINITY_DLL_DECL instance_gundrak : public ScriptedInstance
     uint64 uiGalDarah;
     uint64 uiEckTheFerocious;
     
-    uint32 uiSladRanAltar;
-    uint32 uiMoorabiAltar;
-    uint32 uiDrakkariColossusAltar;
-    uint32 uiSladRanStatue;
-    uint32 uiMoorabiStatue;
-    uint32 uiDrakkariColossusStatue;
-    uint32 uiEckTheFerociousDoor;
-    uint32 uiGalDarahDoor1;
-    uint32 uiGalDarahDoor2;
-    uint32 uiBridge;
-    uint32 uiCollision;
+    uint64 uiSladRanAltar;
+    uint64 uiMoorabiAltar;
+    uint64 uiDrakkariColossusAltar;
+    uint64 uiSladRanStatue;
+    uint64 uiMoorabiStatue;
+    uint64 uiDrakkariColossusStatue;
+    uint64 uiEckTheFerociousDoor;
+    uint64 uiGalDarahDoor1;
+    uint64 uiGalDarahDoor2;
+    uint64 uiBridge;
+    uint64 uiCollision;
     
     uint32 m_auiEncounter[MAX_ENCOUNTER];
     
@@ -134,9 +134,11 @@ struct TRINITY_DLL_DECL instance_gundrak : public ScriptedInstance
                 break;
             case 193188:
                 uiBridge = pGo->GetGUID();
+                HandleGameObject(NULL,true,pGo);
                 break;
             case 192633:
                 uiCollision = pGo->GetGUID();
+                HandleGameObject(NULL,true,pGo);
                 break;
         }
     }
@@ -271,10 +273,10 @@ struct TRINITY_DLL_DECL instance_gundrak : public ScriptedInstance
         
         if (pSladRanAltar && pSladRanAltar->GetGoState() == GO_STATE_ACTIVE &&
             pMoorabiAltar && pMoorabiAltar->GetGoState() == GO_STATE_ACTIVE &&
-            pDrakkariColossusAltar && pDrakkariColossusAltar->GetGoState())
+            pDrakkariColossusAltar && pDrakkariColossusAltar->GetGoState() == GO_STATE_ACTIVE)
         {
-            HandleGameObject(uiBridge,true);
-            HandleGameObject(uiCollision,true);
+            HandleGameObject(uiBridge,false);
+            HandleGameObject(uiCollision,false);
         }
     }
 };
