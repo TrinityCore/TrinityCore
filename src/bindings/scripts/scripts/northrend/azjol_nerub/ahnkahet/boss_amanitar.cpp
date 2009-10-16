@@ -132,8 +132,8 @@ struct MANGOS_DLL_DECL boss_amanitarAI : public ScriptedAI
 
         if (roottimer < diff)
         {
-            Unit* target = SelectRandomPlayer(100.0f);
-            if (target) m_creature->CastSpell(target, SPELL_ENTANGLING_ROOTS, false);
+            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                m_creature->CastSpell(target, SPELL_ENTANGLING_ROOTS, false);
             roottimer = urand(15000,30000);
         }
 
@@ -145,8 +145,8 @@ struct MANGOS_DLL_DECL boss_amanitarAI : public ScriptedAI
 
         if (bolttimer < diff)
         {
-            Unit* target = SelectRandomPlayer(100.0f);
-            if (target) m_creature->CastSpell(target, SPELL_VENOM_BOLT_VOLLEY, false);
+            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                m_creature->CastSpell(target, SPELL_VENOM_BOLT_VOLLEY, false);
             bolttimer = urand(15000,30000);
         } else bolttimer -= diff;
 
