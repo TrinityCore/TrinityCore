@@ -163,12 +163,7 @@ struct TRINITY_DLL_DECL boss_volkhanAI : public ScriptedAI
 
     void KilledUnit(Unit* pVictim)
     {
-        switch(rand()%3)
-        {
-            case 0: DoScriptText(SAY_SLAY_1, m_creature); break;
-            case 1: DoScriptText(SAY_SLAY_2, m_creature); break;
-            case 2: DoScriptText(SAY_SLAY_3, m_creature); break;
-        }
+        DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2,SAY_SLAY_3), m_creature);
     }
 
     void DespawnGolem()
@@ -260,11 +255,7 @@ struct TRINITY_DLL_DECL boss_volkhanAI : public ScriptedAI
             {
                 //should he stomp even if he has no brittle golem to shatter?
 
-                switch(rand()%2)
-                {
-                    case 0: DoScriptText(SAY_STOMP_1, m_creature); break;
-                    case 1: DoScriptText(SAY_STOMP_2, m_creature); break;
-                }
+                DoScriptText(RAND(SAY_STOMP_1,SAY_STOMP_2), m_creature);
 
                 DoCast(m_creature, m_bIsHeroic ? SPELL_SHATTERING_STOMP_H : SPELL_SHATTERING_STOMP_N);
 
@@ -298,11 +289,7 @@ struct TRINITY_DLL_DECL boss_volkhanAI : public ScriptedAI
             if (m_creature->IsNonMeleeSpellCasted(false))
                 m_creature->InterruptNonMeleeSpells(false);
 
-            switch(rand()%2)
-            {
-                case 0: DoScriptText(SAY_FORGE_1, m_creature); break;
-                case 1: DoScriptText(SAY_FORGE_2, m_creature); break;
-            }
+            DoScriptText(RAND(SAY_FORGE_1,SAY_FORGE_2), m_creature);
 
             m_bHasTemper = true;
 

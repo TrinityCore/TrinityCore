@@ -399,11 +399,7 @@ struct TRINITY_DLL_DECL npc_OOX17AI : public npc_escortAI
 
     void EnterCombat(Unit* who)
     {
-        switch (rand()%2)
-        {
-        case 0: DoScriptText(SAY_OOX_AGGRO1, m_creature); break;
-        case 1: DoScriptText(SAY_OOX_AGGRO2, m_creature); break;
-        }
+        DoScriptText(RAND(SAY_OOX_AGGRO1,SAY_OOX_AGGRO2), m_creature);
     }
 
     void JustSummoned(Creature* summoned)
@@ -560,11 +556,8 @@ struct TRINITY_DLL_DECL npc_toogaAI : public FollowerAI
                 {
                     m_uiCheckSpeechTimer = 5000;
 
-                    switch(rand()%50)
-                    {
-                        case 10: DoScriptText(SAY_TOOG_THIRST, m_creature); break;
-                        case 25: DoScriptText(SAY_TOOG_WORRIED, m_creature); break;
-                    }
+                    if (urand(0,9) > 8)
+                        DoScriptText(RAND(SAY_TOOG_THIRST,SAY_TOOG_WORRIED), m_creature);
                 }
                 else
                     m_uiCheckSpeechTimer -= uiDiff;

@@ -132,26 +132,11 @@ struct TRINITY_DLL_DECL boss_malygosAI : public ScriptedAI
             return;
 
         if (phase ==1)
-            switch(rand()%3)
-            {
-                case 0: DoScriptText(SAY_PHASE1_SLAY_1, m_creature); break;
-                case 1: DoScriptText(SAY_PHASE1_SLAY_2, m_creature);break;
-                case 2: DoScriptText(SAY_PHASE1_SLAY_3, m_creature);break;
-            }
+            DoScriptText(RAND(SAY_PHASE1_SLAY_1,SAY_PHASE1_SLAY_2,SAY_PHASE1_SLAY_3), m_creature);
         if (phase ==2)
-            switch(rand()%3)
-            {
-                case 0: DoScriptText(SAY_PHASE2_SLAY_1, m_creature);break;
-                case 1: DoScriptText(SAY_PHASE2_SLAY_2, m_creature);break;
-                case 2: DoScriptText(SAY_PHASE2_SLAY_3, m_creature);break;
-            }
+            DoScriptText(RAND(SAY_PHASE2_SLAY_1,SAY_PHASE2_SLAY_2,SAY_PHASE2_SLAY_3), m_creature);
         if (phase ==3)
-            switch(rand()%3)
-            {
-                case 0: DoScriptText(SAY_PHASE3_SLAY_1, m_creature);break;
-                case 1: DoScriptText(SAY_PHASE3_SLAY_2, m_creature);break;
-                case 2: DoScriptText(SAY_PHASE3_SLAY_3, m_creature);break;
-            }
+            DoScriptText(RAND(SAY_PHASE3_SLAY_1,SAY_PHASE3_SLAY_2,SAY_PHASE3_SLAY_3), m_creature);
     }
 };
 

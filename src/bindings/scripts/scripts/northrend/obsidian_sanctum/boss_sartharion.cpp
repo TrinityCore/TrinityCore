@@ -427,12 +427,8 @@ struct TRINITY_DLL_DECL boss_sartharionAI : public ScriptedAI
             {
                 DoCast(pTarget, SPELL_LAVA_STRIKE);
 
-                switch(rand()%15)
-                {
-                    case 0: DoScriptText(SAY_SARTHARION_SPECIAL_1, m_creature); break;
-                    case 1: DoScriptText(SAY_SARTHARION_SPECIAL_2, m_creature); break;
-                    case 2: DoScriptText(SAY_SARTHARION_SPECIAL_3, m_creature); break;
-                }
+                if(urand(0,4) == 4)
+                    DoScriptText(RAND(SAY_SARTHARION_SPECIAL_1,SAY_SARTHARION_SPECIAL_2,SAY_SARTHARION_SPECIAL_3), m_creature);
             }
             m_uiLavaStrikeTimer = urand(5000,20000);
         }

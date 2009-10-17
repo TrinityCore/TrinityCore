@@ -166,19 +166,11 @@ struct TRINITY_DLL_DECL boss_hydross_the_unstableAI : public ScriptedAI
     {
         if (CorruptedForm)
         {
-            switch(rand()%2)
-            {
-                case 0: DoScriptText(SAY_CORRUPT_SLAY1, m_creature); break;
-                case 1: DoScriptText(SAY_CORRUPT_SLAY2, m_creature); break;
-            }
+            DoScriptText(RAND(SAY_CORRUPT_SLAY1,SAY_CORRUPT_SLAY2), m_creature);
         }
         else
         {
-            switch(rand()%2)
-            {
-                case 0: DoScriptText(SAY_CLEAN_SLAY1, m_creature); break;
-                case 1: DoScriptText(SAY_CLEAN_SLAY2, m_creature); break;
-            }
+            DoScriptText(RAND(SAY_CLEAN_SLAY1,SAY_CLEAN_SLAY2), m_creature);
         }
     }
 

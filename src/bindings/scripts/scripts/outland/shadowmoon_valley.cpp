@@ -956,12 +956,7 @@ struct TRINITY_DLL_DECL npc_earthmender_wildaAI : public npc_escortAI
     //this is very unclear, random say without no real relevance to script/event
     void DoRandomSay()
     {
-        switch(rand()%3)
-        {
-            case 0: DoScriptText(SAY_WIL_PROGRESS2, m_creature); break;
-            case 1: DoScriptText(SAY_WIL_PROGRESS4, m_creature); break;
-            case 2: DoScriptText(SAY_WIL_PROGRESS5, m_creature); break;
-        }
+        DoScriptText(RAND(SAY_WIL_PROGRESS2,SAY_WIL_PROGRESS4,SAY_WIL_PROGRESS5), m_creature);
     }
 
     void DoSpawnAssassin()
@@ -980,11 +975,8 @@ struct TRINITY_DLL_DECL npc_earthmender_wildaAI : public npc_escortAI
         if (pWho->GetTypeId() != TYPEID_PLAYER)
         {
             //appears to be random
-            switch(rand()%4)
-            {
-                case 0: DoScriptText(SAY_WIL_AGGRO1, m_creature, pWho); break;
-                case 1: DoScriptText(SAY_WIL_AGGRO2, m_creature, pWho); break;
-            }
+            if (urand(0,1))
+                DoScriptText(RAND(SAY_WIL_AGGRO1, m_creature,SAY_WIL_AGGRO2, m_creature), pWho);
         }
     }
 

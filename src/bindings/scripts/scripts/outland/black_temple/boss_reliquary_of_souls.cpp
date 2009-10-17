@@ -380,12 +380,7 @@ struct TRINITY_DLL_DECL boss_essence_of_sufferingAI : public ScriptedAI
 
     void KilledUnit(Unit *victim)
     {
-        switch(rand()%2)
-        {
-            case 0: DoScriptText(SUFF_SAY_SLAY1, m_creature); break;
-            case 1: DoScriptText(SUFF_SAY_SLAY2, m_creature); break;
-            case 2: DoScriptText(SUFF_SAY_SLAY3, m_creature); break;
-        }
+        DoScriptText(RAND(SUFF_SAY_SLAY1,SUFF_SAY_SLAY2,SUFF_SAY_SLAY3), m_creature);
     }
 
     void CastFixate()
@@ -502,12 +497,7 @@ struct TRINITY_DLL_DECL boss_essence_of_desireAI : public ScriptedAI
 
     void KilledUnit(Unit *victim)
     {
-        switch(rand()%3)
-        {
-        case 0: DoScriptText(DESI_SAY_SLAY1, m_creature); break;
-        case 1: DoScriptText(DESI_SAY_SLAY2, m_creature); break;
-        case 2: DoScriptText(DESI_SAY_SLAY3, m_creature); break;
-        }
+        DoScriptText(RAND(DESI_SAY_SLAY1,DESI_SAY_SLAY2,DESI_SAY_SLAY3), m_creature);
     }
 
     void UpdateAI(const uint32 diff)
@@ -574,11 +564,7 @@ struct TRINITY_DLL_DECL boss_essence_of_angerAI : public ScriptedAI
 
     void EnterCombat(Unit *who)
     {
-        switch(rand()%2)
-        {
-        case 0: DoScriptText(ANGER_SAY_FREED, m_creature); break;
-        case 1: DoScriptText(ANGER_SAY_FREED2, m_creature); break;
-        }
+        DoScriptText(RAND(ANGER_SAY_FREED,ANGER_SAY_FREED2), m_creature);
 
         DoZoneInCombat();
         DoCast(m_creature, AURA_OF_ANGER, true);
@@ -591,11 +577,7 @@ struct TRINITY_DLL_DECL boss_essence_of_angerAI : public ScriptedAI
 
     void KilledUnit(Unit *victim)
     {
-        switch(rand()%2)
-        {
-        case 0: DoScriptText(ANGER_SAY_SLAY1, m_creature); break;
-        case 1: DoScriptText(ANGER_SAY_SLAY2, m_creature); break;
-        }
+        DoScriptText(RAND(ANGER_SAY_SLAY1,ANGER_SAY_SLAY2), m_creature);
     }
 
     void UpdateAI(const uint32 diff)

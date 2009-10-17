@@ -69,12 +69,7 @@ struct TRINITY_DLL_DECL npc_aged_dying_ancient_kodoAI : public ScriptedAI
 
             if (m_creature->IsWithinDistInMap(pWho, 10.0f))
             {
-                switch(rand()%3)
-                {
-                    case 0: DoScriptText(SAY_SMEED_HOME_1, pWho); break;
-                    case 1: DoScriptText(SAY_SMEED_HOME_2, pWho); break;
-                    case 2: DoScriptText(SAY_SMEED_HOME_3, pWho); break;
-                }
+                DoScriptText(RAND(SAY_SMEED_HOME_1,SAY_SMEED_HOME_2,SAY_SMEED_HOME_3), pWho);
 
                 //spell have no implemented effect (dummy), so useful to notify spellHit
                 m_creature->CastSpell(m_creature,SPELL_KODO_KOMBO_GOSSIP,true);

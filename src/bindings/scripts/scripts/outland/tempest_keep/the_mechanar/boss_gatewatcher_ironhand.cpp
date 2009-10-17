@@ -70,11 +70,7 @@ struct TRINITY_DLL_DECL boss_gatewatcher_iron_handAI : public ScriptedAI
         if (rand()%2)
             return;
 
-        switch(rand()%2)
-        {
-        case 0: DoScriptText(SAY_SLAY_1, m_creature); break;
-        case 1: DoScriptText(SAY_SLAY_2, m_creature); break;
-        }
+        DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2), m_creature);
     }
 
     void JustDied(Unit* Killer)
@@ -107,11 +103,7 @@ struct TRINITY_DLL_DECL boss_gatewatcher_iron_handAI : public ScriptedAI
             if (rand()%2)
                 return;
 
-            switch(rand()%2)
-            {
-            case 0: DoScriptText(SAY_HAMMER_1, m_creature); break;
-            case 1: DoScriptText(SAY_HAMMER_2, m_creature); break;
-            }
+            DoScriptText(RAND(SAY_HAMMER_1,SAY_HAMMER_2), m_creature);
             Jackhammer_Timer = 30000;
         }else Jackhammer_Timer -= diff;
 

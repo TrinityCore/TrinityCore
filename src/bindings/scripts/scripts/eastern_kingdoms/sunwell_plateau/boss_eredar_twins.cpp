@@ -164,13 +164,7 @@ struct TRINITY_DLL_DECL boss_sacrolashAI : public ScriptedAI
     void KilledUnit(Unit *victim)
     {
         if (rand()%4 == 0)
-        {
-            switch (rand()%2)
-            {
-            case 0: DoScriptText(YELL_SAC_KILL_1, m_creature); break;
-            case 1: DoScriptText(YELL_SAC_KILL_2, m_creature); break;
-            }
-        }
+            DoScriptText(RAND(YELL_SAC_KILL_1,YELL_SAC_KILL_2), m_creature);
     }
 
     void JustDied(Unit* Killer)
@@ -459,11 +453,7 @@ struct TRINITY_DLL_DECL boss_alythessAI : public Scripted_NoMovementAI
     {
         if (rand()%4 == 0)
         {
-            switch (rand()%2)
-            {
-            case 0: DoScriptText(YELL_ALY_KILL_1, m_creature); break;
-            case 1: DoScriptText(YELL_ALY_KILL_2, m_creature); break;
-            }
+            DoScriptText(RAND(YELL_ALY_KILL_1,YELL_ALY_KILL_2), m_creature);
         }
     }
 

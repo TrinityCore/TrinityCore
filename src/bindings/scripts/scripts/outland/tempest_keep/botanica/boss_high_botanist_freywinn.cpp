@@ -88,11 +88,7 @@ struct TRINITY_DLL_DECL boss_high_botanist_freywinnAI : public ScriptedAI
 
     void KilledUnit(Unit* victim)
     {
-        switch(rand()%2)
-        {
-        case 0: DoScriptText(SAY_KILL_1, m_creature); break;
-        case 1: DoScriptText(SAY_KILL_2, m_creature); break;
-        }
+        DoScriptText(RAND(SAY_KILL_1,SAY_KILL_2), m_creature);
     }
 
     void JustDied(Unit* Killer)
@@ -107,11 +103,7 @@ struct TRINITY_DLL_DECL boss_high_botanist_freywinnAI : public ScriptedAI
 
         if (TreeForm_Timer < diff)
         {
-            switch(rand()%2)
-            {
-            case 0: DoScriptText(SAY_TREE_1, m_creature); break;
-            case 1: DoScriptText(SAY_TREE_2, m_creature); break;
-            }
+            DoScriptText(RAND(SAY_TREE_1,SAY_TREE_2), m_creature);
 
             if (m_creature->IsNonMeleeSpellCasted(false))
                 m_creature->InterruptNonMeleeSpells(true);

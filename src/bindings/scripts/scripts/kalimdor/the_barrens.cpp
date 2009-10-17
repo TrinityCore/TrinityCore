@@ -133,13 +133,7 @@ struct TRINITY_DLL_DECL npc_giltharesAI : public npc_escortAI
         if (pWho->GetTypeId() != TYPEID_PLAYER && m_creature->GetAreaId() == AREA_MERCHANT_COAST)
         {
             //appears to be pretty much random (possible only if escorter not in combat with pWho yet?)
-            switch(rand()%4)
-            {
-                case 0: DoScriptText(SAY_GIL_AGGRO_1, m_creature, pWho); break;
-                case 1: DoScriptText(SAY_GIL_AGGRO_2, m_creature, pWho); break;
-                case 2: DoScriptText(SAY_GIL_AGGRO_3, m_creature, pWho); break;
-                case 3: DoScriptText(SAY_GIL_AGGRO_4, m_creature, pWho); break;
-            }
+            DoScriptText(RAND(SAY_GIL_AGGRO_1, m_creature,SAY_GIL_AGGRO_2, m_creature,SAY_GIL_AGGRO_3, m_creature,SAY_GIL_AGGRO_4, m_creature), pWho);
         }
     }
 };

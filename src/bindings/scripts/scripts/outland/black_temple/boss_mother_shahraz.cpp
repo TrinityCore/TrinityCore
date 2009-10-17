@@ -134,11 +134,7 @@ struct TRINITY_DLL_DECL boss_shahrazAI : public ScriptedAI
 
     void KilledUnit(Unit *victim)
     {
-        switch(rand()%2)
-        {
-        case 0: DoScriptText(SAY_SLAY1, m_creature); break;
-        case 1: DoScriptText(SAY_SLAY2, m_creature); break;
-        }
+        DoScriptText(RAND(SAY_SLAY1,SAY_SLAY2), m_creature);
     }
 
     void JustDied(Unit *victim)
@@ -227,11 +223,7 @@ struct TRINITY_DLL_DECL boss_shahrazAI : public ScriptedAI
 
             TeleportPlayers();
 
-            switch(rand()%2)
-            {
-            case 0: DoScriptText(SAY_SPELL2, m_creature); break;
-            case 1: DoScriptText(SAY_SPELL3, m_creature); break;
-            }
+            DoScriptText(RAND(SAY_SPELL2,SAY_SPELL3), m_creature);
             FatalAttractionExplodeTimer = 2000;
             FatalAttractionTimer = 40000 + rand()%31 * 1000;
         }else FatalAttractionTimer -= diff;
@@ -286,12 +278,7 @@ struct TRINITY_DLL_DECL boss_shahrazAI : public ScriptedAI
         //Random taunts
         if (RandomYellTimer < diff)
         {
-            switch(rand()%3)
-            {
-            case 0: DoScriptText(SAY_TAUNT1, m_creature); break;
-            case 1: DoScriptText(SAY_TAUNT2, m_creature); break;
-            case 2: DoScriptText(SAY_TAUNT3, m_creature); break;
-            }
+            DoScriptText(RAND(SAY_TAUNT1,SAY_TAUNT2,SAY_TAUNT3), m_creature);
             RandomYellTimer = 60000 + rand()%91 * 1000;
         }else RandomYellTimer -= diff;
 
