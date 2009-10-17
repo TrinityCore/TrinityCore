@@ -33,7 +33,7 @@ EndContentData */
 ## npc_daphne_stilwell
 ######*/
 
-enum
+enum eEnums
 {
     SAY_DS_START        = -1000402,
     SAY_DS_DOWN_1       = -1000403,
@@ -221,7 +221,7 @@ struct TRINITY_DLL_DECL npc_defias_traitorAI : public npc_escortAI
     }
     void EnterCombat(Unit* who)
     {
-        DoScriptText(RAND(SAY_AGGRO_1, m_creature,SAY_AGGRO_2, m_creature), who);
+        DoScriptText(RAND(SAY_AGGRO_1,SAY_AGGRO_2), m_creature, who);
     }
 
     void Reset() {}
