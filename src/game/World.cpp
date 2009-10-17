@@ -1169,19 +1169,17 @@ void World::LoadConfigSettings(bool reload)
     if (m_configs[CONFIG_PVP_TOKEN_COUNT] < 1)
         m_configs[CONFIG_PVP_TOKEN_COUNT] = 1;
 
-    m_configs[CONFIG_OUTDOORPVP_WINTERGRASP_ENABLED]        = sConfig.GetBoolDefault("OutdoorPvP.Wintergrasp.Enabled", true);
-    m_configs[CONFIG_OUTDOORPVP_WINTERGRASP_START_TIME]     = sConfig.GetIntDefault("OutdoorPvP.Wintergrasp.StartTime", 30);
-    m_configs[CONFIG_OUTDOORPVP_WINTERGRASP_BATTLE_TIME]    = sConfig.GetIntDefault("OutdoorPvP.Wintergrasp.BattleTime", 30); 
-    m_configs[CONFIG_OUTDOORPVP_WINTERGRASP_INTERVAL]       = sConfig.GetIntDefault("OutdoorPvP.Wintergrasp.Interval", 150);
-    m_configs[CONFIG_OUTDOORPVP_WINTERGRASP_CUSTOM_HONOR]   = sConfig.GetBoolDefault("OutdoorPvP.Wintergrasp.CustomHonorRewards", false);
-    m_configs[CONFIG_OUTDOORPVP_WINTERGRASP_CUSTOM_HONOR_0] = sConfig.GetIntDefault("OutdoorPvP.Wintergrasp.CustomHonorBattleWin", 3000);
-    m_configs[CONFIG_OUTDOORPVP_WINTERGRASP_CUSTOM_HONOR_1] = sConfig.GetIntDefault("OutdoorPvP.Wintergrasp.CustomHonorBattleLose", 1250);
-    m_configs[CONFIG_OUTDOORPVP_WINTERGRASP_CUSTOM_HONOR_2] = sConfig.GetIntDefault("OutdoorPvP.Wintergrasp.CustomHonorDamageTower", 750);
-    m_configs[CONFIG_OUTDOORPVP_WINTERGRASP_CUSTOM_HONOR_3] = sConfig.GetIntDefault("OutdoorPvP.Wintergrasp.CustomHonorDestroyedTower", 750);
-    m_configs[CONFIG_OUTDOORPVP_WINTERGRASP_CUSTOM_HONOR_4] = sConfig.GetIntDefault("OutdoorPvP.Wintergrasp.CustomHonorDamagedBuilding", 750);
-    m_configs[CONFIG_OUTDOORPVP_WINTERGRASP_CUSTOM_HONOR_5] = sConfig.GetIntDefault("OutdoorPvP.Wintergrasp.CustomHonorIntactBuilding", 1500);
-    m_configs[CONFIG_OUTDOORPVP_WINTERGRASP_CUSTOM_HONOR_6] = sConfig.GetIntDefault("OutdoorPvP.Wintergrasp.CustomHonorBattleWinMarks", 3);
-    m_configs[CONFIG_OUTDOORPVP_WINTERGRASP_CUSTOM_HONOR_7] = sConfig.GetIntDefault("OutdoorPvP.Wintergrasp.CustomHonorBattleLoseMarks", 1);
+    m_configs[CONFIG_OUTDOORPVP_WINTERGRASP_ENABLED]          = sConfig.GetBoolDefault("OutdoorPvP.Wintergrasp.Enabled", true);
+    m_configs[CONFIG_OUTDOORPVP_WINTERGRASP_START_TIME]       = sConfig.GetIntDefault("OutdoorPvP.Wintergrasp.StartTime", 30);
+    m_configs[CONFIG_OUTDOORPVP_WINTERGRASP_BATTLE_TIME]      = sConfig.GetIntDefault("OutdoorPvP.Wintergrasp.BattleTime", 30); 
+    m_configs[CONFIG_OUTDOORPVP_WINTERGRASP_INTERVAL]         = sConfig.GetIntDefault("OutdoorPvP.Wintergrasp.Interval", 150);
+    m_configs[CONFIG_OUTDOORPVP_WINTERGRASP_CUSTOM_HONOR]     = sConfig.GetBoolDefault("OutdoorPvP.Wintergrasp.CustomHonorRewards", false);
+    m_configs[CONFIG_OUTDOORPVP_WINTERGRASP_WIN_BATTLE]       = sConfig.GetIntDefault("OutdoorPvP.Wintergrasp.CustomHonorBattleWin", 3000);
+    m_configs[CONFIG_OUTDOORPVP_WINTERGRASP_LOSE_BATTLE]      = sConfig.GetIntDefault("OutdoorPvP.Wintergrasp.CustomHonorBattleLose", 1250);
+    m_configs[CONFIG_OUTDOORPVP_WINTERGRASP_DAMAGED_TOWER]    = sConfig.GetIntDefault("OutdoorPvP.Wintergrasp.CustomHonorDamageTower", 750);
+    m_configs[CONFIG_OUTDOORPVP_WINTERGRASP_DESTROYED_TOWER]  = sConfig.GetIntDefault("OutdoorPvP.Wintergrasp.CustomHonorDestroyedTower", 750);
+    m_configs[CONFIG_OUTDOORPVP_WINTERGRASP_DAMAGED_BUILDING] = sConfig.GetIntDefault("OutdoorPvP.Wintergrasp.CustomHonorDamagedBuilding", 750);
+    m_configs[CONFIG_OUTDOORPVP_WINTERGRASP_INTACT_BUILDING]  = sConfig.GetIntDefault("OutdoorPvP.Wintergrasp.CustomHonorIntactBuilding", 1500);
 
     m_configs[CONFIG_NO_RESET_TALENT_COST] = sConfig.GetBoolDefault("NoResetTalentsCost", false);
     m_configs[CONFIG_SHOW_KICK_IN_WORLD] = sConfig.GetBoolDefault("ShowKickInWorld", false);

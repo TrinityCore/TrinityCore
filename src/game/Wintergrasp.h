@@ -63,10 +63,9 @@ enum WintergraspRewardEvent
     DESTROYED_TOWER,
     DAMAGED_BUILDING,
     INTACT_BUILDING,
-    WIN_BATTLE_MARKS,
-    LOSE_BATTLE_MARKS,
-    WG_REWARD_EVENT_MAX
+    WG_REWARD_EVENT_MAX,
 };
+
 
 /* Not used / Not implemented
 
@@ -106,6 +105,7 @@ enum WintergraspCreType
     CREATURE_TURRET,
     CREATURE_ENGINEER,
     CREATURE_GUARD,
+    CREATURE_SPECIAL,
 };
 
 enum BuildingType
@@ -195,9 +195,9 @@ class OPvPWintergrasp : public OutdoorPvP
         void SetData(uint32 id, uint32 value);
 
         void ModifyWorkshopCount(TeamId team, bool add);
-        uint32 GetTimer() { return m_timer / 1000; };
-        TeamId GetTeam() { return m_defender; };
-        bool isWarTime() { return m_wartime; };
+        uint32 GetTimer() const { return m_timer / 1000; };
+        TeamId GetTeam() const { return m_defender; };
+        bool isWarTime() const { return m_wartime; };
     protected:
         TeamId m_defender;
         int32 m_tenacityStack;
@@ -206,7 +206,6 @@ class OPvPWintergrasp : public OutdoorPvP
         BuildingState *m_gate;
 
         CreatureSet m_creatures;
-        CreatureSet m_turrets;
         CreatureSet m_vehicles[2];
         GameObjectSet m_gobjects;
 
@@ -217,8 +216,8 @@ class OPvPWintergrasp : public OutdoorPvP
         uint32 m_timer;
         uint32 m_clock[5];
         uint32 m_workshopCount[2];
-        uint32 m_towerCount;
-        uint32 m_towerDamagedCount;
+        uint32 m_towerCount[2][2];
+
         uint32 m_customHonorReward[WG_REWARD_EVENT_MAX];
 
         SiegeWorkshop *GetWorkshop(uint32 lowguid) const;
