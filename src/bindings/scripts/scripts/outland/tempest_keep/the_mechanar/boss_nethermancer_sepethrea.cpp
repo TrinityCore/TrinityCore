@@ -83,11 +83,7 @@ struct TRINITY_DLL_DECL boss_nethermancer_sepethreaAI : public ScriptedAI
 
     void KilledUnit(Unit* victim)
     {
-        switch(rand()%2)
-        {
-        case 0: DoScriptText(SAY_SLAY1, m_creature); break;
-        case 1: DoScriptText(SAY_SLAY2, m_creature); break;
-        }
+        DoScriptText(RAND(SAY_SLAY1,SAY_SLAY2), m_creature);
     }
 
     void JustDied(Unit* Killer)
@@ -126,11 +122,7 @@ struct TRINITY_DLL_DECL boss_nethermancer_sepethreaAI : public ScriptedAI
                 if (rand()%2)
                     return;
 
-                switch(rand()%2)
-                {
-                case 0: DoScriptText(SAY_DRAGONS_BREATH_1, m_creature); break;
-                case 1: DoScriptText(SAY_DRAGONS_BREATH_2, m_creature); break;
-                }
+                DoScriptText(RAND(SAY_DRAGONS_BREATH_1,SAY_DRAGONS_BREATH_2), m_creature);
             }
             dragons_breath_Timer = 12000 + rand()%10000;
         }else dragons_breath_Timer -= diff;

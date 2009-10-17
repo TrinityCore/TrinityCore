@@ -137,11 +137,7 @@ struct TRINITY_DLL_DECL boss_warp_splinterAI : public ScriptedAI
 
     void KilledUnit(Unit* victim)
     {
-        switch(rand()%2)
-        {
-        case 0: DoScriptText(SAY_SLAY_1, m_creature); break;
-        case 1: DoScriptText(SAY_SLAY_2, m_creature); break;
-        }
+        DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2), m_creature);
     }
 
     void JustDied(Unit* Killer)
@@ -162,11 +158,7 @@ struct TRINITY_DLL_DECL boss_warp_splinterAI : public ScriptedAI
             if (Creature *pTreant = m_creature->SummonCreature(CREATURE_TREANT,treant_pos[i][0],treant_pos[i][1],treant_pos[i][2],O,TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN,25000))
                 CAST_AI(mob_treantAI, pTreant->AI())->WarpGuid = m_creature->GetGUID();
         }
-        switch(rand()%2)
-        {
-        case 0: DoScriptText(SAY_SUMMON_1, m_creature); break;
-        case 1: DoScriptText(SAY_SUMMON_2, m_creature); break;
-        }
+        DoScriptText(RAND(SAY_SUMMON_1,SAY_SUMMON_2), m_creature);
     }
 
     void UpdateAI(const uint32 diff)

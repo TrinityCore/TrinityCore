@@ -356,11 +356,7 @@ struct TRINITY_DLL_DECL boss_kalecgosAI : public ScriptedAI
 
     void KilledUnit(Unit *victim)
     {
-        switch(rand()%2)
-        {
-        case 0: DoScriptText(SAY_EVIL_SLAY1, me); break;
-        case 1: DoScriptText(SAY_EVIL_SLAY2, me); break;
-        }
+        DoScriptText(RAND(SAY_EVIL_SLAY1,SAY_EVIL_SLAY2), me);
     }
 
     void MovementInform(uint32 type,uint32 id)
@@ -501,11 +497,7 @@ struct TRINITY_DLL_DECL boss_sathrovarrAI : public ScriptedAI
             EnterEvadeMode();
             return;
         }
-        switch(rand()%2)
-        {
-            case 0: DoScriptText(SAY_SATH_SLAY1, me); break;
-            case 1: DoScriptText(SAY_SATH_SLAY2, me); break;
-        }
+        DoScriptText(RAND(SAY_SATH_SLAY1,SAY_SATH_SLAY2), me);
     }
 
     void JustDied(Unit *killer)

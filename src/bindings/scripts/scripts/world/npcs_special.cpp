@@ -571,13 +571,9 @@ struct TRINITY_DLL_DECL npc_injured_patientAI : public ScriptedAI
         if (caster->GetTypeId() == TYPEID_PLAYER && m_creature->isAlive() && spell->Id == 20804)
         {
             if ((CAST_PLR(caster)->GetQuestStatus(6624) == QUEST_STATUS_INCOMPLETE) || (CAST_PLR(caster)->GetQuestStatus(6622) == QUEST_STATUS_INCOMPLETE))
-            {
                 if (Doctorguid)
-                {
                     if (Creature* Doctor = Unit::GetCreature(*m_creature, Doctorguid))
                         CAST_AI(npc_doctorAI, Doctor->AI())->PatientSaved(m_creature, CAST_PLR(caster), Coord);
-                }
-            }
 
             //make not selectable
             m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
@@ -588,12 +584,7 @@ struct TRINITY_DLL_DECL npc_injured_patientAI : public ScriptedAI
             //stand up
             m_creature->SetUInt32Value(UNIT_FIELD_BYTES_1, UNIT_STAND_STATE_STAND);
 
-            switch(rand()%3)
-            {
-                case 0: DoScriptText(SAY_DOC1,m_creature); break;
-                case 1: DoScriptText(SAY_DOC2,m_creature); break;
-                case 2: DoScriptText(SAY_DOC3,m_creature); break;
-            }
+            DoScriptText(RAND(SAY_DOC1,SAY_DOC2,SAY_DOC3), m_creature);
 
             uint32 mobId = m_creature->GetEntry();
             m_creature->RemoveUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);

@@ -133,12 +133,7 @@ struct TRINITY_DLL_DECL boss_high_astromancer_solarianAI : public ScriptedAI
 
     void KilledUnit(Unit *victim)
     {
-        switch(rand()%3)
-        {
-        case 0: DoScriptText(SAY_KILL1, m_creature); break;
-        case 1: DoScriptText(SAY_KILL2, m_creature); break;
-        case 2: DoScriptText(SAY_KILL3, m_creature); break;
-        }
+        DoScriptText(RAND(SAY_KILL1,SAY_KILL2,SAY_KILL3), m_creature);
     }
 
     void JustDied(Unit *victim)

@@ -153,11 +153,7 @@ struct TRINITY_DLL_DECL mob_lumpAI : public ScriptedAI
         if (!m_creature->IsStandState())
              m_creature->SetStandState(UNIT_STAND_STATE_STAND);
 
-        switch(rand()%2)
-        {
-            case 0: DoScriptText(LUMP_SAY0, m_creature); break;
-            case 1: DoScriptText(LUMP_SAY1, m_creature); break;
-        }
+        DoScriptText(RAND(LUMP_SAY0,LUMP_SAY1), m_creature);
     }
 
     void UpdateAI(const uint32 diff)

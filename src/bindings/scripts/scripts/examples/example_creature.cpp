@@ -132,14 +132,7 @@ struct TRINITY_DLL_DECL example_creatureAI : public ScriptedAI
             if (m_uiSay_Timer < uiDiff)
             {
                 //Random switch between 5 outcomes
-                switch (rand()%5)
-                {
-                    case 0: DoScriptText(SAY_RANDOM_0, m_creature); break;
-                    case 1: DoScriptText(SAY_RANDOM_1, m_creature); break;
-                    case 2: DoScriptText(SAY_RANDOM_2, m_creature); break;
-                    case 3: DoScriptText(SAY_RANDOM_3, m_creature); break;
-                    case 4: DoScriptText(SAY_RANDOM_4, m_creature); break;
-                }
+                DoScriptText(RAND(SAY_RANDOM_0,SAY_RANDOM_1,SAY_RANDOM_2,SAY_RANDOM_3,SAY_RANDOM_4), m_creature);
 
                 m_uiSay_Timer = 45000;                      //Say something agian in 45 seconds
             }

@@ -62,11 +62,7 @@ struct TRINITY_DLL_DECL boss_varosAI : public ScriptedAI
     {
         if (victim == m_creature)
             return;
-        switch(rand()%2)
-        {
-            case 0: DoScriptText(SAY_KILL_1, m_creature);break;
-            case 1: DoScriptText(SAY_KILL_2, m_creature);break;
-        }
+        DoScriptText(RAND(SAY_KILL_1,SAY_KILL_2), m_creature);
     }
 };
 

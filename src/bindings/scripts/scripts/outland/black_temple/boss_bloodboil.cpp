@@ -115,11 +115,7 @@ struct TRINITY_DLL_DECL boss_gurtogg_bloodboilAI : public ScriptedAI
 
     void KilledUnit(Unit *victim)
     {
-        switch(rand()%2)
-        {
-        case 0: DoScriptText(SAY_SLAY1, m_creature); break;
-        case 1: DoScriptText(SAY_SLAY2, m_creature); break;
-        }
+        DoScriptText(RAND(SAY_SLAY1,SAY_SLAY2), m_creature);
     }
 
     void JustDied(Unit *victim)
@@ -210,11 +206,7 @@ struct TRINITY_DLL_DECL boss_gurtogg_bloodboilAI : public ScriptedAI
             if (EnrageTimer < diff)
             {
                 DoCast(m_creature, SPELL_BERSERK);
-                switch(rand()%2)
-                {
-                case 0: DoScriptText(SAY_ENRAGE1, m_creature); break;
-                case 1: DoScriptText(SAY_ENRAGE2, m_creature); break;
-                }
+                DoScriptText(RAND(SAY_ENRAGE1,SAY_ENRAGE2), m_creature);
             }else EnrageTimer -= diff;
         }
 
@@ -297,11 +289,7 @@ struct TRINITY_DLL_DECL boss_gurtogg_bloodboilAI : public ScriptedAI
                     //Cast this without triggered so that it appears in combat logs and shows visual.
                     DoCast(m_creature, SPELL_FEL_RAGE_SELF);
 
-                    switch(rand()%2)
-                    {
-                    case 0: DoScriptText(SAY_SPECIAL1, m_creature); break;
-                    case 1: DoScriptText(SAY_SPECIAL2, m_creature); break;
-                    }
+                    DoScriptText(RAND(SAY_SPECIAL1,SAY_SPECIAL2), m_creature);
 
                     AcidGeyserTimer = 1000;
                     PhaseChangeTimer = 30000;

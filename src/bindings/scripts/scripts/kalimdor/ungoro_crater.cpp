@@ -218,13 +218,7 @@ struct TRINITY_DLL_DECL npc_ringoAI : public FollowerAI
         {
             SetFollowPaused(true);
 
-            switch(rand()%4)
-            {
-                case 0: DoScriptText(SAY_FAINT_1, m_creature); break;
-                case 1: DoScriptText(SAY_FAINT_2, m_creature); break;
-                case 2: DoScriptText(SAY_FAINT_3, m_creature); break;
-                case 3: DoScriptText(SAY_FAINT_4, m_creature); break;
-            }
+            DoScriptText(RAND(SAY_FAINT_1,SAY_FAINT_2,SAY_FAINT_3,SAY_FAINT_4), m_creature);
         }
 
         //what does actually happen here? Emote? Aura?
@@ -238,13 +232,7 @@ struct TRINITY_DLL_DECL npc_ringoAI : public FollowerAI
         if (HasFollowState(STATE_FOLLOW_POSTEVENT))
             return;
 
-        switch(rand()%4)
-        {
-            case 0: DoScriptText(SAY_WAKE_1, m_creature); break;
-            case 1: DoScriptText(SAY_WAKE_2, m_creature); break;
-            case 2: DoScriptText(SAY_WAKE_3, m_creature); break;
-            case 3: DoScriptText(SAY_WAKE_4, m_creature); break;
-        }
+        DoScriptText(RAND(SAY_WAKE_1,SAY_WAKE_2,SAY_WAKE_3,SAY_WAKE_4), m_creature);
 
         SetFollowPaused(false);
     }
