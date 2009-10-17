@@ -277,13 +277,10 @@ struct TRINITY_DLL_DECL instance_violet_hold : public ScriptedInstance
                 break;
             case 1:               //Erekem
                 HandleGameObject(uiErekemCell,true);
+                HandleGameObject(uiErekemRightGuardCell,true);
+                HandleGameObject(uiErekemLeftGuardCell,true);
                 if (pBoss = instance->GetCreature(uiErekem))
                 {
-                    if (HeroicMode)
-                    {
-                        HandleGameObject(uiErekemRightGuardCell,true);
-                        HandleGameObject(uiErekemLeftGuardCell,true);
-                    }
                     pBoss->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
                     pBoss->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                 }
