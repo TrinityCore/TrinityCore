@@ -509,10 +509,12 @@ void OPvPWintergrasp::OnCreatureCreate(Creature *creature, bool add)
                     }
             }
             break;
+        case CREATURE_TURRET:
+        case CREATURE_OTHER:
+            UpdateCreatureInfo(creature);
         default:
             if (add) m_creatures.insert(creature);
             else m_creatures.erase(creature);
-            UpdateCreatureInfo(creature);
             break;
     }
 }
