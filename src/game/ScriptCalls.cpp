@@ -17,15 +17,19 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
+
 #ifndef WIN32
 #include <dlfcn.h>
 #endif
+
 #include "Common.h"
 #include "Platform/Define.h"
 #include "ScriptCalls.h"
 #include "World.h"
 #include "Config/ConfigEnv.h"
+
 ScriptsSet Script=NULL;
+
 void UnloadScriptingModule()
 {
     if(Script)
@@ -37,18 +41,23 @@ void UnloadScriptingModule()
         Script = NULL;
     }
 }
+
 bool LoadScriptingModule(char const* libName)
 {
     ScriptsSet testScript=new _ScriptSet;
+
     std::string name = strlen(libName) ? libName : TRINITY_SCRIPT_NAME;
     name += TRINITY_SCRIPT_EXT;
+
     testScript->hScriptsLib=TRINITY_LOAD_LIBRARY(name.c_str());
+
     if(!testScript->hScriptsLib )
     {
         printf("Error loading Scripts Library %s !\n",name.c_str());
         delete testScript;
         return false;
     }
+
     if(   !(testScript->ScriptsInit         =(scriptCallScriptsInit         )TRINITY_GET_PROC_ADDR(testScript->hScriptsLib,"ScriptsInit"         ))
         ||!(testScript->OnLogin             =(scriptCallOnLogin             )TRINITY_GET_PROC_ADDR(testScript->hScriptsLib,"OnLogin"             ))
         ||!(testScript->OnLogout            =(scriptCallOnLogout            )TRINITY_GET_PROC_ADDR(testScript->hScriptsLib,"OnLogout"            ))
@@ -100,14 +109,19 @@ bool LoadScriptingModule(char const* libName)
         delete testScript;
         return false;
     }
+
     sLog.outString();
     sLog.outString( ">>> Scripts Library %s was successfully loaded.\n", name.c_str() );
+
     //heh we are still there :P we have a valid library
     //we reload script
     UnloadScriptingModule();
+
     Script=testScript;
     Script->ScriptsInit(sConfig.GetFilename().c_str());
+
     sWorld.SetScriptsVersion(Script->ScriptsVersion());
+
     return true;
 }
 

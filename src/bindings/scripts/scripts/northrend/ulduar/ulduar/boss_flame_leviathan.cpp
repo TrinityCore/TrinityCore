@@ -15,9 +15,11 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
+
 #include "precompiled.h"
 #include "def_ulduar.h"
 #include "Vehicle.h"
+
 
 #define SPELL_PURSUED           62374
 #define SPELL_GATHERING_SPEED   62375
@@ -25,21 +27,31 @@
 #define SPELL_FLAME_VENTS       62396
 #define SPELL_MISSILE_BARRAGE   62400
 #define SPELL_SYSTEMS_SHUTDOWN  62475
+
 #define SPELL_FLAME_CANNON      62395
 //#define SPELL_FLAME_CANNON      64692 trigger the same spell
+
 #define SPELL_OVERLOAD_CIRCUIT  62399
+
 #define SPELL_SEARING_FLAME     62402
+
 #define SPELL_BLAZE             62292
+
 #define SPELL_SMOKE_TRAIL       63575
+
 #define SPELL_MIMIRON_INFERNO   62910
+
 #define SPELL_HODIR_FURY        62297
+
 #define SPELL_ELECTROSHOCK      62522
+
 enum Mobs
 {
     MOB_MECHANOLIFT = 33214,
     MOB_LIQUID      = 33189,
     MOB_CONTAINER   = 33218,
 };
+
 enum Events
 {
     EVENT_PURSUE = 1,
@@ -50,12 +62,14 @@ enum Events
     EVENT_MIMIRON_INFERNO, // Not Blizzlike
     EVENT_HODIR_FURY,      // Not Blizzlike
 };
+
 enum Seats
 {
     SEAT_PLAYER = 0,
     SEAT_TURRET = 1,
     SEAT_DEVICE = 2,
 };
+
 struct TRINITY_DLL_DECL boss_flame_leviathanAI : public BossAI
 {
     boss_flame_leviathanAI(Creature *pCreature) : BossAI(pCreature, TYPE_LEVIATHAN), vehicle(me->GetVehicleKit())
@@ -63,13 +77,17 @@ struct TRINITY_DLL_DECL boss_flame_leviathanAI : public BossAI
         m_pInstance = pCreature->GetInstanceData();
         assert(vehicle);
     }
+
     ScriptedInstance* m_pInstance;
+
     Vehicle *vehicle;
+
     void Reset()
     {
         _Reset();
         me->SetReactState(REACT_AGGRESSIVE);
     }
+
     void EnterCombat(Unit *who)
     {
         _EnterCombat();
@@ -84,17 +102,20 @@ struct TRINITY_DLL_DECL boss_flame_leviathanAI : public BossAI
         if (Creature *turret = CAST_CRE(vehicle->GetPassenger(7)))
             turret->AI()->DoZoneInCombat();
     }
+
     // TODO: effect 0 and effect 1 may be on different target
     void SpellHitTarget(Unit *target, const SpellEntry *spell)
     {
         if (spell->Id == SPELL_PURSUED)
             AttackStart(target);
     }
+
     void JustDied(Unit *victim)
     {
         if (m_pInstance)
             m_pInstance->SetData(TYPE_LEVIATHAN, DONE);
     }
+
     void SpellHit(Unit *caster, const SpellEntry *spell)
     {
         if(spell->Id == 62472)
@@ -102,21 +123,27 @@ struct TRINITY_DLL_DECL boss_flame_leviathanAI : public BossAI
         else if(spell->Id == SPELL_ELECTROSHOCK)
             me->InterruptSpell(CURRENT_CHANNELED_SPELL);
     }
+
     void UpdateAI(const uint32 diff)
     {
         if (!me->isInCombat())
             return;
+
         if (me->getThreatManager().isThreatListEmpty())
         {
             EnterEvadeMode();
             return;
         }
+
         events.Update(diff);
+
         if (me->hasUnitState(UNIT_STAT_CASTING))
             return;
+
         uint32 eventId = events.GetEvent();
         if (!me->getVictim())
             eventId = EVENT_PURSUE;
+
         switch(eventId)
         {
             case 0: break; // this is a must
@@ -158,10 +185,13 @@ struct TRINITY_DLL_DECL boss_flame_leviathanAI : public BossAI
                 events.PopEvent();
                 break;
         }
+
         DoSpellAttackIfReady(SPELL_BATTERING_RAM);
     }
 };
+
 //#define BOSS_DEBUG
+
 struct TRINITY_DLL_DECL boss_flame_leviathan_seatAI : public PassiveAI
 {
     boss_flame_leviathan_seatAI(Creature *c) : PassiveAI(c), vehicle(c->GetVehicleKit())
@@ -171,7 +201,9 @@ struct TRINITY_DLL_DECL boss_flame_leviathan_seatAI : public PassiveAI
         me->SetReactState(REACT_AGGRESSIVE);
 #endif
     }
+
     Vehicle *vehicle;
+
 #ifdef BOSS_DEBUG
     void MoveInLineOfSight(Unit *who)
     {
@@ -180,14 +212,17 @@ struct TRINITY_DLL_DECL boss_flame_leviathan_seatAI : public PassiveAI
             who->EnterVehicle(vehicle, SEAT_PLAYER);
     }
 #endif
+
     void PassengerBoarded(Unit *who, int8 seatId, bool apply)
     {
         if(!me->GetVehicle())
             return;
+
         if(seatId == SEAT_PLAYER)
         {
             if(!apply)
                 return;
+
             if(Creature *turret = CAST_CRE(vehicle->GetPassenger(SEAT_TURRET)))
             {
                 turret->setFaction(me->GetVehicleBase()->getFaction());
@@ -204,6 +239,7 @@ struct TRINITY_DLL_DECL boss_flame_leviathan_seatAI : public PassiveAI
         {
             if(apply)
                 return;
+
             if(Unit *device = vehicle->GetPassenger(SEAT_DEVICE))
             {
                 device->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
@@ -212,14 +248,17 @@ struct TRINITY_DLL_DECL boss_flame_leviathan_seatAI : public PassiveAI
         }
     }
 };
+
 struct TRINITY_DLL_DECL boss_flame_leviathan_defense_turretAI : public TurretAI
 {
     boss_flame_leviathan_defense_turretAI(Creature *c) : TurretAI(c) {}
+
     void DamageTaken(Unit *who, uint32 &damage)
     {
         if(!CanAIAttack(who))
             damage = 0;
     }
+
     bool CanAIAttack(const Unit *who) const
     {
         if (who->GetTypeId() != TYPEID_PLAYER || !who->GetVehicle() || who->GetVehicleBase()->GetEntry() != 33114)
@@ -227,9 +266,11 @@ struct TRINITY_DLL_DECL boss_flame_leviathan_defense_turretAI : public TurretAI
         return true;
     }
 };
+
 struct TRINITY_DLL_DECL boss_flame_leviathan_overload_deviceAI : public PassiveAI
 {
     boss_flame_leviathan_overload_deviceAI(Creature *c) : PassiveAI(c) {}
+
     void DoAction(const int32 param)
     {
         if(param == EVENT_SPELLCLICK)
@@ -249,9 +290,11 @@ struct TRINITY_DLL_DECL boss_flame_leviathan_overload_deviceAI : public PassiveA
         }
     }
 };
+
 struct TRINITY_DLL_DECL boss_flame_leviathan_safety_containerAI : public PassiveAI
 {
     boss_flame_leviathan_safety_containerAI(Creature *c) : PassiveAI(c) {}
+
     void MovementInform(uint32 type, uint32 id)
     {
         if(id == me->GetEntry())
@@ -261,52 +304,63 @@ struct TRINITY_DLL_DECL boss_flame_leviathan_safety_containerAI : public Passive
             me->DisappearAndDie(); // this will relocate creature to sky
         }
     }
+
     void UpdateAI(const uint32 diff)
     {
         if(!me->GetVehicle() && me->isSummon() && me->GetMotionMaster()->GetCurrentMovementGeneratorType() != POINT_MOTION_TYPE)
             me->GetMotionMaster()->MoveFall(409.8f, me->GetEntry());
     }
 };
+
 struct TRINITY_DLL_DECL spell_pool_of_tarAI : public TriggerAI
 {
     spell_pool_of_tarAI(Creature *c) : TriggerAI(c)
     {
         me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
     }
+
     void DamageTaken(Unit *who, uint32 &damage)
     {
         damage = 0;
     }
+
     void SpellHit(Unit* caster, const SpellEntry *spell)
     {
         if(spell->SchoolMask & SPELL_SCHOOL_MASK_FIRE && !me->HasAura(SPELL_BLAZE))
             me->CastSpell(me, SPELL_BLAZE, true);
     }
 };
+
 CreatureAI* GetAI_boss_flame_leviathan(Creature* pCreature)
 {
     return new boss_flame_leviathanAI (pCreature);
 }
+
 CreatureAI* GetAI_boss_flame_leviathan_seat(Creature* pCreature)
 {
     return new boss_flame_leviathan_seatAI (pCreature);
 }
+
 CreatureAI* GetAI_boss_flame_leviathan_defense_turret(Creature* pCreature)
 {
     return new boss_flame_leviathan_defense_turretAI (pCreature);
 }
+
 CreatureAI* GetAI_boss_flame_leviathan_overload_device(Creature* pCreature)
 {
     return new boss_flame_leviathan_overload_deviceAI (pCreature);
 }
+
 CreatureAI* GetAI_boss_flame_leviathan_safety_containerAI(Creature* pCreature)
 {
     return new boss_flame_leviathan_safety_containerAI(pCreature);
 }
+
 CreatureAI* GetAI_spell_pool_of_tar(Creature* pCreature)
 {
     return new spell_pool_of_tarAI (pCreature);
 }
+
 void AddSC_boss_flame_leviathan()
 {
     Script *newscript;
@@ -314,22 +368,27 @@ void AddSC_boss_flame_leviathan()
     newscript->Name = "boss_flame_leviathan";
     newscript->GetAI = &GetAI_boss_flame_leviathan;
     newscript->RegisterSelf();
+
     newscript = new Script;
     newscript->Name = "boss_flame_leviathan_seat";
     newscript->GetAI = &GetAI_boss_flame_leviathan_seat;
     newscript->RegisterSelf();
+
     newscript = new Script;
     newscript->Name = "boss_flame_leviathan_defense_turret";
     newscript->GetAI = &GetAI_boss_flame_leviathan_defense_turret;
     newscript->RegisterSelf();
+
     newscript = new Script;
     newscript->Name = "boss_flame_leviathan_overload_device";
     newscript->GetAI = &GetAI_boss_flame_leviathan_overload_device;
     newscript->RegisterSelf();
+
     newscript = new Script;
     newscript->Name = "boss_flame_leviathan_safety_container";
     newscript->GetAI = &GetAI_boss_flame_leviathan_safety_containerAI;
     newscript->RegisterSelf();
+
     newscript = new Script;
     newscript->Name = "spell_pool_of_tar";
     newscript->GetAI = &GetAI_spell_pool_of_tar;

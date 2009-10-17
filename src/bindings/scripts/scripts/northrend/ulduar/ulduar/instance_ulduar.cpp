@@ -15,8 +15,10 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
+
 #include "precompiled.h"
 #include "def_ulduar.h"
+
 enum eGameObjects
 {
     GO_Kologarn_CHEST_HERO  = 195047,
@@ -28,11 +30,14 @@ enum eGameObjects
     GO_Freya_CHEST_HERO     = 194325,
     GO_Freya_CHEST          = 194324,
 };
+
 struct TRINITY_DLL_DECL instance_ulduar : public ScriptedInstance
 {
     instance_ulduar(Map* pMap) : ScriptedInstance(pMap), KologarnChest(NULL), ThorimChest(NULL), HodirChest(NULL), FreyaChest(NULL) { Initialize(); };
+
     uint32 m_auiEncounter[MAX_ENCOUNTER];
     std::string m_strInstData;
+
     uint64 m_uiLeviathanGUID;
     uint64 m_uiIgnisGUID;
     uint64 m_uiRazorscaleGUID;
@@ -47,7 +52,9 @@ struct TRINITY_DLL_DECL instance_ulduar : public ScriptedInstance
     uint64 m_uiVezaxGUID;
     uint64 m_uiYoggSaronGUID;
     uint64 m_uiAlgalonGUID;
+
     GameObject* KologarnChest, *ThorimChest, *HodirChest, *FreyaChest;
+
     void Initialize()
     {
         m_uiLeviathanGUID       = 0;
@@ -67,18 +74,22 @@ struct TRINITY_DLL_DECL instance_ulduar : public ScriptedInstance
         ThorimChest             = 0;
         HodirChest              = 0;
         FreyaChest              = 0;
+
         memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
         memset(&m_auiAssemblyGUIDs, 0, sizeof(m_auiAssemblyGUIDs));
     }
+
     bool IsEncounterInProgress() const
     {
-        for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
+        for(uint8 i = 0; i < MAX_ENCOUNTER; ++i)
         {
             if (m_auiEncounter[i] == IN_PROGRESS)
                 return true;
         }
+
         return false;
     }
+
     void OnCreatureCreate(Creature* pCreature, bool add)
     {
         switch(pCreature->GetEntry())
@@ -95,6 +106,7 @@ struct TRINITY_DLL_DECL instance_ulduar : public ScriptedInstance
             case NPC_XT002:
                 m_uiXT002GUID = pCreature->GetGUID();
                 break;
+
             // Assembly of Iron
             case NPC_STEELBREAKER:
                 m_auiAssemblyGUIDs[0] = pCreature->GetGUID();
@@ -105,6 +117,7 @@ struct TRINITY_DLL_DECL instance_ulduar : public ScriptedInstance
             case NPC_BRUNDIR:
                 m_auiAssemblyGUIDs[2] = pCreature->GetGUID();
                 break;
+
             case NPC_KOLOGARN:
                 m_uiKologarnGUID = pCreature->GetGUID();
                 break;
@@ -133,7 +146,9 @@ struct TRINITY_DLL_DECL instance_ulduar : public ScriptedInstance
                 m_uiAlgalonGUID = pCreature->GetGUID();
                 break;
         }
+
      }
+
     void OnGameObjectCreate(GameObject* pGo, bool add)
     {
         switch(pGo->GetEntry())
@@ -148,6 +163,7 @@ struct TRINITY_DLL_DECL instance_ulduar : public ScriptedInstance
             case GO_Freya_CHEST: FreyaChest = add ? pGo : NULL; break;
         }
     }
+
     void SetData(uint32 type, uint32 data)
     {
         switch(type)
@@ -181,17 +197,23 @@ struct TRINITY_DLL_DECL instance_ulduar : public ScriptedInstance
                 m_auiEncounter[type] = data;
                 break;
         }
+
         if (data == DONE)
         {
             OUT_SAVE_INST_DATA;
+
             std::ostringstream saveStream;
-            for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
+
+            for(uint8 i = 0; i < MAX_ENCOUNTER; ++i)
                 saveStream << m_auiEncounter[i] << " ";
+
             m_strInstData = saveStream.str();
+
             SaveToDB();
             OUT_SAVE_INST_DATA_COMPLETE;
         }
     }
+
     uint64 GetData64(uint32 data)
     {
         switch(data)
@@ -222,6 +244,7 @@ struct TRINITY_DLL_DECL instance_ulduar : public ScriptedInstance
                 return m_uiYoggSaronGUID;
             case TYPE_ALGALON:
                 return m_uiAlgalonGUID;
+
             // Assembly of Iron
             case DATA_STEELBREAKER:
                 return m_auiAssemblyGUIDs[0];
@@ -230,8 +253,10 @@ struct TRINITY_DLL_DECL instance_ulduar : public ScriptedInstance
             case DATA_BRUNDIR:
                 return m_auiAssemblyGUIDs[2];
         }
+
         return 0;
     }
+
     uint32 GetData(uint32 type)
     {
         switch(type)
@@ -252,12 +277,15 @@ struct TRINITY_DLL_DECL instance_ulduar : public ScriptedInstance
             case TYPE_ALGALON:
                 return m_auiEncounter[type];
         }
+
         return 0;
     }
+
     const char* Save()
     {
         return m_strInstData.c_str();
     }
+
     void Load(const char* strIn)
     {
         if (!strIn)
@@ -265,21 +293,28 @@ struct TRINITY_DLL_DECL instance_ulduar : public ScriptedInstance
             OUT_LOAD_INST_DATA_FAIL;
             return;
         }
+
         OUT_LOAD_INST_DATA(strIn);
+
         std::istringstream loadStream(strIn);
-        for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
+
+        for(uint8 i = 0; i < MAX_ENCOUNTER; ++i)
         {
             loadStream >> m_auiEncounter[i];
+
             if (m_auiEncounter[i] == IN_PROGRESS)
                 m_auiEncounter[i] = NOT_STARTED;
         }
+
         OUT_LOAD_INST_DATA_COMPLETE;
     }
 };
+
 InstanceData* GetInstanceData_instance_ulduar(Map* pMap)
 {
     return new instance_ulduar(pMap);
 }
+
 void AddSC_instance_ulduar()
 {
     Script *newscript;

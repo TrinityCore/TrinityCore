@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
+
 #include "BattleGround.h"
 #include "BattleGroundBE.h"
 #include "Language.h"
@@ -24,9 +25,11 @@
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "WorldPacket.h"
+
 BattleGroundBE::BattleGroundBE()
 {
     m_BgObjects.resize(BG_BE_OBJECT_MAX);
+
     m_StartDelayTimes[BG_STARTING_EVENT_FIRST]  = BG_START_DELAY_1M;
     m_StartDelayTimes[BG_STARTING_EVENT_SECOND] = BG_START_DELAY_30S;
     m_StartDelayTimes[BG_STARTING_EVENT_THIRD]  = BG_START_DELAY_15S;
@@ -37,72 +40,94 @@ BattleGroundBE::BattleGroundBE()
     m_StartMessageIds[BG_STARTING_EVENT_THIRD]  = LANG_ARENA_FIFTEEN_SECONDS;
     m_StartMessageIds[BG_STARTING_EVENT_FOURTH] = LANG_ARENA_HAS_BEGUN;
 }
+
 BattleGroundBE::~BattleGroundBE()
 {
+
 }
+
 void BattleGroundBE::Update(uint32 diff)
 {
     BattleGround::Update(diff);
+
     /*if (GetStatus() == STATUS_IN_PROGRESS)
     {
         // update something
     }*/
 }
+
 void BattleGroundBE::StartingEventCloseDoors()
 {
     for(uint32 i = BG_BE_OBJECT_DOOR_1; i <= BG_BE_OBJECT_DOOR_4; ++i)
         SpawnBGObject(i, RESPAWN_IMMEDIATELY);
+
     for(uint32 i = BG_BE_OBJECT_BUFF_1; i <= BG_BE_OBJECT_BUFF_2; ++i)
         SpawnBGObject(i, RESPAWN_ONE_DAY);
 }
+
 void BattleGroundBE::StartingEventOpenDoors()
 {
     for(uint32 i = BG_BE_OBJECT_DOOR_1; i <= BG_BE_OBJECT_DOOR_2; ++i)
         DoorOpen(i);
+
     for(uint32 i = BG_BE_OBJECT_BUFF_1; i <= BG_BE_OBJECT_BUFF_2; ++i)
         SpawnBGObject(i, 60);
 }
+
 void BattleGroundBE::AddPlayer(Player *plr)
 {
     BattleGround::AddPlayer(plr);
     //create score and add it to map, default values are set in constructor
     BattleGroundBEScore* sc = new BattleGroundBEScore;
+
     m_PlayerScores[plr->GetGUID()] = sc;
+
     UpdateWorldState(0x9f1, GetAlivePlayersCountByTeam(ALLIANCE));
     UpdateWorldState(0x9f0, GetAlivePlayersCountByTeam(HORDE));
 }
+
 void BattleGroundBE::RemovePlayer(Player* /*plr*/, uint64 /*guid*/)
 {
     if (GetStatus() == STATUS_WAIT_LEAVE)
         return;
+
     UpdateWorldState(0x9f1, GetAlivePlayersCountByTeam(ALLIANCE));
     UpdateWorldState(0x9f0, GetAlivePlayersCountByTeam(HORDE));
+
     CheckArenaWinConditions();
 }
+
 void BattleGroundBE::HandleKillPlayer(Player *player, Player *killer)
 {
     if (GetStatus() != STATUS_IN_PROGRESS)
         return;
+
     if (!killer)
     {
         sLog.outError("Killer player not found");
         return;
     }
+
     BattleGround::HandleKillPlayer(player,killer);
+
     UpdateWorldState(0x9f1, GetAlivePlayersCountByTeam(ALLIANCE));
     UpdateWorldState(0x9f0, GetAlivePlayersCountByTeam(HORDE));
+
     CheckArenaWinConditions();
 }
+
 bool BattleGroundBE::HandlePlayerUnderMap(Player *player)
 {
     player->TeleportTo(GetMapId(),6238.930176,262.963470,0.889519,player->GetOrientation(),false);
     return true;
 }
+
 void BattleGroundBE::HandleAreaTrigger(Player *Source, uint32 Trigger)
 {
     // this is wrong way to implement these things. On official it done by gameobject spell cast.
     if (GetStatus() != STATUS_IN_PROGRESS)
         return;
+
     //uint32 SpellId = 0;
     //uint64 buff_guid = 0;
     switch(Trigger)
@@ -118,20 +143,24 @@ void BattleGroundBE::HandleAreaTrigger(Player *Source, uint32 Trigger)
             Source->GetSession()->SendAreaTriggerMessage("Warning: Unhandled AreaTrigger in Battleground: %u", Trigger);
             break;
     }
+
     //if (buff_guid)
     //    HandleTriggerBuff(buff_guid,Source);
 }
+
 void BattleGroundBE::FillInitialWorldStates(WorldPacket &data)
 {
     data << uint32(0x9f1) << uint32(GetAlivePlayersCountByTeam(ALLIANCE));           // 7
     data << uint32(0x9f0) << uint32(GetAlivePlayersCountByTeam(HORDE));           // 8
     data << uint32(0x9f3) << uint32(1);           // 9
 }
+
 void BattleGroundBE::Reset()
 {
     //call parent's class reset
     BattleGround::Reset();
 }
+
 bool BattleGroundBE::SetupBattleGround()
 {
     // gates
@@ -146,16 +175,22 @@ bool BattleGroundBE::SetupBattleGround()
         sLog.outErrorDb("BatteGroundBE: Failed to spawn some object!");
         return false;
     }
+
     return true;
 }
+
 void BattleGroundBE::UpdatePlayerScore(Player* Source, uint32 type, uint32 value)
 {
+
     BattleGroundScoreMap::iterator itr = m_PlayerScores.find(Source->GetGUID());
     if(itr == m_PlayerScores.end())                         // player not found...
         return;
+
     //there is nothing special in this score
     BattleGround::UpdatePlayerScore(Source,type,value);
+
 }
+
 /*
 21:45:46 id:231310 [S2C] SMSG_INIT_WORLD_STATES (706 = 0x02C2) len: 86
 0000: 32 02 00 00 76 0e 00 00 00 00 00 00 09 00 f3 09  |  2...v...........
@@ -164,6 +199,7 @@ void BattleGroundBE::UpdatePlayerScore(Player* Source, uint32 type, uint32 value
 0030: 00 00 00 00 00 00 d7 08 00 00 00 00 00 00 d6 08  |  ................
 0040: 00 00 00 00 00 00 d5 08 00 00 00 00 00 00 d3 08  |  ................
 0050: 00 00 00 00 00 00                                |  ......
+
 spell 32724 - Gold Team
 spell 32725 - Green Team
 35774 Gold Team

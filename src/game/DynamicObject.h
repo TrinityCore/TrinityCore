@@ -17,18 +17,24 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
+
 #ifndef TRINITYCORE_DYNAMICOBJECT_H
 #define TRINITYCORE_DYNAMICOBJECT_H
+
 #include "Object.h"
+
 class Unit;
 struct SpellEntry;
+
 class DynamicObject : public WorldObject
 {
     public:
         typedef std::set<Unit*> AffectedSet;
         explicit DynamicObject();
+
         void AddToWorld();
         void RemoveFromWorld();
+
         bool Create(uint32 guidlow, Unit *caster, uint32 spellId, uint32 effMask, const Position &pos, int32 duration, float radius, bool active);
         void Update(uint32 p_time);
         void Delete();
@@ -45,11 +51,13 @@ class DynamicObject : public WorldObject
         void RemoveAffected(Unit *unit) { m_affected.erase(unit); }
         void Delay(int32 delaytime);
         bool isVisibleForInState(Player const* u, bool inVisibleList) const;
+
         void Say(int32 textId, uint32 language, uint64 TargetGuid) { MonsterSay(textId,language,TargetGuid); }
         void Yell(int32 textId, uint32 language, uint64 TargetGuid) { MonsterYell(textId,language,TargetGuid); }
         void TextEmote(int32 textId, uint64 TargetGuid) { MonsterTextEmote(textId,TargetGuid); }
         void Whisper(int32 textId,uint64 receiver) { MonsterWhisper(textId,receiver); }
         void YellToZone(int32 textId, uint32 language, uint64 TargetGuid) { MonsterYellToZone(textId,language,TargetGuid); }
+
         GridReference<DynamicObject> &GetGridRef() { return m_gridRef; }
     protected:
         uint32 m_spellId;

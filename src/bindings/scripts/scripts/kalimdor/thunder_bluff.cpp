@@ -13,31 +13,38 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
+
 /* ScriptData
 SDName: Thunder_Bluff
 SD%Complete: 100
 SDComment: Quest support: 925
 SDCategory: Thunder Bluff
 EndScriptData */
+
 #include "precompiled.h"
+
 /*#####
 # npc_cairne_bloodhoof
 ######*/
+
 #define SPELL_BERSERKER_CHARGE  16636
 #define SPELL_CLEAVE            16044
 #define SPELL_MORTAL_STRIKE     16856
 #define SPELL_THUNDERCLAP       23931
 #define SPELL_UPPERCUT          22916
+
 #define GOSSIP_HCB "I know this is rather silly but a young ward who is a bit shy would like your hoofprint."
 //TODO: verify abilities/timers
 struct TRINITY_DLL_DECL npc_cairne_bloodhoofAI : public ScriptedAI
 {
     npc_cairne_bloodhoofAI(Creature* c) : ScriptedAI(c) {}
+
     uint32 BerserkerCharge_Timer;
     uint32 Cleave_Timer;
     uint32 MortalStrike_Timer;
     uint32 Thunderclap_Timer;
     uint32 Uppercut_Timer;
+
     void Reset()
     {
         BerserkerCharge_Timer = 30000;
@@ -46,11 +53,14 @@ struct TRINITY_DLL_DECL npc_cairne_bloodhoofAI : public ScriptedAI
         Thunderclap_Timer = 15000;
         Uppercut_Timer = 10000;
     }
+
     void EnterCombat(Unit *who) {}
+
     void UpdateAI(const uint32 diff)
     {
         if (!UpdateVictim())
             return;
+
         if (BerserkerCharge_Timer < diff)
         {
             Unit* target = SelectUnit(SELECT_TARGET_RANDOM,0);
@@ -58,26 +68,31 @@ struct TRINITY_DLL_DECL npc_cairne_bloodhoofAI : public ScriptedAI
                 DoCast(target,SPELL_BERSERKER_CHARGE);
             BerserkerCharge_Timer = 25000;
         }else BerserkerCharge_Timer -= diff;
+
         if (Uppercut_Timer < diff)
         {
             DoCast(m_creature->getVictim(),SPELL_UPPERCUT);
             Uppercut_Timer = 20000;
         }else Uppercut_Timer -= diff;
+
         if (Thunderclap_Timer < diff)
         {
             DoCast(m_creature->getVictim(),SPELL_THUNDERCLAP);
             Thunderclap_Timer = 15000;
         }else Thunderclap_Timer -= diff;
+
         if (MortalStrike_Timer < diff)
         {
             DoCast(m_creature->getVictim(),SPELL_MORTAL_STRIKE);
             MortalStrike_Timer = 15000;
         }else MortalStrike_Timer -= diff;
+
         if (Cleave_Timer < diff)
         {
             DoCast(m_creature->getVictim(),SPELL_CLEAVE);
             Cleave_Timer = 7000;
         }else Cleave_Timer -= diff;
+
         DoMeleeAttackIfReady();
     }
 };
@@ -85,15 +100,20 @@ CreatureAI* GetAI_npc_cairne_bloodhoof(Creature* pCreature)
 {
     return new npc_cairne_bloodhoofAI (pCreature);
 }
+
 bool GossipHello_npc_cairne_bloodhoof(Player* pPlayer, Creature* pCreature)
 {
     if (pCreature->isQuestGiver())
         pPlayer->PrepareQuestMenu(pCreature->GetGUID());
+
     if (pPlayer->GetQuestStatus(925) == QUEST_STATUS_INCOMPLETE)
         pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_HCB, GOSSIP_SENDER_MAIN, GOSSIP_SENDER_INFO);
+
     pPlayer->SEND_GOSSIP_MENU(7013, pCreature->GetGUID());
+
     return true;
 }
+
 bool GossipSelect_npc_cairne_bloodhoof(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
 {
     if (uiAction == GOSSIP_SENDER_INFO)
@@ -103,9 +123,11 @@ bool GossipSelect_npc_cairne_bloodhoof(Player* pPlayer, Creature* pCreature, uin
     }
     return true;
 }
+
 void AddSC_thunder_bluff()
 {
     Script *newscript;
+
     newscript = new Script;
     newscript->Name = "npc_cairne_bloodhoof";
     newscript->GetAI = &GetAI_npc_cairne_bloodhoof;

@@ -17,8 +17,10 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
+
 #ifndef TRINITYCORE_COMMON_H
 #define TRINITYCORE_COMMON_H
+
 // config.h needs to be included 1st
 // TODO this thingy looks like hack ,but its not, need to
 // make separate header however, because It makes mess here.
@@ -56,7 +58,9 @@
 #undef PACKAGE_VERSION
 #undef VERSION
 #endif //HAVE_CONFIG_H
+
 #include "Platform/Define.h"
+
 #if COMPILER == COMPILER_MICROSOFT
 #   pragma warning(disable:4996)                            // 'function': was declared deprecated
 #ifndef __SHOW_STUPID_WARNINGS__
@@ -71,6 +75,7 @@
 #   pragma warning(disable:4522)                            //warning when class has 2 constructors
 #endif                                                      // __SHOW_STUPID_WARNINGS__
 #endif                                                      // __GNUC__
+
 #include "Utilities/UnorderedMap.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -80,11 +85,13 @@
 #include <errno.h>
 #include <signal.h>
 #include <assert.h>
+
 #if PLATFORM == PLATFORM_WINDOWS
 #define STRCASECMP stricmp
 #else
 #define STRCASECMP strcasecmp
 #endif
+
 #include <set>
 #include <list>
 #include <string>
@@ -92,12 +99,15 @@
 #include <queue>
 #include <sstream>
 #include <algorithm>
+
 #include "LockedQueue.h"
 #include "Threading.h"
+
 #include <ace/Basic_Types.h>
 #include <ace/Guard_T.h>
 #include <ace/RW_Thread_Mutex.h>
 #include <ace/Thread_Mutex.h>
+
 
 #if PLATFORM == PLATFORM_WINDOWS
 #  define FD_SETSIZE 4096
@@ -115,8 +125,11 @@
 #  include <unistd.h>
 #  include <netdb.h>
 #endif
+
 #if COMPILER == COMPILER_MICROSOFT
+
 #include <float.h>
+
 #define I32FMT "%08I32X"
 #define I64FMT "%016I64X"
 #define snprintf _snprintf
@@ -124,20 +137,30 @@
 #define vsnprintf _vsnprintf
 #define strdup _strdup
 #define finite(X) _finite(X)
+
 #else
+
 #define stricmp strcasecmp
 #define strnicmp strncasecmp
 #define I32FMT "%08X"
 #define I64FMT "%016llX"
+
 #endif
+
 #define UI64FMTD ACE_UINT64_FORMAT_SPECIFIER
 #define UI64LIT(N) ACE_UINT64_LITERAL(N)
+
 #define SI64FMTD ACE_INT64_FORMAT_SPECIFIER
 #define SI64LIT(N) ACE_INT64_LITERAL(N)
+
 #define SIZEFMTD ACE_SIZE_T_FORMAT_SPECIFIER
+
 inline float finiteAlways(float f) { return finite(f) ? f : 0.0f; }
+
 #define atol(a) strtoul( a, NULL, 10)
+
 #define STRINGIZE(a) #a
+
 enum TimeConstants
 {
     MINUTE = 60,
@@ -147,6 +170,7 @@ enum TimeConstants
     YEAR   = MONTH*12,
     IN_MILISECONDS = 1000
 };
+
 enum AccountTypes
 {
     SEC_PLAYER         = 0,
@@ -155,6 +179,7 @@ enum AccountTypes
     SEC_ADMINISTRATOR  = 3,
     SEC_CONSOLE        = 4                                  // must be always last in list, accounts must have less security level always also
 };
+
 enum LocaleConstant
 {
     LOCALE_enUS = 0,
@@ -167,18 +192,25 @@ enum LocaleConstant
     LOCALE_esMX = 7,
     LOCALE_ruRU = 8
 };
+
 #define MAX_LOCALE 9
+
 extern char const* localeNames[MAX_LOCALE];
+
 LocaleConstant GetLocaleByName(const std::string& name);
+
 // we always use stdlibc++ std::max/std::min, undefine some not C++ standard defines (Win API and some other platforms)
 #ifdef max
 #undef max
 #endif
+
 #ifdef min
 #undef min
 #endif
+
 #ifndef M_PI
 #define M_PI            3.14159265358979323846
 #endif
+
 #endif
 

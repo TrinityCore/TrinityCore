@@ -5,10 +5,12 @@ SD%Complete:  1%
 SDComment:
 SDCategory:
 Script Data End */
+
 /*** SQL START ***
 update creature_template set scriptname = '' where entry = '';
 *** SQL END ***/
 #include "precompiled.h"
+
 //Spells
 #define SPELL_ARCANE_SHIELD                      53813 //Dummy --> Channeled, shields the caster from damage.
 #define SPELL_EMPOWERED_ARCANE_EXPLOSION         51110
@@ -20,6 +22,7 @@ update creature_template set scriptname = '' where entry = '';
 #define SPELL_TELEPORT                           51112 //Teleports to the center of Oculus
 #define SPELL_TIME_BOMB                          51121 //Deals arcane damage to a random player, and after 6 seconds, deals zone damage to nearby equal to the health missing of the target afflicted by the debuff.
 #define SPELL_TIME_BOMB_2                        59376
+
 //not in db
 //Yell
 #define SAY_AGGRO                             -1578012
@@ -32,9 +35,11 @@ update creature_template set scriptname = '' where entry = '';
 #define SAY_SUMMON_1                          -1578019
 #define SAY_SUMMON_2                          -1578020
 #define SAY_SUMMON_3                          -1578021
+
 struct TRINITY_DLL_DECL boss_uromAI : public ScriptedAI
 {
     boss_uromAI(Creature *c) : ScriptedAI(c) {}
+
     void Reset() {}
     void EnterCombat(Unit* who)
     {
@@ -47,6 +52,7 @@ struct TRINITY_DLL_DECL boss_uromAI : public ScriptedAI
         //Return since we have no target
         if (!UpdateVictim())
             return;
+
         DoMeleeAttackIfReady();
     }
     void JustDied(Unit* killer)
@@ -60,13 +66,16 @@ struct TRINITY_DLL_DECL boss_uromAI : public ScriptedAI
         DoScriptText(RAND(SAY_KILL_1,SAY_KILL_2,SAY_KILL_3), m_creature);
     }
 };
+
 CreatureAI* GetAI_boss_urom(Creature* pCreature)
 {
     return new boss_uromAI (pCreature);
 }
+
 void AddSC_boss_urom()
 {
     Script *newscript;
+
     newscript = new Script;
     newscript->Name = "boss_urom";
     newscript->GetAI = &GetAI_boss_urom;

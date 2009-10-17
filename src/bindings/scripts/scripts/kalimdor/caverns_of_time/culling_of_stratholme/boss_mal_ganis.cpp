@@ -5,10 +5,12 @@ SD%Complete:
 SDComment:
 SDCategory:
 Script Data End */
+
 /*** SQL START ***
 update creature_template set scriptname = 'boss_mal_ganis' where entry = '';
 *** SQL END ***/
 #include "precompiled.h"
+
 //Spells
 #define SPELL_CARRION_SWARM_N                         52720 //A cresting wave of chaotic magic splashes over enemies in front of the caster, dealing 3230 to 3570 Shadow damage and 380 to 420 Shadow damage every 3 sec. for 15 sec.
 #define SPELL_CARRION_SWARM_H                         58852
@@ -16,6 +18,7 @@ update creature_template set scriptname = 'boss_mal_ganis' where entry = '';
 #define SPELL_MIND_BLAST_H                            58850
 #define SPELL_SLEEP                                   52721 //Puts an enemy to sleep for up to 10 sec. Any damage caused will awaken the target.
 #define SPELL_VAMPIRIC_TOUCH                          52723 //Heals the caster for half the damage dealt by a melee attack.
+
 //not in db
 //Yell Mal'ganis
 #define SAY_INTRO_1                                  -1595009
@@ -35,22 +38,27 @@ update creature_template set scriptname = 'boss_mal_ganis' where entry = '';
 #define SAY_15HEALTH                                 -1595023
 #define SAY_ESCAPE_SPEECH_1                          -1595024
 #define SAY_ESCAPE_SPEECH_2                          -1595025
+
 struct TRINITY_DLL_DECL boss_mal_ganisAI : public ScriptedAI
 {
     boss_mal_ganisAI(Creature *c) : ScriptedAI(c) {}
+
     bool yelled,
          yelled2,
          yelled3;
+
     void Reset()
     {
          yelled = false;
          yelled2 = false;
          yelled3 = false;
     }
+
     void EnterCombat(Unit* who)
     {
         DoScriptText(SAY_AGGRO, m_creature);
     }
+
     void AttackStart(Unit* who) {}
     void MoveInLineOfSight(Unit* who) {}
     void UpdateAI(const uint32 diff)
@@ -58,6 +66,7 @@ struct TRINITY_DLL_DECL boss_mal_ganisAI : public ScriptedAI
         //Return since we have no target
         if (!UpdateVictim())
             return;
+
         if (!yelled)
         {
             if ((m_creature->GetHealth()*100 / m_creature->GetMaxHealth()) < 30)
@@ -66,6 +75,7 @@ struct TRINITY_DLL_DECL boss_mal_ganisAI : public ScriptedAI
                 yelled = true;
             }
         }
+
         if (!yelled2)
         {
             if ((m_creature->GetHealth()*100 / m_creature->GetMaxHealth()) < 15)
@@ -74,10 +84,12 @@ struct TRINITY_DLL_DECL boss_mal_ganisAI : public ScriptedAI
                 yelled2 = true;
             }
         }
+
         if ((m_creature->GetHealth()*100 / m_creature->GetMaxHealth()) < 1)
         {
             //Handle Escape Event
         }
+
         DoMeleeAttackIfReady();
     }
     void JustDied(Unit* killer)  {}
@@ -85,16 +97,20 @@ struct TRINITY_DLL_DECL boss_mal_ganisAI : public ScriptedAI
     {
         if (victim == m_creature)
             return;
+
         DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2,SAY_SLAY_3,SAY_SLAY_4), m_creature);
     }
 };
+
 CreatureAI* GetAI_boss_mal_ganis(Creature* pCreature)
 {
     return new boss_mal_ganisAI (pCreature);
 }
+
 void AddSC_boss_mal_ganis()
 {
     Script *newscript;
+
     newscript = new Script;
     newscript->Name = "boss_mal_ganis";
     newscript->GetAI = &GetAI_boss_mal_ganis;

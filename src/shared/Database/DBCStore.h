@@ -15,10 +15,13 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
+
 #ifndef DBCSTORE_H
 #define DBCSTORE_H
+
 #include "DBCFileLoader.h"
 #include "Log.h"
+
 struct SqlDbc
 {
     const std::string * formatString;
@@ -38,6 +41,7 @@ struct SqlDbc
             else if (sqlTableName[i] == '.')
                 sqlTableName[i] = '_';
         }
+
         // Get sql index position
         DBCFileLoader::GetFormatRecordSize(fmt, &indexPos);
         if (indexPos>=0)
@@ -55,6 +59,7 @@ struct SqlDbc
         }
     }
 };
+
 template<class T>
 class DBCStorage
 {
@@ -62,16 +67,19 @@ class DBCStorage
     public:
         explicit DBCStorage(const char *f) : nCount(0), fieldCount(0), fmt(f), indexTable(NULL), m_dataTable(NULL) { }
         ~DBCStorage() { Clear(); }
+
         T const* LookupEntry(uint32 id) const { return (id>=nCount)?NULL:indexTable[id]; }
         uint32  GetNumRows() const { return nCount; }
         char const* GetFormat() const { return fmt; }
         uint32 GetFieldCount() const { return fieldCount; }
+
         bool Load(char const* fn, SqlDbc * sql)
         {
             DBCFileLoader dbc;
             // Check if load was sucessful, only then continue
             if(!dbc.Load(fn, fmt))
                 return false;
+
             uint32 sqlRecordCount = 0;
             uint32 sqlHighestIndex = 0;
             Field *fields = NULL;
@@ -83,6 +91,7 @@ class DBCStorage
                 if (sql->indexPos >= 0)
                     query +=" ORDER BY + " + *sql->indexName + " DESC";
                 query += ";";
+
                 result = WorldDatabase.Query(query.c_str());
                 if (result)
                 {
@@ -103,7 +112,9 @@ class DBCStorage
             char * sqlDataTable;
             fieldCount = dbc.GetCols();
             m_dataTable = (T*)dbc.AutoProduceData(fmt,nCount,(char**&)indexTable, sqlRecordCount, sqlHighestIndex, sqlDataTable);
+
             m_stringPoolList.push_back(dbc.AutoProduceStrings(fmt,(char*)m_dataTable));
+
             // Insert sql data into arrays
             if (result)
             {
@@ -115,6 +126,7 @@ class DBCStorage
                     {
                         if (!fields)
                             fields = result->Fetch();
+
                         if(sql->indexPos >= 0)
                         {
                             uint32 id = fields[sql->sqlIndexPos].GetUInt32();
@@ -129,6 +141,7 @@ class DBCStorage
                             indexTable[rowIndex]=(T*)&sqlDataTable[offset];
                         uint32 columnNumber = 0;
                         uint32 sqlColumnNumber = 0;
+
                         for(;columnNumber < sql->formatString->size();++columnNumber)
                         {
                             if ((*sql->formatString)[columnNumber] == FT_SQL_ABSENT)
@@ -198,35 +211,44 @@ class DBCStorage
                             delete result;
                             return false;
                         }
+
                         fields = NULL;
                         ++rowIndex;
                     }while (result->NextRow());
                 }
                 delete result;
             }
+
             // error in dbc file at loading if NULL
             return indexTable!=NULL;
         }
+
         bool LoadStringsFrom(char const* fn)
         {
             // DBC must be already loaded using Load
             if(!indexTable)
                 return false;
+
             DBCFileLoader dbc;
             // Check if load was successful, only then continue
             if(!dbc.Load(fn, fmt))
                 return false;
+
             m_stringPoolList.push_back(dbc.AutoProduceStrings(fmt,(char*)m_dataTable));
+
             return true;
         }
+
         void Clear()
         {
             if (!indexTable)
                 return;
+
             delete[] ((char*)indexTable);
             indexTable = NULL;
             delete[] ((char*)m_dataTable);
             m_dataTable = NULL;
+
             while(!m_stringPoolList.empty())
             {
                 delete[] m_stringPoolList.front();
@@ -234,6 +256,7 @@ class DBCStorage
             }
             nCount = 0;
         }
+
     private:
         char const* fmt;
         uint32 nCount;
@@ -242,4 +265,5 @@ class DBCStorage
         T* m_dataTable;
         StringPoolList m_stringPoolList;
 };
+
 #endif

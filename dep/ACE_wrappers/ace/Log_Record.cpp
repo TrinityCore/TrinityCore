@@ -1,5 +1,7 @@
 // $Id: Log_Record.cpp 81826 2008-06-02 15:29:53Z schmidt $
+
 #include "ace/Log_Record.h"
+
 #include "ace/Log_Msg.h"
 #include "ace/ACE.h"
 #include "ace/OS_NS_stdio.h"
@@ -7,17 +9,24 @@
 #include "ace/CDR_Stream.h"
 #include "ace/Auto_Ptr.h"
 #include "ace/Truncate.h"
+
 #if !defined (__ACE_INLINE__)
 # include "ace/Log_Record.inl"
 #endif /* __ACE_INLINE__ */
+
 #if !defined (ACE_LACKS_IOSTREAM_TOTALLY)
 // FUZZ: disable check_for_streams_include
 # include "ace/streams.h"
 #endif /* ! ACE_LACKS_IOSTREAM_TOTALLY */
+
 #include "ace/OS_Memory.h"
+
 ACE_RCSID(ace, Log_Record, "$Id: Log_Record.cpp 81826 2008-06-02 15:29:53Z schmidt $")
+
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
+
 ACE_ALLOC_HOOK_DEFINE(ACE_Log_Record)
+
 namespace
 {
   // Symbolic names for the <ACE_Log_Priority> enumerators.
@@ -57,11 +66,13 @@ namespace
       ACE_TEXT ("LM_UNK(020000000000)")
     };
 }
+
 const ACE_TCHAR *
 ACE_Log_Record::priority_name (ACE_Log_Priority p)
 {
   return ace_priority_names[ACE::log2 (p)];
 }
+
 void
 ACE_Log_Record::priority_name (ACE_Log_Priority p,
                                const ACE_TCHAR *name)
@@ -69,28 +80,34 @@ ACE_Log_Record::priority_name (ACE_Log_Priority p,
   // Name must be a statically allocated string
   ace_priority_names[ACE::log2 (p)] = name;
 }
+
 u_long
 ACE_Log_Record::priority (void) const
 {
   ACE_TRACE ("ACE_Log_Record::priority");
+
   // Get the priority of the <Log_Record> <type_>.  This is computed
   // as the base 2 logarithm of <type_> (which must be a power of 2,
   // as defined by the enums in <ACE_Log_Priority>).
   return ACE::log2 ((u_long) this->type_);
 }
+
 void
 ACE_Log_Record::priority (u_long p)
 {
   ACE_TRACE ("ACE_Log_Record::priority");
+
   // Set the priority of the <Log_Record> <type_> (which must be a
   // power of 2, as defined by the enums in <ACE_Log_Priority>).
   this->type_ = (ACE_UINT32) p;
 }
+
 void
 ACE_Log_Record::dump (void) const
 {
 #if defined (ACE_HAS_DUMP)
   // ACE_TRACE ("ACE_Log_Record::dump");
+
   ACE_DEBUG ((LM_DEBUG, ACE_BEGIN_DUMP, this));
   ACE_DEBUG ((LM_DEBUG, ACE_TEXT ("length_ = %d\n"), this->length_));
   ACE_DEBUG ((LM_DEBUG, ACE_TEXT ("\ntype_ = %u\n"), this->type_));
@@ -104,6 +121,7 @@ ACE_Log_Record::dump (void) const
   ACE_DEBUG ((LM_DEBUG, ACE_END_DUMP));
 #endif /* ACE_HAS_DUMP */
 }
+
 int
 ACE_Log_Record::msg_data (const ACE_TCHAR *data)
 {
@@ -121,6 +139,7 @@ ACE_Log_Record::msg_data (const ACE_TCHAR *data)
   this->round_up ();
   return 0;
 }
+
 ACE_Log_Record::ACE_Log_Record (ACE_Log_Priority lp,
                                 time_t ts_sec,
                                 long p)
@@ -140,6 +159,7 @@ ACE_Log_Record::ACE_Log_Record (ACE_Log_Priority lp,
       this->msg_data_[0] = '\0';
     }
 }
+
 ACE_Log_Record::ACE_Log_Record (ACE_Log_Priority lp,
                                 const ACE_Time_Value &ts,
                                 long p)
@@ -159,17 +179,20 @@ ACE_Log_Record::ACE_Log_Record (ACE_Log_Priority lp,
       this->msg_data_[0] = '\0';
     }
 }
+
 void
 ACE_Log_Record::round_up (void)
 {
   // ACE_TRACE ("ACE_Log_Record::round_up");
   // Determine the length of the payload.
   size_t len = sizeof (*this) + (sizeof (ACE_TCHAR) * ((ACE_OS::strlen (this->msg_data_) + 1)));
+
   // Round up to the alignment.
   len = ((len + ACE_Log_Record::ALIGN_WORDB - 1)
          & ~(ACE_Log_Record::ALIGN_WORDB - 1));
   this->length_ = static_cast<ACE_UINT32> (len);
 }
+
 ACE_Log_Record::ACE_Log_Record (void)
   : length_ (0),
     type_ (0),
@@ -187,6 +210,7 @@ ACE_Log_Record::ACE_Log_Record (void)
       this->msg_data_[0] = '\0';
     }
 }
+
 int
 ACE_Log_Record::format_msg (const ACE_TCHAR host_name[],
                             u_long verbose_flag,
@@ -195,6 +219,7 @@ ACE_Log_Record::format_msg (const ACE_TCHAR host_name[],
   /* 0123456789012345678901234     */
   /* Oct 18 14:25:36.000 1989<nul> */
   ACE_TCHAR timestamp[26]; // Only used by VERBOSE and VERBOSE_LITE.
+
   // The sprintf format needs to be different for Windows and POSIX
   // in the wide-char case.
 #if defined (ACE_WIN32) || !defined (ACE_USES_WCHAR)
@@ -206,6 +231,7 @@ ACE_Log_Record::format_msg (const ACE_TCHAR host_name[],
   const ACE_TCHAR *verbose_fmt = ACE_TEXT ("%ls@%ls@%u@%ls@%ls");
   const ACE_TCHAR *verbose_lite_fmt = ACE_TEXT ("%ls@%ls@%ls");
 #endif
+
   if (ACE_BIT_ENABLED (verbose_flag,
                        ACE_Log_Msg::VERBOSE)
       || ACE_BIT_ENABLED (verbose_flag,
@@ -213,18 +239,23 @@ ACE_Log_Record::format_msg (const ACE_TCHAR host_name[],
     {
       time_t const now = this->secs_;
       ACE_TCHAR ctp[26]; // 26 is a magic number...
+
       if (ACE_OS::ctime_r (&now, ctp, sizeof ctp / sizeof (ACE_TCHAR)) == 0)
         return -1;
+
       /* 01234567890123456789012345 */
       /* Wed Oct 18 14:25:36 1989n0 */
+
       ctp[19] = '\0'; // NUL-terminate after the time.
       ctp[24] = '\0'; // NUL-terminate after the date.
+
       ACE_OS::sprintf (timestamp,
                        time_fmt,
                        ctp + 4,
                        ((long) this->usecs_) / 1000,
                        ctp + 20);
     }
+
   if (ACE_BIT_ENABLED (verbose_flag,
                        ACE_Log_Msg::VERBOSE))
     {
@@ -249,6 +280,7 @@ ACE_Log_Record::format_msg (const ACE_TCHAR host_name[],
     ACE_OS::strcpy (verbose_msg, this->msg_data_);
   return 0;
 }
+
 int
 ACE_Log_Record::print (const ACE_TCHAR host_name[],
                        u_long verbose_flag,
@@ -258,7 +290,9 @@ ACE_Log_Record::print (const ACE_TCHAR host_name[],
     {
       ACE_TCHAR *verbose_msg = 0;
       ACE_NEW_RETURN (verbose_msg, ACE_TCHAR[MAXVERBOSELOGMSGLEN], -1);
+
       int result = this->format_msg (host_name, verbose_flag, verbose_msg);
+
       if (result == 0)
         {
           if (fp != 0)
@@ -281,12 +315,15 @@ ACE_Log_Record::print (const ACE_TCHAR host_name[],
                 ACE_OS::fflush (fp);
             }
         }
+
       delete [] verbose_msg;
+
       return result;
     }
   else
     return 0;
 }
+
 int
 operator<< (ACE_OutputCDR &cdr,
             const ACE_Log_Record &log_record)
@@ -295,6 +332,7 @@ operator<< (ACE_OutputCDR &cdr,
   // so reduce it here if needed.
   ACE_CDR::ULong u_msglen =
     ACE_Utils::truncate_cast<ACE_CDR::ULong> (log_record.msg_data_len ());
+
   // Insert each field from <log_record> into the output CDR stream.
   cdr << ACE_CDR::Long (log_record.type ());
   cdr << ACE_CDR::Long (log_record.pid ());
@@ -308,6 +346,7 @@ operator<< (ACE_OutputCDR &cdr,
 #endif /* ACE_USES_WCHAR */
   return cdr.good_bit ();
 }
+
 int
 operator>> (ACE_InputCDR &cdr,
             ACE_Log_Record &log_record)
@@ -317,6 +356,7 @@ operator>> (ACE_InputCDR &cdr,
   ACE_CDR::LongLong sec;
   ACE_CDR::Long usec;
   ACE_CDR::ULong buffer_len;
+
   // Extract each field from input CDR stream into <log_record>.
   if ((cdr >> type) && (cdr >> pid) && (cdr >> sec) && (cdr >> usec)
       && (cdr >> buffer_len)) {
@@ -338,7 +378,9 @@ operator>> (ACE_InputCDR &cdr,
   }
   return cdr.good_bit ();
 }
+
 #if !defined (ACE_LACKS_IOSTREAM_TOTALLY)
+
 int
 ACE_Log_Record::print (const ACE_TCHAR host_name[],
                        u_long verbose_flag,
@@ -348,18 +390,24 @@ ACE_Log_Record::print (const ACE_TCHAR host_name[],
     {
       ACE_TCHAR* verbose_msg = 0;
       ACE_NEW_RETURN (verbose_msg, ACE_TCHAR[MAXVERBOSELOGMSGLEN], -1);
+
       int const result = this->format_msg (host_name, verbose_flag, verbose_msg);
+
       if (result == 0)
         {
           // Since ostream expects only chars, we cannot pass wchar_t's
           s << ACE_TEXT_ALWAYS_CHAR (verbose_msg);
           s.flush ();
         }
+
       delete [] verbose_msg;
+
       return result;
     }
   return 0;
 }
+
 #endif /* ! ACE_LACKS_IOSTREAM_TOTALLY */
+
 ACE_END_VERSIONED_NAMESPACE_DECL
 

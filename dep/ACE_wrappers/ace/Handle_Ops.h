@@ -1,4 +1,5 @@
 // -*- C++ -*-
+
 //=============================================================================
 /**
  *  @file   Handle_Ops.h
@@ -8,16 +9,24 @@
  *  Handle operations.
  */
 //=============================================================================
+
 #ifndef ACE_HANDLE_OPS_H
 #define ACE_HANDLE_OPS_H
+
 #include /**/ "ace/pre.h"
+
 #include /**/ "ace/ACE_export.h"
+
 #if !defined (ACE_LACKS_PRAGMA_ONCE)
 # pragma once
 #endif /* ACE_LACKS_PRAGMA_ONCE */
+
 #include "ace/Global_Macros.h"
+
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
+
 class ACE_Time_Value;
+
 // = Operations on HANDLEs.
 namespace ACE
 {
@@ -33,7 +42,10 @@ namespace ACE
     int perms,
     LPSECURITY_ATTRIBUTES sa = 0);
 }
+
 ACE_END_VERSIONED_NAMESPACE_DECL
+
 #include /**/ "ace/post.h"
+
 #endif /* ACE_HANDLE_OPS_H */
 

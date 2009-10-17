@@ -13,34 +13,42 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
+
 /* ScriptData
 SDName: Instance_Razorfen_Kraul
 SD%Complete:
 SDComment:
 SDCategory: Razorfen Kraul
 EndScriptData */
+
 #include "precompiled.h"
 #include "def_razorfen_kraul.h"
 
+
 #define WARD_KEEPERS_NR 2
+
 struct TRINITY_DLL_DECL instance_razorfen_kraul : public ScriptedInstance
 {
     instance_razorfen_kraul(Map* pMap) : ScriptedInstance(pMap) {Initialize();};
+
     uint64 DoorWardGUID;
     uint32 WardCheck_Timer;
     int WardKeeperAlive;
+
     void Initialize()
     {
         WardKeeperAlive = 1;
         WardCheck_Timer = 4000;
         DoorWardGUID = 0;
     }
+
     Player* GetPlayerInMap()
     {
         Map::PlayerList const& players = instance->GetPlayers();
+
         if (!players.isEmpty())
         {
-            for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
+            for(Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
             {
                 if (Player* plr = itr->getSource())
                     return plr;
@@ -49,6 +57,7 @@ struct TRINITY_DLL_DECL instance_razorfen_kraul : public ScriptedInstance
         debug_log("TSCR: Instance Razorfen Kraul: GetPlayerInMap, but PlayerList is empty!");
         return NULL;
     }
+
     void OnGameObjectCreate(GameObject* pGo, bool apply)
     {
         switch(pGo->GetEntry())
@@ -56,6 +65,7 @@ struct TRINITY_DLL_DECL instance_razorfen_kraul : public ScriptedInstance
         case 21099: DoorWardGUID = pGo->GetGUID(); break;
         }
     }
+
     void Update(uint32 diff)
     {
         if (WardCheck_Timer < diff)
@@ -66,6 +76,7 @@ struct TRINITY_DLL_DECL instance_razorfen_kraul : public ScriptedInstance
         }else
             WardCheck_Timer -= diff;
     }
+
     void SetData(uint32 type, uint32 data)
     {
         switch(type)
@@ -76,11 +87,14 @@ struct TRINITY_DLL_DECL instance_razorfen_kraul : public ScriptedInstance
                 break;
         }
     }
+
 };
+
 InstanceData* GetInstanceData_instance_razorfen_kraul(Map* pMap)
 {
     return new instance_razorfen_kraul(pMap);
 }
+
 void AddSC_instance_razorfen_kraul()
 {
     Script *newscript;

@@ -1,4 +1,5 @@
 // -*- C++ -*-
+
 //==========================================================================
 /**
  *  @file    Vector_T.h
@@ -9,20 +10,28 @@
  *  @author Gonzalo Diethelm <gonzalo.diethelm@aditiva.com>
  */
 //==========================================================================
+
 #ifndef ACE_VECTOR_T_H
 #define ACE_VECTOR_T_H
+
 #include /**/ "ace/pre.h"
+
 #include "ace/Array.h"
+
 #if !defined (ACE_LACKS_PRAGMA_ONCE)
 # pragma once
 #endif /* ACE_LACKS_PRAGMA_ONCE */
+
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
+
 /*
  * Default size for an ACE_Vector.
  */
 static const size_t ACE_VECTOR_DEFAULT_SIZE = 32;
+
 // Forward declaration.
 template <class T, size_t DEFAULT_SIZE> class ACE_Vector_Iterator;
+
 /**
  * @class ACE_Vector
  *
@@ -66,6 +75,7 @@ public:
    */
   typedef ACE_Vector_Iterator<T, DEFAULT_SIZE> Iterator;
 
+
   /**
    * General constructor.
    *
@@ -76,10 +86,12 @@ public:
    */
   ACE_Vector (const size_t init_size = DEFAULT_SIZE,
               ACE_Allocator* alloc = 0);
+
   /**
    * Destructor.
    */
   ~ACE_Vector ();
+
   /**
    * Returns the current vector capacity, that is, the currently
    * allocated buffer size.
@@ -87,6 +99,7 @@ public:
    * @return Current buffer size of the vector
    */
   size_t capacity (void) const;
+
   /**
    * Returns the vector's dynamic size / actual current size of the
    * vector.  Do not confuse it with ACE_Array::size(), which returns
@@ -96,11 +109,13 @@ public:
    * @return Dynamic size / actual current size of the vector.
    */
   size_t size (void) const;
+
   /**
    * Clears out the vector.  It does not reallocate the vector's
    * buffer, it is just sets the vector's dynamic size to 0.
    */
   void clear (void);
+
   /**
    * Resizes the vector to the new capacity.  If the vector's current
    * capacity is smaller than the size to be specified, then the
@@ -116,6 +131,7 @@ public:
    */
   void resize (const size_t new_size,
                const T& t);
+
   /**
    * Appends a new element to the vector ("push back").  If the
    * dynamic size of the vector is equal to the capacity of the vector
@@ -127,6 +143,7 @@ public:
    *             default value of the class T.
    */
   void push_back (const T& elem);
+
   /**
    * Deletes the last element from the vector ("pop back").  What this
    * function really does is decrement the dynamic size of the
@@ -134,6 +151,7 @@ public:
    * performance.
    */
   void pop_back (void);
+
   /**
    * This function dumps the content of the vector.  TO BE MOVED out
    * of this class.  It needs to be implemented as a global template
@@ -149,13 +167,16 @@ public:
    * This function calls T::dump() for each element of the vector.
    */
   void dump (void) const;
+
   // = Compare operators
+
   ///Equality comparison operator.
   /**
    * Compare this vector with @arg s for equality.  Two vectors are equal
    * if their sizes are equal and all the elements are equal.
    */
   bool operator== (const ACE_Vector<T, DEFAULT_SIZE> &s) const;
+
   ///Inequality comparison operator.
   /**
    * Compare this vector with @arg s for inequality such that @c *this !=
@@ -163,23 +184,30 @@ public:
    * @c *this == @arg s.
    */
   bool operator!= (const ACE_Vector<T, DEFAULT_SIZE> &s) const;
+
   void swap (ACE_Vector &rhs);
+
 protected:
+
   /**
    * Dynamic size (length) of the vector.
    */
   size_t length_;
+
   /**
    * Current capacity (buffer size) of the vector.
    */
   size_t curr_max_size_;
+
   friend class ACE_Vector_Iterator<T, DEFAULT_SIZE>;
 };
+
 #if 0
 /*
  * Not sure about including these functions, if for no other reason,
  * because they polute the global namespace!
  */
+
 /**
  * Compare two vectors in the range of [from_ndx..to_ndx].  This
  * template function requires class T to have the bool operator!=()
@@ -201,6 +229,7 @@ int compare (const ACE_Vector<T>& v1,
               const ACE_Vector<T>& v2,
               const size_t from_ndx,
               const size_t to_ndx);
+
 /**
  * Does a partial comparison of two vectors in the range of
  * [from_ndx..to_ndx].  The only difference between this function and
@@ -216,6 +245,7 @@ int compare (const ACE_Vector<T>& v1,
  * @return Returns true if vector v1 and v2 are equal in the specified
  *         index range.
  */
+
 template<class T>
 int partial_compare (const ACE_Vector<T>& v1,
                       const ACE_Vector<T>& v2,
@@ -223,6 +253,7 @@ int partial_compare (const ACE_Vector<T>& v1,
                       const size_t to_ndx);
 #endif /* 0 */
 // ****************************************************************
+
 /**
  * @class ACE_Vector_Iterator
  *
@@ -238,35 +269,49 @@ class ACE_Vector_Iterator
 public:
   // = Initialization method.
   ACE_Vector_Iterator (ACE_Vector<T, DEFAULT_SIZE> &);
+
   // = Iteration methods.
+
   /// Pass back the <next_item> that hasn't been seen in the vector.
   /// Returns 0 when all items have been seen, else 1.
   int next (T *&next_item);
+
   /// Move forward by one element in the vector.  Returns 0 when all the
   /// items in the vector have been seen, else 1.
   int advance (void);
+
   /// Returns 1 when all items have been seen, else 0.
   int done (void) const;
+
   /// Dump the state of an object.
   void dump (void) const;
+
   /// Declare the dynamic allocation hooks.
   ACE_ALLOC_HOOK_DECLARE;
+
 private:
   /// Pointer to the current item in the iteration.
   size_t current_;
+
   /// Reference to the vector we're iterating over.
   ACE_Vector<T, DEFAULT_SIZE> &vector_;
 };
+
 ACE_END_VERSIONED_NAMESPACE_DECL
+
 #if defined (__ACE_INLINE__)
 #include "ace/Vector_T.inl"
 #endif /* __ACE_INLINE__ */
+
 #if defined (ACE_TEMPLATES_REQUIRE_SOURCE)
 #include "ace/Vector_T.cpp"
 #endif /* ACE_TEMPLATES_REQUIRE_SOURCE */
+
 #if defined (ACE_TEMPLATES_REQUIRE_PRAGMA)
 #pragma implementation ("Vector_T.cpp")
 #endif /* ACE_TEMPLATES_REQUIRE_PRAGMA */
+
 #include /**/ "ace/post.h"
+
 #endif /* ACE_VECTOR_T_H */
 

@@ -15,6 +15,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
+
 /* ScriptData
 SDName: boss_jedoga_shadowseeker
 SDAuthor: LordVanMartin
@@ -22,11 +23,14 @@ SD%Complete: 0
 SDComment:
 SDCategory: Ahn'kahet
 EndScriptData */
+
 /*** SQL START ***
 update creature_template set scriptname = 'boss_jedoga' where entry = '';
 *** SQL END ***/
+
 #include "precompiled.h"
 #include "def_ahnkahet.h"
+
 #define SPELL_CYCLONE_STRIKE                    56855
 #define H_SPELL_CYCLONE_STRIKE                  60030//kein unterschied zu 56855 außer das 60030 1,5sec cast ist
 #define SPELL_LIGHTNING_BOLT                    56891
@@ -34,6 +38,7 @@ update creature_template set scriptname = 'boss_jedoga' where entry = '';
 #define SPELL_THUNDERSHOCK                      56926//AOE works
 #define H_SPELL_THUNDERSHOCK                    60029//AOE works
 #define SPELL_GIFT_OF_THE_HERALD                56219//triggert if sucessfull sacreficed
+
 //not in db
 #define SAY_AGGRO                                 -1619000
 #define SAY_C_SACRIFICE_1                         -1619001
@@ -49,9 +54,11 @@ update creature_template set scriptname = 'boss_jedoga' where entry = '';
 #define SAY_PREACHING_3                           -1619011
 #define SAY_PREACHING_4                           -1619012
 #define SAY_PREACHING_5                           -1619013
+
 struct TRINITY_DLL_DECL boss_jedogaAI : public ScriptedAI
 {
     boss_jedogaAI(Creature *c) : ScriptedAI(c) {}
+
     void Reset() {}
     void EnterCombat(Unit* who)
     {
@@ -64,26 +71,33 @@ struct TRINITY_DLL_DECL boss_jedogaAI : public ScriptedAI
         //Return since we have no target
         if (!UpdateVictim())
             return;
+
         DoMeleeAttackIfReady();
     }
+
     void JustDied(Unit* killer)
     {
         DoScriptText(SAY_DEATH, m_creature);
     }
+
     void KilledUnit(Unit *victim)
     {
         if (victim == m_creature)
             return;
+
         DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2,SAY_SLAY_3), m_creature);
     }
 };
+
 CreatureAI* GetAI_boss_jedoga(Creature* pCreature)
 {
     return new boss_jedogaAI (pCreature);
 }
+
 void AddSC_boss_jedoga()
 {
     Script *newscript;
+
     newscript = new Script;
     newscript->Name = "boss_jedoga";
     newscript->GetAI = &GetAI_boss_jedoga;

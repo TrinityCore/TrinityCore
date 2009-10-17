@@ -13,47 +13,58 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
+
 /* ScriptData
 SDName: Boss_Doctor_Theolen_Krastinov
 SD%Complete: 100
 SDComment:
 SDCategory: Scholomance
 EndScriptData */
+
 #include "precompiled.h"
 #include "def_scholomance.h"
+
 enum eEnums
 {
     EMOTE_GENERIC_FRENZY_KILL   = -1000001,
+
     SPELL_REND                  = 16509,
     SPELL_BACKHAND              = 18103,
     SPELL_FRENZY                = 8269
 };
+
 struct TRINITY_DLL_DECL boss_theolenkrastinovAI : public ScriptedAI
 {
     boss_theolenkrastinovAI(Creature *c) : ScriptedAI(c) {}
+
     uint32 m_uiRend_Timer;
     uint32 m_uiBackhand_Timer;
     uint32 m_uiFrenzy_Timer;
+
     void Reset()
     {
         m_uiRend_Timer = 8000;
         m_uiBackhand_Timer = 9000;
         m_uiFrenzy_Timer = 1000;
     }
+
     void JustDied(Unit* pKiller)
     {
         ScriptedInstance* pInstance = m_creature->GetInstanceData();
         if (pInstance)
         {
             pInstance->SetData(DATA_DOCTORTHEOLENKRASTINOV_DEATH, 0);
+
             if (pInstance->GetData(TYPE_GANDLING) == IN_PROGRESS)
                 m_creature->SummonCreature(1853, 180.73, -9.43856, 75.507, 1.61399, TEMPSUMMON_DEAD_DESPAWN, 0);
         }
     }
+
     void UpdateAI(const uint32 uiDiff)
     {
         if (!UpdateVictim())
             return;
+
         //Rend_Timer
         if (m_uiRend_Timer < uiDiff)
         {
@@ -62,6 +73,7 @@ struct TRINITY_DLL_DECL boss_theolenkrastinovAI : public ScriptedAI
         }
         else
             m_uiRend_Timer -= uiDiff;
+
         //Backhand_Timer
         if (m_uiBackhand_Timer < uiDiff)
         {
@@ -70,6 +82,7 @@ struct TRINITY_DLL_DECL boss_theolenkrastinovAI : public ScriptedAI
         }
         else
             m_uiBackhand_Timer -= uiDiff;
+
         //Frenzy_Timer
         if (m_creature->GetHealth()*100 / m_creature->GetMaxHealth() < 26)
         {
@@ -77,18 +90,22 @@ struct TRINITY_DLL_DECL boss_theolenkrastinovAI : public ScriptedAI
             {
                 DoCast(m_creature,SPELL_FRENZY);
                 DoScriptText(EMOTE_GENERIC_FRENZY_KILL, m_creature);
+
                 m_uiFrenzy_Timer = 120000;
             }
             else
                 m_uiFrenzy_Timer -= uiDiff;
         }
+
         DoMeleeAttackIfReady();
     }
 };
+
 CreatureAI* GetAI_boss_theolenkrastinov(Creature* pCreature)
 {
     return new boss_theolenkrastinovAI (pCreature);
 }
+
 void AddSC_boss_theolenkrastinov()
 {
     Script *newscript;

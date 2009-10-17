@@ -5,11 +5,13 @@ SD%Complete:
 SDComment:
 SDCategory:
 Script Data End */
+
 /*** SQL START ***
 update creature_template set scriptname = 'boss_novos' where entry = '';
 *** SQL END ***/
 #include "precompiled.h"
 #include "def_drak_tharon_keep.h"
+
 enum Spells
 {
     SPELL_ARCANE_BLAST                        = 49198,
@@ -50,12 +52,15 @@ enum Achievement
 {
     ACHIEVEMENT_OH_NOVOS                   = 2057
 };
+
 struct Location
 {
     float x,y,z;
 };
+
 static Location AddSpawnPoint = { -379.20, -816.76, 59.70};
 static Location AddDestinyPoint = { -282.169, -711.369, 27.375};
+
 struct TRINITY_DLL_DECL boss_novosAI : public Scripted_NoMovementAI
 {
     boss_novosAI(Creature *c) : Scripted_NoMovementAI(c)
@@ -63,12 +68,18 @@ struct TRINITY_DLL_DECL boss_novosAI : public Scripted_NoMovementAI
         pInstance = c->GetInstanceData();
         Reset();
     }
+
     uint32 uiTimer;
     uint32 uiCrystalHandlerTimer;
+
     bool bAchiev;
+
     std::list<uint64> luiCrystals;
+
     CombatPhase Phase;
+
     ScriptedInstance* pInstance;
+
     void Reset()
     {
         Phase = IDLE;
@@ -88,6 +99,7 @@ struct TRINITY_DLL_DECL boss_novosAI : public Scripted_NoMovementAI
             }
         }
     }
+
     void EnterCombat(Unit* who)
     {
         DoScriptText(SAY_AGGRO, m_creature);
@@ -108,6 +120,7 @@ struct TRINITY_DLL_DECL boss_novosAI : public Scripted_NoMovementAI
         m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
         m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
     }
+
     void UpdateAI(const uint32 diff)
     {
         switch (Phase)
@@ -147,6 +160,7 @@ struct TRINITY_DLL_DECL boss_novosAI : public Scripted_NoMovementAI
     {
         if (pInstance)
             pInstance->SetData(DATA_NOVOS_EVENT, DONE);
+
         if (HeroicMode && bAchiev)
         {
             AchievementEntry const *AchievOhNovos = GetAchievementStore()->LookupEntry(ACHIEVEMENT_OH_NOVOS);
@@ -156,18 +170,20 @@ struct TRINITY_DLL_DECL boss_novosAI : public Scripted_NoMovementAI
                 if (pMap && pMap->IsDungeon())
                 {
                     Map::PlayerList const &players = pMap->GetPlayers();
-                    for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
+                    for(Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
                         itr->getSource()->CompletedAchievement(AchievOhNovos);
                 }
             }
         }
     }
+
     void KilledUnit(Unit *victim)
     {
         if (victim == m_creature)
             return;
         DoScriptText(SAY_KILL, m_creature);
     }
+
     void RemoveCrystal()
     {
         if (!luiCrystals.empty())
@@ -188,26 +204,32 @@ struct TRINITY_DLL_DECL boss_novosAI : public Scripted_NoMovementAI
         }
     }
 };
+
 struct TRINITY_DLL_DECL mob_crystal_handlerAI : public ScriptedAI
 {
     mob_crystal_handlerAI(Creature *c) : ScriptedAI(c)
     {
         pInstance = c->GetInstanceData();
     }
+
     ScriptedInstance *pInstance;
+
     void JustDied(Unit* killer)
     {
         if (Creature* pNovos = Unit::GetCreature(*m_creature, pInstance ? pInstance->GetData64(DATA_NOVOS) : 0))
             CAST_AI(boss_novosAI,pNovos->AI())->RemoveCrystal();
     }
 };
+
 struct TRINITY_DLL_DECL mob_novos_minionAI : public ScriptedAI
 {
     mob_novos_minionAI(Creature *c) : ScriptedAI(c)
     {
         pInstance = c->GetInstanceData();
     }
+
     ScriptedInstance *pInstance;
+
     void MovementInform(uint32 type, uint32 id)
     {
         if(type != POINT_MOTION_TYPE)
@@ -216,29 +238,36 @@ struct TRINITY_DLL_DECL mob_novos_minionAI : public ScriptedAI
             CAST_AI(boss_novosAI, pNovos->AI())->bAchiev = false;
     }
 };
+
 CreatureAI* GetAI_boss_novos(Creature* pCreature)
 {
     return new boss_novosAI (pCreature);
 }
+
 CreatureAI* GetAI_mob_crystal_handler(Creature* pCreature)
 {
     return new mob_crystal_handlerAI (pCreature);
 }
+
 CreatureAI* GetAI_mob_novos_minion(Creature* pCreature)
 {
     return new mob_novos_minionAI (pCreature);
 }
+
 void AddSC_boss_novos()
 {
     Script *newscript;
+
     newscript = new Script;
     newscript->Name = "boss_novos";
     newscript->GetAI = &GetAI_boss_novos;
     newscript->RegisterSelf();
+
     newscript = new Script;
     newscript->Name = "mob_crystal_handler";
     newscript->GetAI = &GetAI_mob_crystal_handler;
     newscript->RegisterSelf();
+
     newscript = new Script;
     newscript->Name = "mob_novos_minion";
     newscript->GetAI = &GetAI_mob_novos_minion;

@@ -15,8 +15,10 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
+
 #ifndef DEF_NAXXRAMAS_H
 #define DEF_NAXXRAMAS_H
+
 enum Encounter
 {
     BOSS_ANUBREKHAN,
@@ -36,12 +38,15 @@ enum Encounter
     BOSS_KELTHUZAD,
     MAX_BOSS_NUMBER
 };
+
 enum Data
 {
     DATA_HEIGAN_ERUPT,
     DATA_GOTHIK_GATE,
     DATA_SAPPHIRON_BIRTH,
 };
+
 #define GO_BIRTH                181356
+
 #endif
 

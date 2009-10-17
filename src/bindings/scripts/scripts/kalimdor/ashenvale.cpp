@@ -13,44 +13,57 @@
 * along with this program; if not, write to the Free Software
 * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
+
 /* ScriptData
 SDName: Ashenvale
 SD%Complete: 70
 SDComment: Quest support: 6544, 6482
 SDCategory: Ashenvale Forest
 EndScriptData */
+
 /* ContentData
 npc_torek
 npc_ruul_snowhoof
 EndContentData */
+
 #include "precompiled.h"
 #include "escort_ai.h"
+
 /*####
 # npc_torek
 ####*/
+
 #define SAY_READY                   -1000106
 #define SAY_MOVE                    -1000107
 #define SAY_PREPARE                 -1000108
 #define SAY_WIN                     -1000109
 #define SAY_END                     -1000110
+
 #define SPELL_REND                  11977
 #define SPELL_THUNDERCLAP           8078
+
 #define QUEST_TOREK_ASSULT          6544
+
 #define ENTRY_SPLINTERTREE_RAIDER   12859
 #define ENTRY_DURIEL                12860
 #define ENTRY_SILVERWING_SENTINEL   12896
 #define ENTRY_SILVERWING_WARRIOR    12897
+
 struct TRINITY_DLL_DECL npc_torekAI : public npc_escortAI
 {
     npc_torekAI(Creature *c) : npc_escortAI(c) {}
+
     uint32 Rend_Timer;
     uint32 Thunderclap_Timer;
     bool Completed;
+
     void WaypointReached(uint32 i)
     {
         Player* pPlayer = GetPlayerForEscort();
+
         if (!pPlayer)
             return;
+
         switch (i)
         {
         case 1:
@@ -76,29 +89,36 @@ struct TRINITY_DLL_DECL npc_torekAI : public npc_escortAI
             break;
         }
     }
+
     void Reset()
     {
         Rend_Timer = 5000;
         Thunderclap_Timer = 8000;
         Completed = false;
     }
+
     void EnterCombat(Unit* who)
     {
     }
+
     void JustSummoned(Creature* summoned)
     {
         summoned->AI()->AttackStart(m_creature);
     }
+
     void UpdateAI(const uint32 diff)
     {
         npc_escortAI::UpdateAI(diff);
+
         if (!UpdateVictim())
             return;
+
         if (Rend_Timer < diff)
         {
             DoCast(m_creature->getVictim(),SPELL_REND);
             Rend_Timer = 20000;
         }else Rend_Timer -= diff;
+
         if (Thunderclap_Timer < diff)
         {
             DoCast(m_creature,SPELL_THUNDERCLAP);
@@ -106,6 +126,7 @@ struct TRINITY_DLL_DECL npc_torekAI : public npc_escortAI
         }else Thunderclap_Timer -= diff;
     }
 };
+
 bool QuestAccept_npc_torek(Player* pPlayer, Creature* pCreature, Quest const* quest)
 {
     if (quest->GetQuestId() == QUEST_TOREK_ASSULT)
@@ -113,28 +134,37 @@ bool QuestAccept_npc_torek(Player* pPlayer, Creature* pCreature, Quest const* qu
         //TODO: find companions, make them follow Torek, at any time (possibly done by mangos/database in future?)
         DoScriptText(SAY_READY, pCreature, pPlayer);
         pCreature->setFaction(113);
+
         if (npc_escortAI* pEscortAI = CAST_AI(npc_torekAI, pCreature->AI()))
             pEscortAI->Start(true, true, pPlayer->GetGUID());
     }
+
     return true;
 }
+
 CreatureAI* GetAI_npc_torek(Creature* pCreature)
 {
     return new npc_torekAI(pCreature);
 }
+
 /*####
 # npc_ruul_snowhoof
 ####*/
+
 #define QUEST_FREEDOM_TO_RUUL    6482
 #define GO_CAGE                  178147
+
 struct TRINITY_DLL_DECL npc_ruul_snowhoofAI : public npc_escortAI
 {
     npc_ruul_snowhoofAI(Creature *c) : npc_escortAI(c) {}
+
     void WaypointReached(uint32 i)
     {
         Player* pPlayer = GetPlayerForEscort();
+
         if (!pPlayer)
             return;
+
         switch(i)
         {
         case 0:    {
@@ -153,50 +183,62 @@ struct TRINITY_DLL_DECL npc_ruul_snowhoofAI : public npc_escortAI
                 m_creature->SummonCreature(3921, 3506.265625, -490.531006, 186.740128, 4.239277, TEMPSUMMON_DEAD_DESPAWN, 60000);
                 m_creature->SummonCreature(3926, 3503.682373, -489.393799, 186.629684, 4.349232, TEMPSUMMON_DEAD_DESPAWN, 60000);
                 break;
+
         case 21:{
                 if (pPlayer)
                     pPlayer->GroupEventHappens(QUEST_FREEDOM_TO_RUUL, m_creature);
+
                 break;  }
         }
     }
+
     void EnterCombat(Unit* who) {}
+
     void Reset()
     {
         GameObject* Cage = m_creature->FindNearestGameObject(GO_CAGE, 20);
         if (Cage)
             Cage->SetGoState(GO_STATE_READY);
     }
+
     void JustSummoned(Creature* summoned)
     {
         summoned->AI()->AttackStart(m_creature);
     }
+
     void UpdateAI(const uint32 diff)
     {
         npc_escortAI::UpdateAI(diff);
     }
 };
+
 bool QuestAccept_npc_ruul_snowhoof(Player* pPlayer, Creature* pCreature, Quest const* quest)
 {
     if (quest->GetQuestId() == QUEST_FREEDOM_TO_RUUL)
     {
         pCreature->setFaction(113);
+
         if (npc_escortAI* pEscortAI = CAST_AI(npc_ruul_snowhoofAI, (pCreature->AI())))
             pEscortAI->Start(true, false, pPlayer->GetGUID());
     }
     return true;
 }
+
 CreatureAI* GetAI_npc_ruul_snowhoofAI(Creature* pCreature)
 {
     return new npc_ruul_snowhoofAI(pCreature);
 }
+
 void AddSC_ashenvale()
 {
     Script *newscript;
+
     newscript = new Script;
     newscript->Name = "npc_torek";
     newscript->GetAI = &GetAI_npc_torek;
     newscript->pQuestAccept = &QuestAccept_npc_torek;
     newscript->RegisterSelf();
+
     newscript = new Script;
     newscript->Name = "npc_ruul_snowhoof";
     newscript->GetAI = &GetAI_npc_ruul_snowhoofAI;

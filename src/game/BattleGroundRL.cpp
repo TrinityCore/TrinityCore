@@ -18,6 +18,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
+
 #include "BattleGround.h"
 #include "BattleGroundRL.h"
 #include "Language.h"
@@ -25,9 +26,11 @@
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "WorldPacket.h"
+
 BattleGroundRL::BattleGroundRL()
 {
     m_BgObjects.resize(BG_RL_OBJECT_MAX);
+
     m_StartDelayTimes[BG_STARTING_EVENT_FIRST]  = BG_START_DELAY_1M;
     m_StartDelayTimes[BG_STARTING_EVENT_SECOND] = BG_START_DELAY_30S;
     m_StartDelayTimes[BG_STARTING_EVENT_THIRD]  = BG_START_DELAY_15S;
@@ -38,70 +41,91 @@ BattleGroundRL::BattleGroundRL()
     m_StartMessageIds[BG_STARTING_EVENT_THIRD]  = LANG_ARENA_FIFTEEN_SECONDS;
     m_StartMessageIds[BG_STARTING_EVENT_FOURTH] = LANG_ARENA_HAS_BEGUN;
 }
+
 BattleGroundRL::~BattleGroundRL()
 {
+
 }
+
 void BattleGroundRL::Update(uint32 diff)
 {
     BattleGround::Update(diff);
+
     /*if (GetStatus() == STATUS_IN_PROGRESS)
     {
         // update something
     }*/
 }
+
 void BattleGroundRL::StartingEventCloseDoors()
 {
     for(uint32 i = BG_RL_OBJECT_DOOR_1; i <= BG_RL_OBJECT_DOOR_2; ++i)
         SpawnBGObject(i, RESPAWN_IMMEDIATELY);
 }
+
 void BattleGroundRL::StartingEventOpenDoors()
 {
     for(uint32 i = BG_RL_OBJECT_DOOR_1; i <= BG_RL_OBJECT_DOOR_2; ++i)
         DoorOpen(i);
+
     for(uint32 i = BG_RL_OBJECT_BUFF_1; i <= BG_RL_OBJECT_BUFF_2; ++i)
         SpawnBGObject(i, 60);
 }
+
 void BattleGroundRL::AddPlayer(Player *plr)
 {
     BattleGround::AddPlayer(plr);
     //create score and add it to map, default values are set in constructor
     BattleGroundRLScore* sc = new BattleGroundRLScore;
+
     m_PlayerScores[plr->GetGUID()] = sc;
+
     UpdateWorldState(0xbb8, GetAlivePlayersCountByTeam(ALLIANCE));
     UpdateWorldState(0xbb9, GetAlivePlayersCountByTeam(HORDE));
 }
+
 void BattleGroundRL::RemovePlayer(Player* /*plr*/, uint64 /*guid*/)
 {
     if (GetStatus() == STATUS_WAIT_LEAVE)
         return;
+
     UpdateWorldState(0xbb8, GetAlivePlayersCountByTeam(ALLIANCE));
     UpdateWorldState(0xbb9, GetAlivePlayersCountByTeam(HORDE));
+
     CheckArenaWinConditions();
 }
+
 void BattleGroundRL::HandleKillPlayer(Player *player, Player *killer)
 {
     if (GetStatus() != STATUS_IN_PROGRESS)
         return;
+
     if (!killer)
     {
         sLog.outError("Killer player not found");
         return;
     }
+
     BattleGround::HandleKillPlayer(player,killer);
+
     UpdateWorldState(0xbb8, GetAlivePlayersCountByTeam(ALLIANCE));
     UpdateWorldState(0xbb9, GetAlivePlayersCountByTeam(HORDE));
+
     CheckArenaWinConditions();
 }
+
 bool BattleGroundRL::HandlePlayerUnderMap(Player *player)
 {
     player->TeleportTo(GetMapId(),1285.810547,1667.896851,39.957642,player->GetOrientation(),false);
     return true;
 }
+
 void BattleGroundRL::HandleAreaTrigger(Player *Source, uint32 Trigger)
 {
     // this is wrong way to implement these things. On official it done by gameobject spell cast.
     if (GetStatus() != STATUS_IN_PROGRESS)
         return;
+
     //uint32 SpellId = 0;
     //uint64 buff_guid = 0;
     switch(Trigger)
@@ -114,20 +138,24 @@ void BattleGroundRL::HandleAreaTrigger(Player *Source, uint32 Trigger)
             Source->GetSession()->SendAreaTriggerMessage("Warning: Unhandled AreaTrigger in Battleground: %u", Trigger);
             break;
     }
+
     //if (buff_guid)
     //    HandleTriggerBuff(buff_guid,Source);
 }
+
 void BattleGroundRL::FillInitialWorldStates(WorldPacket &data)
 {
     data << uint32(0xbb8) << uint32(GetAlivePlayersCountByTeam(ALLIANCE));           // 7
     data << uint32(0xbb9) << uint32(GetAlivePlayersCountByTeam(HORDE));           // 8
     data << uint32(0xbba) << uint32(1);           // 9
 }
+
 void BattleGroundRL::Reset()
 {
     //call parent's reset
     BattleGround::Reset();
 }
+
 bool BattleGroundRL::SetupBattleGround()
 {
     // gates
@@ -140,8 +168,10 @@ bool BattleGroundRL::SetupBattleGround()
         sLog.outErrorDb("BatteGroundRL: Failed to spawn some object!");
         return false;
     }
+
     return true;
 }
+
 /*
 Packet S->C, id 600, SMSG_INIT_WORLD_STATES (706), len 86
 0000: 3C 02 00 00 80 0F 00 00 00 00 00 00 09 00 BA 0B | <...............

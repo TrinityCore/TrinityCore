@@ -1,4 +1,5 @@
 // -*- C++ -*-
+
 //=============================================================================
 /**
  *  @file   CDR_Base.h
@@ -23,16 +24,23 @@
  */
 //=============================================================================
 
+
 #ifndef ACE_CDR_BASE_H
 #define ACE_CDR_BASE_H
+
 #include /**/ "ace/pre.h"
+
 #include /**/ "ace/config-all.h"
+
 #if !defined (ACE_LACKS_PRAGMA_ONCE)
 # pragma once
 #endif /* ACE_LACKS_PRAGMA_ONCE */
+
 #include "ace/Basic_Types.h"
 #include "ace/Default_Constants.h"
+
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
+
 // Stuff used by the ACE CDR classes. Watch these values... they're also used
 // in the ACE_CDR Byte_Order enum below.
 #if defined ACE_LITTLE_ENDIAN
@@ -42,7 +50,9 @@ ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 #  define ACE_CDR_BYTE_ORDER 0
 // big endian encapsulation byte order has value = 0
 #endif /* ! ACE_LITTLE_ENDIAN */
+
 class ACE_Message_Block;
+
 /**
  * @class ACE_CDR
  *
@@ -56,16 +66,19 @@ public:
   // By defining as many of these constants as possible as enums we
   // ensure they get inlined and avoid pointless static memory
   // allocations.
+
   enum
   {
     // Note that some of these get reused as part of the standard
     // binary format: unsigned is the same size as its signed cousin,
     // float is LONG_SIZE, and double is LONGLONG_SIZE.
+
     OCTET_SIZE = 1,
     SHORT_SIZE = 2,
     LONG_SIZE = 4,
     LONGLONG_SIZE = 8,
     LONGDOUBLE_SIZE = 16,
+
     OCTET_ALIGN = 1,
     SHORT_ALIGN = 2,
     LONG_ALIGN = 4,
@@ -73,9 +86,11 @@ public:
     /// @note the CORBA LongDouble alignment requirements do not
     /// match its size...
     LONGDOUBLE_ALIGN = 8,
+
     /// Maximal CDR 1.1 alignment: "quad precision" FP (i.e. "CDR::Long
     /// double", size as above).
     MAX_ALIGNMENT = 8,
+
     /// The default buffer size.
     /**
      * @todo We want to add options to control this
@@ -83,14 +98,17 @@ public:
      *   default value ;-)
      */
     DEFAULT_BUFSIZE = ACE_DEFAULT_CDR_BUFSIZE,
+
     /// The buffer size grows exponentially until it reaches this size;
     /// afterwards it grows linearly using the next constant
     EXP_GROWTH_MAX = ACE_DEFAULT_CDR_EXP_GROWTH_MAX,
+
     /// Once exponential growth is ruled out the buffer size increases
     /// in chunks of this size, note that this constants have the same
     /// value right now, but it does not need to be so.
     LINEAR_GROWTH_CHUNK = ACE_DEFAULT_CDR_LINEAR_GROWTH_CHUNK
   };
+
   /**
    * @enum Byte_Order
    *
@@ -106,6 +124,7 @@ public:
     /// Use whichever byte order is native to this machine.
     BYTE_ORDER_NATIVE = ACE_CDR_BYTE_ORDER
   };
+
   /**
    * Do byte swapping for each basic IDL type size.  There exist only
    * routines to put byte, halfword (2 bytes), word (4 bytes),
@@ -128,9 +147,11 @@ public:
   static void swap_16_array (char const *orig,
                              char *target,
                              size_t length);
+
   /// Align the message block to ACE_CDR::MAX_ALIGNMENT,
   /// set by the CORBA spec at 8 bytes.
   static void mb_align (ACE_Message_Block *mb);
+
   /**
    * Compute the size of the smallest buffer that can contain at least
    * @a minsize bytes.
@@ -142,9 +163,11 @@ public:
    * large value, but does not explode at the end.
    */
   static size_t first_size (size_t minsize);
+
   /// Compute not the smallest, but the second smallest buffer that
   /// will fir @a minsize bytes.
   static size_t next_size (size_t minsize);
+
   /**
    * Increase the capacity of mb to contain at least @a minsize bytes.
    * If @a minsize is zero the size is increased by an amount at least
@@ -153,13 +176,16 @@ public:
    * @retval 0 Success.
    */
   static int grow (ACE_Message_Block *mb, size_t minsize);
+
   /// Copy a message block chain into a single message block,
   /// preserving the alignment of the first message block of the
   /// original stream, not the following message blocks.
   static void consolidate (ACE_Message_Block *dst,
                           const ACE_Message_Block *src);
+
   static size_t total_length (const ACE_Message_Block *begin,
                               const ACE_Message_Block *end);
+
   /**
    * @name Basic OMG IDL Types
    *
@@ -176,6 +202,7 @@ public:
   typedef ACE_INT32 Long;
   typedef ACE_UINT32 ULong;
   typedef ACE_UINT64 ULongLong;
+
 #   if (defined (_MSC_VER)) || (defined (__BORLANDC__))
       typedef __int64 LongLong;
 #   elif ACE_SIZEOF_LONG == 8 && !defined(_CRAYMPP)
@@ -203,6 +230,7 @@ public:
           ACE_CDR::Long l;
           ACE_CDR::Long h;
 #     endif /* ! ACE_BIG_ENDIAN */
+
           /**
            * @name Overloaded Relation Operators.
            *
@@ -214,11 +242,13 @@ public:
           //@}
         };
 #   endif /* no native 64 bit integer type */
+
 #   if defined (NONNATIVE_LONGLONG)
 #     define ACE_CDR_LONGLONG_INITIALIZER {0,0}
 #   else
 #     define ACE_CDR_LONGLONG_INITIALIZER 0
 #   endif /* NONNATIVE_LONGLONG */
+
 #   if ACE_SIZEOF_FLOAT == 4
       typedef float Float;
 #   else  /* ACE_SIZEOF_FLOAT != 4 */
@@ -239,6 +269,7 @@ public:
 #       endif /* ACE_SIZEOF_INT != 4 */
       };
 #   endif /* ACE_SIZEOF_FLOAT != 4 */
+
 #   if ACE_SIZEOF_DOUBLE == 8
       typedef double Double;
 #   else  /* ACE_SIZEOF_DOUBLE != 8 */
@@ -253,10 +284,12 @@ public:
 #       endif /* ACE_SIZEOF_INT != 8 */
       };
 #   endif /* ACE_SIZEOF_DOUBLE != 8 */
+
     // 94-9-32 Appendix A defines a 128 bit floating point "long
     // double" data type, with greatly extended precision and four
     // more bits of exponent (compared to "double").  This is an IDL
     // extension, not yet standard.
+
 #    if   ACE_SIZEOF_LONG_DOUBLE == 16
        typedef long double      LongDouble;
 #      define   ACE_CDR_LONG_DOUBLE_INITIALIZER 0
@@ -281,11 +314,15 @@ public:
 #      else
          typedef long double NativeImpl;
 #      endif /* ACE_CDR_IMPLEMENT_WITH_NATIVE_DOUBLE==1 */
+
          char ld[16];
+
          LongDouble& assign (const NativeImpl& rhs);
          LongDouble& assign (const LongDouble& rhs);
+
          bool operator== (const LongDouble &rhs) const;
          bool operator!= (const LongDouble &rhs) const;
+
          LongDouble& operator*= (const NativeImpl rhs) {
            return this->assign (static_cast<NativeImpl> (*this) * rhs);
          }
@@ -314,22 +351,30 @@ public:
            this->assign (static_cast<NativeImpl> (*this) - 1);
            return ldv;
          }
+
          operator NativeImpl () const;
        };
 #    endif /* ACE_SIZEOF_LONG_DOUBLE != 16 */
+
   //@}
+
 #if !defined (ACE_CDR_GIOP_MAJOR_VERSION)
 #   define ACE_CDR_GIOP_MAJOR_VERSION 1
 #endif /*ACE_CDR_GIOP_MAJOR_VERSION */
+
 #if !defined (ACE_CDR_GIOP_MINOR_VERSION)
 #   define ACE_CDR_GIOP_MINOR_VERSION 2
 #endif /* ACE_CDR_GIOP_MINOR_VERSION */
 };
+
 ACE_END_VERSIONED_NAMESPACE_DECL
+
 #if defined (__ACE_INLINE__)
 # include "ace/CDR_Base.inl"
 #endif  /* __ACE_INLINE__ */
 
+
 #include /**/ "ace/post.h"
+
 #endif /* ACE_CDR_BASE_H */
 

@@ -17,25 +17,31 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
+
 #ifndef _REFMANAGER_H
 #define _REFMANAGER_H
 //=====================================================
+
 #include "Utilities/LinkedList.h"
 #include "Utilities/LinkedReference/Reference.h"
+
 template <class TO, class FROM> class RefManager : public LinkedListHead
 {
     public:
         typedef LinkedListHead::Iterator< Reference<TO, FROM> > iterator;
         RefManager() { }
         virtual ~RefManager() { clearReferences(); }
+
         Reference<TO, FROM>* getFirst() { return ((Reference<TO, FROM>*) LinkedListHead::getFirst()); }
         Reference<TO, FROM> const* getFirst() const { return ((Reference<TO, FROM> const*) LinkedListHead::getFirst()); }
         Reference<TO, FROM>* getLast() { return ((Reference<TO, FROM>*) LinkedListHead::getLast()); }
         Reference<TO, FROM> const* getLast() const { return ((Reference<TO, FROM> const*) LinkedListHead::getLast()); }
+
         iterator begin() { return iterator(getFirst()); }
         iterator end() { return iterator(NULL); }
         iterator rbegin() { return iterator(getLast()); }
         iterator rend() { return iterator(NULL); }
+
         void clearReferences()
         {
             LinkedListElement* ref;
@@ -46,6 +52,7 @@ template <class TO, class FROM> class RefManager : public LinkedListHead
             }
         }
 };
+
 //=====================================================
 #endif
 

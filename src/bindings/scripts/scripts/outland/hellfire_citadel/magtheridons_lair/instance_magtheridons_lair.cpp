@@ -13,50 +13,65 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
+
 /* ScriptData
 SDName: Instance_Magtheridons_Lair
 SD%Complete: 100
 SDComment:
 SDCategory: Hellfire Citadel, Magtheridon's lair
 EndScriptData */
+
 #include "precompiled.h"
 #include "def_magtheridons_lair.h"
+
 #define SPELL_SOUL_TRANSFER         30531 // core bug, does not support target 7
 #define SPELL_BLAZE_TARGET          30541 // core bug, does not support target 7
+
 #define CHAMBER_CENTER_X            -15.14
 #define CHAMBER_CENTER_Y              1.8
 #define CHAMBER_CENTER_Z             -0.4
+
 #define MAX_ENCOUNTER 2
+
 #define EMOTE_BONDS_WEAKEN          "'s bonds begin to weaken!"
+
 struct TRINITY_DLL_DECL instance_magtheridons_lair : public ScriptedInstance
 {
     instance_magtheridons_lair(Map* pMap) : ScriptedInstance(pMap)
     {
         Initialize();
     }
+
     uint32 m_auiEncounter[MAX_ENCOUNTER];
+
     uint64 MagtheridonGUID;
     std::set<uint64> ChannelerGUID;
     uint64 DoorGUID;
     std::set<uint64> ColumnGUID;
+
     uint32 CageTimer;
     uint32 RespawnTimer;
+
     void Initialize()
     {
         memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
+
         MagtheridonGUID = 0;
         ChannelerGUID.clear();
         DoorGUID = 0;
         ColumnGUID.clear();
+
         CageTimer = 0;
         RespawnTimer = 0;
     }
+
     bool IsEncounterInProgress() const
     {
-        for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
+        for(uint8 i = 0; i < MAX_ENCOUNTER; ++i)
             if (m_auiEncounter[i] == IN_PROGRESS) return true;
         return false;
     }
+
     void OnCreatureCreate(Creature* pCreature, bool add)
     {
         switch(pCreature->GetEntry())
@@ -69,6 +84,7 @@ struct TRINITY_DLL_DECL instance_magtheridons_lair : public ScriptedInstance
             break;
         }
     }
+
     void OnGameObjectCreate(GameObject* pGo, bool add)
     {
         switch(pGo->GetEntry())
@@ -90,6 +106,7 @@ struct TRINITY_DLL_DECL instance_magtheridons_lair : public ScriptedInstance
             break;
         }
     }
+
     uint64 GetData64(uint32 type)
     {
         switch(type)
@@ -99,6 +116,7 @@ struct TRINITY_DLL_DECL instance_magtheridons_lair : public ScriptedInstance
         }
         return 0;
     }
+
     void SetData(uint32 type, uint32 data)
     {
         switch(type)
@@ -117,7 +135,7 @@ struct TRINITY_DLL_DECL instance_magtheridons_lair : public ScriptedInstance
                 if (m_auiEncounter[1] != NOT_STARTED)
                 {
                     m_auiEncounter[1] = NOT_STARTED;
-                    for (std::set<uint64>::iterator i = ChannelerGUID.begin(); i != ChannelerGUID.end(); ++i)
+                    for(std::set<uint64>::iterator i = ChannelerGUID.begin(); i != ChannelerGUID.end(); ++i)
                     {
                         if (Creature *Channeler = instance->GetCreature(*i))
                         {
@@ -135,7 +153,7 @@ struct TRINITY_DLL_DECL instance_magtheridons_lair : public ScriptedInstance
                 {
                     m_auiEncounter[1] = IN_PROGRESS;
                     // Let all five channelers aggro.
-                    for (std::set<uint64>::iterator i = ChannelerGUID.begin(); i != ChannelerGUID.end(); ++i)
+                    for(std::set<uint64>::iterator i = ChannelerGUID.begin(); i != ChannelerGUID.end(); ++i)
                     {
                         Creature *Channeler = instance->GetCreature(*i);
                         if (Channeler && Channeler->isAlive())
@@ -151,7 +169,7 @@ struct TRINITY_DLL_DECL instance_magtheridons_lair : public ScriptedInstance
                     HandleGameObject(DoorGUID, false);
                 }break;
             case DONE: // Add buff and check if all channelers are dead.
-                for (std::set<uint64>::iterator i = ChannelerGUID.begin(); i != ChannelerGUID.end(); ++i)
+                for(std::set<uint64>::iterator i = ChannelerGUID.begin(); i != ChannelerGUID.end(); ++i)
                 {
                     Creature *Channeler = instance->GetCreature(*i);
                     if (Channeler && Channeler->isAlive())
@@ -166,19 +184,21 @@ struct TRINITY_DLL_DECL instance_magtheridons_lair : public ScriptedInstance
             break;
         case DATA_COLLAPSE:
             // true - collapse / false - reset
-            for (std::set<uint64>::iterator i = ColumnGUID.begin(); i != ColumnGUID.end(); ++i)
+            for(std::set<uint64>::iterator i = ColumnGUID.begin(); i != ColumnGUID.end(); ++i)
                 DoUseDoorOrButton(*i);
             break;
         default:
             break;
         }
     }
+
     uint32 GetData(uint32 type)
     {
         if (type == DATA_MAGTHERIDON_EVENT)
             return m_auiEncounter[0];
         return 0;
     }
+
     void Update(uint32 diff)
     {
         if (CageTimer)
@@ -194,11 +214,12 @@ struct TRINITY_DLL_DECL instance_magtheridons_lair : public ScriptedInstance
                 CageTimer = 0;
             }else CageTimer -= diff;
         }
+
         if (RespawnTimer)
         {
             if (RespawnTimer <= diff)
             {
-                for (std::set<uint64>::iterator i = ChannelerGUID.begin(); i != ChannelerGUID.end(); ++i)
+                for(std::set<uint64>::iterator i = ChannelerGUID.begin(); i != ChannelerGUID.end(); ++i)
                 {
                     if (Creature *Channeler = instance->GetCreature(*i))
                     {
@@ -213,10 +234,12 @@ struct TRINITY_DLL_DECL instance_magtheridons_lair : public ScriptedInstance
         }
     }
 };
+
 InstanceData* GetInstanceData_instance_magtheridons_lair(Map* pMap)
 {
     return new instance_magtheridons_lair(pMap);
 }
+
 void AddSC_instance_magtheridons_lair()
 {
     Script *newscript;

@@ -17,14 +17,19 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
+
 #ifndef _TILEASSEMBLER_H_
 #define _TILEASSEMBLER_H_
+
 // load our modified version first !!
 #include "AABSPTree.h"
+
 #include <G3D/Vector3.h>
+
 #include "CoordModelMapping.h"
 #include "SubModel.h"
 #include "ModelContainer.h"
+
 namespace VMAP
 {
     /**
@@ -32,6 +37,7 @@ namespace VMAP
     To start the conversion call convertWorld().
     */
     //===============================================
+
     class ModelPosition
     {
         private:
@@ -44,15 +50,18 @@ namespace VMAP
             float iScale;
             void init()
             {
+
                 // Swap x and y the raw data uses the axis differently
                 ixMatrix = G3D::Matrix3::fromAxisAngle(G3D::Vector3::unitY(),-(G3D::pi()*iDir.x/180.0));
                 iyMatrix = G3D::Matrix3::fromAxisAngle(G3D::Vector3::unitX(),-(G3D::pi()*iDir.y/180.0));
                 izMatrix = G3D::Matrix3::fromAxisAngle(G3D::Vector3::unitZ(),-(G3D::pi()*iDir.z/180.0));
+
             }
             G3D::Vector3 transform(const G3D::Vector3& pIn) const;
             void moveToBasePos(const G3D::Vector3& pBasePos) { iPos -= pBasePos; }
     };
     //===============================================
+
     class TileAssembler
     {
         private:
@@ -62,13 +71,17 @@ namespace VMAP
             bool (*iFilterMethod)(char *pName);
             G3D::Table<std::string, unsigned int > iUniqueNameIds;
             unsigned int iCurrentUniqueNameId;
+
         public:
             TileAssembler(const std::string& pSrcDirName, const std::string& pDestDirName);
             virtual ~TileAssembler();
+
             bool fillModelContainerArray(const std::string& pDirFileName, unsigned int pMapId, int pXPos, int pYPos, G3D::Array<ModelContainer*>& pMC);
             ModelContainer* processNames(const G3D::Array<std::string>& pPosFileNames, const char* pDestFileName);
+
             void init();
             bool convertWorld();
+
             bool fillModelIntoTree(G3D::AABSPTree<SubModel *> *pMainTree, const G3D::Vector3& pBasePos, std::string& pPosFilename, std::string& pModelFilename);
             void getModelPosition(std::string& pPosString, ModelPosition& pModelPosition);
             bool readRawFile(std::string& pModelFilename,  ModelPosition& pModelPosition, G3D::AABSPTree<SubModel *> *pMainTree);

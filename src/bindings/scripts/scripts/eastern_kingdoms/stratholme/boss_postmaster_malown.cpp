@@ -13,30 +13,38 @@
 * along with this program; if not, write to the Free Software
 * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 */
+
 /* ScriptData
 SDName: boss_postmaster_malown
 SD%Complete: 50
 SDComment:
 SDCategory: Stratholme
 EndScriptData */
+
 #include "precompiled.h"
+
 //Spell ID to summon this guy is 24627 "Summon Postmaster Malown"
 //He should be spawned along with three other elites once the third postbox has been opened
+
 #define SAY_MALOWNED    "You just got MALOWNED!"
+
 #define SPELL_WAILINGDEAD    7713
 #define SPELL_BACKHAND    6253
 #define SPELL_CURSEOFWEAKNESS    8552
 #define SPELL_CURSEOFTONGUES    12889
 #define SPELL_CALLOFTHEGRAVE    17831
+
 struct TRINITY_DLL_DECL boss_postmaster_malownAI : public ScriptedAI
 {
     boss_postmaster_malownAI(Creature *c) : ScriptedAI(c) {}
+
     uint32 WailingDead_Timer;
     uint32 Backhand_Timer;
     uint32 CurseOfWeakness_Timer;
     uint32 CurseOfTongues_Timer;
     uint32 CallOfTheGrave_Timer;
     bool HasYelled;
+
     void Reset()
     {
         WailingDead_Timer = 19000; //lasts 6 sec
@@ -46,14 +54,17 @@ struct TRINITY_DLL_DECL boss_postmaster_malownAI : public ScriptedAI
         CallOfTheGrave_Timer = 25000;
         HasYelled = false;
     }
+
     void EnterCombat(Unit *who)
     {
     }
+
     void UpdateAI(const uint32 diff)
     {
         //Return since we have no target
         if (!UpdateVictim())
             return;
+
         //WailingDead
         if (WailingDead_Timer < diff)
         {
@@ -65,6 +76,7 @@ struct TRINITY_DLL_DECL boss_postmaster_malownAI : public ScriptedAI
             //19 seconds until we should cast this again
             WailingDead_Timer = 19000;
         }else WailingDead_Timer -= diff;
+
         //Backhand
         if (Backhand_Timer < diff)
         {
@@ -76,6 +88,7 @@ struct TRINITY_DLL_DECL boss_postmaster_malownAI : public ScriptedAI
             //8 seconds until we should cast this again
             Backhand_Timer = 8000;
         }else Backhand_Timer -= diff;
+
         //CurseOfWeakness
         if (CurseOfWeakness_Timer < diff)
         {
@@ -87,6 +100,7 @@ struct TRINITY_DLL_DECL boss_postmaster_malownAI : public ScriptedAI
             //20 seconds until we should cast this again
             CurseOfWeakness_Timer = 20000;
         }else CurseOfWeakness_Timer -= diff;
+
         //CurseOfTongues
         if (CurseOfTongues_Timer < diff)
         {
@@ -98,6 +112,7 @@ struct TRINITY_DLL_DECL boss_postmaster_malownAI : public ScriptedAI
             //22 seconds until we should cast this again
             CurseOfTongues_Timer = 22000;
         }else CurseOfTongues_Timer -= diff;
+
         //CallOfTheGrave
         if (CallOfTheGrave_Timer < diff)
         {
@@ -109,6 +124,7 @@ struct TRINITY_DLL_DECL boss_postmaster_malownAI : public ScriptedAI
             //25 seconds until we should cast this again
             CallOfTheGrave_Timer = 25000;
         }else CallOfTheGrave_Timer -= diff;
+
         DoMeleeAttackIfReady();
     }
 };
@@ -116,6 +132,7 @@ CreatureAI* GetAI_boss_postmaster_malown(Creature* pCreature)
 {
     return new boss_postmaster_malownAI (pCreature);
 }
+
 void AddSC_boss_postmaster_malown()
 {
     Script *newscript;

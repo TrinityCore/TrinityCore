@@ -1,4 +1,5 @@
 // -*- C++ -*-
+
 //==========================================================================
 /**
  *  @file    SOCK_IO.h
@@ -8,15 +9,22 @@
  *  @author Douglas C. Schmidt <schmidt@cs.wustl.edu>
  */
 //==========================================================================
+
 #ifndef ACE_SOCK_IO_H
 #define ACE_SOCK_IO_H
+
 #include /**/ "ace/pre.h"
+
 #include "ace/SOCK.h"
+
 #if !defined (ACE_LACKS_PRAGMA_ONCE)
 # pragma once
 #endif /* ACE_LACKS_PRAGMA_ONCE */
+
 #include "ace/ACE.h"
+
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
+
 /**
  * @class ACE_SOCK_IO
  *
@@ -42,23 +50,29 @@ class ACE_Export ACE_SOCK_IO : public ACE_SOCK
 {
 public:
   // = Initialization and termination methods.
+
   /// Constructor.
   ACE_SOCK_IO (void);
+
   /// Destructor.
   ~ACE_SOCK_IO (void);
+
   /// Recv an @a n byte buffer from the connected socket.
   ssize_t recv (void *buf,
                 size_t n,
                 int flags,
                 const ACE_Time_Value *timeout = 0) const;
+
   /// Recv an @a n byte buffer from the connected socket.
   ssize_t recv (void *buf,
                 size_t n,
                 const ACE_Time_Value *timeout = 0) const;
+
   /// Recv an <iovec> of size @a n from the connected socket.
   ssize_t recvv (iovec iov[],
                  int n,
                  const ACE_Time_Value *timeout = 0) const;
+
   /**
    * Allows a client to read from a socket without having to provide a
    * buffer to read.  This method determines how much data is in the
@@ -69,42 +83,55 @@ public:
    */
   ssize_t recvv (iovec *io_vec,
                  const ACE_Time_Value *timeout = 0) const;
+
   /// Recv @a n varargs messages to the connected socket.
   ssize_t recv (size_t n,
                 ...) const;
+
   /// Recv @a n bytes via Win32 @c ReadFile using overlapped I/O.
   ssize_t recv (void *buf,
                 size_t n,
                 ACE_OVERLAPPED *overlapped) const;
+
   /// Send an @a n byte buffer to the connected socket.
   ssize_t send (const void *buf,
                 size_t n,
                 int flags,
                 const ACE_Time_Value *timeout = 0) const;
+
   /// Send an @a n byte buffer to the connected socket.
   ssize_t send (const void *buf,
                 size_t n,
                 const ACE_Time_Value *timeout = 0) const;
+
   /// Send an @c iovec of size @a n to the connected socket.
   ssize_t sendv (const iovec iov[],
                  int n,
                  const ACE_Time_Value *timeout = 0) const;
+
   /// Send @a n varargs messages to the connected socket.
   ssize_t send (size_t n,
                 ...) const;
+
   /// Send @a n bytes via Win32 <WriteFile> using overlapped I/O.
   ssize_t send (const void *buf,
                 size_t n,
                 ACE_OVERLAPPED *overlapped) const;
+
   /// Dump the state of an object.
   void dump (void) const;
+
   /// Declare the dynamic allocation hooks.
   ACE_ALLOC_HOOK_DECLARE;
 };
+
 ACE_END_VERSIONED_NAMESPACE_DECL
+
 #if defined (__ACE_INLINE__)
 #include "ace/SOCK_IO.inl"
 #endif /* __ACE_INLINE__ */
+
 #include /**/ "ace/post.h"
+
 #endif /* ACE_SOCK_IO_H */
 

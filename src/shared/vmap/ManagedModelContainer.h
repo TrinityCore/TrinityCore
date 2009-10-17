@@ -17,16 +17,21 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
+
 #ifndef _MANAGEDMODELCONTAINER_H
 #define _MANAGEDMODELCONTAINER_H
+
 #include "ModelContainer.h"
+
 //=======================================================
 /**
 This is a ModelContainer with reference count information.
 */
+
 namespace VMAP
 {
     //=======================================================
+
     class ManagedModelContainer :
     public ModelContainer
     {
@@ -35,10 +40,12 @@ namespace VMAP
         public:
             ManagedModelContainer(void) ;
             ~ManagedModelContainer(void);
+
             void incRefCount() { ++refCount; }
             void decRefCount() { --refCount; if(refCount < 0) refCount = 0; }
             int getRefCount() { return refCount; }
     };
+
     //=======================================================
 }
 #endif

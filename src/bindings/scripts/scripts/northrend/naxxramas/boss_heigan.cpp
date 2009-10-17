@@ -13,15 +13,19 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
+
 #include "precompiled.h"
 #include "def_naxxramas.h"
+
 #define SAY_AGGRO           RAND(-1533109,-1533110,-1533111)
 #define SAY_SLAY            -1533112
 #define SAY_TAUNT           RAND(-1533113,-1533114,-1533115,-1533116,-1533117)
 #define SAY_DEATH           -1533118
+
 #define SPELL_SPELL_DISRUPTION  29310
 #define SPELL_DECREPIT_FEVER    HEROIC(29998,55011)
 #define SPELL_PLAGUE_CLOUD      29350
+
 enum Events
 {
     EVENT_DISRUPT   = 1,
@@ -29,35 +33,43 @@ enum Events
     EVENT_ERUPT,
     EVENT_PHASE,
 };
+
 enum Phases
 {
     PHASE_FIGHT = 1,
     PHASE_DANCE,
 };
+
 //Spell by eye stalks
 #define SPELL_MIND_FLAY     26143
+
 struct TRINITY_DLL_DECL boss_heiganAI : public BossAI
 {
     boss_heiganAI(Creature *c) : BossAI(c, BOSS_HEIGAN) {}
+
     uint32 eruptSection;
     bool eruptDirection;
     Phases phase;
+
     void KilledUnit(Unit* Victim)
     {
         if (!(rand()%5))
             DoScriptText(SAY_SLAY, me);
     }
+
     void JustDied(Unit* Killer)
     {
         _JustDied();
         DoScriptText(SAY_DEATH, me);
     }
+
     void EnterCombat(Unit *who)
     {
         _EnterCombat();
         DoScriptText(SAY_AGGRO, me);
         EnterPhase(PHASE_FIGHT);
     }
+
     void EnterPhase(Phases newPhase)
     {
         phase = newPhase;
@@ -80,11 +92,14 @@ struct TRINITY_DLL_DECL boss_heiganAI : public BossAI
             events.ScheduleEvent(EVENT_ERUPT, 5000);
         }
     }
+
     void UpdateAI(const uint32 diff)
     {
         if (!UpdateVictim() || !CheckInRoom())
             return;
+
         events.Update(diff);
+
         while(uint32 eventId = events.ExecuteEvent())
         {
             switch(eventId)
@@ -103,22 +118,28 @@ struct TRINITY_DLL_DECL boss_heiganAI : public BossAI
                 case EVENT_ERUPT:
                     instance->SetData(DATA_HEIGAN_ERUPT, eruptSection);
                     TeleportCheaters();
+
                     if (eruptSection == 0)
                         eruptDirection = true;
                     else if (eruptSection == 3)
                         eruptDirection = false;
+
                     eruptDirection ? ++eruptSection : --eruptSection;
+
                     events.ScheduleEvent(EVENT_ERUPT, phase == PHASE_FIGHT ? 10000 : 3000);
                     break;
             }
         }
+
         DoMeleeAttackIfReady();
     }
 };
+
 CreatureAI* GetAI_boss_heigan(Creature* pCreature)
 {
     return new boss_heiganAI (pCreature);
 }
+
 void AddSC_boss_heigan()
 {
     Script *newscript;

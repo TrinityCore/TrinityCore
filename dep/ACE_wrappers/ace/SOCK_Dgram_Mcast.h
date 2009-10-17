@@ -1,4 +1,5 @@
 // -*- C++ -*-
+
 //=============================================================================
 /**
  *  @file    SOCK_Dgram_Mcast.h
@@ -12,15 +13,21 @@
  *  @author Don Hinton <dhinton@objectsciences.com>
  */
 //=============================================================================
+
 #ifndef ACE_SOCK_DGRAM_MCAST_H
 #define ACE_SOCK_DGRAM_MCAST_H
+
 #include /**/ "ace/pre.h"
+
 #include /**/ "ace/ACE_export.h"
+
 #if !defined (ACE_LACKS_PRAGMA_ONCE)
 # pragma once
 #endif /* ACE_LACKS_PRAGMA_ONCE */
+
 #include "ace/SOCK_Dgram.h"
 #include "ace/INET_Addr.h"
+
 #if defined (ACE_SOCK_DGRAM_MCAST_DUMPABLE)
 # include "ace/Containers_T.h"
 # include "ace/Synch_Traits.h"
@@ -29,7 +36,9 @@
 #  define ACE_SDM_LOCK ACE_SYNCH_MUTEX
 # endif /* ACE_SDM_LOCK */
 #endif /* ACE_SOCK_DGRAM_MCAST_DUMPABLE */
+
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
+
 /**
  * @class ACE_SOCK_Dgram_Mcast
  *
@@ -85,6 +94,7 @@ ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 class ACE_Export ACE_SOCK_Dgram_Mcast : public ACE_SOCK_Dgram
 {
 public:
+
   /**
    * @brief Option parameters.
    *
@@ -166,7 +176,9 @@ public:
     /// All default options.
     DEFOPTS = DEFOPT_BINDADDR | DEFOPT_NULLIFACE
   };
+
   // = Initialization routines.
+
   /// Ctor - Create an unitialized instance and define per-instance optional
   /// functionality.
   /**
@@ -174,6 +186,7 @@ public:
    * operational parameters, before performing any I/O with this instance.
    */
   ACE_SOCK_Dgram_Mcast (options opts = DEFOPTS);
+
   /// Dtor - Release all resources and implicitly or explicitly unsubscribe
   /// from all currently subscribed groups.
   /**
@@ -182,6 +195,7 @@ public:
    * unsubscribe upon the close of the socket.
    */
   ~ACE_SOCK_Dgram_Mcast (void);
+
   /// Explicitly open/bind the socket and define the network interface
   /// and default multicast address used for sending messages.
   /**
@@ -207,7 +221,9 @@ public:
   int open (const ACE_INET_Addr &mcast_addr,        // Bound & sendto address.
             const ACE_TCHAR *net_if = 0,            // Net interface for sends.
             int reuse_addr = 1);                    // Reuse addr/port sock opt.
+
   // = Multicast group subscribe/unsubscribe routines.
+
   /// Join a multicast group on a given interface (or all interfaces, if
   /// supported).
   /**
@@ -241,6 +257,7 @@ public:
             int reuse_addr = 1,               // (see above)
             const ACE_TCHAR *net_if = 0);
 
+
   /// Leave a multicast group on a given interface (or all interfaces, if
   /// supported).
   /**
@@ -260,18 +277,23 @@ public:
    */
   int leave (const ACE_INET_Addr &mcast_addr,
              const ACE_TCHAR *net_if = 0);
+
   // = Data transfer routines.
+
   /// Send @a n bytes in @a buf, using the multicast address and network interface
   /// defined by the first <open> or <subscribe>.
   ssize_t send (const void *buf,
                 size_t n,
                 int flags = 0) const;
+
   /// Send @a n <iovecs>, using the multicast address and network interface
   /// defined by the first <open> or <subscribe>.
   ssize_t send (const iovec iov[],
                 int n,
                 int flags = 0) const;
+
   // = Options.
+
   /// Set a socket option.
   /**
    * Set an IP option that takes a char as input, such as IP_MULTICAST_LOOP
@@ -285,47 +307,61 @@ public:
    * easily with with IPv6 options. Use ACE_SOCK::set_option instead.
    */
   int set_option (int option, char optval);
+
   /// Dump the state of an object.
   /**
    * Logs the setting of all options, the bound address, the send address and
    * interface, and the list of current subscriptions.
    */
   void dump (void) const;
+
   /// Declare the dynamic allocation hooks.
   ACE_ALLOC_HOOK_DECLARE;
+
 private:
+
   /// Subscribe to a multicast address on one or more network interface(s).
   /// (No QoS support.)
   int subscribe_ifs (const ACE_INET_Addr &mcast_addr,
                      const ACE_TCHAR *net_if,
                      int reuse_addr);
+
   /// Do subscription processing w/out updating the subscription list.
   // (Layered method for <subscribe> processing).
   int subscribe_i (const ACE_INET_Addr &mcast_addr,
                    int reuse_addr = 1,
                    const ACE_TCHAR *net_if = 0);
+
   /// Unsubscribe from a multicast address on one or more network interface(s).
   int unsubscribe_ifs (const ACE_INET_Addr &mcast_addr,
                        const ACE_TCHAR *net_if = 0);
+
   /// Do unsubscription processing w/out udpating subscription list.
   //  (Layered method for <unsubscribe> processing).
   int unsubscribe_i (const ACE_INET_Addr &mcast_addr,
                      const ACE_TCHAR *net_if = 0);
+
 protected:
+
   /// Contains common open functionality so that inheriting classes can
   /// reuse it.
   int open_i (const ACE_INET_Addr &mcast_addr,        // Bound & sendto address.
               const ACE_TCHAR *net_if = 0,            // Net interface for sends.
               int reuse_addr = 1);
+
   /// Empty the dynamic subscription list.
   int clear_subs_list (void);
+
 private:
+
   /// Per-instance options..
   int opts_;
+
   /// Multicast address to which local <send> methods send datagrams.
   ACE_INET_Addr  send_addr_;
   /// Network interface to which all <send> methods send multicast datagrams.
   ACE_TCHAR *send_net_if_;
+
 #if defined (ACE_SOCK_DGRAM_MCAST_DUMPABLE)
  typedef ACE_DLList<ip_mreq>  subscription_list_t;
  typedef ACE_DLList_Iterator<ip_mreq>  subscription_list_iter_t;
@@ -335,11 +371,15 @@ private:
  mutable ACE_SDM_LOCK subscription_list_lock_;
      // (Lock type does not need to support recursive locking.)
 #endif /* ACE_SOCK_DGRAM_MCAST_DUMPABLE */
+
 };
+
 ACE_END_VERSIONED_NAMESPACE_DECL
+
 #if defined (__ACE_INLINE__)
 #include "ace/SOCK_Dgram_Mcast.inl"
 #endif /* __ACE_INLINE__ */
+
 #include /**/ "ace/post.h"
 #endif /* ACE_SOCK_DGRAM_MCAST_H */
 

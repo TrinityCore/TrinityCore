@@ -17,34 +17,45 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
+
 #include "CoordModelMapping.h"
+
 #include <string.h>
 #include <stdio.h>
+
 using namespace G3D;
+
 namespace VMAP
 {
+
     //============================================================
     //============================================================
+
     void CMappingEntry::addFilename(char *pName)
     {
         std::string name = std::string(pName);
         if(!iFilenames.contains(name))
             iFilenames.append(std::string(pName));
     }
+
     //============================================================
+
     const std::string CMappingEntry::getKeyString() const
     {
         return(CMappingEntry::getKeyString(iMapId,xPos, yPos));
     }
+
     const std::string CMappingEntry::getKeyString( unsigned int pMapId, int pXPos, int pYPos )
     {
         char b[100];
         sprintf(b,"%03u_%d_%d", pMapId, pXPos, pYPos);
         return(std::string(b));
     }
+
     //============================================================
     //============================================================
     //============================================================
+
     CoordModelMapping::~CoordModelMapping()
     {
         Array<std::string> keys = iMapObjectFiles.getKeys();
@@ -58,7 +69,9 @@ namespace VMAP
             }
         }
     }
+
     //============================================================
+
     int findPosChar(const char *namebuffer, char pSearch, int pCount)
     {
         int result = -1;
@@ -87,7 +100,9 @@ namespace VMAP
             printf("ERROR: Can't open file: %s\n",pDirectoryFileName.c_str());
             return false;
         }
+
         char buffer[500+1];
+
         CMappingEntry* cMappingEntry;
         while(fgets(buffer, 500, f))
         {
@@ -96,7 +111,9 @@ namespace VMAP
             int xpos, ypos, noVec;
             float scale;
             xpos = ypos = noVec = 0;
+
             //sscanf(buffer, "%d %d %s %s %f %d", &xpos, &ypos, namebuffer,positionbuffer, &scale, &noVec);
+
             // this is ugly, but the format has no read delimiter and a space could be in the first part of the name
             int nameStart = findPosChar(buffer, ' ', 2);// find the 2. space
             if(nameStart > -1 && (iFilterMethod == NULL || (*iFilterMethod)(buffer)))
@@ -107,6 +124,7 @@ namespace VMAP
                 // find the 1. space (after the name)
                 nameEnd += findPosChar(&buffer[nameEnd], ' ', 1);
                 buffer[nameEnd] = 0;                    // terminate the name
+
                 sscanf(buffer, "%d %d", &xpos, &ypos);
                 sscanf(&buffer[nameEnd+1], "%s %f %d", positionbuffer, &scale, &noVec);
                 unsigned int mapId = getMapIdFromFilename(std::string(&buffer[nameStart]));
@@ -120,6 +138,7 @@ namespace VMAP
                     xpos = 0;                           // store all files under the groupKey
                     ypos = 0;
                 }
+
                 std::string key = CMappingEntry::getKeyString(mapId, xpos, ypos);
                 cMappingEntry = getCMappingEntry(key);
                 if(cMappingEntry == 0)
@@ -136,15 +155,19 @@ namespace VMAP
         fclose(f);
         return true;
     }
+
     //============================================================
+
     const NameCollection CoordModelMapping::getFilenamesForCoordinate(unsigned int pMapId, int xPos, int yPos)
     {
         NameCollection result;
         Array<std::string> rawNames;
+
         CMappingEntry *entry = getCMappingEntry(CMappingEntry::getKeyString(pMapId, xPos, yPos));
         if(entry != 0)
         {
             rawNames = entry->getFilenames();
+
             int pos = 0;
             while(pos < rawNames.size())
             {
@@ -170,6 +193,8 @@ namespace VMAP
         }
         return result;
     }
+
     //=================================================================
+
 }
 

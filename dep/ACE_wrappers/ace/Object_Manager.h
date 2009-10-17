@@ -1,4 +1,5 @@
 /* -*- C++ -*- */
+
 //=============================================================================
 /**
  *  @file    Object_Manager.h
@@ -10,50 +11,68 @@
  *  @author Per Andersson
  */
 //=============================================================================
+
 #ifndef ACE_OBJECT_MANAGER_H
 #define ACE_OBJECT_MANAGER_H
 #include /**/ "ace/pre.h"
+
 #include /**/ "ace/ACE_export.h"
 #include "ace/Object_Manager_Base.h"
 #include "ace/Global_Macros.h"
+
 #if !defined (ACE_LACKS_PRAGMA_ONCE)
 # pragma once
 #endif /* ACE_LACKS_PRAGMA_ONCE */
+
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
+
 // Forward declarations.
 class ACE_Object_Manager_Preallocations;
 class ACE_Sig_Adapter;
 class ACE_Sig_Set;
+
 ACE_END_VERSIONED_NAMESPACE_DECL
+
 #if defined (ACE_MT_SAFE) && (ACE_MT_SAFE != 0)
+
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
+
   class ACE_Mutex;
   class ACE_Null_Mutex;
   class ACE_Thread_Mutex;
   class ACE_Recursive_Thread_Mutex;
   class ACE_RW_Thread_Mutex;
+
 ACE_END_VERSIONED_NAMESPACE_DECL
+
 #  include "ace/Recursive_Thread_Mutex.h"
 #endif /* ACE_MT_SAFE */
+
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
+
 // only used by ACE_OS_Object_Manager::ctor
 # if defined (ACE_WIN32)
 // Default WIN32 structured exception handler.
 int ACE_SEH_Default_Exception_Selector (void *);
 int ACE_SEH_Default_Exception_Handler (void *);
 # endif /* ACE_WIN32 */
+
 class ACE_Cleanup_Info_Node;
 template <class T> class ACE_Cleanup_Adapter;
+
 // Configuration parameters.
 #if !defined (ACE_MAX_MANAGED_OBJECTS)
 # define ACE_MAX_MANAGED_OBJECTS 128
 #endif /* ! ACE_MAX_MANAGED_OBJECTS */
+
 #if !defined (ACE_APPLICATION_PREALLOCATED_OBJECT_DECLARATIONS)
 # define ACE_APPLICATION_PREALLOCATED_OBJECT_DECLARATIONS
 #endif /* ! ACE_APPLICATION_PREALLOCATED_OBJECT_DECLARATIONS */
+
 #if !defined (ACE_APPLICATION_PREALLOCATED_ARRAY_DECLARATIONS)
 # define ACE_APPLICATION_PREALLOCATED_ARRAY_DECLARATIONS
 #endif /* ! ACE_APPLICATION_PREALLOCATED_ARRAY_DECLARATIONS */
+
 /**
  * @class ACE_Object_Manager
  *
@@ -178,6 +197,7 @@ template <class T> class ACE_Cleanup_Adapter;
  */
 class ACE_Export ACE_Object_Manager : public ACE_Object_Manager_Base
 {
+
 public:
   /**
    * Explicitly initialize (construct the singleton instance of) the
@@ -185,12 +205,14 @@ public:
    * if it had already been called.
    */
   virtual int init (void);
+
   /**
    * Explicitly destroy the singleton instance of the
    * ACE_Object_Manager.  Returns 0 on success, -1 on failure, and 1
    * if it had already been called.
    */
   virtual int fini (void);
+
   /**
    * Returns 1 before the ACE_Object_Manager has been constructed.
    * This flag can be used to determine if the program is constructing
@@ -201,6 +223,7 @@ public:
    * defined.)
    */
   static int starting_up (void);
+
   /**
    * Returns 1 after the ACE_Object_Manager has been destroyed.  This
    * flag can be used to determine if the program is in the midst of
@@ -209,6 +232,7 @@ public:
    * ACE_HAS_NONSTATIC_OBJECT_MANAGER is not defined.)
    */
   static int shutting_down (void);
+
   /**
    * Register an ACE_Cleanup object for cleanup at process
    * termination.  The object is deleted via the
@@ -220,10 +244,12 @@ public:
    * if the object (or array) had already been registered.
    */
   static int at_exit (ACE_Cleanup *object, void *param = 0);
+
 #if defined (ACE_HAS_TSS_EMULATION)
   static int init_tss (void);
   int init_tss_i (void);
 #endif
+
   /**
    * Register an object (or array) for cleanup at process termination.
    * "cleanup_hook" points to a (global, or static member) function
@@ -241,6 +267,7 @@ public:
   static int at_exit (void *object,
                       ACE_CLEANUP_FUNC cleanup_hook,
                       void *param);
+
 #if 0 /* not implemented yet */
   /// Similar to <at_exit>, except that the cleanup_hook is called
   /// when the current thread exits instead of when the program terminates.
@@ -248,6 +275,7 @@ public:
                              ACE_CLEANUP_FUNC cleanup_hook,
                              void *param);
 #endif /* 0 */
+
   /// Unique identifiers for preallocated objects.  Please see
   /// ace/Managed_Object.h for information on accessing preallocated
   /// objects.
@@ -270,10 +298,13 @@ public:
 #endif /* ! ACE_LACKS_ACE_TOKEN */
       ACE_PROACTOR_EVENT_LOOP_LOCK,
 #endif /* ACE_MT_SAFE */
+
       // Hook for preallocated objects provided by application.
       ACE_APPLICATION_PREALLOCATED_OBJECT_DECLARATIONS
+
       ACE_PREALLOCATED_OBJECTS  // This enum value must be last!
     };
+
   /// Unique identifiers for preallocated arrays.  Please see
   /// ace/Managed_Object.h for information on accessing preallocated
   /// arrays.
@@ -284,56 +315,69 @@ public:
       /// the the preallocated_array size is at least one by declaring
       /// this dummy . . .
       ACE_EMPTY_PREALLOCATED_ARRAY,
+
       /// Hook for preallocated arrays provided by application.
       ACE_APPLICATION_PREALLOCATED_ARRAY_DECLARATIONS
+
       ACE_PREALLOCATED_ARRAYS  // This enum value must be last!
     };
+
   /**
    * @deprecated Accesses a default signal set used, for example,
    * in ACE_Sig_Guard methods.
    * Deprecated: use ACE_Object_Manager::default_mask () instead.
    */
   static ACE_Sig_Set &default_mask (void);
+
 private:
   /// For at_exit support.
   ACE_OS_Exit_Info exit_info_;
+
 #if !defined (ACE_LACKS_ACE_SVCCONF)
   /// Preallocated objects collection.
   ACE_Object_Manager_Preallocations *preallocations_;
+
   /// ACE_Service_Config signal handler.
   ACE_Sig_Adapter *ace_service_config_sig_handler_;
 #endif /* ! ACE_LACKS_ACE_SVCCONF */
+
   /// Register an object or array for deletion at program termination.
   /// See description of static version above for return values.
   int at_exit_i (void *object, ACE_CLEANUP_FUNC cleanup_hook, void *param);
+
 #if defined (ACE_MT_SAFE) && (ACE_MT_SAFE != 0)
 public:
   // = The <get_singleton_lock> accessors are for internal
   // use by ACE_Singleton _only_.
+
   /**
    * Accesses an ACE_Null_Mutex to be used for construction of
    * ACE_Singletons.  Returns 0, and the lock in the argument, on
    * success; returns -1 on failure.
    */
   static int get_singleton_lock (ACE_Null_Mutex *&);
+
   /**
    * Accesses a non-recursive ACE_Thread_Mutex to be used for
    * construction of ACE_Singletons.  Returns 0, and the lock in the
    * argument, on success; returns -1 on failure.
    */
   static int get_singleton_lock (ACE_Thread_Mutex *&);
+
   /**
    * Accesses a non-recursive ACE_Mutex to be used for construction
    * of ACE_Singletons.  Returns 0, and the lock in the argument, on
    * success; returns -1 on failure.
    */
   static int get_singleton_lock (ACE_Mutex *&);
+
   /**
    * Accesses a recursive ACE_Recursive_Thread_Mutex to be used for
    * construction of ACE_Singletons.  Returns 0, and the lock in the
    * argument, on success; returns -1 on failure.
    */
   static int get_singleton_lock (ACE_Recursive_Thread_Mutex *&);
+
   /**
    * Accesses a readers/writer ACE_RW_Thread_Mutex to be used for
    * construction of ACE_Singletons.  Returns 0, and the lock in the
@@ -341,18 +385,23 @@ public:
    */
   static int get_singleton_lock (ACE_RW_Thread_Mutex *&);
 #endif /* ACE_MT_SAFE */
+
 public:
   // For internal use only by ACE_Managed_Objects.
+
   /**
    * Accessor to singleton instance.  Because static member functions
    * are provided in the interface, this should not be public.  However,
    * it is public so that ACE_Managed_Object<TYPE> can access it.
    */
   static ACE_Object_Manager *instance (void);
+
   /// Table of preallocated objects.
   static void *preallocated_object[ACE_PREALLOCATED_OBJECTS];
+
   /// Table of preallocated arrays.
   static void *preallocated_array[ACE_PREALLOCATED_ARRAYS];
+
 public:
   // Application code should not use these explicitly, so they're
   // hidden here.  They're public so that the ACE_Object_Manager can
@@ -360,36 +409,48 @@ public:
   // ACE_HAS_NONSTATIC_OBJECT_MANAGER.
   ACE_Object_Manager (void);
   ~ACE_Object_Manager (void);
+
 private:
   /// Singleton pointer.
   static ACE_Object_Manager *instance_;
+
 #if defined (ACE_MT_SAFE) && (ACE_MT_SAFE != 0)
   /// Lock that is used to guard internal structures.
   ACE_Recursive_Thread_Mutex *internal_lock_;
+
   /// Null lock for guarding singleton creation.
   ACE_Cleanup_Adapter<ACE_Null_Mutex> *singleton_null_lock_;
+
   /// Lock for guarding singleton creation, when Object_Manager
   /// hasn't been started up, or has already been shut down.
   ACE_Cleanup_Adapter<ACE_Recursive_Thread_Mutex> *singleton_recursive_lock_;
 #endif /* ACE_MT_SAFE */
+
 #if defined (ACE_HAS_TSS_EMULATION)
   // Main thread's thread-specific storage array.
   void *ts_storage_[ACE_TSS_Emulation::ACE_TSS_THREAD_KEYS_MAX];
   bool ts_storage_initialized_;
 #endif /* ACE_HAS_TSS_EMULATION */
+
 #if !defined (ACE_HAS_NONSTATIC_OBJECT_MANAGER)
   friend class ACE_Object_Manager_Manager;
 #endif /* ACE_HAS_NONSTATIC_OBJECT_MANAGER */
+
   // Disallow copying by not implementing the following . . .
   ACE_Object_Manager (const ACE_Object_Manager &);
   ACE_Object_Manager &operator= (const ACE_Object_Manager &);
 };
+
 ACE_END_VERSIONED_NAMESPACE_DECL
+
 #include "ace/Static_Object_Lock.h"
+
 #if defined (__ACE_INLINE__)
 #include "ace/Object_Manager.inl"
 #endif /* __ACE_INLINE__ */
+
 #include "ace/Managed_Object.h"
+
 #if !defined (ACE_LACKS_ACE_SVCCONF)
 // We can't use the ACE_SVC_FACTORY_DECLARE macro here because this
 // needs to be in the ACE_Export context rather than the
@@ -399,6 +460,7 @@ class ACE_Service_Object;
 ACE_END_VERSIONED_NAMESPACE_DECL
 ACE_FACTORY_DECLARE (ACE, ACE_Service_Manager)
 #endif /* ! ACE_LACKS_ACE_SVCCONF */
+
 
 #include /**/ "ace/post.h"
 #endif /* ACE_OBJECT_MANAGER_H */

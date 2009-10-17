@@ -5,10 +5,12 @@ SD%Complete:
 SDComment:
 SDCategory:
 Script Data End */
+
 /*** SQL START ***
 update creature_template set scriptname = '' where entry = '';
 *** SQL END ***/
 #include "precompiled.h"
+
 //Spells
 #define SPELL_ARCANE_BREATH_N                        56272
 #define SPELL_ARCANE_BREATH_H                        60072
@@ -21,6 +23,7 @@ update creature_template set scriptname = '' where entry = '';
 #define SPELL_SURGE_OF_POWER_2                       57407
 #define SPELL_SURGE_OF_POWER_3                       60936
 #define SPELL_VORTEX                                 56105
+
 //Dragon "mounts" spells in Phase3
 //they use Rugelike energy
 #define SPELL_DMOUNT_FLAME_SPIKE                     56091 //maybe not accurate
@@ -29,6 +32,7 @@ update creature_template set scriptname = '' where entry = '';
 #define SPELL_DMOUNT_LIFE_BURST                      57143
 #define SPELL_DMOUNT_FLAME_SHIELD                    57108
 //#define SPELL_DMOUNT_UNKNOWN                      XYZ //Increases your drake's flight speed by 500%.
+
 //not in db
 //Yell
 //-->Other
@@ -53,7 +57,9 @@ update creature_template set scriptname = '' where entry = '';
 #define SAY_PHASE1_SLAY_1                          -1616015
 #define SAY_PHASE1_SLAY_2                          -1616016
 #define SAY_PHASE1_SLAY_3                          -1616017
+
 //--> Phase2 at 50% HP,
+
 /*Malygos himself is not targetable during this phase, it will end when the adds he spawns are all killed. However, he does continue to play a part in the encounter.
 During this phase he drops anti-magic zones onto the ground the raid MUST stand inside of, it reduces magical damage taken by 50%. They shrink over time, so it's important that your raid moves to each new one he drops.
 Throughout the phase, he will deep breath doing ~4k damage per second, unless you are standing inside of the anti-magic zone.
@@ -62,6 +68,7 @@ The Lords will move down onto the group, and need to be tanked (They will one-sh
 It is recommended to let melee take the first disks, then ranged. As those mobs die, they also drop disks, which allows the rest of your dps to get onto them.
 The Scions will continually cast Arcane Blast on random targets on the floor, which is mitigated by the anti-magic zones. While mounted on a disk, you will not take damage.
 After all of the NPCs riding on the disks die, the players on the disks need to dismount as Phase 3 is about to begin.*/
+
 //not in db
 #define SAY_PHASE2_AGGRO                           -1616018
 #define SAY_PHASE2_END                             -1616019
@@ -75,11 +82,14 @@ After all of the NPCs riding on the disks die, the players on the disks need to 
 #define SAY_PHASE3_SLAY_2                          -1616026
 #define SAY_PHASE3_SLAY_3                          -1616027
 #define SAY_PHASE3_BIG_ATTACK                      -1616028
+
 struct TRINITY_DLL_DECL boss_malygosAI : public ScriptedAI
 {
     boss_malygosAI(Creature *c) : ScriptedAI(c) {}
+
     uint32 phase,
            enrage;
+
     void Reset()
     {
         //Source Deadly Boss Mod
@@ -102,12 +112,14 @@ struct TRINITY_DLL_DECL boss_malygosAI : public ScriptedAI
         //Return since we have no target
         if (!UpdateVictim())
             return;
+
         if ((m_creature->GetHealth()*100 / m_creature->GetMaxHealth()) <= 50){
             phase = 2;
             //spawn adds
             //set malygos unatackable untill all adds spawned dead
             //start phase3
         }
+
         DoMeleeAttackIfReady();
     }
     void JustDied(Unit* killer)
@@ -118,6 +130,7 @@ struct TRINITY_DLL_DECL boss_malygosAI : public ScriptedAI
     {
         if (victim == m_creature)
             return;
+
         if (phase ==1)
             DoScriptText(RAND(SAY_PHASE1_SLAY_1,SAY_PHASE1_SLAY_2,SAY_PHASE1_SLAY_3), m_creature);
         if (phase ==2)
@@ -126,13 +139,16 @@ struct TRINITY_DLL_DECL boss_malygosAI : public ScriptedAI
             DoScriptText(RAND(SAY_PHASE3_SLAY_1,SAY_PHASE3_SLAY_2,SAY_PHASE3_SLAY_3), m_creature);
     }
 };
+
 CreatureAI* GetAI_boss_malygos(Creature* pCreature)
 {
     return new boss_malygosAI (pCreature);
 }
+
 void AddSC_boss_malygos()
 {
     Script *newscript;
+
     newscript = new Script;
     newscript->Name = "boss_malygos";
     newscript->GetAI = &GetAI_boss_malygos;

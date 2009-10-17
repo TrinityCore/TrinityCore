@@ -1,16 +1,20 @@
 // $Id: TTY_IO.cpp 82271 2008-07-09 09:23:03Z olli $
+
 #include "ace/TTY_IO.h"
 #include "ace/OS_NS_errno.h"
 #include "ace/OS_NS_string.h"
 #include "ace/OS_NS_strings.h"
+
 #if defined (ACE_HAS_TERMIOS)
 # include "ace/os_include/os_termios.h"
 #elif  defined (ACE_HAS_TERMIO)
 # include <termio.h>
 #endif
+
 ACE_RCSID (ace,
            TTY_IO,
            "$Id: TTY_IO.cpp 82271 2008-07-09 09:23:03Z olli $")
+
 namespace
 {
   const char ACE_TTY_IO_NONE[]  = "none";
@@ -23,7 +27,9 @@ namespace
   const char ACE_TTY_IO_SPACE[] = "space";
 #endif /* ACE_WIN32 */
 }
+
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
+
 ACE_TTY_IO::Serial_Params::Serial_Params (void)
 {
   baudrate = 9600;
@@ -43,10 +49,13 @@ ACE_TTY_IO::Serial_Params::Serial_Params (void)
   databits = 8;
   stopbits = 1;
 }
+
 // Interface for reading/writing serial device parameters
+
 int ACE_TTY_IO::control (Control_Mode cmd, Serial_Params *arg) const
 {
 #if defined (ACE_HAS_TERMIOS) || defined (ACE_HAS_TERMIO)
+
 #if defined (ACE_HAS_TERMIOS)
   struct termios devpar;
   speed_t newbaudrate = 0;
@@ -63,6 +72,7 @@ int ACE_TTY_IO::control (Control_Mode cmd, Serial_Params *arg) const
   errno = ENOSYS;
 #endif /* ACE_HAS_TERMIOS */
   return -1;
+
   switch (cmd)
     {
     case SETPARAMS:
@@ -182,6 +192,7 @@ int ACE_TTY_IO::control (Control_Mode cmd, Serial_Params *arg) const
         default:
           return -1;
         }
+
 #if defined (ACE_HAS_TERMIOS)
       // Can you really have different input and output baud rates?!
       if (cfsetospeed (&devpar, newbaudrate) == -1)
@@ -195,6 +206,7 @@ int ACE_TTY_IO::control (Control_Mode cmd, Serial_Params *arg) const
 # endif /* CBAUDEX */
       devpar.c_cflag |= newbaudrate;
 #endif /* ACE_HAS_TERMIOS */
+
       devpar.c_cflag &= ~CSIZE;
       switch (arg->databits)
         {
@@ -213,6 +225,7 @@ int ACE_TTY_IO::control (Control_Mode cmd, Serial_Params *arg) const
         default:
           return -1;
         }
+
       switch (arg->stopbits)
         {
         case 1:
@@ -224,6 +237,7 @@ int ACE_TTY_IO::control (Control_Mode cmd, Serial_Params *arg) const
         default:
           return -1;
         }
+
       if (arg->paritymode)
         {
           if (ACE_OS::strcasecmp (arg->paritymode, ACE_TTY_IO_ODD) == 0)
@@ -245,6 +259,7 @@ int ACE_TTY_IO::control (Control_Mode cmd, Serial_Params *arg) const
         {
           devpar.c_cflag &= ~PARENB;
         }
+
 #if defined (CNEW_RTSCTS)
       if ((arg->ctsenb) || (arg->rtsenb)) // Enable RTS/CTS protocol
         devpar.c_cflag |= CNEW_RTSCTS;
@@ -256,6 +271,7 @@ int ACE_TTY_IO::control (Control_Mode cmd, Serial_Params *arg) const
       else
         devpar.c_cflag &= ~CRTSCTS;
 #endif /* NEW_RTSCTS || CRTSCTS */
+
 #if defined (CREAD)
       // Enable/disable receiver
       if (arg->rcvenb)
@@ -263,10 +279,12 @@ int ACE_TTY_IO::control (Control_Mode cmd, Serial_Params *arg) const
       else
         devpar.c_cflag &= ~CREAD;
 #endif /* CREAD */
+
 #if defined (HUPCL)
       // Cause DTR to drop after port close.
       devpar.c_cflag |= HUPCL;
 #endif /* HUPCL */
+
 #if defined (CLOCAL)
       // If device is not a modem set to local device.
       if (arg->modem)
@@ -274,9 +292,11 @@ int ACE_TTY_IO::control (Control_Mode cmd, Serial_Params *arg) const
       else
         devpar.c_cflag |= CLOCAL;
 #endif /* CLOCAL */
+
       devpar.c_iflag = IGNPAR | INPCK;
       if (arg->databits < 8)
         devpar.c_iflag |= ISTRIP;
+
 #if defined (IGNBRK)
       // If device is not a modem set to ignore break points
       if(arg->modem)
@@ -284,6 +304,7 @@ int ACE_TTY_IO::control (Control_Mode cmd, Serial_Params *arg) const
       else
         devpar.c_iflag |= IGNBRK;
 #endif /* IGNBRK */
+
 #if defined (IXOFF)
       // Enable/disable software flow control on input
       if (arg->xinenb)
@@ -291,6 +312,7 @@ int ACE_TTY_IO::control (Control_Mode cmd, Serial_Params *arg) const
       else
         devpar.c_iflag &= ~IXOFF;
 #endif /* IXOFF */
+
 #if defined (IXON)
       // Enable/disable software flow control on output
       if (arg->xoutenb)
@@ -298,26 +320,32 @@ int ACE_TTY_IO::control (Control_Mode cmd, Serial_Params *arg) const
       else
         devpar.c_iflag &= ~IXON;
 #endif /* IXON */
+
 #if defined (ICANON)
       // Enable noncanonical input processing mode
       devpar.c_lflag &= ~ICANON;
 #endif /* ICANON */
+
 #if defined (ECHO)
       // Disable echoing of input characters
       devpar.c_lflag &= ~ECHO;
 #endif /* ECHO */
+
 #if defined (ECHOE)
       // Disable echoing erase chareacter as BS-SP-BS
       devpar.c_lflag &= ~ECHOE;
 #endif /* ECHOE */
+
 #if defined (ISIG)
       // Disable SIGINTR, SIGSUSP, SIGDSUSP and SIGQUIT signals
       devpar.c_lflag &= ~ISIG;
 #endif /* ISIG */
+
 #if defined (OPOST)
       // Disable post-processing of output data
       devpar.c_oflag &= ~OPOST;
 #endif /* OPOST */
+
       if (arg->readtimeoutmsec < 0)
         {
           // Settings for infinite timeout.
@@ -333,6 +361,7 @@ int ACE_TTY_IO::control (Control_Mode cmd, Serial_Params *arg) const
       else
         {
           devpar.c_cc[VTIME] = static_cast<unsigned char>(arg->readtimeoutmsec / 100);
+
           if (arg->readmincharacters > UCHAR_MAX)
             devpar.c_cc[VMIN] = UCHAR_MAX;
           else if (arg->readmincharacters < 1)
@@ -340,15 +369,19 @@ int ACE_TTY_IO::control (Control_Mode cmd, Serial_Params *arg) const
           else
             devpar.c_cc[VMIN] = static_cast<unsigned char>(arg->readmincharacters);
         }
+
 #if defined (TIOCMGET)
       int status;
       this->ACE_IO_SAP::control (TIOCMGET, &status);
+
       if (arg->dtrdisable)
         status &= ~TIOCM_DTR;
       else
         status |=  TIOCM_DTR;
+
       this->ACE_IO_SAP::control (TIOCMSET, &status);
 #endif /* definded (TIOCMGET) */
+
 #if defined (ACE_HAS_TERMIOS)
       return tcsetattr (get_handle (), TCSANOW, &devpar);
 #elif defined (TCSETS)
@@ -359,6 +392,7 @@ int ACE_TTY_IO::control (Control_Mode cmd, Serial_Params *arg) const
       errno = ENOSYS;
       return -1;
 #endif /* ACE_HAS_TERMIOS */
+
     case GETPARAMS:
       return -1; // Not yet implemented.
     default:
@@ -375,7 +409,9 @@ int ACE_TTY_IO::control (Control_Mode cmd, Serial_Params *arg) const
           ACE_OS::set_errno_to_last_error ();
           return -1;
         }
+
       dcb.BaudRate = arg->baudrate;
+
       switch (arg->databits)
         {
         case 4:
@@ -388,6 +424,7 @@ int ACE_TTY_IO::control (Control_Mode cmd, Serial_Params *arg) const
         default:
           return -1;
         }
+
       switch (arg->stopbits)
         {
         case 1:
@@ -399,6 +436,7 @@ int ACE_TTY_IO::control (Control_Mode cmd, Serial_Params *arg) const
         default:
           return -1;
         }
+
       if (arg->paritymode)
         {
           dcb.fParity = TRUE;
@@ -420,6 +458,7 @@ int ACE_TTY_IO::control (Control_Mode cmd, Serial_Params *arg) const
           dcb.fParity = FALSE;
           dcb.Parity = NOPARITY;
         }
+
       // Enable/disable RTS protocol.
       switch (arg->rtsenb)
         {
@@ -435,51 +474,61 @@ int ACE_TTY_IO::control (Control_Mode cmd, Serial_Params *arg) const
         default:
           dcb.fRtsControl = RTS_CONTROL_DISABLE;
         }
+
       // Enable/disable CTS protocol.
       if (arg->ctsenb)
         dcb.fOutxCtsFlow = TRUE;
       else
         dcb.fOutxCtsFlow = FALSE;
+
       // Enable/disable DSR protocol.
       if (arg->dsrenb)
         dcb.fOutxDsrFlow = TRUE;
       else
         dcb.fOutxDsrFlow = FALSE;
+
       // Disable/enable DTR protocol
       if (arg->dtrdisable)
         dcb.fDtrControl = DTR_CONTROL_DISABLE;
       else
         dcb.fDtrControl = DTR_CONTROL_ENABLE;
+
       // Enable/disable software flow control on input
       if (arg->xinenb)
         dcb.fInX = TRUE;
       else
         dcb.fInX = FALSE;
+
       // Enable/disable software flow control on output
       if (arg->xoutenb)
         dcb.fOutX = TRUE;
       else
         dcb.fOutX = FALSE;
+
       // Always set limits unless set to negative to use default.
       if (arg->xonlim >= 0)
         dcb.XonLim  = static_cast<WORD>(arg->xonlim);
       if (arg->xofflim >= 0)
         dcb.XoffLim = static_cast<WORD>(arg->xofflim);
+
       dcb.fAbortOnError = FALSE;
       dcb.fErrorChar = FALSE;
       dcb.fNull = FALSE;
       dcb.fBinary = TRUE;
+
       if (!::SetCommState (this->get_handle (), &dcb))
         {
           ACE_OS::set_errno_to_last_error ();
           return -1;
         }
+
       COMMTIMEOUTS timeouts;
       if (!::GetCommTimeouts (this->get_handle(), &timeouts))
         {
           ACE_OS::set_errno_to_last_error ();
           return -1;
         }
+
       if (arg->readtimeoutmsec < 0)
         {
           // Settings for infinite timeout.
@@ -501,16 +550,20 @@ int ACE_TTY_IO::control (Control_Mode cmd, Serial_Params *arg) const
           timeouts.ReadTotalTimeoutMultiplier = MAXDWORD;
           timeouts.ReadTotalTimeoutConstant   = arg->readtimeoutmsec;
         }
+
        if (!::SetCommTimeouts (this->get_handle (), &timeouts))
          {
            ACE_OS::set_errno_to_last_error ();
            return -1;
          }
+
        return 0;
+
     case GETPARAMS:
       ACE_NOTSUP_RETURN (-1); // Not yet implemented.
     default:
       return -1; // Wrong cmd.
+
     } // arg switch
 #else
   ACE_UNUSED_ARG (cmd);
@@ -518,11 +571,13 @@ int ACE_TTY_IO::control (Control_Mode cmd, Serial_Params *arg) const
   ACE_NOTSUP_RETURN (-1);
 #endif /* ACE_HAS_TERMIOS || ACE_HAS_TERMIO */
 }
+
 #if defined (ACE_NEEDS_DEV_IO_CONVERSION)
 ACE_TTY_IO::operator ACE_DEV_IO &()
 {
   return static_cast<ACE_DEV_IO &>(*this);
 }
 #endif /* ACE_NEEDS_DEV_IO_CONVERSION */
+
 ACE_END_VERSIONED_NAMESPACE_DECL
 

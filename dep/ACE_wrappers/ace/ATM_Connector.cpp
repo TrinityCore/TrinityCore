@@ -1,22 +1,31 @@
 // ATM_Connector.cpp
 // $Id: ATM_Connector.cpp 80826 2008-03-04 14:51:23Z wotte $
+
 #include "ace/ATM_Connector.h"
 #if defined (ACE_HAS_ATM)
+
 #include "ace/Handle_Set.h"
+
 ACE_RCSID(ace, ATM_Connector, "$Id: ATM_Connector.cpp 80826 2008-03-04 14:51:23Z wotte $")
+
 #if !defined (__ACE_INLINE__)
 #include "ace/ATM_Connector.inl"
 #endif /* __ACE_INLINE__ */
+
 // Open versioned namespace, if enabled by the user.
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
+
 ACE_ALLOC_HOOK_DEFINE(ACE_ATM_Connector)
+
 ACE_ATM_Connector::ACE_ATM_Connector (void)
 {
   ACE_TRACE ("ACE_ATM_Connector::ACE_ATM_Connector");
 }
+
 // Actively connect and produce a new ACE_ATM_Stream if things go well...
 // Connect the <new_stream> to the <remote_sap>, waiting up to
 // <timeout> amount of time if necessary.
+
 int
 ACE_ATM_Connector::connect (ACE_ATM_Stream &new_stream,
                             const ACE_ATM_Addr &remote_sap,
@@ -45,23 +54,29 @@ ACE_ATM_Connector::connect (ACE_ATM_Stream &new_stream,
 #elif defined (ACE_HAS_FORE_ATM_WS2)
   ACE_DEBUG(LM_DEBUG,
             ACE_TEXT ("ATM_Connector(connect): set QoS parameters\n" ));
+
   ACE_HANDLE s = new_stream.get_handle();
   struct sockaddr_atm *saddr = ( struct sockaddr_atm *)remote_sap.get_addr();
   ACE_QoS cqos = options.get_qos();
+
   ACE_QoS_Params qos_params = ACE_QoS_Params(0,
                                              0,
                                              &cqos,
                                              0,
                                              0);
+
   ACE_DEBUG(LM_DEBUG,
             ACE_TEXT ("ATM_Connector(connect): connecting...\n"));
+
   int result = ACE_OS::connect( s,
                                 ( struct sockaddr *)saddr,
                                 sizeof( struct sockaddr_atm ),
                                 qos_params );
+
   if ( result != 0 )
     ACE_OS::printf( "ATM_Connector(connect): connection failed, %d\n",
                     ::WSAGetLastError());
+
   return result;
 #elif defined (ACE_HAS_LINUX_ATM)
   ACE_UNUSED_ARG (params);
@@ -69,10 +84,12 @@ ACE_ATM_Connector::connect (ACE_ATM_Stream &new_stream,
   ACE_UNUSED_ARG (reuse_addr);
   ACE_UNUSED_ARG (perms);
   ACE_UNUSED_ARG (flags);
+
   ACE_HANDLE handle = new_stream.get_handle();
   ATM_QoS qos =options.get_qos();
   ATM_Addr *local_addr=(ATM_Addr*)local_sap.get_addr(),
     *remote_addr=(ATM_Addr*)remote_sap.get_addr();
+
   if (ACE_OS::setsockopt(handle,
                          SOL_ATM,
                          SO_ATMSAP,
@@ -90,13 +107,16 @@ ACE_ATM_Connector::connect (ACE_ATM_Stream &new_stream,
                errno));
     return -1;
   }
+
   int result = ACE_OS::connect(handle,
                                (struct sockaddr *)&(remote_addr->sockaddratmsvc),
                                sizeof( remote_addr->sockaddratmsvc));
+
   if ( result != 0 )
     ACE_DEBUG(LM_DEBUG,
               ACE_TEXT ("ATM_Connector(connect): connection failed, %d\n"),
               errno);
+
   return result;
 #else
   ACE_UNUSED_ARG (new_stream);
@@ -111,7 +131,9 @@ ACE_ATM_Connector::connect (ACE_ATM_Stream &new_stream,
   return 0;
 #endif /* ACE_HAS_FORE_ATM_XTI || ACE_HAS_FORE_ATM_WS2 || ACE_HAS_LINUX_ATM */
 }
+
 // Close versioned namespace, if enabled by the user.
 ACE_END_VERSIONED_NAMESPACE_DECL
+
 #endif /* ACE_HAS_ATM */
 

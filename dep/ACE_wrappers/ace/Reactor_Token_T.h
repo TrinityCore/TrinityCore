@@ -1,4 +1,5 @@
 // -*- C++ -*-
+
 //=============================================================================
 /**
  *  @file    Reactor_Token_T.h
@@ -9,12 +10,16 @@
  */
 //=============================================================================
 
+
 #ifndef ACE_REACTOR_TOKEN_T_H
 #define ACE_REACTOR_TOKEN_T_H
 #include /**/ "ace/pre.h"
+
 #include "ace/Reactor_Impl.h"
 #include "ace/Token.h"
+
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
+
 /**
  * @class ACE_Reactor_Token_T
  *
@@ -53,27 +58,37 @@ public:
                        int s_queue = ACE_TOKEN_TYPE::FIFO);
   ACE_Reactor_Token_T (int s_queue = ACE_TOKEN_TYPE::FIFO);
   virtual ~ACE_Reactor_Token_T (void);
+
   /// Called just before a token waiter goes to sleep.
   /// @see ACE_Token::sleep_hook
   virtual void sleep_hook (void);
+
   /// Get the reactor implementation
   ACE_Reactor_Impl &reactor (void);
+
   /// Set the reactor implementation
   void reactor (ACE_Reactor_Impl &);
+
   /// Dump the state of an object.
   virtual void dump (void) const;
+
   /// Declare the dynamic allocation hooks.
   ACE_ALLOC_HOOK_DECLARE;
+
 private:
   ACE_Reactor_Impl *reactor_;
 };
+
 ACE_END_VERSIONED_NAMESPACE_DECL
+
 #if defined (ACE_TEMPLATES_REQUIRE_SOURCE)
 #include "ace/Reactor_Token_T.cpp"
 #endif /* ACE_TEMPLATES_REQUIRE_SOURCE */
+
 #if defined (ACE_TEMPLATES_REQUIRE_PRAGMA)
 #pragma implementation ("Reactor_Token_T.cpp")
 #endif /* ACE_TEMPLATES_REQUIRE_PRAGMA */
+
 #include /**/ "ace/post.h"
 #endif /* ACE_REACTOR_TOKEN_T_H */
 

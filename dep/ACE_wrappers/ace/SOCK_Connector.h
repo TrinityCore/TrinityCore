@@ -1,4 +1,5 @@
 // -*- C++ -*-
+
 //=============================================================================
 /**
  *  @file    SOCK_Connector.h
@@ -8,16 +9,22 @@
  *  @author Doug Schmidt <schmidt@cs.wustl.edu>
  */
 //=============================================================================
+
 #ifndef ACE_SOCK_CONNECTOR_H
 #define ACE_SOCK_CONNECTOR_H
 #include /**/ "ace/pre.h"
+
 #include "ace/SOCK_Stream.h"
+
 #if !defined (ACE_LACKS_PRAGMA_ONCE)
 # pragma once
 #endif /* ACE_LACKS_PRAGMA_ONCE */
+
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
+
 class ACE_QoS_Params;
 class ACE_Time_Value;
+
 /**
  * @class ACE_SOCK_Connector
  *
@@ -39,6 +46,7 @@ public:
   // = Initialization and termination methods.
   /// Default constructor.
   ACE_SOCK_Connector (void);
+
   /**
    * Actively connect to a peer, producing a connected @c ACE_SOCK_Stream
    * object if the connection succeeds.
@@ -84,6 +92,7 @@ public:
                       int flags = 0,
                       int perms = 0,
                       int protocol = 0);
+
 #if !defined (ACE_HAS_WINCE)
   /**
    * Actively connect to a peer, producing a connected @c ACE_SOCK_Stream
@@ -134,6 +143,7 @@ public:
                       int reuse_addr = 0,
                       int perms = 0);
 #endif  // ACE_HAS_WINCE
+
   /**
    * Actively connect to a peer, producing a connected @c ACE_SOCK_Stream
    * object if the connection succeeds.
@@ -183,6 +193,7 @@ public:
                int flags = 0,
                int perms = 0,
                int protocol = 0);
+
 #if !defined (ACE_HAS_WINCE)
   /**
    * Actively connect to a peer, producing a connected @c ACE_SOCK_Stream
@@ -237,8 +248,10 @@ public:
                int reuse_addr = 0,
                int perms = 0);
 #endif  // ACE_HAS_WINCE
+
   /// Default dtor.
   ~ACE_SOCK_Connector (void);
+
   // = Completion routine.
   /**
    * Try to complete a nonblocking connection that was begun by a
@@ -255,15 +268,20 @@ public:
   int complete (ACE_SOCK_Stream &new_stream,
                 ACE_Addr *remote_sap = 0,
                 const ACE_Time_Value *timeout = 0);
+
   /// Resets any event associations on this handle
   int reset_new_handle (ACE_HANDLE handle);
+
   // = Meta-type info
   typedef ACE_INET_Addr PEER_ADDR;
   typedef ACE_SOCK_Stream PEER_STREAM;
+
   /// Dump the state of an object.
   void dump (void) const;
+
   /// Declare the dynamic allocation hooks.
   ACE_ALLOC_HOOK_DECLARE;
+
 protected:
   /// Perform operations that ensure the socket is opened using
   /// BSD-style semantics (no QoS).
@@ -271,6 +289,7 @@ protected:
                    int protocol_family,
                    int protocol,
                    int reuse_addr);
+
   /// Perform operations that ensure the socket is opened using
   /// QoS-enabled semantics.
   int shared_open (ACE_SOCK_Stream &new_stream,
@@ -280,19 +299,24 @@ protected:
                    ACE_SOCK_GROUP g,
                    u_long flags,
                    int reuse_addr);
+
   /// Perform operations that must be called before <ACE_OS::connect>.
   int shared_connect_start (ACE_SOCK_Stream &new_stream,
                             const ACE_Time_Value *timeout,
                             const ACE_Addr &local_sap);
+
   /// Perform operations that must be called after <ACE_OS::connect>.
   int shared_connect_finish (ACE_SOCK_Stream &new_stream,
                              const ACE_Time_Value *timeout,
                              int result);
 };
+
 ACE_END_VERSIONED_NAMESPACE_DECL
+
 #if defined (__ACE_INLINE__)
 #include "ace/SOCK_Connector.inl"
 #endif /* __ACE_INLINE__ */
+
 #include /**/ "ace/post.h"
 #endif /* ACE_SOCK_CONNECTOR_H */
 

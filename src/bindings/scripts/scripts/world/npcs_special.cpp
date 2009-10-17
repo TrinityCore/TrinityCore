@@ -13,6 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
+
 /* ScriptData
 SDName: Npcs_Special
 SD%Complete: 100
@@ -20,6 +21,7 @@ SDComment: To be used for special NPCs that are located globally.
 SDCategory: NPCs
 EndScriptData
 */
+
 /* ContentData
 npc_air_force_bots       80%    support for misc (invisible) guard bots in areas where player allowed to fly. Summon guards after a preset time if tagged by spell
 npc_chicken_cluck       100%    support for quest 3861 (Cluck!)
@@ -34,30 +36,37 @@ npc_rogue_trainer       80%     Scripted trainers, so they are able to offer ite
 npc_sayge               100%    Darkmoon event fortune teller, buff player based on answers given
 npc_snake_trap_serpents 80%     AI for snakes that summoned by Snake Trap
 EndContentData */
+
 #include "precompiled.h"
 #include "escort_ai.h"
 #include "ObjectMgr.h"
+
 /*########
 # npc_air_force_bots
 #########*/
+
 enum SpawnType
 {
     SPAWNTYPE_TRIPWIRE_ROOFTOP,                             // no warning, summon Creature at smaller range
     SPAWNTYPE_ALARMBOT,                                     // cast guards mark and summon npc - if player shows up with that buff duration < 5 seconds attack
 };
+
 struct SpawnAssociation
 {
     uint32 m_uiThisCreatureEntry;
     uint32 m_uiSpawnedCreatureEntry;
     SpawnType m_SpawnType;
 };
+
 enum eEnums
 {
     SPELL_GUARDS_MARK               = 38067,
     AURA_DURATION_TIME_LEFT         = 5000
 };
+
 const float RANGE_TRIPWIRE          = 15.0f;
 const float RANGE_GUARDS_MARK       = 50.0f;
+
 SpawnAssociation m_aSpawnAssociations[] =
 {
     {2614,  15241, SPAWNTYPE_ALARMBOT},                     //Air Force Alarm Bot (Alliance)
@@ -88,14 +97,17 @@ SpawnAssociation m_aSpawnAssociations[] =
     {22125, 22122, SPAWNTYPE_ALARMBOT},                     //Air Force Guard Post (Cenarion - Stormcrow)
     {22126, 22122, SPAWNTYPE_ALARMBOT}                      //Air Force Trip Wire - Rooftop (Cenarion Expedition)
 };
+
 struct TRINITY_DLL_DECL npc_air_force_botsAI : public ScriptedAI
 {
     npc_air_force_botsAI(Creature* pCreature) : ScriptedAI(pCreature)
     {
         m_pSpawnAssoc = NULL;
         m_uiSpawnedGUID = 0;
+
         // find the correct spawnhandling
         static uint32 uiEntryCount = sizeof(m_aSpawnAssociations)/sizeof(SpawnAssociation);
+
         for (uint8 i=0; i<uiEntryCount; ++i)
         {
             if (m_aSpawnAssociations[i].m_uiThisCreatureEntry == pCreature->GetEntry())
@@ -104,11 +116,13 @@ struct TRINITY_DLL_DECL npc_air_force_botsAI : public ScriptedAI
                 break;
             }
         }
+
         if (!m_pSpawnAssoc)
             error_db_log("TCSR: Creature template entry %u has ScriptName npc_air_force_bots, but it's not handled by that script", pCreature->GetEntry());
         else
         {
             CreatureInfo const* spawnedTemplate = GetCreatureTemplateStore(m_pSpawnAssoc->m_uiSpawnedCreatureEntry);
+
             if (!spawnedTemplate)
             {
                 m_pSpawnAssoc = NULL;
@@ -117,12 +131,16 @@ struct TRINITY_DLL_DECL npc_air_force_botsAI : public ScriptedAI
             }
         }
     }
+
     SpawnAssociation* m_pSpawnAssoc;
     uint64 m_uiSpawnedGUID;
+
     void Reset() { }
+
     Creature* SummonGuard()
     {
         Creature* pSummoned = m_creature->SummonCreature(m_pSpawnAssoc->m_uiSpawnedCreatureEntry, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 300000);
+
         if (pSummoned)
             m_uiSpawnedGUID = pSummoned->GetGUID();
         else
@@ -130,35 +148,46 @@ struct TRINITY_DLL_DECL npc_air_force_botsAI : public ScriptedAI
             error_db_log("TCSR: npc_air_force_bots: wasn't able to spawn Creature %u", m_pSpawnAssoc->m_uiSpawnedCreatureEntry);
             m_pSpawnAssoc = NULL;
         }
+
         return pSummoned;
     }
+
     Creature* GetSummonedGuard()
     {
         Creature* pCreature = Unit::GetCreature(*m_creature, m_uiSpawnedGUID);
+
         if (pCreature && pCreature->isAlive())
             return pCreature;
+
         return NULL;
     }
+
     void MoveInLineOfSight(Unit* pWho)
     {
         if (!m_pSpawnAssoc)
             return;
+
         if (pWho->isTargetableForAttack() && m_creature->IsHostileTo(pWho))
         {
             Player* pPlayerTarget = pWho->GetTypeId() == TYPEID_PLAYER ? CAST_PLR(pWho) : NULL;
+
             // airforce guards only spawn for players
             if (!pPlayerTarget)
                 return;
+
             Creature* pLastSpawnedGuard = m_uiSpawnedGUID == 0 ? NULL : GetSummonedGuard();
+
             // prevent calling Unit::GetUnit at next MoveInLineOfSight call - speedup
             if (!pLastSpawnedGuard)
                 m_uiSpawnedGUID = 0;
+
             switch(m_pSpawnAssoc->m_SpawnType)
             {
                 case SPAWNTYPE_ALARMBOT:
                 {
                     if (!pWho->IsWithinDistInMap(m_creature, RANGE_GUARDS_MARK))
                         return;
+
                     Aura* pMarkAura = pWho->GetAura(SPELL_GUARDS_MARK, 0);
                     if (pMarkAura)
                     {
@@ -166,9 +195,11 @@ struct TRINITY_DLL_DECL npc_air_force_botsAI : public ScriptedAI
                         if (!pLastSpawnedGuard)
                         {
                             pLastSpawnedGuard = SummonGuard();
+
                             if (!pLastSpawnedGuard)
                                 return;
                         }
+
                         if (pMarkAura->GetAuraDuration() < AURA_DURATION_TIME_LEFT)
                         {
                             if (!pLastSpawnedGuard->getVictim())
@@ -179,8 +210,10 @@ struct TRINITY_DLL_DECL npc_air_force_botsAI : public ScriptedAI
                     {
                         if (!pLastSpawnedGuard)
                             pLastSpawnedGuard = SummonGuard();
+
                         if (!pLastSpawnedGuard)
                             return;
+
                         pLastSpawnedGuard->CastSpell(pWho, SPELL_GUARDS_MARK, true);
                     }
                     break;
@@ -189,10 +222,13 @@ struct TRINITY_DLL_DECL npc_air_force_botsAI : public ScriptedAI
                 {
                     if (!pWho->IsWithinDistInMap(m_creature, RANGE_TRIPWIRE))
                         return;
+
                     if (!pLastSpawnedGuard)
                         pLastSpawnedGuard = SummonGuard();
+
                     if (!pLastSpawnedGuard)
                         return;
+
                     // ROOFTOP only triggers if the player is on the ground
                     if (!pPlayerTarget->IsFlying())
                     {
@@ -205,29 +241,38 @@ struct TRINITY_DLL_DECL npc_air_force_botsAI : public ScriptedAI
         }
     }
 };
+
 CreatureAI* GetAI_npc_air_force_bots(Creature* pCreature)
 {
     return new npc_air_force_botsAI(pCreature);
 }
+
 /*########
 # npc_chicken_cluck
 #########*/
+
 #define EMOTE_HELLO         -1070004
 #define EMOTE_CLUCK_TEXT    -1070006
+
 #define QUEST_CLUCK         3861
 #define FACTION_FRIENDLY    35
 #define FACTION_CHICKEN     31
+
 struct TRINITY_DLL_DECL npc_chicken_cluckAI : public ScriptedAI
 {
     npc_chicken_cluckAI(Creature *c) : ScriptedAI(c) {}
+
     uint32 ResetFlagTimer;
+
     void Reset()
     {
         ResetFlagTimer = 120000;
         m_creature->setFaction(FACTION_CHICKEN);
         m_creature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
     }
+
     void EnterCombat(Unit *who) {}
+
     void UpdateAI(const uint32 diff)
     {
         // Reset flags after a certain time has passed so that the next player has to start the 'event' again
@@ -239,9 +284,11 @@ struct TRINITY_DLL_DECL npc_chicken_cluckAI : public ScriptedAI
                 return;
             }else ResetFlagTimer -= diff;
         }
+
         if (UpdateVictim())
             DoMeleeAttackIfReady();
     }
+
     void ReceiveEmote(Player* pPlayer, uint32 emote)
     {
         switch(emote)
@@ -265,33 +312,43 @@ struct TRINITY_DLL_DECL npc_chicken_cluckAI : public ScriptedAI
         }
     }
 };
+
 CreatureAI* GetAI_npc_chicken_cluck(Creature* pCreature)
 {
     return new npc_chicken_cluckAI(pCreature);
 }
+
 bool QuestAccept_npc_chicken_cluck(Player* pPlayer, Creature* pCreature, const Quest *_Quest)
 {
     if (_Quest->GetQuestId() == QUEST_CLUCK)
         CAST_AI(npc_chicken_cluckAI, pCreature->AI())->Reset();
+
     return true;
 }
+
 bool QuestComplete_npc_chicken_cluck(Player* pPlayer, Creature* pCreature, const Quest *_Quest)
 {
     if (_Quest->GetQuestId() == QUEST_CLUCK)
         CAST_AI(npc_chicken_cluckAI, pCreature->AI())->Reset();
+
     return true;
 }
+
 /*######
 ## npc_dancing_flames
 ######*/
+
 #define SPELL_BRAZIER       45423
 #define SPELL_SEDUCTION     47057
 #define SPELL_FIERY_AURA    45427
+
 struct TRINITY_DLL_DECL npc_dancing_flamesAI : public ScriptedAI
 {
     npc_dancing_flamesAI(Creature *c) : ScriptedAI(c) {}
+
     bool active;
     uint32 can_iteract;
+
     void Reset()
     {
         active = true;
@@ -307,6 +364,7 @@ struct TRINITY_DLL_DECL npc_dancing_flamesAI : public ScriptedAI
         m_creature->BuildHeartBeatMsg(&data);
         m_creature->SendMessageToSet(&data,true);
     }
+
     void UpdateAI(const uint32 diff)
     {
         if (!active)
@@ -318,13 +376,16 @@ struct TRINITY_DLL_DECL npc_dancing_flamesAI : public ScriptedAI
             }else can_iteract -= diff;
         }
     }
+
     void EnterCombat(Unit* who){}
+
     void ReceiveEmote(Player* pPlayer, uint32 emote)
     {
         if (m_creature->IsWithinLOS(pPlayer->GetPositionX(),pPlayer->GetPositionY(),pPlayer->GetPositionZ()) && m_creature->IsWithinDistInMap(pPlayer,30.0f))
         {
             m_creature->SetInFront(pPlayer);
             active = false;
+
             WorldPacket data;
             m_creature->BuildHeartBeatMsg(&data);
             m_creature->SendMessageToSet(&data,true);
@@ -344,25 +405,31 @@ struct TRINITY_DLL_DECL npc_dancing_flamesAI : public ScriptedAI
         }
     }
 };
+
 CreatureAI* GetAI_npc_dancing_flames(Creature* pCreature)
 {
     return new npc_dancing_flamesAI(pCreature);
 }
+
 /*######
 ## Triage quest
 ######*/
+
 //signed for 9623
 #define SAY_DOC1    -1000201
 #define SAY_DOC2    -1000202
 #define SAY_DOC3    -1000203
+
 #define DOCTOR_ALLIANCE     12939
 #define DOCTOR_HORDE        12920
 #define ALLIANCE_COORDS     7
 #define HORDE_COORDS        6
+
 struct Location
 {
     float x, y, z, o;
 };
+
 static Location AllianceCoords[]=
 {
     {-3757.38, -4533.05, 14.16, 3.62},                      // Top-far-right bunk as seen from entrance
@@ -373,10 +440,12 @@ static Location AllianceCoords[]=
     {-3749.51, -4527.08, 14.07, 5.26},                      // Mid-left bunk
     {-3746.37, -4525.35, 14.16, 5.22},                      // Left bunk near entrance
 };
+
 //alliance run to where
 #define A_RUNTOX -3742.96
 #define A_RUNTOY -4531.52
 #define A_RUNTOZ 11.91
+
 static Location HordeCoords[]=
 {
     {-1013.75, -3492.59, 62.62, 4.34},                      // Left, Behind
@@ -386,73 +455,98 @@ static Location HordeCoords[]=
     {-1017.25, -3500.85, 62.98, 4.34},                      // Left, front
     {-1020.95, -3499.21, 62.98, 4.34}                       // Right, Front
 };
+
 //horde run to where
 #define H_RUNTOX -1016.44
 #define H_RUNTOY -3508.48
 #define H_RUNTOZ 62.96
+
 const uint32 AllianceSoldierId[3] =
 {
     12938,                                                  // 12938 Injured Alliance Soldier
     12936,                                                  // 12936 Badly injured Alliance Soldier
     12937                                                   // 12937 Critically injured Alliance Soldier
 };
+
 const uint32 HordeSoldierId[3] =
 {
     12923,                                                  //12923 Injured Soldier
     12924,                                                  //12924 Badly injured Soldier
     12925                                                   //12925 Critically injured Soldier
 };
+
 /*######
 ## npc_doctor (handles both Gustaf Vanhowzen and Gregory Victor)
 ######*/
+
 struct TRINITY_DLL_DECL npc_doctorAI : public ScriptedAI
 {
     npc_doctorAI(Creature *c) : ScriptedAI(c) {}
+
     uint64 PlayerGUID;
+
     uint32 SummonPatient_Timer;
     uint32 SummonPatientCount;
     uint32 PatientDiedCount;
     uint32 PatientSavedCount;
+
     bool Event;
+
     std::list<uint64> Patients;
     std::vector<Location*> Coordinates;
+
     void Reset()
     {
         PlayerGUID = 0;
+
         SummonPatient_Timer = 10000;
         SummonPatientCount = 0;
         PatientDiedCount = 0;
         PatientSavedCount = 0;
+
         Patients.clear();
         Coordinates.clear();
+
         Event = false;
+
         m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
     }
+
     void BeginEvent(Player* pPlayer);
     void PatientDied(Location* Point);
     void PatientSaved(Creature* soldier, Player* pPlayer, Location* Point);
     void UpdateAI(const uint32 diff);
+
     void EnterCombat(Unit* who){}
 };
+
 /*#####
 ## npc_injured_patient (handles all the patients, no matter Horde or Alliance)
 #####*/
+
 struct TRINITY_DLL_DECL npc_injured_patientAI : public ScriptedAI
 {
     npc_injured_patientAI(Creature *c) : ScriptedAI(c) {}
+
     uint64 Doctorguid;
     Location* Coord;
+
     void Reset()
     {
         Doctorguid = 0;
         Coord = NULL;
+
         //no select
         m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+
         //no regen health
         m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IN_COMBAT);
+
         //to make them lay with face down
         m_creature->SetUInt32Value(UNIT_FIELD_BYTES_1, UNIT_STAND_STATE_DEAD);
+
         uint32 mobId = m_creature->GetEntry();
+
         switch (mobId)
         {                                                   //lower max health
             case 12923:
@@ -469,7 +563,9 @@ struct TRINITY_DLL_DECL npc_injured_patientAI : public ScriptedAI
                 break;
         }
     }
+
     void EnterCombat(Unit* who){}
+
     void SpellHit(Unit *caster, const SpellEntry *spell)
     {
         if (caster->GetTypeId() == TYPEID_PLAYER && m_creature->isAlive() && spell->Id == 20804)
@@ -478,15 +574,21 @@ struct TRINITY_DLL_DECL npc_injured_patientAI : public ScriptedAI
                 if (Doctorguid)
                     if (Creature* Doctor = Unit::GetCreature(*m_creature, Doctorguid))
                         CAST_AI(npc_doctorAI, Doctor->AI())->PatientSaved(m_creature, CAST_PLR(caster), Coord);
+
             //make not selectable
             m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+
             //regen health
             m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IN_COMBAT);
+
             //stand up
             m_creature->SetUInt32Value(UNIT_FIELD_BYTES_1, UNIT_STAND_STATE_STAND);
+
             DoScriptText(RAND(SAY_DOC1,SAY_DOC2,SAY_DOC3), m_creature);
+
             uint32 mobId = m_creature->GetEntry();
             m_creature->RemoveUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
+
             switch (mobId)
             {
                 case 12923:
@@ -502,6 +604,7 @@ struct TRINITY_DLL_DECL npc_injured_patientAI : public ScriptedAI
             }
         }
     }
+
     void UpdateAI(const uint32 diff)
     {
         //lower HP on every world tick makes it a useful counter, not officlone though
@@ -509,12 +612,14 @@ struct TRINITY_DLL_DECL npc_injured_patientAI : public ScriptedAI
         {
             m_creature->SetHealth(uint32(m_creature->GetHealth()-5));
         }
+
         if (m_creature->isAlive() && m_creature->GetHealth() <= 6)
         {
             m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IN_COMBAT);
             m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             m_creature->setDeathState(JUST_DIED);
             m_creature->SetFlag(UNIT_DYNAMIC_FLAGS, 32);
+
             if (Doctorguid)
             {
                 if (Creature* Doctor = Unit::GetCreature((*m_creature), Doctorguid))
@@ -523,55 +628,66 @@ struct TRINITY_DLL_DECL npc_injured_patientAI : public ScriptedAI
         }
     }
 };
+
 CreatureAI* GetAI_npc_injured_patient(Creature* pCreature)
 {
     return new npc_injured_patientAI (pCreature);
 }
+
 /*
 npc_doctor (continue)
 */
+
 void npc_doctorAI::BeginEvent(Player* pPlayer)
 {
     PlayerGUID = pPlayer->GetGUID();
+
     SummonPatient_Timer = 10000;
     SummonPatientCount = 0;
     PatientDiedCount = 0;
     PatientSavedCount = 0;
+
     switch(m_creature->GetEntry())
     {
         case DOCTOR_ALLIANCE:
-            for (uint8 i = 0; i < ALLIANCE_COORDS; ++i)
+            for(uint8 i = 0; i < ALLIANCE_COORDS; ++i)
                 Coordinates.push_back(&AllianceCoords[i]);
             break;
         case DOCTOR_HORDE:
-            for (uint8 i = 0; i < HORDE_COORDS; ++i)
+            for(uint8 i = 0; i < HORDE_COORDS; ++i)
                 Coordinates.push_back(&HordeCoords[i]);
             break;
     }
+
     Event = true;
     m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
 }
+
 void npc_doctorAI::PatientDied(Location* Point)
 {
     Player* pPlayer = Unit::GetPlayer(PlayerGUID);
     if (pPlayer && ((pPlayer->GetQuestStatus(6624) == QUEST_STATUS_INCOMPLETE) || (pPlayer->GetQuestStatus(6622) == QUEST_STATUS_INCOMPLETE)))
     {
         ++PatientDiedCount;
+
         if (PatientDiedCount > 5 && Event)
         {
             if (pPlayer->GetQuestStatus(6624) == QUEST_STATUS_INCOMPLETE)
                 pPlayer->FailQuest(6624);
             else if (pPlayer->GetQuestStatus(6622) == QUEST_STATUS_INCOMPLETE)
                 pPlayer->FailQuest(6622);
+
             Reset();
             return;
         }
+
         Coordinates.push_back(Point);
     }
     else
         // If no player or player abandon quest in progress
         Reset();
 }
+
 void npc_doctorAI::PatientSaved(Creature* soldier, Player* pPlayer, Location* Point)
 {
     if (pPlayer && PlayerGUID == pPlayer->GetGUID())
@@ -579,28 +695,33 @@ void npc_doctorAI::PatientSaved(Creature* soldier, Player* pPlayer, Location* Po
         if ((pPlayer->GetQuestStatus(6624) == QUEST_STATUS_INCOMPLETE) || (pPlayer->GetQuestStatus(6622) == QUEST_STATUS_INCOMPLETE))
         {
             ++PatientSavedCount;
+
             if (PatientSavedCount == 15)
             {
                 if (!Patients.empty())
                 {
                     std::list<uint64>::iterator itr;
-                    for (itr = Patients.begin(); itr != Patients.end(); ++itr)
+                    for(itr = Patients.begin(); itr != Patients.end(); ++itr)
                     {
                         if (Creature* Patient = Unit::GetCreature((*m_creature), *itr))
                             Patient->setDeathState(JUST_DIED);
                     }
                 }
+
                 if (pPlayer->GetQuestStatus(6624) == QUEST_STATUS_INCOMPLETE)
                     pPlayer->AreaExploredOrEventHappens(6624);
                 else if (pPlayer->GetQuestStatus(6622) == QUEST_STATUS_INCOMPLETE)
                     pPlayer->AreaExploredOrEventHappens(6622);
+
                 Reset();
                 return;
             }
+
             Coordinates.push_back(Point);
         }
     }
 }
+
 void npc_doctorAI::UpdateAI(const uint32 diff)
 {
     if (Event && SummonPatientCount >= 20)
@@ -608,16 +729,20 @@ void npc_doctorAI::UpdateAI(const uint32 diff)
         Reset();
         return;
     }
+
     if (Event)
     {
         if (SummonPatient_Timer < diff)
         {
             Creature* Patient = NULL;
             Location* Point = NULL;
+
                 if (Coordinates.empty())
                 return;
+
             std::vector<Location*>::iterator itr = Coordinates.begin()+rand()%Coordinates.size();
             uint32 patientEntry = 0;
+
             switch(m_creature->GetEntry())
             {
                 case DOCTOR_ALLIANCE: patientEntry = AllianceSoldierId[rand()%3]; break;
@@ -626,16 +751,22 @@ void npc_doctorAI::UpdateAI(const uint32 diff)
                     error_log("TSCR: Invalid entry for Triage doctor. Please check your database");
                     return;
             }
+
             Point = *itr;
+
             Patient = m_creature->SummonCreature(patientEntry, Point->x, Point->y, Point->z, Point->o, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000);
+
             if (Patient)
             {
                 //303, this flag appear to be required for client side item->spell to work (TARGET_SINGLE_FRIEND)
                 Patient->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PVP_ATTACKABLE);
+
                 Patients.push_back(Patient->GetGUID());
                 CAST_AI(npc_injured_patientAI, Patient->AI())->Doctorguid = m_creature->GetGUID();
+
                 if (Point)
                     CAST_AI(npc_injured_patientAI, Patient->AI())->Coord = Point;
+
                 Coordinates.erase(itr);
             }
             SummonPatient_Timer = 10000;
@@ -643,34 +774,43 @@ void npc_doctorAI::UpdateAI(const uint32 diff)
         }else SummonPatient_Timer -= diff;
     }
 }
+
 bool QuestAccept_npc_doctor(Player* pPlayer, Creature* pCreature, Quest const *quest)
 {
     if ((quest->GetQuestId() == 6624) || (quest->GetQuestId() == 6622))
         CAST_AI(npc_doctorAI, pCreature->AI())->BeginEvent(pPlayer);
+
     return true;
 }
+
 CreatureAI* GetAI_npc_doctor(Creature* pCreature)
 {
     return new npc_doctorAI (pCreature);
 }
+
 /*######
 ## npc_garments_of_quests
 ######*/
+
 //TODO: get text for each NPC
+
 enum eGarments
 {
     SPELL_LESSER_HEAL_R2    = 2052,
     SPELL_FORTITUDE_R1      = 1243,
+
     QUEST_MOON              = 5621,
     QUEST_LIGHT_1           = 5624,
     QUEST_LIGHT_2           = 5625,
     QUEST_SPIRIT            = 5648,
     QUEST_DARKNESS          = 5650,
+
     ENTRY_SHAYA             = 12429,
     ENTRY_ROBERTS           = 12423,
     ENTRY_DOLF              = 12427,
     ENTRY_KORJA             = 12430,
     ENTRY_DG_KEL            = 12428,
+
     //used by 12429,12423,12427,12430,12428, but signed for 12429
     SAY_COMMON_HEALED       = -1000164,
     SAY_DG_KEL_THANKS       = -1000165,
@@ -684,24 +824,34 @@ enum eGarments
     SAY_SHAYA_THANKS        = -1000173,
     SAY_SHAYA_GOODBYE       = -1000174, //signed for 21469
 };
+
 struct TRINITY_DLL_DECL npc_garments_of_questsAI : public npc_escortAI
 {
     npc_garments_of_questsAI(Creature *c) : npc_escortAI(c) {Reset();}
+
     uint64 caster;
+
     bool bIsHealed;
     bool bCanRun;
+
     uint32 RunAwayTimer;
+
     void Reset()
     {
         caster = 0;
+
         bIsHealed = false;
         bCanRun = false;
+
         RunAwayTimer = 5000;
+
         m_creature->SetStandState(UNIT_STAND_STATE_KNEEL);
         //expect database to have RegenHealth=0
         m_creature->SetHealth(int(m_creature->GetMaxHealth()*0.7));
     }
+
     void EnterCombat(Unit *who) {}
+
     void SpellHit(Unit* pCaster, const SpellEntry *Spell)
     {
         if (Spell->Id == SPELL_LESSER_HEAL_R2 || Spell->Id == SPELL_FORTITUDE_R1)
@@ -709,9 +859,11 @@ struct TRINITY_DLL_DECL npc_garments_of_questsAI : public npc_escortAI
             //not while in combat
             if (m_creature->isInCombat())
                 return;
+
             //nothing to be done now
             if (bIsHealed && bCanRun)
                 return;
+
             if (pCaster->GetTypeId() == TYPEID_PLAYER)
             {
                 switch(m_creature->GetEntry())
@@ -802,15 +954,18 @@ struct TRINITY_DLL_DECL npc_garments_of_questsAI : public npc_escortAI
                         }
                         break;
                 }
+
                 //give quest credit, not expect any special quest objectives
                 if (bCanRun)
                     CAST_PLR(pCaster)->TalkedToCreature(m_creature->GetEntry(),m_creature->GetGUID());
             }
         }
     }
+
     void WaypointReached(uint32 uiPoint)
     {
     }
+
     void UpdateAI(const uint32 diff)
     {
         if (bCanRun && !m_creature->isInCombat())
@@ -827,38 +982,49 @@ struct TRINITY_DLL_DECL npc_garments_of_questsAI : public npc_escortAI
                         case ENTRY_KORJA: DoScriptText(SAY_KORJA_GOODBYE,m_creature,pUnit); break;
                         case ENTRY_DG_KEL: DoScriptText(SAY_DG_KEL_GOODBYE,m_creature,pUnit); break;
                     }
+
                     Start(false,true,true);
                 }
                 else
                     EnterEvadeMode();                       //something went wrong
+
                 RunAwayTimer = 30000;
             }else RunAwayTimer -= diff;
         }
+
     npc_escortAI::UpdateAI(diff);
     }
 };
+
 CreatureAI* GetAI_npc_garments_of_quests(Creature* pCreature)
 {
     return new npc_garments_of_questsAI(pCreature);
 }
+
 /*######
 ## npc_guardian
 ######*/
+
 #define SPELL_DEATHTOUCH                5
+
 struct TRINITY_DLL_DECL npc_guardianAI : public ScriptedAI
 {
     npc_guardianAI(Creature *c) : ScriptedAI(c) {}
+
     void Reset()
     {
         m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
     }
+
     void EnterCombat(Unit *who)
     {
     }
+
     void UpdateAI(const uint32 diff)
     {
         if (!UpdateVictim())
             return;
+
         if (m_creature->isAttackReady())
         {
             m_creature->CastSpell(m_creature->getVictim(),SPELL_DEATHTOUCH, true);
@@ -866,13 +1032,16 @@ struct TRINITY_DLL_DECL npc_guardianAI : public ScriptedAI
         }
     }
 };
+
 CreatureAI* GetAI_npc_guardian(Creature* pCreature)
 {
     return new npc_guardianAI (pCreature);
 }
+
 /*######
 ## npc_kingdom_of_dalaran_quests
 ######*/
+
 enum eKingdomDalaran
 {
     SPELL_TELEPORT_DALARAN  = 53360,
@@ -881,17 +1050,22 @@ enum eKingdomDalaran
     QUEST_MAGICAL_KINGDOM_H = 12791,
     QUEST_MAGICAL_KINGDOM_N = 12796
 };
+
 #define GOSSIP_ITEM_TELEPORT_TO "I am ready to be teleported to Dalaran."
+
 bool GossipHello_npc_kingdom_of_dalaran_quests(Player* pPlayer, Creature* pCreature)
 {
     if (pCreature->isQuestGiver())
         pPlayer->PrepareQuestMenu(pCreature->GetGUID());
+
     if (pPlayer->HasItemCount(ITEM_KT_SIGNET,1) && (!pPlayer->GetQuestRewardStatus(QUEST_MAGICAL_KINGDOM_A) ||
         !pPlayer->GetQuestRewardStatus(QUEST_MAGICAL_KINGDOM_H) || !pPlayer->GetQuestRewardStatus(QUEST_MAGICAL_KINGDOM_N)))
         pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_TELEPORT_TO, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+
     pPlayer->SEND_GOSSIP_MENU(pCreature->GetNpcTextId(), pCreature->GetGUID());
     return true;
 }
+
 bool GossipSelect_npc_kingdom_of_dalaran_quests(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
 {
     if (uiAction == GOSSIP_ACTION_INFO_DEF+1)
@@ -901,17 +1075,21 @@ bool GossipSelect_npc_kingdom_of_dalaran_quests(Player* pPlayer, Creature* pCrea
     }
     return true;
 }
+
 /*######
 ## npc_mount_vendor
 ######*/
+
 bool GossipHello_npc_mount_vendor(Player* pPlayer, Creature* pCreature)
 {
     if (pCreature->isQuestGiver())
         pPlayer->PrepareQuestMenu(pCreature->GetGUID());
+
     bool canBuy;
     canBuy = false;
     uint32 vendor = pCreature->GetEntry();
     uint8 race = pPlayer->getRace();
+
     switch (vendor)
     {
         case 384:                                           //Katie Hunter
@@ -968,6 +1146,7 @@ bool GossipHello_npc_mount_vendor(Player* pPlayer, Creature* pCreature)
             else canBuy = true;
             break;
     }
+
     if (canBuy)
     {
         if (pCreature->isVendor())
@@ -976,33 +1155,43 @@ bool GossipHello_npc_mount_vendor(Player* pPlayer, Creature* pCreature)
     }
     return true;
 }
+
 bool GossipSelect_npc_mount_vendor(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
 {
     if (uiAction == GOSSIP_ACTION_TRADE)
         pPlayer->SEND_VENDORLIST(pCreature->GetGUID());
+
     return true;
 }
+
 /*######
 ## npc_rogue_trainer
 ######*/
+
 #define GOSSIP_HELLO_ROGUE1 "I wish to unlearn my talents"
 #define GOSSIP_HELLO_ROGUE2 "<Take the letter>"
+
 bool GossipHello_npc_rogue_trainer(Player* pPlayer, Creature* pCreature)
 {
     if (pCreature->isQuestGiver())
         pPlayer->PrepareQuestMenu(pCreature->GetGUID());
+
     if (pCreature->isTrainer())
         pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TRAINER, GOSSIP_TEXT_TRAIN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRAIN);
+
     if (pCreature->isCanTrainingAndResetTalentsOf(pPlayer))
         pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TRAINER, GOSSIP_HELLO_ROGUE1, GOSSIP_SENDER_MAIN, GOSSIP_OPTION_UNLEARNTALENTS);
+
     if (pPlayer->getClass() == CLASS_ROGUE && pPlayer->getLevel() >= 24 && !pPlayer->HasItemCount(17126,1) && !pPlayer->GetQuestRewardStatus(6681))
     {
         pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_HELLO_ROGUE2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
         pPlayer->SEND_GOSSIP_MENU(5996, pCreature->GetGUID());
     } else
         pPlayer->SEND_GOSSIP_MENU(pCreature->GetNpcTextId(), pCreature->GetGUID());
+
     return true;
 }
+
 bool GossipSelect_npc_rogue_trainer(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
 {
     switch(uiAction)
@@ -1021,9 +1210,11 @@ bool GossipSelect_npc_rogue_trainer(Player* pPlayer, Creature* pCreature, uint32
     }
     return true;
 }
+
 /*######
 ## npc_sayge
 ######*/
+
 #define SPELL_DMG       23768                               //dmg
 #define SPELL_RES       23769                               //res
 #define SPELL_ARM       23767                               //arm
@@ -1033,6 +1224,7 @@ bool GossipSelect_npc_rogue_trainer(Player* pPlayer, Creature* pCreature, uint32
 #define SPELL_STR       23735                               //str
 #define SPELL_AGI       23736                               //agi
 #define SPELL_FORTUNE   23765                               //faire fortune
+
 #define GOSSIP_HELLO_SAYGE  "Yes"
 #define GOSSIP_SENDACTION_SAYGE1    "Slay the Man"
 #define GOSSIP_SENDACTION_SAYGE2    "Turn him over to liege"
@@ -1051,10 +1243,12 @@ bool GossipSelect_npc_rogue_trainer(Player* pPlayer, Creature* pCreature, uint32
 #define GOSSIP_SENDACTION_SAYGE15   "Take credit, share the gold"
 #define GOSSIP_SENDACTION_SAYGE16   "Let the knight take credit"
 #define GOSSIP_SENDACTION_SAYGE17   "Thanks"
+
 bool GossipHello_npc_sayge(Player* pPlayer, Creature* pCreature)
 {
     if (pCreature->isQuestGiver())
         pPlayer->PrepareQuestMenu(pCreature->GetGUID());
+
     if (pPlayer->HasSpellCooldown(SPELL_INT) ||
         pPlayer->HasSpellCooldown(SPELL_ARM) ||
         pPlayer->HasSpellCooldown(SPELL_DMG) ||
@@ -1069,8 +1263,10 @@ bool GossipHello_npc_sayge(Player* pPlayer, Creature* pCreature)
         pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_HELLO_SAYGE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
         pPlayer->SEND_GOSSIP_MENU(7339, pCreature->GetGUID());
     }
+
     return true;
 }
+
 void SendAction_npc_sayge(Player* pPlayer, Creature* pCreature, uint32 uiAction)
 {
     switch(uiAction)
@@ -1116,6 +1312,7 @@ void SendAction_npc_sayge(Player* pPlayer, Creature* pCreature, uint32 uiAction)
             break;
     }
 }
+
 bool GossipSelect_npc_sayge(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
 {
     switch(uiSender)
@@ -1166,11 +1363,14 @@ bool GossipSelect_npc_sayge(Player* pPlayer, Creature* pCreature, uint32 uiSende
     }
     return true;
 }
+
 struct TRINITY_DLL_DECL npc_steam_tonkAI : public ScriptedAI
 {
     npc_steam_tonkAI(Creature *c) : ScriptedAI(c) {}
+
     void Reset() {}
     void EnterCombat(Unit *who) {}
+
     void OnPossess(bool apply)
     {
         if (apply)
@@ -1178,31 +1378,40 @@ struct TRINITY_DLL_DECL npc_steam_tonkAI : public ScriptedAI
             // Initialize the action bar without the melee attack command
             m_creature->InitCharmInfo();
             m_creature->GetCharmInfo()->InitEmptyActionBar(false);
+
             m_creature->SetReactState(REACT_PASSIVE);
         }
         else
             m_creature->SetReactState(REACT_AGGRESSIVE);
     }
+
 };
+
 CreatureAI* GetAI_npc_steam_tonk(Creature* pCreature)
 {
     return new npc_steam_tonkAI(pCreature);
 }
+
 #define SPELL_TONK_MINE_DETONATE 25099
+
 struct TRINITY_DLL_DECL npc_tonk_mineAI : public ScriptedAI
 {
     npc_tonk_mineAI(Creature *c) : ScriptedAI(c)
     {
         m_creature->SetReactState(REACT_PASSIVE);
     }
+
     uint32 ExplosionTimer;
+
     void Reset()
     {
         ExplosionTimer = 3000;
     }
+
     void EnterCombat(Unit *who) {}
     void AttackStart(Unit *who) {}
     void MoveInLineOfSight(Unit *who) {}
+
     void UpdateAI(const uint32 diff)
     {
         if (ExplosionTimer < diff)
@@ -1213,18 +1422,22 @@ struct TRINITY_DLL_DECL npc_tonk_mineAI : public ScriptedAI
             ExplosionTimer -= diff;
     }
 };
+
 CreatureAI* GetAI_npc_tonk_mine(Creature* pCreature)
 {
     return new npc_tonk_mineAI(pCreature);
 }
+
 /*####
 ## npc_winter_reveler
 ####*/
+
 bool ReceiveEmote_npc_winter_reveler(Player* pPlayer, Creature* pCreature, uint32 emote)
 {
     //TODO: check auralist.
     if (pPlayer->HasAura(26218))
         return false;
+
     if (emote == TEXTEMOTE_KISS)
     {
         pCreature->CastSpell(pCreature, 26218, false);
@@ -1238,51 +1451,68 @@ bool ReceiveEmote_npc_winter_reveler(Player* pPlayer, Creature* pCreature, uint3
     }
     return true;
 }
+
 /*####
 ## npc_brewfest_reveler
 ####*/
+
 bool ReceiveEmote_npc_brewfest_reveler(Player* pPlayer, Creature* pCreature, uint32 emote)
 {
     if (emote == TEXTEMOTE_DANCE)
         pCreature->CastSpell(pPlayer, 41586, false);
+
     return true;
 }
+
 /*####
 ## npc_snake_trap_serpents
 ####*/
+
 #define SPELL_MIND_NUMBING_POISON    8692    //Viper
 #define SPELL_DEADLY_POISON          34655   //Venomous Snake
 #define SPELL_CRIPPLING_POISON       3409    //Viper
+
 #define VENOMOUS_SNAKE_TIMER 1200
 #define VIPER_TIMER 3000
+
 #define C_VIPER 19921
+
 #define RAND 5
+
 struct TRINITY_DLL_DECL npc_snake_trap_serpentsAI : public ScriptedAI
 {
     npc_snake_trap_serpentsAI(Creature *c) : ScriptedAI(c) {}
+
     uint32 SpellTimer;
     bool IsViper;
     bool Spawn;
+
     void EnterCombat(Unit *who) {}
+
     void Reset()
     {
         Spawn = true;
         SpellTimer = 0;
+
         CreatureInfo const *Info = m_creature->GetCreatureInfo();
+
         if (Info->Entry == C_VIPER)
             IsViper = true;
         else
             IsViper = false;
+
         //We have to reload the states from db for summoned guardians
         m_creature->SetMaxHealth(Info->maxhealth);
         m_creature->SetHealth(Info->maxhealth);
         m_creature->SetStatFloatValue(UNIT_FIELD_MINDAMAGE, Info->mindmg);
         m_creature->SetStatFloatValue(UNIT_FIELD_MAXDAMAGE, Info->maxdmg);
+
         //Add delta to make them not all hit the same time
         uint32 delta = (rand() % 7) *100;
         m_creature->SetStatFloatValue(UNIT_FIELD_BASEATTACKTIME, Info->baseattacktime + delta);
         m_creature->SetStatFloatValue(UNIT_FIELD_RANGED_ATTACK_POWER , Info->attackpower);
     }
+
     //Redefined for random target selection:
     void MoveInLineOfSight(Unit *who)
     {
@@ -1290,6 +1520,7 @@ struct TRINITY_DLL_DECL npc_snake_trap_serpentsAI : public ScriptedAI
         {
             if (m_creature->GetDistanceZ(who) > CREATURE_Z_ATTACK_RANGE)
                 return;
+
             float attackRadius = m_creature->GetAttackDistance(who);
             if (m_creature->IsWithinDistInMap(who, attackRadius) && m_creature->IsWithinLOSInMap(who))
             {
@@ -1302,6 +1533,7 @@ struct TRINITY_DLL_DECL npc_snake_trap_serpentsAI : public ScriptedAI
             }
         }
     }
+
     void UpdateAI(const uint32 diff)
     {
         if (Spawn)
@@ -1313,12 +1545,14 @@ struct TRINITY_DLL_DECL npc_snake_trap_serpentsAI : public ScriptedAI
                     if (Owner->getAttackerForHelper())
                         AttackStart(Owner->getAttackerForHelper());
         }
+
         if (!m_creature->getVictim())
         {
             if (m_creature->isInCombat())
                 DoStopAttack();
             return;
         }
+
         if (SpellTimer < diff)
         {
             if (IsViper) //Viper
@@ -1330,8 +1564,10 @@ struct TRINITY_DLL_DECL npc_snake_trap_serpentsAI : public ScriptedAI
                         spell = SPELL_MIND_NUMBING_POISON;
                     else
                         spell = SPELL_CRIPPLING_POISON;
+
                     DoCast(m_creature->getVictim(),spell);
                 }
+
                 SpellTimer = VIPER_TIMER;
             }
             else //Venomous Snake
@@ -1344,10 +1580,12 @@ struct TRINITY_DLL_DECL npc_snake_trap_serpentsAI : public ScriptedAI
         DoMeleeAttackIfReady();
     }
 };
+
 CreatureAI* GetAI_npc_snake_trap_serpents(Creature* pCreature)
 {
     return new npc_snake_trap_serpentsAI(pCreature);
 }
+
 #define SAY_RANDOM_MOJO0    "Now that's what I call froggy-style!"
 #define SAY_RANDOM_MOJO1    "Your lily pad or mine?"
 #define SAY_RANDOM_MOJO2    "This won't take long, did it?"
@@ -1357,6 +1595,7 @@ CreatureAI* GetAI_npc_snake_trap_serpents(Creature* pCreature)
 #define SAY_RANDOM_MOJO6a   "Listen, "
 #define SAY_RANDOM_MOJO6b   ", I know of a little swamp not too far from here...."
 #define SAY_RANDOM_MOJO7    "There's just never enough Mojo to go around..."
+
 struct TRINITY_DLL_DECL mob_mojoAI : public ScriptedAI
 {
     mob_mojoAI(Creature *c) : ScriptedAI(c) {Reset();}
@@ -1421,13 +1660,16 @@ struct TRINITY_DLL_DECL mob_mojoAI : public ScriptedAI
         }
     }
 };
+
 CreatureAI* GetAI_mob_mojo(Creature* pCreature)
 {
     return new mob_mojoAI (pCreature);
 }
+
 struct TRINITY_DLL_DECL npc_mirror_image : CasterAI
 {
     npc_mirror_image(Creature *c) : CasterAI(c) {}
+
     void InitializeAI()
     {
         CasterAI::InitializeAI();
@@ -1441,12 +1683,15 @@ struct TRINITY_DLL_DECL npc_mirror_image : CasterAI
         // Clone Me!
         owner->CastSpell(me, 45204, false);
     }
+
     // Do not reload Creature templates on evade mode enter - prevent visual lost
     void EnterEvadeMode()
     {
         if (me->IsInEvadeMode() || !me->isAlive())
             return;
+
         Unit *owner = me->GetCharmerOrOwner();
+
         me->CombatStop(true);
         if (owner && !me->hasUnitState(UNIT_STAT_FOLLOW))
         {
@@ -1455,14 +1700,18 @@ struct TRINITY_DLL_DECL npc_mirror_image : CasterAI
         }
     }
 };
+
 CreatureAI* GetAI_npc_mirror_image(Creature* pCreature)
 {
     return new npc_mirror_image (pCreature);
 }
+
 struct TRINITY_DLL_DECL npc_ebon_gargoyleAI : CasterAI
 {
     npc_ebon_gargoyleAI(Creature *c) : CasterAI(c) {}
+
     int despawnTimer;
+
     void InitializeAI()
     {
         CasterAI::InitializeAI();
@@ -1476,32 +1725,38 @@ struct TRINITY_DLL_DECL npc_ebon_gargoyleAI : CasterAI
         Trinity::AnyUnfriendlyUnitInObjectRangeCheck u_check(m_creature, m_creature, 30);
         Trinity::UnitListSearcher<Trinity::AnyUnfriendlyUnitInObjectRangeCheck> searcher(m_creature, targets, u_check);
         m_creature->VisitNearbyObject(30, searcher);
-        for (std::list<Unit*>::iterator iter = targets.begin(); iter != targets.end(); ++iter)
+        for(std::list<Unit*>::iterator iter = targets.begin(); iter != targets.end(); ++iter)
             if((*iter)->GetAura(49206,owner->GetGUID()))
             {
                 me->Attack((*iter),false);
                 break;
             }
     }
+
     void JustDied(Unit *killer)
     {
         // Stop Feeding Gargoyle when it dies
         if (Unit *owner = me->GetOwner())
             owner->RemoveAurasDueToSpell(50514);
     }
+
     // Fly away when dismissed
     void SpellHit(Unit *source, const SpellEntry *spell)
     {
         if(spell->Id != 50515 || !me->isAlive() )
             return;
+
         Unit *owner = me->GetOwner();
+
         if (!owner || owner != source)
             return;
+
         // Stop Fighting
         me->ApplyModFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE, true);
         // Sanctuary
         me->CastSpell(m_creature, 54661, true);
         me->SetReactState(REACT_PASSIVE);
+
         // Fly Away
         me->AddUnitMovementFlag(MOVEMENTFLAG_FLY_MODE);
         me->SetSpeed(MOVE_FLIGHT, 0.25f, true);
@@ -1510,9 +1765,11 @@ struct TRINITY_DLL_DECL npc_ebon_gargoyleAI : CasterAI
         float y = me->GetPositionY() + 10 * sin(me->GetOrientation());
         float z = me->GetPositionZ() + 25;
         me->GetMotionMaster()->MovePoint(0, x, y, z);
+
         // Despawn as soon as possible
         despawnTimer = 4 * IN_MILISECONDS;
     }
+
     void UpdateAI(const uint32 diff)
     {
         if (despawnTimer > 0)
@@ -1528,25 +1785,31 @@ struct TRINITY_DLL_DECL npc_ebon_gargoyleAI : CasterAI
         CasterAI::UpdateAI(diff);
     }
 };
+
 CreatureAI* GetAI_npc_ebon_gargoyle(Creature* pCreature)
 {
     return new npc_ebon_gargoyleAI (pCreature);
 }
+
 struct TRINITY_DLL_DECL npc_lightwellAI : public PassiveAI
 {
     npc_lightwellAI(Creature *c) : PassiveAI(c) {}
+
     void Reset()
     {
         m_creature->CastSpell(m_creature, 59907, false); // Spell for Lightwell Charges
     }
 };
+
 CreatureAI* GetAI_npc_lightwellAI(Creature* pCreature)
 {
     return new npc_lightwellAI (pCreature);
 }
+
 struct TRINITY_DLL_DECL npc_training_dummy : Scripted_NoMovementAI
 {
     npc_training_dummy(Creature *c) : Scripted_NoMovementAI(c) {}
+
     uint32 ResetTimer;
     void Reset()
     {
@@ -1555,12 +1818,15 @@ struct TRINITY_DLL_DECL npc_training_dummy : Scripted_NoMovementAI
         m_creature->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_STUN, true);
         ResetTimer = 10000;
     }
+
     void DamageTaken(Unit *done_by, uint32 &damage)
     {
         ResetTimer = 10000;
         damage = 0;
     }
+
     void EnterCombat(Unit *who){return;}
+
     void UpdateAI(const uint32 diff)
     {
         if (!UpdateVictim())
@@ -1576,100 +1842,123 @@ struct TRINITY_DLL_DECL npc_training_dummy : Scripted_NoMovementAI
     }
     void MoveInLineOfSight(Unit *who){return;}
 };
+
 CreatureAI* GetAI_npc_training_dummy(Creature* pCreature)
 {
     return new npc_training_dummy (pCreature);
 }
+
 void AddSC_npcs_special()
 {
     Script *newscript;
+
     newscript = new Script;
     newscript->Name = "npc_air_force_bots";
     newscript->GetAI = &GetAI_npc_air_force_bots;
     newscript->RegisterSelf();
+
     newscript = new Script;
     newscript->Name = "npc_chicken_cluck";
     newscript->GetAI = &GetAI_npc_chicken_cluck;
     newscript->pQuestAccept =   &QuestAccept_npc_chicken_cluck;
     newscript->pQuestComplete = &QuestComplete_npc_chicken_cluck;
     newscript->RegisterSelf();
+
     newscript = new Script;
     newscript->Name = "npc_dancing_flames";
     newscript->GetAI = &GetAI_npc_dancing_flames;
     newscript->RegisterSelf();
+
     newscript = new Script;
     newscript->Name = "npc_injured_patient";
     newscript->GetAI = &GetAI_npc_injured_patient;
     newscript->RegisterSelf();
+
     newscript = new Script;
     newscript->Name = "npc_doctor";
     newscript->GetAI = &GetAI_npc_doctor;
     newscript->pQuestAccept = &QuestAccept_npc_doctor;
     newscript->RegisterSelf();
+
     newscript = new Script;
     newscript->Name = "npc_garments_of_quests";
     newscript->GetAI = &GetAI_npc_garments_of_quests;
     newscript->RegisterSelf();
+
     newscript = new Script;
     newscript->Name = "npc_guardian";
     newscript->GetAI = &GetAI_npc_guardian;
     newscript->RegisterSelf();
+
     newscript = new Script;
     newscript->Name = "npc_kingdom_of_dalaran_quests";
     newscript->pGossipHello =  &GossipHello_npc_kingdom_of_dalaran_quests;
     newscript->pGossipSelect = &GossipSelect_npc_kingdom_of_dalaran_quests;
     newscript->RegisterSelf();
+
     newscript = new Script;
     newscript->Name = "npc_mount_vendor";
     newscript->pGossipHello =  &GossipHello_npc_mount_vendor;
     newscript->pGossipSelect = &GossipSelect_npc_mount_vendor;
     newscript->RegisterSelf();
+
     newscript = new Script;
     newscript->Name = "npc_rogue_trainer";
     newscript->pGossipHello =  &GossipHello_npc_rogue_trainer;
     newscript->pGossipSelect = &GossipSelect_npc_rogue_trainer;
     newscript->RegisterSelf();
+
     newscript = new Script;
     newscript->Name = "npc_sayge";
     newscript->pGossipHello = &GossipHello_npc_sayge;
     newscript->pGossipSelect = &GossipSelect_npc_sayge;
     newscript->RegisterSelf();
+
     newscript = new Script;
     newscript->Name = "npc_steam_tonk";
     newscript->GetAI = &GetAI_npc_steam_tonk;
     newscript->RegisterSelf();
+
     newscript = new Script;
     newscript->Name = "npc_tonk_mine";
     newscript->GetAI = &GetAI_npc_tonk_mine;
     newscript->RegisterSelf();
+
     newscript = new Script;
     newscript->Name = "npc_winter_reveler";
     //newscript->pReceiveEmote =  &ReceiveEmote_npc_winter_reveler;
     newscript->RegisterSelf();
+
     newscript = new Script;
     newscript->Name = "npc_brewfest_reveler";
     //newscript->pReceiveEmote =  &ReceiveEmote_npc_brewfest_reveler;
     newscript->RegisterSelf();
+
     newscript = new Script;
     newscript->Name = "npc_snake_trap_serpents";
     newscript->GetAI = &GetAI_npc_snake_trap_serpents;
     newscript->RegisterSelf();
+
     newscript = new Script;
     newscript->Name = "npc_mirror_image";
     newscript->GetAI = &GetAI_npc_mirror_image;
     newscript->RegisterSelf();
+
     newscript = new Script;
     newscript->Name = "npc_ebon_gargoyle";
     newscript->GetAI = &GetAI_npc_ebon_gargoyle;
     newscript->RegisterSelf();
+
     newscript = new Script;
     newscript->Name = "npc_lightwell";
     newscript->GetAI = &GetAI_npc_lightwellAI;
     newscript->RegisterSelf();
+
     newscript = new Script;
     newscript->Name = "mob_mojo";
     newscript->GetAI = &GetAI_mob_mojo;
     newscript->RegisterSelf();
+
     newscript = new Script;
     newscript->Name = "npc_training_dummy";
     newscript->GetAI = &GetAI_npc_training_dummy;

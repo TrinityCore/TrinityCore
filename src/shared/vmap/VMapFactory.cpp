@@ -17,17 +17,23 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
+
 #include <sys/types.h>
 #include "VMapFactory.h"
 #include "VMapManager.h"
+
 using namespace G3D;
+
 namespace VMAP
 {
     extern void chompAndTrim(std::string& str);
+
     VMapManager *gVMapManager = 0;
     Table<unsigned int , bool>* iIgnoreSpellIds=0;
+
     //===============================================
     // result false, if no more id are found
+
     bool getNextId(const std::string& pString, unsigned int& pStartPos, unsigned int& pId)
     {
         bool result = false;
@@ -49,10 +55,12 @@ namespace VMAP
         }
         return(result);
     }
+
     //===============================================
     /**
     parameter: String of map ids. Delimiter = ","
     */
+
     void VMapFactory::preventSpellsFromBeingTestedForLoS(const char* pSpellIdString)
     {
         if(!iIgnoreSpellIds)
@@ -69,11 +77,14 @@ namespace VMAP
             }
         }
     }
+
     //===============================================
+
     bool VMapFactory::checkSpellForLoS(unsigned int pSpellId)
     {
         return(!iIgnoreSpellIds->containsKey(pSpellId));
     }
+
     //===============================================
     // just return the instance
     IVMapManager* VMapFactory::createOrGetVMapManager()
@@ -82,6 +93,7 @@ namespace VMAP
             gVMapManager= new VMapManager();                // should be taken from config ... Please change if you like :-)
         return gVMapManager;
     }
+
     //===============================================
     // delete all internal data structures
     void VMapFactory::clear()

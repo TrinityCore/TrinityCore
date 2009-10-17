@@ -1,7 +1,9 @@
 // -*- C++ -*-
 //
 // $Id: Object_Manager.inl 80826 2008-03-04 14:51:23Z wotte $
+
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
+
 ACE_INLINE
 int
 ACE_Object_Manager::at_exit (ACE_Cleanup *object,
@@ -12,6 +14,7 @@ ACE_Object_Manager::at_exit (ACE_Cleanup *object,
     (ACE_CLEANUP_FUNC) ACE_CLEANUP_DESTROYER_NAME,
     param);
 }
+
 ACE_INLINE
 int
 ACE_Object_Manager::at_exit (void *object,
@@ -23,6 +26,7 @@ ACE_Object_Manager::at_exit (void *object,
     cleanup_hook,
     param);
 }
+
 ACE_INLINE
 ACE_Sig_Set &
 ACE_Object_Manager::default_mask (void)
@@ -32,4 +36,5 @@ ACE_Object_Manager::default_mask (void)
   return
     *reinterpret_cast<ACE_Sig_Set *> (ACE_OS_Object_Manager::default_mask ());
 }
+
 ACE_END_VERSIONED_NAMESPACE_DECL

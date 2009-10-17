@@ -17,9 +17,12 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
+
 #ifndef __BATTLEGROUNDWS_H
 #define __BATTLEGROUNDWS_H
+
 #include "BattleGround.h"
+
 enum BG_WS_TimerOrScore
 {
     BG_WS_MAX_TEAM_SCORE    = 3,
@@ -28,6 +31,7 @@ enum BG_WS_TimerOrScore
     BG_WS_SPELL_FORCE_TIME  = 600000,
     BG_WS_SPELL_BRUTAL_TIME = 900000
 };
+
 enum BG_WS_Sound
 {
     BG_WS_SOUND_FLAG_CAPTURED_ALLIANCE  = 8173,
@@ -38,6 +42,7 @@ enum BG_WS_Sound
     BG_WS_SOUND_ALLIANCE_FLAG_PICKED_UP = 8174,
     BG_WS_SOUND_FLAGS_RESPAWNED         = 8232
 };
+
 enum BG_WS_SpellId
 {
     BG_WS_SPELL_WARSONG_FLAG            = 23333,
@@ -47,6 +52,7 @@ enum BG_WS_SpellId
     BG_WS_SPELL_FOCUSED_ASSAULT         = 46392,
     BG_WS_SPELL_BRUTAL_ASSAULT          = 46393
 };
+
 enum BG_WS_WorldStates
 {
     BG_WS_FLAG_UNK_ALLIANCE       = 1545,
@@ -58,6 +64,7 @@ enum BG_WS_WorldStates
     BG_WS_FLAG_STATE_HORDE        = 2338,
     BG_WS_FLAG_STATE_ALLIANCE     = 2339
 };
+
 enum BG_WS_ObjectTypes
 {
     BG_WS_OBJECT_DOOR_A_1       = 0,
@@ -80,6 +87,7 @@ enum BG_WS_ObjectTypes
     BG_WS_OBJECT_BERSERKBUFF_2  = 17,
     BG_WS_OBJECT_MAX            = 18
 };
+
 enum BG_WS_ObjectEntry
 {
     BG_OBJECT_DOOR_A_1_WS_ENTRY          = 179918,
@@ -97,6 +105,7 @@ enum BG_WS_ObjectEntry
     BG_OBJECT_A_FLAG_GROUND_WS_ENTRY     = 179785,
     BG_OBJECT_H_FLAG_GROUND_WS_ENTRY     = 179786
 };
+
 enum BG_WS_FlagState
 {
     BG_WS_FLAG_STATE_ON_BASE      = 0,
@@ -104,6 +113,7 @@ enum BG_WS_FlagState
     BG_WS_FLAG_STATE_ON_PLAYER    = 2,
     BG_WS_FLAG_STATE_ON_GROUND    = 3
 };
+
 enum BG_WS_Graveyards
 {
     WS_GRAVEYARD_FLAGROOM_ALLIANCE = 769,
@@ -111,17 +121,21 @@ enum BG_WS_Graveyards
     WS_GRAVEYARD_MAIN_ALLIANCE     = 771,
     WS_GRAVEYARD_MAIN_HORDE        = 772
 };
+
 enum BG_WS_CreatureTypes
 {
     WS_SPIRIT_MAIN_ALLIANCE   = 0,
     WS_SPIRIT_MAIN_HORDE      = 1,
+
     BG_CREATURES_MAX_WS       = 2
 };
+
 enum BG_WS_CarrierDebuffs
 {
     WS_SPELL_FOCUSED_ASSAULT   = 46392,
     WS_SPELL_BRUTAL_ASSAULT    = 46393
 };
+
 class BattleGroundWGScore : public BattleGroundScore
 {
     public:
@@ -130,18 +144,22 @@ class BattleGroundWGScore : public BattleGroundScore
         uint32 FlagCaptures;
         uint32 FlagReturns;
 };
+
 class BattleGroundWS : public BattleGround
 {
     friend class BattleGroundMgr;
+
     public:
         /* Construction */
         BattleGroundWS();
         ~BattleGroundWS();
         void Update(uint32 diff);
+
         /* inherited from BattlegroundClass */
         virtual void AddPlayer(Player *plr);
         virtual void StartingEventCloseDoors();
         virtual void StartingEventOpenDoors();
+
         /* BG Flags */
         uint64 GetAllianceFlagPickerGUID() const    { return m_FlagKeepers[BG_TEAM_ALLIANCE]; }
         uint64 GetHordeFlagPickerGUID() const       { return m_FlagKeepers[BG_TEAM_HORDE]; }
@@ -156,10 +174,12 @@ class BattleGroundWS : public BattleGround
         void RemoveTimedAura(uint32 aura);
         bool IsBrutalTimerDone;
         bool IsForceTimerDone;
+
         /* Battleground Events */
         virtual void EventPlayerDroppedFlag(Player *Source);
         virtual void EventPlayerClickedOnFlag(Player *Source, GameObject* target_obj);
         virtual void EventPlayerCapturedFlag(Player *Source);
+
         void RemovePlayer(Player *plr, uint64 guid);
         void HandleAreaTrigger(Player *Source, uint32 Trigger);
         void HandleKillPlayer(Player *player, Player *killer);
@@ -167,12 +187,14 @@ class BattleGroundWS : public BattleGround
         virtual void Reset();
         void EndBattleGround(uint32 winner);
         virtual WorldSafeLocsEntry const* GetClosestGraveYard(Player* player);
+
         void UpdateFlagState(uint32 team, uint32 value);
         void UpdateTeamScore(uint32 team);
         void UpdatePlayerScore(Player *Source, uint32 type, uint32 value);
         void SetDroppedFlagGUID(uint64 guid, uint32 TeamID)  { m_DroppedFlagGUID[GetTeamIndexByTeamId(TeamID)] = guid;}
         uint64 GetDroppedFlagGUID(uint32 TeamID)             { return m_DroppedFlagGUID[GetTeamIndexByTeamId(TeamID)];}
         virtual void FillInitialWorldStates(WorldPacket& data);
+
         /* Scorekeeping */
         uint32 GetTeamScore(uint32 TeamID) const            { return m_TeamScores[GetTeamIndexByTeamId(TeamID)]; }
         void AddPoint(uint32 TeamID, uint32 Points = 1)     { m_TeamScores[GetTeamIndexByTeamId(TeamID)] += Points; }
@@ -184,6 +206,7 @@ class BattleGroundWS : public BattleGround
         uint8 m_FlagState[2];                               // for checking flag state
         int32 m_FlagsTimer[2];
         int32 m_FlagsDropTimer[2];
+
         uint32 m_ReputationCapture;
         uint32 m_HonorWinKills;
         uint32 m_HonorEndKills;

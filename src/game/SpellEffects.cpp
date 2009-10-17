@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
+
 #include "Common.h"
 #include "Database/DatabaseEnv.h"
 #include "WorldPacket.h"
@@ -60,6 +61,7 @@
 #include "SkillDiscovery.h"
 #include "Formulas.h"
 #include "Vehicle.h"
+
 pEffect SpellEffects[TOTAL_SPELL_EFFECTS]=
 {
     &Spell::EffectNULL,                                     //  0
@@ -226,34 +228,44 @@ pEffect SpellEffects[TOTAL_SPELL_EFFECTS]=
     &Spell::EffectSpecCount,                                //161 SPELL_EFFECT_TALENT_SPEC_COUNT        second talent spec (learn/revert)
     &Spell::EffectActivateSpec,                             //162 SPELL_EFFECT_TALENT_SPEC_SELECT       activate primary/secondary spec
 };
+
 void Spell::EffectNULL(uint32 /*i*/)
 {
     sLog.outDebug("WORLD: Spell Effect DUMMY");
 }
+
 void Spell::EffectUnused(uint32 /*i*/)
 {
     // NOT USED BY ANY SPELL OR USELESS OR IMPLEMENTED IN DIFFERENT WAY IN MANGOS
 }
+
 void Spell::EffectResurrectNew(uint32 i)
 {
     if(!unitTarget || unitTarget->isAlive())
         return;
+
     if(unitTarget->GetTypeId() != TYPEID_PLAYER)
         return;
+
     if(!unitTarget->IsInWorld())
         return;
+
     Player* pTarget = ((Player*)unitTarget);
+
     if(pTarget->isRessurectRequested())       // already have one active request
         return;
+
     uint32 health = damage;
     uint32 mana = m_spellInfo->EffectMiscValue[i];
     pTarget->setResurrectRequestData(m_caster->GetGUID(), m_caster->GetMapId(), m_caster->GetPositionX(), m_caster->GetPositionY(), m_caster->GetPositionZ(), health, mana);
     SendResurrectRequest(pTarget);
 }
+
 void Spell::EffectInstaKill(uint32 /*i*/)
 {
     if (!unitTarget || !unitTarget->isAlive())
         return;
+
     // Demonic Sacrifice
     if (m_spellInfo->Id == 18788 && unitTarget->GetTypeId() == TYPEID_UNIT)
     {
@@ -270,31 +282,41 @@ void Spell::EffectInstaKill(uint32 /*i*/)
                 sLog.outError("EffectInstaKill: Unhandled creature entry (%u) case.", entry);
                 return;
         }
+
         m_caster->CastSpell(m_caster, spellID, true);
     }
+
     if(m_caster == unitTarget)                              // prevent interrupt message
         finish();
+
     m_caster->DealDamage(unitTarget, unitTarget->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
 }
+
 void Spell::EffectEnvirinmentalDMG(uint32 i)
 {
     uint32 absorb = 0;
     uint32 resist = 0;
+
     // Note: this hack with damage replace required until GO casting not implemented
     // environment damage spells already have around enemies targeting but this not help in case not existed GO casting support
     // currently each enemy selected explicitly and self cast damage, we prevent apply self casted spell bonuses/etc
     damage = m_spellInfo->CalculateSimpleValue(i);
+
     m_caster->CalcAbsorbResist(m_caster, GetSpellSchoolMask(m_spellInfo), SPELL_DIRECT_DAMAGE, damage, &absorb, &resist, m_spellInfo);
+
     m_caster->SendSpellNonMeleeDamageLog(m_caster, m_spellInfo->Id, damage, GetSpellSchoolMask(m_spellInfo), absorb, resist, false, 0, false);
     if(m_caster->GetTypeId() == TYPEID_PLAYER)
         ((Player*)m_caster)->EnvironmentalDamage(DAMAGE_FIRE, damage);
 }
+
 void Spell::EffectSchoolDMG(uint32 effect_idx)
 {
 }
+
 void Spell::SpellDamageSchoolDmg(uint32 effect_idx)
 {
     bool apply_direct_bonus = true;
+
     if (unitTarget && unitTarget->isAlive())
     {
         switch (m_spellInfo->SpellFamilyName)
@@ -308,8 +330,10 @@ void Spell::SpellDamageSchoolDmg(uint32 effect_idx)
                     for (std::list<TargetInfo>::iterator ihit= m_UniqueTargetInfo.begin();ihit != m_UniqueTargetInfo.end();++ihit)
                         if (ihit->effectMask & (1<<effect_idx))
                             ++count;
+
                     damage /= count;                    // divide to all targets
                 }
+
                 switch(m_spellInfo->Id)                     // better way to check unknown
                 {
                     // Positive/Negative Charge
@@ -347,6 +371,7 @@ void Spell::SpellDamageSchoolDmg(uint32 effect_idx)
                                     aur->SetStackAmount(count);
                             }
                         }
+
                         if (unitTarget->HasAura(m_triggeredByAuraSpell->Id))
                             damage = 0;
                         break;
@@ -376,6 +401,7 @@ void Spell::SpellDamageSchoolDmg(uint32 effect_idx)
                         // don't damage self and only players
                         if(unitTarget->GetGUID() == m_caster->GetGUID() || unitTarget->GetTypeId() != TYPEID_PLAYER)
                             return;
+
                         float radius = GetSpellRadiusForHostile(sSpellRadiusStore.LookupEntry(m_spellInfo->EffectRadiusIndex[0]));
                         if (!radius) return;
                         float distance = m_caster->GetDistance2d(unitTarget);
@@ -397,6 +423,7 @@ void Spell::SpellDamageSchoolDmg(uint32 effect_idx)
                 }
                 break;
             }
+
             case SPELLFAMILY_WARRIOR:
             {
                 // Bloodthirst
@@ -438,6 +465,7 @@ void Spell::SpellDamageSchoolDmg(uint32 effect_idx)
                 else if (m_spellInfo->TargetAuraState == AURA_STATE_CONFLAGRATE)
                 {
                     AuraEffect const* aura = NULL;                // found req. aura for damage calculation
+
                     Unit::AuraEffectList const &mPeriodic = unitTarget->GetAurasByType(SPELL_AURA_PERIODIC_DAMAGE);
                     for(Unit::AuraEffectList::const_iterator i = mPeriodic.begin(); i != mPeriodic.end(); ++i)
                     {
@@ -445,16 +473,19 @@ void Spell::SpellDamageSchoolDmg(uint32 effect_idx)
                         if ((*i)->GetSpellProto()->SpellFamilyName != SPELLFAMILY_WARLOCK ||
                             (*i)->GetCasterGUID() != m_caster->GetGUID())
                             continue;
+
                         // Immolate
                         if ((*i)->GetSpellProto()->SpellFamilyFlags[0] & 0x4)
                         {
                             aura = *i;                      // it selected always if exist
                             break;
                         }
+
                         // Shadowflame
                         if ((*i)->GetSpellProto()->SpellFamilyFlags[2] & 0x00000002)
                             aura = *i;                      // remember but wait possible Immolate as primary priority
                     }
+
                     // found Immolate or Shadowflame
                     if (aura)
                     {
@@ -465,6 +496,7 @@ void Spell::SpellDamageSchoolDmg(uint32 effect_idx)
                         // Glyph of Conflagrate
                         if (!m_caster->HasAura(56235))
                             unitTarget->RemoveAurasDueToSpell(aura->GetId(), m_caster->GetGUID());
+
                         break;
                     }
                 }
@@ -546,6 +578,7 @@ void Spell::SpellDamageSchoolDmg(uint32 effect_idx)
                     {
                         float ap = m_caster->GetTotalAttackPowerValue(BASE_ATTACK);
                         damage += irand(int32(ap * combo * 0.03f), int32(ap * combo * 0.07f));
+
                         // Eviscerate and Envenom Bonus Damage (item set effect)
                         if (m_caster->HasAura(37169))
                             damage += combo*40;
@@ -575,9 +608,11 @@ void Spell::SpellDamageSchoolDmg(uint32 effect_idx)
                             break;
                         }
                     }
+
                     // TODO: should this be put on taken but not done?
                     if(found)
                         damage += m_spellInfo->EffectBasePoints[1];
+                        
                     if (m_caster->GetTypeId() == TYPEID_PLAYER)
                     {
                         // Add Ammo and Weapon damage plus RAP * 0.1
@@ -593,6 +628,7 @@ void Spell::SpellDamageSchoolDmg(uint32 effect_idx)
                             damage += ((Player*)m_caster)->GetAmmoDPS()*item->GetProto()->Delay/1000;
                         }
                     }
+
                 }
                 break;
             }
@@ -624,19 +660,24 @@ void Spell::SpellDamageSchoolDmg(uint32 effect_idx)
                 break;
             }
         }
+
         if(m_originalCaster && damage > 0 && apply_direct_bonus)
             damage = m_originalCaster->SpellDamageBonus(unitTarget, m_spellInfo, (uint32)damage, SPELL_DIRECT_DAMAGE);
+
         m_damage += damage;
     }
 }
+
 void Spell::EffectDummy(uint32 i)
 {
     if (!unitTarget && !gameObjTarget && !itemTarget)
         return;
+
     uint32 spell_id = 0;
     int32 bp = 0;
     bool triggered = true;
     SpellCastTargets targets;
+
     // selection by spell family
     switch (m_spellInfo->SpellFamilyName)
     {
@@ -651,9 +692,12 @@ void Spell::EffectDummy(uint32 i)
                     for(std::list<TargetInfo>::iterator ihit= m_UniqueTargetInfo.begin();ihit != m_UniqueTargetInfo.end();++ihit)
                         if(ihit->effectMask & (1<<i))
                             ++count;
+
                     damage = 12000; // maybe wrong value
                     damage /= count;
+
                     SpellEntry const *spellInfo = sSpellStore.LookupEntry(42784);
+
                      // now deal the damage
                     for(std::list<TargetInfo>::iterator ihit= m_UniqueTargetInfo.begin();ihit != m_UniqueTargetInfo.end();++ihit)
                         if(ihit->effectMask & (1<<i))
@@ -666,6 +710,7 @@ void Spell::EffectDummy(uint32 i)
                 {
                     if(m_caster->GetTypeId() != TYPEID_PLAYER)
                         return;
+
                     uint32 spell_id = 0;
                     switch(urand(1,5))
                     {
@@ -682,6 +727,7 @@ void Spell::EffectDummy(uint32 i)
                 {
                     if(m_caster->GetTypeId() != TYPEID_PLAYER)
                         return;
+
                     uint32 spell_id = 0;
                     switch(urand(1,2))
                     {
@@ -707,6 +753,7 @@ void Spell::EffectDummy(uint32 i)
                 {
                     if (!unitTarget)
                         return;
+
                     float damage;
                     // DW should benefit of attack power, damage percent mods etc.
                     // TODO: check if using offhand damage is correct and if it should be divided by 2
@@ -714,6 +761,7 @@ void Spell::EffectDummy(uint32 i)
                         damage = (m_caster->GetFloatValue(UNIT_FIELD_MINOFFHANDDAMAGE) + m_caster->GetFloatValue(UNIT_FIELD_MAXOFFHANDDAMAGE))/2;
                     else
                         damage = (m_caster->GetFloatValue(UNIT_FIELD_MINDAMAGE) + m_caster->GetFloatValue(UNIT_FIELD_MAXDAMAGE))/2;
+
                     switch (m_spellInfo->Id)
                     {
                         case 12162: damage *= 0.16f; break; // Rank 1
@@ -723,6 +771,7 @@ void Spell::EffectDummy(uint32 i)
                             sLog.outError("Spell::EffectDummy: Spell %u not handled in DW",m_spellInfo->Id);
                             return;
                     };
+
                     // get remaining damage of old Deep Wound aura
                     AuraEffect* deepWound = unitTarget->GetAuraEffect(12721, 0);
                     if (deepWound)
@@ -730,6 +779,7 @@ void Spell::EffectDummy(uint32 i)
                         int32 remainingTicks = deepWound->GetParentAura()->GetAuraDuration() / deepWound->GetAuraAmplitude();
                         damage += remainingTicks * deepWound->GetAmount();
                     }
+
                     // 1 tick/sec * 6 sec = 6 ticks
                     int32 deepWoundsDotBasePoints0 = int32(damage / 6);
                     m_caster->CastCustomSpell(unitTarget, 12721, &deepWoundsDotBasePoints0, NULL, NULL, true, NULL);
@@ -739,14 +789,18 @@ void Spell::EffectDummy(uint32 i)
                 {
                     if (!unitTarget)
                         return;
+
                     uint32 spell_id = 0;
+
                     uint32 roll = urand(0, 99);
+
                     if(roll < 2)                            // 2% for 30 sec self root (off-like chance unknown)
                         spell_id = 16566;
                     else if(roll < 4)                       // 2% for 20 sec root, charge to target (off-like chance unknown)
                         spell_id = 13119;
                     else                                    // normal root
                         spell_id = 13099;
+
                     m_caster->CastSpell(unitTarget,spell_id,true,NULL);
                     return;
                 }
@@ -755,6 +809,7 @@ void Spell::EffectDummy(uint32 i)
                     // can be used for different aura triggering, so select by aura
                     if (!m_triggeredByAuraSpell || !unitTarget)
                         return;
+
                     switch (m_triggeredByAuraSpell->Id)
                     {
                         case 26467:                         // Persistent Shield
@@ -771,6 +826,7 @@ void Spell::EffectDummy(uint32 i)
                 {
                     if (!unitTarget || unitTarget->GetTypeId() != TYPEID_UNIT)
                         return;
+
                     ((Creature*)unitTarget)->ForcedDespawn();
                     return;
                 }
@@ -778,6 +834,7 @@ void Spell::EffectDummy(uint32 i)
                 {
                     if(m_caster->GetTypeId() != TYPEID_PLAYER)
                         return;
+
                     uint32 spell_id = 0;
                     switch (urand(1, 3))
                     {
@@ -785,6 +842,7 @@ void Spell::EffectDummy(uint32 i)
                         case 2: spell_id = 16593; break;
                         default:spell_id = 16591; break;
                     }
+
                     m_caster->CastSpell(m_caster, spell_id, true, NULL);
                     return;
                 }
@@ -792,6 +850,7 @@ void Spell::EffectDummy(uint32 i)
                 {
                     if(!unitTarget || !m_originalCaster)
                         return;
+
                     if(m_originalCaster->GetTypeId() == TYPEID_PLAYER)
                     {
                         WorldPacket data(SMSG_SPIRIT_HEALER_CONFIRM, 8);
@@ -804,9 +863,11 @@ void Spell::EffectDummy(uint32 i)
                 {
                     if(!itemTarget && m_caster->GetTypeId()!=TYPEID_PLAYER)
                         return;
+
                     uint32 spell_id = roll_chance_i(50)
                         ? 17269                             // Create Resonating Skull
                         : 17270;                            // Create Bone Dust
+
                     m_caster->CastSpell(m_caster, spell_id, true, NULL);
                     return;
                 }
@@ -818,13 +879,18 @@ void Spell::EffectDummy(uint32 i)
                 {
                     if(!unitTarget || !unitTarget->isAlive() || unitTarget->GetTypeId() != TYPEID_UNIT || ((Creature*)unitTarget)->isPet())
                         return;
+
                     Creature* creatureTarget = (Creature*)unitTarget;
+
                     GameObject* Crystal_Prison = m_caster->SummonGameObject(179644, creatureTarget->GetPositionX(), creatureTarget->GetPositionY(), creatureTarget->GetPositionZ(), creatureTarget->GetOrientation(), 0, 0, 0, 0, creatureTarget->GetRespawnTime()-time(NULL));
                     sLog.outDebug("SummonGameObject at SpellEfects.cpp EffectDummy for Spell 23019");
+
                     creatureTarget->ForcedDespawn();
+
                     WorldPacket data(SMSG_GAMEOBJECT_SPAWN_ANIM_OBSOLETE, 8);
                     data << uint64(Crystal_Prison->GetGUID());
                     m_caster->SendMessageToSet(&data, true);
+
                     return;
                 }
                 case 23074:                                 // Arcanite Dragonling
@@ -871,9 +937,12 @@ void Spell::EffectDummy(uint32 i)
                 {
                     if (!m_caster->HasAuraType(SPELL_AURA_MOUNTED))
                         return;
+
                     float flyspeed = m_caster->GetSpeedRate(MOVE_FLIGHT);
                     float speed = m_caster->GetSpeedRate(MOVE_RUN);
+
                     m_caster->RemoveAurasByType(SPELL_AURA_MOUNTED);
+
                     //5 different spells used depending on mounted speed and if mount can fly or not
                     if (flyspeed >= 4.1f)
                         // Flying Reindeer
@@ -890,6 +959,7 @@ void Spell::EffectDummy(uint32 i)
                     else
                         // Reindeer
                         m_caster->CastSpell(m_caster, 25858, true); //60% ground Reindeer
+
                     return;
                 }
                 case 26074:                                 // Holiday Cheer
@@ -916,9 +986,11 @@ void Spell::EffectDummy(uint32 i)
                 {
                     if( m_caster->GetTypeId() != TYPEID_PLAYER )
                         return;
+
                     uint32 spell_id = roll_chance_i(50)
                         ? 29277                             // Summon Purified Helboar Meat
                         : 29278;                            // Summon Toxic Helboar Meat
+
                     m_caster->CastSpell(m_caster,spell_id,true,NULL);
                     return;
                 }
@@ -945,7 +1017,9 @@ void Spell::EffectDummy(uint32 i)
                 {
                     if(m_caster->GetTypeId()!=TYPEID_PLAYER)
                         return;
+
                     uint32 spell_id = 0;
+
                     switch(urand(1,5))
                     {
                         case 1: spell_id = 33053; break;    // Mr Pinchy's Blessing
@@ -954,6 +1028,7 @@ void Spell::EffectDummy(uint32 i)
                         case 4: spell_id = 33062; break;    // Tiny Magical Crawdad
                         case 5: spell_id = 33064; break;    // Mr. Pinchy's Gift
                     }
+
                     m_caster->CastSpell(m_caster, spell_id, true, NULL);
                     return;
                 }
@@ -966,6 +1041,7 @@ void Spell::EffectDummy(uint32 i)
                         case 3742: spell_id = 35744; break; // Socrethar Portal
                         default: return;
                     }
+
                     m_caster->CastSpell(m_caster, spell_id, true);
                     return;
                 }
@@ -973,6 +1049,7 @@ void Spell::EffectDummy(uint32 i)
                 {
                     if(!unitTarget)
                         return;
+
                     int32 basepoints0 = 100;
                     m_caster->CastCustomSpell(unitTarget, 37675, &basepoints0, NULL, NULL, true);
                     return;
@@ -1006,6 +1083,7 @@ void Spell::EffectDummy(uint32 i)
                         default:
                             return;
                     }
+
                     DoCreateItem(i, newitemid);
                     return;
                 }
@@ -1014,7 +1092,9 @@ void Spell::EffectDummy(uint32 i)
                 {
                     if (m_caster->GetTypeId() != TYPEID_PLAYER)
                         return;
+
                     Player *player = (Player*)m_caster;
+
                     if (player && player->GetQuestStatus(11379) == QUEST_STATUS_INCOMPLETE)
                     {
                         Creature *creature = player->FindNearestCreature(19973, 10, false);
@@ -1023,6 +1103,7 @@ void Spell::EffectDummy(uint32 i)
                             SendCastResult(SPELL_FAILED_NOT_HERE);
                             return;
                         }
+
                         player->CastSpell(player, 43753, false);
                     }
                     return;
@@ -1031,7 +1112,9 @@ void Spell::EffectDummy(uint32 i)
                 {
                     if(!unitTarget || unitTarget->GetTypeId() != TYPEID_UNIT)
                         return;
+
                     ((Creature*)unitTarget)->ForcedDespawn();
+
                     //cast spell Raptor Capture Credit
                     m_caster->CastSpell(m_caster, 42337, true, NULL);
                     return;
@@ -1041,10 +1124,13 @@ void Spell::EffectDummy(uint32 i)
                     if(!unitTarget || unitTarget->GetTypeId() != TYPEID_UNIT
                         || unitTarget->GetEntry() != 16880 || ((Creature*)unitTarget)->isPet())
                         return;
+
                     ((Creature*)unitTarget)->UpdateEntry(16992);
                     ((Player*)m_caster)->RewardPlayerAndGroupAtEvent(16992, unitTarget);
+
                     if (unitTarget->IsAIEnabled)
                         ((Creature*)unitTarget)->AI()->AttackStart(m_caster);
+
                     return;
                 }
                 case 44997:                                 // Converting Sentry
@@ -1070,6 +1156,7 @@ void Spell::EffectDummy(uint32 i)
                 {
                     if(m_caster->GetTypeId() != TYPEID_PLAYER)
                         return;
+
                     // spell has a 1/3 chance to trigger one of the below
                     if(roll_chance_i(66))
                         return;
@@ -1083,14 +1170,17 @@ void Spell::EffectDummy(uint32 i)
                         // 01001000 - goblin binary
                         m_caster->CastSpell(m_caster, 50246, true);
                     }
+
                     return;
                 }
                 case 51582:                                 //Rocket Boots Engaged (Rocket Boots Xtreme and Rocket Boots Xtreme Lite)
                 {
                     if(m_caster->GetTypeId() != TYPEID_PLAYER)
                         return;
+
                     if(BattleGround* bg = ((Player*)m_caster)->GetBattleGround())
                         bg->EventPlayerDroppedFlag((Player*)m_caster);
+
                     m_caster->CastSpell(m_caster, 30452, true, NULL);
                     return;
                 }
@@ -1098,8 +1188,10 @@ void Spell::EffectDummy(uint32 i)
                 {
                     if(!unitTarget || unitTarget->GetTypeId() != TYPEID_UNIT)
                         return;
+
                     ((Creature*)unitTarget)->ForcedDespawn();
                     return;
+
                 }
                 case 52308:                                 // Take Sputum Sample
                 {
@@ -1109,6 +1201,7 @@ void Spell::EffectDummy(uint32 i)
                         {
                             uint32 spellID = m_spellInfo->CalculateSimpleValue(0);
                             uint32 reqAuraID = m_spellInfo->CalculateSimpleValue(1);
+
                             if (m_caster->HasAuraEffect(reqAuraID,0))
                                 m_caster->CastSpell(m_caster,spellID,true,NULL);
                             return;
@@ -1137,6 +1230,7 @@ void Spell::EffectDummy(uint32 i)
                 {
                     if(m_caster->GetTypeId() != TYPEID_PLAYER)
                         return;
+
                     uint32 spell_id = 0;
                     switch(urand(1,3))
                     {
@@ -1186,6 +1280,7 @@ void Spell::EffectDummy(uint32 i)
                     }
                     return;
             }
+
             //All IconID Check in there
             switch(m_spellInfo->SpellIconID)
             {
@@ -1198,9 +1293,11 @@ void Spell::EffectDummy(uint32 i)
                         melee_mod = 30;
                     if (healthPerc < 100 && healthPerc > 40)
                         melee_mod = 10+(100-healthPerc)/3;
+
                     int32 hasteModBasePoints0 = melee_mod;          // (EffectBasePoints[0]+1)-1+(5-melee_mod) = (melee_mod-1+1)-1+5-melee_mod = 5-1
                     int32 hasteModBasePoints1 = (5-melee_mod);
                     int32 hasteModBasePoints2 = 5;
+
                     // FIXME: custom spell required this aura state by some unknown reason, we not need remove it anyway
                     m_caster->ModifyAuraState(AURA_STATE_BERSERKING,true);
                     m_caster->CastCustomSpell(m_caster, 26635, &hasteModBasePoints0, &hasteModBasePoints1, &hasteModBasePoints2, true, NULL);
@@ -1216,11 +1313,13 @@ void Spell::EffectDummy(uint32 i)
                 {
                     if(m_caster->GetTypeId()!=TYPEID_PLAYER)
                         return;
+
                     // immediately finishes the cooldown on Frost spells
                     const SpellCooldowns& cm = ((Player *)m_caster)->GetSpellCooldownMap();
                     for (SpellCooldowns::const_iterator itr = cm.begin(); itr != cm.end();)
                     {
                         SpellEntry const *spellInfo = sSpellStore.LookupEntry(itr->first);
+
                         if( spellInfo->SpellFamilyName == SPELLFAMILY_MAGE &&
                             (GetSpellSchoolMask(spellInfo) & SPELL_SCHOOL_MASK_FROST) &&
                             spellInfo->Id != 11958 && GetSpellRecoveryTime(spellInfo) > 0 )
@@ -1271,10 +1370,12 @@ void Spell::EffectDummy(uint32 i)
             {
                 if(!unitTarget)
                     return;
+
                 uint32 rage=0;
                 // Glyph of Execution bonus
                 if (AuraEffect *aura = m_caster->GetAuraEffect(58367, 0))
                     rage+=aura->GetAmount();
+
                 spell_id = 20647;
                 // Sudden death cost modifier
                 if (Aura * aur = m_caster->GetAura(52437))
@@ -1290,6 +1391,7 @@ void Spell::EffectDummy(uint32 i)
                     rage += m_caster->GetPower(POWER_RAGE);
                     m_caster->SetPower(POWER_RAGE,0);
                 }
+
                 bp = damage+int32(rage * m_spellInfo->DmgMultiplier[i] +
                     m_caster->GetTotalAttackPowerValue(BASE_ATTACK)*0.2f);
                 break;
@@ -1351,15 +1453,19 @@ void Spell::EffectDummy(uint32 i)
                 {
                     // Shouldn't Appear in Combat Log
                     unitTarget->ModifyHealth(-damage);
+
                     int32 mana = damage;
                     // Improved Life Tap mod
                     if (AuraEffect const * aurEff = m_caster->GetDummyAura(SPELLFAMILY_WARLOCK, 208, 0))
                         mana = (aurEff->GetAmount() + 100)* mana / 100;
+
                     m_caster->CastCustomSpell(unitTarget, 31818, &mana, NULL, NULL, true);
+
                     // Mana Feed
                     int32 manaFeedVal = 0;
                     if (AuraEffect const * aurEff = m_caster->GetAuraEffect(SPELL_AURA_ADD_FLAT_MODIFIER, SPELLFAMILY_WARLOCK, 1982, 0))
                         manaFeedVal = aurEff->GetAmount();
+
                     if(manaFeedVal > 0)
                     {
                         manaFeedVal = manaFeedVal * mana / 100;
@@ -1377,6 +1483,7 @@ void Spell::EffectDummy(uint32 i)
             {
                 if (!unitTarget || !unitTarget->isAlive())
                     return;
+
                 int hurt = 0;
                 int heal = 0;
                 switch(m_spellInfo->Id)
@@ -1407,9 +1514,11 @@ void Spell::EffectDummy(uint32 i)
                         m_caster->RemoveAurasDueToSpell(m_triggeredByAuraSpell->Id);
                     return;
                 }
+
                 //Any effect which causes you to lose control of your character will supress the starfall effect.
                 if(m_caster->hasUnitState(UNIT_STAT_STUNNED | UNIT_STAT_FLEEING | UNIT_STAT_ROOT | UNIT_STAT_CONFUSED))
                     return;
+
                 m_caster->CastSpell(unitTarget, damage, true);
                 return;
             }
@@ -1427,26 +1536,34 @@ void Spell::EffectDummy(uint32 i)
                 {
                     if(m_caster->GetTypeId() != TYPEID_PLAYER)
                         return;
+
                     Player *pCaster = ((Player*)m_caster);
+
                     Item *item = pCaster->GetWeaponForAttack(OFF_ATTACK);
                     if(!item)
                         return;
+
                     // all poison enchantments is temporary
                     uint32 enchant_id = item->GetEnchantmentId(TEMP_ENCHANTMENT_SLOT);
                     if(!enchant_id)
                         return;
+
                     SpellItemEnchantmentEntry const *pEnchant = sSpellItemEnchantmentStore.LookupEntry(enchant_id);
                     if(!pEnchant)
                         return;
+
                     for (int s=0;s<3;s++)
                     {
                         if(pEnchant->type[s]!=ITEM_ENCHANTMENT_TYPE_COMBAT_SPELL)
                             continue;
+
                         SpellEntry const* combatEntry = sSpellStore.LookupEntry(pEnchant->spellid[s]);
                         if(!combatEntry || combatEntry->Dispel != DISPEL_POISON)
                             continue;
+
                         m_caster->CastSpell(unitTarget, combatEntry, true, item);
                     }
+
                     m_caster->CastSpell(unitTarget, 5940, true);
                     return;
                 }
@@ -1454,11 +1571,13 @@ void Spell::EffectDummy(uint32 i)
                 {
                     if(m_caster->GetTypeId()!=TYPEID_PLAYER)
                         return;
+
                     //immediately finishes the cooldown on certain Rogue abilities
                     const SpellCooldowns& cm = ((Player *)m_caster)->GetSpellCooldownMap();
                     for (SpellCooldowns::const_iterator itr = cm.begin(); itr != cm.end();)
                     {
                         SpellEntry const *spellInfo = sSpellStore.LookupEntry(itr->first);
+
                         if (spellInfo->SpellFamilyName == SPELLFAMILY_ROGUE && (spellInfo->SpellFamilyFlags[1] & 0x00000240 || spellInfo->SpellFamilyFlags[0] & 0x00000860))
                             ((Player*)m_caster)->RemoveSpellCooldown((itr++)->first,true);
                         else
@@ -1480,11 +1599,13 @@ void Spell::EffectDummy(uint32 i)
                 {
                     if(m_caster->GetTypeId()!=TYPEID_PLAYER)
                         return;
+
                     // immediately finishes the cooldown on your other Hunter abilities except Bestial Wrath
                     const SpellCooldowns& cm = ((Player*)m_caster)->GetSpellCooldownMap();
                     for (SpellCooldowns::const_iterator itr = cm.begin(); itr != cm.end();)
                     {
                         SpellEntry const *spellInfo = sSpellStore.LookupEntry(itr->first);
+
                         if (spellInfo->SpellFamilyName == SPELLFAMILY_HUNTER && spellInfo->Id != 23989 && GetSpellRecoveryTime(spellInfo) > 0 )
                             ((Player*)m_caster)->RemoveSpellCooldown((itr++)->first,true);
                         else
@@ -1496,6 +1617,7 @@ void Spell::EffectDummy(uint32 i)
                 {
                     if (m_caster->GetTypeId()!=TYPEID_PLAYER)
                         return;
+
                     // break Auto Shot and autohit
                     m_caster->InterruptSpell(CURRENT_AUTOREPEAT_SPELL);
                     m_caster->AttackStop();
@@ -1534,8 +1656,10 @@ void Spell::EffectDummy(uint32 i)
                 {
                     if(!unitTarget)
                         return;
+
                     int hurt = 0;
                     int heal = 0;
+
                     switch(m_spellInfo->Id)
                     {
                         case 20473: hurt = 25912; heal = 25914; break;
@@ -1549,13 +1673,16 @@ void Spell::EffectDummy(uint32 i)
                             sLog.outError("Spell::EffectDummy: Spell %u not handled in HS",m_spellInfo->Id);
                             return;
                     }
+
                     if(m_caster->IsFriendlyTo(unitTarget))
                         m_caster->CastSpell(unitTarget, heal, true, 0);
                     else
                         m_caster->CastSpell(unitTarget, hurt, true, 0);
+
                     return;
                 }
             }
+
             switch(m_spellInfo->Id)
             {
                 case 54171:                                   //Divine Storm
@@ -1566,15 +1693,18 @@ void Spell::EffectDummy(uint32 i)
                 {
                     if(!unitTarget)
                         return;
+
                     SpellEntry const* spell_proto = sSpellStore.LookupEntry(damage);
                     if(!spell_proto)
                         return;
+
                     m_caster->CastSpell(unitTarget, spell_proto, true, NULL);
                     return;
                 }
                 case 31789:                                 // Righteous Defense (step 1)
                 {
                     // 31989 -> dummy effect (step 1) + dummy effect (step 2) -> 31709 (taunt like spell for each target)
+
                     // non-standard cast requirement check
                     if (!unitTarget || unitTarget->getAttackers().empty())
                     {
@@ -1583,12 +1713,15 @@ void Spell::EffectDummy(uint32 i)
                         SendCastResult(SPELL_FAILED_TARGET_AFFECTING_COMBAT);
                         return;
                     }
+
                     // Righteous Defense (step 2) (in old version 31980 dummy effect)
                     // Clear targets for eff 1
                     for(std::list<TargetInfo>::iterator ihit= m_UniqueTargetInfo.begin(); ihit != m_UniqueTargetInfo.end(); ++ihit)
                         ihit->effectMask &= ~(1<<1);
+
                     // not empty (checked)
                     Unit::AttackerSet const& attackers = unitTarget->getAttackers();
+
                     // chance to be selected from list
                     float chance = 100.0f / attackers.size();
                     uint32 count = 0;
@@ -1599,6 +1732,7 @@ void Spell::EffectDummy(uint32 i)
                         ++count;
                         AddUnitTarget((*aItr), 1);
                     }
+
                     // now let next effect cast spell at each target.
                     return;
                 }
@@ -1606,6 +1740,7 @@ void Spell::EffectDummy(uint32 i)
                 {
                     if(!unitTarget)
                         return;
+
                     uint32 spell_id = 0;
                     switch(unitTarget->getClass())
                     {
@@ -1615,6 +1750,7 @@ void Spell::EffectDummy(uint32 i)
                         case CLASS_SHAMAN:  spell_id = 37881; break;
                         default: return;                    // ignore for not healing classes
                     }
+
                     m_caster->CastSpell(m_caster, spell_id, true);
                     return;
                 }
@@ -1637,14 +1773,18 @@ void Spell::EffectDummy(uint32 i)
                         sLog.outError("Spell::EffectDummy: Spell %u not handled in RW", m_spellInfo->Id);
                         return;
                 }
+
                 SpellEntry const *spellInfo = sSpellStore.LookupEntry( spell_id );
+
                 if(!spellInfo)
                 {
                     sLog.outError("WORLD: unknown spell id %i", spell_id);
                     return;
                 }
+
                 if(m_caster->GetTypeId() != TYPEID_PLAYER)
                     return;
+
                 for(uint8 j = BASE_ATTACK; j <= OFF_ATTACK; ++j)
                 {
                     if(Item* item = ((Player*)m_caster)->GetWeaponForAttack(WeaponAttackType(j)))
@@ -1652,10 +1792,12 @@ void Spell::EffectDummy(uint32 i)
                         if(item->IsFitToSpellRequirements(m_spellInfo))
                         {
                             Spell *spell = new Spell(m_caster, spellInfo, true);
+
                             // enchanting spell selected by calculated damage-per-sec in enchanting effect
                             // at calculation applied affect from Elemental Weapons talent
                             // real enchantment damage-1
                             spell->m_currentBasePoints[1] = damage-1;
+
                             SpellCastTargets targets;
                             targets.setItemTarget( item );
                             spell->prepare(&targets);
@@ -1704,6 +1846,7 @@ void Spell::EffectDummy(uint32 i)
             {
                 if (m_caster->GetTypeId()!=TYPEID_PLAYER)
                     return;
+
                 if (Item *item = ((Player*)m_caster)->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND))
                 {
                     // Damage is increased by 25% if your off-hand weapon is enchanted with Flametongue.
@@ -1777,6 +1920,7 @@ void Spell::EffectDummy(uint32 i)
             {
                 if ( m_caster->GetTypeId() != TYPEID_PLAYER)
                     return;
+
                 // Do we have talent Master of Ghouls?
                 if(m_caster->HasAura(52143))
                     // summon as pet
@@ -1784,6 +1928,7 @@ void Spell::EffectDummy(uint32 i)
                 else
                     // or guardian
                     bp = 46585;
+
                 if (m_targets.HasDst())
                 {
                     targets.setDst(&m_targets.m_dstPos);
@@ -1803,6 +1948,7 @@ void Spell::EffectDummy(uint32 i)
             {
                 if (m_targets.HasDst())
                     targets.setDst(&m_targets.m_dstPos);
+
                 spell_id = m_currentBasePoints[0];
             }
             // Corpse Explosion
@@ -1836,30 +1982,36 @@ void Spell::EffectDummy(uint32 i)
                     m_caster->RemoveAurasDueToSpell(50514, m_caster->GetGUID());
                 else
                     m_caster->ModifyPower(POWER_RUNIC_POWER,-30);
+
                 return;
             }
             break;
     }
+
     //spells triggered by dummy effect should not miss
     if(spell_id)
     {
         SpellEntry const *spellInfo = sSpellStore.LookupEntry( spell_id );
+
         if(!spellInfo)
         {
             sLog.outError("EffectDummy of spell %u: triggering unknown spell id %i\n", m_spellInfo->Id, spell_id);
             return;
         }
+
         targets.setUnitTarget(unitTarget);
         Spell* spell = new Spell(m_caster, spellInfo, triggered, m_originalCasterGUID, NULL, true);
         if(bp) spell->m_currentBasePoints[0] = bp;
         spell->prepare(&targets);
     }
+
     // pet auras
     if(PetAura const* petSpell = spellmgr.GetPetAura(m_spellInfo->Id,i))
     {
         m_caster->AddPetAura(petSpell);
         return;
     }
+
     // Script based implementation. Must be used only for not good for implementation in core spell effects
     // So called only for not proccessed cases
     if(gameObjTarget)
@@ -1869,43 +2021,56 @@ void Spell::EffectDummy(uint32 i)
     else if(itemTarget)
         Script->EffectDummyItem(m_caster, m_spellInfo->Id, i, itemTarget);
 }
+
 void Spell::EffectTriggerSpellWithValue(uint32 i)
 {
     uint32 triggered_spell_id = m_spellInfo->EffectTriggerSpell[i];
+
     // normal case
     SpellEntry const *spellInfo = sSpellStore.LookupEntry( triggered_spell_id );
+
     if(!spellInfo)
     {
         sLog.outError("EffectTriggerSpellWithValue of spell %u: triggering unknown spell id %i", m_spellInfo->Id,triggered_spell_id);
         return;
     }
+
     int32 bp = damage;
     m_caster->CastCustomSpell(unitTarget,triggered_spell_id,&bp,&bp,&bp,true,NULL,NULL,m_originalCasterGUID);
 }
+
 void Spell::EffectTriggerRitualOfSummoning(uint32 i)
 {
     uint32 triggered_spell_id = m_spellInfo->EffectTriggerSpell[i];
     SpellEntry const *spellInfo = sSpellStore.LookupEntry( triggered_spell_id );
+
     if(!spellInfo)
     {
         sLog.outError("EffectTriggerRitualOfSummoning of spell %u: triggering unknown spell id %i", m_spellInfo->Id,triggered_spell_id);
         return;
     }
+
     finish();
+
     m_caster->CastSpell(unitTarget,spellInfo,false);
 }
+
 void Spell::EffectForceCast(uint32 i)
 {
     if( !unitTarget )
         return;
+
     uint32 triggered_spell_id = m_spellInfo->EffectTriggerSpell[i];
+
     // normal case
     SpellEntry const *spellInfo = sSpellStore.LookupEntry( triggered_spell_id );
+
     if(!spellInfo)
     {
         sLog.outError("EffectForceCast of spell %u: triggering unknown spell id %i", m_spellInfo->Id,triggered_spell_id);
         return;
     }
+
     if (damage)
     {
         if(m_spellInfo->EffectBasePoints[i] > 0)
@@ -1922,8 +2087,10 @@ void Spell::EffectForceCast(uint32 i)
             return;
         }
     }
+
     unitTarget->CastSpell(unitTarget, spellInfo, true, NULL, NULL, m_originalCasterGUID);
 }
+
 void Spell::EffectTriggerSpell(uint32 effIndex)
 {
     // only unit case known
@@ -1933,7 +2100,9 @@ void Spell::EffectTriggerSpell(uint32 effIndex)
             sLog.outError("Spell::EffectTriggerSpell (Spell: %u): Unsupported non-unit case!",m_spellInfo->Id);
         return;
     }
+
     uint32 triggered_spell_id = m_spellInfo->EffectTriggerSpell[effIndex];
+
     // special cases
     switch(triggered_spell_id)
     {
@@ -1943,6 +2112,7 @@ void Spell::EffectTriggerSpell(uint32 effIndex)
             // Glyph of Mirror Image
             if (m_caster->HasAura(63093))
                m_caster->CastSpell(m_caster, 65047, true); // Mirror Image
+
             break;
         }
         // Vanish (not exist)
@@ -1950,9 +2120,11 @@ void Spell::EffectTriggerSpell(uint32 effIndex)
         {
             unitTarget->RemoveMovementImpairingAuras();
             unitTarget->RemoveAurasByType(SPELL_AURA_MOD_STALKED);
+
             // if this spell is given to NPC it must handle rest by it's own AI
             if (unitTarget->GetTypeId() != TYPEID_PLAYER)
                 return;
+
             // get highest rank of the Stealth spell
             uint32 spellId = 0;
             SpellEntry const *spellInfo;
@@ -1962,21 +2134,26 @@ void Spell::EffectTriggerSpell(uint32 effIndex)
                 // only highest rank is shown in spell book, so simply check if shown in spell book
                 if (!itr->second->active || itr->second->disabled || itr->second->state == PLAYERSPELL_REMOVED)
                     continue;
+
                 spellInfo = sSpellStore.LookupEntry(itr->first);
                 if (!spellInfo)
                     continue;
+
                 if (spellInfo->SpellFamilyName == SPELLFAMILY_ROGUE && spellInfo->SpellFamilyFlags[0] & SPELLFAMILYFLAG_ROGUE_STEALTH)
                 {
                     spellId = spellInfo->Id;
                     break;
                 }
             }
+
             // no Stealth spell found
             if (!spellId)
                 return;
+
             // reset cooldown on it if needed
             if (((Player*)unitTarget)->HasSpellCooldown(spellId))
                 ((Player*)unitTarget)->RemoveSpellCooldown(spellId);
+
             // Push stealth to list because it must be handled after combat remove
             m_TriggerSpells.push_back(spellInfo);
             return;
@@ -1987,6 +2164,7 @@ void Spell::EffectTriggerSpell(uint32 effIndex)
             unitTarget->RemoveMovementImpairingAuras();
             unitTarget->RemoveAurasByType(SPELL_AURA_MOD_STALKED);
             unitTarget->RemoveAurasByType(SPELL_AURA_MOD_STUN);
+
             // Cast Lesser Invisibility
             triggered_spell_id = 7870;
             break;
@@ -2002,6 +2180,7 @@ void Spell::EffectTriggerSpell(uint32 effIndex)
             SpellEntry const* spell = sSpellStore.LookupEntry(24575);
             if (!spell)
                 return;
+
             for (int j=0; j < spell->StackAmount; ++j)
                 m_caster->CastSpell(unitTarget, spell->Id, true, m_CastItem, NULL, m_originalCasterGUID);
             return;
@@ -2013,6 +2192,7 @@ void Spell::EffectTriggerSpell(uint32 effIndex)
             SpellEntry const* spell = sSpellStore.LookupEntry(26464);
             if (!spell)
                 return;
+
             for (int j=0; j < spell->StackAmount; ++j)
                 m_caster->CastSpell(unitTarget, spell->Id, true, m_CastItem, NULL, m_originalCasterGUID);
             return;
@@ -2052,6 +2232,7 @@ void Spell::EffectTriggerSpell(uint32 effIndex)
             return;
         }
     }
+
     // normal case
     SpellEntry const *spellInfo = sSpellStore.LookupEntry( triggered_spell_id );
     if (!spellInfo)
@@ -2059,47 +2240,59 @@ void Spell::EffectTriggerSpell(uint32 effIndex)
         sLog.outError("EffectTriggerSpell of spell %u: triggering unknown spell id %i", m_spellInfo->Id,triggered_spell_id);
         return;
     }
+
     // Remove spell cooldown (not category) if spell triggering spell with cooldown and same category
     // Needed by freezing arrow and few other spells
     if (m_caster->GetTypeId() == TYPEID_PLAYER && m_spellInfo->CategoryRecoveryTime && spellInfo->CategoryRecoveryTime
         && m_spellInfo->Category == spellInfo->Category)
         ((Player*)m_caster)->RemoveSpellCooldown(spellInfo->Id);
+
     // Note: not exist spells with weapon req. and IsSpellHaveCasterSourceTargets == true
     // so this just for speedup places in else
     Unit *caster = IsSpellWithCasterSourceTargetsOnly(spellInfo) ? unitTarget : m_caster;
+
     caster->CastSpell(unitTarget,spellInfo,true,NULL,NULL,m_originalCasterGUID);
 }
+
 void Spell::EffectTriggerMissileSpell(uint32 effect_idx)
 {
     uint32 triggered_spell_id = m_spellInfo->EffectTriggerSpell[effect_idx];
+
     // normal case
     SpellEntry const *spellInfo = sSpellStore.LookupEntry( triggered_spell_id );
+
     if(!spellInfo)
     {
         sLog.outError("EffectTriggerMissileSpell of spell %u (eff: %u): triggering unknown spell id %u",
             m_spellInfo->Id,effect_idx,triggered_spell_id);
         return;
     }
+
     if (m_CastItem)
         DEBUG_LOG("WORLD: cast Item spellId - %i", spellInfo->Id);
+
     // Remove spell cooldown (not category) if spell triggering spell with cooldown and same category
     // Needed by freezing arrow and few other spells
     if (m_caster->GetTypeId() == TYPEID_PLAYER && m_spellInfo->CategoryRecoveryTime && spellInfo->CategoryRecoveryTime
         && m_spellInfo->Category == spellInfo->Category)
         ((Player*)m_caster)->RemoveSpellCooldown(spellInfo->Id);
+
     float x, y, z;
     m_targets.m_dstPos.GetPosition(x, y, z);
     m_caster->CastSpell(x, y, z, spellInfo->Id, true, m_CastItem, 0, m_originalCasterGUID);
 }
+
 void Spell::EffectJump(uint32 i)
 {
     if(m_caster->isInFlight())
         return;
+
     // Init dest coordinates
     float x,y,z,o;
     if(m_targets.HasDst())
     {
         m_targets.m_dstPos.GetPosition(x, y, z);
+
         if(m_spellInfo->EffectImplicitTargetA[i] == TARGET_DEST_TARGET_BACK)
         {
             // explicit cast data from client or server-side cast
@@ -2111,6 +2304,7 @@ void Spell::EffectJump(uint32 i)
                 pTarget = m_caster->getVictim();
             else if(m_caster->GetTypeId() == TYPEID_PLAYER)
                 pTarget = ObjectAccessor::GetUnit(*m_caster, ((Player*)m_caster)->GetSelection());
+
             o = pTarget ? pTarget->GetOrientation() : m_caster->GetOrientation();
         }
         else
@@ -2131,6 +2325,7 @@ void Spell::EffectJump(uint32 i)
         sLog.outError( "Spell::EffectJump - unsupported target mode for spell ID %u", m_spellInfo->Id );
         return;
     }
+
     //m_caster->NearTeleportTo(x,y,z,o,true);
     float speedZ;
     if(m_spellInfo->EffectMiscValue[i])
@@ -2142,16 +2337,19 @@ void Spell::EffectJump(uint32 i)
     float speedXY = m_caster->GetExactDist2d(x, y) * 10.0f / speedZ;
     m_caster->GetMotionMaster()->MoveJump(x, y, z, speedXY, speedZ);
 }
+
 void Spell::EffectTeleportUnits(uint32 i)
 {
     if(!unitTarget || unitTarget->isInFlight())
         return;
+
     // If not exist data for dest location - return
     if(!m_targets.HasDst())
     {
         sLog.outError( "Spell::EffectTeleportUnits - does not have destination for spell ID %u\n", m_spellInfo->Id );
         return;
     }
+
     // Init dest coordinates
     uint32 mapid = m_targets.m_dstPos.GetMapId();
     if(mapid == MAPID_INVALID) mapid = unitTarget->GetMapId();
@@ -2159,10 +2357,12 @@ void Spell::EffectTeleportUnits(uint32 i)
     m_targets.m_dstPos.GetPosition(x, y, z);
     float orientation = m_targets.getUnitTarget() ? m_targets.getUnitTarget()->GetOrientation() : unitTarget->GetOrientation();
     sLog.outDebug("Spell::EffectTeleportUnits - teleport unit to %u %f %f %f\n", mapid, x, y, z);
+
     if(mapid == unitTarget->GetMapId())
         unitTarget->NearTeleportTo(x, y, z, orientation, unitTarget == m_caster);
     else if(unitTarget->GetTypeId() == TYPEID_PLAYER)
         ((Player*)unitTarget)->TeleportTo(mapid, x, y, z, orientation, unitTarget==m_caster ? TELE_TO_SPELL : 0);
+
     // post effects for TARGET_DST_DB
     switch ( m_spellInfo->Id )
     {
@@ -2259,32 +2459,41 @@ void Spell::EffectTeleportUnits(uint32 i)
         }
     }
 }
+
 void Spell::EffectApplyAura(uint32 i)
 {
     if (m_spellAura)
         if (AuraEffect * AurEff = m_spellAura->GetPartAura(i))
             unitTarget->HandleAuraEffect(AurEff, true);
 }
+
 void Spell::EffectApplyAreaAura(uint32 i)
 {
     if (m_spellAura)
         if (AuraEffect * AurEff = m_spellAura->GetPartAura(i))
             unitTarget->HandleAuraEffect(AurEff, true);
 }
+
 void Spell::EffectUnlearnSpecialization( uint32 i )
 {
     if(!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
         return;
+
     Player *_player = (Player*)unitTarget;
     uint32 spellToUnlearn = m_spellInfo->EffectTriggerSpell[i];
+
     _player->removeSpell(spellToUnlearn);
+
     sLog.outDebug( "Spell: Player %u has unlearned spell %u from NpcGUID: %u", _player->GetGUIDLow(), spellToUnlearn, m_caster->GetGUIDLow() );
 }
+
 void Spell::EffectPowerDrain(uint32 i)
 {
     if(m_spellInfo->EffectMiscValue[i] < 0 || m_spellInfo->EffectMiscValue[i] >= MAX_POWERS)
         return;
+
     Powers drain_power = Powers(m_spellInfo->EffectMiscValue[i]);
+
     if(!unitTarget)
         return;
     if(!unitTarget->isAlive())
@@ -2293,31 +2502,41 @@ void Spell::EffectPowerDrain(uint32 i)
         return;
     if(damage < 0)
         return;
+
     uint32 curPower = unitTarget->GetPower(drain_power);
+
     //add spell damage bonus
     damage=m_caster->SpellDamageBonus(unitTarget,m_spellInfo,uint32(damage),SPELL_DIRECT_DAMAGE);
+
     // resilience reduce mana draining effect at spell crit damage reduction (added in 2.4)
     uint32 power = damage;
     if ( drain_power == POWER_MANA && unitTarget->GetTypeId() == TYPEID_PLAYER )
         power -= ((Player*)unitTarget)->GetSpellCritDamageReduction(power);
+
     int32 new_damage;
     if(curPower < power)
         new_damage = curPower;
     else
         new_damage = power;
+
     unitTarget->ModifyPower(drain_power,-new_damage);
+
     // Don`t restore from self drain
     if(drain_power == POWER_MANA && m_caster != unitTarget)
     {
         float manaMultiplier = m_spellInfo->EffectMultipleValue[i];
         if(manaMultiplier==0)
             manaMultiplier = 1;
+
         if(Player *modOwner = m_caster->GetSpellModOwner())
             modOwner->ApplySpellMod(m_spellInfo->Id, SPELLMOD_MULTIPLE_VALUE, manaMultiplier);
+
         int32 gain = int32(new_damage * manaMultiplier);
+
         m_caster->EnergizeBySpell(m_caster, m_spellInfo->Id, gain, POWER_MANA);
     }
 }
+
 void Spell::EffectSendEvent(uint32 EffectIndex)
 {
     /*
@@ -2326,11 +2545,14 @@ void Spell::EffectSendEvent(uint32 EffectIndex)
     sLog.outDebug("Spell ScriptStart %u for spellid %u in EffectSendEvent ", m_spellInfo->EffectMiscValue[EffectIndex], m_spellInfo->Id);
     m_caster->GetMap()->ScriptsStart(sEventScripts, m_spellInfo->EffectMiscValue[EffectIndex], m_caster, focusObject);
 }
+
 void Spell::EffectPowerBurn(uint32 i)
 {
     if(m_spellInfo->EffectMiscValue[i] < 0 || m_spellInfo->EffectMiscValue[i] >= MAX_POWERS)
         return;
+
     Powers powertype = Powers(m_spellInfo->EffectMiscValue[i]);
+
     if(!unitTarget)
         return;
     if(!unitTarget->isAlive())
@@ -2339,7 +2561,9 @@ void Spell::EffectPowerBurn(uint32 i)
         return;
     if(damage < 0)
         return;
+
     Unit* caster = m_originalCaster ? m_originalCaster : m_caster;
+
     // burn x% of target's mana, up to maximum of 2x% of caster's mana (Mana Burn)
     if(m_spellInfo->ManaCostPercentage)
     {
@@ -2347,16 +2571,22 @@ void Spell::EffectPowerBurn(uint32 i)
         damage = unitTarget->GetMaxPower(powertype) * damage / 100;
         if(damage > maxdamage) damage = maxdamage;
     }
+
     int32 curPower = int32(unitTarget->GetPower(powertype));
+
     uint32 power = damage;
     // resilience reduce mana draining effect at spell crit damage reduction (added in 2.4)
     if ( powertype == POWER_MANA && unitTarget->GetTypeId() == TYPEID_PLAYER )
         power -= ((Player*)unitTarget)->GetSpellCritDamageReduction(power);
+
     int32 new_damage = (curPower < power) ? curPower : power;
+
     unitTarget->ModifyPower(powertype, -new_damage);
     float multiplier = m_spellInfo->EffectMultipleValue[i];
+
     if(Player *modOwner = m_caster->GetSpellModOwner())
         modOwner->ApplySpellMod(m_spellInfo->Id, SPELLMOD_MULTIPLE_VALUE, multiplier);
+
     new_damage = int32(new_damage*multiplier);
     //m_damage+=new_damage; should not apply spell bonus
     //TODO: no log
@@ -2364,19 +2594,24 @@ void Spell::EffectPowerBurn(uint32 i)
     if(m_originalCaster)
         m_originalCaster->DealDamage(unitTarget, new_damage);
 }
+
 void Spell::EffectHeal( uint32 /*i*/ )
 {
 }
+
 void Spell::SpellDamageHeal(uint32 /*i*/)
 {
     if( unitTarget && unitTarget->isAlive() && damage >= 0)
     {
         // Try to get original caster
         Unit *caster = m_originalCasterGUID ? m_originalCaster : m_caster;
+
         // Skip if m_originalCaster not available
         if (!caster)
             return;
+
         int32 addhealth = damage;
+
         // Vessel of the Naaru (Vial of the Sunwell trinket)
         if (m_spellInfo->Id == 45064)
         {
@@ -2387,6 +2622,7 @@ void Spell::SpellDamageHeal(uint32 /*i*/)
                 damageAmount+= aurEff->GetAmount();
                 m_caster->RemoveAurasDueToSpell(45062);
             }
+
             addhealth += damageAmount;
         }
         // Swiftmend - consumes Regrowth or Rejuvenation
@@ -2404,16 +2640,19 @@ void Spell::SpellDamageHeal(uint32 /*i*/)
                         targetAura = *i;
                 }
             }
+
             if(!targetAura)
             {
                 sLog.outError("Target(GUID:" UI64FMTD ") has aurastate AURA_STATE_SWIFTMEND but no matching aura.", unitTarget->GetGUID());
                 return;
             }
+
             int32 tickheal = targetAura->GetAmount();
             if(Unit* auraCaster = targetAura->GetCaster())
                 tickheal = auraCaster->SpellHealingBonus(unitTarget, targetAura->GetSpellProto(), tickheal, DOT);
             //int32 tickheal = targetAura->GetSpellProto()->EffectBasePoints[idx] + 1;
             //It is said that talent bonus should not be included
+
             int32 tickcount = 0;
             // Rejuvenation
             if (targetAura->GetSpellProto()->SpellFamilyFlags[0] & 0x10)
@@ -2421,10 +2660,13 @@ void Spell::SpellDamageHeal(uint32 /*i*/)
             // Regrowth
             else // if (targetAura->GetSpellProto()->SpellFamilyFlags[0] & 0x40)
                 tickcount = 6;
+
             addhealth += tickheal * tickcount;
+
             // Glyph of Swiftmend
             if(!caster->HasAura(54824))
                 unitTarget->RemoveAura(targetAura->GetId(), targetAura->GetCasterGUID());
+
             //addhealth += tickheal * tickcount;
             //addhealth = caster->SpellHealingBonus(m_spellInfo, addhealth,HEAL, unitTarget);
         }
@@ -2446,28 +2688,35 @@ void Spell::SpellDamageHeal(uint32 /*i*/)
         }
         else
             addhealth = caster->SpellHealingBonus(unitTarget, m_spellInfo, addhealth, HEAL);
+
         m_damage -= addhealth;
     }
 }
+
 void Spell::EffectHealPct( uint32 /*i*/ )
 {
     if( unitTarget && unitTarget->isAlive() && damage >= 0)
     {
         // Try to get original caster
         Unit *caster = m_originalCasterGUID ? m_originalCaster : m_caster;
+
         // Skip if m_originalCaster not available
         if (!caster)
             return;
+
         // Rune Tap - Party
         if (m_spellInfo->Id == 59754 && unitTarget == m_caster)
             return;
+
         uint32 addhealth = unitTarget->GetMaxHealth() * damage / 100;
         if(Player* modOwner = m_caster->GetSpellModOwner())
             modOwner->ApplySpellMod(m_spellInfo->Id, SPELLMOD_DAMAGE, addhealth, this);
+
         int32 gain = caster->DealHeal(unitTarget, addhealth, m_spellInfo);
         unitTarget->getHostilRefManager().threatAssist(m_caster, float(gain) * 0.5f, m_spellInfo);
     }
 }
+
 void Spell::EffectHealMechanical( uint32 /*i*/ )
 {
     // Mechanic creature type should be correctly checked by targetCreatureType field
@@ -2475,25 +2724,33 @@ void Spell::EffectHealMechanical( uint32 /*i*/ )
     {
         // Try to get original caster
         Unit *caster = m_originalCasterGUID ? m_originalCaster : m_caster;
+
         // Skip if m_originalCaster not available
         if (!caster)
             return;
+
         uint32 addhealth = caster->SpellHealingBonus(unitTarget, m_spellInfo, uint32(damage), HEAL);
         caster->DealHeal(unitTarget, addhealth, m_spellInfo);
     }
 }
+
 void Spell::EffectHealthLeech(uint32 i)
 {
     if(!unitTarget)
         return;
     if(!unitTarget->isAlive())
         return;
+
     if(damage < 0)
         return;
+
     sLog.outDebug("HealthLeech :%i", damage);
+
     float multiplier = m_spellInfo->EffectMultipleValue[i];
+
     if(Player *modOwner = m_caster->GetSpellModOwner())
         modOwner->ApplySpellMod(m_spellInfo->Id, SPELLMOD_MULTIPLE_VALUE, multiplier);
+
     // Do not apply multiplier to damage if it's Death Coil
     int32 new_damage;
     if (m_spellInfo->SpellFamilyFlags[0] & 0x80000)
@@ -2504,6 +2761,7 @@ void Spell::EffectHealthLeech(uint32 i)
     new_damage = m_caster->SpellNonMeleeDamageLog(unitTarget, m_spellInfo->Id, new_damage );
     if(curHealth < new_damage)
         new_damage = curHealth;
+
     if(m_caster->isAlive())
     {
         // Insead add it just to healing if it's Death Coil
@@ -2515,11 +2773,14 @@ void Spell::EffectHealthLeech(uint32 i)
 //    m_healthLeech+=tmpvalue;
 //    m_damage+=new_damage;
 }
+
 void Spell::DoCreateItem(uint32 i, uint32 itemtype)
 {
     if (!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
         return;
+
     Player* player = (Player*)unitTarget;
+
     uint32 newitemid = itemtype;
     ItemPrototype const *pProto = objmgr.GetItemPrototype( newitemid );
     if(!pProto)
@@ -2527,6 +2788,7 @@ void Spell::DoCreateItem(uint32 i, uint32 itemtype)
         player->SendEquipError( EQUIP_ERR_ITEM_NOT_FOUND, NULL, NULL );
         return;
     }
+
     // bg reward have some special in code work
     uint32 bgType = 0;
     switch(m_spellInfo->Id)
@@ -2546,7 +2808,9 @@ void Spell::DoCreateItem(uint32 i, uint32 itemtype)
         default:
             break;
     }
+
     uint32 num_to_add;
+
     // TODO: maybe all this can be replaced by using correct calculated `damage` value
     if(pProto->Class != ITEM_CLASS_CONSUMABLE || m_spellInfo->SpellFamilyName != SPELLFAMILY_MAGE)
     {
@@ -2569,10 +2833,12 @@ void Spell::DoCreateItem(uint32 i, uint32 itemtype)
     }
     else
         num_to_add = 2;
+
     if (num_to_add < 1)
         num_to_add = 1;
     if (num_to_add > pProto->GetMaxStackSize())
         num_to_add = pProto->GetMaxStackSize();
+
     // init items_count to 1, since 1 item will be created regardless of specialization
     int items_count=1;
     // the chance to create additional items
@@ -2586,8 +2852,10 @@ void Spell::DoCreateItem(uint32 i, uint32 itemtype)
         while ( roll_chance_f(additionalCreateChance) && items_count<=additionalMaxNum )
             ++items_count;
     }
+
     // really will be created more items
     num_to_add *= items_count;
+
     // can the player store the new item?
     ItemPosCountVec dest;
     uint32 no_space = 0;
@@ -2604,26 +2872,32 @@ void Spell::DoCreateItem(uint32 i, uint32 itemtype)
             return;
         }
     }
+
     if(num_to_add)
     {
         // create the new item and store it
         Item* pItem = player->StoreNewItem( dest, newitemid, true, Item::GenerateItemRandomPropertyId(newitemid));
+
         // was it successful? return error if not
         if(!pItem)
         {
             player->SendEquipError( EQUIP_ERR_ITEM_NOT_FOUND, NULL, NULL );
             return;
         }
+
         // set the "Crafted by ..." property of the item
         if( pItem->GetProto()->Class != ITEM_CLASS_CONSUMABLE && pItem->GetProto()->Class != ITEM_CLASS_QUEST)
             pItem->SetUInt32Value(ITEM_FIELD_CREATOR, player->GetGUIDLow());
+
         // send info to the client
         if(pItem)
             player->SendNewItem(pItem, num_to_add, true, bgType == 0);
+
         // we succeeded in creating at least one item, so a levelup is possible
         if(bgType == 0)
             player->UpdateCraftSkill(m_spellInfo->Id);
     }
+
 /*
     // for battleground marks send by mail if not add all expected
     if(no_space > 0 && bgType)
@@ -2631,39 +2905,49 @@ void Spell::DoCreateItem(uint32 i, uint32 itemtype)
         if(BattleGround* bg = sBattleGroundMgr.GetBattleGroundTemplate(BattleGroundTypeId(bgType)))
             bg->SendRewardMarkByMail(player, newitemid, no_space);
     }
-*/
+*/    
 }
+
 void Spell::EffectCreateItem(uint32 i)
 {
     DoCreateItem(i,m_spellInfo->EffectItemType[i]);
 }
+
 void Spell::EffectCreateItem2(uint32 i)
 {
     if(m_caster->GetTypeId()!=TYPEID_PLAYER)
         return;
     Player* player = (Player*)m_caster;
+
     uint32 item_id = m_spellInfo->EffectItemType[i];
+
     DoCreateItem(i, item_id);
+
     // special case: fake item replaced by generate using spell_loot_template
     if(IsLootCraftingSpell(m_spellInfo))
     {
         if(!player->HasItemCount(item_id, 1))
             return;
+
         // remove reagent
         uint32 count = 1;
         player->DestroyItemCount(item_id, count, true);
+
         // create some random items
         player->AutoStoreLoot(m_spellInfo->Id, LootTemplates_Spell);
     }
 }
+
 void Spell::EffectCreateRandomItem(uint32 i)
 {
     if(m_caster->GetTypeId()!=TYPEID_PLAYER)
         return;
     Player* player = (Player*)m_caster;
+
     // create some random items
     player->AutoStoreLoot(m_spellInfo->Id, LootTemplates_Spell);
 }
+
 void Spell::EffectPersistentAA(uint32 i)
 {
     if(m_spellDynObj)
@@ -2672,9 +2956,11 @@ void Spell::EffectPersistentAA(uint32 i)
         m_spellDynObj->AddEffect(i);
         return;
     }
+
     float radius = GetSpellRadiusForFriend(sSpellRadiusStore.LookupEntry(m_spellInfo->EffectRadiusIndex[i]));
     if(Player* modOwner = m_originalCaster->GetSpellModOwner())
         modOwner->ApplySpellMod(m_spellInfo->Id, SPELLMOD_RADIUS, radius);
+
     Unit *caster = m_caster->GetEntry() == WORLD_TRIGGER ? m_originalCaster : m_caster;
     int32 duration = GetSpellDuration(m_spellInfo);
     DynamicObject* dynObj = new DynamicObject;
@@ -2688,15 +2974,19 @@ void Spell::EffectPersistentAA(uint32 i)
     dynObj->GetMap()->Add(dynObj);
     m_spellDynObj = dynObj;
 }
+
 void Spell::EffectEnergize(uint32 i)
 {
     if(!unitTarget)
         return;
     if(!unitTarget->isAlive())
         return;
+
     if(m_spellInfo->EffectMiscValue[i] < 0 || m_spellInfo->EffectMiscValue[i] >= MAX_POWERS)
         return;
+
     Powers power = Powers(m_spellInfo->EffectMiscValue[i]);
+
     // Some level depends spells
     int level_multiplier = 0;
     int level_diff = 0;
@@ -2724,13 +3014,18 @@ void Spell::EffectEnergize(uint32 i)
         default:
             break;
     }
+
     if (level_diff > 0)
         damage -= level_multiplier * level_diff;
+
     if(damage < 0)
         return;
+
     if(unitTarget->GetMaxPower(power) == 0)
         return;
+
     m_caster->EnergizeBySpell(unitTarget, m_spellInfo->Id, damage, power);
+
     // Mad Alchemist's Potion
     if (m_spellInfo->Id == 45051)
     {
@@ -2743,8 +3038,10 @@ void Spell::EffectEnergize(uint32 i)
             if(uint32 mask = spellmgr.GetSpellElixirMask(spell_id))
                 elixir_mask |= mask;
         }
+
         // get available elixir mask any not active type from battle/guardian (and flask if no any)
         elixir_mask = (elixir_mask & ELIXIR_FLASK_MASK) ^ ELIXIR_FLASK_MASK;
+
         // get all available elixirs by mask and spell level
         std::vector<uint32> elixirs;
         SpellElixirMap const& m_spellElixirs = spellmgr.GetSpellElixirMap();
@@ -2754,12 +3051,15 @@ void Spell::EffectEnergize(uint32 i)
             {
                 if (itr->second & (ELIXIR_UNSTABLE_MASK | ELIXIR_SHATTRATH_MASK))
                     continue;
+
                 SpellEntry const *spellInfo = sSpellStore.LookupEntry(itr->first);
                 if (spellInfo && (spellInfo->spellLevel < m_spellInfo->spellLevel || spellInfo->spellLevel > unitTarget->getLevel()))
                     continue;
+
                 elixirs.push_back(itr->first);
             }
         }
+
         if (!elixirs.empty())
         {
             // cast random elixir on target
@@ -2768,30 +3068,38 @@ void Spell::EffectEnergize(uint32 i)
         }
     }
 }
+
 void Spell::EffectEnergizePct(uint32 i)
 {
     if(!unitTarget)
         return;
     if(!unitTarget->isAlive())
         return;
+
     if(m_spellInfo->EffectMiscValue[i] < 0 || m_spellInfo->EffectMiscValue[i] >= MAX_POWERS)
         return;
+
     Powers power = Powers(m_spellInfo->EffectMiscValue[i]);
+
     uint32 maxPower = unitTarget->GetMaxPower(power);
     if(maxPower == 0)
         return;
+
     uint32 gain = damage * maxPower / 100;
     m_caster->EnergizeBySpell(unitTarget, m_spellInfo->Id, gain, power);
 }
+
 void Spell::SendLoot(uint64 guid, LootType loottype)
 {
     Player* player = (Player*)m_caster;
     if (!player)
         return;
+
     if (gameObjTarget)
     {
         if (Script->GOHello(player, gameObjTarget))
             return;
+
         switch (gameObjTarget->GetGoType())
         {
             case GAMEOBJECT_TYPE_DOOR:
@@ -2799,16 +3107,19 @@ void Spell::SendLoot(uint64 guid, LootType loottype)
                 gameObjTarget->UseDoorOrButton();
                 player->GetMap()->ScriptsStart(sGameObjectScripts, gameObjTarget->GetDBTableGUIDLow(), player, gameObjTarget);
                 return;
+
             case GAMEOBJECT_TYPE_QUESTGIVER:
                 // start or end quest
                 player->PrepareQuestMenu(guid);
                 player->SendPreparedQuest(guid);
                 return;
+
             case GAMEOBJECT_TYPE_SPELL_FOCUS:
                 // triggering linked GO
                 if(uint32 trapEntry = gameObjTarget->GetGOInfo()->spellFocus.linkedTrapId)
                     gameObjTarget->TriggeringLinkedGameObject(trapEntry,m_caster);
                 return;
+
             case GAMEOBJECT_TYPE_GOOBER:
                 // goober_scripts can be triggered if the player don't have the quest
                 if (gameObjTarget->GetGOInfo()->goober.eventId)
@@ -2817,24 +3128,31 @@ void Spell::SendLoot(uint64 guid, LootType loottype)
                     player->GetMap()->ScriptsStart(sEventScripts, gameObjTarget->GetGOInfo()->goober.eventId, player, gameObjTarget);
                     gameObjTarget->EventInform(gameObjTarget->GetGOInfo()->goober.eventId);
                 }
+
                 // cast goober spell
                 if (gameObjTarget->GetGOInfo()->goober.questId)
                     ///Quest require to be active for GO using
                     if(player->GetQuestStatus(gameObjTarget->GetGOInfo()->goober.questId) != QUEST_STATUS_INCOMPLETE)
                         return;
+
                 Script->GOHello(player, gameObjTarget);
                 gameObjTarget->GetMap()->ScriptsStart(sGameObjectScripts, gameObjTarget->GetDBTableGUIDLow(), player, gameObjTarget);
+
                 gameObjTarget->AddUniqueUse(player);
                 gameObjTarget->SetLootState(GO_JUST_DEACTIVATED);
+
                 //TODO? Objective counting called without spell check but with quest objective check
                 // if send spell id then this line will duplicate to spell casting call (double counting)
                 // So we or have this line and not required in quest_template have reqSpellIdN
                 // or must remove this line and required in DB have data in quest_template have reqSpellIdN for all quest using cases.
                 player->CastedCreatureOrGO(gameObjTarget->GetEntry(), gameObjTarget->GetGUID(), 0);
+
                 // triggering linked GO
                 if(uint32 trapEntry = gameObjTarget->GetGOInfo()->goober.linkedTrapId)
                     gameObjTarget->TriggeringLinkedGameObject(trapEntry,m_caster);
+
                 return;
+
             case GAMEOBJECT_TYPE_CHEST:
                 // TODO: possible must be moved to loot release (in different from linked triggering)
                 if (gameObjTarget->GetGOInfo()->chest.eventId)
@@ -2842,17 +3160,21 @@ void Spell::SendLoot(uint64 guid, LootType loottype)
                     sLog.outDebug("Chest ScriptStart id %u for GO %u", gameObjTarget->GetGOInfo()->chest.eventId,gameObjTarget->GetDBTableGUIDLow());
                     player->GetMap()->ScriptsStart(sEventScripts, gameObjTarget->GetGOInfo()->chest.eventId, player, gameObjTarget);
                 }
+
                 // triggering linked GO
                 if(uint32 trapEntry = gameObjTarget->GetGOInfo()->chest.linkedTrapId)
                     gameObjTarget->TriggeringLinkedGameObject(trapEntry,m_caster);
+
                 // Don't return, let loots been taken
             default:
                 break;
         }
     }
+
     // Send loot
     player->SendLoot(guid, loottype);
 }
+
 void Spell::EffectOpenLock(uint32 effIndex)
 {
     if(!m_caster || m_caster->GetTypeId() != TYPEID_PLAYER)
@@ -2860,9 +3182,12 @@ void Spell::EffectOpenLock(uint32 effIndex)
         sLog.outDebug( "WORLD: Open Lock - No Player Caster!");
         return;
     }
+
     Player* player = (Player*)m_caster;
+
     uint32 lockId = 0;
     uint64 guid = 0;
+
     // Get lockId
     if(gameObjTarget)
     {
@@ -2909,16 +3234,20 @@ void Spell::EffectOpenLock(uint32 effIndex)
         sLog.outDebug( "WORLD: Open Lock - No GameObject/Item Target!");
         return;
     }
+
     SkillType skillId = SKILL_NONE;
     int32 reqSkillValue = 0;
     int32 skillValue;
+
     SpellCastResult res = CanOpenLock(effIndex, lockId, skillId, reqSkillValue, skillValue);
     if(res != SPELL_CAST_OK)
     {
         SendCastResult(res);
         return;
     }
+
     SendLoot(guid, LOOT_SKINNING);
+
     // not allow use skill grow at item base open
     if(!m_CastItem && skillId != SKILL_NONE)
     {
@@ -2940,34 +3269,44 @@ void Spell::EffectOpenLock(uint32 effIndex)
         }
     }
 }
+
 void Spell::EffectSummonChangeItem(uint32 i)
 {
     if(m_caster->GetTypeId() != TYPEID_PLAYER)
         return;
+
     Player *player = (Player*)m_caster;
+
     // applied only to using item
     if(!m_CastItem)
         return;
+
     // ... only to item in own inventory/bank/equip_slot
     if(m_CastItem->GetOwnerGUID()!=player->GetGUID())
         return;
+
     uint32 newitemid = m_spellInfo->EffectItemType[i];
     if(!newitemid)
         return;
+
     uint16 pos = m_CastItem->GetPos();
+
     Item *pNewItem = Item::CreateItem( newitemid, 1, player);
     if( !pNewItem )
         return;
+
     for(uint8 j= PERM_ENCHANTMENT_SLOT; j<=TEMP_ENCHANTMENT_SLOT; ++j)
     {
         if(m_CastItem->GetEnchantmentId(EnchantmentSlot(j)))
             pNewItem->SetEnchantment(EnchantmentSlot(j), m_CastItem->GetEnchantmentId(EnchantmentSlot(j)), m_CastItem->GetEnchantmentDuration(EnchantmentSlot(j)), m_CastItem->GetEnchantmentCharges(EnchantmentSlot(j)));
     }
+
     if(m_CastItem->GetUInt32Value(ITEM_FIELD_DURABILITY) < m_CastItem->GetUInt32Value(ITEM_FIELD_MAXDURABILITY))
     {
         double loosePercent = 1 - m_CastItem->GetUInt32Value(ITEM_FIELD_DURABILITY) / double(m_CastItem->GetUInt32Value(ITEM_FIELD_MAXDURABILITY));
         player->DurabilityLoss(pNewItem, loosePercent);
     }
+
     if( player->IsInventoryPos( pos ) )
     {
         ItemPosCountVec dest;
@@ -2975,10 +3314,13 @@ void Spell::EffectSummonChangeItem(uint32 i)
         if( msg == EQUIP_ERR_OK )
         {
             player->DestroyItem(m_CastItem->GetBagSlot(), m_CastItem->GetSlot(), true);
+
             // prevent crash at access and unexpected charges counting with item update queue corrupt
             if(m_CastItem==m_targets.getItemTarget())
                 m_targets.setItemTarget(NULL);
+
             m_CastItem = NULL;
+
             player->StoreItem( dest, pNewItem, true);
             return;
         }
@@ -2990,10 +3332,13 @@ void Spell::EffectSummonChangeItem(uint32 i)
         if( msg == EQUIP_ERR_OK )
         {
             player->DestroyItem(m_CastItem->GetBagSlot(), m_CastItem->GetSlot(), true);
+
             // prevent crash at access and unexpected charges counting with item update queue corrupt
             if(m_CastItem==m_targets.getItemTarget())
                 m_targets.setItemTarget(NULL);
+
             m_CastItem = NULL;
+
             player->BankItem( dest, pNewItem, true);
             return;
         }
@@ -3005,23 +3350,29 @@ void Spell::EffectSummonChangeItem(uint32 i)
         if( msg == EQUIP_ERR_OK )
         {
             player->DestroyItem(m_CastItem->GetBagSlot(), m_CastItem->GetSlot(), true);
+
             // prevent crash at access and unexpected charges counting with item update queue corrupt
             if(m_CastItem==m_targets.getItemTarget())
                 m_targets.setItemTarget(NULL);
+
             m_CastItem = NULL;
+
             player->EquipItem( dest, pNewItem, true);
             player->AutoUnequipOffhandIfNeed();
             return;
         }
     }
+
     // fail
     delete pNewItem;
 }
+
 void Spell::EffectProficiency(uint32 /*i*/)
 {
     if (!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
         return;
     Player *p_target = (Player*)unitTarget;
+
     uint32 subClassMask = m_spellInfo->EquippedItemSubClassMask;
     if(m_spellInfo->EquippedItemClass == ITEM_CLASS_WEAPON && !(p_target->GetWeaponProficiency() & subClassMask))
     {
@@ -3034,28 +3385,36 @@ void Spell::EffectProficiency(uint32 /*i*/)
         p_target->SendProficiency(ITEM_CLASS_ARMOR, p_target->GetArmorProficiency());
     }
 }
+
 void Spell::EffectSummonType(uint32 i)
 {
     uint32 entry = m_spellInfo->EffectMiscValue[i];
     if(!entry)
         return;
+
     SummonPropertiesEntry const *properties = sSummonPropertiesStore.LookupEntry(m_spellInfo->EffectMiscValueB[i]);
     if(!properties)
     {
         sLog.outError("EffectSummonType: Unhandled summon type %u", m_spellInfo->EffectMiscValueB[i]);
         return;
     }
+
     if(!m_originalCaster)
         return;
+
     int32 duration = GetSpellDuration(m_spellInfo);
     if(Player* modOwner = m_originalCaster->GetSpellModOwner())
         modOwner->ApplySpellMod(m_spellInfo->Id, SPELLMOD_DURATION, duration);
+
     Position pos;
     GetSummonPosition(i, pos);
+
     /*//totem must be at same Z in case swimming caster and etc.
         if( fabs( z - m_caster->GetPositionZ() ) > 5 )
             z = m_caster->GetPositionZ();
+
     uint32 level = m_caster->getLevel();
+
     // level of creature summoned using engineering item based at engineering skill level
     if(m_caster->GetTypeId()==TYPEID_PLAYER && m_CastItem)
     {
@@ -3069,7 +3428,9 @@ void Spell::EffectSummonType(uint32 i)
             }
         }
     }*/
+
     TempSummon *summon = NULL;
+
     switch(properties->Category)
     {
         default:
@@ -3095,12 +3456,15 @@ void Spell::EffectSummonType(uint32 i)
                     summon = m_caster->GetMap()->SummonCreature(entry, pos, properties, duration, m_originalCaster);
                     if(!summon || !summon->isTotem())
                         return;
+
                     if(damage)                                             // if not spell info, DB values used
                     {
                         summon->SetMaxHealth(damage);
                         summon->SetHealth(damage);
                     }
+
                     //summon->SetUInt32Value(UNIT_CREATED_BY_SPELL,m_spellInfo->Id);
+
                     if(m_originalCaster->GetTypeId() == TYPEID_PLAYER
                         && properties->Slot >= SUMMON_SLOT_TOTEM
                         && properties->Slot < MAX_TOTEM_SLOT)
@@ -3120,11 +3484,15 @@ void Spell::EffectSummonType(uint32 i)
                     summon = m_caster->GetMap()->SummonCreature(entry, pos, properties, duration, m_originalCaster);
                     if(!summon || !summon->HasUnitTypeMask(UNIT_MASK_MINION))
                         return;
+
                     //summon->InitPetCreateSpells();                         // e.g. disgusting oozeling has a create spell as summon...
                     summon->SelectLevel(summon->GetCreatureInfo());       // some summoned creaters have different from 1 DB data for level/hp
                     summon->SetUInt32Value(UNIT_NPC_FLAGS, summon->GetCreatureInfo()->npcflag);
+
                     summon->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+
                     summon->AI()->EnterEvadeMode();
+
                     std::string name = m_originalCaster->GetName();
                     name.append(petTypeSuffix[3]);
                     summon->SetName( name );
@@ -3133,13 +3501,17 @@ void Spell::EffectSummonType(uint32 i)
                 default:
                 {
                     float radius = GetSpellRadiusForHostile(sSpellRadiusStore.LookupEntry(m_spellInfo->EffectRadiusIndex[i]));
+
                     int32 amount = damage > 0 ? damage : 1;
                     if (m_spellInfo->Id == 18662) // Curse of Doom
                         amount = 1;
+
                     for(uint32 count = 0; count < amount; ++count)
                     {
                         GetSummonPosition(i, pos, radius, count);
+
                         TempSummonType summonType = (duration == 0) ? TEMPSUMMON_DEAD_DESPAWN : TEMPSUMMON_TIMED_DESPAWN;
+
                         TempSummon * summon = m_originalCaster->SummonCreature(entry, pos, summonType, duration);
                         if (!summon)
                             continue;
@@ -3167,38 +3539,49 @@ void Spell::EffectSummonType(uint32 i)
             summon = m_caster->GetMap()->SummonCreature(entry, pos, properties, duration, m_caster);
             if(!summon || !summon->IsVehicle())
                 return;
+
             if(damage)
                 m_caster->CastSpell(summon, damage, true);
             m_caster->EnterVehicle(summon->GetVehicleKit());
             break;
         }
     }
+
     if(summon)
     {
         summon->SetUInt32Value(UNIT_CREATED_BY_SPELL, m_spellInfo->Id);
     }
 }
+
 void Spell::EffectLearnSpell(uint32 i)
 {
     if(!unitTarget)
         return;
+
     if(unitTarget->GetTypeId() != TYPEID_PLAYER)
     {
         if(m_caster->GetTypeId() == TYPEID_PLAYER)
             EffectLearnPetSpell(i);
+
         return;
     }
+
     Player *player = (Player*)unitTarget;
+
     uint32 spellToLearn = ((m_spellInfo->Id==SPELL_ID_GENERIC_LEARN) || (m_spellInfo->Id==SPELL_ID_GENERIC_LEARN_PET)) ? damage : m_spellInfo->EffectTriggerSpell[i];
     player->learnSpell(spellToLearn,false);
+
     sLog.outDebug( "Spell: Player %u has learned spell %u from NpcGUID=%u", player->GetGUIDLow(), spellToLearn, m_caster->GetGUIDLow() );
 }
+
 typedef std::list< std::pair<uint32, uint64> > DispelList;
 void Spell::EffectDispel(uint32 i)
 {
     if(!unitTarget)
         return;
+
     Unit::AuraList dispel_list;
+
     // Create dispel mask by dispel type
     uint32 dispel_type = m_spellInfo->EffectMiscValue[i];
     uint32 dispelMask  = GetDispellMask( DispelType(dispel_type) );
@@ -3211,17 +3594,21 @@ void Spell::EffectDispel(uint32 i)
             if(aur->GetSpellProto()->Dispel == DISPEL_MAGIC)
             {
                 bool positive = aur->IsPositive() ? (!(aur->GetSpellProto()->AttributesEx & SPELL_ATTR_EX_NEGATIVE)) : false;
+
                 // do not remove positive auras if friendly target
                 //               negative auras if non-friendly target
                 if(positive == unitTarget->IsFriendlyTo(m_caster))
                     continue;
             }
+
             for (uint8 i = aur->GetStackAmount(); i; --i)
                 dispel_list.push_back(aur);
         }
     }
+
     if (dispel_list.empty())
         return;
+
     // Ok if exist some buffs for dispel try dispel it
     uint32 failCount = 0;
     DispelList success_list;
@@ -3232,6 +3619,7 @@ void Spell::EffectDispel(uint32 i)
         // Random select buff for dispel
         Unit::AuraList::iterator itr = dispel_list.begin();
         std::advance(itr, urand(0, dispel_list.size() - 1));
+
         if (GetDispelChance((*itr)->GetCaster(), (*itr)->GetId()))
         {
             success_list.push_back(std::make_pair((*itr)->GetId(), (*itr)->GetCasterGUID()));
@@ -3250,10 +3638,13 @@ void Spell::EffectDispel(uint32 i)
             dataFail << uint32((*itr)->GetId());                         // Spell Id
         }
     }
+
     if (failCount)
         m_caster->SendMessageToSet(&dataFail, true);
+
     if (success_list.empty())
         return;
+
     WorldPacket dataSuccess(SMSG_SPELLDISPELLOG, 8+8+4+1+4+damage*5);
     // Send packet header
     dataSuccess.append(unitTarget->GetPackGUID());         // Victim GUID
@@ -3269,6 +3660,7 @@ void Spell::EffectDispel(uint32 i)
         unitTarget->RemoveAurasDueToSpellByDispel(itr->first, itr->second, m_caster);
     }
     m_caster->SendMessageToSet(&dataSuccess, true);
+
     // On success dispel
     // Devour Magic
     if (m_spellInfo->SpellFamilyName == SPELLFAMILY_WARLOCK && m_spellInfo->Category == SPELLCATEGORY_DEVOUR_MAGIC)
@@ -3277,26 +3669,32 @@ void Spell::EffectDispel(uint32 i)
         m_caster->CastCustomSpell(m_caster, 19658, &heal_amount, NULL, NULL, true);
     }
 }
+
 void Spell::EffectDualWield(uint32 /*i*/)
 {
     unitTarget->SetCanDualWield(true);
     if(unitTarget->GetTypeId() == TYPEID_UNIT)
         ((Creature*)unitTarget)->UpdateDamagePhysical(OFF_ATTACK);
 }
+
 void Spell::EffectPull(uint32 /*i*/)
 {
     // TODO: create a proper pull towards distract spell center for distract
     sLog.outDebug("WORLD: Spell Effect DUMMY");
 }
+
 void Spell::EffectDistract(uint32 /*i*/)
 {
     // Check for possible target
     if (!unitTarget || unitTarget->isInCombat())
         return;
+
     // target must be OK to do this
     if( unitTarget->hasUnitState(UNIT_STAT_CONFUSED | UNIT_STAT_STUNNED | UNIT_STAT_FLEEING ) )
         return;
+
     float angle = unitTarget->GetAngle(&m_targets.m_dstPos);
+
     if ( unitTarget->GetTypeId() == TYPEID_PLAYER )
     {
         // For players just turn them
@@ -3311,17 +3709,21 @@ void Spell::EffectDistract(uint32 /*i*/)
         unitTarget->GetMotionMaster()->MoveDistract(damage * IN_MILISECONDS);
     }
 }
+
 void Spell::EffectPickPocket(uint32 /*i*/)
 {
     if( m_caster->GetTypeId() != TYPEID_PLAYER )
         return;
+
     // victim must be creature and attackable
     if( !unitTarget || unitTarget->GetTypeId() != TYPEID_UNIT || m_caster->IsFriendlyTo(unitTarget) )
         return;
+
     // victim have to be alive and humanoid or undead
     if( unitTarget->isAlive() && (unitTarget->GetCreatureTypeMask() &CREATURE_TYPEMASK_HUMANOID_OR_UNDEAD) != 0)
     {
         int32 chance = 10 + int32(m_caster->getLevel()) - int32(unitTarget->getLevel());
+
         if (chance > irand(0, 19))
         {
             // Stealing successful
@@ -3336,10 +3738,12 @@ void Spell::EffectPickPocket(uint32 /*i*/)
         }
     }
 }
+
 void Spell::EffectAddFarsight(uint32 i)
 {
     if (m_caster->GetTypeId() != TYPEID_PLAYER)
         return;
+
     float radius = GetSpellRadiusForFriend(sSpellRadiusStore.LookupEntry(m_spellInfo->EffectRadiusIndex[i]));
     int32 duration = GetSpellDuration(m_spellInfo);
     DynamicObject* dynObj = new DynamicObject;
@@ -3350,37 +3754,49 @@ void Spell::EffectAddFarsight(uint32 i)
     }
     dynObj->SetUInt32Value(DYNAMICOBJECT_BYTES, 0x80000002);
     m_caster->AddDynObject(dynObj);
+
     dynObj->setActive(true);    //must before add to map to be put in world container
     dynObj->GetMap()->Add(dynObj); //grid will also be loaded
+
     // Need to update visibility of object for client to accept farsight guid
     ((Player*)m_caster)->SetViewpoint(dynObj, true);
     //((Player*)m_caster)->UpdateVisibilityOf(dynObj);
 }
+
 void Spell::EffectTeleUnitsFaceCaster(uint32 i)
 {
     if(!unitTarget)
         return;
+
     if(unitTarget->isInFlight())
         return;
+
     float dis = m_caster->GetSpellRadiusForTarget(unitTarget, sSpellRadiusStore.LookupEntry(m_spellInfo->EffectRadiusIndex[i]));
+
     float fx,fy,fz;
     m_caster->GetClosePoint(fx,fy,fz,unitTarget->GetObjectSize(),dis);
+
     unitTarget->NearTeleportTo(fx,fy,fz,-m_caster->GetOrientation(),unitTarget==m_caster);
 }
+
 void Spell::EffectLearnSkill(uint32 i)
 {
     if(unitTarget->GetTypeId() != TYPEID_PLAYER)
         return;
+
     if(damage < 0)
         return;
+
     uint32 skillid =  m_spellInfo->EffectMiscValue[i];
     uint16 skillval = ((Player*)unitTarget)->GetPureSkillValue(skillid);
     ((Player*)unitTarget)->SetSkill(skillid, skillval?skillval:1, damage*75);
 }
+
 void Spell::EffectAddHonor(uint32 /*i*/)
 {
     if(unitTarget->GetTypeId() != TYPEID_PLAYER)
         return;
+
     // not scale value for item based reward (/10 value expected)
     if(m_CastItem)
     {
@@ -3388,6 +3804,7 @@ void Spell::EffectAddHonor(uint32 /*i*/)
         sLog.outError("SpellEffect::AddHonor (spell_id %u) rewards %d honor points (item %u) for player: %u", m_spellInfo->Id, damage/10, m_CastItem->GetEntry(),((Player*)unitTarget)->GetGUIDLow());
         return;
     }
+
     // do not allow to add too many honor for player (50 * 21) = 1040 at level 70, or (50 * 31) = 1550 at level 80
     if( damage <= 50)
     {
@@ -3402,6 +3819,7 @@ void Spell::EffectAddHonor(uint32 /*i*/)
         sLog.outError("SpellEffect::AddHonor (spell_id %u) rewards %u honor points (non scale) for player: %u", m_spellInfo->Id, damage, ((Player*)unitTarget)->GetGUIDLow());
     }
 }
+
 void Spell::EffectTradeSkill(uint32 /*i*/)
 {
     if(unitTarget->GetTypeId() != TYPEID_PLAYER)
@@ -3410,13 +3828,16 @@ void Spell::EffectTradeSkill(uint32 /*i*/)
     // uint16 skillmax = ((Player*)unitTarget)->(skillid);
     // ((Player*)unitTarget)->SetSkill(skillid,skillval?skillval:1,skillmax+75);
 }
+
 void Spell::EffectEnchantItemPerm(uint32 effect_idx)
 {
     if(m_caster->GetTypeId() != TYPEID_PLAYER)
         return;
     if (!itemTarget)
         return;
+
     Player* p_caster = (Player*)m_caster;
+
     // Handle vellums
     if (itemTarget->IsWeaponVellum() || itemTarget->IsArmorVellum())
     {
@@ -3434,16 +3855,20 @@ void Spell::EffectEnchantItemPerm(uint32 effect_idx)
         // do not increase skill if vellum used
         if (!(m_CastItem && m_CastItem->GetProto()->Flags & ITEM_FLAGS_TRIGGERED_CAST))
             p_caster->UpdateCraftSkill(m_spellInfo->Id);
+
         uint32 enchant_id = m_spellInfo->EffectMiscValue[effect_idx];
         if (!enchant_id)
             return;
+
         SpellItemEnchantmentEntry const *pEnchant = sSpellItemEnchantmentStore.LookupEntry(enchant_id);
         if(!pEnchant)
             return;
+
         // item can be in trade slot and have owner diff. from caster
         Player* item_owner = itemTarget->GetOwner();
         if(!item_owner)
             return;
+
         if(item_owner!=p_caster && p_caster->GetSession()->GetSecurity() > SEC_PLAYER && sWorld.getConfig(CONFIG_GM_LOG_TRADE) )
         {
             sLog.outCommand(p_caster->GetSession()->GetAccountId(),"GM %s (Account: %u) enchanting(perm): %s (Entry: %d) for player: %s (Account: %u)",
@@ -3451,26 +3876,34 @@ void Spell::EffectEnchantItemPerm(uint32 effect_idx)
                 itemTarget->GetProto()->Name1,itemTarget->GetEntry(),
                 item_owner->GetName(),item_owner->GetSession()->GetAccountId());
         }
+
         // remove old enchanting before applying new if equipped
         item_owner->ApplyEnchantment(itemTarget,PERM_ENCHANTMENT_SLOT,false);
+
         itemTarget->SetEnchantment(PERM_ENCHANTMENT_SLOT, enchant_id, 0, 0);
+
         // add new enchanting if equipped
         item_owner->ApplyEnchantment(itemTarget,PERM_ENCHANTMENT_SLOT,true);
     }
 }
+
 void Spell::EffectEnchantItemPrismatic(uint32 effect_idx)
 {
     if(m_caster->GetTypeId() != TYPEID_PLAYER)
         return;
     if (!itemTarget)
         return;
+
     Player* p_caster = (Player*)m_caster;
+
     uint32 enchant_id = m_spellInfo->EffectMiscValue[effect_idx];
     if (!enchant_id)
         return;
+
     SpellItemEnchantmentEntry const *pEnchant = sSpellItemEnchantmentStore.LookupEntry(enchant_id);
     if(!pEnchant)
         return;
+
     // support only enchantings with add socket in this slot
     {
         bool add_socket = false;
@@ -3489,10 +3922,12 @@ void Spell::EffectEnchantItemPrismatic(uint32 effect_idx)
             return;
         }
     }
+
     // item can be in trade slot and have owner diff. from caster
     Player* item_owner = itemTarget->GetOwner();
     if(!item_owner)
         return;
+
     if(item_owner!=p_caster && p_caster->GetSession()->GetSecurity() > SEC_PLAYER && sWorld.getConfig(CONFIG_GM_LOG_TRADE) )
     {
         sLog.outCommand(p_caster->GetSession()->GetAccountId(),"GM %s (Account: %u) enchanting(perm): %s (Entry: %d) for player: %s (Account: %u)",
@@ -3500,24 +3935,33 @@ void Spell::EffectEnchantItemPrismatic(uint32 effect_idx)
             itemTarget->GetProto()->Name1,itemTarget->GetEntry(),
             item_owner->GetName(),item_owner->GetSession()->GetAccountId());
     }
+
     // remove old enchanting before applying new if equipped
     item_owner->ApplyEnchantment(itemTarget,PRISMATIC_ENCHANTMENT_SLOT,false);
+
     itemTarget->SetEnchantment(PRISMATIC_ENCHANTMENT_SLOT, enchant_id, 0, 0);
+
     // add new enchanting if equipped
     item_owner->ApplyEnchantment(itemTarget,PRISMATIC_ENCHANTMENT_SLOT,true);
 }
+
 void Spell::EffectEnchantItemTmp(uint32 i)
 {
     if(m_caster->GetTypeId() != TYPEID_PLAYER)
         return;
+
     Player* p_caster = (Player*)m_caster;
+
     if(!itemTarget)
         return;
+
     uint32 enchant_id = m_spellInfo->EffectMiscValue[i];
+
     // Shaman Rockbiter Weapon
     if(i==0 && m_spellInfo->Effect[1]==SPELL_EFFECT_DUMMY)
     {
         int32 enchnting_damage = CalculateDamage(1, NULL);//+1;
+
         // enchanting id selected by calculated damage-per-sec stored in Effect[1] base value
         // with already applied percent bonus from Elemental Weapons talent
         // Note: damage calculated (correctly) with rounding int32(float(v)) but
@@ -3566,19 +4010,23 @@ void Spell::EffectEnchantItemTmp(uint32 i)
                 return;
         }
     }
+
     if (!enchant_id)
     {
         sLog.outError("Spell %u Effect %u (SPELL_EFFECT_ENCHANT_ITEM_TEMPORARY) have 0 as enchanting id",m_spellInfo->Id,i);
         return;
     }
+
     SpellItemEnchantmentEntry const *pEnchant = sSpellItemEnchantmentStore.LookupEntry(enchant_id);
     if(!pEnchant)
     {
         sLog.outError("Spell %u Effect %u (SPELL_EFFECT_ENCHANT_ITEM_TEMPORARY) have not existed enchanting id %u ",m_spellInfo->Id,i,enchant_id);
         return;
     }
+
     // select enchantment duration
     uint32 duration;
+
     // rogue family enchantments exception by duration
     if(m_spellInfo->Id == 38615)
         duration = 1800;                                    // 30 mins
@@ -3604,10 +4052,12 @@ void Spell::EffectEnchantItemTmp(uint32 i)
     // default case
     else
         duration = 3600;                                    // 1 hour
+
     // item can be in trade slot and have owner diff. from caster
     Player* item_owner = itemTarget->GetOwner();
     if(!item_owner)
         return;
+
     if(item_owner!=p_caster && p_caster->GetSession()->GetSecurity() > SEC_PLAYER && sWorld.getConfig(CONFIG_GM_LOG_TRADE) )
     {
         sLog.outCommand(p_caster->GetSession()->GetAccountId(),"GM %s (Account: %u) enchanting(temp): %s (Entry: %d) for player: %s (Account: %u)",
@@ -3615,49 +4065,69 @@ void Spell::EffectEnchantItemTmp(uint32 i)
             itemTarget->GetProto()->Name1, itemTarget->GetEntry(),
             item_owner->GetName(), item_owner->GetSession()->GetAccountId());
     }
+
     // remove old enchanting before applying new if equipped
     item_owner->ApplyEnchantment(itemTarget,TEMP_ENCHANTMENT_SLOT, false);
+
     itemTarget->SetEnchantment(TEMP_ENCHANTMENT_SLOT, enchant_id, duration * 1000, 0);
+
     // add new enchanting if equipped
     item_owner->ApplyEnchantment(itemTarget, TEMP_ENCHANTMENT_SLOT, true);
 }
+
 void Spell::EffectTameCreature(uint32 /*i*/)
 {
     if(m_caster->GetPetGUID())
         return;
+
     if(!unitTarget)
         return;
+
     if(unitTarget->GetTypeId() != TYPEID_UNIT)
         return;
+
     Creature* creatureTarget = (Creature*)unitTarget;
+
     if(creatureTarget->isPet())
         return;
+
     if(m_caster->getClass() != CLASS_HUNTER)
         return;
+
     // cast finish successfully
     //SendChannelUpdate(0);
     finish();
+
     Pet* pet = m_caster->CreateTamedPetFrom(creatureTarget,m_spellInfo->Id);
     if(!pet)                                                // in versy specific state like near world end/etc.
         return;
+
     // "kill" original creature
     creatureTarget->ForcedDespawn();
+
     uint32 level = (creatureTarget->getLevel() < (m_caster->getLevel() - 5)) ? (m_caster->getLevel() - 5) : creatureTarget->getLevel();
+
     // prepare visual effect for levelup
     pet->SetUInt32Value(UNIT_FIELD_LEVEL, level - 1);
+
     // add to world
     pet->GetMap()->Add((Creature*)pet);
+
     // visual effect for levelup
     pet->SetUInt32Value(UNIT_FIELD_LEVEL, level);
+
     // caster have pet now
     m_caster->SetMinion(pet, true);
+    
     pet->InitTalentForLevel();
+
     if(m_caster->GetTypeId() == TYPEID_PLAYER)
     {
         pet->SavePetToDB(PET_SAVE_AS_CURRENT);
         ((Player*)m_caster)->PetSpellInitialize();
     }
 }
+
 void Spell::EffectSummonPet(uint32 i)
 {
     Player *owner = NULL;
@@ -3668,7 +4138,9 @@ void Spell::EffectSummonPet(uint32 i)
         else if(((Creature*)m_originalCaster)->isTotem())
             owner = m_originalCaster->GetCharmerOrOwnerPlayerOrPlayerItself();
     }
+
     uint32 petentry = m_spellInfo->EffectMiscValue[i];
+
     if(!owner)
     {
         SummonPropertiesEntry const *properties = sSummonPropertiesStore.LookupEntry(67);
@@ -3676,7 +4148,9 @@ void Spell::EffectSummonPet(uint32 i)
             SummonGuardian(i, petentry, properties);
         return;
     }
+
     Pet *OldSummon = owner->GetPet();
+
     // if pet requested type already exist
     if( OldSummon )
     {
@@ -3685,30 +4159,38 @@ void Spell::EffectSummonPet(uint32 i)
             // pet in corpse state can't be summoned
             if( OldSummon->isDead() )
                 return;
+
             assert(OldSummon->GetMap() == owner->GetMap());
+
             //OldSummon->GetMap()->Remove((Creature*)OldSummon,false);
+
             float px, py, pz;
             owner->GetClosePoint(px, py, pz, OldSummon->GetObjectSize());
+
             OldSummon->NearTeleportTo(px, py, pz, OldSummon->GetOrientation());
             //OldSummon->Relocate(px, py, pz, OldSummon->GetOrientation());
             //OldSummon->SetMap(owner->GetMap());
             //owner->GetMap()->Add((Creature*)OldSummon);
+
             if(owner->GetTypeId() == TYPEID_PLAYER && OldSummon->isControlled() )
             {
                 ((Player*)owner)->PetSpellInitialize();
             }
             return;
         }
+
         if(owner->GetTypeId() == TYPEID_PLAYER)
             ((Player*)owner)->RemovePet(OldSummon,(OldSummon->getPetType()==HUNTER_PET ? PET_SAVE_AS_DELETED : PET_SAVE_NOT_IN_SLOT),false);
         else
             return;
     }
+
     float x, y, z;
     owner->GetClosePoint(x, y, z, owner->GetObjectSize());
     Pet* pet = owner->SummonPet(petentry, x, y, z, owner->GetOrientation(), SUMMON_PET, 0);
     if(!pet)
         return;
+
     if(m_caster->GetTypeId() == TYPEID_UNIT)
     {
         if ( ((Creature*)m_caster)->isTotem() )
@@ -3716,33 +4198,43 @@ void Spell::EffectSummonPet(uint32 i)
         else
             pet->SetReactState(REACT_DEFENSIVE);
     }
+
     pet->SetUInt32Value(UNIT_CREATED_BY_SPELL, m_spellInfo->Id);
+
     // generate new name for summon pet
     std::string new_name=objmgr.GeneratePetName(petentry);
     if(!new_name.empty())
         pet->SetName(new_name);
 }
+
 void Spell::EffectLearnPetSpell(uint32 i)
 {
     if(m_caster->GetTypeId() != TYPEID_PLAYER)
         return;
+
     Player *_player = (Player*)m_caster;
+
     Pet *pet = _player->GetPet();
     if(!pet)
         return;
     if(!pet->isAlive())
         return;
+
     SpellEntry const *learn_spellproto = sSpellStore.LookupEntry(m_spellInfo->EffectTriggerSpell[i]);
     if(!learn_spellproto)
         return;
+
     pet->learnSpell(learn_spellproto->Id);
+
     pet->SavePetToDB(PET_SAVE_AS_CURRENT);
     _player->PetSpellInitialize();
 }
+
 void Spell::EffectTaunt(uint32 /*i*/)
 {
     if (!unitTarget)
         return;
+
     // this effect use before aura Taunt apply for prevent taunt already attacking target
     // for spell as marked "non effective at already attacking target"
     if(!unitTarget || !unitTarget->CanHaveThreatList()
@@ -3751,6 +4243,7 @@ void Spell::EffectTaunt(uint32 /*i*/)
         SendCastResult(SPELL_FAILED_DONT_REPORT);
         return;
     }
+
     // Also use this effect to set the taunter's threat to the taunted creature's highest value
     if(unitTarget->getThreatManager().getCurrentVictim())
     {
@@ -3759,22 +4252,27 @@ void Spell::EffectTaunt(uint32 /*i*/)
         if(itsThreat > myThreat)
             unitTarget->getThreatManager().addThreat(m_caster, itsThreat - myThreat);
     }
+
     //Set aggro victim to caster
     if( !unitTarget->getThreatManager().getOnlineContainer().empty() )
         if(HostilReference* forcedVictim = unitTarget->getThreatManager().getOnlineContainer().getReferenceByTarget(m_caster))
             unitTarget->getThreatManager().setCurrentVictim(forcedVictim);
+
     if(((Creature*)unitTarget)->IsAIEnabled && !((Creature*)unitTarget)->HasReactState(REACT_PASSIVE))
         ((Creature*)unitTarget)->AI()->AttackStart(m_caster);
 }
+
 void Spell::EffectWeaponDmg(uint32 i)
 {
 }
+
 void Spell::SpellDamageWeaponDmg(uint32 i)
 {
     if(!unitTarget)
         return;
     if(!unitTarget->isAlive())
         return;
+
     // multiple weapon dmg effect workaround
     // execute only the last weapon damage
     // and handle all effects at once
@@ -3790,10 +4288,12 @@ void Spell::SpellDamageWeaponDmg(uint32 i)
             break;
         }
     }
+
     // some spell specific modifiers
     float totalDamagePercentMod  = 1.0f;                    // applied to final bonus+weapon damage
     int32 fixed_bonus = 0;
     int32 spell_bonus = 0;                                  // bonus specific for spell
+
     switch(m_spellInfo->SpellFamilyName)
     {
         case SPELLFAMILY_WARRIOR:
@@ -3805,12 +4305,14 @@ void Spell::SpellDamageWeaponDmg(uint32 i)
                     return;
                 SpellEntry const *spellInfo = NULL;
                 uint32 stack = 0;
+
                 if (Aura * aur = unitTarget->GetAura(58567, m_caster->GetGUID()))
                 {
                     aur->RefreshAura();
                     spellInfo = aur->GetSpellProto();
                     stack = aur->GetStackAmount();
                 }
+
                 for(uint8 j = 0; j < 3; j++)
                 {
                     if(m_spellInfo->Effect[j] == SPELL_EFFECT_NORMALIZED_WEAPON_DMG)
@@ -3819,6 +4321,7 @@ void Spell::SpellDamageWeaponDmg(uint32 i)
                         break;
                     }
                 }
+
                 if(!spellInfo)
                 {
                     // get highest rank of the Sunder Armor spell
@@ -3828,9 +4331,11 @@ void Spell::SpellDamageWeaponDmg(uint32 i)
                         // only highest rank is shown in spell book, so simply check if shown in spell book
                         if(!itr->second->active || itr->second->disabled || itr->second->state == PLAYERSPELL_REMOVED)
                             continue;
+
                         SpellEntry const *spellProto = sSpellStore.LookupEntry(itr->first);
                         if (!spellProto)
                             continue;
+
                         if (spellProto->SpellFamilyFlags[0] & SPELLFAMILYFLAG_WARRIOR_SUNDERARMOR
                             && spellProto->Id != m_spellInfo->Id
                             && spellProto->SpellFamilyName == SPELLFAMILY_WARRIOR)
@@ -3890,6 +4395,7 @@ void Spell::SpellDamageWeaponDmg(uint32 i)
                         }
                     }
                 }
+
                 if(found)
                     totalDamagePercentMod *= 1.2f;          // 120% if poisoned
             }
@@ -3903,6 +4409,7 @@ void Spell::SpellDamageWeaponDmg(uint32 i)
                 spell_bonus += int32(0.23f*m_caster->SpellBaseDamageBonus(GetSpellSchoolMask(m_spellInfo)));
                 spell_bonus += int32(0.29f*m_caster->SpellBaseDamageBonusForVictim(GetSpellSchoolMask(m_spellInfo), unitTarget));
             }
+
             // Seal of Command Unleashed
             else if(m_spellInfo->Id==20467)
             {
@@ -3968,6 +4475,7 @@ void Spell::SpellDamageWeaponDmg(uint32 i)
             else if (m_spellInfo->SpellFamilyFlags[0] & 0x400000)
             {
                 totalDamagePercentMod *= (float(unitTarget->GetDiseasesByCaster(m_caster->GetGUID())) * 12.5f + 100.0f) / 100.0f;
+
                 // Glyph of Blood Strike
                 if (AuraEffect * aurEff = m_caster->GetAuraEffect(59332,0))
                 {
@@ -3985,6 +4493,7 @@ void Spell::SpellDamageWeaponDmg(uint32 i)
                     {
                         if (runic > 25)
                             runic = 25;
+
                         totalDamagePercentMod *= float((runic + 100.0f) / 100.0f);
                     }
                 }
@@ -4008,6 +4517,7 @@ void Spell::SpellDamageWeaponDmg(uint32 i)
             break;
         }
     }
+
     bool normalized = false;
     float weaponDamagePercentMod = 1.0;
     for (int j = 0; j < 3; ++j)
@@ -4029,6 +4539,7 @@ void Spell::SpellDamageWeaponDmg(uint32 i)
                 break;                                      // not weapon damage effect, just skip
         }
     }
+
     // apply to non-weapon bonus weapon total pct effect, weapon total flat effect included in weapon damage
     if(fixed_bonus || spell_bonus)
     {
@@ -4040,15 +4551,19 @@ void Spell::SpellDamageWeaponDmg(uint32 i)
             case OFF_ATTACK:    unitMod = UNIT_MOD_DAMAGE_OFFHAND;  break;
             case RANGED_ATTACK: unitMod = UNIT_MOD_DAMAGE_RANGED;   break;
         }
+
         float weapon_total_pct = 1.0f;
         if ( m_spellInfo->SchoolMask & SPELL_SCHOOL_MASK_NORMAL )
              weapon_total_pct = m_caster->GetModifierValue(unitMod, TOTAL_PCT);
+
         if(fixed_bonus)
             fixed_bonus = int32(fixed_bonus * weapon_total_pct);
         if(spell_bonus)
             spell_bonus = int32(spell_bonus * weapon_total_pct);
     }
+
     int32 weaponDamage = m_caster->CalculateDamage(m_attackType, normalized, true);
+
     // Sequence is important
     for (int j = 0; j < 3; ++j)
     {
@@ -4067,32 +4582,41 @@ void Spell::SpellDamageWeaponDmg(uint32 i)
                 break;                                      // not weapon damage effect, just skip
         }
     }
+
     // only for Seal of Command
     if(spell_bonus)
         weaponDamage += spell_bonus;
+
     // only for Mutilate
     if(totalDamagePercentMod != 1.0f)
         weaponDamage = int32(weaponDamage * totalDamagePercentMod);
+
     // prevent negative damage
     uint32 eff_damage = uint32(weaponDamage > 0 ? weaponDamage : 0);
+
     // Add melee damage bonuses (also check for negative)
     m_caster->MeleeDamageBonus(unitTarget, &eff_damage, m_attackType, m_spellInfo);
     m_damage+= eff_damage;
 }
+
 void Spell::EffectThreat(uint32 /*i*/)
 {
     if(!unitTarget || !unitTarget->isAlive() || !m_caster->isAlive())
         return;
+
     if(!unitTarget->CanHaveThreatList())
         return;
+
     unitTarget->AddThreat(m_caster, float(damage));
 }
+
 void Spell::EffectHealMaxHealth(uint32 /*i*/)
 {
     if(!unitTarget)
         return;
     if(!unitTarget->isAlive())
         return;
+
     int32 addhealth;
     if(m_spellInfo->SpellFamilyName == SPELLFAMILY_PALADIN) // Lay on Hands
         addhealth = m_caster->GetMaxHealth();
@@ -4101,12 +4625,14 @@ void Spell::EffectHealMaxHealth(uint32 /*i*/)
     if(m_originalCaster)
         m_originalCaster->DealHeal(unitTarget, addhealth, m_spellInfo);
 }
+
 void Spell::EffectInterruptCast(uint32 i)
 {
     if(!unitTarget)
         return;
     if(!unitTarget->isAlive())
         return;
+
     // TODO: not all spells that used this effect apply cooldown at school spells
     // also exist case: apply cooldown to interrupted cast only and to all spells
     for (uint32 i = CURRENT_FIRST_NON_MELEE_SPELL; i < CURRENT_MAX_SPELL; ++i)
@@ -4129,34 +4655,45 @@ void Spell::EffectInterruptCast(uint32 i)
         }
     }
 }
+
 void Spell::EffectSummonObjectWild(uint32 i)
 {
     uint32 gameobject_id = m_spellInfo->EffectMiscValue[i];
+
     GameObject* pGameObj = new GameObject;
+
     WorldObject* target = focusObject;
     if( !target )
         target = m_caster;
+
     float x, y, z;
     if(m_targets.m_targetMask & TARGET_FLAG_DEST_LOCATION)
         m_targets.m_dstPos.GetPosition(x, y, z);
     else
         m_caster->GetClosePoint(x, y, z, DEFAULT_WORLD_OBJECT_SIZE);
+
     Map *map = target->GetMap();
+
     if(!pGameObj->Create(objmgr.GenerateLowGuid(HIGHGUID_GAMEOBJECT), gameobject_id, map,
         m_caster->GetPhaseMask(), x, y, z, target->GetOrientation(), 0.0f, 0.0f, 0.0f, 0.0f, 100, GO_STATE_READY))
     {
         delete pGameObj;
         return;
     }
+
     int32 duration = GetSpellDuration(m_spellInfo);
+
     pGameObj->SetRespawnTime(duration > 0 ? duration/IN_MILISECONDS : 0);
     pGameObj->SetSpellId(m_spellInfo->Id);
+
     // Wild object not have owner and check clickable by players
     map->Add(pGameObj);
+
     if(pGameObj->GetGoType() == GAMEOBJECT_TYPE_FLAGDROP && m_caster->GetTypeId() == TYPEID_PLAYER)
     {
         Player *pl = (Player*)m_caster;
         BattleGround* bg = ((Player *)m_caster)->GetBattleGround();
+
         switch(pGameObj->GetMapId())
         {
             case 489:                                       //WS
@@ -4164,8 +4701,10 @@ void Spell::EffectSummonObjectWild(uint32 i)
                 if(bg && bg->GetTypeID()==BATTLEGROUND_WS && bg->GetStatus() == STATUS_IN_PROGRESS)
                 {
                     uint32 team = ALLIANCE;
+
                     if(pl->GetTeam() == team)
                         team = HORDE;
+
                     ((BattleGroundWS*)bg)->SetDroppedFlagGUID(pGameObj->GetGUID(),team);
                 }
                 break;
@@ -4180,6 +4719,7 @@ void Spell::EffectSummonObjectWild(uint32 i)
             }
         }
     }
+
     if(uint32 linkedEntry = pGameObj->GetGOInfo()->GetLinkedGameObjectEntry())
     {
         GameObject* linkedGO = new GameObject;
@@ -4188,6 +4728,7 @@ void Spell::EffectSummonObjectWild(uint32 i)
         {
             linkedGO->SetRespawnTime(duration > 0 ? duration/IN_MILISECONDS : 0);
             linkedGO->SetSpellId(m_spellInfo->Id);
+
             // Wild object not have owner and check clickable by players
             map->Add(linkedGO);
         }
@@ -4199,9 +4740,11 @@ void Spell::EffectSummonObjectWild(uint32 i)
         }
     }
 }
+
 void Spell::EffectScriptEffect(uint32 effIndex)
 {
     // TODO: we must implement hunter pet summon at login there (spell 6962)
+
     switch(m_spellInfo->SpellFamilyName)
     {
         case SPELLFAMILY_GENERIC:
@@ -4212,16 +4755,18 @@ void Spell::EffectScriptEffect(uint32 effIndex)
                 {
                     if(m_caster->GetTypeId()!=TYPEID_PLAYER)
                         return;
+
                     Player* plr = ((Player*)m_caster);
                     if(plr && plr->GetLastPetNumber())
                     {
-                        PetType NewPetType = (plr->getClass()==CLASS_HUNTER) ? HUNTER_PET : SUMMON_PET;
+                        PetType NewPetType = (plr->getClass()==CLASS_HUNTER) ? HUNTER_PET : SUMMON_PET;                        
                         if (Pet* NewPet = new Pet(plr,NewPetType))
                         {
                             if(NewPet->LoadPetFromDB(plr, 0, plr->GetLastPetNumber(), true))
                             {
                                 NewPet->SetHealth(NewPet->GetMaxHealth());
                                 NewPet->SetPower(NewPet->getPowerType(),NewPet->GetMaxPower(NewPet->getPowerType()));
+                                
                                 switch (NewPet->GetEntry())
                                 {
                                     case 11859:
@@ -4247,6 +4792,7 @@ void Spell::EffectScriptEffect(uint32 effIndex)
                         uint32 countMax = 18000;
                         countMax += m_caster->HasAura(38414) ? 3000 : 0;
                         countMax += m_caster->HasAura(57865) ? 3000 : 0;
+
                         if (countMin < countMax)
                         {
                             aurEff->GetParentAura()->SetAuraDuration(uint32(aurEff->GetParentAura()->GetAuraDuration()+3000));
@@ -4264,11 +4810,13 @@ void Spell::EffectScriptEffect(uint32 effIndex)
                         uint32 countMax = 20000;
                         countMax += m_caster->HasAura(54818) ? 4000 : 0;
                         countMax += m_caster->HasAura(60141) ? 4000 : 0;
+
                         if (countMin < countMax)
                         {
                             aurEff->GetParentAura()->SetAuraDuration(uint32(aurEff->GetParentAura()->GetAuraDuration()+3000));
                             aurEff->GetParentAura()->SetAuraMaxDuration(countMin+2000);
                         }
+
                     }
                     return;
                 }
@@ -4280,11 +4828,13 @@ void Spell::EffectScriptEffect(uint32 effIndex)
                         uint32 countMin = aurEff->GetParentAura()->GetAuraMaxDuration();
                         uint32 countMax = 12000;
                         countMax += m_caster->HasAura(56801) ? 4000 : 0;
+
                         if (countMin < countMax)
                         {
                             aurEff->GetParentAura()->SetAuraDuration(uint32(aurEff->GetParentAura()->GetAuraDuration()+3000));
                             aurEff->GetParentAura()->SetAuraMaxDuration(countMin+2000);
                         }
+
                     }
                     return;
                 }
@@ -4320,12 +4870,15 @@ void Spell::EffectScriptEffect(uint32 effIndex)
                 case 26275:
                 {
                     uint32 spells[4] = { 26272, 26157, 26273, 26274 };
+
                     // check presence
                     for(uint8 j = 0; j < 4; ++j)
                         if(unitTarget->HasAuraEffect(spells[j],0))
                             return;
+
                     // select spell
                     uint32 iTmpSpellId = spells[urand(0,3)];
+
                     // cast
                     unitTarget->CastSpell(unitTarget, iTmpSpellId, true);
                     return;
@@ -4335,12 +4888,14 @@ void Spell::EffectScriptEffect(uint32 effIndex)
                 {
                     if(!itemTarget && m_caster->GetTypeId()!=TYPEID_PLAYER)
                         return;
+
                     uint32 spell_id = 0;
                     switch(urand(1, 5))
                     {
                     case 1:  spell_id = 8854; break;
                     default: spell_id = 8855; break;
                     }
+
                     m_caster->CastSpell(m_caster,spell_id,true,NULL);
                     return;
                 }
@@ -4364,6 +4919,7 @@ void Spell::EffectScriptEffect(uint32 effIndex)
                 {
                     if(!unitTarget)
                         return;
+
                     uint32 spellid;
                     switch(m_spellInfo->Id)
                     {
@@ -4378,6 +4934,7 @@ void Spell::EffectScriptEffect(uint32 effIndex)
                         default:
                             return;
                     }
+
                     unitTarget->CastSpell(unitTarget,spellid,false);
                     return;
                 }
@@ -4398,9 +4955,11 @@ void Spell::EffectScriptEffect(uint32 effIndex)
                 {
                     if(!unitTarget || !unitTarget->isAlive())
                         return;
+
                     // Onyxia Scale Cloak
                     if(unitTarget->HasAura(22683))
                         return;
+
                     // Shadow Flame
                     m_caster->CastSpell(unitTarget, 22682, true);
                     return;
@@ -4468,6 +5027,7 @@ void Spell::EffectScriptEffect(uint32 effIndex)
                 {
                     if(!unitTarget)
                         return;
+
                     unitTarget->CastSpell(unitTarget, 41131, true);
                     break;
                 }*/
@@ -4476,6 +5036,7 @@ void Spell::EffectScriptEffect(uint32 effIndex)
                 {
                     if(!unitTarget)
                         return;
+
                     unitTarget->CastSpell(m_caster, 40903, true);
                     break;
                 }
@@ -4483,6 +5044,7 @@ void Spell::EffectScriptEffect(uint32 effIndex)
                 {
                 if(!unitTarget)
                         return;
+
                     switch(((Player*)unitTarget)->GetBaseSkillValue(762))
                     {
                     case 75: unitTarget->CastSpell(unitTarget, 51621, true); break;;
@@ -4497,6 +5059,7 @@ void Spell::EffectScriptEffect(uint32 effIndex)
                 {
                     if(!unitTarget)
                         return;
+
                     if(unitTarget)
                     {
                         switch(((Player*)unitTarget)->GetBaseSkillValue(762))
@@ -4513,9 +5076,11 @@ void Spell::EffectScriptEffect(uint32 effIndex)
                 {
                     if(m_caster->GetTypeId() != TYPEID_PLAYER)
                         return;
+
                     int bag=19;
                     int slot=0;
                     Item* item = NULL;
+
                     while (bag < 256)
                     {
                         item = ((Player*)m_caster)->GetItemByPos(bag,slot);
@@ -4542,6 +5107,7 @@ void Spell::EffectScriptEffect(uint32 effIndex)
                 {
                     if(!unitTarget)
                         return;
+
                     unitTarget->CastSpell(unitTarget, 44870, true);
                     break;
                 }
@@ -4550,7 +5116,9 @@ void Spell::EffectScriptEffect(uint32 effIndex)
                 {
                     if(!unitTarget)
                         return;
+
                     unitTarget->RemoveAurasDueToSpell(46394);
+
                     break;
                 }
                 // Negative Energy
@@ -4558,6 +5126,7 @@ void Spell::EffectScriptEffect(uint32 effIndex)
                 {
                     if(!unitTarget)
                         return;
+
                     m_caster->CastSpell(unitTarget, 46285, true);
                     break;
                 }
@@ -4566,6 +5135,7 @@ void Spell::EffectScriptEffect(uint32 effIndex)
                 {
                     if(!unitTarget)
                         return;
+
                     uint32 spellId = 0;
                     switch(rand() % 4)
                     {
@@ -4582,7 +5152,9 @@ void Spell::EffectScriptEffect(uint32 effIndex)
                 {
                     if(!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
                         return;
+
                     ((Player*)unitTarget)->ModifyMoney(5000 * GOLD);
+
                     break;
                 }
                 // Vigilance
@@ -4590,8 +5162,10 @@ void Spell::EffectScriptEffect(uint32 effIndex)
                 {
                     if(!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
                         return;
+
                     // Remove Taunt cooldown
                     ((Player*)unitTarget)->RemoveSpellCooldown(355, true);
+
                     return;
                 }
                 // Death Knight Initiate Visual
@@ -4599,6 +5173,7 @@ void Spell::EffectScriptEffect(uint32 effIndex)
                 {
                     if(!unitTarget || unitTarget->GetTypeId() != TYPEID_UNIT)
                         return;
+
                     uint32 iTmpSpellId = 0;
                     switch (unitTarget->GetDisplayId())
                     {
@@ -4624,6 +5199,7 @@ void Spell::EffectScriptEffect(uint32 effIndex)
                         case 25365: iTmpSpellId = 51546; break; // troll male
                         default: return;
                     }
+
                     unitTarget->CastSpell(unitTarget, iTmpSpellId, true);
                     Creature* npc = (Creature*)unitTarget;
                     npc->LoadEquipment(npc->GetEquipmentId());
@@ -4634,6 +5210,7 @@ void Spell::EffectScriptEffect(uint32 effIndex)
                 {
                     if(!m_originalCaster)
                         return;
+
                     m_originalCaster->CastSpell(m_originalCaster, damage, false);
                     break;
                 }
@@ -4642,6 +5219,7 @@ void Spell::EffectScriptEffect(uint32 effIndex)
                 {
                     if(!m_targets.HasDst())
                         return;
+
                     float x, y, z;
                     float radius = GetSpellRadius(m_spellInfo, effIndex, true);
                     for(uint32 i = 0; i < 15; ++i)
@@ -4683,8 +5261,10 @@ void Spell::EffectScriptEffect(uint32 effIndex)
                 {
                     if(!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
                         return;
+
                     // Prevent stacking of mounts
                     unitTarget->RemoveAurasByType(SPELL_AURA_MOUNTED);
+
                     // Triggered spell id dependent of riding skill
                     if(uint16 skillval = ((Player*)unitTarget)->GetSkillValue(SKILL_RIDING))
                     {
@@ -4700,10 +5280,13 @@ void Spell::EffectScriptEffect(uint32 effIndex)
                 {
                     if(!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER || effIndex!=0)
                         return;
+
                     uint32 spellID = m_spellInfo->CalculateSimpleValue(0);
                     uint32 questID = m_spellInfo->CalculateSimpleValue(1);
+
                     if (((Player*)unitTarget)->GetQuestStatus(questID) == QUEST_STATUS_COMPLETE && !((Player*)unitTarget)->GetQuestRewardStatus (questID))
                         unitTarget->CastSpell(unitTarget, spellID, true);
+
                     return;
                 }
                 case 58941:                                 // Rock Shards
@@ -4730,8 +5313,10 @@ void Spell::EffectScriptEffect(uint32 effIndex)
                 {
                     if(!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
                         return;
+
                     // Prevent stacking of mounts
                     unitTarget->RemoveAurasByType(SPELL_AURA_MOUNTED);
+
                     // Triggered spell id dependent of riding skill
                     if(uint16 skillval = ((Player*)unitTarget)->GetSkillValue(SKILL_RIDING))
                     {
@@ -4745,12 +5330,14 @@ void Spell::EffectScriptEffect(uint32 effIndex)
                 case 59317:                                 // Teleporting
                     if (!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
                         return;
+
                     // return from top
                     if (((Player*)unitTarget)->GetAreaId() == 4637)
                         unitTarget->CastSpell(unitTarget, 59316, true);
                     // teleport atop
                     else
                         unitTarget->CastSpell(unitTarget, 59314, true);
+
                     return;
                 // random spell learn instead placeholder
                 case 60893:                                 // Northrend Alchemy Research
@@ -4761,6 +5348,7 @@ void Spell::EffectScriptEffect(uint32 effIndex)
                 {
                     if(m_caster->GetTypeId() != TYPEID_PLAYER)
                         return;
+
                     // learn random explicit discovery recipe (if any)
                     if(uint32 discoveredSpell = GetExplicitDiscoverySpell(m_spellInfo->Id, (Player*)m_caster))
                         ((Player*)m_caster)->learnSpell(discoveredSpell, false);
@@ -4789,7 +5377,9 @@ void Spell::EffectScriptEffect(uint32 effIndex)
                 {
                     if (m_caster->GetTypeId() != TYPEID_UNIT || !((Creature*)m_caster)->isSummon())
                         return;
+
                     uint32 spell_heal;
+
                     switch(m_caster->GetEntry())
                     {
                         case 31897: spell_heal = 7001; break;
@@ -4803,6 +5393,7 @@ void Spell::EffectScriptEffect(uint32 effIndex)
                             return;
                     }
                     Aura * chargesaura = m_caster->GetAura(59907);
+
                     if(chargesaura && chargesaura->GetAuraCharges() > 1)
                     {
                         chargesaura->SetAuraCharges(chargesaura->GetAuraCharges() - 1);
@@ -4830,6 +5421,7 @@ void Spell::EffectScriptEffect(uint32 effIndex)
                     {
                         if(!unitTarget->m_SummonSlot[slot])
                             continue;
+
                         Creature* totem = unitTarget->GetMap()->GetCreature(unitTarget->m_SummonSlot[slot]);
                         if(totem && totem->isTotem())
                         {
@@ -4863,6 +5455,7 @@ void Spell::EffectScriptEffect(uint32 effIndex)
                 {
                     uint32 itemtype;
                     uint32 rank = 0;
+
                     // Improved Healthstone
                     if (AuraEffect const * aurEff = unitTarget->GetDummyAura(SPELLFAMILY_WARLOCK, 284, 0))
                     {
@@ -4873,6 +5466,7 @@ void Spell::EffectScriptEffect(uint32 effIndex)
                         else
                             sLog.outError("Unknown rank of Improved Healthstone id: %d", aurEff->GetId());
                     }
+
                     static uint32 const itypes[8][3] = {
                         { 5512, 19004, 19005},              // Minor Healthstone
                         { 5511, 19006, 19007},              // Lesser Healthstone
@@ -4883,6 +5477,7 @@ void Spell::EffectScriptEffect(uint32 effIndex)
                         {36889, 36890, 36891},              // Demonic Healthstone
                         {36892, 36893, 36894}               // Fel Healthstone
                     };
+
                     switch(m_spellInfo->Id)
                     {
                         case  6201:
@@ -5014,6 +5609,7 @@ void Spell::EffectScriptEffect(uint32 effIndex)
                             continue;
                         if (!aura->GetPartAura(0))
                             continue;
+
                         // Serpent Sting - Instantly deals 40% of the damage done by your Serpent Sting.
                         if (familyFlag[0] & 0x4000)
                         {
@@ -5041,6 +5637,7 @@ void Spell::EffectScriptEffect(uint32 effIndex)
                         //{
                         //    spellId = 53366; // 53366 Chimera Shot - Wyvern
                         //}
+
                         // Refresh aura duration
                         aura->RefreshAura();
                         break;
@@ -5054,6 +5651,7 @@ void Spell::EffectScriptEffect(uint32 effIndex)
                 {
                     if (!unitTarget)
                         return;
+
                     // script effect have in value, but this outdated removed part
                     unitTarget->CastSpell(unitTarget, 62305, true);
                     return;
@@ -5072,6 +5670,7 @@ void Spell::EffectScriptEffect(uint32 effIndex)
                     return;
                 uint32 spellId1 = 0;
                 uint32 spellId2 = 0;
+
                 // Judgement self add switch
                 switch (m_spellInfo->Id)
                 {
@@ -5139,10 +5738,12 @@ void Spell::EffectScriptEffect(uint32 effIndex)
                     // 25% chance of casting a random buff
                     if(roll_chance_i(75))
                         return;
+
                     // triggered spells are 28703 to 28707
                     // Note: some sources say, that there was the possibility of
                     //       receiving a debuff. However, this seems to be removed by a patch.
                     const uint32 spellid = 28703;
+
                     // don't overwrite an existing aura
                     for(uint8 i = 0; i < 5; ++i)
                         if(unitTarget->HasAura(spellid + i))
@@ -5150,6 +5751,7 @@ void Spell::EffectScriptEffect(uint32 effIndex)
                     unitTarget->CastSpell(unitTarget, spellid+urand(0, 4), true);
                     break;
                 }
+
                 // Nightmare Vine
                 case 28720:
                 {
@@ -5187,7 +5789,7 @@ void Spell::EffectScriptEffect(uint32 effIndex)
         case SPELLFAMILY_WARRIOR:
         {
             // Shattering Throw
-            if ( m_spellInfo->SpellFamilyFlags[1] & 0x1 )
+            if ( m_spellInfo->SpellFamilyFlags[1] & 0x1 ) 
             {
                 if(!unitTarget)
                     return;
@@ -5198,14 +5800,17 @@ void Spell::EffectScriptEffect(uint32 effIndex)
             break;
         }
     }
+
     // normal DB scripted effect
     sLog.outDebug("Spell ScriptStart spellid %u in EffectScriptEffect ", m_spellInfo->Id);
     m_caster->GetMap()->ScriptsStart(sSpellScripts, m_spellInfo->Id, m_caster, unitTarget);
 }
+
 void Spell::EffectSanctuary(uint32 /*i*/)
 {
     if(!unitTarget)
         return;
+
     std::list<Unit*> targets;
     Trinity::AnyUnfriendlyUnitInObjectRangeCheck u_check(unitTarget, unitTarget, m_caster->GetMap()->GetVisibilityDistance());
     Trinity::UnitListSearcher<Trinity::AnyUnfriendlyUnitInObjectRangeCheck> searcher(unitTarget, targets, u_check);
@@ -5214,6 +5819,7 @@ void Spell::EffectSanctuary(uint32 /*i*/)
     {
         if(!(*iter)->hasUnitState(UNIT_STAT_CASTING))
             continue;
+
         for(uint32 i = CURRENT_FIRST_NON_MELEE_SPELL; i < CURRENT_MAX_SPELL; i++)
         {
             if((*iter)->GetCurrentSpell(i)
@@ -5223,6 +5829,7 @@ void Spell::EffectSanctuary(uint32 /*i*/)
             }
         }
     }
+
     unitTarget->CombatStop();
     unitTarget->getHostilRefManager().deleteReferences();   // stop all fighting
     // Vanish allows to remove all threat and cast regular stealth so other spells can be used
@@ -5231,25 +5838,33 @@ void Spell::EffectSanctuary(uint32 /*i*/)
         ((Player *)m_caster)->RemoveAurasByType(SPELL_AURA_MOD_ROOT);
     }
 }
+
 void Spell::EffectAddComboPoints(uint32 /*i*/)
 {
     if(!unitTarget)
         return;
+
     if(!m_caster->m_movedPlayer)
         return;
+
     if(damage <= 0)
         return;
+
     m_caster->m_movedPlayer->AddComboPoints(unitTarget, damage, this);
 }
+
 void Spell::EffectDuel(uint32 i)
 {
     if(!m_caster || !unitTarget || m_caster->GetTypeId() != TYPEID_PLAYER || unitTarget->GetTypeId() != TYPEID_PLAYER)
         return;
+
     Player *caster = (Player*)m_caster;
     Player *target = (Player*)unitTarget;
+
     // caster or target already have requested duel
     if( caster->duel || target->duel || !target->GetSocial() || target->GetSocial()->HasIgnore(caster->GetGUIDLow()) )
         return;
+
     // Players can only fight a duel with each other outside (=not inside dungeons and not in capital cities)
     // Don't have to check the target's map since you cannot challenge someone across maps
     if(caster->GetMap()->Instanceable())
@@ -5258,21 +5873,26 @@ void Spell::EffectDuel(uint32 i)
         SendCastResult(SPELL_FAILED_NO_DUELING);            // Dueling isn't allowed here
         return;
     }
+
     AreaTableEntry const* casterAreaEntry = GetAreaEntryByAreaID(caster->GetZoneId());
     if(casterAreaEntry && (casterAreaEntry->flags & AREA_FLAG_CAPITAL) )
     {
         SendCastResult(SPELL_FAILED_NO_DUELING);            // Dueling isn't allowed here
         return;
     }
+
     AreaTableEntry const* targetAreaEntry = GetAreaEntryByAreaID(target->GetZoneId());
     if(targetAreaEntry && (targetAreaEntry->flags & AREA_FLAG_CAPITAL) )
     {
         SendCastResult(SPELL_FAILED_NO_DUELING);            // Dueling isn't allowed here
         return;
     }
+
     //CREATE DUEL FLAG OBJECT
     GameObject* pGameObj = new GameObject;
+
     uint32 gameobject_id = m_spellInfo->EffectMiscValue[i];
+
     Map *map = m_caster->GetMap();
     if(!pGameObj->Create(objmgr.GenerateLowGuid(HIGHGUID_GAMEOBJECT), gameobject_id,
         map, m_caster->GetPhaseMask(),
@@ -5284,20 +5904,24 @@ void Spell::EffectDuel(uint32 i)
         delete pGameObj;
         return;
     }
+
     pGameObj->SetUInt32Value(GAMEOBJECT_FACTION, m_caster->getFaction() );
     pGameObj->SetUInt32Value(GAMEOBJECT_LEVEL, m_caster->getLevel()+1 );
     int32 duration = GetSpellDuration(m_spellInfo);
     pGameObj->SetRespawnTime(duration > 0 ? duration/IN_MILISECONDS : 0);
     pGameObj->SetSpellId(m_spellInfo->Id);
+
     m_caster->AddGameObject(pGameObj);
     map->Add(pGameObj);
     //END
+
     // Send request
     WorldPacket data(SMSG_DUEL_REQUESTED, 8 + 8);
     data << uint64(pGameObj->GetGUID());
     data << uint64(caster->GetGUID());
     caster->GetSession()->SendPacket(&data);
     target->GetSession()->SendPacket(&data);
+
     // create duel-info
     DuelInfo *duel   = new DuelInfo;
     duel->initiator  = caster;
@@ -5305,29 +5929,38 @@ void Spell::EffectDuel(uint32 i)
     duel->startTime  = 0;
     duel->startTimer = 0;
     caster->duel     = duel;
+
     DuelInfo *duel2   = new DuelInfo;
     duel2->initiator  = caster;
     duel2->opponent   = caster;
     duel2->startTime  = 0;
     duel2->startTimer = 0;
     target->duel      = duel2;
+
     caster->SetUInt64Value(PLAYER_DUEL_ARBITER, pGameObj->GetGUID());
     target->SetUInt64Value(PLAYER_DUEL_ARBITER, pGameObj->GetGUID());
 }
+
 void Spell::EffectStuck(uint32 /*i*/)
 {
     if(!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
         return;
+
     if(!sWorld.getConfig(CONFIG_CAST_UNSTUCK))
         return;
+
     Player* pTarget = (Player*)unitTarget;
+
     sLog.outDebug("Spell Effect: Stuck");
     sLog.outDetail("Player %s (guid %u) used auto-unstuck future at map %u (%f, %f, %f)", pTarget->GetName(), pTarget->GetGUIDLow(), m_caster->GetMapId(), m_caster->GetPositionX(), pTarget->GetPositionY(), pTarget->GetPositionZ());
+
     if(pTarget->isInFlight())
         return;
+
     pTarget->TeleportTo(pTarget->GetStartPosition(), unitTarget == m_caster ? TELE_TO_SPELL : 0);
     // homebind location is loaded always
     // pTarget->TeleportTo(pTarget->m_homebindMapId,pTarget->m_homebindX,pTarget->m_homebindY,pTarget->m_homebindZ,pTarget->GetOrientation(), (unitTarget==m_caster ? TELE_TO_SPELL : 0));
+
     // Stuck spell trigger Hearthstone cooldown
     SpellEntry const *spellInfo = sSpellStore.LookupEntry(8690);
     if(!spellInfo)
@@ -5335,41 +5968,54 @@ void Spell::EffectStuck(uint32 /*i*/)
     Spell spell(pTarget, spellInfo, true, 0);
     spell.SendSpellCooldown();
 }
+
 void Spell::EffectSummonPlayer(uint32 /*i*/)
 {
     if(!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
         return;
+
     // Evil Twin (ignore player summon, but hide this for summoner)
     if(unitTarget->HasAura(23445))
         return;
+
     float x, y, z;
     m_caster->GetClosePoint(x, y, z, unitTarget->GetObjectSize());
+
     ((Player*)unitTarget)->SetSummonPoint(m_caster->GetMapId(),x,y,z);
+
     WorldPacket data(SMSG_SUMMON_REQUEST, 8+4+4);
     data << uint64(m_caster->GetGUID());                    // summoner guid
     data << uint32(m_caster->GetZoneId());                  // summoner zone
     data << uint32(MAX_PLAYER_SUMMON_DELAY*IN_MILISECONDS); // auto decline after msecs
     ((Player*)unitTarget)->GetSession()->SendPacket(&data);
 }
+
 static ScriptInfo generateActivateCommand()
 {
     ScriptInfo si;
     si.command = SCRIPT_COMMAND_ACTIVATE_OBJECT;
     return si;
 }
+
 void Spell::EffectActivateObject(uint32 effect_idx)
 {
     if(!gameObjTarget)
         return;
+
     static ScriptInfo activateCommand = generateActivateCommand();
+
     int32 delay_secs = m_spellInfo->EffectMiscValue[effect_idx];
+
     gameObjTarget->GetMap()->ScriptCommandStart(activateCommand, delay_secs, m_caster, gameObjTarget);
 }
+
 void Spell::EffectApplyGlyph(uint32 i)
 {
     if(m_caster->GetTypeId() != TYPEID_PLAYER)
         return;
+
     Player *player = (Player*)m_caster;
+
     // apply new one
     if(uint32 glyph = m_spellInfo->EffectMiscValue[i])
     {
@@ -5383,6 +6029,7 @@ void Spell::EffectApplyGlyph(uint32 i)
                     return;                                 // glyph slot mismatch
                 }
             }
+
             // remove old glyph
             if(uint32 oldglyph = player->GetGlyph(m_glyphIndex))
             {
@@ -5392,24 +6039,30 @@ void Spell::EffectApplyGlyph(uint32 i)
                     player->SetGlyph(m_glyphIndex, 0);
                 }
             }
+
             player->CastSpell(m_caster, gp->SpellId, true);
             player->SetGlyph(m_glyphIndex, glyph);
             player->SendTalentsInfoData(false);
         }
     }
 }
+
 void Spell::EffectEnchantHeldItem(uint32 i)
 {
     // this is only item spell effect applied to main-hand weapon of target player (players in area)
     if(!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
         return;
+
     Player* item_owner = (Player*)unitTarget;
     Item* item = item_owner->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND);
+
     if(!item )
         return;
+
     // must be equipped
     if(!item ->IsEquipped())
         return;
+
     if (m_spellInfo->EffectMiscValue[i])
     {
         uint32 enchant_id = m_spellInfo->EffectMiscValue[i];
@@ -5418,34 +6071,45 @@ void Spell::EffectEnchantHeldItem(uint32 i)
             duration = damage;//+1;            //Base points after ..
         if(!duration)
             duration = 10;                                  //10 seconds for enchants which don't have listed duration
+
         SpellItemEnchantmentEntry const *pEnchant = sSpellItemEnchantmentStore.LookupEntry(enchant_id);
         if(!pEnchant)
             return;
+
         // Always go to temp enchantment slot
         EnchantmentSlot slot = TEMP_ENCHANTMENT_SLOT;
+
         // Enchantment will not be applied if a different one already exists
         if(item->GetEnchantmentId(slot) && item->GetEnchantmentId(slot) != enchant_id)
             return;
+
         // Apply the temporary enchantment
         item->SetEnchantment(slot, enchant_id, duration*IN_MILISECONDS, 0);
         item_owner->ApplyEnchantment(item, slot, true);
     }
 }
+
 void Spell::EffectDisEnchant(uint32 /*i*/)
 {
     if(m_caster->GetTypeId() != TYPEID_PLAYER)
         return;
+
     Player* p_caster = (Player*)m_caster;
     if(!itemTarget || !itemTarget->GetProto()->DisenchantID)
         return;
+
     p_caster->UpdateCraftSkill(m_spellInfo->Id);
+
     ((Player*)m_caster)->SendLoot(itemTarget->GetGUID(),LOOT_DISENCHANTING);
+
     // item will be removed at disenchanting end
 }
+
 void Spell::EffectInebriate(uint32 /*i*/)
 {
     if(!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
         return;
+
     Player *player = (Player*)unitTarget;
     uint16 currentDrunk = player->GetDrunkValue();
     uint16 drunkMod = damage * 256;
@@ -5455,40 +6119,54 @@ void Spell::EffectInebriate(uint32 /*i*/)
         currentDrunk += drunkMod;
     player->SetDrunkValue(currentDrunk, m_CastItem ? m_CastItem->GetEntry() : 0);
 }
+
 void Spell::EffectFeedPet(uint32 i)
 {
     if(m_caster->GetTypeId() != TYPEID_PLAYER)
         return;
+
     Player *_player = (Player*)m_caster;
+
     Item* foodItem = m_targets.getItemTarget();
     if(!foodItem)
         return;
+
     Pet *pet = _player->GetPet();
     if(!pet)
         return;
+
     if(!pet->isAlive())
         return;
+
     int32 benefit = pet->GetCurrentFoodBenefitLevel(foodItem->GetProto()->ItemLevel);
     if(benefit <= 0)
         return;
+
     uint32 count = 1;
     _player->DestroyItemCount(foodItem,count,true);
     // TODO: fix crash when a spell has two effects, both pointed at the same item target
+
     m_caster->CastCustomSpell(pet, m_spellInfo->EffectTriggerSpell[i], &benefit, NULL, NULL, true);
 }
+
 void Spell::EffectDismissPet(uint32 /*i*/)
 {
     if(m_caster->GetTypeId() != TYPEID_PLAYER)
         return;
+
     Pet* pet = ((Player*)m_caster)->GetPet();
+
     // not let dismiss dead pet
     if(!pet||!pet->isAlive())
         return;
+
     ((Player*)m_caster)->RemovePet(pet, PET_SAVE_NOT_IN_SLOT);
 }
+
 void Spell::EffectSummonObject(uint32 i)
 {
     uint32 go_id = m_spellInfo->EffectMiscValue[i];
+
     uint8 slot = 0;
     switch(m_spellInfo->Effect[i])
     {
@@ -5498,12 +6176,14 @@ void Spell::EffectSummonObject(uint32 i)
         case SPELL_EFFECT_SUMMON_OBJECT_SLOT4: slot = 3; break;
         default: return;
     }
+
     uint64 guid = m_caster->m_ObjectSlot[slot];
     if(guid != 0)
     {
         GameObject* obj = NULL;
         if( m_caster )
             obj = m_caster->GetMap()->GetGameObject(guid);
+
         if(obj)
         {
             // Recast case - null spell id to make auras not be removed on object remove from world
@@ -5513,7 +6193,9 @@ void Spell::EffectSummonObject(uint32 i)
         }
         m_caster->m_ObjectSlot[slot] = 0;
     }
+
     GameObject* pGameObj = new GameObject;
+
     float x, y, z;
     // If dest location if present
     if (m_targets.HasDst())
@@ -5521,6 +6203,7 @@ void Spell::EffectSummonObject(uint32 i)
     // Summon in random point all other units if location present
     else
         m_caster->GetClosePoint(x, y, z, DEFAULT_WORLD_OBJECT_SIZE);
+
     Map *map = m_caster->GetMap();
     if(!pGameObj->Create(objmgr.GenerateLowGuid(HIGHGUID_GAMEOBJECT), go_id, map,
         m_caster->GetPhaseMask(), x, y, z, m_caster->GetOrientation(), 0.0f, 0.0f, 0.0f, 0.0f, 0, GO_STATE_READY))
@@ -5528,27 +6211,33 @@ void Spell::EffectSummonObject(uint32 i)
         delete pGameObj;
         return;
     }
+
     //pGameObj->SetUInt32Value(GAMEOBJECT_LEVEL,m_caster->getLevel());
     int32 duration = GetSpellDuration(m_spellInfo);
     pGameObj->SetRespawnTime(duration > 0 ? duration/IN_MILISECONDS : 0);
     pGameObj->SetSpellId(m_spellInfo->Id);
     m_caster->AddGameObject(pGameObj);
+
     map->Add(pGameObj);
     WorldPacket data(SMSG_GAMEOBJECT_SPAWN_ANIM_OBSOLETE, 8);
     data << uint64(pGameObj->GetGUID());
     m_caster->SendMessageToSet(&data, true);
+
     m_caster->m_ObjectSlot[slot] = pGameObj->GetGUID();
 }
+
 void Spell::EffectResurrect(uint32 /*effIndex*/)
 {
     if(!unitTarget)
         return;
     if(unitTarget->GetTypeId() != TYPEID_PLAYER)
         return;
+
     if(unitTarget->isAlive())
         return;
     if(!unitTarget->IsInWorld())
         return;
+
     switch (m_spellInfo->Id)
     {
         // Defibrillate (Goblin Jumper Cables) have 33% chance on success
@@ -5570,62 +6259,81 @@ void Spell::EffectResurrect(uint32 /*effIndex*/)
         default:
             break;
     }
+
     Player* pTarget = ((Player*)unitTarget);
+
     if(pTarget->isRessurectRequested())       // already have one active request
         return;
+
     uint32 health = pTarget->GetMaxHealth() * damage / 100;
     uint32 mana   = pTarget->GetMaxPower(POWER_MANA) * damage / 100;
+
     pTarget->setResurrectRequestData(m_caster->GetGUID(), m_caster->GetMapId(), m_caster->GetPositionX(), m_caster->GetPositionY(), m_caster->GetPositionZ(), health, mana);
     SendResurrectRequest(pTarget);
 }
+
 void Spell::EffectAddExtraAttacks(uint32 /*i*/)
 {
     if(!unitTarget || !unitTarget->isAlive())
         return;
+
     if( unitTarget->m_extraAttacks )
         return;
+
     Unit *victim = unitTarget->getVictim();
+
     // attack prevented
     // fixme, some attacks may not target current victim, this is right now not handled
     if (!victim || !unitTarget->IsWithinMeleeRange(victim) || !unitTarget->HasInArc( 2*M_PI/3, victim ))
         return;
+
     // Only for proc/log informations
     unitTarget->m_extraAttacks = damage;
     // Need to send log before attack is made
     SendLogExecute();
     m_needSpellLog = false;
+
     unitTarget->AttackerStateUpdate(victim, BASE_ATTACK, true);
 }
+
 void Spell::EffectParry(uint32 /*i*/)
 {
     if (unitTarget && unitTarget->GetTypeId() == TYPEID_PLAYER)
         ((Player*)unitTarget)->SetCanParry(true);
 }
+
 void Spell::EffectBlock(uint32 /*i*/)
 {
     if (unitTarget && unitTarget->GetTypeId() == TYPEID_PLAYER)
         ((Player*)unitTarget)->SetCanBlock(true);
 }
+
 void Spell::EffectLeapForward(uint32 i)
 {
     if(unitTarget->isInFlight())
         return;
+
     if(!m_targets.HasDst())
         return;
+
     uint32 mapid = m_caster->GetMapId();
     float dist = m_caster->GetSpellRadiusForTarget(unitTarget, sSpellRadiusStore.LookupEntry(m_spellInfo->EffectRadiusIndex[i]));
     if(Player* modOwner = m_originalCaster->GetSpellModOwner())
         modOwner->ApplySpellMod(m_spellInfo->Id, SPELLMOD_RADIUS, dist);
+
     float x,y,z;
     float destx,desty,destz,ground,floor;
     float orientation = unitTarget->GetOrientation(), step = dist/10.0f;
+
     unitTarget->GetPosition(x,y,z);
     destx = x + dist * cos(orientation);
     desty = y + dist * sin(orientation);
     ground = unitTarget->GetMap()->GetHeight(destx,desty,MAX_HEIGHT,true);
     floor = unitTarget->GetMap()->GetHeight(destx,desty,z, true);
     destz = fabs(ground - z) <= fabs(floor - z) ? ground:floor;
+
     bool col = VMAP::VMapFactory::createOrGetVMapManager()->getObjectHitPos(mapid,x,y,z+0.5f,destx,desty,destz+0.5f,destx,desty,destz,-0.5f);
+
     if(col)    // We had a collision!
     {
       destx -= 0.6 * cos(orientation);
@@ -5633,6 +6341,7 @@ void Spell::EffectLeapForward(uint32 i)
       dist = sqrt((x-destx)*(x-destx) + (y-desty)*(y-desty));
       step = dist/10.0f;
     }
+
     int j = 0;
     for(j; j<10 ;j++)
       {
@@ -5651,27 +6360,39 @@ void Spell::EffectLeapForward(uint32 i)
     return;
       }
     unitTarget->NearTeleportTo(destx, desty, destz + 0.07531, orientation, unitTarget==m_caster);
+
 }
+
 void Spell::EffectReputation(uint32 i)
 {
     if(!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
         return;
+
     Player *_player = (Player*)unitTarget;
+
     int32  rep_change = damage;//+1;           // field store reputation change -1
+
     uint32 faction_id = m_spellInfo->EffectMiscValue[i];
+
     FactionEntry const* factionEntry = sFactionStore.LookupEntry(faction_id);
+
     if(!factionEntry)
         return;
+
     _player->GetReputationMgr().ModifyReputation(factionEntry, rep_change);
 }
+
 void Spell::EffectQuestComplete(uint32 i)
 {
     if(m_caster->GetTypeId() != TYPEID_PLAYER)
         return;
+
     Player *_player = (Player*)m_caster;
+
     uint32 quest_id = m_spellInfo->EffectMiscValue[i];
     _player->AreaExploredOrEventHappens(quest_id);
 }
+
 void Spell::EffectSelfResurrect(uint32 i)
 {
     if(!unitTarget || unitTarget->isAlive())
@@ -5680,8 +6401,10 @@ void Spell::EffectSelfResurrect(uint32 i)
         return;
     if(!unitTarget->IsInWorld())
         return;
+
     uint32 health = 0;
     uint32 mana = 0;
+
     // flat case
     if(damage < 0)
     {
@@ -5695,45 +6418,61 @@ void Spell::EffectSelfResurrect(uint32 i)
         if(unitTarget->GetMaxPower(POWER_MANA) > 0)
             mana = uint32(damage/100.0f*unitTarget->GetMaxPower(POWER_MANA));
     }
+
     Player *plr = ((Player*)unitTarget);
     plr->ResurrectPlayer(0.0f);
+
     plr->SetHealth( health );
     plr->SetPower(POWER_MANA, mana );
     plr->SetPower(POWER_RAGE, 0 );
     plr->SetPower(POWER_ENERGY, plr->GetMaxPower(POWER_ENERGY) );
+
     plr->SpawnCorpseBones();
+
     plr->SaveToDB();
 }
+
 void Spell::EffectSkinning(uint32 /*i*/)
 {
     if(unitTarget->GetTypeId() != TYPEID_UNIT )
         return;
     if(!m_caster || m_caster->GetTypeId() != TYPEID_PLAYER)
         return;
+
     Creature* creature = (Creature*) unitTarget;
     int32 targetLevel = creature->getLevel();
+
     uint32 skill = creature->GetCreatureInfo()->GetRequiredLootSkill();
+
     ((Player*)m_caster)->SendLoot(creature->GetGUID(),LOOT_SKINNING);
     creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SKINNABLE);
+
     int32 reqValue = targetLevel < 10 ? 0 : targetLevel < 20 ? (targetLevel-10)*10 : targetLevel*5;
+
     int32 skillValue = ((Player*)m_caster)->GetPureSkillValue(skill);
+
     // Double chances for elites
     ((Player*)m_caster)->UpdateGatherSkill(skill, skillValue, reqValue, creature->isElite() ? 2 : 1 );
 }
+
 void Spell::EffectCharge(uint32 /*i*/)
 {
     if(!m_caster)
         return;
+
     Unit *target = m_targets.getUnitTarget();
     if(!target)
         return;
+
     float x, y, z;
     target->GetContactPoint(m_caster, x, y, z);
     m_caster->GetMotionMaster()->MoveCharge(x, y, z);
+
     // not all charge effects used in negative spells
     if ( !IsPositiveSpell(m_spellInfo->Id) && m_caster->GetTypeId() == TYPEID_PLAYER)
         m_caster->Attack(target, true);
 }
+
 void Spell::EffectCharge2(uint32 /*i*/)
 {
     float x, y, z;
@@ -5748,12 +6487,15 @@ void Spell::EffectCharge2(uint32 /*i*/)
     }
     else
         return;
+
     m_caster->GetMotionMaster()->MoveCharge(x, y, z);
 }
+
 void Spell::EffectKnockBack(uint32 i)
 {
     if(!unitTarget)
         return;
+
     // Typhoon
     if (m_spellInfo->SpellFamilyName == SPELLFAMILY_DRUID && m_spellInfo->SpellFamilyFlags[1] & 0x01000000)
     {
@@ -5761,6 +6503,7 @@ void Spell::EffectKnockBack(uint32 i)
         if (m_caster->HasAura(62135))
             return;
     }
+
     // Thunderstorm
     if (m_spellInfo->SpellFamilyName == SPELLFAMILY_SHAMAN && m_spellInfo->SpellFamilyFlags[1] & 0x00002000)
     {
@@ -5768,6 +6511,7 @@ void Spell::EffectKnockBack(uint32 i)
         if (m_caster->HasAura(62132))
             return;
     }
+
     float ratio = m_caster->GetCombatReach() / std::max(unitTarget->GetCombatReach(), 1.0f);
     if(ratio < 1.0f)
         ratio = ratio * ratio * ratio * 0.1f; // volume = length^3
@@ -5777,13 +6521,16 @@ void Spell::EffectKnockBack(uint32 i)
     float speedz = float(damage) * ratio;
     if(speedxy < 0.1f && speedz < 0.1f)
         return;
+
     float x, y;
     if(m_targets.HasDst() && !m_targets.HasTraj())
         m_targets.m_dstPos.GetPosition(x, y);
     else
         m_caster->GetPosition(x, y);
+
     unitTarget->KnockbackFrom(x, y, speedxy, speedz);
 }
+
 void Spell::EffectJump2(uint32 i)
 {
     float speedxy = float(m_spellInfo->EffectMiscValue[i])/10;
@@ -5799,24 +6546,32 @@ void Spell::EffectJump2(uint32 i)
         m_caster->JumpTo(speedxy, speedz, m_spellInfo->SpellIconID != 1891);
     }
 }
+
 void Spell::EffectSendTaxi(uint32 i)
 {
     if(!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
         return;
+
     ((Player*)unitTarget)->ActivateTaxiPathTo(m_spellInfo->EffectMiscValue[i],m_spellInfo->Id);
 }
+
 void Spell::EffectPlayerPull(uint32 i)
 {
     if(!unitTarget)
         return;
+
     unitTarget->KnockbackFrom(m_caster->GetPositionX(), m_caster->GetPositionY(), float(damage ? damage : unitTarget->GetDistance2d(m_caster)), float(m_spellInfo->EffectMiscValue[i])/10);
 }
+
 void Spell::EffectDispelMechanic(uint32 i)
 {
     if(!unitTarget)
         return;
+
     uint32 mechanic = m_spellInfo->EffectMiscValue[i];
+
     std::queue < std::pair < uint32, uint64 > > dispel_list;
+
     Unit::AuraMap& Auras = unitTarget->GetAuras();
     for(Unit::AuraMap::iterator iter = Auras.begin(); iter != Auras.end(); iter++)
     {
@@ -5825,11 +6580,13 @@ void Spell::EffectDispelMechanic(uint32 i)
            dispel_list.push(std::make_pair(iter->second->GetId(), iter->second->GetCasterGUID() ) );
        }
     }
+
     for(;dispel_list.size();dispel_list.pop())
     {
         unitTarget->RemoveAura(dispel_list.front().first, dispel_list.front().second, AURA_REMOVE_BY_ENEMY_SPELL);
     }
 }
+
 void Spell::EffectSummonDeadPet(uint32 /*i*/)
 {
     if(m_caster->GetTypeId() != TYPEID_PLAYER)
@@ -5842,15 +6599,18 @@ void Spell::EffectSummonDeadPet(uint32 /*i*/)
         return;
     if(damage < 0)
         return;
+
     pet->SetUInt32Value(UNIT_DYNAMIC_FLAGS, 0);
     pet->RemoveFlag (UNIT_FIELD_FLAGS, UNIT_FLAG_SKINNABLE);
     pet->setDeathState( ALIVE );
     pet->clearUnitState(UNIT_STAT_ALL_STATE);
     pet->SetHealth( uint32(pet->GetMaxHealth()*(float(damage)/100)));
+
     //pet->AIM_Initialize();
     //_player->PetSpellInitialize();
     pet->SavePetToDB(PET_SAVE_AS_CURRENT);
 }
+
 void Spell::EffectDestroyAllTotems(uint32 /*i*/)
 {
     int32 mana = 0;
@@ -5858,6 +6618,7 @@ void Spell::EffectDestroyAllTotems(uint32 /*i*/)
     {
         if(!m_caster->m_SummonSlot[slot])
             continue;
+
         Creature* totem = m_caster->GetMap()->GetCreature(m_caster->m_SummonSlot[slot]);
         if(totem && totem->isTotem())
         {
@@ -5872,14 +6633,18 @@ void Spell::EffectDestroyAllTotems(uint32 /*i*/)
         }
     }
     mana = mana * damage / 100;
+
     if (mana)
         m_caster->CastCustomSpell(m_caster, 39104, &mana, NULL, NULL, true);
 }
+
 void Spell::EffectDurabilityDamage(uint32 i)
 {
     if(!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
         return;
+
     int32 slot = m_spellInfo->EffectMiscValue[i];
+
     // FIXME: some spells effects have value -1/-2
     // Possibly its mean -1 all player equipped items and -2 all items
     if(slot < 0)
@@ -5887,17 +6652,22 @@ void Spell::EffectDurabilityDamage(uint32 i)
         ((Player*)unitTarget)->DurabilityPointsLossAll(damage, (slot < -1));
         return;
     }
+
     // invalid slot value
     if(slot >= INVENTORY_SLOT_BAG_END)
         return;
+
     if(Item* item = ((Player*)unitTarget)->GetItemByPos(INVENTORY_SLOT_BAG_0, slot))
         ((Player*)unitTarget)->DurabilityPointsLoss(item, damage);
 }
+
 void Spell::EffectDurabilityDamagePCT(uint32 i)
 {
     if(!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
         return;
+
     int32 slot = m_spellInfo->EffectMiscValue[i];
+
     // FIXME: some spells effects have value -1/-2
     // Possibly its mean -1 all player equipped items and -2 all items
     if(slot < 0)
@@ -5905,30 +6675,40 @@ void Spell::EffectDurabilityDamagePCT(uint32 i)
         ((Player*)unitTarget)->DurabilityLossAll(double(damage)/100.0f, (slot < -1));
         return;
     }
+
     // invalid slot value
     if(slot >= INVENTORY_SLOT_BAG_END)
         return;
+
     if(damage <= 0)
         return;
+
     if(Item* item = ((Player*)unitTarget)->GetItemByPos(INVENTORY_SLOT_BAG_0, slot))
         ((Player*)unitTarget)->DurabilityLoss(item, double(damage)/100.0f);
 }
+
 void Spell::EffectModifyThreatPercent(uint32 /*effIndex*/)
 {
     if(!unitTarget)
         return;
+
     unitTarget->getThreatManager().modifyThreatPercent(m_caster, damage);
 }
+
 void Spell::EffectTransmitted(uint32 effIndex)
 {
     uint32 name_id = m_spellInfo->EffectMiscValue[effIndex];
+
     GameObjectInfo const* goinfo = objmgr.GetGameObjectInfo(name_id);
+
     if (!goinfo)
     {
         sLog.outErrorDb("Gameobject (Entry: %u) not exist and not created at spell (ID: %u) cast",name_id, m_spellInfo->Id);
         return;
     }
+
     float fx, fy, fz;
+
     if(m_targets.HasDst())
         m_targets.m_dstPos.GetPosition(fx, fy, fz);
     //FIXME: this can be better check for most objects but still hack
@@ -5943,8 +6723,10 @@ void Spell::EffectTransmitted(uint32 effIndex)
         float min_dis = GetSpellMinRangeForFriend(sSpellRangeStore.LookupEntry(m_spellInfo->rangeIndex));
         float max_dis = GetSpellMaxRangeForFriend(sSpellRangeStore.LookupEntry(m_spellInfo->rangeIndex));
         float dis = rand_norm() * (max_dis - min_dis) + min_dis;
+
         m_caster->GetClosePoint(fx, fy, fz, DEFAULT_WORLD_OBJECT_SIZE, dis);
     }
+
     Map *cMap = m_caster->GetMap();
     if(goinfo->type==GAMEOBJECT_TYPE_FISHINGNODE)
     {
@@ -5953,13 +6735,14 @@ void Spell::EffectTransmitted(uint32 effIndex)
         {
             fx = 36.69+irand(-8,8);//random place for the bobber
             fy = -416.38+irand(-8,8);
-            fz = -19.9645;//serpentshrine water level
+            fz = -19.9645;//serpentshrine water level        
         }else if ( !cMap->IsInWater(fx, fy, fz-0.5f, 0.5f))             // Hack to prevent fishing bobber from failing to land on fishing hole
         { // but this is not proper, we really need to ignore not materialized objects
             SendCastResult(SPELL_FAILED_NOT_HERE);
             SendChannelUpdate(0);
             return;
         }
+
         // replace by water level in this case
         if(cMap->GetId() != 548)//if map is not serpentshrine caverns
             fz = cMap->GetWaterLevel(fx, fy);
@@ -5969,20 +6752,25 @@ void Spell::EffectTransmitted(uint32 effIndex)
     {
         m_caster->GetPosition(fx, fy, fz);
     }
+
     GameObject* pGameObj = new GameObject;
+
     if(!pGameObj->Create(objmgr.GenerateLowGuid(HIGHGUID_GAMEOBJECT), name_id, cMap,
         m_caster->GetPhaseMask(), fx, fy, fz, m_caster->GetOrientation(), 0.0f, 0.0f, 0.0f, 0.0f, 100, GO_STATE_READY))
     {
         delete pGameObj;
         return;
     }
+
     int32 duration = GetSpellDuration(m_spellInfo);
+
     switch(goinfo->type)
     {
         case GAMEOBJECT_TYPE_FISHINGNODE:
         {
             m_caster->SetUInt64Value(UNIT_FIELD_CHANNEL_OBJECT,pGameObj->GetGUID());
             m_caster->AddGameObject(pGameObj);              // will removed at spell cancel
+
             // end time of range when possible catch fish (FISHING_BOBBER_READY_TIME..GetDuration(m_spellInfo))
             // start time == fish-FISHING_BOBBER_READY_TIME (0..GetDuration(m_spellInfo)-FISHING_BOBBER_READY_TIME)
             int32 lastSec = 0;
@@ -5993,6 +6781,7 @@ void Spell::EffectTransmitted(uint32 effIndex)
                 case 2: lastSec = 13; break;
                 case 3: lastSec = 17; break;
             }
+
             duration = duration - lastSec*IN_MILISECONDS + FISHING_BOBBER_READY_TIME*IN_MILISECONDS;
             break;
         }
@@ -6013,17 +6802,24 @@ void Spell::EffectTransmitted(uint32 effIndex)
         default:
             break;
     }
+
     pGameObj->SetRespawnTime(duration > 0 ? duration/IN_MILISECONDS : 0);
+
     pGameObj->SetOwnerGUID(m_caster->GetGUID());
+
     //pGameObj->SetUInt32Value(GAMEOBJECT_LEVEL, m_caster->getLevel());
     pGameObj->SetSpellId(m_spellInfo->Id);
+
     DEBUG_LOG("AddObject at SpellEfects.cpp EffectTransmitted");
     //m_caster->AddGameObject(pGameObj);
     //m_ObjToDel.push_back(pGameObj);
+
     cMap->Add(pGameObj);
+
     WorldPacket data(SMSG_GAMEOBJECT_SPAWN_ANIM_OBSOLETE, 8);
     data << uint64(pGameObj->GetGUID());
     m_caster->SendMessageToSet(&data,true);
+
     if(uint32 linkedEntry = pGameObj->GetGOInfo()->GetLinkedGameObjectEntry())
     {
         GameObject* linkedGO = new GameObject;
@@ -6034,6 +6830,7 @@ void Spell::EffectTransmitted(uint32 effIndex)
             //linkedGO->SetUInt32Value(GAMEOBJECT_LEVEL, m_caster->getLevel());
             linkedGO->SetSpellId(m_spellInfo->Id);
             linkedGO->SetOwnerGUID(m_caster->GetGUID());
+
             linkedGO->GetMap()->Add(linkedGO);
         }
         else
@@ -6044,44 +6841,56 @@ void Spell::EffectTransmitted(uint32 effIndex)
         }
     }
 }
+
 void Spell::EffectProspecting(uint32 /*i*/)
 {
     if(m_caster->GetTypeId() != TYPEID_PLAYER)
         return;
+
     Player* p_caster = (Player*)m_caster;
     if(!itemTarget || !(itemTarget->GetProto()->BagFamily & BAG_FAMILY_MASK_MINING_SUPP))
         return;
+
     if(itemTarget->GetCount() < 5)
         return;
+
     if( sWorld.getConfig(CONFIG_SKILL_PROSPECTING))
     {
         uint32 SkillValue = p_caster->GetPureSkillValue(SKILL_JEWELCRAFTING);
         uint32 reqSkillValue = itemTarget->GetProto()->RequiredSkillRank;
         p_caster->UpdateGatherSkill(SKILL_JEWELCRAFTING, SkillValue, reqSkillValue);
     }
+
     ((Player*)m_caster)->SendLoot(itemTarget->GetGUID(), LOOT_PROSPECTING);
 }
+
 void Spell::EffectMilling(uint32 /*i*/)
 {
     if(m_caster->GetTypeId() != TYPEID_PLAYER)
         return;
+
     Player* p_caster = (Player*)m_caster;
     if(!itemTarget || !(itemTarget->GetProto()->BagFamily & BAG_FAMILY_MASK_HERBS))
         return;
+
     if(itemTarget->GetCount() < 5)
         return;
+
     if( sWorld.getConfig(CONFIG_SKILL_MILLING))
     {
         uint32 SkillValue = p_caster->GetPureSkillValue(SKILL_INSCRIPTION);
         uint32 reqSkillValue = itemTarget->GetProto()->RequiredSkillRank;
         p_caster->UpdateGatherSkill(SKILL_INSCRIPTION, SkillValue, reqSkillValue);
     }
+
     ((Player*)m_caster)->SendLoot(itemTarget->GetGUID(), LOOT_MILLING);
 }
+
 void Spell::EffectSkill(uint32 /*i*/)
 {
     sLog.outDebug("WORLD: SkillEFFECT");
 }
+
 /* There is currently no need for this effect. We handle it in BattleGround.cpp
    If we would handle the resurrection here, the spiritguide would instantly disappear as the
    player revives, and so we wouldn't see the spirit heal visual effect on the npc.
@@ -6095,25 +6904,31 @@ void Spell::EffectSpiritHeal(uint32 /*i*/)
         return;
     if(!unitTarget->IsInWorld())
         return;
+
     //m_spellInfo->EffectBasePoints[i]; == 99 (percent?)
     //((Player*)unitTarget)->setResurrect(m_caster->GetGUID(), unitTarget->GetPositionX(), unitTarget->GetPositionY(), unitTarget->GetPositionZ(), unitTarget->GetMaxHealth(), unitTarget->GetMaxPower(POWER_MANA));
     ((Player*)unitTarget)->ResurrectPlayer(1.0f);
     ((Player*)unitTarget)->SpawnCorpseBones();
     */
 }
+
 // remove insignia spell effect
 void Spell::EffectSkinPlayerCorpse(uint32 /*i*/)
 {
     sLog.outDebug("Effect: SkinPlayerCorpse");
     if ( (m_caster->GetTypeId() != TYPEID_PLAYER) || (unitTarget->GetTypeId() != TYPEID_PLAYER) || (unitTarget->isAlive()) )
         return;
+
     ((Player*)unitTarget)->RemovedInsignia( (Player*)m_caster );
 }
+
 void Spell::EffectStealBeneficialBuff(uint32 i)
 {
     sLog.outDebug("Effect: StealBeneficialBuff");
+
     if(!unitTarget || unitTarget==m_caster)                 // can't steal from self
         return;
+
     std::list <Aura *> steal_list;
     // Create dispel mask by dispel type
     uint32 dispelMask  = GetDispellMask( DispelType(m_spellInfo->EffectMiscValue[i]) );
@@ -6132,6 +6947,7 @@ void Spell::EffectStealBeneficialBuff(uint32 i)
     if (uint32 list_size = steal_list.size())
     {
         std::list < Aura * > success_list;
+
         // dispel N = damage buffs (or while exist buffs for dispel)
         for (int32 count=0; count < damage && list_size > 0; ++count, list_size = steal_list.size())
         {
@@ -6160,38 +6976,49 @@ void Spell::EffectStealBeneficialBuff(uint32 i)
         }
     }
 }
+
 void Spell::EffectKillCreditPersonal(uint32 i)
 {
     if(!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
         return;
+
     ((Player*)unitTarget)->KilledMonsterCredit(m_spellInfo->EffectMiscValue[i], 0);
 }
+
 void Spell::EffectKillCredit(uint32 i)
 {
     if(!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
         return;
+
     int32 creatureEntry = m_spellInfo->EffectMiscValue[i];
     if(!creatureEntry)
     {
         if(m_spellInfo->Id == 42793) // Burn Body
             creatureEntry = 24008; // Fallen Combatant
     }
+
     if(creatureEntry)
         ((Player*)unitTarget)->RewardPlayerAndGroupAtEvent(creatureEntry, unitTarget);
 }
+
 void Spell::EffectQuestFail(uint32 i)
 {
     if(!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
         return;
+
     ((Player*)unitTarget)->FailQuest(m_spellInfo->EffectMiscValue[i]);
 }
+
 void Spell::EffectActivateRune(uint32  eff_idx)
 {
     if(m_caster->GetTypeId() != TYPEID_PLAYER)
         return;
+
     Player *plr = (Player*)m_caster;
+
     if(plr->getClass() != CLASS_DEATH_KNIGHT)
         return;
+
     for(uint32 j = 0; j < MAX_RUNES; ++j)
     {
         if(plr->GetRuneCooldown(j) && plr->GetCurrentRune(j) == RuneType(m_spellInfo->EffectMiscValue[eff_idx]))
@@ -6200,16 +7027,19 @@ void Spell::EffectActivateRune(uint32  eff_idx)
         }
     }
 }
+
 void Spell::EffectTitanGrip(uint32 /*eff_idx*/)
 {
     if (unitTarget && unitTarget->GetTypeId() == TYPEID_PLAYER)
         ((Player*)unitTarget)->SetCanTitanGrip(true);
 }
+
 void Spell::EffectRedirectThreat(uint32 /*i*/)
 {
     if(unitTarget)
         m_caster->SetReducedThreatPercent((uint32)damage, unitTarget->GetGUID());
 }
+
 void Spell::EffectWMODamage(uint32 /*i*/)
 {
     if(gameObjTarget && gameObjTarget->GetGoType() == GAMEOBJECT_TYPE_DESTRUCTIBLE_BUILDING)
@@ -6217,6 +7047,7 @@ void Spell::EffectWMODamage(uint32 /*i*/)
         Unit *caster = m_originalCaster;
         if(!caster)
             return;
+
         FactionTemplateEntry const *casterft, *goft;
         casterft = caster->getFactionTemplateEntry();
         goft = sFactionTemplateStore.LookupEntry(gameObjTarget->GetUInt32Value(GAMEOBJECT_FACTION));
@@ -6225,20 +7056,25 @@ void Spell::EffectWMODamage(uint32 /*i*/)
             gameObjTarget->TakenDamage((uint32)damage);
     }
 }
+
 void Spell::EffectWMORepair(uint32 /*i*/)
 {
     if(gameObjTarget && gameObjTarget->GetGoType() == GAMEOBJECT_TYPE_DESTRUCTIBLE_BUILDING)
         gameObjTarget->Rebuild();
 }
+
 void Spell::SummonGuardian(uint32 i, uint32 entry, SummonPropertiesEntry const *properties)
 {
     Unit *caster = m_originalCaster;
     if(!caster)
         return;
+
     if(caster->isTotem())
         caster = ((Totem*)caster)->GetOwner();
+
     // in another case summon new
     uint32 level = caster->getLevel();
+
     // level of pet summoned using engineering item based at engineering skill level
     if(m_CastItem && caster->GetTypeId() == TYPEID_PLAYER)
     {
@@ -6252,6 +7088,7 @@ void Spell::SummonGuardian(uint32 i, uint32 entry, SummonPropertiesEntry const *
             }
         }
     }
+
     //float radius = GetSpellRadiusForFriend(sSpellRadiusStore.LookupEntry(m_spellInfo->EffectRadiusIndex[i]));
     float radius = 5.0f;
     int32 amount = damage > 0 ? damage : 1;
@@ -6264,26 +7101,33 @@ void Spell::SummonGuardian(uint32 i, uint32 entry, SummonPropertiesEntry const *
     int32 duration = GetSpellDuration(m_spellInfo);
     if(Player* modOwner = m_originalCaster->GetSpellModOwner())
         modOwner->ApplySpellMod(m_spellInfo->Id, SPELLMOD_DURATION, duration);
+
     TempSummonType summonType = (duration == 0) ? TEMPSUMMON_DEAD_DESPAWN : TEMPSUMMON_TIMED_DESPAWN;
     Map *map = caster->GetMap();
+
     for(uint32 count = 0; count < amount; ++count)
     {
         Position pos;
         GetSummonPosition(i, pos, radius, count);
+
         TempSummon *summon = map->SummonCreature(entry, pos, properties, duration, caster);
         if(!summon)
             return;
         if(summon->HasUnitTypeMask(UNIT_MASK_GUARDIAN))
             ((Guardian*)summon)->InitStatsForLevel(level);
+
         summon->SetUInt32Value(UNIT_CREATED_BY_SPELL, m_spellInfo->Id);
         if(summon->HasUnitTypeMask(UNIT_MASK_MINION) && m_targets.m_targetMask & TARGET_FLAG_DEST_LOCATION)
             ((Minion*)summon)->SetFollowAngle(m_caster->GetAngle(summon));
+
         summon->AI()->EnterEvadeMode();
     }
 }
+
 void Spell::GetSummonPosition(uint32 i, Position &pos, float radius, uint32 count)
 {
     pos.SetOrientation(m_caster->GetOrientation());
+
     if (m_targets.m_targetMask & TARGET_FLAG_DEST_LOCATION)
     {
         // Summon 1 unit in dest location
@@ -6317,37 +7161,47 @@ void Spell::GetSummonPosition(uint32 i, Position &pos, float radius, uint32 coun
         pos.Relocate(x, y, z);
     }
 }
+
 void Spell::EffectRenamePet(uint32 /*eff_idx*/)
 {
     if (!unitTarget || unitTarget->GetTypeId() != TYPEID_UNIT ||
         !((Creature*)unitTarget)->isPet() || ((Pet*)unitTarget)->getPetType() != HUNTER_PET)
         return;
+
     unitTarget->SetByteValue(UNIT_FIELD_BYTES_2, 2, UNIT_RENAME_ALLOWED);
 }
+
 void Spell::EffectPlayMusic(uint32 i)
 {
     if(!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
         return;
+
     uint32 soundid = m_spellInfo->EffectMiscValue[i];
+
     if (!sSoundEntriesStore.LookupEntry(soundid))
     {
         sLog.outError("EffectPlayMusic: Sound (Id: %u) not exist in spell %u.",soundid,m_spellInfo->Id);
         return;
     }
+
     WorldPacket data(SMSG_PLAY_MUSIC, 4);
     data << uint32(soundid);
     ((Player*)unitTarget)->GetSession()->SendPacket(&data);
 }
+
 void Spell::EffectSpecCount(uint32 /*eff_idx*/)
 {
     if(!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
         return;
+
     ((Player*)unitTarget)->UpdateSpecCount(damage);
 }
+
 void Spell::EffectActivateSpec(uint32 /*eff_idx*/)
 {
     if(!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
         return;
+
     ((Player*)unitTarget)->ActivateSpec(damage-1);  // damage is 1 or 2, spec is 0 or 1
 }
 

@@ -1,4 +1,5 @@
 // -*- C++ -*-
+
 //=============================================================================
 /**
  *  @file    DLL.h
@@ -8,17 +9,24 @@
  *  @author Kirthika Parameswaran <kirthika@cs.wustl.edu>
  */
 //=============================================================================
+
 #ifndef ACE_DLL_H
 #define ACE_DLL_H
 #include /**/ "ace/pre.h"
+
 #include /**/ "ace/ACE_export.h"
+
 #if !defined (ACE_LACKS_PRAGMA_ONCE)
 # pragma once
 #endif /* ACE_LACKS_PRAGMA_ONCE */
+
 #include "ace/Global_Macros.h"
 #include "ace/os_include/os_dlfcn.h"
+
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
+
 class ACE_DLL_Handle;
+
 /**
  * @class ACE_DLL
  *
@@ -35,6 +43,7 @@ class ACE_Export ACE_DLL
 {
 public:
   // = Initialization and termination methods.
+
   /**
    * Default constructor.  By default, the close() operation on the
    * object will be invoked before it is destroyed.
@@ -46,8 +55,10 @@ public:
    *        For example, termination by ACE_DLL_Manager via ACE::fini().
    */
   explicit ACE_DLL (bool close_handle_on_destruction = true);
+
   /// Allow assignment
   ACE_DLL& operator= (const ACE_DLL &rhs);
+
 
   /**
    * This constructor performs the actions of open() during construction.
@@ -71,8 +82,10 @@ public:
   explicit ACE_DLL (const ACE_TCHAR *dll_name,
                     int open_mode = ACE_DEFAULT_SHLIB_MODE,
                     bool close_handle_on_destruction = true);
+
   /// Copy constructor.
   ACE_DLL (const ACE_DLL &);
+
   /**
    * This method opens and dynamically links a specified DLL.
    * @param dll_name  The filename or path of the DLL to load.
@@ -106,14 +119,17 @@ public:
   int open (const ACE_TCHAR *dll_name,
             int open_mode = ACE_DEFAULT_SHLIB_MODE,
             bool close_handle_on_destruction = true);
+
   /// Call to close the DLL object.
   int close (void);
+
   /**
    * Called when the DLL object is destroyed -- invokes close() if the
    * @a close_handle_on_destruction flag was set to non-zero in the
    * constructor or open() method.
    */
   ~ACE_DLL (void);
+
   /**
    * Look up a named symbol in the DLL. DLL must be successfully opened
    * before calling symbol().
@@ -125,10 +141,12 @@ public:
    *        in the DLL. Otherwise, returns 0.
    */
   void *symbol (const ACE_TCHAR *symbol_name, int ignore_errors = 0);
+
   /// Returns a pointer to a string explaining that an error occured.  You
   /// will need to consult the error log for the actual error string
   /// returned by the OS.
   ACE_TCHAR *error (void) const;
+
   /**
    * Return the handle to the caller.  If @a become_owner is non-0 then
    * caller assumes ownership of the handle and the ACE_DLL object
@@ -136,32 +154,44 @@ public:
    * <close_handle_on_destruction> is set.
    */
   ACE_SHLIB_HANDLE get_handle (int become_owner = 0) const;
+
   /// Set the handle for the DLL object. By default, the close()
   //operation on / the object will be invoked before it is destroyed.
   int set_handle (ACE_SHLIB_HANDLE handle,
                   bool close_handle_on_destruction = true);
+
 private:
+
   int open_i (const ACE_TCHAR *dll_name,
               int open_mode = ACE_DEFAULT_SHLIB_MODE,
               bool close_handle_on_destruction = true,
               ACE_SHLIB_HANDLE handle = 0);
 
+
   //private:
 public:
+
   /// Open mode.
   int open_mode_;
+
   /// Keep track of the name of the loaded dll, so it can be used
   /// to remove framework components, singletons that live in the dll,
   /// prior to unloading the dll in the close() method.
   ACE_TCHAR *dll_name_;
+
   /// This flag keeps track of whether we should close the handle
   /// automatically when the object is destroyed.
   bool close_handle_on_destruction_;
+
   ACE_DLL_Handle *dll_handle_;
+
   /// Flag to record if the last operation had an error.
   bool error_;
+
 };
+
 ACE_END_VERSIONED_NAMESPACE_DECL
+
 #include /**/ "ace/post.h"
 #endif /* ACE_DLL_H */
 

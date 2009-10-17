@@ -13,22 +13,27 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
+
 /* ScriptData
 SDName: Arcatraz
 SD%Complete: 60
 SDComment: Warden Mellichar, event controller for Skyriss event. Millhouse Manastorm. TODO: make better combatAI for Millhouse.
 SDCategory: Tempest Keep, The Arcatraz
 EndScriptData */
+
 /* ContentData
 npc_millhouse_manastorm
 npc_warden_mellichar
 mob_zerekethvoidzone
 EndContentData */
+
 #include "precompiled.h"
 #include "def_arcatraz.h"
+
 /*#####
 # npc_millhouse_manastorm
 #####*/
+
 #define SAY_INTRO_1                 -1552010
 #define SAY_INTRO_2                 -1552011
 #define SAY_WATER                   -1552012
@@ -42,46 +47,57 @@ EndContentData */
 #define SAY_LOWHP                   -1552020
 #define SAY_DEATH                   -1552021
 #define SAY_COMPLETE                -1552022
+
 #define SPELL_CONJURE_WATER         36879
 #define SPELL_ARCANE_INTELLECT      36880
 #define SPELL_ICE_ARMOR             36881
+
 #define SPELL_ARCANE_MISSILES       33833
 #define SPELL_CONE_OF_COLD          12611
 #define SPELL_FIRE_BLAST            13341
 #define SPELL_FIREBALL              14034
 #define SPELL_FROSTBOLT             15497
 #define SPELL_PYROBLAST             33975
+
 struct TRINITY_DLL_DECL npc_millhouse_manastormAI : public ScriptedAI
 {
     npc_millhouse_manastormAI(Creature *c) : ScriptedAI(c)
     {
         pInstance = c->GetInstanceData();
     }
+
     ScriptedInstance* pInstance;
+
     uint32 EventProgress_Timer;
     uint32 Phase;
     bool Init;
     bool LowHp;
+
     uint32 Pyroblast_Timer;
     uint32 Fireball_Timer;
+
     void Reset()
     {
         EventProgress_Timer = 2000;
         LowHp = false;
         Init = false;
         Phase = 1;
+
         Pyroblast_Timer = 1000;
         Fireball_Timer = 2500;
+
         if (pInstance)
         {
             if (pInstance->GetData(TYPE_WARDEN_2) == DONE)
                 Init = true;
+
             if (pInstance->GetData(TYPE_HARBINGERSKYRISS) == DONE)
             {
                 DoScriptText(SAY_COMPLETE, m_creature);
             }
         }
     }
+
     void AttackStart(Unit* pWho)
     {
         if (m_creature->Attack(pWho, true))
@@ -89,23 +105,29 @@ struct TRINITY_DLL_DECL npc_millhouse_manastormAI : public ScriptedAI
             m_creature->AddThreat(pWho, 0.0f);
             m_creature->SetInCombatWith(pWho);
             pWho->SetInCombatWith(m_creature);
+
             m_creature->GetMotionMaster()->MoveChase(pWho, 25.0f);
         }
     }
+
     void EnterCombat(Unit *who)
     {
     }
+
     void KilledUnit(Unit *victim)
     {
         DoScriptText(RAND(SAY_KILL_1,SAY_KILL_2), m_creature);
     }
+
     void JustDied(Unit *victim)
     {
         DoScriptText(SAY_DEATH, m_creature);
+
         /*for questId 10886 (heroic mode only)
         if (pInstance && pInstance->GetData(TYPE_HARBINGERSKYRISS) != DONE)
             ->FailQuest();*/
     }
+
     void UpdateAI(const uint32 diff)
     {
         if (!Init)
@@ -153,36 +175,46 @@ struct TRINITY_DLL_DECL npc_millhouse_manastormAI : public ScriptedAI
                 }
             } else EventProgress_Timer -= diff;
         }
+
         if (!UpdateVictim())
             return;
+
         if (!LowHp && ((m_creature->GetHealth()*100 / m_creature->GetMaxHealth()) < 20))
         {
             DoScriptText(SAY_LOWHP, m_creature);
             LowHp = true;
         }
+
         if (Pyroblast_Timer < diff)
         {
             if (m_creature->IsNonMeleeSpellCasted(false))
                 return;
+
              DoScriptText(SAY_PYRO, m_creature);
+
             DoCast(m_creature->getVictim(),SPELL_PYROBLAST);
             Pyroblast_Timer = 40000;
         }else Pyroblast_Timer -=diff;
+
         if (Fireball_Timer < diff)
         {
             DoCast(m_creature->getVictim(),SPELL_FIREBALL);
             Fireball_Timer = 4000;
         }else Fireball_Timer -=diff;
+
         DoMeleeAttackIfReady();
     }
 };
+
 CreatureAI* GetAI_npc_millhouse_manastorm(Creature* pCreature)
 {
     return new npc_millhouse_manastormAI (pCreature);
 }
+
 /*#####
 # npc_warden_mellichar
 #####*/
+
 #define YELL_INTRO1         -1552023
 #define YELL_INTRO2         -1552024
 #define YELL_RELEASE1       -1552025
@@ -191,6 +223,7 @@ CreatureAI* GetAI_npc_millhouse_manastorm(Creature* pCreature)
 #define YELL_RELEASE3       -1552028
 #define YELL_RELEASE4       -1552029
 #define YELL_WELCOME        -1552030
+
 //phase 2(acid mobs)
 #define ENTRY_TRICKSTER     20905
 #define ENTRY_PH_HUNTER     20906
@@ -204,6 +237,7 @@ CreatureAI* GetAI_npc_millhouse_manastorm(Creature* pCreature)
 #define ENTRY_BL_DRAK       20911
 //phase 6
 #define ENTRY_SKYRISS       20912
+
 //TARGET_SCRIPT
 #define SPELL_TARGET_ALPHA  36856
 #define SPELL_TARGET_BETA   36854
@@ -211,48 +245,62 @@ CreatureAI* GetAI_npc_millhouse_manastorm(Creature* pCreature)
 #define SPELL_TARGET_GAMMA  36858
 #define SPELL_TARGET_OMEGA  36852
 #define SPELL_BUBBLE_VISUAL 36849
+
 struct TRINITY_DLL_DECL npc_warden_mellicharAI : public ScriptedAI
 {
     npc_warden_mellicharAI(Creature *c) : ScriptedAI(c)
     {
         pInstance = c->GetInstanceData();
     }
+
     ScriptedInstance* pInstance;
+
     bool IsRunning;
     bool CanSpawn;
+
     uint32 EventProgress_Timer;
     uint32 Phase;
+
     void Reset()
     {
         IsRunning = false;
         CanSpawn = false;
+
         EventProgress_Timer = 22000;
         Phase = 1;
+
         m_creature->SetFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_NON_ATTACKABLE);
         DoCast(m_creature,SPELL_TARGET_OMEGA);
+
         if (pInstance)
             pInstance->SetData(TYPE_HARBINGERSKYRISS,NOT_STARTED);
     }
+
     void AttackStart(Unit* who) { }
+
     void MoveInLineOfSight(Unit *who)
     {
         if (IsRunning)
             return;
+
         if (!m_creature->getVictim() && who->isTargetableForAttack() && (m_creature->IsHostileTo(who)) && who->isInAccessiblePlaceFor(m_creature))
         {
             if (!m_creature->canFly() && m_creature->GetDistanceZ(who) > CREATURE_Z_ATTACK_RANGE)
                 return;
             if (who->GetTypeId() != TYPEID_PLAYER)
                 return;
+
             float attackRadius = m_creature->GetAttackDistance(who)/10;
             if (m_creature->IsWithinDistInMap(who, attackRadius) && m_creature->IsWithinLOSInMap(who))
                 EnterCombat(who);
         }
     }
+
     void EnterCombat(Unit *who)
     {
         DoScriptText(YELL_INTRO1, m_creature);
         DoCast(m_creature,SPELL_BUBBLE_VISUAL);
+
         if (pInstance)
         {
             pInstance->SetData(TYPE_HARBINGERSKYRISS,IN_PROGRESS);
@@ -260,6 +308,7 @@ struct TRINITY_DLL_DECL npc_warden_mellicharAI : public ScriptedAI
             IsRunning = true;
         }
     }
+
     bool CanProgress()
     {
         if (pInstance)
@@ -282,12 +331,14 @@ struct TRINITY_DLL_DECL npc_warden_mellicharAI : public ScriptedAI
         }
         return false;
     }
+
     void DoPrepareForPhase()
     {
         if (pInstance)
         {
             m_creature->InterruptNonMeleeSpells(true);
             m_creature->RemoveAurasByType(SPELL_AURA_DUMMY);
+
             switch(Phase)
             {
                 case 2:
@@ -314,10 +365,12 @@ struct TRINITY_DLL_DECL npc_warden_mellicharAI : public ScriptedAI
             CanSpawn = true;
         }
     }
+
     void UpdateAI(const uint32 diff)
     {
         if (!IsRunning)
             return;
+
         if (EventProgress_Timer < diff)
         {
             if (pInstance)
@@ -328,11 +381,13 @@ struct TRINITY_DLL_DECL npc_warden_mellicharAI : public ScriptedAI
                     return;
                 }
             }
+
             if (CanSpawn)
             {
                 //continue beam omega pod, unless we are about to summon skyriss
                 if (Phase != 7)
                     DoCast(m_creature,SPELL_TARGET_OMEGA);
+
                 switch(Phase)
                 {
                     case 2:
@@ -416,37 +471,47 @@ CreatureAI* GetAI_npc_warden_mellichar(Creature* pCreature)
 {
     return new npc_warden_mellicharAI (pCreature);
 }
+
 /*#####
 # mob_zerekethvoidzone (this script probably not needed in future -> `creature_template_addon`.`auras`='36120 0')
 #####*/
+
 #define SPELL_VOID_ZONE_DAMAGE 36120
+
 struct TRINITY_DLL_DECL mob_zerekethvoidzoneAI : public ScriptedAI
 {
     mob_zerekethvoidzoneAI(Creature *c) : ScriptedAI(c) {}
+
     void Reset()
     {
         m_creature->SetUInt32Value(UNIT_NPC_FLAGS,0);
         m_creature->setFaction(16);
         m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+
         DoCast(m_creature,SPELL_VOID_ZONE_DAMAGE);
     }
+
     void EnterCombat(Unit* who) {}
 };
 CreatureAI* GetAI_mob_zerekethvoidzoneAI(Creature* pCreature)
 {
     return new mob_zerekethvoidzoneAI (pCreature);
 }
+
 void AddSC_arcatraz()
 {
     Script *newscript;
+
     newscript = new Script;
     newscript->Name = "npc_millhouse_manastorm";
     newscript->GetAI = &GetAI_npc_millhouse_manastorm;
     newscript->RegisterSelf();
+
     newscript = new Script;
     newscript->Name = "npc_warden_mellichar";
     newscript->GetAI = &GetAI_npc_warden_mellichar;
     newscript->RegisterSelf();
+
     newscript = new Script;
     newscript->Name = "mob_zerekethvoidzone";
     newscript->GetAI = &GetAI_mob_zerekethvoidzoneAI;

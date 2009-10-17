@@ -1,4 +1,5 @@
 // -*- C++ -*-
+
 //=============================================================================
 /**
  *  @file   Codeset_Symbols.h
@@ -12,6 +13,7 @@
 //=============================================================================
 #ifndef CODESET_SYMBOLS_H
 #define CODESET_SYMBOLS_H
+
 // These numbers are assigned by the OpenGroup, a database is
 // available at
 //
@@ -213,6 +215,7 @@
 #define ACE_CODESET_ID_EBCDIC_ASCII_AND_JEF 0x10040004U
 #define ACE_CODESET_ID_EBCDIC_KATAKANA_AND_JEF 0x10040005U
 #define ACE_CODESET_ID_EBCDIC_JAPANESE_ENGLISH_AND_JEF 0x10040006U
+
 #define ACE_CODESET_ID_TAO_BACKWARD_COMPATIBLE 0xf54414F0U
 #endif // CODESET_SYMBOLS_H
 

@@ -1,4 +1,5 @@
 // -*- C++ -*-
+
 //=============================================================================
 /**
  *  @file    LSOCK_Connector.h
@@ -8,18 +9,25 @@
  *  @author Doug Schmidt <schmidt@cs.wustl.edu>
  */
 //=============================================================================
+
 #ifndef ACE_LOCAL_SOCK_CONNECTOR_H
 #define ACE_LOCAL_SOCK_CONNECTOR_H
 #include /**/ "ace/pre.h"
+
 #include /**/ "ace/config-all.h"
+
 #if !defined (ACE_LACKS_PRAGMA_ONCE)
 # pragma once
 #endif /* ACE_LACKS_PRAGMA_ONCE */
+
 #if !defined (ACE_LACKS_UNIX_DOMAIN_SOCKETS)
+
 #include "ace/SOCK_Connector.h"
 #include "ace/LSOCK_Stream.h"
 #include "ace/UNIX_Addr.h"
+
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
+
 /**
  * @class ACE_LSOCK_Connector
  *
@@ -32,6 +40,7 @@ public:
   // = Initialization methods.
   /// Default constructor.
   ACE_LSOCK_Connector (void);
+
   /**
    * Actively connect and produce a @a new_stream if things go well.
    * All arguments are relayed to the ACE_SOCK_Connector constructor
@@ -45,6 +54,7 @@ public:
                        int reuse_addr = 0,
                        int flags = 0,
                        int perms = 0);
+
   /**
    * Actively connect and produce a @a new_stream if things go well.
    * The @c ACE_SOCK_Connector::connect() method is called to perform
@@ -58,18 +68,24 @@ public:
                int reuse_addr = 0,
                int flags = 0,
                int perms = 0);
+
   // = Meta-type info
   typedef ACE_UNIX_Addr PEER_ADDR;
   typedef ACE_LSOCK_Stream PEER_STREAM;
+
   /// Dump the state of an object.
   void dump (void) const;
+
   /// Declare the dynamic allocation hooks.
   ACE_ALLOC_HOOK_DECLARE;
 };
+
 ACE_END_VERSIONED_NAMESPACE_DECL
+
 #if defined (__ACE_INLINE__)
 #include "ace/LSOCK_Connector.inl"
 #endif /* __ACE_INLINE__ */
+
 #endif /* ACE_LACKS_UNIX_DOMAIN_SOCKETS */
 #include /**/ "ace/post.h"
 #endif /* ACE_LOCAL_SOCK_CONNECTOR_H */

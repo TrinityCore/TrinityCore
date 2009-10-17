@@ -1,20 +1,26 @@
 /* -*- C -*- */
 // $Id: config-rtems.h 80826 2008-03-04 14:51:23Z wotte $
+
 /* The following configuration file is designed to work for RTEMS
    platforms using GNU C.
 */
+
 #ifndef ACE_CONFIG_H
 #define ACE_CONFIG_H
+
 #if ! defined (__ACE_INLINE__)
 #define __ACE_INLINE__
 #endif /* ! __ACE_INLINE__ */
+
 // Needed to make some prototypes visible.
 // #if ! defined (_GNU_SOURCE)
 // #define _GNU_SOURCE
 // #endif /* ! _GNU_SOURCE */
+
 // First the machine specific part
 //   There are no known port specific issues with the RTEMS port of ACE.
 //   XXX Pentium and PowerPC have high res timer support in ACE.
+
 // Then the compiler specific parts
 #if defined (__GNUG__)
   // config-g-common.h undef's ACE_HAS_STRING_CLASS with -frepo, so
@@ -26,9 +32,13 @@
 #   error unsupported compiler in ace/config-rtems.h
 #  endif  /* __cplusplus */
 #endif /* ! __GNUG__ */
+
 #include "ace/config-posix.h"
+
 // Completely common part :-)
+
 #define ACE_HAS_NONSTATIC_OBJECT_MANAGER
+
 #define ACE_LACKS_ALPHASORT
 #define ACE_LACKS_REGEX_H
 #define ACE_LACKS_STROPTS_H
@@ -49,12 +59,15 @@
 #define ACE_LACKS_RAND_REENTRANT_FUNCTIONS
 #define ACE_LACKS_REALPATH
 #define ACE_LACKS_TEMPNAM
+
 // Temporarily, enabling this results in compile errors with
 // rtems 4.6.6.
 #define ACE_LACKS_WCHAR_H
+
 #if !defined (ACE_MT_SAFE)
 #define ACE_MT_SAFE 1
 #endif
+
 #if ACE_MT_SAFE
 # define ACE_HAS_THREADS
 # define ACE_HAS_PTHREADS
@@ -65,6 +78,7 @@
 # define ACE_HAS_POSIX_GETPWNAM_R
 # define ACE_HAS_2_PARAM_ASCTIME_R_AND_CTIME_R
 #endif
+
 #define ACE_HAS_ALT_CUSERID
 #define ACE_HAS_4_4BSD_SENDMSG_RECVMSG
 #define ACE_HAS_3_PARAM_READDIR_R
@@ -125,6 +139,7 @@
 #define ACE_NEEDS_SCHED_H
 #define ACE_HAS_POSIX_NONBLOCK
 #define ACE_HAS_TERMIOS
+
 // rtems 4.7 or higher
 #if (__RTEMS_MAJOR__ > 4) || (__RTEMS_MAJOR__ == 4 && __RTEMS_MINOR__ > 6)
 # define ACE_HAS_UALARM
@@ -135,13 +150,17 @@
 # undef ACE_HAS_SHM_OPEN
 # undef ACE_HAS_AIO_CALLS
 #endif
+
 // __RTEMS_REVISION__ could also be used but this is broken according
 // to the rtems people
+
 #if !defined (_POSIX_REALTIME_SIGNALS)
 # define ACE_HAS_CONSISTENT_SIGNAL_PROTOTYPES
 #endif
+
 #if defined (ACE_LACKS_NETWORKING)
 # include "ace/config-posix-nonetworking.h"
 #endif
+
 #endif /* ACE_CONFIG_H */
 

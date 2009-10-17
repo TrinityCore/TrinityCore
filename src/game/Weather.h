@@ -17,15 +17,20 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
+
 /// \addtogroup world
 /// @{
 /// \file
+
 #ifndef __WEATHER_H
 #define __WEATHER_H
+
 #include "Common.h"
 #include "SharedDefines.h"
 #include "Timer.h"
+
 class Player;
+
 enum WeatherState
 {
     WEATHER_STATE_FINE              = 0,
@@ -41,7 +46,9 @@ enum WeatherState
     WEATHER_STATE_THUNDERS          = 86,
     WEATHER_STATE_BLACKRAIN         = 90
 };
+
 struct WeatherZoneChances;
+
 /// Weather for one zone
 class Weather
 {

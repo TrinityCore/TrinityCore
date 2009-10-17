@@ -13,29 +13,37 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
+
 /* ScriptData
 SDName: Boss_Ambassador_Flamelash
 SD%Complete: 100
 SDComment:
 SDCategory: Blackrock Depths
 EndScriptData */
+
 #include "precompiled.h"
+
 #define SPELL_FIREBLAST            15573
+
 struct TRINITY_DLL_DECL boss_ambassador_flamelashAI : public ScriptedAI
 {
     boss_ambassador_flamelashAI(Creature *c) : ScriptedAI(c) {}
+
     uint32 FireBlast_Timer;
     uint32 Spirit_Timer;
     int Rand;
     int RandX;
     int RandY;
     Creature* Summoned;
+
     void Reset()
     {
         FireBlast_Timer = 2000;
         Spirit_Timer = 24000;
     }
+
     void EnterCombat(Unit *who) {}
+
     void SummonSpirits(Unit* victim)
     {
         Rand = rand()%10;
@@ -55,17 +63,20 @@ struct TRINITY_DLL_DECL boss_ambassador_flamelashAI : public ScriptedAI
         if (Summoned)
             (Summoned->AI())->AttackStart(victim);
     }
+
     void UpdateAI(const uint32 diff)
     {
         //Return since we have no target
         if (!UpdateVictim())
             return;
+
         //FireBlast_Timer
         if (FireBlast_Timer < diff)
         {
             DoCast(m_creature->getVictim(),SPELL_FIREBLAST);
             FireBlast_Timer = 7000;
         }else FireBlast_Timer -= diff;
+
         //Spirit_Timer
         if (Spirit_Timer < diff)
         {
@@ -73,8 +84,10 @@ struct TRINITY_DLL_DECL boss_ambassador_flamelashAI : public ScriptedAI
             SummonSpirits(m_creature->getVictim());
             SummonSpirits(m_creature->getVictim());
             SummonSpirits(m_creature->getVictim());
+
             Spirit_Timer = 30000;
         }else Spirit_Timer -= diff;
+
         DoMeleeAttackIfReady();
     }
 };
@@ -82,6 +95,7 @@ CreatureAI* GetAI_boss_ambassador_flamelash(Creature* pCreature)
 {
     return new boss_ambassador_flamelashAI (pCreature);
 }
+
 void AddSC_boss_ambassador_flamelash()
 {
     Script *newscript;

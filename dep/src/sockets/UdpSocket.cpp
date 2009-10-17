@@ -4,20 +4,25 @@
 **/
 /*
 Copyright (C) 2004-2007  Anders Hedstrom
+
 This library is made available under the terms of the GNU GPL.
+
 If you would like to use this library in a closed-source application,
 a separate license agreement is available. For information about
 the closed-source license agreement for the C++ sockets library,
 please visit http://www.alhem.net/Sockets/license.html and/or
 email license@alhem.net.
+
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
 as published by the Free Software Foundation; either version 2
 of the License, or (at your option) any later version.
+
 This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
+
 You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -30,6 +35,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #else
 #include <errno.h>
 #endif
+
 #include "ISocketHandler.h"
 #include "UdpSocket.h"
 #include "Utility.h"
@@ -41,9 +47,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // include this to see strange sights
 //#include <linux/in6.h>
 
+
 #ifdef SOCKETS_NAMESPACE
 namespace SOCKETS_NAMESPACE {
 #endif
+
 
 UdpSocket::UdpSocket(ISocketHandler& h, int ibufsz, bool ipv6, int retries) : Socket(h)
 , m_ibuf(new char[ibufsz])
@@ -61,11 +69,13 @@ UdpSocket::UdpSocket(ISocketHandler& h, int ibufsz, bool ipv6, int retries) : So
 #endif
 }
 
+
 UdpSocket::~UdpSocket()
 {
     Close();
     delete[] m_ibuf;
 }
+
 
 int UdpSocket::Bind(port_t &port, int range)
 {
@@ -81,6 +91,7 @@ int UdpSocket::Bind(port_t &port, int range)
     Ipv4Address ad(port);
     return Bind(ad, range);
 }
+
 
 int UdpSocket::Bind(const std::string& intf, port_t &port, int range)
 {
@@ -107,11 +118,13 @@ int UdpSocket::Bind(const std::string& intf, port_t &port, int range)
     return -1;
 }
 
+
 int UdpSocket::Bind(ipaddr_t a, port_t &port, int range)
 {
     Ipv4Address ad(a, port);
     return Bind(ad, range);
 }
+
 
 #ifdef ENABLE_IPV6
 #ifdef IPPROTO_IPV6
@@ -122,6 +135,7 @@ int UdpSocket::Bind(in6_addr a, port_t &port, int range)
 }
 #endif
 #endif
+
 
 int UdpSocket::Bind(SocketAddress& ad, int range)
 {
@@ -155,12 +169,14 @@ int UdpSocket::Bind(SocketAddress& ad, int range)
     return -1;
 }
 
+
 /** if you wish to use Send, first Open a connection */
 bool UdpSocket::Open(ipaddr_t l, port_t port)
 {
     Ipv4Address ad(l, port);
     return Open(ad);
 }
+
 
 bool UdpSocket::Open(const std::string& host, port_t port)
 {
@@ -185,6 +201,7 @@ bool UdpSocket::Open(const std::string& host, port_t port)
     return false;
 }
 
+
 #ifdef ENABLE_IPV6
 #ifdef IPPROTO_IPV6
 bool UdpSocket::Open(struct in6_addr& a, port_t port)
@@ -194,6 +211,7 @@ bool UdpSocket::Open(struct in6_addr& a, port_t port)
 }
 #endif
 #endif
+
 
 bool UdpSocket::Open(SocketAddress& ad)
 {
@@ -215,6 +233,7 @@ bool UdpSocket::Open(SocketAddress& ad)
     }
     return false;
 }
+
 
 void UdpSocket::CreateConnection()
 {
@@ -248,6 +267,7 @@ void UdpSocket::CreateConnection()
     }
 }
 
+
 /** send to specified address */
 void UdpSocket::SendToBuf(const std::string& h, port_t p, const char *data, int len, int flags)
 {
@@ -271,12 +291,14 @@ void UdpSocket::SendToBuf(const std::string& h, port_t p, const char *data, int 
     }
 }
 
+
 /** send to specified address */
 void UdpSocket::SendToBuf(ipaddr_t a, port_t p, const char *data, int len, int flags)
 {
     Ipv4Address ad(a, p);
     SendToBuf(ad, data, len, flags);
 }
+
 
 #ifdef ENABLE_IPV6
 #ifdef IPPROTO_IPV6
@@ -287,6 +309,7 @@ void UdpSocket::SendToBuf(in6_addr a, port_t p, const char *data, int len, int f
 }
 #endif
 #endif
+
 
 void UdpSocket::SendToBuf(SocketAddress& ad, const char *data, int len, int flags)
 {
@@ -304,15 +327,18 @@ void UdpSocket::SendToBuf(SocketAddress& ad, const char *data, int len, int flag
     }
 }
 
+
 void UdpSocket::SendTo(const std::string& a, port_t p, const std::string& str, int flags)
 {
     SendToBuf(a, p, str.c_str(), (int)str.size(), flags);
 }
 
+
 void UdpSocket::SendTo(ipaddr_t a, port_t p, const std::string& str, int flags)
 {
     SendToBuf(a, p, str.c_str(), (int)str.size(), flags);
 }
+
 
 #ifdef ENABLE_IPV6
 #ifdef IPPROTO_IPV6
@@ -323,10 +349,12 @@ void UdpSocket::SendTo(in6_addr a, port_t p, const std::string& str, int flags)
 #endif
 #endif
 
+
 void UdpSocket::SendTo(SocketAddress& ad, const std::string& str, int flags)
 {
     SendToBuf(ad, str.c_str(), (int)str.size(), flags);
 }
+
 
 /** send to connected address */
 void UdpSocket::SendBuf(const char *data, size_t len, int flags)
@@ -342,10 +370,12 @@ void UdpSocket::SendBuf(const char *data, size_t len, int flags)
     }
 }
 
+
 void UdpSocket::Send(const std::string& str, int flags)
 {
     SendBuf(str.c_str(), (int)str.size(), flags);
 }
+
 
 #if defined(LINUX) || defined(MACOSX)
 int UdpSocket::ReadTS(char *ioBuf, int inBufSize, struct sockaddr *from, socklen_t fromlen, struct timeval *ts)
@@ -367,12 +397,15 @@ int UdpSocket::ReadTS(char *ioBuf, int inBufSize, struct sockaddr *from, socklen
     } cmsg_un;
     struct cmsghdr *cmsg;
     struct timeval *tv;
+
     vec[0].iov_base = ioBuf;
     vec[0].iov_len = inBufSize;
+
     memset(&msg, 0, sizeof(msg));
     memset(from, 0, fromlen);
     memset(ioBuf, 0, inBufSize);
     memset(&cmsg_un, 0, sizeof(cmsg_un));
+
     msg.msg_name = (caddr_t)from;
     msg.msg_namelen = fromlen;
     msg.msg_iov = vec;
@@ -380,10 +413,14 @@ int UdpSocket::ReadTS(char *ioBuf, int inBufSize, struct sockaddr *from, socklen
     msg.msg_control = cmsg_un.data;
     msg.msg_controllen = sizeof(cmsg_un.data);
     msg.msg_flags = 0;
+
     // Original version - for reference only
     //int n = recvfrom(GetSocket(), m_ibuf, m_ibufsz, 0, (struct sockaddr *)&sa, &sa_len);
+
     int n = recvmsg(GetSocket(), &msg, MSG_DONTWAIT);
+
     // now ioBuf will contain the data, as if we used recvfrom
+
     // Now get the time
     if(n != -1 && msg.msg_controllen >= sizeof(struct cmsghdr) && !(msg.msg_flags & MSG_CTRUNC))
     {
@@ -404,6 +441,7 @@ int UdpSocket::ReadTS(char *ioBuf, int inBufSize, struct sockaddr *from, socklen
     return n;
 }
 #endif
+
 
 void UdpSocket::OnRead()
 {
@@ -517,10 +555,12 @@ void UdpSocket::OnRead()
     }
 }
 
+
 void UdpSocket::SetBroadcast(bool b)
 {
     int one = 1;
     int zero = 0;
+
     if (GetSocket() == INVALID_SOCKET)
     {
         CreateConnection();
@@ -541,10 +581,12 @@ void UdpSocket::SetBroadcast(bool b)
     }
 }
 
+
 bool UdpSocket::IsBroadcast()
 {
     int is_broadcast = 0;
     socklen_t size;
+
     if (GetSocket() == INVALID_SOCKET)
     {
         CreateConnection();
@@ -555,6 +597,7 @@ bool UdpSocket::IsBroadcast()
     }
     return is_broadcast != 0;
 }
+
 
 void UdpSocket::SetMulticastTTL(int ttl)
 {
@@ -568,10 +611,12 @@ void UdpSocket::SetMulticastTTL(int ttl)
     }
 }
 
+
 int UdpSocket::GetMulticastTTL()
 {
     int ttl = 0;
     socklen_t size = sizeof(int);
+
     if (GetSocket() == INVALID_SOCKET)
     {
         CreateConnection();
@@ -582,6 +627,7 @@ int UdpSocket::GetMulticastTTL()
     }
     return ttl;
 }
+
 
 void UdpSocket::SetMulticastLoop(bool x)
 {
@@ -608,6 +654,7 @@ void UdpSocket::SetMulticastLoop(bool x)
         Handler().LogError(this, "SetMulticastLoop", Errno, StrError(Errno), LOG_LEVEL_WARNING);
     }
 }
+
 
 bool UdpSocket::IsMulticastLoop()
 {
@@ -637,6 +684,7 @@ bool UdpSocket::IsMulticastLoop()
     }
     return is_loop ? true : false;
 }
+
 
 void UdpSocket::AddMulticastMembership(const std::string& group, const std::string& local_if, int if_index)
 {
@@ -678,6 +726,7 @@ void UdpSocket::AddMulticastMembership(const std::string& group, const std::stri
     }
 }
 
+
 void UdpSocket::DropMulticastMembership(const std::string& group, const std::string& local_if, int if_index)
 {
     if (GetSocket() == INVALID_SOCKET)
@@ -718,6 +767,7 @@ void UdpSocket::DropMulticastMembership(const std::string& group, const std::str
     }
 }
 
+
 #ifdef ENABLE_IPV6
 #ifdef IPPROTO_IPV6
 void UdpSocket::SetMulticastHops(int hops)
@@ -736,6 +786,7 @@ void UdpSocket::SetMulticastHops(int hops)
         Handler().LogError(this, "SetMulticastHops", Errno, StrError(Errno), LOG_LEVEL_WARNING);
     }
 }
+
 
 int UdpSocket::GetMulticastHops()
 {
@@ -759,36 +810,44 @@ int UdpSocket::GetMulticastHops()
 #endif // IPPROTO_IPV6
 #endif
 
+
 bool UdpSocket::IsBound()
 {
     return m_bind_ok;
 }
 
+
 void UdpSocket::OnRawData(const char *buf, size_t len, struct sockaddr *sa, socklen_t sa_len)
 {
 }
 
+
 void UdpSocket::OnRawData(const char *buf, size_t len, struct sockaddr *sa, socklen_t sa_len, struct timeval *ts)
 {
 }
+
 
 port_t UdpSocket::GetPort()
 {
     return m_port;
 }
 
+
 int UdpSocket::GetLastSizeWritten()
 {
     return m_last_size_written;
 }
+
 
 void UdpSocket::SetTimestamp(bool x)
 {
     m_b_read_ts = x;
 }
 
+
 #ifdef SOCKETS_NAMESPACE
 }
 #endif
+
 
 

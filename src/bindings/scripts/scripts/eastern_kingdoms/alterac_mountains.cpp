@@ -13,15 +13,19 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
+
 /* ScriptData
 SDName: Alterac_Mountains
 SD%Complete: 0
 SDComment: Placeholder
 SDCategory: Alterac Mountains
 EndScriptData */
+
 /* ContentData
 EndContentData */
+
 #include "precompiled.h"
+
 /*void AddSC_alterac_mountains()
 {
     Script *newscript;

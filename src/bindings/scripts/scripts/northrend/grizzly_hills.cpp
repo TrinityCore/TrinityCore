@@ -13,40 +13,51 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
+
 /* ScriptData
 SDName: Grizzly_Hills
 SD%Complete: 80
 SDComment: Quest support: 12231, 12247
 SDCategory: Grizzly Hills
 EndScriptData */
+
 /* ContentData
 npc_orsonn_and_kodian
 EndContentData */
+
 #include "precompiled.h"
+
 #define GOSSIP_ITEM1 "You're free to go Orsonn, but first tell me what's wrong with the furbolg."
 #define GOSSIP_ITEM2 "What happened then?"
 #define GOSSIP_ITEM3 "Thank you, Son of Ursoc. I'll see what can be done."
 #define GOSSIP_ITEM4 "Who was this stranger?"
 #define GOSSIP_ITEM5 "Thank you, Kodian. I'll do what I can."
+
 enum eEnums
 {
     GOSSIP_TEXTID_ORSONN1       = 12793,
     GOSSIP_TEXTID_ORSONN2       = 12794,
     GOSSIP_TEXTID_ORSONN3       = 12796,
+
     GOSSIP_TEXTID_KODIAN1       = 12797,
     GOSSIP_TEXTID_KODIAN2       = 12798,
+
     NPC_ORSONN                  = 27274,
     NPC_KODIAN                  = 27275,
+
     //trigger creatures
     NPC_ORSONN_CREDIT           = 27322,
     NPC_KODIAN_CREDIT           = 27321,
+
     QUEST_CHILDREN_OF_URSOC     = 12247,
     QUEST_THE_BEAR_GODS_OFFSPRING        = 12231
 };
+
 bool GossipHello_npc_orsonn_and_kodian(Player* pPlayer, Creature* pCreature)
 {
     if (pCreature->isQuestGiver())
         pPlayer->PrepareQuestMenu(pCreature->GetGUID());
+
     if (pPlayer->GetQuestStatus(QUEST_CHILDREN_OF_URSOC) == QUEST_STATUS_INCOMPLETE || pPlayer->GetQuestStatus(QUEST_THE_BEAR_GODS_OFFSPRING) == QUEST_STATUS_INCOMPLETE)
     {
         switch(pCreature->GetEntry())
@@ -69,9 +80,11 @@ bool GossipHello_npc_orsonn_and_kodian(Player* pPlayer, Creature* pCreature)
                 break;
         }
     }
+
     pPlayer->SEND_GOSSIP_MENU(pCreature->GetNpcTextId(), pCreature->GetGUID());
     return true;
 }
+
 bool GossipSelect_npc_orsonn_and_kodian(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
 {
     switch(uiAction)
@@ -88,6 +101,7 @@ bool GossipSelect_npc_orsonn_and_kodian(Player* pPlayer, Creature* pCreature, ui
             pPlayer->CLOSE_GOSSIP_MENU();
             pPlayer->TalkedToCreature(NPC_ORSONN_CREDIT, pCreature->GetGUID());
             break;
+
         case GOSSIP_ACTION_INFO_DEF+4:
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM5, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 5);
             pPlayer->SEND_GOSSIP_MENU(GOSSIP_TEXTID_KODIAN2, pCreature->GetGUID());
@@ -97,11 +111,14 @@ bool GossipSelect_npc_orsonn_and_kodian(Player* pPlayer, Creature* pCreature, ui
             pPlayer->TalkedToCreature(NPC_KODIAN_CREDIT, pCreature->GetGUID());
             break;
     }
+
     return true;
 }
+
 void AddSC_grizzly_hills()
 {
     Script* newscript;
+
     newscript = new Script;
     newscript->Name = "npc_orsonn_and_kodian";
     newscript->pGossipHello = &GossipHello_npc_orsonn_and_kodian;

@@ -7,23 +7,32 @@
  *
  * @author Douglas C. Schmidt <schmidt@cs.wustl.edu>
  */
+
 #include "ace/Thread_Semaphore.h"
+
 #if defined (ACE_HAS_THREADS)
+
 #if !defined (__ACE_INLINE__)
 #include "ace/Thread_Semaphore.inl"
 #endif /* __ACE_INLINE__ */
+
 #include "ace/ACE.h"
+
 ACE_RCSID(ace, Thread_Semaphore, "$Id: Thread_Semaphore.cpp 80826 2008-03-04 14:51:23Z wotte $")
 
+
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
+
 void
 ACE_Thread_Semaphore::dump (void) const
 {
 #if defined (ACE_HAS_DUMP)
 // ACE_TRACE ("ACE_Thread_Semaphore::dump");
+
   ACE_Semaphore::dump ();
 #endif /* ACE_HAS_DUMP */
 }
+
 ACE_Thread_Semaphore::ACE_Thread_Semaphore (unsigned int count,
                                             const ACE_TCHAR *name,
                                             void *arg,
@@ -32,7 +41,9 @@ ACE_Thread_Semaphore::ACE_Thread_Semaphore (unsigned int count,
 {
 // ACE_TRACE ("ACE_Thread_Semaphore::ACE_Thread_Semaphore");
 }
+
 /*****************************************************************************/
+
 ACE_Thread_Semaphore *
 ACE_Malloc_Lock_Adapter_T<ACE_Thread_Semaphore>::operator () (const ACE_TCHAR *name)
 {
@@ -45,6 +56,8 @@ ACE_Malloc_Lock_Adapter_T<ACE_Thread_Semaphore>::operator () (const ACE_TCHAR *n
                     0);
   return p;
 }
+
 ACE_END_VERSIONED_NAMESPACE_DECL
+
 #endif /* ACE_HAS_THREADS */
 

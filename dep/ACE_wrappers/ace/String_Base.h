@@ -1,4 +1,5 @@
 // -*- C++ -*-
+
 //=============================================================================
 /**
  *  @file    String_Base.h
@@ -9,15 +10,22 @@
  *  @author Nanbor Wang <nanbor@cs.wustl.edu>
  */
 //=============================================================================
+
 #ifndef ACE_STRING_BASE_H
 #define ACE_STRING_BASE_H
+
 #include /**/ "ace/pre.h"
+
 #include "ace/Global_Macros.h"
+
 #if !defined (ACE_LACKS_PRAGMA_ONCE)
 # pragma once
 #endif /* ACE_LACKS_PRAGMA_ONCE */
+
 #include "ace/String_Base_Const.h"
+
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
+
 /**
  * @class ACE_String_Base
  *
@@ -50,7 +58,9 @@ template <class CHAR>
 class ACE_String_Base : public ACE_String_Base_Const
 {
 public:
+
   using ACE_String_Base_Const::size_type;
+
    /**
     *  Default constructor.
     *
@@ -58,6 +68,7 @@ public:
     *  @return Default ACE_String_Base string.
     */
   ACE_String_Base (ACE_Allocator *the_allocator = 0);
+
   /**
    * Constructor that copies @a s into dynamically allocated memory.
    *
@@ -76,6 +87,7 @@ public:
   ACE_String_Base (const CHAR *s,
                    ACE_Allocator *the_allocator = 0,
                    bool release = true);
+
   /**
    * Constructor that copies @a len CHARs of @a s into dynamically
    * allocated memory (will zero terminate the result).
@@ -97,6 +109,7 @@ public:
                    size_type len,
                    ACE_Allocator *the_allocator = 0,
                    bool release = true);
+
   /**
    *  Copy constructor.
    *
@@ -104,6 +117,7 @@ public:
    *  @return Copy of input string @a s
    */
   ACE_String_Base (const ACE_String_Base < CHAR > &s);
+
   /**
    *  Constructor that copies @a c into dynamically allocated memory.
    *
@@ -112,6 +126,7 @@ public:
    *  @return ACE_String_Base containing CHAR 'c'
    */
   ACE_String_Base (CHAR c, ACE_Allocator *the_allocator = 0);
+
   /**
    *  Constructor that allocates a len long string.
    *
@@ -128,10 +143,12 @@ public:
   ACE_String_Base (size_type len,
                    CHAR c = 0,
                    ACE_Allocator *the_allocator = 0);
+
   /**
    *  Deletes the memory...
    */
   ~ACE_String_Base (void);
+
   /**
    * Return the <slot'th> character in the string (doesn't perform
    * bounds checking).
@@ -140,6 +157,7 @@ public:
    * @return The character at index @a slot
    */
   const CHAR & operator[] (size_type slot) const;
+
   /**
    * Return the <slot'th> character by reference in the string
    * (doesn't perform bounds checking).
@@ -148,6 +166,7 @@ public:
    * @return The character at index @a slot
    */
   CHAR & operator[] (size_type slot);
+
   /**
    *  Assignment operator (does copy memory).
    *
@@ -155,6 +174,7 @@ public:
    *  @return Return a copy of the this string.
    */
   ACE_String_Base < CHAR > &operator = (const CHAR * s);
+
   /**
    *  Assignment operator (does copy memory).
    *
@@ -162,6 +182,7 @@ public:
    *  @return Return a copy of the this string.
    */
   ACE_String_Base < CHAR > &operator = (const ACE_String_Base < CHAR > &s);
+
   /**
    *  Assignment alternative method (does not copy memory).
    *
@@ -169,6 +190,7 @@ public:
    *  @return Return this string.
    */
   ACE_String_Base < CHAR > &assign_nocopy (const ACE_String_Base < CHAR > &s);
+
   /**
    * Copy @a s into this @a ACE_String_Base.
    *
@@ -187,6 +209,7 @@ public:
    *    freeing memory.
    */
   void set (const CHAR * s, bool release = true);
+
   /**
    *  Copy @a len bytes of @a s (will zero terminate the result).
    *
@@ -206,6 +229,7 @@ public:
    *    freeing memory.
    */
   void set (const CHAR * s, size_type len, bool release);
+
   /**
    * Clear this string. Memory is _not_ freed if @a release is false.
    *
@@ -218,6 +242,7 @@ public:
    * @param release Memory is freed if true, and not freed if false.
    */
   void clear (bool release = false);
+
   /**
    * A more specialized version of clear(): "fast clear". fast_clear()
    * resets the string to 0 length. If the string owns the buffer
@@ -237,6 +262,7 @@ public:
    *   allocated internally.
    */
   void fast_clear (void);
+
   /**
    * Return a substring given an offset and length.
    * If length == @c npos use rest of str.  Return empty substring if
@@ -248,6 +274,7 @@ public:
    */
   ACE_String_Base < CHAR > substring (size_type offset,
                                       size_type length = npos) const;
+
   /**
    *  Same as <substring>.
    *
@@ -257,6 +284,7 @@ public:
    */
   ACE_String_Base < CHAR > substr (size_type offset,
                                    size_type length = npos) const;
+
   /**
    *  Concat operator (copies memory).
    *
@@ -265,6 +293,7 @@ public:
    *    string is zero terminated.
    */
   ACE_String_Base < CHAR > &operator += (const ACE_String_Base < CHAR > &s);
+
   /**
    *  Concat operator (copies memory).
    *
@@ -273,6 +302,7 @@ public:
    *    string is zero terminated.
    */
   ACE_String_Base < CHAR >& operator += (const CHAR* s);
+
   /**
    *  Concat operator (copies memory).
    *
@@ -281,6 +311,7 @@ public:
    *    string is zero terminated.
    */
   ACE_String_Base < CHAR >& operator += (const CHAR c);
+
   /**
    *  Append function (copies memory).
    *
@@ -290,18 +321,21 @@ public:
    *    string is zero terminated.
    */
   ACE_String_Base < CHAR >& append (const CHAR* s, size_type slen);
+
   /**
    *  Returns a hash value for this string.
    *
    *  @return Hash value of string
    */
   u_long hash (void) const;
+
   /**
    *  Return the length of the string.
    *
    *  @return Length of stored string
    */
   size_type length (void) const;
+
   /**
    *  Return the number of allocated CHARs in the string object.
    *  This may be greater than the current length of the string.
@@ -310,16 +344,19 @@ public:
    *          any terminating nul that may be needed.
    */
   size_t capacity (void) const;
+
   /**
    * Return @c true if the length of the string is zero, else @c false.
    */
   bool is_empty (void) const;
+
   /**
    * Return @c true if the length of the string is zero, else @c
    * false.  We recommend using @c is_empty() instead since it's more
    * consistent with the ACE container naming conventions.
    */
   bool empty (void) const;
+
   /**
    * Get a copy of the underlying representation.
    *
@@ -331,6 +368,7 @@ public:
    *    zero terminated.
    */
   CHAR *rep (void) const;
+
   /**
    * Get at the underlying representation directly!
    * _Don't_ even think about casting the result to (char *) and modifying it,
@@ -341,10 +379,12 @@ public:
    *
    */
   const CHAR *fast_rep (void) const;
+
   /**
    *  Same as STL String's <c_str> and <fast_rep>.
    */
   const CHAR *c_str (void) const;
+
   /**
    *  Comparison operator that will match substrings.  Returns the
    *  slot of the first location that matches, else @c npos.
@@ -354,6 +394,7 @@ public:
    *          @c npos (not found).
    */
   size_type strstr (const ACE_String_Base<CHAR> &s) const;
+
   /**
    *  Find <str> starting at pos.  Returns the slot of the first
    *  location that matches (will be >= pos), else @c npos.
@@ -364,6 +405,7 @@ public:
    *          @c npos.
    */
   size_type find (const ACE_String_Base<CHAR> &str, size_type pos = 0) const;
+
   /**
    *  Find @a s starting at pos.  Returns the slot of the first
    *  location that matches (will be >= pos), else @c npos.
@@ -374,6 +416,7 @@ public:
    *          @c npos.
    */
   size_type find (const CHAR *s, size_type pos = 0) const;
+
   /**
    *  Find @a c starting at pos.  Returns the slot of the first
    *  location that matches (will be >= pos), else @c npos.
@@ -384,6 +427,7 @@ public:
    *          @c npos.
    */
   size_type find (CHAR c, size_type pos = 0) const;
+
   /**
    *  Find @a c starting at pos (counting from the end).  Returns the
    *  slot of the first location that matches, else @c npos.
@@ -394,6 +438,7 @@ public:
    *          @c npos.
    */
   size_type rfind (CHAR c, size_type pos = npos) const;
+
   /**
    *  Equality comparison operator (must match entire string).
    *
@@ -401,6 +446,7 @@ public:
    * @return @c true if equal, @c false otherwise.
    */
   bool operator == (const ACE_String_Base<CHAR> &s) const;
+
   /**
    *  Equality comparison operator (must match entire string).
    *
@@ -408,6 +454,7 @@ public:
    * @return @c true if equal, @c false otherwise.
    */
   bool operator == (const CHAR *s) const;
+
   /**
    *  Less than comparison operator.
    *
@@ -415,6 +462,7 @@ public:
    *  @return @c true if less than, @c false otherwise.
    */
   bool operator < (const ACE_String_Base<CHAR> &s) const;
+
   /**
    *  Greater than comparison operator.
    *
@@ -422,6 +470,7 @@ public:
    *  @return @c true if greater than, @c false otherwise.
    */
   bool operator > (const ACE_String_Base<CHAR> &s) const;
+
   /**
    *  Inequality comparison operator.
    *
@@ -429,6 +478,7 @@ public:
    *  @return @c true if not equal, @c false otherwise.
    */
   bool operator != (const ACE_String_Base<CHAR> &s) const;
+
   /**
    *  Inequality comparison operator.
    *
@@ -436,6 +486,7 @@ public:
    *  @return @c true if not equal, @c false otherwise.
    */
   bool operator != (const CHAR *s) const;
+
   /**
    *  Performs a strncmp comparison.
    *
@@ -444,10 +495,12 @@ public:
    *    depending on how input string @a s is to the stored string.
    */
   int compare (const ACE_String_Base<CHAR> &s) const;
+
   /**
    *  Dump the state of an object.
    */
   void dump (void) const;
+
   /**
    * This method is designed for high-performance. Please use with
    * care ;-)
@@ -469,42 +522,51 @@ public:
    */
   void resize (size_type len, CHAR c = 0);
   void fast_resize (size_t len);
+
   /// Swap the contents of this @c ACE_String_Base with @a str.
   /**
    * @note This is non-throwing operation.
    */
   void swap (ACE_String_Base<CHAR> & str);
+
   /**
    *  Declare the dynamic allocation hooks.
    */
   ACE_ALLOC_HOOK_DECLARE;
+
 protected:
   /**
    *  Pointer to a memory allocator.
    */
   ACE_Allocator *allocator_;
+
   /**
    *  Length of the ACE_String_Base data (not counting the trailing '\0').
    */
   size_type len_;
+
   /**
    *  Length of the ACE_String_Base data buffer.  Keeping track of the
    *  length allows to avoid unnecessary dynamic allocations.
    */
   size_type buf_len_;
+
   /**
    *  Pointer to data.
    */
   CHAR *rep_;
+
   /**
    *  Flag that indicates if we own the memory
    */
   bool release_;
+
   /**
    *  Represents the "NULL" string to simplify the internal logic.
    */
   static CHAR NULL_String_;
 };
+
 template < class CHAR >
   ACE_String_Base < CHAR > operator + (const ACE_String_Base < CHAR > &,
                                        const ACE_String_Base < CHAR > &);
@@ -514,28 +576,38 @@ template < class CHAR >
 template < class CHAR >
   ACE_String_Base < CHAR > operator + (const CHAR *,
                                        const ACE_String_Base < CHAR > &);
+
 template < class CHAR >
   ACE_String_Base < CHAR > operator + (const ACE_String_Base < CHAR > &t,
                                        const CHAR c);
+
 template < class CHAR >
   ACE_String_Base < CHAR > operator + (const CHAR c,
                                        const ACE_String_Base < CHAR > &t);
+
 template <class CHAR>
   bool operator == (const CHAR *s,
                     const ACE_String_Base<CHAR> &t);
+
 template <class CHAR>
   bool operator != (const CHAR *s,
                     const ACE_String_Base<CHAR> &t);
+
 ACE_END_VERSIONED_NAMESPACE_DECL
+
 #if defined (__ACE_INLINE__)
 #include "ace/String_Base.inl"
 #endif /* __ACE_INLINE__ */
+
 #if defined (ACE_TEMPLATES_REQUIRE_SOURCE)
 #include "ace/String_Base.cpp"
 #endif /* ACE_TEMPLATES_REQUIRE_SOURCE */
+
 #if defined (ACE_TEMPLATES_REQUIRE_PRAGMA)
 #pragma implementation ("String_Base.cpp")
 #endif /* ACE_TEMPLATES_REQUIRE_PRAGMA */
+
 #include /**/ "ace/post.h"
+
 #endif /* ACE_STRING_BASE_H */
 

@@ -13,13 +13,16 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
+
 /* ScriptData
 SDName: Boss_the_black_stalker
 SD%Complete: 95
 SDComment: Timers may be incorrect
 SDCategory: Coilfang Resevoir, Underbog
 EndScriptData */
+
 #include "precompiled.h"
+
 #define SPELL_LEVITATE             31704
 #define SPELL_SUSPENSION           31719
 #define SPELL_LEVITATION_PULSE     31701
@@ -27,13 +30,16 @@ EndScriptData */
 #define SPELL_CHAIN_LIGHTNING      31717
 #define SPELL_STATIC_CHARGE        31715
 #define SPELL_SUMMON_SPORE_STRIDER 38755
+
 #define ENTRY_SPORE_STRIDER        22299
+
 struct TRINITY_DLL_DECL boss_the_black_stalkerAI : public ScriptedAI
 {
     boss_the_black_stalkerAI(Creature *c) : ScriptedAI(c)
     {
         HeroicMode = m_creature->GetMap()->IsHeroic();
     }
+
     bool HeroicMode;
     uint32 SporeStriders_Timer;
     uint32 Levitate_Timer;
@@ -44,6 +50,7 @@ struct TRINITY_DLL_DECL boss_the_black_stalkerAI : public ScriptedAI
     bool InAir;
     uint32 check_Timer;
     std::list<uint64> Striders;
+
     void Reset()
     {
         Levitate_Timer = 12000;
@@ -55,7 +62,9 @@ struct TRINITY_DLL_DECL boss_the_black_stalkerAI : public ScriptedAI
         LevitatedTarget_Timer = 0;
         Striders.clear();
     }
+
     void EnterCombat(Unit *who) {}
+
     void JustSummoned(Creature *summon)
     {
         if (summon && summon->GetEntry() == ENTRY_SPORE_STRIDER)
@@ -68,16 +77,19 @@ struct TRINITY_DLL_DECL boss_the_black_stalkerAI : public ScriptedAI
                     summon->AI()->AttackStart(m_creature->getVictim());
         }
     }
+
     void JustDied(Unit *who)
     {
-        for (std::list<uint64>::iterator i = Striders.begin(); i != Striders.end(); ++i)
+        for(std::list<uint64>::iterator i = Striders.begin(); i != Striders.end(); ++i)
             if (Creature *strider = Unit::GetCreature(*m_creature, *i))
                 strider->DisappearAndDie();
     }
+
     void UpdateAI(const uint32 diff)
     {
         if (!UpdateVictim())
             return;
+
         // Evade if too far
         if (check_Timer < diff)
         {
@@ -90,12 +102,14 @@ struct TRINITY_DLL_DECL boss_the_black_stalkerAI : public ScriptedAI
             }
             check_Timer = 1000;
         }else check_Timer -= diff;
+
         // Spore Striders
         if (HeroicMode && SporeStriders_Timer < diff)
         {
             DoCast(m_creature,SPELL_SUMMON_SPORE_STRIDER);
             SporeStriders_Timer = 10000+rand()%5000;
         }else SporeStriders_Timer -= diff;
+
         // Levitate
         if (LevitatedTarget)
         {
@@ -135,6 +149,7 @@ struct TRINITY_DLL_DECL boss_the_black_stalkerAI : public ScriptedAI
             }
             Levitate_Timer = 12000+rand()%3000;
         }else Levitate_Timer -= diff;
+
         // Chain Lightning
         if (ChainLightning_Timer < diff)
         {
@@ -142,6 +157,7 @@ struct TRINITY_DLL_DECL boss_the_black_stalkerAI : public ScriptedAI
                 DoCast(target, SPELL_CHAIN_LIGHTNING);
             ChainLightning_Timer = 7000;
         }else ChainLightning_Timer -= diff;
+
         // Static Charge
         if (StaticCharge_Timer < diff)
         {
@@ -149,16 +165,20 @@ struct TRINITY_DLL_DECL boss_the_black_stalkerAI : public ScriptedAI
                 DoCast(target, SPELL_STATIC_CHARGE);
             StaticCharge_Timer = 10000;
         }else StaticCharge_Timer -= diff;
+
         DoMeleeAttackIfReady();
     }
 };
+
 CreatureAI* GetAI_boss_the_black_stalker(Creature* pCreature)
 {
     return new boss_the_black_stalkerAI (pCreature);
 }
+
 void AddSC_boss_the_black_stalker()
 {
     Script *newscript;
+
     newscript = new Script;
     newscript->Name = "boss_the_black_stalker";
     newscript->GetAI = &GetAI_boss_the_black_stalker;

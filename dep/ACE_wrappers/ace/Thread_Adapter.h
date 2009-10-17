@@ -1,4 +1,5 @@
 // -*- C++ -*-
+
 //=============================================================================
 /**
  *  @file    Thread_Adapter.h
@@ -8,18 +9,25 @@
  *  @author Carlos O'Ryan <coryan@uci.edu>
  */
 //=============================================================================
+
 #ifndef ACE_THREAD_ADAPTER_H
 #define ACE_THREAD_ADAPTER_H
 #include /**/ "ace/pre.h"
+
 #include /**/ "ace/ACE_export.h"
+
 #if !defined (ACE_LACKS_PRAGMA_ONCE)
 # pragma once
 #endif /* ACE_LACKS_PRAGMA_ONCE */
+
 #include "ace/Base_Thread_Adapter.h"
+
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
+
 // Forward decl.
 class ACE_Thread_Manager;
 class ACE_Thread_Descriptor;
+
 /**
  * @class ACE_Thread_Adapter
  *
@@ -49,26 +57,37 @@ public:
                       ACE_SEH_EXCEPT_HANDLER handler = 0
 # endif /* ACE_HAS_WIN32_STRUCTURAL_EXCEPTIONS */
                       );
+
   /**
    * Execute the <user_func_> with the <arg>.  This function deletes
    * @c this, thereby rendering the object useless after the call
    * returns.
    */
   virtual ACE_THR_FUNC_RETURN invoke (void);
+
   /// Accessor for the optional ACE_Thread_Manager.
   ACE_Thread_Manager *thr_mgr (void);
+
 protected:
+
   /// Ensure that this object must be allocated on the heap.
   ~ACE_Thread_Adapter (void);
+
 private:
+
   /// Called by invoke, mainly here to separate the SEH stuff because
   /// SEH on Win32 doesn't compile with local vars with destructors.
   virtual ACE_THR_FUNC_RETURN invoke_i (void);
+
 private:
+
   /// Optional thread manager.
   ACE_Thread_Manager *thr_mgr_;
+
 };
+
 ACE_END_VERSIONED_NAMESPACE_DECL
+
 # if defined (ACE_HAS_INLINED_OSCALLS)
 #   if defined (ACE_INLINE)
 #     undef ACE_INLINE
@@ -76,6 +95,7 @@ ACE_END_VERSIONED_NAMESPACE_DECL
 #   define ACE_INLINE inline
 #   include "ace/Thread_Adapter.inl"
 # endif /* ACE_HAS_INLINED_OSCALLS */
+
 #include /**/ "ace/post.h"
 #endif /* ACE_THREAD_ADAPTER_H */
 

@@ -17,26 +17,34 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
+
 #ifndef __SQLDELAYTHREAD_H
 #define __SQLDELAYTHREAD_H
+
 #include "ace/Thread_Mutex.h"
 #include "LockedQueue.h"
 #include "Threading.h"
 
+
 class Database;
 class SqlOperation;
+
 class SqlDelayThread : public ACE_Based::Runnable
 {
     typedef ACE_Based::LockedQueue<SqlOperation*, ACE_Thread_Mutex> SqlQueue;
+
     private:
         SqlQueue m_sqlQueue;                                ///< Queue of SQL statements
         Database* m_dbEngine;                               ///< Pointer to used Database engine
         volatile bool m_running;
+
         SqlDelayThread();
     public:
         SqlDelayThread(Database* db);
+
         ///< Put sql statement to delay queue
         bool Delay(SqlOperation* sql) { m_sqlQueue.add(sql); return true; }
+
         virtual void Stop();                                ///< Stop event
         virtual void run();                                 ///< Main Thread loop
 };

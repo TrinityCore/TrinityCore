@@ -17,12 +17,16 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
+
 /// \addtogroup realmd
 /// @{
 /// \file
+
 #ifndef _REALMLIST_H
 #define _REALMLIST_H
+
 #include "Common.h"
+
 /// Storage object for a realm
 struct Realm
 {
@@ -36,16 +40,22 @@ struct Realm
     float populationLevel;
     uint32 gamebuild;
 };
+
 /// Storage object for the list of realms on the server
 class RealmList
 {
     public:
         typedef std::map<std::string, Realm> RealmMap;
+
         RealmList();
         ~RealmList() {}
+
         void Initialize(uint32 updateInterval);
+
         void UpdateIfNeed();
+
         void AddRealm(Realm NewRealm) {m_realms[NewRealm.name] = NewRealm;}
+
         RealmMap::const_iterator begin() const { return m_realms.begin(); }
         RealmMap::const_iterator end() const { return m_realms.end(); }
         uint32 size() const { return m_realms.size(); }

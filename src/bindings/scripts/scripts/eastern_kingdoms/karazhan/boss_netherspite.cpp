@@ -13,16 +13,20 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
+
 /* ScriptData
 SDName: Boss_Netherspite
 SD%Complete: 90
 SDComment: Not sure about timing and portals placing
 SDCategory: Karazhan
 EndScriptData */
+
 #include "precompiled.h"
 #include "def_karazhan.h"
+
 #define EMOTE_PHASE_PORTAL          -1532089
 #define EMOTE_PHASE_BANISH          -1532090
+
 #define SPELL_NETHERBURN_AURA       30522
 #define SPELL_VOIDZONE              37063
 #define SPELL_NETHER_INFUSION       38688
@@ -31,42 +35,49 @@ EndScriptData */
 #define SPELL_BANISH_ROOT           42716
 #define SPELL_EMPOWERMENT           38549
 #define SPELL_NETHERSPITE_ROAR      38684
+
 const float PortalCoord[3][3] =
 {
     {-11195.353516, -1613.237183, 278.237258}, // Left side
     {-11137.846680, -1685.607422, 278.239258}, // Right side
     {-11094.493164, -1591.969238, 279.949188}  // Back side
 };
+
 enum Netherspite_Portal{
     RED_PORTAL = 0, // Perseverence
     GREEN_PORTAL = 1, // Serenity
     BLUE_PORTAL = 2 // Dominance
 };
+
 const uint32 PortalID[3] = {17369, 17367, 17368};
 const uint32 PortalVisual[3] = {30487,30490,30491};
 const uint32 PortalBeam[3] = {30465,30464,30463};
 const uint32 PlayerBuff[3] = {30421,30422,30423};
 const uint32 NetherBuff[3] = {30466,30467,30468};
 const uint32 PlayerDebuff[3] = {38637,38638,38639};
+
 struct TRINITY_DLL_DECL boss_netherspiteAI : public ScriptedAI
 {
     boss_netherspiteAI(Creature* c) : ScriptedAI(c)
     {
         pInstance = c->GetInstanceData();
-        for (int i=0; i<3; ++i)
+
+        for(int i=0; i<3; ++i)
         {
             PortalGUID[i] = 0;
             BeamTarget[i] = 0;
             BeamerGUID[i] = 0;
         }
         // need core fix
-        for (int i=0; i<3; ++i)
+        for(int i=0; i<3; ++i)
         {
             if(SpellEntry *spell = (SpellEntry*)GetSpellStore()->LookupEntry(PlayerBuff[i]))
                 spell->AttributesEx |= SPELL_ATTR_EX_NEGATIVE;
         }
     }
+
     ScriptedInstance* pInstance;
+
     bool PortalPhase;
     bool Berserk;
     uint32 PhaseTimer; // timer for phase switching
@@ -78,10 +89,12 @@ struct TRINITY_DLL_DECL boss_netherspiteAI : public ScriptedAI
     uint64 PortalGUID[3]; // guid's of portals
     uint64 BeamerGUID[3]; // guid's of auxiliary beaming portals
     uint64 BeamTarget[3]; // guid's of portals' current targets
+
     bool IsBetween(WorldObject* u1, WorldObject* target, WorldObject* u2) // the in-line checker
     {
         if(!u1 || !u2 || !target)
             return false;
+
         float xn, yn, xp, yp, xh, yh;
         xn = u1->GetPositionX();
         yn = u1->GetPositionY();
@@ -89,25 +102,30 @@ struct TRINITY_DLL_DECL boss_netherspiteAI : public ScriptedAI
         yp = u2->GetPositionY();
         xh = target->GetPositionX();
         yh = target->GetPositionY();
+
         // check if target is between (not checking distance from the beam yet)
         if(dist(xn,yn,xh,yh)>=dist(xn,yn,xp,yp) || dist(xp,yp,xh,yh)>=dist(xn,yn,xp,yp))
             return false;
         // check  distance from the beam
         return (abs((xn-xp)*yh+(yp-yn)*xh-xn*yp+xp*yn)/dist(xn,yn,xp,yp) < 1.5f);
     }
+
     float dist(float xa, float ya, float xb, float yb) // auxiliary method for distance
     {
         return sqrt((xa-xb)*(xa-xb) + (ya-yb)*(ya-yb));
     }
+
     void Reset()
     {
         Berserk = false;
         NetherInfusionTimer = 540000;
         VoidZoneTimer = 15000;
         NetherbreathTimer = 3000;
+
         HandleDoors(true);
         DestroyPortals();
     }
+
     void SummonPortals()
     {
         uint8 r = rand()%4;
@@ -115,16 +133,18 @@ struct TRINITY_DLL_DECL boss_netherspiteAI : public ScriptedAI
         pos[RED_PORTAL] = (r%2 ? (r>1 ? 2: 1): 0);
         pos[GREEN_PORTAL] = (r%2 ? 0: (r>1 ? 2: 1));
         pos[BLUE_PORTAL] = (r>1 ? 1: 2); // Blue Portal not on the left side (0)
-        for (int i=0; i<3; ++i)
+
+        for(int i=0; i<3; ++i)
             if(Creature *portal = m_creature->SummonCreature(PortalID[i],PortalCoord[pos[i]][0],PortalCoord[pos[i]][1],PortalCoord[pos[i]][2],0,TEMPSUMMON_TIMED_DESPAWN,60000))
             {
                 PortalGUID[i] = portal->GetGUID();
                 portal->AddAura(PortalVisual[i], portal);
             }
     }
+
     void DestroyPortals()
     {
-        for (int i=0; i<3; ++i)
+        for(int i=0; i<3; ++i)
         {
             if(Creature *portal = Unit::GetCreature(*m_creature, PortalGUID[i]))
                 portal->DisappearAndDie();
@@ -134,20 +154,23 @@ struct TRINITY_DLL_DECL boss_netherspiteAI : public ScriptedAI
             BeamTarget[i] = 0;
         }
     }
+
     void UpdatePortals() // Here we handle the beams' behavior
     {
-        for (int j=0; j<3; ++j) // j = color
+        for(int j=0; j<3; ++j) // j = color
             if(Creature *portal = Unit::GetCreature(*m_creature, PortalGUID[j]))
             {
                 // the one who's been casted upon before
                 Unit *current = Unit::GetUnit(*portal, BeamTarget[j]);
                 // temporary store for the best suitable beam reciever
                 Unit *target = m_creature;
+
                 if(Map* map = m_creature->GetMap())
                 {
                     Map::PlayerList const& players = map->GetPlayers();
+
                     // get the best suitable target
-                    for (Map::PlayerList::const_iterator i = players.begin(); i!=players.end(); ++i)
+                    for(Map::PlayerList::const_iterator i = players.begin(); i!=players.end(); ++i)
                     {
                         Player* p = i->getSource();
                         if(p && p->isAlive() // alive
@@ -188,6 +211,7 @@ struct TRINITY_DLL_DECL boss_netherspiteAI : public ScriptedAI
                     m_creature->getThreatManager().addThreat(target, 100000.0f+DoGetThreat(m_creature->getVictim()));
             }
     }
+
     void SwitchToPortalPhase()
     {
         m_creature->RemoveAurasDueToSpell(SPELL_BANISH_ROOT);
@@ -199,6 +223,7 @@ struct TRINITY_DLL_DECL boss_netherspiteAI : public ScriptedAI
         EmpowermentTimer = 10000;
         DoScriptText(EMOTE_PHASE_PORTAL,m_creature);
     }
+
     void SwitchToBanishPhase()
     {
         m_creature->RemoveAurasDueToSpell(SPELL_EMPOWERMENT);
@@ -209,34 +234,41 @@ struct TRINITY_DLL_DECL boss_netherspiteAI : public ScriptedAI
         PhaseTimer = 30000;
         PortalPhase = false;
         DoScriptText(EMOTE_PHASE_BANISH,m_creature);
-        for (int i=0; i<3; ++i)
+
+        for(int i=0; i<3; ++i)
             m_creature->RemoveAurasDueToSpell(NetherBuff[i]);
     }
+
     void HandleDoors(bool open) // Massive Door switcher
     {
         if(GameObject *Door = GameObject::GetGameObject(*m_creature, pInstance ? pInstance->GetData64(DATA_GO_MASSIVE_DOOR) : 0))
             Door->SetGoState(open ? GO_STATE_ACTIVE : GO_STATE_READY);
     }
+
     void Aggro(Unit *who)
     {
         HandleDoors(false);
         SwitchToPortalPhase();
     }
+
     void JustDied(Unit* killer)
     {
         HandleDoors(true);
         DestroyPortals();
     }
+
     void UpdateAI(const uint32 diff)
     {
         if(!UpdateVictim())
             return;
+
         // Void Zone
         if(VoidZoneTimer < diff)
         {
             DoCast(SelectTarget(SELECT_TARGET_RANDOM,1,45,true),SPELL_VOIDZONE,true);
             VoidZoneTimer = 15000;
         }else VoidZoneTimer -= diff;
+
         // NetherInfusion Berserk
         if(!Berserk && NetherInfusionTimer < diff)
         {
@@ -244,6 +276,7 @@ struct TRINITY_DLL_DECL boss_netherspiteAI : public ScriptedAI
             DoCast(m_creature, SPELL_NETHERSPITE_ROAR);
             Berserk = true;
         }else NetherInfusionTimer -= diff;
+
         if(PortalPhase) // PORTAL PHASE
         {
             // Distribute beams and buffs
@@ -252,6 +285,7 @@ struct TRINITY_DLL_DECL boss_netherspiteAI : public ScriptedAI
                 UpdatePortals();
                 PortalTimer = 1000;
             }else PortalTimer -= diff;
+
             // Empowerment & Nether Burn
             if(EmpowermentTimer < diff)
             {
@@ -259,6 +293,7 @@ struct TRINITY_DLL_DECL boss_netherspiteAI : public ScriptedAI
                 m_creature->AddAura(SPELL_NETHERBURN_AURA, m_creature);
                 EmpowermentTimer = 90000;
             }else EmpowermentTimer -= diff;
+
             if(PhaseTimer < diff)
             {
                 if(!m_creature->IsNonMeleeSpellCasted(false))
@@ -277,6 +312,7 @@ struct TRINITY_DLL_DECL boss_netherspiteAI : public ScriptedAI
                     DoCast(target,SPELL_NETHERBREATH);
                 NetherbreathTimer = 5000+rand()%2000;
             }else NetherbreathTimer -= diff;
+
             if(PhaseTimer < diff)
             {
                 if(!m_creature->IsNonMeleeSpellCasted(false))
@@ -286,16 +322,20 @@ struct TRINITY_DLL_DECL boss_netherspiteAI : public ScriptedAI
                 }
             }else PhaseTimer -= diff;
         }
+
         DoMeleeAttackIfReady();
     }
 };
+
 CreatureAI* GetAI_boss_netherspite(Creature *_Creature)
 {
     return new boss_netherspiteAI(_Creature);
 }
+
 void AddSC_boss_netherspite()
 {
     Script *newscript;
+
     newscript = new Script;
     newscript->Name = "boss_netherspite";
     newscript->GetAI = GetAI_boss_netherspite;

@@ -13,13 +13,16 @@
 * along with this program; if not, write to the Free Software
 * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 */
+
 /* ScriptData
 SDName: boss_cannon_master_willey
 SD%Complete: 100
 SDComment:
 SDCategory: Stratholme
 EndScriptData */
+
 #include "precompiled.h"
+
 //front, left
 #define ADD_1X 3553.851807
 #define ADD_1Y -2945.885986
@@ -65,17 +68,21 @@ EndScriptData */
 #define ADD_9Y -2957.437744
 #define ADD_9Z 125.001015
 #define ADD_9O 0.592007
+
 #define SPELL_KNOCKAWAY    10101
 #define SPELL_PUMMEL    15615
 #define SPELL_SHOOT    16496
 //#define SPELL_SUMMONCRIMSONRIFLEMAN    17279
+
 struct TRINITY_DLL_DECL boss_cannon_master_willeyAI : public ScriptedAI
 {
     boss_cannon_master_willeyAI(Creature *c) : ScriptedAI(c) {}
+
     uint32 KnockAway_Timer;
     uint32 Pummel_Timer;
     uint32 Shoot_Timer;
     uint32 SummonRifleman_Timer;
+
     void Reset()
     {
         Shoot_Timer = 1000;
@@ -83,6 +90,7 @@ struct TRINITY_DLL_DECL boss_cannon_master_willeyAI : public ScriptedAI
         KnockAway_Timer = 11000;
         SummonRifleman_Timer = 15000;
     }
+
     void JustDied(Unit* Victim)
     {
         m_creature->SummonCreature(11054,ADD_1X,ADD_1Y,ADD_1Z,ADD_1O,TEMPSUMMON_TIMED_DESPAWN,240000);
@@ -93,15 +101,18 @@ struct TRINITY_DLL_DECL boss_cannon_master_willeyAI : public ScriptedAI
         m_creature->SummonCreature(11054,ADD_7X,ADD_7Y,ADD_7Z,ADD_7O,TEMPSUMMON_TIMED_DESPAWN,240000);
         m_creature->SummonCreature(11054,ADD_9X,ADD_9Y,ADD_9Z,ADD_9O,TEMPSUMMON_TIMED_DESPAWN,240000);
     }
+
     void EnterCombat(Unit *who)
     {
     }
+
 
     void UpdateAI(const uint32 diff)
     {
         //Return since we have no target
         if (!UpdateVictim())
             return;
+
         //Pummel
         if (Pummel_Timer < diff)
         {
@@ -113,6 +124,7 @@ struct TRINITY_DLL_DECL boss_cannon_master_willeyAI : public ScriptedAI
             //12 seconds until we should cast this again
             Pummel_Timer = 12000;
         }else Pummel_Timer -= diff;
+
         //KnockAway
         if (KnockAway_Timer < diff)
         {
@@ -124,6 +136,7 @@ struct TRINITY_DLL_DECL boss_cannon_master_willeyAI : public ScriptedAI
             //14 seconds until we should cast this again
             KnockAway_Timer = 14000;
         }else KnockAway_Timer -= diff;
+
         //Shoot
         if (Shoot_Timer < diff)
         {
@@ -132,6 +145,7 @@ struct TRINITY_DLL_DECL boss_cannon_master_willeyAI : public ScriptedAI
             //1 seconds until we should cast this again
             Shoot_Timer = 1000;
         }else Shoot_Timer -= diff;
+
         //SummonRifleman
         if (SummonRifleman_Timer < diff)
         {
@@ -187,6 +201,7 @@ struct TRINITY_DLL_DECL boss_cannon_master_willeyAI : public ScriptedAI
             //30 seconds until we should cast this again
             SummonRifleman_Timer = 30000;
         }else SummonRifleman_Timer -= diff;
+
         DoMeleeAttackIfReady();
     }
 };
@@ -194,6 +209,7 @@ CreatureAI* GetAI_boss_cannon_master_willey(Creature* pCreature)
 {
     return new boss_cannon_master_willeyAI (pCreature);
 }
+
 void AddSC_boss_cannon_master_willey()
 {
     Script *newscript;

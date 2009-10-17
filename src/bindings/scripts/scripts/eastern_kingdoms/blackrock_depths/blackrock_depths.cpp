@@ -1,5 +1,6 @@
 /* Copyright (C) 2006 - 2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  * This program is free software; you can redistribute it and/or modify
+
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
@@ -13,12 +14,14 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
+
 /* ScriptData
 SDName: Blackrock_Depths
 SD%Complete: 95
 SDComment: Quest support: 4001, 4342, 7604, 4322. Vendor Lokhtos Darkbargainer. Need to rewrite the Jail Break support
 SDCategory: Blackrock Depths
 EndScriptData */
+
 /* ContentData
 go_shadowforge_brazier
 at_ring_of_law
@@ -32,12 +35,15 @@ npc_marshal_reginald_windsor
 npc_tobias_seecher
 npc_rocknot
 EndContentData */
+
 #include "precompiled.h"
 #include "escort_ai.h"
 #include "def_blackrock_depths.h"
+
 /*######
 +## go_shadowforge_brazier
 +######*/
+
 bool GOHello_go_shadowforge_brazier(Player* pPlayer, GameObject* pGo)
 {
     if (ScriptedInstance* pInstance = pGo->GetInstanceData())
@@ -49,16 +55,20 @@ bool GOHello_go_shadowforge_brazier(Player* pPlayer, GameObject* pGo)
     }
     return false;
 }
+
 /*######
 ## npc_grimstone
 ######*/
+
 enum eGrimstone
 {
     NPC_GRIMSTONE       = 10096,
     NPC_THELDREN        = 16059,
+
     //4 or 6 in total? 1+2+1 / 2+2+2 / 3+3. Depending on this, code should be changed.
     MAX_MOB_AMOUNT      = 4
 };
+
 uint32 RingMob[]=
 {
     8925,                                                   // Dredge Worm
@@ -68,6 +78,7 @@ uint32 RingMob[]=
     8933,                                                   // Cave Creeper
     8932,                                                   // Borer Beetle
 };
+
 uint32 RingBoss[]=
 {
     9027,                                                   // Gorosh
@@ -77,27 +88,33 @@ uint32 RingBoss[]=
     9031,                                                   // Anub'shiah
     9032,                                                   // Hedrum
 };
+
 bool AreaTrigger_at_ring_of_law(Player* pPlayer, AreaTriggerEntry *at)
 {
     if (ScriptedInstance* pInstance = pPlayer->GetInstanceData())
     {
         if (pInstance->GetData(TYPE_RING_OF_LAW) == IN_PROGRESS || pInstance->GetData(TYPE_RING_OF_LAW) == DONE)
             return false;
+
         pInstance->SetData(TYPE_RING_OF_LAW,IN_PROGRESS);
         pPlayer->SummonCreature(NPC_GRIMSTONE,625.559,-205.618,-52.735,2.609,TEMPSUMMON_DEAD_DESPAWN,0);
+
         return false;
     }
     return false;
 }
+
 /*######
 ## npc_grimstone
 ######*/
+
 #define SCRIPT_TEXT1    -1000000
 #define SCRIPT_TEXT2    -1000000
 #define SCRIPT_TEXT3    -1000000
 #define SCRIPT_TEXT4    -1000000
 #define SCRIPT_TEXT5    -1000000
 #define SCRIPT_TEXT6    -1000000
+
 //TODO: implement quest part of event (different end boss)
 struct TRINITY_DLL_DECL npc_grimstoneAI : public npc_escortAI
 {
@@ -106,43 +123,60 @@ struct TRINITY_DLL_DECL npc_grimstoneAI : public npc_escortAI
         pInstance = c->GetInstanceData();
         MobSpawnId = rand()%6;
     }
+
     ScriptedInstance* pInstance;
+
     uint8 EventPhase;
     uint32 Event_Timer;
+
     uint8 MobSpawnId;
     uint8 MobCount;
     uint32 MobDeath_Timer;
+
     uint64 RingMobGUID[4];
     uint64 RingBossGUID;
+
     bool CanWalk;
+
     void Reset()
     {
         m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+
         EventPhase = 0;
         Event_Timer = 1000;
+
         MobCount = 0;
         MobDeath_Timer = 0;
-        for (uint8 i = 0; i < MAX_MOB_AMOUNT; ++i)
+
+        for(uint8 i = 0; i < MAX_MOB_AMOUNT; ++i)
             RingMobGUID[i] = 0;
+
         RingBossGUID = 0;
+
         CanWalk = false;
     }
+
     //TODO: move them to center
     void SummonRingMob()
     {
         if (Creature* tmp = m_creature->SummonCreature(RingMob[MobSpawnId],608.960,-235.322,-53.907,1.857,TEMPSUMMON_DEAD_DESPAWN,0))
             RingMobGUID[MobCount] = tmp->GetGUID();
+
         ++MobCount;
+
         if (MobCount == MAX_MOB_AMOUNT)
             MobDeath_Timer = 2500;
     }
+
     //TODO: move them to center
     void SummonRingBoss()
     {
         if (Creature* tmp = m_creature->SummonCreature(RingBoss[rand()%6],644.300,-175.989,-53.739,3.418,TEMPSUMMON_DEAD_DESPAWN,0))
             RingBossGUID = tmp->GetGUID();
+
         MobDeath_Timer = 2500;
     }
+
     void WaypointReached(uint32 i)
     {
         switch(i)
@@ -177,19 +211,23 @@ struct TRINITY_DLL_DECL npc_grimstoneAI : public npc_escortAI
             break;
         }
     }
+
     void HandleGameObject(uint32 id, bool open)
     {
         pInstance->HandleGameObject(pInstance->GetData64(id), open);
     }
+
     void UpdateAI(const uint32 diff)
     {
         if (!pInstance)
             return;
+
         if (MobDeath_Timer)
         {
             if (MobDeath_Timer <= diff)
             {
                 MobDeath_Timer = 2500;
+
                 if (RingBossGUID)
                 {
                     Creature *boss = Unit::GetCreature(*m_creature,RingBossGUID);
@@ -202,13 +240,15 @@ struct TRINITY_DLL_DECL npc_grimstoneAI : public npc_escortAI
                     }
                     return;
                 }
-                for (uint8 i = 0; i < MAX_MOB_AMOUNT; ++i)
+
+                for(uint8 i = 0; i < MAX_MOB_AMOUNT; ++i)
                 {
                     Creature *mob = Unit::GetCreature(*m_creature,RingMobGUID[i]);
                     if (mob && !mob->isAlive() && mob->isDead())
                     {
                         RingMobGUID[i] = 0;
                         --MobCount;
+
                         //seems all are gone, so set timer to continue and discontinue this
                         if (!MobCount)
                         {
@@ -219,6 +259,7 @@ struct TRINITY_DLL_DECL npc_grimstoneAI : public npc_escortAI
                 }
             }else MobDeath_Timer -= diff;
         }
+
         if (Event_Timer)
         {
             if (Event_Timer <= diff)
@@ -286,43 +327,53 @@ struct TRINITY_DLL_DECL npc_grimstoneAI : public npc_escortAI
                 ++EventPhase;
             }else Event_Timer -= diff;
         }
+
         if (CanWalk)
             npc_escortAI::UpdateAI(diff);
        }
 };
+
 CreatureAI* GetAI_npc_grimstone(Creature* pCreature)
 {
     return new npc_grimstoneAI(pCreature);
 }
+
 /*######
 ## mob_phalanx
 ######*/
+
 #define SPELL_THUNDERCLAP       8732
 #define SPELL_FIREBALLVOLLEY    22425
 #define SPELL_MIGHTYBLOW        14099
+
 struct TRINITY_DLL_DECL mob_phalanxAI : public ScriptedAI
 {
     mob_phalanxAI(Creature *c) : ScriptedAI(c) {}
+
     uint32 ThunderClap_Timer;
     uint32 FireballVolley_Timer;
     uint32 MightyBlow_Timer;
+
     void Reset()
     {
         ThunderClap_Timer = 12000;
         FireballVolley_Timer =0;
         MightyBlow_Timer = 15000;
     }
+
     void UpdateAI(const uint32 diff)
     {
         //Return since we have no target
         if (!UpdateVictim())
             return;
+
         //ThunderClap_Timer
         if (ThunderClap_Timer < diff)
         {
             DoCast(m_creature->getVictim(),SPELL_THUNDERCLAP);
             ThunderClap_Timer = 10000;
         }else ThunderClap_Timer -= diff;
+
         //FireballVolley_Timer
         if (m_creature->GetHealth()*100 / m_creature->GetMaxHealth() < 51)
         {
@@ -332,12 +383,14 @@ struct TRINITY_DLL_DECL mob_phalanxAI : public ScriptedAI
                 FireballVolley_Timer = 15000;
             }else FireballVolley_Timer -= diff;
         }
+
         //MightyBlow_Timer
         if (MightyBlow_Timer < diff)
         {
             DoCast(m_creature->getVictim(),SPELL_MIGHTYBLOW);
             MightyBlow_Timer = 10000;
         }else MightyBlow_Timer -= diff;
+
         DoMeleeAttackIfReady();
     }
 };
@@ -345,13 +398,17 @@ CreatureAI* GetAI_mob_phalanx(Creature* pCreature)
 {
     return new mob_phalanxAI (pCreature);
 }
+
 /*######
 ## npc_kharan_mighthammer
 ######*/
+
 #define QUEST_4001  4001
 #define QUEST_4342  4342
+
 #define GOSSIP_ITEM_KHARAN_1    "I need to know where the princess are, Kharan!"
 #define GOSSIP_ITEM_KHARAN_2    "All is not lost, Kharan!"
+
 #define GOSSIP_ITEM_KHARAN_3    "Gor'shak is my friend, you can trust me."
 #define GOSSIP_ITEM_KHARAN_4    "Not enough, you need to tell me more."
 #define GOSSIP_ITEM_KHARAN_5    "So what happened?"
@@ -360,20 +417,26 @@ CreatureAI* GetAI_mob_phalanx(Creature* pCreature)
 #define GOSSIP_ITEM_KHARAN_8    "Continue with your story please."
 #define GOSSIP_ITEM_KHARAN_9    "Indeed."
 #define GOSSIP_ITEM_KHARAN_10   "The door is open, Kharan. You are a free man."
+
 bool GossipHello_npc_kharan_mighthammer(Player* pPlayer, Creature* pCreature)
 {
     if (pCreature->isQuestGiver())
         pPlayer->PrepareQuestMenu(pCreature->GetGUID());
+
     if (pPlayer->GetQuestStatus(QUEST_4001) == QUEST_STATUS_INCOMPLETE)
          pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_KHARAN_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+
     if (pPlayer->GetQuestStatus(4342) == QUEST_STATUS_INCOMPLETE)
         pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_KHARAN_2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+3);
+
     if (pPlayer->GetTeam() == HORDE)
         pPlayer->SEND_GOSSIP_MENU(2473, pCreature->GetGUID());
     else
         pPlayer->SEND_GOSSIP_MENU(2474, pCreature->GetGUID());
+
     return true;
 }
+
 bool GossipSelect_npc_kharan_mighthammer(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
 {
     switch (uiAction)
@@ -386,6 +449,7 @@ bool GossipSelect_npc_kharan_mighthammer(Player* pPlayer, Creature* pCreature, u
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_KHARAN_4, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+3);
             pPlayer->SEND_GOSSIP_MENU(2476, pCreature->GetGUID());
             break;
+
         case GOSSIP_ACTION_INFO_DEF+3:
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_KHARAN_5, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+4);
             pPlayer->SEND_GOSSIP_MENU(2477, pCreature->GetGUID());
@@ -420,33 +484,42 @@ bool GossipSelect_npc_kharan_mighthammer(Player* pPlayer, Creature* pCreature, u
     }
     return true;
 }
+
 /*######
 ## npc_lokhtos_darkbargainer
 ######*/
+
 #define ITEM_THRORIUM_BROTHERHOOD_CONTRACT               18628
 #define ITEM_SULFURON_INGOT                              17203
 #define QUEST_A_BINDING_CONTRACT                         7604
 #define SPELL_CREATE_THORIUM_BROTHERHOOD_CONTRACT_DND    23059
+
 #define GOSSIP_ITEM_SHOW_ACCESS     "Show me what I have access to, Lothos."
 #define GOSSIP_ITEM_GET_CONTRACT    "Get Thorium Brotherhood Contract"
+
 bool GossipHello_npc_lokhtos_darkbargainer(Player* pPlayer, Creature* pCreature)
 {
     if (pCreature->isQuestGiver())
         pPlayer->PrepareQuestMenu(pCreature->GetGUID());
+
     if (pCreature->isVendor() && pPlayer->GetReputationRank(59) >= REP_FRIENDLY)
           pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_VENDOR, GOSSIP_ITEM_SHOW_ACCESS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
+
     if (pPlayer->GetQuestRewardStatus(QUEST_A_BINDING_CONTRACT) != 1 &&
         !pPlayer->HasItemCount(ITEM_THRORIUM_BROTHERHOOD_CONTRACT, 1, true) &&
         pPlayer->HasItemCount(ITEM_SULFURON_INGOT, 1))
     {
         pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_GET_CONTRACT, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
     }
+
     if (pPlayer->GetReputationRank(59) < REP_FRIENDLY)
         pPlayer->SEND_GOSSIP_MENU(3673, pCreature->GetGUID());
     else
         pPlayer->SEND_GOSSIP_MENU(3677, pCreature->GetGUID());
+
     return true;
 }
+
 bool GossipSelect_npc_lokhtos_darkbargainer(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
 {
     if (uiAction == GOSSIP_ACTION_INFO_DEF + 1)
@@ -456,18 +529,23 @@ bool GossipSelect_npc_lokhtos_darkbargainer(Player* pPlayer, Creature* pCreature
     }
     if (uiAction == GOSSIP_ACTION_TRADE)
         pPlayer->SEND_VENDORLIST(pCreature->GetGUID());
+
     return true;
 }
+
 /*######
 ## npc_dughal_stormwing
 ######*/
+
 #define QUEST_JAIL_BREAK        4322
 #define SAY_DUGHAL_FREE         "Thank you, $N! I'm free!!!"
 #define GOSSIP_DUGHAL           "You're free, Dughal! Get out of here!"
+
 /*
 struct TRINITY_DLL_DECL npc_dughal_stormwingAI : public npc_escortAI
 {
     npc_dughal_stormwingAI(Creature *c) : npc_escortAI(c) {}
+
     void WaypointReached(uint32 i)
     {
     switch(i)
@@ -482,8 +560,10 @@ struct TRINITY_DLL_DECL npc_dughal_stormwingAI : public npc_escortAI
             break;
         }
     }
+
     void EnterCombat(Unit* who) { }
     void Reset() {}
+
     void JustDied(Unit* killer)
     {
         if (IsBeingEscorted && killer == m_creature)
@@ -494,6 +574,7 @@ struct TRINITY_DLL_DECL npc_dughal_stormwingAI : public npc_escortAI
             pInstance->SetData(DATA_DUGHAL,ENCOUNTER_STATE_ENDED);
         }
     }
+
     void UpdateAI(const uint32 diff)
     {
         if (pInstance->GetData(DATA_QUEST_JAIL_BREAK) == ENCOUNTER_STATE_NOT_STARTED) return;
@@ -515,9 +596,11 @@ struct TRINITY_DLL_DECL npc_dughal_stormwingAI : public npc_escortAI
 CreatureAI* GetAI_npc_dughal_stormwing(Creature* pCreature)
 {
     npc_dughal_stormwingAI* dughal_stormwingAI = new npc_dughal_stormwingAI(pCreature);
+
     dughal_stormwingAI->AddWaypoint(0, 280.42,-82.86, -77.12,0);
     dughal_stormwingAI->AddWaypoint(1, 287.64,-87.01, -76.79,0);
     dughal_stormwingAI->AddWaypoint(2, 354.63,-64.95, -67.53,0);
+
     return dughal_stormwingAI;
 }
 bool GossipHello_npc_dughal_stormwing(Player* pPlayer, Creature* pCreature)
@@ -529,6 +612,7 @@ bool GossipHello_npc_dughal_stormwing(Player* pPlayer, Creature* pCreature)
     }
     return true;
 }
+
 bool GossipSelect_npc_dughal_stormwing(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
 {
     if (uiAction == GOSSIP_ACTION_INFO_DEF + 1)
@@ -544,6 +628,7 @@ bool GossipSelect_npc_dughal_stormwing(Player* pPlayer, Creature* pCreature, uin
 /*######
 ## npc_marshal_windsor
 ######*/
+
 #define SAY_WINDSOR_AGGRO1          "You locked up the wrong Marshal. Prepare to be destroyed!"
 #define SAY_WINDSOR_AGGRO2          "I bet you're sorry now, aren't you !?!!"
 #define SAY_WINDSOR_AGGRO3          "You better hold me back $N or they are going to feel some prison house beatings."
@@ -554,6 +639,7 @@ bool GossipSelect_npc_dughal_stormwing(Player* pPlayer, Creature* pCreature, uin
 #define SAY_WINDSOR_6               "This is it, $N. My stuff should be in that room. Cover me, I'm going in!"
 #define SAY_WINDSOR_9               "Ah, there it is!"
 #define MOB_ENTRY_REGINALD_WINDSOR  9682
+
 Player* pPlayerStart;
 /*
 struct TRINITY_DLL_DECL npc_marshal_windsorAI : public npc_escortAI
@@ -562,6 +648,7 @@ struct TRINITY_DLL_DECL npc_marshal_windsorAI : public npc_escortAI
     {
         pInstance = c->GetInstanceData();
     }
+
     void WaypointReached(uint32 i)
     {
     switch(i)
@@ -606,6 +693,7 @@ struct TRINITY_DLL_DECL npc_marshal_windsorAI : public npc_escortAI
             break;
         }
     }
+
     void EnterCombat(Unit* who)
         {
         switch(rand()%3)
@@ -615,11 +703,14 @@ struct TRINITY_DLL_DECL npc_marshal_windsorAI : public npc_escortAI
             case 2:m_creature->Say(SAY_WINDSOR_AGGRO3, LANG_UNIVERSAL, PlayerGUID);break;
             }
         }
+
     void Reset() {}
+
     void JustDied(Unit *slayer)
     {
         pInstance->SetData(DATA_QUEST_JAIL_BREAK,ENCOUNTER_STATE_FAILED);
     }
+
     void UpdateAI(const uint32 diff)
     {
         if (pInstance->GetData(DATA_QUEST_JAIL_BREAK) == ENCOUNTER_STATE_NOT_STARTED) return;
@@ -653,6 +744,7 @@ struct TRINITY_DLL_DECL npc_marshal_windsorAI : public npc_escortAI
 CreatureAI* GetAI_npc_marshal_windsor(Creature* pCreature)
 {
     npc_marshal_windsorAI* marshal_windsorAI = new npc_marshal_windsorAI(pCreature);
+
     marshal_windsorAI->AddWaypoint(0, 316.336,-225.528, -77.7258,7000);
     marshal_windsorAI->AddWaypoint(1, 316.336,-225.528, -77.7258,2000);
     marshal_windsorAI->AddWaypoint(2, 322.96,-207.13, -77.87,0);
@@ -673,8 +765,10 @@ CreatureAI* GetAI_npc_marshal_windsor(Creature* pCreature)
     marshal_windsorAI->AddWaypoint(17, 403.61,-51.71, -63.92,2000);
     marshal_windsorAI->AddWaypoint(18, 403.61,-51.71, -63.92,1000);
     marshal_windsorAI->AddWaypoint(19, 403.61,-51.71, -63.92,0);
+
     return marshal_windsorAI;
 }
+
 bool QuestAccept_npc_marshal_windsor(Player* pPlayer, Creature* pCreature, Quest const *quest)
 {
     if (quest->GetQuestId() == 4322)
@@ -685,6 +779,7 @@ bool QuestAccept_npc_marshal_windsor(Player* pPlayer, Creature* pCreature, Quest
                 pInstance->SetData(DATA_QUEST_JAIL_BREAK,ENCOUNTER_STATE_IN_PROGRESS);
                 pCreature->setFaction(11);
         }
+
         }
     return false;
 }
@@ -692,6 +787,7 @@ bool QuestAccept_npc_marshal_windsor(Player* pPlayer, Creature* pCreature, Quest
 /*######
 ## npc_marshal_reginald_windsor
 ######*/
+
 #define SAY_REGINALD_WINDSOR_0_1    "Can you feel the power, $N??? It's time to ROCK!"
 #define SAY_REGINALD_WINDSOR_0_2    "Now we just have to free Tobias and we can get out of here. This way!"
 #define SAY_REGINALD_WINDSOR_5_1    "Open it."
@@ -708,6 +804,7 @@ bool QuestAccept_npc_marshal_windsor(Player* pPlayer, Creature* pCreature, Quest
 #define SAY_REGINALD_WINDSOR_20_2   "Meet me at Maxwell's encampment. We'll go over the next stages of the plan there and figure out a way to decode my tablets without the decryption ring."
 #define MOB_ENTRY_SHILL_DINGER      9678
 #define MOB_ENTRY_CREST_KILLER      9680
+
 int wp = 0;
 /*
 struct TRINITY_DLL_DECL npc_marshal_reginald_windsorAI : public npc_escortAI
@@ -715,6 +812,7 @@ struct TRINITY_DLL_DECL npc_marshal_reginald_windsorAI : public npc_escortAI
     npc_marshal_reginald_windsorAI(Creature *c) : npc_escortAI(c)
     {
     }
+
     void WaypointReached(uint32 i)
     {
     wp=i;
@@ -772,10 +870,12 @@ struct TRINITY_DLL_DECL npc_marshal_reginald_windsorAI : public npc_escortAI
             break;
         }
     }
+
     void MoveInLineOfSight(Unit *who)
     {
         if (HasEscortState(STATE_ESCORT_ESCORTING))
             return;
+
         if (who->GetTypeId() == TYPEID_PLAYER)
         {
             if (CAST_PLR(who)->GetQuestStatus(4322) == QUEST_STATUS_INCOMPLETE)
@@ -789,6 +889,7 @@ struct TRINITY_DLL_DECL npc_marshal_reginald_windsorAI : public npc_escortAI
             }
         }
     }
+
     void EnterCombat(Unit* who)
         {
         switch(rand()%3)
@@ -799,10 +900,12 @@ struct TRINITY_DLL_DECL npc_marshal_reginald_windsorAI : public npc_escortAI
             }
         }
     void Reset() {}
+
     void JustDied(Unit *slayer)
     {
         pInstance->SetData(DATA_QUEST_JAIL_BREAK,ENCOUNTER_STATE_FAILED);
     }
+
     void UpdateAI(const uint32 diff)
     {
         if (pInstance->GetData(DATA_QUEST_JAIL_BREAK) == ENCOUNTER_STATE_NOT_STARTED) return;
@@ -853,6 +956,7 @@ struct TRINITY_DLL_DECL npc_marshal_reginald_windsorAI : public npc_escortAI
 CreatureAI* GetAI_npc_marshal_reginald_windsor(Creature* pCreature)
 {
     npc_marshal_reginald_windsorAI* marshal_reginald_windsorAI = new npc_marshal_reginald_windsorAI(pCreature);
+
     marshal_reginald_windsorAI->AddWaypoint(0, 403.61,-52.71, -63.92,4000);
     marshal_reginald_windsorAI->AddWaypoint(1, 403.61,-52.71, -63.92,4000);
     marshal_reginald_windsorAI->AddWaypoint(2, 406.33,-54.87, -63.95,0);
@@ -888,19 +992,23 @@ CreatureAI* GetAI_npc_marshal_reginald_windsor(Creature* pCreature)
     marshal_reginald_windsorAI->AddWaypoint(32, 452.45,29.85, -70.37,7000);
     marshal_reginald_windsorAI->AddWaypoint(33, 452.45,29.85, -70.37,10000);
     marshal_reginald_windsorAI->AddWaypoint(34, 451.27,31.85, -70.07,0);
+
     return marshal_reginald_windsorAI;
 }
 */
 /*######
 ## npc_tobias_seecher
 ######*/
+
 #define SAY_TOBIAS_FREE         "Thank you! I will run for safety immediately!"
 /*
 struct TRINITY_DLL_DECL npc_tobias_seecherAI : public npc_escortAI
 {
     npc_tobias_seecherAI(Creature *c) :npc_escortAI(c) {}
+
     void EnterCombat(Unit* who) { }
     void Reset() {}
+
     void JustDied(Unit* killer)
     {
         if (IsBeingEscorted && killer == m_creature)
@@ -911,6 +1019,7 @@ struct TRINITY_DLL_DECL npc_tobias_seecherAI : public npc_escortAI
             pInstance->SetData(DATA_TOBIAS,ENCOUNTER_STATE_ENDED);
         }
     }
+
     void WaypointReached(uint32 i)
     {
     switch(i)
@@ -926,6 +1035,7 @@ struct TRINITY_DLL_DECL npc_tobias_seecherAI : public npc_escortAI
             break;
         }
     }
+
     void UpdateAI(const uint32 diff)
     {
         if (pInstance->GetData(DATA_QUEST_JAIL_BREAK) == ENCOUNTER_STATE_NOT_STARTED) return;
@@ -944,16 +1054,20 @@ struct TRINITY_DLL_DECL npc_tobias_seecherAI : public npc_escortAI
         npc_escortAI::UpdateAI(diff);
     }
 };
+
 CreatureAI* GetAI_npc_tobias_seecher(Creature* pCreature)
 {
     npc_tobias_seecherAI* tobias_seecherAI = new npc_tobias_seecherAI(pCreature);
+
     tobias_seecherAI->AddWaypoint(0, 549.21, -281.07, -75.27);
     tobias_seecherAI->AddWaypoint(1, 554.39, -267.39, -73.68);
     tobias_seecherAI->AddWaypoint(2, 533.59, -249.38, -67.04);
     tobias_seecherAI->AddWaypoint(3, 519.44, -217.02, -59.34);
     tobias_seecherAI->AddWaypoint(4, 506.55, -153.49, -62.34);
+
     return tobias_seecherAI;
 }
+
 bool GossipHello_npc_tobias_seecher(Player* pPlayer, Creature* pCreature)
 {
     if (pPlayer->GetQuestStatus(QUEST_JAIL_BREAK) == QUEST_STATUS_INCOMPLETE && pInstance->GetData(DATA_QUEST_JAIL_BREAK) == ENCOUNTER_STATE_IN_PROGRESS)
@@ -963,6 +1077,7 @@ bool GossipHello_npc_tobias_seecher(Player* pPlayer, Creature* pCreature)
     }
     return true;
 }
+
 bool GossipSelect_npc_tobias_seecher(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
 {
     if (uiAction == GOSSIP_ACTION_INFO_DEF + 1)
@@ -975,37 +1090,47 @@ bool GossipSelect_npc_tobias_seecher(Player* pPlayer, Creature* pCreature, uint3
     return true;
 }
 */
+
 /*######
 ## npc_rocknot
 ######*/
+
 #define SAY_GOT_BEER        -1230000
 #define SPELL_DRUNKEN_RAGE  14872
 #define QUEST_ALE           4295
+
 struct TRINITY_DLL_DECL npc_rocknotAI : public npc_escortAI
 {
     npc_rocknotAI(Creature *c) : npc_escortAI(c)
     {
         pInstance = c->GetInstanceData();
     }
+
     ScriptedInstance* pInstance;
+
     uint32 BreakKeg_Timer;
     uint32 BreakDoor_Timer;
+
     void Reset()
     {
         if (HasEscortState(STATE_ESCORT_ESCORTING))
             return;
+
         BreakKeg_Timer = 0;
         BreakDoor_Timer = 0;
     }
+
     void DoGo(uint32 id, uint32 state)
     {
         if (GameObject* pGo = pInstance->instance->GetGameObject(pInstance->GetData64(id)))
             pGo->SetGoState((GOState)state);
     }
+
     void WaypointReached(uint32 i)
     {
         if (!pInstance)
             return;
+
         switch(i)
         {
         case 1:
@@ -1026,10 +1151,12 @@ struct TRINITY_DLL_DECL npc_rocknotAI : public npc_escortAI
             break;
         }
     }
+
     void UpdateAI(const uint32 diff)
     {
         if (!pInstance)
             return;
+
         if (BreakKeg_Timer)
         {
             if (BreakKeg_Timer <= diff)
@@ -1039,6 +1166,7 @@ struct TRINITY_DLL_DECL npc_rocknotAI : public npc_escortAI
                 BreakDoor_Timer = 1000;
             }else BreakKeg_Timer -= diff;
         }
+
         if (BreakDoor_Timer)
         {
             if (BreakDoor_Timer <= diff)
@@ -1046,33 +1174,44 @@ struct TRINITY_DLL_DECL npc_rocknotAI : public npc_escortAI
                 DoGo(DATA_GO_BAR_DOOR,2);
                 DoGo(DATA_GO_BAR_KEG_TRAP,0);               //doesn't work very well, leaving code here for future
                 //spell by trap has effect61, this indicate the bar go hostile
+
                 if (Unit *tmp = Unit::GetUnit(*m_creature,pInstance->GetData64(DATA_PHALANX)))
                     tmp->setFaction(14);
+
                 //for later, this event(s) has alot more to it.
                 //optionally, DONE can trigger bar to go hostile.
                 pInstance->SetData(TYPE_BAR,DONE);
+
                 BreakDoor_Timer = 0;
             }else BreakDoor_Timer -= diff;
         }
+
         npc_escortAI::UpdateAI(diff);
     }
 };
+
 CreatureAI* GetAI_npc_rocknot(Creature* pCreature)
 {
     return new npc_rocknotAI(pCreature);
 }
+
 bool ChooseReward_npc_rocknot(Player* pPlayer, Creature* pCreature, const Quest *_Quest, uint32 item)
 {
     ScriptedInstance* pInstance = pCreature->GetInstanceData();
+
     if (!pInstance)
         return true;
+
     if (pInstance->GetData(TYPE_BAR) == DONE || pInstance->GetData(TYPE_BAR) == SPECIAL)
         return true;
+
     if (_Quest->GetQuestId() == QUEST_ALE)
     {
         if (pInstance->GetData(TYPE_BAR) != IN_PROGRESS)
             pInstance->SetData(TYPE_BAR,IN_PROGRESS);
+
         pInstance->SetData(TYPE_BAR,SPECIAL);
+
         //keep track of amount in instance script, returns SPECIAL if amount ok and event in progress
         if (pInstance->GetData(TYPE_BAR) == SPECIAL)
         {
@@ -1082,35 +1221,44 @@ bool ChooseReward_npc_rocknot(Player* pPlayer, Creature* pCreature, const Quest 
                 pEscortAI->Start(false, false);
         }
     }
+
     return true;
 }
+
 /*######
 ##
 ######*/
+
 void AddSC_blackrock_depths()
 {
     Script *newscript;
+
     newscript = new Script;
     newscript->Name = "go_shadowforge_brazier";
     newscript->pGOHello = &GOHello_go_shadowforge_brazier;
     newscript->RegisterSelf();
+
     newscript = new Script;
     newscript->Name = "at_ring_of_law";
     newscript->pAreaTrigger = &AreaTrigger_at_ring_of_law;
     newscript->RegisterSelf();
+
      newscript = new Script;
      newscript->Name = "npc_grimstone";
      newscript->GetAI = &GetAI_npc_grimstone;
      newscript->RegisterSelf();
+
     newscript = new Script;
     newscript->Name = "mob_phalanx";
     newscript->GetAI = &GetAI_mob_phalanx;
     newscript->RegisterSelf();
+
     newscript = new Script;
     newscript->Name = "npc_kharan_mighthammer";
     newscript->pGossipHello =  &GossipHello_npc_kharan_mighthammer;
     newscript->pGossipSelect = &GossipSelect_npc_kharan_mighthammer;
     newscript->RegisterSelf();
+
     newscript = new Script;
     newscript->Name = "npc_lokhtos_darkbargainer";
     newscript->pGossipHello =  &GossipHello_npc_lokhtos_darkbargainer;
@@ -1123,22 +1271,26 @@ void AddSC_blackrock_depths()
     newscript->pGossipSelect = &GossipSelect_npc_dughal_stormwing;
     newscript->GetAI = &GetAI_npc_dughal_stormwing;
     newscript->RegisterSelf();
+
     newscript = new Script;
     newscript->Name = "npc_tobias_seecher";
     newscript->pGossipHello =  &GossipHello_npc_tobias_seecher;
     newscript->pGossipSelect = &GossipSelect_npc_tobias_seecher;
     newscript->GetAI = &GetAI_npc_tobias_seecher;
     newscript->RegisterSelf();
+
     newscript = new Script;
     newscript->Name = "npc_marshal_windsor";
     newscript->pQuestAccept = &QuestAccept_npc_marshal_windsor;
     newscript->GetAI = &GetAI_npc_marshal_windsor;
     newscript->RegisterSelf();
+
     newscript = new Script;
     newscript->Name = "npc_marshal_reginald_windsor";
     newscript->GetAI = &GetAI_npc_marshal_reginald_windsor;
     newscript->RegisterSelf();
 */
+
      newscript = new Script;
      newscript->Name = "npc_rocknot";
      newscript->GetAI = &GetAI_npc_rocknot;

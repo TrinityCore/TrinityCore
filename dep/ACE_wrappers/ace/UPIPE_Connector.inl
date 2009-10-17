@@ -1,7 +1,9 @@
 // -*- C++ -*-
 //
 // $Id: UPIPE_Connector.inl 80826 2008-03-04 14:51:23Z wotte $
+
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
+
 // Creates a Local ACE_UPIPE.
 ACE_INLINE
 ACE_UPIPE_Connector::ACE_UPIPE_Connector (ACE_UPIPE_Stream &new_stream,
@@ -21,10 +23,12 @@ ACE_UPIPE_Connector::ACE_UPIPE_Connector (ACE_UPIPE_Stream &new_stream,
                 addr.get_path_name (),
                 ACE_TEXT ("ACE_UPIPE_Connector")));
 }
+
 ACE_INLINE int
 ACE_UPIPE_Connector::reset_new_handle (ACE_HANDLE /* handle */)
 {
   // Nothing to do here since the handle is not a socket
   return 0;
 }
+
 ACE_END_VERSIONED_NAMESPACE_DECL

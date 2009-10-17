@@ -13,44 +13,56 @@
 * along with this program; if not, write to the Free Software
 * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
+
 /* ScriptData
 SDName: Instance_Scarlet_Monastery
 SD%Complete: 50
 SDComment:
 SDCategory: Scarlet Monastery
 EndScriptData */
+
 #include "precompiled.h"
 #include "def_scarlet_monastery.h"
 #include "sc_creature.h"
+
 #define ENTRY_PUMPKIN_SHRINE    186267
 #define ENTRY_HORSEMAN          23682
 #define ENTRY_HEAD              23775
 #define ENTRY_PUMPKIN           23694
+
 #define MAX_ENCOUNTER 1
+
 struct TRINITY_DLL_DECL instance_scarlet_monastery : public ScriptedInstance
 {
     instance_scarlet_monastery(Map* pMap) : ScriptedInstance(pMap) {Initialize();};
+
     uint64 PumpkinShrineGUID;
     uint64 HorsemanGUID;
     uint64 HeadGUID;
     std::set<uint64> HorsemanAdds;
+
     uint64 MograineGUID;
     uint64 WhitemaneGUID;
     uint64 VorrelGUID;
     uint64 DoorHighInquisitorGUID;
+
     uint32 m_auiEncounter[MAX_ENCOUNTER];
+
     void Initialize()
     {
         memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
+
         PumpkinShrineGUID  = 0;
         HorsemanGUID = 0;
         HeadGUID = 0;
         HorsemanAdds.clear();
+
         MograineGUID = 0;
         WhitemaneGUID = 0;
         VorrelGUID = 0;
         DoorHighInquisitorGUID = 0;
     }
+
     void OnGameObjectCreate(GameObject* pGo, bool add)
     {
         switch(pGo->GetEntry())
@@ -59,6 +71,7 @@ struct TRINITY_DLL_DECL instance_scarlet_monastery : public ScriptedInstance
         case 104600: DoorHighInquisitorGUID = pGo->GetGUID(); break;
         }
     }
+
     void OnCreatureCreate(Creature* pCreature, bool add)
     {
         switch(pCreature->GetEntry())
@@ -71,6 +84,7 @@ struct TRINITY_DLL_DECL instance_scarlet_monastery : public ScriptedInstance
             case 3981: VorrelGUID = pCreature->GetGUID(); break;
         }
     }
+
     void SetData(uint32 type, uint32 data)
     {
         switch(type)
@@ -80,6 +94,7 @@ struct TRINITY_DLL_DECL instance_scarlet_monastery : public ScriptedInstance
                 DoUseDoorOrButton(DoorHighInquisitorGUID);
             if (data == FAIL)
                 DoUseDoorOrButton(DoorHighInquisitorGUID);
+
             m_auiEncounter[0] = data;
             break;
         case GAMEOBJECT_PUMPKIN_SHRINE:
@@ -88,7 +103,7 @@ struct TRINITY_DLL_DECL instance_scarlet_monastery : public ScriptedInstance
         case DATA_HORSEMAN_EVENT:
             if (data == DONE)
             {
-                for (std::set<uint64>::iterator itr = HorsemanAdds.begin(); itr != HorsemanAdds.end(); ++itr)
+                for(std::set<uint64>::iterator itr = HorsemanAdds.begin(); itr != HorsemanAdds.end(); ++itr)
                 {
                     Creature* add = instance->GetCreature(*itr);
                     if (add && add->isAlive())
@@ -100,6 +115,7 @@ struct TRINITY_DLL_DECL instance_scarlet_monastery : public ScriptedInstance
             break;
         }
     }
+
     uint64 GetData64(uint32 type)
     {
         switch(type)
@@ -114,17 +130,21 @@ struct TRINITY_DLL_DECL instance_scarlet_monastery : public ScriptedInstance
         }
         return 0;
     }
+
     uint32 GetData(uint32 type)
     {
         if (type == TYPE_MOGRAINE_AND_WHITE_EVENT)
             return m_auiEncounter[0];
+
         return 0;
     }
 };
+
 InstanceData* GetInstanceData_instance_scarlet_monastery(Map* pMap)
 {
     return new instance_scarlet_monastery(pMap);
 }
+
 void AddSC_instance_scarlet_monastery()
 {
     Script *newscript;

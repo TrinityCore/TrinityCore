@@ -15,18 +15,23 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
+
 #include "precompiled.h"
+
 /*####
 ## npc_valkyr_battle_maiden
 ####*/
 #define SPELL_REVIVE 51918
 #define VALK_WHISPER "It is not yet your time, champion. Rise! Rise and fight once more!"
+
 struct TRINITY_DLL_DECL npc_valkyr_battle_maidenAI : public PassiveAI
 {
     npc_valkyr_battle_maidenAI(Creature *c) : PassiveAI(c) {}
+
     uint32 FlyBackTimer;
     float x, y, z;
     uint32 phase;
+
     void Reset()
     {
         m_creature->SetVisibility(VISIBILITY_OFF);
@@ -34,11 +39,13 @@ struct TRINITY_DLL_DECL npc_valkyr_battle_maidenAI : public PassiveAI
         m_creature->SetFlying(true);
         FlyBackTimer = 500;
         phase = 0;
+
         m_creature->GetPosition(x, y, z);
         z += 4; x -= 3.5; y -= 5;
         m_creature->GetMotionMaster()->Clear(false);
         m_creature->GetMap()->CreatureRelocation(m_creature, x, y, z, 0.0f);
     }
+
     void UpdateAI(const uint32 diff)
     {
         if(FlyBackTimer < diff)
@@ -48,8 +55,10 @@ struct TRINITY_DLL_DECL npc_valkyr_battle_maidenAI : public PassiveAI
                 if(Unit *summoner = CAST_SUM(me)->GetSummoner())
                     if(summoner->GetTypeId() == TYPEID_PLAYER)
                         plr = CAST_PLR(summoner);
+
             if(!plr)
                 phase = 3;
+
             switch(phase)
             {
                 case 0:
@@ -85,17 +94,21 @@ struct TRINITY_DLL_DECL npc_valkyr_battle_maidenAI : public PassiveAI
         }else FlyBackTimer-=diff;
     }
 };
+
 CreatureAI* GetAI_npc_valkyr_battle_maiden(Creature* pCreature)
 {
     return new npc_valkyr_battle_maidenAI (pCreature);
 }
+
 void AddSC_the_scarlet_enclave()
 {
     Script *newscript;
+
     newscript = new Script;
     newscript->Name = "npc_valkyr_battle_maiden";
     newscript->GetAI = &GetAI_npc_valkyr_battle_maiden;
     newscript->RegisterSelf();
+
     // Chapter 3: Scarlet Armies Approach... - An End To All Things...
     // Chapter 4: An End To All Things... - An End To All Things...
 }

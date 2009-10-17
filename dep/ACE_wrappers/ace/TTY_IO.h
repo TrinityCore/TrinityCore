@@ -1,4 +1,5 @@
 // -*- C++ -*-
+
 //=============================================================================
 /**
  *  @file    TTY_IO.h
@@ -8,13 +9,18 @@
  *  @author Douglas C. Schmidt <schmidt@uci.edu>
  */
 //=============================================================================
+
 #ifndef ACE_TTY_IO_H
 #define ACE_TTY_IO_H
+
 #include "ace/DEV_IO.h"
+
 #if !defined (ACE_LACKS_PRAGMA_ONCE)
 # pragma once
 #endif /* ACE_LACKS_PRAGMA_ONCE */
+
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
+
 /**
  * @class ACE_TTY_IO
  *
@@ -35,9 +41,11 @@ public:
     SETPARAMS,              ///< Set control parameters.
     GETPARAMS               ///< Get control parameters.
   };
+
   struct ACE_Export Serial_Params
   {
     Serial_Params (void);
+
     /** Specifies the baudrate at which the communnication port operates. */
     int baudrate;
     /** Specifies the minimum number of bytes in input buffer before XON char
@@ -90,13 +98,17 @@ public:
     /** Stop bits. Valid values are 1 and 2. */
     unsigned char stopbits;
   };
+
   /** Interface for reading/writing serial device parameters. */
   int control (Control_Mode cmd, Serial_Params *arg) const;
+
 #if defined (ACE_NEEDS_DEV_IO_CONVERSION)
   /** This is necessary to pass ACE_TTY_IO as parameter to DEV_Connector. */
   operator ACE_DEV_IO &();
 #endif /* ACE_NEEDS_DEV_IO_CONVERSION */
 };
+
 ACE_END_VERSIONED_NAMESPACE_DECL
+
 #endif /* ACE_TTY_IO_H */
 

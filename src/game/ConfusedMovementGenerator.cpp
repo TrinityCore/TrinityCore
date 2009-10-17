@@ -17,16 +17,19 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
+
 #include "Creature.h"
 #include "MapManager.h"
 #include "Opcodes.h"
 #include "ConfusedMovementGenerator.h"
 #include "DestinationHolderImp.h"
 #include "VMapFactory.h"
+
 #ifdef MAP_BASED_RAND_GEN
 #define rand_norm() unit.rand_norm()
 #define urand(a,b) unit.urand(a,b)
 #endif
+
 template<class T>
 void
 ConfusedMovementGenerator<T>::Initialize(T &unit)
@@ -36,26 +39,35 @@ ConfusedMovementGenerator<T>::Initialize(T &unit)
     x = unit.GetPositionX();
     y = unit.GetPositionY();
     z = unit.GetPositionZ();
+
     Map const* map = unit.GetBaseMap();
+
     i_nextMove = 1;
+
     bool is_water_ok, is_land_ok;
     _InitSpecific(unit, is_water_ok, is_land_ok);
+
     VMAP::IVMapManager *vMaps = VMAP::VMapFactory::createOrGetVMapManager();
+
     for(unsigned int idx=0; idx < MAX_CONF_WAYPOINTS+1; ++idx)
     {
         const float wanderX=wander_distance*rand_norm() - wander_distance/2;
         const float wanderY=wander_distance*rand_norm() - wander_distance/2;
-        const bool isInLoS = vMaps->isInLineOfSight(unit.GetMapId(), x, y, z + 2.0f, i_waypoints[idx][0], i_waypoints[idx][1], z + 2.0f);
+
+        const bool isInLoS = vMaps->isInLineOfSight(unit.GetMapId(), x, y, z + 2.0f, i_waypoints[idx][0], i_waypoints[idx][1], z + 2.0f); 
         if (!isInLoS)
         {
-            i_waypoints[idx][0] = x;
+            i_waypoints[idx][0] = x; 
             i_waypoints[idx][1] = y;
         }
+
         i_waypoints[idx][0] = x + wanderX;
         i_waypoints[idx][1] = y + wanderY;
+
         // prevent invalid coordinates generation
         Trinity::NormalizeMapCoord(i_waypoints[idx][0]);
         Trinity::NormalizeMapCoord(i_waypoints[idx][1]);
+
         bool is_water = map->IsInWater(i_waypoints[idx][0],i_waypoints[idx][1],z);
         // if generated wrong path just ignore
         if ((is_water && !is_water_ok) || (!is_water && !is_land_ok))
@@ -63,9 +75,11 @@ ConfusedMovementGenerator<T>::Initialize(T &unit)
             i_waypoints[idx][0] = idx > 0 ? i_waypoints[idx-1][0] : x;
             i_waypoints[idx][1] = idx > 0 ? i_waypoints[idx-1][1] : y;
         }
+
         unit.UpdateGroundPositionZ(i_waypoints[idx][0],i_waypoints[idx][1],z);
         i_waypoints[idx][2] =  z;
     }
+
     unit.SetUInt64Value(UNIT_FIELD_TARGET, 0);
     unit.SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_CONFUSED);
     unit.CastStop();
@@ -73,6 +87,7 @@ ConfusedMovementGenerator<T>::Initialize(T &unit)
     unit.RemoveUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
     unit.addUnitState(UNIT_STAT_CONFUSED);
 }
+
 template<>
 void
 ConfusedMovementGenerator<Creature>::_InitSpecific(Creature &creature, bool &is_water_ok, bool &is_land_ok)
@@ -80,6 +95,7 @@ ConfusedMovementGenerator<Creature>::_InitSpecific(Creature &creature, bool &is_
     is_water_ok = creature.canSwim();
     is_land_ok  = creature.canWalk();
 }
+
 template<>
 void
 ConfusedMovementGenerator<Player>::_InitSpecific(Player &, bool &is_water_ok, bool &is_land_ok)
@@ -87,6 +103,7 @@ ConfusedMovementGenerator<Player>::_InitSpecific(Player &, bool &is_water_ok, bo
     is_water_ok = true;
     is_land_ok  = true;
 }
+
 template<class T>
 void
 ConfusedMovementGenerator<T>::Reset(T &unit)
@@ -96,14 +113,17 @@ ConfusedMovementGenerator<T>::Reset(T &unit)
     i_destinationHolder.ResetUpdate();
     unit.StopMoving();
 }
+
 template<class T>
 bool
 ConfusedMovementGenerator<T>::Update(T &unit, const uint32 &diff)
 {
     if(!&unit)
         return true;
+
     if(unit.hasUnitState(UNIT_STAT_ROOT | UNIT_STAT_STUNNED | UNIT_STAT_DISTRACTED))
         return true;
+
     if( i_nextMoveTime.Passed() )
     {
         // currently moving, update location
@@ -114,6 +134,7 @@ ConfusedMovementGenerator<T>::Update(T &unit, const uint32 &diff)
             {
                 // arrived, stop and wait a bit
                 unit.clearUnitState(UNIT_STAT_MOVE);
+
                 i_nextMove = urand(1,MAX_CONF_WAYPOINTS);
                 i_nextMoveTime.Reset(urand(0, 1500-1));     // TODO: check the minimum reset time, should be probably higher
             }
@@ -136,6 +157,7 @@ ConfusedMovementGenerator<T>::Update(T &unit, const uint32 &diff)
     }
     return true;
 }
+
 template<class T>
 void
 ConfusedMovementGenerator<T>::Finalize(T &unit)
@@ -145,6 +167,7 @@ ConfusedMovementGenerator<T>::Finalize(T &unit)
     if(unit.GetTypeId() == TYPEID_UNIT && unit.getVictim())
         unit.SetUInt64Value(UNIT_FIELD_TARGET, unit.getVictim()->GetGUID());
 }
+
 template void ConfusedMovementGenerator<Player>::Initialize(Player &player);
 template void ConfusedMovementGenerator<Creature>::Initialize(Creature &creature);
 template void ConfusedMovementGenerator<Player>::Finalize(Player &player);

@@ -1,15 +1,19 @@
 // -*- C++ -*-
 //
 // $Id: OS_NS_signal.inl 80826 2008-03-04 14:51:23Z wotte $
+
 #include "ace/OS_NS_macros.h"
 #include "ace/OS_NS_errno.h"
 #ifndef WIN32
 #include <pthread.h>
 #include <signal.h>
 #endif
+
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
+
 namespace ACE_OS
 {
+
 ACE_INLINE int
 kill (pid_t pid, int signum)
 {
@@ -22,6 +26,7 @@ kill (pid_t pid, int signum)
   ACE_OSCALL_RETURN (::kill (pid, signum), int, -1);
 #endif /* ACE_LACKS_KILL */
 }
+
 ACE_INLINE int
 pthread_sigmask (int how, const sigset_t *nsp, sigset_t *osp)
 {
@@ -38,6 +43,7 @@ pthread_sigmask (int how, const sigset_t *nsp, sigset_t *osp)
   ACE_NOTSUP_RETURN (-1);
 #endif /* ACE_HAS_PTHREADS && !ACE_LACKS_PTHREAD_SIGMASK */
 }
+
 ACE_INLINE int
 sigaction (int signum, const ACE_SIGACTION *nsa, ACE_SIGACTION *osa)
 {
@@ -46,8 +52,10 @@ sigaction (int signum, const ACE_SIGACTION *nsa, ACE_SIGACTION *osa)
     return 0;
 #if defined (ACE_WIN32) && !defined (ACE_HAS_WINCE)
   struct sigaction sa;
+
   if (osa == 0)
     osa = &sa;
+
   if (nsa == 0)
     {
       osa->sa_handler = ::signal (signum, SIG_IGN);
@@ -69,6 +77,7 @@ sigaction (int signum, const ACE_SIGACTION *nsa, ACE_SIGACTION *osa)
   ACE_OSCALL_RETURN (::sigaction (signum, nsa, osa), int, -1);
 #endif /* ACE_WIN32 !ACE_HAS_WINCE */
 }
+
 ACE_INLINE int
 sigaddset (sigset_t *s, int signum)
 {
@@ -90,6 +99,7 @@ sigaddset (sigset_t *s, int signum)
   ACE_OSCALL_RETURN (::sigaddset (s, signum), int, -1);
 #endif /* ACE_LACKS_SIGSET || ACE_LACKS_SIGSET_DEFINITIONS */
 }
+
 ACE_INLINE int
 sigdelset (sigset_t *s, int signum)
 {
@@ -110,6 +120,7 @@ sigdelset (sigset_t *s, int signum)
   ACE_OSCALL_RETURN (::sigdelset (s, signum), int, -1);
 #endif /* ACE_LACKS_SIGSET || ACE_LACKS_SIGSET_DEFINITIONS */
 }
+
 ACE_INLINE int
 sigemptyset (sigset_t *s)
 {
@@ -125,6 +136,7 @@ sigemptyset (sigset_t *s)
   ACE_OSCALL_RETURN (::sigemptyset (s), int, -1);
 #endif /* ACE_LACKS_SIGSET || ACE_LACKS_SIGSET_DEFINITIONS */
 }
+
 ACE_INLINE int
 sigfillset (sigset_t *s)
 {
@@ -140,6 +152,7 @@ sigfillset (sigset_t *s)
   ACE_OSCALL_RETURN (::sigfillset (s), int, -1);
 #endif /* ACE_LACKS_SIGSET || ACE_LACKS_SIGSET_DEFINITIONS */
 }
+
 ACE_INLINE int
 sigismember (sigset_t *s, int signum)
 {
@@ -166,6 +179,7 @@ sigismember (sigset_t *s, int signum)
   ACE_OSCALL_RETURN (::sigismember (s, signum), int, -1);
 #endif /* ACE_LACKS_SIGSET || ACE_LACKS_SIGSET_DEFINITIONS */
 }
+
 ACE_INLINE ACE_SignalHandler
 signal (int signum, ACE_SignalHandler func)
 {
@@ -185,6 +199,7 @@ signal (int signum, ACE_SignalHandler func)
     ACE_NOTSUP_RETURN (0);     // Should return SIG_ERR but it is not defined on WinCE.
 #endif /* defined (ACE_WIN32) && !defined (ACE_HAS_WINCE) || !defined (ACE_LACKS_UNIX_SIGNALS) */
 }
+
 ACE_INLINE int
 sigprocmask (int how, const sigset_t *nsp, sigset_t *osp)
 {
@@ -197,11 +212,13 @@ sigprocmask (int how, const sigset_t *nsp, sigset_t *osp)
   ACE_OSCALL_RETURN (::sigprocmask (how, nsp, osp), int, -1);
 #endif /* ACE_LACKS_SIGSET || ACE_LACKS_SIGSET_DEFINITIONS */
 }
+
 ACE_INLINE int
 sigsuspend (const sigset_t *sigset)
 {
 #if defined (ACE_HAS_SIGSUSPEND)
   sigset_t s;
+
   if (sigset == 0)
     {
       sigset = &s;
@@ -213,5 +230,7 @@ sigsuspend (const sigset_t *sigset)
   ACE_NOTSUP_RETURN (-1);
 #endif /* ACE_HAS_SIGSUSPEND */
 }
+
 }  /* end namespace ACE_OS */
+
 ACE_END_VERSIONED_NAMESPACE_DECL

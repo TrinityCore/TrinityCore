@@ -5,11 +5,13 @@ SD%Complete:
 SDComment:
 SDCategory:
 Script Data End */
+
 /*** SQL START ***
 update creature_template set scriptname = '' where entry = '';
 *** SQL END ***/
 #include "precompiled.h"
 #include "def_violet_hold.h"
+
 enum Spells
 {
   SPELL_CAUTERIZING_FLAMES                      = 59466, //Only in heroic
@@ -20,17 +22,21 @@ enum Spells
   SPELL_LAVA_BURN                               = 54249,
   H_SPELL_LAVA_BURN                             = 59594
 };
+
 struct TRINITY_DLL_DECL boss_lavanthorAI : public ScriptedAI
 {
     boss_lavanthorAI(Creature *c) : ScriptedAI(c)
     {
         pInstance = c->GetInstanceData();
     }
+
     uint32 uiFireboltTimer;
     uint32 uiFlameBreathTimer;
     uint32 uiLavaBurnTimer;
     uint32 uiCauterizingFlamesTimer;
+
     ScriptedInstance* pInstance;
+
     void Reset()
     {
         uiFireboltTimer = 1000;
@@ -45,6 +51,7 @@ struct TRINITY_DLL_DECL boss_lavanthorAI : public ScriptedAI
                 pInstance->SetData(DATA_2ND_BOSS_EVENT, NOT_STARTED);
         }
     }
+
     void EnterCombat(Unit* who)
     {
         if (pInstance)
@@ -55,27 +62,33 @@ struct TRINITY_DLL_DECL boss_lavanthorAI : public ScriptedAI
                 pInstance->SetData(DATA_2ND_BOSS_EVENT, IN_PROGRESS);
         }
     }
+
     void MoveInLineOfSight(Unit* who) {}
+
     void UpdateAI(const uint32 diff)
     {
         //Return since we have no target
         if (!UpdateVictim())
             return;
+
         if (uiFireboltTimer < diff)
         {
             DoCast(m_creature->getVictim(), HEROIC(SPELL_FIREBOLT, H_SPELL_FIREBOLT));
             uiFireboltTimer = urand(5000,13000);
         } else uiFireboltTimer -= diff;
+
         if (uiFlameBreathTimer < diff)
         {
             DoCast(m_creature->getVictim(), HEROIC(SPELL_FLAME_BREATH, H_SPELL_FLAME_BREATH));
             uiFlameBreathTimer = urand(10000,15000);
         } else uiFlameBreathTimer -= diff;
+
         if (uiLavaBurnTimer < diff)
         {
             DoCast(m_creature->getVictim(), HEROIC(SPELL_LAVA_BURN, H_SPELL_LAVA_BURN));
             uiLavaBurnTimer = urand(15000,23000);
         }
+
         if (HeroicMode)
         {
             if (uiCauterizingFlamesTimer < diff)
@@ -84,8 +97,10 @@ struct TRINITY_DLL_DECL boss_lavanthorAI : public ScriptedAI
                 uiCauterizingFlamesTimer = urand(10000,16000);
             } else uiCauterizingFlamesTimer -= diff;
         }
+
         DoMeleeAttackIfReady();
     }
+
     void JustDied(Unit* killer)
     {
         if (pInstance)
@@ -103,13 +118,16 @@ struct TRINITY_DLL_DECL boss_lavanthorAI : public ScriptedAI
         }
     }
 };
+
 CreatureAI* GetAI_boss_lavanthor(Creature* pCreature)
 {
     return new boss_lavanthorAI (pCreature);
 }
+
 void AddSC_boss_lavanthor()
 {
     Script *newscript;
+
     newscript = new Script;
     newscript->Name = "boss_lavanthor";
     newscript->GetAI = &GetAI_boss_lavanthor;
