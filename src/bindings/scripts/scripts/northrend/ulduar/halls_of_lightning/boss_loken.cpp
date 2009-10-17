@@ -155,10 +155,10 @@ struct TRINITY_DLL_DECL boss_lokenAI : public ScriptedAI
                         return;
 
                     for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
-                        if (i->getSource()->isAlive() && i->getSource()->isTargetableForAttack())
+                        if (i->getSource() && i->getSource()->isAlive() && i->getSource()->isTargetableForAttack())
                         {
                             int32 dmg;
-                            float m_fDist = (m_creature->GetDistance(i->getSource()) - 7.8f);
+                            float m_fDist = m_creature->GetExactDist(i->getSource()->GetPositionX(), i->getSource()->GetPositionY(), i->getSource()->GetPositionZ());
 
                             if (m_fDist <= 1.0f) // Less than 1 yard
                                 dmg = (m_bIsHeroic ? 150 : 100); // need to correct damage
