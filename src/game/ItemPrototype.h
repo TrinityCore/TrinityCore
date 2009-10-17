@@ -17,9 +17,12 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
+
 #ifndef _ITEMPROTOTYPE_H
 #define _ITEMPROTOTYPE_H
+
 #include "Common.h"
+
 enum ItemModType
 {
     ITEM_MOD_MANA                     = 0,
@@ -64,7 +67,9 @@ enum ItemModType
     ITEM_MOD_ARMOR_PENETRATION_RATING = 44,
     ITEM_MOD_SPELL_POWER              = 45
 };
+
 #define MAX_ITEM_MOD                    46
+
 enum ItemSpelltriggerType
 {
     ITEM_SPELLTRIGGER_ON_USE          = 0,                  // use after equip cooldown
@@ -80,7 +85,9 @@ enum ItemSpelltriggerType
     ITEM_SPELLTRIGGER_ON_NO_DELAY_USE = 5,                  // no equip cooldown
     ITEM_SPELLTRIGGER_LEARN_SPELL_ID  = 6                   // used in item_template.spell_2 with spell_id with SPELL_GENERIC_LEARN in spell_1
 };
+
 #define MAX_ITEM_SPELLTRIGGER           7
+
 enum ItemBondingType
 {
     NO_BIND                                     = 0,
@@ -90,7 +97,9 @@ enum ItemBondingType
     BIND_QUEST_ITEM                             = 4,
     BIND_QUEST_ITEM1                            = 5         // not used in game
 };
+
 #define MAX_BIND_TYPE                             6
+
 // masks for ITEM_FIELD_FLAGS field
 enum ITEM_FLAGS
 {
@@ -111,6 +120,7 @@ enum ITEM_FLAGS
     ITEM_FLAGS_TRIGGERED_CAST                 = 0x10000000, // used by enchanting scrolls made with vellum
     ITEM_FLAGS_MILLABLE                       = 0x20000000
 };
+
 enum BAG_FAMILY_MASK
 {
     BAG_FAMILY_MASK_NONE                      = 0x00000000,
@@ -130,6 +140,7 @@ enum BAG_FAMILY_MASK
     BAG_FAMILY_MASK_CURRENCY_TOKENS           = 0x00002000,
     BAG_FAMILY_MASK_QUEST_ITEMS               = 0x00004000
 };
+
 enum SocketColor
 {
     SOCKET_COLOR_META                           = 1,
@@ -137,7 +148,9 @@ enum SocketColor
     SOCKET_COLOR_YELLOW                         = 4,
     SOCKET_COLOR_BLUE                           = 8
 };
+
 #define SOCKET_COLOR_ALL (SOCKET_COLOR_META | SOCKET_COLOR_RED | SOCKET_COLOR_YELLOW | SOCKET_COLOR_BLUE)
+
 enum InventoryType
 {
     INVTYPE_NON_EQUIP                           = 0,
@@ -170,7 +183,9 @@ enum InventoryType
     INVTYPE_QUIVER                              = 27,
     INVTYPE_RELIC                               = 28
 };
+
 #define MAX_INVTYPE                               29
+
 enum ItemClass
 {
     ITEM_CLASS_CONSUMABLE                       = 0,
@@ -191,7 +206,9 @@ enum ItemClass
     ITEM_CLASS_MISC                             = 15,
     ITEM_CLASS_GLYPH                            = 16
 };
+
 #define MAX_ITEM_CLASS                            17
+
 enum ItemSubclassConsumable
 {
     ITEM_SUBCLASS_CONSUMABLE                    = 0,
@@ -204,7 +221,9 @@ enum ItemSubclassConsumable
     ITEM_SUBCLASS_BANDAGE                       = 7,
     ITEM_SUBCLASS_CONSUMABLE_OTHER              = 8
 };
+
 #define MAX_ITEM_SUBCLASS_CONSUMABLE              9
+
 enum ItemSubclassContainer
 {
     ITEM_SUBCLASS_CONTAINER                     = 0,
@@ -217,7 +236,9 @@ enum ItemSubclassContainer
     ITEM_SUBCLASS_LEATHERWORKING_CONTAINER      = 7,
     ITEM_SUBCLASS_INSCRIPTION_CONTAINER         = 8
 };
+
 #define MAX_ITEM_SUBCLASS_CONTAINER               9
+
 enum ItemSubclassWeapon
 {
     ITEM_SUBCLASS_WEAPON_AXE                    = 0,
@@ -242,10 +263,13 @@ enum ItemSubclassWeapon
     ITEM_SUBCLASS_WEAPON_WAND                   = 19,
     ITEM_SUBCLASS_WEAPON_FISHING_POLE           = 20
 };
+
 #define ITEM_SUBCLASS_MASK_WEAPON_RANGED (\
     (1 << ITEM_SUBCLASS_WEAPON_BOW) | (1 << ITEM_SUBCLASS_WEAPON_GUN) |\
     (1 << ITEM_SUBCLASS_WEAPON_CROSSBOW) | (1 << ITEM_SUBCLASS_WEAPON_THROWN))
+
 #define MAX_ITEM_SUBCLASS_WEAPON                  21
+
 enum ItemSubclassGem
 {
     ITEM_SUBCLASS_GEM_RED                       = 0,
@@ -258,7 +282,9 @@ enum ItemSubclassGem
     ITEM_SUBCLASS_GEM_SIMPLE                    = 7,
     ITEM_SUBCLASS_GEM_PRISMATIC                 = 8
 };
+
 #define MAX_ITEM_SUBCLASS_GEM                     9
+
 enum ItemSubclassArmor
 {
     ITEM_SUBCLASS_ARMOR_MISC                    = 0,
@@ -273,12 +299,16 @@ enum ItemSubclassArmor
     ITEM_SUBCLASS_ARMOR_TOTEM                   = 9,
     ITEM_SUBCLASS_ARMOR_SIGIL                   = 10
 };
+
 #define MAX_ITEM_SUBCLASS_ARMOR                   11
+
 enum ItemSubclassReagent
 {
     ITEM_SUBCLASS_REAGENT                       = 0
 };
+
 #define MAX_ITEM_SUBCLASS_REAGENT                 1
+
 enum ItemSubclassProjectile
 {
     ITEM_SUBCLASS_WAND                          = 0,        // ABS
@@ -287,7 +317,9 @@ enum ItemSubclassProjectile
     ITEM_SUBCLASS_BULLET                        = 3,
     ITEM_SUBCLASS_THROWN                        = 4         // ABS
 };
+
 #define MAX_ITEM_SUBCLASS_PROJECTILE              5
+
 enum ItemSubclassTradeGoods
 {
     ITEM_SUBCLASS_TRADE_GOODS                   = 0,
@@ -307,12 +339,16 @@ enum ItemSubclassTradeGoods
     ITEM_SUBCLASS_ARMOR_ENCHANTMENT             = 14,
     ITEM_SUBCLASS_WEAPON_ENCHANTMENT            = 15
 };
+
 #define MAX_ITEM_SUBCLASS_TRADE_GOODS             16
+
 enum ItemSubclassGeneric
 {
     ITEM_SUBCLASS_GENERIC                       = 0
 };
+
 #define MAX_ITEM_SUBCLASS_GENERIC                 1
+
 enum ItemSubclassRecipe
 {
     ITEM_SUBCLASS_BOOK                          = 0,
@@ -327,12 +363,16 @@ enum ItemSubclassRecipe
     ITEM_SUBCLASS_FISHING_MANUAL                = 9,
     ITEM_SUBCLASS_JEWELCRAFTING_RECIPE          = 10
 };
+
 #define MAX_ITEM_SUBCLASS_RECIPE                  11
+
 enum ItemSubclassMoney
 {
     ITEM_SUBCLASS_MONEY                         = 0
 };
+
 #define MAX_ITEM_SUBCLASS_MONEY                   1
+
 enum ItemSubclassQuiver
 {
     ITEM_SUBCLASS_QUIVER0                       = 0,        // ABS
@@ -340,23 +380,31 @@ enum ItemSubclassQuiver
     ITEM_SUBCLASS_QUIVER                        = 2,
     ITEM_SUBCLASS_AMMO_POUCH                    = 3
 };
+
 #define MAX_ITEM_SUBCLASS_QUIVER                  4
+
 enum ItemSubclassQuest
 {
     ITEM_SUBCLASS_QUEST                         = 0
 };
+
 #define MAX_ITEM_SUBCLASS_QUEST                   1
+
 enum ItemSubclassKey
 {
     ITEM_SUBCLASS_KEY                           = 0,
     ITEM_SUBCLASS_LOCKPICK                      = 1
 };
+
 #define MAX_ITEM_SUBCLASS_KEY                     2
+
 enum ItemSubclassPermanent
 {
     ITEM_SUBCLASS_PERMANENT                     = 0
 };
+
 #define MAX_ITEM_SUBCLASS_PERMANENT               1
+
 enum ItemSubclassJunk
 {
     ITEM_SUBCLASS_JUNK                          = 0,
@@ -366,7 +414,9 @@ enum ItemSubclassJunk
     ITEM_SUBCLASS_JUNK_OTHER                    = 4,
     ITEM_SUBCLASS_JUNK_MOUNT                    = 5
 };
+
 #define MAX_ITEM_SUBCLASS_JUNK                    6
+
 enum ItemSubclassGlyph
 {
     ITEM_SUBCLASS_GLYPH_WARRIOR                 = 1,
@@ -380,7 +430,9 @@ enum ItemSubclassGlyph
     ITEM_SUBCLASS_GLYPH_WARLOCK                 = 9,
     ITEM_SUBCLASS_GLYPH_DRUID                   = 11
 };
+
 #define MAX_ITEM_SUBCLASS_GLYPH                   12
+
 const uint32 MaxItemSubclassValues[MAX_ITEM_CLASS] =
 {
     MAX_ITEM_SUBCLASS_CONSUMABLE,
@@ -401,6 +453,7 @@ const uint32 MaxItemSubclassValues[MAX_ITEM_CLASS] =
     MAX_ITEM_SUBCLASS_JUNK,
     MAX_ITEM_SUBCLASS_GLYPH
 };
+
 inline uint8 ItemSubClassToDurabilityMultiplierId(uint32 ItemClass, uint32 ItemSubClass)
 {
     switch(ItemClass)
@@ -410,18 +463,21 @@ inline uint8 ItemSubClassToDurabilityMultiplierId(uint32 ItemClass, uint32 ItemS
     }
     return 0;
 }
+
 // GCC have alternative #pragma pack(N) syntax and old gcc version not support pack(push,N), also any gcc version not support it at some platform
 #if defined( __GNUC__ )
 #pragma pack(1)
 #else
 #pragma pack(push,1)
 #endif
+
 struct _Damage
 {
     float   DamageMin;
     float   DamageMax;
     uint32  DamageType;                                     // id from Resistances.dbc
 };
+
 struct _ItemStat
 {
     uint32  ItemStatType;
@@ -437,15 +493,18 @@ struct _Spell
     uint32 SpellCategory;                                   // id from SpellCategory.dbc
     int32  SpellCategoryCooldown;
 };
+
 struct _Socket
 {
     uint32 Color;
     uint32 Content;
 };
+
 #define MAX_ITEM_PROTO_DAMAGES 2                            // changed in 3.1.0
 #define MAX_ITEM_PROTO_SOCKETS 3
 #define MAX_ITEM_PROTO_SPELLS  5
 #define MAX_ITEM_PROTO_STATS  10
+
 struct ItemPrototype
 {
     uint32 ItemId;
@@ -521,6 +580,7 @@ struct ItemPrototype
     uint32 FoodType;
     uint32 MinMoneyLoot;
     uint32 MaxMoneyLoot;
+
     // helpers
     bool CanChangeEquipStateInCombat() const
     {
@@ -531,18 +591,22 @@ struct ItemPrototype
             case INVTYPE_HOLDABLE:
                 return true;
         }
+
         switch(Class)
         {
             case ITEM_CLASS_WEAPON:
             case ITEM_CLASS_PROJECTILE:
                 return true;
         }
+
         return false;
     }
+
     uint32 GetMaxStackSize() const
     {
         return (Stackable == 2147483647 || Stackable <= 0) ? uint32(0x7FFFFFFF-1) : uint32(Stackable);
     }
+
     float getDPS() const
     {
         if (Delay == 0)
@@ -552,6 +616,7 @@ struct ItemPrototype
             temp+=Damage[i].DamageMin + Damage[i].DamageMax;
         return temp*500/Delay;
     }
+
     int32 getFeralBonus(int32 extraDPS = 0) const
     {
         // 0x02A5F3 - is mask for Melee weapon from ItemSubClassMask.dbc
@@ -564,16 +629,19 @@ struct ItemPrototype
         }
         return 0;
     }
+
     bool IsPotion() const { return Class==ITEM_CLASS_CONSUMABLE && SubClass==ITEM_SUBCLASS_POTION; }
     bool IsWeaponVellum() const { return Class==ITEM_CLASS_TRADE_GOODS && SubClass==ITEM_SUBCLASS_WEAPON_ENCHANTMENT; }
     bool IsArmorVellum() const { return Class==ITEM_CLASS_TRADE_GOODS && SubClass==ITEM_SUBCLASS_ARMOR_ENCHANTMENT; }
     bool IsConjuredConsumable() const { return Class == ITEM_CLASS_CONSUMABLE && (Flags & ITEM_FLAGS_CONJURED); }
 };
+
 struct ItemLocale
 {
     std::vector<std::string> Name;
     std::vector<std::string> Description;
 };
+
 // GCC have alternative #pragma pack() syntax and old gcc version not support pack(pop), also any gcc version not support it at some platform
 #if defined( __GNUC__ )
 #pragma pack()

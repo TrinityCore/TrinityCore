@@ -1,7 +1,9 @@
 // -*- C++ -*-
 //
 // $Id: MEM_Acceptor.inl 80826 2008-03-04 14:51:23Z wotte $
+
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
+
 ACE_INLINE int
 ACE_MEM_Acceptor::open (const ACE_Addr &local_sap,
                         ACE_Protocol_Info *protocolinfo,
@@ -16,6 +18,7 @@ ACE_MEM_Acceptor::open (const ACE_Addr &local_sap,
     (local_sap, protocolinfo, g, flags, reuse_addr, protocol_family,
      backlog, protocol);
 }
+
 ACE_INLINE int
 ACE_MEM_Acceptor::accept (ACE_SOCK_Stream &new_stream,
                           ACE_Addr *remote_addr,
@@ -26,6 +29,7 @@ ACE_MEM_Acceptor::accept (ACE_SOCK_Stream &new_stream,
   return this->ACE_SOCK_Acceptor::accept
     (new_stream, remote_addr, timeout, restart, reset_new_handle);
 }
+
 #if !defined (ACE_HAS_WINCE)
 ACE_INLINE int
 ACE_MEM_Acceptor::accept (ACE_SOCK_Stream &new_stream,
@@ -39,19 +43,23 @@ ACE_MEM_Acceptor::accept (ACE_SOCK_Stream &new_stream,
     (new_stream, qos_params, remote_addr, timeout, restart, reset_new_handle);
 }
 #endif  // ACE_HAS_WINCE
+
 ACE_INLINE int
 ACE_MEM_Acceptor::get_local_addr (ACE_MEM_Addr &sap) const
 {
   ACE_INET_Addr temp;
+
   this->ACE_SOCK_Acceptor::get_local_addr (temp);
   sap.set_port_number (temp.get_port_number ());
   return 0;
 }
+
 ACE_INLINE const ACE_TCHAR *
 ACE_MEM_Acceptor::mmap_prefix (void) const
 {
   return this->mmap_prefix_;
 }
+
 ACE_INLINE void
 ACE_MEM_Acceptor::mmap_prefix (const ACE_TCHAR *prefix)
 {
@@ -64,26 +72,32 @@ ACE_MEM_Acceptor::mmap_prefix (const ACE_TCHAR *prefix)
       this->mmap_prefix_ = ACE::strnew (prefix);
     }
 }
+
 ACE_INLINE ACE_MEM_IO::Signal_Strategy
 ACE_MEM_Acceptor::preferred_strategy (void) const
 {
   return this->preferred_strategy_;
 }
+
 ACE_INLINE void
 ACE_MEM_Acceptor::preferred_strategy (ACE_MEM_IO::Signal_Strategy strategy)
 {
   this->preferred_strategy_ = strategy;
 }
+
 ACE_INLINE void
 ACE_MEM_Acceptor::init_buffer_size (ACE_OFF_T bytes)
 {
   this->malloc_options_.minimum_bytes_ = bytes;
 }
+
 ACE_INLINE ACE_MEM_SAP::MALLOC_OPTIONS &
 ACE_MEM_Acceptor::malloc_options (void)
 {
   // @@ This function has been deprecated and will be removed in the
   // future.
+
   return this->malloc_options_;
 }
+
 ACE_END_VERSIONED_NAMESPACE_DECL

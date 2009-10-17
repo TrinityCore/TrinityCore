@@ -13,21 +13,26 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
+
 /* ScriptData
 SDName: Westfall
 SD%Complete: 90
 SDComment: Quest support: 155, 1651
 SDCategory: Westfall
 EndScriptData */
+
 /* ContentData
 npc_daphne_stilwell
 npc_defias_traitor
 EndContentData */
+
 #include "precompiled.h"
 #include "escort_ai.h"
+
 /*######
 ## npc_daphne_stilwell
 ######*/
+
 enum eEnums
 {
     SAY_DS_START        = -1000402,
@@ -35,16 +40,20 @@ enum eEnums
     SAY_DS_DOWN_2       = -1000404,
     SAY_DS_DOWN_3       = -1000405,
     SAY_DS_PROLOGUE     = -1000406,
+
     SPELL_SHOOT         = 6660,
     QUEST_TOME_VALOR    = 1651,
     NPC_DEFIAS_RAIDER   = 6180,
     EQUIP_ID_RIFLE      = 2511
 };
+
 struct TRINITY_DLL_DECL npc_daphne_stilwellAI : public npc_escortAI
 {
     npc_daphne_stilwellAI(Creature* pCreature) : npc_escortAI(pCreature) {}
+
     uint32 uiWPHolder;
     uint32 uiShootTimer;
+
     void Reset()
     {
         if (HasEscortState(STATE_ESCORT_ESCORTING))
@@ -58,14 +67,19 @@ struct TRINITY_DLL_DECL npc_daphne_stilwellAI : public npc_escortAI
         }
         else
             uiWPHolder = 0;
+
         uiShootTimer = 0;
     }
+
     void WaypointReached(uint32 uiPoint)
     {
         Player* pPlayer = GetPlayerForEscort();
+
         if (!pPlayer)
             return;
+
         uiWPHolder = uiPoint;
+
         switch(uiPoint)
         {
             case 4:
@@ -109,66 +123,85 @@ struct TRINITY_DLL_DECL npc_daphne_stilwellAI : public npc_escortAI
                 break;
         }
     }
+
     void AttackStart(Unit* pWho)
     {
         if (!pWho)
             return;
+
         if (m_creature->Attack(pWho, false))
         {
             m_creature->AddThreat(pWho, 0.0f);
             m_creature->SetInCombatWith(pWho);
             pWho->SetInCombatWith(m_creature);
+
             m_creature->GetMotionMaster()->MoveChase(pWho, 30.0f);
         }
     }
+
     void JustSummoned(Creature* pSummoned)
     {
         pSummoned->AI()->AttackStart(m_creature);
     }
+
     void Update(const uint32 diff)
     {
         npc_escortAI::UpdateAI(diff);
+
         if (!UpdateVictim())
             return;
+
         if (uiShootTimer < diff)
         {
             uiShootTimer = 1500;
+
             if (!m_creature->IsWithinDist(m_creature->getVictim(), ATTACK_DISTANCE))
                 DoCast(m_creature->getVictim(), SPELL_SHOOT);
         }else uiShootTimer -= diff;
     }
 };
+
 bool QuestAccept_npc_daphne_stilwell(Player* pPlayer, Creature* pCreature, const Quest* pQuest)
 {
     if (pQuest->GetQuestId() == QUEST_TOME_VALOR)
     {
         DoScriptText(SAY_DS_START, pCreature);
+
         if (npc_escortAI* pEscortAI = CAST_AI(npc_daphne_stilwellAI, pCreature->AI()))
             pEscortAI->Start(true, true, pPlayer->GetGUID());
     }
+
     return true;
 }
+
 CreatureAI* GetAI_npc_daphne_stilwell(Creature* pCreature)
 {
     return new npc_daphne_stilwellAI(pCreature);
 }
+
 /*######
 ## npc_defias_traitor
 ######*/
+
 #define SAY_START                   -1000101
 #define SAY_PROGRESS                -1000102
 #define SAY_END                     -1000103
 #define SAY_AGGRO_1                 -1000104
 #define SAY_AGGRO_2                 -1000105
+
 #define QUEST_DEFIAS_BROTHERHOOD    155
+
 struct TRINITY_DLL_DECL npc_defias_traitorAI : public npc_escortAI
 {
     npc_defias_traitorAI(Creature *c) : npc_escortAI(c) { Reset(); }
+
     void WaypointReached(uint32 i)
     {
         Player* pPlayer = GetPlayerForEscort();
+
         if (!pPlayer)
             return;
+
         switch (i)
         {
             case 35:
@@ -190,30 +223,38 @@ struct TRINITY_DLL_DECL npc_defias_traitorAI : public npc_escortAI
     {
         DoScriptText(RAND(SAY_AGGRO_1,SAY_AGGRO_2), m_creature, who);
     }
+
     void Reset() {}
 };
+
 bool QuestAccept_npc_defias_traitor(Player* pPlayer, Creature* pCreature, Quest const* quest)
 {
     if (quest->GetQuestId() == QUEST_DEFIAS_BROTHERHOOD)
     {
         if (npc_escortAI* pEscortAI = CAST_AI(npc_defias_traitorAI, pCreature->AI()))
             pEscortAI->Start(true, true, pPlayer->GetGUID());
+
         DoScriptText(SAY_START, pCreature, pPlayer);
     }
+
     return true;
 }
+
 CreatureAI* GetAI_npc_defias_traitor(Creature* pCreature)
 {
     return new npc_defias_traitorAI(pCreature);
 }
+
 void AddSC_westfall()
 {
     Script *newscript;
+
     newscript = new Script;
     newscript->Name = "npc_daphne_stilwell";
     newscript->GetAI = &GetAI_npc_daphne_stilwell;
     newscript->pQuestAccept = &QuestAccept_npc_daphne_stilwell;
     newscript->RegisterSelf();
+
     newscript = new Script;
     newscript->Name = "npc_defias_traitor";
     newscript->GetAI = &GetAI_npc_defias_traitor;

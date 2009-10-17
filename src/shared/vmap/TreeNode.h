@@ -17,14 +17,18 @@
 * along with this program; if not, write to the Free Software
 * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 */
+
 #ifndef _TREENODE_H
 #define _TREENODE_H
+
 #include "ShortVector.h"
 #include "ShortBox.h"
 #include "NodeValueAccess.h"
 #include "VMapTools.h"
+
 #include <G3D/Vector3.h>
 #include <G3D/AABox.h>
+
 namespace VMAP
 {
     /**
@@ -32,7 +36,9 @@ namespace VMAP
     It is the node within our static BSP-Trees.
     It does not use pointers but indexes to access the values and other nodes.
     */
+
     //=====================================================
+
     class TreeNode
     {
     private:
@@ -54,19 +60,30 @@ namespace VMAP
             iStartPosition = pStartPosition;
             iNumberOfValues = pNValues;
         }
+
         bool hasChilds() const { return(iChilds[0] >= 0 || iChilds[1] >= 0); }
+
         TreeNode const* getChild(TreeNode const* pValueArray, int pNo) const;
         // pChildNo = 0 or 1
         inline void setChildPos(int pChildNo, int pChildPosInTreeNodeArray) { iChilds[pChildNo] = pChildPosInTreeNodeArray; }
+
         inline G3D::Vector3::Axis getSplitAxis() const { return(iSplitAxis); }
+
         inline void setSplitAxis(G3D::Vector3::Axis a) { iSplitAxis = a; }
         inline void setSplitLocation(float l) { iSplitLocation = l; }
+
         inline void setBounds(const G3D::AABox& pBox) { iBounds = pBox; }
+
         inline void setBounds(const G3D::Vector3& lo, const G3D::Vector3& hi) { iBounds.set(lo,hi); }
+
         inline void getBounds(G3D::AABox& pBox) const { pBox.set(iBounds.low(),iBounds.high()); }
+
         inline float getSplitLocation() const { return(iSplitLocation); }
+
         inline unsigned short getNValues() const { return (iNumberOfValues); }
+
         inline unsigned int getStartPosition() const { return(iStartPosition); }
+
         inline bool operator==(const TreeNode& n) const
         {
             return ((iSplitLocation == n.iSplitLocation) &&
@@ -76,6 +93,7 @@ namespace VMAP
                 (iBounds == n.iBounds) &&
                 (iNumberOfValues == n.iNumberOfValues));
         }
+
         inline bool operator!=(const TreeNode& n) const
         {
             return !((iSplitLocation == n.iSplitLocation) &&
@@ -85,6 +103,7 @@ namespace VMAP
                 (iBounds == n.iBounds) &&
                 (iNumberOfValues == n.iNumberOfValues));
         }
+
         /** Returns true if the ray intersects this node */
         bool intersects(const G3D::Ray& ray, float distance) const {
             // See if the ray will ever hit this node or its children
@@ -93,10 +112,13 @@ namespace VMAP
             bool rayWillHitBounds =
                 MyCollisionDetection::collisionLocationForMovingPointFixedAABox(
                 ray.origin, ray.direction, iBounds, location, alreadyInsideBounds);
+
             bool canHitThisNode = (alreadyInsideBounds ||
                 (rayWillHitBounds && ((location - ray.origin).squaredLength() < (distance*distance))));
+
             return canHitThisNode;
         }
+
         template<typename RayCallback, typename TNode, typename TValue>
         void intersectRay(
             const G3D::Ray& ray,
@@ -110,6 +132,7 @@ namespace VMAP
                     // The ray doesn't hit this node, so it can't hit the children of the node.
                     return;
                 }
+
                 // Test for intersection against every object at this node.
                 for (unsigned int v = iStartPosition; v < (iNumberOfValues+iStartPosition); ++v) {
                     const TValue& nodeValue = pNodeValueAccess.getValue(v);
@@ -122,9 +145,11 @@ namespace VMAP
                         bool rayWillHitBounds =
                             MyCollisionDetection::collisionLocationForMovingPointFixedAABox(
                             ray.origin, ray.direction, bounds, location, alreadyInsideBounds);
+
                         canHitThisObject = (alreadyInsideBounds ||
                             (rayWillHitBounds && ((location - ray.origin).squaredLength() < (distance*distance))));
                     }
+
                     if (canHitThisObject) {
                         // It is possible that this ray hits this object.  Look for the intersection using the
                         // callback.
@@ -133,24 +158,32 @@ namespace VMAP
                     if(pStopAtFirstHit && distance < enterDistance)
                         return;
                 }
+
                 // There are three cases to consider next:
                 //
                 //  1. the ray can start on one side of the splitting plane and never enter the other,
                 //  2. the ray can start on one side and enter the other, and
                 //  3. the ray can travel exactly down the splitting plane
+
                 enum {NONE = -1};
                 int firstChild = NONE;
                 int secondChild = NONE;
+
                 if (ray.origin[iSplitAxis] < iSplitLocation) {
+
                     // The ray starts on the small side
                     firstChild = 0;
+
                     if (ray.direction[iSplitAxis] > 0) {
                         // The ray will eventually reach the other side
                         secondChild = 1;
                     }
+
                 } else if (ray.origin[iSplitAxis] > iSplitLocation) {
+
                     // The ray starts on the large side
                     firstChild = 1;
+
                     if (ray.direction[iSplitAxis] < 0) {
                         secondChild = 0;
                     }
@@ -164,6 +197,7 @@ namespace VMAP
                         firstChild = 1;
                     }
                 }
+
                 // Test on the side closer to the ray origin.
                 if ((firstChild != NONE) && iChilds[firstChild]>0) {
                     getChild(pNodeValueAccess.getNodePtr() , firstChild)->intersectRay(ray, intersectCallback, distance, pNodeValueAccess, pStopAtFirstHit,intersectCallbackIsFast);

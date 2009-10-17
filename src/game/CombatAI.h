@@ -17,23 +17,31 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
+
 #ifndef TRINITY_COMBATAI_H
 #define TRINITY_COMBATAI_H
+
 #include "CreatureAI.h"
 #include "CreatureAIImpl.h"
+
 class Creature;
+
 class TRINITY_DLL_DECL AggressorAI : public CreatureAI
 {
     public:
         explicit AggressorAI(Creature *c) : CreatureAI(c) {}
+
         void UpdateAI(const uint32);
         static int Permissible(const Creature *);
 };
+
 typedef std::vector<uint32> SpellVct;
+
 class TRINITY_DLL_SPEC CombatAI : public CreatureAI
 {
     public:
         explicit CombatAI(Creature *c) : CreatureAI(c) {}
+
         void InitializeAI();
         void Reset();
         void EnterCombat(Unit* who);
@@ -44,6 +52,7 @@ class TRINITY_DLL_SPEC CombatAI : public CreatureAI
         EventMap events;
         SpellVct spells;
 };
+
 class TRINITY_DLL_SPEC CasterAI : public CombatAI
 {
     public:
@@ -55,16 +64,19 @@ class TRINITY_DLL_SPEC CasterAI : public CombatAI
     private:
         float m_attackDist;
 };
+
 struct TRINITY_DLL_SPEC ArchorAI : public CreatureAI
 {
     public:
         explicit ArchorAI(Creature *c);
         void AttackStart(Unit *who);
         void UpdateAI(const uint32 diff);
+
         static int Permissible(const Creature *);
     protected:
         float m_minRange;
 };
+
 struct TRINITY_DLL_SPEC TurretAI : public CreatureAI
 {
     public:
@@ -72,8 +84,10 @@ struct TRINITY_DLL_SPEC TurretAI : public CreatureAI
         bool CanAIAttack(const Unit *who) const;
         void AttackStart(Unit *who);
         void UpdateAI(const uint32 diff);
+
         static int Permissible(const Creature *);
     protected:
         float m_minRange;
 };
+
 #endif

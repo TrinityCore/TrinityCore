@@ -17,13 +17,18 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
+
 #ifndef TRINITY_DESTINATION_HOLDER_H
 #define TRINITY_DESTINATION_HOLDER_H
+
 #include "Platform/Define.h"
 #include "Timer.h"
+
 class WorldObject;
 class Map;
+
 #define TRAVELLER_UPDATE_INTERVAL  300
+
 template<typename TRAVELLER>
 class TRINITY_DLL_DECL DestinationHolder
 {
@@ -33,9 +38,11 @@ class TRINITY_DLL_DECL DestinationHolder
     bool i_destSet;
     float i_fromX, i_fromY, i_fromZ;
     float i_destX, i_destY, i_destZ;
+
     public:
         DestinationHolder() : i_tracker(TRAVELLER_UPDATE_INTERVAL), i_totalTravelTime(0), i_timeElapsed(0),
             i_destSet(false), i_fromX(0), i_fromY(0), i_fromZ(0), i_destX(0), i_destY(0), i_destZ(0) {}
+
         uint32 SetDestination(TRAVELLER &traveller, float dest_x, float dest_y, float dest_z, bool sendMove = true);
         void GetDestination(float &x, float &y, float &z) const { x = i_destX; y = i_destY; z = i_destZ; }
         bool UpdateExpired(void) const { return i_tracker.Passed(); }
@@ -50,8 +57,10 @@ class TRINITY_DLL_DECL DestinationHolder
         void GetLocationNow(const Map * map, float &x, float &y, float &z, bool is3D = false) const;
         void GetLocationNowNoMicroMovement(float &x, float &y, float &z) const; // For use without micro movement
         float GetDistance3dFromDestSq(const WorldObject &obj) const;
+
     private:
         void _findOffSetPoint(float x1, float y1, float x2, float y2, float offset, float &x, float &y);
+
 };
 #endif
 

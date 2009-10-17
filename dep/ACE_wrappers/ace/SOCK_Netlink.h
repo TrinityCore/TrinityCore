@@ -9,23 +9,32 @@
  *  @author Raz Ben Yehuda <raziebe@013.net.il>
  */
 //=============================================================================
+
 #ifndef ACE_SOCK_NETLINK_H
 #define ACE_SOCK_NETLINK_H
+
 #include /**/ "ace/pre.h"
+
 #include /**/ "ace/config-all.h"
+
 #if !defined (ACE_LACKS_PRAGMA_ONCE)
   #pragma once
 #endif /* ACE_LACKS_PRAGMA_ONCE */
+
 #ifdef ACE_HAS_NETLINK
+
 #include "ace/SOCK.h"
 #include "ace/Netlink_Addr.h"
 #include "ace/Addr.h"
+
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
+
 /**
  * @class ACE_SOCK_Netlink
  *
  * @brief Defines the member functions for the ACE_SOCK Netlink
  * abstraction.
+
  * Netlink sockets are used in Linux as a communication facilty of kernel to user
  * and user to kernel.
  * This code was created so one could use ACE reactor
@@ -48,6 +57,7 @@ public:
   int open (ACE_Netlink_Addr &local,
             int protocol_family,
             int protocol);
+
   /**
    *  receives abuffer with the size n
    */
@@ -61,6 +71,7 @@ public:
   ssize_t send (void *buf,
                 size_t n,
                 int flags) const;
+
   /**
    *  Recieves an iovec of size @a n to the netlink socket
   */
@@ -68,6 +79,7 @@ public:
                 int n,
                 ACE_Addr &addr,
                 int flags = 0) const;
+
   /**
    *  Sends an iovec of size @a n to the netlink socket
   */
@@ -75,14 +87,21 @@ public:
                 int n,
                 const ACE_Addr &addr,
                 int flags = 0) const;
+
   /// Declare the dynamic allocation hooks.
   ACE_ALLOC_HOOK_DECLARE;
 };
+
 ACE_END_VERSIONED_NAMESPACE_DECL
+
 #if defined (__ACE_INLINE__)
 #include "ace/SOCK_Netlink.inl"
 #endif /* __ACE_INLINE__ */
+
 #endif /* ACE_HAS_NETLINK */
+
 #include /**/ "ace/post.h"
+
 #endif /* ACE_SOCK_NETLINK_H */
+
 

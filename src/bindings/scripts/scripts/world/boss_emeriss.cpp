@@ -13,17 +13,21 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
+
 /* ScriptData
 SDName: Emeriss
 SD%Complete: 90
 SDComment: Teleport function & Mark of Nature missing
 SDCategory: Bosses
 EndScriptData */
+
 #include "precompiled.h"
+
 enum eEnums
 {
     SAY_AGGRO               = -1000401,
     SAY_CASTCORRUPTION      = -1000402, //signed for 6182
+
     SPELL_SLEEP             = 24777,
     SPELL_NOXIOUSBREATH     = 24818,
     SPELL_TAILSWEEP         = 15847,
@@ -31,15 +35,18 @@ enum eEnums
     SPELL_VOLATILEINFECTION = 24928,
     SPELL_CORRUPTIONOFEARTH = 24910
 };
+
 struct TRINITY_DLL_DECL boss_emerissAI : public ScriptedAI
 {
     boss_emerissAI(Creature *c) : ScriptedAI(c) {}
+
     uint32 m_uiSleep_Timer;
     uint32 m_uiNoxiousBreath_Timer;
     uint32 m_uiTailSweep_Timer;
     //uint32 m_uiMarkOfNature_Timer;
     uint32 m_uiVolatileInfection_Timer;
     uint32 m_uiCorruptionsCasted;
+
 
     void Reset()
     {
@@ -50,24 +57,29 @@ struct TRINITY_DLL_DECL boss_emerissAI : public ScriptedAI
         m_uiVolatileInfection_Timer = 12000;
         m_uiCorruptionsCasted = 0;
     }
+
     void Aggro(Unit* pWho)
     {
         DoScriptText(SAY_AGGRO, m_creature);
     }
+
     void UpdateAI(const uint32 uiDiff)
     {
         //Return since we have no target
         if (!UpdateVictim())
             return;
+
         //Sleep_Timer
         if (m_uiSleep_Timer < uiDiff)
         {
             if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
                 DoCast(pTarget, SPELL_SLEEP);
+
             m_uiSleep_Timer = 8000 + rand()%8000;
         }
         else
             m_uiSleep_Timer -= uiDiff;
+
         //NoxiousBreath_Timer
         if (m_uiNoxiousBreath_Timer < uiDiff)
         {
@@ -76,6 +88,7 @@ struct TRINITY_DLL_DECL boss_emerissAI : public ScriptedAI
         }
         else
             m_uiNoxiousBreath_Timer -= uiDiff;
+
         //Tailsweep every 2 seconds
         if (m_uiTailSweep_Timer < uiDiff)
         {
@@ -84,6 +97,7 @@ struct TRINITY_DLL_DECL boss_emerissAI : public ScriptedAI
         }
         else
             m_uiTailSweep_Timer -= uiDiff;
+
         //MarkOfNature_Timer
         //if (m_uiMarkOfNature_Timer < uiDiff)
         //{
@@ -93,6 +107,7 @@ struct TRINITY_DLL_DECL boss_emerissAI : public ScriptedAI
         //else
         //    m_uiMarkOfNature_Timer -= uiDiff;
 
+
         //VolatileInfection_Timer
         if (m_uiVolatileInfection_Timer < uiDiff)
         {
@@ -101,6 +116,7 @@ struct TRINITY_DLL_DECL boss_emerissAI : public ScriptedAI
         }
         else
             m_uiVolatileInfection_Timer -= uiDiff;
+
         //CorruptionofEarth_Timer
         //CorruptionofEarth at 75%, 50% and 25%
         if ((m_creature->GetHealth()*100 / m_creature->GetMaxHealth()) <= (100-(25*m_uiCorruptionsCasted)))
@@ -109,13 +125,16 @@ struct TRINITY_DLL_DECL boss_emerissAI : public ScriptedAI
             DoScriptText(SAY_CASTCORRUPTION, m_creature);
             DoCast(m_creature->getVictim(), SPELL_CORRUPTIONOFEARTH);
         }
+
         DoMeleeAttackIfReady();
     }
 };
+
 CreatureAI* GetAI_boss_emeriss(Creature* pCreature)
 {
     return new boss_emerissAI (pCreature);
 }
+
 void AddSC_boss_emeriss()
 {
     Script *newscript;

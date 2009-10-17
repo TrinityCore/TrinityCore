@@ -1,12 +1,15 @@
 /* -*- C++ -*- */
 // $Id: config-win32-common.h 82316 2008-07-15 01:28:39Z johnnyw $
 
+
 #ifndef ACE_CONFIG_WIN32_COMMON_H
 #define ACE_CONFIG_WIN32_COMMON_H
 #include /**/ "ace/pre.h"
+
 #ifndef ACE_CONFIG_WIN32_H
 #error Use config-win32.h in config.h instead of this header
 #endif /* ACE_CONFIG_WIN32_H */
+
 
 // Windows Mobile (CE) stuff is primarily further restrictions to what's
 // in the rest of this file. Also, it defined ACE_HAS_WINCE, which is used
@@ -14,13 +17,16 @@
 #if defined (_WIN32_WCE)
 #  include "ace/config-WinCE.h"
 #endif /* _WIN32_WCE */
+
 // Complain if WIN32 is not already defined.
 #if !defined (WIN32) && !defined (ACE_HAS_WINCE)
 # error Please define WIN32 in your project settings.
 #endif
+
 #define ACE_WIN32
 #if defined (_WIN64) || defined (WIN64)
 #  define ACE_WIN64
+
 // Use 64-bit file offsets by default in the WIN64 case, similar to
 // what 64-bit UNIX systems do.
 //
@@ -30,9 +36,11 @@
 #    define _FILE_OFFSET_BITS 64
 #  endif  /* !_FILE_OFFSET_BITS */
 #endif /* _WIN64 || WIN64 */
+
 #if !defined (_WIN32_WINNT)
 # define _WIN32_WINNT 0x0501 // pretend it's at least Windows XP or Win2003
 #endif
+
 // If the invoking procedure turned off debugging by setting NDEBUG, then
 // also set ACE_NDEBUG, unless the user has already set it.
 #if defined (NDEBUG)
@@ -40,6 +48,7 @@
 #    define ACE_NDEBUG
 #  endif /* ACE_NDEBUG */
 #endif /* NDEBUG */
+
 // Define ACE_HAS_MFC to 1, if you want ACE to use CWinThread. This should
 // be defined, if your application uses MFC.
 //  Setting applies to  : building ACE
@@ -50,6 +59,7 @@
 #if !defined (ACE_HAS_MFC)
 # define ACE_HAS_MFC 0
 #endif
+
 // ACE_USES_STATIC_MFC always implies ACE_HAS_MFC
 #if defined (ACE_USES_STATIC_MFC)
 # if defined (ACE_HAS_MFC)
@@ -57,6 +67,7 @@
 # endif
 # define ACE_HAS_MFC 1
 #endif /* ACE_USES_STATIC_MFC */
+
 // Define ACE_HAS_STRICT to 1 in your config.h file if you want to use
 // STRICT type checking.  It is disabled by default because it will
 // break existing application code. However, if ACE_HAS_MFC is turned on,
@@ -66,11 +77,13 @@
 #if !defined (ACE_HAS_STRICT)
 # define ACE_HAS_STRICT 0
 #endif
+
 // MFC itself defines STRICT.
 #if defined (ACE_HAS_MFC) && (ACE_HAS_MFC != 0)
 # undef ACE_HAS_STRICT
 # define ACE_HAS_STRICT 1
 #endif
+
 // Turn off the following define if you want to disable threading.
 // Compile using multi-thread libraries.
 //  Setting applies to  : building ACE, linking with ACE
@@ -78,6 +91,7 @@
 #if !defined (ACE_MT_SAFE)
 # define ACE_MT_SAFE 1
 #endif
+
 // Build ACE services as DLLs.  If you write a library and want it to
 // use ACE_Svc_Export, this will cause those macros to build dlls.  If
 // you want your ACE service to be a static library, comment out this
@@ -87,6 +101,7 @@
 //  #if !defined (ACE_SVC_HAS_DLL)
 //  # define ACE_SVC_HAS_DLL 1
 //  #endif
+
 // Define the special export macros needed to export symbols outside a dll
 #if !defined(__BORLANDC__)
 #define ACE_HAS_CUSTOM_EXPORT_MACROS 1
@@ -97,11 +112,13 @@
 #define ACE_IMPORT_SINGLETON_DECLARATION(T) extern template class T
 #define ACE_IMPORT_SINGLETON_DECLARE(SINGLETON_TYPE, CLASS, LOCK) extern template class SINGLETON_TYPE <CLASS, LOCK>;
 #endif /* !__BORLANDC__ */
+
 // Define ACE_HAS_WINSOCK2 to 0 in your config.h file if you do *not*
 // want to compile with WinSock 2.0.
 //  Setting applies to  : building ACE
 //  Runtime restrictions: winsock2 must be installed.
 //      #define ACE_HAS_WINSOCK2 0
+
 // By default, we use non-static object manager on Win32.  That is,
 // the object manager is allocated in main's stack memory.  If this
 // does not suit your need, i.e., if your programs depend on the use
@@ -134,25 +151,32 @@
 #elif (ACE_HAS_NONSTATIC_OBJECT_MANAGER == 0)
 # undef ACE_HAS_NONSTATIC_OBJECT_MANAGER
 #endif /* ACE_HAS_NONSTATIC_OBJECT_MANAGER */
+
 #define ACE_HAS_GPERF
+
 // By default, don't include RCS Id strings in object code.
 #if !defined (ACE_USE_RCSID)
 # define ACE_USE_RCSID 0
 #endif /* ! ACE_USE_RCSID */
+
 // ---------------- platform features or lack of them -------------
+
 // By default WIN32 has FD_SETSIZE of 64, which places the limit
 // between 61 and 64 on the number of clients a server using the
 // Select Reactor can support at the same time (i.e., 64 - standard in,
 // out, error).  Here we raise the limit to 1024.  Adjust the definition
 // below if you need to raise or lower it.
+
 #if !defined (FD_SETSIZE)
 #define FD_SETSIZE 1024
 #endif /* FD_SETSIZE */
+
 
 // Windows doesn't like 65536 ;-) If 65536 is specified, it is
 // silently ignored by the OS, i.e., setsockopt does not fail, and you
 // get stuck with the default size of 8k.
 #define ACE_DEFAULT_MAX_SOCKET_BUFSIZ 65535
+
 // It seems like Win32 does not have a limit on the number of buffers
 // that can be transferred by the scatter/gather type of I/O
 // functions, e.g., WSASend and WSARecv.  We are setting this to be 64
@@ -164,24 +188,30 @@
 #if !defined (ACE_IOV_MAX)
 # define ACE_IOV_MAX 64
 #endif /* ACE_IOV_MAX */
+
 #if !defined (ACE_HAS_WINCE)
 // Platform supports pread() and pwrite()
 # define ACE_HAS_P_READ_WRITE
 #endif /* ! ACE_HAS_WINCE */
+
 #if !defined (__MINGW32__)
 # define ACE_HAS_WIN32_STRUCTURAL_EXCEPTIONS
 #endif /* __MINGW32__ */
+
 #define ACE_DEFAULT_THREAD_PRIORITY 0
+
 #define ACE_HAS_DIRENT
 #define ACE_HAS_MSG
 #define ACE_HAS_RECURSIVE_MUTEXES
 #define ACE_HAS_SOCKADDR_MSG_NAME
 #define ACE_HAS_THREAD_SAFE_ACCEPT
+
 /* LACKS dir-related facilities */
 #define ACE_LACKS_READDIR_R
 #define ACE_LACKS_REWINDDIR
 #define ACE_LACKS_SEEKDIR
 #define ACE_LACKS_TELLDIR
+
 /* LACKS gid/pid/sid/uid facilities */
 #define ACE_LACKS_GETPGID
 #define ACE_LACKS_GETPPID
@@ -197,6 +227,7 @@
 #define ACE_LACKS_GETUID
 #define ACE_LACKS_GETEUID
 #define ACE_LACKS_SETGID
+
 /* LACKS miscellaneous */
 #define ACE_LACKS_ALARM
 #define ACE_LACKS_ARPA_INET_H
@@ -234,10 +265,14 @@
 #define ACE_LACKS_WAIT
 #define ACE_LACKS_IOVEC
 #define ACE_LACKS_LOG2
+
 #define ACE_HAS_PDH_H
 #define ACE_HAS_PDHMSG_H
+
 #define ACE_HAS_VFWPRINTF
+
 #define ACE_MKDIR_LACKS_MODE
+
 #define ACE_SIZEOF_LONG_LONG 8
 // Green Hills Native x86 does not support __int64 keyword
 // Neither does mingw32.
@@ -245,51 +280,72 @@
 #define ACE_INT64_TYPE  signed __int64
 #define ACE_UINT64_TYPE unsigned __int64
 #endif /* (ghs) */
+
 #if defined (__MINGW32__)
 #define ACE_INT64_TYPE  signed long long
 #define ACE_UINT64_TYPE unsigned long long
 #endif
+
 // Optimize ACE_Handle_Set for select().
 #define ACE_HAS_HANDLE_SET_OPTIMIZED_FOR_SELECT
+
 // Win32 has wide-char support. Use of the compiler-defined wchar_t type
 // is controlled in compiler configs since it's a compiler switch.
 #define ACE_HAS_WCHAR
+
 // Compiler/platform correctly calls init()/fini() for shared
 // libraries. - applied for DLLs ?
 //define ACE_HAS_AUTOMATIC_INIT_FINI
+
 // Platform supports POSIX O_NONBLOCK semantics.
 //define ACE_HAS_POSIX_NONBLOCK
+
 // Platform contains <poll.h>.
 //define ACE_HAS_POLL
+
 // Platform supports the /proc file system.
 //define ACE_HAS_PROC_FS
+
 // Platform supports the rusage struct.
 #define ACE_HAS_GETRUSAGE
+
 // Compiler/platform supports SVR4 signal typedef.
 //define ACE_HAS_SVR4_SIGNAL_T
+
 // Platform provides <sys/filio.h> header.
 //define ACE_HAS_SYS_FILIO_H
+
 // Compiler/platform supports sys_siglist array.
 //define ACE_HAS_SYS_SIGLIST
+
 // Platform supports ACE_TLI timod STREAMS module.
 //define ACE_HAS_TIMOD_H
+
 // Platform supports ACE_TLI tiuser header.
 //define ACE_HAS_TIUSER_H
+
 // Platform provides ACE_TLI function prototypes.
 // For Win32, this is not really true, but saves a lot of hassle!
 #define ACE_HAS_TLI_PROTOTYPES
+
 // Platform supports ACE_TLI.
 //define ACE_HAS_TLI
+
 // I'm pretty sure NT lacks these
 #define ACE_LACKS_UNIX_DOMAIN_SOCKETS
+
 // Windows NT needs readv() and writev()
 #define ACE_LACKS_WRITEV
 #define ACE_LACKS_READV
+
 #define ACE_LACKS_COND_T
 #define ACE_LACKS_RWLOCK_T
+
 #define ACE_LACKS_KEY_T
+
 // No system support for replacing any previous mappings.
 #define ACE_LACKS_AUTO_MMAP_REPLACEMENT
+
 // ACE_HAS_PENTIUM is used to optimize some CDR operations; it's used for
 // some other time-related things using g++, but not for VC. Current VC
 // compilers set _M_IX86 > 400 by default so if you're not using a Pentium
@@ -297,16 +353,22 @@
 #if !defined(ACE_HAS_PENTIUM) && (_M_IX86 > 400)
 # define ACE_HAS_PENTIUM
 #endif
+
 #if defined(ACE_MT_SAFE) && (ACE_MT_SAFE != 0)
 // Platform supports threads.
 # define ACE_HAS_THREADS
+
 // Platform supports Windows32 threads.
 # define ACE_HAS_WTHREADS
+
 // Compiler/platform has thread-specific storage
 # define ACE_HAS_THREAD_SPECIFIC_STORAGE
+
 // Win32 doesn't have fcntl
 #define ACE_LACKS_FCNTL
+
 #endif /* ACE_MT_SAFE && ACE_MT_SAFE != 0 */
+
 #if !defined(_DEBUG)
 // If we are making a release, and the user has not specified
 // inline directives, we will default to inline
@@ -314,10 +376,12 @@
 #  define __ACE_INLINE__ 1
 # endif /* __ACE_INLINE__ */
 #endif
+
 // If __ACE_INLINE__ is defined to be 0, we will undefine it
 #if defined (__ACE_INLINE__) && (__ACE_INLINE__ == 0)
 # undef __ACE_INLINE__
 #endif /* __ACE_INLINE__ */
+
 // We are build ACE and want to use MFC (multithreaded)
 #if defined(ACE_HAS_MFC) && (ACE_HAS_MFC != 0) && defined (_MT)
 # if (ACE_HAS_DLL != 0) && defined(ACE_BUILD_DLL) && !defined (_WINDLL)
@@ -328,6 +392,7 @@
 #  define _AFXDLL
 # endif /* _AFXDLL */
 #endif
+
 // <windows.h> and MFC's <afxwin.h> are mutually
 // incompatible. <windows.h> is brain-dead about MFC; it doesn't check
 // to see whether MFC stuff is anticipated or already in progress
@@ -341,6 +406,7 @@
 // macro itself to protect against double inclusion. We'll take
 // advantage of all this to select the proper support for winsock. -
 // trl 26-July-1996
+
 // This is necessary since MFC users apparently can't #include
 // <windows.h> directly.
 #if defined (ACE_HAS_MFC) && (ACE_HAS_MFC != 0)
@@ -350,19 +416,24 @@
 #elif defined (ACE_HAS_WINCE)
 #  include /**/ <windows.h>
 #endif
+
 #if !defined (_INC_WINDOWS)     /* Already include windows.h ? */
 // Must define strict before including windows.h !
 # if defined (ACE_HAS_STRICT) && (ACE_HAS_STRICT != 0) && !defined (STRICT)
 #  define STRICT 1
 # endif /* ACE_HAS_STRICT */
+
 # if !defined (WIN32_LEAN_AND_MEAN) && !defined (ACE_NO_WIN32_LEAN_AND_MEAN)
 #  define WIN32_LEAN_AND_MEAN
 # endif /* WIN32_LEAN_AND_MEAN */
+
 #endif /* !defined (_INC_WINDOWS) */
+
 // Always use WS2 when available
 #if !defined(ACE_HAS_WINSOCK2)
 # define ACE_HAS_WINSOCK2 1
 #endif /* !defined(ACE_HAS_WINSOCK2) */
+
 
 #if defined (ACE_HAS_WINSOCK2) && (ACE_HAS_WINSOCK2 != 0)
 # if !defined (_WINSOCK2API_)
@@ -410,13 +481,16 @@
 #    define EREMOTE                 WSAEREMOTE
 #  endif /* UNDER_CE */
 # endif /* _WINSOCK2API */
+
 # if defined (ACE_HAS_FORE_ATM_WS2)
 #  include /**/ <ws2atm.h>
 # endif /*ACE_HAS_FORE_ATM_WS2 */
+
 // CE doesn't have Microsoft Winsock 2 extensions
 # if !defined _MSWSOCK_ && !defined (ACE_HAS_WINCE)
 #  include /**/ <mswsock.h>
 # endif /* _MSWSOCK_ */
+
 # if defined (_MSC_VER)
 #  if defined (ACE_HAS_WINCE)
 #    pragma comment(lib, "ws2.lib")
@@ -428,41 +502,51 @@
 #    endif
 #  endif /* ACE_HAS_WINCE */
 # endif /* _MSC_VER */
+
 # define ACE_WSOCK_VERSION 2, 0
 #else
 # if !defined (_WINSOCKAPI_)
    // will also include windows.h, if not present
 #  include /**/ <winsock.h>
 # endif /* _WINSOCKAPI */
+
 // PharLap ETS has its own winsock lib, so don't grab the one
 // supplied with the OS.
 # if defined (_MSC_VER) && !defined (UNDER_CE) && !defined (ACE_HAS_PHARLAP)
 #  pragma comment(lib, "wsock32.lib")
 # endif /* _MSC_VER */
+
 // We can't use recvmsg and sendmsg unless WinSock 2 is available
 # define ACE_LACKS_RECVMSG
 # define ACE_LACKS_SENDMSG
+
 // Version 1.1 of WinSock
 # define ACE_WSOCK_VERSION 1, 1
 #endif /* ACE_HAS_WINSOCK2 */
+
 // Platform supports IP multicast on Winsock 2
 #if defined (ACE_HAS_WINSOCK2) && (ACE_HAS_WINSOCK2 != 0)
 # define ACE_HAS_IP_MULTICAST
 #endif /* ACE_HAS_WINSOCK2 */
+
 #if !defined (ACE_HAS_WINCE) || defined (PPC)   /* CE only on some CPUs */
 #  define ACE_HAS_INTERLOCKED_EXCHANGEADD
 #endif
 #define ACE_HAS_WIN32_TRYLOCK
+
 #if !defined (ACE_HAS_WINCE) && !defined (ACE_HAS_PHARLAP)
 # define ACE_HAS_SIGNAL_OBJECT_AND_WAIT
+
 // If CancelIO is undefined get the updated sp2-sdk from MS
 # define ACE_HAS_CANCEL_IO
 # define ACE_HAS_WIN32_OVERLAPPED_IO
 # define ACE_HAS_WIN32_NAMED_PIPES
 #endif /* !defined (ACE_USES_WINCE_SEMA_SIMULATION) && !ACE_HAS_PHARLAP */
+
 #if !defined (ACE_SEH_DEFAULT_EXCEPTION_HANDLING_ACTION)
 # define ACE_SEH_DEFAULT_EXCEPTION_HANDLING_ACTION EXCEPTION_CONTINUE_SEARCH
 #endif /* ACE_SEH_DEFAULT_EXCEPTION_HANDLING_ACTION */
+
 // ACE_HAS_QOS is defined in the qos.mpb base project.
 // If qos=1 in default.features, then this macro will be defined.
 #if defined (ACE_HAS_QOS) && !defined (ACE_HAS_WINSOCK2_GQOS)
@@ -470,6 +554,7 @@
 #  define ACE_HAS_WINSOCK2_GQOS 1
 # endif /* WINSOCK_VERSION */
 #endif /* ACE_HAS_WINSOCK2_GQOS */
+
 // These are the defaults and can be overridden by a user's config.h
 #if !defined (ACE_DEFAULT_FILE_PERMS)
 #  define ACE_DEFAULT_FILE_PERMS (FILE_SHARE_READ | FILE_SHARE_WRITE | \
@@ -478,6 +563,7 @@
 // by knock-offs such as CE and Pharlap.
 //#       define ACE_DEFAULT_FILE_PERMS (FILE_SHARE_READ | FILE_SHARE_WRITE)
 #endif /* !defined (ACE_DEFAULT_FILE_PERMS) */
+
 #define ACE_SIZEOF_WCHAR 2
 #define ACE_HAS_MUTEX_TIMEOUTS
 #define ACE_LACKS_STRUCT_DIR
@@ -489,6 +575,7 @@
 #define ACE_LACKS_LSTAT
 // Looks like Win32 has a non-const swab function
 #define ACE_HAS_NONCONST_SWAB
+
 // If we are using winsock2 then the SO_REUSEADDR feature is broken
 // SO_REUSEADDR=1 behaves like SO_REUSEPORT=1. (SO_REUSEPORT is an
 // extension to sockets on some platforms)
@@ -497,21 +584,26 @@
 #if defined (ACE_HAS_WINSOCK2) && ACE_HAS_WINSOCK2 != 0 && ! defined(SO_REUSEPORT)
 #define SO_REUSEPORT 0x0400  // We just have to pick a value that won't conflict
 #endif
+
 #if defined (ACE_WIN64)
 // Data must be aligned on 8-byte boundaries, at a minimum.
 #  define ACE_MALLOC_ALIGN 8
 // Void pointers are 8 bytes
 #  define ACE_SIZEOF_VOID_P 8
 #endif /* ACE_WIN64 */
+
 #if !defined (ACE_DISABLES_THREAD_LIBRARY_CALLS)
 # define ACE_DISABLES_THREAD_LIBRARY_CALLS 0
 #endif /* ACE_DISABLES_THREAD_LIBRARY_CALLS */
+
 #if !defined (ACE_HAS_WINCE) && !defined (ACE_HAS_PHARLAP)
 #  define ACE_HAS_LOG_MSG_NT_EVENT_LOG
 #endif /* !ACE_HAS_WINCE && !ACE_HAS_PHARLAP */
+
 #if !defined (ACE_HAS_WINCE)
 # define ACE_HAS_LLSEEK
 #endif /* !ACE_HAS_WINCE */
+
 // Needed for obtaining the MAC address
 // I dont believe this will work under CE, notice the
 // check for ACE_HAS_WINCE.
@@ -521,15 +613,18 @@
 #   pragma comment(lib, "netapi32.lib") // needed for obtaing MACaddress
 #  endif
 # endif /* !ACE_HAS_WINCE */
+
 #if !defined (WINVER)
 # define WINVER 0x0400 // pretend it's at least WinNT 4.0
 #endif
+
 ///////////////////////////////////////
 // windows version-specific definitions
 // see: http://msdn2.microsoft.com/en-us/library/aa383745.aspx
 //
 // For TSS information
 // see http://msdn.microsoft.com/library/default.asp?url=/library/en-us/dllproc/base/thread_local_storage.asp
+
 #if (WINVER>=0x0600)
 // Windows Server 2008 definitions go here
 // Windows Vista defintions go here
@@ -562,9 +657,11 @@
 #    define ACE_DEFAULT_THREAD_KEYS 64
 #  endif // ! defined(ACE_DEFAULT_THREAD_KEYS)
 #endif
+
 #if !defined (ACE_DEFAULT_BACKLOG)
 #  define ACE_DEFAULT_BACKLOG SOMAXCONN
 #endif /* ACE_DEFAULT_BACKLOG */
+
 #include /**/ "ace/post.h"
 #endif /* ACE_CONFIG_WIN32_COMMON_H */
 

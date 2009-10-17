@@ -13,16 +13,20 @@
 * along with this program; if not, write to the Free Software
 * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
+
 /* ScriptData
 SDName: instance_zulaman
 SD%Complete: 80
 SDComment:
 SDCategory: Zul'Aman
 EndScriptData */
+
 #include "precompiled.h"
 #include "def_zulaman.h"
+
 #define MAX_ENCOUNTER     6
 #define RAND_VENDOR    2
+
 //187021 //Harkor's Satchel
 //186648 //Tanzar's Trunk
 //186672 //Ashli's Bag
@@ -35,56 +39,71 @@ struct SHostageInfo
     uint32 npc, pGo;
     float x, y, z, o;
 };
+
 static SHostageInfo HostageInfo[] =
 {
     {23790, 186648, -57, 1343, 40.77, 3.2}, // bear
     {23999, 187021, 400, 1414, 74.36, 3.3}, // eagle
     {24001, 186672, -35, 1134, 18.71, 1.9}, // dragonhawk
     {24024, 186667, 413, 1117,  6.32, 3.1}  // lynx
+
 };
+
 struct TRINITY_DLL_DECL instance_zulaman : public ScriptedInstance
 {
     instance_zulaman(Map* pMap) : ScriptedInstance(pMap) {Initialize();};
+
     uint64 HarkorsSatchelGUID;
     uint64 TanzarsTrunkGUID;
     uint64 AshlisBagGUID;
     uint64 KrazsPackageGUID;
+
     uint64 HexLordGateGUID;
     uint64 ZulJinGateGUID;
     uint64 AkilzonDoorGUID;
     uint64 ZulJinDoorGUID;
     uint64 HalazziDoorGUID;
+
     uint32 QuestTimer;
     uint16 BossKilled;
     uint16 QuestMinute;
     uint16 ChestLooted;
+
     uint32 m_auiEncounter[MAX_ENCOUNTER];
     uint32 RandVendor[RAND_VENDOR];
+
     void Initialize()
     {
         memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
+
         HarkorsSatchelGUID = 0;
         TanzarsTrunkGUID = 0;
         AshlisBagGUID = 0;
         KrazsPackageGUID = 0;
+
         uint64 HexLordGateGUID = 0;
         uint64 ZulJinGateGUID = 0;
         uint64 AkilzonDoorGUID = 0;
         uint64 HalazziDoorGUID = 0;
         uint64 ZulJinDoorGUID = 0;
+
         QuestTimer = 0;
         QuestMinute = 21;
         BossKilled = 0;
         ChestLooted = 0;
-        for (uint8 i = 0; i < RAND_VENDOR; ++i)
+
+        for(uint8 i = 0; i < RAND_VENDOR; ++i)
             RandVendor[i] = NOT_STARTED;
     }
+
     bool IsEncounterInProgress() const
     {
-        for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
+        for(uint8 i = 0; i < MAX_ENCOUNTER; ++i)
             if (m_auiEncounter[i] == IN_PROGRESS) return true;
+
         return false;
     }
+
     void OnCreatureCreate(Creature* pCreature, bool add)
     {
         switch(pCreature->GetEntry())
@@ -97,6 +116,7 @@ struct TRINITY_DLL_DECL instance_zulaman : public ScriptedInstance
         default: break;
         }
     }
+
     void OnGameObjectCreate(GameObject* pGo, bool add)
     {
         switch(pGo->GetEntry())
@@ -106,21 +126,26 @@ struct TRINITY_DLL_DECL instance_zulaman : public ScriptedInstance
         case 186305: HexLordGateGUID = pGo->GetGUID(); break;
         case 186858: AkilzonDoorGUID = pGo->GetGUID(); break;
         case 186859: ZulJinDoorGUID  = pGo->GetGUID(); break;
+
         case 187021: HarkorsSatchelGUID  = pGo->GetGUID(); break;
         case 186648: TanzarsTrunkGUID = pGo->GetGUID(); break;
         case 186672: AshlisBagGUID = pGo->GetGUID(); break;
         case 186667: KrazsPackageGUID  = pGo->GetGUID(); break;
         default: break;
+
         }
         CheckInstanceStatus();
     }
+
     void SummonHostage(uint8 num)
     {
         if (!QuestMinute)
             return;
+
         Map::PlayerList const &PlayerList = instance->GetPlayers();
         if (PlayerList.isEmpty())
             return;
+
         Map::PlayerList::const_iterator i = PlayerList.begin();
         if (Player* i_pl = i->getSource())
         {
@@ -131,13 +156,16 @@ struct TRINITY_DLL_DECL instance_zulaman : public ScriptedInstance
             }
         }
     }
+
     void CheckInstanceStatus()
     {
         if (BossKilled >= 4)
             HandleGameObject(HexLordGateGUID, true);
+
         if (BossKilled >= 5)
             HandleGameObject(ZulJinGateGUID, true);
     }
+
     std::string GetSaveData()
     {
         std::ostringstream ss;
@@ -147,6 +175,7 @@ struct TRINITY_DLL_DECL instance_zulaman : public ScriptedInstance
         //error_log("TSCR: Zul'aman saved, %s.", data);
         return data;
     }
+
     void Load(const char* load)
     {
         if (!load) return;
@@ -163,6 +192,7 @@ struct TRINITY_DLL_DECL instance_zulaman : public ScriptedInstance
             QuestMinute = data3;
         }else error_log("TSCR: Zul'aman: corrupted save data.");
     }
+
     void SetData(uint32 type, uint32 data)
     {
         switch(type)
@@ -223,6 +253,7 @@ struct TRINITY_DLL_DECL instance_zulaman : public ScriptedInstance
             RandVendor[1] = data;
             break;
         }
+
         if (data == DONE)
         {
             BossKilled++;
@@ -235,6 +266,7 @@ struct TRINITY_DLL_DECL instance_zulaman : public ScriptedInstance
             SaveToDB();
         }
     }
+
     uint32 GetData(uint32 type)
     {
         switch(type)
@@ -251,6 +283,7 @@ struct TRINITY_DLL_DECL instance_zulaman : public ScriptedInstance
         default:                 return 0;
         }
     }
+
     void Update(uint32 diff)
     {
         if (QuestMinute)
@@ -270,10 +303,12 @@ struct TRINITY_DLL_DECL instance_zulaman : public ScriptedInstance
         }
     }
 };
+
 InstanceData* GetInstanceData_instance_zulaman(Map* pMap)
 {
     return new instance_zulaman(pMap);
 }
+
 void AddSC_instance_zulaman()
 {
     Script *newscript;

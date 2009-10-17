@@ -17,9 +17,12 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
+
 #ifndef _UPDATEFIELDS_AUTO_H
 #define _UPDATEFIELDS_AUTO_H
+
 // Auto generated for version 3, 1, 3, 9947
+
 enum EObjectFields
 {
     OBJECT_FIELD_GUID                         = 0x0000, // Size: 2, Type: LONG, Flags: PUBLIC
@@ -29,6 +32,7 @@ enum EObjectFields
     OBJECT_FIELD_PADDING                      = 0x0005, // Size: 1, Type: INT, Flags: NONE
     OBJECT_END                                = 0x0006,
 };
+
 enum EItemFields
 {
     ITEM_FIELD_OWNER                          = OBJECT_END + 0x0000, // Size: 2, Type: LONG, Flags: PUBLIC
@@ -71,6 +75,7 @@ enum EItemFields
     ITEM_FIELD_PAD                            = OBJECT_END + 0x0039, // Size: 1, Type: INT, Flags: NONE
     ITEM_END                                  = OBJECT_END + 0x003A,
 };
+
 enum EContainerFields
 {
     CONTAINER_FIELD_NUM_SLOTS                 = ITEM_END + 0x0000, // Size: 1, Type: INT, Flags: PUBLIC
@@ -78,6 +83,7 @@ enum EContainerFields
     CONTAINER_FIELD_SLOT_1                    = ITEM_END + 0x0002, // Size: 72, Type: LONG, Flags: PUBLIC
     CONTAINER_END                             = ITEM_END + 0x004A,
 };
+
 enum EUnitFields
 {
     UNIT_FIELD_CHARM                          = OBJECT_END + 0x0000, // Size: 2, Type: LONG, Flags: PUBLIC
@@ -170,6 +176,7 @@ enum EUnitFields
     UNIT_FIELD_HOVERHEIGHT                    = OBJECT_END + 0x008C, // Size: 1, Type: FLOAT, Flags: PUBLIC
     UNIT_FIELD_PADDING                        = OBJECT_END + 0x008D, // Size: 1, Type: INT, Flags: NONE
     UNIT_END                                  = OBJECT_END + 0x008E,
+
     PLAYER_DUEL_ARBITER                       = UNIT_END + 0x0000, // Size: 2, Type: LONG, Flags: PUBLIC
     PLAYER_FLAGS                              = UNIT_END + 0x0002, // Size: 1, Type: INT, Flags: PUBLIC
     PLAYER_GUILDID                            = UNIT_END + 0x0003, // Size: 1, Type: INT, Flags: PUBLIC
@@ -383,6 +390,7 @@ enum EUnitFields
     PLAYER_GLYPHS_ENABLED                     = UNIT_END + 0x0479, // Size: 1, Type: INT, Flags: PRIVATE
     PLAYER_END                                = UNIT_END + 0x047A,
 };
+
 enum EGameObjectFields
 {
     OBJECT_FIELD_CREATED_BY                   = OBJECT_END + 0x0000, // Size: 2, Type: LONG, Flags: PUBLIC
@@ -395,6 +403,7 @@ enum EGameObjectFields
     GAMEOBJECT_BYTES_1                        = OBJECT_END + 0x000B, // Size: 1, Type: BYTES, Flags: PUBLIC
     GAMEOBJECT_END                            = OBJECT_END + 0x000C,
 };
+
 enum EDynamicObjectFields
 {
     DYNAMICOBJECT_CASTER                      = OBJECT_END + 0x0000, // Size: 2, Type: LONG, Flags: PUBLIC
@@ -408,6 +417,7 @@ enum EDynamicObjectFields
     DYNAMICOBJECT_CASTTIME                    = OBJECT_END + 0x0009, // Size: 1, Type: INT, Flags: PUBLIC
     DYNAMICOBJECT_END                         = OBJECT_END + 0x000A,
 };
+
 enum ECorpseFields
 {
     CORPSE_FIELD_OWNER                        = OBJECT_END + 0x0000, // Size: 2, Type: LONG, Flags: PUBLIC

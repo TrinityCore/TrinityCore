@@ -1,4 +1,5 @@
 // -*- C++ -*-
+
 //==========================================================================
 /**
  *  @file    Reverse_Lock_T.h
@@ -10,14 +11,19 @@
  *  @author Douglas C. Schmidt <schmidt@cs.wustl.edu>
  */
 //==========================================================================
+
 #ifndef ACE_REVERSE_LOCK_T_H
 #define ACE_REVERSE_LOCK_T_H
 #include /**/ "ace/pre.h"
+
 #include "ace/Lock.h"
+
 #if !defined (ACE_LACKS_PRAGMA_ONCE)
 # pragma once
 #endif /* ACE_LACKS_PRAGMA_ONCE */
+
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
+
 /**
  * @namespace ACE_Acquire_Method
  *
@@ -43,6 +49,7 @@ namespace ACE_Acquire_Method
     ACE_WRITE
   };
 }
+
 /**
  * @class ACE_Reverse_Lock
  *
@@ -65,49 +72,69 @@ template <class ACE_LOCKING_MECHANISM>
 class ACE_Reverse_Lock : public ACE_Lock
 {
 public:
+
   typedef ACE_LOCKING_MECHANISM ACE_LOCK;
+
   // = Initialization/Finalization methods.
+
   /// Constructor. All locking requests will be forwarded to <lock>.
   ACE_Reverse_Lock (ACE_LOCKING_MECHANISM &lock,
                     ACE_Acquire_Method::METHOD_TYPE acquire_method = ACE_Acquire_Method::ACE_REGULAR);
+
   /// Destructor. If <lock_> was not passed in by the user, it will be
   /// deleted.
   virtual ~ACE_Reverse_Lock (void);
+
   // = Lock accessors.
   /// Release the lock.
   virtual int acquire (void);
+
   /// Release the lock.
   virtual int tryacquire (void);
+
   /// Acquire the lock.
   virtual int release (void);
+
   /// Release the lock.
   virtual int acquire_read (void);
+
   /// Release the lock.
   virtual int acquire_write (void);
+
   /// Release the lock.
   virtual int tryacquire_read (void);
+
   /// Release the lock.
   virtual int tryacquire_write (void);
+
   /// Release the lock.
   virtual int tryacquire_write_upgrade (void);
+
   /// Explicitly destroy the lock.
   virtual int remove (void);
+
 private:
   /// The concrete locking mechanism that all the methods delegate to.
   ACE_LOCKING_MECHANISM &lock_;
+
   /// This indicates what kind of acquire method will be called.
   ACE_Acquire_Method::METHOD_TYPE acquire_method_;
 };
+
 ACE_END_VERSIONED_NAMESPACE_DECL
+
 #if defined (__ACE_INLINE__)
 #include "ace/Reverse_Lock_T.inl"
 #endif /* __ACE_INLINE__ */
+
 #if defined (ACE_TEMPLATES_REQUIRE_SOURCE)
 #include "ace/Reverse_Lock_T.cpp"
 #endif /* ACE_TEMPLATES_REQUIRE_SOURCE */
+
 #if defined (ACE_TEMPLATES_REQUIRE_PRAGMA)
 #pragma implementation ("Reverse_Lock_T.cpp")
 #endif /* ACE_TEMPLATES_REQUIRE_PRAGMA */
+
 #include /**/ "ace/post.h"
 #endif /* ACE_REVERSE_LOCK_T_H */
 

@@ -2,16 +2,19 @@
 // Mersenne Twister random number generator -- a C++ class MTRand
 // Based on code by Makoto Matsumoto, Takuji Nishimura, and Shawn Cokus
 // Richard J. Wagner  v1.0  15 May 2003  rjwagner@writeme.com
+
 // The Mersenne Twister is an algorithm for generating random numbers.  It
 // was designed with consideration of the flaws in various other generators.
 // The period, 2^19937-1, and the order of equidistribution, 623 dimensions,
 // are far greater.  The generator is also fast; it avoids multiplication and
 // division, and it benefits from caches and pipelines.  For more information
 // see the inventors' web page at http://www.math.keio.ac.jp/~matumoto/emt.html
+
 // Reference
 // M. Matsumoto and T. Nishimura, "Mersenne Twister: A 623-Dimensionally
 // Equidistributed Uniform Pseudo-Random Number Generator", ACM Transactions on
 // Modeling and Computer Simulation, Vol. 8, No. 1, January 1998, pp 3-30.
+
 // Copyright (C) 1997 - 2002, Makoto Matsumoto and Takuji Nishimura,
 // Copyright (C) 2000 - 2003, Richard J. Wagner
 // All rights reserved.
@@ -42,6 +45,7 @@
 // LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
 // NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
 // The original code included the following notice:
 //
 //     When you use this, send an email to: matumoto@math.keio.ac.jp
@@ -49,25 +53,33 @@
 //
 // It would be nice to CC: rjwagner@writeme.com and Cokus@math.washington.edu
 // when you write.
+
 #ifndef MERSENNETWISTER_H
 #define MERSENNETWISTER_H
+
 // Not thread safe (unless auto-initialization is avoided and each thread has
 // its own MTRand object)
+
 #include"Platform/Define.h"
+
 #include <limits.h>
 #include <time.h>
 #include <math.h>
+
 class MTRand {
 // Data
 public:
     typedef ::uint32 uint32;
     enum { N = 624 };       // length of state vector
     enum { SAVE = N + 1 };  // length of array for save()
+
 protected:
     enum { M = 397 };  // period parameter
+
     uint32 state[N];   // internal state
     uint32 *pNext;     // next value to get from state
     int left;          // number of values left before reload needed
+
 
 //Methods
 public:
@@ -76,9 +88,11 @@ public:
     MTRand();                         // auto-initialize with /dev/urandom or time() and clock()
     MTRand(const MTRand&);            // prevent copy constructor
     MTRand& operator=(const MTRand&); // no-op operator=
+
     // Do NOT use for CRYPTOGRAPHY without securely hashing several returned
     // values together, otherwise the generator state can be learned after
     // reading 624 consecutive values.
+
     // Access to 32-bit random numbers
     double rand();                          // real number in [0,1]
     double rand( const double& n );         // real number in [0,n]
@@ -89,14 +103,18 @@ public:
     uint32 randInt();                       // integer in [0,2^32-1]
     uint32 randInt( const uint32& n );      // integer in [0,n] for n < 2^32
     double operator()() { return rand(); }  // same as rand()
+
     // Access to 53-bit random numbers (capacity of IEEE double precision)
     double rand53();  // real number in [0,1)
+
     // Access to nonuniform random number distributions
     double randNorm( const double& mean = 0.0, const double& variance = 0.0 );
+
     // Re-seeding functions with same behavior as initializers
     void seed( const uint32 oneSeed );
     void seed( uint32 *const bigSeed, const uint32 seedLength = N );
     void seed();
+
     // Saving and loading generator state
     void save( uint32* saveArray ) const;  // to array of size SAVE
     void load( uint32 *const loadArray );  // from such array
@@ -116,33 +134,46 @@ protected:
         { return m ^ (mixBits(s0,s1)>>1) ^ uint32(-(int32)(loBit(s1) & 0x9908b0dfUL)); }
     static uint32 hash( time_t t, clock_t c );
 };
+
 inline MTRand::MTRand(const MTRand&)
     { seed(); }
+
 inline MTRand& MTRand::operator=(const MTRand&)
     { return *this; }
+
 inline MTRand::MTRand( const uint32& oneSeed )
     { seed(oneSeed); }
+
 inline MTRand::MTRand( uint32 *const bigSeed, const uint32 seedLength )
     { seed(bigSeed,seedLength); }
+
 inline MTRand::MTRand()
     { seed(); }
+
 inline double MTRand::rand()
     { return double(randInt()) * (1.0/4294967295.0); }
+
 inline double MTRand::rand( const double& n )
     { return rand() * n; }
+
 inline double MTRand::randExc()
     { return double(randInt()) * (1.0/4294967296.0); }
+
 inline double MTRand::randExc( const double& n )
     { return randExc() * n; }
+
 inline double MTRand::randDblExc()
     { return ( double(randInt()) + 0.5 ) * (1.0/4294967296.0); }
+
 inline double MTRand::randDblExc( const double& n )
     { return randDblExc() * n; }
+
 inline double MTRand::rand53()
 {
     uint32 a = randInt() >> 5, b = randInt() >> 6;
     return ( a * 67108864.0 + b ) * (1.0/9007199254740992.0);  // by Isaku Wada
 }
+
 inline double MTRand::randNorm( const double& mean, const double& variance )
 {
     // Return a real number from a normal (Gaussian) distribution with given
@@ -151,12 +182,15 @@ inline double MTRand::randNorm( const double& mean, const double& variance )
     double phi = 2.0 * 3.14159265358979323846264338328 * randExc();
     return mean + r * cos(phi);
 }
+
 inline MTRand::uint32 MTRand::randInt()
 {
     // Pull a 32-bit integer from the generator state
     // Every other access function simply transforms the numbers extracted here
+
     if( left == 0 ) reload();
     --left;
+
     register uint32 s1;
     s1 = *pNext++;
     s1 ^= (s1 >> 11);
@@ -164,6 +198,7 @@ inline MTRand::uint32 MTRand::randInt()
     s1 ^= (s1 << 15) & 0xefc60000UL;
     return ( s1 ^ (s1 >> 18) );
 }
+
 inline MTRand::uint32 MTRand::randInt( const uint32& n )
 {
     // Find which bits are used in n
@@ -174,6 +209,7 @@ inline MTRand::uint32 MTRand::randInt( const uint32& n )
     used |= used >> 4;
     used |= used >> 8;
     used |= used >> 16;
+
     // Draw numbers until one is found in [0,n]
     uint32 i;
     do
@@ -182,12 +218,14 @@ inline MTRand::uint32 MTRand::randInt( const uint32& n )
     return i;
 }
 
+
 inline void MTRand::seed( const uint32 oneSeed )
 {
     // Seed the generator with a simple uint32
     initialize(oneSeed);
     reload();
 }
+
 
 inline void MTRand::seed( uint32 *const bigSeed, const uint32 seedLength )
 {
@@ -224,11 +262,13 @@ inline void MTRand::seed( uint32 *const bigSeed, const uint32 seedLength )
     reload();
 }
 
+
 inline void MTRand::seed()
 {
     // Seed the generator with hash of time() and clock() values
     seed( hash( time(NULL), clock() ) );
 }
+
 
 inline void MTRand::initialize( const uint32 seed )
 {
@@ -247,6 +287,7 @@ inline void MTRand::initialize( const uint32 seed )
     }
 }
 
+
 inline void MTRand::reload()
 {
     // Generate N new values in state
@@ -258,15 +299,19 @@ inline void MTRand::reload()
     for( i = M; --i; ++p )
         *p = twist( p[M-N], p[0], p[1] );
     *p = twist( p[M-N], p[0], state[0] );
+
     left = N, pNext = state;
 }
+
 
 inline MTRand::uint32 MTRand::hash( time_t t, clock_t c )
 {
     // Get a uint32 from t and c
     // Better than uint32(x) in case x is floating point in [0,1]
     // Based on code by Lawrence Kirby (fred@genesis.demon.co.uk)
+
     static uint32 differ = 0;  // guarantee time-based seeds will change
+
     uint32 h1 = 0;
     unsigned char *p = (unsigned char *) &t;
     for( size_t i = 0; i < sizeof(t); ++i )
@@ -284,6 +329,7 @@ inline MTRand::uint32 MTRand::hash( time_t t, clock_t c )
     return ( h1 + differ++ ) ^ h2;
 }
 
+
 inline void MTRand::save( uint32* saveArray ) const
 {
     register uint32 *sa = saveArray;
@@ -292,6 +338,7 @@ inline void MTRand::save( uint32* saveArray ) const
     for( ; i--; *sa++ = *s++ ) {}
     *sa = left;
 }
+
 
 inline void MTRand::load( uint32 *const loadArray )
 {
@@ -302,6 +349,7 @@ inline void MTRand::load( uint32 *const loadArray )
     left = *la;
     pNext = &state[N-left];
 }
+
 /* Trinity not use streams for random values output
 inline std::ostream& operator<<( std::ostream& os, const MTRand& mtrand )
 {
@@ -310,6 +358,7 @@ inline std::ostream& operator<<( std::ostream& os, const MTRand& mtrand )
     for( ; i--; os << *s++ << "\t" ) {}
     return os << mtrand.left;
 }
+
 
 inline std::istream& operator>>( std::istream& is, MTRand& mtrand )
 {
@@ -321,7 +370,9 @@ inline std::istream& operator>>( std::istream& is, MTRand& mtrand )
     return is;
 }
 */
+
 #endif  // MERSENNETWISTER_H
+
 // Change log:
 //
 // v0.1 - First release on 15 May 2000

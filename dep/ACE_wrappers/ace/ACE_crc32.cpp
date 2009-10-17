@@ -1,8 +1,11 @@
 // $Id: ACE_crc32.cpp 80826 2008-03-04 14:51:23Z wotte $
+
 #include "ace/ACE.h"
+
 ACE_RCSID (ace,
            ACE_crc32,
            "$Id: ACE_crc32.cpp 80826 2008-03-04 14:51:23Z wotte $")
+
 
 namespace
 {
@@ -25,6 +28,7 @@ namespace
   /* in the FTP archive "ftp.adelaide.edu.au/pub/rocksoft".        */
   /*                                                               */
   /*****************************************************************/
+
   const ACE_UINT32 crc_table[] =
     {
       0x00000000L, 0x77073096L, 0xEE0E612CL, 0x990951BAL,
@@ -92,29 +96,37 @@ namespace
       0xB3667A2EL, 0xC4614AB8L, 0x5D681B02L, 0x2A6F2B94L,
       0xB40BBE37L, 0xC30C8EA1L, 0x5A05DF1BL, 0x2D02EF8DL
     };
+
   /*****************************************************************/
   /*                   End of CRC Lookup Table                     */
   /*****************************************************************/
 }
+
 #define COMPUTE(var, ch) (var) = (crc_table[(var ^ ch) & 0xFF] ^ (var >> 8))
+
 // Open versioned namespace, if enabled by the user.
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
+
 ACE_UINT32
 ACE::crc32 (const char *string)
 {
   ACE_UINT32 crc = 0xFFFFFFFF;
+
   for (const char *p = string;
        *p != 0;
        ++p)
     {
       COMPUTE (crc, *p);
     }
+
   return ~crc;
 }
+
 ACE_UINT32
 ACE::crc32 (const void *buffer, size_t len, ACE_UINT32 crc)
 {
   crc = ~crc;
+
   for (const char *p = (const char *) buffer,
                   *e = (const char *) buffer + len;
        p != e;
@@ -122,12 +134,15 @@ ACE::crc32 (const void *buffer, size_t len, ACE_UINT32 crc)
     {
       COMPUTE (crc, *p);
     }
+
   return ~crc;
 }
+
 ACE_UINT32
 ACE::crc32 (const iovec *iov, int len, ACE_UINT32 crc)
 {
   crc = ~crc;
+
   for (int i = 0; i < len; ++i)
     {
       for (const char *p = (const char *) iov[i].iov_base,
@@ -136,9 +151,12 @@ ACE::crc32 (const iovec *iov, int len, ACE_UINT32 crc)
            ++p)
         COMPUTE (crc, *p);
     }
+
   return ~crc;
 }
+
 // Close versioned namespace, if enabled by the user.
 ACE_END_VERSIONED_NAMESPACE_DECL
+
 #undef COMPUTE
 

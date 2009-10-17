@@ -1,25 +1,32 @@
 #include "precompiled.h"
 #include "def_obsidian_sanctum.h"
+
 #define MAX_ENCOUNTER     1
+
 /* Obsidian Sanctum encounters:
 0 - Sartharion
 */
+
 struct TRINITY_DLL_DECL instance_obsidian_sanctum : public ScriptedInstance
 {
     instance_obsidian_sanctum(Map* pMap) : ScriptedInstance(pMap) {Initialize();};
+
     uint32 m_auiEncounter[MAX_ENCOUNTER];
     uint64 m_uiSartharionGUID;
     uint64 m_uiTenebronGUID;
     uint64 m_uiShadronGUID;
     uint64 m_uiVesperonGUID;
+
     void Initialize()
     {
         memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
+
         m_uiSartharionGUID = 0;
         m_uiTenebronGUID   = 0;
         m_uiShadronGUID    = 0;
         m_uiVesperonGUID   = 0;
     }
+
     void OnCreatureCreate(Creature* pCreature, bool add)
     {
         switch(pCreature->GetEntry())
@@ -43,17 +50,21 @@ struct TRINITY_DLL_DECL instance_obsidian_sanctum : public ScriptedInstance
                 break;
         }
     }
+
     void SetData(uint32 uiType, uint32 uiData)
     {
         if (uiType == TYPE_SARTHARION_EVENT)
             m_auiEncounter[0] = uiData;
     }
+
     uint32 GetData(uint32 uiType)
     {
         if (uiType == TYPE_SARTHARION_EVENT)
             return m_auiEncounter[0];
+
         return 0;
     }
+
     uint64 GetData64(uint32 uiData)
     {
         switch(uiData)
@@ -70,10 +81,12 @@ struct TRINITY_DLL_DECL instance_obsidian_sanctum : public ScriptedInstance
         return 0;
     }
 };
+
 InstanceData* GetInstanceData_instance_obsidian_sanctum(Map* pMap)
 {
     return new instance_obsidian_sanctum(pMap);
 }
+
 void AddSC_instance_obsidian_sanctum()
 {
     Script *newscript;

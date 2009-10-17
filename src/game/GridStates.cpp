@@ -17,14 +17,17 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
+
 #include "GridStates.h"
 #include "GridNotifiers.h"
 #include "GameSystem/Grid.h"
 #include "Log.h"
+
 void
 InvalidState::Update(Map &, NGridType &, GridInfo &, const uint32 &/*x*/, const uint32 &/*y*/, const uint32 &) const
 {
 }
+
 void
 ActiveState::Update(Map &m, NGridType &grid, GridInfo & info, const uint32 &x, const uint32 &y, const uint32 &t_diff) const
 {
@@ -45,6 +48,7 @@ ActiveState::Update(Map &m, NGridType &grid, GridInfo & info, const uint32 &x, c
         }
     }
 }
+
 void
 IdleState::Update(Map &m, NGridType &grid, GridInfo &, const uint32 &x, const uint32 &y, const uint32 &) const
 {
@@ -52,6 +56,7 @@ IdleState::Update(Map &m, NGridType &grid, GridInfo &, const uint32 &x, const ui
     grid.SetGridState(GRID_STATE_REMOVAL);
     sLog.outDebug("Grid[%u,%u] on map %u moved to REMOVAL state", x, y, m.GetId());
 }
+
 void
 RemovalState::Update(Map &m, NGridType &grid, GridInfo &info, const uint32 &x, const uint32 &y, const uint32 &t_diff) const
 {

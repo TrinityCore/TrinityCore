@@ -1,4 +1,5 @@
 // -*- C++ -*-
+
 //=============================================================================
 /**
  *  @file    Msg_WFMO_Reactor.h
@@ -10,16 +11,23 @@
  */
 //=============================================================================
 
+
 #ifndef ACE_MSG_WFMO_REACTOR_H
 #define ACE_MSG_WFMO_REACTOR_H
 #include /**/ "ace/pre.h"
+
 #include /**/ "ace/ACE_export.h"
+
 #if !defined (ACE_LACKS_PRAGMA_ONCE)
 # pragma once
 #endif /* ACE_LACKS_PRAGMA_ONCE */
+
 #if defined (ACE_WIN32) && !defined (ACE_LACKS_MSG_WFMO)
+
 #include "ace/WFMO_Reactor.h"
+
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
+
 /**
  * @class ACE_Msg_WFMO_Reactor
  *
@@ -38,6 +46,7 @@ public:
   /// Initialize <ACE_Msg_WFMO_Reactor> with the default size.
   ACE_Msg_WFMO_Reactor (ACE_Sig_Handler * = 0,
                         ACE_Timer_Queue * = 0);
+
   /**
    * Initialize <ACE_Msg_WFMO_Reactor> with size @a size.  Two slots will be
    * added to the @a size parameter which will store handles used for
@@ -47,8 +56,10 @@ public:
                         int unused = 0,
                         ACE_Sig_Handler * = 0,
                         ACE_Timer_Queue * = 0);
+
   /// Close down the ACE_Msg_WFMO_Reactor and release all of its resources.
   virtual ~ACE_Msg_WFMO_Reactor (void);
+
   /**
    * This event loop driver blocks for up to @a max_wait_time before
    * returning.  It will return earlier if timer events, I/O events,
@@ -76,6 +87,7 @@ public:
    */
   virtual int handle_events (ACE_Time_Value *max_wait_time = 0);
   virtual int alertable_handle_events (ACE_Time_Value *max_wait_time = 0);
+
   /**
    * This method is just like the one above, except the
    * @a max_wait_time value is a reference and can therefore never be
@@ -83,20 +95,27 @@ public:
    */
   virtual int handle_events (ACE_Time_Value &max_wait_time);
   virtual int alertable_handle_events (ACE_Time_Value &max_wait_time);
+
 protected:
   /// Wait for timer and I/O events to occur.
   virtual DWORD wait_for_multiple_events (int timeout,
                                           int alertable);
+
   /// Check for activity on remaining handles.
   virtual DWORD poll_remaining_handles (DWORD index);
+
   /// Dispatches window messages.
   virtual int dispatch_window_messages (void);
 };
+
 ACE_END_VERSIONED_NAMESPACE_DECL
+
 #if defined (__ACE_INLINE__)
 #include "ace/Msg_WFMO_Reactor.inl"
 #endif /* __ACE_INLINE__ */
+
 #endif /* ACE_WIN32 && !ACE_LACKS_MSG_WFMO */
+
 #include /**/ "ace/post.h"
 #endif /* ACE_MSG_WFMO_REACTOR_H */
 

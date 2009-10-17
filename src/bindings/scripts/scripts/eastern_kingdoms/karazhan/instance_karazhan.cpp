@@ -13,15 +13,19 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
+
 /* ScriptData
 SDName: Instance_Karazhan
 SD%Complete: 70
 SDComment: Instance Script for Karazhan to help in various encounters. TODO: GameObject visibility for Opera event.
 SDCategory: Karazhan
 EndScriptData */
+
 #include "precompiled.h"
 #include "def_karazhan.h"
+
 #define MAX_ENCOUNTER      12
+
 /*
 0  - Attumen + Midnight (optional)
 1  - Moroes
@@ -36,13 +40,17 @@ EndScriptData */
 10 - Prince Malchezzar
 11 - Nightbane
 */
+
 struct TRINITY_DLL_DECL instance_karazhan : public ScriptedInstance
 {
     instance_karazhan(Map* pMap) : ScriptedInstance(pMap) {Initialize();}
+
     uint32 m_auiEncounter[MAX_ENCOUNTER];
     std::string strSaveData;
+
     uint32 m_uiOperaEvent;
     uint32 m_uiOzDeathCount;
+
     uint64 m_uiCurtainGUID;
     uint64 m_uiStageDoorLeftGUID;
     uint64 m_uiStageDoorRightGUID;
@@ -58,18 +66,23 @@ struct TRINITY_DLL_DECL instance_karazhan : public ScriptedInstance
     uint64 MastersTerraceDoor[2];
     uint64 ImageGUID;
     uint64 DustCoveredChest;
+
     void Initialize()
     {
         memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
+
         // 1 - OZ, 2 - HOOD, 3 - RAJ, this never gets altered.
         m_uiOperaEvent      = urand(1,3);
         m_uiOzDeathCount    = 0;
+
         m_uiCurtainGUID         = 0;
         m_uiStageDoorLeftGUID   = 0;
         m_uiStageDoorRightGUID  = 0;
+
         m_uiKilrekGUID      = 0;
         m_uiTerestianGUID   = 0;
         m_uiMoroesGUID      = 0;
+
         m_uiLibraryDoor         = 0;
         m_uiMassiveDoor         = 0;
         m_uiSideEntranceDoor    = 0;
@@ -81,13 +94,16 @@ struct TRINITY_DLL_DECL instance_karazhan : public ScriptedInstance
         ImageGUID = 0;
         DustCoveredChest    = 0;
     }
+
     bool IsEncounterInProgress() const
     {
         for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
             if (m_auiEncounter[i] == IN_PROGRESS)
                 return true;
+
         return false;
     }
+
     void OnCreatureCreate(Creature* pCreature, bool add)
     {
         switch (pCreature->GetEntry())
@@ -97,6 +113,7 @@ struct TRINITY_DLL_DECL instance_karazhan : public ScriptedInstance
             case 15687:   m_uiMoroesGUID = pCreature->GetGUID();      break;
         }
     }
+
     void SetData(uint32 type, uint32 uiData)
     {
         switch (type)
@@ -132,18 +149,23 @@ struct TRINITY_DLL_DECL instance_karazhan : public ScriptedInstance
                     m_uiOzDeathCount = 0;
                 break;
         }
+
         if (uiData == DONE)
         {
             OUT_SAVE_INST_DATA;
+
             std::ostringstream saveStream;
             saveStream << m_auiEncounter[0] << " " << m_auiEncounter[1] << " " << m_auiEncounter[2] << " "
                 << m_auiEncounter[3] << " " << m_auiEncounter[4] << " " << m_auiEncounter[5] << " " << m_auiEncounter[6] << " "
                 << m_auiEncounter[7] << " " << m_auiEncounter[8] << " " << m_auiEncounter[9] << " " << m_auiEncounter[10] << " " << m_auiEncounter[11];
+
             strSaveData = saveStream.str();
+
             SaveToDB();
             OUT_SAVE_INST_DATA_COMPLETE;
         }
     }
+
      void SetData64(uint32 identifier, uint64 data)
      {
          switch(identifier)
@@ -151,6 +173,7 @@ struct TRINITY_DLL_DECL instance_karazhan : public ScriptedInstance
          case DATA_IMAGE_OF_MEDIVH: ImageGUID = data;
          }
      }
+
     void OnGameObjectCreate(GameObject* pGo, bool add)
     {
         switch(pGo->GetEntry())
@@ -182,21 +205,26 @@ struct TRINITY_DLL_DECL instance_karazhan : public ScriptedInstance
                 break;
             case 185119: DustCoveredChest = pGo->GetGUID(); break;
         }
+
         switch(m_uiOperaEvent)
         {
             //TODO: Set Object visibilities for Opera based on performance
             case EVENT_OZ:
                 break;
+
             case EVENT_HOOD:
                 break;
+
             case EVENT_RAJ:
                 break;
         }
     }
+
     std::string GetSaveData()
     {
         return strSaveData;
     }
+
     uint32 GetData(uint32 uiData)
     {
         switch (uiData)
@@ -217,8 +245,10 @@ struct TRINITY_DLL_DECL instance_karazhan : public ScriptedInstance
             case DATA_OPERA_OZ_DEATHCOUNT:  return m_uiOzDeathCount;
             case DATA_IMAGE_OF_MEDIVH:      return ImageGUID;
         }
+
         return 0;
     }
+
     uint64 GetData64(uint32 uiData)
     {
         switch (uiData)
@@ -238,8 +268,10 @@ struct TRINITY_DLL_DECL instance_karazhan : public ScriptedInstance
             case DATA_MASTERS_TERRACE_DOOR_1:   return MastersTerraceDoor[0];
             case DATA_MASTERS_TERRACE_DOOR_2:   return MastersTerraceDoor[1];
         }
+
         return 0;
     }
+
     void Load(const char* chrIn)
     {
         if (!chrIn)
@@ -247,21 +279,25 @@ struct TRINITY_DLL_DECL instance_karazhan : public ScriptedInstance
             OUT_LOAD_INST_DATA_FAIL;
             return;
         }
+
         OUT_LOAD_INST_DATA(chrIn);
         std::istringstream loadStream(chrIn);
+
         loadStream >> m_auiEncounter[0] >> m_auiEncounter[1] >> m_auiEncounter[2] >> m_auiEncounter[3]
             >> m_auiEncounter[4] >> m_auiEncounter[5] >> m_auiEncounter[6] >> m_auiEncounter[7]
             >> m_auiEncounter[8] >> m_auiEncounter[9] >> m_auiEncounter[10] >> m_auiEncounter[11];
-        for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
+        for(uint8 i = 0; i < MAX_ENCOUNTER; ++i)
             if (m_auiEncounter[i] == IN_PROGRESS)                // Do not load an encounter as "In Progress" - reset it instead.
                 m_auiEncounter[i] = NOT_STARTED;
         OUT_LOAD_INST_DATA_COMPLETE;
     }
 };
+
 InstanceData* GetInstanceData_instance_karazhan(Map* pMap)
 {
     return new instance_karazhan(pMap);
 }
+
 void AddSC_instance_karazhan()
 {
     Script *newscript;

@@ -1,4 +1,5 @@
 /* -*- C++ -*- */
+
 //=============================================================================
 /**
  *  @file    Auto_Ptr.h
@@ -11,13 +12,17 @@
  *  @author Dr. Harald M. Mueller <mueller@garwein.hai.siemens.co.at>
  */
 //=============================================================================
+
 #ifndef ACE_AUTO_PTR_H
 #define ACE_AUTO_PTR_H
 #include /**/ "ace/pre.h"
+
 #include /**/ "ace/config-all.h"
+
 #if !defined (ACE_LACKS_PRAGMA_ONCE)
 # pragma once
 #endif /* ACE_LACKS_PRAGMA_ONCE */
+
 #if defined (_MSC_VER)
 // Suppress warning e.g. "return type for
 // 'ACE_Auto_Array_Pointer<type>::operator ->' is 'type *' (i.e., not a UDT
@@ -27,7 +32,9 @@
 #  pragma warning(disable: 4284)
 #endif /* _MSC_VER */
 
+
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
+
 /**
  * @class ACE_Auto_Basic_Ptr
  *
@@ -39,24 +46,32 @@ class ACE_Auto_Basic_Ptr
 {
 public:
   typedef X element_type;
+
   // = Initialization and termination methods
   explicit ACE_Auto_Basic_Ptr (X * p = 0) : p_ (p) {}
+
   ACE_Auto_Basic_Ptr (ACE_Auto_Basic_Ptr<X> & ap);
   ACE_Auto_Basic_Ptr<X> &operator= (ACE_Auto_Basic_Ptr<X> & rhs);
   ~ACE_Auto_Basic_Ptr (void);
+
   // = Accessor methods.
   X &operator *() const;
   X *get (void) const;
   X *release (void);
   void reset (X * p = 0);
+
   /// Dump the state of an object.
   void dump (void) const;
+
   /// Declare the dynamic allocation hooks.
   ACE_ALLOC_HOOK_DECLARE;
+
 protected:
   X *p_;
 };
+
 ACE_END_VERSIONED_NAMESPACE_DECL
+
 #if !defined (ACE_LACKS_AUTO_PTR) && \
      defined (ACE_HAS_STANDARD_CPP_LIBRARY) && \
             (ACE_HAS_STANDARD_CPP_LIBRARY != 0)
@@ -66,6 +81,7 @@ ACE_END_VERSIONED_NAMESPACE_DECL
 using std::auto_ptr;
 #endif /* ACE_USES_STD_NAMESPACE_FOR_STDCPP_LIB */
 #else /* ACE_HAS_STANDARD_CPP_LIBRARY */
+
 /**
  * @class auto_ptr
  *
@@ -76,13 +92,18 @@ class auto_ptr : public ACE_Auto_Basic_Ptr<X>
 {
 public:
   typedef X element_type;
+
   // = Initialization and termination methods
   explicit auto_ptr (X * p = 0) : ACE_Auto_Basic_Ptr<X> (p) {}
   auto_ptr (auto_ptr<X> & ap) : ACE_Auto_Basic_Ptr<X> (ap.release ()) {}
+
   X *operator-> () const;
 };
+
 #endif /* ACE_HAS_STANDARD_CPP_LIBRARY */
+
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
+
 /**
  * @brief Implements the draft C++ standard auto_ptr abstraction.
  * This version can be used instead of auto_ptr<T>, and obviates
@@ -94,10 +115,13 @@ class ACE_Auto_Ptr : public ACE_Auto_Basic_Ptr <X>
 {
 public:
   typedef X element_type;
+
   // = Initialization and termination methods
   explicit ACE_Auto_Ptr (X * p = 0) : ACE_Auto_Basic_Ptr<X> (p) {}
+
   X *operator-> () const;
 };
+
 /**
  * @class ACE_Auto_Basic_Array_Ptr
  *
@@ -111,24 +135,31 @@ class ACE_Auto_Basic_Array_Ptr
 {
 public:
   typedef X element_type;
+
   // = Initialization and termination methods.
   explicit ACE_Auto_Basic_Array_Ptr (X * p = 0) : p_ (p) {}
+
   ACE_Auto_Basic_Array_Ptr (ACE_Auto_Basic_Array_Ptr<X> & ap);
   ACE_Auto_Basic_Array_Ptr<X> &operator= (ACE_Auto_Basic_Array_Ptr<X> & rhs);
   ~ACE_Auto_Basic_Array_Ptr (void);
+
   // = Accessor methods.
   X & operator* () const;
   X & operator[] (int i) const;
   X * get (void) const;
   X * release (void);
   void reset (X * p = 0);
+
   /// Dump the state of an object.
   void dump (void) const;
+
   /// Declare the dynamic allocation hooks.
   ACE_ALLOC_HOOK_DECLARE;
+
 protected:
   X * p_;
 };
+
 /**
  * @class ACE_Auto_Array_Ptr
  *
@@ -140,11 +171,14 @@ class ACE_Auto_Array_Ptr : public ACE_Auto_Basic_Array_Ptr<X>
 {
 public:
   typedef X element_type;
+
   // = Initialization and termination methods.
   explicit ACE_Auto_Array_Ptr (X *p = 0)
     : ACE_Auto_Basic_Array_Ptr<X> (p) {}
+
   X *operator-> () const;
 };
+
 
 /**
  * @brief Reset given @c auto_ptr element to new element.
@@ -172,7 +206,9 @@ ACE_auto_ptr_reset (AUTO_PTR_TYPE & ap,
   ap.reset (p);
 #endif /* ACE_AUTO_PTR_LACKS_RESET */
 }
+
 ACE_END_VERSIONED_NAMESPACE_DECL
+
 // Some platforms have an older version of auto_ptr
 // support, which lacks reset, and cannot be disabled
 // easily.  Portability to these platforms requires
@@ -184,19 +220,24 @@ ACE_END_VERSIONED_NAMESPACE_DECL
 // ACE_AUTO_PTR_RESET.
 # define ACE_AUTO_PTR_RESET(AUTOPTR,NEWPTR,TYPE) \
   ACE_auto_ptr_reset (AUTOPTR, NEWPTR);
+
 #if defined (__ACE_INLINE__)
 #include "ace/Auto_Ptr.inl"
 #endif /* __ACE_INLINE__ */
+
 #if defined (ACE_TEMPLATES_REQUIRE_SOURCE)
 #include "ace/Auto_Ptr.cpp"
 #endif /* ACE_TEMPLATES_REQUIRE_SOURCE */
+
 #if defined (ACE_TEMPLATES_REQUIRE_PRAGMA)
 #pragma implementation ("Auto_Ptr.cpp")
 #endif /* ACE_TEMPLATES_REQUIRE_PRAGMA */
+
 #if defined (_MSC_VER)
 // Restore the warning state to what it was before entry.
 #  pragma warning(pop)
 #endif /* _MSC_VER */
+
 #include /**/ "ace/post.h"
 #endif /* ACE_AUTO_PTR_H */
 

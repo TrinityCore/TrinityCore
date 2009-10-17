@@ -13,29 +13,36 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
+
 /* ScriptData
 SDName: Deadmines
 SD%Complete: 0
 SDComment: Placeholder
 SDCategory: Deadmines
 EndScriptData */
+
 #include "precompiled.h"
 #include "def_deadmines.h"
 #include "Spell.h"
+
 #define SOUND_CANNONFIRE    1400
 #define SOUND_DESTROYDOOR    3079
 #define SAY_MR_SMITE_ALARM1 "You there, check out that noise!"
 #define SOUND_MR_SMITE_ALARM1  5775
 #define SAY_MR_SMITE_ALARM2 "We're under attack! A vast, ye swabs! Repel the invaders!"
 #define SOUND_MR_SMITE_ALARM2  5777
+
 #define GO_IRONCLAD_DOOR    16397
 #define GO_DEFIAS_CANNON    16398
 #define GO_DOOR_LEVER        101833
+
 #define CANNON_BLAST_TIMER 3000
 #define PIRATES_DELAY_TIMER 1000
+
 struct TRINITY_DLL_DECL instance_deadmines : public ScriptedInstance
 {
     instance_deadmines(Map* pMap) : ScriptedInstance(pMap) {Initialize();};
+
     GameObject* IronCladDoor;
     GameObject* DefiasCannon;
     GameObject* DoorLever;
@@ -45,6 +52,7 @@ struct TRINITY_DLL_DECL instance_deadmines : public ScriptedInstance
     uint32 State;
     uint32 CannonBlast_Timer;
     uint32 PiratesDelay_Timer;
+
     void Initialize()
     {
         IronCladDoor = NULL;
@@ -52,10 +60,12 @@ struct TRINITY_DLL_DECL instance_deadmines : public ScriptedInstance
         DoorLever =    NULL;
         State = CANNON_NOT_USED;
     }
+
     virtual void Update(uint32 diff)
     {
         if (!IronCladDoor || !DefiasCannon || !DoorLever)
             return;
+
         switch(State)
         {
             case CANNON_GUNPOWDER_USED:
@@ -90,39 +100,47 @@ struct TRINITY_DLL_DECL instance_deadmines : public ScriptedInstance
                 break;
         }
     }
+
     void SummonCreatures()
     {
         DefiasPirate1 = IronCladDoor->SummonCreature(657,IronCladDoor->GetPositionX() - 2,IronCladDoor->GetPositionY()-7,IronCladDoor->GetPositionZ(), 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3000);
         DefiasPirate2 = IronCladDoor->SummonCreature(657,IronCladDoor->GetPositionX() + 3,IronCladDoor->GetPositionY()-6,IronCladDoor->GetPositionZ(), 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3000);
         DefiasCompanion = IronCladDoor->SummonCreature(3450,IronCladDoor->GetPositionX() + 2,IronCladDoor->GetPositionY()-6,IronCladDoor->GetPositionZ(), 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3000);
     }
+
     void MoveCreaturesInside()
     {
         if (!DefiasPirate1 || !DefiasPirate2 || !DefiasCompanion)
             return;
+
         MoveCreatureInside(DefiasPirate1);
         MoveCreatureInside(DefiasPirate2);
         MoveCreatureInside(DefiasCompanion);
     }
+
     void MoveCreatureInside(Creature* pCreature)
     {
         pCreature->RemoveUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
         pCreature->GetMotionMaster()->MovePoint(0, -102.7,-655.9, pCreature->GetPositionZ());
     }
+
     void ShootCannon()
     {
         DefiasCannon->SetGoState(GO_STATE_ACTIVE);
         DoPlaySound(DefiasCannon, SOUND_CANNONFIRE);
     }
+
     void BlastOutDoor()
     {
         IronCladDoor->SetGoState(GO_STATE_ACTIVE_ALTERNATIVE);
         DoPlaySound(IronCladDoor, SOUND_DESTROYDOOR);
     }
+
     void LeverStucked()
     {
         DoorLever->SetUInt32Value(GAMEOBJECT_FLAGS, 4);
     }
+
     void OnGameObjectCreate(GameObject* pGo, bool add)
     {
         switch(pGo->GetEntry())
@@ -138,6 +156,7 @@ struct TRINITY_DLL_DECL instance_deadmines : public ScriptedInstance
                 break;
         }
     }
+
     void SetData(uint32 type, uint32 data)
     {
         if (type == EVENT_STATE)
@@ -146,12 +165,14 @@ struct TRINITY_DLL_DECL instance_deadmines : public ScriptedInstance
                 State=data;
         }
     }
+
     uint32 GetData(uint32 type)
     {
         if (type == EVENT_STATE)
             return State;
         return 0;
     }
+
     void DoPlaySound(GameObject* unit, uint32 sound)
     {
         WorldPacket data(4);
@@ -159,6 +180,7 @@ struct TRINITY_DLL_DECL instance_deadmines : public ScriptedInstance
         data << uint32(sound);
         unit->SendMessageToSet(&data,false);
     }
+
     void DoPlaySoundCreature(Unit* unit, uint32 sound)
     {
         WorldPacket data(4);
@@ -167,12 +189,15 @@ struct TRINITY_DLL_DECL instance_deadmines : public ScriptedInstance
         unit->SendMessageToSet(&data,false);
     }
 };
+
 /*#####
 # item_Defias_Gunpowder
 #####*/
+
 bool ItemUse_item_defias_gunpowder(Player* pPlayer, Item* _Item, SpellCastTargets const& targets)
 {
     ScriptedInstance *pInstance = pPlayer->GetInstanceData();
+
     if (!pInstance)
     {
         pPlayer->GetSession()->SendNotification("Instance script not initialized");
@@ -185,13 +210,16 @@ bool ItemUse_item_defias_gunpowder(Player* pPlayer, Item* _Item, SpellCastTarget
     {
         pInstance->SetData(EVENT_STATE, CANNON_GUNPOWDER_USED);
     }
+
     pPlayer->DestroyItemCount(_Item->GetEntry(), 1, true);
     return true;
 }
+
 InstanceData* GetInstanceData_instance_deadmines(Map* pMap)
 {
     return new instance_deadmines(pMap);
 }
+
 void AddSC_instance_deadmines()
 {
     Script *newscript;
@@ -199,6 +227,7 @@ void AddSC_instance_deadmines()
     newscript->Name = "instance_deadmines";
     newscript->GetInstanceData = &GetInstanceData_instance_deadmines;
     newscript->RegisterSelf();
+
     newscript = new Script;
     newscript->Name = "item_defias_gunpowder";
     newscript->pItemUse = &ItemUse_item_defias_gunpowder;

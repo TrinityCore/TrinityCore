@@ -13,144 +13,186 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
+
 /* ScriptData
 SDName: Npc_Professions
 SD%Complete: 80
 SDComment: Provides learn/unlearn/relearn-options for professions. Not supported: Unlearn engineering, re-learn engineering, re-learn leatherworking.
 SDCategory: NPCs
 EndScriptData */
+
 #include "precompiled.h"
+
 /*
 A few notes for future developement:
 - A full implementation of gossip for GO's is required. They must have the same scripting capabilities as creatures. Basically,
 there is no difference here (except that default text is chosen with `gameobject_template`.`data3` (for GO type2, different dataN for a few others)
 - It's possible blacksmithing still require some tweaks and adjustments due to the way we _have_ to use reputation.
 */
+
 /*
 -- UPDATE `gameobject_template` SET `ScriptName` = 'go_soothsaying_for_dummies' WHERE `entry` = 177226;
 */
+
 /*###
 # to be removed from here (->ncp_text). This is data for database projects.
 ###*/
 #define TALK_MUST_UNLEARN_WEAPON    "You must forget your weapon type specialty before I can help you. Go to Everlook in Winterspring and seek help there."
+
 #define TALK_HAMMER_LEARN           "Ah, a seasoned veteran you once were. I know you are capable, you merely need to ask and I shall teach you the way of the hammersmith."
 #define TALK_AXE_LEARN              "Ah, a seasoned veteran you once were. I know you are capable, you merely need to ask and I shall teach you the way of the axesmith."
 #define TALK_SWORD_LEARN            "Ah, a seasoned veteran you once were. I know you are capable, you merely need to ask and I shall teach you the way of the swordsmith."
+
 #define TALK_HAMMER_UNLEARN         "Forgetting your Hammersmithing skill is not something to do lightly. If you choose to abandon it you will forget all recipes that require Hammersmithing to create!"
 #define TALK_AXE_UNLEARN            "Forgetting your Axesmithing skill is not something to do lightly. If you choose to abandon it you will forget all recipes that require Axesmithing to create!"
 #define TALK_SWORD_UNLEARN          "Forgetting your Swordsmithing skill is not something to do lightly. If you choose to abandon it you will forget all recipes that require Swordsmithing to create!"
+
 /*###
 # generic defines
 ###*/
+
 #define GOSSIP_SENDER_LEARN         50
 #define GOSSIP_SENDER_UNLEARN       51
 #define GOSSIP_SENDER_CHECK         52
+
 /*###
 # gossip item and box texts
 ###*/
+
 #define GOSSIP_LEARN_POTION         "Please teach me how to become a Master of Potions, Lauranna"
 #define GOSSIP_UNLEARN_POTION       "I wish to unlearn Potion Mastery"
 #define GOSSIP_LEARN_TRANSMUTE      "Please teach me how to become a Master of Transmutations, Zarevhi"
 #define GOSSIP_UNLEARN_TRANSMUTE    "I wish to unlearn Transmutation Mastery"
 #define GOSSIP_LEARN_ELIXIR         "Please teach me how to become a Master of Elixirs, Lorokeem"
 #define GOSSIP_UNLEARN_ELIXIR       "I wish to unlearn Elixir Mastery"
+
 #define BOX_UNLEARN_ALCHEMY_SPEC    "Do you really want to unlearn your alchemy specialty and lose all associated recipes? \n Cost: "
+
 #define GOSSIP_WEAPON_LEARN         "Please teach me how to become a Weaponsmith"
 #define GOSSIP_WEAPON_UNLEARN       "I wish to unlearn the art of Weaponsmithing"
 #define GOSSIP_ARMOR_LEARN          "Please teach me how to become a Armorsmith"
 #define GOSSIP_ARMOR_UNLEARN        "I wish to unlearn the art of Armorsmithing"
+
 #define GOSSIP_UNLEARN_SMITH_SPEC   "I wish to unlearn my blacksmith specialty"
 #define BOX_UNLEARN_ARMORORWEAPON   "Do you really want to unlearn your blacksmith specialty and lose all associated recipes? \n Cost: "
+
 #define GOSSIP_LEARN_HAMMER         "Please teach me how to become a Hammersmith, Lilith"
 #define GOSSIP_UNLEARN_HAMMER       "I wish to unlearn Hammersmithing"
 #define GOSSIP_LEARN_AXE            "Please teach me how to become a Axesmith, Kilram"
 #define GOSSIP_UNLEARN_AXE          "I wish to unlearn Axesmithing"
 #define GOSSIP_LEARN_SWORD          "Please teach me how to become a Swordsmith, Seril"
 #define GOSSIP_UNLEARN_SWORD        "I wish to unlearn Swordsmithing"
+
 #define BOX_UNLEARN_WEAPON_SPEC     "Do you really want to unlearn your weaponsmith specialty and lose all associated recipes? \n Cost: "
+
 #define GOSSIP_LEARN_DRAGON         "I am absolutely certain that i want to learn dragonscale leatherworking"
 #define GOSSIP_UNLEARN_DRAGON       "I wish to unlearn Dragonscale Leatherworking"
 #define GOSSIP_LEARN_ELEMENTAL      "I am absolutely certain that i want to learn elemental leatherworking"
 #define GOSSIP_UNLEARN_ELEMENTAL    "I wish to unlearn Elemental Leatherworking"
 #define GOSSIP_LEARN_TRIBAL         "I am absolutely certain that i want to learn tribal leatherworking"
 #define GOSSIP_UNLEARN_TRIBAL       "I wish to unlearn Tribal Leatherworking"
+
 #define BOX_UNLEARN_LEATHER_SPEC    "Do you really want to unlearn your leatherworking specialty and lose all associated recipes? \n Cost: "
+
 #define GOSSIP_LEARN_SPELLFIRE      "Please teach me how to become a Spellcloth tailor"
 #define GOSSIP_UNLEARN_SPELLFIRE    "I wish to unlearn Spellfire Tailoring"
 #define GOSSIP_LEARN_MOONCLOTH      "Please teach me how to become a Mooncloth tailor"
 #define GOSSIP_UNLEARN_MOONCLOTH    "I wish to unlearn Mooncloth Tailoring"
 #define GOSSIP_LEARN_SHADOWEAVE     "Please teach me how to become a Shadoweave tailor"
 #define GOSSIP_UNLEARN_SHADOWEAVE   "I wish to unlearn Shadoweave Tailoring"
+
 #define BOX_UNLEARN_TAILOR_SPEC     "Do you really want to unlearn your tailoring specialty and lose all associated recipes? \n Cost: "
+
 #define GOSSIP_LEARN_GOBLIN         "I am absolutely certain that i want to learn Goblin engineering"
 #define GOSSIP_LEARN_GNOMISH        "I am absolutely certain that i want to learn Gnomish engineering"
+
 /*###
 # spells defines
 ###*/
+
 #define S_WEAPON                9787
 #define S_ARMOR                 9788
 #define S_HAMMER                17040
 #define S_AXE                   17041
 #define S_SWORD                 17039
+
 #define S_LEARN_WEAPON          9789
 #define S_LEARN_ARMOR           9790
 #define S_LEARN_HAMMER          39099
 #define S_LEARN_AXE             39098
 #define S_LEARN_SWORD           39097
+
 #define S_UNLEARN_WEAPON        36436
 #define S_UNLEARN_ARMOR         36435
 #define S_UNLEARN_HAMMER        36441
 #define S_UNLEARN_AXE           36439
 #define S_UNLEARN_SWORD         36438
+
 #define S_REP_ARMOR             17451
 #define S_REP_WEAPON            17452
+
 #define REP_ARMOR               46
 #define REP_WEAPON              289
 #define REP_HAMMER              569
 #define REP_AXE                 570
 #define REP_SWORD               571
+
 #define S_DRAGON                10656
 #define S_ELEMENTAL             10658
 #define S_TRIBAL                10660
+
 #define S_LEARN_DRAGON          10657
 #define S_LEARN_ELEMENTAL       10659
 #define S_LEARN_TRIBAL          10661
+
 #define S_UNLEARN_DRAGON        36434
 #define S_UNLEARN_ELEMENTAL     36328
 #define S_UNLEARN_TRIBAL        36433
+
 #define S_GOBLIN                20222
 #define S_GNOMISH               20219
+
 #define S_LEARN_GOBLIN          20221
 #define S_LEARN_GNOMISH         20220
+
 #define S_SPELLFIRE             26797
 #define S_MOONCLOTH             26798
 #define S_SHADOWEAVE            26801
+
 #define S_LEARN_SPELLFIRE       26796
 #define S_LEARN_MOONCLOTH       26799
 #define S_LEARN_SHADOWEAVE      26800
+
 #define S_UNLEARN_SPELLFIRE     41299
 #define S_UNLEARN_MOONCLOTH     41558
 #define S_UNLEARN_SHADOWEAVE    41559
+
 #define S_TRANSMUTE             28672
 #define S_ELIXIR                28677
 #define S_POTION                28675
+
 #define S_LEARN_TRANSMUTE       28674
 #define S_LEARN_ELIXIR          28678
 #define S_LEARN_POTION          28676
+
 #define S_UNLEARN_TRANSMUTE     41565
 #define S_UNLEARN_ELIXIR        41564
 #define S_UNLEARN_POTION        41563
+
 /*###
 # formulas to calculate unlearning cost
 ###*/
+
 int32 DoLearnCost(Player* pPlayer)                           //tailor, alchemy
 {
     return 200000;
 }
+
 int32 DoHighUnlearnCost(Player* pPlayer)                     //tailor, alchemy
 {
     return 1500000;
 }
+
 int32 DoMedUnlearnCost(Player* pPlayer)                      //blacksmith, leatherwork
 {
     uint32 level = pPlayer->getLevel();
@@ -161,6 +203,7 @@ int32 DoMedUnlearnCost(Player* pPlayer)                      //blacksmith, leath
     else
         return 1000000;
 }
+
 int32 DoLowUnlearnCost(Player* pPlayer)                      //blacksmith
 {
     uint32 level = pPlayer->getLevel();
@@ -169,21 +212,26 @@ int32 DoLowUnlearnCost(Player* pPlayer)                      //blacksmith
     else
         return 100000;
 }
+
 /*###
 # unlearning related profession spells
 ###*/
+
 bool EquippedOk(Player* pPlayer, uint32 spellId)
 {
     SpellEntry const* spell = GetSpellStore()->LookupEntry(spellId);
+
     if (!spell)
         return false;
-    for (uint8 i=0; i<3; ++i)
+
+    for(uint8 i=0; i<3; ++i)
     {
         uint32 reqSpell = spell->EffectTriggerSpell[i];
         if (!reqSpell)
             continue;
+
         Item* pItem;
-        for (uint8 j = EQUIPMENT_SLOT_START; j < EQUIPMENT_SLOT_END; j++)
+        for(uint8 j = EQUIPMENT_SLOT_START; j < EQUIPMENT_SLOT_END; j++)
         {
             pItem = pPlayer->GetItemByPos(INVENTORY_SLOT_BAG_0, j);
             if (pItem)
@@ -197,6 +245,7 @@ bool EquippedOk(Player* pPlayer, uint32 spellId)
     }
     return true;
 }
+
 void ProfessionUnlearnSpells(Player* pPlayer, uint32 type)
 {
     switch (type)
@@ -289,15 +338,18 @@ void ProfessionUnlearnSpells(Player* pPlayer, uint32 type)
             break;
     }
 }
+
 /*###
 # start menues alchemy
 ###*/
+
 bool HasAlchemySpell(Player* pPlayer)
 {
     if (pPlayer->HasSpell(S_TRANSMUTE) || pPlayer->HasSpell(S_ELIXIR) || pPlayer->HasSpell(S_POTION))
         return true;
     return false;
 }
+
 bool GossipHello_npc_prof_alchemy(Player* pPlayer, Creature* pCreature)
 {
     if (pCreature->isQuestGiver())
@@ -306,7 +358,9 @@ bool GossipHello_npc_prof_alchemy(Player* pPlayer, Creature* pCreature)
         pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_VENDOR, GOSSIP_TEXT_BROWSE_GOODS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
     if (pCreature->isTrainer())
         pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TRAINER, GOSSIP_TEXT_TRAIN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRAIN);
+
     uint32 eCreature = pCreature->GetEntry();
+
     if (pPlayer->HasSkill(SKILL_ALCHEMY) && pPlayer->GetBaseSkillValue(SKILL_ALCHEMY)>=350 && pPlayer->getLevel() > 67)
     {
         if (pPlayer->GetQuestRewardStatus(10899) || pPlayer->GetQuestRewardStatus(10902) || pPlayer->GetQuestRewardStatus(10897))
@@ -334,9 +388,11 @@ bool GossipHello_npc_prof_alchemy(Player* pPlayer, Creature* pCreature)
             }
         }
     }
+
     pPlayer->SEND_GOSSIP_MENU(pCreature->GetNpcTextId(), pCreature->GetGUID());
     return true;
 }
+
 void SendActionMenu_npc_prof_alchemy(Player* pPlayer, Creature* pCreature, uint32 uiAction)
 {
     switch(uiAction)
@@ -405,6 +461,7 @@ void SendActionMenu_npc_prof_alchemy(Player* pPlayer, Creature* pCreature, uint3
             break;
     }
 }
+
 void SendConfirmLearn_npc_prof_alchemy(Player* pPlayer, Creature* pCreature, uint32 uiAction)
 {
     if (uiAction)
@@ -430,6 +487,7 @@ void SendConfirmLearn_npc_prof_alchemy(Player* pPlayer, Creature* pCreature, uin
         }
     }
 }
+
 void SendConfirmUnlearn_npc_prof_alchemy(Player* pPlayer, Creature* pCreature, uint32 uiAction)
 {
     if (uiAction)
@@ -455,6 +513,7 @@ void SendConfirmUnlearn_npc_prof_alchemy(Player* pPlayer, Creature* pCreature, u
         }
     }
 }
+
 bool GossipSelect_npc_prof_alchemy(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
 {
     switch(uiSender)
@@ -466,15 +525,18 @@ bool GossipSelect_npc_prof_alchemy(Player* pPlayer, Creature* pCreature, uint32 
     }
     return true;
 }
+
 /*###
 # start menues blacksmith
 ###*/
+
 bool HasWeaponSub(Player* pPlayer)
 {
     if (pPlayer->HasSpell(S_HAMMER) || pPlayer->HasSpell(S_AXE) || pPlayer->HasSpell(S_SWORD))
         return true;
     return false;
 }
+
 bool GossipHello_npc_prof_blacksmith(Player* pPlayer, Creature* pCreature)
 {
     if (pCreature->isQuestGiver())
@@ -483,6 +545,7 @@ bool GossipHello_npc_prof_blacksmith(Player* pPlayer, Creature* pCreature)
         pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_VENDOR, GOSSIP_TEXT_BROWSE_GOODS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
     if (pCreature->isTrainer())
         pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TRAINER, GOSSIP_TEXT_TRAIN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRAIN);
+
     uint32 eCreature = pCreature->GetEntry();
     //WEAPONSMITH & ARMORSMITH
     if (pPlayer->GetBaseSkillValue(SKILL_BLACKSMITHING)>=225)
@@ -533,9 +596,11 @@ bool GossipHello_npc_prof_blacksmith(Player* pPlayer, Creature* pCreature)
                 break;
         }
     }
+
     pPlayer->SEND_GOSSIP_MENU(pCreature->GetNpcTextId(), pCreature->GetGUID());
     return true;
 }
+
 void SendActionMenu_npc_prof_blacksmith(Player* pPlayer, Creature* pCreature, uint32 uiAction)
 {
     switch(uiAction)
@@ -661,6 +726,7 @@ void SendActionMenu_npc_prof_blacksmith(Player* pPlayer, Creature* pCreature, ui
             break;
     }
 }
+
 void SendConfirmLearn_npc_prof_blacksmith(Player* pPlayer, Creature* pCreature, uint32 uiAction)
 {
     if (uiAction)
@@ -686,6 +752,7 @@ void SendConfirmLearn_npc_prof_blacksmith(Player* pPlayer, Creature* pCreature, 
         }
     }
 }
+
 void SendConfirmUnlearn_npc_prof_blacksmith(Player* pPlayer, Creature* pCreature, uint32 uiAction)
 {
     if (uiAction)
@@ -701,6 +768,7 @@ void SendConfirmUnlearn_npc_prof_blacksmith(Player* pPlayer, Creature* pCreature
                                                             //unknown textID (TALK_UNLEARN_AXEORWEAPON)
                 pPlayer->SEND_GOSSIP_MENU(pCreature->GetNpcTextId(), pCreature->GetGUID());
                 break;
+
             case 11191:
                 pPlayer->ADD_GOSSIP_ITEM_EXTENDED(0, GOSSIP_UNLEARN_HAMMER, GOSSIP_SENDER_CHECK, uiAction,    BOX_UNLEARN_WEAPON_SPEC, DoMedUnlearnCost(pPlayer),false);
                                                             //unknown textID (TALK_HAMMER_UNLEARN)
@@ -719,6 +787,7 @@ void SendConfirmUnlearn_npc_prof_blacksmith(Player* pPlayer, Creature* pCreature
         }
     }
 }
+
 bool GossipSelect_npc_prof_blacksmith(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
 {
     switch(uiSender)
@@ -730,43 +799,54 @@ bool GossipSelect_npc_prof_blacksmith(Player* pPlayer, Creature* pCreature, uint
     }
     return true;
 }
+
 /*bool QuestComplete_npc_prof_blacksmith(Player* pPlayer, Creature* pCreature, Quest const *_Quest)
 {
     if ((_Quest->GetQuestId() == 5283) || (_Quest->GetQuestId() == 5301))             //armorsmith
         pCreature->CastSpell(pPlayer, 17451, true);
+
     if ((_Quest->GetQuestId() == 5284) || (_Quest->GetQuestId() == 5302))             //weaponsmith
         pCreature->CastSpell(pPlayer, 17452, true);
+
     return true;
 }*/
+
 /*###
 # engineering trinkets
 ###*/
+
 enum eEngineeringTrinkets
 {
     NPC_ZAP                     = 14742,
     NPC_JHORDY                  = 14743,
     NPC_KABLAM                  = 21493,
     NPC_SMILES                  = 21494,
+
     SPELL_LEARN_TO_EVERLOOK     = 23490,
     SPELL_LEARN_TO_GADGET       = 23491,
     SPELL_LEARN_TO_AREA52       = 36956,
     SPELL_LEARN_TO_TOSHLEY      = 36957,
+
     SPELL_TO_EVERLOOK           = 23486,
     SPELL_TO_GADGET             = 23489,
     SPELL_TO_AREA52             = 36954,
     SPELL_TO_TOSHLEY            = 36955,
+
     ITEM_GNOMISH_CARD           = 10790,
     ITEM_GOBLIN_CARD            = 10791
 };
+
 #define GOSSIP_ITEM_ZAP         "[PH] Unknown"
 #define GOSSIP_ITEM_JHORDY      "I must build a beacon for this marvelous device!"
 #define GOSSIP_ITEM_KABLAM      "[PH] Unknown"
 #define GOSSIP_ITEM_SMILES      "[PH] Unknown"
+
 bool GossipHello_npc_engineering_tele_trinket(Player* pPlayer, Creature* pCreature)
 {
     uint32 NpcTextId = 0;
     std::string GossipItem;
     bool CanLearn = false;
+
     if (pPlayer->HasSkill(SKILL_ENGINERING))
     {
         switch(pCreature->GetEntry())
@@ -825,20 +905,25 @@ bool GossipHello_npc_engineering_tele_trinket(Player* pPlayer, Creature* pCreatu
                 break;
         }
     }
+
     if (CanLearn)
     {
         if (pPlayer->HasItemCount(ITEM_GOBLIN_CARD,1) || pPlayer->HasItemCount(ITEM_GNOMISH_CARD,1))
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GossipItem, pCreature->GetEntry(), GOSSIP_ACTION_INFO_DEF+1);
     }
+
     pPlayer->SEND_GOSSIP_MENU(NpcTextId ? NpcTextId : pCreature->GetNpcTextId(), pCreature->GetGUID());
     return true;
 }
+
 bool GossipSelect_npc_engineering_tele_trinket(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
 {
     if (uiAction == GOSSIP_ACTION_INFO_DEF+1)
         pPlayer->CLOSE_GOSSIP_MENU();
+
     if (uiSender != pCreature->GetEntry())
         return true;
+
     switch(uiSender)
     {
         case NPC_ZAP:
@@ -854,11 +939,14 @@ bool GossipSelect_npc_engineering_tele_trinket(Player* pPlayer, Creature* pCreat
             pPlayer->CastSpell(pPlayer, SPELL_LEARN_TO_TOSHLEY, false);
             break;
     }
+
     return true;
 }
+
 /*###
 # start menues leatherworking
 ###*/
+
 bool GossipHello_npc_prof_leather(Player* pPlayer, Creature* pCreature)
 {
     if (pCreature->isQuestGiver())
@@ -867,7 +955,9 @@ bool GossipHello_npc_prof_leather(Player* pPlayer, Creature* pCreature)
         pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_VENDOR, GOSSIP_TEXT_BROWSE_GOODS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
     if (pCreature->isTrainer())
         pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TRAINER, GOSSIP_TEXT_TRAIN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRAIN);
+
     uint32 eCreature = pCreature->GetEntry();
+
     if (pPlayer->HasSkill(SKILL_LEATHERWORKING) && pPlayer->GetBaseSkillValue(SKILL_LEATHERWORKING)>=250 && pPlayer->getLevel() > 49)
     {
         switch (eCreature)
@@ -889,9 +979,11 @@ bool GossipHello_npc_prof_leather(Player* pPlayer, Creature* pCreature)
                 break;
         }
     }
+
     pPlayer->SEND_GOSSIP_MENU(pCreature->GetNpcTextId(), pCreature->GetGUID());
     return true;
 }
+
 void SendActionMenu_npc_prof_leather(Player* pPlayer, Creature* pCreature, uint32 uiAction)
 {
     switch(uiAction)
@@ -947,6 +1039,7 @@ void SendActionMenu_npc_prof_leather(Player* pPlayer, Creature* pCreature, uint3
             break;
     }
 }
+
 void SendConfirmUnlearn_npc_prof_leather(Player* pPlayer, Creature* pCreature, uint32 uiAction)
 {
     if (uiAction)
@@ -975,6 +1068,7 @@ void SendConfirmUnlearn_npc_prof_leather(Player* pPlayer, Creature* pCreature, u
         }
     }
 }
+
 bool GossipSelect_npc_prof_leather(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
 {
     switch(uiSender)
@@ -985,15 +1079,18 @@ bool GossipSelect_npc_prof_leather(Player* pPlayer, Creature* pCreature, uint32 
     }
     return true;
 }
+
 /*###
 # start menues tailoring
 ###*/
+
 bool HasTailorSpell(Player* pPlayer)
 {
     if (pPlayer->HasSpell(S_MOONCLOTH) || pPlayer->HasSpell(S_SHADOWEAVE) || pPlayer->HasSpell(S_SPELLFIRE))
         return true;
     return false;
 }
+
 bool GossipHello_npc_prof_tailor(Player* pPlayer, Creature* pCreature)
 {
     if (pCreature->isQuestGiver())
@@ -1002,6 +1099,7 @@ bool GossipHello_npc_prof_tailor(Player* pPlayer, Creature* pCreature)
         pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_VENDOR, GOSSIP_TEXT_BROWSE_GOODS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
     if (pCreature->isTrainer())
         pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TRAINER, GOSSIP_TEXT_TRAIN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRAIN);
+
     uint32 eCreature = pCreature->GetEntry();
                                                             //TAILORING SPEC
     if (pPlayer->HasSkill(SKILL_TAILORING) && pPlayer->GetBaseSkillValue(SKILL_TAILORING)>=350 && pPlayer->getLevel() > 59)
@@ -1031,9 +1129,11 @@ bool GossipHello_npc_prof_tailor(Player* pPlayer, Creature* pCreature)
             }
         }
     }
+
     pPlayer->SEND_GOSSIP_MENU(pCreature->GetNpcTextId(), pCreature->GetGUID());
     return true;
 }
+
 void SendActionMenu_npc_prof_tailor(Player* pPlayer, Creature* pCreature, uint32 uiAction)
 {
     switch(uiAction)
@@ -1117,6 +1217,7 @@ void SendActionMenu_npc_prof_tailor(Player* pPlayer, Creature* pCreature, uint32
             break;
     }
 }
+
 void SendConfirmLearn_npc_prof_tailor(Player* pPlayer, Creature* pCreature, uint32 uiAction)
 {
     if (uiAction)
@@ -1142,6 +1243,7 @@ void SendConfirmLearn_npc_prof_tailor(Player* pPlayer, Creature* pCreature, uint
         }
     }
 }
+
 void SendConfirmUnlearn_npc_prof_tailor(Player* pPlayer, Creature* pCreature, uint32 uiAction)
 {
     if (uiAction)
@@ -1167,6 +1269,7 @@ void SendConfirmUnlearn_npc_prof_tailor(Player* pPlayer, Creature* pCreature, ui
         }
     }
 }
+
 bool GossipSelect_npc_prof_tailor(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
 {
     switch(uiSender)
@@ -1178,46 +1281,58 @@ bool GossipSelect_npc_prof_tailor(Player* pPlayer, Creature* pCreature, uint32 u
     }
     return true;
 }
+
 /*###
 # start menues for GO (engineering and leatherworking)
 ###*/
+
 /*bool GOHello_go_soothsaying_for_dummies(Player* pPlayer, GameObject* pGo)
 {
     pPlayer->PlayerTalkClass->GetGossipMenu()->AddMenuItem(0,GOSSIP_LEARN_DRAGON, GOSSIP_SENDER_INFO, GOSSIP_ACTION_INFO_DEF, "", 0);
+
     pPlayer->SEND_GOSSIP_MENU(5584, pGo->GetGUID());
+
     return true;
 }*/
+
 /*###
 #
 ###*/
+
 void AddSC_npc_professions()
 {
     Script *newscript;
+
     newscript = new Script;
     newscript->Name = "npc_prof_alchemy";
     newscript->pGossipHello =  &GossipHello_npc_prof_alchemy;
     newscript->pGossipSelect = &GossipSelect_npc_prof_alchemy;
     newscript->RegisterSelf();
+
     newscript = new Script;
     newscript->Name = "npc_prof_blacksmith";
     newscript->pGossipHello =  &GossipHello_npc_prof_blacksmith;
     newscript->pGossipSelect = &GossipSelect_npc_prof_blacksmith;
     newscript->RegisterSelf();
+
     newscript = new Script;
     newscript->Name = "npc_engineering_tele_trinket";
     newscript->pGossipHello =  &GossipHello_npc_engineering_tele_trinket;
     newscript->pGossipSelect = &GossipSelect_npc_engineering_tele_trinket;
     newscript->RegisterSelf();
+
     newscript = new Script;
     newscript->Name = "npc_prof_leather";
     newscript->pGossipHello =  &GossipHello_npc_prof_leather;
     newscript->pGossipSelect = &GossipSelect_npc_prof_leather;
     newscript->RegisterSelf();
+
     newscript = new Script;
     newscript->Name = "npc_prof_tailor";
     newscript->pGossipHello =  &GossipHello_npc_prof_tailor;
     newscript->pGossipSelect = &GossipSelect_npc_prof_tailor;
     newscript->RegisterSelf();
+
     /*newscript = new Script;
     newscript->Name = "go_soothsaying_for_dummies";
     newscript->pGOHello =  &GOHello_go_soothsaying_for_dummies;

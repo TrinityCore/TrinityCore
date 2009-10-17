@@ -2,10 +2,12 @@
  * Copyright (C) 1995-2005 Mark Adler
  * For conditions of distribution and use, see copyright notice in zlib.h
  */
+
 /* WARNING: this file should *not* be used by applications. It is
    part of the implementation of the compression library and is
    subject to change. Applications should only use zlib.h.
  */
+
 /* Structure for decoding tables.  Each entry provides either the
    information needed to do the operation requested by the code that
    indexed that table entry, or it provides a pointer to another
@@ -24,6 +26,7 @@ typedef struct {
     unsigned char bits;         /* bits in this part of the code */
     unsigned short val;         /* offset in table or code value */
 } code;
+
 /* op values as set by inflate_table():
     00000000 - literal
     0000tttt - table link, tttt != 0 is the number of table index bits
@@ -31,6 +34,7 @@ typedef struct {
     01100000 - end of block
     01000000 - invalid code
  */
+
 /* Maximum size of dynamic tree.  The maximum found in a long but non-
    exhaustive search was 1444 code structures (852 for length/literals
    and 592 for distances, the latter actually the result of an
@@ -38,12 +42,14 @@ typedef struct {
    below is more than safe. */
 #define ENOUGH 2048
 #define MAXD 592
+
 /* Type of code to build for inftable() */
 typedef enum {
     CODES,
     LENS,
     DISTS
 } codetype;
+
 extern int inflate_table OF((codetype type, unsigned short FAR *lens,
                              unsigned codes, code FAR * FAR *table,
                              unsigned FAR *bits, unsigned short FAR *work));

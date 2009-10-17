@@ -17,16 +17,21 @@
 * along with this program; if not, write to the Free Software
 * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 */
+
 #ifndef _VMAPTOOLS_H
 #define _VMAPTOOLS_H
+
 #include <G3D/CollisionDetection.h>
 #include <G3D/AABox.h>
+
 #include "NodeValueAccess.h"
+
 /**
 The Class is mainly taken from G3D/AABSPTree.h but modified to be able to use our internal data structure.
 This is an iterator that helps us analysing the BSP-Trees.
 The collision detection is modified to return true, if we are inside an object.
 */
+
 namespace VMAP
 {
     template<class TValue>
@@ -35,17 +40,21 @@ namespace VMAP
         TValue*      closestEntity;
         G3D::Vector3 hitLocation;
         G3D::Vector3 hitNormal;
+
         void operator()(const G3D::Ray& ray, const TValue* entity, bool pStopAtFirstHit, float& distance) {
             entity->intersect(ray, distance, pStopAtFirstHit, hitLocation, hitNormal);
         }
     };
+
     //==============================================================
     //==============================================================
     //==============================================================
+
     class MyCollisionDetection
     {
     private:
     public:
+
         static bool collisionLocationForMovingPointFixedAABox(
             const G3D::Vector3&     origin,
             const G3D::Vector3&     dir,
@@ -53,12 +62,15 @@ namespace VMAP
             G3D::Vector3&           location,
             bool&                   Inside)
         {
+
             // Integer representation of a floating-point value.
 #define IR(x)   ((G3D::uint32&)x)
+
             Inside = true;
             const G3D::Vector3& MinB = box.low();
             const G3D::Vector3& MaxB = box.high();
             G3D::Vector3 MaxT(-1.0f, -1.0f, -1.0f);
+
             // Find candidate planes.
             for (int i = 0; i < 3; ++i)
             {
@@ -66,6 +78,7 @@ namespace VMAP
                 {
                     location[i] = MinB[i];
                     Inside      = false;
+
                     // Calculate T distances to candidate planes
                     if (IR(dir[i]))
                     {
@@ -76,6 +89,7 @@ namespace VMAP
                 {
                     location[i] = MaxB[i];
                     Inside      = false;
+
                     // Calculate T distances to candidate planes
                     if (IR(dir[i]))
                     {
@@ -83,28 +97,33 @@ namespace VMAP
                     }
                 }
             }
+
             if (Inside)
             {
                 // definite hit
                 location = origin;
                 return true;
             }
+
             // Get largest of the maxT's for final choice of intersection
             int WhichPlane = 0;
             if (MaxT[1] > MaxT[WhichPlane])
             {
                 WhichPlane = 1;
             }
+
             if (MaxT[2] > MaxT[WhichPlane])
             {
                 WhichPlane = 2;
             }
+
             // Check final candidate actually inside box
             if (IR(MaxT[WhichPlane]) & 0x80000000)
             {
                 // Miss the box
                 return false;
             }
+
             for (int i = 0; i < 3; ++i)
             {
                 if (i != WhichPlane)
@@ -125,6 +144,7 @@ namespace VMAP
             normal[WhichPlane] = (dir[WhichPlane] > 0) ? -1.0 : 1.0;
             */
             return true;
+
 #undef IR
         }
     };

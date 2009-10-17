@@ -17,12 +17,16 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
+
 #ifndef TRINITYCORE_LOG_H
 #define TRINITYCORE_LOG_H
+
 #include "Common.h"
 #include "Policies/Singleton.h"
 #include "Database/DatabaseEnv.h"
+
 class Config;
+
 enum LogFilters
 {
     LOG_FILTER_TRANSPORT_MOVES     = 1,
@@ -30,6 +34,7 @@ enum LogFilters
     LOG_FILTER_VISIBILITY_CHANGES  = 4,
     LOG_FILTER_ACHIEVEMENT_UPDATES = 8
 };
+
 enum LogTypes
 {
     LOG_TYPE_STRING = 0,
@@ -45,6 +50,7 @@ enum LogTypes
     LOG_TYPE_CHAT   = 10,
     MAX_LOG_TYPES
 };
+
 enum LogLevel
 {
     LOGL_NORMAL = 0,
@@ -52,7 +58,9 @@ enum LogLevel
     LOGL_DETAIL,
     LOGL_DEBUG
 };
+
 const int LogLevels = int(LOGL_DEBUG)+1;
+
 enum ColorTypes
 {
     BLACK,
@@ -71,17 +79,22 @@ enum ColorTypes
     LCYAN,
     WHITE
 };
+
 const int Colors = int(WHITE)+1;
+
 class Log : public Trinity::Singleton<Log, Trinity::ClassLevelLockable<Log, ACE_Thread_Mutex> >
 {
     friend class Trinity::OperatorNew<Log>;
     Log();
     ~Log();
+
     public:
         void Initialize();
+
         void InitColors(const std::string& init_str);
         void SetColor(bool stdout_stream, ColorTypes color);
         void ResetColor(bool stdout_stream);
+
         void outDB( LogTypes type, const char * str );
         void outString( const char * str, ... )                 ATTR_PRINTF(2,3);
         void outString( );
@@ -97,17 +110,21 @@ class Log : public Trinity::Singleton<Log, Trinity::ClassLevelLockable<Log, ACE_
         void outCommand( uint32 account, const char * str, ...) ATTR_PRINTF(3,4);
         void outRemote( const char * str, ... )                 ATTR_PRINTF(2,3);
         void outChat( const char * str, ... )                   ATTR_PRINTF(2,3);
-        void outArena( const char * str, ... )                  ATTR_PRINTF(2,3);
+        void outArena( const char * str, ... )                  ATTR_PRINTF(2,3);        
         void outCharDump( const char * str, uint32 account_id, uint32 guid, const char * name );
+
         static void outTimestamp(FILE* file);
         static std::string GetTimestampStr();
+
         void SetLogLevel(char * Level);
         void SetLogFileLevel(char * Level);
         void SetDBLogLevel(char * Level);
         void SetRealmID(uint32 id) { realm = id; }
+
         uint32 getLogFilter() const { return m_logFilter; }
         bool IsOutDebug() const { return m_logLevel > 2 || (m_logFileLevel > 2 && logfile); }
         bool IsOutCharDump() const { return m_charLog_Dump; }
+
         bool GetLogDB() { return m_enableLogDB; }
         bool GetLogDBLater() { return m_enableLogDBLater; }
         void SetLogDB(bool enable) { m_enableLogDB = enable; }
@@ -115,6 +132,7 @@ class Log : public Trinity::Singleton<Log, Trinity::ClassLevelLockable<Log, ACE_
     private:
         FILE* openLogFile(char const* configFileName,char const* configTimeStampFlag, char const* mode);
         FILE* openGmlogPerAccount(uint32 account);
+
         FILE* raLogfile;
         FILE* logfile;
         FILE* gmLogfile;
@@ -122,18 +140,23 @@ class Log : public Trinity::Singleton<Log, Trinity::ClassLevelLockable<Log, ACE_
         FILE* dberLogfile;
         FILE* chatLogfile;
         FILE* arenaLogFile;
+
         // cache values for after initilization use (like gm log per account case)
         std::string m_logsDir;
         std::string m_logsTimestamp;
+
         // gm log control
         bool m_gmlog_per_account;
         std::string m_gmlog_filename_format;
+
         bool m_enableLogDBLater;
         bool m_enableLogDB;
         uint32 realm;
+
         // log coloring
         bool m_colored;
         ColorTypes m_colors[4];
+
         // log levels:
         // 0 minimum/string, 1 basic/error, 2 detail, 3 full/debug
         uint8 m_dbLogLevel;
@@ -146,12 +169,15 @@ class Log : public Trinity::Singleton<Log, Trinity::ClassLevelLockable<Log, ACE_
         bool m_dbChat;
         bool m_charLog_Dump;
 };
+
 #define sLog Trinity::Singleton<Log>::Instance()
+
 #ifdef TRINITY_DEBUG
 #define DEBUG_LOG Trinity::Singleton<Log>::Instance().outDebug
 #else
 #define DEBUG_LOG
 #endif
+
 // primary for script library
 void TRINITY_DLL_SPEC outstring_log(const char * str, ...) ATTR_PRINTF(1,2);
 void TRINITY_DLL_SPEC detail_log(const char * str, ...) ATTR_PRINTF(1,2);

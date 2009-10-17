@@ -1,4 +1,5 @@
 // -*- C++ -*-
+
 //=============================================================================
 /**
  *  @file   OS_main.h
@@ -12,25 +13,34 @@
  *  Originally in OS.h.
  */
 //=============================================================================
+
 #include /**/ "ace/ACE_export.h"
+
 #ifndef ACE_OS_MAIN_H
 # define ACE_OS_MAIN_H
+
 # include /**/ "ace/pre.h"
+
 # if !defined (ACE_LACKS_PRAGMA_ONCE)
 #  pragma once
 # endif /* ACE_LACKS_PRAGMA_ONCE */
+
 # if defined (ACE_HAS_RTEMS)
 extern char* rtems_progname;
 # endif /* ACE_HAS_RTEMS */
+
 #if defined (ACE_VXWORKS) && (ACE_VXWORKS <= 0x640) && defined (__RTP__)
 #  include <resolvLib.h>
 #endif
+
 # if !defined (ACE_MAIN)
 #   define ACE_MAIN main
 # endif /* ! ACE_MAIN */
+
 # if !defined (ACE_WMAIN)
 #   define ACE_WMAIN wmain
 # endif /* ! ACE_WMAIN */
+
 # if defined (ACE_WIN32) && defined (ACE_USES_WCHAR)
 #   define ACE_TMAIN wmain
 # else
@@ -49,23 +59,31 @@ extern char* rtems_progname;
 #     define ACE_TMAIN main
 #   endif /* ACE_USES_WCHAR */
 # endif
+
 # if defined (ACE_DOESNT_INSTANTIATE_NONSTATIC_OBJECT_MANAGER)
 #   if !defined (ACE_HAS_NONSTATIC_OBJECT_MANAGER)
 #     define ACE_HAS_NONSTATIC_OBJECT_MANAGER
 #   endif /* ACE_HAS_NONSTATIC_OBJECT_MANAGER */
 # endif /* ACE_DOESNT_INSTANTIATE_NONSTATIC_OBJECT_MANAGER */
+
 # if defined (ACE_HAS_NONSTATIC_OBJECT_MANAGER) \
        && !defined (ACE_DOESNT_INSTANTIATE_NONSTATIC_OBJECT_MANAGER)
+
 // Rename "main ()" on platforms that don't allow it to be called "main ()".
+
 #   if defined (ACE_VXWORKS) && !defined (__RTP__)
+
 typedef int (*ace_main_proc_ptr)(int, char *[]);
+
 extern ace_main_proc_ptr vx_ace_main_i_ptr;
+
 // Declare ACE_MAIN as extern C so that it can be retrieved
 // using symFindByName
 extern "C"
 {
   int ACE_MAIN (int, char* []);
 }
+
 #     define main \
 ACE_MAIN (int, char *[]); /* forward decl to gobble up the 'int' if there is one */ \
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL \
@@ -80,7 +98,9 @@ ACE_MAIN (int argc, char *argv[])    /* user's entry point, e.g., main */ \
 } \
 int \
 ace_main_i
+
 #   elif defined (ACE_HAS_RTEMS)
+
 #     define main \
 ACE_MAIN (int, char *[]); /* forward decl to gobble up the 'int' if there is one */ \
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL \
@@ -97,7 +117,9 @@ ACE_MAIN (int argc, char *argv[])    /* user's entry point, e.g., main */ \
 } \
 int \
 ace_main_i
+
 #   elif defined (ACE_VXWORKS) && (ACE_VXWORKS <= 0x640) && defined (__RTP__)
+
 #     define main \
 ACE_MAIN (int, char *[]); /* forward decl to gobble up the 'int' if there is one */ \
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL \
@@ -111,7 +133,9 @@ ACE_MAIN (int argc, char *argv[])    /* user's entry point, e.g., main */ \
 } \
 int \
 ace_main_i
+
 #   elif !defined (ACE_WIN32)
+
 #     define main \
 ACE_MAIN (int, char *[]); /* forward decl to gobble up the 'int' if there is one */ \
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL \
@@ -124,16 +148,22 @@ ACE_MAIN (int argc, char *argv[])    /* user's entry point, e.g., main */ \
 } \
 int \
 ace_main_i
+
 #   elif !defined (ACE_HAS_WINCE)
+
 #     if defined (ACE_WIN32) && defined (ACE_USES_WCHAR)
+
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
+
 class ACE_Export ACE_Main_Base
 {
 public:
   int run (int, ACE_TCHAR *[]);
   virtual int run_i (int, ACE_TCHAR *[]) = 0;
 };
+
 ACE_END_VERSIONED_NAMESPACE_DECL
+
 #       define wmain \
 ace_wmain_i (int, ACE_TCHAR *[]); \
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL \
@@ -152,8 +182,11 @@ ACE_WMAIN (int argc, ACE_TCHAR *argv[]) /* user's entry point, e.g., wmain */ \
 } \
 int \
 ace_wmain_i
+
 #     else /* ! (ACE_WIN32 && ACE_USES_WCHAR) */
+
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
+
 class ACE_Export ACE_Main_Base
 {
 public:
@@ -162,7 +195,9 @@ public:
   int run (int, char *[]);
   virtual int run_i (int, char *[]) = 0;
 };
+
 ACE_END_VERSIONED_NAMESPACE_DECL
+
 /*
 ** LabVIEW RT cannot directly use an executable. Need to build the program
 ** as a DLL and call it from something else. The ACE test framework knows this
@@ -172,6 +207,7 @@ ACE_END_VERSIONED_NAMESPACE_DECL
 #       if defined (ACE_BUILD_LABVIEW_EXE_AS_DLL)
 extern "C" __declspec (dllexport) int main (int, char *[]);
 #       endif /* ACE_BUILD_LABVIEW_EXE_AS_DLL) */
+
 #       define main \
 ace_main_i (int, char *[]); \
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL \
@@ -190,21 +226,29 @@ ACE_MAIN (int argc, char *argv[]) /* user's entry point, e.g., wmain */ \
 } \
 int \
 ace_main_i
+
 #     endif /* ACE_WIN32 && ACE_USES_WCHAR */
+
 #   else /* ACE_HAS_WINCE */
+
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
+
 class ACE_Export ACE_Main_Base
 {
 public:
   int run (HINSTANCE, HINSTANCE, LPWSTR, int);
   virtual int run_i (int, ACE_TCHAR *[]) = 0;
 };
+
 ACE_END_VERSIONED_NAMESPACE_DECL
+
 #     if defined (ACE_TMAIN)  // Use WinMain on CE; others give warning/error.
 #       undef ACE_TMAIN
 #     endif  // ACE_TMAIN
+
 // Support for ACE_TMAIN, which is a recommended way. It would be nice if
 // CE had CommandLineToArgvW()... but it's only on NT3.5 and up.
+
 #     define ACE_TMAIN \
 ace_tmain_i (int, ACE_TCHAR *[]); \
 class ACE_Main : public ACE_Main_Base {int run_i (int argc, ACE_TCHAR *argv[]);}; \
@@ -218,6 +262,7 @@ int WINAPI WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
   return m.run (hInstance, hPrevInstance, lpCmdLine, nCmdShow); \
 } \
 int ace_tmain_i
+
 // Support for wchar_t but still can't fit to CE because of the command
 // line parameters.
 #     define wmain \
@@ -233,6 +278,7 @@ int WINAPI WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
   return ace_os_winwmain_i (hInstance, hPrevInstance, lpCmdLine, nCmdShow); \
 } \
 int ace_wmain_i
+
 // Supporting legacy 'main' is A LOT easier for users than changing existing
 // code on WinCE. Unfortunately, evc 3 can't grok a #include within the macro
 // expansion, so it needs to go out here.
@@ -250,8 +296,11 @@ int WINAPI WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
   return ace_os_winmain_i (hInstance, hPrevInstance, lpCmdLine, nCmdShow); \
 } \
 int ace_main_i
+
 #   endif   /* ACE_PSOSIM */
 # endif /* ACE_HAS_NONSTATIC_OBJECT_MANAGER && !ACE_HAS_WINCE && !ACE_DOESNT_INSTANTIATE_NONSTATIC_OBJECT_MANAGER */
+
 # include /**/ "ace/post.h"
+
 #endif /* ACE_OS_MAIN_H */
 

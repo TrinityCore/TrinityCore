@@ -13,8 +13,10 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
+
 #include "precompiled.h"
 #include "def_naxxramas.h"
+
 enum Horsemen
 {
     HORSEMEN_THANE,
@@ -22,12 +24,14 @@ enum Horsemen
     HORSEMEN_BARON,
     HORSEMEN_SIR,
 };
+
 enum Events
 {
     EVENT_MARK = 1,
     EVENT_CAST,
     EVENT_BERSERK,
 };
+
 const uint32 MOB_HORSEMEN[]     =   {16064, 16065, 30549, 16063};
 const uint32 SPELL_MARK[]       =   {28832, 28833, 28834, 28835};
 #define SPELL_PRIMARY(i)            HEROIC(SPELL_PRIMARY_N[i],SPELL_PRIMARY_H[i])
@@ -38,6 +42,7 @@ const uint32 SPELL_SECONDARY_N[]=   {0, 57374, 0, 57376};
 const uint32 SPELL_SECONDARY_H[]=   {0, 57464, 0, 57465};
 const uint32 SPELL_PUNISH[]     =   {0, 57381, 0, 57377};
 #define SPELL_BERSERK               26662
+
 // used by 16063,16064,16065,30549, but signed for 16063
 const int32 SAY_AGGRO[]     =   {-1533051, -1533044, -1533065, -1533058};
 const int32 SAY_TAUNT[3][4] ={  {-1533052, -1533045, -1533071, -1533059},
@@ -46,26 +51,31 @@ const int32 SAY_TAUNT[3][4] ={  {-1533052, -1533045, -1533071, -1533059},
 const int32 SAY_SPECIAL[]   =   {-1533055, -1533048, -1533070, -1533062};
 const int32 SAY_SLAY[]      =   {-1533056, -1533049, -1533068, -1533063};
 const int32 SAY_DEATH[]     =   {-1533057, -1533050, -1533074, -1533064};
+
 #define SAY_BARON_AGGRO     RAND(-1533065,-1533066,-1533067)
 #define SAY_BARON_SLAY      RAND(-1533068,-1533069)
+
 struct TRINITY_DLL_DECL boss_four_horsemenAI : public BossAI
 {
     boss_four_horsemenAI(Creature *c) : BossAI(c, BOSS_HORSEMEN)
     {
         id = Horsemen(0);
-        for (uint8 i = 0; i < 4; ++i)
+        for(uint8 i = 0; i < 4; ++i)
             if (me->GetEntry() == MOB_HORSEMEN[i])
                 id = Horsemen(i);
         caster = (id == HORSEMEN_LADY || id == HORSEMEN_SIR);
     }
+
     Horsemen id;
     bool caster;
+
     void MoveInLineOfSight(Unit *who)
     {
         BossAI::MoveInLineOfSight(who);
         if (caster)
             SelectNearestTarget(who);
     }
+
     void AttackStart(Unit *who)
     {
         if (caster)
@@ -73,6 +83,7 @@ struct TRINITY_DLL_DECL boss_four_horsemenAI : public BossAI
         else
             BossAI::AttackStart(who);
     }
+
     void KilledUnit(Unit* victim)
     {
         if (!(rand()%5))
@@ -83,11 +94,13 @@ struct TRINITY_DLL_DECL boss_four_horsemenAI : public BossAI
                 DoScriptText(SAY_SLAY[id], me);
         }
     }
+
     void JustDied(Unit* killer)
     {
         _JustDied();
         DoScriptText(SAY_DEATH[id], me);
     }
+
     void EnterCombat(Unit *who)
     {
         _EnterCombat();
@@ -99,13 +112,17 @@ struct TRINITY_DLL_DECL boss_four_horsemenAI : public BossAI
             events.ScheduleEvent(EVENT_CAST, 20000+rand()%5000);
             events.ScheduleEvent(EVENT_BERSERK, 15*100*1000);
     }
+
     void UpdateAI(const uint32 diff)
     {
         if (!UpdateVictim() || !CheckInRoom())
             return;
+
         events.Update(diff);
+
         if (me->hasUnitState(UNIT_STAT_CASTING))
             return;
+
         while(uint32 eventId = events.ExecuteEvent())
         {
             switch(eventId)
@@ -128,16 +145,19 @@ struct TRINITY_DLL_DECL boss_four_horsemenAI : public BossAI
                     return;
             }
         }
+
         if (!caster)
             DoMeleeAttackIfReady();
         else if (!DoSpellAttackIfReady(SPELL_SECONDARY(id)))
             DoCastAOE(SPELL_PUNISH[id]);
     }
 };
+
 CreatureAI* GetAI_four_horsemen(Creature* pCreature)
 {
     return new boss_four_horsemenAI (pCreature);
 }
+
 void AddSC_boss_four_horsemen()
 {
     Script *newscript;

@@ -15,8 +15,10 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
+
 #ifndef DEF_AZJOL_NERUB_H
 #define DEF_AZJOL_NERUB_H
+
 enum Data64
 {
     DATA_KRIKTHIR_THE_GATEWATCHER,
@@ -32,4 +34,5 @@ enum Data
     DATA_HADRONOX_EVENT,
     DATA_ANUBARAK_EVENT
 };
+
 #endif

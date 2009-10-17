@@ -17,18 +17,23 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
+
 #ifndef _MODELCONTAINER_H
 #define _MODELCONTAINER_H
+
 // load our modified version first !!
 #include "AABSPTree.h"
+
 #include <G3D/AABox.h>
 #include <G3D/Vector3.h>
 #include <G3D/Ray.h>
+
 #include "ShortBox.h"
 #include "TreeNode.h"
 #include "VMapTools.h"
 #include "SubModel.h"
 #include "BaseModel.h"
+
 namespace VMAP
 {
     /**
@@ -39,41 +44,65 @@ namespace VMAP
     The references are done by indexes within these static arrays.
     Therefore we are able to just load a binary block and do not need to mess around with memory allocation and pointers.
     */
+
     //=====================================================
+
     class ModelContainer : public BaseModel
     {
         private:
             unsigned int iNSubModel;
             SubModel *iSubModel;
             G3D::AABox iBox;
+
             ModelContainer (const ModelContainer& c): BaseModel(c) {}
             ModelContainer& operator=(const ModelContainer& ) {}
+
         public:
             ModelContainer() : BaseModel() { iNSubModel =0; iSubModel = 0; };
+
             // for the mainnode
             ModelContainer(unsigned int pNTriangles, unsigned int pNNodes, unsigned int pNSubModel);
+
             ModelContainer(G3D::AABSPTree<SubModel *> *pTree);
+
             ~ModelContainer(void);
+
             inline const void setSubModel(const SubModel& pSubModel, int pPos) { iSubModel[pPos] = pSubModel; }
+
             inline const SubModel& getSubModel(int pPos) const { return iSubModel[pPos]; }
+
             inline unsigned int getNSubModel() const { return(iNSubModel); }
+
             void countSubModelsAndNodesAndTriangles(G3D::AABSPTree<SubModel *>::Node& pNode, int& nSubModels, int& nNodes, int& nTriangles);
+
             void fillContainer(const G3D::AABSPTree<SubModel *>::Node& pNode, int &pSubModelPos, int &pTreeNodePos, int &pTrianglePos, G3D::Vector3& pLo, G3D::Vector3& pHi, G3D::Vector3& pFinalLo, G3D::Vector3& pFinalHi);
+
             bool readRawFile(const char *name);
+
             inline const G3D::AABox& getAABoxBounds() const { return(iBox); }
+
             inline void setBounds(const G3D::Vector3& lo, const G3D::Vector3& hi) { iBox.set(lo,hi); }
+
             bool writeFile(const char *filename);
+
             bool readFile(const char *filename);
+
             size_t getMemUsage();
             size_t hashCode() { return (getBasePosition() * getNTriangles()).hashCode(); }
+
             void intersect(const G3D::Ray& pRay, float& pMaxDist, bool pStopAtFirstHit, G3D::Vector3& pOutLocation, G3D::Vector3& pOutNormal) const;
             bool intersect(const G3D::Ray& pRay, float& pMaxDist) const;
+
             template<typename RayCallback>
             void intersectRay(const G3D::Ray& ray, RayCallback& intersectCallback, float& distance, bool pStopAtFirstHit, bool intersectCallbackIsFast = false);
+
             bool operator==(const ModelContainer& pMc2) const;
     };
+
     //=====================================================
+
     //=====================================================
+
     size_t hashCode(const ModelContainer& pMc);
     void getBounds(const ModelContainer& pMc, G3D::AABox& pAABox);
     void getBounds(const ModelContainer* pMc, G3D::AABox& pAABox);

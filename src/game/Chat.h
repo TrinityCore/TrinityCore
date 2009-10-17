@@ -17,15 +17,19 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
+
 #ifndef TRINITYCORE_CHAT_H
 #define TRINITYCORE_CHAT_H
+
 #include "SharedDefines.h"
+
 class ChatHandler;
 class WorldSession;
 class Creature;
 class Player;
 class Unit;
 struct GameTele;
+
 class ChatCommand
 {
     public:
@@ -36,50 +40,66 @@ class ChatCommand
         std::string        Help;
         ChatCommand *      ChildCommands;
 };
+
 class TRINITY_DLL_SPEC ChatHandler
 {
     public:
         explicit ChatHandler(WorldSession* session) : m_session(session) {}
         explicit ChatHandler(Player* player) : m_session(player->GetSession()) {}
          ~ChatHandler() {}
+
         static void FillMessageData( WorldPacket *data, WorldSession* session, uint8 type, uint32 language, const char *channelName, uint64 target_guid, const char *message, Unit *speaker);
+
         void FillMessageData( WorldPacket *data, uint8 type, uint32 language, uint64 target_guid, const char* message)
         {
             FillMessageData( data, m_session, type, language, NULL, target_guid, message, NULL);
         }
+
         void FillSystemMessageData( WorldPacket *data, const char* message )
         {
             FillMessageData( data, CHAT_MSG_SYSTEM, LANG_UNIVERSAL, 0, message );
         }
+
         static char* LineFromMessage(char*& pos) { char* start = strtok(pos,"\n"); pos = NULL; return start; }
+
         // function with different implementation for chat/console
         virtual const char *GetMangosString(int32 entry) const;
         virtual void SendSysMessage(  const char *str);
+
         void SendSysMessage(          int32     entry);
         void PSendSysMessage(         const char *format, ...) ATTR_PRINTF(2,3);
         void PSendSysMessage(         int32     entry, ...  );
         std::string PGetParseString(int32 entry, ...);
+
         int ParseCommands(const char* text);
+
         static ChatCommand* getCommandTable();
+
         bool isValidChatMessage(const char* msg);
         void SendGlobalSysMessage(const char *str);
     protected:
         explicit ChatHandler() : m_session(NULL) {}      // for CLI subclass
+
         bool hasStringAbbr(const char* name, const char* part);
+
         // function with different implementation for chat/console
         virtual bool isAvailable(ChatCommand const& cmd) const;
         virtual std::string GetNameLink() const { return GetNameLink(m_session->GetPlayer()); }
         virtual bool needReportToTarget(Player* chr) const;
         virtual LocaleConstant GetSessionDbcLocale() const;
         virtual int GetSessionDbLocaleIndex() const;
+
         bool HasLowerSecurity(Player* target, uint64 guid, bool strong = false);
         bool HasLowerSecurityAccount(WorldSession* target, uint32 account, bool strong = false);
 
+      
         void SendGlobalGMSysMessage(const char *str);
+
         static bool SetDataForCommandInTable(ChatCommand *table, const char* text, uint32 security, std::string const& help, std::string const& fullcommand );
         bool ExecuteCommandInTable(ChatCommand *table, const char* text, const std::string& fullcommand);
         bool ShowHelpForCommand(ChatCommand *table, const char* cmd);
         bool ShowHelpForSubCommands(ChatCommand *table, char const* cmd, char const* subcmd);
+
         bool HandleAccountCommand(const char* args);
         bool HandleAccountAddonCommand(const char* args);
         bool HandleAccountCreateCommand(const char* args);
@@ -90,11 +110,13 @@ class TRINITY_DLL_SPEC ChatHandler
         bool HandleAccountSetAddonCommand(const char* args);
         bool HandleAccountSetGmLevelCommand(const char* args);
         bool HandleAccountSetPasswordCommand(const char* args);
+
         bool HandleAHBotOptionsCommand(const char * args);
         bool HandleNameAnnounceCommand(const char* args);
         bool HandleGMNameAnnounceCommand(const char* args);
         bool HandleGMAnnounceCommand(const char* args);
         bool HandleGMNotifyCommand(const char* args);
+
         bool HandleBanAccountCommand(const char* args);
         bool HandleBanCharacterCommand(const char* args);
         bool HandleBanIPCommand(const char* args);
@@ -104,16 +126,19 @@ class TRINITY_DLL_SPEC ChatHandler
         bool HandleBanListAccountCommand(const char* args);
         bool HandleBanListCharacterCommand(const char* args);
         bool HandleBanListIPCommand(const char* args);
+
         bool HandleCastCommand(const char *args);
         bool HandleCastBackCommand(const char *args);
         bool HandleCastDistCommand(const char *args);
         bool HandleCastSelfCommand(const char *args);
         bool HandleCastTargetCommand(const char *args);
+
         bool HandleCharacterCustomizeCommand(const char * args);
         bool HandleCharacterDeleteCommand(const char* args);
         bool HandleCharacterLevelCommand(const char* args);
         bool HandleCharacterRenameCommand(const char * args);
         bool HandleCharacterReputationCommand(const char* args);
+
         bool HandleDebugAnimCommand(const char* args);
         bool HandleDebugArenaCommand(const char * args);
         bool HandleDebugBattlegroundCommand(const char * args);
@@ -131,6 +156,7 @@ class TRINITY_DLL_SPEC ChatHandler
         bool HandleDebugSpellCheckCommand(const char* args);
         bool HandleDebugUpdateCommand(const char* args);
         bool HandleDebugUpdateWorldStateCommand(const char* args);
+
         bool HandleDebugSet32Bit(const char* args);
         bool HandleDebugThreatList(const char * args);
         bool HandleDebugHostilRefList(const char * args);
@@ -138,9 +164,11 @@ class TRINITY_DLL_SPEC ChatHandler
         bool HandleUnPossessCommand(const char* args);
         bool HandleBindSightCommand(const char* args);
         bool HandleUnbindSightCommand(const char* args);
+
         bool HandleDebugPlayCinematicCommand(const char* args);
         bool HandleDebugPlayMovieCommand(const char* args);
         bool HandleDebugPlaySoundCommand(const char* args);
+
         bool HandleDebugSendBuyErrorCommand(const char* args);
         bool HandleDebugSendChannelNotifyCommand(const char* args);
         bool HandleDebugSendChatMsgCommand(const char* args);
@@ -153,10 +181,12 @@ class TRINITY_DLL_SPEC ChatHandler
         bool HandleDebugSendSellErrorCommand(const char* args);
         bool HandleDebugSendSetPhaseShiftCommand(const char * args);
         bool HandleDebugSendSpellFailCommand(const char* args);
+
         bool HandleEventActiveListCommand(const char* args);
         bool HandleEventStartCommand(const char* args);
         bool HandleEventStopCommand(const char* args);
         bool HandleEventInfoCommand(const char* args);
+
         bool HandleGameObjectAddCommand(const char* args);
         bool HandleGameObjectDeleteCommand(const char* args);
         bool HandleGameObjectMoveCommand(const char* args);
@@ -165,12 +195,14 @@ class TRINITY_DLL_SPEC ChatHandler
         bool HandleGameObjectStateCommand(const char* args);
         bool HandleGameObjectTargetCommand(const char* args);
         bool HandleGameObjectTurnCommand(const char* args);
+
         bool HandleGMCommand(const char* args);
         bool HandleGMChatCommand(const char* args);
         bool HandleGMFlyCommand(const char* args);
         bool HandleGMListFullCommand(const char* args);
         bool HandleGMListIngameCommand(const char* args);
         bool HandleGMVisibleCommand(const char* args);
+
         bool HandleGoCommand(const char* args);
         bool HandleGoCreatureCommand(const char* args);
         bool HandleGoGraveyardCommand(const char* args);
@@ -181,19 +213,24 @@ class TRINITY_DLL_SPEC ChatHandler
         bool HandleGoXYCommand(const char* args);
         bool HandleGoXYZCommand(const char* args);
         bool HandleGoZoneXYCommand(const char* args);
+
         bool HandleGoTicketCommand(const char* args);
+
         bool HandleGuildCreateCommand(const char* args);
         bool HandleGuildInviteCommand(const char* args);
         bool HandleGuildUninviteCommand(const char* args);
         bool HandleGuildRankCommand(const char* args);
         bool HandleGuildDeleteCommand(const char* args);
+
         bool HandleHonorAddCommand(const char* args);
         bool HandleHonorAddKillCommand(const char* args);
         bool HandleHonorUpdateCommand(const char* args);
+
         bool HandleInstanceListBindsCommand(const char* args);
         bool HandleInstanceUnbindCommand(const char* args);
         bool HandleInstanceStatsCommand(const char* args);
         bool HandleInstanceSaveDataCommand(const char * args);
+
         bool HandleLearnCommand(const char* args);
         bool HandleLearnAllCommand(const char* args);
         bool HandleLearnAllGMCommand(const char* args);
@@ -205,10 +242,12 @@ class TRINITY_DLL_SPEC ChatHandler
         bool HandleLearnAllMyPetTalentsCommand(const char* args);
         bool HandleLearnAllMySpellsCommand(const char* args);
         bool HandleLearnAllMyTalentsCommand(const char* args);
+
         bool HandleListAurasCommand(const char * args);
         bool HandleListCreatureCommand(const char* args);
         bool HandleListItemCommand(const char* args);
         bool HandleListObjectCommand(const char* args);
+
         bool HandleLookupAreaCommand(const char* args);
         bool HandleLookupCreatureCommand(const char* args);
         bool HandleLookupEventCommand(const char* args);
@@ -225,6 +264,7 @@ class TRINITY_DLL_SPEC ChatHandler
         bool HandleLookupTaxiNodeCommand(const char * args);
         bool HandleLookupTeleCommand(const char * args);
         bool HandleLookupMapCommand(const char* args);
+
         bool HandleModifyKnownTitlesCommand(const char* args);
         bool HandleModifyHPCommand(const char* args);
         bool HandleModifyManaCommand(const char* args);
@@ -248,6 +288,7 @@ class TRINITY_DLL_SPEC ChatHandler
         bool HandleModifyArenaCommand(const char* args);
         bool HandleModifyPhaseCommand(const char* args);
         bool HandleModifyGenderCommand(const char* args);
+
         //-----------------------Npc Commands-----------------------
         bool HandleNpcAddCommand(const char* args);
         bool HandleNpcAddMoveCommand(const char* args);
@@ -277,16 +318,20 @@ class TRINITY_DLL_SPEC ChatHandler
         bool HandleNpcYellCommand(const char* args);
         bool HandleNpcAddFormationCommand(const char* args);
         bool HandleNpcSetLinkCommand(const char* args);
+
         //TODO: NpcCommands that needs to be fixed :
         bool HandleNpcAddWeaponCommand(const char* args);
         bool HandleNpcNameCommand(const char* args);
         bool HandleNpcSubNameCommand(const char* args);
         //----------------------------------------------------------
+
         bool HandlePDumpLoadCommand(const char *args);
         bool HandlePDumpWriteCommand(const char *args);
+
         bool HandleQuestAdd(const char * args);
         bool HandleQuestRemove(const char * args);
         bool HandleQuestComplete(const char * args);
+
         bool HandleReloadAllCommand(const char* args);
         bool HandleReloadAllAchievementCommand(const char* args);
         bool HandleReloadAllAreaCommand(const char* args);
@@ -298,7 +343,9 @@ class TRINITY_DLL_SPEC ChatHandler
         bool HandleReloadAllEventAICommand(const char* args);
         bool HandleReloadAllSpellCommand(const char* args);
         bool HandleReloadAllLocalesCommand(const char* args);
+
         bool HandleReloadConfigCommand(const char* args);
+
         bool HandleReloadAccessRequirementCommand(const char* args);
         bool HandleReloadAchievementCriteriaDataCommand(const char* args);
         bool HandleReloadAchievementRewardCommand(const char* args);
@@ -373,6 +420,7 @@ class TRINITY_DLL_SPEC ChatHandler
         bool HandleReloadSpellDisabledCommand(const char* args);
         bool HandleReloadAuctionsCommand(const char* args);
         bool HandleReloadWpScriptsCommand(const char* args);
+
         bool HandleResetAchievementsCommand(const char * args);
         bool HandleResetAllCommand(const char * args);
         bool HandleResetHonorCommand(const char * args);
@@ -380,10 +428,12 @@ class TRINITY_DLL_SPEC ChatHandler
         bool HandleResetSpellsCommand(const char * args);
         bool HandleResetStatsCommand(const char * args);
         bool HandleResetTalentsCommand(const char * args);
+
         bool HandleSendItemsCommand(const char* args);
         bool HandleSendMailCommand(const char* args);
         bool HandleSendMessageCommand(const char * args);
         bool HandleSendMoneyCommand(const char* args);
+
         bool HandleServerCorpsesCommand(const char* args);
         bool HandleServerExitCommand(const char* args);
         bool HandleServerIdleRestartCommand(const char* args);
@@ -397,16 +447,20 @@ class TRINITY_DLL_SPEC ChatHandler
         bool HandleServerShutDownCommand(const char* args);
         bool HandleServerShutDownCancelCommand(const char* args);
         bool HandleServerSetClosedCommand(const char* args);
+
         bool HandleServerSetLogFileLevelCommand(const char* args);
         bool HandleServerSetDiffTimeCommand(const char* args);
+
         bool HandleTeleCommand(const char * args);
         bool HandleTeleAddCommand(const char * args);
         bool HandleTeleDelCommand(const char * args);
         bool HandleTeleGroupCommand(const char* args);
         bool HandleTeleNameCommand(const char* args);
+
         bool HandleUnBanAccountCommand(const char* args);
         bool HandleUnBanCharacterCommand(const char* args);
         bool HandleUnBanIPCommand(const char* args);
+
         bool HandleWpAddCommand(const char* args);
         bool HandleWpLoadPathCommand(const char* args);
         bool HandleWpUnLoadPathCommand(const char* args);
@@ -414,11 +468,13 @@ class TRINITY_DLL_SPEC ChatHandler
         bool HandleWpEventCommand(const char* args);
         bool HandleWpShowCommand(const char* args);
         bool HandleReloadAllPaths(const char *args);
+
         bool HandleHelpCommand(const char* args);
         bool HandleCommandsCommand(const char* args);
         bool HandleStartCommand(const char* args);
         bool HandleDismountCommand(const char* args);
         bool HandleSaveCommand(const char* args);
+
         bool HandleNamegoCommand(const char* args);
         bool HandleGonameCommand(const char* args);
         bool HandleGroupgoCommand(const char* args);
@@ -429,7 +485,9 @@ class TRINITY_DLL_SPEC ChatHandler
         bool HandleTaxiCheatCommand(const char* args);
         bool HandleWhispersCommand(const char* args);
         bool HandleModifyDrunkCommand(const char* args);
+
         bool HandleLoadScriptsCommand(const char* args);
+
         bool HandleGUIDCommand(const char* args);
         bool HandleItemMoveCommand(const char* args);
         bool HandleDeMorphCommand(const char* args);
@@ -440,6 +498,7 @@ class TRINITY_DLL_SPEC ChatHandler
         bool HandleFreezeCommand(const char *args);
         bool HandleUnFreezeCommand(const char *args);
         bool HandleListFreezeCommand(const char* args);
+
         bool HandleCooldownCommand(const char* args);
         bool HandleUnLearnCommand(const char* args);
         bool HandleGetDistanceCommand(const char* args);
@@ -466,12 +525,15 @@ class TRINITY_DLL_SPEC ChatHandler
         bool HandlePetUnlearnCommand(const char* args);
         bool HandlePetLearnCommand(const char* args);
         bool HandleCreatePetCommand(const char* args);
+
         bool HandleGroupLeaderCommand(const char* args);
         bool HandleGroupDisbandCommand(const char* args);
         bool HandleGroupRemoveCommand(const char* args);
+
         bool HandleBankCommand(const char* args);
         bool HandleChangeWeather(const char* args);
         bool HandleKickPlayerCommand(const char * args);
+
         // GM ticket command handlers
         bool HandleGMTicketListCommand(const char* args);
         bool HandleGMTicketListOnlineCommand(const char* args);
@@ -484,33 +546,44 @@ class TRINITY_DLL_SPEC ChatHandler
         bool HandleGMTicketCommentCommand(const char* args);
         bool HandleGMTicketDeleteByIdCommand(const char* args);
         bool HandleGMTicketReloadCommand(const char*);
+
         bool HandleMaxSkillCommand(const char* args);
         bool HandleSetSkillCommand(const char* args);
         bool HandleRespawnCommand(const char* args);
         bool HandleComeToMeCommand(const char *args);
         bool HandleCombatStopCommand(const char *args);
+
         /*bool HandleCharDeleteCommand(const char *args);
         bool HandleSendMessageCommand(const char * args);*/
+
         bool HandleFlushArenaPointsCommand(const char *args);
         bool HandlePlayAllCommand(const char* args);
         bool HandleRepairitemsCommand(const char* args);
+
         bool HandleTempGameObjectCommand(const char* args);
         bool HandleTempAddSpwCommand(const char* args);
+
         //! Development Commands
+
         /*bool HandleQuestAdd(const char * args);
         bool HandleQuestRemove(const char * args);
         bool HandleQuestComplete(const char * args);*/
+
         //bool HandleSet32Bit(const char* args);
         bool HandleSaveAllCommand(const char* args);
+
         Player*   getSelectedPlayer();
         Creature* getSelectedCreature();
         Unit*     getSelectedUnit();
         WorldObject* getSelectedObject();
+
         char*     extractKeyFromLink(char* text, char const* linkType, char** something1 = NULL);
         char*     extractKeyFromLink(char* text, char const* const* linkTypes, int* found_idx, char** something1 = NULL);
+
         // if args have single value then it return in arg2 and arg1 == NULL
         void      extractOptFirstArg(char* args, char** arg1, char** arg2);
         char*     extractQuotedArg(char* args);
+
         uint32    extractSpellIdFromLink(char* text);
         uint64    extractGuidFromLink(char* text);
         GameTele const* extractGameTeleFromLink(char* text);
@@ -518,10 +591,13 @@ class TRINITY_DLL_SPEC ChatHandler
         std::string extractPlayerNameFromLink(char* text);
         // select by arg (name/link) or in-game selection online/offline player
         bool extractPlayerTarget(char* args, Player** player, uint64* player_guid = NULL, std::string* player_name = NULL);
+
         std::string playerLink(std::string const& name) const { return m_session ? "|cffffffff|Hplayer:"+name+"|h["+name+"]|h|r" : name; }
         std::string GetNameLink(Player* chr) const { return playerLink(chr->GetName()); }
+
         GameObject* GetNearbyGameObject();
         GameObject* GetObjectGlobalyWithGuidOrNearWithDbGuid(uint32 lowguid,uint32 entry);
+
         // Utility methods for commands
         bool LookupPlayerSearchCommand(QueryResult* result, int32 limit);
         bool HandleBanListHelper(QueryResult* result);
@@ -530,18 +606,22 @@ class TRINITY_DLL_SPEC ChatHandler
         bool HandleUnBanHelper(BanMode mode,char const* args);
         void HandleCharacterLevel(Player* player, uint64 player_guid, uint32 oldlevel, uint32 newlevel);
         void HandleLearnSkillRecipesHelper(Player* player,uint32 skill_id);
+
         void SetSentErrorMessage(bool val){ sentErrorMessage = val;};
     private:
         WorldSession * m_session;                           // != NULL for chat command call and NULL for CLI command
+
         // common global flag
         static bool load_command_table;
         bool sentErrorMessage;
 };
+
 class CliHandler : public ChatHandler
 {
     public:
         typedef void Print(char const*);
         explicit CliHandler(Print* zprint) : m_print(zprint) {}
+
         // overwrite functions
         const char *GetTrinityString(int32 entry) const;
         bool isAvailable(ChatCommand const& cmd) const;
@@ -550,9 +630,12 @@ class CliHandler : public ChatHandler
         bool needReportToTarget(Player* chr) const;
         LocaleConstant GetSessionDbcLocale() const;
         int GetSessionDbLocaleIndex() const;
+
     private:
         Print* m_print;
 };
+
 char const *fmtstring( char const *format, ... );
+
 #endif
 

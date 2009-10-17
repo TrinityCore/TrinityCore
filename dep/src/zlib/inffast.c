@@ -2,11 +2,14 @@
  * Copyright (C) 1995-2004 Mark Adler
  * For conditions of distribution and use, see copyright notice in zlib.h
  */
+
 #include "zutil.h"
 #include "inftrees.h"
 #include "inflate.h"
 #include "inffast.h"
+
 #ifndef ASMINF
+
 /* Allow machine dependent optimization for post-increment or pre-increment.
    Based on testing to date,
    Pre-increment preferred for:
@@ -25,6 +28,7 @@
 #  define OFF 1
 #  define PUP(a) *++(a)
 #endif
+
 /*
    Decode literal, length, and distance codes and write out the resulting
    literal and match bytes until either not enough input or output is
@@ -32,22 +36,29 @@
    When large enough input and output buffers are supplied to inflate(), for
    example, a 16K input buffer and a 64K output buffer, more than 95% of the
    inflate execution time is spent in this routine.
+
    Entry assumptions:
+
         state->mode == LEN
         strm->avail_in >= 6
         strm->avail_out >= 258
         start >= strm->avail_out
         state->bits < 8
+
    On return, state->mode is one of:
+
         LEN -- ran out of enough output space or enough available input
         TYPE -- reached end of block code, inflate() to interpret next block
         BAD -- error in block data
+
    Notes:
+
     - The maximum input bits used by a length/distance pair is 15 bits for the
       length code, 5 bits for the length extra, 15 bits for the distance code,
       and 13 bits for the distance extra.  This totals 48 bits, or six bytes.
       Therefore if strm->avail_in >= 6, then there is enough input to avoid
       checking for available input while decoding.
+
     - The maximum bytes that a single length/distance pair can output is 258
       bytes, which is the maximum length that can be coded.  inflate_fast()
       requires strm->avail_out >= 258 for each loop to avoid checking for
@@ -82,6 +93,7 @@ unsigned start;         /* inflate()'s starting value for strm->avail_out */
     unsigned len;               /* match length, unused bytes */
     unsigned dist;              /* match distance */
     unsigned char FAR *from;    /* where to copy match from */
+
     /* copy state to local variables */
     state = (struct inflate_state FAR *)strm->state;
     in = strm->next_in - OFF;
@@ -102,6 +114,7 @@ unsigned start;         /* inflate()'s starting value for strm->avail_out */
     dcode = state->distcode;
     lmask = (1U << state->lenbits) - 1;
     dmask = (1U << state->distbits) - 1;
+
     /* decode literals and length/distances until end-of-block or not enough
        input data or output space */
     do {
@@ -270,11 +283,13 @@ unsigned start;         /* inflate()'s starting value for strm->avail_out */
             break;
         }
     } while (in < last && out < end);
+
     /* return unused bytes (on entry, bits < 8, so in won't go too far back) */
     len = bits >> 3;
     in -= len;
     bits -= len << 3;
     hold &= (1U << bits) - 1;
+
     /* update state and return */
     strm->next_in = in + OFF;
     strm->next_out = out + OFF;
@@ -285,6 +300,7 @@ unsigned start;         /* inflate()'s starting value for strm->avail_out */
     state->bits = bits;
     return;
 }
+
 /*
    inflate_fast() speedups that turned out slower (on a PowerPC G3 750CXe):
    - Using bit fields for code structure
@@ -298,4 +314,5 @@ unsigned start;         /* inflate()'s starting value for strm->avail_out */
    - Larger unrolled copy loops (three is about right)
    - Moving len -= 3 statement into middle of loop
  */
+
 #endif /* !ASMINF */

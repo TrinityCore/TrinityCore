@@ -1,6 +1,7 @@
 // -*- C++ -*-
 //
 // $Id: OS_NS_stdio.inl 82444 2008-07-28 13:33:07Z johnnyw $
+
 #include "ace/OS_NS_unistd.h"
 #include "ace/OS_NS_stdlib.h"
 #include "ace/OS_NS_fcntl.h"
@@ -10,11 +11,15 @@
 #include "ace/OS_NS_macros.h"
 #include "ace/OS_NS_sys_stat.h"
 #include "ace/OS_Memory.h"
+
 #if defined (ACE_HAS_TRIO)
 #  include <trio.h>
 #endif /* ACE_HAS_TRIO */
+
 /*****************************************************************************/
+
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
+
 #if defined (ACE_WIN32)
 ACE_INLINE void
 ACE_OS::flock_adjust_params (ACE_OS::ace_flock_t *lock,
@@ -52,6 +57,7 @@ ACE_OS::flock_adjust_params (ACE_OS::ace_flock_t *lock,
             return;
           }
 # endif /* ACE_LACKS_WIN32_SETFILEPOINTEREX */
+
 # if defined (_FILE_OFFSET_BITS) && _FILE_OFFSET_BITS == 64
         start += offset.QuadPart;
 # else
@@ -64,6 +70,7 @@ ACE_OS::flock_adjust_params (ACE_OS::ace_flock_t *lock,
         ACE_OFF_T const size = ACE_OS::filesize (lock->handle_);
         if (size == -1)
           return;
+
         start += size;
       }
       break;
@@ -78,6 +85,7 @@ ACE_OS::flock_adjust_params (ACE_OS::ace_flock_t *lock,
     }
 }
 #endif /* ACE_WIN32 */
+
 ACE_INLINE int
 ACE_OS::flock_init (ACE_OS::ace_flock_t *lock,
                     int flags,
@@ -94,6 +102,7 @@ ACE_OS::flock_init (ACE_OS::ace_flock_t *lock,
 #endif /* ACE_WIN32 */
   lock->handle_ = ACE_INVALID_HANDLE;
   lock->lockname_ = 0;
+
   if (name != 0)
     {
       ACE_OSCALL (ACE_OS::open (name, flags, perms),
@@ -107,6 +116,7 @@ ACE_OS::flock_init (ACE_OS::ace_flock_t *lock,
   else
     return 0;
 }
+
 ACE_INLINE int
 ACE_OS::flock_unlock (ACE_OS::ace_flock_t *lock,
                       short whence,
@@ -136,12 +146,14 @@ ACE_OS::flock_unlock (ACE_OS::ace_flock_t *lock,
   lock->lock_.l_start = start;
   lock->lock_.l_len = len;
   lock->lock_.l_type = F_UNLCK;   // Unlock file.
+
   // release lock
   ACE_OSCALL_RETURN (ACE_OS::fcntl (lock->handle_, F_SETLK,
                                     reinterpret_cast<long> (&lock->lock_)),
                      int, -1);
 #endif /* ACE_WIN32 */
 }
+
 ACE_INLINE int
 ACE_OS::flock_destroy (ACE_OS::ace_flock_t *lock,
                        int unlink_file)
@@ -164,6 +176,7 @@ ACE_OS::flock_destroy (ACE_OS::ace_flock_t *lock,
     }
   return 0;
 }
+
 ACE_INLINE int
 ACE_OS::flock_rdlock (ACE_OS::ace_flock_t *lock,
                       short whence,
@@ -199,6 +212,7 @@ ACE_OS::flock_rdlock (ACE_OS::ace_flock_t *lock,
                      int, -1);
 #endif /* ACE_WIN32 */
 }
+
 ACE_INLINE int
 ACE_OS::flock_tryrdlock (ACE_OS::ace_flock_t *lock,
                          short whence,
@@ -229,16 +243,20 @@ ACE_OS::flock_tryrdlock (ACE_OS::ace_flock_t *lock,
   lock->lock_.l_start = start;
   lock->lock_.l_len = len;
   lock->lock_.l_type = F_RDLCK;         // set read lock
+
   int result = 0;
   // Does not block, if no access, returns -1 and set errno = EBUSY;
   ACE_OSCALL (ACE_OS::fcntl (lock->handle_, F_SETLK,
                              reinterpret_cast<long> (&lock->lock_)),
               int, -1, result);
+
   if (result == -1 && (errno == EACCES || errno == EAGAIN))
     errno = EBUSY;
+
   return result;
 #endif /* ACE_WIN32 */
 }
+
 ACE_INLINE int
 ACE_OS::flock_trywrlock (ACE_OS::ace_flock_t *lock,
                          short whence,
@@ -269,17 +287,21 @@ ACE_OS::flock_trywrlock (ACE_OS::ace_flock_t *lock,
   lock->lock_.l_start = start;
   lock->lock_.l_len = len;
   lock->lock_.l_type = F_WRLCK;         // set write lock
+
   int result = 0;
   // Does not block, if no access, returns -1 and set errno = EBUSY;
   ACE_OSCALL (ACE_OS::fcntl (lock->handle_,
                              F_SETLK,
                              reinterpret_cast<long> (&lock->lock_)),
               int, -1, result);
+
   if (result == -1 && (errno == EACCES || errno == EAGAIN))
     errno = EBUSY;
+
   return result;
 #endif /* ACE_WIN32 */
 }
+
 ACE_INLINE int
 ACE_OS::flock_wrlock (ACE_OS::ace_flock_t *lock,
                       short whence,
@@ -316,6 +338,7 @@ ACE_OS::flock_wrlock (ACE_OS::ace_flock_t *lock,
                      int, -1);
 #endif /* ACE_WIN32 */
 }
+
 #if !defined (ACE_LACKS_CLEARERR)
 ACE_INLINE void
 ACE_OS::clearerr (FILE* fp)
@@ -323,6 +346,7 @@ ACE_OS::clearerr (FILE* fp)
   ace_clearerr_helper (fp);
 }
 #endif /* !ACE_LACKS_CLEARERR */
+
 #if !defined (ACE_LACKS_CUSERID)
 ACE_INLINE char *
 ACE_OS::cuserid (char *user, size_t maxlen)
@@ -355,42 +379,54 @@ ACE_OS::cuserid (char *user, size_t maxlen)
 #  if defined (ACE_LACKS_PWD_FUNCTIONS)
 #    error Cannot use alternate cuserid() without POSIX password functions!
 #  endif  /* ACE_LACKS_PWD_FUNCTIONS */
+
   // POSIX.1 dropped the cuserid() function.
   // GNU GLIBC and other platforms correctly deprecate the cuserid()
   // function.
+
   if (maxlen == 0)
     {
       // It doesn't make sense to have a zero length user ID.
       errno = EINVAL;
       return 0;
     }
+
   struct passwd *pw = 0;
+
   // Make sure the file pointer is at the beginning of the password file
   ACE_OS::setpwent ();
   // Should use ACE_OS::setpwent() but I didn't want to move this
   // method after it.
+
   // Use the effective user ID to determine the user name.
   pw = ::getpwuid (ACE_OS::geteuid ());
+
   // Make sure the password file is closed.
   ACE_OS::endpwent ();
+
   if (pw == 0)
     {
       errno = ENOENT;
       return 0;
     }
+
   size_t max_length = 0;
   char *userid = 0;
+
   if (user == 0)
     {
       // Not reentrant/thread-safe, but nothing else can be done if a
       // zero pointer was passed in as the destination.
+
 #if defined (_POSIX_SOURCE) && defined (L_cuserid)
       const size_t ACE_L_cuserid = L_cuserid;
 #else
       const size_t ACE_L_cuserid = 9;  // 8 character user ID + NULL
 #endif  /* _POSIX_SOURCE */
+
       static char tmp[ACE_L_cuserid] = { '\0' };
       max_length = ACE_L_cuserid - 1; // Do not include NULL in length
+
       userid = tmp;
     }
   else
@@ -398,6 +434,7 @@ ACE_OS::cuserid (char *user, size_t maxlen)
       max_length = maxlen;
       userid = user;
     }
+
   // Extract the user name from the passwd structure.
   if (ACE_OS::strlen (pw->pw_name) <= max_length)
     {
@@ -414,6 +451,7 @@ ACE_OS::cuserid (char *user, size_t maxlen)
   ACE_OSCALL_RETURN (::ace_cuserid(user), char*, 0);
 #endif /* ACE_VXWORKS */
 }
+
 #if defined (ACE_HAS_WCHAR)
 ACE_INLINE wchar_t *
 ACE_OS::cuserid (wchar_t *user, size_t maxlen)
@@ -431,24 +469,30 @@ ACE_OS::cuserid (wchar_t *user, size_t maxlen)
 # else /* ACE_WIN32 */
   char *char_user;
   wchar_t *result = 0;
+
   ACE_NEW_RETURN (char_user, char[maxlen + 1], 0);
+
   if (ACE_OS::cuserid (char_user, maxlen))
     {
       ACE_OS::strcpy (user, ACE_Ascii_To_Wide (char_user).wchar_rep ());
       result = user;
     }
+
   delete [] char_user;
+
   return result;
 # endif /* ACE_WIN32 */
 }
 #endif /* ACE_HAS_WCHAR  */
 #endif /* ACE_LACKS_CUSERID */
+
 ACE_INLINE int
 ACE_OS::fclose (FILE *fp)
 {
   ACE_OS_TRACE ("ACE_OS::fclose");
   ACE_OSCALL_RETURN (ACE_STD_NAMESPACE::fclose (fp), int, -1);
 }
+
 ACE_INLINE FILE *
 ACE_OS::fdopen (ACE_HANDLE handle, const ACE_TCHAR *mode)
 {
@@ -460,8 +504,11 @@ ACE_OS::fdopen (ACE_HANDLE handle, const ACE_TCHAR *mode)
 #elif defined (ACE_WIN32)
   // kernel file handle -> FILE* conversion...
   // Options: _O_APPEND, _O_RDONLY and _O_TEXT are lost
+
   FILE * file = 0;
+
   int const crt_handle = ::_open_osfhandle (intptr_t (handle), 0);
+
   if (crt_handle != -1)
     {
 #   if defined(ACE_HAS_NONCONST_FDOPEN) && !defined (ACE_USES_WCHAR)
@@ -473,11 +520,13 @@ ACE_OS::fdopen (ACE_HANDLE handle, const ACE_TCHAR *mode)
 #   else
       file = ::_fdopen (crt_handle, mode);
 #   endif /* ACE_HAS_NONCONST_FDOPEN */
+
       if (!file)
         {
           ::_close (crt_handle);
         }
     }
+
   return file;
 #elif defined (ACE_LACKS_FDOPEN)
   ACE_UNUSED_ARG (handle);
@@ -488,6 +537,7 @@ ACE_OS::fdopen (ACE_HANDLE handle, const ACE_TCHAR *mode)
     (::fdopen (handle, ACE_TEXT_ALWAYS_CHAR (mode)), FILE *, 0);
 #endif /* ACE_HAS_WINCE */
 }
+
 ACE_INLINE int
 ACE_OS::fflush (FILE *fp)
 {
@@ -499,29 +549,35 @@ ACE_OS::fflush (FILE *fp)
       return 0;
     }
 #endif /* ACE_VXWORKS */
+
   ACE_OSCALL_RETURN (ACE_STD_NAMESPACE::fflush (fp), int, -1);
 }
+
 ACE_INLINE int
 ACE_OS::fgetc (FILE* fp)
 {
   return ace_fgetc_helper (fp);
 }
+
 ACE_INLINE int
 ACE_OS::getc (FILE* fp)
 {
   return ace_getc_helper (fp);
 }
+
 ACE_INLINE int
 ACE_OS::fgetpos (FILE* fp, fpos_t* pos)
 {
   ACE_OSCALL_RETURN (ACE_STD_NAMESPACE::fgetpos (fp, pos), int, -1);
 }
+
 ACE_INLINE char *
 ACE_OS::fgets (char *buf, int size, FILE *fp)
 {
   ACE_OS_TRACE ("ACE_OS::fgets");
   ACE_OSCALL_RETURN (ACE_STD_NAMESPACE::fgets (buf, size, fp), char *, 0);
 }
+
 #if defined (ACE_HAS_WCHAR) && !defined(ACE_LACKS_FGETWS)
 ACE_INLINE wchar_t *
 ACE_OS::fgets (wchar_t *buf, int size, FILE *fp)
@@ -530,6 +586,7 @@ ACE_OS::fgets (wchar_t *buf, int size, FILE *fp)
   ACE_OSCALL_RETURN (ACE_STD_NAMESPACE::fgetws (buf, size, fp), wchar_t *, 0);
 }
 #endif /* ACE_HAS_WCHAR && !ACE_LACKS_FGETWS */
+
 #if !(defined (ACE_WIN32) && !defined (ACE_HAS_WINCE))
 // Win32 PC implementation of fopen () is in OS_NS_stdio.cpp.
 ACE_INLINE FILE *
@@ -539,6 +596,7 @@ ACE_OS::fopen (const char *filename, const char *mode)
   ACE_OSCALL_RETURN
     (::fopen (filename, mode), FILE *, 0);
 }
+
 #if defined (ACE_HAS_WCHAR)
 // Win32 PC implementation of fopen () is in OS_NS_stdio.cpp.
 ACE_INLINE FILE *
@@ -582,28 +640,34 @@ ACE_OS::fopen (const wchar_t *filename, const char *mode)
 #endif /* ACE_HAS_WINCE */
 }
 #endif /* ACE_HAS_WCHAR */
+
 #endif /* ACE_WIN32 */
+
 ACE_INLINE int
 ACE_OS::ungetc (int c, FILE *fp)
 {
   return ace_ungetc_helper (c, fp);
 }
+
 ACE_INLINE int
 ACE_OS::fputc (int c, FILE *fp)
 {
   return ace_fputc_helper (c, fp);
 }
+
 ACE_INLINE int
 ACE_OS::putc (int c, FILE *fp)
 {
   return ace_putc_helper (c, fp);
 }
+
 ACE_INLINE int
 ACE_OS::fputs (const char *s, FILE *stream)
 {
   ACE_OS_TRACE ("ACE_OS::fputs");
   ACE_OSCALL_RETURN (ACE_STD_NAMESPACE::fputs (s, stream), int, -1);
 }
+
 #if defined (ACE_HAS_WCHAR) && !defined(ACE_LACKS_FPUTWS)
 ACE_INLINE int
 ACE_OS::fputs (const wchar_t *s, FILE *stream)
@@ -612,6 +676,7 @@ ACE_OS::fputs (const wchar_t *s, FILE *stream)
   ACE_OSCALL_RETURN (ACE_STD_NAMESPACE::fputws (s, stream), int, -1);
 }
 #endif /* ACE_HAS_WCHAR && !ACE_LACKS_FPUTWS */
+
 ACE_INLINE size_t
 ACE_OS::fread (void *ptr, size_t size, size_t nelems, FILE *fp)
 {
@@ -620,6 +685,7 @@ ACE_OS::fread (void *ptr, size_t size, size_t nelems, FILE *fp)
                      size_t,
                      0);
 }
+
 ACE_INLINE FILE *
 ACE_OS::freopen (const ACE_TCHAR *filename, const ACE_TCHAR *mode, FILE* stream)
 {
@@ -637,6 +703,7 @@ ACE_OS::freopen (const ACE_TCHAR *filename, const ACE_TCHAR *mode, FILE* stream)
      FILE *, 0);
 #endif /* ACE_WIN32 && ACE_USES_WCHAR */
 }
+
 ACE_INLINE int
 ACE_OS::fseek (FILE *fp, long offset, int whence)
 {
@@ -662,16 +729,19 @@ ACE_OS::fseek (FILE *fp, long offset, int whence)
 # endif   /* ACE_WIN32 */
   ACE_OSCALL_RETURN (ACE_STD_NAMESPACE::fseek (fp, offset, whence), int, -1);
 }
+
 ACE_INLINE int
 ACE_OS::fsetpos (FILE* fp, fpos_t* pos)
 {
   ACE_OSCALL_RETURN (::fsetpos (fp, pos), int, -1);
 }
+
 ACE_INLINE long
 ACE_OS::ftell (FILE* fp)
 {
   ACE_OSCALL_RETURN (ACE_STD_NAMESPACE::ftell (fp), long, -1);
 }
+
 ACE_INLINE size_t
 ACE_OS::fwrite (const void *ptr, size_t size, size_t nitems, FILE *fp)
 {
@@ -680,6 +750,7 @@ ACE_OS::fwrite (const void *ptr, size_t size, size_t nitems, FILE *fp)
                      size_t,
                      0);
 }
+
 ACE_INLINE void
 ACE_OS::perror (const char *s)
 {
@@ -690,6 +761,7 @@ ACE_OS::perror (const char *s)
   ::perror (s);
 #endif /* ACE_HAS_WINCE */
 }
+
 #if defined (ACE_HAS_WCHAR)
 ACE_INLINE void
 ACE_OS::perror (const wchar_t *s)
@@ -705,12 +777,14 @@ ACE_OS::perror (const wchar_t *s)
 #endif /* ACE_HAS_WINCE */
 }
 #endif /* ACE_HAS_WCHAR */
+
 ACE_INLINE int
 ACE_OS::puts (const char *s)
 {
   ACE_OS_TRACE ("ACE_OS::puts");
   ACE_OSCALL_RETURN (::puts (s), int, -1);
 }
+
 #if defined (ACE_HAS_WCHAR)
 ACE_INLINE int
 ACE_OS::puts (const wchar_t *s)
@@ -725,6 +799,7 @@ ACE_OS::puts (const wchar_t *s)
 #endif /* ACE_WIN32 */
 }
 #endif /* ACE_HAS_WCHAR */
+
 ACE_INLINE int
 ACE_OS::rename (const char *old_name,
                 const char *new_name,
@@ -757,6 +832,7 @@ ACE_OS::rename (const char *old_name,
   ACE_OSCALL_RETURN (::rename (old_name, new_name), int, -1);
 # endif /* ACE_LACKS_RENAME */
 }
+
 #if defined (ACE_HAS_WCHAR)
 ACE_INLINE int
 ACE_OS::rename (const wchar_t *old_name,
@@ -793,6 +869,7 @@ ACE_OS::rename (const wchar_t *old_name,
 # endif /* ACE_LACKS_RENAME */
 }
 #endif /* ACE_HAS_WCHAR */
+
 ACE_INLINE void
 ACE_OS::rewind (FILE *fp)
 {
@@ -805,6 +882,7 @@ ACE_OS::rewind (FILE *fp)
   (void) fseek (fp, 0L, SEEK_SET);
 #endif /* ACE_HAS_WINCE */
 }
+
 ACE_INLINE char *
 ACE_OS::tempnam (const char *dir, const char *pfx)
 {
@@ -819,6 +897,7 @@ ACE_OS::tempnam (const char *dir, const char *pfx)
   ACE_OSCALL_RETURN (ACE_STD_NAMESPACE::tempnam (dir, pfx), char *, 0);
 #endif /* ACE_LACKS_TEMPNAM */
 }
+
 #if defined (ACE_HAS_WCHAR)
 ACE_INLINE wchar_t *
 ACE_OS::tempnam (const wchar_t *dir, const wchar_t *pfx)
@@ -855,6 +934,7 @@ ACE_OS::tempnam (const wchar_t *dir, const wchar_t *pfx)
 #endif /* ACE_LACKS_TEMPNAM */
 }
 #endif /* ACE_HAS_WCHAR */
+
 ACE_INLINE int
 ACE_OS::vasprintf (char **bufp, const char* format, va_list argptr)
 {
@@ -864,6 +944,7 @@ ACE_OS::vasprintf (char **bufp, const char* format, va_list argptr)
   return ACE_OS::vasprintf_emulation (bufp, format, argptr);
 #endif /* ACE_HAS_VASPRINTF */
 }
+
 #if defined (ACE_HAS_WCHAR)
 ACE_INLINE int
 ACE_OS::vasprintf (wchar_t **bufp, const wchar_t* format, va_list argptr)
@@ -875,11 +956,13 @@ ACE_OS::vasprintf (wchar_t **bufp, const wchar_t* format, va_list argptr)
 #endif /* ACE_HAS_VASWPRINTF */
 }
 #endif /* ACE_HAS_WCHAR */
+
 ACE_INLINE int
 ACE_OS::vprintf (const char *format, va_list argptr)
 {
   return ::vprintf (format, argptr);
 }
+
 #if defined (ACE_HAS_WCHAR)
 ACE_INLINE int
 ACE_OS::vprintf (const wchar_t *format, va_list argptr)
@@ -893,11 +976,13 @@ ACE_OS::vprintf (const wchar_t *format, va_list argptr)
 #endif /* ACE_HAS_VWPRINTF */
 }
 #endif /* ACE_HAS_WCHAR */
+
 ACE_INLINE int
 ACE_OS::vfprintf (FILE *fp, const char *format, va_list argptr)
 {
   return ACE_STD_NAMESPACE::vfprintf (fp, format, argptr);
 }
+
 #if defined (ACE_HAS_WCHAR)
 ACE_INLINE int
 ACE_OS::vfprintf (FILE *fp, const wchar_t *format, va_list argptr)
@@ -912,11 +997,13 @@ ACE_OS::vfprintf (FILE *fp, const wchar_t *format, va_list argptr)
 #endif /* ACE_HAS_VFWPRINTF */
 }
 #endif /* ACE_HAS_WCHAR */
+
 ACE_INLINE int
 ACE_OS::vsprintf (char *buffer, const char *format, va_list argptr)
 {
   return ::vsprintf (buffer, format, argptr);
 }
+
 #if defined (ACE_HAS_WCHAR)
 ACE_INLINE int
 ACE_OS::vsprintf (wchar_t *buffer, const wchar_t *format, va_list argptr)
@@ -927,24 +1014,30 @@ ACE_OS::vsprintf (wchar_t *buffer, const wchar_t *format, va_list argptr)
       defined (ACE_HAS_VSWPRINTF) || defined (ACE_WIN32_VC9) || \
      (defined (ACE_WIN32_VC8) && !defined (ACE_HAS_WINCE) && \
       _MSC_FULL_VER > 140050000)
+
   // The XPG4/UNIX98/C99 signature of the wide-char sprintf has a
   // maxlen argument. Since this method doesn't supply one, pass in
   // a length that works (ULONG_MAX doesn't on all platform since some check
   // to see if the operation will remain in bounds). If this isn't ok, use
   // ACE_OS::snprintf().
   return vswprintf (buffer, 4096, format, argptr);
+
 # elif defined (ACE_WIN32)
   // Windows has vswprintf, but the pre-VC8 signature is from the older
   // ISO C standard. Also see ACE_OS::snprintf() for more info on this.
+
   return vswprintf (buffer, format, argptr);
+
 # else
   ACE_UNUSED_ARG (buffer);
   ACE_UNUSED_ARG (format);
   ACE_UNUSED_ARG (argptr);
   ACE_NOTSUP_RETURN (-1);
+
 # endif /* XPG5 || ACE_HAS_DINKUM_STL */
 }
 #endif /* ACE_HAS_WCHAR */
+
 ACE_INLINE int
 ACE_OS::vsnprintf (char *buffer, size_t maxlen, const char *format, va_list ap)
 {
@@ -959,9 +1052,11 @@ ACE_OS::vsnprintf (char *buffer, size_t maxlen, const char *format, va_list ap)
   result = ::vsnprintf (buffer, maxlen, format, ap);
 #  else
   result = ::_vsnprintf (buffer, maxlen, format, ap);
+
   // Win32 doesn't regard a full buffer with no 0-terminate as an overrun.
   if (result == static_cast<int> (maxlen))
     buffer[maxlen-1] = '\0';
+
   // Win32 doesn't 0-terminate the string if it overruns maxlen.
   if (result == -1)
     buffer[maxlen-1] = '\0';
@@ -975,6 +1070,7 @@ ACE_OS::vsnprintf (char *buffer, size_t maxlen, const char *format, va_list ap)
     {
       result = static_cast <int> (maxlen + 1);
     }
+
   return result;
 #elif defined (ACE_HAS_TRIO)
   return trio_vsnprintf (buffer, maxlen, format, ap);
@@ -986,6 +1082,7 @@ ACE_OS::vsnprintf (char *buffer, size_t maxlen, const char *format, va_list ap)
   ACE_NOTSUP_RETURN (-1);
 #endif /* ACE_LACKS_VSNPRINTF */
 }
+
 #if defined (ACE_HAS_WCHAR)
 ACE_INLINE int
 ACE_OS::vsnprintf (wchar_t *buffer, size_t maxlen, const wchar_t *format, va_list ap)
@@ -995,21 +1092,26 @@ ACE_OS::vsnprintf (wchar_t *buffer, size_t maxlen, const wchar_t *format, va_lis
      (defined (ACE_HAS_DINKUM_STL) || defined (__DMC__)) || \
       defined (ACE_HAS_VSWPRINTF) || \
       defined (ACE_WIN32)
+
   int result;
+
 # if defined (ACE_WIN32)
   // Microsoft's vswprintf() doesn't have the maxlen argument that
   // XPG4/UNIX98 define. They do, however, recommend use of _vsnwprintf()
   // as a substitute, which does have the same signature as the UNIX98 one.
   result = ::_vsnwprintf (buffer, maxlen, format, ap);
+
   // Win32 doesn't regard a full buffer with no 0-terminate as an overrun.
   if (result == static_cast<int> (maxlen))
     buffer[maxlen-1] = '\0';
+
   // Win32 doesn't 0-terminate the string if it overruns maxlen.
   if (result == -1)
     buffer[maxlen-1] = '\0';
 # else
   result = vswprintf (buffer, maxlen, format, ap);
 #endif
+
   // In out-of-range conditions, C99 defines vsnprintf() to return the number
   // of characters that would have been written if enough space was available.
   // Earlier variants of the vsnprintf() (e.g. UNIX98) defined it to return
@@ -1019,16 +1121,21 @@ ACE_OS::vsnprintf (wchar_t *buffer, size_t maxlen, const wchar_t *format, va_lis
     {
       result = static_cast <int> (maxlen + 1);
     }
+
   return result;
+
 # else
+
   ACE_UNUSED_ARG (buffer);
   ACE_UNUSED_ARG (maxlen);
   ACE_UNUSED_ARG (format);
   ACE_UNUSED_ARG (ap);
   ACE_NOTSUP_RETURN (-1);
+
 # endif /* platforms with a variant of vswprintf */
 }
 #endif /* ACE_HAS_WCHAR */
+
 #if defined (ACE_MT_SAFE) && (ACE_MT_SAFE != 0)
 #if defined (ACE_WIN32)
 ACE_INLINE const ACE_TEXT_OSVERSIONINFO &
@@ -1036,16 +1143,19 @@ ACE_OS::get_win32_versioninfo ()
 {
   return ACE_OS::win32_versioninfo_;
 }
+
 ACE_INLINE HINSTANCE
 ACE_OS::get_win32_resource_module ()
 {
   return ACE_OS::win32_resource_module_;
 }
+
 ACE_INLINE void
 ACE_OS::set_win32_resource_module (HINSTANCE instance)
 {
   ACE_OS::win32_resource_module_ = instance;
 }
+
 ACE_INLINE LPSECURITY_ATTRIBUTES
 ACE_OS::default_win32_security_attributes (LPSECURITY_ATTRIBUTES sa)
 {
@@ -1067,6 +1177,7 @@ ACE_OS::default_win32_security_attributes (LPSECURITY_ATTRIBUTES sa)
   return sa;
 #endif /* ACE_DEFINES_DEFAULT_WIN32_SECURITY_ATTRIBUTES */
 }
+
 ACE_INLINE LPSECURITY_ATTRIBUTES
 ACE_OS::default_win32_security_attributes_r (LPSECURITY_ATTRIBUTES sa,
                                              LPSECURITY_ATTRIBUTES sa_buffer,
@@ -1093,6 +1204,8 @@ ACE_OS::default_win32_security_attributes_r (LPSECURITY_ATTRIBUTES sa,
   return sa;
 #endif /* ACE_DEFINES_DEFAULT_WIN32_SECURITY_ATTRIBUTES */
 }
+
 #endif /* ACE_WIN32 */
 #endif
+
 ACE_END_VERSIONED_NAMESPACE_DECL

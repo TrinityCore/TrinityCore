@@ -13,45 +13,59 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
+
 /* ScriptData
 SDName: Boss_Twinemperors
 SD%Complete: 95
 SDComment:
 SDCategory: Temple of Ahn'Qiraj
 EndScriptData */
+
 #include "precompiled.h"
 #include "def_temple_of_ahnqiraj.h"
 #include "WorldPacket.h"
+
 #include "Item.h"
 #include "Spell.h"
+
 #define SPELL_HEAL_BROTHER          7393
 #define SPELL_TWIN_TELEPORT         800                     // CTRA watches for this spell to start its teleport timer
 #define SPELL_TWIN_TELEPORT_VISUAL  26638                   // visual
+
 #define SPELL_EXPLODEBUG            804
 #define SPELL_MUTATE_BUG            802
+
 #define SOUND_VN_DEATH              8660                    //8660 - Death - Feel
 #define SOUND_VN_AGGRO              8661                    //8661 - Aggro - Let none
 #define SOUND_VN_KILL               8662                    //8661 - Kill - your fate
+
 #define SOUND_VL_AGGRO              8657                    //8657 - Aggro - To Late
 #define SOUND_VL_KILL               8658                    //8658 - Kill - You will not
 #define SOUND_VL_DEATH              8659                    //8659 - Death
+
 #define PULL_RANGE                  50
 #define ABUSE_BUG_RANGE             20
 #define SPELL_BERSERK               26662
 #define TELEPORTTIME                30000
+
 #define SPELL_UPPERCUT              26007
 #define SPELL_UNBALANCING_STRIKE    26613
+
 #define VEKLOR_DIST                 20                      // VL will not come to melee when attacking
+
 #define SPELL_SHADOWBOLT            26006
 #define SPELL_BLIZZARD              26607
 #define SPELL_ARCANEBURST           568
+
 struct TRINITY_DLL_DECL boss_twinemperorsAI : public ScriptedAI
 {
     boss_twinemperorsAI(Creature *c): ScriptedAI(c)
     {
         pInstance = c->GetInstanceData();
     }
+
     ScriptedInstance *pInstance;
+
     uint32 Heal_Timer;
     uint32 Teleport_Timer;
     bool AfterTeleport;
@@ -60,9 +74,11 @@ struct TRINITY_DLL_DECL boss_twinemperorsAI : public ScriptedAI
     uint32 Abuse_Bug_Timer, BugsTimer;
     bool tspellcasted;
     uint32 EnrageTimer;
+
     virtual bool IAmVeklor() = 0;
     virtual void Reset() = 0;
     virtual void CastSpellOnBug(Creature *target) = 0;
+
     void TwinReset()
     {
         Heal_Timer = 0;                                     // first heal immediately when they get close together
@@ -76,6 +92,7 @@ struct TRINITY_DLL_DECL boss_twinemperorsAI : public ScriptedAI
         DontYellWhenDead = false;
         EnrageTimer = 15*60000;
     }
+
     Creature *GetOtherBoss()
     {
         if (pInstance)
@@ -83,6 +100,7 @@ struct TRINITY_DLL_DECL boss_twinemperorsAI : public ScriptedAI
         else
             return NULL;
     }
+
     void DamageTaken(Unit *done_by, uint32 &damage)
     {
         Unit *pOtherBoss = GetOtherBoss();
@@ -99,6 +117,7 @@ struct TRINITY_DLL_DECL boss_twinemperorsAI : public ScriptedAI
             }
         }
     }
+
     void JustDied(Unit* Killer)
     {
         Creature *pOtherBoss = GetOtherBoss();
@@ -112,10 +131,12 @@ struct TRINITY_DLL_DECL boss_twinemperorsAI : public ScriptedAI
         if (!DontYellWhenDead)                              // I hope AI is not threaded
             DoPlaySoundToSet(m_creature, IAmVeklor() ? SOUND_VL_DEATH : SOUND_VN_DEATH);
     }
+
     void KilledUnit(Unit* victim)
     {
         DoPlaySoundToSet(m_creature, IAmVeklor() ? SOUND_VL_KILL : SOUND_VN_KILL);
     }
+
     void EnterCombat(Unit *who)
     {
         DoZoneInCombat();
@@ -133,13 +154,16 @@ struct TRINITY_DLL_DECL boss_twinemperorsAI : public ScriptedAI
             }
         }
     }
+
     void SpellHit(Unit *caster, const SpellEntry *entry)
     {
         if (caster == m_creature)
             return;
+
         Creature *pOtherBoss = GetOtherBoss();
         if (entry->Id != SPELL_HEAL_BROTHER || !pOtherBoss)
             return;
+
         // add health so we keep same percentage for both brothers
         uint32 mytotal = m_creature->GetMaxHealth(), histotal = pOtherBoss->GetMaxHealth();
         float mult = ((float)mytotal) / ((float)histotal);
@@ -147,6 +171,7 @@ struct TRINITY_DLL_DECL boss_twinemperorsAI : public ScriptedAI
             mult = 1.0f/mult;
         #define HEAL_BROTHER_AMOUNT 30000.0f
         uint32 largerAmount = (uint32)((HEAL_BROTHER_AMOUNT * mult) - HEAL_BROTHER_AMOUNT);
+
         uint32 myh = m_creature->GetHealth();
         uint32 hish = pOtherBoss->GetHealth();
         if (mytotal > histotal)
@@ -160,10 +185,12 @@ struct TRINITY_DLL_DECL boss_twinemperorsAI : public ScriptedAI
             pOtherBoss->SetHealth(std::min(histotal, h));
         }
     }
+
     void TryHealBrother(uint32 diff)
     {
         if (IAmVeklor())                                    // this spell heals caster and the other brother so let VN cast it
             return;
+
         if (Heal_Timer < diff)
         {
             Unit *pOtherBoss = GetOtherBoss();
@@ -174,13 +201,17 @@ struct TRINITY_DLL_DECL boss_twinemperorsAI : public ScriptedAI
             }
         } else Heal_Timer -= diff;
     }
+
     void TeleportToMyBrother()
     {
         if (!pInstance)
             return;
+
         Teleport_Timer = TELEPORTTIME;
+
         if (IAmVeklor())
             return;                                         // mechanics handled by veknilash so they teleport exactly at the same time and to correct coordinates
+
         Creature *pOtherBoss = GetOtherBoss();
         if (pOtherBoss)
         {
@@ -189,14 +220,17 @@ struct TRINITY_DLL_DECL boss_twinemperorsAI : public ScriptedAI
             float other_y = pOtherBoss->GetPositionY();
             float other_z = pOtherBoss->GetPositionZ();
             float other_o = pOtherBoss->GetOrientation();
+
             Map *thismap = m_creature->GetMap();
             thismap->CreatureRelocation(pOtherBoss, m_creature->GetPositionX(),
                 m_creature->GetPositionY(),    m_creature->GetPositionZ(), m_creature->GetOrientation());
             thismap->CreatureRelocation(m_creature, other_x, other_y, other_z, other_o);
+
             SetAfterTeleport();
             CAST_AI(boss_twinemperorsAI,  pOtherBoss->AI())->SetAfterTeleport();
         }
     }
+
     void SetAfterTeleport()
     {
         m_creature->InterruptNonMeleeSpells(false);
@@ -208,6 +242,7 @@ struct TRINITY_DLL_DECL boss_twinemperorsAI : public ScriptedAI
         AfterTeleportTimer = 2000;
         tspellcasted = false;
     }
+
     bool TryActivateAfterTTelep(uint32 diff)
     {
         if (AfterTeleport)
@@ -218,7 +253,9 @@ struct TRINITY_DLL_DECL boss_twinemperorsAI : public ScriptedAI
                 DoCast(m_creature, SPELL_TWIN_TELEPORT);
                 m_creature->addUnitState(UNIT_STAT_STUNNED);
             }
+
             tspellcasted = true;
+
             if (AfterTeleportTimer < diff)
             {
                 AfterTeleport = false;
@@ -252,10 +289,12 @@ struct TRINITY_DLL_DECL boss_twinemperorsAI : public ScriptedAI
             return true;
         }
     }
+
     void MoveInLineOfSight(Unit *who)
     {
         if (!who || m_creature->getVictim())
             return;
+
         if (who->isTargetableForAttack() && who->isInAccessiblePlaceFor(m_creature) && m_creature->IsHostileTo(who))
         {
             float attackRadius = m_creature->GetAttackDistance(who);
@@ -269,15 +308,19 @@ struct TRINITY_DLL_DECL boss_twinemperorsAI : public ScriptedAI
             }
         }
     }
+
     Creature *RespawnNearbyBugsAndGetOne()
     {
         std::list<Creature*> lUnitList;
         m_creature->GetCreatureListWithEntryInGrid(lUnitList,15316,150.0f);
         m_creature->GetCreatureListWithEntryInGrid(lUnitList,15317,150.0f);
+
         if (lUnitList.empty())
             return NULL;
+
         Creature *nearb = NULL;
-        for (std::list<Creature*>::iterator iter = lUnitList.begin(); iter != lUnitList.end(); ++iter)
+
+        for(std::list<Creature*>::iterator iter = lUnitList.begin(); iter != lUnitList.end(); ++iter)
         {
             Creature *c = *iter;
             if (c)
@@ -297,6 +340,7 @@ struct TRINITY_DLL_DECL boss_twinemperorsAI : public ScriptedAI
         }
         return nearb;
     }
+
     void HandleBugs(uint32 diff)
     {
         if (BugsTimer < diff || Abuse_Bug_Timer < diff)
@@ -326,6 +370,7 @@ struct TRINITY_DLL_DECL boss_twinemperorsAI : public ScriptedAI
             Abuse_Bug_Timer -= diff;
         }
     }
+
     void CheckEnrage(uint32 diff)
     {
         if (EnrageTimer < diff)
@@ -338,26 +383,32 @@ struct TRINITY_DLL_DECL boss_twinemperorsAI : public ScriptedAI
         } else EnrageTimer-=diff;
     }
 };
+
 struct TRINITY_DLL_DECL boss_veknilashAI : public boss_twinemperorsAI
 {
     bool IAmVeklor() {return false;}
     boss_veknilashAI(Creature *c) : boss_twinemperorsAI(c) {}
+
     uint32 UpperCut_Timer;
     uint32 UnbalancingStrike_Timer;
     uint32 Scarabs_Timer;
     int Rand;
     int RandX;
     int RandY;
+
     Creature* Summoned;
+
     void Reset()
     {
         TwinReset();
         UpperCut_Timer = 14000 + rand()%15000;
         UnbalancingStrike_Timer = 8000 + rand()%10000;
         Scarabs_Timer = 7000 + rand()%7000;
+
                                                             //Added. Can be removed if its included in DB.
         m_creature->ApplySpellImmune(0, IMMUNITY_DAMAGE, SPELL_SCHOOL_MASK_MAGIC, true);
     }
+
     void CastSpellOnBug(Creature *target)
     {
         target->setFaction(14);
@@ -373,19 +424,23 @@ struct TRINITY_DLL_DECL boss_veknilashAI : public boss_twinemperorsAI
         target->AddAura(new Aura(spell, eff_mask, target, target, target));
         target->SetHealth(target->GetMaxHealth());
     }
+
     void UpdateAI(const uint32 diff)
     {
         //Return since we have no target
         if (!UpdateVictim())
             return;
+
         if (!TryActivateAfterTTelep(diff))
             return;
+
         //UnbalancingStrike_Timer
         if (UnbalancingStrike_Timer < diff)
         {
             DoCast(m_creature->getVictim(),SPELL_UNBALANCING_STRIKE);
             UnbalancingStrike_Timer = 8000+rand()%12000;
         }else UnbalancingStrike_Timer -= diff;
+
         if (UpperCut_Timer < diff)
         {
             Unit* randomMelee = SelectTarget(SELECT_TARGET_RANDOM, 0, NOMINAL_MELEE_RANGE, true);
@@ -393,22 +448,29 @@ struct TRINITY_DLL_DECL boss_veknilashAI : public boss_twinemperorsAI
                 DoCast(randomMelee,SPELL_UPPERCUT);
             UpperCut_Timer = 15000+rand()%15000;
         }else UpperCut_Timer -= diff;
+
         HandleBugs(diff);
+
         //Heal brother when 60yrds close
         TryHealBrother(diff);
+
         //Teleporting to brother
         if (Teleport_Timer < diff)
         {
             TeleportToMyBrother();
         }else Teleport_Timer -= diff;
+
         CheckEnrage(diff);
+
         DoMeleeAttackIfReady();
     }
 };
+
 struct TRINITY_DLL_DECL boss_veklorAI : public boss_twinemperorsAI
 {
     bool IAmVeklor() {return true;}
     boss_veklorAI(Creature *c) : boss_twinemperorsAI(c) {}
+
     uint32 ShadowBolt_Timer;
     uint32 Blizzard_Timer;
     uint32 ArcaneBurst_Timer;
@@ -416,7 +478,9 @@ struct TRINITY_DLL_DECL boss_veklorAI : public boss_twinemperorsAI
     int Rand;
     int RandX;
     int RandY;
+
     Creature* Summoned;
+
     void Reset()
     {
         TwinReset();
@@ -424,11 +488,13 @@ struct TRINITY_DLL_DECL boss_veklorAI : public boss_twinemperorsAI
         Blizzard_Timer = 15000 + rand()%5000;;
         ArcaneBurst_Timer = 1000;
         Scorpions_Timer = 7000 + rand()%7000;
+
         //Added. Can be removed if its included in DB.
         m_creature->ApplySpellImmune(0, IMMUNITY_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, true);
         m_creature->SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, 0);
         m_creature->SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, 0);
     }
+
     void CastSpellOnBug(Creature *target)
     {
         target->setFaction(14);
@@ -443,11 +509,13 @@ struct TRINITY_DLL_DECL boss_veklorAI : public boss_twinemperorsAI
         target->AddAura(new Aura(spell, eff_mask, target, target, target));
         target->SetHealth(target->GetMaxHealth());
     }
+
     void UpdateAI(const uint32 diff)
     {
         //Return since we have no target
         if (!UpdateVictim())
             return;
+
         // reset arcane burst after teleport - we need to do this because
         // when VL jumps to VN's location there will be a warrior who will get only 2s to run away
         // which is almost impossible
@@ -455,6 +523,7 @@ struct TRINITY_DLL_DECL boss_veklorAI : public boss_twinemperorsAI
             ArcaneBurst_Timer = 5000;
         if (!TryActivateAfterTTelep(diff))
             return;
+
         //ShadowBolt_Timer
         if (ShadowBolt_Timer < diff)
         {
@@ -464,6 +533,7 @@ struct TRINITY_DLL_DECL boss_veklorAI : public boss_twinemperorsAI
                 DoCast(m_creature->getVictim(),SPELL_SHADOWBOLT);
             ShadowBolt_Timer = 2000;
         }else ShadowBolt_Timer -= diff;
+
         //Blizzard_Timer
         if (Blizzard_Timer < diff)
         {
@@ -473,6 +543,7 @@ struct TRINITY_DLL_DECL boss_veklorAI : public boss_twinemperorsAI
                 DoCast(target,SPELL_BLIZZARD);
             Blizzard_Timer = 15000+rand()%15000;
         }else Blizzard_Timer -= diff;
+
         if (ArcaneBurst_Timer < diff)
         {
             Unit *mvic;
@@ -482,22 +553,29 @@ struct TRINITY_DLL_DECL boss_veklorAI : public boss_twinemperorsAI
                 ArcaneBurst_Timer = 5000;
             }
         }else ArcaneBurst_Timer -= diff;
+
         HandleBugs(diff);
+
         //Heal brother when 60yrds close
         TryHealBrother(diff);
+
         //Teleporting to brother
         if (Teleport_Timer < diff)
         {
             TeleportToMyBrother();
         }else Teleport_Timer -= diff;
+
         CheckEnrage(diff);
+
         //VL doesn't melee
         //DoMeleeAttackIfReady();
     }
+
     void AttackStart(Unit* who)
     {
         if (!who)
             return;
+
         if (who->isTargetableForAttack())
         {
             // VL doesn't melee
@@ -509,21 +587,26 @@ struct TRINITY_DLL_DECL boss_veklorAI : public boss_twinemperorsAI
         }
     }
 };
+
 CreatureAI* GetAI_boss_veknilash(Creature* pCreature)
 {
     return new boss_veknilashAI (pCreature);
 }
+
 CreatureAI* GetAI_boss_veklor(Creature* pCreature)
 {
     return new boss_veklorAI (pCreature);
 }
+
 void AddSC_boss_twinemperors()
 {
     Script *newscript;
+
     newscript = new Script;
     newscript->Name = "boss_veknilash";
     newscript->GetAI = &GetAI_boss_veknilash;
     newscript->RegisterSelf();
+
     newscript = new Script;
     newscript->Name = "boss_veklor";
     newscript->GetAI = &GetAI_boss_veklor;

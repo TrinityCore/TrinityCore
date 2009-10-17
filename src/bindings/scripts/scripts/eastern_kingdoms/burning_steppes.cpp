@@ -13,19 +13,24 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
+
 /* ScriptData
 SDName: Burning_Steppes
 SD%Complete: 100
 SDComment: Quest support: 4224, 4866
 SDCategory: Burning Steppes
 EndScriptData */
+
 /* ContentData
 npc_ragged_john
 EndContentData */
+
 #include "precompiled.h"
+
 /*######
 ## npc_ragged_john
 ######*/
+
 #define GOSSIP_HELLO    "Official buisness, John. I need some information about Marsha Windsor. Tell me about the last time you saw him."
 #define GOSSIP_SELECT1  "So what did you do?"
 #define GOSSIP_SELECT2  "Start making sense, dwarf. I don't want to have anything to do with your cracker, your pappy, or any sort of 'discreditin'."
@@ -38,10 +43,13 @@ EndContentData */
 #define GOSSIP_SELECT9  "300? So the Dark Irons killed him and dragged him into the Depths?"
 #define GOSSIP_SELECT10 "Ahh... Ironfoe"
 #define GOSSIP_SELECT11 "Thanks, Ragged John. Your story was very uplifting and informative"
+
 struct TRINITY_DLL_DECL npc_ragged_johnAI : public ScriptedAI
 {
     npc_ragged_johnAI(Creature *c) : ScriptedAI(c) {}
+
     void Reset() {}
+
     void MoveInLineOfSight(Unit *who)
     {
         if (who->HasAura(16468))
@@ -52,23 +60,30 @@ struct TRINITY_DLL_DECL npc_ragged_johnAI : public ScriptedAI
                 CAST_PLR(who)->AreaExploredOrEventHappens(4866);
             }
         }
+
         ScriptedAI::MoveInLineOfSight(who);
     }
+
     void EnterCombat(Unit *who) {}
 };
+
 CreatureAI* GetAI_npc_ragged_john(Creature* pCreature)
 {
     return new npc_ragged_johnAI (pCreature);
 }
+
 bool GossipHello_npc_ragged_john(Player* pPlayer, Creature* pCreature)
 {
     if (pCreature->isQuestGiver())
         pPlayer->PrepareQuestMenu(pCreature->GetGUID());
+
     if (pPlayer->GetQuestStatus(4224) == QUEST_STATUS_INCOMPLETE)
         pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_HELLO, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
+
     pPlayer->SEND_GOSSIP_MENU(2713, pCreature->GetGUID());
     return true;
 }
+
 bool GossipSelect_npc_ragged_john(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
 {
     switch (uiAction)
@@ -124,9 +139,11 @@ bool GossipSelect_npc_ragged_john(Player* pPlayer, Creature* pCreature, uint32 u
     }
     return true;
 }
+
 void AddSC_burning_steppes()
 {
     Script *newscript;
+
     newscript = new Script;
     newscript->Name = "npc_ragged_john";
     newscript->GetAI = &GetAI_npc_ragged_john;

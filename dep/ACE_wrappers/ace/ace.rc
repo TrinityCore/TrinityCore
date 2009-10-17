@@ -1,4 +1,5 @@
 #include "Version.h"
+
 1 VERSIONINFO
  FILEVERSION ACE_MAJOR_VERSION,ACE_MINOR_VERSION,ACE_BETA_VERSION,0
  PRODUCTVERSION ACE_MAJOR_VERSION,ACE_MINOR_VERSION,ACE_BETA_VERSION,0
@@ -27,6 +28,7 @@ BEGIN
         VALUE "Translation", 0x409, 1200
     END
 END
+
 /*
  * The following resource is used by the ACE logger to write messages
  * to the NT event log. If you are statically linking to the ACE

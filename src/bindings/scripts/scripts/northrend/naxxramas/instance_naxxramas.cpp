@@ -13,8 +13,10 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
+
 #include "precompiled.h"
 #include "def_naxxramas.h"
+
 const DoorData doorData[] =
 {
     {181126,    BOSS_ANUBREKHAN,DOOR_TYPE_ROOM,     BOUNDARY_S},
@@ -42,6 +44,7 @@ const DoorData doorData[] =
     {181225,    BOSS_SAPPHIRON, DOOR_TYPE_PASSAGE,  BOUNDARY_W},
     {0,         0,              DOOR_TYPE_ROOM,     0}, // EOF
 };
+
 const MinionData minionData[] =
 {
     //{16573,     BOSS_ANUBREKHAN},     there is no spawn point in db, so we do not add them here
@@ -53,13 +56,16 @@ const MinionData minionData[] =
     {30549,     BOSS_HORSEMEN},
     {0,         0,}
 };
+
 enum eEnums
 {
     GO_HORSEMEN_CHEST_HERO  = 193426,
     GO_HORSEMEN_CHEST       = 181366,                   //four horsemen event, DoRespawnGameObject() when event == DONE
     GO_GOTHIK_GATE          = 181170,
+
     SPELL_ERUPTION          = 29371
 };
+
 const float HeiganPos[2] = {2796, -3707};
 const float HeiganEruptionSlope[3] =
 {
@@ -67,6 +73,7 @@ const float HeiganEruptionSlope[3] =
     (-3647 - HeiganPos[1]) /(2749 - HeiganPos[0]),
     (-3637 - HeiganPos[1]) /(2771 - HeiganPos[0]),
 };
+
 // 0  H      x
 //  1        ^
 //   2       |
@@ -76,15 +83,18 @@ inline uint32 GetEruptionSection(float x, float y)
     y -= HeiganPos[1];
     if (y < 1.0f)
         return 0;
+
     x -= HeiganPos[0];
     if (x > -1.0f)
         return 3;
+
     float slope = y/x;
-    for (uint32 i = 0; i < 3; ++i)
+    for(uint32 i = 0; i < 3; ++i)
         if (slope > HeiganEruptionSlope[i])
             return i;
     return 3;
 }
+
 struct TRINITY_DLL_DECL instance_naxxramas : public InstanceData
 {
     instance_naxxramas(Map* pMap) : InstanceData(pMap)
@@ -94,18 +104,22 @@ struct TRINITY_DLL_DECL instance_naxxramas : public InstanceData
         LoadDoorData(doorData);
         LoadMinionData(minionData);
     }
+
     std::set<GameObject*> HeiganEruption[4];
     GameObject* pGothikGate, *HorsemenChest;
     Creature* Sapphiron;
     uint32 HorsemenNum;
+
     void OnCreatureCreate(Creature* pCreature, bool add)
     {
         switch(pCreature->GetEntry())
         {
             case 15989: Sapphiron = add ? pCreature : NULL; return;
         }
+
         AddMinion(pCreature, add);
     }
+
     void OnGameObjectCreate(GameObject* pGo, bool add)
     {
         if (pGo->GetGOInfo()->displayId == 6785 || pGo->GetGOInfo()->displayId == 1287)
@@ -117,6 +131,7 @@ struct TRINITY_DLL_DECL instance_naxxramas : public InstanceData
                 HeiganEruption[section].erase(pGo);
             return;
         }
+
         switch(pGo->GetEntry())
         {
             case GO_BIRTH: if (!add && Sapphiron) Sapphiron->AI()->DoAction(DATA_SAPPHIRON_BIRTH); return;
@@ -124,8 +139,10 @@ struct TRINITY_DLL_DECL instance_naxxramas : public InstanceData
             case GO_HORSEMEN_CHEST: HorsemenChest = add ? pGo : NULL; break;
             case GO_HORSEMEN_CHEST_HERO: HorsemenChest = add ? pGo : NULL; break;
         }
+
         AddDoor(pGo, add);
     }
+
     void SetData(uint32 id, uint32 value)
     {
         switch(id)
@@ -139,21 +156,26 @@ struct TRINITY_DLL_DECL instance_naxxramas : public InstanceData
                 break;
         }
     }
+
     bool SetBossState(uint32 id, EncounterState state)
     {
         if (!InstanceData::SetBossState(id, state))
             return false;
+
         if (id == BOSS_HORSEMEN && state == DONE && HorsemenChest)
             HorsemenChest->SetRespawnTime(HorsemenChest->GetRespawnDelay());
+
         return true;
     }
+
     void HeiganErupt(uint32 section)
     {
-        for (uint32 i = 0; i < 4; ++i)
+        for(uint32 i = 0; i < 4; ++i)
         {
             if (i == section)
                 continue;
-            for (std::set<GameObject*>::iterator itr = HeiganEruption[i].begin(); itr != HeiganEruption[i].end(); ++itr)
+
+            for(std::set<GameObject*>::iterator itr = HeiganEruption[i].begin(); itr != HeiganEruption[i].end(); ++itr)
             {
                 (*itr)->SendCustomAnim();
                 (*itr)->CastSpell(NULL, SPELL_ERUPTION);
@@ -161,21 +183,26 @@ struct TRINITY_DLL_DECL instance_naxxramas : public InstanceData
         }
     }
 };
+
 bool AreaTrigger_at_naxxramas_frostwyrm_wing(Player* pPlayer, AreaTriggerEntry *at)
 {
     if (pPlayer->isGameMaster())
         return false;
+
     InstanceData *data = pPlayer->GetInstanceData();
     if (data)
-        for (uint32 i = BOSS_ANUBREKHAN; i < BOSS_SAPPHIRON; ++i)
+        for(uint32 i = BOSS_ANUBREKHAN; i < BOSS_SAPPHIRON; ++i)
             if (data->GetBossState(i) != DONE)
                 return true;
+
     return false;
 }
+
 InstanceData* GetInstanceData_instance_naxxramas(Map* pMap)
 {
     return new instance_naxxramas(pMap);
 }
+
 void AddSC_instance_naxxramas()
 {
     Script *newscript;
@@ -183,6 +210,7 @@ void AddSC_instance_naxxramas()
     newscript->Name = "instance_naxxramas";
     newscript->GetInstanceData = &GetInstanceData_instance_naxxramas;
     newscript->RegisterSelf();
+
     newscript = new Script;
     newscript->Name = "at_naxxramas_frostwyrm_wing";
     newscript->pAreaTrigger = &AreaTrigger_at_naxxramas_frostwyrm_wing;

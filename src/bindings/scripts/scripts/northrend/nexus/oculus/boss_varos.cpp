@@ -5,10 +5,12 @@ SD%Complete:
 SDComment:
 SDCategory:
 Script Data End */
+
 /*** SQL START ***
 update creature_template set scriptname = '' where entry = '';
 *** SQL END ***/
 #include "precompiled.h"
+
 //Spells
 #define SPELL_ENERGIZE_CORES                      50785 //Damage 5938 to 6562, effec2 Triggers 54069, effect3 Triggers 56251
 #define SPELL_ENERGIZE_CORES_TRIGGER_1            54069
@@ -20,6 +22,7 @@ update creature_template set scriptname = '' where entry = '';
 #define SPELL_CALL_AZURE_RING_CAPTAIN_4           51008 //Effect    Send Event (18455)
 #define SPELL_CALL_AMPLIFY_MAGIC                  51054
 #define SPELL_CALL_AMPLIFY_MAGIC_2                59371
+
 //not in db
 //Yell
 #define SAY_AGGRO                              -1578022
@@ -31,9 +34,11 @@ update creature_template set scriptname = '' where entry = '';
 #define SAY_STRIKE_3                           -1578028
 #define SAY_SPAWN                              -1578029
 
+
 struct TRINITY_DLL_DECL boss_varosAI : public ScriptedAI
 {
     boss_varosAI(Creature *c) : ScriptedAI(c) {}
+
     void Reset() {}
     void EnterCombat(Unit* who)
     {
@@ -46,6 +51,7 @@ struct TRINITY_DLL_DECL boss_varosAI : public ScriptedAI
         //Return since we have no target
         if (!UpdateVictim())
             return;
+
         DoMeleeAttackIfReady();
     }
     void JustDied(Unit* killer)
@@ -59,13 +65,16 @@ struct TRINITY_DLL_DECL boss_varosAI : public ScriptedAI
         DoScriptText(RAND(SAY_KILL_1,SAY_KILL_2), m_creature);
     }
 };
+
 CreatureAI* GetAI_boss_varos(Creature* pCreature)
 {
     return new boss_varosAI (pCreature);
 }
+
 void AddSC_boss_varos()
 {
     Script *newscript;
+
     newscript = new Script;
     newscript->Name = "boss_varos";
     newscript->GetAI = &GetAI_boss_varos;

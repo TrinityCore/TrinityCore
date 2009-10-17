@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
+
 #include "ByteBuffer.h"
 #include "TargetedMovementGenerator.h"
 #include "Errors.h"
@@ -24,7 +25,9 @@
 #include "CreatureAI.h"
 #include "DestinationHolderImp.h"
 #include "World.h"
+
 #define SMALL_ALPHA 0.05f
+
 #include <cmath>
 /*
 struct StackCleaner
@@ -38,6 +41,7 @@ struct StackCleaner
     }
 };
 */
+
 template<class T>
 TargetedMovementGenerator<T>::TargetedMovementGenerator(Unit &target, float offset, float angle)
 : TargetedMovementGeneratorBase(target)
@@ -45,14 +49,17 @@ TargetedMovementGenerator<T>::TargetedMovementGenerator(Unit &target, float offs
 {
     target.GetPosition(i_targetX, i_targetY, i_targetZ);
 }
+
 template<class T>
 bool
 TargetedMovementGenerator<T>::_setTargetLocation(T &owner)
 {
     if (!i_target.isValid() || !i_target->IsInWorld())
         return false;
+
     if( owner.hasUnitState(UNIT_STAT_ROOT | UNIT_STAT_STUNNED | UNIT_STAT_DISTRACTED) )
         return false;
+
     float x, y, z;
     Traveller<T> traveller(owner);
     if(i_destinationHolder.HasDestination())
@@ -89,6 +96,7 @@ TargetedMovementGenerator<T>::_setTargetLocation(T &owner)
                 if(i_target->IsWithinDist(&owner, i_offset * 0.8f))
                     stop = true;
             }
+
             if(stop)
             {
                 owner.GetPosition(x, y, z);
@@ -98,9 +106,11 @@ TargetedMovementGenerator<T>::_setTargetLocation(T &owner)
                 return false;
             }
         }
+
         if(i_target->GetExactDistSq(i_targetX, i_targetY, i_targetZ) < 0.01f)
             return false;
     }
+
     if(!i_offset)
     {
         // to nearest random contact position
@@ -116,6 +126,7 @@ TargetedMovementGenerator<T>::_setTargetLocation(T &owner)
         // to at i_offset distance from target and i_angle from target facing
         i_target->GetClosePoint(x,y,z,owner.GetObjectSize(),i_offset,i_angle);
     }
+
     /*
         We MUST not check the distance difference and avoid setting the new location for smaller distances.
         By that we risk having far too many GetContactPoint() calls freezing the whole system.
@@ -126,6 +137,7 @@ TargetedMovementGenerator<T>::_setTargetLocation(T &owner)
         we will calculate a new contact point each update loop, but will never move to it.
         The system will freeze.
         ralf
+
         //We don't update Mob Movement, if the difference between New destination and last destination is < BothObjectSize
         float  bothObjectSize = i_target->GetObjectSize() + owner.GetObjectSize() + CONTACT_DISTANCE;
         if( i_destinationHolder.HasDestination() && i_destinationHolder.GetDestinationDiff(x,y,z) < bothObjectSize )
@@ -136,6 +148,7 @@ TargetedMovementGenerator<T>::_setTargetLocation(T &owner)
     i_destinationHolder.StartTravel(traveller);
     return true;
 }
+
 template<class T>
 void
 TargetedMovementGenerator<T>::Initialize(T &owner)
@@ -144,30 +157,37 @@ TargetedMovementGenerator<T>::Initialize(T &owner)
         owner.AddUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
     else
         owner.RemoveUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
+
     _setTargetLocation(owner);
 }
+
 template<class T>
 void
 TargetedMovementGenerator<T>::Finalize(T &owner)
 {
     owner.clearUnitState(UNIT_STAT_CHASE);
 }
+
 template<class T>
 void
 TargetedMovementGenerator<T>::Reset(T &owner)
 {
     Initialize(owner);
 }
+
 template<class T>
 bool
 TargetedMovementGenerator<T>::Update(T &owner, const uint32 & time_diff)
 {
     if (!i_target.isValid() || !i_target->IsInWorld())
         return false;
+
     if (!&owner || !owner.isAlive())
         return true;
+
     if (owner.hasUnitState(UNIT_STAT_ROOT | UNIT_STAT_STUNNED | UNIT_STAT_FLEEING | UNIT_STAT_DISTRACTED))
         return true;
+
     // prevent movement while casting spells with cast time or channel time
     if (owner.hasUnitState(UNIT_STAT_CASTING))
     {
@@ -175,10 +195,13 @@ TargetedMovementGenerator<T>::Update(T &owner, const uint32 & time_diff)
             owner.StopMoving();
         return true;
     }
+
     // prevent crash after creature killed pet
     if (!owner.hasUnitState(UNIT_STAT_FOLLOW) && owner.getVictim() != i_target.getTarget())
         return true;
+
     Traveller<T> traveller(owner);
+
     if (!i_destinationHolder.HasDestination())
         _setTargetLocation(owner);
     else if (owner.IsStopped() && !i_destinationHolder.HasArrived())
@@ -187,11 +210,13 @@ TargetedMovementGenerator<T>::Update(T &owner, const uint32 & time_diff)
         i_destinationHolder.StartTravel(traveller);
         return true;
     }
+
     if (i_destinationHolder.UpdateTraveller(traveller, time_diff))
     {
         // put targeted movement generators on a higher priority
         //if (owner.GetObjectSize())
         //i_destinationHolder.ResetUpdate(50);
+
         // target moved
         if (i_targetX != i_target->GetPositionX() || i_targetY != i_target->GetPositionY()
             || i_targetZ != i_target->GetPositionZ())
@@ -200,36 +225,44 @@ TargetedMovementGenerator<T>::Update(T &owner, const uint32 & time_diff)
                 owner.SetInFront(i_target.getTarget());
             i_target->GetPosition(i_targetX, i_targetY, i_targetZ);
         }
+
         if ((owner.IsStopped() && !i_destinationHolder.HasArrived()) || i_recalculateTravel)
         {
             i_recalculateTravel = false;
             //Angle update will take place into owner.StopMoving()
             owner.SetInFront(i_target.getTarget());
+
             owner.StopMoving();
             if(owner.IsWithinMeleeRange(i_target.getTarget()) && !owner.hasUnitState(UNIT_STAT_FOLLOW))
                 owner.Attack(i_target.getTarget(),true);
         }
     }
+
     // Implemented for PetAI to handle resetting flags when pet owner reached
     if (i_destinationHolder.HasArrived())
         MovementInform(owner);
+
     return true;
 }
+
 template<class T>
 Unit*
 TargetedMovementGenerator<T>::GetTarget() const
 {
     return i_target.getTarget();
 }
+
 template<class T>
 void TargetedMovementGenerator<T>::MovementInform(T &unit)
 {
 }
+
 template <> void TargetedMovementGenerator<Creature>::MovementInform(Creature &unit)
 {
     // Pass back the GUIDLow of the target. If it is pet's owner then PetAI will handle
     unit.AI()->MovementInform(TARGETED_MOTION_TYPE, i_target.getTarget()->GetGUIDLow());
 }
+
 template void TargetedMovementGenerator<Player>::MovementInform(Player&); // Not implemented for players
 template TargetedMovementGenerator<Player>::TargetedMovementGenerator(Unit &target, float offset, float angle);
 template TargetedMovementGenerator<Creature>::TargetedMovementGenerator(Unit &target, float offset, float angle);

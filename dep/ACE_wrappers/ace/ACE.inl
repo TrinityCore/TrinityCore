@@ -1,14 +1,18 @@
 // -*- C++ -*-
 //
 // $Id: ACE.inl 80826 2008-03-04 14:51:23Z wotte $
+
 #include "ace/OS_NS_unistd.h"
 #include "ace/OS_NS_Thread.h"
 #include "ace/OS_NS_ctype.h"
 #include "ace/OS_NS_sys_socket.h"
+
 // Open versioned namespace, if enabled by the user.
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 
+
 // Wrappers for methods that have been moved to ACE_OS.
+
 ACE_INLINE ssize_t
 ACE::read_n (ACE_HANDLE handle,
              void *buf,
@@ -20,6 +24,7 @@ ACE::read_n (ACE_HANDLE handle,
                          len,
                          bytes_transferred);
 }
+
 ACE_INLINE ssize_t
 ACE::write_n (ACE_HANDLE handle,
               const void *buf,
@@ -31,6 +36,7 @@ ACE::write_n (ACE_HANDLE handle,
                           len,
                           bytes_transferred);
 }
+
 ACE_INLINE ssize_t
 ACE::recv_n (ACE_HANDLE handle,
              void *buf,
@@ -53,7 +59,9 @@ ACE::recv_n (ACE_HANDLE handle,
                           timeout,
                           bytes_transferred);
 }
+
 #if defined (ACE_HAS_TLI)
+
 ACE_INLINE ssize_t
 ACE::t_rcv_n (ACE_HANDLE handle,
               void *buf,
@@ -76,7 +84,9 @@ ACE::t_rcv_n (ACE_HANDLE handle,
                            timeout,
                            bytes_transferred);
 }
+
 #endif /* ACE_HAS_TLI */
+
 ACE_INLINE ssize_t
 ACE::recv_n (ACE_HANDLE handle,
              void *buf,
@@ -96,6 +106,7 @@ ACE::recv_n (ACE_HANDLE handle,
                           timeout,
                           bytes_transferred);
 }
+
 ACE_INLINE ssize_t
 ACE::recvv_n (ACE_HANDLE handle,
               iovec *iov,
@@ -115,6 +126,7 @@ ACE::recvv_n (ACE_HANDLE handle,
                            timeout,
                            bytes_transferred);
 }
+
 ACE_INLINE ssize_t
 ACE::send_n (ACE_HANDLE handle,
              const void *buf,
@@ -137,7 +149,9 @@ ACE::send_n (ACE_HANDLE handle,
                           timeout,
                           bytes_transferred);
 }
+
 #if defined (ACE_HAS_TLI)
+
 ACE_INLINE ssize_t
 ACE::t_snd_n (ACE_HANDLE handle,
               const void *buf,
@@ -160,7 +174,9 @@ ACE::t_snd_n (ACE_HANDLE handle,
                            timeout,
                            bytes_transferred);
 }
+
 #endif /* ACE_HAS_TLI */
+
 ACE_INLINE ssize_t
 ACE::send_n (ACE_HANDLE handle,
              const void *buf,
@@ -180,6 +196,7 @@ ACE::send_n (ACE_HANDLE handle,
                           timeout,
                           bytes_transferred);
 }
+
 ACE_INLINE ssize_t
 ACE::sendv_n (ACE_HANDLE handle,
               const iovec *iov,
@@ -199,6 +216,7 @@ ACE::sendv_n (ACE_HANDLE handle,
                            timeout,
                            bytes_transferred);
 }
+
 ACE_INLINE ssize_t
 ACE::send_i (ACE_HANDLE handle, const void *buf, size_t len)
 {
@@ -208,6 +226,7 @@ ACE::send_i (ACE_HANDLE handle, const void *buf, size_t len)
   return ACE_OS::write (handle, (const char *) buf, len);
 #endif /* ACE_WIN32 */
 }
+
 ACE_INLINE ssize_t
 ACE::recv_i (ACE_HANDLE handle, void *buf, size_t len)
 {
@@ -217,6 +236,7 @@ ACE::recv_i (ACE_HANDLE handle, void *buf, size_t len)
   return ACE_OS::read (handle, (char *) buf, len);
 #endif /* ACE_WIN32 */
 }
+
 ACE_INLINE int
 ACE::handle_read_ready (ACE_HANDLE handle,
                         const ACE_Time_Value *timeout)
@@ -227,6 +247,7 @@ ACE::handle_read_ready (ACE_HANDLE handle,
                             0,
                             0);
 }
+
 ACE_INLINE int
 ACE::handle_write_ready (ACE_HANDLE handle,
                          const ACE_Time_Value *timeout)
@@ -237,6 +258,7 @@ ACE::handle_write_ready (ACE_HANDLE handle,
                             1,
                             0);
 }
+
 ACE_INLINE int
 ACE::handle_exception_ready (ACE_HANDLE handle,
                              const ACE_Time_Value *timeout)
@@ -247,11 +269,13 @@ ACE::handle_exception_ready (ACE_HANDLE handle,
                             0,
                             1);
 }
+
 ACE_INLINE void
 ACE::strdelete (char *s)
 {
   delete [] s;
 }
+
 #if defined (ACE_HAS_WCHAR)
 ACE_INLINE void
 ACE::strdelete (wchar_t *s)
@@ -259,6 +283,7 @@ ACE::strdelete (wchar_t *s)
   delete [] s;
 }
 #endif /* ACE_HAS_WCHAR */
+
 ACE_INLINE void
 ACE::unique_name (const void *object,
                   ACE_TCHAR *name,
@@ -266,14 +291,18 @@ ACE::unique_name (const void *object,
 {
   ACE_OS::unique_name (object, name, length);
 }
+
 ACE_INLINE u_long
 ACE::log2 (u_long num)
 {
   u_long log = 0;
+
   for (; num > 1; ++log)
     num >>= 1;
+
   return log;
 }
+
 ACE_INLINE ACE_TCHAR
 ACE::nibble2hex (u_int n)
 {
@@ -287,9 +316,11 @@ ACE::nibble2hex (u_int n)
 #else
   static const ACE_TCHAR hex_chars[] = ACE_TEXT ("0123456789abcdef");
 #endif
+
   // Yes, this works for UNICODE
   return hex_chars[n & 0x0f];
 }
+
 ACE_INLINE int
 ACE::map_errno (int error)
 {
@@ -300,8 +331,10 @@ ACE::map_errno (int error)
       return EAGAIN; // Same as UNIX errno EWOULDBLOCK.
     }
 #endif /* ACE_WIN32 */
+
   return error;
 }
+
 ACE_INLINE u_char
 ACE::hex2byte (ACE_TCHAR c)
 {
@@ -312,5 +345,6 @@ ACE::hex2byte (ACE_TCHAR c)
   else
     return (u_char) (10 + c - ACE_TEXT ('A'));
 }
+
 // Close versioned namespace, if enabled by the user.
 ACE_END_VERSIONED_NAMESPACE_DECL

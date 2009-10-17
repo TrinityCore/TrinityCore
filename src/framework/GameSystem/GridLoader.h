@@ -17,8 +17,10 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
+
 #ifndef TRINITY_GRIDLOADER_H
 #define TRINITY_GRIDLOADER_H
+
 /**
   @class GridLoader
   The GridLoader is working in conjuction with the Grid and responsible
@@ -29,9 +31,11 @@
   delicate its loading and unloading for the actualy loader and unloader.
   GridLoader manages the grid (both local and remote).
  */
+
 #include "Platform/Define.h"
 #include "Grid.h"
 #include "TypeContainerVisitor.h"
+
 template
 <
 class ACTIVE_OBJECT,
@@ -41,6 +45,7 @@ class GRID_OBJECT_TYPES
 class TRINITY_DLL_DECL GridLoader
 {
     public:
+
         /** Loads the grid
          */
         template<class LOADER>
@@ -50,6 +55,7 @@ class TRINITY_DLL_DECL GridLoader
             loader.Load(grid);
             grid.UnlockGrid();
         }
+
         /** Stop the grid
          */
         template<class STOPER>

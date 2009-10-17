@@ -1,4 +1,5 @@
 // -*- C++ -*-
+
 //=============================================================================
 /**
  *  @file    Process_Mutex.h
@@ -11,27 +12,36 @@
  * @author Douglas C. Schmidt <schmidt@uci.edu>
  */
 //=============================================================================
+
 #ifndef ACE_PROCESS_MUTEX_H
 #define ACE_PROCESS_MUTEX_H
+
 #include /**/ "ace/pre.h"
+
 #include /**/ "ace/config-all.h"
+
 #if !defined (ACE_LACKS_PRAGMA_ONCE)
 # pragma once
 #endif /* ACE_LACKS_PRAGMA_ONCE */
+
 // To make it easier to carry the setting though this file as well as
 // Process_Mutex.{cpp inl}, set a private macro here.
 #ifdef _ACE_USE_SV_SEM
 #  undef _ACE_USE_SV_SEM
 #endif /* _ACE_USE_SV_SEM */
+
 #if defined (ACE_HAS_SYSV_IPC) && !defined (ACE_USES_MUTEX_FOR_PROCESS_MUTEX)
 #  include "ace/SV_Semaphore_Complex.h"
 #  define _ACE_USE_SV_SEM
 #else
 #  include "ace/Mutex.h"
 #endif /* ACE_HAS_SYSV_IPC && !ACE_USES_MUTEX_FOR_PROCESS_MUTEX */
+
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
+
 // Forward declarations
 class ACE_Time_Value;
+
 /**
  * @class ACE_Process_Mutex
  *
@@ -80,6 +90,7 @@ public:
   ACE_Process_Mutex (const char *name = 0,
                      void *arg = 0,
                      mode_t mode = ACE_DEFAULT_FILE_PERMS);
+
 #if defined (ACE_HAS_WCHAR)
   /**
    * Create a Process_Mutex, passing in the optional @c name. (@c wchar_t
@@ -99,7 +110,9 @@ public:
                      void *arg = 0,
                      mode_t mode = ACE_DEFAULT_FILE_PERMS);
 #endif /* ACE_HAS_WCHAR */
+
   ~ACE_Process_Mutex (void);
+
   /**
    * Explicitly destroy the mutex.  Note that only one thread should
    * call this method since it doesn't protect against race
@@ -108,12 +121,14 @@ public:
    * @return 0 on success; -1 on failure.
    */
   int remove (void);
+
   /**
    * Acquire lock ownership (wait on queue if necessary).
    *
    * @return 0 on success; -1 on failure.
    */
   int acquire (void);
+
   /**
    * Acquire lock ownership, but timeout if lock if hasn't been
    * acquired by given time.
@@ -124,6 +139,7 @@ public:
    * @return 0 on success; -1 on failure.
    */
   int acquire (ACE_Time_Value &tv);
+
   /**
    * Conditionally acquire lock (i.e., don't wait on queue).
    *
@@ -131,44 +147,56 @@ public:
    * because someone else already had the lock, @c errno is set to @c EBUSY.
    */
   int tryacquire (void);
+
   /// Release lock and unblock a thread at head of queue.
   int release (void);
+
   /// Acquire lock ownership (wait on queue if necessary).
   int acquire_read (void);
+
   /// Acquire lock ownership (wait on queue if necessary).
   int acquire_write (void);
+
   /**
    * Conditionally acquire a lock (i.e., won't block).  Returns -1 on
    * failure.  If we "failed" because someone else already had the
    * lock, @c errno is set to @c EBUSY.
    */
   int tryacquire_read (void);
+
   /**
    * Conditionally acquire a lock (i.e., won't block).  Returns -1 on
    * failure.  If we "failed" because someone else already had the
    * lock, @c errno is set to @c EBUSY.
    */
   int tryacquire_write (void);
+
   /**
    * This is only here for consistency with the other synchronization
    * APIs and usability with Lock adapters. Assumes the caller already has
    * acquired the mutex and returns 0 in all cases.
    */
   int tryacquire_write_upgrade (void);
+
 #if !defined (_ACE_USE_SV_SEM)
   /// Return the underlying mutex.
   const ACE_mutex_t &lock (void) const;
 #endif /* !_ACE_USE_SV_SEM */
+
   /// Dump the state of an object.
   void dump (void) const;
+
   /// Declare the dynamic allocation hooks.
   ACE_ALLOC_HOOK_DECLARE;
+
 private:
   /// If the user does not provide a name we generate a unique name in
   /// this buffer.
   ACE_TCHAR name_[ACE_UNIQUE_NAME_LEN];
+
   /// Create and return the unique name.
   const ACE_TCHAR *unique_name (void);
+
 #if defined (_ACE_USE_SV_SEM)
   /// We need this to get the right semantics...
   ACE_SV_Semaphore_Complex lock_;
@@ -176,10 +204,14 @@ private:
   ACE_Mutex lock_;
 #endif /* _ACE_USE_SV_SEM */
 };
+
 ACE_END_VERSIONED_NAMESPACE_DECL
+
 #if defined (__ACE_INLINE__)
 #include "ace/Process_Mutex.inl"
 #endif /* __ACE_INLINE__ */
+
 #include /**/ "ace/post.h"
+
 #endif /* ACE_PROCESS_MUTEX_H */
 

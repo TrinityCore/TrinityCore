@@ -1,12 +1,17 @@
 // $Id: Auto_Event.cpp 80826 2008-03-04 14:51:23Z wotte $
+
 #include "ace/Auto_Event.h"
+
 #if !defined (__ACE_INLINE__)
 #include "ace/Auto_Event.inl"
 #endif /* __ACE_INLINE__ */
+
 ACE_RCSID (ace,
            Auto_Event,
            "$Id: Auto_Event.cpp 80826 2008-03-04 14:51:23Z wotte $")
+
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
+
 ACE_Auto_Event::ACE_Auto_Event (int initial_state,
                                 int type,
                                 const char *name,
@@ -18,6 +23,7 @@ ACE_Auto_Event::ACE_Auto_Event (int initial_state,
                arg)
 {
 }
+
 #if defined (ACE_HAS_WCHAR)
 ACE_Auto_Event::ACE_Auto_Event (int initial_state,
                                 int type,
@@ -31,6 +37,7 @@ ACE_Auto_Event::ACE_Auto_Event (int initial_state,
 {
 }
 #endif /* ACE_HAS_WCHAR */
+
 void
 ACE_Auto_Event::dump (void) const
 {
@@ -38,5 +45,6 @@ ACE_Auto_Event::dump (void) const
   ACE_Event::dump ();
 #endif /* ACE_HAS_DUMP */
 }
+
 ACE_END_VERSIONED_NAMESPACE_DECL
 

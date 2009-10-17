@@ -1,4 +1,5 @@
 /* -*- C++ -*- */
+
 //=============================================================================
 /**
  *  @file    Metrics_Cache.h
@@ -9,14 +10,20 @@
  */
 //=============================================================================
 
+
 #ifndef ACE_METRICS_CACHE_H
 #define ACE_METRICS_CACHE_H
+
 #include "ace/Timeprobe.h"
+
 #if !defined (ACE_LACKS_PRAGMA_ONCE)
 # pragma once
 #endif /* ACE_LACKS_PRAGMA_ONCE */
+
 #if defined (ACE_METRICS_COLLECTION)
+
 #if defined (ACE_ENABLE_TIMEPROBES) && defined (ACE_COMPILE_TIMEPROBES)
+
 /**
  * Call the appropriate 'report_ + NAME + _start' function. The start function makes a time probe measurement.
  *
@@ -38,6 +45,7 @@
 do { if((METRICS_PTR->metrics_enabled())) { \
 METRICS_PTR->report_##NAME##_start(X); \
 } } while (0)
+
 /**
  * Call the appropriate 'report_ + NAME + _stop' function. The stop function makes a time probe measurement.
  *
@@ -53,6 +61,7 @@ METRICS_PTR->report_##NAME##_start(X); \
 do { if((METRICS_PTR->metrics_enabled())) { \
 METRICS_PTR->report_##NAME##_stop(X); \
 } } while (0)
+
 /**
  * Call the appropriate 'report_ + NAME + _suspend' function. The suspend function makes a time probe measurement.
  * This marks when the object under observation has been suspended.
@@ -67,6 +76,7 @@ METRICS_PTR->report_##NAME##_stop(X); \
 do { if((METRICS_PTR->metrics_enabled())) { \
 METRICS_PTR->report_##NAME##_suspend(X); \
 } } while (0)
+
 /**
  * Call the appropriate 'report_ + NAME + _resume' function. The suspend function makes a time probe measurement.
  * This marks when the object under observation that was suspended is not resuming normal execution.
@@ -82,6 +92,7 @@ do { if((METRICS_PTR->metrics_enabled())) { \
 METRICS_PTR->report_##NAME##_resume(X); \
 } } while (0)
 
+
 /**
  * Mystery macros. I could not find where there were functions like 'report_base_metrics_start ()'. All the
  * start and stop functions had an argument to find the probe in the cache
@@ -90,24 +101,31 @@ METRICS_PTR->report_##NAME##_resume(X); \
 do { if((METRICS_PTR->metrics_enabled())) { \
 METRICS_PTR->report_##NAME##_start(); \
 } } while (0)
+
 #  define STOP_METRIC(METRICS_PTR,NAME) \
 do { if((METRICS_PTR->metrics_enabled())) { \
 METRICS_PTR->report_##NAME##_stop(); \
 } } while (0)
+
 #include "ace/Metrics_Cache_T.h"
 #include "ace/Singleton.h"
+
 #if defined (_MSC_VER)
 // Disable warning of using Microsoft Extension.
 #pragma warning(disable:4231)
 #endif /* _MSC_VER */
+
 #if defined (_MSC_VER)
 // Default back the warning of using Microsoft Extension.
 #pragma warning(default:4231)
 #endif /* _MSC_VER */
+
 #else
 #error ACE_Compile_Timeprobes must be defined in order to collect metrics
 #endif /* ACE_ENABLE_TIMEPROBES & ACE_COMPILE_TIMEPROBES */
+
 #else
+
 #  define REGISTER_METRICS_PROBE_RETURN(METRICS_PTR,METRICS_REGION,PROBE_NAME,PROBE_TYPE,METRICS_HANDLE)
 #  define REGISTER_METRICS_REPORTING_PROBE_RETURN(METRICS_PTR,METRICS_REGION,PROBE_NAME,PROBE_TYPE,METRICS_LOGGER_REF,METRICS_HANDLE)
 #  define START_DISPATCH_METRIC(METRICS_PTR,NAME,X)
@@ -116,6 +134,8 @@ METRICS_PTR->report_##NAME##_stop(); \
 #  define RESUME_DISPATCH_METRIC(METRICS_PTR,NAME,X)
 #  define START_METRIC(METRICS_PTR,NAME)
 #  define STOP_METRIC(METRICS_PTR,NAME)
+
 #endif /* ACE_ENABLE_TIMEPROBES && ACE_COMPILE_TIMEPROBES */
+
 #endif /* ACE_METRICS_CACHE_H */
 

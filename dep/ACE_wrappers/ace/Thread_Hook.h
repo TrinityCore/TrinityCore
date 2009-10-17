@@ -1,4 +1,5 @@
 // -*- C++ -*-
+
 //=============================================================================
 /**
  *  @file    Thread_Hook.h
@@ -9,15 +10,21 @@
  */
 //=============================================================================
 
+
 #ifndef ACE_THREAD_HOOK_H
 #define ACE_THREAD_HOOK_H
 #include /**/ "ace/pre.h"
+
 #include /**/ "ace/config-all.h"
+
 #if !defined (ACE_LACKS_PRAGMA_ONCE)
 # pragma once
 #endif /* ACE_LACKS_PRAGMA_ONCE */
+
 #include /**/ "ace/ACE_export.h"
+
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
+
 /**
  * @class ACE_Thread_Hook
  *
@@ -27,9 +34,12 @@ ACE_BEGIN_VERSIONED_NAMESPACE_DECL
  */
 class ACE_Export ACE_Thread_Hook
 {
+
 public:
+
   /// Destructor.
   virtual ~ACE_Thread_Hook (void);
+
   /**
    * This method can be overridden in a subclass to customize this
    * pre-function call "hook" invocation that can perform
@@ -40,13 +50,17 @@ public:
    */
   virtual ACE_THR_FUNC_RETURN start (ACE_THR_FUNC func,
                                      void *arg);
+
   /// sets the system wide thread hook, returns the previous thread
   /// hook or 0 if none is set.
   static ACE_Thread_Hook *thread_hook (ACE_Thread_Hook *hook);
+
   /// Returns the current system thread hook.
   static ACE_Thread_Hook *thread_hook (void);
 };
+
 ACE_END_VERSIONED_NAMESPACE_DECL
+
 #include /**/ "ace/post.h"
 #endif /* ACE_THREAD_HOOK_H */
 

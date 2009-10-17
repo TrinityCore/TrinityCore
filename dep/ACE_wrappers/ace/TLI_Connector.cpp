@@ -1,16 +1,24 @@
 // $Id: TLI_Connector.cpp 80826 2008-03-04 14:51:23Z wotte $
+
 #include "ace/TLI_Connector.h"
+
 ACE_RCSID(ace, TLI_Connector, "$Id: TLI_Connector.cpp 80826 2008-03-04 14:51:23Z wotte $")
+
 #if defined (ACE_HAS_TLI)
+
 #if !defined (__ACE_INLINE__)
 #include "ace/TLI_Connector.inl"
 #endif /* __ACE_INLINE__ */
+
 #include "ace/Handle_Set.h"
 #include "ace/ACE.h"
 #include "ace/OS_NS_string.h"
 #include "ace/Time_Value.h"
+
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
+
 ACE_ALLOC_HOOK_DEFINE(ACE_TLI_Connector)
+
 void
 ACE_TLI_Connector::dump (void) const
 {
@@ -18,13 +26,16 @@ ACE_TLI_Connector::dump (void) const
   ACE_TRACE ("ACE_TLI_Connector::dump");
 #endif /* ACE_HAS_DUMP */
 }
+
 ACE_TLI_Connector::ACE_TLI_Connector (void)
 {
   ACE_TRACE ("ACE_TLI_Connector::ACE_TLI_Connector");
 }
+
 // Connect the <new_stream> to the <remote_sap>, waiting up to
 // <timeout> amount of time if necessary.  It's amazing how
 // complicated this is to do in TLI...
+
 int
 ACE_TLI_Connector::connect (ACE_TLI_Stream &new_stream,
                             const ACE_Addr &remote_sap,
@@ -41,16 +52,22 @@ ACE_TLI_Connector::connect (ACE_TLI_Stream &new_stream,
 {
   ACE_TRACE ("ACE_TLI_Connector::connect");
   int result = 0;
+
   // Only open a new endpoint if we don't already have a valid handle.
+
   if (new_stream.get_handle () == ACE_INVALID_HANDLE
       && new_stream.open (device, flags, info) == ACE_INVALID_HANDLE)
     return -1;
+
   if (local_sap != ACE_Addr::sap_any)
     {
       // Bind the local endpoint to a specific addr.
+
       struct t_bind *localaddr;
+
       localaddr = (struct t_bind *)
         ACE_OS::t_alloc (new_stream.get_handle (), T_BIND, T_ADDR);
+
       if (localaddr == 0)
         result = -1;
       else
@@ -77,14 +94,17 @@ ACE_TLI_Connector::connect (ACE_TLI_Stream &new_stream,
               ACE_OS::memcpy(localaddr->addr.buf,
                              addr_buf,
                              localaddr->addr.len);
+
               if (ACE_OS::t_bind (new_stream.get_handle (),
                                   localaddr,
                                   localaddr) == -1)
                 result = -1;
+
               ACE_OS::t_free ((char *) localaddr,
                               T_BIND);
             }
         }
+
       if (result == -1)
         {
           new_stream.close ();
@@ -94,38 +114,47 @@ ACE_TLI_Connector::connect (ACE_TLI_Stream &new_stream,
   // Let TLI select the local endpoint addr.
   else if (ACE_OS::t_bind (new_stream.get_handle (), 0, 0) == -1)
     return -1;
+
   struct t_call *callptr = 0;
+
   callptr = (struct t_call *)
     ACE_OS::t_alloc (new_stream.get_handle (), T_CALL, T_ADDR);
+
   if (callptr == 0)
     {
       new_stream.close ();
       return -1;
     }
+
   void *addr_buf = remote_sap.get_addr ();
   callptr->addr.len = remote_sap.get_size ();
   ACE_OS::memcpy (callptr->addr.buf,
                   addr_buf,
                   callptr->addr.len);
   //callptr->addr.buf = (char *) remote_sap.get_addr ();
+
   if (udata != 0)
     ACE_OS::memcpy ((void *) &callptr->udata, (void *) udata, sizeof *udata);
   if (opt != 0)
     ACE_OS::memcpy ((void *) &callptr->opt, (void *) opt, sizeof *opt);
+
   // Connect to remote endpoint.
 #if defined (ACE_HAS_FORE_ATM_XTI)
   // FORE's XTI/ATM driver has problems with ioctl/fcntl calls so (at least
   // for now) always have blocking calls.
   timeout = 0;
 #endif /* ACE_HAS_FORE_ATM_XTI */
+
   if (timeout != 0)   // Enable non-blocking, if required.
     {
       if (new_stream.enable (ACE_NONBLOCK) == -1)
         result = -1;
+
       // Do a non-blocking connect.
       if (ACE_OS::t_connect (new_stream.get_handle (), callptr, 0) == -1)
         {
           result = -1;
+
           // Check to see if we simply haven't connected yet on a
           // non-blocking handle or whether there's really an error.
           if (t_errno == TNODATA)
@@ -142,6 +171,7 @@ ACE_TLI_Connector::connect (ACE_TLI_Stream &new_stream,
   // Do a blocking connect to the server.
   else if (ACE_OS::t_connect (new_stream.get_handle (), callptr, 0) == -1)
     result = -1;
+
   if (result != -1)
     {
       new_stream.set_rwflag (rwf);
@@ -158,11 +188,14 @@ ACE_TLI_Connector::connect (ACE_TLI_Stream &new_stream,
       new_stream.close ();
       new_stream.set_handle (ACE_INVALID_HANDLE);
     }
+
   if (ACE_OS::t_free ((char *) callptr, T_CALL) == -1)
     return -1;
   return result;
 }
+
 // Try to complete a non-blocking connection.
+
 int
 ACE_TLI_Connector::complete (ACE_TLI_Stream &new_stream,
                              ACE_Addr *remote_sap,
@@ -194,8 +227,10 @@ ACE_TLI_Connector::complete (ACE_TLI_Stream &new_stream,
         {
 #if defined (ACE_HAS_XTI) || defined (ACE_HAS_SVR4_TLI)
           struct netbuf name;
+
           name.maxlen = remote_sap->get_size ();
           name.buf    = (char *) remote_sap->get_addr ();
+
           if (ACE_OS::t_getname (new_stream.get_handle (),
                                  &name,
                                  REMOTENAME) == -1)
@@ -207,12 +242,16 @@ ACE_TLI_Connector::complete (ACE_TLI_Stream &new_stream,
               return -1;
             }
         }
+
       // Start out with non-blocking disabled on the <new_stream>.
       new_stream.disable (ACE_NONBLOCK);
+
       return 0;
     }
 #endif /* ACE_WIN32 */
 }
+
 ACE_END_VERSIONED_NAMESPACE_DECL
+
 #endif /* ACE_HAS_TLI */
 

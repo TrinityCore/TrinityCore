@@ -1,11 +1,17 @@
 /* -*- C++ -*- */
 // $Id: config-sunos5.6.h 81935 2008-06-12 22:01:53Z jtc $
+
 // The following configuration file is designed to work for SunOS 5.6
 // platforms using the SunC++ 4.x or g++ compilers.
+
 #ifndef ACE_CONFIG_H
+
 // ACE_CONFIG_H is defined by one of the following #included headers.
+
 // #include the SunOS 5.5 config file, then add SunOS 5.6 updates below.
+
 #include "ace/config-sunos5.5.h"
+
 #if (defined(_POSIX_C_SOURCE) && _POSIX_C_SOURCE > 2) || \
     defined (__EXTENSIONS__)
 // The asctime_r/ctime_r parameters change at POSIX.1c-1995
@@ -16,6 +22,7 @@
 // Hack 'cuz _POSIX_C_SOURCE > 2 and -DEXTENSIONS hides this.
 # define ACE_LACKS_MADVISE_PROTOTYPE
 #endif /* _POSIX_C_SOURCE > 2  ||  __EXTENSIONS__ */
+
 // Support for the SunC++ 5.2 compiler.
 // Do not undefine for compat mode < 5
 #if defined (__SUNPRO_CC) && __SUNPRO_CC > 0x510
@@ -24,6 +31,7 @@
 #undef ACE_LACKS_ACE_IOSTREAM
 #endif /* ACE_LACKS_ACE_IOSTREAM */
 #endif /* defined (__SUNPRO_CC_COMPAT) && (__SUNPRO_CC_COMPAT >= 5) */
+
 #ifndef ACE_LACKS_UNBUFFERED_STREAMBUF
 #define ACE_LACKS_UNBUFFERED_STREAMBUF 1
 #endif /* ACE_LACKS_UNBUFFERED_STREAMBUF */
@@ -70,29 +78,38 @@
 #ifndef ACE_LACKS_LINEBUFFERED_STREAMBUF
 #define ACE_LACKS_LINEBUFFERED_STREAMBUF        1
 #endif /* ACE_LACKS_LINEBUFFERED_STREAMBUF */
+
 #endif /* defined (__SUNPRO_CC) && __SUNPRO_CC > 0x510 */
+
 // SunOS 5.6 and above support mkstemp
 #undef ACE_LACKS_MKSTEMP
+
 
 // SunOS 5.6 has AIO calls.
 #if !defined (ACE_HAS_AIO_CALLS)
 #define ACE_HAS_AIO_CALLS
 #endif /* ACE_HAS_AIO_CALLS */
+
 #if !defined (ACE_HAS_POSIX_REALTIME_SIGNALS)
 #define ACE_HAS_POSIX_REALTIME_SIGNALS
 #endif /* ACE_HAS_POSIX_REALTIME_SIGNALS */
+
 #if !defined (ACE_HAS_POSIX_MESSAGE_PASSING)
 #define ACE_HAS_POSIX_MESSAGE_PASSING
 #endif /* ACE_HAS_POSIX_MESSAGE_PASSING */
+
 #if !defined (ACE_HAS_POSIX_SEM)
 #define ACE_HAS_POSIX_SEM
 #endif /* ACE_HAS_POSIX_SEM */
+
 // Sunos 5.6's aio_* with RT signals is broken.
 #if !defined (ACE_POSIX_AIOCB_PROACTOR)
 #define ACE_POSIX_AIOCB_PROACTOR
 #endif /* ACE_POSIX_AIOCB_PROACTOR */
+
 // SunOS 5.6 has a buggy select
 #define ACE_HAS_LIMITED_SELECT
+
 // SunOS 5.6 introduced shm_open, but need to turn on POSIX.1b or higher
 // to pick it up.
 #if defined (_POSIX_C_SOURCE) && (_POSIX_C_SOURCE > 2)
@@ -100,9 +117,11 @@
 #else
 #  undef ACE_HAS_SHM_OPEN
 #endif /* _POSIX_C_SOURCE > 2 */
+
 // The struct msghdr is conditional on SunOS 5.6 based on _XPG4_2
 #if defined(_XPG4_2)
 # define ACE_HAS_4_4BSD_SENDMSG_RECVMSG
 #endif /* _XPG4_2 */
+
 #endif /* ACE_CONFIG_H */
 

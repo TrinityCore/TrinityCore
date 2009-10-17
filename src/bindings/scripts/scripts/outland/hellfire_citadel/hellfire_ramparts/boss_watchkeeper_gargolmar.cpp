@@ -13,13 +13,16 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
+
 /* ScriptData
 SDName: Boss_Watchkeeper_Gargolmar
 SD%Complete: 80
 SDComment: Missing adds to heal him. Surge should be used on target furthest away, not random.
 SDCategory: Hellfire Citadel, Hellfire Ramparts
 EndScriptData */
+
 #include "precompiled.h"
+
 #define SAY_TAUNT               -1543000
 #define SAY_HEAL                -1543001
 #define SAY_SURGE               -1543002
@@ -29,40 +32,50 @@ EndScriptData */
 #define SAY_KILL_1              -1543006
 #define SAY_KILL_2              -1543007
 #define SAY_DIE                 -1543008
+
 #define SPELL_MORTAL_WOUND      30641
 #define H_SPELL_MORTAL_WOUND    36814
 #define SPELL_SURGE             34645
 #define SPELL_RETALIATION       22857
+
 struct TRINITY_DLL_DECL boss_watchkeeper_gargolmarAI : public ScriptedAI
 {
     boss_watchkeeper_gargolmarAI(Creature *c) : ScriptedAI(c)
     {
         HeroicMode = m_creature->GetMap()->IsHeroic();
     }
+
     bool HeroicMode;
+
     uint32 Surge_Timer;
     uint32 MortalWound_Timer;
     uint32 Retaliation_Timer;
+
     bool HasTaunted;
     bool YelledForHeal;
+
     void Reset()
     {
         Surge_Timer = 5000;
         MortalWound_Timer = 4000;
         Retaliation_Timer = 0;
+
         HasTaunted = false;
         YelledForHeal = false;
     }
+
     void EnterCombat(Unit *who)
     {
         DoScriptText(RAND(SAY_AGGRO_1,SAY_AGGRO_2,SAY_AGGRO_3), m_creature);
     }
+
     void MoveInLineOfSight(Unit* who)
     {
         if (!m_creature->getVictim() && who->isTargetableForAttack() && (m_creature->IsHostileTo(who)) && who->isInAccessiblePlaceFor(m_creature))
         {
             if (!m_creature->canFly() && m_creature->GetDistanceZ(who) > CREATURE_Z_ATTACK_RANGE)
                 return;
+
             float attackRadius = m_creature->GetAttackDistance(who);
             if (m_creature->IsWithinDistInMap(who, attackRadius) && m_creature->IsWithinLOSInMap(who))
             {
@@ -76,30 +89,38 @@ struct TRINITY_DLL_DECL boss_watchkeeper_gargolmarAI : public ScriptedAI
             }
         }
     }
+
     void KilledUnit(Unit* victim)
     {
         DoScriptText(RAND(SAY_KILL_1,SAY_KILL_2), m_creature);
     }
+
     void JustDied(Unit* Killer)
     {
         DoScriptText(SAY_DIE, m_creature);
     }
+
     void UpdateAI(const uint32 diff)
     {
         if (!UpdateVictim())
             return;
+
         if (MortalWound_Timer < diff)
         {
             DoCast(m_creature->getVictim(),HEROIC(SPELL_MORTAL_WOUND, H_SPELL_MORTAL_WOUND));
             MortalWound_Timer = 5000+rand()%8000;
         }else MortalWound_Timer -= diff;
+
         if (Surge_Timer < diff)
         {
             DoScriptText(SAY_SURGE, m_creature);
+
             if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM,0))
                 DoCast(target,SPELL_SURGE);
+
             Surge_Timer = 5000+rand()%8000;
         }else Surge_Timer -= diff;
+
         if ((m_creature->GetHealth()*100) / m_creature->GetMaxHealth() < 20)
         {
             if (Retaliation_Timer < diff)
@@ -108,6 +129,7 @@ struct TRINITY_DLL_DECL boss_watchkeeper_gargolmarAI : public ScriptedAI
                 Retaliation_Timer = 30000;
             }else Retaliation_Timer -= diff;
         }
+
         if (!YelledForHeal)
         {
             if ((m_creature->GetHealth()*100) / m_creature->GetMaxHealth() < 40)
@@ -116,13 +138,16 @@ struct TRINITY_DLL_DECL boss_watchkeeper_gargolmarAI : public ScriptedAI
                 YelledForHeal = true;
             }
         }
+
         DoMeleeAttackIfReady();
     }
 };
+
 CreatureAI* GetAI_boss_watchkeeper_gargolmarAI(Creature* pCreature)
 {
     return new boss_watchkeeper_gargolmarAI (pCreature);
 }
+
 void AddSC_boss_watchkeeper_gargolmar()
 {
     Script *newscript;

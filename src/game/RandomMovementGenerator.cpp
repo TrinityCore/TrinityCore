@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
+
 #include "Creature.h"
 #include "MapManager.h"
 #include "RandomMovementGenerator.h"
@@ -26,48 +27,63 @@
 #include "Map.h"
 #include "Util.h"
 #include "CreatureGroups.h"
+
 #define RUNNING_CHANCE_RANDOMMV 20                                  //will be "1 / RUNNING_CHANCE_RANDOMMV"
+
 template<>
 bool
 RandomMovementGenerator<Creature>::GetDestination(float &x, float &y, float &z) const
 {
     if(i_destinationHolder.HasArrived())
         return false;
+
     i_destinationHolder.GetDestination(x, y, z);
     return true;
 }
+
 #ifdef MAP_BASED_RAND_GEN
 #define rand_norm() creature.rand_norm()
 #endif
+
 template<>
 void
 RandomMovementGenerator<Creature>::_setRandomLocation(Creature &creature)
 {
     float X,Y,Z,z,nx,ny,nz,ori,dist;
+
     creature.GetHomePosition(X, Y, Z, ori);
+
     z = creature.GetPositionZ();
     Map const* map = creature.GetBaseMap();
+
     // For 2D/3D system selection
     bool is_land_ok  = creature.canWalk();
     bool is_water_ok = creature.canSwim();
     bool is_air_ok   = creature.canFly();
+
     for(uint32 i = 0;; ++i)
     {
+
     const float angle = rand_norm()*(M_PI*2);
     const float range = rand_norm()*wander_distance;
     const float distanceX = range * cos(angle);
     const float distanceY = range * sin(angle);
+
     nx = X + distanceX;
     ny = Y + distanceY;
+
     // prevent invalid coordinates generation
     Trinity::NormalizeMapCoord(nx);
     Trinity::NormalizeMapCoord(ny);
+
     dist = (nx - X)*(nx - X) + (ny - Y)*(ny - Y);
+
     if(i == 5)
     {
         nz = Z;
         break;
     }
+
     if (is_air_ok) // 3D system above ground and above water (flying mode)
     {
         const float distanceZ = rand_norm() * sqrtf(dist)/2; // Limit height change
@@ -81,6 +97,7 @@ RandomMovementGenerator<Creature>::_setRandomLocation(Creature &creature)
     else // 2D only
     {
         dist = dist>=100.0f ? 10.0f : sqrtf(dist); // 10.0 is the max that vmap high can check (MAX_CAN_FALL_DISTANCE)
+
         // The fastest way to get an accurate result 90% of the time.
         // Better result can be obtained like 99% accuracy with a ray light, but the cost is too high and the code is too long.
         nz = map->GetHeight(nx,ny,Z+dist-2.0f,false); // Map check
@@ -95,8 +112,10 @@ RandomMovementGenerator<Creature>::_setRandomLocation(Creature &creature)
             }
         }
     }
+
     break;
     }
+
     Traveller<Creature> traveller(creature);
     creature.SetOrientation(creature.GetAngle(nx,ny));
     i_destinationHolder.SetDestination(traveller, nx, ny, nz);
@@ -111,33 +130,40 @@ RandomMovementGenerator<Creature>::_setRandomLocation(Creature &creature)
         i_nextMoveTime.Reset(urand(500+i_destinationHolder.GetTotalTravelTime(),5000+i_destinationHolder.GetTotalTravelTime()));
         creature.AddUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
     }
+
     //Call for creature group update
     if(creature.GetFormation() && creature.GetFormation()->getLeader() == &creature)
     {
         creature.GetFormation()->LeaderMoveTo(nx, ny, nz);
     }
 }
+
 template<>
 void
 RandomMovementGenerator<Creature>::Initialize(Creature &creature)
 {
     if(!creature.isAlive())
         return;
+
     if(!wander_distance)
         wander_distance = creature.GetRespawnRadius();
+
     if(irand(0,RUNNING_CHANCE_RANDOMMV) > 0)
         creature.AddUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
     _setRandomLocation(creature);
 }
+
 template<>
 void
 RandomMovementGenerator<Creature>::Reset(Creature &creature)
 {
     Initialize(creature);
 }
+
 template<>
 void
 RandomMovementGenerator<Creature>::Finalize(Creature &creature){}
+
 template<>
 bool
 RandomMovementGenerator<Creature>::Update(Creature &creature, const uint32 &diff)
@@ -148,12 +174,17 @@ RandomMovementGenerator<Creature>::Update(Creature &creature, const uint32 &diff
         creature.clearUnitState(UNIT_STAT_ROAMING);
         return true;
     }
+
     i_nextMoveTime.Update(diff);
+
     if(i_destinationHolder.HasArrived() && !creature.IsStopped() && !creature.canFly())
         creature.clearUnitState(UNIT_STAT_ROAMING | UNIT_STAT_MOVE);
+
     if(!i_destinationHolder.HasArrived() && creature.IsStopped())
         creature.addUnitState(UNIT_STAT_ROAMING);
+
     CreatureTraveller traveller(creature);
+
     if( i_destinationHolder.UpdateTraveller(traveller, diff, true) )
     {
         if(i_nextMoveTime.Passed())

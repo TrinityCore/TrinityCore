@@ -13,36 +13,45 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
+
 /* ScriptData
 SDName: Boss_KelThuzud
 SD%Complete: 0
 SDComment: VERIFY SCRIPT
 SDCategory: Naxxramas
 EndScriptData */
+
 #include "precompiled.h"
 #include "def_naxxramas.h"
+
 //when shappiron dies. dialog between kel and lich king (in this order)
 #define SAY_SAPP_DIALOG1            -1533084 //not used
 #define SAY_SAPP_DIALOG2_LICH       -1533085 //not used
 #define SAY_SAPP_DIALOG3            -1533086 //not used
 #define SAY_SAPP_DIALOG4_LICH       -1533087 //not used
 #define SAY_SAPP_DIALOG5            -1533088 //not used
+
 //when cat dies
 #define SAY_CAT_DIED                -1533089 //not used
+
 //when each of the 4 wing bosses dies
 #define SAY_TAUNT1                  -1533090 //not used
 #define SAY_TAUNT2                  -1533091 //not used
 #define SAY_TAUNT3                  -1533092 //not used
 #define SAY_TAUNT4                  -1533093 //not used
+
 #define SAY_SUMMON_MINIONS          -1533105                //start of phase 1 not used
+
 #define SAY_AGGRO   RAND(-1533094,-1533095,-1533096)       //start of phase 2
 #define SAY_SLAY    RAND(-1533097,-1533098)
 #define SAY_DEATH   -1533099
 #define SAY_CHAIN   RAND(-1533100,-1533101)
 #define SAY_FROST_BLAST             -1533102
 #define SAY_SPECIAL RAND(-1533106,-1533107,-1533108)
+
 #define SAY_REQUEST_AID             -1533103                //start of phase 3
 #define SAY_ANSWER_REQUEST          -1533104                //lich king answer
+
 enum Event
 {
     EVENT_BOLT = 1,
@@ -51,12 +60,15 @@ enum Event
     EVENT_DETONATE,
     EVENT_FISSURE,
     EVENT_BLAST,
+
     EVENT_WASTE,
     EVENT_ABOMIN,
     EVENT_WEAVER,
     EVENT_ICECROWN,
+
     EVENT_PHASE,
 };
+
 #define SPELL_FROST_BOLT            HEROIC(28478,55802)
 #define SPELL_FROST_BOLT_AOE        HEROIC(28479,55807)
 #define SPELL_SHADOW_FISURE         27810
@@ -65,10 +77,12 @@ enum Event
 #define SPELL_FROST_BLAST           27808
 #define SPELL_CHAINS_OF_KELTHUZAD   28410 //28408 script effect
 #define SPELL_BERSERK               28498
+
 #define MOB_WASTE                   16427 // Soldiers of the Frozen Wastes
 #define MOB_ABOMINATION             16428 // Unstoppable Abominations
 #define MOB_WEAVER                  16429 // Soul Weavers
 #define MOB_ICECROWN                16441 // Guardians of Icecrown
+
 const Position Pos[12] =
 {
     {3783.272705, -5062.697266, 143.711203,3.617599},//LEFT_FAR
@@ -84,29 +98,38 @@ const Position Pos[12] =
     {3707.990733,-5151.450195,142.032562,1.376855},//RIGHT_MIDDLE
     {3739.500000,-5141.883989,142.0141130, 2.121412}//RIGHT_NEAR
 };
+
 struct TRINITY_DLL_DECL boss_kelthuzadAI : public BossAI
 {
     boss_kelthuzadAI(Creature* c) : BossAI(c, BOSS_KELTHUZAD) {}
+
     uint32 GuardiansOfIcecrown_Count;
+
     uint32 Phase;
     uint32 GuardiansOfIcecrown_Timer;
+
     void Reset()
     {
         _Reset();
         me->SetReactState(REACT_AGGRESSIVE);
         GuardiansOfIcecrown_Count = 0;
+
         GuardiansOfIcecrown_Timer = 5000;                   //5 seconds for summoning each Guardian of Icecrown in phase 3
+
         Phase=0;
     }
+
     void KilledUnit()
     {
         DoScriptText(SAY_SLAY, m_creature);
     }
+
     void JustDied(Unit* Killer)
     {
         _JustDied();
         DoScriptText(SAY_DEATH, m_creature);
     }
+
     void EnterCombat(Unit* who)
     {
         _EnterCombat();
@@ -119,11 +142,14 @@ struct TRINITY_DLL_DECL boss_kelthuzadAI : public BossAI
         events.ScheduleEvent(EVENT_WEAVER, 20000);
         events.ScheduleEvent(EVENT_PHASE, 228000);
     }
+
     void UpdateAI(const uint32 diff)
     {
         if (!UpdateCombatState())
             return;
+
         events.Update(diff);
+
         if (Phase == 1)
         {
             while(uint32 eventId = events.GetEvent())
@@ -184,8 +210,10 @@ struct TRINITY_DLL_DECL boss_kelthuzadAI : public BossAI
                 }
                 else GuardiansOfIcecrown_Timer -= diff;
             }
+
             if (me->hasUnitState(UNIT_STAT_CASTING))
                 return;
+
             if (uint32 eventId = events.GetEvent())
             {
                 switch(eventId)
@@ -208,13 +236,14 @@ struct TRINITY_DLL_DECL boss_kelthuzadAI : public BossAI
                     {
                         std::vector<Unit*> unitList;
                         std::list<HostilReference*> *threatList = &me->getThreatManager().getThreatList();
-                        for (std::list<HostilReference*>::const_iterator itr = threatList->begin(); itr != threatList->end(); ++itr)
+                        for(std::list<HostilReference*>::const_iterator itr = threatList->begin(); itr != threatList->end(); ++itr)
                         {
                             if ((*itr)->getTarget()->GetTypeId() == TYPEID_PLAYER
                                 && (*itr)->getTarget()->getPowerType() == POWER_MANA
                                 && (*itr)->getTarget()->GetPower(POWER_MANA))
                                 unitList.push_back((*itr)->getTarget());
                         }
+
                         if (!unitList.empty())
                         {
                             std::vector<Unit*>::iterator itr = unitList.begin();
@@ -222,6 +251,7 @@ struct TRINITY_DLL_DECL boss_kelthuzadAI : public BossAI
                             DoCast(*itr, SPELL_MANA_DETONATION);
                             DoScriptText(SAY_SPECIAL, me);
                         }
+
                         events.RepeatEvent(20000);
                         return;
                     }
@@ -242,14 +272,17 @@ struct TRINITY_DLL_DECL boss_kelthuzadAI : public BossAI
                         return;
                 }
             }
+
             DoMeleeAttackIfReady();
         }
     }
 };
+
 CreatureAI* GetAI_boss_kelthuzadAI(Creature* pCreature)
 {
     return new boss_kelthuzadAI (pCreature);
 }
+
 void AddSC_boss_kelthuzad()
 {
     Script *newscript;

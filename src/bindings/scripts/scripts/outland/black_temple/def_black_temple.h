@@ -1,8 +1,10 @@
 /* Copyright (C) 2006 - 2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  * This program is free software licensed under GPL version 2
  * Please see the included DOCS/LICENSE.TXT for more information */
+
 #ifndef DEF_BLACK_TEMPLE_H
 #define DEF_BLACK_TEMPLE_H
+
 enum eTypes
 {
     DATA_AKAMA                      = 1,
@@ -32,5 +34,6 @@ enum eTypes
     DATA_GAMEOBJECT_SUPREMUS_DOORS  = 25,
     DATA_BLOOD_ELF_COUNCIL_VOICE    = 26
 };
+
 #endif
 

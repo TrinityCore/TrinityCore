@@ -17,13 +17,17 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
+
 #ifndef TRINITY_BYTECONVERTER_H
 #define TRINITY_BYTECONVERTER_H
+
 /** ByteConverter reverse your byte order.  This is use
     for cross platform where they have different endians.
  */
+
 #include<Platform/Define.h>
 #include<algorithm>
+
 namespace ByteConverter
 {
     template<size_t T>
@@ -32,13 +36,16 @@ namespace ByteConverter
         std::swap(*val, *(val + T - 1));
         convert<T - 2>(val + 1);
     }
+
     template<> inline void convert<0>(char *) {}
     template<> inline void convert<1>(char *) {}            // ignore central byte
+
     template<typename T> inline void apply(T *val)
     {
         convert<sizeof(T)>((char *)(val));
     }
 }
+
 #if TRINITY_ENDIAN == TRINITY_BIGENDIAN
 template<typename T> inline void EndianConvert(T& val) { ByteConverter::apply<T>(&val); }
 template<typename T> inline void EndianConvertReverse(T&) { }
@@ -46,11 +53,14 @@ template<typename T> inline void EndianConvertReverse(T&) { }
 template<typename T> inline void EndianConvert(T&) { }
 template<typename T> inline void EndianConvertReverse(T& val) { ByteConverter::apply<T>(&val); }
 #endif
+
 template<typename T> void EndianConvert(T*);         // will generate link error
 template<typename T> void EndianConvertReverse(T*);  // will generate link error
+
 inline void EndianConvert(uint8&) { }
 inline void EndianConvert( int8&) { }
 inline void EndianConvertReverse(uint8&) { }
 inline void EndianConvertReverse( int8&) { }
+
 #endif
 

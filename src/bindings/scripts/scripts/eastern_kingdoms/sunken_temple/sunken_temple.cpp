@@ -13,20 +13,25 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
+
 /* ScriptData
 SDName: Sunken_Temple
 SD%Complete: 100
 SDComment: Area Trigger + Puzzle event support
 SDCategory: Sunken Temple
 EndScriptData */
+
 /* ContentData
 at_malfurion_Stormrage_trigger
 EndContentData */
+
 #include "precompiled.h"
 #include "def_sunken_temple.h"
+
 /*#####
 # at_malfurion_Stormrage_trigger
 #####*/
+
 bool AreaTrigger_at_malfurion_stormrage(Player* pPlayer, AreaTriggerEntry *at)
 {
     if (ScriptedInstance* pInstance = pPlayer->GetInstanceData())
@@ -40,6 +45,7 @@ return false;
 /*#####
 # go_atalai_statue
 #####*/
+
 bool GOHello_go_atalai_statue(Player* pPlayer, GameObject* pGo)
 {
     ScriptedInstance* pInstance = pPlayer->GetInstanceData();
@@ -48,13 +54,16 @@ bool GOHello_go_atalai_statue(Player* pPlayer, GameObject* pGo)
     pInstance->SetData(EVENT_STATE,pGo->GetEntry());
     return false;
 }
+
 void AddSC_sunken_temple()
 {
     Script *newscript;
+
     newscript = new Script;
     newscript->Name = "at_malfurion_stormrage";
     newscript->pAreaTrigger = &AreaTrigger_at_malfurion_stormrage;
     newscript->RegisterSelf();
+
     newscript = new Script;
     newscript->Name = "go_atalai_statue";
     newscript->pGOHello = &GOHello_go_atalai_statue;

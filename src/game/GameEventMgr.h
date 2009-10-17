@@ -17,13 +17,17 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
+
 #ifndef TRINITY_GAMEEVENT_MGR_H
 #define TRINITY_GAMEEVENT_MGR_H
+
 #include "Common.h"
 #include "SharedDefines.h"
 #include "Platform/Define.h"
 #include "Policies/Singleton.h"
+
 #define max_ge_check_delay 86400                            // 1 day in seconds
+
 enum GameEventState
 {
     GAMEEVENT_NORMAL = 0,   // standard game events
@@ -33,6 +37,7 @@ enum GameEventState
     GAMEEVENT_WORLD_FINISHED = 4,    // next events are started, unapply this one
     GAMEEVENT_INTERNAL = 5, // never handled in update
 };
+
 struct GameEventFinishCondition
 {
     float reqNum;  // required number // use float, since some events use percent
@@ -40,12 +45,14 @@ struct GameEventFinishCondition
     uint32 max_world_state;  // max resource count world state update id
     uint32 done_world_state; // done resource count world state update id
 };
+
 struct GameEventQuestToEventConditionNum
 {
     uint16 event_id;
     uint32 condition;
     float num;
 };
+
 struct GameEventData
 {
     GameEventData() : start(1),end(0),nextstart(0),occurence(0),length(0),state(GAMEEVENT_NORMAL) {}
@@ -59,8 +66,10 @@ struct GameEventData
     std::map<uint32 /*condition id*/, GameEventFinishCondition> conditions;  // conditions to finish
     std::set<uint16 /*gameevent id*/> prerequisite_events;  // events that must be completed before starting this event
     std::string description;
+
     bool isValid() const { return ((length > 0) || (state > GAMEEVENT_NORMAL)); }
 };
+
 struct ModelEquip
 {
     uint32 modelid;
@@ -68,6 +77,7 @@ struct ModelEquip
     uint32 modelid_prev;
     uint32 equipement_id_prev;
 };
+
 struct NPCVendorEntry
 {
     uint32 entry;                                           // creature entry
@@ -76,8 +86,10 @@ struct NPCVendorEntry
     uint32 incrtime;                                        // time for restore items amount if maxcount != 0
     uint32 ExtendedCost;
 };
+
 class Player;
 class Creature;
+
 class GameEventMgr
 {
     public:
@@ -157,7 +169,10 @@ class GameEventMgr
         GameEventGuidMap  mGameEventCreatureGuids;
         GameEventGuidMap  mGameEventGameobjectGuids;
 };
+
 #define gameeventmgr Trinity::Singleton<GameEventMgr>::Instance()
+
 TRINITY_DLL_SPEC bool IsHolidayActive(HolidayIds id);
+
 #endif
 

@@ -13,14 +13,17 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
+
 /* ScriptData
 SDName: Boss_Chrono_Lord_Deja
 SD%Complete: 65
 SDComment: All abilities not implemented
 SDCategory: Caverns of Time, The Dark Portal
 EndScriptData */
+
 #include "precompiled.h"
 #include "def_dark_portal.h"
+
 enum eEnums
 {
     SAY_ENTER                   = -1269006,
@@ -29,6 +32,7 @@ enum eEnums
     SAY_SLAY1                   = -1269009,
     SAY_SLAY2                   = -1269010,
     SAY_DEATH                   = -1269011,
+
     SPELL_ARCANE_BLAST          = 31457,
     H_SPELL_ARCANE_BLAST        = 38538,
     SPELL_ARCANE_DISCHARGE      = 31472,
@@ -36,6 +40,7 @@ enum eEnums
     SPELL_TIME_LAPSE            = 31467,
     SPELL_ATTRACTION            = 38540                       //Not Implemented (Heroic mode)
 };
+
 struct TRINITY_DLL_DECL boss_chrono_lord_dejaAI : public ScriptedAI
 {
     boss_chrono_lord_dejaAI(Creature *c) : ScriptedAI(c)
@@ -43,12 +48,15 @@ struct TRINITY_DLL_DECL boss_chrono_lord_dejaAI : public ScriptedAI
         pInstance = c->GetInstanceData();
         HeroicMode = c->GetMap()->IsHeroic();
     }
+
     ScriptedInstance *pInstance;
     bool HeroicMode;
+
     uint32 ArcaneBlast_Timer;
     uint32 TimeLapse_Timer;
     uint32 Attraction_Timer;
     uint32 ArcaneDischarge_Timer;
+
     void Reset()
     {
         ArcaneBlast_Timer = 18000+rand()%5000;
@@ -56,10 +64,12 @@ struct TRINITY_DLL_DECL boss_chrono_lord_dejaAI : public ScriptedAI
         ArcaneDischarge_Timer = 20000+rand()%10000;
         Attraction_Timer = 25000+rand()%10000;
     }
+
     void EnterCombat(Unit *who)
     {
         DoScriptText(SAY_AGGRO, m_creature);
     }
+
     void MoveInLineOfSight(Unit *who)
     {
         //Despawn Time Keeper
@@ -71,29 +81,36 @@ struct TRINITY_DLL_DECL boss_chrono_lord_dejaAI : public ScriptedAI
                 m_creature->DealDamage(who, who->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
             }
         }
+
         ScriptedAI::MoveInLineOfSight(who);
     }
+
     void KilledUnit(Unit *victim)
     {
         DoScriptText(RAND(SAY_SLAY1,SAY_SLAY2), m_creature);
     }
+
     void JustDied(Unit *victim)
     {
         DoScriptText(SAY_DEATH, m_creature);
+
         if (pInstance)
             pInstance->SetData(TYPE_RIFT,SPECIAL);
     }
+
     void UpdateAI(const uint32 diff)
     {
         //Return since we have no target
         if (!UpdateVictim())
             return;
+
         //Arcane Blast
         if (ArcaneBlast_Timer < diff)
         {
             DoCast(m_creature->getVictim(), HEROIC(SPELL_ARCANE_BLAST, H_SPELL_ARCANE_BLAST));
             ArcaneBlast_Timer = 15000+rand()%10000;
         }else ArcaneBlast_Timer -= diff;
+
         //Arcane Discharge
         if (ArcaneDischarge_Timer < diff)
         {
@@ -101,6 +118,7 @@ struct TRINITY_DLL_DECL boss_chrono_lord_dejaAI : public ScriptedAI
             DoCast(target,HEROIC(SPELL_ARCANE_DISCHARGE, H_SPELL_ARCANE_DISCHARGE));
             ArcaneDischarge_Timer = 20000+rand()%10000;
         }else ArcaneDischarge_Timer -= diff;
+
         //Time Lapse
         if (TimeLapse_Timer < diff)
         {
@@ -108,6 +126,7 @@ struct TRINITY_DLL_DECL boss_chrono_lord_dejaAI : public ScriptedAI
             DoCast(m_creature, SPELL_TIME_LAPSE);
             TimeLapse_Timer = 15000+rand()%10000;
         }else TimeLapse_Timer -= diff;
+
         if (HeroicMode)
         {
             if (Attraction_Timer < diff)
@@ -116,13 +135,16 @@ struct TRINITY_DLL_DECL boss_chrono_lord_dejaAI : public ScriptedAI
                 Attraction_Timer = 25000+rand()%10000;
             }else Attraction_Timer -= diff;
         }
+
         DoMeleeAttackIfReady();
     }
 };
+
 CreatureAI* GetAI_boss_chrono_lord_deja(Creature* pCreature)
 {
     return new boss_chrono_lord_dejaAI (pCreature);
 }
+
 void AddSC_boss_chrono_lord_deja()
 {
     Script *newscript;

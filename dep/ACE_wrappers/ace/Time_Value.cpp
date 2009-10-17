@@ -1,17 +1,23 @@
 #include "ace/Time_Value.h"
+
 ACE_RCSID (ace,
            Time_Value,
            "$Id: Time_Value.cpp 80826 2008-03-04 14:51:23Z wotte $")
 
+
 #if !defined (__ACE_INLINE__)
 #include "ace/Time_Value.inl"
 #endif /* __ACE_INLINE__ */
+
 #include "ace/Numeric_Limits.h"
 #include "ace/If_Then_Else.h"
+
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
+
 // Static constant representing `zero-time'.
 // Note: this object requires static construction.
 const ACE_Time_Value ACE_Time_Value::zero;
+
 // Constant for maximum time representable.  Note that this time
 // is not intended for use with select () or other calls that may
 // have *their own* implementation-specific maximum time representations.
@@ -21,9 +27,12 @@ const ACE_Time_Value ACE_Time_Value::zero;
 const ACE_Time_Value ACE_Time_Value::max_time (
   ACE_Numeric_Limits<time_t>::max (),
   ACE_ONE_SECOND_IN_USECS - 1);
+
 ACE_ALLOC_HOOK_DEFINE (ACE_Time_Value)
+
 // Increment microseconds (the only reason this is here is to allow
 // the use of ACE_Atomic_Op with ACE_Time_Value).
+
 ACE_Time_Value
 ACE_Time_Value::operator ++ (int)
 {
@@ -32,6 +41,7 @@ ACE_Time_Value::operator ++ (int)
   ++*this;
   return tv;
 }
+
 ACE_Time_Value &
 ACE_Time_Value::operator ++ (void)
 {
@@ -40,8 +50,10 @@ ACE_Time_Value::operator ++ (void)
   this->normalize ();
   return *this;
 }
+
 // Decrement microseconds (the only reason this is here is / to allow
 // the use of ACE_Atomic_Op with ACE_Time_Value).
+
 ACE_Time_Value
 ACE_Time_Value::operator -- (int)
 {
@@ -50,6 +62,7 @@ ACE_Time_Value::operator -- (int)
   --*this;
   return tv;
 }
+
 ACE_Time_Value &
 ACE_Time_Value::operator -- (void)
 {
@@ -58,6 +71,7 @@ ACE_Time_Value::operator -- (void)
   this->normalize ();
   return *this;
 }
+
 #if defined (ACE_WIN32)
 // Static constant to remove time skew between FILETIME and POSIX
 // time.  POSIX and Win32 use different epochs (Jan. 1, 1970 v.s.
@@ -73,12 +87,15 @@ ACE_U_LongLong (0xd53e8000, 0x19db1de);
 const DWORDLONG ACE_Time_Value::FILETIME_to_timval_skew =
 ACE_INT64_LITERAL (0x19db1ded53e8000);
 # endif
+
 //  Initializes the ACE_Time_Value object from a Win32 FILETIME
+
 ACE_Time_Value::ACE_Time_Value (const FILETIME &file_time)
 {
   // // ACE_OS_TRACE ("ACE_Time_Value::ACE_Time_Value");
   this->set (file_time);
 }
+
 void ACE_Time_Value::set (const FILETIME &file_time)
 {
   //  Initializes the ACE_Time_Value object from a Win32 FILETIME
@@ -94,7 +111,9 @@ void ACE_Time_Value::set (const FILETIME &file_time)
   ULARGE_INTEGER _100ns;
   _100ns.LowPart = file_time.dwLowDateTime;
   _100ns.HighPart = file_time.dwHighDateTime;
+
   _100ns.QuadPart -= ACE_Time_Value::FILETIME_to_timval_skew;
+
   // Convert 100ns units to seconds;
   this->tv_.tv_sec = (long) (_100ns.QuadPart / (10000 * 1000));
   // Convert remainder to microseconds;
@@ -102,11 +121,14 @@ void ACE_Time_Value::set (const FILETIME &file_time)
 #endif // ACE_LACKS_LONGLONG_T
   this->normalize ();
 }
+
 // Returns the value of the object as a Win32 FILETIME.
+
 ACE_Time_Value::operator FILETIME () const
 {
   FILETIME file_time;
   // ACE_OS_TRACE ("ACE_Time_Value::operator FILETIME");
+
 #if defined (ACE_LACKS_LONGLONG_T)
   ACE_U_LongLong LL_sec(this->tv_.tv_sec);
   ACE_U_LongLong LL_usec(this->tv_.tv_usec);
@@ -120,12 +142,16 @@ ACE_Time_Value::operator FILETIME () const
   _100ns.QuadPart = (((DWORDLONG) this->tv_.tv_sec * (10000 * 1000) +
                      this->tv_.tv_usec * 10) +
                      ACE_Time_Value::FILETIME_to_timval_skew);
+
   file_time.dwLowDateTime = _100ns.LowPart;
   file_time.dwHighDateTime = _100ns.HighPart;
 #endif //ACE_LACKS_LONGLONG_T
+
   return file_time;
 }
+
 #endif /* ACE_WIN32 */
+
 void
 ACE_Time_Value::dump (void) const
 {
@@ -139,11 +165,13 @@ ACE_Time_Value::dump (void) const
 #endif /* 0 */
 #endif /* ACE_HAS_DUMP */
 }
+
 void
 ACE_Time_Value::normalize (void)
 {
   // // ACE_OS_TRACE ("ACE_Time_Value::normalize");
   // From Hans Rohnert...
+
   if (this->tv_.tv_usec >= ACE_ONE_SECOND_IN_USECS)
     {
       /*! \todo This loop needs some optimization.
@@ -166,6 +194,7 @@ ACE_Time_Value::normalize (void)
         }
       while (this->tv_.tv_usec <= -ACE_ONE_SECOND_IN_USECS);
     }
+
   if (this->tv_.tv_sec >= 1 && this->tv_.tv_usec < 0)
     {
       --this->tv_.tv_sec;
@@ -180,6 +209,7 @@ ACE_Time_Value::normalize (void)
     }
 #endif /* __QNXNTO__  */
 }
+
 
 ACE_Time_Value &
 ACE_Time_Value::operator *= (double d)
@@ -197,29 +227,39 @@ ACE_Time_Value::operator *= (double d)
   typedef ACE::If_Then_Else<(sizeof (double) > sizeof (time_t)),
                             double,
                             long double>::result_type float_type;
+
   float_type time_total =
     (this->sec ()
      + static_cast<float_type> (this->usec ()) / ACE_ONE_SECOND_IN_USECS) * d;
+
   // shall we saturate the result?
   static const float_type max_int =
     ACE_Numeric_Limits<time_t>::max () + 0.999999;
   static const float_type min_int =
     ACE_Numeric_Limits<time_t>::min () - 0.999999;
+
   if (time_total > max_int)
     time_total = max_int;
   if (time_total < min_int)
     time_total = min_int;
+
   const time_t time_sec = static_cast<time_t> (time_total);
+
   time_total -= time_sec;
   time_total *= ACE_ONE_SECOND_IN_USECS;
+
   suseconds_t time_usec = static_cast<suseconds_t> (time_total);
+
   // round up the result to save the last usec
   if (time_usec > 0 && (time_total - time_usec) >= 0.5)
     ++time_usec;
   else if (time_usec < 0 && (time_total - time_usec) <= -0.5)
     --time_usec;
+
   this->set (time_sec, time_usec);
+
   return *this;
 }
+
 ACE_END_VERSIONED_NAMESPACE_DECL
 

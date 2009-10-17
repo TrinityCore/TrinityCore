@@ -1,6 +1,7 @@
 #include "precompiled.h"
 #include "escort_ai.h"
 #include "def_halls_of_stone.h"
+
 enum Texts
 {
     SAY_KILL_1                          = -1603016,
@@ -12,26 +13,33 @@ enum Texts
     SAY_PLAYER_DEATH_2                  = -1603022,
     SAY_PLAYER_DEATH_3                  = -1603023,
     SAY_ESCORT_START                    = -1603024,
+
     SAY_SPAWN_DWARF                     = -1603025,
     SAY_SPAWN_TROGG                     = -1603026,
     SAY_SPAWN_OOZE                      = -1603027,
     SAY_SPAWN_EARTHEN                   = -1603028,
+
     SAY_EVENT_INTRO_1                   = -1603029,
     SAY_EVENT_INTRO_2                   = -1603030,
     SAY_EVENT_INTRO_3_ABED              = -1603031,
+
     SAY_EVENT_A_1                       = -1603032,
     SAY_EVENT_A_2_KADD                  = -1603033,
     SAY_EVENT_A_3                       = -1603034,
+
     SAY_EVENT_B_1                       = -1603035,
     SAY_EVENT_B_2_MARN                  = -1603036,
     SAY_EVENT_B_3                       = -1603037,
+
     SAY_EVENT_C_1                       = -1603038,
     SAY_EVENT_C_2_ABED                  = -1603039,
     SAY_EVENT_C_3                       = -1603040,
+
     SAY_EVENT_D_1                       = -1603041,
     SAY_EVENT_D_2_ABED                  = -1603042,
     SAY_EVENT_D_3                       = -1603043,
     SAY_EVENT_D_4_ABED                  = -1603044,
+
     SAY_EVENT_END_01                    = -1603045,
     SAY_EVENT_END_02                    = -1603046,
     SAY_EVENT_END_03_ABED               = -1603047,
@@ -53,12 +61,16 @@ enum Texts
     SAY_EVENT_END_19_MARN               = -1603063,
     SAY_EVENT_END_20                    = -1603064,
     SAY_EVENT_END_21_ABED               = -1603065,
+
     SAY_VICTORY_SJONNIR_1               = -1603066,
     SAY_VICTORY_SJONNIR_2               = -1603067,
+
     SAY_ENTRANCE_MEET                   = -1603068,
+
     TEXT_ID_START                       = 13100,
     TEXT_ID_PROGRESS                    = 13101
 };
+
 enum Creatures
 {
     CREATURE_TRIBUNAL_OF_THE_AGES       = 28234,
@@ -70,6 +82,7 @@ enum Creatures
     CREATURE_IRON_GOLEM_CUSTODIAN       = 27985,
     CREATURE_KADDRAK                    = 30898
 };
+
 enum Spells
 {
     SPELL_STEALTH                       = 58506,
@@ -83,21 +96,26 @@ enum Spells
     SPELL_SEARING_GAZE                  = 51136,
     H_SPELL_SEARING_GAZE                = 59867
 };
+
 enum Quests
 {
     QUEST_HALLS_OF_STONE                = 13207
 };
+
 #define GOSSIP_ITEM_START               "Brann, it would be our honor!"
 #define GOSSIP_ITEM_PROGRESS            "Let's move Brann, enough of the history lessons!"
+
 struct Locations
 {
     float x, y, z;
 };
+
 static Locations SpawnLocations[]=
 {
     {946.992, 397.016, 208.374},
     {960.748, 382.944, 208.374},
 };
+
 struct TRINITY_DLL_DECL mob_tribuna_controllerAI : public ScriptedAI
 {
     mob_tribuna_controllerAI(Creature *c) : ScriptedAI(c)
@@ -105,31 +123,39 @@ struct TRINITY_DLL_DECL mob_tribuna_controllerAI : public ScriptedAI
         pInstance = c->GetInstanceData();
         SetCombatMovement(false);
     }
+
     ScriptedInstance* pInstance;
+
     uint32 uiKaddrakEncounterTimer;
     uint32 uiMarnakEncounterTimer;
     uint32 uiAbedneumEncounterTimer;
+
     bool bKaddrakActivated;
     bool bMarnakActivated;
     bool bAbedneumActivated;
+
     std::list<Creature*> lKaddrakGUIDList;
+
     void Reset()
     {
         uiKaddrakEncounterTimer = 1500;
         uiMarnakEncounterTimer = 10000;
         uiAbedneumEncounterTimer = 10000;
+
         bKaddrakActivated = false;
         bMarnakActivated = false;
         bAbedneumActivated = false;
+
         lKaddrakGUIDList.clear();
     }
+
     void UpdateFacesList()
    {
         /*GetCreatureListWithEntryInGrid(lKaddrakGUIDList, m_creature, CREATURE_KADDRAK, 50.0f);
         if (!lKaddrakGUIDList.empty())
         {
             uint32 uiPositionCounter = 0;
-            for (std::list<Creature*>::iterator itr = lKaddrakGUIDList.begin(); itr != lKaddrakGUIDList.end(); ++itr)
+            for(std::list<Creature*>::iterator itr = lKaddrakGUIDList.begin(); itr != lKaddrakGUIDList.end(); ++itr)
             {
                 if ((*itr)->isAlive())
                 {
@@ -148,6 +174,7 @@ struct TRINITY_DLL_DECL mob_tribuna_controllerAI : public ScriptedAI
             }
         }*/
     }
+
     void UpdateAI(const uint32 diff)
     {
         if(bKaddrakActivated)
@@ -196,19 +223,25 @@ struct TRINITY_DLL_DECL mob_tribuna_controllerAI : public ScriptedAI
         }
     }
 };
+
 struct TRINITY_DLL_DECL npc_brann_hosAI : public npc_escortAI
 {
     npc_brann_hosAI(Creature *c) : npc_escortAI(c)
     {
         pInstance = c->GetInstanceData();
     }
+
     uint32 uiStep;
     uint32 uiPhaseTimer;
+
     uint64 uiControllerGUID;
     std::list<uint64> lDwarfGUIDList;
+
     ScriptedInstance* pInstance;
+
     bool bIsBattle;
     bool bIsLowHP;
+
     void Reset()
     {
         if (!HasEscortState(STATE_ESCORT_ESCORTING))
@@ -218,11 +251,14 @@ struct TRINITY_DLL_DECL npc_brann_hosAI : public npc_escortAI
             uiStep = 0;
             uiPhaseTimer = 0;
             uiControllerGUID = 0;
+
             DespawnDwarf();
+
             if (pInstance)
                 pInstance->SetData(DATA_BRANN_EVENT, NOT_STARTED);
         }
     }
+
     void DespawnDwarf()
     {
         if (lDwarfGUIDList.empty())
@@ -235,6 +271,7 @@ struct TRINITY_DLL_DECL npc_brann_hosAI : public npc_escortAI
         }
         lDwarfGUIDList.clear();
     }
+
     void WaypointReached(uint32 uiPointId)
     {
         switch(uiPointId)
@@ -267,6 +304,7 @@ struct TRINITY_DLL_DECL npc_brann_hosAI : public npc_escortAI
                 break;
         }
      }
+
      void SpawnDwarf(uint32 uiType)
      {
        switch(uiType)
@@ -288,17 +326,20 @@ struct TRINITY_DLL_DECL npc_brann_hosAI : public npc_escortAI
                break;
        }
      }
+
     void JustSummoned(Creature* pSummoned)
     {
         lDwarfGUIDList.push_back(pSummoned->GetGUID());
         pSummoned->AddThreat(m_creature, 0.0f);
         pSummoned->AI()->AttackStart(m_creature);
     }
+
     void JumpToNextStep(uint32 uiTimer)
     {
       uiPhaseTimer = uiTimer;
       uiStep++;
     }
+
     void StartWP()
     {
         m_creature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
@@ -306,6 +347,7 @@ struct TRINITY_DLL_DECL npc_brann_hosAI : public npc_escortAI
         uiStep = 1;
         Start();
     }
+
     void UpdateEscortAI(const uint32 uiDiff)
     {
         if (uiPhaseTimer < uiDiff)
@@ -584,6 +626,7 @@ struct TRINITY_DLL_DECL npc_brann_hosAI : public npc_escortAI
                     break;
             }
         } else uiPhaseTimer -= uiDiff;
+
         if (!bIsLowHP && (m_creature->GetHealth()*100 / m_creature->GetMaxHealth()) <= 30)
         {
             DoScriptText(SAY_LOW_HEALTH, m_creature);
@@ -592,14 +635,18 @@ struct TRINITY_DLL_DECL npc_brann_hosAI : public npc_escortAI
             bIsLowHP = false;
     }
 };
+
 bool GossipHello_npc_brann_hos(Player* pPlayer, Creature* pCreature)
 {
     if (pCreature->isQuestGiver())
         pPlayer->PrepareQuestMenu(pCreature->GetGUID());
+
     pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_START, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
     pPlayer->SEND_GOSSIP_MENU(TEXT_ID_START, pCreature->GetGUID());
+
     return true;
 }
+
 bool GossipSelect_npc_brann_hos(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
 {
     if (uiAction == GOSSIP_ACTION_INFO_DEF+1 || uiAction == GOSSIP_ACTION_INFO_DEF+2)
@@ -607,25 +654,31 @@ bool GossipSelect_npc_brann_hos(Player* pPlayer, Creature* pCreature, uint32 uiS
         pPlayer->CLOSE_GOSSIP_MENU();
         ((npc_brann_hosAI*)pCreature->AI())->StartWP();
     }
+
     return true;
 }
+
 CreatureAI* GetAI_mob_tribuna_controller(Creature* pCreature)
 {
     return new mob_tribuna_controllerAI(pCreature);
 }
+
 CreatureAI* GetAI_npc_brann_hos(Creature* pCreature)
 {
     return new npc_brann_hosAI(pCreature);
 }
+
 void AddSC_halls_of_stone()
 {
     Script *newscript;
+
     newscript = new Script;
     newscript->Name = "npc_brann_hos";
     newscript->GetAI = &GetAI_npc_brann_hos;
     newscript->pGossipHello = &GossipHello_npc_brann_hos;
     newscript->pGossipSelect = &GossipSelect_npc_brann_hos;
     newscript->RegisterSelf();
+
     newscript = new Script;
     newscript->Name = "mob_tribuna_controller";
     newscript->GetAI = &GetAI_mob_tribuna_controller;

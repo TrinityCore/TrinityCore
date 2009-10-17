@@ -15,15 +15,19 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
+
 #include "precompiled.h"
 #include "def_naxxramas.h"
+
 #define SPELL_WEB_WRAP          28622
 #define SPELL_WEB_SPRAY         HEROIC(29484,54125)
 #define SPELL_POISON_SHOCK      HEROIC(28741,54122)
 #define SPELL_NECROTIC_POISON   HEROIC(54121,28776)
 #define SPELL_FRENZY            HEROIC(54123,54124)
+
 #define MOB_WEB_WRAP            16486
 #define MOB_SPIDERLING          17055
+
 #define MAX_POS_WRAP            3
 const float PosWrap[MAX_POS_WRAP][3] =
 {
@@ -31,6 +35,7 @@ const float PosWrap[MAX_POS_WRAP][3] =
     {3531.271, -3847.424, 299.450+20},
     {3497.067, -3843.384, 302.384+20},
 };
+
 enum Events
 {
     EVENT_SPRAY = 1,
@@ -39,10 +44,13 @@ enum Events
     EVENT_WRAP,
     EVENT_SUMMON,
 };
+
 struct TRINITY_DLL_DECL boss_maexxnaAI : public BossAI
 {
     boss_maexxnaAI(Creature *c) : BossAI(c, BOSS_MAEXXNA) {}
+
     bool enraged;
+
     void EnterCombat(Unit *who)
     {
         _EnterCombat();
@@ -53,17 +61,20 @@ struct TRINITY_DLL_DECL boss_maexxnaAI : public BossAI
         events.ScheduleEvent(EVENT_POISON, 5000);
         events.ScheduleEvent(EVENT_SUMMON, 40000);
     }
+
     void UpdateAI(const uint32 diff)
     {
         if (!UpdateVictim() || !CheckInRoom())
             return;
+
         events.Update(diff);
+
         while(uint32 eventId = events.ExecuteEvent())
         {
             switch(eventId)
             {
                 case EVENT_WRAP:
-                    for (uint32 i = 0; i < HEROIC(1,2); ++i)
+                    for(uint32 i = 0; i < HEROIC(1,2); ++i)
                     {
                         if (Unit *target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0, true, -SPELL_WEB_WRAP))
                         {
@@ -94,13 +105,14 @@ struct TRINITY_DLL_DECL boss_maexxnaAI : public BossAI
                 case EVENT_SUMMON:
                 {
                     uint32 amount = 8+rand()%2;
-                    for (uint32 i = 0; i < amount; ++i)
+                    for(uint32 i = 0; i < amount; ++i)
                         DoSummon(MOB_SPIDERLING, me);
                     events.ScheduleEvent(EVENT_SUMMON, 40000);
                     break;
                 }
             }
         }
+
         if (!enraged && HealthBelowPct(30))
         {
             DoCast(me, SPELL_FRENZY);
@@ -110,13 +122,16 @@ struct TRINITY_DLL_DECL boss_maexxnaAI : public BossAI
             DoMeleeAttackIfReady();
     }
 };
+
 CreatureAI* GetAI_boss_maexxna(Creature* pCreature)
 {
     return new boss_maexxnaAI (pCreature);
 }
+
 void AddSC_boss_maexxna()
 {
     Script *newscript;
+
     newscript = new Script;
     newscript->Name = "boss_maexxna";
     newscript->GetAI = &GetAI_boss_maexxna;

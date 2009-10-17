@@ -13,68 +13,89 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
+
 /* ScriptData
 SDName: Boss_Warchief_Kargath_Bladefist
 SD%Complete: 90
 SDComment:
 SDCategory: Hellfire Citadel, Shattered Halls
 EndScriptData */
+
 /* ContentData
 boss_warchief_kargath_bladefist
 EndContentData */
+
 #include "precompiled.h"
+
 #define SAY_AGGRO1                      -1540042
 #define SAY_AGGRO2                      -1540043
 #define SAY_AGGRO3                      -1540044
 #define SAY_SLAY1                       -1540045
 #define SAY_SLAY2                       -1540046
 #define SAY_DEATH                       -1540047
+
 #define SPELL_BLADE_DANCE               30739
 #define H_SPELL_CHARGE                  25821
+
 #define TARGET_NUM                      5
+
 #define MOB_SHATTERED_ASSASSIN          17695
 #define MOB_HEARTHEN_GUARD              17621
 #define MOB_SHARPSHOOTER_GUARD          17622
 #define MOB_REAVER_GUARD                17623
+
 float AssassEntrance[3] = {275.136,-84.29,2.3}; // y -8
 float AssassExit[3] = {184.233,-84.29,2.3}; // y -8
 float AddsEntrance[3] = {306.036,-84.29,1.93};
+
 struct TRINITY_DLL_DECL boss_warchief_kargath_bladefistAI : public ScriptedAI
 {
     boss_warchief_kargath_bladefistAI(Creature *c) : ScriptedAI(c)
     {
         HeroicMode = c->GetMap()->IsHeroic();
     }
+
     bool HeroicMode;
+
     std::vector<uint64> adds;
     std::vector<uint64> assassins;
+
     uint32 Charge_timer;
     uint32 Blade_Dance_Timer;
     uint32 Summon_Assistant_Timer;
     uint32 resetcheck_timer;
     uint32 Wait_Timer;
+
     uint32 Assassins_Timer;
+
     uint32 summoned;
     bool InBlade;
+
     uint32 target_num;
+
     void Reset()
     {
         removeAdds();
+
         m_creature->SetSpeed(MOVE_RUN,2);
         m_creature->RemoveUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
+
         summoned = 2;
         InBlade = false;
         Wait_Timer = 0;
+
         Charge_timer = 0;
         Blade_Dance_Timer = 45000;
         Summon_Assistant_Timer = 30000;
         Assassins_Timer = 5000;
         resetcheck_timer = 5000;
     }
+
     void EnterCombat(Unit *who)
     {
         DoScriptText(RAND(SAY_AGGRO1,SAY_AGGRO2,SAY_AGGRO3), m_creature);
     }
+
     void JustSummoned(Creature *summoned)
     {
         switch(summoned->GetEntry())
@@ -90,6 +111,7 @@ struct TRINITY_DLL_DECL boss_warchief_kargath_bladefistAI : public ScriptedAI
                 break;
         }
     }
+
     void KilledUnit(Unit *victim)
     {
         if (victim->GetTypeId() == TYPEID_PLAYER)
@@ -97,19 +119,23 @@ struct TRINITY_DLL_DECL boss_warchief_kargath_bladefistAI : public ScriptedAI
             DoScriptText(RAND(SAY_SLAY1,SAY_SLAY2), m_creature);
         }
     }
+
     void JustDied(Unit* Killer)
     {
         DoScriptText(SAY_DEATH, m_creature);
         removeAdds();
     }
+
     void MovementInform(uint32 type, uint32 id)
     {
         if (InBlade)
         {
             if (type != POINT_MOTION_TYPE)
                 return;
+
             if (id != 1)
                 return;
+
             if (target_num > 0) // to prevent loops
             {
                 Wait_Timer = 1;
@@ -118,9 +144,10 @@ struct TRINITY_DLL_DECL boss_warchief_kargath_bladefistAI : public ScriptedAI
             }
         }
     }
+
     void removeAdds()
     {
-        for (std::vector<uint64>::iterator itr = adds.begin(); itr!= adds.end(); ++itr)
+        for(std::vector<uint64>::iterator itr = adds.begin(); itr!= adds.end(); ++itr)
         {
             Unit* temp = Unit::GetUnit((*m_creature),*itr);
             if (temp && temp->isAlive())
@@ -131,7 +158,8 @@ struct TRINITY_DLL_DECL boss_warchief_kargath_bladefistAI : public ScriptedAI
             }
         }
         adds.clear();
-        for (std::vector<uint64>::iterator itr = assassins.begin(); itr!= assassins.end(); ++itr)
+
+        for(std::vector<uint64>::iterator itr = assassins.begin(); itr!= assassins.end(); ++itr)
         {
             Unit* temp = Unit::GetUnit((*m_creature),*itr);
             if (temp && temp->isAlive())
@@ -150,17 +178,20 @@ struct TRINITY_DLL_DECL boss_warchief_kargath_bladefistAI : public ScriptedAI
         m_creature->SummonCreature(MOB_SHATTERED_ASSASSIN,AssassExit[0],AssassExit[1]+8, AssassExit[2], 0,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,30000);
         m_creature->SummonCreature(MOB_SHATTERED_ASSASSIN,AssassExit[0],AssassExit[1]-8, AssassExit[2], 0,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,30000);
     }
+
     void UpdateAI(const uint32 diff)
     {
         //Return since we have no target
         if (!UpdateVictim())
             return;
+
         if (Assassins_Timer)
             if (Assassins_Timer <= diff)
             {
                 SpawnAssassin();
                 Assassins_Timer = 0;
             }else Assassins_Timer -= diff;
+
         if (InBlade)
         {
             if (Wait_Timer)
@@ -202,16 +233,19 @@ struct TRINITY_DLL_DECL boss_warchief_kargath_bladefistAI : public ScriptedAI
                     m_creature->SetSpeed(MOVE_RUN,4);
                     return;
                 }else Blade_Dance_Timer -= diff;
+
             if (Charge_timer)
                 if (Charge_timer <= diff)
                 {
                     DoCast(SelectUnit(SELECT_TARGET_RANDOM,0),H_SPELL_CHARGE);
                     Charge_timer = 0;
                 }else Charge_timer -= diff;
+
             if (Summon_Assistant_Timer < diff)
             {
                 Unit* target = NULL;
-                for (uint8 i = 0; i < summoned; ++i)
+
+                for(uint8 i = 0; i < summoned; ++i)
                 {
                     switch(rand()%3)
                     {
@@ -223,8 +257,10 @@ struct TRINITY_DLL_DECL boss_warchief_kargath_bladefistAI : public ScriptedAI
                 if (rand()%100 < 20) summoned++;
                     Summon_Assistant_Timer = 25000 + (rand()%10000) ;
             }else Summon_Assistant_Timer -= diff;
+
             DoMeleeAttackIfReady();
         }
+
         if (resetcheck_timer < diff)
         {
             uint32 tempx,tempy;
@@ -239,10 +275,12 @@ struct TRINITY_DLL_DECL boss_warchief_kargath_bladefistAI : public ScriptedAI
         }else resetcheck_timer -= diff;
     }
 };
+
 CreatureAI* GetAI_boss_warchief_kargath_bladefist(Creature* pCreature)
 {
     return new boss_warchief_kargath_bladefistAI (pCreature);
 }
+
 void AddSC_boss_warchief_kargath_bladefist()
 {
     Script *newscript;

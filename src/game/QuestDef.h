@@ -17,15 +17,22 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
+
 #ifndef TRINITYCORE_QUEST_H
 #define TRINITYCORE_QUEST_H
+
 #include "Platform/Define.h"
 #include "Database/DatabaseEnv.h"
+
 #include <string>
 #include <vector>
+
 class Player;
+
 class ObjectMgr;
+
 #define MAX_QUEST_LOG_SIZE 25
+
 #define QUEST_OBJECTIVES_COUNT 4
 #define QUEST_SOURCE_ITEM_IDS_COUNT 4
 #define QUEST_REWARD_CHOICES_COUNT 6
@@ -33,6 +40,7 @@ class ObjectMgr;
 #define QUEST_DEPLINK_COUNT 10
 #define QUEST_REPUTATIONS_COUNT 5
 #define QUEST_EMOTE_COUNT 4
+
 enum QuestFailedReasons
 {
     INVALIDREASON_DONT_HAVE_REQ                 = 0,
@@ -49,6 +57,7 @@ enum QuestFailedReasons
     INVALIDREASON_QUEST_FAILED_CAIS             = 27,       // You cannot complete quests once you have reached tired time.
     INVALIDREASON_DAILY_QUEST_COMPLETED_TODAY   = 29        // You have completed that daily quest today.
 };
+
 enum QuestShareMessages
 {
     QUEST_PARTY_MSG_SHARING_QUEST           = 0,
@@ -63,6 +72,7 @@ enum QuestShareMessages
     QUEST_PARTY_MSG_SHARING_TIMER_EXPIRED   = 9,
     QUEST_PARTY_MSG_NOT_IN_PARTY            = 10
 };
+
 enum __QuestTradeSkill
 {
     QUEST_TRSKILL_NONE           = 0,
@@ -81,6 +91,7 @@ enum __QuestTradeSkill
     QUEST_TRSKILL_SKINNING       = 13,
     QUEST_TRSKILL_JEWELCRAFTING  = 14,
 };
+
 enum QuestStatus
 {
     QUEST_STATUS_NONE           = 0,
@@ -91,6 +102,7 @@ enum QuestStatus
     QUEST_STATUS_FAILED         = 5,
     MAX_QUEST_STATUS
 };
+
 enum __QuestGiverStatus
 {
     DIALOG_STATUS_NONE                     = 0,
@@ -105,6 +117,7 @@ enum __QuestGiverStatus
     DIALOG_STATUS_REWARD2                  = 9,             // no yellow dot on minimap
     DIALOG_STATUS_REWARD                   = 10             // yellow dot on minimap
 };
+
 enum __QuestFlags
 {
     // Flags used at server and sent to client
@@ -122,19 +135,23 @@ enum __QuestFlags
     QUEST_FLAGS_TBC_RACES      = 0x00000800,                // Not used currently: Blood elf/Draenei starting zone quests
     QUEST_FLAGS_DAILY          = 0x00001000,                // Used to know quest is Daily one
     QUEST_FLAGS_WEEKLY         = 0x00008000,
+
     // Trinity flags for set SpecialFlags in DB if required but used only at server
     QUEST_TRINITY_FLAGS_REPEATABLE           = 0x010000,     // Set by 1 in SpecialFlags from DB
     QUEST_TRINITY_FLAGS_EXPLORATION_OR_EVENT = 0x020000,     // Set by 2 in SpecialFlags from DB (if reequired area explore, spell SPELL_EFFECT_QUEST_COMPLETE casting, table `*_script` command SCRIPT_COMMAND_QUEST_EXPLORED use, set from script DLL)
     QUEST_TRINITY_FLAGS_DB_ALLOWED = 0xFFFF | QUEST_TRINITY_FLAGS_REPEATABLE | QUEST_TRINITY_FLAGS_EXPLORATION_OR_EVENT,
+
     // Trinity flags for internal use only
     QUEST_TRINITY_FLAGS_DELIVER              = 0x040000,     // Internal flag computed only
     QUEST_TRINITY_FLAGS_SPEAKTO              = 0x080000,     // Internal flag computed only
     QUEST_TRINITY_FLAGS_KILL_OR_CAST         = 0x100000,     // Internal flag computed only
     QUEST_TRINITY_FLAGS_TIMED                = 0x200000,     // Internal flag computed only
 };
+
 struct QuestLocale
 {
     QuestLocale() { ObjectiveText.resize(QUEST_OBJECTIVES_COUNT); }
+
     std::vector<std::string> Title;
     std::vector<std::string> Details;
     std::vector<std::string> Objectives;
@@ -143,6 +160,7 @@ struct QuestLocale
     std::vector<std::string> EndText;
     std::vector< std::vector<std::string> > ObjectiveText;
 };
+
 // This Quest class provides a convenient way to access a few pretotaled (cached) quest details,
 // all base quest information, and any utility functions such as generating the amount of
 // xp to give
@@ -152,8 +170,10 @@ class Quest
     public:
         Quest(Field * questRecord);
         uint32 XPValue( Player *pPlayer ) const;
+
         bool HasFlag( uint32 flag ) const { return ( QuestFlags & flag ) != 0; }
         void SetFlag( uint32 flag ) { QuestFlags |= flag; }
+
         // table data accessors:
         uint32 GetQuestId() const { return QuestId; }
         uint32 GetQuestMethod() const { return QuestMethod; }
@@ -208,6 +228,7 @@ class Quest
         bool   IsAutoComplete() const { return QuestMethod ? false : true; }
         uint32 GetFlags() const { return QuestFlags; }
         bool   IsDaily() const { return QuestFlags & (QUEST_FLAGS_DAILY | QUEST_FLAGS_WEEKLY); }
+
         // multiple values
         std::string ObjectiveText[QUEST_OBJECTIVES_COUNT];
         uint32 ReqItemId[QUEST_OBJECTIVES_COUNT];
@@ -227,20 +248,24 @@ class Quest
         uint32 DetailsEmoteDelay[QUEST_EMOTE_COUNT];
         uint32 OfferRewardEmote[QUEST_EMOTE_COUNT];
         uint32 OfferRewardEmoteDelay[QUEST_EMOTE_COUNT];
+
         uint32 GetReqItemsCount() const { return m_reqitemscount; }
         uint32 GetReqCreatureOrGOcount() const { return m_reqCreatureOrGOcount; }
         uint32 GetRewChoiceItemsCount() const { return m_rewchoiceitemscount; }
         uint32 GetRewItemsCount() const { return m_rewitemscount; }
+
         typedef std::vector<int32> PrevQuests;
         PrevQuests prevQuests;
         typedef std::vector<uint32> PrevChainQuests;
         PrevChainQuests prevChainQuests;
+
         // cached data
     private:
         uint32 m_reqitemscount;
         uint32 m_reqCreatureOrGOcount;
         uint32 m_rewchoiceitemscount;
         uint32 m_rewitemscount;
+
         // table data
     protected:
         uint32 QuestId;
@@ -293,12 +318,14 @@ class Quest
         uint32 QuestStartScript;
         uint32 QuestCompleteScript;
 };
+
 enum QuestUpdateState
 {
     QUEST_UNCHANGED = 0,
     QUEST_CHANGED = 1,
     QUEST_NEW = 2
 };
+
 struct QuestStatusData
 {
     QuestStatusData()
@@ -308,11 +335,13 @@ struct QuestStatusData
         memset(m_itemcount, 0, QUEST_OBJECTIVES_COUNT * sizeof(uint32));
         memset(m_creatureOrGOcount, 0, QUEST_OBJECTIVES_COUNT * sizeof(uint32));
     }
+
     QuestStatus m_status;
     bool m_rewarded;
     bool m_explored;
     uint32 m_timer;
     QuestUpdateState uState;
+
     uint32 m_itemcount[ QUEST_OBJECTIVES_COUNT ];
     uint32 m_creatureOrGOcount[ QUEST_OBJECTIVES_COUNT ];
 };

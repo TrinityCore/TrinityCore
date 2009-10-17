@@ -17,11 +17,14 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
+
 #ifndef TRINITY_RANDOMMOTIONGENERATOR_H
 #define TRINITY_RANDOMMOTIONGENERATOR_H
+
 #include "MovementGenerator.h"
 #include "DestinationHolder.h"
 #include "Traveller.h"
+
 template<class T>
 class TRINITY_DLL_SPEC RandomMovementGenerator
 : public MovementGeneratorMedium< T, RandomMovementGenerator<T> >
@@ -29,6 +32,7 @@ class TRINITY_DLL_SPEC RandomMovementGenerator
     public:
         // Wander dist is related on db spawn dist. So what if we wanna set eandom movement on summoned creature?!
         RandomMovementGenerator(float spawn_dist = 0.0f) : i_nextMoveTime(0), wander_distance(spawn_dist) {}
+
         void _setRandomLocation(T &);
         void Initialize(T &);
         void Finalize(T &);
@@ -42,6 +46,7 @@ class TRINITY_DLL_SPEC RandomMovementGenerator
         MovementGeneratorType GetMovementGeneratorType() { return RANDOM_MOTION_TYPE; }
     private:
         TimeTrackerSmall i_nextMoveTime;
+
         DestinationHolder< Traveller<T> > i_destinationHolder;
         float wander_distance;
         uint32 i_nextMove;

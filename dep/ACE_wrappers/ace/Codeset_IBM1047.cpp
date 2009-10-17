@@ -13,13 +13,18 @@
  */
 //=============================================================================
 
+
 #include "ace/Codeset_IBM1047.h"
+
 #if defined (ACE_HAS_EBCDIC)
+
 ACE_RCSID (ace,
            Codeset_IBM1047,
            "$Id: Codeset_IBM1047.cpp 81661 2008-05-09 12:05:34Z johnnyw $")
+
 #include "ace/OS_Memory.h"
 #include "ace/OS_NS_string.h"
+
 namespace
 {
   char const to_IBM1047[] =
@@ -41,6 +46,7 @@ namespace
   "\x30\x42\x47\x57\xEE\x33\xB6\xE1\xCD\xED\x36\x44\xCE\xCF\x31\xAA" // E0-EF
   "\xFC\x9E\xAE\x8C\xDD\xDC\x39\xFB\x80\xAF\xFD\x78\x76\xB2\x9F\xFF" // F0-FF
 };
+
   char const from_IBM1047[] =
     {
   "\x00\x01\x02\x03\xCF\x09\xD3\x7F\xD4\xD5\xC3\x0B\x0C\x0D\x0E\x0F" // 00-0F
@@ -61,23 +67,29 @@ namespace
   "\x30\x31\x32\x33\x34\x35\x36\x37\x38\x39\xB3\xF7\xF0\xFA\xA7\xFF" // F0-FF
     };
 }
+
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
+
 ACE_IBM1047_ISO8859::ACE_IBM1047_ISO8859 (void)
 {
 }
+
 ACE_IBM1047_ISO8859::~ACE_IBM1047_ISO8859 (void)
 {
 }
+
 ACE_CDR::ULong
 ACE_IBM1047_ISO8859::ncs ()
 {
   return 0x10020417;
 }
+
 ACE_CDR::ULong
 ACE_IBM1047_ISO8859::tcs ()
 {
   return 0x00010001;
 }
+
 ACE_CDR::Boolean
 ACE_IBM1047_ISO8859::read_char (ACE_InputCDR &in,
                                 ACE_CDR::Char &x)
@@ -89,24 +101,31 @@ ACE_IBM1047_ISO8859::read_char (ACE_InputCDR &in,
     }
   return 0;
 }
+
 ACE_CDR::Boolean
 ACE_IBM1047_ISO8859::read_string (ACE_InputCDR& in,
                                   ACE_CDR::Char *& x)
 {
   ACE_CDR::ULong len;
+
   in.read_ulong (len);
+
   if (len > 0)
     {
       ACE_NEW_RETURN (x,
                       ACE_CDR::Char[len],
                       0);
+
       if (this->read_char_array (in, x, len))
         return 1;
+
       delete [] x;
     }
+
   x = 0;
   return 0;
 }
+
 ACE_CDR::Boolean
 ACE_IBM1047_ISO8859::read_char_array (ACE_InputCDR& in,
                                       ACE_CDR::Char* x,
@@ -120,10 +139,13 @@ ACE_IBM1047_ISO8859::read_char_array (ACE_InputCDR& in,
     {
       for (ACE_CDR::ULong i = 0; i != len; ++i)
         x[i] = to_IBM1047[x[i]];
+
       return 1;
     }
+
   return 0;
 }
+
 ACE_CDR::Boolean
 ACE_IBM1047_ISO8859::write_char (ACE_OutputCDR& out,
                                  ACE_CDR::Char x)
@@ -132,6 +154,7 @@ ACE_IBM1047_ISO8859::write_char (ACE_OutputCDR& out,
     this->write_1 (out,
                    reinterpret_cast<const ACE_CDR::Octet*> (&from_IBM1047[x]));
 }
+
 ACE_CDR::Boolean
 ACE_IBM1047_ISO8859::write_string (ACE_OutputCDR& out,
                                    ACE_CDR::ULong len,
@@ -141,6 +164,7 @@ ACE_IBM1047_ISO8859::write_string (ACE_OutputCDR& out,
     return this->write_char_array (out, x, len + 1);
   return 0;
 }
+
 ACE_CDR::Boolean
 ACE_IBM1047_ISO8859::write_char_array (ACE_OutputCDR& out,
                                        const ACE_CDR::Char* x,
@@ -150,30 +174,39 @@ ACE_IBM1047_ISO8859::write_char_array (ACE_OutputCDR& out,
   if (this->adjust (out, len, 1, buf) == 0)
     {
       ACE_OS::memcpy (buf, x, len);
+
       for (ACE_CDR::ULong i = 0; i != len; ++i)
         buf[i] = from_IBM1047[buf[i]];
+
       return 1;
     }
+
   this->good_bit(out, 0);
   return 0;
 }
+
 // ****************************************************************
+
 ACE_ISO8859_IBM1047::ACE_ISO8859_IBM1047 (void)
 {
 }
+
 ACE_ISO8859_IBM1047::~ACE_ISO8859_IBM1047 (void)
 {
 }
+
 ACE_CDR::ULong
 ACE_ISO8859_IBM1047::ncs ()
 {
   return 0x00010001;
 }
+
 ACE_CDR::ULong
 ACE_ISO8859_IBM1047::tcs ()
 {
   return 0x10020417;
 }
+
 ACE_CDR::Boolean
 ACE_ISO8859_IBM1047::read_char (ACE_InputCDR& in,
                                 ACE_CDR::Char& x)
@@ -185,24 +218,31 @@ ACE_ISO8859_IBM1047::read_char (ACE_InputCDR& in,
     }
   return 0;
 }
+
 ACE_CDR::Boolean
 ACE_ISO8859_IBM1047::read_string (ACE_InputCDR &in,
                                   ACE_CDR::Char *&x)
 {
   ACE_CDR::ULong len;
+
   in.read_ulong (len);
+
   if (len > 0)
     {
       ACE_NEW_RETURN (x,
                       ACE_CDR::Char[len],
                       0);
+
       if (this->read_char_array (in, x, len))
         return 1;
+
       delete [] x;
     }
+
   x = 0;
   return 0;
 }
+
 ACE_CDR::Boolean
 ACE_ISO8859_IBM1047::read_char_array (ACE_InputCDR &in,
                                       ACE_CDR::Char *x,
@@ -216,10 +256,13 @@ ACE_ISO8859_IBM1047::read_char_array (ACE_InputCDR &in,
     {
       for (ACE_CDR::ULong i = 0; i != len; ++i)
         x[i] = from_IBM1047[x[i]];
+
       return 1;
     }
+
   return 0;
 }
+
 ACE_CDR::Boolean
 ACE_ISO8859_IBM1047::write_char (ACE_OutputCDR &out,
                                  ACE_CDR::Char x)
@@ -228,6 +271,7 @@ ACE_ISO8859_IBM1047::write_char (ACE_OutputCDR &out,
     this->write_1 (out,
                    reinterpret_cast<const ACE_CDR::Octet *> (&to_IBM1047[x]));
 }
+
 ACE_CDR::Boolean
 ACE_ISO8859_IBM1047::write_string (ACE_OutputCDR& out,
                                    ACE_CDR::ULong len,
@@ -238,22 +282,29 @@ ACE_ISO8859_IBM1047::write_string (ACE_OutputCDR& out,
   else
     return 0;
 }
+
 ACE_CDR::Boolean
 ACE_ISO8859_IBM1047::write_char_array (ACE_OutputCDR &out,
                                        const ACE_CDR::Char *x,
                                        ACE_CDR::ULong len)
 {
   char *buf = 0;
+
   if (this->adjust (out, len, 1, buf) == 0)
     {
       ACE_OS::memcpy (buf, x, len);
+
       for (ACE_CDR::ULong i = 0; i != len; ++i)
         buf[i] = to_IBM1047[buf[i]];
+
       return 1;
     }
+
   this->good_bit (out, 0);
   return 0;
 }
+
 ACE_END_VERSIONED_NAMESPACE_DECL
+
 #endif /* ACE_HAS_EBCDIC */
 

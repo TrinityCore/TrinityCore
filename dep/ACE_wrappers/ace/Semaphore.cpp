@@ -1,23 +1,32 @@
 // $Id: Semaphore.cpp 80826 2008-03-04 14:51:23Z wotte $
+
 #include "ace/Semaphore.h"
+
 #if !defined (__ACE_INLINE__)
 #include "ace/Semaphore.inl"
 #endif /* __ACE_INLINE__ */
+
 #include "ace/Log_Msg.h"
 #include "ace/ACE.h"
+
 ACE_RCSID (ace,
            Semaphore,
            "$Id: Semaphore.cpp 80826 2008-03-04 14:51:23Z wotte $")
+
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
+
 ACE_ALLOC_HOOK_DEFINE(ACE_Semaphore)
+
 void
 ACE_Semaphore::dump (void) const
 {
 // ACE_TRACE ("ACE_Semaphore::dump");
+
   ACE_DEBUG ((LM_DEBUG, ACE_BEGIN_DUMP, this));
   ACE_DEBUG ((LM_DEBUG, ACE_TEXT ("\n")));
   ACE_DEBUG ((LM_DEBUG, ACE_END_DUMP));
 }
+
 ACE_Semaphore::ACE_Semaphore (unsigned int count,
                               int type,
                               const ACE_TCHAR *name,
@@ -42,10 +51,13 @@ ACE_Semaphore::ACE_Semaphore (unsigned int count,
                 ACE_TEXT ("%p\n"),
                 ACE_TEXT ("ACE_Semaphore::ACE_Semaphore")));
 }
+
 ACE_Semaphore::~ACE_Semaphore (void)
 {
 // ACE_TRACE ("ACE_Semaphore::~ACE_Semaphore");
+
   this->remove ();
 }
+
 ACE_END_VERSIONED_NAMESPACE_DECL
 

@@ -1,4 +1,5 @@
 // -*- C++ -*-
+
 //==========================================================================
 /**
  *  @file    NT_Service.h
@@ -8,19 +9,26 @@
  *  @author Steve Huston <shuston@riverace.com>
  */
 //==========================================================================
+
 #ifndef ACE_NT_SERVICE_H
 #define ACE_NT_SERVICE_H
+
 #include /**/ "ace/pre.h"
+
 #include /**/ "ace/config-all.h"
+
 #if !defined (ACE_LACKS_PRAGMA_ONCE)
 # pragma once
 #endif /* ACE_LACKS_PRAGMA_ONCE */
+
 #if defined (ACE_WIN32) && !defined (ACE_LACKS_WIN32_SERVICES)
+
 #include "ace/ACE.h"
 #include "ace/OS_Log_Msg_Attributes.h"
 #include "ace/Service_Object.h"
 #include "ace/Task.h"
 #include "ace/OS_NS_errno.h" // needed for those using our macros
+
 // ACE_NT_SERVICE_START_TIMEOUT is an estimate of the number of
 // milliseconds your service will take to start.  Default is 5
 // seconds; you can pass a different value (or set one) when you
@@ -28,7 +36,9 @@
 #if !defined ACE_NT_SERVICE_START_TIMEOUT
 #define ACE_NT_SERVICE_START_TIMEOUT  5000
 #endif /* ACE_NT_SERVICE_TIMEOUT */
+
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
+
 /**
  * @class ACE_NT_Service
  *
@@ -88,12 +98,14 @@ ACE_BEGIN_VERSIONED_NAMESPACE_DECL
  */
 class ACE_Export ACE_NT_Service : public ACE_Task<ACE_MT_SYNCH>
 {
+
 public:
   // = Initialization and termination methods.
   /// Constructor primarily for use when running the service.
   ACE_NT_Service (DWORD start_timeout = ACE_NT_SERVICE_START_TIMEOUT,
                   DWORD service_type = SERVICE_WIN32_OWN_PROCESS,
                   DWORD controls_mask = SERVICE_ACCEPT_STOP);
+
   /// Constructor primarily for use when inserting/removing/controlling
   /// the service.
   ACE_NT_Service (const ACE_TCHAR *name,
@@ -101,20 +113,25 @@ public:
                   DWORD start_timeout = ACE_NT_SERVICE_START_TIMEOUT,
                   DWORD service_type = SERVICE_WIN32_OWN_PROCESS,
                   DWORD controls_mask = SERVICE_ACCEPT_STOP);
+
   virtual ~ACE_NT_Service (void);
+
   // = Functions to operate the service
+
   /**
    * Hook called to open the service.  By default, sets the service
    * status to SERVICE_START_PENDING, calls the @c svc() method,
    * interprets and sets the service status, and returns.
    */
   virtual int open (void *args = 0);
+
   /**
    * Hook called when terminating the service. Inherited from
    * ACE_Shared_Object. Default implementation sets the service status
    * to SERVICE_STOPPED.
    */
   virtual int fini (void);
+
   /**
    * The actual service implementation.  This function need not be overridden
    * by applications that are just using SCM capabilities, but must be
@@ -122,6 +139,7 @@ public:
    * this function will set the status to RUNNING.
    */
   virtual int svc (void);
+
   /**
    * This function is called in response to a request from the Service
    * Dispatcher.  It must interact with the <svc> function to effect the
@@ -134,24 +152,32 @@ public:
    *    SERVICE_CONTROL_SHUTDOWN: same as SERVICE_CONTROL_STOP.
    */
   virtual void  handle_control (DWORD control_code);
+
   /// Set the svc_handle_ member.  This is only a public function because
   /// the macro-generated service function calls it.
   void svc_handle (const SERVICE_STATUS_HANDLE new_svc_handle);
 
+
   // = Methods which can be used to do SCP-like functions. The first group
   // are used to register/insert and remove the service's definition in the
   // SCM registry.
+
   /// Sets the name and description for the service.
   /// If desc is 0, it takes the same value as name.
   void name (const ACE_TCHAR *name, const ACE_TCHAR *desc = 0);
+
   /// Get the service name.
   const ACE_TCHAR *name (void) const;
+
   /// Get the service description.
   const ACE_TCHAR *desc (void) const;
+
   /// Sets the host machine
   void host (const ACE_TCHAR *host);
+
   /// Get the host machine.
   const ACE_TCHAR *host (void) const;
+
   /**
    * Insert (create) the service in the NT Service Control Manager,
    * with the given creation values.  exe_path defaults to the path name
@@ -168,17 +194,22 @@ public:
               const ACE_TCHAR *account_name = 0,
               const ACE_TCHAR *password = 0,
               DWORD desired_access = SERVICE_ALL_ACCESS);
+
   /**
    * Remove the service from the NT Service Control Manager.  Returns -1 on
    * error, 0 on success.  This just affects the SCM and registry - the
    * can and will keep running fine if it is already running.
    */
   int remove (void);
+
   /// Sets the startup type for the service.  Returns -1 on error, 0 on success.
   int startup (DWORD startup);
+
   /// Returns the current startup type.
   DWORD startup (void);
+
   // = Methods to control ACE_Log_Msg behavior in the service.
+
   /**
    * Set the ACE_Log_Msg attributes that the service thread will use to
    * initialize its ACE_Log_Msg instance. This is how the initiating
@@ -190,6 +221,7 @@ public:
    * function.
    */
   void capture_log_msg_attributes (void);
+
   /**
    * Set the ACE_Log_Msg attributes in the current thread to those saved
    * in the most recent call to @c capture_log_msg_attributes(). This function
@@ -198,7 +230,9 @@ public:
    * correctly into the process's established logging setup.
    */
   void inherit_log_msg_attributes (void);
+
   // = Methods which control the service's execution.
+
   // These methods to start/pause/resume/stop/check the service all
   // have the following common behavior with respect to @a wait_time
   // and return value.  @a wait_time is a pointer to an ACE_Time_Value
@@ -224,6 +258,7 @@ public:
   // this would include privilege restrictions and if the service is
   // not configured to receive the request (this is most likely to
   // happen in the case of pause and continue).
+
   /**
    * Start the service (must have been inserted before).  wait_time is
    * the time to wait for the service to reach a steady state before
@@ -239,6 +274,7 @@ public:
   int start_svc (ACE_Time_Value *wait_time = 0,
                  DWORD *svc_state = 0,
                  DWORD argc = 0, const ACE_TCHAR **argv = 0);
+
   /**
    * Requests the service to stop.  Will wait up to @a wait_time for
    * the service to actually stop.  If not specified, the function
@@ -248,10 +284,13 @@ public:
    * was made successfully, -1 if not.
    */
   int stop_svc (ACE_Time_Value *wait_time = 0, DWORD *svc_state = 0);
+
   /// Pause the service.
   int pause_svc (ACE_Time_Value *wait_time = 0, DWORD *svc_state = 0);
+
   /// Continue the service.
   int continue_svc (ACE_Time_Value *wait_time = 0, DWORD *svc_state = 0);
+
   /**
    * Get the current state for the service.  If <wait_hint> is not 0,
    * it receives the service's reported wait hint.  Note that this
@@ -262,9 +301,11 @@ public:
    * set of valid service state values are all greater than 0.
    */
   DWORD state (ACE_Time_Value *wait_hint = 0);
+
   /// A version of <state> that returns -1 for failure, 0 for success.
   /// The DWORD pointed to by pstate receives the state value.
   int state (DWORD *pstate, ACE_Time_Value *wait_hint = 0);
+
   /**
    * Test access to the object's service in the SCM.  The service must
    * already have been inserted in the SCM database.  This function
@@ -274,16 +315,20 @@ public:
    * ACE_OS::last_error to get the specific error indication.
    */
   int test_access (DWORD desired_access = SERVICE_ALL_ACCESS);
+
   /// Declare the dynamic allocation hooks.
   ACE_ALLOC_HOOK_DECLARE;
+
 protected:
   int report_status (DWORD new_status, DWORD time_hint = 0);
+
   /**
    * Return the svc_sc_handle_ member. If the member is null, it
    * retrieves the handle from the Service Control Manager and caches
    * it.
    */
   SC_HANDLE svc_sc_handle (void);
+
   /**
    * Waits for the service to reach <desired_state> or get
    * (apparently) stuck before it reaches that state.  Will wait at
@@ -294,29 +339,38 @@ protected:
    */
   void wait_for_service_state (DWORD desired_state,
                                ACE_Time_Value *wait_time);
+
   /// Called by <handle_control> when a stop/shutdown was requested.
   virtual void stop_requested (DWORD control_code);
+
   /// Called by <handle_control> when a pause was requested.
   virtual void pause_requested (DWORD control_code);
+
   /// Called by <handle_control> when a continue was requested.
   virtual void continue_requested (DWORD control_code);
+
   /// Called by <handle_control> when a interrogate was requested.
   virtual void interrogate_requested (DWORD control_code);
+
 protected:
   /// Estimate of init time needed
   DWORD start_time_;
   /// Service handle - doesn't need close.
   SERVICE_STATUS_HANDLE svc_handle_;
   SERVICE_STATUS svc_status_;
+
   /// Service's SCM handle
   SC_HANDLE svc_sc_handle_;
   ACE_TCHAR *name_;
   ACE_TCHAR *desc_;
   ACE_TCHAR *host_;
+
   /// ACE_Log_Msg attributes to inherit from the starting thread.
   ACE_OS_Log_Msg_Attributes  log_msg_attributes_;
 };
+
 ACE_END_VERSIONED_NAMESPACE_DECL
+
 // These macros help to get things set up correctly at compile time
 // and to take most of the grudge work out of creating the proper
 // functions and doing the registrations.
@@ -324,6 +378,7 @@ ACE_END_VERSIONED_NAMESPACE_DECL
 // ACE_NT_SERVICE_DEFINE - defines the 'ServiceMain' function which NT will
 //                         call in its own thread when the service control
 //                         dispatcher starts.
+
 #define ACE_NT_SERVICE_DEFINE(SVCNAME, SVCCLASS, SVCDESC)                   \
   ACE_NT_Service * _ace_nt_svc_obj_##SVCNAME = 0;                           \
   VOID WINAPI ace_nt_svc_handler_##SVCNAME (DWORD fdwControl) {             \
@@ -353,12 +408,15 @@ ACE_END_VERSIONED_NAMESPACE_DECL
     }                                                                       \
     return;                                                                 \
   }
+
 #define ACE_NT_SERVICE_REFERENCE(SVCNAME)                                  \
 extern ACE_NT_Service * _ace_nt_svc_obj_##SVCNAME;                         \
 extern VOID WINAPI ace_nt_svc_main_##SVCNAME (DWORD dwArgc,                \
                                               ACE_TCHAR **lpszArgv);
+
 #define ACE_NT_SERVICE_ENTRY(SVCDESC, SVCNAME)                             \
                       { SVCDESC, &ace_nt_svc_main_##SVCNAME }
+
 #define ACE_NT_SERVICE_RUN(SVCNAME, SVCINSTANCE, RET)                      \
   ACE_TEXT_SERVICE_TABLE_ENTRY _ace_nt_svc_table[2] =                      \
   {                                                                        \
@@ -369,10 +427,14 @@ extern VOID WINAPI ace_nt_svc_main_##SVCNAME (DWORD dwArgc,                \
   _ace_nt_svc_obj_##SVCNAME->capture_log_msg_attributes ();                \
   ACE_OS::last_error (0);                                                  \
   int RET = ACE_TEXT_StartServiceCtrlDispatcher(_ace_nt_svc_table);
+
 #if defined (__ACE_INLINE__)
 #include "ace/NT_Service.inl"
 #endif /* __ACE_INLINE__ */
+
 #endif /* ACE_WIN32 && !ACE_LACKS_WIN32_SERVICES */
+
 #include /**/ "ace/post.h"
+
 #endif /* ACE_SERVICE_OBJECT_H */
 

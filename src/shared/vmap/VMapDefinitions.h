@@ -17,19 +17,23 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
+
 #ifndef _VMAPDEFINITIONS_H
 #define _VMAPDEFINITIONS_H
 #include <cstring>
+
 namespace VMAP
 {
     //=====================================
     #define MAX_CAN_FALL_DISTANCE 10.0
     const char VMAP_MAGIC[] = "VMAP_2.0";
+
     class VMapDefinitions
     {
         public:
             static const double getMaxCanFallDistance() { return(MAX_CAN_FALL_DISTANCE); }
     };
+
     //======================================
 }
 #endif

@@ -15,16 +15,21 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
+
 #ifndef DEF_UTGARDE_KEEP_H
 #define DEF_UTGARDE_KEEP_H
+
 #define DATA_PRINCEKELESETH             1
 #define DATA_SKARVALD                   3
 #define DATA_DALRONN                    4
 #define DATA_INGVAR                     6
+
 #define DATA_PRINCEKELESETH_EVENT       2
 #define DATA_SKARVALD_DALRONN_EVENT     5
 #define DATA_INGVAR_EVENT               7
+
 #define EVENT_FORGE_1                   8
 #define EVENT_FORGE_2                   9
 #define EVENT_FORGE_3                   10
+
 #endif

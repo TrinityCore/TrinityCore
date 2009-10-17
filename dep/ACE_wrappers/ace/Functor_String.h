@@ -1,4 +1,5 @@
 // -*- C++ -*-
+
 //==========================================================================
 /**
  *  @file    Functor_String.h
@@ -15,22 +16,29 @@
 #ifndef ACE_FUNCTOR_STRING_H
 #define ACE_FUNCTOR_STRING_H
 #include /**/ "ace/pre.h"
+
 #include /**/ "ace/config-all.h"
+
 #if !defined (ACE_LACKS_PRAGMA_ONCE)
 # pragma once
 #endif /* ACE_LACKS_PRAGMA_ONCE */
+
 #include /**/ "ace/ACE_export.h"
 #include "ace/SStringfwd.h"
+
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
+
 ////////////////////////////////////////////////////////////
 // STL-style Functor Classes and Template Specializations //
 ////////////////////////////////////////////////////////////
+
 // Forward declaration since we are going to specialize that template
 // here. The template itself requires this file so every user of the
 // template should also see the specialization.
 template <class TYPE> class ACE_Hash;
 template <class TYPE> class ACE_Equal_To;
 template <class TYPE> class ACE_Less_Than;
+
 /**
  * @class ACE_Equal_To<ACE_CString>
  *
@@ -45,6 +53,7 @@ public:
                    const ACE_CString &rhs) const;
 };
 
+
 /**
  * @class ACE_Hash<ACE_CString>
  *
@@ -57,6 +66,7 @@ public:
   /// Calls ACE::hash_pjw
   unsigned long operator () (const ACE_CString &lhs) const;
 };
+
 
 /**
  * @class ACE_Less_Than<ACE_CString>
@@ -73,7 +83,9 @@ public:
                    const ACE_CString &rhs) const;
 };
 
+
 #if defined (ACE_USES_WCHAR)
+
 /**
  * @class ACE_Equal_To<ACE_WString>
  *
@@ -88,6 +100,7 @@ public:
                    const ACE_WString &rhs) const;
 };
 
+
 /**
  * @class ACE_Hash<ACE_WString>
  *
@@ -100,6 +113,7 @@ public:
   /// Calls ACE::hash_pjw
   unsigned long operator () (const ACE_WString &lhs) const;
 };
+
 /**
  * @class ACE_Less_Than<ACE_WString>
  *
@@ -114,11 +128,15 @@ public:
   int operator () (const ACE_WString &lhs,
                    const ACE_WString &rhs) const;
 };
+
 #endif /*ACE_USES_WCHAR*/
+
 ACE_END_VERSIONED_NAMESPACE_DECL
+
 #if defined (__ACE_INLINE__)
 #include "ace/Functor_String.inl"
 #endif /* __ACE_INLINE__ */
+
 #include /**/ "ace/post.h"
 #endif /*ACE_FUNCTOR_STRING_H*/
 

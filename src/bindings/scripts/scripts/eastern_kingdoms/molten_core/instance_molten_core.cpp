@@ -13,15 +13,19 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
+
 /* ScriptData
 SDName: Instance_Molten_Core
 SD%Complete: 0
 SDComment: Place Holder
 SDCategory: Molten Core
 EndScriptData */
+
 #include "precompiled.h"
 #include "def_molten_core.h"
+
 #define MAX_ENCOUNTER      9
+
 #define ID_LUCIFRON     12118
 #define ID_MAGMADAR     11982
 #define ID_GEHENNAS     12259
@@ -33,17 +37,23 @@ EndScriptData */
 #define ID_DOMO         12018
 #define ID_RAGNAROS     11502
 #define ID_FLAMEWAKERPRIEST     11662
+
 struct TRINITY_DLL_DECL instance_molten_core : public ScriptedInstance
 {
     instance_molten_core(Map* pMap) : ScriptedInstance(pMap) {Initialize();};
+
     uint64 Lucifron, Magmadar, Gehennas, Garr, Geddon, Shazzrah, Sulfuron, Golemagg, Domo, Ragnaros, FlamewakerPriest;
     uint64 RuneKoro, RuneZeth, RuneMazj, RuneTheri, RuneBlaz, RuneKress, RuneMohn, m_uiFirelordCacheGUID;;
+
     //If all Bosses are dead.
     bool IsBossDied[9];
+
     uint32 m_auiEncounter[MAX_ENCOUNTER];
+
     void Initialize()
     {
         memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
+
         Lucifron = 0;
         Magmadar = 0;
         Gehennas = 0;
@@ -55,6 +65,7 @@ struct TRINITY_DLL_DECL instance_molten_core : public ScriptedInstance
         Domo = 0;
         Ragnaros = 0;
         FlamewakerPriest = 0;
+
         RuneKoro = 0;
         RuneZeth = 0;
         RuneMazj = 0;
@@ -62,7 +73,9 @@ struct TRINITY_DLL_DECL instance_molten_core : public ScriptedInstance
         RuneBlaz = 0;
         RuneKress = 0;
         RuneMohn = 0;
+
         m_uiFirelordCacheGUID = 0;
+
         IsBossDied[0] = false;
         IsBossDied[1] = false;
         IsBossDied[2] = false;
@@ -70,13 +83,16 @@ struct TRINITY_DLL_DECL instance_molten_core : public ScriptedInstance
         IsBossDied[4] = false;
         IsBossDied[5] = false;
         IsBossDied[6] = false;
+
         IsBossDied[7] = false;
         IsBossDied[8] = false;
     }
+
     bool IsEncounterInProgress() const
     {
         return false;
     };
+
 
     void OnGameObjectCreate(GameObject* pGo, bool add)
     {
@@ -109,6 +125,7 @@ struct TRINITY_DLL_DECL instance_molten_core : public ScriptedInstance
         }
     }
 
+
     void OnCreatureCreate(Creature* pCreature, bool add)
     {
         switch (pCreature->GetEntry())
@@ -116,38 +133,49 @@ struct TRINITY_DLL_DECL instance_molten_core : public ScriptedInstance
             case ID_LUCIFRON:
                 Lucifron = pCreature->GetGUID();
                 break;
+
             case ID_MAGMADAR:
                 Magmadar = pCreature->GetGUID();
                 break;
+
             case ID_GEHENNAS:
                 Gehennas = pCreature->GetGUID();
                 break;
+
             case ID_GARR:
                 Garr = pCreature->GetGUID();
                 break;
+
             case ID_GEDDON:
                 Geddon = pCreature->GetGUID();
                 break;
+
             case ID_SHAZZRAH:
                 Shazzrah = pCreature->GetGUID();
                 break;
+
             case ID_SULFURON:
                 Sulfuron = pCreature->GetGUID();
                 break;
+
             case ID_GOLEMAGG:
                 Golemagg = pCreature->GetGUID();
                 break;
+
             case ID_DOMO:
                 Domo = pCreature->GetGUID();
                 break;
+
             case ID_RAGNAROS:
                 Ragnaros = pCreature->GetGUID();
                 break;
+
             case ID_FLAMEWAKERPRIEST:
                 FlamewakerPriest = pCreature->GetGUID();
                 break;
         }
     }
+
     uint64 GetData64 (uint32 identifier)
     {
         switch(identifier)
@@ -156,11 +184,14 @@ struct TRINITY_DLL_DECL instance_molten_core : public ScriptedInstance
                 return Sulfuron;
             case DATA_GOLEMAGG:
                 return Golemagg;
+
             case DATA_FLAMEWAKERPRIEST:
                 return FlamewakerPriest;
         }
+
         return 0;
     }
+
     uint32 GetData(uint32 type)
     {
         switch(type)
@@ -169,51 +200,63 @@ struct TRINITY_DLL_DECL instance_molten_core : public ScriptedInstance
                 if (IsBossDied[0])
                     return 1;
                 break;
+
             case DATA_MAGMADARISDEAD:
                 if (IsBossDied[1])
                     return 1;
                 break;
+
             case DATA_GEHENNASISDEAD:
                 if (IsBossDied[2])
                     return 1;
                 break;
+
             case DATA_GARRISDEAD:
                 if (IsBossDied[3])
                     return 1;
                 break;
+
             case DATA_GEDDONISDEAD:
                 if (IsBossDied[4])
                     return 1;
                 break;
+
             case DATA_SHAZZRAHISDEAD:
                 if (IsBossDied[5])
                     return 1;
                 break;
+
             case DATA_SULFURONISDEAD:
                 if (IsBossDied[6])
                     return 1;
                 break;
+
             case DATA_GOLEMAGGISDEAD:
                 if (IsBossDied[7])
                     return 1;
                 break;
+
             case DATA_MAJORDOMOISDEAD:
                 if (IsBossDied[8])
                     return 1;
                 break;
         }
+
         return 0;
     }
+
     void SetData(uint32 type, uint32 data)
     {
         if (type == DATA_GOLEMAGG_DEATH)
             IsBossDied[7] = true;
     }
 };
+
 InstanceData* GetInstance_instance_molten_core(Map* pMap)
 {
     return new instance_molten_core (pMap);
 }
+
 void AddSC_instance_molten_core()
 {
     Script *newscript;

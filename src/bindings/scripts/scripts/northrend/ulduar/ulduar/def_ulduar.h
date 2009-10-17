@@ -15,11 +15,14 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
+
 #ifndef DEF_ULDUAR_H
 #define DEF_ULDUAR_H
+
 enum eTypes
 {
     MAX_ENCOUNTER               = 14,
+
     TYPE_LEVIATHAN              = 0,
     TYPE_IGNIS                  = 1,
     TYPE_RAZORSCALE             = 2,
@@ -34,11 +37,13 @@ enum eTypes
     TYPE_VEZAX                  = 11,
     TYPE_YOGGSARON              = 12,
     TYPE_ALGALON                = 13,
+
     DATA_STEELBREAKER           = 20,
     DATA_MOLGEIM                = 21,
     DATA_BRUNDIR                = 22,
     DATA_RUNEMASTER_MOLGEIM     = 23,
     DATA_STORMCALLER_BRUNDIR    = 24,
+
     NPC_LEVIATHAN               = 33113,
     NPC_IGNIS                   = 33118,
     NPC_RAZORSCALE              = 33186,
@@ -56,4 +61,5 @@ enum eTypes
     NPC_YOGGSARON               = 33288,
     NPC_ALGALON                 = 32871
 };
+
 #endif
