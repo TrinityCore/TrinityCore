@@ -4135,13 +4135,13 @@ void Unit::RemoveAllAuras()
 
 void Unit::RemoveAllAuras(uint64 casterGUID, Aura * except /*=NULL*/, bool negative /*=true*/, bool positive /*=true*/)
 {
-    AuraMap::iterator iter = m_Auras.begin();
-    while (!m_Auras.empty())
+    for(AuraMap::iterator iter = m_Auras.begin(); iter != m_Auras.end();)
     {
-        Aura * aur = (*iter).second;
-        if (aur != except && (!casterGUID || aur->GetCasterGUID()==casterGUID)
-            && ((negative && !aur->IsPositive()) || (positive && aur->IsPositive())))
-            RemoveAura(aur);
+        if (iter->second != except && (!casterGUID || iter->second->GetCasterGUID()==casterGUID)
+            && ((negative && !iter->second->IsPositive()) || (positive && iter->second->IsPositive())))
+            RemoveAura(iter);
+        else
+            ++iter;
     }
 }
 

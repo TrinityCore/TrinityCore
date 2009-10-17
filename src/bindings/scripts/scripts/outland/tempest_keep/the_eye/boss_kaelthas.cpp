@@ -1478,7 +1478,7 @@ void AddSC_boss_kaelthas()
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name =  "mob_kael_flamestrike";
+    newscript->Name = "mob_kael_flamestrike";
     newscript->GetAI = &GetAI_mob_kael_flamestrike;
     newscript->RegisterSelf();
 

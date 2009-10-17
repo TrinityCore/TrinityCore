@@ -654,7 +654,7 @@ void AddSC_terokkar_forest()
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name =  "npc_isla_starmane";
+    newscript->Name = "npc_isla_starmane";
     newscript->GetAI = &GetAI_npc_isla_starmaneAI;
     newscript->pQuestAccept = &QuestAccept_npc_isla_starmane;
     newscript->RegisterSelf();
