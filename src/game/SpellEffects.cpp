@@ -516,8 +516,8 @@ void Spell::SpellDamageSchoolDmg(uint32 effect_idx)
                 // Shadow Word: Death - deals damage equal to damage done to caster
                 if ((m_spellInfo->SpellFamilyFlags[1] & 0x2 ))
                 {
-                    uint32 back_damage = uint32(damage + m_caster->SpellDamageBonus(unitTarget, m_spellInfo, (uint32)damage, SPELL_DIRECT_DAMAGE));
-                    if(back_damage >= unitTarget->GetHealth())
+                    int32 back_damage = int32(damage + m_caster->SpellDamageBonus(unitTarget, m_spellInfo, (uint32)damage, SPELL_DIRECT_DAMAGE));
+                    if(back_damage < unitTarget->GetHealth())
                         m_caster->CastCustomSpell(m_caster, 32409, &back_damage, 0, 0, true);
                 }
                 break;
