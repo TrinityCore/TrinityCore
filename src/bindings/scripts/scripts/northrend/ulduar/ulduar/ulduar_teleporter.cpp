@@ -71,7 +71,7 @@ bool GOSelect_ulduar_teleporter( Player *pPlayer, GameObject *pGO, uint32 sender
         pPlayer->TeleportTo(603, 1498.09, -24.246, 420.967, 0);
         pPlayer->CLOSE_GOSSIP_MENU(); break;
     case WALKWAY:
-        pPlayer->TeleportTo(603, 1859.45, -24.1, 448.9, 0); 
+        pPlayer->TeleportTo(603, 1859.45, -24.1, 448.9, 0);
         pPlayer->CLOSE_GOSSIP_MENU(); break;
     case CONSERVATORY:
         pPlayer->TeleportTo(603, 2086.27, -24.3134, 421.239, 0);

@@ -76,19 +76,19 @@ struct TRINITY_DLL_DECL boss_volazjAI : public ScriptedAI
         uiMindFlayTimer = 8000;
         uiShadowBoltVolleyTimer = 5000;
         uiShiverTimer = 15000;
-        
+
         if (pInstance)
             pInstance->SetData(DATA_HERALD_VOLAZJ, NOT_STARTED);
     }
-    
+
     void EnterCombat(Unit* who)
     {
         DoScriptText(SAY_AGGRO, m_creature);
-        
+
         if (pInstance)
             pInstance->SetData(DATA_HERALD_VOLAZJ, IN_PROGRESS);
     }
-    
+
     void UpdateAI(const uint32 diff)
     {
         //Return since we have no target
@@ -98,22 +98,22 @@ struct TRINITY_DLL_DECL boss_volazjAI : public ScriptedAI
         if (uiMindFlayTimer < diff)
         {
             DoCast(m_creature->getVictim(), HEROIC(SPELL_MIND_FLAY, H_SPELL_MIND_FLAY));
-            uiMindFlayTimer = 20000; 
+            uiMindFlayTimer = 20000;
         } else uiMindFlayTimer -= diff;
-        
+
         if (uiShadowBoltVolleyTimer < diff)
         {
             DoCast(m_creature->getVictim(), HEROIC(SPELL_SHADOW_BOLT_VOLLEY, H_SPELL_SHADOW_BOLT_VOLLEY));
             uiShadowBoltVolleyTimer = 5000;
         } else uiShadowBoltVolleyTimer -= diff;
-        
+
         if (uiShiverTimer < diff)
         {
             if (Unit * target = SelectUnit(SELECT_TARGET_RANDOM, 0))
                 DoCast(target, HEROIC(SPELL_SHIVER, H_SPELL_SHIVER));
             uiShiverTimer = 15000;
         } else uiShiverTimer -= diff;
-        
+
         uiEncounterTimer += diff;
 
         DoMeleeAttackIfReady();
@@ -121,13 +121,13 @@ struct TRINITY_DLL_DECL boss_volazjAI : public ScriptedAI
     void JustDied(Unit* killer)
     {
         DoScriptText(SAY_DEATH_1, m_creature);
-        
+
         if (pInstance)
             pInstance->SetData(DATA_HERALD_VOLAZJ, DONE);
-        
+
         AchievementEntry const *AchievQuickDemise = GetAchievementStore()->LookupEntry(ACHIEVEMENT_QUICK_DEMISE);
         Map* pMap = m_creature->GetMap();
-        
+
         if (HeroicMode && uiEncounterTimer < 120000 && pMap && pMap->IsDungeon() && AchievQuickDemise)
         {
             Map::PlayerList const &players = pMap->GetPlayers();

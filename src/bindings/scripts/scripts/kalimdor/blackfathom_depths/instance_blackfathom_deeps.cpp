@@ -128,7 +128,7 @@ struct TRINITY_DLL_DECL instance_blackfathom_deeps : public ScriptedInstance
 
         return 0;
     }
-    
+
     void CheckFires()
     {
         GameObject *pShrine1 = instance->GetGameObject(m_uiShrine1GUID);
@@ -151,7 +151,7 @@ InstanceData* GetInstanceData_instance_blackfathom_deeps(Map* pMap)
 bool GoHello_fire(Player *pPlayer, GameObject* pGo)
 {
     ScriptedInstance *pInstance = pGo->GetInstanceData();
-    
+
     if (pInstance)
     {
         pGo->SetGoState(GO_STATE_ACTIVE);
@@ -167,7 +167,7 @@ void AddSC_instance_blackfathom_deeps()
     newscript->Name = "instance_blackfathom_deeps";
     newscript->GetInstanceData = &GetInstanceData_instance_blackfathom_deeps;
     newscript->RegisterSelf();
-    
+
     newscript = new Script;
     newscript->Name = "go_blackfathom_fire";
     newscript->pGOHello = &GoHello_fire;

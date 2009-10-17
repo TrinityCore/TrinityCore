@@ -286,7 +286,7 @@ struct TRINITY_DLL_DECL boss_flame_leviathan_overload_deviceAI : public PassiveA
                     if(Unit *leviathan = me->GetVehicleBase()->GetVehicleBase())
                         player->GetMotionMaster()->MoveKnockbackFrom(leviathan->GetPositionX(), leviathan->GetPositionY(), 30, 30);
                 }
-            }                    
+            }
         }
     }
 };
@@ -387,7 +387,7 @@ void AddSC_boss_flame_leviathan()
     newscript = new Script;
     newscript->Name = "boss_flame_leviathan_safety_container";
     newscript->GetAI = &GetAI_boss_flame_leviathan_safety_containerAI;
-    newscript->RegisterSelf();  
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name = "spell_pool_of_tar";

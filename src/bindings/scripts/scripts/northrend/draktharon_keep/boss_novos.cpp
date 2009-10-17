@@ -68,16 +68,16 @@ struct TRINITY_DLL_DECL boss_novosAI : public Scripted_NoMovementAI
         pInstance = c->GetInstanceData();
         Reset();
     }
-    
+
     uint32 uiTimer;
     uint32 uiCrystalHandlerTimer;
-    
+
     bool bAchiev;
-    
+
     std::list<uint64> luiCrystals;
-    
+
     CombatPhase Phase;
-    
+
     ScriptedInstance* pInstance;
 
     void Reset()
@@ -99,7 +99,7 @@ struct TRINITY_DLL_DECL boss_novosAI : public Scripted_NoMovementAI
             }
         }
     }
-    
+
     void EnterCombat(Unit* who)
     {
         DoScriptText(SAY_AGGRO, m_creature);
@@ -120,7 +120,7 @@ struct TRINITY_DLL_DECL boss_novosAI : public Scripted_NoMovementAI
         m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
         m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
     }
-    
+
     void UpdateAI(const uint32 diff)
     {
         switch (Phase)
@@ -160,7 +160,7 @@ struct TRINITY_DLL_DECL boss_novosAI : public Scripted_NoMovementAI
     {
         if (pInstance)
             pInstance->SetData(DATA_NOVOS_EVENT, DONE);
-        
+
         if (HeroicMode && bAchiev)
         {
             AchievementEntry const *AchievOhNovos = GetAchievementStore()->LookupEntry(ACHIEVEMENT_OH_NOVOS);
@@ -176,14 +176,14 @@ struct TRINITY_DLL_DECL boss_novosAI : public Scripted_NoMovementAI
             }
         }
     }
-    
+
     void KilledUnit(Unit *victim)
     {
         if (victim == m_creature)
             return;
         DoScriptText(SAY_KILL, m_creature);
     }
-    
+
     void RemoveCrystal()
     {
         if (!luiCrystals.empty())
@@ -211,9 +211,9 @@ struct TRINITY_DLL_DECL mob_crystal_handlerAI : public ScriptedAI
     {
         pInstance = c->GetInstanceData();
     }
-    
+
     ScriptedInstance *pInstance;
-    
+
     void JustDied(Unit* killer)
     {
         if (Creature* pNovos = Unit::GetCreature(*m_creature, pInstance ? pInstance->GetData64(DATA_NOVOS) : 0))
@@ -227,9 +227,9 @@ struct TRINITY_DLL_DECL mob_novos_minionAI : public ScriptedAI
     {
         pInstance = c->GetInstanceData();
     }
-    
+
     ScriptedInstance *pInstance;
-    
+
     void MovementInform(uint32 type, uint32 id)
     {
         if(type != POINT_MOTION_TYPE)
@@ -262,7 +262,7 @@ void AddSC_boss_novos()
     newscript->Name = "boss_novos";
     newscript->GetAI = &GetAI_boss_novos;
     newscript->RegisterSelf();
-    
+
     newscript = new Script;
     newscript->Name = "mob_crystal_handler";
     newscript->GetAI = &GetAI_mob_crystal_handler;

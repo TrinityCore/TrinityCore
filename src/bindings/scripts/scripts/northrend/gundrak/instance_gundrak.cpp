@@ -18,15 +18,15 @@ struct TRINITY_DLL_DECL instance_gundrak : public ScriptedInstance
         bHeroicMode = pMap->IsHeroic();
         Initialize();
     };
-    
+
     bool bHeroicMode;
-    
+
     uint64 uiSladRan;
     uint64 uiMoorabi;
     uint64 uiDrakkariColossus;
     uint64 uiGalDarah;
     uint64 uiEckTheFerocious;
-    
+
     uint64 uiSladRanAltar;
     uint64 uiMoorabiAltar;
     uint64 uiDrakkariColossusAltar;
@@ -38,11 +38,11 @@ struct TRINITY_DLL_DECL instance_gundrak : public ScriptedInstance
     uint64 uiGalDarahDoor2;
     uint64 uiBridge;
     uint64 uiCollision;
-    
+
     uint32 m_auiEncounter[MAX_ENCOUNTER];
-    
+
     std::string str_data;
-    
+
     void Initialize()
    {
        uiSladRan = 0;
@@ -50,25 +50,25 @@ struct TRINITY_DLL_DECL instance_gundrak : public ScriptedInstance
        uiDrakkariColossus = 0;
        uiGalDarah = 0;
        uiEckTheFerocious = 0;
-       
+
        uiSladRanAltar = 0;
        uiMoorabiAltar = 0;
        uiDrakkariColossusAltar = 0;
-       
+
        uiSladRanStatue = 0;
        uiMoorabiStatue = 0;
        uiDrakkariColossusStatue = 0;
-       
+
        uiEckTheFerociousDoor = 0;
        uiGalDarahDoor1 = 0;
        uiGalDarahDoor2 = 0;
-       
+
        uiBridge = 0;
        uiCollision = 0;
-       
+
        memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
    }
-   
+
    bool IsEncounterInProgress() const
     {
         for(uint8 i = 0; i < MAX_ENCOUNTER; ++i)
@@ -76,7 +76,7 @@ struct TRINITY_DLL_DECL instance_gundrak : public ScriptedInstance
 
         return false;
     }
-    
+
     void OnCreatureCreate(Creature* pCreature, bool add)
     {
         switch(pCreature->GetEntry())
@@ -88,7 +88,7 @@ struct TRINITY_DLL_DECL instance_gundrak : public ScriptedInstance
             case 29932: uiEckTheFerocious = pCreature->GetGUID(); break;
         }
     }
-    
+
     void OnGameObjectCreate(GameObject* pGo, bool add)
     {
         switch(pGo->GetEntry())
@@ -142,7 +142,7 @@ struct TRINITY_DLL_DECL instance_gundrak : public ScriptedInstance
                 break;
         }
     }
-    
+
     void SetData(uint32 type, uint32 data)
     {
         switch(type)
@@ -188,11 +188,11 @@ struct TRINITY_DLL_DECL instance_gundrak : public ScriptedInstance
             m_auiEncounter[4] = data;
             break;
         }
-        
+
         if (data == DONE)
             SaveToDB();
     }
-    
+
     uint32 GetData(uint32 type)
     {
         switch(type)
@@ -206,7 +206,7 @@ struct TRINITY_DLL_DECL instance_gundrak : public ScriptedInstance
 
         return 0;
     }
-    
+
     uint64 GetData64(uint32 type)
     {
         switch(type)
@@ -221,7 +221,7 @@ struct TRINITY_DLL_DECL instance_gundrak : public ScriptedInstance
 
         return 0;
     }
-    
+
     std::string GetSaveData()
     {
         OUT_SAVE_INST_DATA;
@@ -235,7 +235,7 @@ struct TRINITY_DLL_DECL instance_gundrak : public ScriptedInstance
         OUT_SAVE_INST_DATA_COMPLETE;
         return str_data;
     }
-    
+
     void Load(const char* in)
     {
         if (!in)
@@ -267,13 +267,13 @@ struct TRINITY_DLL_DECL instance_gundrak : public ScriptedInstance
 
         OUT_LOAD_INST_DATA_COMPLETE;
     }
-    
+
     void CheckAltars()
     {
         GameObject* pSladRanAltar = instance->GetGameObject(uiSladRanAltar);
         GameObject* pMoorabiAltar = instance->GetGameObject(uiMoorabiAltar);
         GameObject* pDrakkariColossusAltar = instance->GetGameObject(uiDrakkariColossusAltar);
-        
+
         if (pSladRanAltar && pSladRanAltar->GetGoState() == GO_STATE_ACTIVE &&
             pMoorabiAltar && pMoorabiAltar->GetGoState() == GO_STATE_ACTIVE &&
             pDrakkariColossusAltar && pDrakkariColossusAltar->GetGoState() == GO_STATE_ACTIVE)
@@ -288,10 +288,10 @@ bool GOHello_altar(Player *pPlayer, GameObject *pGO)
 {
     ScriptedInstance *pInstance = pGO->GetInstanceData();
     uint32 uiStatue;
-    
+
     pGO->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_UNK1);
     pGO->SetGoState(GO_STATE_ACTIVE);
-    
+
     if (pInstance)
     {
         switch(pGO->GetEntry())
@@ -319,7 +319,7 @@ void AddSC_instance_gundrak()
     newscript->Name = "instance_gundrak";
     newscript->GetInstanceData = &GetInstanceData_instance_gundrak;
     newscript->RegisterSelf();
-    
+
     newscript = new Script;
     newscript->Name = "go_gundrak_altar";
     newscript->pGOHello = &GOHello_altar;

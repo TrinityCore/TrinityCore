@@ -44,7 +44,7 @@ struct TRINITY_DLL_DECL instance_black_temple : public ScriptedInstance
 
     uint32 m_auiEncounter[MAX_ENCOUNTER];
     std::string str_data;
-    
+
     uint64 Najentus;
     uint64 Akama;                                           // This is the Akama that starts the Illidan encounter.
     uint64 Akama_Shade;                                     // This is the Akama that starts the Shade of Akama encounter.

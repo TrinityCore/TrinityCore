@@ -51,17 +51,17 @@ struct TRINITY_DLL_DECL boss_ichoronAI : public ScriptedAI
     {
         pInstance = c->GetInstanceData();
     }
-    
+
     CombatPhase Phase;
-    
+
     ScriptedInstance* pInstance;
 
     void Reset()
     {
         Phase = BUBBLED;
-        
+
         DoCast(m_creature, SPELL_PROTECTIVE_BUBBLE);
-        
+
         if (pInstance)
         {
             if (pInstance->GetData(DATA_WAVE_COUNT) == 6)
@@ -73,7 +73,7 @@ struct TRINITY_DLL_DECL boss_ichoronAI : public ScriptedAI
     void EnterCombat(Unit* who)
     {
         DoScriptText(SAY_AGGRO, m_creature);
-        
+
         if (pInstance)
         {
             if (pInstance->GetData(DATA_WAVE_COUNT) == 6)
@@ -82,7 +82,7 @@ struct TRINITY_DLL_DECL boss_ichoronAI : public ScriptedAI
                 pInstance->SetData(DATA_2ND_BOSS_EVENT, IN_PROGRESS);
         }
     }
-    
+
     void UpdateAI(const uint32 diff)
     {
         //Return since we have no target
@@ -91,11 +91,11 @@ struct TRINITY_DLL_DECL boss_ichoronAI : public ScriptedAI
 
         DoMeleeAttackIfReady();
     }
-    
+
     void JustDied(Unit* killer)
     {
         DoScriptText(SAY_DEATH, m_creature);
-        
+
         if (pInstance)
         {
             if (pInstance->GetData(DATA_WAVE_COUNT) == 6)
@@ -110,7 +110,7 @@ struct TRINITY_DLL_DECL boss_ichoronAI : public ScriptedAI
             }
         }
     }
-    
+
     void KilledUnit(Unit *victim)
     {
         if (victim == m_creature)

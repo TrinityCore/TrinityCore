@@ -40,7 +40,7 @@ struct TRINITY_DLL_DECL boss_anubrekhanAI : public BossAI
     void Prepare()
     {
         HasTaunted = false;
-        
+
         if (HeroicMode)
         {
             DoSpawnCreature(MOB_CRYPT_GUARD, 0, -10, 0, me->GetOrientation(), TEMPSUMMON_CORPSE_TIMED_DESPAWN, 60000);

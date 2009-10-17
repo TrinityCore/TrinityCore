@@ -697,11 +697,11 @@ void AddScripts()
     AddSC_boss_drakkari_colossus();
     AddSC_boss_gal_darah();
     AddSC_boss_eck();
-    AddSC_instance_gundrak();           
+    AddSC_instance_gundrak();
     AddSC_boss_taldaram();              //Azjol-Nerub Ahn'kahet
     AddSC_boss_elder_nadox();
     AddSC_boss_volazj();
-    AddSC_instance_ahnkahet();          
+    AddSC_instance_ahnkahet();
     AddSC_boss_krik_thir();             //Azjol-Nerub Azjol-Nerub
     AddSC_instance_azjol_nerub();
     AddSC_boss_anubrekhan();            //Naxxramas

@@ -606,7 +606,7 @@ struct TRINITY_DLL_DECL npc_maghar_captiveAI : public npc_escortAI
         pSummoned->RemoveUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
         pSummoned->GetMotionMaster()->MovePoint(0, m_creature->GetPositionX(), m_creature->GetPositionY(), m_creature->GetPositionZ());
         pSummoned->AI()->AttackStart(m_creature);
-    
+
     }
 
     void SpellHitTarget(Unit* pTarget, const SpellEntry* pSpell)

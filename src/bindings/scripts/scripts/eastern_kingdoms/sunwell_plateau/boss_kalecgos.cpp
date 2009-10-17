@@ -236,7 +236,7 @@ struct TRINITY_DLL_DECL boss_kalecgosAI : public ScriptedAI
                     JustReseted = false;
                 }else ResetTimer -= diff;
                 return;
-            }    
+            }
             if (!UpdateVictim())
                 return;
 
@@ -316,8 +316,8 @@ struct TRINITY_DLL_DECL boss_kalecgosAI : public ScriptedAI
                 if((*i))
                 {
                     (*i)->CastSpell((*i), SPELL_SPECTRAL_BLAST,true);
-                    SpectralBlastTimer = 20000+rand()%5000;    
-                }else SpectralBlastTimer = 1000;                
+                    SpectralBlastTimer = 20000+rand()%5000;
+                }else SpectralBlastTimer = 1000;
             }else SpectralBlastTimer -= diff;
 
             DoMeleeAttackIfReady();
@@ -560,7 +560,7 @@ struct TRINITY_DLL_DECL boss_sathrovarrAI : public ScriptedAI
                 if (Creature *Kalecgos = Unit::GetCreature(*me, KalecgosGUID))
                     Kalecgos->AI()->EnterEvadeMode();
                     return;
-            }            
+            }
             if (HealthBelowPct(10) && !isEnraged)
             {
                 if(Creature* Kalecgos = Unit::GetCreature(*me, KalecgosGUID))
@@ -609,7 +609,7 @@ struct TRINITY_DLL_DECL boss_sathrovarrAI : public ScriptedAI
                         me->getThreatManager().modifyThreatPercent(pUnit,-100);
                     }
                 }
-            }            
+            }
             ResetThreat = 1000;
         }else ResetThreat -= diff;
 
@@ -732,7 +732,7 @@ struct TRINITY_DLL_DECL boss_kalecAI : public ScriptedAI
 bool GOkalecgos_teleporter(Player* pPlayer, GameObject* pGo)
 {
     uint32 SpectralPlayers = 0;
-    Map* pMap = pGo->GetMap();    
+    Map* pMap = pGo->GetMap();
     if (!pMap->IsDungeon()) return true;
     Map::PlayerList const &PlayerList = pMap->GetPlayers();
     for(Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)

@@ -304,10 +304,10 @@ struct TRINITY_DLL_DECL boss_terestianAI : public ScriptedAI
         {
             if(!PortalGUID[0])
                 DoCast(m_creature->getVictim(), SPELL_FIENDISH_PORTAL, false);
-            
+
             if(!PortalGUID[1])
                 DoCast(m_creature->getVictim(), SPELL_FIENDISH_PORTAL_1, false);
-            
+
             if(PortalGUID[0] && PortalGUID[1])
             {
                 if (Creature* pPortal = Unit::GetCreature(*m_creature, PortalGUID[rand()%2]))

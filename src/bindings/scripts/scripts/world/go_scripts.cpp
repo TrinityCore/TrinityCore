@@ -503,7 +503,7 @@ bool GOHello_go_matrix_punchograph(Player* pPlayer, GameObject* pGo)
     switch(pGo->GetEntry())
     {
         case MATRIX_PUNCHOGRAPH_3005_A:
-            if(pPlayer->HasItemCount(ITEM_WHITE_PUNCH_CARD, 1))    
+            if(pPlayer->HasItemCount(ITEM_WHITE_PUNCH_CARD, 1))
             {
                 pPlayer->DestroyItemCount(ITEM_WHITE_PUNCH_CARD, 1, true);
                 pPlayer->CastSpell(pPlayer,SPELL_YELLOW_PUNCH_CARD,true);

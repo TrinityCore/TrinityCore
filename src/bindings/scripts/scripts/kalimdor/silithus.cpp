@@ -800,7 +800,7 @@ struct TRINITY_DLL_DECL mob_qiraj_war_spawnAI : public ScriptedAI
     {
         Unit* target;
         Player* plr = m_creature->GetPlayer(PlayerGUID);
-        
+
         if(!Timers)
         {
             if(m_creature->GetEntry() == 15424 || m_creature->GetEntry() == 15422 || m_creature->GetEntry() == 15414) //all but Kaldorei Soldiers
@@ -850,7 +850,7 @@ struct TRINITY_DLL_DECL mob_qiraj_war_spawnAI : public ScriptedAI
             {
                 uint8 tar;
                 tar = rand()%3;
-                
+
                 if (tar == 0)
                     target = m_creature->FindNearestCreature(15422,20,true);
                 else if (tar == 1)
@@ -870,7 +870,7 @@ struct TRINITY_DLL_DECL mob_qiraj_war_spawnAI : public ScriptedAI
             hasTarget = false;
             return;
         }
-        
+
         DoMeleeAttackIfReady();
     }
 };
@@ -928,7 +928,7 @@ struct TRINITY_DLL_DECL npc_anachronos_quest_triggerAI : public ScriptedAI
             float O = SpawnLocation[locIndex + i].o;
             uint32 desptimer = WavesInfo[WaveCount].DespTimer;
             Spawn = m_creature->SummonCreature(WavesInfo[WaveCount].CreatureId, X, Y, Z, O, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, desptimer);
-            
+
             if(Spawn)
             {
                 Spawn->LoadCreaturesAddon();
@@ -1098,12 +1098,12 @@ CreatureAI* GetAI_npc_anachronos_the_ancient(Creature* c)
 void AddSC_silithus()
 {
     Script *newscript;
-    
+
     newscript = new Script;
     newscript->Name = "go_crystalline_tear";
     newscript->pGOQuestAccept = &GOQuestAccept_GO_crystalline_tear;
     newscript->RegisterSelf();
-    
+
     newscript = new Script;
     newscript->Name = "npc_anachronos_quest_trigger";
     newscript->GetAI = &GetAI_npc_anachronos_quest_trigger;

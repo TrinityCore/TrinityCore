@@ -60,7 +60,7 @@ struct TRINITY_DLL_DECL boss_tharon_jaAI : public ScriptedAI
     {
         pInstance = c->GetInstanceData();
     }
-    
+
     ScriptedInstance* pInstance;
 
     void Reset()
@@ -71,7 +71,7 @@ struct TRINITY_DLL_DECL boss_tharon_jaAI : public ScriptedAI
     void EnterCombat(Unit* who)
     {
         DoScriptText(SAY_AGGRO, m_creature);
-        
+
         if (pInstance)
             pInstance->SetData(DATA_THARON_JA_EVENT, IN_PROGRESS);
     }
@@ -85,16 +85,16 @@ struct TRINITY_DLL_DECL boss_tharon_jaAI : public ScriptedAI
 
         DoMeleeAttackIfReady();
     }
-    
+
     void KilledUnit(Unit *victim)
     {
         DoScriptText(RAND(SAY_KILL_1,SAY_KILL_2),m_creature);
     }
-    
+
     void JustDied(Unit* killer)
     {
         DoScriptText(SAY_DEATH,m_creature);
-        
+
         if (pInstance)
             pInstance->SetData(DATA_THARON_JA_EVENT, DONE);
     }

@@ -75,7 +75,7 @@ struct TRINITY_DLL_DECL boss_the_lurker_belowAI : public Scripted_NoMovementAI
             TempSpell->Effect[0] = 0;//remove all spell effect, only anim is needed
             TempSpell->Effect[1] = 0;
             TempSpell->Effect[2] = 0;
-        }        
+        }
     }
 
     ScriptedInstance* pInstance;
@@ -104,7 +104,7 @@ struct TRINITY_DLL_DECL boss_the_lurker_belowAI : public Scripted_NoMovementAI
     }
     void Reset()
     {
-        m_creature->AddUnitMovementFlag(MOVEMENTFLAG_SWIMMING + MOVEMENTFLAG_LEVITATING);        
+        m_creature->AddUnitMovementFlag(MOVEMENTFLAG_SWIMMING + MOVEMENTFLAG_LEVITATING);
         SpoutAnimTimer = 1000;
         RotTimer = 0;
         WaterboltTimer = 15000;//give time to get in range when fight starts
@@ -177,7 +177,7 @@ struct TRINITY_DLL_DECL boss_the_lurker_belowAI : public Scripted_NoMovementAI
             {
                 if(Submerged)
                 {
-                    m_creature->SetVisibility(VISIBILITY_ON);                    
+                    m_creature->SetVisibility(VISIBILITY_ON);
                     Submerged = false;
                     WaitTimer2 = 500;
                 }
@@ -186,7 +186,7 @@ struct TRINITY_DLL_DECL boss_the_lurker_belowAI : public Scripted_NoMovementAI
                     m_creature->RemoveAllAuras();
                     m_creature->RemoveFlag(UNIT_NPC_EMOTESTATE,EMOTE_STATE_SUBMERGED);
                     DoCast(m_creature,SPELL_EMERGE,false);
-                    WaitTimer2 = 60000;//never reached    
+                    WaitTimer2 = 60000;//never reached
                     WaitTimer = 3000;
                 }else WaitTimer2 -= diff;
 
@@ -197,10 +197,10 @@ struct TRINITY_DLL_DECL boss_the_lurker_belowAI : public Scripted_NoMovementAI
                     m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
                     m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 }else WaitTimer -= diff;
-            }            
+            }
             return;
         }
-        
+
 
 
         if(m_creature->getThreatManager().getThreatList().empty())//check if should evade
@@ -234,14 +234,14 @@ struct TRINITY_DLL_DECL boss_the_lurker_belowAI : public Scripted_NoMovementAI
             if (WhirlTimer < diff)
             {
                 WhirlTimer = 18000;
-                DoCast(m_creature,SPELL_WHIRL);                
+                DoCast(m_creature,SPELL_WHIRL);
             }else WhirlTimer -= diff;
 
             if(CheckTimer < diff)//check if there are players in melee range
             {
                 InRange = false;
                 Map* pMap = m_creature->GetMap();
-                Map::PlayerList const &PlayerList = pMap->GetPlayers();                
+                Map::PlayerList const &PlayerList = pMap->GetPlayers();
                 if (!PlayerList.isEmpty())
                 {
                     for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
@@ -269,7 +269,7 @@ struct TRINITY_DLL_DECL boss_the_lurker_belowAI : public Scripted_NoMovementAI
                 if(SpoutAnimTimer < diff)
                 {
                     DoCast(m_creature,SPELL_SPOUT_ANIM,true);
-                    SpoutAnimTimer = 1000;                    
+                    SpoutAnimTimer = 1000;
                 }else SpoutAnimTimer -= diff;
 
                 if(RotTimer < diff)
@@ -343,7 +343,7 @@ struct TRINITY_DLL_DECL boss_the_lurker_belowAI : public Scripted_NoMovementAI
                     else Summoned = m_creature->SummonCreature(MOB_COILFANG_GUARDIAN,AddPos[i][0],AddPos[i][1],AddPos[i][2], 0, TEMPSUMMON_CORPSE_DESPAWN, 0);
 
                     if (Summoned)
-                        Summons.Summon(Summoned);                    
+                        Summons.Summon(Summoned);
                 }
                 Spawned = true;
             }

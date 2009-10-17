@@ -84,7 +84,7 @@ struct TRINITY_DLL_DECL boss_murmurAI : public ScriptedAI
            }
         }
     }
-    
+
     void EnterCombat(Unit *who) { }
 
     // Sonic Boom instant damage (needs core fix instead of this)

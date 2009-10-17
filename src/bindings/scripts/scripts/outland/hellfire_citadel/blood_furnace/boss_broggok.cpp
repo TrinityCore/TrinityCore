@@ -27,23 +27,23 @@ EndScriptData */
 enum eEnums
 {
     SAY_AGGRO               = -1542008,
- 
+
     SPELL_SLIME_SPRAY       = 30913,
     SPELL_POISON_CLOUD      = 30916,
     SPELL_POISON_BOLT       = 30917,
- 
+
     SPELL_POISON            = 30914
 };
 
 struct TRINITY_DLL_DECL boss_broggokAI : public ScriptedAI
 {
-    boss_broggokAI(Creature *c) : ScriptedAI(c) 
+    boss_broggokAI(Creature *c) : ScriptedAI(c)
     {
         pInstance = c->GetInstanceData();
     }
 
     ScriptedInstance* pInstance;
-    
+
     uint32 AcidSpray_Timer;
     uint32 PoisonSpawn_Timer;
     uint32 PoisonBolt_Timer;
@@ -103,9 +103,9 @@ struct TRINITY_DLL_DECL boss_broggokAI : public ScriptedAI
 
         DoMeleeAttackIfReady();
     }
-    
+
     void JustDied(Unit* who)
-    {   
+    {
         if (pInstance)
         {
             pInstance->HandleGameObject(pInstance->GetData64(DATA_DOOR4), true);
@@ -113,7 +113,7 @@ struct TRINITY_DLL_DECL boss_broggokAI : public ScriptedAI
             pInstance->SetData(TYPE_BROGGOK_EVENT, DONE);
         }
     }
-    
+
 };
 
 CreatureAI* GetAI_boss_broggok(Creature* pCreature)

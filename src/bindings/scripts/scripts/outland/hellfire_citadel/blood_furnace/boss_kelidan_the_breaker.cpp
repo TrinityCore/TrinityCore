@@ -42,13 +42,13 @@ enum eKelidan
 
     SPELL_CORRUPTION            = 30938,
     SPELL_EVOCATION             = 30935,
- 
+
     SPELL_FIRE_NOVA             = 33132,
     H_SPELL_FIRE_NOVA           = 37371,
- 
+
     SPELL_SHADOW_BOLT_VOLLEY    = 28599,
     H_SPELL_SHADOW_BOLT_VOLLEY  = 40070,
- 
+
     SPELL_BURNING_NOVA          = 30940,
     SPELL_VORTEX                = 37370,
 
@@ -99,7 +99,7 @@ struct TRINITY_DLL_DECL boss_kelidan_the_breakerAI : public ScriptedAI
         if (pInstance)
             pInstance->SetData(TYPE_KELIDAN_THE_BREAKER_EVENT, NOT_STARTED);
     }
-   
+
     void EnterCombat(Unit *who)
     {
         DoScriptText(SAY_WAKE, m_creature);
@@ -180,7 +180,7 @@ struct TRINITY_DLL_DECL boss_kelidan_the_breakerAI : public ScriptedAI
 
         if (!pInstance)
             return;
-            
+
         pInstance->SetData(TYPE_KELIDAN_THE_BREAKER_EVENT, DONE);
         pInstance->HandleGameObject(pInstance->GetData64(DATA_DOOR1), true);
         pInstance->HandleGameObject(pInstance->GetData64(DATA_DOOR6), true);
@@ -252,7 +252,7 @@ struct TRINITY_DLL_DECL boss_kelidan_the_breakerAI : public ScriptedAI
 
         DoMeleeAttackIfReady();
     }
-    
+
 };
 
 CreatureAI* GetAI_boss_kelidan_the_breaker(Creature* pCreature)
@@ -268,7 +268,7 @@ enum eShadowmoon
 {
     SPELL_SHADOW_BOLT       = 12739,
     H_SPELL_SHADOW_BOLT     = 15472,
- 
+
     SPELL_MARK_OF_SHADOW    = 30937,
     SPELL_CHANNELING        = 39123
 };

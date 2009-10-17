@@ -765,7 +765,7 @@ struct TRINITY_DLL_DECL npc_scarlet_ghoulAI : public ScriptedAI
                 }
             }
         }
- 
+
         if (!UpdateVictim())
             return;
 

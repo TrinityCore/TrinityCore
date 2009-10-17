@@ -38,21 +38,21 @@ struct TRINITY_DLL_DECL npc_teleportation_portalAI : public ScriptedAI
     {
         pInstance = c->GetInstanceData();
     }
-    
+
     uint32 uiDespawnTimer;
     uint32 uiSpawnTimer;
 
     ScriptedInstance *pInstance;
-    
+
     void reset()
     {
         uiDespawnTimer = NEXT_WAVE_TIME;
         uiSpawnTimer = 500;
     }
-    
+
     void EnterCombat(Unit *who) {}
     void MoveInLineOfSight(Unit *who) {}
-    
+
     void UpdateAI(const uint32 diff)
     {
         if (uiSpawnTimer < diff)
@@ -71,7 +71,7 @@ struct TRINITY_DLL_DECL npc_teleportation_portalAI : public ScriptedAI
             m_creature->DisappearAndDie();
         } else uiDespawnTimer -= diff;
     }
-    
+
     void JustDied(Unit* killer)
     {
         if (pInstance)
@@ -93,7 +93,7 @@ void AddSC_violet_hold()
     newscript->pGossipHello = &GossipHello_npc_sinclari;
     newscript->pGossipSelect = &GossipSelect_npc_sinclari;
     newscript->RegisterSelf();
-    
+
     newscript = new Script;
     newscript->Name = "npc_teleportation_portal_vh";
     newscript->GetAI = &GetAI_npc_teleportation_portal;
