@@ -17,7 +17,7 @@ enum Creatures
 bool GossipHello_npc_sinclari(Player* pPlayer, Creature* pCreature)
 {
     ScriptedInstance* pInstance = pCreature->GetInstanceData();
-    if (pInstance)
+    if (pInstance && pInstance->GetData(DATA_WAVE_COUNT) == 0)
         pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT,GOSSIP_START_EVENT,GOSSIP_SENDER_MAIN,GOSSIP_ACTION_INFO_DEF+1);
     pPlayer->SEND_GOSSIP_MENU(1, pCreature->GetGUID());
     return true;
@@ -53,7 +53,7 @@ struct TRINITY_DLL_DECL npc_teleportation_portalAI : public ScriptedAI
     void EnterCombat(Unit *who) {}
     void MoveInLineOfSight(Unit *who) {}
     
-    void Update(uint32 diff)
+    void UpdateAI(const uint32 diff)
     {
         if (uiSpawnTimer < diff)
         {
@@ -61,13 +61,14 @@ struct TRINITY_DLL_DECL npc_teleportation_portalAI : public ScriptedAI
                                                        m_creature->GetPositionX()+rand()%3, m_creature->GetPositionY()+rand()%3,
                                                        m_creature->GetPositionZ(),m_creature->GetOrientation(),
                                                        TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000))
-                pSummon->SetInCombatWithZone();
+                if (pInstance)
+                  if (Creature *pSinclari = pInstance->instance->GetCreature(pInstance->GetData64(DATA_SINCLARI)))
+                      pSummon->AI()->AttackStart(pSinclari);
             uiSpawnTimer = SPAWN_TIME;
         } else uiSpawnTimer -= diff;
         if (uiDespawnTimer < diff)
         {
-            m_creature->DealDamage(m_creature, m_creature->GetMaxHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
-            m_creature->RemoveCorpse();
+            m_creature->DisappearAndDie();
         } else uiDespawnTimer -= diff;
     }
     

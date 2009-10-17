@@ -19,7 +19,14 @@
 enum Creatures
 {
     CREATURE_TELEPORTATION_PORTAL                   = 31011,
-    CREATURE_CYANIGOSA
+    CREATURE_XEVOZZ                                 = 29266,
+    CREATURE_LAVANTHOR                              = 29312,
+    CREATURE_ICHORON                                = 29313,
+    CREATURE_ZURAMAT                                = 29314,
+    CREATURE_EREKEM                                 = 29315,
+    CREATURE_MORAGG                                 = 29316,
+    CREATURE_CYANIGOSA                              = 31134,
+    CREATURE_SINCLARI                               = 30658
 };
 struct Location
 {
@@ -106,28 +113,28 @@ struct TRINITY_DLL_DECL instance_violet_hold : public ScriptedInstance
     {
         switch(pCreature->GetEntry())
         {
-            case 29266:
+            case CREATURE_XEVOZZ:
                 uiXevozz = pCreature->GetGUID();
                 break;
-            case 29312:
+            case CREATURE_LAVANTHOR:
                 uiLavanthor = pCreature->GetGUID();
                 break;
-            case 29313:
+            case CREATURE_ICHORON:
                 uiIchoron = pCreature->GetGUID();
                 break;
-            case 29314:
+            case CREATURE_ZURAMAT:
                 uiZuramat = pCreature->GetGUID();
                 break;
-            case 29315:
+            case CREATURE_EREKEM:
                 uiErekem = pCreature->GetGUID();
                 break;
-            case 29316:
+            case CREATURE_MORAGG:
                 uiMoragg = pCreature->GetGUID();
                 break;
-            case 31134:
+            case CREATURE_CYANIGOSA:
                 uiCyanigosa = pCreature->GetGUID();
                 break;
-            case 30658:
+            case CREATURE_SINCLARI:
                 uiSinclari = pCreature->GetGUID();
                 break;
         }
@@ -191,7 +198,7 @@ struct TRINITY_DLL_DECL instance_violet_hold : public ScriptedInstance
                     SaveToDB();
                 break;
             case DATA_CYANIGOSA_EVENT:
-                m_auiEncounter[6] = data;
+                m_auiEncounter[2] = data;
                 if (data == DONE)
                 {
                     SaveToDB();
@@ -248,7 +255,7 @@ struct TRINITY_DLL_DECL instance_violet_hold : public ScriptedInstance
         {
             case DATA_1ST_BOSS_EVENT:           return m_auiEncounter[0];
             case DATA_2ND_BOSS_EVENT:           return m_auiEncounter[1];
-            case DATA_CYANIGOSA_EVENT:          return m_auiEncounter[3];
+            case DATA_CYANIGOSA_EVENT:          return m_auiEncounter[2];
             case DATA_WAVE_COUNT:               return uiWaveCount;
         }
         
@@ -336,6 +343,7 @@ struct TRINITY_DLL_DECL instance_violet_hold : public ScriptedInstance
             case DATA_XEVOZZ_CELL:              return uiXevozzCell;
             case DATA_ZURAMAT_CELL:             return uiZuramatCell;
             case DATA_MAIN_DOOR:                return uiMainDoor;
+            case DATA_SINCLARI:                 return uiSinclari;
         }
         
         return 0;
