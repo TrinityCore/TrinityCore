@@ -45,7 +45,7 @@ struct TRINITY_DLL_DECL instance_ahnkahet : public ScriptedInstance
     uint64 Jedoga_Shadowseeker;
     uint64 Herald_Volazj;
     uint64 Amanitar;
-   
+
     uint64 Prince_TaldaramSpheres[2];
     uint64 Prince_TaldaramPlatform;
     uint64 Prince_TaldaramGate;
@@ -60,7 +60,7 @@ struct TRINITY_DLL_DECL instance_ahnkahet : public ScriptedInstance
          Jedoga_Shadowseeker =0;
          Herald_Volazj =0;
          Amanitar =0;
-         
+
          for(uint8 i = 0; i < MAX_ENCOUNTER; ++i)
              m_auiEncounter[i] = NOT_STARTED;
         spheres[0] = NOT_STARTED;
@@ -87,7 +87,7 @@ struct TRINITY_DLL_DECL instance_ahnkahet : public ScriptedInstance
             case 30258:    Amanitar = pCreature->GetGUID();                      break;
         }
     }
-    
+
     void OnGameObjectCreate(GameObject* pGo, bool add)
     {
         switch(pGo->GetEntry())

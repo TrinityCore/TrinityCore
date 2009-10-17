@@ -62,18 +62,18 @@ struct TRINITY_DLL_DECL boss_the_makerAI : public ScriptedAI
 
         if (!pInstance)
             return;
-            
+
         pInstance->SetData(TYPE_THE_MAKER_EVENT, NOT_STARTED);
         pInstance->HandleGameObject(pInstance->GetData64(DATA_DOOR2), true);
     }
-    
+
     void EnterCombat(Unit *who)
     {
         DoScriptText(RAND(SAY_AGGRO_1,SAY_AGGRO_2,SAY_AGGRO_3), m_creature);
-        
+
         if (!pInstance)
             return;
-            
+
         pInstance->SetData(TYPE_THE_MAKER_EVENT, IN_PROGRESS);
         pInstance->HandleGameObject(pInstance->GetData64(DATA_DOOR2), false);
     }
@@ -86,14 +86,14 @@ struct TRINITY_DLL_DECL boss_the_makerAI : public ScriptedAI
     void JustDied(Unit* Killer)
     {
         DoScriptText(SAY_DIE, m_creature);
-        
+
         if (!pInstance)
             return;
-            
+
         pInstance->SetData(TYPE_THE_MAKER_EVENT, DONE);
         pInstance->HandleGameObject(pInstance->GetData64(DATA_DOOR2), true);
         pInstance->HandleGameObject(pInstance->GetData64(DATA_DOOR3), true);
-        
+
 
      }
 

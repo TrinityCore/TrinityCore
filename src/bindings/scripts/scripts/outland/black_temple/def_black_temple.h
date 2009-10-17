@@ -6,7 +6,7 @@
 #define DEF_BLACK_TEMPLE_H
 
 enum eTypes
-{                             
+{
     DATA_AKAMA                      = 1,
     DATA_AKAMA_SHADE                = 2,
     DATA_GURTOGGBLOODBOILEVENT      = 3,

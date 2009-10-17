@@ -44,13 +44,13 @@ struct TRINITY_DLL_DECL boss_cyanigosaAI : public ScriptedAI
     {
         pInstance = c->GetInstanceData();
     }
-    
+
     uint32 uiArcaneVacumTimer;
     uint32 uiBlizzardTimer;
     uint32 uiManaDestructionTimer;
     uint32 uiTailSweepTimer;
     uint32 uiUncontrollableEnergyTimer;
-    
+
     ScriptedInstance* pInstance;
 
     void Reset()
@@ -58,28 +58,28 @@ struct TRINITY_DLL_DECL boss_cyanigosaAI : public ScriptedAI
         if (pInstance)
             pInstance->SetData(DATA_CYANIGOSA_EVENT, NOT_STARTED);
     }
-    
+
     void EnterCombat(Unit* who)
     {
         DoScriptText(SAY_AGGRO, m_creature);
-        
+
         if (pInstance)
             pInstance->SetData(DATA_CYANIGOSA_EVENT, IN_PROGRESS);
     }
-    
+
     void MoveInLineOfSight(Unit* who) {}
-    
+
     void UpdateAI(const uint32 diff)
     {
         //Return since we have no target
         if (!UpdateVictim())
             return;
-        
+
         if (uiArcaneVacumTimer < diff)
         {
             DoCast(m_creature, SPELL_ARCANE_VACUM);
         } else uiArcaneVacumTimer -= diff;
-        
+
         if (uiBlizzardTimer < diff)
         {
             Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0);
@@ -88,17 +88,17 @@ struct TRINITY_DLL_DECL boss_cyanigosaAI : public ScriptedAI
             if (pTarget)
                 DoCast(pTarget, HeroicMode ? H_SPELL_BLIZZARD : SPELL_BLIZZARD);
         } else uiBlizzardTimer -= diff;
-        
+
         if (uiTailSweepTimer < diff)
         {
             DoCast(m_creature, HeroicMode ? H_SPELL_TAIL_SWEEP : SPELL_TAIL_SWEEP);
         } else uiTailSweepTimer -= diff;
-        
+
         if (uiUncontrollableEnergyTimer < diff)
         {
             DoCast(m_creature->getVictim(), HeroicMode ? H_SPELL_UNCONTROLLABLE_ENERGY : SPELL_UNCONTROLLABLE_ENERGY);
         } else uiUncontrollableEnergyTimer -= diff;
-        
+
         if (HeroicMode)
             if (uiManaDestructionTimer < diff)
             {
@@ -111,15 +111,15 @@ struct TRINITY_DLL_DECL boss_cyanigosaAI : public ScriptedAI
 
         DoMeleeAttackIfReady();
     }
-    
+
     void JustDied(Unit* killer)
     {
         DoScriptText(SAY_DEATH, m_creature);
-        
+
         if (pInstance)
             pInstance->SetData(DATA_CYANIGOSA_EVENT, DONE);
     }
-    
+
     void KilledUnit(Unit *victim)
     {
         if (victim == m_creature)

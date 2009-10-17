@@ -29,7 +29,7 @@ struct TRINITY_DLL_DECL boss_dredAI : public ScriptedAI
     {
         pInstance = c->GetInstanceData();
     }
-    
+
     ScriptedInstance* pInstance;
 
     void Reset()
@@ -37,13 +37,13 @@ struct TRINITY_DLL_DECL boss_dredAI : public ScriptedAI
         if (pInstance)
             pInstance->SetData(DATA_DRED_EVENT,NOT_STARTED);
     }
-    
+
     void EnterCombat(Unit* who)
     {
         if (pInstance)
             pInstance->SetData(DATA_DRED_EVENT,IN_PROGRESS);
     }
-    
+
     void UpdateAI(const uint32 diff)
     {
         //Return since we have no target
@@ -52,7 +52,7 @@ struct TRINITY_DLL_DECL boss_dredAI : public ScriptedAI
 
         DoMeleeAttackIfReady();
     }
-    
+
     void JustDied(Unit* killer)
     {
         if (pInstance)

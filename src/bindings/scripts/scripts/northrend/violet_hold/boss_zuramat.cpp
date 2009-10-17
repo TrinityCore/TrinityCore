@@ -47,7 +47,7 @@ struct TRINITY_DLL_DECL boss_zuramatAI : public ScriptedAI
     }
 
     uint32 void_shift;
-    
+
     ScriptedInstance* pInstance;
 
     void Reset()
@@ -60,7 +60,7 @@ struct TRINITY_DLL_DECL boss_zuramatAI : public ScriptedAI
                 pInstance->SetData(DATA_2ND_BOSS_EVENT, NOT_STARTED);
         }
     }
-    
+
     void EnterCombat(Unit* who)
     {
         DoScriptText(SAY_AGGRO, m_creature);
@@ -72,9 +72,9 @@ struct TRINITY_DLL_DECL boss_zuramatAI : public ScriptedAI
                 pInstance->SetData(DATA_2ND_BOSS_EVENT, IN_PROGRESS);
         }
     }
-    
+
     void MoveInLineOfSight(Unit* who) {}
-    
+
     void UpdateAI(const uint32 diff)
     {
         //Return since we have no target
@@ -86,7 +86,7 @@ struct TRINITY_DLL_DECL boss_zuramatAI : public ScriptedAI
     void JustDied(Unit* killer)
     {
         DoScriptText(SAY_DEATH, m_creature);
-        
+
         if (pInstance)
         {
             if (pInstance->GetData(DATA_WAVE_COUNT) == 6)
@@ -101,12 +101,12 @@ struct TRINITY_DLL_DECL boss_zuramatAI : public ScriptedAI
             }
         }
     }
-    
+
     void KilledUnit(Unit *victim)
     {
         if (victim == m_creature)
             return;
-        
+
         DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2,SAY_SLAY_3), m_creature);
     }
 };

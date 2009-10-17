@@ -60,7 +60,7 @@ struct TRINITY_DLL_DECL boss_xevozzAI : public ScriptedAI
     {
         pInstance = c->GetInstanceData();
     }
-    
+
     ScriptedInstance* pInstance;
 
     void Reset()
@@ -73,7 +73,7 @@ struct TRINITY_DLL_DECL boss_xevozzAI : public ScriptedAI
                 pInstance->SetData(DATA_2ND_BOSS_EVENT, NOT_STARTED);
         }
     }
-    
+
     void EnterCombat(Unit* who)
     {
         DoScriptText(SAY_AGGRO, m_creature);
@@ -85,9 +85,9 @@ struct TRINITY_DLL_DECL boss_xevozzAI : public ScriptedAI
                 pInstance->SetData(DATA_2ND_BOSS_EVENT, IN_PROGRESS);
         }
     }
-    
+
     void MoveInLineOfSight(Unit* who) {}
-    
+
     void UpdateAI(const uint32 diff)
     {
         //Return since we have no target
@@ -96,7 +96,7 @@ struct TRINITY_DLL_DECL boss_xevozzAI : public ScriptedAI
 
         DoMeleeAttackIfReady();
     }
-    
+
     void JustDied(Unit* killer)
     {
         DoScriptText(SAY_DEATH, m_creature);

@@ -440,7 +440,7 @@ struct TRINITY_DLL_DECL npc_geezleAI : public ScriptedAI
 
         switch(Step)
         {
-        case 0: 
+        case 0:
             if (Spark)
                 Spark->GetMotionMaster()->MovePoint(0, -5080.70, -11253.61, 0.56);
             m_creature->GetMotionMaster()->MovePoint(0, -5092.26, -11252, 0.71);
@@ -472,7 +472,7 @@ struct TRINITY_DLL_DECL npc_geezleAI : public ScriptedAI
         case 10:
             if (Spark)
                 Spark->DisappearAndDie();
-            DespawnNagaFlag(false); 
+            DespawnNagaFlag(false);
             m_creature->DisappearAndDie();
         default: return 99999999;
         }
@@ -491,7 +491,7 @@ struct TRINITY_DLL_DECL npc_geezleAI : public ScriptedAI
         {
             if((*itr)->GetQuestStatus(QUEST_TREES_COMPANY)==QUEST_STATUS_INCOMPLETE
                 &&(*itr)->HasAuraEffect(SPELL_TREE_DISGUISE,3) )
-            {       
+            {
                 (*itr)->KilledMonsterCredit(MOB_SPARK,0);
             }
         }

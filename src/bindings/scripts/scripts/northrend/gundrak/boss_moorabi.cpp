@@ -11,16 +11,16 @@ Script Data End */
 
 //Spells
 
-#define SPELL_DETERMINED_STAB                        55104 
-#define SPELL_GROUND_TREMOR                          55142 
-#define SPELL_NUMBING_SHOUT                          55106 
+#define SPELL_DETERMINED_STAB                        55104
+#define SPELL_GROUND_TREMOR                          55142
+#define SPELL_NUMBING_SHOUT                          55106
 
-#define SPELL_DETERMINED_GORE                        55102 
-#define SPELL_DETERMINED_GORE_1                      59444 
-#define SPELL_QUAKE                                  55101 
-#define SPELL_NUMBING_ROAR                           55100 
+#define SPELL_DETERMINED_GORE                        55102
+#define SPELL_DETERMINED_GORE_1                      59444
+#define SPELL_QUAKE                                  55101
+#define SPELL_NUMBING_ROAR                           55100
 
-#define SPELL_MOJO_FRENZY                            55163 
+#define SPELL_MOJO_FRENZY                            55163
 #define SPELL_TRANSFORMATION                         55098 //Periodic, The caster transforms into a powerful mammoth, increasing Physical damage done by 25% and granting immunity to Stun effects.
 
 #define ACHIEVEMENT_LESS_RABI                         2040
@@ -49,7 +49,7 @@ struct TRINITY_DLL_DECL boss_moorabiAI : public ScriptedAI
     uint32 SPELL_GROUND_TREMOR_TIMER;
     uint32 SPELL_DETERMINED_STAB_TIMER;
     uint32 SPELL_TRANSFORMATION_TIMER;
- 
+
     void Reset()
     {
           SPELL_GROUND_TREMOR_TIMER = 18000;
@@ -57,7 +57,7 @@ struct TRINITY_DLL_DECL boss_moorabiAI : public ScriptedAI
           SPELL_DETERMINED_STAB_TIMER = 20000;
           SPELL_TRANSFORMATION_TIMER = 12000;
           Phase = false;
-          
+
           if (pInstance)
             pInstance->SetData(DATA_MOORABI_EVENT, NOT_STARTED);
     }
@@ -66,7 +66,7 @@ struct TRINITY_DLL_DECL boss_moorabiAI : public ScriptedAI
     {
         DoScriptText(SAY_AGGRO, m_creature);
         m_creature->CastSpell(m_creature,SPELL_MOJO_FRENZY,true);
-        
+
         if (pInstance)
             pInstance->SetData(DATA_MOORABI_EVENT, IN_PROGRESS);
     }
@@ -76,7 +76,7 @@ struct TRINITY_DLL_DECL boss_moorabiAI : public ScriptedAI
         //Return since we have no target
          if (!UpdateVictim())
              return;
- 
+
         if(Phase == false && m_creature->HasAura(SPELL_TRANSFORMATION))
             Phase = true;
 
@@ -107,7 +107,7 @@ struct TRINITY_DLL_DECL boss_moorabiAI : public ScriptedAI
         {
             //CAST TRANSFORMATION
             if (SPELL_TRANSFORMATION_TIMER < diff)
-            {   
+            {
                 DoScriptText(EMOTE_TRANSFORM, m_creature);
                 DoScriptText(SAY_TRANSFORM, m_creature);
                 m_creature->CastSpell(m_creature,SPELL_TRANSFORMATION,false);
@@ -130,7 +130,7 @@ struct TRINITY_DLL_DECL boss_moorabiAI : public ScriptedAI
             } else SPELL_NUMBING_SHOUT_TIMER -= diff;
 
             if (SPELL_DETERMINED_STAB_TIMER < diff)
-            {           
+            {
                 m_creature->CastSpell(m_creature->getVictim(),SPELL_DETERMINED_STAB,true);
                 SPELL_DETERMINED_STAB_TIMER = 8000;
             } else SPELL_DETERMINED_STAB_TIMER -= diff;
@@ -156,7 +156,7 @@ struct TRINITY_DLL_DECL boss_moorabiAI : public ScriptedAI
                 }
             }
         }
-        
+
         if (pInstance)
             pInstance->SetData(DATA_MOORABI_EVENT, DONE);
     }

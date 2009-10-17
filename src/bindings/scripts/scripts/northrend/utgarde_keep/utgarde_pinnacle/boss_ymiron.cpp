@@ -25,7 +25,7 @@ enum Spells
     SPELL_SPIRIT_STRIKE                       = 48423,
     H_SPELL_SPIRIT_STRIKE                     = 59304,
     SPELL_ANCESTORS_VENGEANCE                 = 16939,
-    
+
     SPELL_SUMMON_AVENGING_SPIRIT              = 48592,
     SPELL_SUMMON_SPIRIT_FOUNT                 = 48386,
 
@@ -96,14 +96,14 @@ struct TRINITY_DLL_DECL boss_ymironAI : public ScriptedAI
             m_uiActiveOrder[r] = temp;
         }
     }
-    
+
     bool m_bIsWalking;
     bool m_bIsPause;
     bool m_bIsActiveWithBJORN;
     bool m_bIsActiveWithHALDOR;
     bool m_bIsActiveWithRANULF;
     bool m_bIsActiveWithTORGYN;
- 
+
     uint8 m_uiActiveOrder[4];
     uint8 m_uiActivedNumber;
 
@@ -151,7 +151,7 @@ struct TRINITY_DLL_DECL boss_ymironAI : public ScriptedAI
 
         DespawnBoatGhosts(m_uiActivedCreatureGUID);
         DespawnBoatGhosts(m_uiOrbGUID);
-        
+
         if (pInstance)
             pInstance->SetData(DATA_KING_YMIRON_EVENT, NOT_STARTED);
     }
@@ -212,7 +212,7 @@ struct TRINITY_DLL_DECL boss_ymironAI : public ScriptedAI
         //Return since we have no target
          if (!UpdateVictim())
              return;
- 
+
         if (!m_bIsPause)
         {
             // Normal spells ------------------------------------------------------------------------
@@ -328,7 +328,7 @@ struct TRINITY_DLL_DECL boss_ymironAI : public ScriptedAI
     void JustDied(Unit* killer)
     {
         DoScriptText(SAY_DEATH, m_creature);
-        
+
         DespawnBoatGhosts(m_uiActivedCreatureGUID);
         DespawnBoatGhosts(m_uiOrbGUID);
 

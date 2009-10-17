@@ -61,7 +61,7 @@ struct TRINITY_DLL_DECL boss_razuviousAI : public BossAI
         if (!(rand()%3))
             DoPlaySoundToSet(me, SOUND_SLAY);
     }
-    
+
     void DamageTaken(Unit* pDone_by, uint32& uiDamage)
     {
         // Damage done by the controlled Death Knight understudies should also count toward damage done by players
@@ -70,7 +70,7 @@ struct TRINITY_DLL_DECL boss_razuviousAI : public BossAI
             me->LowerPlayerDamageReq(uiDamage);
         }
     }
-    
+
     void JustDied(Unit* killer)
     {
         _JustDied();

@@ -44,7 +44,7 @@ enum Entries
 };
 
 bool QuestAccept_npc_apothecary_hanes(Player* pPlayer, Creature* pCreature, Quest const* quest)
-{    
+{
     if (quest->GetQuestId() == QUEST_TRAIL_OF_FIRE)
     {
         switch (pPlayer->GetTeam())
@@ -81,7 +81,7 @@ struct TRINITY_DLL_DECL npc_Apothecary_HanesAI : public npc_escortAI
     void UpdateEscortAI(const uint32 diff)
     {
         if(HealthBelowPct(75))
-        {    
+        {
             if(PotTimer < diff)
             {
                 DoCast(me,17534,true);
@@ -113,31 +113,31 @@ struct TRINITY_DLL_DECL npc_Apothecary_HanesAI : public npc_escortAI
                     Trigger->CastSpell(Trigger, SPELL_COSMETIC_LOW_POLY_FIRE, false);
                 SetRun(false);
                 break;
-            case 6: 
+            case 6:
                 if (Unit* Trigger = m_creature->FindNearestCreature(NPC_HANES_FIRE_TRIGGER,10.0f))
                     Trigger->CastSpell(Trigger, SPELL_COSMETIC_LOW_POLY_FIRE, false);
                 SetRun(true);
                 break;
-            case 8: 
+            case 8:
                 if (Unit* Trigger = m_creature->FindNearestCreature(NPC_HANES_FIRE_TRIGGER,10.0f))
                     Trigger->CastSpell(Trigger, SPELL_COSMETIC_LOW_POLY_FIRE, false);
                 SetRun(false);
                 break;
-            case 9:    
+            case 9:
                 if (Unit* Trigger = m_creature->FindNearestCreature(NPC_HANES_FIRE_TRIGGER,10.0f))
                     Trigger->CastSpell(Trigger, SPELL_COSMETIC_LOW_POLY_FIRE, false);
                 break;
             case 10:
                 SetRun(true);
                 break;
-            case 13: 
+            case 13:
                 SetRun(false);
                 break;
-            case 14: 
+            case 14:
                 if (Unit* Trigger = m_creature->FindNearestCreature(NPC_HANES_FIRE_TRIGGER,10.0f))
                     Trigger->CastSpell(Trigger, SPELL_COSMETIC_LOW_POLY_FIRE, false);
                 SetRun(true);
-                break;    
+                break;
         }
     }
 };

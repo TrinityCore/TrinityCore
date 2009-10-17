@@ -103,6 +103,6 @@ bool OnSpellCast(Unit *pUnitTarget, Item *pItemTarget, GameObject *pGoTarget, ui
     newscript->pOnServerShutdown = &OnServerShutdown;
     newscript->pOnServerStartup = &OnServerStartup;
     newscript->pOnSpellCast = &OnSpellCast;
-    
+
     newscript->RegisterSelf();
 }

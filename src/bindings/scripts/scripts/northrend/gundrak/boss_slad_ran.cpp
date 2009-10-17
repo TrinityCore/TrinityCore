@@ -71,16 +71,16 @@ struct TRINITY_DLL_DECL boss_slad_ranAI : public ScriptedAI
     {
         pInstance = c->GetInstanceData();
     }
-    
+
     uint32 uiPoisonNovaTimer;
     uint32 uiPowerfullBiteTimer;
     uint32 uiVenomBoltTimer;
     uint32 uiSpawnTimer;
-    
+
     uint8 uiPhase;
 
     ScriptedInstance* pInstance;
-    
+
     void Reset()
     {
         uiPoisonNovaTimer = 10000;
@@ -88,43 +88,43 @@ struct TRINITY_DLL_DECL boss_slad_ranAI : public ScriptedAI
         uiVenomBoltTimer = 15000;
         uiSpawnTimer = 5000;
         uiPhase = 0;
-        
+
         if (pInstance)
             pInstance->SetData(DATA_SLAD_RAN_EVENT, NOT_STARTED);
     }
-    
+
     void EnterCombat(Unit* who)
     {
         DoScriptText(SAY_AGGRO, m_creature);
-        
+
         if (pInstance)
             pInstance->SetData(DATA_SLAD_RAN_EVENT, IN_PROGRESS);
     }
-    
+
     void UpdateAI(const uint32 diff)
     {
         //Return since we have no target
         if (!UpdateVictim())
             return;
-        
+
         if (uiPoisonNovaTimer < diff)
         {
             DoCast(m_creature->getVictim(), HEROIC(SPELL_POISON_NOVA, H_SPELL_POISON_NOVA));
             uiPoisonNovaTimer = 15000;
         } else uiPoisonNovaTimer -= diff;
-        
+
         if (uiPowerfullBiteTimer < diff)
         {
             DoCast(m_creature->getVictim(), HEROIC(SPELL_POWERFULL_BITE, H_SPELL_POWERFULL_BITE));
             uiPowerfullBiteTimer = 10000;
         } else uiPowerfullBiteTimer -= diff;
-        
+
         if (uiVenomBoltTimer < diff)
         {
             DoCast(m_creature->getVictim(), HEROIC(SPELL_VENOM_BOLT, H_SPELL_VENOM_BOLT));
             uiVenomBoltTimer = 10000;
         } else uiVenomBoltTimer -= diff;
-        
+
         if (uiPhase)
         {
             if(uiSpawnTimer < diff)
@@ -152,15 +152,15 @@ struct TRINITY_DLL_DECL boss_slad_ranAI : public ScriptedAI
 
         DoMeleeAttackIfReady();
     }
-    
+
     void JustDied(Unit* killer)
     {
         DoScriptText(SAY_DEATH, m_creature);
-        
+
         if (pInstance)
             pInstance->SetData(DATA_SLAD_RAN_EVENT, DONE);
     }
-    
+
     void KilledUnit(Unit *victim)
     {
         DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2,SAY_SLAY_3), m_creature);
@@ -169,21 +169,21 @@ struct TRINITY_DLL_DECL boss_slad_ranAI : public ScriptedAI
     void JustSummoned(Creature* summoned)
     {
         summoned->GetMotionMaster()->MovePoint(0,m_creature->GetPositionX(),m_creature->GetPositionY(),m_creature->GetPositionZ());
-        
+
     }
 };
 
 struct TRINITY_DLL_DECL mob_slad_ran_constrictorAI : public ScriptedAI
 {
     mob_slad_ran_constrictorAI(Creature *c) : ScriptedAI(c) {}
-    
+
     uint32 uiGripOfSladRanTimer;
-    
+
     void Reset()
     {
         uiGripOfSladRanTimer = 1000;
     }
-    
+
     void UpdateAI(const uint32 diff)
     {
         if (!UpdateVictim())
@@ -194,28 +194,28 @@ struct TRINITY_DLL_DECL mob_slad_ran_constrictorAI : public ScriptedAI
             uiGripOfSladRanTimer = 5000;
         } else uiGripOfSladRanTimer -= diff;;
     }
-    
+
     ScriptedInstance* pInstance;
 };
 
 struct TRINITY_DLL_DECL mob_slad_ran_viperAI : public ScriptedAI
 {
     mob_slad_ran_viperAI(Creature *c) : ScriptedAI(c) {}
-    
+
     uint32 uiVenomousBiteTimer;
-    
+
     ScriptedInstance* pInstance;
-    
+
     void Reset()
     {
         uiVenomousBiteTimer = 2000;
     }
-    
+
     void UpdateAI(const uint32 diff)
     {
         if (!UpdateVictim())
             return;
-        
+
         if (uiVenomousBiteTimer < diff)
         {
             DoCast(m_creature->getVictim(), HEROIC(SPELL_VENOMOUS_BITE, H_SPELL_VENOMOUS_BITE));
@@ -247,12 +247,12 @@ void AddSC_boss_slad_ran()
     newscript->Name = "boss_slad_ran";
     newscript->GetAI = &GetAI_boss_slad_ran;
     newscript->RegisterSelf();
-    
+
     newscript = new Script;
     newscript->Name = "mob_slad_ran_constrictor";
     newscript->GetAI = &GetAI_mob_slad_ran_constrictor;
     newscript->RegisterSelf();
-    
+
     newscript = new Script;
     newscript->Name = "mob_slad_ran_viper";
     newscript->GetAI = &GetAI_mob_slad_ran_viper;

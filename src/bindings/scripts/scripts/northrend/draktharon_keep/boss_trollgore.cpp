@@ -38,7 +38,7 @@ struct TRINITY_DLL_DECL boss_trollgoreAI : public ScriptedAI
     {
         pInstance = c->GetInstanceData();
     }
-    
+
     ScriptedInstance* pInstance;
 
     void Reset()
@@ -46,11 +46,11 @@ struct TRINITY_DLL_DECL boss_trollgoreAI : public ScriptedAI
         if (pInstance)
             pInstance->SetData(DATA_TROLLGORE_EVENT, NOT_STARTED);
     }
-    
+
     void EnterCombat(Unit* who)
     {
         DoScriptText(SAY_AGGRO, m_creature);
-        
+
         if (pInstance)
             pInstance->SetData(DATA_TROLLGORE_EVENT, IN_PROGRESS);
     }
@@ -67,7 +67,7 @@ struct TRINITY_DLL_DECL boss_trollgoreAI : public ScriptedAI
     void JustDied(Unit* killer)
     {
         DoScriptText(SAY_DEATH, m_creature);
-        
+
         if (pInstance)
             pInstance->SetData(DATA_TROLLGORE_EVENT, DONE);
     }

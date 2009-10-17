@@ -31,9 +31,9 @@ struct TRINITY_DLL_DECL boss_eckAI : public ScriptedAI
     uint32 uiBiteTimer;
     uint32 uiSpitTimer;
     uint32 uiSpringTimer;
-    
+
     bool bBerserk;
-    
+
     ScriptedInstance* pInstance;
 
     void Reset()
@@ -42,9 +42,9 @@ struct TRINITY_DLL_DECL boss_eckAI : public ScriptedAI
         uiBiteTimer = 5000;
         uiSpitTimer = 10000;
         uiSpringTimer = 8000;
-        
+
         bBerserk = false;
-        
+
         if (pInstance)
             pInstance->SetData(DATA_ECK_THE_FEROCIOUS_EVENT, NOT_STARTED);
     }
@@ -54,13 +54,13 @@ struct TRINITY_DLL_DECL boss_eckAI : public ScriptedAI
         if (pInstance)
             pInstance->SetData(DATA_ECK_THE_FEROCIOUS_EVENT, IN_PROGRESS);
     }
-    
+
     void UpdateAI(const uint32 diff)
     {
         //Return since we have no target
         if (!UpdateVictim())
             return;
-        
+
         if (uiBiteTimer < diff)
         {
             DoCast(m_creature->getVictim(),SPELL_ECK_BITE);
@@ -91,7 +91,7 @@ struct TRINITY_DLL_DECL boss_eckAI : public ScriptedAI
                 DoCast(m_creature,SPELL_ECK_BERSERK);
                 bBerserk = true;
             }
-            else 
+            else
             {
                 uiBerserkTimer -= diff;
                 if (m_creature->GetHealth()*100 / m_creature->GetMaxHealth() < 20)
@@ -104,8 +104,8 @@ struct TRINITY_DLL_DECL boss_eckAI : public ScriptedAI
 
         DoMeleeAttackIfReady();
     }
-    
-    void JustDied(Unit* killer)  
+
+    void JustDied(Unit* killer)
     {
         if (pInstance)
             pInstance->SetData(DATA_ECK_THE_FEROCIOUS_EVENT, DONE);

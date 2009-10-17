@@ -12,21 +12,21 @@
 struct TRINITY_DLL_DECL instance_drak_tharon : public ScriptedInstance
 {
     instance_drak_tharon(Map* pMap) : ScriptedInstance(pMap) {Initialize();};
-    
+
     uint64 uiTrollgore;
     uint64 uiNovos;
     uint64 uiDred;
     uint64 uiTharonJa;
-    
+
     uint64 uiNovosCrystal1;
     uint64 uiNovosCrystal2;
     uint64 uiNovosCrystal3;
     uint64 uiNovosCrystal4;
-    
+
     uint8 m_auiEncounter[MAX_ENCOUNTER];
-    
+
     std::string str_data;
-    
+
     void Initialize()
     {
         uiTrollgore = 0;
@@ -38,7 +38,7 @@ struct TRINITY_DLL_DECL instance_drak_tharon : public ScriptedInstance
         uiNovosCrystal3 = 0;
         uiNovosCrystal4 = 0;
     }
-    
+
     bool IsEncounterInProgress() const
     {
         for(uint8 i = 0; i < MAX_ENCOUNTER; ++i)
@@ -46,7 +46,7 @@ struct TRINITY_DLL_DECL instance_drak_tharon : public ScriptedInstance
 
         return false;
     }
-    
+
     void OnGameObjectCreate(GameObject* pGo, bool add)
     {
         switch(pGo->GetEntry())
@@ -65,7 +65,7 @@ struct TRINITY_DLL_DECL instance_drak_tharon : public ScriptedInstance
                 break;
         }
     }
-    
+
     void OnCreatureCreate(Creature* pCreature, bool add)
     {
         switch(pCreature->GetEntry())
@@ -84,7 +84,7 @@ struct TRINITY_DLL_DECL instance_drak_tharon : public ScriptedInstance
                 break;
         }
     }
-    
+
     uint64 GetData64(uint32 identifier)
     {
         switch(identifier)
@@ -98,10 +98,10 @@ struct TRINITY_DLL_DECL instance_drak_tharon : public ScriptedInstance
             case DATA_NOVOS_CRYSTAL_3:    return uiNovosCrystal3;
             case DATA_NOVOS_CRYSTAL_4:    return uiNovosCrystal4;
         }
-        
+
         return 0;
     }
-    
+
     void SetData(uint32 type, uint32 data)
     {
         switch(type)
@@ -119,13 +119,13 @@ struct TRINITY_DLL_DECL instance_drak_tharon : public ScriptedInstance
                 m_auiEncounter[3] = data;
                 break;
         }
-        
+
         if (data == DONE)
         {
             SaveToDB();
         }
     }
-    
+
     uint32 GetData(uint32 type)
     {
         switch (type)
@@ -137,7 +137,7 @@ struct TRINITY_DLL_DECL instance_drak_tharon : public ScriptedInstance
         }
         return 0;
     }
-    
+
     std::string GetSaveData()
     {
         OUT_SAVE_INST_DATA;
