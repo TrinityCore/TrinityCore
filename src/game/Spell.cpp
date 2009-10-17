@@ -2874,18 +2874,6 @@ void Spell::cast(bool skipCheck)
                 m_preCastSpell = 11196;                                // Recently Bandaged
             break;
         }
-        case SPELLFAMILY_DRUID:
-        {
-            // Faerie Fire (Feral)
-            if (m_spellInfo->SpellFamilyFlags[0] & 0x00000400)
-            {
-                // Trigger only if has correct shapeshift for triggered spell
-                SpellEntry const * spellInfo = sSpellStore.LookupEntry(60089);
-                if (GetErrorAtShapeshiftedCast(spellInfo, m_caster->m_form) == SPELL_CAST_OK)
-                    m_preCastSpell = 60089;
-            }
-            break;
-        }
     }
     // traded items have trade slot instead of guid in m_itemTargetGUID
     // set to real guid to be sent later to the client
