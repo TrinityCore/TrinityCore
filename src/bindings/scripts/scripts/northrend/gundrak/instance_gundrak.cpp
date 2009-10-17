@@ -214,6 +214,9 @@ struct TRINITY_DLL_DECL instance_gundrak : public ScriptedInstance
             case DATA_SLAD_RAN_ALTAR:             return uiSladRanAltar;
             case DATA_MOORABI_ALTAR:              return uiMoorabiAltar;
             case DATA_DRAKKARI_COLOSSUS_ALTAR:    return uiDrakkariColossusAltar;
+            case DATA_SLAD_RAN_STATUE:            return uiSladRanStatue;
+            case DATA_MOORABI_STATUE:             return uiMoorabiStatue;
+            case DATA_DRAKKARI_COLOSSUS_STATUE:   return uiDrakkariColossusStatue;
         }
 
         return 0;
@@ -293,9 +296,9 @@ bool GOHello_altar(Player *pPlayer, GameObject *pGO)
     {
         switch(pGO->GetEntry())
         {
-            case 192518: uiStatue = pInstance->GetData64(DATA_SLAD_RAN_ALTAR); break;
-            case 192519: uiStatue = pInstance->GetData64(DATA_MOORABI_ALTAR); break;
-            case 192520: uiStatue = pInstance->GetData64(DATA_DRAKKARI_COLOSSUS_ALTAR); break;
+            case 192518: uiStatue = pInstance->GetData64(DATA_SLAD_RAN_STATUE); break;
+            case 192519: uiStatue = pInstance->GetData64(DATA_MOORABI_STATUE); break;
+            case 192520: uiStatue = pInstance->GetData64(DATA_DRAKKARI_COLOSSUS_STATUE); break;
         }
         pInstance->HandleGameObject(uiStatue,true);
         ((instance_gundrak*)pInstance)->CheckAltars();
