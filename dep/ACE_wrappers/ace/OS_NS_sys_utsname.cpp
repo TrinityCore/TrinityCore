@@ -1,16 +1,22 @@
 // $Id: OS_NS_sys_utsname.cpp 80826 2008-03-04 14:51:23Z wotte $
+
 #include "ace/OS_NS_sys_utsname.h"
+
 ACE_RCSID(ace, OS_NS_sys_utsname, "$Id: OS_NS_sys_utsname.cpp 80826 2008-03-04 14:51:23Z wotte $")
+
 #include "ace/OS_NS_string.h"
 #include "ace/OS_NS_stdio.h"
 #include "ace/OS_NS_unistd.h"
+
 #if defined (ACE_VXWORKS) && defined (ACE_LACKS_UNAME)
 // for sysBspRev(), sysModel()
 #  include /**/ <sysLib.h>
 // for kernelVersion()
 #  include /**/ <kernelLib.h>
 #endif /* ACE_VXWORKS && ACE_LACKS_UNAME */
+
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
+
 int
 ACE_OS::uname (ACE_utsname *name)
 {
@@ -20,9 +26,11 @@ ACE_OS::uname (ACE_utsname *name)
 #elif defined (ACE_WIN32)
   size_t maxnamelen = sizeof name->nodename;
   ACE_OS::strcpy (name->sysname, "Win32");
+
   ACE_TEXT_OSVERSIONINFO vinfo;
   vinfo.dwOSVersionInfoSize = sizeof(ACE_TEXT_OSVERSIONINFO);
   ACE_TEXT_GetVersionEx (&vinfo);
+
   SYSTEM_INFO sinfo;
 #   if defined (ACE_HAS_PHARLAP)
   // PharLap doesn't do GetSystemInfo.  What's really wanted is the
@@ -39,7 +47,9 @@ ACE_OS::uname (ACE_utsname *name)
 #   else
   ::GetSystemInfo(&sinfo);
 #   endif /* ACE_HAS_PHARLAP */
+
   const char* unknown = "???";
+
   if (
       vinfo.dwPlatformId == VER_PLATFORM_WIN32_NT
 #   if defined (VER_PLATFORM_WIN32_CE)
@@ -61,6 +71,7 @@ ACE_OS::uname (ACE_utsname *name)
                        "Build %d %s",
                        (int) vinfo.dwBuildNumber,
                        ACE_TEXT_ALWAYS_CHAR (vinfo.szCSDVersion));
+
       // We have to make sure that the size of (processor + subtype)
       // is not greater than the size of name->machine.  So we give
       // half the space to the processor and half the space to
@@ -69,11 +80,13 @@ ACE_OS::uname (ACE_utsname *name)
       const int bufsize = (sizeof (name->machine) / 2) - 1;
       char processor[bufsize] = "Unknown";
       char subtype[bufsize] = "Unknown";
+
 #   if defined (ghs)
     WORD arch = sinfo.u.s.wProcessorArchitecture;
 #   else
     WORD arch = sinfo.wProcessorArchitecture;
 #   endif
+
       switch (arch)
         {
         case PROCESSOR_ARCHITECTURE_INTEL:
@@ -173,6 +186,7 @@ ACE_OS::uname (ACE_utsname *name)
         {
           ACE_OS::strcpy (name->release, unknown);
         }
+
       ACE_OS::sprintf (name->version, "%d", LOWORD (vinfo.dwBuildNumber));
       if (sinfo.dwProcessorType == PROCESSOR_INTEL_386)
         ACE_OS::strcpy (name->machine, "Intel 80386");
@@ -186,21 +200,25 @@ ACE_OS::uname (ACE_utsname *name)
   else
     {
       // We don't know what this is!
+
       ACE_OS::strcpy (name->release, unknown);
       ACE_OS::strcpy (name->version, unknown);
       ACE_OS::strcpy (name->machine, unknown);
     }
+
 # if defined (ACE_LACKS_HOSTNAME)
   return 0;
 # else /* ACE_LACKS_HOSTNAME */
   return ACE_OS::hostname (name->nodename, maxnamelen);
 # endif /* ACE_LACKS_HOSTNAME */
+
 #elif defined (ACE_VXWORKS)
   size_t maxnamelen = sizeof name->nodename;
   ACE_OS::strcpy (name->sysname, "VxWorks");
   ACE_OS::strcpy (name->release, kernelVersion());
   ACE_OS::strcpy (name->version, sysBspRev ());
   ACE_OS::strcpy (name->machine, sysModel ());
+
   return ACE_OS::hostname (name->nodename, maxnamelen);
 #elif defined (INTEGRITY)
   if(!name) {
@@ -215,5 +233,6 @@ ACE_OS::uname (ACE_utsname *name)
   return status;
 #endif /* ACE_WIN32 */
 }
+
 ACE_END_VERSIONED_NAMESPACE_DECL
 

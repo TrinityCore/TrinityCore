@@ -13,61 +13,81 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
+
 /* ScriptData
 SDName: Uldaman
 SD%Complete: 100
 SDComment: Quest support: 2278 + 1 trash mob.
 SDCategory: Uldaman
 EndScriptData */
+
 /* ContentData
 mob_jadespine_basilisk
 npc_lore_keeper_of_norgannon
 EndContentData */
+
 #include "precompiled.h"
+
 /*######
 ## mob_jadespine_basilisk
 ######*/
+
 #define SPELL_CSLUMBER        3636
+
 struct TRINITY_DLL_DECL mob_jadespine_basiliskAI : public ScriptedAI
 {
     mob_jadespine_basiliskAI(Creature *c) : ScriptedAI(c) {}
+
     uint32 Cslumber_Timer;
+
     void Reset()
     {
         Cslumber_Timer = 2000;
     }
+
     void EnterCombat(Unit *who)
     {
     }
+
     void UpdateAI(const uint32 diff)
     {
         //Return since we have no target
         if (!UpdateVictim())
             return;
+
         //Cslumber_Timer
         if (Cslumber_Timer < diff)
         {
             //Cast
             // DoCast(m_creature->getVictim(),SPELL_CSLUMBER);
             m_creature->CastSpell(m_creature->getVictim(),SPELL_CSLUMBER, true);
+
             //Stop attacking target thast asleep and pick new target
             Cslumber_Timer = 28000;
+
             Unit* Target = SelectUnit(SELECT_TARGET_TOPAGGRO, 0);
+
             if (!Target || Target == m_creature->getVictim())
                 Target = SelectUnit(SELECT_TARGET_RANDOM, 0);
+
             if (Target)
                 m_creature->TauntApply(Target);
+
         }else Cslumber_Timer -= diff;
+
         DoMeleeAttackIfReady();
     }
 };
+
 CreatureAI* GetAI_mob_jadespine_basilisk(Creature* pCreature)
 {
     return new mob_jadespine_basiliskAI (pCreature);
 }
+
 /*######
 ## npc_lore_keeper_of_norgannon
 ######*/
+
 #define GOSSIP_HELLO_KEEPER     "Who are the Earthen?"
 #define GOSSIP_SELECT_KEEPER1   "What is a \"subterranean being matrix\"?"
 #define GOSSIP_SELECT_KEEPER2   "What are the anomalies you speak of?"
@@ -84,13 +104,17 @@ CreatureAI* GetAI_mob_jadespine_basilisk(Creature* pCreature)
 #define GOSSIP_SELECT_KEEPER13  "Who are the Creators?"
 #define GOSSIP_SELECT_KEEPER14  "This is a lot to think about."
 #define GOSSIP_SELECT_KEEPER15  "I will access the discs now."
+
 bool GossipHello_npc_lore_keeper_of_norgannon(Player* pPlayer, Creature* pCreature)
 {
     if (pPlayer->GetQuestStatus(2278) == QUEST_STATUS_INCOMPLETE)
         pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_HELLO_KEEPER, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+
     pPlayer->SEND_GOSSIP_MENU(1079, pCreature->GetGUID());
+
     return true;
 }
+
 bool GossipSelect_npc_lore_keeper_of_norgannon(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
 {
     switch (uiAction)
@@ -162,13 +186,16 @@ bool GossipSelect_npc_lore_keeper_of_norgannon(Player* pPlayer, Creature* pCreat
     }
     return true;
 }
+
 void AddSC_uldaman()
 {
     Script *newscript;
+
     newscript = new Script;
     newscript->Name = "mob_jadespine_basilisk";
     newscript->GetAI = &GetAI_mob_jadespine_basilisk;
     newscript->RegisterSelf();
+
     newscript = new Script;
     newscript->Name = "npc_lore_keeper_of_norgannon";
     newscript->pGossipHello = &GossipHello_npc_lore_keeper_of_norgannon;

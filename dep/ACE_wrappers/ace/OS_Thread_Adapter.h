@@ -1,4 +1,5 @@
 // -*- C++ -*-
+
 //=============================================================================
 /**
  *  @file OS_Thread_Adapter.h
@@ -8,15 +9,21 @@
  *  @author Carlos O'Ryan <coryan@uci.edu>
  */
 //=============================================================================
+
 #ifndef ACE_OS_THREAD_ADAPTER_H
 #define ACE_OS_THREAD_ADAPTER_H
 #include /**/ "ace/pre.h"
+
 #include "ace/Base_Thread_Adapter.h"
+
 #if !defined (ACE_LACKS_PRAGMA_ONCE)
 # pragma once
 #endif /* ACE_LACKS_PRAGMA_ONCE */
+
 #include /**/ "ace/ACE_export.h"
+
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
+
 /**
  * @class ACE_OS_Thread_Adapter
  *
@@ -44,17 +51,23 @@ public:
                          , ACE_SEH_EXCEPT_HANDLER handler = 0
 # endif /* ACE_HAS_WIN32_STRUCTURAL_EXCEPTIONS */
                          );
+
   /**
    * Execute the @a user_func_ with the @a arg.  This function deletes
    * @c this, thereby rendering the object useless after the call
    * returns.
    */
   virtual ACE_THR_FUNC_RETURN invoke (void);
+
 protected:
+
   /// Ensure that this object is allocated on the heap.
   ~ACE_OS_Thread_Adapter (void);
+
 };
+
 ACE_END_VERSIONED_NAMESPACE_DECL
+
 #include /**/ "ace/post.h"
 #endif /* ACE_THREAD_ADAPTER_H */
 

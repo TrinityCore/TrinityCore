@@ -13,14 +13,17 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
+
 /* ScriptData
 SDName: Boss_Prince_Malchezzar
 SD%Complete: 100
 SDComment:
 SDCategory: Karazhan
 EndScriptData */
+
 #include "precompiled.h"
 #include "def_karazhan.h"
+
 #define SAY_AGGRO           -1532091
 #define SAY_AXE_TOSS1       -1532092
 #define SAY_AXE_TOSS2       -1532093
@@ -33,12 +36,15 @@ EndScriptData */
 #define SAY_SUMMON1         -1532100
 #define SAY_SUMMON2         -1532101
 #define SAY_DEATH           -1532102
+
 // 18 Coordinates for Infernal spawns
 struct InfernalPoint
 {
     float x,y;
 };
+
 #define INFERNAL_Z  275.5
+
 static InfernalPoint InfernalPoints[] =
 {
     {-10922.8, -1985.2},
@@ -60,12 +66,16 @@ static InfernalPoint InfernalPoints[] =
     {-10932.8, -1979.6},
     {-10935.7, -1996.0}
 };
+
 #define TOTAL_INFERNAL_POINTS       18
+
 //Enfeeble is supposed to reduce hp to 1 and then heal player back to full when it ends
 //Along with reducing healing and regen while enfeebled to 0%
 //This spell effect will only reduce healing
+
 #define SPELL_ENFEEBLE              30843                       //Enfeeble during phase 1 and 2
 #define SPELL_ENFEEBLE_EFFECT       41624
+
 #define SPELL_SHADOWNOVA            30852                       //Shadownova used during all phases
 #define SPELL_SW_PAIN               30854                       //Shadow word pain during phase 1 and 3 (different targeting rules though)
 #define SPELL_THRASH_PASSIVE        12787                       //Extra attack chance during phase 2
@@ -77,21 +87,27 @@ static InfernalPoint InfernalPoints[] =
 #define SPELL_HELLFIRE              30859                       //Infenals' hellfire aura
 #define NETHERSPITE_INFERNAL        17646                       //The netherspite infernal creature
 #define MALCHEZARS_AXE              17650                       //Malchezar's axes (creatures), summoned during phase 3
+
 #define INFERNAL_MODEL_INVISIBLE    11686                      //Infernal Effects
 #define SPELL_INFERNAL_RELAY        30834
+
 #define EQUIP_ID_AXE                33542                      //Axes info
+
 //---------Infernal code first
 struct TRINITY_DLL_DECL netherspite_infernalAI : public ScriptedAI
 {
     netherspite_infernalAI(Creature *c) : ScriptedAI(c) ,
         malchezaar(0), HellfireTimer(0), CleanupTimer(0), point(NULL) {}
+
     uint32 HellfireTimer;
     uint32 CleanupTimer;
     uint32 malchezaar;
     InfernalPoint *point;
+
     void Reset() {}
     void EnterCombat(Unit *who) {}
     void MoveInLineOfSight(Unit *who) {}
+
     void UpdateAI(const uint32 diff)
     {
         if (HellfireTimer)
@@ -101,6 +117,7 @@ struct TRINITY_DLL_DECL netherspite_infernalAI : public ScriptedAI
             HellfireTimer = 0;
         }
         else HellfireTimer -= diff;
+
         if (CleanupTimer)
             if (CleanupTimer <= diff)
         {
@@ -108,12 +125,14 @@ struct TRINITY_DLL_DECL netherspite_infernalAI : public ScriptedAI
             CleanupTimer = 0;
         } else CleanupTimer -= diff;
     }
+
     void KilledUnit(Unit *who)
     {
         Unit *pMalchezaar = Unit::GetUnit(*m_creature, malchezaar);
         if (pMalchezaar)
             CAST_CRE(pMalchezaar)->AI()->KilledUnit(who);
     }
+
     void SpellHit(Unit *who, const SpellEntry *spell)
     {
         if (spell->Id == SPELL_INFERNAL_RELAY)
@@ -124,19 +143,23 @@ struct TRINITY_DLL_DECL netherspite_infernalAI : public ScriptedAI
             CleanupTimer = 170000;
         }
     }
+
     void DamageTaken(Unit *done_by, uint32 &damage)
     {
         if (done_by->GetGUID() != malchezaar)
             damage = 0;
     }
+
     void Cleanup();                                         //below ...
 };
+
 struct TRINITY_DLL_DECL boss_malchezaarAI : public ScriptedAI
 {
     boss_malchezaarAI(Creature *c) : ScriptedAI(c)
     {
         pInstance = c->GetInstanceData();
     }
+
     ScriptedInstance *pInstance;
     uint32 EnfeebleTimer;
     uint32 EnfeebleResetTimer;
@@ -148,22 +171,29 @@ struct TRINITY_DLL_DECL boss_malchezaarAI : public ScriptedAI
     uint32 InfernalTimer;
     uint32 AxesTargetSwitchTimer;
     uint32 InfernalCleanupTimer;
+
     std::vector<uint64> infernals;
     std::vector<InfernalPoint*> positions;
+
     uint64 axes[2];
     uint64 enfeeble_targets[5];
     uint64 enfeeble_health[5];
+
     uint32 phase;
+
     void Reset()
     {
         AxesCleanup();
         ClearWeapons();
         InfernalCleanup();
         positions.clear();
-        for (uint8 i =0; i < 5; ++i)
+
+        for(uint8 i =0; i < 5; ++i)
             enfeeble_targets[i] = 0;
-        for (uint8 i = 0; i < TOTAL_INFERNAL_POINTS; ++i)
+
+        for(uint8 i = 0; i < TOTAL_INFERNAL_POINTS; ++i)
             positions.push_back(&InfernalPoints[i]);
+
         EnfeebleTimer = 30000;
         EnfeebleResetTimer = 38000;
         ShadowNovaTimer = 35500;
@@ -175,35 +205,44 @@ struct TRINITY_DLL_DECL boss_malchezaarAI : public ScriptedAI
         AxesTargetSwitchTimer = 7500 + rand()%12500;
         SunderArmorTimer = 5000 + rand()%5000;
         phase = 1;
+
         if (pInstance)
             pInstance->HandleGameObject(pInstance->GetData64(DATA_GO_NETHER_DOOR), true);
     }
+
     void KilledUnit(Unit *victim)
     {
         DoScriptText(RAND(SAY_SLAY1,SAY_SLAY2,SAY_SLAY3), m_creature);
     }
+
     void JustDied(Unit *victim)
     {
         DoScriptText(SAY_DEATH, m_creature);
+
         AxesCleanup();
         ClearWeapons();
         InfernalCleanup();
         positions.clear();
-        for (uint8 i = 0; i < TOTAL_INFERNAL_POINTS; ++i)
+
+        for(uint8 i = 0; i < TOTAL_INFERNAL_POINTS; ++i)
             positions.push_back(&InfernalPoints[i]);
+
         if (pInstance)
             pInstance->HandleGameObject(pInstance->GetData64(DATA_GO_NETHER_DOOR), true);
     }
+
     void EnterCombat(Unit *who)
     {
         DoScriptText(SAY_AGGRO, m_creature);
+
         if (pInstance)
             pInstance->HandleGameObject(pInstance->GetData64(DATA_GO_NETHER_DOOR), false); // Open the door leading further in
     }
+
     void InfernalCleanup()
     {
         //Infernal Cleanup
-        for (std::vector<uint64>::iterator itr = infernals.begin(); itr!= infernals.end(); ++itr)
+        for(std::vector<uint64>::iterator itr = infernals.begin(); itr!= infernals.end(); ++itr)
         {
             Unit *pInfernal = Unit::GetUnit(*m_creature, *itr);
             if (pInfernal && pInfernal->isAlive())
@@ -214,9 +253,10 @@ struct TRINITY_DLL_DECL boss_malchezaarAI : public ScriptedAI
         }
         infernals.clear();
     }
+
     void AxesCleanup()
     {
-        for (uint8 i=0; i<2; ++i)
+        for(uint8 i=0; i<2; ++i)
         {
             Unit *axe = Unit::GetUnit(*m_creature, axes[i]);
             if (axe && axe->isAlive())
@@ -224,53 +264,64 @@ struct TRINITY_DLL_DECL boss_malchezaarAI : public ScriptedAI
             axes[i] = 0;
         }
     }
+
     void ClearWeapons()
     {
         SetEquipmentSlots(false, EQUIP_UNEQUIP, EQUIP_UNEQUIP, EQUIP_NO_CHANGE);
+
         //damage
         const CreatureInfo *cinfo = m_creature->GetCreatureInfo();
         m_creature->SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, cinfo->mindmg);
         m_creature->SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, cinfo->maxdmg);
         m_creature->UpdateDamagePhysical(BASE_ATTACK);
     }
+
     void EnfeebleHealthEffect()
     {
         const SpellEntry *info = GetSpellStore()->LookupEntry(SPELL_ENFEEBLE_EFFECT);
         if (!info)
             return;
+
         std::list<HostilReference *> t_list = m_creature->getThreatManager().getThreatList();
         std::vector<Unit *> targets;
+
         if (!t_list.size())
             return;
+
         //begin + 1 , so we don't target the one with the highest threat
         std::list<HostilReference *>::iterator itr = t_list.begin();
         std::advance(itr, 1);
-        for (; itr!= t_list.end(); ++itr)                   //store the threat list in a different container
+        for(; itr!= t_list.end(); ++itr)                   //store the threat list in a different container
         {
             Unit *target = Unit::GetUnit(*m_creature, (*itr)->getUnitGuid());
                                                             //only on alive players
             if (target && target->isAlive() && target->GetTypeId() == TYPEID_PLAYER)
                 targets.push_back(target);
         }
+
         //cut down to size if we have more than 5 targets
         while(targets.size() > 5)
             targets.erase(targets.begin()+rand()%targets.size());
+
         int i = 0;
-        for (std::vector<Unit *>::iterator iter = targets.begin(); iter!= targets.end(); ++iter, ++i)
+        for(std::vector<Unit *>::iterator iter = targets.begin(); iter!= targets.end(); ++iter, ++i)
         {
             Unit *target = *iter;
             if (target)
             {
                 enfeeble_targets[i] = target->GetGUID();
                 enfeeble_health[i] = target->GetHealth();
+
                 target->CastSpell(target, SPELL_ENFEEBLE, true, 0, 0, m_creature->GetGUID());
                 target->SetHealth(1);
             }
         }
+
     }
+
     void EnfeebleResetHealth()
     {
-        for (uint8 i = 0; i < 5; ++i)
+        for(uint8 i = 0; i < 5; ++i)
         {
             Unit *target = Unit::GetUnit(*m_creature, enfeeble_targets[i]);
             if (target && target->isAlive())
@@ -279,6 +330,7 @@ struct TRINITY_DLL_DECL boss_malchezaarAI : public ScriptedAI
             enfeeble_health[i] = 0;
         }
     }
+
     void SummonInfernal(const uint32 diff)
     {
         InfernalPoint *point = NULL;
@@ -292,7 +344,9 @@ struct TRINITY_DLL_DECL boss_malchezaarAI : public ScriptedAI
             positions.erase(itr);
             pos.Relocate(point->x, point->y, INFERNAL_Z);
         }
+
         Creature *Infernal = m_creature->SummonCreature(NETHERSPITE_INFERNAL, pos, TEMPSUMMON_TIMED_DESPAWN, 180000);
+
         if (Infernal)
         {
             Infernal->SetDisplayId(INFERNAL_MODEL_INVISIBLE);
@@ -300,49 +354,64 @@ struct TRINITY_DLL_DECL boss_malchezaarAI : public ScriptedAI
             if (point)
                 CAST_AI(netherspite_infernalAI, Infernal->AI())->point=point;
             CAST_AI(netherspite_infernalAI, Infernal->AI())->malchezaar=m_creature->GetGUID();
+
             infernals.push_back(Infernal->GetGUID());
             DoCast(Infernal, SPELL_INFERNAL_RELAY);
         }
+
         DoScriptText(RAND(SAY_SUMMON1,SAY_SUMMON2), m_creature);
     }
+
     void UpdateAI(const uint32 diff)
     {
         if (!UpdateVictim())
             return;
+
         if (EnfeebleResetTimer)
             if (EnfeebleResetTimer <= diff)                  //Let's not forget to reset that
         {
             EnfeebleResetHealth();
             EnfeebleResetTimer=0;
         }else EnfeebleResetTimer -= diff;
+
         if (m_creature->hasUnitState(UNIT_STAT_STUNNED))     //While shifting to phase 2 malchezaar stuns himself
             return;
+
         if (m_creature->GetUInt64Value(UNIT_FIELD_TARGET)!=m_creature->getVictim()->GetGUID())
             m_creature->SetUInt64Value(UNIT_FIELD_TARGET, m_creature->getVictim()->GetGUID());
+
         if (phase == 1)
         {
             if ((m_creature->GetHealth()*100) / m_creature->GetMaxHealth() < 60)
             {
                 m_creature->InterruptNonMeleeSpells(false);
+
                 phase = 2;
+
                 //animation
                 DoCast(m_creature, SPELL_EQUIP_AXES);
+
                 //text
                 DoScriptText(SAY_AXE_TOSS1, m_creature);
+
                 //passive thrash aura
                 m_creature->CastSpell(m_creature, SPELL_THRASH_AURA, true);
+
                 //models
                 SetEquipmentSlots(false, EQUIP_ID_AXE, EQUIP_ID_AXE, EQUIP_NO_CHANGE);
+
                 //damage
                 const CreatureInfo *cinfo = m_creature->GetCreatureInfo();
                 m_creature->SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, 2*cinfo->mindmg);
                 m_creature->SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, 2*cinfo->maxdmg);
                 m_creature->UpdateDamagePhysical(BASE_ATTACK);
+
                 m_creature->SetBaseWeaponDamage(OFF_ATTACK, MINDAMAGE, cinfo->mindmg);
                 m_creature->SetBaseWeaponDamage(OFF_ATTACK, MAXDAMAGE, cinfo->maxdmg);
                 //Sigh, updating only works on main attack , do it manually ....
                 m_creature->SetFloatValue(UNIT_FIELD_MINOFFHANDDAMAGE, cinfo->mindmg);
                 m_creature->SetFloatValue(UNIT_FIELD_MAXOFFHANDDAMAGE, cinfo->maxdmg);
+
                 m_creature->SetAttackTime(OFF_ATTACK, (m_creature->GetAttackTime(BASE_ATTACK)*150)/100);
             }
         }
@@ -351,13 +420,18 @@ struct TRINITY_DLL_DECL boss_malchezaarAI : public ScriptedAI
             if ((m_creature->GetHealth()*100) / m_creature->GetMaxHealth() < 30)
             {
                 InfernalTimer = 15000;
+
                 phase = 3;
+
                 ClearWeapons();
+
                 //remove thrash
                 m_creature->RemoveAurasDueToSpell(SPELL_THRASH_AURA);
+
                 DoScriptText(SAY_AXE_TOSS2, m_creature);
+
                 Unit *target = SelectUnit(SELECT_TARGET_RANDOM, 0);
-                for (uint32 i=0; i<2; ++i)
+                for(uint32 i=0; i<2; ++i)
                 {
                     Creature *axe = m_creature->SummonCreature(MALCHEZARS_AXE, m_creature->GetPositionX(), m_creature->GetPositionY(), m_creature->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 1000);
                     if (axe)
@@ -374,19 +448,25 @@ struct TRINITY_DLL_DECL boss_malchezaarAI : public ScriptedAI
                         }
                     }
                 }
+
                 if (ShadowNovaTimer > 35000)
                     ShadowNovaTimer = EnfeebleTimer + 5000;
+
                 return;
             }
+
             if (SunderArmorTimer < diff)
             {
                 DoCast(m_creature->getVictim(), SPELL_SUNDER_ARMOR);
                 SunderArmorTimer = 10000 + rand()%8000;
+
             }else SunderArmorTimer -= diff;
+
             if (Cleave_Timer < diff)
             {
                 DoCast(m_creature->getVictim(), SPELL_CLEAVE);
                 Cleave_Timer = 6000 + rand()%6000;
+
             }else Cleave_Timer -= diff;
         }
         else
@@ -394,10 +474,11 @@ struct TRINITY_DLL_DECL boss_malchezaarAI : public ScriptedAI
             if (AxesTargetSwitchTimer < diff)
             {
                 AxesTargetSwitchTimer = 7500 + rand()%12500 ;
+
                 Unit *target = SelectUnit(SELECT_TARGET_RANDOM, 0);
                 if (target)
                 {
-                    for (uint8 i = 0; i < 2; ++i)
+                    for(uint8 i = 0; i < 2; ++i)
                     {
                         Unit *axe = Unit::GetUnit(*m_creature, axes[i]);
                         if (axe)
@@ -413,23 +494,27 @@ struct TRINITY_DLL_DECL boss_malchezaarAI : public ScriptedAI
                     }
                 }
             } else AxesTargetSwitchTimer -= diff;
+
             if (AmplifyDamageTimer < diff)
             {
                 DoCast(SelectUnit(SELECT_TARGET_RANDOM, 0), SPELL_AMPLIFY_DAMAGE);
                 AmplifyDamageTimer = 20000 + rand()%10000;
             }else AmplifyDamageTimer -= diff;
         }
+
         //Time for global and double timers
         if (InfernalTimer < diff)
         {
             SummonInfernal(diff);
             InfernalTimer =  phase == 3 ? 14500 : 44500;    //15 secs in phase 3, 45 otherwise
         }else InfernalTimer -= diff;
+
         if (ShadowNovaTimer < diff)
         {
             DoCast(m_creature->getVictim(), SPELL_SHADOWNOVA);
             ShadowNovaTimer = phase == 3 ? 31000 : -1;
         }else ShadowNovaTimer -= diff;
+
         if (phase != 2)
         {
             if (SWPainTimer < diff)
@@ -439,11 +524,14 @@ struct TRINITY_DLL_DECL boss_malchezaarAI : public ScriptedAI
                     target = m_creature->getVictim();       // the tank
                 else                                        //anyone but the tank
                     target = SelectUnit(SELECT_TARGET_RANDOM, 1);
+
                 if (target)
                     DoCast(target, SPELL_SW_PAIN);
+
                 SWPainTimer = 20000;
             }else SWPainTimer -= diff;
         }
+
         if (phase != 3)
         {
             if (EnfeebleTimer < diff)
@@ -454,11 +542,13 @@ struct TRINITY_DLL_DECL boss_malchezaarAI : public ScriptedAI
                 EnfeebleResetTimer = 9000;
             }else EnfeebleTimer -= diff;
         }
+
         if (phase==2)
             DoMeleeAttacksIfReady();
         else
             DoMeleeAttackIfReady();
     }
+
     void DoMeleeAttacksIfReady()
     {
         if (m_creature->IsWithinMeleeRange(m_creature->getVictim()) && !m_creature->IsNonMeleeSpellCasted(false))
@@ -477,31 +567,38 @@ struct TRINITY_DLL_DECL boss_malchezaarAI : public ScriptedAI
             }
         }
     }
+
     void Cleanup(Creature *infernal, InfernalPoint *point)
     {
-        for (std::vector<uint64>::iterator itr = infernals.begin(); itr!= infernals.end(); ++itr)
+        for(std::vector<uint64>::iterator itr = infernals.begin(); itr!= infernals.end(); ++itr)
             if (*itr == infernal->GetGUID())
         {
             infernals.erase(itr);
             break;
         }
+
         positions.push_back(point);
     }
 };
+
 void netherspite_infernalAI::Cleanup()
 {
     Unit *pMalchezaar = Unit::GetUnit(*m_creature, malchezaar);
+
     if (pMalchezaar && pMalchezaar->isAlive())
         CAST_AI(boss_malchezaarAI, CAST_CRE(pMalchezaar)->AI())->Cleanup(m_creature, point);
 }
+
 CreatureAI* GetAI_netherspite_infernal(Creature* pCreature)
 {
     return new netherspite_infernalAI (pCreature);
 }
+
 CreatureAI* GetAI_boss_malchezaar(Creature* pCreature)
 {
     return new boss_malchezaarAI (pCreature);
 }
+
 void AddSC_boss_malchezaar()
 {
     Script *newscript;
@@ -509,6 +606,7 @@ void AddSC_boss_malchezaar()
     newscript->Name = "boss_malchezaar";
     newscript->GetAI = &GetAI_boss_malchezaar;
     newscript->RegisterSelf();
+
     newscript = new Script;
     newscript->Name = "netherspite_infernal";
     newscript->GetAI = &GetAI_netherspite_infernal;

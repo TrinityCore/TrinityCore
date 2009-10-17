@@ -1,8 +1,11 @@
 // -*- C++ -*-
 //
 // $Id: OS_NS_sys_uio.inl 80826 2008-03-04 14:51:23Z wotte $
+
 #include "ace/os_include/os_errno.h"
+
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
+
 ACE_INLINE ssize_t
 ACE_OS::readv (ACE_HANDLE handle,
                const iovec *iov,
@@ -25,6 +28,7 @@ ACE_OS::readv (ACE_HANDLE handle,
 #endif /* ACE_HAS_NONCONST_READV */
 #endif /* ACE_LACKS_READV */
 }
+
 ACE_INLINE ssize_t
 ACE_OS::writev (ACE_HANDLE handle,
                 const iovec *iov,
@@ -47,4 +51,5 @@ ACE_OS::writev (ACE_HANDLE handle,
 #endif /* ACE_HAS_NONCONST_WRITEV */
 #endif /* ACE_LACKS_WRITEV */
 }
+
 ACE_END_VERSIONED_NAMESPACE_DECL

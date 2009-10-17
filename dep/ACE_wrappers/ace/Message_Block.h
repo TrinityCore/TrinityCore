@@ -1,4 +1,5 @@
 // -*- C++ -*-
+
 //==========================================================================
 /**
  *  @file    Message_Block.h
@@ -8,22 +9,30 @@
  *  @author Douglas C. Schmidt <schmidt@cs.wustl.edu>
  */
 //==========================================================================
+
 #ifndef ACE_MESSAGE_BLOCK_H
 #define ACE_MESSAGE_BLOCK_H
+
 #include /**/ "ace/pre.h"
+
 #include "ace/config-lite.h"
 #include /**/ "ace/ACE_export.h"
+
 #if !defined (ACE_LACKS_PRAGMA_ONCE)
 # pragma once
 #endif /* ACE_LACKS_PRAGMA_ONCE */
+
 #include "ace/Default_Constants.h"
 #include "ace/Global_Macros.h"
 #include "ace/Time_Value.h"
+
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
+
 // Forward declaration.
 class ACE_Allocator;
 class ACE_Data_Block;
 class ACE_Lock;
+
 
 /**
  * @class ACE_Message_Block
@@ -51,6 +60,7 @@ class ACE_Export ACE_Message_Block
 {
 public:
   friend class ACE_Data_Block;
+
   enum
   {
     // = Data and proto
@@ -58,6 +68,7 @@ public:
     MB_DATA     = 0x01,
     /// Undifferentiated protocol control
     MB_PROTO    = 0x02,
+
     // = Control messages
     /// Line break (regular and priority)
     MB_BREAK    = 0x03,
@@ -71,6 +82,7 @@ public:
     MB_IOCTL    = 0x07,
     /// Set various stream head options
     MB_SETOPTS  = 0x08,
+
     // = Control messages
     /// Acknowledge ioctl (high priority; go to head of queue)
     MB_IOCACK   = 0x81,
@@ -94,6 +106,7 @@ public:
     MB_ERROR    = 0x8a,
     /// Post an event to an event queue
     MB_PCEVENT  = 0x8b,
+
     // = Message class masks
     /// Normal priority message mask
     MB_NORMAL   = 0x00,
@@ -102,8 +115,10 @@ public:
     /// User-defined message mask
     MB_USER     = 0x200
   };
+
   typedef int ACE_Message_Type;
   typedef unsigned long Message_Flags;
+
   enum
   {
     /// Don't delete the data on exit since we don't own it.
@@ -111,9 +126,11 @@ public:
     /// user defined flags start here
     USER_FLAGS = 0x1000
   };
+
   // = Initialization and termination.
   /// Create an empty message.
   ACE_Message_Block (ACE_Allocator *message_block_allocator = 0);
+
   /**
    * Create an ACE_Message_Block that owns the specified ACE_Data_Block
    * without copying it. If the @a flags is set to @c DONT_DELETE we
@@ -124,6 +141,7 @@ public:
   ACE_Message_Block (ACE_Data_Block *,
                      Message_Flags flags = 0,
                      ACE_Allocator *message_block_allocator = 0);
+
   /**
    * Create an ACE_Message_Block that refers to @a data without
    * copying it. The @a data memory will not be freed when this block is
@@ -134,6 +152,7 @@ public:
   ACE_Message_Block (const char *data,
                      size_t size = 0,
                      unsigned long priority = ACE_DEFAULT_MESSAGE_BLOCK_PRIORITY);
+
   /**
    * Create an initialized message of type @a type containing @a size
    * bytes.  The @a cont argument initializes the continuation field in
@@ -168,6 +187,7 @@ public:
                      const ACE_Time_Value &deadline_time = ACE_Time_Value::max_time,
                      ACE_Allocator *data_block_allocator = 0,
                      ACE_Allocator *message_block_allocator = 0);
+
   /**
    * A copy constructor. This constructor is a bit different. If the
    * incoming Message Block has a data block from the stack this
@@ -181,6 +201,7 @@ public:
    */
   ACE_Message_Block (const ACE_Message_Block &mb,
                      size_t align);
+
   /**
    * Create a Message Block that assumes it has ownership of @a data,
    * but in reality it doesnt (i.e., cannot delete it since it didn't
@@ -189,6 +210,7 @@ public:
    */
   int init (const char *data,
             size_t size = 0);
+
   /**
    * Create an initialized message of type @a type containing @a size
    * bytes.  The @a cont argument initializes the continuation field in
@@ -215,6 +237,7 @@ public:
             const ACE_Time_Value &deadline_time = ACE_Time_Value::max_time,
             ACE_Allocator *data_block_allocator = 0,
             ACE_Allocator *message_block_allocator = 0);
+
   /**
    * Delete all the resources held in the message.
    *
@@ -222,25 +245,34 @@ public:
    * chain; the destructor is not. See <release()> for details.
    */
   virtual ~ACE_Message_Block (void);
+
   // = Message Type accessors and mutators.
+
   /// Get type of the message.
   ACE_Message_Type msg_type (void) const;
+
   /// Set type of the message.
   void msg_type (ACE_Message_Type type);
+
   /// Find out what type of message this is.
   int is_data_msg (void) const;
+
   /// Find out what class of message this is (there are two classes,
   /// @c normal messages and @c high-priority messages).
   ACE_Message_Type msg_class (void) const;
+
   // = Message flag accessors and mutators.
   /// Bitwise-or the @a more_flags into the existing message flags and
   /// return the new value.
   Message_Flags set_flags (Message_Flags more_flags);
+
   /// Clear the message flag bits specified in @a less_flags and return
   /// the new value.
   Message_Flags clr_flags (Message_Flags less_flags);
+
   /// Get the current message flags.
   Message_Flags flags (void) const;
+
   // = Data Block flag accessors and mutators.
   /// Bitwise-or the @a more_flags into the existing message flags and
   /// return the new value.
@@ -250,29 +282,41 @@ public:
    *  me if I am totally totally wrong..
    */
   Message_Flags set_self_flags (ACE_Message_Block::Message_Flags more_flags);
+
   /// Clear the message flag bits specified in @a less_flags and return
   /// the new value.
   Message_Flags clr_self_flags (ACE_Message_Block::Message_Flags less_flags);
+
   /// Get the current message flags.
   Message_Flags self_flags (void) const;
+
   /// Get priority of the message.
   unsigned long msg_priority (void) const;
+
   /// Set priority of the message.
   void msg_priority (unsigned long priority);
+
   /// Get execution time associated with the message.
   const ACE_Time_Value &msg_execution_time (void) const;
+
   /// Set execution time associated with the message.
   void msg_execution_time (const ACE_Time_Value &et);
+
   /// Get absolute time of deadline associated with the message.
   const ACE_Time_Value &msg_deadline_time (void) const;
+
   /// Set absolute time of deadline associated with the message.
   void msg_deadline_time (const ACE_Time_Value &dt);
+
   // = Deep copy and shallow copy methods.
+
   /// Return an exact "deep copy" of the message, i.e., create fresh
   /// new copies of all the Data_Blocks and continuations.
   virtual ACE_Message_Block *clone (Message_Flags mask = 0) const;
+
   /// Return a "shallow" copy that increments our reference count by 1.
   virtual ACE_Message_Block *duplicate (void) const;
+
   /**
    * Return a "shallow" copy that increments our reference count by 1.
    * This is similar to CORBA's <_duplicate> method, which is useful
@@ -280,6 +324,7 @@ public:
    * before calling <_duplicate> on them.
    */
   static ACE_Message_Block *duplicate (const ACE_Message_Block *mb);
+
   /**
    * Decrease the shared ACE_Data_Block's reference count by 1.  If the
    * ACE_Data_Block's reference count goes to 0, it is deleted.
@@ -308,6 +353,7 @@ public:
    *            longer valid.
    */
   virtual ACE_Message_Block *release (void);
+
   /**
    * This behaves like the non-static method <release>, except that it
    * checks if @a mb is 0.  This is similar to <CORBA::release>, which
@@ -315,7 +361,9 @@ public:
    * pointers before calling <release> on them.  Returns @a mb.
    */
   static ACE_Message_Block *release (ACE_Message_Block *mb);
+
   // = Operations on Message data
+
   /**
    * Copies data into this ACE_Message_Block. Data is copied into the
    * block starting at the current write pointer.
@@ -329,6 +377,7 @@ public:
    *            by calling space().
    */
   int copy (const char *buf, size_t n);
+
   /**
    * Copies a 0-terminated character string into this ACE_Message_Block.
    * The string is copied into the block starting at the current write
@@ -343,15 +392,18 @@ public:
    *            Free space can be checked by calling space().
    */
   int copy (const char *buf);
+
   /// Normalizes data in the top-level <Message_Block> to align with the base,
   /// i.e., it "shifts" the data pointed to by <rd_ptr> down to the <base> and
   /// then readjusts <rd_ptr> to point to <base> and <wr_ptr> to point
   /// to <base> + the length of the moved data.  Returns -1 and does
   /// nothing if the <rd_ptr> is > <wr_ptr>, else 0 on success.
   int crunch (void);
+
   /// Resets the Message Block data to contain nothing, i.e., sets the
   /// read and write pointers to align with the base.
   void reset (void);
+
   /// Access all the allocators in the message block.
   /// @@todo: Not sure whether we would need finer control while
   /// trying to access allocators ie. a method for every allocator.
@@ -371,6 +423,7 @@ public:
   void access_allocators (ACE_Allocator *&allocator_strategy,
                           ACE_Allocator *&data_block_allocator,
                           ACE_Allocator *&message_block_allocator);
+
   /// Reset all the allocators in the message block.
   /// @todo Not sure whether we would need finer control while
   /// trying to reset allocators ie. a method for every allocator.
@@ -381,33 +434,44 @@ public:
   void reset_allocators (ACE_Allocator *allocator_strategy = 0,
                          ACE_Allocator *data_block_allocator = 0,
                          ACE_Allocator *message_block_allocator = 0);
+
   /// Get message data.
   char *base (void) const;
+
   /// Set message data (doesn't reallocate).
   void base (char *data,
              size_t size,
              Message_Flags = DONT_DELETE);
+
   /// Return a pointer to 1 past the end of the allocated data in a message.
   char *end (void) const;
+
   /**
    * Return a pointer to 1 past the end of the allotted data in a message.
    * Allotted data may be less than allocated data  if a value smaller than
    * capacity() to is passed to size().
    */
   char *mark (void) const;
+
   /// Get the read pointer.
   char *rd_ptr (void) const;
+
   /// Set the read pointer to @a ptr.
   void rd_ptr (char *ptr);
+
   /// Set the read pointer ahead @a n bytes.
   void rd_ptr (size_t n);
+
   /// Get the write pointer.
   char *wr_ptr (void) const;
+
   /// Set the write pointer to @a ptr.
   void wr_ptr (char *ptr);
+
   /// Set the write pointer ahead @a n bytes.  This is used to compute
   /// the <length> of a message.
   void wr_ptr (size_t n);
+
   /** @name Message length and size operations
    *
    * Message length is (wr_ptr - rd_ptr).
@@ -418,21 +482,27 @@ public:
   //@{
   /// Get the length of the message
   size_t length (void) const;
+
   /// Set the length of the message
   void length (size_t n);
+
   /// Get the length of the <Message_Block>s, including chained
   /// <Message_Block>s.
   size_t total_length (void) const;
+
   /// Get the total number of bytes in all <Message_Block>s, including
   /// chained <Message_Block>s.
   size_t total_size (void) const;
+
   /// Get the total number of bytes and total length in all
   /// <Message_Block>s, including chained <Message_Block>s.
   void total_size_and_length (size_t &mb_size,
                               size_t &mb_length) const;
+
   /// Get the number of bytes in the top-level <Message_Block> (i.e.,
   /// does not consider the bytes in chained <Message_Block>s).
   size_t size (void) const;
+
   /**
    * Set the number of bytes in the top-level <Message_Block>,
    * reallocating space if necessary.  However, the <rd_ptr_> and
@@ -440,22 +510,28 @@ public:
    * it is reallocated.  Returns 0 if successful, else -1.
    */
   int size (size_t length);
+
   /// Get the number of allocated bytes in all <Message_Block>, including
   /// chained <Message_Block>s.
   size_t total_capacity (void) const;
+
   /// Get the number of allocated bytes in the top-level <Message_Block>.
   size_t capacity (void) const;
+
   /// Get the number of bytes available after the <wr_ptr_> in the
   /// top-level <Message_Block>.
   size_t space (void) const;
   //@}
+
   // = ACE_Data_Block methods.
+
   /**
    * Get a pointer to the data block. Note that the ACE_Message_Block
    * still references the block; this call does not change the reference
    * count.
    */
   ACE_Data_Block *data_block (void) const;
+
   /**
    * Set a new data block pointer. The original ACE_Data_Block is released
    * as a result of this call. If you need to keep the original block, call
@@ -464,35 +540,48 @@ public:
    * you held on it prior to the call.
    */
   void data_block (ACE_Data_Block *);
+
   /// Set a new data block pointer. A pointer to the original ACE_Data_Block
   /// is returned, and not released (as it is with <data_block>).
   ACE_Data_Block *replace_data_block (ACE_Data_Block*);
+
   // = The continuation field chains together composite messages.
   /// Get the continuation field.
   ACE_Message_Block *cont (void) const;
+
   /// Set the continuation field.
   void cont (ACE_Message_Block *);
+
   // = Pointer to the <Message_Block> directly ahead in the ACE_Message_Queue.
   /// Get link to next message.
   ACE_Message_Block *next (void) const;
+
   /// Set link to next message.
   void next (ACE_Message_Block *);
+
   // = Pointer to the <Message_Block> directly behind in the ACE_Message_Queue.
   /// Get link to prev message.
   ACE_Message_Block *prev (void) const;
+
   /// Set link to prev message.
   void prev (ACE_Message_Block *);
+
   // = The locking strategy prevents race conditions.
   /// Get the locking strategy.
   ACE_Lock *locking_strategy (void);
+
   /// Set a new locking strategy and return the hold one.
   ACE_Lock *locking_strategy (ACE_Lock *);
+
   /// Get the current reference count.
   int reference_count (void) const;
+
   /// Dump the state of an object.
   void dump (void) const;
+
   /// Declare the dynamic allocation hooks.
   ACE_ALLOC_HOOK_DECLARE;
+
 protected:
   // = Internal initialization methods.
   /// Perform the actual initialization.
@@ -509,9 +598,11 @@ protected:
                      ACE_Data_Block *db,
                      ACE_Allocator *data_block_allocator,
                      ACE_Allocator *message_block_allocator);
+
   /// Internal release implementation
   /// Returns 1 if the data block has to be destroyed.
   int release_i (ACE_Lock *lock);
+
   /// Perform the actual initialization.
   int init_i (size_t size,
               ACE_Message_Type type,
@@ -526,38 +617,51 @@ protected:
               ACE_Data_Block *db,
               ACE_Allocator *data_block_allocator,
               ACE_Allocator *message_block_allocator);
+
   /// Pointer to beginning of next read.
   size_t rd_ptr_;
+
   /// Pointer to beginning of next write.
   size_t wr_ptr_;
+
   /// Priority of message.
   unsigned long priority_;
+
 #if defined (ACE_HAS_TIMED_MESSAGE_BLOCKS)
   /// Execution time associated with the message.
   ACE_Time_Value execution_time_;
+
   /// Absolute deadline time for message.
   ACE_Time_Value deadline_time_;
 #endif /* ACE_HAS_TIMED_MESSAGE_BLOCKS */
+
   // = Links to other ACE_Message_Block *s.
   /// Pointer to next message block in the chain.
   ACE_Message_Block *cont_;
+
   /// Pointer to next message in the list.
   ACE_Message_Block *next_;
+
   /// Pointer to previous message in the list.
   ACE_Message_Block *prev_;
+
   /// Misc flags (e.g., DONT_DELETE and USER_FLAGS).
   ACE_Message_Block::Message_Flags flags_;
+
   /// Pointer to the reference counted data structure that contains the
   /// actual memory buffer.
   ACE_Data_Block *data_block_;
+
   /// The allocator used to destroy ourselves when release is called
   /// and create new message blocks on duplicate.
   ACE_Allocator *message_block_allocator_;
+
 private:
   // = Disallow these operations for now (use <clone> instead).
   ACE_Message_Block &operator= (const ACE_Message_Block &);
   ACE_Message_Block (const ACE_Message_Block &);
 };
+
 /**
  * @class ACE_Data_Block
  *
@@ -576,6 +680,7 @@ public:
   // = Initialization and termination methods.
   /// Default "do-nothing" constructor.
   ACE_Data_Block (void);
+
   /// Initialize.
   ACE_Data_Block (size_t size,
                   ACE_Message_Block::ACE_Message_Type msg_type,
@@ -584,35 +689,47 @@ public:
                   ACE_Lock *locking_strategy,
                   ACE_Message_Block::Message_Flags flags,
                   ACE_Allocator *data_block_allocator);
+
   /// Delete all the resources held in the message.
   virtual ~ACE_Data_Block (void);
+
   /// Get type of the message.
   ACE_Message_Block::ACE_Message_Type msg_type (void) const;
+
   /// Set type of the message.
   void msg_type (ACE_Message_Block::ACE_Message_Type type);
+
   /// Get message data pointer
   char *base (void) const;
+
   /// Set message data pointer (doesn't reallocate).
   void base (char *data,
              size_t size,
              ACE_Message_Block::Message_Flags mflags = ACE_Message_Block::DONT_DELETE);
+
   /// Return a pointer to 1 past the end of the allocated data in a message.
   char *end (void) const;
+
   /**
    * Return a pointer to 1 past the end of the allotted data in a message.
    * The allotted data may be less than allocated data if <size()> is passed
    * an argument less than <capacity()>.
    */
   char *mark (void) const;
+
   // = Message size is the total amount of space alloted.
+
   /// Get the total amount of allotted space in the message.  The amount of
   /// allotted space may be less than allocated space.
   size_t size (void) const;
+
   /// Set the total amount of space in the message.  Returns 0 if
   /// successful, else -1.
   int size (size_t length);
+
   /// Get the total amount of allocated space.
   size_t capacity (void) const;
+
   /**
    * Return an exact "deep copy" of the message, i.e., create fresh
    * new copies of all the Data_Blocks and continuations.
@@ -621,6 +738,7 @@ public:
    * themselves.
    */
   virtual ACE_Data_Block *clone (ACE_Message_Block::Message_Flags mask = 0) const;
+
   /**
    * As clone above, but it does not copy the contents of the buffer,
    * i.e., create a new Data_Block of the same dynamic type, with the
@@ -631,8 +749,10 @@ public:
    */
   virtual ACE_Data_Block *clone_nocopy (ACE_Message_Block::Message_Flags mask = 0,
                                         size_t max_size = 0) const;
+
   /// Return a "shallow" copy that increments our reference count by 1.
   ACE_Data_Block *duplicate (void);
+
   /**
    * Decrease the shared reference count by 1.  If the reference count
    * is > 0 then return this; else if reference count == 0 then delete
@@ -640,33 +760,45 @@ public:
    * count < 0.
    */
   ACE_Data_Block *release (ACE_Lock *lock = 0);
+
   // = Message flag accessors and mutators.
   /// Bitwise-or the <more_flags> into the existing message flags and
   /// return the new value.
   ACE_Message_Block::Message_Flags set_flags (ACE_Message_Block::Message_Flags more_flags);
+
   /// Clear the message flag bits specified in <less_flags> and return
   /// the new value.
   ACE_Message_Block::Message_Flags clr_flags (ACE_Message_Block::Message_Flags less_flags);
+
   /// Get the current message flags.
   ACE_Message_Block::Message_Flags flags (void) const;
+
   /// Obtain the allocator strategy.
   ACE_Allocator *allocator_strategy (void) const;
+
   // = The locking strategy prevents race conditions.
   /// Get the locking strategy.
   ACE_Lock *locking_strategy (void);
+
   /// Set a new locking strategy and return the hold one.
   ACE_Lock *locking_strategy (ACE_Lock *);
+
   /// Dump the state of an object.
   void dump (void) const;
+
   /// Get the current reference count.
   int reference_count (void) const;
+
   /// Get the allocator used to create this object
   ACE_Allocator *data_block_allocator (void) const;
+
 protected:
   /// Internal release implementation
   virtual ACE_Data_Block *release_i (void);
+
   /// Internal get the current reference count.
   int reference_count_i (void) const;
+
   /**
    * Decrease the reference count, but don't delete the object.
    * Returns 0 if the object should be removed.
@@ -677,16 +809,22 @@ protected:
    */
   friend class ACE_Message_Block;
   ACE_Data_Block *release_no_delete (ACE_Lock *lock);
+
   /// Type of message.
   ACE_Message_Block::ACE_Message_Type type_;
+
   /// Current size of message block.
   size_t cur_size_;
+
   /// Total size of buffer.
   size_t max_size_;
+
   /// Misc flags (e.g., DONT_DELETE and USER_FLAGS).
   ACE_Message_Block::Message_Flags flags_;
+
   /// Pointer To beginning of message payload.
   char *base_;
+
   // = Strategies.
   /**
    * Pointer to the allocator defined for this ACE_Data_Block.  Note
@@ -694,6 +832,7 @@ protected:
    * ACE_Data_Block.
    */
   ACE_Allocator *allocator_strategy_;
+
   /**
    * Pointer to the locking strategy defined for this
    * ACE_Data_Block.  This is used to protect regions of code that
@@ -701,6 +840,7 @@ protected:
    * shared by all owners of the ACE_Data_Block's data.
    */
   ACE_Lock *locking_strategy_;
+
   /**
    * Reference count for this ACE_Data_Block, which is used to avoid
    * deep copies (i.e., <clone>).  Note that this pointer value is
@@ -708,18 +848,25 @@ protected:
    * ACE_Message_Blocks.
    */
   int reference_count_;
+
   /// The allocator use to destroy ourselves.
   ACE_Allocator *data_block_allocator_;
+
 private:
   // = Disallow these operations.
   ACE_Data_Block &operator= (const ACE_Data_Block &);
   ACE_Data_Block (const ACE_Data_Block &);
 };
+
 ACE_END_VERSIONED_NAMESPACE_DECL
+
 #if defined (__ACE_INLINE__)
 #include "ace/Message_Block.inl"
 #endif /* __ACE_INLINE__ */
+
 #include "ace/Message_Block_T.h"
+
 #include /**/ "ace/post.h"
+
 #endif /* ACE_MESSAGE_BLOCK_H */
 

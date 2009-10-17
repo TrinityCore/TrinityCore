@@ -17,25 +17,31 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
+
 #ifndef _SHORTVECTOR_H
 #define _SHORTVECTOR_H
+
 #include <G3D/Vector3.h>
+
 namespace VMAP
 {
     /**
     Vector with 16 bit fix point values 12.4 bit.
     */
+
     class ShortVector
     {
         private:
             short iX;
             short iY;
             short iZ;
+
             const static short maxvalue = 0x7fff;
             const static short minvalue = -0x7fff;
             const static int fixpointdiv = 16;
             const static short fixpoint_maxvalue = maxvalue / fixpointdiv;
             const static short fixpoint_minvalue = minvalue / fixpointdiv;
+
             inline short float2Short(float fv) const
             {
                 short sv;
@@ -59,6 +65,7 @@ namespace VMAP
                     fv = ((float)sv) / fixpointdiv;
                 return fv;
             }
+
             inline float getFX() const { return(short2Float(iX)); }
             inline float getFY() const { return(short2Float(iY)); }
             inline float getFZ() const { return(short2Float(iZ)); }
@@ -70,6 +77,7 @@ namespace VMAP
                 iY = float2Short(pVector.y);
                 iZ = float2Short(pVector.z);
             }
+
             inline ShortVector(float pX, float pY, float pZ)
             {
                 iX = float2Short(pX);
@@ -88,10 +96,13 @@ namespace VMAP
                 iY = pShortVector.iY;
                 iZ = pShortVector.iZ;
             }
+
             inline float getX() const { return(iX);        }
             inline float getY() const { return(iY);        }
             inline float getZ() const { return(iZ);        }
+
             inline G3D::Vector3 getVector3() const  { return(G3D::Vector3(getFX(), getFY(), getFZ())); }
+
             inline ShortVector min(const ShortVector pShortVector)
             {
                 ShortVector result = pShortVector;
@@ -100,6 +111,7 @@ namespace VMAP
                 if(pShortVector.iZ > iZ) { result.iZ = iZ; }
                 return(result);
             }
+
             inline ShortVector max(const ShortVector pShortVector)
             {
                 ShortVector result = pShortVector;
@@ -108,14 +120,17 @@ namespace VMAP
                 if(pShortVector.iZ < iZ) { result.iZ = iZ; }
                 return(result);
             }
+
             inline bool operator==(const ShortVector& v) const
             {
                 return (iX == v.iX && iY == v.iY && iZ == v.iZ);
             }
+
             inline bool operator!=(const ShortVector& v) const
             {
                 return !(iX == v.iX && iY == v.iY && iZ == v.iZ);
             }
+
     };
 }
 #endif

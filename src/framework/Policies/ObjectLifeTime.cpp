@@ -17,14 +17,17 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
+
 #include <cstdlib>
 #include "ObjectLifeTime.h"
+
 namespace Trinity
 {
     extern "C" void external_wrapper(void *p)
     {
         std::atexit( (void (*)())p );
     }
+
     void TRINITY_DLL_SPEC at_exit( void (*func)() )
     {
         external_wrapper((void*)func);

@@ -15,16 +15,20 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
+
 #include "precompiled.h"
 #include "def_ulduar.h"
 #include "Vehicle.h"
+
 #define SPELL_ARM_DEAD_DAMAGE   HEROIC(63629,63979)
 #define SPELL_TWO_ARM_SMASH     HEROIC(63356,64003)
 #define SPELL_ONE_ARM_SMASH     HEROIC(63573,64006)
 #define SPELL_STONE_SHOUT       HEROIC(63716,64005)
 #define SPELL_PETRIFY_BREATH    HEROIC(62030,63980)
+
 #define SPELL_STONE_GRIP        HEROIC(62166,63981)
 #define SPELL_ARM_SWEEP         HEROIC(63766,63983)
+
 enum Events
 {
     EVENT_NONE = 0,
@@ -32,6 +36,7 @@ enum Events
     EVENT_GRIP,
     EVENT_SWEEP,
 };
+
 struct TRINITY_DLL_DECL boss_kologarnAI : public BossAI
 {
     boss_kologarnAI(Creature *pCreature) : BossAI(pCreature, TYPE_KOLOGARN), vehicle(me->GetVehicleKit()),
@@ -42,18 +47,23 @@ struct TRINITY_DLL_DECL boss_kologarnAI : public BossAI
         me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
         me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED); // i think this is a hack, but there is no other way to disable his rotation
     }
+
     ScriptedInstance* m_pInstance;
+
     Vehicle *vehicle;
     bool left, right;
+
     void AttackStart(Unit *who)
     {
         me->Attack(who, true);
     }
+
     void JustDied(Unit *victim)
     {
         if (m_pInstance)
             m_pInstance->SetData(TYPE_KOLOGARN, DONE);
     }
+
     void PassengerBoarded(Unit *who, int8 seatId, bool apply)
     {
         if(who->GetTypeId() == TYPEID_UNIT)
@@ -66,6 +76,7 @@ struct TRINITY_DLL_DECL boss_kologarnAI : public BossAI
             CAST_CRE(who)->SetReactState(REACT_PASSIVE);
         }
     }
+
     void EnterCombat(Unit *who)
     {
         _EnterCombat();
@@ -73,13 +84,17 @@ struct TRINITY_DLL_DECL boss_kologarnAI : public BossAI
         events.ScheduleEvent(EVENT_SWEEP, 10000);
         events.ScheduleEvent(EVENT_GRIP, 15000);
     }
+
     void UpdateAI(const uint32 diff)
     {
         if(!UpdateVictim())
             return;
+
         events.Update(diff);
+
         if(me->hasUnitState(UNIT_STAT_CASTING))
             return;
+
         // TODO: because we are using hack, he is stunned and cannot cast, so we use triggered for every spell
         switch(events.GetEvent())
         {
@@ -105,13 +120,16 @@ struct TRINITY_DLL_DECL boss_kologarnAI : public BossAI
                 events.PopEvent();
                 break;
         }
+
         DoMeleeAttackIfReady();
     }
 };
+
 CreatureAI* GetAI_boss_kologarn(Creature* pCreature)
 {
     return new boss_kologarnAI (pCreature);
 }
+
 void AddSC_boss_kologarn()
 {
     Script *newscript;

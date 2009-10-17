@@ -13,12 +13,14 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
+
 /* ScriptData
 SDName: Zangarmarsh
 SD%Complete: 100
 SDComment: Quest support: 9752, 9785, 9803, 10009. Mark Of ... buffs.
 SDCategory: Zangarmarsh
 EndScriptData */
+
 /* ContentData
 npcs_ashyen_and_keleth
 npc_cooshcoosh
@@ -27,16 +29,20 @@ npc_mortog_steamhead
 npc_kayra_longmane
 npc_timothy_daniels
 EndContentData */
+
 #include "precompiled.h"
 #include "escort_ai.h"
+
 /*######
 ## npcs_ashyen_and_keleth
 ######*/
+
 #define GOSSIP_ITEM_BLESS_ASH     "Grant me your mark, wise ancient."
 #define GOSSIP_ITEM_BLESS_KEL     "Grant me your mark, mighty ancient."
 //signed for 17900 but used by 17900,17901
 #define GOSSIP_REWARD_BLESS       -1000359
 //#define TEXT_BLESSINGS        "<You need higher standing with Cenarion Expedition to recive a blessing.>"
+
 bool GossipHello_npcs_ashyen_and_keleth(Player* pPlayer, Creature* pCreature)
 {
     if (pPlayer->GetReputationRank(942) > REP_NEUTRAL)
@@ -47,8 +53,10 @@ bool GossipHello_npcs_ashyen_and_keleth(Player* pPlayer, Creature* pCreature)
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_BLESS_KEL, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
     }
     pPlayer->SEND_GOSSIP_MENU(pCreature->GetNpcTextId(), pCreature->GetGUID());
+
     return true;
 }
+
 bool GossipSelect_npcs_ashyen_and_keleth(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
 {
     if (uiAction == GOSSIP_ACTION_INFO_DEF+1)
@@ -56,6 +64,7 @@ bool GossipSelect_npcs_ashyen_and_keleth(Player* pPlayer, Creature* pCreature, u
         pCreature->setPowerType(POWER_MANA);
         pCreature->SetMaxPower(POWER_MANA,200);             //set a "fake" mana value, we can't depend on database doing it in this case
         pCreature->SetPower(POWER_MANA,200);
+
         if (pCreature->GetEntry() == 17900)                //check which Creature we are dealing with
         {
             switch (pPlayer->GetReputationRank(942))
@@ -78,6 +87,7 @@ bool GossipSelect_npcs_ashyen_and_keleth(Player* pPlayer, Creature* pCreature, u
                     break;
             }
         }
+
         if (pCreature->GetEntry() == 17901)
         {
             switch (pPlayer->GetReputationRank(942))         //mark of war
@@ -105,54 +115,68 @@ bool GossipSelect_npcs_ashyen_and_keleth(Player* pPlayer, Creature* pCreature, u
     }
     return true;
 }
+
 /*######
 ## npc_cooshcoosh
 ######*/
+
 #define GOSSIP_COOSH            "You owe Sim'salabim money. Hand them over or die!"
+
 enum eCooshhooosh
 {
     SPELL_LIGHTNING_BOLT    = 9532,
     QUEST_CRACK_SKULLS      = 10009,
     FACTION_HOSTILE_CO      = 45
 };
+
 struct TRINITY_DLL_DECL npc_cooshcooshAI : public ScriptedAI
 {
     npc_cooshcooshAI(Creature* c) : ScriptedAI(c)
     {
         m_uiNormFaction = c->getFaction();
     }
+
     uint32 m_uiNormFaction;
     uint32 LightningBolt_Timer;
+
     void Reset()
     {
         LightningBolt_Timer = 2000;
         if (m_creature->getFaction() != m_uiNormFaction)
             m_creature->setFaction(m_uiNormFaction);
     }
+
     void EnterCombat(Unit *who) {}
+
     void UpdateAI(const uint32 diff)
     {
         if (!UpdateVictim())
             return;
+
         if (LightningBolt_Timer < diff)
         {
             DoCast(m_creature->getVictim(),SPELL_LIGHTNING_BOLT);
             LightningBolt_Timer = 5000;
         }else LightningBolt_Timer -= diff;
+
         DoMeleeAttackIfReady();
     }
 };
+
 CreatureAI* GetAI_npc_cooshcoosh(Creature* pCreature)
 {
     return new npc_cooshcooshAI (pCreature);
 }
+
 bool GossipHello_npc_cooshcoosh(Player* pPlayer, Creature* pCreature)
 {
     if (pPlayer->GetQuestStatus(QUEST_CRACK_SKULLS) == QUEST_STATUS_INCOMPLETE)
         pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_COOSH, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
+
     pPlayer->SEND_GOSSIP_MENU(9441, pCreature->GetGUID());
     return true;
 }
+
 bool GossipSelect_npc_cooshcoosh(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
 {
     if (uiAction == GOSSIP_ACTION_INFO_DEF)
@@ -163,19 +187,25 @@ bool GossipSelect_npc_cooshcoosh(Player* pPlayer, Creature* pCreature, uint32 ui
     }
     return true;
 }
+
 /*######
 ## npc_elder_kuruti
 ######*/
+
 #define GOSSIP_ITEM_KUR1 "Offer treat"
 #define GOSSIP_ITEM_KUR2 "Im a messenger for Draenei"
 #define GOSSIP_ITEM_KUR3 "Get message"
+
 bool GossipHello_npc_elder_kuruti(Player* pPlayer, Creature* pCreature)
 {
     if (pPlayer->GetQuestStatus(9803) == QUEST_STATUS_INCOMPLETE)
         pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_KUR1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
+
     pPlayer->SEND_GOSSIP_MENU(9226, pCreature->GetGUID());
+
     return true;
 }
+
 bool GossipSelect_npc_elder_kuruti(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
 {
     switch (uiAction)
@@ -207,16 +237,21 @@ bool GossipSelect_npc_elder_kuruti(Player* pPlayer, Creature* pCreature, uint32 
     }
     return true;
 }
+
 /*######
 ## npc_mortog_steamhead
 ######*/
+
 bool GossipHello_npc_mortog_steamhead(Player* pPlayer, Creature* pCreature)
 {
     if (pCreature->isVendor() && pPlayer->GetReputationRank(942) == REP_EXALTED)
         pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_VENDOR, GOSSIP_TEXT_BROWSE_GOODS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
+
     pPlayer->SEND_GOSSIP_MENU(pCreature->GetNpcTextId(), pCreature->GetGUID());
+
     return true;
 }
+
 bool GossipSelect_npc_mortog_steamhead(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
 {
     if (uiAction == GOSSIP_ACTION_TRADE)
@@ -225,9 +260,11 @@ bool GossipSelect_npc_mortog_steamhead(Player* pPlayer, Creature* pCreature, uin
     }
     return true;
 }
+
 /*######
 ## npc_kayra_longmane
 ######*/
+
 enum eKayra
 {
     SAY_START           = -1000360,
@@ -236,18 +273,24 @@ enum eKayra
     SAY_AMBUSH2         = -1000363,
     SAY_NEAR_END        = -1000364,
     SAY_END             = -1000365, //this is signed for 10646
+
     QUEST_ESCAPE_FROM   = 9752,
     NPC_SLAVEBINDER     = 18042
 };
+
 struct TRINITY_DLL_DECL npc_kayra_longmaneAI : public npc_escortAI
 {
     npc_kayra_longmaneAI(Creature* c) : npc_escortAI(c) {}
+
     void Reset() { }
+
     void WaypointReached(uint32 i)
     {
         Player* pPlayer = GetPlayerForEscort();
+
         if (!pPlayer)
             return;
+
         switch(i)
         {
             case 4:
@@ -275,39 +318,49 @@ struct TRINITY_DLL_DECL npc_kayra_longmaneAI : public npc_escortAI
         }
     }
 };
+
 bool QuestAccept_npc_kayra_longmane(Player* pPlayer, Creature* pCreature, Quest const* pQuest)
 {
     if (pQuest->GetQuestId() == QUEST_ESCAPE_FROM)
     {
         DoScriptText(SAY_START, pCreature, pPlayer);
+
         if (npc_escortAI* pEscortAI = CAST_AI(npc_kayra_longmaneAI, pCreature->AI()))
             pEscortAI->Start(false, false, pPlayer->GetGUID());
     }
     return true;
 }
+
 CreatureAI* GetAI_npc_kayra_longmaneAI(Creature* pCreature)
 {
     return new npc_kayra_longmaneAI(pCreature);
 }
+
 /*######
 ## npc_timothy_daniels
 ######*/
+
 #define GOSSIP_TIMOTHY_DANIELS_ITEM1    "Specialist, eh? Just what kind of specialist are you, anyway?"
 #define GOSSIP_TEXT_BROWSE_POISONS      "Let me browse your reagents and poison supplies."
+
 enum eTimothy
 {
     GOSSIP_TEXTID_TIMOTHY_DANIELS1      = 9239
 };
+
 bool GossipHello_npc_timothy_daniels(Player* pPlayer, Creature* pCreature)
 {
     if (pCreature->isQuestGiver())
         pPlayer->PrepareQuestMenu(pCreature->GetGUID());
+
     if (pCreature->isVendor())
         pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_VENDOR, GOSSIP_TEXT_BROWSE_POISONS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
+
     pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TIMOTHY_DANIELS_ITEM1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
     pPlayer->SEND_GOSSIP_MENU(pCreature->GetNpcTextId(), pCreature->GetGUID());
     return true;
 }
+
 bool GossipSelect_npc_timothy_daniels(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
 {
     switch(uiAction)
@@ -319,40 +372,49 @@ bool GossipSelect_npc_timothy_daniels(Player* pPlayer, Creature* pCreature, uint
             pPlayer->SEND_VENDORLIST(pCreature->GetGUID());
             break;
     }
+
     return true;
 }
+
 /*######
 ## AddSC
 ######*/
+
 void AddSC_zangarmarsh()
 {
     Script *newscript;
+
     newscript = new Script;
     newscript->Name = "npcs_ashyen_and_keleth";
     newscript->pGossipHello =  &GossipHello_npcs_ashyen_and_keleth;
     newscript->pGossipSelect = &GossipSelect_npcs_ashyen_and_keleth;
     newscript->RegisterSelf();
+
     newscript = new Script;
     newscript->Name = "npc_cooshcoosh";
     newscript->GetAI = &GetAI_npc_cooshcoosh;
     newscript->pGossipHello =  &GossipHello_npc_cooshcoosh;
     newscript->pGossipSelect = &GossipSelect_npc_cooshcoosh;
     newscript->RegisterSelf();
+
     newscript = new Script;
     newscript->Name = "npc_elder_kuruti";
     newscript->pGossipHello =  &GossipHello_npc_elder_kuruti;
     newscript->pGossipSelect = &GossipSelect_npc_elder_kuruti;
     newscript->RegisterSelf();
+
     newscript = new Script;
     newscript->Name = "npc_mortog_steamhead";
     newscript->pGossipHello =  &GossipHello_npc_mortog_steamhead;
     newscript->pGossipSelect = &GossipSelect_npc_mortog_steamhead;
     newscript->RegisterSelf();
+
     newscript = new Script;
     newscript->Name = "npc_kayra_longmane";
     newscript->GetAI = &GetAI_npc_kayra_longmaneAI;
     newscript->pQuestAccept = &QuestAccept_npc_kayra_longmane;
     newscript->RegisterSelf();
+
     newscript = new Script;
     newscript->Name = "npc_timothy_daniels";
     newscript->pGossipHello =  &GossipHello_npc_timothy_daniels;

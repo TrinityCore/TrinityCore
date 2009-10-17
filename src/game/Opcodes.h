@@ -17,17 +17,22 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
+
 /// \addtogroup u2w
 /// @{
 /// \file
+
 #ifndef _OPCODES_H
 #define _OPCODES_H
+
 #include "Common.h"
+
 // Note: this include need for be sure have full definition of class WorldSession
 //       if this class definition not complite then VS for x64 release use different size for
 //       struct OpcodeHandler in this header and Opcode.cpp and get totally wrong data from
 //       table opcodeTable in source when Opcode.h included but WorldSession.h not included
 #include "WorldSession.h"
+
 /// List of Opcodes
 enum Opcodes
 {
@@ -1262,6 +1267,7 @@ enum Opcodes
     SMSG_EQUIPMENT_SET_USE_RESULT                   = 0x4CC, // SMSG, UseEquipmentSetResult?
     NUM_MSG_TYPES                                   = 0x4CD
 };
+
 /// Player state
 enum SessionStatus
 {
@@ -1271,14 +1277,18 @@ enum SessionStatus
     STATUS_LOGGEDIN_OR_RECENTLY_LOGGOUT,                    ///< _player!= NULL or _player==NULL && m_playerRecentlyLogout, m_GUID store last _player guid)
     STATUS_NEVER                                            ///< Opcode not accepted from client (deprecated or server side only)
 };
+
 class WorldPacket;
+
 struct OpcodeHandler
 {
     char const* name;
     SessionStatus status;
     void (WorldSession::*handler)(WorldPacket& recvPacket);
 };
+
 extern OpcodeHandler opcodeTable[NUM_MSG_TYPES];
+
 /// Lookup opcode name for human understandable logging
 inline const char* LookupOpcodeName(uint16 id)
 {

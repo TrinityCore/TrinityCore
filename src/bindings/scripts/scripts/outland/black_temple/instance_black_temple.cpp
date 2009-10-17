@@ -13,15 +13,19 @@
 * along with this program; if not, write to the Free Software
 * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 */
+
 /* ScriptData
 SDName: Instance_Black_Temple
 SD%Complete: 100
 SDComment: Instance Data Scripts and functions to acquire mobs and set encounter status for use in various Black Temple Scripts
 SDCategory: Black Temple
 EndScriptData */
+
 #include "precompiled.h"
 #include "def_black_temple.h"
+
 #define MAX_ENCOUNTER      9
+
 /* Black Temple encounters:
 0 - High Warlord Naj'entus event
 1 - Supremus Event
@@ -33,11 +37,14 @@ EndScriptData */
 7 - Illidari Council Event
 8 - Illidan Stormrage Event
 */
+
 struct TRINITY_DLL_DECL instance_black_temple : public ScriptedInstance
 {
     instance_black_temple(Map* pMap) : ScriptedInstance(pMap) {Initialize();};
+
     uint32 m_auiEncounter[MAX_ENCOUNTER];
     std::string str_data;
+
     uint64 Najentus;
     uint64 Akama;                                           // This is the Akama that starts the Illidan encounter.
     uint64 Akama_Shade;                                     // This is the Akama that starts the Shade of Akama encounter.
@@ -50,6 +57,7 @@ struct TRINITY_DLL_DECL instance_black_temple : public ScriptedInstance
     uint64 IllidariCouncil;
     uint64 BloodElfCouncilVoice;
     uint64 IllidanStormrage;
+
     uint64 NajentusGate;
     uint64 MainTempleDoors;
     uint64 ShadeOfAkamaDoor;
@@ -62,9 +70,11 @@ struct TRINITY_DLL_DECL instance_black_temple : public ScriptedInstance
     uint64 SimpleDoor;//council
     uint64 IllidanGate;
     uint64 IllidanDoor[2];
+
     void Initialize()
     {
         memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
+
         Najentus = 0;
         Akama = 0;
         Akama_Shade = 0;
@@ -77,6 +87,7 @@ struct TRINITY_DLL_DECL instance_black_temple : public ScriptedInstance
         IllidariCouncil = 0;
         BloodElfCouncilVoice = 0;
         IllidanStormrage = 0;
+
         NajentusGate    = 0;
         MainTempleDoors = 0;
         ShadeOfAkamaDoor= 0;
@@ -91,26 +102,32 @@ struct TRINITY_DLL_DECL instance_black_temple : public ScriptedInstance
         IllidanDoor[0]  = 0;
         IllidanDoor[1]  = 0;
     }
+
     bool IsEncounterInProgress() const
     {
-        for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
+        for(uint8 i = 0; i < MAX_ENCOUNTER; ++i)
             if (m_auiEncounter[i] == IN_PROGRESS) return true;
+
         return false;
     }
+
     Player* GetPlayerInMap()
     {
         Map::PlayerList const& players = instance->GetPlayers();
+
         if (!players.isEmpty())
         {
-            for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
+            for(Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
             {
                 if (Player* plr = itr->getSource())
                     return plr;
             }
         }
+
         debug_log("TSCR: Instance Black Temple: GetPlayerInMap, but PlayerList is empty!");
         return NULL;
     }
+
     void OnCreatureCreate(Creature* pCreature, bool add)
     {
         switch(pCreature->GetEntry())
@@ -129,6 +146,7 @@ struct TRINITY_DLL_DECL instance_black_temple : public ScriptedInstance
         case 23499:    BloodElfCouncilVoice = pCreature->GetGUID();      break;
         }
     }
+
     void OnGameObjectCreate(GameObject* pGo, bool add)
     {
         switch(pGo->GetEntry())
@@ -157,6 +175,7 @@ struct TRINITY_DLL_DECL instance_black_temple : public ScriptedInstance
         case 186262: IllidanDoor[1] = pGo->GetGUID(); break; // Left door at Temple Summit
         }
     }
+
     uint64 GetData64(uint32 identifier)
     {
         switch(identifier)
@@ -179,8 +198,10 @@ struct TRINITY_DLL_DECL instance_black_temple : public ScriptedInstance
         case DATA_GAMEOBJECT_SUPREMUS_DOORS:   return MainTempleDoors;
         case DATA_BLOOD_ELF_COUNCIL_VOICE:     return BloodElfCouncilVoice;
         }
+
         return 0;
     }
+
     void SetData(uint32 type, uint32 data)
     {
         switch(type)
@@ -245,19 +266,24 @@ struct TRINITY_DLL_DECL instance_black_temple : public ScriptedInstance
             m_auiEncounter[7] = data; break;
         case DATA_ILLIDANSTORMRAGEEVENT:      m_auiEncounter[8] = data;         break;
         }
+
         if (data == DONE)
         {
             OUT_SAVE_INST_DATA;
+
             std::ostringstream saveStream;
             saveStream << m_auiEncounter[0] << " " << m_auiEncounter[1] << " "
                 << m_auiEncounter[2] << " " << m_auiEncounter[3] << " " << m_auiEncounter[4]
             << " " << m_auiEncounter[5] << " " << m_auiEncounter[6] << " " << m_auiEncounter[7]
             << " " << m_auiEncounter[8];
+
             str_data = saveStream.str();
+
             SaveToDB();
             OUT_SAVE_INST_DATA_COMPLETE;
         }
     }
+
     uint32 GetData(uint32 type)
     {
         switch(type)
@@ -272,12 +298,15 @@ struct TRINITY_DLL_DECL instance_black_temple : public ScriptedInstance
         case DATA_ILLIDARICOUNCILEVENT:             return m_auiEncounter[7];
         case DATA_ILLIDANSTORMRAGEEVENT:            return m_auiEncounter[8];
         }
+
         return 0;
     }
+
    std::string GetSaveData()
     {
         return str_data;
     }
+
     void Load(const char* in)
     {
         if (!in)
@@ -285,21 +314,27 @@ struct TRINITY_DLL_DECL instance_black_temple : public ScriptedInstance
             OUT_LOAD_INST_DATA_FAIL;
             return;
         }
+
         OUT_LOAD_INST_DATA(in);
+
         std::istringstream loadStream(in);
         loadStream >> m_auiEncounter[0] >> m_auiEncounter[1] >> m_auiEncounter[2]
         >> m_auiEncounter[3] >> m_auiEncounter[4] >> m_auiEncounter[5] >> m_auiEncounter[6]
         >> m_auiEncounter[7] >> m_auiEncounter[8];
-        for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
+
+        for(uint8 i = 0; i < MAX_ENCOUNTER; ++i)
             if (m_auiEncounter[i] == IN_PROGRESS)
                 m_auiEncounter[i] = NOT_STARTED;
+
         OUT_LOAD_INST_DATA_COMPLETE;
     }
 };
+
 InstanceData* GetInstanceData_instance_black_temple(Map* pMap)
 {
     return new instance_black_temple(pMap);
 }
+
 void AddSC_instance_black_temple()
 {
     Script *newscript;

@@ -17,16 +17,22 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
+
 #ifndef __SQLOPERATIONS_H
 #define __SQLOPERATIONS_H
+
 #include "Common.h"
+
 #include "ace/Thread_Mutex.h"
 #include "LockedQueue.h"
 #include <queue>
 #include "Utilities/Callback.h"
+
 /// ---- BASE ---
+
 class Database;
 class SqlDelayThread;
+
 class SqlOperation
 {
     public:
@@ -34,7 +40,9 @@ class SqlOperation
         virtual void Execute(Database *db) = 0;
         virtual ~SqlOperation() {}
 };
+
 /// ---- ASYNC STATEMENTS / TRANSACTIONS ----
+
 class SqlStatement : public SqlOperation
 {
     private:
@@ -44,6 +52,7 @@ class SqlStatement : public SqlOperation
         ~SqlStatement() { void* tofree = const_cast<char*>(m_sql); free(tofree); }
         void Execute(Database *db);
 };
+
 class SqlTransaction : public SqlOperation
 {
     private:
@@ -53,18 +62,22 @@ class SqlTransaction : public SqlOperation
         void DelayExecute(const char *sql) { m_queue.push(strdup(sql)); }
         void Execute(Database *db);
 };
+
 /// ---- ASYNC QUERIES ----
+
 class SqlQuery;                                             /// contains a single async query
 class QueryResult;                                          /// the result of one
 class SqlResultQueue;                                       /// queue for thread sync
 class SqlQueryHolder;                                       /// groups several async quries
 class SqlQueryHolderEx;                                     /// points to a holder, added to the delay thread
+
 class SqlResultQueue : public ACE_Based::LockedQueue<MaNGOS::IQueryCallback* , ACE_Thread_Mutex>
 {
     public:
         SqlResultQueue() {}
         void Update();
 };
+
 class SqlQuery : public SqlOperation
 {
     private:
@@ -77,6 +90,7 @@ class SqlQuery : public SqlOperation
         ~SqlQuery() { void* tofree = const_cast<char*>(m_sql); free(tofree); }
         void Execute(Database *db);
 };
+
 class SqlQueryHolder
 {
     friend class SqlQueryHolderEx;
@@ -93,6 +107,7 @@ class SqlQueryHolder
         void SetResult(size_t index, QueryResult *result);
         bool Execute(Trinity::IQueryCallback * callback, SqlDelayThread *thread, SqlResultQueue *queue);
 };
+
 class SqlQueryHolderEx : public SqlOperation
 {
     private:

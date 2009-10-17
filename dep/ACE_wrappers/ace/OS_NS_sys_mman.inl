@@ -1,18 +1,22 @@
 // -*- C++ -*-
 //
 // $Id: OS_NS_sys_mman.inl 82171 2008-06-25 13:32:01Z jtc $
+
 #include "ace/OS_NS_fcntl.h"
 #include "ace/OS_NS_unistd.h"
 #include "ace/OS_NS_stdio.h"
 #include "ace/OS_NS_macros.h"
 #include "ace/OS_NS_errno.h"
+
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
+
 #if defined (ACE_HAS_VOIDPTR_MMAP)
 // Needed for some odd OS's (e.g., SGI).
 typedef void *ACE_MMAP_TYPE;
 #else
 typedef char *ACE_MMAP_TYPE;
 #endif /* ACE_HAS_VOIDPTR_MMAP */
+
 ACE_INLINE int
 ACE_OS::madvise (caddr_t addr, size_t len, int map_advice)
 {
@@ -26,6 +30,7 @@ ACE_OS::madvise (caddr_t addr, size_t len, int map_advice)
   ACE_NOTSUP_RETURN (-1);
 #endif /* ACE_WIN32 */
 }
+
 ACE_INLINE void *
 ACE_OS::mmap (void *addr,
               size_t len,
@@ -41,7 +46,9 @@ ACE_OS::mmap (void *addr,
 #if !defined (ACE_WIN32) || defined (ACE_HAS_PHARLAP)
   ACE_UNUSED_ARG (file_mapping_name);
 #endif /* !defined (ACE_WIN32) || defined (ACE_HAS_PHARLAP) */
+
 #if defined (ACE_WIN32) && !defined (ACE_HAS_PHARLAP)
+
 #  if defined(ACE_HAS_WINCE)
   ACE_UNUSED_ARG (addr);
   if (ACE_BIT_ENABLED (flags, MAP_FIXED))     // not supported
@@ -58,11 +65,14 @@ ACE_OS::mmap (void *addr,
     return MAP_FAILED;
   }
 #  endif
+
   int nt_flags = 0;
   ACE_HANDLE local_handle = ACE_INVALID_HANDLE;
+
   // Ensure that file_mapping is non-zero.
   if (file_mapping == 0)
     file_mapping = &local_handle;
+
   if (ACE_BIT_ENABLED (flags, MAP_PRIVATE))
     {
 #  if !defined(ACE_HAS_WINCE)
@@ -77,6 +87,7 @@ ACE_OS::mmap (void *addr,
       if (ACE_BIT_ENABLED (prot, PAGE_READWRITE))
         nt_flags = FILE_MAP_WRITE;
     }
+
   // Only create a new handle if we didn't have a valid one passed in.
   if (*file_mapping == ACE_INVALID_HANDLE)
     {
@@ -86,6 +97,7 @@ ACE_OS::mmap (void *addr,
         ACE_OS::default_win32_security_attributes_r (sa,
                                                      &sa_buffer,
                                                      &sd_buffer);
+
       *file_mapping = ACE_TEXT_CreateFileMapping (file_handle,
                                                   attr,
                                                   prot,
@@ -93,13 +105,17 @@ ACE_OS::mmap (void *addr,
                                                   0,
                                                   file_mapping_name);
     }
+
   if (*file_mapping == 0)
     ACE_FAIL_RETURN (MAP_FAILED);
+
 #  if defined (ACE_OS_EXTRA_MMAP_FLAGS)
   nt_flags |= ACE_OS_EXTRA_MMAP_FLAGS;
 #  endif /* ACE_OS_EXTRA_MMAP_FLAGS */
+
   DWORD low_off  = ACE_LOW_PART (off);
   DWORD high_off = ACE_HIGH_PART (off);
+
 #  if !defined (ACE_HAS_WINCE)
   void *addr_mapping = ::MapViewOfFileEx (*file_mapping,
                                           nt_flags,
@@ -114,15 +130,18 @@ ACE_OS::mmap (void *addr,
                                         low_off,
                                         len);
 #  endif /* ! ACE_HAS_WINCE */
+
   // Only close this down if we used the temporary.
   if (file_mapping == &local_handle)
     ::CloseHandle (*file_mapping);
+
   if (addr_mapping == 0)
     ACE_FAIL_RETURN (MAP_FAILED);
   else
     return addr_mapping;
 #elif !defined (ACE_LACKS_MMAP)
   ACE_UNUSED_ARG (sa);
+
 #  if defined (ACE_OS_EXTRA_MMAP_FLAGS)
   flags |= ACE_OS_EXTRA_MMAP_FLAGS;
 #  endif /* ACE_OS_EXTRA_MMAP_FLAGS */
@@ -153,10 +172,12 @@ ACE_OS::mmap (void *addr,
   ACE_NOTSUP_RETURN (MAP_FAILED);
 #endif /* ACE_WIN32 && !ACE_HAS_PHARLAP */
 }
+
 // Implements simple read/write control for pages.  Affects a page if
 // part of the page is referenced.  Currently PROT_READ, PROT_WRITE,
 // and PROT_RDWR has been mapped in OS.h.  This needn't have anything
 // to do with a mmap region.
+
 ACE_INLINE int
 ACE_OS::mprotect (void *addr, size_t len, int prot)
 {
@@ -173,12 +194,14 @@ ACE_OS::mprotect (void *addr, size_t len, int prot)
   ACE_NOTSUP_RETURN (-1);
 #endif /* ACE_WIN32 && !ACE_HAS_PHARLAP */
 }
+
 ACE_INLINE int
 ACE_OS::msync (void *addr, size_t len, int sync)
 {
   ACE_OS_TRACE ("ACE_OS::msync");
 #if defined (ACE_WIN32) && !defined (ACE_HAS_PHARLAP)
   ACE_UNUSED_ARG (sync);
+
   ACE_WIN32CALL_RETURN (ACE_ADAPT_RETVAL (::FlushViewOfFile (addr, len), ace_result_), int, -1);
 #elif !defined (ACE_LACKS_MSYNC)
   ACE_OSCALL_RETURN (::msync ((ACE_MMAP_TYPE) addr, len, sync), int, -1);
@@ -189,12 +212,14 @@ ACE_OS::msync (void *addr, size_t len, int sync)
   ACE_NOTSUP_RETURN (-1);
 #endif /* ACE_WIN32 && !ACE_HAS_PHARLAP */
 }
+
 ACE_INLINE int
 ACE_OS::munmap (void *addr, size_t len)
 {
   ACE_OS_TRACE ("ACE_OS::munmap");
 #if defined (ACE_WIN32)
   ACE_UNUSED_ARG (len);
+
   ACE_WIN32CALL_RETURN (ACE_ADAPT_RETVAL (::UnmapViewOfFile (addr), ace_result_), int, -1);
 #elif !defined (ACE_LACKS_MMAP)
   ACE_OSCALL_RETURN (::munmap ((ACE_MMAP_TYPE) addr, len), int, -1);
@@ -204,6 +229,7 @@ ACE_OS::munmap (void *addr, size_t len)
   ACE_NOTSUP_RETURN (-1);
 #endif /* ACE_WIN32 */
 }
+
 ACE_INLINE ACE_HANDLE
 ACE_OS::shm_open (const ACE_TCHAR *filename,
                   int mode,
@@ -239,6 +265,7 @@ ACE_OS::shm_open (const ACE_TCHAR *filename,
   return ACE_OS::open (filename, mode, perms, sa);
 #endif /* ACE_HAS_SHM_OPEN */
 }
+
 ACE_INLINE int
 ACE_OS::shm_unlink (const ACE_TCHAR *path)
 {
@@ -266,4 +293,5 @@ ACE_OS::shm_unlink (const ACE_TCHAR *path)
   return ACE_OS::unlink (path);
 #endif /* ACE_HAS_SHM_OPEN */
 }
+
 ACE_END_VERSIONED_NAMESPACE_DECL

@@ -1,4 +1,5 @@
 // -*- C++ -*-
+
 //==========================================================================
 /**
  *  @file    ARGV.h
@@ -9,17 +10,23 @@
  *  @author Everett Anderson <eea1@cs.wustl.edu>
  */
 //==========================================================================
+
 #ifndef ACE_ARGUMENT_VECTOR_H
 #define ACE_ARGUMENT_VECTOR_H
 #include /**/ "ace/pre.h"
+
 #include /**/ "ace/ACE_export.h"
+
 #if !defined (ACE_LACKS_PRAGMA_ONCE)
 # pragma once
 #endif /* ACE_LACKS_PRAGMA_ONCE */
+
 #include "ace/Global_Macros.h"
 #include "ace/Unbounded_Queue.h"
+
 // Open versioned namespace, if enabled by the user.
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
+
 /**
  * @class ACE_ARGV_Queue_Entry_T
  *
@@ -32,6 +39,7 @@ public:
   // = Initialization and termination.
   /// Initialize a ACE_ARGV_Queue_Entry_T.
   ACE_ARGV_Queue_Entry_T (void);
+
   /**
    * Initialize a ACE_ARGV_Queue_Entry_T.
    *
@@ -42,24 +50,31 @@ public:
    */
   ACE_ARGV_Queue_Entry_T (const CHAR_TYPE *arg,
                           bool quote_arg);
+
   /**
    * Initialize a ACE_ARGV_Queue_Entry_T.
    *
    * @param entry Pointer to a queue entry
    */
   ACE_ARGV_Queue_Entry_T (const ACE_ARGV_Queue_Entry_T<CHAR_TYPE> &entry);
+
   /// We need this destructor to keep some compilers from complaining.
   /// It's just a no-op, however.
   ~ACE_ARGV_Queue_Entry_T (void);
+
   /// Dump the state of this object.
   void dump (void) const;
+
   // Declare the dynamic allocation hooks.
   ACE_ALLOC_HOOK_DECLARE;
+
   /// Pointer to the argument.
   const CHAR_TYPE * arg_;
+
   /// The argument need to be quoted while adding to the vector.
   bool quote_arg_;
 };
+
 /**
  * @class ACE_ARGV_T
  *
@@ -97,6 +112,7 @@ public:
    */
   explicit ACE_ARGV_T (const CHAR_TYPE buf[],
                        bool substitute_env_args = true);
+
   /**
    * Initializes the argument vector from a set of arguments. Any environment
    * variable references are translated (if applicable) during execution of
@@ -123,6 +139,7 @@ public:
                        CHAR_TYPE *argv[],
                        bool substitute_env_args = true,
                        bool quote_args = false);
+
   /**
    * Initializes the argument vector from a set of arguments. Any environment
    * variable references are translated (if applicable) during execution of
@@ -145,6 +162,7 @@ public:
   explicit ACE_ARGV_T (CHAR_TYPE *argv[],
                        bool substitute_env_args = true,
                        bool quote_args = false);
+
   /**
    * Initializes the argument vector from two combined argument vectors.
    *
@@ -167,14 +185,17 @@ public:
               CHAR_TYPE *second_argv[],
               bool substitute_env_args = true,
               bool quote_args = false);
+
   /**
    * Initialize this object so arguments can be added later using one
    * of the add methods. This is referred to as the @i iterative method
    * of adding arguments to this object.
    */
   explicit ACE_ARGV_T (bool substitute_env_args = true);
+
   /// Destructor.
   ~ACE_ARGV_T (void);
+
   /** @name Accessor methods
    *
    * These methods access the argument vector contained in this object.
@@ -189,25 +210,32 @@ public:
    * @retval   0 if @a index is out of bounds.
    */
   const CHAR_TYPE *operator[] (size_t index);
+
   /**
    * Returns the current argument vector. The returned pointers are to data
    * maintained internally to this class. Do not change or delete either the
    * pointers or the memory to which they refer.
    */
   CHAR_TYPE **argv (void);
+
   /// Returns the current number of arguments.
   int argc (void) const;
+
   /**
    * Returns a single string form of the current arguments. The returned
    * pointer refers to memory maintained internally to this class. Do not
    * change or delete it.
    */
   const CHAR_TYPE *buf (void);
+
   //@}
+
   /// Dump the state of this object.
   void dump (void) const;
+
   // Declare the dynamic allocation hooks.
   ACE_ALLOC_HOOK_DECLARE;
+
   /**
    * Add another argument. This only works in the iterative mode.
    *
@@ -226,6 +254,7 @@ public:
    *       - ENOMEM: Not enough memory available to save @a next_arg.
    */
   int add (const CHAR_TYPE *next_arg, bool quote_arg = false);
+
   /**
    * Add an array of arguments. This only works in the iterative mode.
    *
@@ -245,44 +274,61 @@ public:
    *       - ENOMEM: Not enough memory available to save @a next_arg.
    */
   int add (CHAR_TYPE *argv[], bool quote_args = false);
+
 private:
   /// Copy constructor not implemented.
   ACE_UNIMPLEMENTED_FUNC (ACE_ARGV_T (const ACE_ARGV_T<CHAR_TYPE>&))
+
   /// Assignment operator not implemented.
   ACE_UNIMPLEMENTED_FUNC (ACE_ARGV_T operator= (const ACE_ARGV_T<CHAR_TYPE>&))
+
   /// Creates buf_ from the queue of added args, deletes previous buf_.
   int create_buf_from_queue (void);
+
   /// Converts buf_ into the CHAR_TYPE *argv[] format.
   int string_to_argv (void);
+
   /// Replace args with environment variable values?
   bool substitute_env_args_;
+
   bool iterative_;
+
   /// Number of arguments in the ARGV array.
   int argc_;
+
   /// The array of string arguments.
   CHAR_TYPE **argv_;
+
   /// Buffer containing the <argv> contents.
   CHAR_TYPE *buf_;
+
   /// Total length of the arguments in the queue, not counting
   /// separating spaces
   size_t length_;
+
   /// Queue which keeps user supplied arguments.  This is only
   /// active in the "iterative" mode.
   ACE_Unbounded_Queue<ACE_ARGV_Queue_Entry_T<CHAR_TYPE> > queue_;
 };
+
 typedef ACE_ARGV_Queue_Entry_T<ACE_TCHAR> ACE_ARGV_Queue_Entry;
 typedef ACE_ARGV_T<ACE_TCHAR> ACE_ARGV;
+
 // Close versioned namespace, if enabled by the user.
 ACE_END_VERSIONED_NAMESPACE_DECL
+
 #if defined (__ACE_INLINE__)
 #include "ace/ARGV.inl"
 #endif /* __ACE_INLINE__ */
+
 #if defined (ACE_TEMPLATES_REQUIRE_SOURCE)
 #include "ace/ARGV.cpp"
 #endif /* ACE_TEMPLATES_REQUIRE_SOURCE */
+
 #if defined (ACE_TEMPLATES_REQUIRE_PRAGMA)
 #pragma implementation ("ARGV.cpp")
 #endif /* ACE_TEMPLATES_REQUIRE_PRAGMA */
+
 #include /**/ "ace/post.h"
 #endif /* ACE_ARGUMENT_VECTOR_H */
 

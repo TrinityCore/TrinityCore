@@ -17,12 +17,15 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+
 #ifdef WIN32
+
 #include "Common.h"
 #include "Log.h"
 #include <cstring>
 #include <windows.h>
 #include <winsvc.h>
+
 #if !defined(WINADVAPI)
 #if !defined(_ADVAPI32_)
 #define WINADVAPI DECLSPEC_IMPORT
@@ -30,19 +33,26 @@
 #define WINADVAPI
 #endif
 #endif
+
 extern int main(int argc, char ** argv);
 extern char serviceLongName[];
 extern char serviceName[];
 extern char serviceDescription[];
+
 extern int m_ServiceStatus;
+
 SERVICE_STATUS serviceStatus;
+
 SERVICE_STATUS_HANDLE serviceStatusHandle = 0;
+
 typedef WINADVAPI BOOL (WINAPI *CSD_T)(SC_HANDLE, DWORD, LPCVOID);
+
 bool WinServiceInstall()
 {
     CSD_T ChangeService_Config2;
     HMODULE advapi32;
     SC_HANDLE serviceControlManager = OpenSCManager(0, 0, SC_MANAGER_CREATE_SERVICE);
+
     if (serviceControlManager)
     {
         char path[_MAX_PATH + 10];
@@ -73,6 +83,7 @@ bool WinServiceInstall()
                     CloseServiceHandle(serviceControlManager);
                     return false;
                 }
+
                 ChangeService_Config2 = (CSD_T) GetProcAddress(advapi32, "ChangeServiceConfig2A");
                 if (!ChangeService_Config2)
                 {
@@ -80,12 +91,14 @@ bool WinServiceInstall()
                     CloseServiceHandle(serviceControlManager);
                     return false;
                 }
+
                 SERVICE_DESCRIPTION sdBuf;
                 sdBuf.lpDescription = serviceDescription;
                 ChangeService_Config2(
                     service,                                // handle to service
                     SERVICE_CONFIG_DESCRIPTION,             // change: description
                     &sdBuf);                                // new data
+
                 SC_ACTION _action[1];
                 _action[0].Type = SC_ACTION_RESTART;
                 _action[0].Delay = 10000;
@@ -98,16 +111,20 @@ bool WinServiceInstall()
                     service,                                // handle to service
                     SERVICE_CONFIG_FAILURE_ACTIONS,         // information level
                     &sfa);                                  // new data
+
                 CloseServiceHandle(service);
+
             }
         }
         CloseServiceHandle(serviceControlManager);
     }
     return true;
 }
+
 bool WinServiceUninstall()
 {
     SC_HANDLE serviceControlManager = OpenSCManager(0, 0, SC_MANAGER_CONNECT);
+
     if (serviceControlManager)
     {
         SC_HANDLE service = OpenService(serviceControlManager,
@@ -122,32 +139,39 @@ bool WinServiceUninstall()
             }
             CloseServiceHandle(service);
         }
+
         CloseServiceHandle(serviceControlManager);
     }
     return true;
 }
+
 void WINAPI ServiceControlHandler(DWORD controlCode)
 {
     switch (controlCode)
     {
         case SERVICE_CONTROL_INTERROGATE:
             break;
+
         case SERVICE_CONTROL_SHUTDOWN:
         case SERVICE_CONTROL_STOP:
             serviceStatus.dwCurrentState = SERVICE_STOP_PENDING;
             SetServiceStatus(serviceStatusHandle, &serviceStatus);
+
             m_ServiceStatus = 0;
             return;
+
         case SERVICE_CONTROL_PAUSE:
             m_ServiceStatus = 2;
             serviceStatus.dwCurrentState = SERVICE_PAUSED;
             SetServiceStatus(serviceStatusHandle, &serviceStatus);
             break;
+
         case SERVICE_CONTROL_CONTINUE:
             serviceStatus.dwCurrentState = SERVICE_RUNNING;
             SetServiceStatus(serviceStatusHandle, &serviceStatus);
             m_ServiceStatus = 1;
             break;
+
         default:
             if ( controlCode >= 128 && controlCode <= 255 )
                 // user defined control code
@@ -156,8 +180,10 @@ void WINAPI ServiceControlHandler(DWORD controlCode)
                 // unrecognized control code
                 break;
     }
+
     SetServiceStatus(serviceStatusHandle, &serviceStatus);
 }
+
 void WINAPI ServiceMain(DWORD argc, char *argv[])
 {
     // initialise service status
@@ -168,42 +194,56 @@ void WINAPI ServiceMain(DWORD argc, char *argv[])
     serviceStatus.dwServiceSpecificExitCode = NO_ERROR;
     serviceStatus.dwCheckPoint = 0;
     serviceStatus.dwWaitHint = 0;
+
     serviceStatusHandle = RegisterServiceCtrlHandler(serviceName, ServiceControlHandler);
+
     if ( serviceStatusHandle )
     {
         char path[_MAX_PATH + 1];
         unsigned int i, last_slash = 0;
+
         GetModuleFileName(0, path, sizeof(path)/sizeof(path[0]));
+
         for (i = 0; i < std::strlen(path); i++)
         {
             if (path[i] == '\\') last_slash = i;
         }
+
         path[last_slash] = 0;
+
         // service is starting
         serviceStatus.dwCurrentState = SERVICE_START_PENDING;
         SetServiceStatus(serviceStatusHandle, &serviceStatus);
+
         // do initialisation here
         SetCurrentDirectory(path);
+
         // running
         serviceStatus.dwControlsAccepted |= (SERVICE_ACCEPT_STOP | SERVICE_ACCEPT_SHUTDOWN);
         serviceStatus.dwCurrentState = SERVICE_RUNNING;
         SetServiceStatus( serviceStatusHandle, &serviceStatus );
+
         ////////////////////////
         // service main cycle //
         ////////////////////////
+
         m_ServiceStatus = 1;
         argc = 1;
         main(argc , argv);
+
         // service was stopped
         serviceStatus.dwCurrentState = SERVICE_STOP_PENDING;
         SetServiceStatus(serviceStatusHandle, &serviceStatus);
+
         // do cleanup here
+
         // service is now stopped
         serviceStatus.dwControlsAccepted &= ~(SERVICE_ACCEPT_STOP | SERVICE_ACCEPT_SHUTDOWN);
         serviceStatus.dwCurrentState = SERVICE_STOPPED;
         SetServiceStatus(serviceStatusHandle, &serviceStatus);
     }
 }
+
 bool WinServiceRun()
 {
     SERVICE_TABLE_ENTRY serviceTable[] =
@@ -211,6 +251,7 @@ bool WinServiceRun()
         { serviceName, ServiceMain },
         { 0, 0 }
     };
+
     if (!StartServiceCtrlDispatcher(serviceTable))
     {
         sLog.outError("StartService Failed. Error [%u]", ::GetLastError());

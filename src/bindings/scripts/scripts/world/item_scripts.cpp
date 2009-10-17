@@ -13,12 +13,14 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
+
 /* ScriptData
 SDName: Item_Scripts
 SD%Complete: 100
 SDComment: Items for a range of different items. See content below (in script)
 SDCategory: Items
 EndScriptData */
+
 /* ContentData
 item_draenei_fishing_net(i23654)    Hacklike implements chance to spawn item or creature
 item_nether_wraith_beacon(i31742)   Summons creatures for quest Becoming a Spellfire Tailor (q10832)
@@ -26,19 +28,24 @@ item_flying_machine(i34060,i34061)  Engineering crafted flying machines
 item_gor_dreks_ointment(i30175)     Protecting Our Own(q10488)
 item_only_for_flight                Items which should only useable while flying
 EndContentData */
+
 #include "precompiled.h"
 #include "Spell.h"
+
 /*#####
 # item_only_for_flight
 #####*/
+
 enum eOnlyForFlight
 {
     SPELL_ARCANE_CHARGES    = 45072
 };
+
 bool ItemUse_item_only_for_flight(Player* pPlayer, Item* _Item, SpellCastTargets const& targets)
 {
     uint32 itemId = _Item->GetEntry();
     bool disabled = false;
+
     //for special scripts
     switch(itemId)
     {
@@ -55,16 +62,20 @@ bool ItemUse_item_only_for_flight(Player* pPlayer, Item* _Item, SpellCastTargets
                 Spell::SendCastResult(pPlayer, pSpellInfo, 1, SPELL_FAILED_NOT_ON_GROUND);
                 break;
     }
+
     // allow use in flight only
     if (pPlayer->isInFlight() && !disabled)
         return false;
+
     // error
     pPlayer->SendEquipError(EQUIP_ERR_CANT_DO_RIGHT_NOW,_Item,NULL);
     return true;
 }
+
 /*#####
 # item_draenei_fishing_net
 #####*/
+
 //This is just a hack and should be removed from here.
 //Creature/Item are in fact created before spell are sucessfully casted, without any checks at all to ensure proper/expected behavior.
 bool ItemUse_item_draenei_fishing_net(Player* pPlayer, Item* _Item, SpellCastTargets const& targets)
@@ -96,9 +107,11 @@ bool ItemUse_item_draenei_fishing_net(Player* pPlayer, Item* _Item, SpellCastTar
     //}
     return false;
 }
+
 /*#####
 # item_nether_wraith_beacon
 #####*/
+
 bool ItemUse_item_nether_wraith_beacon(Player* pPlayer, Item* _Item, SpellCastTargets const& targets)
 {
     if (pPlayer->GetQuestStatus(10832) == QUEST_STATUS_INCOMPLETE)
@@ -111,36 +124,45 @@ bool ItemUse_item_nether_wraith_beacon(Player* pPlayer, Item* _Item, SpellCastTa
     }
     return false;
 }
+
 /*#####
 # item_flying_machine
 #####*/
+
 bool ItemUse_item_flying_machine(Player* pPlayer, Item* _Item, SpellCastTargets const& targets)
 {
     uint32 itemId = _Item->GetEntry();
     if (itemId == 34060)
         if (pPlayer->GetBaseSkillValue(SKILL_RIDING) >= 225)
             return false;
+
     if (itemId == 34061)
         if (pPlayer->GetBaseSkillValue(SKILL_RIDING) == 300)
             return false;
+
     debug_log("TSCR: Player attempt to use item %u, but did not meet riding requirement",itemId);
     pPlayer->SendEquipError(EQUIP_ERR_ERR_CANT_EQUIP_SKILL,_Item,NULL);
     return true;
 }
+
 /*#####
 # item_gor_dreks_ointment
 #####*/
+
 bool ItemUse_item_gor_dreks_ointment(Player* pPlayer, Item* _Item, SpellCastTargets const& targets)
 {
     if (targets.getUnitTarget() && targets.getUnitTarget()->GetTypeId()==TYPEID_UNIT &&
         targets.getUnitTarget()->GetEntry() == 20748 && !targets.getUnitTarget()->HasAura(32578))
         return false;
+
     pPlayer->SendEquipError(EQUIP_ERR_CANT_DO_RIGHT_NOW,_Item,NULL);
     return true;
 }
+
 /*#####
 # item_incendiary_explosives
 #####*/
+
 bool ItemUse_item_incendiary_explosives(Player* pPlayer, Item* _Item, SpellCastTargets const& targets)
 {
     if (pPlayer->FindNearestCreature(26248,15) || pPlayer->FindNearestCreature(26249,15))
@@ -153,9 +175,11 @@ bool ItemUse_item_incendiary_explosives(Player* pPlayer, Item* _Item, SpellCastT
         return true;
     }
 }
+
 /*#####
 # item_mysterious_egg
 #####*/
+
 bool ItemExpire_item_mysterious_egg(Player* pPlayer, ItemPrototype const * _ItemProto)
 {
     ItemPosCountVec dest;
@@ -166,9 +190,11 @@ bool ItemExpire_item_mysterious_egg(Player* pPlayer, ItemPrototype const * _Item
     }
     return true;
 }
+
 /*#####
 # item_disgusting_jar
 #####*/
+
 bool ItemExpire_item_disgusting_jar(Player* pPlayer, ItemPrototype const * _ItemProto)
 {
     ItemPosCountVec dest;
@@ -179,6 +205,7 @@ bool ItemExpire_item_disgusting_jar(Player* pPlayer, ItemPrototype const * _Item
     }
     return true;
 }
+
 /*#####
 # item_harvesters_gift
 #####*/
@@ -187,6 +214,7 @@ bool ItemUse_item_harvesters_gift(Player* pPlayer, Item* _Item, SpellCastTargets
 {
     std::list<Creature*> MinionList;
     pPlayer->GetAllMinionsByEntry(MinionList,GHOULS);
+
     if (pPlayer->GetQuestStatus(12698) == QUEST_STATUS_INCOMPLETE)
     {
         if (!MinionList.empty())
@@ -209,41 +237,51 @@ bool ItemUse_item_harvesters_gift(Player* pPlayer, Item* _Item, SpellCastTargets
         return true;
     }
 }
+
 void AddSC_item_scripts()
 {
     Script *newscript;
+
     newscript = new Script;
     newscript->Name = "item_only_for_flight";
     newscript->pItemUse = &ItemUse_item_only_for_flight;
     newscript->RegisterSelf();
+
     newscript = new Script;
     newscript->Name = "item_draenei_fishing_net";
     newscript->pItemUse = &ItemUse_item_draenei_fishing_net;
     newscript->RegisterSelf();
+
     newscript = new Script;
     newscript->Name = "item_nether_wraith_beacon";
     newscript->pItemUse = &ItemUse_item_nether_wraith_beacon;
     newscript->RegisterSelf();
+
     newscript = new Script;
     newscript->Name = "item_flying_machine";
     newscript->pItemUse = &ItemUse_item_flying_machine;
     newscript->RegisterSelf();
+
     newscript = new Script;
     newscript->Name = "item_gor_dreks_ointment";
     newscript->pItemUse = &ItemUse_item_gor_dreks_ointment;
     newscript->RegisterSelf();
+
     newscript = new Script;
     newscript->Name = "item_incendiary_explosives";
     newscript->pItemUse = &ItemUse_item_incendiary_explosives;
     newscript->RegisterSelf();
+
     newscript = new Script;
     newscript->Name = "item_mysterious_egg";
     newscript->pItemExpire = &ItemExpire_item_mysterious_egg;
     newscript->RegisterSelf();
+
     newscript = new Script;
     newscript->Name = "item_disgusting_jar";
     newscript->pItemExpire = &ItemExpire_item_disgusting_jar;
     newscript->RegisterSelf();
+
     newscript = new Script;
     newscript->Name = "item_harvesters_gift";
     newscript->pItemUse = &ItemUse_item_harvesters_gift;

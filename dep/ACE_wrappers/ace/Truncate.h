@@ -1,4 +1,5 @@
 // -*- C++ -*-
+
 //=============================================================================
 /**
  * @file Truncate.h
@@ -10,25 +11,36 @@
  * @author Russell Mora  <russell_mora@symantec.com>
  */
 //=============================================================================
+
 #ifndef ACE_TRUNCATE_H
 #define ACE_TRUNCATE_H
+
 #include /**/ "ace/pre.h"
+
 #include "ace/config-all.h"
+
 #if !defined (ACE_LACKS_PRAGMA_ONCE)
 # pragma once
 #endif /* ACE_LACKS_PRAGMA_ONCE */
+
 #include "ace/Global_Macros.h"
 #include "ace/If_Then_Else.h"
 #include "ace/Numeric_Limits.h"
+
 #if defined (ACE_LACKS_LONGLONG_T) \
     || defined (__BORLANDC__) && __BORLANDC__ < 0x590
 # include "ace/Basic_Types.h"
 #endif  /* ACE_LACKS_LONGLONG_T || __BORLANDC__ < 0x590 */
+
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
+
 namespace ACE_Utils
 {
+
 #if !defined (__BORLANDC__) || __BORLANDC__ >= 0x590
+
   template<typename T> struct Sign_Check;
+
   // Specialize the unsigned signed cases.
   template<> struct Sign_Check<unsigned char>  { ACE_STATIC_CONSTANT (bool, is_signed = 0); };
   template<> struct Sign_Check<unsigned short> { ACE_STATIC_CONSTANT (bool, is_signed = 0); };
@@ -44,6 +56,7 @@ namespace ACE_Utils
 #else
   template<> struct Sign_Check<ACE_U_LongLong> { ACE_STATIC_CONSTANT (bool, is_signed = 0); };
 #endif  /* !ACE_LACKS_LONGLONG_T */
+
   // Specialize the signed cases.
   template<> struct Sign_Check<signed char>  { ACE_STATIC_CONSTANT (bool, is_signed = 1); };
   template<> struct Sign_Check<signed short> { ACE_STATIC_CONSTANT (bool, is_signed = 1); };
@@ -57,7 +70,9 @@ namespace ACE_Utils
 # endif  /* __GNUC__ */
   template<> struct Sign_Check<signed long long> { ACE_STATIC_CONSTANT (bool, is_signed = 1); };
 #endif  /* !ACE_LACKS_LONGLONG_T */
+
   // -----------------------------------------------------
+
   /**
    * @struct To_Unsigned
    *
@@ -66,30 +81,39 @@ namespace ACE_Utils
    * Retrieve unsigned counterpart to given type or value.
    */
   template<typename T> struct To_Unsigned;
+
   template<>
   struct To_Unsigned<unsigned char>
   {
     typedef unsigned char unsigned_type;
+
     unsigned_type operator() (unsigned_type x) { return x; }
   };
+
   template<>
   struct To_Unsigned<unsigned short>
   {
     typedef unsigned short unsigned_type;
+
     unsigned_type operator() (unsigned_type x) { return x; }
   };
+
   template<>
   struct To_Unsigned<unsigned int>
   {
     typedef unsigned int unsigned_type;
+
     unsigned_type operator() (unsigned_type x) { return x; }
   };
+
   template<>
   struct To_Unsigned<unsigned long>
   {
     typedef unsigned long unsigned_type;
+
     unsigned_type operator() (unsigned_type x) { return x; }
   };
+
 #if !(defined(ACE_LACKS_LONGLONG_T) || defined(ACE_LACKS_UNSIGNEDLONGLONG_T))
 # ifdef __GNUC__
   // Silence g++ "-pedantic" warnings regarding use of "long long"
@@ -100,6 +124,7 @@ namespace ACE_Utils
   struct To_Unsigned<unsigned long long>
   {
     typedef unsigned long long unsigned_type;
+
     unsigned_type operator() (unsigned_type x) { return x; }
   };
 #else
@@ -107,50 +132,61 @@ namespace ACE_Utils
   struct To_Unsigned<ACE_U_LongLong>
   {
     typedef ACE_U_LongLong unsigned_type;
+
     unsigned_type operator() (unsigned_type x) { return x; }
   };
 #endif  /* !ACE_LACKS_LONGLONG_T */
+
   // ----------------
+
   template<>
   struct To_Unsigned<signed char>
   {
     typedef signed char   signed_type;
     typedef unsigned char unsigned_type;
+
     unsigned_type operator() (signed_type x)
     {
       return static_cast<unsigned_type> (x);
     }
   };
+
   template<>
   struct To_Unsigned<signed short>
   {
     typedef signed short   signed_type;
     typedef unsigned short unsigned_type;
+
     unsigned_type operator() (signed_type x)
     {
       return static_cast<unsigned_type> (x);
     }
   };
+
   template<>
   struct To_Unsigned<signed int>
   {
     typedef signed int   signed_type;
     typedef unsigned int unsigned_type;
+
     unsigned_type operator() (signed_type x)
     {
       return static_cast<unsigned_type> (x);
     }
   };
+
   template<>
   struct To_Unsigned<signed long>
   {
     typedef signed long   signed_type;
     typedef unsigned long unsigned_type;
+
     unsigned_type operator() (signed_type x)
     {
       return static_cast<unsigned_type> (x);
     }
   };
+
 #if !(defined(ACE_LACKS_LONGLONG_T) || defined(ACE_LACKS_UNSIGNEDLONGLONG_T))
 # ifdef __GNUC__
   // Silence g++ "-pedantic" warnings regarding use of "long long"
@@ -162,13 +198,16 @@ namespace ACE_Utils
   {
     typedef signed long long   signed_type;
     typedef unsigned long long unsigned_type;
+
     unsigned_type operator() (signed_type x)
     {
       return static_cast<unsigned_type> (x);
     }
   };
 #endif  /* !ACE_LACKS_LONGLONG_T */
+
   // -----------------------------------------------------
+
   /**
    * @struct Safe_Comparator
    *
@@ -185,6 +224,7 @@ namespace ACE_Utils
            typename RIGHT,
            bool IS_LEFT_SIGNED,
            bool IS_RIGHT_SIGNED> struct Safe_Comparator;
+
   // LEFT: signed, RIGHT: unsigned
   template<typename LEFT, typename RIGHT>
   struct Safe_Comparator<LEFT, RIGHT, true, false>
@@ -201,6 +241,7 @@ namespace ACE_Utils
         }
     }
   };
+
   // LEFT: unsigned, RIGHT: signed
   template<typename LEFT, typename RIGHT>
   struct Safe_Comparator<LEFT, RIGHT, false, true>
@@ -217,6 +258,7 @@ namespace ACE_Utils
         }
     }
   };
+
   // LEFT: unsigned, RIGHT: unsigned
   template<typename LEFT, typename RIGHT>
   struct Safe_Comparator<LEFT, RIGHT, false, false>
@@ -227,6 +269,7 @@ namespace ACE_Utils
       return lhs > rhs;
     }
   };
+
   // LEFT: signed, RIGHT: signed
   template<typename LEFT, typename RIGHT>
   struct Safe_Comparator<LEFT, RIGHT, true, true>
@@ -237,7 +280,9 @@ namespace ACE_Utils
       return lhs > rhs;
     }
   };
+
   // -----------------------------------------------------
+
   /**
    * @struct Fast_Comparator
    *
@@ -259,6 +304,7 @@ namespace ACE_Utils
       USE_LEFT  = ((sizeof (LEFT) > sizeof (RIGHT)
                     && (Sign_Check<LEFT>::is_signed == 1
                         || Sign_Check<RIGHT>::is_signed == 0))
+
                    // The following is basically the case where LEFT
                    // and RIGHT are the same integral type.
                    || (sizeof (LEFT) == sizeof (RIGHT)
@@ -272,12 +318,15 @@ namespace ACE_Utils
                             && Sign_Check<RIGHT>::is_signed == 1)
                            || (Sign_Check<LEFT>::is_signed == 0
                                && Sign_Check<RIGHT>::is_signed == 0)))));
+
     ACE_STATIC_CONSTANT (
       bool,
       USE_RIGHT = (sizeof (RIGHT) > sizeof (LEFT)
                    && (Sign_Check<RIGHT>::is_signed == 1
                        || Sign_Check<LEFT>::is_signed == 0)));
+
     ACE_STATIC_CONSTANT (bool, USABLE = (USE_LEFT || USE_RIGHT));
+
     typedef typename ACE::If_Then_Else<
       USE_LEFT,
       LEFT,
@@ -285,6 +334,7 @@ namespace ACE_Utils
         USE_RIGHT,
         RIGHT,
         void>::result_type>::result_type promote_type;
+
     static bool greater_than (LEFT lhs, RIGHT rhs)
     {
       // The explicit cast is assumed to change the type of rhs without
@@ -292,8 +342,11 @@ namespace ACE_Utils
       return
         (static_cast<promote_type> (lhs) > static_cast<promote_type> (rhs));
     }
+
   };
+
   // -----------------------------------------------------
+
   /**
    * @struct Comparator
    *
@@ -331,7 +384,9 @@ namespace ACE_Utils
                       Sign_Check<LEFT>::is_signed,
                       Sign_Check<RIGHT>::is_signed> >::result_type comp_type;
   };
+
   // -----------------------------------------------------
+
   /**
    * @struct Truncator
    *
@@ -349,10 +404,12 @@ namespace ACE_Utils
       MAX_FROM_GT_MAX_TO = (sizeof(FROM) > sizeof (TO)
                             || (sizeof(FROM) == sizeof (TO)
                                 && Sign_Check<FROM>::is_signed == 0)));
+
     typedef typename ACE::If_Then_Else<
       MAX_FROM_GT_MAX_TO,
       FROM,
       TO>::result_type comp_to_type;
+
     // Take advantage of knowledge that we're casting a positive value
     // to a type large enough to hold it so that we can bypass
     // negative value checks at compile-time.  Otherwise fallback on
@@ -361,6 +418,7 @@ namespace ACE_Utils
       MAX_FROM_GT_MAX_TO,
       Fast_Comparator<FROM, comp_to_type>,
       typename Comparator<FROM, comp_to_type>::comp_type>::result_type comparator;
+
     /// Truncate a value of type @c FROM to value of type @c TO, if
     /// the value is larger than the maximum of value of type @c TO.
     TO operator() (FROM val)
@@ -370,7 +428,9 @@ namespace ACE_Utils
          ? ACE_Numeric_Limits<TO>::max ()
          : static_cast<TO> (val));
     }
+
   };
+
   // Partial specialization for the case where the types are the same.
   // No truncation is necessary.
   template<typename T>
@@ -381,6 +441,7 @@ namespace ACE_Utils
       return val;
     }
   };
+
 
 #if defined (ACE_LACKS_LONGLONG_T) || defined (ACE_LACKS_UNSIGNEDLONGLONG_T)
   // Partial specialization for the case where we're casting from
@@ -403,6 +464,7 @@ namespace ACE_Utils
     }
   };
 #endif /* ACE_LACKS_LONGLONG_T || ACE_LACKS_UNSIGNEDLONGLONG_T */
+
   // -----------------------------------------------------
   /**
    * @struct Noop_Truncator
@@ -422,6 +484,7 @@ namespace ACE_Utils
     }
   };
   // -----------------------------------------------------
+
   /**
    * @class truncate_cast
    *
@@ -445,20 +508,27 @@ namespace ACE_Utils
       (sizeof (FROM) < sizeof (TO)),
       Noop_Truncator<FROM, TO>,
       Truncator<FROM, TO> >::result_type truncator;
+
     return truncator() (val);
   }
+
 #else
+
   // Borland can't handle the template meta-programming above so
   // provide explicit specializations for a few types.  More will be
   // added if necessary.
+
   /**
    * @deprecated Borland ACE_Utils::Truncator<> specializations should
    *             be removed.
    */
+
   template<typename FROM, typename TO> struct Truncator;
+
   //----------------------------------------------------------
   // sizeof(FROM) >  sizeof(TO)
   //----------------------------------------------------------
+
   template<>
   struct Truncator<ACE_INT32, ACE_INT8>
   {
@@ -470,6 +540,7 @@ namespace ACE_Utils
          : static_cast<ACE_INT8> (val));
     }
   };
+
   template<>
   struct Truncator<ACE_UINT32, ACE_UINT8>
   {
@@ -481,6 +552,7 @@ namespace ACE_Utils
          : static_cast<ACE_UINT8> (val));
     }
   };
+
   template<>
   struct Truncator<ACE_INT32, ACE_UINT8>
   {
@@ -492,6 +564,7 @@ namespace ACE_Utils
          : static_cast<ACE_UINT8> (val));
     }
   };
+
   template<>
   struct Truncator<ACE_UINT32, ACE_INT8>
   {
@@ -503,6 +576,7 @@ namespace ACE_Utils
          : static_cast<ACE_INT8> (val));
     }
   };
+
 #if defined (ACE_SIZEOF_LONG) && ACE_SIZEOF_LONG < 8
   template<>
   struct Truncator<ACE_INT64, signed long>
@@ -515,6 +589,7 @@ namespace ACE_Utils
          : static_cast<signed long> (val));
     }
   };
+
   template<>
   struct Truncator<ACE_INT64, unsigned long>
   {
@@ -526,6 +601,7 @@ namespace ACE_Utils
          : static_cast<unsigned long> (val));
     }
   };
+
   template<>
   struct Truncator<ACE_UINT64, unsigned long>
   {
@@ -537,6 +613,7 @@ namespace ACE_Utils
          : static_cast<unsigned long> (val));
     }
   };
+
   template<>
   struct Truncator<ACE_UINT64, signed long>
   {
@@ -548,6 +625,7 @@ namespace ACE_Utils
          : static_cast<signed long> (val));
     }
   };
+
   template<>
   struct Truncator<const ACE_UINT64, signed long>
   {
@@ -559,7 +637,9 @@ namespace ACE_Utils
          : static_cast<signed long> (val));
     }
   };
+
 #endif  /* ACE_SIZEOF_LONG < 8 */
+
 #if defined (ACE_SIZEOF_INT) && ACE_SIZEOF_INT < 8
   template<>
   struct Truncator<ACE_INT64, signed int>
@@ -572,6 +652,7 @@ namespace ACE_Utils
          : static_cast<signed int> (val));
     }
   };
+
   template<>
   struct Truncator<ACE_INT64, unsigned int>
   {
@@ -583,6 +664,7 @@ namespace ACE_Utils
          : static_cast<unsigned int> (val));
     }
   };
+
   template<>
   struct Truncator<ACE_UINT64, unsigned int>
   {
@@ -594,6 +676,7 @@ namespace ACE_Utils
          : static_cast<unsigned int> (val));
     }
   };
+
   template<>
   struct Truncator<ACE_UINT64, signed int>
   {
@@ -605,10 +688,13 @@ namespace ACE_Utils
          : static_cast<signed int> (val));
     }
   };
+
 #endif  /* ACE_SIZEOF_INT < 8 */
+
   //----------------------------------------------------------
   // sizeof(FROM) == sizeof(TO)
   //----------------------------------------------------------
+
   template<>
   struct Truncator<unsigned int, char>
   {
@@ -617,6 +703,7 @@ namespace ACE_Utils
       return static_cast<char> (val);
     }
   };
+
   template<>
   struct Truncator<unsigned int, wchar_t>
   {
@@ -625,6 +712,7 @@ namespace ACE_Utils
       return static_cast<wchar_t> (val);
     }
   };
+
   template<>
   struct Truncator<signed int, unsigned int>
   {
@@ -633,6 +721,7 @@ namespace ACE_Utils
       return static_cast<unsigned int> (val);
     }
   };
+
   template<>
   struct Truncator<unsigned int, signed int>
   {
@@ -644,6 +733,7 @@ namespace ACE_Utils
          : static_cast<signed int> (val));
     }
   };
+
   template<>
   struct Truncator<const unsigned int, signed int>
   {
@@ -655,6 +745,7 @@ namespace ACE_Utils
          : static_cast<signed int> (val));
     }
   };
+
   template<>
   struct Truncator<signed long, unsigned long>
   {
@@ -663,6 +754,7 @@ namespace ACE_Utils
       return static_cast<unsigned long> (val);
     }
   };
+
   template<>
   struct Truncator<unsigned long, signed long>
   {
@@ -674,8 +766,10 @@ namespace ACE_Utils
          : static_cast<signed long> (val));
     }
   };
+
 #if defined (ACE_SIZEOF_INT) && defined (ACE_SIZEOF_LONG) \
     && ACE_SIZEOF_INT == ACE_SIZEOF_LONG
+
   template<>
   struct Truncator<signed int, unsigned long>
   {
@@ -684,6 +778,7 @@ namespace ACE_Utils
       return static_cast<unsigned long> (val);
     }
   };
+
   template<>
   struct Truncator<signed int, signed long>
   {
@@ -692,6 +787,7 @@ namespace ACE_Utils
       return static_cast<signed long> (val);
     }
   };
+
   template<>
   struct Truncator<unsigned long, signed int>
   {
@@ -703,6 +799,7 @@ namespace ACE_Utils
          : static_cast<signed int> (val));
     }
   };
+
   template<>
   struct Truncator<signed long, signed int>
   {
@@ -717,6 +814,7 @@ namespace ACE_Utils
 //         : static_cast<signed int> (val));
     }
   };
+
   template<>
   struct Truncator<signed long, unsigned int>
   {
@@ -725,6 +823,7 @@ namespace ACE_Utils
       return static_cast<unsigned int> (val);
     }
   };
+
   template<>
   struct Truncator<const signed long, unsigned int>
   {
@@ -733,6 +832,7 @@ namespace ACE_Utils
       return static_cast<unsigned int> (val);
     }
   };
+
 
   template<>
   struct Truncator<unsigned int, signed long>
@@ -745,7 +845,9 @@ namespace ACE_Utils
          : static_cast<signed long> (val));
     }
   };
+
 #endif  /* ACE_SIZEOF_INT == ACE_SIZEOF_LONG */
+
   template<>
   struct Truncator<ACE_INT64, ACE_UINT64>
   {
@@ -754,6 +856,7 @@ namespace ACE_Utils
       return static_cast<ACE_UINT64> (val);
     }
   };
+
   template<>
   struct Truncator<ACE_UINT64, ACE_INT64>
   {
@@ -765,9 +868,11 @@ namespace ACE_Utils
          : static_cast<ACE_INT64> (val));
     }
   };
+
   //----------------------------------------------------------
   // sizeof(FROM) <  sizeof(TO)
   //----------------------------------------------------------
+
   template<>
   struct Truncator<ACE_INT8, ACE_INT32>
   {
@@ -776,6 +881,7 @@ namespace ACE_Utils
       return static_cast<ACE_INT32> (val);
     }
   };
+
   template<>
   struct Truncator<ACE_UINT8, ACE_UINT32>
   {
@@ -784,6 +890,7 @@ namespace ACE_Utils
       return static_cast<ACE_UINT32> (val);
     }
   };
+
   template<>
   struct Truncator<ACE_UINT8, ACE_INT32>
   {
@@ -792,6 +899,7 @@ namespace ACE_Utils
       return static_cast<ACE_INT32> (val);
     }
   };
+
   template<>
   struct Truncator<ACE_INT8, ACE_UINT32>
   {
@@ -800,6 +908,7 @@ namespace ACE_Utils
       return static_cast<ACE_UINT32> (val);
     }
   };
+
 #if defined (ACE_SIZEOF_LONG) && ACE_SIZEOF_LONG < 8
   template<>
   struct Truncator<signed long, ACE_INT64>
@@ -809,6 +918,7 @@ namespace ACE_Utils
       return static_cast<ACE_INT64> (val);
     }
   };
+
   template<>
   struct Truncator<signed long, ACE_UINT64>
   {
@@ -817,6 +927,7 @@ namespace ACE_Utils
       return static_cast<ACE_UINT64> (val);
     }
   };
+
   template<>
   struct Truncator<const signed long, ACE_UINT64>
   {
@@ -828,6 +939,7 @@ namespace ACE_Utils
          : static_cast<signed long> (val));
     }
   };
+
   template<>
   struct Truncator<unsigned long, ACE_UINT64>
   {
@@ -836,6 +948,7 @@ namespace ACE_Utils
       return static_cast<ACE_UINT64> (val);
     }
   };
+
   template<>
   struct Truncator<unsigned long, ACE_INT64>
   {
@@ -845,6 +958,7 @@ namespace ACE_Utils
     }
   };
 #endif  /* ACE_SIZEOF_LONG < 8 */
+
 #if defined (ACE_SIZEOF_INT) && ACE_SIZEOF_INT < 8
   template<>
   struct Truncator<signed int, ACE_INT64>
@@ -854,6 +968,7 @@ namespace ACE_Utils
       return static_cast<ACE_INT64> (val);
     }
   };
+
   template<>
   struct Truncator<signed int, ACE_UINT64>
   {
@@ -862,6 +977,7 @@ namespace ACE_Utils
       return static_cast<ACE_UINT64> (val);
     }
   };
+
   template<>
   struct Truncator<unsigned int, ACE_UINT64>
   {
@@ -870,6 +986,7 @@ namespace ACE_Utils
       return static_cast<ACE_UINT64> (val);
     }
   };
+
   template<>
   struct Truncator<unsigned int, ACE_INT64>
   {
@@ -879,6 +996,7 @@ namespace ACE_Utils
     }
   };
 #endif  /* ACE_SIZEOF_INT < 8 */
+
   template<>
   struct Truncator<size_t, unsigned long>
   {
@@ -890,6 +1008,7 @@ namespace ACE_Utils
          : static_cast<size_t> (val));
     }
   };
+
   // Partial specialization for the case where the types are the same.
   // No truncation is necessary.
   template<typename T>
@@ -900,6 +1019,7 @@ namespace ACE_Utils
       return val;
     }
   };
+
   // Partial specialization for the case where the types are the same,
   // but the from type is const.  No truncation is necessary.
   //
@@ -913,16 +1033,24 @@ namespace ACE_Utils
       return val;
     }
   };
+
   // -------------------------------------
+
   template<typename TO, typename FROM>
   inline TO truncate_cast (FROM val)
   {
     typedef Truncator<FROM, TO> truncator;
+
     return truncator() (val);
   }
+
 #endif  /* !__BORLANDC__ || __BORLANDC__ >= 0x590 */
+
 } // namespace ACE_Utils
+
 ACE_END_VERSIONED_NAMESPACE_DECL
+
 #include /**/ "ace/post.h"
+
 #endif /* ACE_TRUNCATE_H*/
 

@@ -1,4 +1,5 @@
 // -*- C++ -*-
+
 //=============================================================================
 /**
  *  @file    Activation_Queue.h
@@ -9,19 +10,28 @@
  *  @author Douglas C. Schmidt <schmidt@cs.wustl.edu>
  */
 //=============================================================================
+
 #ifndef ACE_ACTIVATION_QUEUE_H
 #define ACE_ACTIVATION_QUEUE_H
+
 #include /**/ "ace/pre.h"
+
 #include /**/ "ace/ACE_export.h"
+
 #if !defined (ACE_LACKS_PRAGMA_ONCE)
 # pragma once
 #endif /* ACE_LACKS_PRAGMA_ONCE */
+
 #include "ace/Message_Queue.h"
 #include "ace/Condition_Thread_Mutex.h"
+
 /// Define to be compatible with the terminology in the POSA2 book!
 #define ACE_Activation_List ACE_Activation_Queue
+
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
+
 class ACE_Method_Request;
+
 /**
  * @class ACE_Activation_Queue
  *
@@ -66,9 +76,12 @@ public:
   ACE_Activation_Queue (ACE_Message_Queue<ACE_SYNCH> *new_queue = 0,
                         ACE_Allocator *alloc = 0,
                         ACE_Allocator *db_alloc = 0);
+
   /// Destructor.
   virtual ~ACE_Activation_Queue (void);
+
   // = Activate Queue operations.
+
   /// Dequeue the next available ACE_Method_Request.
   /**
    * @param tv  If 0, the method will block until a method request is
@@ -82,6 +95,7 @@ public:
    *            the specified timeout elapses, errno will be @c EWOULDBLOCK.
    */
   ACE_Method_Request *dequeue (ACE_Time_Value *tv = 0);
+
   /// Enqueue the ACE_Method_Request in priority order.
   /**
    * The priority of the method request is obtained via the @c priority()
@@ -103,39 +117,58 @@ public:
    *            the specified timeout elapses, errno will be @c EWOULDBLOCK.
    */
   int enqueue (ACE_Method_Request *new_method_request, ACE_Time_Value *tv = 0);
+
   /// Get the current number of method objects in the queue.
   size_t method_count (void) const;
+
   /// Returns 1 if the queue is empty, 0 otherwise.
   int is_empty (void) const;
+
   /// Returns 1 if the queue is full, 0 otherwise.
   int is_full (void) const;
+
   /// Dump the state of an request.
   void dump (void) const;
+
   /// Get a pointer to the underlying queue.
   ACE_Message_Queue<ACE_SYNCH> *queue (void) const;
+
   /// Set the pointer to the underlying queue.
   void queue (ACE_Message_Queue<ACE_SYNCH> *q);
+
   /// Declare the dynamic allocation hooks.
   ACE_ALLOC_HOOK_DECLARE;
+
 private:
+
   // = Prevent copying and assignment.
   ACE_Activation_Queue (const ACE_Activation_Queue &);
   void operator= (const ACE_Activation_Queue &);
+
 protected:
+
   /// Stores the Method_Requests.
   ACE_Message_Queue<ACE_SYNCH> *queue_;
+
   /// Keeps track of whether we need to delete the queue.
   bool delete_queue_;
+
 private:
+
   /// Allocation strategy of the queue.
   ACE_Allocator *allocator_;
+
   /// Allocation strategy of the message blocks.
   ACE_Allocator *data_block_allocator_;
+
 };
+
 ACE_END_VERSIONED_NAMESPACE_DECL
+
 #if defined (__ACE_INLINE__)
 #include "ace/Activation_Queue.inl"
 #endif /* __ACE_INLINE__ */
+
 #include /**/ "ace/post.h"
 #endif /* ACE_ACTIVATION_QUEUE_H */
 

@@ -4,20 +4,25 @@
 **/
 /*
 Copyright (C) 2004-2007  Anders Hedstrom
+
 This library is made available under the terms of the GNU GPL.
+
 If you would like to use this library in a closed-source application,
 a separate license agreement is available. For information about
 the closed-source license agreement for the C++ sockets library,
 please visit http://www.alhem.net/Sockets/license.html and/or
 email license@alhem.net.
+
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
 as published by the Free Software Foundation; either version 2
 of the License, or (at your option) any later version.
+
 This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
+
 You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -30,14 +35,19 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <openssl/ssl.h>
 #include "SSLInitializer.h"
 #endif
+
 #include <string.h>
+
 #define TCP_BUFSIZE_READ 16400
 #define TCP_OUTPUT_CAPACITY 1024000
+
 
 #ifdef SOCKETS_NAMESPACE
 namespace SOCKETS_NAMESPACE {
 #endif
+
 class SocketAddress;
+
 
 /** Socket implementation for TCP.
     \ingroup basic */
@@ -52,6 +62,7 @@ protected:
     public:
         CircularBuffer(size_t size);
         ~CircularBuffer();
+
         /** append l bytes from p to buffer */
         bool Write(const char *p,size_t l);
         /** copy l bytes from buffer to dest */
@@ -62,6 +73,7 @@ protected:
         bool Remove(size_t l);
         /** read l bytes from buffer, returns as string. */
         std::string ReadString(size_t l);
+
         /** total buffer length */
         size_t GetLength();
         /** pointer to circular buffer beginning */
@@ -70,8 +82,10 @@ protected:
         size_t GetL();
         /** return free space in buffer, number of bytes until buffer overrun */
         size_t Space();
+
         /** return total number of bytes written to this buffer, ever */
         unsigned long ByteCounter(bool clear = false);
+
     private:
         CircularBuffer(const CircularBuffer& /*s*/) {}
         CircularBuffer& operator=(const CircularBuffer& ) { return *this; }
@@ -114,6 +128,7 @@ protected:
         char _buf[TCP_OUTPUT_CAPACITY];
     };
     typedef std::list<OUTPUT *> output_l;
+
 public:
     /** Constructor with standard values on input/output buffers. */
     TcpSocket(ISocketHandler& );
@@ -123,6 +138,7 @@ public:
         \param osize Output buffer size */
     TcpSocket(ISocketHandler& h,size_t isize,size_t osize);
     ~TcpSocket();
+
     /** Open a connection to a remote server.
         If you want your socket to connect to a server,
         always call Open before Add'ing a socket to the sockethandler.
@@ -147,15 +163,18 @@ public:
         \param host Hostname
         \param port Port number */
     bool Open(const std::string &host,port_t port);
+
     /** Connect timeout callback. */
     void OnConnectTimeout();
 #ifdef _WIN32
     /** Connection failed reported as exception on win32 */
     void OnException();
 #endif
+
     /** Close file descriptor - internal use only.
         \sa SetCloseAndDelete */
     int Close();
+
     /** Send a string.
         \param s String to send
         \param f Dummy flags -- not used */
@@ -171,6 +190,7 @@ public:
         \param buf Pointer to the data
         \param len Length of the data */
     virtual void OnRawData(const char *buf,size_t len);
+
     /** Called when output buffer has been sent.
         Note: Will only be called IF the output buffer has been used.
         Send's that was successful without needing the output buffer
@@ -180,6 +200,7 @@ public:
     size_t GetInputLength();
     /** Number of bytes in output buffer. */
     size_t GetOutputLength();
+
     /** Callback fires when a socket in line protocol has read one full line.
         \param line Line read */
     void OnLine(const std::string& line);
@@ -187,6 +208,7 @@ public:
     uint64_t GetBytesReceived(bool clear = false);
     /** Get counter of number of bytes sent. */
     uint64_t GetBytesSent(bool clear = false);
+
     /** Socks4 specific callback. */
     void OnSocks4Connect();
     /** Socks4 specific callback. */
@@ -194,6 +216,7 @@ public:
     /** Socks4 specific callback.
         \return 'need_more' */
     bool OnSocks4Read();
+
 #ifdef ENABLE_RESOLVER
     /** Callback executed when resolver thread has finished a resolve request. */
     void OnResolved(int id,ipaddr_t a,port_t port);
@@ -213,6 +236,7 @@ public:
         the ssl context for an incoming connection. */
     virtual void InitSSLServer();
 #endif
+
 #ifdef ENABLE_RECONNECT
     /** Flag that says a broken connection will try to reconnect. */
     void SetReconnect(bool = true);
@@ -223,17 +247,24 @@ public:
     /** Socket is reconnecting. */
     bool IsReconnect();
 #endif
+
     void DisableInputBuffer(bool = true);
+
     void OnOptions(int,int,int,SOCKET);
+
     void SetLineProtocol(bool = true);
+
     // TCP options
     bool SetTcpNodelay(bool = true);
+
     virtual int Protocol();
+
     /** Trigger limit for callback OnTransferLimit. */
     void SetTransferLimit(size_t sz);
     /** This callback fires when the output buffer drops below the value
         set by SetTransferLimit. Default: 0 (disabled). */
     virtual void OnTransferLimit();
+
 protected:
     TcpSocket(const TcpSocket& );
     void OnRead();
@@ -265,13 +296,17 @@ static  int SSL_password_cb(char *buf,int num,int rwflag,void *userdata);
     /** SSL; Get ssl password. */
     const std::string& GetPassword();
 #endif
+
     CircularBuffer ibuf; ///< Circular input buffer
+
 private:
     TcpSocket& operator=(const TcpSocket& ) { return *this; }
+
     /** the actual send() */
     int TryWrite(const char *buf, size_t len);
     /** add data to output buffer top */
     void Buffer(const char *buf, size_t len);
+
     //
     bool m_b_input_buffer_disabled;
     uint64_t m_bytes_sent;
@@ -286,6 +321,7 @@ private:
     OUTPUT *m_obuf_top; ///< output buffer on top
     size_t m_transfer_limit;
     size_t m_output_length;
+
 #ifdef HAVE_OPENSSL
 static  SSLInitializer m_ssl_init;
     SSL_CTX *m_ssl_ctx; ///< ssl context
@@ -293,6 +329,7 @@ static  SSLInitializer m_ssl_init;
     BIO *m_sbio; ///< ssl bio
     std::string m_password; ///< ssl password
 #endif
+
 #ifdef ENABLE_SOCKS4
     int m_socks4_state; ///< socks4 support
     char m_socks4_vn; ///< socks4 support, temporary variable
@@ -300,17 +337,23 @@ static  SSLInitializer m_ssl_init;
     unsigned short m_socks4_dstport; ///< socks4 support
     unsigned long m_socks4_dstip; ///< socks4 support
 #endif
+
 #ifdef ENABLE_RESOLVER
     int m_resolver_id; ///< Resolver id (if any) for current Open call
 #endif
+
 #ifdef ENABLE_RECONNECT
     bool m_b_reconnect; ///< Reconnect on lost connection flag
     bool m_b_is_reconnect; ///< Trying to reconnect
 #endif
+
 };
+
 
 #ifdef SOCKETS_NAMESPACE
 }
 #endif
+
 #endif // _SOCKETS_TcpSocket_H
+
 

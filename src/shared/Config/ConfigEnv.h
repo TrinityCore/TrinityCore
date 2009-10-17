@@ -17,10 +17,14 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
+
 #if !defined(CONFIGENVIRONMENT_H)
+
 #define CONFIGENVIRONMENT_H
+
 #include "Common.h"
 #include "dotconfpp/dotconfpp.h"
 #include "Config.h"
+
 #endif
 

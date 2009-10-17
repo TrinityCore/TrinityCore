@@ -13,21 +13,26 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
+
 /* ScriptData
 SDName: Silithus
 SD%Complete: 100
 SDComment: Quest support: 7785, 8304, 8507.
 SDCategory: Silithus
 EndScriptData */
+
 /* ContentData
 npc_highlord_demitrian
 npcs_rutgar_and_frankal
 quest_a_pawn_on_the_eternal_pawn
 EndContentData */
+
 #include "precompiled.h"
+
 /*###
 ## npc_highlord_demitrian
 ###*/
+
 #define GOSSIP_DEMITRIAN1 "What do you know of it?"
 #define GOSSIP_DEMITRIAN2 "I am listening , Demitrian."
 #define GOSSIP_DEMITRIAN3 "Continue, please."
@@ -35,16 +40,20 @@ EndContentData */
 #define GOSSIP_DEMITRIAN5 "<Nod>"
 #define GOSSIP_DEMITRIAN6 "Caught unaware? How?"
 #define GOSSIP_DEMITRIAN7 "So what did Ragnaros do next?"
+
 bool GossipHello_npc_highlord_demitrian(Player* pPlayer, Creature* pCreature)
 {
     if (pCreature->isQuestGiver())
         pPlayer->PrepareQuestMenu(pCreature->GetGUID());
+
     if (pPlayer->GetQuestStatus(7785) == QUEST_STATUS_NONE &&
         (pPlayer->HasItemCount(18563,1,false) || pPlayer->HasItemCount(18564,1,false)))
         pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_DEMITRIAN1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
+
     pPlayer->SEND_GOSSIP_MENU(6812, pCreature->GetGUID());
         return true;
 }
+
 bool GossipSelect_npc_highlord_demitrian(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
 {
     switch (uiAction)
@@ -75,6 +84,7 @@ bool GossipSelect_npc_highlord_demitrian(Player* pPlayer, Creature* pCreature, u
         break;
     case GOSSIP_ACTION_INFO_DEF+6:
         pPlayer->SEND_GOSSIP_MENU(6870, pCreature->GetGUID());
+
         ItemPosCountVec dest;
         uint8 msg = pPlayer->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, 19016, 1);
         if (msg == EQUIP_ERR_OK)
@@ -83,40 +93,51 @@ bool GossipSelect_npc_highlord_demitrian(Player* pPlayer, Creature* pCreature, u
     }
     return true;
 }
+
 /*###
 ## npcs_rutgar_and_frankal
 ###*/
+
 //gossip item text best guess
 #define GOSSIP_ITEM1 "I seek information about Natalia"
+
 #define GOSSIP_ITEM2 "That sounds dangerous!"
 #define GOSSIP_ITEM3 "What did you do?"
 #define GOSSIP_ITEM4 "Who?"
 #define GOSSIP_ITEM5 "Women do that. What did she demand?"
 #define GOSSIP_ITEM6 "What do you mean?"
 #define GOSSIP_ITEM7 "What happened next?"
+
 #define GOSSIP_ITEM11 "Yes, please continue"
 #define GOSSIP_ITEM12 "What language?"
 #define GOSSIP_ITEM13 "The Priestess attacked you?!"
 #define GOSSIP_ITEM14 "I should ask the monkey about this"
 #define GOSSIP_ITEM15 "Then what..."
+
 //trigger creatures to kill
 #define TRIGGER_RUTGAR 15222
 #define TRIGGER_FRANKAL 15221
+
 bool GossipHello_npcs_rutgar_and_frankal(Player* pPlayer, Creature* pCreature)
 {
     if (pCreature->isQuestGiver())
         pPlayer->PrepareQuestMenu(pCreature->GetGUID());
+
     if (pPlayer->GetQuestStatus(8304) == QUEST_STATUS_INCOMPLETE &&
         pCreature->GetEntry() == 15170 &&
         !pPlayer->GetReqKillOrCastCurrentCount(8304, TRIGGER_RUTGAR))
         pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
+
     if (pPlayer->GetQuestStatus(8304) == QUEST_STATUS_INCOMPLETE &&
         pCreature->GetEntry() == 15171 &&
         pPlayer->GetReqKillOrCastCurrentCount(8304, TRIGGER_RUTGAR))
         pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+9);
+
     pPlayer->SEND_GOSSIP_MENU(7754, pCreature->GetGUID());
+
     return true;
 }
+
 bool GossipSelect_npcs_rutgar_and_frankal(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
 {
     switch (uiAction)
@@ -150,6 +171,7 @@ bool GossipSelect_npcs_rutgar_and_frankal(Player* pPlayer, Creature* pCreature, 
                                                             //'kill' our trigger to update quest status
             pPlayer->KilledMonsterCredit(TRIGGER_RUTGAR, pCreature->GetGUID());
             break;
+
         case GOSSIP_ACTION_INFO_DEF + 9:
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM11, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 11);
             pPlayer->SEND_GOSSIP_MENU(7762, pCreature->GetGUID());
@@ -178,19 +200,23 @@ bool GossipSelect_npcs_rutgar_and_frankal(Player* pPlayer, Creature* pCreature, 
     }
     return true;
 }
+
 /*####
 # quest_a_pawn_on_the_eternal_board (Defines)
 ####*/
 enum eEternalBoard
 {
     QUEST_A_PAWN_ON_THE_ETERNAL_BOARD = 8519,
+
     FACTION_HOSTILE = 14,
     FACTION_FRIENDLY = 35,
+
     C_ANACHRONOS = 15381,
     C_FANDRAL_STAGHELM = 15382,
     C_ARYGOS = 15380,
     C_MERITHRA = 15378,
     C_CAELESTRASZ = 15379,
+
     ANACHRONOS_SAY_1 = -1350000,
     ANACHRONOS_SAY_2 = -1350001,
     ANACHRONOS_SAY_3 = -1350002,
@@ -204,6 +230,7 @@ enum eEternalBoard
     ANACHRONOS_EMOTE_1 = -1350010,
     ANACHRONOS_EMOTE_2 = -1350011,
     ANACHRONOS_EMOTE_3 = -1350012,
+
     FANDRAL_SAY_1 = -1350013,
     FANDRAL_SAY_2 = -1350014,
     FANDRAL_SAY_3 = -1350015,
@@ -212,16 +239,20 @@ enum eEternalBoard
     FANDRAL_SAY_6 = -1350018,
     FANDRAL_EMOTE_1 = -1350019,
     FANDRAL_EMOTE_2 = -1350020,
+
     CAELESTRASZ_SAY_1 = -1350021,
     CAELESTRASZ_SAY_2 = -1350022,
     CAELESTRASZ_YELL_1 = -1350023,
+
     ARYGOS_SAY_1 = -1350024,
     ARYGOS_YELL_1 = -1350025,
     ARYGOS_EMOTE_1 = -1350026,
+
     MERITHRA_SAY_1 = -1350027,
     MERITHRA_SAY_2 = -1350028,
     MERITHRA_YELL_1 = -1350029,
     MERITHRA_EMOTE_1 = -1350030,
+
     GO_GATE_OF_AHN_QIRAJ = 176146,
     GO_GLYPH_OF_AHN_QIRAJ = 176148,
     GO_ROOTS_OF_AHN_QIRAJ = 176147
@@ -229,6 +260,7 @@ enum eEternalBoard
 /*#####
 # Quest: A Pawn on the Eternal Board
 #####*/
+
 /* ContentData
 A Pawn on the Eternal Board - creatures, gameobjects and defines
 mob_qiraj_war_spawn : Adds that are summoned in the Qiraj gates battle.
@@ -238,14 +270,17 @@ go_crystalline_tear : GameObject that begins the event and hands out quest
 TO DO: get correct spell IDs and timings for spells cast upon dragon transformations
 TO DO: Dragons should use the HandleEmoteCommand(EMOTE_ONESHOT_LIFTOFF) after transformation,but for some unknown reason it doesnt work.
 EndContentData */
+
 #define QUEST_A_PAWN_ON_THE_ETERNAL_BOARD 8519
 #define EVENT_AREA_RADIUS 65 //65yds
 #define EVENT_COOLDOWN 500000 //in ms. appear after event completed or failed (should be = Adds despawn time)
+
 struct QuestCinematic
 {
     int32 TextId;
     uint32 Creature, Timer;
 };
+
 // Creature 0 - Anachronos, 1 - Fandral, 2 - Arygos, 3 - Merithra, 4 - Caelestrasz
 static QuestCinematic EventAnim[]=
 {
@@ -318,10 +353,12 @@ static QuestCinematic EventAnim[]=
     {NULL, 0, 5000},
     {NULL, 0, NULL}
 };
+
 struct Location
 {
     float x, y, z, o;
 };
+
 //Cordinates for Spawns
 static Location SpawnLocation[]=
 {
@@ -330,11 +367,13 @@ static Location SpawnLocation[]=
     {-8085, 1524, 2.61, 3.141592},//Kaldorei Infantry
     {-8080, 1522, 2.61, 3.141592},//Kaldorei Infantry
     {-8085, 1520, 2.61, 3.141592},//Kaldorei Infantry
+
     {-8085, 1524, 2.61, 3.141592},//Kaldorei Infantry
     {-8080, 1522, 2.61, 3.141592},//Kaldorei Infantry
     {-8085, 1520, 2.61, 3.141592},//Kaldorei Infantry
     {-8080, 1518, 2.61, 3.141592},//Kaldorei Infantry
     {-8085, 1516, 2.61, 3.141592},//Kaldorei Infantry
+
     {-8085, 1518, 2.61, 3.141592},//Kaldorei Infantry
     {-8080, 1516, 2.61, 3.141592},//Kaldorei Infantry
     {-8080, 1520, 2.61, 3.141592},//Kaldorei Infantry
@@ -346,52 +385,62 @@ static Location SpawnLocation[]=
     {-8082, 1524, 2.61, 3.141592},//Kaldorei Infantry
     {-8078, 1526, 2.61, 3.141592},//Kaldorei Infantry
     {-8082, 1527, 2.61, 3.141592},//Kaldorei Infantry
+
     {-8082, 1524, 2.61, 3.141592},//Kaldorei Infantry
     {-8078, 1522, 2.61, 3.141592},//Kaldorei Infantry
     {-8082, 1520, 2.61, 3.141592},//Kaldorei Infantry
     {-8078, 1518, 2.61, 3.141592},//Kaldorei Infantry
     {-8082, 1516, 2.61, 3.141592},//Kaldorei Infantry
+
     {-8082, 1523, 2.61, 3.141592},//Kaldorei Infantry
     {-8078, 1521, 2.61, 3.141592},//Kaldorei Infantry
     {-8082, 1528, 2.61, 3.141592},//Kaldorei Infantry
     {-8078, 1519, 2.61, 3.141592},//Kaldorei Infantry
     {-8082, 1526, 2.61, 3.141592},//Kaldorei Infantry
+
     {-8082, 1524, 2.61, 3.141592},//Kaldorei Infantry
     {-8078, 1522, 2.61, 3.141592},//Kaldorei Infantry
     {-8082, 1520, 2.61, 3.141592},//Kaldorei Infantry
     {-8078, 1518, 2.61, 3.141592},//Kaldorei Infantry
     {-8082, 1516, 2.61, 3.141592},//Kaldorei Infantry
+
     {-8088, 1510, 2.61, 0},//Anubisath Conqueror
     {-8084, 1520, 2.61, 0},//Anubisath Conqueror
     {-8088, 1530, 2.61, 0},//Anubisath Conqueror
+
     {-8080, 1513, 2.61, 0},//Qiraj Wasp
     {-8082, 1523, 2.61, 0},//Qiraj Wasp
     {-8085, 1518, 2.61, 0},//Qiraj Wasp
     {-8082, 1516, 2.61, 0},//Qiraj Wasp
     {-8085, 1520, 2.61, 0},//Qiraj Wasp
     {-8080, 1528, 2.61, 0},//Qiraj Wasp
+
     {-8082, 1513, 2.61, 0},//Qiraj Wasp
     {-8079, 1523, 2.61, 0},//Qiraj Wasp
     {-8080, 1531, 2.61, 0},//Qiraj Wasp
     {-8079, 1516, 2.61, 0},//Qiraj Wasp
     {-8082, 1520, 2.61, 0},//Qiraj Wasp
     {-8080, 1518, 2.61, 0},//Qiraj Wasp
+
     {-8081, 1514, 2.61, 0},//Qiraj Tank
     {-8081, 1520, 2.61, 0},//Qiraj Tank
     {-8081, 1526, 2.61, 0},//Qiraj Tank
     {-8081, 1512, 2.61, 0},//Qiraj Tank
     {-8082, 1520, 2.61, 0},//Qiraj Tank
     {-8081, 1528, 2.61, 0},//Qiraj Tank
+
     {-8082, 1513, 2.61, 3.141592},//Anubisath Conqueror
     {-8082, 1520, 2.61, 3.141592},//Anubisath Conqueror
     {-8082, 1527, 2.61, 3.141592},//Anubisath Conqueror
 };
+
 struct WaveData
 {
     uint8 SpawnCount, UsedSpawnPoint;
     uint32 CreatureId, SpawnTimer, YellTimer, DespTimer;
     int32 WaveTextId;
 };
+
 static WaveData WavesInfo[] =
 {
     {30, 0, 15423, 0, 0,24000, NULL},   //Kaldorei Soldier
@@ -399,11 +448,14 @@ static WaveData WavesInfo[] =
     {12, 38, 15414, 0, 0,24000, NULL},  //Qiraji Wasps
     {6, 50, 15422, 0, 0,24000, NULL},   //Qiraji Tanks
     {15, 15, 15423, 0, 0,24000, NULL}   //Kaldorei Soldier
+
 };
+
 struct SpawnSpells
 {
     uint32 Timer1, Timer2, SpellId;
 };
+
 static SpawnSpells SpawnCast[]=//
 {
     {100000, 2000, 33652},   // Stop Time
@@ -417,8 +469,10 @@ static SpawnSpells SpawnCast[]=//
 struct TRINITY_DLL_DECL npc_anachronos_the_ancientAI : public ScriptedAI
 {
     npc_anachronos_the_ancientAI(Creature* c) : ScriptedAI(c) {}
+
     uint32 AnimationTimer;
     uint8 AnimationCount;
+
     uint64 AnachronosQuestTriggerGUID;
     uint64 MerithraGUID;
     uint64 ArygosGUID;
@@ -426,6 +480,7 @@ struct TRINITY_DLL_DECL npc_anachronos_the_ancientAI : public ScriptedAI
     uint64 FandralGUID;
     uint64 PlayerGUID;
     bool eventEnd;
+
     void Reset()
     {
         AnimationTimer = 1500;
@@ -437,19 +492,24 @@ struct TRINITY_DLL_DECL npc_anachronos_the_ancientAI : public ScriptedAI
         FandralGUID = 0;
         PlayerGUID = 0;
         eventEnd = false;
+
         m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
     }
+
     void HandleAnimation()
     {
         Player* plr = Unit::GetPlayer(PlayerGUID);
         if(!plr)
             return;
+
         Unit* Fandral = plr->FindNearestCreature(C_FANDRAL_STAGHELM, 100, m_creature);
         Unit* Arygos = plr->FindNearestCreature(C_ARYGOS, 100,m_creature);
         Unit* Caelestrasz = plr->FindNearestCreature(C_CAELESTRASZ, 100, m_creature);
         Unit* Merithra = plr->FindNearestCreature(C_MERITHRA, 100,m_creature);
+
         if(!Fandral || !Arygos || !Caelestrasz || !Merithra)
             return;
+
         Unit* mob;
         AnimationTimer = EventAnim[AnimationCount].Timer;
         if (eventEnd == false)
@@ -710,12 +770,15 @@ struct TRINITY_DLL_DECL npc_anachronos_the_ancientAI : public ScriptedAI
             m_creature->AI()->EnterEvadeMode();
     }
 };
+
 /*######
 # mob_qiraj_war_spawn
 ######*/
+
 struct TRINITY_DLL_DECL mob_qiraj_war_spawnAI : public ScriptedAI
 {
     mob_qiraj_war_spawnAI(Creature* c) : ScriptedAI(c) {}
+
     uint64 MobGUID;
     uint64 PlayerGUID;
     uint32 SpellTimer1, SpellTimer2, SpellTimer3,SpellTimer4;
@@ -729,12 +792,15 @@ struct TRINITY_DLL_DECL mob_qiraj_war_spawnAI : public ScriptedAI
         Timers = false;
         hasTarget = false;
     }
+
     void EnterCombat(Unit* who) {}
     void JustDied(Unit* slayer);
+
     void UpdateAI(const uint32 diff)
     {
         Unit* target;
         Player* plr = m_creature->GetPlayer(PlayerGUID);
+
         if(!Timers)
         {
             if(m_creature->GetEntry() == 15424 || m_creature->GetEntry() == 15422 || m_creature->GetEntry() == 15414) //all but Kaldorei Soldiers
@@ -784,6 +850,7 @@ struct TRINITY_DLL_DECL mob_qiraj_war_spawnAI : public ScriptedAI
             {
                 uint8 tar;
                 tar = rand()%3;
+
                 if (tar == 0)
                     target = m_creature->FindNearestCreature(15422,20,true);
                 else if (tar == 1)
@@ -797,40 +864,53 @@ struct TRINITY_DLL_DECL mob_qiraj_war_spawnAI : public ScriptedAI
         }
         if (!(trigger = m_creature->FindNearestCreature(15379,100)))
             DoCast(m_creature, 33652);
+
         if (!UpdateVictim())
         {
             hasTarget = false;
             return;
         }
+
         DoMeleeAttackIfReady();
     }
 };
+
 /*#####
 # npc_anachronos_quest_trigger
 #####*/
+
 struct TRINITY_DLL_DECL npc_anachronos_quest_triggerAI : public ScriptedAI
 {
     npc_anachronos_quest_triggerAI(Creature* c) : ScriptedAI(c) {}
+
     uint64 PlayerGUID;
+
     uint32 WaveTimer;
     uint32 AnnounceTimer;
+
     int8 LiveCount;
     uint8 WaveCount;
+
     bool EventStarted;
     bool Announced;
     bool Failed;
+
     void Reset()
     {
         PlayerGUID = 0;
+
         WaveTimer = 2000;
         AnnounceTimer = 1000;
         LiveCount = 0;
         WaveCount = 0;
+
         EventStarted = false;
         Announced = false;
         Failed = false;
+
         m_creature->SetVisibility(VISIBILITY_OFF);
     }
+
     void SummonNextWave()
     {
         uint8 count = WavesInfo[WaveCount].SpawnCount;
@@ -839,7 +919,7 @@ struct TRINITY_DLL_DECL npc_anachronos_quest_triggerAI : public ScriptedAI
         uint8 KaldoreiSoldierCount = 0;
         uint8 AnubisathConquerorCount = 0;
         uint8 QirajiWaspCount = 0;
-        for (uint8 i = 0; i < 67; ++i)
+        for(uint8 i = 0; i < 67; ++i)
         {
             Creature* Spawn = NULL;
             float X = SpawnLocation[locIndex + i].x;
@@ -848,6 +928,7 @@ struct TRINITY_DLL_DECL npc_anachronos_quest_triggerAI : public ScriptedAI
             float O = SpawnLocation[locIndex + i].o;
             uint32 desptimer = WavesInfo[WaveCount].DespTimer;
             Spawn = m_creature->SummonCreature(WavesInfo[WaveCount].CreatureId, X, Y, Z, O, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, desptimer);
+
             if(Spawn)
             {
                 Spawn->LoadCreaturesAddon();
@@ -857,6 +938,7 @@ struct TRINITY_DLL_DECL npc_anachronos_quest_triggerAI : public ScriptedAI
                 if (i >= 33) WaveCount = 2;
                 if (i >= 45) WaveCount = 3;
                 if (i >= 51) WaveCount = 4;
+
                 if(WaveCount < 5) //1-4 Wave
                 {
                     ((mob_qiraj_war_spawnAI*)Spawn->AI())->MobGUID = m_creature->GetGUID();
@@ -867,19 +949,25 @@ struct TRINITY_DLL_DECL npc_anachronos_quest_triggerAI : public ScriptedAI
         WaveTimer = WavesInfo[WaveCount].SpawnTimer;
         AnnounceTimer = WavesInfo[WaveCount].YellTimer;
     }
+
     void CheckEventFail()
     {
         Player* pPlayer = Unit::GetPlayer(PlayerGUID);
+
         if(!pPlayer)
             return;
+
         if(Group *EventGroup = pPlayer->GetGroup())
         {
             Player* GroupMember;
+
             uint8 GroupMemberCount = 0;
             uint8 DeadMemberCount = 0;
             uint8 FailedMemberCount = 0;
+
             const Group::MemberSlotList members = EventGroup->GetMemberSlots();
-            for (Group::member_citerator itr = members.begin(); itr!= members.end(); itr++)
+
+            for(Group::member_citerator itr = members.begin(); itr!= members.end(); itr++)
             {
                 GroupMember = (Unit::GetPlayer(itr->guid));
                 if(!GroupMember)
@@ -891,23 +979,28 @@ struct TRINITY_DLL_DECL npc_anachronos_quest_triggerAI : public ScriptedAI
                     ++FailedMemberCount;
                 }
                 ++GroupMemberCount;
+
                 if(GroupMember->isDead())
                     ++DeadMemberCount;
             }
+
             if(GroupMemberCount == FailedMemberCount || !pPlayer->IsWithinDistInMap(m_creature, EVENT_AREA_RADIUS))
                 Failed = true; //only so event can restart
         }
     }
+
     void LiveCounter()
     {
         --LiveCount;
         if(!LiveCount)
             Announced = false;
     }
+
     void UpdateAI(const uint32 diff)
     {
         if(!PlayerGUID || !EventStarted)
             return;
+
         if(WaveCount < 4)
         {
             if(!Announced && AnnounceTimer < diff)
@@ -915,6 +1008,7 @@ struct TRINITY_DLL_DECL npc_anachronos_quest_triggerAI : public ScriptedAI
                 DoScriptText(WavesInfo[WaveCount].WaveTextId, m_creature);
                 Announced = true;
             } else AnnounceTimer -= diff;
+
             if(WaveTimer < diff)
                 SummonNextWave();
             else WaveTimer -= diff;
@@ -922,28 +1016,33 @@ struct TRINITY_DLL_DECL npc_anachronos_quest_triggerAI : public ScriptedAI
         CheckEventFail();
         if (WaveCount == 4 || Failed)
             EnterEvadeMode();
-    };
+	};
 };
 void mob_qiraj_war_spawnAI::JustDied(Unit* slayer)
 {
     m_creature->RemoveCorpse();
     if(Creature* Mob = (Unit::GetCreature(*m_creature, MobGUID)))
         ((npc_anachronos_quest_triggerAI*)Mob->AI())->LiveCounter();
+
 };
 /*#####
 # go_crystalline_tear
 ######*/
+
 bool GOQuestAccept_GO_crystalline_tear(Player* plr, GameObject* go, Quest const* quest)
 {
     if(quest->GetQuestId() == QUEST_A_PAWN_ON_THE_ETERNAL_BOARD)
     {
+
         if(Unit* Anachronos_Quest_Trigger = go->FindNearestCreature(15454, 100, plr))
         {
+
             Unit *Merithra = Anachronos_Quest_Trigger->SummonCreature(15378,-8034.535,1535.14,2.61,0,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,150000);
             Unit *Caelestrasz = Anachronos_Quest_Trigger->SummonCreature(15379,-8032.767, 1533.148,2.61, 1.5,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,150000);
             Unit *Arygos = Anachronos_Quest_Trigger->SummonCreature(15380,-8034.52, 1537.843, 2.61, 5.7,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,150000);
             Unit *Fandral = Anachronos_Quest_Trigger->SummonCreature(15382,-8028.462, 1535.843, 2.61, 3.141592,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,215000);
             Creature *Anachronos = Anachronos_Quest_Trigger->SummonCreature(15381,-8028.75, 1538.795, 2.61, 4,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,220000);
+
             if(Merithra)
             {
                 Merithra->SetUInt32Value(UNIT_NPC_FLAGS, 0);
@@ -951,6 +1050,7 @@ bool GOQuestAccept_GO_crystalline_tear(Player* plr, GameObject* go, Quest const*
                 Merithra->SetUInt32Value(UNIT_FIELD_DISPLAYID,15420);
                 Merithra->setFaction(35);
             }
+
             if(Caelestrasz)
             {
                 Caelestrasz->SetUInt32Value(UNIT_NPC_FLAGS, 0);
@@ -958,6 +1058,7 @@ bool GOQuestAccept_GO_crystalline_tear(Player* plr, GameObject* go, Quest const*
                 Caelestrasz->SetUInt32Value(UNIT_FIELD_DISPLAYID,15419);
                 Caelestrasz->setFaction(35);
             }
+
             if(Arygos)
             {
                 Arygos->SetUInt32Value(UNIT_NPC_FLAGS, 0);
@@ -965,6 +1066,7 @@ bool GOQuestAccept_GO_crystalline_tear(Player* plr, GameObject* go, Quest const*
                 Arygos->SetUInt32Value(UNIT_FIELD_DISPLAYID,15418);
                 Arygos->setFaction(35);
             }
+
             if(Anachronos)
             {
                 ((npc_anachronos_the_ancientAI*)Anachronos->AI())->PlayerGUID = plr->GetGUID();
@@ -977,42 +1079,52 @@ bool GOQuestAccept_GO_crystalline_tear(Player* plr, GameObject* go, Quest const*
     }
  return true;
 }
+
 CreatureAI* GetAI_npc_anachronos_quest_trigger(Creature* c)
 {
     return new npc_anachronos_quest_triggerAI(c);
 }
+
 CreatureAI* GetAI_mob_qiraj_war_spawn(Creature* c)
 {
     return new mob_qiraj_war_spawnAI(c);
 }
+
 CreatureAI* GetAI_npc_anachronos_the_ancient(Creature* c)
 {
     return new npc_anachronos_the_ancientAI(c);
 }
+
 void AddSC_silithus()
 {
     Script *newscript;
+
     newscript = new Script;
     newscript->Name = "go_crystalline_tear";
     newscript->pGOQuestAccept = &GOQuestAccept_GO_crystalline_tear;
     newscript->RegisterSelf();
+
     newscript = new Script;
     newscript->Name = "npc_anachronos_quest_trigger";
     newscript->GetAI = &GetAI_npc_anachronos_quest_trigger;
     newscript->RegisterSelf();
+
     newscript = new Script;
     newscript->Name = "npc_anachronos_the_ancient";
     newscript->GetAI = &GetAI_npc_anachronos_the_ancient;
     newscript->RegisterSelf();
+
     newscript = new Script;
     newscript->Name = "mob_qiraj_war_spawn";
     newscript->GetAI = &GetAI_mob_qiraj_war_spawn;
     newscript->RegisterSelf();
+
     newscript = new Script;
     newscript->Name = "npc_highlord_demitrian";
     newscript->pGossipHello =  &GossipHello_npc_highlord_demitrian;
     newscript->pGossipSelect = &GossipSelect_npc_highlord_demitrian;
     newscript->RegisterSelf();
+
     newscript = new Script;
     newscript->Name = "npcs_rutgar_and_frankal";
     newscript->pGossipHello =   &GossipHello_npcs_rutgar_and_frankal;

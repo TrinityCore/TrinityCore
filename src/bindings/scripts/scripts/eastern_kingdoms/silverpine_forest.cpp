@@ -13,49 +13,63 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
+
 /* ScriptData
 SDName: Silverpine_Forest
 SD%Complete: 100
 SDComment: Quest support: 1886, 435
 SDCategory: Silverpine Forest
 EndScriptData */
+
 /* ContentData
 npc_astor_hadren
 npc_deathstalker_erland
 EndContentData */
+
 #include "precompiled.h"
 #include "escort_ai.h"
+
 /*######
 ## npc_astor_hadren
 ######*/
+
 #define GOSSIP_HAH "You're Astor Hadren, right?"
 #define GOSSIP_SAH "You've got something I need, Astor. And I'll be taking it now."
+
 struct TRINITY_DLL_DECL npc_astor_hadrenAI : public ScriptedAI
 {
     npc_astor_hadrenAI(Creature *c) : ScriptedAI(c) {}
+
     void Reset()
     {
         m_creature->setFaction(68);
     }
+
     void EnterCombat(Unit* who)
     {
     }
+
     void JustDied(Unit *who)
     {
         m_creature->setFaction(68);
     }
 };
+
 CreatureAI* GetAI_npc_astor_hadren(Creature* pCreature)
 {
     return new npc_astor_hadrenAI(pCreature);
 }
+
 bool GossipHello_npc_astor_hadren(Player* pPlayer, Creature* pCreature)
 {
     if (pPlayer->GetQuestStatus(1886) == QUEST_STATUS_INCOMPLETE)
         pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_HAH, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+
     pPlayer->SEND_GOSSIP_MENU(623, pCreature->GetGUID());
+
     return true;
 }
+
 bool GossipSelect_npc_astor_hadren(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
 {
     switch (uiAction)
@@ -73,9 +87,11 @@ bool GossipSelect_npc_astor_hadren(Player* pPlayer, Creature* pCreature, uint32 
     }
     return true;
 }
+
 /*######
 ## npc_deathstalker_erland
 ######*/
+
 enum eErland
 {
     SAY_QUESTACCEPT     = -1000335,
@@ -83,25 +99,32 @@ enum eErland
     SAY_AGGRO_1         = -1000337,
     SAY_AGGRO_2         = -1000338,
     SAY_LAST            = -1000339,
+
     SAY_THANKS          = -1000340,
     SAY_RANE            = -1000341,
     SAY_ANSWER          = -1000342,
     SAY_MOVE_QUINN      = -1000343,
+
     SAY_GREETINGS       = -1000344,
     SAY_QUINN           = -1000345,
     SAY_ON_BYE          = -1000346,
+
     QUEST_ESCORTING     = 435,
     NPC_RANE            = 1950,
     NPC_QUINN           = 1951
 };
+
 struct TRINITY_DLL_DECL npc_deathstalker_erlandAI : public npc_escortAI
 {
     npc_deathstalker_erlandAI(Creature *c) : npc_escortAI(c) {}
+
     void WaypointReached(uint32 i)
     {
         Player* pPlayer = GetPlayerForEscort();
+
         if (!pPlayer)
             return;
+
         switch(i)
         {
         case 1: DoScriptText(SAY_START, m_creature, pPlayer);break;
@@ -123,40 +146,51 @@ struct TRINITY_DLL_DECL npc_deathstalker_erlandAI : public npc_escortAI
                     DoScriptText(SAY_QUINN, Quinn);
                 break;}
         case 26: DoScriptText(SAY_ON_BYE, m_creature, NULL);break;
+
         }
     }
+
     void Reset() {}
+
     void EnterCombat(Unit* who)
     {
         DoScriptText(RAND(SAY_AGGRO_1,SAY_AGGRO_2), m_creature, who);
     }
 };
+
 bool QuestAccept_npc_deathstalker_erland(Player* pPlayer, Creature* pCreature, Quest const* quest)
 {
     if (quest->GetQuestId() == QUEST_ESCORTING)
     {
         DoScriptText(SAY_QUESTACCEPT, pCreature, pPlayer);
+
         if (npc_escortAI* pEscortAI = CAST_AI(npc_deathstalker_erlandAI, pCreature->AI()))
             pEscortAI->Start(true, false, pPlayer->GetGUID());
     }
+
     return true;
 }
+
 CreatureAI* GetAI_npc_deathstalker_erlandAI(Creature* pCreature)
 {
     return new npc_deathstalker_erlandAI(pCreature);
 }
+
 /*######
 ## AddSC
 ######*/
+
 void AddSC_silverpine_forest()
 {
     Script *newscript;
+
     newscript = new Script;
     newscript->Name = "npc_astor_hadren";
     newscript->pGossipHello =  &GossipHello_npc_astor_hadren;
     newscript->pGossipSelect = &GossipSelect_npc_astor_hadren;
     newscript->GetAI = &GetAI_npc_astor_hadren;
     newscript->RegisterSelf();
+
     newscript = new Script;
     newscript->Name = "npc_deathstalker_erland";
     newscript->GetAI = &GetAI_npc_deathstalker_erlandAI;

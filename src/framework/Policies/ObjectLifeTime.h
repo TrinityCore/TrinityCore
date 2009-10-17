@@ -17,14 +17,19 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
+
 #ifndef TRINITY_OBJECTLIFETIME_H
 #define TRINITY_OBJECTLIFETIME_H
+
 #include <stdexcept>
 #include "Platform/Define.h"
+
 typedef void (* Destroyer)(void);
+
 namespace Trinity
 {
     void TRINITY_DLL_SPEC at_exit( void (*func)() );
+
     template <class T>
         class TRINITY_DLL_DECL ObjectLifeTime
     {
@@ -33,8 +38,11 @@ namespace Trinity
             {
                 at_exit( destroyer );
             }
+
             DECLSPEC_NORETURN static void OnDeadReference(void) ATTR_NORETURN;
+
     };
+
     template <class T>
         void ObjectLifeTime<T>::OnDeadReference(void)       // We don't handle Dead Reference for now
     {

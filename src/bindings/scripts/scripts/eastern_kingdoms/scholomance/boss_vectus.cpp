@@ -13,37 +13,46 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
+
 /* ScriptData
 SDName: Boss_Vectus
 SD%Complete: 100
 SDComment:
 SDCategory: Scholomance
 EndScriptData */
+
 #include "precompiled.h"
+
 enum eEnums
 {
     EMOTE_GENERIC_FRENZY_KILL   = -1000001,
+
     SPELL_FLAMESTRIKE            = 18399,
     SPELL_BLAST_WAVE             = 16046,
     SPELL_FIRESHIELD             = 19626,
     SPELL_FRENZY                 = 8269 //28371,
 };
+
 struct TRINITY_DLL_DECL boss_vectusAI : public ScriptedAI
 {
     boss_vectusAI(Creature *c) : ScriptedAI(c) {}
+
     uint32 m_uiFireShield_Timer;
     uint32 m_uiBlastWave_Timer;
     uint32 m_uiFrenzy_Timer;
+
     void Reset()
     {
         m_uiFireShield_Timer = 2000;
         m_uiBlastWave_Timer = 14000;
         m_uiFrenzy_Timer = 0;
     }
+
     void UpdateAI(const uint32 uiDiff)
     {
         if (!UpdateVictim())
             return;
+
         //FireShield_Timer
         if (m_uiFireShield_Timer < uiDiff)
         {
@@ -52,6 +61,7 @@ struct TRINITY_DLL_DECL boss_vectusAI : public ScriptedAI
         }
         else
             m_uiFireShield_Timer -= uiDiff;
+
         //BlastWave_Timer
         if (m_uiBlastWave_Timer < uiDiff)
         {
@@ -60,6 +70,7 @@ struct TRINITY_DLL_DECL boss_vectusAI : public ScriptedAI
         }
         else
             m_uiBlastWave_Timer -= uiDiff;
+
         //Frenzy_Timer
         if (m_creature->GetHealth()*100 / m_creature->GetMaxHealth() < 25)
         {
@@ -67,18 +78,22 @@ struct TRINITY_DLL_DECL boss_vectusAI : public ScriptedAI
             {
                 DoCast(m_creature, SPELL_FRENZY);
                 DoScriptText(EMOTE_GENERIC_FRENZY_KILL, m_creature);
+
                 m_uiFrenzy_Timer = 24000;
             }
             else
                 m_uiFrenzy_Timer -= uiDiff;
         }
+
         DoMeleeAttackIfReady();
     }
 };
+
 CreatureAI* GetAI_boss_vectus(Creature* pCreature)
 {
     return new boss_vectusAI (pCreature);
 }
+
 void AddSC_boss_vectus()
 {
     Script *newscript;

@@ -15,23 +15,31 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
+
 #include "precompiled.h"
 #include "def_naxxramas.h"
+
 //Stalagg
 #define SAY_STAL_AGGRO          -1533023 //not used
 #define SAY_STAL_SLAY           -1533024 //not used
 #define SAY_STAL_DEATH          -1533025 //not used
+
 #define SPELL_POWERSURGE        28134
+
 //Feugen
 #define SAY_FEUG_AGGRO          -1533026 //not used
 #define SAY_FEUG_SLAY           -1533027 //not used
 #define SAY_FEUG_DEATH          -1533028 //not used
+
 #define SPELL_MANABURN          28135
+
 //both
 #define SPELL_WARSTOMP          28125
 
+
  //generic
 #define C_TESLA_COIL                        16218           //the coils (emotes "Tesla Coil overloads!")
+
 
 //Thaddus
 #define SAY_GREET               -1533029 //not used
@@ -43,16 +51,19 @@
 #define SAY_SCREAM2             -1533037 //not used
 #define SAY_SCREAM3             -1533038 //not used
 #define SAY_SCREAM4             -1533039 //not used
+
 #define SPELL_POLARITY_SHIFT        28089
 #define SPELL_BALL_LIGHTNING        28299
 #define SPELL_CHAIN_LIGHTNING       HEROIC(28167,54531)
 #define SPELL_BERSERK               27680
+
 enum Events
 {
     EVENT_SHIFT = 1,
     EVENT_CHAIN,
     EVENT_BERSERK,
 };
+
 struct TRINITY_DLL_DECL boss_thaddiusAI : public BossAI
 {
     boss_thaddiusAI(Creature *c) : BossAI(c, BOSS_THADDIUS)
@@ -60,16 +71,19 @@ struct TRINITY_DLL_DECL boss_thaddiusAI : public BossAI
         // temp
         me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_STUNNED);
     }
+
     void KilledUnit(Unit* victim)
     {
         if (!(rand()%5))
             DoScriptText(SAY_SLAY, me);
     }
+
     void JustDied(Unit* Killer)
     {
         _JustDied();
         DoScriptText(SAY_DEATH, me);
     }
+
     void EnterCombat(Unit *who)
     {
         _EnterCombat();
@@ -78,13 +92,17 @@ struct TRINITY_DLL_DECL boss_thaddiusAI : public BossAI
         events.ScheduleEvent(EVENT_CHAIN, 10000+rand()%10000);
         events.ScheduleEvent(EVENT_BERSERK, 6*60000);
     }
+
     void UpdateAI(const uint32 diff)
     {
         if (!UpdateVictim())
             return;
+
         events.Update(diff);
+
         if (me->hasUnitState(UNIT_STAT_CASTING))
             return;
+
         while(uint32 eventId = events.ExecuteEvent())
         {
             switch(eventId)
@@ -102,16 +120,19 @@ struct TRINITY_DLL_DECL boss_thaddiusAI : public BossAI
                     return;
             }
         }
+
         if (events.GetTimer() > 15000 && !me->IsWithinMeleeRange(me->getVictim()))
             DoCast(me->getVictim(), SPELL_BALL_LIGHTNING);
         else
             DoMeleeAttackIfReady();
     }
 };
+
 CreatureAI* GetAI_boss_thaddius(Creature* pCreature)
 {
     return new boss_thaddiusAI (pCreature);
 }
+
 void AddSC_boss_thaddius()
 {
     Script *newscript;

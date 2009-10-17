@@ -2,15 +2,19 @@
 // $Id: config-qnx-neutrino.h 80826 2008-03-04 14:51:23Z wotte $
 // The following configuration file is designed to work for Neutrino
 // 2.0 (Beta) with GNU C++ and the POSIX (pthread) threads package.
+
 #ifndef ACE_CONFIG_H
 #define ACE_CONFIG_H
 #include /**/ "ace/pre.h"
+
 #define _POSIX_C_SOURCE 199506
 #define _QNX_SOURCE
+
 // These constants are in i386-nto/include/limits.h, but egcs
 // picks up its own limits.h instead:
 #define _POSIX_NAME_MAX     14      /*  Max bytes in a filename             */
 #define _POSIX_PATH_MAX     256     /*  Num. bytes in pathname (excl. NULL) */
+
 #if defined(__OPTIMIZE__)
 # if defined(__X86__)
     // string.h can't be used by ACE with __OPTIMIZE__.
@@ -19,7 +23,9 @@
 #   define __OPTIMIZE__
 # endif /* __X86__ */
 #endif /* __OPTIMIZE__ */
+
 #include "ace/config-g++-common.h"
+
 // The following defines the Neutrino compiler.
 // gcc should know to call g++ as necessary
 #ifdef __GNUC__
@@ -27,6 +33,7 @@
 #else
 # define ACE_CC_NAME ACE_TEXT ("NTO compiler ??")
 #endif
+
 // /usr/nto/include/float.h defines
 //  FLT_MAX_EXP 127
 //  DBL_MAX_EXP 1023
@@ -35,6 +42,7 @@
 //  These macros are:
 // #define ACE_SIZEOF_DOUBLE   8
 // #define ACE_SIZEOF_FLOAT    4
+
 #define ACE_HAS_2_PARAM_ASCTIME_R_AND_CTIME_R
 #define ACE_HAS_4_4BSD_SENDMSG_RECVMSG
 // Although ACE does have alloca() on this compiler/platform combination, it is
@@ -124,6 +132,7 @@
 #define ACE_USES_STD_NAMESPACE_FOR_STDCPP_LIB 1
 #define ACE_HAS_SIGTIMEDWAIT
 #define ACE_HAS_SIGSUSPEND
+
 #include /**/ "ace/post.h"
 #endif /* ACE_CONFIG_H */
 

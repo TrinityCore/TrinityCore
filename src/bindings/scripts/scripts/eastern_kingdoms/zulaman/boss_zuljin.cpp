@@ -13,37 +13,51 @@
 * along with this program; if not, write to the Free Software
 * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
+
 /* ScriptData
 SDName: Boss_ZulJin
 SD%Complete: 85%
 SDComment:
 EndScriptData */
+
 #include "precompiled.h"
 #include "def_zulaman.h"
+
 //Speech
 #define YELL_TRANSFORM_TO_LYNX "Let me introduce to you my new bruddahs: fang and claw!"
 #define SOUND_TRANSFORM_TO_LYNX 12094
+
 #define YELL_TRANSFORM_TO_BEAR "Got me some new tricks...like me bruddah bear!"
 #define SOUND_TRANSFORM_TO_BEAR 12092
+
 #define YELL_TRANSFORM_TO_DRAGONHAWK "Ya don' have to look to da sky to see da dragonhawk!"
 #define SOUND_TRANSFORM_TO_DRAGONHAWK 12095
+
 #define YELL_TRANSFORM_TO_EAGLE "Dere be no hidin' from da eagle!"
 #define SOUND_TRANSFORM_TO_EAGLE 12093
+
 #define YELL_KILL_ONE "Da Amani de chuka!"
 #define SOUND_KILL_ONE 12098
+
 #define YELL_KILL_TWO "Lot more gonna fall like you!"
 #define SOUND_KILL_TWO 12099
+
 #define YELL_FIRE_BREATH "Fire kill you just as quick!"
 #define SOUND_FIRE_BRETH 12096
+
 #define YELL_AGGRO "Nobody badduh dan me!"
 #define SOUND_AGGRO 12091
+
 #define YELL_BERSERK "You too slow! Me too strong!"
 #define SOUND_BERSERK 12097
+
 #define YELL_DEATH "Mebbe me fall...but da Amani empire...never gonna die..."
 #define SOUND_DEATH 12100
+
 //Still not used, need more info
 #define YELL_INTRO "Everybody always wanna take from us. Now we gonna start takin' back. Anybody who get in our way...gonna drown in their own blood! De Amani empire be back now...seekin' vengeance. And we gonna start...with you!"
 #define SOUND_INTRO 12090
+
 //Spells:
 // ====== Troll Form
 #define SPELL_WHIRLWIND             17207
@@ -71,30 +85,37 @@ EndScriptData */
 #define SPELL_SUMMON_PILLAR         43216   // summon 24187
 #define CREATURE_COLUMN_OF_FIRE     24187
 #define SPELL_PILLAR_TRIGGER        43218   // trigger 43217
+
 //cosmetic
 #define SPELL_SPIRIT_AURA           42466
 #define SPELL_SIPHON_SOUL           43501
+
 //Transforms:
 #define SPELL_SHAPE_OF_THE_BEAR     42594   // 15% dmg
 #define SPELL_SHAPE_OF_THE_EAGLE    42606
 #define SPELL_SHAPE_OF_THE_LYNX     42607   // haste melee 30%
 #define SPELL_SHAPE_OF_THE_DRAGONHAWK   42608
+
 #define SPELL_BERSERK 45078
+
 
 #define PHASE_BEAR 0
 #define PHASE_EAGLE 1
 #define PHASE_LYNX 2
 #define PHASE_DRAGONHAWK 3
 #define PHASE_TROLL 4
+
 //coords for going for changing form
 #define CENTER_X 120.148811
 #define CENTER_Y 703.713684
 #define CENTER_Z 45.111477
+
 struct SpiritInfoStruct
 {
     uint32 entry;
     float x, y, z, orient;
 };
+
 static SpiritInfoStruct SpiritInfo[] =
 {
     {23878, 147.87, 706.51, 45.11, 3.04},
@@ -102,12 +123,14 @@ static SpiritInfoStruct SpiritInfo[] =
     {23877, 137.23, 725.98, 45.11, 3.71},
     {23879, 104.29, 726.43, 45.11, 5.43}
 };
+
 struct TransformStruct
 {
     uint32 sound;
     char* text;
     uint32 spell, unaura;
 };
+
 static TransformStruct Transform[] =
 {
     {SOUND_TRANSFORM_TO_BEAR, YELL_TRANSFORM_TO_BEAR, SPELL_SHAPE_OF_THE_BEAR, SPELL_WHIRLWIND},
@@ -115,6 +138,7 @@ static TransformStruct Transform[] =
     {SOUND_TRANSFORM_TO_LYNX, YELL_TRANSFORM_TO_LYNX, SPELL_SHAPE_OF_THE_LYNX, SPELL_SHAPE_OF_THE_EAGLE},
     {SOUND_TRANSFORM_TO_DRAGONHAWK, YELL_TRANSFORM_TO_DRAGONHAWK, SPELL_SHAPE_OF_THE_DRAGONHAWK, SPELL_SHAPE_OF_THE_LYNX}
 };
+
 struct TRINITY_DLL_DECL boss_zuljinAI : public ScriptedAI
 {
     boss_zuljinAI(Creature *c) : ScriptedAI(c), Summons(m_creature)
@@ -122,65 +146,89 @@ struct TRINITY_DLL_DECL boss_zuljinAI : public ScriptedAI
         pInstance = c->GetInstanceData();
     }
     ScriptedInstance *pInstance;
+
     uint64 SpiritGUID[4];
     uint64 ClawTargetGUID;
     uint64 TankGUID;
+
     uint32 Phase;
     uint32 health_20;
+
     uint32 Intro_Timer;
     uint32 Berserk_Timer;
+
     uint32 Whirlwind_Timer;
     uint32 Grievous_Throw_Timer;
+
     uint32 Creeping_Paralysis_Timer;
     uint32 Overpower_Timer;
+
     uint32 Claw_Rage_Timer;
     uint32 Lynx_Rush_Timer;
     uint32 Claw_Counter;
     uint32 Claw_Loop_Timer;
+
     uint32 Flame_Whirl_Timer;
     uint32 Flame_Breath_Timer;
     uint32 Pillar_Of_Fire_Timer;
+
     SummonList Summons;
+
     void Reset()
     {
         if (pInstance)
             pInstance->SetData(DATA_ZULJINEVENT, NOT_STARTED);
+
         Phase = 0;
+
         health_20 = m_creature->GetMaxHealth()*0.2;
+
         Intro_Timer = 37000;
         Berserk_Timer = 600000;
+
         Whirlwind_Timer = 7000;
         Grievous_Throw_Timer = 8000;
+
         Creeping_Paralysis_Timer = 7000;
         Overpower_Timer = 0;
+
         Claw_Rage_Timer = 5000;
         Lynx_Rush_Timer = 14000;
         Claw_Loop_Timer = 0;
         Claw_Counter = 0;
+
         Flame_Whirl_Timer = 5000;
         Flame_Breath_Timer = 6000;
         Pillar_Of_Fire_Timer = 7000;
+
         ClawTargetGUID = 0;
         TankGUID = 0;
+
         Summons.DespawnAll();
+
         m_creature->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, 47174);
         //m_creature->SetUInt32Value(UNIT_VIRTUAL_ITEM_INFO, 218172674);
         //m_creature->SetByteValue(UNIT_FIELD_BYTES_2, 0, SHEATH_STATE_MELEE);
     }
+
     void EnterCombat(Unit *who)
     {
         if (pInstance)
             pInstance->SetData(DATA_ZULJINEVENT, IN_PROGRESS);
+
         DoZoneInCombat();
+
         m_creature->MonsterYell(YELL_INTRO,LANG_UNIVERSAL,NULL);
         DoPlaySoundToSet(m_creature, SOUND_INTRO);
         SpawnAdds();
         EnterPhase(0);
     }
+
     void KilledUnit(Unit* victim)
     {
         if (Intro_Timer)
             return;
+
         switch(rand()%2)
         {
         case 0:
@@ -193,16 +241,20 @@ struct TRINITY_DLL_DECL boss_zuljinAI : public ScriptedAI
             break;
         }
     }
+
     void JustDied(Unit* Killer)
     {
         if (pInstance)
             pInstance->SetData(DATA_ZULJINEVENT, DONE);
+
         m_creature->MonsterYell(YELL_DEATH, LANG_UNIVERSAL, NULL);
         DoPlaySoundToSet(m_creature, SOUND_DEATH);
         Summons.DespawnEntry(CREATURE_COLUMN_OF_FIRE);
+
         if (Unit *Temp = Unit::GetUnit(*m_creature, SpiritGUID[3]))
             Temp->SetUInt32Value(UNIT_FIELD_BYTES_1,UNIT_STAND_STATE_DEAD);
     }
+
     void AttackStart(Unit *who)
     {
         if (Phase == 2)
@@ -210,6 +262,7 @@ struct TRINITY_DLL_DECL boss_zuljinAI : public ScriptedAI
         else
             ScriptedAI::AttackStart(who);
     }
+
     void DoMeleeAttackIfReady()
     {
         if (!m_creature->IsNonMeleeSpellCasted(false))
@@ -230,10 +283,11 @@ struct TRINITY_DLL_DECL boss_zuljinAI : public ScriptedAI
             }
         }
     }
+
     void SpawnAdds()
     {
         Creature *pCreature = NULL;
-        for (uint8 i = 0; i < 4; ++i)
+        for(uint8 i = 0; i < 4; ++i)
         {
             pCreature = m_creature->SummonCreature(SpiritInfo[i].entry, SpiritInfo[i].x, SpiritInfo[i].y, SpiritInfo[i].z, SpiritInfo[i].orient, TEMPSUMMON_DEAD_DESPAWN, 0);
             if (pCreature)
@@ -245,9 +299,10 @@ struct TRINITY_DLL_DECL boss_zuljinAI : public ScriptedAI
             }
         }
     }
+
     void DespawnAdds()
     {
-        for (uint8 i = 0; i < 4; ++i)
+        for(uint8 i = 0; i < 4; ++i)
         {
             Unit* Temp = NULL;
             if (SpiritGUID[i])
@@ -261,14 +316,17 @@ struct TRINITY_DLL_DECL boss_zuljinAI : public ScriptedAI
             SpiritGUID[i] = 0;
         }
     }
+
     void JustSummoned(Creature *summon)
     {
         Summons.Summon(summon);
     }
+
     void SummonedCreatureDespawn(Creature *summon)
     {
         Summons.Despawn(summon);
     }
+
     void EnterPhase(uint32 NextPhase)
     {
         switch(NextPhase)
@@ -297,7 +355,7 @@ struct TRINITY_DLL_DECL boss_zuljinAI : public ScriptedAI
             {
                 m_creature->GetMotionMaster()->Clear();
                 m_creature->CastSpell(m_creature, SPELL_ENERGY_STORM, true); // enemy aura
-                for (uint8 i = 0; i < 4; ++i)
+                for(uint8 i = 0; i < 4; ++i)
                 {
                     Creature* Vortex = DoSpawnCreature(CREATURE_FEATHER_VORTEX, 0, 0, 0, 0, TEMPSUMMON_CORPSE_DESPAWN, 0);
                     if (Vortex)
@@ -325,15 +383,18 @@ struct TRINITY_DLL_DECL boss_zuljinAI : public ScriptedAI
         }
         Phase = NextPhase;
     }
+
     void UpdateAI(const uint32 diff)
     {
         if (!TankGUID)
         {
             if (!UpdateVictim())
                 return;
+
             if (m_creature->GetHealth() < health_20 * (4 - Phase))
                 EnterPhase(Phase + 1);
         }
+
         if (Berserk_Timer < diff)
         {
             m_creature->CastSpell(m_creature, SPELL_BERSERK, true);
@@ -341,6 +402,7 @@ struct TRINITY_DLL_DECL boss_zuljinAI : public ScriptedAI
             DoPlaySoundToSet(m_creature, SOUND_BERSERK);
             Berserk_Timer = 60000;
         }else Berserk_Timer -= diff;
+
         switch (Phase)
         {
         case 0:
@@ -353,11 +415,13 @@ struct TRINITY_DLL_DECL boss_zuljinAI : public ScriptedAI
                     Intro_Timer = 0;
                 }else Intro_Timer -= diff;
             }
+
             if (Whirlwind_Timer < diff)
             {
                 DoCast(m_creature, SPELL_WHIRLWIND);
                 Whirlwind_Timer = 15000 + rand()%5000;
             }else Whirlwind_Timer -= diff;
+
             if (Grievous_Throw_Timer < diff)
             {
                 if (Unit *target = SelectUnit(SELECT_TARGET_RANDOM, 0))
@@ -365,20 +429,24 @@ struct TRINITY_DLL_DECL boss_zuljinAI : public ScriptedAI
                 Grievous_Throw_Timer = 10000;
             }else Grievous_Throw_Timer -= diff;
             break;
+
         case 1:
             if (Creeping_Paralysis_Timer < diff)
             {
                 DoCast(m_creature, SPELL_CREEPING_PARALYSIS);
                 Creeping_Paralysis_Timer = 20000;
             }else Creeping_Paralysis_Timer -= diff;
+
             if (Overpower_Timer < diff)
             {
                 // implemented in DoMeleeAttackIfReady()
                 Overpower_Timer = 0;
             }else Overpower_Timer -= diff;
             break;
+
         case 2:
             return;
+
         case 3:
             if (Claw_Rage_Timer <= diff)
             {
@@ -428,6 +496,7 @@ struct TRINITY_DLL_DECL boss_zuljinAI : public ScriptedAI
                     }else Claw_Loop_Timer -= diff;
                 } //if (TankGUID)
             }else Claw_Rage_Timer -= diff;
+
             if (Lynx_Rush_Timer <= diff)
             {
                 if (!TankGUID)
@@ -473,6 +542,7 @@ struct TRINITY_DLL_DECL boss_zuljinAI : public ScriptedAI
                     }
                 } //if (TankGUID)
             }else Lynx_Rush_Timer -= diff;
+
             break;
         case 4:
             if (Flame_Whirl_Timer < diff)
@@ -480,12 +550,14 @@ struct TRINITY_DLL_DECL boss_zuljinAI : public ScriptedAI
                 DoCast(m_creature, SPELL_FLAME_WHIRL);
                 Flame_Whirl_Timer = 12000;
             }Flame_Whirl_Timer -= diff;
+
             if (Pillar_Of_Fire_Timer < diff)
             {
                 if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0))
                     DoCast(target, SPELL_SUMMON_PILLAR);
                 Pillar_Of_Fire_Timer = 10000;
             }else Pillar_Of_Fire_Timer -= diff;
+
             if (Flame_Breath_Timer < diff)
             {
                 if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0))
@@ -494,27 +566,35 @@ struct TRINITY_DLL_DECL boss_zuljinAI : public ScriptedAI
                 Flame_Breath_Timer = 10000;
             }else Flame_Breath_Timer -= diff;
             break;
+
         default:
             break;
         }
+
         if (!TankGUID)
             DoMeleeAttackIfReady();
     }
 };
+
 CreatureAI* GetAI_boss_zuljin(Creature* pCreature)
 {
     return new boss_zuljinAI (pCreature);
 }
+
 struct TRINITY_DLL_DECL feather_vortexAI : public ScriptedAI
 {
     feather_vortexAI(Creature *c) : ScriptedAI(c) {}
+
     void Reset() {}
+
     void EnterCombat(Unit* target) {}
+
     void SpellHit(Unit *caster, const SpellEntry *spell)
     {
         if (spell->Id == SPELL_ZAP_INFORM)
             m_creature->CastSpell(caster, SPELL_ZAP_DAMAGE, true);
     }
+
     void UpdateAI(const uint32 diff)
     {
         //if the vortex reach the target, it change his target to another player
@@ -522,10 +602,12 @@ struct TRINITY_DLL_DECL feather_vortexAI : public ScriptedAI
             AttackStart(SelectUnit(SELECT_TARGET_RANDOM, 0));
     }
 };
+
 CreatureAI* GetAI_feather_vortexAI(Creature* pCreature)
 {
     return new feather_vortexAI (pCreature);
 }
+
 void AddSC_boss_zuljin()
 {
     Script *newscript;
@@ -533,6 +615,7 @@ void AddSC_boss_zuljin()
     newscript->Name = "boss_zuljin";
     newscript->GetAI = &GetAI_boss_zuljin;
     newscript->RegisterSelf();
+
     newscript = new Script;
     newscript->Name = "mob_zuljin_vortex";
     newscript->GetAI = &GetAI_feather_vortexAI;

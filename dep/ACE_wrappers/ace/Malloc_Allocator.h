@@ -1,4 +1,5 @@
 // -*- C++ -*-
+
 //==========================================================================
 /**
  *  @file   Malloc_Allocator.h
@@ -8,14 +9,20 @@
  *  @author Based on code that formerly existed in another ACE file.
  */
 //==========================================================================
+
 #ifndef ACE_MALLOC_ALLOCATOR_H
 #define ACE_MALLOC_ALLOCATOR_H
+
 #include /**/ "ace/pre.h"
+
 #include /**/ "ace/ACE_export.h"
+
 #if !defined (ACE_LACKS_PRAGMA_ONCE)
 # pragma once
 #endif /* ACE_LACKS_PRAGMA_ONCE */
+
 #include "ace/Malloc_Base.h"
+
 #if defined (ACE_HAS_MALLOC_STATS)
 #if defined (ACE_HAS_THREADS)
 #include "ace/Process_Mutex.h"
@@ -24,8 +31,11 @@
 #include "ace/SV_Semaphore_Simple.h"
 #define ACE_PROCESS_MUTEX ACE_SV_Semaphore_Simple
 #endif /* ACE_HAS_THREADS */
+
 #endif /* ACE_HAS_MALLOC_STATS */
+
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
+
 /**
  * @class ACE_New_Allocator
  *
@@ -49,6 +59,7 @@ public:
   virtual void *calloc (size_t nbytes, char initial_value = '\0');
   virtual void *calloc (size_t n_elem, size_t elem_size, char initial_value = '\0');
   virtual void free (void *ptr);
+
   /// These methods are no-ops.
   virtual int remove (void);
   virtual int bind (const char *name, void *pointer, int duplicates = 0);
@@ -65,10 +76,12 @@ public:
   virtual void print_stats (void) const;
 #endif /* ACE_HAS_MALLOC_STATS */
   virtual void dump (void) const;
+
 private:
   // DO NOT ADD ANY STATE (DATA MEMBERS) TO THIS CLASS!!!!  See the
   // <ACE_Allocator::instance> implementation for explanation.
 };
+
 /**
  * @class ACE_Static_Allocator_Base
  *
@@ -107,20 +120,28 @@ public:
   virtual void print_stats (void) const;
 #endif /* ACE_HAS_MALLOC_STATS */
   virtual void dump (void) const;
+
 protected:
   /// Don't allow direct instantiations of this class.
   ACE_Static_Allocator_Base (void);
+
   /// Pointer to the buffer.
   char *buffer_;
+
   /// Size of the buffer.
   size_t size_;
+
   /// Pointer to the current offset in the <buffer_>.
   size_t offset_;
 };
+
 ACE_END_VERSIONED_NAMESPACE_DECL
+
 #if defined (__ACE_INLINE__)
 #include "ace/Malloc_Allocator.inl"
 #endif /* __ACE_INLINE__ */
+
 #include /**/ "ace/post.h"
+
 #endif /* MALLOC_ALLOCATOR_H */
 

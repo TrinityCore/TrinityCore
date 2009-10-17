@@ -17,9 +17,12 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
+
 #ifndef TRINITY_SKILL_EXTRA_ITEMS_H
 #define TRINITY_SKILL_EXTRA_ITEMS_H
+
 #include "Common.h"
+
 // predef classes used in functions
 class Player;
 // returns true and sets the appropriate info if the player can create extra items with the given spellId

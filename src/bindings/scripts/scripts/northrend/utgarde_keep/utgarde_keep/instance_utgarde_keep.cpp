@@ -15,82 +15,104 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
+
 /* ScriptData
 SDName: Instance_Utgarde_Keep
 SD%Complete: 90
 SDComment: Instance Data Scripts and functions to acquire mobs and set encounter status for use in various Utgarde Keep Scripts
 SDCategory: Utgarde Keep
 EndScriptData */
+
 #include "precompiled.h"
 #include "def_utgarde_keep.h"
+
 #define MAX_ENCOUNTER     3
+
 #define ENTRY_BELLOW_1          186688
 #define ENTRY_BELLOW_2          186689
 #define ENTRY_BELLOW_3          186690
+
 #define ENTRY_FORGEFIRE_1       186692
 #define ENTRY_FORGEFIRE_2       186693
 #define ENTRY_FORGEFIRE_3       186691
+
 #define ENTRY_GLOWING_ANVIL_1   186609
 #define ENTRY_GLOWING_ANVIL_2   186610
 #define ENTRY_GLOWING_ANVIL_3   186611
+
 #define ENTRY_GIANT_PORTCULLIS_1    186756
 #define ENTRY_GIANT_PORTCULLIS_2    186694
+
 /* Utgarde Keep encounters:
 0 - Prince Keleseth
 1 - Skarvald Dalronn
 2 - Ingvar the Plunderer
 */
+
 struct TRINITY_DLL_DECL instance_utgarde_keep : public ScriptedInstance
 {
     instance_utgarde_keep(Map* pMap) : ScriptedInstance(pMap) {Initialize();};
+
     uint64 Keleseth;
     uint64 Skarvald;
     uint64 Dalronn;
     uint64 Ingvar;
+
     uint64 forge_bellow[3];
     uint64 forge_fire[3];
     uint64 forge_anvil[3];
     uint64 portcullis[2];
+
     uint32 m_auiEncounter[MAX_ENCOUNTER];
     uint32 forge_event[3];
     std::string str_data;
+
    void Initialize()
    {
         memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
+
         Keleseth = 0;
         Skarvald = 0;
         Dalronn = 0;
         Ingvar = 0;
-        for (uint8 i = 0; i < 3; ++i)
+
+        for(uint8 i = 0; i < 3; ++i)
         {
             forge_bellow[i] = 0;
             forge_fire[i] = 0;
             forge_anvil[i] = 0;
             forge_event[i] = NOT_STARTED;
         }
+
         portcullis[0] = 0;
         portcullis[1] = 0;
     }
+
     bool IsEncounterInProgress() const
     {
-        for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
+        for(uint8 i = 0; i < MAX_ENCOUNTER; ++i)
             if (m_auiEncounter[i] == IN_PROGRESS) return true;
+
         return false;
     }
+
     Player* GetPlayerInMap()
     {
         Map::PlayerList const& players = instance->GetPlayers();
+
         if (!players.isEmpty())
         {
-            for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
+            for(Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
             {
                 if (Player* plr = itr->getSource())
                 return plr;
             }
         }
+
         debug_log("TSCR: Instance Utgarde Keep: GetPlayerInMap, but PlayerList is empty!");
         return NULL;
     }
+
     void OnCreatureCreate(Creature* pCreature, bool add)
     {
         switch(pCreature->GetEntry())
@@ -101,6 +123,7 @@ struct TRINITY_DLL_DECL instance_utgarde_keep : public ScriptedInstance
             case 23954:    Ingvar = pCreature->GetGUID();               break;
         }
     }
+
     void OnGameObjectCreate(GameObject* pGo, bool add)
     {
         switch(pGo->GetEntry())
@@ -130,6 +153,7 @@ struct TRINITY_DLL_DECL instance_utgarde_keep : public ScriptedInstance
         if (m_auiEncounter[2] == DONE)HandleGameObject(NULL,true,pGo);break;
         }
     }
+
     uint64 GetData64(uint32 identifier)
     {
         switch(identifier)
@@ -139,8 +163,10 @@ struct TRINITY_DLL_DECL instance_utgarde_keep : public ScriptedInstance
             case DATA_SKARVALD:               return Skarvald;
             case DATA_INGVAR:                 return Ingvar;
         }
+
         return 0;
     }
+
     void SetData(uint32 type, uint32 data)
     {
         switch(type)
@@ -203,11 +229,13 @@ struct TRINITY_DLL_DECL instance_utgarde_keep : public ScriptedInstance
             break;
         }
 
+
         if (data == DONE)
         {
             SaveToDB();
         }
     }
+
     uint32 GetData(uint32 type)
     {
         switch(type)
@@ -216,18 +244,24 @@ struct TRINITY_DLL_DECL instance_utgarde_keep : public ScriptedInstance
             case DATA_SKARVALD_DALRONN_EVENT:   return m_auiEncounter[1];
             case DATA_INGVAR_EVENT:             return m_auiEncounter[2];
         }
+
         return 0;
     }
+
     std::string GetSaveData()
     {
         OUT_SAVE_INST_DATA;
+
         std::ostringstream saveStream;
         saveStream << "U K " << m_auiEncounter[0] << " " << m_auiEncounter[1] << " "
             << m_auiEncounter[2] << " " << forge_event[0] << " " << forge_event[1] << " " << forge_event[2];
+
         str_data = saveStream.str();
+
         OUT_SAVE_INST_DATA_COMPLETE;
         return str_data;
     }
+
     void Load(const char* in)
     {
         if (!in)
@@ -235,30 +269,40 @@ struct TRINITY_DLL_DECL instance_utgarde_keep : public ScriptedInstance
             OUT_LOAD_INST_DATA_FAIL;
             return;
         }
+
         OUT_LOAD_INST_DATA(in);
+
         char dataHead1, dataHead2;
         uint16 data0,data1,data2, data3, data4, data5;
+
         std::istringstream loadStream(in);
         loadStream >> dataHead1 >> dataHead2 >> data0 >> data1 >> data2 >> data3 >> data4 >> data5;
+
         if (dataHead1 == 'U' && dataHead2 == 'K')
         {
             m_auiEncounter[0] = data0;
             m_auiEncounter[1] = data1;
             m_auiEncounter[2] = data2;
-            for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
+
+            for(uint8 i = 0; i < MAX_ENCOUNTER; ++i)
                 if (m_auiEncounter[i] == IN_PROGRESS)
                     m_auiEncounter[i] = NOT_STARTED;
+
             forge_event[0] = data3;
             forge_event[1] = data4;
             forge_event[2] = data5;
+
         }else OUT_LOAD_INST_DATA_FAIL;
+
         OUT_LOAD_INST_DATA_COMPLETE;
     }
 };
+
 InstanceData* GetInstanceData_instance_utgarde_keep(Map* pMap)
 {
    return new instance_utgarde_keep(pMap);
 }
+
 void AddSC_instance_utgarde_keep()
 {
    Script *newscript;

@@ -13,60 +13,77 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
+
 /* ScriptData
 SDName: Mulgore
 SD%Complete: 100
 SDComment: Support for quest: 11129, 772
 SDCategory: Mulgore
 EndScriptData */
+
 /* ContentData
 npc_skorn_whitecloud
 npc_kyle_frenzied
 npc_plains_vision
 EndContentData */
+
 #include "precompiled.h"
 #include "escort_ai.h"
+
 /*######
 # npc_skorn_whitecloud
 ######*/
+
 #define GOSSIP_SW "Tell me a story, Skorn."
+
 bool GossipHello_npc_skorn_whitecloud(Player* pPlayer, Creature* pCreature)
 {
     if (pCreature->isQuestGiver())
         pPlayer->PrepareQuestMenu(pCreature->GetGUID());
+
     if (!pPlayer->GetQuestRewardStatus(770))
         pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SW, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
+
     pPlayer->SEND_GOSSIP_MENU(522, pCreature->GetGUID());
+
     return true;
 }
+
 bool GossipSelect_npc_skorn_whitecloud(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
 {
     if (uiAction == GOSSIP_ACTION_INFO_DEF)
         pPlayer->SEND_GOSSIP_MENU(523, pCreature->GetGUID());
+
     return true;
 }
+
 /*#####
 # npc_kyle_frenzied
 ######*/
+
 enum eKyleFrenzied
 {
     //emote signed for 7780 but propably thats wrong id.
     EMOTE_SEE_LUNCH         = -1000407,
     EMOTE_EAT_LUNCH         = -1000408,
     EMOTE_DANCE             = -1000409,
+
     SPELL_LUNCH             = 42222,
     NPC_KYLE_FRENZIED       = 23616,
     NPC_KYLE_FRIENDLY       = 23622,
     POINT_ID                = 1
 };
+
 struct TRINITY_DLL_DECL npc_kyle_frenziedAI : public ScriptedAI
 {
     npc_kyle_frenziedAI(Creature *c) : ScriptedAI(c) {}
+
     bool bEvent;
     bool m_bIsMovingToLunch;
     uint64 uiPlayerGUID;
     uint32 uiEventTimer;
     uint8 uiEventPhase;
+
     void Reset()
     {
         bEvent = false;
@@ -74,43 +91,52 @@ struct TRINITY_DLL_DECL npc_kyle_frenziedAI : public ScriptedAI
         uiPlayerGUID = 0;
         uiEventTimer = 5000;
         uiEventPhase = 0;
+
         if (m_creature->GetEntry() == NPC_KYLE_FRIENDLY)
             m_creature->UpdateEntry(NPC_KYLE_FRENZIED);
     }
+
     void SpellHit(Unit* pCaster, SpellEntry const* pSpell)
     {
         if (!m_creature->getVictim() && !bEvent && pSpell->Id == SPELL_LUNCH)
         {
             if (pCaster->GetTypeId() == TYPEID_PLAYER)
                 uiPlayerGUID = pCaster->GetGUID();
+
             if (m_creature->GetMotionMaster()->GetCurrentMovementGeneratorType() == WAYPOINT_MOTION_TYPE)
             {
                 m_creature->GetMotionMaster()->MovementExpired();
                 m_creature->GetMotionMaster()->MoveIdle();
                 m_creature->StopMoving();
             }
+
             bEvent = true;
             DoScriptText(EMOTE_SEE_LUNCH, m_creature);
             m_creature->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_CREATURE_SPECIAL);
         }
     }
+
     void MovementInform(uint32 uiType, uint32 uiPointId)
     {
         if (uiType != POINT_MOTION_TYPE || !bEvent)
             return;
+
         if (uiPointId == POINT_ID)
             m_bIsMovingToLunch = false;
     }
+
     void UpdateAI(const uint32 diff)
     {
         if (bEvent)
         {
             if (m_bIsMovingToLunch)
                 return;
+
             if (uiEventTimer < diff)
             {
                 uiEventTimer = 5000;
                 ++uiEventPhase;
+
                 switch(uiEventPhase)
                 {
                     case 1:
@@ -130,6 +156,7 @@ struct TRINITY_DLL_DECL npc_kyle_frenziedAI : public ScriptedAI
                     case 3:
                         if (Player* pUnit = Unit::GetPlayer(uiPlayerGUID))
                             pUnit->TalkedToCreature(m_creature->GetEntry(), m_creature->GetGUID());
+
                         m_creature->UpdateEntry(NPC_KYLE_FRIENDLY);
                         break;
                     case 4:
@@ -149,13 +176,16 @@ struct TRINITY_DLL_DECL npc_kyle_frenziedAI : public ScriptedAI
         }
     }
 };
+
 CreatureAI* GetAI_npc_kyle_frenzied(Creature* pCreature)
 {
     return new npc_kyle_frenziedAI (pCreature);
 }
+
 /*#####
 # npc_plains_vision
 ######*/
+
 float wp_plain_vision[50][3] =
 {
     {-2226.32,  -408.095,   -9.36235},
@@ -209,23 +239,29 @@ float wp_plain_vision[50][3] =
     {-1511.39,  362.537,    62.4539},
     {-1508.68,  366.822,    62.733}
 };
+
 struct TRINITY_DLL_DECL npc_plains_visionAI  : public ScriptedAI
 {
     npc_plains_visionAI(Creature *c) : ScriptedAI(c) {}
+
     bool newWaypoint;
     uint8 WayPointId;
     uint8 amountWP;
+
     void Reset()
     {
         WayPointId = 0;
         newWaypoint = true;
         amountWP  = 49;
     }
+
     void EnterCombat(Unit* who){}
+
     void MovementInform(uint32 type, uint32 id)
     {
         if (type != POINT_MOTION_TYPE)
             return;
+
         if (id < amountWP)
         {
             ++WayPointId;
@@ -237,6 +273,7 @@ struct TRINITY_DLL_DECL npc_plains_visionAI  : public ScriptedAI
             m_creature->RemoveCorpse();
         }
     }
+
     void UpdateAI(const uint32 diff)
     {
         if (newWaypoint)
@@ -246,25 +283,31 @@ struct TRINITY_DLL_DECL npc_plains_visionAI  : public ScriptedAI
         }
     }
 };
+
 CreatureAI* GetAI_npc_plains_vision(Creature* pCreature)
 {
       return new npc_plains_visionAI (pCreature);
 }
+
 /*#####
 #
 ######*/
+
 void AddSC_mulgore()
 {
     Script *newscript;
+
     newscript = new Script;
     newscript->Name = "npc_skorn_whitecloud";
     newscript->pGossipHello = &GossipHello_npc_skorn_whitecloud;
     newscript->pGossipSelect = &GossipSelect_npc_skorn_whitecloud;
     newscript->RegisterSelf();
+
     newscript = new Script;
     newscript->Name = "npc_kyle_frenzied";
     newscript->GetAI = &GetAI_npc_kyle_frenzied;
     newscript->RegisterSelf();
+
     newscript = new Script;
     newscript->Name = "npc_plains_vision";
     newscript->GetAI = &GetAI_npc_plains_vision;

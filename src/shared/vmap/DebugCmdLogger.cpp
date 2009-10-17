@@ -17,12 +17,17 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
+
 #include <cstdio>
+
 #include "DebugCmdLogger.h"
 #include <stdio.h>
+
 using namespace G3D;
+
 namespace VMAP
 {
+
     bool CommandFileRW::appendCmd(const Command&
 #ifdef _DEBUG
         pCommand
@@ -50,7 +55,9 @@ namespace VMAP
         return true;
         #endif
     }
+
     //=========================================================
+
     bool CommandFileRW::appendCmds(const Array<Command>&
 #ifdef _DEBUG
         pCmdArray
@@ -67,6 +74,7 @@ namespace VMAP
             else
                 f = fopen(iFileName.c_str(), "ab");
             resetfile = false;
+
             if(f)
             {
                 result = true;
@@ -86,7 +94,9 @@ namespace VMAP
         return true;
         #endif
     }
+
     //=========================================================
+
     bool CommandFileRW::getNewCommands(Array<Command>& pCmdArray)
     {
         bool result = false;

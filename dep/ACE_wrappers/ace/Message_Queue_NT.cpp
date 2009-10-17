@@ -1,15 +1,21 @@
 // $Id: Message_Queue_NT.cpp 80826 2008-03-04 14:51:23Z wotte $
+
 #include "ace/Message_Queue_NT.h"
 #include "ace/Log_Msg.h"
+
 #if !defined (__ACE_INLINE__)
 #include "ace/Message_Queue_NT.inl"
 #endif /* __ACE_INLINE__ */
+
 ACE_RCSID (ace,
            Message_Queue_NT,
            "$Id: Message_Queue_NT.cpp 80826 2008-03-04 14:51:23Z wotte $")
 
+
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
+
 #if defined (ACE_HAS_WIN32_OVERLAPPED_IO)
+
 ACE_Message_Queue_NT::ACE_Message_Queue_NT (DWORD max_threads)
   : max_cthrs_ (max_threads),
     cur_thrs_ (0),
@@ -21,6 +27,7 @@ ACE_Message_Queue_NT::ACE_Message_Queue_NT (DWORD max_threads)
   ACE_TRACE ("ACE_Message_Queue_NT::ACE_Message_Queue_NT");
   this->open (max_threads);
 }
+
 int
 ACE_Message_Queue_NT::open (DWORD max_threads)
 {
@@ -32,6 +39,7 @@ ACE_Message_Queue_NT::open (DWORD max_threads)
                                                      max_threads);
   return (this->completion_port_ == 0 ? -1 : 0);
 }
+
 int
 ACE_Message_Queue_NT::close (void)
 {
@@ -40,11 +48,13 @@ ACE_Message_Queue_NT::close (void)
   this->deactivate ();
   return (::CloseHandle (this->completion_port_) ? 0 : -1 );
 }
+
 ACE_Message_Queue_NT::~ACE_Message_Queue_NT (void)
 {
   ACE_TRACE ("ACE_Message_Queue_NT::~ACE_Message_Queue_NT");
   this->close ();
 }
+
 int
 ACE_Message_Queue_NT::enqueue (ACE_Message_Block *new_item,
                                ACE_Time_Value *)
@@ -72,16 +82,20 @@ ACE_Message_Queue_NT::enqueue (ACE_Message_Block *new_item,
     }
   else
     errno = ESHUTDOWN;
+
   // Fail to enqueue the message.
   return -1;
 }
+
 int
 ACE_Message_Queue_NT::dequeue (ACE_Message_Block *&first_item,
                                ACE_Time_Value *timeout)
 {
   ACE_TRACE ("ACE_Message_Queue_NT::dequeue_head");
+
   {
     ACE_GUARD_RETURN (ACE_SYNCH_MUTEX, ace_mon, this->lock_, -1);
+
     // Make sure the MQ is not deactivated before proceeding.
     if (this->state_ == ACE_Message_Queue_Base::DEACTIVATED)
       {
@@ -91,6 +105,7 @@ ACE_Message_Queue_NT::dequeue (ACE_Message_Block *&first_item,
     else
       ++this->cur_thrs_;        // Increase the waiting thread count.
   }
+
   ULONG_PTR queue_state;
   DWORD msize;
   // Get a message from the completion port.
@@ -117,15 +132,18 @@ ACE_Message_Queue_NT::dequeue (ACE_Message_Block *&first_item,
   }
   return -1;
 }
+
 int
 ACE_Message_Queue_NT::deactivate (void)
 {
   ACE_TRACE ("ACE_Message_Queue_NT::deactivate");
   ACE_GUARD_RETURN (ACE_SYNCH_MUTEX, ace_mon, this->lock_, -1);
+
   int const previous_state = this->state_;
   if (previous_state != ACE_Message_Queue_Base::DEACTIVATED)
     {
       this->state_ = ACE_Message_Queue_Base::DEACTIVATED;
+
       // Get the number of shutdown messages necessary to wake up all
       // waiting threads.
       DWORD cntr =
@@ -138,6 +156,7 @@ ACE_Message_Queue_NT::deactivate (void)
     }
   return previous_state;
 }
+
 int
 ACE_Message_Queue_NT::activate (void)
 {
@@ -147,17 +166,21 @@ ACE_Message_Queue_NT::activate (void)
   this->state_ = ACE_Message_Queue_Base::ACTIVATED;
   return previous_status;
 }
+
 int
 ACE_Message_Queue_NT::pulse (void)
 {
   ACE_TRACE ("ACE_Message_Queue_NT::pulse");
   ACE_GUARD_RETURN (ACE_SYNCH_MUTEX, ace_mon, this->lock_, -1);
+
   int const previous_state = this->state_;
   if (previous_state != ACE_Message_Queue_Base::DEACTIVATED)
     {
       this->state_ = ACE_Message_Queue_Base::PULSED;
+
       // Get the number of shutdown messages necessary to wake up all
       // waiting threads.
+
       DWORD cntr =
         this->cur_thrs_ - static_cast<DWORD> (this->cur_count_);
       while (cntr-- > 0)
@@ -168,11 +191,13 @@ ACE_Message_Queue_NT::pulse (void)
     }
   return previous_state;
 }
+
 void
 ACE_Message_Queue_NT::dump (void) const
 {
 #if defined (ACE_HAS_DUMP)
   ACE_TRACE ("ACE_Message_Queue_NT::dump");
+
   ACE_DEBUG ((LM_DEBUG, ACE_BEGIN_DUMP, this));
   switch (this->state_)
     {
@@ -189,6 +214,7 @@ ACE_Message_Queue_NT::dump (void) const
                   ACE_TEXT ("state = PULSED\n")));
       break;
     }
+
   ACE_DEBUG ((LM_DEBUG,
               ACE_TEXT ("max_cthrs_ = %d\n")
               ACE_TEXT ("cur_thrs_ = %d\n")
@@ -205,6 +231,8 @@ ACE_Message_Queue_NT::dump (void) const
   ACE_DEBUG ((LM_DEBUG, ACE_END_DUMP));
 #endif /* ACE_HAS_DUMP */
 }
+
 #endif /* ACE_HAS_WIN32_OVERLAPPED_IO */
+
 ACE_END_VERSIONED_NAMESPACE_DECL
 

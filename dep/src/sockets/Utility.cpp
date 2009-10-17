@@ -4,20 +4,25 @@
 **/
 /*
 Copyright (C) 2004-2007  Anders Hedstrom
+
 This library is made available under the terms of the GNU GPL.
+
 If you would like to use this library in a closed-source application,
 a separate license agreement is available. For information about
 the closed-source license agreement for the C++ sockets library,
 please visit http://www.alhem.net/Sockets/license.html and/or
 email license@alhem.net.
+
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
 as published by the Free Software Foundation; either version 2
 of the License, or (at your option) any later version.
+
 This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
+
 You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -35,9 +40,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <pthread.h>
 #endif
 #include <map>
+
 #ifdef SOCKETS_NAMESPACE
 namespace SOCKETS_NAMESPACE {
 #endif
+
 
 // defines for the random number generator
 #define TWIST_IA        397
@@ -47,6 +54,7 @@ namespace SOCKETS_NAMESPACE {
 #define MATRIX_A        0x9908B0DF
 #define TWIST(b,i,j)   ((b)[i] & UMASK) | ((b)[j] & LMASK)
 #define MAGIC_TWIST(s) (((s) & 1) * MATRIX_A)
+
 
 // statics
 std::string Utility::m_host;
@@ -60,6 +68,7 @@ std::string Utility::m_local_addr6;
 #endif
 #endif
 
+
 std::string Utility::base64(const std::string& str_in)
 {
     std::string str;
@@ -67,6 +76,7 @@ std::string Utility::base64(const std::string& str_in)
     m_b.encode(str_in, str, false); // , false == do not add cr/lf
     return str;
 }
+
 
 std::string Utility::base64d(const std::string& str_in)
 {
@@ -76,6 +86,7 @@ std::string Utility::base64d(const std::string& str_in)
     return str;
 }
 
+
 std::string Utility::l2string(long l)
 {
     std::string str;
@@ -84,6 +95,7 @@ std::string Utility::l2string(long l)
     str = tmp;
     return str;
 }
+
 
 std::string Utility::bigint2string(uint64_t l)
 {
@@ -102,6 +114,7 @@ std::string Utility::bigint2string(uint64_t l)
     return str;
 }
 
+
 uint64_t Utility::atoi64(const std::string& str)
 {
     uint64_t l = 0;
@@ -112,6 +125,7 @@ uint64_t Utility::atoi64(const std::string& str)
     return l;
 }
 
+
 unsigned int Utility::hex2unsigned(const std::string& str)
 {
     unsigned int r = 0;
@@ -121,6 +135,7 @@ unsigned int Utility::hex2unsigned(const std::string& str)
     }
     return r;
 }
+
 
 /*
 * Encode string per RFC1738 URL encoding rules
@@ -152,6 +167,7 @@ static  char hex[] = "0123456789ABCDEF";
     return dst;
 } // rfc1738_encode
 
+
 /*
 * Decode string per RFC1738 URL encoding rules
 * tnx rstaveley
@@ -182,6 +198,7 @@ std::string Utility::rfc1738_decode(const std::string& src)
     return dst;
 } // rfc1738_decode
 
+
 bool Utility::isipv4(const std::string& str)
 {
     int dots = 0;
@@ -198,6 +215,7 @@ bool Utility::isipv4(const std::string& str)
         return false;
     return true;
 }
+
 
 bool Utility::isipv6(const std::string& str)
 {
@@ -238,6 +256,7 @@ bool Utility::isipv6(const std::string& str)
     return true;
 }
 
+
 bool Utility::u2ip(const std::string& str, ipaddr_t& l)
 {
     struct sockaddr_in sa;
@@ -245,6 +264,7 @@ bool Utility::u2ip(const std::string& str, ipaddr_t& l)
     memcpy(&l, &sa.sin_addr, sizeof(l));
     return r;
 }
+
 
 #ifdef ENABLE_IPV6
 #ifdef IPPROTO_IPV6
@@ -258,6 +278,7 @@ bool Utility::u2ip(const std::string& str, struct in6_addr& l)
 #endif
 #endif
 
+
 void Utility::l2ip(const ipaddr_t ip, std::string& str)
 {
     struct sockaddr_in sa;
@@ -267,6 +288,7 @@ void Utility::l2ip(const ipaddr_t ip, std::string& str)
     Utility::reverse( (struct sockaddr *)&sa, sizeof(sa), str, NI_NUMERICHOST);
 }
 
+
 void Utility::l2ip(const in_addr& ip, std::string& str)
 {
     struct sockaddr_in sa;
@@ -275,6 +297,7 @@ void Utility::l2ip(const in_addr& ip, std::string& str)
     sa.sin_addr = ip;
     Utility::reverse( (struct sockaddr *)&sa, sizeof(sa), str, NI_NUMERICHOST);
 }
+
 
 #ifdef ENABLE_IPV6
 #ifdef IPPROTO_IPV6
@@ -324,6 +347,7 @@ void Utility::l2ip(const struct in6_addr& ip, std::string& str,bool mixed)
     str = slask;
 }
 
+
 int Utility::in6_addr_compare(in6_addr a,in6_addr b)
 {
     for (size_t i = 0; i < 16; i++)
@@ -338,9 +362,11 @@ int Utility::in6_addr_compare(in6_addr a,in6_addr b)
 #endif
 #endif
 
+
 void Utility::ResolveLocal()
 {
     char h[256];
+
     // get local hostname and translate into ip-address
     *h = 0;
     gethostname(h,255);
@@ -365,6 +391,7 @@ void Utility::ResolveLocal()
     m_local_resolved = true;
 }
 
+
 const std::string& Utility::GetLocalHostname()
 {
     if (!m_local_resolved)
@@ -373,6 +400,7 @@ const std::string& Utility::GetLocalHostname()
     }
     return m_host;
 }
+
 
 ipaddr_t Utility::GetLocalIP()
 {
@@ -383,6 +411,7 @@ ipaddr_t Utility::GetLocalIP()
     return m_ip;
 }
 
+
 const std::string& Utility::GetLocalAddress()
 {
     if (!m_local_resolved)
@@ -391,6 +420,7 @@ const std::string& Utility::GetLocalAddress()
     }
     return m_addr;
 }
+
 
 #ifdef ENABLE_IPV6
 #ifdef IPPROTO_IPV6
@@ -403,6 +433,7 @@ const struct in6_addr& Utility::GetLocalIP6()
     return m_local_ip6;
 }
 
+
 const std::string& Utility::GetLocalAddress6()
 {
     if (!m_local_resolved)
@@ -413,6 +444,7 @@ const std::string& Utility::GetLocalAddress6()
 }
 #endif
 #endif
+
 
 void Utility::SetEnv(const std::string& var,const std::string& value)
 {
@@ -436,6 +468,7 @@ void Utility::SetEnv(const std::string& var,const std::string& value)
     setenv(var.c_str(), value.c_str(), 1);
 #endif
 }
+
 
 std::string Utility::Sa2String(struct sockaddr *sa)
 {
@@ -462,6 +495,7 @@ std::string Utility::Sa2String(struct sockaddr *sa)
     return "";
 }
 
+
 void Utility::GetTime(struct timeval *p)
 {
 #ifdef _WIN32
@@ -476,6 +510,7 @@ void Utility::GetTime(struct timeval *p)
     gettimeofday(p, NULL);
 #endif
 }
+
 
 std::auto_ptr<SocketAddress> Utility::CreateAddress(struct sockaddr *sa,socklen_t sa_len)
 {
@@ -502,6 +537,7 @@ std::auto_ptr<SocketAddress> Utility::CreateAddress(struct sockaddr *sa,socklen_
     }
     return std::auto_ptr<SocketAddress>(NULL);
 }
+
 
 bool Utility::u2ip(const std::string& host, struct sockaddr_in& sa, int ai_flags)
 {
@@ -594,6 +630,7 @@ bool Utility::u2ip(const std::string& host, struct sockaddr_in& sa, int ai_flags
     return false;
 #endif // NO_GETADDRINFO
 }
+
 
 #ifdef ENABLE_IPV6
 #ifdef IPPROTO_IPV6
@@ -710,11 +747,13 @@ bool Utility::u2ip(const std::string& host, struct sockaddr_in6& sa, int ai_flag
 #endif // IPPROTO_IPV6
 #endif // ENABLE_IPV6
 
+
 bool Utility::reverse(struct sockaddr *sa, socklen_t sa_len, std::string& hostname, int flags)
 {
     std::string service;
     return Utility::reverse(sa, sa_len, hostname, service, flags);
 }
+
 
 bool Utility::reverse(struct sockaddr *sa, socklen_t sa_len, std::string& hostname, std::string& service, int flags)
 {
@@ -831,6 +870,7 @@ bool Utility::reverse(struct sockaddr *sa, socklen_t sa_len, std::string& hostna
 #endif // NO_GETADDRINFO
 }
 
+
 bool Utility::u2service(const std::string& name, int& service, int ai_flags)
 {
 #ifdef NO_GETADDRINFO
@@ -863,6 +903,7 @@ bool Utility::u2service(const std::string& name, int& service, int ai_flags)
 #endif // NO_GETADDRINFO
 }
 
+
 unsigned long Utility::ThreadID()
 {
 #ifdef _WIN32
@@ -871,6 +912,7 @@ unsigned long Utility::ThreadID()
     return (unsigned long)pthread_self();
 #endif
 }
+
 
 std::string Utility::ToLower(const std::string& str)
 {
@@ -885,6 +927,7 @@ std::string Utility::ToLower(const std::string& str)
     return r;
 }
 
+
 std::string Utility::ToUpper(const std::string& str)
 {
     std::string r;
@@ -898,6 +941,7 @@ std::string Utility::ToUpper(const std::string& str)
     return r;
 }
 
+
 std::string Utility::ToString(double d)
 {
     char tmp[100];
@@ -905,11 +949,13 @@ std::string Utility::ToString(double d)
     return tmp;
 }
 
+
 unsigned long Utility::Rnd()
 {
 static  Utility::Rng generator( (unsigned long)time(NULL) );
     return generator.Get();
 }
+
 
 Utility::Rng::Rng(unsigned long seed) : m_value( 0 )
 {
@@ -919,6 +965,7 @@ Utility::Rng::Rng(unsigned long seed) : m_value( 0 )
         m_tmp[i] = (1812433253UL * (m_tmp[i - 1] ^ (m_tmp[i - 1] >> 30)) + i);
     }
 }
+
 
 unsigned long Utility::Rng::Get()
 {
@@ -940,11 +987,14 @@ unsigned long Utility::Rng::Get()
         }
         unsigned long s = TWIST(m_tmp, TWIST_LEN - 1, 0);
         m_tmp[TWIST_LEN - 1] = m_tmp[TWIST_IA - 1] ^ (s >> 1) ^ MAGIC_TWIST(s);
+
         m_value = 0;
     }
     return val;
 }
+
 #ifdef SOCKETS_NAMESPACE
 }
 #endif
+
 

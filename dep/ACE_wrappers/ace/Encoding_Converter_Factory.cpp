@@ -1,11 +1,14 @@
 // $Id: Encoding_Converter_Factory.cpp 80826 2008-03-04 14:51:23Z wotte $
 #include "ace/Encoding_Converter_Factory.h"
+
 #if defined (ACE_USES_WCHAR)
 #include "ace/UTF32_Encoding_Converter.h"
 #include "ace/UTF16_Encoding_Converter.h"
 #include "ace/UTF8_Encoding_Converter.h"
 #include "ace/OS_Memory.h"
+
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
+
 ACE_Encoding_Converter*
 ACE_Encoding_Converter_Factory::create (
                        const ACE_Byte* source,
@@ -18,6 +21,7 @@ ACE_Encoding_Converter_Factory::create (
   bool const convert_for_bigendian = false;
 #endif /* ACE_BIG_ENDIAN */
   ACE_Encoding_Converter* converter = 0;
+
   switch (hint)
     {
     case ACE_UTF_32BE:
@@ -51,17 +55,21 @@ ACE_Encoding_Converter_Factory::create (
       converter = ACE_UTF8_Encoding_Converter::encoded (source, source_size);
       if (converter != 0)
         return converter;
+
       // Check for UTF-32
       converter = ACE_UTF32_Encoding_Converter::encoded (source, source_size);
       if (converter != 0)
         return converter;
+
       // Check for UTF-16
       converter = ACE_UTF16_Encoding_Converter::encoded (source, source_size);
       if (converter != 0)
         return converter;
     }
+
   return converter;
 }
+
 ACE_END_VERSIONED_NAMESPACE_DECL
 #endif /* ACE_USES_WCHAR */
 

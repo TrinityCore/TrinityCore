@@ -1,4 +1,5 @@
 // -*- C++ -*-
+
 //=============================================================================
 /**
  *  @file    os_time.h
@@ -11,15 +12,21 @@
  *  @author This code was originally in various places including ace/OS.h.
  */
 //=============================================================================
+
 #ifndef ACE_OS_INCLUDE_OS_TIME_H
 #define ACE_OS_INCLUDE_OS_TIME_H
+
 #include /**/ "ace/pre.h"
+
 #include "ace/config-lite.h"
+
 #if !defined (ACE_LACKS_PRAGMA_ONCE)
 # pragma once
 #endif /* ACE_LACKS_PRAGMA_ONCE */
+
 // @todo should we include anything from signal.h?
 #include "ace/os_include/sys/os_types.h"
+
 // To get the proper select() signature, this is required for HP-UX, and
 // maybe other platforms that offer both int and fdset forms of select().
 // For HP-UX, sys/time.h must be included before time.h, or
@@ -28,9 +35,11 @@
 #if !defined (ACE_LACKS_SYS_TIME_H)
 #  include /**/ <sys/time.h>
 #endif /* !ACE_LACKS_SYS_TIME_H */
+
 #if !defined (ACE_LACKS_TIME_H)
 #  include /**/ <time.h>
 #endif /* !ACE_LACKS_TIME_H */
+
 # if defined (ACE_USES_STD_NAMESPACE_FOR_STDC_LIB) && \
              (ACE_USES_STD_NAMESPACE_FOR_STDC_LIB != 0)
 using std::tm;
@@ -43,6 +52,7 @@ using std::timezone;
 # endif
 using std::difftime;
 # endif /* ACE_USES_STD_NAMESPACE_FOR_STDC_LIB */
+
 # if !defined (ACE_HAS_POSIX_TIME)
 // Definition per POSIX.
 typedef struct timespec
@@ -60,17 +70,21 @@ typedef struct timespec
 #     include /**/ <sys/timers.h>
 #  endif
 # endif /* !ACE_HAS_POSIX_TIME */
+
 # if defined(ACE_LACKS_TIMESPEC_T)
 typedef struct timespec timespec_t;
 # endif /* ACE_LACKS_TIMESPEC_T */
+
 // Place all additions (especially function declarations) within extern "C" {}
 #ifdef __cplusplus
 extern "C"
 {
 #endif /* __cplusplus */
+
 #if defined (ACE_HAS_BROKEN_CTIME)
 #  undef ctime
 #endif /* ACE_HAS_BROKEN_CTIME */
+
 // There are a lot of threads-related macro definitions in the config files.
 // They came in at different times and from different places and platform
 // requirements as threads evolved.  They are probably not all needed - some
@@ -83,23 +97,28 @@ extern "C"
 #    define ACE_HAS_2_PARAM_ASCTIME_R_AND_CTIME_R
 #  endif
 #endif /* ACE_HAS_PTHREADS */
+
 #if defined (ACE_LACKS_STRPTIME_PROTOTYPE) && !defined (_XOPEN_SOURCE)
    extern char *strptime (const char *s, const char *fmt, struct tm *tp);
 #endif  /* ACE_LACKS_STRPTIME_PROTOTYPE */
+
 #if defined (ACE_LACKS_CONST_TIMESPEC_PTR)
 typedef struct timespec * ACE_TIMESPEC_PTR;
 #else
 typedef const struct timespec * ACE_TIMESPEC_PTR;
 #endif /* ACE_LACKS_CONST_TIMESPEC_PTR */
+
 #if defined (DIGITAL_UNIX)
   extern char *_Pctime_r (const time_t *, char *);
   extern struct tm *_Plocaltime_r (const time_t *, struct tm *);
   extern struct tm *_Pgmtime_r (const time_t *, struct tm *);
   extern char *_Pasctime_r (const struct tm *, char *);
 #endif /* DIGITAL_UNIX */
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
+
 #include /**/ "ace/post.h"
 #endif /* ACE_OS_INCLUDE_OS_TIME_H */
 

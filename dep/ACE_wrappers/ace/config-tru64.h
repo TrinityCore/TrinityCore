@@ -1,42 +1,55 @@
 /* -*- C++ -*- */
 // $Id: config-tru64.h 81935 2008-06-12 22:01:53Z jtc $
+
 // The following configuration file is designed to work for the
 // Digital UNIX V4.0a and later platforms.  It relies on
 // config-osf1-4.0.h, and adds deltas for newer platforms.
+
 #ifndef ACE_CONFIG_TRU64_H
 #define ACE_CONFIG_TRU64_H
 #include /**/ "ace/pre.h"
+
 #if !defined (__ACE_INLINE__)
 # define __ACE_INLINE__
 #endif /* ! __ACE_INLINE__ */
+
 // Compile using multi-thread libraries.
 #if !defined (ACE_MT_SAFE)
 # define ACE_MT_SAFE 1
 #endif /* ! ACE_MT_SAFE */
+
 /*clearerr is not defined when _REENTRANT is not defined*/
 #if ACE_MT_SAFE == 0
 #define ACE_LACKS_CLEARERR
 #endif /* ACE_MT_SAFE == 0 */
+
 #include "ace/config-posix.h"
+
 // Configuration-specific #defines:
 // 1) g++ or cxx
 // 2) pthreads or DCE threads
 #if defined (__GNUG__)
   // g++ with pthreads
+
   // config-g++-common.h undef's ACE_HAS_STRING_CLASS with -frepo, so
   // this must appear before its #include.
 # define ACE_HAS_STRING_CLASS
+
 # include "ace/config-g++-common.h"
+
 # define ACE_HAS_GNU_CSTRING_H
 # define ACE_HAS_REENTRANT_FUNCTIONS
 #elif defined (__DECCXX)
+
 # define ACE_CONFIG_INCLUDE_CXX_COMMON
 # include "ace/config-cxx-common.h"
+
 #elif defined (__rational__)
 # define ACE_HAS_REENTRANT_FUNCTIONS
 # define ACE_HAS_STRING_CLASS
 # define ACE_LACKS_LINEBUFFERED_STREAMBUF
 # define ACE_LACKS_SIGNED_CHAR
+
     // Exceptions are enabled by platform_osf1_4.0_rcc.GNU.
 # define ACE_HAS_STDCPP_STL_INCLUDES
 #else
@@ -44,6 +57,7 @@
 #   error unsupported compiler on Digital Unix
 #  endif  /* __cplusplus */
 #endif /* ! __GNUG__ && ! __DECCXX && ! __rational__ */
+
 #define ACE_HAS_2_PARAM_ASCTIME_R_AND_CTIME_R
 #define ACE_HAS_BROKEN_IF_HEADER
 #define ACE_HAS_BROKEN_R_ROUTINES
@@ -55,7 +69,9 @@
 #if !defined (DIGITAL_UNIX)
 #  define DIGITAL_UNIX 0x400
 #endif /* ! DIGITAL_UNIX */
+
 #define ACE_SIZEOF_LONG 8
+
 #define ACE_DEFAULT_BASE_ADDR ((char *) 0x80000000)
 #define ACE_HAS_AUTOMATIC_INIT_FINI
 #define ACE_HAS_NONCONST_SETRLIMIT
@@ -110,6 +126,7 @@
 #define ACE_PAGE_SIZE 8192
 #define ACE_HAS_SIGTIMEDWAIT
 #define ACE_HAS_SIGSUSPEND
+
 // DJT 6/10/96 All these broken macro's can now be removed with the
 // approporiate ordering of the include files. The Platinum release
 // now temporarily supports both forms.  Platform's implementation of
@@ -117,17 +134,22 @@
 #define ACE_HAS_NONCONST_SENDMSG
 #define ACE_HAS_IDTYPE_T
 #define ACE_HAS_NONSTATIC_OBJECT_MANAGER
+
 #if DIGITAL_UNIX >= 0x500
 # define ACE_HAS_XPG4_MULTIBYTE_CHAR 1
 #endif /* DIGITAL_UNIX >= 0x500 */
+
 #if DIGITAL_UNIX >= 0x40E
 # define ACE_LACKS_STDINT_H
 #endif /* DIGITAL_UNIX >= 0x40E */
+
 #if (DIGITAL_UNIX >= 0x400) && (DIGITAL_UNIX < 0x500)
 #define ACE_LACKS_PREAD_PROTOTYPE
 #endif /* (DIGITAL_UNIX >= 0x400) && (DIGITAL_UNIX < 0x500) */
+
 // gethostbyaddr does not handle IPv6-mapped-IPv4 addresses
 #define ACE_HAS_BROKEN_GETHOSTBYADDR_V4MAPPED
+
 #include /**/ "ace/post.h"
 #endif /* ACE_CONFIG_TRU64_H */
 

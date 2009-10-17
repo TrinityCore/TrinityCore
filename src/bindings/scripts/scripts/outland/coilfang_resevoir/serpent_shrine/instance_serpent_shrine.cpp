@@ -13,23 +13,29 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
+
 /* ScriptData
 SDName: Instance_Serpent_Shrine
 SD%Complete: 100
 SDComment: Instance Data Scripts and functions to acquire mobs and set encounter status for use in various Serpent Shrine Scripts
 SDCategory: Coilfang Resevoir, Serpent Shrine Cavern
 EndScriptData */
+
 #include "precompiled.h"
 #include "def_serpent_shrine.h"
+
 #define MAX_ENCOUNTER 6
 #define SPELL_SCALDINGWATER 37284
 #define MOB_COILFANG_FRENZY 21508
 #define TRASHMOB_COILFANG_PRIESTESS 21220  //6*2
 #define TRASHMOB_COILFANG_SHATTERER 21301  //6*3
+
 #define MIN_KILLS 30
+
 //NOTE: there are 6 platforms
 //there should be 3 shatterers and 2 priestess on all platforms, total of 30 elites, else it won't work!
 //delete all other elites not on platforms! these mobs should only be on those platforms nowhere else.
+
 /* Serpentshrine cavern encounters:
 0 - Hydross The Unstable event
 1 - Leotheras The Blind Event
@@ -38,18 +44,24 @@ EndScriptData */
 4 - Morogrim Tidewalker Event
 5 - Lady Vashj Event
 */
+
 bool GOHello_go_bridge_console(Player* pPlayer, GameObject* pGo)
 {
     ScriptedInstance* pInstance = pGo->GetInstanceData();
+
     if (!pInstance)
         return false;
+
     if (pInstance)
         pInstance->SetData(DATA_CONTROL_CONSOLE, DONE);
+
     return true;
 }
+
 struct TRINITY_DLL_DECL instance_serpentshrine_cavern : public ScriptedInstance
 {
     instance_serpentshrine_cavern(Map* pMap) : ScriptedInstance(pMap) {Initialize();};
+
     uint64 LurkerBelow;
     uint64 Sharkkis;
     uint64 Tidalvess;
@@ -59,6 +71,7 @@ struct TRINITY_DLL_DECL instance_serpentshrine_cavern : public ScriptedInstance
     uint64 KarathressEvent_Starter;
     uint64 LeotherasTheBlind;
     uint64 LeotherasEventStarter;
+
     uint64 ControlConsole;
     uint64 BridgePart[3];
     uint32 StrangePool;
@@ -68,12 +81,15 @@ struct TRINITY_DLL_DECL instance_serpentshrine_cavern : public ScriptedInstance
     uint32 FrenzySpawnTimer;
     uint32 Water;
     uint32 TrashCount;
+
     bool ShieldGeneratorDeactivated[4];
     uint32 m_auiEncounter[MAX_ENCOUNTER];
     bool DoSpawnFrenzy;
+
     void Initialize()
     {
         memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
+
         LurkerBelow = 0;
         Sharkkis = 0;
         Tidalvess = 0;
@@ -83,12 +99,14 @@ struct TRINITY_DLL_DECL instance_serpentshrine_cavern : public ScriptedInstance
         KarathressEvent_Starter = 0;
         LeotherasTheBlind = 0;
         LeotherasEventStarter = 0;
+
         ControlConsole = 0;
         BridgePart[0] = 0;
         BridgePart[1] = 0;
         BridgePart[2] = 0;
         StrangePool = 0;
         Water = WATERSTATE_FRENZY;
+
         ShieldGeneratorDeactivated[0] = false;
         ShieldGeneratorDeactivated[1] = false;
         ShieldGeneratorDeactivated[2] = false;
@@ -99,13 +117,17 @@ struct TRINITY_DLL_DECL instance_serpentshrine_cavern : public ScriptedInstance
         FrenzySpawnTimer = 2000;
         DoSpawnFrenzy = false;
         TrashCount = 0;
+
     }
+
     bool IsEncounterInProgress() const
     {
-        for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
+        for(uint8 i = 0; i < MAX_ENCOUNTER; ++i)
             if (m_auiEncounter[i] == IN_PROGRESS) return true;
+
         return false;
     }
+
     void Update (uint32 diff)
     {
         //Lurker Fishing event
@@ -124,6 +146,7 @@ struct TRINITY_DLL_DECL instance_serpentshrine_cavern : public ScriptedInstance
                 Water = WATERSTATE_SCALDING;
             else
                 Water = WATERSTATE_FRENZY;
+
             Map::PlayerList const &PlayerList = instance->GetPlayers();
             if (PlayerList.isEmpty())
                 return;
@@ -135,6 +158,7 @@ struct TRINITY_DLL_DECL instance_serpentshrine_cavern : public ScriptedInstance
                     {
                         if(Water == WATERSTATE_SCALDING)
                         {
+
                             if(!pPlayer->HasAura(SPELL_SCALDINGWATER))
                             {
                                 pPlayer->CastSpell(pPlayer, SPELL_SCALDINGWATER,true);
@@ -156,6 +180,7 @@ struct TRINITY_DLL_DECL instance_serpentshrine_cavern : public ScriptedInstance
                     if(!pPlayer->IsInWater())
                         pPlayer->RemoveAurasDueToSpell(SPELL_SCALDINGWATER);
                 }
+
             }
             WaterCheckTimer = 500;//remove stress from core
         }else WaterCheckTimer -= diff;
@@ -165,6 +190,7 @@ struct TRINITY_DLL_DECL instance_serpentshrine_cavern : public ScriptedInstance
             FrenzySpawnTimer = 2000;
         }else FrenzySpawnTimer -= diff;
     }
+
     void OnGameObjectCreate(GameObject* pGo, bool add)
     {
         switch(pGo->GetEntry())
@@ -173,14 +199,17 @@ struct TRINITY_DLL_DECL instance_serpentshrine_cavern : public ScriptedInstance
                 ControlConsole = pGo->GetGUID();
                 pGo->setActive(true);
             break;
+
             case 184203:
                 BridgePart[0] = pGo->GetGUID();
                 pGo->setActive(true);
             break;
+
             case 184204:
                 BridgePart[1] = pGo->GetGUID();
                 pGo->setActive(true);
             break;
+
             case 184205:
                 BridgePart[2] = pGo->GetGUID();
                 pGo->setActive(true);
@@ -194,6 +223,7 @@ struct TRINITY_DLL_DECL instance_serpentshrine_cavern : public ScriptedInstance
                 break;
         }
     }
+
     void OnCreatureCreate(Creature* pCreature, bool add)
     {
         switch(pCreature->GetEntry())
@@ -212,6 +242,7 @@ struct TRINITY_DLL_DECL instance_serpentshrine_cavern : public ScriptedInstance
                 break;*/
         }
     }
+
     void SetData64(uint32 type, uint64 data)
     {
         if (type == DATA_KARATHRESSEVENT_STARTER)
@@ -219,6 +250,7 @@ struct TRINITY_DLL_DECL instance_serpentshrine_cavern : public ScriptedInstance
         if (type == DATA_LEOTHERAS_EVENT_STARTER)
             LeotherasEventStarter = data;
     }
+
     uint64 GetData64(uint32 identifier)
     {
         switch(identifier)
@@ -235,6 +267,7 @@ struct TRINITY_DLL_DECL instance_serpentshrine_cavern : public ScriptedInstance
         }
         return 0;
     }
+
     void SetData(uint32 type, uint32 data)
     {
         switch(type)
@@ -282,9 +315,11 @@ struct TRINITY_DLL_DECL instance_serpentshrine_cavern : public ScriptedInstance
         case DATA_SHIELDGENERATOR3:ShieldGeneratorDeactivated[2] = (data) ? true : false;   break;
         case DATA_SHIELDGENERATOR4:ShieldGeneratorDeactivated[3] = (data) ? true : false;   break;
         }
+
         if (data == DONE)
             SaveToDB();
     }
+
     uint32 GetData(uint32 type)
     {
         switch(type)
@@ -322,6 +357,7 @@ struct TRINITY_DLL_DECL instance_serpentshrine_cavern : public ScriptedInstance
         }
         return NULL;
     }
+
     void Load(const char* in)
     {
         if (!in)
@@ -333,23 +369,27 @@ struct TRINITY_DLL_DECL instance_serpentshrine_cavern : public ScriptedInstance
         std::istringstream stream(in);
         stream >> m_auiEncounter[0] >> m_auiEncounter[1] >> m_auiEncounter[2] >> m_auiEncounter[3]
         >> m_auiEncounter[4] >> m_auiEncounter[5] >> TrashCount;
-        for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
+        for(uint8 i = 0; i < MAX_ENCOUNTER; ++i)
             if (m_auiEncounter[i] == IN_PROGRESS)                // Do not load an encounter as "In Progress" - reset it instead.
                 m_auiEncounter[i] = NOT_STARTED;
         OUT_LOAD_INST_DATA_COMPLETE;
     }
 };
+
 InstanceData* GetInstanceData_instance_serpentshrine_cavern(Map* pMap)
 {
     return new instance_serpentshrine_cavern(pMap);
 }
+
 void AddSC_instance_serpentshrine_cavern()
 {
     Script *newscript;
+
     newscript = new Script;
     newscript->Name = "instance_serpent_shrine";
     newscript->GetInstanceData = &GetInstanceData_instance_serpentshrine_cavern;
     newscript->RegisterSelf();
+
     newscript = new Script;
     newscript->Name = "go_bridge_console";
     newscript->pGOHello = &GOHello_go_bridge_console;

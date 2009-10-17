@@ -1,4 +1,5 @@
 //* -*- C++ -*- */
+
 //=============================================================================
 /**
  *  @file    ace_wchar.h
@@ -8,12 +9,16 @@
  *  @author Darrell Brunsch <brunsch@uci.edu>
  */
 //=============================================================================
+
 #ifndef ACE_WCHAR_H
 #define ACE_WCHAR_H
+
 #include "ace/config-macros.h"
+
 #if !defined (ACE_LACKS_PRAGMA_ONCE)
 # pragma once
 #endif /* ACE_LACKS_PRAGMA_ONCE */
+
 // These macros have been deprecated and should be replaced by their
 // ACE_TEXT_* equivalents.  These macros are just hacks and may not
 // completely provide the old functionality.
@@ -25,6 +30,7 @@
 # if defined (ACE_HAS_UNICODE)
 #   define ACE_HAS_WCHAR
 # endif /* ACE_HAS_UNICODE */
+
 // These are defined to get older stuff to compile
 // FUZZ: disable check_for_tchar
 # define ASYS_TCHAR ACE_TCHAR
@@ -33,20 +39,25 @@
 # define ASYS_MULTIBYTE_STRING ACE_TEXT_CHAR_TO_TCHAR
 # define ASYS_WIDE_STRING ACE_TEXT_CHAR_TO_TCHAR
 # define ACE_WIDE_STRING ACE_TEXT_CHAR_TO_TCHAR
+
 # if defined (ACE_USES_WCHAR)
 #   define ASYS_ONLY_WIDE_STRING(STRING) STRING
 # else /* ACE_USES_WCHAR */
 #   define ASYS_ONLY_WIDE_STRING(STRING) \
            ACE_Ascii_To_Wide (STRING).wchar_rep ()
 # endif /* ACE_USES_WCHAR */
+
 # define ACE_TEXT_STRING ACE_TString
+
 #endif /* ACE_LEGACY_MODE */
+
 #if defined (ACE_HAS_XPG4_MULTIBYTE_CHAR)
 #  if !defined (ACE_HAS_WCHAR)
 #    define ACE_HAS_WCHAR
 #  endif
 #  include /**/ <wchar.h>
 #endif /* ACE_HAS_XPG4_MULTIBYTE_CHAR */
+
 #if defined (ACE_HAS_WCHAR)
 # if defined (ACE_VXWORKS)
 #   include /**/ <types/vxTypes.h>  /* For wchar_t */
@@ -71,16 +82,19 @@
 #   include /**/ <wchar.h>
 # endif /* ACE_HAS_STANDARD_CPP_LIBRARY */
 #endif /* ACE_HAS_WCHAR */
+
 #if defined (ACE_HAS_ICONV)
 #  include /**/ <iconv.h>
 #  if !defined (ACE_MAX_ICONV_BUFFER)
 #    define ACE_MAX_ICONV_BUFFER   16*1024
 #  endif
 #endif /* ACE_HAS_ICONV */
+
 #if defined (ACE_USES_STD_NAMESPACE_FOR_STDC_LIB) && \
             (ACE_USES_STD_NAMESPACE_FOR_STDC_LIB != 0)
 using std::size_t;
 #endif /* ACE_USES_STD_NAMESPACE_FOR_STDC_LIB */
+
 // This makes the somewhat dubious assumption that if a platform lacks
 // a native wchar_t type, then it will typedef it as unsigned short.
 #if defined (ACE_HAS_WCHAR) && !defined (ACE_LACKS_NATIVE_WCHAR_T)
@@ -88,11 +102,14 @@ using std::size_t;
 #  define ACE_WSTRING_HAS_USHORT_SUPPORT
 # endif /* ACE_WSTRING_HAS_USHORT_SUPPORT */
 #endif /* ACE_HAS_WCHAR && !ACE_LACKS_NATIVE_WCHAR_T */
+
 // Set the default behaviour for ACE_TEXT_WIDE to use the L-prefix
 #if !defined (ACE_USES_L_PREFIX)
 # define ACE_USES_L_PREFIX 1
 #endif /* ACE_USES_L_PREFIX */
+
 // Define the unicode/wchar related macros correctly
+
 # if !defined (ACE_TEXT_WIDE)
 #  if (ACE_USES_L_PREFIX == 1)
 #    define ACE_TEXT_WIDE_I(STRING) L##STRING
@@ -101,6 +118,7 @@ using std::size_t;
 #  endif /* ACE_USES_L_PREFIX */
 #  define ACE_TEXT_WIDE(STRING) ACE_TEXT_WIDE_I (STRING)
 # endif /* ACE_TEXT_WIDE */
+
 #if defined (ACE_USES_WCHAR)
 typedef wchar_t ACE_TCHAR;
 typedef char ACE_ANTI_TCHAR;
@@ -126,27 +144,36 @@ typedef wchar_t ACE_ANTI_TCHAR;
 # define ACE_TEXT_WCHAR_TO_TCHAR(STRING) ACE_Wide_To_Ascii (STRING).char_rep ()
 # define ACE_TEXT_ANTI_TO_TCHAR(STRING) ACE_Wide_To_Ascii (STRING).char_rep ()
 #endif /* ACE_USES_WCHAR */
+
 // The OS_String module defines some wide-char functions that are not
 // universally available. In particular, they're not part of the
 // XPG4 Worldwide Portability Interface wide-character string handling
 // functions. So, if ACE_HAS_XPG4_MULTIBYTE_CHAR is defined, note that
 // these functions are missing.
 #if defined (ACE_HAS_XPG4_MULTIBYTE_CHAR)
+
 #  if !defined (ACE_LACKS_ITOW)
 #    define ACE_LACKS_ITOW
 #  endif
+
 #  if !defined (ACE_LACKS_WCSICMP)
 #    define ACE_LACKS_WCSICMP
 #  endif
+
 #  if !defined (ACE_LACKS_WCSNICMP)
 #    define ACE_LACKS_WCSNICMP
 #  endif
+
 #  if !defined (ACE_LACKS_WCSDUP)
 #    define ACE_LACKS_WCSDUP
 #  endif
+
 #endif /* ACE_HAS_XPG4_MULTIBYTE_CHAR */
+
 #if defined ACE_HAS_WCHAR
+
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
+
 /**
  * @class ACE_Wide_To_Ascii
  *
@@ -161,23 +188,30 @@ class ACE_Wide_To_Ascii
 public:
   /// Ctor must take a wchar string.
   ACE_Wide_To_Ascii (const wchar_t *s);
+
   /// Dtor will free up the memory.
   ~ACE_Wide_To_Ascii (void);
+
   /// Return the internal char* representation.
   char *char_rep (void);
+
   /// Converts an wchar_t string to ascii and returns a new string.
   static char *convert (const wchar_t *wstr);
+
 private:
   /// Internal pointer to the converted string.
   char *s_;
+
 #if defined (ACE_HAS_ICONV)
   static iconv_t ACE_Wide_To_Ascii_iconv_env;
 #endif /* ACE_HAS_ICONV */
+
   /// Disallow these operation.
   ACE_Wide_To_Ascii (void);
   ACE_Wide_To_Ascii (ACE_Wide_To_Ascii &);
   ACE_Wide_To_Ascii& operator= (ACE_Wide_To_Ascii &);
 };
+
 /**
  * @class ACE_Ascii_To_Wide
  *
@@ -192,29 +226,39 @@ class ACE_Ascii_To_Wide
 public:
   /// Ctor must take a wchar string.
   ACE_Ascii_To_Wide (const char *s);
+
   /// Dtor will free up the memory.
   ~ACE_Ascii_To_Wide (void);
+
   /// Return the internal wchar* representation.
   wchar_t *wchar_rep (void);
+
   /// Converts an char string to unicode/wide and returns a new string.
   static wchar_t *convert (const char *str);
+
 private:
   /// Internal pointer to the converted string.
   wchar_t *s_;
+
 #if defined (ACE_HAS_ICONV)
   static iconv_t ACE_Ascii_To_Wide_iconv_env;
 #endif /* ACE_HAS_ICONV */
+
   /// Disallow these operation.
   ACE_Ascii_To_Wide (void);
   ACE_Ascii_To_Wide (ACE_Ascii_To_Wide &);
   ACE_Ascii_To_Wide operator= (ACE_Ascii_To_Wide &);
 };
+
 #if defined (ACE_LEGACY_MODE)
 typedef ACE_Ascii_To_Wide ACE_OS_CString;
 typedef ACE_Wide_To_Ascii ACE_OS_WString;
 #endif /* ACE_LEGACY_MODE */
+
 ACE_END_VERSIONED_NAMESPACE_DECL
+
 #endif /* ACE_HAS_WCHAR */
+
 #if defined (ACE_WIN32)
 #if defined (ACE_USES_WCHAR)
 #define ACE_LPSTR                                LPWSTR
@@ -223,6 +267,7 @@ ACE_END_VERSIONED_NAMESPACE_DECL
 #define ACE_TEXT_WIN32_FIND_DATA                 WIN32_FIND_DATAW
 #define ACE_TEXT_OSVERSIONINFO                   OSVERSIONINFOW
 #define ACE_TEXT_EXPLICIT_ACCESS                 EXPLICIT_ACCESS_W
+
 #define ACE_TEXT_CreateEvent                     ::CreateEventW
 #define ACE_TEXT_CreateFile                      ::CreateFileW
 #define ACE_TEXT_CreateFileMapping               ::CreateFileMappingW
@@ -273,6 +318,7 @@ ACE_END_VERSIONED_NAMESPACE_DECL
 #define ACE_TEXT_PdhExpandCounterPath            ::PdhExpandCounterPathW
 #define ACE_TEXT_PdhOpenQuery                    ::PdhOpenQueryW
 #define ACE_TEXT_PdhAddCounter                   ::PdhAddCounterW
+
 #else /* ACE_USES_WCHAR */
 #define ACE_LPSTR                                LPSTR
 #define ACE_TEXT_SERVICE_TABLE_ENTRY             SERVICE_TABLE_ENTRYA
@@ -280,6 +326,7 @@ ACE_END_VERSIONED_NAMESPACE_DECL
 #define ACE_TEXT_WIN32_FIND_DATA                 WIN32_FIND_DATAA
 #define ACE_TEXT_OSVERSIONINFO                   OSVERSIONINFOA
 #define ACE_TEXT_EXPLICIT_ACCESS                 EXPLICIT_ACCESS_A
+
 #define ACE_TEXT_CreateEvent                     ::CreateEventA
 #define ACE_TEXT_CreateFile                      ::CreateFileA
 #define ACE_TEXT_CreateFileMapping               ::CreateFileMappingA
@@ -332,6 +379,8 @@ ACE_END_VERSIONED_NAMESPACE_DECL
 #define ACE_TEXT_PdhAddCounter                   ::PdhAddCounterA
 #endif /* ACE_USES_WCHAR */
 #endif /* ACE_WIN32 */
+
 #include "ace/ace_wchar.inl"
+
 #endif /* ACE_WCHAR_H */
 

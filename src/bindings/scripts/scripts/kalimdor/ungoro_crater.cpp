@@ -13,42 +13,54 @@
 * along with this program; if not, write to the Free Software
 * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 */
+
 /* ScriptData
 SDName: Ungoro Crater
 SD%Complete: 100
 SDComment: Support for Quest: 4245, 4491
 SDCategory: Ungoro Crater
 EndScriptData */
+
 /* ContentData
 npc_a-me
 npc_ringo
 EndContentData */
+
 #include "precompiled.h"
 #include "escort_ai.h"
 #include "follower_ai.h"
+
 #define SAY_READY -1000200
 #define SAY_AGGRO1 -1000201
 #define SAY_SEARCH -1000202
 #define SAY_AGGRO2 -1000203
 #define SAY_AGGRO3 -1000204
 #define SAY_FINISH -1000205
+
 #define SPELL_DEMORALIZINGSHOUT  13730
+
 #define QUEST_CHASING_AME 4245
 #define ENTRY_TARLORD 6519
 #define ENTRY_TARLORD1 6519
 #define ENTRY_STOMPER 6513
 
+
 struct TRINITY_DLL_DECL npc_ameAI : public npc_escortAI
 {
     npc_ameAI(Creature *c) : npc_escortAI(c) {}
+
     uint32 DEMORALIZINGSHOUT_Timer;
+
     void WaypointReached(uint32 i)
     {
         Player* pPlayer = GetPlayerForEscort();
+
         if (!pPlayer)
             return;
+
         switch (i)
         {
+
          case 19:
             m_creature->SummonCreature(ENTRY_STOMPER, -6391.69, -1730.49, -272.83, 4.96, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
             DoScriptText(SAY_AGGRO1, m_creature, pPlayer);
@@ -69,33 +81,41 @@ struct TRINITY_DLL_DECL npc_ameAI : public npc_escortAI
             if (pPlayer)
                 pPlayer->GroupEventHappens(QUEST_CHASING_AME,m_creature);
             break;
+
         }
     }
+
     void Reset()
     {
       DEMORALIZINGSHOUT_Timer = 5000;
     }
+
     void JustSummoned(Creature* summoned)
     {
         summoned->AI()->AttackStart(m_creature);
     }
+
     void JustDied(Unit* killer)
     {
         if (Player* pPlayer = GetPlayerForEscort())
             pPlayer->FailQuest(QUEST_CHASING_AME);
     }
+
     void UpdateAI(const uint32 diff)
     {
         npc_escortAI::UpdateAI(diff);
         if (!UpdateVictim())
             return;
+
         if (DEMORALIZINGSHOUT_Timer < diff)
         {
             DoCast(m_creature->getVictim(),SPELL_DEMORALIZINGSHOUT);
             DEMORALIZINGSHOUT_Timer = 70000;
         }else DEMORALIZINGSHOUT_Timer -= diff;
+
     }
 };
+
 bool QuestAccept_npc_ame(Player* pPlayer, Creature* pCreature, Quest const* quest)
 {
     if (quest->GetQuestId() == QUEST_CHASING_AME)
@@ -108,25 +128,31 @@ bool QuestAccept_npc_ame(Player* pPlayer, Creature* pCreature, Quest const* ques
     }
     return true;
 }
+
 CreatureAI* GetAI_npc_ame(Creature* pCreature)
 {
     return new npc_ameAI(pCreature);
 }
+
 /*####
 # npc_ringo
 ####*/
+
 enum eRingo
 {
     SAY_RIN_START_1             = -1000416,
     SAY_RIN_START_2             = -1000417,
+
     SAY_FAINT_1                 = -1000418,
     SAY_FAINT_2                 = -1000419,
     SAY_FAINT_3                 = -1000420,
     SAY_FAINT_4                 = -1000421,
+
     SAY_WAKE_1                  = -1000422,
     SAY_WAKE_2                  = -1000423,
     SAY_WAKE_3                  = -1000424,
     SAY_WAKE_4                  = -1000425,
+
     SAY_RIN_END_1               = -1000426,
     SAY_SPR_END_2               = -1000427,
     SAY_RIN_END_3               = -1000428,
@@ -135,18 +161,23 @@ enum eRingo
     SAY_RIN_END_6               = -1000431, // signed for 6784
     SAY_SPR_END_7               = -1000432,
     EMOTE_RIN_END_8             = -1000433,
+
     SPELL_REVIVE_RINGO          = 15591,
     QUEST_A_LITTLE_HELP         = 4491,
     NPC_SPRAGGLE                = 9997,
     FACTION_ESCORTEE            = 113
 };
+
 struct TRINITY_DLL_DECL npc_ringoAI : public FollowerAI
 {
     npc_ringoAI(Creature* pCreature) : FollowerAI(pCreature) { }
+
     uint32 m_uiFaintTimer;
     uint32 m_uiEndEventProgress;
     uint32 m_uiEndEventTimer;
+
     Unit* pSpraggle;
+
     void Reset()
     {
         m_uiFaintTimer = urand(30000, 60000);
@@ -154,9 +185,11 @@ struct TRINITY_DLL_DECL npc_ringoAI : public FollowerAI
         m_uiEndEventTimer = 1000;
         pSpraggle = NULL;
     }
+
     void MoveInLineOfSight(Unit *pWho)
     {
         FollowerAI::MoveInLineOfSight(pWho);
+
         if (!m_creature->getVictim() && !HasFollowState(STATE_FOLLOW_COMPLETE) && pWho->GetEntry() == NPC_SPRAGGLE)
         {
             if (m_creature->IsWithinDistInMap(pWho, INTERACTION_DISTANCE))
@@ -166,34 +199,44 @@ struct TRINITY_DLL_DECL npc_ringoAI : public FollowerAI
                     if (pPlayer->GetQuestStatus(QUEST_A_LITTLE_HELP) == QUEST_STATUS_INCOMPLETE)
                         pPlayer->GroupEventHappens(QUEST_A_LITTLE_HELP, m_creature);
                 }
+
                 pSpraggle = pWho;
                 SetFollowComplete(true);
             }
         }
     }
+
     void SpellHit(Unit* pCaster, const SpellEntry* pSpell)
     {
         if (HasFollowState(STATE_FOLLOW_INPROGRESS | STATE_FOLLOW_PAUSED) && pSpell->Id == SPELL_REVIVE_RINGO)
             ClearFaint();
     }
+
     void SetFaint()
     {
         if (!HasFollowState(STATE_FOLLOW_POSTEVENT))
         {
             SetFollowPaused(true);
+
             DoScriptText(RAND(SAY_FAINT_1,SAY_FAINT_2,SAY_FAINT_3,SAY_FAINT_4), m_creature);
         }
+
         //what does actually happen here? Emote? Aura?
         m_creature->SetStandState(UNIT_STAND_STATE_SLEEP);
     }
+
     void ClearFaint()
     {
         m_creature->SetStandState(UNIT_STAND_STATE_STAND);
+
         if (HasFollowState(STATE_FOLLOW_POSTEVENT))
             return;
+
         DoScriptText(RAND(SAY_WAKE_1,SAY_WAKE_2,SAY_WAKE_3,SAY_WAKE_4), m_creature);
+
         SetFollowPaused(false);
     }
+
     void UpdateFollowerAI(const uint32 uiDiff)
     {
         if (!UpdateVictim())
@@ -207,6 +250,7 @@ struct TRINITY_DLL_DECL npc_ringoAI : public FollowerAI
                         SetFollowComplete();
                         return;
                     }
+
                     switch(m_uiEndEventProgress)
                     {
                         case 1:
@@ -247,6 +291,7 @@ struct TRINITY_DLL_DECL npc_ringoAI : public FollowerAI
                             SetFollowComplete();
                             break;
                     }
+
                     ++m_uiEndEventProgress;
                 }
                 else
@@ -265,15 +310,19 @@ struct TRINITY_DLL_DECL npc_ringoAI : public FollowerAI
                         m_uiFaintTimer -= uiDiff;
                 }
             }
+
             return;
         }
+
         DoMeleeAttackIfReady();
     }
 };
+
 CreatureAI* GetAI_npc_ringo(Creature* pCreature)
 {
     return new npc_ringoAI(pCreature);
 }
+
 bool QuestAccept_npc_ringo(Player* pPlayer, Creature* pCreature, const Quest* pQuest)
 {
     if (pQuest->GetQuestId() == QUEST_A_LITTLE_HELP)
@@ -284,16 +333,20 @@ bool QuestAccept_npc_ringo(Player* pPlayer, Creature* pCreature, const Quest* pQ
             pRingoAI->StartFollow(pPlayer, FACTION_ESCORTEE, pQuest);
         }
     }
+
     return true;
 }
+
 void AddSC_ungoro_crater()
 {
     Script *newscript;
+
     newscript = new Script;
     newscript->Name = "npc_ame";
     newscript->GetAI = &GetAI_npc_ame;
     newscript->pQuestAccept = &QuestAccept_npc_ame;
     newscript->RegisterSelf();
+
     newscript = new Script;
     newscript->Name = "npc_ringo";
     newscript->GetAI = &GetAI_npc_ringo;

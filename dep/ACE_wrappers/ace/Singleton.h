@@ -1,4 +1,5 @@
 // -*- C++ -*-
+
 //=============================================================================
 /**
  *  @file    Singleton.h
@@ -14,16 +15,21 @@
  *  @author David Levine <levine@cs.wustl.edu>
  */
 //=============================================================================
+
 #ifndef ACE_SINGLETON_H
 #define ACE_SINGLETON_H
 #include /**/ "ace/pre.h"
+
 #include /**/ "ace/config-all.h"
 #include "ace/TSS_T.h"
 #include "ace/Cleanup.h"
+
 #if !defined (ACE_LACKS_PRAGMA_ONCE)
 # pragma once
 #endif /* ACE_LACKS_PRAGMA_ONCE */
+
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
+
 /**
  * @class ACE_Singleton
  *
@@ -75,23 +81,30 @@ class ACE_Singleton : public ACE_Cleanup
 public:
   /// Global access point to the Singleton.
   static TYPE *instance (void);
+
   /// Cleanup method, used by <ace_cleanup_destroyer> to destroy the
   /// ACE_Singleton.
   virtual void cleanup (void *param = 0);
+
   /// Dump the state of the object.
   static void dump (void);
+
 protected:
   /// Default constructor.
   ACE_Singleton (void);
+
   /// Contained instance.
   TYPE instance_;
+
 #if !defined (ACE_LACKS_STATIC_DATA_MEMBER_TEMPLATES)
   /// Pointer to the Singleton (ACE_Cleanup) instance.
   static ACE_Singleton<TYPE, ACE_LOCK> *singleton_;
 #endif /* ACE_LACKS_STATIC_DATA_MEMBER_TEMPLATES */
+
   /// Get pointer to the Singleton instance.
   static ACE_Singleton<TYPE, ACE_LOCK> *&instance_i (void);
 };
+
 /**
  * @class ACE_Unmanaged_Singleton
  *
@@ -115,20 +128,26 @@ class ACE_Unmanaged_Singleton : public ACE_Singleton <TYPE, ACE_LOCK>
 public:
   /// Global access point to the Singleton.
   static TYPE *instance (void);
+
   /// Explicitly delete the Singleton instance.
   static void close (void);
+
   /// Dump the state of the object.
   static void dump (void);
+
 protected:
   /// Default constructor.
   ACE_Unmanaged_Singleton (void);
+
 #if !defined (ACE_LACKS_STATIC_DATA_MEMBER_TEMPLATES)
   /// Pointer to the Singleton (ACE_Cleanup) instance.
   static ACE_Unmanaged_Singleton<TYPE, ACE_LOCK> *singleton_;
 #endif /* ACE_LACKS_STATIC_DATA_MEMBER_TEMPLATES */
+
   /// Get pointer to the Singleton instance.
   static ACE_Unmanaged_Singleton<TYPE, ACE_LOCK> *&instance_i (void);
 };
+
 /**
  * @class ACE_TSS_Singleton
  *
@@ -153,25 +172,33 @@ class ACE_TSS_Singleton : public ACE_Cleanup
 public:
   /// Global access point to the singleton.
   static TYPE *instance (void);
+
   /// Cleanup method, used by <ace_cleanup_destroyer> to destroy the
   /// singleton.
   virtual void cleanup (void *param = 0);
+
   /// Dump the state of the object.
   static void dump (void);
+
 protected:
   /// Default constructor.
   ACE_TSS_Singleton (void);
+
   /// Contained instance.
   ACE_TSS_TYPE (TYPE) instance_;
+
   ACE_UNIMPLEMENTED_FUNC (void operator= (const ACE_TSS_Singleton<TYPE,ACE_LOCK> &))
   ACE_UNIMPLEMENTED_FUNC (ACE_TSS_Singleton (const ACE_TSS_Singleton<TYPE,ACE_LOCK> &))
+
 #if !defined (ACE_LACKS_STATIC_DATA_MEMBER_TEMPLATES)
   /// Pointer to the Singleton (ACE_Cleanup) instance.
   static ACE_TSS_Singleton<TYPE, ACE_LOCK> *singleton_;
 #endif /* ACE_LACKS_STATIC_DATA_MEMBER_TEMPLATES */
+
   /// Get pointer to the TSS Singleton instance.
   static ACE_TSS_Singleton<TYPE, ACE_LOCK> *&instance_i (void);
 };
+
 /**
  * @class ACE_Unmanaged_TSS_Singleton
  *
@@ -191,20 +218,26 @@ class ACE_Unmanaged_TSS_Singleton : public ACE_TSS_Singleton <TYPE, ACE_LOCK>
 public:
   /// Global access point to the singleton.
   static TYPE *instance (void);
+
   /// Explicitly delete the singleton instance.
   static void close (void);
+
   /// Dump the state of the object.
   static void dump (void);
+
 protected:
   /// Default constructor.
   ACE_Unmanaged_TSS_Singleton (void);
+
 #if !defined (ACE_LACKS_STATIC_DATA_MEMBER_TEMPLATES)
   /// Pointer to the Singleton (ACE_Cleanup) instance.
   static ACE_Unmanaged_TSS_Singleton<TYPE, ACE_LOCK> *singleton_;
 #endif /* ACE_LACKS_STATIC_DATA_MEMBER_TEMPLATES */
+
   /// Get pointer to the Singleton instance.
   static ACE_Unmanaged_TSS_Singleton<TYPE, ACE_LOCK> *&instance_i (void);
 };
+
 /**
  * @class ACE_DLL_Singleton_T
  *
@@ -234,45 +267,62 @@ class ACE_DLL_Singleton_T
 {
 public:
   //void cleanup (void *param = 0);
+
   /// Global access point to the Singleton.
   static TYPE *instance (void);
+
   /// Explicitly delete the Singleton instance.
   static void close (void);
+
   static void close_singleton (void);
+
   /// Dump the state of the object.
   static void dump (void);
+
   const ACE_TCHAR *dll_name (void);
+
   const ACE_TCHAR *name (void);
+
 protected:
   /// Default constructor.
   ACE_DLL_Singleton_T (void);
+
   /// Destructor.
   ~ACE_DLL_Singleton_T (void);
+
   /// Contained instance.
   TYPE instance_;
+
 #if !defined (ACE_LACKS_STATIC_DATA_MEMBER_TEMPLATES)
   /// Pointer to the Singleton instance.
   static ACE_DLL_Singleton_T<TYPE, ACE_LOCK> *singleton_;
 #endif /* ACE_LACKS_STATIC_DATA_MEMBER_TEMPLATES */
+
   /// Get pointer to the singleton instance.
   static ACE_DLL_Singleton_T<TYPE, ACE_LOCK> *&instance_i (void);
 };
+
 template <class TYPE>
 class ACE_DLL_Singleton_Adapter_T : public TYPE
 {
 public:
   const ACE_TCHAR *dll_name (void);
 };
+
 ACE_END_VERSIONED_NAMESPACE_DECL
+
 #if defined (__ACE_INLINE__)
 #include "ace/Singleton.inl"
 #endif /* __ACE_INLINE__ */
+
 #if defined (ACE_TEMPLATES_REQUIRE_SOURCE)
 #include "ace/Singleton.cpp"
 #endif /* ACE_TEMPLATES_REQUIRE_SOURCE */
+
 #if defined (ACE_TEMPLATES_REQUIRE_PRAGMA)
 #pragma implementation ("Singleton.cpp")
 #endif /* ACE_TEMPLATES_REQUIRE_PRAGMA */
+
 #include /**/ "ace/post.h"
 #endif /* ACE_SINGLETON_H */
 

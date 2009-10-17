@@ -17,15 +17,22 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
+
 #ifndef TRINITY_REACTORAI_H
 #define TRINITY_REACTORAI_H
+
 #include "CreatureAI.h"
+
 class Unit;
+
 class TRINITY_DLL_DECL ReactorAI : public CreatureAI
 {
     public:
+
         explicit ReactorAI(Creature *c) : CreatureAI(c) {}
+
         void MoveInLineOfSight(Unit *);
+
         void UpdateAI(const uint32);
         static int Permissible(const Creature *);
 };

@@ -1,15 +1,19 @@
 // -*- C++ -*-
 //
 // $Id: CDR_Base.inl 80826 2008-03-04 14:51:23Z wotte $
+
 #if defined (ACE_HAS_INTRINSIC_BYTESWAP)
 // Take advantage of MSVC++ byte swapping compiler intrinsics (found
 // in <stdlib.h>).
 # pragma intrinsic (_byteswap_ushort, _byteswap_ulong, _byteswap_uint64)
 #endif  /* ACE_HAS_INTRINSIC_BYTESWAP */
+
 #if defined (ACE_HAS_BSWAP_16) || defined (ACE_HAS_BSWAP_32) || defined (ACE_HAS_BSWAP_64)
 # include "ace/os_include/os_byteswap.h"
 #endif
+
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
+
 //
 // The ACE_CDR::swap_X and ACE_CDR::swap_X_array routines are broken
 // in 5 cases for optimization:
@@ -57,6 +61,7 @@ ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 //        asigned to a certain variable so you don't have to clobber any
 //        register directly.
 //
+
 ACE_INLINE void
 ACE_CDR::swap_2 (const char *orig, char* target)
 {
@@ -90,6 +95,7 @@ ACE_CDR::swap_2 (const char *orig, char* target)
   *udst = (usrc << 8) | (usrc >> 8);
 #endif /* ACE_HAS_PENTIUM */
 }
+
 ACE_INLINE void
 ACE_CDR::swap_4 (const char* orig, char* target)
 {
@@ -124,6 +130,7 @@ ACE_CDR::swap_4 (const char* orig, char* target)
   * reinterpret_cast<ACE_UINT32*> (target) = x;
 #endif /* ACE_HAS_INTRINSIC_BYTESWAP */
 }
+
 ACE_INLINE void
 ACE_CDR::swap_8 (const char* orig, char* target)
 {
@@ -185,17 +192,20 @@ ACE_CDR::swap_8 (const char* orig, char* target)
   * reinterpret_cast<ACE_UINT32*> (target + 4) = x;
 #endif /* ACE_HAS_INTRINSIC_BYTESWAP */
 }
+
 ACE_INLINE void
 ACE_CDR::swap_16 (const char* orig, char* target)
 {
   swap_8 (orig + 8, target);
   swap_8 (orig, target + 8);
 }
+
 ACE_INLINE size_t
 ACE_CDR::first_size (size_t minsize)
 {
   if (minsize == 0)
     return ACE_CDR::DEFAULT_BUFSIZE;
+
   size_t newsize = ACE_CDR::DEFAULT_BUFSIZE;
   while (newsize < minsize)
     {
@@ -203,6 +213,7 @@ ACE_CDR::first_size (size_t minsize)
         {
           // We grow exponentially at the beginning, this is fast and
           // reduces the number of allocations.
+
           // Quickly multiply by two using a bit shift.  This is
           // guaranteed to work since the variable is an unsigned
           // integer.
@@ -218,10 +229,12 @@ ACE_CDR::first_size (size_t minsize)
     }
   return newsize;
 }
+
 ACE_INLINE size_t
 ACE_CDR::next_size (size_t minsize)
 {
   size_t newsize = ACE_CDR::first_size (minsize);
+
   if (newsize == minsize)
     {
       // If necessary increment the size
@@ -233,7 +246,10 @@ ACE_CDR::next_size (size_t minsize)
       else
         newsize += ACE_CDR::LINEAR_GROWTH_CHUNK;
     }
+
   return newsize;
 }
+
 ACE_END_VERSIONED_NAMESPACE_DECL
+
 // ****************************************************************

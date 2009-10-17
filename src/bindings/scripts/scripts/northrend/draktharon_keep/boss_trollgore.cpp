@@ -5,11 +5,13 @@ SD%Complete:
 SDComment:
 SDCategory:
 Script Data End */
+
 /*** SQL START ***
 update creature_template set scriptname = 'boss_trollgore' where entry = '';
 *** SQL END ***/
 #include "precompiled.h"
 #include "def_drak_tharon_keep.h"
+
 enum Spells
 {
     SPELL_INFECTED_WOUND                          = 49637,
@@ -29,21 +31,26 @@ enum Yells
     SAY_EXPLODE                                = -1600009,
     SAY_DEATH                                  = -1600010
 };
+
 struct TRINITY_DLL_DECL boss_trollgoreAI : public ScriptedAI
 {
     boss_trollgoreAI(Creature *c) : ScriptedAI(c)
     {
         pInstance = c->GetInstanceData();
     }
+
     ScriptedInstance* pInstance;
+
     void Reset()
     {
         if (pInstance)
             pInstance->SetData(DATA_TROLLGORE_EVENT, NOT_STARTED);
     }
+
     void EnterCombat(Unit* who)
     {
         DoScriptText(SAY_AGGRO, m_creature);
+
         if (pInstance)
             pInstance->SetData(DATA_TROLLGORE_EVENT, IN_PROGRESS);
     }
@@ -54,11 +61,13 @@ struct TRINITY_DLL_DECL boss_trollgoreAI : public ScriptedAI
         //Return since we have no target
         if (!UpdateVictim())
             return;
+
         DoMeleeAttackIfReady();
     }
     void JustDied(Unit* killer)
     {
         DoScriptText(SAY_DEATH, m_creature);
+
         if (pInstance)
             pInstance->SetData(DATA_TROLLGORE_EVENT, DONE);
     }
@@ -69,13 +78,16 @@ struct TRINITY_DLL_DECL boss_trollgoreAI : public ScriptedAI
         DoScriptText(SAY_KILL, m_creature);
     }
 };
+
 CreatureAI* GetAI_boss_trollgore(Creature* pCreature)
 {
     return new boss_trollgoreAI (pCreature);
 }
+
 void AddSC_boss_trollgore()
 {
     Script *newscript;
+
     newscript = new Script;
     newscript->Name = "boss_trollgore";
     newscript->GetAI = &GetAI_boss_trollgore;

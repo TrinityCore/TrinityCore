@@ -17,12 +17,14 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
+
 #include "CreatureAI.h"
 #include "CreatureAIImpl.h"
 #include "Creature.h"
 #include "World.h"
 #include "SpellMgr.h"
 #include "Vehicle.h"
+
 //Disable CreatureAI when charmed
 void CreatureAI::OnCharmed(bool apply)
 {
@@ -30,20 +32,25 @@ void CreatureAI::OnCharmed(bool apply)
     me->NeedChangeAI = true;
     me->IsAIEnabled = false;
 }
+
 AISpellInfoType * UnitAI::AISpellInfo;
 TRINITY_DLL_SPEC AISpellInfoType * GetAISpellInfo(uint32 i) { return &CreatureAI::AISpellInfo[i]; }
+
 void CreatureAI::DoZoneInCombat(Creature* creature)
 {
     if (!creature)
         creature = me;
+
     if(!creature->CanHaveThreatList())
         return;
+
     Map *map = creature->GetMap();
     if (!map->IsDungeon())                                  //use IsDungeon instead of Instanceable, in case battlegrounds will be instantiated
     {
         sLog.outError("DoZoneInCombat call for map that isn't an instance (creature entry = %d)", creature->GetTypeId() == TYPEID_UNIT ? ((Creature*)creature)->GetEntry() : 0);
         return;
     }
+
     if(!creature->HasReactState(REACT_PASSIVE) && !creature->getVictim())
     {
         if(Unit *target = creature->SelectNearestTarget(50))
@@ -60,26 +67,32 @@ void CreatureAI::DoZoneInCombat(Creature* creature)
             }
         }
     }
+
     if(!creature->HasReactState(REACT_PASSIVE) && !creature->getVictim())
     {
         sLog.outError("DoZoneInCombat called for creature that has empty threat list (creature entry = %u)", creature->GetEntry());
         return;
     }
+
     Map::PlayerList const &PlList = map->GetPlayers();
+
     if(PlList.isEmpty())
         return;
+
     for(Map::PlayerList::const_iterator i = PlList.begin(); i != PlList.end(); ++i)
     {
         if(Player* pPlayer = i->getSource())
         {
             if(pPlayer->isGameMaster())
                 continue;
+
             if(pPlayer->isAlive())
             {
                 creature->SetInCombatWith(pPlayer);
                 pPlayer->SetInCombatWith(creature);
                 creature->AddThreat(pPlayer, 0.0f);
             }
+
             /* Causes certain things to never leave the threat list (Priest Lightwell, etc):
             for(Unit::ControlList::const_iterator itr = pPlayer->m_Controlled.begin(); itr != pPlayer->m_Controlled.end(); ++itr)
             {
@@ -90,12 +103,15 @@ void CreatureAI::DoZoneInCombat(Creature* creature)
         }
     }
 }
+
 void CreatureAI::MoveInLineOfSight(Unit *who)
 {
     if(me->getVictim())
         return;
+        
     if (me->GetTypeId() == CREATURE_TYPE_NON_COMBAT_PET) // non-combat pets should just stand there and look good;)
         return;
+
     if(me->canStartAttack(who, false))
         AttackStart(who);
     //else if(who->getVictim() && me->IsFriendlyTo(who)
@@ -103,6 +119,7 @@ void CreatureAI::MoveInLineOfSight(Unit *who)
     //    && me->canStartAttack(who->getVictim(), true)) // TODO: if we use true, it will not attack it when it arrives
     //    me->GetMotionMaster()->MoveChase(who->getVictim());
 }
+
 void CreatureAI::SelectNearestTarget(Unit *who)
 {
     if(me->getVictim() && me->GetDistanceOrder(who, me->getVictim()) && me->canAttack(who))
@@ -111,11 +128,14 @@ void CreatureAI::SelectNearestTarget(Unit *who)
         me->AddThreat(who, 1000000.0f);
     }
 }
+
 void CreatureAI::EnterEvadeMode()
 {
     if(!_EnterEvadeMode())
         return;
+
     sLog.outDebug("Creature %u enters evade mode.", me->GetEntry());
+
     if(!me->GetVehicle()) // otherwise me will be in evade mode forever
     {
         if(Unit *owner = me->GetCharmerOrOwner())
@@ -126,10 +146,13 @@ void CreatureAI::EnterEvadeMode()
         else
             me->GetMotionMaster()->MoveTargetedHome();
     }
+
     Reset();
+
     if(me->IsVehicle()) // use the same sequence of addtoworld, aireset may remove all summons!
         me->GetVehicleKit()->Reset();
 }
+
 /*void CreatureAI::AttackedBy( Unit* attacker )
 {
     if(!m_creature->getVictim())

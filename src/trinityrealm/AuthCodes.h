@@ -17,11 +17,14 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
+
 /** \file
     \ingroup realmd
 */
+
 #ifndef _AUTHCODES_H
 #define _AUTHCODES_H
+
 enum eAuthResults
 {
     REALM_AUTH_SUCCESS              = 0x00,
@@ -41,6 +44,7 @@ enum eAuthResults
     REALM_AUTH_UNKNOWN5             = 0x0e,                 ///< Connected.
     REALM_AUTH_PARENTAL_CONTROL     = 0x0f                  ///< Access to this account has been blocked by parental controls. Your settings may be changed in your account preferences at <site>
 };
+
 enum LoginResult
 {
     LOGIN_OK                = 0x00,
@@ -61,11 +65,14 @@ enum LoginResult
     LOGIN_PARENTALCONTROL   = 0x0F,
     LOGIN_LOCKED_ENFORCED   = 0x10,
 };
+
 //multirealm supported versions:
 //1.12.1 build 5875
 //1.12.2 build 6005
 //2.4.3 build 8606
 //3.1.3 build 9947
 //3.1.3 build 10146 Chinese build
+
 #define EXPECTED_TRINITY_CLIENT_BUILD        {10146, 9947, 8606, 5875, 6005, 0}
+
 #endif

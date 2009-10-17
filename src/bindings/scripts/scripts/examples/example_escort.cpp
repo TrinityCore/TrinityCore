@@ -13,20 +13,25 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
+
 /* ScriptData
 SDName: Example_Escort
 SD%Complete: 100
 SDComment: Script used for testing escortAI
 SDCategory: Script Examples
 EndScriptData */
+
 #include "precompiled.h"
 #include "escort_ai.h"
+
 enum eEnums
 {
     NPC_FELBOAR                 = 21878,
+
     SPELL_DEATH_COIL            = 33130,
     SPELL_ELIXIR_OF_FORTITUDE   = 3593,
     SPELL_BLUE_FIREWORK         = 11540,
+
     SAY_AGGRO1                  = -1999910,
     SAY_AGGRO2                  = -1999911,
     SAY_WP_1                    = -1999912,
@@ -40,19 +45,24 @@ enum eEnums
     SAY_RAND_1                  = -1999920,
     SAY_RAND_2                  = -1999921
 };
+
 #define GOSSIP_ITEM_1   "Click to Test Escort(Attack, Run)"
 #define GOSSIP_ITEM_2   "Click to Test Escort(NoAttack, Walk)"
 #define GOSSIP_ITEM_3   "Click to Test Escort(NoAttack, Run)"
+
 struct TRINITY_DLL_DECL example_escortAI : public npc_escortAI
 {
     // CreatureAI functions
     example_escortAI(Creature* pCreature) : npc_escortAI(pCreature) { }
+
     uint32 m_uiDeathCoilTimer;
     uint32 m_uiChatTimer;
+
     void JustSummoned(Creature* pSummoned)
     {
         pSummoned->AI()->AttackStart(m_creature);
     }
+
     // Pure Virtual Functions (Have to be implemented)
     void WaypointReached(uint32 uiWP)
     {
@@ -76,6 +86,7 @@ struct TRINITY_DLL_DECL example_escortAI : public npc_escortAI
                 break;
         }
     }
+
     void EnterCombat(Unit* pWho)
     {
         if (HasEscortState(STATE_ESCORT_ESCORTING))
@@ -86,11 +97,13 @@ struct TRINITY_DLL_DECL example_escortAI : public npc_escortAI
         else
             DoScriptText(SAY_AGGRO2, m_creature);
     }
+
     void Reset()
     {
         m_uiDeathCoilTimer = 4000;
         m_uiChatTimer = 4000;
     }
+
     void JustDied(Unit* pKiller)
     {
         if (HasEscortState(STATE_ESCORT_ESCORTING))
@@ -109,10 +122,12 @@ struct TRINITY_DLL_DECL example_escortAI : public npc_escortAI
         else
             DoScriptText(SAY_DEATH_3, m_creature);
     }
+
     void UpdateAI(const uint32 uiDiff)
     {
         //Must update npc_escortAI
         npc_escortAI::UpdateAI(uiDiff);
+
         //Combat check
         if (m_creature->getVictim())
         {
@@ -142,6 +157,7 @@ struct TRINITY_DLL_DECL example_escortAI : public npc_escortAI
                         DoScriptText(SAY_RAND_2, m_creature);
                         m_creature->CastSpell(m_creature, SPELL_ELIXIR_OF_FORTITUDE, false);
                     }
+
                     m_uiChatTimer = 12000;
                 }
                 else
@@ -150,45 +166,57 @@ struct TRINITY_DLL_DECL example_escortAI : public npc_escortAI
         }
     }
 };
+
 CreatureAI* GetAI_example_escort(Creature* pCreature)
 {
     return new example_escortAI(pCreature);
 }
+
 bool GossipHello_example_escort(Player* pPlayer, Creature* pCreature)
 {
     pPlayer->TalkedToCreature(pCreature->GetEntry(), pCreature->GetGUID());
     pCreature->prepareGossipMenu(pPlayer, 0);
+
     pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
     pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
     pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_3, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+3);
+
     pCreature->sendPreparedGossip(pPlayer);
+
     return true;
 }
+
 bool GossipSelect_example_escort(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
 {
     npc_escortAI* pEscortAI = CAST_AI(example_escortAI, pCreature->AI());
+
     switch(uiAction)
     {
         case GOSSIP_ACTION_INFO_DEF+1:
             pPlayer->CLOSE_GOSSIP_MENU();
+
             if (pEscortAI)
                 pEscortAI->Start(true, true, pPlayer->GetGUID());
             break;
         case GOSSIP_ACTION_INFO_DEF+2:
             pPlayer->CLOSE_GOSSIP_MENU();
+
             if (pEscortAI)
                 pEscortAI->Start(false, false, pPlayer->GetGUID());
             break;
         case GOSSIP_ACTION_INFO_DEF+3:
             pPlayer->CLOSE_GOSSIP_MENU();
+
             if (pEscortAI)
                 pEscortAI->Start(false, true, pPlayer->GetGUID());
             break;
         default:
             return false;                                   // nothing defined      -> trinity core handling
     }
+
     return true;                                            // no default handling  -> prevent trinity core handling
 }
+
 void AddSC_example_escort()
 {
     Script *newscript;

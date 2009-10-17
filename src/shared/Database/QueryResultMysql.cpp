@@ -17,35 +17,47 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
+
 #ifndef DO_POSTGRESQL
+
 #include "DatabaseEnv.h"
+
 QueryResultMysql::QueryResultMysql(MYSQL_RES *result, MYSQL_FIELD *fields, uint64 rowCount, uint32 fieldCount) :
     QueryResult(rowCount, fieldCount), mResult(result)
 {
+
     mCurrentRow = new Field[mFieldCount];
     ASSERT(mCurrentRow);
+
     for (uint32 i = 0; i < mFieldCount; i++)
         mCurrentRow[i].SetType(ConvertNativeType(fields[i].type));
 }
+
 QueryResultMysql::~QueryResultMysql()
 {
     EndQuery();
 }
+
 bool QueryResultMysql::NextRow()
 {
     MYSQL_ROW row;
+
     if (!mResult)
         return false;
+
     row = mysql_fetch_row(mResult);
     if (!row)
     {
         EndQuery();
         return false;
     }
+
     for (uint32 i = 0; i < mFieldCount; i++)
         mCurrentRow[i].SetValue(row[i]);
+
     return true;
 }
+
 void QueryResultMysql::EndQuery()
 {
     if (mCurrentRow)
@@ -53,12 +65,14 @@ void QueryResultMysql::EndQuery()
         delete [] mCurrentRow;
         mCurrentRow = 0;
     }
+
     if (mResult)
     {
         mysql_free_result(mResult);
         mResult = 0;
     }
 }
+
 enum Field::DataTypes QueryResultMysql::ConvertNativeType(enum_field_types mysqlType) const
 {
     switch (mysqlType)
@@ -75,6 +89,7 @@ enum Field::DataTypes QueryResultMysql::ConvertNativeType(enum_field_types mysql
         case FIELD_TYPE_NULL:
             return Field::DB_TYPE_STRING;
         case FIELD_TYPE_TINY:
+
         case FIELD_TYPE_SHORT:
         case FIELD_TYPE_LONG:
         case FIELD_TYPE_INT24:

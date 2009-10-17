@@ -1,4 +1,5 @@
 // -*- C++ -*-
+
 //==========================================================================
 /**
  *  @file    Null_Semaphore.h
@@ -10,18 +11,24 @@
  *  @author Douglas C. Schmidt <schmidt@cs.wustl.edu>
  */
 //==========================================================================
+
 #ifndef ACE_NULL_SEMAPHORE_H
 #define ACE_NULL_SEMAPHORE_H
 #include /**/ "ace/pre.h"
+
 // All methods in this class are inline, so there is no
 // need to import or export on Windows. -- CAE 12/18/2003
 #include "ace/os_include/os_errno.h"
 #include "ace/os_include/sys/os_types.h"
+
 #if !defined (ACE_LACKS_PRAGMA_ONCE)
 # pragma once
 #endif /* ACE_LACKS_PRAGMA_ONCE */
+
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
+
 class ACE_Time_Value;
+
 /**
  * @class ACE_Null_Semaphore
  *
@@ -51,34 +58,49 @@ public:
   ~ACE_Null_Semaphore (void) {}
   /// Return 0.
   int remove (void) {return 0;}
+
   /// Return 0.
   int acquire (void) {return 0;}
+
   /// Return -1 with @c errno == @c ETIME.
   int acquire (ACE_Time_Value &) {errno = ETIME; return -1;}
+
   /// Return -1 with @c errno == @c ETIME.
   int acquire (ACE_Time_Value *) {errno = ETIME; return -1;}
+
   /// Return 0.
   int tryacquire (void) {return 0;}
+
   /// Return 0.
   int release (void) {return 0;}
+
   /// Return 0.
   int release (size_t) {return 0;}
+
   /// Return 0.
   int acquire_write (void) {return 0;}
+
   /// Return 0.
   int tryacquire_write (void) {return 0;}
+
   /// Return 0.
   int tryacquire_write_upgrade (void) {return 0;}
+
   /// Return 0.
   int acquire_read (void) {return 0;}
+
   /// Return 0.
   int tryacquire_read (void) {return 0;}
+
   /// Dump the state of an object.
   void dump (void) const {}
+
   /// Declare the dynamic allocation hooks.
   //ACE_ALLOC_HOOK_DECLARE;
 };
+
 ACE_END_VERSIONED_NAMESPACE_DECL
+
 #include /**/ "ace/post.h"
 #endif /* ACE_NULL_SEMAPHORE_H */
 

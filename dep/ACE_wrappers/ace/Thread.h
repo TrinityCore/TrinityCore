@@ -1,4 +1,5 @@
 // -*- C++ -*-
+
 //==========================================================================
 /**
  *  @file    Thread.h
@@ -8,24 +9,33 @@
  *  @author Douglas Schmidt <schmidt@cs.wustl.edu>
  */
 //==========================================================================
+
 #ifndef ACE_THREAD_H
 #define ACE_THREAD_H
+
 #include /**/ "ace/pre.h"
+
 #include /**/ "ace/ACE_export.h"
+
 #if !defined (ACE_LACKS_PRAGMA_ONCE)
 # pragma once
 #endif /* ACE_LACKS_PRAGMA_ONCE */
+
 #include "ace/OS_NS_Thread.h"
 #include "ace/Thread_Adapter.h"
+
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
+
 struct cancel_state
 {
   /// e.g., PTHREAD_CANCEL_ENABLE, PTHREAD_CANCEL_DISABLE,
   /// PTHREAD_CANCELED.
   int cancelstate;
+
   /// e.g., PTHREAD_CANCEL_DEFERRED and PTHREAD_CANCEL_ASYNCHRONOUS.
   int canceltype;
 };
+
 /**
  * @class ACE_Thread
  *
@@ -81,6 +91,7 @@ public:
                     size_t stack_size = ACE_DEFAULT_THREAD_STACKSIZE,
                     ACE_Thread_Adapter *thread_adapter = 0,
                     const char** thr_name = 0);
+
   /**
    * Spawn N new threads, which execute @a func with argument @a arg (if
    * @a thread_adapter is non-0 then @a func and @a args are ignored and
@@ -104,6 +115,7 @@ public:
                          size_t stack_size[] = 0,
                          ACE_Thread_Adapter *thread_adapter = 0,
                          const char* thr_name[] = 0);
+
   /**
    * Spawn @a n new threads, which execute @a func with argument @a arg
    * (if @a thread_adapter is non-0 then @a func and @a args are ignored
@@ -133,6 +145,7 @@ public:
                          ACE_hthread_t thread_handles[] = 0,
                          ACE_Thread_Adapter *thread_adapter = 0,
                          const char* thr_name[] = 0);
+
   /**
    * Wait for one or more threads to exit and reap their exit status.
    * thr_join() returns successfully when the target thread terminates.
@@ -154,23 +167,32 @@ public:
   static int join (ACE_thread_t thread_id,
                    ACE_thread_t *departed,
                    ACE_THR_FUNC_RETURN *status);
+
   /// Wait for one thread to exit and reap its exit status.
   static int join (ACE_hthread_t,
                    ACE_THR_FUNC_RETURN * = 0);
+
   /// Continue the execution of a previously suspended thread.
   static int resume (ACE_hthread_t);
+
   /// Suspend the execution of a particular thread.
   static int suspend (ACE_hthread_t);
+
   /// Get the priority of a particular thread.
   static int getprio (ACE_hthread_t ht_id, int &priority);
+
   /// Get the priority and policy of a particular thread.
   static int getprio (ACE_hthread_t ht_id, int &priority, int &policy);
+
   /// Set the priority of a particular thread.
   static int setprio (ACE_hthread_t ht_id, int priority, int policy = -1);
+
   /// Send a signal to the thread.
   static int kill (ACE_thread_t, int signum);
+
   /// Yield the thread to another.
   static void yield (void);
+
   /**
    * Return the unique kernel handle of the thread.  Note that on
    * Win32 this is actually a pseudohandle, which cannot be shared
@@ -178,19 +200,25 @@ public:
    * handle, please use the ACE_Thread_Manager::thr_self() method.
    */
   static void self (ACE_hthread_t &t_handle);
+
   /// Return the unique ID of the thread.
   static ACE_thread_t self (void);
+
   /// Exit the current thread and return "status".
   /// Should _not_ be called by main thread.
   static void exit (ACE_THR_FUNC_RETURN status = 0);
+
   /// Get the LWP concurrency level of the process.
   static int getconcurrency (void);
+
   /// Set the LWP concurrency level of the process.
   static int setconcurrency (int new_level);
+
   /// Change and/or examine calling thread's signal mask.
   static int sigsetmask (int how,
                          const sigset_t *sigset,
                          sigset_t *osigset = 0);
+
   /**
    * Allocates a @a keyp that is used to identify data that is specific
    * to each thread in the process.  The key is global to all threads
@@ -203,40 +231,53 @@ public:
                         ACE_THR_DEST destructor,
 #endif /* ACE_HAS_THR_C_DEST */
                         void * = 0);
+
   /// Free up the key so that other threads can reuse it.
   static int keyfree (ACE_thread_key_t key);
+
   /// Bind value to the thread-specific data key, @a key, for the calling
   /// thread.
   static int setspecific (ACE_thread_key_t key,
                           void *value);
+
   /// Stores the current value bound to @a key for the calling thread
   /// into the location pointed to by @a valuep.
   static int getspecific (ACE_thread_key_t key,
                           void **valuep);
+
   /// Disable thread cancellation.
   static int disablecancel (struct cancel_state *old_state);
+
   /// Enable thread cancellation.
   static int enablecancel (struct cancel_state *old_state,
                            int flag);
+
   /// Set the cancellation state.
   static int setcancelstate (struct cancel_state &new_state,
                              struct cancel_state *old_state);
+
   /**
    * Cancel a thread.
    * @note This method is only portable on platforms, such as POSIX pthreads,
    * that support thread cancellation.
    */
   static int cancel (ACE_thread_t t_id);
+
   /// Test the cancel.
   static void testcancel (void);
+
 private:
   /// Ensure that we don't get instantiated.
   ACE_Thread (void);
 };
+
 ACE_END_VERSIONED_NAMESPACE_DECL
+
 #if defined (__ACE_INLINE__)
 #include "ace/Thread.inl"
 #endif /* __ACE_INLINE__ */
+
 #include /**/ "ace/post.h"
+
 #endif /* ACE_THREAD_H */
 

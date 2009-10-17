@@ -1,4 +1,5 @@
 // -*- C++ -*-
+
 //=============================================================================
 /**
  *  @file    If_Then_Else.h
@@ -12,12 +13,17 @@
  *  @author Ossama Othman <ossama@dre.vanderbilt.edu>
  */
 //=============================================================================
+
 #ifndef ACE_IF_THEN_ELSE_H
 #define ACE_IF_THEN_ELSE_H
+
 #include "ace/config-lite.h"
+
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
+
 namespace ACE
 {
+
   /**
    * @struct If_Then_Else
    *
@@ -47,6 +53,7 @@ namespace ACE
    */
   template <bool C, typename Ta, typename Tb>
   struct If_Then_Else;
+
   /**
    * @struct If_Then_Else
    *
@@ -60,6 +67,7 @@ namespace ACE
   {
     typedef Ta result_type;
   };
+
   /**
    * @struct If_Then_Else
    *
@@ -73,7 +81,10 @@ namespace ACE
   {
     typedef Tb result_type;
   };
+
 }
+
 ACE_END_VERSIONED_NAMESPACE_DECL
+
 #endif  /* ACE_IF_THEN_ELSE_H */
 

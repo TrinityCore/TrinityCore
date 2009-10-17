@@ -1,11 +1,15 @@
 // $Id: UTF8_Encoding_Converter.cpp 80826 2008-03-04 14:51:23Z wotte $
+
 #include "ace/UTF8_Encoding_Converter.h"
+
 #if defined (ACE_USES_WCHAR)
 #include "ace/UTF16_Encoding_Converter.h"
 #include "ace/UTF32_Encoding_Converter.h"
 #include "ace/OS_NS_string.h"
 #include "ace/OS_Memory.h"
+
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
+
 ACE_UTF8_Encoding_Converter::ACE_UTF8_Encoding_Converter (void)
  : native_ (0)
 {
@@ -22,10 +26,12 @@ ACE_UTF8_Encoding_Converter::ACE_UTF8_Encoding_Converter (void)
       break;
     }
 }
+
 ACE_UTF8_Encoding_Converter::~ACE_UTF8_Encoding_Converter (void)
 {
   delete native_;
 }
+
 ACE_UTF8_Encoding_Converter::Result
 ACE_UTF8_Encoding_Converter::to_utf8 (const void* source,
                                       size_t source_size,
@@ -38,8 +44,10 @@ ACE_UTF8_Encoding_Converter::to_utf8 (const void* source,
       ACE_OS::memcpy (target, source, source_size);
       return CONVERSION_OK;
     }
+
   return TARGET_EXHAUSTED;
 }
+
 ACE_UTF8_Encoding_Converter::Result
 ACE_UTF8_Encoding_Converter::from_utf8 (const ACE_Byte* source,
                                         size_t source_size,
@@ -52,6 +60,7 @@ ACE_UTF8_Encoding_Converter::from_utf8 (const ACE_Byte* source,
       return this->native_->from_utf8(source, source_size,
                                       target, target_size, strict);
     }
+
   ACE_TCHAR* targetStart = static_cast<ACE_TCHAR*> (target);
   ACE_OS::strncpy (targetStart,
                    ACE_TEXT_CHAR_TO_TCHAR (
@@ -60,6 +69,7 @@ ACE_UTF8_Encoding_Converter::from_utf8 (const ACE_Byte* source,
   targetStart[source_size] = 0;
   return CONVERSION_OK;
 }
+
 ACE_UTF8_Encoding_Converter*
 ACE_UTF8_Encoding_Converter::encoded (const ACE_Byte* source,
                                       size_t source_size)
@@ -69,6 +79,7 @@ ACE_UTF8_Encoding_Converter::encoded (const ACE_Byte* source,
       if (source[i] < 0x01 || source[i] > 0x7f)
         return 0;
     }
+
   // All characters are "valid" ASCII
   ACE_UTF8_Encoding_Converter* converter = 0;
   ACE_NEW_RETURN (converter,
@@ -76,6 +87,7 @@ ACE_UTF8_Encoding_Converter::encoded (const ACE_Byte* source,
                   0);
   return converter;
 }
+
 ACE_END_VERSIONED_NAMESPACE_DECL
 #endif /* ACE_USES_WCHAR */
 

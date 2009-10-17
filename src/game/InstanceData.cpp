@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
+
 #include "InstanceData.h"
 #include "Database/DatabaseEnv.h"
 #include "Map.h"
@@ -24,6 +25,7 @@
 #include "GameObject.h"
 #include "Creature.h"
 #include "CreatureAI.h"
+
 void InstanceData::SaveToDB()
 {
     std::string data = GetSaveData();
@@ -32,6 +34,7 @@ void InstanceData::SaveToDB()
     CharacterDatabase.escape_string(data);
     CharacterDatabase.PExecute("UPDATE instance SET data = '%s' WHERE id = '%d'", data.c_str(), instance->GetInstanceId());
 }
+
 void InstanceData::HandleGameObject(uint64 GUID, bool open, GameObject *go)
 {
     if(!go)
@@ -41,33 +44,40 @@ void InstanceData::HandleGameObject(uint64 GUID, bool open, GameObject *go)
     else
         debug_log("TSCR: InstanceData: HandleGameObject failed");
 }
+
 bool InstanceData::IsEncounterInProgress() const
 {
     for(std::vector<BossInfo>::const_iterator itr = bosses.begin(); itr != bosses.end(); ++itr)
         if(itr->state == IN_PROGRESS)
             return true;
+
     return false;
 }
+
 void InstanceData::LoadMinionData(const MinionData *data)
 {
     while(data->entry)
     {
         if(data->bossId < bosses.size())
             minions.insert(std::make_pair(data->entry, MinionInfo(&bosses[data->bossId])));
+
         ++data;
     }
     sLog.outDebug("InstanceData::LoadMinionData: %u minions loaded.", doors.size());
 }
+
 void InstanceData::LoadDoorData(const DoorData *data)
 {
     while(data->entry)
     {
         if(data->bossId < bosses.size())
             doors.insert(std::make_pair(data->entry, DoorInfo(&bosses[data->bossId], data->type, BoundaryType(data->boundary))));
+
         ++data;
     }
     sLog.outDebug("InstanceData::LoadDoorData: %u doors loaded.", doors.size());
 }
+
 void InstanceData::UpdateMinionState(Creature *minion, EncounterState state)
 {
     switch(state)
@@ -86,12 +96,14 @@ void InstanceData::UpdateMinionState(Creature *minion, EncounterState state)
             break;
     }
 }
+
 void InstanceData::UpdateDoorState(GameObject *door)
 {
     DoorInfoMap::iterator lower = doors.lower_bound(door->GetEntry());
     DoorInfoMap::iterator upper = doors.upper_bound(door->GetEntry());
     if(lower == upper)
         return;
+
     bool open = true;
     for(DoorInfoMap::iterator itr = lower; itr != upper; ++itr)
     {
@@ -112,15 +124,18 @@ void InstanceData::UpdateDoorState(GameObject *door)
             }
         }
     }
+
     door->SetGoState(open ? GO_STATE_ACTIVE : GO_STATE_READY);
     //sLog.outError("Door %u is %s.", door->GetEntry(), open ? "opened" : "closed");
 }
+
 void InstanceData::AddDoor(GameObject *door, bool add)
 {
     DoorInfoMap::iterator lower = doors.lower_bound(door->GetEntry());
     DoorInfoMap::iterator upper = doors.upper_bound(door->GetEntry());
     if(lower == upper)
         return;
+
     for(DoorInfoMap::iterator itr = lower; itr != upper; ++itr)
     {
         if(add)
@@ -152,19 +167,23 @@ void InstanceData::AddDoor(GameObject *door, bool add)
         else
             itr->second.bossInfo->door[itr->second.type].erase(door);
     }
+
     if(add)
         UpdateDoorState(door);
 }
+
 void InstanceData::AddMinion(Creature *minion, bool add)
 {
     MinionInfoMap::iterator itr = minions.find(minion->GetEntry());
     if(itr == minions.end())
         return;
+
     if(add)
         itr->second.bossInfo->minion.insert(minion);
     else
         itr->second.bossInfo->minion.erase(minion);
 }
+
 bool InstanceData::SetBossState(uint32 id, EncounterState state)
 {
     if(id < bosses.size())
@@ -180,22 +199,28 @@ bool InstanceData::SetBossState(uint32 id, EncounterState state)
         {
             if(bossInfo->state == state)
                 return false;
+
             if(state == DONE)
                 for(MinionSet::iterator i = bossInfo->minion.begin(); i != bossInfo->minion.end(); ++i)
                     if((*i)->isWorldBoss() && (*i)->isAlive())
                         return false;
+
             bossInfo->state = state;
             SaveToDB();
         }
+        
         for(uint32 type = 0; type < MAX_DOOR_TYPES; ++type)
             for(DoorSet::iterator i = bossInfo->door[type].begin(); i != bossInfo->door[type].end(); ++i)
                 UpdateDoorState(*i);
+
         for(MinionSet::iterator i = bossInfo->minion.begin(); i != bossInfo->minion.end(); ++i)
             UpdateMinionState(*i, state);
+
         return true;
     }
     return false;
 }
+
 std::string InstanceData::LoadBossState(const char * data)
 {
     if(!data) return NULL;
@@ -210,18 +235,22 @@ std::string InstanceData::LoadBossState(const char * data)
     }
     return loadStream.str();
 }
+
 std::string InstanceData::GetBossSaveData()
 {
     std::ostringstream saveStream;
     for(std::vector<BossInfo>::iterator i = bosses.begin(); i != bosses.end(); ++i)
         saveStream << (uint32)i->state << " ";
     return saveStream.str();
-}
+}   
+
 void InstanceData::DoUseDoorOrButton(uint64 uiGuid, uint32 uiWithRestoreTime, bool bUseAlternativeState)
 {
     if (!uiGuid)
         return;
+
     GameObject* pGo = instance->GetGameObject(uiGuid);
+
     if (pGo)
     {
         if (pGo->GetGoType() == GAMEOBJECT_TYPE_DOOR || pGo->GetGoType() == GAMEOBJECT_TYPE_BUTTON)
@@ -235,6 +264,7 @@ void InstanceData::DoUseDoorOrButton(uint64 uiGuid, uint32 uiWithRestoreTime, bo
             error_log("SD2: Script call DoUseDoorOrButton, but gameobject entry %u is type %u.",pGo->GetEntry(),pGo->GetGoType());
     }
 }
+
 void InstanceData::DoRespawnGameObject(uint64 uiGuid, uint32 uiTimeToDespawn)
 {
     if (GameObject* pGo = instance->GetGameObject(uiGuid))
@@ -243,14 +273,18 @@ void InstanceData::DoRespawnGameObject(uint64 uiGuid, uint32 uiTimeToDespawn)
         if (pGo->GetGoType()==GAMEOBJECT_TYPE_FISHINGNODE || pGo->GetGoType()==GAMEOBJECT_TYPE_DOOR ||
             pGo->GetGoType()==GAMEOBJECT_TYPE_BUTTON || pGo->GetGoType()==GAMEOBJECT_TYPE_TRAP)
             return;
+
         if (pGo->isSpawned())
             return;
+
         pGo->SetRespawnTime(uiTimeToDespawn);
     }
 }
+
 void InstanceData::DoUpdateWorldState(uint32 uiStateId, uint32 uiStateData)
 {
     Map::PlayerList const& lPlayers = instance->GetPlayers();
+
     if (!lPlayers.isEmpty())
     {
         for(Map::PlayerList::const_iterator itr = lPlayers.begin(); itr != lPlayers.end(); ++itr)
@@ -262,32 +296,38 @@ void InstanceData::DoUpdateWorldState(uint32 uiStateId, uint32 uiStateData)
     else
         debug_log("TSCR: DoUpdateWorldState attempt send data but no players in map.");
 }
+
 /* Not used anywhere yet, not sure if they're needed:
 // Send Notify to all players in instance
 void InstanceData::DoSendNotifyToInstance(const char *format, ...)
 {
     InstanceMap::PlayerList const &PlayerList = instance->GetPlayers();
     InstanceMap::PlayerList::const_iterator i;
+
     if (!PlayerList.isEmpty())
         for (i = PlayerList.begin(); i != PlayerList.end(); ++i)
             if ((*i).getSource() && (*i).getSource()->GetSession())
                 (*i).getSource()->GetSession()->SendNotification(format);
 }
+
 // Complete Achievement for all players in instance
 void InstanceData::DoCompleteAchievement(uint32 achievement)
 {
     AchievementEntry const* AE = GetAchievementStore()->LookupEntry(achievement);
     Map::PlayerList const &PlayerList = instance->GetPlayers();
+
     if (!PlayerList.isEmpty())
         for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
             if (i->getSource())
                 i->getSource()->CompletedAchievement(AE);
 }
 */
+
 // Remove Auras due to Spell on all players in instance
 void InstanceData::DoRemoveAurasDueToSpellOnPlayers(uint32 spell)
 {
     Map::PlayerList const &PlayerList = instance->GetPlayers();
+
     if (!PlayerList.isEmpty())
         for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
             if (i->getSource() && i->getSource()->HasAura(spell)) i->getSource()->RemoveAurasDueToSpell(spell);

@@ -17,10 +17,13 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
+
 #ifndef __SCRIPT_CALLS_H
 #define __SCRIPT_CALLS_H
+
 #include "Common.h"
 #include "ObjectMgr.h"
+
 class Creature;
 class CreatureAI;
 class GameObject;
@@ -30,8 +33,10 @@ class Quest;
 class SpellCastTargets;
 class Map;
 class InstanceData;
+
 bool LoadScriptingModule(char const* libName = "");
 void UnloadScriptingModule();
+
 //On Event Handlers
 typedef void(TRINITY_IMPORT * scriptCallOnLogin) (Player *pPlayer);
 typedef void(TRINITY_IMPORT * scriptCallOnLogout) (Player *pPlayer);
@@ -47,9 +52,11 @@ typedef bool(TRINITY_IMPORT * scriptCallOnItemClick) (Player *pPlayer, Item *pIt
 typedef bool(TRINITY_IMPORT * scriptCallOnItemOpen) (Player *pPlayer, Item *pItem);
 typedef bool(TRINITY_IMPORT * scriptCallOnGoClick) (Player *pPlayer, GameObject *pGameObject);
 typedef void(TRINITY_IMPORT * scriptCallOnCreatureKill) (Player *pPlayer, Creature *pCreature);
+
 typedef void(TRINITY_IMPORT * scriptCallScriptsInit) (char const*);
 typedef void(TRINITY_IMPORT * scriptCallScriptsFree) ();
 typedef char const* (TRINITY_IMPORT * scriptCallScriptsVersion) ();
+
 typedef bool(TRINITY_IMPORT * scriptCallGossipHello) (Player *player, Creature *_Creature );
 typedef bool(TRINITY_IMPORT * scriptCallQuestAccept) (Player *player, Creature *_Creature, Quest const *);
 typedef bool(TRINITY_IMPORT * scriptCallGossipSelect)(Player *player, Creature *_Creature, uint32 sender, uint32 action);
@@ -74,11 +81,13 @@ typedef bool(TRINITY_IMPORT * scriptCallEffectDummyCreature) (Unit *caster, uint
 typedef bool(TRINITY_IMPORT * scriptCallEffectDummyItem) (Unit *caster, uint32 spellId, uint32 effIndex, Item *itemTarget);
 typedef CreatureAI* (TRINITY_IMPORT * scriptCallGetAI) ( Creature *_Creature );
 typedef InstanceData* (TRINITY_IMPORT * scriptCallCreateInstanceData) (Map *map);
+
 typedef struct
 {
     scriptCallScriptsInit ScriptsInit;
     scriptCallScriptsFree ScriptsFree;
     scriptCallScriptsVersion ScriptsVersion;
+
     scriptCallOnLogin OnLogin;
     scriptCallOnLogout OnLogout;
     scriptCallOnPVPKill OnPVPKill;
@@ -117,8 +126,10 @@ typedef struct
     scriptCallEffectDummyItem     EffectDummyItem;
     scriptCallGetAI GetAI;
     scriptCallCreateInstanceData CreateInstanceData;
+
     TRINITY_LIBRARY_HANDLE hScriptsLib;
 }_ScriptSet,*ScriptsSet;
+
 extern ScriptsSet Script;
 #endif
 

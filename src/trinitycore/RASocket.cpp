@@ -17,9 +17,11 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
+
 /** \file
     \ingroup Trinityd
 */
+
 #include "Common.h"
 #include "Config/ConfigEnv.h"
 #include "Database/DatabaseEnv.h"
@@ -28,38 +30,51 @@
 #include "RASocket.h"
 #include "Util.h"
 #include "World.h"
+
 /// \todo Make this thread safe if in the future 2 admins should be able to log at the same time.
 SOCKET r;
+
 #define dropclient {Sendf("I'm busy right now, come back later."); \
         SetCloseAndDelete(); \
         return; \
     }
+
 uint32 iSession=0;                                          ///< Session number (incremented each time a new connection is made)
 unsigned int iUsers=0;                                      ///< Number of active administrators
+
 typedef int(* pPrintf)(const char*,...);
+
 void ParseCommand(CliCommandHolder::Print*, char*command);
+
 /// RASocket constructor
 RASocket::RASocket(ISocketHandler &h): TcpSocket(h)
 {
+
     ///- Increment the session number
     iSess =iSession++ ;
+
     ///- Get the config parameters
     bSecure = sConfig.GetBoolDefault( "RA.Secure", true );
     iMinLevel = sConfig.GetIntDefault( "RA.MinLevel", 3 );
+
     ///- Initialize buffer and data
     iInputLength=0;
     buff=new char[RA_BUFF_SIZE];
     stage=NONE;
 }
+
 /// RASocket destructor
 RASocket::~RASocket()
 {
     ///- Delete buffer and decrease active admins count
     delete [] buff;
+
     sLog.outRemote("Connection was closed.\n");
+
     if(stage==OK)
         iUsers--;
 }
+
 /// Accept an incoming connection
 void RASocket::OnAccept()
 {
@@ -68,14 +83,17 @@ void RASocket::OnAccept()
     ///- If there is already an active admin, drop the connection
     if(iUsers)
         dropclient
+
         ///- Else print Motd
             Sendf("%s\r\n",sWorld.GetMotd());
 }
+
 /// Read data from the network
 void RASocket::OnRead()
 {
     ///- Read data and check input length
     TcpSocket::OnRead();
+
     unsigned int sz=ibuf.GetLength();
     if(iInputLength+sz>=RA_BUFF_SIZE)
     {
@@ -83,11 +101,14 @@ void RASocket::OnRead()
         SetCloseAndDelete();
         return;
     }
+
     ///- If there is already an active admin (other than you), drop the connection
     if(stage!=OK && iUsers)
         dropclient
+
             char *inp = new char [sz+1];
     ibuf.Read(inp,sz);
+
     /// \todo Can somebody explain this 'Linux bugfix'?
     if(stage==NONE)
         if(sz>4)                                            //linux remote telnet
@@ -96,6 +117,7 @@ void RASocket::OnRead()
                 delete [] inp;return;
                 printf("lin bugfix");
             }                                               //linux bugfix
+
     ///- Discard data after line break or line feed
     bool gotenter=false;
     unsigned int y=0;
@@ -105,12 +127,14 @@ void RASocket::OnRead()
         gotenter=true;
         break;
     }
+
     //No buffer overflow (checked above)
     memcpy(&buff[iInputLength],inp,y);
     iInputLength+=y;
     delete [] inp;
     if(gotenter)
     {
+
         buff[iInputLength]=0;
         iInputLength=0;
         switch(stage)
@@ -120,13 +144,18 @@ void RASocket::OnRead()
                 if(!memcmp(buff,"USER ",5))                 //got "USER" cmd
                 {
                     szLogin=&buff[5];
+
                     ///- Get the gmlevel and password from the account table
                     std::string login = szLogin;
+
                     ///- Convert Account name to Upper Format
                     AccountMgr::normalizeString(login);
+
                     ///- Escape the Login to allow quotes in names
                     loginDatabase.escape_string(login);
+
                     QueryResult* result = loginDatabase.PQuery("SELECT gmlevel FROM account WHERE username = '%s'",login.c_str());
+
                     ///- If the user is not found, deny access
                     if(!result)
                     {
@@ -137,7 +166,9 @@ void RASocket::OnRead()
                     else
                     {
                         Field *fields = result->Fetch();
+
                         //szPass=fields[0].GetString();
+
                         ///- if gmlevel is too low, deny access
                         if(fields[0].GetUInt32()<iMinLevel)
                         {
@@ -159,19 +190,23 @@ void RASocket::OnRead()
                     ///- If password is correct, increment the number of active administrators
                     std::string login = szLogin;
                     std::string pw = &buff[5];
+
                     AccountMgr::normalizeString(login);
                     AccountMgr::normalizeString(pw);
                     loginDatabase.escape_string(login);
                     loginDatabase.escape_string(pw);
+
                     QueryResult *check = loginDatabase.PQuery(
                         "SELECT 1 FROM account WHERE username = '%s' AND sha_pass_hash=SHA1(CONCAT('%s',':','%s'))",
                         login.c_str(), login.c_str(), pw.c_str());
+
                     if(check)
                     {
                         delete check;
                         r=GetSocket();
                         stage=OK;
                         ++iUsers;
+
                         Sendf("+Logged in.\r\n");
                         sLog.outRemote("User %s has logged in.\n",szLogin.c_str());
                         Sendf("TC>");
@@ -197,21 +232,28 @@ void RASocket::OnRead()
                 break;
                 ///</ul>
         };
+
     }
 }
+
 /// Output function
 void RASocket::zprint( const char * szText )
 {
     if( !szText )
         return;
+
     #ifdef RA_CRYPT
+
     char *megabuffer=strdup(szText);
     unsigned int sz=strlen(megabuffer);
     Encrypt(megabuffer,sz);
     send(r,megabuffer,sz,0);
     delete [] megabuffer;
+
     #else
+
     unsigned int sz=strlen(szText);
     send(r,szText,sz,0);
+
     #endif
 }

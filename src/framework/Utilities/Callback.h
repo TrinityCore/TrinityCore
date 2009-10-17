@@ -17,9 +17,12 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
+
 #ifndef TRINITY_CALLBACK_H
 #define TRINITY_CALLBACK_H
+
 /// ------------ BASE CLASSES ------------
+
 namespace Trinity
 {
     template < class Class, typename ParamType1 = void, typename ParamType2 = void, typename ParamType3 = void, typename ParamType4 = void >
@@ -40,6 +43,7 @@ namespace Trinity
             _Callback(_Callback < Class, ParamType1, ParamType2, ParamType3, ParamType4> const& cb)
                 : m_object(cb.object), m_method(cb.m_method), m_param1(cb.m_param1), m_param2(cb.m_param2), m_param3(cb.m_param3), m_param4(cb.m_param4) {}
     };
+
     template < class Class, typename ParamType1, typename ParamType2, typename ParamType3 >
     class _Callback < Class, ParamType1, ParamType2, ParamType3 >
     {
@@ -57,6 +61,7 @@ namespace Trinity
             _Callback(_Callback < Class, ParamType1, ParamType2, ParamType3 > const& cb)
                 : m_object(cb.object), m_method(cb.m_method), m_param1(cb.m_param1), m_param2(cb.m_param2), m_param3(cb.m_param3) {}
     };
+
     template < class Class, typename ParamType1, typename ParamType2 >
     class _Callback < Class, ParamType1, ParamType2 >
     {
@@ -73,6 +78,7 @@ namespace Trinity
             _Callback(_Callback < Class, ParamType1, ParamType2 > const& cb)
                 : m_object(cb.m_object), m_method(cb.m_method), m_param1(cb.m_param1), m_param2(cb.m_param2) {}
     };
+
     template < class Class, typename ParamType1 >
     class _Callback < Class, ParamType1 >
     {
@@ -88,6 +94,7 @@ namespace Trinity
             _Callback(_Callback < Class, ParamType1 > const& cb)
                 : m_object(cb.m_object), m_method(cb.m_method), m_param1(cb.m_param1) {}
     };
+
     template < class Class >
     class _Callback < Class >
     {
@@ -102,7 +109,9 @@ namespace Trinity
             _Callback(_Callback < Class > const& cb)
                 : m_object(cb.m_object), m_method(cb.m_method) {}
     };
+
     /// ---- Statics ----
+
     template < typename ParamType1 = void, typename ParamType2 = void, typename ParamType3 = void, typename ParamType4 = void >
     class _SCallback
     {
@@ -120,6 +129,7 @@ namespace Trinity
             _SCallback(_SCallback < ParamType1, ParamType2, ParamType3, ParamType4> const& cb)
                 : m_method(cb.m_method), m_param1(cb.m_param1), m_param2(cb.m_param2), m_param3(cb.m_param3), m_param4(cb.m_param4) {}
     };
+
     template < typename ParamType1, typename ParamType2, typename ParamType3 >
     class _SCallback < ParamType1, ParamType2, ParamType3 >
     {
@@ -136,6 +146,7 @@ namespace Trinity
             _SCallback(_SCallback < ParamType1, ParamType2, ParamType3 > const& cb)
                 : m_method(cb.m_method), m_param1(cb.m_param1), m_param2(cb.m_param2), m_param3(cb.m_param3) {}
     };
+
     template < typename ParamType1, typename ParamType2 >
     class _SCallback < ParamType1, ParamType2 >
     {
@@ -151,6 +162,7 @@ namespace Trinity
             _SCallback(_SCallback < ParamType1, ParamType2 > const& cb)
                 : m_method(cb.m_method), m_param1(cb.m_param1), m_param2(cb.m_param2) {}
     };
+
     template < typename ParamType1 >
     class _SCallback < ParamType1 >
     {
@@ -165,6 +177,7 @@ namespace Trinity
             _SCallback(_SCallback < ParamType1 > const& cb)
                 : m_method(cb.m_method), m_param1(cb.m_param1) {}
     };
+
     template < >
     class _SCallback < >
     {
@@ -179,7 +192,9 @@ namespace Trinity
                 : m_method(cb.m_method) {}
     };
 }
+
 /// --------- GENERIC CALLBACKS ----------
+
 namespace Trinity
 {
     class ICallback
@@ -188,6 +203,7 @@ namespace Trinity
             virtual void Execute() = 0;
             virtual ~ICallback() {}
     };
+
     template < class CB >
     class _ICallback : public CB, public ICallback
     {
@@ -195,6 +211,7 @@ namespace Trinity
             _ICallback(CB const& cb) : CB(cb) {}
             void Execute() { CB::_Execute(); }
     };
+
     template < class Class, typename ParamType1 = void, typename ParamType2 = void, typename ParamType3 = void, typename ParamType4 = void >
     class Callback :
         public _ICallback< _Callback < Class, ParamType1, ParamType2, ParamType3, ParamType4 > >
@@ -205,6 +222,7 @@ namespace Trinity
             Callback(Class *object, typename C4::Method method, ParamType1 param1, ParamType2 param2, ParamType3 param3, ParamType4 param4)
                 : _ICallback< C4 >(C4(object, method, param1, param2, param3, param4)) {}
     };
+
     template < class Class, typename ParamType1, typename ParamType2, typename ParamType3 >
     class Callback < Class, ParamType1, ParamType2, ParamType3 > :
         public _ICallback< _Callback < Class, ParamType1, ParamType2, ParamType3 > >
@@ -215,6 +233,7 @@ namespace Trinity
             Callback(Class *object, typename C3::Method method, ParamType1 param1, ParamType2 param2, ParamType3 param3)
                 : _ICallback< C3 >(C3(object, method, param1, param2, param3)) {}
     };
+
     template < class Class, typename ParamType1, typename ParamType2 >
     class Callback < Class, ParamType1, ParamType2 > :
         public _ICallback< _Callback < Class, ParamType1, ParamType2 > >
@@ -225,6 +244,7 @@ namespace Trinity
             Callback(Class *object, typename C2::Method method, ParamType1 param1, ParamType2 param2)
                 : _ICallback< C2 >(C2(object, method, param1, param2)) {}
     };
+
     template < class Class, typename ParamType1 >
     class Callback < Class, ParamType1 > :
         public _ICallback< _Callback < Class, ParamType1 > >
@@ -235,6 +255,7 @@ namespace Trinity
             Callback(Class *object, typename C1::Method method, ParamType1 param1)
                 : _ICallback< C1 >(C1(object, method, param1)) {}
     };
+
     template < class Class >
     class Callback < Class > : public _ICallback< _Callback < Class > >
     {
@@ -245,8 +266,11 @@ namespace Trinity
                 : _ICallback< C0 >(C0(object, method)) {}
     };
 }
+
 /// ---------- QUERY CALLBACKS -----------
+
 class QueryResult;
+
 namespace Trinity
 {
     class IQueryCallback
@@ -257,6 +281,7 @@ namespace Trinity
             virtual void SetResult(QueryResult* result) = 0;
             virtual QueryResult* GetResult() = 0;
     };
+
     template < class CB >
     class _IQueryCallback : public CB, public IQueryCallback
     {
@@ -266,6 +291,7 @@ namespace Trinity
             void SetResult(QueryResult* result) { CB::m_param1 = result; }
             QueryResult* GetResult() { return CB::m_param1; }
     };
+
     template < class Class, typename ParamType1 = void, typename ParamType2 = void, typename ParamType3 = void >
     class QueryCallback :
         public _IQueryCallback< _Callback < Class, QueryResult*, ParamType1, ParamType2, ParamType3 > >
@@ -276,6 +302,7 @@ namespace Trinity
             QueryCallback(Class *object, typename QC3::Method method, QueryResult* result, ParamType1 param1, ParamType2 param2, ParamType3 param3)
                 : _IQueryCallback< QC3 >(QC3(object, method, result, param1, param2, param3)) {}
     };
+
     template < class Class, typename ParamType1, typename ParamType2 >
     class QueryCallback < Class, ParamType1, ParamType2 > :
         public _IQueryCallback< _Callback < Class, QueryResult*, ParamType1, ParamType2 > >
@@ -286,6 +313,7 @@ namespace Trinity
             QueryCallback(Class *object, typename QC2::Method method, QueryResult* result, ParamType1 param1, ParamType2 param2)
                 : _IQueryCallback< QC2 >(QC2(object, method, result, param1, param2)) {}
     };
+
     template < class Class, typename ParamType1 >
     class QueryCallback < Class, ParamType1 > :
         public _IQueryCallback< _Callback < Class, QueryResult*, ParamType1 > >
@@ -296,6 +324,7 @@ namespace Trinity
             QueryCallback(Class *object, typename QC1::Method method, QueryResult* result, ParamType1 param1)
                 : _IQueryCallback< QC1 >(QC1(object, method, result, param1)) {}
     };
+
     template < class Class >
     class QueryCallback < Class > : public _IQueryCallback< _Callback < Class, QueryResult* > >
     {
@@ -305,7 +334,9 @@ namespace Trinity
             QueryCallback(Class *object, typename QC0::Method method, QueryResult* result)
                 : _IQueryCallback< QC0 >(QC0(object, method, result)) {}
     };
+
     /// ---- Statics ----
+
     template < typename ParamType1 = void, typename ParamType2 = void, typename ParamType3 = void >
     class SQueryCallback :
         public _IQueryCallback< _SCallback < QueryResult*, ParamType1, ParamType2, ParamType3 > >
@@ -316,6 +347,7 @@ namespace Trinity
             SQueryCallback(typename QC3::Method method, QueryResult* result, ParamType1 param1, ParamType2 param2, ParamType3 param3)
                 : _IQueryCallback< QC3 >(QC3(method, result, param1, param2, param3)) {}
     };
+
     template < typename ParamType1, typename ParamType2 >
     class SQueryCallback < ParamType1, ParamType2 > :
         public _IQueryCallback< _SCallback < QueryResult*, ParamType1, ParamType2 > >
@@ -326,6 +358,7 @@ namespace Trinity
             SQueryCallback(typename QC2::Method method, QueryResult* result, ParamType1 param1, ParamType2 param2)
                 : _IQueryCallback< QC2 >(QC2(method, result, param1, param2)) {}
     };
+
     template < typename ParamType1 >
     class SQueryCallback < ParamType1 > :
         public _IQueryCallback< _SCallback < QueryResult*, ParamType1 > >
@@ -336,6 +369,7 @@ namespace Trinity
             SQueryCallback(typename QC1::Method method, QueryResult* result, ParamType1 param1)
                 : _IQueryCallback< QC1 >(QC1(method, result, param1)) {}
     };
+
     template < >
     class SQueryCallback < > : public _IQueryCallback< _SCallback < QueryResult* > >
     {
@@ -346,5 +380,6 @@ namespace Trinity
                 : _IQueryCallback< QC0 >(QC0(method, result)) {}
     };
 }
+
 #endif
 

@@ -13,15 +13,18 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
+
 /* ScriptData
 SDName: Boss_Skeram
 SD%Complete: 75
 SDComment: Mind Control buggy.
 SDCategory: Temple of Ahn'Qiraj
 EndScriptData */
+
 #include "precompiled.h"
 #include "def_temple_of_ahnqiraj.h"
 #include "Group.h"
+
 #define SAY_AGGRO1                  -1531000
 #define SAY_AGGRO2                  -1531001
 #define SAY_AGGRO3                  -1531002
@@ -30,10 +33,12 @@ EndScriptData */
 #define SAY_SLAY3                   -1531005
 #define SAY_SPLIT                   -1531006
 #define SAY_DEATH                   -1531007
+
 #define SPELL_ARCANE_EXPLOSION      25679
 #define SPELL_EARTH_SHOCK           26194
 #define SPELL_TRUE_FULFILLMENT4     26526
 #define SPELL_BLINK                 28391
+
 class ov_mycoordinates
 {
     public:
@@ -43,23 +48,28 @@ class ov_mycoordinates
             x = cx; y = cy; z = cz; r = cr;
         }
 };
+
 struct TRINITY_DLL_DECL boss_skeramAI : public ScriptedAI
 {
     boss_skeramAI(Creature *c) : ScriptedAI(c)
     {
         IsImage = false;
     }
+
     uint32 ArcaneExplosion_Timer;
     uint32 EarthShock_Timer;
     uint32 FullFillment_Timer;
     uint32 Blink_Timer;
     uint32 Invisible_Timer;
+
     Creature *Image1, *Image2;
+
     bool Images75;
     bool Images50;
     bool Images25;
     bool IsImage;
     bool Invisible;
+
     void Reset()
     {
         ArcaneExplosion_Timer = 6000 + rand()%6000;
@@ -67,41 +77,50 @@ struct TRINITY_DLL_DECL boss_skeramAI : public ScriptedAI
         FullFillment_Timer = 15000;
         Blink_Timer = 8000 + rand()%12000;
         Invisible_Timer = 500;
+
         Images75 = false;
         Images50 = false;
         Images25 = false;
         Invisible = false;
+
         m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
         m_creature->SetVisibility(VISIBILITY_ON);
+
         if (IsImage)
             m_creature->setDeathState(JUST_DIED);
     }
+
     void KilledUnit(Unit* victim)
     {
         DoScriptText(RAND(SAY_SLAY1,SAY_SLAY2,SAY_SLAY3), m_creature);
     }
+
     void JustDied(Unit* Killer)
     {
         if (!IsImage)
             DoScriptText(SAY_DEATH, m_creature);
     }
+
     void EnterCombat(Unit *who)
     {
         if (IsImage || Images75)
             return;
         DoScriptText(RAND(SAY_AGGRO1,SAY_AGGRO2,SAY_AGGRO3), m_creature);
     }
+
     void UpdateAI(const uint32 diff)
     {
         //Return since we have no target
         if (!UpdateVictim())
             return;
+
         //ArcaneExplosion_Timer
         if (ArcaneExplosion_Timer < diff)
         {
             DoCast(m_creature->getVictim(), SPELL_ARCANE_EXPLOSION);
             ArcaneExplosion_Timer = 8000 + rand()%10000;
         }else ArcaneExplosion_Timer -= diff;
+
         //If we are within range melee the target
         if (m_creature->IsWithinMeleeRange(m_creature->getVictim()))
         {
@@ -120,6 +139,7 @@ struct TRINITY_DLL_DECL boss_skeramAI : public ScriptedAI
                 EarthShock_Timer = 1000;
             }else EarthShock_Timer -= diff;
         }
+
         //Blink_Timer
         if (Blink_Timer < diff)
         {
@@ -140,19 +160,25 @@ struct TRINITY_DLL_DECL boss_skeramAI : public ScriptedAI
                     break;
             }
             DoStopAttack();
+
             Blink_Timer= 20000 + rand()%20000;
         }else Blink_Timer -= diff;
+
         int procent = (int) (m_creature->GetHealth()*100 / m_creature->GetMaxHealth() +0.5);
+
         //Summoning 2 Images and teleporting to a random position on 75% health
         if ((!Images75 && !IsImage) && (procent <= 75 && procent > 70))
             DoSplit(75);
+
         //Summoning 2 Images and teleporting to a random position on 50% health
         if ((!Images50 && !IsImage) &&
             (procent <= 50 && procent > 45))
             DoSplit(50);
+
         //Summoning 2 Images and teleporting to a random position on 25% health
         if ((!Images25 && !IsImage) && (procent <= 25 && procent > 20))
             DoSplit(25);
+
         //Invisible_Timer
         if (Invisible)
         {
@@ -161,19 +187,25 @@ struct TRINITY_DLL_DECL boss_skeramAI : public ScriptedAI
                 //Making Skeram visible after telporting
                 m_creature->SetVisibility(VISIBILITY_ON);
                 m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+
                 Invisible_Timer = 2500;
                 Invisible = false;
             }else Invisible_Timer -= diff;
         }
+
         DoMeleeAttackIfReady();
     }
+
     void DoSplit(int atPercent /* 75 50 25 */)
     {
         DoScriptText(SAY_SPLIT, m_creature);
+
         ov_mycoordinates *place1 = new ov_mycoordinates(-8340.782227,2083.814453,125.648788,0);
         ov_mycoordinates *place2 = new ov_mycoordinates(-8341.546875,2118.504639,133.058151,0);
         ov_mycoordinates *place3 = new ov_mycoordinates(-8318.822266,2058.231201,133.058151,0);
+
         ov_mycoordinates *bossc=place1, *i1=place2, *i2=place3;
+
         switch(rand()%3)
         {
             case 0:
@@ -192,6 +224,7 @@ struct TRINITY_DLL_DECL boss_skeramAI : public ScriptedAI
                 i2=place2;
                 break;
         }
+
         for (int tryi = 0; tryi < 41; tryi ++)
         {
             Unit *targetpl = SelectUnit(SELECT_TARGET_RANDOM, 0);
@@ -209,6 +242,7 @@ struct TRINITY_DLL_DECL boss_skeramAI : public ScriptedAI
                 break;
             }
         }
+
         m_creature->RemoveAllAuras();
         m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
         m_creature->SetVisibility(VISIBILITY_OFF);
@@ -219,13 +253,16 @@ struct TRINITY_DLL_DECL boss_skeramAI : public ScriptedAI
         delete place3;
         DoResetThreat();
         DoStopAttack();
+
         switch (atPercent)
         {
             case 75: Images75 = true; break;
             case 50: Images50 = true; break;
             case 25: Images25 = true; break;
         }
+
         Unit* target = SelectUnit(SELECT_TARGET_RANDOM,0);
+
         Image1 = m_creature->SummonCreature(15263, i1->x, i1->y, i1->z, i1->r, TEMPSUMMON_CORPSE_DESPAWN, 30000);
         if (Image1)
         {
@@ -235,6 +272,7 @@ struct TRINITY_DLL_DECL boss_skeramAI : public ScriptedAI
                 Image1->AI()->AttackStart(target);
             CAST_AI(boss_skeramAI, Image1->AI())->IsImage = true;
         }
+
         Image2 = m_creature->SummonCreature(15263,i2->x, i2->y, i2->z, i2->r, TEMPSUMMON_CORPSE_DESPAWN, 30000);
         if (Image2)
         {
@@ -246,11 +284,14 @@ struct TRINITY_DLL_DECL boss_skeramAI : public ScriptedAI
         }
         Invisible = true;
     }
+
 };
+
 CreatureAI* GetAI_boss_skeram(Creature* pCreature)
 {
     return new boss_skeramAI (pCreature);
 }
+
 void AddSC_boss_skeram()
 {
     Script *newscript;

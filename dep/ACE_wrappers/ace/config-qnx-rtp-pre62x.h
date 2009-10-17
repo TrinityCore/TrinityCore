@@ -3,15 +3,18 @@
 // The following configuration file is designed to work for QNX RTP
 // GNU C++ and the POSIX (pthread) threads package. You can get QNX
 // RTP at http://get.qnx.com
+
 #ifndef ACE_CONFIG_RTP_PRE62x_H
 #define ACE_CONFIG_RTP_PRE62x_H
 #include /**/ "ace/pre.h"
 #include /**/ "ace/config-qnx-rtp-common.h"
+
 /////////////////////////////////////////////////////////////////
 //    Definition of the features that are available.
 //
 //                ACE_HAS Section
 /////////////////////////////////////////////////////////////////
+
 #define ACE_HAS_2_PARAM_ASCTIME_R_AND_CTIME_R
 #define ACE_HAS_4_4BSD_SENDMSG_RECVMSG
 // Although ACE does have alloca() on this compiler/platform combination, it is
@@ -63,6 +66,7 @@
 #define ACE_HAS_UCONTEXT_T
 #define ACE_HAS_VOIDPTR_MMAP
 #define ACE_HAS_VOIDPTR_SOCKOPT
+
 /////////////////////////////////////////////////////////////////
 //    Definition of the features that are not available.
 //
@@ -101,7 +105,9 @@
 #define ACE_LACKS_UCONTEXT_H
 #define ACE_LACKS_UNIX_DOMAIN_SOCKETS
 #define ACE_LACKS_U_LONGLONG_T
+
 #define ACE_LACKS_RLIMIT         // QNX rlimit syscalls don't work properly with ACE.
+
 #define ACE_MT_SAFE 1
 #define ACE_NEEDS_FUNC_DEFINITIONS
 #define ACE_NEEDS_HUGE_THREAD_STACKSIZE 64000
@@ -110,15 +116,20 @@
 #define ACE_USES_STD_NAMESPACE_FOR_STDCPP_LIB 1
 #define ACE_HAS_SIGTIMEDWAIT
 #define ACE_HAS_SIGSUSPEND
+
 #define ACE_HAS_BROKEN_PREALLOCATED_OBJECTS_AFTER_FORK 1
+
 #define ACE_SIZEOF_WCHAR 4
+
 // Not really, but the prototype returns wchar_t instead of wchar_t *
 #define ACE_LACKS_WCSSTR
+
 // No prototypes
 #define ACE_LACKS_ITOW
 #define ACE_LACKS_WCSICMP
 #define ACE_LACKS_WCSNICMP
 #define ACE_LACKS_WCSDUP
+
 // And these have prototypes but no implementation
 #define ACE_LACKS_WCSLEN
 #define ACE_LACKS_WCSNCMP
@@ -133,7 +144,9 @@
 #define ACE_LACKS_WCSCHR
 #define ACE_LACKS_WCSPBRK
 #define ACE_LACKS_WCSRCHR
+
 #define ACE_LACKS_ACE_IOSTREAM
+
 #include /**/ "ace/post.h"
 #endif /* ACE_CONFIG_RTP_PRE62x_H */
 

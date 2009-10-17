@@ -15,10 +15,13 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
+
 #ifndef _MAPREFERENCE_H
 #define _MAPREFERENCE_H
+
 #include "Utilities/LinkedReference/Reference.h"
 #include "Map.h"
+
 class TRINITY_DLL_SPEC MapReference : public Reference<Map, Player>
 {
     protected:

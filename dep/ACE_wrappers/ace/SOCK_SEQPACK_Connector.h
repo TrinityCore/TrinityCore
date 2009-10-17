@@ -1,4 +1,5 @@
 // -*- C++ -*-
+
 //=============================================================================
 /**
  *  @file    SOCK_SEQPACK_Connector.h
@@ -12,18 +13,26 @@
  *
  */
 //=============================================================================
+
 #ifndef ACE_SOCK_SEQPACK_CONNECTOR_H
 #define ACE_SOCK_SEQPACK_CONNECTOR_H
+
 #include /**/ "ace/pre.h"
+
 #include /**/ "ace/ACE_export.h"
+
 #include "ace/SOCK_SEQPACK_Association.h"
 #include "ace/Multihomed_INET_Addr.h"
+
 #if !defined (ACE_LACKS_PRAGMA_ONCE)
 # pragma once
 #endif /* ACE_LACKS_PRAGMA_ONCE */
+
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
+
 // Forward declarations.
 class ACE_Time_Value;
+
 /**
  * @class ACE_SOCK_SEQPACK_Connector
  *
@@ -45,6 +54,7 @@ public:
   // = Initialization and termination methods.
   /// Default constructor.
   ACE_SOCK_SEQPACK_Connector (void);
+
   /**
    * Actively connect to a peer, producing a connected @c ACE_SOCK_SEQPACK_Association
    * object if the connection succeeds.
@@ -94,6 +104,7 @@ public:
                       int flags = 0,
                       int perms = 0,
                       int protocol = 132);
+
   /**
    * Actively connect to a peer, producing a connected @c ACE_SOCK_SEQPACK_Association
    * object if the connection succeeds.
@@ -142,6 +153,7 @@ public:
                       int flags = 0,
                       int perms = 0,
                       int protocol = 132);
+
   /**
    * Actively connect to a peer, producing a connected @c ACE_SOCK_SEQPACK_Association
    * object if the connection succeeds.
@@ -191,6 +203,7 @@ public:
                int flags = 0,
                int perms = 0,
                int protocol = 132);
+
   /**
    * Actively connect to a peer, producing a connected @c ACE_SOCK_SEQPACK_Association
    * object if the connection succeeds.
@@ -231,6 +244,7 @@ public:
    *                    -1 is returned and errno contains a specific error
    *                    code.
    */
+
   int connect (ACE_SOCK_SEQPACK_Association &new_association,
                const ACE_Addr &remote_sap,
                const ACE_Time_Value *timeout,
@@ -239,8 +253,10 @@ public:
                int flags = 0,
                int perms = 0,
                int protocol = 132);
+
   /// Default dtor.
   ~ACE_SOCK_SEQPACK_Connector (void);
+
   // = Completion routine.
   /**
    * Try to complete a nonblocking connection that was begun by a
@@ -257,15 +273,20 @@ public:
   int complete (ACE_SOCK_SEQPACK_Association &new_association,
                 ACE_Addr *remote_sap = 0,
                 const ACE_Time_Value *timeout = 0);
+
   /// Resets any event associations on this handle
   int reset_new_handle (ACE_HANDLE handle);
+
   // = Meta-type info
   typedef ACE_Multihomed_INET_Addr PEER_ADDR;
   typedef ACE_SOCK_SEQPACK_Association PEER_STREAM;
+
   /// Dump the state of an object.
   void dump (void) const;
+
   /// Declare the dynamic allocation hooks.
   ACE_ALLOC_HOOK_DECLARE;
+
 protected:
   /// Perform operations that ensure the socket is opened using
   /// BSD-style semantics (no QoS).
@@ -273,6 +294,7 @@ protected:
                    int protocol_family,
                    int protocol,
                    int reuse_addr);
+
   /// Perform operations that ensure the socket is opened using
   /// QoS-enabled semantics.
   int shared_open (ACE_SOCK_SEQPACK_Association &new_association,
@@ -282,22 +304,29 @@ protected:
                    ACE_SOCK_GROUP g,
                    u_long flags,
                    int reuse_addr);
+
   /// Perform operations that must be called before <ACE_OS::connect>.
   int shared_connect_start (ACE_SOCK_SEQPACK_Association &new_association,
                             const ACE_Time_Value *timeout,
                             const ACE_Addr &local_sap);
+
   int shared_connect_start (ACE_SOCK_SEQPACK_Association &new_association,
                             const ACE_Time_Value *timeout,
                             const ACE_Multihomed_INET_Addr &local_sap);
+
   /// Perform operations that must be called after <ACE_OS::connect>.
   int shared_connect_finish (ACE_SOCK_SEQPACK_Association &new_association,
                              const ACE_Time_Value *timeout,
                              int result);
 };
+
 ACE_END_VERSIONED_NAMESPACE_DECL
+
 #if defined (__ACE_INLINE__)
 #include "ace/SOCK_SEQPACK_Connector.inl"
 #endif /* __ACE_INLINE__ */
+
 #include /**/ "ace/post.h"
+
 #endif /* ACE_SOCK_SEQPACK_CONNECTOR_H */
 

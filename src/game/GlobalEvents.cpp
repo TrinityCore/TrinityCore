@@ -17,9 +17,11 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
+
 /** \file
     \ingroup world
 */
+
 #include "Log.h"
 #include "Database/DatabaseEnv.h"
 #include "Database/DatabaseImpl.h"
@@ -29,10 +31,12 @@
 #include "GlobalEvents.h"
 #include "ObjectDefines.h"
 #include "Corpse.h"
+
 static void CorpsesEraseCallBack(QueryResult *result, bool bones)
 {
     if(!result)
         return;
+
     do
     {
         Field *fields = result->Fetch();
@@ -41,8 +45,11 @@ static void CorpsesEraseCallBack(QueryResult *result, bool bones)
         float positionY = fields[2].GetFloat();
         uint32 mapid    = fields[3].GetUInt32();
         uint64 player_guid = MAKE_NEW_GUID(fields[4].GetUInt32(), 0, HIGHGUID_PLAYER);
+
         uint64 guid = MAKE_NEW_GUID(guidlow, 0, HIGHGUID_CORPSE);
+
         sLog.outDebug("[Global event] Removing %s %u (X:%f Y:%f Map:%u).",(bones?"bones":"corpse"),guidlow,positionX,positionY,mapid);
+
         /// Resurrectable - convert corpses to bones
         if(!bones)
         {
@@ -56,12 +63,15 @@ static void CorpsesEraseCallBack(QueryResult *result, bool bones)
             ///- or delete bones
         {
             MapManager::Instance().RemoveBonesFromMap(mapid, guid, positionX, positionY);
+
             ///- remove bones from the database
             CharacterDatabase.PExecute("DELETE FROM corpse WHERE guid = '%u'",guidlow);
         }
     } while (result->NextRow());
+
     delete result;
 }
+
 /// Handle periodic erase of corpses and bones
 static void CorpsesErase(bool bones,uint32 delay)
 {
@@ -69,6 +79,7 @@ static void CorpsesErase(bool bones,uint32 delay)
     //No SQL injection (uint32 and enum)
     CharacterDatabase.AsyncPQuery(&CorpsesEraseCallBack, bones, "SELECT guid,position_x,position_y,map,player FROM corpse WHERE UNIX_TIMESTAMP()-time > '%u' AND corpse_type %s '0'", delay, (bones ? "=" : "<>"));
 }
+
 /// not thread guarded variant for call from other thread
 void CorpsesErase()
 {

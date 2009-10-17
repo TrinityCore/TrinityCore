@@ -19,8 +19,10 @@
  */
 #ifndef TRINITY_SPELLAURADEFINES_H
 #define TRINITY_SPELLAURADEFINES_H
+
 #define MAX_AURAS 64                                        // client support up to 255, but it will cause problems with group auras updating
 #define FRIENDLY_AA_REMOVE_TIME 2*IN_MILISECONDS
+
 enum AURA_FLAGS
 {
     AFLAG_NONE              = 0x00,
@@ -33,12 +35,14 @@ enum AURA_FLAGS
     AFLAG_UNK2              = 0x40,
     AFLAG_NEGATIVE          = 0x80
 };
+
 //m_schoolAbsorb
 enum DAMAGE_ABSORB_TYPE
 {
     ALL_DAMAGE_ABSORB       = -2,
     ONLY_MAGIC_ABSORB       = -1,
 };
+
 enum AuraType
 {
     SPELL_AURA_NONE = 0,
@@ -338,6 +342,7 @@ enum AuraType
     SPELL_AURA_PREVENT_REGENERATE_POWER,
     TOTAL_AURAS = 295
 };
+
 enum AreaAuraType
 {
     AREA_AURA_PARTY,

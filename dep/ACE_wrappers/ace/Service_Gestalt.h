@@ -1,4 +1,5 @@
 // -*- C++ -*-
+
 //====================================================================
 /**
  *  @file    Service_Gestalt.h
@@ -8,14 +9,19 @@
  *  @author Iliyan Jeliazkov <iliyan@ociweb.com>
  */
 //====================================================================
+
 #ifndef ACE_SERVICE_GESTALT_H
 #define ACE_SERVICE_GESTALT_H
+
 #include /**/ "ace/pre.h"
+
 #include /**/ "ace/config-all.h"
 #include "ace/Default_Constants.h"
+
 #if !defined (ACE_LACKS_PRAGMA_ONCE)
 # pragma once
 #endif /* ACE_LACKS_PRAGMA_ONCE */
+
 #include "ace/Auto_Ptr.h"
 #include "ace/SString.h"
 #include "ace/Unbounded_Queue.h"
@@ -26,7 +32,9 @@
 #include "ace/Synch_Traits.h"
 #include "ace/Atomic_Op.h"
 #include "ace/Guard_T.h"
+
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
+
 #if (ACE_USES_CLASSIC_SVC_CONF == 1)
 class ACE_Service_Type_Factory;
 class ACE_Location_Node;
@@ -34,8 +42,10 @@ class ACE_Location_Node;
 class ACE_XML_Svc_Conf;
 class ACE_DLL;
 #endif /* ACE_USES_CLASSIC_SVC_CONF == 1 */
+
 class ACE_Static_Svc_Descriptor;
 class ACE_Svc_Conf_Param;
+
 /**
  * @class ACE_Service_Gestalt
  *
@@ -65,22 +75,27 @@ private:
   //
   ACE_UNIMPLEMENTED_FUNC (ACE_Service_Gestalt(const ACE_Service_Gestalt&))
   ACE_UNIMPLEMENTED_FUNC (ACE_Service_Gestalt& operator=(const ACE_Service_Gestalt&))
+
 public:
   enum
   {
     MAX_SERVICES = ACE_DEFAULT_SERVICE_REPOSITORY_SIZE
   };
+
   /// Constructor either associates the instance with the process-wide
   /// singleton instance of ACE_Service_Repository, or creates and
   /// manages its own instance of the specified size.
   ACE_Service_Gestalt (size_t size = 1024,
                        bool svc_repo_is_owned = true,
                        bool no_static_svcs = true);
+
   /// Perform user-specified close activities and remove dynamic
   /// memory.
   ~ACE_Service_Gestalt (void);
+
   /// Dump the state of an object.
   void dump (void) const;
+
    /**
    * Performs an open without parsing command-line arguments.  The
    * @a logger_key indicates where to write the logging output, which
@@ -100,6 +115,7 @@ public:
             bool ignore_static_svcs = true,
             bool ignore_default_svc_conf_file = false,
             bool ignore_debug_flag = false);
+
   /**
    * This is the primary entry point into the ACE_Service_Config (the
    * constructor just handles simple initializations).  It parses
@@ -156,14 +172,18 @@ public:
             bool ignore_static_svcs = true,
             bool ignore_default_svc_conf_file = false,
             bool ignore_debug_flag = false);
+
   /// Has it been opened?  Returns the difference between the times
   /// open and close have been called on this instance
   int is_opened (void);
+
   /// Declare the dynamic allocation hooks.
   ACE_ALLOC_HOOK_DECLARE;
+
   /// Process one service configuration @a directive, which is passed as
   /// a string.  Returns the number of errors that occurred.
   int process_directive (const ACE_TCHAR directive[]);
+
   /// Process one static service definition.
   /**
    * Load a new static service.
@@ -178,9 +198,11 @@ public:
    */
   int process_directive (const ACE_Static_Svc_Descriptor &ssd,
                          bool force_replace = false);
+
   /// Process a file containing a list of service configuration
   /// directives.
   int process_file (const ACE_TCHAR file[]);
+
   /**
    * Locate an entry with @a name in the table.  If @a ignore_suspended
    * is set then only consider services marked as resumed.  If the
@@ -192,6 +214,7 @@ public:
   int find (const ACE_TCHAR name[],
             const ACE_Service_Type **srp = 0,
             bool ignore_suspended = true) const;
+
   /**
    * Handle the command-line options intended for the
    * ACE_Service_Gestalt.  Note that <argv[0]> is assumed to be the
@@ -210,19 +233,24 @@ public:
    *        for a list of files and here a list of services.
    */
    int parse_args (int, ACE_TCHAR *argv[]);
+
   /**
    * Process (or re-process) service configuration requests that are
    * provided in the svc.conf file(s).  Returns the number of errors
    * that occurred.
    */
    int process_directives (bool ignore_default_svc_conf_file);
+
   /// Tidy up and perform last rites when ACE_Service_Config is shut
   /// down.  This method calls <close_svcs>.  Returns 0.
   int close (void);
 
+
   // Registers a service descriptor for a static service object
   int insert (ACE_Static_Svc_Descriptor *stsd);
+
   // = Utility methods.
+
 #if (ACE_USES_CLASSIC_SVC_CONF == 1)
   /// Dynamically link the shared object file and retrieve a pointer to
   /// the designated shared object in this file. Also account for the
@@ -233,6 +261,7 @@ public:
   int initialize (const ACE_Service_Type_Factory *,
                   const ACE_TCHAR *parameters);
 #endif /* (ACE_USES_CLASSIC_SVC_CONF == 1) */
+
   /// Dynamically link the shared object file and retrieve a pointer to
   /// the designated shared object in this file.
   /// @deprecated
@@ -247,12 +276,15 @@ public:
   /// as the dynamic service being loaded. You should be so lucky!
   int initialize (const ACE_Service_Type *,
                   const ACE_TCHAR *parameters);
+
   /// Initialize and activate a statically @a svc_name service.
   int initialize (const ACE_TCHAR *svc_name,
                   const ACE_TCHAR *parameters);
+
   /// Resume a @a svc_name that was previously suspended or has not yet
   /// been resumed (e.g., a static service).
   int resume (const ACE_TCHAR svc_name[]);
+
   /**
    * Suspend @a svc_name.  Note that this will not unlink the service
    * from the daemon if it was dynamically linked, it will mark it as
@@ -262,15 +294,18 @@ public:
    * function...
    */
   int suspend (const ACE_TCHAR svc_name[]);
+
   /// Totally remove @a svc_name from the daemon by removing it
   /// from the ACE_Reactor, and unlinking it if necessary.
   int remove (const ACE_TCHAR svc_name[]);
+
   /**
    * Using the supplied name, finds and (if needed) returns a pointer to a
    * static service descriptor. Returns 0 for success and -1 for failure
    */
   int find_static_svc_descriptor (const ACE_TCHAR* name,
                                   ACE_Static_Svc_Descriptor **ssd = 0) const;
+
   struct Processed_Static_Svc
   {
     Processed_Static_Svc (const ACE_Static_Svc_Descriptor *);
@@ -278,11 +313,15 @@ public:
     ACE_TCHAR * name_;
     const ACE_Static_Svc_Descriptor *assd_;
   };
+
   /// Get the current ACE_Service_Repository held by this object.
   ACE_Service_Repository* current_service_repository (void);
+
 protected:
+
   int parse_args_i (int, ACE_TCHAR *argv[],
                     bool& ignore_default_svc_conf_file);
+
   /**
    * Performs an open without parsing command-line arguments.  The
    * @a logger_key indicates where to write the logging output, which
@@ -298,19 +337,24 @@ protected:
               bool ignore_static_svcs = true,
               bool ignore_default_svc_conf_file = false,
               bool ignore_debug_flag = false);
+
   /// Initialize the <svc_conf_file_queue_> if necessary.
   int init_svc_conf_file_queue (void);
+
   /// Add the default statically-linked services to the
   /// ACE_Service_Repository.
   int load_static_svcs (void);
+
   /// Process service configuration requests that were provided on the
   /// command-line.  Returns the number of errors that occurred.
   int process_commandline_directives (void);
+
   /// Process a static directive without also inserting its descriptor
   /// the global table. This avoids multiple additions when processing
   /// directives in non-global gestalts.
   int process_directive_i (const ACE_Static_Svc_Descriptor &ssd,
                            bool force_replace = false);
+
 #if (ACE_USES_CLASSIC_SVC_CONF == 1)
   /// This is the implementation function that process_directives()
   /// and process_directive() both call.  Returns the number of errors
@@ -321,40 +365,54 @@ protected:
   /// parser.
   ACE_XML_Svc_Conf* get_xml_svc_conf (ACE_DLL &d);
 #endif /* ACE_USES_CLASSIC_SVC_CONF == 1 */
+
   /// Dynamically link the shared object file and retrieve a pointer to
   /// the designated shared object in this file.
   int initialize_i (const ACE_Service_Type *sr, const ACE_TCHAR *parameters);
+
   const ACE_Static_Svc_Descriptor* find_processed_static_svc (const ACE_TCHAR*);
   void add_processed_static_svc (const ACE_Static_Svc_Descriptor *);
+
   /// Performs the common initialization tasks for a new or previously
   /// closed instance. Must not be virtual, as it is called from the
   /// constructor.
   int init_i (void);
+
 protected:
+
   // Maintain a queue of services to be configured from the
   // command-line.
   typedef ACE_Unbounded_Queue<ACE_TString> ACE_SVC_QUEUE;
   typedef ACE_Unbounded_Queue_Iterator<ACE_TString> ACE_SVC_QUEUE_ITERATOR;
+
   // Maintain a set of the statically linked service descriptors.
   typedef ACE_Unbounded_Set<ACE_Static_Svc_Descriptor *>
     ACE_STATIC_SVCS;
+
   typedef ACE_Unbounded_Set_Iterator<ACE_Static_Svc_Descriptor *>
     ACE_STATIC_SVCS_ITERATOR;
+
   typedef ACE_Unbounded_Set<Processed_Static_Svc *>
     ACE_PROCESSED_STATIC_SVCS;
+
   typedef ACE_Unbounded_Set_Iterator<Processed_Static_Svc *>
     ACE_PROCESSED_STATIC_SVCS_ITERATOR;
+
   friend class ACE_Dynamic_Service_Base;
   friend class ACE_Service_Object;
   friend class ACE_Service_Config;
   friend class ACE_Service_Config_Guard;
+
 protected:
+
   /// Do we own the service repository instance, or have only been
   /// given a ptr to the singleton?
   bool svc_repo_is_owned_;
+
   /// Repository size is necessary, so that we can close (which may
   /// destroy the repository instance), and then re-open again.
   size_t svc_repo_size_;
+
   /// Keep track of the number of times the instance has been
   /// initialized (opened). "If so, we can't allow <yyparse> to be called since
   /// it's not reentrant" is the original motivation, but that does not seem
@@ -362,31 +420,42 @@ protected:
   /// <ACE_Service_Gestalt::open> method and decremented by the
   /// <ACE_Service_Gestalt::close> method.
   int is_opened_;
+
   /// Indicates where to write the logging output.  This is typically
   /// either a STREAM pipe or a socket
   const ACE_TCHAR *logger_key_;
+
   /// Should we avoid loading the static services?
   bool no_static_svcs_;
+
   /// Queue of services specified on the command-line.
   ACE_SVC_QUEUE* svc_queue_;
+
   /** Queue of svc.conf files specified on the command-line.
    * @@ This should probably be made to handle unicode filenames...
    */
   ACE_SVC_QUEUE* svc_conf_file_queue_;
+
   /// The service repository to hold the services.
   ACE_Service_Repository* repo_;
+
   /// Repository of statically linked services.
   ACE_STATIC_SVCS* static_svcs_;
+
   /// Repository of statically linked services for which process
   /// directive was called, but the service is not already a member of
   /// the static_svcs_ list.
   ACE_PROCESSED_STATIC_SVCS* processed_static_svcs_;
+
   /// Support for intrusive reference counting
   ACE_Atomic_Op<ACE_SYNCH_MUTEX, long> refcnt_;
+
  public:
   static void intrusive_add_ref (ACE_Service_Gestalt*);
   static void intrusive_remove_ref (ACE_Service_Gestalt*);
+
 }; /* class ACE_Service_Gestalt */
+
 
 /**
  * @class ACE_Service_Type_Dynamic_Guard
@@ -414,22 +483,29 @@ class ACE_Export ACE_Service_Type_Dynamic_Guard
 public:
   ACE_Service_Type_Dynamic_Guard (ACE_Service_Repository &r,
                                   ACE_TCHAR const *name);
+
   ~ACE_Service_Type_Dynamic_Guard (void);
+
 private:
   ACE_Service_Repository & repo_;
   size_t repo_begin_;
   ACE_TCHAR const * const name_;
+
 
 # if defined (ACE_MT_SAFE) && (ACE_MT_SAFE != 0)
   ACE_Guard< ACE_Recursive_Thread_Mutex > repo_monitor_;
 #endif
 };
 
+
 ACE_END_VERSIONED_NAMESPACE_DECL
+
 #if defined (__ACE_INLINE__)
 #include "ace/Service_Gestalt.inl"
 #endif /* __ACE_INLINE__ */
 
+
 #include /**/ "ace/post.h"
+
 #endif /* ACE_SERVICE_GESTALT_H */
 

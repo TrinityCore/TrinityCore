@@ -1,4 +1,5 @@
 // -*- C++ -*-
+
 //=============================================================================
 /**
  *  @file    Dump_T.h
@@ -9,14 +10,19 @@
  */
 //=============================================================================
 
+
 #ifndef ACE_DUMP_T_H
 #define ACE_DUMP_T_H
 #include /**/ "ace/pre.h"
+
 #include "ace/Dump.h"
+
 #if !defined (ACE_LACKS_PRAGMA_ONCE)
 # pragma once
 #endif /* ACE_LACKS_PRAGMA_ONCE */
+
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
+
 /**
  * @class ACE_Dumpable_Adapter
  *
@@ -36,16 +42,21 @@ public:
   // = Initialization and termination methods.
   ACE_Dumpable_Adapter (const Concrete *t);
   ~ACE_Dumpable_Adapter (void);
+
   /// Concrete dump method (simply delegates to the <dump> method of
   /// <class Concrete>).
   virtual void dump (void) const;
+
   /// Delegate to methods in the Concrete class.
   Concrete *operator->() const;
+
 private:
   /// Pointer to @c this of <class Concrete>.
   const Concrete *this_;
 };
+
 ACE_END_VERSIONED_NAMESPACE_DECL
+
 // Some useful macros for conditionally compiling this feature...
 #if defined (ACE_NDEBUG)
 #define ACE_REGISTER_OBJECT(CLASS)
@@ -58,12 +69,15 @@ ACE_END_VERSIONED_NAMESPACE_DECL
         ACE_ODB::instance ()->remove_object    \
           ((void *) this);
 #endif /* ACE_NDEBUG */
+
 #if defined (ACE_TEMPLATES_REQUIRE_SOURCE)
 #include "ace/Dump_T.cpp"
 #endif /* ACE_TEMPLATES_REQUIRE_SOURCE */
+
 #if defined (ACE_TEMPLATES_REQUIRE_PRAGMA)
 #pragma implementation ("Dump_T.cpp")
 #endif /* ACE_TEMPLATES_REQUIRE_PRAGMA */
+
 #include /**/ "ace/post.h"
 #endif /* ACE_DUMP_T_H */
 

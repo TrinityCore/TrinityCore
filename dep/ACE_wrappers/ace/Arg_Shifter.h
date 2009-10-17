@@ -1,4 +1,5 @@
 // -*- C++ -*-
+
 //=============================================================================
 /**
  *  @file     Arg_Shifter.h
@@ -8,15 +9,22 @@
  *  @author Seth Widoff
  */
 //=============================================================================
+
 #ifndef ACE_ARG_SHIFTER_H
 #define ACE_ARG_SHIFTER_H
+
 #include /**/ "ace/pre.h"
+
 #include /**/ "ace/ACE_export.h"
+
 #if !defined (ACE_LACKS_PRAGMA_ONCE)
 # pragma once
 #endif /* ACE_LACKS_PRAGMA_ONCE */
+
 #include "ace/Global_Macros.h"
+
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
+
 /**
  * @class ACE_Arg_Shifter_T
  *
@@ -62,15 +70,19 @@ public:
   ACE_Arg_Shifter_T (int& argc,
                      const CHAR_TYPE **argv,
                      const CHAR_TYPE **temp = 0);
+
   /// Same behavior as the preceding constructor, but without the
   /// "const" qualifier.
   ACE_Arg_Shifter_T (int& argc,
                      CHAR_TYPE **argv,
                      CHAR_TYPE **temp = 0);
+
   /// Destructor.
   ~ACE_Arg_Shifter_T (void);
+
   /// Get the current head of the vector.
   const CHAR_TYPE *get_current (void) const;
+
   /**
    * If the @a flag matches the current_arg of arg shifter
    * this method will attempt to return the associated
@@ -104,6 +116,7 @@ public:
    * and the cur arg is left pointing to the entire flag/value pair
    */
   const CHAR_TYPE *get_the_parameter (const CHAR_TYPE* flag);
+
   /**
    * Check if the current argument matches (case insensitive) <flag>
    *
@@ -134,54 +147,76 @@ public:
    * then -1 is returned
    */
   int cur_arg_strncasecmp (const CHAR_TYPE *flag);
+
   /// Consume @a number argument(s) by sticking them/it on the end of
   /// the vector.
   int consume_arg (int number = 1);
+
   /// Place @a number arguments in the same relative order ahead of the
   /// known arguments in the vector.
   int ignore_arg (int number = 1);
+
   /// Returns the number of args left to see in the vector.
   int is_anything_left (void) const;
+
   /// Returns 1 if there's a next item in the vector and it begins with
   /// '-'.
   int is_option_next (void) const;
+
   /// Returns 1 if there's a next item in the vector and it doesn't
   /// begin with '-'.
   int is_parameter_next (void) const;
+
   /// Returns the number of irrelevant args seen.
   int num_ignored_args (void) const;
+
 private:
   /// Copy Constructor should not be used.
   ACE_UNIMPLEMENTED_FUNC (ACE_Arg_Shifter_T (const ACE_Arg_Shifter_T<CHAR_TYPE>&))
+
   /// Assignment '=' operator should not be used.
   ACE_UNIMPLEMENTED_FUNC (ACE_Arg_Shifter_T operator= (const ACE_Arg_Shifter_T<CHAR_TYPE>&))
+
   /// Refactor the constructor logic.
   void init (void);
+
   /// The size of the argument vector.
   int& argc_;
+
   /// The size of argv_.
   int total_size_;
+
   /// The temporary array over which we traverse.
   const CHAR_TYPE **temp_;
+
   /// The array in which the arguments are reordered.
   const CHAR_TYPE **argv_;
+
   /// The element in <temp_> we're currently examining.
   int current_index_;
+
   /// The index of <argv_> in which we'll stick the next unknown
   /// argument.
   int back_;
+
   /// The index of <argv_> in which we'll stick the next known
   /// argument.
   int front_;
 };
+
 typedef ACE_Arg_Shifter_T<ACE_TCHAR> ACE_Arg_Shifter;
+
 ACE_END_VERSIONED_NAMESPACE_DECL
+
 #if defined (ACE_TEMPLATES_REQUIRE_SOURCE)
 #include "ace/Arg_Shifter.cpp"
 #endif /* ACE_TEMPLATES_REQUIRE_SOURCE */
+
 #if defined (ACE_TEMPLATES_REQUIRE_PRAGMA)
 #pragma implementation ("Arg_Shifter.cpp")
 #endif /* ACE_TEMPLATES_REQUIRE_PRAGMA */
+
 #include /**/ "ace/post.h"
+
 #endif /* ACE_ARG_SHIFTER_H */
 

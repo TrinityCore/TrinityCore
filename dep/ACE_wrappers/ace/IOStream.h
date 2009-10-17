@@ -1,4 +1,5 @@
 // -*- C++ -*-
+
 //=============================================================================
 /**
  *  @file    IOStream.h
@@ -9,16 +10,21 @@
  *  @author Jim Crossley <jim@lads.com>
  */
 //=============================================================================
+
 #ifndef ACE_IOSTREAM_H
 #define ACE_IOSTREAM_H
 #include /**/ "ace/pre.h"
+
 #include /**/ "ace/ACE_export.h"
+
 #if !defined (ACE_LACKS_PRAGMA_ONCE)
 # pragma once
 #endif /* ACE_LACKS_PRAGMA_ONCE */
+
 // Needed on Windows for streambuf
 // FUZZ: disable check_for_streams_include
 #include "ace/streams.h"
+
 // This is a temporary restriction - ACE_IOStream is only enabled if the
 // compiler does not supply the standard C++ library (and standard iostreams)
 // or, if it does, the platform is explicitly set to use old iostreams
@@ -29,7 +35,9 @@
 #    define ACE_LACKS_ACE_IOSTREAM
 #  endif /* !ACE_USES_OLD_IOSTREAMS && !ACE_LACKS_ACE_IOSTREAM */
 #endif /* ACE_HAS_STANDARD_CPP_LIBRARY */
+
 #if !defined (ACE_LACKS_ACE_IOSTREAM)
+
 #  if defined (ACE_HAS_STRING_CLASS)
 #    if defined (ACE_WIN32) && defined (_MSC_VER)
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
@@ -43,6 +51,7 @@ typedef String ACE_IOStream_String;
 ACE_END_VERSIONED_NAMESPACE_DECL
 #      else
 #        include /**/ <string>
+
 #        if defined(ACE_USES_STD_NAMESPACE_FOR_STDCPP_LIB)
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 typedef std::string ACE_IOStream_String;
@@ -54,6 +63,7 @@ ACE_END_VERSIONED_NAMESPACE_DECL
 #        endif /* ACE_USES_STD_NAMESPACE_FOR_STDCPP_LIB */
 #      endif /* ! ACE_HAS_STDCPP_STL_INCLUDES */
 #    endif /* ACE_WIN32 && defined (_MSC_VER) */
+
 #    if defined (__DECCXX_VER)
 #      if __DECCXX_VER < 50700000
 #        include /**/ <stl_macros>
@@ -61,7 +71,9 @@ ACE_END_VERSIONED_NAMESPACE_DECL
 #        include /**/ <stdcomp>
 #      endif /* __DECCXX_VER < 50700000 */
 #    endif /* __DECCXX_VER */
+
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
+
 class ACE_Export ACE_Quoted_String : public ACE_IOStream_String
 {
 public:
@@ -85,11 +97,16 @@ public:
   inline int length (void) { return this->GetLength (); }
 #    endif /* ACE_WIN32 && defined (_MSC_VER) */
 };
+
 ACE_END_VERSIONED_NAMESPACE_DECL
+
 #  endif /* ACE_HAS_STRING_CLASS */
+
 #  include "ace/Time_Value.h"
 #  include "ace/os_include/sys/os_types.h"
+
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
+
 /**
  * @class ACE_Streambuf
  *
@@ -145,6 +162,7 @@ ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 class ACE_Export ACE_Streambuf : public streambuf
 {
 public:
+
   /**
    * If the default allocation strategey were used the common buffer
    * would be deleted when the object destructs.  Since we are
@@ -152,8 +170,10 @@ public:
    * their memory.
    */
   virtual ~ACE_Streambuf (void);
+
   /// Get the current Time_Value pointer and provide a new one.
   ACE_Time_Value *recv_timeout (ACE_Time_Value *tv = 0);
+
   /**
    * Use this to allocate a new/different buffer for put operations.
    * If you do not provide a buffer pointer, one will be allocated.
@@ -166,9 +186,11 @@ public:
   char *reset_put_buffer (char *newBuffer = 0,
                           u_int _streambuf_size = 0,
                           u_int _pptr = 0 );
+
   /// Return the number of bytes to be 'put' onto the stream media.
   ///    pbase + put_avail = pptr
   u_int put_avail (void);
+
   /**
    * Use this to allocate a new/different buffer for get operations.
    * If you do not provide a buffer pointer, one will be allocated.
@@ -182,31 +204,41 @@ public:
                           u_int _streambuf_size = 0,
                           u_int _gptr = 0,
                           u_int _egptr = 0);
+
   /// Return the number of bytes not yet gotten.  eback + get_waiting =
   /// gptr
   u_int get_waiting (void);
+
   /// Return the number of bytes in the get area (includes some already
   /// gotten); eback + get_avail = egptr
   u_int get_avail (void);
+
   /// Query the streambuf for the size of its buffers.
   u_int streambuf_size (void);
+
   /// Did we take an error because of an IO operation timeout?
   /// @note Invoking this resets the flag.
   u_char timeout (void);
+
 protected:
   ACE_Streambuf (u_int streambuf_size,
                  int io_mode);
+
   /// Sync both input and output. See syncin/syncout below for
   /// descriptions.
   virtual int sync (void);
+
   // = Signatures for the underflow/overflow discussed above.
   virtual int underflow (void);
+
   /// The overflow function receives the character which caused the
   /// overflow.
   virtual int overflow (int c = EOF);
+
   /// Resets the <base> pointer and streambuf mode.  This is used
   /// internally when get/put buffers are allocatd.
   void reset_base (void);
+
 protected:
   // = Two pointer sets for manipulating the read/write areas.
   char *eback_saved_;
@@ -215,23 +247,30 @@ protected:
   char *pbase_saved_;
   char *pptr_saved_;
   char *epptr_saved_;
+
   // = With cur_mode_ we keep track of our current IO mode.
+
   // This helps us to optimize the underflow/overflow functions.
   u_char cur_mode_;
   const u_char get_mode_;
   const u_char put_mode_;
+
   /// mode tells us if we're working for an istream, ostream, or
   /// iostream.
   int mode_;
+
   /// This defines the size of the input and output buffers.  It can be
   /// set by the object constructor.
   const u_int streambuf_size_;
+
   /// Did we take an error because of an IO operation timeout?
   u_char timeout_;
+
   /// We want to allow the user to provide Time_Value pointers to
   /// prevent infinite blocking while waiting to receive data.
   ACE_Time_Value recv_timeout_value_;
   ACE_Time_Value *recv_timeout_;
+
   /**
    * syncin is called when the input needs to be synced with the
    * source file.  In a filebuf, this results in the <seek> system
@@ -242,18 +281,22 @@ protected:
    * call.
    */
   int syncin (void);
+
   /// syncout is called when the output needs to be flushed.  This is
   /// easily done by calling the peer's send_n function.
   int syncout (void);
+
   /// flushbuf is the worker of syncout.  It is a separate function
   /// because it gets used sometimes in different context.
   int flushbuf (void);
+
   /**
    * fillbuf is called in a couple of places.  This is the worker of
    * underflow.  It will attempt to fill the read buffer from the
    * peer.
    */
   int fillbuf (void);
+
   /**
    * Used by fillbuf and others to get exactly one byte from the peer.
    * recv_n is used to be sure we block until something is available.
@@ -261,6 +304,7 @@ protected:
    * datagram-derived objects.
    */
   virtual int get_one_byte (void);
+
   /**
    * Stream connections and "unconnected connections" (ie --
    * datagrams) need to work just a little differently.  We derive
@@ -280,7 +324,9 @@ protected:
                           ssize_t len,
                           int flags = 0,
                           ACE_Time_Value *tv = 0) = 0;
+
   virtual ACE_HANDLE get_handle (void);
+
 #  if defined (ACE_HAS_STANDARD_CPP_LIBRARY) && (ACE_HAS_STANDARD_CPP_LIBRARY != 0) && !defined (ACE_USES_OLD_IOSTREAMS)
   char *base (void) const
     {
@@ -292,22 +338,28 @@ protected:
     {
       return cur_mode_ == 0 ? 0 : base () + streambuf_size_;
     }
+
   int blen (void) const
     {
       return streambuf_size_;
     }
+
   void setb (char* b, char* eb, int /* a */=0)
     {
       setbuf (b, (eb - b));
     }
+
   int out_waiting (void)
     {
       return pptr () - pbase ();
     }
 #  endif /* ACE_HAS_STANDARD_CPP_LIBRARY */
 };
+
 ACE_END_VERSIONED_NAMESPACE_DECL
+
 ///////////////////////////////////////////////////////////////////////////
+
 // These typedefs are provided by G++ (on some systems?) without the
 // trailing '_'.  Since we can't count on 'em, I've defined them to
 // what GNU wants here.
@@ -315,13 +367,16 @@ ACE_END_VERSIONED_NAMESPACE_DECL
 typedef ios& (*__manip_)(ios&);
 typedef istream& (*__imanip_)(istream&);
 typedef ostream& (*__omanip_)(ostream&);
+
 // Trying to do something like is shown below instead of using the
 // __*manip typedefs causes Linux do segfault when "<<endl" is done.
 //
 //        virtual MT& operator<<(ios& (*func)(ios&))  { (*func)(*this); return *this; }
+
 // This macro defines the get operator for class MT into datatype DT.
 // We will use it below to quickly override most (all?)  iostream get
 // operators.  Notice how the <ipfx> and <isfx> functions are used.
+
 #define GET_SIG(MT,DT)          inline virtual MT& operator>> (DT v)
 #  if (defined (__SUNPRO_CC) && __SUNPRO_CC > 0x510)
 #define GET_CODE {                      \
@@ -344,9 +399,11 @@ typedef ostream& (*__omanip_)(ostream&);
 #  endif
 #define GET_PROT(MT,DT,CODE)    GET_SIG(MT,DT)  CODE
 #define GET_FUNC(MT,DT)         GET_PROT(MT,DT,GET_CODE)
+
 // This macro defines the put operator for class MT into datatype DT.
 // We will use it below to quickly override most (all?)  iostream put
 // operators.  Notice how the <opfx> and <osfx> functions are used.
+
 #define PUT_SIG(MT,DT)          inline virtual MT& operator<< (DT v)
 #  if (defined (__SUNPRO_CC) && __SUNPRO_CC > 0x510)
 #define PUT_CODE {                      \
@@ -370,8 +427,10 @@ typedef ostream& (*__omanip_)(ostream&);
 #define PUT_PROT(MT,DT,CODE)    PUT_SIG(MT,DT)  CODE
 #define PUT_FUNC(MT,DT)         PUT_PROT(MT,DT,PUT_CODE)
 
+
 // These are necessary in case somebody wants to derive from us and
 // override one of these with a custom approach.
+
 #  if defined (ACE_LACKS_CHAR_RIGHT_SHIFTS)
 #define GET_FUNC_SET0(MT,CODE,CODE2) \
         GET_PROT(MT,short &,CODE) \
@@ -401,6 +460,7 @@ typedef ostream& (*__omanip_)(ostream&);
         inline virtual MT& operator>>(__omanip_ func) CODE2 \
         inline virtual MT& operator>>(__manip_ func)  CODE2
 #  endif
+
 #define PUT_FUNC_SET0(MT,CODE,CODE2) \
         PUT_PROT(MT,short,CODE) \
         PUT_PROT(MT,u_short,CODE) \
@@ -417,6 +477,7 @@ typedef ostream& (*__omanip_)(ostream&);
         PUT_PROT(MT,void *,CODE) \
         inline virtual MT& operator<<(__omanip_ func) CODE2 \
         inline virtual MT& operator<<(__manip_ func)  CODE2
+
 #  if defined (ACE_LACKS_SIGNED_CHAR)
   #define GET_FUNC_SET1(MT,CODE,CODE2) GET_FUNC_SET0(MT,CODE,CODE2)
   #define PUT_FUNC_SET1(MT,CODE,CODE2) PUT_FUNC_SET0(MT,CODE,CODE2)
@@ -425,22 +486,28 @@ typedef ostream& (*__omanip_)(ostream&);
           GET_PROT(MT,signed char &,CODE) \
           GET_PROT(MT,signed char *,CODE) \
           GET_FUNC_SET0(MT,CODE,CODE2)
+
   #define PUT_FUNC_SET1(MT,CODE,CODE2) \
           PUT_FUNC(MT,signed char) \
           PUT_FUNC(MT,const signed char *) \
           PUT_FUNC_SET0(MT,CODE,CODE2)
 #  endif /* ACE_LACKS_SIGNED_CHAR */
+
 #define GET_MANIP_CODE  { if (ipfx ()) { (*func) (*this); } isfx (); return *this; }
 #define PUT_MANIP_CODE  { if (opfx ()) { (*func) (*this); } osfx (); return *this; }
+
 #define GET_FUNC_SET(MT)        GET_FUNC_SET1(MT,GET_CODE,GET_MANIP_CODE)
 #define PUT_FUNC_SET(MT)        PUT_FUNC_SET1(MT,PUT_CODE,PUT_MANIP_CODE)
 #define GETPUT_FUNC_SET(MT)     GET_FUNC_SET(MT) PUT_FUNC_SET(MT)
+
 #define GET_SIG_SET(MT)         GET_FUNC_SET1(MT,= 0;,= 0;)
 #define PUT_SIG_SET(MT)         PUT_FUNC_SET1(MT,= 0;,= 0;)
 #define GETPUT_SIG_SET(MT)      GET_SIG_SET(MT) PUT_SIG_SET(MT)
+
 // Include the templates here.
 #  include "ace/IOStream_T.h"
 #endif /* !ACE_LACKS_ACE_IOSTREAM && ACE_USES_OLD_IOSTREAMS */
+
 #include /**/ "ace/post.h"
 #endif /* ACE_IOSTREAM_H */
 

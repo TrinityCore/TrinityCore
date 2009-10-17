@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
+
 #ifdef MULTI_THREAD_MAP
 #include <omp.h>
 #endif
@@ -35,26 +36,34 @@
 #include "Corpse.h"
 #include "ObjectMgr.h"
 #include "Language.h"
+
 #define CLASS_LOCK MaNGOS::ClassLevelLockable<MapManager, ACE_Thread_Mutex>
 INSTANTIATE_SINGLETON_2(MapManager, CLASS_LOCK);
 INSTANTIATE_CLASS_MUTEX(MapManager, ACE_Thread_Mutex);
+
 extern GridState* si_GridStates[];                          // debugging code, should be deleted some day
+
 MapManager::MapManager() : i_gridCleanUpDelay(sWorld.getConfig(CONFIG_INTERVAL_GRIDCLEAN))
 {
     i_timer.SetInterval(sWorld.getConfig(CONFIG_INTERVAL_MAPUPDATE));
 }
+
 MapManager::~MapManager()
 {
     for(MapMapType::iterator iter=i_maps.begin(); iter != i_maps.end(); ++iter)
         delete iter->second;
+
     for(TransportSet::iterator i = m_Transports.begin(); i != m_Transports.end(); ++i)
         delete *i;
+
     Map::DeleteStateMachine();
 }
+
 void
 MapManager::Initialize()
 {
     Map::InitStateMachine();
+
     // debugging code, should be deleted some day
     {
         for(int i=0;i<MAX_GRID_STATE; i++)
@@ -63,13 +72,16 @@ MapManager::Initialize()
         }
         i_GridStateErrorCount = 0;
     }
+
     InitMaxInstanceId();
 }
+
 void MapManager::InitializeVisibilityDistanceInfo()
 {
     for(MapMapType::iterator iter=i_maps.begin(); iter != i_maps.end(); ++iter)
         (*iter).second->InitVisibilityDistance();
 }
+
 // debugging code, should be deleted some day
 void MapManager::checkAndCorrectGridStatesArray()
 {
@@ -96,13 +108,16 @@ void MapManager::checkAndCorrectGridStatesArray()
     if(i_GridStateErrorCount > 2)
         assert(false);                                      // force a crash. Too many errors
 }
+
 Map*
 MapManager::_createBaseMap(uint32 id)
 {
     Map *m = _findMap(id);
+
     if( m == NULL )
     {
         Guard guard(*this);
+
         const MapEntry* entry = sMapStore.LookupEntry(id);
         if (entry && entry->Instanceable())
         {
@@ -118,26 +133,34 @@ MapManager::_createBaseMap(uint32 id)
         }
         i_maps[id] = m;
     }
+
     assert(m != NULL);
     return m;
 }
+
 Map* MapManager::CreateMap(uint32 id, const WorldObject* obj, uint32 instanceId)
 {
     ASSERT(obj);
     //if(!obj->IsInWorld()) sLog.outError("GetMap: called for map %d with object (typeid %d, guid %d, mapid %d, instanceid %d) who is not in world!", id, obj->GetTypeId(), obj->GetGUIDLow(), obj->GetMapId(), obj->GetInstanceId());
     Map *m = _createBaseMap(id);
+
     if (m && (obj->GetTypeId() == TYPEID_PLAYER) && m->Instanceable()) m = ((MapInstanced*)m)->CreateInstance(id, (Player*)obj, instanceId);
+
     return m;
 }
+
 Map* MapManager::FindMap(uint32 mapid, uint32 instanceId) const
 {
     Map *map = _findMap(mapid);
     if(!map)
         return NULL;
+
     if(!map->Instanceable())
         return instanceId == 0 ? map : NULL;
+
     return ((MapInstanced*)map)->FindMap(instanceId);
 }
+
 /*
     checks that do not require a map to be created
     will send transfer error messages on fail
@@ -147,6 +170,7 @@ bool MapManager::CanPlayerEnter(uint32 mapid, Player* player)
     const MapEntry *entry = sMapStore.LookupEntry(mapid);
     if(!entry) return false;
     const char *mapName = entry->name[player->GetSession()->GetSessionDbcLocale()];
+
     if(entry->map_type == MAP_INSTANCE || entry->map_type == MAP_RAID)
     {
         if (entry->map_type == MAP_RAID)
@@ -166,6 +190,7 @@ bool MapManager::CanPlayerEnter(uint32 mapid, Player* player)
                 }
             }
         }
+
         //The player has a heroic mode and tries to enter into instance which has no a heroic mode
         if (!entry->SupportsHeroicMode() && player->GetDifficulty() == DIFFICULTY_HEROIC)
         {
@@ -173,6 +198,7 @@ bool MapManager::CanPlayerEnter(uint32 mapid, Player* player)
             player->SendTransferAborted(mapid, TRANSFER_ABORT_DIFFICULTY, DIFFICULTY_HEROIC);
             return false;
         }
+
         if (!player->isAlive())
         {
             if(Corpse *corpse = player->GetCorpse())
@@ -183,10 +209,12 @@ bool MapManager::CanPlayerEnter(uint32 mapid, Player* player)
                 {
                     if(instance_map==mapid)
                         break;
+
                     InstanceTemplate const* instance = objmgr.GetInstanceTemplate(instance_map);
                     instance_map = instance ? instance->parent : 0;
                 }
                 while (instance_map);
+
                 if (!instance_map)
                 {
                     player->GetSession()->SendAreaTriggerMessage(player->GetSession()->GetTrinityString(811), mapName);
@@ -200,29 +228,35 @@ bool MapManager::CanPlayerEnter(uint32 mapid, Player* player)
                 sLog.outDebug("Map::CanEnter - player '%s' is dead but doesn't have a corpse!", player->GetName());
             }
         }
+
         // Requirements
         InstanceTemplate const* instance = objmgr.GetInstanceTemplate(mapid);
         if(!instance)
             return false;
+
         return player->Satisfy(objmgr.GetAccessRequirement(instance->access_id), mapid, true);
     }
     else
         return true;
 }
+
 void MapManager::RemoveBonesFromMap(uint32 mapid, uint64 guid, float x, float y)
 {
     bool remove_result = _createBaseMap(mapid)->RemoveBones(guid, x, y);
+
     if (!remove_result)
     {
         sLog.outDebug("Bones %u not found in world. Delete from DB also.", GUID_LOPART(guid));
     }
 }
+
 void
 MapManager::Update(uint32 diff)
 {
     i_timer.Update(diff);
     if( !i_timer.Passed() )
         return;
+
 #ifdef MULTI_THREAD_MAP
     uint32 i=0;
     MapMapType::iterator iter;
@@ -249,15 +283,19 @@ MapManager::Update(uint32 diff)
         sWorld.RecordTimeDiff("UpdateMap %u", iter->second->GetId());
     }
 #endif
+
     for(MapMapType::iterator iter = i_maps.begin(); iter != i_maps.end(); ++iter)
         iter->second->DelayedUpdate(i_timer.GetCurrent());
+
     ObjectAccessor::Instance().Update(i_timer.GetCurrent());
     sWorld.RecordTimeDiff("UpdateObjectAccessor");
     for (TransportSet::iterator iter = m_Transports.begin(); iter != m_Transports.end(); ++iter)
         (*iter)->Update(i_timer.GetCurrent());
     sWorld.RecordTimeDiff("UpdateTransports");
+
     i_timer.SetCurrent(0);
 }
+
 void MapManager::DoDelayedMovesAndRemoves()
 {
     /*
@@ -266,38 +304,48 @@ void MapManager::DoDelayedMovesAndRemoves()
     MapMapType::iterator iter;
     for(iter = i_maps.begin();iter != i_maps.end(); ++iter, i++)
     update_queue[i] = iter->second;
+
     omp_set_num_threads(sWorld.getConfig(CONFIG_NUMTHREADS));
+    
 #pragma omp parallel for schedule(dynamic) private(i) shared(update_queue)
     for(i=0;i<i_maps.size();i++)
     update_queue[i]->DoDelayedMovesAndRemoves();
     */
 }
+
 bool MapManager::ExistMapAndVMap(uint32 mapid, float x,float y)
 {
     GridPair p = Trinity::ComputeGridPair(x,y);
+
     int gx=63-p.x_coord;
     int gy=63-p.y_coord;
+
     return Map::ExistMap(mapid,gx,gy) && Map::ExistVMap(mapid,gx,gy);
 }
+
 bool MapManager::IsValidMAP(uint32 mapid)
 {
     MapEntry const* mEntry = sMapStore.LookupEntry(mapid);
     return mEntry && (!mEntry->IsDungeon() || objmgr.GetInstanceTemplate(mapid));
     // TODO: add check for battleground template
 }
+
 void MapManager::UnloadAll()
 {
     for(MapMapType::iterator iter=i_maps.begin(); iter != i_maps.end(); ++iter)
         iter->second->UnloadAll();
+
     while(!i_maps.empty())
     {
         delete i_maps.begin()->second;
         i_maps.erase(i_maps.begin());
     }
 }
+
 void MapManager::InitMaxInstanceId()
 {
     i_MaxInstanceId = 0;
+
     QueryResult *result = CharacterDatabase.Query( "SELECT MAX(id) FROM instance" );
     if( result )
     {
@@ -305,6 +353,7 @@ void MapManager::InitMaxInstanceId()
         delete result;
     }
 }
+
 uint32 MapManager::GetNumInstances()
 {
     uint32 ret = 0;
@@ -318,6 +367,7 @@ uint32 MapManager::GetNumInstances()
     }
     return ret;
 }
+
 uint32 MapManager::GetNumPlayersInInstances()
 {
     uint32 ret = 0;

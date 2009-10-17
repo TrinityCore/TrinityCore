@@ -17,14 +17,18 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
+
 #ifndef TRINITY_OBJECTREGISTRY_H
 #define TRINITY_OBJECTREGISTRY_H
+
 #include "Platform/Define.h"
 #include "Utilities/UnorderedMap.h"
 #include "Policies/Singleton.h"
+
 #include <string>
 #include <vector>
 #include <map>
+
 /** ObjectRegistry holds all registry item of the same type
  */
 template<class T, class Key = std::string>
@@ -32,12 +36,14 @@ class TRINITY_DLL_DECL ObjectRegistry
 {
     public:
         typedef std::map<Key, T *> RegistryMapType;
+
         /// Returns a registry item
         const T* GetRegistryItem(Key key) const
         {
             typename RegistryMapType::const_iterator iter = i_registeredObjects.find(key);
             return( iter == i_registeredObjects.end() ? NULL : iter->second );
         }
+
         /// Inserts a registry item
         bool InsertItem(T *obj, Key key, bool override = false)
         {
@@ -49,9 +55,11 @@ class TRINITY_DLL_DECL ObjectRegistry
                 delete iter->second;
                 i_registeredObjects.erase(iter);
             }
+
             i_registeredObjects[key] = obj;
             return true;
         }
+
         /// Removes a registry item
         void RemoveItem(Key key, bool delete_object = true)
         {
@@ -63,11 +71,13 @@ class TRINITY_DLL_DECL ObjectRegistry
                 i_registeredObjects.erase(iter);
             }
         }
+
         /// Returns true if registry contains an item
         bool HasItem(Key key) const
         {
             return (i_registeredObjects.find(key) != i_registeredObjects.end());
         }
+
         /// Inefficiently return a vector of registered items
         unsigned int GetRegisteredItems(std::vector<Key> &l) const
         {
@@ -77,14 +87,17 @@ class TRINITY_DLL_DECL ObjectRegistry
                 l[sz++] = iter->first;
             return i_registeredObjects.size();
         }
+
         /// Return the map of registered items
         RegistryMapType const &GetRegisteredItems() const
         {
             return i_registeredObjects;
         }
+
     private:
         RegistryMapType i_registeredObjects;
         friend class Trinity::OperatorNew<ObjectRegistry<T, Key> >;
+
         // protected for friend use since it should be a singleton
         ObjectRegistry() {}
         ~ObjectRegistry()

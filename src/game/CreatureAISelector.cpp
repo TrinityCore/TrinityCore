@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
+
 #include "Creature.h"
 #include "CreatureAISelector.h"
 #include "PassiveAI.h"
@@ -26,24 +27,30 @@
 #include "Pet.h"
 #include "TemporarySummon.h"
 #include "CreatureAIFactory.h"
+
 INSTANTIATE_SINGLETON_1(CreatureAIRegistry);
 INSTANTIATE_SINGLETON_1(MovementGeneratorRegistry);
+
 namespace FactorySelector
 {
     CreatureAI* selectAI(Creature *creature)
     {
         const CreatureAICreator *ai_factory = NULL;
         CreatureAIRegistry &ai_registry(CreatureAIRepository::Instance());
+
         if(creature->isPet())
             ai_factory = ai_registry.GetRegistryItem("PetAI");
+
         //scriptname in db
         if(!ai_factory)
             if(CreatureAI* scriptedAI = Script->GetAI(creature))
                 return scriptedAI;
+
         // AIname in db
         std::string ainame=creature->GetAIName();
         if(!ai_factory && !ainame.empty())
             ai_factory = ai_registry.GetRegistryItem( ainame.c_str() );
+
         // select by NPC flags
         if(!ai_factory)
         {
@@ -67,6 +74,7 @@ namespace FactorySelector
             else if(creature->GetCreatureType() == CREATURE_TYPE_CRITTER && !creature->HasUnitTypeMask(UNIT_MASK_GUARDIAN))
                 ai_factory = ai_registry.GetRegistryItem("CritterAI");
         }
+
         if(!ai_factory)
         {
             for(uint32 i = 0; i < CREATURE_MAX_SPELLS; ++i)
@@ -78,6 +86,7 @@ namespace FactorySelector
                 }
             }
         }
+
         // select by permit check
         if(!ai_factory)
         {
@@ -97,16 +106,20 @@ namespace FactorySelector
                 }
             }
         }
+
         // select NullCreatureAI if not another cases
         ainame = (ai_factory == NULL) ? "NullCreatureAI" : ai_factory->key();
+
         DEBUG_LOG("Creature %u used AI is %s.", creature->GetGUIDLow(), ainame.c_str() );
         return ( ai_factory == NULL ? new NullCreatureAI(creature) : ai_factory->Create(creature) );
     }
+
     MovementGenerator* selectMovementGenerator(Creature *creature)
     {
         MovementGeneratorRegistry &mv_registry(MovementGeneratorRepository::Instance());
         assert( creature->GetCreatureInfo() != NULL );
         const MovementGeneratorCreator *mv_factory = mv_registry.GetRegistryItem( creature->GetDefaultMovementType());
+
         /* if( mv_factory == NULL  )
         {
             int best_val = -1;
@@ -125,7 +138,9 @@ namespace FactorySelector
             }
             }
         }*/
+
         return ( mv_factory == NULL ? NULL : mv_factory->Create(creature) );
+
     }
 }
 

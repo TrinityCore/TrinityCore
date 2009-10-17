@@ -1,10 +1,13 @@
 /* -*- C -*- */
 // $Id: config-posix-nonetworking.h 80826 2008-03-04 14:51:23Z wotte $
+
 /* The following configuration file is designed to work for RTEMS
    platforms using GNU C.
 */
+
 #ifndef ACE_CONFIG_POSIX_NONETWORKING_H
 #define ACE_CONFIG_POSIX_NONETWORKING_H
+
 // Missing header files
 # define ACE_LACKS_SYS_UIO_H
 # define ACE_LACKS_SYS_SOCKET_H
@@ -18,6 +21,7 @@
 # define ACE_LACKS_MEMORY_H
 # define ACE_LACKS_SYS_SYSCTL_H
 # define ACE_LACKS_NETINET_TCP_H
+
 // Missing types
 # define ACE_LACKS_IOVEC
 # define ACE_LACKS_IN_ADDR
@@ -31,6 +35,7 @@
 # define ACE_LACKS_IFREQ
 # define ACE_LACKS_IFCONF
 # define ACE_LACKS_LINGER
+
 // Missing methods
 # define ACE_LACKS_GETHOSTBYADDR
 # define ACE_LACKS_GETHOSTBYNAME
@@ -70,10 +75,13 @@
 # define ACE_LACKS_WRITEV
 # define ACE_LACKS_SOCKETPAIR
 # undef ACE_HAS_MSG
+
 // Missing OS features
 # define ACE_LACKS_UNIX_SYSLOG
 # define ACE_LACKS_TCP_NODELAY
+
 // Missing ACE features
 # define ACE_DISABLE_NOTIFY_PIPE_DEFAULT 1
+
 #endif /* ACE_CONFIG_POSIX_NONETWORKING_H */
 

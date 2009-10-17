@@ -15,22 +15,30 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
+
 #ifndef MANGOS_DBCSTORES_H
 #define MANGOS_DBCSTORES_H
+
 #include "Common.h"
 #include "Database/DBCStore.h"
 #include "DBCStructure.h"
+
 #include <list>
+
 typedef std::list<uint32> SimpleFactionsList;
+
 SimpleFactionsList const* GetFactionTeamList(uint32 faction, bool &isTeamMember);
 char* GetPetName(uint32 petfamily, uint32 dbclang);
 uint32 GetTalentSpellCost(uint32 spellId);
 TalentSpellPos const* GetTalentSpellPos(uint32 spellId);
+
 int32 GetAreaFlagByAreaID(uint32 area_id);                  // -1 if not found
 AreaTableEntry const* GetAreaEntryByAreaID(uint32 area_id);
 AreaTableEntry const* GetAreaEntryByAreaFlagAndMap(uint32 area_flag,uint32 map_id);
 uint32 GetAreaFlagByMapId(uint32 mapid);
+
 uint32 GetVirtualMapForMapAndZone(uint32 mapid, uint32 zoneId);
+
 enum ContentLevels
 {
     CONTENT_1_60 = 0,
@@ -38,11 +46,16 @@ enum ContentLevels
     CONTENT_71_80
 };
 ContentLevels GetContentLevelsForMapAndZone(uint32 mapid, uint32 zoneId);
+
 ChatChannelsEntry const* GetChannelEntryFor(uint32 channel_id);
+
 bool IsTotemCategoryCompatiableWith(uint32 itemTotemCategoryId, uint32 requiredTotemCategoryId);
+
 void Zone2MapCoordinates(float& x,float& y,uint32 zone);
 void Map2ZoneCoordinates(float& x,float& y,uint32 zone);
+
 uint32 const* /*[3]*/ GetTalentTabPages(uint32 cls);
+
 extern DBCStorage <AchievementEntry>             sAchievementStore;
 extern DBCStorage <AchievementCriteriaEntry>     sAchievementCriteriaStore;
 extern DBCStorage <AreaTableEntry>               sAreaStore;// recommend access using functions
@@ -74,6 +87,7 @@ extern DBCStorage <GameObjectDisplayInfoEntry>   sGameObjectDisplayInfoStore;
 extern DBCStorage <GemPropertiesEntry>           sGemPropertiesStore;
 extern DBCStorage <GlyphPropertiesEntry>         sGlyphPropertiesStore;
 extern DBCStorage <GlyphSlotEntry>               sGlyphSlotStore;
+
 extern DBCStorage <GtBarberShopCostBaseEntry>    sGtBarberShopCostBaseStore;
 extern DBCStorage <GtCombatRatingsEntry>         sGtCombatRatingsStore;
 extern DBCStorage <GtChanceToMeleeCritBaseEntry> sGtChanceToMeleeCritBaseStore;
@@ -132,7 +146,9 @@ extern DBCStorage <VehicleSeatEntry>             sVehicleSeatStore;
 //extern DBCStorage <WorldMapAreaEntry>           sWorldMapAreaStore; -- use Zone2MapCoordinates and Map2ZoneCoordinates
 extern DBCStorage <WorldMapOverlayEntry>         sWorldMapOverlayStore;
 extern DBCStorage <WorldSafeLocsEntry>           sWorldSafeLocsStore;
+
 void LoadDBCStores(const std::string& dataPath);
+
 // script support functions
 TRINITY_DLL_SPEC DBCStorage <SoundEntriesEntry>          const* GetSoundEntriesStore();
 TRINITY_DLL_SPEC DBCStorage <SpellEntry>                 const* GetSpellStore();

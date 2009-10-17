@@ -1,19 +1,26 @@
 // $Id: SOCK_Connector.cpp 80826 2008-03-04 14:51:23Z wotte $
+
 #include "ace/SOCK_Connector.h"
 #include "ace/INET_Addr.h"
 #include "ace/Log_Msg.h"
 #include "ace/OS_NS_unistd.h"
 #include "ace/OS_NS_sys_socket.h"
 #include "ace/os_include/os_fcntl.h"
+
 #if !defined (ACE_HAS_WINCE)
 #include "ace/OS_QoS.h"
 #endif  // ACE_HAS_WINCE
+
 #if !defined (__ACE_INLINE__)
 #include "ace/SOCK_Connector.inl"
 #endif /* __ACE_INLINE__ */
+
 ACE_RCSID(ace, SOCK_Connector, "$Id: SOCK_Connector.cpp 80826 2008-03-04 14:51:23Z wotte $")
+
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
+
 ACE_ALLOC_HOOK_DEFINE(ACE_SOCK_Connector)
+
 void
 ACE_SOCK_Connector::dump (void) const
 {
@@ -21,6 +28,7 @@ ACE_SOCK_Connector::dump (void) const
   ACE_TRACE ("ACE_SOCK_Connector::dump");
 #endif /* ACE_HAS_DUMP */
 }
+
 int
 ACE_SOCK_Connector::shared_open (ACE_SOCK_Stream &new_stream,
                                  int protocol_family,
@@ -28,6 +36,7 @@ ACE_SOCK_Connector::shared_open (ACE_SOCK_Stream &new_stream,
                                  int reuse_addr)
 {
   ACE_TRACE ("ACE_SOCK_Connector::shared_open");
+
   // Only open a new socket if we don't already have a valid handle.
   if (new_stream.get_handle () == ACE_INVALID_HANDLE
       && new_stream.open (SOCK_STREAM,
@@ -38,6 +47,7 @@ ACE_SOCK_Connector::shared_open (ACE_SOCK_Stream &new_stream,
   else
     return 0;
 }
+
 int
 ACE_SOCK_Connector::shared_open (ACE_SOCK_Stream &new_stream,
                                  int protocol_family,
@@ -48,6 +58,7 @@ ACE_SOCK_Connector::shared_open (ACE_SOCK_Stream &new_stream,
                                  int reuse_addr)
 {
   ACE_TRACE ("ACE_SOCK_Connector::shared_open");
+
   // Only open a new socket if we don't already have a valid handle.
   if (new_stream.get_handle () == ACE_INVALID_HANDLE
       && new_stream.open (SOCK_STREAM,
@@ -61,16 +72,19 @@ ACE_SOCK_Connector::shared_open (ACE_SOCK_Stream &new_stream,
   else
     return 0;
 }
+
 int
 ACE_SOCK_Connector::shared_connect_start (ACE_SOCK_Stream &new_stream,
                                           const ACE_Time_Value *timeout,
                                           const ACE_Addr &local_sap)
 {
   ACE_TRACE ("ACE_SOCK_Connector::shared_connect_start");
+
   if (local_sap != ACE_Addr::sap_any)
     {
       sockaddr *laddr = reinterpret_cast<sockaddr *> (local_sap.get_addr ());
       int size = local_sap.get_size ();
+
       if (ACE_OS::bind (new_stream.get_handle (),
                         laddr,
                         size) == -1)
@@ -81,6 +95,7 @@ ACE_SOCK_Connector::shared_connect_start (ACE_SOCK_Stream &new_stream,
           return -1;
         }
     }
+
   // Enable non-blocking, if required.
   if (timeout != 0
       && new_stream.enable (ACE_NONBLOCK) == -1)
@@ -88,6 +103,7 @@ ACE_SOCK_Connector::shared_connect_start (ACE_SOCK_Stream &new_stream,
   else
     return 0;
 }
+
 int
 ACE_SOCK_Connector::shared_connect_finish (ACE_SOCK_Stream &new_stream,
                                            const ACE_Time_Value *timeout,
@@ -96,6 +112,7 @@ ACE_SOCK_Connector::shared_connect_finish (ACE_SOCK_Stream &new_stream,
   ACE_TRACE ("ACE_SOCK_Connector::shared_connect_finish");
   // Save/restore errno.
   ACE_Errno_Guard error (errno);
+
   if (result == -1 && timeout != 0)
     {
       // Check whether the connection is in progress.
@@ -143,6 +160,7 @@ ACE_SOCK_Connector::shared_connect_finish (ACE_SOCK_Stream &new_stream,
             return 0;
         }
     }
+
   // EISCONN is treated specially since this routine may be used to
   // check if we are already connected.
   if (result != -1 || error == EISCONN)
@@ -150,9 +168,12 @@ ACE_SOCK_Connector::shared_connect_finish (ACE_SOCK_Stream &new_stream,
     new_stream.disable (ACE_NONBLOCK);
   else if (!(error == EWOULDBLOCK || error == ETIMEDOUT))
     new_stream.close ();
+
   return result;
 }
+
 // Actively connect and produce a new ACE_SOCK_Stream if things go well...
+
 int
 ACE_SOCK_Connector::connect (ACE_SOCK_Stream &new_stream,
                              const ACE_Addr &remote_sap,
@@ -164,6 +185,7 @@ ACE_SOCK_Connector::connect (ACE_SOCK_Stream &new_stream,
                              int protocol)
 {
   ACE_TRACE ("ACE_SOCK_Connector::connect");
+
   if (this->shared_open (new_stream,
                          remote_sap.get_type (),
                          protocol,
@@ -173,13 +195,16 @@ ACE_SOCK_Connector::connect (ACE_SOCK_Stream &new_stream,
                                        timeout,
                                        local_sap) == -1)
     return -1;
+
   int result = ACE_OS::connect (new_stream.get_handle (),
                                 reinterpret_cast<sockaddr *> (remote_sap.get_addr ()),
                                 remote_sap.get_size ());
+
   return this->shared_connect_finish (new_stream,
                                       timeout,
                                       result);
 }
+
 #if !defined (ACE_HAS_WINCE)
 int
 ACE_SOCK_Connector::connect (ACE_SOCK_Stream &new_stream,
@@ -194,6 +219,7 @@ ACE_SOCK_Connector::connect (ACE_SOCK_Stream &new_stream,
                              int /* perms */)
 {
   ACE_TRACE ("ACE_SOCK_Connector::connect");
+
   if (this->shared_open (new_stream,
                          remote_sap.get_type (),
                          0,
@@ -206,16 +232,20 @@ ACE_SOCK_Connector::connect (ACE_SOCK_Stream &new_stream,
                                        timeout,
                                        local_sap) == -1)
     return -1;
+
   int result = ACE_OS::connect (new_stream.get_handle (),
                                 reinterpret_cast<sockaddr *> (remote_sap.get_addr ()),
                                 remote_sap.get_size (),
                                 qos_params);
+
   return this->shared_connect_finish (new_stream,
                                       timeout,
                                       result);
 }
 #endif  // ACE_HAS_WINCE
+
 // Try to complete a non-blocking connection.
+
 int
 ACE_SOCK_Connector::complete (ACE_SOCK_Stream &new_stream,
                               ACE_Addr *remote_sap,
@@ -247,6 +277,7 @@ ACE_SOCK_Connector::complete (ACE_SOCK_Stream &new_stream,
         }
 #endif /* ACE_WIN32 */
     }
+
   if (remote_sap != 0)
     {
       int len = remote_sap->get_size ();
@@ -261,10 +292,12 @@ ACE_SOCK_Connector::complete (ACE_SOCK_Stream &new_stream,
           return -1;
         }
     }
+
   // Start out with non-blocking disabled on the <new_stream>.
   new_stream.disable (ACE_NONBLOCK);
   return 0;
 }
+
 ACE_SOCK_Connector::ACE_SOCK_Connector (ACE_SOCK_Stream &new_stream,
                                         const ACE_Addr &remote_sap,
                                         const ACE_Time_Value *timeout,
@@ -275,6 +308,7 @@ ACE_SOCK_Connector::ACE_SOCK_Connector (ACE_SOCK_Stream &new_stream,
                                         int protocol)
 {
   ACE_TRACE ("ACE_SOCK_Connector::ACE_SOCK_Connector");
+
   if (this->connect (new_stream,
                      remote_sap,
                      timeout,
@@ -289,6 +323,7 @@ ACE_SOCK_Connector::ACE_SOCK_Connector (ACE_SOCK_Stream &new_stream,
                 ACE_TEXT ("%p\n"),
                 ACE_TEXT ("ACE_SOCK_Connector::ACE_SOCK_Connector")));
 }
+
 #if !defined (ACE_HAS_WINCE)
 ACE_SOCK_Connector::ACE_SOCK_Connector (ACE_SOCK_Stream &new_stream,
                                         const ACE_Addr &remote_sap,
@@ -302,6 +337,7 @@ ACE_SOCK_Connector::ACE_SOCK_Connector (ACE_SOCK_Stream &new_stream,
                                         int perms)
 {
   ACE_TRACE ("ACE_SOCK_Connector::ACE_SOCK_Connector");
+
   if (this->connect (new_stream,
                      remote_sap,
                      qos_params,
@@ -319,5 +355,6 @@ ACE_SOCK_Connector::ACE_SOCK_Connector (ACE_SOCK_Stream &new_stream,
                 ACE_TEXT ("ACE_SOCK_Connector::ACE_SOCK_Connector")));
 }
 #endif  // ACE_HAS_WINCE
+
 ACE_END_VERSIONED_NAMESPACE_DECL
 

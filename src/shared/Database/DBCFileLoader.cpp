@@ -17,42 +17,59 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
 #include "DBCFileLoader.h"
+
 DBCFileLoader::DBCFileLoader()
 {
     data = NULL;
     fieldsOffset = NULL;
 }
+
 bool DBCFileLoader::Load(const char *filename, const char *fmt)
 {
+
     uint32 header;
     if(data)
     {
         delete [] data;
         data=NULL;
     }
+
     FILE * f=fopen(filename,"rb");
     if(!f)return false;
+
     if(fread(&header,4,1,f)!=1)                             // Number of records
         return false;
+
     EndianConvert(header);
     if(header!=0x43424457)
         return false;                                       //'WDBC'
+
     if(fread(&recordCount,4,1,f)!=1)                        // Number of records
         return false;
+
     EndianConvert(recordCount);
+
     if(fread(&fieldCount,4,1,f)!=1)                         // Number of fields
         return false;
+
     EndianConvert(fieldCount);
+
     if(fread(&recordSize,4,1,f)!=1)                         // Size of a record
         return false;
+
     EndianConvert(recordSize);
+
     if(fread(&stringSize,4,1,f)!=1)                         // String size
         return false;
+
     EndianConvert(stringSize);
+
     fieldsOffset = new uint32[fieldCount];
     fieldsOffset[0] = 0;
     for(uint32 i = 1; i < fieldCount; i++)
@@ -63,13 +80,17 @@ bool DBCFileLoader::Load(const char *filename, const char *fmt)
         else                                                // 4 byte fields (int32/float/strings)
             fieldsOffset[i] += 4;
     }
+
     data = new unsigned char[recordSize*recordCount+stringSize];
     stringTable = data + recordSize*recordCount;
+
     if(fread(data,recordSize*recordCount+stringSize,1,f)!=1)
         return false;
+
     fclose(f);
     return true;
 }
+
 DBCFileLoader::~DBCFileLoader()
 {
     if(data)
@@ -77,11 +98,13 @@ DBCFileLoader::~DBCFileLoader()
     if(fieldsOffset)
         delete [] fieldsOffset;
 }
+
 DBCFileLoader::Record DBCFileLoader::getRecord(size_t id)
 {
     assert(data);
     return Record(*this, data + id*recordSize);
 }
+
 uint32 DBCFileLoader::GetFormatRecordSize(const char * format,int32* index_pos)
 {
     uint32 recordsize = 0;
@@ -107,10 +130,13 @@ uint32 DBCFileLoader::GetFormatRecordSize(const char * format,int32* index_pos)
                 recordsize += 1;
                 break;
         }
+
     if(index_pos)
         *index_pos = i;
+
     return recordsize;
 }
+
 char* DBCFileLoader::AutoProduceData(const char* format, uint32& records, char**& indexTable, uint32 sqlRecordCount, uint32 sqlHighestIndex, char *& sqlDataTable)
 {
     /*
@@ -120,14 +146,18 @@ char* DBCFileLoader::AutoProduceData(const char* format, uint32& records, char**
     float field1,
     int field2
     }entry;
+
     this func will generate  entry[rows] data;
     */
+
     typedef char * ptr;
     if(strlen(format)!=fieldCount)
         return NULL;
+
     //get struct size and index pos
     int32 i;
     uint32 recordsize=GetFormatRecordSize(format,&i);
+
     if(i>=0)
     {
         uint32 maxi=0;
@@ -137,9 +167,11 @@ char* DBCFileLoader::AutoProduceData(const char* format, uint32& records, char**
             uint32 ind=getRecord(y).getUInt (i);
             if(ind>maxi)maxi=ind;
         }
+
         // If higher index avalible from sql - use it instead of dbcs
         if (sqlHighestIndex > maxi)
             maxi = sqlHighestIndex;
+
         ++maxi;
         records=maxi;
         indexTable=new ptr[maxi];
@@ -150,8 +182,11 @@ char* DBCFileLoader::AutoProduceData(const char* format, uint32& records, char**
         records = recordCount + sqlRecordCount;
         indexTable = new ptr[recordCount+ sqlRecordCount];
     }
+
     char* dataTable= new char[(recordCount + sqlRecordCount)*recordsize];
+
     uint32 offset=0;
+
     for(uint32 y =0;y<recordCount;++y)
     {
         if(i>=0)
@@ -160,6 +195,7 @@ char* DBCFileLoader::AutoProduceData(const char* format, uint32& records, char**
         }
         else
             indexTable[y]=&dataTable[offset];
+
         for(uint32 x=0;x<fieldCount;x++)
         {
             switch(format[x])
@@ -185,15 +221,20 @@ char* DBCFileLoader::AutoProduceData(const char* format, uint32& records, char**
         }
     }
     sqlDataTable = dataTable + offset;
+
     return dataTable;
 }
+
 char* DBCFileLoader::AutoProduceStrings(const char* format, char* dataTable)
 {
     if(strlen(format)!=fieldCount)
         return NULL;
+
     char* stringPool= new char[stringSize];
     memcpy(stringPool,stringTable,stringSize);
+
     uint32 offset=0;
+
     for(uint32 y =0;y<recordCount;y++)
     {
         for(uint32 x=0;x<fieldCount;x++)
@@ -219,6 +260,7 @@ char* DBCFileLoader::AutoProduceStrings(const char* format, char* dataTable)
                 break;
         }
     }
+
     return stringPool;
 }
 

@@ -1,4 +1,5 @@
 // -*- C++ -*-
+
 //=============================================================================
 /**
  *  @file    os_if.h
@@ -11,13 +12,18 @@
  *  @author This code was originally in various places including ace/OS.h.
  */
 //=============================================================================
+
 #ifndef ACE_OS_INCLUDE_NET_OS_IF_H
 #define ACE_OS_INCLUDE_NET_OS_IF_H
+
 #include /**/ "ace/pre.h"
+
 #include /**/ "ace/config-all.h"
+
 #if !defined (ACE_LACKS_PRAGMA_ONCE)
 # pragma once
 #endif /* ACE_LACKS_PRAGMA_ONCE */
+
 #if !defined (ACE_LACKS_NET_IF_H)
    // This part if to avoid STL name conflict with the map structure
    // in net/if.h.
@@ -37,17 +43,21 @@
 #    undef IOR
 #  endif /* HPUX && IOR */
 #endif /* !ACE_LACKS_NET_IF_H */
+
 #if defined (ACE_HAS_WINSOCK2) && (ACE_HAS_WINSOCK2 != 0)
 #  include /**/ <ws2tcpip.h>
 #endif /* ACE_HAS_WINSOCK2 */
+
 // Place all additions (especially function declarations) within extern "C" {}
 #ifdef __cplusplus
 extern "C"
 {
 #endif /* __cplusplus */
+
 #if defined (ACE_HAS_BROKEN_IF_HEADER)
    struct ifafilt;
 #endif /* ACE_HAS_BROKEN_IF_HEADER */
+
 #if defined (ACE_LACKS_IFREQ)
 struct  ifreq {
 #define IFNAMSIZ        16
@@ -76,6 +86,7 @@ struct  ifreq {
 #define ifr_tap         ifr_ifru.ifru_tap       /* tap function */
 };
 #endif /* ACE_LACKS_IFREQ */
+
 #if defined (ACE_LACKS_IFCONF)
 struct  ifconf {
         int     ifc_len;
@@ -87,18 +98,23 @@ struct  ifconf {
 #define ifc_req ifc_ifcu.ifcu_req       /* array of structures returned */
         };
 #endif /* ACE_LACKS_IFCONF */
+
 #if !defined (IFF_UP)
 # define IFF_UP 0x1
 #endif /* IFF_UP */
+
 #if !defined (IFF_LOOPBACK)
 # define IFF_LOOPBACK 0x8
 #endif /* IFF_LOOPBACK */
+
 #if !defined (IFF_BROADCAST)
 # define IFF_BROADCAST 0x2
 #endif /* IFF_BROADCAST */
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
+
 #include /**/ "ace/post.h"
 #endif /* ACE_OS_INCLUDE_NET_OS_IF_H */
 

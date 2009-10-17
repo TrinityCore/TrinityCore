@@ -13,14 +13,17 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
+
 /* ScriptData
 SDName: Boss_Warlord_Najentus
 SD%Complete: 95
 SDComment:
 SDCategory: Black Temple
 EndScriptData */
+
 #include "precompiled.h"
 #include "def_black_temple.h"
+
 enum eEnums
 {
     SAY_AGGRO                       = -1564000,
@@ -33,6 +36,7 @@ enum eEnums
     SAY_ENRAGE1                     = -1564007,           //is this text actually in use?
     SAY_ENRAGE2                     = -1564008,
     SAY_DEATH                       = -1564009,
+
     //Spells
     SPELL_NEEDLE_SPINE              = 39992,
     SPELL_TIDAL_BURST               = 39878,
@@ -41,42 +45,55 @@ enum eEnums
     SPELL_CREATE_NAJENTUS_SPINE     = 39956,
     SPELL_HURL_SPINE                = 39948,
     SPELL_BERSERK                   = 26662,
+
     GOBJECT_SPINE                   = 185584,
+
     EVENT_BERSERK                   = 1,
     EVENT_YELL                      = 2,
     EVENT_NEEDLE                    = 3,
     EVENT_SPINE                     = 4,
     EVENT_SHIELD                    = 5,
+
     GCD_CAST                        = 1,
     GCD_YELL                        = 2
 };
+
 struct TRINITY_DLL_DECL boss_najentusAI : public ScriptedAI
 {
     boss_najentusAI(Creature *c) : ScriptedAI(c)
     {
         pInstance = c->GetInstanceData();
     }
+
     ScriptedInstance* pInstance;
     EventMap events;
+
     uint64 SpineTargetGUID;
+
     void Reset()
     {
         events.Reset();
+
         SpineTargetGUID = 0;
+
         if (pInstance)
             pInstance->SetData(DATA_HIGHWARLORDNAJENTUSEVENT, NOT_STARTED);
     }
+
     void KilledUnit(Unit *victim)
     {
         DoScriptText(rand()%2 ? SAY_SLAY1 : SAY_SLAY2, m_creature);
         events.DelayEvents(5000, GCD_YELL);
     }
+
     void JustDied(Unit *victim)
     {
         if (pInstance)
             pInstance->SetData(DATA_HIGHWARLORDNAJENTUSEVENT, DONE);
+
         DoScriptText(SAY_DEATH, m_creature);
     }
+
     void SpellHit(Unit *caster, const SpellEntry *spell)
     {
         if (spell->Id == SPELL_HURL_SPINE && m_creature->HasAura(SPELL_TIDAL_SHIELD))
@@ -86,16 +103,19 @@ struct TRINITY_DLL_DECL boss_najentusAI : public ScriptedAI
             ResetTimer();
         }
     }
+
     void EnterCombat(Unit *who)
     {
         if (pInstance)
             pInstance->SetData(DATA_HIGHWARLORDNAJENTUSEVENT, IN_PROGRESS);
+
         DoScriptText(SAY_AGGRO, m_creature);
         DoZoneInCombat();
         events.ScheduleEvent(EVENT_BERSERK, 480000, GCD_CAST);
         events.ScheduleEvent(EVENT_YELL, 45000 + (rand()%76)*1000, GCD_YELL);
         ResetTimer();
     }
+
     bool RemoveImpalingSpine()
     {
         if (!SpineTargetGUID) return false;
@@ -105,17 +125,21 @@ struct TRINITY_DLL_DECL boss_najentusAI : public ScriptedAI
         SpineTargetGUID=0;
         return true;
     }
+
     void ResetTimer(uint32 inc = 0)
     {
         events.RescheduleEvent(EVENT_NEEDLE, 10000 + inc, GCD_CAST);
         events.RescheduleEvent(EVENT_SPINE, 20000 + inc, GCD_CAST);
         events.RescheduleEvent(EVENT_SHIELD, 60000 + inc);
     }
+
     void UpdateAI(const uint32 diff)
     {
         if (!UpdateVictim())
             return;
+
         events.Update(diff);
+
         while(uint32 eventId = events.ExecuteEvent())
         {
             switch(eventId)
@@ -151,7 +175,7 @@ struct TRINITY_DLL_DECL boss_najentusAI : public ScriptedAI
                     //m_creature->CastSpell(m_creature, SPELL_NEEDLE_SPINE, true);
                     std::list<Unit*> target;
                     SelectTargetList(target, 3, SELECT_TARGET_RANDOM, 80, true);
-                    for (std::list<Unit*>::iterator i = target.begin(); i != target.end(); ++i)
+                    for(std::list<Unit*>::iterator i = target.begin(); i != target.end(); ++i)
                         m_creature->CastSpell(*i, 39835, true);
                     events.ScheduleEvent(EVENT_NEEDLE, 15000+rand()%10000, GCD_CAST);
                     events.DelayEvents(1500, GCD_CAST);
@@ -164,9 +188,11 @@ struct TRINITY_DLL_DECL boss_najentusAI : public ScriptedAI
                     break;
             }
         }
+
         DoMeleeAttackIfReady();
     }
 };
+
 bool GOHello_go_najentus_spine(Player* pPlayer, GameObject* pGo)
 {
     if (ScriptedInstance* pInstance = pGo->GetInstanceData())
@@ -178,10 +204,12 @@ bool GOHello_go_najentus_spine(Player* pPlayer, GameObject* pGo)
             }
     return true;
 }
+
 CreatureAI* GetAI_boss_najentus(Creature* pCreature)
 {
     return new boss_najentusAI (pCreature);
 }
+
 void AddSC_boss_najentus()
 {
     Script *newscript;
@@ -189,6 +217,7 @@ void AddSC_boss_najentus()
     newscript->Name = "boss_najentus";
     newscript->GetAI = &GetAI_boss_najentus;
     newscript->RegisterSelf();
+
     newscript = new Script;
     newscript->Name = "go_najentus_spine";
     newscript->pGOHello = &GOHello_go_najentus_spine;

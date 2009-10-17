@@ -17,22 +17,27 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
+
 #ifndef TRINITYCORE_ITEM_H
 #define TRINITYCORE_ITEM_H
+
 #include "Common.h"
 #include "Object.h"
 #include "LootMgr.h"
 #include "ItemPrototype.h"
+
 struct SpellEntry;
 class Bag;
 class QueryResult;
 class Unit;
+
 struct ItemSetEffect
 {
     uint32 setid;
     uint32 item_count;
     SpellEntry const *spells[8];
 };
+
 enum InventoryChangeFailure
 {
     EQUIP_ERR_OK                                 = 0,
@@ -120,6 +125,7 @@ enum InventoryChangeFailure
     // no output                                 = 83,
     // crash client                              = 84,
 };
+
 enum BuyFailure
 {
     BUY_ERR_CANT_FIND_ITEM                      = 0,
@@ -132,6 +138,7 @@ enum BuyFailure
     BUY_ERR_RANK_REQUIRE                        = 11,
     BUY_ERR_REPUTATION_REQUIRE                  = 12
 };
+
 enum SellFailure
 {
     SELL_ERR_CANT_FIND_ITEM                      = 1,
@@ -141,6 +148,7 @@ enum SellFailure
     SELL_ERR_UNK                                 = 5,       // nothing appears...
     SELL_ERR_ONLY_EMPTY_BAG                      = 6        // can only do with empty bags
 };
+
 // -1 from client enchantment slot number
 enum EnchantmentSlot
 {
@@ -152,6 +160,7 @@ enum EnchantmentSlot
     BONUS_ENCHANTMENT_SLOT          = 5,
     PRISMATIC_ENCHANTMENT_SLOT      = 6,                    // added at apply special permanent enchantment
     MAX_INSPECTED_ENCHANTMENT_SLOT  = 7,
+
     PROP_ENCHANTMENT_SLOT_0         = 7,                    // used with RandomSuffix
     PROP_ENCHANTMENT_SLOT_1         = 8,                    // used with RandomSuffix
     PROP_ENCHANTMENT_SLOT_2         = 9,                    // used with RandomSuffix and RandomProperty
@@ -159,15 +168,20 @@ enum EnchantmentSlot
     PROP_ENCHANTMENT_SLOT_4         = 11,                   // used with RandomProperty
     MAX_ENCHANTMENT_SLOT            = 12
 };
+
 #define MAX_VISIBLE_ITEM_OFFSET       2                     // 2 fields per visible item (entry+enchantment)
+
 #define MAX_GEM_SOCKETS               MAX_ITEM_PROTO_SOCKETS// (BONUS_ENCHANTMENT_SLOT-SOCK_ENCHANTMENT_SLOT) and item proto size, equal value expected
+
 enum EnchantmentOffset
 {
     ENCHANTMENT_ID_OFFSET       = 0,
     ENCHANTMENT_DURATION_OFFSET = 1,
     ENCHANTMENT_CHARGES_OFFSET  = 2                         // now here not only charges, but something new in wotlk
 };
+
 #define MAX_ENCHANTMENT_OFFSET    3
+
 enum EnchantmentSlotMask
 {
     ENCHANTMENT_CAN_SOULBOUND  = 0x01,
@@ -175,6 +189,7 @@ enum EnchantmentSlotMask
     ENCHANTMENT_UNK2           = 0x04,
     ENCHANTMENT_UNK3           = 0x08
 };
+
 enum ItemUpdateState
 {
     ITEM_UNCHANGED                               = 0,
@@ -182,32 +197,43 @@ enum ItemUpdateState
     ITEM_NEW                                     = 2,
     ITEM_REMOVED                                 = 3
 };
+
 enum ItemRequiredTargetType
 {
     ITEM_TARGET_TYPE_CREATURE   = 1,
     ITEM_TARGET_TYPE_DEAD       = 2
 };
+
 #define MAX_ITEM_REQ_TARGET_TYPE 2
+
 struct ItemRequiredTarget
 {
     ItemRequiredTarget(ItemRequiredTargetType uiType, uint32 uiTargetEntry) : m_uiType(uiType), m_uiTargetEntry(uiTargetEntry) {}
     ItemRequiredTargetType m_uiType;
     uint32 m_uiTargetEntry;
+
     // helpers
     bool IsFitToRequirements(Unit* pUnitTarget) const;
 };
+
 bool ItemCanGoIntoBag(ItemPrototype const *proto, ItemPrototype const *pBagProto);
+
 class TRINITY_DLL_SPEC Item : public Object
 {
     public:
         static Item* CreateItem( uint32 item, uint32 count, Player const* player = NULL );
         Item* CloneItem( uint32 count, Player const* player = NULL ) const;
+
         Item ( );
+
         virtual bool Create( uint32 guidlow, uint32 itemid, Player const* owner);
+
         ItemPrototype const* GetProto() const;
+
         uint64 const& GetOwnerGUID()    const { return GetUInt64Value(ITEM_FIELD_OWNER); }
         void SetOwnerGUID(uint64 guid) { SetUInt64Value(ITEM_FIELD_OWNER, guid); }
         Player* GetOwner()const;
+
         void SetBinding(bool val) { ApplyModFlag(ITEM_FIELD_FLAGS,ITEM_FLAGS_BINDED,val); }
         bool IsSoulBound() const { return HasFlag(ITEM_FIELD_FLAGS, ITEM_FLAGS_BINDED); }
         bool IsBoundAccountWide() const { return HasFlag(ITEM_FIELD_FLAGS, ITEM_FLAGS_BOA); }
@@ -217,30 +243,37 @@ class TRINITY_DLL_SPEC Item : public Object
         virtual bool LoadFromDB(uint32 guid, uint64 owner_guid, QueryResult *result = NULL);
         virtual void DeleteFromDB();
         void DeleteFromInventoryDB();
+
         bool IsBag() const { return GetProto()->InventoryType == INVTYPE_BAG; }
         bool IsBroken() const { return GetUInt32Value(ITEM_FIELD_MAXDURABILITY) > 0 && GetUInt32Value(ITEM_FIELD_DURABILITY) == 0; }
         bool CanBeTraded(bool mail = false) const;
         void SetInTrade(bool b = true) { mb_in_trade = b; }
         bool IsInTrade() const { return mb_in_trade; }
+
         bool IsFitToSpellRequirements(SpellEntry const* spellInfo) const;
         bool IsTargetValidForItemUse(Unit* pUnitTarget);
         bool IsLimitedToAnotherMapOrZone( uint32 cur_mapId, uint32 cur_zoneId) const;
         bool GemsFitSockets() const;
+
         uint32 GetCount() const { return GetUInt32Value (ITEM_FIELD_STACK_COUNT); }
         void SetCount(uint32 value) { SetUInt32Value (ITEM_FIELD_STACK_COUNT, value); }
         uint32 GetMaxStackCount() const { return GetProto()->GetMaxStackSize(); }
         uint8 GetGemCountWithID(uint32 GemID) const;
         uint8 GetGemCountWithLimitCategory(uint32 limitCategory) const;
+
         uint8 GetSlot() const {return m_slot;}
         Bag *GetContainer() { return m_container; }
         uint8 GetBagSlot() const;
         void SetSlot(uint8 slot) {m_slot = slot;}
         uint16 GetPos() const { return uint16(GetBagSlot()) << 8 | GetSlot(); }
         void SetContainer(Bag *container) { m_container = container; }
+
         bool IsInBag() const { return m_container != NULL; }
         bool IsEquipped() const;
+
         uint32 GetSkill();
         uint32 GetSpell();
+
         // RandomPropertyId (signed but stored as unsigned)
         int32 GetItemRandomPropertyId() const { return GetInt32Value(ITEM_FIELD_RANDOM_PROPERTIES_ID); }
         uint32 GetItemSuffixFactor() const { return GetUInt32Value(ITEM_FIELD_PROPERTY_SEED); }
@@ -254,13 +287,17 @@ class TRINITY_DLL_SPEC Item : public Object
         uint32 GetEnchantmentId(EnchantmentSlot slot)       const { return GetUInt32Value(ITEM_FIELD_ENCHANTMENT_1_1 + slot*MAX_ENCHANTMENT_OFFSET + ENCHANTMENT_ID_OFFSET);}
         uint32 GetEnchantmentDuration(EnchantmentSlot slot) const { return GetUInt32Value(ITEM_FIELD_ENCHANTMENT_1_1 + slot*MAX_ENCHANTMENT_OFFSET + ENCHANTMENT_DURATION_OFFSET);}
         uint32 GetEnchantmentCharges(EnchantmentSlot slot)  const { return GetUInt32Value(ITEM_FIELD_ENCHANTMENT_1_1 + slot*MAX_ENCHANTMENT_OFFSET + ENCHANTMENT_CHARGES_OFFSET);}
+
         void SendTimeUpdate(Player* owner);
         void UpdateDuration(Player* owner, uint32 diff);
+
         // spell charges (signed but stored as unsigned)
         int32 GetSpellCharges(uint8 index/*0..5*/ = 0) const { return GetInt32Value(ITEM_FIELD_SPELL_CHARGES + index); }
         void  SetSpellCharges(uint8 index/*0..5*/, int32 value) { SetInt32Value(ITEM_FIELD_SPELL_CHARGES + index,value); }
+
         Loot loot;
         bool m_lootGenerated;
+
         // Update States
         ItemUpdateState GetState() const { return uState; }
         void SetState(ItemUpdateState state, Player *forplayer = NULL);
@@ -272,12 +309,14 @@ class TRINITY_DLL_SPEC Item : public Object
         {
             uState = state;
         }
+
         bool hasQuest(uint32 quest_id) const { return GetProto()->StartQuest == quest_id; }
         bool hasInvolvedQuest(uint32 /*quest_id*/) const { return false; }
         bool IsPotion() const { return GetProto()->IsPotion(); }
         bool IsWeaponVellum() const { return GetProto()->IsWeaponVellum(); }
         bool IsArmorVellum() const { return GetProto()->IsArmorVellum(); }
         bool IsConjuredConsumable() const { return GetProto()->IsConjuredConsumable(); }
+
     private:
         uint8 m_slot;
         Bag *m_container;

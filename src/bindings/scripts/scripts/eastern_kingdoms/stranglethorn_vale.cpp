@@ -13,32 +13,40 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
+
 /* ScriptData
 SDName: Stranglethorn_Vale
 SD%Complete: 100
 SDComment: Quest support: 592
 SDCategory: Stranglethorn Vale
 EndScriptData */
+
 /* ContentData
 mob_yenniku
 EndContentData */
+
 #include "precompiled.h"
+
 /*######
 ## mob_yenniku
 ######*/
+
 struct TRINITY_DLL_DECL mob_yennikuAI : public ScriptedAI
 {
     mob_yennikuAI(Creature *c) : ScriptedAI(c)
     {
         bReset = false;
     }
+
     uint32 Reset_Timer;
     bool bReset;
+
     void Reset()
     {
         Reset_Timer = 0;
         m_creature->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_NONE);
     }
+
     void SpellHit(Unit *caster, const SpellEntry *spell)
     {
         if (caster->GetTypeId() == TYPEID_PLAYER)
@@ -50,13 +58,16 @@ struct TRINITY_DLL_DECL mob_yennikuAI : public ScriptedAI
                 m_creature->CombatStop();                   //stop combat
                 m_creature->DeleteThreatList();             //unsure of this
                 m_creature->setFaction(83);                 //horde generic
+
                 bReset = true;
                 Reset_Timer = 60000;
             }
         }
         return;
     }
+
     void EnterCombat(Unit *who) {}
+
     void UpdateAI(const uint32 diff)
     {
         if (bReset)
@@ -69,6 +80,7 @@ struct TRINITY_DLL_DECL mob_yennikuAI : public ScriptedAI
                 return;
             }
             else Reset_Timer -= diff;
+
             if (m_creature->isInCombat() && m_creature->getVictim())
             {
                 if (m_creature->getVictim()->GetTypeId() == TYPEID_PLAYER)
@@ -82,9 +94,11 @@ struct TRINITY_DLL_DECL mob_yennikuAI : public ScriptedAI
                 }
             }
          }
+
         //Return since we have no target
         if (!UpdateVictim())
             return;
+
         DoMeleeAttackIfReady();
     }
 };
@@ -92,12 +106,15 @@ CreatureAI* GetAI_mob_yenniku(Creature* pCreature)
 {
     return new mob_yennikuAI (pCreature);
 }
+
 /*######
 ##
 ######*/
+
 void AddSC_stranglethorn_vale()
 {
     Script *newscript;
+
     newscript = new Script;
     newscript->Name = "mob_yenniku";
     newscript->GetAI = &GetAI_mob_yenniku;

@@ -5,11 +5,13 @@ SD%Complete:
 SDComment:
 SDCategory:
 Script Data End */
+
 /*** SQL START ***
 update creature_template set scriptname = '' where entry = '';
 *** SQL END ***/
 #include "precompiled.h"
 #include "def_violet_hold.h"
+
 enum Spells
 {
     SPELL_DRAINED                                  = 59820,
@@ -21,6 +23,7 @@ enum Spells
     SPELL_WATER_BOLT_VOLLEY                        = 54241,
     H_SPELL_WATER_BOLT_VOLLEY                      = 59521
 };
+
 //not in db
 enum Yells
 {
@@ -34,24 +37,31 @@ enum Yells
     SAY_SHATTER                                 = -1608025,
     SAY_BUBBLE                                  = -1608026
 };
+
 enum CombatPhase
 {
     BUBBLED,
     SUMMONS,
     DPS
 };
+
 struct TRINITY_DLL_DECL boss_ichoronAI : public ScriptedAI
 {
     boss_ichoronAI(Creature *c) : ScriptedAI(c)
     {
         pInstance = c->GetInstanceData();
     }
+
     CombatPhase Phase;
+
     ScriptedInstance* pInstance;
+
     void Reset()
     {
         Phase = BUBBLED;
+
         DoCast(m_creature, SPELL_PROTECTIVE_BUBBLE);
+
         if (pInstance)
         {
             if (pInstance->GetData(DATA_WAVE_COUNT) == 6)
@@ -63,6 +73,7 @@ struct TRINITY_DLL_DECL boss_ichoronAI : public ScriptedAI
     void EnterCombat(Unit* who)
     {
         DoScriptText(SAY_AGGRO, m_creature);
+
         if (pInstance)
         {
             if (pInstance->GetData(DATA_WAVE_COUNT) == 6)
@@ -71,16 +82,20 @@ struct TRINITY_DLL_DECL boss_ichoronAI : public ScriptedAI
                 pInstance->SetData(DATA_2ND_BOSS_EVENT, IN_PROGRESS);
         }
     }
+
     void UpdateAI(const uint32 diff)
     {
         //Return since we have no target
         if (!UpdateVictim())
             return;
+
         DoMeleeAttackIfReady();
     }
+
     void JustDied(Unit* killer)
     {
         DoScriptText(SAY_DEATH, m_creature);
+
         if (pInstance)
         {
             if (pInstance->GetData(DATA_WAVE_COUNT) == 6)
@@ -95,6 +110,7 @@ struct TRINITY_DLL_DECL boss_ichoronAI : public ScriptedAI
             }
         }
     }
+
     void KilledUnit(Unit *victim)
     {
         if (victim == m_creature)
@@ -102,13 +118,16 @@ struct TRINITY_DLL_DECL boss_ichoronAI : public ScriptedAI
         DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2,SAY_SLAY_3), m_creature);
     }
 };
+
 CreatureAI* GetAI_boss_ichoron(Creature* pCreature)
 {
     return new boss_ichoronAI (pCreature);
 }
+
 void AddSC_boss_ichoron()
 {
     Script *newscript;
+
     newscript = new Script;
     newscript->Name = "boss_ichoron";
     newscript->GetAI = &GetAI_boss_ichoron;

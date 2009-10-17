@@ -13,18 +13,22 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
+
 /* ScriptData
 SDName: Razorfen Kraul
 SD%Complete: 100
 SDComment: Quest support: 1144
 SDCategory: Razorfen Kraul
 EndScriptData */
+
 /* ContentData
 npc_willix
 EndContentData */
+
 #include "precompiled.h"
 #include "escort_ai.h"
 #include "def_razorfen_kraul.h"
+
 #define SAY_READY -1047000
 #define SAY_POINT -10470001
 #define SAY_AGGRO1 -1047002
@@ -36,17 +40,22 @@ EndContentData */
 #define SAY_FINALY -1047008
 #define SAY_WIN -1047009
 #define SAY_END -1047010
+
 #define QUEST_WILLIX_THE_IMPORTER 1144
 #define ENTRY_BOAR 4514
 #define SPELL_QUILLBOAR_CHANNELING 7083
+
 struct TRINITY_DLL_DECL npc_willixAI : public npc_escortAI
 {
     npc_willixAI(Creature *c) : npc_escortAI(c) {}
+
     void WaypointReached(uint32 i)
     {
         Player* pPlayer = GetPlayerForEscort();
+
         if (!pPlayer)
             return;
+
         switch (i)
         {
         case 3:
@@ -90,21 +99,26 @@ struct TRINITY_DLL_DECL npc_willixAI : public npc_escortAI
             break;
         }
     }
+
     void Reset() {}
+
     void EnterCombat(Unit* who)
     {
         DoScriptText(SAY_AGGRO1, m_creature, NULL);
     }
+
     void JustSummoned(Creature* summoned)
     {
         summoned->AI()->AttackStart(m_creature);
     }
+
     void JustDied(Unit* killer)
     {
         if (Player* pPlayer = GetPlayerForEscort())
             CAST_PLR(pPlayer)->FailQuest(QUEST_WILLIX_THE_IMPORTER);
     }
 };
+
 bool QuestAccept_npc_willix(Player* pPlayer, Creature* pCreature, Quest const* quest)
 {
     if (quest->GetQuestId() == QUEST_WILLIX_THE_IMPORTER)
@@ -113,26 +127,33 @@ bool QuestAccept_npc_willix(Player* pPlayer, Creature* pCreature, Quest const* q
         DoScriptText(SAY_READY, pCreature, pPlayer);
         pCreature->setFaction(113);
     }
+
     return true;
 }
+
 struct TRINITY_DLL_DECL npc_deaths_head_ward_keeperAI : public ScriptedAI
 {
     npc_deaths_head_ward_keeperAI(Creature *c) : ScriptedAI(c)
     {
         pInstance = c->GetInstanceData();
     }
+
     ScriptedInstance *pInstance;
     uint32 QuillboarChanneling_Timer;
+
     void Reset()
     {
         QuillboarChanneling_Timer = 1500;
     }
+
     void UpdateAI(const uint32 diff)
     {
         if (!m_creature->isAlive())
             return;
+
         if (pInstance)
             pInstance->SetData(TYPE_WARD_KEEPERS, NOT_STARTED);
+
         if (QuillboarChanneling_Timer < diff)
         {
             if (m_creature->IsNonMeleeSpellCasted(false))
@@ -140,24 +161,30 @@ struct TRINITY_DLL_DECL npc_deaths_head_ward_keeperAI : public ScriptedAI
             DoCast(m_creature, SPELL_QUILLBOAR_CHANNELING);
             QuillboarChanneling_Timer = 1100;
         }else QuillboarChanneling_Timer -= diff;
+
     }
 };
+
 CreatureAI* GetAI_npc_deaths_head_ward_keeper(Creature* pCreature)
 {
     return new npc_deaths_head_ward_keeperAI(pCreature);
 }
+
 CreatureAI* GetAI_npc_willix(Creature* pCreature)
 {
     return new npc_willixAI(pCreature);
 }
+
 void AddSC_razorfen_kraul()
 {
     Script *newscript;
+
     newscript = new Script;
     newscript->Name = "npc_willix";
     newscript->GetAI = &GetAI_npc_willix;
     newscript->pQuestAccept = &QuestAccept_npc_willix;
     newscript->RegisterSelf();
+
     newscript = new Script;
     newscript->Name = "npc_deaths_head_ward_keeper";
     newscript->GetAI = &GetAI_npc_deaths_head_ward_keeper;

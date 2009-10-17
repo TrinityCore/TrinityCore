@@ -15,6 +15,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
+
 #include "OutdoorPvPSI.h"
 #include "WorldPacket.h"
 #include "Player.h"
@@ -24,6 +25,7 @@
 #include "OutdoorPvPMgr.h"
 #include "Language.h"
 #include "World.h"
+
 OutdoorPvPSI::OutdoorPvPSI()
 {
     m_TypeId = OUTDOOR_PVP_SI;
@@ -31,46 +33,54 @@ OutdoorPvPSI::OutdoorPvPSI()
     m_Gathered_H = 0;
     m_LastController = 0;
 }
+
 void OutdoorPvPSI::FillInitialWorldStates(WorldPacket &data)
 {
     data << SI_GATHERED_A << m_Gathered_A;
     data << SI_GATHERED_H << m_Gathered_H;
     data << SI_SILITHYST_MAX << SI_MAX_RESOURCES;
 }
+
 void OutdoorPvPSI::SendRemoveWorldStates(Player *plr)
 {
     plr->SendUpdateWorldState(SI_GATHERED_A,0);
     plr->SendUpdateWorldState(SI_GATHERED_H,0);
     plr->SendUpdateWorldState(SI_SILITHYST_MAX,0);
 }
+
 void OutdoorPvPSI::UpdateWorldState()
 {
     SendUpdateWorldState(SI_GATHERED_A,m_Gathered_A);
     SendUpdateWorldState(SI_GATHERED_H,m_Gathered_H);
     SendUpdateWorldState(SI_SILITHYST_MAX,SI_MAX_RESOURCES);
 }
+
 bool OutdoorPvPSI::SetupOutdoorPvP()
 {
     for(int i = 0; i < OutdoorPvPSIBuffZonesNum; ++i)
         RegisterZone(OutdoorPvPSIBuffZones[i]);
     return true;
 }
+
 bool OutdoorPvPSI::Update(uint32 diff)
 {
     return false;
 }
+
 void OutdoorPvPSI::HandlePlayerEnterZone(Player * plr, uint32 zone)
 {
     if(plr->GetTeam() == m_LastController)
         plr->CastSpell(plr,SI_CENARION_FAVOR,true);
     OutdoorPvP::HandlePlayerEnterZone(plr,zone);
 }
+
 void OutdoorPvPSI::HandlePlayerLeaveZone(Player * plr, uint32 zone)
 {
     // remove buffs
     plr->RemoveAurasDueToSpell(SI_CENARION_FAVOR);
     OutdoorPvP::HandlePlayerLeaveZone(plr, zone);
 }
+
 bool OutdoorPvPSI::HandleAreaTrigger(Player *plr, uint32 trigger)
 {
     switch(trigger)
@@ -128,6 +138,7 @@ bool OutdoorPvPSI::HandleAreaTrigger(Player *plr, uint32 trigger)
     }
     return false;
 }
+
 bool OutdoorPvPSI::HandleDropFlag(Player *plr, uint32 spellId)
 {
     if(spellId == SI_SILITHYST_FLAG)
@@ -151,6 +162,7 @@ bool OutdoorPvPSI::HandleDropFlag(Player *plr, uint32 spellId)
                             delete go;
                             return true;
                         }
+                        
                         if(!go->Create(objmgr.GenerateLowGuid(HIGHGUID_GAMEOBJECT),SI_SILITHYST_MOUND, map, plr->GetPhaseMask(), plr->GetPositionX(),plr->GetPositionY(),plr->GetPositionZ(),plr->GetOrientation(),0,0,0,0,100,GO_STATE_READY))
                         {
                             delete go;
@@ -198,6 +210,7 @@ bool OutdoorPvPSI::HandleDropFlag(Player *plr, uint32 spellId)
     }
     return false;
 }
+
 bool OutdoorPvPSI::HandleCustomSpell(Player *plr, uint32 spellId, GameObject *go)
 {
     if(!go || spellId != SI_SILITHYST_FLAG_GO_SPELL)

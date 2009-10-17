@@ -5,29 +5,35 @@
 **/
 /*
 Copyright (C) 2007  Anders Hedstrom
+
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
 as published by the Free Software Foundation; either version 2
 of the License, or (at your option) any later version.
+
 This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
+
 You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 #include "Ipv6Address.h"
 #ifdef ENABLE_IPV6
+
 #include "Utility.h"
 #include "Parse.h"
 #ifndef _WIN32
 #include <netdb.h>
 #endif
 #ifdef IPPROTO_IPV6
+
 #ifdef SOCKETS_NAMESPACE
 namespace SOCKETS_NAMESPACE {
 #endif
+
 
 Ipv6Address::Ipv6Address(port_t port) : m_valid(true)
 {
@@ -36,6 +42,7 @@ Ipv6Address::Ipv6Address(port_t port) : m_valid(true)
     m_addr.sin6_port = htons( port );
 }
 
+
 Ipv6Address::Ipv6Address(struct in6_addr& a,port_t port) : m_valid(true)
 {
     memset(&m_addr, 0, sizeof(m_addr));
@@ -43,6 +50,7 @@ Ipv6Address::Ipv6Address(struct in6_addr& a,port_t port) : m_valid(true)
     m_addr.sin6_port = htons( port );
     m_addr.sin6_addr = a;
 }
+
 
 Ipv6Address::Ipv6Address(const std::string& host,port_t port) : m_valid(false)
 {
@@ -59,35 +67,42 @@ Ipv6Address::Ipv6Address(const std::string& host,port_t port) : m_valid(false)
     }
 }
 
+
 Ipv6Address::Ipv6Address(struct sockaddr_in6& sa)
 {
     m_addr = sa;
     m_valid = sa.sin6_family == AF_INET6;
 }
 
+
 Ipv6Address::~Ipv6Address()
 {
 }
+
 
 Ipv6Address::operator struct sockaddr *()
 {
     return (struct sockaddr *)&m_addr;
 }
 
+
 Ipv6Address::operator socklen_t()
 {
     return sizeof(struct sockaddr_in6);
 }
+
 
 void Ipv6Address::SetPort(port_t port)
 {
     m_addr.sin6_port = htons( port );
 }
 
+
 port_t Ipv6Address::GetPort()
 {
     return ntohs( m_addr.sin6_port );
 }
+
 
 bool Ipv6Address::Resolve(const std::string& hostname,struct in6_addr& a)
 {
@@ -106,6 +121,7 @@ bool Ipv6Address::Resolve(const std::string& hostname,struct in6_addr& a)
     return true;
 }
 
+
 bool Ipv6Address::Reverse(struct in6_addr& a,std::string& name)
 {
     struct sockaddr_in6 sa;
@@ -115,12 +131,14 @@ bool Ipv6Address::Reverse(struct in6_addr& a,std::string& name)
     return Utility::reverse((struct sockaddr *)&sa, sizeof(sa), name);
 }
 
+
 std::string Ipv6Address::Convert(bool include_port)
 {
     if (include_port)
         return Convert(m_addr.sin6_addr) + ":" + Utility::l2string(GetPort());
     return Convert(m_addr.sin6_addr);
 }
+
 
 std::string Ipv6Address::Convert(struct in6_addr& a,bool mixed)
 {
@@ -169,25 +187,30 @@ std::string Ipv6Address::Convert(struct in6_addr& a,bool mixed)
     return slask;
 }
 
+
 void Ipv6Address::SetAddress(struct sockaddr *sa)
 {
     memcpy(&m_addr, sa, sizeof(struct sockaddr_in6));
 }
+
 
 int Ipv6Address::GetFamily()
 {
     return m_addr.sin6_family;
 }
 
+
 void Ipv6Address::SetFlowinfo(uint32_t x)
 {
     m_addr.sin6_flowinfo = x;
 }
 
+
 uint32_t Ipv6Address::GetFlowinfo()
 {
     return m_addr.sin6_flowinfo;
 }
+
 
 #ifndef _WIN32
 void Ipv6Address::SetScopeId(uint32_t x)
@@ -195,16 +218,19 @@ void Ipv6Address::SetScopeId(uint32_t x)
     m_addr.sin6_scope_id = x;
 }
 
+
 uint32_t Ipv6Address::GetScopeId()
 {
     return m_addr.sin6_scope_id;
 }
 #endif
 
+
 bool Ipv6Address::IsValid()
 {
     return m_valid;
 }
+
 
 bool Ipv6Address::operator==(SocketAddress& a)
 {
@@ -221,10 +247,12 @@ bool Ipv6Address::operator==(SocketAddress& a)
     return true;
 }
 
+
 std::auto_ptr<SocketAddress> Ipv6Address::GetCopy()
 {
     return std::auto_ptr<SocketAddress>(new Ipv6Address(m_addr));
 }
+
 
 std::string Ipv6Address::Reverse()
 {
@@ -233,9 +261,11 @@ std::string Ipv6Address::Reverse()
     return tmp;
 }
 
+
 #ifdef SOCKETS_NAMESPACE
 } // namespace SOCKETS_NAMESPACE {
 #endif
 #endif // IPPROTO_IPV6
 #endif // ENABLE_IPV6
+
 

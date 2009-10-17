@@ -1,4 +1,5 @@
 // -*- C++ -*-
+
 //=============================================================================
 /**
  *  @file   OS_Dirent.h
@@ -10,17 +11,23 @@
  *  @author and a cast of thousands...
  */
 //=============================================================================
+
 #ifndef ACE_OS_DIRENT_H
 #define ACE_OS_DIRENT_H
 #include /**/ "ace/pre.h"
+
 #include /**/ "ace/ACE_export.h"
+
 #if !defined (ACE_LACKS_PRAGMA_ONCE)
 # pragma once
 #endif /* ACE_LACKS_PRAGMA_ONCE */
+
 #include "ace/OS_Errno.h"
 #include "ace/os_include/os_dirent.h"
 #include "ace/os_include/sys/os_types.h"
+
 #include "ace/OS_NS_dirent.h"
+
 #include /**/ "ace/post.h"
 #endif /* ACE_OS_DIRENT_H */
 

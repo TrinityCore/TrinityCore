@@ -17,16 +17,20 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
+
 #ifndef TRINITY_SHAREDDEFINES_H
 #define TRINITY_SHAREDDEFINES_H
+
 #include "Platform/Define.h"
 #include <cassert>
+
 enum Gender
 {
     GENDER_MALE                        = 0,
     GENDER_FEMALE                      = 1,
     GENDER_NONE                        = 2
 };
+
 // Race value is index in ChrRaces.dbc
 enum Races
 {
@@ -52,13 +56,16 @@ enum Races
     //RACE_NORTHREND_SKELETON = 20,
     //RACE_ICE_TROLL      = 21
 };
+
 // max+1 for player race
 #define MAX_RACES         12
+
 #define RACEMASK_ALL_PLAYABLE \
     ((1<<(RACE_HUMAN-1))   |(1<<(RACE_ORC-1))          |(1<<(RACE_DWARF-1))   | \
     (1<<(RACE_NIGHTELF-1))|(1<<(RACE_UNDEAD_PLAYER-1))|(1<<(RACE_TAUREN-1))  | \
     (1<<(RACE_GNOME-1))   |(1<<(RACE_TROLL-1))        |(1<<(RACE_BLOODELF-1))| \
     (1<<(RACE_DRAENEI-1)) )
+
 // Class value is index in ChrClasses.dbc
 enum Classes
 {
@@ -74,16 +81,22 @@ enum Classes
     // CLASS_UNK2       = 10,unused
     CLASS_DRUID         = 11,
 };
+
 // max+1 for player class
 #define MAX_CLASSES       12
+
 #define CLASSMASK_ALL_PLAYABLE \
     ((1<<(CLASS_WARRIOR-1))|(1<<(CLASS_PALADIN-1))|(1<<(CLASS_HUNTER-1))| \
     (1<<(CLASS_ROGUE-1))  |(1<<(CLASS_PRIEST-1)) |(1<<(CLASS_SHAMAN-1))| \
     (1<<(CLASS_MAGE-1))   |(1<<(CLASS_WARLOCK-1))|(1<<(CLASS_DRUID-1)) | \
     (1<<(CLASS_DEATH_KNIGHT-1)) )
+
 #define CLASSMASK_ALL_CREATURES ((1<<(CLASS_WARRIOR-1)) | (1<<(CLASS_PALADIN-1)) | (1<<(CLASS_ROGUE-1)) | (1<<(CLASS_MAGE-1)) )
+
 #define CLASSMASK_WAND_USERS ((1<<(CLASS_PRIEST-1))|(1<<(CLASS_MAGE-1))|(1<<(CLASS_WARLOCK-1)))
+
 #define PLAYER_MAX_BATTLEGROUND_QUEUES 3
+
 enum ReputationRank
 {
     REP_HATED       = 0,
@@ -95,14 +108,17 @@ enum ReputationRank
     REP_REVERED     = 6,
     REP_EXALTED     = 7
 };
+
 #define MIN_REPUTATION_RANK (REP_HATED)
 #define MAX_REPUTATION_RANK 8
+
 enum MoneyConstants
 {
     COPPER = 1,
     SILVER = COPPER*100,
     GOLD   = SILVER*100
 };
+
 enum Stats
 {
     STAT_STRENGTH                      = 0,
@@ -111,7 +127,9 @@ enum Stats
     STAT_INTELLECT                     = 3,
     STAT_SPIRIT                        = 4
 };
+
 #define MAX_STATS                        5
+
 enum Powers
 {
     POWER_MANA                          = 0,
@@ -125,6 +143,7 @@ enum Powers
     POWER_ALL                           = 127,    // default for class?
     POWER_HEALTH                        = 0xFFFFFFFE    // (-2 as signed value)
 };
+
 enum SpellSchools
 {
     SPELL_SCHOOL_NORMAL                 = 0,
@@ -135,7 +154,9 @@ enum SpellSchools
     SPELL_SCHOOL_SHADOW                 = 5,
     SPELL_SCHOOL_ARCANE                 = 6
 };
+
 #define MAX_SPELL_SCHOOL                  7
+
 enum SpellSchoolMask
 {
     SPELL_SCHOOL_MASK_NONE    = 0x00,                       // not exist
@@ -146,23 +167,29 @@ enum SpellSchoolMask
     SPELL_SCHOOL_MASK_FROST   = (1 << SPELL_SCHOOL_FROST ),
     SPELL_SCHOOL_MASK_SHADOW  = (1 << SPELL_SCHOOL_SHADOW),
     SPELL_SCHOOL_MASK_ARCANE  = (1 << SPELL_SCHOOL_ARCANE),
+
     // unions
+
     // 124, not include normal and holy damage
     SPELL_SCHOOL_MASK_SPELL   = ( SPELL_SCHOOL_MASK_FIRE   |
                                   SPELL_SCHOOL_MASK_NATURE | SPELL_SCHOOL_MASK_FROST  |
                                   SPELL_SCHOOL_MASK_SHADOW | SPELL_SCHOOL_MASK_ARCANE ),
     // 126
     SPELL_SCHOOL_MASK_MAGIC   = ( SPELL_SCHOOL_MASK_HOLY | SPELL_SCHOOL_MASK_SPELL ),
+
     // 127
     SPELL_SCHOOL_MASK_ALL     = ( SPELL_SCHOOL_MASK_NORMAL | SPELL_SCHOOL_MASK_MAGIC )
 };
+
 inline SpellSchools GetFirstSchoolInMask(SpellSchoolMask mask)
 {
     for(int i = 0; i < MAX_SPELL_SCHOOL; ++i)
         if(mask & (1 << i))
             return SpellSchools(i);
+
     return SPELL_SCHOOL_NORMAL;
 }
+
 enum ItemQualities
 {
     ITEM_QUALITY_POOR                  = 0,                 //GREY
@@ -174,12 +201,15 @@ enum ItemQualities
     ITEM_QUALITY_ARTIFACT              = 6,                 //LIGHT YELLOW
     ITEM_QUALITY_HEIRLOOM              = 7
 };
+
 #define MAX_ITEM_QUALITY                 8
+
 enum SpellCategory
 {
     SPELL_CATEGORY_FOOD             = 11,
     SPELL_CATEGORY_DRINK            = 59,
 };
+
 const uint32 ItemQualityColors[MAX_ITEM_QUALITY] = {
     0xff9d9d9d,        //GREY
     0xffffffff,        //WHITE
@@ -191,9 +221,11 @@ const uint32 ItemQualityColors[MAX_ITEM_QUALITY] = {
     0xffe6cc80         //LIGHT YELLOW
 };
 
+
 // ***********************************
 // Spell Attributes definitions
 // ***********************************
+
 #define SPELL_ATTR_UNK0                           0x00000001            // 0
 #define SPELL_ATTR_REQ_AMMO                       0x00000002            // 1
 #define SPELL_ATTR_ON_NEXT_SWING                  0x00000004            // 2 on next swing
@@ -226,6 +258,7 @@ const uint32 ItemQualityColors[MAX_ITEM_QUALITY] = {
 #define SPELL_ATTR_UNAFFECTED_BY_INVULNERABILITY  0x20000000            // 29 unaffected by invulnerability (hmm possible not...)
 #define SPELL_ATTR_BREAKABLE_BY_DAMAGE            0x40000000            // 30
 #define SPELL_ATTR_CANT_CANCEL                    0x80000000            // 31 positive aura can't be canceled
+
 #define SPELL_ATTR_EX_DISMISS_PET                 0x00000001            // 0 dismiss pet and not allow to summon new one?
 #define SPELL_ATTR_EX_DRAIN_ALL_POWER             0x00000002            // 1 use all power (Only paladin Lay of Hands and Bunyanize)
 #define SPELL_ATTR_EX_CHANNELED_1                 0x00000004            // 2 channeled target
@@ -258,6 +291,7 @@ const uint32 ItemQualityColors[MAX_ITEM_QUALITY] = {
 #define SPELL_ATTR_EX_UNK29                       0x20000000            // 29
 #define SPELL_ATTR_EX_UNK30                       0x40000000            // 30 overpower
 #define SPELL_ATTR_EX_UNK31                       0x80000000            // 31
+
 #define SPELL_ATTR_EX2_UNK0                       0x00000001            // 0
 #define SPELL_ATTR_EX2_UNK1                       0x00000002            // 1 ? many triggered spells have this flag
 #define SPELL_ATTR_EX2_CANT_REFLECTED             0x00000004            // 2 ? used for detect can or not spell reflected
@@ -290,6 +324,7 @@ const uint32 ItemQualityColors[MAX_ITEM_QUALITY] = {
 #define SPELL_ATTR_EX2_CANT_CRIT                  0x20000000            // 29 Spell can't crit
 #define SPELL_ATTR_EX2_TRIGGERED_CAN_TRIGGER      0x40000000            // 30 spell can trigger even if triggered
 #define SPELL_ATTR_EX2_FOOD_BUFF                  0x80000000            // 31 Food or Drink Buff (like Well Fed)
+
 #define SPELL_ATTR_EX3_UNK0                       0x00000001            // 0
 #define SPELL_ATTR_EX3_UNK1                       0x00000002            // 1
 #define SPELL_ATTR_EX3_UNK2                       0x00000004            // 2
@@ -322,6 +357,7 @@ const uint32 ItemQualityColors[MAX_ITEM_QUALITY] = {
 #define SPELL_ATTR_EX3_UNK29                      0x20000000            // 29
 #define SPELL_ATTR_EX3_UNK30                      0x40000000            // 30
 #define SPELL_ATTR_EX3_UNK31                      0x80000000            // 31
+
 #define SPELL_ATTR_EX4_UNK0                       0x00000001            // 0
 #define SPELL_ATTR_EX4_UNK1                       0x00000002            // 1 proc on finishing move?
 #define SPELL_ATTR_EX4_UNK2                       0x00000004            // 2
@@ -354,6 +390,7 @@ const uint32 ItemQualityColors[MAX_ITEM_QUALITY] = {
 #define SPELL_ATTR_EX4_UNK29                      0x20000000            // 29
 #define SPELL_ATTR_EX4_UNK30                      0x40000000            // 30
 #define SPELL_ATTR_EX4_UNK31                      0x80000000            // 31
+
 #define SPELL_ATTR_EX5_UNK0                       0x00000001            // 0
 #define SPELL_ATTR_EX5_NO_REAGENT_WHILE_PREP      0x00000002            // 1 not need reagents if UNIT_FLAG_PREPARATION
 #define SPELL_ATTR_EX5_UNK2                       0x00000004            // 2
@@ -386,6 +423,7 @@ const uint32 ItemQualityColors[MAX_ITEM_QUALITY] = {
 #define SPELL_ATTR_EX5_UNK29                      0x20000000            // 29
 #define SPELL_ATTR_EX5_UNK30                      0x40000000            // 30
 #define SPELL_ATTR_EX5_UNK31                      0x80000000            // 31 Forces all nearby enemies to focus attacks caster
+
 #define SPELL_ATTR_EX6_UNK0                       0x00000001            // 0 Only Move spell have this flag
 #define SPELL_ATTR_EX6_ONLY_IN_ARENA              0x00000002            // 1 only usable in arena
 #define SPELL_ATTR_EX6_IGNORE_CASTER_AURAS        0x00000004            // 2
@@ -418,11 +456,13 @@ const uint32 ItemQualityColors[MAX_ITEM_QUALITY] = {
 #define SPELL_ATTR_EX6_UNK29                      0x20000000            // 29 not set in 3.0.3
 #define SPELL_ATTR_EX6_UNK30                      0x40000000            // 30 not set in 3.0.3
 #define SPELL_ATTR_EX6_UNK31                      0x80000000            // 31 not set in 3.0.3
+
 #define MIN_TALENT_SPEC         0
 #define MAX_TALENT_SPEC         1
 #define MIN_TALENT_SPECS        1
 #define MAX_TALENT_SPECS        2
 #define MAX_GLYPH_SLOT_INDEX    6
+
 // Custom values
 enum SpellClickUserTypes
 {
@@ -432,9 +472,11 @@ enum SpellClickUserTypes
     SPELL_CLICK_USER_PARTY = 3,
     SPELL_CLICK_USER_MAX = 4
 };
+
 #define NPC_CLICK_CAST_CASTER_PLAYER              0x01
 #define NPC_CLICK_CAST_TARGET_PLAYER              0x02
 #define NPC_CLICK_CAST_ORIG_CASTER_OWNER          0x04
+
 enum SheathTypes
 {
     SHEATHETYPE_NONE                   = 0,
@@ -446,7 +488,9 @@ enum SheathTypes
     SHEATHETYPE_HIPWEAPONRIGHT         = 6,
     SHEATHETYPE_SHIELD                 = 7
 };
+
 #define MAX_SHEATHETYPE                  8
+
 enum CharacterSlot
 {
     SLOT_HEAD                          = 0,
@@ -470,6 +514,7 @@ enum CharacterSlot
     SLOT_TABARD                        = 18,
     SLOT_EMPTY                         = 19
 };
+
 enum Language
 {
     LANG_UNIVERSAL      = 0,
@@ -492,13 +537,16 @@ enum Language
     LANG_GOBLIN_BINARY  = 38,
     LANG_ADDON          = 0xFFFFFFFF                        // used by addons, in 2.4.0 not exit, replaced by messagetype?
 };
+
 #define LANGUAGES_COUNT   19
+
 enum TeamId
 {
     TEAM_ALLIANCE = 0,
     TEAM_HORDE,
     TEAM_NEUTRAL,
 };
+
 enum Team
 {
     HORDE               = 67,
@@ -510,7 +558,9 @@ enum Team
     //TEAM_OUTLAND             = 980,
     TEAM_OTHER               = 0,                         // if ReputationListId > 0 && Flags != FACTION_FLAG_TEAM_HEADER
 };
+
 const Team TeamId2Team[3] = {ALLIANCE, HORDE, TEAM_OTHER};
+
 enum SpellEffects
 {
     SPELL_EFFECT_INSTAKILL                 = 1,
@@ -677,6 +727,7 @@ enum SpellEffects
     SPELL_EFFECT_TALENT_SPEC_SELECT        = 162,
     TOTAL_SPELL_EFFECTS                    = 163
 };
+
 enum SpellCastResult
 {
     SPELL_FAILED_AFFECTING_COMBAT               = 0x00,
@@ -865,8 +916,10 @@ enum SpellCastResult
     SPELL_FAILED_MAX_SOCKETS                    = 0xB7,
     SPELL_FAILED_PET_CAN_RENAME                 = 0xB8,
     SPELL_FAILED_UNKNOWN                        = 0xB9,
+
     SPELL_CAST_OK                               = 0xFF      // custom value, don't must be send to client
 };
+
 // Spell aura states
 enum AuraState
 {   // (C) used in caster aura state     (T) used in target aura state
@@ -898,8 +951,10 @@ enum AuraState
     //AURA_STATE_UNKNOWN22                  = 22,           // C   | not implemented yet (Requires Evasive Charges to use)
     AURA_STATE_HEALTH_ABOVE_75_PERCENT      = 23,           // C   |
 };
+
 #define PER_CASTER_AURA_STATE_MASK ( \
     (1<<(AURA_STATE_CONFLAGRATE-1))|(1<<(AURA_STATE_DEADLY_POISON-1)))
+
 // Spell mechanics
 enum Mechanics
 {
@@ -936,6 +991,7 @@ enum Mechanics
     MECHANIC_SAPPED           = 30,
     MECHANIC_ENRAGED          = 31
 };
+
 // Used for spell 42292 Immune Movement Impairment and Loss of Control (0x49967da6)
 #define IMMUNE_TO_MOVEMENT_IMPAIRMENT_AND_LOSS_CONTROL_MASK ( \
     (1<<MECHANIC_CHARM   )|(1<<MECHANIC_DISORIENTED )|(1<<MECHANIC_FEAR  )| \
@@ -944,11 +1000,13 @@ enum Mechanics
     (1<<MECHANIC_KNOCKOUT)|(1<<MECHANIC_POLYMORPH)|(1<<MECHANIC_BANISH)| \
     (1<<MECHANIC_SHACKLE )|(1<<MECHANIC_TURN     )|(1<<MECHANIC_HORROR)| \
     (1<<MECHANIC_DAZE    )|(1<<MECHANIC_SAPPED   ) )
+
 // Daze and all croud control spells except polymorph are not removed
 #define MECHANIC_NOT_REMOVED_BY_SHAPESHIFT ( \
     (1<<MECHANIC_CHARM )|(1<<MECHANIC_DISORIENTED)|(1<<MECHANIC_FEAR  )|(1<<MECHANIC_PACIFY )| \
     (1<<MECHANIC_STUN  )|(1<<MECHANIC_FREEZE     )|(1<<MECHANIC_BANISH)|(1<<MECHANIC_SHACKLE)| \
     (1<<MECHANIC_HORROR)|(1<<MECHANIC_TURN       )|(1<<MECHANIC_DAZE  )|(1<<MECHANIC_SAPPED ) )
+
 // Spell dispell type
 enum DispelType
 {
@@ -965,7 +1023,9 @@ enum DispelType
     DISPEL_ZG_TICKET    = 10,
     DESPEL_OLD_UNUSED   = 11
 };
+
 #define DISPEL_ALL_MASK ( (1<<DISPEL_MAGIC) | (1<<DISPEL_CURSE) | (1<<DISPEL_DISEASE) | (1<<DISPEL_POISON) )
+
 //To all Immune system,if target has immunes,
 //some spell that related to ImmuneToDispel or ImmuneToSchool or ImmuneToDamage type can't cast to it,
 //some spell_effects that related to ImmuneToEffect<effect>(only this effect in the spell) can't cast to it,
@@ -980,7 +1040,9 @@ enum SpellImmunity
     IMMUNITY_MECHANIC              = 5,                     // enum Mechanics
     IMMUNITY_ID                    = 6
 };
+
 #define MAX_SPELL_IMMUNITY           7
+
 enum Targets
 {
     TARGET_UNIT_CASTER                 = 1,
@@ -1080,7 +1142,9 @@ enum Targets
     TARGET_UNIT_PASSENGER              = 97,
     TARGET_UNIT_AREA_PATH              = 104,
 };
+
 #define TOTAL_SPELL_TARGETS              105
+
 enum SpellMissInfo
 {
     SPELL_MISS_NONE                    = 0,
@@ -1096,6 +1160,7 @@ enum SpellMissInfo
     SPELL_MISS_ABSORB                  = 10,
     SPELL_MISS_REFLECT                 = 11
 };
+
 enum SpellHitType
 {
     SPELL_HIT_TYPE_UNK1 = 0x00001,
@@ -1105,6 +1170,7 @@ enum SpellHitType
     SPELL_HIT_TYPE_UNK5 = 0x00010,                          // replace caster?
     SPELL_HIT_TYPE_UNK6 = 0x00020
 };
+
 enum SpellDmgClass
 {
     SPELL_DAMAGE_CLASS_NONE     = 0,
@@ -1112,12 +1178,14 @@ enum SpellDmgClass
     SPELL_DAMAGE_CLASS_MELEE    = 2,
     SPELL_DAMAGE_CLASS_RANGED   = 3
 };
+
 enum SpellPreventionType
 {
     SPELL_PREVENTION_TYPE_NONE      = 0,
     SPELL_PREVENTION_TYPE_SILENCE   = 1,
     SPELL_PREVENTION_TYPE_PACIFY    = 2
 };
+
 enum GameobjectTypes
 {
     GAMEOBJECT_TYPE_DOOR                   = 0,
@@ -1157,8 +1225,11 @@ enum GameobjectTypes
     GAMEOBJECT_TYPE_GUILD_BANK             = 34,
     GAMEOBJECT_TYPE_TRAPDOOR               = 35
 };
+
 #define MAX_GAMEOBJECT_TYPE                  36             // sending to client this or greater value can crash client.
+
 #define GAMEOBJECT_FISHINGNODE_ENTRY        35591           // Better to define it somewhere instead of hardcoding everywhere
+
 enum GameObjectFlags
 {
     GO_FLAG_IN_USE          = 0x00000001,                   //disables interaction while animated
@@ -1171,6 +1242,7 @@ enum GameObjectFlags
     GO_FLAG_DAMAGED         = 0x00000200,
     GO_FLAG_DESTROYED       = 0x00000400,
 };
+
 enum TextEmotes
 {
     TEXTEMOTE_AGREE                = 1,
@@ -1346,6 +1418,7 @@ enum TextEmotes
     TEXTEMOTE_EYEBROW              = 377,
     TEXTEMOTE_TOAST                = 378
 };
+
 enum Emote
 {
     EMOTE_ONESHOT_NONE                 = 0,
@@ -1514,6 +1587,7 @@ enum Emote
     EMOTE_ONESHOT_SPELLCAST_OMNI       = 463,
     EMOTE_STATE_READYTHROWN            = 464
 };
+
 enum Anim
 {
     ANIM_STAND                     = 0x0,
@@ -1661,6 +1735,7 @@ enum Anim
     ANIM_SPELL_KNEEL_END           = 0x8E,
     ANIM_SPRINT                    = 0x8F,
     ANIM_IN_FIGHT                  = 0x90,
+
     ANIM_GAMEOBJ_SPAWN             = 145,
     ANIM_GAMEOBJ_CLOSE             = 146,
     ANIM_GAMEOBJ_CLOSED            = 147,
@@ -1741,12 +1816,14 @@ enum Anim
     ANIM_CUSTOMSPELL10             = 222,
     ANIM_StealthRun                = 223
 };
+
 enum LockKeyType
 {
     LOCK_KEY_NONE  = 0,
     LOCK_KEY_ITEM  = 1,
     LOCK_KEY_SKILL = 2
 };
+
 enum LockType
 {
     LOCKTYPE_PICKLOCK              = 1,
@@ -1771,6 +1848,7 @@ enum LockType
     LOCKTYPE_INSCRIPTION           = 20,
     LOCKTYPE_OPEN_FROM_VEHICLE     = 21
 };
+
 enum TrainerType                                            // this is important type for npcs!
 {
     TRAINER_TYPE_CLASS             = 0,
@@ -1778,7 +1856,9 @@ enum TrainerType                                            // this is important
     TRAINER_TYPE_TRADESKILLS       = 2,
     TRAINER_TYPE_PETS              = 3
 };
+
 #define MAX_TRAINER_TYPE 4
+
 // CreatureType.dbc
 enum CreatureType
 {
@@ -1796,9 +1876,11 @@ enum CreatureType
     CREATURE_TYPE_NON_COMBAT_PET   = 12,
     CREATURE_TYPE_GAS_CLOUD        = 13
 };
+
 uint32 const CREATURE_TYPEMASK_DEMON_OR_UNDEAD = (1 << (CREATURE_TYPE_DEMON-1)) | (1 << (CREATURE_TYPE_UNDEAD-1));
 uint32 const CREATURE_TYPEMASK_HUMANOID_OR_UNDEAD = (1 << (CREATURE_TYPE_HUMANOID-1)) | (1 << (CREATURE_TYPE_UNDEAD-1));
 uint32 const CREATURE_TYPEMASK_MECHANICAL_OR_ELEMENTAL = (1 << (CREATURE_TYPE_MECHANICAL-1)) | (1 << (CREATURE_TYPE_ELEMENTAL-1));
+
 // CreatureFamily.dbc
 enum CreatureFamily
 {
@@ -1844,6 +1926,7 @@ enum CreatureFamily
     CREATURE_FAMILY_CORE_HOUND     = 45,
     CREATURE_FAMILY_SPIRIT_BEAST   = 46
 };
+
 enum CreatureTypeFlags
 {
     CREATURE_TYPEFLAGS_TAMEABLE        = 0x00001,           //tameable by any hunter
@@ -1867,6 +1950,7 @@ enum CreatureTypeFlags
     CREATURE_TYPEFLAGS_UNK19           = 0x40000,           //? Related to veichle/siege weapons?
     CREATURE_TYPEFLAGS_UNK20           = 0x80000
 };
+
 enum CreatureEliteType
 {
     CREATURE_ELITE_NORMAL          = 0,
@@ -1876,6 +1960,7 @@ enum CreatureEliteType
     CREATURE_ELITE_RARE            = 4,
     CREATURE_UNKNOWN               = 5                      // found in 2.2.3 for 2 mobs
 };
+
 // values based at Holidays.dbc
 enum HolidayIds
 {
@@ -1900,6 +1985,7 @@ enum HolidayIds
     HOLIDAY_CALL_TO_ARMS_SA          = 400,
     HOLIDAY_WOTLK_LAUNCH             = 406
 };
+
 // values based at QuestInfo.dbc
 enum QuestTypes
 {
@@ -1915,6 +2001,7 @@ enum QuestTypes
     QUEST_TYPE_RAID_10             = 88,
     QUEST_TYPE_RAID_25             = 89
 };
+
 // values based at QuestSort.dbc
 enum QuestSort
 {
@@ -1957,6 +2044,7 @@ enum QuestSort
     QUEST_SORT_DEATH_KNIGHT        = 372,
     QUEST_SORT_JEWELCRAFTING       = 373
 };
+
 inline uint8 ClassByQuestSort(int32 QuestSort)
 {
     switch(QuestSort)
@@ -1974,9 +2062,11 @@ inline uint8 ClassByQuestSort(int32 QuestSort)
     }
     return 0;
 }
+
 enum SkillType
 {
     SKILL_NONE                     = 0,
+
     SKILL_FROST                    = 6,
     SKILL_FIRE                     = 8,
     SKILL_ARMS                     = 26,
@@ -2128,7 +2218,9 @@ enum SkillType
     SKILL_PET_EXOTIC_CORE_HOUND    = 787,
     SKILL_PET_EXOTIC_SPIRIT_BEAST  = 788
 };
+
 #define MAX_SKILL_TYPE               789
+
 inline SkillType SkillByLockType(LockType locktype)
 {
     switch(locktype)
@@ -2142,6 +2234,7 @@ inline SkillType SkillByLockType(LockType locktype)
     }
     return SKILL_NONE;
 }
+
 inline uint32 SkillByQuestSort(int32 QuestSort)
 {
     switch(QuestSort)
@@ -2160,6 +2253,7 @@ inline uint32 SkillByQuestSort(int32 QuestSort)
     }
     return 0;
 }
+
 enum SkillCategory
 {
     SKILL_CATEGORY_ATTRIBUTES    = 5,
@@ -2171,6 +2265,7 @@ enum SkillCategory
     SKILL_CATEGORY_PROFESSION    = 11,                      // primary professions
     SKILL_CATEGORY_GENERIC       = 12
 };
+
 enum TotemCategory
 {
     TC_SKINNING_SKIFE_OLD          = 1,
@@ -2206,6 +2301,7 @@ enum TotemCategory
     TC_RUNED_COBALT_ROD            = 189,
     TC_RUNED_TITANIUM_ROD          = 190
 };
+
 enum UnitDynFlags
 {
     UNIT_DYNFLAG_LOOTABLE          = 0x0001,
@@ -2216,10 +2312,12 @@ enum UnitDynFlags
     UNIT_DYNFLAG_DEAD              = 0x0020,
     UNIT_DYNFLAG_REFER_A_FRIEND    = 0x0040
 };
+
 enum CorpseDynFlags
 {
     CORPSE_DYNFLAG_LOOTABLE        = 0x0001
 };
+
 // Passive Spell codes explicit used in code
 #define SPELL_ID_GENERIC_LEARN                  483
 #define SPELL_ID_GENERIC_LEARN_PET              55884       // used for learning mounts and companions
@@ -2239,6 +2337,7 @@ enum CorpseDynFlags
 #define SPELL_ID_HONORLESS_TARGET               2479        // Honorless target
 #define SPELL_ID_DUEL_BEG                       7267        // Beg
 #define SPELL_ID_DEATH_GATE                     50977       // Death Gate
+
 enum WeatherType
 {
     WEATHER_TYPE_FINE       = 0,
@@ -2248,7 +2347,9 @@ enum WeatherType
     WEATHER_TYPE_THUNDERS   = 86,
     WEATHER_TYPE_BLACKRAIN  = 90
 };
+
 #define MAX_WEATHER_TYPE 4
+
 enum ChatMsg
 {
     CHAT_MSG_ADDON                  = 0xFFFFFFFF,
@@ -2303,7 +2404,9 @@ enum ChatMsg
     CHAT_MSG_ACHIEVEMENT            = 0x30,
     CHAT_MSG_GUILD_ACHIEVEMENT      = 0x31
 };
+
 #define MAX_CHAT_MSG_TYPE 0x32
+
 enum ChatLinkColors
 {
     CHAT_LINK_COLOR_TRADE       = 0xffffd000,   // orange
@@ -2313,6 +2416,7 @@ enum ChatLinkColors
     CHAT_LINK_COLOR_ACHIEVEMENT = 0xffffff00,
     CHAT_LINK_COLOR_GLYPH       = 0xff66bbff
 };
+
 // Values from ItemPetFood (power of (value-1) used for compare with CreatureFamilyEntry.petDietMask
 enum PetDiet
 {
@@ -2325,8 +2429,11 @@ enum PetDiet
     PET_DIET_RAW_MEAT = 7,
     PET_DIET_RAW_FISH = 8
 };
+
 #define MAX_PET_DIET 9
+
 #define CHAIN_SPELL_JUMP_RADIUS 10
+
 // Max values for Guild & Guild Bank
 #define GUILD_BANK_MAX_TABS         6
 #define GUILD_BANK_MAX_SLOTS        98
@@ -2335,6 +2442,7 @@ enum PetDiet
 #define GUILD_EVENTLOG_MAX_RECORDS  100
 #define GUILD_RANKS_MIN_COUNT       5
 #define GUILD_RANKS_MAX_COUNT       10
+
 enum AiReaction
 {
     AI_REACTION_UNK1    = 1,
@@ -2342,6 +2450,7 @@ enum AiReaction
     AI_REACTION_UNK3    = 3,
     AI_REACTION_UNK4    = 4
 };
+
 // Diminishing Returns Types
 enum DiminishingReturnsType
 {
@@ -2349,6 +2458,7 @@ enum DiminishingReturnsType
     DRTYPE_PLAYER       = 1,                                // this spell is diminished only when applied on players
     DRTYPE_ALL          = 2                                 // this spell is diminished in every case
 };
+
 // Diminishing Return Groups
 enum DiminishingGroup
 {
@@ -2375,12 +2485,14 @@ enum DiminishingGroup
     DIMINISHING_TAUNT,
     DIMINISHING_LIMITONLY               // Don't Diminish, but limit duration to 10s
 };
+
 enum DungeonDifficulties
 {
     DIFFICULTY_NORMAL = 0,
     DIFFICULTY_HEROIC = 1,
     TOTAL_DIFFICULTIES
 };
+
 enum SummonCategory
 {
     SUMMON_CATEGORY_WILD        = 0,
@@ -2389,6 +2501,7 @@ enum SummonCategory
     SUMMON_CATEGORY_PUPPET      = 3,
     SUMMON_CATEGORY_VEHICLE     = 4,
 };
+
 enum SummonType
 {
     SUMMON_TYPE_NONE        = 0,
@@ -2404,12 +2517,14 @@ enum SummonType
     SUMMON_TYPE_VEHICLE2    = 10,
     SUMMON_TYPE_OBJECT      = 11,
 };
+
 enum EventId
 {
     EVENT_SPELLCLICK        = 1001,
     EVENT_FALL_GROUND       = 1002,
     EVENT_CHARGE            = 1003,
 };
+
 enum ResponseCodes
 {
     RESPONSE_SUCCESS                                       = 0x00,
@@ -2419,11 +2534,13 @@ enum ResponseCodes
     RESPONSE_FAILED_TO_CONNECT                             = 0x04,
     RESPONSE_CONNECTED                                     = 0x05,
     RESPONSE_VERSION_MISMATCH                              = 0x06,
+
     CSTATUS_CONNECTING                                     = 0x07,
     CSTATUS_NEGOTIATING_SECURITY                           = 0x08,
     CSTATUS_NEGOTIATION_COMPLETE                           = 0x09,
     CSTATUS_NEGOTIATION_FAILED                             = 0x0A,
     CSTATUS_AUTHENTICATING                                 = 0x0B,
+
     AUTH_OK                                                = 0x0C,
     AUTH_FAILED                                            = 0x0D,
     AUTH_REJECT                                            = 0x0E,
@@ -2447,17 +2564,21 @@ enum ResponseCodes
     AUTH_SUSPENDED                                         = 0x20,
     AUTH_PARENTAL_CONTROL                                  = 0x21,
     AUTH_LOCKED_ENFORCED                                   = 0x22,
+
     REALM_LIST_IN_PROGRESS                                 = 0x23,
     REALM_LIST_SUCCESS                                     = 0x24,
     REALM_LIST_FAILED                                      = 0x25,
     REALM_LIST_INVALID                                     = 0x26,
     REALM_LIST_REALM_NOT_FOUND                             = 0x27,
+
     ACCOUNT_CREATE_IN_PROGRESS                             = 0x28,
     ACCOUNT_CREATE_SUCCESS                                 = 0x29,
     ACCOUNT_CREATE_FAILED                                  = 0x2A,
+
     CHAR_LIST_RETRIEVING                                   = 0x2B,
     CHAR_LIST_RETRIEVED                                    = 0x2C,
     CHAR_LIST_FAILED                                       = 0x2D,
+
     CHAR_CREATE_IN_PROGRESS                                = 0x2E,
     CHAR_CREATE_SUCCESS                                    = 0x2F,
     CHAR_CREATE_ERROR                                      = 0x30,
@@ -2473,12 +2594,14 @@ enum ResponseCodes
     CHAR_CREATE_EXPANSION_CLASS                            = 0x3A,
     CHAR_CREATE_LEVEL_REQUIREMENT                          = 0x3B,
     CHAR_CREATE_UNIQUE_CLASS_LIMIT                         = 0x3C,
+
     CHAR_DELETE_IN_PROGRESS                                = 0x3D,
     CHAR_DELETE_SUCCESS                                    = 0x3E,
     CHAR_DELETE_FAILED                                     = 0x3F,
     CHAR_DELETE_FAILED_LOCKED_FOR_TRANSFER                 = 0x40,
     CHAR_DELETE_FAILED_GUILD_LEADER                        = 0x41,
     CHAR_DELETE_FAILED_ARENA_CAPTAIN                       = 0x42,
+
     CHAR_LOGIN_IN_PROGRESS                                 = 0x43,
     CHAR_LOGIN_SUCCESS                                     = 0x44,
     CHAR_LOGIN_NO_WORLD                                    = 0x45,
@@ -2489,6 +2612,7 @@ enum ResponseCodes
     CHAR_LOGIN_NO_CHARACTER                                = 0x4A,
     CHAR_LOGIN_LOCKED_FOR_TRANSFER                         = 0x4B,
     CHAR_LOGIN_LOCKED_BY_BILLING                           = 0x4C,
+
     CHAR_NAME_SUCCESS                                      = 0x4D,
     CHAR_NAME_FAILURE                                      = 0x4E,
     CHAR_NAME_NO_NAME                                      = 0x4F,
@@ -2507,6 +2631,7 @@ enum ResponseCodes
     CHAR_NAME_RUSSIAN_SILENT_CHARACTER_AT_BEGINNING_OR_END = 0x5C,
     CHAR_NAME_DECLENSION_DOESNT_MATCH_BASE_NAME            = 0x5D
 };
+
 /// Ban function modes
 enum BanMode
 {
@@ -2514,6 +2639,7 @@ enum BanMode
     BAN_CHARACTER,
     BAN_IP
 };
+
 /// Ban function return codes
 enum BanReturn
 {
@@ -2521,6 +2647,7 @@ enum BanReturn
     BAN_SYNTAX_ERROR,
     BAN_NOTFOUND
 };
+
 // indexes of BattlemasterList.dbc
 enum BattleGroundTypeId
 {
@@ -2538,6 +2665,7 @@ enum BattleGroundTypeId
     BATTLEGROUND_RV            = 11
 };
 #define MAX_BATTLEGROUND_TYPE_ID 12
+
 enum MailResponseType
 {
     MAIL_SEND               = 0,
@@ -2547,6 +2675,7 @@ enum MailResponseType
     MAIL_DELETED            = 4,
     MAIL_MADE_PERMANENT     = 5
 };
+
 enum MailResponseResult
 {
     MAIL_OK                            = 0,
@@ -2564,6 +2693,7 @@ enum MailResponseResult
     MAIL_ERR_MAIL_ATTACHMENT_INVALID   = 19,
     MAIL_ERR_ITEM_HAS_EXPIRED          = 21,
 };
+
 enum SpellFamilyNames
 {
     SPELLFAMILY_GENERIC     = 0,
@@ -2585,5 +2715,6 @@ enum SpellFamilyNames
     // 16 - unused
     SPELLFAMILY_PET         = 17
 };
+
 #endif
 

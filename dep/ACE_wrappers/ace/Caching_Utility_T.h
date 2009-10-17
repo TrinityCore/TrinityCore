@@ -1,4 +1,5 @@
 // -*- C++ -*-
+
 //=============================================================================
 /**
  *  @file    Caching_Utility_T.h
@@ -8,18 +9,26 @@
  *  @author Kirthika Parameswaran <kirthika@cs.wustl.edu>
  */
 //=============================================================================
+
 #ifndef ACE_CACHING_UTILITY_H
 #define ACE_CACHING_UTILITY_H
+
 #include /**/ "ace/pre.h"
+
 #include /**/ "ace/config-all.h"
+
 #if !defined (ACE_LACKS_PRAGMA_ONCE)
 # pragma once
 #endif /* ACE_LACKS_PRAGMA_ONCE */
+
 #include "ace/Global_Macros.h"
 #include "ace/Cleanup_Strategies_T.h"
+
 // For linkers that cant grok long names.
 #define ACE_Pair_Caching_Utility APUTIL
+
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
+
 /**
  * @class ACE_Pair_Caching_Utility
  *
@@ -38,33 +47,44 @@ template <class KEY, class VALUE, class CONTAINER, class ITERATOR, class ATTRIBU
 class ACE_Pair_Caching_Utility
 {
 public:
+
   typedef ACE_Cleanup_Strategy<KEY, VALUE, CONTAINER> CLEANUP_STRATEGY;
+
   /// Constructor.
   ACE_Pair_Caching_Utility (ACE_Cleanup_Strategy<KEY, VALUE, CONTAINER> *cleanup_strategy = 0,
                             int delete_cleanup_strategy = 0);
+
   /// Destructor.
   ~ACE_Pair_Caching_Utility (void);
+
   /**
    * Purge entries from the @a container. The Cleanup_Strategy will do the
    * actual job of cleanup once the entries to be cleaned up are decided.
    */
   int clear_cache (CONTAINER &container,
                    double purge_percent);
+
 protected:
+
   /// Find the entry with minimum caching attributes.
   void minimum (CONTAINER &container,
                 KEY *&key_to_remove,
                 VALUE *&value_to_remove);
+
   /// The cleanup strategy which can be used to destroy the entries of
   /// the container.
   CLEANUP_STRATEGY *cleanup_strategy_;
+
   /// Whether the cleanup_strategy should be destroyed or not.
   int delete_cleanup_strategy_;
+
   ACE_UNIMPLEMENTED_FUNC (void operator= (const ACE_Pair_Caching_Utility<KEY,VALUE,CONTAINER,ITERATOR,ATTRIBUTES> &))
   ACE_UNIMPLEMENTED_FUNC (ACE_Pair_Caching_Utility (const ACE_Pair_Caching_Utility<KEY,VALUE,CONTAINER,ITERATOR,ATTRIBUTES> &))
 };
+
 ////////////////////////////////////////////////////////////////////////////////
 #define ACE_Recyclable_Handler_Caching_Utility ARHUTIL
+
 /**
  * @class ACE_Recyclable_Handler_Caching_Utility
  *
@@ -82,14 +102,19 @@ protected:
 template <class KEY, class VALUE, class CONTAINER, class ITERATOR, class ATTRIBUTES>
 class ACE_Recyclable_Handler_Caching_Utility
 {
+
 public:
+
   typedef ACE_Recyclable_Handler_Cleanup_Strategy<KEY, VALUE, CONTAINER> CLEANUP_STRATEGY;
   typedef ACE_Cleanup_Strategy<KEY, VALUE, CONTAINER> CLEANUP_STRATEGY_BASE;
+
   /// Constructor.
   ACE_Recyclable_Handler_Caching_Utility (ACE_Cleanup_Strategy<KEY, VALUE, CONTAINER> *cleanup_strategy = 0,
                                           int delete_cleanup_strategy = 0);
+
   /// Destructor.
   ~ACE_Recyclable_Handler_Caching_Utility (void);
+
   /**
    * Purge entries from the <container>. The Cleanup_Strategy will do
    * the actual job of cleanup once the entries to be cleaned up are
@@ -97,21 +122,28 @@ public:
    */
   int clear_cache (CONTAINER &container,
                    double purge_percent);
+
 protected:
+
   /// Find the entry with minimum caching attributes.
   void minimum (CONTAINER &container,
                 KEY *&key_to_remove,
                 VALUE *&value_to_remove);
+
   /// This is the default Cleanup Strategy for this utility.
   CLEANUP_STRATEGY_BASE *cleanup_strategy_;
+
   /// Whether the cleanup_strategy should be destroyed or not.
   int delete_cleanup_strategy_;
+
 private:
   ACE_UNIMPLEMENTED_FUNC (void operator= (const ACE_Recyclable_Handler_Caching_Utility<KEY,VALUE,CONTAINER,ITERATOR,ATTRIBUTES> &))
   ACE_UNIMPLEMENTED_FUNC (ACE_Recyclable_Handler_Caching_Utility (const ACE_Recyclable_Handler_Caching_Utility<KEY,VALUE,CONTAINER,ITERATOR,ATTRIBUTES> &))
 };
+
 ///////////////////////////////////////////////////////////////////////////
 #define ACE_Refcounted_Recyclable_Handler_Caching_Utility ARRHUTIL
+
 /**
  * @class ACE_Refcounted_Recyclable_Handler_Caching_Utility
  *
@@ -130,14 +162,19 @@ private:
 template <class KEY, class VALUE, class CONTAINER, class ITERATOR, class ATTRIBUTES>
 class ACE_Refcounted_Recyclable_Handler_Caching_Utility
 {
+
 public:
+
   typedef ACE_Refcounted_Recyclable_Handler_Cleanup_Strategy<KEY, VALUE, CONTAINER> CLEANUP_STRATEGY;
   typedef ACE_Cleanup_Strategy<KEY, VALUE, CONTAINER> CLEANUP_STRATEGY_BASE;
+
   /// Constructor.
   ACE_Refcounted_Recyclable_Handler_Caching_Utility (ACE_Cleanup_Strategy<KEY, VALUE, CONTAINER> *cleanup_strategy = 0,
                                                      int delete_cleanup_strategy = 0);
+
   /// Destructor.
   ~ACE_Refcounted_Recyclable_Handler_Caching_Utility (void);
+
   /**
    * Purge entries from the <container>. The Cleanup_Strategy will do
    * the actual job of cleanup once the entries to be cleaned up are
@@ -145,26 +182,34 @@ public:
    */
   int clear_cache (CONTAINER &container,
                    double purge_percent);
+
 protected:
+
   /// Find the entry with minimum caching attributes.
   void minimum (CONTAINER &container,
                 KEY *&key_to_remove,
                 VALUE *&value_to_remove);
+
   /// This is the default Cleanup Strategy for this utility.
   CLEANUP_STRATEGY_BASE *cleanup_strategy_;
+
   /// Whether the cleanup_strategy should be destroyed or not.
   int delete_cleanup_strategy_;
+
   /**
    * This figure denotes the number of entries are there in the
    * container which have been marked as closed already but might
    * not have been unbound from the container.
    */
   size_t marked_as_closed_entries_;
+
 private:
   ACE_UNIMPLEMENTED_FUNC (void operator= (const ACE_Refcounted_Recyclable_Handler_Caching_Utility<KEY,VALUE,CONTAINER,ITERATOR,ATTRIBUTES> &))
   ACE_UNIMPLEMENTED_FUNC (ACE_Refcounted_Recyclable_Handler_Caching_Utility (const ACE_Refcounted_Recyclable_Handler_Caching_Utility<KEY,VALUE,CONTAINER,ITERATOR,ATTRIBUTES> &))
 };
+
 ////////////////////////////////////////////////////////////////////////////////////////
+
 /**
  * @class ACE_Handler_Caching_Utility
  *
@@ -183,13 +228,17 @@ template <class KEY, class VALUE, class CONTAINER, class ITERATOR, class ATTRIBU
 class ACE_Handler_Caching_Utility
 {
 public:
+
   typedef ACE_Handler_Cleanup_Strategy<KEY, VALUE, CONTAINER> CLEANUP_STRATEGY;
   typedef ACE_Cleanup_Strategy<KEY, VALUE, CONTAINER> CLEANUP_STRATEGY_BASE;
+
   /// Constructor.
   ACE_Handler_Caching_Utility (ACE_Cleanup_Strategy<KEY, VALUE, CONTAINER> *cleanup_strategy = 0,
                                int delete_cleanup_strategy = 0);
+
   /// Destructor.
   ~ACE_Handler_Caching_Utility (void);
+
   /**
    * Purge entries from the <container>. The Cleanup_Strategy will do
    * the actual job of cleanup once the entries to be cleaned up are
@@ -197,7 +246,9 @@ public:
    */
   int clear_cache (CONTAINER &container,
                    double purge_percent);
+
 protected:
+
   /**
    * Find the entry with minimum caching attributes.  This is handler
    * specific since this utility is to be used very specifically for
@@ -207,15 +258,19 @@ protected:
   void minimum (CONTAINER &container,
                 KEY *&key_to_remove,
                 VALUE *&value_to_remove);
+
   /// The cleanup strategy which can be used to destroy the entries of
   /// the container.
   CLEANUP_STRATEGY_BASE *cleanup_strategy_;
+
   /// Whether the cleanup_strategy should be destroyed or not.
   int delete_cleanup_strategy_;
+
 private:
   ACE_UNIMPLEMENTED_FUNC (void operator= (const ACE_Handler_Caching_Utility<KEY,VALUE,CONTAINER,ITERATOR,ATTRIBUTES> &))
   ACE_UNIMPLEMENTED_FUNC (ACE_Handler_Caching_Utility (const ACE_Handler_Caching_Utility<KEY,VALUE,CONTAINER,ITERATOR,ATTRIBUTES> &))
 };
+
 ///////////////////////////////////////////////////////////////////////////
 #define ACE_Null_Caching_Utility ANUTIL
 /**
@@ -234,13 +289,17 @@ template <class KEY, class VALUE, class CONTAINER, class ITERATOR, class ATTRIBU
 class ACE_Null_Caching_Utility
 {
 public:
+
   typedef ACE_Null_Cleanup_Strategy<KEY, VALUE, CONTAINER> CLEANUP_STRATEGY;
   typedef ACE_Cleanup_Strategy<KEY, VALUE, CONTAINER> CLEANUP_STRATEGY_BASE;
+
   /// Constructor.
   ACE_Null_Caching_Utility (ACE_Cleanup_Strategy<KEY, VALUE, CONTAINER> *cleanup_strategy = 0,
                             int delete_cleanup_strategy = 0);
+
   /// Destructor.
   ~ACE_Null_Caching_Utility (void);
+
   /**
    * Purge entries from the <container>. The Cleanup_Strategy will do
    * the actual job of cleanup once the entries to be cleaned up are
@@ -248,7 +307,9 @@ public:
    */
   int clear_cache (CONTAINER &container,
                    double purge_percent);
+
 protected:
+
   /**
    * Find the entry with minimum caching attributes.  This is handler
    * specific since this utility is to be used very specifically for
@@ -258,22 +319,30 @@ protected:
   void minimum (CONTAINER &container,
                 KEY *&key_to_remove,
                 VALUE *&value_to_remove);
+
   /// The cleanup strategy which can be used to destroy the entries of
   /// the container.
   CLEANUP_STRATEGY_BASE *cleanup_strategy_;
+
   /// Whether the cleanup_strategy should be destroyed or not.
   int delete_cleanup_strategy_;
+
 private:
   ACE_UNIMPLEMENTED_FUNC (void operator= (const ACE_Null_Caching_Utility<KEY,VALUE,CONTAINER,ITERATOR,ATTRIBUTES> &))
   ACE_UNIMPLEMENTED_FUNC (ACE_Null_Caching_Utility (const ACE_Null_Caching_Utility<KEY,VALUE,CONTAINER,ITERATOR,ATTRIBUTES> &))
 };
+
 ACE_END_VERSIONED_NAMESPACE_DECL
+
 #if defined (ACE_TEMPLATES_REQUIRE_SOURCE)
 #include "ace/Caching_Utility_T.cpp"
 #endif /* ACE_TEMPLATES_REQUIRE_SOURCE */
+
 #if defined (ACE_TEMPLATES_REQUIRE_PRAGMA)
 #pragma implementation ("Caching_Utility_T.cpp")
 #endif /* ACE_TEMPLATES_REQUIRE_PRAGMA */
+
 #include /**/ "ace/post.h"
+
 #endif /* ACE_CACHING_UTILITY_H */
 
