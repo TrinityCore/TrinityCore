@@ -24,7 +24,7 @@ EndScriptData */
 #include "precompiled.h"
 #include "def_halls_of_lightning.h"
 
-enum
+enum eEnums
 {
     SAY_AGGRO                               = -1602032,
     SAY_SLAY_1                              = -1602033,

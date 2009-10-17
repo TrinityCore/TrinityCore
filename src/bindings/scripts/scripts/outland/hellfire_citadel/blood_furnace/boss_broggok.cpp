@@ -24,7 +24,7 @@ EndScriptData */
 #include "precompiled.h"
 #include "def_blood_furnace.h"
 
-enum
+enum eEnums
 {
     SAY_AGGRO               = -1542008,
  

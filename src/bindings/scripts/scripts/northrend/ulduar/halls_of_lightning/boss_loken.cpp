@@ -26,7 +26,7 @@ EndScriptData */
 
 #define MAX_ENCOUNTER_TIME  2 * 60 * 1000
 
-enum
+enum eEnums
 {
     ACHIEVEMENT_TIMELY_DEATH            = 1867,
 
