@@ -108,7 +108,7 @@ void AddSC_boss_hadronox()
     Script *newscript;
 
     newscript = new Script;
-    newscript->Name="boss_hadronox";
+    newscript->Name = "boss_hadronox";
     newscript->GetAI = &GetAI_boss_hadronox;
     newscript->RegisterSelf();
 }

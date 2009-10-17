@@ -121,7 +121,7 @@ void AddSC_boss_magistrate_barthilas()
 {
     Script *newscript;
     newscript = new Script;
-    newscript->Name="boss_magistrate_barthilas";
+    newscript->Name = "boss_magistrate_barthilas";
     newscript->GetAI = &GetAI_boss_magistrate_barthilas;
     newscript->RegisterSelf();
 }

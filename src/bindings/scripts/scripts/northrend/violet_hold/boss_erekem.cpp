@@ -244,11 +244,11 @@ void AddSC_boss_erekem()
     Script *newscript;
 
     newscript = new Script;
-    newscript->Name="boss_erekem";
+    newscript->Name = "boss_erekem";
     newscript->GetAI = &GetAI_boss_erekem;
     newscript->RegisterSelf();
     
-    newscript->Name="mob_erekem_guard";
+    newscript->Name = "mob_erekem_guard";
     newscript->GetAI = &GetAI_mob_erekem_guard;
     newscript->RegisterSelf();
 }

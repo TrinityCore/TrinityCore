@@ -621,50 +621,50 @@ void AddSC_shattrath_city()
     Script *newscript;
 
     newscript = new Script;
-    newscript->Name="npc_raliq_the_drunk";
+    newscript->Name = "npc_raliq_the_drunk";
     newscript->GetAI = &GetAI_npc_raliq_the_drunk;
     newscript->pGossipHello =  &GossipHello_npc_raliq_the_drunk;
     newscript->pGossipSelect = &GossipSelect_npc_raliq_the_drunk;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="npc_salsalabim";
+    newscript->Name = "npc_salsalabim";
     newscript->GetAI = &GetAI_npc_salsalabim;
     newscript->pGossipHello =  &GossipHello_npc_salsalabim;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="npc_shattrathflaskvendors";
+    newscript->Name = "npc_shattrathflaskvendors";
     newscript->pGossipHello =  &GossipHello_npc_shattrathflaskvendors;
     newscript->pGossipSelect = &GossipSelect_npc_shattrathflaskvendors;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="npc_zephyr";
+    newscript->Name = "npc_zephyr";
     newscript->pGossipHello =  &GossipHello_npc_zephyr;
     newscript->pGossipSelect = &GossipSelect_npc_zephyr;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="npc_kservant";
+    newscript->Name = "npc_kservant";
     newscript->GetAI = &GetAI_npc_kservantAI;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="npc_dirty_larry";
+    newscript->Name = "npc_dirty_larry";
     newscript->GetAI = &GetAI_npc_dirty_larryAI;
     newscript->pGossipHello =   &GossipHello_npc_dirty_larry;
     newscript->pGossipSelect = &GossipSelect_npc_dirty_larry;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="npc_ishanah";
+    newscript->Name = "npc_ishanah";
     newscript->pGossipHello =  &GossipHello_npc_ishanah;
     newscript->pGossipSelect = &GossipSelect_npc_ishanah;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="npc_khadgar";
+    newscript->Name = "npc_khadgar";
     newscript->pGossipHello =  &GossipHello_npc_khadgar;
     newscript->pGossipSelect = &GossipSelect_npc_khadgar;
     newscript->RegisterSelf();

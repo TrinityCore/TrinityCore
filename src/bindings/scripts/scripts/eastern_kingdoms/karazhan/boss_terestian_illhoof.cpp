@@ -398,17 +398,17 @@ void AddSC_boss_terestian_illhoof()
 {
     Script *newscript;
     newscript = new Script;
-    newscript->Name="boss_terestian_illhoof";
+    newscript->Name = "boss_terestian_illhoof";
     newscript->GetAI = &GetAI_boss_terestian_illhoof;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="mob_fiendish_imp";
+    newscript->Name = "mob_fiendish_imp";
     newscript->GetAI = &GetAI_mob_fiendish_imp;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="mob_kilrek";
+    newscript->Name = "mob_kilrek";
     newscript->GetAI = &GetAI_mob_kilrek;
     newscript->RegisterSelf();
 

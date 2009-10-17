@@ -110,7 +110,7 @@ void AddSC_boss_tharon_ja()
     Script *newscript;
 
     newscript = new Script;
-    newscript->Name="boss_tharon_ja";
+    newscript->Name = "boss_tharon_ja";
     newscript->GetAI = &GetAI_boss_tharon_ja;
     newscript->RegisterSelf();
 }

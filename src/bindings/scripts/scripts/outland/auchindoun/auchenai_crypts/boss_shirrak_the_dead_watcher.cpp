@@ -202,12 +202,12 @@ void AddSC_boss_shirrak_the_dead_watcher()
 {
     Script *newscript;
     newscript = new Script;
-    newscript->Name="boss_shirrak_the_dead_watcher";
+    newscript->Name = "boss_shirrak_the_dead_watcher";
     newscript->GetAI = &GetAI_boss_shirrak_the_dead_watcher;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="mob_focus_fire";
+    newscript->Name = "mob_focus_fire";
     newscript->GetAI = &GetAI_mob_focus_fire;
     newscript->RegisterSelf();
 }

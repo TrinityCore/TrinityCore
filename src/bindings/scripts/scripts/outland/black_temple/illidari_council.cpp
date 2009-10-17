@@ -841,7 +841,7 @@ void AddSC_boss_illidari_council()
     Script *newscript;
 
     newscript = new Script;
-    newscript->Name="mob_illidari_council";
+    newscript->Name = "mob_illidari_council";
     newscript->GetAI = &GetAI_mob_illidari_council;
     newscript->RegisterSelf();
 
@@ -851,22 +851,22 @@ void AddSC_boss_illidari_council()
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="boss_gathios_the_shatterer";
+    newscript->Name = "boss_gathios_the_shatterer";
     newscript->GetAI = &GetAI_boss_gathios_the_shatterer;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="boss_lady_malande";
+    newscript->Name = "boss_lady_malande";
     newscript->GetAI = &GetAI_boss_lady_malande;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="boss_veras_darkshadow";
+    newscript->Name = "boss_veras_darkshadow";
     newscript->GetAI = &GetAI_boss_veras_darkshadow;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="boss_high_nethermancer_zerevor";
+    newscript->Name = "boss_high_nethermancer_zerevor";
     newscript->GetAI = &GetAI_boss_high_nethermancer_zerevor;
     newscript->RegisterSelf();
 }

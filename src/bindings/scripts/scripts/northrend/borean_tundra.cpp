@@ -506,12 +506,12 @@ void AddSC_borean_tundra()
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="npc_sinkhole_kill_credit";
+    newscript->Name = "npc_sinkhole_kill_credit";
     newscript->GetAI = &GetAI_npc_sinkhole_kill_credit;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="npc_khunok_the_behemoth";
+    newscript->Name = "npc_khunok_the_behemoth";
     newscript->GetAI = &GetAI_npc_khunok_the_behemoth;
     newscript->RegisterSelf();
 
@@ -534,7 +534,7 @@ void AddSC_borean_tundra()
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="mob_nerubar_victim";
+    newscript->Name = "mob_nerubar_victim";
     newscript->GetAI = &GetAI_mob_nerubar_victim;
     newscript->RegisterSelf();
 }

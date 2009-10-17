@@ -337,7 +337,7 @@ void AddSC_boss_netherspite()
     Script *newscript;
 
     newscript = new Script;
-    newscript->Name="boss_netherspite";
+    newscript->Name = "boss_netherspite";
     newscript->GetAI = GetAI_boss_netherspite;
     newscript->RegisterSelf();
 }

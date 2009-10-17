@@ -349,7 +349,7 @@ void AddSC_boss_keleseth()
     Script *newscript;
 
     newscript = new Script;
-    newscript->Name="boss_keleseth";
+    newscript->Name = "boss_keleseth";
     newscript->GetAI = &GetAI_boss_keleseth;
     newscript->RegisterSelf();
 
@@ -359,7 +359,7 @@ void AddSC_boss_keleseth()
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="mob_vrykul_skeleton";
+    newscript->Name = "mob_vrykul_skeleton";
     newscript->GetAI = &GetAI_mob_vrykul_skeleton;
     newscript->RegisterSelf();
 }

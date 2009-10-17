@@ -110,7 +110,7 @@ void AddSC_boss_illuciabarov()
 {
     Script *newscript;
     newscript = new Script;
-    newscript->Name="boss_illucia_barov";
+    newscript->Name = "boss_illucia_barov";
     newscript->GetAI = &GetAI_boss_illuciabarov;
     newscript->RegisterSelf();
 }

@@ -391,12 +391,12 @@ void AddSC_boss_halazzi()
 {
     Script *newscript;
     newscript = new Script;
-    newscript->Name="boss_halazzi";
+    newscript->Name = "boss_halazzi";
     newscript->GetAI = &GetAI_boss_halazziAI;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="mob_halazzi_lynx";
+    newscript->Name = "mob_halazzi_lynx";
     newscript->GetAI = &GetAI_boss_spiritlynxAI;
     newscript->RegisterSelf();
 }

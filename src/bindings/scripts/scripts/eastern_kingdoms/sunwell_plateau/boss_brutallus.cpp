@@ -317,7 +317,7 @@ void AddSC_boss_brutallus()
     Script *newscript;
 
     newscript = new Script;
-    newscript->Name="boss_brutallus";
+    newscript->Name = "boss_brutallus";
     newscript->GetAI = &GetAI_boss_brutallus;
     newscript->RegisterSelf();
 }

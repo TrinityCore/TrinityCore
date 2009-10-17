@@ -565,17 +565,17 @@ void AddSC_boss_shade_of_aran()
 {
     Script *newscript;
     newscript = new Script;
-    newscript->Name="boss_shade_of_aran";
+    newscript->Name = "boss_shade_of_aran";
     newscript->GetAI = &GetAI_boss_aran;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="mob_shadow_of_aran";
+    newscript->Name = "mob_shadow_of_aran";
     newscript->GetAI = &GetAI_shadow_of_aran;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="mob_aran_elemental";
+    newscript->Name = "mob_aran_elemental";
     newscript->GetAI = &GetAI_water_elemental;
     newscript->RegisterSelf();
 }

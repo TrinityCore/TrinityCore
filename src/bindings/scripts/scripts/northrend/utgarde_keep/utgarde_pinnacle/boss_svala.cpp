@@ -367,17 +367,17 @@ void AddSC_boss_svala()
     Script *newscript;
 
     newscript = new Script;
-    newscript->Name="boss_svala";
+    newscript->Name = "boss_svala";
     newscript->GetAI = &GetAI_boss_svala;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="mob_ritual_channeler";
+    newscript->Name = "mob_ritual_channeler";
     newscript->GetAI = &GetAI_mob_ritual_channeler;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="boss_svala_sorrowgrave";
+    newscript->Name = "boss_svala_sorrowgrave";
     newscript->GetAI = &GetAI_boss_svala_sorrowgrave;
     newscript->RegisterSelf();
 }

@@ -444,12 +444,12 @@ void AddSC_boss_akilzon()
     Script *newscript = NULL;
 
     newscript = new Script;
-    newscript->Name="boss_akilzon";
+    newscript->Name = "boss_akilzon";
     newscript->GetAI = &GetAI_boss_akilzon;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="mob_akilzon_eagle";
+    newscript->Name = "mob_akilzon_eagle";
     newscript->GetAI = &GetAI_mob_soaring_eagle;
     newscript->RegisterSelf();
 }

@@ -229,7 +229,7 @@ void AddSC_boss_nefarian()
 {
     Script *newscript;
     newscript = new Script;
-    newscript->Name="boss_nefarian";
+    newscript->Name = "boss_nefarian";
     newscript->GetAI = &GetAI_boss_nefarian;
     newscript->RegisterSelf();
 }

@@ -191,12 +191,12 @@ void AddSC_boss_ysondre()
     Script *newscript;
 
     newscript = new Script;
-    newscript->Name="boss_ysondre";
+    newscript->Name = "boss_ysondre";
     newscript->GetAI = &GetAI_boss_ysondre;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="mob_dementeddruids";
+    newscript->Name = "mob_dementeddruids";
     newscript->GetAI = &GetAI_mob_dementeddruids;
     newscript->RegisterSelf();
 }

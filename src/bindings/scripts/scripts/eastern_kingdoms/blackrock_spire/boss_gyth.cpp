@@ -199,7 +199,7 @@ void AddSC_boss_gyth()
 {
     Script *newscript;
     newscript = new Script;
-    newscript->Name="boss_gyth";
+    newscript->Name = "boss_gyth";
     newscript->GetAI = &GetAI_boss_gyth;
     newscript->RegisterSelf();
 }

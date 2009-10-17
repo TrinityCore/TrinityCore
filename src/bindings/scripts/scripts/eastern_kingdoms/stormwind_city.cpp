@@ -241,7 +241,7 @@ void AddSC_stormwind_city()
     Script *newscript;
 
     newscript = new Script;
-    newscript->Name="npc_archmage_malin";
+    newscript->Name = "npc_archmage_malin";
     newscript->pGossipHello = &GossipHello_npc_archmage_malin;
     newscript->pGossipSelect = &GossipSelect_npc_archmage_malin;
     newscript->RegisterSelf();
@@ -259,7 +259,7 @@ void AddSC_stormwind_city()
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="npc_lady_katrana_prestor";
+    newscript->Name = "npc_lady_katrana_prestor";
     newscript->pGossipHello = &GossipHello_npc_lady_katrana_prestor;
     newscript->pGossipSelect = &GossipSelect_npc_lady_katrana_prestor;
     newscript->RegisterSelf();

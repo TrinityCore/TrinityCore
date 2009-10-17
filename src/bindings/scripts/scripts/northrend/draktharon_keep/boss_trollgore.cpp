@@ -89,7 +89,7 @@ void AddSC_boss_trollgore()
     Script *newscript;
 
     newscript = new Script;
-    newscript->Name="boss_trollgore";
+    newscript->Name = "boss_trollgore";
     newscript->GetAI = &GetAI_boss_trollgore;
     newscript->RegisterSelf();
 }

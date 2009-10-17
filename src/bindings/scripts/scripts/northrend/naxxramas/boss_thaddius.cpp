@@ -137,7 +137,7 @@ void AddSC_boss_thaddius()
 {
     Script *newscript;
     newscript = new Script;
-    newscript->Name="boss_thaddius";
+    newscript->Name = "boss_thaddius";
     newscript->GetAI = &GetAI_boss_thaddius;
     newscript->RegisterSelf();
 }

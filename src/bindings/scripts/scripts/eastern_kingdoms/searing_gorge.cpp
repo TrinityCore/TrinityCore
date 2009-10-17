@@ -150,19 +150,19 @@ void AddSC_searing_gorge()
     Script *newscript;
 
     newscript = new Script;
-    newscript->Name="npc_kalaran_windblade";
+    newscript->Name = "npc_kalaran_windblade";
     newscript->pGossipHello =  &GossipHello_npc_kalaran_windblade;
     newscript->pGossipSelect = &GossipSelect_npc_kalaran_windblade;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="npc_lothos_riftwaker";
+    newscript->Name = "npc_lothos_riftwaker";
     newscript->pGossipHello          = &GossipHello_npc_lothos_riftwaker;
     newscript->pGossipSelect         = &GossipSelect_npc_lothos_riftwaker;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="npc_zamael_lunthistle";
+    newscript->Name = "npc_zamael_lunthistle";
     newscript->pGossipHello =  &GossipHello_npc_zamael_lunthistle;
     newscript->pGossipSelect = &GossipSelect_npc_zamael_lunthistle;
     newscript->RegisterSelf();

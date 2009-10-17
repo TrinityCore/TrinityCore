@@ -863,22 +863,22 @@ void AddSC_boss_headless_horseman()
     Script *newscript;
 
     newscript = new Script;
-    newscript->Name="boss_headless_horseman";
+    newscript->Name = "boss_headless_horseman";
     newscript->GetAI = &GetAI_boss_headless_horseman;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="mob_head";
+    newscript->Name = "mob_head";
     newscript->GetAI = &GetAI_mob_head;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="mob_pulsing_pumpkin";
+    newscript->Name = "mob_pulsing_pumpkin";
     newscript->GetAI = &GetAI_mob_pulsing_pumpkin;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="mob_wisp_invis";
+    newscript->Name = "mob_wisp_invis";
     newscript->GetAI = &GetAI_mob_wisp_invis;
     newscript->RegisterSelf();
 

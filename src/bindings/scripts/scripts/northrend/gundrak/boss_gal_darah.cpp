@@ -194,7 +194,7 @@ void AddSC_boss_gal_darah()
     Script *newscript;
 
     newscript = new Script;
-    newscript->Name="boss_gal_darah";
+    newscript->Name = "boss_gal_darah";
     newscript->GetAI = &GetAI_boss_gal_darah;
     newscript->RegisterSelf();
 }

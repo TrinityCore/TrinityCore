@@ -1757,25 +1757,25 @@ void AddSC_shadowmoon_valley()
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="npc_drake_dealer_hurlunk";
+    newscript->Name = "npc_drake_dealer_hurlunk";
     newscript->pGossipHello =  &GossipHello_npc_drake_dealer_hurlunk;
     newscript->pGossipSelect = &GossipSelect_npc_drake_dealer_hurlunk;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="npcs_flanis_swiftwing_and_kagrosh";
+    newscript->Name = "npcs_flanis_swiftwing_and_kagrosh";
     newscript->pGossipHello =  &GossipHello_npcs_flanis_swiftwing_and_kagrosh;
     newscript->pGossipSelect = &GossipSelect_npcs_flanis_swiftwing_and_kagrosh;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="npc_murkblood_overseer";
+    newscript->Name = "npc_murkblood_overseer";
     newscript->pGossipHello =  &GossipHello_npc_murkblood_overseer;
     newscript->pGossipSelect = &GossipSelect_npc_murkblood_overseer;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="npc_neltharaku";
+    newscript->Name = "npc_neltharaku";
     newscript->pGossipHello =  &GossipHello_npc_neltharaku;
     newscript->pGossipSelect = &GossipSelect_npc_neltharaku;
     newscript->RegisterSelf();
@@ -1786,7 +1786,7 @@ void AddSC_shadowmoon_valley()
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="npc_oronok_tornheart";
+    newscript->Name = "npc_oronok_tornheart";
     newscript->pGossipHello =  &GossipHello_npc_oronok_tornheart;
     newscript->pGossipSelect = &GossipSelect_npc_oronok_tornheart;
     newscript->RegisterSelf();

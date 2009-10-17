@@ -161,7 +161,7 @@ void AddSC_boss_watchkeeper_gargolmar()
 {
     Script *newscript;
     newscript = new Script;
-    newscript->Name="boss_watchkeeper_gargolmar";
+    newscript->Name = "boss_watchkeeper_gargolmar";
     newscript->GetAI = &GetAI_boss_watchkeeper_gargolmarAI;
     newscript->RegisterSelf();
 }

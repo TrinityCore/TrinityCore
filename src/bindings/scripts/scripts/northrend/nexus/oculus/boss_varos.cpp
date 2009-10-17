@@ -80,7 +80,7 @@ void AddSC_boss_varos()
     Script *newscript;
 
     newscript = new Script;
-    newscript->Name="boss_varos";
+    newscript->Name = "boss_varos";
     newscript->GetAI = &GetAI_boss_varos;
     newscript->RegisterSelf();
 }

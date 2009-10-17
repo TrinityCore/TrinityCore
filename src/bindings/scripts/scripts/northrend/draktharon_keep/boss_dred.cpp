@@ -70,7 +70,7 @@ void AddSC_boss_dred()
     Script *newscript;
 
     newscript = new Script;
-    newscript->Name="boss_dred";
+    newscript->Name = "boss_dred";
     newscript->GetAI = &GetAI_boss_dred;
     newscript->RegisterSelf();
 }

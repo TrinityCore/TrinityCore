@@ -1304,13 +1304,13 @@ void AddSC_npc_professions()
     Script *newscript;
 
     newscript = new Script;
-    newscript->Name="npc_prof_alchemy";
+    newscript->Name = "npc_prof_alchemy";
     newscript->pGossipHello =  &GossipHello_npc_prof_alchemy;
     newscript->pGossipSelect = &GossipSelect_npc_prof_alchemy;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="npc_prof_blacksmith";
+    newscript->Name = "npc_prof_blacksmith";
     newscript->pGossipHello =  &GossipHello_npc_prof_blacksmith;
     newscript->pGossipSelect = &GossipSelect_npc_prof_blacksmith;
     newscript->RegisterSelf();
@@ -1322,19 +1322,19 @@ void AddSC_npc_professions()
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="npc_prof_leather";
+    newscript->Name = "npc_prof_leather";
     newscript->pGossipHello =  &GossipHello_npc_prof_leather;
     newscript->pGossipSelect = &GossipSelect_npc_prof_leather;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="npc_prof_tailor";
+    newscript->Name = "npc_prof_tailor";
     newscript->pGossipHello =  &GossipHello_npc_prof_tailor;
     newscript->pGossipSelect = &GossipSelect_npc_prof_tailor;
     newscript->RegisterSelf();
 
     /*newscript = new Script;
-    newscript->Name="go_soothsaying_for_dummies";
+    newscript->Name = "go_soothsaying_for_dummies";
     newscript->pGOHello =  &GOHello_go_soothsaying_for_dummies;
     //newscript->pGossipSelect = &GossipSelect_go_soothsaying_for_dummies;
     newscript->RegisterSelf();*/

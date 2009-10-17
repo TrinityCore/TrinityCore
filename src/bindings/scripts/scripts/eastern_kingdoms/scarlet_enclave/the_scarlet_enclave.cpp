@@ -105,7 +105,7 @@ void AddSC_the_scarlet_enclave()
     Script *newscript;
 
     newscript = new Script;
-    newscript->Name="npc_valkyr_battle_maiden";
+    newscript->Name = "npc_valkyr_battle_maiden";
     newscript->GetAI = &GetAI_npc_valkyr_battle_maiden;
     newscript->RegisterSelf();
 

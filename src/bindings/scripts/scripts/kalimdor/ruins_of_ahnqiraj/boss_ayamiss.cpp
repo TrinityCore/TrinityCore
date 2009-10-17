@@ -101,7 +101,7 @@ void AddSC_boss_ayamiss()
 {
     Script *newscript;
     newscript = new Script;
-    newscript->Name="boss_ayamiss";
+    newscript->Name = "boss_ayamiss";
     newscript->GetAI = &GetAI_boss_ayamiss;
     newscript->RegisterSelf();
 }

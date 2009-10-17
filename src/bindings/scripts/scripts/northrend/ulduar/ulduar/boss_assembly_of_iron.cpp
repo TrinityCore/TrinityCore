@@ -537,27 +537,27 @@ void AddSC_boss_assembly_of_iron()
     Script *newscript;
 
     newscript = new Script;
-    newscript->Name="boss_steelbreaker";
+    newscript->Name = "boss_steelbreaker";
     newscript->GetAI = &GetAI_boss_steelbreaker;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="boss_runemaster_molgeim";
+    newscript->Name = "boss_runemaster_molgeim";
     newscript->GetAI = &GetAI_boss_runemaster_molgeim;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="boss_stormcaller_brundir";
+    newscript->Name = "boss_stormcaller_brundir";
     newscript->GetAI = &GetAI_boss_stormcaller_brundir;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="mob_lightning_elemental";
+    newscript->Name = "mob_lightning_elemental";
     newscript->GetAI = &GetAI_mob_lightning_elemental;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="mob_rune_of_summoning";
+    newscript->Name = "mob_rune_of_summoning";
     newscript->GetAI = &GetAI_mob_rune_of_summoning;
     newscript->RegisterSelf();
 

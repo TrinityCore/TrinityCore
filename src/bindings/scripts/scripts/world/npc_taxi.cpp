@@ -298,7 +298,7 @@ void AddSC_npc_taxi()
     Script *newscript;
 
     newscript = new Script;
-    newscript->Name="npc_taxi";
+    newscript->Name = "npc_taxi";
     newscript->pGossipHello = &GossipHello_npc_taxi;
     newscript->pGossipSelect = &GossipSelect_npc_taxi;
     newscript->RegisterSelf();

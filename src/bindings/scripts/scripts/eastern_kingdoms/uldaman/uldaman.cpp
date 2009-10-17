@@ -192,12 +192,12 @@ void AddSC_uldaman()
     Script *newscript;
 
     newscript = new Script;
-    newscript->Name="mob_jadespine_basilisk";
+    newscript->Name = "mob_jadespine_basilisk";
     newscript->GetAI = &GetAI_mob_jadespine_basilisk;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="npc_lore_keeper_of_norgannon";
+    newscript->Name = "npc_lore_keeper_of_norgannon";
     newscript->pGossipHello = &GossipHello_npc_lore_keeper_of_norgannon;
     newscript->pGossipSelect = &GossipSelect_npc_lore_keeper_of_norgannon;
     newscript->RegisterSelf();

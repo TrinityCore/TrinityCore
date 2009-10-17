@@ -182,12 +182,12 @@ void AddSC_boss_lieutenant_drake()
     Script *newscript;
 
     newscript = new Script;
-    newscript->Name="go_barrel_old_hillsbrad";
+    newscript->Name = "go_barrel_old_hillsbrad";
     newscript->pGOHello = &GOHello_go_barrel_old_hillsbrad;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="boss_lieutenant_drake";
+    newscript->Name = "boss_lieutenant_drake";
     newscript->GetAI = &GetAI_boss_lieutenant_drake;
     newscript->RegisterSelf();
 }

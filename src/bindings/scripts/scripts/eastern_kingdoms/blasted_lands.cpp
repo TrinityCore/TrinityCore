@@ -148,13 +148,13 @@ void AddSC_blasted_lands()
     Script *newscript;
 
     newscript = new Script;
-    newscript->Name="npc_deathly_usher";
+    newscript->Name = "npc_deathly_usher";
     newscript->pGossipHello =  &GossipHello_npc_deathly_usher;
     newscript->pGossipSelect = &GossipSelect_npc_deathly_usher;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="npc_fallen_hero_of_horde";
+    newscript->Name = "npc_fallen_hero_of_horde";
     newscript->pGossipHello =  &GossipHello_npc_fallen_hero_of_horde;
     newscript->pGossipSelect = &GossipSelect_npc_fallen_hero_of_horde;
     newscript->RegisterSelf();

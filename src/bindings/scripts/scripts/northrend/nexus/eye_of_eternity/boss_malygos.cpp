@@ -165,7 +165,7 @@ void AddSC_boss_malygos()
     Script *newscript;
 
     newscript = new Script;
-    newscript->Name="boss_malygos";
+    newscript->Name = "boss_malygos";
     newscript->GetAI = &GetAI_boss_malygos;
     newscript->RegisterSelf();
 }

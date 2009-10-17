@@ -414,7 +414,7 @@ void AddSC_boss_nightbane()
 {
     Script *newscript;
     newscript = new Script;
-    newscript->Name="boss_nightbane";
+    newscript->Name = "boss_nightbane";
     newscript->GetAI = &GetAI_boss_nightbane;
     newscript->RegisterSelf();
 }

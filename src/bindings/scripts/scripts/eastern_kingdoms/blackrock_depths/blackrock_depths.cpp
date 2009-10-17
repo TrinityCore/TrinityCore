@@ -1249,44 +1249,44 @@ void AddSC_blackrock_depths()
      newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="mob_phalanx";
+    newscript->Name = "mob_phalanx";
     newscript->GetAI = &GetAI_mob_phalanx;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="npc_kharan_mighthammer";
+    newscript->Name = "npc_kharan_mighthammer";
     newscript->pGossipHello =  &GossipHello_npc_kharan_mighthammer;
     newscript->pGossipSelect = &GossipSelect_npc_kharan_mighthammer;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="npc_lokhtos_darkbargainer";
+    newscript->Name = "npc_lokhtos_darkbargainer";
     newscript->pGossipHello =  &GossipHello_npc_lokhtos_darkbargainer;
     newscript->pGossipSelect = &GossipSelect_npc_lokhtos_darkbargainer;
     newscript->RegisterSelf();
 /*
     newscript = new Script;
-    newscript->Name="npc_dughal_stormwing";
+    newscript->Name = "npc_dughal_stormwing";
     newscript->pGossipHello =  &GossipHello_npc_dughal_stormwing;
     newscript->pGossipSelect = &GossipSelect_npc_dughal_stormwing;
     newscript->GetAI = &GetAI_npc_dughal_stormwing;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="npc_tobias_seecher";
+    newscript->Name = "npc_tobias_seecher";
     newscript->pGossipHello =  &GossipHello_npc_tobias_seecher;
     newscript->pGossipSelect = &GossipSelect_npc_tobias_seecher;
     newscript->GetAI = &GetAI_npc_tobias_seecher;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="npc_marshal_windsor";
+    newscript->Name = "npc_marshal_windsor";
     newscript->pQuestAccept = &QuestAccept_npc_marshal_windsor;
     newscript->GetAI = &GetAI_npc_marshal_windsor;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="npc_marshal_reginald_windsor";
+    newscript->Name = "npc_marshal_reginald_windsor";
     newscript->GetAI = &GetAI_npc_marshal_reginald_windsor;
     newscript->RegisterSelf();
 */

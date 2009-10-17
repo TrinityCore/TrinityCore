@@ -155,7 +155,7 @@ void AddSC_boss_volazj()
     Script *newscript;
 
     newscript = new Script;
-    newscript->Name="boss_volazj";
+    newscript->Name = "boss_volazj";
     newscript->GetAI = &GetAI_boss_volazj;
     newscript->RegisterSelf();
 }

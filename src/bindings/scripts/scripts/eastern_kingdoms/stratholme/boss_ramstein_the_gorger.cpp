@@ -95,7 +95,7 @@ void AddSC_boss_ramstein_the_gorger()
 {
     Script *newscript;
     newscript = new Script;
-    newscript->Name="boss_ramstein_the_gorger";
+    newscript->Name = "boss_ramstein_the_gorger";
     newscript->GetAI = &GetAI_boss_ramstein_the_gorger;
     newscript->RegisterSelf();
 }

@@ -251,7 +251,7 @@ void AddSC_boss_vael()
 {
     Script *newscript;
     newscript = new Script;
-    newscript->Name="boss_vaelastrasz";
+    newscript->Name = "boss_vaelastrasz";
     newscript->GetAI = &GetAI_boss_vael;
     newscript->pGossipHello = &GossipHello_boss_vael;
     newscript->pGossipSelect = &GossipSelect_boss_vael;

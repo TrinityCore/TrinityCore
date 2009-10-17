@@ -95,7 +95,7 @@ void AddSC_elwynn_forest()
     Script *newscript;
 
     newscript = new Script;
-    newscript->Name="npc_henze_faulk";
+    newscript->Name = "npc_henze_faulk";
     newscript->GetAI = &GetAI_npc_henze_faulk;
     newscript->RegisterSelf();
 }

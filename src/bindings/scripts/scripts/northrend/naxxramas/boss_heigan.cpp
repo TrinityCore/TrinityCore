@@ -144,7 +144,7 @@ void AddSC_boss_heigan()
 {
     Script *newscript;
     newscript = new Script;
-    newscript->Name="boss_heigan";
+    newscript->Name = "boss_heigan";
     newscript->GetAI = &GetAI_boss_heigan;
     newscript->RegisterSelf();
 }

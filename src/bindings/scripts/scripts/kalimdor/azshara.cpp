@@ -491,25 +491,25 @@ void AddSC_azshara()
     Script *newscript;
 
     newscript = new Script;
-    newscript->Name="mobs_spitelashes";
+    newscript->Name = "mobs_spitelashes";
     newscript->GetAI = &GetAI_mobs_spitelashes;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="npc_loramus_thalipedes";
+    newscript->Name = "npc_loramus_thalipedes";
     newscript->pGossipHello =  &GossipHello_npc_loramus_thalipedes;
     newscript->pGossipSelect = &GossipSelect_npc_loramus_thalipedes;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="mob_rizzle_sprysprocket";
+    newscript->Name = "mob_rizzle_sprysprocket";
     newscript->GetAI = &GetAI_mob_rizzle_sprysprocket;
     newscript->pGossipHello =  &GossipHello_mob_rizzle_sprysprocket;
     newscript->pGossipSelect = &GossipSelect_mob_rizzle_sprysprocket;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="mob_depth_charge";
+    newscript->Name = "mob_depth_charge";
     newscript->GetAI = &GetAI_mob_depth_charge;
     newscript->RegisterSelf();
 }

@@ -142,12 +142,12 @@ void AddSC_isle_of_queldanas()
     Script *newscript;
 
     newscript = new Script;
-    newscript->Name="npc_converted_sentry";
+    newscript->Name = "npc_converted_sentry";
     newscript->GetAI = &GetAI_npc_converted_sentry;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="npc_greengill_slave";
+    newscript->Name = "npc_greengill_slave";
     newscript->GetAI = &GetAI_npc_greengill_slaveAI;
     newscript->RegisterSelf();
 }

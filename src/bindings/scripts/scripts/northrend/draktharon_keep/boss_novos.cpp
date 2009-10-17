@@ -259,17 +259,17 @@ void AddSC_boss_novos()
     Script *newscript;
 
     newscript = new Script;
-    newscript->Name="boss_novos";
+    newscript->Name = "boss_novos";
     newscript->GetAI = &GetAI_boss_novos;
     newscript->RegisterSelf();
     
     newscript = new Script;
-    newscript->Name="mob_crystal_handler";
+    newscript->Name = "mob_crystal_handler";
     newscript->GetAI = &GetAI_mob_crystal_handler;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="mob_novos_minion";
+    newscript->Name = "mob_novos_minion";
     newscript->GetAI = &GetAI_mob_novos_minion;
     newscript->RegisterSelf();
 }

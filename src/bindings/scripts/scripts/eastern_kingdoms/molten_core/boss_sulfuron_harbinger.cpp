@@ -193,12 +193,12 @@ void AddSC_boss_sulfuron()
     Script *newscript;
 
     newscript = new Script;
-    newscript->Name="boss_sulfuron";
+    newscript->Name = "boss_sulfuron";
     newscript->GetAI = &GetAI_boss_sulfuron;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="mob_flamewaker_priest";
+    newscript->Name = "mob_flamewaker_priest";
     newscript->GetAI = &GetAI_mob_flamewaker_priest;
     newscript->RegisterSelf();
 }

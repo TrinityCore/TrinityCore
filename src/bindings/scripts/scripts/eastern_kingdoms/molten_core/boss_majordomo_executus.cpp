@@ -127,7 +127,7 @@ void AddSC_boss_majordomo()
 {
     Script *newscript;
     newscript = new Script;
-    newscript->Name="boss_majordomo";
+    newscript->Name = "boss_majordomo";
     newscript->GetAI = &GetAI_boss_majordomo;
     newscript->RegisterSelf();
 }

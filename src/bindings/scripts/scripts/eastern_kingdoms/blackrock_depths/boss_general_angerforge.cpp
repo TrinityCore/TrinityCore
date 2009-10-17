@@ -161,7 +161,7 @@ void AddSC_boss_general_angerforge()
 {
     Script *newscript;
     newscript = new Script;
-    newscript->Name="boss_general_angerforge";
+    newscript->Name = "boss_general_angerforge";
     newscript->GetAI = &GetAI_boss_general_angerforge;
     newscript->RegisterSelf();
 }
