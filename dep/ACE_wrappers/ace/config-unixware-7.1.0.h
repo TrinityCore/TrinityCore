@@ -147,7 +147,6 @@
 #undef ACE_HAS_PENTIUM
 #endif /* ACE_HAS_PENTIUM */
 
-
 /* Platform contains <poll.h> */
 #define ACE_HAS_POLL 1
 

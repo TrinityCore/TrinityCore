@@ -205,7 +205,7 @@ struct TRINITY_DLL_DECL boss_onyxiaAI : public ScriptedAI
             {
                 InitialSpawn = false;
 
-                for(uint32 i = 0; i < 10; ++i)
+                for (uint32 i = 0; i < 10; ++i)
                 {
                     uint32 random = rand()%4;
                     Creature* Whelp = m_creature->SummonCreature(CREATURE_WHELP, SpawnLocations[random][0], SpawnLocations[random][1], SpawnLocations[random][2], 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 30000);
@@ -265,7 +265,7 @@ struct TRINITY_DLL_DECL boss_onyxiaAI : public ScriptedAI
         if (Phase == 2)
         {
             uint32 max = rand()%10;
-            for(uint32 i = 0; i < max; ++i)
+            for (uint32 i = 0; i < max; ++i)
             {
                 uint32 random = rand()%3;
                 Creature* Whelp = m_creature->SummonCreature(CREATURE_WHELP, SpawnLocations[random][0], SpawnLocations[random][1], SpawnLocations[random][2], 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 30000);
@@ -279,7 +279,7 @@ struct TRINITY_DLL_DECL boss_onyxiaAI : public ScriptedAI
             uint32 max = rand() % 10 +1;
             if (max < 5)
             {
-                for(uint32 i = 0; i < max; ++i)
+                for (uint32 i = 0; i < max; ++i)
                 {
                     uint32 random = rand()%4;
                     Creature* Whelp = m_creature->SummonCreature(CREATURE_WHELP, SpawnLocations[random][0], SpawnLocations[random][1], SpawnLocations[random][2], 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 30000);

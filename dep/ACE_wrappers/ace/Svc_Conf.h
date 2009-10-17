@@ -10,7 +10,6 @@
  */
 //=============================================================================
 
-
 #ifndef ACE_SVC_CONF_H
 #define ACE_SVC_CONF_H
 
@@ -42,7 +41,6 @@ int ace_yyparse (void);
 int ace_yyparse ();
 #endif
 #endif /* ! YYPARSE_PARAM */
-
 
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 
@@ -101,7 +99,6 @@ ace_create_service_type (ACE_TCHAR const *,
                          void *,
                          unsigned int,
                          ACE_Service_Object_Exterminator = 0);
-
 
 ACE_END_VERSIONED_NAMESPACE_DECL
 

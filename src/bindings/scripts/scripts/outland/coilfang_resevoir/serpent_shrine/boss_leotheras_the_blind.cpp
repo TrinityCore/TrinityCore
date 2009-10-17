@@ -130,7 +130,6 @@ struct TRINITY_DLL_DECL mob_inner_demonAI : public ScriptedAI
             Link_Timer = 1000;
         }else Link_Timer -= diff;
 
-
         if (!m_creature->HasAura(AURA_DEMONIC_ALIGNMENT))
             DoCast(m_creature, AURA_DEMONIC_ALIGNMENT,true);
 
@@ -152,7 +151,7 @@ struct TRINITY_DLL_DECL boss_leotheras_the_blindAI : public ScriptedAI
         pInstance = c->GetInstanceData();
         Demon = 0;
 
-        for(uint8 i = 0; i < 3; ++i)//clear guids
+        for (uint8 i = 0; i < 3; ++i)//clear guids
             SpellBinderGUID[i] = 0;
     }
 
@@ -207,7 +206,7 @@ struct TRINITY_DLL_DECL boss_leotheras_the_blindAI : public ScriptedAI
 
     void CheckChannelers(bool DoEvade = true)
     {
-        for(uint8 i = 0; i < 3; ++i)
+        for (uint8 i = 0; i < 3; ++i)
         {
             if (Creature *add = Unit::GetCreature(*m_creature,SpellBinderGUID[i]))
                 add->DisappearAndDie();
@@ -256,7 +255,7 @@ struct TRINITY_DLL_DECL boss_leotheras_the_blindAI : public ScriptedAI
     void CheckBanish()
     {
         uint8 AliveChannelers = 0;
-        for(uint8 i = 0; i < 3; ++i)
+        for (uint8 i = 0; i < 3; ++i)
         {
             Unit *add = Unit::GetUnit(*m_creature,SpellBinderGUID[i]);
             if (add && add->isAlive())
@@ -306,7 +305,7 @@ struct TRINITY_DLL_DECL boss_leotheras_the_blindAI : public ScriptedAI
     //Despawn all Inner Demon summoned
     void DespawnDemon()
     {
-        for(uint8 i=0; i<5; ++i)
+        for (uint8 i=0; i<5; ++i)
         {
             if (InnderDemon[i])
             {
@@ -325,7 +324,7 @@ struct TRINITY_DLL_DECL boss_leotheras_the_blindAI : public ScriptedAI
 
     void CastConsumingMadness() //remove this once SPELL_INSIDIOUS_WHISPER is supported by core
     {
-        for(uint8 i=0; i<5; ++i)
+        for (uint8 i=0; i<5; ++i)
         {
             if (InnderDemon[i] > 0)
             {
@@ -481,14 +480,14 @@ struct TRINITY_DLL_DECL boss_leotheras_the_blindAI : public ScriptedAI
             {
                 std::list<HostilReference *>& ThreatList = m_creature->getThreatManager().getThreatList();
                 std::vector<Unit *> TargetList;
-                for(std::list<HostilReference *>::iterator itr = ThreatList.begin(); itr != ThreatList.end(); ++itr)
+                for (std::list<HostilReference *>::iterator itr = ThreatList.begin(); itr != ThreatList.end(); ++itr)
                 {
                     Unit *tempTarget = Unit::GetUnit(*m_creature, (*itr)->getUnitGuid());
                     if (tempTarget && tempTarget->GetTypeId() == TYPEID_PLAYER && tempTarget->GetGUID() != m_creature->getVictim()->GetGUID() && TargetList.size()<5)
                         TargetList.push_back(tempTarget);
                 }
                 SpellEntry *spell = GET_SPELL(SPELL_INSIDIOUS_WHISPER);
-                for(std::vector<Unit *>::iterator itr = TargetList.begin(); itr != TargetList.end(); ++itr)
+                for (std::vector<Unit *>::iterator itr = TargetList.begin(); itr != TargetList.end(); ++itr)
                 {
                     if ((*itr) && (*itr)->isAlive())
                     {
@@ -724,12 +723,12 @@ struct TRINITY_DLL_DECL mob_greyheart_spellbinderAI : public ScriptedAI
         {
             Map* pMap = m_creature->GetMap();
             Map::PlayerList const &PlayerList = pMap->GetPlayers();
-            for(Map::PlayerList::const_iterator itr = PlayerList.begin();itr != PlayerList.end(); ++itr)
+            for (Map::PlayerList::const_iterator itr = PlayerList.begin(); itr != PlayerList.end(); ++itr)
             {
                 if (Player* i_pl = itr->getSource())
                 {
                     bool isCasting = false;
-                    for(uint8 i = 0; i < CURRENT_MAX_SPELL; ++i)
+                    for (uint8 i = 0; i < CURRENT_MAX_SPELL; ++i)
                         if (i_pl->GetCurrentSpell(i))
                             isCasting = true;
 

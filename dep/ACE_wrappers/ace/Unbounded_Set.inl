@@ -13,7 +13,7 @@ ACE_Unbounded_Set_Default_Comparator<T>::operator () (const T  &lhs, const T &rh
 }
 
 template<typename T>
-ACE_Unbounded_Set_Iterator<T>::ACE_Unbounded_Set_Iterator (ACE_Unbounded_Set<T> &s, 
+ACE_Unbounded_Set_Iterator<T>::ACE_Unbounded_Set_Iterator (ACE_Unbounded_Set<T> &s,
                                                            bool end)
   : base_type (s, end)
 {
@@ -44,6 +44,5 @@ ACE_Unbounded_Set<T>::ACE_Unbounded_Set (ACE_Allocator *alloc)
   : ACE_Unbounded_Set_Ex<T, ACE_Unbounded_Set_Default_Comparator<T> > (alloc)
 {
 }
-
 
 ACE_END_VERSIONED_NAMESPACE_DECL

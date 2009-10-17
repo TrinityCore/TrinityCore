@@ -92,13 +92,13 @@ struct TRINITY_DLL_DECL instance_zulaman : public ScriptedInstance
         BossKilled = 0;
         ChestLooted = 0;
 
-        for(uint8 i = 0; i < RAND_VENDOR; ++i)
+        for (uint8 i = 0; i < RAND_VENDOR; ++i)
             RandVendor[i] = NOT_STARTED;
     }
 
     bool IsEncounterInProgress() const
     {
-        for(uint8 i = 0; i < MAX_ENCOUNTER; ++i)
+        for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
             if (m_auiEncounter[i] == IN_PROGRESS) return true;
 
         return false;

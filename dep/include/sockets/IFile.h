@@ -62,7 +62,6 @@ public:
 
 };
 
-
 #ifdef SOCKETS_NAMESPACE
 }
 #endif

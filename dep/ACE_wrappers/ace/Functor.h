@@ -27,7 +27,6 @@
  */
 //==========================================================================
 
-
 #ifndef ACE_FUNCTOR_H
 #define ACE_FUNCTOR_H
 #include /**/ "ace/pre.h"

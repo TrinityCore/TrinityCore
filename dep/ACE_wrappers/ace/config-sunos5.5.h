@@ -89,7 +89,6 @@
     /* If you want to disable threading with Sun CC, remove -mt
        from your CFLAGS, e.g., using make threads=0. */
 
-
 // Take advantage of Sun Studio 8 (Sun C++ 5.5) or better symbol
 // visibility to generate improved shared library binaries.
 #  if (__SUNPRO_CC > 0x540)

@@ -29,7 +29,6 @@ ACE_MUTEX_LOCK_CLEANUP_ADAPTER_NAME (void *args)
   ACE_VERSIONED_NAMESPACE_NAME::ACE_OS::mutex_lock_cleanup (args);
 }
 
-
 #if !defined(ACE_WIN32) && defined (__IBMCPP__) && (__IBMCPP__ >= 400)
 # define ACE_BEGINTHREADEX(STACK, STACKSIZE, ENTRY_POINT, ARGS, FLAGS, THR_ID) \
        (*THR_ID = ::_beginthreadex ((void(_Optlink*)(void*))ENTRY_POINT, STACK, STACKSIZE, ARGS), *THR_ID)
@@ -245,7 +244,7 @@ ACE_TSS_Emulation::next_key (ACE_thread_key_t &key)
     {
        u_int counter = 0;
        // Loop through all possible keys and check whether a key is free
-       for ( ;counter < ACE_TSS_THREAD_KEYS_MAX; counter++)
+       for (; counter < ACE_TSS_THREAD_KEYS_MAX; counter++)
          {
             ACE_thread_key_t localkey;
 #  if defined (ACE_HAS_NONSCALAR_THREAD_KEY_T)
@@ -599,7 +598,6 @@ private:
   /// use by this thread.
   ACE_thread_key_t in_use_;
 };
-
 
 /*****************************************************************************/
 /**
@@ -2769,7 +2767,7 @@ ACE_OS::event_pulse (ACE_event_t *event)
           event->eventdata_->signal_count_ = event->eventdata_->waiting_threads_;
 # else
         event->eventdata_->signal_count_ = event->eventdata_->waiting_threads_;
-        for (unsigned long i=0; i<event->eventdata_->signal_count_ ;++i)
+        for (unsigned long i=0; i<event->eventdata_->signal_count_ ; ++i)
           if (ACE_OS::sema_post(&event->semaphore_) != 0)
           {
             event->eventdata_->signal_count_ = 0;
@@ -5164,7 +5162,7 @@ add_to_argv (int& argc, char** argv, int max_args, char* string)
             }
 
           // Skip over whitespace in between arguments
-          for(++i; i < length && ACE_OS::ace_isspace (string[i]); ++i)
+          for (++i; i < length && ACE_OS::ace_isspace (string[i]); ++i)
             {
             }
 

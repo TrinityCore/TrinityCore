@@ -100,11 +100,9 @@ __inline long int lrintf(float flt) {
         return (long int)floorf(flt+0.5f);
     }
 
-
 #endif
 
 #endif
-
 
 const double fuzzyEpsilon = 0.00001;
 
@@ -224,7 +222,6 @@ int iSign(double fValue);
 inline int iSign(float f) {
     return iSign((double)f);
 }
-
 
 /**
     Fast round to integer using the lrint routine.
@@ -459,7 +456,6 @@ inline float dot(float a, float b) {
     return a * b;
 }
 
-
 /**
  a * b (for DirectX/Cg support)
  */
@@ -477,7 +473,6 @@ inline double exp2(double x) {
 inline double rsqrt(double x) {
     return 1.0 / sqrt(x);
 }
-
 
 /**
  sin(x)/x
@@ -511,7 +506,6 @@ inline double wrap(double t, double lo, double hi) {
 inline double wrap(double t, double hi) {
     return wrap(t, 0, hi);
 }
-
 
 } // namespace
 

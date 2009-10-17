@@ -1,8 +1,8 @@
 /**
  @file g3dmath.inl
- 
+
   @maintainer Morgan McGuire, matrix@graphics3d.com
- 
+
  @created 2001-06-02
  @edited  2006-01-14
  */
@@ -158,7 +158,6 @@ inline double G3D_DEPRECATED unitRandom () {
 inline float uniformRandom(float low, float hi) {
     return (hi - low) * float(::rand()) / float(RAND_MAX) + low;
 }
-
 
 //----------------------------------------------------------------------------
 inline double G3D_DEPRECATED symmetricRandom () {

@@ -206,7 +206,6 @@ private:
     bool m_b_read_ts;
 };
 
-
 #ifdef SOCKETS_NAMESPACE
 }
 #endif

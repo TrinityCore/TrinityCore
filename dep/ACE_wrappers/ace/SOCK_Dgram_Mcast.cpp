@@ -96,7 +96,7 @@ ACE_SOCK_Dgram_Mcast::dump (void) const
 
   ACE_MT (ACE_GUARD (ACE_SDM_LOCK, guard, this->subscription_list_lock_));
   subscription_list_iter_t  iter (this->subscription_list_);
-  for ( ; !iter.done (); iter.advance ())
+  for (; !iter.done (); iter.advance ())
     {
       ACE_TCHAR iface_string[MAXNAMELEN + 1];
       ip_mreq *pm = iter.next ();
@@ -612,7 +612,6 @@ ACE_SOCK_Dgram_Mcast::unsubscribe_ifs (const ACE_INET_Addr &mcast_addr,
 {
   ACE_TRACE ("ACE_SOCK_Dgram_Mcast::unsubscribe_ifs");
 
-
   if (ACE_BIT_ENABLED (this->opts_, OPT_NULLIFACE_ALL)
       && net_if == 0)
     {
@@ -689,7 +688,6 @@ ACE_SOCK_Dgram_Mcast::unsubscribe_ifs (const ACE_INET_Addr &mcast_addr,
             }
 
           return 1;
-
 
         }
       else
@@ -796,7 +794,6 @@ ACE_SOCK_Dgram_Mcast::unsubscribe_ifs (const ACE_INET_Addr &mcast_addr,
 
   return 0;
 }
-
 
 int
 ACE_SOCK_Dgram_Mcast::leave (const ACE_INET_Addr &mcast_addr,

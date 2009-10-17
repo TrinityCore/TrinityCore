@@ -297,7 +297,6 @@ public:
   /// <run_event_loop> method can be restarted.
   int proactor_reset_event_loop (void);
 
-
   /// This method adds the @a handle to the I/O completion port. This
   /// function is a no-op function for Unix systems and returns 0;
   int register_handle (ACE_HANDLE handle,
@@ -627,7 +626,6 @@ protected:
 
   /// Mutex to protect work with lists.
   ACE_SYNCH_MUTEX mutex_;
-
 
 private:
   /// Deny access since member-wise won't work...

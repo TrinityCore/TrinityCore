@@ -76,7 +76,7 @@ struct TRINITY_DLL_DECL instance_utgarde_keep : public ScriptedInstance
         Dalronn = 0;
         Ingvar = 0;
 
-        for(uint8 i = 0; i < 3; ++i)
+        for (uint8 i = 0; i < 3; ++i)
         {
             forge_bellow[i] = 0;
             forge_fire[i] = 0;
@@ -90,7 +90,7 @@ struct TRINITY_DLL_DECL instance_utgarde_keep : public ScriptedInstance
 
     bool IsEncounterInProgress() const
     {
-        for(uint8 i = 0; i < MAX_ENCOUNTER; ++i)
+        for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
             if (m_auiEncounter[i] == IN_PROGRESS) return true;
 
         return false;
@@ -102,7 +102,7 @@ struct TRINITY_DLL_DECL instance_utgarde_keep : public ScriptedInstance
 
         if (!players.isEmpty())
         {
-            for(Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
+            for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
             {
                 if (Player* plr = itr->getSource())
                 return plr;
@@ -229,7 +229,6 @@ struct TRINITY_DLL_DECL instance_utgarde_keep : public ScriptedInstance
             break;
         }
 
-
         if (data == DONE)
         {
             SaveToDB();
@@ -284,7 +283,7 @@ struct TRINITY_DLL_DECL instance_utgarde_keep : public ScriptedInstance
             m_auiEncounter[1] = data1;
             m_auiEncounter[2] = data2;
 
-            for(uint8 i = 0; i < MAX_ENCOUNTER; ++i)
+            for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
                 if (m_auiEncounter[i] == IN_PROGRESS)
                     m_auiEncounter[i] = NOT_STARTED;
 

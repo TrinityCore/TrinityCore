@@ -240,7 +240,7 @@ ACE_OS::getmacaddress (struct macaddr_node_t *node)
 
     result = Netbios (&ncb);
 
-    for(int i = 0; i < lenum.length; i++)
+    for (int i = 0; i < lenum.length; i++)
       {
         ACE_OS::memset (&ncb, 0, sizeof(ncb));
         ncb.ncb_command  = NCBRESET;

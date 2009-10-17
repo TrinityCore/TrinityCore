@@ -50,7 +50,6 @@ enum
   ACE_DATA_BLOCK_CLONE_LEAVE
 };
 
-
 // Setup Timeprobes
 ACE_TIMEPROBE_EVENT_DESCRIPTIONS (ACE_MB_Timeprobe_Description,
                                   ACE_MESSAGE_BLOCK_INIT_I_ENTER);
@@ -1159,7 +1158,6 @@ ACE_Data_Block::clone_nocopy (ACE_Message_Block::Message_Flags mask,
       errno = ENOMEM;
       return 0;
     }
-
 
   // Set new flags minus the mask...
   nb->clr_flags (mask | always_clear);

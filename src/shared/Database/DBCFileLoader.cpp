@@ -72,7 +72,7 @@ bool DBCFileLoader::Load(const char *filename, const char *fmt)
 
     fieldsOffset = new uint32[fieldCount];
     fieldsOffset[0] = 0;
-    for(uint32 i = 1; i < fieldCount; i++)
+    for (uint32 i = 1; i < fieldCount; i++)
     {
         fieldsOffset[i] = fieldsOffset[i - 1];
         if (fmt[i - 1] == 'b' || fmt[i - 1] == 'X')         // byte fields
@@ -109,7 +109,7 @@ uint32 DBCFileLoader::GetFormatRecordSize(const char * format,int32* index_pos)
 {
     uint32 recordsize = 0;
     int32 i = -1;
-    for(uint32 x=0; format[x];++x)
+    for (uint32 x=0; format[x]; ++x)
         switch(format[x])
         {
             case FT_FLOAT:
@@ -162,7 +162,7 @@ char* DBCFileLoader::AutoProduceData(const char* format, uint32& records, char**
     {
         uint32 maxi=0;
         //find max index
-        for(uint32 y=0;y<recordCount;y++)
+        for (uint32 y=0; y<recordCount; y++)
         {
             uint32 ind=getRecord(y).getUInt (i);
             if(ind>maxi)maxi=ind;
@@ -187,7 +187,7 @@ char* DBCFileLoader::AutoProduceData(const char* format, uint32& records, char**
 
     uint32 offset=0;
 
-    for(uint32 y =0;y<recordCount;++y)
+    for (uint32 y =0; y<recordCount; ++y)
     {
         if(i>=0)
         {
@@ -196,7 +196,7 @@ char* DBCFileLoader::AutoProduceData(const char* format, uint32& records, char**
         else
             indexTable[y]=&dataTable[offset];
 
-        for(uint32 x=0;x<fieldCount;x++)
+        for (uint32 x=0; x<fieldCount; x++)
         {
             switch(format[x])
             {
@@ -235,9 +235,9 @@ char* DBCFileLoader::AutoProduceStrings(const char* format, char* dataTable)
 
     uint32 offset=0;
 
-    for(uint32 y =0;y<recordCount;y++)
+    for (uint32 y =0; y<recordCount; y++)
     {
-        for(uint32 x=0;x<fieldCount;x++)
+        for (uint32 x=0; x<fieldCount; x++)
             switch(format[x])
         {
             case FT_FLOAT:

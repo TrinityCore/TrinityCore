@@ -26,7 +26,6 @@
 #include "ace/Synch_Traits.h"
 #include "ace/os_include/os_stddef.h"
 
-
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 
 // Forward decl., using the "Cheshire Cat" technique.

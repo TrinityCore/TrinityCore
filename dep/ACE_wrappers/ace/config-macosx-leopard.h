@@ -58,7 +58,6 @@
 #define ACE_HAS_WCHAR
 #define ACE_SIZEOF_WCHAR 4
 
-
 #define ACE_HAS_3_PARAM_WCSTOK
 #define ACE_LACKS_ITOW
 #define ACE_LACKS_WCSICMP

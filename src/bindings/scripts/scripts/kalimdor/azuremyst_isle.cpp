@@ -323,7 +323,6 @@ struct TRINITY_DLL_DECL npc_magwinAI : public npc_escortAI
 {
     npc_magwinAI(Creature *c) : npc_escortAI(c) {}
 
-
     void WaypointReached(uint32 i)
     {
         Player* pPlayer = GetPlayerForEscort();
@@ -487,7 +486,7 @@ struct TRINITY_DLL_DECL npc_geezleAI : public ScriptedAI
         Trinity::PlayerListSearcher<Trinity::AnyPlayerInObjectRangeCheck> searcher(m_creature, players, checker);
         m_creature->VisitNearbyWorldObject(radius, searcher);
 
-        for(std::list<Player*>::iterator itr = players.begin(); itr != players.end(); ++itr)
+        for (std::list<Player*>::iterator itr = players.begin(); itr != players.end(); ++itr)
         {
             if((*itr)->GetQuestStatus(QUEST_TREES_COMPANY)==QUEST_STATUS_INCOMPLETE
                 &&(*itr)->HasAuraEffect(SPELL_TREE_DISGUISE,3) )
@@ -504,7 +503,7 @@ struct TRINITY_DLL_DECL npc_geezleAI : public ScriptedAI
 
         if (!FlagList.empty())
         {
-            for(std::list<GameObject*>::iterator itr = FlagList.begin(); itr != FlagList.end(); ++itr)
+            for (std::list<GameObject*>::iterator itr = FlagList.begin(); itr != FlagList.end(); ++itr)
             {
                 if (despawn)
                 {

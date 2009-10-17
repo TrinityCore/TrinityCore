@@ -353,7 +353,7 @@ void Object::_BuildMovementUpdate(ByteBuffer * data, uint16 flags) const
             uint32 poscount = uint32(path.Size());
             *data << uint32(poscount);                      // points count
 
-            for(uint32 i = 0; i < poscount; ++i)
+            for (uint32 i = 0; i < poscount; ++i)
             {
                 *data << path.GetNodes()[i].x;
                 *data << path.GetNodes()[i].y;
@@ -527,7 +527,7 @@ void Object::_BuildValuesUpdate(uint8 updatetype, ByteBuffer * data, UpdateMask 
     // 2 specialized loops for speed optimization in non-unit case
     if(isType(TYPEMASK_UNIT))                               // unit (creature/player) case
     {
-        for( uint16 index = 0; index < m_valuesCount; ++index )
+        for (uint16 index = 0; index < m_valuesCount; ++index )
         {
             if( updateMask->GetBit( index ) )
             {
@@ -639,7 +639,7 @@ void Object::_BuildValuesUpdate(uint8 updatetype, ByteBuffer * data, UpdateMask 
                     }
                     else
                         *data << m_uint32Values[ index ];
-                }                    
+                }
                 else
                 {
                     // send in current format (float as float, uint32 as uint32)
@@ -650,7 +650,7 @@ void Object::_BuildValuesUpdate(uint8 updatetype, ByteBuffer * data, UpdateMask 
     }
     else if(isType(TYPEMASK_GAMEOBJECT))                    // gameobject case
     {
-        for( uint16 index = 0; index < m_valuesCount; ++index )
+        for (uint16 index = 0; index < m_valuesCount; ++index )
         {
             if( updateMask->GetBit( index ) )
             {
@@ -691,7 +691,7 @@ void Object::_BuildValuesUpdate(uint8 updatetype, ByteBuffer * data, UpdateMask 
     }
     else                                                    // other objects case (no special index checks)
     {
-        for( uint16 index = 0; index < m_valuesCount; ++index )
+        for (uint16 index = 0; index < m_valuesCount; ++index )
         {
             if( updateMask->GetBit( index ) )
             {
@@ -752,7 +752,7 @@ void Object::_SetUpdateBits(UpdateMask *updateMask, Player* /*target*/) const
     uint32 *value = m_uint32Values;
     uint32 *mirror = m_uint32Values_mirror;
 
-    for(uint16 index = 0; index < m_valuesCount; ++index, ++value, ++mirror)
+    for (uint16 index = 0; index < m_valuesCount; ++index, ++value, ++mirror)
     {
         if(*mirror != *value)
             updateMask->SetBit(index);
@@ -763,7 +763,7 @@ void Object::_SetCreateBits(UpdateMask *updateMask, Player* /*target*/) const
 {
     uint32 *value = m_uint32Values;
 
-    for(uint16 index = 0; index < m_valuesCount; ++index, ++value)
+    for (uint16 index = 0; index < m_valuesCount; ++index, ++value)
     {
         if(*value)
             updateMask->SetBit(index);
@@ -1551,7 +1551,7 @@ void WorldObject::MonsterYellToZone(int32 textId, uint32 language, uint64 Target
     uint32 zoneid = GetZoneId();
 
     Map::PlayerList const& pList = GetMap()->GetPlayers();
-    for(Map::PlayerList::const_iterator itr = pList.begin(); itr != pList.end(); ++itr)
+    for (Map::PlayerList::const_iterator itr = pList.begin(); itr != pList.end(); ++itr)
         if(itr->getSource()->GetZoneId()==zoneid)
             say_do(itr->getSource());
 }
@@ -1783,7 +1783,7 @@ Pet* Player::SummonPet(uint32 entry, float x, float y, float z, float ang, PetTy
     {
         // Remove Demonic Sacrifice auras (known pet)
         Unit::AuraEffectList const& auraClassScripts = GetAurasByType(SPELL_AURA_OVERRIDE_CLASS_SCRIPTS);
-        for(Unit::AuraEffectList::const_iterator itr = auraClassScripts.begin();itr!=auraClassScripts.end();)
+        for (Unit::AuraEffectList::const_iterator itr = auraClassScripts.begin(); itr!=auraClassScripts.end(); )
         {
             if((*itr)->GetMiscValue()==2228)
             {
@@ -1864,7 +1864,7 @@ Pet* Player::SummonPet(uint32 entry, float x, float y, float z, float ang, PetTy
     {
         // Remove Demonic Sacrifice auras (known pet)
         Unit::AuraEffectList const& auraClassScripts = GetAurasByType(SPELL_AURA_OVERRIDE_CLASS_SCRIPTS);
-        for(Unit::AuraEffectList::const_iterator itr = auraClassScripts.begin();itr!=auraClassScripts.end();)
+        for (Unit::AuraEffectList::const_iterator itr = auraClassScripts.begin(); itr!=auraClassScripts.end(); )
         {
             if((*itr)->GetMiscValue()==2228)
             {
@@ -2238,7 +2238,7 @@ void WorldObject::DestroyForNearbyPlayers()
     Trinity::AnyUnitInObjectRangeCheck check(this, GetMap()->GetVisibilityDistance());
     Trinity::UnitListSearcher<Trinity::AnyUnitInObjectRangeCheck> searcher(this, targets, check);
     VisitNearbyWorldObject(GetMap()->GetVisibilityDistance(), searcher);
-    for(std::list<Unit*>::const_iterator iter = targets.begin(); iter != targets.end(); ++iter)
+    for (std::list<Unit*>::const_iterator iter = targets.begin(); iter != targets.end(); ++iter)
     {
         Player *plr = dynamic_cast<Player*>(*iter);
         if(!plr)
@@ -2252,8 +2252,8 @@ void WorldObject::DestroyForNearbyPlayers()
 
         if(isType(TYPEMASK_UNIT) && ((Unit*)this)->GetCharmerGUID() == plr->GetGUID()) // TODO: this is for puppet
             continue;
-         
-        DestroyForPlayer(plr);            
-        plr->m_clientGUIDs.erase(GetGUID());       
+
+        DestroyForPlayer(plr);
+        plr->m_clientGUIDs.erase(GetGUID());
     }
 }

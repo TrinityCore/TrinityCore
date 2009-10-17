@@ -21,7 +21,6 @@
 # error This header is only meant to be included by or after "ace/config-lite.h".
 #endif  /* !ACE_CONFIG_LITE_H */
 
-
 #if defined (ACE_HAS_VERSIONED_NAMESPACE) && ACE_HAS_VERSIONED_NAMESPACE == 1
 
 # ifndef ACE_VERSIONED_NAMESPACE_NAME

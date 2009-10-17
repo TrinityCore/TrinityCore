@@ -224,14 +224,14 @@ bool EquippedOk(Player* pPlayer, uint32 spellId)
     if (!spell)
         return false;
 
-    for(uint8 i=0; i<3; ++i)
+    for (uint8 i=0; i<3; ++i)
     {
         uint32 reqSpell = spell->EffectTriggerSpell[i];
         if (!reqSpell)
             continue;
 
         Item* pItem;
-        for(uint8 j = EQUIPMENT_SLOT_START; j < EQUIPMENT_SLOT_END; j++)
+        for (uint8 j = EQUIPMENT_SLOT_START; j < EQUIPMENT_SLOT_END; j++)
         {
             pItem = pPlayer->GetItemByPos(INVENTORY_SLOT_BAG_0, j);
             if (pItem)

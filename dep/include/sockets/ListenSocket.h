@@ -51,7 +51,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 namespace SOCKETS_NAMESPACE {
 #endif
 
-
 /** Binds incoming port number to new Socket class X.
     \ingroup basic */
 template <class X>
@@ -409,8 +408,6 @@ private:
     X *m_creator;
     bool m_bHasCreate;
 };
-
-
 
 #ifdef SOCKETS_NAMESPACE
 }

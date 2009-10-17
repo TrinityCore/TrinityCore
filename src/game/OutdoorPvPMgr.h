@@ -51,7 +51,7 @@ public:
     bool HandleCustomSpell(Player * plr, uint32 spellId, GameObject* go);
     // handle custom go if registered
     bool HandleOpenGo(Player * plr, uint64 guid);
-    
+
     ZoneScript * GetZoneScript(uint32 zoneId);
 
     void AddZone(uint32 zoneid, OutdoorPvP * handle);

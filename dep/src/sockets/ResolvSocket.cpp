@@ -53,12 +53,10 @@ namespace SOCKETS_NAMESPACE {
 #define DEB(x)
 //#endif
 
-
 // static
 ResolvSocket::cache_t ResolvSocket::m_cache;
 ResolvSocket::timeout_t ResolvSocket::m_cache_to;
 Mutex ResolvSocket::m_cache_mutex;
-
 
 ResolvSocket::ResolvSocket(ISocketHandler& h)
 :TcpSocket(h)
@@ -71,7 +69,6 @@ ResolvSocket::ResolvSocket(ISocketHandler& h)
 {
     SetLineProtocol();
 }
-
 
 ResolvSocket::ResolvSocket(ISocketHandler& h, Socket *parent, const std::string& host, port_t port, bool ipv6)
 :TcpSocket(h)
@@ -87,7 +84,6 @@ ResolvSocket::ResolvSocket(ISocketHandler& h, Socket *parent, const std::string&
     SetLineProtocol();
 }
 
-
 ResolvSocket::ResolvSocket(ISocketHandler& h, Socket *parent, ipaddr_t a)
 :TcpSocket(h)
 ,m_bServer(false)
@@ -101,7 +97,6 @@ ResolvSocket::ResolvSocket(ISocketHandler& h, Socket *parent, ipaddr_t a)
 {
     SetLineProtocol();
 }
-
 
 #ifdef ENABLE_IPV6
 ResolvSocket::ResolvSocket(ISocketHandler& h, Socket *parent, in6_addr& a)
@@ -117,11 +112,9 @@ ResolvSocket::ResolvSocket(ISocketHandler& h, Socket *parent, in6_addr& a)
 }
 #endif
 
-
 ResolvSocket::~ResolvSocket()
 {
 }
-
 
 void ResolvSocket::OnLine(const std::string& line)
 {
@@ -268,7 +261,6 @@ DEB(fprintf(stderr, " *** Update cache for [%s][%s] = '%s'\n", m_query.c_str(), 
 #endif
 }
 
-
 void ResolvSocket::OnDetached()
 {
 DEB(    fprintf(stderr, " *** ResolvSocket::OnDetached(); query=%s, data=%s\n", m_query.c_str(), m_data.c_str());)
@@ -370,7 +362,6 @@ DEB(    fprintf(stderr, " *** ResolvSocket::OnDetached(); query=%s, data=%s\n", 
     SetCloseAndDelete();
 }
 
-
 void ResolvSocket::OnConnect()
 {
     if (!m_resolv_host.empty())
@@ -405,7 +396,6 @@ void ResolvSocket::OnConnect()
     Send( msg );
 }
 
-
 void ResolvSocket::OnDelete()
 {
     if (m_parent)
@@ -426,7 +416,6 @@ DEB(fprintf(stderr, " *** Update cache for [%s][%s] = '%s'\n", m_query.c_str(), 
         m_parent = NULL;
     }
 }
-
 
 #ifdef SOCKETS_NAMESPACE
 }

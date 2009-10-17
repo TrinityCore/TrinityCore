@@ -76,10 +76,10 @@ struct TRINITY_DLL_DECL instance_stratholme : public ScriptedInstance
 
     void Initialize()
     {
-        for(uint8 i = 0; i < MAX_ENCOUNTER; ++i)
+        for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
             Encounter[i] = NOT_STARTED;
 
-        for(uint8 i = 0; i < 5; ++i)
+        for (uint8 i = 0; i < 5; ++i)
             IsSilverHandDead[i] = false;
 
         BaronRun_Timer = 0;
@@ -226,7 +226,7 @@ struct TRINITY_DLL_DECL instance_stratholme : public ScriptedInstance
                     UpdateGoState(portGauntletGUID,GO_STATE_READY,false);
 
                 uint32 count = abomnationGUID.size();
-                for(std::set<uint64>::iterator i = abomnationGUID.begin(); i != abomnationGUID.end(); ++i)
+                for (std::set<uint64>::iterator i = abomnationGUID.begin(); i != abomnationGUID.end(); ++i)
                 {
                     if (Creature* pAbom = instance->GetCreature(*i))
                     {
@@ -264,7 +264,7 @@ struct TRINITY_DLL_DECL instance_stratholme : public ScriptedInstance
 
                     if (!players.isEmpty())
                     {
-                        for(Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
+                        for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
                         {
                             if (Player* pPlayer = itr->getSource())
                             {
@@ -332,7 +332,7 @@ struct TRINITY_DLL_DECL instance_stratholme : public ScriptedInstance
         loadStream >> Encounter[0] >> Encounter[1] >> Encounter[2] >> Encounter[3]
         >> Encounter[4] >> Encounter[5];
 
-        for(uint8 i = 0; i < MAX_ENCOUNTER; ++i)
+        for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
             if (Encounter[i] == IN_PROGRESS)
                 Encounter[i] = NOT_STARTED;
 
@@ -394,7 +394,7 @@ struct TRINITY_DLL_DECL instance_stratholme : public ScriptedInstance
             {
                 if (Creature* pBaron = instance->GetCreature(baronGUID))
                 {
-                    for(uint8 i = 0; i < 4; ++i)
+                    for (uint8 i = 0; i < 4; ++i)
                         pBaron->SummonCreature(C_BLACK_GUARD,4032.84,-3390.24,119.73,4.71,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,1800000);
 
                     UpdateGoState(ziggurat4GUID,GO_STATE_ACTIVE,false);

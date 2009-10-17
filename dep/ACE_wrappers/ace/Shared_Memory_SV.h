@@ -10,7 +10,6 @@
  */
 //=============================================================================
 
-
 #ifndef ACE_SHARED_MALLOC_SV_H
 #define ACE_SHARED_MALLOC_SV_H
 #include /**/ "ace/pre.h"

@@ -45,7 +45,7 @@ void AddItemsSetItem(Player*player,Item *item)
 
     ItemSetEffect *eff = NULL;
 
-    for(size_t x = 0; x < player->ItemSetEff.size(); ++x)
+    for (size_t x = 0; x < player->ItemSetEff.size(); ++x)
     {
         if(player->ItemSetEff[x] && player->ItemSetEff[x]->setid == setid)
         {
@@ -61,7 +61,7 @@ void AddItemsSetItem(Player*player,Item *item)
         eff->setid = setid;
 
         size_t x = 0;
-        for(; x < player->ItemSetEff.size(); x++)
+        for (; x < player->ItemSetEff.size(); x++)
             if(!player->ItemSetEff[x])
                 break;
 
@@ -73,7 +73,7 @@ void AddItemsSetItem(Player*player,Item *item)
 
     ++eff->item_count;
 
-    for(uint32 x=0;x<8;x++)
+    for (uint32 x=0; x<8; x++)
     {
         if(!set->spells [x])
             continue;
@@ -82,7 +82,7 @@ void AddItemsSetItem(Player*player,Item *item)
             continue;
 
         uint32 z=0;
-        for(;z<8;z++)
+        for (; z<8; z++)
             if(eff->spells[z] && eff->spells[z]->Id==set->spells[x])
                 break;
 
@@ -90,7 +90,7 @@ void AddItemsSetItem(Player*player,Item *item)
             continue;
 
         //new spell
-        for(uint32 y=0;y<8;y++)
+        for (uint32 y=0; y<8; y++)
         {
             if(!eff->spells[y])                             // free slot
             {
@@ -124,7 +124,7 @@ void RemoveItemsSetItem(Player*player,ItemPrototype const *proto)
 
     ItemSetEffect *eff = NULL;
     size_t setindex = 0;
-    for(;setindex < player->ItemSetEff.size(); setindex++)
+    for (; setindex < player->ItemSetEff.size(); setindex++)
     {
         if(player->ItemSetEff[setindex] && player->ItemSetEff[setindex]->setid == setid)
         {
@@ -139,7 +139,7 @@ void RemoveItemsSetItem(Player*player,ItemPrototype const *proto)
 
     --eff->item_count;
 
-    for(uint32 x=0;x<8;x++)
+    for (uint32 x=0; x<8; x++)
     {
         if(!set->spells[x])
             continue;
@@ -148,7 +148,7 @@ void RemoveItemsSetItem(Player*player,ItemPrototype const *proto)
         if(set->items_to_triggerspell[x] <= eff->item_count)
             continue;
 
-        for(uint32 z=0;z<8;z++)
+        for (uint32 z=0; z<8; z++)
         {
             if(eff->spells[z] && eff->spells[z]->Id==set->spells[x])
             {
@@ -267,7 +267,7 @@ bool Item::Create( uint32 guidlow, uint32 itemid, Player const* owner)
     SetUInt32Value(ITEM_FIELD_MAXDURABILITY, itemProto->MaxDurability);
     SetUInt32Value(ITEM_FIELD_DURABILITY, itemProto->MaxDurability);
 
-    for(uint8 i = 0; i < MAX_ITEM_PROTO_SPELLS; ++i)
+    for (uint8 i = 0; i < MAX_ITEM_PROTO_SPELLS; ++i)
         SetSpellCharges(i,itemProto->Spells[i].SpellCharges);
 
     SetUInt32Value(ITEM_FIELD_FLAGS, itemProto->Flags);
@@ -286,7 +286,7 @@ void Item::UpdateDuration(Player* owner, uint32 diff)
     if (GetUInt32Value(ITEM_FIELD_DURATION)<=diff)
     {
         Script->ItemExpire(owner, GetProto());
-        owner->DestroyItem(GetBagSlot(), GetSlot(), true);           
+        owner->DestroyItem(GetBagSlot(), GetSlot(), true);
         return;
     }
 
@@ -304,7 +304,7 @@ void Item::SaveToDB()
             CharacterDatabase.PExecute( "DELETE FROM item_instance WHERE guid = '%u'", guid );
             std::ostringstream ss;
             ss << "INSERT INTO item_instance (guid,owner_guid,data) VALUES (" << guid << "," << GUID_LOPART(GetOwnerGUID()) << ",'";
-            for(uint16 i = 0; i < m_valuesCount; ++i )
+            for (uint16 i = 0; i < m_valuesCount; ++i )
                 ss << GetUInt32Value(i) << " ";
             ss << "' )";
             CharacterDatabase.Execute( ss.str().c_str() );
@@ -313,7 +313,7 @@ void Item::SaveToDB()
         {
             std::ostringstream ss;
             ss << "UPDATE item_instance SET data = '";
-            for(uint16 i = 0; i < m_valuesCount; ++i )
+            for (uint16 i = 0; i < m_valuesCount; ++i )
                 ss << GetUInt32Value(i) << " ";
             ss << "', owner_guid = '" << GUID_LOPART(GetOwnerGUID()) << "' WHERE guid = '" << guid << "'";
 
@@ -424,7 +424,7 @@ bool Item::LoadFromDB(uint32 guid, uint64 owner_guid, QueryResult *result)
     {
         std::ostringstream ss;
         ss << "UPDATE item_instance SET data = '";
-        for(uint16 i = 0; i < m_valuesCount; ++i )
+        for (uint16 i = 0; i < m_valuesCount; ++i )
             ss << GetUInt32Value(i) << " ";
         ss << "', owner_guid = '" << GUID_LOPART(GetOwnerGUID()) << "' WHERE guid = '" << guid << "'";
 
@@ -592,7 +592,7 @@ void Item::SetItemRandomProperties(int32 randomPropId)
                 SetInt32Value(ITEM_FIELD_RANDOM_PROPERTIES_ID,item_rand->ID);
                 SetState(ITEM_CHANGED);
             }
-            for(uint32 i = PROP_ENCHANTMENT_SLOT_2; i < PROP_ENCHANTMENT_SLOT_2 + 3; ++i)
+            for (uint32 i = PROP_ENCHANTMENT_SLOT_2; i < PROP_ENCHANTMENT_SLOT_2 + 3; ++i)
                 SetEnchantment(EnchantmentSlot(i),item_rand->enchant_id[i - PROP_ENCHANTMENT_SLOT_2],0,0);
         }
     }
@@ -609,7 +609,7 @@ void Item::SetItemRandomProperties(int32 randomPropId)
                 SetState(ITEM_CHANGED);
             }
 
-            for(uint32 i = PROP_ENCHANTMENT_SLOT_0; i < PROP_ENCHANTMENT_SLOT_0 + 3; ++i)
+            for (uint32 i = PROP_ENCHANTMENT_SLOT_0; i < PROP_ENCHANTMENT_SLOT_0 + 3; ++i)
                 SetEnchantment(EnchantmentSlot(i),item_rand->enchant_id[i - PROP_ENCHANTMENT_SLOT_0],0,0);
         }
     }
@@ -736,7 +736,7 @@ bool Item::CanBeTraded(bool mail) const
 bool Item::IsBoundByEnchant() const
 {
     // Check all enchants for soulbound
-    for(uint32 enchant_slot = PERM_ENCHANTMENT_SLOT; enchant_slot < MAX_ENCHANTMENT_SLOT; ++enchant_slot)
+    for (uint32 enchant_slot = PERM_ENCHANTMENT_SLOT; enchant_slot < MAX_ENCHANTMENT_SLOT; ++enchant_slot)
     {
         uint32 enchant_id = GetEnchantmentId(EnchantmentSlot(enchant_slot));
         if(!enchant_id)
@@ -798,7 +798,7 @@ bool Item::IsTargetValidForItemUse(Unit* pUnitTarget)
     if (!pUnitTarget)
         return false;
 
-    for(ItemRequiredTargetMap::const_iterator itr = bounds.first; itr != bounds.second; ++itr)
+    for (ItemRequiredTargetMap::const_iterator itr = bounds.first; itr != bounds.second; ++itr)
         if(itr->second.IsFitToRequirements(pUnitTarget))
             return true;
 
@@ -840,7 +840,7 @@ void Item::ClearEnchantment(EnchantmentSlot slot)
     if(!GetEnchantmentId(slot))
         return;
 
-    for(uint8 x = 0; x < 3; ++x)
+    for (uint8 x = 0; x < 3; ++x)
         SetUInt32Value(ITEM_FIELD_ENCHANTMENT_1_1 + slot*MAX_ENCHANTMENT_OFFSET + x, 0);
     SetState(ITEM_CHANGED);
 }
@@ -848,7 +848,7 @@ void Item::ClearEnchantment(EnchantmentSlot slot)
 bool Item::GemsFitSockets() const
 {
     bool fits = true;
-    for(uint32 enchant_slot = SOCK_ENCHANTMENT_SLOT; enchant_slot < SOCK_ENCHANTMENT_SLOT+MAX_GEM_SOCKETS; ++enchant_slot)
+    for (uint32 enchant_slot = SOCK_ENCHANTMENT_SLOT; enchant_slot < SOCK_ENCHANTMENT_SLOT+MAX_GEM_SOCKETS; ++enchant_slot)
     {
         uint8 SocketColor = GetProto()->Socket[enchant_slot-SOCK_ENCHANTMENT_SLOT].Color;
 
@@ -888,7 +888,7 @@ bool Item::GemsFitSockets() const
 uint8 Item::GetGemCountWithID(uint32 GemID) const
 {
     uint8 count = 0;
-    for(uint32 enchant_slot = SOCK_ENCHANTMENT_SLOT; enchant_slot < SOCK_ENCHANTMENT_SLOT+MAX_GEM_SOCKETS; ++enchant_slot)
+    for (uint32 enchant_slot = SOCK_ENCHANTMENT_SLOT; enchant_slot < SOCK_ENCHANTMENT_SLOT+MAX_GEM_SOCKETS; ++enchant_slot)
     {
         uint32 enchant_id = GetEnchantmentId(EnchantmentSlot(enchant_slot));
         if(!enchant_id)
@@ -907,7 +907,7 @@ uint8 Item::GetGemCountWithID(uint32 GemID) const
 uint8 Item::GetGemCountWithLimitCategory(uint32 limitCategory) const
 {
     uint8 count = 0;
-    for(uint32 enchant_slot = SOCK_ENCHANTMENT_SLOT; enchant_slot < SOCK_ENCHANTMENT_SLOT+MAX_GEM_SOCKETS; ++enchant_slot)
+    for (uint32 enchant_slot = SOCK_ENCHANTMENT_SLOT; enchant_slot < SOCK_ENCHANTMENT_SLOT+MAX_GEM_SOCKETS; ++enchant_slot)
     {
         uint32 enchant_id = GetEnchantmentId(EnchantmentSlot(enchant_slot));
         if(!enchant_id)

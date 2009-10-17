@@ -530,11 +530,11 @@ void MotionMaster::MoveRotate(uint32 time, RotateDirection direction)
 void MotionMaster::propagateSpeedChange()
 {
     /*Impl::container_type::iterator it = Impl::c.begin();
-    for ( ;it != end(); ++it)
+    for (; it != end(); ++it)
     {
         (*it)->unitSpeedChanged();
     }*/
-    for(int i = 0; i <= i_top; ++i)
+    for (int i = 0; i <= i_top; ++i)
     {
         if(Impl[i])
             Impl[i]->unitSpeedChanged();
@@ -585,7 +585,7 @@ bool MotionMaster::GetDestination(float &x, float &y, float &z)
 {
     if(empty())
        return false;
-    
+
     return top()->GetDestination(x,y,z);
 }
 

@@ -109,7 +109,6 @@ ACE_END_VERSIONED_NAMESPACE_DECL
 #include "ace/os_include/os_unistd.h"
 #include "ace/os_include/sys/os_wait.h"
 
-
 // This needs to go here *first* to avoid problems with AIX.
 # if defined (ACE_HAS_PTHREADS)
 #   include "ace/os_include/os_pthread.h"
@@ -279,7 +278,6 @@ ACE_END_VERSIONED_NAMESPACE_DECL
 # if !defined (ACE_WIN32) && !defined (ACE_LACKS_UNIX_SYSLOG)
 # include "ace/os_include/os_syslog.h"
 # endif /* !defined (ACE_WIN32) && !defined (ACE_LACKS_UNIX_SYSLOG) */
-
 
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 

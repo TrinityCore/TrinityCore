@@ -94,7 +94,6 @@ struct TRINITY_DLL_DECL boss_the_makerAI : public ScriptedAI
         pInstance->HandleGameObject(pInstance->GetData64(DATA_DOOR2), true);
         pInstance->HandleGameObject(pInstance->GetData64(DATA_DOOR3), true);
 
-
      }
 
     void UpdateAI(const uint32 diff)

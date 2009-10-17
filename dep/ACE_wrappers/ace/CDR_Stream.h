@@ -59,7 +59,6 @@
 #include "Monitor_Size.h"
 #endif /* ACE_HAS_MONITOR_POINTS==1 */
 
-
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 
 class ACE_Char_Codeset_Translator;
@@ -518,10 +517,8 @@ private:
                                 size_t align,
                                 ACE_CDR::ULong length);
 
-
   ACE_CDR::Boolean write_wchar_array_i (const ACE_CDR::WChar* x,
                                         ACE_CDR::ULong length);
-
 
   /**
    * Grow the CDR stream. When it returns @a buf contains a pointer to
@@ -601,7 +598,6 @@ protected:
    */
   static size_t wchar_maxbytes_;
 };
-
 
 // ****************************************************************
 
@@ -1273,7 +1269,6 @@ extern ACE_Export ACE_CDR::Boolean operator<< (ACE_OutputCDR &os,
 
 extern ACE_Export ACE_CDR::Boolean operator>> (ACE_InputCDR &is,
                                                ACE_CString &x);
-
 
 ACE_END_VERSIONED_NAMESPACE_DECL
 

@@ -151,7 +151,7 @@ struct TRINITY_DLL_DECL boss_moorabiAI : public ScriptedAI
                 if (pMap && pMap->IsDungeon())
                 {
                     Map::PlayerList const &players = pMap->GetPlayers();
-                    for(Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
+                    for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
                         itr->getSource()->CompletedAchievement(AchievLessRabi);
                 }
             }

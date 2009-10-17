@@ -256,7 +256,6 @@ typedef ACE_WString ACE_TString;
 typedef ACE_CString ACE_TString;
 #endif /* ACE_USES_WCHAR */
 
-
 // ************************************************************
 
 /**

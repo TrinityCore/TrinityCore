@@ -97,7 +97,6 @@ horde:
     AV_SOUND_ALLIANCE_CAPTAIN               = 8232, //gets called when someone attacks them and at the beginning after 3min+rand(x)*10sec (maybe buff)
     AV_SOUND_HORDE_CAPTAIN                  = 8333,
 
-
 };
 
 enum BG_AV_OTHER_VALUES
@@ -309,8 +308,6 @@ enum BG_AV_ObjectTypes
 
     BG_AV_OBJECT_MAX                          = 237
 };
-
-
 
 enum BG_AV_OBJECTS
 {
@@ -534,7 +531,6 @@ const float BG_AV_DoorPositons[2][4] = {
     {780.487f, -493.024f, 99.9553f, 3.0976f},   //alliance
     {-1375.193f, -538.981f, 55.2824f, 0.72178f} //horde
 };
-
 
 //creaturestuff starts here
 //is related to BG_AV_CreaturePos
@@ -942,7 +938,6 @@ const float BG_AV_CreaturePos[AV_CPLACE_MAX][4] = {
 
 };
 
-
 enum BG_AV_CreatureIds
 {
 
@@ -1256,8 +1251,6 @@ enum BG_AV_Graveyards
     AV_GRAVE_MAIN_HORDE        = 610
 };
 
-
-
 const uint32 BG_AV_GraveyardIds[9]= {
   AV_GRAVE_STORM_AID,
   AV_GRAVE_STORM_GRAVE,
@@ -1338,7 +1331,6 @@ enum BG_AV_WorldStates
     AV_FROSTWOLFHUT_H_C             = 1330,
     AV_FROSTWOLFHUT_H_A             = 1332, //over ac
 
-
 //Towers
     //Alliance
     //Dunbaldar South Bunker
@@ -1404,7 +1396,6 @@ const uint32 BG_AV_MineWorldStates[2][3] = {
     {1358, 1360,1359},
     {1355, 1357,1356}
 };
-
 
 //alliance_control alliance_assault h_control h_assault
 const uint32 BG_AV_NodeWorldStates[16][4] = {
@@ -1523,7 +1514,6 @@ class BattleGroundAV : public BattleGround
         void HandleQuestComplete(uint32 questid, Player *player);
         bool PlayerCanDoMineQuest(int32 GOId,uint32 team);
 
-
         void EndBattleGround(uint32 winner);
 
         virtual WorldSafeLocsEntry const* GetClosestGraveYard(Player* player);
@@ -1546,7 +1536,6 @@ class BattleGroundAV : public BattleGround
         const uint32 GetObjectThroughNode(BG_AV_Nodes node);
         const char* GetNodeName(BG_AV_Nodes node);
         const bool IsTower(BG_AV_Nodes node) {   return m_Nodes[node].Tower; }
-
 
         /*mine*/
         void ChangeMineOwner(uint8 mine, uint32 team, bool initial=false);
@@ -1576,7 +1565,6 @@ class BattleGroundAV : public BattleGround
 
         uint8 m_MaxLevel; //TODO remove this when battleground-getmaxlevel() returns something usefull
         bool m_IsInformedNearVictory[2];
-
 
 };
 

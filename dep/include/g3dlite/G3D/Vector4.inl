@@ -1,4 +1,4 @@
-/** 
+/**
   @file Vector4.inl
 
   @maintainer Morgan McGuire, matrix@graphics3d.com
@@ -131,9 +131,8 @@ inline Vector4& Vector4::operator-= (const Vector4& rkVector) {
 //----------------------------------------------------------------------------
 
 inline Vector4 Vector4::lerp(const Vector4& v, float alpha) const {
-    return (*this) + (v - *this) * alpha; 
+    return (*this) + (v - *this) * alpha;
 }
-
 
 //----------------------------------------------------------------------------
 inline Vector4& Vector4::operator*= (float fScalar) {
@@ -143,7 +142,6 @@ inline Vector4& Vector4::operator*= (float fScalar) {
     w *= fScalar;
     return *this;
 }
-
 
 //----------------------------------------------------------------------------
 inline float Vector4::dot(const Vector4& rkVector) const {

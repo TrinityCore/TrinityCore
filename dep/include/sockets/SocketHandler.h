@@ -41,7 +41,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 namespace SOCKETS_NAMESPACE {
 #endif
 
-
 class Socket;
 #ifdef ENABLE_RESOLVER
 class ResolvServer;
@@ -256,7 +255,6 @@ private:
     bool m_slave; ///< Indicates that this is a ISocketHandler run in SocketThread
 #endif
 };
-
 
 #ifdef SOCKETS_NAMESPACE
 }

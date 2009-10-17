@@ -100,7 +100,6 @@ ACE_ATM_Addr::ACE_ATM_Addr (const ATM_Addr *sap,
   this->set (sap, selector);
 }
 
-
 ACE_ATM_Addr::ACE_ATM_Addr (const ACE_TCHAR sap[],
                             u_char selector)
 #if defined (ACE_HAS_FORE_ATM_XTI) || defined (ACE_HAS_FORE_ATM_WS2)

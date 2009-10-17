@@ -10,7 +10,6 @@
  */
 //=============================================================================
 
-
 #ifndef ACE_LOG_MSG_BACKEND_H
 #define ACE_LOG_MSG_BACKEND_H
 #include /**/ "ace/pre.h"

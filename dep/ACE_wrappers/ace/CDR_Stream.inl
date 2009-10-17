@@ -411,7 +411,6 @@ ACE_OutputCDR::write_float_array (const ACE_CDR::Float *x,
                             length);
 }
 
-
 ACE_INLINE ACE_CDR::Boolean
 ACE_OutputCDR::write_double_array (const ACE_CDR::Double *x,
                                    ACE_CDR::ULong length)
@@ -495,7 +494,6 @@ ACE_OutputCDR::get_version (ACE_CDR::Octet &major, ACE_CDR::Octet &minor)
   major = this->major_version_;
   minor = this->minor_version_;
 }
-
 
 ACE_INLINE const ACE_Message_Block*
 ACE_OutputCDR::begin (void) const
@@ -650,7 +648,6 @@ ACE_InputCDR::read_char (ACE_CDR::Char &x)
   return this->char_translator_->read_char (*this, x);
 }
 
-
 ACE_INLINE ACE_CDR::Boolean
 ACE_InputCDR::read_short (ACE_CDR::Short &x)
 {
@@ -664,7 +661,6 @@ ACE_InputCDR::read_ushort (ACE_CDR::UShort &x)
   return this->read_2 (&x);
 }
 
-
 ACE_INLINE ACE_CDR::Boolean
 ACE_InputCDR::read_long (ACE_CDR::Long &x)
 {
@@ -672,13 +668,11 @@ ACE_InputCDR::read_long (ACE_CDR::Long &x)
   return this->read_4 (reinterpret_cast<ACE_CDR::ULong*> (temp));
 }
 
-
 ACE_INLINE ACE_CDR::Boolean
 ACE_InputCDR::read_ulong (ACE_CDR::ULong &x)
 {
   return this->read_4 (&x);
 }
-
 
 ACE_INLINE ACE_CDR::Boolean
 ACE_InputCDR::read_longlong (ACE_CDR::LongLong &x)
@@ -906,7 +900,6 @@ ACE_InputCDR::read_float_array (ACE_CDR::Float *x,
                            ACE_CDR::LONG_ALIGN,
                            length);
 }
-
 
 ACE_INLINE ACE_CDR::Boolean
 ACE_InputCDR::read_double_array (ACE_CDR::Double *x,
@@ -1533,7 +1526,6 @@ ACE_InputCDR::wchar_translator (void) const
 {
   return this->wchar_translator_;
 }
-
 
 ACE_INLINE void
 ACE_InputCDR::char_translator (ACE_Char_Codeset_Translator * ctran)

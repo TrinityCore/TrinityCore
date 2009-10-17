@@ -462,7 +462,6 @@ ACE_END_VERSIONED_NAMESPACE_DECL
        while (0)
 # endif /* defined ! ACE_HAS_WORKING_EXPLICIT_TEMPLATE_DESTRUCTOR */
 
-
 /*******************************************************************/
 
 /// Service Objects, i.e., objects dynamically loaded via the service
@@ -620,7 +619,6 @@ static ACE_Static_Svc_##SERVICE_CLASS ace_static_svc_##SERVICE_CLASS;
 
 #define ACE_MAKE_SVC_CONFIG_FACTORY_NAME(VERSIONED_NAMESPACE,SERVICE_CLASS) ACE_MAKE_SVC_CONFIG_FUNCTION_NAME(_make,VERSIONED_NAMESPACE,SERVICE_CLASS)
 #define ACE_MAKE_SVC_CONFIG_GOBBLER_NAME(VERSIONED_NAMESPACE,SERVICE_CLASS) ACE_MAKE_SVC_CONFIG_FUNCTION_NAME(_gobble,VERSIONED_NAMESPACE,SERVICE_CLASS)
-
 
 /// Declare the factory method used to create dynamically loadable
 /// services.
@@ -837,7 +835,6 @@ ACE_MAKE_SVC_CONFIG_FACTORY_NAME(ACE_VERSIONED_NAMESPACE_NAME,SERVICE_CLASS) (AC
 #     define PIPE_TYPE_MESSAGE 0
 #   endif /* !defined PIPE_TYPE_MESSAGE */
 #endif /* ACE_WIN32 */
-
 
 // Some useful abstrations for expressions involving
 // ACE_Allocator.malloc ().  The difference between ACE_NEW_MALLOC*

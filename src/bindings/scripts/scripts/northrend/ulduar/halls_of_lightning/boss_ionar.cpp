@@ -154,7 +154,7 @@ struct TRINITY_DLL_DECL boss_ionarAI : public ScriptedAI
         if (m_lSparkGUIDList.empty())
             return;
 
-        for(std::list<uint64>::iterator itr = m_lSparkGUIDList.begin(); itr != m_lSparkGUIDList.end(); ++itr)
+        for (std::list<uint64>::iterator itr = m_lSparkGUIDList.begin(); itr != m_lSparkGUIDList.end(); ++itr)
         {
             if (Creature* pTemp = Unit::GetCreature(*m_creature, *itr))
             {
@@ -173,7 +173,7 @@ struct TRINITY_DLL_DECL boss_ionarAI : public ScriptedAI
         if (m_lSparkGUIDList.empty())
             return;
 
-        for(std::list<uint64>::iterator itr = m_lSparkGUIDList.begin(); itr != m_lSparkGUIDList.end(); ++itr)
+        for (std::list<uint64>::iterator itr = m_lSparkGUIDList.begin(); itr != m_lSparkGUIDList.end(); ++itr)
         {
             if (Creature* pSpark = Unit::GetCreature(*m_creature, *itr))
             {

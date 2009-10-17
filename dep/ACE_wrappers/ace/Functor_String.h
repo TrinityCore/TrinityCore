@@ -53,7 +53,6 @@ public:
                    const ACE_CString &rhs) const;
 };
 
-
 /**
  * @class ACE_Hash<ACE_CString>
  *
@@ -66,7 +65,6 @@ public:
   /// Calls ACE::hash_pjw
   unsigned long operator () (const ACE_CString &lhs) const;
 };
-
 
 /**
  * @class ACE_Less_Than<ACE_CString>
@@ -83,7 +81,6 @@ public:
                    const ACE_CString &rhs) const;
 };
 
-
 #if defined (ACE_USES_WCHAR)
 
 /**
@@ -99,7 +96,6 @@ public:
   int operator () (const ACE_WString &lhs,
                    const ACE_WString &rhs) const;
 };
-
 
 /**
  * @class ACE_Hash<ACE_WString>

@@ -140,7 +140,6 @@ typedef UNORDERED_MAP<uint32/*(mapid,spawnMode) pair*/,CellObjectGuidsMap> MapOb
 
 typedef UNORDERED_MAP<uint64/*(instance,guid) pair*/,time_t> RespawnTimes;
 
-
 // mangos string ranges
 #define MIN_TRINITY_STRING_ID           1                    // 'mangos_string'
 #define MAX_TRINITY_STRING_ID           2000000000
@@ -173,7 +172,7 @@ typedef std::pair<ItemRequiredTargetMap::const_iterator, ItemRequiredTargetMap::
 
 struct PetLevelInfo
 {
-    PetLevelInfo() : health(0), mana(0) { for(uint8 i=0; i < MAX_STATS; ++i ) stats[i] = 0; }
+    PetLevelInfo() : health(0), mana(0) { for (uint8 i=0; i < MAX_STATS; ++i ) stats[i] = 0; }
 
     uint16 stats[MAX_STATS];
     uint16 health;
@@ -847,24 +846,24 @@ class ObjectMgr
         {
             return ItemRequiredTargetMapBounds(m_ItemRequiredTarget.lower_bound(uiItemEntry),m_ItemRequiredTarget.upper_bound(uiItemEntry));
         }
-        
+
         GM_Ticket *GetGMTicket(uint64 ticketGuid)
         {
-            for(GmTicketList::const_iterator i = m_GMTicketList.begin(); i != m_GMTicketList.end(); ++i)
+            for (GmTicketList::const_iterator i = m_GMTicketList.begin(); i != m_GMTicketList.end(); ++i)
                 if((*i) && (*i)->guid == ticketGuid)
                     return (*i);
-                    
+
             return NULL;
         }
         GM_Ticket *GetGMTicketByPlayer(uint64 playerGuid)
         {
-            for(GmTicketList::const_iterator i = m_GMTicketList.begin(); i != m_GMTicketList.end(); ++i)
+            for (GmTicketList::const_iterator i = m_GMTicketList.begin(); i != m_GMTicketList.end(); ++i)
                 if((*i) && (*i)->playerGuid == playerGuid && (*i)->closed == 0)
                     return (*i);
-                    
-            return NULL;        
+
+            return NULL;
         }
-        
+
         void AddOrUpdateGMTicket(GM_Ticket &ticket, bool create = false);
         void _AddOrUpdateGMTicket(GM_Ticket &ticket);
         void RemoveGMTicket(uint64 ticketGuid, int64 source = -1, bool permanently = false);

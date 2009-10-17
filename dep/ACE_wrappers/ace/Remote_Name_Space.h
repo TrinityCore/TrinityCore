@@ -10,7 +10,6 @@
  */
 //==========================================================================
 
-
 #ifndef ACE_REMOTE_NAME_SPACE_H
 #define ACE_REMOTE_NAME_SPACE_H
 

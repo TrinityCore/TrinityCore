@@ -115,7 +115,6 @@ enum SpellIds
     /* Shield Orb Spells*/
     SPELL_SHADOW_BOLT                                   = 45680, //45679 would be correct but triggers to often //TODO fix console error
 
-
     /* Anveena's spells and cosmetics (Or, generally, everything that has "Anveena" in name) */
     SPELL_ANVEENA_PRISON                                = 46367, // She hovers locked within a bubble
     SPELL_ANVEENA_ENERGY_DRAIN                          = 46410, // Sunwell energy glow animation (Control mob uses this)
@@ -282,7 +281,7 @@ bool GOHello_go_orb_of_the_blue_flight(Player* pPlayer, GameObject* pGo)
         pGo->GetPosition(x,y,z);
         // this won't work. need rewritten
         /*
-        for(uint8 i = 0; i < 4; ++i)
+        for (uint8 i = 0; i < 4; ++i)
         {
             if (DynamicObject* Dyn = Kalec->GetDynObject(SPELL_RING_OF_BLUE_FLAMES))
             {
@@ -316,7 +315,7 @@ struct TRINITY_DLL_DECL boss_kalecgos_kjAI : public ScriptedAI
     bool Searched;
 
     void InitializeAI(){
-        for(uint8 i = 0; i < 4; ++i)
+        for (uint8 i = 0; i < 4; ++i)
             Orb[i] = NULL;
         FindOrbs();
         OrbsEmpowered = 0;
@@ -347,7 +346,7 @@ struct TRINITY_DLL_DECL boss_kalecgos_kjAI : public ScriptedAI
         if (orbList.empty())
             return;
         uint8 i = 0;
-        for(std::list<GameObject*>::iterator itr = orbList.begin(); itr != orbList.end(); ++itr, ++i){
+        for (std::list<GameObject*>::iterator itr = orbList.begin(); itr != orbList.end(); ++itr, ++i){
             Orb[i] = pInstance ? pInstance->instance->GetGameObject(pInstance->GetData64((*itr)->GetGUID())) : NULL;
         }
     }
@@ -355,7 +354,7 @@ struct TRINITY_DLL_DECL boss_kalecgos_kjAI : public ScriptedAI
     void ResetOrbs()
     {
         m_creature->RemoveDynObject(SPELL_RING_OF_BLUE_FLAMES);
-        for(uint8 i = 0; i < 4; ++i)
+        for (uint8 i = 0; i < 4; ++i)
             if (Orb[i]) Orb[i]->SetUInt32Value(GAMEOBJECT_FACTION, 0);
     }
 
@@ -367,7 +366,7 @@ struct TRINITY_DLL_DECL boss_kalecgos_kjAI : public ScriptedAI
         if (all)
         {
             m_creature->RemoveDynObject(SPELL_RING_OF_BLUE_FLAMES);
-            for(uint8 i = 0; i < 4; ++i)
+            for (uint8 i = 0; i < 4; ++i)
             {
                 if (!Orb[i]) return;
                 Orb[i]->CastSpell(m_creature, SPELL_RING_OF_BLUE_FLAMES);
@@ -382,7 +381,7 @@ struct TRINITY_DLL_DECL boss_kalecgos_kjAI : public ScriptedAI
             /*
             float x,y,z, dx,dy,dz;
             Orb[random]->GetPosition(x,y,z);
-            for(uint8 i = 0; i < 4; ++i){
+            for (uint8 i = 0; i < 4; ++i){
                 DynamicObject* Dyn = m_creature->GetDynObject(SPELL_RING_OF_BLUE_FLAMES);
                 if (Dyn){
                     Dyn->GetPosition(dx,dy,dz);
@@ -493,7 +492,7 @@ struct TRINITY_DLL_DECL boss_kiljaedenAI : public Scripted_NoMovementAI
 
     void ChangeTimers(bool status, uint32 WTimer)
     {
-        for(uint8 i = 0; i < 10; ++i)
+        for (uint8 i = 0; i < 10; ++i)
             TimerIsDeactiveted[i] = status;
         TimerIsDeactiveted[TIMER_KALEC_JOIN] = IsKalecJoined;
 
@@ -558,11 +557,11 @@ struct TRINITY_DLL_DECL boss_kiljaedenAI : public Scripted_NoMovementAI
     {
         DoScriptText(RAND(SAY_KJ_REFLECTION1,SAY_KJ_REFLECTION2), m_creature);
         DoCast(m_creature, SPELL_SINISTER_REFLECTION, true);
-        for(uint8 i = 0; i < 4; ++i)
+        for (uint8 i = 0; i < 4; ++i)
         {
             float x,y,z;
             Unit* target;
-            for(uint8 z = 0; z < 6; ++z)
+            for (uint8 z = 0; z < 6; ++z)
             {
                 target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true);
                 if (!target->HasAura(SPELL_VENGEANCE_OF_THE_BLUE_FLIGHT,0))break;
@@ -588,7 +587,7 @@ struct TRINITY_DLL_DECL boss_kiljaedenAI : public Scripted_NoMovementAI
             } else WaitTimer -= diff;
         }
 
-        for(uint8 t = 0; t < ActiveTimers; ++t)
+        for (uint8 t = 0; t < ActiveTimers; ++t)
         {
             if (Timer[t] < diff && !TimerIsDeactiveted[t])
             {
@@ -614,7 +613,7 @@ struct TRINITY_DLL_DECL boss_kiljaedenAI : public Scripted_NoMovementAI
                         if (!m_creature->IsNonMeleeSpellCasted(false))
                         {
                             m_creature->RemoveAurasDueToSpell(SPELL_SOUL_FLAY);
-                            for(uint8 z = 0; z < 6; ++z)
+                            for (uint8 z = 0; z < 6; ++z)
                             {
                                 randomPlayer = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true);
                                 if (!randomPlayer->HasAura(SPELL_VENGEANCE_OF_THE_BLUE_FLIGHT,0)) break;
@@ -637,7 +636,7 @@ struct TRINITY_DLL_DECL boss_kiljaedenAI : public Scripted_NoMovementAI
                         }
                         break;
                     case TIMER_SUMMON_SHILEDORB:
-                        for(uint8 i = 1; i < Phase; ++i)
+                        for (uint8 i = 1; i < Phase; ++i)
                         {
                             float sx, sy;
                             sx = ShieldOrbLocations[0][0] + sin(ShieldOrbLocations[i][0]);
@@ -704,7 +703,7 @@ struct TRINITY_DLL_DECL boss_kiljaedenAI : public Scripted_NoMovementAI
                         break;
                     case TIMER_ARMAGEDDON: //Phase 4
                         Unit* target;
-                        for(uint8 z = 0; z < 6; ++z)
+                        for (uint8 z = 0; z < 6; ++z)
                         {
                             target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true);
                             if (!target->HasAura(SPELL_VENGEANCE_OF_THE_BLUE_FLIGHT,0)) break;
@@ -722,7 +721,7 @@ struct TRINITY_DLL_DECL boss_kiljaedenAI : public Scripted_NoMovementAI
             }
         }
             //Time runs over!
-            for(uint8 i = 0; i < ActiveTimers; ++i)
+            for (uint8 i = 0; i < ActiveTimers; ++i)
                 if (!TimerIsDeactiveted[i])
                 {
                     Timer[i] -= diff;
@@ -945,7 +944,7 @@ struct TRINITY_DLL_DECL mob_hand_of_the_deceiverAI : public ScriptedAI
             if (Portal)
             {
                 std::list<HostilReference*>::iterator itr;
-                for(itr = m_creature->getThreatManager().getThreatList().begin(); itr != m_creature->getThreatManager().getThreatList().end(); ++itr)
+                for (itr = m_creature->getThreatManager().getThreatList().begin(); itr != m_creature->getThreatManager().getThreatList().end(); ++itr)
                 {
                     Unit* pUnit = Unit::GetUnit(*m_creature, (*itr)->getUnitGuid());
                     if (pUnit)
@@ -1343,7 +1342,7 @@ struct TRINITY_DLL_DECL mob_sinster_reflectionAI : public ScriptedAI
                 break;
             }
             debug_log("Sinister-Timer");
-            for(uint8 i = 0; i < 3; ++i)
+            for (uint8 i = 0; i < 3; ++i)
                 Timer[i] -= diff;
         }
 

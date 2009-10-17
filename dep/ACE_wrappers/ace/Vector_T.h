@@ -75,7 +75,6 @@ public:
    */
   typedef ACE_Vector_Iterator<T, DEFAULT_SIZE> Iterator;
 
-
   /**
    * General constructor.
    *

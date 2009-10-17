@@ -125,7 +125,7 @@ bool ChooseReward_npc_lady_sylvanas_windrunner(Player* pPlayer, Creature* pCreat
         CAST_AI(npc_lady_sylvanas_windrunnerAI, pCreature->AI())->DoPlaySoundToSet(pCreature,SOUND_CREDIT);
         pCreature->CastSpell(pCreature,SPELL_SYLVANAS_CAST,false);
 
-        for(uint8 i = 0; i < 4; ++i)
+        for (uint8 i = 0; i < 4; ++i)
             pCreature->SummonCreature(ENTRY_HIGHBORNE_LAMENTER, HighborneLoc[i][0], HighborneLoc[i][1], HIGHBORNE_LOC_Y, HighborneLoc[i][2], TEMPSUMMON_TIMED_DESPAWN, 160000);
     }
 

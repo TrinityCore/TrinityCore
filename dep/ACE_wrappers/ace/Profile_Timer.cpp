@@ -24,7 +24,6 @@ ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 
 ACE_ALLOC_HOOK_DEFINE(ACE_Profile_Timer)
 
-
 void
 ACE_Profile_Timer::dump (void) const
 {
@@ -428,7 +427,6 @@ ACE_Profile_Timer::get_rusage (ACE_Profile_Timer::Rusage &usage)
   ACE_TRACE ("ACE_Profile_Timer::get_rusage");
   usage = 0;
 }
-
 
 void
 ACE_Profile_Timer::elapsed_rusage (ACE_Profile_Timer::Rusage &usage)

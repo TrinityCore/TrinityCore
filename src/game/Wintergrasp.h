@@ -66,7 +66,6 @@ enum WintergraspRewardEvent
     WG_REWARD_EVENT_MAX,
 };
 
-
 /* Not used / Not implemented
 
 const uint16 GameEventWintergraspDefender[2] = {50, 51};

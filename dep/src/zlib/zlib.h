@@ -22,7 +22,6 @@
   Jean-loup Gailly        Mark Adler
   jloup@gzip.org          madler@alumni.caltech.edu
 
-
   The data format used by the zlib library is described by RFCs (Request for
   Comments) 1950 to 1952 in the files http://www.ietf.org/rfc/rfc1950.txt
   (zlib format), rfc1951.txt (deflate format) and rfc1952.txt (gzip format).
@@ -238,7 +237,6 @@ ZEXTERN int ZEXPORT deflateInit OF((z_streamp strm, int level));
    perform any compression: this will be done by deflate().
 */
 
-
 ZEXTERN int ZEXPORT deflate OF((z_streamp strm, int flush));
 /*
     deflate compresses as much data as possible, and stops when the input
@@ -324,7 +322,6 @@ ZEXTERN int ZEXPORT deflate OF((z_streamp strm, int flush));
   space to continue compressing.
 */
 
-
 ZEXTERN int ZEXPORT deflateEnd OF((z_streamp strm));
 /*
      All dynamically allocated data structures for this stream are freed.
@@ -337,7 +334,6 @@ ZEXTERN int ZEXPORT deflateEnd OF((z_streamp strm));
    msg may be set but then points to a static string (which must not be
    deallocated).
 */
-
 
 /*
 ZEXTERN int ZEXPORT inflateInit OF((z_streamp strm));
@@ -358,7 +354,6 @@ ZEXTERN int ZEXPORT inflateInit OF((z_streamp strm));
    the zlib header if present: this will be done by inflate().  (So next_in and
    avail_in may be modified, but next_out and avail_out are unchanged.)
 */
-
 
 ZEXTERN int ZEXPORT inflate OF((z_streamp strm, int flush));
 /*
@@ -457,7 +452,6 @@ ZEXTERN int ZEXPORT inflate OF((z_streamp strm, int flush));
   call inflateSync() to look for a good compression block if a partial recovery
   of the data is desired.
 */
-
 
 ZEXTERN int ZEXPORT inflateEnd OF((z_streamp strm));
 /*
@@ -995,7 +989,6 @@ ZEXTERN uLong ZEXPORT zlibCompileFlags OF((void));
      27-31: 0 (reserved)
  */
 
-
                         /* utility functions */
 
 /*
@@ -1061,7 +1054,6 @@ ZEXTERN int ZEXPORT uncompress OF((Bytef *dest,   uLongf *destLen,
    enough memory, Z_BUF_ERROR if there was not enough room in the output
    buffer, or Z_DATA_ERROR if the input data was corrupted or incomplete.
 */
-
 
 typedef voidp gzFile;
 
@@ -1308,7 +1300,6 @@ ZEXTERN uLong ZEXPORT crc32_combine OF((uLong crc1, uLong crc2, z_off_t len2));
    len2.
 */
 
-
                         /* various hacks, don't look :) */
 
 /* deflateInit and inflateInit are macros to allow checking the zlib version
@@ -1340,7 +1331,6 @@ ZEXTERN int ZEXPORT inflateBackInit_ OF((z_streamp strm, int windowBits,
 #define inflateBackInit(strm, windowBits, window) \
         inflateBackInit_((strm), (windowBits), (window), \
         ZLIB_VERSION, sizeof(z_stream))
-
 
 #if !defined(ZUTIL_H) && !defined(NO_DUMMY_DECL)
     struct internal_state {int dummy;}; /* hack for buggy compilers */

@@ -62,7 +62,6 @@ Vector3::Axis Vector3::primaryAxis() const {
     return a;
 }
 
-
 unsigned int Vector3::hashCode() const {
     unsigned int xhash = (*(int*)(void*)(&x));
     unsigned int yhash = (*(int*)(void*)(&y));
@@ -75,20 +74,17 @@ std::ostream& operator<<(std::ostream& os, const Vector3& v) {
     return os << v.toString();
 }
 
-
 //----------------------------------------------------------------------------
 
 double frand() {
     return rand() / (double) RAND_MAX;
 }
 
-
 Vector3::Vector3(const class Vector3int16& v) {
     x = v.x;
     y = v.y;
     z = v.z;
 }
-
 
 Vector3 Vector3::random() {
     Vector3 result;
@@ -298,7 +294,6 @@ std::string Vector3::toString() const {
     return G3D::format("(%g, %g, %g)", x, y, z);
 }
 
-
 //----------------------------------------------------------------------------
 
 Matrix3 Vector3::cross() const {
@@ -306,7 +301,6 @@ Matrix3 Vector3::cross() const {
                     z,  0, -x,
                    -y,  x,  0);
 }
-
 
 //----------------------------------------------------------------------------
 // 2-char swizzles
@@ -434,9 +428,6 @@ Vector4 Vector3::zyzz() const  { return Vector4       (z, y, z, z); }
 Vector4 Vector3::xzzz() const  { return Vector4       (x, z, z, z); }
 Vector4 Vector3::yzzz() const  { return Vector4       (y, z, z, z); }
 Vector4 Vector3::zzzz() const  { return Vector4       (z, z, z, z); }
-
-
-
 
 
 

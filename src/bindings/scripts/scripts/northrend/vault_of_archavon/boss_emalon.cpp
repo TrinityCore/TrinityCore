@@ -70,7 +70,7 @@ struct TRINITY_DLL_DECL boss_emalonAI : public ScriptedAI
     {
         if(!MinionList.empty())
         {
-            for(std::list<uint64>::const_iterator itr = MinionList.begin(); itr != MinionList.end(); itr++)
+            for (std::list<uint64>::const_iterator itr = MinionList.begin(); itr != MinionList.end(); itr++)
             {
                 Creature *Minion = Unit::GetCreature(*m_creature, *itr);
                 if(Minion && Minion->isAlive())
@@ -100,7 +100,7 @@ struct TRINITY_DLL_DECL boss_emalonAI : public ScriptedAI
     {
         if(!MinionList.empty())
         {
-            for(std::list<uint64>::const_iterator itr = MinionList.begin(); itr != MinionList.end(); ++itr)
+            for (std::list<uint64>::const_iterator itr = MinionList.begin(); itr != MinionList.end(); ++itr)
             {
                 Creature *Minion = Unit::GetCreature(*m_creature, *itr);
                 if(Minion && Minion->isAlive() && !Minion->getVictim())

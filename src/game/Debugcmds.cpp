@@ -465,7 +465,7 @@ bool ChatHandler::HandleDebugGetItemStateCommand(const char* args)
     if (list_queue)
     {
         std::vector<Item *> &updateQueue = player->GetItemUpdateQueue();
-        for(size_t i = 0; i < updateQueue.size(); ++i)
+        for (size_t i = 0; i < updateQueue.size(); ++i)
         {
             Item *item = updateQueue[i];
             if(!item) continue;
@@ -608,7 +608,7 @@ bool ChatHandler::HandleDebugGetItemStateCommand(const char* args)
             }
         }
 
-        for(size_t i = 0; i < updateQueue.size(); ++i)
+        for (size_t i = 0; i < updateQueue.size(); ++i)
         {
             Item *item = updateQueue[i];
             if(!item) continue;
@@ -669,7 +669,7 @@ bool ChatHandler::HandleDebugThreatList(const char * /*args*/)
     std::list<HostilReference*>::iterator itr;
     uint32 cnt = 0;
     PSendSysMessage("Threat list of %s (guid %u)",target->GetName(), target->GetGUIDLow());
-    for(itr = tlist.begin(); itr != tlist.end(); ++itr)
+    for (itr = tlist.begin(); itr != tlist.end(); ++itr)
     {
         Unit* unit = (*itr)->getTarget();
         if(!unit)
@@ -901,7 +901,7 @@ bool ChatHandler::HandleDebugSetAuraStateCommand(const char* args)
     if (!state)
     {
         // reset all states
-        for(int i = 1; i <= 32; ++i)
+        for (int i = 1; i <= 32; ++i)
             unit->ModifyAuraState(AuraState(i),false);
         return true;
     }

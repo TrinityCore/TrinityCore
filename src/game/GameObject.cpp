@@ -633,7 +633,7 @@ bool GameObject::LoadFromDB(uint32 guid, Map *map)
     if(data->spawntimesecs >= 0)
     {
         m_spawnedByDefault = true;
-        
+
         if(!GetGOInfo()->GetDespawnPossibility() && !GetGOInfo()->IsDespawnAtAction())
         {
             SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NODESPAWN);
@@ -684,7 +684,7 @@ GameObject* GameObject::GetGameObject(WorldObject& object, uint64 guid)
 bool GameObject::hasQuest(uint32 quest_id) const
 {
     QuestRelations const& qr = objmgr.mGOQuestRelations;
-    for(QuestRelations::const_iterator itr = qr.lower_bound(GetEntry()); itr != qr.upper_bound(GetEntry()); ++itr)
+    for (QuestRelations::const_iterator itr = qr.lower_bound(GetEntry()); itr != qr.upper_bound(GetEntry()); ++itr)
     {
         if(itr->second==quest_id)
             return true;
@@ -695,7 +695,7 @@ bool GameObject::hasQuest(uint32 quest_id) const
 bool GameObject::hasInvolvedQuest(uint32 quest_id) const
 {
     QuestRelations const& qr = objmgr.mGOQuestInvolvedRelations;
-    for(QuestRelations::const_iterator itr = qr.lower_bound(GetEntry()); itr != qr.upper_bound(GetEntry()); ++itr)
+    for (QuestRelations::const_iterator itr = qr.lower_bound(GetEntry()); itr != qr.upper_bound(GetEntry()); ++itr)
     {
         if(itr->second==quest_id)
             return true;
@@ -1000,7 +1000,7 @@ void GameObject::Use(Unit* user)
                 // every slot will be on that straight line
                 float orthogonalOrientation = GetOrientation()+M_PI*0.5f;
                 // find nearest slot
-                for(uint32 i=0; i<info->chair.slots; ++i)
+                for (uint32 i=0; i<info->chair.slots; ++i)
                 {
                     // the distance between this slot and the center of the go - imagine a 1D space
                     float relativeDistance = (info->size*i)-(info->size*(info->chair.slots-1)/2.0f);
@@ -1387,7 +1387,7 @@ void GameObject::CastSpell(Unit* target, uint32 spellId)
         return;
 
     bool self = false;
-    for(uint8 i = 0; i < 3; ++i)
+    for (uint8 i = 0; i < 3; ++i)
     {
         if(spellInfo->EffectImplicitTargetA[i] == TARGET_UNIT_CASTER)
         {
@@ -1416,7 +1416,7 @@ void GameObject::CastSpell(Unit* target, uint32 spellId)
     else
     {
         trigger->setFaction(14);
-        // Set owner guid for target if no owner avalible - needed by trigger auras 
+        // Set owner guid for target if no owner avalible - needed by trigger auras
         // - trigger gets despawned and there's no caster avalible (see AuraEffect::TriggerSpell())
         trigger->CastSpell(target, spellInfo, true, 0, 0, target ? target->GetGUID() : 0);
     }

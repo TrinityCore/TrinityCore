@@ -247,7 +247,7 @@ struct TRINITY_DLL_DECL boss_chromaggusAI : public ScriptedAI
 
             std::list<HostilReference*>::iterator i;
 
-            for (i = m_creature->getThreatManager().getThreatList().begin();i != m_creature->getThreatManager().getThreatList().end();)
+            for (i = m_creature->getThreatManager().getThreatList().begin(); i != m_creature->getThreatManager().getThreatList().end(); )
             {
                 Unit* pUnit = NULL;
                 pUnit = Unit::GetUnit((*m_creature), (*i)->getUnitGuid());

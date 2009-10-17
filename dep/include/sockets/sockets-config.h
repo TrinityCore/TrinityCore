@@ -46,31 +46,24 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 /* OpenSSL support. */
 //#define HAVE_OPENSSL
 
-
 /* Ipv6 support. */
 //#define ENABLE_IPV6
 
-
 /* SCTP support. */
 //#define USE_SCTP
-
 
 /* Define NO_GETADDRINFO if your operating system does not support
    the "getaddrinfo" and "getnameinfo" function calls. */
 #define NO_GETADDRINFO
 
-
 /* Connection pool support. */
 #define ENABLE_POOL
-
 
 /* Socks4 client support. */
 //#define ENABLE_SOCKS4
 
-
 /* Asynchronous resolver. */
 #define ENABLE_RESOLVER
-
 
 /* Enable TCP reconnect on lost connection.
     Socket::OnReconnect
@@ -78,24 +71,19 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 #define ENABLE_RECONNECT
 
-
 /* Enable socket thread detach functionality. */
 #define ENABLE_DETACH
-
 
 /* Enable socket to socket triggers. Not yet in use. */
 //#define ENABLE_TRIGGERS
 
-
 /* Enabled exceptions. */
 //#define ENABLE_EXCEPTIONS
-
 
 /* Resolver uses the detach function so either enable both or disable both. */
 #ifndef ENABLE_DETACH
 #undef ENABLE_RESOLVER
 #endif
-
 
 #endif // _SOCKETS_CONFIG_H
 

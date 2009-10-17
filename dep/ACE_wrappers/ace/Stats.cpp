@@ -197,7 +197,6 @@ ACE_Stats::std_dev (ACE_Stats_Value &std_dev,
   return 0;
 }
 
-
 void
 ACE_Stats::reset (void)
 {

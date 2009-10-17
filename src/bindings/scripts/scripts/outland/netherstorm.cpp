@@ -364,11 +364,9 @@ struct TRINITY_DLL_DECL npc_commander_dawnforgeAI : public ScriptedAI
 {
     npc_commander_dawnforgeAI(Creature *c) : ScriptedAI(c) { Reset (); }
 
-
     uint64 PlayerGUID;
     uint64 ardonisGUID;
     uint64 pathaleonGUID;
-
 
     uint32 Phase;
     uint32 PhaseSubphase;

@@ -956,7 +956,7 @@ public:
             break;
         }
     }
- 
+
     void IncItemCounts(uint32 Class, uint32 Quality)
     {
         switch(Class)

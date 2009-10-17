@@ -102,7 +102,6 @@ ACE_MMAP_Memory_Pool::protect (int prot)
   return this->mmap_.protect (len, prot);
 }
 
-
 // Change the protection of the pages of the mapped region to <prot>
 // starting at <addr> up to <len> bytes.
 

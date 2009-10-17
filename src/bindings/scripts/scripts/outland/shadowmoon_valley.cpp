@@ -61,7 +61,6 @@ enum eMatureNetherwing
     NPC_EVENT_PINGER            = 22131
 };
 
-
 struct TRINITY_DLL_DECL mob_mature_netherwing_drakeAI : public ScriptedAI
 {
     mob_mature_netherwing_drakeAI(Creature* c) : ScriptedAI(c) { }
@@ -1414,7 +1413,7 @@ struct TRINITY_DLL_DECL npc_lord_illidan_stormrageAI : public ScriptedAI
         uint8 FelguardCount = 0;
         uint8 DreadlordCount = 0;
 
-        for(uint8 i = 0; i < count; ++i)
+        for (uint8 i = 0; i < count; ++i)
         {
             Creature* Spawn = NULL;
             float X = SpawnLocation[locIndex + i].x;
@@ -1491,7 +1490,7 @@ struct TRINITY_DLL_DECL npc_lord_illidan_stormrageAI : public ScriptedAI
 
             const Group::MemberSlotList members = EventGroup->GetMemberSlots();
 
-            for(Group::member_citerator itr = members.begin(); itr!= members.end(); itr++)
+            for (Group::member_citerator itr = members.begin(); itr!= members.end(); itr++)
             {
                 GroupMember = (Unit::GetPlayer(itr->guid));
                 if (!GroupMember)
@@ -1517,7 +1516,7 @@ struct TRINITY_DLL_DECL npc_lord_illidan_stormrageAI : public ScriptedAI
 
             if (GroupMemberCount == DeadMemberCount)
             {
-                for(Group::member_citerator itr = members.begin(); itr!= members.end(); itr++)
+                for (Group::member_citerator itr = members.begin(); itr!= members.end(); itr++)
                 {
                     GroupMember = Unit::GetPlayer(itr->guid);
 

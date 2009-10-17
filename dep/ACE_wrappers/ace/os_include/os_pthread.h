@@ -49,7 +49,6 @@ extern "C" pthread_t pthread_self (void);
 #   endif /* DIGITAL_UNIX */
 # endif /* ACE_HAS_PTHREADS */
 
-
 #if !defined (ACE_LACKS_PTHREAD_H)
    extern "C" {
 #   if defined (ACE_TANDEM_T1248_PTHREADS)

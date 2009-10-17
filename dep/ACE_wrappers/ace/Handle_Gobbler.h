@@ -11,7 +11,6 @@
  */
 //=============================================================================
 
-
 #ifndef ACE_HANDLE_GOBBLER_H
 #define ACE_HANDLE_GOBBLER_H
 #include /**/ "ace/pre.h"

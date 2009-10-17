@@ -20,7 +20,6 @@ ACE_Cleanup::cleanup (void *)
   delete this;
 }
 
-
 ACE_Cleanup::~ACE_Cleanup (void)
 {
 }

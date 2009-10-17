@@ -10,7 +10,6 @@
  */
 //=============================================================================
 
-
 #ifndef ACE_METRICS_CACHE_H
 #define ACE_METRICS_CACHE_H
 
@@ -91,7 +90,6 @@ METRICS_PTR->report_##NAME##_suspend(X); \
 do { if((METRICS_PTR->metrics_enabled())) { \
 METRICS_PTR->report_##NAME##_resume(X); \
 } } while (0)
-
 
 /**
  * Mystery macros. I could not find where there were functions like 'report_base_metrics_start ()'. All the

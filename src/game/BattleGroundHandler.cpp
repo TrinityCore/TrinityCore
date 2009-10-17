@@ -153,7 +153,7 @@ void WorldSession::HandleBattlemasterJoinOpcode( WorldPacket & recv_data )
     if (joinAsGroup /* && _player->GetGroup()*/)
     {
         sLog.outDebug("Battleground: the following players are joining as group:");
-        for(GroupReference *itr = grp->GetFirstMember(); itr != NULL; itr = itr->next())
+        for (GroupReference *itr = grp->GetFirstMember(); itr != NULL; itr = itr->next())
         {
             Player *member = itr->getSource();
             if(!member) continue;   // this should never happen
@@ -215,7 +215,7 @@ void WorldSession::HandleBattleGroundPlayerPositionsOpcode( WorldPacket & /*recv
 
                 WorldPacket data(MSG_BATTLEGROUND_PLAYER_POSITIONS, (4+4+16*count1+16*count2));
                 data << count1;                                     // alliance flag holders count - obsolete, now always 0
-                /*for(uint8 i = 0; i < count1; ++i)
+                /*for (uint8 i = 0; i < count1; ++i)
                 {
                     data << uint64(0);                              // guid
                     data << (float)0;                               // x
@@ -710,7 +710,7 @@ void WorldSession::HandleBattlemasterJoinArena( WorldPacket & recv_data )
         // the arenateam id must match for everyone in the group
         // get the personal ratings for queueing
         uint32 avg_pers_rating = 0;
-        for(GroupReference *itr = grp->GetFirstMember(); itr != NULL; itr = itr->next())
+        for (GroupReference *itr = grp->GetFirstMember(); itr != NULL; itr = itr->next())
         {
             Player *member = itr->getSource();
 
@@ -738,8 +738,8 @@ void WorldSession::HandleBattlemasterJoinArena( WorldPacket & recv_data )
         }
         else
             bg->SetRated(false);
-            
-        for(GroupReference *itr = grp->GetFirstMember(); itr != NULL; itr = itr->next())
+
+        for (GroupReference *itr = grp->GetFirstMember(); itr != NULL; itr = itr->next())
         {
             Player *member = itr->getSource();
             if(!member) continue;

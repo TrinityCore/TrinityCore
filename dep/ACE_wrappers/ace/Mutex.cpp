@@ -10,7 +10,6 @@
 #include "ace/OS_NS_string.h"
 #include "ace/os_include/sys/os_mman.h"
 
-
 ACE_RCSID (ace,
            Mutex,
            "$Id: Mutex.cpp 80826 2008-03-04 14:51:23Z wotte $")

@@ -71,7 +71,6 @@ ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 
 template <typename T> struct ACE_Numeric_Limits;
 
-
 // ------------------------------------------
 // Special cases.
 template<>

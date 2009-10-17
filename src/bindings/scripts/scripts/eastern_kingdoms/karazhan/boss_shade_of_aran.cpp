@@ -181,7 +181,7 @@ struct TRINITY_DLL_DECL boss_aranAI : public ScriptedAI
             return;
 
         //store the threat list in a different container
-        for(std::list<HostilReference *>::iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)
+        for (std::list<HostilReference *>::iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)
         {
             Unit *target = Unit::GetUnit(*m_creature, (*itr)->getUnitGuid());
             //only on alive players
@@ -194,7 +194,7 @@ struct TRINITY_DLL_DECL boss_aranAI : public ScriptedAI
             targets.erase(targets.begin()+rand()%targets.size());
 
         uint32 i = 0;
-        for(std::vector<Unit*>::iterator itr = targets.begin(); itr!= targets.end(); ++itr)
+        for (std::vector<Unit*>::iterator itr = targets.begin(); itr!= targets.end(); ++itr)
         {
             if (*itr)
             {

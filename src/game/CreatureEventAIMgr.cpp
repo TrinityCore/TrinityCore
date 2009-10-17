@@ -722,7 +722,7 @@ void CreatureEventAIMgr::LoadCreatureEventAI_Scripts()
                 {
                     //sLog.outErrorDb("CreatureEventAI: Creature Entry %u has EventAI script but it also has C++ script. EventAI script will be overriden.", cInfo->Entry);
                 }
-            }            
+            }
         } while (result->NextRow());
 
         delete result;

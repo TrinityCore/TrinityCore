@@ -10,11 +10,9 @@
 // The following configuration file contains defines for Tandem NSK
 // platform, MIPS processor, version 2 C++ compiler.
 
-
 //=========================================================================
 // Tandem NSK specific parts
 //=========================================================================
-
 
 // Disable pthread renaming of symbols such as "open" and "close"
 #define _CMA_NOWRAPPERS_ 1
@@ -30,7 +28,6 @@
 // non-blocking I/O.
 // [@note this causes a significant performance degradation]
 //#define ACE_TANDEM_T1248_PTHREADS_ALL_IO_WRAPPERS
-
 
 // Need this include here because some symbols defined by pthreads
 // (e.g. timespec_t) are needed before spthread.h is normally included
@@ -213,8 +210,6 @@ typedef enum CMA_T_SCHED_POLICY {
 // Compile using multi-thread libraries
 #define ACE_MT_SAFE 1
 
-
-
 // Platform supports System V IPC
 #define ACE_HAS_SYSV_IPC
 
@@ -315,7 +310,6 @@ typedef enum CMA_T_SCHED_POLICY {
 
 // Platform has <strings.h> (which contains bzero() prototype)
 #define ACE_HAS_STRINGS 1
-
 
 // OS/compiler omits the const from the iovec parameter in the
 // writev() prototype.

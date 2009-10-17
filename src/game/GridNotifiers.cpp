@@ -32,7 +32,7 @@ using namespace Trinity;
 void
 VisibleChangesNotifier::Visit(PlayerMapType &m)
 {
-    for(PlayerMapType::iterator iter=m.begin(); iter != m.end(); ++iter)
+    for (PlayerMapType::iterator iter=m.begin(); iter != m.end(); ++iter)
     {
         if(iter->getSource() == &i_object)
             continue;
@@ -50,7 +50,7 @@ VisibleChangesNotifier::Visit(PlayerMapType &m)
 void
 VisibleChangesNotifier::Visit(CreatureMapType &m)
 {
-    for(CreatureMapType::iterator iter = m.begin(); iter != m.end(); ++iter)
+    for (CreatureMapType::iterator iter = m.begin(); iter != m.end(); ++iter)
         if(!iter->getSource()->GetSharedVisionList().empty())
             for(SharedVisionList::const_iterator i = iter->getSource()->GetSharedVisionList().begin();
                 i != iter->getSource()->GetSharedVisionList().end(); ++i)
@@ -61,7 +61,7 @@ VisibleChangesNotifier::Visit(CreatureMapType &m)
 void
 VisibleChangesNotifier::Visit(DynamicObjectMapType &m)
 {
-    for(DynamicObjectMapType::iterator iter = m.begin(); iter != m.end(); ++iter)
+    for (DynamicObjectMapType::iterator iter = m.begin(); iter != m.end(); ++iter)
         if(IS_PLAYER_GUID(iter->getSource()->GetCasterGUID()))
             if(Player* caster = (Player*)iter->getSource()->GetCaster())
                 if(caster->m_seer == iter->getSource())
@@ -75,7 +75,7 @@ PlayerVisibilityNotifier::Notify()
     // but exist one case when this possible and object not out of range: transports
     if(Transport* transport = i_player.GetTransport())
     {
-        for(Transport::PlayerSet::const_iterator itr = transport->GetPassengers().begin();itr!=transport->GetPassengers().end();++itr)
+        for (Transport::PlayerSet::const_iterator itr = transport->GetPassengers().begin(); itr!=transport->GetPassengers().end(); ++itr)
         {
             if(i_clientGUIDs.find((*itr)->GetGUID())!=i_clientGUIDs.end())
             {
@@ -88,7 +88,7 @@ PlayerVisibilityNotifier::Notify()
 
     // generate outOfRange for not iterate objects
     i_data.AddOutOfRangeGUID(i_clientGUIDs);
-    for(Player::ClientGUIDs::iterator itr = i_clientGUIDs.begin();itr!=i_clientGUIDs.end();++itr)
+    for (Player::ClientGUIDs::iterator itr = i_clientGUIDs.begin(); itr!=i_clientGUIDs.end(); ++itr)
     {
         i_player.m_clientGUIDs.erase(*itr);
 
@@ -118,7 +118,7 @@ PlayerVisibilityNotifier::Notify()
 
         // send out of range to other players if need
         std::set<uint64> const& oor = i_data.GetOutOfRangeGUIDs();
-        for(std::set<uint64>::const_iterator iter = oor.begin(); iter != oor.end(); ++iter)
+        for (std::set<uint64>::const_iterator iter = oor.begin(); iter != oor.end(); ++iter)
         {
             if(!IS_PLAYER_GUID(*iter))
                 continue;
@@ -132,7 +132,7 @@ PlayerVisibilityNotifier::Notify()
     // Now do operations that required done at object visibility change to visible
 
     // send data at target visibility change (adding to client)
-    for(std::set<WorldObject*>::const_iterator vItr = i_visibleNow.begin(); vItr != i_visibleNow.end(); ++vItr)
+    for (std::set<WorldObject*>::const_iterator vItr = i_visibleNow.begin(); vItr != i_visibleNow.end(); ++vItr)
         // target aura duration for caster show only if target exist at caster client
         if((*vItr)!=&i_player && (*vItr)->isType(TYPEMASK_UNIT))
             i_player.SendInitialVisiblePackets((Unit*)(*vItr));
@@ -157,7 +157,7 @@ MessageDistDeliverer::Visit(PlayerMapType &m)
         if (!target->GetSharedVisionList().empty())
         {
             SharedVisionList::const_iterator i = target->GetSharedVisionList().begin();
-            for ( ; i != target->GetSharedVisionList().end(); ++i)
+            for (; i != target->GetSharedVisionList().end(); ++i)
                 if((*i)->m_seer == target)
                     SendPacket(*i);
         }
@@ -182,7 +182,7 @@ MessageDistDeliverer::Visit(CreatureMapType &m)
         if (!iter->getSource()->GetSharedVisionList().empty())
         {
             SharedVisionList::const_iterator i = iter->getSource()->GetSharedVisionList().begin();
-            for ( ; i != iter->getSource()->GetSharedVisionList().end(); ++i)
+            for (; i != iter->getSource()->GetSharedVisionList().end(); ++i)
                 if((*i)->m_seer == iter->getSource())
                     SendPacket(*i);
         }
@@ -224,7 +224,7 @@ MessageDistDeliverer::VisitObject(Player* plr)
 template<class T> void
 ObjectUpdater::Visit(GridRefManager<T> &m)
 {
-    for(typename GridRefManager<T>::iterator iter = m.begin(); iter != m.end(); ++iter)
+    for (typename GridRefManager<T>::iterator iter = m.begin(); iter != m.end(); ++iter)
     {
         if(iter->getSource()->IsInWorld())
             iter->getSource()->Update(i_timeDiff);

@@ -44,8 +44,6 @@ namespace SOCKETS_NAMESPACE {
 #endif
 
 
-
-
 void StdoutLog::error(ISocketHandler *,Socket *sock,const std::string& call,int err,const std::string& sys_err,loglevel_t lvl)
 {
     time_t t = time(NULL);
@@ -93,10 +91,8 @@ void StdoutLog::error(ISocketHandler *,Socket *sock,const std::string& call,int 
     }
 }
 
-
 #ifdef SOCKETS_NAMESPACE
 }
 #endif
-
 
 

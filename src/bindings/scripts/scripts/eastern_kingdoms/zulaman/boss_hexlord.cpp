@@ -204,7 +204,7 @@ struct TRINITY_DLL_DECL boss_hex_lord_malacrassAI : public ScriptedAI
     {
         pInstance = c->GetInstanceData();
         SelectAddEntry();
-        for(uint8 i = 0; i < 4; ++i)
+        for (uint8 i = 0; i < 4; ++i)
             AddGUID[i] = 0;
     }
 
@@ -253,7 +253,7 @@ struct TRINITY_DLL_DECL boss_hex_lord_malacrassAI : public ScriptedAI
         m_creature->MonsterYell(YELL_AGGRO, LANG_UNIVERSAL, NULL);
         DoPlaySoundToSet(m_creature, SOUND_YELL_AGGRO);
 
-        for(uint8 i = 0; i < 4; ++i)
+        for (uint8 i = 0; i < 4; ++i)
         {
             Unit* Temp = Unit::GetUnit((*m_creature),AddGUID[i]);
             if (Temp && Temp->isAlive())
@@ -289,7 +289,7 @@ struct TRINITY_DLL_DECL boss_hex_lord_malacrassAI : public ScriptedAI
         m_creature->MonsterYell(YELL_DEATH, LANG_UNIVERSAL, NULL);
         DoPlaySoundToSet(m_creature, SOUND_YELL_DEATH);
 
-        for(uint8 i = 0; i < 4 ; ++i)
+        for (uint8 i = 0; i < 4 ; ++i)
         {
             Unit* Temp = Unit::GetUnit((*m_creature),AddGUID[i]);
             if (Temp && Temp->isAlive())
@@ -301,20 +301,20 @@ struct TRINITY_DLL_DECL boss_hex_lord_malacrassAI : public ScriptedAI
     {
         std::vector<uint32> AddList;
 
-        for(uint8 i = 0; i < 8; ++i)
+        for (uint8 i = 0; i < 8; ++i)
             AddList.push_back(AddEntryList[i]);
 
         while(AddList.size() > 4)
             AddList.erase(AddList.begin()+rand()%AddList.size());
 
         uint8 i = 0;
-        for(std::vector<uint32>::iterator itr = AddList.begin(); itr != AddList.end(); ++itr, ++i)
+        for (std::vector<uint32>::iterator itr = AddList.begin(); itr != AddList.end(); ++itr, ++i)
             AddEntry[i] = *itr;
     }
 
     void SpawnAdds()
     {
-        for(uint8 i = 0; i < 4; ++i)
+        for (uint8 i = 0; i < 4; ++i)
         {
             Creature *pCreature = (Unit::GetCreature((*m_creature), AddGUID[i]));
             if (!pCreature || !pCreature->isAlive())
@@ -349,7 +349,7 @@ struct TRINITY_DLL_DECL boss_hex_lord_malacrassAI : public ScriptedAI
 
         if (CheckAddState_Timer < diff)
         {
-            for(uint8 i = 0; i < 4; ++i)
+            for (uint8 i = 0; i < 4; ++i)
             {
                 Unit* Temp = Unit::GetUnit((*m_creature),AddGUID[i]);
                 if (Temp && Temp->isAlive() && !Temp->getVictim())
@@ -706,7 +706,6 @@ struct TRINITY_DLL_DECL boss_slitherAI : public boss_hexlord_addAI
 
     uint32 venomspit_timer;
 
-
     void Reset()
     {
         venomspit_timer = 5000;
@@ -753,7 +752,6 @@ struct TRINITY_DLL_DECL boss_fenstalkerAI : public boss_hexlord_addAI
 
     uint32 volatileinf_timer;
 
-
     void Reset()
     {
         volatileinf_timer = 15000;
@@ -780,14 +778,12 @@ struct TRINITY_DLL_DECL boss_fenstalkerAI : public boss_hexlord_addAI
 #define SPELL_COLD_STARE      43593
 #define SPELL_MIGHTY_BLOW     43592
 
-
 struct TRINITY_DLL_DECL boss_koraggAI : public boss_hexlord_addAI
 {
     boss_koraggAI(Creature *c) : boss_hexlord_addAI(c) {}
 
     uint32 coldstare_timer;
     uint32 mightyblow_timer;
-
 
     void Reset()
     {

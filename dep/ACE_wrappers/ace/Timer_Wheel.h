@@ -10,7 +10,6 @@
  */
 //=============================================================================
 
-
 #ifndef ACE_TIMER_WHEEL_H
 #define ACE_TIMER_WHEEL_H
 #include /**/ "ace/pre.h"

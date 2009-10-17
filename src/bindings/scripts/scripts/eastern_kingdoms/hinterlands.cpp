@@ -79,7 +79,7 @@ struct MANGOS_DLL_DECL npc_00x09hlAI : public npc_escortAI
         switch(uiPointId)
         {
             case 27:
-                for(uint8 i = 0; i < 3; ++i)
+                for (uint8 i = 0; i < 3; ++i)
                 {
                     const Position src = {147.927444f, -3851.513428f, 130.893f, 0};
                     Position pos;
@@ -88,7 +88,7 @@ struct MANGOS_DLL_DECL npc_00x09hlAI : public npc_escortAI
                 }
                 break;
             case 44:
-                for(uint8 i = 0; i < 3; ++i)
+                for (uint8 i = 0; i < 3; ++i)
                 {
                     const Position src = {-141.151581f, -4291.213867f, 120.130f, 0};
                     Position dst;
@@ -231,7 +231,7 @@ struct TRINITY_DLL_DECL npc_rinjiAI : public npc_escortAI
             m_afAmbushSpawn[m_iSpawnId].m_fX, m_afAmbushSpawn[m_iSpawnId].m_fY, m_afAmbushSpawn[m_iSpawnId].m_fZ, 0.0f,
             TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 60000);
 
-        for(int i = 0; i < 2; ++i)
+        for (int i = 0; i < 2; ++i)
         {
             m_creature->SummonCreature(NPC_OUTRUNNER,
                 m_afAmbushSpawn[m_iSpawnId].m_fX, m_afAmbushSpawn[m_iSpawnId].m_fY, m_afAmbushSpawn[m_iSpawnId].m_fZ, 0.0f,

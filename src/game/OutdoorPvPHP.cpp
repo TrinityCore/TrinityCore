@@ -69,7 +69,7 @@ bool OutdoorPvPHP::SetupOutdoorPvP()
     m_AllianceTowersControlled = 0;
     m_HordeTowersControlled = 0;
     // add the zones affected by the pvp buff
-    for(int i = 0; i < OutdoorPvPHPBuffZonesNum; ++i)
+    for (int i = 0; i < OutdoorPvPHPBuffZonesNum; ++i)
         RegisterZone(OutdoorPvPHPBuffZones[i]);
 
     AddCapturePoint(new OPvPCapturePointHP(this,HP_TOWER_BROKEN_HILL));
@@ -140,7 +140,7 @@ void OutdoorPvPHP::SendRemoveWorldStates(Player *plr)
     plr->SendUpdateWorldState(HP_UI_TOWER_SLIDER_N,0);
     plr->SendUpdateWorldState(HP_UI_TOWER_SLIDER_POS,0);
     plr->SendUpdateWorldState(HP_UI_TOWER_SLIDER_DISPLAY,0);
-    for(int i = 0; i < HP_TOWER_NUM; ++i)
+    for (int i = 0; i < HP_TOWER_NUM; ++i)
     {
         plr->SendUpdateWorldState(HP_MAP_N[i],0);
         plr->SendUpdateWorldState(HP_MAP_A[i],0);
@@ -157,7 +157,7 @@ void OutdoorPvPHP::FillInitialWorldStates(WorldPacket &data)
     data << uint32(HP_UI_TOWER_SLIDER_DISPLAY) << uint32(0);
     data << uint32(HP_UI_TOWER_SLIDER_POS) << uint32(50);
     data << uint32(HP_UI_TOWER_SLIDER_N) << uint32(100);
-    for(OPvPCapturePointMap::iterator itr = m_capturePoints.begin(); itr != m_capturePoints.end(); ++itr)
+    for (OPvPCapturePointMap::iterator itr = m_capturePoints.begin(); itr != m_capturePoints.end(); ++itr)
     {
         itr->second->FillInitialWorldStates(data);
     }

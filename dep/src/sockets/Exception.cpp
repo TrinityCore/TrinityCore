@@ -29,18 +29,14 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 namespace SOCKETS_NAMESPACE {
 #endif
 
-
-
 Exception::Exception(const std::string& description) : m_description(description)
 {
 }
-
 
 const std::string Exception::ToString() const
 {
     return m_description;
 }
-
 
 #ifdef SOCKETS_NAMESPACE
 } // namespace SOCKETS_NAMESPACE {

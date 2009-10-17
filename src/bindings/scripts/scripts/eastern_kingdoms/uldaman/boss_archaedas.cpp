@@ -26,7 +26,6 @@ EndScriptData */
 
 #include "precompiled.h"
 
-
 #define SAY_AGGRO           "Who dares awaken Archaedas? Who dares the wrath of the makers!"
 #define SOUND_AGGRO         5855
 
@@ -92,7 +91,6 @@ struct TRINITY_DLL_DECL boss_archaedasAI : public ScriptedAI
         }
     }
 
-
     void EnterCombat(Unit *who)
     {
         m_creature->setFaction (14);
@@ -135,7 +133,6 @@ struct TRINITY_DLL_DECL boss_archaedasAI : public ScriptedAI
         if (!UpdateVictim())
             return;
 
-
         // wake a wall minion
         if (WallMinionTimer < diff) {
             pInstance->SetData (NULL, 2);
@@ -166,7 +163,6 @@ struct TRINITY_DLL_DECL boss_archaedasAI : public ScriptedAI
             DoPlaySoundToSet(m_creature, SOUND_SUMMON2);
             vaultWalkersAwake = true;
         }
-
 
         if (Tremor_Timer < diff)
         {
@@ -201,7 +197,6 @@ SD%Complete: 100
 SDComment: These mobs are initially frozen until Archaedas awakens them
 one at a time.
 EndScriptData */
-
 
 #define SPELL_ARCHAEDAS_AWAKEN        10347
 
@@ -273,7 +268,6 @@ struct TRINITY_DLL_DECL mob_archaedas_minionsAI : public ScriptedAI
         if (!UpdateVictim())
             return;
 
-
         DoMeleeAttackIfReady();
     }
 };
@@ -290,7 +284,6 @@ SDComment: Needs 1 person to activate the Archaedas script
 SDCategory: Uldaman
 EndScriptData */
 
-
 #define OBJECT_ALTAR_OF_ARCHAEDAS   133234
 
 #define NUMBER_NEEDED_TO_ACTIVATE 1 // as of patch 3.0.8 the altars can be opened by a single player (previously 3)
@@ -299,7 +292,6 @@ EndScriptData */
 
 //uint64 altarOfArchaedasCount[5];
 //int32 altarOfArchaedasCounter=0;
-
 
 bool GOHello_go_altar_of_archaedas(Player* pPlayer, GameObject* pGo)
 {
@@ -412,7 +404,6 @@ SD%Complete: 100
 SDComment: Need 1 person to activate to open the altar.  One by one the StoneKeepers will activate.  After all four are dead than the door will open.
 SDCategory: Uldaman
 EndScriptData */
-
 
 #define SPELL_BOSS_OBJECT_VISUAL    11206
 

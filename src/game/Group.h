@@ -189,7 +189,7 @@ class TRINITY_DLL_SPEC Group
         bool IsLeader(const uint64& guid) const { return (GetLeaderGUID() == guid); }
         uint64 GetMemberGUID(const std::string& name)
         {
-            for(member_citerator itr = m_memberSlots.begin(); itr != m_memberSlots.end(); ++itr)
+            for (member_citerator itr = m_memberSlots.begin(); itr != m_memberSlots.end(); ++itr)
             {
                 if(itr->name == name)
                 {
@@ -364,7 +364,7 @@ class TRINITY_DLL_SPEC Group
 
         member_citerator _getMemberCSlot(uint64 Guid) const
         {
-            for(member_citerator itr = m_memberSlots.begin(); itr != m_memberSlots.end(); ++itr)
+            for (member_citerator itr = m_memberSlots.begin(); itr != m_memberSlots.end(); ++itr)
             {
                 if (itr->guid == Guid)
                     return itr;
@@ -374,7 +374,7 @@ class TRINITY_DLL_SPEC Group
 
         member_witerator _getMemberWSlot(uint64 Guid)
         {
-            for(member_witerator itr = m_memberSlots.begin(); itr != m_memberSlots.end(); ++itr)
+            for (member_witerator itr = m_memberSlots.begin(); itr != m_memberSlots.end(); ++itr)
             {
                 if (itr->guid == Guid)
                     return itr;

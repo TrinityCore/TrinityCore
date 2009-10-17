@@ -10,7 +10,6 @@
  */
 //==========================================================================
 
-
 #ifndef ACE_TYPED_SV_MESSAGE_H
 #define ACE_TYPED_SV_MESSAGE_H
 

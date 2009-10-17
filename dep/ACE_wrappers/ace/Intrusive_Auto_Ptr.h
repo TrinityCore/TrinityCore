@@ -63,7 +63,6 @@ public:
         return rep_ == 0 ? 0: unspecified_bool;
     }
 
-
   // = Initialization and termination methods.
 
   /// Constructor that initializes an ACE_Intrusive_Auto_Ptr to

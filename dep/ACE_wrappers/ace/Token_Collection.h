@@ -162,7 +162,6 @@ public:
                      ACE_Synch_Options &options =
                      ACE_Synch_Options::defaults);
 
-
   /// Renew the token corresponding to @a token_name.  The other
   /// parameters are passed to <token>::renew.
   virtual int renew (const ACE_TCHAR *token_name,
@@ -179,7 +178,6 @@ public:
    */
   virtual int release (ACE_Synch_Options &options =
                        ACE_Synch_Options::defaults);
-
 
   /// Release the token corresponding to <token_name>.  The other
   /// parameters are passed to <token>::release.

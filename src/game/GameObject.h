@@ -698,7 +698,6 @@ class TRINITY_DLL_SPEC GameObject : public WorldObject
                                                             // 0 = use `gameobject`.`spawntimesecs`
         void ResetDoorOrButton();
 
-
         void TriggeringLinkedGameObject( uint32 trapEntry, Unit* target);
 
         bool isVisibleForInState(Player const* u, bool inVisibleList) const;

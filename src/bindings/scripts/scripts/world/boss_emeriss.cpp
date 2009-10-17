@@ -47,7 +47,6 @@ struct TRINITY_DLL_DECL boss_emerissAI : public ScriptedAI
     uint32 m_uiVolatileInfection_Timer;
     uint32 m_uiCorruptionsCasted;
 
-
     void Reset()
     {
         m_uiSleep_Timer = 15000 + rand()%5000;
@@ -106,7 +105,6 @@ struct TRINITY_DLL_DECL boss_emerissAI : public ScriptedAI
         //}
         //else
         //    m_uiMarkOfNature_Timer -= uiDiff;
-
 
         //VolatileInfection_Timer
         if (m_uiVolatileInfection_Timer < uiDiff)

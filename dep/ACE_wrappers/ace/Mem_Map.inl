@@ -185,7 +185,6 @@ ACE_Mem_Map::protect (size_t len, int prot)
   return ACE_OS::mprotect (this->base_addr_, len, prot);
 }
 
-
 // Change the protection of all the pages of the mapped region to <prot>
 // starting at <this->base_addr_>.
 

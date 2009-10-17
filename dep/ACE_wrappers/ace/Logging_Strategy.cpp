@@ -484,7 +484,7 @@ ACE_Logging_Strategy::handle_timeout (const ACE_Time_Value &,
               else
                 max_num = count_;
 
-              for (int i = max_num ; i > 1 ;i--)
+              for (int i = max_num ; i > 1 ; i--)
                 {
                   ACE_OS::sprintf (backup,
                                    ACE_TEXT ("%s.%d"),

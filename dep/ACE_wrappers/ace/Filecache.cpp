@@ -200,7 +200,6 @@ ACE_Filecache_Hash::equal (const ACE_TCHAR *const &id1,
 #undef ACE_Filecache_Hash
 #undef ACE_Filecache_Hash_Entry
 
-
 // -------------
 // ACE_Filecache
 // -------------
@@ -307,7 +306,6 @@ ACE_Filecache::find (const ACE_TCHAR *filename)
   return this->hash_.find (filename);
 }
 
-
 ACE_Filecache_Object *
 ACE_Filecache::remove (const ACE_TCHAR *filename)
 {
@@ -329,7 +327,6 @@ ACE_Filecache::remove (const ACE_TCHAR *filename)
 
   return 0;
 }
-
 
 ACE_Filecache_Object *
 ACE_Filecache::fetch (const ACE_TCHAR *filename, int mapit)

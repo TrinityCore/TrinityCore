@@ -27,7 +27,6 @@
 #include "Platform/Define.h"
 #include "revision.h"
 
-
 #define _PACKAGENAME "TrinityCore2 "
 #define _CODENAME "YUME"
 

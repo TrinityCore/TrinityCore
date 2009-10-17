@@ -174,7 +174,7 @@ void WorldSession::HandleActivateTaxiExpressOpcode ( WorldPacket & recv_data )
     }
     std::vector<uint32> nodes;
 
-    for(uint32 i = 0; i < node_count; ++i)
+    for (uint32 i = 0; i < node_count; ++i)
     {
         uint32 node;
         recv_data >> node;

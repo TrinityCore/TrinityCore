@@ -145,7 +145,6 @@ ACE_Event_Handler::resume_handler (void)
   return ACE_Event_Handler::ACE_REACTOR_RESUMES_HANDLER;
 }
 
-
 int
 ACE_Event_Handler::handle_qos (ACE_HANDLE)
 {

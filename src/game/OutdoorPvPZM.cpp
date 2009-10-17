@@ -179,7 +179,7 @@ bool OutdoorPvPZM::SetupOutdoorPvP()
     m_HordeTowersControlled = 0;
 
     // add the zones affected by the pvp buff
-    for(int i = 0; i < OutdoorPvPZMBuffZonesNum; ++i)
+    for (int i = 0; i < OutdoorPvPZMBuffZonesNum; ++i)
         RegisterZone(OutdoorPvPZMBuffZones[i]);
 
     AddCapturePoint(new OPvPCapturePointZM_Beacon(this,ZM_BEACON_WEST));
@@ -391,7 +391,7 @@ bool OPvPCapturePointZM_GraveYard::HandleDropFlag(Player * plr, uint32 spellId)
 void OutdoorPvPZM::FillInitialWorldStates(WorldPacket &data)
 {
     data << ZM_WORLDSTATE_UNK_1 << uint32(1);
-    for(OPvPCapturePointMap::iterator itr = m_capturePoints.begin(); itr != m_capturePoints.end(); ++itr)
+    for (OPvPCapturePointMap::iterator itr = m_capturePoints.begin(); itr != m_capturePoints.end(); ++itr)
     {
         itr->second->FillInitialWorldStates(data);
     }

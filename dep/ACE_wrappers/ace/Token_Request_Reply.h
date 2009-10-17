@@ -15,7 +15,6 @@
  */
 //=============================================================================
 
-
 #ifndef ACE_TOKEN_REQUEST_REPLY_H
 #define ACE_TOKEN_REQUEST_REPLY_H
 #include /**/ "ace/pre.h"

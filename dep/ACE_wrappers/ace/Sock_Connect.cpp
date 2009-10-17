@@ -157,11 +157,9 @@ namespace
 static ACE_Auto_Array_Ptr<sockaddr> force_compiler_to_include_socket_h;
 #endif /* AIX && __IBMCPP__ >= 500 */
 
-
 ACE_RCSID (ace,
            Sock_Connect,
            "$Id: Sock_Connect.cpp 82276 2008-07-09 17:35:49Z jtc $")
-
 
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 
@@ -668,7 +666,6 @@ get_ip_interfaces_win32 (size_t &count,
 
   return 0;
 
-
 # else
   // All non-CE, non-Pharlap Windows. Must support Winsock2.
 
@@ -1093,7 +1090,7 @@ get_ip_interfaces_aix (size_t &count,
     }
   ACE_NEW_RETURN (addrs,ACE_INET_Addr[num_ifs], -1);
 
-  for (char * ptr = buf_start;  ptr < buf_end; )
+  for (char * ptr = buf_start; ptr < buf_end; )
   {
     struct ifreq *req = reinterpret_cast<struct ifreq *>(ptr);
     // skip the interface name
@@ -1171,7 +1168,6 @@ get_ip_interfaces_vxworks_lt600 (size_t &count,
   return 0;
 }
 #endif // ACE_WIN32 || ACE_HAS_GETIFADDRS || __hpux || _AIX || ACE_VXWORKS < 0x600
-
 
 // return an array of all configured IP interfaces on this host, count
 // rc = 0 on success (count == number of interfaces else -1 caller is
@@ -1544,7 +1540,6 @@ ACE::get_handle (void)
 #endif /* sparc */
   return handle;
 }
-
 
 #if defined (ACE_HAS_IPV6)
 static int

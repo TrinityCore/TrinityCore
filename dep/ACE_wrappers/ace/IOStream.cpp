@@ -48,7 +48,6 @@ ACE_RCSID(ace, IOStream, "$Id: IOStream.cpp 80826 2008-03-04 14:51:23Z wotte $")
   // a reference to iostream.  The second >> has no idea of the ACE_IOStream and
   // gets invoked on iostream.  Probably NOT what you wanted!
 
-
   // In order to make all of this work the way you want, you have to do this:
 
   class myiostream : public iostream
@@ -78,7 +77,6 @@ ACE_RCSID(ace, IOStream, "$Id: IOStream.cpp 80826 2008-03-04 14:51:23Z wotte $")
   foo >> i;
   // OK
   // invokes myiostream::operator>> (int&) returning myiostream&
-
 
   foo >> i >> s;
   // OK

@@ -69,10 +69,10 @@ void WorldSession::HandlePetAction( WorldPacket & recv_data )
     {
         //If a pet is dismissed, m_Controlled will change
         std::vector<Unit*> controlled;
-        for(Unit::ControlList::iterator itr = GetPlayer()->m_Controlled.begin(); itr != GetPlayer()->m_Controlled.end(); ++itr)
+        for (Unit::ControlList::iterator itr = GetPlayer()->m_Controlled.begin(); itr != GetPlayer()->m_Controlled.end(); ++itr)
             if((*itr)->GetEntry() == pet->GetEntry() && (*itr)->isAlive())
                 controlled.push_back(*itr);
-        for(std::vector<Unit*>::iterator itr = controlled.begin(); itr != controlled.end(); ++itr)
+        for (std::vector<Unit*>::iterator itr = controlled.begin(); itr != controlled.end(); ++itr)
             HandlePetActionHelper(*itr, guid1, spellid, flag, guid2);
     }
 }
@@ -140,7 +140,7 @@ void WorldSession::HandlePetActionHelper(Unit *pet, uint64 guid1, uint16 spellid
                         return;
 
                     }
-                    
+
                     pet->clearUnitState(UNIT_STAT_FOLLOW);
                     // This is true if pet has no target or has target but targets differs.
                     if(pet->getVictim() != TargetUnit || ( pet->getVictim() == TargetUnit && !pet->GetCharmInfo()->IsCommandAttack() ))
@@ -238,7 +238,7 @@ void WorldSession::HandlePetActionHelper(Unit *pet, uint64 guid1, uint16 spellid
                 return;
             }
 
-            for(uint32 i = 0; i < 3;++i)
+            for (uint32 i = 0; i < 3; ++i)
             {
                 if(spellInfo->EffectImplicitTargetA[i] == TARGET_UNIT_AREA_ENEMY_SRC || spellInfo->EffectImplicitTargetA[i] == TARGET_UNIT_AREA_ENEMY_DST || spellInfo->EffectImplicitTargetA[i] == TARGET_DEST_DYNOBJ_ENEMY)
                     return;
@@ -366,7 +366,7 @@ void WorldSession::SendPetNameQuery( uint64 petguid, uint32 petnumber)
     if( pet->isPet() && ((Pet*)pet)->GetDeclinedNames() )
     {
         data << uint8(1);
-        for(uint8 i = 0; i < MAX_DECLINED_NAME_CASES; ++i)
+        for (uint8 i = 0; i < MAX_DECLINED_NAME_CASES; ++i)
             data << ((Pet*)pet)->GetDeclinedNames()->name[i];
     }
     else
@@ -400,7 +400,7 @@ void WorldSession::HandlePetSetAction( WorldPacket & recv_data )
     }
 
     count = (recv_data.size() == 24) ? 2 : 1;
-    for(uint8 i = 0; i < count; ++i)
+    for (uint8 i = 0; i < count; ++i)
     {
         uint32 position;
         uint32 data;
@@ -487,7 +487,7 @@ void WorldSession::HandlePetRename( WorldPacket & recv_data )
 
     if(isdeclined)
     {
-        for(uint8 i = 0; i < MAX_DECLINED_NAME_CASES; ++i)
+        for (uint8 i = 0; i < MAX_DECLINED_NAME_CASES; ++i)
         {
             recv_data >> declinedname.name[i];
         }
@@ -504,7 +504,7 @@ void WorldSession::HandlePetRename( WorldPacket & recv_data )
     CharacterDatabase.BeginTransaction();
     if(isdeclined)
     {
-        for(uint8 i = 0; i < MAX_DECLINED_NAME_CASES; ++i)
+        for (uint8 i = 0; i < MAX_DECLINED_NAME_CASES; ++i)
             CharacterDatabase.escape_string(declinedname.name[i]);
         CharacterDatabase.PExecute("DELETE FROM character_pet_declinedname WHERE owner = '%u' AND id = '%u'", _player->GetGUIDLow(), pet->GetCharmInfo()->GetPetNumber());
         CharacterDatabase.PExecute("INSERT INTO character_pet_declinedname (id, owner, genitive, dative, accusative, instrumental, prepositional) VALUES ('%u','%u','%s','%s','%s','%s','%s')",
@@ -720,7 +720,7 @@ void WorldSession::SendPetNameInvalid(uint32 error, const std::string& name, Dec
     if(declinedName)
     {
         data << uint8(1);
-        for(uint32 i = 0; i < MAX_DECLINED_NAME_CASES; ++i)
+        for (uint32 i = 0; i < MAX_DECLINED_NAME_CASES; ++i)
             data << declinedName->name[i];
     }
     else
@@ -752,7 +752,7 @@ void WorldSession::HandleLearnPreviewTalentsPet( WorldPacket & recv_data )
 
     uint32 talentId, talentRank;
 
-    for(uint32 i = 0; i < talentsCount; ++i)
+    for (uint32 i = 0; i < talentsCount; ++i)
     {
         recv_data >> talentId >> talentRank;
 

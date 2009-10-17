@@ -9,7 +9,6 @@
  */
 //=============================================================================
 
-
 #ifndef ACE_SERVICE_TEMPLATES_H
 #define ACE_SERVICE_TEMPLATES_H
 #include /**/ "ace/pre.h"

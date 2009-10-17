@@ -77,7 +77,7 @@ char ** cli_completion(const char * text, int start, int end)
 {
     char ** matches;
     matches = (char**)NULL;
-  
+
     if(start == 0)
         matches = rl_completion_matches((char*)text,&command_finder);
     else
@@ -348,7 +348,6 @@ bool ChatHandler::HandleServerSetDiffTimeCommand(const char *args)
     return true;
 }
 
-
 /// @}
 
 #ifdef linux
@@ -401,13 +400,12 @@ void CliRunnable::run()
         #endif
         if (command_str != NULL)
         {
-            for(int x=0;command_str[x];x++)
+            for (int x=0; command_str[x]; x++)
                 if(command_str[x]=='\r'||command_str[x]=='\n')
                 {
                     command_str[x]=0;
                     break;
                 }
-
 
             if(!*command_str)
             {

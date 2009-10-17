@@ -10,7 +10,6 @@
  */
 //=============================================================================
 
-
 #ifndef ACE_MEM_IO_H
 #define ACE_MEM_IO_H
 #include /**/ "ace/pre.h"
@@ -28,7 +27,6 @@
 #include "ace/Message_Block.h"
 #include "ace/Process_Semaphore.h"
 #include "ace/Process_Mutex.h"
-
 
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 
@@ -265,7 +263,6 @@ public:
                 size_t n,
                 int flags,
                 const ACE_Time_Value *timeout);
-
 
   /// Dump the state of an object.
   void dump (void) const;

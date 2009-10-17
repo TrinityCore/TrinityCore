@@ -158,7 +158,6 @@ struct TRINITY_DLL_DECL npc_plaguehound_trackerAI : public npc_escortAI
 {
     npc_plaguehound_trackerAI(Creature* pCreature) : npc_escortAI(pCreature) { }
 
-
     void Reset()
     {
         InitScriptData();

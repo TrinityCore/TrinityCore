@@ -107,8 +107,6 @@ ACE_END_VERSIONED_NAMESPACE_DECL
 #  endif /* _FILE_OFFSET_BITS==64 */
 #endif /* ACE_WIN32 */
 
-
-
 # include /**/ "ace/post.h"
 
 #endif /* ACE_OS_NS_MACROS_H */

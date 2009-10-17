@@ -346,7 +346,7 @@ struct TRINITY_DLL_DECL npc_thrall_old_hillsbradAI : public npc_escortAI
                     Map::PlayerList const& players = pMap->GetPlayers();
                     if (!players.isEmpty() && pMap->IsDungeon())
                     {
-                        for(Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
+                        for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
                         {
                             if (Player* pPlayer = itr->getSource())
                                 pPlayer->KilledMonsterCredit(20156,m_creature->GetGUID());
@@ -363,7 +363,6 @@ struct TRINITY_DLL_DECL npc_thrall_old_hillsbradAI : public npc_escortAI
                 break;
         }
     }
-
 
     void Reset()
     {

@@ -66,7 +66,7 @@ namespace VMAP
         ++nNodes;
 
         nSubModels += pNode.valueArray.size();
-        for(int i=0;i<pNode.valueArray.size(); i++)
+        for (int i=0; i<pNode.valueArray.size(); i++)
         {
         G3D::_AABSPTree::Handle<SubModel*>* h= pNode.valueArray[i];
             SubModel *m = h->value;
@@ -97,7 +97,7 @@ namespace VMAP
         Vector3 lo = Vector3(inf(),inf(),inf());
         Vector3 hi = Vector3(-inf(),-inf(),-inf());
 
-        for(int i=0;i<pNode.valueArray.size(); i++)
+        for (int i=0; i<pNode.valueArray.size(); i++)
         {
             G3D::_AABSPTree::Handle<SubModel*>* h= pNode.valueArray[i];
             SubModel *m = h->value;
@@ -303,7 +303,7 @@ namespace VMAP
 
             if(result)
             {
-                for(unsigned int i=0;i<iNSubModel && result; ++i)
+                for (unsigned int i=0; i<iNSubModel && result; ++i)
                 {
                     unsigned char readBuffer[52];           // this is the size of SubModel on 32 bit systems
                     if(fread(readBuffer,sizeof(readBuffer),1,rf) != 1) result = false;

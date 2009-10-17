@@ -413,7 +413,7 @@ class EventMap : private std::map<uint32, uint32>
         {
             time += m_time;
             gcd = (1 << (gcd + 16));
-            for(iterator itr = begin(); itr != end();)
+            for (iterator itr = begin(); itr != end(); )
             {
                 if(itr->first >= time)
                     break;
@@ -429,7 +429,7 @@ class EventMap : private std::map<uint32, uint32>
 
         void CancelEvent(uint32 eventId)
         {
-            for(iterator itr = begin(); itr != end();)
+            for (iterator itr = begin(); itr != end(); )
             {
                 if(eventId == (itr->second & 0x0000FFFF))
                     erase(itr++);
@@ -440,7 +440,7 @@ class EventMap : private std::map<uint32, uint32>
 
         void CancelEventsByGCD(uint32 gcd)
         {
-            for(iterator itr = begin(); itr != end();)
+            for (iterator itr = begin(); itr != end(); )
             {
                 if(itr->second & gcd)
                     erase(itr++);
@@ -481,7 +481,6 @@ struct AISpellInfoType
 };
 
 TRINITY_DLL_SPEC AISpellInfoType * GetAISpellInfo(uint32 i);
-
 
 inline void CreatureAI::SetGazeOn(Unit *target)
 {
@@ -573,7 +572,7 @@ inline bool CreatureAI::_EnterEvadeMode()
     me->LoadCreaturesAddon();
     me->SetLootRecipient(NULL);
     me->ResetPlayerDamageReq();
-    
+
     if(me->IsInEvadeMode())
         return false;
 

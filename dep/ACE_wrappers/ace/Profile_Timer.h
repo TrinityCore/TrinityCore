@@ -10,7 +10,6 @@
  */
 //==========================================================================
 
-
 #ifndef ACE_PROFILE_TIMER_H
 #define ACE_PROFILE_TIMER_H
 #include /**/ "ace/pre.h"

@@ -120,10 +120,10 @@ struct TRINITY_DLL_DECL boss_gothikAI : public BossAI
 
     void EnterCombat(Unit *who)
     {
-        for(uint32 i = 0; i < POS_LIVE; ++i)
+        for (uint32 i = 0; i < POS_LIVE; ++i)
             if (Creature *trigger = DoSummon(WORLD_TRIGGER, PosSummonLive[i]))
                 liveTrigger.push_back(trigger);
-        for(uint32 i = 0; i < POS_DEAD; ++i)
+        for (uint32 i = 0; i < POS_DEAD; ++i)
             if (Creature *trigger = DoSummon(WORLD_TRIGGER, PosSummonDead[i]))
                 deadTrigger.push_back(trigger);
 
@@ -160,7 +160,7 @@ struct TRINITY_DLL_DECL boss_gothikAI : public BossAI
     {
         if (summon->GetEntry() == WORLD_TRIGGER)
         {
-            //for(TriggerVct::iterator itr = liveTrigger.begin(); itr != liveTrigger.end(); ++itr)
+            //for (TriggerVct::iterator itr = liveTrigger.begin(); itr != liveTrigger.end(); ++itr)
             //    if(*itr == summon)
             error_log("boss_gothikAI: trigger is despawned!");
             EnterEvadeMode();
@@ -231,7 +231,7 @@ struct TRINITY_DLL_DECL boss_gothikAI : public BossAI
                 case EVENT_SUMMON:
                     if (waves[waveCount].entry)
                     {
-                        for(uint32 i = 0; i < waves[waveCount].number; ++i)
+                        for (uint32 i = 0; i < waves[waveCount].number; ++i)
                             DoSummon(waves[waveCount].entry, liveTrigger[rand()%POS_LIVE], 1.0f);
                         events.ScheduleEvent(EVENT_SUMMON, waves[waveCount].time);
                         ++waveCount;
@@ -312,7 +312,7 @@ struct TRINITY_DLL_DECL mob_gothik_minionAI : public CombatAI
         if (pMap->IsDungeon())
         {
             Map::PlayerList const &PlayerList = pMap->GetPlayers();
-            for(Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
+            for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
             {
                 if (i->getSource()->isAlive() && SIDE_CHECK(i->getSource()))
                 {

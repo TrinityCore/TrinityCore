@@ -224,7 +224,6 @@ struct TRINITY_DLL_DECL boss_dalronn_the_controllerAI : public ScriptedAI
     uint32 AggroYell_Timer;
     bool Skarvald_isDead;
 
-
     void Reset()
     {
         ShadowBolt_Timer = 1000;

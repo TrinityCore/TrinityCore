@@ -182,7 +182,6 @@ struct TRINITY_DLL_DECL npc_secondTrialAI : public ScriptedAI
     uint32 timerJudLight;
     uint32 timerCommand;
 
-
     void Reset() {
 
       timer = 2000;
@@ -388,7 +387,6 @@ struct TRINITY_DLL_DECL master_kelerun_bloodmournAI : public ScriptedAI
     void SummonedCreatureDespawn(Creature* c) {}
 };
 
-
 bool GossipHello_master_kelerun_bloodmourn(Player* pPlayer, Creature* pCreature)
 {
     // quest only available if not already started
@@ -442,7 +440,7 @@ void npc_secondTrialAI::JustDied(Unit* Killer) {
 
             if (Group *pGroup = CAST_PLR(Killer)->GetGroup())
             {
-               for(GroupReference *itr = pGroup->GetFirstMember(); itr != NULL; itr = itr->next())
+               for (GroupReference *itr = pGroup->GetFirstMember(); itr != NULL; itr = itr->next())
                {
                  Player *pGroupGuy = itr->getSource();
 

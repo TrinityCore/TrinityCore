@@ -227,7 +227,6 @@ namespace ACE_OS
                  const iovec *iov,
                  int iovcnt);
 
-
   /// Manipulate the options associated with a socket.
   ACE_NAMESPACE_INLINE_FUNCTION
   int setsockopt (ACE_HANDLE handle,

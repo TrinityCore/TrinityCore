@@ -1478,8 +1478,6 @@ ACE_WFMO_Reactor::mask_ops_i (ACE_HANDLE io_handle,
     return -1;
 }
 
-
-
 int
 ACE_WFMO_Reactor_Handler_Repository::modify_network_events_i (ACE_HANDLE io_handle,
                                                               ACE_Reactor_Mask new_masks,
@@ -1885,7 +1883,6 @@ ACE_WFMO_Reactor::calculate_timeout (ACE_Time_Value *max_wait_time)
     return time->msec ();
 }
 
-
 int
 ACE_WFMO_Reactor::expire_timers (void)
 {
@@ -2254,7 +2251,6 @@ ACE_WFMO_Reactor::upcall (ACE_Event_Handler *event_handler,
   events.lNetworkEvents = actual_events;
   return problems;
 }
-
 
 int
 ACE_WFMO_Reactor::update_state (void)
@@ -2722,7 +2718,6 @@ ACE_WFMO_Reactor::resumable_handler (void)
   ACE_TRACE ("ACE_WFMO_Reactor::resumable_handler");
   return 0;
 }
-
 
 // No-op WinSOCK2 methods to help WFMO_Reactor compile
 #if !defined (ACE_HAS_WINSOCK2) || (ACE_HAS_WINSOCK2 == 0)

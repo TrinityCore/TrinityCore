@@ -212,7 +212,7 @@ struct TRINITY_DLL_DECL boss_taldaramAI : public ScriptedAI
                         Unit *target = NULL;
                         std::list<HostilReference *> t_list = m_creature->getThreatManager().getThreatList();
                         std::vector<Unit *> target_list;
-                        for(std::list<HostilReference *>::iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)
+                        for (std::list<HostilReference *>::iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)
                         {
                             target = Unit::GetUnit(*m_creature, (*itr)->getUnitGuid());
                             // exclude pets & totems
@@ -268,10 +268,10 @@ struct TRINITY_DLL_DECL boss_taldaramAI : public ScriptedAI
             {
                 Map::PlayerList const &players = pMap->GetPlayers();
                 uint8 count = 0;
-                for(Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
+                for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
                   ++count;
                 if (count < 5)
-                    for(Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
+                    for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
                         itr->getSource()->CompletedAchievement(AchievThePartyIsOver);
             }
         }

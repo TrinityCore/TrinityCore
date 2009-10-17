@@ -461,7 +461,6 @@ ACE_END_VERSIONED_NAMESPACE_DECL
 ACE_FACTORY_DECLARE (ACE, ACE_Service_Manager)
 #endif /* ! ACE_LACKS_ACE_SVCCONF */
 
-
 #include /**/ "ace/post.h"
 #endif /* ACE_OBJECT_MANAGER_H */
 

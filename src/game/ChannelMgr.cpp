@@ -38,7 +38,7 @@ ChannelMgr* channelMgr(uint32 team)
 
 ChannelMgr::~ChannelMgr()
 {
-    for(ChannelMap::iterator itr = channels.begin();itr!=channels.end(); ++itr)
+    for (ChannelMap::iterator itr = channels.begin(); itr!=channels.end(); ++itr)
         delete itr->second;
 
     channels.clear();

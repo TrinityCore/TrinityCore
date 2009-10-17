@@ -26,11 +26,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "sockets-config.h"
 #include "SocketAddress.h"
 
-
 #ifdef SOCKETS_NAMESPACE
 namespace SOCKETS_NAMESPACE {
 #endif
-
 
 /* Ipv4 address implementation.
     \ingroup basic */
@@ -87,8 +85,6 @@ private:
     struct sockaddr_in m_addr;
     bool m_valid;
 };
-
-
 
 
 #ifdef SOCKETS_NAMESPACE

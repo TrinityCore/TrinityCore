@@ -73,7 +73,6 @@ public:
     PROACTOR_CB     = 4
   };
 
-
   enum SystemType  // open for future extention
   {
     ACE_OS_UNDEFINED= 0x0000,
@@ -336,7 +335,6 @@ class ACE_Export ACE_POSIX_AIOCB_Proactor : public ACE_POSIX_Proactor
   friend class ACE_POSIX_Asynch_Accept;
   friend class ACE_POSIX_Asynch_Connect;
 
-
 public:
   /// Constructor defines max number asynchronous operations
   /// which can be started at the same time
@@ -458,7 +456,6 @@ protected:
 
   /// Process the internal results queue
   int process_result_queue (void);
-
 
   /// This class takes care of doing <accept> when we use
   /// AIO_CONTROL_BLOCKS strategy.
@@ -605,7 +602,6 @@ protected:
    */
   sigset_t RT_completion_signals_;
 };
-
 
 #endif /* ACE_HAS_POSIX_REALTIME_SIGNALS */
 

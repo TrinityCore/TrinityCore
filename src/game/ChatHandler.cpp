@@ -90,7 +90,7 @@ void WorldSession::HandleMessagechatOpcode( WorldPacket & recv_data )
         // also check SPELL_AURA_COMPREHEND_LANGUAGE (client offers option to speak in that language)
         Unit::AuraEffectList const& langAuras = _player->GetAurasByType(SPELL_AURA_COMPREHEND_LANGUAGE);
         bool foundAura = false;
-        for(Unit::AuraEffectList::const_iterator i = langAuras.begin();i != langAuras.end(); ++i)
+        for (Unit::AuraEffectList::const_iterator i = langAuras.begin(); i != langAuras.end(); ++i)
         {
             if((*i)->GetMiscValue() == int32(lang))
             {

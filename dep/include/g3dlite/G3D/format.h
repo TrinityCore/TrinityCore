@@ -51,7 +51,6 @@ std::string vformat(
     const char*                 fmt,
     va_list                     argPtr) G3D_CHECK_VPRINTF_ARGS;
 
-
 }; // namespace
 
 #endif

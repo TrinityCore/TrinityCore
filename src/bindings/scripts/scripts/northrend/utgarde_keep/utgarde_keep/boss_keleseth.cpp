@@ -154,7 +154,7 @@ struct TRINITY_DLL_DECL boss_kelesethAI : public ScriptedAI
                 if (pMap && pMap->IsDungeon())
                 {
                     Map::PlayerList const &players = pMap->GetPlayers();
-                    for(Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
+                    for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
                         itr->getSource()->CompletedAchievement(AchievOnTheRocks);
                 }
             }
@@ -197,7 +197,7 @@ struct TRINITY_DLL_DECL boss_kelesethAI : public ScriptedAI
             {
                 Creature* Skeleton;
                 DoScriptText(SAY_SKELETONS, m_creature);
-                for(uint8 i = 0; i < 5; ++i)
+                for (uint8 i = 0; i < 5; ++i)
                 {
                     Skeleton = m_creature->SummonCreature(CREATURE_SKELETON, SkeletonSpawnPoint[i][0], SkeletonSpawnPoint[i][1] , SKELETONSPAWN_Z, 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN,20000);
                     if (Skeleton)
@@ -266,7 +266,6 @@ struct TRINITY_DLL_DECL mob_vrykul_skeletonAI : public ScriptedAI
             damage = 0;
         }
     }
-
 
     void PretendToDie()
     {

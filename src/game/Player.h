@@ -208,7 +208,7 @@ struct PlayerClassInfo
 
 struct PlayerLevelInfo
 {
-    PlayerLevelInfo() { for(uint8 i=0; i < MAX_STATS; ++i ) stats[i] = 0; }
+    PlayerLevelInfo() { for (uint8 i=0; i < MAX_STATS; ++i ) stats[i] = 0; }
 
     uint8 stats[MAX_STATS];
 };
@@ -316,7 +316,7 @@ struct Runes
 struct EnchantDuration
 {
     EnchantDuration() : item(NULL), slot(MAX_ENCHANTMENT_SLOT), leftduration(0) {};
-    EnchantDuration(Item * _item, EnchantmentSlot _slot, uint32 _leftduration) : item(_item), slot(_slot), 
+    EnchantDuration(Item * _item, EnchantmentSlot _slot, uint32 _leftduration) : item(_item), slot(_slot),
         leftduration(_leftduration){ assert(item); };
 
     Item * item;
@@ -366,7 +366,7 @@ struct LookingForGroup
     bool HaveInSlot(LookingForGroupSlot const& slot) const { return HaveInSlot(slot.entry, slot.type); }
     bool HaveInSlot(uint32 _entry, uint32 _type) const
     {
-        for(uint8 i = 0; i < MAX_LOOKING_FOR_GROUP_SLOT; ++i)
+        for (uint8 i = 0; i < MAX_LOOKING_FOR_GROUP_SLOT; ++i)
             if(slots[i].Is(_entry, _type))
                 return true;
         return false;
@@ -374,7 +374,7 @@ struct LookingForGroup
 
     bool canAutoJoin() const
     {
-        for(uint8 i = 0; i < MAX_LOOKING_FOR_GROUP_SLOT; ++i)
+        for (uint8 i = 0; i < MAX_LOOKING_FOR_GROUP_SLOT; ++i)
             if(slots[i].canAutoJoin())
                 return true;
         return false;
@@ -382,7 +382,7 @@ struct LookingForGroup
 
     bool Empty() const
     {
-        for(uint8 i = 0; i < MAX_LOOKING_FOR_GROUP_SLOT; ++i)
+        for (uint8 i = 0; i < MAX_LOOKING_FOR_GROUP_SLOT; ++i)
             if(!slots[i].Empty())
                 return false;
         return more.Empty();
@@ -519,8 +519,6 @@ enum ActivateTaxiReplies
     ERR_TAXISAMENODE                = 11,
     ERR_TAXINOTSTANDING             = 12
 };
-
-
 
 enum MirrorTimerType
 {
@@ -671,7 +669,7 @@ struct EquipmentSet
 {
     EquipmentSet() : Guid(0), state(EQUIPMENT_SET_NEW)
     {
-        for(uint8 i = 0; i < EQUIPMENT_SLOT_END; ++i)
+        for (uint8 i = 0; i < EQUIPMENT_SLOT_END; ++i)
             Items[i] = 0;
     }
 
@@ -904,7 +902,6 @@ struct BGData
     BGData() : bgInstanceID(0), bgTypeID(BATTLEGROUND_TYPE_NONE), bgAfkReportedCount(0), bgAfkReportedTimer(0),
         bgTeam(0), mountSpell(0) { ClearTaxiPath(); }
 
-
     uint32 bgInstanceID;                    ///< This variable is set to bg->m_InstanceID,
                                             ///  when player is teleported to BG - (it is battleground's GUID)
     BattleGroundTypeId bgTypeID;
@@ -914,7 +911,6 @@ struct BGData
     time_t             bgAfkReportedTimer;
 
     uint32 bgTeam;                          ///< What side the player will be added to
-
 
     uint32 mountSpell;
     uint32 taxiPath[2];
@@ -1497,9 +1493,9 @@ class MANGOS_DLL_SPEC Player : public Unit
         void SetGlyphSlot(uint8 slot, uint32 slottype) { SetUInt32Value(PLAYER_FIELD_GLYPH_SLOTS_1 + slot, slottype); }
         uint32 GetGlyphSlot(uint8 slot) { return GetUInt32Value(PLAYER_FIELD_GLYPH_SLOTS_1 + slot); }
         void SetGlyph(uint8 slot, uint32 glyph)
-        { 
+        {
             m_Glyphs[m_activeSpec][slot] = glyph;
-            SetUInt32Value(PLAYER_FIELD_GLYPHS_1 + slot, glyph); 
+            SetUInt32Value(PLAYER_FIELD_GLYPHS_1 + slot, glyph);
         }
         uint32 GetGlyph(uint8 slot) { return m_Glyphs[m_activeSpec][slot]; }
 
@@ -1583,7 +1579,7 @@ class MANGOS_DLL_SPEC Player : public Unit
         void SetPvP(bool state)
         {
             Unit::SetPvP(state);
-            for(ControlList::iterator itr = m_Controlled.begin(); itr != m_Controlled.end(); ++itr)
+            for (ControlList::iterator itr = m_Controlled.begin(); itr != m_Controlled.end(); ++itr)
                 (*itr)->SetPvP(state);
         }
         void UpdatePvP(bool state, bool override=false);
@@ -1870,7 +1866,7 @@ class MANGOS_DLL_SPEC Player : public Unit
         float GetTotalPercentageModValue(BaseModGroup modGroup) const { return m_auraBaseMod[modGroup][FLAT_MOD] + m_auraBaseMod[modGroup][PCT_MOD]; }
         void _ApplyAllStatBonuses();
         void _RemoveAllStatBonuses();
-        
+
         void _ApplyWeaponDependentAuraMods(Item *item, WeaponAttackType attackType, bool apply);
         void _ApplyWeaponDependentAuraCritMod(Item *item, WeaponAttackType attackType, AuraEffect* aura, bool apply);
         void _ApplyWeaponDependentAuraDamageMod(Item *item, WeaponAttackType attackType, AuraEffect* aura, bool apply);
@@ -1920,7 +1916,6 @@ class MANGOS_DLL_SPEC Player : public Unit
         uint32 GetBattleGroundId()  const                { return m_bgData.bgInstanceID; }
         BattleGroundTypeId GetBattleGroundTypeId() const { return m_bgData.bgTypeID; }
         BattleGround* GetBattleGround() const;
-
 
         BGQueueIdBasedOnLevel GetBattleGroundQueueIdFromLevel(BattleGroundTypeId bgTypeId) const;
 
@@ -2253,7 +2248,7 @@ Spell * m_spellModTakingSpell;
         /*********************************************************/
         /***                    QUEST SYSTEM                   ***/
         /*********************************************************/
-        
+
         //We allow only one timed quest active at the same time. Below can then be simple value instead of set.
         std::set<uint32> m_timedquests;
 

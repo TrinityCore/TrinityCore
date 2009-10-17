@@ -41,7 +41,7 @@ struct TRINITY_DLL_DECL instance_drak_tharon : public ScriptedInstance
 
     bool IsEncounterInProgress() const
     {
-        for(uint8 i = 0; i < MAX_ENCOUNTER; ++i)
+        for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
             if (m_auiEncounter[i] == IN_PROGRESS) return true;
 
         return false;
@@ -177,7 +177,7 @@ struct TRINITY_DLL_DECL instance_drak_tharon : public ScriptedInstance
             m_auiEncounter[2] = data2;
             m_auiEncounter[3] = data3;
 
-            for(uint8 i = 0; i < MAX_ENCOUNTER; ++i)
+            for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
                 if (m_auiEncounter[i] == IN_PROGRESS)
                     m_auiEncounter[i] = NOT_STARTED;
         }else OUT_LOAD_INST_DATA_FAIL;

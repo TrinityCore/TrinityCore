@@ -79,7 +79,7 @@ void CreatureAI::DoZoneInCombat(Creature* creature)
     if(PlList.isEmpty())
         return;
 
-    for(Map::PlayerList::const_iterator i = PlList.begin(); i != PlList.end(); ++i)
+    for (Map::PlayerList::const_iterator i = PlList.begin(); i != PlList.end(); ++i)
     {
         if(Player* pPlayer = i->getSource())
         {
@@ -94,7 +94,7 @@ void CreatureAI::DoZoneInCombat(Creature* creature)
             }
 
             /* Causes certain things to never leave the threat list (Priest Lightwell, etc):
-            for(Unit::ControlList::const_iterator itr = pPlayer->m_Controlled.begin(); itr != pPlayer->m_Controlled.end(); ++itr)
+            for (Unit::ControlList::const_iterator itr = pPlayer->m_Controlled.begin(); itr != pPlayer->m_Controlled.end(); ++itr)
             {
                 creature->SetInCombatWith(*itr);
                 (*itr)->SetInCombatWith(creature);
@@ -108,7 +108,7 @@ void CreatureAI::MoveInLineOfSight(Unit *who)
 {
     if(me->getVictim())
         return;
-        
+
     if (me->GetTypeId() == CREATURE_TYPE_NON_COMBAT_PET) // non-combat pets should just stand there and look good;)
         return;
 

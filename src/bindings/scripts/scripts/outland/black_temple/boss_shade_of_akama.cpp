@@ -259,7 +259,7 @@ struct TRINITY_DLL_DECL boss_shade_of_akamaAI : public ScriptedAI
 
             if (!Channelers.empty())
             {
-                for(std::list<uint64>::iterator itr = Channelers.begin(); itr != Channelers.end(); ++itr)
+                for (std::list<uint64>::iterator itr = Channelers.begin(); itr != Channelers.end(); ++itr)
                 {
                     Creature* Channeler = (Unit::GetCreature(*m_creature, *itr));
                     if (Channeler)
@@ -326,7 +326,7 @@ struct TRINITY_DLL_DECL boss_shade_of_akamaAI : public ScriptedAI
         }
         else
         {
-            for(uint8 i = 0; i < 3; ++i)
+            for (uint8 i = 0; i < 3; ++i)
             {
                 Creature* Spawn = m_creature->SummonCreature(spawnEntries[i], X, Y, Z_SPAWN, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 25000);
                 if (Spawn)
@@ -347,7 +347,7 @@ struct TRINITY_DLL_DECL boss_shade_of_akamaAI : public ScriptedAI
 
         if (!ChannelerList.empty())
         {
-            for(std::list<Creature*>::iterator itr = ChannelerList.begin(); itr != ChannelerList.end(); ++itr)
+            for (std::list<Creature*>::iterator itr = ChannelerList.begin(); itr != ChannelerList.end(); ++itr)
             {
                 CAST_AI(mob_ashtongue_channelerAI, (*itr)->AI())->ShadeGUID = m_creature->GetGUID();
                 Channelers.push_back((*itr)->GetGUID());
@@ -365,7 +365,7 @@ struct TRINITY_DLL_DECL boss_shade_of_akamaAI : public ScriptedAI
             return;
         }
 
-        for(std::list<uint64>::iterator itr = Channelers.begin(); itr != Channelers.end(); ++itr)
+        for (std::list<uint64>::iterator itr = Channelers.begin(); itr != Channelers.end(); ++itr)
             if (Creature* Channeler = (Unit::GetCreature(*m_creature, *itr)))
                 Channeler->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
     }
@@ -701,7 +701,7 @@ struct TRINITY_DLL_DECL npc_akamaAI : public ScriptedAI
         {
             if (SummonBrokenTimer <= diff)
             {
-                for(uint8 i = 0; i < 4; ++i)
+                for (uint8 i = 0; i < 4; ++i)
                 {
                     float x = BrokenCoords[BrokenSummonIndex].x + (i*5);
                     float y = BrokenCoords[BrokenSummonIndex].y + (1*5);
@@ -743,7 +743,7 @@ struct TRINITY_DLL_DECL npc_akamaAI : public ScriptedAI
                     if (!BrokenList.empty())
                     {
                         bool Yelled = false;
-                        for(std::list<uint64>::iterator itr = BrokenList.begin(); itr != BrokenList.end(); ++itr)
+                        for (std::list<uint64>::iterator itr = BrokenList.begin(); itr != BrokenList.end(); ++itr)
                             if (Creature* pUnit = Unit::GetCreature(*m_creature, *itr))
                             {
                                 if (!Yelled)
@@ -760,7 +760,7 @@ struct TRINITY_DLL_DECL npc_akamaAI : public ScriptedAI
                 case 3:
                     if (!BrokenList.empty())
                     {
-                        for(std::list<uint64>::iterator itr = BrokenList.begin(); itr != BrokenList.end(); ++itr)
+                        for (std::list<uint64>::iterator itr = BrokenList.begin(); itr != BrokenList.end(); ++itr)
                             if (Creature* pUnit = Unit::GetCreature(*m_creature, *itr))
                                 // This is the incorrect spell, but can't seem to find the right one.
                                 pUnit->CastSpell(pUnit, 39656, true);
@@ -771,7 +771,7 @@ struct TRINITY_DLL_DECL npc_akamaAI : public ScriptedAI
                 case 4:
                     if (!BrokenList.empty())
                     {
-                        for(std::list<uint64>::iterator itr = BrokenList.begin(); itr != BrokenList.end(); ++itr)
+                        for (std::list<uint64>::iterator itr = BrokenList.begin(); itr != BrokenList.end(); ++itr)
                             if (Creature* pUnit = Unit::GetCreature((*m_creature), *itr))
                                 pUnit->MonsterYell(SAY_BROKEN_FREE_02, LANG_UNIVERSAL, 0);
                     }

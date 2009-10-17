@@ -103,7 +103,7 @@ struct TRINITY_DLL_DECL instance_scarlet_monastery : public ScriptedInstance
         case DATA_HORSEMAN_EVENT:
             if (data == DONE)
             {
-                for(std::set<uint64>::iterator itr = HorsemanAdds.begin(); itr != HorsemanAdds.end(); ++itr)
+                for (std::set<uint64>::iterator itr = HorsemanAdds.begin(); itr != HorsemanAdds.end(); ++itr)
                 {
                     Creature* add = instance->GetCreature(*itr);
                     if (add && add->isAlive())

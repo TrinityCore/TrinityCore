@@ -11,7 +11,6 @@
 #include "ace/OS_NS_stdio.h"
 #include "ace/OS_NS_string.h"
 
-
 ACE_RCSID (ace,
            Service_Types,
            "$Id: Service_Types.cpp 81826 2008-06-02 15:29:53Z schmidt $")

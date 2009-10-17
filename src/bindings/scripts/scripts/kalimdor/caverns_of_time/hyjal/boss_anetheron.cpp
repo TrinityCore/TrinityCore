@@ -167,7 +167,7 @@ struct TRINITY_DLL_DECL boss_anetheronAI : public hyjal_trashAI
 
         if (SleepTimer < diff)
         {
-            for(uint8 i=0;i<3; ++i)
+            for (uint8 i=0; i<3; ++i)
             {
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM,0,100,true))
                     target->CastSpell(target,SPELL_SLEEP,true);

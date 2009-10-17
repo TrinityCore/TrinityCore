@@ -119,7 +119,7 @@ struct TRINITY_DLL_DECL boss_jandicebarovAI : public ScriptedAI
 
             //Summon 10 Illusions attacking random gamers
             Unit* target = NULL;
-            for(uint8 i = 0; i < 10; ++i)
+            for (uint8 i = 0; i < 10; ++i)
             {
                 target = SelectUnit(SELECT_TARGET_RANDOM,0);
                 if (target)
@@ -131,7 +131,6 @@ struct TRINITY_DLL_DECL boss_jandicebarovAI : public ScriptedAI
             //25 seconds until we should cast this agian
             Illusion_Timer = 25000;
         }else Illusion_Timer -= diff;
-
 
         //            //Illusion_Timer
         //            if (Illusion_Timer < diff)
@@ -195,7 +194,6 @@ struct TRINITY_DLL_DECL mob_illusionofjandicebarovAI : public ScriptedAI
     }
 };
 
-
 CreatureAI* GetAI_boss_jandicebarov(Creature* pCreature)
 {
     return new boss_jandicebarovAI (pCreature);
@@ -205,7 +203,6 @@ CreatureAI* GetAI_mob_illusionofjandicebarov(Creature* pCreature)
 {
     return new mob_illusionofjandicebarovAI (pCreature);
 }
-
 
 void AddSC_boss_jandicebarov()
 {

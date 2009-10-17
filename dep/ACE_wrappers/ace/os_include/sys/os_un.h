@@ -43,7 +43,6 @@ struct sockaddr_un {
 };
 #endif /* ACE_VXWORKS */
 
-
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */

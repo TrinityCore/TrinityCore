@@ -65,7 +65,6 @@ public:
         hi = high;
     }
 
-
     inline const Vector3& low() const {
         return lo;
     }
@@ -250,7 +249,6 @@ public:
 inline unsigned int hashCode(const G3D::AABox& b) {
     return b.hashCode();
 }
-
 
 #endif
 

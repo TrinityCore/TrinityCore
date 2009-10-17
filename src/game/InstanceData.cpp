@@ -47,7 +47,7 @@ void InstanceData::HandleGameObject(uint64 GUID, bool open, GameObject *go)
 
 bool InstanceData::IsEncounterInProgress() const
 {
-    for(std::vector<BossInfo>::const_iterator itr = bosses.begin(); itr != bosses.end(); ++itr)
+    for (std::vector<BossInfo>::const_iterator itr = bosses.begin(); itr != bosses.end(); ++itr)
         if(itr->state == IN_PROGRESS)
             return true;
 
@@ -105,7 +105,7 @@ void InstanceData::UpdateDoorState(GameObject *door)
         return;
 
     bool open = true;
-    for(DoorInfoMap::iterator itr = lower; itr != upper; ++itr)
+    for (DoorInfoMap::iterator itr = lower; itr != upper; ++itr)
     {
         if(itr->second.type == DOOR_TYPE_ROOM)
         {
@@ -136,7 +136,7 @@ void InstanceData::AddDoor(GameObject *door, bool add)
     if(lower == upper)
         return;
 
-    for(DoorInfoMap::iterator itr = lower; itr != upper; ++itr)
+    for (DoorInfoMap::iterator itr = lower; itr != upper; ++itr)
     {
         if(add)
         {
@@ -201,19 +201,19 @@ bool InstanceData::SetBossState(uint32 id, EncounterState state)
                 return false;
 
             if(state == DONE)
-                for(MinionSet::iterator i = bossInfo->minion.begin(); i != bossInfo->minion.end(); ++i)
+                for (MinionSet::iterator i = bossInfo->minion.begin(); i != bossInfo->minion.end(); ++i)
                     if((*i)->isWorldBoss() && (*i)->isAlive())
                         return false;
 
             bossInfo->state = state;
             SaveToDB();
         }
-        
-        for(uint32 type = 0; type < MAX_DOOR_TYPES; ++type)
-            for(DoorSet::iterator i = bossInfo->door[type].begin(); i != bossInfo->door[type].end(); ++i)
+
+        for (uint32 type = 0; type < MAX_DOOR_TYPES; ++type)
+            for (DoorSet::iterator i = bossInfo->door[type].begin(); i != bossInfo->door[type].end(); ++i)
                 UpdateDoorState(*i);
 
-        for(MinionSet::iterator i = bossInfo->minion.begin(); i != bossInfo->minion.end(); ++i)
+        for (MinionSet::iterator i = bossInfo->minion.begin(); i != bossInfo->minion.end(); ++i)
             UpdateMinionState(*i, state);
 
         return true;
@@ -227,7 +227,7 @@ std::string InstanceData::LoadBossState(const char * data)
     std::istringstream loadStream(data);
     uint32 buff;
     uint32 bossId = 0;
-    for(std::vector<BossInfo>::iterator i = bosses.begin(); i != bosses.end(); ++i, ++bossId)
+    for (std::vector<BossInfo>::iterator i = bosses.begin(); i != bosses.end(); ++i, ++bossId)
     {
         loadStream >> buff;
         if(buff < TO_BE_DECIDED)
@@ -239,10 +239,10 @@ std::string InstanceData::LoadBossState(const char * data)
 std::string InstanceData::GetBossSaveData()
 {
     std::ostringstream saveStream;
-    for(std::vector<BossInfo>::iterator i = bosses.begin(); i != bosses.end(); ++i)
+    for (std::vector<BossInfo>::iterator i = bosses.begin(); i != bosses.end(); ++i)
         saveStream << (uint32)i->state << " ";
     return saveStream.str();
-}   
+}
 
 void InstanceData::DoUseDoorOrButton(uint64 uiGuid, uint32 uiWithRestoreTime, bool bUseAlternativeState)
 {
@@ -287,7 +287,7 @@ void InstanceData::DoUpdateWorldState(uint32 uiStateId, uint32 uiStateData)
 
     if (!lPlayers.isEmpty())
     {
-        for(Map::PlayerList::const_iterator itr = lPlayers.begin(); itr != lPlayers.end(); ++itr)
+        for (Map::PlayerList::const_iterator itr = lPlayers.begin(); itr != lPlayers.end(); ++itr)
         {
             if (Player* pPlayer = itr->getSource())
                 pPlayer->SendUpdateWorldState(uiStateId, uiStateData);

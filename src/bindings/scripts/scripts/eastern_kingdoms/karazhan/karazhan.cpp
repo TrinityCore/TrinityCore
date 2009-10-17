@@ -240,7 +240,7 @@ struct TRINITY_DLL_DECL npc_barnesAI : public npc_escortAI
                 break;
         }
 
-        for(; index < count; ++index)
+        for (; index < count; ++index)
         {
             uint32 entry = ((uint32)Spawns[index][0]);
             float PosX = Spawns[index][1];
@@ -294,7 +294,7 @@ struct TRINITY_DLL_DECL npc_barnesAI : public npc_escortAI
                         return;
 
                     RaidWiped = true;
-                    for(Map::PlayerList::const_iterator i = PlayerList.begin();i != PlayerList.end(); ++i)
+                    for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
                     {
                         if (i->getSource()->isAlive() && !i->getSource()->isGameMaster())
                         {
@@ -506,7 +506,6 @@ struct TRINITY_DLL_DECL npc_image_of_medivhAI : public ScriptedAI
         m_creature->SetOrientation(MedivPos[3]);
         YellTimer = 10000;
     }
-
 
     uint32 NextStep(uint32 Step)
     {

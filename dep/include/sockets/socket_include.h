@@ -41,7 +41,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
    in read operations - helps on ECOS */
 #define SOCKETS_DYNAMIC_TEMP
 
-
 // platform specific stuff
 #if (defined(__unix__) || defined(unix)) && !defined(USG)
 #include <sys/param.h>
@@ -81,7 +80,6 @@ typedef int SOCKET;
 namespace SOCKETS_NAMESPACE {
 #endif
 
-
 // WIN32 adapt
 #define closesocket close
 #define INVALID_SOCKET -1
@@ -97,13 +95,11 @@ namespace SOCKETS_NAMESPACE {
 
 #endif // !_WIN32
 
-
 // ----------------------------------------
 // Generic
 #ifndef SOL_IP
 #define SOL_IP IPPROTO_IP
 #endif
-
 
 // ----------------------------------------
 // OS specific adaptions
@@ -151,13 +147,13 @@ namespace SOCKETS_NAMESPACE {
 # endif
 
 #elif defined (__NetBSD__) || defined (__OpenBSD__)
-#  if !defined(MSG_NOSIGNAL)  
-#   define MSG_NOSIGNAL 0  
-#  endif  
-#  include <netinet/in.h>  
-typedef in_addr_t ipaddr_t;  
-typedef in_port_t port_t;  
-#elif defined MACOSX 
+#  if !defined(MSG_NOSIGNAL)
+#   define MSG_NOSIGNAL 0
+#  endif
+#  include <netinet/in.h>
+typedef in_addr_t ipaddr_t;
+typedef in_port_t port_t;
+#elif defined MACOSX
 // ----------------------------------------
 // Mac OS X
 #include <string.h>
@@ -219,7 +215,6 @@ namespace SOCKETS_NAMESPACE {
 #endif
 #endif // _MSC_VER < 1200
 
-
 #define MSG_NOSIGNAL 0
 //#define SHUT_RDWR 2
 #define SHUT_WR 1
@@ -230,7 +225,6 @@ const char *StrError(int x);
 #ifdef SOCKETS_NAMESPACE
 namespace SOCKETS_NAMESPACE {
 #endif
-
 
 // class WSAInitializer is a part of the Socket class (on win32)
 // as a static instance - so whenever an application uses a Socket,
@@ -269,7 +263,6 @@ namespace SOCKETS_NAMESPACE {
 }
 #endif
 
-
 #endif
 
 #ifdef SOCKETS_NAMESPACE
@@ -278,11 +271,9 @@ namespace SOCKETS_NAMESPACE {
     /** List type containing file descriptors. */
     typedef std::list<SOCKET> socket_v;
 
-
 #ifdef SOCKETS_NAMESPACE
 }
 #endif
-
 
 // getaddrinfo / getnameinfo replacements
 #ifdef NO_GETADDRINFO
@@ -293,7 +284,6 @@ namespace SOCKETS_NAMESPACE {
 #define NI_NUMERICHOST 1
 #endif
 #endif
-
 
 #endif // _SOCKETS_socket_include_H
 

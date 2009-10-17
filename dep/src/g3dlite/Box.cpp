@@ -27,11 +27,9 @@ namespace G3D {
 Box::Box() {
 }
 
-
 Box::Box(const AABox& b) {
     init(b.low(), b.high());
 }
-
 
 Box::Box(
     const Vector3& min,
@@ -61,7 +59,7 @@ void Box::init(
     _axis[2] = Vector3::unitZ();
 
     _volume = _extent.x * _extent.y * _extent.z;
-    _area = 2 * 
+    _area = 2 *
         (_extent.x * _extent.y +
          _extent.y * _extent.z +
          _extent.z * _extent.x);
@@ -69,16 +67,13 @@ void Box::init(
     _center = (max + min) / 2;
 }
 
-
 float Box::volume() const {
     return _volume;
 }
 
-
 float Box::surfaceArea() const {
     return _area;
 }
-
 
 void Box::getLocalFrame(CoordinateFrame& frame) const {
 
@@ -90,13 +85,11 @@ void Box::getLocalFrame(CoordinateFrame& frame) const {
     frame.translation = _center;
 }
 
-
 CoordinateFrame Box::localFrame() const {
     CoordinateFrame out;
     getLocalFrame(out);
     return out;
 }
-
 
 void Box::getFaceCorners(int f, Vector3& v0, Vector3& v1, Vector3& v2, Vector3& v3) const {
     switch (f) {
@@ -129,7 +122,6 @@ void Box::getFaceCorners(int f, Vector3& v0, Vector3& v1, Vector3& v2, Vector3& 
     }
 }
 
-
 bool Box::culledBy(
     const Array<Plane>&        plane,
     int&                    cullingPlaneIndex,
@@ -139,7 +131,6 @@ bool Box::culledBy(
     return culledBy(plane.getCArray(), plane.size(), cullingPlaneIndex, inMask, outMask);
 }
 
-
 bool Box::culledBy(
     const Array<Plane>&        plane,
     int&                    cullingPlaneIndex,
@@ -147,7 +138,6 @@ bool Box::culledBy(
 
     return culledBy(plane.getCArray(), plane.size(), cullingPlaneIndex, inMask);
 }
-
 
 int32 Box::dummy = 0;
 
@@ -169,7 +159,7 @@ bool Box::culledBy(
 
         // Only test planes that are not masked
         if ((inMask & 1) != 0) {
-        
+
             Vector3 corner;
 
             int numContained = 0;
@@ -211,7 +201,6 @@ bool Box::culledBy(
     return false;
 }
 
-
 bool Box::culledBy(
     const class Plane*  plane,
     int                 numPlanes,
@@ -227,7 +216,7 @@ bool Box::culledBy(
 
         // Only test planes that are not masked
         if ((inMask & 1) != 0) {
-        
+
             bool culled = true;
 
             int v;
@@ -256,7 +245,6 @@ bool Box::culledBy(
     return false;
 }
 
-
 bool Box::contains(
     const Vector3&      point) const {
 
@@ -276,7 +264,7 @@ bool Box::contains(
     Vector3 osPoint = M.inverse() * (point - _corner[0]);
 
     return
-        (osPoint.x >= 0) && 
+        (osPoint.x >= 0) &&
         (osPoint.y >= 0) &&
         (osPoint.z >= 0) &&
         (osPoint.x <= 1) &&
@@ -317,7 +305,6 @@ void Box::getRandomSurfacePoint(Vector3& P, Vector3& N) const {
     }
 }
 
-
 Vector3 Box::randomInteriorPoint() const {
     Vector3 sum = _center;
 
@@ -328,7 +315,6 @@ Vector3 Box::randomInteriorPoint() const {
     return sum;
 }
 #endif
-
 
 void Box::getBounds(class AABox& aabb) const {
 
@@ -343,7 +329,6 @@ void Box::getBounds(class AABox& aabb) const {
 
     aabb = AABox(lo, hi);
 }
-
 
 } // namespace
 

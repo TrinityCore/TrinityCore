@@ -92,7 +92,6 @@ class TRINITY_DLL_SPEC ChatHandler
         bool HasLowerSecurity(Player* target, uint64 guid, bool strong = false);
         bool HasLowerSecurityAccount(WorldSession* target, uint32 account, bool strong = false);
 
-      
         void SendGlobalGMSysMessage(const char *str);
 
         static bool SetDataForCommandInTable(ChatCommand *table, const char* text, uint32 security, std::string const& help, std::string const& fullcommand );

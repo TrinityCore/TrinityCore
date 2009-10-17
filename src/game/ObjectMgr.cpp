@@ -67,7 +67,7 @@ bool normalizePlayerName(std::string& name)
         return false;
 
     wstr_buf[0] = wcharToUpper(wstr_buf[0]);
-    for(size_t i = 1; i < wstr_len; ++i)
+    for (size_t i = 1; i < wstr_len; ++i)
         wstr_buf[i] = wcharToLower(wstr_buf[i]);
 
     if(!WStrToUtf8(wstr_buf,wstr_len,name))
@@ -101,7 +101,7 @@ LanguageDesc lang_description[LANGUAGES_COUNT] =
 
 LanguageDesc const* GetLanguageDescByID(uint32 lang)
 {
-    for(uint8 i = 0; i < LANGUAGES_COUNT; ++i)
+    for (uint8 i = 0; i < LANGUAGES_COUNT; ++i)
     {
         if(uint32(lang_description[i].lang_id) == lang)
             return &lang_description[i];
@@ -184,10 +184,10 @@ ObjectMgr::ObjectMgr()
 
 ObjectMgr::~ObjectMgr()
 {
-    for( QuestMap::iterator i = mQuestTemplates.begin( ); i != mQuestTemplates.end( ); ++i )
+    for (QuestMap::iterator i = mQuestTemplates.begin( ); i != mQuestTemplates.end( ); ++i )
         delete i->second;
 
-    for(PetLevelInfoMap::iterator i = petInfo.begin( ); i != petInfo.end( ); ++i )
+    for (PetLevelInfoMap::iterator i = petInfo.begin( ); i != petInfo.end( ); ++i )
         delete[] i->second;
 
     // free only if loaded
@@ -276,7 +276,7 @@ PCachePlayerInfo ObjectMgr::GetPlayerInfoFromCache(uint32 unPlayerGuid) const
 
 Group * ObjectMgr::GetGroupByLeader(const uint64 &guid) const
 {
-    for(GroupSet::const_iterator itr = mGroupSet.begin(); itr != mGroupSet.end(); ++itr)
+    for (GroupSet::const_iterator itr = mGroupSet.begin(); itr != mGroupSet.end(); ++itr)
         if ((*itr)->GetLeaderGUID() == guid)
             return *itr;
 
@@ -294,7 +294,7 @@ Guild * ObjectMgr::GetGuildById(uint32 GuildId) const
 
 Guild * ObjectMgr::GetGuildByName(const std::string& guildname) const
 {
-    for(GuildMap::const_iterator itr = mGuildMap.begin(); itr != mGuildMap.end(); ++itr)
+    for (GuildMap::const_iterator itr = mGuildMap.begin(); itr != mGuildMap.end(); ++itr)
         if (itr->second->GetName() == guildname)
             return itr->second;
 
@@ -312,7 +312,7 @@ std::string ObjectMgr::GetGuildNameById(uint32 GuildId) const
 
 Guild* ObjectMgr::GetGuildByLeader(const uint64 &guid) const
 {
-    for(GuildMap::const_iterator itr = mGuildMap.begin(); itr != mGuildMap.end(); ++itr)
+    for (GuildMap::const_iterator itr = mGuildMap.begin(); itr != mGuildMap.end(); ++itr)
         if (itr->second->GetLeader() == guid)
             return itr->second;
 
@@ -340,7 +340,7 @@ ArenaTeam* ObjectMgr::GetArenaTeamById(uint32 arenateamid) const
 
 ArenaTeam* ObjectMgr::GetArenaTeamByName(const std::string& arenateamname) const
 {
-    for(ArenaTeamMap::const_iterator itr = mArenaTeamMap.begin(); itr != mArenaTeamMap.end(); ++itr)
+    for (ArenaTeamMap::const_iterator itr = mArenaTeamMap.begin(); itr != mArenaTeamMap.end(); ++itr)
         if (itr->second->GetName() == arenateamname)
             return itr->second;
 
@@ -349,7 +349,7 @@ ArenaTeam* ObjectMgr::GetArenaTeamByName(const std::string& arenateamname) const
 
 ArenaTeam* ObjectMgr::GetArenaTeamByCaptain(uint64 const& guid) const
 {
-    for(ArenaTeamMap::const_iterator itr = mArenaTeamMap.begin(); itr != mArenaTeamMap.end(); ++itr)
+    for (ArenaTeamMap::const_iterator itr = mArenaTeamMap.begin(); itr != mArenaTeamMap.end(); ++itr)
         if (itr->second->GetCaptain() == guid)
             return itr->second;
 
@@ -399,7 +399,7 @@ void ObjectMgr::LoadCreatureLocales()
 
         CreatureLocale& data = mCreatureLocaleMap[entry];
 
-        for(uint8 i = 1; i < MAX_LOCALE; ++i)
+        for (uint8 i = 1; i < MAX_LOCALE; ++i)
         {
             std::string str = fields[1+2*(i-1)].GetCppString();
             if(!str.empty())
@@ -467,7 +467,7 @@ void ObjectMgr::LoadNpcOptionLocales()
 
         NpcOptionLocale& data = mNpcOptionLocaleMap[entry];
 
-        for(uint8 i = 1; i < MAX_LOCALE; ++i)
+        for (uint8 i = 1; i < MAX_LOCALE; ++i)
         {
             std::string str = fields[1+2*(i-1)].GetCppString();
             if(!str.empty())
@@ -530,7 +530,7 @@ void ObjectMgr::LoadPointOfInterestLocales()
 
         PointOfInterestLocale& data = mPointOfInterestLocaleMap[entry];
 
-        for(uint8 i = 1; i < MAX_LOCALE; ++i)
+        for (uint8 i = 1; i < MAX_LOCALE; ++i)
         {
             std::string str = fields[i].GetCppString();
             if(str.empty())
@@ -574,7 +574,7 @@ void ObjectMgr::LoadCreatureTemplates()
     std::set<uint32> hasHeroicEntries;                      // already loaded creatures with heroic entry values
 
     // check data correctness
-    for(uint32 i = 1; i < sCreatureStorage.MaxEntry; ++i)
+    for (uint32 i = 1; i < sCreatureStorage.MaxEntry; ++i)
     {
         CreatureInfo const* cInfo = sCreatureStorage.LookupEntry<CreatureInfo>(i);
         if (!cInfo)
@@ -737,7 +737,7 @@ void ObjectMgr::LoadCreatureTemplates()
         if (!displayScaleEntry)
             sLog.outErrorDb("Creature (Entry: %u) not has any existed display id in Modelid1/Modelid2/Modelid3/Modelid4", cInfo->Entry);
 
-        for(int k = 0; k < MAX_KILL_CREDIT; ++k)
+        for (int k = 0; k < MAX_KILL_CREDIT; ++k)
         {
             if(cInfo->KillCredit[k])
             {
@@ -799,7 +799,7 @@ void ObjectMgr::LoadCreatureTemplates()
                 sLog.outErrorDb("Creature (Entry: %u) has non-existing PetSpellDataId (%u)", cInfo->Entry, cInfo->PetSpellDataId);
         }
 
-        for(uint8 j = 0; j < CREATURE_MAX_SPELLS; ++j)
+        for (uint8 j = 0; j < CREATURE_MAX_SPELLS; ++j)
         {
             if(cInfo->spells[j] && !sSpellStore.LookupEntry(cInfo->spells[j]))
             {
@@ -879,7 +879,7 @@ void ObjectMgr::ConvertCreatureAddonAuras(CreatureDataAddon* addon, char const* 
     const_cast<CreatureDataAddonAura*&>(addon->auras) = new CreatureDataAddonAura[val.size()/2+1];
 
     uint32 i=0;
-    for(uint32 j = 0; j < val.size()/2;++j)
+    for (uint32 j = 0; j < val.size()/2; ++j)
     {
         CreatureDataAddonAura& cAura = const_cast<CreatureDataAddonAura&>(addon->auras[i]);
         cAura.spell_id = (uint32)val[2*j+0];
@@ -919,7 +919,7 @@ void ObjectMgr::LoadCreatureAddons(SQLStorage& creatureaddons, char const* entry
     sLog.outString();
 
     // check data correctness and convert 'auras'
-    for(uint32 i = 1; i < creatureaddons.MaxEntry; ++i)
+    for (uint32 i = 1; i < creatureaddons.MaxEntry; ++i)
     {
         CreatureDataAddon const* addon = creatureaddons.LookupEntry<CreatureDataAddon>(i);
         if(!addon)
@@ -952,7 +952,7 @@ void ObjectMgr::LoadCreatureAddons()
     LoadCreatureAddons(sCreatureInfoAddonStorage,"Entry","creature template addons");
 
     // check entry ids
-    for(uint32 i = 1; i < sCreatureInfoAddonStorage.MaxEntry; ++i)
+    for (uint32 i = 1; i < sCreatureInfoAddonStorage.MaxEntry; ++i)
         if(CreatureDataAddon const* addon = sCreatureInfoAddonStorage.LookupEntry<CreatureDataAddon>(i))
             if(!sCreatureStorage.LookupEntry<CreatureInfo>(addon->guidOrEntry))
                 sLog.outErrorDb("Creature (Entry: %u) does not exist but has a record in `%s`",addon->guidOrEntry, sCreatureInfoAddonStorage.GetTableName());
@@ -960,7 +960,7 @@ void ObjectMgr::LoadCreatureAddons()
     LoadCreatureAddons(sCreatureDataAddonStorage,"GUID","creature addons");
 
     // check entry ids
-    for(uint32 i = 1; i < sCreatureDataAddonStorage.MaxEntry; ++i)
+    for (uint32 i = 1; i < sCreatureDataAddonStorage.MaxEntry; ++i)
         if(CreatureDataAddon const* addon = sCreatureDataAddonStorage.LookupEntry<CreatureDataAddon>(i))
             if(mCreatureDataMap.find(addon->guidOrEntry)==mCreatureDataMap.end())
                 sLog.outErrorDb("Creature (GUID: %u) does not exist but has a record in `creature_addon`",addon->guidOrEntry);
@@ -975,14 +975,14 @@ void ObjectMgr::LoadEquipmentTemplates()
 {
     sEquipmentStorage.Load();
 
-    for(uint32 i=0; i< sEquipmentStorage.MaxEntry; ++i)
+    for (uint32 i=0; i< sEquipmentStorage.MaxEntry; ++i)
     {
         EquipmentInfo const* eqInfo = sEquipmentStorage.LookupEntry<EquipmentInfo>(i);
 
         if(!eqInfo)
             continue;
 
-        for(uint8 j=0; j<3; j++)
+        for (uint8 j=0; j<3; j++)
         {
             if(!eqInfo->equipentry[j])
                continue;
@@ -1080,7 +1080,7 @@ void ObjectMgr::LoadCreatureModelInfo()
     sCreatureModelStorage.Load();
 
     // post processing
-    for(uint32 i = 1; i < sCreatureModelStorage.MaxEntry; ++i)
+    for (uint32 i = 1; i < sCreatureModelStorage.MaxEntry; ++i)
     {
         CreatureModelInfo const *minfo = sCreatureModelStorage.LookupEntry<CreatureModelInfo>(i);
         if (!minfo)
@@ -1106,7 +1106,7 @@ void ObjectMgr::LoadCreatureModelInfo()
     sLog.outString();
 
     // check if combat_reach is valid
-    for(uint32 i = 1; i < sCreatureModelStorage.MaxEntry; ++i)
+    for (uint32 i = 1; i < sCreatureModelStorage.MaxEntry; ++i)
     {
         CreatureModelInfo const* mInfo = sCreatureModelStorage.LookupEntry<CreatureModelInfo>(i);
         if(!mInfo)
@@ -1124,7 +1124,7 @@ bool ObjectMgr::CheckCreatureLinkedRespawn(uint32 guid, uint32 linkedGuid) const
 {
     const CreatureData* const slave = GetCreatureData(guid);
     const CreatureData* const master = GetCreatureData(linkedGuid);
-    
+
     if(!slave || !master) // they must have a corresponding entry in db
     {
         sLog.outError("LinkedRespawn: Creature '%u' linking to '%u' which doesn't exist",guid,linkedGuid);
@@ -1132,7 +1132,7 @@ bool ObjectMgr::CheckCreatureLinkedRespawn(uint32 guid, uint32 linkedGuid) const
     }
 
     const MapEntry* const map = sMapStore.LookupEntry(master->mapid);
-        
+
     if(master->mapid != slave->mapid        // link only to same map
         && (!map || map->Instanceable()))   // or to unistanced world
     {
@@ -1233,7 +1233,7 @@ void ObjectMgr::LoadCreatures()
 
     // build single time for check creature data
     std::set<uint32> heroicCreatures;
-    for(uint32 i = 0; i < sCreatureStorage.MaxEntry; ++i)
+    for (uint32 i = 0; i < sCreatureStorage.MaxEntry; ++i)
         if(CreatureInfo const* cInfo = sCreatureStorage.LookupEntry<CreatureInfo>(i))
             if(cInfo->HeroicEntry)
                 heroicCreatures.insert(cInfo->HeroicEntry);
@@ -1384,7 +1384,7 @@ void ObjectMgr::LoadCreatures()
 void ObjectMgr::AddCreatureToGrid(uint32 guid, CreatureData const* data)
 {
     uint8 mask = data->spawnMask;
-    for(uint8 i = 0; mask != 0; i++, mask >>= 1)
+    for (uint8 i = 0; mask != 0; i++, mask >>= 1)
     {
         if(mask & 1)
         {
@@ -1400,7 +1400,7 @@ void ObjectMgr::AddCreatureToGrid(uint32 guid, CreatureData const* data)
 void ObjectMgr::RemoveCreatureFromGrid(uint32 guid, CreatureData const* data)
 {
     uint8 mask = data->spawnMask;
-    for(uint8 i = 0; mask != 0; i++, mask >>= 1)
+    for (uint8 i = 0; mask != 0; i++, mask >>= 1)
     {
         if(mask & 1)
         {
@@ -1510,7 +1510,7 @@ uint32 ObjectMgr::AddCreData(uint32 entry, uint32 team, uint32 mapId, float x, f
         }
     }
 
-    return guid;    
+    return guid;
 }
 
 void ObjectMgr::LoadGameobjects()
@@ -1632,7 +1632,7 @@ void ObjectMgr::LoadGameobjects()
 void ObjectMgr::AddGameobjectToGrid(uint32 guid, GameObjectData const* data)
 {
     uint8 mask = data->spawnMask;
-    for(uint8 i = 0; mask != 0; i++, mask >>= 1)
+    for (uint8 i = 0; mask != 0; i++, mask >>= 1)
     {
         if(mask & 1)
         {
@@ -1648,7 +1648,7 @@ void ObjectMgr::AddGameobjectToGrid(uint32 guid, GameObjectData const* data)
 void ObjectMgr::RemoveGameobjectFromGrid(uint32 guid, GameObjectData const* data)
 {
     uint8 mask = data->spawnMask;
-    for(uint8 i = 0; mask != 0; i++, mask >>= 1)
+    for (uint8 i = 0; mask != 0; i++, mask >>= 1)
     {
         if(mask & 1)
         {
@@ -1857,7 +1857,7 @@ void ObjectMgr::LoadItemLocales()
 
         ItemLocale& data = mItemLocaleMap[entry];
 
-        for(uint8 i = 1; i < MAX_LOCALE; ++i)
+        for (uint8 i = 1; i < MAX_LOCALE; ++i)
         {
             std::string str = fields[1+2*(i-1)].GetCppString();
             if(!str.empty())
@@ -1910,7 +1910,7 @@ void ObjectMgr::LoadItemPrototypes()
     sLog.outString();
 
     // check data correctness
-    for(uint32 i = 1; i < sItemStorage.MaxEntry; ++i)
+    for (uint32 i = 1; i < sItemStorage.MaxEntry; ++i)
     {
         ItemPrototype const* proto = sItemStorage.LookupEntry<ItemPrototype >(i);
         ItemEntry const *dbcitem = sItemStore.LookupEntry(i);
@@ -2253,7 +2253,7 @@ void ObjectMgr::LoadItemPrototypes()
         if(proto->BagFamily)
         {
             // check bits
-            for(uint32 j = 0; j < sizeof(proto->BagFamily)*8; ++j)
+            for (uint32 j = 0; j < sizeof(proto->BagFamily)*8; ++j)
             {
                 uint32 mask = 1 << j;
                 if((proto->BagFamily & mask)==0)
@@ -2354,7 +2354,7 @@ void ObjectMgr::LoadItemRequiredTarget()
 
         bool bIsItemSpellValid = false;
 
-        for(uint8 i = 0; i < MAX_ITEM_PROTO_SPELLS; ++i)
+        for (uint8 i = 0; i < MAX_ITEM_PROTO_SPELLS; ++i)
         {
             if (SpellEntry const* pSpellInfo = sSpellStore.LookupEntry(pItemProto->Spells[i].SpellId))
             {
@@ -2741,8 +2741,8 @@ void ObjectMgr::LoadPlayerInfo()
                     uint32 max_race = current_race ? current_race + 1 : MAX_RACES;
                     uint32 min_class = current_class ? current_class : 1;
                     uint32 max_class = current_class ? current_class + 1 : MAX_CLASSES;
-                    for(uint32 r = min_race; r < max_race; ++r)
-                        for(uint32 c = min_class; c < max_class; ++c)
+                    for (uint32 r = min_race; r < max_race; ++r)
+                        for (uint32 c = min_class; c < max_class; ++c)
                             playerInfo[r][c].spell.push_back(fields[2].GetUInt32());
                 }
                 else
@@ -3121,7 +3121,7 @@ void ObjectMgr::BuildPlayerLevelInfo(uint8 race, uint8 _class, uint8 level, Play
     *info = playerInfo[race][_class].levelInfo[sWorld.getConfig(CONFIG_MAX_PLAYER_LEVEL)-1];
 
     // if conversion from uint32 to uint8 causes unexpected behaviour, change lvl to uint32
-    for(uint8 lvl = sWorld.getConfig(CONFIG_MAX_PLAYER_LEVEL)-1; lvl < level; ++lvl)
+    for (uint8 lvl = sWorld.getConfig(CONFIG_MAX_PLAYER_LEVEL)-1; lvl < level; ++lvl)
     {
         switch(_class)
         {
@@ -3369,7 +3369,7 @@ void ObjectMgr::LoadGroups()
 
     // clean groups
     // TODO: maybe delete from the DB before loading in this case
-    for(GroupSet::iterator itr = mGroupSet.begin(); itr != mGroupSet.end();)
+    for (GroupSet::iterator itr = mGroupSet.begin(); itr != mGroupSet.end(); )
     {
         if((*itr)->GetMembersCount() < 2)
         {
@@ -3440,7 +3440,7 @@ void ObjectMgr::LoadGroups()
 void ObjectMgr::LoadQuests()
 {
     // For reload case
-    for(QuestMap::const_iterator itr=mQuestTemplates.begin(); itr != mQuestTemplates.end(); ++itr)
+    for (QuestMap::const_iterator itr=mQuestTemplates.begin(); itr != mQuestTemplates.end(); ++itr)
         delete itr->second;
     mQuestTemplates.clear();
 
@@ -3538,7 +3538,7 @@ void ObjectMgr::LoadQuests()
         if(qinfo->QuestFlags & QUEST_FLAGS_AUTO_REWARDED)
         {
             // at auto-reward can be rewarded only RewChoiceItemId[0]
-            for(uint8 j = 1; j < QUEST_REWARD_CHOICES_COUNT; ++j )
+            for (uint8 j = 1; j < QUEST_REWARD_CHOICES_COUNT; ++j )
             {
                 if(uint32 id = qinfo->RewChoiceItemId[j])
                 {
@@ -3732,7 +3732,7 @@ void ObjectMgr::LoadQuests()
             }
         }
 
-        for(uint8 j = 0; j < QUEST_OBJECTIVES_COUNT; ++j )
+        for (uint8 j = 0; j < QUEST_OBJECTIVES_COUNT; ++j )
         {
             uint32 id = qinfo->ReqItemId[j];
             if(id)
@@ -3761,7 +3761,7 @@ void ObjectMgr::LoadQuests()
             }
         }
 
-        for(uint8 j = 0; j < QUEST_SOURCE_ITEM_IDS_COUNT; ++j )
+        for (uint8 j = 0; j < QUEST_SOURCE_ITEM_IDS_COUNT; ++j )
         {
             uint32 id = qinfo->ReqSourceId[j];
             if(id)
@@ -3784,7 +3784,7 @@ void ObjectMgr::LoadQuests()
             }
         }
 
-        for(uint8 j = 0; j < QUEST_OBJECTIVES_COUNT; ++j )
+        for (uint8 j = 0; j < QUEST_OBJECTIVES_COUNT; ++j )
         {
             uint32 id = qinfo->ReqSpell[j];
             if(id)
@@ -3800,7 +3800,7 @@ void ObjectMgr::LoadQuests()
                 if(!qinfo->ReqCreatureOrGOId[j])
                 {
                     bool found = false;
-                    for(uint8 k = 0; k < 3; ++k)
+                    for (uint8 k = 0; k < 3; ++k)
                     {
                         if ((spellInfo->Effect[k] == SPELL_EFFECT_QUEST_COMPLETE && uint32(spellInfo->EffectMiscValue[k]) == qinfo->QuestId) ||
                             spellInfo->Effect[k] == SPELL_EFFECT_SEND_EVENT)
@@ -3830,7 +3830,7 @@ void ObjectMgr::LoadQuests()
             }
         }
 
-        for(uint8 j = 0; j < QUEST_OBJECTIVES_COUNT; ++j )
+        for (uint8 j = 0; j < QUEST_OBJECTIVES_COUNT; ++j )
         {
             int32 id = qinfo->ReqCreatureOrGOId[j];
             if(id < 0 && !sGOStorage.LookupEntry<GameObjectInfo>(-id))
@@ -3868,7 +3868,7 @@ void ObjectMgr::LoadQuests()
             }
         }
 
-        for(uint8 j = 0; j < QUEST_REWARD_CHOICES_COUNT; ++j )
+        for (uint8 j = 0; j < QUEST_REWARD_CHOICES_COUNT; ++j )
         {
             uint32 id = qinfo->RewChoiceItemId[j];
             if(id)
@@ -3895,7 +3895,7 @@ void ObjectMgr::LoadQuests()
             }
         }
 
-        for(uint8 j = 0; j < QUEST_REWARDS_COUNT; ++j )
+        for (uint8 j = 0; j < QUEST_REWARDS_COUNT; ++j )
         {
             uint32 id = qinfo->RewItemId[j];
             if(id)
@@ -3922,7 +3922,7 @@ void ObjectMgr::LoadQuests()
             }
         }
 
-        for(uint8 j = 0; j < QUEST_REPUTATIONS_COUNT; ++j)
+        for (uint8 j = 0; j < QUEST_REPUTATIONS_COUNT; ++j)
         {
             if(qinfo->RewRepFaction[j])
             {
@@ -4064,7 +4064,7 @@ void ObjectMgr::LoadQuests()
         if(!spellInfo)
             continue;
 
-        for(uint8 j = 0; j < 3; ++j)
+        for (uint8 j = 0; j < 3; ++j)
         {
             if(spellInfo->Effect[j] != SPELL_EFFECT_QUEST_COMPLETE)
                 continue;
@@ -4129,7 +4129,7 @@ void ObjectMgr::LoadQuestLocales()
 
         QuestLocale& data = mQuestLocaleMap[entry];
 
-        for(uint8 i = 1; i < MAX_LOCALE; ++i)
+        for (uint8 i = 1; i < MAX_LOCALE; ++i)
         {
             std::string str = fields[1+10*(i-1)].GetCppString();
             if(!str.empty())
@@ -4203,7 +4203,7 @@ void ObjectMgr::LoadQuestLocales()
                     data.EndText[idx] = str;
                 }
             }
-            for(uint8 k = 0; k < 4; ++k)
+            for (uint8 k = 0; k < 4; ++k)
             {
                 str = fields[1+10*(i-1)+6+k].GetCppString();
                 if(!str.empty())
@@ -4486,7 +4486,7 @@ void ObjectMgr::LoadGameObjectScripts()
     LoadScripts(sGameObjectScripts,    "gameobject_scripts");
 
     // check ids
-    for(ScriptMapMap::const_iterator itr = sGameObjectScripts.begin(); itr != sGameObjectScripts.end(); ++itr)
+    for (ScriptMapMap::const_iterator itr = sGameObjectScripts.begin(); itr != sGameObjectScripts.end(); ++itr)
     {
         if(!GetGOData(itr->first))
             sLog.outErrorDb("Table `gameobject_scripts` has not existing gameobject (GUID: %u) as script id",itr->first);
@@ -4498,7 +4498,7 @@ void ObjectMgr::LoadQuestEndScripts()
     LoadScripts(sQuestEndScripts,  "quest_end_scripts");
 
     // check ids
-    for(ScriptMapMap::const_iterator itr = sQuestEndScripts.begin(); itr != sQuestEndScripts.end(); ++itr)
+    for (ScriptMapMap::const_iterator itr = sQuestEndScripts.begin(); itr != sQuestEndScripts.end(); ++itr)
     {
         if(!GetQuestTemplate(itr->first))
             sLog.outErrorDb("Table `quest_end_scripts` has not existing quest (Id: %u) as script id",itr->first);
@@ -4510,7 +4510,7 @@ void ObjectMgr::LoadQuestStartScripts()
     LoadScripts(sQuestStartScripts,"quest_start_scripts");
 
     // check ids
-    for(ScriptMapMap::const_iterator itr = sQuestStartScripts.begin(); itr != sQuestStartScripts.end(); ++itr)
+    for (ScriptMapMap::const_iterator itr = sQuestStartScripts.begin(); itr != sQuestStartScripts.end(); ++itr)
     {
         if(!GetQuestTemplate(itr->first))
             sLog.outErrorDb("Table `quest_start_scripts` has not existing quest (Id: %u) as script id",itr->first);
@@ -4522,7 +4522,7 @@ void ObjectMgr::LoadSpellScripts()
     LoadScripts(sSpellScripts, "spell_scripts");
 
     // check ids
-    for(ScriptMapMap::const_iterator itr = sSpellScripts.begin(); itr != sSpellScripts.end(); ++itr)
+    for (ScriptMapMap::const_iterator itr = sSpellScripts.begin(); itr != sSpellScripts.end(); ++itr)
     {
         SpellEntry const* spellInfo = sSpellStore.LookupEntry(itr->first);
 
@@ -4534,7 +4534,7 @@ void ObjectMgr::LoadSpellScripts()
 
         //check for correct spellEffect
         bool found = false;
-        for(uint8 i=0; i<3; ++i)
+        for (uint8 i=0; i<3; ++i)
         {
             // skip empty effects
             if( !spellInfo->Effect[i] )
@@ -4558,7 +4558,7 @@ void ObjectMgr::LoadEventScripts()
 
     std::set<uint32> evt_scripts;
     // Load all possible script entries from gameobjects
-    for(uint32 i = 1; i < sGOStorage.MaxEntry; ++i)
+    for (uint32 i = 1; i < sGOStorage.MaxEntry; ++i)
     {
         GameObjectInfo const * goInfo = sGOStorage.LookupEntry<GameObjectInfo>(i);
         if (goInfo)
@@ -4582,12 +4582,12 @@ void ObjectMgr::LoadEventScripts()
         }
     }
     // Load all possible script entries from spells
-    for(uint32 i = 1; i < sSpellStore.GetNumRows(); ++i)
+    for (uint32 i = 1; i < sSpellStore.GetNumRows(); ++i)
     {
         SpellEntry const * spell = sSpellStore.LookupEntry(i);
         if (spell)
         {
-            for(uint8 j=0; j<3; ++j)
+            for (uint8 j=0; j<3; ++j)
             {
                 if( spell->Effect[j] == SPELL_EFFECT_SEND_EVENT )
                 {
@@ -4598,7 +4598,7 @@ void ObjectMgr::LoadEventScripts()
         }
     }
     // Then check if all scripts are in above list of possible script entries
-    for(ScriptMapMap::const_iterator itr = sEventScripts.begin(); itr != sEventScripts.end(); ++itr)
+    for (ScriptMapMap::const_iterator itr = sEventScripts.begin(); itr != sEventScripts.end(); ++itr)
     {
         std::set<uint32>::const_iterator itr2 = evt_scripts.find(itr->first);
         if (itr2 == evt_scripts.end())
@@ -4612,7 +4612,7 @@ void ObjectMgr::LoadWaypointScripts()
 {
     LoadScripts(sWaypointScripts, "waypoint_scripts");
 
-    for(ScriptMapMap::const_iterator itr = sWaypointScripts.begin(); itr != sWaypointScripts.end(); ++itr)
+    for (ScriptMapMap::const_iterator itr = sWaypointScripts.begin(); itr != sWaypointScripts.end(); ++itr)
     {
         QueryResult *query = WorldDatabase.PQuery("SELECT * FROM waypoint_scripts WHERE id = %u", itr->first);
         if(!query || !query->GetRowCount())
@@ -4665,7 +4665,7 @@ void ObjectMgr::LoadPageTexts()
     sLog.outString( ">> Loaded %u page texts", sPageTextStore.RecordCount );
     sLog.outString();
 
-    for(uint32 i = 1; i < sPageTextStore.MaxEntry; ++i)
+    for (uint32 i = 1; i < sPageTextStore.MaxEntry; ++i)
     {
         // check data correctness
         PageText const* page = sPageTextStore.LookupEntry<PageText>(i);
@@ -4680,7 +4680,7 @@ void ObjectMgr::LoadPageTexts()
 
         // detect circular reference
         std::set<uint32> checkedPages;
-        for(PageText const* pageItr = page; pageItr; pageItr = sPageTextStore.LookupEntry<PageText>(pageItr->Next_Page))
+        for (PageText const* pageItr = page; pageItr; pageItr = sPageTextStore.LookupEntry<PageText>(pageItr->Next_Page))
         {
             if(!pageItr->Next_Page)
                 break;
@@ -4689,7 +4689,7 @@ void ObjectMgr::LoadPageTexts()
             {
                 std::ostringstream ss;
                 ss<< "The text page(s) ";
-                for (std::set<uint32>::iterator itr= checkedPages.begin();itr!=checkedPages.end(); ++itr)
+                for (std::set<uint32>::iterator itr= checkedPages.begin(); itr!=checkedPages.end(); ++itr)
                     ss << *itr << " ";
                 ss << "create(s) a circular reference, which can cause the server to freeze. Changing Next_Page of page "
                     << pageItr->Page_ID <<" to 0";
@@ -4729,7 +4729,7 @@ void ObjectMgr::LoadPageTextLocales()
 
         PageTextLocale& data = mPageTextLocaleMap[entry];
 
-        for(uint8 i = 1; i < MAX_LOCALE; ++i)
+        for (uint8 i = 1; i < MAX_LOCALE; ++i)
         {
             std::string str = fields[i].GetCppString();
             if(str.empty())
@@ -4767,7 +4767,7 @@ void ObjectMgr::LoadInstanceTemplate()
     SQLInstanceLoader loader;
     loader.Load(sInstanceTemplate);
 
-    for(uint32 i = 0; i < sInstanceTemplate.MaxEntry; i++)
+    for (uint32 i = 0; i < sInstanceTemplate.MaxEntry; i++)
     {
         InstanceTemplate* temp = (InstanceTemplate*)GetInstanceTemplate(i);
         if(!temp) continue;
@@ -4860,7 +4860,7 @@ void ObjectMgr::LoadGossipText()
             gText.Options[i].Language         = fields[cic++].GetUInt32();
             gText.Options[i].Probability      = fields[cic++].GetFloat();
 
-            for(uint8 j=0; j < 3; ++j)
+            for (uint8 j=0; j < 3; ++j)
             {
                 gText.Options[i].Emotes[j]._Delay  = fields[cic++].GetUInt32();
                 gText.Options[i].Emotes[j]._Emote  = fields[cic++].GetUInt32();
@@ -4910,9 +4910,9 @@ void ObjectMgr::LoadNpcTextLocales()
 
         NpcTextLocale& data = mNpcTextLocaleMap[entry];
 
-        for(uint8 i=1; i<MAX_LOCALE; ++i)
+        for (uint8 i=1; i<MAX_LOCALE; ++i)
         {
-            for(uint8 j=0; j<8; ++j)
+            for (uint8 j=0; j<8; ++j)
             {
                 std::string str0 = fields[1+8*2*(i-1)+2*j].GetCppString();
                 if(!str0.empty())
@@ -5026,7 +5026,7 @@ void ObjectMgr::ReturnOrDeleteOldMails(bool serverUp)
             if (m->messageType != MAIL_NORMAL || (m->checked & (MAIL_CHECK_MASK_AUCTION | MAIL_CHECK_MASK_COD_PAYMENT | MAIL_CHECK_MASK_RETURNED)))
             {
                 // mail open and then not returned
-                for(std::vector<MailItemInfo>::iterator itr2 = m->items.begin(); itr2 != m->items.end(); ++itr2)
+                for (std::vector<MailItemInfo>::iterator itr2 = m->items.begin(); itr2 != m->items.end(); ++itr2)
                     CharacterDatabase.PExecute("DELETE FROM item_instance WHERE guid = '%u'", itr2->item_guid);
             }
             else
@@ -5213,7 +5213,7 @@ uint32 ObjectMgr::GetNearestTaxiNode( float x, float y, float z, uint32 mapid, u
     float dist;
     uint32 id = 0;
 
-    for(uint32 i = 1; i < sTaxiNodesStore.GetNumRows(); ++i)
+    for (uint32 i = 1; i < sTaxiNodesStore.GetNumRows(); ++i)
     {
         TaxiNodesEntry const* node = sTaxiNodesStore.LookupEntry(i);
         if(!node || node->map_id != mapid || !node->MountCreatureID[team == ALLIANCE ? 1 : 0] && node->MountCreatureID[0] != 32981) // dk flight
@@ -5321,7 +5321,7 @@ void ObjectMgr::GetTaxiPathNodes( uint32 path, Path &pathnodes, std::vector<uint
     pathnodes.Resize(nodeList.size());
     mapIds.resize(nodeList.size());
 
-    for(size_t i = 0; i < nodeList.size(); ++i)
+    for (size_t i = 0; i < nodeList.size(); ++i)
     {
         pathnodes[ i ].x = nodeList[i].x;
         pathnodes[ i ].y = nodeList[i].y;
@@ -5340,7 +5340,7 @@ void ObjectMgr::GetTransportPathNodes( uint32 path, TransportPath &pathnodes )
 
     pathnodes.Resize(nodeList.size());
 
-    for(size_t i = 0; i < nodeList.size(); ++i)
+    for (size_t i = 0; i < nodeList.size(); ++i)
     {
         pathnodes[ i ].mapid = nodeList[i].mapid;
         pathnodes[ i ].x = nodeList[i].x;
@@ -5456,7 +5456,7 @@ WorldSafeLocsEntry const *ObjectMgr::GetClosestGraveYard(float x, float y, float
 
     MapEntry const* mapEntry = sMapStore.LookupEntry(MapId);
 
-    for(GraveYardMap::const_iterator itr = graveLow; itr != graveUp; ++itr)
+    for (GraveYardMap::const_iterator itr = graveLow; itr != graveUp; ++itr)
     {
         GraveYardData const& data = itr->second;
 
@@ -5539,7 +5539,7 @@ GraveYardData const* ObjectMgr::FindGraveYardData(uint32 id, uint32 zoneId)
     GraveYardMap::const_iterator graveLow  = mGraveYardMap.lower_bound(zoneId);
     GraveYardMap::const_iterator graveUp   = mGraveYardMap.upper_bound(zoneId);
 
-    for(GraveYardMap::const_iterator itr = graveLow; itr != graveUp; ++itr)
+    for (GraveYardMap::const_iterator itr = graveLow; itr != graveUp; ++itr)
     {
         if(itr->second.safeLocId==id)
             return &itr->second;
@@ -5584,7 +5584,7 @@ void ObjectMgr::RemoveGraveYardLink(uint32 id, uint32 zoneId, uint32 team, bool 
 
     GraveYardMap::iterator itr;
 
-    for(itr = graveLow; itr != graveUp; ++itr)
+    for (itr = graveLow; itr != graveUp; ++itr)
     {
         GraveYardData & data = itr->second;
 
@@ -5616,7 +5616,6 @@ void ObjectMgr::RemoveGraveYardLink(uint32 id, uint32 zoneId, uint32 team, bool 
 
     return;
 }
-
 
 void ObjectMgr::LoadAreaTriggerTeleports()
 {
@@ -6100,7 +6099,7 @@ void ObjectMgr::LoadGameObjectLocales()
 
         GameObjectLocale& data = mGameObjectLocaleMap[entry];
 
-        for(uint8 i = 1; i < MAX_LOCALE; ++i)
+        for (uint8 i = 1; i < MAX_LOCALE; ++i)
         {
             std::string str = fields[i].GetCppString();
             if(!str.empty())
@@ -6116,7 +6115,7 @@ void ObjectMgr::LoadGameObjectLocales()
             }
         }
 
-        for(uint8 i = 1; i < MAX_LOCALE; ++i)
+        for (uint8 i = 1; i < MAX_LOCALE; ++i)
         {
             std::string str = fields[i+(MAX_LOCALE-1)].GetCppString();
             if(!str.empty())
@@ -6220,7 +6219,7 @@ void ObjectMgr::LoadGameobjectInfo()
     loader.Load(sGOStorage);
 
     // some checks
-    for(uint32 id = 1; id < sGOStorage.MaxEntry; id++)
+    for (uint32 id = 1; id < sGOStorage.MaxEntry; id++)
     {
         GameObjectInfo const* goInfo = sGOStorage.LookupEntry<GameObjectInfo>(id);
         if (!goInfo)
@@ -6826,7 +6825,7 @@ void ObjectMgr::LoadWeatherZoneChances()
 
         WeatherZoneChances& wzc = mWeatherZoneMap[zone_id];
 
-        for(uint8 season = 0; season < WEATHER_SEASONS; ++season)
+        for (uint8 season = 0; season < WEATHER_SEASONS; ++season)
         {
             wzc.data[season].rainChance  = fields[season * (MAX_WEATHER_TYPE-1) + 1].GetUInt32();
             wzc.data[season].snowChance  = fields[season * (MAX_WEATHER_TYPE-1) + 2].GetUInt32();
@@ -6890,7 +6889,7 @@ void ObjectMgr::DeleteRespawnTimeForInstance(uint32 instance)
 {
     RespawnTimes::iterator next;
 
-    for(RespawnTimes::iterator itr = mGORespawnTimes.begin(); itr != mGORespawnTimes.end(); itr = next)
+    for (RespawnTimes::iterator itr = mGORespawnTimes.begin(); itr != mGORespawnTimes.end(); itr = next)
     {
         next = itr;
         ++next;
@@ -6899,7 +6898,7 @@ void ObjectMgr::DeleteRespawnTimeForInstance(uint32 instance)
             mGORespawnTimes.erase(itr);
     }
 
-    for(RespawnTimes::iterator itr = mCreatureRespawnTimes.begin(); itr != mCreatureRespawnTimes.end(); itr = next)
+    for (RespawnTimes::iterator itr = mCreatureRespawnTimes.begin(); itr != mCreatureRespawnTimes.end(); itr = next)
     {
         next = itr;
         ++next;
@@ -6986,7 +6985,7 @@ void ObjectMgr::LoadGameobjectQuestRelations()
 {
     LoadQuestRelationsHelper(mGOQuestRelations,"gameobject_questrelation");
 
-    for(QuestRelations::iterator itr = mGOQuestRelations.begin(); itr != mGOQuestRelations.end(); ++itr)
+    for (QuestRelations::iterator itr = mGOQuestRelations.begin(); itr != mGOQuestRelations.end(); ++itr)
     {
         GameObjectInfo const* goInfo = GetGameObjectInfo(itr->first);
         if(!goInfo)
@@ -7000,7 +6999,7 @@ void ObjectMgr::LoadGameobjectInvolvedRelations()
 {
     LoadQuestRelationsHelper(mGOQuestInvolvedRelations,"gameobject_involvedrelation");
 
-    for(QuestRelations::iterator itr = mGOQuestInvolvedRelations.begin(); itr != mGOQuestInvolvedRelations.end(); ++itr)
+    for (QuestRelations::iterator itr = mGOQuestInvolvedRelations.begin(); itr != mGOQuestInvolvedRelations.end(); ++itr)
     {
         GameObjectInfo const* goInfo = GetGameObjectInfo(itr->first);
         if(!goInfo)
@@ -7014,7 +7013,7 @@ void ObjectMgr::LoadCreatureQuestRelations()
 {
     LoadQuestRelationsHelper(mCreatureQuestRelations,"creature_questrelation");
 
-    for(QuestRelations::iterator itr = mCreatureQuestRelations.begin(); itr != mCreatureQuestRelations.end(); ++itr)
+    for (QuestRelations::iterator itr = mCreatureQuestRelations.begin(); itr != mCreatureQuestRelations.end(); ++itr)
     {
         CreatureInfo const* cInfo = GetCreatureTemplate(itr->first);
         if(!cInfo)
@@ -7028,7 +7027,7 @@ void ObjectMgr::LoadCreatureInvolvedRelations()
 {
     LoadQuestRelationsHelper(mCreatureQuestInvolvedRelations,"creature_involvedrelation");
 
-    for(QuestRelations::iterator itr = mCreatureQuestInvolvedRelations.begin(); itr != mCreatureQuestInvolvedRelations.end(); ++itr)
+    for (QuestRelations::iterator itr = mCreatureQuestInvolvedRelations.begin(); itr != mCreatureQuestInvolvedRelations.end(); ++itr)
     {
         CreatureInfo const* cInfo = GetCreatureTemplate(itr->first);
         if(!cInfo)
@@ -7231,7 +7230,7 @@ int ObjectMgr::GetIndexForLocale( LocaleConstant loc )
     if(loc==LOCALE_enUS)
         return -1;
 
-    for(size_t i=0;i < m_LocalForIndex.size(); ++i)
+    for (size_t i=0; i < m_LocalForIndex.size(); ++i)
         if(m_LocalForIndex[i]==loc)
             return i;
 
@@ -7251,7 +7250,7 @@ int ObjectMgr::GetOrNewIndexForLocale( LocaleConstant loc )
     if(loc==LOCALE_enUS)
         return -1;
 
-    for(size_t i=0;i < m_LocalForIndex.size(); ++i)
+    for (size_t i=0; i < m_LocalForIndex.size(); ++i)
         if(m_LocalForIndex[i]==loc)
             return i;
 
@@ -7276,7 +7275,7 @@ void ObjectMgr::LoadGameObjectForQuests()
     uint32 count = 0;
 
     // collect GO entries for GO that must activated
-    for(uint32 go_entry = 1; go_entry < sGOStorage.MaxEntry; ++go_entry)
+    for (uint32 go_entry = 1; go_entry < sGOStorage.MaxEntry; ++go_entry)
     {
         bar.step();
         GameObjectInfo const* goInfo = sGOStorage.LookupEntry<GameObjectInfo>(go_entry);
@@ -7344,7 +7343,7 @@ bool ObjectMgr::LoadTrinityStrings(DatabaseType& db, char const* table, int32 mi
     }
 
     // cleanup affected map part for reloading case
-    for(TrinityStringLocaleMap::iterator itr = mTrinityStringLocaleMap.begin(); itr != mTrinityStringLocaleMap.end();)
+    for (TrinityStringLocaleMap::iterator itr = mTrinityStringLocaleMap.begin(); itr != mTrinityStringLocaleMap.end(); )
     {
         if (itr->first >= start_value && itr->first < end_value)
             mTrinityStringLocaleMap.erase(itr++);
@@ -7404,7 +7403,7 @@ bool ObjectMgr::LoadTrinityStrings(DatabaseType& db, char const* table, int32 mi
         // 0 -> default, idx in to idx+1
         data.Content[0] = fields[1].GetCppString();
 
-        for(uint8 i = 1; i < MAX_LOCALE; ++i)
+        for (uint8 i = 1; i < MAX_LOCALE; ++i)
         {
             std::string str = fields[i+1].GetCppString();
             if (!str.empty())
@@ -7570,7 +7569,7 @@ uint16 ObjectMgr::GetConditionId( ConditionType condition, uint32 value1, uint32
 
 bool ObjectMgr::CheckDeclinedNames( std::wstring mainpart, DeclinedName const& names )
 {
-    for(uint8 i =0; i < MAX_DECLINED_NAME_CASES; ++i)
+    for (uint8 i =0; i < MAX_DECLINED_NAME_CASES; ++i)
     {
         std::wstring wname;
         if(!Utf8toWStr(names.name[i],wname))
@@ -7627,7 +7626,7 @@ bool PlayerCondition::Meets(Player const * player) const
         case CONDITION_AD_COMMISSION_AURA:
         {
             Unit::AuraMap const& auras = player->GetAuras();
-            for(Unit::AuraMap::const_iterator itr = auras.begin(); itr != auras.end(); ++itr)
+            for (Unit::AuraMap::const_iterator itr = auras.begin(); itr != auras.end(); ++itr)
                 if((itr->second->GetSpellProto()->Attributes & 0x1000010) && itr->second->GetSpellProto()->SpellVisual[0]==3580)
                     return true;
             return false;
@@ -7901,7 +7900,7 @@ GameTele const* ObjectMgr::GetGameTele(const std::string& name) const
 
     // Alternative first GameTele what contains wnameLow as substring in case no GameTele location found
     const GameTele* alt = NULL;
-    for(GameTeleMap::const_iterator itr = m_GameTeleMap.begin(); itr != m_GameTeleMap.end(); ++itr)
+    for (GameTeleMap::const_iterator itr = m_GameTeleMap.begin(); itr != m_GameTeleMap.end(); ++itr)
     {
         if(itr->second.wnameLow == wname)
             return &itr->second;
@@ -7916,7 +7915,7 @@ bool ObjectMgr::AddGameTele(GameTele& tele)
 {
     // find max id
     uint32 new_id = 0;
-    for(GameTeleMap::const_iterator itr = m_GameTeleMap.begin(); itr != m_GameTeleMap.end(); ++itr)
+    for (GameTeleMap::const_iterator itr = m_GameTeleMap.begin(); itr != m_GameTeleMap.end(); ++itr)
         if(itr->first > new_id)
             new_id = itr->first;
 
@@ -7944,7 +7943,7 @@ bool ObjectMgr::DeleteGameTele(const std::string& name)
     // converting string that we try to find to lower case
     wstrToLower( wname );
 
-    for(GameTeleMap::iterator itr = m_GameTeleMap.begin(); itr != m_GameTeleMap.end(); ++itr)
+    for (GameTeleMap::iterator itr = m_GameTeleMap.begin(); itr != m_GameTeleMap.end(); ++itr)
     {
         if(itr->second.wnameLow == wname)
         {
@@ -8048,7 +8047,7 @@ void ObjectMgr::LoadTrainerSpell()
 
         // calculate learned spell for profession case when stored cast-spell
         trainerSpell.learnedSpell = spell;
-        for(uint8 i = 0; i <3; ++i)
+        for (uint8 i = 0; i <3; ++i)
         {
             if(spellinfo->Effect[i] != SPELL_EFFECT_LEARN_SPELL)
                 continue;
@@ -8388,9 +8387,9 @@ uint32 ObjectMgr::GetScriptId(const char *name)
 
 void ObjectMgr::CheckScripts(ScriptMapMap const& scripts,std::set<int32>& ids)
 {
-    for(ScriptMapMap::const_iterator itrMM = scripts.begin(); itrMM != scripts.end(); ++itrMM)
+    for (ScriptMapMap::const_iterator itrMM = scripts.begin(); itrMM != scripts.end(); ++itrMM)
     {
-        for(ScriptMap::const_iterator itrM = itrMM->second.begin(); itrM != itrMM->second.end(); ++itrM)
+        for (ScriptMap::const_iterator itrM = itrMM->second.begin(); itrM != itrMM->second.end(); ++itrM)
         {
             switch(itrM->second.command)
             {
@@ -8413,7 +8412,7 @@ void ObjectMgr::LoadDbScriptStrings()
 
     std::set<int32> ids;
 
-    for(int32 i = MIN_DB_SCRIPT_STRING_ID; i < MAX_DB_SCRIPT_STRING_ID; ++i)
+    for (int32 i = MIN_DB_SCRIPT_STRING_ID; i < MAX_DB_SCRIPT_STRING_ID; ++i)
         if(GetTrinityStringLocale(i))
             ids.insert(i);
 
@@ -8425,7 +8424,7 @@ void ObjectMgr::LoadDbScriptStrings()
 
     CheckScripts(sWaypointScripts,ids);
 
-    for(std::set<int32>::const_iterator itr = ids.begin(); itr != ids.end(); ++itr)
+    for (std::set<int32>::const_iterator itr = ids.begin(); itr != ids.end(); ++itr)
         sLog.outErrorDb( "Table `db_script_string` has unused string id  %u", *itr);
 }
 
@@ -8522,9 +8521,9 @@ uint64 ObjectMgr::GenerateGMTicketId()
 void ObjectMgr::LoadGMTickets()
 {
     m_GMTicketList.clear();
-    
+
     QueryResult *result = CharacterDatabase.Query( "SELECT guid, playerGuid, name, message, createtime, map, posX, posY, posZ, timestamp, closed, assignedto, comment FROM gm_tickets" );
-    
+
     if(!result)
     {
         sLog.outString(" \n>> GM Tickets table is empty, no tickets were loaded.\n" );
@@ -8559,7 +8558,7 @@ void ObjectMgr::LoadGMTickets()
     } while( result->NextRow() );
 
     result = CharacterDatabase.PQuery("SELECT MAX(guid) from gm_tickets");
-    m_GMticketid = (*result)[0].GetUInt64(); 
+    m_GMticketid = (*result)[0].GetUInt64();
 
     sLog.outString(">>> %u GM Tickets loaded from the database.", count);
     delete result;
@@ -8569,13 +8568,13 @@ void ObjectMgr::AddOrUpdateGMTicket(GM_Ticket &ticket, bool create)
 {
     if(create)
         m_GMTicketList.push_back(&ticket);
-        
-    _AddOrUpdateGMTicket(ticket);    
+
+    _AddOrUpdateGMTicket(ticket);
 }
 
 void ObjectMgr::_AddOrUpdateGMTicket(GM_Ticket &ticket)
 {
-    std::string msg(ticket.message), name(ticket.name), comment(ticket.comment); 
+    std::string msg(ticket.message), name(ticket.name), comment(ticket.comment);
     CharacterDatabase.escape_string(msg);
     CharacterDatabase.escape_string(name);
     CharacterDatabase.escape_string(comment);
@@ -8601,7 +8600,7 @@ void ObjectMgr::_AddOrUpdateGMTicket(GM_Ticket &ticket)
 
 void ObjectMgr::RemoveGMTicket(GM_Ticket *ticket, int64 source, bool permanently)
 {
-    for(GmTicketList::iterator i = m_GMTicketList.begin(); i != m_GMTicketList.end(); ++i)
+    for (GmTicketList::iterator i = m_GMTicketList.begin(); i != m_GMTicketList.end(); ++i)
         if((*i)->guid == ticket->guid)
         {
             if(permanently)

@@ -155,7 +155,7 @@ struct TRINITY_DLL_DECL mob_tribuna_controllerAI : public ScriptedAI
         if (!lKaddrakGUIDList.empty())
         {
             uint32 uiPositionCounter = 0;
-            for(std::list<Creature*>::iterator itr = lKaddrakGUIDList.begin(); itr != lKaddrakGUIDList.end(); ++itr)
+            for (std::list<Creature*>::iterator itr = lKaddrakGUIDList.begin(); itr != lKaddrakGUIDList.end(); ++itr)
             {
                 if ((*itr)->isAlive())
                 {

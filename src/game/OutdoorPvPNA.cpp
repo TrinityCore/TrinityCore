@@ -44,7 +44,7 @@ void OutdoorPvPNA::HandleKillImpl(Player *plr, Unit * killed)
 uint32 OPvPCapturePointNA::GetAliveGuardsCount()
 {
     uint32 cnt = 0;
-    for(std::map<uint32, uint64>::iterator itr = m_Creatures.begin(); itr != m_Creatures.end(); ++itr)
+    for (std::map<uint32, uint64>::iterator itr = m_Creatures.begin(); itr != m_Creatures.end(); ++itr)
     {
         switch(itr->first)
         {
@@ -92,13 +92,13 @@ void OPvPCapturePointNA::SpawnNPCsForTeam(uint32 team)
         creatures=HordeControlNPCs;
     else
         return;
-    for(int i = 0; i < NA_CONTROL_NPC_NUM; ++i)
+    for (int i = 0; i < NA_CONTROL_NPC_NUM; ++i)
         AddCreature(i,creatures[i].entry,creatures[i].teamval,creatures[i].map,creatures[i].x,creatures[i].y,creatures[i].z,creatures[i].o,1000000);
 }
 
 void OPvPCapturePointNA::DeSpawnNPCs()
 {
-    for(int i = 0; i < NA_CONTROL_NPC_NUM; ++i)
+    for (int i = 0; i < NA_CONTROL_NPC_NUM; ++i)
         DelCreature(i);
 }
 
@@ -111,7 +111,7 @@ void OPvPCapturePointNA::SpawnGOsForTeam(uint32 team)
         gos=HordeControlGOs;
     else
         return;
-    for(int i = 0; i < NA_CONTROL_GO_NUM; ++i)
+    for (int i = 0; i < NA_CONTROL_GO_NUM; ++i)
     {
         if( i == NA_ROOST_S ||
             i == NA_ROOST_W ||
@@ -128,7 +128,7 @@ void OPvPCapturePointNA::SpawnGOsForTeam(uint32 team)
 
 void OPvPCapturePointNA::DeSpawnGOs()
 {
-    for(int i = 0; i < NA_CONTROL_GO_NUM; ++i)
+    for (int i = 0; i < NA_CONTROL_GO_NUM; ++i)
     {
         DelObject(i);
     }

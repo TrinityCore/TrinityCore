@@ -54,7 +54,6 @@ ACE_MEM_Stream::send_n (const void *buf, size_t n)
   return this->send (buf, n);
 }
 
-
 ACE_INLINE ssize_t
 ACE_MEM_Stream::recv_n (void *buf, size_t n)
 {

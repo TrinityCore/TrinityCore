@@ -213,7 +213,6 @@ ACE_SizeCDR::write_wchar_array_i (const ACE_CDR::WChar *,
   return true;
 }
 
-
 ACE_CDR::Boolean
 ACE_SizeCDR::write_array (const void *,
                           size_t size,

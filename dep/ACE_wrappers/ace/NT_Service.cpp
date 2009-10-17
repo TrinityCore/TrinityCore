@@ -86,7 +86,6 @@ ACE_NT_Service::fini (void)
   return this->report_status (SERVICE_STOPPED, 0);
 }
 
-
 void
 ACE_NT_Service::handle_control (DWORD control_code)
 {
@@ -305,7 +304,6 @@ ACE_NT_Service::startup (void)
 
 }
 
-
 void
 ACE_NT_Service::capture_log_msg_attributes (void)
 {
@@ -319,7 +317,6 @@ ACE_NT_Service::inherit_log_msg_attributes (void)
   // thread, so the first arg is 0.
   ACE_Log_Msg::inherit_hook (0, this->log_msg_attributes_);
 }
-
 
 int
 ACE_NT_Service::start_svc (ACE_Time_Value *wait_time,
@@ -558,7 +555,7 @@ ACE_NT_Service::wait_for_service_state (DWORD desired_state,
     time_out += *wait_time;
 
   // Poll until the service reaches the desired state.
-  for (;;)
+  for (; ; )
     {
       service_ok = 0 != QueryServiceStatus (this->svc_sc_handle_,
                                             &this->svc_status_);

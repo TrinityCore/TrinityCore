@@ -153,7 +153,7 @@ struct TRINITY_DLL_DECL boss_kazrogalAI : public hyjal_trashAI
             m_creature->CastCustomSpell(m_creature, SPELL_MARK, NULL, NULL, NULL, false, NULL, NULL, m_creature->GetGUID());
 
             std::list<HostilReference *> t_list = m_creature->getThreatManager().getThreatList();
-            for(std::list<HostilReference *>::iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)
+            for (std::list<HostilReference *>::iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)
             {
                 Unit *target = Unit::GetUnit(*m_creature, (*itr)->getUnitGuid());
                 if (target && target->GetTypeId() == TYPEID_PLAYER && target->getPowerType() == POWER_MANA)

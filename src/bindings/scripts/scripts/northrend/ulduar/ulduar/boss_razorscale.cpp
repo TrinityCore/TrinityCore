@@ -218,7 +218,7 @@ struct TRINITY_DLL_DECL boss_razorscaleAI : public BossAI
             {
                 InitialSpawn = false;
 
-                for(uint32 i = 0; i < 4; ++i)
+                for (uint32 i = 0; i < 4; ++i)
                 {
                     uint32 random = rand()%4;
                     Creature* Add = m_creature->SummonCreature(CREATURE_ADDS, SpawnLocations[random][0], SpawnLocations[random][1], SpawnLocations[random][2], 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 30000);
@@ -226,7 +226,6 @@ struct TRINITY_DLL_DECL boss_razorscaleAI : public BossAI
                         Add->AI()->AttackStart(SelectUnit(SELECT_TARGET_RANDOM, 0));
                 }
             }
-
 
             if (FireballTimer < diff)
             {
@@ -269,7 +268,7 @@ struct TRINITY_DLL_DECL boss_razorscaleAI : public BossAI
         if (Phase == 2)
         {
             uint32 max = rand()%10;
-            for(uint32 i = 0; i < 4; ++i)
+            for (uint32 i = 0; i < 4; ++i)
             {
                 uint32 random = rand()%3;
                 Creature* Add = m_creature->SummonCreature(CREATURE_ADDS, SpawnLocations[random][0], SpawnLocations[random][1], SpawnLocations[random][2], 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 30000);
@@ -283,7 +282,7 @@ struct TRINITY_DLL_DECL boss_razorscaleAI : public BossAI
             uint32 max = rand() % 10 +1;
             if (max < 1)
             {
-                for(uint32 i = 0; i < max; ++i)
+                for (uint32 i = 0; i < max; ++i)
                 {
                     uint32 random = rand()%4;
                     Creature* Add = m_creature->SummonCreature(CREATURE_ADDS, SpawnLocations[random][0], SpawnLocations[random][1], SpawnLocations[random][2], 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 30000);

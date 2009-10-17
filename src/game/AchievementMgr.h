@@ -186,7 +186,6 @@ struct AchievementCriteriaDataSet
         Storage storage;
 };
 
-
 typedef std::map<uint32,AchievementCriteriaDataSet> AchievementCriteriaDataMap;
 
 struct AchievementReward
@@ -207,7 +206,6 @@ struct AchievementRewardLocale
 };
 
 typedef std::map<uint32,AchievementRewardLocale> AchievementRewardLocales;
-
 
 struct CompletedAchievementData
 {

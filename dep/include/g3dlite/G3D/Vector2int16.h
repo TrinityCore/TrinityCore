@@ -52,7 +52,6 @@ public:
         return ((G3D::int16*)this)[i];
     }
 
-
     inline bool operator== (const Vector2int16& rkVector) const {
         return ((int32*)this)[0] == ((int32*)&rkVector)[0];
     }

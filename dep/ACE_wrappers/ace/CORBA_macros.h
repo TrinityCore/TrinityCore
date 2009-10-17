@@ -82,7 +82,6 @@
 //  the macros should still work if you defined your adapter class as
 //  ACE_EXCEPTION_TYPE.
 
-
 // The following macros assume that an environment variable is passed
 // in/out of each function that can throw an exception. The type of the
 // environment variable is defined by ACE_ENV_TYPE.

@@ -169,7 +169,7 @@ void WorldSession::HandleWhoOpcode( WorldPacket & recv_data )
     if(zones_count > 10)
         return;                                             // can't be received from real client or broken packet
 
-    for(uint32 i = 0; i < zones_count; ++i)
+    for (uint32 i = 0; i < zones_count; ++i)
     {
         uint32 temp;
         recv_data >> temp;                                  // zone id, 0 if zone is unknown...
@@ -185,7 +185,7 @@ void WorldSession::HandleWhoOpcode( WorldPacket & recv_data )
     sLog.outDebug("Minlvl %u, maxlvl %u, name %s, guild %s, racemask %u, classmask %u, zones %u, strings %u", level_min, level_max, player_name.c_str(), guild_name.c_str(), racemask, classmask, zones_count, str_count);
 
     std::wstring str[4];                                    // 4 is client limit
-    for(uint32 i = 0; i < str_count; ++i)
+    for (uint32 i = 0; i < str_count; ++i)
     {
         std::string temp;
         recv_data >> temp;                                  // user entered string, it used as universal search pattern(guild+player name)?
@@ -221,7 +221,7 @@ void WorldSession::HandleWhoOpcode( WorldPacket & recv_data )
 
     //TODO: Guard Player map
     HashMapHolder<Player>::MapType& m = ObjectAccessor::Instance().GetPlayers();
-    for(HashMapHolder<Player>::MapType::const_iterator itr = m.begin(); itr != m.end(); ++itr)
+    for (HashMapHolder<Player>::MapType::const_iterator itr = m.begin(); itr != m.end(); ++itr)
     {
         if (security == SEC_PLAYER)
         {
@@ -260,7 +260,7 @@ void WorldSession::HandleWhoOpcode( WorldPacket & recv_data )
         uint32 pzoneid = itr->second->GetZoneId();
 
         bool z_show = true;
-        for(uint32 i = 0; i < zones_count; ++i)
+        for (uint32 i = 0; i < zones_count; ++i)
         {
             if(zoneids[i] == pzoneid)
             {
@@ -296,7 +296,7 @@ void WorldSession::HandleWhoOpcode( WorldPacket & recv_data )
             aname = areaEntry->area_name[GetSessionDbcLocale()];
 
         bool s_show = true;
-        for(uint32 i = 0; i < str_count; ++i)
+        for (uint32 i = 0; i < str_count; ++i)
         {
             if (!str[i].empty())
             {
@@ -1177,8 +1177,8 @@ void WorldSession::HandleInspectOpcode(WorldPacket& recv_data)
         return;
 
     uint32 talent_points = 0x47;
-    uint32 guid_size = plr->GetPackGUID().wpos(); 
-    WorldPacket data(SMSG_INSPECT_TALENT, guid_size+4+talent_points); 
+    uint32 guid_size = plr->GetPackGUID().wpos();
+    WorldPacket data(SMSG_INSPECT_TALENT, guid_size+4+talent_points);
     data.append(plr->GetPackGUID());
 
     if(sWorld.getConfig(CONFIG_TALENTS_INSPECTING) || _player->isGameMaster())

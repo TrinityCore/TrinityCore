@@ -166,7 +166,7 @@ void SQLStorageLoaderBase<T>::Load(SQLStorage &store)
     uint32 sc=0;
     uint32 bo=0;
     uint32 bb=0;
-    for(uint32 x=0; x< store.iNumFields; x++)
+    for (uint32 x=0; x< store.iNumFields; x++)
         if(store.dst_format[x]==FT_STRING)
             ++sc;
         else if (store.dst_format[x]==FT_LOGIC)
@@ -189,7 +189,7 @@ void SQLStorageLoaderBase<T>::Load(SQLStorage &store)
         newIndex[fields[0].GetUInt32()]=p;
 
         offset=0;
-        for(uint32 x = 0; x < store.iNumFields; x++)
+        for (uint32 x = 0; x < store.iNumFields; x++)
             switch(store.src_format[x])
             {
                 case FT_LOGIC:

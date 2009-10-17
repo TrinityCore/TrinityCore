@@ -39,7 +39,6 @@
 #include "BattleGround.h"
 #include "BattleGroundAB.h"
 
-
 INSTANTIATE_SINGLETON_1(AchievementGlobalMgr);
 
 namespace MaNGOS
@@ -71,7 +70,6 @@ namespace MaNGOS
             uint32 i_achievementId;
     };
 }                                                           // namespace MaNGOS
-
 
 bool AchievementCriteriaData::IsValid(AchievementCriteriaEntry const* criteria)
 {
@@ -320,7 +318,7 @@ bool AchievementCriteriaData::Meets(Player const* source, Unit const* target, ui
 
 bool AchievementCriteriaDataSet::Meets(Player const* source, Unit const* target, uint32 miscvalue /*= 0*/) const
 {
-    for(Storage::const_iterator itr = storage.begin(); itr != storage.end(); ++itr)
+    for (Storage::const_iterator itr = storage.begin(); itr != storage.end(); ++itr)
         if(!itr->Meets(source,target,miscvalue))
             return false;
 
@@ -338,14 +336,14 @@ AchievementMgr::~AchievementMgr()
 
 void AchievementMgr::Reset()
 {
-    for(CompletedAchievementMap::const_iterator iter = m_completedAchievements.begin(); iter!=m_completedAchievements.end(); ++iter)
+    for (CompletedAchievementMap::const_iterator iter = m_completedAchievements.begin(); iter!=m_completedAchievements.end(); ++iter)
     {
         WorldPacket data(SMSG_ACHIEVEMENT_DELETED,4);
         data << uint32(iter->first);
         m_player->SendDirectMessage(&data);
     }
 
-    for(CriteriaProgressMap::const_iterator iter = m_criteriaProgress.begin(); iter!=m_criteriaProgress.end(); ++iter)
+    for (CriteriaProgressMap::const_iterator iter = m_criteriaProgress.begin(); iter!=m_criteriaProgress.end(); ++iter)
     {
         WorldPacket data(SMSG_CRITERIA_DELETED,4);
         data << uint32(iter->first);
@@ -369,7 +367,7 @@ void AchievementMgr::ResetAchievementCriteria(AchievementCriteriaTypes type, uin
         return;
 
     AchievementCriteriaEntryList const& achievementCriteriaList = achievementmgr.GetAchievementCriteriaByType(type);
-    for(AchievementCriteriaEntryList::const_iterator i = achievementCriteriaList.begin(); i!=achievementCriteriaList.end(); ++i)
+    for (AchievementCriteriaEntryList::const_iterator i = achievementCriteriaList.begin(); i!=achievementCriteriaList.end(); ++i)
     {
         AchievementCriteriaEntry const *achievementCriteria = (*i);
 
@@ -415,7 +413,7 @@ void AchievementMgr::SaveToDB()
         bool need_execute = false;
         std::ostringstream ssdel;
         std::ostringstream ssins;
-        for(CompletedAchievementMap::iterator iter = m_completedAchievements.begin(); iter!=m_completedAchievements.end(); ++iter)
+        for (CompletedAchievementMap::iterator iter = m_completedAchievements.begin(); iter!=m_completedAchievements.end(); ++iter)
         {
             if(!iter->second.changed)
                 continue;
@@ -459,7 +457,7 @@ void AchievementMgr::SaveToDB()
         bool need_execute_ins = false;
         std::ostringstream ssdel;
         std::ostringstream ssins;
-        for(CriteriaProgressMap::iterator iter = m_criteriaProgress.begin(); iter!=m_criteriaProgress.end(); ++iter)
+        for (CriteriaProgressMap::iterator iter = m_criteriaProgress.begin(); iter!=m_criteriaProgress.end(); ++iter)
         {
             if(!iter->second.changed)
                 continue;
@@ -640,7 +638,7 @@ void AchievementMgr::SendCriteriaUpdate(uint32 id, CriteriaProgress const* progr
 void AchievementMgr::CheckAllAchievementCriteria()
 {
     // suppress sending packets
-    for(uint32 i=0; i<ACHIEVEMENT_CRITERIA_TYPE_TOTAL; ++i)
+    for (uint32 i=0; i<ACHIEVEMENT_CRITERIA_TYPE_TOTAL; ++i)
         UpdateAchievementCriteria(AchievementCriteriaTypes(i));
 }
 
@@ -668,7 +666,7 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
         return;
 
     AchievementCriteriaEntryList const& achievementCriteriaList = achievementmgr.GetAchievementCriteriaByType(type);
-    for(AchievementCriteriaEntryList::const_iterator i = achievementCriteriaList.begin(); i!=achievementCriteriaList.end(); ++i)
+    for (AchievementCriteriaEntryList::const_iterator i = achievementCriteriaList.begin(); i!=achievementCriteriaList.end(); ++i)
     {
         AchievementCriteriaEntry const *achievementCriteria = (*i);
 
@@ -820,7 +818,7 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
             case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_QUEST_COUNT:
             {
                 uint32 counter =0;
-                for(QuestStatusMap::const_iterator itr = GetPlayer()->getQuestStatusMap().begin(); itr!=GetPlayer()->getQuestStatusMap().end(); itr++)
+                for (QuestStatusMap::const_iterator itr = GetPlayer()->getQuestStatusMap().begin(); itr!=GetPlayer()->getQuestStatusMap().end(); itr++)
                     if(itr->second.m_rewarded)
                         counter++;
                 SetCriteriaProgress(achievementCriteria, counter);
@@ -833,7 +831,7 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
                     continue;
 
                 uint32 counter =0;
-                for(QuestStatusMap::const_iterator itr = GetPlayer()->getQuestStatusMap().begin(); itr!=GetPlayer()->getQuestStatusMap().end(); itr++)
+                for (QuestStatusMap::const_iterator itr = GetPlayer()->getQuestStatusMap().begin(); itr!=GetPlayer()->getQuestStatusMap().end(); itr++)
                 {
                     Quest const* quest = objmgr.GetQuestTemplate(itr->first);
                     if(itr->second.m_rewarded && quest->GetZoneOrSort() >= 0 && uint32(quest->GetZoneOrSort()) == achievementCriteria->complete_quests_in_zone.zoneID)
@@ -865,7 +863,7 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
                     continue;
                 // skip wrong arena achievements, if not achievIdByArenaSlot then normal total death counter
                 bool notfit = false;
-                for(int j = 0; j < MAX_ARENA_SLOT; ++j)
+                for (int j = 0; j < MAX_ARENA_SLOT; ++j)
                 {
                     if(achievIdByArenaSlot[j] == achievement->ID)
                     {
@@ -894,7 +892,7 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
 
                 // search case
                 bool found = false;
-                for(int j = 0; achievIdForDangeon[j][0]; ++j)
+                for (int j = 0; achievIdForDangeon[j][0]; ++j)
                 {
                     if(achievIdForDangeon[j][0] == achievement->ID)
                     {
@@ -1007,7 +1005,6 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
                     default:
                         break;
                 }
-
 
                 SetCriteriaProgress(achievementCriteria, 1);
                 break;
@@ -1257,7 +1254,7 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
                     ++spellIter)
                 {
                     SkillLineAbilityMapBounds bounds = spellmgr.GetSkillLineAbilityMapBounds(spellIter->first);
-                    for(SkillLineAbilityMap::const_iterator skillIter = bounds.first; skillIter != bounds.second; ++skillIter)
+                    for (SkillLineAbilityMap::const_iterator skillIter = bounds.first; skillIter != bounds.second; ++skillIter)
                     {
                         if(skillIter->second->skillId == achievementCriteria->learn_skillline_spell.skillLine)
                             spellCount++;
@@ -1304,7 +1301,7 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
                     ++spellIter)
                 {
                     SkillLineAbilityMapBounds bounds = spellmgr.GetSkillLineAbilityMapBounds(spellIter->first);
-                    for(SkillLineAbilityMap::const_iterator skillIter = bounds.first; skillIter != bounds.second; ++skillIter)
+                    for (SkillLineAbilityMap::const_iterator skillIter = bounds.first; skillIter != bounds.second; ++skillIter)
                         if (skillIter->second->skillId == achievementCriteria->learn_skill_line.skillLine)
                             spellCount++;
                 }
@@ -1375,7 +1372,7 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
 
         if(AchievementEntryList const* achRefList = achievementmgr.GetAchievementByReferencedId(achievement->ID))
         {
-            for(AchievementEntryList::const_iterator itr = achRefList->begin(); itr != achRefList->end(); ++itr)
+            for (AchievementEntryList::const_iterator itr = achRefList->begin(); itr != achRefList->end(); ++itr)
                 if(IsCompletedAchievement(*itr))
                     CompletedAchievement(*itr);
         }
@@ -1413,12 +1410,12 @@ bool AchievementMgr::IsCompletedCriteria(AchievementCriteriaEntry const* achieve
         case ACHIEVEMENT_CRITERIA_TYPE_REACH_LEVEL:
         {
             // skip wrong class achievements
-            for(int i = 1; i < MAX_CLASSES; ++i)
+            for (int i = 1; i < MAX_CLASSES; ++i)
                 if(achievIdByClass[i] == achievement->ID && i != GetPlayer()->getClass())
                     return false;
 
             // skip wrong race achievements
-            for(int i = 1; i < MAX_RACES; ++i)
+            for (int i = 1; i < MAX_RACES; ++i)
                 if(achievIdByRace[i] == achievement->ID && i != GetPlayer()->getRace())
                     return false;
 
@@ -1564,7 +1561,7 @@ bool AchievementMgr::IsCompletedAchievement(AchievementEntry const* entry)
     // Oddly, the target count is NOT countained in the achievement, but in each individual criteria
     if (entry->flags & ACHIEVEMENT_FLAG_SUMM)
     {
-        for(AchievementCriteriaEntryList::const_iterator itr = cList->begin(); itr != cList->end(); ++itr)
+        for (AchievementCriteriaEntryList::const_iterator itr = cList->begin(); itr != cList->end(); ++itr)
         {
             AchievementCriteriaEntry const* criteria = *itr;
 
@@ -1584,7 +1581,7 @@ bool AchievementMgr::IsCompletedAchievement(AchievementEntry const* entry)
 
     // Default case - need complete all or
     bool completed_all = true;
-    for(AchievementCriteriaEntryList::const_iterator itr = cList->begin(); itr != cList->end(); ++itr)
+    for (AchievementCriteriaEntryList::const_iterator itr = cList->begin(); itr != cList->end(); ++itr)
     {
         AchievementCriteriaEntry const* criteria = *itr;
 
@@ -1676,7 +1673,7 @@ void AchievementMgr::CompletedAchievement(AchievementEntry const* achievement)
 
     if(!sWorld.getConfig(CONFIG_GM_ALLOW_ACHIEVEMENT_GAINS) && m_player->GetSession()->GetSecurity() > SEC_PLAYER)
         return;
-    
+
     if(achievement->flags & ACHIEVEMENT_FLAG_COUNTER || m_completedAchievements.find(achievement->ID)!=m_completedAchievements.end())
         return;
 
@@ -1755,7 +1752,7 @@ void AchievementMgr::SendAllAchievementData()
     else
         data.resize( 0x7fff );
         // More than this causes client trouble
-    
+
     CompletedAchievementMap::const_iterator iter = m_completedAchievements.begin();
     CriteriaProgressMap::const_iterator iter2 = m_criteriaProgress.begin();
 
@@ -1765,10 +1762,10 @@ void AchievementMgr::SendAllAchievementData()
     {
         data.clear();
         send = false;
-        
+
         if( !cAchievements )
         {
-            for(; iter != m_completedAchievements.end() && !send; ++iter)
+            for (; iter != m_completedAchievements.end() && !send; ++iter)
             {
                 data << uint32(iter->first);
                 data << uint32(secsToTimeBitFields(iter->second.date));
@@ -1780,7 +1777,7 @@ void AchievementMgr::SendAllAchievementData()
         }
 
         data << int32(-1);
-        for(; iter2 != m_criteriaProgress.end() && !send; ++iter2)
+        for (; iter2 != m_criteriaProgress.end() && !send; ++iter2)
         {
             data << uint32(iter2->first);
             data.appendPackGUID(iter2->second.counter);
@@ -1791,7 +1788,7 @@ void AchievementMgr::SendAllAchievementData()
             data << uint32(0);
             send = data.size() > 0x7f00;
         }
-        
+
         if( iter2 == m_criteriaProgress.end() )
             cProgress = true;
 
@@ -1814,14 +1811,14 @@ void AchievementMgr::SendRespondInspectAchievements(Player* player)
  */
 void AchievementMgr::BuildAllDataPacket(WorldPacket *data)
 {
-    for(CompletedAchievementMap::const_iterator iter = m_completedAchievements.begin(); iter!=m_completedAchievements.end(); ++iter)
+    for (CompletedAchievementMap::const_iterator iter = m_completedAchievements.begin(); iter!=m_completedAchievements.end(); ++iter)
     {
         *data << uint32(iter->first);
         *data << uint32(secsToTimeBitFields(iter->second.date));
     }
     *data << int32(-1);
 
-    for(CriteriaProgressMap::const_iterator iter = m_criteriaProgress.begin(); iter!=m_criteriaProgress.end(); ++iter)
+    for (CriteriaProgressMap::const_iterator iter = m_criteriaProgress.begin(); iter!=m_criteriaProgress.end(); ++iter)
     {
         *data << uint32(iter->first);
         data->appendPackGUID(iter->second.counter);
@@ -2209,7 +2206,7 @@ void AchievementGlobalMgr::LoadRewardLocales()
 
         AchievementRewardLocale& data = m_achievementRewardLocales[entry];
 
-        for(int i = 1; i < MAX_LOCALE; ++i)
+        for (int i = 1; i < MAX_LOCALE; ++i)
         {
             std::string str = fields[1+2*(i-1)].GetCppString();
             if(!str.empty())
@@ -2239,7 +2236,6 @@ void AchievementGlobalMgr::LoadRewardLocales()
     } while (result->NextRow());
 
     delete result;
-
 
     sLog.outString();
     sLog.outString( ">> Loaded %lu achievement reward locale strings", (unsigned long)m_achievementRewardLocales.size() );

@@ -98,7 +98,7 @@ void WorldSession::HandleUseItemOpcode(WorldPacket& recvPacket)
 
     if (pUser->isInCombat())
     {
-        for(int i = 0; i < MAX_ITEM_PROTO_SPELLS; ++i)
+        for (int i = 0; i < MAX_ITEM_PROTO_SPELLS; ++i)
         {
             if (SpellEntry const *spellInfo = sSpellStore.LookupEntry(proto->Spells[i].SpellId))
             {
@@ -135,12 +135,12 @@ void WorldSession::HandleUseItemOpcode(WorldPacket& recvPacket)
         // send spell error
         if (SpellEntry const* spellInfo = sSpellStore.LookupEntry(spellid))
         {
-            // for implicit area/coord target spells 
+            // for implicit area/coord target spells
             if(!targets.getUnitTarget())
                 Spell::SendCastResult(_player,spellInfo,cast_count,SPELL_FAILED_NO_VALID_TARGETS);
-            // for explicit target spells 
+            // for explicit target spells
             else
-                Spell::SendCastResult(_player,spellInfo,cast_count,SPELL_FAILED_BAD_TARGETS);                
+                Spell::SendCastResult(_player,spellInfo,cast_count,SPELL_FAILED_BAD_TARGETS);
         }
         return;
     }
@@ -523,7 +523,7 @@ void WorldSession::HandleSpellClick( WorldPacket & recv_data )
 
     // this will get something not in world. crash
     Creature *unit = ObjectAccessor::GetCreatureOrPetOrVehicle(*_player, guid);
-    
+
     if(!unit)
         return;
 
@@ -536,7 +536,7 @@ void WorldSession::HandleSpellClick( WorldPacket & recv_data )
     }
 
     SpellClickInfoMapBounds clickPair = objmgr.GetSpellClickInfoMapBounds(unit->GetEntry());
-    for(SpellClickInfoMap::const_iterator itr = clickPair.first; itr != clickPair.second; ++itr)
+    for (SpellClickInfoMap::const_iterator itr = clickPair.first; itr != clickPair.second; ++itr)
     {
         if(itr->second.IsFitToRequirements(_player, unit))
         {
@@ -584,7 +584,7 @@ void WorldSession::HandleMirrrorImageDataRequest( WorldPacket & recv_data )
         data << (uint8)pCreator->GetByteValue(PLAYER_BYTES_2, 0); // facialhair
 
         data << (uint32)pCreator->GetGuildId();  // unk
-        static const EquipmentSlots ItemSlots[] = 
+        static const EquipmentSlots ItemSlots[] =
         {
             EQUIPMENT_SLOT_HEAD,
             EQUIPMENT_SLOT_SHOULDERS,
@@ -600,7 +600,7 @@ void WorldSession::HandleMirrrorImageDataRequest( WorldPacket & recv_data )
             EQUIPMENT_SLOT_END
         };
         // Display items in visible slots
-        for (EquipmentSlots const* itr = &ItemSlots[0];*itr!=EQUIPMENT_SLOT_END;++itr)
+        for (EquipmentSlots const* itr = &ItemSlots[0]; *itr!=EQUIPMENT_SLOT_END; ++itr)
         {
             if (*itr == EQUIPMENT_SLOT_HEAD && pCreator->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_HIDE_HELM))
                 data << (uint32)0;

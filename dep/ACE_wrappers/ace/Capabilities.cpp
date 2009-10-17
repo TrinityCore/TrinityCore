@@ -13,7 +13,6 @@ ACE_RCSID (ace,
            Capabilities,
            "$Id: Capabilities.cpp 80826 2008-03-04 14:51:23Z wotte $")
 
-
 #define ACE_ESC ((ACE_TCHAR)0x1b)
 
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
@@ -199,7 +198,7 @@ ACE_Capabilities::fillent (const ACE_TCHAR *buf)
 int
 ACE_Capabilities::is_entry (const ACE_TCHAR *name, const ACE_TCHAR *line)
 {
-  for (;;)
+  for (; ; )
     {
       // Skip blanks or irrelevant characters
       while (*line && ACE_OS::ace_isspace(*line))

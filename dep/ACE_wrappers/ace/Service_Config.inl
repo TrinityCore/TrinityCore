@@ -30,7 +30,6 @@ ACE_Service_Config::open (const ACE_TCHAR program_name[],
                           ignore_debug_flag);
 }
 
-
 ACE_INLINE int
 ACE_Service_Config::open (int argc,
                           ACE_TCHAR *argv[],
@@ -164,7 +163,6 @@ ACE_Service_Config::process_directive (const ACE_Static_Svc_Descriptor &ssd,
 {
   return ACE_Service_Config::current ()->process_directive (ssd, force_replace);
 }
-
 
 #if defined (ACE_HAS_WINCE) && defined (ACE_USES_WCHAR)
 // We must provide these function to bridge Svc_Conf parser with ACE.

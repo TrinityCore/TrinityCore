@@ -121,7 +121,7 @@ void RASocket::OnRead()
     ///- Discard data after line break or line feed
     bool gotenter=false;
     unsigned int y=0;
-    for(;y<sz;y++)
+    for (; y<sz; y++)
         if(inp[y]=='\r'||inp[y]=='\n')
     {
         gotenter=true;

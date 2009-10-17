@@ -440,7 +440,7 @@ void Transport::TeleportTransport(uint32 newMapid, float x, float y, float z)
     Map const* oldMap = GetMap();
     Relocate(x, y, z);
 
-    for(PlayerSet::const_iterator itr = m_passengers.begin(); itr != m_passengers.end();)
+    for (PlayerSet::const_iterator itr = m_passengers.begin(); itr != m_passengers.end(); )
     {
         Player *plr = *itr;
         ++itr;
@@ -536,7 +536,7 @@ void Transport::Update(uint32 /*p_time*/)
         }
 */
         /*
-        for(PlayerSet::const_iterator itr = m_passengers.begin(); itr != m_passengers.end();)
+        for (PlayerSet::const_iterator itr = m_passengers.begin(); itr != m_passengers.end(); )
         {
             PlayerSet::const_iterator it2 = itr;
             ++itr;
@@ -565,7 +565,7 @@ void Transport::UpdateForMap(Map const* targetMap)
 
     if(GetMapId()==targetMap->GetId())
     {
-        for(Map::PlayerList::const_iterator itr = pl.begin(); itr != pl.end(); ++itr)
+        for (Map::PlayerList::const_iterator itr = pl.begin(); itr != pl.end(); ++itr)
         {
             if(this != itr->getSource()->GetTransport())
             {
@@ -584,7 +584,7 @@ void Transport::UpdateForMap(Map const* targetMap)
         WorldPacket out_packet;
         transData.BuildPacket(&out_packet);
 
-        for(Map::PlayerList::const_iterator itr = pl.begin(); itr != pl.end(); ++itr)
+        for (Map::PlayerList::const_iterator itr = pl.begin(); itr != pl.end(); ++itr)
             if(this != itr->getSource()->GetTransport())
                 itr->getSource()->SendDirectMessage(&out_packet);
     }

@@ -878,7 +878,6 @@ enum TrinityStrings
     LANG_WORLD_CLOSED                    = 7523,
     LANG_WORLD_OPENED                    = 7524,
 
-
     // Use for not-in-offcial-sources patches
     //                                    10000-10999
     // opvp hp

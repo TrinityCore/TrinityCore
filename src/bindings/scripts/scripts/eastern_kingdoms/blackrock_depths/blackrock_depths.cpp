@@ -148,7 +148,7 @@ struct TRINITY_DLL_DECL npc_grimstoneAI : public npc_escortAI
         MobCount = 0;
         MobDeath_Timer = 0;
 
-        for(uint8 i = 0; i < MAX_MOB_AMOUNT; ++i)
+        for (uint8 i = 0; i < MAX_MOB_AMOUNT; ++i)
             RingMobGUID[i] = 0;
 
         RingBossGUID = 0;
@@ -241,7 +241,7 @@ struct TRINITY_DLL_DECL npc_grimstoneAI : public npc_escortAI
                     return;
                 }
 
-                for(uint8 i = 0; i < MAX_MOB_AMOUNT; ++i)
+                for (uint8 i = 0; i < MAX_MOB_AMOUNT; ++i)
                 {
                     Creature *mob = Unit::GetCreature(*m_creature,RingMobGUID[i]);
                     if (mob && !mob->isAlive() && mob->isDead())

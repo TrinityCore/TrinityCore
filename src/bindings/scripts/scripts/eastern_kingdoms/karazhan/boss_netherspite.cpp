@@ -62,14 +62,14 @@ struct TRINITY_DLL_DECL boss_netherspiteAI : public ScriptedAI
     {
         pInstance = c->GetInstanceData();
 
-        for(int i=0; i<3; ++i)
+        for (int i=0; i<3; ++i)
         {
             PortalGUID[i] = 0;
             BeamTarget[i] = 0;
             BeamerGUID[i] = 0;
         }
         // need core fix
-        for(int i=0; i<3; ++i)
+        for (int i=0; i<3; ++i)
         {
             if(SpellEntry *spell = (SpellEntry*)GetSpellStore()->LookupEntry(PlayerBuff[i]))
                 spell->AttributesEx |= SPELL_ATTR_EX_NEGATIVE;
@@ -134,7 +134,7 @@ struct TRINITY_DLL_DECL boss_netherspiteAI : public ScriptedAI
         pos[GREEN_PORTAL] = (r%2 ? 0: (r>1 ? 2: 1));
         pos[BLUE_PORTAL] = (r>1 ? 1: 2); // Blue Portal not on the left side (0)
 
-        for(int i=0; i<3; ++i)
+        for (int i=0; i<3; ++i)
             if(Creature *portal = m_creature->SummonCreature(PortalID[i],PortalCoord[pos[i]][0],PortalCoord[pos[i]][1],PortalCoord[pos[i]][2],0,TEMPSUMMON_TIMED_DESPAWN,60000))
             {
                 PortalGUID[i] = portal->GetGUID();
@@ -144,7 +144,7 @@ struct TRINITY_DLL_DECL boss_netherspiteAI : public ScriptedAI
 
     void DestroyPortals()
     {
-        for(int i=0; i<3; ++i)
+        for (int i=0; i<3; ++i)
         {
             if(Creature *portal = Unit::GetCreature(*m_creature, PortalGUID[i]))
                 portal->DisappearAndDie();
@@ -157,7 +157,7 @@ struct TRINITY_DLL_DECL boss_netherspiteAI : public ScriptedAI
 
     void UpdatePortals() // Here we handle the beams' behavior
     {
-        for(int j=0; j<3; ++j) // j = color
+        for (int j=0; j<3; ++j) // j = color
             if(Creature *portal = Unit::GetCreature(*m_creature, PortalGUID[j]))
             {
                 // the one who's been casted upon before
@@ -170,7 +170,7 @@ struct TRINITY_DLL_DECL boss_netherspiteAI : public ScriptedAI
                     Map::PlayerList const& players = map->GetPlayers();
 
                     // get the best suitable target
-                    for(Map::PlayerList::const_iterator i = players.begin(); i!=players.end(); ++i)
+                    for (Map::PlayerList::const_iterator i = players.begin(); i!=players.end(); ++i)
                     {
                         Player* p = i->getSource();
                         if(p && p->isAlive() // alive
@@ -235,7 +235,7 @@ struct TRINITY_DLL_DECL boss_netherspiteAI : public ScriptedAI
         PortalPhase = false;
         DoScriptText(EMOTE_PHASE_BANISH,m_creature);
 
-        for(int i=0; i<3; ++i)
+        for (int i=0; i<3; ++i)
             m_creature->RemoveAurasDueToSpell(NetherBuff[i]);
     }
 

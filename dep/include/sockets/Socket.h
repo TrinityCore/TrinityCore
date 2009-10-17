@@ -43,16 +43,13 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "SocketAddress.h"
 #include "Thread.h"
 
-
 #ifdef SOCKETS_NAMESPACE
 namespace SOCKETS_NAMESPACE {
 #endif
 
-
 class ISocketHandler;
 class SocketAddress;
 class IFile;
-
 
 /** \defgroup basic Basic sockets */
 /** Socket base class.
@@ -471,7 +468,6 @@ public:
 
     // TCP options in TcpSocket.h/TcpSocket.cpp
 
-
 #ifdef HAVE_OPENSSL
     /** @name SSL Support */
     //@{
@@ -733,7 +729,6 @@ static  WSAInitializer m_winsock_init; ///< Winsock initialization singleton cla
 #ifdef SOCKETS_NAMESPACE
 }
 #endif
-
 
 #endif // _SOCKETS_Socket_H
 

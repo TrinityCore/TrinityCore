@@ -442,7 +442,6 @@ namespace ACE_Utils
     }
   };
 
-
 #if defined (ACE_LACKS_LONGLONG_T) || defined (ACE_LACKS_UNSIGNEDLONGLONG_T)
   // Partial specialization for the case where we're casting from
   // ACE_U_LongLong to a smaller integer.  We assume that we're always
@@ -832,7 +831,6 @@ namespace ACE_Utils
       return static_cast<unsigned int> (val);
     }
   };
-
 
   template<>
   struct Truncator<unsigned int, signed long>

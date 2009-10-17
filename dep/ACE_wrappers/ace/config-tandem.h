@@ -142,7 +142,6 @@
 // Platform lacks "signed char" type (broken!)
 #define ACE_LACKS_SIGNED_CHAR
 
-
 #define ACE_PAGE_SIZE 4096
 // Defines the page size of the system (not used on Win32 or
 // with ACE_HAS_GETPAGESIZE).

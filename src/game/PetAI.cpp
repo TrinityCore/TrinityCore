@@ -171,7 +171,7 @@ void PetAI::UpdateAI(const uint32 diff)
             else
             {
                 bool spellUsed = false;
-                for(std::set<uint64>::const_iterator tar = m_AllySet.begin(); tar != m_AllySet.end(); ++tar)
+                for (std::set<uint64>::const_iterator tar = m_AllySet.begin(); tar != m_AllySet.end(); ++tar)
                 {
                     Unit* Target = ObjectAccessor::GetUnit(*m_creature,*tar);
 
@@ -220,7 +220,7 @@ void PetAI::UpdateAI(const uint32 diff)
         }
 
         // deleted cached Spell objects
-        for(TargetSpellList::const_iterator itr = targetSpellStore.begin(); itr != targetSpellStore.end(); ++itr)
+        for (TargetSpellList::const_iterator itr = targetSpellStore.begin(); itr != targetSpellStore.end(); ++itr)
             delete itr->second;
     }
 }
@@ -248,7 +248,7 @@ void PetAI::UpdateAllies()
     m_AllySet.insert(m_creature->GetGUID());
     if(pGroup)                                              //add group
     {
-        for(GroupReference *itr = pGroup->GetFirstMember(); itr != NULL; itr = itr->next())
+        for (GroupReference *itr = pGroup->GetFirstMember(); itr != NULL; itr = itr->next())
         {
             Player* Target = itr->getSource();
             if(!Target || !pGroup->SameSubGroup((Player*)owner, Target))

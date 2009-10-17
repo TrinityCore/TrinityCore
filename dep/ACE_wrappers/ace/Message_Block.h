@@ -33,7 +33,6 @@ class ACE_Allocator;
 class ACE_Data_Block;
 class ACE_Lock;
 
-
 /**
  * @class ACE_Message_Block
  *

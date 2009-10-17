@@ -125,7 +125,6 @@ struct TRINITY_DLL_DECL boss_erekemAI : public ScriptedAI
             uiBloodlustTimer = urand(35000,45000);
         } else uiBloodlustTimer -= diff;
 
-
         if (uiEarthShockTimer < diff)
         {
             DoCast(m_creature->getVictim(), SPELL_EARTH_SHOCK);
@@ -237,7 +236,6 @@ CreatureAI* GetAI_mob_erekem_guard(Creature* pCreature)
 {
     return new mob_erekem_guardAI (pCreature);
 }
-
 
 void AddSC_boss_erekem()
 {

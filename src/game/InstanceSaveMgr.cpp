@@ -57,13 +57,13 @@ InstanceSaveManager::~InstanceSaveManager()
     for (InstanceSaveHashMap::iterator itr = m_instanceSaveById.begin(); itr != m_instanceSaveById.end(); ++itr)
     {
         InstanceSave *save = itr->second;
-        for(InstanceSave::PlayerListType::iterator itr2 = save->m_playerList.begin(), next = itr2; itr2 != save->m_playerList.end(); itr2 = next)
+        for (InstanceSave::PlayerListType::iterator itr2 = save->m_playerList.begin(), next = itr2; itr2 != save->m_playerList.end(); itr2 = next)
         {
             ++next;
             (*itr2)->UnbindInstance(save->GetMapId(), save->GetDifficulty(), true);
         }
         save->m_playerList.clear();
-        for(InstanceSave::GroupListType::iterator itr2 = save->m_groupList.begin(), next = itr2; itr2 != save->m_groupList.end(); itr2 = next)
+        for (InstanceSave::GroupListType::iterator itr2 = save->m_groupList.begin(), next = itr2; itr2 != save->m_groupList.end(); itr2 = next)
         {
             ++next;
             (*itr2)->UnbindInstance(save->GetMapId(), save->GetDifficulty(), true);
@@ -233,7 +233,7 @@ void InstanceSaveManager::_DelHelper(DatabaseType &db, const char *fields, const
         {
             Field *fields = result->Fetch();
             std::ostringstream ss;
-            for(size_t i = 0; i < fieldTokens.size(); i++)
+            for (size_t i = 0; i < fieldTokens.size(); i++)
             {
                 std::string fieldValue = fields[i].GetCppString();
                 db.escape_string(fieldValue);
@@ -440,7 +440,7 @@ void InstanceSaveManager::LoadResetTimes()
         }
 
         // schedule the reset times
-        for(ResetTimeMapType::iterator itr = InstResetTime.begin(); itr != InstResetTime.end(); ++itr)
+        for (ResetTimeMapType::iterator itr = InstResetTime.begin(); itr != InstResetTime.end(); ++itr)
             if(itr->second.second > now)
                 ScheduleReset(true, itr->second.second, InstResetEvent(0, itr->second.first, itr->first));
     }
@@ -479,7 +479,7 @@ void InstanceSaveManager::LoadResetTimes()
 
     // calculate new global reset times for expired instances and those that have never been reset yet
     // add the global reset times to the priority queue
-    for(uint32 i = 0; i < sInstanceTemplate.MaxEntry; i++)
+    for (uint32 i = 0; i < sInstanceTemplate.MaxEntry; i++)
     {
         InstanceTemplate const* temp = objmgr.GetInstanceTemplate(i);
         if(!temp) continue;
@@ -512,7 +512,7 @@ void InstanceSaveManager::LoadResetTimes()
         // schedule the global reset/warning
         uint8 type = 1;
         static int tim[4] = {3600, 900, 300, 60};
-        for(; type < 4; type++)
+        for (; type < 4; type++)
             if(t - tim[type-1] > now) break;
         ScheduleReset(true, t - tim[type-1], InstResetEvent(type, i));
     }
@@ -527,12 +527,12 @@ void InstanceSaveManager::ScheduleReset(bool add, time_t time, InstResetEvent ev
         ResetTimeQueue::iterator itr;
         std::pair<ResetTimeQueue::iterator, ResetTimeQueue::iterator> range;
         range = m_resetTimeQueue.equal_range(time);
-        for(itr = range.first; itr != range.second; ++itr)
+        for (itr = range.first; itr != range.second; ++itr)
             if(itr->second == event) { m_resetTimeQueue.erase(itr); return; }
         // in case the reset time changed (should happen very rarely), we search the whole queue
         if(itr == range.second)
         {
-            for(itr = m_resetTimeQueue.begin(); itr != m_resetTimeQueue.end(); ++itr)
+            for (itr = m_resetTimeQueue.begin(); itr != m_resetTimeQueue.end(); ++itr)
                 if(itr->second == event) { m_resetTimeQueue.erase(itr); return; }
             if(itr == m_resetTimeQueue.end())
                 sLog.outError("InstanceSaveManager::ScheduleReset: cannot cancel the reset, the event(%d,%d,%d) was not found!", event.type, event.mapid, event.instanceId);
@@ -627,7 +627,7 @@ void InstanceSaveManager::_ResetOrWarnAll(uint32 mapid, bool warn, uint32 timeLe
         }
 
         // remove all binds to instances of the given map
-        for(InstanceSaveHashMap::iterator itr = m_instanceSaveById.begin(); itr != m_instanceSaveById.end();)
+        for (InstanceSaveHashMap::iterator itr = m_instanceSaveById.begin(); itr != m_instanceSaveById.end(); )
         {
             if(itr->second->GetMapId() == mapid)
                 _ResetSave(itr);
@@ -656,7 +656,7 @@ void InstanceSaveManager::_ResetOrWarnAll(uint32 mapid, bool warn, uint32 timeLe
 
     MapInstanced::InstancedMaps &instMaps = ((MapInstanced*)map)->GetInstancedMaps();
     MapInstanced::InstancedMaps::iterator mitr;
-    for(mitr = instMaps.begin(); mitr != instMaps.end(); ++mitr)
+    for (mitr = instMaps.begin(); mitr != instMaps.end(); ++mitr)
     {
         Map *map2 = mitr->second;
         if(!map2->IsDungeon()) continue;
@@ -670,7 +670,7 @@ void InstanceSaveManager::_ResetOrWarnAll(uint32 mapid, bool warn, uint32 timeLe
 uint32 InstanceSaveManager::GetNumBoundPlayersTotal()
 {
     uint32 ret = 0;
-    for(InstanceSaveHashMap::iterator itr = m_instanceSaveById.begin(); itr != m_instanceSaveById.end(); ++itr)
+    for (InstanceSaveHashMap::iterator itr = m_instanceSaveById.begin(); itr != m_instanceSaveById.end(); ++itr)
         ret += itr->second->GetPlayerCount();
     return ret;
 }
@@ -678,7 +678,7 @@ uint32 InstanceSaveManager::GetNumBoundPlayersTotal()
 uint32 InstanceSaveManager::GetNumBoundGroupsTotal()
 {
     uint32 ret = 0;
-    for(InstanceSaveHashMap::iterator itr = m_instanceSaveById.begin(); itr != m_instanceSaveById.end(); ++itr)
+    for (InstanceSaveHashMap::iterator itr = m_instanceSaveById.begin(); itr != m_instanceSaveById.end(); ++itr)
         ret += itr->second->GetGroupCount();
     return ret;
 }
