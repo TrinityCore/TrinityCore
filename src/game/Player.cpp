@@ -22024,14 +22024,16 @@ void Player::UpdateSpecCount(uint8 count)
 
 void Player::ActivateSpec(uint8 spec)
 {
-    if(GetActiveSpec() == spec)
+    if (GetActiveSpec() == spec)
         return;
 
-    if(GetSpecsCount() != MAX_TALENT_SPECS)
+    if (GetSpecsCount() != MAX_TALENT_SPECS)
         return;
 
-    if(GetMap()->IsBattleGround() && !HasAura(44521)) // In BattleGround with no Preparation buff
+    if (GetMap()->IsBattleGround() && !HasAura(44521)) // In BattleGround with no Preparation buff
         return;
+
+    RemoveAllAuras(this->GetGUID(), NULL, false, true); // remove all positive auras (ie: buffs from another spec)
 
     _SaveActions();
     
@@ -22039,65 +22041,55 @@ void Player::ActivateSpec(uint8 spec)
     
     uint32 const* talentTabIds = GetTalentTabPages(getClass());
     
-    for(uint8 i = 0; i < 3; ++i)
+    for (uint8 i = 0; i < 3; ++i)
     {
         uint32 talentTabId = talentTabIds[i];
 
-        for(uint32 talentId = 0; talentId < sTalentStore.GetNumRows(); ++talentId)
+        for (uint32 talentId = 0; talentId < sTalentStore.GetNumRows(); ++talentId)
         {
             TalentEntry const* talentInfo = sTalentStore.LookupEntry(talentId);
-            if(!talentInfo)
+            if (!talentInfo)
                 continue;
 
             // skip another tab talents
-            if(talentInfo->TalentTab != talentTabId)
+            if (talentInfo->TalentTab != talentTabId)
                 continue;
 
             // remove all talent ranks, starting at highest rank
-            for(int8 rank = MAX_TALENT_RANK-1; rank >= 0; --rank)
-            {
-                if(talentInfo->RankID[rank] != 0 && HasTalent(talentInfo->RankID[rank], m_activeSpec))
-                {
-                    removeSpell(talentInfo->RankID[rank],true);
-                }
-            }
+            for (int8 rank = MAX_TALENT_RANK-1; rank >= 0; --rank)
+                if (talentInfo->RankID[rank] != 0 && HasTalent(talentInfo->RankID[rank], m_activeSpec))
+                    removeSpell(talentInfo->RankID[rank], true);
         }
     }
 
     // set glyphs
     for (uint8 slot = 0; slot < MAX_GLYPH_SLOT_INDEX; ++slot)
-    {
         // remove secondary glyph
-        if(uint32 oldglyph = m_Glyphs[m_activeSpec][slot])
-        {
-            if(GlyphPropertiesEntry const *old_gp = sGlyphPropertiesStore.LookupEntry(oldglyph))
-            {
+        if (uint32 oldglyph = m_Glyphs[m_activeSpec][slot])
+            if (GlyphPropertiesEntry const *old_gp = sGlyphPropertiesStore.LookupEntry(oldglyph))
                 RemoveAurasDueToSpell(old_gp->SpellId);
-            }
-        }
-    }
 
     SetActiveSpec(spec);
     uint32 spentTalents = 0;
     
-    for(uint8 i = 0; i < 3; ++i)
+    for (uint8 i = 0; i < 3; ++i)
     {
         uint32 talentTabId = talentTabIds[i];
 
-        for(uint32 talentId = 0; talentId < sTalentStore.GetNumRows(); ++talentId)
+        for (uint32 talentId = 0; talentId < sTalentStore.GetNumRows(); ++talentId)
         {
             TalentEntry const* talentInfo = sTalentStore.LookupEntry(talentId);
-            if(!talentInfo)
+            if (!talentInfo)
                 continue;
 
             // skip another tab talents
-            if(talentInfo->TalentTab != talentTabId)
+            if (talentInfo->TalentTab != talentTabId)
                 continue;
 
             // learn highest talent rank that exists in newly activated spec
-            for(int8 rank = MAX_TALENT_RANK-1; rank >= 0; --rank)
+            for (int8 rank = MAX_TALENT_RANK-1; rank >= 0; --rank)
             {
-                if(talentInfo->RankID[rank] && HasTalent(talentInfo->RankID[rank], m_activeSpec))
+                if (talentInfo->RankID[rank] && HasTalent(talentInfo->RankID[rank], m_activeSpec))
                 {
                     learnSpell(talentInfo->RankID[rank], false);
                     spentTalents += (rank + 1);
@@ -22110,14 +22102,11 @@ void Player::ActivateSpec(uint8 spec)
     for (uint8 slot = 0; slot < MAX_GLYPH_SLOT_INDEX; ++slot) 
     {
         uint32 glyph = m_Glyphs[m_activeSpec][slot];
+
         // apply primary glyph
-        if (glyph)
-        {
-            if (GlyphPropertiesEntry const *gp = sGlyphPropertiesStore.LookupEntry(glyph))
-            {
-                CastSpell(this, gp->SpellId, true);
-            }
-        }
+        if (glyph && GlyphPropertiesEntry const *gp = sGlyphPropertiesStore.LookupEntry(glyph))
+            CastSpell(this, gp->SpellId, true);
+
         SetGlyph(slot, glyph);
     }
 
@@ -22125,18 +22114,15 @@ void Player::ActivateSpec(uint8 spec)
     InitTalentForLevel();
 
     m_actionButtons.clear();
-    QueryResult *result = CharacterDatabase.PQuery("SELECT button,action,type FROM character_action WHERE guid = '%u' AND spec = '%u' ORDER BY button", GetGUIDLow(), m_activeSpec);
-    if (result)    
-    {
+    if (QueryResult *result = CharacterDatabase.PQuery("SELECT button,action,type FROM character_action WHERE guid = '%u' AND spec = '%u' ORDER BY button", GetGUIDLow(), m_activeSpec))
         _LoadActions(result, false);
-    }
     
     ResummonPetTemporaryUnSummonedIfAny();
     SendActionButtons(1);
 
     Powers pw = getPowerType();
-    if(pw != POWER_MANA)
-        SetPower(POWER_MANA, 0);
+    if (pw != POWER_MANA)
+        SetPower(POWER_MANA, 0); // what on earth is this for?!
     
     SetPower(pw, 0);
 }
