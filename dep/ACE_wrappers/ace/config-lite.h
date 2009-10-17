@@ -158,7 +158,6 @@ ACE_END_VERSIONED_NAMESPACE_DECL
   typedef std::reverse_iterator<const_iterator> const_reverse_iterator;
 #endif  /* _MSC_VER && _WIN64 */
 
-
 #include /**/ "ace/post.h"
 
 #endif /* ACE_CONFIG_LITE_H */

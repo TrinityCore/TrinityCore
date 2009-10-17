@@ -119,9 +119,9 @@ Cell::Visit(const CellLock<LOCK_TYPE> &l, TypeContainerVisitor<T, CONTAINER> &vi
     }
 
     // loop the cell range
-    for(uint32 x = begin_cell.x_coord; x <= end_cell.x_coord; x++)
+    for (uint32 x = begin_cell.x_coord; x <= end_cell.x_coord; x++)
     {
-        for(uint32 y = begin_cell.y_coord; y <= end_cell.y_coord; y++)
+        for (uint32 y = begin_cell.y_coord; y <= end_cell.y_coord; y++)
         {
             CellPair cell_pair(x,y);
             Cell r_zone(cell_pair);
@@ -167,9 +167,9 @@ Cell::Visit(const CellLock<LOCK_TYPE> &l, TypeContainerVisitor<T, CONTAINER> &vi
     end_cell += upper;
 
     // loop the cell range
-    for(uint32 x = begin_cell.x_coord; x <= end_cell.x_coord; x++)
+    for (uint32 x = begin_cell.x_coord; x <= end_cell.x_coord; x++)
     {
-        for(uint32 y = begin_cell.y_coord; y <= end_cell.y_coord; y++)
+        for (uint32 y = begin_cell.y_coord; y <= end_cell.y_coord; y++)
         {
             CellPair cell_pair(x,y);
             Cell r_zone(cell_pair);
@@ -184,15 +184,15 @@ inline int CellHelper(const float radius)
 {
     if(radius < 1.0f)
         return 0;
- 
+
     return (int)ceilf(radius/SIZE_OF_GRID_CELL);
 }
- 
+
 inline CellArea Cell::CalculateCellArea(const WorldObject &obj, float radius)
 {
     if(radius <= 0.0f)
         return CellArea();
- 
+
     //we should increase search radius by object's radius, otherwise
     //we could have problems with huge creatures, which won't attack nearest players etc
     radius += obj.GetObjectSize();
@@ -200,23 +200,23 @@ inline CellArea Cell::CalculateCellArea(const WorldObject &obj, float radius)
     //TODO: add more correct/generic method for this task
     const float x_offset = (obj.GetPositionX() - CENTER_GRID_CELL_OFFSET)/SIZE_OF_GRID_CELL;
     const float y_offset = (obj.GetPositionY() - CENTER_GRID_CELL_OFFSET)/SIZE_OF_GRID_CELL;
- 
+
     const float x_val = floor(x_offset + CENTER_GRID_CELL_ID + 0.5f);
     const float y_val = floor(y_offset + CENTER_GRID_CELL_ID + 0.5f);
- 
+
     const float x_off = (x_offset - x_val + CENTER_GRID_CELL_ID) * SIZE_OF_GRID_CELL;
     const float y_off = (y_offset - y_val + CENTER_GRID_CELL_ID) * SIZE_OF_GRID_CELL;
- 
+
     const float tmp_diff = radius - CENTER_GRID_CELL_OFFSET;
     //lets calculate upper/lower/right/left corners for cell search
     int right = CellHelper(tmp_diff + x_off);
     int left = CellHelper(tmp_diff - x_off);
     int upper = CellHelper(tmp_diff + y_off);
     int lower = CellHelper(tmp_diff - y_off);
- 
+
     return CellArea(right, left, upper, lower);
 }
- 
+
 template<class LOCK_TYPE, class T, class CONTAINER>
 inline void
 Cell::Visit(const CellLock<LOCK_TYPE> &l, TypeContainerVisitor<T, CONTAINER> &visitor, Map &m, const WorldObject &obj, float radius) const
@@ -224,7 +224,7 @@ Cell::Visit(const CellLock<LOCK_TYPE> &l, TypeContainerVisitor<T, CONTAINER> &vi
     const CellPair &standing_cell = l.i_cellPair;
     if (standing_cell.x_coord >= TOTAL_NUMBER_OF_CELLS_PER_MAP || standing_cell.y_coord >= TOTAL_NUMBER_OF_CELLS_PER_MAP)
         return;
- 
+
     //no jokes here... Actually placing ASSERT() here was good idea, but
     //we had some problems with DynamicObjects, which pass radius = 0.0f (DB issue?)
     //maybe it is better to just return when radius <= 0.0f?
@@ -236,7 +236,7 @@ Cell::Visit(const CellLock<LOCK_TYPE> &l, TypeContainerVisitor<T, CONTAINER> &vi
     //lets limit the upper value for search radius
     if(radius > 333.0f)
         radius = 333.0f;
- 
+
     //lets calculate object coord offsets from cell borders.
     CellArea area = Cell::CalculateCellArea(obj, radius);
     //if radius fits inside standing cell
@@ -245,10 +245,10 @@ Cell::Visit(const CellLock<LOCK_TYPE> &l, TypeContainerVisitor<T, CONTAINER> &vi
         m.Visit(l, visitor);
         return;
     }
- 
+
     CellPair begin_cell = standing_cell;
     CellPair end_cell = standing_cell;
- 
+
     area.ResizeBorders(begin_cell, end_cell);
     //visit all cells, found in CalculateCellArea()
     //if radius is known to reach cell area more than 4x4 then we should call optimized VisitCircle
@@ -259,15 +259,15 @@ Cell::Visit(const CellLock<LOCK_TYPE> &l, TypeContainerVisitor<T, CONTAINER> &vi
         VisitCircle(l, visitor, m, begin_cell, end_cell);
         return;
     }
- 
+
     //ALWAYS visit standing cell first!!! Since we deal with small radiuses
     //it is very essential to call visitor for standing cell firstly...
     m.Visit(l, visitor);
- 
+
     // loop the cell range
-    for(uint32 x = begin_cell.x_coord; x <= end_cell.x_coord; x++)
+    for (uint32 x = begin_cell.x_coord; x <= end_cell.x_coord; x++)
     {
-        for(uint32 y = begin_cell.y_coord; y <= end_cell.y_coord; y++)
+        for (uint32 y = begin_cell.y_coord; y <= end_cell.y_coord; y++)
         {
             CellPair cell_pair(x,y);
             //lets skip standing cell since we already visited it
@@ -281,7 +281,7 @@ Cell::Visit(const CellLock<LOCK_TYPE> &l, TypeContainerVisitor<T, CONTAINER> &vi
         }
     }
 }
- 
+
 template<class LOCK_TYPE, class T, class CONTAINER>
 inline void
 Cell::VisitCircle(const CellLock<LOCK_TYPE> &l, TypeContainerVisitor<T, CONTAINER> &visitor, Map &m, const CellPair& begin_cell, const CellPair& end_cell) const
@@ -291,11 +291,11 @@ Cell::VisitCircle(const CellLock<LOCK_TYPE> &l, TypeContainerVisitor<T, CONTAINE
     //lets calculate x_start/x_end coords for central strip...
     const uint32 x_start = begin_cell.x_coord + x_shift;
     const uint32 x_end = end_cell.x_coord - x_shift;
- 
+
     //visit central strip with constant width...
-    for(uint32 x = x_start; x <= x_end; ++x)
+    for (uint32 x = x_start; x <= x_end; ++x)
     {
-        for(uint32 y = begin_cell.y_coord; y <= end_cell.y_coord; ++y)
+        for (uint32 y = begin_cell.y_coord; y <= end_cell.y_coord; ++y)
         {
             CellPair cell_pair(x,y);
             Cell r_zone(cell_pair);
@@ -304,12 +304,12 @@ Cell::VisitCircle(const CellLock<LOCK_TYPE> &l, TypeContainerVisitor<T, CONTAINE
             m.Visit(lock, visitor);
         }
     }
- 
+
     //if x_shift == 0 then we have too small cell area, which were already
     //visited at previous step, so just return from procedure...
     if(x_shift == 0)
         return;
- 
+
     uint32 y_start = end_cell.y_coord;
     uint32 y_end = begin_cell.y_coord;
     //now we are visiting borders of an octagon...
@@ -327,7 +327,7 @@ Cell::VisitCircle(const CellLock<LOCK_TYPE> &l, TypeContainerVisitor<T, CONTAINE
             r_zone_left.data.Part.nocreate = l->data.Part.nocreate;
             CellLock<LOCK_TYPE> lock_left(r_zone_left, cell_pair_left);
             m.Visit(lock_left, visitor);
- 
+
             //right trapezoid cell visit
             CellPair cell_pair_right(x_end + step, y);
             Cell r_zone_right(cell_pair_right);

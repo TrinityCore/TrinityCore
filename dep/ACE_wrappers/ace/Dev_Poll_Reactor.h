@@ -12,7 +12,6 @@
  */
 // =========================================================================
 
-
 #ifndef ACE_DEV_POLL_REACTOR_H
 #define ACE_DEV_POLL_REACTOR_H
 
@@ -1071,7 +1070,6 @@ protected:
   /// The pollfd array that `/dev/poll' will feed its results to.
   struct pollfd *dp_fds_;
 
-
   /// Pointer to the next pollfd array element that contains the next
   /// event to be dispatched.
   struct pollfd *start_pfds_;
@@ -1190,7 +1188,6 @@ protected:
   };
 
 };
-
 
 /**
  * @class ACE_Dev_Poll_Handler_Guard

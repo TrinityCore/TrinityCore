@@ -13,7 +13,7 @@ ACE_TSS<TYPE>::ACE_TSS (TYPE *type)
 }
 
 template <class TYPE> ACE_INLINE int
-ACE_TSS<TYPE>::ts_init (void) 
+ACE_TSS<TYPE>::ts_init (void)
 {
   return 0;
 }

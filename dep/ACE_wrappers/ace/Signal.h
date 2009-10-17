@@ -136,7 +136,6 @@ public:
                   const ACE_Sig_Set &sigmask,
                   int flags = 0);
 
-
   // @@ The next two methods have a parameter as "signalss". Please do
   // not change the argument name as "signals". This causes the
   // following problem as reported by

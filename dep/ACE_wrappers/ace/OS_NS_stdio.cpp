@@ -7,7 +7,6 @@ ACE_RCSID (ace,
            OS_NS_stdio,
            "$Id: OS_NS_stdio.cpp 82586 2008-08-11 12:46:00Z johnnyw $")
 
-
 #if !defined (ACE_HAS_INLINED_OSCALLS)
 # include "ace/OS_NS_stdio.inl"
 #endif /* ACE_HAS_INLINED_OSCALLS */

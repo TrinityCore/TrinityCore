@@ -63,7 +63,6 @@ namespace ACE_OS {
    */
   //@{
 
-
   ACE_NAMESPACE_INLINE_FUNCTION
   void _exit (int status = 0);
 

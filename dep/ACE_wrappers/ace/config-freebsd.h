@@ -92,7 +92,6 @@ enum schedparam_policy {
 // Use of <malloc.h> is deprecated.
 #define ACE_LACKS_MALLOC_H
 
-
 // This won't be necessary after it is fixed in the system include headers.
 extern "C" { char * cuserid (char *s); }
 

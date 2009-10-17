@@ -10,7 +10,6 @@
  */
 //=============================================================================
 
-
 #ifndef HASH_CACHE_MAP_MANAGER_T_H
 #define HASH_CACHE_MAP_MANAGER_T_H
 
@@ -195,7 +194,6 @@ protected:
 };
 
 ACE_END_VERSIONED_NAMESPACE_DECL
-
 
 #if defined (__ACE_INLINE__)
 #include "ace/Hash_Cache_Map_Manager_T.inl"

@@ -64,12 +64,11 @@ struct TRINITY_DLL_DECL instance_azjol_nerub : public ScriptedInstance
 
     bool IsEncounterInProgress() const
     {
-        for(uint8 i = 0; i < MAX_ENCOUNTER; ++i)
+        for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
             if (m_auiEncounter[i] == IN_PROGRESS) return true;
 
         return false;
     }
-
 
     void OnCreatureCreate(Creature* pCreature, bool add)
     {
@@ -182,7 +181,7 @@ struct TRINITY_DLL_DECL instance_azjol_nerub : public ScriptedInstance
             m_auiEncounter[1] = data1;
             m_auiEncounter[2] = data2;
 
-            for(uint8 i = 0; i < MAX_ENCOUNTER; ++i)
+            for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
                 if (m_auiEncounter[i] == IN_PROGRESS)
                     m_auiEncounter[i] = NOT_STARTED;
 

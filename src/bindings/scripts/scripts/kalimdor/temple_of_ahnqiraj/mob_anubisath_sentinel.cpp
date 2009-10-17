@@ -157,7 +157,7 @@ struct TRINITY_DLL_DECL aqsentinelAI : public ScriptedAI
         if (assistList.empty())
             return;
 
-        for(std::list<Creature*>::iterator iter = assistList.begin(); iter != assistList.end(); ++iter)
+        for (std::list<Creature*>::iterator iter = assistList.begin(); iter != assistList.end(); ++iter)
             AddBuddyToList((*iter));
     }
 
@@ -263,7 +263,7 @@ struct TRINITY_DLL_DECL aqsentinelAI : public ScriptedAI
     Unit *GetHatedManaUser()
     {
         std::list<HostilReference*>::iterator i;
-        for (i = m_creature->getThreatManager().getThreatList().begin();i != m_creature->getThreatManager().getThreatList().end(); ++i)
+        for (i = m_creature->getThreatManager().getThreatList().begin(); i != m_creature->getThreatManager().getThreatList().end(); ++i)
         {
             Unit* pUnit = Unit::GetUnit((*m_creature), (*i)->getUnitGuid());
             if (pUnit->getPowerType()==POWER_MANA)

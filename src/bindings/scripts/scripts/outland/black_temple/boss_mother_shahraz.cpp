@@ -105,7 +105,7 @@ struct TRINITY_DLL_DECL boss_shahrazAI : public ScriptedAI
         if (pInstance)
             pInstance->SetData(DATA_MOTHERSHAHRAZEVENT, NOT_STARTED);
 
-        for(uint8 i = 0; i<3; ++i)
+        for (uint8 i = 0; i<3; ++i)
             TargetGUID[i] = 0;
 
         BeamTimer = 20000; // Timers may be incorrect
@@ -151,7 +151,7 @@ struct TRINITY_DLL_DECL boss_shahrazAI : public ScriptedAI
         float X = TeleportPoint[random].x;
         float Y = TeleportPoint[random].y;
         float Z = TeleportPoint[random].z;
-        for(uint8 i = 0; i < 3; ++i)
+        for (uint8 i = 0; i < 3; ++i)
         {
             Unit* pUnit = SelectUnit(SELECT_TARGET_RANDOM, 1);
             if (pUnit && pUnit->isAlive() && (pUnit->GetTypeId() == TYPEID_PLAYER))
@@ -233,7 +233,7 @@ struct TRINITY_DLL_DECL boss_shahrazAI : public ScriptedAI
             // Just make them explode three times... they're supposed to keep exploding while they are in range, but it'll take too much code. I'll try to think of an efficient way for it later.
             if (ExplosionCount < 3)
             {
-                for(uint8 i = 0; i < 3; ++i)
+                for (uint8 i = 0; i < 3; ++i)
                 {
                     Unit* pUnit = NULL;
                     if (TargetGUID[i])

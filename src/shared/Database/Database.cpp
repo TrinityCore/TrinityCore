@@ -232,7 +232,7 @@ bool Database::CheckRequiredField( char const* table_name, char const* required_
     {
         QueryFieldNames const& namesMap = result2->GetFieldNames();
         std::string reqName;
-        for(QueryFieldNames::const_iterator itr = namesMap.begin(); itr != namesMap.end(); ++itr)
+        for (QueryFieldNames::const_iterator itr = namesMap.begin(); itr != namesMap.end(); ++itr)
         {
             if(itr->substr(0,9)=="required_")
             {

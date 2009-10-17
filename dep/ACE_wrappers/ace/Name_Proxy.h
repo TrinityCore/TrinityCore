@@ -16,7 +16,6 @@
  */
 //=============================================================================
 
-
 #ifndef ACE_NAME_PROXY_H
 #define ACE_NAME_PROXY_H
 #include /**/ "ace/pre.h"

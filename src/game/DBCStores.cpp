@@ -178,7 +178,7 @@ inline void LoadDBC(uint32& availableDbcLocales,barGoLink& bar, StoreProblemList
     if(storage.Load(dbc_filename.c_str(), sql))
     {
         bar.step();
-        for(uint8 i = 0; i < MAX_LOCALE; ++i)
+        for (uint8 i = 0; i < MAX_LOCALE; ++i)
         {
             if(!(availableDbcLocales & (1 << i)))
                 continue;
@@ -220,7 +220,7 @@ void LoadDBCStores(const std::string& dataPath)
     LoadDBC(availableDbcLocales,bar,bad_dbc_files,sAreaStore,                dbcPath,"AreaTable.dbc");
 
     // must be after sAreaStore loading
-    for(uint32 i = 0; i < sAreaStore.GetNumRows(); ++i)           // areaflag numbered from 0
+    for (uint32 i = 0; i < sAreaStore.GetNumRows(); ++i)           // areaflag numbered from 0
     {
         if(AreaTableEntry const* area = sAreaStore.LookupEntry(i))
         {
@@ -259,7 +259,7 @@ void LoadDBCStores(const std::string& dataPath)
     LoadDBC(availableDbcLocales,bar,bad_dbc_files,sEmotesStore,              dbcPath,"Emotes.dbc");
     LoadDBC(availableDbcLocales,bar,bad_dbc_files,sEmotesTextStore,          dbcPath,"EmotesText.dbc");
     LoadDBC(availableDbcLocales,bar,bad_dbc_files,sFactionStore,             dbcPath,"Faction.dbc");
-    for (uint32 i=0;i<sFactionStore.GetNumRows(); ++i)
+    for (uint32 i=0; i<sFactionStore.GetNumRows(); ++i)
     {
         FactionEntry const * faction = sFactionStore.LookupEntry(i);
         if (faction && faction->team)
@@ -271,7 +271,7 @@ void LoadDBCStores(const std::string& dataPath)
 
     LoadDBC(availableDbcLocales,bar,bad_dbc_files,sFactionTemplateStore,     dbcPath,"FactionTemplate.dbc");
     LoadDBC(availableDbcLocales,bar,bad_dbc_files,sGameObjectDisplayInfoStore, dbcPath,"GameObjectDisplayInfo.dbc");
-    for(uint32 i = 0; i < sGameObjectDisplayInfoStore.GetNumRows(); ++i)
+    for (uint32 i = 0; i < sGameObjectDisplayInfoStore.GetNumRows(); ++i)
     {
         if(GameObjectDisplayInfoEntry const * info = sGameObjectDisplayInfoStore.LookupEntry(i))
         {
@@ -323,7 +323,7 @@ void LoadDBCStores(const std::string& dataPath)
     LoadDBC(availableDbcLocales,bar,bad_dbc_files,sSkillLineAbilityStore,    dbcPath,"SkillLineAbility.dbc");
     LoadDBC(availableDbcLocales,bar,bad_dbc_files,sSoundEntriesStore,        dbcPath,"SoundEntries.dbc");
     LoadDBC(availableDbcLocales,bar,bad_dbc_files,sSpellStore,               dbcPath,"Spell.dbc", &CustomSpellEntryfmt, &CustomSpellEntryIndex);
-    for(uint32 i = 1; i < sSpellStore.GetNumRows(); ++i)
+    for (uint32 i = 1; i < sSpellStore.GetNumRows(); ++i)
     {
         SpellEntry const * spell = sSpellStore.LookupEntry(i);
         if(spell && spell->Category)
@@ -388,7 +388,7 @@ void LoadDBCStores(const std::string& dataPath)
     // prepare fast data access to bit pos of talent ranks for use at inspecting
     {
         // now have all max ranks (and then bit amount used for store talent ranks in inspect)
-        for(uint32 talentTabId = 1; talentTabId < sTalentTabStore.GetNumRows(); ++talentTabId)
+        for (uint32 talentTabId = 1; talentTabId < sTalentTabStore.GetNumRows(); ++talentTabId)
         {
             TalentTabEntry const *talentTabInfo = sTalentTabStore.LookupEntry( talentTabId );
             if(!talentTabInfo)
@@ -400,7 +400,7 @@ void LoadDBCStores(const std::string& dataPath)
 
             // store class talent tab pages
             uint32 cls = 1;
-            for(uint32 m=1;!(m & talentTabInfo->ClassMask) && cls < MAX_CLASSES;m <<=1, ++cls) {}
+            for (uint32 m=1; !(m & talentTabInfo->ClassMask) && cls < MAX_CLASSES; m <<=1, ++cls) {}
 
             sTalentTabPages[cls][talentTabInfo->tabpage]=talentTabId;
         }
@@ -409,7 +409,7 @@ void LoadDBCStores(const std::string& dataPath)
     LoadDBC(availableDbcLocales,bar,bad_dbc_files,sTaxiNodesStore,           dbcPath,"TaxiNodes.dbc");
 
     LoadDBC(availableDbcLocales,bar,bad_dbc_files,sTaxiPathStore,            dbcPath,"TaxiPath.dbc");
-    for(uint32 i = 1; i < sTaxiPathStore.GetNumRows(); ++i)
+    for (uint32 i = 1; i < sTaxiPathStore.GetNumRows(); ++i)
         if(TaxiPathEntry const* entry = sTaxiPathStore.LookupEntry(i))
             sTaxiPathSetBySource[entry->from][entry->to] = TaxiPathBySourceAndDestination(entry->ID,entry->price);
     uint32 pathCount = sTaxiPathStore.GetNumRows();
@@ -419,7 +419,7 @@ void LoadDBCStores(const std::string& dataPath)
     // Calculate path nodes count
     std::vector<uint32> pathLength;
     pathLength.resize(pathCount);                           // 0 and some other indexes not used
-    for(uint32 i = 1; i < sTaxiPathNodeStore.GetNumRows(); ++i)
+    for (uint32 i = 1; i < sTaxiPathNodeStore.GetNumRows(); ++i)
         if(TaxiPathNodeEntry const* entry = sTaxiPathNodeStore.LookupEntry(i))
         {
             if (pathLength[entry->path] < entry->index + 1)
@@ -427,10 +427,10 @@ void LoadDBCStores(const std::string& dataPath)
         }
     // Set path length
     sTaxiPathNodesByPath.resize(pathCount);                 // 0 and some other indexes not used
-    for(uint32 i = 1; i < sTaxiPathNodesByPath.size(); ++i)
+    for (uint32 i = 1; i < sTaxiPathNodesByPath.size(); ++i)
         sTaxiPathNodesByPath[i].resize(pathLength[i]);
     // fill data
-    for(uint32 i = 1; i < sTaxiPathNodeStore.GetNumRows(); ++i)
+    for (uint32 i = 1; i < sTaxiPathNodeStore.GetNumRows(); ++i)
         if(TaxiPathNodeEntry const* entry = sTaxiPathNodeStore.LookupEntry(i))
             sTaxiPathNodesByPath[entry->path][entry->index] = TaxiPathNode(entry->mapid,entry->x,entry->y,entry->z,entry->actionFlag,entry->delay);
     sTaxiPathNodeStore.Clear();
@@ -439,15 +439,15 @@ void LoadDBCStores(const std::string& dataPath)
     // include existed nodes that have at least single not spell base (scripted) path
     {
         std::set<uint32> spellPaths;
-        for(uint32 i = 1; i < sSpellStore.GetNumRows (); ++i)
+        for (uint32 i = 1; i < sSpellStore.GetNumRows (); ++i)
             if(SpellEntry const* sInfo = sSpellStore.LookupEntry (i))
-                for(int j=0; j < 3; ++j)
+                for (int j=0; j < 3; ++j)
                     if(sInfo->Effect[j]==123 /*SPELL_EFFECT_SEND_TAXI*/)
                         spellPaths.insert(sInfo->EffectMiscValue[j]);
 
         memset(sTaxiNodesMask,0,sizeof(sTaxiNodesMask));
         memset(sOldContinentsNodesMask,0,sizeof(sTaxiNodesMask));
-        for(uint32 i = 1; i < sTaxiNodesStore.GetNumRows(); ++i)
+        for (uint32 i = 1; i < sTaxiNodesStore.GetNumRows(); ++i)
         {
             TaxiNodesEntry const* node = sTaxiNodesStore.LookupEntry(i);
             if(!node)
@@ -457,7 +457,7 @@ void LoadDBCStores(const std::string& dataPath)
             if(src_i!=sTaxiPathSetBySource.end() && !src_i->second.empty())
             {
                 bool ok = false;
-                for(TaxiPathSetForSource::const_iterator dest_i = src_i->second.begin();dest_i != src_i->second.end(); ++dest_i)
+                for (TaxiPathSetForSource::const_iterator dest_i = src_i->second.begin(); dest_i != src_i->second.end(); ++dest_i)
                 {
                     // not spell path
                     if(spellPaths.find(dest_i->second.ID)==spellPaths.end())
@@ -498,7 +498,7 @@ void LoadDBCStores(const std::string& dataPath)
     else if(!bad_dbc_files.empty() )
     {
         std::string str;
-        for(std::list<std::string>::iterator i = bad_dbc_files.begin(); i != bad_dbc_files.end(); ++i)
+        for (std::list<std::string>::iterator i = bad_dbc_files.begin(); i != bad_dbc_files.end(); ++i)
             str += *i + "\n";
 
         sLog.outError("\nSome required *.dbc files (%u from %d) not found or not compatible:\n%s",(uint32)bad_dbc_files.size(),DBCFilesCount,str.c_str());
@@ -524,14 +524,14 @@ void LoadDBCStores(const std::string& dataPath)
 
 SimpleFactionsList const* GetFactionTeamList(uint32 faction, bool &isTeamMember)
 {
-    for(FactionTeamMap::const_iterator itr = sFactionTeamMap.begin(); itr != sFactionTeamMap.end(); ++itr)
+    for (FactionTeamMap::const_iterator itr = sFactionTeamMap.begin(); itr != sFactionTeamMap.end(); ++itr)
     {
         if(itr->first == faction)
         {
             isTeamMember = false;
             return &itr->second;
         }
-        for(SimpleFactionsList::const_iterator itr2 = itr->second.begin(); itr2 != itr->second.end(); ++itr2)
+        for (SimpleFactionsList::const_iterator itr2 = itr->second.begin(); itr2 != itr->second.end(); ++itr2)
         {
             if((*itr2) == faction)
             {
@@ -640,7 +640,7 @@ ContentLevels GetContentLevelsForMapAndZone(uint32 mapid, uint32 zoneId)
 ChatChannelsEntry const* GetChannelEntryFor(uint32 channel_id)
 {
     // not sorted, numbering index from 0
-    for(uint32 i = 0; i < sChatChannelsStore.GetNumRows(); ++i)
+    for (uint32 i = 0; i < sChatChannelsStore.GetNumRows(); ++i)
     {
         ChatChannelsEntry const* ch = sChatChannelsStore.LookupEntry(i);
         if(ch && ch->ChannelID == channel_id)

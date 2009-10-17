@@ -96,7 +96,6 @@ inline long ace_timezone()
 #endif
 }
 
-
 #if !defined (ACE_LACKS_DIFFTIME)
 /// Helper for the ACE_OS::difftime() function
 /**
@@ -274,7 +273,6 @@ ACE_END_VERSIONED_NAMESPACE_DECL
 #else
 # define ACE_GETHRTIME_NAME ACE_gethrtime
 #endif  /* ACE_HAS_VERSIONED_NAMESPACE == 1 */
-
 
 # if defined (ACE_HAS_INLINED_OSCALLS)
 #   if defined (ACE_INLINE)

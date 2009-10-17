@@ -12,7 +12,6 @@
  */
 //=============================================================================
 
-
 #ifndef ACE_SVC_CONF_PARAM_H
 #define ACE_SVC_CONF_PARAM_H
 
@@ -125,7 +124,6 @@ public:
   /// A reference to the configuration
   ACE_Service_Gestalt *config;
 };
-
 
 // Parameter that is passed down to the yyparse() function, and
 // eventually to yylex().

@@ -88,7 +88,6 @@ enum SWPActions
     DO_BANISH    =  2
 };
 
-
 #define GO_FAILED   "You are unable to use this currently."
 
 #define EMOTE_UNABLE_TO_FIND    "is unable to find Kalecgos"
@@ -303,7 +302,7 @@ struct TRINITY_DLL_DECL boss_kalecgosAI : public ScriptedAI
             {
                 std::list<HostilReference*> &m_threatlist = me->getThreatManager().getThreatList();
                 std::list<Unit*> targetList;
-                for(std::list<HostilReference*>::iterator itr = m_threatlist.begin(); itr!= m_threatlist.end(); ++itr)
+                for (std::list<HostilReference*>::iterator itr = m_threatlist.begin(); itr!= m_threatlist.end(); ++itr)
                     if((*itr)->getTarget() && (*itr)->getTarget()->GetTypeId() == TYPEID_PLAYER && (*itr)->getTarget()->GetGUID() != me->getVictim()->GetGUID() && !(*itr)->getTarget()->HasAura(AURA_SPECTRAL_EXHAUSTION) && (*itr)->getTarget()->GetPositionZ() > me->GetPositionZ()-5)
                         targetList.push_back((*itr)->getTarget());
                 if(targetList.empty())
@@ -520,7 +519,7 @@ struct TRINITY_DLL_DECL boss_sathrovarrAI : public ScriptedAI
         Map* pMap = me->GetMap();
         if (!pMap->IsDungeon()) return;
         Map::PlayerList const &PlayerList = pMap->GetPlayers();
-        for(Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
+        for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
         {
             if(i->getSource()->GetPositionZ() <= DRAGON_REALM_Z-5)
             {
@@ -600,7 +599,7 @@ struct TRINITY_DLL_DECL boss_sathrovarrAI : public ScriptedAI
 
         if (ResetThreat < diff)
         {
-            for(std::list<HostilReference*>::iterator itr = me->getThreatManager().getThreatList().begin(); itr != me->getThreatManager().getThreatList().end(); ++itr)
+            for (std::list<HostilReference*>::iterator itr = me->getThreatManager().getThreatList().begin(); itr != me->getThreatManager().getThreatList().end(); ++itr)
             {
                 if(Unit* pUnit = Unit::GetUnit(*m_creature, (*itr)->getUnitGuid()))
                 {
@@ -735,7 +734,7 @@ bool GOkalecgos_teleporter(Player* pPlayer, GameObject* pGo)
     Map* pMap = pGo->GetMap();
     if (!pMap->IsDungeon()) return true;
     Map::PlayerList const &PlayerList = pMap->GetPlayers();
-    for(Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
+    for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
     {
         if(i->getSource() && i->getSource()->GetPositionZ() < DEMON_REALM_Z + 5)
             SpectralPlayers++;

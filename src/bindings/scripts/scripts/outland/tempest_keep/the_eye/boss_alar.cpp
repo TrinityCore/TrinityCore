@@ -288,7 +288,7 @@ struct TRINITY_DLL_DECL boss_alarAI : public ScriptedAI
                         WaitTimer = 2000;
                         return;
                     case WE_SUMMON:
-                        for(uint8 i = 0; i < 2; ++i)
+                        for (uint8 i = 0; i < 2; ++i)
                             DoSpawnCreature(CREATURE_EMBER_OF_ALAR, 0, 0, 0, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000);
                         m_creature->SetFloatValue(UNIT_FIELD_BOUNDINGRADIUS, 10);
                         m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);

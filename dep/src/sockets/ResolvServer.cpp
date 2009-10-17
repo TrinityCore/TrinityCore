@@ -41,7 +41,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 namespace SOCKETS_NAMESPACE {
 #endif
 
-
 ResolvServer::ResolvServer(port_t port)
 :Thread()
 ,m_quit(false)
@@ -50,11 +49,9 @@ ResolvServer::ResolvServer(port_t port)
 {
 }
 
-
 ResolvServer::~ResolvServer()
 {
 }
-
 
 void ResolvServer::Run()
 {
@@ -76,18 +73,15 @@ void ResolvServer::Run()
     SetRunning(false);
 }
 
-
 void ResolvServer::Quit()
 {
     m_quit = true;
 }
 
-
 bool ResolvServer::Ready()
 {
     return m_ready;
 }
-
 
 #ifdef SOCKETS_NAMESPACE
 }

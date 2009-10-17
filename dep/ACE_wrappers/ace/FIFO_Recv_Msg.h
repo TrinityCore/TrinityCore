@@ -10,7 +10,6 @@
  */
 //=============================================================================
 
-
 #ifndef ACE_FIFO_RECV_MSG_H
 #define ACE_FIFO_RECV_MSG_H
 #include /**/ "ace/pre.h"

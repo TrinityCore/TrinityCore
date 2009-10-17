@@ -433,7 +433,6 @@ ACE_MEM_IO::send (const ACE_Message_Block *message_block,
   return 0;
 }
 
-
 #if 0
 ssize_t
 ACE_MEM_IO::recvv (iovec *io_vec,

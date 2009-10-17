@@ -204,7 +204,7 @@ void npc_unworthy_initiateAI::UpdateAI(const uint32 diff)
             float dist = 99.0f;
             GameObject *prison = NULL;
 
-            for(uint8 i = 0; i < 12; ++i)
+            for (uint8 i = 0; i < 12; ++i)
             {
                 if (GameObject* temp_prison = me->FindNearestGameObject(acherus_soul_prison[i],30))
                 {
@@ -733,7 +733,7 @@ struct TRINITY_DLL_DECL npc_scarlet_ghoulAI : public ScriptedAI
 
         if (!MinionList.empty())
         {
-            for(std::list<Creature*>::iterator itr = MinionList.begin(); itr != MinionList.end(); ++itr)
+            for (std::list<Creature*>::iterator itr = MinionList.begin(); itr != MinionList.end(); ++itr)
             {
                 if (CAST_CRE(*itr)->GetOwner()->GetGUID() == m_creature->GetOwner()->GetGUID())
                 {

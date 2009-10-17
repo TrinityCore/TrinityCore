@@ -10,11 +10,9 @@
 #include "ace/Malloc_Base.h"
 #include "ace/OS_NS_string.h"
 
-
 ACE_RCSID (ace,
            Malloc,
            "$Id: Malloc.cpp 80826 2008-03-04 14:51:23Z wotte $")
-
 
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 
@@ -152,7 +150,6 @@ ACE_Control_Block::ACE_Name_Node::dump (void) const
   ACE_DEBUG ((LM_DEBUG, ACE_END_DUMP));
 #endif /* ACE_HAS_DUMP */
 }
-
 
 #if defined (ACE_HAS_MALLOC_STATS)
 ACE_Malloc_Stats::ACE_Malloc_Stats (void)

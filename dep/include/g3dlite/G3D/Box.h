@@ -28,7 +28,6 @@ class CoordinateFrame;
 /**
  An arbitrary 3D box, useful as a bounding box.
 
-
   To construct a box from a coordinate frame, center and extent, use the idiom:
 
  <CODE>Box box = cframe.toObjectSpace(Box(center - extent/2, center + extent/2));</CODE>
@@ -85,7 +84,6 @@ public:
         const Vector3&      max);
 
     Box(const class AABox& b);
-
 
     /**
      Returns the object to world transformation for

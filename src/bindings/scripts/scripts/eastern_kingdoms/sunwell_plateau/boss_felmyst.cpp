@@ -432,7 +432,7 @@ struct TRINITY_DLL_DECL boss_felmystAI : public ScriptedAI
         }
 
         Event = EVENT_NULL;
-        for(uint32 i = 1; i <= MaxTimer[Phase]; ++i)
+        for (uint32 i = 1; i <= MaxTimer[Phase]; ++i)
         {
             if (Timer[i])
                 if (Timer[i] <= diff)
@@ -533,7 +533,7 @@ struct TRINITY_DLL_DECL boss_felmystAI : public ScriptedAI
             cell_lock->Visit(cell_lock, cSearcher, *(m_creature->GetMap()));
         }
 
-        for(std::list<Creature*>::iterator i = templist.begin(); i != templist.end(); ++i)
+        for (std::list<Creature*>::iterator i = templist.begin(); i != templist.end(); ++i)
         {
             if (entry == MOB_VAPOR_TRAIL && Phase == PHASE_FLIGHT)
             {

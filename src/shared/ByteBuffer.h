@@ -306,7 +306,7 @@ class ByteBuffer
             uint8 guidmark = 0;
             (*this) >> guidmark;
 
-            for(int i = 0; i < 8; ++i)
+            for (int i = 0; i < 8; ++i)
             {
                 if(guidmark & (uint8(1) << i))
                 {
@@ -391,7 +391,7 @@ class ByteBuffer
 
             size_t mask_position = wpos();
             *this << uint8(0);
-            for(uint8 i = 0; i < 8; ++i)
+            for (uint8 i = 0; i < 8; ++i)
             {
                 if(guid & 0xFF)
                 {
@@ -416,7 +416,7 @@ class ByteBuffer
                 return;
 
             sLog.outDebug("STORAGE_SIZE: %lu", (unsigned long)size() );
-            for(uint32 i = 0; i < size(); ++i)
+            for (uint32 i = 0; i < size(); ++i)
                 sLog.outDebugInLine("%u - ", read<uint8>(i) );
             sLog.outDebug(" ");
         }
@@ -427,7 +427,7 @@ class ByteBuffer
                 return;
 
             sLog.outDebug("STORAGE_SIZE: %lu", (unsigned long)size() );
-            for(uint32 i = 0; i < size(); ++i)
+            for (uint32 i = 0; i < size(); ++i)
                 sLog.outDebugInLine("%c", read<uint8>(i) );
             sLog.outDebug(" ");
         }
@@ -440,7 +440,7 @@ class ByteBuffer
             uint32 j = 1, k = 1;
             sLog.outDebug("STORAGE_SIZE: %lu", (unsigned long)size() );
 
-            for(uint32 i = 0; i < size(); ++i)
+            for (uint32 i = 0; i < size(); ++i)
             {
                 if ((i == (j * 8)) && ((i != (k * 16))))
                 {

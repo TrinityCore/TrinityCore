@@ -245,7 +245,6 @@ public:
   /// down.  This method calls <close_svcs>.  Returns 0.
   int close (void);
 
-
   // Registers a service descriptor for a static service object
   int insert (ACE_Static_Svc_Descriptor *stsd);
 
@@ -456,7 +455,6 @@ protected:
 
 }; /* class ACE_Service_Gestalt */
 
-
 /**
  * @class ACE_Service_Type_Dynamic_Guard
  *
@@ -491,19 +489,16 @@ private:
   size_t repo_begin_;
   ACE_TCHAR const * const name_;
 
-
 # if defined (ACE_MT_SAFE) && (ACE_MT_SAFE != 0)
   ACE_Guard< ACE_Recursive_Thread_Mutex > repo_monitor_;
 #endif
 };
-
 
 ACE_END_VERSIONED_NAMESPACE_DECL
 
 #if defined (__ACE_INLINE__)
 #include "ace/Service_Gestalt.inl"
 #endif /* __ACE_INLINE__ */
-
 
 #include /**/ "ace/post.h"
 

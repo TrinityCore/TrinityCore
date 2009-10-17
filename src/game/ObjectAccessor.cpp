@@ -48,7 +48,7 @@ INSTANTIATE_CLASS_MUTEX(ObjectAccessor, ACE_Thread_Mutex);
 ObjectAccessor::ObjectAccessor() {}
 ObjectAccessor::~ObjectAccessor()
 {
-    for(Player2CorpsesMapType::const_iterator itr = i_player2corpse.begin(); itr != i_player2corpse.end(); ++itr)
+    for (Player2CorpsesMapType::const_iterator itr = i_player2corpse.begin(); itr != i_player2corpse.end(); ++itr)
         delete itr->second;
 }
 
@@ -164,7 +164,7 @@ ObjectAccessor::FindPlayerByName(const char *name)
     //TODO: Player Guard
     HashMapHolder<Player>::MapType& m = HashMapHolder<Player>::GetContainer();
     HashMapHolder<Player>::MapType::iterator iter = m.begin();
-    for(; iter != m.end(); ++iter)
+    for (; iter != m.end(); ++iter)
         if(iter->second->IsInWorld() && ( ::strcmp(name, iter->second->GetName()) == 0 ))
             return iter->second;
     return NULL;
@@ -176,7 +176,7 @@ ObjectAccessor::SaveAllPlayers()
     Guard guard(*HashMapHolder<Player*>::GetLock());
     HashMapHolder<Player>::MapType& m = HashMapHolder<Player>::GetContainer();
     HashMapHolder<Player>::MapType::iterator itr = m.begin();
-    for(; itr != m.end(); ++itr)
+    for (; itr != m.end(); ++itr)
         itr->second->SaveToDB();
 }
 
@@ -187,7 +187,7 @@ ObjectAccessor::UpdateObject(Object* obj, Player* exceptPlayer)
     obj->BuildUpdate(update_players);
 
     WorldPacket packet;
-    for(UpdateDataMapType::iterator iter = update_players.begin(); iter != update_players.end(); ++iter)
+    for (UpdateDataMapType::iterator iter = update_players.begin(); iter != update_players.end(); ++iter)
     {
         if(iter->first == exceptPlayer)
             continue;
@@ -303,7 +303,7 @@ void
 ObjectAccessor::AddCorpsesToGrid(GridPair const& gridpair,GridType& grid,Map* map)
 {
     Guard guard(i_corpseGuard);
-    for(Player2CorpsesMapType::iterator iter = i_player2corpse.begin(); iter != i_player2corpse.end(); ++iter)
+    for (Player2CorpsesMapType::iterator iter = i_player2corpse.begin(); iter != i_player2corpse.end(); ++iter)
         if(iter->second->GetGrid() == gridpair)
     {
         // verify, if the corpse in our instance (add only corpses which are)
@@ -407,7 +407,7 @@ ObjectAccessor::Update(uint32 diff)
     }
 
     WorldPacket packet;                                     // here we allocate a std::vector with a size of 0x10000
-    for(UpdateDataMapType::iterator iter = update_players.begin(); iter != update_players.end(); ++iter)
+    for (UpdateDataMapType::iterator iter = update_players.begin(); iter != update_players.end(); ++iter)
     {
         iter->second.BuildPacket(&packet);
         iter->first->GetSession()->SendPacket(&packet);
@@ -418,13 +418,13 @@ ObjectAccessor::Update(uint32 diff)
 void
 ObjectAccessor::WorldObjectChangeAccumulator::Visit(PlayerMapType &m)
 {
-    for(PlayerMapType::iterator iter = m.begin(); iter != m.end(); ++iter)
+    for (PlayerMapType::iterator iter = m.begin(); iter != m.end(); ++iter)
     {
         BuildPacket(iter->getSource());
         if (!iter->getSource()->GetSharedVisionList().empty())
         {
             SharedVisionList::const_iterator it = iter->getSource()->GetSharedVisionList().begin();
-            for ( ; it != iter->getSource()->GetSharedVisionList().end(); ++it)
+            for (; it != iter->getSource()->GetSharedVisionList().end(); ++it)
                 BuildPacket(*it);
         }
     }
@@ -433,12 +433,12 @@ ObjectAccessor::WorldObjectChangeAccumulator::Visit(PlayerMapType &m)
 void
 ObjectAccessor::WorldObjectChangeAccumulator::Visit(CreatureMapType &m)
 {
-    for(CreatureMapType::iterator iter = m.begin(); iter != m.end(); ++iter)
+    for (CreatureMapType::iterator iter = m.begin(); iter != m.end(); ++iter)
     {
         if (!iter->getSource()->GetSharedVisionList().empty())
         {
             SharedVisionList::const_iterator it = iter->getSource()->GetSharedVisionList().begin();
-            for ( ; it != iter->getSource()->GetSharedVisionList().end(); ++it)
+            for (; it != iter->getSource()->GetSharedVisionList().end(); ++it)
                 BuildPacket(*it);
         }
     }
@@ -447,7 +447,7 @@ ObjectAccessor::WorldObjectChangeAccumulator::Visit(CreatureMapType &m)
 void
 ObjectAccessor::WorldObjectChangeAccumulator::Visit(DynamicObjectMapType &m)
 {
-    for(DynamicObjectMapType::iterator iter = m.begin(); iter != m.end(); ++iter)
+    for (DynamicObjectMapType::iterator iter = m.begin(); iter != m.end(); ++iter)
     {
         uint64 guid = iter->getSource()->GetCasterGUID();
         if(IS_PLAYER_GUID(guid))

@@ -506,7 +506,7 @@ struct TRINITY_DLL_DECL boss_headless_horsemanAI : public ScriptedAI
         std::list<Player*> temp;
         std::list<Player*>::iterator j;
 
-        for(Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
+        for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
             if ((m_creature->IsWithinLOSInMap(i->getSource()) || !checkLoS) && m_creature->getVictim() != i->getSource() &&
                 m_creature->IsWithinDistInMap(i->getSource(), range) && i->getSource()->isAlive())
                 temp.push_back(i->getSource());
@@ -560,7 +560,7 @@ struct TRINITY_DLL_DECL boss_headless_horsemanAI : public ScriptedAI
             caster->GetMotionMaster()->MoveFollow(m_creature,6,urand(0,5));
             //DoResetThreat();//not sure if need
             std::list<HostilReference*>::iterator itr;
-            for(itr = caster->getThreatManager().getThreatList().begin(); itr != caster->getThreatManager().getThreatList().end(); ++itr)
+            for (itr = caster->getThreatManager().getThreatList().begin(); itr != caster->getThreatManager().getThreatList().end(); ++itr)
             {
                 Unit* pUnit = Unit::GetUnit((*m_creature), (*itr)->getUnitGuid());
                 if (pUnit && pUnit->isAlive() && pUnit != caster)

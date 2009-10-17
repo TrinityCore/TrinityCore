@@ -95,8 +95,6 @@ private:
 };
 
 
-
-
 #ifdef SOCKETS_NAMESPACE
 }
 #endif

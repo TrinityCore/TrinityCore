@@ -10,7 +10,6 @@
  */
 //=============================================================================
 
-
 #ifndef ACE_MEM_STREAM_H
 #define ACE_MEM_STREAM_H
 #include /**/ "ace/pre.h"

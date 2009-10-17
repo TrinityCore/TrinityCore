@@ -189,7 +189,7 @@ inline bool isNumericOrSpace(wchar_t wchar)
 
 inline bool isBasicLatinString(std::wstring wstr, bool numericOrSpace)
 {
-    for(size_t i = 0; i < wstr.size(); ++i)
+    for (size_t i = 0; i < wstr.size(); ++i)
         if(!isBasicLatinCharacter(wstr[i]) && (!numericOrSpace || !isNumericOrSpace(wstr[i])))
             return false;
     return true;
@@ -197,7 +197,7 @@ inline bool isBasicLatinString(std::wstring wstr, bool numericOrSpace)
 
 inline bool isExtendedLatinString(std::wstring wstr, bool numericOrSpace)
 {
-    for(size_t i = 0; i < wstr.size(); ++i)
+    for (size_t i = 0; i < wstr.size(); ++i)
         if(!isExtendedLatinCharacter(wstr[i]) && (!numericOrSpace || !isNumericOrSpace(wstr[i])))
             return false;
     return true;
@@ -205,7 +205,7 @@ inline bool isExtendedLatinString(std::wstring wstr, bool numericOrSpace)
 
 inline bool isCyrillicString(std::wstring wstr, bool numericOrSpace)
 {
-    for(size_t i = 0; i < wstr.size(); ++i)
+    for (size_t i = 0; i < wstr.size(); ++i)
         if(!isCyrillicCharacter(wstr[i]) && (!numericOrSpace || !isNumericOrSpace(wstr[i])))
             return false;
     return true;
@@ -213,7 +213,7 @@ inline bool isCyrillicString(std::wstring wstr, bool numericOrSpace)
 
 inline bool isEastAsianString(std::wstring wstr, bool numericOrSpace)
 {
-    for(size_t i = 0; i < wstr.size(); ++i)
+    for (size_t i = 0; i < wstr.size(); ++i)
         if(!isEastAsianCharacter(wstr[i]) && (!numericOrSpace || !isNumericOrSpace(wstr[i])))
             return false;
     return true;
@@ -348,7 +348,7 @@ public:
     template<class type>
     inline bool operator < (type & right)
     {
-        for (uint8 i=3;i>0;i--)
+        for (uint8 i=3; i>0; i--)
         {
             if (part[i-1]<right.part[i-1])
                 return 1;
@@ -361,7 +361,7 @@ public:
     template<class type>
     inline bool operator < (type & right) const
     {
-        for (uint8 i=3;i>0;i--)
+        for (uint8 i=3; i>0; i--)
         {
             if (part[i-1]<right.part[i-1])
                 return 1;

@@ -170,7 +170,6 @@ ACE_Atomic_Op<ACE_Thread_Mutex, long>::value_i (void)
   return this->value_;
 }
 
-
 ACE_INLINE
 ACE_Atomic_Op<ACE_Thread_Mutex, unsigned long>::ACE_Atomic_Op (void)
   : value_ (0)

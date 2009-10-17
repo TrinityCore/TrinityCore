@@ -33,7 +33,6 @@
 #    define ACE_PROCESS_MUTEX ACE_SV_Semaphore_Simple
 #  endif /* ACE_HAS_THREADS */
 
-
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 
 typedef ACE_Atomic_Op<ACE_PROCESS_MUTEX, int> ACE_INT;
@@ -96,7 +95,6 @@ typedef ACE_Atomic_Op<ACE_PROCESS_MUTEX, int> ACE_INT;
    |   // Name Node linked list pointers.    |
    +-----------------------------------------+
 
-
 * Control_Block
 
   Only the first ACE_Malloc instance that uses
@@ -146,7 +144,6 @@ typedef ACE_Atomic_Op<ACE_PROCESS_MUTEX, int> ACE_INT;
   That is, if the memory size returned by init_acquire() is greater
   than the sizeof Control_Block, the control block is initialized to
   the following diagram:
-
 
    +-------------------------------------
    |name_head_;                          |

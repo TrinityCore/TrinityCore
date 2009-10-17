@@ -65,7 +65,7 @@ struct TRINITY_DLL_DECL instance_scholomance : public ScriptedInstance
         GateBarovGUID = 0;
         GateIlluciaGUID = 0;
 
-        for(uint8 i = 0; i < 6; ++i)
+        for (uint8 i = 0; i < 6; ++i)
             IsBossDied[i] = false;
     }
 

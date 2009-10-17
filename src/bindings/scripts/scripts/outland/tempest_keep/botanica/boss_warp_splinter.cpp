@@ -147,7 +147,7 @@ struct TRINITY_DLL_DECL boss_warp_splinterAI : public ScriptedAI
 
     void SummonTreants()
     {
-        for(uint8 i = 0; i < 6; ++i)
+        for (uint8 i = 0; i < 6; ++i)
         {
             float angle = (M_PI / 3) * i;
 

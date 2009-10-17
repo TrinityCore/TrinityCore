@@ -177,7 +177,6 @@ struct TRINITY_DLL_DECL boss_warbringer_omroggAI : public ScriptedAI
             RightHeadGUID = 0;
         }
 
-
         AggroYell = false;
         ThreatYell = false;
         ThreatYell2 = false;
@@ -249,7 +248,6 @@ struct TRINITY_DLL_DECL boss_warbringer_omroggAI : public ScriptedAI
     {
         Unit* pLeftHead  = Unit::GetUnit(*m_creature,LeftHeadGUID);
         Unit* pRightHead = Unit::GetUnit(*m_creature,RightHeadGUID);
-
 
         if (!pLeftHead || !pRightHead)
             return;

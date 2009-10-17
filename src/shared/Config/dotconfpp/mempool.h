@@ -1,6 +1,5 @@
 
 
-
 #ifndef ASYNC_DNS_MEMPOOL_H
 #define ASYNC_DNS_MEMPOOL_H
 

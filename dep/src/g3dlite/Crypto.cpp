@@ -3,7 +3,6 @@
 
  @author Morgan McGuire, matrix@graphics3d.com
 
-
  @created 2006-03-28
  @edited  2006-04-06
  */
@@ -13,7 +12,6 @@
 #include "G3D/g3dmath.h"
 
 namespace G3D {
-
 
 int Crypto::smallPrime(int n) {
     debugAssert(n < numSmallPrimes() && n >= 0);
@@ -56,7 +54,6 @@ int Crypto::smallPrime(int n) {
 
     return table[n];
 }
-
 
 int Crypto::numSmallPrimes() {
     return 303;

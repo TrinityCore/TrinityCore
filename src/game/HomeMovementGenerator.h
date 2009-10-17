@@ -47,7 +47,7 @@ class TRINITY_DLL_SPEC HomeMovementGenerator<Creature>
         MovementGeneratorType GetMovementGeneratorType() { return HOME_MOTION_TYPE; }
 
         bool GetDestination(float& x, float& y, float& z) const { i_destinationHolder.GetDestination(x,y,z); return true; }
-    
+
     private:
         void _setTargetLocation(Creature &);
         DestinationHolder< Traveller<Creature> > i_destinationHolder;

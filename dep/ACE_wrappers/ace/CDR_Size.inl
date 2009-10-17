@@ -34,7 +34,6 @@ ACE_SizeCDR::total_length (void) const
   return this->size_;
 }
 
-
 // Encode the CDR stream.
 
 ACE_INLINE ACE_CDR::Boolean
@@ -252,7 +251,6 @@ ACE_SizeCDR::write_float_array (const ACE_CDR::Float *x,
                             length);
 }
 
-
 ACE_INLINE ACE_CDR::Boolean
 ACE_SizeCDR::write_double_array (const ACE_CDR::Double *x,
                                    ACE_CDR::ULong length)
@@ -273,9 +271,7 @@ ACE_SizeCDR::write_longdouble_array (const ACE_CDR::LongDouble* x,
                             length);
 }
 
-
 // ****************************************************************
-
 
 ACE_INLINE ACE_CDR::Boolean
 operator<< (ACE_SizeCDR &ss, ACE_CDR::Char x)
@@ -419,6 +415,5 @@ operator<< (ACE_SizeCDR &ss, ACE_OutputCDR::from_wstring x)
   return
     (ACE_CDR::Boolean) (ss.good_bit () && (!x.bound_ || len <= x.bound_));
 }
-
 
 ACE_END_VERSIONED_NAMESPACE_DECL

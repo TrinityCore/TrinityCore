@@ -84,7 +84,7 @@ struct TRINITY_DLL_DECL mob_unkor_the_ruthlessAI : public ScriptedAI
         {
             if (Group* pGroup = CAST_PLR(done_by)->GetGroup())
             {
-                for(GroupReference *itr = pGroup->GetFirstMember(); itr != NULL; itr = itr->next())
+                for (GroupReference *itr = pGroup->GetFirstMember(); itr != NULL; itr = itr->next())
                 {
                     Player *pGroupie = itr->getSource();
                     if (pGroupie &&
@@ -167,7 +167,6 @@ CreatureAI* GetAI_mob_infested_root_walker(Creature* pCreature)
 {
     return new mob_infested_root_walkerAI (pCreature);
 }
-
 
 /*######
 ## mob_skywing
@@ -579,7 +578,6 @@ struct TRINITY_DLL_DECL npc_akunoAI : public npc_escortAI
 
         if(IsWalking && !m_creature->HasUnitMovementFlag(MOVEMENTFLAG_WALK_MODE))
             m_creature->AddUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
-
 
         switch(i)
         {

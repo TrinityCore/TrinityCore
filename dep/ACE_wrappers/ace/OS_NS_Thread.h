@@ -1019,7 +1019,6 @@ ACE_END_VERSIONED_NAMESPACE_DECL
 # define ACE_MUTEX_LOCK_CLEANUP_ADAPTER_NAME ACE_PREPROC_CONCATENATE(ACE_VERSIONED_NAMESPACE_NAME, _ace_mutex_lock_cleanup_adapter)
 #endif  /* ACE_HAS_VERSIONED_NAMESPACE == 1 */
 
-
 # if defined (ACE_HAS_THR_C_FUNC)
 // This is necessary to work around nasty problems with MVS C++.
 extern "C" ACE_Export void ACE_MUTEX_LOCK_CLEANUP_ADAPTER_NAME (void *args);
@@ -1232,7 +1231,6 @@ namespace ACE_OS {
   extern ACE_Export
   int lwp_setparams (const ACE_Sched_Params &);
 
-
   //@{ @name A set of wrappers for mutex locks.
 
   extern ACE_Export
@@ -1366,7 +1364,6 @@ namespace ACE_OS {
   int recursive_mutex_unlock (ACE_recursive_thread_mutex_t *m);
 
   //@}
-
 
   //@{ @name A set of wrappers for readers/writer locks.
 
@@ -1613,7 +1610,6 @@ namespace ACE_OS {
   int thr_get_affinity (ACE_hthread_t thr_id,
                         size_t cpu_set_size,
                         cpu_set_t * cpu_mask);
-
 
   /**
    * Set the thread affinity

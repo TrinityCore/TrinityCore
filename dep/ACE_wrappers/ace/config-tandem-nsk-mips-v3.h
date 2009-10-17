@@ -2,7 +2,6 @@
 //
 // $Id: config-tandem-nsk-mips-v3.h 81935 2008-06-12 22:01:53Z jtc $
 
-
 #ifndef ACE_CONFIG_NSK_H
 #define ACE_CONFIG_NSK_H
 
@@ -11,11 +10,9 @@
 // The following configuration file contains defines for Tandem NSK
 // platform, MIPS processor, version 3 C++ compiler.
 
-
 //=========================================================================
 // Tandem NSK specific parts
 //=========================================================================
-
 
 // Disable pthread renaming of symbols such as "open" and "close"
 #define _CMA_NOWRAPPERS_ 1
@@ -31,7 +28,6 @@
 // non-blocking I/O.
 // [Note: this causes a significant performance degradation]
 //#define ACE_TANDEM_T1248_PTHREADS_ALL_IO_WRAPPERS
-
 
 // Need this include here because some symbols defined by pthreads
 // (e.g. timespec_t) are needed before spthread.h is normally included
@@ -214,8 +210,6 @@ typedef enum CMA_T_SCHED_POLICY {
 // Compile using multi-thread libraries
 #define ACE_MT_SAFE 1
 
-
-
 // Platform supports System V IPC
 #define ACE_HAS_SYSV_IPC
 
@@ -260,7 +254,6 @@ typedef enum CMA_T_SCHED_POLICY {
 
 // Platform lacks alphasort()
 #define ACE_LACKS_ALPHASORT
-
 
 //=========================================================================
 // Threads specific parts
@@ -347,7 +340,6 @@ typedef enum CMA_T_SCHED_POLICY {
 
 // Platform has <strings.h> (which contains bzero() prototype)
 #define ACE_HAS_STRINGS 1
-
 
 // OS/compiler omits the const from the iovec parameter in the
 // writev() prototype.
@@ -439,7 +431,6 @@ typedef enum CMA_T_SCHED_POLICY {
 #define ACE_IMPORT_SINGLETON_DECLARATION(T) template class import$ T
 #define ACE_IMPORT_SINGLETON_DECLARE(SINGLETON_TYPE, CLASS, LOCK) template class import$ SINGLETON_TYPE <CLASS, LOCK>;
 #endif
-
 
 //=========================================================================
 // Build options

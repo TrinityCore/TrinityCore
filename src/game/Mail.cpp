@@ -85,7 +85,7 @@ void WorldSession::HandleSendMail(WorldPacket & recv_data )
 
     if(items_count)
     {
-        for(uint8 i = 0; i < items_count; ++i)
+        for (uint8 i = 0; i < items_count; ++i)
         {
             uint8  item_slot;
             uint64 item_guid;
@@ -178,7 +178,7 @@ void WorldSession::HandleSendMail(WorldPacket & recv_data )
 
     if (items_count)
     {
-        for(MailItemMap::iterator mailItemIter = mi.begin(); mailItemIter != mi.end(); ++mailItemIter)
+        for (MailItemMap::iterator mailItemIter = mi.begin(); mailItemIter != mi.end(); ++mailItemIter)
         {
             MailItem& mailItem = mailItemIter->second;
 
@@ -238,7 +238,7 @@ void WorldSession::HandleSendMail(WorldPacket & recv_data )
     {
         if (items_count > 0)
         {
-            for(MailItemMap::iterator mailItemIter = mi.begin(); mailItemIter != mi.end(); ++mailItemIter)
+            for (MailItemMap::iterator mailItemIter = mi.begin(); mailItemIter != mi.end(); ++mailItemIter)
             {
                 MailItem& mailItem = mailItemIter->second;
                 if(!mailItem.item)
@@ -365,7 +365,7 @@ void WorldSession::HandleMailReturnToSender(WorldPacket & recv_data )
 
     if(m->HasItems())
     {
-        for(std::vector<MailItemInfo>::iterator itr2 = m->items.begin(); itr2 != m->items.end(); ++itr2)
+        for (std::vector<MailItemInfo>::iterator itr2 = m->items.begin(); itr2 != m->items.end(); ++itr2)
         {
             Item *item = pl->GetMItem(itr2->item_guid);
             if(item)
@@ -422,7 +422,7 @@ void WorldSession::SendReturnToSender(uint8 messageType, uint32 sender_acc, uint
 
         // set owner to new receiver (to prevent delete item with sender char deleting)
         CharacterDatabase.BeginTransaction();
-        for(MailItemMap::iterator mailItemIter = mi->begin(); mailItemIter != mi->end(); ++mailItemIter)
+        for (MailItemMap::iterator mailItemIter = mi->begin(); mailItemIter != mi->end(); ++mailItemIter)
         {
             MailItem& mailItem = mailItemIter->second;
             mailItem.item->SaveToDB();                  // item not in inventory and can be save standalone
@@ -590,7 +590,7 @@ void WorldSession::HandleGetMailList(WorldPacket & recv_data )
     data << uint8(0);                                       // mail's count
     time_t cur_time = time(NULL);
 
-    for(PlayerMails::iterator itr = pl->GetmailBegin(); itr != pl->GetmailEnd(); ++itr)
+    for (PlayerMails::iterator itr = pl->GetmailBegin(); itr != pl->GetmailEnd(); ++itr)
     {
         // skip deleted or not delivered (deliver delay not expired) mails
         if ((*itr)->state == MAIL_STATE_DELETED || cur_time < (*itr)->deliver_time)
@@ -642,7 +642,7 @@ void WorldSession::HandleGetMailList(WorldPacket & recv_data )
 
         data << (uint8) item_count;                         // client limit is 0x10
 
-        for(uint8 i = 0; i < item_count; ++i)
+        for (uint8 i = 0; i < item_count; ++i)
         {
             Item *item = pl->GetMItem((*itr)->items[i].item_guid);
             // item index (0-6?)
@@ -651,7 +651,7 @@ void WorldSession::HandleGetMailList(WorldPacket & recv_data )
             data << (uint32) (item ? item->GetGUIDLow() : 0);
             // entry
             data << (uint32) (item ? item->GetEntry() : 0);
-            for(uint8 j = 0; j < MAX_INSPECTED_ENCHANTMENT_SLOT; ++j)
+            for (uint8 j = 0; j < MAX_INSPECTED_ENCHANTMENT_SLOT; ++j)
             {
                 // unsure
                 data << (uint32) (item ? item->GetEnchantmentCharges((EnchantmentSlot)j) : 0);
@@ -771,7 +771,7 @@ void WorldSession::HandleQueryNextMailTime(WorldPacket & /*recv_data*/ )
 
         uint32 count = 0;
         time_t now = time(NULL);
-        for(PlayerMails::iterator itr = _player->GetmailBegin(); itr != _player->GetmailEnd(); ++itr)
+        for (PlayerMails::iterator itr = _player->GetmailBegin(); itr != _player->GetmailEnd(); ++itr)
         {
             Mail *m = (*itr);
             // must be not checked yet
@@ -872,7 +872,7 @@ void WorldSession::SendMailTo(Player* receiver, uint8 messageType, uint8 station
 
             if(mi)
             {
-                for(MailItemMap::iterator mailItemIter = mi->begin(); mailItemIter != mi->end(); ++mailItemIter)
+                for (MailItemMap::iterator mailItemIter = mi->begin(); mailItemIter != mi->end(); ++mailItemIter)
                 {
                     MailItem& mailItem = mailItemIter->second;
                     if(mailItem.item)
@@ -894,7 +894,7 @@ void WorldSession::SendMailTo(Player* receiver, uint8 messageType, uint8 station
 
     if(mi)
     {
-        for(MailItemMap::const_iterator mailItemIter = mi->begin(); mailItemIter != mi->end(); ++mailItemIter)
+        for (MailItemMap::const_iterator mailItemIter = mi->begin(); mailItemIter != mi->end(); ++mailItemIter)
         {
             MailItem const& mailItem = mailItemIter->second;
             CharacterDatabase.PExecute("INSERT INTO mail_items (mail_id,item_guid,item_template,receiver) VALUES ('%u', '%u', '%u','%u')", mailId, mailItem.item_guidlow, mailItem.item_template,receiver_guidlow);

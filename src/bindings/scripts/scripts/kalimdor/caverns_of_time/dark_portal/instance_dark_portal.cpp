@@ -192,7 +192,7 @@ struct TRINITY_DLL_DECL instance_dark_portal : public ScriptedInstance
 
                     if (!players.isEmpty())
                     {
-                        for(Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
+                        for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
                         {
                             if (Player* pPlayer = itr->getSource())
                             {
@@ -287,7 +287,6 @@ struct TRINITY_DLL_DECL instance_dark_portal : public ScriptedInstance
 
                         pTemp->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                         pTemp->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-
 
                         if (Creature* pBoss = SummonedPortalBoss(pTemp))
                         {

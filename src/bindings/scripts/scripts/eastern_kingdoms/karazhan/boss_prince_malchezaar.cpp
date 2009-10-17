@@ -188,10 +188,10 @@ struct TRINITY_DLL_DECL boss_malchezaarAI : public ScriptedAI
         InfernalCleanup();
         positions.clear();
 
-        for(uint8 i =0; i < 5; ++i)
+        for (uint8 i =0; i < 5; ++i)
             enfeeble_targets[i] = 0;
 
-        for(uint8 i = 0; i < TOTAL_INFERNAL_POINTS; ++i)
+        for (uint8 i = 0; i < TOTAL_INFERNAL_POINTS; ++i)
             positions.push_back(&InfernalPoints[i]);
 
         EnfeebleTimer = 30000;
@@ -224,7 +224,7 @@ struct TRINITY_DLL_DECL boss_malchezaarAI : public ScriptedAI
         InfernalCleanup();
         positions.clear();
 
-        for(uint8 i = 0; i < TOTAL_INFERNAL_POINTS; ++i)
+        for (uint8 i = 0; i < TOTAL_INFERNAL_POINTS; ++i)
             positions.push_back(&InfernalPoints[i]);
 
         if (pInstance)
@@ -242,7 +242,7 @@ struct TRINITY_DLL_DECL boss_malchezaarAI : public ScriptedAI
     void InfernalCleanup()
     {
         //Infernal Cleanup
-        for(std::vector<uint64>::iterator itr = infernals.begin(); itr!= infernals.end(); ++itr)
+        for (std::vector<uint64>::iterator itr = infernals.begin(); itr!= infernals.end(); ++itr)
         {
             Unit *pInfernal = Unit::GetUnit(*m_creature, *itr);
             if (pInfernal && pInfernal->isAlive())
@@ -256,7 +256,7 @@ struct TRINITY_DLL_DECL boss_malchezaarAI : public ScriptedAI
 
     void AxesCleanup()
     {
-        for(uint8 i=0; i<2; ++i)
+        for (uint8 i=0; i<2; ++i)
         {
             Unit *axe = Unit::GetUnit(*m_creature, axes[i]);
             if (axe && axe->isAlive())
@@ -291,7 +291,7 @@ struct TRINITY_DLL_DECL boss_malchezaarAI : public ScriptedAI
         //begin + 1 , so we don't target the one with the highest threat
         std::list<HostilReference *>::iterator itr = t_list.begin();
         std::advance(itr, 1);
-        for(; itr!= t_list.end(); ++itr)                   //store the threat list in a different container
+        for (; itr!= t_list.end(); ++itr)                   //store the threat list in a different container
         {
             Unit *target = Unit::GetUnit(*m_creature, (*itr)->getUnitGuid());
                                                             //only on alive players
@@ -304,7 +304,7 @@ struct TRINITY_DLL_DECL boss_malchezaarAI : public ScriptedAI
             targets.erase(targets.begin()+rand()%targets.size());
 
         int i = 0;
-        for(std::vector<Unit *>::iterator iter = targets.begin(); iter!= targets.end(); ++iter, ++i)
+        for (std::vector<Unit *>::iterator iter = targets.begin(); iter!= targets.end(); ++iter, ++i)
         {
             Unit *target = *iter;
             if (target)
@@ -321,7 +321,7 @@ struct TRINITY_DLL_DECL boss_malchezaarAI : public ScriptedAI
 
     void EnfeebleResetHealth()
     {
-        for(uint8 i = 0; i < 5; ++i)
+        for (uint8 i = 0; i < 5; ++i)
         {
             Unit *target = Unit::GetUnit(*m_creature, enfeeble_targets[i]);
             if (target && target->isAlive())
@@ -431,7 +431,7 @@ struct TRINITY_DLL_DECL boss_malchezaarAI : public ScriptedAI
                 DoScriptText(SAY_AXE_TOSS2, m_creature);
 
                 Unit *target = SelectUnit(SELECT_TARGET_RANDOM, 0);
-                for(uint32 i=0; i<2; ++i)
+                for (uint32 i=0; i<2; ++i)
                 {
                     Creature *axe = m_creature->SummonCreature(MALCHEZARS_AXE, m_creature->GetPositionX(), m_creature->GetPositionY(), m_creature->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 1000);
                     if (axe)
@@ -478,7 +478,7 @@ struct TRINITY_DLL_DECL boss_malchezaarAI : public ScriptedAI
                 Unit *target = SelectUnit(SELECT_TARGET_RANDOM, 0);
                 if (target)
                 {
-                    for(uint8 i = 0; i < 2; ++i)
+                    for (uint8 i = 0; i < 2; ++i)
                     {
                         Unit *axe = Unit::GetUnit(*m_creature, axes[i]);
                         if (axe)
@@ -570,7 +570,7 @@ struct TRINITY_DLL_DECL boss_malchezaarAI : public ScriptedAI
 
     void Cleanup(Creature *infernal, InfernalPoint *point)
     {
-        for(std::vector<uint64>::iterator itr = infernals.begin(); itr!= infernals.end(); ++itr)
+        for (std::vector<uint64>::iterator itr = infernals.begin(); itr!= infernals.end(); ++itr)
             if (*itr == infernal->GetGUID())
         {
             infernals.erase(itr);

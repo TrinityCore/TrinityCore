@@ -35,7 +35,6 @@
 #include "ProgressBar.h"
 #include <vector>
 
-
 INSTANTIATE_SINGLETON_1(AuctionHouseMgr);
 
 using namespace std;
@@ -564,7 +563,7 @@ void AuctionHouseObject::Update()
 
 void AuctionHouseObject::BuildListBidderItems(WorldPacket& data, Player* player, uint32& count, uint32& totalcount)
 {
-    for (AuctionEntryMap::const_iterator itr = AuctionsMap.begin();itr != AuctionsMap.end();++itr)
+    for (AuctionEntryMap::const_iterator itr = AuctionsMap.begin(); itr != AuctionsMap.end(); ++itr)
     {
         AuctionEntry *Aentry = itr->second;
         if (Aentry && Aentry->bidder == player->GetGUIDLow())
@@ -579,7 +578,7 @@ void AuctionHouseObject::BuildListBidderItems(WorldPacket& data, Player* player,
 
 void AuctionHouseObject::BuildListOwnerItems(WorldPacket& data, Player* player, uint32& count, uint32& totalcount)
 {
-    for (AuctionEntryMap::const_iterator itr = AuctionsMap.begin();itr != AuctionsMap.end();++itr)
+    for (AuctionEntryMap::const_iterator itr = AuctionsMap.begin(); itr != AuctionsMap.end(); ++itr)
     {
         AuctionEntry *Aentry = itr->second;
         if (Aentry && Aentry->owner == player->GetGUIDLow())
@@ -599,7 +598,7 @@ void AuctionHouseObject::BuildListAuctionItems(WorldPacket& data, Player* player
 {
     int loc_idx = player->GetSession()->GetSessionDbLocaleIndex();
 
-    for (AuctionEntryMap::const_iterator itr = AuctionsMap.begin();itr != AuctionsMap.end();++itr)
+    for (AuctionEntryMap::const_iterator itr = AuctionsMap.begin(); itr != AuctionsMap.end(); ++itr)
     {
         AuctionEntry *Aentry = itr->second;
         Item *item = auctionmgr.GetAItem(Aentry->item_guidlow);

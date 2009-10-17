@@ -568,7 +568,7 @@ ACE_OS::strtol_emulation (const char *nptr, char **endptr, int base)
   cutoff = neg ? -(unsigned long)LONG_MIN : LONG_MAX;
   cutlim = cutoff % (unsigned long)base;
   cutoff /= (unsigned long)base;
-  for (acc = 0, any = 0;; c = *s++) {
+  for (acc = 0, any = 0; ; c = *s++) {
     if (ACE_OS::ace_isdigit(c))
       c -= '0';
     else if (ACE_OS::ace_isalpha(c))
@@ -633,7 +633,7 @@ ACE_OS::strtoul_emulation (const char *nptr,
   cutoff = (unsigned long) ULONG_MAX / (unsigned long) base;
   cutlim = (unsigned long) ULONG_MAX % (unsigned long) base;
 
-  for (acc = 0, any = 0;; c = *s++)
+  for (acc = 0, any = 0; ; c = *s++)
     {
       if (ACE_OS::ace_isdigit(c))
         c -= '0';
@@ -703,7 +703,7 @@ ACE_OS::strtoull_emulation (const char *nptr,
   cutoff = (ACE_UINT64) ACE_UINT64_MAX / (ACE_UINT64) base;
   cutlim = (ACE_UINT64) ACE_UINT64_MAX % (ACE_UINT64) base;
 
-  for (acc = 0, any = 0;; c = *s++)
+  for (acc = 0, any = 0; ; c = *s++)
     {
       if (ACE_OS::ace_isdigit(c))
         c -= '0';

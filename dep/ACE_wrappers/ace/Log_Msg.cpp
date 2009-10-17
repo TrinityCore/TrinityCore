@@ -2005,7 +2005,6 @@ ACE_Log_Msg::log (const ACE_TCHAR *format_str,
                     break;
                   }
 
-
                 default:
                   // So, it's not a legit format specifier after all...
                   // Copy from the original % to where we are now, then
@@ -2175,7 +2174,6 @@ ACE_Log_Msg::log (ACE_Log_Record &log_record,
           ACE_MT (ACE_Log_Msg_Manager::init_backend ());
         }
 
-
       if (ACE_BIT_ENABLED (ACE_Log_Msg::flags_, ACE_Log_Msg::LOGGER) ||
           ACE_BIT_ENABLED (ACE_Log_Msg::flags_, ACE_Log_Msg::SYSLOG))
         {
@@ -2189,7 +2187,6 @@ ACE_Log_Msg::log (ACE_Log_Record &log_record,
           result =
             ACE_Log_Msg_Manager::custom_backend_->log (log_record);
         }
-
 
       // This must come last, after the other two print operations
       // (see the <ACE_Log_Record::print> method for details).

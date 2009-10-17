@@ -15,7 +15,6 @@
  */
 //=============================================================================
 
-
 #ifndef ACE_NAME_REQUEST_REPLY_H
 #define ACE_NAME_REQUEST_REPLY_H
 

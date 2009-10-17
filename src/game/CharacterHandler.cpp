@@ -443,7 +443,7 @@ void WorldSession::HandleCharCreateOpcode( WorldPacket & recv_data )
     recv_data >> hairColor;
     recv_data >> facialHair;
     recv_data >> outfitId;
-    
+
     if(recv_data.rpos() < recv_data.wpos())
     {
         uint8 unk;
@@ -846,7 +846,7 @@ void WorldSession::HandleSetFactionCheat( WorldPacket & /*recv_data*/ )
 
         std::list<struct Factions>::iterator itr;
 
-        for(itr = GetPlayer()->factions.begin(); itr != GetPlayer()->factions.end(); ++itr)
+        for (itr = GetPlayer()->factions.begin(); itr != GetPlayer()->factions.end(); ++itr)
         {
             if(itr->ReputationListID == FactionID)
             {
@@ -1060,7 +1060,7 @@ void WorldSession::HandleSetPlayerDeclinedNames(WorldPacket& recv_data)
         return;
     }
 
-    for(int i = 0; i < MAX_DECLINED_NAME_CASES; ++i)
+    for (int i = 0; i < MAX_DECLINED_NAME_CASES; ++i)
     {
         recv_data >> declinedname.name[i];
         if(!normalizePlayerName(declinedname.name[i]))
@@ -1082,7 +1082,7 @@ void WorldSession::HandleSetPlayerDeclinedNames(WorldPacket& recv_data)
         return;
     }
 
-    for(int i = 0; i < MAX_DECLINED_NAME_CASES; ++i)
+    for (int i = 0; i < MAX_DECLINED_NAME_CASES; ++i)
         CharacterDatabase.escape_string(declinedname.name[i]);
 
     CharacterDatabase.BeginTransaction();
@@ -1288,7 +1288,7 @@ void WorldSession::HandleEquipmentSetSave(WorldPacket &recv_data)
     eqSet.IconName  = iconName;
     eqSet.state     = EQUIPMENT_SET_NEW;
 
-    for(uint32 i = 0; i < EQUIPMENT_SLOT_END; ++i)
+    for (uint32 i = 0; i < EQUIPMENT_SLOT_END; ++i)
     {
         uint64 itemGuid;
         if(!recv_data.readPackGUID(itemGuid))
@@ -1324,7 +1324,7 @@ void WorldSession::HandleEquipmentSetUse(WorldPacket &recv_data)
     sLog.outDebug("CMSG_EQUIPMENT_SET_USE");
     recv_data.hexlike();
 
-    for(uint32 i = 0; i < EQUIPMENT_SLOT_END; ++i)
+    for (uint32 i = 0; i < EQUIPMENT_SLOT_END; ++i)
     {
         uint64 itemGuid;
         if(!recv_data.readPackGUID(itemGuid))

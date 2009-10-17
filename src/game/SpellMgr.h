@@ -205,7 +205,7 @@ inline float GetSpellMaxRange(uint32 id, bool positive)
 
 inline bool IsSpellHaveEffect(SpellEntry const *spellInfo, SpellEffects effect)
 {
-    for(int i= 0; i < 3; ++i)
+    for (int i= 0; i < 3; ++i)
         if(SpellEffects(spellInfo->Effect[i])==effect)
             return true;
     return false;
@@ -213,7 +213,7 @@ inline bool IsSpellHaveEffect(SpellEntry const *spellInfo, SpellEffects effect)
 
 inline bool IsSpellHaveAura(SpellEntry const *spellInfo, AuraType aura)
 {
-    for(int i= 0; i < 3; ++i)
+    for (int i= 0; i < 3; ++i)
         if(AuraType(spellInfo->EffectApplyAuraName[i])==aura)
             return true;
     return false;
@@ -266,7 +266,6 @@ inline bool IsPassiveSpellStackableWithRanks(SpellEntry const* spellProto)
 
     return !IsSpellHaveEffect(spellProto,SPELL_EFFECT_APPLY_AURA);
 }
-
 
 inline bool IsDeathPersistentSpell(SpellEntry const *spellInfo)
 {
@@ -321,7 +320,7 @@ inline bool IsPositionTarget(uint32 target)
 
 inline bool IsSpellWithCasterSourceTargetsOnly(SpellEntry const* spellInfo)
 {
-    for(int i = 0; i < 3; ++i)
+    for (int i = 0; i < 3; ++i)
     {
         uint32 targetA = spellInfo->EffectImplicitTargetA[i];
         if(targetA && !IsCasterSourceTarget(targetA))
@@ -699,7 +698,6 @@ typedef std::pair<SpellAreaForQuestMap::const_iterator,SpellAreaForQuestMap::con
 typedef std::pair<SpellAreaForAuraMap::const_iterator, SpellAreaForAuraMap::const_iterator>  SpellAreaForAuraMapBounds;
 typedef std::pair<SpellAreaForAreaMap::const_iterator, SpellAreaForAreaMap::const_iterator>  SpellAreaForAreaMapBounds;
 
-
 // Spell rank chain  (accessed using SpellMgr functions)
 struct SpellChainNode
 {
@@ -750,7 +748,6 @@ struct PetDefaultSpellsEntry
 
 // < 0 for petspelldata id, > 0 for creature_id
 typedef std::map<int32, PetDefaultSpellsEntry> PetDefaultSpellsMap;
-
 
 inline bool IsPrimaryProfessionSkill(uint32 skill)
 {
@@ -975,7 +972,7 @@ class SpellMgr
                 return false;
 
             // check present in same rank chain
-            for(; itr != mSpellChains.end(); itr = mSpellChains.find(itr->second.prev))
+            for (; itr != mSpellChains.end(); itr = mSpellChains.find(itr->second.prev))
                 if(itr->second.prev==spell2)
                     return true;
 
@@ -1011,7 +1008,7 @@ class SpellMgr
         bool IsSpellLearnToSpell(uint32 spell_id1,uint32 spell_id2) const
         {
             SpellLearnSpellMapBounds bounds = GetSpellLearnSpellMapBounds(spell_id1);
-            for(SpellLearnSpellMap::const_iterator i = bounds.first; i != bounds.second; ++i)
+            for (SpellLearnSpellMap::const_iterator i = bounds.first; i != bounds.second; ++i)
                 if (i->second.spell==spell_id2)
                     return true;
             return false;
@@ -1024,7 +1021,6 @@ class SpellMgr
 
         bool IsSkillBonusSpell(uint32 spellId) const;
         bool IsSkillTypeSpell(uint32 spellId, SkillType type) const;
-
 
         // Spell script targets
         SpellScriptTargetBounds GetSpellScriptTargetBounds(uint32 spell_id) const
@@ -1128,7 +1124,7 @@ class SpellMgr
 
         inline bool IsSpellWithCasterSourceTargetsOnly(SpellEntry const* spellInfo)
         {
-            for(int i = 0; i < 3; ++i)
+            for (int i = 0; i < 3; ++i)
                 if(uint32 target = spellInfo->EffectImplicitTargetA[i])
                     if(!IsCasterSourceTarget(target))
                         return false;

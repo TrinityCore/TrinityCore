@@ -25,7 +25,6 @@
  */
 //=============================================================================
 
-
 #ifndef ACE_TP_REACTOR_H
 #define ACE_TP_REACTOR_H
 
@@ -72,7 +71,6 @@ private:
   ACE_EH_Dispatch_Info (const ACE_EH_Dispatch_Info &);
   ACE_EH_Dispatch_Info &operator= (const ACE_EH_Dispatch_Info &);
 };
-
 
 /**
  * @class ACE_TP_Token_Guard

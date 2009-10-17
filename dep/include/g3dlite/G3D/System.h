@@ -22,7 +22,6 @@
 #   include <CoreServices/CoreServices.h>
 #endif
 
-
 namespace G3D {
 
 typedef double RealTime;
@@ -115,7 +114,6 @@ public:
     static void memset(void* dst, uint8 value, size_t numBytes);
 
 };
-
 
 } // namespace
 

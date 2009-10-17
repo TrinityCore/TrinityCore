@@ -128,7 +128,7 @@ void ReputationMgr::SendForceReactions()
     WorldPacket data;
     data.Initialize(SMSG_SET_FORCED_REACTIONS, 4+m_forcedReactions.size()*(4+4));
     data << uint32(m_forcedReactions.size());
-    for(ForcedReactions::const_iterator itr = m_forcedReactions.begin(); itr != m_forcedReactions.end(); ++itr)
+    for (ForcedReactions::const_iterator itr = m_forcedReactions.begin(); itr != m_forcedReactions.end(); ++itr)
     {
         data << uint32(itr->first);                         // faction_id (Faction.dbc)
         data << uint32(itr->second);                        // reputation rank
@@ -187,7 +187,7 @@ void ReputationMgr::SendInitialReputations()
 
 void ReputationMgr::SendStates() const
 {
-    for(FactionStateList::const_iterator itr = m_factions.begin(); itr != m_factions.end(); ++itr)
+    for (FactionStateList::const_iterator itr = m_factions.begin(); itr != m_factions.end(); ++itr)
         SendState(&(itr->second));
 }
 
@@ -210,7 +210,7 @@ void ReputationMgr::Initialize()
     m_reveredFactionCount = 0;
     m_exaltedFactionCount = 0;
 
-    for(unsigned int i = 1; i < sFactionStore.GetNumRows(); i++)
+    for (unsigned int i = 1; i < sFactionStore.GetNumRows(); i++)
     {
         FactionEntry const *factionEntry = sFactionStore.LookupEntry(i);
 
@@ -249,14 +249,14 @@ bool ReputationMgr::SetReputation(FactionEntry const* factionEntry, int32 standi
        towards other reputations for that group.
     */
     uint32 team = factionEntry->team;
-     
+
     int32 sharedStanding = standing;            // Here we decide what the amount is to send to the others of the group.
     switch(factionEntry->ID)
     {
         case 1037:                              // Alliance Vanguard
         case 1052:                              // Horde Expedition
             extraTarget = -1;                   // Make possible to earn rep with this two factions
-            break;                              
+            break;
 
     }
     switch(team)
@@ -270,7 +270,7 @@ bool ReputationMgr::SetReputation(FactionEntry const* factionEntry, int32 standi
         case 1052:                              // Horde Expedition
             sharedStanding *= 0.5f;             // Half of the reputation earned by any of the four subfactions of this team will
             extraTarget = 2;                    // be added to the main faction. (http://www.wowwiki.com/Alliance_Vanguard)
-            break;                              
+            break;
     }
 
     FactionEntry const *targetFaction = NULL;
@@ -281,7 +281,7 @@ bool ReputationMgr::SetReputation(FactionEntry const* factionEntry, int32 standi
             for (SimpleFactionsList::const_iterator itr = flist->begin(); itr != flist->end(); ++itr)
             {
                 targetFaction = sFactionStore.LookupEntry(*itr);
-                ASSERT(targetFaction != NULL);   
+                ASSERT(targetFaction != NULL);
                 res = SetOneFactionReputation(targetFaction, sharedStanding, incremental);
             }
             return res;
@@ -292,9 +292,9 @@ bool ReputationMgr::SetReputation(FactionEntry const* factionEntry, int32 standi
             {
                 if((*itr) == factionEntry->ID)  // Not to self
                     continue;
-                
+
                 targetFaction = sFactionStore.LookupEntry(*itr);
-                ASSERT(targetFaction != NULL); 
+                ASSERT(targetFaction != NULL);
                 res = SetOneFactionReputation(targetFaction, sharedStanding, incremental);
             }
         }break;
@@ -520,7 +520,7 @@ void ReputationMgr::LoadFromDB(QueryResult *result)
 
 void ReputationMgr::SaveToDB()
 {
-    for(FactionStateList::iterator itr = m_factions.begin(); itr != m_factions.end(); ++itr)
+    for (FactionStateList::iterator itr = m_factions.begin(); itr != m_factions.end(); ++itr)
     {
         if (itr->second.Changed)
         {

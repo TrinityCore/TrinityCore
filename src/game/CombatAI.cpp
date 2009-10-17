@@ -56,7 +56,7 @@ int TurretAI::Permissible(const Creature *creature)
 
 void CombatAI::InitializeAI()
 {
-    for(uint32 i = 0; i < CREATURE_MAX_SPELLS; ++i)
+    for (uint32 i = 0; i < CREATURE_MAX_SPELLS; ++i)
         if(me->m_spells[i] && GetSpellStore()->LookupEntry(me->m_spells[i]))
             spells.push_back(me->m_spells[i]);
 
@@ -70,14 +70,14 @@ void CombatAI::Reset()
 
 void CombatAI::JustDied(Unit *killer)
 {
-    for(SpellVct::iterator i = spells.begin(); i != spells.end(); ++i)
+    for (SpellVct::iterator i = spells.begin(); i != spells.end(); ++i)
         if(AISpellInfo[*i].condition == AICOND_DIE)
             me->CastSpell(killer, *i, true);
 }
 
 void CombatAI::EnterCombat(Unit *who)
 {
-    for(SpellVct::iterator i = spells.begin(); i != spells.end(); ++i)
+    for (SpellVct::iterator i = spells.begin(); i != spells.end(); ++i)
     {
         if(AISpellInfo[*i].condition == AICOND_AGGRO)
             me->CastSpell(who, *i, false);
@@ -105,7 +105,6 @@ void CombatAI::UpdateAI(const uint32 diff)
         DoMeleeAttackIfReady();
 }
 
-
 /////////////////
 //CasterAI
 /////////////////
@@ -115,7 +114,7 @@ void CasterAI::InitializeAI()
     CombatAI::InitializeAI();
 
     float m_attackDist = 30.0f;
-    for(SpellVct::iterator itr = spells.begin(); itr != spells.end(); ++itr)
+    for (SpellVct::iterator itr = spells.begin(); itr != spells.end(); ++itr)
         if (AISpellInfo[*itr].condition == AICOND_COMBAT && m_attackDist > GetAISpellInfo(*itr)->maxRange)
             m_attackDist = GetAISpellInfo(*itr)->maxRange;
     if (m_attackDist == 30.0f)
@@ -129,7 +128,7 @@ void CasterAI::EnterCombat(Unit *who)
 
     uint32 spell = rand()%spells.size();
     uint32 count = 0;
-    for(SpellVct::iterator itr = spells.begin(); itr != spells.end(); ++itr, ++count)
+    for (SpellVct::iterator itr = spells.begin(); itr != spells.end(); ++itr, ++count)
     {
         if(AISpellInfo[*itr].condition == AICOND_AGGRO)
             me->CastSpell(who, *itr, false);
@@ -163,7 +162,6 @@ void CasterAI::UpdateAI(const uint32 diff)
         events.ScheduleEvent(spellId, (casttime ? casttime : 500) + GetAISpellInfo(spellId)->realCooldown);
     }
 }
-
 
 //////////////
 //ArchorAI
@@ -209,7 +207,6 @@ void ArchorAI::UpdateAI(const uint32 diff)
     else
         DoMeleeAttackIfReady();
 }
-
 
 //////////////
 //TurretAI

@@ -141,7 +141,7 @@ struct TRINITY_DLL_DECL boss_maiden_of_griefAI : public ScriptedAI
         if (HeroicMode && AchievTimer < 60000 && pMap && pMap->IsDungeon() && AchievGoodGrief)
         {
             Map::PlayerList const &players = pMap->GetPlayers();
-                    for(Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
+                    for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
                         itr->getSource()->CompletedAchievement(AchievGoodGrief);
         }
     }

@@ -147,7 +147,7 @@ struct TRINITY_DLL_DECL boss_warchief_kargath_bladefistAI : public ScriptedAI
 
     void removeAdds()
     {
-        for(std::vector<uint64>::iterator itr = adds.begin(); itr!= adds.end(); ++itr)
+        for (std::vector<uint64>::iterator itr = adds.begin(); itr!= adds.end(); ++itr)
         {
             Unit* temp = Unit::GetUnit((*m_creature),*itr);
             if (temp && temp->isAlive())
@@ -159,7 +159,7 @@ struct TRINITY_DLL_DECL boss_warchief_kargath_bladefistAI : public ScriptedAI
         }
         adds.clear();
 
-        for(std::vector<uint64>::iterator itr = assassins.begin(); itr!= assassins.end(); ++itr)
+        for (std::vector<uint64>::iterator itr = assassins.begin(); itr!= assassins.end(); ++itr)
         {
             Unit* temp = Unit::GetUnit((*m_creature),*itr);
             if (temp && temp->isAlive())
@@ -245,7 +245,7 @@ struct TRINITY_DLL_DECL boss_warchief_kargath_bladefistAI : public ScriptedAI
             {
                 Unit* target = NULL;
 
-                for(uint8 i = 0; i < summoned; ++i)
+                for (uint8 i = 0; i < summoned; ++i)
                 {
                     switch(rand()%3)
                     {

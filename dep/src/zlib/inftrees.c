@@ -213,7 +213,7 @@ unsigned short FAR *work;
         return 1;
 
     /* process all codes and make table entries */
-    for (;;) {
+    for (; ; ) {
         /* create table entry */
         this.bits = (unsigned char)(len - drop);
         if ((int)(work[sym]) < end) {

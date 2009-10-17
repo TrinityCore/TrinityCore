@@ -154,7 +154,6 @@ struct TRINITY_DLL_DECL boss_krik_thirAI : public ScriptedAI
         if (!UpdateVictim())
             return;
 
-
         if(SummonTimer < diff)
         {
             Summon();
@@ -201,7 +200,7 @@ struct TRINITY_DLL_DECL boss_krik_thirAI : public ScriptedAI
                 HeroicMode && pMap && pMap->IsDungeon() && AchievWatchHimDie)
             {
                 Map::PlayerList const &players = pMap->GetPlayers();
-                for(Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
+                for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
                     itr->getSource()->CompletedAchievement(AchievWatchHimDie);
             }
         }
@@ -357,7 +356,6 @@ struct TRINITY_DLL_DECL npc_watcher_gashraAI : public ScriptedAI
         InfectedBiteTimer = 4000;
     }
 
-
     void EnterCombat(Unit* who)
     {
         m_creature->CastSpell(m_creature,SPELL_ENRAGE,true);
@@ -512,7 +510,6 @@ CreatureAI* GetAI_npc_watcher_silthik (Creature* pCreature)
 {
     return new npc_watcher_silthikAI (pCreature);
 }
-
 
 void AddSC_boss_krik_thir()
 {

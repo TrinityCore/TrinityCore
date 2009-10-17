@@ -152,7 +152,6 @@ public:
 
 ACE_END_VERSIONED_NAMESPACE_DECL
 
-
 #if defined (__ACE_INLINE__)
 #include "ace/Process_Semaphore.inl"
 #endif /* __ACE_INLINE__ */

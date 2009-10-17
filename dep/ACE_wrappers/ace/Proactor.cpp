@@ -16,11 +16,9 @@
 #    include "ace/Service_Config.h"
 #endif /* !ACE_HAS_WINCE && !ACE_LACKS_ACE_SVCCONF */
 
-
 ACE_RCSID (ace,
            Proactor,
            "$Id: Proactor.cpp 81535 2008-04-29 20:08:52Z shuston $")
-
 
 #include "ace/Task_T.h"
 #include "ace/Log_Msg.h"
@@ -460,7 +458,7 @@ ACE_Proactor::proactor_run_event_loop (PROACTOR_EVENT_HOOK eh)
   }
 
   // Run the event loop.
-  for (;;)
+  for (; ; )
     {
       // Check the end loop flag. It is ok to do this without lock,
       // since we care just whether it is zero or non-zero.
@@ -517,7 +515,7 @@ ACE_Proactor::proactor_run_event_loop (ACE_Time_Value &tv,
   }
 
   // Run the event loop.
-  for (;;)
+  for (; ; )
     {
       // Check the end loop flag. It is ok to do this without lock,
       // since we care just whether it is zero or non-zero.
@@ -815,7 +813,6 @@ ACE_Proactor::implementation (void) const
   return this->implementation_;
 }
 
-
 ACE_Asynch_Read_Stream_Impl *
 ACE_Proactor::create_asynch_read_stream (void)
 {
@@ -891,7 +888,6 @@ ACE_Proactor::create_asynch_read_stream_result
      priority,
      signal_number);
 }
-
 
 ACE_Asynch_Write_Stream_Result_Impl *
 ACE_Proactor::create_asynch_write_stream_result

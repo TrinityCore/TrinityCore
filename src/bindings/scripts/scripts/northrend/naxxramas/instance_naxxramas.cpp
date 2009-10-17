@@ -89,7 +89,7 @@ inline uint32 GetEruptionSection(float x, float y)
         return 3;
 
     float slope = y/x;
-    for(uint32 i = 0; i < 3; ++i)
+    for (uint32 i = 0; i < 3; ++i)
         if (slope > HeiganEruptionSlope[i])
             return i;
     return 3;
@@ -170,12 +170,12 @@ struct TRINITY_DLL_DECL instance_naxxramas : public InstanceData
 
     void HeiganErupt(uint32 section)
     {
-        for(uint32 i = 0; i < 4; ++i)
+        for (uint32 i = 0; i < 4; ++i)
         {
             if (i == section)
                 continue;
 
-            for(std::set<GameObject*>::iterator itr = HeiganEruption[i].begin(); itr != HeiganEruption[i].end(); ++itr)
+            for (std::set<GameObject*>::iterator itr = HeiganEruption[i].begin(); itr != HeiganEruption[i].end(); ++itr)
             {
                 (*itr)->SendCustomAnim();
                 (*itr)->CastSpell(NULL, SPELL_ERUPTION);
@@ -191,7 +191,7 @@ bool AreaTrigger_at_naxxramas_frostwyrm_wing(Player* pPlayer, AreaTriggerEntry *
 
     InstanceData *data = pPlayer->GetInstanceData();
     if (data)
-        for(uint32 i = BOSS_ANUBREKHAN; i < BOSS_SAPPHIRON; ++i)
+        for (uint32 i = BOSS_ANUBREKHAN; i < BOSS_SAPPHIRON; ++i)
             if (data->GetBossState(i) != DONE)
                 return true;
 

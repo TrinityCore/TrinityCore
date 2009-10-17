@@ -143,5 +143,4 @@ template<class T, class U> ACE_INLINE bool operator==(ACE_Intrusive_Auto_Ptr<T> 
     return a != b.get();
 }
 
-
 ACE_END_VERSIONED_NAMESPACE_DECL

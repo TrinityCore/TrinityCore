@@ -62,7 +62,6 @@ ACE_OS::access (const char *path, int amode)
 #endif /* ACE_LACKS_ACCESS */
 }
 
-
 #if defined (ACE_HAS_WCHAR)
 ACE_INLINE int
 ACE_OS::access (const wchar_t *path, int amode)

@@ -15,7 +15,6 @@
 
 ACE_RCSID(ace, Read_Buffer, "$Id: Read_Buffer.cpp 80826 2008-03-04 14:51:23Z wotte $")
 
-
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 
 void

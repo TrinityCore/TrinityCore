@@ -91,7 +91,6 @@ private:
     bool m_b_destructor;
 };
 
-
 #ifdef SOCKETS_NAMESPACE
 }
 #endif

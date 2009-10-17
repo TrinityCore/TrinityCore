@@ -650,11 +650,11 @@ void npc_doctorAI::BeginEvent(Player* pPlayer)
     switch(m_creature->GetEntry())
     {
         case DOCTOR_ALLIANCE:
-            for(uint8 i = 0; i < ALLIANCE_COORDS; ++i)
+            for (uint8 i = 0; i < ALLIANCE_COORDS; ++i)
                 Coordinates.push_back(&AllianceCoords[i]);
             break;
         case DOCTOR_HORDE:
-            for(uint8 i = 0; i < HORDE_COORDS; ++i)
+            for (uint8 i = 0; i < HORDE_COORDS; ++i)
                 Coordinates.push_back(&HordeCoords[i]);
             break;
     }
@@ -701,7 +701,7 @@ void npc_doctorAI::PatientSaved(Creature* soldier, Player* pPlayer, Location* Po
                 if (!Patients.empty())
                 {
                     std::list<uint64>::iterator itr;
-                    for(itr = Patients.begin(); itr != Patients.end(); ++itr)
+                    for (itr = Patients.begin(); itr != Patients.end(); ++itr)
                     {
                         if (Creature* Patient = Unit::GetCreature((*m_creature), *itr))
                             Patient->setDeathState(JUST_DIED);
@@ -1725,7 +1725,7 @@ struct TRINITY_DLL_DECL npc_ebon_gargoyleAI : CasterAI
         Trinity::AnyUnfriendlyUnitInObjectRangeCheck u_check(m_creature, m_creature, 30);
         Trinity::UnitListSearcher<Trinity::AnyUnfriendlyUnitInObjectRangeCheck> searcher(m_creature, targets, u_check);
         m_creature->VisitNearbyObject(30, searcher);
-        for(std::list<Unit*>::iterator iter = targets.begin(); iter != targets.end(); ++iter)
+        for (std::list<Unit*>::iterator iter = targets.begin(); iter != targets.end(); ++iter)
             if((*iter)->GetAura(49206,owner->GetGUID()))
             {
                 me->Attack((*iter),false);

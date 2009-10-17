@@ -128,7 +128,6 @@ struct TRINITY_DLL_DECL instance_sunken_temple : public ScriptedInstance
          }
      };
 
-
      virtual void Update(uint32 diff) // correct order goes form 1-6
      {
          switch(State)

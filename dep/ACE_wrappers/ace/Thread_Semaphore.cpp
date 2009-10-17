@@ -20,7 +20,6 @@
 
 ACE_RCSID(ace, Thread_Semaphore, "$Id: Thread_Semaphore.cpp 80826 2008-03-04 14:51:23Z wotte $")
 
-
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 
 void

@@ -61,7 +61,7 @@ RandomMovementGenerator<Creature>::_setRandomLocation(Creature &creature)
     bool is_water_ok = creature.canSwim();
     bool is_air_ok   = creature.canFly();
 
-    for(uint32 i = 0;; ++i)
+    for (uint32 i = 0; ; ++i)
     {
 
     const float angle = rand_norm()*(M_PI*2);

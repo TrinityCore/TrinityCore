@@ -90,7 +90,6 @@ ACE_Throughput_Stats::accumulate (const ACE_Throughput_Stats &rhs)
       return;
     }
 
-
   if (this->throughput_last_ < rhs.throughput_last_)
     this->throughput_last_ = rhs.throughput_last_;
 

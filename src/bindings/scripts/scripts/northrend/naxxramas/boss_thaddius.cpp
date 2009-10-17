@@ -36,10 +36,8 @@
 //both
 #define SPELL_WARSTOMP          28125
 
-
  //generic
 #define C_TESLA_COIL                        16218           //the coils (emotes "Tesla Coil overloads!")
-
 
 //Thaddus
 #define SAY_GREET               -1533029 //not used

@@ -210,7 +210,7 @@ void AuctionHouseBot::addNewAuctions(Player *AHBplayer, AHBConfig *config)
     if (debug_Out) sLog.outString("AHSeller: %u items", items);
 
     // only insert a few at a time, so as not to peg the processor
-    for (uint32 cnt = 1;cnt <= items;cnt++)
+    for (uint32 cnt = 1; cnt <= items; cnt++)
     {
     if (debug_Out) sLog.outString("AHSeller: %u count", cnt);
         uint32 itemID = 0;
@@ -484,7 +484,7 @@ void AuctionHouseBot::addNewAuctionBuyerBotBid(Player *AHBplayer, AHBConfig *con
         if (debug_Out) sLog.outError("AHBuyer: Disabled");
         return;
     }
-    
+
     QueryResult* result = CharacterDatabase.PQuery("SELECT id FROM auctionhouse WHERE itemowner<>%u AND buyguid<>%u", AHBplayerGUID, AHBplayerGUID);
 
     if (!result)
@@ -510,7 +510,7 @@ void AuctionHouseBot::addNewAuctionBuyerBotBid(Player *AHBplayer, AHBConfig *con
     }while (result->NextRow());
     delete result;
 
-    for (uint32 count = 1;count <= config->GetBidsPerInterval();++count)
+    for (uint32 count = 1; count <= config->GetBidsPerInterval(); ++count)
     {
         // Do we have anything to bid? If not, stop here.
         if (possibleBids.empty())
@@ -766,7 +766,6 @@ void AuctionHouseBot::Initialize()
     AHBplayerAccount = sConfig.GetIntDefault("AuctionHouseBot.Account", 0);
     AHBplayerGUID = sConfig.GetIntDefault("AuctionHouseBot.GUID", 0);
     ItemsPerCycle = sConfig.GetIntDefault("AuctionHouseBot.ItemsPerCycle", 200);
-
 
     //Begin Filters
 
@@ -1774,10 +1773,10 @@ void AuctionHouseBot::LoadValues(AHBConfig *config)
 
         config->ResetItemCounts();
         uint32 auctions = auctionHouse->Getcount();
-        
+
         if (auctions)
         {
-            for (AuctionHouseObject::AuctionEntryMap::const_iterator itr = auctionHouse->GetAuctionsBegin();itr != auctionHouse->GetAuctionsEnd();++itr)
+            for (AuctionHouseObject::AuctionEntryMap::const_iterator itr = auctionHouse->GetAuctionsBegin(); itr != auctionHouse->GetAuctionsEnd(); ++itr)
             {
                 AuctionEntry *Aentry = itr->second;
                 Item *item = auctionmgr.GetAItem(Aentry->item_guidlow);

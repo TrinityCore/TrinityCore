@@ -49,7 +49,6 @@
     #error Unknown platform
 #endif
 
-
 // Default to compiling with SSE, but if you want to compile
 // without installing SP5.0 and the Processor Pack on Windows, compile with NO_SSE
 // defined (can be passed to the compiler command line with /D "NO_SSE")
@@ -72,7 +71,6 @@
 #        define restrict __restrict__
 #    endif
 #endif
-
 
 // Verify that the supported compilers are being used and that this is a known
 // processor.
@@ -102,7 +100,6 @@
 #   define G3D_CHECK_VPRINTF_ARGS         __attribute__((__format__(__printf__, 1, 0)))
 #endif
 
-
 #ifdef G3D_OSX
     #ifndef __GNUC__
         #error G3D only supports the gcc compiler on OS X.
@@ -131,7 +128,6 @@
 #   define G3D_CHECK_PRINTF_ARGS          __attribute__((__format__(__printf__, 1, 2)))
 #   define G3D_CHECK_VPRINTF_ARGS         __attribute__((__format__(__printf__, 1, 0)))
 #endif
-
 
 #ifdef G3D_WIN32
 // Microsoft Visual C++ 7.1 _MSC_VER = 1310
@@ -233,7 +229,6 @@
 #   ifndef WIN32_LEAN_AND_MEAN
 #       define WIN32_LEAN_AND_MEAN 1
 #   endif
-
 
 #   define NOMINMAX 1
 #   include <windows.h>

@@ -36,7 +36,6 @@
 #include "DBCStructure.h"
 #include <list>
 
-
 #define WORLD_TRIGGER   12999
 
 enum SpellInterruptFlags
@@ -671,7 +670,7 @@ enum MovementFlags
         MOVEMENTFLAG_JUMPING |MOVEMENTFLAG_FALLING   |MOVEMENTFLAG_ASCEND     |
         MOVEMENTFLAG_SPLINE,
     MOVEMENTFLAG_TURNING        =
-        MOVEMENTFLAG_LEFT | MOVEMENTFLAG_RIGHT,        
+        MOVEMENTFLAG_LEFT | MOVEMENTFLAG_RIGHT,
 };
 
 /*
@@ -890,7 +889,6 @@ enum CurrentSpellTypes
 
 #define CURRENT_FIRST_NON_MELEE_SPELL 1
 #define CURRENT_MAX_SPELL             4
-
 
 enum ActiveStates
 {
@@ -1208,7 +1206,7 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
            float f_BaseAttackTime = GetFloatValue(UNIT_FIELD_BASEATTACKTIME+att) / m_modAttackSpeedPct[att];
            return (uint32)f_BaseAttackTime;
         }
-            
+
         void SetAttackTime(WeaponAttackType att, uint32 val) { SetFloatValue(UNIT_FIELD_BASEATTACKTIME+att,val*m_modAttackSpeedPct[att]); }
         void ApplyAttackTimePercentMod(WeaponAttackType att,float val, bool apply);
         void ApplyCastTimePercentMod(float val, bool apply);
@@ -1535,8 +1533,8 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
         void ApplyResistanceBuffModsPercentMod(SpellSchools school, bool positive, float val, bool apply) { ApplyPercentModFloatValue(positive ? UNIT_FIELD_RESISTANCEBUFFMODSPOSITIVE+school : UNIT_FIELD_RESISTANCEBUFFMODSNEGATIVE+school, val, apply); }
         void InitStatBuffMods()
         {
-            for(uint8 i = STAT_STRENGTH; i < MAX_STATS; ++i) SetFloatValue(UNIT_FIELD_POSSTAT0+i, 0);
-            for(uint8 i = STAT_STRENGTH; i < MAX_STATS; ++i) SetFloatValue(UNIT_FIELD_NEGSTAT0+i, 0);
+            for (uint8 i = STAT_STRENGTH; i < MAX_STATS; ++i) SetFloatValue(UNIT_FIELD_POSSTAT0+i, 0);
+            for (uint8 i = STAT_STRENGTH; i < MAX_STATS; ++i) SetFloatValue(UNIT_FIELD_NEGSTAT0+i, 0);
         }
         void ApplyStatBuffMod(Stats stat, float val, bool apply) { ApplyModSignedFloatValue((val > 0 ? UNIT_FIELD_POSSTAT0+stat : UNIT_FIELD_NEGSTAT0+stat), val, apply); }
         void ApplyStatPercentBuffMod(Stats stat, float val, bool apply)

@@ -241,7 +241,7 @@ struct TRINITY_DLL_DECL npc_koltira_deathweaverAI : public npc_escortAI
 
     void SummonAcolyte(uint32 uiAmount)
     {
-        for(uint32 i = 0; i < uiAmount; ++i)
+        for (uint32 i = 0; i < uiAmount; ++i)
             me->SummonCreature(NPC_CRIMSON_ACOLYTE, 1642.329, -6045.818, 127.583, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000);
     }
 
@@ -489,7 +489,6 @@ CreatureAI* GetAI_mob_high_inquisitor_valroth(Creature* pCreature)
 {
     return new mob_high_inquisitor_valrothAI (pCreature);
 }
-
 
 /*######
 ## npc_a_special_surprise

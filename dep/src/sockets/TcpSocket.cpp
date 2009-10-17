@@ -58,19 +58,16 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 namespace SOCKETS_NAMESPACE {
 #endif
 
-
 //#ifdef _DEBUG
 //#define DEB(x) x
 //#else
 #define DEB(x)
 //#endif
 
-
 // statics
 #ifdef HAVE_OPENSSL
 SSLInitializer TcpSocket::m_ssl_init;
 #endif
-
 
 // thanks, q
 #ifdef _MSC_VER
@@ -109,7 +106,6 @@ TcpSocket::TcpSocket(ISocketHandler& h) : StreamSocket(h)
 #pragma warning(default:4355)
 #endif
 
-
 #ifdef _MSC_VER
 #pragma warning(disable:4355)
 #endif
@@ -146,7 +142,6 @@ TcpSocket::TcpSocket(ISocketHandler& h,size_t isize,size_t osize) : StreamSocket
 #pragma warning(default:4355)
 #endif
 
-
 TcpSocket::~TcpSocket()
 {
 #ifdef SOCKETS_DYNAMIC_TEMP
@@ -168,14 +163,12 @@ TcpSocket::~TcpSocket()
 #endif
 }
 
-
 bool TcpSocket::Open(ipaddr_t ip,port_t port,bool skip_socks)
 {
     Ipv4Address ad(ip, port);
     Ipv4Address local;
     return Open(ad, local, skip_socks);
 }
-
 
 #ifdef ENABLE_IPV6
 #ifdef IPPROTO_IPV6
@@ -187,13 +180,11 @@ bool TcpSocket::Open(in6_addr ip,port_t port,bool skip_socks)
 #endif
 #endif
 
-
 bool TcpSocket::Open(SocketAddress& ad,bool skip_socks)
 {
     Ipv4Address bind_ad("0.0.0.0", 0);
     return Open(ad, bind_ad, skip_socks);
 }
-
 
 bool TcpSocket::Open(SocketAddress& ad,SocketAddress& bind_ad,bool skip_socks)
 {
@@ -320,7 +311,6 @@ bool TcpSocket::Open(SocketAddress& ad,SocketAddress& bind_ad,bool skip_socks)
     return true; //!Connecting();
 }
 
-
 bool TcpSocket::Open(const std::string &host,port_t port)
 {
 #ifdef ENABLE_IPV6
@@ -369,7 +359,6 @@ bool TcpSocket::Open(const std::string &host,port_t port)
 #endif
 }
 
-
 #ifdef ENABLE_RESOLVER
 void TcpSocket::OnResolved(int id,ipaddr_t a,port_t port)
 {
@@ -401,7 +390,6 @@ DEB(    fprintf(stderr, "TcpSocket::OnResolved id %d addr %x port %d\n", id, a, 
     }
 }
 
-
 #ifdef ENABLE_IPV6
 void TcpSocket::OnResolved(int id,in6_addr& a,port_t port)
 {
@@ -428,7 +416,6 @@ void TcpSocket::OnResolved(int id,in6_addr& a,port_t port)
 }
 #endif
 #endif
-
 
 void TcpSocket::OnRead()
 {
@@ -542,7 +529,6 @@ DEB(                fprintf(stderr, "SSL read problem, errcode = %d\n",n);)
     OnRead( buf, n );
 }
 
-
 void TcpSocket::OnRead( char *buf, size_t n )
 {
     // unbuffered
@@ -620,11 +606,9 @@ void TcpSocket::OnRead( char *buf, size_t n )
 #endif
 }
 
-
 void TcpSocket::OnWriteComplete()
 {
 }
-
 
 void TcpSocket::OnWrite()
 {
@@ -718,7 +702,6 @@ void TcpSocket::OnWrite()
     }
 }
 
-
 int TcpSocket::TryWrite(const char *buf, size_t len)
 {
     int n = 0;
@@ -787,7 +770,6 @@ DEB(            int errnr = SSL_get_error(m_ssl, n);
     return n;
 }
 
-
 void TcpSocket::Buffer(const char *buf, size_t len)
 {
     size_t ptr = 0;
@@ -819,12 +801,10 @@ void TcpSocket::Buffer(const char *buf, size_t len)
     }
 }
 
-
 void TcpSocket::Send(const std::string &str,int i)
 {
     SendBuf(str.c_str(),str.size(),i);
 }
-
 
 void TcpSocket::SendBuf(const char *buf,size_t len,int)
 {
@@ -876,11 +856,9 @@ void TcpSocket::SendBuf(const char *buf,size_t len,int)
     }
 }
 
-
 void TcpSocket::OnLine(const std::string& )
 {
 }
-
 
 #ifdef _MSC_VER
 #pragma warning(disable:4355)
@@ -893,7 +871,6 @@ TcpSocket::TcpSocket(const TcpSocket& s)
 #ifdef _MSC_VER
 #pragma warning(default:4355)
 #endif
-
 
 #ifdef ENABLE_SOCKS4
 void TcpSocket::OnSocks4Connect()
@@ -929,7 +906,6 @@ void TcpSocket::OnSocks4Connect()
     m_socks4_state = 0;
 }
 
-
 void TcpSocket::OnSocks4ConnectFailed()
 {
     Handler().LogError(this,"OnSocks4ConnectFailed",0,"connection to socks4 server failed, trying direct connection",LOG_LEVEL_WARNING);
@@ -944,7 +920,6 @@ void TcpSocket::OnSocks4ConnectFailed()
         SetRetryClientConnect();
     }
 }
-
 
 bool TcpSocket::OnSocks4Read()
 {
@@ -1005,7 +980,6 @@ bool TcpSocket::OnSocks4Read()
 }
 #endif
 
-
 void TcpSocket::Sendf(const char *format, ...)
 {
     va_list ap;
@@ -1019,7 +993,6 @@ void TcpSocket::Sendf(const char *format, ...)
     va_end(ap);
     Send( slask );
 }
-
 
 #ifdef HAVE_OPENSSL
 void TcpSocket::OnSSLConnect()
@@ -1064,7 +1037,6 @@ DEB(            fprintf(stderr, " m_sbio is NULL\n");)
     }
 }
 
-
 void TcpSocket::OnSSLAccept()
 {
     SetNonblocking(true);
@@ -1102,7 +1074,6 @@ DEB(            fprintf(stderr, " m_sbio is NULL\n");)
         }
     }
 }
-
 
 bool TcpSocket::SSLNegotiate()
 {
@@ -1200,19 +1171,16 @@ DEB(                fprintf(stderr, "SSL_accept() failed - closing socket, retur
     return false;
 }
 
-
 void TcpSocket::InitSSLClient()
 {
     InitializeContext("", SSLv23_method());
 }
-
 
 void TcpSocket::InitSSLServer()
 {
     Handler().LogError(this, "InitSSLServer", 0, "You MUST implement your own InitSSLServer method", LOG_LEVEL_FATAL);
     SetCloseAndDelete();
 }
-
 
 void TcpSocket::InitializeContext(const std::string& context, SSL_METHOD *meth_in)
 {
@@ -1229,7 +1197,6 @@ void TcpSocket::InitializeContext(const std::string& context, SSL_METHOD *meth_i
         m_ssl_ctx = client_contexts[context];
     }
 }
-
 
 void TcpSocket::InitializeContext(const std::string& context,const std::string& keyfile,const std::string& password,SSL_METHOD *meth_in)
 {
@@ -1266,7 +1233,6 @@ void TcpSocket::InitializeContext(const std::string& context,const std::string& 
     }
 }
 
-
 void TcpSocket::InitializeContext(const std::string& context,const std::string& certfile,const std::string& keyfile,const std::string& password,SSL_METHOD *meth_in)
 {
     /* Create our context*/
@@ -1302,7 +1268,6 @@ void TcpSocket::InitializeContext(const std::string& context,const std::string& 
     }
 }
 
-
 int TcpSocket::SSL_password_cb(char *buf,int num,int rwflag,void *userdata)
 {
     Socket *p0 = static_cast<Socket *>(userdata);
@@ -1316,7 +1281,6 @@ int TcpSocket::SSL_password_cb(char *buf,int num,int rwflag,void *userdata)
     return (int)pw.size();
 }
 #endif // HAVE_OPENSSL
-
 
 int TcpSocket::Close()
 {
@@ -1356,7 +1320,6 @@ int TcpSocket::Close()
     return Socket::Close();
 }
 
-
 #ifdef HAVE_OPENSSL
 SSL_CTX *TcpSocket::GetSslContext()
 {
@@ -1373,7 +1336,6 @@ SSL *TcpSocket::GetSsl()
 }
 #endif
 
-
 #ifdef ENABLE_RECONNECT
 void TcpSocket::SetReconnect(bool x)
 {
@@ -1381,23 +1343,19 @@ void TcpSocket::SetReconnect(bool x)
 }
 #endif
 
-
 void TcpSocket::OnRawData(const char *buf_in,size_t len)
 {
 }
-
 
 size_t TcpSocket::GetInputLength()
 {
     return ibuf.GetLength();
 }
 
-
 size_t TcpSocket::GetOutputLength()
 {
     return m_output_length;
 }
-
 
 uint64_t TcpSocket::GetBytesReceived(bool clear)
 {
@@ -1407,7 +1365,6 @@ uint64_t TcpSocket::GetBytesReceived(bool clear)
     return z;
 }
 
-
 uint64_t TcpSocket::GetBytesSent(bool clear)
 {
     uint64_t z = m_bytes_sent;
@@ -1416,26 +1373,22 @@ uint64_t TcpSocket::GetBytesSent(bool clear)
     return z;
 }
 
-
 #ifdef ENABLE_RECONNECT
 bool TcpSocket::Reconnect()
 {
     return m_b_reconnect;
 }
 
-
 void TcpSocket::SetIsReconnect(bool x)
 {
     m_b_is_reconnect = x;
 }
-
 
 bool TcpSocket::IsReconnect()
 {
     return m_b_is_reconnect;
 }
 #endif
-
 
 #ifdef HAVE_OPENSSL
 const std::string& TcpSocket::GetPassword()
@@ -1444,12 +1397,10 @@ const std::string& TcpSocket::GetPassword()
 }
 #endif
 
-
 void TcpSocket::DisableInputBuffer(bool x)
 {
     m_b_input_buffer_disabled = x;
 }
-
 
 void TcpSocket::OnOptions(int family,int type,int protocol,SOCKET s)
 {
@@ -1461,13 +1412,11 @@ DEB(    fprintf(stderr, "Socket::OnOptions()\n");)
     SetSoKeepalive(true);
 }
 
-
 void TcpSocket::SetLineProtocol(bool x)
 {
     StreamSocket::SetLineProtocol(x);
     DisableInputBuffer(x);
 }
-
 
 bool TcpSocket::SetTcpNodelay(bool x)
 {
@@ -1485,7 +1434,6 @@ bool TcpSocket::SetTcpNodelay(bool x)
 #endif
 }
 
-
 TcpSocket::CircularBuffer::CircularBuffer(size_t size)
 :buf(new char[2 * size])
 ,m_max(size)
@@ -1496,12 +1444,10 @@ TcpSocket::CircularBuffer::CircularBuffer(size_t size)
 {
 }
 
-
 TcpSocket::CircularBuffer::~CircularBuffer()
 {
     delete[] buf;
 }
-
 
 bool TcpSocket::CircularBuffer::Write(const char *s,size_t l)
 {
@@ -1531,7 +1477,6 @@ bool TcpSocket::CircularBuffer::Write(const char *s,size_t l)
     }
     return true;
 }
-
 
 bool TcpSocket::CircularBuffer::Read(char *s,size_t l)
 {
@@ -1598,30 +1543,25 @@ bool TcpSocket::CircularBuffer::Remove(size_t l)
     return Read(NULL, l);
 }
 
-
 size_t TcpSocket::CircularBuffer::GetLength()
 {
     return m_q;
 }
-
 
 const char *TcpSocket::CircularBuffer::GetStart()
 {
     return buf + m_b;
 }
 
-
 size_t TcpSocket::CircularBuffer::GetL()
 {
     return (m_b + m_q > m_max) ? m_max - m_b : m_q;
 }
 
-
 size_t TcpSocket::CircularBuffer::Space()
 {
     return m_max - m_q;
 }
-
 
 unsigned long TcpSocket::CircularBuffer::ByteCounter(bool clear)
 {
@@ -1633,7 +1573,6 @@ unsigned long TcpSocket::CircularBuffer::ByteCounter(bool clear)
     }
     return m_count;
 }
-
 
 std::string TcpSocket::CircularBuffer::ReadString(size_t l)
 {
@@ -1648,7 +1587,6 @@ std::string TcpSocket::CircularBuffer::ReadString(size_t l)
     delete[] sz;
     return tmp;
 }
-
 
 void TcpSocket::OnConnectTimeout()
 {
@@ -1687,7 +1625,6 @@ void TcpSocket::OnConnectTimeout()
     SetConnecting(false);
 }
 
-
 #ifdef _WIN32
 void TcpSocket::OnException()
 {
@@ -1723,23 +1660,19 @@ void TcpSocket::OnException()
 }
 #endif // _WIN32
 
-
 int TcpSocket::Protocol()
 {
     return IPPROTO_TCP;
 }
-
 
 void TcpSocket::SetTransferLimit(size_t sz)
 {
     m_transfer_limit = sz;
 }
 
-
 void TcpSocket::OnTransferLimit()
 {
 }
-
 
 #ifdef SOCKETS_NAMESPACE
 }

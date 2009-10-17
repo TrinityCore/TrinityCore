@@ -374,7 +374,6 @@ void WheatyExceptionReport::printTracesForAllThreads()
   CloseHandle(hThreadSnap);
 }
 
-
 //===========================================================================
 // Open the report file, and write the desired information to it.  Called by
 // WheatyUnhandledExceptionFilter

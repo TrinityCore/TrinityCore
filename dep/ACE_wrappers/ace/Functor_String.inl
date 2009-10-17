@@ -13,7 +13,6 @@ ACE_Hash<ACE_CString>::operator () (const ACE_CString &t) const
   return t.hash ();
 }
 
-
 ACE_INLINE int
 ACE_Equal_To<ACE_CString>::operator () (const ACE_CString &lhs,
                                         const ACE_CString &rhs) const
@@ -28,14 +27,12 @@ ACE_Less_Than<ACE_CString>::operator () (const ACE_CString &lhs,
   return (lhs < rhs);
 }
 
-
 #if defined (ACE_USES_WCHAR)
 ACE_INLINE unsigned long
 ACE_Hash<ACE_WString>::operator () (const ACE_WString &t) const
 {
   return t.hash ();
 }
-
 
 ACE_INLINE int
 ACE_Equal_To<ACE_WString>::operator () (const ACE_WString &lhs,

@@ -34,7 +34,7 @@ static void AttemptJoin(Player* _player)
 
     //TODO: Guard Player Map
     HashMapHolder<Player>::MapType const& players = ObjectAccessor::Instance().GetPlayers();
-    for(HashMapHolder<Player>::MapType::const_iterator iter = players.begin(); iter != players.end(); ++iter)
+    for (HashMapHolder<Player>::MapType::const_iterator iter = players.begin(); iter != players.end(); ++iter)
     {
         Player *plr = iter->second;
 
@@ -94,7 +94,7 @@ static void AttemptAddMore(Player* _player)
 
     //TODO: Guard Player map
     HashMapHolder<Player>::MapType const& players = ObjectAccessor::Instance().GetPlayers();
-    for(HashMapHolder<Player>::MapType::const_iterator iter = players.begin(); iter != players.end(); ++iter)
+    for (HashMapHolder<Player>::MapType::const_iterator iter = players.begin(); iter != players.end(); ++iter)
     {
         Player *plr = iter->second;
 
@@ -188,7 +188,7 @@ void WorldSession::HandleLfgClearOpcode( WorldPacket & /*recv_data */ )
     // empty packet
     sLog.outDebug("CMSG_CLEAR_LOOKING_FOR_GROUP");
 
-    for(int i = 0; i < MAX_LOOKING_FOR_GROUP_SLOT; ++i)
+    for (int i = 0; i < MAX_LOOKING_FOR_GROUP_SLOT; ++i)
         _player->m_lookingForGroup.slots[i].Clear();
 
     if( sWorld.getConfig(CONFIG_RESTRICTED_LFG_CHANNEL) && _player->GetSession()->GetSecurity() == SEC_PLAYER )
@@ -305,7 +305,7 @@ void WorldSession::SendLfgResult(uint32 type, uint32 entry, uint8 lfg_type)
 
     //TODO: Guard Player map
     HashMapHolder<Player>::MapType const& players = ObjectAccessor::Instance().GetPlayers();
-    for(HashMapHolder<Player>::MapType::const_iterator iter = players.begin(); iter != players.end(); ++iter)
+    for (HashMapHolder<Player>::MapType::const_iterator iter = players.begin(); iter != players.end(); ++iter)
     {
         Player *plr = iter->second;
 
@@ -331,7 +331,7 @@ void WorldSession::SendLfgResult(uint32 type, uint32 entry, uint8 lfg_type)
             data << uint8(plr->getClass());
             data << uint8(plr->getRace());
 
-            for(int i = 0; i < 3; ++i)
+            for (int i = 0; i < 3; ++i)
                 data << uint8(0);                           // spent talents count in specific tab
 
             data << uint32(0);                              // resistances1
@@ -379,7 +379,7 @@ void WorldSession::SendLfgResult(uint32 type, uint32 entry, uint8 lfg_type)
 
         if(flags & 0x80)
         {
-            for(uint8 j = 0; j < MAX_LOOKING_FOR_GROUP_SLOT; ++j)
+            for (uint8 j = 0; j < MAX_LOOKING_FOR_GROUP_SLOT; ++j)
             {
                 data << uint32(plr->m_lookingForGroup.slots[j].entry | (plr->m_lookingForGroup.slots[j].type << 24));
             }

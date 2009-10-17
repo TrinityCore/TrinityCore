@@ -257,7 +257,7 @@ struct TRINITY_DLL_DECL boss_magtheridonAI : public ScriptedAI
         uint32 ClickerNum = 0;
         // now checking if every clicker has debuff from manticron(it is dispelable atm rev 6110 : S)
         // if not - apply mind exhaustion and delete from clicker's list
-        for(CubeMap::iterator i = Cube.begin(); i != Cube.end(); ++i)
+        for (CubeMap::iterator i = Cube.begin(); i != Cube.end(); ++i)
         {
             Unit *clicker = Unit::GetUnit(*m_creature, (*i).second);
             if (!clicker || !clicker->HasAura(SPELL_SHADOW_GRASP))

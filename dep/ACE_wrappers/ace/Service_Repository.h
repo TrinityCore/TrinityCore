@@ -232,7 +232,6 @@ public:
   /// Destructor.
   ~ACE_Service_Repository_Iterator (void);
 
-
 public:
   // = Iteration methods.
 

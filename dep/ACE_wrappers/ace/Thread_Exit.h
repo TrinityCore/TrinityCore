@@ -10,7 +10,6 @@
  */
 //=============================================================================
 
-
 #ifndef ACE_THREAD_EXIT_H
 #define ACE_THREAD_EXIT_H
 #include /**/ "ace/pre.h"

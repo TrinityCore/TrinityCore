@@ -37,11 +37,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "Thread.h"
 
-
 #ifdef SOCKETS_NAMESPACE
 namespace SOCKETS_NAMESPACE {
 #endif
-
 
 Thread::Thread(bool release)
 :m_thread(0)
@@ -68,7 +66,6 @@ Thread::Thread(bool release)
     m_release = release;
 }
 
-
 Thread::~Thread()
 {
     m_b_destructor = true;
@@ -87,7 +84,6 @@ Thread::~Thread()
         ::CloseHandle(m_thread);
 #endif
 }
-
 
 threadfunc_t STDPREFIX Thread::StartThread(threadparam_t zz)
 {
@@ -116,52 +112,43 @@ threadfunc_t STDPREFIX Thread::StartThread(threadparam_t zz)
     return (threadfunc_t)NULL;
 }
 
-
 bool Thread::IsRunning()
 {
     return m_running;
 }
-
 
 void Thread::SetRunning(bool x)
 {
     m_running = x;
 }
 
-
 bool Thread::IsReleased()
 {
     return m_release;
 }
-
 
 void Thread::SetRelease(bool x)
 {
     m_release = x;
 }
 
-
 bool Thread::DeleteOnExit()
 {
     return m_b_delete_on_exit;
 }
-
 
 void Thread::SetDeleteOnExit(bool x)
 {
     m_b_delete_on_exit = x;
 }
 
-
 bool Thread::IsDestructor()
 {
     return m_b_destructor;
 }
 
-
 #ifdef SOCKETS_NAMESPACE
 }
 #endif
-
 
 

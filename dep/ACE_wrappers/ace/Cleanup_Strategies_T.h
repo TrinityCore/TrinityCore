@@ -10,7 +10,6 @@
  */
 //=============================================================================
 
-
 #ifndef CLEANUP_STRATEGIES_H
 #define CLEANUP_STRATEGIES_H
 #include /**/ "ace/pre.h"

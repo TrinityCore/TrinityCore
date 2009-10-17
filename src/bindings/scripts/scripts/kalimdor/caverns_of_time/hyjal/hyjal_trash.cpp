@@ -179,7 +179,7 @@ void hyjal_trashAI::UpdateAI(const uint32 diff)
             }
             if (m_creature->GetEntry() == ABOMINATION)
             {
-                for(uint8 i = 0; i < 4; ++i)
+                for (uint8 i = 0; i < 4; ++i)
                     AddWaypoint(i, AllianceWPs[i][0]+irand(-3,3), AllianceWPs[i][1]+irand(-3,3), AllianceWPs[i][2]);
                 switch(OverrunType)
                 {
@@ -228,7 +228,7 @@ void hyjal_trashAI::UpdateAI(const uint32 diff)
                         Start(true, true);
                         break;
                     default:
-                        for(uint8 i = 22; i < 36; ++i)
+                        for (uint8 i = 22; i < 36; ++i)
                             AddWaypoint(i-18, AllianceOverrunWP[i][0]+irand(-3,3), AllianceOverrunWP[i][1]+irand(-3,3), AllianceOverrunWP[i][2]);
 
                         SetDespawnAtEnd(true);
@@ -239,7 +239,7 @@ void hyjal_trashAI::UpdateAI(const uint32 diff)
             }
             if (m_creature->GetEntry() == GHOUL)
             {
-                for(uint8 i = 0; i < 4; ++i)
+                for (uint8 i = 0; i < 4; ++i)
                     AddWaypoint(i, AllianceWPs[i][0]+irand(-3,3), AllianceWPs[i][1]+irand(-3,3), AllianceWPs[i][2]);
                 switch(OverrunType)
                 {
@@ -301,7 +301,7 @@ void hyjal_trashAI::UpdateAI(const uint32 diff)
                         Start(true, true);
                         break;
                     default:
-                        for(uint8 i = 22; i < 36; ++i)
+                        for (uint8 i = 22; i < 36; ++i)
                             AddWaypoint(i-18, AllianceOverrunWP[i][0]+irand(-3,3), AllianceOverrunWP[i][1]+irand(-3,3), AllianceOverrunWP[i][2]);
                         SetDespawnAtEnd(true);
                         LastOverronPos = 17;
@@ -314,7 +314,7 @@ void hyjal_trashAI::UpdateAI(const uint32 diff)
         {
             if (m_creature->GetEntry() == GHOUL)
             {
-                for(uint8 i = 0; i < 6; ++i)
+                for (uint8 i = 0; i < 6; ++i)
                     AddWaypoint(i, HordeWPs[i][0]+irand(-3,3), HordeWPs[i][1]+irand(-3,3), HordeWPs[i][2]);
                 switch(OverrunType)
                 {
@@ -339,7 +339,7 @@ void hyjal_trashAI::UpdateAI(const uint32 diff)
                         Start(true, true);
                         break;
                     default:
-                        for(uint8 i = 0; i < 16; ++i)
+                        for (uint8 i = 0; i < 16; ++i)
                             AddWaypoint(i+6, HordeOverrunWP[i][0]+irand(-10,10), HordeOverrunWP[i][1]+irand(-10,10), HordeOverrunWP[i][2]);
                         SetDespawnAtEnd(true);
                         LastOverronPos = 21;
@@ -349,9 +349,9 @@ void hyjal_trashAI::UpdateAI(const uint32 diff)
             }
             if (m_creature->GetEntry() == ABOMINATION)
             {
-                for(uint8 i = 0; i < 6; ++i)
+                for (uint8 i = 0; i < 6; ++i)
                     AddWaypoint(i, HordeWPs[i][0]+irand(-10,10), HordeWPs[i][1]+irand(-10,10), HordeWPs[i][2]);
-                for(uint8 i = 0; i < 16; ++i)
+                for (uint8 i = 0; i < 16; ++i)
                     AddWaypoint(i+6, HordeOverrunWP[i][0]+irand(-10,10), HordeOverrunWP[i][1]+irand(-10,10), HordeOverrunWP[i][2]);
                 SetDespawnAtEnd(true);
                 LastOverronPos = 21;
@@ -497,7 +497,6 @@ struct mob_giant_infernalAI : public hyjal_trashAI
     }
 };
 
-
 CreatureAI* GetAI_mob_giant_infernal(Creature* pCreature)
 {
     return new mob_giant_infernalAI(pCreature);
@@ -592,7 +591,6 @@ struct mob_abominationAI : public hyjal_trashAI
         DoMeleeAttackIfReady();
     }
 };
-
 
 CreatureAI* GetAI_mob_abomination(Creature* pCreature)
 {
@@ -692,7 +690,6 @@ struct mob_ghoulAI : public hyjal_trashAI
         DoMeleeAttackIfReady();
     }
 };
-
 
 CreatureAI* GetAI_mob_ghoul(Creature* pCreature)
 {
@@ -812,7 +809,6 @@ struct mob_necromancerAI : public hyjal_trashAI
     }
 };
 
-
 CreatureAI* GetAI_mob_necromancer(Creature* pCreature)
 {
     return new mob_necromancerAI(pCreature);
@@ -913,7 +909,6 @@ struct mob_bansheeAI : public hyjal_trashAI
     }
 };
 
-
 CreatureAI* GetAI_mob_banshee(Creature* pCreature)
 {
     return new mob_bansheeAI(pCreature);
@@ -999,7 +994,6 @@ struct mob_crypt_fiendAI : public hyjal_trashAI
     }
 };
 
-
 CreatureAI* GetAI_mob_crypt_fiend(Creature* pCreature)
 {
     return new mob_crypt_fiendAI(pCreature);
@@ -1084,7 +1078,6 @@ struct mob_fel_stalkerAI : public hyjal_trashAI
         DoMeleeAttackIfReady();
     }
 };
-
 
 CreatureAI* GetAI_mob_fel_stalker(Creature* pCreature)
 {
@@ -1195,7 +1188,6 @@ struct mob_frost_wyrmAI : public hyjal_trashAI
         }else FrostBreathTimer -= diff;
     }
 };
-
 
 CreatureAI* GetAI_mob_frost_wyrm(Creature* pCreature)
 {
@@ -1329,7 +1321,6 @@ struct mob_gargoyleAI : public hyjal_trashAI
         }else StrikeTimer -= diff;
     }
 };
-
 
 CreatureAI* GetAI_mob_gargoyle(Creature* pCreature)
 {

@@ -67,10 +67,7 @@ protected:
   long flags_;
 };
 
-
-
 class ACE_Service_Gestalt;
-
 
 /**
  * @class ACE_Base_Thread_Adapter

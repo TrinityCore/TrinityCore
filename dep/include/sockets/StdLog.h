@@ -46,7 +46,6 @@ typedef enum
     LOG_LEVEL_INFO
 } loglevel_t;
 
-
 class ISocketHandler;
 class Socket;
 
@@ -64,7 +63,6 @@ public:
         const std::string& sys_err,
         loglevel_t = LOG_LEVEL_WARNING) = 0;
 };
-
 
 #ifdef SOCKETS_NAMESPACE
 }

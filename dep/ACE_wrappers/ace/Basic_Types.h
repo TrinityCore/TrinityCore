@@ -220,7 +220,6 @@ typedef ACE::If_Then_Else<
 #   endif
 # endif /* !defined (ACE_SIZEOF_LONG_LONG) */
 
-
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 
 // The sizes of the commonly implemented types are now known.  Set up
@@ -326,7 +325,6 @@ ACE_BEGIN_VERSIONED_NAMESPACE_DECL
   typedef unsigned long long    ACE_UINT64;
 #  endif /* defined (ACE_UINT64_TYPE) */
 #endif /* !(ACE_LACKS_LONGLONG_T || ACE_LACKS_UNSIGNEDLONGLONG_T) */
-
 
 typedef ACE_UINT16 ACE_USHORT16;  // @@ Backward compatibility.
 
@@ -804,7 +802,6 @@ ACE_END_VERSIONED_NAMESPACE_DECL
 # else  /* ! ACE_WIN32 && ! ACE_LACKS_LONGLONG_T */
 #   define ACE_UINT64_DBLCAST_ADAPTER(n) (n)
 # endif /* ! ACE_WIN32 && ! ACE_LACKS_LONGLONG_T */
-
 
 // The number of bytes in a float.
 # ifndef ACE_SIZEOF_FLOAT

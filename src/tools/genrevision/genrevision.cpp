@@ -83,7 +83,7 @@ void extractDataFromHG(FILE* EntriesFile, std::string path, bool url, RawData& d
     }
 
     char thash_str[200];
-    for(int i = 11;i >= 0; --i)
+    for (int i = 11; i >= 0; --i)
     {
         thash_str[i] = hash_str[i];
     }
@@ -124,7 +124,7 @@ void extractDataFromArchive(FILE* EntriesFile, std::string path, bool url, RawDa
     }
 
     char thash_str[200];
-    for(int i = 11;i >= 0; --i)
+    for (int i = 11; i >= 0; --i)
     {
         thash_str[i] = hash_str[i];
     }
@@ -333,7 +333,7 @@ int main(int argc, char **argv)
     //    -s use svn prefered
     //    -r use only revision (without repo URL) (default)
     //    -u include repositire URL as commit URL or "rev at URL"
-    for(int k = 1; k <= argc; ++k)
+    for (int k = 1; k <= argc; ++k)
     {
         if(!argv[k] || !*argv[k])
             break;
@@ -374,7 +374,6 @@ int main(int argc, char **argv)
                 return 1;
         }
     }
-
 
     /// new data extraction
     std::string newData;

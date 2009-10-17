@@ -28,7 +28,6 @@
 #include "ace/Recyclable.h"
 #include "ace/Refcountable.h"
 
-
 #include /**/ "ace/post.h"
 #endif /*ACE_STRATEGIES_H*/
 

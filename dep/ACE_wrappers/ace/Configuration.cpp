@@ -478,7 +478,6 @@ ACE_Configuration_Win32Registry::ACE_Configuration_Win32Registry (HKEY hKey)
   root_ = ACE_Configuration_Section_Key (temp);
 }
 
-
 ACE_Configuration_Win32Registry::~ACE_Configuration_Win32Registry (void)
 {
 }
@@ -979,7 +978,6 @@ ACE_Configuration_Win32Registry::remove_value (const ACE_Configuration_Section_K
   return 0;
 }
 
-
 int
 ACE_Configuration_Win32Registry::load_key (const ACE_Configuration_Section_Key& key,
                                            HKEY& hKey)
@@ -1277,7 +1275,6 @@ ACE_Configuration_Heap::open (size_t default_map_size)
   return create_index ();
 }
 
-
 int
 ACE_Configuration_Heap::open (const ACE_TCHAR* file_name,
                               void* base_address,
@@ -1372,7 +1369,6 @@ ACE_Configuration_Heap::load_key (const ACE_Configuration_Section_Key& key,
   name.assign_nocopy (temp);
   return 0;
 }
-
 
 int
 ACE_Configuration_Heap::add_section (const ACE_Configuration_Section_Key& base,
@@ -2011,7 +2007,6 @@ ACE_Configuration_Heap::get_integer_value (const ACE_Configuration_Section_Key& 
     {
       return -1;    // section does not exist
     }
-
 
   // See if it exists first
   ACE_Configuration_ExtId VExtId (t_name);

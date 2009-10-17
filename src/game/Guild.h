@@ -268,7 +268,7 @@ struct RankInfo
 {
     RankInfo(const std::string& _name, uint32 _rights, uint32 _money) : Name(_name), Rights(_rights), BankMoneyPerDay(_money)
     {
-        for(uint8 i = 0; i < GUILD_BANK_MAX_TABS; ++i)
+        for (uint8 i = 0; i < GUILD_BANK_MAX_TABS; ++i)
         {
             TabRight[i] = 0;
             TabSlotPerDay[i] = 0;
@@ -301,11 +301,9 @@ class Guild
         std::string const& GetMOTD() const { return MOTD; }
         std::string const& GetGINFO() const { return GINFO; }
 
-
         uint32 GetCreatedYear() const { return m_CreatedYear; }
         uint32 GetCreatedMonth() const { return m_CreatedMonth; }
         uint32 GetCreatedDay() const { return m_CreatedDay; }
-
 
         uint32 GetEmblemStyle() const { return m_EmblemStyle; }
         uint32 GetEmblemColor() const { return m_EmblemColor; }
@@ -342,7 +340,7 @@ class Guild
         template<class Do>
         void BroadcastWorker(Do& _do, Player* except = NULL)
         {
-            for(MemberList::iterator itr = members.begin(); itr != members.end(); ++itr)
+            for (MemberList::iterator itr = members.begin(); itr != members.end(); ++itr)
                 if(Player *player = ObjectAccessor::FindPlayer(MAKE_NEW_GUID(itr->first, 0, HIGHGUID_PLAYER)))
                     if(player != except)
                         _do(player);
@@ -367,7 +365,7 @@ class Guild
         }
         MemberSlot* GetMemberSlot(const std::string& name, uint64& guid)
         {
-            for(MemberList::iterator itr = members.begin(); itr != members.end(); ++itr)
+            for (MemberList::iterator itr = members.begin(); itr != members.end(); ++itr)
             {
                 if(itr->second.Name == name)
                 {

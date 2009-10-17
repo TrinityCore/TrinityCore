@@ -182,7 +182,7 @@ struct TRINITY_DLL_DECL boss_taerarAI : public ScriptedAI
 
                 int iSize = sizeof(m_auiSpellSummonShade) / sizeof(uint32);
 
-                for(int i = 0; i < iSize; ++i)
+                for (int i = 0; i < iSize; ++i)
                     m_creature->CastSpell(pTarget, m_auiSpellSummonShade[i], true);
 
                 ++m_uiShadesSummoned;                       // prevent casting twice at same health

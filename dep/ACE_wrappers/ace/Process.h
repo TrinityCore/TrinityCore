@@ -602,7 +602,6 @@ private:
 #endif
 };
 
-
 /**
  * @class ACE_Managed_Process
  *

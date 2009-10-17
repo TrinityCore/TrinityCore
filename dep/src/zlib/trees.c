@@ -229,7 +229,6 @@ local void send_bits(s, value, length)
 }
 #endif /* DEBUG */
 
-
 /* the arguments must not have side effects */
 
 /* ===========================================================================
@@ -281,7 +280,7 @@ local void tr_static_init()
     }
     Assert (dist == 256, "tr_static_init: dist != 256");
     dist >>= 7; /* from now on, all distances are divided by 128 */
-    for ( ; code < D_CODES; code++) {
+    for (; code < D_CODES; code++) {
         base_dist[code] = dist << 7;
         for (n = 0; n < (1<<(extra_dbits[code]-7)); n++) {
             _dist_code[256 + dist++] = (uch)code;
@@ -414,8 +413,8 @@ local void init_block(s)
     int n; /* iterates over tree elements */
 
     /* Initialize the trees. */
-    for (n = 0; n < L_CODES;  n++) s->dyn_ltree[n].Freq = 0;
-    for (n = 0; n < D_CODES;  n++) s->dyn_dtree[n].Freq = 0;
+    for (n = 0; n < L_CODES; n++) s->dyn_ltree[n].Freq = 0;
+    for (n = 0; n < D_CODES; n++) s->dyn_dtree[n].Freq = 0;
     for (n = 0; n < BL_CODES; n++) s->bl_tree[n].Freq = 0;
 
     s->dyn_ltree[END_BLOCK].Freq = 1;
@@ -425,7 +424,6 @@ local void init_block(s)
 
 #define SMALLEST 1
 /* Index within the heap array of least frequent node in the Huffman tree */
-
 
 /* ===========================================================================
  * Remove the smallest element from the heap and recreate the heap with
@@ -597,7 +595,7 @@ local void gen_codes (tree, max_code, bl_count)
             "inconsistent bit counts");
     Tracev((stderr,"\ngen_codes: max_code %d ", max_code));
 
-    for (n = 0;  n <= max_code; n++) {
+    for (n = 0; n <= max_code; n++) {
         int len = tree[n].Len;
         if (len == 0) continue;
         /* Now reverse the bits */

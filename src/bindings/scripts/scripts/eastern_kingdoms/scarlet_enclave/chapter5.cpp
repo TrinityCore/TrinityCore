@@ -242,7 +242,7 @@ void UpdateWorldState(Map *map, uint32 id, uint32 state)
 
     if (!players.isEmpty())
     {
-        for(Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
+        for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
         {
             if (Player* pPlayer = itr->getSource())
                 pPlayer->SendUpdateWorldState(id,state);
@@ -376,13 +376,13 @@ struct TRINITY_DLL_DECL npc_highlord_darion_mograineAI : public npc_escortAI
             uiEligorGUID = NULL;
             uiRayneGUID = NULL;
 
-            for(uint8 i = 0; i < ENCOUNTER_DEFENDER_NUMBER; ++i)
+            for (uint8 i = 0; i < ENCOUNTER_DEFENDER_NUMBER; ++i)
             {
                 if (Creature* pTemp = Unit::GetCreature(*me, uiDefenderGUID[i]))
                     pTemp->setDeathState(JUST_DIED);
                 uiDefenderGUID[i] = 0;
             }
-            for(uint8 i = 0; i < ENCOUNTER_EARTHSHATTER_NUMBER; ++i)
+            for (uint8 i = 0; i < ENCOUNTER_EARTHSHATTER_NUMBER; ++i)
             {
                 if (Creature* pTemp = Unit::GetCreature(*me, uiEarthshatterGUID[i]))
                     pTemp->setDeathState(JUST_DIED);
@@ -402,25 +402,25 @@ struct TRINITY_DLL_DECL npc_highlord_darion_mograineAI : public npc_escortAI
             uiOrbazGUID = NULL;
             uiThassarianGUID = NULL;
             uiLichKingGUID = NULL;
-            for(uint8 i = 0; i < ENCOUNTER_ABOMINATION_NUMBER; ++i)
+            for (uint8 i = 0; i < ENCOUNTER_ABOMINATION_NUMBER; ++i)
             {
                 if (Creature* pTemp = Unit::GetCreature(*me, uiAbominationGUID[i]))
                     pTemp->setDeathState(JUST_DIED);
                 uiAbominationGUID[i] = 0;
             }
-            for(uint8 i = 0; i < ENCOUNTER_BEHEMOTH_NUMBER; ++i)
+            for (uint8 i = 0; i < ENCOUNTER_BEHEMOTH_NUMBER; ++i)
             {
                 if (Creature* pTemp = Unit::GetCreature(*me, uiBehemothGUID[i]))
                     pTemp->setDeathState(JUST_DIED);
                 uiBehemothGUID[i] = 0;
             }
-            for(uint8 i = 0; i < ENCOUNTER_GHOUL_NUMBER; ++i)
+            for (uint8 i = 0; i < ENCOUNTER_GHOUL_NUMBER; ++i)
             {
                 if (Creature* pTemp = Unit::GetCreature(*me, uiGhoulGUID[i]))
                     pTemp->setDeathState(JUST_DIED);
                 uiGhoulGUID[i] = 0;
             }
-            for(uint8 i = 0; i < ENCOUNTER_WARRIOR_NUMBER; ++i)
+            for (uint8 i = 0; i < ENCOUNTER_WARRIOR_NUMBER; ++i)
             {
                 if (Creature* pTemp = Unit::GetCreature(*me, uiWarriorGUID[i]))
                     pTemp->setDeathState(JUST_DIED);
@@ -478,13 +478,13 @@ struct TRINITY_DLL_DECL npc_highlord_darion_mograineAI : public npc_escortAI
                 if (Creature* pTemp = Unit::GetCreature(*me, uiMaxwellGUID))
                     DoScriptText(SAY_LIGHT_OF_DAWN08, pTemp);
 
-                for(uint8 i = 0; i < ENCOUNTER_GHOUL_NUMBER; ++i)
+                for (uint8 i = 0; i < ENCOUNTER_GHOUL_NUMBER; ++i)
                     NPCChangeTarget(uiGhoulGUID[i]);
-                for(uint8 i = 0; i < ENCOUNTER_WARRIOR_NUMBER; ++i)
+                for (uint8 i = 0; i < ENCOUNTER_WARRIOR_NUMBER; ++i)
                     NPCChangeTarget(uiWarriorGUID[i]);
-                for(uint8 i = 0; i < ENCOUNTER_ABOMINATION_NUMBER; ++i)
+                for (uint8 i = 0; i < ENCOUNTER_ABOMINATION_NUMBER; ++i)
                     NPCChangeTarget(uiAbominationGUID[i]);
-                for(uint8 i = 0; i < ENCOUNTER_BEHEMOTH_NUMBER; ++i)
+                for (uint8 i = 0; i < ENCOUNTER_BEHEMOTH_NUMBER; ++i)
                     NPCChangeTarget(uiBehemothGUID[i]);
                 NPCChangeTarget(uiKoltiraGUID);
                 NPCChangeTarget(uiOrbazGUID);
@@ -710,16 +710,16 @@ struct TRINITY_DLL_DECL npc_highlord_darion_mograineAI : public npc_escortAI
                             pTemp->RemoveUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
                             pTemp->GetMotionMaster()->MovePoint(0, LightofDawnLoc[0].x+rand()%30, LightofDawnLoc[0].y+rand()%30, LightofDawnLoc[0].z);
                         }
-                        for(uint8 i = 0; i < ENCOUNTER_ABOMINATION_NUMBER; ++i)
+                        for (uint8 i = 0; i < ENCOUNTER_ABOMINATION_NUMBER; ++i)
                             if (Creature* pTemp = Unit::GetCreature(*me, uiAbominationGUID[i]))
                                 pTemp->GetMotionMaster()->MovePoint(0, LightofDawnLoc[0].x+rand()%30, LightofDawnLoc[0].y+rand()%30, LightofDawnLoc[0].z);
-                        for(uint8 i = 0; i < ENCOUNTER_BEHEMOTH_NUMBER; ++i)
+                        for (uint8 i = 0; i < ENCOUNTER_BEHEMOTH_NUMBER; ++i)
                             if (Creature* pTemp = Unit::GetCreature(*me, uiBehemothGUID[i]))
                                 pTemp->GetMotionMaster()->MovePoint(0, LightofDawnLoc[0].x+rand()%30, LightofDawnLoc[0].y+rand()%30, LightofDawnLoc[0].z);
-                        for(uint8 i = 0; i < ENCOUNTER_GHOUL_NUMBER; ++i)
+                        for (uint8 i = 0; i < ENCOUNTER_GHOUL_NUMBER; ++i)
                             if (Creature* pTemp = Unit::GetCreature(*me, uiGhoulGUID[i]))
                                 pTemp->GetMotionMaster()->MovePoint(0, LightofDawnLoc[0].x+rand()%30, LightofDawnLoc[0].y+rand()%30, LightofDawnLoc[0].z);
-                        for(uint8 i = 0; i < ENCOUNTER_WARRIOR_NUMBER; ++i)
+                        for (uint8 i = 0; i < ENCOUNTER_WARRIOR_NUMBER; ++i)
                             if (Creature* pTemp = Unit::GetCreature(*me, uiWarriorGUID[i]))
                                 pTemp->GetMotionMaster()->MovePoint(0, LightofDawnLoc[0].x+rand()%30, LightofDawnLoc[0].y+rand()%30, LightofDawnLoc[0].z);
                         JumpToNextStep(5000);
@@ -1344,13 +1344,13 @@ struct TRINITY_DLL_DECL npc_highlord_darion_mograineAI : public npc_escortAI
             // Check targets
             if (uiTargetcheck < diff)
             {
-                for(uint8 i = 0; i < ENCOUNTER_GHOUL_NUMBER; ++i)
+                for (uint8 i = 0; i < ENCOUNTER_GHOUL_NUMBER; ++i)
                     NPCChangeTarget(uiGhoulGUID[i]);
-                for(uint8 i = 0; i < ENCOUNTER_WARRIOR_NUMBER; ++i)
+                for (uint8 i = 0; i < ENCOUNTER_WARRIOR_NUMBER; ++i)
                     NPCChangeTarget(uiWarriorGUID[i]);
-                for(uint8 i = 0; i < ENCOUNTER_ABOMINATION_NUMBER; ++i)
+                for (uint8 i = 0; i < ENCOUNTER_ABOMINATION_NUMBER; ++i)
                     NPCChangeTarget(uiAbominationGUID[i]);
-                for(uint8 i = 0; i < ENCOUNTER_BEHEMOTH_NUMBER; ++i)
+                for (uint8 i = 0; i < ENCOUNTER_BEHEMOTH_NUMBER; ++i)
                     NPCChangeTarget(uiBehemothGUID[i]);
                 NPCChangeTarget(uiKoltiraGUID);
                 NPCChangeTarget(uiOrbazGUID);
@@ -1384,17 +1384,17 @@ struct TRINITY_DLL_DECL npc_highlord_darion_mograineAI : public npc_escortAI
                 me->InterruptNonMeleeSpells(false);
                 me->RemoveUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
 
-                for(uint8 i = 0; i < ENCOUNTER_DEFENDER_NUMBER; ++i)
+                for (uint8 i = 0; i < ENCOUNTER_DEFENDER_NUMBER; ++i)
                     DespawnNPC(uiDefenderGUID[i]);
-                for(uint8 i = 0; i < ENCOUNTER_EARTHSHATTER_NUMBER; ++i)
+                for (uint8 i = 0; i < ENCOUNTER_EARTHSHATTER_NUMBER; ++i)
                     DespawnNPC(uiEarthshatterGUID[i]);
-                for(uint8 i = 0; i < ENCOUNTER_ABOMINATION_NUMBER; ++i)
+                for (uint8 i = 0; i < ENCOUNTER_ABOMINATION_NUMBER; ++i)
                     DespawnNPC(uiAbominationGUID[i]);
-                for(uint8 i = 0; i < ENCOUNTER_BEHEMOTH_NUMBER; ++i)
+                for (uint8 i = 0; i < ENCOUNTER_BEHEMOTH_NUMBER; ++i)
                     DespawnNPC(uiBehemothGUID[i]);
-                for(uint8 i = 0; i < ENCOUNTER_GHOUL_NUMBER; ++i)
+                for (uint8 i = 0; i < ENCOUNTER_GHOUL_NUMBER; ++i)
                     DespawnNPC(uiGhoulGUID[i]);
-                for(uint8 i = 0; i < ENCOUNTER_WARRIOR_NUMBER; ++i)
+                for (uint8 i = 0; i < ENCOUNTER_WARRIOR_NUMBER; ++i)
                     DespawnNPC(uiWarriorGUID[i]);
 
                 if (Creature* pTemp = Unit::GetCreature(*me, uiKorfaxGUID))
@@ -1496,7 +1496,7 @@ struct TRINITY_DLL_DECL npc_highlord_darion_mograineAI : public npc_escortAI
         Unit* pTemp = NULL;
 
         // Death
-        for(uint8 i = 0; i < ENCOUNTER_GHOUL_NUMBER; ++i)
+        for (uint8 i = 0; i < ENCOUNTER_GHOUL_NUMBER; ++i)
         {
             if (!(pTemp = Unit::GetCreature(*me, uiGhoulGUID[i])))
             {
@@ -1505,7 +1505,7 @@ struct TRINITY_DLL_DECL npc_highlord_darion_mograineAI : public npc_escortAI
                 uiGhoulGUID[i] = pTemp->GetGUID();
             }
         }
-        for(uint8 i = 0; i < ENCOUNTER_ABOMINATION_NUMBER; ++i)
+        for (uint8 i = 0; i < ENCOUNTER_ABOMINATION_NUMBER; ++i)
         {
             if (!(pTemp = Unit::GetCreature(*me, uiAbominationGUID[i])))
             {
@@ -1514,7 +1514,7 @@ struct TRINITY_DLL_DECL npc_highlord_darion_mograineAI : public npc_escortAI
                 uiAbominationGUID[i] = pTemp->GetGUID();
             }
         }
-        for(uint8 i = 0; i < ENCOUNTER_WARRIOR_NUMBER; ++i)
+        for (uint8 i = 0; i < ENCOUNTER_WARRIOR_NUMBER; ++i)
         {
             if (!(pTemp = Unit::GetCreature(*me, uiWarriorGUID[i])))
             {
@@ -1523,7 +1523,7 @@ struct TRINITY_DLL_DECL npc_highlord_darion_mograineAI : public npc_escortAI
                 uiWarriorGUID[i] = pTemp->GetGUID();
             }
         }
-        for(uint8 i = 0; i < ENCOUNTER_BEHEMOTH_NUMBER; ++i)
+        for (uint8 i = 0; i < ENCOUNTER_BEHEMOTH_NUMBER; ++i)
         {
             if (!(pTemp = Unit::GetCreature(*me, uiBehemothGUID[i])))
             {
@@ -1534,7 +1534,7 @@ struct TRINITY_DLL_DECL npc_highlord_darion_mograineAI : public npc_escortAI
         }
 
         // Dawn
-        for(uint8 i = 0; i < ENCOUNTER_DEFENDER_NUMBER; ++i)
+        for (uint8 i = 0; i < ENCOUNTER_DEFENDER_NUMBER; ++i)
         {
             if (!(pTemp = Unit::GetCreature(*me, uiDefenderGUID[i])))
             {
@@ -1544,7 +1544,7 @@ struct TRINITY_DLL_DECL npc_highlord_darion_mograineAI : public npc_escortAI
                 uiDefenderGUID[i] = pTemp->GetGUID();
             }
         }
-        for(uint8 i = 0; i < ENCOUNTER_EARTHSHATTER_NUMBER; ++i)
+        for (uint8 i = 0; i < ENCOUNTER_EARTHSHATTER_NUMBER; ++i)
         {
             if (!(pTemp = Unit::GetCreature(*me, uiEarthshatterGUID[i])))
             {

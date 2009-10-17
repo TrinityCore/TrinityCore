@@ -157,7 +157,6 @@ public:
   /// the macro-generated service function calls it.
   void svc_handle (const SERVICE_STATUS_HANDLE new_svc_handle);
 
-
   // = Methods which can be used to do SCP-like functions. The first group
   // are used to register/insert and remove the service's definition in the
   // SCM registry.

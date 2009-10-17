@@ -339,7 +339,7 @@ bool Pet::LoadPetFromDB( Player* owner, uint32 petentry, uint32 petnumber, bool 
 
             m_declinedname = new DeclinedName;
             Field *fields2 = result->Fetch();
-            for(uint8 i = 0; i < MAX_DECLINED_NAME_CASES; ++i)
+            for (uint8 i = 0; i < MAX_DECLINED_NAME_CASES; ++i)
             {
                 m_declinedname->name[i] = fields2[i].GetCppString();
             }
@@ -436,7 +436,7 @@ void Pet::SavePetToDB(PetSaveMode mode)
             << GetPower(POWER_HAPPINESS) << ", '";
 
         // save only spell slots from action bar
-        for(uint32 i = ACTION_BAR_INDEX_PET_SPELL_START; i < ACTION_BAR_INDEX_PET_SPELL_END; ++i)
+        for (uint32 i = ACTION_BAR_INDEX_PET_SPELL_START; i < ACTION_BAR_INDEX_PET_SPELL_END; ++i)
         {
             ss << uint32(m_charmInfo->GetActionBarEntry(i)->GetType()) << " "
                << uint32(m_charmInfo->GetActionBarEntry(i)->GetAction()) << " ";
@@ -567,7 +567,7 @@ void Pet::Update(uint32 diff)
                             m_regenTimer = 0;
                             break;
                     }
-                }                   
+                }
             }
 
             if(getPetType() != HUNTER_PET)
@@ -619,7 +619,7 @@ void Creature::Regenerate(Powers power)
 
     // Apply modifiers (if any).
     AuraEffectList const& ModPowerRegenPCTAuras = GetAurasByType(SPELL_AURA_MOD_POWER_REGEN_PERCENT);
-    for(AuraEffectList::const_iterator i = ModPowerRegenPCTAuras.begin(); i != ModPowerRegenPCTAuras.end(); ++i)
+    for (AuraEffectList::const_iterator i = ModPowerRegenPCTAuras.begin(); i != ModPowerRegenPCTAuras.end(); ++i)
         if ((*i)->GetMiscValue() == power)
             addvalue *= ((*i)->GetAmount() + 100) / 100.0f;
 
@@ -669,7 +669,7 @@ bool Pet::CanTakeMoreActiveSpells(uint32 spellid)
 
         uint8 x;
 
-        for(x = 0; x < activecount; x++)
+        for (x = 0; x < activecount; x++)
         {
             if(chainstart == chainstartstore[x])
                 break;
@@ -872,7 +872,7 @@ bool Guardian::InitStatsForLevel(uint32 petlevel)
         if(pInfo->armor > 0)
             SetModifierValue(UNIT_MOD_ARMOR, BASE_VALUE, float(pInfo->armor));
 
-        for(uint8 stat = 0; stat < MAX_STATS; ++stat)
+        for (uint8 stat = 0; stat < MAX_STATS; ++stat)
             SetCreateStat(Stats(stat), float(pInfo->stats[stat]));
     }
     else                                            // not exist in DB, use some default fake data
@@ -1095,7 +1095,7 @@ void Pet::_SaveSpellCooldowns()
     time_t curTime = time(NULL);
 
     // remove oudated and save active
-    for(CreatureSpellCooldowns::iterator itr = m_CreatureSpellCooldowns.begin();itr != m_CreatureSpellCooldowns.end();)
+    for (CreatureSpellCooldowns::iterator itr = m_CreatureSpellCooldowns.begin(); itr != m_CreatureSpellCooldowns.end(); )
     {
         if(itr->second <= curTime)
             m_CreatureSpellCooldowns.erase(itr++);
@@ -1225,7 +1225,7 @@ void Pet::_SaveAuras()
     CharacterDatabase.PExecute("DELETE FROM pet_aura WHERE guid = '%u'", m_charmInfo->GetPetNumber());
 
     AuraMap const& auras = GetAuras();
-    for(AuraMap::const_iterator itr = auras.begin(); itr !=auras.end() ; ++itr)
+    for (AuraMap::const_iterator itr = auras.begin(); itr !=auras.end() ; ++itr)
     {
         if(!itr->second->CanBeSaved())
             continue;
@@ -1309,7 +1309,7 @@ bool Pet::addSpell(uint32 spell_id,ActiveStates active /*= ACT_DECIDE*/, PetSpel
     {
         if(TalentEntry const *talentInfo = sTalentStore.LookupEntry( talentPos->talent_id ))
         {
-            for(uint8 i=0; i < MAX_TALENT_RANK; ++i)
+            for (uint8 i=0; i < MAX_TALENT_RANK; ++i)
             {
                 // skip learning spell and no rank spell case
                 uint32 rankSpellId = talentInfo->RankID[i];
@@ -1395,7 +1395,7 @@ void Pet::InitLevelupSpellsForLevel()
     if(PetLevelupSpellSet const *levelupSpells = GetCreatureInfo()->family ? spellmgr.GetPetLevelupSpellList(GetCreatureInfo()->family) : NULL)
     {
         // PetLevelupSpellSet ordered by levels, process in reversed order
-        for(PetLevelupSpellSet::const_reverse_iterator itr = levelupSpells->rbegin(); itr != levelupSpells->rend(); ++itr)
+        for (PetLevelupSpellSet::const_reverse_iterator itr = levelupSpells->rbegin(); itr != levelupSpells->rend(); ++itr)
         {
             // will called first if level down
             if(itr->first > level)
@@ -1411,7 +1411,7 @@ void Pet::InitLevelupSpellsForLevel()
     // default spells (can be not learned if pet level (as owner level decrease result for example) less first possible in normal game)
     if(PetDefaultSpellsEntry const *defSpells = spellmgr.GetPetDefaultSpellsEntry(petSpellsId))
     {
-        for(uint8 i = 0; i < MAX_CREATURE_SPELL_DATA_SLOT; ++i)
+        for (uint8 i = 0; i < MAX_CREATURE_SPELL_DATA_SLOT; ++i)
         {
             SpellEntry const* spellEntry = sSpellStore.LookupEntry(defSpells->spellid[i]);
             if(!spellEntry)
@@ -1493,10 +1493,9 @@ bool Pet::removeSpell(uint32 spell_id, bool learn_prev, bool clear_ab)
     return true;
 }
 
-
 void Pet::CleanupActionBar()
 {
-    for(uint8 i = 0; i < MAX_UNIT_ACTION_BAR_INDEX; ++i)
+    for (uint8 i = 0; i < MAX_UNIT_ACTION_BAR_INDEX; ++i)
         if(UnitActionBarEntry const* ab = m_charmInfo->GetActionBarEntry(i))
             if(ab->GetAction() && ab->IsActionBarForSpell())
             {
@@ -1577,7 +1576,7 @@ bool Pet::resetTalents(bool no_cost)
 
         for (int j = 0; j < MAX_TALENT_RANK; j++)
         {
-            for(PetSpellMap::const_iterator itr = m_spells.begin(); itr != m_spells.end();)
+            for (PetSpellMap::const_iterator itr = m_spells.begin(); itr != m_spells.end(); )
             {
                 if(itr->second.state == PETSPELL_REMOVED)
                 {
@@ -1855,7 +1854,7 @@ void Pet::LearnPetPassives()
         // For general hunter pets skill 270
         // Passive 01~10, Passive 00 (20782, not used), Ferocious Inspiration (34457)
         // Scale 01~03 (34902~34904, bonus from owner, not used)
-        for(PetFamilySpellsSet::const_iterator petSet = petStore->second.begin(); petSet != petStore->second.end(); ++petSet)
+        for (PetFamilySpellsSet::const_iterator petSet = petStore->second.begin(); petSet != petStore->second.end(); ++petSet)
             addSpell(*petSet, ACT_DECIDE, PETSPELL_NEW, PETSPELL_FAMILY);
     }
 }
@@ -1869,7 +1868,7 @@ void Pet::CastPetAuras(bool current)
     if(!IsPermanentPetFor((Player*)owner))
         return;
 
-    for(PetAuraSet::const_iterator itr = owner->m_petAuras.begin(); itr != owner->m_petAuras.end();)
+    for (PetAuraSet::const_iterator itr = owner->m_petAuras.begin(); itr != owner->m_petAuras.end(); )
     {
         PetAura const* pa = *itr;
         ++itr;

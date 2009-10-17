@@ -499,7 +499,6 @@ ACE_Handle_Set_Iterator::ACE_Handle_Set_Iterator (const ACE_Handle_Set &hs)
 #endif /* !ACE_WIN32 && !ACE_HAS_BIG_FD_SET */
 }
 
-
 void
 ACE_Handle_Set_Iterator::reset_state (void)
 {

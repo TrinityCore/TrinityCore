@@ -62,7 +62,7 @@
  * 1.2.beta6    4 Jan 2003
  * - Added comments in inffast.c on effectiveness of POSTINC
  * - Typecasting all around to reduce compiler warnings
- * - Changed loops from while (1) or do {} while (1) to for (;;), again to
+ * - Changed loops from while (1) or do {} while (1) to for (; ; ), again to
  *   make compilers happy
  * - Changed type of window in inflateBackInit() to unsigned char *
  *
@@ -284,7 +284,7 @@ void makefixed()
     size = 1U << 9;
     printf("    static const code lenfix[%u] = {", size);
     low = 0;
-    for (;;) {
+    for (; ; ) {
         if ((low % 7) == 0) printf("\n        ");
         printf("{%u,%u,%d}", state.lencode[low].op, state.lencode[low].bits,
                state.lencode[low].val);
@@ -295,7 +295,7 @@ void makefixed()
     size = 1U << 5;
     printf("\n    static const code distfix[%u] = {", size);
     low = 0;
-    for (;;) {
+    for (; ; ) {
         if ((low % 6) == 0) printf("\n        ");
         printf("{%u,%u,%d}", state.distcode[low].op, state.distcode[low].bits,
                state.distcode[low].val);
@@ -474,7 +474,7 @@ unsigned out;
    much output data as possible before returning.  The state machine is
    structured roughly as follows:
 
-    for (;;) switch (state) {
+    for (; ; ) switch (state) {
     ...
     case STATEn:
         if (not enough input data or output space to make progress)
@@ -584,7 +584,7 @@ int flush;
     in = have;
     out = left;
     ret = Z_OK;
-    for (;;)
+    for (; ; )
         switch (state->mode) {
         case HEAD:
             if (state->wrap == 0) {
@@ -875,7 +875,7 @@ int flush;
             state->mode = CODELENS;
         case CODELENS:
             while (state->have < state->nlen + state->ndist) {
-                for (;;) {
+                for (; ; ) {
                     this = state->lencode[BITS(state->lenbits)];
                     if ((unsigned)(this.bits) <= bits) break;
                     PULLBYTE();
@@ -954,14 +954,14 @@ int flush;
                 LOAD();
                 break;
             }
-            for (;;) {
+            for (; ; ) {
                 this = state->lencode[BITS(state->lenbits)];
                 if ((unsigned)(this.bits) <= bits) break;
                 PULLBYTE();
             }
             if (this.op && (this.op & 0xf0) == 0) {
                 last = this;
-                for (;;) {
+                for (; ; ) {
                     this = state->lencode[last.val +
                             (BITS(last.bits + last.op) >> last.bits)];
                     if ((unsigned)(last.bits + this.bits) <= bits) break;
@@ -999,14 +999,14 @@ int flush;
             Tracevv((stderr, "inflate:         length %u\n", state->length));
             state->mode = DIST;
         case DIST:
-            for (;;) {
+            for (; ; ) {
                 this = state->distcode[BITS(state->distbits)];
                 if ((unsigned)(this.bits) <= bits) break;
                 PULLBYTE();
             }
             if ((this.op & 0xf0) == 0) {
                 last = this;
-                for (;;) {
+                for (; ; ) {
                     this = state->distcode[last.val +
                             (BITS(last.bits + last.op) >> last.bits)];
                     if ((unsigned)(last.bits + this.bits) <= bits) break;

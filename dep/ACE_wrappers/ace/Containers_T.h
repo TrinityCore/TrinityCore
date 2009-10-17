@@ -40,7 +40,6 @@ ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 
 class ACE_Allocator;
 
-
 /**
  * @class ACE_Bounded_Stack
  *
@@ -172,7 +171,6 @@ private:
 };
 
 //----------------------------------------
-
 
 /**
  * @class ACE_Fixed_Stack
@@ -333,8 +331,6 @@ private:
   T item_;
 };
 
-
-
 /**
  * @class ACE_Unbounded_Stack
  *
@@ -407,7 +403,6 @@ public:
   ~ACE_Unbounded_Stack (void);
 
   // = Classic Stack operations.
-
 
   ///Push an element onto the top of stack.
   /**
@@ -774,7 +769,6 @@ public:
   ACE_ALLOC_HOOK_DECLARE;
 };
 
-
 /**
  * @class ACE_Double_Linked_List
  *
@@ -991,7 +985,6 @@ protected:
   /// Allocation Strategy of the queue.
   ACE_Allocator *allocator_;
 };
-
 
 template <class T> class ACE_DLList;
 template <class T> class ACE_DLList_Iterator;
@@ -1553,7 +1546,6 @@ private:
   ssize_t next_;
 };
 
-
 /**
  * @class ACE_Bounded_Set
  *
@@ -1775,7 +1767,6 @@ private:
   /// Pointer to the set we're iterating over.
   ACE_Ordered_MultiSet<T> &set_;
 };
-
 
 /**
  * @class ACE_Ordered_MultiSet

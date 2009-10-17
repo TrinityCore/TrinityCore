@@ -47,7 +47,7 @@ bool GOHello_go_gauntlet_gate(Player* pPlayer, GameObject* pGo)
 
     if (Group *pGroup = pPlayer->GetGroup())
     {
-        for(GroupReference *itr = pGroup->GetFirstMember(); itr != NULL; itr = itr->next())
+        for (GroupReference *itr = pGroup->GetFirstMember(); itr != NULL; itr = itr->next())
         {
             Player* pGroupie = itr->getSource();
             if (!pGroupie)
@@ -197,7 +197,7 @@ struct TRINITY_DLL_DECL mobs_spectral_ghostly_citizenAI : public ScriptedAI
     {
         if (Tagged)
         {
-            for(uint32 i = 1; i <= 4; ++i)
+            for (uint32 i = 1; i <= 4; ++i)
             {
                  //100%, 50%, 33%, 25% chance to spawn
                  if (urand(1,i) == 1)

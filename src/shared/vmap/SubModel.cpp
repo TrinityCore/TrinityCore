@@ -148,7 +148,7 @@ namespace VMAP
         Vector3 lo = Vector3(inf(),inf(),inf());
         Vector3 hi = Vector3(-inf(),-inf(),-inf());
 
-        for(int i=0;i<pNode.valueArray.size(); i++)
+        for (int i=0; i<pNode.valueArray.size(); i++)
         {
             G3D::_AABSPTree::Handle<Triangle>* h= pNode.valueArray[i];
             Triangle t = h->value;

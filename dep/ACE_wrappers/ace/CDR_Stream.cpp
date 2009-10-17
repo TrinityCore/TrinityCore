@@ -633,7 +633,6 @@ ACE_OutputCDR::write_wchar_array_i (const ACE_CDR::WChar *x,
   return false;
 }
 
-
 ACE_CDR::Boolean
 ACE_OutputCDR::write_array (const void *x,
                             size_t size,
@@ -683,7 +682,6 @@ ACE_OutputCDR::write_array (const void *x,
   return false;
 }
 
-
 ACE_CDR::Boolean
 ACE_OutputCDR::write_boolean_array (const ACE_CDR::Boolean* x,
                                     ACE_CDR::ULong length)
@@ -703,7 +701,6 @@ ACE_OutputCDR::write_boolean_array (const ACE_CDR::Boolean* x,
   return this->good_bit ();
 }
 
-
 char *
 ACE_OutputCDR::write_long_placeholder (void)
 {
@@ -715,7 +712,6 @@ ACE_OutputCDR::write_long_placeholder (void)
   return buf;
 }
 
-
 char *
 ACE_OutputCDR::write_short_placeholder (void)
 {
@@ -726,7 +722,6 @@ ACE_OutputCDR::write_short_placeholder (void)
     buf = 0;
   return buf;
 }
-
 
 ACE_CDR::Boolean
 ACE_OutputCDR::replace (ACE_CDR::Long x, char* loc)
@@ -750,7 +745,6 @@ ACE_OutputCDR::replace (ACE_CDR::Long x, char* loc)
   return true;
 }
 
-
 ACE_CDR::Boolean
 ACE_OutputCDR::replace (ACE_CDR::Short x, char* loc)
 {
@@ -772,7 +766,6 @@ ACE_OutputCDR::replace (ACE_CDR::Short x, char* loc)
 
   return true;
 }
-
 
 int
 ACE_OutputCDR::consolidate (void)
@@ -817,7 +810,6 @@ ACE_OutputCDR::consolidate (void)
 
   return 0;
 }
-
 
 ACE_Message_Block*
 ACE_OutputCDR::find (char* loc)
@@ -1528,7 +1520,6 @@ ACE_InputCDR::read_wchar_array_i (ACE_CDR::WChar* x,
     }
   return false;
 }
-
 
 ACE_CDR::Boolean
 ACE_InputCDR::read_boolean_array (ACE_CDR::Boolean *x,

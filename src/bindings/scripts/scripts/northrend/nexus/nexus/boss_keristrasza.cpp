@@ -110,7 +110,7 @@ struct TRINITY_DLL_DECL boss_keristraszaAI : public ScriptedAI
                 if (pMap && pMap->IsDungeon())
                 {
                     Map::PlayerList const &players = pMap->GetPlayers();
-                    for(Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
+                    for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
                         itr->getSource()->CompletedAchievement(AchievIntenseCold);
                 }
             }
@@ -136,7 +136,7 @@ struct TRINITY_DLL_DECL boss_keristraszaAI : public ScriptedAI
 
         GameObject *ContainmentSpheres[CONTAINMENT_SPHERES];
 
-        for(uint8 i = 0; i < CONTAINMENT_SPHERES; ++i)
+        for (uint8 i = 0; i < CONTAINMENT_SPHERES; ++i)
         {
             ContainmentSpheres[i] = pInstance->instance->GetGameObject(ContainmentSphereGUIDs[i]);
             if (!ContainmentSpheres[i])
@@ -174,7 +174,7 @@ struct TRINITY_DLL_DECL boss_keristraszaAI : public ScriptedAI
         if (CheckIntenseColdTimer < diff && !MoreThanTwoIntenseCold)
         {
             std::list<HostilReference*> ThreatList = m_creature->getThreatManager().getThreatList();
-            for(std::list<HostilReference*>::const_iterator itr = ThreatList.begin(); itr != ThreatList.end(); itr++)
+            for (std::list<HostilReference*>::const_iterator itr = ThreatList.begin(); itr != ThreatList.end(); itr++)
             {
                 Unit *target = Unit::GetUnit(*m_creature, (*itr)->getUnitGuid());
                 if (!target || target->GetTypeId() != TYPEID_PLAYER)

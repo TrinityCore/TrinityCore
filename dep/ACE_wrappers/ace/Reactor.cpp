@@ -308,7 +308,7 @@ ACE_Reactor::run_alertable_reactor_event_loop (ACE_Time_Value &tv,
   if (this->reactor_event_loop_done ())
     return 0;
 
-  for (;;)
+  for (; ; )
     {
       int result = this->implementation_->alertable_handle_events (tv);
 

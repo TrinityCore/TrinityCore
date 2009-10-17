@@ -165,7 +165,6 @@ ACE::ldfind (const ACE_TCHAR* filename,
     return -1;
   }
 
-
   ACE_OS::strcpy(pathname, ACE_DLL_PREFIX);
   ACE_OS::strcat(pathname, filename);
   nameDsc.dsc$w_length = ACE_OS::strlen(pathname);
@@ -438,7 +437,7 @@ ACE::ldfind (const ACE_TCHAR* filename,
                                  nextholder);
               int result = 0;
 
-              for (;;)
+              for (; ; )
                 {
                   // Check if at end of search path.
                   if (path_entry == 0)
@@ -676,7 +675,6 @@ ACE::strrepl (char *s, char search, char replace)
 
   return replaced;
 }
-
 
 // Split a string up into 'token'-delimited pieces, ala Perl's
 // "split".

@@ -46,7 +46,7 @@ Channel::Channel(const std::string& name, uint32 channel_id, uint32 Team)
             m_flags |= CHANNEL_FLAG_LFG;
         else                                                // for all other channels
             m_flags |= CHANNEL_FLAG_NOT_LFG;
-        m_IsSaved = false;  
+        m_IsSaved = false;
     }
     else                                                    // it's custom channel
     {
@@ -62,14 +62,14 @@ Channel::Channel(const std::string& name, uint32 channel_id, uint32 Team)
             m_moderate = fields[3].GetBool();
             m_password  = fields[4].GetString();
             const char* db_BannedList = fields[5].GetString();
-            
+
             m_IsSaved = true;
 
             if(db_BannedList)
             {
                 Tokens tokens = StrSplit(db_BannedList, " ");
                 Tokens::iterator iter;
-                for (iter = tokens.begin();iter != tokens.end(); ++iter)
+                for (iter = tokens.begin(); iter != tokens.end(); ++iter)
                 {
                     uint64 banned_guid = atol((*iter).c_str());
                     if(banned_guid)
@@ -87,7 +87,7 @@ Channel::Channel(const std::string& name, uint32 channel_id, uint32 Team)
             {
                 sLog.outDebug("New Channel(%s) saved", name.c_str());
                 m_IsSaved = true;
-            }            
+            }
         }
     }
 }
@@ -160,7 +160,7 @@ void Channel::Join(uint64 p, const char *pass)
     if(!IsConstant() && !m_ownerGUID)
     {
         SetOwner(p, (players.size() > 1 ? true : false));
-        players[p].SetModerator(true);        
+        players[p].SetModerator(true);
     }
     /*
     else if(!IsConstant() && m_ownerGUID && plr && m_ownerGUID == plr->GetGUID() ))
@@ -265,7 +265,7 @@ void Channel::KickOrBan(uint64 good, const char *badname, bool ban)
                 {
                     std::ostringstream banlist;
                     BannedList::iterator iter;
-                    for (iter = banned.begin();iter != banned.end(); ++iter)
+                    for (iter = banned.begin(); iter != banned.end(); ++iter)
                     {
                         banlist << (*iter) << " ";
                     }
@@ -274,7 +274,7 @@ void Channel::KickOrBan(uint64 good, const char *badname, bool ban)
                     if(CharacterDatabase.PExecute( ss.str( ).c_str( ) ))
                     {
                         sLog.outDebug("Channel(%s) BannedList saved", m_name.c_str());
-                    }    
+                    }
                 }
 
             }
@@ -335,7 +335,7 @@ void Channel::UnBan(uint64 good, const char *badname)
             {
                 std::ostringstream banlist;
                 BannedList::iterator iter;
-                for (iter = banned.begin();iter != banned.end(); ++iter)
+                for (iter = banned.begin(); iter != banned.end(); ++iter)
                 {
                     banlist << (*iter) << " ";
                 }
@@ -344,7 +344,7 @@ void Channel::UnBan(uint64 good, const char *badname)
                 if(CharacterDatabase.PExecute( ss.str( ).c_str( ) ))
                 {
                     sLog.outDebug("Channel(%s) BannedList saved", m_name.c_str());
-                }    
+                }
             }
         }
     }
@@ -383,7 +383,7 @@ void Channel::Password(uint64 p, const char *pass)
             if(CharacterDatabase.PExecute( ss.str( ).c_str( ) ))
             {
                 sLog.outDebug("Channel(%s) password saved", m_name.c_str());
-            }    
+            }
         }
     }
 }
@@ -541,7 +541,7 @@ void Channel::List(Player* player)
         uint32 gmLevelInWhoList = sWorld.getConfig(CONFIG_GM_LEVEL_IN_WHO_LIST);
 
         uint32 count  = 0;
-        for(PlayerList::const_iterator i = players.begin(); i != players.end(); ++i)
+        for (PlayerList::const_iterator i = players.begin(); i != players.end(); ++i)
         {
             Player *plr = objmgr.GetPlayer(i->first);
 
@@ -598,7 +598,7 @@ void Channel::Announce(uint64 p)
             if(CharacterDatabase.PExecute( ss.str( ).c_str( ) ))
             {
                 sLog.outDebug("Channel(%s) announce saved", m_name.c_str());
-            }    
+            }
         }
 
     }
@@ -640,7 +640,7 @@ void Channel::Moderate(uint64 p)
             if(CharacterDatabase.PExecute( ss.str( ).c_str( ) ))
             {
                 sLog.outDebug("Channel(%s) moderate saved", m_name.c_str());
-            }    
+            }
         }
     }
 }
@@ -777,7 +777,7 @@ void Channel::SetOwner(uint64 guid, bool exclaim)
             if(CharacterDatabase.PExecute( ss.str( ).c_str( ) ))
             {
                 sLog.outDebug("Channel(%s) owner saved", m_name.c_str());
-            }   
+            }
         }*/
 
     }
@@ -785,7 +785,7 @@ void Channel::SetOwner(uint64 guid, bool exclaim)
 
 void Channel::SendToAll(WorldPacket *data, uint64 p)
 {
-    for(PlayerList::const_iterator i = players.begin(); i != players.end(); ++i)
+    for (PlayerList::const_iterator i = players.begin(); i != players.end(); ++i)
     {
         Player *plr = objmgr.GetPlayer(i->first);
         if(plr)
@@ -798,7 +798,7 @@ void Channel::SendToAll(WorldPacket *data, uint64 p)
 
 void Channel::SendToAllButOne(WorldPacket *data, uint64 who)
 {
-    for(PlayerList::const_iterator i = players.begin(); i != players.end(); ++i)
+    for (PlayerList::const_iterator i = players.begin(); i != players.end(); ++i)
     {
         if(i->first != who)
         {

@@ -18,7 +18,6 @@
  */
 //=============================================================================
 
-
 #ifndef ACE_STREAMS_H
 #define ACE_STREAMS_H
 #include /**/ "ace/pre.h"
@@ -34,7 +33,6 @@
 #if defined (_MSC_VER)
 #pragma warning(push)
 #endif /* _MSC_VER*/
-
 
 #if !defined (ACE_LACKS_IOSTREAM_TOTALLY)
 

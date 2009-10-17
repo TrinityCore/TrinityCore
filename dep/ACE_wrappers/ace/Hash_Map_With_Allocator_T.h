@@ -107,7 +107,6 @@ ACE_END_VERSIONED_NAMESPACE_DECL
 #pragma implementation ("Hash_Map_With_Allocator_T.cpp")
 #endif /* ACE_TEMPLATES_REQUIRE_PRAGMA */
 
-
 #include /**/ "ace/post.h"
 #endif /* ACE_HASH_MAP_WITH_ALLOCATOR_T_H */
 

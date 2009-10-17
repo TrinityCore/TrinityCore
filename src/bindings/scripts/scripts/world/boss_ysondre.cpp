@@ -136,7 +136,7 @@ struct TRINITY_DLL_DECL boss_ysondreAI : public ScriptedAI
         {
             DoScriptText(SAY_SUMMONDRUIDS, m_creature);
 
-            for(int i = 0; i < 10; ++i)
+            for (int i = 0; i < 10; ++i)
                 DoCast(m_creature, SPELL_SUMMONDRUIDS, true);
 
             ++m_uiSummonDruidModifier;

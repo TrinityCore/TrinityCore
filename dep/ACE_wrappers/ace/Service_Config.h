@@ -134,7 +134,6 @@ public:
   bool operator!= (ACE_Static_Svc_Descriptor &) const;
 };
 
-
 /**
  * @class ACE_Threading_Helper
  *
@@ -435,7 +434,6 @@ private:
   // instances (called gestalts). The interfaces, however were retained in for
   // the sake of maintaining source-code compatibility.
 
-
   // = Accessors and mutators for process-wide Singletons.
 
   /// Returns a pointer to the list of statically linked services.
@@ -591,7 +589,6 @@ protected:
   static int process_directives_i (ACE_Svc_Conf_Param *param);
 #endif /* ACE_USES_CLASSIC_SVC_CONF == 1 */
 
-
   // = Process-wide state.
 
 private:
@@ -671,7 +668,6 @@ private:
 private:
   ACE_Intrusive_Auto_Ptr<ACE_Service_Gestalt> saved_;
 };
-
 
 ACE_END_VERSIONED_NAMESPACE_DECL
 

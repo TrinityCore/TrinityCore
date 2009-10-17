@@ -40,7 +40,6 @@ ace_sig_handlers_dispatch (int signum, siginfo_t *info, ucontext_t *context)
 #define ace_signal_handlers_dispatcher ACE_SignalHandler(ACE_Sig_Handlers::dispatch)
 #endif /* ACE_HAS_SIG_C_FUNC */
 
-
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 
 // Array of Event_Handlers that will handle the signals.
@@ -48,7 +47,6 @@ ACE_Event_Handler *ACE_Sig_Handler::signal_handlers_[ACE_NSIG];
 
 // Remembers if a signal has occurred.
 sig_atomic_t ACE_Sig_Handler::sig_pending_ = 0;
-
 
 ACE_ALLOC_HOOK_DEFINE(ACE_Sig_Handler)
 

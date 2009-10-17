@@ -76,7 +76,6 @@ namespace G3D {
 static char                                     versionCstr[1024];
 System::OutOfMemoryCallback                     System::outOfMemoryCallback = NULL;
 
-
 void System::init() {
     // Cannot use most G3D data structures or utility functions in here because
     // they are not initialized.
@@ -102,19 +101,13 @@ void System::init() {
 
 }
 
-
-
 void System::memcpy(void* dst, const void* src, size_t numBytes) {
         ::memcpy(dst, src, numBytes);
 }
 
-
 void System::memset(void* dst, uint8 value, size_t numBytes) {
         ::memset(dst, value, numBytes);
 }
-
-
-
 
 
 ////////////////////////////////////////////////////////////////
@@ -231,7 +224,6 @@ private:
         poolSize = 0;
     }
 
-
     /**  Allocate out of a specific pool->  Return NULL if no suitable
          memory was found.
 
@@ -292,7 +284,6 @@ public:
 
         medPoolSize          = 0;
 
-
         // Initialize the tiny heap as a bunch of pointers into one
         // pre-allocated buffer.
         tinyHeap = ::malloc(maxTinyBuffers * tinyBufferSize);
@@ -308,7 +299,6 @@ public:
 #       endif
     }
 
-
     ~BufferPool() {
         ::free(tinyHeap);
 #       ifdef G3D_WIN32
@@ -317,7 +307,6 @@ public:
             // No destruction on pthreads
 #       endif
     }
-
 
     void* realloc(void* ptr, size_t bytes) {
         if (ptr == NULL) {
@@ -354,7 +343,6 @@ public:
             return newPtr;
         }
     }
-
 
     void* malloc(size_t bytes) {
         lock();
@@ -414,7 +402,6 @@ public:
             ptr = ::malloc(bytes + 4);
         }
 
-
         if (ptr == NULL) {
             if ((System::outOfMemoryCallback != NULL) &&
                 (System::outOfMemoryCallback(bytes + 4, true) == true)) {
@@ -435,7 +422,6 @@ public:
 
         return (uint8*)ptr + 4;
     }
-
 
     void free(void* ptr) {
         if (ptr == NULL) {
@@ -527,7 +513,6 @@ std::string System::mallocStatus() {
 #endif
 }
 
-
 void System::resetMallocPerformanceCounters() {
 #ifndef NO_BUFFERPOOL
     bufferpool->totalMallocs         = 0;
@@ -536,7 +521,6 @@ void System::resetMallocPerformanceCounters() {
     bufferpool->mallocsFromTinyPool  = 0;
 #endif
 }
-
 
 #ifndef NO_BUFFERPOOL
 inline void initMem() {
@@ -549,7 +533,6 @@ inline void initMem() {
     }
 }
 #endif
-
 
 void* System::malloc(size_t bytes) {
 #ifndef NO_BUFFERPOOL
@@ -570,7 +553,6 @@ void* System::calloc(size_t n, size_t x) {
 #endif
 }
 
-
 void* System::realloc(void* block, size_t bytes) {
 #ifndef NO_BUFFERPOOL
     initMem();
@@ -580,7 +562,6 @@ void* System::realloc(void* block, size_t bytes) {
 #endif
 }
 
-
 void System::free(void* p) {
 #ifndef NO_BUFFERPOOL
     bufferpool->free(p);
@@ -588,7 +569,6 @@ void System::free(void* p) {
     return ::free(p);
 #endif
 }
-
 
 void* System::alignedMalloc(size_t bytes, size_t alignment) {
     alwaysAssertM(isPow2(alignment), "alignment must be a power of 2");
@@ -646,7 +626,6 @@ void* System::alignedMalloc(size_t bytes, size_t alignment) {
     return (void*)alignedPtr;
 }
 
-
 void System::alignedFree(void* _ptr) {
     if (_ptr == NULL) {
         return;
@@ -665,7 +644,6 @@ void System::alignedFree(void* _ptr) {
     debugAssert(isValidHeapPointer(truePtr));
     System::free(truePtr);
 }
-
 
 }  // namespace
 

@@ -147,7 +147,7 @@ struct TRINITY_DLL_DECL mob_shadowy_constructAI : public ScriptedAI
             return;                                         // No threat list. Don't continue.
         std::list<HostilReference*>::iterator itr = m_threatlist.begin();
         std::list<Unit*> targets;
-        for(; itr != m_threatlist.end(); ++itr)
+        for (; itr != m_threatlist.end(); ++itr)
         {
             Unit* pUnit = Unit::GetUnit((*m_creature), (*itr)->getUnitGuid());
             if (pUnit && pUnit->isAlive())
@@ -284,7 +284,7 @@ struct TRINITY_DLL_DECL boss_teron_gorefiendAI : public ScriptedAI
 
         std::list<HostilReference*>& m_threatlist = m_creature->getThreatManager().getThreatList();
         std::list<HostilReference*>::iterator i = m_threatlist.begin();
-        for(i = m_threatlist.begin(); i != m_threatlist.end(); ++i)
+        for (i = m_threatlist.begin(); i != m_threatlist.end(); ++i)
         {
             Unit* pUnit = Unit::GetUnit((*m_creature), (*i)->getUnitGuid());
             if (pUnit && pUnit->isAlive())
@@ -318,7 +318,7 @@ struct TRINITY_DLL_DECL boss_teron_gorefiendAI : public ScriptedAI
                 Ghost->DealDamage(Ghost, Ghost->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL,
             false);
             }*/
-            for(uint8 i = 0; i < 4; ++i)
+            for (uint8 i = 0; i < 4; ++i)
             {
                 Creature* Construct = NULL;
                 float X = CalculateRandomLocation(Ghost->GetPositionX(), 10);
@@ -374,7 +374,7 @@ struct TRINITY_DLL_DECL boss_teron_gorefiendAI : public ScriptedAI
         {
             //MindControlGhost();
 
-            for(uint8 i = 0; i < 2; ++i)
+            for (uint8 i = 0; i < 2; ++i)
             {
                 Creature* Shadow = NULL;
                 float X = CalculateRandomLocation(m_creature->GetPositionX(), 10);

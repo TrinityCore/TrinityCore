@@ -704,7 +704,6 @@ public:
              int priority,
              int signal_number = 0);
 
-
   /// Destructor.
   virtual ~ACE_WIN32_Asynch_Read_File (void);
 
@@ -1227,7 +1226,6 @@ protected:
 
   ACE_HANDLE  connect_handle_;
 };
-
 
 /**
  * @class ACE_WIN32_Asynch_Connect

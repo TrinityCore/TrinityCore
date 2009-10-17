@@ -78,7 +78,7 @@ namespace VMAP
             if(f)
             {
                 result = true;
-                for(int i=0; i<pCmdArray.size(); ++i)
+                for (int i=0; i<pCmdArray.size(); ++i)
                 {
                     if(fwrite(&pCmdArray[i], sizeof(Command), 1, f) != 1) { result = false; break; }
                 }

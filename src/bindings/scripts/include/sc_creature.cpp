@@ -20,7 +20,7 @@ struct TSpellSummary
 
 void SummonList::DoZoneInCombat(uint32 entry)
 {
-    for(iterator i = begin(); i != end();)
+    for (iterator i = begin(); i != end(); )
     {
         Creature *summon = Unit::GetCreature(*m_creature, *i);
         ++i;
@@ -32,7 +32,7 @@ void SummonList::DoZoneInCombat(uint32 entry)
 
 void SummonList::DoAction(uint32 entry, uint32 info)
 {
-    for(iterator i = begin(); i != end();)
+    for (iterator i = begin(); i != end(); )
     {
         Creature *summon = Unit::GetCreature(*m_creature, *i);
         ++i;
@@ -44,7 +44,7 @@ void SummonList::DoAction(uint32 entry, uint32 info)
 
 void SummonList::DespawnEntry(uint32 entry)
 {
-    for(iterator i = begin(); i != end();)
+    for (iterator i = begin(); i != end(); )
     {
         Creature *summon = Unit::GetCreature(*m_creature, *i);
         if(!summon)
@@ -313,7 +313,7 @@ void FillSpellSummary()
 
     SpellEntry const* pTempSpell;
 
-    for(uint32 i = 0; i < GetSpellStore()->GetNumRows(); ++i)
+    for (uint32 i = 0; i < GetSpellStore()->GetNumRows(); ++i)
     {
         SpellSummary[i].Effects = 0;
         SpellSummary[i].Targets = 0;
@@ -323,7 +323,7 @@ void FillSpellSummary()
         if (!pTempSpell)
             continue;
 
-        for(uint32 j = 0; j < 3; ++j)
+        for (uint32 j = 0; j < 3; ++j)
         {
             //Spell targets self
             if (pTempSpell->EffectImplicitTargetA[j] == TARGET_UNIT_CASTER )
@@ -402,7 +402,7 @@ void ScriptedAI::DoResetThreat()
 
     std::list<HostilReference*>& threatlist = m_creature->getThreatManager().getThreatList();
 
-    for(std::list<HostilReference*>::iterator itr = threatlist.begin(); itr != threatlist.end(); ++itr)
+    for (std::list<HostilReference*>::iterator itr = threatlist.begin(); itr != threatlist.end(); ++itr)
     {
         Unit* pUnit = Unit::GetUnit((*m_creature), (*itr)->getUnitGuid());
 
@@ -453,7 +453,7 @@ void ScriptedAI::DoTeleportAll(float fX, float fY, float fZ, float fO)
         return;
 
     Map::PlayerList const &PlayerList = map->GetPlayers();
-    for(Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
+    for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
         if (Player* i_pl = i->getSource())
             if (i_pl->isAlive())
                 i_pl->TeleportTo(m_creature->GetMapId(), fX, fY, fZ, fO, TELE_TO_NOT_LEAVE_COMBAT);
@@ -634,7 +634,7 @@ void BossAI::TeleportCheaters()
     float x, y, z;
     me->GetPosition(x, y, z);
     std::list<HostilReference*> &m_threatlist = me->getThreatManager().getThreatList();
-    for(std::list<HostilReference*>::iterator itr = m_threatlist.begin(); itr!= m_threatlist.end(); ++itr)
+    for (std::list<HostilReference*>::iterator itr = m_threatlist.begin(); itr!= m_threatlist.end(); ++itr)
         if((*itr)->getTarget()->GetTypeId() == TYPEID_PLAYER && !CheckBoundary((*itr)->getTarget()))
             (*itr)->getTarget()->NearTeleportTo(x, y, z, 0);
 }
@@ -644,7 +644,7 @@ bool BossAI::CheckBoundary(Unit *who)
     if(!boundary || !who)
         return true;
 
-    for(BossBoundaryMap::const_iterator itr = boundary->begin(); itr != boundary->end(); ++itr)
+    for (BossBoundaryMap::const_iterator itr = boundary->begin(); itr != boundary->end(); ++itr)
     {
         switch(itr->first)
         {
@@ -718,7 +718,7 @@ void LoadOverridenSQLData()
 void LoadOverridenDBCData()
 {
     SpellEntry *spellInfo;
-    for(uint32 i = 0; i < GetSpellStore()->GetNumRows(); ++i)
+    for (uint32 i = 0; i < GetSpellStore()->GetNumRows(); ++i)
     {
         spellInfo = GET_SPELL(i);
         if(!spellInfo)
@@ -748,7 +748,6 @@ void LoadOverridenDBCData()
         }
     }
 }
-
 
 Creature* GetClosestCreatureWithEntry(WorldObject* pSource, uint32 Entry, float MaxSearchRange)
 {

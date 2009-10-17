@@ -10,7 +10,6 @@
  */
 //=============================================================================
 
-
 #ifndef ACE_LOCAL_SOCK_STREAM_H
 #define ACE_LOCAL_SOCK_STREAM_H
 #include /**/ "ace/pre.h"

@@ -135,7 +135,7 @@ struct TRINITY_DLL_DECL boss_bjarngrimAI : public ScriptedAI
         m_uiMortalStrike_Timer = 8000;
         m_uiSlam_Timer = 10000;
 
-        for(uint8 i = 0; i < 2; ++i)
+        for (uint8 i = 0; i < 2; ++i)
         {
             if (Creature* pStormforgedLieutenant = (Unit::GetCreature((*m_creature), m_auiStormforgedLieutenantGUID[i])))
             {

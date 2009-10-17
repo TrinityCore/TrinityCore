@@ -430,7 +430,6 @@ ACE_Svc_Conf_Lexer::scan (YYSTYPE* ace_yylval,
                                  size - 1);
                 str[size - 1] = '\0';
 
-
                 if (ACE_OS::strcmp (str, "dynamic") == 0)
                   {
                     buffer->index_ = current;

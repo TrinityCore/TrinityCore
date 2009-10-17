@@ -84,14 +84,14 @@ struct TRINITY_DLL_DECL boss_meathookAI : public ScriptedAI
             std::list<HostilReference*>::iterator itr;
 
             int st=0;
-            for(itr = m_threatlist.begin(); itr != m_threatlist.end(); ++itr)
+            for (itr = m_threatlist.begin(); itr != m_threatlist.end(); ++itr)
             {
                 //st++;
                 m_creature->getThreatManager().
             }
             Unit* targets[st];
             int st2=0;
-            for(int i=1; i<=st; ++i){
+            for (int i=1; i<=st; ++i){
                 if (!IsWithinLOSInMap(targets[i])
                     st2++;
             }

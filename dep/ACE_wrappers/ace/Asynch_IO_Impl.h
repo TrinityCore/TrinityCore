@@ -515,7 +515,6 @@ protected:
   ACE_Asynch_Accept_Result_Impl (void);
 };
 
-
 /**
  * @class ACE_Asynch_Connect_Impl
  *
@@ -565,7 +564,6 @@ protected:
   /// Do-nothing constructor.
   ACE_Asynch_Connect_Result_Impl (void);
 };
-
 
 /**
  * @class ACE_Asynch_Transmit_File_Impl
@@ -634,7 +632,6 @@ protected:
   /// Do-nothing constructor.
   ACE_Asynch_Transmit_File_Result_Impl (void);
 };
-
 
 /**
  * @class ACE_Asynch_Read_Dgram_Impl

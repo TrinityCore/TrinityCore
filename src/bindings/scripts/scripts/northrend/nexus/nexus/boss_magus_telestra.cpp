@@ -140,7 +140,7 @@ struct TRINITY_DLL_DECL boss_magus_telestraAI : public ScriptedAI
                 if (pMap && pMap->IsDungeon())
                 {
                     Map::PlayerList const &players = pMap->GetPlayers();
-                    for(Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
+                    for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
                         itr->getSource()->CompletedAchievement(AchievSplitPersonality);
                 }
             }
@@ -204,7 +204,6 @@ struct TRINITY_DLL_DECL boss_magus_telestraAI : public ScriptedAI
             }else AppearDelay_Timer -= diff;
             return;
         }
-
 
         if ((Phase == 1)||(Phase == 3))
         {

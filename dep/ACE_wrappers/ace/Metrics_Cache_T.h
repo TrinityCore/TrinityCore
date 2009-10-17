@@ -10,7 +10,6 @@
  */
 //=============================================================================
 
-
 #ifndef ACE_METRICS_CACHE_T_H
 #define ACE_METRICS_CACHE_T_H
 

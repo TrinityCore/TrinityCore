@@ -2,11 +2,9 @@
 
 #include "ace/Addr.h"
 
-
 ACE_RCSID (ace,
            Addr,
            "$Id: Addr.cpp 80826 2008-03-04 14:51:23Z wotte $")
-
 
 #if !defined (__ACE_INLINE__)
 #include "ace/Addr.inl"
@@ -22,7 +20,6 @@ ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 const ACE_Addr ACE_Addr::sap_any (AF_ANY, -1);
 
 ACE_ALLOC_HOOK_DEFINE(ACE_Addr)
-
 
 // Initializes instance variables.  Note that 0 is an unspecified
 // protocol family type...

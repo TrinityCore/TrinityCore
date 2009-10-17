@@ -238,7 +238,7 @@ void PlayerMenu::SendTalking( uint32 textID )
 
     if (!pGossip)
     {
-        for(uint32 i = 0; i < 8; ++i)
+        for (uint32 i = 0; i < 8; ++i)
         {
             data << float(0);
             data << "Greetings $N";
@@ -255,7 +255,7 @@ void PlayerMenu::SendTalking( uint32 textID )
     else
     {
         std::string Text_0[8],Text_1[8];
-        for (int i=0;i<8;++i)
+        for (int i=0; i<8; ++i)
         {
             Text_0[i]=pGossip->Options[i].Text_0;
             Text_1[i]=pGossip->Options[i].Text_1;
@@ -266,7 +266,7 @@ void PlayerMenu::SendTalking( uint32 textID )
             NpcTextLocale const *nl = objmgr.GetNpcTextLocale(textID);
             if (nl)
             {
-                for (int i=0;i<8;++i)
+                for (int i=0; i<8; ++i)
                 {
                     if (nl->Text_0[i].size() > loc_idx && !nl->Text_0[i][loc_idx].empty())
                         Text_0[i]=nl->Text_0[i][loc_idx];
@@ -291,7 +291,7 @@ void PlayerMenu::SendTalking( uint32 textID )
 
             data << pGossip->Options[i].Language;
 
-            for(int j = 0; j < 3; ++j)
+            for (int j = 0; j < 3; ++j)
             {
                 data << pGossip->Options[i].Emotes[j]._Delay;
                 data << pGossip->Options[i].Emotes[j]._Emote;
@@ -307,7 +307,7 @@ void PlayerMenu::SendTalking( char const * title, char const * text )
 {
     WorldPacket data( SMSG_NPC_TEXT_UPDATE, 50 );           // guess size
     data << uint32(0);
-    for(uint32 i = 0; i < 8; ++i)
+    for (uint32 i = 0; i < 8; ++i)
     {
         data << float(0);
         data << title;
@@ -521,7 +521,7 @@ void PlayerMenu::SendQuestQueryResponse( Quest const *pQuest )
     Details = pQuest->GetDetails();
     Objectives = pQuest->GetObjectives();
     EndText = pQuest->GetEndText();
-    for (int i=0;i<QUEST_OBJECTIVES_COUNT;++i)
+    for (int i=0; i<QUEST_OBJECTIVES_COUNT; ++i)
         ObjectiveText[i]=pQuest->ObjectiveText[i];
 
     int loc_idx = pSession->GetSessionDbLocaleIndex();
@@ -539,7 +539,7 @@ void PlayerMenu::SendQuestQueryResponse( Quest const *pQuest )
             if (ql->EndText.size() > loc_idx && !ql->EndText[loc_idx].empty())
                 EndText=ql->EndText[loc_idx];
 
-            for (int i=0;i<QUEST_OBJECTIVES_COUNT;++i)
+            for (int i=0; i<QUEST_OBJECTIVES_COUNT; ++i)
                 if (ql->ObjectiveText[i].size() > loc_idx && !ql->ObjectiveText[i][loc_idx].empty())
                     ObjectiveText[i]=ql->ObjectiveText[i][loc_idx];
         }

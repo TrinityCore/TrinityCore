@@ -76,7 +76,6 @@ namespace ACE_OS
                                    ACE_HOSTENT_DATA buffer,
                                    int *h_errnop);
 
-
   ACE_NAMESPACE_INLINE_FUNCTION
   struct hostent *getipnodebyaddr (const void *src, size_t len,
                                    int family);

@@ -91,7 +91,6 @@ struct TRINITY_DLL_DECL boss_ignis_AI : public BossAI
             SLAG_POT_Timer = 30000;
         } else SLAG_POT_Timer -= diff;
 
-
         DoMeleeAttackIfReady();
     }
 };

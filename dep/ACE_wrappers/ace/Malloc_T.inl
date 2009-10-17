@@ -168,7 +168,6 @@ ACE_Malloc_FIFO_Iterator<ACE_MEM_POOL_2, ACE_LOCK>::ACE_Malloc_FIFO_Iterator (AC
 {
 }
 
-
 #if 0
 template <ACE_MEM_POOL_1, class ACE_LOCK, class ACE_CB> ACE_INLINE void
 ACE_Malloc_T<ACE_MEM_POOL_2, ACE_LOCK, ACE_CB>::init_malloc_header_ptr (void* ptr)

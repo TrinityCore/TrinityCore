@@ -75,7 +75,6 @@ static const ACE_UINT32 offsetsFromUTF8[6] = { 0x00000000, 0x00003080,
                                                0x000E2080, 0x03C82080,
                                                0xFA082080, 0x82082080 };
 
-
 ACE_UTF16_Encoding_Converter::ACE_UTF16_Encoding_Converter (bool swap)
  : swap_ (swap)
 {

@@ -30,7 +30,6 @@ enum eAgnetta
     FACTION_HOSTILE_AT1             = 45
 };
 
-
 struct TRINITY_DLL_DECL npc_agnetta_tyrsdottarAI : public ScriptedAI
 {
     npc_agnetta_tyrsdottarAI(Creature* pCreature) : ScriptedAI(pCreature) { }
@@ -80,7 +79,6 @@ enum eFrostbornScout
 {
     QUEST_MISSING_SCOUTS  =  12864
 };
-
 
 bool GossipHello_npc_frostborn_scout(Player* pPlayer, Creature* pCreature)
 {

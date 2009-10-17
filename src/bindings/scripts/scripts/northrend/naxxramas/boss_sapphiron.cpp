@@ -149,7 +149,7 @@ struct TRINITY_DLL_DECL boss_sapphironAI : public BossAI
                 if(pMap && pMap->IsDungeon())
                 {
                     Map::PlayerList const &players = pMap->GetPlayers();
-                    for(Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
+                    for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
                         itr->getSource()->CompletedAchievement(AchievTheHundredClub);
                 }
             }
@@ -176,7 +176,7 @@ struct TRINITY_DLL_DECL boss_sapphironAI : public BossAI
         if(CanTheHundredClub && pMap && pMap->IsDungeon())
         {
             Map::PlayerList const &players = pMap->GetPlayers();
-            for(Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
+            for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
             {
                 if(itr->getSource()->GetResistance(SPELL_SCHOOL_FROST) > MAX_FROST_RESISTANCE)
                 {
@@ -201,7 +201,7 @@ struct TRINITY_DLL_DECL boss_sapphironAI : public BossAI
 
     void ClearIceBlock()
     {
-        for(IceBlockMap::iterator itr = iceblocks.begin(); itr != iceblocks.end(); ++itr)
+        for (IceBlockMap::iterator itr = iceblocks.begin(); itr != iceblocks.end(); ++itr)
         {
             if (Player* pPlayer = Unit::GetPlayer(itr->first))
                 pPlayer->RemoveAura(SPELL_ICEBOLT);
@@ -291,7 +291,7 @@ struct TRINITY_DLL_DECL boss_sapphironAI : public BossAI
                     {
                         std::vector<Unit*> targets;
                         std::list<HostilReference*>::iterator i = me->getThreatManager().getThreatList().begin();
-                        for(; i != me->getThreatManager().getThreatList().end(); ++i)
+                        for (; i != me->getThreatManager().getThreatList().end(); ++i)
                             if ((*i)->getTarget()->GetTypeId() == TYPEID_PLAYER && !(*i)->getTarget()->HasAura(SPELL_ICEBOLT))
                                 targets.push_back((*i)->getTarget());
 
@@ -348,7 +348,7 @@ struct TRINITY_DLL_DECL boss_sapphironAI : public BossAI
         DoZoneInCombat(); // make sure everyone is in threatlist
         std::vector<Unit*> targets;
         std::list<HostilReference*>::iterator i = me->getThreatManager().getThreatList().begin();
-        for(; i != me->getThreatManager().getThreatList().end(); ++i)
+        for (; i != me->getThreatManager().getThreatList().end(); ++i)
         {
             Unit *target = (*i)->getTarget();
             if (target->GetTypeId() != TYPEID_PLAYER)
@@ -361,7 +361,7 @@ struct TRINITY_DLL_DECL boss_sapphironAI : public BossAI
                 continue;
             }
 
-            for(IceBlockMap::iterator itr = iceblocks.begin(); itr != iceblocks.end(); ++itr)
+            for (IceBlockMap::iterator itr = iceblocks.begin(); itr != iceblocks.end(); ++itr)
             {
                 if (GameObject* pGo = GameObject::GetGameObject(*me, itr->second))
                 {
@@ -378,7 +378,7 @@ struct TRINITY_DLL_DECL boss_sapphironAI : public BossAI
 
         me->CastSpell(me, SPELL_FROST_EXPLOSION, true);
 
-        for(std::vector<Unit*>::iterator itr = targets.begin(); itr != targets.end(); ++itr)
+        for (std::vector<Unit*>::iterator itr = targets.begin(); itr != targets.end(); ++itr)
             (*itr)->ApplySpellImmune(0, IMMUNITY_ID, SPELL_FROST_EXPLOSION, false);
     }
 };

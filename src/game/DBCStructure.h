@@ -390,7 +390,6 @@ struct AchievementCriteriaEntry
             uint32  goldInCopper;                           // 4
         } quest_reward_money;
 
-
         // ACHIEVEMENT_CRITERIA_TYPE_LOOT_MONEY             = 67
         struct
         {
@@ -837,10 +836,10 @@ struct FactionTemplateEntry
             return true;
         if(entry.faction)
         {
-            for(int i = 0; i < 4; ++i)
+            for (int i = 0; i < 4; ++i)
                 if (enemyFaction[i]  == entry.faction)
                     return false;
-            for(int i = 0; i < 4; ++i)
+            for (int i = 0; i < 4; ++i)
                 if (friendFaction[i] == entry.faction)
                     return true;
         }
@@ -852,10 +851,10 @@ struct FactionTemplateEntry
             return false;
         if(entry.faction)
         {
-            for(int i = 0; i < 4; ++i)
+            for (int i = 0; i < 4; ++i)
                 if (enemyFaction[i]  == entry.faction)
                     return true;
-            for(int i = 0; i < 4; ++i)
+            for (int i = 0; i < 4; ++i)
                 if (friendFaction[i] == entry.faction)
                     return false;
         }
@@ -864,7 +863,7 @@ struct FactionTemplateEntry
     bool IsHostileToPlayers() const { return (hostileMask & FACTION_MASK_PLAYER) !=0; }
     bool IsNeutralToAll() const
     {
-        for(int i = 0; i < 4; ++i)
+        for (int i = 0; i < 4; ++i)
             if (enemyFaction[i] != 0)
                 return false;
         return hostileMask == 0 && friendlyMask == 0;

@@ -72,7 +72,7 @@ struct TRINITY_DLL_DECL boss_gluthAI : public BossAI
 
     void EnterCombat(Unit *who)
     {
-        for(uint32 i = 0; i < 3; ++i)
+        for (uint32 i = 0; i < 3; ++i)
             if (Creature *trigger = DoSummon(WORLD_TRIGGER, PosSummon[i]))
                 triggers.push_back(trigger);
         if (triggers.size() < 3)
@@ -126,7 +126,7 @@ struct TRINITY_DLL_DECL boss_gluthAI : public BossAI
                     DoCast(me, SPELL_BERSERK);
                     return;
                 case EVENT_SUMMON:
-                    for(uint32 i = 0; i < HEROIC(1,2); ++i)
+                    for (uint32 i = 0; i < HEROIC(1,2); ++i)
                         DoSummon(MOB_ZOMBIE, triggers[rand()%3]);
                     events.ScheduleEvent(EVENT_SUMMON, 10000);
                     return;

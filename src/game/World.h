@@ -254,7 +254,7 @@ enum WorldConfigs
     CONFIG_MIN_LOG_UPDATE,
     CONFIG_CHECK_DB,
     CONFIG_ENABLE_SINFO_LOGIN,
-    CONFIG_PET_LOS,   
+    CONFIG_PET_LOS,
     CONFIG_NUMTHREADS,
     CONFIG_OFFHAND_CHECK_AT_SPELL_UNLEARN,
     CONFIG_CHATLOG_CHANNEL,
@@ -588,7 +588,7 @@ class World
         static float GetMaxVisibleDistanceInInstances()     { return m_MaxVisibleDistanceInInstances;  }
         static float GetMaxVisibleDistanceInBGArenas()      { return m_MaxVisibleDistanceInBGArenas;   }
         static float GetMaxVisibleDistanceForObject()       { return m_MaxVisibleDistanceForObject;    }
- 
+
         static float GetMaxVisibleDistanceInFlight()        { return m_MaxVisibleDistanceInFlight;     }
         static float GetVisibleUnitGreyDistance()           { return m_VisibleUnitGreyDistance;        }
         static float GetVisibleObjectGreyDistance()         { return m_VisibleObjectGreyDistance;      }
@@ -676,7 +676,7 @@ class World
         static float m_MaxVisibleDistanceInInstances;
         static float m_MaxVisibleDistanceInBGArenas;
         static float m_MaxVisibleDistanceForObject;
- 
+
         static float m_MaxVisibleDistanceInFlight;
         static float m_VisibleUnitGreyDistance;
         static float m_VisibleObjectGreyDistance;

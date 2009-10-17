@@ -130,7 +130,6 @@ _POSIX_V6_LPBIG_OFFBIG programming environment.
 // @todo move the ACE_INT## typedefs here so that ACE_INT64 will
 // always be available.
 
-
 // @todo perhaps add macros
 
 #ifdef __cplusplus

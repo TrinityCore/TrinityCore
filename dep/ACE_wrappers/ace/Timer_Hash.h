@@ -10,7 +10,6 @@
  */
 //=============================================================================
 
-
 #ifndef ACE_TIMER_HASH_H
 #define ACE_TIMER_HASH_H
 #include /**/ "ace/pre.h"
@@ -42,7 +41,6 @@ typedef ACE_Timer_Heap_T <ACE_Event_Handler *,
                           ACE_Hash_Upcall,
                           ACE_Null_Mutex>
         ACE_Hash_Timer_Heap;
-
 
 typedef ACE_Timer_Hash_T<ACE_Event_Handler *,
                         ACE_Event_Handler_Handle_Timeout_Upcall<ACE_SYNCH_RECURSIVE_MUTEX>,

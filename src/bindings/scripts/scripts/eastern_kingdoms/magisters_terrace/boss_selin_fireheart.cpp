@@ -60,7 +60,7 @@ struct TRINITY_DLL_DECL boss_selin_fireheartAI : public ScriptedAI
         if (pInstance)
         {
             uint32 size = pInstance->GetData(DATA_FEL_CRYSTAL_SIZE);
-            for(uint8 i = 0; i < size; ++i)
+            for (uint8 i = 0; i < size; ++i)
             {
                 uint64 guid = pInstance->GetData64(DATA_FEL_CRYSTAL);
                 debug_log("TSCR: Selin: Adding Fel Crystal %u to list", guid);
@@ -90,8 +90,8 @@ struct TRINITY_DLL_DECL boss_selin_fireheartAI : public ScriptedAI
     {
         if (pInstance)
         {
-            //for(uint8 i = 0; i < CRYSTALS_NUMBER; ++i)
-            for(std::list<uint64>::iterator itr = Crystals.begin(); itr != Crystals.end(); ++itr)
+            //for (uint8 i = 0; i < CRYSTALS_NUMBER; ++i)
+            for (std::list<uint64>::iterator itr = Crystals.begin(); itr != Crystals.end(); ++itr)
             {
                 //Unit* pUnit = Unit::GetUnit(*m_creature, FelCrystals[i]);
                 Unit* pUnit = Unit::GetUnit(*m_creature, *itr);
@@ -133,8 +133,8 @@ struct TRINITY_DLL_DECL boss_selin_fireheartAI : public ScriptedAI
         CrystalGUID = 0;
         Unit* pCrystal = NULL;
         Unit* CrystalChosen = NULL;
-        //for(uint8 i =  0; i < CRYSTALS_NUMBER; ++i)
-        for(std::list<uint64>::iterator itr = Crystals.begin(); itr != Crystals.end(); ++itr)
+        //for (uint8 i =  0; i < CRYSTALS_NUMBER; ++i)
+        for (std::list<uint64>::iterator itr = Crystals.begin(); itr != Crystals.end(); ++itr)
         {
             pCrystal = NULL;
             //pCrystal = Unit::GetUnit(*m_creature, FelCrystals[i]);
@@ -170,8 +170,8 @@ struct TRINITY_DLL_DECL boss_selin_fireheartAI : public ScriptedAI
         if (Crystals.empty())
             return;
 
-        //for(uint8 i = 0; i < CRYSTALS_NUMBER; ++i)
-        for(std::list<uint64>::iterator itr = Crystals.begin(); itr != Crystals.end(); ++itr)
+        //for (uint8 i = 0; i < CRYSTALS_NUMBER; ++i)
+        for (std::list<uint64>::iterator itr = Crystals.begin(); itr != Crystals.end(); ++itr)
         {
             //Creature* pCrystal = (Unit::GetCreature(*m_creature, FelCrystals[i]));
             Creature* pCrystal = Unit::GetCreature(*m_creature, *itr);

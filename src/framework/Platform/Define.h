@@ -163,6 +163,5 @@ typedef uint64 OBJECT_HANDLE;
 #define CLIENT_VER 313
 #endif
 
-
 #endif //TRINITY_DEFINE_H
 

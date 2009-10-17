@@ -56,7 +56,7 @@ bool WaypointMovementGenerator<Creature>::GetDestination(float &x, float &y, flo
 {
     if(i_destinationHolder.HasArrived())
         return false;
-    
+
     i_destinationHolder.GetDestination(x, y, z);
     return true;
 }
@@ -235,7 +235,7 @@ uint32 FlightPathMovementGenerator::GetPathAtMapEnd() const
         return i_mapIds.size();
 
     uint32 curMapId = i_mapIds[i_currentNode];
-    for(uint32 i = i_currentNode; i < i_mapIds.size(); ++i)
+    for (uint32 i = i_currentNode; i < i_mapIds.size(); ++i)
     {
         if(i_mapIds[i] != curMapId)
             return i;
@@ -326,7 +326,7 @@ void FlightPathMovementGenerator::SetCurrentNodeAfterTeleport()
         return;
 
     uint32 map0 = i_mapIds[0];
-    for(size_t i = 1; i < i_mapIds.size(); ++i)
+    for (size_t i = 1; i < i_mapIds.size(); ++i)
     {
         if(i_mapIds[i]!=map0)
         {

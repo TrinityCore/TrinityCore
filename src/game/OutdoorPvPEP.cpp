@@ -101,7 +101,6 @@ void OPvPCapturePointEP_EWT::ChangeState()
             flag2->SendUpdateObjectToAllExcept(NULL);
         }
 
-
         UpdateTowerState();
 
         // complete quest objective
@@ -173,7 +172,7 @@ void OPvPCapturePointEP_EWT::SummonSupportUnitAtNorthpassTower(uint32 team)
         else
             ct=EP_EWT_Summons_H;
 
-        for(int i = 0; i < EP_EWT_NUM_CREATURES; ++i)
+        for (int i = 0; i < EP_EWT_NUM_CREATURES; ++i)
         {
             DelCreature(i);
             AddCreature(i,ct[i].entry,ct[i].teamval,ct[i].map,ct[i].x,ct[i].y,ct[i].z,ct[i].o,1000000);
@@ -708,7 +707,7 @@ OutdoorPvPEP::OutdoorPvPEP()
 
 bool OutdoorPvPEP::SetupOutdoorPvP()
 {
-    for(int i = 0; i < EPBuffZonesNum; ++i)
+    for (int i = 0; i < EPBuffZonesNum; ++i)
         RegisterZone(EPBuffZones[i]);
 
     AddCapturePoint(new OPvPCapturePointEP_EWT(this));
@@ -724,7 +723,7 @@ bool OutdoorPvPEP::Update(uint32 diff)
     {
         m_AllianceTowersControlled = 0;
         m_HordeTowersControlled = 0;
-        for(int i = 0; i < EP_TOWER_NUM; ++i)
+        for (int i = 0; i < EP_TOWER_NUM; ++i)
         {
             if(EP_Controls[i] == ALLIANCE)
                 ++m_AllianceTowersControlled;
@@ -760,12 +759,12 @@ void OutdoorPvPEP::HandlePlayerLeaveZone(Player * plr, uint32 zone)
     // remove buffs
     if(plr->GetTeam() == ALLIANCE)
     {
-        for(int i = 0; i < 4; ++i)
+        for (int i = 0; i < 4; ++i)
             plr->RemoveAurasDueToSpell(EP_AllianceBuffs[i]);
     }
     else
     {
-        for(int i = 0; i < 4; ++i)
+        for (int i = 0; i < 4; ++i)
             plr->RemoveAurasDueToSpell(EP_HordeBuffs[i]);
     }
     OutdoorPvP::HandlePlayerLeaveZone(plr, zone);
@@ -773,21 +772,21 @@ void OutdoorPvPEP::HandlePlayerLeaveZone(Player * plr, uint32 zone)
 
 void OutdoorPvPEP::BuffTeams()
 {
-    for(PlayerSet::iterator itr = m_players[0].begin(); itr != m_players[0].end(); ++itr)
+    for (PlayerSet::iterator itr = m_players[0].begin(); itr != m_players[0].end(); ++itr)
     {
         Player * plr = *itr;
         {
-            for(int i = 0; i < 4; ++i)
+            for (int i = 0; i < 4; ++i)
                 plr->RemoveAurasDueToSpell(EP_AllianceBuffs[i]);
             if(m_AllianceTowersControlled && m_AllianceTowersControlled < 5)
                 plr->CastSpell(plr,EP_AllianceBuffs[m_AllianceTowersControlled-1],true);
         }
     }
-    for(PlayerSet::iterator itr = m_players[1].begin(); itr != m_players[1].end(); ++itr)
+    for (PlayerSet::iterator itr = m_players[1].begin(); itr != m_players[1].end(); ++itr)
     {
         Player * plr = *itr;
         {
-            for(int i = 0; i < 4; ++i)
+            for (int i = 0; i < 4; ++i)
                 plr->RemoveAurasDueToSpell(EP_HordeBuffs[i]);
             if(m_HordeTowersControlled && m_HordeTowersControlled < 5)
                 plr->CastSpell(plr,EP_HordeBuffs[m_HordeTowersControlled-1],true);
@@ -802,7 +801,7 @@ void OutdoorPvPEP::FillInitialWorldStates(WorldPacket & data)
     data << EP_UI_TOWER_SLIDER_DISPLAY << uint32(0);
     data << EP_UI_TOWER_SLIDER_POS << uint32(50);
     data << EP_UI_TOWER_SLIDER_N << uint32(100);
-    for(OPvPCapturePointMap::iterator itr = m_capturePoints.begin(); itr != m_capturePoints.end(); ++itr)
+    for (OPvPCapturePointMap::iterator itr = m_capturePoints.begin(); itr != m_capturePoints.end(); ++itr)
     {
         itr->second->FillInitialWorldStates(data);
     }

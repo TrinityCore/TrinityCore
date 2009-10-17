@@ -20,7 +20,6 @@
 #include "def_ulduar.h"
 #include "Vehicle.h"
 
-
 #define SPELL_PURSUED           62374
 #define SPELL_GATHERING_SPEED   62375
 #define SPELL_BATTERING_RAM     62376

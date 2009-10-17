@@ -88,7 +88,7 @@ struct TRINITY_DLL_DECL npc_kalecgosAI : public ScriptedAI
 
         SpellEntry const* pSpell = GetSpellStore()->LookupEntry(SPELL_ORB_KILL_CREDIT);
 
-        for(Map::PlayerList::const_iterator i = lList.begin(); i != lList.end(); ++i)
+        for (Map::PlayerList::const_iterator i = lList.begin(); i != lList.end(); ++i)
         {
             if (Player* pPlayer = i->getSource())
             {

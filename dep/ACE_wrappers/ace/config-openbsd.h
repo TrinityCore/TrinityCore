@@ -72,7 +72,6 @@
 # define ACE_HAS_UCONTEXT_T
 #endif /* OpenBSD >= 200405 */
 
-
 // OpenBSD has sigwait defined
 #define ACE_HAS_SIGWAIT
 #define ACE_HAS_SIGINFO_T

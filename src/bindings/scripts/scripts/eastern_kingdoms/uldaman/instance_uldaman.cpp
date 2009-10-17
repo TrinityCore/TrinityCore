@@ -14,9 +14,7 @@
 * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-
 #include "precompiled.h"
-
 
 #define SPELL_ARCHAEDAS_AWAKEN        10347
 #define SPELL_AWAKEN_VAULT_WALKER     10258
@@ -98,7 +96,7 @@ struct TRINITY_DLL_DECL instance_uldaman : public ScriptedInstance
 
     void ActivateStoneKeepers()
     {
-        for(std::vector<uint64>::iterator i = stoneKeeper.begin(); i != stoneKeeper.end(); ++i)
+        for (std::vector<uint64>::iterator i = stoneKeeper.begin(); i != stoneKeeper.end(); ++i)
         {
             Creature *target = instance->GetCreature(*i);
             if (!target || !target->isAlive() || target->getFaction()==14)
@@ -118,7 +116,7 @@ struct TRINITY_DLL_DECL instance_uldaman : public ScriptedInstance
         if (!archaedas)
             return;
 
-        for(std::vector<uint64>::iterator i = archaedasWallMinions.begin(); i != archaedasWallMinions.end(); ++i)
+        for (std::vector<uint64>::iterator i = archaedasWallMinions.begin(); i != archaedasWallMinions.end(); ++i)
         {
             Creature *target = instance->GetCreature(*i);
             if (!target || !target->isAlive() || target->getFaction()==14)
@@ -133,7 +131,7 @@ struct TRINITY_DLL_DECL instance_uldaman : public ScriptedInstance
     void DeActivateMinions()
     {
         // first despawn any aggroed wall minions
-        for(std::vector<uint64>::iterator i = archaedasWallMinions.begin(); i != archaedasWallMinions.end(); ++i)
+        for (std::vector<uint64>::iterator i = archaedasWallMinions.begin(); i != archaedasWallMinions.end(); ++i)
         {
             Creature *target = instance->GetCreature(*i);
             if (!target || target->isDead() || target->getFaction()!=14)
@@ -143,7 +141,7 @@ struct TRINITY_DLL_DECL instance_uldaman : public ScriptedInstance
         }
 
         // Vault Walkers
-        for(std::vector<uint64>::iterator i = vaultWalker.begin(); i != vaultWalker.end(); ++i)
+        for (std::vector<uint64>::iterator i = vaultWalker.begin(); i != vaultWalker.end(); ++i)
         {
             Creature *target = instance->GetCreature(*i);
             if (!target || target->isDead() || target->getFaction()!=14)
@@ -153,7 +151,7 @@ struct TRINITY_DLL_DECL instance_uldaman : public ScriptedInstance
         }
 
         // Earthen Guardians
-        for(std::vector<uint64>::iterator i = earthenGuardian.begin(); i != earthenGuardian.end(); ++i)
+        for (std::vector<uint64>::iterator i = earthenGuardian.begin(); i != earthenGuardian.end(); ++i)
         {
             Creature *target = instance->GetCreature(*i);
             if (!target || target->isDead() || target->getFaction()!=14)
@@ -179,7 +177,7 @@ struct TRINITY_DLL_DECL instance_uldaman : public ScriptedInstance
     void RespawnMinions()
     {
         // first respawn any aggroed wall minions
-        for(std::vector<uint64>::iterator i = archaedasWallMinions.begin(); i != archaedasWallMinions.end(); ++i)
+        for (std::vector<uint64>::iterator i = archaedasWallMinions.begin(); i != archaedasWallMinions.end(); ++i)
         {
             Creature *target = instance->GetCreature(*i);
             if (target && target->isDead())
@@ -191,7 +189,7 @@ struct TRINITY_DLL_DECL instance_uldaman : public ScriptedInstance
         }
 
         // Vault Walkers
-        for(std::vector<uint64>::iterator i = vaultWalker.begin(); i != vaultWalker.end(); ++i)
+        for (std::vector<uint64>::iterator i = vaultWalker.begin(); i != vaultWalker.end(); ++i)
         {
             Creature *target = instance->GetCreature(*i);
             if (target && target->isDead())
@@ -203,7 +201,7 @@ struct TRINITY_DLL_DECL instance_uldaman : public ScriptedInstance
         }
 
         // Earthen Guardians
-        for(std::vector<uint64>::iterator i = earthenGuardian.begin(); i != earthenGuardian.end(); ++i)
+        for (std::vector<uint64>::iterator i = earthenGuardian.begin(); i != earthenGuardian.end(); ++i)
         {
             Creature *target = instance->GetCreature(*i);
             if (target && target->isDead())
@@ -227,7 +225,6 @@ struct TRINITY_DLL_DECL instance_uldaman : public ScriptedInstance
         if (data==5) RespawnMinions();
     }
 
-
     void SetData64 (uint32 type, uint64 data)
     {
         // Archaedas
@@ -236,7 +233,6 @@ struct TRINITY_DLL_DECL instance_uldaman : public ScriptedInstance
             ActivateArchaedas (data);
         }
     }
-
 
     void OnCreatureCreate(Creature* pCreature, bool add)
     {
@@ -287,8 +283,6 @@ struct TRINITY_DLL_DECL instance_uldaman : public ScriptedInstance
         return 0;
     } // end GetData64
 };
-
-
 
 InstanceData* GetInstanceData_instance_uldaman(Map* pMap)
 {

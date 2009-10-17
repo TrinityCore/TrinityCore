@@ -70,7 +70,7 @@ void ScriptsFree()
     delete []SpellSummary;
 
     // Free resources before library unload
-    for(uint16 i =0;i<MAX_SCRIPTS;++i)
+    for (uint16 i =0; i<MAX_SCRIPTS; ++i)
         delete m_scripts[i];
 
     num_sc_scripts = 0;
@@ -105,7 +105,7 @@ void ScriptsInit(char const* cfg_file = "trinitycore.conf")
     bar.step();
     outstring_log("");
 
-    for(uint16 i =0;i<MAX_SCRIPTS;++i)
+    for (uint16 i =0; i<MAX_SCRIPTS; ++i)
         m_scripts[i]=NULL;
 
     FillSpellSummary();

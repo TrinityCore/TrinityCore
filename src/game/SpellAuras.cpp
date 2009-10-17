@@ -401,7 +401,7 @@ Aura::Aura(SpellEntry const* spellproto, uint32 effMask, Unit *target, WorldObje
                             !(m_spellProto->AttributesEx2 & SPELL_ATTR_EX2_NOT_NEED_SHAPESHIFT) &&
                             !(m_spellProto->Attributes & SPELL_ATTR_NOT_SHAPESHIFT));
 
-    for (uint8 i=0 ;i<MAX_SPELL_EFFECTS;++i)
+    for (uint8 i=0 ; i<MAX_SPELL_EFFECTS; ++i)
     {
         if (m_auraFlags & (uint8(1) << i))
         {
@@ -422,7 +422,7 @@ Aura::Aura(SpellEntry const* spellproto, uint32 effMask, Unit *target, WorldObje
     else
         m_positive = !caster->IsHostileTo(m_target);
 
-    for(uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
     {
         if((1<<i & GetEffectMask()) && m_positive == IsPositiveEffect(GetId(), i))
         {
@@ -437,7 +437,7 @@ Aura::Aura(SpellEntry const* spellproto, uint32 effMask, Unit *target, WorldObje
 Aura::~Aura()
 {
     // free part auras memory
-    for (uint8 i=0 ; i<MAX_SPELL_EFFECTS;++i)
+    for (uint8 i=0 ; i<MAX_SPELL_EFFECTS; ++i)
         if (m_partAuras[i])
             delete m_partAuras[i];
 }
@@ -753,7 +753,7 @@ void AreaAuraEffect::Update(uint32 diff)
                 }
             }
 
-            for(std::list<Unit*>::iterator tIter = targets.begin(); tIter != targets.end(); tIter++)
+            for (std::list<Unit*>::iterator tIter = targets.begin(); tIter != targets.end(); tIter++)
             {
                 if(Aura *aur = (*tIter)->GetAura(GetId(), GetCasterGUID()))
                 {
@@ -763,7 +763,7 @@ void AreaAuraEffect::Update(uint32 diff)
                 else
                 {
                     bool skip = false;
-                    for(Unit::AuraMap::iterator iter = (*tIter)->GetAuras().begin(); iter != (*tIter)->GetAuras().end();++iter)
+                    for (Unit::AuraMap::iterator iter = (*tIter)->GetAuras().begin(); iter != (*tIter)->GetAuras().end(); ++iter)
                     {
                         if(!spellmgr.CanAurasStack(GetSpellProto(), iter->second->GetSpellProto(), iter->second->GetCasterGUID() == GetCasterGUID()))
                         {
@@ -933,7 +933,7 @@ void AuraEffect::CleanupTriggeredSpells()
 
 void Aura::ApplyAllModifiers(bool apply, bool Real)
 {
-    for (uint8 i = 0; i<MAX_SPELL_EFFECTS;++i)
+    for (uint8 i = 0; i<MAX_SPELL_EFFECTS; ++i)
         if (m_partAuras[i])
             m_partAuras[i]->ApplyModifier(apply, Real);
 }
@@ -958,7 +958,7 @@ void Aura::HandleAuraSpecificMods(bool apply)
                 uint32 zone, area;
                 m_target->GetZoneAndAreaId(zone,area);
 
-                for(SpellAreaForAreaMap::const_iterator itr = saBounds.first; itr != saBounds.second; ++itr)
+                for (SpellAreaForAreaMap::const_iterator itr = saBounds.first; itr != saBounds.second; ++itr)
                 {
                     // some auras remove at aura remove
                     if(!itr->second->IsFitToRequirements((Player*)m_target,zone,area))
@@ -1046,7 +1046,7 @@ void Aura::HandleAuraSpecificMods(bool apply)
                     caster->CastCustomSpell(m_target, 63675, &basepoints0, NULL, NULL, true, NULL, GetPartAura(0));
                 }
             }
-            // Renew 
+            // Renew
             else if (GetSpellProto()->SpellFamilyFlags[0] & 0x00000040 && GetPartAura(0))
             {
                 Unit * caster = GetCaster();
@@ -1084,7 +1084,7 @@ void Aura::HandleAuraSpecificMods(bool apply)
                 AuraEffect * aurEff = NULL;
                 // Ebon Plaguebringer / Crypt Fever
                 Unit::AuraEffectList const& TalentAuras = caster->GetAurasByType(SPELL_AURA_OVERRIDE_CLASS_SCRIPTS);
-                for(Unit::AuraEffectList::const_iterator itr = TalentAuras.begin(); itr != TalentAuras.end(); ++itr)
+                for (Unit::AuraEffectList::const_iterator itr = TalentAuras.begin(); itr != TalentAuras.end(); ++itr)
                 {
                     if ((*itr)->GetMiscValue() == 7282)
                     {
@@ -1191,7 +1191,7 @@ void Aura::HandleAuraSpecificMods(bool apply)
 
         // Improved Presences
         Unit::AuraEffectList const& vDummyAuras = m_target->GetAurasByType(SPELL_AURA_DUMMY);
-        for(Unit::AuraEffectList::const_iterator itr = vDummyAuras.begin(); itr != vDummyAuras.end(); ++itr)
+        for (Unit::AuraEffectList::const_iterator itr = vDummyAuras.begin(); itr != vDummyAuras.end(); ++itr)
         {
             switch((*itr)->GetId())
             {
@@ -1293,7 +1293,7 @@ void Aura::HandleAuraSpecificMods(bool apply)
                     // aura remove - remove auras from all party members
                     std::list<Unit*> PartyMembers;
                     m_target->GetPartyMembers(PartyMembers);
-                    for (std::list<Unit*>::iterator itr = PartyMembers.begin();itr!=PartyMembers.end();++itr)
+                    for (std::list<Unit*>::iterator itr = PartyMembers.begin(); itr!=PartyMembers.end(); ++itr)
                     {
                         if ((*itr)!= m_target)
                             (*itr)->RemoveAurasWithFamily(SPELLFAMILY_WARRIOR, 0, 0x2, 0, GetCasterGUID());
@@ -1632,7 +1632,7 @@ bool Aura::IsVisible() const
         return true;
 
     bool noneAreaAura = true;
-    for(uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
     {
         if(m_partAuras[i])
         {
@@ -1690,7 +1690,7 @@ void Aura::_AddAura()
             Unit::VisibleAuraMap const * visibleAuras= m_target->GetVisibleAuras();
             // lookup for free slots in units visibleAuras
             Unit::VisibleAuraMap::const_iterator itr = visibleAuras->find(0);
-            for(uint32 freeSlot = 0; freeSlot < MAX_AURAS; ++itr , ++freeSlot)
+            for (uint32 freeSlot = 0; freeSlot < MAX_AURAS; ++itr , ++freeSlot)
             {
                 if(itr == visibleAuras->end() || itr->first != freeSlot)
                 {
@@ -1730,7 +1730,7 @@ void Aura::_AddAura()
     if(spellmgr.GetSpellCustomAttr(id) & SPELL_ATTR_CU_LINK_AURA)
     {
         if(const std::vector<int32> *spell_triggered = spellmgr.GetSpellLinked(id + SPELL_LINK_AURA))
-            for(std::vector<int32>::const_iterator itr = spell_triggered->begin(); itr != spell_triggered->end(); ++itr)
+            for (std::vector<int32>::const_iterator itr = spell_triggered->begin(); itr != spell_triggered->end(); ++itr)
             {
                 if(*itr < 0)
                     m_target->ApplySpellImmune(id, IMMUNITY_ID, -(*itr), true);
@@ -1806,7 +1806,7 @@ void Aura::_RemoveAura()
             if(customAttr & SPELL_ATTR_CU_LINK_REMOVE)
             {
                 if(const std::vector<int32> *spell_triggered = spellmgr.GetSpellLinked(-(int32)id))
-                    for(std::vector<int32>::const_iterator itr = spell_triggered->begin(); itr != spell_triggered->end(); ++itr)
+                    for (std::vector<int32>::const_iterator itr = spell_triggered->begin(); itr != spell_triggered->end(); ++itr)
                     {
                         if(*itr < 0)
                             m_target->RemoveAurasDueToSpell(-(*itr));
@@ -1817,7 +1817,7 @@ void Aura::_RemoveAura()
             if(customAttr & SPELL_ATTR_CU_LINK_AURA)
             {
                 if(const std::vector<int32> *spell_triggered = spellmgr.GetSpellLinked(id + SPELL_LINK_AURA))
-                    for(std::vector<int32>::const_iterator itr = spell_triggered->begin(); itr != spell_triggered->end(); ++itr)
+                    for (std::vector<int32>::const_iterator itr = spell_triggered->begin(); itr != spell_triggered->end(); ++itr)
                     {
                         if(*itr < 0)
                             m_target->ApplySpellImmune(id, IMMUNITY_ID, -(*itr), false);
@@ -1861,7 +1861,7 @@ void Aura::SetStackAmount(uint8 stackAmount, bool applied)
     if (stackAmount != m_stackAmount)
     {
         m_stackAmount = stackAmount;
-        for (uint8 i=0;i<MAX_SPELL_EFFECTS;++i)
+        for (uint8 i=0; i<MAX_SPELL_EFFECTS; ++i)
         {
             if (AuraEffect * part = GetPartAura(i))
             {
@@ -1959,7 +1959,7 @@ bool Aura::IsPersistent() const
 {
     return IS_DYNAMICOBJECT_GUID(m_sourceGuid);
     /*
-    for(uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
         if(m_partAuras[i] && m_partAuras[i]->IsPersistent())
             return true;
     return false;
@@ -1968,7 +1968,7 @@ bool Aura::IsPersistent() const
 
 bool Aura::IsAreaAura() const
 {
-    for(uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
         if(m_partAuras[i] && m_partAuras[i]->IsAreaAura())
             return true;
     return false;
@@ -1976,7 +1976,7 @@ bool Aura::IsAreaAura() const
 
 bool Aura::IsAuraType(AuraType type) const
 {
-    for(uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
     {
         if(m_partAuras[i] && m_partAuras[i]->GetAuraName() == type)
             return true;
@@ -1991,7 +1991,7 @@ void Aura::SetLoadedState(uint64 caster_guid,int32 maxduration,int32 duration,in
     m_duration = duration;
     m_procCharges = charges;
     m_stackAmount = stackamount;
-    for(uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
         if(m_partAuras[i])
             m_partAuras[i]->SetAmount(amount[i]);
 }
@@ -2110,7 +2110,7 @@ void AuraEffect::HandleShapeshiftBoosts(bool apply)
             if (HotWSpellId)
             {
                 Unit::AuraEffectList const& mModTotalStatPct = m_target->GetAurasByType(SPELL_AURA_MOD_TOTAL_STAT_PERCENTAGE);
-                for(Unit::AuraEffectList::const_iterator i = mModTotalStatPct.begin(); i != mModTotalStatPct.end(); ++i)
+                for (Unit::AuraEffectList::const_iterator i = mModTotalStatPct.begin(); i != mModTotalStatPct.end(); ++i)
                 {
                     if ((*i)->GetSpellProto()->SpellIconID == 240 && (*i)->GetMiscValue() == 3)
                     {
@@ -2190,7 +2190,7 @@ void AuraEffect::HandleShapeshiftBoosts(bool apply)
             m_target->RemoveAurasDueToSpell(spellId2);
 
         Unit::AuraMap& tAuras = m_target->GetAuras();
-        for (Unit::AuraMap::iterator itr = tAuras.begin(); itr != tAuras.end();)
+        for (Unit::AuraMap::iterator itr = tAuras.begin(); itr != tAuras.end(); )
         {
             if (itr->second->IsRemovedOnShapeLost())
             {
@@ -2280,7 +2280,7 @@ void AuraEffect::HandleAddModifier(bool apply, bool Real, bool changeAmount)
         {
             uint64 guid = m_target->GetGUID();
             Unit::AuraMap & auras = m_target->GetAuras();
-            for(Unit::AuraMap::iterator iter = auras.begin(); iter != auras.end();++iter)
+            for (Unit::AuraMap::iterator iter = auras.begin(); iter != auras.end(); ++iter)
             {
                 Aura * aur = iter->second;
                 // only passive auras-active auras should have amount set on spellcast and not be affected
@@ -2289,7 +2289,7 @@ void AuraEffect::HandleAddModifier(bool apply, bool Real, bool changeAmount)
                 {
                     if (modOp == SPELLMOD_ALL_EFFECTS)
                     {
-                        for (uint8 i = 0; i<MAX_SPELL_EFFECTS;++i)
+                        for (uint8 i = 0; i<MAX_SPELL_EFFECTS; ++i)
                         {
                             if (AuraEffect * aurEff = aur->GetPartAura(i))
                                 aurEff->RecalculateAmount();
@@ -2465,9 +2465,9 @@ void AuraEffect::TriggerSpell()
                     case 34229:
                     {
                         // cast 24 spells 34269-34289, 34314-34316
-                        for(uint32 spell_id = 34269; spell_id != 34290; ++spell_id)
+                        for (uint32 spell_id = 34269; spell_id != 34290; ++spell_id)
                             caster->CastSpell(m_target,spell_id,true, NULL, this);
-                        for(uint32 spell_id = 34314; spell_id != 34317; ++spell_id)
+                        for (uint32 spell_id = 34314; spell_id != 34317; ++spell_id)
                             caster->CastSpell(m_target,spell_id,true, NULL, this);
                         return;
                     }
@@ -2587,7 +2587,7 @@ void AuraEffect::TriggerSpell()
                     case 38443:
                     {
                         bool all = true;
-                        for(int i = SUMMON_SLOT_TOTEM; i < MAX_TOTEM_SLOT; ++i)
+                        for (int i = SUMMON_SLOT_TOTEM; i < MAX_TOTEM_SLOT; ++i)
                         {
                             if(!caster->m_SummonSlot[i])
                             {
@@ -2695,7 +2695,7 @@ void AuraEffect::HandleAuraDummy(bool apply, bool Real, bool changeAmount)
     if(apply)
     {
         // Overpower
-        if (caster && m_spellProto->SpellFamilyName == SPELLFAMILY_WARRIOR && 
+        if (caster && m_spellProto->SpellFamilyName == SPELLFAMILY_WARRIOR &&
             m_spellProto->SpellFamilyFlags[0] & 0x4)
         {
             // Must be casting target
@@ -3182,7 +3182,7 @@ void AuraEffect::HandleAuraDummy(bool apply, bool Real, bool changeAmount)
                     // final heal
                     //if(m_target->IsInWorld())
                     // This may be a hack, but we need a way to count healing bonus three times
-                    //for(uint8 i = 0; i < GetParentAura()->GetStackAmount(); ++i)
+                    //for (uint8 i = 0; i < GetParentAura()->GetStackAmount(); ++i)
                     // Update: apparently not anymore, it should only count once, so.. commented out.
                     m_target->CastCustomSpell(m_target,33778,&m_amount,NULL,NULL,true,NULL,this,GetCasterGUID());
 
@@ -3242,7 +3242,7 @@ void AuraEffect::HandleAuraDummy(bool apply, bool Real, bool changeAmount)
                 uint32 zone, area;
                 m_target->GetZoneAndAreaId(zone,area);
 
-                for(SpellAreaForAreaMap::const_iterator itr = saBounds.first; itr != saBounds.second; ++itr)
+                for (SpellAreaForAreaMap::const_iterator itr = saBounds.first; itr != saBounds.second; ++itr)
                 {
                     // some auras remove at aura remove
                     if(!itr->second->IsFitToRequirements((Player*)m_target,zone,area))
@@ -3284,7 +3284,7 @@ void AuraEffect::HandleAuraMounted(bool apply, bool Real, bool /*changeAmount*/)
             display_id = minfo->modelid;
 
         //some spell has one aura of mount and one of vehicle
-        for(uint32 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+        for (uint32 i = 0; i < MAX_SPELL_EFFECTS; ++i)
             if(GetSpellProto()->Effect[i] == SPELL_EFFECT_SUMMON
                 && GetSpellProto()->EffectMiscValue[i] == GetMiscValue())
                 display_id = 0;
@@ -3591,7 +3591,7 @@ void AuraEffect::HandleAuraModShapeshift(bool apply, bool Real, bool changeAmoun
         {
             // add dash if in cat-from
             Unit::AuraMap & auras = m_target->GetAuras();
-            for (Unit::AuraMap::iterator iter = auras.begin(); iter != auras.end();++iter)
+            for (Unit::AuraMap::iterator iter = auras.begin(); iter != auras.end(); ++iter)
             {
                 Aura * aur = iter->second;
                 if (aur->GetSpellProto()->SpellFamilyName==SPELLFAMILY_DRUID && aur->GetSpellProto()->SpellFamilyFlags[2] & 0x8)
@@ -3610,7 +3610,7 @@ void AuraEffect::HandleAuraModShapeshift(bool apply, bool Real, bool changeAmoun
     {
         SpellShapeshiftEntry const *shapeInfo = sSpellShapeshiftStore.LookupEntry(form);
         // Learn spells for shapeshift form - no need to send action bars or add spells to spellbook
-        for (uint8 i = 0;i<MAX_SHAPESHIFT_SPELLS;++i)
+        for (uint8 i = 0; i<MAX_SHAPESHIFT_SPELLS; ++i)
         {
             if (!shapeInfo->stanceSpell[i])
                 continue;
@@ -3748,7 +3748,7 @@ void AuraEffect::HandleAuraTransform(bool apply, bool Real, bool /*changeAmount*
         {
             // look for other transform auras
             AuraEffect* handledAura = *otherTransforms.begin();
-            for(Unit::AuraEffectList::const_iterator i = otherTransforms.begin();i != otherTransforms.end(); ++i)
+            for (Unit::AuraEffectList::const_iterator i = otherTransforms.begin(); i != otherTransforms.end(); ++i)
             {
                 // negative auras are preferred
                 if (!IsPositiveSpell((*i)->GetSpellProto()->Id))
@@ -3914,7 +3914,7 @@ void AuraEffect::HandleAuraModPetTalentsPoints(bool Apply, bool Real, bool chang
 
     // Recalculate pet tlaent points
     if (Pet *pet = ((Player*)m_target)->GetPet())
-        pet->InitTalentForLevel(); 
+        pet->InitTalentForLevel();
 }
 
 void AuraEffect::HandleModConfuse(bool apply, bool Real, bool /*changeAmount*/)
@@ -3956,12 +3956,12 @@ void AuraEffect::HandleFeignDeath(bool apply, bool Real, bool /*changeAmount*/)
         Trinity::AnyUnfriendlyUnitInObjectRangeCheck u_check(m_target, m_target, m_target->GetMap()->GetVisibilityDistance());
         Trinity::UnitListSearcher<Trinity::AnyUnfriendlyUnitInObjectRangeCheck> searcher(m_target, targets, u_check);
         m_target->VisitNearbyObject(m_target->GetMap()->GetVisibilityDistance(), searcher);
-        for(std::list<Unit*>::iterator iter = targets.begin(); iter != targets.end(); ++iter)
+        for (std::list<Unit*>::iterator iter = targets.begin(); iter != targets.end(); ++iter)
         {
             if(!(*iter)->hasUnitState(UNIT_STAT_CASTING))
                 continue;
 
-            for(uint32 i = CURRENT_FIRST_NON_MELEE_SPELL; i < CURRENT_MAX_SPELL; i++)
+            for (uint32 i = CURRENT_FIRST_NON_MELEE_SPELL; i < CURRENT_MAX_SPELL; i++)
             {
                 if((*iter)->GetCurrentSpell(i)
                 && (*iter)->GetCurrentSpell(i)->m_targets.getUnitTargetGUID() == m_target->GetGUID())
@@ -4112,7 +4112,7 @@ void AuraEffect::HandleInvisibility(bool apply, bool Real, bool /*changeAmount*/
         // recalculate value at modifier remove (current aura already removed)
         m_target->m_invisibilityMask = 0;
         Unit::AuraEffectList const& auras = m_target->GetAurasByType(SPELL_AURA_MOD_INVISIBILITY);
-        for(Unit::AuraEffectList::const_iterator itr = auras.begin(); itr != auras.end(); ++itr)
+        for (Unit::AuraEffectList::const_iterator itr = auras.begin(); itr != auras.end(); ++itr)
             m_target->m_invisibilityMask |= (1 << GetMiscValue());
 
         // only at real aura remove and if not have different invisibility auras.
@@ -4138,7 +4138,7 @@ void AuraEffect::HandleInvisibilityDetect(bool apply, bool Real, bool /*changeAm
         // recalculate value at modifier remove (current aura already removed)
         m_target->m_detectInvisibilityMask = 0;
         Unit::AuraEffectList const& auras = m_target->GetAurasByType(SPELL_AURA_MOD_INVISIBILITY_DETECTION);
-        for(Unit::AuraEffectList::const_iterator itr = auras.begin(); itr != auras.end(); ++itr)
+        for (Unit::AuraEffectList::const_iterator itr = auras.begin(); itr != auras.end(); ++itr)
             m_target->m_detectInvisibilityMask |= (1 << GetMiscValue());
     }
     if(Real && m_target->GetTypeId()==TYPEID_PLAYER)
@@ -4208,7 +4208,7 @@ void AuraEffect::HandleModThreat(bool apply, bool Real, bool changeAmount)
     }
 
     if (m_target->GetTypeId() == TYPEID_PLAYER)
-        for(int8 x=0;x < MAX_SPELL_SCHOOL;x++)
+        for (int8 x=0; x < MAX_SPELL_SCHOOL; x++)
             if (GetMiscValue() & int32(1<<x))
                 ApplyPercentModFloatVar(m_target->m_threatModifier[x], m_amount, apply);
 }
@@ -4383,12 +4383,12 @@ void AuraEffect::HandleModStateImmunityMask(bool apply, bool Real, bool /*change
 
     if(apply && GetSpellProto()->AttributesEx & SPELL_ATTR_EX_DISPEL_AURAS_ON_IMMUNITY)
     {
-        for (std::list <AuraType>::iterator iter = immunity_list.begin(); iter != immunity_list.end();++iter)
+        for (std::list <AuraType>::iterator iter = immunity_list.begin(); iter != immunity_list.end(); ++iter)
         {
             m_target->RemoveAurasByType(*iter);
         }
     }
-    for (std::list <AuraType>::iterator iter = immunity_list.begin(); iter != immunity_list.end();++iter)
+    for (std::list <AuraType>::iterator iter = immunity_list.begin(); iter != immunity_list.end(); ++iter)
     {
         m_target->ApplySpellImmune(GetId(),IMMUNITY_STATE,*iter,apply);
     }
@@ -4415,7 +4415,7 @@ void AuraEffect::HandleModMechanicImmunity(bool apply, bool Real, bool /*changeA
     if(apply && GetSpellProto()->AttributesEx & SPELL_ATTR_EX_DISPEL_AURAS_ON_IMMUNITY)
     {
         Unit::AuraMap& Auras = m_target->GetAuras();
-        for(Unit::AuraMap::iterator iter = Auras.begin(); iter != Auras.end();)
+        for (Unit::AuraMap::iterator iter = Auras.begin(); iter != Auras.end(); )
         {
             SpellEntry const *spell = iter->second->GetSpellProto();
             if (spell->Id != GetId())
@@ -4496,7 +4496,7 @@ void AuraEffect::HandleAuraModSchoolImmunity(bool apply, bool Real, bool /*chang
     {
         uint32 school_mask = GetMiscValue();
         Unit::AuraMap& Auras = m_target->GetAuras();
-        for(Unit::AuraMap::iterator iter = Auras.begin(); iter != Auras.end();)
+        for (Unit::AuraMap::iterator iter = Auras.begin(); iter != Auras.end(); )
         {
             SpellEntry const *spell = iter->second->GetSpellProto();
             if((GetSpellSchoolMask(spell) & school_mask)//Check for school mask
@@ -4684,7 +4684,7 @@ void AuraEffect::HandlePeriodicHealthFunnel(bool apply, bool Real, bool /*change
 
 void AuraEffect::HandleAuraModResistanceExclusive(bool apply, bool Rea, bool /*changeAmount*/)
 {
-    for(int8 x = SPELL_SCHOOL_NORMAL; x < MAX_SPELL_SCHOOL;x++)
+    for (int8 x = SPELL_SCHOOL_NORMAL; x < MAX_SPELL_SCHOOL; x++)
     {
         if(GetMiscValue() & int32(1<<x))
         {
@@ -4697,7 +4697,7 @@ void AuraEffect::HandleAuraModResistanceExclusive(bool apply, bool Rea, bool /*c
 
 void AuraEffect::HandleAuraModResistance(bool apply, bool Real, bool /*changeAmount*/)
 {
-    for(int8 x = SPELL_SCHOOL_NORMAL; x < MAX_SPELL_SCHOOL;x++)
+    for (int8 x = SPELL_SCHOOL_NORMAL; x < MAX_SPELL_SCHOOL; x++)
     {
         if(GetMiscValue() & int32(1<<x))
         {
@@ -4719,7 +4719,7 @@ void AuraEffect::HandleAuraModBaseResistancePCT(bool apply, bool Real, bool /*ch
     }
     else
     {
-        for(int8 x = SPELL_SCHOOL_NORMAL; x < MAX_SPELL_SCHOOL;x++)
+        for (int8 x = SPELL_SCHOOL_NORMAL; x < MAX_SPELL_SCHOOL; x++)
         {
             if(GetMiscValue() & int32(1<<x))
                 m_target->HandleStatModifier(UnitMods(UNIT_MOD_RESISTANCE_START + x), BASE_PCT, float(m_amount), apply);
@@ -4729,7 +4729,7 @@ void AuraEffect::HandleAuraModBaseResistancePCT(bool apply, bool Real, bool /*ch
 
 void AuraEffect::HandleModResistancePercent(bool apply, bool Real, bool /*changeAmount*/)
 {
-    for(int8 i = SPELL_SCHOOL_NORMAL; i < MAX_SPELL_SCHOOL; i++)
+    for (int8 i = SPELL_SCHOOL_NORMAL; i < MAX_SPELL_SCHOOL; i++)
     {
         if(GetMiscValue() & int32(1<<i))
         {
@@ -4754,7 +4754,7 @@ void AuraEffect::HandleModBaseResistance(bool apply, bool Real, bool /*changeAmo
     }
     else
     {
-        for(int i = SPELL_SCHOOL_NORMAL; i < MAX_SPELL_SCHOOL; i++)
+        for (int i = SPELL_SCHOOL_NORMAL; i < MAX_SPELL_SCHOOL; i++)
             if(GetMiscValue() & (1<<i))
                 m_target->HandleStatModifier(UnitMods(UNIT_MOD_RESISTANCE_START + i), TOTAL_VALUE, float(m_amount), apply);
     }
@@ -4772,7 +4772,7 @@ void AuraEffect::HandleAuraModStat(bool apply, bool Real, bool /*changeAmount*/)
         return;
     }
 
-    for(int32 i = STAT_STRENGTH; i < MAX_STATS; i++)
+    for (int32 i = STAT_STRENGTH; i < MAX_STATS; i++)
     {
         // -1 or -2 is all stats ( misc < -2 checked in function beginning )
         if (GetMiscValue() < 0 || GetMiscValue() == i)
@@ -5118,7 +5118,7 @@ void AuraEffect::HandleAuraModWeaponCritPercent(bool apply, bool Real, bool chan
     // apply item specific bonuses for already equipped weapon
     if(Real || changeAmount)
     {
-        for(int i = 0; i < MAX_ATTACK; ++i)
+        for (int i = 0; i < MAX_ATTACK; ++i)
             if(Item* pItem = ((Player*)m_target)->GetWeaponForAttack(WeaponAttackType(i)))
                 ((Player*)m_target)->_ApplyWeaponDependentAuraCritMod(pItem,WeaponAttackType(i),this,apply);
     }
@@ -5182,7 +5182,7 @@ void AuraEffect::HandleModSpellCritChanceShool(bool /*apply*/, bool Real, bool c
     if(m_target->GetTypeId() != TYPEID_PLAYER)
         return;
 
-    for(int school = SPELL_SCHOOL_NORMAL; school < MAX_SPELL_SCHOOL; ++school)
+    for (int school = SPELL_SCHOOL_NORMAL; school < MAX_SPELL_SCHOOL; ++school)
         if (GetMiscValue() & (1<<school))
             ((Player*)m_target)->UpdateSpellCritChance(school);
 }
@@ -5310,7 +5310,7 @@ void AuraEffect::HandleModDamageDone(bool apply, bool Real, bool changeAmount)
     // apply item specific bonuses for already equipped weapon
     if((Real || changeAmount) && m_target->GetTypeId()==TYPEID_PLAYER)
     {
-        for(int i = 0; i < MAX_ATTACK; ++i)
+        for (int i = 0; i < MAX_ATTACK; ++i)
             if(Item* pItem = ((Player*)m_target)->GetWeaponForAttack(WeaponAttackType(i)))
                 ((Player*)m_target)->_ApplyWeaponDependentAuraDamageMod(pItem,WeaponAttackType(i),this,apply);
     }
@@ -5366,7 +5366,7 @@ void AuraEffect::HandleModDamageDone(bool apply, bool Real, bool changeAmount)
     {
         if(m_amount > 0)
         {
-            for(int i = SPELL_SCHOOL_HOLY; i < MAX_SPELL_SCHOOL; i++)
+            for (int i = SPELL_SCHOOL_HOLY; i < MAX_SPELL_SCHOOL; i++)
             {
                 if((GetMiscValue() & (1<<i)) != 0)
                     m_target->ApplyModUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_POS+i,m_amount,apply);
@@ -5374,7 +5374,7 @@ void AuraEffect::HandleModDamageDone(bool apply, bool Real, bool changeAmount)
         }
         else
         {
-            for(int i = SPELL_SCHOOL_HOLY; i < MAX_SPELL_SCHOOL; i++)
+            for (int i = SPELL_SCHOOL_HOLY; i < MAX_SPELL_SCHOOL; i++)
             {
                 if((GetMiscValue() & (1<<i)) != 0)
                     m_target->ApplyModUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_NEG+i,m_amount,apply);
@@ -5392,7 +5392,7 @@ void AuraEffect::HandleModDamagePercentDone(bool apply, bool Real, bool changeAm
     // apply item specific bonuses for already equipped weapon
     if((Real || changeAmount) && m_target->GetTypeId()==TYPEID_PLAYER)
     {
-        for(int i = 0; i < MAX_ATTACK; ++i)
+        for (int i = 0; i < MAX_ATTACK; ++i)
             if(Item* pItem = ((Player*)m_target)->GetWeaponForAttack(WeaponAttackType(i)))
                 ((Player*)m_target)->_ApplyWeaponDependentAuraDamageMod(pItem,WeaponAttackType(i),this,apply);
     }
@@ -5440,7 +5440,7 @@ void AuraEffect::HandleModDamagePercentDone(bool apply, bool Real, bool changeAm
     // Magic damage percent modifiers implemented in Unit::SpellDamageBonus
     // Send info to client
     if(m_target->GetTypeId() == TYPEID_PLAYER)
-        for(int i = SPELL_SCHOOL_HOLY; i < MAX_SPELL_SCHOOL; ++i)
+        for (int i = SPELL_SCHOOL_HOLY; i < MAX_SPELL_SCHOOL; ++i)
             m_target->ApplyModSignedFloatValue(PLAYER_FIELD_MOD_DAMAGE_DONE_PCT+i,m_amount/100.0f,apply);
 }
 
@@ -5466,7 +5466,7 @@ void AuraEffect::HandleModPowerCostPCT(bool apply, bool Real, bool changeAmount)
         return;
 
     float amount = m_amount /100.0f;
-    for(int i = 0; i < MAX_SPELL_SCHOOL; ++i)
+    for (int i = 0; i < MAX_SPELL_SCHOOL; ++i)
         if(GetMiscValue() & (1<<i))
             m_target->ApplyModSignedFloatValue(UNIT_FIELD_POWER_COST_MULTIPLIER+i,amount,apply);
 }
@@ -5477,7 +5477,7 @@ void AuraEffect::HandleModPowerCost(bool apply, bool Real, bool changeAmount)
     if(!Real && !changeAmount)
         return;
 
-    for(int i = 0; i < MAX_SPELL_SCHOOL; ++i)
+    for (int i = 0; i < MAX_SPELL_SCHOOL; ++i)
         if(GetMiscValue() & (1<<i))
             m_target->ApplyModInt32Value(UNIT_FIELD_POWER_COST_MODIFIER+i,m_amount,apply);
 }
@@ -5491,7 +5491,7 @@ void AuraEffect::HandleNoReagentUseAura(bool Apply, bool Real, bool /*changeAmou
         return;
     flag96 mask;
     Unit::AuraEffectList const& noReagent = m_target->GetAurasByType(SPELL_AURA_NO_REAGENT_USE);
-        for(Unit::AuraEffectList::const_iterator i = noReagent.begin(); i !=  noReagent.end(); ++i)
+        for (Unit::AuraEffectList::const_iterator i = noReagent.begin(); i !=  noReagent.end(); ++i)
             mask |= (*i)->m_spellProto->EffectSpellClassMask[(*i)->m_effIndex];
 
     m_target->SetUInt32Value(PLAYER_NO_REAGENT_COST_1  , mask[0]);
@@ -5584,7 +5584,7 @@ void AuraEffect::HandleAuraAllowFlight(bool apply, bool Real, bool /*changeAmoun
 
     if(m_target->GetTypeId() == TYPEID_UNIT)
         m_target->SetFlying(apply);
-    
+
     if(Player *plr = m_target->m_movedPlayer)
     {
     // allow fly
@@ -6678,7 +6678,7 @@ void AuraEffect::PeriodicDummyTick()
                     return;
 
                 // Remove death rune added on proc
-                for (uint8 i=0;i<MAX_RUNES && m_amount;++i)
+                for (uint8 i=0; i<MAX_RUNES && m_amount; ++i)
                 {
                     if (m_spellProto->SpellIconID == 2622)
                     {
@@ -6788,7 +6788,7 @@ void AuraEffect::HandleAuraConvertRune(bool apply, bool Real, bool changeAmount)
 
     uint32 runes = 0;
     // convert number of runes specified in aura amount of rune type in miscvalue to runetype in miscvalueb
-    for(uint32 i = 0; i < MAX_RUNES && m_amount; ++i)
+    for (uint32 i = 0; i < MAX_RUNES && m_amount; ++i)
     {
         if(apply)
         {
@@ -7074,7 +7074,7 @@ int32 AuraEffect::CalculateCrowdControlAuraAmount(Unit * caster)
 
     // Glyphs increasing damage cap
     Unit::AuraEffectList const& overrideClassScripts = caster->GetAurasByType(SPELL_AURA_OVERRIDE_CLASS_SCRIPTS);
-    for(Unit::AuraEffectList::const_iterator itr = overrideClassScripts.begin();itr != overrideClassScripts.end(); ++itr)
+    for (Unit::AuraEffectList::const_iterator itr = overrideClassScripts.begin(); itr != overrideClassScripts.end(); ++itr)
     {
         if((*itr)->isAffectedOnSpell(m_spellProto))
         {
@@ -7092,7 +7092,7 @@ int32 AuraEffect::CalculateCrowdControlAuraAmount(Unit * caster)
 bool AuraEffect::IsPeriodicTickCrit(Unit const * pCaster) const
 {
     Unit::AuraEffectList const& mPeriodicCritAuras= pCaster->GetAurasByType(SPELL_AURA_ABILITY_PERIODIC_CRIT);
-    for(Unit::AuraEffectList::const_iterator itr = mPeriodicCritAuras.begin(); itr != mPeriodicCritAuras.end(); ++itr)
+    for (Unit::AuraEffectList::const_iterator itr = mPeriodicCritAuras.begin(); itr != mPeriodicCritAuras.end(); ++itr)
     {
         if ((*itr)->isAffectedOnSpell(m_spellProto) && pCaster->isSpellCrit(m_target, m_spellProto, GetSpellSchoolMask(m_spellProto)))
             return true;

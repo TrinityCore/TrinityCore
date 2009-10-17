@@ -262,7 +262,7 @@ ACE_OS::gethrtime (const ACE_HRTimer_Op op)
 # endif /* ! ACE_LACKS_LONGLONG_T */
 
 #if defined (__amd64__) || defined (__x86_64__)
-  // Read the high res tick counter into 32 bit int variables "eax" and 
+  // Read the high res tick counter into 32 bit int variables "eax" and
   // "edx", and then combine them into 64 bit int "now"
   ACE_UINT32 eax, edx;
   asm volatile ("rdtsc" : "=a" (eax), "=d" (edx) : : "memory");

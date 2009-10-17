@@ -29,7 +29,7 @@ namespace VMAP
 
     void BaseModel::getMember(Array<TriangleBox>& pMembers)
     {
-        for(unsigned int i=0; i<iNTriangles; i++)
+        for (unsigned int i=0; i<iNTriangles; i++)
         {
             pMembers.append(iTriangles[i]);
         }

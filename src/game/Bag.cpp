@@ -38,7 +38,7 @@ Bag::Bag( ): Item()
 
 Bag::~Bag()
 {
-    for(uint8 i = 0; i < MAX_BAG_SIZE; ++i)
+    for (uint8 i = 0; i < MAX_BAG_SIZE; ++i)
         if (Item *item = m_bagslot[i])
         {
             if(item->IsInWorld())
@@ -56,14 +56,14 @@ void Bag::AddToWorld()
 {
     Item::AddToWorld();
 
-    for(uint32 i = 0;  i < GetBagSize(); ++i)
+    for (uint32 i = 0; i < GetBagSize(); ++i)
         if(m_bagslot[i])
             m_bagslot[i]->AddToWorld();
 }
 
 void Bag::RemoveFromWorld()
 {
-    for(uint32 i = 0; i < GetBagSize(); ++i)
+    for (uint32 i = 0; i < GetBagSize(); ++i)
         if(m_bagslot[i])
             m_bagslot[i]->RemoveFromWorld();
 
@@ -184,7 +184,7 @@ void Bag::BuildCreateUpdateBlockForPlayer( UpdateData *data, Player *target ) co
 // If the bag is empty returns true
 bool Bag::IsEmpty() const
 {
-    for(uint32 i = 0; i < GetBagSize(); ++i)
+    for (uint32 i = 0; i < GetBagSize(); ++i)
         if (m_bagslot[i])
             return false;
 
@@ -195,7 +195,7 @@ uint32 Bag::GetItemCount( uint32 item, Item* eItem ) const
 {
     Item *pItem;
     uint32 count = 0;
-    for(uint32 i=0; i < GetBagSize(); ++i)
+    for (uint32 i=0; i < GetBagSize(); ++i)
     {
         pItem = m_bagslot[i];
         if( pItem && pItem != eItem && pItem->GetEntry() == item )
@@ -204,7 +204,7 @@ uint32 Bag::GetItemCount( uint32 item, Item* eItem ) const
 
     if(eItem && eItem->GetProto()->GemProperties)
     {
-        for(uint32 i=0; i < GetBagSize(); ++i)
+        for (uint32 i=0; i < GetBagSize(); ++i)
         {
             pItem = m_bagslot[i];
             if( pItem && pItem != eItem && pItem->GetProto()->Socket[0].Color )
@@ -217,7 +217,7 @@ uint32 Bag::GetItemCount( uint32 item, Item* eItem ) const
 
 uint8 Bag::GetSlotByItemGUID(uint64 guid) const
 {
-    for(uint32 i = 0; i < GetBagSize(); ++i)
+    for (uint32 i = 0; i < GetBagSize(); ++i)
         if(m_bagslot[i] != 0)
             if(m_bagslot[i]->GetGUID() == guid)
                 return i;

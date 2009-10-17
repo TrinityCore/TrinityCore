@@ -77,7 +77,7 @@ namespace FactorySelector
 
         if(!ai_factory)
         {
-            for(uint32 i = 0; i < CREATURE_MAX_SPELLS; ++i)
+            for (uint32 i = 0; i < CREATURE_MAX_SPELLS; ++i)
             {
                 if(creature->m_spells[i])
                 {
@@ -93,7 +93,7 @@ namespace FactorySelector
             int best_val = -1;
             typedef CreatureAIRegistry::RegistryMapType RMT;
             RMT const &l = ai_registry.GetRegisteredItems();
-            for( RMT::const_iterator iter = l.begin(); iter != l.end(); ++iter)
+            for (RMT::const_iterator iter = l.begin(); iter != l.end(); ++iter)
             {
                 const CreatureAICreator *factory = iter->second;
                 const SelectableAI *p = dynamic_cast<const SelectableAI *>(factory);
@@ -125,7 +125,7 @@ namespace FactorySelector
             int best_val = -1;
             std::vector<std::string> l;
             mv_registry.GetRegisteredItems(l);
-            for( std::vector<std::string>::iterator iter = l.begin(); iter != l.end(); ++iter)
+            for (std::vector<std::string>::iterator iter = l.begin(); iter != l.end(); ++iter)
             {
             const MovementGeneratorCreator *factory = mv_registry.GetRegistryItem((*iter).c_str());
             const SelectableMovement *p = dynamic_cast<const SelectableMovement *>(factory);

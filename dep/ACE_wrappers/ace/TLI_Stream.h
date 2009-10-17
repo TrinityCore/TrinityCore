@@ -10,7 +10,6 @@
  */
 //=============================================================================
 
-
 #ifndef ACE_TLI_STREAM_H
 #define ACE_TLI_STREAM_H
 #include /**/ "ace/pre.h"

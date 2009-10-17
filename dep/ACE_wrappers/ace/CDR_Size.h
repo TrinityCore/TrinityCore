@@ -54,14 +54,11 @@ public:
   /// Returns @c false if an error has ocurred.
   bool good_bit (void) const;
 
-
   /// Reset current size.
   void reset (void);
 
-
   /// Return current size.
   size_t total_length (void) const;
-
 
   // Return 0 on failure and 1 on success.
   //@{ @name Size-calculating pseudo-write operations
@@ -157,7 +154,6 @@ private:
                                 size_t align,
                                 ACE_CDR::ULong length);
 
-
   ACE_CDR::Boolean write_wchar_array_i (const ACE_CDR::WChar* x,
                                         ACE_CDR::ULong length);
 
@@ -234,7 +230,6 @@ extern ACE_Export ACE_CDR::Boolean operator<< (ACE_SizeCDR &ss,
 ACE_END_VERSIONED_NAMESPACE_DECL
 
 #endif /* __ACE_INLINE__ */
-
 
 #include /**/ "ace/post.h"
 

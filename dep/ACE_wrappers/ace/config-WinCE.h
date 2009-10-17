@@ -150,7 +150,6 @@
 //#define _O_SEQUENTIAL   0x0020  // file access is primarily sequential
 //#define _O_RANDOM       0x0010  // file access is primarily random
 
-
 // Non-ANSI names
 #define O_RDONLY        _O_RDONLY
 #define O_WRONLY        _O_WRONLY
@@ -167,15 +166,12 @@
 //#define O_SEQUENTIAL    _O_SEQUENTIAL
 //#define O_RANDOM        _O_RANDOM
 
-
 // @@ NSIG value.  This is definitely not correct.
 #define NSIG 23
-
 
 // @@ For some reason, WinCE forgot to define this.
 //    Need to find out what it is. (Used in MapViewOfFile ().)
 #define FILE_MAP_COPY 0
-
 
 #define ACE_LACKS_STRCASECMP    // WinCE doesn't support _stricmp
 #define ACE_LACKS_GETSERVBYNAME

@@ -13,7 +13,6 @@
  */
 //=============================================================================
 
-
 #ifndef ACE_CODESET_IMB1047_H
 #define ACE_CODESET_IMB1047_H
 #include /**/ "ace/pre.h"

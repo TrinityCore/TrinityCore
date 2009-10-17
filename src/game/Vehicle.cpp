@@ -29,7 +29,7 @@
 
 Vehicle::Vehicle(Unit *unit, VehicleEntry const *vehInfo) : me(unit), m_vehicleInfo(vehInfo), m_usableSeatNum(0)
 {
-    for(uint32 i = 0; i < 8; ++i)
+    for (uint32 i = 0; i < 8; ++i)
     {
         if(uint32 seatId = m_vehicleInfo->m_seatID[i])
             if(VehicleSeatEntry const *veSeat = sVehicleSeatStore.LookupEntry(seatId))
@@ -37,14 +37,14 @@ Vehicle::Vehicle(Unit *unit, VehicleEntry const *vehInfo) : me(unit), m_vehicleI
                 m_Seats.insert(std::make_pair(i, VehicleSeat(veSeat)));
                 if(veSeat->IsUsable())
                     ++m_usableSeatNum;
-            }                    
+            }
     }
     assert(!m_Seats.empty());
 }
 
 Vehicle::~Vehicle()
 {
-    for(SeatMap::const_iterator itr = m_Seats.begin(); itr != m_Seats.end(); ++itr)
+    for (SeatMap::const_iterator itr = m_Seats.begin(); itr != m_Seats.end(); ++itr)
         assert(!itr->second.passenger);
 }
 
@@ -64,7 +64,7 @@ void Vehicle::Install()
         }
         else
         {
-            for(uint32 i = 0; i < MAX_SPELL_VEHICLE; ++i)
+            for (uint32 i = 0; i < MAX_SPELL_VEHICLE; ++i)
             {
                 if(!cre->m_spells[i])
                     continue;
@@ -121,7 +121,7 @@ void Vehicle::InstallAllAccessories()
 void Vehicle::Uninstall()
 {
     sLog.outDebug("Vehicle::Uninstall %u", me->GetEntry());
-    for(SeatMap::iterator itr = m_Seats.begin(); itr != m_Seats.end(); ++itr)
+    for (SeatMap::iterator itr = m_Seats.begin(); itr != m_Seats.end(); ++itr)
         if(Unit *passenger = itr->second.passenger)
             if(passenger->HasUnitTypeMask(UNIT_MASK_ACCESSORY))
                 ((TempSummon*)passenger)->UnSummon();
@@ -131,7 +131,7 @@ void Vehicle::Uninstall()
 void Vehicle::Die()
 {
     sLog.outDebug("Vehicle::Die %u", me->GetEntry());
-    for(SeatMap::iterator itr = m_Seats.begin(); itr != m_Seats.end(); ++itr)
+    for (SeatMap::iterator itr = m_Seats.begin(); itr != m_Seats.end(); ++itr)
         if(Unit *passenger = itr->second.passenger)
             if(passenger->HasUnitTypeMask(UNIT_MASK_ACCESSORY))
                 passenger->setDeathState(JUST_DIED);
@@ -149,7 +149,7 @@ void Vehicle::Reset()
 void Vehicle::RemoveAllPassengers()
 {
     sLog.outDebug("Vehicle::RemoveAllPassengers");
-    for(SeatMap::iterator itr = m_Seats.begin(); itr != m_Seats.end(); ++itr)
+    for (SeatMap::iterator itr = m_Seats.begin(); itr != m_Seats.end(); ++itr)
         if(Unit *passenger = itr->second.passenger)
         {
             if(passenger->IsVehicle())
@@ -238,7 +238,7 @@ bool Vehicle::AddPassenger(Unit *unit, int8 seatId)
     SeatMap::iterator seat;
     if(seatId < 0) // no specific seat requirement
     {
-        for(seat = m_Seats.begin(); seat != m_Seats.end(); ++seat)
+        for (seat = m_Seats.begin(); seat != m_Seats.end(); ++seat)
             if(!seat->second.passenger && seat->second.seatInfo->IsUsable())
                 break;
 
@@ -312,7 +312,7 @@ void Vehicle::RemovePassenger(Unit *unit)
         return;
 
     SeatMap::iterator seat;
-    for(seat = m_Seats.begin(); seat != m_Seats.end(); ++seat)
+    for (seat = m_Seats.begin(); seat != m_Seats.end(); ++seat)
         if(seat->second.passenger == unit)
             break;
 

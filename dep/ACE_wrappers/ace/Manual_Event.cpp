@@ -6,7 +6,6 @@
 #include "ace/Manual_Event.inl"
 #endif /* __ACE_INLINE__ */
 
-
 ACE_RCSID(ace, Manual_Event, "$Id: Manual_Event.cpp 80826 2008-03-04 14:51:23Z wotte $")
 
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL

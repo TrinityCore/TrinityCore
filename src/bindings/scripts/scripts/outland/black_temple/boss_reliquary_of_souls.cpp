@@ -190,7 +190,7 @@ struct TRINITY_DLL_DECL boss_reliquary_of_soulsAI : public ScriptedAI
 
         std::list<HostilReference*>& m_threatlist = target->getThreatManager().getThreatList();
         std::list<HostilReference*>::iterator itr = m_threatlist.begin();
-        for(; itr != m_threatlist.end(); itr++)
+        for (; itr != m_threatlist.end(); itr++)
         {
             Unit* pUnit = Unit::GetUnit((*m_creature), (*itr)->getUnitGuid());
             if (pUnit)
@@ -390,7 +390,7 @@ struct TRINITY_DLL_DECL boss_essence_of_sufferingAI : public ScriptedAI
             return; // No point continuing if empty threatlist.
         std::list<Unit*> targets;
         std::list<HostilReference*>::iterator itr = m_threatlist.begin();
-        for(; itr != m_threatlist.end(); ++itr)
+        for (; itr != m_threatlist.end(); ++itr)
         {
             Unit* pUnit = Unit::GetUnit((*m_creature), (*itr)->getUnitGuid());
             if (pUnit && pUnit->isAlive() && (pUnit->GetTypeId() == TYPEID_PLAYER)) // Only alive players
@@ -481,7 +481,7 @@ struct TRINITY_DLL_DECL boss_essence_of_desireAI : public ScriptedAI
     void SpellHit(Unit *caster, const SpellEntry *spell)
     {
         if (m_creature->GetCurrentSpell(CURRENT_GENERIC_SPELL))
-            for(uint8 i = 0; i < 3; ++i)
+            for (uint8 i = 0; i < 3; ++i)
                 if (spell->Effect[i] == SPELL_EFFECT_INTERRUPT_CAST)
                     if (m_creature->GetCurrentSpell(CURRENT_GENERIC_SPELL)->m_spellInfo->Id == SPELL_SOUL_SHOCK
                         || m_creature->GetCurrentSpell(CURRENT_GENERIC_SPELL)->m_spellInfo->Id == SPELL_DEADEN)

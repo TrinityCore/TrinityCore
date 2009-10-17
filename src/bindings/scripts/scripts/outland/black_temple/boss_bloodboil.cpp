@@ -137,7 +137,7 @@ struct TRINITY_DLL_DECL boss_gurtogg_bloodboilAI : public ScriptedAI
 
         std::list<Unit *> targets;
         std::list<HostilReference *>::iterator itr = m_threatlist.begin();
-        for(; itr!= m_threatlist.end(); ++itr)             //store the threat list in a different container
+        for (; itr!= m_threatlist.end(); ++itr)             //store the threat list in a different container
         {
             Unit *target = Unit::GetUnit(*m_creature, (*itr)->getUnitGuid());
                                                             //only on alive players
@@ -154,11 +154,11 @@ struct TRINITY_DLL_DECL boss_gurtogg_bloodboilAI : public ScriptedAI
         /*SpellEntry const *spellInfo = GetSpellStore()->LookupEntry(SPELL_BLOODBOIL);
         if (spellInfo)
         {
-            for(std::list<Unit *>::iterator itr = targets.begin(); itr != targets.end(); ++itr)
+            for (std::list<Unit *>::iterator itr = targets.begin(); itr != targets.end(); ++itr)
             {
                 Unit* target = *itr;
                 if (!target) return;
-                for(uint32 i = 0;i<3; ++i)
+                for (uint32 i = 0; i<3; ++i)
                 {
                     uint8 eff = spellInfo->Effect[i];
                     if (eff>=TOTAL_SPELL_EFFECTS)

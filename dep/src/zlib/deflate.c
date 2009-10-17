@@ -169,7 +169,6 @@ struct static_tree_desc_s {int dummy;}; /* for buggy compilers */
  */
 #define UPDATE_HASH(s,h,c) (h = (((h)<<s->hash_shift) ^ (c)) & s->hash_mask)
 
-
 /* ===========================================================================
  * Insert string str in the dictionary and set match_head to the previous head
  * of the hash chain (the most recent string with same hash key). Return
@@ -902,7 +901,6 @@ int ZEXPORT deflateCopy (dest, source)
     deflate_state *ss;
     ushf *overlay;
 
-
     if (source == Z_NULL || dest == Z_NULL || source->state == Z_NULL) {
         return Z_STREAM_ERROR;
     }
@@ -1402,7 +1400,7 @@ local block_state deflate_stored(s, flush)
     }
 
     /* Copy as much as possible from input to output: */
-    for (;;) {
+    for (; ; ) {
         /* Fill the window as much as possible: */
         if (s->lookahead <= 1) {
 
@@ -1452,7 +1450,7 @@ local block_state deflate_fast(s, flush)
     IPos hash_head = NIL; /* head of the hash chain */
     int bflush;           /* set if current block must be flushed */
 
-    for (;;) {
+    for (; ; ) {
         /* Make sure that we always have enough lookahead, except
          * at the end of the input file. We need MAX_MATCH bytes
          * for the next match, plus MIN_MATCH bytes to insert the
@@ -1559,7 +1557,7 @@ local block_state deflate_slow(s, flush)
     int bflush;              /* set if current block must be flushed */
 
     /* Process the input block. */
-    for (;;) {
+    for (; ; ) {
         /* Make sure that we always have enough lookahead, except
          * at the end of the input file. We need MAX_MATCH bytes
          * for the next match, plus MIN_MATCH bytes to insert the
@@ -1690,7 +1688,7 @@ local block_state deflate_rle(s, flush)
     uInt prev;          /* byte at distance one to match */
     Bytef *scan;        /* scan for end of run */
 
-    for (;;) {
+    for (; ; ) {
         /* Make sure that we always have enough lookahead, except
          * at the end of the input file. We need MAX_MATCH bytes
          * for the longest encodable run.
