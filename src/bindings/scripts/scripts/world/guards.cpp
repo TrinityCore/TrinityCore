@@ -13,14 +13,12 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
-
 /* ScriptData
 SDName: Guards
 SD%Complete: 100
 SDComment: All Guard gossip data, quite some npc_text-id's still missing, adding constantly as new id's are known. CombatAI should be organized better for future.
 SDCategory: Guards
 EndScriptData */
-
 /* ContentData
 guard_azuremyst
 guard_bluffwatcher
@@ -44,19 +42,15 @@ guard_teldrassil
 guard_tirisfal
 guard_undercity
 EndContentData */
-
 #include "precompiled.h"
 #include "guard_ai.h"
-
 //script spesific action
 #define GOSSIP_ACTION_TAVERN                  101
 #define GOSSIP_ACTION_GEMMERCHANT             102
 #define GOSSIP_ACTION_MANALOOM                103
-
 //script spesific sender
 #define GOSSIP_SENDER_SEC_GEMMERCHANT         101
 #define GOSSIP_SENDER_SEC_AUCTIONHOUSE        102
-
 //script spesific gossip text
 #define GOSSIP_TEXT_TAVERN                    "Worlds End Tavern"
 #define GOSSIP_TEXT_BANKSCYERS                "Scyers bank"
@@ -73,17 +67,13 @@ EndContentData */
 #define GOSSIP_TEXT_GEMMERCHANT               "Gem Merchant"
 #define GOSSIP_TEXT_GEMSCYERS                 "Scyers Gem Merchant"
 #define GOSSIP_TEXT_GEMALDOR                  "Aldor Gem Merchant"
-
 #define GOSSIP_TEXT_AH_SILVERMOON_1           "Western Auction House"
 #define GOSSIP_TEXT_AH_SILVERMOON_2           "Royal Exchange Auction House"
-
 #define GOSSIP_TEXT_INN_SILVERMOON_1          "Silvermoon City Inn"
 #define GOSSIP_TEXT_INN_SILVERMOON_2          "Wayfarer's Rest tavern"
-
 /*******************************************************
  * guard_azuremyst start
  *******************************************************/
-
 bool GossipHello_guard_azuremyst(Player* pPlayer, Creature* pCreature)
 {
     pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_BANK            , GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
@@ -96,7 +86,6 @@ bool GossipHello_guard_azuremyst(Player* pPlayer, Creature* pCreature)
     pPlayer->SEND_GOSSIP_MENU(10066, pCreature->GetGUID());
     return true;
 }
-
 void SendDefaultMenu_guard_azuremyst(Player* pPlayer, Creature* pCreature, uint32 uiAction)
 {
     switch (uiAction)
@@ -150,7 +139,6 @@ void SendDefaultMenu_guard_azuremyst(Player* pPlayer, Creature* pCreature, uint3
             break;
     }
 }
-
 void SendClassTrainerMenu_guard_azuremyst(Player* pPlayer, Creature* pCreature, uint32 uiAction)
 {
     switch (uiAction)
@@ -185,7 +173,6 @@ void SendClassTrainerMenu_guard_azuremyst(Player* pPlayer, Creature* pCreature, 
             break;
     }
 }
-
 void SendProfTrainerMenu_guard_azuremyst(Player* pPlayer, Creature* pCreature, uint32 uiAction)
 {
     switch (uiAction)
@@ -247,7 +234,6 @@ void SendProfTrainerMenu_guard_azuremyst(Player* pPlayer, Creature* pCreature, u
             break;
     }
 }
-
 bool GossipSelect_guard_azuremyst(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
 {
     switch (uiSender)
@@ -258,20 +244,16 @@ bool GossipSelect_guard_azuremyst(Player* pPlayer, Creature* pCreature, uint32 u
     }
     return true;
 }
-
 /*******************************************************
  * guard_azuremyst end
  *******************************************************/
-
 CreatureAI* GetAI_guard_azuremyst(Creature* pCreature)
 {
     return new guardAI (pCreature);
 }
-
 /*******************************************************
  * guard_bluffwatcher start
  *******************************************************/
-
 bool GossipHello_guard_bluffwatcher(Player* pPlayer, Creature* pCreature)
 {
     pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_BANK         , GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
@@ -288,7 +270,6 @@ bool GossipHello_guard_bluffwatcher(Player* pPlayer, Creature* pCreature)
     pPlayer->SEND_GOSSIP_MENU(3543, pCreature->GetGUID());
     return true;
 }
-
 void SendDefaultMenu_guard_bluffwatcher(Player* pPlayer, Creature* pCreature, uint32 uiAction)
 {
     switch (uiAction)
@@ -357,7 +338,6 @@ void SendDefaultMenu_guard_bluffwatcher(Player* pPlayer, Creature* pCreature, ui
             break;
     }
 }
-
 void SendBattleMasterMenu_guard_bluffwatcher(Player* pPlayer, Creature* pCreature, uint32 uiAction)
 {
     switch (uiAction)
@@ -376,7 +356,6 @@ void SendBattleMasterMenu_guard_bluffwatcher(Player* pPlayer, Creature* pCreatur
             break;
     }
 }
-
 void SendClassTrainerMenu_guard_bluffwatcher(Player* pPlayer, Creature* pCreature, uint32 uiAction)
 {
     switch (uiAction)
@@ -407,7 +386,6 @@ void SendClassTrainerMenu_guard_bluffwatcher(Player* pPlayer, Creature* pCreatur
             break;
     }
 }
-
 void SendProfTrainerMenu_guard_bluffwatcher(Player* pPlayer, Creature* pCreature, uint32 uiAction)
 {
     switch (uiAction)
@@ -462,7 +440,6 @@ void SendProfTrainerMenu_guard_bluffwatcher(Player* pPlayer, Creature* pCreature
             break;
     }
 }
-
 bool GossipSelect_guard_bluffwatcher(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
 {
     switch (uiSender)
@@ -474,20 +451,16 @@ bool GossipSelect_guard_bluffwatcher(Player* pPlayer, Creature* pCreature, uint3
     }
     return true;
 }
-
 /*******************************************************
  * guard_bluffwatcher end
  *******************************************************/
-
 CreatureAI* GetAI_guard_bluffwatcher(Creature* pCreature)
 {
     return new guardAI (pCreature);
 }
-
 /*******************************************************
  * guard_contested start
  *******************************************************/
-
 CreatureAI* GetAI_guard_contested(Creature* pCreature)
 {
      return new guardAI (pCreature);
@@ -495,11 +468,9 @@ CreatureAI* GetAI_guard_contested(Creature* pCreature)
 /*******************************************************
  * guard_contested end
  *******************************************************/
-
 /*******************************************************
  * guard_darnassus start
  *******************************************************/
-
 bool GossipHello_guard_darnassus(Player* pPlayer, Creature* pCreature)
 {
     pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_AUCTIONHOUSE   , GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
@@ -516,7 +487,6 @@ bool GossipHello_guard_darnassus(Player* pPlayer, Creature* pCreature)
     pPlayer->SEND_GOSSIP_MENU(3016, pCreature->GetGUID());
     return true;
 }
-
 void SendDefaultMenu_guard_darnassus(Player* pPlayer, Creature* pCreature, uint32 uiAction)
 {
     switch (uiAction)
@@ -582,7 +552,6 @@ void SendDefaultMenu_guard_darnassus(Player* pPlayer, Creature* pCreature, uint3
             break;
     }
 }
-
 void SendBattleMasterMenu_guard_darnassus(Player* pPlayer, Creature* pCreature, uint32 uiAction)
 {
     switch (uiAction)
@@ -601,7 +570,6 @@ void SendBattleMasterMenu_guard_darnassus(Player* pPlayer, Creature* pCreature, 
             break;
     }
 }
-
 void SendClassTrainerMenu_guard_darnassus(Player* pPlayer, Creature* pCreature, uint32 uiAction)
 {
     switch (uiAction)
@@ -628,7 +596,6 @@ void SendClassTrainerMenu_guard_darnassus(Player* pPlayer, Creature* pCreature, 
             break;
     }
 }
-
 void SendProfTrainerMenu_guard_darnassus(Player* pPlayer, Creature* pCreature, uint32 uiAction)
 {
     switch (uiAction)
@@ -675,7 +642,6 @@ void SendProfTrainerMenu_guard_darnassus(Player* pPlayer, Creature* pCreature, u
             break;
     }
 }
-
 bool GossipSelect_guard_darnassus(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
 {
     switch (uiSender)
@@ -687,20 +653,16 @@ bool GossipSelect_guard_darnassus(Player* pPlayer, Creature* pCreature, uint32 u
     }
     return true;
 }
-
 /*******************************************************
  * guard_darnassus end
  *******************************************************/
-
 CreatureAI* GetAI_guard_darnassus(Creature* pCreature)
 {
     return new guardAI (pCreature);
 }
-
 /*******************************************************
  * guard_dunmorogh start
  *******************************************************/
-
 bool GossipHello_guard_dunmorogh(Player* pPlayer, Creature* pCreature)
 {
     pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_BANK             , GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
@@ -711,10 +673,8 @@ bool GossipHello_guard_dunmorogh(Player* pPlayer, Creature* pCreature)
     pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_CLASSTRAINER     , GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 6);
     pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_PROFTRAINER      , GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 7);
     pPlayer->SEND_GOSSIP_MENU(4287, pCreature->GetGUID());
-
     return true;
 }
-
 void SendDefaultMenu_guard_dunmorogh(Player* pPlayer, Creature* pCreature, uint32 uiAction)
 {
     switch (uiAction)
@@ -764,7 +724,6 @@ void SendDefaultMenu_guard_dunmorogh(Player* pPlayer, Creature* pCreature, uint3
             break;
     }
 }
-
 void SendClassTrainerMenu_guard_dunmorogh(Player* pPlayer, Creature* pCreature, uint32 uiAction)
 {
     switch (uiAction)
@@ -799,7 +758,6 @@ void SendClassTrainerMenu_guard_dunmorogh(Player* pPlayer, Creature* pCreature, 
             break;
     }
 }
-
 void SendProfTrainerMenu_guard_dunmorogh(Player* pPlayer, Creature* pCreature, uint32 uiAction)
 {
     switch (uiAction)
@@ -851,7 +809,6 @@ void SendProfTrainerMenu_guard_dunmorogh(Player* pPlayer, Creature* pCreature, u
             break;
     }
 }
-
 bool GossipSelect_guard_dunmorogh(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
 {
     switch (uiSender)
@@ -862,20 +819,16 @@ bool GossipSelect_guard_dunmorogh(Player* pPlayer, Creature* pCreature, uint32 u
     }
     return true;
 }
-
 /*******************************************************
  * guard_dunmorogh end
  *******************************************************/
-
 CreatureAI* GetAI_guard_dunmorogh(Creature* pCreature)
 {
     return new guardAI (pCreature);
 }
-
 /*******************************************************
  * guard_durotar start
  *******************************************************/
-
 bool GossipHello_guard_durotar(Player* pPlayer, Creature* pCreature)
 {
     pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_BANK         , GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
@@ -887,7 +840,6 @@ bool GossipHello_guard_durotar(Player* pPlayer, Creature* pCreature)
     pPlayer->SEND_GOSSIP_MENU(4037, pCreature->GetGUID());
     return true;
 }
-
 void SendDefaultMenu_guard_durotar(Player* pPlayer, Creature* pCreature, uint32 uiAction)
 {
     switch (uiAction)
@@ -934,7 +886,6 @@ void SendDefaultMenu_guard_durotar(Player* pPlayer, Creature* pCreature, uint32 
             break;
     }
 }
-
 void SendClassTrainerMenu_guard_durotar(Player* pPlayer, Creature* pCreature, uint32 uiAction)
 {
     switch (uiAction)
@@ -969,7 +920,6 @@ void SendClassTrainerMenu_guard_durotar(Player* pPlayer, Creature* pCreature, ui
             break;
     }
 }
-
 void SendProfTrainerMenu_guard_durotar(Player* pPlayer, Creature* pCreature, uint32 uiAction)
 {
     switch (uiAction)
@@ -1019,7 +969,6 @@ void SendProfTrainerMenu_guard_durotar(Player* pPlayer, Creature* pCreature, uin
             break;
     }
 }
-
 bool GossipSelect_guard_durotar(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
 {
     switch (uiSender)
@@ -1030,20 +979,16 @@ bool GossipSelect_guard_durotar(Player* pPlayer, Creature* pCreature, uint32 uiS
     }
     return true;
 }
-
 /*******************************************************
  * guard_durotar end
  *******************************************************/
-
 CreatureAI* GetAI_guard_durotar(Creature* pCreature)
 {
     return new guardAI (pCreature);
 }
-
 /*******************************************************
  * guard_elwynnforest start
  *******************************************************/
-
 bool GossipHello_guard_elwynnforest(Player* pPlayer, Creature* pCreature)
 {
     pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_BANK          , GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
@@ -1056,7 +1001,6 @@ bool GossipHello_guard_elwynnforest(Player* pPlayer, Creature* pCreature)
     pPlayer->SEND_GOSSIP_MENU(933, pCreature->GetGUID());
     return true;
 }
-
 void SendDefaultMenu_guard_elwynnforest(Player* pPlayer, Creature* pCreature, uint32 uiAction)
 {
     switch (uiAction)
@@ -1106,7 +1050,6 @@ void SendDefaultMenu_guard_elwynnforest(Player* pPlayer, Creature* pCreature, ui
             break;
     }
 }
-
 void SendClassTrainerMenu_guard_elwynnforest(Player* pPlayer, Creature* pCreature, uint32 uiAction)
 {
     switch (uiAction)
@@ -1143,7 +1086,6 @@ void SendClassTrainerMenu_guard_elwynnforest(Player* pPlayer, Creature* pCreatur
             break;
     }
 }
-
 void SendProfTrainerMenu_guard_elwynnforest(Player* pPlayer, Creature* pCreature, uint32 uiAction)
 {
     switch (uiAction)
@@ -1199,7 +1141,6 @@ void SendProfTrainerMenu_guard_elwynnforest(Player* pPlayer, Creature* pCreature
             break;
     }
 }
-
 bool GossipSelect_guard_elwynnforest(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
 {
     switch (uiSender)
@@ -1210,20 +1151,16 @@ bool GossipSelect_guard_elwynnforest(Player* pPlayer, Creature* pCreature, uint3
     }
     return true;
 }
-
 /*******************************************************
  * guard_elwynnforest end
  *******************************************************/
-
 CreatureAI* GetAI_guard_elwynnforest(Creature* pCreature)
 {
     return new guardAI (pCreature);
 }
-
 /*******************************************************
  * guard_eversong start
  *******************************************************/
-
 bool GossipHello_guard_eversong(Player* pPlayer, Creature* pCreature)
 {
     pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_BATHANDLER    , GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
@@ -1235,7 +1172,6 @@ bool GossipHello_guard_eversong(Player* pPlayer, Creature* pCreature)
     pPlayer->SEND_GOSSIP_MENU(10180, pCreature->GetGUID());
     return true;
 }
-
 void SendDefaultMenu_guard_eversong(Player* pPlayer, Creature* pCreature, uint32 uiAction)
 {
     switch (uiAction)
@@ -1283,7 +1219,6 @@ void SendDefaultMenu_guard_eversong(Player* pPlayer, Creature* pCreature, uint32
             break;
     }
 }
-
 void SendClassTrainerMenu_guard_eversong(Player* pPlayer, Creature* pCreature, uint32 uiAction)
 {
     switch (uiAction)
@@ -1317,7 +1252,6 @@ void SendClassTrainerMenu_guard_eversong(Player* pPlayer, Creature* pCreature, u
             break;
     }
 }
-
 void SendProfTrainerMenu_guard_eversong(Player* pPlayer, Creature* pCreature, uint32 uiAction)
 {
     switch (uiAction)
@@ -1373,7 +1307,6 @@ void SendProfTrainerMenu_guard_eversong(Player* pPlayer, Creature* pCreature, ui
             break;
     }
 }
-
 bool GossipSelect_guard_eversong(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
 {
     switch (uiSender)
@@ -1384,20 +1317,16 @@ bool GossipSelect_guard_eversong(Player* pPlayer, Creature* pCreature, uint32 ui
     }
     return true;
 }
-
 /*******************************************************
  * guard_eversong end
  *******************************************************/
-
 CreatureAI* GetAI_guard_eversong(Creature* pCreature)
 {
     return new guardAI (pCreature);
 }
-
 /*******************************************************
  * guard_exodar start
  *******************************************************/
-
 bool GossipHello_guard_exodar(Player* pPlayer, Creature* pCreature)
 {
     pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_AUCTIONHOUSE   , GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
@@ -1414,7 +1343,6 @@ bool GossipHello_guard_exodar(Player* pPlayer, Creature* pCreature)
     pPlayer->SEND_GOSSIP_MENU(9551, pCreature->GetGUID());
     return true;
 }
-
 void SendDefaultMenu_guard_exodar(Player* pPlayer, Creature* pCreature, uint32 uiAction)
 {
     switch (uiAction)
@@ -1488,7 +1416,6 @@ void SendDefaultMenu_guard_exodar(Player* pPlayer, Creature* pCreature, uint32 u
             break;
     }
 }
-
 void SendBattleMasterMenu_guard_exodar(Player* pPlayer, Creature* pCreature, uint32 uiAction)
 {
     switch (uiAction)
@@ -1515,7 +1442,6 @@ void SendBattleMasterMenu_guard_exodar(Player* pPlayer, Creature* pCreature, uin
             break;
     }
 }
-
 void SendClassTrainerMenu_guard_exodar(Player* pPlayer, Creature* pCreature, uint32 uiAction)
 {
     switch (uiAction)
@@ -1550,7 +1476,6 @@ void SendClassTrainerMenu_guard_exodar(Player* pPlayer, Creature* pCreature, uin
             break;
     }
 }
-
 void SendProfTrainerMenu_guard_exodar(Player* pPlayer, Creature* pCreature, uint32 uiAction)
 {
     switch (uiAction)
@@ -1613,7 +1538,6 @@ void SendProfTrainerMenu_guard_exodar(Player* pPlayer, Creature* pCreature, uint
             break;
     }
 }
-
 bool GossipSelect_guard_exodar(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
 {
     switch (uiSender)
@@ -1625,20 +1549,16 @@ bool GossipSelect_guard_exodar(Player* pPlayer, Creature* pCreature, uint32 uiSe
     }
     return true;
 }
-
 /*******************************************************
  * guard_exodar end
  *******************************************************/
-
 CreatureAI* GetAI_guard_exodar(Creature* pCreature)
 {
     return new guardAI (pCreature);
 }
-
 /*******************************************************
  * guard_ironforge start
  *******************************************************/
-
 bool GossipHello_guard_ironforge(Player* pPlayer, Creature* pCreature)
 {
     pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_AUCTIONHOUSE      , GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
@@ -1656,7 +1576,6 @@ bool GossipHello_guard_ironforge(Player* pPlayer, Creature* pCreature)
     pPlayer->SEND_GOSSIP_MENU(2760, pCreature->GetGUID());
     return true;
 }
-
 void SendDefaultMenu_guard_ironforge(Player* pPlayer, Creature* pCreature, uint32 uiAction)
 {
     switch (uiAction)
@@ -1732,7 +1651,6 @@ void SendDefaultMenu_guard_ironforge(Player* pPlayer, Creature* pCreature, uint3
             break;
     }
 }
-
 void SendBattleMasterMenu_guard_ironforge(Player* pPlayer, Creature* pCreature, uint32 uiAction)
 {
     switch (uiAction)
@@ -1751,7 +1669,6 @@ void SendBattleMasterMenu_guard_ironforge(Player* pPlayer, Creature* pCreature, 
             break;
     }
 }
-
 void SendClassTrainerMenu_guard_ironforge(Player* pPlayer, Creature* pCreature, uint32 uiAction)
 {
     switch (uiAction)
@@ -1791,7 +1708,6 @@ void SendClassTrainerMenu_guard_ironforge(Player* pPlayer, Creature* pCreature, 
             break;
     }
 }
-
 void SendProfTrainerMenu_guard_ironforge(Player* pPlayer, Creature* pCreature, uint32 uiAction)
 {
     switch (uiAction)
@@ -1850,7 +1766,6 @@ void SendProfTrainerMenu_guard_ironforge(Player* pPlayer, Creature* pCreature, u
             break;
     }
 }
-
 bool GossipSelect_guard_ironforge(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
 {
     switch (uiSender)
@@ -1862,20 +1777,16 @@ bool GossipSelect_guard_ironforge(Player* pPlayer, Creature* pCreature, uint32 u
     }
     return true;
 }
-
 /*******************************************************
  * guard_ironforge end
  *******************************************************/
-
 CreatureAI* GetAI_guard_ironforge(Creature* pCreature)
 {
     return new guardAI (pCreature);
 }
-
 /*******************************************************
  * guard_mulgore start
  *******************************************************/
-
 bool GossipHello_guard_mulgore(Player* pPlayer, Creature* pCreature)
 {
     pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_BANK         , GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
@@ -1887,7 +1798,6 @@ bool GossipHello_guard_mulgore(Player* pPlayer, Creature* pCreature)
     pPlayer->SEND_GOSSIP_MENU(3543, pCreature->GetGUID());
     return true;
 }
-
 void SendDefaultMenu_guard_mulgore(Player* pPlayer, Creature* pCreature, uint32 uiAction)
 {
     switch (uiAction)
@@ -1930,7 +1840,6 @@ void SendDefaultMenu_guard_mulgore(Player* pPlayer, Creature* pCreature, uint32 
             break;
     }
 }
-
 void SendClassTrainerMenu_guard_mulgore(Player* pPlayer, Creature* pCreature, uint32 uiAction)
 {
     switch (uiAction)
@@ -1953,7 +1862,6 @@ void SendClassTrainerMenu_guard_mulgore(Player* pPlayer, Creature* pCreature, ui
             break;
     }
 }
-
 void SendProfTrainerMenu_guard_mulgore(Player* pPlayer, Creature* pCreature, uint32 uiAction)
 {
     switch (uiAction)
@@ -2001,7 +1909,6 @@ void SendProfTrainerMenu_guard_mulgore(Player* pPlayer, Creature* pCreature, uin
             break;
     }
 }
-
 bool GossipSelect_guard_mulgore(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
 {
     switch (uiSender)
@@ -2012,20 +1919,16 @@ bool GossipSelect_guard_mulgore(Player* pPlayer, Creature* pCreature, uint32 uiS
     }
     return true;
 }
-
 /*******************************************************
  * guard_mulgore end
  *******************************************************/
-
 CreatureAI* GetAI_guard_mulgore(Creature* pCreature)
 {
     return new guardAI (pCreature);
 }
-
 /*******************************************************
  * guard_orgrimmar start
  *******************************************************/
-
 bool GossipHello_guard_orgrimmar(Player* pPlayer, Creature* pCreature)
 {
     pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_BANK          , GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
@@ -2042,10 +1945,8 @@ bool GossipHello_guard_orgrimmar(Player* pPlayer, Creature* pCreature)
     pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_CLASSTRAINER  , GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 12);
     pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_PROFTRAINER   , GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 13);
     pPlayer->SEND_GOSSIP_MENU(2593, pCreature->GetGUID());
-
     return true;
 }
-
 void SendDefaultMenu_guard_orgrimmar(Player* pPlayer, Creature* pCreature, uint32 uiAction)
 {
     switch (uiAction)
@@ -2125,7 +2026,6 @@ void SendDefaultMenu_guard_orgrimmar(Player* pPlayer, Creature* pCreature, uint3
             break;
     }
 }
-
 void SendBattleMasterMenu_guard_orgrimmar(Player* pPlayer, Creature* pCreature, uint32 uiAction)
 {
     switch (uiAction)
@@ -2144,7 +2044,6 @@ void SendBattleMasterMenu_guard_orgrimmar(Player* pPlayer, Creature* pCreature, 
             break;
     }
 }
-
 void SendClassTrainerMenu_guard_orgrimmar(Player* pPlayer, Creature* pCreature, uint32 uiAction)
 {
     switch (uiAction)
@@ -2183,7 +2082,6 @@ void SendClassTrainerMenu_guard_orgrimmar(Player* pPlayer, Creature* pCreature, 
             break;
     }
 }
-
 void SendProfTrainerMenu_guard_orgrimmar(Player* pPlayer, Creature* pCreature, uint32 uiAction)
 {
     switch (uiAction)
@@ -2242,7 +2140,6 @@ void SendProfTrainerMenu_guard_orgrimmar(Player* pPlayer, Creature* pCreature, u
             break;
     }
 }
-
 bool GossipSelect_guard_orgrimmar(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
 {
     switch (uiSender)
@@ -2254,20 +2151,16 @@ bool GossipSelect_guard_orgrimmar(Player* pPlayer, Creature* pCreature, uint32 u
     }
     return true;
 }
-
 /*******************************************************
  * guard_orgrimmar end
  *******************************************************/
-
 CreatureAI* GetAI_guard_orgrimmar(Creature* pCreature)
 {
     return new guardAI_orgrimmar (pCreature);
 }
-
 /*******************************************************
  * guard_shattrath start
  *******************************************************/
-
 bool GossipHello_guard_shattrath(Player* pPlayer, Creature* pCreature)
 {
     pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_TAVERN                       , GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
@@ -2282,10 +2175,8 @@ bool GossipHello_guard_shattrath(Player* pPlayer, Creature* pCreature)
     pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_ALCHEMYLAB                   , GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 10);
     pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_GEMMERCHANT                  , GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 11);
     pPlayer->SEND_GOSSIP_MENU(10321, pCreature->GetGUID());
-
     return true;
 }
-
 void SendDefaultMenu_guard_shattrath(Player* pPlayer, Creature* pCreature, uint32 uiAction)
 {
     switch (uiAction)
@@ -2352,7 +2243,6 @@ void SendDefaultMenu_guard_shattrath(Player* pPlayer, Creature* pCreature, uint3
             break;
     }
 }
-
 void SendBankMenu_guard_shattrath(Player* pPlayer, Creature* pCreature, uint32 uiAction)
 {
     if (uiAction == GOSSIP_ACTION_INFO_DEF + 1)
@@ -2366,7 +2256,6 @@ void SendBankMenu_guard_shattrath(Player* pPlayer, Creature* pCreature, uint32 u
         pPlayer->SEND_GOSSIP_MENU(10381, pCreature->GetGUID());
     }
 }
-
 void SendInnMenu_guard_shattrath(Player* pPlayer, Creature* pCreature, uint32 uiAction)
 {
     if (uiAction == GOSSIP_ACTION_INFO_DEF + 1)
@@ -2380,7 +2269,6 @@ void SendInnMenu_guard_shattrath(Player* pPlayer, Creature* pCreature, uint32 ui
         pPlayer->SEND_GOSSIP_MENU(10384, pCreature->GetGUID());
     }
 }
-
 void SendMailboxMenu_guard_shattrath(Player* pPlayer, Creature* pCreature, uint32 uiAction)
 {
     switch (uiAction)
@@ -2403,7 +2291,6 @@ void SendMailboxMenu_guard_shattrath(Player* pPlayer, Creature* pCreature, uint3
             break;
     }
 }
-
 void SendStableMasterMenu_guard_shattrath(Player* pPlayer, Creature* pCreature, uint32 uiAction)
 {
     if (uiAction == GOSSIP_ACTION_INFO_DEF + 1)
@@ -2417,7 +2304,6 @@ void SendStableMasterMenu_guard_shattrath(Player* pPlayer, Creature* pCreature, 
         pPlayer->SEND_GOSSIP_MENU(10321, pCreature->GetGUID());
     }
 }
-
 void SendBattleMasterMenu_guard_shattrath(Player* pPlayer, Creature* pCreature, uint32 uiAction)
 {
     switch (uiAction)
@@ -2436,7 +2322,6 @@ void SendBattleMasterMenu_guard_shattrath(Player* pPlayer, Creature* pCreature, 
             break;
     }
 }
-
 void SendProfTrainerMenu_guard_shattrath(Player* pPlayer, Creature* pCreature, uint32 uiAction)
 {
     switch (uiAction)
@@ -2475,7 +2360,6 @@ void SendProfTrainerMenu_guard_shattrath(Player* pPlayer, Creature* pCreature, u
             break;
     }
 }
-
 void SendGemMerchantMenu_guard_shattrath(Player* pPlayer, Creature* pCreature, uint32 uiAction)
 {
     if (uiAction == GOSSIP_ACTION_INFO_DEF + 1)
@@ -2489,7 +2373,6 @@ void SendGemMerchantMenu_guard_shattrath(Player* pPlayer, Creature* pCreature, u
         pPlayer->SEND_GOSSIP_MENU(10699, pCreature->GetGUID());
     }
 }
-
 bool GossipSelect_guard_shattrath(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
 {
     switch (uiSender)
@@ -2505,34 +2388,27 @@ bool GossipSelect_guard_shattrath(Player* pPlayer, Creature* pCreature, uint32 u
     }
     return true;
 }
-
 /*******************************************************
  * guard_shattrath end
  *******************************************************/
-
 CreatureAI* GetAI_guard_shattrath(Creature* pCreature)
 {
     return new guardAI (pCreature);
 }
-
 /*******************************************************
  * guard_shattrath_aldor
  *******************************************************/
-
 #define SPELL_BANISHED_SHATTRATH_A  36642
 #define SPELL_BANISHED_SHATTRATH_S  36671
 #define SPELL_BANISH_TELEPORT       36643
 #define SPELL_EXILE                 39533
-
 struct TRINITY_DLL_DECL guard_shattrath_aldorAI : public guardAI
 {
     guard_shattrath_aldorAI(Creature *c) : guardAI(c) {}
-
     uint32 Exile_Timer;
     uint32 Banish_Timer;
     uint64 PlayerGUID;
     bool CanTeleport;
-
     void Reset()
     {
         Banish_Timer = 5000;
@@ -2540,14 +2416,11 @@ struct TRINITY_DLL_DECL guard_shattrath_aldorAI : public guardAI
         PlayerGUID = 0;
         CanTeleport = false;
     }
-
     void EnterCombat(Unit *who) {}
-
     void UpdateAI(const uint32 diff)
     {
         if (!UpdateVictim())
             return;
-
         if (CanTeleport)
         {
             if (Exile_Timer < diff)
@@ -2574,11 +2447,9 @@ struct TRINITY_DLL_DECL guard_shattrath_aldorAI : public guardAI
                     CanTeleport = true;
             }
         }else Banish_Timer -= diff;
-
         DoMeleeAttackIfReady();
     }
 };
-
 bool GossipHello_guard_shattrath_aldor(Player* pPlayer, Creature* pCreature)
 {
     pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_TAVERN                       , GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
@@ -2595,7 +2466,6 @@ bool GossipHello_guard_shattrath_aldor(Player* pPlayer, Creature* pCreature)
     pPlayer->SEND_GOSSIP_MENU(10524, pCreature->GetGUID());
     return true;
 }
-
 void SendDefaultMenu_guard_shattrath_aldor(Player* pPlayer, Creature* pCreature, uint32 uiAction)
 {
     switch (uiAction)
@@ -2656,7 +2526,6 @@ void SendDefaultMenu_guard_shattrath_aldor(Player* pPlayer, Creature* pCreature,
             break;
     }
 }
-
 void SendProfTrainerMenu_guard_shattrath_aldor(Player* pPlayer, Creature* pCreature, uint32 uiAction)
 {
     switch (uiAction)
@@ -2695,7 +2564,6 @@ void SendProfTrainerMenu_guard_shattrath_aldor(Player* pPlayer, Creature* pCreat
             break;
     }
 }
-
 bool GossipSelect_guard_shattrath_aldor(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
 {
     switch (uiSender)
@@ -2706,29 +2574,23 @@ bool GossipSelect_guard_shattrath_aldor(Player* pPlayer, Creature* pCreature, ui
     }
     return true;
 }
-
 /*******************************************************
  * guard_shattrath_aldor end
  *******************************************************/
-
 CreatureAI* GetAI_guard_shattrath_aldor(Creature* pCreature)
 {
     return new guard_shattrath_aldorAI (pCreature);
 }
-
 /*******************************************************
  * guard_shattrath_scryer
  *******************************************************/
-
 struct TRINITY_DLL_DECL guard_shattrath_scryerAI : public guardAI
 {
     guard_shattrath_scryerAI(Creature *c) : guardAI(c) {}
-
     uint32 Exile_Timer;
     uint32 Banish_Timer;
     uint64 PlayerGUID;
     bool CanTeleport;
-
     void Reset()
     {
         Banish_Timer = 5000;
@@ -2736,14 +2598,11 @@ struct TRINITY_DLL_DECL guard_shattrath_scryerAI : public guardAI
         PlayerGUID = 0;
         CanTeleport = false;
     }
-
     void EnterCombat(Unit *who) {}
-
     void UpdateAI(const uint32 diff)
     {
         if (!UpdateVictim())
             return;
-
         if (CanTeleport)
         {
             if (Exile_Timer < diff)
@@ -2770,11 +2629,9 @@ struct TRINITY_DLL_DECL guard_shattrath_scryerAI : public guardAI
                     CanTeleport = true;
             }
         }else Banish_Timer -= diff;
-
         DoMeleeAttackIfReady();
     }
 };
-
 bool GossipHello_guard_shattrath_scryer(Player* pPlayer, Creature* pCreature)
 {
     pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_TAVERN                       , GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
@@ -2791,7 +2648,6 @@ bool GossipHello_guard_shattrath_scryer(Player* pPlayer, Creature* pCreature)
     pPlayer->SEND_GOSSIP_MENU(10430, pCreature->GetGUID());
     return true;
 }
-
 void SendDefaultMenu_guard_shattrath_scryer(Player* pPlayer, Creature* pCreature, uint32 uiAction)
 {
     switch (uiAction)
@@ -2851,7 +2707,6 @@ void SendDefaultMenu_guard_shattrath_scryer(Player* pPlayer, Creature* pCreature
             break;
     }
 }
-
 void SendProfTrainerMenu_guard_shattrath_scryer(Player* pPlayer, Creature* pCreature, uint32 uiAction)
 {
     switch (uiAction)
@@ -2890,7 +2745,6 @@ void SendProfTrainerMenu_guard_shattrath_scryer(Player* pPlayer, Creature* pCrea
             break;
     }
 }
-
 bool GossipSelect_guard_shattrath_scryer(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
 {
     switch (uiSender)
@@ -2901,20 +2755,16 @@ bool GossipSelect_guard_shattrath_scryer(Player* pPlayer, Creature* pCreature, u
     }
     return true;
 }
-
 /*******************************************************
  * guard_shattrath_scryer end
  *******************************************************/
-
 CreatureAI* GetAI_guard_shattrath_scryer(Creature* pCreature)
 {
     return new guard_shattrath_scryerAI (pCreature);
 }
-
 /*******************************************************
  * guard_silvermoon start
  *******************************************************/
-
 bool GossipHello_guard_silvermoon(Player* pPlayer, Creature* pCreature)
 {
     pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_AUCTIONHOUSE   , GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
@@ -2931,7 +2781,6 @@ bool GossipHello_guard_silvermoon(Player* pPlayer, Creature* pCreature)
     pPlayer->SEND_GOSSIP_MENU(9316, pCreature->GetGUID());
     return true;
 }
-
 void SendDefaultMenu_guard_silvermoon(Player* pPlayer, Creature* pCreature, uint32 uiAction)
 {
     switch (uiAction)
@@ -3007,7 +2856,6 @@ void SendDefaultMenu_guard_silvermoon(Player* pPlayer, Creature* pCreature, uint
             break;
     }
 }
-
 void SendAuctionhouseMenu_guard_silvermoon(Player* pPlayer, Creature* pCreature, uint32 uiAction)
 {
     if (uiAction == GOSSIP_ACTION_INFO_DEF + 1)
@@ -3021,7 +2869,6 @@ void SendAuctionhouseMenu_guard_silvermoon(Player* pPlayer, Creature* pCreature,
         pPlayer->SEND_GOSSIP_MENU(9319, pCreature->GetGUID());
     }
 }
-
 void SendInnMenu_guard_silvermoon(Player* pPlayer, Creature* pCreature, uint32 uiAction)
 {
     if (uiAction == GOSSIP_ACTION_INFO_DEF + 1)
@@ -3035,7 +2882,6 @@ void SendInnMenu_guard_silvermoon(Player* pPlayer, Creature* pCreature, uint32 u
         pPlayer->SEND_GOSSIP_MENU(9603, pCreature->GetGUID());
     }
 }
-
 void SendBattleMasterMenu_guard_silvermoon(Player* pPlayer, Creature* pCreature, uint32 uiAction)
 {
     switch (uiAction)
@@ -3062,7 +2908,6 @@ void SendBattleMasterMenu_guard_silvermoon(Player* pPlayer, Creature* pCreature,
             break;
     }
 }
-
 void SendClassTrainerMenu_guard_silvermoon(Player* pPlayer, Creature* pCreature, uint32 uiAction)
 {
     switch (uiAction)
@@ -3097,7 +2942,6 @@ void SendClassTrainerMenu_guard_silvermoon(Player* pPlayer, Creature* pCreature,
             break;
     }
 }
-
 void SendProfTrainerMenu_guard_silvermoon(Player* pPlayer, Creature* pCreature, uint32 uiAction)
 {
     switch (uiAction)
@@ -3160,7 +3004,6 @@ void SendProfTrainerMenu_guard_silvermoon(Player* pPlayer, Creature* pCreature, 
             break;
     }
 }
-
 bool GossipSelect_guard_silvermoon(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
 {
     switch (uiSender)
@@ -3174,20 +3017,16 @@ bool GossipSelect_guard_silvermoon(Player* pPlayer, Creature* pCreature, uint32 
     }
     return true;
 }
-
 /*******************************************************
  * guard_silvermoon end
  *******************************************************/
-
 CreatureAI* GetAI_guard_silvermoon(Creature* pCreature)
 {
     return new guardAI (pCreature);
 }
-
 /*******************************************************
  * guard_stormwind start
  *******************************************************/
-
 bool GossipHello_guard_stormwind(Player* pPlayer, Creature* pCreature)
 {
     pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_AUCTIONHOUSE      , GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
@@ -3206,7 +3045,6 @@ bool GossipHello_guard_stormwind(Player* pPlayer, Creature* pCreature)
     pPlayer->SEND_GOSSIP_MENU(933, pCreature->GetGUID());
     return true;
 }
-
 void SendDefaultMenu_guard_stormwind(Player* pPlayer, Creature* pCreature, uint32 uiAction)
 {
     switch (uiAction)
@@ -3287,7 +3125,6 @@ void SendDefaultMenu_guard_stormwind(Player* pPlayer, Creature* pCreature, uint3
             break;
     }
 }
-
 void SendBattleMasterMenu_guard_stormwind(Player* pPlayer, Creature* pCreature, uint32 uiAction)
 {
     switch (uiAction)
@@ -3306,7 +3143,6 @@ void SendBattleMasterMenu_guard_stormwind(Player* pPlayer, Creature* pCreature, 
             break;
     }
 }
-
 void SendClassTrainerMenu_guard_stormwind(Player* pPlayer, Creature* pCreature, uint32 uiAction)
 {
     switch (uiAction)
@@ -3350,7 +3186,6 @@ void SendClassTrainerMenu_guard_stormwind(Player* pPlayer, Creature* pCreature, 
             break;
     }
 }
-
 void SendProfTrainerMenu_guard_stormwind(Player* pPlayer, Creature* pCreature, uint32 uiAction)
 {
     switch (uiAction)
@@ -3409,7 +3244,6 @@ void SendProfTrainerMenu_guard_stormwind(Player* pPlayer, Creature* pCreature, u
             break;
     }
 }
-
 bool GossipSelect_guard_stormwind(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
 {
     switch (uiSender)
@@ -3421,20 +3255,16 @@ bool GossipSelect_guard_stormwind(Player* pPlayer, Creature* pCreature, uint32 u
     }
     return true;
 }
-
 /*******************************************************
  * guard_stormwind end
  *******************************************************/
-
 CreatureAI* GetAI_guard_stormwind(Creature* pCreature)
 {
     return new guardAI_stormwind (pCreature);
 }
-
 /*******************************************************
  * guard_teldrassil start
  *******************************************************/
-
 bool GossipHello_guard_teldrassil(Player* pPlayer, Creature* pCreature)
 {
     pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_BANK         , GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
@@ -3447,7 +3277,6 @@ bool GossipHello_guard_teldrassil(Player* pPlayer, Creature* pCreature)
     pPlayer->SEND_GOSSIP_MENU(4316, pCreature->GetGUID());
     return true;
 }
-
 void SendDefaultMenu_guard_teldrassil(Player* pPlayer, Creature* pCreature, uint32 uiAction)
 {
     switch (uiAction)
@@ -3492,7 +3321,6 @@ void SendDefaultMenu_guard_teldrassil(Player* pPlayer, Creature* pCreature, uint
             break;
     }
 }
-
 void SendClassTrainerMenu_guard_teldrassil(Player* pPlayer, Creature* pCreature, uint32 uiAction)
 {
     switch (uiAction)
@@ -3519,7 +3347,6 @@ void SendClassTrainerMenu_guard_teldrassil(Player* pPlayer, Creature* pCreature,
             break;
     }
 }
-
 void SendProfTrainerMenu_guard_teldrassil(Player* pPlayer, Creature* pCreature, uint32 uiAction)
 {
     switch (uiAction)
@@ -3563,7 +3390,6 @@ void SendProfTrainerMenu_guard_teldrassil(Player* pPlayer, Creature* pCreature, 
             break;
     }
 }
-
 bool GossipSelect_guard_teldrassil(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
 {
     switch (uiSender)
@@ -3574,20 +3400,16 @@ bool GossipSelect_guard_teldrassil(Player* pPlayer, Creature* pCreature, uint32 
     }
     return true;
 }
-
 /*******************************************************
  * guard_teldrassil end
  *******************************************************/
-
 CreatureAI* GetAI_guard_teldrassil(Creature* pCreature)
 {
     return new guardAI (pCreature);
 }
-
 /*******************************************************
  * guard_tirisfal start
  *******************************************************/
-
 bool GossipHello_guard_tirisfal(Player* pPlayer, Creature* pCreature)
 {
     pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_BANK            , GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
@@ -3599,7 +3421,6 @@ bool GossipHello_guard_tirisfal(Player* pPlayer, Creature* pCreature)
     pPlayer->SEND_GOSSIP_MENU(4097, pCreature->GetGUID());
     return true;
 }
-
 void SendDefaultMenu_guard_tirisfal(Player* pPlayer, Creature* pCreature, uint32 uiAction)
 {
     switch (uiAction)
@@ -3644,7 +3465,6 @@ void SendDefaultMenu_guard_tirisfal(Player* pPlayer, Creature* pCreature, uint32
             break;
     }
 }
-
 void SendClassTrainerMenu_guard_tirisfal(Player* pPlayer, Creature* pCreature, uint32 uiAction)
 {
     switch (uiAction)
@@ -3671,7 +3491,6 @@ void SendClassTrainerMenu_guard_tirisfal(Player* pPlayer, Creature* pCreature, u
             break;
     }
 }
-
 void SendProfTrainerMenu_guard_tirisfal(Player* pPlayer, Creature* pCreature, uint32 uiAction)
 {
     switch (uiAction)
@@ -3725,7 +3544,6 @@ void SendProfTrainerMenu_guard_tirisfal(Player* pPlayer, Creature* pCreature, ui
             break;
     }
 }
-
 bool GossipSelect_guard_tirisfal(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
 {
     switch (uiSender)
@@ -3736,20 +3554,16 @@ bool GossipSelect_guard_tirisfal(Player* pPlayer, Creature* pCreature, uint32 ui
     }
     return true;
 }
-
 /*******************************************************
  * guard_tirisfal end
  *******************************************************/
-
 CreatureAI* GetAI_guard_tirisfal(Creature* pCreature)
 {
     return new guardAI (pCreature);
 }
-
 /*******************************************************
  * guard_undercity start
  *******************************************************/
-
 bool GossipHello_guard_undercity(Player* pPlayer, Creature* pCreature)
 {
     pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_BANK          , GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
@@ -3767,7 +3581,6 @@ bool GossipHello_guard_undercity(Player* pPlayer, Creature* pCreature)
     pPlayer->SEND_GOSSIP_MENU(3543, pCreature->GetGUID());
     return true;
 }
-
 void SendDefaultMenu_guard_undercity(Player* pPlayer, Creature* pCreature, uint32 uiAction)
 {
     switch (uiAction)
@@ -3839,7 +3652,6 @@ void SendDefaultMenu_guard_undercity(Player* pPlayer, Creature* pCreature, uint3
             break;
     }
 }
-
 void SendBattleMasterMenu_guard_undercity(Player* pPlayer, Creature* pCreature, uint32 uiAction)
 {
     switch (uiAction)
@@ -3858,7 +3670,6 @@ void SendBattleMasterMenu_guard_undercity(Player* pPlayer, Creature* pCreature, 
             break;
     }
 }
-
 void SendClassTrainerMenu_guard_undercity(Player* pPlayer, Creature* pCreature, uint32 uiAction)
 {
     switch (uiAction)
@@ -3885,7 +3696,6 @@ void SendClassTrainerMenu_guard_undercity(Player* pPlayer, Creature* pCreature, 
             break;
     }
 }
-
 void SendProfTrainerMenu_guard_undercity(Player* pPlayer, Creature* pCreature, uint32 uiAction)
 {
     switch (uiAction)
@@ -3940,7 +3750,6 @@ void SendProfTrainerMenu_guard_undercity(Player* pPlayer, Creature* pCreature, u
             break;
     }
 }
-
 bool GossipSelect_guard_undercity(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
 {
     switch (uiSender)
@@ -3952,155 +3761,131 @@ bool GossipSelect_guard_undercity(Player* pPlayer, Creature* pCreature, uint32 u
     }
     return true;
 }
-
 /*******************************************************
  * guard_undercity end
  *******************************************************/
-
 CreatureAI* GetAI_guard_undercity(Creature* pCreature)
 {
     return new guardAI (pCreature);
 }
-
 /*******************************************************
  * AddSC
  *******************************************************/
-
 void AddSC_guards()
 {
     Script *newscript;
-
     newscript = new Script;
     newscript->Name = "guard_azuremyst";
     newscript->pGossipHello          = &GossipHello_guard_azuremyst;
     newscript->pGossipSelect         = &GossipSelect_guard_azuremyst;
     newscript->GetAI = &GetAI_guard_azuremyst;
     newscript->RegisterSelf();
-
     newscript = new Script;
     newscript->Name = "guard_bluffwatcher";
     newscript->pGossipHello          = &GossipHello_guard_bluffwatcher;
     newscript->pGossipSelect         = &GossipSelect_guard_bluffwatcher;
     newscript->GetAI = &GetAI_guard_bluffwatcher;
     newscript->RegisterSelf();
-
     newscript = new Script;
     newscript->Name = "guard_contested";
     newscript->GetAI = &GetAI_guard_contested;
     newscript->RegisterSelf();
-
     newscript = new Script;
     newscript->Name = "guard_darnassus";
     newscript->pGossipHello          = &GossipHello_guard_darnassus;
     newscript->pGossipSelect         = &GossipSelect_guard_darnassus;
     newscript->GetAI = &GetAI_guard_darnassus;
     newscript->RegisterSelf();
-
     newscript = new Script;
     newscript->Name = "guard_dunmorogh";
     newscript->pGossipHello          = &GossipHello_guard_dunmorogh;
     newscript->pGossipSelect         = &GossipSelect_guard_dunmorogh;
     newscript->GetAI = &GetAI_guard_dunmorogh;
     newscript->RegisterSelf();
-
     newscript = new Script;
     newscript->Name = "guard_durotar";
     newscript->pGossipHello          = &GossipHello_guard_durotar;
     newscript->pGossipSelect         = &GossipSelect_guard_durotar;
     newscript->GetAI = &GetAI_guard_durotar;
     newscript->RegisterSelf();
-
     newscript = new Script;
     newscript->Name = "guard_elwynnforest";
     newscript->pGossipHello          = &GossipHello_guard_elwynnforest;
     newscript->pGossipSelect         = &GossipSelect_guard_elwynnforest;
     newscript->GetAI = &GetAI_guard_elwynnforest;
     newscript->RegisterSelf();
-
     newscript = new Script;
     newscript->Name = "guard_eversong";
     newscript->pGossipHello          = &GossipHello_guard_eversong;
     newscript->pGossipSelect         = &GossipSelect_guard_eversong;
     newscript->GetAI = &GetAI_guard_eversong;
     newscript->RegisterSelf();
-
     newscript = new Script;
     newscript->Name = "guard_exodar";
     newscript->pGossipHello          = &GossipHello_guard_exodar;
     newscript->pGossipSelect         = &GossipSelect_guard_exodar;
     newscript->GetAI = &GetAI_guard_exodar;
     newscript->RegisterSelf();
-
     newscript = new Script;
     newscript->Name = "guard_ironforge";
     newscript->pGossipHello          = &GossipHello_guard_ironforge;
     newscript->pGossipSelect         = &GossipSelect_guard_ironforge;
     newscript->GetAI = &GetAI_guard_ironforge;
     newscript->RegisterSelf();
-
     newscript = new Script;
     newscript->Name = "guard_mulgore";
     newscript->pGossipHello          = &GossipHello_guard_mulgore;
     newscript->pGossipSelect         = &GossipSelect_guard_mulgore;
     newscript->GetAI = &GetAI_guard_mulgore;
     newscript->RegisterSelf();
-
     newscript = new Script;
     newscript->Name = "guard_orgrimmar";
     newscript->pGossipHello          = &GossipHello_guard_orgrimmar;
     newscript->pGossipSelect         = &GossipSelect_guard_orgrimmar;
     newscript->GetAI = &GetAI_guard_orgrimmar;
     newscript->RegisterSelf();
-
     newscript = new Script;
     newscript->Name = "guard_shattrath";
     newscript->pGossipHello          = &GossipHello_guard_shattrath;
     newscript->pGossipSelect         = &GossipSelect_guard_shattrath;
     newscript->GetAI = &GetAI_guard_shattrath;
     newscript->RegisterSelf();
-
     newscript = new Script;
     newscript->Name = "guard_shattrath_aldor";
     newscript->GetAI = &GetAI_guard_shattrath_aldor;
     newscript->pGossipHello          = &GossipHello_guard_shattrath_aldor;
     newscript->pGossipSelect         = &GossipSelect_guard_shattrath_aldor;
     newscript->RegisterSelf();
-
     newscript = new Script;
     newscript->Name = "guard_shattrath_scryer";
     newscript->GetAI = &GetAI_guard_shattrath_scryer;
     newscript->pGossipHello          = &GossipHello_guard_shattrath_scryer;
     newscript->pGossipSelect         = &GossipSelect_guard_shattrath_scryer;
     newscript->RegisterSelf();
-
     newscript = new Script;
     newscript->Name = "guard_silvermoon";
     newscript->pGossipHello          = &GossipHello_guard_silvermoon;
     newscript->pGossipSelect         = &GossipSelect_guard_silvermoon;
     newscript->GetAI = &GetAI_guard_silvermoon;
     newscript->RegisterSelf();
-
     newscript = new Script;
     newscript->Name = "guard_stormwind";
     newscript->pGossipHello          = &GossipHello_guard_stormwind;
     newscript->pGossipSelect         = &GossipSelect_guard_stormwind;
     newscript->GetAI = &GetAI_guard_stormwind;
     newscript->RegisterSelf();
-
     newscript = new Script;
     newscript->Name = "guard_teldrassil";
     newscript->pGossipHello          = &GossipHello_guard_teldrassil;
     newscript->pGossipSelect         = &GossipSelect_guard_teldrassil;
     newscript->GetAI = &GetAI_guard_teldrassil;
     newscript->RegisterSelf();
-
     newscript = new Script;
     newscript->Name = "guard_tirisfal";
     newscript->pGossipHello          = &GossipHello_guard_tirisfal;
     newscript->pGossipSelect         = &GossipSelect_guard_tirisfal;
     newscript->GetAI = &GetAI_guard_tirisfal;
     newscript->RegisterSelf();
-
     newscript = new Script;
     newscript->Name = "guard_undercity";
     newscript->pGossipHello          = &GossipHello_guard_undercity;

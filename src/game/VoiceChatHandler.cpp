@@ -17,13 +17,11 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
-
 #include "Common.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
 #include "Opcodes.h"
 #include "Log.h"
-
 void WorldSession::HandleVoiceSessionEnableOpcode( WorldPacket & recv_data )
 {
     sLog.outDebug("WORLD: CMSG_VOICE_SESSION_ENABLE");
@@ -32,14 +30,12 @@ void WorldSession::HandleVoiceSessionEnableOpcode( WorldPacket & recv_data )
     recv_data.read_skip<uint8>();
     recv_data.hexlike();
 }
-
 void WorldSession::HandleChannelVoiceOnOpcode( WorldPacket & recv_data )
 {
     sLog.outDebug("WORLD: CMSG_CHANNEL_VOICE_ON");
     // Enable Voice button in channel context menu
     recv_data.hexlike();
 }
-
 void WorldSession::HandleSetActiveVoiceChannel( WorldPacket & recv_data )
 {
     sLog.outDebug("WORLD: CMSG_SET_ACTIVE_VOICE_CHANNEL");

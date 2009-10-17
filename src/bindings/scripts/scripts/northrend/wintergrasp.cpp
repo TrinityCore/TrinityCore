@@ -13,22 +13,18 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
-
 #include "precompiled.h"
 #include "Wintergrasp.h"
-
 #define GOSSIP_HELLO_DEMO1  "Build catapult."
 #define GOSSIP_HELLO_DEMO2  "Build demolisher."
 #define GOSSIP_HELLO_DEMO3  "Build siege engine."
 #define GOSSIP_HELLO_DEMO4  "I cannot build more!"
-
 struct TRINITY_DLL_DECL npc_demolisher_engineererAI : public ScriptedAI
 {
     npc_demolisher_engineererAI(Creature* pCreature) : ScriptedAI(pCreature)
     {
         me->SetReactState(REACT_PASSIVE);
     }
-
     /*
     void JustDied(Unit *killer)
     {
@@ -37,17 +33,14 @@ struct TRINITY_DLL_DECL npc_demolisher_engineererAI : public ScriptedAI
     }
     */
 };
-
 CreatureAI* GetAI_npc_demolisher_engineerer(Creature* pCreature)
 {
     return new npc_demolisher_engineererAI (pCreature);
 }
-
 bool GossipHello_npc_demolisher_engineerer(Player* pPlayer, Creature* pCreature)
 {
     if (pCreature->isQuestGiver())
         pPlayer->PrepareQuestMenu(pCreature->GetGUID());
-
     if(pPlayer->isGameMaster() || pCreature->GetZoneScript() && pCreature->GetZoneScript()->GetData(pCreature->GetDBTableGUIDLow()))
     {
         if (pPlayer->HasAura(SPELL_CORPORAL))
@@ -61,11 +54,9 @@ bool GossipHello_npc_demolisher_engineerer(Player* pPlayer, Creature* pCreature)
     }
     else
         pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_HELLO_DEMO4, GOSSIP_SENDER_MAIN,   GOSSIP_ACTION_INFO_DEF+9);
-
     pPlayer->SEND_GOSSIP_MENU(pCreature->GetNpcTextId(), pCreature->GetGUID());
     return true;
 }
-
 bool GossipSelect_npc_demolisher_engineerer(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
 {
     pPlayer->CLOSE_GOSSIP_MENU();
@@ -78,14 +69,11 @@ bool GossipSelect_npc_demolisher_engineerer(Player* pPlayer, Creature* pCreature
             case 2: pPlayer->CastSpell(pPlayer, pPlayer->GetTeamId() ? 61408 : 56661, false, NULL, NULL, pCreature->GetGUID()); break;
         }
     }
-
     return true;
 }
-
 void AddSC_wintergrasp()
 {
     Script *newscript;
-
     newscript = new Script;
     newscript->Name = "npc_demolisher_engineerer";
     newscript->GetAI = &GetAI_npc_demolisher_engineerer;

@@ -1,10 +1,8 @@
 /* Copyright (C) 2006 - 2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  * This program is free software licensed under GPL version 2
  * Please see the included DOCS/LICENSE.TXT for more information */
-
 #ifndef DEF_SUNWELLPLATEAU_H
 #define DEF_SUNWELLPLATEAU_H
-
 /*** Encounters ***/
 #define DATA_KALECGOS_EVENT         1
 #define DATA_BRUTALLUS_EVENT        2
@@ -12,7 +10,6 @@
 #define DATA_EREDAR_TWINS_EVENT     4
 #define DATA_MURU_EVENT             5
 #define DATA_KILJAEDEN_EVENT        6
-
 /*** Creatures ***/
 #define DATA_KALECGOS_DRAGON        7
 #define DATA_KALECGOS_HUMAN         8
@@ -27,10 +24,8 @@
 #define DATA_KILJAEDEN_CONTROLLER   17
 #define DATA_ANVEENA                18
 #define DATA_KALECGOS_KJ            19
-
 /*** GameObjects ***/
 #define DATA_GO_FORCEFIELD          20
-
 /*** Misc ***/
 #define DATA_PLAYER_GUID            21
 #endif

@@ -13,53 +13,39 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
-
 #include "precompiled.h"
 #include "def_naxxramas.h"
-
 #define SAY_GREET           RAND(-1533000,-1533004,-1533005,-1533006,-1533007)
 #define SAY_AGGRO           RAND(-1533001,-1533002,-1533003)
 #define SAY_SLAY            -1533008
-
 #define SPELL_IMPALE        HEROIC(28783,56090)
 #define SPELL_LOCUSTSWARM   HEROIC(28785,54021)
-
 #define SPELL_SELF_SPAWN_5  29105                           //This spawns 5 corpse scarabs ontop of us (most likely the player casts this on death)
-
 #define EVENT_IMPALE        1
 #define EVENT_LOCUST        2
-
 #define MOB_CRYPT_GUARD     16573
-
 struct TRINITY_DLL_DECL boss_anubrekhanAI : public BossAI
 {
     boss_anubrekhanAI(Creature *c) : BossAI(c, BOSS_ANUBREKHAN) { Prepare(); }
-
     bool HasTaunted;
-
     void Prepare()
     {
         HasTaunted = false;
-
         if (HeroicMode)
         {
             DoSpawnCreature(MOB_CRYPT_GUARD, 0, -10, 0, me->GetOrientation(), TEMPSUMMON_CORPSE_TIMED_DESPAWN, 60000);
             DoSpawnCreature(MOB_CRYPT_GUARD, 0, 10, 0, me->GetOrientation(), TEMPSUMMON_CORPSE_TIMED_DESPAWN, 60000);
         }
     }
-
     void InitializeAI() { Prepare(); BossAI::InitializeAI(); }
     void JustReachedHome() { Prepare(); _JustReachedHome(); }
-
     void KilledUnit(Unit* victim)
     {
         //Force the player to spawn corpse scarabs via spell
         victim->CastSpell(victim, SPELL_SELF_SPAWN_5, true, NULL, NULL, me->GetGUID());
-
         if (!(rand()%5))
             DoScriptText(SAY_SLAY, me);
     }
-
     void EnterCombat(Unit *who)
     {
         _EnterCombat();
@@ -67,7 +53,6 @@ struct TRINITY_DLL_DECL boss_anubrekhanAI : public BossAI
         events.ScheduleEvent(EVENT_IMPALE, 15000, 1);
         events.ScheduleEvent(EVENT_LOCUST, 80000 + rand()%40000, 1);
     }
-
     void MoveInLineOfSight(Unit *who)
     {
         if (!HasTaunted && me->IsWithinDistInMap(who, 60.0f))
@@ -77,14 +62,11 @@ struct TRINITY_DLL_DECL boss_anubrekhanAI : public BossAI
         }
         ScriptedAI::MoveInLineOfSight(who);
     }
-
     void UpdateAI(const uint32 diff)
     {
         if (!UpdateVictim() || !CheckInRoom())
             return;
-
         events.Update(diff);
-
         while(uint32 eventId = events.ExecuteEvent())
         {
             switch(eventId)
@@ -105,16 +87,13 @@ struct TRINITY_DLL_DECL boss_anubrekhanAI : public BossAI
                     return;
             }
         }
-
         DoMeleeAttackIfReady();
     }
 };
-
 CreatureAI* GetAI_boss_anubrekhan(Creature* pCreature)
 {
     return new boss_anubrekhanAI (pCreature);
 }
-
 void AddSC_boss_anubrekhan()
 {
     Script *newscript;

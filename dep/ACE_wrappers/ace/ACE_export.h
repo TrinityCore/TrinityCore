@@ -4,14 +4,10 @@
 // This file is generated automatically by
 // generate_export_file.pl
 // ------------------------------
-
 #ifndef ACE_EXPORT_H
 #define ACE_EXPORT_H
-
 #include "ace/config-lite.h"
-
 #if defined (ACE_AS_STATIC_LIBS)
-
 # if !defined (ACE_HAS_DLL)
 #   define ACE_HAS_DLL 0
 # endif /* ! ACE_HAS_DLL */
@@ -20,7 +16,6 @@
 #   define ACE_HAS_DLL 1
 # endif /* ! ACE_HAS_DLL */
 #endif /* ACE_AS_STATIC_LIB */
-
 #if defined (ACE_HAS_DLL)
 #  if (ACE_HAS_DLL == 1)
 #    if defined (ACE_BUILD_DLL)
@@ -42,14 +37,12 @@
 #  define ACE_SINGLETON_DECLARATION(T)
 #  define ACE_SINGLETON_DECLARE(SINGLETON_TYPE, CLASS, LOCK)
 #endif     /* ACE_HAS_DLL */
-
 // Added by hand to help with ACE_OS namespace
 #if defined (__TANDEM) && defined (USE_EXPLICIT_EXPORT)
 #define ACE_NAMESPACE_STORAGE_CLASS ACE_EXPORT_MACRO extern
 #else
 #define ACE_NAMESPACE_STORAGE_CLASS extern ACE_EXPORT_MACRO
 #endif
-
 #if defined (__ACE_INLINE__)
 #  if defined (_MSC_VER) || defined (__MINGW32__) || defined (CYGWIN32) || \
       (defined (__SUNPRO_CC) && __SUNPRO_CC >= 0x560) || \
@@ -70,8 +63,6 @@
 #    define ACE_INLINE_TEMPLATE_FUNCTION
 #  endif
 #endif
-
 #endif     /* ACE_EXPORT_H */
-
 // End of auto generated file.
 

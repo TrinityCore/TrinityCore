@@ -1,5 +1,4 @@
 // -*- C++ -*-
-
 //=============================================================================
 /**
  *  @file    XTI_ATM_Mcast.h
@@ -10,24 +9,17 @@
  */
 //=============================================================================
 
-
 #ifndef ACE_XTI_ATM_MCAST_H
 #define ACE_XTI_ATM_MCAST_H
 #include /**/ "ace/pre.h"
-
 #include /**/ "ace/config-all.h"
-
 #if !defined (ACE_LACKS_PRAGMA_ONCE)
 #pragma once
 #endif /* ACE_LACKS_PRAGMA_ONCE */
-
 #if defined (ACE_HAS_XTI_ATM)
-
 #include "ace/TLI_Connector.h"
 #include "ace/ATM_Addr.h"
-
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
-
 /**
  * @class ACE_XTI_ATM_Mcast
  *
@@ -40,7 +32,6 @@ public:
   // = Initialization methods.
   /// Default constructor.
   ACE_XTI_ATM_Mcast (void);
-
   /**
    * Actively connect and produce a @a new_stream if things go well.
    * The @a remote_sap is the address that we are trying to connect
@@ -68,7 +59,6 @@ public:
                      int rw_flag = 1,
                      struct netbuf *udata = 0,
                      struct netbuf *opt = 0);
-
   /**
    * Actively connect and produce a @a new_stream if things go well.
    * The @a remote_sap is the address that we are trying to connect
@@ -96,7 +86,6 @@ public:
                int rw_flag = 1,
                struct netbuf *udata = 0,
                struct netbuf *opt = 0);
-
   /**
    * Actively add a leaf to the currently connected stream (i.e.,
    * multicast). The @a remote_sap is the address of the leaf that we
@@ -112,27 +101,19 @@ public:
                 const ACE_Addr &remote_sap,
                 ACE_INT32 leaf_id,
                 ACE_Time_Value *timeout = 0);
-
   // = Meta-type info
   typedef ACE_ATM_Addr PEER_ADDR;
   typedef ACE_TLI_Stream PEER_STREAM;
-
   /// Dump the state of an object.
   void dump (void) const;
-
   /// Declare the dynamic allocation hooks.
   ACE_ALLOC_HOOK_DECLARE;
 };
-
 ACE_END_VERSIONED_NAMESPACE_DECL
-
 #if defined (__ACE_INLINE__)
 #include "ace/XTI_ATM_Mcast.inl"
 #endif /* __ACE_INLINE__ */
-
 #endif /* ACE_HAS_XTI_ATM */
-
 #include /**/ "ace/post.h"
-
 #endif /* ACE_XTI_ATM_MCAST_H */
 

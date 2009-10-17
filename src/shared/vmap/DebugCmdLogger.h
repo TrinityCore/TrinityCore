@@ -17,21 +17,16 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
-
 #ifndef _DEBUGCMDLOGGER_H
 #define _DEBUGCMDLOGGER_H
-
 #include <G3D/Vector3.h>
 #include <G3D/Array.h>
-
 /**
 Class is used for debugging. We log activities into a file.
 With an external Class we read that log and display the activity in a graphical view.
 */
-
 namespace VMAP
 {
-
     //==========================================
     enum C_TYPES
     {
@@ -46,7 +41,6 @@ namespace VMAP
         TEST_HEIGHT,
         TEST_OBJECT_HIT,
     };
-
     class Command
     {
         int iType;
@@ -54,14 +48,11 @@ namespace VMAP
         int ints[4];
         char buffer[100];
         public:
-
             Command() { iType = STOP; }
-
             inline int getType() { return iType; }
             inline G3D::Vector3 getVector(int pos) { return(G3D::Vector3(floats[pos*3+0], floats[pos*3+1], floats[pos*3+2])); }
             inline int getInt(int pos) { return(ints[pos]); }
             inline char* getBuffer() { return(buffer); }
-
             void fillStopCmd() { iType = STOP; }
             void fillStartCmd() { iType = START; }
             void fillLoadTileCmd(int x, int y, G3D::uint32 pMapId) { iType = LOAD_TILE; ints[0] = x; ints[1] = y; ints[2] = pMapId; }
@@ -87,12 +78,9 @@ namespace VMAP
                 floats[6] = pResultPos.x; floats[7]=pResultPos.y; floats[8]=pResultPos.z;
                 ints[0] = result; ints[1] = pMapId;
             }
-
             bool isCoreCmd() const { return(iType != TEST_VIS); }
     };
-
     //==========================================
-
     class CommandFileRW
     {
         private:
@@ -109,11 +97,9 @@ namespace VMAP
             void setFileName(const std::string& pName) { iFileName = pName; }
             bool getNewCommands(G3D::Array<Command>& commandArray);
             const G3D::Array<G3D::Array<Command> >& getFullCommandArray() { return iCommandArray; }
-
             bool appendCmd(const Command& pCommand);
             bool appendCmds(const G3D::Array<Command>& pCmdArray);
     };
-
 }
 #endif
 

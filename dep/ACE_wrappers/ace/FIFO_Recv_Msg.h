@@ -1,5 +1,4 @@
 // -*- C++ -*-
-
 //=============================================================================
 /**
  *  @file    FIFO_Recv_Msg.h
@@ -10,22 +9,16 @@
  */
 //=============================================================================
 
-
 #ifndef ACE_FIFO_RECV_MSG_H
 #define ACE_FIFO_RECV_MSG_H
 #include /**/ "ace/pre.h"
-
 #include "ace/FIFO_Recv.h"
-
 #if !defined (ACE_LACKS_PRAGMA_ONCE)
 # pragma once
 #endif /* ACE_LACKS_PRAGMA_ONCE */
-
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
-
 // Forward decls
 class ACE_Str_Buf;
-
 /**
  * @class ACE_FIFO_Recv_Msg
  *
@@ -48,21 +41,18 @@ public:
   // = Initialization methods.
   /// Default constructor.
   ACE_FIFO_Recv_Msg (void);
-
   /// Open up a record-oriented named pipe for reading.
   ACE_FIFO_Recv_Msg (const ACE_TCHAR *rendezvous,
                      int flags = O_CREAT | O_RDONLY,
                      mode_t perms = ACE_DEFAULT_FILE_PERMS,
                      int persistent = 1,
                      LPSECURITY_ATTRIBUTES sa = 0);
-
   /// Open up a record-oriented named pipe for reading.
   int open (const ACE_TCHAR *rendezvous,
             int flags = O_CREAT | O_RDONLY,
             mode_t perms = ACE_DEFAULT_FILE_PERMS,
             int persistent = 1,
             LPSECURITY_ATTRIBUTES sa = 0);
-
   /// Receive a message based on attributes in an ACE_Str_Buf.
   /**
    * @param msg  Reference to an ACE_Str_Buf whose @c buf member points
@@ -88,7 +78,6 @@ public:
    *             @c msg.maxlen is discarded.
    */
   ssize_t recv (ACE_Str_Buf &msg);
-
   /// Receive a message based on buffer pointer and maximum size.
   /**
    * @param buf  Pointer to the memory to receive the data.
@@ -107,33 +96,26 @@ public:
    *             excess of @arg len. The excess bytes are discarded.
    */
   ssize_t recv (void *buf, size_t len);
-
 #if defined (ACE_HAS_STREAM_PIPES)
   /// Recv <data> and <cntl> message via Stream pipes.
   ssize_t recv (ACE_Str_Buf *data,
                 ACE_Str_Buf *cntl,
                 int *flags);
-
   /// Recv <data> and <cntl> message via Stream pipes in "band" mode.
   ssize_t recv (int *band,
                 ACE_Str_Buf *data,
                 ACE_Str_Buf *cntl,
                 int *flags);
 #endif /* ACE_HAS_STREAM_PIPES */
-
   /// Dump the state of an object.
   void dump (void) const;
-
   /// Declare the dynamic allocation hooks.
   ACE_ALLOC_HOOK_DECLARE;
 };
-
 ACE_END_VERSIONED_NAMESPACE_DECL
-
 #if defined (__ACE_INLINE__)
 #include "ace/FIFO_Recv_Msg.inl"
 #endif /* __ACE_INLINE__ */
-
 #include /**/ "ace/post.h"
 #endif /* ACE_FIFO_RECV_MSG_H */
 

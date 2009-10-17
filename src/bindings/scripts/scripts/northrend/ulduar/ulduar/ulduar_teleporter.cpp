@@ -1,9 +1,7 @@
 #include "precompiled.h"
 #include "def_ulduar.h"
-
 /*
 The teleporter appears to be active and stable.
-
 - Expedition Base Camp
 - Formation Grounds
 - Colossal Forge
@@ -12,7 +10,6 @@ The teleporter appears to be active and stable.
 - Shattered Walkway
 - Conservatory of Life
 */
-
 #define BASE_CAMP    200
 #define GROUNDS      201
 #define FORGE        202
@@ -20,12 +17,10 @@ The teleporter appears to be active and stable.
 #define ANTECHAMBER  204
 #define WALKWAY      205
 #define CONSERVATORY 206
-
 bool GoHello_ulduar_teleporter( Player *pPlayer, GameObject *pGO )
 {
     ScriptedInstance *pInstance = (ScriptedInstance *) pGO->GetInstanceData();
     if(!pInstance) return true;
-
     pPlayer->ADD_GOSSIP_ITEM(0, "Teleport to the Expedition Base Camp", GOSSIP_SENDER_MAIN, BASE_CAMP);
     pPlayer->ADD_GOSSIP_ITEM(0, "Teleport to the Formation Grounds", GOSSIP_SENDER_MAIN, GROUNDS);
     if(pInstance->GetData(TYPE_LEVIATHAN) == DONE)
@@ -44,15 +39,12 @@ bool GoHello_ulduar_teleporter( Player *pPlayer, GameObject *pGO )
         }
     }
     pPlayer->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE, pGO->GetGUID());
-
     return true;
 }
-
 bool GOSelect_ulduar_teleporter( Player *pPlayer, GameObject *pGO, uint32 sender, uint32 action )
 {
     if(sender != GOSSIP_SENDER_MAIN) return true;
     if(!pPlayer->getAttackers().empty()) return true;
-
     switch(action)
     {
     case BASE_CAMP:
@@ -77,10 +69,8 @@ bool GOSelect_ulduar_teleporter( Player *pPlayer, GameObject *pGO, uint32 sender
         pPlayer->TeleportTo(603, 2086.27, -24.3134, 421.239, 0);
         pPlayer->CLOSE_GOSSIP_MENU(); break;
     }
-
     return true;
 }
-
 void AddSC_ulduar_teleporter()
 {
     Script *newscript;

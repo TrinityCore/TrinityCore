@@ -14,22 +14,18 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
-
 /* ScriptData
 SDName: Sholazar_Basin
 SD%Complete: 100
 SDComment: Quest support: 11253, 11241.
 SDCategory: howling_fjord
 EndScriptData */
-
 /* ContentData
 npc_plaguehound_tracker
 npc_apothecary_hanes
 EndContentData */
-
 #include "precompiled.h"
 #include "escort_ai.h"
-
 /*######
 ## npc_apothecary_hanes
 ######*/
@@ -42,7 +38,6 @@ enum Entries
     QUEST_TRAIL_OF_FIRE          = 11241,
     SPELL_COSMETIC_LOW_POLY_FIRE = 56274
 };
-
 bool QuestAccept_npc_apothecary_hanes(Player* pPlayer, Creature* pCreature, Quest const* quest)
 {
     if (quest->GetQuestId() == QUEST_TRAIL_OF_FIRE)
@@ -60,24 +55,20 @@ bool QuestAccept_npc_apothecary_hanes(Player* pPlayer, Creature* pCreature, Ques
     }
     return true;
 }
-
 struct TRINITY_DLL_DECL npc_Apothecary_HanesAI : public npc_escortAI
 {
     npc_Apothecary_HanesAI(Creature* pCreature) : npc_escortAI(pCreature){}
     uint32 PotTimer;
-
     void Reset ()
     {
         SetDespawnAtFar(false);
         PotTimer = 10000; //10 sec cooldown on potion
     }
-
     void JustDied(Unit* killer)
     {
         if (Player* pPlayer = GetPlayerForEscort())
             pPlayer->FailQuest(QUEST_TRAIL_OF_FIRE);
     }
-
     void UpdateEscortAI(const uint32 diff)
     {
         if(HealthBelowPct(75))
@@ -91,7 +82,6 @@ struct TRINITY_DLL_DECL npc_Apothecary_HanesAI : public npc_escortAI
         if (GetAttack() && UpdateVictim())
             DoMeleeAttackIfReady();
     }
-
     void WaypointReached(uint32 i)
     {
         Player* pPlayer = GetPlayerForEscort();
@@ -148,22 +138,18 @@ CreatureAI* GetAI_npc_apothecary_hanes(Creature* pCreature)
 /*######
 ## npc_plaguehound_tracker
 ######*/
-
 enum ePlaguehound
 {
     QUEST_SNIFF_OUT_ENEMY        = 11253
 };
-
 struct TRINITY_DLL_DECL npc_plaguehound_trackerAI : public npc_escortAI
 {
     npc_plaguehound_trackerAI(Creature* pCreature) : npc_escortAI(pCreature) { }
-
 
     void Reset()
     {
         InitScriptData();
     }
-
     void InitScriptData()
     {
         Player* pPlayer = NULL;
@@ -171,14 +157,11 @@ struct TRINITY_DLL_DECL npc_plaguehound_trackerAI : public npc_escortAI
             if(Unit* summoner = CAST_SUM(me)->GetSummoner())
                 if(summoner->GetTypeId() == TYPEID_PLAYER)
                     pPlayer = CAST_PLR(summoner);
-
         if (!pPlayer)
             return;
-
         me->SetUnitMovementFlags(MOVEMENTFLAG_WALK_MODE);
         Start(false, false, pPlayer->GetGUID());
     }
-
     void WaypointReached(uint32 i)
     {
         Player* pPlayer = NULL;
@@ -186,10 +169,8 @@ struct TRINITY_DLL_DECL npc_plaguehound_trackerAI : public npc_escortAI
             if(Unit* summoner = CAST_SUM(me)->GetSummoner())
                 if(summoner->GetTypeId() == TYPEID_PLAYER)
                     pPlayer = CAST_PLR(summoner);
-
         if (!pPlayer)
             return;
-
         switch(i)
         {
         case 26:
@@ -198,19 +179,15 @@ struct TRINITY_DLL_DECL npc_plaguehound_trackerAI : public npc_escortAI
         }
     }
 };
-
 CreatureAI* GetAI_npc_plaguehound_tracker(Creature* pCreature)
 {
     return new npc_plaguehound_trackerAI(pCreature);
 }
-
 /*######
 ## npc_razael_and_lyana
 ######*/
-
 #define GOSSIP_RAZAEL_REPORT "High Executor Anselm wants a report on the situation."
 #define GOSSIP_LYANA_REPORT "High Executor Anselm requests your report."
-
 enum eRazael
 {
     QUEST_REPORTS_FROM_THE_FIELD = 11221,
@@ -221,7 +198,6 @@ enum eRazael
     GOSSIP_TEXTID_LYANA1 = 11586,
     GOSSIP_TEXTID_LYANA2 = 11588
 };
-
 bool GossipHello_npc_razael_and_lyana(Player* pPlayer, Creature* pCreature)
 {
     if (pPlayer->GetQuestStatus(QUEST_REPORTS_FROM_THE_FIELD) == QUEST_STATUS_INCOMPLETE)
@@ -247,7 +223,6 @@ bool GossipHello_npc_razael_and_lyana(Player* pPlayer, Creature* pCreature)
     pPlayer->SEND_GOSSIP_MENU(pCreature->GetNpcTextId(), pCreature->GetGUID());
     return true;
 }
-
 bool GossipSelect_npc_razael_and_lyana(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
 {
     switch (uiAction)
@@ -263,22 +238,18 @@ bool GossipSelect_npc_razael_and_lyana(Player* pPlayer, Creature* pCreature, uin
     }
     return true;
 }
-
 void AddSC_howling_fjord()
 {
     Script *newscript;
-
     newscript = new Script;
     newscript->Name = "npc_apothecary_hanes";
     newscript->GetAI = &GetAI_npc_apothecary_hanes;
     newscript->pQuestAccept = &QuestAccept_npc_apothecary_hanes;
     newscript->RegisterSelf();
-
     newscript = new Script;
     newscript->Name = "npc_plaguehound_tracker";
     newscript->GetAI = &GetAI_npc_plaguehound_tracker;
     newscript->RegisterSelf();
-
     newscript = new Script;
     newscript->Name = "npc_razael_and_lyana";
     newscript->pGossipHello =  &GossipHello_npc_razael_and_lyana;

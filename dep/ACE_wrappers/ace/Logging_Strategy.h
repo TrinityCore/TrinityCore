@@ -1,5 +1,4 @@
 // -*- C++ -*-
-
 //=============================================================================
 /**
  *  @file    Logging_Strategy.h
@@ -10,23 +9,17 @@
  *  @author Orlando Ribeiro <oribeiro@inescporto.pt>
  */
 //=============================================================================
-
 #ifndef ACE_LOGGING_STRATEGY_H
 #define ACE_LOGGING_STRATEGY_H
-
 #include "ace/Service_Object.h"
 #include "ace/Log_Msg.h"
-
 #if !defined (ACE_LACKS_PRAGMA_ONCE)
 # pragma once
 #endif /* ACE_LACKS_PRAGMA_ONCE */
-
 #if !defined (ACE_DEFAULT_LOGFILE_POLL_INTERVAL)
 #define ACE_DEFAULT_LOGFILE_POLL_INTERVAL 600 /* Seconds */
 #endif /* ACE_DEFAULT_LOGFILE_POLL_INTERVAL */
-
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
-
 /**
  * @class ACE_Logging_Strategy
  *
@@ -81,16 +74,12 @@ class ACE_Export ACE_Logging_Strategy : public ACE_Service_Object
 public:
   /// Constructor.
   ACE_Logging_Strategy (void);
-
   /// Destructor.
   ~ACE_Logging_Strategy (void);
-
   /// Dynamic linking initialization hook.
   virtual int init (int argc, ACE_TCHAR *argv[]);
-
   /// Dynamic linking termination hook.
   virtual int fini (void);
-
   /**
    * Timeout handler which tests logfile size.  If the current logfile
    * size exceeds <max_size_>, the current logfile is closed, saved to
@@ -98,7 +87,6 @@ public:
    */
   virtual int handle_timeout (const ACE_Time_Value& tv,
                               const void* arg);
-
   /**
    * Parse arguments provided in svc.conf file.
    * @arg '-f' Pass in the flags (such as OSTREAM, STDERR, LOGGER, VERBOSE,
@@ -125,72 +113,52 @@ public:
    *           reconfiguration.
    */
   int parse_args (int argc, ACE_TCHAR *argv[]);
-
   void log_msg (ACE_Log_Msg *log_msg);
-
 protected:
   /// Tokenize to set all the flags
   void tokenize (ACE_TCHAR *flag_string);
-
   /// Tokenize to set priorities (either process or thread one).
   void priorities (ACE_TCHAR *priority_string,
                    ACE_Log_Msg::MASK_TYPE mask);
-
   /// Current thread's priority mask set by <priorities>
   u_long thread_priority_mask_;
-
   /// Process-wide priority mask set by <priorities>
   u_long process_priority_mask_;
-
   /// Flags we keep track of.
   u_long flags_;
-
   /// File name we're logging to.
   ACE_TCHAR *filename_;
-
   /// Logger key for distributed logging.
   ACE_TCHAR *logger_key_;
-
   /// Program name to be used for %n format specifier.
   ACE_TCHAR *program_name_;
-
   /// If non-0 then wipeout the logfile, otherwise append to it.
   /// Default value is 0.
   bool wipeout_logfile_;
-
   /// If non-0 we have a maximum number of log files we can write.
   /// Default value is 0, i.e., no maximum number.
   bool fixed_number_;
-
   /// If non-0 we order the files as we rotate them.  Default value
   /// is 0, i.e., we do not rotate files by default.
   bool order_files_;
-
   /// This tells us in what file we last wrote. It will be increased
   /// to enable multiple log files
   int count_;
-
   /// Tells us what is the maximum log file to write. We will write
   /// <max_file_number_> + 1 files (includes the current log file).
   /// Default value is 1, i.e., 2 files by default.
   int max_file_number_;
-
   /// If non-zero, sampling interval (in secs) at which maximum logfile
   /// size is checked, otherwise logfile size can grow indefinitely.
   /// Default value is 0.
   u_long interval_;
-
   /// Maximum logfile size (in KB).  Default value is
   /// <ACE_DEFAULT_MAX_LOGFILE_SIZE>.
   u_long max_size_;
-
   /// ACE_Log_Msg instance to work with
   ACE_Log_Msg *log_msg_;
 };
-
 ACE_END_VERSIONED_NAMESPACE_DECL
-
 ACE_FACTORY_DECLARE (ACE, ACE_Logging_Strategy)
-
 #endif /* ACE_LOGGING_STRATEGY_H */
 

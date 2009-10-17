@@ -15,7 +15,6 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
-
 #include "OutdoorPvPHP.h"
 #include "OutdoorPvP.h"
 #include "OutdoorPvPMgr.h"
@@ -24,15 +23,10 @@
 #include "World.h"
 #include "ObjectMgr.h"
 #include "Language.h"
-
 const uint32 HP_LANG_LOOSE_A[HP_TOWER_NUM] = {LANG_OPVP_HP_LOOSE_BROKENHILL_A,LANG_OPVP_HP_LOOSE_OVERLOOK_A,LANG_OPVP_HP_LOOSE_STADIUM_A};
-
 const uint32 HP_LANG_LOOSE_H[HP_TOWER_NUM] = {LANG_OPVP_HP_LOOSE_BROKENHILL_H,LANG_OPVP_HP_LOOSE_OVERLOOK_H,LANG_OPVP_HP_LOOSE_STADIUM_H};
-
 const uint32 HP_LANG_CAPTURE_A[HP_TOWER_NUM] = {LANG_OPVP_HP_CAPTURE_BROKENHILL_A,LANG_OPVP_HP_CAPTURE_OVERLOOK_A,LANG_OPVP_HP_CAPTURE_STADIUM_A};
-
 const uint32 HP_LANG_CAPTURE_H[HP_TOWER_NUM] = {LANG_OPVP_HP_CAPTURE_BROKENHILL_H,LANG_OPVP_HP_CAPTURE_OVERLOOK_H,LANG_OPVP_HP_CAPTURE_STADIUM_H};
-
 OPvPCapturePointHP::OPvPCapturePointHP(OutdoorPvP *pvp,OutdoorPvPHPTowerType type)
 : OPvPCapturePoint(pvp), m_TowerType(type)
 {
@@ -58,12 +52,10 @@ OPvPCapturePointHP::OPvPCapturePointHP(OutdoorPvP *pvp,OutdoorPvPHPTowerType typ
         HPTowerFlags[type].rot2,
         HPTowerFlags[type].rot3);
 }
-
 OutdoorPvPHP::OutdoorPvPHP()
 {
     m_TypeId = OUTDOOR_PVP_HP;
 }
-
 bool OutdoorPvPHP::SetupOutdoorPvP()
 {
     m_AllianceTowersControlled = 0;
@@ -71,16 +63,11 @@ bool OutdoorPvPHP::SetupOutdoorPvP()
     // add the zones affected by the pvp buff
     for(int i = 0; i < OutdoorPvPHPBuffZonesNum; ++i)
         RegisterZone(OutdoorPvPHPBuffZones[i]);
-
     AddCapturePoint(new OPvPCapturePointHP(this,HP_TOWER_BROKEN_HILL));
-
     AddCapturePoint(new OPvPCapturePointHP(this,HP_TOWER_OVERLOOK));
-
     AddCapturePoint(new OPvPCapturePointHP(this,HP_TOWER_STADIUM));
-
     return true;
 }
-
 void OutdoorPvPHP::HandlePlayerEnterZone(Player * plr, uint32 zone)
 {
     // add buffs
@@ -96,7 +83,6 @@ void OutdoorPvPHP::HandlePlayerEnterZone(Player * plr, uint32 zone)
     }
     OutdoorPvP::HandlePlayerEnterZone(plr,zone);
 }
-
 void OutdoorPvPHP::HandlePlayerLeaveZone(Player * plr, uint32 zone)
 {
     // remove buffs
@@ -110,7 +96,6 @@ void OutdoorPvPHP::HandlePlayerLeaveZone(Player * plr, uint32 zone)
     }
     OutdoorPvP::HandlePlayerLeaveZone(plr, zone);
 }
-
 bool OutdoorPvPHP::Update(uint32 diff)
 {
     bool changed = false;
@@ -130,7 +115,6 @@ bool OutdoorPvPHP::Update(uint32 diff)
     }
     return changed;
 }
-
 void OutdoorPvPHP::SendRemoveWorldStates(Player *plr)
 {
     plr->SendUpdateWorldState(HP_UI_TOWER_DISPLAY_A,0);
@@ -147,7 +131,6 @@ void OutdoorPvPHP::SendRemoveWorldStates(Player *plr)
         plr->SendUpdateWorldState(HP_MAP_H[i],0);
     }
 }
-
 void OutdoorPvPHP::FillInitialWorldStates(WorldPacket &data)
 {
     data << uint32(HP_UI_TOWER_DISPLAY_A) << uint32(1);
@@ -162,7 +145,6 @@ void OutdoorPvPHP::FillInitialWorldStates(WorldPacket &data)
         itr->second->FillInitialWorldStates(data);
     }
 }
-
 void OPvPCapturePointHP::ChangeState()
 {
     uint32 field = 0;
@@ -196,7 +178,6 @@ void OPvPCapturePointHP::ChangeState()
         field = HP_MAP_H[m_TowerType];
         break;
     }
-
     // send world state update
     if(field)
     {
@@ -243,7 +224,6 @@ void OPvPCapturePointHP::ChangeState()
         artkit2 = HP_TowerArtKit_H[m_TowerType];
         break;
     }
-
     GameObject* flag = HashMapHolder<GameObject>::Find(m_capturePointGUID);
     GameObject* flag2 = HashMapHolder<GameObject>::Find(m_Objects[m_TowerType]);
     if(flag)
@@ -256,16 +236,13 @@ void OPvPCapturePointHP::ChangeState()
         flag2->SetGoArtKit(artkit2);
         flag2->SendUpdateObjectToAllExcept(NULL);
     }
-
     // send world state update
     if(field)
         m_PvP->SendUpdateWorldState(field, 1);
-
     // complete quest objective
     if(m_State == OBJECTIVESTATE_ALLIANCE || m_State == OBJECTIVESTATE_HORDE)
         SendObjectiveComplete(HP_CREDITMARKER[m_TowerType], 0);
 }
-
 void OPvPCapturePointHP::SendChangePhase()
 {
     SendUpdateWorldState(HP_UI_TOWER_SLIDER_N, m_neutralValuePct);
@@ -275,7 +252,6 @@ void OPvPCapturePointHP::SendChangePhase()
     // send this too, sometimes the slider disappears, dunno why :(
     SendUpdateWorldState(HP_UI_TOWER_SLIDER_DISPLAY, 1);
 }
-
 void OPvPCapturePointHP::FillInitialWorldStates(WorldPacket &data)
 {
     switch(m_State)
@@ -302,7 +278,6 @@ void OPvPCapturePointHP::FillInitialWorldStates(WorldPacket &data)
             break;
     }
 }
-
 bool OPvPCapturePointHP::HandlePlayerEnter(Player *plr)
 {
     if(OPvPCapturePoint::HandlePlayerEnter(plr))
@@ -315,18 +290,15 @@ bool OPvPCapturePointHP::HandlePlayerEnter(Player *plr)
     }
     return false;
 }
-
 void OPvPCapturePointHP::HandlePlayerLeave(Player *plr)
 {
     plr->SendUpdateWorldState(HP_UI_TOWER_SLIDER_DISPLAY, 0);
     OPvPCapturePoint::HandlePlayerLeave(plr);
 }
-
 void OutdoorPvPHP::HandleKillImpl(Player *plr, Unit * killed)
 {
     if(killed->GetTypeId() != TYPEID_PLAYER)
         return;
-
     if(plr->GetTeam() == ALLIANCE && ((Player*)killed)->GetTeam() != ALLIANCE)
         plr->CastSpell(plr,AlliancePlayerKillReward,true);
     else if(plr->GetTeam() == HORDE && ((Player*)killed)->GetTeam() != HORDE)

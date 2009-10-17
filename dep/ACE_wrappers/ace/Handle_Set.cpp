@@ -1,20 +1,13 @@
 // Handle_Set.cpp
 // $Id: Handle_Set.cpp 80826 2008-03-04 14:51:23Z wotte $
-
 #include "ace/Handle_Set.h"
-
 #if !defined (__ACE_INLINE__)
 #include "ace/Handle_Set.inl"
 #endif /* __ACE_INLINE__ */
-
 #include "ace/OS_NS_string.h"
-
 ACE_RCSID(ace, Handle_Set, "$Id: Handle_Set.cpp 80826 2008-03-04 14:51:23Z wotte $")
-
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
-
 ACE_ALLOC_HOOK_DEFINE(ACE_Handle_Set)
-
   // ACE_MSB_MASK is only used here.
   // This needs to go here to avoid overflow problems on some compilers.
 #if defined (ACE_WIN32)
@@ -23,31 +16,25 @@ ACE_ALLOC_HOOK_DEFINE(ACE_Handle_Set)
 #else  /* ! ACE_WIN32 */
 #  define ACE_MSB_MASK (~((fd_mask) 1 << (NFDBITS - 1)))
 #endif /* ! ACE_WIN32 */
-
 #if defined (__BORLANDC__) && !defined (ACE_WIN32)
 // The Borland C++ compiler on Linux also doesn't have fds_bits, but has __fds_bits.
 #define fds_bits __fds_bits
 #endif
-
 #if defined (linux) && __GLIBC__ > 1 && __GLIBC_MINOR__ >= 1 && !defined (_XOPEN_SOURCE)
   // XPG4.2 requires the fds_bits member name, so it is not enabled by
   // default on Linux/glibc-2.1.x systems.  Instead use "__fds_bits."
   // Ugly, but "what are you going to do?" 8-)
 #define fds_bits __fds_bits
 #endif  /* linux && __GLIBC__ > 1 && __GLIBC_MINOR__ >= 1 && !_XOPEN_SOURCE */
-
 void
 ACE_Handle_Set::dump (void) const
 {
 #if defined (ACE_HAS_DUMP)
   ACE_TRACE ("ACE_Handle_Set::dump");
-
   ACE_DEBUG ((LM_DEBUG, ACE_BEGIN_DUMP, this));
-
   ACE_DEBUG ((LM_DEBUG, ACE_TEXT ("\nsize_ = %d"), this->size_));
   ACE_DEBUG ((LM_DEBUG, ACE_TEXT ("\nmax_handle_ = %d"), this->max_handle_));
   ACE_DEBUG ((LM_DEBUG, ACE_TEXT ("\n[ ")));
-
 #if defined (ACE_WIN32)
   for (size_t i = 0; i < (size_t) this->mask_.fd_count + 1; i++)
     ACE_DEBUG ((LM_DEBUG, ACE_TEXT (" %x "), this->mask_.fd_array[i]));
@@ -56,12 +43,10 @@ ACE_Handle_Set::dump (void) const
     if (this->is_set (i))
       ACE_DEBUG ((LM_DEBUG, ACE_TEXT (" %d "), i));
 #endif /* ACE_WIN32 */
-
   ACE_DEBUG ((LM_DEBUG, ACE_TEXT (" ]\n")));
   ACE_DEBUG ((LM_DEBUG, ACE_END_DUMP));
 #endif /* ACE_HAS_DUMP */
 }
-
 // Table that maps bytes to counts of the enabled bits in each value
 // from 0 to 255,
 //
@@ -73,7 +58,6 @@ ACE_Handle_Set::dump (void) const
 //
 // because there are 2 bits enabled in the value 5, i.e., it's
 // 101 in binary.
-
 const char ACE_Handle_Set::nbits_[256] =
 {
   0, 1, 1, 2, 1, 2, 2, 3, 1, 2, 2, 3, 2, 3, 3, 4,
@@ -92,15 +76,12 @@ const char ACE_Handle_Set::nbits_[256] =
   3, 4, 4, 5, 4, 5, 5, 6, 4, 5, 5, 6, 5, 6, 6, 7,
   3, 4, 4, 5, 4, 5, 5, 6, 4, 5, 5, 6, 5, 6, 6, 7,
   4, 5, 5, 6, 5, 6, 6, 7, 5, 6, 6, 7, 6, 7, 7, 8};
-
 // Constructor, initializes the bitmask to all 0s.
-
 ACE_Handle_Set::ACE_Handle_Set (void)
 {
   ACE_TRACE ("ACE_Handle_Set::ACE_Handle_Set");
   this->reset ();
 }
-
 ACE_Handle_Set::ACE_Handle_Set (const fd_set &fd_mask)
 {
   ACE_TRACE ("ACE_Handle_Set::ACE_Handle_Set");
@@ -115,26 +96,20 @@ ACE_Handle_Set::ACE_Handle_Set (const fd_set &fd_mask)
 #endif /* ACE_HAS_BIG_FD_SET */
 #endif /* !ACE_WIN32 */
 }
-
 // Counts the number of bits enabled in N.  Uses a table lookup to
 // speed up the count.
-
 int
 ACE_Handle_Set::count_bits (u_long n)
 {
-
  ACE_TRACE ("ACE_Handle_Set::count_bits");
 #if defined (ACE_HAS_HANDLE_SET_OPTIMIZED_FOR_SELECT)
   register int rval = 0;
-
   // Count the number of enabled bits in <n>.  This algorithm is very
   // fast, i.e., O(enabled bits in n).
-
   for (register u_long m = n;
        m != 0;
        m &= m - 1)
     rval++;
-
   return rval;
 #else
    return (ACE_Handle_Set::nbits_[n & 0xff]
@@ -143,32 +118,26 @@ ACE_Handle_Set::count_bits (u_long n)
           + ACE_Handle_Set::nbits_[(n >> 24) & 0xff]);
 #endif /* ACE_HAS_HANDLE_SET_OPTIMIZED_FOR_SELECT */
 }
-
 #if defined (ACE_HAS_BIG_FD_SET)
 // Find the bit position counting from right to left worst case
 // (1<<31) is 8.
-
 int
 ACE_Handle_Set::bitpos (u_long bit)
 {
   register int l = 0;
   register u_long n = bit - 1;
-
   // This is a fast count method when have the most significative bit.
-
   while (n >> 8)
     {
       n >>= 8;
       l += 8;
     }
-
   // Is greater than 15?
   if (n & 16)
     {
       n >>= 4;
       l += 4;
     }
-
   // Count number remaining bits.
   while (n != 0)
     {
@@ -178,9 +147,7 @@ ACE_Handle_Set::bitpos (u_long bit)
   return l;
 }
 #endif /* ACE_HAS_BIG_FD_SET */
-
 // Synchronize the underlying FD_SET with the MAX_FD and the SIZE.
-
 #if defined (ACE_USE_SHIFT_FOR_EFFICIENCY)
 // These don't work because shifting right 3 bits is not the same as
 // dividing by 3, e.g., dividing by 8 requires shifting right 3 bits.
@@ -192,7 +159,6 @@ ACE_Handle_Set::bitpos (u_long bit)
 #define ACE_DIV_BY_WORDSIZE(x) ((x) / ((int) ACE_Handle_Set::WORDSIZE))
 #define ACE_MULT_BY_WORDSIZE(x) ((x) * ((int) ACE_Handle_Set::WORDSIZE))
 #endif /* ACE_USE_SHIFT_FOR_EFFICIENCY */
-
 void
 ACE_Handle_Set::sync (ACE_HANDLE max)
 {
@@ -200,33 +166,27 @@ ACE_Handle_Set::sync (ACE_HANDLE max)
 #if !defined (ACE_WIN32)
   fd_mask *maskp = (fd_mask *)(this->mask_.fds_bits);
   this->size_ = 0;
-
   for (int i = ACE_DIV_BY_WORDSIZE (max - 1);
        i >= 0;
        i--)
     this->size_ += ACE_Handle_Set::count_bits (maskp[i]);
-
   this->set_max (max);
 #else
   ACE_UNUSED_ARG (max);
 #endif /* !ACE_WIN32 */
 }
-
 // Resets the MAX_FD after a clear of the original MAX_FD.
-
 void
 ACE_Handle_Set::set_max (ACE_HANDLE current_max)
 {
   ACE_TRACE ("ACE_Handle_Set::set_max");
 #if !defined(ACE_WIN32)
   fd_mask * maskp = (fd_mask *)(this->mask_.fds_bits);
-
   if (this->size_ == 0)
     this->max_handle_ = ACE_INVALID_HANDLE;
   else
     {
       int i;
-
       for (i = ACE_DIV_BY_WORDSIZE (current_max - 1);
            maskp[i] == 0;
            i--)
@@ -250,7 +210,6 @@ ACE_Handle_Set::set_max (ACE_HANDLE current_max)
         + ACE_Handle_Set::bitpos(val & ~(val - 1));
 #endif /* 1 */
     }
-
   // Do some sanity checking...
   if (this->max_handle_ >= ACE_Handle_Set::MAXSIZE)
     this->max_handle_ = ACE_Handle_Set::MAXSIZE - 1;
@@ -258,15 +217,12 @@ ACE_Handle_Set::set_max (ACE_HANDLE current_max)
   ACE_UNUSED_ARG (current_max);
 #endif /* !ACE_WIN32 */
 }
-
 ACE_ALLOC_HOOK_DEFINE(ACE_Handle_Set_Iterator)
-
 void
 ACE_Handle_Set_Iterator::dump (void) const
 {
 #if defined (ACE_HAS_DUMP)
   ACE_TRACE ("ACE_Handle_Set_Iterator::dump");
-
   ACE_DEBUG ((LM_DEBUG, ACE_BEGIN_DUMP, this));
 #if defined(ACE_WIN32) || !defined(ACE_HAS_BIG_FD_SET)
   ACE_DEBUG ((LM_DEBUG, ACE_TEXT ("\nhandle_index_ = %d"), this->handle_index_));
@@ -278,7 +234,6 @@ ACE_Handle_Set_Iterator::dump (void) const
   ACE_DEBUG ((LM_DEBUG, ACE_END_DUMP));
 #endif /* ACE_HAS_DUMP */
 }
-
 ACE_HANDLE
 ACE_Handle_Set_Iterator::operator () (void)
 {
@@ -289,11 +244,9 @@ ACE_Handle_Set_Iterator::operator () (void)
     return (ACE_HANDLE) this->handles_.mask_.fd_array[this->handle_index_++];
   else
     return ACE_INVALID_HANDLE;
-
 #elif !defined (ACE_HAS_BIG_FD_SET) /* !ACE_WIN32 */
   // No sense searching further than the max_handle_ + 1;
   ACE_HANDLE maxhandlep1 = this->handles_.max_handle_ + 1;
-
   // HP-UX 11 plays some games with the fd_mask type - fd_mask is
   // defined as an int_32t, but the fds_bits is an array of longs.
   // This makes plainly indexing through the array by hand tricky,
@@ -305,7 +258,6 @@ ACE_Handle_Set_Iterator::operator () (void)
   // this amounts to practically a NOP, since this is what would have
   // been done anyway, without all this type jazz.
   fd_mask * maskp = (fd_mask *)(this->handles_.mask_.fds_bits);
-
   if (this->handle_index_ >= maxhandlep1)
     // We've seen all the handles we're interested in seeing for this
     // iterator.
@@ -313,7 +265,6 @@ ACE_Handle_Set_Iterator::operator () (void)
   else
     {
       ACE_HANDLE result = this->handle_index_;
-
       // Increment the iterator and advance to the next bit in this
       // word.
       this->handle_index_++;
@@ -323,22 +274,18 @@ ACE_Handle_Set_Iterator::operator () (void)
 #  else
       this->word_val_ = (this->word_val_ >> 1) & ACE_MSB_MASK;
 #  endif /* ACE_TANDEM_NSK_BIT_ORDER */
-
       // If we've examined all the bits in this word, we'll go onto
       // the next word.
-
       if (this->word_val_ == 0)
         {
           // Start the handle_index_ at the beginning of the next word
           // and then loop until we've found the first non-zero bit or
           // we run past the <maxhandlep1> of the bitset.
-
           for (this->handle_index_ = ACE_MULT_BY_WORDSIZE(++this->word_num_);
                this->handle_index_ < maxhandlep1
                  && maskp[this->word_num_] == 0;
                this->word_num_++)
             this->handle_index_ += ACE_Handle_Set::WORDSIZE;
-
           // If the bit index becomes >= the maxhandlep1 that means
           // there weren't any more bits set that we want to consider.
           // Therefore, we'll just store the maxhandlep1, which will
@@ -353,12 +300,10 @@ ACE_Handle_Set_Iterator::operator () (void)
             // Load the bits of the next word.
             this->word_val_ = maskp[this->word_num_];
         }
-
       // Loop until we get <word_val_> to have its least significant
       // bit enabled, keeping track of which <handle_index> this
       // represents (this information is used by subsequent calls to
       // <operator()>).
-
 #if defined (ACE_TANDEM_NSK_BIT_ORDER)
       // bits are in reverse order, MSB (sign bit) = bit 0.
       for (;
@@ -371,13 +316,11 @@ ACE_Handle_Set_Iterator::operator () (void)
            this->handle_index_++)
         this->word_val_ = (this->word_val_ >> 1) & ACE_MSB_MASK;
 #  endif /* ACE_TANDEM_NSK_BIT_ORDER */
-
       return result;
     }
 #else /* !ACE_HAS_BIG_FD_SET */
    // Find the first word in fds_bits with bit on
    register u_long lsb = this->word_val_;
-
    if (lsb == 0)
      {
        do
@@ -385,26 +328,19 @@ ACE_Handle_Set_Iterator::operator () (void)
            // We have exceeded the word count in Handle_Set?
            if (++this->word_num_ >= this->word_max_)
              return ACE_INVALID_HANDLE;
-
            lsb = this->handles_.mask_.fds_bits[this->word_num_];
          }
        while (lsb == 0);
-
        // Set index to word boundary.
        this->handle_index_ = ACE_MULT_BY_WORDSIZE (this->word_num_);
-
        // Put new word_val.
        this->word_val_ = lsb;
-
        // Find the least significative bit.
        lsb &= ~(lsb - 1);
-
        // Remove least significative bit.
        this->word_val_ ^= lsb;
-
        // Save to calculate bit distance.
        this->oldlsb_ = lsb;
-
        // Move index to least significative bit.
        while (lsb >>= 1)
          this->handle_index_++;
@@ -413,12 +349,9 @@ ACE_Handle_Set_Iterator::operator () (void)
      {
         // Find the least significative bit.
         lsb &= ~(lsb - 1);
-
         // Remove least significative bit.
         this->word_val_ ^= lsb;
-
         register u_long n = lsb - this->oldlsb_;
-
         // Move index to bit distance between new lsb and old lsb.
         do
           {
@@ -426,14 +359,11 @@ ACE_Handle_Set_Iterator::operator () (void)
             n &= n >> 1;
           }
         while (n != 0);
-
         this->oldlsb_ = lsb;
       }
-
    return this->handle_index_;
 #endif /* ACE_WIN32 */
 }
-
 ACE_Handle_Set_Iterator::ACE_Handle_Set_Iterator (const ACE_Handle_Set &hs)
   : handles_ (hs),
 #if !defined (ACE_HAS_BIG_FD_SET) || defined (ACE_WIN32)
@@ -451,16 +381,13 @@ ACE_Handle_Set_Iterator::ACE_Handle_Set_Iterator (const ACE_Handle_Set &hs)
   // No sense searching further than the max_handle_ + 1;
   ACE_HANDLE maxhandlep1 =
     this->handles_.max_handle_ + 1;
-
   fd_mask *maskp =
     (fd_mask *)(this->handles_.mask_.fds_bits);
-
   // Loop until we've found the first non-zero bit or we run past the
   // <maxhandlep1> of the bitset.
   while (this->handle_index_ < maxhandlep1
          && maskp[++this->word_num_] == 0)
     this->handle_index_ += ACE_Handle_Set::WORDSIZE;
-
   // If the bit index becomes >= the maxhandlep1 that means there
   // weren't any bits set.  Therefore, we'll just store the
   // maxhandlep1, which will cause <operator()> to return
@@ -499,12 +426,10 @@ ACE_Handle_Set_Iterator::ACE_Handle_Set_Iterator (const ACE_Handle_Set &hs)
 #endif /* !ACE_WIN32 && !ACE_HAS_BIG_FD_SET */
 }
 
-
 void
 ACE_Handle_Set_Iterator::reset_state (void)
 {
   ACE_TRACE ("ACE_Handle_Set_Iterator::reset_state");
-
 #if !defined (ACE_HAS_BIG_FD_SET) || defined (ACE_WIN32)
   this->handle_index_  = 0;
   this->word_num_ = -1;
@@ -514,21 +439,17 @@ ACE_Handle_Set_Iterator::reset_state (void)
     this->handles_.max_handle_ == ACE_INVALID_HANDLE  ? 0
     : ((ACE_DIV_BY_WORDSIZE (this->handles_.max_handle_)) + 1);
 #endif /* ACE_HAS_BIG_FD_SET */
-
 #if !defined (ACE_WIN32) && !defined (ACE_HAS_BIG_FD_SET)
   // No sense searching further than the max_handle_ + 1;
   ACE_HANDLE maxhandlep1 =
     this->handles_.max_handle_ + 1;
-
   fd_mask *maskp =
     (fd_mask *)(this->handles_.mask_.fds_bits);
-
   // Loop until we've found the first non-zero bit or we run past the
   // <maxhandlep1> of the bitset.
   while (this->handle_index_ < maxhandlep1
          && maskp[++this->word_num_] == 0)
     this->handle_index_ += ACE_Handle_Set::WORDSIZE;
-
   // If the bit index becomes >= the maxhandlep1 that means there
   // weren't any bits set.  Therefore, we'll just store the
   // maxhandlep1, which will cause <operator()> to return
@@ -566,6 +487,5 @@ ACE_Handle_Set_Iterator::reset_state (void)
       }
 #endif /* !ACE_WIN32 && !ACE_HAS_BIG_FD_SET */
 }
-
 ACE_END_VERSIONED_NAMESPACE_DECL
 

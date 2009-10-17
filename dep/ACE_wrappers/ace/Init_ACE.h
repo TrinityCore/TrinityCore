@@ -1,5 +1,4 @@
 // -*- C++ -*-
-
 //=============================================================================
 /**
  *  @file   Init_ACE.h
@@ -11,20 +10,14 @@
  */
 //=============================================================================
 
-
 #ifndef ACE_INIT_ACE_H
 #define ACE_INIT_ACE_H
-
 #include /**/ "ace/pre.h"
-
 #include /**/ "ace/ACE_export.h"
-
 #if !defined (ACE_LACKS_PRAGMA_ONCE)
 # pragma once
 #endif /* ACE_LACKS_PRAGMA_ONCE */
-
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
-
 namespace ACE
 {
   /**
@@ -35,7 +28,6 @@ namespace ACE
    * called.
    */
   extern ACE_Export int init (void);
-
   /**
    * Shut down ACE library services.  Can be called only once per
    * program invocation.
@@ -43,10 +35,8 @@ namespace ACE
    * called.
    */
   extern ACE_Export int fini (void);
-
   // private:
   //  Used internally, so not exported.
-
   /**
    * Counter to match <init()>/<fini()> calls.  <init()> must increment it;
    * <fini()> must decrement it.  <fini()> then does nothing until it
@@ -54,10 +44,7 @@ namespace ACE
    */
   extern unsigned int init_fini_count_;
 }
-
 ACE_END_VERSIONED_NAMESPACE_DECL
-
 #include /**/ "ace/post.h"
-
 #endif  /* ACE_INIT_ACE_H */
 

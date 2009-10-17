@@ -13,9 +13,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
-
 #ifndef DEF_RAZORFEN_KRAUL_H
 #define DEF_RAZORFEN_KRAUL_H
-
 #define TYPE_WARD_KEEPERS       1
 #endif

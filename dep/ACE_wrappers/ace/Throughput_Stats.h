@@ -1,5 +1,4 @@
 // -*- C++ -*-
-
 //==========================================================================
 /**
  *  @file    Throughput_Stats.h
@@ -10,22 +9,15 @@
  */
 //==========================================================================
 
-
 #ifndef ACE_THROUGHPUT_STATS_H
 #define ACE_THROUGHPUT_STATS_H
-
 #include /**/ "ace/pre.h"
-
 #include /**/ "ace/ACE_export.h"
-
 #if !defined (ACE_LACKS_PRAGMA_ONCE)
 # pragma once
 #endif /* ACE_LACKS_PRAGMA_ONCE */
-
 #include "ace/Basic_Stats.h"
-
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
-
 /// A simple class to make throughput and latency analysis.
 /**
  *
@@ -47,16 +39,12 @@ class ACE_Export ACE_Throughput_Stats : public ACE_Basic_Stats
 public:
   /// Constructor
   ACE_Throughput_Stats (void);
-
   /// Store one sample
   void sample (ACE_UINT64 throughput, ACE_UINT64 latency);
-
   /// Update the values to reflect the stats in @a throughput
   void accumulate (const ACE_Throughput_Stats &throughput);
-
   /// Print down the stats
   void dump_results (const ACE_TCHAR* msg, ACE_UINT32 scale_factor);
-
   /// Dump the average throughput stats.
   static void dump_throughput (const ACE_TCHAR *msg,
                                ACE_UINT32 scale_factor,
@@ -65,7 +53,6 @@ public:
 private:
   /// The last throughput measurement.
   ACE_UINT64 throughput_last_;
-
 #if 0
   /// These are the fields that we should keep to perform linear
   /// regression
@@ -78,10 +65,7 @@ private:
   ACE_UINT64 throughput_sum_xy_;
 #endif /* 0 */
 };
-
 ACE_END_VERSIONED_NAMESPACE_DECL
-
 #include /**/ "ace/post.h"
-
 #endif /* ! ACE_THROUGHPUT_STATS_H */
 

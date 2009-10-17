@@ -17,63 +17,47 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
-
 #ifndef _UTIL_H
 #define _UTIL_H
-
 #include "Common.h"
-
 #include <string>
 #include <vector>
-
 typedef std::vector<std::string> Tokens;
-
 Tokens StrSplit(const std::string &src, const std::string &sep);
-
 void stripLineInvisibleChars(std::string &src);
-
 std::string secsToTimeString(uint32 timeInSecs, bool shortText = false, bool hoursOnly = false);
 uint32 TimeStringToSecs(const std::string& timestring);
 std::string TimeToTimestampStr(time_t t);
-
 inline uint32 secsToTimeBitFields(time_t secs)
 {
     tm* lt = localtime(&secs);
     return (lt->tm_year - 100) << 24 | lt->tm_mon  << 20 | (lt->tm_mday - 1) << 14 | lt->tm_wday << 11 | lt->tm_hour << 6 | lt->tm_min;
 }
-
 /* Return a random number in the range min..max; (max-min) must be smaller than 32768. */
 TRINITY_DLL_SPEC int32 irand(int32 min, int32 max);
-
 /* Return a random number in the range min..max (inclusive). For reliable results, the difference
 * between max and min should be less than RAND32_MAX. */
 TRINITY_DLL_SPEC uint32 urand(uint32 min, uint32 max);
-
 /* Return a random number in the range 0 .. RAND32_MAX. */
 TRINITY_DLL_SPEC int32 rand32();
-
 /* Return a random double from 0.0 to 1.0 (exclusive). Floats support only 7 valid decimal digits.
  * A double supports up to 15 valid decimal digits and is used internally (RAND32_MAX has 10 digits).
  * With an FPU, there is usually no difference in performance between float and double. */
 TRINITY_DLL_SPEC double rand_norm(void);
-
 /* Return a random double from 0.0 to 99.9999999999999. Floats support only 7 valid decimal digits.
  * A double supports up to 15 valid decimal digits and is used internaly (RAND32_MAX has 10 digits).
  * With an FPU, there is usually no difference in performance between float and double. */
 TRINITY_DLL_SPEC double rand_chance(void);
-
 /* Return true if a random roll fits in the specified chance (range 0-100). */
 inline bool roll_chance_f(float chance)
 {
     return chance > rand_chance();
 }
-
 /* Return true if a random roll fits in the specified chance (range 0-100). */
 inline bool roll_chance_i(int chance)
 {
     return chance > irand(0, 99);
 }
-
 inline void ApplyModUInt32Var(uint32& var, int32 val, bool apply)
 {
     int32 cur = var;
@@ -82,21 +66,18 @@ inline void ApplyModUInt32Var(uint32& var, int32 val, bool apply)
         cur = 0;
     var = cur;
 }
-
 inline void ApplyModFloatVar(float& var, float  val, bool apply)
 {
     var += (apply ? val : -val);
     if(var < 0)
         var = 0;
 }
-
 inline void ApplyPercentModFloatVar(float& var, float val, bool apply)
 {
     if (val == -100.0f)     // prevent set var to zero
         val = -99.99f;
     var *= (apply?(100.0f+val)/100.0f : 100.0f / (100.0f+val));
 }
-
 bool Utf8toWStr(const std::string& utf8str, std::wstring& wstr);
 // in wsize==max size of buffer, out wsize==real string size
 bool Utf8toWStr(char const* utf8str, size_t csize, wchar_t* wstr, size_t& wsize);
@@ -104,14 +85,11 @@ inline bool Utf8toWStr(const std::string& utf8str, wchar_t* wstr, size_t& wsize)
 {
     return Utf8toWStr(utf8str.c_str(), utf8str.size(), wstr, wsize);
 }
-
 bool WStrToUtf8(std::wstring wstr, std::string& utf8str);
 // size==real string size
 bool WStrToUtf8(wchar_t* wstr, size_t size, std::string& utf8str);
-
 size_t utf8length(std::string& utf8str);                    // set string to "" if invalid utf8 sequence
 void utf8truncate(std::string& utf8str,size_t len);
-
 inline bool isBasicLatinCharacter(wchar_t wchar)
 {
     if(wchar >= L'a' && wchar <= L'z')                      // LATIN SMALL LETTER A - LATIN SMALL LETTER Z
@@ -120,7 +98,6 @@ inline bool isBasicLatinCharacter(wchar_t wchar)
         return true;
     return false;
 }
-
 inline bool isExtendedLatinCharacter(wchar_t wchar)
 {
     if(isBasicLatinCharacter(wchar))
@@ -141,7 +118,6 @@ inline bool isExtendedLatinCharacter(wchar_t wchar)
         return true;
     return false;
 }
-
 inline bool isCyrillicCharacter(wchar_t wchar)
 {
     if(wchar >= 0x0410 && wchar <= 0x044F)                  // CYRILLIC CAPITAL LETTER A - CYRILLIC SMALL LETTER YA
@@ -150,7 +126,6 @@ inline bool isCyrillicCharacter(wchar_t wchar)
         return true;
     return false;
 }
-
 inline bool isEastAsianCharacter(wchar_t wchar)
 {
     if(wchar >= 0x1100 && wchar <= 0x11F9)                  // Hangul Jamo
@@ -171,22 +146,18 @@ inline bool isEastAsianCharacter(wchar_t wchar)
         return true;
     return false;
 }
-
 inline bool isNumeric(wchar_t wchar)
 {
     return (wchar >= L'0' && wchar <=L'9');
 }
-
 inline bool isNumeric(char c)
 {
     return (c >= '0' && c <='9');
 }
-
 inline bool isNumericOrSpace(wchar_t wchar)
 {
     return isNumeric(wchar) || wchar == L' ';
 }
-
 inline bool isBasicLatinString(std::wstring wstr, bool numericOrSpace)
 {
     for(size_t i = 0; i < wstr.size(); ++i)
@@ -194,7 +165,6 @@ inline bool isBasicLatinString(std::wstring wstr, bool numericOrSpace)
             return false;
     return true;
 }
-
 inline bool isExtendedLatinString(std::wstring wstr, bool numericOrSpace)
 {
     for(size_t i = 0; i < wstr.size(); ++i)
@@ -202,7 +172,6 @@ inline bool isExtendedLatinString(std::wstring wstr, bool numericOrSpace)
             return false;
     return true;
 }
-
 inline bool isCyrillicString(std::wstring wstr, bool numericOrSpace)
 {
     for(size_t i = 0; i < wstr.size(); ++i)
@@ -210,7 +179,6 @@ inline bool isCyrillicString(std::wstring wstr, bool numericOrSpace)
             return false;
     return true;
 }
-
 inline bool isEastAsianString(std::wstring wstr, bool numericOrSpace)
 {
     for(size_t i = 0; i < wstr.size(); ++i)
@@ -218,7 +186,6 @@ inline bool isEastAsianString(std::wstring wstr, bool numericOrSpace)
             return false;
     return true;
 }
-
 inline wchar_t wcharToUpper(wchar_t wchar)
 {
     if(wchar >= L'a' && wchar <= L'z')                      // LATIN SMALL LETTER A - LATIN SMALL LETTER Z
@@ -238,15 +205,12 @@ inline wchar_t wcharToUpper(wchar_t wchar)
         return wchar_t(uint16(wchar)-0x0020);
     if(wchar == 0x0451)                                     // CYRILLIC SMALL LETTER IO
         return wchar_t(0x0401);
-
     return wchar;
 }
-
 inline wchar_t wcharToUpperOnlyLatin(wchar_t wchar)
 {
     return isBasicLatinCharacter(wchar) ? wcharToUpper(wchar) : wchar;
 }
-
 inline wchar_t wcharToLower(wchar_t wchar)
 {
     if(wchar >= L'A' && wchar <= L'Z')                      // LATIN CAPITAL LETTER A - LATIN CAPITAL LETTER Z
@@ -266,43 +230,33 @@ inline wchar_t wcharToLower(wchar_t wchar)
         return wchar_t(0x0451);
     if(wchar >= 0x0410 && wchar <= 0x042F)                  // CYRILLIC CAPITAL LETTER A - CYRILLIC CAPITAL LETTER YA
         return wchar_t(uint16(wchar)+0x0020);
-
     return wchar;
 }
-
 inline void wstrToUpper(std::wstring& str)
 {
     std::transform( str.begin(), str.end(), str.begin(), wcharToUpper );
 }
-
 inline void wstrToLower(std::wstring& str)
 {
     std::transform( str.begin(), str.end(), str.begin(), wcharToLower );
 }
-
 std::wstring GetMainPartOfName(std::wstring wname, uint32 declension);
-
 bool utf8ToConsole(const std::string& utf8str, std::string& conStr);
 bool consoleToUtf8(const std::string& conStr,std::string& utf8str);
 bool Utf8FitTo(const std::string& str, std::wstring search);
 void utf8printf(FILE *out, const char *str, ...);
 void vutf8printf(FILE *out, const char *str, va_list* ap);
-
 bool IsIPAddress(char const* ipaddress);
 uint32 CreatePIDFile(const std::string& filename);
-
 void hexEncodeByteArray(uint8* bytes, uint32 arrayLen, std::string& result);
 #endif
-
 //handler for operations on large flags
 #ifndef _FLAG96
 #define _FLAG96
-
 #ifndef PAIR64_HIPART
 #define PAIR64_HIPART(x)   (uint32)((uint64(x) >> 32) & UI64LIT(0x00000000FFFFFFFF))
 #define PAIR64_LOPART(x)   (uint32)(uint64(x)         & UI64LIT(0x00000000FFFFFFFF))
 #endif
-
 class flag96
 {
 private:
@@ -314,14 +268,12 @@ public:
         part[1]=p2;
         part[2]=p3;
     }
-
     flag96(uint64 p1, uint32 p2)
     {
         part[0]=PAIR64_LOPART(p1);
         part[1]=PAIR64_HIPART(p1);
         part[2]=p2;
     }
-
     inline bool IsEqual(uint32 p1=0, uint32 p2=0, uint32 p3=0) const
     {
         return (
@@ -329,7 +281,6 @@ public:
             part[1]==p2 &&
             part[2]==p3);
     };
-
     inline bool HasFlag(uint32 p1=0, uint32 p2=0, uint32 p3=0) const
     {
         return (
@@ -337,14 +288,12 @@ public:
             part[1]&p2 ||
             part[2]&p3);
     };
-
     inline void Set(uint32 p1=0, uint32 p2=0, uint32 p3=0)
     {
         part[0]=p1;
         part[1]=p2;
         part[2]=p3;
     };
-
     template<class type>
     inline bool operator < (type & right)
     {
@@ -357,7 +306,6 @@ public:
         }
         return 0;
     };
-
     template<class type>
     inline bool operator < (type & right) const
     {
@@ -370,7 +318,6 @@ public:
         }
         return 0;
     };
-
     template<class type>
     inline bool operator != (type & right)
     {
@@ -380,7 +327,6 @@ public:
                 return true;
         return false;
     }
-
     template<class type>
     inline bool operator != (type & right) const
     {
@@ -390,7 +336,6 @@ public:
                 return true;
         return false;
     };
-
     template<class type>
     inline bool operator == (type & right)
     {
@@ -400,7 +345,6 @@ public:
                 return false;
         return true;
     };
-
     template<class type>
     inline bool operator == (type & right) const
     {
@@ -410,7 +354,6 @@ public:
                 return false;
         return true;
     };
-
     template<class type>
     inline void operator = (type & right)
     {
@@ -418,7 +361,6 @@ public:
         part[1]=right.part[1];
         part[2]=right.part[2];
     };
-
     template<class type>
     inline flag96 operator & (type & right)
     {
@@ -433,13 +375,11 @@ public:
         return
             ret;
     };
-
     template<class type>
     inline void operator &= (type & right)
     {
         *this=*this & right;
     };
-
     template<class type>
     inline flag96 operator | (type & right)
     {
@@ -447,7 +387,6 @@ public:
         return
             ret;
     };
-
     template<class type>
     inline flag96 operator | (type & right) const
     {
@@ -455,20 +394,17 @@ public:
         return
             ret;
     };
-
     template<class type>
     inline void operator |= (type & right)
     {
         *this=*this | right;
     };
-
     inline void operator ~ ()
     {
         part[2]=~part[2];
         part[1]=~part[1];
         part[0]=~part[0];
     };
-
     template<class type>
     inline flag96 operator ^ (type & right)
     {
@@ -476,7 +412,6 @@ public:
         return
             ret;
     };
-
     template<class type>
     inline flag96 operator ^ (type & right) const
     {
@@ -484,13 +419,11 @@ public:
         return
             ret;
     };
-
     template<class type>
     inline void operator ^= (type & right)
     {
         *this=*this^right;
     };
-
     inline operator bool() const
     {
         return(
@@ -498,7 +431,6 @@ public:
             part[1] != 0 ||
             part[2] != 0);
     };
-
     inline operator bool()
     {
         return(
@@ -506,7 +438,6 @@ public:
             part[1] != 0 ||
             part[2] != 0);
     };
-
     inline bool operator ! () const
     {
         return(
@@ -514,7 +445,6 @@ public:
             part[1] == 0 &&
             part[2] == 0);
     };
-
     inline bool operator ! ()
     {
         return(
@@ -522,12 +452,10 @@ public:
             part[1] == 0 &&
             part[2] == 0);
     };
-
     inline uint32 & operator[](uint8 el)
     {
         return (part[el]);
     };
-
     inline const uint32 & operator[](uint8 el) const
     {
         return (part[el]);

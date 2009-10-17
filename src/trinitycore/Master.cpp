@@ -17,13 +17,10 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
-
 /** \file
     \ingroup Trinityd
 */
-
 #include <ace/OS_NS_signal.h>
-
 #include "Common.h"
 #include "SystemConfig.h"
 #include "World.h"
@@ -33,7 +30,6 @@
 #include "Config/ConfigEnv.h"
 #include "Database/DatabaseEnv.h"
 #include "Policies/SingletonImp.h"
-
 #include "CliRunnable.h"
 #include "Log.h"
 #include "Master.h"
@@ -41,26 +37,20 @@
 #include "ScriptCalls.h"
 #include "Timer.h"
 #include "Util.h"
-
 #include "sockets/TcpSocket.h"
 #include "sockets/Utility.h"
 #include "sockets/Parse.h"
 #include "sockets/Socket.h"
 #include "sockets/SocketHandler.h"
 #include "sockets/ListenSocket.h"
-
 #ifdef WIN32
 #include "ServiceWin32.h"
 extern int m_ServiceStatus;
 #endif
-
 /// \todo Warning disabling not useful under VC++2005. Can somebody say on which compiler it is useful?
 #pragma warning(disable:4305)
-
 INSTANTIATE_SINGLETON_1( Master );
-
 volatile uint32 Master::m_masterLoopCounter = 0;
-
 class FreezeDetectorRunnable : public ACE_Based::Runnable
 {
 public:
@@ -83,7 +73,6 @@ public:
             ACE_Based::Thread::Sleep(1000);
             uint32 curtime = getMSTime();
             //DEBUG_LOG("anti-freeze: time=%u, counters=[%u; %u]",curtime,Master::m_masterLoopCounter,World::m_worldLoopCounter);
-
             // There is no Master anymore
             // TODO: clear the rest of the code
 //            // normal work
@@ -98,7 +87,6 @@ public:
 //                sLog.outError("Main/Sockets Thread hangs, kicking out server!");
 //                *((uint32 volatile*)NULL) = 0;                       // bang crash
 //            }
-
             // normal work
             if(w_loops != World::m_worldLoopCounter)
             {
@@ -115,19 +103,16 @@ public:
         sLog.outString("Anti-freeze thread exiting without problems.");
     }
 };
-
 class RARunnable : public ACE_Based::Runnable
 {
 public:
     uint32 numLoops, loopCounter;
-
     RARunnable ()
     {
         uint32 socketSelecttime = sWorld.getConfig (CONFIG_SOCKET_SELECTTIME);
         numLoops = (sConfig.GetIntDefault ("MaxPingTime", 30) * (MINUTE * 1000000 / socketSelecttime));
         loopCounter = 0;
     }
-
     void checkping ()
     {
         // ping if need
@@ -140,15 +125,12 @@ public:
             delete CharacterDatabase.Query ("SELECT 1 FROM bugreport LIMIT 1");
         }
     }
-
     void run ()
     {
         SocketHandler h;
-
         // Launch the RA listener socket
         ListenSocket<RASocket> RAListenSocket (h);
         bool usera = sConfig.GetBoolDefault ("Ra.Enable", false);
-
         if (usera)
         {
             port_t raport = sConfig.GetIntDefault ("Ra.Port", 3443);
@@ -161,14 +143,11 @@ public:
             else
             {
                 h.Add (&RAListenSocket);
-
                 sLog.outString ("Starting Remote access listner on port %d on %s", raport, stringip.c_str ());
             }
         }
-
         // Socket Selet time is in microseconds , not miliseconds!!
         uint32 socketSelecttime = sWorld.getConfig (CONFIG_SOCKET_SELECTTIME);
-
         // if use ra spend time waiting for io, if not use ra ,just sleep
         if (usera)
         {
@@ -188,21 +167,17 @@ public:
         }
     }
 };
-
 Master::Master()
 {
 }
-
 Master::~Master()
 {
 }
-
 /// Main function
 int Master::Run()
 {
     sLog.outString( "%s (core-daemon)", _FULLVERSION );
     sLog.outString( "<Ctrl-C> to stop.\n" );
-
     sLog.outString( " ______                       __");
     sLog.outString( "/\\__  _\\       __          __/\\ \\__");
     sLog.outString( "\\/_/\\ \\/ _ __ /\\_\\    ___ /\\_\\ \\ ,_\\  __  __");
@@ -212,7 +187,6 @@ int Master::Run()
     sLog.outString( "      \\/_/\\/_/   \\/_/\\/_/\\/_/\\/_/\\/__/ `/___/> \\");
     sLog.outString( "                                 C O R E  /\\___/");
     sLog.outString( "http://TrinityCore.org                    \\/__/\n");
-
     /// worldd PID file creation
     std::string pidfile = sConfig.GetStringDefault("PidFile", "");
     if(!pidfile.empty())
@@ -223,29 +197,21 @@ int Master::Run()
             sLog.outError( "Cannot create PID file %s.\n", pidfile.c_str() );
             return 1;
         }
-
         sLog.outString( "Daemon PID: %u\n", pid );
     }
-
     ///- Start the databases
     if (!_StartDB())
         return 1;
-
     ///- Initialize the World
     sWorld.SetInitialWorldSettings();
-
     ///- Catch termination signals
     _HookSignals();
-
     ///- Launch WorldRunnable thread
     ACE_Based::Thread world_thread(new WorldRunnable);
     world_thread.setPriority(ACE_Based::Highest);
-
     // set server online
     loginDatabase.PExecute("UPDATE realmlist SET color = 0, population = 0 WHERE id = '%d'",realmID);
-
     ACE_Based::Thread* cliThread = NULL;
-
 #ifdef WIN32
     if (sConfig.GetBoolDefault("Console.Enable", true) && (m_ServiceStatus == -1)/* need disable console in service mode*/)
 #else
@@ -255,24 +221,19 @@ int Master::Run()
         ///- Launch CliRunnable thread
         cliThread = new ACE_Based::Thread(new CliRunnable);
     }
-
     ACE_Based::Thread rar_thread(new RARunnable);
-
     ///- Handle affinity for multiple processors and process priority on Windows
     #ifdef WIN32
     {
         HANDLE hProcess = GetCurrentProcess();
-
         uint32 Aff = sConfig.GetIntDefault("UseProcessors", 0);
         if(Aff > 0)
         {
             ULONG_PTR appAff;
             ULONG_PTR sysAff;
-
             if(GetProcessAffinityMask(hProcess,&appAff,&sysAff))
             {
                 ULONG_PTR curAff = Aff & appAff;            // remove non accessible processors
-
                 if(!curAff )
                 {
                     sLog.outError("Processors marked in UseProcessors bitmask (hex) %x not accessible for Trinityd. Accessible processors bitmask (hex): %x",Aff,appAff);
@@ -287,9 +248,7 @@ int Master::Run()
             }
             sLog.outString("");
         }
-
         bool Prio = sConfig.GetBoolDefault("ProcessPriority", false);
-
 //        if(Prio && (m_ServiceStatus == -1)/* need set to default process priority class in service mode*/)
         if(Prio)
         {
@@ -301,12 +260,9 @@ int Master::Run()
         }
     }
     #endif
-
     uint32 realCurrTime, realPrevTime;
     realCurrTime = realPrevTime = getMSTime();
-
     uint32 socketSelecttime = sWorld.getConfig(CONFIG_SOCKET_SELECTTIME);
-
     ///- Start up freeze catcher thread
     if(uint32 freeze_delay = sConfig.GetIntDefault("MaxCoreStuckTime", 0))
     {
@@ -315,45 +271,34 @@ int Master::Run()
         ACE_Based::Thread freeze_thread(fdr);
         freeze_thread.setPriority(ACE_Based::Highest);
     }
-
     ///- Launch the world listener socket
     port_t wsport = sWorld.getConfig (CONFIG_PORT_WORLD);
     std::string bind_ip = sConfig.GetStringDefault ("BindIP", "0.0.0.0");
-
     if (sWorldSocketMgr->StartNetwork (wsport, bind_ip.c_str ()) == -1)
     {
         sLog.outError ("Failed to start network");
         World::StopNow(ERROR_EXIT_CODE);
         // go down and shutdown the server
     }
-
     sWorldSocketMgr->Wait ();
-
     // set server offline
     loginDatabase.PExecute("UPDATE realmlist SET color = 2 WHERE id = '%d'",realmID);
-
     ///- Remove signal handling before leaving
     _UnhookSignals();
-
     // when the main thread closes the singletons get unloaded
     // since worldrunnable uses them, it will crash if unloaded after master
     world_thread.wait();
     rar_thread.wait ();
-
     ///- Clean database before leaving
     clearOnlineAccounts();
-
     ///- Wait for delay threads to end
     CharacterDatabase.HaltDelayThread();
     WorldDatabase.HaltDelayThread();
     loginDatabase.HaltDelayThread();
-
     sLog.outString( "Halting process..." );
-
     if (cliThread)
     {
         #ifdef WIN32
-
         // this only way to terminate CLI thread exist at Win32 (alt. way exist only in Windows Vista API)
         //_exit(1);
         // send keyboard input to safely unblock the CLI thread
@@ -364,13 +309,11 @@ int Master::Run()
         b[0].Event.KeyEvent.uChar.AsciiChar = 'X';
         b[0].Event.KeyEvent.wVirtualKeyCode = 'X';
         b[0].Event.KeyEvent.wRepeatCount = 1;
-
         b[1].EventType = KEY_EVENT;
         b[1].Event.KeyEvent.bKeyDown = FALSE;
         b[1].Event.KeyEvent.uChar.AsciiChar = 'X';
         b[1].Event.KeyEvent.wVirtualKeyCode = 'X';
         b[1].Event.KeyEvent.wRepeatCount = 1;
-
         b[2].EventType = KEY_EVENT;
         b[2].Event.KeyEvent.bKeyDown = TRUE;
         b[2].Event.KeyEvent.dwControlKeyState = 0;
@@ -378,7 +321,6 @@ int Master::Run()
         b[2].Event.KeyEvent.wVirtualKeyCode = VK_RETURN;
         b[2].Event.KeyEvent.wRepeatCount = 1;
         b[2].Event.KeyEvent.wVirtualScanCode = 0x1c;
-
         b[3].EventType = KEY_EVENT;
         b[3].Event.KeyEvent.bKeyDown = FALSE;
         b[3].Event.KeyEvent.dwControlKeyState = 0;
@@ -388,32 +330,23 @@ int Master::Run()
         b[3].Event.KeyEvent.wRepeatCount = 1;
         DWORD numb;
         BOOL ret = WriteConsoleInput(hStdIn, b, 4, &numb);
-
         cliThread->wait();
-
-        #else 
-
+        #else
         cliThread->destroy();
-
         #endif
-
         delete cliThread;
     }
-
     // for some unknown reason, unloading scripts here and not in worldrunnable
     // fixes a memory leak related to detaching threads from the module
     UnloadScriptingModule();
-
     // Exit the process with specified return value
     return World::GetExitCode();
 }
-
 /// Initialize connection to the databases
 bool Master::_StartDB()
 {
     sLog.SetLogDB(false);
     std::string dbstring;
-
     ///- Get world database info from configuration file
     dbstring = sConfig.GetStringDefault("WorldDatabaseInfo", "");
     if(dbstring.empty())
@@ -421,14 +354,12 @@ bool Master::_StartDB()
         sLog.outError("Database not specified in configuration file");
         return false;
     }
-
     ///- Initialise the world database
     if(!WorldDatabase.Initialize(dbstring.c_str()))
     {
         sLog.outError("Cannot connect to world database %s",dbstring.c_str());
         return false;
     }
-
     ///- Get character database info from configuration file
     dbstring = sConfig.GetStringDefault("CharacterDatabaseInfo", "");
     if(dbstring.empty())
@@ -436,14 +367,12 @@ bool Master::_StartDB()
         sLog.outError("Character Database not specified in configuration file");
         return false;
     }
-
     ///- Initialise the Character database
     if(!CharacterDatabase.Initialize(dbstring.c_str()))
     {
         sLog.outError("Cannot connect to Character database %s",dbstring.c_str());
         return false;
     }
-
     ///- Get login database info from configuration file
     dbstring = sConfig.GetStringDefault("loginDatabaseInfo", "");
     if(dbstring.empty())
@@ -451,14 +380,12 @@ bool Master::_StartDB()
         sLog.outError("Login database not specified in configuration file");
         return false;
     }
-
     ///- Initialise the login database
     if(!loginDatabase.Initialize(dbstring.c_str()))
     {
         sLog.outError("Cannot connect to login database %s",dbstring.c_str());
         return false;
     }
-
     ///- Get the realm Id from the configuration file
     realmID = sConfig.GetIntDefault("RealmID", 0);
     if(!realmID)
@@ -467,7 +394,6 @@ bool Master::_StartDB()
         return false;
     }
     sLog.outString("Realm running as realm ID %d", realmID);
-
     ///- Initialize the DB logging system
     if(sConfig.GetBoolDefault("EnableLogDB", false))
     {
@@ -482,20 +408,15 @@ bool Master::_StartDB()
         sLog.SetLogDB(false);
         sLog.SetRealmID(realmID);
     }
-
     ///- Clean the database before starting
     clearOnlineAccounts();
-
     ///- Insert version info into DB
     WorldDatabase.PExecute("UPDATE version SET core_version = '%s', core_revision = '%s'", _FULLVERSION, _REVISION);
-
     sWorld.LoadDBVersion();
-
     sLog.outString("Using World DB: %s", sWorld.GetDBVersion());
     sLog.outString("Using creature EventAI: %s", sWorld.GetCreatureEventAIVersion());
     return true;
 }
-
 /// Clear 'online' status for all accounts with characters in this realm
 void Master::clearOnlineAccounts()
 {
@@ -504,13 +425,10 @@ void Master::clearOnlineAccounts()
     loginDatabase.PExecute(
         "UPDATE account SET online = 0 WHERE online > 0 "
         "AND id IN (SELECT acctid FROM realmcharacters WHERE realmid = '%d')",realmID);
-
     CharacterDatabase.Execute("UPDATE characters SET online = 0 WHERE online<>0");
-
     // Battleground instance ids reset at server restart
     CharacterDatabase.Execute("UPDATE character_battleground_data SET instance_id = 0");
 }
-
 /// Handle termination signals
 void Master::_OnSignal(int s)
 {
@@ -527,10 +445,8 @@ void Master::_OnSignal(int s)
                 World::StopNow(SHUTDOWN_EXIT_CODE);
             break;
     }
-
     signal(s, _OnSignal);
 }
-
 /// Define hook '_OnSignal' for all termination signals
 void Master::_HookSignals()
 {
@@ -541,7 +457,6 @@ void Master::_HookSignals()
         signal(SIGBREAK, _OnSignal);
     #endif
 }
-
 /// Unhook the signals before leaving
 void Master::_UnhookSignals()
 {

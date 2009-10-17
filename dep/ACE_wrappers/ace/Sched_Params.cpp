@@ -9,32 +9,24 @@
  */
 //=============================================================================
 
-
 #include "ace/Sched_Params.h"
-
 #if !defined (__ACE_INLINE__)
 #include "ace/Sched_Params.inl"
 #endif /* __ACE_INLINE__ */
-
 #if defined (ACE_HAS_PRIOCNTL) && defined (ACE_HAS_STHREADS)
 #  include "ace/OS_NS_string.h"
 #  include /**/ <sys/priocntl.h>
 #endif /* ACE_HAS_PRIOCNTL && ACE_HAS_THREADS */
-
 ACE_RCSID(ace, Sched_Params, "$Id: Sched_Params.cpp 80826 2008-03-04 14:51:23Z wotte $")
-
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
-
 int
 ACE_Sched_Params::priority_min (const Policy policy,
                                 const int scope)
 {
 #if defined (ACE_HAS_PRIOCNTL) && defined (ACE_HAS_STHREADS)
   ACE_UNUSED_ARG (scope);
-
   // Assume that ACE_SCHED_OTHER indicates TS class, and that other
   // policies indicate RT class.
-
   // Call ACE_OS::priority_control only for processes (lightweight
   // or otherwise). Calling ACE_OS::priority_control for thread
   // priorities gives incorrect results.
@@ -48,7 +40,6 @@ ACE_Sched_Params::priority_min (const Policy policy,
           // memory reads.
           ACE_OS::memset (&pcinfo, 0, sizeof pcinfo);
           ACE_OS::strcpy (pcinfo.pc_clname, "TS");
-
           if (ACE_OS::priority_control (P_ALL /* ignored */,
                                         P_MYID /* ignored */,
                                         PC_GETCID,
@@ -56,12 +47,10 @@ ACE_Sched_Params::priority_min (const Policy policy,
             // Just hope that priority range wasn't configured from -1
             // .. 1
             return -1;
-
           // OK, now we've got the class ID in pcinfo.pc_cid.  In
           // addition, the maximum configured time-share priority is in
           // ((tsinfo_t *) pcinfo.pc_clinfo)->ts_maxupri.  The minimum
           // priority is just the negative of that.
-
           return -((tsinfo_t *) pcinfo.pc_clinfo)->ts_maxupri;
         }
       else
@@ -86,7 +75,6 @@ ACE_Sched_Params::priority_min (const Policy policy,
 #elif defined(ACE_HAS_PTHREADS) && \
       (!defined(ACE_LACKS_SETSCHED) || defined (ACE_TANDEM_T1248_PTHREADS) || \
        defined (ACE_HAS_PTHREAD_SCHEDPARAM))
-
   switch (scope)
     {
     case ACE_SCOPE_THREAD:
@@ -100,7 +88,6 @@ ACE_Sched_Params::priority_min (const Policy policy,
           default:
             return ACE_THR_PRI_OTHER_MIN;
         }
-
     case ACE_SCOPE_PROCESS:
     default:
       switch (policy)
@@ -114,7 +101,6 @@ ACE_Sched_Params::priority_min (const Policy policy,
             return ACE_PROC_PRI_OTHER_MIN;
         }
     }
-
 #elif defined (ACE_HAS_WTHREADS)
   ACE_UNUSED_ARG (policy);
   ACE_UNUSED_ARG (scope);
@@ -133,14 +119,12 @@ ACE_Sched_Params::priority_min (const Policy policy,
   ACE_NOTSUP_RETURN (-1);
 #endif /* ACE_HAS_PRIOCNTL && defined (ACE_HAS_STHREADS) */
 }
-
 int
 ACE_Sched_Params::priority_max (const Policy policy,
                                 const int scope)
 {
 #if defined (ACE_HAS_PRIOCNTL) && defined (ACE_HAS_STHREADS)
   ACE_UNUSED_ARG (scope);
-
   // Call ACE_OS::priority_control only for processes (lightweight
   // or otherwise). Calling ACE_OS::priority_control for thread
   // priorities gives incorrect results.
@@ -148,7 +132,6 @@ ACE_Sched_Params::priority_max (const Policy policy,
     {
       // Assume that ACE_SCHED_OTHER indicates TS class, and that other
       // policies indicate RT class.
-
       // Get the priority class ID and attributes.
       pcinfo_t pcinfo;
       // The following is just to avoid Purify warnings about unitialized
@@ -156,17 +139,14 @@ ACE_Sched_Params::priority_max (const Policy policy,
       ACE_OS::memset (&pcinfo, 0, sizeof pcinfo);
       ACE_OS::strcpy (pcinfo.pc_clname,
                       policy == ACE_SCHED_OTHER  ?  "TS"  :  "RT");
-
       if (ACE_OS::priority_control (P_ALL /* ignored */,
                                     P_MYID /* ignored */,
                                     PC_GETCID,
                                     (char *) &pcinfo) == -1)
         return -1;
-
       // OK, now we've got the class ID in pcinfo.pc_cid.  In addition,
       // the maximum configured real-time priority is in ((rtinfo_t *)
       // pcinfo.pc_clinfo)->rt_maxpri, or similarly for the TS class.
-
       return policy == ACE_SCHED_OTHER
         ? ((tsinfo_t *) pcinfo.pc_clinfo)->ts_maxupri
         : ((rtinfo_t *) pcinfo.pc_clinfo)->rt_maxpri;
@@ -190,7 +170,6 @@ ACE_Sched_Params::priority_max (const Policy policy,
 #elif defined(ACE_HAS_PTHREADS) && \
       (!defined(ACE_LACKS_SETSCHED) || defined (ACE_TANDEM_T1248_PTHREADS) || \
        defined (ACE_HAS_PTHREAD_SCHEDPARAM))
-
   switch (scope)
     {
     case ACE_SCOPE_THREAD:
@@ -204,7 +183,6 @@ ACE_Sched_Params::priority_max (const Policy policy,
           default:
             return ACE_THR_PRI_OTHER_MAX;
         }
-
     case ACE_SCOPE_PROCESS:
     default:
       switch (policy)
@@ -218,7 +196,6 @@ ACE_Sched_Params::priority_max (const Policy policy,
             return ACE_PROC_PRI_OTHER_MAX;
         }
     }
-
 #elif defined (ACE_HAS_WTHREADS)
   ACE_UNUSED_ARG (policy);
   ACE_UNUSED_ARG (scope);
@@ -237,7 +214,6 @@ ACE_Sched_Params::priority_max (const Policy policy,
   ACE_NOTSUP_RETURN (-1);
 #endif /* ACE_HAS_PRIOCNTL && defined (ACE_HAS_STHREADS) */
 }
-
 int
 ACE_Sched_Params::next_priority (const Policy policy,
                                  const int priority,
@@ -282,7 +258,6 @@ ACE_Sched_Params::next_priority (const Policy policy,
   ACE_NOTSUP_RETURN (-1);
 #endif /* ACE_HAS_THREADS */
 }
-
 int
 ACE_Sched_Params::previous_priority (const Policy policy,
                                      const int priority,
@@ -315,7 +290,6 @@ ACE_Sched_Params::previous_priority (const Policy policy,
        defined (ACE_HAS_PTHREAD_SCHEDPARAM))
   // including STHREADS and PTHREADS
   int const min = priority_min (policy, scope);
-
   return priority > min ? priority - 1 : min;
 #elif defined (ACE_VXWORKS)
   return priority < priority_min (policy, scope)
@@ -328,6 +302,5 @@ ACE_Sched_Params::previous_priority (const Policy policy,
   ACE_NOTSUP_RETURN (-1);
 #endif /* ACE_HAS_THREADS */
 }
-
 ACE_END_VERSIONED_NAMESPACE_DECL
 

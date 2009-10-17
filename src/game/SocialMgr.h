@@ -17,19 +17,15 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
-
 #ifndef __TRINITY_SOCIALMGR_H
 #define __TRINITY_SOCIALMGR_H
-
 #include "Policies/Singleton.h"
 #include "Database/DatabaseEnv.h"
 #include "Common.h"
-
 class SocialMgr;
 class PlayerSocial;
 class Player;
 class WorldPacket;
-
 enum FriendStatus
 {
     FRIEND_STATUS_OFFLINE   = 0,
@@ -38,14 +34,12 @@ enum FriendStatus
     FRIEND_STATUS_UNK3      = 3,
     FRIEND_STATUS_DND       = 4
 };
-
 enum SocialFlag
 {
     SOCIAL_FLAG_FRIEND      = 0x01,
     SOCIAL_FLAG_IGNORED     = 0x02,
     SOCIAL_FLAG_MUTED       = 0x04                          // guessed
 };
-
 struct FriendInfo
 {
     FriendStatus Status;
@@ -54,7 +48,6 @@ struct FriendInfo
     uint32 Level;
     uint32 Class;
     std::string Note;
-
     FriendInfo()
     {
         Status = FRIEND_STATUS_OFFLINE;
@@ -64,7 +57,6 @@ struct FriendInfo
         Class = 0;
         Note = "";
     }
-
     FriendInfo(uint32 flags, const std::string& note)
     {
         Status = FRIEND_STATUS_OFFLINE;
@@ -75,10 +67,8 @@ struct FriendInfo
         Note = note;
     }
 };
-
 typedef std::map<uint32, FriendInfo> PlayerSocialMap;
 typedef std::map<uint32, PlayerSocial> SocialMap;
-
 /// Results of friend related commands
 enum FriendsResult
 {
@@ -110,10 +100,8 @@ enum FriendsResult
     FRIEND_UNK7             = 0x19,                         // no message at client
     FRIEND_UNKNOWN          = 0x1A                          // Unknown friend response from server
 };
-
 #define SOCIALMGR_FRIEND_LIMIT  50
 #define SOCIALMGR_IGNORE_LIMIT  25
-
 class PlayerSocial
 {
     friend class SocialMgr;
@@ -136,7 +124,6 @@ class PlayerSocial
         PlayerSocialMap m_playerSocialMap;
         uint32 m_playerGUID;
 };
-
 class SocialMgr
 {
     public:
@@ -144,7 +131,6 @@ class SocialMgr
         ~SocialMgr();
         // Misc
         void RemovePlayerSocial(uint32 guid) { m_socialMap.erase(guid); }
-
         void GetFriendInfo(Player *player, uint32 friendGUID, FriendInfo &friendInfo);
         // Packet management
         void MakeFriendStatusPacket(FriendsResult result, uint32 friend_guid, WorldPacket *data);
@@ -155,7 +141,6 @@ class SocialMgr
     private:
         SocialMap m_socialMap;
 };
-
 #define sSocialMgr Trinity::Singleton<SocialMgr>::Instance()
 #endif
 

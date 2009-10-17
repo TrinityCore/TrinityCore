@@ -13,52 +13,42 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
-
 /* ScriptData
 SDName: Boss_The_Best
 SD%Complete: 100
 SDComment:
 SDCategory: Blackrock Spire
 EndScriptData */
-
 #include "precompiled.h"
-
 #define SPELL_FLAMEBREAK            16785
 #define SPELL_IMMOLATE              20294
 #define SPELL_TERRIFYINGROAR        14100
-
 struct TRINITY_DLL_DECL boss_thebeastAI : public ScriptedAI
 {
     boss_thebeastAI(Creature *c) : ScriptedAI(c) {}
-
     uint32 Flamebreak_Timer;
     uint32 Immolate_Timer;
     uint32 TerrifyingRoar_Timer;
-
     void Reset()
     {
         Flamebreak_Timer = 12000;
         Immolate_Timer = 3000;
         TerrifyingRoar_Timer = 23000;
     }
-
     void EnterCombat(Unit *who)
     {
     }
-
     void UpdateAI(const uint32 diff)
     {
         //Return since we have no target
         if (!UpdateVictim())
             return;
-
         //Flamebreak_Timer
         if (Flamebreak_Timer < diff)
         {
             DoCast(m_creature->getVictim(),SPELL_FLAMEBREAK);
             Flamebreak_Timer = 10000;
         }else Flamebreak_Timer -= diff;
-
         //Immolate_Timer
         if (Immolate_Timer < diff)
         {
@@ -67,14 +57,12 @@ struct TRINITY_DLL_DECL boss_thebeastAI : public ScriptedAI
             if (target) DoCast(target,SPELL_IMMOLATE);
             Immolate_Timer = 8000;
         }else Immolate_Timer -= diff;
-
         //TerrifyingRoar_Timer
         if (TerrifyingRoar_Timer < diff)
         {
             DoCast(m_creature->getVictim(),SPELL_TERRIFYINGROAR);
             TerrifyingRoar_Timer = 20000;
         }else TerrifyingRoar_Timer -= diff;
-
         DoMeleeAttackIfReady();
     }
 };
@@ -82,7 +70,6 @@ CreatureAI* GetAI_boss_thebeast(Creature* pCreature)
 {
     return new boss_thebeastAI (pCreature);
 }
-
 void AddSC_boss_thebeast()
 {
     Script *newscript;

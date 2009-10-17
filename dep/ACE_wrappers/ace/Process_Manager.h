@@ -1,5 +1,4 @@
 // -*- C++ -*-
-
 //=============================================================================
 /**
  *  @file    Process_Manager.h
@@ -9,30 +8,21 @@
  *  @author Douglas C. Schmidt <schmidt@cs.wustl.edu>
  */
 //=============================================================================
-
 #ifndef ACE_PROCESS_MANAGER_H
 #define ACE_PROCESS_MANAGER_H
-
 #include /**/ "ace/pre.h"
-
 #include /**/ "ace/ACE_export.h"
-
 #if !defined (ACE_LACKS_PRAGMA_ONCE)
 # pragma once
 #endif /* ACE_LACKS_PRAGMA_ONCE */
-
 #include "ace/Process.h"
 #include "ace/Event_Handler.h"
 #include "ace/Time_Value.h"
-
 #if defined (ACE_HAS_THREADS)
 #  include "ace/Recursive_Thread_Mutex.h"
 #endif /* ACE_HAS_THREADS */
-
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
-
 class ACE_Reactor;
-
 /**
  * @class ACE_Process_Manager
  *
@@ -99,12 +89,10 @@ class ACE_Export ACE_Process_Manager : protected ACE_Event_Handler
 {
 public:
   friend class ACE_Process_Control;
-
   enum
   {
     DEFAULT_SIZE = 100
   };
-
   /**
    * @name Initialization and termination methods
    */
@@ -119,7 +107,6 @@ public:
    */
   ACE_Process_Manager (size_t size = ACE_Process_Manager::DEFAULT_SIZE,
                        ACE_Reactor *reactor = 0);
-
   /**
    * Initialize an ACE_Process_Manager with a table containing up to
    * @a size processes.  This table resizes itself automatically as
@@ -130,36 +117,27 @@ public:
    */
   int open (size_t size = ACE_Process_Manager::DEFAULT_SIZE,
             ACE_Reactor *r = 0);
-
   /// Release all resources.  Do not wait for processes to exit.
   int close (void);
-
   /// Destructor releases all resources and does not wait for processes
   /// to exit.
   virtual ~ACE_Process_Manager (void);
-
   //@}
-
   /**
    * @name Singleton access and control
    */
   //@{
   /// Get pointer to a process-wide ACE_Process_Manager.
   static ACE_Process_Manager *instance (void);
-
   /// Set pointer to a process-wide ACE_Process_Manager and return
   /// existing pointer.
   static ACE_Process_Manager *instance (ACE_Process_Manager *);
-
   /// Delete the dynamically allocated singleton.
   static void close_singleton (void);
-
   /// Cleanup method, used by the ACE_Object_Manager to destroy the
   /// singleton.
   static void cleanup (void *instance, void *arg);
-
   //@}
-
   /**
    * @name Process creation methods
    */
@@ -174,7 +152,6 @@ public:
   pid_t spawn (ACE_Process *proc,
                ACE_Process_Options &options,
                ACE_Event_Handler *event_handler = 0);
-
   /**
    * Create a new process with the specified @a options.
    * Register @a event_handler to be called back when the process exits.
@@ -184,7 +161,6 @@ public:
    */
   pid_t spawn (ACE_Process_Options &options,
                ACE_Event_Handler *event_handler = 0);
-
   /**
    * Create @a n new processes with the same @a options.
    * If @a child_pids is non-0 it is expected to be an array of at least
@@ -198,7 +174,6 @@ public:
                pid_t *child_pids = 0,
                ACE_Event_Handler *event_Handler = 0);
   //@}
-
   /**
    * @name Process synchronization operations
    */
@@ -214,7 +189,6 @@ public:
    * @retval 0 on success and -1 on failure.
    */
   int terminate (pid_t pid);
-
   /**
    * Sends the specified signal to the specified process.
    *
@@ -224,7 +198,6 @@ public:
    * @retval 0 on success and -1 on failure.
    */
   int terminate (pid_t pid, int sig);
-
   /**
    * Block until there are no more child processes running that were
    * spawned by this ACE_Process_Manager.  Unlike the wait() method
@@ -240,7 +213,6 @@ public:
    * @retval 0 on success; -1 on failure.
    */
   int wait (const ACE_Time_Value &timeout = ACE_Time_Value::max_time);
-
   /**
    * Wait up to @a timeout for a single specified process to terminate.
    * If @a pid is 0, this method waits for any of the managed processes
@@ -257,7 +229,6 @@ public:
   pid_t wait (pid_t pid,
               const ACE_Time_Value &timeout,
               ACE_exitcode *status = 0);
-
   /**
    * Wait indefinitely for a single, specified process to terminate.
    * If @a pid is 0, waits for any of the managed processes (but see the
@@ -269,7 +240,6 @@ public:
    */
   pid_t wait (pid_t pid,
               ACE_exitcode *status = 0);
-
   /**
    * @deprecated
    * Reap the result of a single process by calling ACE_OS::waitpid(),
@@ -281,7 +251,6 @@ public:
             ACE_exitcode *stat_loc = 0,
             int options = WNOHANG);
   //@}
-
   /**
    * @name Utility methods
    */
@@ -298,7 +267,6 @@ public:
    */
   int register_handler (ACE_Event_Handler *event_handler,
                         pid_t pid = ACE_INVALID_PID);
-
   /**
    * Remove process @a pid from the ACE_Process_Manager's internal records.
    * This is called automatically by the reap() method after it successfully
@@ -307,10 +275,8 @@ public:
    * remove()!
    */
   int remove (pid_t pid);
-
   /// Return the number of managed processes.
   size_t managed (void) const;
-
   /**
    * Sets the scheduling parameters for process identified by @a pid by
    * passing @a params, @a pid to ACE_OS::sched_params().
@@ -319,7 +285,6 @@ public:
    * specified @a pid is not managed by this ACE_Process_Manager.
    */
   int set_scheduler (const ACE_Sched_Params &params, pid_t pid);
-
   /**
    * Sets the scheduling parameters for all the processes managed by
    * this ACE_Process_Manager by passing @a params to
@@ -328,22 +293,17 @@ public:
    * @retval 0 on success, -1 on failure.
    */
   int set_scheduler_all (const ACE_Sched_Params &params);
-
   /// Dump the state of an object.
   void dump (void) const;
-
   /// Declare the dynamic allocation hooks.
   ACE_ALLOC_HOOK_DECLARE;
   //@}
-
 protected:
   // = These methods allow a <Process_Manager> to be an <Event_Handler>.
-
   // As an <Event_Handler>, the <Process_Manager> automagically
   // detects child Processes exiting and calls notify_proc_handler()
   // and remove().  This means that you don't have to (shouldn't!)
   // call the wait(...)  methods yourself.
-
   // On Unix, we can't detect individual process termination very
   // well; the best method is to catch SIGCHLD and then call the
   // polling wait() function to collect any available exit statuses.
@@ -355,16 +315,13 @@ protected:
   // handle is readable.  That will cause the handle_input() function
   // to be called once we're out of the interrupt context, and
   // handle_input() collects exit statuses.
-
   // On Win32, we simply register ourself with the Reactor to deal
   // with the Process handle becoming signaled.  No muss, no fuss, no
   // signal handler, and no dummy handle.
-
 #if !defined(ACE_WIN32)
   /// Collect one (or more, on unix) process exit status.
   virtual int handle_input (ACE_HANDLE proc);
 #endif // !defined(ACE_WIN32)
-
   /**
    * On Unix, this routine is called asynchronously when a SIGCHLD is
    * received.  We just tweak the reactor so that it'll call back our
@@ -377,9 +334,7 @@ protected:
   virtual int handle_signal (int signum,
                              siginfo_t * = 0,
                              ucontext_t * = 0);
-
 private:
-
   /**
    * @struct Process_Descriptor
    *
@@ -393,36 +348,28 @@ private:
     /// Default ctor/dtor.
     Process_Descriptor (void);
     ~Process_Descriptor (void);
-
     /// Describes the process itself.
     ACE_Process *process_;
-
     /// Function to call when process exits
     ACE_Event_Handler *exit_notify_;
-
     /// Dump the state of an object.
     void dump (void) const;
   };
-
   /// Resize the pool of Process_Descriptors.
   int resize (size_t);
-
   /// Locate the index of the table slot occupied by @a process_id.
   /// Returns -1 if @a process_id is not in the @c process_table_
   ssize_t find_proc (pid_t process_id);
-
 #if defined (ACE_WIN32)
   /// Locate the index of the table slot occupied by @a process_handle.
   /// Returns ~0 if @a process_handle is not in the @c process_table_
   ssize_t find_proc (ACE_HANDLE process_handle);
 #endif /* ACE_WIN32 */
-
   /// Insert a process in the table (checks for duplicates).  Omitting
   /// the process handle won't work on Win32...
   /// Register @a event_handler to be called back when the process exits.
   int insert_proc (ACE_Process *process,
                    ACE_Event_Handler *event_handler = 0);
-
   /**
    * Append information about a process, i.e., its <process_id> in the
    * @c process_table_.  Each entry is added at the end, growing the
@@ -431,48 +378,36 @@ private:
    */
   int append_proc (ACE_Process *process,
                    ACE_Event_Handler *event_handler = 0);
-
   /// Actually removes the process at index @a n from the table.  This method
   /// must be called with locks held.
   int remove_proc (size_t n);
-
   /// If there's a specific handler for the Process at index @a n in the
   /// table, or there's a default handler, call it.
   int notify_proc_handler (size_t n, ACE_exitcode status);
-
   /// Vector that describes process state within the Process_Manager.
   Process_Descriptor *process_table_;
-
   /// Maximum number of processes we can manage (should be dynamically
   /// allocated).
   size_t max_process_table_size_;
-
   /// Current number of processes we are managing.
   size_t current_count_;
-
   /// This event handler is used to notify when a process we control
   /// exits.
   ACE_Event_Handler *default_exit_handler_;
-
   /// Singleton pointer.
   static ACE_Process_Manager *instance_;
-
   /// Controls whether the <Process_Manager> is deleted when we shut
   /// down (we can only delete it safely if we created it!)
   static bool delete_instance_;
-
 #if defined (ACE_HAS_THREADS)
   /// This lock protects access/ops on @c process_table_.
   ACE_Recursive_Thread_Mutex lock_;
 #endif /* ACE_HAS_THREADS */
 };
-
 ACE_END_VERSIONED_NAMESPACE_DECL
-
 #if defined (__ACE_INLINE__)
 #include "ace/Process_Manager.inl"
 #endif /* __ACE_INLINE__ */
-
 #include /**/ "ace/post.h"
 #endif /* ACE_PROCESS_MANAGER_H */
 

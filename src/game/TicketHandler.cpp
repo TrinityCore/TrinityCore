@@ -17,14 +17,12 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
-
 #include "Language.h"
 #include "WorldPacket.h"
 #include "Common.h"
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "World.h"
-
 void WorldSession::HandleGMTicketCreateOpcode( WorldPacket & recv_data )
 {
     if(GM_Ticket *ticket = objmgr.GetGMTicketByPlayer(GetPlayer()->GetGUID()))
@@ -34,11 +32,9 @@ void WorldSession::HandleGMTicketCreateOpcode( WorldPacket & recv_data )
         SendPacket( &data );
         return;
     }
-
     uint32 map;
     float x, y, z;
     std::string ticketText, ticketText2;
-
     WorldPacket data(SMSG_GMTICKET_CREATE, 4);
     recv_data >> map;
     recv_data >> x;
@@ -46,8 +42,7 @@ void WorldSession::HandleGMTicketCreateOpcode( WorldPacket & recv_data )
     recv_data >> z;
     recv_data >> ticketText;
     recv_data >> ticketText2;
-
-    GM_Ticket *ticket = new GM_Ticket;    
+    GM_Ticket *ticket = new GM_Ticket;
     ticket->name = GetPlayer()->GetName();
     ticket->guid = objmgr.GenerateGMTicketId();
     ticket->playerGuid = GetPlayer()->GetGUID();
@@ -61,23 +56,16 @@ void WorldSession::HandleGMTicketCreateOpcode( WorldPacket & recv_data )
     ticket->closed = 0;
     ticket->assignedToGM = 0;
     ticket->comment = "";
-
     objmgr.AddOrUpdateGMTicket(*ticket, true);
-
     data << uint32(2);
     SendPacket(&data);
-
     sWorld.SendGMText(LANG_COMMAND_TICKETNEW, GetPlayer()->GetName(), ticket->guid);
-
 }
-
 void WorldSession::HandleGMTicketUpdateOpcode( WorldPacket & recv_data)
 {
     WorldPacket data(SMSG_GMTICKET_UPDATETEXT, 4);
-
     std::string message;
     recv_data >> message;
-
     GM_Ticket *ticket = objmgr.GetGMTicketByPlayer(GetPlayer()->GetGUID());
     if(!ticket)
     {
@@ -85,57 +73,44 @@ void WorldSession::HandleGMTicketUpdateOpcode( WorldPacket & recv_data)
         SendPacket(&data);
         return;
     }
-
     ticket->message = message;
     ticket->timestamp = time(NULL);
-
     objmgr.AddOrUpdateGMTicket(*ticket);
-
     data << uint32(2);
     SendPacket(&data);
-
     sWorld.SendGMText(LANG_COMMAND_TICKETUPDATED, GetPlayer()->GetName(), ticket->guid);
-
 }
-
 void WorldSession::HandleGMTicketDeleteOpcode( WorldPacket & /*recv_data*/)
 {
     GM_Ticket* ticket = objmgr.GetGMTicketByPlayer(GetPlayer()->GetGUID());
-
     if(ticket)
     {
         WorldPacket data(SMSG_GMTICKET_DELETETICKET, 4);
         data << uint32(9);
         SendPacket(&data);
-
         sWorld.SendGMText(LANG_COMMAND_TICKETPLAYERABANDON, GetPlayer()->GetName(), ticket->guid );
         objmgr.RemoveGMTicket(ticket, GetPlayer()->GetGUID(), false);
         SendGMTicketGetTicket(0x0A, 0);
     }
 }
-
 void WorldSession::HandleGMTicketGetTicketOpcode( WorldPacket & /*recv_data*/)
 {
     WorldPacket data( SMSG_QUERY_TIME_RESPONSE, 4+4 );
     data << (uint32)time(NULL);
     data << (uint32)0;
     SendPacket( &data );
-
     GM_Ticket *ticket = objmgr.GetGMTicketByPlayer(GetPlayer()->GetGUID());
     if(ticket)
         SendGMTicketGetTicket(0x06, ticket->message.c_str());
     else
         SendGMTicketGetTicket(0x0A, 0);
-
 }
-
 void WorldSession::HandleGMTicketSystemStatusOpcode( WorldPacket & /*recv_data*/)
 {
     WorldPacket data(SMSG_GMTICKET_SYSTEMSTATUS, 4);
     data << uint32(1);
     SendPacket(&data);
 }
-
 void WorldSession::SendGMTicketGetTicket(uint32 status, char const* text)
 {
     int len = text ? strlen(text) : 0;

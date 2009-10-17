@@ -13,7 +13,6 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
-
 /* ScriptData
 SDName: Npc_Taxi
 SD%Complete: 0%
@@ -21,9 +20,7 @@ SDComment: To be used for taxi NPCs that are located globally.
 SDCategory: NPCs
 EndScriptData
 */
-
 #include "precompiled.h"
-
 #define GOSSIP_SUSURRUS         "I am ready."
 #define GOSSIP_NETHER_DRAKE     "I'm ready to fly! Take me up, dragon!"
 #define GOSSIP_BRAZEN           "I am ready to go to Durnholde Keep."
@@ -52,12 +49,10 @@ EndScriptData
 #define GOSSIP_CRIMSONWING      "<Ride the gryphons to Survey Alcaz Island>"
 #define GOSSIP_THRICESTAR1      "Do you think I could take a ride on one of those flying machines?"
 #define GOSSIP_THRICESTAR2      "Kara, I need to be flown out the Dens of Dying to find Bixie."
-
 bool GossipHello_npc_taxi(Player* pPlayer, Creature* pCreature)
 {
     if (pCreature->isQuestGiver())
         pPlayer->PrepareQuestMenu(pCreature->GetGUID());
-
     switch(pCreature->GetEntry()) {
     case 17435: // Azuremyst Isle - Susurrus
         if (pPlayer->HasItemCount(23843,1,true))
@@ -77,7 +72,6 @@ bool GossipHello_npc_taxi(Player* pPlayer, Creature* pCreature)
         //Mission: The Murketh and Shaadraz Gateways
         if (pPlayer->GetQuestStatus(10146) == QUEST_STATUS_INCOMPLETE)
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_DABIREE1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 4);
-
         //Shatter Point
         if (!pPlayer->GetQuestRewardStatus(10340))
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_DABIREE2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 5);
@@ -86,7 +80,6 @@ bool GossipHello_npc_taxi(Player* pPlayer, Creature* pCreature)
         //Mission: The Abyssal Shelf || Return to the Abyssal Shelf
         if (pPlayer->GetQuestStatus(10163) == QUEST_STATUS_INCOMPLETE || pPlayer->GetQuestStatus(10346) == QUEST_STATUS_INCOMPLETE)
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_WINDBELLOW1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 6);
-
         //Go to the Front
         if (pPlayer->GetQuestStatus(10382) != QUEST_STATUS_NONE && !pPlayer->GetQuestRewardStatus(10382))
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_WINDBELLOW2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 7);
@@ -95,11 +88,9 @@ bool GossipHello_npc_taxi(Player* pPlayer, Creature* pCreature)
         //Mission: The Murketh and Shaadraz Gateways
         if (pPlayer->GetQuestStatus(10129) == QUEST_STATUS_INCOMPLETE)
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_BRACK1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 8);
-
         //Mission: The Abyssal Shelf || Return to the Abyssal Shelf
         if (pPlayer->GetQuestStatus(10162) == QUEST_STATUS_INCOMPLETE || pPlayer->GetQuestStatus(10347) == QUEST_STATUS_INCOMPLETE)
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_BRACK2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 9);
-
         //Spinebreaker Post
         if (pPlayer->GetQuestStatus(10242) == QUEST_STATUS_COMPLETE && !pPlayer->GetQuestRewardStatus(10242))
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_BRACK3, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 10);
@@ -111,7 +102,6 @@ bool GossipHello_npc_taxi(Player* pPlayer, Creature* pCreature)
     case 25059: // Isle of Quel'Danas - Ayren Cloudbreaker
         if (pPlayer->GetQuestStatus(11532) == QUEST_STATUS_INCOMPLETE || pPlayer->GetQuestStatus(11533) == QUEST_STATUS_INCOMPLETE)
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_CLOUDBREAKER1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 12);
-
         if (pPlayer->GetQuestStatus(11542) == QUEST_STATUS_INCOMPLETE || pPlayer->GetQuestStatus(11543) == QUEST_STATUS_INCOMPLETE)
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_CLOUDBREAKER2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 13);
         break;
@@ -163,11 +153,9 @@ bool GossipHello_npc_taxi(Player* pPlayer, Creature* pCreature)
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_THRICESTAR2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 27);
         break;
     }
-
     pPlayer->SEND_GOSSIP_MENU(pCreature->GetNpcTextId(), pCreature->GetGUID());
     return true;
 }
-
 bool GossipSelect_npc_taxi(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
 {
     switch(uiAction) {
@@ -289,14 +277,11 @@ bool GossipSelect_npc_taxi(Player* pPlayer, Creature* pCreature, uint32 uiSender
         pPlayer->CastSpell(pPlayer, 51446, false);
         break;
     }
-
     return true;
 }
-
 void AddSC_npc_taxi()
 {
     Script *newscript;
-
     newscript = new Script;
     newscript->Name = "npc_taxi";
     newscript->pGossipHello = &GossipHello_npc_taxi;

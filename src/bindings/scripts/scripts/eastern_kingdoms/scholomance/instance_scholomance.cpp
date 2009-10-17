@@ -13,17 +13,14 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
-
 /* ScriptData
 SDName: Instance_Scholomance
 SD%Complete: 100
 SDComment:
 SDCategory: Scholomance
 EndScriptData */
-
 #include "precompiled.h"
 #include "def_scholomance.h"
-
 #define GO_GATE_KIRTONOS    175570
 #define GO_GATE_GANDLING    177374
 #define GO_GATE_MALICIA     177375
@@ -32,17 +29,13 @@ EndScriptData */
 #define GO_GATE_RAVENIAN    177372
 #define GO_GATE_BAROV       177373
 #define GO_GATE_ILLUCIA     177371
-
 #define MAX_ENCOUNTER          2
-
 struct TRINITY_DLL_DECL instance_scholomance : public ScriptedInstance
 {
     instance_scholomance(Map* pMap) : ScriptedInstance(pMap) {Initialize();};
-
     //Lord Alexei Barov, Doctor Theolen Krastinov, The Ravenian, Lorekeeper Polkelt, Instructor Malicia and the Lady Illucia Barov.
     bool IsBossDied[6];
     uint32 m_auiEncounter[MAX_ENCOUNTER];
-
     uint64 GateKirtonosGUID;
     uint64 GateGandlingGUID;
     uint64 GateMiliciaGUID;
@@ -51,11 +44,9 @@ struct TRINITY_DLL_DECL instance_scholomance : public ScriptedInstance
     uint64 GateRavenianGUID;
     uint64 GateBarovGUID;
     uint64 GateIlluciaGUID;
-
     void Initialize()
     {
         memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
-
         GateKirtonosGUID = 0;
         GateGandlingGUID = 0;
         GateMiliciaGUID = 0;
@@ -64,11 +55,9 @@ struct TRINITY_DLL_DECL instance_scholomance : public ScriptedInstance
         GateRavenianGUID = 0;
         GateBarovGUID = 0;
         GateIlluciaGUID = 0;
-
-        for(uint8 i = 0; i < 6; ++i)
+        for (uint8 i = 0; i < 6; ++i)
             IsBossDied[i] = false;
     }
-
     void OnGameObjectCreate(GameObject* pGo, bool add)
     {
         switch(pGo->GetEntry())
@@ -83,7 +72,6 @@ struct TRINITY_DLL_DECL instance_scholomance : public ScriptedInstance
             case GO_GATE_ILLUCIA:   GateIlluciaGUID = pGo->GetGUID(); break;
         }
     }
-
     void SetData(uint32 type, uint32 data)
     {
         switch(type)
@@ -114,7 +102,6 @@ struct TRINITY_DLL_DECL instance_scholomance : public ScriptedInstance
                 break;
         }
     }
-
     uint32 GetData(uint32 type)
     {
         if (type == TYPE_GANDLING)
@@ -125,16 +112,13 @@ struct TRINITY_DLL_DECL instance_scholomance : public ScriptedInstance
                 return IN_PROGRESS;
             }
         }
-
         return 0;
     }
 };
-
 InstanceData* GetInstanceData_instance_scholomance(Map* pMap)
 {
     return new instance_scholomance(pMap);
 }
-
 void AddSC_instance_scholomance()
 {
     Script *newscript;

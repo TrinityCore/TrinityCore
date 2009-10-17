@@ -17,9 +17,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
-
 #include "Common.h"
-
 char const* localeNames[MAX_LOCALE] = {
   "enUS",
   "koKR",
@@ -31,13 +29,11 @@ char const* localeNames[MAX_LOCALE] = {
   "esMX",
   "ruRU"
 };
-
 LocaleConstant GetLocaleByName(const std::string& name)
 {
     for(uint32 i = 0; i < MAX_LOCALE; ++i)
         if(name==localeNames[i])
             return LocaleConstant(i);
-
     return LOCALE_enUS;                                     // including enGB case
 }
 

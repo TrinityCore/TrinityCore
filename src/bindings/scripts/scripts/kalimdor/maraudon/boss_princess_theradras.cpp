@@ -13,30 +13,24 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
-
 /* ScriptData
 SDName: Boss_Princess_Theradras
 SD%Complete: 100
 SDComment:
 SDCategory: Maraudon
 EndScriptData */
-
 #include "precompiled.h"
-
 #define SPELL_DUSTFIELD             21909
 #define SPELL_BOULDER               21832
 #define SPELL_THRASH                3391
 #define SPELL_REPULSIVEGAZE         21869
-
 struct TRINITY_DLL_DECL boss_ptheradrasAI : public ScriptedAI
 {
     boss_ptheradrasAI(Creature *c) : ScriptedAI(c) {}
-
     uint32 Dustfield_Timer;
     uint32 Boulder_Timer;
     uint32 Thrash_Timer;
     uint32 RepulsiveGaze_Timer;
-
     void Reset()
     {
         Dustfield_Timer = 8000;
@@ -44,28 +38,23 @@ struct TRINITY_DLL_DECL boss_ptheradrasAI : public ScriptedAI
         Thrash_Timer = 5000;
         RepulsiveGaze_Timer = 23000;
     }
-
     void EnterCombat(Unit *who)
     {
     }
-
     void JustDied(Unit* Killer)
     {
         m_creature->SummonCreature(12238,28.067,61.875,-123.405,4.67,TEMPSUMMON_TIMED_DESPAWN,600000);
     }
-
     void UpdateAI(const uint32 diff)
     {
         if (!UpdateVictim())
             return;
-
         //Dustfield_Timer
         if (Dustfield_Timer < diff)
         {
             DoCast(m_creature,SPELL_DUSTFIELD);
             Dustfield_Timer = 14000;
         }else Dustfield_Timer -= diff;
-
         //Boulder_Timer
         if (Boulder_Timer < diff)
         {
@@ -75,21 +64,18 @@ struct TRINITY_DLL_DECL boss_ptheradrasAI : public ScriptedAI
                 DoCast(target,SPELL_BOULDER);
             Boulder_Timer = 10000;
         }else Boulder_Timer -= diff;
-
         //RepulsiveGaze_Timer
         if (RepulsiveGaze_Timer < diff)
         {
             DoCast(m_creature->getVictim(),SPELL_REPULSIVEGAZE);
             RepulsiveGaze_Timer = 20000;
         }else RepulsiveGaze_Timer -= diff;
-
         //Thrash_Timer
         if (Thrash_Timer < diff)
         {
             DoCast(m_creature,SPELL_THRASH);
             Thrash_Timer = 18000;
         }else Thrash_Timer -= diff;
-
         DoMeleeAttackIfReady();
     }
 };
@@ -97,7 +83,6 @@ CreatureAI* GetAI_boss_ptheradras(Creature* pCreature)
 {
     return new boss_ptheradrasAI (pCreature);
 }
-
 void AddSC_boss_ptheradras()
 {
     Script *newscript;

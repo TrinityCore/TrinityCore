@@ -2,12 +2,10 @@
  * Copyright (C) 1995-2004 Mark Adler
  * For conditions of distribution and use, see copyright notice in zlib.h
  */
-
 /* WARNING: this file should *not* be used by applications. It is
    part of the implementation of the compression library and is
    subject to change. Applications should only use zlib.h.
  */
-
 /* define NO_GZIP when compiling if you want to disable gzip header and
    trailer decoding by inflate().  NO_GZIP would be used to avoid linking in
    the crc code when it is not needed.  For shared libraries, gzip decoding
@@ -15,7 +13,6 @@
 #ifndef NO_GZIP
 #  define GUNZIP
 #endif
-
 /* Possible inflate modes between inflate() calls */
 typedef enum {
     HEAD,       /* i: waiting for magic header */
@@ -49,12 +46,9 @@ typedef enum {
     MEM,        /* got an inflate() memory error -- remain here until reset */
     SYNC        /* looking for synchronization bytes to restart inflate() */
 } inflate_mode;
-
 /*
     State transitions between above modes -
-
     (most modes can go to the BAD or MEM mode -- not shown for clarity)
-
     Process header:
         HEAD -> (gzip) or (zlib)
         (gzip) -> FLAGS -> TIME -> OS -> EXLEN -> EXTRA -> NAME
@@ -72,7 +66,6 @@ typedef enum {
     Process trailer:
         CHECK -> LENGTH -> DONE
  */
-
 /* state maintained between inflate() calls.  Approximately 7K bytes. */
 struct inflate_state {
     inflate_mode mode;          /* current inflate mode */

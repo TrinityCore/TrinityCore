@@ -7,7 +7,6 @@
 #define ACE_CONFIG_QNX_RTP_62x_H
 #include /**/ "ace/pre.h"
 #include /**/ "ace/config-qnx-rtp-common.h"
-
 /////////////////////////////////////////////////////////////////
 //    Definition of the features that are available.
 //
@@ -69,7 +68,6 @@
 #define ACE_HAS_UCONTEXT_T
 #define ACE_HAS_VOIDPTR_MMAP
 #define ACE_HAS_VOIDPTR_SOCKOPT
-
 /////////////////////////////////////////////////////////////////
 //    Definition of the features that are not available.
 //
@@ -99,9 +97,7 @@
 #define ACE_LACKS_T_ERRNO
 #define ACE_LACKS_U_LONGLONG_T
 #define ACE_LACKS_ALPHASORT
-
 #define ACE_LACKS_RLIMIT         // QNX rlimit syscalls don't work properly with ACE.
-
 #define ACE_MT_SAFE 1
 #define ACE_NEEDS_FUNC_DEFINITIONS
 #define ACE_NEEDS_HUGE_THREAD_STACKSIZE 64000
@@ -109,11 +105,8 @@
 #define ACE_USES_STD_NAMESPACE_FOR_STDCPP_LIB 1
 #define ACE_HAS_SIGTIMEDWAIT
 #define ACE_HAS_SIGSUSPEND
-
 #define ACE_HAS_BROKEN_PREALLOCATED_OBJECTS_AFTER_FORK 1
-
 #define ACE_SIZEOF_WCHAR 4
-
 // No prototypes
 #define ACE_LACKS_ITOW
 #define ACE_LACKS_WCSICMP

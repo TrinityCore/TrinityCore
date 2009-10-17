@@ -17,20 +17,14 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
-
 #ifndef TRINITY_CELL_H
 #define TRINITY_CELL_H
-
 #include <cmath>
-
 #include "GameSystem/TypeContainer.h"
 #include "GameSystem/TypeContainerVisitor.h"
-
 #include "GridDefines.h"
-
 class Map;
 class WorldObject;
-
 enum District
 {
     UPPER_DISTRICT = 1,
@@ -44,15 +38,12 @@ enum District
     LOWER_RIGHT_DISTRICT = (LOWER_DISTRICT | RIGHT_DISTRICT),
     ALL_DISTRICT = (UPPER_DISTRICT | LOWER_DISTRICT | LEFT_DISTRICT | RIGHT_DISTRICT | CENTER_DISTRICT)
 };
-
 template<class T> struct CellLock;
-
 struct TRINITY_DLL_DECL CellArea
 {
     CellArea() : right_offset(0), left_offset(0), upper_offset(0), lower_offset(0) {}
     CellArea(int right, int left, int upper, int lower) : right_offset(right), left_offset(left), upper_offset(upper), lower_offset(lower) {}
     bool operator!() const { return !right_offset && !left_offset && !upper_offset && !lower_offset; }
- 
     void ResizeBorders(CellPair& begin_cell, CellPair& end_cell) const
     {
         begin_cell << left_offset;
@@ -60,20 +51,17 @@ struct TRINITY_DLL_DECL CellArea
         end_cell >> right_offset;
         end_cell += upper_offset;
     }
- 
     int right_offset;
     int left_offset;
     int upper_offset;
     int lower_offset;
 };
- 
 
 struct TRINITY_DLL_DECL Cell
 {
     Cell() { data.All = 0; }
     Cell(const Cell &cell) { data.All = cell.data.All; }
     explicit Cell(CellPair const& p);
-
     void operator|=(Cell &cell)
     {
         data.Part.reserved = 0;
@@ -81,14 +69,12 @@ struct TRINITY_DLL_DECL Cell
         uint32 x, y, old_x, old_y;
         Compute(x, y);
         cell.Compute(old_x, old_y);
-
         if( std::abs(int(x-old_x)) > 1 || std::abs(int(y-old_y)) > 1)
         {
             data.Part.reserved = ALL_DISTRICT;
             cell.data.Part.reserved = ALL_DISTRICT;
             return;
         }
-
         if( x < old_x )
         {
             data.Part.reserved |= LEFT_DISTRICT;
@@ -110,45 +96,38 @@ struct TRINITY_DLL_DECL Cell
             cell.data.Part.reserved |= UPPER_DISTRICT;
         }
     }
-
     void Compute(uint32 &x, uint32 &y) const
     {
         x = data.Part.grid_x*MAX_NUMBER_OF_CELLS + data.Part.cell_x;
         y = data.Part.grid_y*MAX_NUMBER_OF_CELLS + data.Part.cell_y;
     }
-
     bool DiffCell(const Cell &cell) const
     {
         return( data.Part.cell_x != cell.data.Part.cell_x ||
             data.Part.cell_y != cell.data.Part.cell_y );
     }
-
     bool DiffGrid(const Cell &cell) const
     {
         return( data.Part.grid_x != cell.data.Part.grid_x ||
             data.Part.grid_y != cell.data.Part.grid_y );
     }
-
     uint32 CellX() const { return data.Part.cell_x; }
     uint32 CellY() const { return data.Part.cell_y; }
     uint32 GridX() const { return data.Part.grid_x; }
     uint32 GridY() const { return data.Part.grid_y; }
     bool NoCreate() const { return data.Part.nocreate; }
     void SetNoCreate() { data.Part.nocreate = 1; }
-
     CellPair cellPair() const
     {
         return CellPair(
             data.Part.grid_x*MAX_NUMBER_OF_CELLS+data.Part.cell_x,
             data.Part.grid_y*MAX_NUMBER_OF_CELLS+data.Part.cell_y);
     }
-
     Cell& operator=(const Cell &cell)
     {
         this->data.All = cell.data.All;
         return *this;
     }
-
     bool operator==(const Cell &cell) const { return (data.All == cell.data.All); }
     bool operator!=(const Cell &cell) const { return !operator==(cell); }
     union
@@ -164,17 +143,13 @@ struct TRINITY_DLL_DECL Cell
         } Part;
         uint32 All;
     } data;
-
     template<class LOCK_TYPE, class T, class CONTAINER> void Visit(const CellLock<LOCK_TYPE> &, TypeContainerVisitor<T, CONTAINER> &visitor, Map &) const;
     template<class LOCK_TYPE, class T, class CONTAINER> void Visit(const CellLock<LOCK_TYPE> &, TypeContainerVisitor<T, CONTAINER> &visitor, Map &m, const WorldObject &obj, float radius) const;
     template<class LOCK_TYPE, class T, class CONTAINER> void Visit(const CellLock<LOCK_TYPE> &, TypeContainerVisitor<T, CONTAINER> &visitor, Map &, float radius, float x_off, float y_off) const;
- 
     static CellArea CalculateCellArea(const WorldObject &obj, float radius);
- 
 private:
     template<class LOCK_TYPE, class T, class CONTAINER> void VisitCircle(const CellLock<LOCK_TYPE> &, TypeContainerVisitor<T, CONTAINER> &, Map &, const CellPair& , const CellPair& ) const;
 };
-
 template<class T>
 struct TRINITY_DLL_DECL CellLock
 {

@@ -1,5 +1,4 @@
 /* -*- C++ -*- */
-
 //=============================================================================
 /**
  *  @file    DEV_Connector.h
@@ -9,22 +8,17 @@
  *  @author Gerhard Lenzer and Douglas C. Schmidt <schmidt@cs.wustl.edu>
  */
 //=============================================================================
-
 #ifndef ACE_DEV_CONNECTOR_H
 #define ACE_DEV_CONNECTOR_H
 #include /**/ "ace/pre.h"
-
 #include "ace/DEV_IO.h"
 #include "ace/Log_Msg.h"
 #include "ace/os_include/os_fcntl.h"
-
 #if !defined (ACE_LACKS_PRAGMA_ONCE)
 # pragma once
 #endif /* ACE_LACKS_PRAGMA_ONCE */
 
-
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
-
 /**
  * @class ACE_DEV_Connector
  *
@@ -35,7 +29,6 @@ class ACE_Export ACE_DEV_Connector
 public:
   /// Default constructor.
   ACE_DEV_Connector (void);
-
   /**
    * Actively connect and produce a @a new_io if things go well.
    * The @a remote_sap is the address that we are trying to connect
@@ -60,7 +53,6 @@ public:
                      int reuse_addr = 0,
                      int flags = O_RDWR,
                      int perms = 0);
-
   /**
    * Actively connect and produce a @a new_io if things go well.
    * The @a remote_sap is the address that we are trying to connect
@@ -85,27 +77,20 @@ public:
                int reuse_addr = 0,
                int flags = O_RDWR,
                int perms = 0);
-
   /// Resets any event associations on this handle
   int reset_new_handle (ACE_HANDLE handle);
-
   /// Dump the state of an object.
   void dump (void) const;
-
   /// Declare the dynamic allocation hooks.
   ACE_ALLOC_HOOK_DECLARE;
-
   // = Meta-type info
   typedef ACE_DEV_Addr PEER_ADDR;
   typedef ACE_DEV_IO   PEER_STREAM;
 };
-
 ACE_END_VERSIONED_NAMESPACE_DECL
-
 #if defined (__ACE_INLINE__)
 #include "ace/DEV_Connector.inl"
 #endif /* __ACE_INLINE__ */
-
 #include /**/ "ace/post.h"
 #endif /* ACE_DEV_CONNECTOR_H */
 

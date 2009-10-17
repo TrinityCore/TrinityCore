@@ -1,26 +1,17 @@
 // $Id: ATM_Addr.cpp 80826 2008-03-04 14:51:23Z wotte $
-
 // Defines the Internet domain address family address format.
-
 #include "ace/ATM_Addr.h"
 #if defined (ACE_HAS_ATM)
-
 #include "ace/Log_Msg.h"
-
 #if defined (ACE_HAS_FORE_ATM_WS2)
 #include /**/ "forews2.h"
 #endif /* ACE_HAS_FORE_ATM_WS2 */
-
 #if !defined (__ACE_INLINE__)
 #include "ace/ATM_Addr.inl"
 #endif /* __ACE_INLINE__ */
-
 ACE_RCSID(ace, ATM_Addr, "$Id: ATM_Addr.cpp 80826 2008-03-04 14:51:23Z wotte $")
-
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
-
 ACE_ALLOC_HOOK_DEFINE(ACE_ATM_Addr)
-
 #if defined (ACE_HAS_FORE_ATM_XTI) || defined (ACE_HAS_FORE_ATM_WS2)
 #define BHLI_MAGIC "FORE_ATM"
 // This is line rate in cells/s for an OC-3 MM interface.
@@ -42,9 +33,7 @@ const int ACE_ATM_Addr::OPT_FLAGS_CPID = 0;
 const int ACE_ATM_Addr::OPT_FLAGS_PMP = 0;
 const int ACE_ATM_Addr::DEFAULT_SELECTOR = 0x0;
 #endif /* ACE_HAS_FORE_ATM_XTI || ACE_HAS_FORE_ATM_WS2 || ACE_HAS_LINUX_ATM */
-
 // Default constructor
-
 ACE_ATM_Addr::ACE_ATM_Addr (u_char selector)
 #if defined (ACE_HAS_FORE_ATM_XTI) || defined (ACE_HAS_FORE_ATM_WS2)
   : ACE_Addr (AF_ATM,
@@ -61,9 +50,7 @@ ACE_ATM_Addr::ACE_ATM_Addr (u_char selector)
                          sizeof this->atm_addr_);
   this->init (selector);
 }
-
 // Copy constructor.
-
 ACE_ATM_Addr::ACE_ATM_Addr (const ACE_ATM_Addr &sap,
                             u_char selector)
 #if defined (ACE_HAS_FORE_ATM_XTI) || defined (ACE_HAS_FORE_ATM_WS2)
@@ -84,7 +71,6 @@ ACE_ATM_Addr::ACE_ATM_Addr (const ACE_ATM_Addr &sap,
   this->atm_addr_.atmsap.bhli.hl_type = ATM_HL_NONE;
 #endif /* ACE_HAS_LINUX_ATM */
 }
-
 ACE_ATM_Addr::ACE_ATM_Addr (const ATM_Addr *sap,
                             u_char selector)
 #if defined (ACE_HAS_FORE_ATM_XTI) || defined (ACE_HAS_FORE_ATM_WS2)
@@ -100,7 +86,6 @@ ACE_ATM_Addr::ACE_ATM_Addr (const ATM_Addr *sap,
   this->set (sap, selector);
 }
 
-
 ACE_ATM_Addr::ACE_ATM_Addr (const ACE_TCHAR sap[],
                             u_char selector)
 #if defined (ACE_HAS_FORE_ATM_XTI) || defined (ACE_HAS_FORE_ATM_WS2)
@@ -115,20 +100,16 @@ ACE_ATM_Addr::ACE_ATM_Addr (const ACE_TCHAR sap[],
   ACE_TRACE ("ACE_ATM_Addr::ACE_ATM_Addr");
   this->set (sap, selector);
 }
-
 ACE_ATM_Addr::~ACE_ATM_Addr (void)
 {
 }
-
 // Return the address.
-
 void *
 ACE_ATM_Addr::get_addr (void) const
 {
   ACE_TRACE ("ACE_ATM_Addr::get_addr");
   return (void *) &this->atm_addr_;
 }
-
 void
 ACE_ATM_Addr::init (u_char selector)
 {
@@ -138,22 +119,16 @@ ACE_ATM_Addr::init (u_char selector)
   // selector (i.e. address[19]) is used by the TP.  The rest of the
   // local address is filled in by the TP and can be obtained via the
   // 'ret' parameter or with t_getname ()/t_getprotaddr ().
-
   atm_addr_.addressType = (u_int16_t) AF_ATM;
-
   atm_addr_.sap.t_atm_sap_addr.SVE_tag_addr = (int8_t) T_ATM_ABSENT;
   atm_addr_.sap.t_atm_sap_addr.SVE_tag_selector = (int8_t) T_ATM_PRESENT;
-
   atm_addr_.sap.t_atm_sap_addr.address_format = (u_int8_t) T_ATM_ENDSYS_ADDR;
   atm_addr_.sap.t_atm_sap_addr.address_length = ATMNSAP_ADDR_LEN;
   atm_addr_.sap.t_atm_sap_addr.address[ATMNSAP_ADDR_LEN - 1] = selector;
-
   atm_addr_.sap.t_atm_sap_layer2.SVE_tag = (int8_t) T_ATM_ABSENT;
   atm_addr_.sap.t_atm_sap_layer3.SVE_tag = (int8_t) T_ATM_ABSENT;
-
   atm_addr_.sap.t_atm_sap_appl.SVE_tag = (int8_t) T_ATM_PRESENT;
   atm_addr_.sap.t_atm_sap_appl.ID_type = (u_int8_t) T_ATM_USER_APP_ID;
-
   ACE_OS::memcpy (atm_addr_.sap.t_atm_sap_appl.ID.user_defined_ID,
                   BHLI_MAGIC,
                   sizeof atm_addr_.sap.t_atm_sap_appl.ID);
@@ -166,7 +141,6 @@ ACE_ATM_Addr::init (u_char selector)
   atm_addr_.satm_blli.Layer2Protocol = SAP_FIELD_ABSENT;
   atm_addr_.satm_blli.Layer3Protocol = SAP_FIELD_ABSENT;
   atm_addr_.satm_bhli.HighLayerInfoType = SAP_FIELD_ABSENT;
-
   // Need to know the correspondence.
   //atm_addr_.sap.t_atm_sap_appl.SVE_tag = (int8_t) T_ATM_PRESENT;
   //atm_addr_.sap.t_atm_sap_appl.ID_type = (u_int8_t) T_ATM_USER_APP_ID;
@@ -183,38 +157,30 @@ ACE_ATM_Addr::init (u_char selector)
   ACE_UNUSED_ARG (selector);
 #endif /* ACE_HAS_FORE_ATM_XTI || ACE_HAS_FORE_ATM_WS2 || ACE_HAS_LINUX_ATM */
 }
-
 int
 ACE_ATM_Addr::set (const ACE_ATM_Addr &sap,
                    u_char selector)
 {
   ACE_TRACE ("ACE_ATM_Addr::set");
-
   this->init (selector);
-
   this->ACE_Addr::base_set (sap.get_type (),
                             sap.get_size ());
-
 #if defined (ACE_HAS_FORE_ATM_XTI) || defined (ACE_HAS_FORE_ATM_WS2)
   ACE_ASSERT (sap.get_type () == AF_ATM);
 #elif defined (ACE_HAS_LINUX_ATM)
   ACE_ASSERT (sap.get_type () == PF_ATMSVC);
 #endif /* ACE_HAS_FORE_ATM_XTI || ACE_HAS_FORE_ATM_WS2 */
-
  (void) ACE_OS::memcpy ((void *) &this->atm_addr_,
  (void *) &sap.atm_addr_,
                          sizeof this->atm_addr_);
   return 0;
 }
-
 int
 ACE_ATM_Addr::set (const ATM_Addr *sap,
                    u_char selector)
 {
   ACE_TRACE ("ACE_ATM_Addr::set");
-
   this->init (selector);
-
 #if defined (ACE_HAS_FORE_ATM_XTI) || defined (ACE_HAS_FORE_ATM_WS2)
   this->ACE_Addr::base_set (AF_ATM,
 #elif defined (ACE_HAS_LINUX_ATM)
@@ -223,39 +189,31 @@ ACE_ATM_Addr::set (const ATM_Addr *sap,
   this->ACE_Addr::base_set (AF_UNSPEC,
 #endif /* ACE_HAS_FORE_ATM_XTI || ACE_HAS_FORE_ATM_WS2 */
                             sizeof (*sap));
-
  (void) ACE_OS::memcpy ((void *) &this->atm_addr_,
  (void *) sap,
                          sizeof this->atm_addr_);
   return 0;
 }
-
 int
 ACE_ATM_Addr::set (const ACE_TCHAR address[],
                    u_char selector)
 {
   ACE_TRACE ("ACE_ATM_Addr::set");
   int ret;
-
   this->init (selector);
-
 #if defined (ACE_HAS_FORE_ATM_XTI)
   atm_addr_.sap.t_atm_sap_addr.SVE_tag_addr =
  (int8_t) T_ATM_PRESENT;
 #endif /* ACE_HAS_FORE_ATM_XTI */
-
   ret = this -> string_to_addr (address);
   this -> set_selector (selector);
   return ret;
 }
-
 // Transform the string into the current addressing format.
-
 int
 ACE_ATM_Addr::string_to_addr (const ACE_TCHAR sap[])
 {
   ACE_TRACE ("ACE_ATM_Addr::string_to_addr");
-
 #if defined (ACE_HAS_FORE_ATM_XTI) || defined (ACE_HAS_FORE_ATM_WS2)
   this->ACE_Addr::base_set (AF_ATM,
 #elif defined (ACE_HAS_LINUX_ATM)
@@ -267,7 +225,6 @@ ACE_ATM_Addr::string_to_addr (const ACE_TCHAR sap[])
 #if defined (ACE_HAS_FORE_ATM_XTI)
   struct hostent *entry;
   struct atmnsap_addr *nsap;
-
   // Yow, someone gave us a NULL ATM address!
   if (sap == 0)
     {
@@ -296,14 +253,11 @@ ACE_ATM_Addr::string_to_addr (const ACE_TCHAR sap[])
    WSAQUERYSETW qsRestrictions;
    CSADDR_INFO  csaBuffer;
    WCHAR  tmpWStr[100];
-
    MultiByteToWideChar (CP_ACP, MB_PRECOMPOSED, sap, -1, tmpWStr, 100);
-
    csaBuffer.LocalAddr.iSockaddrLength = sizeof (struct sockaddr_atm);
    csaBuffer.LocalAddr.lpSockaddr = (struct sockaddr *)&atm_addr_;
    csaBuffer.RemoteAddr.iSockaddrLength = sizeof (struct sockaddr_atm);
    csaBuffer.RemoteAddr.lpSockaddr = (struct sockaddr *)&atm_addr_;
-
    qsRestrictions.dwSize                  = sizeof (WSAQUERYSETW);
    qsRestrictions.lpszServiceInstanceName = 0;
    qsRestrictions.lpServiceClassId        = &FORE_NAME_CLASS;
@@ -318,16 +272,13 @@ ACE_ATM_Addr::string_to_addr (const ACE_TCHAR sap[])
    qsRestrictions.dwNumberOfCsAddrs       = 1;
    qsRestrictions.lpcsaBuffer             = &csaBuffer;
    qsRestrictions.lpBlob                  = 0; //&blob;
-
    if (::WSALookupServiceBeginW (&qsRestrictions, LUP_RETURN_ALL, &hLookup)
         == SOCKET_ERROR) {
      ACE_OS::printf ("Error: WSALookupServiceBeginW failed! %d\n",
                      ::WSAGetLastError ());
            return -1;
    }
-
    dwValue = sizeof (WSAQUERYSETW);
-
    if (::WSALookupServiceNextW (hLookup, 0, &dwValue, &qsRestrictions)
         == SOCKET_ERROR) {
      if (WSAGetLastError () != WSA_E_NO_MORE) {
@@ -336,7 +287,6 @@ ACE_ATM_Addr::string_to_addr (const ACE_TCHAR sap[])
              return -1;
      }
    }
-
    if (WSALookupServiceEnd (hLookup) == SOCKET_ERROR) {
      ACE_OS::printf ("Error : WSALookupServiceEnd failed! %d \n",
                      ::WSAGetLastError ());
@@ -348,7 +298,6 @@ ACE_ATM_Addr::string_to_addr (const ACE_TCHAR sap[])
      errno = EINVAL;
      return -1;
    }
-
    if (text2atm ((ACE_TCHAR *)sap,
  (struct sockaddr *)& (atm_addr_.sockaddratmsvc),
                  sizeof (atm_addr_.sockaddratmsvc),
@@ -360,23 +309,18 @@ ACE_ATM_Addr::string_to_addr (const ACE_TCHAR sap[])
    }
 #else
   ACE_UNUSED_ARG (sap);
-
   return 0;
 #endif /* ACE_HAS_FORE_ATM_XTI || ACE_HAS_FORE_ATM_WS2 || ACE_HAS_LINUX_ATM */
-
 #if defined (ACE_HAS_FORE_ATM_XTI) || defined (ACE_HAS_FORE_ATM_WS2) || defined (ACE_HAS_LINUX_ATM)
   return 0;
 #endif /* ACE_HAS_FORE_ATM_XTI || ACE_HAS_FORE_ATM_WS2 */
 }
-
 // Transform the current address into string format.
-
 int
 ACE_ATM_Addr::addr_to_string (ACE_TCHAR addr[],
                               size_t addrlen) const
 {
   ACE_TRACE ("ACE_ATM_Addr::addr_to_string");
-
 #if defined (ACE_HAS_FORE_ATM_XTI)
   ACE_TCHAR buffer[MAXNAMELEN + 1];
   struct atmnsap_addr nsap;
@@ -386,32 +330,25 @@ ACE_ATM_Addr::addr_to_string (ACE_TCHAR addr[],
   ACE_OS::sprintf (buffer,
                    ACE_TEXT ("%s"),
                    atmnsap_ntoa (nsap));
-
   size_t total_len = ACE_OS::strlen (buffer) + sizeof ('\0');
-
   if (addrlen < total_len)
     return -1;
   else
     ACE_OS::strcpy (addr, buffer);
-
   return 0;
 #elif defined (ACE_HAS_FORE_ATM_WS2)
   ACE_TCHAR buffer[MAXNAMELEN + 1];
   int i;
-
   if (addrlen < ATM_ADDR_SIZE + 1)
           return -1;
-
   for (i = 0; i < ATM_ADDR_SIZE; i++) {
     buffer[ i * 3 ] = '\0';
           ACE_OS::sprintf (buffer, ACE_TEXT ("%s%02x."),
                      buffer,
                      atm_addr_.satm_number.Addr[ i ]);
   }
-
   buffer[ ATM_ADDR_SIZE * 3 - 1 ] = '\0';
   ACE_OS::strcpy (addr, buffer);
-
   return 0;
 #elif defined (ACE_HAS_LINUX_ATM)
   ACE_TCHAR buffer[MAX_ATM_ADDR_LEN + 1];
@@ -428,7 +365,6 @@ ACE_ATM_Addr::addr_to_string (ACE_TCHAR addr[],
   else
     ACE_OS::strcpy (addr,
                    buffer);
-
   return 0;
 #else
   ACE_UNUSED_ARG (addr);
@@ -436,26 +372,21 @@ ACE_ATM_Addr::addr_to_string (ACE_TCHAR addr[],
   return -1;
 #endif /* ACE_HAS_FORE_ATM_XTI && ACE_HAS_FORE_ATM_WS2 */
 }
-
 const ACE_TCHAR *
 ACE_ATM_Addr::addr_to_string (void) const
 {
   ACE_TRACE ("ACE_ATM_Addr::addr_to_string");
-
   static ACE_TCHAR addr[MAXHOSTNAMELEN + 1];
   if (this->addr_to_string (addr,
                             MAXHOSTNAMELEN + 1) < 0)
     return 0;
-
   return addr;
 }
-
 // Set a pointer to the address.
 void
 ACE_ATM_Addr::set_addr (void *addr, int len)
 {
   ACE_TRACE ("ACE_ATM_Addr::set_addr");
-
 #if defined (ACE_HAS_FORE_ATM_XTI) || defined (ACE_HAS_FORE_ATM_WS2)
   this->ACE_Addr::base_set (AF_ATM,
 #elif defined (ACE_HAS_LINUX_ATM)
@@ -467,23 +398,18 @@ ACE_ATM_Addr::set_addr (void *addr, int len)
   ACE_OS::memcpy ((void *) &this->atm_addr_,
  (void *) addr, len);
 }
-
 // Compare two addresses for inequality.
-
 bool
 ACE_ATM_Addr::operator != (const ACE_ATM_Addr &sap) const
 {
   ACE_TRACE ("ACE_ATM_Addr::operator !=");
   return ! ((*this) == sap);
 }
-
 // Compare two addresses for equality.
-
 bool
 ACE_ATM_Addr::operator == (const ACE_ATM_Addr &sap) const
 {
   ACE_TRACE ("ACE_ATM_Addr::operator ==");
-
 #if defined (ACE_HAS_LINUX_ATM)
   return (atm_equal ((const struct sockaddr *)& (this->atm_addr_.sockaddratmsvc),
  (const struct sockaddr *)& (sap.atm_addr_.sockaddratmsvc),
@@ -499,15 +425,12 @@ ACE_ATM_Addr::operator == (const ACE_ATM_Addr &sap) const
                          sizeof (ATM_Addr)) == 0;
 #endif /*  ACE_HAS_LINUX_ATM */
 }
-
 void
 ACE_ATM_Addr::dump (void) const
 {
 #if defined (ACE_HAS_DUMP)
   ACE_TRACE ("ACE_ATM_Addr::dump");
-
   ACE_DEBUG ((LM_DEBUG, ACE_BEGIN_DUMP, this));
-
   ACE_TCHAR s[ACE_MAX_FULLY_QUALIFIED_NAME_LEN + 16];
   ACE_OS::sprintf (s,
                    ACE_TEXT ("%s"),
@@ -516,8 +439,6 @@ ACE_ATM_Addr::dump (void) const
   ACE_DEBUG ((LM_DEBUG, ACE_END_DUMP));
 #endif /* ACE_HAS_DUMP */
 }
-
 ACE_END_VERSIONED_NAMESPACE_DECL
-
 #endif /* ACE_HAS_ATM */
 

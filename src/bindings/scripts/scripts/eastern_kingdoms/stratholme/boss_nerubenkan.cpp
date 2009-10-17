@@ -13,31 +13,25 @@
 * along with this program; if not, write to the Free Software
 * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 */
-
 /* ScriptData
 SDName: Boss_Nerubenkan
 SD%Complete: 70
 SDComment:
 SDCategory: Stratholme
 EndScriptData */
-
 #include "precompiled.h"
 #include "def_stratholme.h"
-
 #define SPELL_ENCASINGWEBS          4962
 #define SPELL_PIERCEARMOR           6016
 #define SPELL_CRYPT_SCARABS         31602
 #define SPELL_RAISEUNDEADSCARAB     17235
-
 struct TRINITY_DLL_DECL boss_nerubenkanAI : public ScriptedAI
 {
     boss_nerubenkanAI(Creature *c) : ScriptedAI(c)
     {
         pInstance = m_creature->GetInstanceData();
     }
-
     ScriptedInstance* pInstance;
-
     uint32 EncasingWebs_Timer;
     uint32 PierceArmor_Timer;
    uint32 CryptScarabs_Timer;
@@ -46,7 +40,6 @@ struct TRINITY_DLL_DECL boss_nerubenkanAI : public ScriptedAI
     int RandX;
     int RandY;
     Creature* Summoned;
-
     void Reset()
     {
        CryptScarabs_Timer = 3000;
@@ -54,17 +47,14 @@ struct TRINITY_DLL_DECL boss_nerubenkanAI : public ScriptedAI
         PierceArmor_Timer = 19000;
         RaiseUndeadScarab_Timer = 3000;
     }
-
     void EnterCombat(Unit *who)
     {
     }
-
     void JustDied(Unit* Killer)
     {
         if (pInstance)
             pInstance->SetData(TYPE_NERUB,IN_PROGRESS);
     }
-
     void RaiseUndeadScarab(Unit* victim)
     {
         Rand = rand()%10;
@@ -85,19 +75,16 @@ struct TRINITY_DLL_DECL boss_nerubenkanAI : public ScriptedAI
         if (Summoned)
             (Summoned->AI())->AttackStart(victim);
     }
-
     void UpdateAI(const uint32 diff)
     {
         if (!UpdateVictim())
             return;
-
         //EncasingWebs
         if (EncasingWebs_Timer < diff)
         {
             DoCast(m_creature->getVictim(),SPELL_ENCASINGWEBS);
             EncasingWebs_Timer = 30000;
         }else EncasingWebs_Timer -= diff;
-
         //PierceArmor
         if (PierceArmor_Timer < diff)
         {
@@ -105,21 +92,18 @@ struct TRINITY_DLL_DECL boss_nerubenkanAI : public ScriptedAI
                 DoCast(m_creature->getVictim(),SPELL_PIERCEARMOR);
             PierceArmor_Timer = 35000;
         }else PierceArmor_Timer -= diff;
-
         //CryptScarabs_Timer
         if (CryptScarabs_Timer < diff)
         {
             DoCast(m_creature->getVictim(),SPELL_CRYPT_SCARABS);
             CryptScarabs_Timer = 20000;
         }else CryptScarabs_Timer -= diff;
-
         //RaiseUndeadScarab
         if (RaiseUndeadScarab_Timer < diff)
         {
             RaiseUndeadScarab(m_creature->getVictim());
             RaiseUndeadScarab_Timer = 16000;
         }else RaiseUndeadScarab_Timer -= diff;
-
         DoMeleeAttackIfReady();
     }
 };
@@ -127,7 +111,6 @@ CreatureAI* GetAI_boss_nerubenkan(Creature* pCreature)
 {
     return new boss_nerubenkanAI (pCreature);
 }
-
 void AddSC_boss_nerubenkan()
 {
     Script *newscript;

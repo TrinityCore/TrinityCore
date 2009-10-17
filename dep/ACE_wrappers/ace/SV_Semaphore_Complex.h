@@ -1,5 +1,4 @@
 // -*- C++ -*-
-
 //=============================================================================
 /**
  *  @file   SV_Semaphore_Complex.h
@@ -9,19 +8,14 @@
  *  @author Douglas C. Schmidt <schmidt@cs.wustl.edu>
  */
 //=============================================================================
-
 #ifndef ACE_SV_SEMAPHORE_COMPLEX_H
 #define ACE_SV_SEMAPHORE_COMPLEX_H
 #include /**/ "ace/pre.h"
-
 #include "ace/SV_Semaphore_Simple.h"
-
 #if !defined (ACE_LACKS_PRAGMA_ONCE)
 # pragma once
 #endif /* ACE_LACKS_PRAGMA_ONCE */
-
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
-
 /**
  * @class ACE_SV_Semaphore_Complex
  *
@@ -59,7 +53,6 @@ public:
     ACE_CREATE = IPC_CREAT,
     ACE_OPEN   = 0
   };
-
   // = Initialization and termination methods.
   ACE_SV_Semaphore_Complex (void);
   ACE_SV_Semaphore_Complex (key_t key,
@@ -73,7 +66,6 @@ public:
                             u_short nsems = 1,
                             mode_t perms = ACE_DEFAULT_FILE_PERMS);
   ~ACE_SV_Semaphore_Complex (void);
-
   /// Open or create an array of SV_Semaphores.  We return 0 if all is
   /// OK, else -1.
   int open (const char *name,
@@ -81,7 +73,6 @@ public:
             int initial_value = 1,
             u_short nsems = 1,
             mode_t perms = ACE_DEFAULT_FILE_PERMS);
-
   /// Open or create an array of SV_Semaphores.  We return 0 if all is
   /// OK, else -1.
   int open (key_t key,
@@ -89,7 +80,6 @@ public:
             int initial_value = 1,
             u_short nsems = 1,
             mode_t perms = ACE_DEFAULT_FILE_PERMS);
-
   /**
    * Close an ACE_SV_Semaphore. Unlike the <remove> method, this
    * method is for a process to call before it exits, when it is done
@@ -98,48 +88,34 @@ public:
    * one, we can remove the ACE_SV_Semaphore.
    */
   int close (void);
-
   // = Semaphore acquire and release methods.
-
   /// Acquire the semaphore.
   int acquire (u_short n = 0, short flags = 0) const;
-
   /// Acquire a semaphore for reading.
   int acquire_read (u_short n = 0, short flags = 0) const;
-
   /// Acquire a semaphore for writing
   int acquire_write (u_short n = 0, short flags = 0) const;
-
   /// Try to acquire the semaphore.
   int tryacquire (u_short n = 0, short flags = 0) const;
-
   /// Try to acquire the semaphore for reading.
   int tryacquire_read (u_short n = 0, short flags = 0) const;
-
   /// Try to acquire the semaphore for writing.
   int tryacquire_write (u_short n = 0, short flags = 0) const;
-
   /// Release the semaphore.
   int release (u_short n = 0, short flags = 0) const;
-
   // = Semaphore operation methods.
   int op (short val, u_short n = 0, short flags = 0) const;
   int op (sembuf op_vec[], u_short n) const;
-
   // = Semaphore control methods.
   int control (int cmd, semun arg, u_short n = 0) const;
   int control (int cmd, int value = 0, u_short n = 0) const;
-
   // = Upgrade access control...
   using ACE_SV_Semaphore_Simple::get_id;
   using ACE_SV_Semaphore_Simple::remove;
-
   /// Dump the state of an object.
   void dump (void) const;
-
   /// Declare the dynamic allocation hooks.
   ACE_ALLOC_HOOK_DECLARE;
-
 private:
   static const int BIGCOUNT_;
   static sembuf op_lock_[2];
@@ -148,13 +124,10 @@ private:
   static sembuf op_close_[3];
   static sembuf op_unlock_[1];
 };
-
 ACE_END_VERSIONED_NAMESPACE_DECL
-
 #if defined (__ACE_INLINE__)
 #include "ace/SV_Semaphore_Complex.inl"
 #endif /* __ACE_INLINE__ */
-
 #include /**/ "ace/post.h"
 #endif /* ACE_SV_SEMAPHORE_COMPLEX_H */
 

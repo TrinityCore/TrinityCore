@@ -17,27 +17,20 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
-
 #include <G3D/Vector3.h>
 #include <G3D/Triangle.h>
-
 #include "TileAssembler.h"
 #include "CoordModelMapping.h"
 #include "ModelContainer.h"
-
 #include <limits.h>
 #include <string.h>
-
 #ifdef _ASSEMBLER_DEBUG
 FILE *g_df = NULL;
 #endif
-
 using namespace G3D;
-
 namespace VMAP
 {
     //=================================================================
-
     Vector3 ModelPosition::transform(const Vector3& pIn) const
     {
         //return(pIn);
@@ -46,10 +39,8 @@ namespace VMAP
         out = ixMatrix * out;
         out = iyMatrix * out;
         return(out);
-
     }
     //=================================================================
-
     TileAssembler::TileAssembler(const std::string& pSrcDirName, const std::string& pDestDirName)
     {
         iCurrentUniqueNameId = 0;
@@ -59,16 +50,12 @@ namespace VMAP
         //mkdir(iDestDir);
         init();
     }
-
     //=================================================================
-
     TileAssembler::~TileAssembler()
     {
         delete iCoordModelMapping;
     }
-
     //=================================================================
-
     void TileAssembler::init()
     {
         iCoordModelMapping = new CoordModelMapping();
@@ -78,20 +65,16 @@ namespace VMAP
         addWorldAreaMapId(571);                             //Expansion02
     }
     //=================================================================
-
     std::string getModNameFromModPosName(const std::string& pModPosName)
     {
         size_t spos = pModPosName.find_first_of('#');
         std::string modelFileName = pModPosName.substr(0,spos);
         return(modelFileName);
     }
-
     //=================================================================
-
     unsigned int TileAssembler::getUniqueNameId(const std::string pName)
     {
         unsigned int result;
-
         if(!iUniqueNameIds.containsKey(pName))
         {
             ++iCurrentUniqueNameId;
@@ -100,14 +83,11 @@ namespace VMAP
         result = iUniqueNameIds.get(pName);
         return result;
     }
-
     //=================================================================
-
     std::string TileAssembler::getDirEntryNameFromModName(unsigned int pMapId, const std::string& pModPosName)
     {
         size_t spos;
         char buffer[20];
-
         std::string modelFileName = getModNameFromModPosName(pModPosName);
         //std::string fext = pModPosName.substr(modelFileName.length(),pModPosName.length());
         unsigned int fextId = getUniqueNameId(pModPosName);
@@ -125,9 +105,7 @@ namespace VMAP
         dirEntry.append(".vmap");
         return(dirEntry);
     }
-
     //=================================================================
-
     void emptyArray(Array<ModelContainer*>& mc)
     {
         int no=mc.size();
@@ -138,7 +116,6 @@ namespace VMAP
             mc.remove(no);
         }
     }
-
     //=================================================================
     bool TileAssembler::convertWorld()
     {
@@ -149,27 +126,22 @@ namespace VMAP
         ::g_df = fopen("../TileAssembler_release.txt", "wb");
         #   endif
         #endif
-
         std::string fname = iSrcDir;
         fname.append("/");
         fname.append("dir");
         iCoordModelMapping->setModelNameFilterMethod(iFilterMethod);
-
         printf("Read coordinate mapping...\n");
         if(!iCoordModelMapping->readCoordinateMapping(fname))
             return false;
-
         Array<unsigned int> mapIds = iCoordModelMapping->getMaps();
         if(mapIds.size() == 0)
         {
             printf("Fatal error: empty map list!\n");
             return false;
         }
-
         for(int i=0; i<mapIds.size(); ++i)
         {
             unsigned int mapId = mapIds[i];
-
             #ifdef _ASSEMBLER_DEBUG
             if(mapId == 0)                                  // "Azeroth" just for debug
             {
@@ -200,15 +172,12 @@ namespace VMAP
                         {
                             sprintf(buffer, "%03u",mapId);
                             dirname = std::string(buffer);
-
                             // prevent spam for small maps
                             if(x==0 && y==0)
                                 printf("%s...\n",dirname.c_str());
                         }
-
                         bool result = fillModelContainerArray(dirname, mapId, x, y, mc);
                         emptyArray(mc);
-
                         if(!result)
                             return false;
                     }
@@ -218,20 +187,15 @@ namespace VMAP
         #ifdef _ASSEMBLER_DEBUG
         if(::g_df) fclose(::g_df);
         #endif
-
         return true;
     }
-
     //=================================================================
-
     bool TileAssembler::fillModelContainerArray(const std::string& pDirFileName, unsigned int pMapId, int pXPos, int pYPos, Array<ModelContainer*>& pMC)
     {
         ModelContainer* modelContainer;
-
         NameCollection nameCollection = iCoordModelMapping->getFilenamesForCoordinate(pMapId, pXPos, pYPos);
         if(nameCollection.size() ==  0)
             return true;                                    // no data...
-
         char dirfilename[500];
         sprintf(dirfilename,"%s/%s.vmdir",iDestDir.c_str(),pDirFileName.c_str());
         FILE *dirfile = fopen(dirfilename, "ab");
@@ -240,10 +204,8 @@ namespace VMAP
             printf("ERROR: Can't create file %s",dirfilename);
             return false;
         }
-
         char destnamebuffer[500];
         char fullnamedestnamebuffer[500];
-
         if(nameCollection.iMainFiles.size() >0)
         {
             sprintf(destnamebuffer,"%03u_%i_%i.vmap",pMapId, pYPos, pXPos); // flip it here too
@@ -279,10 +241,8 @@ namespace VMAP
                 iCoordModelMapping->addAlreadyProcessedSingleFile(checkDoubleStr);
                 fprintf(dirfile, "%s\n",dirEntryName.c_str());
                 destFileName.append(dirEntryName);
-
                 Array<std::string> positionarray;
                 positionarray.append(nameCollection.iSingeFiles[pos]);
-
                 if(!iCoordModelMapping->isAlreadyProcessedSingleFile(nameCollection.iSingeFiles[pos]))
                 {
                     modelContainer = processNames(positionarray, destFileName.c_str());
@@ -295,13 +255,10 @@ namespace VMAP
             }
             ++pos;
         }
-
         fclose(dirfile);
         return true;
     }
-
     //=================================================================
-
     void removeEntriesFromTree(AABSPTree<SubModel *>* pTree)
     {
         Array<SubModel *> submodelArray;
@@ -313,24 +270,18 @@ namespace VMAP
             delete submodelArray[no];
         }
     }
-
     //=================================================================
-
     ModelContainer* TileAssembler::processNames(const Array<std::string>& pPositions, const char* pDestFileName)
     {
         ModelContainer *modelContainer = 0;
-
         Vector3 basepos = Vector3(0,0,0);
         AABSPTree<SubModel *>* mainTree = new AABSPTree<SubModel *>();
-
         int pos = 0;
-
         bool result = true;
         while(result && (pos < pPositions.size()))
         {
             std::string modelPosString = pPositions[pos];
             std::string modelFileName = getModNameFromModPosName(modelPosString);
-
             if(!fillModelIntoTree(mainTree, basepos, modelPosString, modelFileName))
             {
                 result = false;
@@ -345,12 +296,9 @@ namespace VMAP
             modelContainer->writeFile(pDestFileName);
         }
         removeEntriesFromTree(mainTree);
-
         delete mainTree;
-
         return(modelContainer);
     }
-
     //=================================================================
     bool TileAssembler::readRawFile(std::string& pModelFilename,  ModelPosition& pModelPosition, AABSPTree<SubModel *> *pMainTree)
     {
@@ -369,18 +317,14 @@ namespace VMAP
             filename.append(baseModelFilename);
             rf = fopen(filename.c_str(), "rb");
         }
-
         if(!rf)
         {
             printf("ERROR: Can't open model file in form: %s",pModelFilename.c_str());
             printf("...                          or form: %s",filename.c_str() );
             return false;
         }
-
         char ident[8];
-
         int trianglecount =0;
-
         #ifdef _ASSEMBLER_DEBUG
         int startgroup = 0;                     //2;
         int endgroup = INT_MAX;                 //2;
@@ -391,13 +335,11 @@ namespace VMAP
         int startgroup = 0;
         int endgroup = INT_MAX;
         #endif
-
         // temporary use defines to simplify read/check code (close file and return at fail)
         #define READ_OR_RETURN(V,S) if(fread((V), (S), 1, rf) != 1) { \
                                         fclose(rf); return(false); }
         #define CMP_OR_RETURN(V,S)  if(strcmp((V),(S)) != 0)        { \
                                         fclose(rf); return(false); }
-
         READ_OR_RETURN(&ident, 8);
         if(strcmp(ident, "VMAP001") == 0)
         {
@@ -408,7 +350,6 @@ namespace VMAP
             // we have to read one int. This is needed during the export and we have to skip it here
             int tempNVectors;
             READ_OR_RETURN(&tempNVectors, sizeof(int));
-
         }
         else
         {
@@ -420,17 +361,13 @@ namespace VMAP
         char blockId[5];
         blockId[4] = 0;
         int blocksize;
-
         READ_OR_RETURN(&groups, sizeof(G3D::uint32));
-
         for(int g=0;g<(int)groups;g++)
         {
             // group MUST NOT have more then 65536 indexes !! Array will have a problem with that !! (strange ...)
             Array<int> tempIndexArray;
             Array<Vector3> tempVertexArray;
-
             AABSPTree<Triangle> *gtree = new AABSPTree<Triangle>();
-
             // add free gtree at fail
             #undef READ_OR_RETURN
             #undef CMP_OR_RETURN
@@ -438,10 +375,8 @@ namespace VMAP
                                             fclose(rf); delete gtree; return(false); }
             #define CMP_OR_RETURN(V,S)  if(strcmp((V),(S)) != 0)        { \
                                             fclose(rf); delete gtree; return(false); }
-
             G3D::uint32 flags;
             READ_OR_RETURN(&flags, sizeof(G3D::uint32));
-
             G3D::uint32 branches;
             READ_OR_RETURN(&blockId, 4);
             CMP_OR_RETURN(blockId, "GRP ");
@@ -453,7 +388,6 @@ namespace VMAP
                 // indexes for each branch (not used jet)
                 READ_OR_RETURN(&indexes, sizeof(G3D::uint32));
             }
-
             // ---- indexes
             READ_OR_RETURN(&blockId, 4);
             CMP_OR_RETURN(blockId, "INDX");
@@ -471,16 +405,13 @@ namespace VMAP
                 }
                 delete[] indexarray;
             }
-
             // ---- vectors
             READ_OR_RETURN(&blockId, 4);
             CMP_OR_RETURN(blockId, "VERT");
             READ_OR_RETURN(&blocksize, sizeof(int));
             unsigned int nvectors;
             READ_OR_RETURN(&nvectors, sizeof(int));
-
             float *vectorarray = 0;
-
             // add vectorarray free
             #undef READ_OR_RETURN
             #undef CMP_OR_RETURN
@@ -488,7 +419,6 @@ namespace VMAP
                                             fclose(rf); delete gtree; delete[] vectorarray; return(false); }
             #define CMP_OR_RETURN(V,S)  if(strcmp((V),(S)) != 0)        { \
                                             fclose(rf); delete gtree; delete[] vectorarray; return(false); }
-
             if(nvectors >0)
             {
                 vectorarray = new float[nvectors*sizeof(float)*3];
@@ -504,27 +434,22 @@ namespace VMAP
                 fseek(rf, blocksize, SEEK_CUR);
             }
 
-
             for(unsigned int i=0, indexNo=0; indexNo<nvectors; indexNo++)
             {
                 Vector3 v = Vector3(vectorarray[i+2], vectorarray[i+1], vectorarray[i+0]);
                 i+=3;
                 v = pModelPosition.transform(v);
-
                 float swapy = v.y;
                 v.y = v.x;
                 v.x = swapy;
-
                 tempVertexArray.append(v);
             }
-
             // ---- calculate triangles
             int rest = nindexes%3;
             if(rest != 0)
             {
                 nindexes -= rest;
             }
-
             for(unsigned int i=0;i<(nindexes);)
             {
                 Triangle t = Triangle(tempVertexArray[tempIndexArray[i+2]], tempVertexArray[tempIndexArray[i+1]], tempVertexArray[tempIndexArray[i+0]] );
@@ -535,16 +460,13 @@ namespace VMAP
                     gtree->insert(t);
                 }
             }
-
             // drop of temporary use defines
             #undef READ_OR_RETURN
             #undef CMP_OR_RETURN
-
             if(vectorarray != 0)
             {
                 delete vectorarray;
             }
-
             if(gtree->size() >0)
             {
                 gtree->balance();
@@ -564,40 +486,31 @@ namespace VMAP
         fclose(rf);
         return true;
     }
-
     //=================================================================
-
     bool TileAssembler::fillModelIntoTree(AABSPTree<SubModel *> *pMainTree, const Vector3& pBasePos, std::string& pPos, std::string& pModelFilename)
     {
         ModelPosition modelPosition;
         getModelPosition(pPos, modelPosition);
         // all should be relative to object base position
         modelPosition.moveToBasePos(pBasePos);
-
         modelPosition.init();
-
         return readRawFile(pModelFilename,  modelPosition, pMainTree);
     }
-
     //=================================================================
     void TileAssembler::getModelPosition(std::string& pPosString, ModelPosition& pModelPosition)
     {
         float vposarray[3];
         float vdirarray[3];
         float scale;
-
         size_t spos = pPosString.find_first_of('#');
         std::string stripedPosString = pPosString.substr(spos+1,pPosString.length());
-
         sscanf(stripedPosString.c_str(), "%f,%f,%f_%f,%f,%f_%f",
             &vposarray[0],&vposarray[1],&vposarray[2],
             &vdirarray[0],&vdirarray[1],&vdirarray[2],
             &scale);
-
         pModelPosition.iPos = Vector3(vposarray[0], vposarray[1], vposarray[2]);
         pModelPosition.iDir = Vector3(vdirarray[0], vdirarray[1], vdirarray[2]);
         pModelPosition.iScale = scale;
-
     }
     //==========================================
 }                                                           // VMAP

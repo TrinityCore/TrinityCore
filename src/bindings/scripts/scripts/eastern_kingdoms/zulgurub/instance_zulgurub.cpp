@@ -13,46 +13,37 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
-
 /* ScriptData
 SDName: Instance_ZulGurub
 SD%Complete: 80
 SDComment: Missing reset function after killing a boss for Ohgan, Thekal.
 SDCategory: Zul'Gurub
 EndScriptData */
-
 #include "precompiled.h"
 #include "def_zulgurub.h"
-
 struct TRINITY_DLL_DECL instance_zulgurub : public ScriptedInstance
 {
     instance_zulgurub(Map* pMap) : ScriptedInstance(pMap) {Initialize();};
-
     //If all High Priest bosses were killed. Lorkhan, Zath and Ohgan are added too.
     uint32 m_auiEncounter[MAX_ENCOUNTERS];
-
     //Storing Lorkhan, Zath and Thekal because we need to cast on them later. Jindo is needed for healfunction too.
     uint64 m_uiLorKhanGUID;
     uint64 m_uiZathGUID;
     uint64 m_uiThekalGUID;
     uint64 m_uiJindoGUID;
-
     void Initialize()
     {
         memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
-
         m_uiLorKhanGUID = 0;
         m_uiZathGUID = 0;
         m_uiThekalGUID = 0;
         m_uiJindoGUID = 0;
     }
-
     bool IsEncounterInProgress() const
     {
         //not active in Zul'Gurub
         return false;
     }
-
     void OnCreatureCreate(Creature* pCreature)
     {
         switch(pCreature->GetEntry())
@@ -63,7 +54,6 @@ struct TRINITY_DLL_DECL instance_zulgurub : public ScriptedInstance
             case 11380: m_uiJindoGUID = pCreature->GetGUID(); break;
         }
     }
-
     void SetData(uint32 uiType, uint32 uiData)
     {
         switch(uiType)
@@ -71,37 +61,29 @@ struct TRINITY_DLL_DECL instance_zulgurub : public ScriptedInstance
             case TYPE_ARLOKK:
                 m_auiEncounter[0] = uiData;
                 break;
-
             case TYPE_JEKLIK:
                 m_auiEncounter[1] = uiData;
                 break;
-
             case TYPE_VENOXIS:
                 m_auiEncounter[2] = uiData;
                 break;
-
             case TYPE_MARLI:
                 m_auiEncounter[3] = uiData;
                 break;
-
             case TYPE_THEKAL:
                 m_auiEncounter[4] = uiData;
                 break;
-
             case TYPE_LORKHAN:
                 m_auiEncounter[5] = uiData;
                 break;
-
             case TYPE_ZATH:
                 m_auiEncounter[6] = uiData;
                 break;
-
             case TYPE_OHGAN:
                 m_auiEncounter[7] = uiData;
                 break;
         }
     }
-
     uint32 GetData(uint32 uiType)
     {
         switch(uiType)
@@ -125,7 +107,6 @@ struct TRINITY_DLL_DECL instance_zulgurub : public ScriptedInstance
         }
         return 0;
     }
-
     uint64 GetData64(uint32 uiData)
     {
         switch(uiData)
@@ -142,12 +123,10 @@ struct TRINITY_DLL_DECL instance_zulgurub : public ScriptedInstance
         return 0;
     }
 };
-
 InstanceData* GetInstanceData_instance_zulgurub(Map* pMap)
 {
     return new instance_zulgurub(pMap);
 }
-
 void AddSC_instance_zulgurub()
 {
     Script *newscript;

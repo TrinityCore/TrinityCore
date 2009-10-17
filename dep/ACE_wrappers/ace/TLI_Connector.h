@@ -1,5 +1,4 @@
 // -*- C++ -*-
-
 //=============================================================================
 /**
  *  @file    TLI_Connector.h
@@ -10,22 +9,16 @@
  */
 //=============================================================================
 
-
 #ifndef ACE_TLI_CONNECTOR_H
 #define ACE_TLI_CONNECTOR_H
 #include /**/ "ace/pre.h"
-
 #include "ace/TLI_Stream.h"
 #include "ace/Log_Msg.h"
-
 #if !defined (ACE_LACKS_PRAGMA_ONCE)
 # pragma once
 #endif /* ACE_LACKS_PRAGMA_ONCE */
-
 #if defined (ACE_HAS_TLI)
-
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
-
 /**
  * @class ACE_TLI_Connector
  *
@@ -38,7 +31,6 @@ public:
   // = Initialization methods.
   /// Default constructor.
   ACE_TLI_Connector (void);
-
   /**
    * Actively connect and produce a <new_stream> if things go well.
    * The @a remote_sap is the address that we are trying to connect
@@ -66,7 +58,6 @@ public:
                      int rw_flag = 1,
                      struct netbuf *udata = 0,
                      struct netbuf *opt = 0);
-
   /**
    * Actively connect and produce a <new_stream> if things go well.
    * The @a remote_sap is the address that we are trying to connect
@@ -94,7 +85,6 @@ public:
                int rw_flag = 1,
                struct netbuf *udata = 0,
                struct netbuf *opt = 0);
-
   /**
    * Try to complete a non-blocking connection.
    * If connection completion is successful then @a new_stream contains
@@ -104,27 +94,20 @@ public:
   int complete (ACE_TLI_Stream &new_stream,
                 ACE_Addr *remote_sap,
                 ACE_Time_Value *tv);
-
   /// Resets any event associations on this handle
   int reset_new_handle (ACE_HANDLE handle);
-
   // = Meta-type info
   typedef ACE_INET_Addr PEER_ADDR;
   typedef ACE_TLI_Stream PEER_STREAM;
-
   /// Dump the state of an object.
   void dump (void) const;
-
   /// Declare the dynamic allocation hooks.
   ACE_ALLOC_HOOK_DECLARE;
 };
-
 ACE_END_VERSIONED_NAMESPACE_DECL
-
 #if defined (__ACE_INLINE__)
 #include "ace/TLI_Connector.inl"
 #endif /* __ACE_INLINE__ */
-
 #endif /* ACE_HAS_TLI */
 #include /**/ "ace/post.h"
 #endif /* ACE_TLI_CONNECTOR_H */

@@ -1,5 +1,4 @@
 // -*- C++ -*-
-
 //==========================================================================
 /**
  *  @file    Shared_Memory.h
@@ -10,22 +9,15 @@
  */
 //==========================================================================
 
-
 #ifndef ACE_SHARED_MEMORY_H
 #define ACE_SHARED_MEMORY_H
-
 #include /**/ "ace/pre.h"
-
 #include /**/ "ace/ACE_export.h"
-
 #include "ace/os_include/os_stddef.h"
-
 #if !defined (ACE_LACKS_PRAGMA_ONCE)
 # pragma once
 #endif /* ACE_LACKS_PRAGMA_ONCE */
-
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
-
 /**
  * @class ACE_Shared_Memory
  *
@@ -41,7 +33,6 @@ class ACE_Export ACE_Shared_Memory
 {
 public:
   virtual ~ACE_Shared_Memory (void);
-
   // = Note that all the following methods are pure virtual.
   virtual int close (void) = 0;
   virtual int remove (void) = 0;
@@ -50,10 +41,7 @@ public:
   virtual size_t get_segment_size (void) const = 0;
   virtual ACE_HANDLE get_id (void) const = 0;
 };
-
 ACE_END_VERSIONED_NAMESPACE_DECL
-
 #include /**/ "ace/post.h"
-
 #endif /* ACE_SHARED_MEMORY_H */
 

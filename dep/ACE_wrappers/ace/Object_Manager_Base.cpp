@@ -1,17 +1,12 @@
 // $Id: Object_Manager_Base.cpp 80826 2008-03-04 14:51:23Z wotte $
-
 #include "ace/Object_Manager_Base.h"
-
 ACE_RCSID(ace, Object_Manager_Base, "$Id: Object_Manager_Base.cpp 80826 2008-03-04 14:51:23Z wotte $")
-
 #include "ace/OS_Memory.h"
 #include "ace/OS_NS_Thread.h"
 #include "ace/OS_NS_sys_socket.h"
 #include "ace/OS_NS_signal.h"
 #include "ace/OS_NS_stdio.h"
-
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
-
 #if defined (ACE_HAS_WIN32_STRUCTURAL_EXCEPTIONS)
 int ACE_SEH_Default_Exception_Selector (void *)
 {
@@ -23,13 +18,11 @@ int ACE_SEH_Default_Exception_Selector (void *)
   // defined in ace/config-win32-common.h.
   return (DWORD) ACE_SEH_DEFAULT_EXCEPTION_HANDLING_ACTION;
 }
-
 int ACE_SEH_Default_Exception_Handler (void *)
 {
   return 0;
 }
 #endif /* ACE_HAS_WIN32_STRUCTURAL_EXCEPTIONS */
-
 # define ACE_OS_PREALLOCATE_OBJECT(TYPE, ID)\
     {\
       TYPE *obj_p = 0;\
@@ -39,14 +32,12 @@ int ACE_SEH_Default_Exception_Handler (void *)
 # define ACE_OS_DELETE_PREALLOCATED_OBJECT(TYPE, ID)\
     delete (TYPE *) preallocated_object[ID];\
     preallocated_object[ID] = 0;
-
 ACE_Object_Manager_Base::ACE_Object_Manager_Base (void)
   : object_manager_state_ (OBJ_MAN_UNINITIALIZED)
   , dynamically_allocated_ (false)
   , next_ (0)
 {
 }
-
 ACE_Object_Manager_Base::~ACE_Object_Manager_Base (void)
 {
 #if defined (ACE_HAS_NONSTATIC_OBJECT_MANAGER)
@@ -54,21 +45,17 @@ ACE_Object_Manager_Base::~ACE_Object_Manager_Base (void)
   dynamically_allocated_ = false;
 #endif /* ACE_HAS_NONSTATIC_OBJECT_MANAGER */
 }
-
 int
 ACE_Object_Manager_Base::starting_up_i ()
 {
   return object_manager_state_ < OBJ_MAN_INITIALIZED;
 }
-
 int
 ACE_Object_Manager_Base::shutting_down_i ()
 {
   return object_manager_state_ > OBJ_MAN_INITIALIZED;
 }
-
 /*****************************************************************************/
-
 extern "C"
 void
 ACE_OS_Object_Manager_Internal_Exit_Hook (void)
@@ -76,12 +63,9 @@ ACE_OS_Object_Manager_Internal_Exit_Hook (void)
   if (ACE_OS_Object_Manager::instance_)
     ACE_OS_Object_Manager::instance ()->fini ();
 }
-
 ACE_OS_Object_Manager *ACE_OS_Object_Manager::instance_ = 0;
-
 void *ACE_OS_Object_Manager::preallocated_object[
   ACE_OS_Object_Manager::ACE_OS_PREALLOCATED_OBJECTS] = { 0 };
-
 ACE_OS_Object_Manager::ACE_OS_Object_Manager (void)
   // default_mask_ isn't initialized, because it's defined by <init>.
   : thread_hook_ (0)
@@ -100,68 +84,56 @@ ACE_OS_Object_Manager::ACE_OS_Object_Manager (void)
   // a good reason for creating a separate one) but the original one
   // will be the one retrieved from calls to
   // ACE_Object_Manager::instance().
-
   // Be sure that no further instances are created via instance ().
   if (instance_ == 0)
     instance_ = this;
-
   init ();
 }
-
 ACE_OS_Object_Manager::~ACE_OS_Object_Manager (void)
 {
   dynamically_allocated_ = false;   // Don't delete this again in fini()
   fini ();
 }
-
 sigset_t *
 ACE_OS_Object_Manager::default_mask (void)
 {
   return ACE_OS_Object_Manager::instance ()->default_mask_;
 }
-
 ACE_Thread_Hook *
 ACE_OS_Object_Manager::thread_hook (void)
 {
   return ACE_OS_Object_Manager::instance ()->thread_hook_;
 }
-
 #if defined (ACE_HAS_WIN32_STRUCTURAL_EXCEPTIONS)
 ACE_SEH_EXCEPT_HANDLER
 ACE_OS_Object_Manager::seh_except_selector (void)
 {
   return ACE_OS_Object_Manager::instance ()->seh_except_selector_;
 }
-
 ACE_SEH_EXCEPT_HANDLER
 ACE_OS_Object_Manager::seh_except_selector (ACE_SEH_EXCEPT_HANDLER n)
 {
   ACE_OS_Object_Manager *instance =
     ACE_OS_Object_Manager::instance ();
-
   ACE_SEH_EXCEPT_HANDLER retv = instance->seh_except_selector_;
   instance->seh_except_selector_ = n;
   return retv;
 }
-
 ACE_SEH_EXCEPT_HANDLER
 ACE_OS_Object_Manager::seh_except_handler (void)
 {
   return ACE_OS_Object_Manager::instance ()->seh_except_handler_;
 }
-
 ACE_SEH_EXCEPT_HANDLER
 ACE_OS_Object_Manager::seh_except_handler (ACE_SEH_EXCEPT_HANDLER n)
 {
   ACE_OS_Object_Manager *instance =
     ACE_OS_Object_Manager::instance ();
-
   ACE_SEH_EXCEPT_HANDLER retv = instance->seh_except_handler_;
   instance->seh_except_handler_ = n;
   return retv;
 }
 #endif /* ACE_HAS_WIN32_STRUCTURAL_EXCEPTIONS */
-
 ACE_Thread_Hook *
 ACE_OS_Object_Manager::thread_hook (ACE_Thread_Hook *new_thread_hook)
 {
@@ -170,32 +142,25 @@ ACE_OS_Object_Manager::thread_hook (ACE_Thread_Hook *new_thread_hook)
   os_om->thread_hook_ = new_thread_hook;
   return old_hook;
 }
-
 ACE_OS_Object_Manager *
 ACE_OS_Object_Manager::instance (void)
 {
   // This function should be called during construction of static
   // instances, or before any other threads have been created in the
   // process.  So, it's not thread safe.
-
   if (instance_ == 0)
     {
       ACE_OS_Object_Manager *instance_pointer = 0;
-
       ACE_NEW_RETURN (instance_pointer,
                       ACE_OS_Object_Manager,
                       0);
       // I (coryan) removed it, using asserts in the OS layer
       // brings down the Log msg stuff
       // ACE_ASSERT (instance_pointer == instance_);
-
       instance_pointer->dynamically_allocated_ = true;
-
     }
-
   return instance_;
 }
-
 int
 ACE_OS_Object_Manager::init (void)
 {
@@ -204,7 +169,6 @@ ACE_OS_Object_Manager::init (void)
       // First, indicate that this ACE_OS_Object_Manager instance is being
       // initialized.
       object_manager_state_ = OBJ_MAN_INITIALIZING;
-
       if (this == instance_)
         {
 # if defined (ACE_MT_SAFE) && (ACE_MT_SAFE != 0)
@@ -250,21 +214,16 @@ ACE_OS_Object_Manager::init (void)
 #     endif /* ACE_HAS_THREAD_SPECIFIC_STORAGE */
 #   endif /* ACE_HAS_TSS_EMULATION */
 # endif /* ACE_MT_SAFE */
-
           // Open Winsock (no-op on other platforms).
           ACE_OS::socket_init (ACE_WSOCK_VERSION);
-
           // Register the exit hook, for use by ACE_OS::exit ().
           ACE_OS::set_exit_hook (&ACE_OS_Object_Manager_Internal_Exit_Hook);
         }
-
       ACE_NEW_RETURN (default_mask_, sigset_t, -1);
       ACE_OS::sigfillset (default_mask_);
-
       // Finally, indicate that the ACE_OS_Object_Manager instance has
       // been initialized.
       object_manager_state_ = OBJ_MAN_INITIALIZED;
-
 # if defined (ACE_WIN32)
       ACE_OS::win32_versioninfo_.dwOSVersionInfoSize =
         sizeof (ACE_TEXT_OSVERSIONINFO);
@@ -276,7 +235,6 @@ ACE_OS_Object_Manager::init (void)
       return 1;
     }
 }
-
 // Clean up an ACE_OS_Object_Manager.  There can be instances of this object
 // other than The Instance.  This can happen if a user creates one for some
 // reason.  All objects clean up their per-object information and managed
@@ -288,33 +246,27 @@ ACE_OS_Object_Manager::fini (void)
     // Too late.  Or, maybe too early.  Either fini () has already
     // been called, or init () was never called.
     return object_manager_state_ == OBJ_MAN_SHUT_DOWN  ?  1  :  -1;
-
   // No mutex here.  Only the main thread should destroy the singleton
   // ACE_OS_Object_Manager instance.
-
   // Indicate that the ACE_OS_Object_Manager instance is being shut
   // down.  This object manager should be the last one to be shut
   // down.
   object_manager_state_ = OBJ_MAN_SHUTTING_DOWN;
-
   // If another Object_Manager has registered for termination, do it.
   if (next_)
     {
       next_->fini ();
       next_ = 0;  // Protect against recursive calls.
     }
-
   // Call all registered cleanup hooks, in reverse order of
   // registration.
   exit_info_.call_hooks ();
-
   // Only clean up preallocated objects when the singleton Instance is being
   // destroyed.
   if (this == instance_)
     {
       // Close down Winsock (no-op on other platforms).
       ACE_OS::socket_fini ();
-
 #if ! defined (ACE_HAS_STATIC_PREALLOCATION)
       // Cleanup the dynamically preallocated objects.
 # if defined (ACE_MT_SAFE) && (ACE_MT_SAFE != 0)
@@ -373,26 +325,19 @@ ACE_OS_Object_Manager::fini (void)
 # endif /* ACE_MT_SAFE */
 #endif /* ! ACE_HAS_STATIC_PREALLOCATION */
     }
-
   delete default_mask_;
   default_mask_ = 0;
-
   // Indicate that this ACE_OS_Object_Manager instance has been shut down.
   object_manager_state_ = OBJ_MAN_SHUT_DOWN;
-
   if (dynamically_allocated_)
     {
       delete this;
     }
-
   if (this == instance_)
     instance_ = 0;
-
   return 0;
 }
-
 int ace_exit_hook_marker = 0;
-
 int
 ACE_OS_Object_Manager::at_exit (ACE_EXIT_HOOK func)
 {
@@ -400,7 +345,6 @@ ACE_OS_Object_Manager::at_exit (ACE_EXIT_HOOK func)
                                reinterpret_cast <ACE_CLEANUP_FUNC> (func),
                                0);
 }
-
 void
 ACE_OS_Object_Manager::print_error_message (unsigned int line_number,
                                             const ACE_TCHAR *message)
@@ -415,7 +359,6 @@ ACE_OS_Object_Manager::print_error_message (unsigned int line_number,
   // @@ Need to use the following information.
   ACE_UNUSED_ARG (line_number);
   ACE_UNUSED_ARG (message);
-
   ACE_TCHAR *lpMsgBuf = 0;
   ::FormatMessage (FORMAT_MESSAGE_ALLOCATE_BUFFER |
                    FORMAT_MESSAGE_FROM_SYSTEM,
@@ -433,7 +376,6 @@ ACE_OS_Object_Manager::print_error_message (unsigned int line_number,
                 MB_OK);
 #endif
 }
-
 int
 ACE_OS_Object_Manager::starting_up (void)
 {
@@ -441,7 +383,6 @@ ACE_OS_Object_Manager::starting_up (void)
     ? instance_->starting_up_i ()
     : 1;
 }
-
 int
 ACE_OS_Object_Manager::shutting_down (void)
 {
@@ -449,9 +390,7 @@ ACE_OS_Object_Manager::shutting_down (void)
     ? instance_->shutting_down_i ()
     : 1;
 }
-
 /*****************************************************************************/
-
 #if !defined (ACE_HAS_NONSTATIC_OBJECT_MANAGER)
 /**
  * @class ACE_OS_Object_Manager_Manager
@@ -468,15 +407,12 @@ class ACE_OS_Object_Manager_Manager
 public:
   /// Constructor.
   ACE_OS_Object_Manager_Manager (void);
-
   /// Destructor.
   ~ACE_OS_Object_Manager_Manager (void);
-
 private:
   /// Save the main thread ID, so that destruction can be suppressed.
   ACE_thread_t saved_main_thread_id_;
 };
-
 ACE_OS_Object_Manager_Manager::ACE_OS_Object_Manager_Manager (void)
   : saved_main_thread_id_ (ACE_OS::thr_self ())
 {
@@ -486,7 +422,6 @@ ACE_OS_Object_Manager_Manager::ACE_OS_Object_Manager_Manager (void)
   // case.
   (void) ACE_OS_Object_Manager::instance ();
 }
-
 ACE_OS_Object_Manager_Manager::~ACE_OS_Object_Manager_Manager (void)
 {
   if (ACE_OS::thr_equal (ACE_OS::thr_self (),
@@ -499,9 +434,7 @@ ACE_OS_Object_Manager_Manager::~ACE_OS_Object_Manager_Manager (void)
   // not delete the ACE_OS_Object_Manager.  That causes problems, on
   // WIN32 at least.
 }
-
 static ACE_OS_Object_Manager_Manager ACE_OS_Object_Manager_Manager_instance;
 #endif /* ! ACE_HAS_NONSTATIC_OBJECT_MANAGER */
-
 ACE_END_VERSIONED_NAMESPACE_DECL
 

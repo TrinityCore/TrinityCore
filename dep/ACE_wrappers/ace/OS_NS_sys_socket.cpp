@@ -1,19 +1,13 @@
 // $Id: OS_NS_sys_socket.cpp 80826 2008-03-04 14:51:23Z wotte $
-
 #include "ace/OS_NS_sys_socket.h"
-
 ACE_RCSID(ace, OS_NS_sys_socket, "$Id: OS_NS_sys_socket.cpp 80826 2008-03-04 14:51:23Z wotte $")
-
 #if !defined (ACE_HAS_INLINED_OSCALLS)
 # include "ace/OS_NS_sys_socket.inl"
 #endif /* ACE_HAS_INLINED_OSCALLS */
-
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
-
 #if defined (ACE_WIN32)
 int ACE_OS::socket_initialized_;
 #endif /* ACE_WIN32 */
-
 #if !(defined (ACE_HAS_WINCE) && (UNDER_CE < 500))
 ACE_HANDLE
 ACE_OS::accept (ACE_HANDLE handle,
@@ -36,7 +30,6 @@ ACE_OS::accept (ACE_HANDLE handle,
                          addrlen);
 # endif /* ACE_HAS_WINSOCK2 */
 }
-
 int
 ACE_OS::connect (ACE_HANDLE handle,
                  const sockaddr *addr,
@@ -60,7 +53,6 @@ ACE_OS::connect (ACE_HANDLE handle,
                           addrlen);
 # endif /* ACE_HAS_WINSOCK2 */
 }
-
 ACE_HANDLE
 ACE_OS::join_leaf (ACE_HANDLE socket,
                    const sockaddr *name,
@@ -68,14 +60,11 @@ ACE_OS::join_leaf (ACE_HANDLE socket,
                    const ACE_QoS_Params &qos_params)
 {
 # if defined (ACE_HAS_WINSOCK2) && (ACE_HAS_WINSOCK2 != 0)
-
   QOS qos;
   // Construct the WinSock2 QOS structure.
-
   qos.SendingFlowspec = *(qos_params.socket_qos ()->sending_flowspec ());
   qos.ReceivingFlowspec = *(qos_params.socket_qos ()->receiving_flowspec ());
   qos.ProviderSpecific = (WSABUF) qos_params.socket_qos ()->provider_specific ();
-
   ACE_SOCKCALL_RETURN (::WSAJoinLeaf ((ACE_SOCKET) socket,
                                       name,
                                       namelen,
@@ -86,7 +75,6 @@ ACE_OS::join_leaf (ACE_HANDLE socket,
                                       qos_params.flags ()),
                        ACE_HANDLE,
                        ACE_INVALID_HANDLE);
-
 # else
   ACE_UNUSED_ARG (socket);
   ACE_UNUSED_ARG (name);
@@ -96,7 +84,6 @@ ACE_OS::join_leaf (ACE_HANDLE socket,
 # endif /* ACE_HAS_WINSOCK2 */
 }
 #endif  /* !(defined (ACE_HAS_WINCE) && (UNDER_CE < 500)) */
-
 int
 ACE_OS::socket_init (int version_high, int version_low)
 {
@@ -106,7 +93,6 @@ ACE_OS::socket_init (int version_high, int version_low)
       WORD version_requested = MAKEWORD (version_high, version_low);
       WSADATA wsa_data;
       int error = WSAStartup (version_requested, &wsa_data);
-
       if (error != 0)
 #   if defined (ACE_HAS_WINCE)
         {
@@ -121,7 +107,6 @@ ACE_OS::socket_init (int version_high, int version_low)
                          "WSAGetLastError returned %d\n",
                        error);
 #   endif /* ACE_HAS_WINCE */
-
       ACE_OS::socket_initialized_ = 1;
     }
 # else
@@ -130,7 +115,6 @@ ACE_OS::socket_init (int version_high, int version_low)
 # endif /* ACE_WIN32 */
   return 0;
 }
-
 int
 ACE_OS::socket_fini (void)
 {
@@ -157,6 +141,5 @@ ACE_OS::socket_fini (void)
 # endif /* ACE_WIN32 */
   return 0;
 }
-
 ACE_END_VERSIONED_NAMESPACE_DECL
 

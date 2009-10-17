@@ -13,17 +13,14 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
-
 /* ScriptData
 SDName: Instance_Sunken_Temple
 SD%Complete: 100
 SDComment:Place Holder
 SDCategory: Sunken Temple
 EndScriptData */
-
 #include "precompiled.h"
 #include "def_sunken_temple.h"
-
 #define GO_ATALAI_STATUE1 148830
 #define GO_ATALAI_STATUE2 148831
 #define GO_ATALAI_STATUE3 148832
@@ -31,19 +28,15 @@ EndScriptData */
 #define GO_ATALAI_STATUE5 148834
 #define GO_ATALAI_STATUE6 148835
 #define GO_ATALAI_IDOL 148836
-
 #define GO_ATALAI_LIGHT1 148883
 #define GO_ATALAI_LIGHT2 148937
-
 #define NPC_MALFURION_STORMRAGE 15362
-
 struct TRINITY_DLL_DECL instance_sunken_temple : public ScriptedInstance
 {
     instance_sunken_temple(Map* pMap) : ScriptedInstance(pMap)
     {
         Initialize();
     };
-
     GameObject* AtalaiStatue1;
     GameObject* AtalaiStatue2;
     GameObject* AtalaiStatue3;
@@ -51,7 +44,6 @@ struct TRINITY_DLL_DECL instance_sunken_temple : public ScriptedInstance
     GameObject* AtalaiStatue5;
     GameObject* AtalaiStatue6;
     GameObject* AtalaiIdol;
-
     uint64 GOAtalaiStatue1;
     uint64 GOAtalaiStatue2;
     uint64 GOAtalaiStatue3;
@@ -60,14 +52,12 @@ struct TRINITY_DLL_DECL instance_sunken_temple : public ScriptedInstance
     uint64 GOAtalaiStatue6;
     uint64 GOAtalaiIdol;
     uint32 State;
-
     bool s1;
     bool s2;
     bool s3;
     bool s4;
     bool s5;
     bool s6;
-
     void Initialize()
     {
         GOAtalaiStatue1 = 0;
@@ -92,7 +82,6 @@ struct TRINITY_DLL_DECL instance_sunken_temple : public ScriptedInstance
         s5 = false;
         s6 = false;
     }
-
     void OnGameObjectCreate(GameObject* pGo, bool add)
      {
          switch(pGo->GetEntry())
@@ -127,7 +116,6 @@ struct TRINITY_DLL_DECL instance_sunken_temple : public ScriptedInstance
              break;
          }
      };
-
 
      virtual void Update(uint32 diff) // correct order goes form 1-6
      {
@@ -183,7 +171,6 @@ struct TRINITY_DLL_DECL instance_sunken_temple : public ScriptedInstance
             break;
          }
      };
-
      void UseStatue(GameObject* pGo)
      {
          pGo->SummonGameObject(GO_ATALAI_LIGHT1,pGo->GetPositionX(),pGo->GetPositionY(),pGo->GetPositionZ(),0,0,0,0,0,0);
@@ -199,13 +186,11 @@ struct TRINITY_DLL_DECL instance_sunken_temple : public ScriptedInstance
          AtalaiStatue6->SummonGameObject(GO_ATALAI_LIGHT2,AtalaiStatue6->GetPositionX(),AtalaiStatue6->GetPositionY(),AtalaiStatue6->GetPositionZ(),0,0,0,0,0,100000);
          pGo->SummonGameObject(148838,-488.997,96.61,-189.019,-1.52,0,0,0,0,100000);
      }
-
      void SetData(uint32 type, uint32 data)
      {
         if (type == EVENT_STATE)
             State = data;
      }
-
      uint32 GetData(uint32 type)
      {
         if (type == EVENT_STATE)
@@ -213,12 +198,10 @@ struct TRINITY_DLL_DECL instance_sunken_temple : public ScriptedInstance
         return 0;
      }
 };
-
 InstanceData* GetInstanceData_instance_sunken_temple(Map* pMap)
 {
     return new instance_sunken_temple(pMap);
 }
-
 void AddSC_instance_sunken_temple()
 {
     Script *newscript;

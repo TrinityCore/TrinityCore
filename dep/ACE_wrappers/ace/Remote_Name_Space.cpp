@@ -3,35 +3,27 @@
 #include "ace/Log_Msg.h"
 #include "ace/SString.h"
 #include "ace/OS_NS_string.h"
-
 ACE_RCSID (ace,
            Remote_Name_Space,
            "$Id: Remote_Name_Space.cpp 80826 2008-03-04 14:51:23Z wotte $")
-
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
-
 int
 ACE_Remote_Name_Space::open (const ACE_TCHAR *servername, u_short port)
 {
   ACE_TRACE ("ACE_Remote_Name_Space::open");
   ACE_INET_Addr servaddr;
-
   // Initialize Addr
   if (servaddr.set (port, servername) == -1)
     return -1;
-
   // Connect to Name Server process.
   if (this->ns_proxy_.open (servaddr) == -1)
     return -1;
-
   return 0;
 }
-
 ACE_Remote_Name_Space::ACE_Remote_Name_Space (void)
 {
   ACE_TRACE ("ACE_Remote_Name_Space::ACE_Remote_Name_Space");
 }
-
 ACE_Remote_Name_Space::ACE_Remote_Name_Space (const ACE_TCHAR *hostname,
                                               u_short port)
 {
@@ -39,7 +31,6 @@ ACE_Remote_Name_Space::ACE_Remote_Name_Space (const ACE_TCHAR *hostname,
   if (this->open (hostname, port) == -1)
     ACE_ERROR ((LM_ERROR,  ACE_TEXT ("%p\n"),  ACE_TEXT ("ACE_Remote_Name_Space::ACE_Remote_Name_Space")));
 }
-
 int
 ACE_Remote_Name_Space::bind (const ACE_NS_WString &name,
                              const ACE_NS_WString &value,
@@ -63,7 +54,6 @@ ACE_Remote_Name_Space::bind (const ACE_NS_WString &name,
                             type_len);
   return this->ns_proxy_.request_reply (request);
 }
-
 int
 ACE_Remote_Name_Space::rebind (const ACE_NS_WString &name,
                                const ACE_NS_WString &value,
@@ -87,7 +77,6 @@ ACE_Remote_Name_Space::rebind (const ACE_NS_WString &name,
                             type_len);
   return this->ns_proxy_.request_reply (request);
 }
-
 int
 ACE_Remote_Name_Space::resolve (const ACE_NS_WString &name,
                                 ACE_NS_WString &value,
@@ -101,15 +90,11 @@ ACE_Remote_Name_Space::resolve (const ACE_NS_WString &name,
                             name_urep.get (),
                             name_len,
                             0, 0, 0, 0);
-
   if (this->ns_proxy_.send_request (request) == -1)
     return -1;
-
   ACE_Name_Request reply;
-
   if (this->ns_proxy_.recv_reply (reply) == -1)
     return -1;
-
   ACE_NS_WString temp (reply.value (), reply.value_len () / sizeof (ACE_WCHAR_T));
   value = temp;
   ACE_NEW_RETURN (type,
@@ -118,7 +103,6 @@ ACE_Remote_Name_Space::resolve (const ACE_NS_WString &name,
   ACE_OS::strcpy (type, reply.type ());
   return 0;
 }
-
 int
 ACE_Remote_Name_Space::unbind (const ACE_NS_WString &name)
 {
@@ -132,7 +116,6 @@ ACE_Remote_Name_Space::unbind (const ACE_NS_WString &name)
                             0, 0, 0, 0);
   return this->ns_proxy_.request_reply (request);
 }
-
 int
 ACE_Remote_Name_Space::list_names (ACE_WSTRING_SET &set,
                                    const ACE_NS_WString &pattern)
@@ -147,9 +130,7 @@ ACE_Remote_Name_Space::list_names (ACE_WSTRING_SET &set,
                             0, 0, 0, 0);
   if (this->ns_proxy_.send_request (request) == -1)
     return -1;
-
   ACE_Name_Request reply (0, 0, 0, 0, 0, 0, 0, 0);
-
   while (reply.msg_type () != ACE_Name_Request::MAX_ENUM)
     {
       if (this->ns_proxy_.recv_reply (reply) == -1)
@@ -166,7 +147,6 @@ ACE_Remote_Name_Space::list_names (ACE_WSTRING_SET &set,
     }
   return 0;
 }
-
 int
 ACE_Remote_Name_Space::list_values (ACE_WSTRING_SET &set,
                                     const ACE_NS_WString &pattern)
@@ -181,9 +161,7 @@ ACE_Remote_Name_Space::list_values (ACE_WSTRING_SET &set,
                             0, 0, 0, 0);
   if (this->ns_proxy_.send_request (request) == -1)
     return -1;
-
   ACE_Name_Request reply (0, 0, 0, 0, 0, 0, 0, 0);
-
   while (reply.msg_type () != ACE_Name_Request::MAX_ENUM)
     {
       if (this->ns_proxy_.recv_reply (reply) == -1)
@@ -198,10 +176,8 @@ ACE_Remote_Name_Space::list_values (ACE_WSTRING_SET &set,
           set.insert (value);
         }
     }
-
   return 0;
 }
-
 int
 ACE_Remote_Name_Space::list_types (ACE_WSTRING_SET &set,
                                    const ACE_NS_WString &pattern)
@@ -214,12 +190,9 @@ ACE_Remote_Name_Space::list_types (ACE_WSTRING_SET &set,
                             pattern_urep.get (),
                             pattern_len,
                             0, 0, 0, 0);
-
   if (this->ns_proxy_.send_request (request) == -1)
     return -1;
-
   ACE_Name_Request reply (0, 0, 0, 0, 0, 0, 0, 0);
-
   while (reply.msg_type () != ACE_Name_Request::MAX_ENUM)
     {
       if (this->ns_proxy_.recv_reply (reply) == -1)
@@ -233,10 +206,8 @@ ACE_Remote_Name_Space::list_types (ACE_WSTRING_SET &set,
           set.insert (type);
         }
     }
-
   return 0;
 }
-
 int
 ACE_Remote_Name_Space::list_name_entries (ACE_BINDING_SET &set,
                                           const ACE_NS_WString &pattern)
@@ -249,12 +220,9 @@ ACE_Remote_Name_Space::list_name_entries (ACE_BINDING_SET &set,
                             pattern_urep.get (),
                             pattern_len,
                             0, 0, 0, 0);
-
   if (this->ns_proxy_.send_request (request) == -1)
     return -1;
-
   ACE_Name_Request reply (0, 0, 0, 0, 0, 0, 0, 0);
-
   while (reply.msg_type () != ACE_Name_Request::MAX_ENUM)
     {
       if (this->ns_proxy_.recv_reply (reply) == -1)
@@ -277,7 +245,6 @@ ACE_Remote_Name_Space::list_name_entries (ACE_BINDING_SET &set,
     }
   return 0;
 }
-
 int
 ACE_Remote_Name_Space::list_value_entries (ACE_BINDING_SET &set,
                                            const ACE_NS_WString &pattern)
@@ -290,12 +257,9 @@ ACE_Remote_Name_Space::list_value_entries (ACE_BINDING_SET &set,
                             pattern_urep.get (),
                             pattern_len,
                             0, 0, 0, 0);
-
   if (this->ns_proxy_.send_request (request) == -1)
     return -1;
-
   ACE_Name_Request reply (0, 0, 0, 0, 0, 0, 0, 0);
-
   while (reply.msg_type () != ACE_Name_Request::MAX_ENUM)
     {
       if (this->ns_proxy_.recv_reply (reply) == -1)
@@ -318,7 +282,6 @@ ACE_Remote_Name_Space::list_value_entries (ACE_BINDING_SET &set,
     }
   return 0;
 }
-
 int
 ACE_Remote_Name_Space::list_type_entries (ACE_BINDING_SET &set,
                                           const ACE_NS_WString &pattern)
@@ -331,12 +294,9 @@ ACE_Remote_Name_Space::list_type_entries (ACE_BINDING_SET &set,
                             pattern_urep.get (),
                             pattern_len,
                             0, 0, 0, 0);
-
   if (this->ns_proxy_.send_request (request) == -1)
     return -1;
-
   ACE_Name_Request reply (0, 0, 0, 0, 0, 0, 0, 0);
-
   while (reply.msg_type () != ACE_Name_Request::MAX_ENUM)
     {
       if (this->ns_proxy_.recv_reply (reply) == -1)
@@ -359,23 +319,19 @@ ACE_Remote_Name_Space::list_type_entries (ACE_BINDING_SET &set,
     }
   return 0;
 }
-
 ACE_Remote_Name_Space::~ACE_Remote_Name_Space (void)
 {
   ACE_TRACE ("ACE_Remote_Name_Space::~ACE_Remote_Name_Space");
 }
-
 void
 ACE_Remote_Name_Space::dump (void) const
 {
 #if defined (ACE_HAS_DUMP)
   ACE_TRACE ("ACE_Remote_Name_Space::dump");
-
   ACE_DEBUG ((LM_DEBUG, ACE_BEGIN_DUMP, this));
   this->ns_proxy_.dump ();
   ACE_DEBUG ((LM_DEBUG, ACE_END_DUMP));
 #endif /* ACE_HAS_DUMP */
 }
-
 ACE_END_VERSIONED_NAMESPACE_DECL
 

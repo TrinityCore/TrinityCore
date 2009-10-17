@@ -1,15 +1,12 @@
 // -*- C++ -*-
 //
 // $Id: OS_NS_time.inl 80826 2008-03-04 14:51:23Z wotte $
-
 #include "ace/OS_NS_string.h"
 #include "ace/OS_NS_errno.h"
 #include "ace/Time_Value.h"
 #include "ace/OS_NS_unistd.h"
 #include "ace/OS_NS_sys_time.h"
-
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
-
 ACE_INLINE char *
 ACE_OS::asctime (const struct tm *t)
 {
@@ -21,7 +18,6 @@ ACE_OS::asctime (const struct tm *t)
   ACE_OSCALL_RETURN (ACE_STD_NAMESPACE::asctime (t), char *, 0);
 #endif /* ACE_LACKS_ASCTIME */
 }
-
 ACE_INLINE char *
 ACE_OS::asctime_r (const struct tm *t, char *buf, int buflen)
 {
@@ -60,7 +56,6 @@ ACE_OS::asctime_r (const struct tm *t, char *buf, int buflen)
   return buf;
 #endif /* ACE_HAS_REENTRANT_FUNCTIONS */
 }
-
 ACE_INLINE int
 ACE_OS::clock_gettime (clockid_t clockid, struct timespec *ts)
 {
@@ -73,7 +68,6 @@ ACE_OS::clock_gettime (clockid_t clockid, struct timespec *ts)
   ACE_NOTSUP_RETURN (-1);
 #endif /* ACE_HAS_CLOCK_GETTIME */
 }
-
 ACE_INLINE int
 ACE_OS::clock_settime (clockid_t clockid, const struct timespec *ts)
 {
@@ -89,10 +83,8 @@ ACE_OS::clock_settime (clockid_t clockid, const struct timespec *ts)
   ACE_NOTSUP_RETURN (-1);
 #endif /* ACE_HAS_CLOCK_SETTIME */
 }
-
 // Magic number declaration and definition for ctime and ctime_r ()
 static const int ctime_buf_size = 26;
-
 ACE_INLINE ACE_TCHAR *
 ACE_OS::ctime (const time_t *t)
 {
@@ -126,15 +118,12 @@ ACE_OS::ctime (const time_t *t)
 #  endif /* ACE_USES_WCHAR */
 # endif /* ACE_HAS_BROKEN_CTIME */
 }
-
 #if !defined (ACE_HAS_WINCE)  /* CE version in OS.cpp */
 ACE_INLINE ACE_TCHAR *
 ACE_OS::ctime_r (const time_t *t, ACE_TCHAR *buf, int buflen)
 {
   ACE_OS_TRACE ("ACE_OS::ctime_r");
-
 #if defined (ACE_HAS_REENTRANT_FUNCTIONS)
-
   char *bufp = 0;
 #   if defined (ACE_USES_WCHAR)
   char narrow_buf[ctime_buf_size];
@@ -142,7 +131,6 @@ ACE_OS::ctime_r (const time_t *t, ACE_TCHAR *buf, int buflen)
 #   else
   bufp = buf;
 #   endif /* ACE_USES_WCHAR */
-
   if (buflen < ctime_buf_size)
     {
       errno = ERANGE;
@@ -155,18 +143,14 @@ ACE_OS::ctime_r (const time_t *t, ACE_TCHAR *buf, int buflen)
   ACE_OSCALL (::ctime_r (t, bufp), char *, 0, bufp);
 #      endif /* DIGITAL_UNIX */
 #   else /* ACE_HAS_2_PARAM_ASCTIME_R_AND_CTIME_R */
-
 #      if defined (ACE_HAS_SIZET_PTR_ASCTIME_R_AND_CTIME_R)
   bufp = ::ctime_r (t, bufp, reinterpret_cast<size_t*>(&buflen));
 #      else /* ACE_CTIME_R_RETURNS_INT */
   bufp = ::ctime_r (t, bufp, buflen);
 #      endif /* ACE_CTIME_R_RETURNS_INT */
-
 #   endif /* ACE_HAS_2_PARAM_ASCTIME_R_AND_CTIME_R */
-
   if (bufp == 0)
     return 0;
-
 #   if defined (ACE_USES_WCHAR)
   ACE_Ascii_To_Wide wide_buf (bufp);
   ACE_OS_String::strcpy (buf, wide_buf.wchar_rep ());
@@ -174,7 +158,6 @@ ACE_OS::ctime_r (const time_t *t, ACE_TCHAR *buf, int buflen)
 #   else
   return bufp;
 #   endif /* ACE_USES_WCHAR */
-
 #elif defined (ACE_HAS_TR24731_2005_CRT)
   if (buflen < ctime_buf_size)
     {
@@ -188,14 +171,12 @@ ACE_OS::ctime_r (const time_t *t, ACE_TCHAR *buf, int buflen)
   ACE_SECURECRTCALL (ctime_s (buf, buflen, t), char *, 0, result);
 #  endif
   return result;
-
 #else /* ACE_HAS_REENTRANT_FUNCTIONS */
   if (buflen < ctime_buf_size)
     {
       errno = ERANGE;
       return 0;
     }
-
   ACE_TCHAR *result;
 #     if defined (ACE_USES_WCHAR)
   ACE_OSCALL (::_wctime (t), wchar_t *, 0, result);
@@ -208,7 +189,6 @@ ACE_OS::ctime_r (const time_t *t, ACE_TCHAR *buf, int buflen)
 #endif /* ACE_HAS_REENTRANT_FUNCTIONS */
 }
 #endif /* !ACE_HAS_WINCE */
-
 #if !defined (ACE_LACKS_DIFFTIME)
 ACE_INLINE double
 ACE_OS::difftime (time_t t1, time_t t0)
@@ -216,11 +196,9 @@ ACE_OS::difftime (time_t t1, time_t t0)
   return ::ace_difftime (t1, t0);
 }
 #endif /* ! ACE_LACKS_DIFFTIME */
-
 #if defined (ghs) && defined (ACE_HAS_PENTIUM) && !defined (ACE_WIN32)
   extern "C" ACE_hrtime_t ACE_GETHRTIME_NAME ();
 #endif /* ghs && ACE_HAS_PENTIUM */
-
 ACE_INLINE ACE_hrtime_t
 ACE_OS::gethrtime (const ACE_HRTimer_Op op)
 {
@@ -231,17 +209,13 @@ ACE_OS::gethrtime (const ACE_HRTimer_Op op)
 #elif defined (ACE_HAS_AIX_HI_RES_TIMER)
   ACE_UNUSED_ARG (op);
   timebasestruct_t tb;
-
   ::read_real_time(&tb, TIMEBASE_SZ);
   ::time_base_to_time(&tb, TIMEBASE_SZ);
-
   return ACE_hrtime_t(tb.tb_high) * ACE_ONE_SECOND_IN_NSECS + tb.tb_low;
 #elif defined (ACE_WIN32)
   ACE_UNUSED_ARG(op);
   LARGE_INTEGER freq;
-
   ::QueryPerformanceCounter (&freq);
-
 #  if defined (ACE_LACKS_LONGLONG_T)
   ACE_UINT64 uint64_freq (freq.u.LowPart,
                           static_cast<unsigned int> (freq.u.HighPart));
@@ -260,9 +234,8 @@ ACE_OS::gethrtime (const ACE_HRTimer_Op op)
 # else  /* ! ACE_LACKS_LONGLONG_T */
   ACE_hrtime_t now;
 # endif /* ! ACE_LACKS_LONGLONG_T */
-
 #if defined (__amd64__) || defined (__x86_64__)
-  // Read the high res tick counter into 32 bit int variables "eax" and 
+  // Read the high res tick counter into 32 bit int variables "eax" and
   // "edx", and then combine them into 64 bit int "now"
   ACE_UINT32 eax, edx;
   asm volatile ("rdtsc" : "=a" (eax), "=d" (edx) : : "memory");
@@ -272,13 +245,11 @@ ACE_OS::gethrtime (const ACE_HRTimer_Op op)
   // The A constraint signifies a 64-bit int.
   asm volatile ("rdtsc" : "=A" (now) : : "memory");
 #endif
-
 # if defined (ACE_LACKS_LONGLONG_T)
   ACE_UINT32 least, most;
   ACE_OS::memcpy (&least, &now, sizeof (ACE_UINT32));
   ACE_OS::memcpy (&most, (u_char *) &now + sizeof (ACE_UINT32),
                   sizeof (ACE_UINT32));
-
   ACE_hrtime_t ret (least, most);
   return ret;
 # else  /* ! ACE_LACKS_LONGLONG_T */
@@ -292,26 +263,21 @@ ACE_OS::gethrtime (const ACE_HRTimer_Op op)
   // the time that the process was running.  This information is from
   // David Mosberger's article, see comment below.
   ACE_UINT32 now;
-
   // The following statement is based on code published by:
   // Mosberger, David, "How to Make Your Applications Fly, Part 1",
   // Linux Journal Issue 42, October 1997, page 50.  It reads the
   // high-res tick counter directly into the memory variable.
   asm volatile ("rpcc %0" : "=r" (now) : : "memory");
-
   return now;
 #elif defined (ACE_HAS_POWERPC_TIMER) && (defined (ghs) || defined (__GNUG__))
   // PowerPC w/ GreenHills or g++.
-
   ACE_UNUSED_ARG (op);
   u_long most;
   u_long least;
-
 #if defined (ghs)
   ACE_OS::readPPCTimeBase (most, least);
 #else
   u_long scratch;
-
   do {
     asm volatile ("mftbu %0\n"
           "mftb  %1\n"
@@ -319,25 +285,21 @@ ACE_OS::gethrtime (const ACE_HRTimer_Op op)
           : "=r" (most), "=r" (least), "=r" (scratch));
   } while (most != scratch);
 #endif
-
 #if defined (ACE_LACKS_LONGLONG_T)
   return ACE_U_LongLong (least, most);
 #else  /* ! ACE_LACKS_LONGLONG_T */
   return 0x100000000llu * most  +  least;
 #endif /* ! ACE_LACKS_LONGLONG_T */
-
 #elif defined (ACE_HAS_CLOCK_GETTIME)
   // e.g., VxWorks (besides POWERPC && GreenHills) . . .
   ACE_UNUSED_ARG (op);
   struct timespec ts;
-
   ACE_OS::clock_gettime (
 #if defined (ACE_HAS_CLOCK_GETTIME_MONOTONIC)
          CLOCK_MONOTONIC,
 #endif /* !ACE_HAS_CLOCK_GETTIME_MONOTONIC */
          CLOCK_REALTIME,
          &ts);
-
   // Carefully create the return value to avoid arithmetic overflow
   // if ACE_hrtime_t is ACE_U_LongLong.
   return static_cast<ACE_hrtime_t> (ts.tv_sec) *
@@ -345,14 +307,12 @@ ACE_OS::gethrtime (const ACE_HRTimer_Op op)
 #else
   ACE_UNUSED_ARG (op);
   ACE_Time_Value const now = ACE_OS::gettimeofday ();
-
   // Carefully create the return value to avoid arithmetic overflow
   // if ACE_hrtime_t is ACE_U_LongLong.
   return (static_cast<ACE_hrtime_t> (now.sec ()) * (ACE_UINT32) 1000000  +
           static_cast<ACE_hrtime_t> (now.usec ())) * (ACE_UINT32) 1000;
 #endif /* ACE_HAS_HI_RES_TIMER */
 }
-
 ACE_INLINE struct tm *
 ACE_OS::gmtime (const time_t *t)
 {
@@ -364,7 +324,6 @@ ACE_OS::gmtime (const time_t *t)
   ACE_OSCALL_RETURN (::gmtime (t), struct tm *, 0);
 #endif /* ACE_LACKS_GMTIME */
 }
-
 ACE_INLINE struct tm *
 ACE_OS::gmtime_r (const time_t *t, struct tm *res)
 {
@@ -391,7 +350,6 @@ ACE_OS::gmtime_r (const time_t *t, struct tm *res)
   return res;
 #endif /* ACE_HAS_REENTRANT_FUNCTIONS */
 }
-
 ACE_INLINE struct tm *
 ACE_OS::localtime (const time_t *t)
 {
@@ -403,7 +361,6 @@ ACE_OS::localtime (const time_t *t)
   ACE_OSCALL_RETURN (::localtime (t), struct tm *, 0);
 #endif /* ACE_LACKS_LOCALTIME */
 }
-
 ACE_INLINE int
 ACE_OS::nanosleep (const struct timespec *requested,
                    struct timespec *remaining)
@@ -417,14 +374,12 @@ ACE_OS::nanosleep (const struct timespec *requested,
   return ::nanosleep ((ACE_TIMESPEC_PTR) requested, remaining);
 #else
   ACE_UNUSED_ARG (remaining);
-
   // Convert into seconds and microseconds.
   ACE_Time_Value tv (requested->tv_sec,
                      requested->tv_nsec / 1000);
   return ACE_OS::sleep (tv);
 #endif /* ACE_HAS_CLOCK_GETTIME */
 }
-
 ACE_INLINE size_t
 ACE_OS::strftime (char *s, size_t maxsize, const char *format,
                   const struct tm *timeptr)
@@ -439,7 +394,6 @@ ACE_OS::strftime (char *s, size_t maxsize, const char *format,
   return ACE_STD_NAMESPACE::strftime (s, maxsize, format, timeptr);
 #endif /* ACE_LACKS_STRFTIME */
 }
-
 ACE_INLINE char *
 ACE_OS::strptime (const char *buf, const char *format, struct tm *tm)
 {
@@ -456,7 +410,6 @@ ACE_OS::strptime (const char *buf, const char *format, struct tm *tm)
   return ::strptime (buf, format, tm);
 #endif /* ACE_LACKS_STRPTIME */
 }
-
 ACE_INLINE time_t
 ACE_OS::time (time_t *tloc)
 {
@@ -470,7 +423,6 @@ ACE_OS::time (time_t *tloc)
   return retv;
 #endif /* ACE_HAS_WINCE */
 }
-
 // Linux won't compile unless we explicitly use a namespace here.
 #if defined (__GNUG__)
 namespace ACE_OS {
@@ -487,7 +439,6 @@ ACE_OS::timezone (void)
   return ::ace_timezone ();
 }
 #endif /* linux */
-
 ACE_INLINE void
 ACE_OS::tzset (void)
 {
@@ -501,5 +452,4 @@ ACE_OS::tzset (void)
   errno = ENOTSUP;
 # endif /* ACE_HAS_WINCE && !VXWORKS && !ACE_HAS_RTEMS && !ACE_HAS_DINKUM_STL */
 }
-
 ACE_END_VERSIONED_NAMESPACE_DECL

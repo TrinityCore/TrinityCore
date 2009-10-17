@@ -13,15 +13,12 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
-
 /* ScriptData
 SDName: Boss_Buru
 SD%Complete: 0
 SDComment: Place Holder
 SDCategory: Ruins of Ahn'Qiraj
 EndScriptData */
-
 #include "precompiled.h"
-
  #define EMOTE_TARGET        -1509002
 

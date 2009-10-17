@@ -17,13 +17,10 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
-
 #ifndef TRINITY_GRIDSTATES_H
 #define TRINITY_GRIDSTATES_H
-
 #include "Map.h"
 #include "Object.h"
-
 class TRINITY_DLL_DECL GridState
 {
     public:
@@ -44,32 +41,24 @@ class TRINITY_DLL_DECL GridState
 #endif
         virtual void Update(Map &, NGridType&, GridInfo &, const uint32 &x, const uint32 &y, const uint32 &t_diff) const = 0;
 };
-
 class TRINITY_DLL_DECL InvalidState : public GridState
 {
     public:
-
         void Update(Map &, NGridType &, GridInfo &, const uint32 &x, const uint32 &y, const uint32 &t_diff) const;
 };
-
 class TRINITY_DLL_DECL ActiveState : public GridState
 {
     public:
-
         void Update(Map &, NGridType &, GridInfo &, const uint32 &x, const uint32 &y, const uint32 &t_diff) const;
 };
-
 class TRINITY_DLL_DECL IdleState : public GridState
 {
     public:
-
         void Update(Map &, NGridType &, GridInfo &, const uint32 &x, const uint32 &y, const uint32 &t_diff) const;
 };
-
 class TRINITY_DLL_DECL RemovalState : public GridState
 {
     public:
-
         void Update(Map &, NGridType &, GridInfo &, const uint32 &x, const uint32 &y, const uint32 &t_diff) const;
 };
 #endif

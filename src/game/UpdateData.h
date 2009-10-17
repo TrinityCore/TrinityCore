@@ -17,13 +17,10 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
-
 #ifndef __UPDATEDATA_H
 #define __UPDATEDATA_H
-
 #include "ByteBuffer.h"
 class WorldPacket;
-
 enum OBJECT_UPDATE_TYPE
 {
     UPDATETYPE_VALUES               = 0,
@@ -33,7 +30,6 @@ enum OBJECT_UPDATE_TYPE
     UPDATETYPE_OUT_OF_RANGE_OBJECTS = 4,
     UPDATETYPE_NEAR_OBJECTS         = 5
 };
-
 enum OBJECT_UPDATE_FLAGS
 {
     UPDATEFLAG_NONE         = 0x0000,
@@ -48,26 +44,21 @@ enum OBJECT_UPDATE_FLAGS
     UPDATEFLAG_POSITION     = 0x0100,
     UPDATEFLAG_ROTATION     = 0x0200
 };
-
 class UpdateData
 {
     public:
         UpdateData();
-
         void AddOutOfRangeGUID(std::set<uint64>& guids);
         void AddOutOfRangeGUID(const uint64 &guid);
         void AddUpdateBlock(const ByteBuffer &block);
         bool BuildPacket(WorldPacket *packet);
         bool HasData() { return m_blockCount > 0 || !m_outOfRangeGUIDs.empty(); }
         void Clear();
-
         std::set<uint64> const& GetOutOfRangeGUIDs() const { return m_outOfRangeGUIDs; }
-
     protected:
         uint32 m_blockCount;
         std::set<uint64> m_outOfRangeGUIDs;
         ByteBuffer m_data;
-
         void Compress(void* dst, uint32 *dst_size, void* src, int src_size);
 };
 #endif

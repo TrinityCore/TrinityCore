@@ -1,5 +1,4 @@
 // -*- C++ -*-
-
 //=============================================================================
 /**
  *  @file    Dirent.h
@@ -12,21 +11,15 @@
  *  @author Douglas C. Schmidt <schmidt@cs.wustl.edu>
  */
 //=============================================================================
-
 #ifndef ACE_DIRENT_H
 #define ACE_DIRENT_H
 #include /**/ "ace/pre.h"
-
 #include /**/ "ace/ACE_export.h"
-
 #if !defined (ACE_LACKS_PRAGMA_ONCE)
 # pragma once
 #endif /* ACE_LACKS_PRAGMA_ONCE */
-
 #include "ace/OS_NS_dirent.h"
-
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
-
 /**
  * @class ACE_Dirent
  *
@@ -38,20 +31,15 @@ public:
   // = Initialization and termination methods.
   /// Default constructor.
   ACE_Dirent (void);
-
   /// Constructor calls <opendir>
   explicit ACE_Dirent (const ACE_TCHAR *dirname);
-
   /// Opens the directory named by filename and associates a directory
   /// stream with it.
   int open (const ACE_TCHAR *filename);
-
   /// Destructor calls <closedir>.
   ~ACE_Dirent (void);
-
   /// Closes the directory stream and frees the <ACE_DIR> structure.
   void close (void);
-
   // = Iterator methods.
   /**
    * Returns a pointer to a structure representing the directory entry
@@ -71,7 +59,6 @@ public:
    * directory is actually read.
    */
   ACE_DIRENT *read (void);
-
   /**
    * Has the equivalent functionality as <readdir> except that an
    * @a entry and @a result buffer must be supplied by the caller to
@@ -79,12 +66,10 @@ public:
    */
   int read (struct ACE_DIRENT *entry,
             struct ACE_DIRENT **result);
-
   // = Manipulators.
   /// Returns the current location associated with the directory
   /// stream.
   long tell (void);
-
   /**
    * Sets the position of the next <readdir> operation on the
    * directory stream.  The new position reverts to the position
@@ -98,7 +83,6 @@ public:
    * any calls to readdir.
    */
   void seek (long loc);
-
   /**
    * Resets the position of the directory stream to the beginning of
    * the directory.  It also causes the directory stream to refer to
@@ -106,18 +90,14 @@ public:
    * <opendir> would.
    */
   void rewind (void);
-
 private:
   /// Pointer to the directory stream.
   ACE_DIR *dirp_;
 };
-
 ACE_END_VERSIONED_NAMESPACE_DECL
-
 #if defined (__ACE_INLINE__)
 #include "ace/Dirent.inl"
 #endif /* __ACE_INLINE__ */
-
 #include /**/ "ace/post.h"
 #endif /* ACE_DIRENT_H */
 

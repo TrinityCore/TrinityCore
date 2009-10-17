@@ -17,23 +17,19 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
-
 #include "Player.h"
 #include "Group.h"
 #include "GroupReference.h"
-
 void GroupReference::targetObjectBuildLink()
 {
     // called from link()
     getTarget()->LinkMember(this);
 }
-
 void GroupReference::targetObjectDestroyLink()
 {
     // called from unlink()
     getTarget()->DelinkMember(this);
 }
-
 void GroupReference::sourceObjectDestroyLink()
 {
     // called from invalidate()

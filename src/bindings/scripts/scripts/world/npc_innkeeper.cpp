@@ -13,25 +13,20 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
-
 /* ScriptData
 SDName: Npc_Innkeeper
 SD%Complete: 50
 SDComment: This script are currently not in use. EventSystem cannot be used on Windows build of SD2
 SDCategory: NPCs
 EndScriptData */
-
 #include "precompiled.h"
-
 #define HALLOWEEN_EVENTID       12
 #define SPELL_TRICK_OR_TREATED  24755
 #define SPELL_TREAT             24715
-
 #define LOCALE_TRICK_OR_TREAT_0 "Trick or Treat!"
 #define LOCALE_TRICK_OR_TREAT_2 "Des bonbons ou des blagues!"
 #define LOCALE_TRICK_OR_TREAT_3 "Süßes oder Saures!"
 #define LOCALE_TRICK_OR_TREAT_6 "¡Truco o trato!"
-
 bool isEventActive()
 {
     /*
@@ -46,12 +41,10 @@ bool isEventActive()
      }*/
     return false;
 }
-
 bool GossipHello_npc_innkeeper(Player* pPlayer, Creature* pCreature)
 {
     if (pCreature->isQuestGiver())
         pPlayer->PrepareQuestMenu(pCreature->GetGUID());
-
     if (isEventActive()&& !pPlayer->GetAura(SPELL_TRICK_OR_TREATED, pPlayer->GetGUID()))
     {
         char* localizedEntry;
@@ -72,22 +65,18 @@ bool GossipHello_npc_innkeeper(Player* pPlayer, Creature* pCreature)
             default:
                 localizedEntry=LOCALE_TRICK_OR_TREAT_0;
         }
-
         pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, localizedEntry, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+HALLOWEEN_EVENTID);
     }
-
     pPlayer->TalkedToCreature(pCreature->GetEntry(), pCreature->GetGUID());
     pPlayer->SEND_GOSSIP_MENU(pCreature->GetNpcTextId(), pCreature->GetGUID());
     return true;
 }
-
 bool GossipSelect_npc_innkeeper(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
 {
     if (uiAction == GOSSIP_ACTION_INFO_DEF+HALLOWEEN_EVENTID && isEventActive() && !pPlayer->GetAura(SPELL_TRICK_OR_TREATED, pPlayer->GetGUID()))
     {
         pPlayer->CLOSE_GOSSIP_MENU();
         pPlayer->CastSpell(pPlayer, SPELL_TRICK_OR_TREATED, true);
-
         // either trick or treat, 50% chance
         if (rand()%2)
         {
@@ -132,7 +121,6 @@ bool GossipSelect_npc_innkeeper(Player* pPlayer, Creature* pCreature, uint32 uiS
     }
     return false;                                           // the player didn't select "trick or treat" or cheated, normal core handling
 }
-
 void AddSC_npc_innkeeper()
 {
     Script *newscript;

@@ -9,12 +9,9 @@
 // *  @author Craig Rodrigues  <crodrigu@bbn.com>
 // */
 //=============================================================================
-
 #include "ace/OS_QoS.h"
 #include "ace/OS_NS_errno.h"
-
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
-
 ACE_Flow_Spec::ACE_Flow_Spec (unsigned long token_rate,
                               unsigned long token_bucket_size,
                               unsigned long peak_bandwidth,
@@ -44,7 +41,6 @@ ACE_Flow_Spec::ACE_Flow_Spec (unsigned long token_rate,
   ACE_UNUSED_ARG (ttl);
   ACE_UNUSED_ARG (priority);
 #else
-
   this->token_rate_ = token_rate;
   this->token_bucket_size_ = token_bucket_size;
   this->peak_bandwidth_ = peak_bandwidth;
@@ -55,10 +51,8 @@ ACE_Flow_Spec::ACE_Flow_Spec (unsigned long token_rate,
   this->minimum_policed_size_ = minimum_policed_size;
   this->ttl_ = ttl;
   this->priority_ = priority;
-
 #endif /* defined (ACE_HAS_WINSOCK2) && (ACE_HAS_WINSOCK2 != 0) */
 }
-
 ACE_Flow_Spec::ACE_Flow_Spec (void)
 {
 #if defined (ACE_HAS_WINSOCK2) && (ACE_HAS_WINSOCK2 != 0) && \
@@ -74,7 +68,6 @@ ACE_Flow_Spec::ACE_Flow_Spec (void)
   this->MinimumPolicedSize = 0;
 #endif /* ACE_HAS_WINSOCK2_GQOS */
 #else
-
   this->token_rate_ = 0;
   this->token_bucket_size_ = 0;
   this->peak_bandwidth_ = 0;
@@ -85,10 +78,8 @@ ACE_Flow_Spec::ACE_Flow_Spec (void)
   this->minimum_policed_size_ = 0;
   this->ttl_ = 0;
   this->priority_ = 0;
-
 #endif /* defined (ACE_HAS_WINSOCK2) && (ACE_HAS_WINSOCK2 != 0) */
 }
-
 unsigned long
 ACE_Flow_Spec::token_rate (void) const
 {
@@ -98,7 +89,6 @@ ACE_Flow_Spec::token_rate (void) const
   return this->token_rate_;
 #endif /* ACE_HAS_WINSOCK2 */
 }
-
 void
 ACE_Flow_Spec::token_rate (unsigned long tr)
 {
@@ -108,7 +98,6 @@ ACE_Flow_Spec::token_rate (unsigned long tr)
   this->token_rate_ = tr;
 #endif /* ACE_HAS_WINSOCK2 */
 }
-
 unsigned long
 ACE_Flow_Spec::token_bucket_size (void) const
 {
@@ -118,7 +107,6 @@ ACE_Flow_Spec::token_bucket_size (void) const
   return this->token_bucket_size_;
 #endif /* ACE_HAS_WINSOCK2 */
 }
-
 void
 ACE_Flow_Spec::token_bucket_size (unsigned long tbs)
 {
@@ -128,7 +116,6 @@ ACE_Flow_Spec::token_bucket_size (unsigned long tbs)
   this->token_bucket_size_ = tbs;
 #endif /* ACE_HAS_WINSOCK2 */
 }
-
 unsigned long
 ACE_Flow_Spec::peak_bandwidth (void) const
 {
@@ -138,7 +125,6 @@ ACE_Flow_Spec::peak_bandwidth (void) const
   return this->peak_bandwidth_;
 #endif /* ACE_HAS_WINSOCK2 */
 }
-
 void
 ACE_Flow_Spec::peak_bandwidth (unsigned long pb)
 {
@@ -148,7 +134,6 @@ ACE_Flow_Spec::peak_bandwidth (unsigned long pb)
   this->peak_bandwidth_ = pb;
 #endif /* ACE_HAS_WINSOCK2 */
 }
-
 unsigned long
 ACE_Flow_Spec::latency (void) const
 {
@@ -158,7 +143,6 @@ ACE_Flow_Spec::latency (void) const
   return this->latency_;
 #endif /* ACE_HAS_WINSOCK2 */
 }
-
 void
 ACE_Flow_Spec::latency (unsigned long l)
 {
@@ -168,7 +152,6 @@ ACE_Flow_Spec::latency (unsigned long l)
   this->latency_ = l;
 #endif /* ACE_HAS_WINSOCK2 */
 }
-
 unsigned long
 ACE_Flow_Spec::delay_variation (void) const
 {
@@ -187,7 +170,6 @@ ACE_Flow_Spec::delay_variation (unsigned long dv)
   this->delay_variation_ = dv;
 #endif /* ACE_HAS_WINSOCK2 */
 }
-
 ACE_SERVICE_TYPE
 ACE_Flow_Spec::service_type (void) const
 {
@@ -198,7 +180,6 @@ ACE_Flow_Spec::service_type (void) const
   return this->service_type_;
 #endif /* ACE_HAS_WINSOCK2 */
 }
-
 void
 ACE_Flow_Spec::service_type (ACE_SERVICE_TYPE st)
 {
@@ -209,7 +190,6 @@ ACE_Flow_Spec::service_type (ACE_SERVICE_TYPE st)
   this->service_type_ = st;
 #endif /* ACE_HAS_WINSOCK2 */
 }
-
 unsigned long
 ACE_Flow_Spec::max_sdu_size (void) const
 {
@@ -220,7 +200,6 @@ ACE_Flow_Spec::max_sdu_size (void) const
   return this->max_sdu_size_;
 #endif /* ACE_HAS_WINSOCK2 */
 }
-
 void
 ACE_Flow_Spec::max_sdu_size (unsigned long mss)
 {
@@ -231,7 +210,6 @@ ACE_Flow_Spec::max_sdu_size (unsigned long mss)
   this->max_sdu_size_ = mss;
 #endif /* ACE_HAS_WINSOCK2 */
 }
-
 unsigned long
 ACE_Flow_Spec::minimum_policed_size (void) const
 {
@@ -242,7 +220,6 @@ ACE_Flow_Spec::minimum_policed_size (void) const
   return this->minimum_policed_size_;
 #endif /* ACE_HAS_WINSOCK2 */
 }
-
 void
 ACE_Flow_Spec::minimum_policed_size (unsigned long mps)
 {
@@ -253,7 +230,6 @@ ACE_Flow_Spec::minimum_policed_size (unsigned long mps)
   this->minimum_policed_size_ = mps;
 #endif /* ACE_HAS_WINSOCK2 */
 }
-
 int
 ACE_Flow_Spec::ttl (void) const
 {
@@ -264,7 +240,6 @@ ACE_Flow_Spec::ttl (void) const
   return this->ttl_;
 #endif /* ACE_HAS_WINSOCK2 */
 }
-
 void
 ACE_Flow_Spec::ttl (int t)
 {
@@ -276,7 +251,6 @@ ACE_Flow_Spec::ttl (int t)
   this->ttl_ = t;
 #endif /* ACE_HAS_WINSOCK2 */
 }
-
 int
 ACE_Flow_Spec::priority (void) const
 {
@@ -287,7 +261,6 @@ ACE_Flow_Spec::priority (void) const
   return this->priority_;
 #endif /* ACE_HAS_WINSOCK2 */
 }
-
 void
 ACE_Flow_Spec::priority (int p)
 {
@@ -299,7 +272,6 @@ ACE_Flow_Spec::priority (int p)
   this->priority_ = p;
 #endif /* ACE_HAS_WINSOCK2 */
 }
-
 ACE_QoS::ACE_QoS (void)
 #if defined (ACE_HAS_WINSOCK2) && (ACE_HAS_WINSOCK2 != 0)
 #else
@@ -308,7 +280,6 @@ ACE_QoS::ACE_QoS (void)
 #endif /* ACE_HAS_WINSOCK2 */
 {
 }
-
 ACE_Flow_Spec*
 ACE_QoS::sending_flowspec (void) const
 {
@@ -318,7 +289,6 @@ ACE_QoS::sending_flowspec (void) const
   return this->sending_flowspec_;
 #endif /* ACE_HAS_WINSOCK2 */
 }
-
 void
 ACE_QoS::sending_flowspec (ACE_Flow_Spec *fs)
 {
@@ -328,7 +298,6 @@ ACE_QoS::sending_flowspec (ACE_Flow_Spec *fs)
   this->sending_flowspec_ = fs;
 #endif /* ACE_HAS_WINSOCK2 */
 }
-
 ACE_Flow_Spec*
 ACE_QoS::receiving_flowspec (void) const
 {
@@ -338,7 +307,6 @@ ACE_QoS::receiving_flowspec (void) const
   return receiving_flowspec_;
 #endif /* ACE_HAS_WINSOCK2 */
 }
-
 void
 ACE_QoS::receiving_flowspec (ACE_Flow_Spec *fs)
 {
@@ -348,7 +316,6 @@ ACE_QoS::receiving_flowspec (ACE_Flow_Spec *fs)
   this->receiving_flowspec_ = fs;
 #endif /* ACE_HAS_WINSOCK2 */
 }
-
 iovec
 ACE_QoS::provider_specific (void) const
 {
@@ -358,7 +325,6 @@ ACE_QoS::provider_specific (void) const
   ACE_NOTSUP_RETURN (iovec ());
 #endif /* ACE_HAS_WINSOCK2 */
 }
-
 void
 ACE_QoS::provider_specific (const iovec &ps)
 {
@@ -368,7 +334,6 @@ ACE_QoS::provider_specific (const iovec &ps)
   ACE_UNUSED_ARG (ps);
 #endif /* ACE_HAS_WINSOCK2 */
 }
-
 ACE_QoS_Params::ACE_QoS_Params (iovec *caller_data,
                                 iovec *callee_data,
                                 ACE_QoS *socket_qos,
@@ -381,97 +346,81 @@ ACE_QoS_Params::ACE_QoS_Params (iovec *caller_data,
     flags_ (flags)
 {
 }
-
 iovec *
 ACE_QoS_Params::caller_data (void) const
 {
   return this->caller_data_;
 }
-
 void
 ACE_QoS_Params::caller_data (iovec *cd)
 {
   this->caller_data_ = cd;
 }
-
 iovec *
 ACE_QoS_Params::callee_data (void) const
 {
   return this->callee_data_;
 }
-
 void
 ACE_QoS_Params::callee_data (iovec *cd)
 {
   this->callee_data_ = cd;
 }
-
 ACE_QoS *
 ACE_QoS_Params::socket_qos (void) const
 {
   return this->socket_qos_;
 }
-
 void
 ACE_QoS_Params::socket_qos (ACE_QoS *sq)
 {
   this->socket_qos_ = sq;
 }
-
 ACE_QoS *
 ACE_QoS_Params::group_socket_qos (void) const
 {
   return this->group_socket_qos_;
 }
-
 void
 ACE_QoS_Params::group_socket_qos (ACE_QoS *gsq)
 {
   this->group_socket_qos_ = gsq;
 }
-
 unsigned long
 ACE_QoS_Params::flags (void) const
 {
   return this->flags_;
 }
-
 void
 ACE_QoS_Params::flags (unsigned long f)
 {
   this->flags_ = f;
 }
-
 ACE_Accept_QoS_Params::ACE_Accept_QoS_Params (ACE_QOS_CONDITION_FUNC qos_condition_callback,
                                               unsigned long callback_data)
   : qos_condition_callback_ (qos_condition_callback),
     callback_data_ (callback_data)
 {
 }
-
 ACE_QOS_CONDITION_FUNC
 ACE_Accept_QoS_Params::qos_condition_callback (void) const
 {
   return this->qos_condition_callback_;
 }
-
 void
 ACE_Accept_QoS_Params::qos_condition_callback (ACE_QOS_CONDITION_FUNC qcc)
 {
   this->qos_condition_callback_ = qcc;
 }
-
 unsigned long
 ACE_Accept_QoS_Params::callback_data (void) const
 {
   return this->callback_data_;
 }
-
 void
 ACE_Accept_QoS_Params::callback_data (unsigned long cd)
 {
   this->callback_data_ = cd;
 }
-
 ACE_END_VERSIONED_NAMESPACE_DECL
 

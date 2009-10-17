@@ -1,16 +1,11 @@
 // $Id: Throughput_Stats.cpp 80826 2008-03-04 14:51:23Z wotte $
-
 #include "ace/Throughput_Stats.h"
-
 #include "ace/OS_NS_stdio.h"
 #include "ace/OS_NS_string.h"
 #include "ace/High_Res_Timer.h"
 #include "ace/Log_Msg.h"
-
 ACE_RCSID(ace, Throughput_Stats, "$Id: Throughput_Stats.cpp 80826 2008-03-04 14:51:23Z wotte $")
-
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
-
 ACE_Throughput_Stats::ACE_Throughput_Stats (void)
   : ACE_Basic_Stats ()
   , throughput_last_ (0)
@@ -25,16 +20,13 @@ ACE_Throughput_Stats::ACE_Throughput_Stats (void)
 #endif /* 0 */
 {
 }
-
 void
 ACE_Throughput_Stats::sample (ACE_UINT64 throughput,
                               ACE_UINT64 latency)
 {
   this->ACE_Basic_Stats::sample (latency);
-
   if (this->samples_count () == 1u)
     {
-
       this->throughput_last_   = throughput;
 #if 0
       // @@TODO: This is what I really wanted to compute, but it just
@@ -44,14 +36,12 @@ ACE_Throughput_Stats::sample (ACE_UINT64 throughput,
       this->throughput_sum_x_  = throughput;
       this->throughput_sum_x2_ = throughput * throughput;
       this->throughput_sum_xy_ = throughput * this->samples_count_;
-
       ACE_OS::printf ("%f %qu\n", throughput / 400000000.0, this->samples_count_);
 #endif /* 0 */
     }
   else
     {
       this->throughput_last_ = throughput;
-
 #if 0
       // @@TODO: This is what I really wanted to compute, but it just
       // does not work.
@@ -60,20 +50,16 @@ ACE_Throughput_Stats::sample (ACE_UINT64 throughput,
       this->throughput_sum_x_  += throughput;
       this->throughput_sum_x2_ += throughput * throughput;
       this->throughput_sum_xy_ += throughput * this->samples_count_;
-
       ACE_OS::printf ("%f %qu\n", throughput / 400000000.0, this->samples_count_);
 #endif /* 0 */
     }
 }
-
 void
 ACE_Throughput_Stats::accumulate (const ACE_Throughput_Stats &rhs)
 {
   if (rhs.samples_count () == 0u)
     return;
-
   this->ACE_Basic_Stats::accumulate (rhs);
-
   if (this->samples_count () == 0u)
     {
       this->throughput_last_   = rhs.throughput_last_;
@@ -86,14 +72,11 @@ ACE_Throughput_Stats::accumulate (const ACE_Throughput_Stats &rhs)
       this->throughput_sum_y2_ = rhs.throughput_sum_y2_;
       this->throughput_sum_xy_ = rhs.throughput_sum_xy_;
 #endif /* 0 */
-
       return;
     }
 
-
   if (this->throughput_last_ < rhs.throughput_last_)
     this->throughput_last_ = rhs.throughput_last_;
-
 #if 0
   // @@TODO: This is what I really wanted to compute, but it just
   // does not work.
@@ -104,7 +87,6 @@ ACE_Throughput_Stats::accumulate (const ACE_Throughput_Stats &rhs)
   this->throughput_sum_xy_ += rhs.throughput_sum_xy_;
 #endif /* 0 */
 }
-
 void
 ACE_Throughput_Stats::dump_results (const ACE_TCHAR* msg,
                                     ACE_UINT32 sf)
@@ -115,13 +97,10 @@ ACE_Throughput_Stats::dump_results (const ACE_TCHAR* msg,
                   ACE_TEXT ("%s : no data collected\n"), msg));
       return;
     }
-
   this->ACE_Basic_Stats::dump_results (msg, sf);
-
   ACE_Throughput_Stats::dump_throughput (msg, sf,
                                          this->throughput_last_,
                                          this->samples_count ());
-
 #if 0
   // @@TODO: This is what I really wanted to generate, but it just
   // doesn't work.
@@ -141,14 +120,11 @@ ACE_Throughput_Stats::dump_results (const ACE_TCHAR* msg,
   //t_sum_xy /= 1000000.0;
   double t_avgx = t_sum_x / this->samples_count ();
   double t_avgy = t_sum_y / this->samples_count ();
-
   double t_a =
     (this->samples_count () * t_sum_xy - t_sum_x * t_sum_y)
     / (this->samples_count () * t_sum_x2 - t_sum_x * t_sum_x);
   double t_b = (t_avgy - t_a * t_avgx);
-
   t_a *= 1000000.0;
-
   double d_r =
     (t_sum_xy - t_avgx * t_sum_y - t_avgy * t_sum_x
      + this->samples_count () * t_avgx * t_avgy);
@@ -158,7 +134,6 @@ ACE_Throughput_Stats::dump_results (const ACE_TCHAR* msg,
     * (t_sum_y2
        - this->samples_count () * t_avgy * t_avgy);
   double t_r = d_r * d_r / n_r;
-
   //  ACE_DEBUG ((LM_DEBUG,
   //              "%s throughput: %.2f/%.2f/%.2f/%.6f/%.2f (avg/a/b/r/elapsed)\n",
   //              msg, t_avg, t_a, t_b, t_r, seconds));
@@ -167,7 +142,6 @@ ACE_Throughput_Stats::dump_results (const ACE_TCHAR* msg,
   //              msg, t_sum_x, t_sum_x2, t_sum_y, t_sum_y2, t_sum_xy));
 #endif
 }
-
 void
 ACE_Throughput_Stats::dump_throughput (const ACE_TCHAR *msg,
                                        ACE_UINT32 sf,
@@ -185,9 +159,7 @@ ACE_Throughput_Stats::dump_throughput (const ACE_TCHAR *msg,
     static_cast<double> (ACE_UINT64_DBLCAST_ADAPTER (elapsed_time / sf));
 # endif /* ! ACE_LACKS_LONGLONG_T */
   seconds /= ACE_HR_SCALE_CONVERSION;
-
   const double t_avg = samples_count / seconds;
-
   ACE_DEBUG ((LM_DEBUG,
               ACE_TEXT ("%s throughput: %.2f (events/second)\n"),
               msg, t_avg));
@@ -198,6 +170,5 @@ ACE_Throughput_Stats::dump_throughput (const ACE_TCHAR *msg,
   ACE_UNUSED_ARG (samples_count);
 #endif /* ACE_NLOGGING */
 }
-
 ACE_END_VERSIONED_NAMESPACE_DECL
 
