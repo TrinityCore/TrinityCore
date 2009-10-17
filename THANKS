@@ -1,13 +1,18 @@
 = TrinityCore -- Thanks/credits file =
+
 TrinityCore is a derivation/rewrite of MaNGOS, which was originally written
 by Team Python and the WoW Daemon Team. Many people further helped Trinity Core
 by submitting bug reports, code patches, and suggestions. Thanks to the
 community!
+
 Special thanks should go out to the WowwoW team. We have gained help from
 them many times in the creation of this project. Keep up the good work guys.
+
 Thanks to the ScriptDev2 team (http://www.scriptdev2.com) for scripts.
+
 Thanks to the WCell team (especially Ralek) for research on realm reconnect
 sequence, item scaling stats algorithm, gameobject rotation issues.
+
 Thanks go out to the following people for various patches/code (listed in the
 order they were added): w12x, dythzer, XEQT, death420, balrok, TOM_RUS,
 runningnak3d, Seline, KingPin, raczman, bogie, Neo2003, NoFantasy, Derex,
