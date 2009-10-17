@@ -25,7 +25,7 @@ EndScriptData */
 #include "def_zulaman.h"
 #include "GridNotifiers.h"
 
-enum
+enum eEnums
 {
     SAY_AGGRO                   = -1568000,
     SAY_FIRE_BOMBS              = -1568001,

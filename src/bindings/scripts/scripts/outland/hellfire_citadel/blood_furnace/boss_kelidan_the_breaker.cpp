@@ -29,7 +29,7 @@ EndContentData */
 #include "precompiled.h"
 #include "def_blood_furnace.h"
 
-enum
+enum eEnums
 {
     SAY_WAKE                    = -1542000,
     SAY_ADD_AGGRO_1             = -1542001,

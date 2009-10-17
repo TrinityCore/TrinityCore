@@ -24,7 +24,7 @@ EndScriptData */
 #include "precompiled.h"
 #include "def_gruuls_lair.h"
 
-enum
+enum eEnums
 {
     SAY_AGGRO                   = -1565010,
     SAY_SLAM1                   = -1565011,
