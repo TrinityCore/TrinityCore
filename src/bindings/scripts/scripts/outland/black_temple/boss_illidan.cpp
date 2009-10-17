@@ -974,8 +974,9 @@ struct TRINITY_DLL_DECL npc_akama_illidanAI : public ScriptedAI
     npc_akama_illidanAI(Creature* c) : ScriptedAI(c)
     {
         pInstance = c->GetInstanceData();
+        JustCreated = true;
     }
-
+    bool JustCreated;
     ScriptedInstance* pInstance;
 
     PhaseAkama Phase;
@@ -991,9 +992,11 @@ struct TRINITY_DLL_DECL npc_akama_illidanAI : public ScriptedAI
     uint32 ChannelCount;
     uint32 WalkCount;
     uint32 TalkCount;
-
+    uint32 Check_Timer;
+    
     void Reset()
     {
+        WalkCount = 0;
         if (pInstance)
         {
             pInstance->SetData(DATA_ILLIDANSTORMRAGEEVENT, NOT_STARTED);
@@ -1003,11 +1006,20 @@ struct TRINITY_DLL_DECL npc_akama_illidanAI : public ScriptedAI
             DoorGUID[0] = pInstance->GetData64(DATA_GAMEOBJECT_ILLIDAN_DOOR_R);
             DoorGUID[1] = pInstance->GetData64(DATA_GAMEOBJECT_ILLIDAN_DOOR_L);
 
-            pInstance->HandleGameObject(GateGUID, false);
+            if(JustCreated)//close all doors at create
+            {
+                pInstance->HandleGameObject(GateGUID, false);
 
-            for(uint8 i = 0; i < 2; ++i)
-                pInstance->HandleGameObject(DoorGUID[i], false);
-
+                for(uint8 i = 0; i < 2; ++i)
+                    pInstance->HandleGameObject(DoorGUID[i], false);
+                //JustCreated = false;
+            }else
+            {//open all doors, raid wiped
+                pInstance->HandleGameObject(GateGUID, true);
+                WalkCount = 1;//skip first wp
+                for(uint8 i = 0; i < 2; ++i)
+                    pInstance->HandleGameObject(DoorGUID[i], true);
+            }
         }
         else
         {
@@ -1024,15 +1036,16 @@ struct TRINITY_DLL_DECL npc_akama_illidanAI : public ScriptedAI
         Phase = PHASE_AKAMA_NULL;
         Timer = 0;
 
-        ChannelCount = 0;
-        WalkCount = 0;
+        ChannelCount = 0;        
         TalkCount = 0;
+        Check_Timer = 5000;
 
         KillAllElites();
 
         m_creature->SetUInt32Value(UNIT_NPC_FLAGS, 0); // Database sometimes has strange values..
         m_creature->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
         m_creature->setActive(false);
+        m_creature->SetVisibility(VISIBILITY_OFF);
     }
 
     // Do not call reset in Akama's evade mode, as this will stop him from summoning minions after he kills the first bit
@@ -1046,7 +1059,11 @@ struct TRINITY_DLL_DECL npc_akama_illidanAI : public ScriptedAI
     void EnterCombat(Unit *who) {}
     void MoveInLineOfSight(Unit* who) {}
 
-    void MovementInform(uint32 MovementType, uint32 Data) {Timer = 1;}
+    void MovementInform(uint32 MovementType, uint32 Data) 
+    {
+        if(MovementType == POINT_MOTION_TYPE)
+            Timer = 1;
+    }
 
     void DamageTaken(Unit *done_by, uint32 &damage)
     {
@@ -1075,10 +1092,8 @@ struct TRINITY_DLL_DECL npc_akama_illidanAI : public ScriptedAI
             return;
 
         pInstance->SetData(DATA_ILLIDANSTORMRAGEEVENT, IN_PROGRESS);
-
         for(uint8 i = 0; i < 2; ++i)
-            pInstance->HandleGameObject(DoorGUID[i], false);
-
+            pInstance->HandleGameObject(DoorGUID[i], false);            
         if (GETCRE(Illidan, IllidanGUID))
         {
             Illidan->RemoveAurasDueToSpell(SPELL_KNEEL);
@@ -1094,7 +1109,9 @@ struct TRINITY_DLL_DECL npc_akama_illidanAI : public ScriptedAI
     void BeginChannel()
     {
         m_creature->setActive(true);
-
+        m_creature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+        if(!JustCreated)
+            return;
         float x, y, z;
         if (GETGO(Gate, GateGUID))
             Gate->GetPosition(x, y, z);
@@ -1104,8 +1121,7 @@ struct TRINITY_DLL_DECL npc_akama_illidanAI : public ScriptedAI
         if (Creature* Channel = m_creature->SummonCreature(ILLIDAN_DOOR_TRIGGER, x, y, z+5, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 360000))
         {
             ChannelGUID = Channel->GetGUID();
-            Channel->SetDisplayId(11686); // Invisible but spell visuals can still be seen.
-            m_creature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+            Channel->SetDisplayId(11686); // Invisible but spell visuals can still be seen.            
             DoCast(Channel, SPELL_AKAMA_DOOR_FAIL);
         }
 
@@ -1130,7 +1146,7 @@ struct TRINITY_DLL_DECL npc_akama_illidanAI : public ScriptedAI
             return;
         switch(NextPhase)
         {
-        case PHASE_CHANNEL:
+        case PHASE_CHANNEL:            
             BeginChannel();
             Timer = 5000;
             ChannelCount = 0;
@@ -1146,6 +1162,7 @@ struct TRINITY_DLL_DECL npc_akama_illidanAI : public ScriptedAI
                 m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                 WalkCount++;
             }
+            JustCreated = false;
             BeginWalk();
             Timer = 0;
             break;
@@ -1300,6 +1317,16 @@ struct TRINITY_DLL_DECL npc_akama_illidanAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
+        if(m_creature->GetVisibility() == VISIBILITY_OFF)
+        {
+            if(Check_Timer < diff)
+            {
+                if(pInstance && pInstance->GetData(DATA_ILLIDARICOUNCILEVENT) == DONE)
+                    m_creature->SetVisibility(VISIBILITY_ON);
+
+                Check_Timer = 5000;
+            }else Check_Timer -= diff;
+        }
         Event = false;
         if (Timer)
         {
@@ -1313,7 +1340,11 @@ struct TRINITY_DLL_DECL npc_akama_illidanAI : public ScriptedAI
             switch(Phase)
             {
             case PHASE_CHANNEL:
-                HandleChannelSequence();
+                if(JustCreated)
+                    HandleChannelSequence();                    
+                else{                    
+                    EnterPhase(PHASE_WALK);
+                }
                 break;
             case PHASE_TALK:
                 HandleTalkSequence();
