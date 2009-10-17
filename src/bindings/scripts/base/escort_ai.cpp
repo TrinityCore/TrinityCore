@@ -12,7 +12,7 @@ EndScriptData */
 #include "precompiled.h"
 #include "escort_ai.h"
 
-enum
+enum ePoints
 {
     POINT_LAST_POINT    = 0xFFFFFF,
     POINT_HOME          = 0xFFFFFE

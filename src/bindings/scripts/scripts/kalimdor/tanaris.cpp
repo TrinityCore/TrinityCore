@@ -341,7 +341,7 @@ bool GossipSelect_npc_stone_watcher_of_norgannon(Player* pPlayer, Creature* pCre
 ## npc_OOX17
 ######*/
 
-enum
+enum eEnums
 {
     //texts are signed for 7806
     SAY_OOX_START           = -1000287,

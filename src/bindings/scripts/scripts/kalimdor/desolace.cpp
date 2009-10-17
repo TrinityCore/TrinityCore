@@ -27,7 +27,7 @@ EndContentData */
 
 #include "precompiled.h"
 
-enum
+enum eDyingKodo
 {
     // signed for 9999
     SAY_SMEED_HOME_1                = -1000428,

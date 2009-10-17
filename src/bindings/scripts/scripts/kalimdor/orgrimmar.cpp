@@ -69,7 +69,7 @@ bool GossipSelect_npc_neeru_fireblade(Player* pPlayer, Creature* pCreature, uint
 ## npc_shenthul
 ######*/
 
-enum
+enum eShenthul
 {
     QUEST_SHATTERED_SALUTE  = 2460
 };

@@ -9,7 +9,7 @@
 #define FACTION_HOSTILE             754
 #define FACTION_FRIEND              35
 
-enum
+enum eEnums
 {
     TYPE_RING_OF_LAW        = 1,
     TYPE_VAULT              = 2,

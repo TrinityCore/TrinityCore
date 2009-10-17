@@ -5,7 +5,7 @@
 #ifndef DEF_SETHEKK_HALLS_H
 #define DEF_SETHEKK_HALLS_H
 
-enum
+enum eEnums
 {
     DATA_IKISSDOOREVENT = 1,
     TYPE_ANZU_ENCOUNTER = 2,

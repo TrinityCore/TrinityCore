@@ -264,7 +264,7 @@ CreatureAI* GetAI_boss_kelidan_the_breaker(Creature* pCreature)
 ## mob_shadowmoon_channeler
 ######*/
 
-enum
+enum eEnums
 {
     SPELL_SHADOW_BOLT       = 12739,
     H_SPELL_SHADOW_BOLT     = 15472,

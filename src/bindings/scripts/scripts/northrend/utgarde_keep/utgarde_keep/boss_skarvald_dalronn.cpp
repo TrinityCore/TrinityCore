@@ -26,7 +26,7 @@ EndScriptData */
 #include "precompiled.h"
 #include "def_utgarde_keep.h"
 
-enum
+enum eEnums
 {
     //signed for 24200, but used by 24200,27390
     YELL_SKARVALD_AGGRO                         = -1574011,

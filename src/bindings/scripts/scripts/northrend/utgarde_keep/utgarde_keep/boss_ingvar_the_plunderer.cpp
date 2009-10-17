@@ -26,7 +26,7 @@ EndScriptData */
 #include "precompiled.h"
 #include "def_utgarde_keep.h"
 
-enum
+enum eEnums
 {
     //Yells Ingvar
     YELL_AGGRO_1                        = -1574005,
@@ -277,7 +277,7 @@ CreatureAI* GetAI_boss_ingvar_the_plunderer(Creature* pCreature)
     return new boss_ingvar_the_plundererAI (pCreature);
 }
 
-enum
+enum eSpells
 {
 //we don't have that text in db so comment it until we get this text
 //    YELL_RESSURECT                      = -1574025,
@@ -389,7 +389,7 @@ CreatureAI* GetAI_mob_annhylde_the_caller(Creature* pCreature)
     return new mob_annhylde_the_callerAI (pCreature);
 }
 
-enum
+enum eShadowAxe
 {
     SPELL_SHADOW_AXE_DAMAGE                     = 42750,
     H_SPELL_SHADOW_AXE_DAMAGE                   = 59719

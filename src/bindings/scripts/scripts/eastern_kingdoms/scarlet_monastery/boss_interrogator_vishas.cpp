@@ -24,7 +24,7 @@ EndScriptData */
 #include "precompiled.h"
 #include "def_scarlet_monastery.h"
 
-enum
+enum eEnums
 {
     SAY_AGGRO               = -1189011,
     SAY_HEALTH1             = -1189012,

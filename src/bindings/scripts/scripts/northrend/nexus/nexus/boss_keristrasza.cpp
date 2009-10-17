@@ -24,7 +24,7 @@ EndScriptData */
 #include "precompiled.h"
 #include "def_nexus.h"
 
-enum
+enum eEnums
 {
     CONTAINMENT_SPHERES                             = 3,
 

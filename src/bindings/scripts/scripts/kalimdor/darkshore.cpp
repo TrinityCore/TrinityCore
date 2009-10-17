@@ -35,7 +35,7 @@ EndContentData */
 # npc_kerlonian
 ####*/
 
-enum
+enum eKerlonian
 {
     SAY_KER_START               = -1000434,
 
@@ -172,7 +172,7 @@ bool QuestAccept_npc_kerlonian(Player* pPlayer, Creature* pCreature, const Quest
 # npc_prospector_remtravel
 ####*/
 
-enum
+enum eRemtravel
 {
     SAY_REM_START               = -1000415, // signed for 4966
     SAY_REM_AGGRO               = -1000427, // signed for 9999
@@ -299,7 +299,7 @@ bool QuestAccept_npc_prospector_remtravel(Player* pPlayer, Creature* pCreature, 
 # npc_threshwackonator
 ####*/
 
-enum
+enum eThreshwackonator
 {
     EMOTE_START             = -1000413, //signed for 4966
     SAY_AT_CLOSE            = -1000414, //signed for 4966

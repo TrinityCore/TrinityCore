@@ -60,7 +60,7 @@ bool GOHello_go_shadowforge_brazier(Player* pPlayer, GameObject* pGo)
 ## npc_grimstone
 ######*/
 
-enum
+enum eGrimstone
 {
     NPC_GRIMSTONE       = 10096,
     NPC_THELDREN        = 16059,

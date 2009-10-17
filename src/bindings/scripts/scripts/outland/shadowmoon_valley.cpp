@@ -46,7 +46,7 @@ EndContentData */
 # mob_mature_netherwing_drake
 #####*/
 
-enum
+enum eEnums
 {
     SAY_JUST_EATEN              = -1000222,
 
@@ -623,7 +623,7 @@ bool GossipSelect_npc_oronok_tornheart(Player* pPlayer, Creature* pCreature, uin
 # npc_karynaku
 ####*/
 
-enum
+enum eEnums
 {
     QUEST_ALLY_OF_NETHER    = 10870,
 

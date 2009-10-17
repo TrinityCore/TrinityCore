@@ -24,7 +24,7 @@ EndScriptData */
 #include "precompiled.h"
 #include "def_molten_core.h"
 
-enum
+enum eEnums
 {
     SPELL_MAGMASPLASH       = 13879,
     SPELL_PYROBLAST         = 20228,

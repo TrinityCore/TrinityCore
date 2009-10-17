@@ -166,7 +166,7 @@ CreatureAI* GetAI_mob_restless_soul(Creature* pCreature)
 ## mobs_spectral_ghostly_citizen
 ######*/
 
-enum
+enum eGhostlyCitizenSpells
 {
     SPELL_HAUNTING_PHANTOM  = 16336,
     SPELL_SLAP              = 6754

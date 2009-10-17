@@ -24,7 +24,7 @@ EndScriptData */
 #include "precompiled.h"
 #include "def_dark_portal.h"
 
-enum
+enum eEnums
 {
     SAY_ENTER           = -1269012,
     SAY_AGGRO           = -1269013,

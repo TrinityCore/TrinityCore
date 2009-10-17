@@ -64,7 +64,7 @@ EndScriptData */
 
 
 
-enum
+enum eEnums
 {
     EVENT_ENRAGE,
     // Steelbreaker

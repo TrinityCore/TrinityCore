@@ -95,7 +95,7 @@ bool GossipSelect_npcs_dithers_and_arbington(Player* pPlayer, Creature* pCreatur
 ## npc_myranda_the_hag
 ######*/
 
-enum
+enum eMyranda
 {
     QUEST_SUBTERFUGE        = 5862,
     QUEST_IN_DREAMS         = 5944,

@@ -164,7 +164,7 @@ CreatureAI* GetAI_npc_draenei_survivor(Creature* pCreature)
 ## npc_engineer_spark_overgrind
 ######*/
 
-enum
+enum eOvergrind
 {
     SAY_TEXT        = -1000256,
     SAY_EMOTE       = -1000257,
@@ -307,7 +307,7 @@ CreatureAI* GetAI_npc_injured_draenei(Creature* pCreature)
 ## npc_magwin
 ######*/
 
-enum
+enum eMagwin
 {
     SAY_START                   = -1000111,
     SAY_AGGRO                   = -1000112,
@@ -378,7 +378,7 @@ CreatureAI* GetAI_npc_magwinAI(Creature* pCreature)
 ## npc_geezle
 ######*/
 
-enum
+enum eGeezle
 {
     QUEST_TREES_COMPANY = 9531,
 
@@ -537,7 +537,7 @@ CreatureAI* GetAI_npc_geezleAI(Creature* pCreature)
 ## mob_nestlewood_owlkin
 ######*/
 
-enum
+enum eOwlkin
 {
     SPELL_INOCULATE_OWLKIN  = 29528,
     ENTRY_OWLKIN            = 16518,

@@ -24,7 +24,7 @@ EndScriptData */
 #include "precompiled.h"
 #include <cstring>
 
-enum
+enum eEnums
 {
     SPELL_POLYMORPH         = 12826,
     SPELL_MARK_OF_THE_WILD  = 26990,

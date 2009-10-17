@@ -41,7 +41,7 @@ EndContentData */
 
 #define GOSSIP_RALIQ            "You owe Sim'salabim money. Hand them over or die!"
 
-enum
+enum eRaliq
 {
     SPELL_UPPERCUT          = 10966,
     QUEST_CRACK_SKULLS      = 10009,
