@@ -203,9 +203,9 @@ struct TRINITY_DLL_DECL boss_harbinger_skyrissAI : public ScriptedAI
         if (MindRend_Timer < diff)
         {
             if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM,1))
-                DoCast(target,HeroicMode ? H_SPELL_MIND_REND : SPELL_MIND_REND);
+                DoCast(target,HEROIC(SPELL_MIND_REND, H_SPELL_MIND_REND));
             else
-                DoCast(m_creature->getVictim(),HeroicMode ? H_SPELL_MIND_REND : SPELL_MIND_REND);
+                DoCast(m_creature->getVictim(),HEROIC(SPELL_MIND_REND, H_SPELL_MIND_REND));
 
             MindRend_Timer = 8000;
         }else MindRend_Timer -=diff;
@@ -241,9 +241,9 @@ struct TRINITY_DLL_DECL boss_harbinger_skyrissAI : public ScriptedAI
             }
 
             if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM,1))
-                DoCast(target,HeroicMode ? H_SPELL_DOMINATION : SPELL_DOMINATION);
+                DoCast(target,HEROIC(SPELL_DOMINATION, H_SPELL_DOMINATION));
             else
-                DoCast(m_creature->getVictim(),HeroicMode ? H_SPELL_DOMINATION : SPELL_DOMINATION);
+                DoCast(m_creature->getVictim(),HEROIC(SPELL_DOMINATION, H_SPELL_DOMINATION));
 
             Domination_Timer = 16000+rand()%16000;
         }else Domination_Timer -=diff;

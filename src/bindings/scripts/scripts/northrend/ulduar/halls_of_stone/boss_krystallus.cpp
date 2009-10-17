@@ -78,27 +78,21 @@ struct TRINITY_DLL_DECL boss_krystallusAI : public ScriptedAI
         
         if (uiBoulderTossTimer < diff)
         {
-            Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0);
-            while (pTarget && pTarget->GetTypeId() != TYPEID_PLAYER)
-                pTarget = SelectUnit(SELECT_TARGET_RANDOM,0);
-            if (pTarget)
-                DoCast(pTarget, HeroicMode ? H_SPELL_BOULDER_TOSS : SPELL_BOULDER_TOSS);
+            if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                DoCast(pTarget, HEROIC(SPELL_BOULDER_TOSS, H_SPELL_BOULDER_TOSS));
             uiBoulderTossTimer = 9000 + rand()%6000;
         } else uiBoulderTossTimer -= diff;
         
         if (uiGroundSpikeTimer < diff)
         {
-            Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0);
-            while (pTarget && pTarget->GetTypeId() != TYPEID_PLAYER)
-                pTarget = SelectUnit(SELECT_TARGET_RANDOM,0);
-            if (pTarget)
+            if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                 DoCast(pTarget, SPELL_GROUND_SPIKE);
             uiGroundSpikeTimer = 12000 + rand()%5000;
         } else uiGroundSpikeTimer -= diff;
         
         if (uiStompTimer < diff)
         {
-            DoCast(m_creature, HeroicMode ? H_SPELL_STOMP : SPELL_STOMP);
+            DoCast(m_creature, HEROIC(SPELL_STOMP, H_SPELL_STOMP));
             uiStompTimer = 20000 + rand()%9000;
         } else uiStompTimer -= diff;
         
@@ -114,7 +108,7 @@ struct TRINITY_DLL_DECL boss_krystallusAI : public ScriptedAI
         {
             if(uiShatterTimer < diff)
             {
-                DoCast(m_creature, HeroicMode ? H_SPELL_SHATTER : SPELL_SHATTER);
+                DoCast(m_creature, HEROIC(SPELL_SHATTER, H_SPELL_SHATTER));
                 bIsSlam = false;
             } else uiShatterTimer -= diff;
         }

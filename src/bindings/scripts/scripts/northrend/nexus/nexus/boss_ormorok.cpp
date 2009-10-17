@@ -145,7 +145,7 @@ struct TRINITY_DLL_DECL boss_ormorokAI : public ScriptedAI
 
         if (SPELL_TRAMPLE_Timer < diff)
         {
-            DoCast(m_creature, HeroicMode ? SPELL_TRAMPLE_H : SPELL_TRAMPLE_N);
+            DoCast(m_creature, HEROIC(SPELL_TRAMPLE_N, SPELL_TRAMPLE_H));
             SPELL_TRAMPLE_Timer = 10000;
         }else SPELL_TRAMPLE_Timer -= diff;
 
@@ -245,7 +245,7 @@ struct TRINITY_DLL_DECL mob_crystal_spikeAI : public Scripted_NoMovementAI
 
         if (SPELL_CRYSTALL_SPIKE_DAMAGE_Timer < diff)
         {
-            DoCast(m_creature, HeroicMode ? SPELL_CRYSTALL_SPIKE_DAMAGE_H : SPELL_CRYSTALL_SPIKE_DAMAGE_N);
+            DoCast(m_creature, HEROIC(SPELL_CRYSTALL_SPIKE_DAMAGE_N, SPELL_CRYSTALL_SPIKE_DAMAGE_H));
             SPELL_CRYSTALL_SPIKE_DAMAGE_Timer = 10000;
         }else SPELL_CRYSTALL_SPIKE_DAMAGE_Timer -=diff;
     }

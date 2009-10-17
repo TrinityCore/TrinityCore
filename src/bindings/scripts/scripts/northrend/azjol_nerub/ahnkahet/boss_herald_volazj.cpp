@@ -97,20 +97,20 @@ struct TRINITY_DLL_DECL boss_volazjAI : public ScriptedAI
 
         if (uiMindFlayTimer < diff)
         {
-            DoCast(m_creature->getVictim(), HeroicMode ? H_SPELL_MIND_FLAY : SPELL_MIND_FLAY);
+            DoCast(m_creature->getVictim(), HEROIC(SPELL_MIND_FLAY, H_SPELL_MIND_FLAY));
             uiMindFlayTimer = 20000; 
         } else uiMindFlayTimer -= diff;
         
         if (uiShadowBoltVolleyTimer < diff)
         {
-            DoCast(m_creature->getVictim(), HeroicMode ? H_SPELL_SHADOW_BOLT_VOLLEY : SPELL_SHADOW_BOLT_VOLLEY);
+            DoCast(m_creature->getVictim(), HEROIC(SPELL_SHADOW_BOLT_VOLLEY, H_SPELL_SHADOW_BOLT_VOLLEY));
             uiShadowBoltVolleyTimer = 5000;
         } else uiShadowBoltVolleyTimer -= diff;
         
         if (uiShiverTimer < diff)
         {
             if (Unit * target = SelectUnit(SELECT_TARGET_RANDOM, 0))
-                DoCast(target, HeroicMode ? H_SPELL_SHIVER : SPELL_SHIVER);
+                DoCast(target, HEROIC(SPELL_SHIVER, H_SPELL_SHIVER));
             uiShiverTimer = 15000;
         } else uiShiverTimer -= diff;
         

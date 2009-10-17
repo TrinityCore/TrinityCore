@@ -109,19 +109,19 @@ struct TRINITY_DLL_DECL boss_slad_ranAI : public ScriptedAI
         
         if (uiPoisonNovaTimer < diff)
         {
-            DoCast(m_creature->getVictim(), HeroicMode ? H_SPELL_POISON_NOVA : SPELL_POISON_NOVA);
+            DoCast(m_creature->getVictim(), HEROIC(SPELL_POISON_NOVA, H_SPELL_POISON_NOVA));
             uiPoisonNovaTimer = 15000;
         } else uiPoisonNovaTimer -= diff;
         
         if (uiPowerfullBiteTimer < diff)
         {
-            DoCast(m_creature->getVictim(), HeroicMode ? H_SPELL_POWERFULL_BITE : SPELL_POWERFULL_BITE);
+            DoCast(m_creature->getVictim(), HEROIC(SPELL_POWERFULL_BITE, H_SPELL_POWERFULL_BITE));
             uiPowerfullBiteTimer = 10000;
         } else uiPowerfullBiteTimer -= diff;
         
         if (uiVenomBoltTimer < diff)
         {
-            DoCast(m_creature->getVictim(), HeroicMode ? H_SPELL_VENOM_BOLT : SPELL_VENOM_BOLT);
+            DoCast(m_creature->getVictim(), HEROIC(SPELL_VENOM_BOLT, H_SPELL_VENOM_BOLT));
             uiVenomBoltTimer = 10000;
         } else uiVenomBoltTimer -= diff;
         
@@ -218,7 +218,7 @@ struct TRINITY_DLL_DECL mob_slad_ran_viperAI : public ScriptedAI
         
         if (uiVenomousBiteTimer < diff)
         {
-            DoCast(m_creature->getVictim(), HeroicMode ? H_SPELL_VENOMOUS_BITE : SPELL_VENOMOUS_BITE);
+            DoCast(m_creature->getVictim(), HEROIC(SPELL_VENOMOUS_BITE, H_SPELL_VENOMOUS_BITE));
             uiVenomousBiteTimer = 10000;
         } else uiVenomousBiteTimer -= diff;
     }

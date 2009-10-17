@@ -176,7 +176,7 @@ struct TRINITY_DLL_DECL boss_omor_the_unscarredAI : public ScriptedAI
 
             if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM,0))
             {
-                DoCast(target,HeroicMode ? H_SPELL_BANE_OF_TREACHERY : SPELL_TREACHEROUS_AURA);
+                DoCast(target,HEROIC(SPELL_TREACHEROUS_AURA, H_SPELL_BANE_OF_TREACHERY));
                 Aura_Timer = 8000+rand()%8000;
             }
         }else Aura_Timer -= diff;
@@ -188,7 +188,7 @@ struct TRINITY_DLL_DECL boss_omor_the_unscarredAI : public ScriptedAI
                 if (target)
                     target = m_creature->getVictim();
 
-                DoCast(target,HeroicMode ? H_SPELL_SHADOW_BOLT : SPELL_SHADOW_BOLT);
+                DoCast(target,HEROIC(SPELL_SHADOW_BOLT, H_SPELL_SHADOW_BOLT));
                 Shadowbolt_Timer = 4000+rand()%2500;
             }
         }else Shadowbolt_Timer -= diff;

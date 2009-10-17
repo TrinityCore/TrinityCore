@@ -112,7 +112,7 @@ struct TRINITY_DLL_DECL boss_aeonusAI : public ScriptedAI
         //Sand Breath
         if (SandBreath_Timer < diff)
         {
-            DoCast(m_creature->getVictim(), HeroicMode ? H_SPELL_SAND_BREATH : SPELL_SAND_BREATH);
+            DoCast(m_creature->getVictim(), HEROIC(SPELL_SAND_BREATH, H_SPELL_SAND_BREATH));
             SandBreath_Timer = 15000+rand()%10000;
         }else SandBreath_Timer -= diff;
 

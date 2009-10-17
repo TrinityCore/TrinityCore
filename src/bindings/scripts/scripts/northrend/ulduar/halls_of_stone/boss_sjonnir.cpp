@@ -120,23 +120,20 @@ struct TRINITY_DLL_DECL boss_sjonnirAI : public ScriptedAI
         
         if (uiChainLightningTimer < diff)
         {
-            Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0);
-            while (pTarget && pTarget->GetTypeId() != TYPEID_PLAYER)
-                pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0);
-            if (pTarget)
-                DoCast(pTarget, HeroicMode ? H_SPELL_CHAIN_LIGHTING : SPELL_CHAIN_LIGHTING);
+            if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                DoCast(pTarget, HEROIC(SPELL_CHAIN_LIGHTING, H_SPELL_CHAIN_LIGHTING));
             uiChainLightningTimer = 10000 + rand()%5000;
         } else uiChainLightningTimer -= diff;
         
         if (uiLightningShieldTimer < diff)
         {
-            DoCast(m_creature, HeroicMode ? H_SPELL_LIGHTING_SHIELD : SPELL_LIGHTING_SHIELD);
+            DoCast(m_creature, HEROIC(SPELL_LIGHTING_SHIELD, H_SPELL_LIGHTING_SHIELD));
             uiLightningShieldTimer -= diff;
         }
         
         if (uiStaticChargeTimer < diff)
         {
-            DoCast(m_creature->getVictim(), HeroicMode ? H_SPELL_STATIC_CHARGE : SPELL_STATIC_CHARGE);
+            DoCast(m_creature->getVictim(), HEROIC(SPELL_STATIC_CHARGE, H_SPELL_STATIC_CHARGE));
             uiStaticChargeTimer = 20000 + rand()%5000;
         } uiStaticChargeTimer -= diff;
         
@@ -144,7 +141,7 @@ struct TRINITY_DLL_DECL boss_sjonnirAI : public ScriptedAI
         {
             if (m_creature->IsNonMeleeSpellCasted(false))
                 m_creature->InterruptNonMeleeSpells(false);
-            DoCast(m_creature, HeroicMode ? H_SPELL_LIGHTING_RING : SPELL_LIGHTING_RING);
+            DoCast(m_creature, HEROIC(SPELL_LIGHTING_RING, H_SPELL_LIGHTING_RING));
             uiLightningRingTimer = 30000 + rand()%5000;
         } else uiLightningRingTimer -= diff;
         
@@ -176,10 +173,7 @@ struct TRINITY_DLL_DECL boss_sjonnirAI : public ScriptedAI
     void JustSummoned(Creature* summon)
     {
         summon->GetMotionMaster()->MovePoint(0, CenterPoint.x, CenterPoint.y, CenterPoint.z);
-        Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0);
-        /*while (pTarget && pTarget->GetTypeId() != TYPEID_PLAYER)
-            pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0);
-        if (pTarget)
+        /*if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
             summon->AI()->AttackStart(pTarget);*/
     }
     

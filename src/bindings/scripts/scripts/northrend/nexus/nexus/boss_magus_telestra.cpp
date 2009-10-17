@@ -318,7 +318,7 @@ struct TRINITY_DLL_DECL boss_magus_telestraAI : public ScriptedAI
         {
             if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0))
             {
-                DoCast(target, HeroicMode ? SPELL_ICE_NOVA_H : SPELL_ICE_NOVA_N);
+                DoCast(target, HEROIC(SPELL_ICE_NOVA_N, SPELL_ICE_NOVA_H));
                 Cooldown = 1500;
             }
             SPELL_ICE_NOVA_Timer = 15000;
@@ -338,7 +338,7 @@ struct TRINITY_DLL_DECL boss_magus_telestraAI : public ScriptedAI
         {
             if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0))
             {
-                DoCast(target, HeroicMode ? SPELL_FIREBOMB_H : SPELL_FIREBOMB_N);
+                DoCast(target, HEROIC(SPELL_FIREBOMB_N, SPELL_FIREBOMB_H));
                 Cooldown = 2000;
             }
             SPELL_FIREBOMB_Timer = 2000;
