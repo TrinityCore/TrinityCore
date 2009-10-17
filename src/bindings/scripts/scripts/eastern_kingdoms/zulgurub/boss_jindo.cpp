@@ -248,17 +248,17 @@ void AddSC_boss_jindo()
     Script *newscript;
 
     newscript = new Script;
-    newscript->Name="boss_jindo";
+    newscript->Name = "boss_jindo";
     newscript->GetAI = &GetAI_boss_jindo;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="mob_healing_ward";
+    newscript->Name = "mob_healing_ward";
     newscript->GetAI = &GetAI_mob_healing_ward;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="mob_shade_of_jindo";
+    newscript->Name = "mob_shade_of_jindo";
     newscript->GetAI = &GetAI_mob_shade_of_jindo;
     newscript->RegisterSelf();
 }

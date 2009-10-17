@@ -145,7 +145,7 @@ void AddSC_burning_steppes()
     Script *newscript;
 
     newscript = new Script;
-    newscript->Name="npc_ragged_john";
+    newscript->Name = "npc_ragged_john";
     newscript->GetAI = &GetAI_npc_ragged_john;
     newscript->pGossipHello =  &GossipHello_npc_ragged_john;
     newscript->pGossipSelect = &GossipSelect_npc_ragged_john;

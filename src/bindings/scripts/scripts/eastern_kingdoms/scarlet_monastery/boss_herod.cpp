@@ -147,7 +147,7 @@ void AddSC_boss_herod()
 {
     Script *newscript;
     newscript = new Script;
-    newscript->Name="boss_herod";
+    newscript->Name = "boss_herod";
     newscript->GetAI = &GetAI_boss_herod;
     newscript->RegisterSelf();
 

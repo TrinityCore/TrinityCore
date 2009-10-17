@@ -380,12 +380,12 @@ void AddSC_boss_skarvald_dalronn()
     Script *newscript;
 
     newscript = new Script;
-    newscript->Name="boss_skarvald_the_constructor";
+    newscript->Name = "boss_skarvald_the_constructor";
     newscript->GetAI = &GetAI_boss_skarvald_the_constructor;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="boss_dalronn_the_controller";
+    newscript->Name = "boss_dalronn_the_controller";
     newscript->GetAI = &GetAI_boss_dalronn_the_controller;
     newscript->RegisterSelf();
 }

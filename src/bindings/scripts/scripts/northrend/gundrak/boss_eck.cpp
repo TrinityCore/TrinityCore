@@ -122,7 +122,7 @@ void AddSC_boss_eck()
     Script *newscript;
 
     newscript = new Script;
-    newscript->Name="boss_eck";
+    newscript->Name = "boss_eck";
     newscript->GetAI = &GetAI_boss_eck;
     newscript->RegisterSelf();
 }

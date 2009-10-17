@@ -104,7 +104,7 @@ void AddSC_boss_jedoga()
     Script *newscript;
 
     newscript = new Script;
-    newscript->Name="boss_jedoga";
+    newscript->Name = "boss_jedoga";
     newscript->GetAI = &GetAI_boss_jedoga;
     newscript->RegisterSelf();
 }

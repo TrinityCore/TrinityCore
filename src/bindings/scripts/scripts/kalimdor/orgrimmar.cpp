@@ -265,19 +265,19 @@ void AddSC_orgrimmar()
     Script *newscript;
 
     newscript = new Script;
-    newscript->Name="npc_neeru_fireblade";
+    newscript->Name = "npc_neeru_fireblade";
     newscript->pGossipHello =  &GossipHello_npc_neeru_fireblade;
     newscript->pGossipSelect = &GossipSelect_npc_neeru_fireblade;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="npc_shenthul";
+    newscript->Name = "npc_shenthul";
     newscript->GetAI = &GetAI_npc_shenthul;
     newscript->pQuestAccept =  &QuestAccept_npc_shenthul;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="npc_thrall_warchief";
+    newscript->Name = "npc_thrall_warchief";
     newscript->GetAI = &GetAI_npc_thrall_warchief;
     newscript->pGossipHello =  &GossipHello_npc_thrall_warchief;
     newscript->pGossipSelect = &GossipSelect_npc_thrall_warchief;

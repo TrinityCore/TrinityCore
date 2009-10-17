@@ -661,20 +661,20 @@ void AddSC_old_hillsbrad()
     Script *newscript;
 
     newscript = new Script;
-    newscript->Name="npc_erozion";
+    newscript->Name = "npc_erozion";
     newscript->pGossipHello =   &GossipHello_npc_erozion;
     newscript->pGossipSelect =  &GossipSelect_npc_erozion;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="npc_thrall_old_hillsbrad";
+    newscript->Name = "npc_thrall_old_hillsbrad";
     newscript->pGossipHello =  &GossipHello_npc_thrall_old_hillsbrad;
     newscript->pGossipSelect = &GossipSelect_npc_thrall_old_hillsbrad;
     newscript->GetAI = &GetAI_npc_thrall_old_hillsbrad;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="npc_taretha";
+    newscript->Name = "npc_taretha";
     newscript->pGossipHello =   &GossipHello_npc_taretha;
     newscript->pGossipSelect =  &GossipSelect_npc_taretha;
     newscript->GetAI = &GetAI_npc_taretha;

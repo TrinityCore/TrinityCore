@@ -387,34 +387,34 @@ void AddSC_blades_edge_mountains()
     Script *newscript;
 
     newscript = new Script;
-    newscript->Name="mobs_bladespire_ogre";
+    newscript->Name = "mobs_bladespire_ogre";
     newscript->GetAI = &GetAI_mobs_bladespire_ogre;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="mobs_nether_drake";
+    newscript->Name = "mobs_nether_drake";
     newscript->GetAI = &GetAI_mobs_nether_drake;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="npc_daranelle";
+    newscript->Name = "npc_daranelle";
     newscript->GetAI = &GetAI_npc_daranelle;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="npc_overseer_nuaar";
+    newscript->Name = "npc_overseer_nuaar";
     newscript->pGossipHello = &GossipHello_npc_overseer_nuaar;
     newscript->pGossipSelect = &GossipSelect_npc_overseer_nuaar;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="npc_saikkal_the_elder";
+    newscript->Name = "npc_saikkal_the_elder";
     newscript->pGossipHello = &GossipHello_npc_saikkal_the_elder;
     newscript->pGossipSelect = &GossipSelect_npc_saikkal_the_elder;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="go_legion_obelisk";
+    newscript->Name = "go_legion_obelisk";
     newscript->pGOHello =           &GOHello_go_legion_obelisk;
     newscript->RegisterSelf();
 }

@@ -1100,42 +1100,42 @@ void AddSC_boss_sartharion()
     Script *newscript;
 
     newscript = new Script;
-    newscript->Name="boss_sartharion";
+    newscript->Name = "boss_sartharion";
     newscript->GetAI = &GetAI_boss_sartharion;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="mob_vesperon";
+    newscript->Name = "mob_vesperon";
     newscript->GetAI = &GetAI_mob_vesperon;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="mob_shadron";
+    newscript->Name = "mob_shadron";
     newscript->GetAI = &GetAI_mob_shadron;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="mob_tenebron";
+    newscript->Name = "mob_tenebron";
     newscript->GetAI = &GetAI_mob_tenebron;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="mob_acolyte_of_shadron";
+    newscript->Name = "mob_acolyte_of_shadron";
     newscript->GetAI = &GetAI_mob_acolyte_of_shadron;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="mob_acolyte_of_vesperon";
+    newscript->Name = "mob_acolyte_of_vesperon";
     newscript->GetAI = &GetAI_mob_acolyte_of_vesperon;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="mob_twilight_eggs";
+    newscript->Name = "mob_twilight_eggs";
     newscript->GetAI = &GetAI_mob_twilight_eggs;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="mob_twilight_whelp";
+    newscript->Name = "mob_twilight_whelp";
     newscript->GetAI = &GetAI_mob_twilight_whelp;
     newscript->RegisterSelf();
 }

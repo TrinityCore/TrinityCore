@@ -142,7 +142,7 @@ void AddSC_boss_krystallus()
     Script *newscript;
 
     newscript = new Script;
-    newscript->Name="boss_krystallus";
+    newscript->Name = "boss_krystallus";
     newscript->GetAI = &GetAI_boss_krystallus;
     newscript->RegisterSelf();
 }

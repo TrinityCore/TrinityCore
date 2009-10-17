@@ -547,22 +547,22 @@ void AddSC_boss_magtheridon()
 {
     Script *newscript;
     newscript = new Script;
-    newscript->Name="boss_magtheridon";
+    newscript->Name = "boss_magtheridon";
     newscript->GetAI = &GetAI_boss_magtheridon;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="mob_hellfire_channeler";
+    newscript->Name = "mob_hellfire_channeler";
     newscript->GetAI = &GetAI_mob_hellfire_channeler;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="go_manticron_cube";
+    newscript->Name = "go_manticron_cube";
     newscript->pGOHello = &GOHello_go_Manticron_Cube;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="mob_abyssal";
+    newscript->Name = "mob_abyssal";
     newscript->GetAI = &GetAI_mob_abyssalAI;
     newscript->RegisterSelf();
 

@@ -122,7 +122,7 @@ void AddSC_boss_razorgore()
 {
     Script *newscript;
     newscript = new Script;
-    newscript->Name="boss_razorgore";
+    newscript->Name = "boss_razorgore";
     newscript->GetAI = &GetAI_boss_razorgore;
     newscript->RegisterSelf();
 }

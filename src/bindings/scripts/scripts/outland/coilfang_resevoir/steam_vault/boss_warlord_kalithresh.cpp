@@ -201,12 +201,12 @@ void AddSC_boss_warlord_kalithresh()
     Script *newscript;
 
     newscript = new Script;
-    newscript->Name="mob_naga_distiller";
+    newscript->Name = "mob_naga_distiller";
     newscript->GetAI = &GetAI_mob_naga_distiller;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="boss_warlord_kalithresh";
+    newscript->Name = "boss_warlord_kalithresh";
     newscript->GetAI = &GetAI_boss_warlord_kalithresh;
     newscript->RegisterSelf();
 }

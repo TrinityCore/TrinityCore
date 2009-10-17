@@ -539,17 +539,17 @@ void AddSC_boss_thekal()
     Script *newscript;
 
     newscript = new Script;
-    newscript->Name="boss_thekal";
+    newscript->Name = "boss_thekal";
     newscript->GetAI = &GetAI_boss_thekal;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="mob_zealot_lorkhan";
+    newscript->Name = "mob_zealot_lorkhan";
     newscript->GetAI = &GetAI_mob_zealot_lorkhan;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="mob_zealot_zath";
+    newscript->Name = "mob_zealot_zath";
     newscript->GetAI = &GetAI_mob_zealot_zath;
     newscript->RegisterSelf();
 }

@@ -383,7 +383,7 @@ void AddSC_boss_victor_nefarius()
     Script *newscript;
 
     newscript = new Script;
-    newscript->Name="boss_victor_nefarius";
+    newscript->Name = "boss_victor_nefarius";
     newscript->GetAI = &GetAI_boss_victor_nefarius;
     newscript->pGossipHello = &GossipHello_boss_victor_nefarius;
     newscript->pGossipSelect = &GossipSelect_boss_victor_nefarius;

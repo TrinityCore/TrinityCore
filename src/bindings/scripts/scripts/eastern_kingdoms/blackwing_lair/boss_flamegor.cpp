@@ -91,7 +91,7 @@ void AddSC_boss_flamegor()
 {
     Script *newscript;
     newscript = new Script;
-    newscript->Name="boss_flamegor";
+    newscript->Name = "boss_flamegor";
     newscript->GetAI = &GetAI_boss_flamegor;
     newscript->RegisterSelf();
 }

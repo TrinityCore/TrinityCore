@@ -115,12 +115,12 @@ void AddSC_duskwood()
     Script *newscript;
 
     newscript = new Script;
-    newscript->Name="boss_twilight_corrupter";
+    newscript->Name = "boss_twilight_corrupter";
     newscript->GetAI = &GetAI_boss_twilight_corrupter;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="at_twilight_grove";
+    newscript->Name = "at_twilight_grove";
     newscript->pAreaTrigger = &AreaTrigger_at_twilight_grove;
     newscript->RegisterSelf();
 }

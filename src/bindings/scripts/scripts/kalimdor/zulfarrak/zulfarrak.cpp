@@ -253,21 +253,21 @@ void AddSC_zulfarrak()
     Script *newscript;
 
     newscript = new Script;
-    newscript->Name="npc_sergeant_bly";
+    newscript->Name = "npc_sergeant_bly";
     newscript->GetAI = &GetAI_npc_sergeant_bly;
     newscript->pGossipHello =  &GossipHello_npc_sergeant_bly;
     newscript->pGossipSelect = &GossipSelect_npc_sergeant_bly;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="npc_weegli_blastfuse";
+    newscript->Name = "npc_weegli_blastfuse";
     newscript->GetAI = &GetAI_npc_weegli_blastfuse;
     newscript->pGossipHello =  &GossipHello_npc_weegli_blastfuse;
     newscript->pGossipSelect = &GossipSelect_npc_weegli_blastfuse;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="go_shallow_grave";
+    newscript->Name = "go_shallow_grave";
     newscript->pGOHello = &GOHello_go_shallow_grave;
     newscript->RegisterSelf();
 

@@ -352,12 +352,12 @@ void AddSC_boss_gothik()
 {
     Script *newscript;
     newscript = new Script;
-    newscript->Name="boss_gothik";
+    newscript->Name = "boss_gothik";
     newscript->GetAI = &GetAI_boss_gothik;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="mob_gothik_minion";
+    newscript->Name = "mob_gothik_minion";
     newscript->GetAI = &GetAI_mob_gothik_minion;
     newscript->RegisterSelf();
 }

@@ -143,7 +143,7 @@ void AddSC_boss_epoch_hunter()
 {
     Script *newscript;
     newscript = new Script;
-    newscript->Name="boss_epoch_hunter";
+    newscript->Name = "boss_epoch_hunter";
     newscript->GetAI = &GetAI_boss_epoch_hunter;
     newscript->RegisterSelf();
 }

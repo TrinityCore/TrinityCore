@@ -146,7 +146,7 @@ void AddSC_boss_instructormalicia()
 {
     Script *newscript;
     newscript = new Script;
-    newscript->Name="boss_instructor_malicia";
+    newscript->Name = "boss_instructor_malicia";
     newscript->GetAI = &GetAI_boss_instructormalicia;
     newscript->RegisterSelf();
 }

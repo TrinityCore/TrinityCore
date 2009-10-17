@@ -396,12 +396,12 @@ void AddSC_boss_warbringer_omrogg()
     Script *newscript;
 
     newscript = new Script;
-    newscript->Name="boss_warbringer_omrogg";
+    newscript->Name = "boss_warbringer_omrogg";
     newscript->GetAI = &GetAI_boss_warbringer_omrogg;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="mob_omrogg_heads";
+    newscript->Name = "mob_omrogg_heads";
     newscript->GetAI = &GetAI_mob_omrogg_heads;
     newscript->RegisterSelf();
 }

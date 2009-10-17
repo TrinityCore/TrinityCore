@@ -191,7 +191,7 @@ void AddSC_boss_kazrogal()
 {
     Script *newscript;
     newscript = new Script;
-    newscript->Name="boss_kazrogal";
+    newscript->Name = "boss_kazrogal";
     newscript->GetAI = &GetAI_boss_kazrogal;
     newscript->RegisterSelf();
 }

@@ -558,32 +558,32 @@ void AddSC_boss_palehoof()
     Script *newscript;
 
     newscript = new Script;
-    newscript->Name="boss_palehoof";
+    newscript->Name = "boss_palehoof";
     newscript->GetAI = &GetAI_boss_palehoof;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="mob_ravenous_furbolg";
+    newscript->Name = "mob_ravenous_furbolg";
     newscript->GetAI = &GetAI_mob_ravenous_furbolg;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="mob_frenzied_worgen";
+    newscript->Name = "mob_frenzied_worgen";
     newscript->GetAI = &GetAI_mob_frenzied_worgen;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="mob_ferocious_rhino";
+    newscript->Name = "mob_ferocious_rhino";
     newscript->GetAI = &GetAI_mob_ferocious_rhino;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="mob_massive_jormungar";
+    newscript->Name = "mob_massive_jormungar";
     newscript->GetAI = &GetAI_mob_massive_jormungar;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="go_palehoof_sphere";
+    newscript->Name = "go_palehoof_sphere";
     newscript->pGOHello=&GOHello_palehoof_sphere;
     newscript->RegisterSelf();
 }

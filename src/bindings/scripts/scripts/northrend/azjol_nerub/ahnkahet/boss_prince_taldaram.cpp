@@ -398,12 +398,12 @@ void AddSC_boss_taldaram()
     Script *newscript;
 
     newscript = new Script;
-    newscript->Name="boss_taldaram";
+    newscript->Name = "boss_taldaram";
     newscript->GetAI = &GetAI_boss_taldaram;
     newscript->RegisterSelf();
     
     newscript = new Script;
-    newscript->Name="mob_taldaram_flamesphere";
+    newscript->Name = "mob_taldaram_flamesphere";
     newscript->GetAI = &GetAI_mob_taldaram_flamesphere;
     newscript->RegisterSelf();
     

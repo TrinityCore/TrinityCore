@@ -81,7 +81,7 @@ void AddSC_boss_epoch()
     Script *newscript;
 
     newscript = new Script;
-    newscript->Name="boss_epoch";
+    newscript->Name = "boss_epoch";
     newscript->GetAI = &GetAI_boss_epoch;
     newscript->RegisterSelf();
 }

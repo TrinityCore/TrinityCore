@@ -150,7 +150,7 @@ void AddSC_boss_salramm()
     Script *newscript;
 
     newscript = new Script;
-    newscript->Name="boss_salramm";
+    newscript->Name = "boss_salramm";
     newscript->GetAI = &GetAI_boss_salramm;
     newscript->RegisterSelf();
 }

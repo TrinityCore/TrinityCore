@@ -737,22 +737,22 @@ void AddSC_boss_fathomlord_karathress()
 {
     Script *newscript;
     newscript = new Script;
-    newscript->Name="boss_fathomlord_karathress";
+    newscript->Name = "boss_fathomlord_karathress";
     newscript->GetAI = &GetAI_boss_fathomlord_karathress;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="boss_fathomguard_sharkkis";
+    newscript->Name = "boss_fathomguard_sharkkis";
     newscript->GetAI = &GetAI_boss_fathomguard_sharkkis;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="boss_fathomguard_tidalvess";
+    newscript->Name = "boss_fathomguard_tidalvess";
     newscript->GetAI = &GetAI_boss_fathomguard_tidalvess;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="boss_fathomguard_caribdis";
+    newscript->Name = "boss_fathomguard_caribdis";
     newscript->GetAI = &GetAI_boss_fathomguard_caribdis;
     newscript->RegisterSelf();
 }

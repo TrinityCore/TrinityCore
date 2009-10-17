@@ -603,17 +603,17 @@ void AddSC_boss_felmyst()
 {
     Script *newscript;
     newscript = new Script;
-    newscript->Name="boss_felmyst";
+    newscript->Name = "boss_felmyst";
     newscript->GetAI = &GetAI_boss_felmyst;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="mob_felmyst_vapor";
+    newscript->Name = "mob_felmyst_vapor";
     newscript->GetAI = &GetAI_mob_felmyst_vapor;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="mob_felmyst_trail";
+    newscript->Name = "mob_felmyst_trail";
     newscript->GetAI = &GetAI_mob_felmyst_trail;
     newscript->RegisterSelf();
 }

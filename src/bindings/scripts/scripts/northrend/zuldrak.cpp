@@ -211,12 +211,12 @@ void AddSC_zuldrak()
     Script *newscript;
 
     newscript = new Script;
-    newscript->Name="npc_drakuru_shackles";
+    newscript->Name = "npc_drakuru_shackles";
     newscript->GetAI = &GetAI_npc_drakuru_shackles;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="npc_captured_rageclaw";
+    newscript->Name = "npc_captured_rageclaw";
     newscript->GetAI = &GetAI_npc_captured_rageclaw;
     newscript->RegisterSelf();
 

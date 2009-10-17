@@ -244,17 +244,17 @@ void AddSC_boss_slad_ran()
     Script *newscript;
 
     newscript = new Script;
-    newscript->Name="boss_slad_ran";
+    newscript->Name = "boss_slad_ran";
     newscript->GetAI = &GetAI_boss_slad_ran;
     newscript->RegisterSelf();
     
     newscript = new Script;
-    newscript->Name="mob_slad_ran_constrictor";
+    newscript->Name = "mob_slad_ran_constrictor";
     newscript->GetAI = &GetAI_mob_slad_ran_constrictor;
     newscript->RegisterSelf();
     
     newscript = new Script;
-    newscript->Name="mob_slad_ran_viper";
+    newscript->Name = "mob_slad_ran_viper";
     newscript->GetAI = &GetAI_mob_slad_ran_viper;
     newscript->RegisterSelf();
 }

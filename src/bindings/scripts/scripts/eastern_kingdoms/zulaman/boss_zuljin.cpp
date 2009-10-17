@@ -612,12 +612,12 @@ void AddSC_boss_zuljin()
 {
     Script *newscript;
     newscript = new Script;
-    newscript->Name="boss_zuljin";
+    newscript->Name = "boss_zuljin";
     newscript->GetAI = &GetAI_boss_zuljin;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="mob_zuljin_vortex";
+    newscript->Name = "mob_zuljin_vortex";
     newscript->GetAI = &GetAI_feather_vortexAI;
     newscript->RegisterSelf();
 }

@@ -243,7 +243,7 @@ void AddSC_boss_hakkar()
 {
     Script *newscript;
     newscript = new Script;
-    newscript->Name="boss_hakkar";
+    newscript->Name = "boss_hakkar";
     newscript->GetAI = &GetAI_boss_hakkar;
     newscript->RegisterSelf();
 }

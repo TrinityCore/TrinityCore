@@ -52,7 +52,7 @@ void AddSC_boss_commander_kolurg()
     Script *newscript;
 
     newscript = new Script;
-    newscript->Name="boss_commander_kolurg";
+    newscript->Name = "boss_commander_kolurg";
     newscript->GetAI = &GetAI_boss_commander_kolurg;
     newscript->RegisterSelf();
 }

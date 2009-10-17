@@ -1648,14 +1648,14 @@ void AddSC_the_scarlet_enclave_c5()
     Script *newscript;
 
     newscript = new Script;
-    newscript->Name="npc_highlord_darion_mograine";
+    newscript->Name = "npc_highlord_darion_mograine";
     newscript->GetAI = &GetAI_npc_highlord_darion_mograine;
     newscript->pGossipHello =  &GossipHello_npc_highlord_darion_mograine;
     newscript->pGossipSelect = &GossipSelect_npc_highlord_darion_mograine;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="npc_the_lich_king_tirion_dawn";
+    newscript->Name = "npc_the_lich_king_tirion_dawn";
     newscript->GetAI = &GetAI_npc_the_lich_king_tirion_dawn;
     newscript->RegisterSelf();
 }

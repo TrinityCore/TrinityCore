@@ -139,7 +139,7 @@ void AddSC_boss_emeriss()
 {
     Script *newscript;
     newscript = new Script;
-    newscript->Name="boss_emeriss";
+    newscript->Name = "boss_emeriss";
     newscript->GetAI = &GetAI_boss_emeriss;
     newscript->RegisterSelf();
 }

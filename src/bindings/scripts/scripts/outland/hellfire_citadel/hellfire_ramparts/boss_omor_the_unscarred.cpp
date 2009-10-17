@@ -207,7 +207,7 @@ void AddSC_boss_omor_the_unscarred()
     Script *newscript;
 
     newscript = new Script;
-    newscript->Name="boss_omor_the_unscarred";
+    newscript->Name = "boss_omor_the_unscarred";
     newscript->GetAI = &GetAI_boss_omor_the_unscarredAI;
     newscript->RegisterSelf();
 }

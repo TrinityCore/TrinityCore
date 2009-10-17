@@ -86,7 +86,7 @@ void AddSC_boss_grilek()
 {
     Script *newscript;
     newscript = new Script;
-    newscript->Name="boss_grilek";
+    newscript->Name = "boss_grilek";
     newscript->GetAI = &GetAI_boss_grilek;
     newscript->RegisterSelf();
 }

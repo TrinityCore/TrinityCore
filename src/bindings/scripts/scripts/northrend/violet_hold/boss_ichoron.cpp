@@ -129,7 +129,7 @@ void AddSC_boss_ichoron()
     Script *newscript;
 
     newscript = new Script;
-    newscript->Name="boss_ichoron";
+    newscript->Name = "boss_ichoron";
     newscript->GetAI = &GetAI_boss_ichoron;
     newscript->RegisterSelf();
 }

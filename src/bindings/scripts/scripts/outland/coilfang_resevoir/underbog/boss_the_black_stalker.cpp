@@ -180,7 +180,7 @@ void AddSC_boss_the_black_stalker()
     Script *newscript;
 
     newscript = new Script;
-    newscript->Name="boss_the_black_stalker";
+    newscript->Name = "boss_the_black_stalker";
     newscript->GetAI = &GetAI_boss_the_black_stalker;
     newscript->RegisterSelf();
 }

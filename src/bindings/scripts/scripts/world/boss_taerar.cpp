@@ -251,12 +251,12 @@ void AddSC_boss_taerar()
     Script *newscript;
 
     newscript = new Script;
-    newscript->Name="boss_taerar";
+    newscript->Name = "boss_taerar";
     newscript->GetAI = &GetAI_boss_taerar;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="boss_shade_of_taerar";
+    newscript->Name = "boss_shade_of_taerar";
     newscript->GetAI = &GetAI_boss_shadeoftaerar;
     newscript->RegisterSelf();
 }

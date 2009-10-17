@@ -474,27 +474,27 @@ void AddSC_boss_archaedas()
 {
     Script *newscript;
     newscript = new Script;
-    newscript->Name="boss_archaedas";
+    newscript->Name = "boss_archaedas";
     newscript->GetAI = &GetAI_boss_archaedas;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="go_altar_of_archaedas";
+    newscript->Name = "go_altar_of_archaedas";
     newscript->pGOHello = &GOHello_go_altar_of_archaedas;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="mob_archaedas_minions";
+    newscript->Name = "mob_archaedas_minions";
     newscript->GetAI = &GetAI_mob_archaedas_minions;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="go_altar_of_the_keepers";
+    newscript->Name = "go_altar_of_the_keepers";
     newscript->pGOHello = &GOHello_go_altar_of_the_keepers;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="mob_stonekeepers";
+    newscript->Name = "mob_stonekeepers";
     newscript->GetAI = &GetAI_mob_stonekeepers;
     newscript->RegisterSelf();
 }
