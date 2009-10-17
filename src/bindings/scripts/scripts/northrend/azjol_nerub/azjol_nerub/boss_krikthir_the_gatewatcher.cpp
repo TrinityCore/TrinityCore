@@ -328,13 +328,13 @@ struct TRINITY_DLL_DECL npc_anub_ar_warriorAI : public ScriptedAI
 
         if(StrikeTimer < diff)
         {
-            m_creature->CastSpell(m_creature->getVictim(),SPELL_STRIKE,true);
+            m_creature->CastSpell(m_creature->getVictim(), SPELL_STRIKE, true);
             StrikeTimer = 15000;
         } else StrikeTimer -= diff;
 
         if(CleaveTimer < diff)
         {
-            m_creature->CastSpell(m_creature->getVictim(), SPELL_CLEAVE ,true);
+            m_creature->CastSpell(m_creature->getVictim(), SPELL_CLEAVE, true);
             CleaveTimer = 17000;
         } else CleaveTimer -= diff;
 
