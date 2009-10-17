@@ -5,7 +5,7 @@
 #ifndef DEF_HALLS_OF_LIGHTNING_H
 #define DEF_HALLS_OF_LIGHTNING_H
 
-enum eEnums
+enum eTypes
 {
     MAX_ENCOUNTER           = 4,
 

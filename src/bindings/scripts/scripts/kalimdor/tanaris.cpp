@@ -341,7 +341,7 @@ bool GossipSelect_npc_stone_watcher_of_norgannon(Player* pPlayer, Creature* pCre
 ## npc_OOX17
 ######*/
 
-enum eEnums
+enum e00X17
 {
     //texts are signed for 7806
     SAY_OOX_START           = -1000287,
@@ -433,7 +433,7 @@ CreatureAI* GetAI_npc_OOX17(Creature* pCreature)
 # npc_tooga
 ####*/
 
-enum eEnums
+enum eTooga
 {
     SAY_TOOG_THIRST             = -1000391,
     SAY_TOOG_WORRIED            = -1000392,

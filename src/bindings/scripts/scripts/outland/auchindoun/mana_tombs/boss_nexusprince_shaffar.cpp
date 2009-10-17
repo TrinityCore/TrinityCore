@@ -28,7 +28,7 @@ EndContentData */
 
 #include "precompiled.h"
 
-enum eEnums
+enum ePrince
 {
     SAY_INTRO                       = -1557000,
     SAY_AGGRO_1                     = -1557001,
@@ -293,7 +293,7 @@ CreatureAI* GetAI_mob_ethereal_beacon(Creature* pCreature)
     return new mob_ethereal_beaconAI (pCreature);
 }
 
-enum eEnums
+enum eEthereal
 {
     SPELL_ETHEREAL_APPRENTICE_FIREBOLT          = 32369,
     SPELL_ETHEREAL_APPRENTICE_FROSTBOLT         = 32370

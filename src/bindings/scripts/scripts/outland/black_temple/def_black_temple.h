@@ -5,7 +5,7 @@
 #ifndef DEF_BLACK_TEMPLE_H
 #define DEF_BLACK_TEMPLE_H
 
-enum eEnums
+enum eTypes
 {                             
     DATA_AKAMA                      = 1,
     DATA_AKAMA_SHADE                = 2,
