@@ -294,7 +294,7 @@ struct TRINITY_DLL_DECL npc_anub_ar_shadowcasterAI : public ScriptedAI
         if(ShadowBoltTimer < diff)
         {
              if (Unit *target = SelectTarget(SELECT_TARGET_RANDOM,0,100,true))
-                 DoCast(target, HEROIC(SPELL_SHADOW_BOLT : H_SPELL_SHADOW_BOLT), true);
+                 DoCast(target, HEROIC(SPELL_SHADOW_BOLT, H_SPELL_SHADOW_BOLT), true);
             ShadowBoltTimer = 15000;
         } else ShadowBoltTimer -= diff;
 
