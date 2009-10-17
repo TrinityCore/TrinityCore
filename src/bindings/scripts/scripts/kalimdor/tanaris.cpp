@@ -433,7 +433,7 @@ CreatureAI* GetAI_npc_OOX17(Creature* pCreature)
 # npc_tooga
 ####*/
 
-enum
+enum eEnums
 {
     SAY_TOOG_THIRST             = -1000391,
     SAY_TOOG_WORRIED            = -1000392,

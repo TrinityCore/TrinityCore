@@ -67,7 +67,7 @@ bool GossipSelect_npc_beaten_corpse(Player* pPlayer, Creature* pCreature, uint32
 # npc_gilthares
 ######*/
 
-enum
+enum eEnums
 {
     SAY_GIL_START               = -1000370,
     SAY_GIL_AT_LAST             = -1000371,
@@ -133,7 +133,7 @@ struct TRINITY_DLL_DECL npc_giltharesAI : public npc_escortAI
         if (pWho->GetTypeId() != TYPEID_PLAYER && m_creature->GetAreaId() == AREA_MERCHANT_COAST)
         {
             //appears to be pretty much random (possible only if escorter not in combat with pWho yet?)
-            DoScriptText(RAND(SAY_GIL_AGGRO_1, m_creature,SAY_GIL_AGGRO_2, m_creature,SAY_GIL_AGGRO_3, m_creature,SAY_GIL_AGGRO_4, m_creature), pWho);
+            DoScriptText(RAND(SAY_GIL_AGGRO_1, SAY_GIL_AGGRO_2, SAY_GIL_AGGRO_3, SAY_GIL_AGGRO_4), m_creature, pWho);
         }
     }
 };

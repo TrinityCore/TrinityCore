@@ -852,7 +852,7 @@ bool QuestAccept_npc_overlord_morghor(Player* pPlayer, Creature* pCreature, cons
 # npc_earthmender_wilda
 ####*/
 
-enum
+enum eEnums
 {
     SAY_WIL_START               = -1000381,
     SAY_WIL_AGGRO1              = -1000382,
@@ -976,7 +976,7 @@ struct TRINITY_DLL_DECL npc_earthmender_wildaAI : public npc_escortAI
         {
             //appears to be random
             if (urand(0,1))
-                DoScriptText(RAND(SAY_WIL_AGGRO1, m_creature,SAY_WIL_AGGRO2, m_creature), pWho);
+                DoScriptText(RAND(SAY_WIL_AGGRO1, SAY_WIL_AGGRO2), pWho);
         }
     }
 

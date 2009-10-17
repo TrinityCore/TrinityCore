@@ -154,7 +154,7 @@ struct TRINITY_DLL_DECL npc_deathstalker_erlandAI : public npc_escortAI
 
     void EnterCombat(Unit* who)
     {
-        DoScriptText(RAND(SAY_AGGRO_1, m_creature,SAY_AGGRO_2, m_creature), who);
+        DoScriptText(RAND(SAY_AGGRO_1,SAY_AGGRO_2), m_creature, who);
     }
 };
 
