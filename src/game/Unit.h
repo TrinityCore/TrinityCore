@@ -1514,7 +1514,7 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
         void RemoveAurasDueToSpellByDispel(uint32 spellId, uint64 casterGUID, Unit *dispeler);
         void RemoveAurasDueToSpellBySteal(uint32 spellId, uint64 casterGUID, Unit *stealer);
         void RemoveAurasDueToItemSpell(Item* castItem,uint32 spellId);
-        void RemoveAurasByType(AuraType auraType, uint64 casterGUID = 0, Aura * except=NULL, bool negative = true, bool positive = true);
+        void RemoveAurasByType(AuraType auraType, uint64 casterGUID = 0, Aura * except = NULL, bool negative = true, bool positive = true);
         void RemoveNotOwnSingleTargetAuras(uint32 newPhase = 0x0);
 
         void RemoveRankAurasDueToSpell(uint32 spellId);
@@ -1524,6 +1524,7 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
         void RemoveMovementImpairingAuras();
         void RemoveAurasWithMechanic(uint32 mechanic_mask, AuraRemoveMode removemode = AURA_REMOVE_BY_DEFAULT, uint32 except=0);
         void RemoveAllAuras();
+        void RemoveAllAuras(uint64 casterGUID, Aura * except = NULL, bool negative = true, bool positive = true);
         void RemoveArenaAuras(bool onleave = false);
         void RemoveAllAurasOnDeath();
         void DelayAura(uint32 spellId, uint64 caster, int32 delaytime);
