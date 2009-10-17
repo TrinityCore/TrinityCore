@@ -350,21 +350,11 @@ struct TRINITY_DLL_DECL boss_leotheras_the_blindAI : public ScriptedAI
 
         if (DemonForm)
         {
-            switch(rand()%3)
-            {
-                case 0: DoScriptText(SAY_DEMON_SLAY1, m_creature); break;
-                case 1: DoScriptText(SAY_DEMON_SLAY2, m_creature); break;
-                case 2: DoScriptText(SAY_DEMON_SLAY3, m_creature); break;
-            }
+            DoScriptText(RAND(SAY_DEMON_SLAY1,SAY_DEMON_SLAY2,SAY_DEMON_SLAY3), m_creature);
         }
         else
         {
-            switch(rand()%3)
-            {
-                case 0: DoScriptText(SAY_NIGHTELF_SLAY1, m_creature); break;
-                case 1: DoScriptText(SAY_NIGHTELF_SLAY2, m_creature); break;
-                case 2: DoScriptText(SAY_NIGHTELF_SLAY3, m_creature); break;
-            }
+            DoScriptText(RAND(SAY_NIGHTELF_SLAY1,SAY_NIGHTELF_SLAY2,SAY_NIGHTELF_SLAY3), m_creature);
         }
     }
 
@@ -596,12 +586,7 @@ struct TRINITY_DLL_DECL boss_leotheras_the_blind_demonformAI : public ScriptedAI
         if (victim->GetTypeId() != TYPEID_PLAYER)
             return;
 
-        switch(rand()%3)
-        {
-            case 0: DoScriptText(SAY_DEMON_SLAY1, m_creature); break;
-            case 1: DoScriptText(SAY_DEMON_SLAY2, m_creature); break;
-            case 2: DoScriptText(SAY_DEMON_SLAY3, m_creature); break;
-        }
+        DoScriptText(RAND(SAY_DEMON_SLAY1,SAY_DEMON_SLAY2,SAY_DEMON_SLAY3), m_creature);
     }
 
     void JustDied(Unit *victim)

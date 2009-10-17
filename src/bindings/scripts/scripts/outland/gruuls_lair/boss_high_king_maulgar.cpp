@@ -158,12 +158,7 @@ struct TRINITY_DLL_DECL boss_high_king_maulgarAI : public ScriptedAI
 
     void KilledUnit()
     {
-        switch(rand()%3)
-        {
-            case 0: DoScriptText(SAY_SLAY1, m_creature); break;
-            case 1: DoScriptText(SAY_SLAY2, m_creature); break;
-            case 2: DoScriptText(SAY_SLAY3, m_creature); break;
-        }
+        DoScriptText(RAND(SAY_SLAY1,SAY_SLAY2,SAY_SLAY3), m_creature);
     }
 
     void JustDied(Unit* Killer)
@@ -176,13 +171,7 @@ struct TRINITY_DLL_DECL boss_high_king_maulgarAI : public ScriptedAI
 
        void AddDeath()
        {
-            switch(rand()%4)
-            {
-                case 0: DoScriptText(SAY_OGRE_DEATH1, m_creature);break;
-                case 1: DoScriptText(SAY_OGRE_DEATH2, m_creature);break;
-                case 2: DoScriptText(SAY_OGRE_DEATH3, m_creature);break;
-                case 3: DoScriptText(SAY_OGRE_DEATH4, m_creature);break;
-            }
+            DoScriptText(RAND(SAY_OGRE_DEATH1,SAY_OGRE_DEATH2,SAY_OGRE_DEATH3,SAY_OGRE_DEATH4), m_creature);
        }
 
 

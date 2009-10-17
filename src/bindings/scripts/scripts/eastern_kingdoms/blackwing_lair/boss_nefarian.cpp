@@ -100,12 +100,7 @@ struct TRINITY_DLL_DECL boss_nefarianAI : public ScriptedAI
 
     void EnterCombat(Unit *who)
     {
-        switch (rand()%3)
-        {
-            case 0: DoScriptText(SAY_XHEALTH, m_creature); break;
-            case 1: DoScriptText(SAY_AGGRO, m_creature); break;
-            case 2: DoScriptText(SAY_SHADOWFLAME, m_creature); break;
-        }
+        DoScriptText(RAND(SAY_XHEALTH,SAY_AGGRO,SAY_SHADOWFLAME), m_creature);
 
         DoCast(who,SPELL_SHADOWFLAME_INITIAL);
         DoZoneInCombat();

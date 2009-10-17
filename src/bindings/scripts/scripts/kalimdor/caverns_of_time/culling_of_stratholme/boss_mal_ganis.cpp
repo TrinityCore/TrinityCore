@@ -98,13 +98,7 @@ struct TRINITY_DLL_DECL boss_mal_ganisAI : public ScriptedAI
         if (victim == m_creature)
             return;
 
-        switch(rand()%4)
-        {
-            case 0: DoScriptText(SAY_SLAY_1, m_creature);break;
-            case 1: DoScriptText(SAY_SLAY_2, m_creature);break;
-            case 2: DoScriptText(SAY_SLAY_3, m_creature);break;
-            case 3: DoScriptText(SAY_SLAY_4, m_creature);break;
-        }
+        DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2,SAY_SLAY_3,SAY_SLAY_4), m_creature);
     }
 };
 

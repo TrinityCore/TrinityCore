@@ -382,12 +382,7 @@ struct TRINITY_DLL_DECL npc_thrall_old_hillsbradAI : public npc_escortAI
         }
         if (HasEscortState(STATE_ESCORT_ESCORTING))
         {
-            switch(rand()%3)
-            {
-            case 0: DoScriptText(SAY_TH_LEAVE_COMBAT1, m_creature); break;
-            case 1: DoScriptText(SAY_TH_LEAVE_COMBAT2, m_creature); break;
-            case 2: DoScriptText(SAY_TH_LEAVE_COMBAT3, m_creature); break;
-            }
+            DoScriptText(RAND(SAY_TH_LEAVE_COMBAT1,SAY_TH_LEAVE_COMBAT2,SAY_TH_LEAVE_COMBAT3), m_creature);
         }
     }
     void StartWP()
@@ -407,13 +402,7 @@ struct TRINITY_DLL_DECL npc_thrall_old_hillsbradAI : public npc_escortAI
     }
     void EnterCombat(Unit* who)
     {
-        switch(rand()%4)
-        {
-        case 0: DoScriptText(SAY_TH_RANDOM_AGGRO1, m_creature); break;
-        case 1: DoScriptText(SAY_TH_RANDOM_AGGRO2, m_creature); break;
-        case 2: DoScriptText(SAY_TH_RANDOM_AGGRO3, m_creature); break;
-        case 3: DoScriptText(SAY_TH_RANDOM_AGGRO4, m_creature); break;
-        }
+        DoScriptText(RAND(SAY_TH_RANDOM_AGGRO1,SAY_TH_RANDOM_AGGRO2,SAY_TH_RANDOM_AGGRO3,SAY_TH_RANDOM_AGGRO4), m_creature);
         if (m_creature->IsMounted())
         {
             DoUnmount();
@@ -440,12 +429,7 @@ struct TRINITY_DLL_DECL npc_thrall_old_hillsbradAI : public npc_escortAI
 
     void KilledUnit(Unit *victim)
     {
-        switch(rand()%3)
-        {
-        case 0: DoScriptText(SAY_TH_RANDOM_KILL1, m_creature); break;
-        case 1: DoScriptText(SAY_TH_RANDOM_KILL2, m_creature); break;
-        case 2: DoScriptText(SAY_TH_RANDOM_KILL3, m_creature); break;
-        }
+        DoScriptText(RAND(SAY_TH_RANDOM_KILL1,SAY_TH_RANDOM_KILL2,SAY_TH_RANDOM_KILL3), m_creature);
     }
     void JustDied(Unit *slayer)
     {
@@ -456,11 +440,7 @@ struct TRINITY_DLL_DECL npc_thrall_old_hillsbradAI : public npc_escortAI
         if (slayer == m_creature)
             return;
 
-        switch(rand()%2)
-        {
-        case 0: DoScriptText(SAY_TH_RANDOM_DIE1, m_creature); break;
-        case 1: DoScriptText(SAY_TH_RANDOM_DIE2, m_creature); break;
-        }
+        DoScriptText(RAND(SAY_TH_RANDOM_DIE1,SAY_TH_RANDOM_DIE2), m_creature);
     }
 
     void UpdateAI(const uint32 diff)
@@ -473,11 +453,7 @@ struct TRINITY_DLL_DECL npc_thrall_old_hillsbradAI : public npc_escortAI
              //TODO: add his abilities'n-crap here
             if (!LowHp && ((m_creature->GetHealth()*100 / m_creature->GetMaxHealth()) < 20))
             {
-                switch(rand()%2)
-                {
-                case 0: DoScriptText(SAY_TH_RANDOM_LOW_HP1, m_creature); break;
-                case 1: DoScriptText(SAY_TH_RANDOM_LOW_HP2, m_creature); break;
-                }
+                DoScriptText(RAND(SAY_TH_RANDOM_LOW_HP1,SAY_TH_RANDOM_LOW_HP2), m_creature);
                 LowHp = true;
             }
     }

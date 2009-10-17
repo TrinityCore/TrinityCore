@@ -78,12 +78,7 @@ struct TRINITY_DLL_DECL boss_omor_the_unscarredAI : public ScriptedAI
 
     void EnterCombat(Unit *who)
     {
-        switch(rand()%3)
-        {
-            case 0: DoScriptText(SAY_AGGRO_1, m_creature); break;
-            case 1: DoScriptText(SAY_AGGRO_2, m_creature); break;
-            case 2: DoScriptText(SAY_AGGRO_3, m_creature); break;
-        }
+        DoScriptText(RAND(SAY_AGGRO_1,SAY_AGGRO_2,SAY_AGGRO_3), m_creature);
     }
 
     void KilledUnit(Unit* victim)

@@ -130,12 +130,7 @@ struct TRINITY_DLL_DECL boss_lokenAI : public ScriptedAI
 
     void KilledUnit(Unit* pVictim)
     {
-        switch(rand()%3)
-        {
-            case 0: DoScriptText(SAY_SLAY_1, m_creature);break;
-            case 1: DoScriptText(SAY_SLAY_2, m_creature);break;
-            case 2: DoScriptText(SAY_SLAY_3, m_creature);break;
-        }
+        DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2,SAY_SLAY_3), m_creature);
     }
 
     void UpdateAI(const uint32 uiDiff)
@@ -203,12 +198,7 @@ struct TRINITY_DLL_DECL boss_lokenAI : public ScriptedAI
 
         if (m_uiLightningNova_Timer < uiDiff)
         {
-            switch(rand()%3)
-            {
-                case 0: DoScriptText(SAY_NOVA_1, m_creature);break;
-                case 1: DoScriptText(SAY_NOVA_2, m_creature);break;
-                case 2: DoScriptText(SAY_NOVA_3, m_creature);break;
-            }
+            DoScriptText(RAND(SAY_NOVA_1,SAY_NOVA_2,SAY_NOVA_3), m_creature);
             DoScriptText(EMOTE_NOVA, m_creature);
             DoCast(m_creature, m_bIsHeroic ? SPELL_LIGHTNING_NOVA_H : SPELL_LIGHTNING_NOVA_N);
 

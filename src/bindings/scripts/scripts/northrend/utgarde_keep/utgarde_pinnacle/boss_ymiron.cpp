@@ -218,13 +218,13 @@ struct TRINITY_DLL_DECL boss_ymironAI : public ScriptedAI
             // Normal spells ------------------------------------------------------------------------
             if (m_uiBane_Timer < diff)
             {
-                DoCast(m_creature, HEROIC(H_SPELL_BANE,SPELL_BANE));
+                DoCast(m_creature, HEROIC(SPELL_BANE, H_SPELL_BANE));
                 m_uiBane_Timer = urand(20000,25000);
             } else m_uiBane_Timer -= diff;
 
             if (m_uiFetidRot_Timer < diff)
             {
-                DoCast(m_creature->getVictim(), HEROIC(H_SPELL_FETID_ROT,SPELL_FETID_ROT));
+                DoCast(m_creature->getVictim(), HEROIC(SPELL_FETID_ROT, H_SPELL_FETID_ROT));
                 m_uiFetidRot_Timer = urand(10000,15000);
             } else m_uiFetidRot_Timer -= diff;
 
@@ -247,7 +247,7 @@ struct TRINITY_DLL_DECL boss_ymironAI : public ScriptedAI
                 if (Creature* pTemp = m_creature->SummonCreature(CREATURE_SPIRIT_FOUNT, 385+rand()%10, -330+rand()%10, 104.756, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 180000))
                 {
                     pTemp->SetSpeed(MOVE_RUN, 0.4f);
-                    pTemp->CastSpell(pTemp, HEROIC(H_SPELL_SPIRIT_FOUNT,SPELL_SPIRIT_FOUNT), true);
+                    pTemp->CastSpell(pTemp, HEROIC(SPELL_SPIRIT_FOUNT, H_SPELL_SPIRIT_FOUNT), true);
                     pTemp->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                     pTemp->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                     pTemp->SetDisplayId(11686);
@@ -259,13 +259,13 @@ struct TRINITY_DLL_DECL boss_ymironAI : public ScriptedAI
 
             if (m_bIsActiveWithHALDOR && m_uiAbility_HALDOR_Timer < diff)
             {
-                DoCast(m_creature->getVictim(), HEROIC(H_SPELL_SPIRIT_STRIKE,SPELL_SPIRIT_STRIKE));
+                DoCast(m_creature->getVictim(), HEROIC(SPELL_SPIRIT_STRIKE, H_SPELL_SPIRIT_STRIKE));
                 m_uiAbility_HALDOR_Timer = 5000; // overtime
             } else m_uiAbility_HALDOR_Timer -= diff;
 
             if (m_bIsActiveWithRANULF && m_uiAbility_RANULF_Timer < diff)
             {
-                DoCast(m_creature, HEROIC(H_SPELL_SPIRIT_BURST,SPELL_SPIRIT_BURST));
+                DoCast(m_creature, HEROIC(SPELL_SPIRIT_BURST, H_SPELL_SPIRIT_BURST));
                 m_uiAbility_RANULF_Timer = 10000; // overtime
             } else m_uiAbility_RANULF_Timer -= diff;
 

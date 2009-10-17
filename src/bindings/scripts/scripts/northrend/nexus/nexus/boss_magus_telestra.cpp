@@ -274,11 +274,7 @@ struct TRINITY_DLL_DECL boss_magus_telestraAI : public ScriptedAI
             FireMagusDead = false;
             FrostMagusDead = false;
             ArcaneMagusDead = false;
-            switch(rand()%2)
-            {
-                case 0: DoScriptText(SAY_SPLIT_1, m_creature); break;
-                case 1: DoScriptText(SAY_SPLIT_2, m_creature); break;
-            }
+            DoScriptText(RAND(SAY_SPLIT_1,SAY_SPLIT_2), m_creature);
             return;
         }
 
@@ -295,11 +291,7 @@ struct TRINITY_DLL_DECL boss_magus_telestraAI : public ScriptedAI
             FireMagusDead = false;
             FrostMagusDead = false;
             ArcaneMagusDead = false;
-            switch(rand()%2)
-            {
-                case 0: DoScriptText(SAY_SPLIT_1, m_creature); break;
-                case 1: DoScriptText(SAY_SPLIT_2, m_creature); break;
-            }
+            DoScriptText(RAND(SAY_SPLIT_1,SAY_SPLIT_2), m_creature);
             return;
         }
 

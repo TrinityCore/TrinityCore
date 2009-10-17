@@ -146,12 +146,7 @@ struct TRINITY_DLL_DECL boss_ionarAI : public ScriptedAI
 
     void KilledUnit(Unit *victim)
     {
-        switch(rand()%3)
-        {
-            case 0: DoScriptText(SAY_SLAY_1, m_creature); break;
-            case 1: DoScriptText(SAY_SLAY_2, m_creature); break;
-            case 2: DoScriptText(SAY_SLAY_3, m_creature); break;
-        }
+        DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2,SAY_SLAY_3), m_creature);
     }
 
     void DespawnSpark()
@@ -287,11 +282,7 @@ struct TRINITY_DLL_DECL boss_ionarAI : public ScriptedAI
         {
             ++m_uiHealthAmountModifier;
 
-            switch(rand()%2)
-            {
-                case 0: DoScriptText(SAY_SPLIT_1, m_creature); break;
-                case 1: DoScriptText(SAY_SPLIT_2, m_creature); break;
-            }
+            DoScriptText(RAND(SAY_SPLIT_1,SAY_SPLIT_2), m_creature);
 
             if (m_creature->IsNonMeleeSpellCasted(false))
                 m_creature->InterruptNonMeleeSpells(false);

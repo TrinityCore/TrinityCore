@@ -83,13 +83,7 @@ struct TRINITY_DLL_DECL mob_freed_soulAI : public ScriptedAI
 
     void Reset()
     {
-        switch (rand()%4)
-        {
-            case 0: DoScriptText(SAY_ZAPPED0, m_creature); break;
-            case 1: DoScriptText(SAY_ZAPPED1, m_creature); break;
-            case 2: DoScriptText(SAY_ZAPPED2, m_creature); break;
-            case 3: DoScriptText(SAY_ZAPPED3, m_creature); break;
-        }
+        DoScriptText(RAND(SAY_ZAPPED0,SAY_ZAPPED1,SAY_ZAPPED2,SAY_ZAPPED3), m_creature);
     }
 
     void EnterCombat(Unit* who) { }

@@ -129,11 +129,8 @@ struct TRINITY_DLL_DECL npc_oox22feAI : public npc_escortAI
     void EnterCombat(Unit* who)
     {
         //For an small probability the npc says something when he get aggro
-        switch(rand()%10)
-        {
-           case 0: DoScriptText(SAY_OOX_AGGRO1, m_creature); break;
-           case 1: DoScriptText(SAY_OOX_AGGRO1, m_creature); break;
-        }
+        if (urand(0,9) > 7)
+            DoScriptText(RAND(SAY_OOX_AGGRO1,SAY_OOX_AGGRO2), m_creature);
     }
 
     void JustSummoned(Creature* summoned)

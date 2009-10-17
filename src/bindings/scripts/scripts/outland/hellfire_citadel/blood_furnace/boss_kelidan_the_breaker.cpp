@@ -115,11 +115,7 @@ struct TRINITY_DLL_DECL boss_kelidan_the_breakerAI : public ScriptedAI
         if (rand()%2)
             return;
 
-        switch(rand()%2)
-        {
-            case 0: DoScriptText(SAY_KILL_1, m_creature); break;
-            case 1: DoScriptText(SAY_KILL_2, m_creature); break;
-        }
+        DoScriptText(RAND(SAY_KILL_1,SAY_KILL_2), m_creature);
     }
 
     void ChannelerEngaged(Unit* who)
@@ -127,12 +123,7 @@ struct TRINITY_DLL_DECL boss_kelidan_the_breakerAI : public ScriptedAI
         if (who && !addYell)
         {
             addYell = true;
-            switch(rand()%3)
-            {
-                case 0: DoScriptText(SAY_ADD_AGGRO_1, m_creature); break;
-                case 1: DoScriptText(SAY_ADD_AGGRO_2, m_creature); break;
-                default: DoScriptText(SAY_ADD_AGGRO_3, m_creature); break;
-            }
+            DoScriptText(RAND(SAY_ADD_AGGRO_1,SAY_ADD_AGGRO_2,SAY_ADD_AGGRO_3), m_creature);
         }
         for(uint8 i=0; i<5; ++i)
         {

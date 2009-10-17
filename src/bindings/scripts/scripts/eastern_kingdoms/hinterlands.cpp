@@ -218,11 +218,7 @@ struct TRINITY_DLL_DECL npc_rinjiAI : public npc_escortAI
                 return;
 
             //only if attacked and escorter is not in combat?
-            switch(rand()%2)
-            {
-                case 0: DoScriptText(SAY_RIN_HELP_1, m_creature); break;
-                case 1: DoScriptText(SAY_RIN_HELP_2, m_creature); break;
-            }
+            DoScriptText(RAND(SAY_RIN_HELP_1,SAY_RIN_HELP_2), m_creature);
         }
     }
 
