@@ -32,7 +32,6 @@
 #  pragma warning(disable: 4284)
 #endif /* _MSC_VER */
 
-
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 
 /**
@@ -178,7 +177,6 @@ public:
 
   X *operator-> () const;
 };
-
 
 /**
  * @brief Reset given @c auto_ptr element to new element.

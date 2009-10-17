@@ -104,7 +104,6 @@ inline float Traveller<Creature>::GetMoveDestinationTo(float x, float y, float z
     //    return sqrt((dx*dx) + (dy*dy));
 }
 
-
 template<>
 inline void Traveller<Creature>::MoveTo(float x, float y, float z, uint32 t)
 {

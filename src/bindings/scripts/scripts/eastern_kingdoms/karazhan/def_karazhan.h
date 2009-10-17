@@ -2,7 +2,6 @@
  * This program is free software licensed under GPL version 2
  * Please see the included DOCS/LICENSE.TXT for more information */
 
-
 #ifndef DEF_KARAZHAN_H
 #define DEF_KARAZHAN_H
 

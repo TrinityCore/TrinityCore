@@ -66,7 +66,7 @@ void EventProcessor::KillAllEvents(bool force)
     m_aborting = true;
 
     // first, abort all existing events
-    for (EventList::iterator i = m_events.begin(); i != m_events.end();)
+    for (EventList::iterator i = m_events.begin(); i != m_events.end(); )
     {
         EventList::iterator i_old = i;
         ++i;

@@ -37,11 +37,9 @@ extern "C" int maxFiles;
 #  include "ace/OS_NS_poll.h"
 #endif /* ACE_HAS_POLL  && ACE_HAS_LIMITED_SELECT */
 
-
 ACE_RCSID (ace,
            ACE,
            "$Id: ACE.cpp 82581 2008-08-11 08:58:24Z johnnyw $")
-
 
 // Open versioned namespace, if enabled by the user.
   ACE_BEGIN_VERSIONED_NAMESPACE_DECL
@@ -61,7 +59,6 @@ namespace ACE
   // Keeps track of whether we're in some global debug mode.
   char debug_;
 }
-
 
 int
 ACE::out_of_handles (int error)
@@ -2306,7 +2303,6 @@ ACE::restore_non_blocking_mode (ACE_HANDLE handle,
     }
 }
 
-
 // Format buffer into printable format.  This is useful for debugging.
 // Portions taken from mdump by J.P. Knight (J.P.Knight@lut.ac.uk)
 // Modifications by Todd Montgomery.
@@ -2704,7 +2700,7 @@ ACE::handle_timed_accept (ACE_HANDLE listener,
 
   // We need a loop here if <restart> is enabled.
 
-  for (;;)
+  for (; ; )
     {
 #if defined (ACE_HAS_POLL) && defined (ACE_HAS_LIMITED_SELECT)
 
@@ -2974,7 +2970,6 @@ ACE::gcd (u_long x, u_long y)
   return x;
 }
 
-
 // Calculates the minimum enclosing frame size for the given values.
 u_long
 ACE::minimum_frame_size (u_long period1, u_long period2)
@@ -3017,7 +3012,6 @@ ACE::minimum_frame_size (u_long period1, u_long period2)
       return (period1 * period2) / greatest_common_divisor;
     }
 }
-
 
 u_long
 ACE::is_prime (const u_long n,

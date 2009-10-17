@@ -1,4 +1,4 @@
-/** 
+/**
   @file Vector3.inl
 
   @maintainer Morgan McGuire, matrix@graphics3d.com
@@ -65,7 +65,6 @@ inline const float& Vector3::operator[] (int i) const {
 inline float& Vector3::operator[] (int i) {
     return ((float*)this)[i];
 }
-
 
 //----------------------------------------------------------------------------
 inline Vector3& Vector3::operator= (const Vector3& rkVector) {

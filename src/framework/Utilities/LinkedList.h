@@ -145,7 +145,6 @@ class LinkedListHead
                 typedef _Ty&                                reference;
                 typedef _Ty const &                         const_reference;
 
-
                 Iterator() : _Ptr(0)
                 {                                           // construct with null node pointer
                 }
@@ -230,7 +229,6 @@ class LinkedListHead
                 {                                           // test for reference equality
                     return (_Ptr != &_Right);
                 }
-
 
                 pointer _Mynode()
                 {                                           // return node pointer

@@ -47,7 +47,6 @@ struct TRINITY_DLL_DECL boss_herodAI : public ScriptedAI
     uint32 Cleave_Timer;
     uint32 Whirlwind_Timer;
 
-
     void Reset()
     {
         Enrage = false;
@@ -68,7 +67,7 @@ struct TRINITY_DLL_DECL boss_herodAI : public ScriptedAI
 
      void JustDied(Unit* killer)
      {
-         for(uint8 i = 0; i < 20; ++i)
+         for (uint8 i = 0; i < 20; ++i)
              m_creature->SummonCreature(ENTRY_SCARLET_TRAINEE, 1939.18, -431.58, 17.09, 6.22, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 600000);
      }
 

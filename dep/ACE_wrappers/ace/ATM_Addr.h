@@ -187,7 +187,6 @@ private:
 // Close versioned namespace, if enabled by the user.
 ACE_END_VERSIONED_NAMESPACE_DECL
 
-
 #if defined (__ACE_INLINE__)
 #include "ace/ATM_Addr.inl"
 #endif /* __ACE_INLINE__ */

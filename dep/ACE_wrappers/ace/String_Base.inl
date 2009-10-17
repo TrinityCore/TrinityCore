@@ -111,7 +111,6 @@ ACE_String_Base<CHAR>::operator > (const ACE_String_Base &s) const
   return compare (s) > 0;
 }
 
-
 // Comparison operator.
 
 template <class CHAR> ACE_INLINE bool

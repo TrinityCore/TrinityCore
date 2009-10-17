@@ -54,7 +54,6 @@ public:
         @cite Implementation from Watt and Watt, pg 362*/
     Matrix3(const class Quat& q);
 
-
     /**
      Sets all elements.
      */
@@ -125,7 +124,6 @@ public:
 
         return kProd;
     }
-
 
     /**
      * vector * matrix [1x3 * 3x3 = 1x3]
@@ -288,7 +286,6 @@ protected:
 
 };
 
-
 //----------------------------------------------------------------------------
 /**  <code>v * M == M.transpose() * v</code> */
 inline Vector3 operator* (const Vector3& rkPoint, const Matrix3& rkMatrix) {
@@ -303,7 +300,6 @@ inline Vector3 operator* (const Vector3& rkPoint, const Matrix3& rkMatrix) {
 
     return kProd;
 }
-
 
 } // namespace
 

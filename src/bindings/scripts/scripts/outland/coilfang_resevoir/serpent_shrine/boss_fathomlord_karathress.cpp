@@ -120,8 +120,6 @@ struct TRINITY_DLL_DECL boss_fathomlord_karathressAI : public ScriptedAI
 
         BlessingOfTides = false;
 
-
-
         if (pInstance)
         {
             uint64 RAdvisors[3];
@@ -130,7 +128,7 @@ struct TRINITY_DLL_DECL boss_fathomlord_karathressAI : public ScriptedAI
             RAdvisors[2] = pInstance->GetData64(DATA_CARIBDIS);
             //Respawn of the 3 Advisors
             Creature* pAdvisor = NULL;
-            for(int i=0; i<3; ++i)
+            for (int i=0; i<3; ++i)
 
             if (RAdvisors[i])
             {
@@ -144,7 +142,6 @@ struct TRINITY_DLL_DECL boss_fathomlord_karathressAI : public ScriptedAI
             }
             pInstance->SetData(DATA_KARATHRESSEVENT, NOT_STARTED);
         }
-
 
     }
 
@@ -271,7 +268,7 @@ struct TRINITY_DLL_DECL boss_fathomlord_karathressAI : public ScriptedAI
             BlessingOfTides = true;
             bool continueTriggering;
             Creature* Advisor;
-            for(uint8 i = 0; i < 4; ++i)
+            for (uint8 i = 0; i < 4; ++i)
                 if (Advisors[i])
                 {
                     Advisor = (Unit::GetCreature(*m_creature, Advisors[i]));
@@ -314,7 +311,6 @@ struct TRINITY_DLL_DECL boss_fathomguard_sharkkisAI : public ScriptedAI
     bool pet;
 
     uint64 SummonedPet;
-
 
     void Reset()
     {

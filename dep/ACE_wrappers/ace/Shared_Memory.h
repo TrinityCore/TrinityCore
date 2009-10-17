@@ -10,7 +10,6 @@
  */
 //==========================================================================
 
-
 #ifndef ACE_SHARED_MEMORY_H
 #define ACE_SHARED_MEMORY_H
 

@@ -10,7 +10,6 @@
  */
 //=============================================================================
 
-
 #ifndef ACE_THREAD_HOOK_H
 #define ACE_THREAD_HOOK_H
 #include /**/ "ace/pre.h"

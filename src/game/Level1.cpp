@@ -297,7 +297,7 @@ std::string ChatHandler::PGetParseString(int32 entry, ...)
 bool ChatHandler::HandleGMTicketListCommand(const char* args)
 {
     SendSysMessage(LANG_COMMAND_TICKETSHOWLIST);
-    for(GmTicketList::iterator itr = objmgr.m_GMTicketList.begin(); itr != objmgr.m_GMTicketList.end(); ++itr)
+    for (GmTicketList::iterator itr = objmgr.m_GMTicketList.begin(); itr != objmgr.m_GMTicketList.end(); ++itr)
     {
         if((*itr)->closed != 0)
             continue;
@@ -316,11 +316,10 @@ bool ChatHandler::HandleGMTicketListCommand(const char* args)
     return true;
 }
 
-
 bool ChatHandler::HandleGMTicketListOnlineCommand(const char* args)
 {
     SendSysMessage(LANG_COMMAND_TICKETSHOWONLINELIST);
-    for(GmTicketList::iterator itr = objmgr.m_GMTicketList.begin(); itr != objmgr.m_GMTicketList.end(); ++itr)
+    for (GmTicketList::iterator itr = objmgr.m_GMTicketList.begin(); itr != objmgr.m_GMTicketList.end(); ++itr)
     {
         if((*itr)->closed != 0 || !objmgr.GetPlayer((*itr)->playerGuid))
             continue;
@@ -343,7 +342,7 @@ bool ChatHandler::HandleGMTicketListOnlineCommand(const char* args)
 bool ChatHandler::HandleGMTicketListClosedCommand(const char* args)
 {
     SendSysMessage(LANG_COMMAND_TICKETSHOWCLOSEDLIST);
-    for(GmTicketList::iterator itr = objmgr.m_GMTicketList.begin(); itr != objmgr.m_GMTicketList.end(); ++itr)
+    for (GmTicketList::iterator itr = objmgr.m_GMTicketList.begin(); itr != objmgr.m_GMTicketList.end(); ++itr)
     {
         if((*itr)->closed == 0)
             continue;
@@ -409,7 +408,7 @@ bool ChatHandler::HandleGMTicketGetByNameCommand(const char* args)
         SendSysMessage(LANG_NO_PLAYERS_FOUND);
         return true;
     }
-    
+
     GM_Ticket *ticket = objmgr.GetGMTicketByPlayer(plr->GetGUID());
     if(!ticket)
     {
@@ -682,8 +681,6 @@ bool ChatHandler::HandleGMVisibleCommand(const char* args)
     return false;
 }
 
-
-
 bool ChatHandler::HandleGPSCommand(const char* args)
 {
     WorldObject *obj = NULL;
@@ -909,7 +906,6 @@ bool ChatHandler::HandleGonameCommand(const char* args)
         return false;
     }
 
-
     if (target)
     {
         // check online security
@@ -1094,7 +1090,7 @@ bool ChatHandler::HandleModifyKnownTitlesCommand(const char* args)
 
     uint64 titles2 = titles;
 
-    for(uint32 i = 1; i < sCharTitlesStore.GetNumRows(); ++i)
+    for (uint32 i = 1; i < sCharTitlesStore.GetNumRows(); ++i)
         if(CharTitlesEntry const* tEntry = sCharTitlesStore.LookupEntry(i))
             titles2 &= ~(uint64(1) << tEntry->bit_index);
 
@@ -2289,7 +2285,7 @@ bool ChatHandler::HandleLookupAreaCommand(const char* args)
             if (!Utf8FitTo (name, wnamepart))
             {
                 loc = 0;
-                for(; loc < MAX_LOCALE; ++loc)
+                for (; loc < MAX_LOCALE; ++loc)
                 {
                     if (loc==GetSessionDbcLocale ())
                         continue;
@@ -2352,7 +2348,7 @@ bool ChatHandler::HandleLookupTeleCommand(const char * args)
     std::ostringstream reply;
 
     GameTeleMap const & teleMap = objmgr.GetGameTeleMap();
-    for(GameTeleMap::const_iterator itr = teleMap.begin(); itr != teleMap.end(); ++itr)
+    for (GameTeleMap::const_iterator itr = teleMap.begin(); itr != teleMap.end(); ++itr)
     {
         GameTele const* tele = &itr->second;
 
@@ -2582,7 +2578,7 @@ bool ChatHandler::HandleTeleGroupCommand(const char * args)
         return false;
     }
 
-    for(GroupReference *itr = grp->GetFirstMember(); itr != NULL; itr = itr->next())
+    for (GroupReference *itr = grp->GetFirstMember(); itr != NULL; itr = itr->next())
     {
         Player *pl = itr->getSource();
 
@@ -2657,7 +2653,7 @@ bool ChatHandler::HandleGroupgoCommand(const char* args)
         return false;
     }
 
-    for(GroupReference *itr = grp->GetFirstMember(); itr != NULL; itr = itr->next())
+    for (GroupReference *itr = grp->GetFirstMember(); itr != NULL; itr = itr->next())
     {
         Player *pl = itr->getSource();
 

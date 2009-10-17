@@ -296,7 +296,6 @@ ACE_Service_Repository::find_i (const ACE_TCHAR name[],
   return -1;
 }
 
-
 /// @brief Relocate (a static) service to another DLL.
 ///
 /// Works by having the service type keep a reference to a specific
@@ -375,7 +374,6 @@ ACE_Service_Repository::find (const ACE_TCHAR name[],
   size_t ignore_location = 0;
   return this->find_i (name, ignore_location, srp, ignore_suspended);
 }
-
 
 // Insert the ACE_Service_Type SR into the repository.  Note that
 // services may be inserted either resumed or suspended. Using same
@@ -493,7 +491,6 @@ ACE_Service_Repository::suspend (const ACE_TCHAR name[],
   return this->service_vector_[i]->suspend ();
 }
 
-
 /**
  * @brief Completely remove a <name> entry from the Repository and
  * dynamically unlink it if it was originally dynamically linked.
@@ -575,7 +572,6 @@ ACE_Service_Repository_Iterator::dump (void) const
   ACE_TRACE ("ACE_Service_Repository_Iterator::dump");
 #endif /* ACE_HAS_DUMP */
 }
-
 
 // Initializes the iterator and skips over any suspended entries at
 // the beginning of the table, if necessary.  Note, you must not

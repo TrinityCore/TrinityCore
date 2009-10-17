@@ -573,7 +573,6 @@ ACE_OS::recursive_mutex_cond_unlock (ACE_recursive_thread_mutex_t *m,
 #endif /* ACE_HAS_THREADS */
 }
 
-
 // This method is called after waiting on a condition variable when a
 // recursive mutex must be reacquired. If the platform doesn't natively
 // integrate recursive mutexes and condition variables, it's taken care
@@ -1586,7 +1585,7 @@ ACE_OS::sema_init (ACE_sema_t *s,
   if (creator && count)
     {
       char    c = 1;
-      for (u_int i=0; i<count ;++i)
+      for (u_int i=0; i<count ; ++i)
         if (ACE_OS::write (s->fd_[1], &c, sizeof (char)) != 1)
           return (-1);
     }
@@ -2064,7 +2063,7 @@ ACE_OS::sema_wait (ACE_sema_t *s)
 #     else /* ACE_USES_WINCE_SEMA_SIMULATION */
   // Timed wait.
   int result = -1;
-  for (;;)
+  for (; ; )
     // Check if the semaphore is avialable or not and wait forever.
     // Don't bother to grab the lock if it is not available (to avoid
     // deadlock.)
@@ -3568,7 +3567,6 @@ ACE_OS_Recursive_Thread_Mutex_Guard::~ACE_OS_Recursive_Thread_Mutex_Guard ()
 }
 
 #endif /* ACE_MT_SAFE && ACE_MT_SAFE != 0 */
-
 
 /*****************************************************************************/
 

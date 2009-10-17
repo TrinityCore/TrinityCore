@@ -68,7 +68,6 @@ static  const char *bstr;
 static  const char rstr[128];
 };
 
-
 #ifdef SOCKETS_NAMESPACE
 }
 #endif

@@ -33,7 +33,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 namespace SOCKETS_NAMESPACE {
 #endif
 
-
 Mutex::Mutex()
 {
 #ifdef _WIN32
@@ -43,7 +42,6 @@ Mutex::Mutex()
 #endif
 }
 
-
 Mutex::~Mutex()
 {
 #ifdef _WIN32
@@ -52,7 +50,6 @@ Mutex::~Mutex()
     pthread_mutex_destroy(&m_mutex);
 #endif
 }
-
 
 void Mutex::Lock()
 {
@@ -64,7 +61,6 @@ void Mutex::Lock()
 #endif
 }
 
-
 void Mutex::Unlock()
 {
 #ifdef _WIN32
@@ -73,7 +69,6 @@ void Mutex::Unlock()
     pthread_mutex_unlock(&m_mutex);
 #endif
 }
-
 
 #ifdef SOCKETS_NAMESPACE
 }

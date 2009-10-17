@@ -82,7 +82,6 @@ ACE_Dynamic_Message_Strategy::priority_status (ACE_Message_Block & mb,
   return status;
 }
 
-
 // Dump the state of the strategy.
 
 void

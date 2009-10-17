@@ -10,7 +10,6 @@
  */
 //=============================================================================
 
-
 #ifndef ACE_REGISTRY_H
 #define ACE_REGISTRY_H
 #include /**/ "ace/pre.h"
@@ -257,7 +256,6 @@ public:
 
     /// Delete object with @a name in @c this context
     int unbind (const ACE_TString &name);
-
 
     // The following interfaces are for Naming Context
 

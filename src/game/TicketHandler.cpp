@@ -47,7 +47,7 @@ void WorldSession::HandleGMTicketCreateOpcode( WorldPacket & recv_data )
     recv_data >> ticketText;
     recv_data >> ticketText2;
 
-    GM_Ticket *ticket = new GM_Ticket;    
+    GM_Ticket *ticket = new GM_Ticket;
     ticket->name = GetPlayer()->GetName();
     ticket->guid = objmgr.GenerateGMTicketId();
     ticket->playerGuid = GetPlayer()->GetGUID();

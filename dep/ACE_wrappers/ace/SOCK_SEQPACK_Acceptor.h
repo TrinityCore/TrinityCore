@@ -80,7 +80,6 @@ public:
                      int backlog = ACE_DEFAULT_BACKLOG,
                      int protocol = 132);
 
-
   /**
    * Initialize a passive-mode BSD-style acceptor socket (no QoS).
    * @a local_sap is the address that we're going to listen for
@@ -101,7 +100,6 @@ public:
             int protocol_family = PF_UNSPEC,
             int backlog = ACE_DEFAULT_BACKLOG,
             int protocol = 132);
-
 
   /// Initialize a passive-mode QoS-enabled acceptor socket.  Returns 0
   /// on success and -1 on failure.

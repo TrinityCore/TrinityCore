@@ -92,7 +92,7 @@ namespace Trinity
 
         template<class T> void updateObjects(GridRefManager<T> &m)
         {
-            for(typename GridRefManager<T>::iterator iter = m.begin(); iter != m.end(); ++iter)
+            for (typename GridRefManager<T>::iterator iter = m.begin(); iter != m.end(); ++iter)
                 iter->getSource()->Update(i_timeDiff);
         }
 
@@ -241,34 +241,34 @@ namespace Trinity
 
         void Visit(GameObjectMapType &m)
         {
-            for(GameObjectMapType::iterator itr=m.begin(); itr != m.end(); ++itr)
+            for (GameObjectMapType::iterator itr=m.begin(); itr != m.end(); ++itr)
                 if(itr->getSource()->InSamePhase(i_phaseMask))
                     i_do(itr->getSource());
         }
 
         void Visit(PlayerMapType &m)
         {
-            for(PlayerMapType::iterator itr=m.begin(); itr != m.end(); ++itr)
+            for (PlayerMapType::iterator itr=m.begin(); itr != m.end(); ++itr)
                 if(itr->getSource()->InSamePhase(i_phaseMask))
                     i_do(itr->getSource());
         }
         void Visit(CreatureMapType &m)
         {
-            for(CreatureMapType::iterator itr=m.begin(); itr != m.end(); ++itr)
+            for (CreatureMapType::iterator itr=m.begin(); itr != m.end(); ++itr)
                 if(itr->getSource()->InSamePhase(i_phaseMask))
                     i_do(itr->getSource());
         }
 
         void Visit(CorpseMapType &m)
         {
-            for(CorpseMapType::iterator itr=m.begin(); itr != m.end(); ++itr)
+            for (CorpseMapType::iterator itr=m.begin(); itr != m.end(); ++itr)
                 if(itr->getSource()->InSamePhase(i_phaseMask))
                     i_do(itr->getSource());
         }
 
         void Visit(DynamicObjectMapType &m)
         {
-            for(DynamicObjectMapType::iterator itr=m.begin(); itr != m.end(); ++itr)
+            for (DynamicObjectMapType::iterator itr=m.begin(); itr != m.end(); ++itr)
                 if(itr->getSource()->InSamePhase(i_phaseMask))
                     i_do(itr->getSource());
         }
@@ -436,7 +436,7 @@ namespace Trinity
 
         void Visit(CreatureMapType &m)
         {
-            for(CreatureMapType::iterator itr=m.begin(); itr != m.end(); ++itr)
+            for (CreatureMapType::iterator itr=m.begin(); itr != m.end(); ++itr)
                 if(itr->getSource()->InSamePhase(i_phaseMask))
                     i_do(itr->getSource());
         }
@@ -487,7 +487,7 @@ namespace Trinity
 
         void Visit(PlayerMapType &m)
         {
-            for(PlayerMapType::iterator itr=m.begin(); itr != m.end(); ++itr)
+            for (PlayerMapType::iterator itr=m.begin(); itr != m.end(); ++itr)
                 if(itr->getSource()->InSamePhase(i_phaseMask))
                     i_do(itr->getSource());
         }
@@ -507,7 +507,7 @@ namespace Trinity
 
         void Visit(PlayerMapType &m)
         {
-            for(PlayerMapType::iterator itr=m.begin(); itr != m.end(); ++itr)
+            for (PlayerMapType::iterator itr=m.begin(); itr != m.end(); ++itr)
                 if (itr->getSource()->InSamePhase(i_searcher) && itr->getSource()->IsWithinDist(i_searcher,i_dist))
                     i_do(itr->getSource());
         }
@@ -1202,7 +1202,7 @@ namespace Trinity
 
             ~LocalizedPacketDo()
             {
-                for(size_t i = 0; i < i_data_cache.size(); ++i)
+                for (size_t i = 0; i < i_data_cache.size(); ++i)
                     delete i_data_cache[i];
             }
             void operator()( Player* p );
@@ -1222,8 +1222,8 @@ namespace Trinity
 
             ~LocalizedPacketListDo()
             {
-                for(size_t i = 0; i < i_data_cache.size(); ++i)
-                    for(size_t j = 0; j < i_data_cache[i].size(); ++j)
+                for (size_t i = 0; i < i_data_cache.size(); ++i)
+                    for (size_t j = 0; j < i_data_cache[i].size(); ++j)
                         delete i_data_cache[i][j];
             }
             void operator()( Player* p );

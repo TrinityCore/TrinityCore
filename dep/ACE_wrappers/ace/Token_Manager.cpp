@@ -192,7 +192,6 @@ ACE_Token_Manager::check_deadlock (ACE_Tokens *token, ACE_Token_Proxy *proxy)
     }
 }
 
-
 ACE_Tokens *
 ACE_Token_Manager::token_waiting_for (const ACE_TCHAR *client_id)
 {

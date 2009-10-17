@@ -90,7 +90,7 @@ void Totem::InitSummon()
     SendMessageToSet(&data, true);
 
     if(m_type == TOTEM_PASSIVE)
-        CastSpell(this, GetSpell(), true); 
+        CastSpell(this, GetSpell(), true);
 
     // Some totems can have both instant effect and passive spell
     if (GetSpell(1))
@@ -105,7 +105,7 @@ void Totem::UnSummon()
     RemoveAurasDueToSpell(GetSpell());
 
     // clear owenr's totem slot
-    for(int i = SUMMON_SLOT_TOTEM; i < MAX_TOTEM_SLOT; ++i)
+    for (int i = SUMMON_SLOT_TOTEM; i < MAX_TOTEM_SLOT; ++i)
     {
         if(m_owner->m_SummonSlot[i]==GetGUID())
         {
@@ -124,7 +124,7 @@ void Totem::UnSummon()
         pGroup = ((Player*)m_owner)->GetGroup();
         if (pGroup)
         {
-            for(GroupReference *itr = pGroup->GetFirstMember(); itr != NULL; itr = itr->next())
+            for (GroupReference *itr = pGroup->GetFirstMember(); itr != NULL; itr = itr->next())
             {
                 Player* Target = itr->getSource();
                 if(Target && pGroup->SameSubGroup((Player*)m_owner, Target))

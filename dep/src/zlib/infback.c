@@ -278,7 +278,7 @@ void FAR *out_desc;
     left = state->wsize;
 
     /* Inflate until end of block marked as last */
-    for (;;)
+    for (; ; )
         switch (state->mode) {
         case TYPE:
             /* determine and dispatch block type */
@@ -388,7 +388,7 @@ void FAR *out_desc;
             /* get length and distance code code lengths */
             state->have = 0;
             while (state->have < state->nlen + state->ndist) {
-                for (;;) {
+                for (; ; ) {
                     this = state->lencode[BITS(state->lenbits)];
                     if ((unsigned)(this.bits) <= bits) break;
                     PULLBYTE();
@@ -473,14 +473,14 @@ void FAR *out_desc;
             }
 
             /* get a literal, length, or end-of-block code */
-            for (;;) {
+            for (; ; ) {
                 this = state->lencode[BITS(state->lenbits)];
                 if ((unsigned)(this.bits) <= bits) break;
                 PULLBYTE();
             }
             if (this.op && (this.op & 0xf0) == 0) {
                 last = this;
-                for (;;) {
+                for (; ; ) {
                     this = state->lencode[last.val +
                             (BITS(last.bits + last.op) >> last.bits)];
                     if ((unsigned)(last.bits + this.bits) <= bits) break;
@@ -527,14 +527,14 @@ void FAR *out_desc;
             Tracevv((stderr, "inflate:         length %u\n", state->length));
 
             /* get distance code */
-            for (;;) {
+            for (; ; ) {
                 this = state->distcode[BITS(state->distbits)];
                 if ((unsigned)(this.bits) <= bits) break;
                 PULLBYTE();
             }
             if ((this.op & 0xf0) == 0) {
                 last = this;
-                for (;;) {
+                for (; ; ) {
                     this = state->distcode[last.val +
                             (BITS(last.bits + last.op) >> last.bits)];
                     if ((unsigned)(last.bits + this.bits) <= bits) break;

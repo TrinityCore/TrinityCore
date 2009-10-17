@@ -177,7 +177,6 @@ private:
     static bool m_local_resolved; ///< ResolveLocal has been called if true
 };
 
-
 #ifdef SOCKETS_NAMESPACE
 }
 #endif

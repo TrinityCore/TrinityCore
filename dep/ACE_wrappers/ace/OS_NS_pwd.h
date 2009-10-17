@@ -44,7 +44,6 @@ ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 namespace ACE_OS
 {
 
-
   //@{ @name A set of wrappers for password routines.
 
   ACE_NAMESPACE_INLINE_FUNCTION

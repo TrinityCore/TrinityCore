@@ -136,4 +136,3 @@ void GuardAI::JustDied(Unit *killer)
         m_creature->SendZoneUnderAttackMessage(pkiller);
 }
 
-

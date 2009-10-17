@@ -183,7 +183,7 @@ enum SpellSchoolMask
 
 inline SpellSchools GetFirstSchoolInMask(SpellSchoolMask mask)
 {
-    for(int i = 0; i < MAX_SPELL_SCHOOL; ++i)
+    for (int i = 0; i < MAX_SPELL_SCHOOL; ++i)
         if(mask & (1 << i))
             return SpellSchools(i);
 
@@ -220,7 +220,6 @@ const uint32 ItemQualityColors[MAX_ITEM_QUALITY] = {
     0xffe6cc80,        //LIGHT YELLOW
     0xffe6cc80         //LIGHT YELLOW
 };
-
 
 // ***********************************
 // Spell Attributes definitions

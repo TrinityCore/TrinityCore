@@ -35,14 +35,12 @@ Vector4::Vector4(const class Color4& c) {
 }
 #endif
 
-
 Vector4::Vector4(const Vector2& v1, const Vector2& v2) {
     x = v1.x;
     y = v1.y;
     z = v2.x;
     w = v2.y;
 }
-
 
 Vector4::Vector4(const Vector2& v1, float fz, float fw) {
     x = v1.x;
@@ -82,7 +80,6 @@ Vector4& Vector4::operator/= (float fScalar) {
 
     return *this;
 }
-
 
 //----------------------------------------------------------------------------
 
@@ -433,7 +430,6 @@ Vector4 Vector4::xwww() const  { return Vector4       (x, w, w, w); }
 Vector4 Vector4::ywww() const  { return Vector4       (y, w, w, w); }
 Vector4 Vector4::zwww() const  { return Vector4       (z, w, w, w); }
 Vector4 Vector4::wwww() const  { return Vector4       (w, w, w, w); }
-
 
 }; // namespace
 

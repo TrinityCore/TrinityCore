@@ -242,7 +242,6 @@ public:
   int notify_unbind (int result,
                      const ATTRIBUTES &attr);
 
-
   /// This method acts as a notification about the CONTAINERs trybind
   /// method call
   int notify_trybind (int result,

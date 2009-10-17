@@ -7,7 +7,6 @@
 #include "ace/Task.inl"
 #endif /* __ACE_INLINE__ */
 
-
 ACE_RCSID (ace,
            Task,
            "$Id: Task.cpp 80826 2008-03-04 14:51:23Z wotte $")
@@ -244,7 +243,6 @@ ACE_Task_Base::cleanup (void *object, void *)
   t->close ();
   // t is undefined here. close() could have deleted it.
 }
-
 
 #if defined (ACE_HAS_SIG_C_FUNC)
 extern "C" void

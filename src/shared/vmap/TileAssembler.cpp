@@ -166,25 +166,25 @@ namespace VMAP
             return false;
         }
 
-        for(int i=0; i<mapIds.size(); ++i)
+        for (int i=0; i<mapIds.size(); ++i)
         {
             unsigned int mapId = mapIds[i];
 
             #ifdef _ASSEMBLER_DEBUG
             if(mapId == 0)                                  // "Azeroth" just for debug
             {
-                for(int x=28; x<29; ++x)                    //debug
+                for (int x=28; x<29; ++x)                    //debug
                 {
-                    for(int y=28; y<29; ++y)
+                    for (int y=28; y<29; ++y)
                     {
             #else
             // ignore DeeprunTram (369) it is too large for short vector and not important
             // ignore test (13), Test (29) , development (451)
             if(mapId != 369 && mapId != 13 && mapId != 29 && mapId != 451)
             {
-                for(int x=0; x<66; ++x)
+                for (int x=0; x<66; ++x)
                 {
-                    for(int y=0; y<66; ++y)
+                    for (int y=0; y<66; ++y)
                     {
             #endif
                         Array<ModelContainer*> mc;
@@ -423,7 +423,7 @@ namespace VMAP
 
         READ_OR_RETURN(&groups, sizeof(G3D::uint32));
 
-        for(int g=0;g<(int)groups;g++)
+        for (int g=0; g<(int)groups; g++)
         {
             // group MUST NOT have more then 65536 indexes !! Array will have a problem with that !! (strange ...)
             Array<int> tempIndexArray;
@@ -447,7 +447,7 @@ namespace VMAP
             CMP_OR_RETURN(blockId, "GRP ");
             READ_OR_RETURN(&blocksize, sizeof(int));
             READ_OR_RETURN(&branches, sizeof(G3D::uint32));
-            for(int b=0;b<(int)branches; b++)
+            for (int b=0; b<(int)branches; b++)
             {
                 G3D::uint32 indexes;
                 // indexes for each branch (not used jet)
@@ -464,7 +464,7 @@ namespace VMAP
             {
                 unsigned short *indexarray = new unsigned short[nindexes*sizeof(unsigned short)];
                 READ_OR_RETURN(indexarray, nindexes*sizeof(unsigned short));
-                for(int i=0;i<(int)nindexes; i++)
+                for (int i=0; i<(int)nindexes; i++)
                 {
                     unsigned short val = indexarray[i];
                     tempIndexArray.append(val);
@@ -504,8 +504,7 @@ namespace VMAP
                 fseek(rf, blocksize, SEEK_CUR);
             }
 
-
-            for(unsigned int i=0, indexNo=0; indexNo<nvectors; indexNo++)
+            for (unsigned int i=0, indexNo=0; indexNo<nvectors; indexNo++)
             {
                 Vector3 v = Vector3(vectorarray[i+2], vectorarray[i+1], vectorarray[i+0]);
                 i+=3;
@@ -525,7 +524,7 @@ namespace VMAP
                 nindexes -= rest;
             }
 
-            for(unsigned int i=0;i<(nindexes);)
+            for (unsigned int i=0; i<(nindexes); )
             {
                 Triangle t = Triangle(tempVertexArray[tempIndexArray[i+2]], tempVertexArray[tempIndexArray[i+1]], tempVertexArray[tempIndexArray[i+0]] );
                 i+=3;

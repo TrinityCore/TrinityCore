@@ -61,7 +61,7 @@ struct TRINITY_DLL_DECL instance_ahnkahet : public ScriptedInstance
          Herald_Volazj =0;
          Amanitar =0;
 
-         for(uint8 i = 0; i < MAX_ENCOUNTER; ++i)
+         for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
              m_auiEncounter[i] = NOT_STARTED;
         spheres[0] = NOT_STARTED;
         spheres[1] = NOT_STARTED;
@@ -69,12 +69,11 @@ struct TRINITY_DLL_DECL instance_ahnkahet : public ScriptedInstance
 
     bool IsEncounterInProgress() const
     {
-        for(uint8 i = 0; i < MAX_ENCOUNTER; ++i)
+        for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
             if (m_auiEncounter[i] == IN_PROGRESS) return true;
 
         return false;
     }
-
 
     void OnCreatureCreate(Creature* pCreature, bool add)
     {
@@ -217,7 +216,7 @@ struct TRINITY_DLL_DECL instance_ahnkahet : public ScriptedInstance
             m_auiEncounter[3] = data3;
             m_auiEncounter[4] = data4;
 
-            for(uint8 i = 0; i < MAX_ENCOUNTER; ++i)
+            for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
                 if (m_auiEncounter[i] == IN_PROGRESS)
                     m_auiEncounter[i] = NOT_STARTED;
 

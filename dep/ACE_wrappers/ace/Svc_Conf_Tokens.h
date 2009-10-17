@@ -9,7 +9,6 @@
  */
 //====================================================================
 
-
 #ifndef BISON_SVC_CONF_TAB_H
 #  define BISON_SVC_CONF_TAB_H
 

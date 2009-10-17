@@ -1,6 +1,5 @@
 
 
-
 #ifndef DOTCONFPP_H
 #define DOTCONFPP_H
 

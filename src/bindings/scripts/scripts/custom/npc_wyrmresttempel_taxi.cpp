@@ -26,7 +26,6 @@ bool GossipSelect_npc_wyrmresttempel_middle_taxi(Player* pPlayer, Creature* pCre
         pPlayer->GetSession()->SendDoFlight(6376, 881);
     }
 
-
     if (uiAction == GOSSIP_ACTION_INFO_DEF + 2)
     {
       pPlayer->GetSession()->SendDoFlight(6376, 882);
@@ -46,15 +45,12 @@ pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_MIDDLE, GOSSIP_SENDER_MAIN, GO
     return true;
 }
 
-
-
 bool GossipSelect_npc_wyrmresttempel_bottom_taxi(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
 {
     if (uiAction == GOSSIP_ACTION_INFO_DEF + 4)
     {
         pPlayer->GetSession()->SendDoFlight(6376, 878);
     }
-
 
     if (uiAction == GOSSIP_ACTION_INFO_DEF + 3)
     {

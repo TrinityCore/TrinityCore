@@ -14,7 +14,6 @@
 # include "ace/Ping_Socket.inl"
 #endif  /* !__ACE_INLINE__ */
 
-
 ACE_RCSID (ace,
            Ping_Socket,
            "$Id: Ping_Socket.cpp 81737 2008-05-20 09:46:39Z johnnyw $")
@@ -81,13 +80,11 @@ struct icmp
 
 #endif /* #if ! defined (ACE_WIN32) */
 
-
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 
 int const ICMP_MIN = 8;  // Minimal size of ICMP packet, header only
 int const ICMP_DATA_LENGTH = 56;  // For ICMP data with Echo request
 ACE_Time_Value const ACE_Ping_Socket::time_default_ (0, 500000);
-
 
 void
 ACE_Ping_Socket::dump (void) const

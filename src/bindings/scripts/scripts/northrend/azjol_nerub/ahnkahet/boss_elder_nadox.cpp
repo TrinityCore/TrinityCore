@@ -69,7 +69,6 @@ struct TRINITY_DLL_DECL boss_elder_nadoxAI : public ScriptedAI
     uint32 guard_spawn_Timer;
     uint32 enrage_Timer;
 
-
     ScriptedInstance *pInstance;
 
     void Reset()
@@ -116,7 +115,7 @@ struct TRINITY_DLL_DECL boss_elder_nadoxAI : public ScriptedAI
                 if (pMap && pMap->IsDungeon())
                 {
                     Map::PlayerList const &players = pMap->GetPlayers();
-                    for(Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
+                    for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
                         itr->getSource()->CompletedAchievement(AchievRespectYourElders);
                 }
             }

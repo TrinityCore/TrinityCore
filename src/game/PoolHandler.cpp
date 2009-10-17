@@ -329,7 +329,6 @@ bool PoolGroup<Pool>::ReSpawn1Object(uint32 /*guid*/)
     return true;
 }
 
-
 ////////////////////////////////////////////////////////////
 // Methods of class PoolHandler
 
@@ -578,10 +577,10 @@ void PoolHandler::LoadFromDB()
         } while( result->NextRow() );
 
         // Now check for circular reference
-        for(uint16 i=0; i<max_pool_id; ++i)
+        for (uint16 i=0; i<max_pool_id; ++i)
         {
             std::set<uint16> checkedPools;
-            for(SearchMap::iterator poolItr = mPoolSearchMap.find(i); poolItr != mPoolSearchMap.end(); poolItr = mPoolSearchMap.find(poolItr->second))
+            for (SearchMap::iterator poolItr = mPoolSearchMap.find(i); poolItr != mPoolSearchMap.end(); poolItr = mPoolSearchMap.find(poolItr->second))
             {
                 checkedPools.insert(poolItr->first);
                 if(checkedPools.find(poolItr->second) != checkedPools.end())

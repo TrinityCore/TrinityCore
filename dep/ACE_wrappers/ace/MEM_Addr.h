@@ -10,7 +10,6 @@
  */
 //==========================================================================
 
-
 #ifndef ACE_MEM_ADDR_H
 #define ACE_MEM_ADDR_H
 #include /**/ "ace/pre.h"

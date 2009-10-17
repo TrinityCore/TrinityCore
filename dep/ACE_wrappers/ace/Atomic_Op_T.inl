@@ -195,7 +195,6 @@ ACE_Atomic_Op<ACE_LOCK, TYPE>::ACE_Atomic_Op (
   // ACE_TRACE ("ACE_Atomic_Op<ACE_LOCK, TYPE>::ACE_Atomic_Op");
 }
 
-
 template <class ACE_LOCK, class TYPE>
 ACE_INLINE ACE_Atomic_Op<ACE_LOCK, TYPE> &
 ACE_Atomic_Op<ACE_LOCK, TYPE>::operator= (

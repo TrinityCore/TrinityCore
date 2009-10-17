@@ -140,7 +140,7 @@ class TRINITY_DLL_SPEC CreatureAI : public UnitAI
 
         void DoZoneInCombat(Creature* pUnit = NULL);
 
-        // Called at text emote receive from player 
+        // Called at text emote receive from player
         virtual void ReceiveEmote(Player* pPlayer, uint32 text_emote) {}
 
         ///== Triggered Actions Requested ==================

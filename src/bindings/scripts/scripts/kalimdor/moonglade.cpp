@@ -325,7 +325,7 @@ public:
             return;
         if (pPlayer->GetQuestStatus(10965) == QUEST_STATUS_INCOMPLETE)
         {
-            for(uint8 i = 0; i < 41; ++i)
+            for (uint8 i = 0; i < 41; ++i)
             {
                 AddWaypoint(i, Clintar_spirit_WP[i][0], Clintar_spirit_WP[i][1], Clintar_spirit_WP[i][2], (uint32)Clintar_spirit_WP[i][4]);
             }

@@ -187,7 +187,6 @@ ACE_U_LongLong::operator= (const ACE_UINT32 &rhs)
   return *this;
 }
 
-
 ACE_INLINE ACE_U_LongLong
 ACE_U_LongLong::operator+ (const ACE_U_LongLong &n) const
 {
@@ -588,7 +587,6 @@ ACE_U_LongLong::operator= (const ACE_UINT32 &rhs)
 
   return *this;
 }
-
 
 ACE_INLINE ACE_U_LongLong
 ACE_U_LongLong::operator+ (const ACE_U_LongLong &n) const

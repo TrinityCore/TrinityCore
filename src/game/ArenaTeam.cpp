@@ -298,7 +298,7 @@ void ArenaTeam::DelMember(uint64 guid)
         player->SetInArenaTeam(0, GetSlot());
         player->GetSession()->SendArenaTeamCommandResult(ERR_ARENA_TEAM_QUIT_S, GetName(), "", 0);
         // delete all info regarding this team
-        for(uint8 i = 0; i < 6; ++i)
+        for (uint8 i = 0; i < 6; ++i)
         {
             player->SetUInt32Value(PLAYER_FIELD_ARENA_TEAM_INFO_1_1 + (GetSlot() * 6) + i, 0);
         }
@@ -401,7 +401,7 @@ void ArenaTeam::NotifyStatsChanged()
 {
     // this is called after a rated match ended
     // updates arena team stats for every member of the team (not only the ones who participated!)
-    for(MemberList::const_iterator itr = m_members.begin(); itr != m_members.end(); ++itr)
+    for (MemberList::const_iterator itr = m_members.begin(); itr != m_members.end(); ++itr)
     {
         Player * plr = objmgr.GetPlayer(itr->guid);
         if(plr)
@@ -550,7 +550,7 @@ void ArenaTeam::FinishGame(int32 mod)
     // update team's rank
     m_stats.rank = 1;
     ObjectMgr::ArenaTeamMap::const_iterator i = objmgr.GetArenaTeamMapBegin();
-    for ( ; i != objmgr.GetArenaTeamMapEnd(); ++i)
+    for (; i != objmgr.GetArenaTeamMapEnd(); ++i)
     {
         if (i->second->GetType() == m_Type && i->second->GetStats().rating > m_stats.rating)
             ++m_stats.rank;
@@ -590,7 +590,7 @@ int32 ArenaTeam::LostAgainst(uint32 againstRating)
 void ArenaTeam::MemberLost(Player * plr, uint32 againstRating)
 {
     // called for each participant of a match after losing
-    for(MemberList::iterator itr = m_members.begin(); itr !=  m_members.end(); ++itr)
+    for (MemberList::iterator itr = m_members.begin(); itr !=  m_members.end(); ++itr)
     {
         if(itr->guid == plr->GetGUID())
         {
@@ -612,7 +612,7 @@ void ArenaTeam::MemberLost(Player * plr, uint32 againstRating)
 void ArenaTeam::OfflineMemberLost(uint64 guid, uint32 againstRating)
 {
     // called for offline player after ending rated arena match!
-    for(MemberList::iterator itr = m_members.begin(); itr !=  m_members.end(); ++itr)
+    for (MemberList::iterator itr = m_members.begin(); itr !=  m_members.end(); ++itr)
     {
         if(itr->guid == guid)
         {
@@ -634,7 +634,7 @@ void ArenaTeam::OfflineMemberLost(uint64 guid, uint32 againstRating)
 void ArenaTeam::MemberWon(Player * plr, uint32 againstRating)
 {
     // called for each participant after winning a match
-    for(MemberList::iterator itr = m_members.begin(); itr !=  m_members.end(); ++itr)
+    for (MemberList::iterator itr = m_members.begin(); itr !=  m_members.end(); ++itr)
     {
         if(itr->guid == plr->GetGUID())
         {
@@ -664,7 +664,7 @@ void ArenaTeam::UpdateArenaPointsHelper(std::map<uint32, uint32>& PlayerPoints)
         return;
     // to get points, a player has to participate in at least 30% of the matches
     uint32 min_plays = (uint32) ceil(m_stats.games_week * 0.3);
-    for(MemberList::const_iterator itr = m_members.begin(); itr !=  m_members.end(); ++itr)
+    for (MemberList::const_iterator itr = m_members.begin(); itr !=  m_members.end(); ++itr)
     {
         // the player participated in enough games, update his points
         uint32 points_to_add = 0;
@@ -690,7 +690,7 @@ void ArenaTeam::SaveToDB()
     // called after a match has ended, or when calculating arena_points
     CharacterDatabase.BeginTransaction();
     CharacterDatabase.PExecute("UPDATE arena_team_stats SET rating = '%u',games = '%u',played = '%u',rank = '%u',wins = '%u',wins2 = '%u' WHERE arenateamid = '%u'", m_stats.rating, m_stats.games_week, m_stats.games_season, m_stats.rank, m_stats.wins_week, m_stats.wins_season, GetId());
-    for(MemberList::const_iterator itr = m_members.begin(); itr !=  m_members.end(); ++itr)
+    for (MemberList::const_iterator itr = m_members.begin(); itr !=  m_members.end(); ++itr)
     {
         CharacterDatabase.PExecute("UPDATE arena_team_member SET played_week = '%u', wons_week = '%u', played_season = '%u', wons_season = '%u', personal_rating = '%u' WHERE arenateamid = '%u' AND guid = '%u'", itr->games_week, itr->wins_week, itr->games_season, itr->wins_season, itr->personal_rating, m_TeamId, GUID_LOPART(itr->guid));
     }
@@ -701,7 +701,7 @@ void ArenaTeam::FinishWeek()
 {
     m_stats.games_week = 0;                                   // played this week
     m_stats.wins_week = 0;                                    // wins this week
-    for(MemberList::iterator itr = m_members.begin(); itr !=  m_members.end(); ++itr)
+    for (MemberList::iterator itr = m_members.begin(); itr !=  m_members.end(); ++itr)
     {
         itr->games_week = 0;
         itr->wins_week = 0;

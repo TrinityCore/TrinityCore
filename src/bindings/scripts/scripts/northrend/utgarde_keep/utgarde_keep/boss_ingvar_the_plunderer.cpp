@@ -253,7 +253,6 @@ struct TRINITY_DLL_DECL boss_ingvar_the_plundererAI : public ScriptedAI
             }else Enrage_Timer -= diff;
         }
 
-
         if (Roar_Timer < diff)
         {
             if (!wait_Timer)

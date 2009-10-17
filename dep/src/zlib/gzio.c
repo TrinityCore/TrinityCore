@@ -72,7 +72,6 @@ typedef struct gz_stream {
     int      last;    /* true if push-back is last character */
 } gz_stream;
 
-
 local gzFile gz_open      OF((const char *path, const char *mode, int  fd));
 local int do_flush        OF((gzFile file, int flush));
 local int    get_byte     OF((gz_stream *s));
@@ -495,7 +494,6 @@ int ZEXPORT gzread (file, buf, len)
     return (int)(len - s->stream.avail_out);
 }
 
-
 /* ===========================================================================
       Reads one byte from the compressed file. gzgetc returns this byte
    or -1 in case of end of file or error.
@@ -507,7 +505,6 @@ int ZEXPORT gzgetc(file)
 
     return gzread(file, &c, 1) == 1 ? c : -1;
 }
-
 
 /* ===========================================================================
       Push one byte back onto the stream.
@@ -526,7 +523,6 @@ int ZEXPORT gzungetc(c, file)
     s->z_eof = 0;
     return c;
 }
-
 
 /* ===========================================================================
       Reads bytes from the compressed file until len-1 characters are
@@ -549,7 +545,6 @@ char * ZEXPORT gzgets(file, buf, len)
     *buf = '\0';
     return b == buf && len > 0 ? Z_NULL : b;
 }
-
 
 #ifndef NO_GZCOMPRESS
 /* ===========================================================================
@@ -590,7 +585,6 @@ int ZEXPORT gzwrite (file, buf, len)
 
     return (int)(len - s->stream.avail_in);
 }
-
 
 /* ===========================================================================
      Converts, formats, and writes the args to the compressed file under
@@ -684,7 +678,6 @@ int ZEXPORT gzputc(file, c)
     return gzwrite(file, &cc, 1) == 1 ? (int)cc : -1;
 }
 
-
 /* ===========================================================================
       Writes the given null-terminated string to the compressed file, excluding
    the terminating null character.
@@ -696,7 +689,6 @@ int ZEXPORT gzputs(file, s)
 {
     return gzwrite(file, (char*)s, (unsigned)strlen(s));
 }
-
 
 /* ===========================================================================
      Flushes all pending output into the compressed file. The parameter
@@ -714,7 +706,7 @@ local int do_flush (file, flush)
 
     s->stream.avail_in = 0; /* should be zero already anyway */
 
-    for (;;) {
+    for (; ; ) {
         len = Z_BUFSIZE - s->stream.avail_out;
 
         if (len != 0) {

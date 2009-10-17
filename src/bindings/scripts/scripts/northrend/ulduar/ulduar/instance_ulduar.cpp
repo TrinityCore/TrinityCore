@@ -81,7 +81,7 @@ struct TRINITY_DLL_DECL instance_ulduar : public ScriptedInstance
 
     bool IsEncounterInProgress() const
     {
-        for(uint8 i = 0; i < MAX_ENCOUNTER; ++i)
+        for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
         {
             if (m_auiEncounter[i] == IN_PROGRESS)
                 return true;
@@ -204,7 +204,7 @@ struct TRINITY_DLL_DECL instance_ulduar : public ScriptedInstance
 
             std::ostringstream saveStream;
 
-            for(uint8 i = 0; i < MAX_ENCOUNTER; ++i)
+            for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
                 saveStream << m_auiEncounter[i] << " ";
 
             m_strInstData = saveStream.str();
@@ -298,7 +298,7 @@ struct TRINITY_DLL_DECL instance_ulduar : public ScriptedInstance
 
         std::istringstream loadStream(strIn);
 
-        for(uint8 i = 0; i < MAX_ENCOUNTER; ++i)
+        for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
         {
             loadStream >> m_auiEncounter[i];
 

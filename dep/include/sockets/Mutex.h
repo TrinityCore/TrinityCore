@@ -60,7 +60,6 @@ private:
 #endif
 };
 
-
 #ifdef SOCKETS_NAMESPACE
 }
 #endif

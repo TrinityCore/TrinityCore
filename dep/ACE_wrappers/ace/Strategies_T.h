@@ -853,7 +853,6 @@ public:
   typedef ACE_Connect_Strategy<SVC_HANDLER, ACE_PEER_CONNECTOR_2>
           CONNECT_STRATEGY;
 
-
   typedef ACE_Cached_Connect_Strategy<SVC_HANDLER, ACE_PEER_CONNECTOR_2, MUTEX> SELF;
 
   /// Constructor

@@ -825,7 +825,7 @@ bool ChatHandler::hasStringAbbr(const char* name, const char* part)
         if (!*part)
             return false;
 
-        for (;;)
+        for (; ; )
         {
             if (!*part)
                 return true;

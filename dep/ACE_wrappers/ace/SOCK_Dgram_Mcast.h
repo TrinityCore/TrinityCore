@@ -257,7 +257,6 @@ public:
             int reuse_addr = 1,               // (see above)
             const ACE_TCHAR *net_if = 0);
 
-
   /// Leave a multicast group on a given interface (or all interfaces, if
   /// supported).
   /**

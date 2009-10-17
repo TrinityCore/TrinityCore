@@ -37,7 +37,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 namespace SOCKETS_NAMESPACE {
 #endif
 
-
 /** StdLog implementation, logs to stdout.
     \ingroup logging */
 class StdoutLog : public StdLog
@@ -45,8 +44,6 @@ class StdoutLog : public StdLog
 public:
     void error(ISocketHandler *,Socket *,const std::string& call,int err,const std::string& sys_err,loglevel_t);
 };
-
-
 
 
 #ifdef SOCKETS_NAMESPACE

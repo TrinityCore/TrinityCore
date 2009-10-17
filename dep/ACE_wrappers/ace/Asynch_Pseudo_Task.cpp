@@ -69,8 +69,6 @@ ACE_Asynch_Pseudo_Task::svc (void)
   return 0;
 }
 
-
-
 int
 ACE_Asynch_Pseudo_Task::register_io_handler (ACE_HANDLE handle,
                                              ACE_Event_Handler *handler,

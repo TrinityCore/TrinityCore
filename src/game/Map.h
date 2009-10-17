@@ -52,7 +52,6 @@ struct ScriptInfo;
 struct ScriptAction;
 struct Position;
 
-
 typedef ACE_RW_Thread_Mutex GridRWLock;
 
 template<class MUTEX, class LOCK_TYPE>
@@ -289,7 +288,7 @@ class MANGOS_DLL_SPEC Map : public GridRefManager<NGridType>, public MaNGOS::Obj
         void MessageDistBroadcast(Player *, WorldPacket *, float dist, bool to_self, bool own_team_only = false);
         void MessageDistBroadcast(WorldObject *, WorldPacket *, float dist);
         */
- 
+
         float GetVisibilityDistance() const { return m_VisibleDistance; }
         //function for setting up visibility distance for maps on per-type/per-Id basis
         virtual void InitVisibilityDistance();
@@ -516,7 +515,6 @@ class MANGOS_DLL_SPEC Map : public GridRefManager<NGridType>, public MaNGOS::Obj
         typedef std::set<WorldObject*> ActiveNonPlayers;
         ActiveNonPlayers m_activeNonPlayers;
         ActiveNonPlayers::iterator m_activeNonPlayersIter;
-
 
     private:
         time_t i_gridExpiry;

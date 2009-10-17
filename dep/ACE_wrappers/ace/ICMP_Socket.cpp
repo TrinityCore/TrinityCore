@@ -9,16 +9,13 @@
 #include "ace/OS_NS_netdb.h"
 #include "ace/OS_NS_sys_socket.h"
 
-
 ACE_RCSID (ace,
            ICMP_Socket,
            "$Id: ICMP_Socket.cpp 80826 2008-03-04 14:51:23Z wotte $")
 
-
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 
 ACE_ALLOC_HOOK_DEFINE (ACE_ICMP_Socket)
-
 
 void
 ACE_ICMP_Socket::dump (void) const

@@ -74,7 +74,7 @@ ACE_UTF8_Encoding_Converter*
 ACE_UTF8_Encoding_Converter::encoded (const ACE_Byte* source,
                                       size_t source_size)
 {
-  for(size_t i = 0; i < source_size; i++)
+  for (size_t i = 0; i < source_size; i++)
     {
       if (source[i] < 0x01 || source[i] > 0x7f)
         return 0;

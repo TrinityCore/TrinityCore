@@ -2418,7 +2418,7 @@ bool ChatHandler::HandleLearnAllMyTalentsCommand(const char* /*args*/)
 
         // search highest talent rank
         uint32 spellId = 0;
-        for(int8 rank = MAX_TALENT_RANK-1; rank >= 0; --rank)
+        for (int8 rank = MAX_TALENT_RANK-1; rank >= 0; --rank)
         {
             if(talentInfo->RankID[rank] != 0)
             {
@@ -2494,7 +2494,7 @@ bool ChatHandler::HandleLearnAllMyPetTalentsCommand(const char* /*args*/)
         // search highest talent rank
         uint32 spellid = 0;
 
-        for(int8 rank = MAX_TALENT_RANK-1; rank >= 0; --rank)
+        for (int8 rank = MAX_TALENT_RANK-1; rank >= 0; --rank)
         {
             if(talentInfo->RankID[rank]!=0)
             {
@@ -2521,7 +2521,7 @@ bool ChatHandler::HandleLearnAllMyPetTalentsCommand(const char* /*args*/)
 bool ChatHandler::HandleLearnAllLangCommand(const char* /*args*/)
 {
     // skipping UNIVERSAL language (0)
-    for(uint8 i = 1; i < LANGUAGES_COUNT; ++i)
+    for (uint8 i = 1; i < LANGUAGES_COUNT; ++i)
         m_session->GetPlayer()->learnSpell(lang_description[i].spell_id,false);
 
     SendSysMessage(LANG_COMMAND_LEARN_ALL_LANG);
@@ -2679,7 +2679,7 @@ bool ChatHandler::HandleAddItemCommand(const char* args)
 
     // remove binding (let GM give it to another player later)
     if(pl==plTarget)
-        for(ItemPosCountVec::const_iterator itr = dest.begin(); itr != dest.end(); ++itr)
+        for (ItemPosCountVec::const_iterator itr = dest.begin(); itr != dest.end(); ++itr)
             if(Item* item1 = pl->GetItemByPos(itr->pos))
                 item1->SetBinding( false );
 
@@ -3303,7 +3303,7 @@ bool ChatHandler::HandleLookupItemSetCommand(const char* args)
             if (!Utf8FitTo(name, wnamepart))
             {
                 loc = 0;
-                for(; loc < MAX_LOCALE; ++loc)
+                for (; loc < MAX_LOCALE; ++loc)
                 {
                     if(loc==GetSessionDbcLocale())
                         continue;
@@ -3368,7 +3368,7 @@ bool ChatHandler::HandleLookupSkillCommand(const char* args)
             if (!Utf8FitTo(name, wnamepart))
             {
                 loc = 0;
-                for(; loc < MAX_LOCALE; ++loc)
+                for (; loc < MAX_LOCALE; ++loc)
                 {
                     if(loc==GetSessionDbcLocale())
                         continue;
@@ -3447,7 +3447,7 @@ bool ChatHandler::HandleLookupSpellCommand(const char* args)
             if (!Utf8FitTo(name, wnamepart))
             {
                 loc = 0;
-                for(; loc < MAX_LOCALE; ++loc)
+                for (; loc < MAX_LOCALE; ++loc)
                 {
                     if(loc==GetSessionDbcLocale())
                         continue;
@@ -3662,7 +3662,7 @@ bool ChatHandler::HandleLookupCreatureCommand(const char* args)
 
                         if(!found)
                             found = true;
- 
+
                         continue;
                     }
                 }
@@ -3729,7 +3729,7 @@ bool ChatHandler::HandleLookupObjectCommand(const char* args)
                             PSendSysMessage(LANG_GO_ENTRY_LIST_CHAT, id, id, name.c_str());
                         else
                             PSendSysMessage(LANG_GO_ENTRY_LIST_CONSOLE, id, name.c_str());
- 
+
                         if(!found)
                             found = true;
 
@@ -3795,7 +3795,7 @@ bool ChatHandler::HandleLookupFactionCommand(const char* args)
             if (!Utf8FitTo(name, wnamepart))
             {
                 loc = 0;
-                for(; loc < MAX_LOCALE; ++loc)
+                for (; loc < MAX_LOCALE; ++loc)
                 {
                     if(loc==GetSessionDbcLocale())
                         continue;
@@ -3885,7 +3885,7 @@ bool ChatHandler::HandleLookupTaxiNodeCommand(const char * args)
             if (!Utf8FitTo(name, wnamepart))
             {
                 loc = 0;
-                for(; loc < MAX_LOCALE; ++loc)
+                for (; loc < MAX_LOCALE; ++loc)
                 {
                     if(loc==GetSessionDbcLocale())
                         continue;
@@ -3936,7 +3936,7 @@ bool ChatHandler::HandleLookupMapCommand(const char* args)
     bool found = false;
 
     // search in Map.dbc
-    for(uint32 id = 0; id < sMapStore.GetNumRows(); id++)
+    for (uint32 id = 0; id < sMapStore.GetNumRows(); id++)
     {
         MapEntry const* MapInfo = sMapStore.LookupEntry(id);
         if(MapInfo)
@@ -3950,7 +3950,7 @@ bool ChatHandler::HandleLookupMapCommand(const char* args)
             if(!Utf8FitTo(name, wnamepart))
             {
                 loc = LOCALE_enUS;
-                for(; loc < MAX_LOCALE; loc++)
+                for (; loc < MAX_LOCALE; loc++)
                 {
                     if(m_session && loc == m_session->GetSessionDbcLocale())
                         continue;
@@ -4370,7 +4370,7 @@ bool ChatHandler::HandleAuraCommand(const char* args)
     uint8 eff_mask=0;
     if(spellInfo)
     {
-        for(uint32 i = 0;i<3;++i)
+        for (uint32 i = 0; i<3; ++i)
         {
             uint8 eff = spellInfo->Effect[i];
             if (eff>=TOTAL_SPELL_EFFECTS)
@@ -5381,7 +5381,7 @@ bool ChatHandler::HandleResetAllCommand(const char * args)
 
     CharacterDatabase.PExecute("UPDATE characters SET at_login = at_login | '%u' WHERE (at_login & '%u') = '0'",atLogin,atLogin);
     HashMapHolder<Player>::MapType const& plist = ObjectAccessor::Instance().GetPlayers();
-    for(HashMapHolder<Player>::MapType::const_iterator itr = plist.begin(); itr != plist.end(); ++itr)
+    for (HashMapHolder<Player>::MapType::const_iterator itr = plist.begin(); itr != plist.end(); ++itr)
         itr->second->SetAtLoginFlag(atLogin);
 
     return true;
@@ -5615,7 +5615,7 @@ bool ChatHandler::HandleQuestRemove(const char* args)
     }
 
     // remove all quest entries for 'entry' from quest log
-    for(uint8 slot = 0; slot < MAX_QUEST_LOG_SIZE; ++slot )
+    for (uint8 slot = 0; slot < MAX_QUEST_LOG_SIZE; ++slot )
     {
         uint32 quest = player->GetQuestSlotQuestId(slot);
         if(quest==entry)
@@ -5666,7 +5666,7 @@ bool ChatHandler::HandleQuestComplete(const char* args)
     }
 
     // Add quest items for quests that require items
-    for(uint8 x = 0; x < QUEST_OBJECTIVES_COUNT; ++x)
+    for (uint8 x = 0; x < QUEST_OBJECTIVES_COUNT; ++x)
     {
         uint32 id = pQuest->ReqItemId[x];
         uint32 count = pQuest->ReqItemCount[x];
@@ -5685,25 +5685,25 @@ bool ChatHandler::HandleQuestComplete(const char* args)
     }
 
     // All creature/GO slain/casted (not required, but otherwise it will display "Creature slain 0/10")
-    for(uint8 i = 0; i < QUEST_OBJECTIVES_COUNT; ++i)
+    for (uint8 i = 0; i < QUEST_OBJECTIVES_COUNT; ++i)
     {
         uint32 creature = pQuest->ReqCreatureOrGOId[i];
         uint32 creaturecount = pQuest->ReqCreatureOrGOCount[i];
 
         if(uint32 spell_id = pQuest->ReqSpell[i])
         {
-            for(uint16 z = 0; z < creaturecount; ++z)
+            for (uint16 z = 0; z < creaturecount; ++z)
                 player->CastedCreatureOrGO(creature,0,spell_id);
         }
         else if(creature > 0)
         {
             if(CreatureInfo const* cInfo = objmgr.GetCreatureTemplate(creature))
-                for(uint16 z = 0; z < creaturecount; ++z)
+                for (uint16 z = 0; z < creaturecount; ++z)
                     player->KilledMonster(cInfo,0);
         }
         else if(creature < 0)
         {
-            for(uint16 z = 0; z < creaturecount; ++z)
+            for (uint16 z = 0; z < creaturecount; ++z)
                 player->CastedCreatureOrGO(creature,0,0);
         }
     }
@@ -6419,7 +6419,7 @@ bool ChatHandler::HandleMovegensCommand(const char* /*args*/)
     PSendSysMessage(LANG_MOVEGENS_LIST,(unit->GetTypeId()==TYPEID_PLAYER ? "Player" : "Creature" ),unit->GetGUIDLow());
 
     MotionMaster* mm = unit->GetMotionMaster();
-    for(uint8 i = 0; i < MAX_MOTION_SLOT; ++i)
+    for (uint8 i = 0; i < MAX_MOTION_SLOT; ++i)
     {
         MovementGenerator* mg = mm->GetMotionSlot(i);
         if(!mg)
@@ -6791,10 +6791,10 @@ bool ChatHandler::HandleInstanceListBindsCommand(const char* /*args*/)
     Player* player = getSelectedPlayer();
     if (!player) player = m_session->GetPlayer();
     uint32 counter = 0;
-    for(uint8 i = 0; i < TOTAL_DIFFICULTIES; ++i)
+    for (uint8 i = 0; i < TOTAL_DIFFICULTIES; ++i)
     {
         Player::BoundInstancesMap &binds = player->GetBoundInstances(i);
-        for(Player::BoundInstancesMap::const_iterator itr = binds.begin(); itr != binds.end(); ++itr)
+        for (Player::BoundInstancesMap::const_iterator itr = binds.begin(); itr != binds.end(); ++itr)
         {
             InstanceSave *save = itr->second.save;
             std::string timeleft = GetTimeString(save->GetResetTime() - time(NULL));
@@ -6807,10 +6807,10 @@ bool ChatHandler::HandleInstanceListBindsCommand(const char* /*args*/)
     Group *group = player->GetGroup();
     if(group)
     {
-        for(uint8 i = 0; i < TOTAL_DIFFICULTIES; ++i)
+        for (uint8 i = 0; i < TOTAL_DIFFICULTIES; ++i)
         {
             Group::BoundInstancesMap &binds = group->GetBoundInstances(i);
-            for(Group::BoundInstancesMap::const_iterator itr = binds.begin(); itr != binds.end(); ++itr)
+            for (Group::BoundInstancesMap::const_iterator itr = binds.begin(); itr != binds.end(); ++itr)
             {
                 InstanceSave *save = itr->second.save;
                 std::string timeleft = GetTimeString(save->GetResetTime() - time(NULL));
@@ -6835,10 +6835,10 @@ bool ChatHandler::HandleInstanceUnbindCommand(const char* args)
         Player* player = getSelectedPlayer();
         if (!player) player = m_session->GetPlayer();
         uint32 counter = 0;
-        for(uint8 i = 0; i < TOTAL_DIFFICULTIES; ++i)
+        for (uint8 i = 0; i < TOTAL_DIFFICULTIES; ++i)
         {
             Player::BoundInstancesMap &binds = player->GetBoundInstances(i);
-            for(Player::BoundInstancesMap::iterator itr = binds.begin(); itr != binds.end();)
+            for (Player::BoundInstancesMap::iterator itr = binds.begin(); itr != binds.end(); )
             {
                 if(itr->first != player->GetMapId())
                 {
@@ -7102,7 +7102,7 @@ bool ChatHandler::HandleSendItemsCommand(const char* args)
     // fill mail
     MailItemsInfo mi;                                       // item list preparing
 
-    for(ItemPairs::const_iterator itr = items.begin(); itr != items.end(); ++itr)
+    for (ItemPairs::const_iterator itr = items.begin(); itr != items.end(); ++itr)
     {
         if(Item* item = Item::CreateItem(itr->first,itr->second,m_session ? m_session->GetPlayer() : 0))
         {

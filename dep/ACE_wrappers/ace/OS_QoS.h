@@ -390,7 +390,6 @@ typedef int (*ACE_QOS_CONDITION_FUNC) (iovec *caller_id,
                                        ACE_SOCK_GROUP *g,
                                        unsigned long callbackdata);
 
-
 /**
  * @class ACE_Accept_QoS_Params
  *

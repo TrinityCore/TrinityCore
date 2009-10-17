@@ -344,7 +344,7 @@ bool Guild::LoadRanksFromDB(uint32 GuildId)
         sLog.outError("Guild %u has broken `guild_rank` data, repairing...",GuildId);
         CharacterDatabase.BeginTransaction();
         CharacterDatabase.PExecute("DELETE FROM guild_rank WHERE guildid='%u'", GuildId);
-        for(size_t i = 0; i < m_Ranks.size(); ++i)
+        for (size_t i = 0; i < m_Ranks.size(); ++i)
         {
             std::string name = m_Ranks[i].Name;
             uint32 rights = m_Ranks[i].Rights;
@@ -1698,7 +1698,7 @@ void Guild::AppendDisplayGuildBankSlot( WorldPacket& data, GuildBankTab const *t
         data << (uint32) pItem->GetItemRandomPropertyId();  // random item property id +8
         if (pItem->GetItemRandomPropertyId())
             data << (uint32) pItem->GetItemSuffixFactor();  // SuffixFactor +4
-        
+
         data << uint32(pItem->GetCount());                  // +12 // ITEM_FIELD_STACK_COUNT
         data << uint32(0);                                  // +16 // Unknown value
         data << uint8(abs(pItem->GetSpellCharges()));       // spell charges
@@ -1720,7 +1720,7 @@ Item* Guild::StoreItem(uint8 tabId, GuildItemPosCountVec const& dest, Item* pIte
 
     Item* lastItem = pItem;
 
-    for(GuildItemPosCountVec::const_iterator itr = dest.begin(); itr != dest.end(); )
+    for (GuildItemPosCountVec::const_iterator itr = dest.begin(); itr != dest.end(); )
     {
         uint8 slot = itr->Slot;
         uint32 count = itr->Count;
@@ -1838,7 +1838,7 @@ uint8 Guild::_CanStoreItem_InSpecificSlot( uint8 tab, uint8 slot, GuildItemPosCo
 
 uint8 Guild::_CanStoreItem_InTab( uint8 tab, GuildItemPosCountVec &dest, uint32& count, bool merge, Item* pSrcItem, uint8 skip_slot ) const
 {
-    for(uint32 j = 0; j < GUILD_BANK_MAX_SLOTS; j++)
+    for (uint32 j = 0; j < GUILD_BANK_MAX_SLOTS; j++)
     {
         // skip specific slot already processed in first called _CanStoreItem_InSpecificSlot
         if (j == skip_slot)
@@ -2095,7 +2095,6 @@ void Guild::SwapItems(Player * pl, uint8 BankTab, uint8 BankTabSlot, uint8 BankT
         DisplayGuildBankContentUpdate(BankTabDst,BankTabSlotDst);
 }
 
-
 void Guild::MoveFromBankToChar( Player * pl, uint8 BankTab, uint8 BankTabSlot, uint8 PlayerBag, uint8 PlayerSlot, uint32 SplitedAmount)
 {
     Item *pItemBank = GetItem(BankTab, BankTabSlot);
@@ -2242,7 +2241,6 @@ void Guild::MoveFromBankToChar( Player * pl, uint8 BankTab, uint8 BankTabSlot, u
     }
     DisplayGuildBankContentUpdate(BankTab,BankTabSlot);
 }
-
 
 void Guild::MoveFromCharToBank( Player * pl, uint8 PlayerBag, uint8 PlayerSlot, uint8 BankTab, uint8 BankTabSlot, uint32 SplitedAmount )
 {

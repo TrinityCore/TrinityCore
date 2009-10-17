@@ -275,7 +275,7 @@ struct TRINITY_DLL_DECL boss_ymironAI : public ScriptedAI
                 x = m_creature->GetPositionX()-5;
                 y = m_creature->GetPositionY()-5;
                 z = m_creature->GetPositionZ();
-                for(uint8 i = 0; i < 4; ++i)
+                for (uint8 i = 0; i < 4; ++i)
                 {
                     //DoCast(m_creature, SPELL_SUMMON_AVENGING_SPIRIT); // works fine, but using summon has better control
                     if (Creature* pTemp = m_creature->SummonCreature(CREATURE_AVENGING_SPIRIT, x+rand()%10, y+rand()%10, z, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000))

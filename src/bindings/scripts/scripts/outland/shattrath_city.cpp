@@ -280,7 +280,6 @@ struct TRINITY_DLL_DECL npc_kservantAI : public npc_escortAI
 public:
     npc_kservantAI(Creature *c) : npc_escortAI(c) {}
 
-
     void WaypointReached(uint32 i)
     {
         Player* pPlayer = GetPlayerForEscort();

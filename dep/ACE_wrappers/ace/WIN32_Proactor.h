@@ -203,7 +203,6 @@ public:
                                                                         int priority,
                                                                         int signal_number = 0);
 
-
   virtual ACE_Asynch_Transmit_File_Result_Impl *create_asynch_transmit_file_result (const ACE_Handler::Proxy_Ptr &handler_proxy,
                                                                                     ACE_HANDLE socket,
                                                                                     ACE_HANDLE file,

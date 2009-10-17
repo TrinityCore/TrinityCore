@@ -46,7 +46,7 @@ void WorldSession::HandleLearnPreviewTalents(WorldPacket& recvPacket)
 
     uint32 talentId, talentRank;
 
-    for(uint32 i = 0; i < talentsCount; ++i)
+    for (uint32 i = 0; i < talentsCount; ++i)
     {
         recvPacket >> talentId >> talentRank;
 

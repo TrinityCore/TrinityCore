@@ -54,7 +54,6 @@ typedef enum {
 class SocketAddress;
 class Mutex;
 
-
 /** Socket container class, event generator.
     \ingroup basic */
 class ISocketHandler
@@ -222,7 +221,6 @@ public:
 #endif // ENABLE_DETACH
 
 };
-
 
 #ifdef SOCKETS_NAMESPACE
 }

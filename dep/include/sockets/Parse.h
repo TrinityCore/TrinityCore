@@ -43,7 +43,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 namespace SOCKETS_NAMESPACE {
 #endif
 
-
 /***************************************************/
 /* interface of class Parse */
 
@@ -91,7 +90,6 @@ private:
     short pa_nospace;
     bool  pa_quote;
 };
-
 
 #ifdef SOCKETS_NAMESPACE
 }

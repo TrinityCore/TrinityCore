@@ -54,7 +54,6 @@ extern "C"
    };
 #endif /* ACE_LACKS_IOVEC */
 
-
 # if defined (ACE_LACKS_TIMEDWAIT_PROTOTYPES)
 
   ssize_t readv_timedwait (ACE_HANDLE handle,

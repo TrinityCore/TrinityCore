@@ -138,7 +138,7 @@ struct TRINITY_DLL_DECL instance_blackrock_depths : public ScriptedInstance
         TombTimer = TIMER_TOMBOFTHESEVEN;
         TombEventCounter = 0;
 
-        for(uint8 i = 0; i < 7; ++i)
+        for (uint8 i = 0; i < 7; ++i)
             TombBossGUIDs[i] = 0;
     }
 
@@ -324,7 +324,7 @@ struct TRINITY_DLL_DECL instance_blackrock_depths : public ScriptedInstance
         loadStream >> m_auiEncounter[0] >> m_auiEncounter[1] >> m_auiEncounter[2] >> m_auiEncounter[3]
         >> m_auiEncounter[4] >> m_auiEncounter[5] >> GhostKillCount;
 
-        for(uint8 i = 0; i < MAX_ENCOUNTER; ++i)
+        for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
             if (m_auiEncounter[i] == IN_PROGRESS)
                 m_auiEncounter[i] = NOT_STARTED;
         if (GhostKillCount > 0 && GhostKillCount < 7)
@@ -353,7 +353,7 @@ struct TRINITY_DLL_DECL instance_blackrock_depths : public ScriptedInstance
     {
         HandleGameObject(GoTombExitGUID,false);//event reseted, close exit door
         HandleGameObject(GoTombEnterGUID,true);//event reseted, open entrance door
-        for(uint8 i = 0; i < 7; ++i)
+        for (uint8 i = 0; i < 7; ++i)
         {
             if (Creature* boss = instance->GetCreature(TombBossGUIDs[i]))
             {

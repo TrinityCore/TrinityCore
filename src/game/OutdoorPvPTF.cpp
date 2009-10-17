@@ -60,7 +60,7 @@ void OutdoorPvPTF::FillInitialWorldStates(WorldPacket &data)
     data << TF_UI_LOCKED_DISPLAY_HORDE << uint32(m_IsLocked && (m_HordeTowersControlled > m_AllianceTowersControlled));
     data << TF_UI_LOCKED_DISPLAY_ALLIANCE << uint32(m_IsLocked && (m_HordeTowersControlled < m_AllianceTowersControlled));
 
-    for(OPvPCapturePointMap::iterator itr = m_capturePoints.begin(); itr != m_capturePoints.end(); ++itr)
+    for (OPvPCapturePointMap::iterator itr = m_capturePoints.begin(); itr != m_capturePoints.end(); ++itr)
     {
         itr->second->FillInitialWorldStates(data);
     }
@@ -84,7 +84,7 @@ void OutdoorPvPTF::SendRemoveWorldStates(Player * plr)
     plr->SendUpdateWorldState(TF_UI_LOCKED_DISPLAY_HORDE,uint32(0));
     plr->SendUpdateWorldState(TF_UI_LOCKED_DISPLAY_ALLIANCE,uint32(0));
 
-    for(int i = 0; i < TF_TOWER_NUM; ++i)
+    for (int i = 0; i < TF_TOWER_NUM; ++i)
     {
         plr->SendUpdateWorldState(uint32(TFTowerWorldStates[i].n),uint32(0));
         plr->SendUpdateWorldState(uint32(TFTowerWorldStates[i].h),uint32(0));
@@ -220,7 +220,7 @@ bool OutdoorPvPTF::SetupOutdoorPvP()
     first_digit = 0;
 
     // add the zones affected by the pvp buff
-    for(int i = 0; i < OutdoorPvPTFBuffZonesNum; ++i)
+    for (int i = 0; i < OutdoorPvPTFBuffZonesNum; ++i)
         RegisterZone(OutdoorPvPTFBuffZones[i]);
 
     AddCapturePoint(new OPvPCapturePointTF(this,TF_TOWER_NW));

@@ -10,7 +10,6 @@
  */
 //=============================================================================
 
-
 #ifndef ACE_PARSE_NODE_H
 #define ACE_PARSE_NODE_H
 
@@ -193,7 +192,6 @@ private:
   ACE_UNIMPLEMENTED_FUNC (ACE_Static_Node (const ACE_Static_Node&))
   ACE_UNIMPLEMENTED_FUNC (ACE_Static_Node& operator= (const ACE_Static_Node&))
 };
-
 
 class ACE_Service_Type_Factory;
 

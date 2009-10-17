@@ -183,7 +183,6 @@ struct TRINITY_DLL_DECL boss_exarch_maladaarAI : public ScriptedAI
         ScriptedAI::MoveInLineOfSight(who);
     }
 
-
     void EnterCombat(Unit *who)
     {
         DoScriptText(RAND(SAY_AGGRO_1,SAY_AGGRO_2,SAY_AGGRO_3), m_creature);

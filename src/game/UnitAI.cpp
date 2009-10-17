@@ -126,7 +126,7 @@ Unit* UnitAI::SelectTarget(SelectAggroTarget targetType, uint32 position, float 
             return NULL;
 
         std::list<Unit*> targetList;
-        for(std::list<HostilReference*>::iterator itr = m_threatlist.begin(); itr!= m_threatlist.end(); ++itr)
+        for (std::list<HostilReference*>::iterator itr = m_threatlist.begin(); itr!= m_threatlist.end(); ++itr)
             if(SelectTargetHelper(me, (*itr)->getTarget(), playerOnly, dist, aura))
                 targetList.push_back((*itr)->getTarget());
 
@@ -195,7 +195,7 @@ void UnitAI::SelectTargetList(std::list<Unit*> &targetList, uint32 num, SelectAg
         if(m_threatlist.empty())
             return;
 
-        for(std::list<HostilReference*>::iterator itr = m_threatlist.begin(); itr!= m_threatlist.end(); ++itr)
+        for (std::list<HostilReference*>::iterator itr = m_threatlist.begin(); itr!= m_threatlist.end(); ++itr)
             if(SelectTargetHelper(me, (*itr)->getTarget(), playerOnly, dist, aura))
                 targetList.push_back((*itr)->getTarget());
 
@@ -284,7 +284,7 @@ void UnitAI::FillAISpellInfo()
     AISpellInfoType *AIInfo = AISpellInfo;
     const SpellEntry * spellInfo;
 
-    for(uint32 i = 0; i < GetSpellStore()->GetNumRows(); ++i, ++AIInfo)
+    for (uint32 i = 0; i < GetSpellStore()->GetNumRows(); ++i, ++AIInfo)
     {
         spellInfo = GetSpellStore()->LookupEntry(i);
         if(!spellInfo)
@@ -304,7 +304,7 @@ void UnitAI::FillAISpellInfo()
             UPDATE_TARGET(AITARGET_SELF)
         else
         {
-            for(uint32 j = 0; j < 3; ++j)
+            for (uint32 j = 0; j < 3; ++j)
             {
                 uint32 targetType = spellInfo->EffectImplicitTargetA[j];
 
@@ -341,7 +341,7 @@ void SimpleCharmedAI::UpdateAI(const uint32 /*diff*/)
     if(charmer->IsInEvadeMode())
     {
         Unit::AuraEffectList const& auras = me->GetAurasByType(SPELL_AURA_MOD_CHARM);
-        for(Unit::AuraEffectList::const_iterator iter = auras.begin(); iter != auras.end(); ++iter)
+        for (Unit::AuraEffectList::const_iterator iter = auras.begin(); iter != auras.end(); ++iter)
             if((*iter)->GetCasterGUID() == charmer->GetGUID() && (*iter)->GetParentAura()->IsPermanent())
             {
                 charmer->Kill(me);

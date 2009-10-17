@@ -34,7 +34,6 @@ update creature_template set scriptname = '' where entry = '';
 #define SAY_STRIKE_3                           -1578028
 #define SAY_SPAWN                              -1578029
 
-
 struct TRINITY_DLL_DECL boss_varosAI : public ScriptedAI
 {
     boss_varosAI(Creature *c) : ScriptedAI(c) {}

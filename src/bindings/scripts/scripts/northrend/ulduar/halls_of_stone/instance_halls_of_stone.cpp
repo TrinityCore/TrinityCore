@@ -58,7 +58,7 @@ struct TRINITY_DLL_DECL instance_halls_of_stone : public ScriptedInstance
         uiTribunalChest = 0;
         uiTribunalSkyFloor = 0;
 
-        for(uint8 i = 0; i < MAX_ENCOUNTER; ++i)
+        for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
             m_auiEncounter[i] = NOT_STARTED;
     }
 
@@ -219,7 +219,7 @@ struct TRINITY_DLL_DECL instance_halls_of_stone : public ScriptedInstance
             m_auiEncounter[2] = data2;
             m_auiEncounter[3] = data3;
 
-            for(uint8 i = 0; i < MAX_ENCOUNTER; ++i)
+            for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
                 if (m_auiEncounter[i] == IN_PROGRESS)
                     m_auiEncounter[i] = NOT_STARTED;
 

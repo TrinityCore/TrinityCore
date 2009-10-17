@@ -51,7 +51,6 @@
 
 // end custom config stuff
 
-
 // NOTE: Please do not add anything besides #include's here.  Put other stuff
 //       (definitions, etc.) in the included headers
 
@@ -86,7 +85,6 @@
 #ifdef ACE_HAS_NONSTATIC_OBJECT_MANAGER
 #undef ACE_HAS_NONSTATIC_OBJECT_MANAGER
 #endif //ACE_HAS_NONSTATIC_OBJECT_MANAGER
-
 
 #include /**/ "ace/post.h"
 #endif /* ACE_CONFIG_WIN32_H */

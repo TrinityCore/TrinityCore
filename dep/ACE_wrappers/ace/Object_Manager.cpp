@@ -259,7 +259,6 @@ ACE_Object_Manager::init (void)
           SetUnhandledExceptionFilter (&ACE_UnhandledExceptionFilter);
 #endif /* ACE_DISABLE_WIN32_ERROR_WINDOWS && ACE_WIN32 && !ACE_HAS_WINCE */
 
-
 #     if !defined (ACE_LACKS_ACE_SVCCONF)
           ACE_NEW_RETURN (preallocations_,
                           ACE_Object_Manager_Preallocations,
@@ -605,7 +604,6 @@ ACE_Object_Manager::get_singleton_lock (ACE_RW_Thread_Mutex *&lock)
                               -1);
               lock = &lock_adapter->object ();
 
-
               // Register the lock for destruction at program
               // termination.  This call will cause us to grab the
               // ACE_Object_Manager::instance ()->internal_lock_
@@ -758,7 +756,6 @@ ACE_Object_Manager::fini (void)
 
   return 0;
 }
-
 
 #if !defined (ACE_HAS_NONSTATIC_OBJECT_MANAGER)
 /**

@@ -41,7 +41,7 @@ namespace VMAP
     VMapManager::~VMapManager(void)
     {
         Array<unsigned int > keyArray = iInstanceMapTrees.getKeys();
-        for(int i=0;i<keyArray.size(); ++i)
+        for (int i=0; i<keyArray.size(); ++i)
         {
             delete iInstanceMapTrees.get(keyArray[i]);
             iInstanceMapTrees.remove(keyArray[i]);
@@ -151,7 +151,7 @@ namespace VMAP
     {
         bool result = false;
         unsigned int i;
-        for(i=pStartPos;i<pString.size(); ++i)
+        for (i=pStartPos; i<pString.size(); ++i)
         {
             if(pString[i] == ',')
             {
@@ -740,7 +740,7 @@ namespace VMAP
             {
                 Array<std::string> fileNames = filesInDir.getFiles();
                 bool treeChanged = false;
-                for(int i=0; i<fileNames.size(); ++i)
+                for (int i=0; i<fileNames.size(); ++i)
                 {
                     std::string name = fileNames[i];
                     ManagedModelContainer* mc = getModelContainer(name);

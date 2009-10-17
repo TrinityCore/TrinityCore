@@ -12,7 +12,6 @@ update creature_template set scriptname = '' where entry = '';
 #include "precompiled.h"
 #include "def_violet_hold.h"
 
-
 //Spells
 enum Spells
 {

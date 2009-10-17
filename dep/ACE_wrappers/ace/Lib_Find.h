@@ -59,7 +59,6 @@ namespace ACE
    */
   extern ACE_Export ACE_TCHAR *ldname (const ACE_TCHAR *entry_point);
 
-
 #if defined (ACE_OPENVMS)
   /**
    * Registers an @a entry_point and its address for later retrieval

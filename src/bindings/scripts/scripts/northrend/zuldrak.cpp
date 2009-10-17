@@ -92,7 +92,6 @@ CreatureAI* GetAI_npc_drakuru_shackles(Creature* pCreature)
     return new npc_drakuru_shacklesAI (pCreature);
 }
 
-
 /*####
 ## npc_captured_rageclaw
 ####*/

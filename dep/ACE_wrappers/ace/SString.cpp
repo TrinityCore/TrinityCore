@@ -19,11 +19,9 @@
 #include "ace/SString.inl"
 #endif /* __ACE_INLINE__ */
 
-
 ACE_RCSID (ace,
            SString,
            "SString.cpp,v 4.61 2001/03/04 00:55:30 brunsch Exp")
-
 
 // ************************************************************
 
@@ -448,7 +446,7 @@ ACE_Tokenizer::next (void)
   ACE_TCHAR *next_token;
 
   // Skip all leading delimiters.
-  for (;;)
+  for (; ; )
     {
       // Check for end of string.
       if (buffer_[index_] == '\0')
@@ -503,7 +501,7 @@ ACE_Tokenizer::next (void)
     }
 
   // Step through finding the next delimiter or EOS.
-  for (;;)
+  for (; ; )
     {
       // Advance pointer.
       index_++;

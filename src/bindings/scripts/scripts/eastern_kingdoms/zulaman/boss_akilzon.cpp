@@ -101,7 +101,7 @@ struct TRINITY_DLL_DECL boss_akilzonAI : public ScriptedAI
         CloudGUID = 0;
         CycloneGUID = 0;
         DespawnSummons();
-        for(uint8 i = 0; i < 8; ++i)
+        for (uint8 i = 0; i < 8; ++i)
             BirdGUIDs[i] = 0;
 
         StormCount = 0;
@@ -175,7 +175,7 @@ struct TRINITY_DLL_DECL boss_akilzonAI : public ScriptedAI
         {
             // deal damage
             int32 bp0 = 800;
-            for(uint8 i = 2; i < StormCount; ++i)
+            for (uint8 i = 2; i < StormCount; ++i)
                 bp0 *= 2;
 
             CellPair p(Trinity::ComputeCellPair(m_creature->GetPositionX(), m_creature->GetPositionY()));
@@ -197,7 +197,7 @@ struct TRINITY_DLL_DECL boss_akilzonAI : public ScriptedAI
                 cell_lock->Visit(cell_lock, grid_unit_searcher, *(m_creature->GetMap()));
             }
             //dealdamege
-            for(std::list<Unit*>::iterator i = tempUnitMap.begin(); i != tempUnitMap.end(); ++i)
+            for (std::list<Unit*>::iterator i = tempUnitMap.begin(); i != tempUnitMap.end(); ++i)
             {
                 if (!Cloud->IsWithinDist(*i, 6, false))
                 {
@@ -207,7 +207,7 @@ struct TRINITY_DLL_DECL boss_akilzonAI : public ScriptedAI
             // visual
             float x,y,z;
             z = m_creature->GetPositionZ();
-            for(uint8 i = 0; i < 5+rand()%5; ++i)
+            for (uint8 i = 0; i < 5+rand()%5; ++i)
             {
                 x = 343+rand()%60;
                 y = 1380+rand()%60;

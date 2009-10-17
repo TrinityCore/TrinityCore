@@ -101,7 +101,7 @@ void WaypointStore::UpdatePath(uint32 id)
 {
     if(waypoint_map.find(id)!= waypoint_map.end())
         waypoint_map[id]->clear();
-    
+
     QueryResult *result;
 
     result = WorldDatabase.PQuery("SELECT id,point,position_x,position_y,position_z,move_flag,delay,action,action_chance FROM waypoint_data WHERE id = %u ORDER BY point", id);

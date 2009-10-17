@@ -33,7 +33,6 @@
 #   pragma warning( disable : 4786)
 #endif
 
-
 namespace G3D {
 
 /**
@@ -59,7 +58,6 @@ const int SORT_DECREASING = -1;
 
  If SSE is defined Arrays allocate the first element aligned to
  16 bytes.
-
 
  Array is highly optimized compared to std::vector.
  Array operations are less expensive than on std::vector and for large
@@ -120,12 +118,10 @@ private:
         return (address >= data) && (address < data + num);
     }
 
-
     /** Only compiled if you use the sort procedure. */
     static bool __cdecl compareGT(const T& a, const T& b) {
         return a > b;
     }
-
 
     /**
      Allocates a new array of size numAllocated (not a parameter to the method)
@@ -162,7 +158,6 @@ private:
           for (T* ptr = oldData; ptr < end; ++ptr) {
               ptr->~T();
          }}
-
 
          System::alignedFree(oldData);
     }
@@ -255,7 +250,6 @@ public:
        numAllocated = 0;
    }
 
-
    /**
     Removes all elements.  Use resize(0, false) or fastClear if you want to
     remove all elements without deallocating the underlying array
@@ -328,7 +322,6 @@ public:
    void fastResize(int n) {
       resize(n, false);
    }
-
 
    /**
     Inserts at the specified index and shifts all other elements up by one.
@@ -444,7 +437,6 @@ public:
         }
     }
 
-
     inline void append(const T& v1, const T& v2) {
         if (inArray(&v1) || inArray(&v2)) {
             T t1 = v1;
@@ -462,7 +454,6 @@ public:
             data[num - 1] = v2;
         }
     }
-
 
     inline void append(const T& v1, const T& v2, const T& v3) {
         if (inArray(&v1) || inArray(&v2) || inArray(&v3)) {
@@ -484,7 +475,6 @@ public:
             data[num - 1] = v3;
         }
     }
-
 
     inline void append(const T& v1, const T& v2, const T& v3, const T& v4) {
         if (inArray(&v1) || inArray(&v2) || inArray(&v3) || inArray(&v4)) {
@@ -614,7 +604,6 @@ public:
        resize(num - 1, shrinkUnderlyingArrayIfNecessary);
    }
 
-
    /**
     "The member function swaps the controlled sequences between *this and str."
     Note that this is slower than the optimal std implementation.
@@ -626,7 +615,6 @@ public:
        str = *this;
        *this = temp;
    }
-
 
    /**
     Performs bounds checks in debug mode
@@ -831,7 +819,6 @@ public:
     void sort(bool (__cdecl *lessThan)(const T& elem1, const T& elem2)) {
         std::sort(data, data + num, lessThan);
     }
-
 
     /**
      Sorts the array in increasing order using the > or < operator.  To
@@ -1118,7 +1105,6 @@ public:
         medianPartition(ltMedian, eqMedian, gtMedian, temp, DefaultComparator());
     }
 
-
     /** Redistributes the elements so that the new order is statistically independent
         of the original order. O(n) time.*/
     void randomize() {
@@ -1133,9 +1119,7 @@ public:
         }
     }
 
-
 };
-
 
 /** Array::contains for C-arrays */
 template<class T> bool contains(const T* array, int len, const T& e) {

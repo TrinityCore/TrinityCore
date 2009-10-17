@@ -70,7 +70,6 @@ public:
   /// Default dtor.
   ~ACE_Log_Record (void);
 
-
   /// Write the contents of the logging record to the appropriate
   /// <FILE> iff the corresponding type is enabled.
   int print (const ACE_TCHAR host_name[],

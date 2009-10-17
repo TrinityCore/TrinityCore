@@ -293,8 +293,6 @@ public:
   typedef ACE_Concurrency_Strategy<SVC_HANDLER> CONCURRENCY_STRATEGY;
   typedef ACE_Scheduling_Strategy<SVC_HANDLER> SCHEDULING_STRATEGY;
 
-
-
   /// Default constructor.
   ACE_Strategy_Acceptor (const ACE_TCHAR service_name[] = 0,
                          const ACE_TCHAR service_description[] = 0,

@@ -136,7 +136,7 @@ void stripLineInvisibleChars(std::string &str)
     size_t wpos = 0;
 
     bool space = false;
-    for(size_t pos = 0; pos < str.size(); ++pos)
+    for (size_t pos = 0; pos < str.size(); ++pos)
     {
         if(invChars.find(str[pos])!=std::string::npos)
         {
@@ -192,7 +192,7 @@ uint32 TimeStringToSecs(const std::string& timestring)
     uint32 buffer     = 0;
     uint32 multiplier = 0;
 
-    for(std::string::const_iterator itr = timestring.begin(); itr != timestring.end(); itr++ )
+    for (std::string::const_iterator itr = timestring.begin(); itr != timestring.end(); itr++ )
     {
         if(isdigit(*itr))
         {
@@ -418,7 +418,7 @@ std::wstring GetMainPartOfName(std::wstring wname, uint32 declension)
         { &ie_End[1], &i_End[1],    NULL,         NULL,        NULL,         NULL,         NULL,       NULL }
     };
 
-    for(wchar_t const * const* itr = &dropEnds[declension][0]; *itr; ++itr)
+    for (wchar_t const * const* itr = &dropEnds[declension][0]; *itr; ++itr)
     {
         size_t len = size_t((*itr)[-1]);                    // get length from string size field
 
@@ -506,9 +506,9 @@ void vutf8printf(FILE *out, const char *str, va_list* ap)
 void hexEncodeByteArray(uint8* bytes, uint32 arrayLen, std::string& result)
 {
     std::ostringstream ss;
-    for(uint32 i=0; i<arrayLen; ++i)
+    for (uint32 i=0; i<arrayLen; ++i)
     {
-        for(uint8 j=0; j<2; ++j)
+        for (uint8 j=0; j<2; ++j)
         {
             unsigned char nibble = 0x0F & (bytes[i]>>((1-j)*4));
             char encodedNibble;

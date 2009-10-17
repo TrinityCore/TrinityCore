@@ -162,7 +162,7 @@ void SqlQueryHolder::SetResult(size_t index, QueryResult *result)
 
 SqlQueryHolder::~SqlQueryHolder()
 {
-    for(size_t i = 0; i < m_queries.size(); i++)
+    for (size_t i = 0; i < m_queries.size(); i++)
     {
         /// if the result was never used, free the resources
         /// results used already (getresult called) are expected to be deleted
@@ -189,7 +189,7 @@ void SqlQueryHolderEx::Execute(Database *db)
     /// we can do this, we are friends
     std::vector<SqlQueryHolder::SqlResultPair> &queries = m_holder->m_queries;
 
-    for(size_t i = 0; i < queries.size(); i++)
+    for (size_t i = 0; i < queries.size(); i++)
     {
         /// execute all queries in the holder and pass the results
         char const *sql = queries[i].first;

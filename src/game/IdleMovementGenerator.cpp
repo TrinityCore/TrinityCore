@@ -49,7 +49,7 @@ void RotateMovementGenerator::Initialize(Unit& owner)
 
     owner.addUnitState(UNIT_STAT_ROTATING);
 
-    owner.AttackStop(); 
+    owner.AttackStop();
 }
 
 bool RotateMovementGenerator::Update(Unit& owner, const uint32& diff)

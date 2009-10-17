@@ -264,7 +264,6 @@ ACE_Local_WLock::ACE_Local_WLock (const ACE_TCHAR *token_name,
 
 // ************************************************************
 
-
 ACE_INLINE void
 ACE_Token_Name::operator= (const ACE_Token_Name &rhs)
 {

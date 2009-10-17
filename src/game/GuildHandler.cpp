@@ -324,7 +324,7 @@ void WorldSession::HandleGuildPromoteOpcode(WorldPacket& recvPacket)
     data << plName;
     data << guild->GetRankName(newRankId);
     guild->BroadcastPacket(&data);
-    
+
     guild->ChangeRank(plGuid, newRankId);
     // Put record into guildlog
     guild->LogGuildEvent(GUILD_EVENT_LOG_PROMOTE_PLAYER, GetPlayer()->GetGUIDLow(), GUID_LOPART(plGuid), newRankId);
@@ -893,7 +893,7 @@ void WorldSession::HandleGuildPermissions( WorldPacket& /* recv_data */ )
     data << uint32(pGuild->GetMemberMoneyWithdrawRem(GetPlayer()->GetGUIDLow()));
     data << uint8(pGuild->GetPurchasedTabs());              // tabs count
     // why sending all info when not all tabs are purchased???
-    for(int i = 0; i < GUILD_BANK_MAX_TABS; ++i)
+    for (int i = 0; i < GUILD_BANK_MAX_TABS; ++i)
     {
         data << uint32(pGuild->GetBankRights(rankId, uint8(i)));
         data << uint32(pGuild->GetMemberSlotWithdrawRem(GetPlayer()->GetGUIDLow(), uint8(i)));

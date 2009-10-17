@@ -10,7 +10,6 @@
  */
 //=============================================================================
 
-
 #ifndef ACE_ACTIVE_MAP_MANAGER_H
 #define ACE_ACTIVE_MAP_MANAGER_H
 #include /**/ "ace/pre.h"

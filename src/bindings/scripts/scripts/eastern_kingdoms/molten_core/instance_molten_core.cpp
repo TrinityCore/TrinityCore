@@ -93,7 +93,6 @@ struct TRINITY_DLL_DECL instance_molten_core : public ScriptedInstance
         return false;
     };
 
-
     void OnGameObjectCreate(GameObject* pGo, bool add)
     {
         switch(pGo->GetEntry())
@@ -124,7 +123,6 @@ struct TRINITY_DLL_DECL instance_molten_core : public ScriptedInstance
             break;
         }
     }
-
 
     void OnCreatureCreate(Creature* pCreature, bool add)
     {

@@ -460,7 +460,6 @@ ACE_Thread_Manager::~ACE_Thread_Manager (void)
   this->close ();
 }
 
-
 // Run the entry point for thread spawned under the control of the
 // <ACE_Thread_Manager>.  This must be an extern "C" to make certain
 // compilers happy...
@@ -1990,7 +1989,6 @@ ACE_Thread_Manager::thread_all_list (ACE_thread_t thread_list[],
 
   return ACE_Utils::truncate_cast<ssize_t> (thread_count);
 }
-
 
 int
 ACE_Thread_Manager::thr_state (ACE_thread_t id,

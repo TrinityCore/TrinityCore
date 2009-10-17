@@ -37,7 +37,6 @@
 #include "ace/Local_Memory_Pool.h"
 #include "ace/Synch_Traits.h"
 
-
 #if !defined (ACE_LACKS_PRAGMA_ONCE)
 # pragma once
 #endif /* ACE_LACKS_PRAGMA_ONCE */
@@ -422,7 +421,6 @@ protected:
   // Not used
   ACE_Configuration (const ACE_Configuration& rhs);
   ACE_Configuration& operator= (const ACE_Configuration& rhs);
-
 
   ACE_Configuration_Section_Key root_;
 };

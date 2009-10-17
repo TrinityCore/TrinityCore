@@ -3,7 +3,6 @@
 
   @maintainer Morgan McGuire, matrix@graphics3d.com
 
-
   @created 2006-03-29
   @edited  2006-04-06
  */

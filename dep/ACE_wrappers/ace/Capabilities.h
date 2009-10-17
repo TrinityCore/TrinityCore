@@ -10,7 +10,6 @@
  */
 //=============================================================================
 
-
 #ifndef ACE_CAPABILITIES_H
 #define ACE_CAPABILITIES_H
 #include /**/ "ace/pre.h"
@@ -30,7 +29,6 @@
 #if defined (ACE_IS_SPLITTING)
 # include "ace/OS_NS_ctype.h"
 #endif  /* ACE_IS_SPLITTING */
-
 
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 

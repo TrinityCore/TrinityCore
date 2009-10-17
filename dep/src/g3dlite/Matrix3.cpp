@@ -49,7 +49,6 @@ bool Matrix3::fuzzyEq(const Matrix3& b) const {
     return true;
 }
 
-
 bool Matrix3::isOrthonormal() const {
     Vector3 X = getColumn(0);
     Vector3 Y = getColumn(1);
@@ -123,7 +122,6 @@ void Matrix3::set(
     elt[2][2] = fEntry22;
 }
 
-
 //----------------------------------------------------------------------------
 Vector3 Matrix3::getColumn (int iCol) const {
     assert((0 <= iCol) && (iCol < 3));
@@ -142,14 +140,12 @@ void Matrix3::setColumn(int iCol, const Vector3 &vector) {
     elt[2][iCol] = vector.z;
 }
 
-
 void Matrix3::setRow(int iRow, const Vector3 &vector) {
     debugAssert((iRow >= 0) && (iRow < 3));
     elt[iRow][0] = vector.x;
     elt[iRow][1] = vector.y;
     elt[iRow][2] = vector.z;
 }
-
 
 //----------------------------------------------------------------------------
 bool Matrix3::operator== (const Matrix3& rkMatrix) const {
@@ -289,7 +285,6 @@ Matrix3 operator* (double fScalar, const Matrix3& rkMatrix) {
 Matrix3 operator* (float fScalar, const Matrix3& rkMatrix) {
     return (double)fScalar * rkMatrix;
 }
-
 
 Matrix3 operator* (int fScalar, const Matrix3& rkMatrix) {
     return (double)fScalar * rkMatrix;
@@ -1679,8 +1674,6 @@ std::string Matrix3::toString() const {
             elt[1][0], elt[1][1], elt[1][2],
             elt[2][0], elt[2][1], elt[2][2]);
 }
-
-
 
 } // namespace
 

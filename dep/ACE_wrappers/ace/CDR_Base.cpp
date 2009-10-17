@@ -647,7 +647,7 @@ ACE_CDR::LongDouble::assign (const ACE_CDR::LongDouble::NativeImpl& rhs)
       // we have to shift and or the rhs to get the right bytes.
       size_t li = 2;
       bool direction = true;
-      for (size_t ri = 1; ri < sizeof (rhs);)
+      for (size_t ri = 1; ri < sizeof (rhs); )
         {
           if (direction)
             {
@@ -740,7 +740,7 @@ ACE_CDR::LongDouble::operator ACE_CDR::LongDouble::NativeImpl () const
       // we have to shift and or the rhs to get the right bytes.
       size_t li = 1;
       bool direction = true;
-      for (size_t ri = 2; li < sizeof (ret);) {
+      for (size_t ri = 2; li < sizeof (ret); ) {
         if (direction)
           {
             lhs_ptr[li] |= ((copy[ri] >> 4) & 0xf);

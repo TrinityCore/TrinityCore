@@ -115,7 +115,6 @@ struct TRINITY_DLL_DECL npc_injured_rainspeaker_oracleAI : public npc_escortAI
     }
 };
 
-
 bool GossipHello_npc_injured_rainspeaker_oracle(Player* pPlayer, Creature* pCreature)
 {
     if (pCreature->isQuestGiver())
@@ -215,7 +214,6 @@ bool GossipSelect_npc_vekjik(Player* pPlayer, Creature* pCreature, uint32 uiSend
     return true;
 }
 
-
 /*######
 ## avatar_of_freya
 ######*/
@@ -234,7 +232,6 @@ enum eFreya
     GOSSIP_TEXTID_AVATAR2    = 13304,
     GOSSIP_TEXTID_AVATAR3    = 13305
 };
-
 
 bool GossipHello_npc_avatar_of_freya(Player* pPlayer, Creature* pCreature)
 {

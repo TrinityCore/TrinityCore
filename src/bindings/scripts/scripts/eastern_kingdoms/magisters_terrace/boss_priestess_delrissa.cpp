@@ -135,7 +135,7 @@ struct TRINITY_DLL_DECL boss_priestess_delrissaAI : public ScriptedAI
     {
         DoScriptText(SAY_AGGRO, m_creature);
 
-        for(uint8 i = 0; i < MAX_ACTIVE_LACKEY; ++i)
+        for (uint8 i = 0; i < MAX_ACTIVE_LACKEY; ++i)
         {
             if (Unit* pAdd = Unit::GetUnit(*m_creature, m_auiLackeyGUID[i]))
             {
@@ -166,7 +166,7 @@ struct TRINITY_DLL_DECL boss_priestess_delrissaAI : public ScriptedAI
             LackeyEntryList.resize((sizeof(m_auiAddEntries) / sizeof(uint32)));
 
             //fill vector array with entries from Creature array
-            for(uint8 i = 0; i < LackeyEntryList.size(); ++i)
+            for (uint8 i = 0; i < LackeyEntryList.size(); ++i)
                 LackeyEntryList[i] = m_auiAddEntries[i];
 
             //remove random entries
@@ -174,7 +174,7 @@ struct TRINITY_DLL_DECL boss_priestess_delrissaAI : public ScriptedAI
                 LackeyEntryList.erase(LackeyEntryList.begin() + rand()%LackeyEntryList.size());
 
             //summon all the remaining in vector
-            for(std::vector<uint32>::iterator itr = LackeyEntryList.begin(); itr != LackeyEntryList.end(); ++itr)
+            for (std::vector<uint32>::iterator itr = LackeyEntryList.begin(); itr != LackeyEntryList.end(); ++itr)
             {
                 if (Creature* pAdd = m_creature->SummonCreature((*itr), LackeyLocations[j][0], LackeyLocations[j][1], fZLocation, fOrientation, TEMPSUMMON_CORPSE_DESPAWN, 0))
                     m_auiLackeyGUID[j] = pAdd->GetGUID();
@@ -184,7 +184,7 @@ struct TRINITY_DLL_DECL boss_priestess_delrissaAI : public ScriptedAI
         }
         else
         {
-            for(std::vector<uint32>::iterator itr = LackeyEntryList.begin(); itr != LackeyEntryList.end(); ++itr)
+            for (std::vector<uint32>::iterator itr = LackeyEntryList.begin(); itr != LackeyEntryList.end(); ++itr)
             {
                 Unit* pAdd = Unit::GetUnit(*m_creature, m_auiLackeyGUID[j]);
 
@@ -247,7 +247,7 @@ struct TRINITY_DLL_DECL boss_priestess_delrissaAI : public ScriptedAI
         {
             uint32 health = m_creature->GetHealth();
             Unit* target = m_creature;
-            for(uint8 i = 0; i < MAX_ACTIVE_LACKEY; ++i)
+            for (uint8 i = 0; i < MAX_ACTIVE_LACKEY; ++i)
             {
                 if (Unit* pAdd = Unit::GetUnit(*m_creature, m_auiLackeyGUID[i]))
                 {
@@ -386,7 +386,7 @@ struct TRINITY_DLL_DECL boss_priestess_lackey_commonAI : public ScriptedAI
 
         if (pInstance)
         {
-            for(uint8 i = 0; i < MAX_ACTIVE_LACKEY; ++i)
+            for (uint8 i = 0; i < MAX_ACTIVE_LACKEY; ++i)
             {
                 if (Unit* pAdd = Unit::GetUnit(*m_creature, m_auiLackeyGUIDs[i]))
                 {
@@ -457,7 +457,7 @@ struct TRINITY_DLL_DECL boss_priestess_lackey_commonAI : public ScriptedAI
 
         if (Creature* Delrissa = (Unit::GetCreature(*m_creature, pInstance->GetData64(DATA_DELRISSA))))
         {
-            for(uint8 i = 0; i < MAX_ACTIVE_LACKEY; ++i)
+            for (uint8 i = 0; i < MAX_ACTIVE_LACKEY; ++i)
                 m_auiLackeyGUIDs[i] = CAST_AI(boss_priestess_delrissaAI, Delrissa->AI())->m_auiLackeyGUID[i];
         }
     }
@@ -810,7 +810,7 @@ struct TRINITY_DLL_DECL boss_yazzaiAI : public boss_priestess_lackey_commonAI
         {
             bool InMeleeRange = false;
             std::list<HostilReference*>& t_list = m_creature->getThreatManager().getThreatList();
-            for(std::list<HostilReference*>::iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)
+            for (std::list<HostilReference*>::iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)
             {
                 if (Unit* target = Unit::GetUnit(*m_creature, (*itr)->getUnitGuid()))
                 {
@@ -890,7 +890,7 @@ struct TRINITY_DLL_DECL boss_warlord_salarisAI : public boss_priestess_lackey_co
         {
             bool InMeleeRange = false;
             std::list<HostilReference*>& t_list = m_creature->getThreatManager().getThreatList();
-            for(std::list<HostilReference*>::iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)
+            for (std::list<HostilReference*>::iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)
             {
                 if (Unit* target = Unit::GetUnit(*m_creature, (*itr)->getUnitGuid()))
                 {
@@ -1218,7 +1218,7 @@ struct TRINITY_DLL_DECL boss_zelfanAI : public boss_priestess_lackey_commonAI
 
         if (Recombobulate_Timer < diff)
         {
-            for(uint8 i = 0; i < MAX_ACTIVE_LACKEY; ++i)
+            for (uint8 i = 0; i < MAX_ACTIVE_LACKEY; ++i)
             {
                 if (Unit* pAdd = Unit::GetUnit(*m_creature, m_auiLackeyGUIDs[i]))
                 {

@@ -18,7 +18,6 @@ ACE_RCSID (ace,
            POSIX_Asynch_IO,
            "$Id: POSIX_Asynch_IO.cpp 81535 2008-04-29 20:08:52Z shuston $")
 
-
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 
 size_t
@@ -702,7 +701,6 @@ ACE_POSIX_Asynch_Write_File::write (ACE_Message_Block &message_block,
 
 // *********************************************************************
 
-
 size_t
 ACE_POSIX_Asynch_Accept_Result::bytes_to_read (void) const
 {
@@ -1147,7 +1145,6 @@ void ACE_POSIX_Asynch_Connect_Result::connect_handle (ACE_HANDLE handle)
   this->aio_fildes = handle;
 }
 
-
 ACE_POSIX_Asynch_Connect_Result::ACE_POSIX_Asynch_Connect_Result
   (const ACE_Handler::Proxy_Ptr &handler_proxy,
    ACE_HANDLE connect_handle,
@@ -1320,7 +1317,6 @@ ACE_POSIX_Asynch_Connect::connect (ACE_HANDLE connect_handle,
   else
     result = 0;
 
-
   return 0;
 }
 
@@ -1429,7 +1425,7 @@ ACE_POSIX_Asynch_Connect::connect_i (ACE_POSIX_Asynch_Connect_Result *result,
          -1);
     }
 
-  for (;;)
+  for (; ; )
     {
       int rc = ACE_OS::connect
         (handle,
@@ -1451,7 +1447,6 @@ ACE_POSIX_Asynch_Connect::connect_i (ACE_POSIX_Asynch_Connect_Result *result,
 
   ACE_NOTREACHED (return 0);
 }
-
 
 //@@ New method cancel_uncompleted
 // It performs cancellation of all pending requests
@@ -1478,7 +1473,7 @@ ACE_POSIX_Asynch_Connect::cancel_uncompleted (bool flg_notify,
 
   set.reset ();
 
-  for (; iter.next (me) != 0;  retval++ , iter.advance ())
+  for (; iter.next (me) != 0; retval++ , iter.advance ())
     {
        ACE_HANDLE handle = me->ext_id_;
        ACE_POSIX_Asynch_Connect_Result* result = me->int_id_ ;
@@ -1588,7 +1583,6 @@ ACE_POSIX_Asynch_Connect::handle_output (ACE_HANDLE fd)
   this->post_result (result, this->flg_open_);
   return 0;
 }
-
 
 int
 ACE_POSIX_Asynch_Connect::handle_close (ACE_HANDLE fd, ACE_Reactor_Mask)
@@ -1719,7 +1713,6 @@ ACE_POSIX_Asynch_Transmit_File_Result::~ACE_POSIX_Asynch_Transmit_File_Result (v
 {
 }
 
-
 // *********************************************************************
 
 /**
@@ -1828,7 +1821,6 @@ ACE_POSIX_Asynch_Transmit_Handler::~ACE_POSIX_Asynch_Transmit_Handler (void)
   delete result_;
   mb_->release ();
 }
-
 
 // Do the transmission.
 // Initiate transmitting the header. When that completes
@@ -2163,7 +2155,6 @@ ACE_POSIX_Asynch_Read_Dgram_Result::saddr () const
   return (sockaddr *) this->remote_address_->get_addr ();
 }
 
-
 int
 ACE_POSIX_Asynch_Read_Dgram_Result::flags (void) const
 {
@@ -2261,7 +2252,6 @@ ACE_POSIX_Asynch_Write_Dgram_Result::handle (void) const
 {
   return this->handle_;
 }
-
 
 ACE_Message_Block*
 ACE_POSIX_Asynch_Write_Dgram_Result::message_block () const

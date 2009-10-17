@@ -10,11 +10,9 @@
 #include "ace/Remote_Tokens.inl"
 #endif /* __ACE_INLINE__ */
 
-
 ACE_RCSID (ace,
            Remote_Tokens,
            "$Id: Remote_Tokens.cpp 80826 2008-03-04 14:51:23Z wotte $")
-
 
 #if defined (ACE_MT_SAFE) && (ACE_MT_SAFE != 0)
 #define ACE_TSS_CONNECTION_MUTEX ACE_Thread_Mutex
@@ -479,7 +477,6 @@ ACE_Remote_RLock::dump (void) const
   ACE_DEBUG ((LM_DEBUG, ACE_END_DUMP));
 #endif /* ACE_HAS_DUMP */
 }
-
 
 ACE_Tokens *
 ACE_Remote_WLock::create_token (const ACE_TCHAR *name)

@@ -768,7 +768,6 @@ public:
   virtual int handle_events (ACE_Time_Value &max_wait_time);
   virtual int alertable_handle_events (ACE_Time_Value &max_wait_time);
 
-
   // = Event handling control.
 
   /**

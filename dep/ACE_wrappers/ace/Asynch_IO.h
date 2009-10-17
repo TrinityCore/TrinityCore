@@ -167,7 +167,6 @@ public:
    */
   int signal_number (void) const;
 
-
   /// Destructor.
   virtual ~ACE_Asynch_Result (void);
 
@@ -249,7 +248,6 @@ public:
    *   associated  error  status is set to ECANCELED.
    */
   int cancel (void);
-
 
   // = Access methods.
 
@@ -1289,7 +1287,6 @@ public:
   };
 };
 
-
 // Forward declarations
 class ACE_Asynch_Read_Dgram_Result_Impl;
 class ACE_Asynch_Read_Dgram_Impl;
@@ -1553,7 +1550,6 @@ public:
     ACE_Asynch_Write_Dgram_Result_Impl *implementation_;
   };
 };
-
 
 /**
  * @class ACE_Handler

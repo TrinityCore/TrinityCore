@@ -45,7 +45,7 @@ typedef void(AuraEffect::*pAuraHandler)(bool Apply, bool Real, bool changeAmount
 //      each setting object update field code line moved under if(Real) check is significant Trinity speedup, and less server->client data sends
 //      each packet sending code moved under if(Real) check is _large_ Trinity speedup, and lot less server->client data sends
 //
-// changeAmount == true at changing existing aura amount - called wit real == false 
+// changeAmount == true at changing existing aura amount - called wit real == false
 // if aura has amount dependant effect handler has to allow proceeding it
 // example: change speed aura, modifier aura
 
@@ -113,7 +113,7 @@ class TRINITY_DLL_SPEC Aura
         bool HasEffect(uint8 effIndex) const {return bool (m_partAuras[effIndex]);}
         inline void HandleEffects(bool apply)
         {
-            for (uint8 i = 0; i<MAX_SPELL_EFFECTS;++i)
+            for (uint8 i = 0; i<MAX_SPELL_EFFECTS; ++i)
                 if (m_partAuras[i])
                     m_target->HandleAuraEffect(m_partAuras[i], apply);
         }

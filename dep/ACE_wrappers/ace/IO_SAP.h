@@ -10,7 +10,6 @@
  */
 //=============================================================================
 
-
 #ifndef ACE_IO_SAP_H
 #define ACE_IO_SAP_H
 #include /**/ "ace/pre.h"
@@ -21,7 +20,6 @@
 #if !defined (ACE_LACKS_PRAGMA_ONCE)
 # pragma once
 #endif /* ACE_LACKS_PRAGMA_ONCE */
-
 
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 

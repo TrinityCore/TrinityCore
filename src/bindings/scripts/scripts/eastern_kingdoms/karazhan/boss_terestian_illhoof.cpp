@@ -167,7 +167,7 @@ struct TRINITY_DLL_DECL boss_terestianAI : public ScriptedAI
 {
     boss_terestianAI(Creature *c) : ScriptedAI(c)
     {
-        for(uint8 i = 0; i < 2; ++i)
+        for (uint8 i = 0; i < 2; ++i)
             PortalGUID[i] = 0;
         pInstance = c->GetInstanceData();
     }
@@ -187,7 +187,7 @@ struct TRINITY_DLL_DECL boss_terestianAI : public ScriptedAI
 
     void Reset()
     {
-        for(uint8 i = 0; i < 2; ++i)
+        for (uint8 i = 0; i < 2; ++i)
         {
             if (PortalGUID[i])
             {
@@ -253,7 +253,7 @@ struct TRINITY_DLL_DECL boss_terestianAI : public ScriptedAI
 
     void JustDied(Unit *killer)
     {
-        for(uint8 i = 0; i < 2; ++i)
+        for (uint8 i = 0; i < 2; ++i)
         {
             if (PortalGUID[i])
             {

@@ -80,7 +80,6 @@ protected:
     uint32 *pNext;     // next value to get from state
     int left;          // number of values left before reload needed
 
-
 //Methods
 public:
     MTRand( const uint32& oneSeed );  // initialize with a simple uint32
@@ -218,14 +217,12 @@ inline MTRand::uint32 MTRand::randInt( const uint32& n )
     return i;
 }
 
-
 inline void MTRand::seed( const uint32 oneSeed )
 {
     // Seed the generator with a simple uint32
     initialize(oneSeed);
     reload();
 }
-
 
 inline void MTRand::seed( uint32 *const bigSeed, const uint32 seedLength )
 {
@@ -239,7 +236,7 @@ inline void MTRand::seed( uint32 *const bigSeed, const uint32 seedLength )
     register int i = 1;
     register uint32 j = 0;
     register int k = ( N > int(seedLength) ? N : int(seedLength) );
-    for( ; k; --k )
+    for (; k; --k )
     {
         state[i] =
             state[i] ^ ( (state[i-1] ^ (state[i-1] >> 30)) * 1664525UL );
@@ -249,7 +246,7 @@ inline void MTRand::seed( uint32 *const bigSeed, const uint32 seedLength )
         if( i >= N ) { state[0] = state[N-1];  i = 1; }
         if( j >= seedLength ) j = 0;
     }
-    for( k = N - 1; k; --k )
+    for (k = N - 1; k; --k )
     {
         state[i] =
             state[i] ^ ( (state[i-1] ^ (state[i-1] >> 30)) * 1566083941UL );
@@ -262,13 +259,11 @@ inline void MTRand::seed( uint32 *const bigSeed, const uint32 seedLength )
     reload();
 }
 
-
 inline void MTRand::seed()
 {
     // Seed the generator with hash of time() and clock() values
     seed( hash( time(NULL), clock() ) );
 }
-
 
 inline void MTRand::initialize( const uint32 seed )
 {
@@ -280,13 +275,12 @@ inline void MTRand::initialize( const uint32 seed )
     register uint32 *r = state;
     register int i = 1;
     *s++ = seed & 0xffffffffUL;
-    for( ; i < N; ++i )
+    for (; i < N; ++i )
     {
         *s++ = ( 1812433253UL * ( *r ^ (*r >> 30) ) + i ) & 0xffffffffUL;
         r++;
     }
 }
-
 
 inline void MTRand::reload()
 {
@@ -294,15 +288,14 @@ inline void MTRand::reload()
     // Made clearer and faster by Matthew Bellew (matthew.bellew@home.com)
     register uint32 *p = state;
     register int i;
-    for( i = N - M; i--; ++p )
+    for (i = N - M; i--; ++p )
         *p = twist( p[M], p[0], p[1] );
-    for( i = M; --i; ++p )
+    for (i = M; --i; ++p )
         *p = twist( p[M-N], p[0], p[1] );
     *p = twist( p[M-N], p[0], state[0] );
 
     left = N, pNext = state;
 }
-
 
 inline MTRand::uint32 MTRand::hash( time_t t, clock_t c )
 {
@@ -314,14 +307,14 @@ inline MTRand::uint32 MTRand::hash( time_t t, clock_t c )
 
     uint32 h1 = 0;
     unsigned char *p = (unsigned char *) &t;
-    for( size_t i = 0; i < sizeof(t); ++i )
+    for (size_t i = 0; i < sizeof(t); ++i )
     {
         h1 *= UCHAR_MAX + 2U;
         h1 += p[i];
     }
     uint32 h2 = 0;
     p = (unsigned char *) &c;
-    for( size_t j = 0; j < sizeof(c); ++j )
+    for (size_t j = 0; j < sizeof(c); ++j )
     {
         h2 *= UCHAR_MAX + 2U;
         h2 += p[j];
@@ -329,23 +322,21 @@ inline MTRand::uint32 MTRand::hash( time_t t, clock_t c )
     return ( h1 + differ++ ) ^ h2;
 }
 
-
 inline void MTRand::save( uint32* saveArray ) const
 {
     register uint32 *sa = saveArray;
     register const uint32 *s = state;
     register int i = N;
-    for( ; i--; *sa++ = *s++ ) {}
+    for (; i--; *sa++ = *s++ ) {}
     *sa = left;
 }
-
 
 inline void MTRand::load( uint32 *const loadArray )
 {
     register uint32 *s = state;
     register uint32 *la = loadArray;
     register int i = N;
-    for( ; i--; *s++ = *la++ ) {}
+    for (; i--; *s++ = *la++ ) {}
     left = *la;
     pNext = &state[N-left];
 }
@@ -355,16 +346,15 @@ inline std::ostream& operator<<( std::ostream& os, const MTRand& mtrand )
 {
     register const MTRand::uint32 *s = mtrand.state;
     register int i = mtrand.N;
-    for( ; i--; os << *s++ << "\t" ) {}
+    for (; i--; os << *s++ << "\t" ) {}
     return os << mtrand.left;
 }
-
 
 inline std::istream& operator>>( std::istream& is, MTRand& mtrand )
 {
     register MTRand::uint32 *s = mtrand.state;
     register int i = mtrand.N;
-    for( ; i--; is >> *s++ ) {}
+    for (; i--; is >> *s++ ) {}
     is >> mtrand.left;
     mtrand.pNext = &mtrand.state[mtrand.N-mtrand.left];
     return is;

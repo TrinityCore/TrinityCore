@@ -201,8 +201,6 @@ struct TRINITY_DLL_DECL boss_the_lurker_belowAI : public Scripted_NoMovementAI
             return;
         }
 
-
-
         if(m_creature->getThreatManager().getThreatList().empty())//check if should evade
         {
             if(m_creature->isInCombat())

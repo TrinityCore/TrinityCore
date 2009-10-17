@@ -49,15 +49,15 @@ ConfusedMovementGenerator<T>::Initialize(T &unit)
 
     VMAP::IVMapManager *vMaps = VMAP::VMapFactory::createOrGetVMapManager();
 
-    for(unsigned int idx=0; idx < MAX_CONF_WAYPOINTS+1; ++idx)
+    for (unsigned int idx=0; idx < MAX_CONF_WAYPOINTS+1; ++idx)
     {
         const float wanderX=wander_distance*rand_norm() - wander_distance/2;
         const float wanderY=wander_distance*rand_norm() - wander_distance/2;
 
-        const bool isInLoS = vMaps->isInLineOfSight(unit.GetMapId(), x, y, z + 2.0f, i_waypoints[idx][0], i_waypoints[idx][1], z + 2.0f); 
+        const bool isInLoS = vMaps->isInLineOfSight(unit.GetMapId(), x, y, z + 2.0f, i_waypoints[idx][0], i_waypoints[idx][1], z + 2.0f);
         if (!isInLoS)
         {
-            i_waypoints[idx][0] = x; 
+            i_waypoints[idx][0] = x;
             i_waypoints[idx][1] = y;
         }
 

@@ -229,7 +229,5 @@ ACE_Log_Msg::getpid (void) const
   return ACE_Log_Msg::pid_;
 }
 
-
-
 ACE_END_VERSIONED_NAMESPACE_DECL
 

@@ -134,7 +134,7 @@ void WorldSession::SendUpdateTrade()
     data << (uint32) _player->pTrader->tradeGold;           // trader gold
     data << (uint32) 0;                                     // spell casted on lowest slot item
 
-    for(uint8 i = 0; i < TRADE_SLOT_COUNT; ++i)
+    for (uint8 i = 0; i < TRADE_SLOT_COUNT; ++i)
     {
         item = (_player->pTrader->tradeItems[i] != NULL_SLOT ? _player->pTrader->GetItemByPos( _player->pTrader->tradeItems[i] ) : NULL);
 
@@ -151,7 +151,7 @@ void WorldSession::SendUpdateTrade()
                                                             // gift creator
             data << (uint64) item->GetUInt64Value(ITEM_FIELD_GIFTCREATOR);
             data << (uint32) item->GetEnchantmentId(PERM_ENCHANTMENT_SLOT);
-            for(uint8 j = 0; j < 3; ++j)
+            for (uint8 j = 0; j < 3; ++j)
                 data << (uint32) 0;                         // enchantment id (permanent/gems?)
                                                             // creator
             data << (uint64) item->GetUInt64Value(ITEM_FIELD_CREATOR);
@@ -167,7 +167,7 @@ void WorldSession::SendUpdateTrade()
         }
         else
         {
-            for(uint8 j = 0; j < 18; j++)
+            for (uint8 j = 0; j < 18; j++)
                 data << uint32(0);
         }
     }
@@ -179,7 +179,7 @@ void WorldSession::SendUpdateTrade()
 
 void WorldSession::moveItems(Item* myItems[], Item* hisItems[])
 {
-    for(int i=0; i<TRADE_SLOT_TRADED_COUNT; ++i)
+    for (int i=0; i<TRADE_SLOT_TRADED_COUNT; ++i)
     {
         ItemPosCountVec traderDst;
         ItemPosCountVec playerDst;
@@ -278,7 +278,7 @@ void WorldSession::HandleAcceptTradeOpcode(WorldPacket& /*recvPacket*/)
     }
 
     // not accept if some items now can't be trade (cheating)
-    for(int i=0; i<TRADE_SLOT_TRADED_COUNT; ++i)
+    for (int i=0; i<TRADE_SLOT_TRADED_COUNT; ++i)
     {
         if(_player->tradeItems[i] != NULL_SLOT )
         {
@@ -311,7 +311,7 @@ void WorldSession::HandleAcceptTradeOpcode(WorldPacket& /*recvPacket*/)
         _player->pTrader->GetSession()->SendTradeStatus(TRADE_STATUS_TRADE_ACCEPT);
 
         // store items in local list and set 'in-trade' flag
-        for(int i=0; i<TRADE_SLOT_TRADED_COUNT; ++i)
+        for (int i=0; i<TRADE_SLOT_TRADED_COUNT; ++i)
         {
             if(_player->tradeItems[i] != NULL_SLOT )
             {
@@ -336,7 +336,7 @@ void WorldSession::HandleAcceptTradeOpcode(WorldPacket& /*recvPacket*/)
         myCanCompleteTrade = (_player->CanStoreItems( hisItems,TRADE_SLOT_TRADED_COUNT ) == EQUIP_ERR_OK);
 
         // clear 'in-trade' flag
-        for(int i=0; i<TRADE_SLOT_TRADED_COUNT; ++i)
+        for (int i=0; i<TRADE_SLOT_TRADED_COUNT; ++i)
         {
             if(myItems[i])  myItems[i]->SetInTrade(false);
             if(hisItems[i]) hisItems[i]->SetInTrade(false);
@@ -361,7 +361,7 @@ void WorldSession::HandleAcceptTradeOpcode(WorldPacket& /*recvPacket*/)
         }
 
         // execute trade: 1. remove
-        for(int i=0; i<TRADE_SLOT_TRADED_COUNT; ++i)
+        for (int i=0; i<TRADE_SLOT_TRADED_COUNT; ++i)
         {
             if(myItems[i])
             {
@@ -603,7 +603,7 @@ void WorldSession::HandleSetTradeItemOpcode(WorldPacket& recvPacket)
     uint16 pos = (bag << 8) | slot;
 
     // prevent place single item into many trade slots using cheating and client bugs
-    for(int i = 0; i < TRADE_SLOT_COUNT; ++i)
+    for (int i = 0; i < TRADE_SLOT_COUNT; ++i)
     {
         if(_player->tradeItems[i]==pos)
         {

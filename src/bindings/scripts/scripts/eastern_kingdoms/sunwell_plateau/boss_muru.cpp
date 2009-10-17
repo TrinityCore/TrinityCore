@@ -325,13 +325,13 @@ struct TRINITY_DLL_DECL boss_muruAI : public Scripted_NoMovementAI
                         else
                         {
                             DarkFiend = false;
-                            for(uint8 i = 0; i < 8; ++i)
+                            for (uint8 i = 0; i < 8; ++i)
                                 m_creature->SummonCreature(CREATURE_DARK_FIENDS,DarkFiends[i][0],DarkFiends[i][1],DarkFiends[i][2], DarkFiends[i][3], TEMPSUMMON_CORPSE_DESPAWN, 0);
                             Timer[TIMER_DARKNESS] = 42000;
                         }
                         break;
                     case TIMER_HUMANOIDES:
-                        for(uint8 i = 0; i < 6; ++i)
+                        for (uint8 i = 0; i < 6; ++i)
                             m_creature->SummonCreature(Humanoides[i][0],Humanoides[i][1],Humanoides[i][2],Humanoides[i][3], Humanoides[i][4], TEMPSUMMON_CORPSE_DESPAWN, 0);
                         Timer[TIMER_HUMANOIDES] = 60000;
                         break;
@@ -351,7 +351,7 @@ struct TRINITY_DLL_DECL boss_muruAI : public Scripted_NoMovementAI
         }
 
         //Timer
-        for(uint8 i = 0; i < 4; ++i)
+        for (uint8 i = 0; i < 4; ++i)
         {
             if (i != TIMER_PHASE)Timer[i] -= diff;
             else if (Phase == 2) Timer[i] -= diff;
@@ -459,7 +459,7 @@ struct TRINITY_DLL_DECL npc_dark_fiendAI : public ScriptedAI
 
     void SpellHit(Unit* caster, const SpellEntry* Spell)
     {
-        for(uint8 i = 0; i < 3; ++i)
+        for (uint8 i = 0; i < 3; ++i)
             if (Spell->Effect[i] == 38)
                 m_creature->DisappearAndDie();
     }

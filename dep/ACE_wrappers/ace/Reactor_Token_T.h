@@ -10,7 +10,6 @@
  */
 //=============================================================================
 
-
 #ifndef ACE_REACTOR_TOKEN_T_H
 #define ACE_REACTOR_TOKEN_T_H
 #include /**/ "ace/pre.h"

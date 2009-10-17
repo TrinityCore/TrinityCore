@@ -57,7 +57,7 @@ bool ChatHandler::HandleMuteCommand(const char* args)
     std::string mutereasonstr = "No reason";
     if(mutereason != NULL)
          mutereasonstr = mutereason;
-         
+
     Player* target;
     uint64 target_guid;
     std::string target_name;
@@ -68,10 +68,8 @@ bool ChatHandler::HandleMuteCommand(const char* args)
 
     // find only player from same account if any
     if(!target)
-    {
         if(WorldSession* session = sWorld.FindSession(account_id))
             target = session->GetPlayer();
-    }
 
     uint32 notspeaktime = (uint32) atoi(delayStr);
 
@@ -109,10 +107,8 @@ bool ChatHandler::HandleUnmuteCommand(const char* args)
 
     // find only player from same account if any
     if(!target)
-    {
         if(WorldSession* session = sWorld.FindSession(account_id))
             target = session->GetPlayer();
-    }
 
     // must have strong lesser security level
     if(HasLowerSecurity (target,target_guid,true))
@@ -345,10 +341,8 @@ bool ChatHandler::HandleGoCreatureCommand(const char* args)
         SetSentErrorMessage(true);
         return false;
     }
-    if( result->GetRowCount() > 1 )
-    {
+    if (result->GetRowCount() > 1)
         SendSysMessage(LANG_COMMAND_GOCREATMULTIPLE);
-    }
 
     Field *fields = result->Fetch();
     float x = fields[0].GetFloat();
@@ -1966,7 +1960,6 @@ bool ChatHandler::HandleDeMorphCommand(const char* /*args*/)
     if(!target)
         target = m_session->GetPlayer();
 
-
     // check online security
     else if (target->GetTypeId() == TYPEID_PLAYER && HasLowerSecurity((Player*)target, 0))
         return false;
@@ -2074,7 +2067,7 @@ bool ChatHandler::HandleKickPlayerCommand(const char *args)
         }
 
         std::string nameLink = playerLink(name);
-    
+
         if(sWorld.KickPlayer(name))
         {
             if(sWorld.getConfig(CONFIG_SHOW_KICK_IN_WORLD) == 1)
@@ -2463,7 +2456,7 @@ bool ChatHandler::HandleWpEventCommand(const char* args)
 
     char* arg_id = strtok(NULL, " ");
     uint32 id = 0;
-    
+
     if(show == "add")
     {
         if(arg_id)
@@ -2581,7 +2574,7 @@ bool ChatHandler::HandleWpEventCommand(const char* args)
             SendSysMessage("|cffff33ffERROR: No argument present.|r");
             return true;
         }
-        
+
         std::string arg_string  = arg_2;
 
         if( (arg_string != "setid") && (arg_string != "delay") && (arg_string != "command")
@@ -2850,7 +2843,6 @@ bool ChatHandler::HandleWpModifyCommand(const char* args)
         return true;
     }                                                       // move
 
-
     const char *text = arg_str;
 
     if( text == 0 )
@@ -2871,7 +2863,6 @@ bool ChatHandler::HandleWpModifyCommand(const char* args)
     PSendSysMessage(LANG_WAYPOINT_CHANGED_NO, show_str);
     return true;
 }
-
 
 bool ChatHandler::HandleWpShowCommand(const char* args)
 {
@@ -3291,7 +3282,7 @@ bool ChatHandler::HandleCharacterReputationCommand(const char* args)
     LocaleConstant loc = GetSessionDbcLocale();
 
     FactionStateList const& targetFSL = target->GetReputationMgr().GetStateList();
-    for(FactionStateList::const_iterator itr = targetFSL.begin(); itr != targetFSL.end(); ++itr)
+    for (FactionStateList::const_iterator itr = targetFSL.begin(); itr != targetFSL.end(); ++itr)
     {
         FactionEntry const *factionEntry = sFactionStore.LookupEntry(itr->second.ID);
         char const* factionName = factionEntry ? factionEntry->name[loc] : "#Not found#";
@@ -3412,7 +3403,7 @@ bool ChatHandler::HandleLookupEventCommand(const char* args)
     GameEventMgr::GameEventDataMap const& events = gameeventmgr.GetEventMap();
     GameEventMgr::ActiveEvents const& activeEvents = gameeventmgr.GetActiveEventList();
 
-    for(uint32 id = 0; id < events.size(); ++id )
+    for (uint32 id = 0; id < events.size(); ++id )
     {
         GameEventData const& eventData = events[id];
 
@@ -3449,7 +3440,7 @@ bool ChatHandler::HandleEventActiveListCommand(const char* args)
 
     char const* active = GetTrinityString(LANG_ACTIVE);
 
-    for(GameEventMgr::ActiveEvents::const_iterator itr = activeEvents.begin(); itr != activeEvents.end(); ++itr )
+    for (GameEventMgr::ActiveEvents::const_iterator itr = activeEvents.begin(); itr != activeEvents.end(); ++itr )
     {
         uint32 event_id = *itr;
         GameEventData const& eventData = events[event_id];
@@ -3650,7 +3641,7 @@ void ChatHandler::HandleLearnSkillRecipesHelper(Player* player,uint32 skill_id)
 }
 
 bool ChatHandler::HandleLearnAllCraftsCommand(const char* /*args*/)
-{   
+{
 
     for (uint32 i = 0; i < sSkillLineStore.GetNumRows(); ++i)
     {
@@ -3693,7 +3684,6 @@ bool ChatHandler::HandleLearnAllRecipesCommand(const char* args)
 
     // converting string that we try to find to lower case
     wstrToLower( wnamepart );
-    
 
     std::string name;
 
@@ -3717,7 +3707,7 @@ bool ChatHandler::HandleLearnAllRecipesCommand(const char* args)
         if (!Utf8FitTo(name, wnamepart))
         {
             loc = 0;
-            for(; loc < MAX_LOCALE; ++loc)
+            for (; loc < MAX_LOCALE; ++loc)
             {
                 if(loc==GetSessionDbcLocale())
                     continue;
@@ -3946,7 +3936,7 @@ bool ChatHandler::HandleCreatePetCommand(const char* args)
 
     if(!pet)
       return false;
-    
+
     if(!pet->CreateBaseAtCreature(creatureTarget))
     {
         delete pet;
@@ -4151,7 +4141,7 @@ bool ChatHandler::HandleTempGameObjectCommand(const char* args)
 
     if( spawntime )
         spawntm = atoi((char*)spawntime);
-   
+
     float x = chr->GetPositionX();
     float y = chr->GetPositionY();
     float z = chr->GetPositionZ();

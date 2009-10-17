@@ -82,7 +82,6 @@ using std::strftime;
 #   endif
 # endif /* ACE_HAS_GETIFADDRS */
 
-
 #endif /* WIN32 */
 
 #if defined (ACE_HAS_SHM_OPEN) && defined(INTEGRITY)

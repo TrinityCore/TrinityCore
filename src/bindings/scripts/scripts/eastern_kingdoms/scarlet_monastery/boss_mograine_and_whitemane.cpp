@@ -158,7 +158,6 @@ struct TRINITY_DLL_DECL boss_scarlet_commander_mograineAI : public ScriptedAI
         }
     }
 
-
     void UpdateAI(const uint32 uiDiff)
     {
         if (!UpdateVictim())

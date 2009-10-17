@@ -4,7 +4,6 @@ ACE_RCSID (ace,
            Time_Value,
            "$Id: Time_Value.cpp 80826 2008-03-04 14:51:23Z wotte $")
 
-
 #if !defined (__ACE_INLINE__)
 #include "ace/Time_Value.inl"
 #endif /* __ACE_INLINE__ */
@@ -209,7 +208,6 @@ ACE_Time_Value::normalize (void)
     }
 #endif /* __QNXNTO__  */
 }
-
 
 ACE_Time_Value &
 ACE_Time_Value::operator *= (double d)

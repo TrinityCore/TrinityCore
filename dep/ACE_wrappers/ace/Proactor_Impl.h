@@ -11,7 +11,6 @@
  */
 //=============================================================================
 
-
 #ifndef ACE_PROACTOR_IMPL_H
 #define ACE_PROACTOR_IMPL_H
 #include /**/ "ace/pre.h"

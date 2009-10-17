@@ -34,7 +34,7 @@ struct SqlDbc
     {
         // Convert dbc file name to sql table name
         sqlTableName = *_filename;
-        for (uint32 i = 0;i< sqlTableName.size();++i)
+        for (uint32 i = 0; i< sqlTableName.size(); ++i)
         {
             if (isalpha(sqlTableName[i]))
                 sqlTableName[i] = tolower(sqlTableName[i]);
@@ -46,7 +46,7 @@ struct SqlDbc
         DBCFileLoader::GetFormatRecordSize(fmt, &indexPos);
         if (indexPos>=0)
         {
-            for(uint32 x=0;x < formatString->size();x++)
+            for (uint32 x=0; x < formatString->size(); x++)
             {
                 // Count only fields present in sql
                 if ((*formatString)[x] == FT_SQL_PRESENT)
@@ -142,7 +142,7 @@ class DBCStorage
                         uint32 columnNumber = 0;
                         uint32 sqlColumnNumber = 0;
 
-                        for(;columnNumber < sql->formatString->size();++columnNumber)
+                        for (; columnNumber < sql->formatString->size(); ++columnNumber)
                         {
                             if ((*sql->formatString)[columnNumber] == FT_SQL_ABSENT)
                             {

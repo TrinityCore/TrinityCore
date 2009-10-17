@@ -11,7 +11,6 @@
  */
 //=============================================================================
 
-
 #ifndef ACE_SPIPE_ACCEPTOR_H
 #define ACE_SPIPE_ACCEPTOR_H
 #include /**/ "ace/pre.h"

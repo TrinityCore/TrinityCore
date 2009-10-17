@@ -162,7 +162,7 @@ void WorldSession::LogUnprocessedTail(WorldPacket *packet)
         LookupOpcodeName(packet->GetOpcode()),
         packet->GetOpcode(),
         packet->rpos(),packet->wpos());
-     
+
         packet->print_storage();
 }
 
@@ -321,7 +321,7 @@ void WorldSession::LogoutPlayer(bool Save)
 
             // build set of player who attack _player or who have pet attacking of _player
             std::set<Player*> aset;
-            for(Unit::AttackerSet::const_iterator itr = _player->getAttackers().begin(); itr != _player->getAttackers().end(); ++itr)
+            for (Unit::AttackerSet::const_iterator itr = _player->getAttackers().begin(); itr != _player->getAttackers().end(); ++itr)
             {
                 Unit* owner = (*itr)->GetOwner();           // including player controlled case
                 if(owner)
@@ -340,7 +340,7 @@ void WorldSession::LogoutPlayer(bool Save)
             _player->RepopAtGraveyard();
 
             // give honor to all attackers from set like group case
-            for(std::set<Player*>::const_iterator itr = aset.begin(); itr != aset.end(); ++itr)
+            for (std::set<Player*>::const_iterator itr = aset.begin(); itr != aset.end(); ++itr)
                 (*itr)->RewardHonor(_player,aset.size());
 
             // give bg rewards and update counters like kill by first from attackers
@@ -405,7 +405,7 @@ void WorldSession::LogoutPlayer(bool Save)
         if(Save)
         {
             uint32 eslot;
-            for(int j = BUYBACK_SLOT_START; j < BUYBACK_SLOT_END; ++j)
+            for (int j = BUYBACK_SLOT_START; j < BUYBACK_SLOT_END; ++j)
             {
                 eslot = j - BUYBACK_SLOT_START;
                 _player->SetUInt64Value(PLAYER_FIELD_VENDORBUYBACK_SLOT_1 + (eslot * 2), 0);
@@ -658,14 +658,14 @@ void WorldSession::SendAccountDataTimes()
     WorldPacket data( SMSG_ACCOUNT_DATA_TIMES, 4+1+8*4 );   // changed in WotLK
     data << uint32(time(NULL));                             // unix time of something
     data << uint8(1);
-    for(int i = 0; i < NUM_ACCOUNT_DATA_TYPES; ++i)
+    for (int i = 0; i < NUM_ACCOUNT_DATA_TYPES; ++i)
         data << uint32(m_accountData[i].Time);              // also unix time
     SendPacket(&data);
 }
 
 void WorldSession::LoadTutorialsData()
 {
-    for ( int aX = 0 ; aX < 8 ; ++aX )
+    for (int aX = 0 ; aX < 8 ; ++aX )
         m_Tutorials[ aX ] = 0;
 
     QueryResult *result = CharacterDatabase.PQuery("SELECT tut0,tut1,tut2,tut3,tut4,tut5,tut6,tut7 FROM character_tutorial WHERE account = '%u'", GetAccountId());
@@ -690,7 +690,7 @@ void WorldSession::LoadTutorialsData()
 void WorldSession::SendTutorialsData()
 {
     WorldPacket data(SMSG_TUTORIAL_FLAGS, 4*8);
-    for(uint32 i = 0; i < 8; ++i)
+    for (uint32 i = 0; i < 8; ++i)
         data << m_Tutorials[i];
     SendPacket(&data);
 }
@@ -794,7 +794,7 @@ void WorldSession::ReadAddonsInfo(WorldPacket &data)
         uint32 addonsCount;
         addonInfo >> addonsCount;                         // addons count
 
-        for(uint32 i = 0; i < addonsCount; ++i)
+        for (uint32 i = 0; i < addonsCount; ++i)
         {
             std::string addonName;
             uint8 enabled;
@@ -847,7 +847,7 @@ void WorldSession::SendAddonsInfo()
 
     WorldPacket data(SMSG_ADDON_INFO, 4);
 
-    for(AddonsList::iterator itr = m_addonsList.begin(); itr != m_addonsList.end(); ++itr)
+    for (AddonsList::iterator itr = m_addonsList.begin(); itr != m_addonsList.end(); ++itr)
     {
         uint8 state = 2;                                    // 2 is sent here
         data << uint8(state);
@@ -877,7 +877,7 @@ void WorldSession::SendAddonsInfo()
 
     uint32 count = 0;
     data << uint32(count);
-    /*for(uint32 i = 0; i < count; ++i)
+    /*for (uint32 i = 0; i < count; ++i)
     {
         uint32
         string (16 bytes)

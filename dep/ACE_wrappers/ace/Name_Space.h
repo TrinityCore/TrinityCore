@@ -95,7 +95,6 @@ public:
                     const ACE_NS_WString &value_in,
                     const char *type_in = "") = 0;
 
-
   /**
    * Overwrite the value or type of an existing name in a
    * ACE_Name_Space or bind a new name to the context, if it didn't

@@ -38,7 +38,6 @@ EndScriptData */
 
 #define MELLICHAR   20904                                   //skyriss will kill this unit
 
-
 /* Arcatraz encounters:
 1 - Zereketh the Unbound event
 2 - Dalliah the Doomsayer event
@@ -83,7 +82,7 @@ struct TRINITY_DLL_DECL instance_arcatraz : public ScriptedInstance
 
     bool IsEncounterInProgress() const
     {
-        for(uint8 i = 0; i < MAX_ENCOUNTER; ++i)
+        for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
             if (m_auiEncounter[i] == IN_PROGRESS) return true;
 
         return false;

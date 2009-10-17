@@ -253,6 +253,5 @@
 
 #endif /* (ACE_MT_SAFE == 0) */
 
-
 #endif /* ACE_CONFIG_IRIX6X_COMMON_H */
 

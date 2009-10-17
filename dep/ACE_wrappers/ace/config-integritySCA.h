@@ -49,11 +49,9 @@
 #define ACE_LACKS_TEMPNAM /* believe it or not, this is ANSI C */
 #define ACE_HAS_STRERROR
 
-
 #define ACE_LACKS_SENDMSG
 
 /***** End Stack Defines *****/
-
 
 /* SCA STUFF */
 #if defined(INTEGRITY_VERSION) && (INTEGRITY_VERSION >= 40108)
@@ -222,7 +220,6 @@ int unlink(const char *);
 #define ACE_LACKS_TELLDIR
 #define ACE_LACKS_SEEKDIR
 #define ACE_LACKS_GETHOSTENT
-
 
 /* end MIKEC Addtions */
 

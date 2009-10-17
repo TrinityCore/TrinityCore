@@ -142,7 +142,7 @@ void CreatureGroupManager::LoadCreatureFormations()
         }
 
         CreatureGroupMap[memberGUID] = group_member;
-    } 
+    }
     while(result->NextRow()) ;
 
     sLog.outString();
@@ -185,7 +185,7 @@ void CreatureGroup::MemberAttackStart(Creature *member, Unit *target)
     if(groupAI == 1 && member != m_leader)
         return;
 
-    for(CreatureGroupMemberType::iterator itr = m_members.begin(); itr != m_members.end(); ++itr)
+    for (CreatureGroupMemberType::iterator itr = m_members.begin(); itr != m_members.end(); ++itr)
     {
         sLog.outDebug("GROUP ATTACK: group instance id %u calls member instid %u", m_leader->GetInstanceId(), member->GetInstanceId());
         //sLog.outDebug("AI:%u:Group member found: %u, attacked by %s.", groupAI, itr->second->GetGUIDLow(), member->getVictim()->GetName());
@@ -207,7 +207,7 @@ void CreatureGroup::MemberAttackStart(Creature *member, Unit *target)
 
 void CreatureGroup::FormationReset(bool dismiss)
 {
-    for(CreatureGroupMemberType::iterator itr = m_members.begin(); itr != m_members.end(); ++itr)
+    for (CreatureGroupMemberType::iterator itr = m_members.begin(); itr != m_members.end(); ++itr)
     {
         if(itr->first != m_leader && itr->first->isAlive())
         {
@@ -228,14 +228,14 @@ void CreatureGroup::LeaderMoveTo(float x, float y, float z)
 
     float pathangle    = atan2(m_leader->GetPositionY() - y, m_leader->GetPositionX() - x);
 
-    for(CreatureGroupMemberType::iterator itr = m_members.begin(); itr != m_members.end(); ++itr)
+    for (CreatureGroupMemberType::iterator itr = m_members.begin(); itr != m_members.end(); ++itr)
     {
         Creature *member = itr->first;
         if(member == m_leader || !member->isAlive() || member->getVictim())
             continue;
 
         float angle = itr->second->follow_angle;
-        float dist = itr->second->follow_dist;    
+        float dist = itr->second->follow_dist;
 
         float dx = x + cos(angle + pathangle) * dist;
         float dy = y + sin(angle + pathangle) * dist;

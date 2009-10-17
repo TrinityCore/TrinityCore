@@ -64,7 +64,7 @@ struct TRINITY_DLL_DECL instance_old_hillsbrad : public ScriptedInstance
 
         if (!players.isEmpty())
         {
-            for(Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
+            for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
             {
                 if (Player* plr = itr->getSource())
                     return plr;
@@ -81,7 +81,7 @@ struct TRINITY_DLL_DECL instance_old_hillsbrad : public ScriptedInstance
 
         if (!players.isEmpty())
         {
-            for(Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
+            for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
             {
                 if (Player* pPlayer = itr->getSource())
                     pPlayer->KilledMonsterCredit(LODGE_QUEST_TRIGGER,0);

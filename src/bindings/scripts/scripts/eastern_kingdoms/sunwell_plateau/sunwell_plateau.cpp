@@ -51,7 +51,6 @@ enum LiadrinnSpeeches
     LIADRIN_SAY3 = -1580109
 };
 
-
 /*######
 ## npc_captain_selana
 ######*/

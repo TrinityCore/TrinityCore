@@ -33,7 +33,6 @@ ACE_Service_Type::dump (void) const
   ACE_TRACE ("ACE_Service_Type::dump");
 #endif /* ACE_HAS_DUMP */
 
-
   // Using printf, since the log facility may not have been
   // initialized yet. Using a "//" prefix, in case the executable
   // happens to be a code generator and the output gets embedded in

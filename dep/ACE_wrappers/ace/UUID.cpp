@@ -19,7 +19,6 @@ ACE_RCSID (ace,
            UUID,
            "$Id: UUID.cpp 81541 2008-04-30 13:56:12Z shuston $")
 
-
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 
 namespace ACE_Utils

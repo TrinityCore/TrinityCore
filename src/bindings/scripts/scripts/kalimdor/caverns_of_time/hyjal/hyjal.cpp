@@ -43,7 +43,6 @@ EndContentData */
 
 #define GOSSIP_ITEM_GM1             "[GM] Toggle Debug Timers"
 
-
 CreatureAI* GetAI_npc_jaina_proudmoore(Creature* pCreature)
 {
     hyjalAI* ai = new hyjalAI(pCreature);

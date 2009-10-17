@@ -31,7 +31,6 @@
 #include "ace/os_include/os_unistd.h"
 #include "ace/os_include/os_stdio.h"
 
-
 #if defined (ACE_EXPORT_MACRO)
 #  undef ACE_EXPORT_MACRO
 #endif

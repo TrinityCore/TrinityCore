@@ -54,8 +54,6 @@
 # define PTHREAD_MAX_PRIORITY ACE_THREAD_MAX_PRIORITY
 #endif  /* #if defined (ACE_THREAD_MAX_PRIORITY) */
 
-
-
 /* UnixWare specific configuration parameters */
 /* #undef UNIXWARE */
 /* #undef UNIXWARE_2_0 */
@@ -102,7 +100,6 @@
 /* #undef ACE_HAS_BROKEN_MAP_FAILED */
 /* Staller: oh yes, let's do this! */
 #define ACE_HAS_BROKEN_MAP_FAILED
-
 
 /* Prototypes for both signal() and struct sigaction are consistent. */
 #define ACE_HAS_CONSISTENT_SIGNAL_PROTOTYPES 1
@@ -171,7 +168,6 @@
 /* Uses ctime_r & asctime_r with only two parameters vs. three. */
 #define ACE_HAS_2_PARAM_ASCTIME_R_AND_CTIME_R
 
-
 /* Platform is an Intel Pentium microprocessor. */
 /* There is a problem with the gethrtime() because of (apparently) a problem
    with the inline assembly instruction.  Hopefully there is a way to resolve
@@ -180,7 +176,6 @@
 #ifdef ACE_HAS_PENTIUM
 //#undef ACE_HAS_PENTIUM
 #endif /* ACE_HAS_PENTIUM */
-
 
 /* Platform contains <poll.h> */
 #define ACE_HAS_POLL

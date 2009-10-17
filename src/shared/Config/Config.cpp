@@ -27,12 +27,10 @@ Config::Config() : mIgnoreCase(true), mConf(NULL)
 {
 }
 
-
 Config::~Config()
 {
     delete mConf;
 }
-
 
 bool Config::SetSource(const char *file, bool ignorecase)
 {

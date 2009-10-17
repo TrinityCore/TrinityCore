@@ -52,7 +52,6 @@ sigchld_nop (int, siginfo_t *, ucontext_t *)
 }
 #endif /* ACE_WIN32 */
 
-
 ACE_ALLOC_HOOK_DEFINE(ACE_Process_Manager)
 
 // Singleton instance.
@@ -639,7 +638,6 @@ ACE_Process_Manager::terminate (pid_t pid, int sig)
 
   return ACE_OS::kill (pid, sig);
 }
-
 
 int
 ACE_Process_Manager::set_scheduler (const ACE_Sched_Params & params,

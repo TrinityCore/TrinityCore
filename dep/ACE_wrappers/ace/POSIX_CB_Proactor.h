@@ -27,7 +27,6 @@
 
 #include "ace/POSIX_Proactor.h"
 
-
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 
 /**

@@ -42,7 +42,6 @@ inline void getBounds(const G3D::Vector3& v, G3D::AABox& out) {
     out = G3D::AABox(v);
 }
 
-
 inline void getBounds(const G3D::AABox& a, G3D::AABox& out) {
     out = a;
 }
@@ -51,22 +50,17 @@ inline void getBounds(const G3D::Sphere& s, G3D::AABox& out) {
     s.getBounds(out);
 }
 
-
 inline void getBounds(const G3D::Box& b, G3D::AABox& out) {
     b.getBounds(out);
 }
-
 
 inline void getBounds(const G3D::Triangle& t, G3D::AABox& out) {
     t.getBounds(out);
 }
 
-
-
 inline void getBounds(const G3D::Vector3* v, G3D::AABox& out) {
     out = G3D::AABox(*v);
 }
-
 
 inline void getBounds(const G3D::AABox* a, G3D::AABox& out) {
     getBounds(*a, out);
@@ -75,7 +69,6 @@ inline void getBounds(const G3D::AABox* a, G3D::AABox& out) {
 inline void getBounds(const G3D::Sphere* s, G3D::AABox& out) {
     s->getBounds(out);
 }
-
 
 inline void getBounds(const G3D::Box* b, G3D::AABox& out) {
     b->getBounds(out);
@@ -164,7 +157,6 @@ namespace G3D {
  to the 3D position,
  you can use the AABSPTree::update method as a shortcut to
  insert/remove an object in one step after it has moved.
-
 
  Note: Do not mutate any value once it has been inserted into AABSPTree. Values
  are copied interally. All AABSPTree iterators convert to pointers to constant
@@ -258,7 +250,6 @@ template<class T> class AABSPTree {
 protected:
 public:
 
-
     /** Returns the bounds of the sub array. Used by makeNode. */
     static AABox computeBounds(
     const Array<_AABSPTree::Handle<T>*>& point,
@@ -297,7 +288,6 @@ public:
         }
     };
 
-
     /** Compares bounds for strict >, <, or overlap*/
     class BoundsComparator {
     public:
@@ -318,7 +308,6 @@ public:
             }
         }
     };
-
 
     /** Compares bounds to the sort location */
     class Comparator {
@@ -436,7 +425,6 @@ public:
             return (child[0] == NULL) && (child[1] == NULL);
         }
 
-
         /**
          Recursively appends all handles and children's handles
          to the array.
@@ -461,7 +449,7 @@ public:
                 const AABox& b = valueArray[i]->bounds;
                 debugAssert(b == boundsArray[i]);
 
-                for(int axis = 0; axis < 3; ++axis) {
+                for (int axis = 0; axis < 3; ++axis) {
                     debugAssert(b.low()[axis] <= b.high()[axis]);
                     debugAssert(b.low()[axis] >= lo[axis]);
                     debugAssert(b.high()[axis] <= hi[axis]);
@@ -544,7 +532,6 @@ public:
             // deepest containing node.
             return this;
         }
-
 
         /** Appends all members that intersect the box.
             If useSphere is true, members that pass the box test
@@ -721,7 +708,6 @@ public:
         }
     };
 
-
     /**
      Recursively subdivides the subarray.
 
@@ -813,7 +799,6 @@ public:
                 // The Comparator ensures that elements are strictly on the correct side of the split
             }
 
-
 #           if defined(G3D_DEBUG) && defined(VERIFY_TREE)
                 debugAssert(lt.size() + node->valueArray.size() + gt.size() == source.size());
                 // Verify that all objects ended up on the correct side of the split.
@@ -904,11 +889,9 @@ public:
       AABSPTree::balance(). */
     AABSPTree() : root(NULL) {}
 
-
     AABSPTree(const AABSPTree& src) : root(NULL) {
         *this = src;
     }
-
 
     AABSPTree& operator=(const AABSPTree& src) {
         delete root;
@@ -916,7 +899,6 @@ public:
         root = cloneTree(src.root);
         return *this;
     }
-
 
     ~AABSPTree() {
         clear();
@@ -1007,7 +989,6 @@ public:
         }
     }
 
-
     /**
      Returns true if this object is in the set, otherwise
      returns false.  O(1) time.
@@ -1017,7 +998,6 @@ public:
         _AABSPTree::Handle<T> h(value);
         return memberTable.containsKey(Member(&h));
     }
-
 
     /**
      Removes an object from the set in O(1) time.
@@ -1066,7 +1046,6 @@ public:
         ptr = NULL;
     }
 
-
     /**
      If the element is in the set, it is removed.
      The element is then inserted.
@@ -1084,7 +1063,6 @@ public:
         }
         insert(value);
     }
-
 
     /**
      Rebalances the tree (slow).  Call when objects
@@ -1402,7 +1380,6 @@ public:
         }
     };
 
-
     /**
      Iterates through the members that intersect the box
      */
@@ -1425,7 +1402,6 @@ public:
         }
         root->getIntersectingMembers(box, Sphere(Vector3::zero(), 0), members, false);
     }
-
 
     /**
      Invoke a callback for every member along a ray until the closest intersection is found.
@@ -1473,7 +1449,6 @@ public:
             scene.intersectRay(camera.worldRay(x, y), intersection, distance);
           </pre>
 
-
      @param distance When the method is invoked, this is the maximum distance that the tree should search for an intersection.
      On return, this is set to the distance to the first intersection encountered.
 
@@ -1491,7 +1466,6 @@ public:
         root->intersectRay(ray, intersectCallback, distance, pStopAtFirstHit, intersectCallbackIsFast);
 
     }
-
 
     /**
       @param members The results are appended to this array.
@@ -1532,7 +1506,6 @@ public:
             members.append(temp[i].handle->value);
         }
     }
-
 
     /**
      C++ STL style iterator variable.  See begin().
@@ -1591,7 +1564,6 @@ public:
         }
     };
 
-
     /**
      C++ STL style iterator method.  Returns the first member.
      Use preincrement (++entry) to get to the next element (iteration
@@ -1601,7 +1573,6 @@ public:
     Iterator begin() const {
         return Iterator(memberTable.begin());
     }
-
 
     /**
      C++ STL style iterator method.  Returns one after the last iterator
@@ -1615,7 +1586,5 @@ public:
 }
 
 #endif
-
-
 
 

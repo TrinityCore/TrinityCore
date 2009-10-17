@@ -109,7 +109,7 @@ struct TRINITY_DLL_DECL boss_high_king_maulgarAI : public ScriptedAI
     boss_high_king_maulgarAI(Creature *c) : ScriptedAI(c)
     {
         pInstance = c->GetInstanceData();
-        for(uint8 i = 0; i < 4; ++i)
+        for (uint8 i = 0; i < 4; ++i)
             Council[i] = 0;
     }
 
@@ -138,7 +138,7 @@ struct TRINITY_DLL_DECL boss_high_king_maulgarAI : public ScriptedAI
         Phase2 = false;
 
         Creature *pCreature = NULL;
-        for(uint8 i = 0; i < 4; ++i)
+        for (uint8 i = 0; i < 4; ++i)
         {
             if (Council[i])
             {
@@ -173,7 +173,6 @@ struct TRINITY_DLL_DECL boss_high_king_maulgarAI : public ScriptedAI
        {
             DoScriptText(RAND(SAY_OGRE_DEATH1,SAY_OGRE_DEATH2,SAY_OGRE_DEATH3,SAY_OGRE_DEATH4), m_creature);
        }
-
 
     void EnterCombat(Unit *who)
     {
@@ -402,7 +401,6 @@ struct TRINITY_DLL_DECL boss_olm_the_summonerAI : public ScriptedAI
                 DoCast(target, SPELL_DEATH_COIL);
             DeathCoil_Timer = 20000;
         }else DeathCoil_Timer -= diff;
-
 
         DoMeleeAttackIfReady();
     }
@@ -710,7 +708,7 @@ struct TRINITY_DLL_DECL boss_krosh_firehandAI : public ScriptedAI
             Unit *target;
             std::list<HostilReference *> t_list = m_creature->getThreatManager().getThreatList();
             std::vector<Unit *> target_list;
-            for(std::list<HostilReference *>::iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)
+            for (std::list<HostilReference *>::iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)
             {
                 target = Unit::GetUnit(*m_creature, (*itr)->getUnitGuid());
                                                             //15 yard radius minimum

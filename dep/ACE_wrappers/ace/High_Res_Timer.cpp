@@ -74,7 +74,6 @@ ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 /* static */
 int ACE_High_Res_Timer::global_scale_factor_status_ = 0;
 
-
 #if defined (linux)
 // Determine the apparent CPU clock speed from /proc/cpuinfo
 ACE_UINT32

@@ -201,7 +201,7 @@ Unit* HostilReference::getSourceUnit()
 
 void ThreatContainer::clearReferences()
 {
-    for(std::list<HostilReference*>::const_iterator i = iThreatList.begin(); i != iThreatList.end(); ++i)
+    for (std::list<HostilReference*>::const_iterator i = iThreatList.begin(); i != iThreatList.end(); ++i)
     {
         (*i)->unlink();
         delete (*i);
@@ -214,9 +214,9 @@ void ThreatContainer::clearReferences()
 HostilReference* ThreatContainer::getReferenceByTarget(Unit* pVictim)
 {
     HostilReference* result = NULL;
-        
+
     uint64 guid = pVictim->GetGUID();
-    for(std::list<HostilReference*>::const_iterator i = iThreatList.begin(); i != iThreatList.end(); ++i)
+    for (std::list<HostilReference*>::const_iterator i = iThreatList.begin(); i != iThreatList.end(); ++i)
     {
         if((*i)->getUnitGuid() == guid)
         {
@@ -280,7 +280,7 @@ HostilReference* ThreatContainer::selectNextVictim(Creature* pAttacker, HostilRe
     std::list<HostilReference*>::const_iterator lastRef = iThreatList.end();
     lastRef--;
 
-    for(std::list<HostilReference*>::const_iterator iter = iThreatList.begin(); iter != iThreatList.end() && !found;)
+    for (std::list<HostilReference*>::const_iterator iter = iThreatList.begin(); iter != iThreatList.end() && !found; )
     {
         currentRef = (*iter);
 

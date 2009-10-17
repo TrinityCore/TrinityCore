@@ -149,7 +149,7 @@ struct TRINITY_DLL_DECL boss_janalaiAI : public ScriptedAI
 
         isFlameBreathing = false;
 
-        for(uint8 i = 0; i < 40; ++i)
+        for (uint8 i = 0; i < 40; ++i)
             FireBombGUIDs[i] = 0;
 
         HatchAllEggs(1);
@@ -190,14 +190,14 @@ struct TRINITY_DLL_DECL boss_janalaiAI : public ScriptedAI
     {
         uint8 WallNum;
         Creature* wall = NULL;
-        for(uint8 i = 0; i < 4; ++i)
+        for (uint8 i = 0; i < 4; ++i)
         {
             if (i == 0 || i == 2)
                 WallNum = 3;
             else
                 WallNum = 2;
 
-            for(uint8 j = 0; j < WallNum; j++)
+            for (uint8 j = 0; j < WallNum; j++)
             {
                 if (WallNum == 3)
                     wall = m_creature->SummonCreature(MOB_FIRE_BOMB, FireWallCoords[i][0],FireWallCoords[i][1]+5*(j-1),FireWallCoords[i][2],FireWallCoords[i][3],TEMPSUMMON_TIMED_DESPAWN,15000);
@@ -211,7 +211,7 @@ struct TRINITY_DLL_DECL boss_janalaiAI : public ScriptedAI
     void SpawnBombs()
     {
         float dx, dy;
-        for(int i(0); i < 40; ++i)
+        for (int i(0); i < 40; ++i)
         {
             dx =(rand()%(area_dx))-(area_dx/2);
             dy =(rand()%(area_dy))-(area_dy/2);
@@ -247,7 +247,7 @@ struct TRINITY_DLL_DECL boss_janalaiAI : public ScriptedAI
         if (!templist.size())
             return false;
 
-        for(std::list<Creature*>::iterator i = templist.begin(); i != templist.end(); ++i)
+        for (std::list<Creature*>::iterator i = templist.begin(); i != templist.end(); ++i)
         {
             if (uiAction == 1)
                (*i)->SetDisplayId(10056);
@@ -277,7 +277,7 @@ struct TRINITY_DLL_DECL boss_janalaiAI : public ScriptedAI
             CellLock<GridReadGuard> cell_lock(cell, pair);
             cell_lock->Visit(cell_lock, cSearcher, *(m_creature->GetMap()));
         }
-        for(std::list<Creature*>::iterator i = templist.begin(); i != templist.end(); ++i)
+        for (std::list<Creature*>::iterator i = templist.begin(); i != templist.end(); ++i)
         {
            (*i)->CastSpell(*i, SPELL_FIRE_BOMB_DAMAGE, true);
            (*i)->RemoveAllAuras();
@@ -376,7 +376,7 @@ struct TRINITY_DLL_DECL boss_janalaiAI : public ScriptedAI
             Map* pMap = m_creature->GetMap();
             if (!pMap->IsDungeon()) return;
             Map::PlayerList const &PlayerList = pMap->GetPlayers();
-            for(Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
+            for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
             {
                 if (Player* i_pl = i->getSource())
                     if (i_pl->isAlive())
@@ -514,7 +514,7 @@ struct TRINITY_DLL_DECL mob_amanishi_hatcherAI : public ScriptedAI
 
         //error_log("Eggs %d at %d", templist.size(), side);
 
-        for(std::list<Creature*>::iterator i = templist.begin(); i != templist.end() && num > 0; ++i)
+        for (std::list<Creature*>::iterator i = templist.begin(); i != templist.end() && num > 0; ++i)
         {
             if ((*i)->GetDisplayId() != 11686)
             {

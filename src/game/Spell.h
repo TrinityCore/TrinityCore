@@ -206,7 +206,7 @@ struct SpellValue
 {
     explicit SpellValue(SpellEntry const *proto)
     {
-        for(uint32 i = 0; i < 3; ++i)
+        for (uint32 i = 0; i < 3; ++i)
             EffectBasePoints[i] = proto->EffectBasePoints[i];
         MaxAffectedTargets = proto->MaxAffectedTargets;
         RadiusMod = 1.0f;
@@ -682,7 +682,7 @@ namespace Trinity
 
         template<class T> inline void Visit(GridRefManager<T>  &m)
         {
-            for(typename GridRefManager<T>::iterator itr = m.begin(); itr != m.end(); ++itr)
+            for (typename GridRefManager<T>::iterator itr = m.begin(); itr != m.end(); ++itr)
             {
                 Unit *target = (Unit*)itr->getSource();
 

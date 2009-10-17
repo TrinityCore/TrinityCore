@@ -3,11 +3,9 @@
 
 #include "Socket.h"
 
-
 #ifdef SOCKETS_NAMESPACE
 namespace SOCKETS_NAMESPACE {
 #endif
-
 
 /** SOCK_STREAM Socket base class.
     \ingroup basic */
@@ -117,11 +115,9 @@ private:
     int m_shutdown; ///< Shutdown status
 };
 
-
 #ifdef SOCKETS_NAMESPACE
 } // namespace SOCKETS_NAMESPACE {
 #endif
-
 
 #endif // _StreamSocket_H
 

@@ -81,7 +81,6 @@ public:
 
     virtual ~GCamera();
 
-
     CoordinateFrame getCoordinateFrame() const;
     void getCoordinateFrame(CoordinateFrame& c) const;
     void setCoordinateFrame(const CoordinateFrame& c);
@@ -152,13 +151,11 @@ public:
     float getImagePlaneDepth(
         const class Rect2D&                     viewport) const;
 
-
     /**
       Returns the world space ray passing through the center of pixel
       (x, y) on the image plane.  The pixel x and y axes are opposite
       the 3D object space axes: (0,0) is the upper left corner of the screen.
       They are in viewport coordinates, not screen coordinates.
-
 
       Integer (x, y) values correspond to
       the upper left corners of pixels.  If you want to cast rays
@@ -168,7 +165,6 @@ public:
         float                                  x,
         float                                  y,
         const class Rect2D&                     viewport) const;
-
 
     /**
       Returns a negative z-value.

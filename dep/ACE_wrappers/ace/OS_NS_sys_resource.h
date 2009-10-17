@@ -46,7 +46,6 @@ namespace ACE_OS
   int getrusage (int who,
                  struct rusage *rusage);
 
-
   ACE_NAMESPACE_INLINE_FUNCTION
   int setrlimit (int resource,
                  const struct rlimit *rl);

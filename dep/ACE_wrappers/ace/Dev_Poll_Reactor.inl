@@ -184,7 +184,6 @@ ACE_Dev_Poll_Reactor::upcall (ACE_Event_Handler *event_handler,
   return status;
 }
 
-
 /************************************************************************/
 // Methods for ACE_Dev_Poll_Reactor::Token_Guard
 /************************************************************************/

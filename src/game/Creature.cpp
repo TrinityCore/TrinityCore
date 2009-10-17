@@ -61,7 +61,7 @@ TrainerSpell const* TrainerSpellData::Find(uint32 spell_id) const
 
 bool VendorItemData::RemoveItem( uint32 item_id )
 {
-    for(VendorItemList::iterator i = m_items.begin(); i != m_items.end(); ++i )
+    for (VendorItemList::iterator i = m_items.begin(); i != m_items.end(); ++i )
     {
         if((*i)->item==item_id)
         {
@@ -74,7 +74,7 @@ bool VendorItemData::RemoveItem( uint32 item_id )
 
 size_t VendorItemData::FindItemSlot(uint32 item_id) const
 {
-    for(size_t i = 0; i < m_items.size(); ++i )
+    for (size_t i = 0; i < m_items.size(); ++i )
         if(m_items[i]->item==item_id)
             return i;
     return m_items.size();
@@ -82,7 +82,7 @@ size_t VendorItemData::FindItemSlot(uint32 item_id) const
 
 VendorItem const* VendorItemData::FindItem(uint32 item_id) const
 {
-    for(VendorItemList::const_iterator i = m_items.begin(); i != m_items.end(); ++i )
+    for (VendorItemList::const_iterator i = m_items.begin(); i != m_items.end(); ++i )
         if((*i)->item==item_id)
             return *i;
     return NULL;
@@ -146,7 +146,7 @@ m_creatureInfo(NULL), m_reactState(REACT_AGGRESSIVE), m_formation(NULL)
     m_regenTimer = 200;
     m_valuesCount = UNIT_END;
 
-    for(uint8 i =0; i<CREATURE_MAX_SPELLS; ++i)
+    for (uint8 i =0; i<CREATURE_MAX_SPELLS; ++i)
         m_spells[i] = 0;
 
     m_CreatureSpellCooldowns.clear();
@@ -334,7 +334,7 @@ bool Creature::InitEntry(uint32 Entry, uint32 team, const CreatureData *data )
     if(!m_respawnradius && m_defaultMovementType==RANDOM_MOTION_TYPE)
         m_defaultMovementType = IDLE_MOTION_TYPE;
 
-    for(uint8 i=0; i < CREATURE_MAX_SPELLS; ++i)
+    for (uint8 i=0; i < CREATURE_MAX_SPELLS; ++i)
         m_spells[i] = GetCreatureInfo()->spells[i];
 
     return true;
@@ -549,7 +549,7 @@ void Creature::Update(uint32 diff)
                              !getVictim()->GetCharmerOrOwnerPlayerOrPlayerItself() ||                // or the victim/owner/charmer is not a player
                              !getVictim()->GetCharmerOrOwnerPlayerOrPlayerItself()->isGameMaster()); // or the victim/owner/charmer is not a GameMaster
 
-            /*if(m_regenTimer <= diff) 
+            /*if(m_regenTimer <= diff)
             {*/
             if(!bInCombat || bIsPolymorphed) // regenerate health if not in combat or if polymorphed
                 RegenerateHealth();
@@ -564,7 +564,7 @@ void Creature::Update(uint32 diff)
 
             /*if(!bIsPolymorphed) // only increase the timer if not polymorphed
                     m_regenTimer += 2000 - diff;
-            }   
+            }
             else
                 if(!bIsPolymorphed) // if polymorphed, skip the timer
                     m_regenTimer -= diff;*/
@@ -682,7 +682,7 @@ bool Creature::AIM_Initialize(CreatureAI* ai)
     UnitAI *oldAI = i_AI;
 
     Motion_Initialize();
-    
+
     i_AI = ai ? ai : FactorySelector::selectAI(this);
     if(oldAI) delete oldAI;
     IsAIEnabled = true;
@@ -695,7 +695,7 @@ void Creature::Motion_Initialize()
     if(!m_formation)
         i_motionMaster.Initialize();
     else if(m_formation->getLeader() == this)
-    {    
+    {
         m_formation->FormationReset(false);
         i_motionMaster.Initialize();
     }
@@ -894,7 +894,7 @@ void Creature::prepareGossipMenu( Player *pPlayer,uint32 gossipid )
     // lazy loading single time at use
     LoadGossipOptions();
 
-    for( GossipOptionList::iterator i = m_goptions.begin( ); i != m_goptions.end( ); ++i )
+    for (GossipOptionList::iterator i = m_goptions.begin( ); i != m_goptions.end( ); ++i )
     {
         GossipOption* gso=&*i;
         if(gso->GossipId == gossipid)
@@ -1218,7 +1218,7 @@ uint32 Creature::GetNpcTextId()
 
 GossipOption const* Creature::GetGossipOption( uint32 id ) const
 {
-    for( GossipOptionList::const_iterator i = m_goptions.begin( ); i != m_goptions.end( ); ++i )
+    for (GossipOptionList::const_iterator i = m_goptions.begin( ); i != m_goptions.end( ); ++i )
     {
         if(i->Action==id )
             return &*i;
@@ -1421,7 +1421,6 @@ void Creature::SelectLevel(const CreatureInfo *cinfo)
     SetModifierValue(UNIT_MOD_HEALTH, BASE_VALUE, health);
     SetModifierValue(UNIT_MOD_MANA, BASE_VALUE, mana);
 
-
     //damage
     float damagemod = 1.0f;//_GetDamageMod(rank);
 
@@ -1607,7 +1606,7 @@ void Creature::LoadEquipment(uint32 equip_entry, bool force)
 bool Creature::hasQuest(uint32 quest_id) const
 {
     QuestRelations const& qr = objmgr.mCreatureQuestRelations;
-    for(QuestRelations::const_iterator itr = qr.lower_bound(GetEntry()); itr != qr.upper_bound(GetEntry()); ++itr)
+    for (QuestRelations::const_iterator itr = qr.lower_bound(GetEntry()); itr != qr.upper_bound(GetEntry()); ++itr)
     {
         if(itr->second==quest_id)
             return true;
@@ -1618,7 +1617,7 @@ bool Creature::hasQuest(uint32 quest_id) const
 bool Creature::hasInvolvedQuest(uint32 quest_id) const
 {
     QuestRelations const& qr = objmgr.mCreatureQuestInvolvedRelations;
-    for(QuestRelations::const_iterator itr = qr.lower_bound(GetEntry()); itr != qr.upper_bound(GetEntry()); ++itr)
+    for (QuestRelations::const_iterator itr = qr.lower_bound(GetEntry()); itr != qr.upper_bound(GetEntry()); ++itr)
     {
         if(itr->second==quest_id)
             return true;
@@ -1695,7 +1694,7 @@ bool Creature::canStartAttack(Unit const* who, bool force) const
 {
     if(isCivilian())
         return false;
-    
+
     if(!canFly() && (GetDistanceZ(who) > CREATURE_Z_ATTACK_RANGE + m_CombatDistance))
         //|| who->IsControlledByPlayer() && who->IsFlying()))
         // we cannot check flying for other creatures, too much map/vmap calculation
@@ -1784,7 +1783,7 @@ void Creature::setDeathState(DeathState s)
                 SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SKINNABLE);
 
         SetNoSearchAssistance(false);
-    
+
         //Dismiss group if is leader
         if(m_formation && m_formation->getLeader() == this)
             m_formation->FormationReset(true);
@@ -1927,7 +1926,7 @@ SpellEntry const *Creature::reachWithSpellAttack(Unit *pVictim)
     if(!pVictim)
         return NULL;
 
-    for(uint32 i=0; i < CREATURE_MAX_SPELLS; ++i)
+    for (uint32 i=0; i < CREATURE_MAX_SPELLS; ++i)
     {
         if(!m_spells[i])
             continue;
@@ -1939,7 +1938,7 @@ SpellEntry const *Creature::reachWithSpellAttack(Unit *pVictim)
         }
 
         bool bcontinue = true;
-        for(uint32 j=0;j<3;j++)
+        for (uint32 j=0; j<3; j++)
         {
             if( (spellInfo->Effect[j] == SPELL_EFFECT_SCHOOL_DAMAGE )       ||
                 (spellInfo->Effect[j] == SPELL_EFFECT_INSTAKILL)            ||
@@ -1977,7 +1976,7 @@ SpellEntry const *Creature::reachWithSpellCure(Unit *pVictim)
     if(!pVictim)
         return NULL;
 
-    for(uint32 i=0; i < CREATURE_MAX_SPELLS; ++i)
+    for (uint32 i=0; i < CREATURE_MAX_SPELLS; ++i)
     {
         if(!m_spells[i])
             continue;
@@ -1989,7 +1988,7 @@ SpellEntry const *Creature::reachWithSpellCure(Unit *pVictim)
         }
 
         bool bcontinue = true;
-        for(uint32 j=0;j<3;j++)
+        for (uint32 j=0; j<3; j++)
         {
             if( (spellInfo->Effect[j] == SPELL_EFFECT_HEAL ) )
             {
@@ -2221,7 +2220,7 @@ void Creature::SaveRespawnTime()
         objmgr.SaveCreatureRespawnTime(m_DBTableGuid,GetInstanceId(),time(NULL)+m_respawnDelay+m_deathTimer/IN_MILISECONDS);
 }
 
-// this should not be called by petAI or 
+// this should not be called by petAI or
 bool Creature::canCreatureAttack(Unit const *pVictim, bool force) const
 {
     if(!pVictim->IsInMap(this))
@@ -2370,7 +2369,7 @@ void Creature::SetInCombatWithZone()
     if (PlList.isEmpty())
         return;
 
-    for(Map::PlayerList::const_iterator i = PlList.begin(); i != PlList.end(); ++i)
+    for (Map::PlayerList::const_iterator i = PlList.begin(); i != PlList.end(); ++i)
     {
         if (Player* pPlayer = i->getSource())
         {
@@ -2405,7 +2404,7 @@ void Creature::AddCreatureSpellCooldown(uint32 spellid)
     uint32 cooldown = GetSpellRecoveryTime(spellInfo);
     if(Player *modOwner = GetSpellModOwner())
         modOwner->ApplySpellMod(spellid, SPELLMOD_COOLDOWN, cooldown);
-   
+
     if(cooldown)
         _AddCreatureSpellCooldown(spellid, time(NULL) + cooldown/IN_MILISECONDS);
 
@@ -2438,7 +2437,7 @@ bool Creature::HasSpellCooldown(uint32 spell_id) const
 bool Creature::HasSpell(uint32 spellID) const
 {
     uint8 i;
-    for(i = 0; i < CREATURE_MAX_SPELLS; ++i)
+    for (i = 0; i < CREATURE_MAX_SPELLS; ++i)
         if(spellID == m_spells[i])
             break;
     return i < CREATURE_MAX_SPELLS;                         //broke before end of iteration of known spells
@@ -2542,7 +2541,7 @@ uint32 Creature::GetVendorItemCurrentCount(VendorItem const* vItem)
         return vItem->maxcount;
 
     VendorItemCounts::iterator itr = m_vendorItemCounts.begin();
-    for(; itr != m_vendorItemCounts.end(); ++itr)
+    for (; itr != m_vendorItemCounts.end(); ++itr)
         if(itr->itemId==vItem->item)
             break;
 
@@ -2577,7 +2576,7 @@ uint32 Creature::UpdateVendorItemCurrentCount(VendorItem const* vItem, uint32 us
         return 0;
 
     VendorItemCounts::iterator itr = m_vendorItemCounts.begin();
-    for(; itr != m_vendorItemCounts.end(); ++itr)
+    for (; itr != m_vendorItemCounts.end(); ++itr)
         if(itr->itemId==vItem->item)
             break;
 

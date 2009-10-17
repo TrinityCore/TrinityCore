@@ -427,7 +427,6 @@ typedef ostream& (*__omanip_)(ostream&);
 #define PUT_PROT(MT,DT,CODE)    PUT_SIG(MT,DT)  CODE
 #define PUT_FUNC(MT,DT)         PUT_PROT(MT,DT,PUT_CODE)
 
-
 // These are necessary in case somebody wants to derive from us and
 // override one of these with a custom approach.
 

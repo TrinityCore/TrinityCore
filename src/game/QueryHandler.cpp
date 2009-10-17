@@ -51,7 +51,7 @@ void WorldSession::SendNameQueryOpcode(Player *p)
     if(DeclinedName const* names = p->GetDeclinedNames())
     {
         data << uint8(1);                                   // is declined
-        for(int i = 0; i < MAX_DECLINED_NAME_CASES; ++i)
+        for (int i = 0; i < MAX_DECLINED_NAME_CASES; ++i)
             data << names->name[i];
     }
     else
@@ -117,7 +117,7 @@ void WorldSession::SendNameQueryOpcodeFromDBCallBack(QueryResult *result, uint32
     if(sWorld.getConfig(CONFIG_DECLINED_NAMES_USED) && fields[5].GetCppString() != "")
     {
         data << uint8(1);                                   // is declined
-        for(int i = 5; i < MAX_DECLINED_NAME_CASES+5; ++i)
+        for (int i = 5; i < MAX_DECLINED_NAME_CASES+5; ++i)
             data << fields[i].GetCppString();
     }
     else
@@ -197,7 +197,7 @@ void WorldSession::HandleCreatureQueryOpcode( WorldPacket & recv_data )
         data << float(ci->unk16);                           // unk
         data << float(ci->unk17);                           // unk
         data << uint8(ci->RacialLeader);
-        for(uint32 i = 0; i < 4; ++i)
+        for (uint32 i = 0; i < 4; ++i)
             data << uint32(ci->questItems[i]);              // itemId[4], quest drop
         data << uint32(ci->movementId);                     // CreatureMovementInfo.dbc
         SendPacket( &data );
@@ -259,7 +259,7 @@ void WorldSession::HandleGameObjectQueryOpcode( WorldPacket & recv_data )
         data << info->unk1;                                 // 2.0.3, string
         data.append(info->raw.data, 24);
         data << float(info->size);                          // go size
-        for(uint32 i = 0; i < 4; ++i)
+        for (uint32 i = 0; i < 4; ++i)
             data << uint32(info->questItems[i]);            // itemId[4], quest drop
         SendPacket( &data );
         sLog.outDebug( "WORLD: Sent SMSG_GAMEOBJECT_QUERY_RESPONSE" );
@@ -347,7 +347,7 @@ void WorldSession::HandleNpcTextQueryOpcode( WorldPacket & recv_data )
 
     if (!pGossip)
     {
-        for(uint32 i = 0; i < 8; ++i)
+        for (uint32 i = 0; i < 8; ++i)
         {
             data << float(0);
             data << "Greetings $N";
@@ -402,7 +402,7 @@ void WorldSession::HandleNpcTextQueryOpcode( WorldPacket & recv_data )
 
             data << pGossip->Options[i].Language;
 
-            for(int j = 0; j < 3; ++j)
+            for (int j = 0; j < 3; ++j)
             {
                 data << pGossip->Options[i].Emotes[j]._Delay;
                 data << pGossip->Options[i].Emotes[j]._Emote;

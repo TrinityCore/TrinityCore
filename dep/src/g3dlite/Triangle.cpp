@@ -17,7 +17,6 @@
 
 namespace G3D {
 
-
 void Triangle::init(const Vector3& v0, const Vector3& v1, const Vector3& v2) {
 
     _plane = Plane(v0, v1, v2);
@@ -46,35 +45,28 @@ void Triangle::init(const Vector3& v0, const Vector3& v1, const Vector3& v2) {
 
 }
 
-
 Triangle::Triangle() {
     init(Vector3::zero(), Vector3::zero(), Vector3::zero());
 }
-
 
 Triangle::Triangle(const Vector3& v0, const Vector3& v1, const Vector3& v2) {
     init(v0, v1, v2);
 }
 
-
 Triangle::~Triangle() {
 }
-
 
 double Triangle::area() const {
     return _area;
 }
 
-
 const Vector3& Triangle::normal() const {
     return _plane.normal();
 }
 
-
 const Plane& Triangle::plane() const {
     return _plane;
 }
-
 
 Vector3 Triangle::center() const {
     return (_vertex[0] + _vertex[1] + _vertex[2]) / 3.0;
@@ -95,7 +87,6 @@ Vector3 Triangle::randomPoint() const {
 
     return edge01 * s + edge02 * t + _vertex[0];
 }
-
 
 void Triangle::getBounds(AABox& out) const {
     Vector3 lo = _vertex[0];

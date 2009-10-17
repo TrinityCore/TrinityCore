@@ -236,7 +236,7 @@ struct TRINITY_DLL_DECL boss_kelthuzadAI : public BossAI
                     {
                         std::vector<Unit*> unitList;
                         std::list<HostilReference*> *threatList = &me->getThreatManager().getThreatList();
-                        for(std::list<HostilReference*>::const_iterator itr = threatList->begin(); itr != threatList->end(); ++itr)
+                        for (std::list<HostilReference*>::const_iterator itr = threatList->begin(); itr != threatList->end(); ++itr)
                         {
                             if ((*itr)->getTarget()->GetTypeId() == TYPEID_PLAYER
                                 && (*itr)->getTarget()->getPowerType() == POWER_MANA

@@ -261,7 +261,7 @@ struct TRINITY_DLL_DECL npc_disciple_of_naralexAI : public npc_escortAI
                                     if (pMap && pMap->IsDungeon())
                                     {
                                         Map::PlayerList const &players = pMap->GetPlayers();
-                                        for(Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
+                                        for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
                                             itr->getSource()->CompletedAchievement(AchievWC);
                                     }
                                 }

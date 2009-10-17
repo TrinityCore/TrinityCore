@@ -69,7 +69,7 @@ static bool findtoknth(std::string &str, int n, std::string::size_type &s, std::
 {
     int i; s = e = 0;
     std::string::size_type size = str.size();
-    for(i = 1; s < size && i < n; s++) if(str[s] == ' ') ++i;
+    for (i = 1; s < size && i < n; s++) if(str[s] == ' ') ++i;
     if (i < n)
         return false;
 
@@ -98,7 +98,7 @@ bool findnth(std::string &str, int n, std::string::size_type &s, std::string::si
         if (e == std::string::npos) return false;
     } while(str[e-1] == '\\');
 
-    for(int i = 1; i < n; ++i)
+    for (int i = 1; i < n; ++i)
     {
         do
         {
@@ -203,7 +203,7 @@ std::string CreateDumpString(char const* tableName, QueryResult *result)
     std::ostringstream ss;
     ss << "INSERT INTO "<< _TABLE_SIM_ << tableName << _TABLE_SIM_ << " VALUES (";
     Field *fields = result->Fetch();
-    for(uint32 i = 0; i < result->GetFieldCount(); ++i)
+    for (uint32 i = 0; i < result->GetFieldCount(); ++i)
     {
         if (i == 0) ss << "'";
         else ss << ", '";
@@ -229,7 +229,7 @@ std::string PlayerDumpWriter::GenerateWhereStr(char const* field, GUIDs const& g
 {
     std::ostringstream wherestr;
     wherestr << field << " IN ('";
-    for(; itr != guids.end(); ++itr)
+    for (; itr != guids.end(); ++itr)
     {
         wherestr << *itr;
 
@@ -348,7 +348,7 @@ std::string PlayerDumpWriter::GetDump(uint32 guid)
     {
         QueryFieldNames const& namesMap = result->GetFieldNames();
         std::string reqName;
-        for(QueryFieldNames::const_iterator itr = namesMap.begin(); itr != namesMap.end(); ++itr)
+        for (QueryFieldNames::const_iterator itr = namesMap.begin(); itr != namesMap.end(); ++itr)
         {
             if(itr->substr(0,9)=="required_")
             {
@@ -370,7 +370,7 @@ std::string PlayerDumpWriter::GetDump(uint32 guid)
     else
         sLog.outError("Character DB not have 'character_db_version' table, revision guard query not added to pdump.");
     */
-    for(int i = 0; i < DUMP_TABLE_COUNT; ++i)
+    for (int i = 0; i < DUMP_TABLE_COUNT; ++i)
         DumpTable(dump, guid, dumpTables[i].name, dumpTables[i].name, dumpTables[i].type);
 
     // TODO: Add instance/group..
@@ -508,7 +508,7 @@ DumpReturn PlayerDumpReader::LoadDump(const std::string& file, uint32 account, s
 
         DumpTableType type;
         uint8 i;
-        for(i = 0; i < DUMP_TABLE_COUNT; ++i)
+        for (i = 0; i < DUMP_TABLE_COUNT; ++i)
         {
             if (tn == dumpTables[i].name)
             {
@@ -542,7 +542,7 @@ DumpReturn PlayerDumpReader::LoadDump(const std::string& file, uint32 account, s
                 std::string vals = getnth(line, 3);
                 if(!changetoknth(vals, OBJECT_FIELD_GUID+1, newguid))
                     ROLLBACK(DUMP_FILE_BROKEN);
-                for(uint16 field = PLAYER_FIELD_INV_SLOT_HEAD; field < PLAYER_FARSIGHT; field++)
+                for (uint16 field = PLAYER_FIELD_INV_SLOT_HEAD; field < PLAYER_FARSIGHT; field++)
                     if(!changetokGuid(vals, field+1, items, objmgr.m_hiItemGuid, true))
                         ROLLBACK(DUMP_FILE_BROKEN);
                 if(!changenth(line, 3, vals.c_str()))

@@ -62,7 +62,7 @@ struct TRINITY_DLL_DECL boss_moroesAI : public ScriptedAI
 {
     boss_moroesAI(Creature *c) : ScriptedAI(c)
     {
-        for(uint8 i = 0; i < 4; ++i)
+        for (uint8 i = 0; i < 4; ++i)
         {
             AddId[i] = 0;
         }
@@ -158,15 +158,14 @@ struct TRINITY_DLL_DECL boss_moroesAI : public ScriptedAI
             Creature *pCreature = NULL;
             std::vector<uint32> AddList;
 
-
-            for(uint8 i = 0; i < 6; ++i)
+            for (uint8 i = 0; i < 6; ++i)
                 AddList.push_back(Adds[i]);
 
             while(AddList.size() > 4)
                 AddList.erase((AddList.begin())+(rand()%AddList.size()));
 
             uint8 i = 0;
-            for(std::vector<uint32>::iterator itr = AddList.begin(); itr != AddList.end(); ++itr)
+            for (std::vector<uint32>::iterator itr = AddList.begin(); itr != AddList.end(); ++itr)
             {
                 uint32 entry = *itr;
 
@@ -180,7 +179,7 @@ struct TRINITY_DLL_DECL boss_moroesAI : public ScriptedAI
             }
         }else
         {
-            for(uint8 i = 0; i < 4; ++i)
+            for (uint8 i = 0; i < 4; ++i)
             {
                 Creature *pCreature = m_creature->SummonCreature(AddId[i], Locations[i][0], Locations[i][1], POS_Z, Locations[i][2], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000);
                 if (pCreature)
@@ -193,7 +192,7 @@ struct TRINITY_DLL_DECL boss_moroesAI : public ScriptedAI
 
     bool isAddlistEmpty()
     {
-        for(uint8 i = 0; i < 4; ++i)
+        for (uint8 i = 0; i < 4; ++i)
         {
             if (AddId[i] == 0)
                 return true;
@@ -203,7 +202,7 @@ struct TRINITY_DLL_DECL boss_moroesAI : public ScriptedAI
 
     void DeSpawnAdds()
     {
-        for(uint8 i = 0; i < 4 ; ++i)
+        for (uint8 i = 0; i < 4 ; ++i)
         {
             Creature* Temp = NULL;
             if (AddGUID[i])
@@ -217,7 +216,7 @@ struct TRINITY_DLL_DECL boss_moroesAI : public ScriptedAI
 
     void AddsAttack()
     {
-        for(uint8 i = 0; i < 4; ++i)
+        for (uint8 i = 0; i < 4; ++i)
         {
             Creature* Temp = NULL;
             if (AddGUID[i])
@@ -323,7 +322,7 @@ struct TRINITY_DLL_DECL boss_moroes_guestAI : public ScriptedAI
 
     boss_moroes_guestAI(Creature* c) : ScriptedAI(c)
     {
-        for(uint8 i = 0; i < 4; ++i)
+        for (uint8 i = 0; i < 4; ++i)
             GuestGUID[i] = 0;
 
         pInstance = c->GetInstanceData();
@@ -344,7 +343,7 @@ struct TRINITY_DLL_DECL boss_moroes_guestAI : public ScriptedAI
         Creature* Moroes = (Unit::GetCreature((*m_creature), GuestGUID[0]));
         if (Moroes)
         {
-            for(uint8 i = 0; i < 3; ++i)
+            for (uint8 i = 0; i < 3; ++i)
             {
                 uint64 GUID = CAST_AI(boss_moroesAI, Moroes->AI())->AddGUID[i];
                 if (GUID && GUID != m_creature->GetGUID())

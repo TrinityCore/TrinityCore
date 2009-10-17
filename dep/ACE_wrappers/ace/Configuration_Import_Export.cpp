@@ -388,7 +388,6 @@ ACE_Registry_ImpExp::process_previous_line_format (ACE_TCHAR* buffer,
   return 0;
 }                // end read_previous_line_format
 
-
 ACE_Ini_ImpExp::ACE_Ini_ImpExp (ACE_Configuration& config)
     : ACE_Config_ImpExp_Base (config)
 {

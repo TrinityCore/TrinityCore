@@ -291,7 +291,6 @@ ACE_Multihomed_INET_Addr::get_addresses(sockaddr_in6 *addrs,
 }
 #endif /* ACE_HAS_IPV6 */
 
-
 ACE_Multihomed_INET_Addr::~ACE_Multihomed_INET_Addr (void)
 {
 

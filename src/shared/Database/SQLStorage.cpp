@@ -54,10 +54,10 @@ SQLStorage sInstanceTemplate(InstanceTemplatesrcfmt, InstanceTemplatedstfmt, "ma
 void SQLStorage::Free ()
 {
     uint32 offset=0;
-    for(uint32 x=0;x<iNumFields;x++)
+    for (uint32 x=0; x<iNumFields; x++)
         if (dst_format[x]==FT_STRING)
         {
-            for(uint32 y=0;y<MaxEntry;y++)
+            for (uint32 y=0; y<MaxEntry; y++)
                 if(pIndex[y])
                     delete [] *(char**)((char*)(pIndex[y])+offset);
 

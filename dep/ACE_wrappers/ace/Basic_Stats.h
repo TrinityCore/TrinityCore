@@ -9,7 +9,6 @@
  */
 //=============================================================================
 
-
 #ifndef ACE_BASIC_STATS_H
 #define ACE_BASIC_STATS_H
 #include /**/ "ace/pre.h"

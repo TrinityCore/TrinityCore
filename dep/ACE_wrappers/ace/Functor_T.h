@@ -25,7 +25,6 @@
  */
 //=============================================================================
 
-
 #ifndef ACE_FUNCTOR_T_H
 #define ACE_FUNCTOR_T_H
 #include /**/ "ace/pre.h"
@@ -144,7 +143,6 @@ ACE_END_VERSIONED_NAMESPACE_DECL
 #if defined (__ACE_INLINE__)
 #include "ace/Functor_T.inl"
 #endif /* __ACE_INLINE__ */
-
 
 #if defined (ACE_TEMPLATES_REQUIRE_SOURCE)
 #include "ace/Functor_T.cpp"

@@ -217,7 +217,7 @@ struct TRINITY_DLL_DECL boss_skadiAI : public ScriptedAI
     void SpawnMobs(uint32 spot)
     {
         uint8 uiMaxSpawn = (HeroicMode ? 6 : 5);
-        for(uint8 i = 0; i < uiMaxSpawn; ++i)
+        for (uint8 i = 0; i < uiMaxSpawn; ++i)
         {
             Creature* pTemp;
             switch (rand()%3)

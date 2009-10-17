@@ -190,7 +190,7 @@ void test_deflate(compr, comprLen)
         CHECK_ERR(err, "deflate");
     }
     /* Finish the stream, still forcing small buffers: */
-    for (;;) {
+    for (; ; ) {
         c_stream.avail_out = 1;
         err = deflate(&c_stream, Z_FINISH);
         if (err == Z_STREAM_END) break;
@@ -319,7 +319,7 @@ void test_large_inflate(compr, comprLen, uncompr, uncomprLen)
     err = inflateInit(&d_stream);
     CHECK_ERR(err, "inflateInit");
 
-    for (;;) {
+    for (; ; ) {
         d_stream.next_out = uncompr;            /* discard the output */
         d_stream.avail_out = (uInt)uncomprLen;
         err = inflate(&d_stream, Z_NO_FLUSH);
@@ -482,7 +482,7 @@ void test_dict_inflate(compr, comprLen, uncompr, uncomprLen)
     d_stream.next_out = uncompr;
     d_stream.avail_out = (uInt)uncomprLen;
 
-    for (;;) {
+    for (; ; ) {
         err = inflate(&d_stream, Z_NO_FLUSH);
         if (err == Z_STREAM_END) break;
         if (err == Z_NEED_DICT) {

@@ -8,11 +8,9 @@
 #include "ace/DEV_Connector.inl"
 #endif /* __ACE_INLINE__ */
 
-
 ACE_RCSID (ace,
            DEV_Connector,
            "$Id: DEV_Connector.cpp 80826 2008-03-04 14:51:23Z wotte $")
-
 
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 

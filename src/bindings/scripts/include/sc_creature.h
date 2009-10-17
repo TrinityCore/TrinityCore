@@ -180,7 +180,6 @@ struct TRINITY_DLL_DECL Scripted_NoMovementAI : public ScriptedAI
 {
     Scripted_NoMovementAI(Creature* creature) : ScriptedAI(creature) {}
 
-
     //Called at each attack of m_creature by any victim
     void AttackStart(Unit* who);
 };

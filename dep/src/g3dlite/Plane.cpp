@@ -60,7 +60,6 @@ Plane::Plane(
     _distance = _normal.dot(point0.xyz());
 }
 
-
 Plane::Plane(
     const Vector3&      point0,
     const Vector3&      point1,
@@ -70,7 +69,6 @@ Plane::Plane(
     _distance = _normal.dot(point0);
 }
 
-
 Plane::Plane(
     const Vector3&      __normal,
     const Vector3&      point) {
@@ -78,7 +76,6 @@ Plane::Plane(
     _normal   = __normal.direction();
     _distance  = _normal.dot(point);
 }
-
 
 Plane Plane::fromEquation(float a, float b, float c, float d) {
     Vector3 n(a, b, c);
@@ -88,12 +85,10 @@ Plane Plane::fromEquation(float a, float b, float c, float d) {
     return Plane(n, -d);
 }
 
-
 void Plane::flip() {
     _normal   = -_normal;
     _distance  = -_distance;
 }
-
 
 void Plane::getEquation(Vector3& n, float& d) const {
     double _d;
@@ -105,7 +100,6 @@ void Plane::getEquation(Vector3& n, double& d) const {
     n = _normal;
     d = -_distance;
 }
-
 
 void Plane::getEquation(float& a, float& b, float& c, float& d) const {
     double _a, _b, _c, _d;
@@ -122,7 +116,6 @@ void Plane::getEquation(double& a, double& b, double& c, double& d) const {
     c = _normal.z;
     d = -_distance;
 }
-
 
 std::string Plane::toString() const {
     return format("Plane(%g, %g, %g, %g)", _normal.x, _normal.y, _normal.z, _distance);

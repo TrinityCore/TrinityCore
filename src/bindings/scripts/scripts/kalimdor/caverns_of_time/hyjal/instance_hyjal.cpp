@@ -61,7 +61,6 @@ struct TRINITY_DLL_DECL instance_mount_hyjal : public ScriptedInstance
 
     uint32 Trash;
 
-
     uint32 hordeRetreat;
     uint32 allianceRetreat;
     bool ArchiYell;
@@ -98,7 +97,7 @@ struct TRINITY_DLL_DECL instance_mount_hyjal : public ScriptedInstance
 
     bool IsEncounterInProgress() const
     {
-        for(uint8 i = 0; i < MAX_ENCOUNTER; ++i)
+        for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
             if (m_auiEncounter[i] == IN_PROGRESS) return true;
 
         return false;
@@ -221,7 +220,7 @@ struct TRINITY_DLL_DECL instance_mount_hyjal : public ScriptedInstance
                 {
                     if (!m_uiAncientGemGUID.empty())
                     {
-                        for(std::list<uint64>::iterator itr = m_uiAncientGemGUID.begin(); itr != m_uiAncientGemGUID.end(); ++itr)
+                        for (std::list<uint64>::iterator itr = m_uiAncientGemGUID.begin(); itr != m_uiAncientGemGUID.end(); ++itr)
                         {
                             //don't know how long it expected
                             DoRespawnGameObject(*itr,DAY);
@@ -302,7 +301,7 @@ struct TRINITY_DLL_DECL instance_mount_hyjal : public ScriptedInstance
         OUT_LOAD_INST_DATA(in);
         std::istringstream loadStream(in);
         loadStream >> m_auiEncounter[0] >> m_auiEncounter[1] >> m_auiEncounter[2] >> m_auiEncounter[3] >> m_auiEncounter[4] >> allianceRetreat >> hordeRetreat >> RaidDamage;
-        for(uint8 i = 0; i < MAX_ENCOUNTER; ++i)
+        for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
             if (m_auiEncounter[i] == IN_PROGRESS)                // Do not load an encounter as IN_PROGRESS - reset it instead.
                 m_auiEncounter[i] = NOT_STARTED;
         OUT_LOAD_INST_DATA_COMPLETE;
