@@ -138,7 +138,7 @@ CreatureAI* GetAI_npc_ame(Creature* pCreature)
 # npc_ringo
 ####*/
 
-enum
+enum eRingo
 {
     SAY_RIN_START_1             = -1000416,
     SAY_RIN_START_2             = -1000417,

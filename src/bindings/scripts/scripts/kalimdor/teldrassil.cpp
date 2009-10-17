@@ -32,7 +32,7 @@ EndContentData */
 # npc_mist
 ####*/
 
-enum
+enum eMist
 {
     SAY_AT_HOME             = -1000411,
     EMOTE_AT_HOME           = -1000412,

@@ -24,7 +24,7 @@ EndScriptData */
 #include "precompiled.h"
 #include "def_black_temple.h"
 
-enum
+enum eEnums
 {
     SAY_AGGRO                       = -1564000,
     SAY_NEEDLE1                     = -1564001,

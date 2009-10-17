@@ -64,7 +64,7 @@ bool GossipSelect_npc_archmage_malin(Player* pPlayer, Creature* pCreature, uint3
 ## npc_bartleby
 ######*/
 
-enum
+enum eBartleby
 {
     FACTION_ENEMY       = 168,
     QUEST_BEAT          = 1640
@@ -129,7 +129,7 @@ CreatureAI* GetAI_npc_bartleby(Creature* pCreature)
 ## npc_dashel_stonefist
 ######*/
 
-enum
+enum eDashel
 {
     QUEST_MISSING_DIPLO_PT8     = 1447,
     FACTION_HOSTILE             = 168

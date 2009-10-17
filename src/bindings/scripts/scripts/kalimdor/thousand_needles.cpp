@@ -35,7 +35,7 @@ EndContentData */
 # npc_kanati
 ######*/
 
-enum
+enum eKanati
 {
     SAY_KAN_START              = -1000410,
 
@@ -99,7 +99,7 @@ bool QuestAccept_npc_kanati(Player* pPlayer, Creature* pCreature, const Quest* p
 # npc_lakota_windsong
 ######*/
 
-enum
+enum eLakota
 {
     SAY_LAKO_START              = -1000365,
     SAY_LAKO_LOOK_OUT           = -1000366,
@@ -186,7 +186,7 @@ bool QuestAccept_npc_lakota_windsong(Player* pPlayer, Creature* pCreature, const
 # npc_paoka_swiftmountain
 ######*/
 
-enum
+enum ePacka
 {
     SAY_START           = -1000147,
     SAY_WYVERN          = -1000148,
@@ -261,7 +261,7 @@ bool QuestAccept_npc_paoka_swiftmountain(Player* pPlayer, Creature* pCreature, c
 
 #define GOSSIP_P    "Please tell me the Phrase.."
 
-enum
+enum ePlucky
 {
     FACTION_FRIENDLY        = 35,
     QUEST_SCOOP             = 1950,

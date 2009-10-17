@@ -31,7 +31,7 @@ EndContentData */
 # npc_henry_stern
 ####*/
 
-enum
+enum eEnums
 {
     SPELL_GOLDTHORN_TEA                         = 13028,
     SPELL_TEACHING_GOLDTHORN_TEA                = 13029,

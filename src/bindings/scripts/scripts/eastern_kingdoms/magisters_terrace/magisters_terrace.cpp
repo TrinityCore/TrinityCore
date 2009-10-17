@@ -31,7 +31,7 @@ EndContentData */
 ## npc_kalecgos
 ######*/
 
-enum
+enum eEnums
 {
     SPELL_TRANSFORM_TO_KAEL     = 44670,
     SPELL_ORB_KILL_CREDIT       = 46307,

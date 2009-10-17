@@ -36,7 +36,7 @@ EndContentData */
 # item_only_for_flight
 #####*/
 
-enum
+enum eOnlyForFlight
 {
     SPELL_ARCANE_CHARGES    = 45072
 };

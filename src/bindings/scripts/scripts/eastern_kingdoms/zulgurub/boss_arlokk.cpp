@@ -37,7 +37,7 @@ bool GOHello_go_gong_of_bethekk(Player* pPlayer, GameObject* pGo)
     return false;
 }
 
-enum
+enum eEnums
 {
     SAY_AGGRO                   = -1309011,
     SAY_FEAST_PANTHER           = -1309012,

@@ -23,7 +23,7 @@ EndScriptData */
 
 #include "precompiled.h"
 
-enum
+enum eEnums
 {
     EMOTE_GENERIC_FRENZY_KILL   = -1000001,
 

@@ -26,7 +26,7 @@ EndScriptData */
 
 bool DeadChaoticRift; // needed for achievement: Chaos Theory(2037)
 
-enum
+enum eEnums
 {
     ACHIEVEMENT_CHAOS_THEORY   = 2037,
 

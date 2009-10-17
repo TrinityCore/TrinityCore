@@ -27,7 +27,7 @@
 
 #define GCD_CAST    1
 
-enum
+enum eDeathKnightSpells
 {
     SPELL_SOUL_PRISON_CHAIN_SELF    = 54612,
     SPELL_SOUL_PRISON_CHAIN         = 54613,
@@ -311,7 +311,7 @@ bool GOHello_go_acherus_soul_prison(Player* pPlayer, GameObject* pGo)
 
 #define GOSSIP_ACCEPT_DUEL      "I challenge you, death knight!"
 
-enum
+enum eDuelEnums
 {
     SAY_DUEL_A                  = -1609080,
     SAY_DUEL_B                  = -1609081,
@@ -566,7 +566,7 @@ CreatureAI* GetAI_npc_dark_rider_of_acherus(Creature* pCreature)
 ## npc_salanar_the_horseman
 ######*/
 
-enum
+enum eSalanar
 {
     REALM_OF_SHADOWS            = 52693,
     EFFECT_STOLEN_HORSE         = 52263,

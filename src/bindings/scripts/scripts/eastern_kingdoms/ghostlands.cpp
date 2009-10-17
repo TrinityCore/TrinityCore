@@ -135,7 +135,7 @@ bool GOHello_gilded_brazier(Player* pPlayer, GameObject* pGo)
 ## npc_ranger_lilatha
 ######*/
 
-enum
+enum eEnums
 {
     SAY_START           = -1000140,
     SAY_PROGRESS1       = -1000141,

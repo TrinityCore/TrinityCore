@@ -23,7 +23,7 @@ EndScriptData */
 
 #include "precompiled.h"
 
-enum
+enum eSay
 {
     SAY_HI  = -1999925
 };

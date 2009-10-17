@@ -24,7 +24,7 @@ EndScriptData */
 #include "precompiled.h"
 #include "def_blackrock_depths.h"
 
-enum
+enum eEnums
 {
     SPELL_SMELT_DARK_IRON       = 14891,
     SPELL_LEARN_SMELT           = 14894,
@@ -77,7 +77,7 @@ bool GossipSelect_boss_gloomrel(Player* pPlayer, Creature* pCreature, uint32 uiS
     return true;
 }
 
-enum
+enum eSpells
 {
     SPELL_SHADOWBOLTVOLLEY               = 15245,
     SPELL_IMMOLATE                       = 12742,

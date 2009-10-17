@@ -5,7 +5,7 @@
 #ifndef DEF_BFD_H
 #define DEF_BFD_H
 
-enum
+enum eEnums
 {
     DATA_SHRINE1                = 1,
     DATA_SHRINE2                = 2,

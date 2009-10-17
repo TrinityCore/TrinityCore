@@ -80,7 +80,7 @@ bool GossipSelect_npc_braug_dimspirit(Player* pPlayer, Creature* pCreature, uint
 ## npc_kaya_flathoof
 ######*/
 
-enum
+enum eKaya
 {
     FACTION_ESCORTEE_H          = 775,
 

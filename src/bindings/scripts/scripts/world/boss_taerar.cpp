@@ -23,7 +23,7 @@ EndScriptData */
 
 #include "precompiled.h"
 
-enum
+enum eEnums
 {
     SAY_AGGRO               = -1000399, //signed for 20021
     SAY_SUMMONSHADE         = -1000400, //signed for 20021

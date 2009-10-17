@@ -5,7 +5,7 @@
 #ifndef DEF_ZULGURUB_H
 #define DEF_ZULGURUB_H
 
-enum
+enum eEnums
 {
     MAX_ENCOUNTERS          = 8,
 

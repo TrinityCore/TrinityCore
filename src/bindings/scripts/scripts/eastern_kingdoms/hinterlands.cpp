@@ -33,7 +33,7 @@ EndContentData */
 ## npc_00x09hl
 ######*/
 
-enum
+enum eOOX
 {
     SAY_OOX_START           = -1000287,
     SAY_OOX_AGGRO1          = -1000288,
@@ -144,7 +144,7 @@ CreatureAI* GetAI_npc_00x09hl(Creature* pCreature)
 ## npc_rinji
 ######*/
 
-enum
+enum eRinji
 {
     SAY_RIN_FREE            = -1000403, //from here
     SAY_RIN_BY_OUTRUNNER    = -1000404,

@@ -32,7 +32,7 @@ EndContentData */
 ## npc_professor_phizzlethorpe
 ######*/
 
-enum
+enum eEnums
 {
     SAY_PROGRESS_1      = -1000235,
     SAY_PROGRESS_2      = -1000236,

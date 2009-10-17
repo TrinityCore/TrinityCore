@@ -23,7 +23,7 @@ EndScriptData */
 
 #include "precompiled.h"
 
-enum
+enum eEnums
 {
     SAY_AGGRO                       = -1189021,
     SPELL_SUMMONSCARLETHOUND        = 17164,

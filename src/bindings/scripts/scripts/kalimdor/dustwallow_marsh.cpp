@@ -37,7 +37,7 @@ EndContentData */
 ## mobs_risen_husk_spirit
 ######*/
 
-enum
+enum eHuskSpirit
 {
     QUEST_WHATS_HAUNTING_WITCH_HILL  = 11180,
     SPELL_SUMMON_RESTLESS_APPARITION = 42511,
@@ -121,7 +121,7 @@ bool GossipHello_npc_restless_apparition(Player* pPlayer, Creature* pCreature)
 ## npc_deserter_agitator
 ######*/
 
-enum
+enum eAgitator
 {
     QUEST_TRAITORS_AMONG_US = 11126,
     FACTION_THER_DESERTER   = 1883
@@ -159,7 +159,7 @@ bool GossipHello_npc_deserter_agitator(Player* pPlayer, Creature* pCreature)
 ## npc_lady_jaina_proudmoore
 ######*/
 
-enum
+enum eLadyJaina
 {
     QUEST_JAINAS_AUTOGRAPH = 558,
     SPELL_JAINAS_AUTOGRAPH = 23122
@@ -194,7 +194,7 @@ bool GossipSelect_npc_lady_jaina_proudmoore(Player* pPlayer, Creature* pCreature
 ## npc_nat_pagle
 ######*/
 
-enum
+enum eNatPagle
 {
     QUEST_NATS_MEASURING_TAPE = 8227
 };
@@ -227,7 +227,7 @@ bool GossipSelect_npc_nat_pagle(Player* pPlayer, Creature* pCreature, uint32 uiS
 ## npc_private_hendel
 ######*/
 
-enum
+enum eHendel
 {
     // looks like all this text ids are wrong.
     SAY_PROGRESS_1_TER          = -1000411, // signed for 3568
