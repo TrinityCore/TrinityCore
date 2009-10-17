@@ -408,6 +408,7 @@ SET(trinityscript_LIB_SRCS
    scripts/northrend/violet_hold/boss_xevozz.cpp
    scripts/northrend/violet_hold/boss_zuramat.cpp
    scripts/northrend/violet_hold/def_violet_hold.h
+   scripts/northrend/violet_hold/violet_hold.cpp
    scripts/northrend/borean_tundra.cpp
    scripts/northrend/dragonblight.cpp
    scripts/northrend/grizzly_hills.cpp

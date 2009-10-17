@@ -10,28 +10,92 @@ Script Data End */
 update creature_template set scriptname = '' where entry = '';
 *** SQL END ***/
 #include "precompiled.h"
+#include "def_violet_hold.h"
+
 
 //Spells
-#define SPELL_CORROSICE_SALIVA                     54527
-#define SPELL_OPTIC_LINK                           54396
+enum Spells
+{
+    SPELL_CORROSIVE_SALIVA                     = 54527,
+    SPELL_OPTIC_LINK                           = 54396
+};
 
 struct TRINITY_DLL_DECL boss_moraggAI : public ScriptedAI
 {
-    boss_moraggAI(Creature *c) : ScriptedAI(c) {}
+    boss_moraggAI(Creature *c) : ScriptedAI(c)
+    {
+        pInstance = c->GetInstanceData();
+    }
+    
+    uint32 uiOpticLinkTimer;
+    uint32 uiCorrosiveSalivaTimer;
+    
+    ScriptedInstance* pInstance;
 
-    void Reset() {}
-    void EnterCombat(Unit* who) {}
-    void AttackStart(Unit* who) {}
+    void Reset()
+    {
+        uiOpticLinkTimer = 10000;
+        uiCorrosiveSalivaTimer = 5000;
+        
+        if (pInstance)
+        {
+            if (pInstance->GetData(DATA_WAVE_COUNT) == 6)
+                pInstance->SetData(DATA_1ST_BOSS_EVENT, NOT_STARTED);
+            else if (pInstance->GetData(DATA_WAVE_COUNT) == 12)
+                pInstance->SetData(DATA_2ND_BOSS_EVENT, NOT_STARTED);
+        }
+    }
+    
+    void EnterCombat(Unit* who)
+    {
+        if (pInstance)
+        {
+            if (pInstance->GetData(DATA_WAVE_COUNT) == 6)
+                pInstance->SetData(DATA_1ST_BOSS_EVENT, IN_PROGRESS);
+            else if (pInstance->GetData(DATA_WAVE_COUNT) == 12)
+                pInstance->SetData(DATA_2ND_BOSS_EVENT, IN_PROGRESS);
+        }
+    }
+    
     void MoveInLineOfSight(Unit* who) {}
+    
     void UpdateAI(const uint32 diff)
     {
         //Return since we have no target
         if (!UpdateVictim())
             return;
+        
+        if (uiOpticLinkTimer < diff)
+        {
+            if (pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                DoCast(pTarget,SPELL_OPTIC_LINK);
+            uiOpticLinkTimer = 15000;
+        } else uiOpticLinkTimer -= diff;
+        
+        if (uiCorrosiveSalivaTimer < diff)
+        {
+            DoCast(m_creature->getVictim(), SPELL_CORROSIVE_SALIVA);
+            uiCorrosiveSalivaTimer = 10000;
+        } else uiCorrosiveSalivaTimer -= diff;
 
         DoMeleeAttackIfReady();
     }
-    void JustDied(Unit* killer) {}
+    void JustDied(Unit* killer)
+    {
+        if (pInstance)
+        {
+            if (pInstance->GetData(DATA_WAVE_COUNT) == 6)
+            {
+                pInstance->SetData(DATA_1ST_BOSS_EVENT, DONE);
+                pInstance->SetData(DATA_WAVE_COUNT, 7);
+            }
+            else if (pInstance->GetData(DATA_WAVE_COUNT) == 12)
+            {
+                pInstance->SetData(DATA_2ND_BOSS_EVENT, DONE);
+                pInstance->SetData(DATA_WAVE_COUNT,13);
+            }
+        }
+    }
 };
 
 CreatureAI* GetAI_boss_moragg(Creature* pCreature)
@@ -44,7 +108,7 @@ void AddSC_boss_moragg()
     Script *newscript;
 
     newscript = new Script;
-    newscript->Name="boss_moragg";
+    newscript->Name = "boss_moragg";
     newscript->GetAI = &GetAI_boss_moragg;
     newscript->RegisterSelf();
 }
