@@ -10,38 +10,84 @@ Script Data End */
 update creature_template set scriptname = '' where entry = '';
 *** SQL END ***/
 #include "precompiled.h"
+#include "def_violet_hold.h"
 
-//Spells
-#define SPELL_ARCANE_BARRAGE_VOLLEY                    54202
-#define SPELL_ARCANE_BUFFET                            54226
-#define SPELL_SUMMON_ETHEREAL_SPHERE_1                 54102
-#define SPELL_SUMMON_ETHEREAL_SPHERE_2                 54137
-#define SPELL_SUMMON_ETHEREAL_SPHERE_3                 54138
+enum Spells
+{
+    SPELL_ARCANE_BARRAGE_VOLLEY                    = 54202,
+    H_SPELL_ARCANE_BARRAGE_VOLLEY                  = 59483,
+    SPELL_ARCANE_BUFFET                            = 54226,
+    H_SPELL_ARCANE_BUFFET                          = 59485,
+    SPELL_SUMMON_ETHEREAL_SPHERE_1                 = 54102,
+    H_SPELL_SUMMON_ETHEREAL_SPHERE_1               = 61337,
+    SPELL_SUMMON_ETHEREAL_SPHERE_2                 = 54137,
+    H_SPELL_SUMMON_ETHEREAL_SPHERE_2               = 61338,
+    SPELL_SUMMON_ETHEREAL_SPHERE_3                 = 54138,
+    H_SPELL_SUMMON_ETHEREAL_SPHERE_3               = 61339
+};
+
+enum Creatures
+{
+    CREATURE_ETHEREAL_SPHERE                       = 29271,
+    H_CREATURE_ETHEREAL_SPHERE                     = 32582
+};
+
+enum CreatureSpells
+{
+    SPELL_ARCANE_POWER                             = 54160,
+    H_SPELL_ARCANE_POWER                           = 59474,
+    SPELL_SUMMON_PLAYERS                           = 54164
+};
 
 //not in db
-//Yells
-#define SAY_AGGRO                                   -1608027
-#define SAY_SLAY_1                                  -1608028
-#define SAY_SLAY_2                                  -1608029
-#define SAY_SLAY_3                                  -1608030
-#define SAY_DEATH                                   -1608031
-#define SAY_SPAWN                                   -1608032
-#define SAY_CHARGED                                 -1608033
-#define SAY_REPEAT_SUMMON_1                         -1608034
-#define SAY_REPEAT_SUMMON_2                         -1608035
-#define SAY_SUMMON_ENERGY                           -1608036
+enum Yells
+{
+    SAY_AGGRO                                   = -1608027,
+    SAY_SLAY_1                                  = -1608028,
+    SAY_SLAY_2                                  = -1608029,
+    SAY_SLAY_3                                  = -1608030,
+    SAY_DEATH                                   = -1608031,
+    SAY_SPAWN                                   = -1608032,
+    SAY_CHARGED                                 = -1608033,
+    SAY_REPEAT_SUMMON_1                         = -1608034,
+    SAY_REPEAT_SUMMON_2                         = -1608035,
+    SAY_SUMMON_ENERGY                           = -1608036
+};
 
 struct TRINITY_DLL_DECL boss_xevozzAI : public ScriptedAI
 {
-    boss_xevozzAI(Creature *c) : ScriptedAI(c) {}
+    boss_xevozzAI(Creature *c) : ScriptedAI(c)
+    {
+        pInstance = c->GetInstanceData();
+    }
+    
+    ScriptedInstance* pInstance;
 
-    void Reset() {}
+    void Reset()
+    {
+        if (pInstance)
+        {
+            if (pInstance->GetData(DATA_WAVE_COUNT) == 6)
+                pInstance->SetData(DATA_1ST_BOSS_EVENT, NOT_STARTED);
+            else if (pInstance->GetData(DATA_WAVE_COUNT) == 12)
+                pInstance->SetData(DATA_2ND_BOSS_EVENT, NOT_STARTED);
+        }
+    }
+    
     void EnterCombat(Unit* who)
     {
         DoScriptText(SAY_AGGRO, m_creature);
+        if (pInstance)
+        {
+            if (pInstance->GetData(DATA_WAVE_COUNT) == 6)
+                pInstance->SetData(DATA_1ST_BOSS_EVENT, IN_PROGRESS);
+            else if (pInstance->GetData(DATA_WAVE_COUNT) == 12)
+                pInstance->SetData(DATA_2ND_BOSS_EVENT, IN_PROGRESS);
+        }
     }
-    void AttackStart(Unit* who) {}
+    
     void MoveInLineOfSight(Unit* who) {}
+    
     void UpdateAI(const uint32 diff)
     {
         //Return since we have no target
@@ -50,20 +96,29 @@ struct TRINITY_DLL_DECL boss_xevozzAI : public ScriptedAI
 
         DoMeleeAttackIfReady();
     }
+    
     void JustDied(Unit* killer)
     {
         DoScriptText(SAY_DEATH, m_creature);
+        if (pInstance)
+        {
+            if (pInstance->GetData(DATA_WAVE_COUNT) == 6)
+            {
+                pInstance->SetData(DATA_1ST_BOSS_EVENT, DONE);
+                pInstance->SetData(DATA_WAVE_COUNT, 7);
+            }
+            else if (pInstance->GetData(DATA_WAVE_COUNT) == 12)
+            {
+                pInstance->SetData(DATA_2ND_BOSS_EVENT, NOT_STARTED);
+                pInstance->SetData(DATA_WAVE_COUNT, 13);
+            }
+        }
     }
     void KilledUnit(Unit *victim)
     {
         if (victim == m_creature)
             return;
-        switch(rand()%3)
-        {
-            case 0: DoScriptText(SAY_SLAY_1, m_creature);break;
-            case 1: DoScriptText(SAY_SLAY_2, m_creature);break;
-            case 2: DoScriptText(SAY_SLAY_3, m_creature);break;
-        }
+        DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2,SAY_SLAY_3), m_creature);
     }
 };
 
@@ -77,7 +132,7 @@ void AddSC_boss_xevozz()
     Script *newscript;
 
     newscript = new Script;
-    newscript->Name="boss_xevozz";
+    newscript->Name = "boss_xevozz";
     newscript->GetAI = &GetAI_boss_xevozz;
     newscript->RegisterSelf();
 }
