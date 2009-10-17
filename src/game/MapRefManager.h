@@ -15,25 +15,19 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
-
 #ifndef _MAPREFMANAGER
 #define _MAPREFMANAGER
-
 #include "Utilities/LinkedReference/RefManager.h"
-
 class MapReference;
-
 class MapRefManager : public RefManager<Map, Player>
 {
     public:
         typedef LinkedListHead::Iterator< MapReference > iterator;
         typedef LinkedListHead::Iterator< MapReference const > const_iterator;
-
         MapReference* getFirst() { return (MapReference*)RefManager<Map, Player>::getFirst(); }
         MapReference const* getFirst() const { return (MapReference const*)RefManager<Map, Player>::getFirst(); }
         MapReference* getLast() { return (MapReference*)RefManager<Map, Player>::getLast(); }
         MapReference const* getLast() const { return (MapReference const*)RefManager<Map, Player>::getLast(); }
-
         iterator begin() { return iterator(getFirst()); }
         iterator end() { return iterator(NULL); }
         iterator rbegin() { return iterator(getLast()); }

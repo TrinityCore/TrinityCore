@@ -17,12 +17,9 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
-
 #ifndef TRINITYCORE_TEMPSUMMON_H
 #define TRINITYCORE_TEMPSUMMON_H
-
 #include "Creature.h"
-
 class TRINITY_DLL_SPEC TempSummon : public Creature
 {
     public:
@@ -37,7 +34,6 @@ class TRINITY_DLL_SPEC TempSummon : public Creature
         void SaveToDB();
         Unit* GetSummoner() const;
         uint64 const& GetSummonerGUID() { return m_summonerGUID; }
-
         const SummonPropertiesEntry * const m_Properties;
     private:
         TempSummonType m_type;
@@ -45,7 +41,6 @@ class TRINITY_DLL_SPEC TempSummon : public Creature
         uint32 m_lifetime;
         uint64 m_summonerGUID;
 };
-
 class Minion : public TempSummon
 {
     public:
@@ -61,7 +56,6 @@ class Minion : public TempSummon
         Unit * const m_owner;
         float m_followAngle;
 };
-
 class Guardian : public Minion
 {
     public:
@@ -69,7 +63,6 @@ class Guardian : public Minion
         void InitStats(uint32 duration);
         bool InitStatsForLevel(uint32 level);
         void InitSummon();
-
         bool UpdateStats(Stats stat);
         bool UpdateAllStats();
         void UpdateResistances(uint32 school);
@@ -78,13 +71,11 @@ class Guardian : public Minion
         void UpdateMaxPower(Powers power);
         void UpdateAttackPowerAndDamage(bool ranged = false);
         void UpdateDamagePhysical(WeaponAttackType attType);
-
         int32 GetBonusDamage() { return m_bonusdamage; }
         void SetBonusDamage(int32 damage) { m_bonusdamage = damage; }
     protected:
         int32   m_bonusdamage;
 };
-
 class Puppet : public Minion
 {
     public:
@@ -96,6 +87,5 @@ class Puppet : public Minion
     protected:
         Player *m_owner;
 };
-
 #endif
 

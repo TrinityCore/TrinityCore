@@ -13,37 +13,28 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
-
 /* ScriptData
 SDName: Instance_Shattered_Halls
 SD%Complete: 50
 SDComment: currently missing info about door. instance not complete
 SDCategory: Hellfire Citadel, Shattered Halls
 EndScriptData */
-
 #include "precompiled.h"
 #include "def_shattered_halls.h"
-
 #define MAX_ENCOUNTER  2
-
 #define DOOR_NETHEKURSE     1
-
 struct TRINITY_DLL_DECL instance_shattered_halls : public ScriptedInstance
 {
     instance_shattered_halls(Map* pMap) : ScriptedInstance(pMap) {Initialize();};
-
     uint32 m_auiEncounter[MAX_ENCOUNTER];
     uint64 nethekurseGUID;
     uint64 nethekurseDoorGUID;
-
     void Initialize()
     {
         memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
-
         nethekurseGUID = 0;
         nethekurseDoorGUID = 0;
     }
-
     void OnGameObjectCreate(GameObject* pGo, bool add)
     {
         switch(pGo->GetEntry())
@@ -51,7 +42,6 @@ struct TRINITY_DLL_DECL instance_shattered_halls : public ScriptedInstance
             case DOOR_NETHEKURSE: nethekurseDoorGUID = pGo->GetGUID(); break;
         }
     }
-
     void OnCreatureCreate(Creature* pCreature, bool add)
     {
         switch(pCreature->GetEntry())
@@ -59,7 +49,6 @@ struct TRINITY_DLL_DECL instance_shattered_halls : public ScriptedInstance
             case 16807: nethekurseGUID = pCreature->GetGUID(); break;
         }
     }
-
     void SetData(uint32 type, uint32 data)
     {
         switch(type)
@@ -72,7 +61,6 @@ struct TRINITY_DLL_DECL instance_shattered_halls : public ScriptedInstance
                 break;
         }
     }
-
     uint32 GetData(uint32 type)
     {
         switch(type)
@@ -84,7 +72,6 @@ struct TRINITY_DLL_DECL instance_shattered_halls : public ScriptedInstance
         }
         return 0;
     }
-
     uint64 GetData64(uint32 data)
     {
         switch(data)
@@ -97,12 +84,10 @@ struct TRINITY_DLL_DECL instance_shattered_halls : public ScriptedInstance
         return 0;
     }
 };
-
 InstanceData* GetInstanceData_instance_shattered_halls(Map* pMap)
 {
     return new instance_shattered_halls(pMap);
 }
-
 void AddSC_instance_shattered_halls()
 {
     Script *newscript;

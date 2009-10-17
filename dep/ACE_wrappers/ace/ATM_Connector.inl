@@ -1,10 +1,8 @@
 // -*- C++ -*-
 //
 // $Id: ATM_Connector.inl 80826 2008-03-04 14:51:23Z wotte $
-
 // Open versioned namespace, if enabled by the user.
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
-
 ACE_INLINE void
 ACE_ATM_Connector::dump (void) const
 {
@@ -12,7 +10,6 @@ ACE_ATM_Connector::dump (void) const
   ACE_TRACE ("ACE_ATM_Connector::dump");
 #endif /* ACE_HAS_DUMP */
 }
-
 ACE_INLINE
 ACE_ATM_Connector::ACE_ATM_Connector (ACE_ATM_Stream &new_stream,
                                       const ACE_ATM_Addr &remote_sap,
@@ -38,9 +35,7 @@ ACE_ATM_Connector::ACE_ATM_Connector (ACE_ATM_Stream &new_stream,
     ACE_ERROR ((LM_ERROR,  ACE_TEXT ("%p\n"),
                 ACE_TEXT ("ACE_ATM_Stream::ACE_ATM_Stream")));
 }
-
 // Try to complete a non-blocking connection.
-
 ACE_INLINE
 int
 ACE_ATM_Connector::complete (ACE_ATM_Stream &new_stream,
@@ -59,7 +54,6 @@ ACE_ATM_Connector::complete (ACE_ATM_Stream &new_stream,
   return 0;
 #endif
 }
-
 ACE_INLINE
 int
 ACE_ATM_Connector::add_leaf (ACE_ATM_Stream &current_stream,
@@ -76,33 +70,26 @@ ACE_ATM_Connector::add_leaf (ACE_ATM_Stream &current_stream,
   struct sockaddr_atm *saddr = (struct sockaddr_atm *)remote_sap.get_addr();
   ACE_QoS cqos = qos.get_qos();
   int addr_len = sizeof( struct sockaddr_atm );
-
   ACE_QoS_Params qos_params(0,
                             0,
                             &cqos,
                             0,
                             (JL_SENDER_ONLY));
-
   ACE_OS::printf( "ATM_Connector::add_leaf: connecting...\n" );
-
   ACE_HANDLE result = ACE_OS::join_leaf(current_stream.get_handle(),
                                         (struct sockaddr *)saddr,
                                         addr_len,
                                         qos_params);
-
   if ( result == ACE_INVALID_HANDLE )
     ACE_OS::printf( "ATM_Connector(add_leaf): connection failed, %d\n",
                     ::WSAGetLastError());
-
   return (result != ACE_INVALID_HANDLE);
 #elif defined (ACE_HAS_LINUX_ATM)
   ACE_OS::printf("ATM_Connector(add_leaf): not yet implemented in Linux \n");
-
   ACE_UNUSED_ARG(current_stream);
   ACE_UNUSED_ARG(remote_sap);
   ACE_UNUSED_ARG(leaf_id);
   ACE_UNUSED_ARG(timeout);
-
   return 0;
 #else
   ACE_UNUSED_ARG(current_stream);
@@ -112,7 +99,6 @@ ACE_ATM_Connector::add_leaf (ACE_ATM_Stream &current_stream,
   return 0;
 #endif
 }
-
 ACE_INLINE
 int
 ACE_ATM_Connector::reset_new_handle (ACE_HANDLE handle)
@@ -127,6 +113,5 @@ ACE_ATM_Connector::reset_new_handle (ACE_HANDLE handle)
   return 0;
 #endif /* ACE_WIN32 */
 }
-
 // Close versioned namespace, if enabled by the user.
 ACE_END_VERSIONED_NAMESPACE_DECL

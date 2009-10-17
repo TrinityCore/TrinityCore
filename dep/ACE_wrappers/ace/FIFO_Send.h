@@ -1,5 +1,4 @@
 // -*- C++ -*-
-
 //==========================================================================
 /**
  *  @file    FIFO_Send.h
@@ -10,23 +9,16 @@
  */
 //==========================================================================
 
-
 #ifndef ACE_FIFO_SEND_H
 #define ACE_FIFO_SEND_H
-
 #include /**/ "ace/pre.h"
-
 #include "ace/FIFO.h"
-
 #if !defined (ACE_LACKS_PRAGMA_ONCE)
 # pragma once
 #endif /* ACE_LACKS_PRAGMA_ONCE */
-
 #include "ace/os_include/os_fcntl.h"
 #include "ace/Default_Constants.h"
-
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
-
 /**
  * @class ACE_FIFO_Send
  *
@@ -38,39 +30,29 @@ public:
   // = Initialization methods.
   /// Default constructor.
   ACE_FIFO_Send (void);
-
   /// Open up a bytestream named pipe for writing.
   ACE_FIFO_Send (const ACE_TCHAR *rendezvous,
                  int flags = O_WRONLY,
                  mode_t perms = ACE_DEFAULT_FILE_PERMS,
                  LPSECURITY_ATTRIBUTES sa = 0);
-
   /// Open up a bytestream named pipe for writing.
   int open (const ACE_TCHAR *rendezvous,
             int flags = O_WRONLY,
             mode_t perms = ACE_DEFAULT_FILE_PERMS,
             LPSECURITY_ATTRIBUTES sa = 0);
-
   /// Send @a buf of up to @a len bytes.
   ssize_t send (const void *buf, size_t len);
-
   /// Send @a buf of exactly @a len bytes (block until done).
   ssize_t send_n (const void *buf, size_t len);
-
   /// Dump the state of an object.
   void dump (void) const;
-
   /// Declare the dynamic allocation hooks.
   ACE_ALLOC_HOOK_DECLARE;
 };
-
 ACE_END_VERSIONED_NAMESPACE_DECL
-
 #if defined (__ACE_INLINE__)
 #include "ace/FIFO_Send.inl"
 #endif /* __ACE_INLINE__ */
-
 #include /**/ "ace/post.h"
-
 #endif /* ACE_FIFO_SEND_H */
 

@@ -13,27 +13,22 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
-
 /* ScriptData
 SDName: Boss_Moira_Bronzbeard
 SD%Complete: 90
 SDComment: Healing of Emperor NYI
 SDCategory: Blackrock Depths
 EndScriptData */
-
 #include "precompiled.h"
-
 #define SPELL_HEAL              10917
 #define SPELL_RENEW             10929
 #define SPELL_SHIELD            10901
 #define SPELL_MINDBLAST         10947
 #define SPELL_SHADOWWORDPAIN    10894
 #define SPELL_SMITE             10934
-
 struct TRINITY_DLL_DECL boss_moira_bronzebeardAI : public ScriptedAI
 {
     boss_moira_bronzebeardAI(Creature *c) : ScriptedAI(c) {}
-
     uint32 Heal_Timer;
     uint32 MindBlast_Timer;
     uint32 ShadowWordPain_Timer;
@@ -41,7 +36,6 @@ struct TRINITY_DLL_DECL boss_moira_bronzebeardAI : public ScriptedAI
     Unit* PlayerHolder;
     Unit* Target;
     bool Heal;
-
     void Reset()
     {
         Target = NULL;
@@ -50,45 +44,38 @@ struct TRINITY_DLL_DECL boss_moira_bronzebeardAI : public ScriptedAI
         ShadowWordPain_Timer = 2000;
         Smite_Timer = 8000;
     }
-
     void EnterCombat(Unit *who)
     {
     }
-
     void UpdateAI(const uint32 diff)
     {
         //Return since we have no target
         if (!UpdateVictim())
             return;
-
         //MindBlast_Timer
         if (MindBlast_Timer < diff)
         {
             DoCast(m_creature->getVictim(),SPELL_MINDBLAST);
             MindBlast_Timer = 14000;
         }else MindBlast_Timer -= diff;
-
         //ShadowWordPain_Timer
         if (ShadowWordPain_Timer < diff)
         {
             DoCast(m_creature->getVictim(),SPELL_SHADOWWORDPAIN);
             ShadowWordPain_Timer = 18000;
         }else ShadowWordPain_Timer -= diff;
-
         //Smite_Timer
         if (Smite_Timer < diff)
         {
             DoCast(m_creature->getVictim(),SPELL_SMITE);
             Smite_Timer = 10000;
         }else Smite_Timer -= diff;
-
     }
 };
 CreatureAI* GetAI_boss_moira_bronzebeard(Creature* pCreature)
 {
     return new boss_moira_bronzebeardAI (pCreature);
 }
-
 void AddSC_boss_moira_bronzebeard()
 {
     Script *newscript;

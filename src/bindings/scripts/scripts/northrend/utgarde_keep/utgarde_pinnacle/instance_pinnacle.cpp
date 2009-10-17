@@ -1,57 +1,43 @@
 #include "precompiled.h"
 #include "def_pinnacle.h"
-
 #define MAX_ENCOUNTER     4
-
 /* Utgarde Pinnacle encounters:
 0 - Svala Sorrowgrave
 1 - Gortok Palehoof
 2 - Skadi the Ruthless
 3 - King Ymiron
 */
-
 #define ENTRY_SKADI_THE_RUTHLESS_DOOR      192173
 #define ENTRY_KING_YMIRON_DOOR             192174
 #define ENTRY_GORK_PALEHOOF_SPHERE         188593
-
 struct TRINITY_DLL_DECL instance_pinnacle : public ScriptedInstance
 {
     instance_pinnacle(Map* pMap) : ScriptedInstance(pMap) {Initialize();};
-
     uint64 uiSvalaSorrowgrave;
     uint64 uiGortokPalehoof;
     uint64 uiSkadiTheRuthless;
     uint64 uiKingYmiron;
-
     uint64 uiSkadiTheRuthlessDoor;
     uint64 uiKingYmironDoor;
     uint64 uiGortokPalehoofSphere;
-
     uint64 uiFrenziedWorgen;
     uint64 uiRavenousFurbolg;
     uint64 uiFerociousRhino;
     uint64 uiMassiveJormungar;
-
     uint64 uiSvala;
-
     uint32 m_auiEncounter[MAX_ENCOUNTER];
-
     std::string str_data;
-
     void Initialize()
     {
-        for(uint8 i = 0; i < MAX_ENCOUNTER; ++i)
+        for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
            m_auiEncounter[i] = NOT_STARTED;
     }
-
     bool IsEncounterInProgress() const
     {
-        for(uint8 i = 0; i < MAX_ENCOUNTER; ++i)
+        for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
             if (m_auiEncounter[i] == IN_PROGRESS) return true;
-
         return false;
     }
-
     void OnCreatureCreate(Creature* pCreature, bool add)
     {
         switch(pCreature->GetEntry())
@@ -67,7 +53,6 @@ struct TRINITY_DLL_DECL instance_pinnacle : public ScriptedInstance
             case 29281:    uiSvala = pCreature->GetGUID();                          break;
         }
     }
-
     void OnGameObjectCreate(GameObject* pGo, bool add)
     {
         switch(pGo->GetEntry())
@@ -90,7 +75,6 @@ struct TRINITY_DLL_DECL instance_pinnacle : public ScriptedInstance
                 break;
         }
     }
-
     void SetData(uint32 type, uint32 data)
     {
         switch(type)
@@ -112,11 +96,9 @@ struct TRINITY_DLL_DECL instance_pinnacle : public ScriptedInstance
                 m_auiEncounter[3] = data;
                 break;
         }
-
         if (data == DONE)
             SaveToDB();
     }
-
     uint32 GetData(uint32 type)
     {
         switch(type)
@@ -128,7 +110,6 @@ struct TRINITY_DLL_DECL instance_pinnacle : public ScriptedInstance
         }
         return 0;
     }
-
     uint64 GetData64(uint32 identifier)
     {
         switch(identifier)
@@ -144,24 +125,18 @@ struct TRINITY_DLL_DECL instance_pinnacle : public ScriptedInstance
             case DATA_SVALA:                  return uiSvala;
             case DATA_GORTOK_PALEHOOF_SPHERE: return uiGortokPalehoofSphere;
         }
-
         return 0;
     }
-
     std::string GetSaveData()
     {
         OUT_SAVE_INST_DATA;
-
         std::ostringstream saveStream;
         saveStream << "U P " << m_auiEncounter[0] << " " << m_auiEncounter[1] << " "
             << m_auiEncounter[2] << " " << m_auiEncounter[3];
-
         str_data = saveStream.str();
-
         OUT_SAVE_INST_DATA_COMPLETE;
         return str_data;
     }
-
     void Load(const char* in)
     {
         if (!in)
@@ -169,37 +144,28 @@ struct TRINITY_DLL_DECL instance_pinnacle : public ScriptedInstance
             OUT_LOAD_INST_DATA_FAIL;
             return;
         }
-
         OUT_LOAD_INST_DATA(in);
-
         char dataHead1, dataHead2;
         uint16 data0, data1, data2, data3;
-
         std::istringstream loadStream(in);
         loadStream >> dataHead1 >> dataHead2 >> data0 >> data1 >> data2 >> data3;
-
         if (dataHead1 == 'U' && dataHead2 == 'K')
         {
             m_auiEncounter[0] = data0;
             m_auiEncounter[1] = data1;
             m_auiEncounter[2] = data2;
             m_auiEncounter[3] = data3;
-
-            for(uint8 i = 0; i < MAX_ENCOUNTER; ++i)
+            for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
                 if (m_auiEncounter[i] == IN_PROGRESS)
                     m_auiEncounter[i] = NOT_STARTED;
-
         } else OUT_LOAD_INST_DATA_FAIL;
-
         OUT_LOAD_INST_DATA_COMPLETE;
     }
 };
-
 InstanceData* GetInstanceData_instance_utgarde_pinnacle(Map* pMap)
 {
     return new instance_pinnacle(pMap);
 }
-
 void AddSC_instance_utgarde_pinnacle()
 {
     Script *newscript;

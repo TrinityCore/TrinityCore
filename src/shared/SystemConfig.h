@@ -18,25 +18,19 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
-
 // THIS FILE IS DEPRECATED
-
 #ifndef TRINITY_SYSTEMCONFIG_H
 #define TRINITY_SYSTEMCONFIG_H
-
 #include "Platform/Define.h"
 #include "revision.h"
 
-
 #define _PACKAGENAME "TrinityCore2 "
 #define _CODENAME "YUME"
-
 #if TRINITY_ENDIAN == TRINITY_BIGENDIAN
 # define _ENDIAN_STRING "big-endian"
 #else
 # define _ENDIAN_STRING "little-endian"
 #endif
-
 #if PLATFORM == PLATFORM_WINDOWS
 # ifdef _WIN64
 #  define _FULLVERSION _PACKAGENAME "Rev: " _REVISION  " Hash: " _HASH " (Win64," _ENDIAN_STRING ")"
@@ -46,7 +40,6 @@
 #else
 #  define _FULLVERSION _PACKAGENAME "Rev: " _REVISION  " Hash: " _HASH " (Unix," _ENDIAN_STRING ")"
 #endif
-
 #define DEFAULT_PLAYER_LIMIT 100
 #define DEFAULT_WORLDSERVER_PORT 8085                       //8129
 #define DEFAULT_REALMSERVER_PORT 3724

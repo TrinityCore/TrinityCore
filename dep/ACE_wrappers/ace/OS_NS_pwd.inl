@@ -1,13 +1,9 @@
 // -*- C++ -*-
 //
 // $Id: OS_NS_pwd.inl 80826 2008-03-04 14:51:23Z wotte $
-
 #include "ace/OS_NS_errno.h"
-
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
-
 // Accessors to PWD file.
-
 ACE_INLINE void
 ACE_OS::endpwent (void)
 {
@@ -15,7 +11,6 @@ ACE_OS::endpwent (void)
   ::endpwent ();
 #endif /* ! ACE_LACKS_PWD_FUNCTIONS */
 }
-
 ACE_INLINE struct passwd *
 ACE_OS::getpwent (void)
 {
@@ -25,7 +20,6 @@ ACE_OS::getpwent (void)
   ACE_NOTSUP_RETURN (0);
 #endif /* ! ACE_LACKS_PWD_FUNCTIONS */
 }
-
 ACE_INLINE struct passwd *
 ACE_OS::getpwnam (const char *name)
 {
@@ -36,16 +30,13 @@ ACE_OS::getpwnam (const char *name)
   ACE_NOTSUP_RETURN (0);
 #endif /* ACE_LACKS_PWD_FUNCTIONS */
 }
-
 ACE_INLINE struct passwd *
 ACE_OS::getpwnam_r (const char *name, struct passwd *pwent,
                     char *buffer, int buflen)
 {
 #if defined (ACE_HAS_POSIX_GETPWNAM_R)
   struct passwd *result = 0;
-
   int const status = ::getpwnam_r (name, pwent, buffer, buflen, &result);
-
   if (status != 0)
   {
     errno = status;
@@ -108,7 +99,6 @@ ACE_OS::getpwnam_r (const char *name, struct passwd *pwent,
   ACE_NOTSUP_RETURN (0);
 #endif /* ACE_HAS_POSIX_GETPWNAM_R */
 }
-
 ACE_INLINE void
 ACE_OS::setpwent (void)
 {
@@ -116,5 +106,4 @@ ACE_OS::setpwent (void)
   ::setpwent ();
 #endif /* ! ACE_LACKS_PWD_FUNCTIONS */
 }
-
 ACE_END_VERSIONED_NAMESPACE_DECL

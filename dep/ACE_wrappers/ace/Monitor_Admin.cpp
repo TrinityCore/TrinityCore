@@ -1,14 +1,9 @@
 // $Id: Monitor_Admin.cpp 81753 2008-05-21 19:02:47Z parsons $
-
 #include "ace/Monitor_Admin.h"
-
 #if defined (ACE_HAS_MONITOR_FRAMEWORK) && (ACE_HAS_MONITOR_FRAMEWORK == 1)
-
 #include "ace/Reactor.h"
 #include "ace/Monitor_Point_Registry.h"
-
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
-
 namespace ACE
 {
   namespace Monitor_Control
@@ -24,14 +19,11 @@ namespace ACE
       mp->update ();
       return 0;
     }
-
     //====================================================================
-
     Monitor_Admin::Monitor_Admin (void)
       : reactor_ (ACE_Reactor::instance ()),
         default_reactor_ (true)
     {}
-
     Monitor_Admin::~Monitor_Admin (void)
     {
       if (this->default_reactor_)
@@ -40,14 +32,12 @@ namespace ACE
           /// before its destructor is called.
           ACE_Reactor::instance ()->close_singleton ();
         }
-
       /// We access the registry through ACE_Singleton, which
       /// doesn't call the destructor, so we call this method to
       /// do a remove_ref() on all monitor points left in the registry.
       /// which needs to be done before the registry goes away.
       Monitor_Point_Registry::instance ()->cleanup ();
     }
-
     bool
     Monitor_Admin::monitor_point (Monitor_Base* monitor_point,
                                   const ACE_Time_Value& time)
@@ -55,7 +45,6 @@ namespace ACE
       /// This call checks for a null monitor_point.
       bool good_reg_add =
         Monitor_Point_Registry::instance ()->add (monitor_point);
-
       if (!good_reg_add)
         {
           ACE_ERROR_RETURN ((LM_ERROR,
@@ -70,17 +59,14 @@ namespace ACE
                                           ACE_Time_Value::zero,
                                           time);
         }
-
       return good_reg_add;
     }
-
     Monitor_Base*
     Monitor_Admin::monitor_point (const char* name)
     {
       ACE_CString name_str (name, 0, false);
       return Monitor_Point_Registry::instance ()->get (name_str);
     }
-
     void
     Monitor_Admin::auto_query (ACE_Event_Handler* handler,
                                Monitor_Query* query,
@@ -91,14 +77,12 @@ namespace ACE
                                       ACE_Time_Value::zero,
                                       time);
     }
-
     void
     Monitor_Admin::reactor (ACE_Reactor* new_reactor)
     {
       this->reactor_ = new_reactor;
       this->default_reactor_ = false;
     }
-
     ACE_Reactor*
     Monitor_Admin::reactor (void) const
     {
@@ -106,9 +90,6 @@ namespace ACE
     }
   }
 }
-
 ACE_END_VERSIONED_NAMESPACE_DECL
-
 #endif /* ACE_HAS_MONITOR_FRAMEWORK==1 */
-
 

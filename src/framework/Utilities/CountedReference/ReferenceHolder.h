@@ -17,15 +17,12 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
-
 #ifndef TRINITY_REFERENCEHOLDER_H
 #define TRINITY_REFERENCEHOLDER_H
-
 /** ReferenceHolder holds the actualy referenced obejct as well the refence
     count.  The ReferenecHolder implements as a policy base object and
     will decided by the Reference class to be consnsitent.
  */
-
 template
 <
 typename T,

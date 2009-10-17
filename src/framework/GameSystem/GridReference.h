@@ -17,15 +17,11 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
-
 #ifndef _GRIDREFERENCE_H
 #define _GRIDREFERENCE_H
-
 #include "Utilities/LinkedReference/Reference.h"
-
 template<class OBJECT>
 class GridRefManager;
-
 template<class OBJECT>
 class TRINITY_DLL_SPEC GridReference : public Reference<GridRefManager<OBJECT>, OBJECT>
 {

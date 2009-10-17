@@ -6,9 +6,7 @@
  * Portions of this code are based on atomic operations found in the
  * linux kernel source code.
  */
-
 #if defined (ACE_INCLUDE_ATOMIC_OP_SPARC)
-
 #if defined(__i386) && defined(__SUNPRO_C)
 static void
 __sunpro_asm_code() {
@@ -23,7 +21,6 @@ ace_atomic_add_long:             \n\
      addl    0x00000008(%esp), %eax    \n\
      ret           \n\
      ");
-
  __asm("\n\
      .globl  ace_atomic_swap_long      \n\
      .type   ace_atomic_swap_long,@function    \n\
@@ -34,7 +31,6 @@ ace_atomic_swap_long:              \n\
      xchg    %eax, (%edx)      \n\
      ret           \n\
      ");
-
  __asm("\n\
      .globl  ace_atomic_swap_add_long    \n\
      .type   ace_atomic_swap_add_long,@function  \n\
@@ -46,9 +42,7 @@ ace_atomic_swap_add_long:            \n\
      ret           \n\
      ");
 }
-
 #elif defined(__x86_64) && defined(__SUNPRO_C)
-
 static void
 __sunpro_asm_code() {
  __asm("\n\
@@ -61,7 +55,6 @@ ace_atomic_add_long:             \n\
      addq    %rsi, %rax      \n\
      ret           \n\
      ");
-
  __asm("\n\
      .globl  ace_atomic_swap_long      \n\
      .type   ace_atomic_swap_long,@function    \n\
@@ -71,7 +64,6 @@ ace_atomic_swap_long:              \n\
      movq  %rsi, %rax        \n\
      ret           \n\
      ");
-
  __asm("\n\
      .globl  ace_atomic_swap_add_long    \n\
      .type   ace_atomic_swap_add_long,@function  \n\
@@ -82,9 +74,7 @@ ace_atomic_swap_add_long:            \n\
      ret           \n\
      ");
 }
-
 #elif defined (__sparcv9)
-
 unsigned long
 ace_atomic_add_long (volatile unsigned long *dest, long rhs)
 {
@@ -99,7 +89,6 @@ ace_atomic_add_long (volatile unsigned long *dest, long rhs)
          "retl\n"
          "add %o2, %o1, %o0\n");
 }
-
 unsigned long
 ace_atomic_swap_long (volatile unsigned long *dest, unsigned long rhs)
 {
@@ -114,7 +103,6 @@ ace_atomic_swap_long (volatile unsigned long *dest, unsigned long rhs)
          "retl\n"
          "mov %o3, %o0\n");
 }
-
 unsigned long
 ace_atomic_swap_add_long (volatile unsigned long *dest, long rhs)
 {
@@ -130,9 +118,7 @@ ace_atomic_swap_add_long (volatile unsigned long *dest, long rhs)
          "retl\n"
          "mov %o4, %o0\n");
 }
-
 #else
-
 unsigned long
 ace_atomic_add_long (volatile unsigned long *dest, long rhs)
 {
@@ -147,7 +133,6 @@ ace_atomic_add_long (volatile unsigned long *dest, long rhs)
          "retl\n"
          "add %o2, %o1, %o0\n");
 }
-
 unsigned long
 ace_atomic_swap_long (volatile unsigned long *dest, unsigned long rhs)
 {
@@ -162,7 +147,6 @@ ace_atomic_swap_long (volatile unsigned long *dest, unsigned long rhs)
          "retl\n"
          "mov %o3, %o0\n");
 }
-
 unsigned long
 ace_atomic_swap_add_long (volatile unsigned long *dest, long rhs)
 {
@@ -178,9 +162,7 @@ ace_atomic_swap_add_long (volatile unsigned long *dest, long rhs)
          "retl\n"
          "mov %o4, %o0\n");
 }
-
 # endif /* __sparcv9 */
-
 #elif !defined (__GNUC__) && !defined (__INTEL_COMPILER)
 /* Make compilers stop complaining about an empty translation unit */
 static int shut_up_compiler = 0;

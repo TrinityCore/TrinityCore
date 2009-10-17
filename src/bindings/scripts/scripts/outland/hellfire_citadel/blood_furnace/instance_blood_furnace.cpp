@@ -13,36 +13,29 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
-
 /* ScriptData
 SDName: Instance_Blood_Furnace
 SD%Complete: 85
 SDComment:
 SDCategory: Hellfire Citadel, Blood Furnace
 EndScriptData */
-
 #include "precompiled.h"
 #include "def_blood_furnace.h"
-
 #define ENTRY_SEWER1                 181823
 #define ENTRY_SEWER2                 181766
 #define MAX_ENCOUNTER                   3
-
 struct TRINITY_DLL_DECL instance_blood_furnace : public ScriptedInstance
 {
     instance_blood_furnace(Map* pMap) : ScriptedInstance(pMap) {Initialize();};
-
     uint64 The_MakerGUID;
     uint64 BroggokGUID;
     uint64 Kelidan_The_BreakerGUID;
-
     uint64 Door1GUID;
     uint64 Door2GUID;
     uint64 Door3GUID;
     uint64 Door4GUID;
     uint64 Door5GUID;
     uint64 Door6GUID;
-
     uint64 PrisonCell1GUID;
     uint64 PrisonCell2GUID;
     uint64 PrisonCell3GUID;
@@ -51,25 +44,20 @@ struct TRINITY_DLL_DECL instance_blood_furnace : public ScriptedInstance
     uint64 PrisonCell6GUID;
     uint64 PrisonCell7GUID;
     uint64 PrisonCell8GUID;
-
     uint32 m_auiEncounter[MAX_ENCOUNTER];
     std::string str_data;
-
     void Initialize()
     {
         memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
-
         The_MakerGUID = 0;
         BroggokGUID = 0;
         Kelidan_The_BreakerGUID = 0;
-
         Door1GUID = 0;
         Door2GUID = 0;
         Door3GUID = 0;
         Door4GUID = 0;
         Door5GUID = 0;
         Door6GUID = 0;
-
         PrisonCell1GUID = 0;
         PrisonCell2GUID = 0;
         PrisonCell3GUID = 0;
@@ -80,12 +68,10 @@ struct TRINITY_DLL_DECL instance_blood_furnace : public ScriptedInstance
         PrisonCell8GUID = 0;
     }
 
-
     void OnCreatureCreate(Creature* pCreature, bool add)
     {
         if (!add)
             return;
-
         switch(pCreature->GetEntry())
         {
              case 17381: The_MakerGUID = pCreature->GetGUID(); break;
@@ -93,12 +79,10 @@ struct TRINITY_DLL_DECL instance_blood_furnace : public ScriptedInstance
              case 17377: Kelidan_The_BreakerGUID = pCreature->GetGUID(); break;
         }
     }
-
     void OnGameObjectCreate(GameObject* pGo, bool add)
     {
         if (!add)
             return;
-
      if (pGo->GetEntry() == 181766)                //Final exit door
          Door1GUID = pGo->GetGUID();
      if (pGo->GetEntry() == 181811)               //The Maker Front door
@@ -111,7 +95,6 @@ struct TRINITY_DLL_DECL instance_blood_furnace : public ScriptedInstance
          Door5GUID = pGo->GetGUID();
      if (pGo->GetEntry() == 181823)               //Kelidan exit door
          Door6GUID = pGo->GetGUID();
-
      if (pGo->GetEntry() == 181813)               //The Maker prison cell front right
          PrisonCell1GUID = pGo->GetGUID();
      if (pGo->GetEntry() == 181814)               //The Maker prison cell back right
@@ -129,7 +112,6 @@ struct TRINITY_DLL_DECL instance_blood_furnace : public ScriptedInstance
      if (pGo->GetEntry() == 181817)               //Broggok prison cell back left
          PrisonCell8GUID = pGo->GetGUID();
     }
-
     uint64 GetData64(uint32 data)
     {
         switch(data)
@@ -152,10 +134,8 @@ struct TRINITY_DLL_DECL instance_blood_furnace : public ScriptedInstance
              case DATA_PRISON_CELL7:         return PrisonCell7GUID;
              case DATA_PRISON_CELL8:         return PrisonCell8GUID;
         }
-
         return 0;
     }
-
     void SetData(uint32 type, uint32 data)
     {
          switch(data)
@@ -164,21 +144,16 @@ struct TRINITY_DLL_DECL instance_blood_furnace : public ScriptedInstance
              case TYPE_BROGGOK_EVENT:               m_auiEncounter[1] = data;     break;
              case TYPE_KELIDAN_THE_BREAKER_EVENT:   m_auiEncounter[2] = data;     break;
          }
-
         if (data == DONE)
         {
             OUT_SAVE_INST_DATA;
-
             std::ostringstream saveStream;
             saveStream << m_auiEncounter[0] << " " << m_auiEncounter[1] << " " << m_auiEncounter[2];
-
             str_data = saveStream.str();
-
             SaveToDB();
             OUT_SAVE_INST_DATA_COMPLETE;
         }
     }
-
     uint32 GetData(uint32 data)
     {
         switch(data)
@@ -187,15 +162,12 @@ struct TRINITY_DLL_DECL instance_blood_furnace : public ScriptedInstance
             case TYPE_BROGGOK_EVENT:               return m_auiEncounter[1];
             case TYPE_KELIDAN_THE_BREAKER_EVENT:   return m_auiEncounter[2];
         }
-
         return 0;
     }
-
     const char* Save()
     {
         return str_data.c_str();
     }
-
     void Load(const char* in)
     {
         if (!in)
@@ -203,26 +175,20 @@ struct TRINITY_DLL_DECL instance_blood_furnace : public ScriptedInstance
             OUT_LOAD_INST_DATA_FAIL;
             return;
         }
-
         OUT_LOAD_INST_DATA(in);
-
         std::istringstream loadStream(in);
         loadStream >> m_auiEncounter[0] >> m_auiEncounter[1] >> m_auiEncounter[2];
-
-        for(uint8 i = 0; i < MAX_ENCOUNTER; ++i)
+        for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
             if (m_auiEncounter[i] == IN_PROGRESS || m_auiEncounter[i] == FAIL)
                 m_auiEncounter[i] = NOT_STARTED;
-
         OUT_LOAD_INST_DATA_COMPLETE;
     }
 };
-
 
 InstanceData* GetInstanceData_instance_blood_furnace(Map* pMap)
 {
     return new instance_blood_furnace(pMap);
 }
-
 void AddSC_instance_blood_furnace()
 {
     Script *newscript;

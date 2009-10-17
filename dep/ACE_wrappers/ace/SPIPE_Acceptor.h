@@ -1,5 +1,4 @@
 // -*- C++ -*-
-
 //=============================================================================
 /**
  *  @file    SPIPE_Acceptor.h
@@ -11,23 +10,17 @@
  */
 //=============================================================================
 
-
 #ifndef ACE_SPIPE_ACCEPTOR_H
 #define ACE_SPIPE_ACCEPTOR_H
 #include /**/ "ace/pre.h"
-
 #include "ace/SPIPE_Stream.h"
-
 #if !defined (ACE_LACKS_PRAGMA_ONCE)
 # pragma once
 #endif /* ACE_LACKS_PRAGMA_ONCE */
-
 #if defined (ACE_HAS_WIN32_NAMED_PIPES)
 #include "ace/Manual_Event.h"
 #endif /* ACE_HAS_WIN32_NAMED_PIPES */
-
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
-
 /**
  * @class ACE_SPIPE_Acceptor
  *
@@ -51,7 +44,6 @@ public:
   // = Initialization and termination methods.
   /// Default constructor.
   ACE_SPIPE_Acceptor (void);
-
   /// Initiate a passive-mode STREAM pipe listener.
   /**
    * @param local_sap   The name of the pipe instance to open and listen on.
@@ -73,7 +65,6 @@ public:
                       int perms = ACE_DEFAULT_FILE_PERMS,
                       LPSECURITY_ATTRIBUTES sa = 0,
                       int pipe_mode = PIPE_TYPE_MESSAGE | PIPE_READMODE_MESSAGE);
-
   /// Initiate a passive-mode STREAM pipe listener.
   /**
    * @param local_sap   The name of the pipe instance to open and listen on.
@@ -98,13 +89,10 @@ public:
             int perms = ACE_DEFAULT_FILE_PERMS,
             LPSECURITY_ATTRIBUTES sa = 0,
             int pipe_mode = PIPE_TYPE_MESSAGE | PIPE_READMODE_MESSAGE);
-
   /// Close down the passive-mode STREAM pipe listener.
   int close (void);
-
   /// Remove the underlying mounted pipe from the file system.
   int remove (void);
-
   // = Passive connection acceptance method.
   /**
    * Accept a new data transfer connection.
@@ -123,30 +111,23 @@ public:
               ACE_Time_Value *timeout = 0,
               int restart = 1,
               int reset_new_handle = 0);
-
   // = Meta-type info
   typedef ACE_SPIPE_Addr PEER_ADDR;
   typedef ACE_SPIPE_Stream PEER_STREAM;
-
   /// Dump the state of an object.
   void dump (void) const;
-
   /// Declare the dynamic allocation hooks.
   ACE_ALLOC_HOOK_DECLARE;
-
 private:
   /// Create a new instance of an SPIPE.
   int create_new_instance (int perms = 0);
-
 #if defined (ACE_HAS_WIN32_NAMED_PIPES)
   // On Windows, the SECURITY_ATTRIBUTES specified for the initial accept
   // operation is reused on all subsequent pipe instances as well.
   LPSECURITY_ATTRIBUTES sa_;
-
   // On Windows, the pipe mode to create the pipe in.  This can be in
   // either a bytestream-oriented mode or a message-oriented mode.
   DWORD pipe_mode_;
-
   // On Windows, the handle maintained in the ACE_IPC_SAP class is the
   // event handle from event_. The pipe handle is useless for telling
   // when a pipe connect is done/ready, and it changes on each pipe
@@ -159,11 +140,8 @@ private:
   ACE_HANDLE       pipe_handle_;
   int              already_connected_;
 #endif /* ACE_HAS_WIN32_NAMED_PIPES */
-
 };
-
 ACE_END_VERSIONED_NAMESPACE_DECL
-
 #include /**/ "ace/post.h"
 #endif /* ACE_SPIPE_ACCEPTOR_H */
 

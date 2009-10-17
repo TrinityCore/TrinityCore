@@ -13,30 +13,24 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
-
 /* ScriptData
 SDName: Instance_The_Eye
 SD%Complete: 100
 SDComment:
 SDCategory: Tempest Keep, The Eye
 EndScriptData */
-
 #include "precompiled.h"
 #include "def_the_eye.h"
-
 #define MAX_ENCOUNTER 5
-
 /* The Eye encounters:
 0 - Kael'thas event
 1 - Al' ar event
 2 - Solarian Event
 3 - Void Reaver event
 */
-
 struct TRINITY_DLL_DECL instance_the_eye : public ScriptedInstance
 {
     instance_the_eye(Map* pMap) : ScriptedInstance(pMap) {Initialize();};
-
     uint64 ThaladredTheDarkener;
     uint64 LordSanguinar;
     uint64 GrandAstromancerCapernian;
@@ -44,16 +38,12 @@ struct TRINITY_DLL_DECL instance_the_eye : public ScriptedInstance
     uint64 Kaelthas;
     uint64 Astromancer;
     uint64 Alar;
-
     uint8 KaelthasEventPhase;
     uint8 AlarEventPhase;
-
     uint32 m_auiEncounter[MAX_ENCOUNTER];
-
     void Initialize()
     {
         memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
-
         ThaladredTheDarkener = 0;
         LordSanguinar = 0;
         GrandAstromancerCapernian = 0;
@@ -61,19 +51,15 @@ struct TRINITY_DLL_DECL instance_the_eye : public ScriptedInstance
         Kaelthas = 0;
         Astromancer = 0;
         Alar = 0;
-
         KaelthasEventPhase = 0;
         AlarEventPhase = 0;
     }
-
     bool IsEncounterInProgress() const
     {
-        for(uint8 i = 0; i < MAX_ENCOUNTER; ++i)
+        for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
             if (m_auiEncounter[i] == IN_PROGRESS) return true;
-
         return false;
     }
-
     void OnCreatureCreate(Creature* pCreature, bool add)
     {
         switch(pCreature->GetEntry())
@@ -87,7 +73,6 @@ struct TRINITY_DLL_DECL instance_the_eye : public ScriptedInstance
             case 19514: Alar = pCreature->GetGUID(); break;
         }
     }
-
     uint64 GetData64(uint32 identifier)
     {
         switch(identifier)
@@ -102,7 +87,6 @@ struct TRINITY_DLL_DECL instance_the_eye : public ScriptedInstance
         }
         return 0;
     }
-
     void SetData(uint32 type, uint32 data)
     {
         switch(type)
@@ -115,7 +99,6 @@ struct TRINITY_DLL_DECL instance_the_eye : public ScriptedInstance
         if (data == DONE)
             SaveToDB();
     }
-
     uint32 GetData(uint32 type)
     {
         switch(type)
@@ -127,7 +110,6 @@ struct TRINITY_DLL_DECL instance_the_eye : public ScriptedInstance
         }
         return 0;
     }
-
     std::string GetSaveData()
     {
         OUT_SAVE_INST_DATA;
@@ -142,7 +124,6 @@ struct TRINITY_DLL_DECL instance_the_eye : public ScriptedInstance
         }
         return NULL;
     }
-
     void Load(const char* in)
     {
         if (!in)
@@ -153,18 +134,16 @@ struct TRINITY_DLL_DECL instance_the_eye : public ScriptedInstance
         OUT_LOAD_INST_DATA(in);
         std::istringstream stream(in);
         stream >> m_auiEncounter[0] >> m_auiEncounter[1] >> m_auiEncounter[2] >> m_auiEncounter[3];
-        for(uint8 i = 0; i < MAX_ENCOUNTER; ++i)
+        for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
             if (m_auiEncounter[i] == IN_PROGRESS)                // Do not load an encounter as "In Progress" - reset it instead.
                 m_auiEncounter[i] = NOT_STARTED;
         OUT_LOAD_INST_DATA_COMPLETE;
     }
 };
-
 InstanceData* GetInstanceData_instance_the_eye(Map* pMap)
 {
     return new instance_the_eye(pMap);
 }
-
 void AddSC_instance_the_eye()
 {
     Script *newscript;

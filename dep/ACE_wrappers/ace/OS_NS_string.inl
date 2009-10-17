@@ -1,14 +1,11 @@
 // -*- C++ -*-
 //
 // $Id: OS_NS_string.inl 80826 2008-03-04 14:51:23Z wotte $
-
 // OS_NS_wchar.h is only needed to get the emulation methods.
 // Perhaps they should be moved.  dhinton
 #include "ace/OS_NS_wchar.h"
 #include "ace/os_include/os_string.h"
-
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
-
 ACE_INLINE const void *
 ACE_OS::memchr (const void *s, int c, size_t len)
 {
@@ -18,7 +15,6 @@ ACE_OS::memchr (const void *s, int c, size_t len)
   return ACE_OS::memchr_emulation (s, c, len);
 #endif /* !ACE_LACKS_MEMCHR */
 }
-
 ACE_INLINE void *
 ACE_OS::memchr (void *s, int c, size_t len)
 {
@@ -26,13 +22,11 @@ ACE_OS::memchr (void *s, int c, size_t len)
                                              c,
                                              len));
 }
-
 ACE_INLINE int
 ACE_OS::memcmp (const void *t, const void *s, size_t len)
 {
   return ::memcmp (t, s, len);
 }
-
 ACE_INLINE void *
 ACE_OS::memcpy (void *t, const void *s, size_t len)
 {
@@ -42,13 +36,11 @@ ACE_OS::memcpy (void *t, const void *s, size_t len)
   return ::memcpy (t, s, len);
 #endif /* ACE_HAS_MEMCPY_LOOP_UNROLL */
 }
-
 ACE_INLINE void *
 ACE_OS::memmove (void *t, const void *s, size_t len)
 {
   return ::memmove (t, s, len);
 }
-
 ACE_INLINE void *
 ACE_OS::memset (void *s, int c, size_t len)
 {
@@ -97,19 +89,16 @@ ACE_OS::memset (void *s, int c, size_t len)
           ptr[i] = c;
         }
     }
-
   return s;
 #else
   return ::memset (s, c, len);
 #endif /* ACE_HAS_SLOW_MEMSET */
 }
-
 ACE_INLINE char *
 ACE_OS::strcat (char *s, const char *t)
 {
   return ::strcat (s, t);
 }
-
 #if defined (ACE_HAS_WCHAR)
 ACE_INLINE wchar_t *
 ACE_OS::strcat (wchar_t *s, const wchar_t *t)
@@ -121,13 +110,11 @@ ACE_OS::strcat (wchar_t *s, const wchar_t *t)
 #  endif /* ACE_LACKS_WCSCAT */
 }
 #endif /* ACE_HAS_WCHAR */
-
 ACE_INLINE const char *
 ACE_OS::strchr (const char *s, int c)
 {
   return const_cast <const char *> (::strchr (s, c));
 }
-
 #if defined (ACE_HAS_WCHAR)
 ACE_INLINE const wchar_t *
 ACE_OS::strchr (const wchar_t *s, wchar_t c)
@@ -139,13 +126,11 @@ ACE_OS::strchr (const wchar_t *s, wchar_t c)
 #  endif /* ACE_LACKS_WCSCHR */
 }
 #endif /* ACE_HAS_WCHAR */
-
 ACE_INLINE char *
 ACE_OS::strchr (char *s, int c)
 {
   return ::strchr (s, c);
 }
-
 #if defined (ACE_HAS_WCHAR)
 ACE_INLINE wchar_t *
 ACE_OS::strchr (wchar_t *s, wchar_t c)
@@ -155,13 +140,11 @@ ACE_OS::strchr (wchar_t *s, wchar_t c)
                                            c));
 }
 #endif /* ACE_HAS_WCHAR */
-
 ACE_INLINE int
 ACE_OS::strcmp (const char *s, const char *t)
 {
   return ::strcmp (s, t);
 }
-
 ACE_INLINE int
 ACE_OS::strcmp (const ACE_WCHAR_T *s, const ACE_WCHAR_T *t)
 {
@@ -171,13 +154,11 @@ ACE_OS::strcmp (const ACE_WCHAR_T *s, const ACE_WCHAR_T *t)
   return ::wcscmp (s, t);
 #  endif /* !ACE_HAS_WCHAR || ACE_LACKS_WCSCMP */
 }
-
 ACE_INLINE char *
 ACE_OS::strcpy (char *s, const char *t)
 {
   return ::strcpy (s, t);
 }
-
 #if defined (ACE_HAS_WCHAR)
 ACE_INLINE wchar_t *
 ACE_OS::strcpy (wchar_t *s, const wchar_t *t)
@@ -189,13 +170,11 @@ ACE_OS::strcpy (wchar_t *s, const wchar_t *t)
 #  endif /* ACE_LACKS_WCSCPY */
 }
 #endif /* ACE_HAS_WCHAR */
-
 ACE_INLINE size_t
 ACE_OS::strcspn (const char *s, const char *reject)
 {
   return ::strcspn (s, reject);
 }
-
 #if defined (ACE_HAS_WCHAR)
 ACE_INLINE size_t
 ACE_OS::strcspn (const wchar_t *s, const wchar_t *reject)
@@ -207,7 +186,6 @@ ACE_OS::strcspn (const wchar_t *s, const wchar_t *reject)
 #  endif /* ACE_LACKS_WCSCSPN */
 }
 #endif /* ACE_HAS_WCHAR */
-
 ACE_INLINE char *
 ACE_OS::strdup (const char *s)
 {
@@ -222,7 +200,6 @@ ACE_OS::strdup (const char *s)
   return ::strdup (s);
 #  endif /* (ACE_LACKS_STRDUP && !ACE_STRDUP_EQUIVALENT) || ... */
 }
-
 #if defined (ACE_HAS_WCHAR)
 ACE_INLINE wchar_t *
 ACE_OS::strdup (const wchar_t *s)
@@ -239,13 +216,11 @@ ACE_OS::strdup (const wchar_t *s)
 #  endif /* (ACE_LACKS_WCSDUP && !ACE_WCSDUP_EQUIVALENT) || ... */
 }
 #endif /* ACE_HAS_WCHAR */
-
 ACE_INLINE size_t
 ACE_OS::strlen (const char *s)
 {
   return ::strlen (s);
 }
-
 ACE_INLINE size_t
 ACE_OS::strlen (const ACE_WCHAR_T *s)
 {
@@ -255,7 +230,6 @@ ACE_OS::strlen (const ACE_WCHAR_T *s)
   return ::wcslen (s);
 # endif /* !ACE_HAS_WCHAR || ACE_LACKS_WCSLEN */
 }
-
 ACE_INLINE char *
 ACE_OS::strncat (char *s, const char *t, size_t len)
 {
@@ -266,7 +240,6 @@ ACE_OS::strncat (char *s, const char *t, size_t len)
   return ::strncat (s, t, len);
 #endif /* ACE_HAS_TR24731_2005_CRT */
 }
-
 ACE_INLINE ACE_WCHAR_T *
 ACE_OS::strncat (ACE_WCHAR_T *s, const ACE_WCHAR_T *t, size_t len)
 {
@@ -279,7 +252,6 @@ ACE_OS::strncat (ACE_WCHAR_T *s, const ACE_WCHAR_T *t, size_t len)
   return ::wcsncat (s, t, len);
 #  endif /* !ACE_HAS_WCHAR || ACE_LACKS_WCSNCAT */
 }
-
 ACE_INLINE char *
 ACE_OS::strnchr (char *s, int c, size_t len)
 {
@@ -287,7 +259,6 @@ ACE_OS::strnchr (char *s, int c, size_t len)
                                               c,
                                               len));
 }
-
 ACE_INLINE ACE_WCHAR_T *
 ACE_OS::strnchr (ACE_WCHAR_T *s, ACE_WCHAR_T c, size_t len)
 {
@@ -297,13 +268,11 @@ ACE_OS::strnchr (ACE_WCHAR_T *s, ACE_WCHAR_T c, size_t len)
                                  c,
                                  len));
 }
-
 ACE_INLINE int
 ACE_OS::strncmp (const char *s, const char *t, size_t len)
 {
   return ::strncmp (s, t, len);
 }
-
 ACE_INLINE int
 ACE_OS::strncmp (const ACE_WCHAR_T *s, const ACE_WCHAR_T *t, size_t len)
 {
@@ -313,13 +282,11 @@ ACE_OS::strncmp (const ACE_WCHAR_T *s, const ACE_WCHAR_T *t, size_t len)
   return ::wcsncmp (s, t, len);
 #  endif /* !ACE_HAS_WCHAR || ACE_LACKS_WCSNCMP */
 }
-
 ACE_INLINE char *
 ACE_OS::strncpy (char *s, const char *t, size_t len)
 {
   return ::strncpy (s, t, len);
 }
-
 ACE_INLINE ACE_WCHAR_T *
 ACE_OS::strncpy (ACE_WCHAR_T *s, const ACE_WCHAR_T *t, size_t len)
 {
@@ -329,7 +296,6 @@ ACE_OS::strncpy (ACE_WCHAR_T *s, const ACE_WCHAR_T *t, size_t len)
   return ::wcsncpy (s, t, len);
 #  endif /* !ACE_HAS_WCHAR || ACE_LACKS_WCSNCPY */
 }
-
 ACE_INLINE size_t
 ACE_OS::strnlen (const char *s, size_t maxlen)
 {
@@ -343,7 +309,6 @@ ACE_OS::strnlen (const char *s, size_t maxlen)
   return i;
 #endif /* ACE_HAS_STRNLEN */
 }
-
 ACE_INLINE size_t
 ACE_OS::strnlen (const ACE_WCHAR_T *s, size_t maxlen)
 {
@@ -357,14 +322,12 @@ ACE_OS::strnlen (const ACE_WCHAR_T *s, size_t maxlen)
   return i;
 #endif /* ACE_HAS_WCSNLEN */
 }
-
 ACE_INLINE char *
 ACE_OS::strnstr (char *s, const char *t, size_t len)
 {
   return
     const_cast <char *> (ACE_OS::strnstr (const_cast <const char *> (s), t, len));
 }
-
 ACE_INLINE ACE_WCHAR_T *
 ACE_OS::strnstr (ACE_WCHAR_T *s, const ACE_WCHAR_T *t, size_t len)
 {
@@ -374,13 +337,11 @@ ACE_OS::strnstr (ACE_WCHAR_T *s, const ACE_WCHAR_T *t, size_t len)
                                  t,
                                  len));
 }
-
 ACE_INLINE const char *
 ACE_OS::strpbrk (const char *s1, const char *s2)
 {
   return const_cast <const char *> (::strpbrk (s1, s2));
 }
-
 #if defined (ACE_HAS_WCHAR)
 ACE_INLINE const wchar_t *
 ACE_OS::strpbrk (const wchar_t *s, const wchar_t *t)
@@ -392,13 +353,11 @@ ACE_OS::strpbrk (const wchar_t *s, const wchar_t *t)
 #  endif /* ACE_LACKS_WCSPBRK */
 }
 #endif /* ACE_HAS_WCHAR */
-
 ACE_INLINE char *
 ACE_OS::strpbrk (char *s1, const char *s2)
 {
   return ::strpbrk (s1, s2);
 }
-
 #if defined (ACE_HAS_WCHAR)
 ACE_INLINE wchar_t *
 ACE_OS::strpbrk (wchar_t *s, const wchar_t *t)
@@ -407,7 +366,6 @@ ACE_OS::strpbrk (wchar_t *s, const wchar_t *t)
                                   const_cast<const wchar_t *> (s), t));
 }
 #endif /* ACE_HAS_WCHAR */
-
 ACE_INLINE const char *
 ACE_OS::strrchr (const char *s, int c)
 {
@@ -417,7 +375,6 @@ ACE_OS::strrchr (const char *s, int c)
   return (const char *) ::strrchr (s, c);
 #endif /* ! ACE_LACKS_STRRCHR */
 }
-
 #if defined (ACE_HAS_WCHAR)
 ACE_INLINE const wchar_t *
 ACE_OS::strrchr (const wchar_t *s, wchar_t c)
@@ -429,7 +386,6 @@ ACE_OS::strrchr (const wchar_t *s, wchar_t c)
 #endif /* ! ACE_LACKS_WCSRCHR */
 }
 #endif /* ACE_HAS_WCHAR */
-
 ACE_INLINE char *
 ACE_OS::strrchr (char *s, int c)
 {
@@ -439,7 +395,6 @@ ACE_OS::strrchr (char *s, int c)
   return ::strrchr (s, c);
 #endif /* ! ACE_LACKS_STRRCHR */
 }
-
 #if defined (ACE_HAS_WCHAR)
 ACE_INLINE wchar_t *
 ACE_OS::strrchr (wchar_t *s, wchar_t c)
@@ -448,13 +403,11 @@ ACE_OS::strrchr (wchar_t *s, wchar_t c)
                      const_cast<const wchar_t *> (s), c));
 }
 #endif /* ACE_HAS_WCHAR */
-
 ACE_INLINE size_t
 ACE_OS::strspn (const char *s, const char *t)
 {
   return ::strspn (s, t);
 }
-
 #if defined (ACE_HAS_WCHAR)
 ACE_INLINE size_t
 ACE_OS::strspn (const wchar_t *s, const wchar_t *t)
@@ -466,13 +419,11 @@ ACE_OS::strspn (const wchar_t *s, const wchar_t *t)
 #  endif /* ACE_LACKS_WCSSPN */
 }
 #endif /* ACE_HAS_WCHAR */
-
 ACE_INLINE const char *
 ACE_OS::strstr (const char *s, const char *t)
 {
   return (const char *) ::strstr (s, t);
 }
-
 #if defined (ACE_HAS_WCHAR)
 ACE_INLINE const wchar_t *
 ACE_OS::strstr (const wchar_t *s, const wchar_t *t)
@@ -486,13 +437,11 @@ ACE_OS::strstr (const wchar_t *s, const wchar_t *t)
 #  endif /* ACE_LACKS_WCSSTR */
 }
 #endif /* ACE_HAS_WCHAR */
-
 ACE_INLINE char *
 ACE_OS::strstr (char *s, const char *t)
 {
   return ::strstr (s, t);
 }
-
 #if defined (ACE_HAS_WCHAR)
 ACE_INLINE wchar_t *
 ACE_OS::strstr (wchar_t *s, const wchar_t *t)
@@ -506,13 +455,11 @@ ACE_OS::strstr (wchar_t *s, const wchar_t *t)
 #  endif /* ACE_LACKS_WCSSTR */
 }
 #endif /* ACE_HAS_WCHAR */
-
 ACE_INLINE char *
 ACE_OS::strtok (char *s, const char *tokens)
 {
   return ::strtok (s, tokens);
 }
-
 #if defined (ACE_HAS_WCHAR) && !defined (ACE_LACKS_WCSTOK)
 ACE_INLINE wchar_t *
 ACE_OS::strtok (wchar_t *s, const wchar_t *tokens)
@@ -525,7 +472,6 @@ ACE_OS::strtok (wchar_t *s, const wchar_t *tokens)
 #endif /* ACE_HAS_3_PARAM_WCSTOK */
 }
 #endif /* ACE_HAS_WCHAR && !ACE_LACKS_WCSTOK */
-
 ACE_INLINE char *
 ACE_OS::strtok_r (char *s, const char *tokens, char **lasts)
 {
@@ -537,7 +483,6 @@ ACE_OS::strtok_r (char *s, const char *tokens, char **lasts)
   return ACE_OS::strtok_r_emulation (s, tokens, lasts);
 #endif /* (ACE_HAS_REENTRANT_FUNCTIONS) */
 }
-
 #if defined (ACE_HAS_WCHAR)
 ACE_INLINE wchar_t*
 ACE_OS::strtok_r (ACE_WCHAR_T *s, const ACE_WCHAR_T *tokens, ACE_WCHAR_T **lasts)
@@ -556,5 +501,4 @@ ACE_OS::strtok_r (ACE_WCHAR_T *s, const ACE_WCHAR_T *tokens, ACE_WCHAR_T **lasts
 #endif  /* ACE_LACKS_WCSTOK */
 }
 #endif  // ACE_HAS_WCHAR
-
 ACE_END_VERSIONED_NAMESPACE_DECL

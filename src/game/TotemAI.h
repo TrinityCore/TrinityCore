@@ -17,29 +17,21 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
-
 #ifndef TRINITY_TOTEMAI_H
 #define TRINITY_TOTEMAI_H
-
 #include "CreatureAI.h"
 #include "Timer.h"
-
 class Creature;
 class Totem;
-
 class TRINITY_DLL_DECL TotemAI : public CreatureAI
 {
     public:
-
         explicit TotemAI(Creature *c);
-
         void MoveInLineOfSight(Unit *);
         void AttackStart(Unit *);
         void EnterEvadeMode();
-
         void UpdateAI(const uint32);
         static int Permissible(const Creature *);
-
     private:
         uint64 i_victimGuid;
 };

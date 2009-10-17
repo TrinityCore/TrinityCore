@@ -1,21 +1,16 @@
 // -*- C++ -*-
 //
 // $Id: OS_NS_sys_resource.inl 80826 2008-03-04 14:51:23Z wotte $
-
 #include "ace/OS_NS_errno.h"
 #include "ace/OS_NS_macros.h"
-
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
-
 ACE_INLINE int
 ACE_OS::getrlimit (int resource, struct rlimit *rl)
 {
   ACE_OS_TRACE ("ACE_OS::getrlimit");
-
 #if defined (ACE_LACKS_RLIMIT)
   ACE_UNUSED_ARG (resource);
   ACE_UNUSED_ARG (rl);
-
   ACE_NOTSUP_RETURN (-1);
 #else
 # if defined (ACE_HAS_RLIMIT_RESOURCE_ENUM)
@@ -25,16 +20,13 @@ ACE_OS::getrlimit (int resource, struct rlimit *rl)
 # endif /* ACE_HAS_RLIMIT_RESOURCE_ENUM */
 #endif /* ACE_LACKS_RLIMIT */
 }
-
 ACE_INLINE int
 ACE_OS::getrusage (int who, struct rusage *ru)
 {
   ACE_OS_TRACE ("ACE_OS::getrusage");
-
 #if defined (ACE_HAS_GETRUSAGE)
 # if defined (ACE_WIN32)
   ACE_UNUSED_ARG (who);
-
 #  if defined (ACE_LACKS_GETPROCESSTIMES)
   ACE_UNUSED_ARG (ru);
   ACE_NOTSUP_RETURN (-1);
@@ -62,16 +54,13 @@ ACE_OS::getrusage (int who, struct rusage *ru)
   ACE_NOTSUP_RETURN (-1);
 #endif /* ACE_HAS_GETRUSAGE */
 }
-
 ACE_INLINE int
 ACE_OS::setrlimit (int resource, const struct rlimit *rl)
 {
   ACE_OS_TRACE ("ACE_OS::setrlimit");
-
 #if defined (ACE_LACKS_RLIMIT)
   ACE_UNUSED_ARG (resource);
   ACE_UNUSED_ARG (rl);
-
   ACE_NOTSUP_RETURN (-1);
 #else
 # if defined (ACE_HAS_RLIMIT_RESOURCE_ENUM)
@@ -94,5 +83,4 @@ ACE_OS::setrlimit (int resource, const struct rlimit *rl)
 # endif /* ACE_HAS_RLIMIT_RESOURCE_ENUM */
 #endif /* ACE_LACKS_RLIMIT */
 }
-
 ACE_END_VERSIONED_NAMESPACE_DECL

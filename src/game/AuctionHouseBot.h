@@ -1,10 +1,8 @@
 #ifndef AUCTION_HOUSE_BOT_H
 #define AUCTION_HOUSE_BOT_H
-
 #include "World.h"
 #include "Config/ConfigEnv.h"
 #include "ItemPrototype.h"
-
 #define AHB_GREY        0
 #define AHB_WHITE       1
 #define AHB_GREEN       2
@@ -27,7 +25,6 @@
 #define AHB_PURPLE_I    11
 #define AHB_ORANGE_I    12
 #define AHB_YELLOW_I    13
-
 class AHBConfig
 {
 private:
@@ -84,7 +81,6 @@ private:
     uint32 minBidPriceYellow;
     uint32 maxBidPriceYellow;
     uint32 maxStackYellow;
-
     uint32 buyerPriceGrey;
     uint32 buyerPriceWhite;
     uint32 buyerPriceGreen;
@@ -94,7 +90,6 @@ private:
     uint32 buyerPriceYellow;
     uint32 buyerBiddingInterval;
     uint32 buyerBidsPerInterval;
-
     uint32 greytgp;
     uint32 whitetgp;
     uint32 greentgp;
@@ -109,7 +104,6 @@ private:
     uint32 purpleip;
     uint32 orangeip;
     uint32 yellowip;
-
     uint32 greyTGoods;
     uint32 whiteTGoods;
     uint32 greenTGoods;
@@ -117,7 +111,6 @@ private:
     uint32 purpleTGoods;
     uint32 orangeTGoods;
     uint32 yellowTGoods;
-
     uint32 greyItems;
     uint32 whiteItems;
     uint32 greenItems;
@@ -125,7 +118,6 @@ private:
     uint32 purpleItems;
     uint32 orangeItems;
     uint32 yellowItems;
-
 public:
     AHBConfig(uint32 ahid)
     {
@@ -182,7 +174,6 @@ public:
     void SetPercentages(uint32 greytg, uint32 whitetg, uint32 greentg, uint32 bluetg, uint32 purpletg, uint32 orangetg, uint32 yellowtg, uint32 greyi, uint32 whitei, uint32 greeni, uint32 bluei, uint32 purplei, uint32 orangei, uint32 yellowi)
     {
         uint32 totalPercent = greytg + whitetg + greentg + bluetg + purpletg + orangetg + yellowtg + greyi + whitei + greeni + bluei + purplei + orangei + yellowi;
-
         if (totalPercent == 0)
         {
             maxItems = 0;
@@ -892,7 +883,6 @@ public:
             break;
         }
     }
-
     void DecItemCounts(uint32 Class, uint32 Quality)
     {
         switch(Class)
@@ -905,7 +895,6 @@ public:
             break;
         }
     }
-
     void DecItemCounts(uint32 color)
     {
         switch(color)
@@ -956,7 +945,6 @@ public:
             break;
         }
     }
- 
     void IncItemCounts(uint32 Class, uint32 Quality)
     {
         switch(Class)
@@ -969,7 +957,6 @@ public:
             break;
         }
     }
-
     void IncItemCounts(uint32 color)
     {
         switch(color)
@@ -1020,7 +1007,6 @@ public:
             break;
         }
     }
-
     void ResetItemCounts()
     {
         greyTGoods = 0;
@@ -1030,7 +1016,6 @@ public:
         purpleTGoods = 0;
         orangeTGoods = 0;
         yellowTGoods = 0;
-
         greyItems = 0;
         whiteItems = 0;
         greenItems = 0;
@@ -1039,7 +1024,6 @@ public:
         orangeItems = 0;
         yellowItems = 0;
     }
-
     uint32 TotalItemCounts()
     {
         return(
@@ -1050,7 +1034,6 @@ public:
         purpleTGoods +
         orangeTGoods +
         yellowTGoods +
-
         greyItems +
         whiteItems +
         greenItems +
@@ -1059,7 +1042,6 @@ public:
         orangeItems +
         yellowItems);
     }
-
     uint32 GetItemCounts(uint32 color)
     {
         switch(color)
@@ -1126,34 +1108,27 @@ public:
 class AuctionHouseBot
 {
 private:
-
     bool debug_Out;
     bool debug_Out_Filters;
-
     bool AHBSeller;
     bool AHBBuyer;
     bool BuyMethod;
     bool SellMethod;
-
     uint32 AHBplayerAccount;
     uint32 AHBplayerGUID;
     uint32 ItemsPerCycle;
-
     //Begin Filters
-
     bool Vendor_Items;
     bool Loot_Items;
     bool Other_Items;
     bool Vendor_TGs;
     bool Loot_TGs;
     bool Other_TGs;
-
     bool No_Bind;
     bool Bind_When_Picked_Up;
     bool Bind_When_Equipped;
     bool Bind_When_Use;
     bool Bind_Quest_Item;
-
     bool DisableBeta_PTR_Unused;
     bool DisablePermEnchant;
 #if CLIENT_VER > 300
@@ -1166,7 +1141,6 @@ private:
     bool DisableKeys;
     bool DisableDuration;
     bool DisableBOP_Or_Quest_NoReqLevel;
-
     bool DisableWarriorItems;
     bool DisablePaladinItems;
     bool DisableHunterItems;
@@ -1178,7 +1152,6 @@ private:
     bool DisableWarlockItems;
     bool DisableUnusedClassItems;
     bool DisableDruidItems;
-
     uint32 DisableItemsBelowLevel;
     uint32 DisableItemsAboveLevel;
     uint32 DisableTGsBelowLevel;
@@ -1195,21 +1168,16 @@ private:
     uint32 DisableItemsAboveReqSkillRank;
     uint32 DisableTGsBelowReqSkillRank;
     uint32 DisableTGsAboveReqSkillRank;
-
     //End Filters
-
     AHBConfig AllianceConfig;
     AHBConfig HordeConfig;
     AHBConfig NeutralConfig;
-
     time_t _lastrun_a;
     time_t _lastrun_h;
     time_t _lastrun_n;
-
     inline uint32 minValue(uint32 a, uint32 b) { return a <= b ? a : b; };
     void addNewAuctions(Player *AHBplayer, AHBConfig *config);
     void addNewAuctionBuyerBotBid(Player *AHBplayer, AHBConfig *config, WorldSession *session);
-
 public:
     AuctionHouseBot();
     ~AuctionHouseBot();
@@ -1221,7 +1189,5 @@ public:
     void Commands(uint32, uint32, uint32, char*);
     uint32 GetAHBplayerGUID() { return AHBplayerGUID; };
 };
-
 #define auctionbot Trinity::Singleton<AuctionHouseBot>::Instance()
-
 #endif

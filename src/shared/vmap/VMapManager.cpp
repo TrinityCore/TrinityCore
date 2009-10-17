@@ -17,17 +17,12 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
-
 #include "VMapManager.h"
 #include "VMapDefinitions.h"
-
 using namespace G3D;
-
 namespace VMAP
 {
-
     //=========================================================
-
     VMapManager::VMapManager()
     {
 #ifdef _VMAP_LOG_DEBUG
@@ -35,9 +30,7 @@ namespace VMAP
         iCommandLogger.setResetFile();
 #endif
     }
-
     //=========================================================
-
     VMapManager::~VMapManager(void)
     {
         Array<unsigned int > keyArray = iInstanceMapTrees.getKeys();
@@ -47,9 +40,7 @@ namespace VMAP
             iInstanceMapTrees.remove(keyArray[i]);
         }
     }
-
     //=========================================================
-
     Vector3 VMapManager::convertPositionToInternalRep(float x, float y, float z) const
     {
         float pos[3];
@@ -60,12 +51,9 @@ namespace VMAP
         double mid = full/2.0;
         pos[0] = full- (pos[0] + mid);
         pos[2] = full- (pos[2] + mid);
-
         return(Vector3(pos));
     }
-
     //=========================================================
-
     Vector3 VMapManager::convertPositionToTrinityRep(float x, float y, float z) const
     {
         float pos[3];
@@ -76,24 +64,19 @@ namespace VMAP
         double mid = full/2.0;
         pos[0] = -((mid+pos[0])-full);
         pos[1] = -((mid+pos[1])-full);
-
         return(Vector3(pos));
     }
     //=========================================================
-
     std::string VMapManager::getDirFileName(unsigned int pMapId, int x, int y) const
     {
         char name[FILENAMEBUFFER_SIZE];
-
         sprintf(name, "%03u_%d_%d%s",pMapId, x, y, DIR_FILENAME_EXTENSION);
         return(std::string(name));
     }
-
     //=========================================================
     std::string VMapManager::getDirFileName(unsigned int pMapId) const
     {
         char name[FILENAMEBUFFER_SIZE];
-
         sprintf(name, "%03d%s",pMapId, DIR_FILENAME_EXTENSION);
         return(std::string(name));
     }
@@ -115,7 +98,6 @@ namespace VMAP
         }
     }
     //=========================================================
-
     void chompAndTrim(std::string& str)
     {
         while(str.length() >0)
@@ -143,10 +125,8 @@ namespace VMAP
             }
         }
     }
-
     //=========================================================
     // result false, if no more id are found
-
     bool getNextMapId(const std::string& pString, unsigned int& pStartPos, unsigned int& pId)
     {
         bool result = false;
@@ -168,14 +148,12 @@ namespace VMAP
         }
         return(result);
     }
-
     //=========================================================
     /**
     Block maps from being used.
     parameter: String of map ids. Delimiter = ","
     e.g.: "0,1,590"
     */
-
     void VMapManager::preventMapsFromBeingUsed(const char* pMapIdString)
     {
         if(pMapIdString != NULL)
@@ -190,9 +168,7 @@ namespace VMAP
             }
         }
     }
-
     //=========================================================
-
     int VMapManager::loadMap(const char* pBasePath, unsigned int pMapId, int x, int y)
     {
         int result = VMAP_LOAD_RESULT_IGNORED;
@@ -225,10 +201,8 @@ namespace VMAP
         }
         return result;
     }
-
     //=========================================================
     // load one tile (internal use only)
-
     bool VMapManager::_loadMap(const char* pBasePath, unsigned int pMapId, int x, int y, bool pForceTileLoad)
     {
         bool result = false;
@@ -249,7 +223,6 @@ namespace VMAP
         }
         else
             instanceTree = iInstanceMapTrees.get(pMapId);
-
         unsigned int mapTileIdent = MAP_TILE_IDENT(x,y);
         result = instanceTree->loadMap(dirFileName, mapTileIdent);
         if(!result)                                         // remove on fail
@@ -262,9 +235,7 @@ namespace VMAP
         }
         return(result);
     }
-
     //=========================================================
-
     bool VMapManager::_existsMap(const std::string& pBasePath, unsigned int pMapId, int x, int y, bool pForceTileLoad)
     {
         bool result = false;
@@ -304,9 +275,7 @@ namespace VMAP
         }
         return result;
     }
-
     //=========================================================
-
     bool VMapManager::existsMap(const char* pBasePath, unsigned int pMapId, int x, int y)
     {
         std::string basePath = std::string(pBasePath);
@@ -326,22 +295,17 @@ namespace VMAP
         }
         return found;
     }
-
     //=========================================================
-
     void VMapManager::unloadMap(unsigned int pMapId, int x, int y)
     {
         _unloadMap(pMapId, x, y);
-
 #ifdef _VMAP_LOG_DEBUG
         Command c = Command();
         c.fillUnloadTileCmd(pMapId, x,y);
         iCommandLogger.appendCmd(c);
 #endif
     }
-
     //=========================================================
-
     void VMapManager::_unloadMap(unsigned int  pMapId, int x, int y)
     {
         if(iInstanceMapTrees.containsKey(pMapId))
@@ -365,9 +329,7 @@ namespace VMAP
             }
         }
     }
-
     //=========================================================
-
     void VMapManager::unloadMap(unsigned int pMapId)
     {
         if(iInstanceMapTrees.containsKey(pMapId))
@@ -388,7 +350,6 @@ namespace VMAP
         }
     }
     //==========================================================
-
     bool VMapManager::isInLineOfSight(unsigned int pMapId, float x1, float y1, float z1, float x2, float y2, float z2)
     {
         bool result = true;
@@ -443,12 +404,10 @@ namespace VMAP
         }
         return result;
     }
-
     //=========================================================
     /**
     get height or INVALID_HEIGHT if to height was calculated
     */
-
     //int gGetHeightCounter = 0;
     float VMapManager::getHeight(unsigned int pMapId, float x, float y, float z)
     {
@@ -470,7 +429,6 @@ namespace VMAP
         }
         return(height);
     }
-
     //=========================================================
     /**
     used for debugging
@@ -482,7 +440,6 @@ namespace VMAP
         if(cmd == "startlog")
         {
 #ifdef _VMAP_LOG_DEBUG
-
             iCommandLogger.enableWriting(true);
 #endif
             result = true;
@@ -509,11 +466,9 @@ namespace VMAP
         }
         return result;
     }
-
     //=========================================================
     //=========================================================
     //=========================================================
-
     MapTree::MapTree(const char* pBaseDir)
     {
         iBasePath = std::string(pBaseDir);
@@ -523,7 +478,6 @@ namespace VMAP
         }
         iTree = new AABSPTree<ModelContainer *>();
     }
-
     //=========================================================
     MapTree::~MapTree()
     {
@@ -538,7 +492,6 @@ namespace VMAP
         delete iTree;
     }
     //=========================================================
-
     // just for visual debugging with an external debug class
     #ifdef _DEBUG_VMAPS
     #ifndef gBoxArray
@@ -548,12 +501,10 @@ namespace VMAP
     extern bool myfound;
     #endif
     #endif
-
     //=========================================================
     /**
     return dist to hit or inf() if no hit
     */
-
     float MapTree::getIntersectionTime(const Ray& pRay, float pMaxDist, bool pStopAtFirstHit)
     {
         float firstDistance = inf();
@@ -576,7 +527,6 @@ namespace VMAP
         return firstDistance;
     }
     //=========================================================
-
     bool MapTree::isInLineOfSight(const Vector3& pos1, const Vector3& pos2)
     {
         bool result = true;
@@ -595,7 +545,6 @@ namespace VMAP
     When moving from pos1 to pos2 check if we hit an object. Return true and the position if we hit one
     Return the hit pos or the original dest pos
     */
-
     bool MapTree::getObjectHitPos(const Vector3& pPos1, const Vector3& pPos2, Vector3& pResultHitPos, float pModifyDist)
     {
         bool result;
@@ -630,9 +579,7 @@ namespace VMAP
         }
         return result;
     }
-
     //=========================================================
-
     float MapTree::getHeight(const Vector3& pPos)
     {
         float height = inf();
@@ -646,15 +593,12 @@ namespace VMAP
         }
         return(height);
     }
-
     //=========================================================
-
     bool MapTree::PrepareTree()
     {
         iTree->balance();
         return true;
     }
-
     bool MapTree::loadMap(const std::string& pDirFileName, unsigned int pMapTileIdent)
     {
         bool result = true;
@@ -725,9 +669,7 @@ namespace VMAP
         }
         return (result);
     }
-
     //=========================================================
-
     void MapTree::unloadMap(const std::string& dirFileName, unsigned int pMapTileIdent, bool pForce)
     {
         if(hasDirFile(dirFileName) && (pForce || containsLoadedMapTile(pMapTileIdent)))
@@ -761,10 +703,8 @@ namespace VMAP
             }
         }
     }
-
     //=========================================================
     //=========================================================
-
     void MapTree::addModelContainer(const std::string& pName, ManagedModelContainer *pMc)
     {
         iLoadedModelContainer.set(pName, pMc);

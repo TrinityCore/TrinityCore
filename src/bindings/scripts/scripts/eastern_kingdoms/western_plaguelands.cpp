@@ -13,40 +13,32 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
-
 /* ScriptData
 SDName: Western_Plaguelands
 SD%Complete: 90
 SDComment: Quest support: 5216, 5219, 5222, 5225, 5229, 5231, 5233, 5235. To obtain Vitreous Focuser (could use more spesifics about gossip items)
 SDCategory: Western Plaguelands
 EndScriptData */
-
 /* ContentData
 npcs_dithers_and_arbington
 npc_myranda_the_hag
 npc_the_scourge_cauldron
 EndContentData */
-
 #include "precompiled.h"
-
 /*######
 ## npcs_dithers_and_arbington
 ######*/
-
 #define GOSSIP_HDA1 "What does the Felstone Field Cauldron need?"
 #define GOSSIP_HDA2 "What does the Dalson's Tears Cauldron need?"
 #define GOSSIP_HDA3 "What does the Writhing Haunt Cauldron need?"
 #define GOSSIP_HDA4 "What does the Gahrron's Withering Cauldron need?"
-
 #define GOSSIP_SDA1 "Thanks, i need a Vitreous Focuser"
-
 bool GossipHello_npcs_dithers_and_arbington(Player* pPlayer, Creature* pCreature)
 {
     if (pCreature->isQuestGiver())
         pPlayer->PrepareQuestMenu(pCreature->GetGUID());
     if (pCreature->isVendor())
         pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_VENDOR, GOSSIP_TEXT_BROWSE_GOODS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
-
     if (pPlayer->GetQuestRewardStatus(5237) || pPlayer->GetQuestRewardStatus(5238))
     {
         pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_HDA1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
@@ -56,10 +48,8 @@ bool GossipHello_npcs_dithers_and_arbington(Player* pPlayer, Creature* pCreature
         pPlayer->SEND_GOSSIP_MENU(3985, pCreature->GetGUID());
     }else
         pPlayer->SEND_GOSSIP_MENU(pCreature->GetNpcTextId(), pCreature->GetGUID());
-
     return true;
 }
-
 bool GossipSelect_npcs_dithers_and_arbington(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
 {
     switch(uiAction)
@@ -90,25 +80,20 @@ bool GossipSelect_npcs_dithers_and_arbington(Player* pPlayer, Creature* pCreatur
     }
     return true;
 }
-
 /*######
 ## npc_myranda_the_hag
 ######*/
-
 enum eMyranda
 {
     QUEST_SUBTERFUGE        = 5862,
     QUEST_IN_DREAMS         = 5944,
     SPELL_SCARLET_ILLUSION  = 17961
 };
-
 #define GOSSIP_ITEM_ILLUSION    "I am ready for the illusion, Myranda."
-
 bool GossipHello_npc_myranda_the_hag(Player* pPlayer, Creature* pCreature)
 {
     if (pCreature->isQuestGiver())
         pPlayer->PrepareQuestMenu(pCreature->GetGUID());
-
     if (pPlayer->GetQuestStatus(QUEST_SUBTERFUGE) == QUEST_STATUS_COMPLETE &&
         !pPlayer->GetQuestRewardStatus(QUEST_IN_DREAMS) && !pPlayer->HasAura(SPELL_SCARLET_ILLUSION))
     {
@@ -118,10 +103,8 @@ bool GossipHello_npc_myranda_the_hag(Player* pPlayer, Creature* pCreature)
     }
     else
         pPlayer->SEND_GOSSIP_MENU(pCreature->GetNpcTextId(), pCreature->GetGUID());
-
     return true;
 }
-
 bool GossipSelect_npc_myranda_the_hag(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
 {
     if (uiAction == GOSSIP_ACTION_INFO_DEF + 1)
@@ -131,19 +114,14 @@ bool GossipSelect_npc_myranda_the_hag(Player* pPlayer, Creature* pCreature, uint
     }
     return true;
 }
-
 /*######
 ## npc_the_scourge_cauldron
 ######*/
-
 struct TRINITY_DLL_DECL npc_the_scourge_cauldronAI : public ScriptedAI
 {
     npc_the_scourge_cauldronAI(Creature *c) : ScriptedAI(c) {}
-
     void Reset() {}
-
     void EnterCombat(Unit* who) {}
-
     void DoDie()
     {
         //summoner dies here
@@ -153,12 +131,10 @@ struct TRINITY_DLL_DECL npc_the_scourge_cauldronAI : public ScriptedAI
         if (rTime<600)
             m_creature->SetRespawnDelay(600);
     }
-
     void MoveInLineOfSight(Unit *who)
     {
         if (!who || who->GetTypeId() != TYPEID_PLAYER)
             return;
-
         if (who->GetTypeId() == TYPEID_PLAYER)
         {
             switch(m_creature->GetAreaId())
@@ -203,27 +179,22 @@ CreatureAI* GetAI_npc_the_scourge_cauldron(Creature* pCreature)
 {
     return new npc_the_scourge_cauldronAI (pCreature);
 }
-
 /*######
 ##
 ######*/
-
 void AddSC_western_plaguelands()
 {
     Script *newscript;
-
     newscript = new Script;
     newscript->Name = "npcs_dithers_and_arbington";
     newscript->pGossipHello = &GossipHello_npcs_dithers_and_arbington;
     newscript->pGossipSelect = &GossipSelect_npcs_dithers_and_arbington;
     newscript->RegisterSelf();
-
     newscript = new Script;
     newscript->Name = "npc_myranda_the_hag";
     newscript->pGossipHello = &GossipHello_npc_myranda_the_hag;
     newscript->pGossipSelect = &GossipSelect_npc_myranda_the_hag;
     newscript->RegisterSelf();
-
     newscript = new Script;
     newscript->Name = "npc_the_scourge_cauldron";
     newscript->GetAI = &GetAI_npc_the_scourge_cauldron;

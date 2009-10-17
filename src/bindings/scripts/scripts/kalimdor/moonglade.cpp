@@ -13,14 +13,12 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
-
 /* ScriptData
 SDName: Moonglade
 SD%Complete: 100
 SDComment: Quest support: 30, 272, 5929, 5930, 10965. Special Flight Paths for Druid class.
 SDCategory: Moonglade
 EndScriptData */
-
 /* ContentData
 npc_bunthen_plainswind
 npc_great_bear_spirit
@@ -28,14 +26,11 @@ npc_silva_filnaveth
 npc_clintar_spirit
 npc_clintar_dreamwalker
 EndContentData */
-
 #include "precompiled.h"
 #include "escort_ai.h"
-
 /*######
 ## npc_bunthen_plainswind
 ######*/
-
 enum eBunthen
 {
     QUEST_SEA_LION_HORDE        = 30,
@@ -43,10 +38,8 @@ enum eBunthen
     TAXI_PATH_ID_ALLY           = 315,
     TAXI_PATH_ID_HORDE          = 316
 };
-
 #define GOSSIP_ITEM_THUNDER     "I'd like to fly to Thunder Bluff."
 #define GOSSIP_ITEM_AQ_END      "Do you know where I can find Half Pendant of Aquatic Endurance?"
-
 bool GossipHello_npc_bunthen_plainswind(Player* pPlayer, Creature* pCreature)
 {
     if (pPlayer->getClass() != CLASS_DRUID)
@@ -55,21 +48,17 @@ bool GossipHello_npc_bunthen_plainswind(Player* pPlayer, Creature* pCreature)
     {
         if (pPlayer->GetQuestStatus(QUEST_SEA_LION_ALLY) == QUEST_STATUS_INCOMPLETE)
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_AQ_END, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
-
         pPlayer->SEND_GOSSIP_MENU(4917, pCreature->GetGUID());
     }
     else if (pPlayer->getClass() == CLASS_DRUID && pPlayer->GetTeam() == HORDE)
     {
         pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_THUNDER, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-
         if (pPlayer->GetQuestStatus(QUEST_SEA_LION_HORDE) == QUEST_STATUS_INCOMPLETE)
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_AQ_END, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
-
         pPlayer->SEND_GOSSIP_MENU(4918, pCreature->GetGUID());
     }
     return true;
 }
-
 bool GossipSelect_npc_bunthen_plainswind(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
 {
     switch(uiAction)
@@ -88,16 +77,13 @@ bool GossipSelect_npc_bunthen_plainswind(Player* pPlayer, Creature* pCreature, u
     }
     return true;
 }
-
 /*######
 ## npc_great_bear_spirit
 ######*/
-
 #define GOSSIP_BEAR1 "What do you represent, spirit?"
 #define GOSSIP_BEAR2 "I seek to understand the importance of strength of the body."
 #define GOSSIP_BEAR3 "I seek to understand the importance of strength of the heart."
 #define GOSSIP_BEAR4 "I have heard your words, Great Bear Spirit, and I understand. I now seek your blessings to fully learn the way of the Claw."
-
 bool GossipHello_npc_great_bear_spirit(Player* pPlayer, Creature* pCreature)
 {
     //ally or horde quest
@@ -108,10 +94,8 @@ bool GossipHello_npc_great_bear_spirit(Player* pPlayer, Creature* pCreature)
     }
     else
         pPlayer->SEND_GOSSIP_MENU(4718, pCreature->GetGUID());
-
     return true;
 }
-
 bool GossipSelect_npc_great_bear_spirit(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
 {
     switch (uiAction)
@@ -138,14 +122,11 @@ bool GossipSelect_npc_great_bear_spirit(Player* pPlayer, Creature* pCreature, ui
     }
     return true;
 }
-
 /*######
 ## npc_silva_filnaveth
 ######*/
-
 #define GOSSIP_ITEM_RUTHERAN    "I'd like to fly to Rut'theran Village."
 #define GOSSIP_ITEM_AQ_AGI      "Do you know where I can find Half Pendant of Aquatic Agility?"
-
 bool GossipHello_npc_silva_filnaveth(Player* pPlayer, Creature* pCreature)
 {
     if (pPlayer->getClass() != CLASS_DRUID)
@@ -154,21 +135,17 @@ bool GossipHello_npc_silva_filnaveth(Player* pPlayer, Creature* pCreature)
     {
         if (pPlayer->GetQuestStatus(QUEST_SEA_LION_HORDE) == QUEST_STATUS_INCOMPLETE)
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_AQ_AGI, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
-
         pPlayer->SEND_GOSSIP_MENU(4915, pCreature->GetGUID());
     }
     else if (pPlayer->getClass() == CLASS_DRUID && pPlayer->GetTeam() == ALLIANCE)
     {
         pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_RUTHERAN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-
         if (pPlayer->GetQuestStatus(QUEST_SEA_LION_ALLY) == QUEST_STATUS_INCOMPLETE)
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_AQ_AGI, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
-
         pPlayer->SEND_GOSSIP_MENU(4914, pCreature->GetGUID());
     }
     return true;
 }
-
 bool GossipSelect_npc_silva_filnaveth(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
 {
     switch(uiAction)
@@ -187,11 +164,9 @@ bool GossipSelect_npc_silva_filnaveth(Player* pPlayer, Creature* pCreature, uint
     }
     return true;
 }
-
 /*######
 ## npc_clintar_spirit
 ######*/
-
 float Clintar_spirit_WP[41][5] =
 {
  //pos_x   pos_y    pos_z    orien waitTime
@@ -237,9 +212,7 @@ float Clintar_spirit_WP[41][5] =
 {7518.37, -3057.42, 445.584, 0.74, 0},
 {7517.51, -3056.3,  444.568, 2.49, 4500}
 };
-
 #define ASPECT_RAVEN 22915
-
 #define ASPECT_RAVEN_SUMMON_X 7472.96
 #define ASPECT_RAVEN_SUMMON_Y -3074.18
 #define ASPECT_RAVEN_SUMMON_Z 427.566
@@ -247,7 +220,6 @@ float Clintar_spirit_WP[41][5] =
 #define CLINTAR_SPIRIT_SUMMON_Y -3122.5632
 #define CLINTAR_SPIRIT_SUMMON_Z 438.9842
 #define CLINTAR_SPIRIT_SUMMON_O 0.8594
-
 //from -1000292 to -1000287 are signed for 7806. but all this texts ids wrong.
 #define CLINTAR_SPIRIT_SAY_START -1000286
 #define CLINTAR_SPIRIT_SAY_UNDER_ATTACK_1 -1000287
@@ -256,21 +228,16 @@ float Clintar_spirit_WP[41][5] =
 #define CLINTAR_SPIRIT_SAY_GET_TWO -1000290
 #define CLINTAR_SPIRIT_SAY_GET_THREE -1000291
 #define CLINTAR_SPIRIT_SAY_GET_FINAL -1000292
-
 struct TRINITY_DLL_DECL npc_clintar_spiritAI : public npc_escortAI
 {
 public:
     npc_clintar_spiritAI(Creature *c) : npc_escortAI(c) {}
-
     uint32 Step;
     uint32 CurrWP;
     uint32 Event_Timer;
     uint32 checkPlayer_Timer;
-
     uint64 PlayerGUID;
-
     bool Event_onWait;
-
     void Reset()
     {
         if (!PlayerGUID)
@@ -283,12 +250,10 @@ public:
             Event_onWait = false;
         }
     }
-
     void JustDied(Unit *killer)
     {
         if (!PlayerGUID)
             return;
-
         Player* pPlayer = Unit::GetPlayer(PlayerGUID);
         if (pPlayer && pPlayer->GetQuestStatus(10965) == QUEST_STATUS_INCOMPLETE)
         {
@@ -297,7 +262,6 @@ public:
             Reset();
         }
     }
-
     void EnterEvadeMode()
     {
         Player* pPlayer = Unit::GetPlayer(PlayerGUID);
@@ -308,7 +272,6 @@ public:
         }
         npc_escortAI::EnterEvadeMode();
     }
-
     void EnterCombat(Unit* who)
     {
         uint32 rnd = rand()%2;
@@ -318,14 +281,13 @@ public:
             case 1: DoScriptText(CLINTAR_SPIRIT_SAY_UNDER_ATTACK_2, m_creature, who); break;
         }
     }
-
     void StartEvent(Player* pPlayer)
     {
         if (!pPlayer)
             return;
         if (pPlayer->GetQuestStatus(10965) == QUEST_STATUS_INCOMPLETE)
         {
-            for(uint8 i = 0; i < 41; ++i)
+            for (uint8 i = 0; i < 41; ++i)
             {
                 AddWaypoint(i, Clintar_spirit_WP[i][0], Clintar_spirit_WP[i][1], Clintar_spirit_WP[i][2], (uint32)Clintar_spirit_WP[i][4]);
             }
@@ -334,17 +296,14 @@ public:
         }
         return;
     }
-
     void UpdateAI(const uint32 diff)
     {
         npc_escortAI::UpdateAI(diff);
-
         if (!PlayerGUID)
         {
             m_creature->setDeathState(JUST_DIED);
             return;
         }
-
         if (!m_creature->isInCombat() && !Event_onWait)
         {
             if (checkPlayer_Timer < diff)
@@ -355,17 +314,14 @@ public:
                 checkPlayer_Timer = 1000;
             }else checkPlayer_Timer -= diff;
         }
-
         if (Event_onWait && Event_Timer < diff)
         {
-
             Player* pPlayer = Unit::GetPlayer(PlayerGUID);
             if (!pPlayer || (pPlayer && pPlayer->GetQuestStatus(10965) == QUEST_STATUS_NONE))
             {
                 m_creature->setDeathState(JUST_DIED);
                 return;
             }
-
             switch(CurrWP)
             {
                 case 0:
@@ -497,10 +453,8 @@ public:
                     Event_onWait = false;
                     break;
             }
-
         } else if (Event_onWait) Event_Timer -= diff;
     }
-
     void WaypointReached(uint32 id)
     {
         CurrWP = id;
@@ -509,18 +463,14 @@ public:
         Event_onWait = true;
     }
 };
-
 CreatureAI* GetAI_npc_clintar_spirit(Creature* pCreature)
 {
     return new npc_clintar_spiritAI (pCreature);
 }
-
 /*####
 # npc_clintar_dreamwalker
 ####*/
-
 #define CLINTAR_SPIRIT 22916
-
 bool QuestAccept_npc_clintar_dreamwalker(Player* pPlayer, Creature* pCreature, Quest const *quest)
 {
     if (quest->GetQuestId() == 10965)
@@ -531,38 +481,31 @@ bool QuestAccept_npc_clintar_dreamwalker(Player* pPlayer, Creature* pCreature, Q
     }
     return true;
 }
-
 /*####
 #
 ####*/
-
 void AddSC_moonglade()
 {
     Script *newscript;
-
     newscript = new Script;
     newscript->Name = "npc_bunthen_plainswind";
     newscript->pGossipHello =  &GossipHello_npc_bunthen_plainswind;
     newscript->pGossipSelect = &GossipSelect_npc_bunthen_plainswind;
     newscript->RegisterSelf();
-
     newscript = new Script;
     newscript->Name = "npc_great_bear_spirit";
     newscript->pGossipHello =  &GossipHello_npc_great_bear_spirit;
     newscript->pGossipSelect = &GossipSelect_npc_great_bear_spirit;
     newscript->RegisterSelf();
-
     newscript = new Script;
     newscript->Name = "npc_silva_filnaveth";
     newscript->pGossipHello =  &GossipHello_npc_silva_filnaveth;
     newscript->pGossipSelect = &GossipSelect_npc_silva_filnaveth;
     newscript->RegisterSelf();
-
     newscript = new Script;
     newscript->Name = "npc_clintar_dreamwalker";
     newscript->pQuestAccept = &QuestAccept_npc_clintar_dreamwalker;
     newscript->RegisterSelf();
-
     newscript = new Script;
     newscript->Name = "npc_clintar_spirit";
     newscript->GetAI = &GetAI_npc_clintar_spirit;

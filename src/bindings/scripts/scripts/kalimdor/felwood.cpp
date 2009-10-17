@@ -13,33 +13,25 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
-
 /* ScriptData
 SDName: Felwood
 SD%Complete: 95
 SDComment: Quest support: 4101, 4102
 SDCategory: Felwood
 EndScriptData */
-
 /* ContentData
 npcs_riverbreeze_and_silversky
 EndContentData */
-
 #include "precompiled.h"
-
 /*######
 ## npcs_riverbreeze_and_silversky
 ######*/
-
 #define GOSSIP_ITEM_BEACON  "Please make me a Cenarion Beacon"
-
 bool GossipHello_npcs_riverbreeze_and_silversky(Player* pPlayer, Creature* pCreature)
 {
     uint32 eCreature = pCreature->GetEntry();
-
     if (pCreature->isQuestGiver())
         pPlayer->PrepareQuestMenu(pCreature->GetGUID());
-
     if (eCreature==9528)
     {
         if (pPlayer->GetQuestRewardStatus(4101))
@@ -51,7 +43,6 @@ bool GossipHello_npcs_riverbreeze_and_silversky(Player* pPlayer, Creature* pCrea
         else
             pPlayer->SEND_GOSSIP_MENU(2844, pCreature->GetGUID());
     }
-
     if (eCreature==9529)
     {
         if (pPlayer->GetQuestRewardStatus(4102))
@@ -63,10 +54,8 @@ bool GossipHello_npcs_riverbreeze_and_silversky(Player* pPlayer, Creature* pCrea
         else
             pPlayer->SEND_GOSSIP_MENU(2842, pCreature->GetGUID());
     }
-
     return true;
 }
-
 bool GossipSelect_npcs_riverbreeze_and_silversky(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
 {
     if (uiAction ==GOSSIP_ACTION_INFO_DEF+1)
@@ -76,11 +65,9 @@ bool GossipSelect_npcs_riverbreeze_and_silversky(Player* pPlayer, Creature* pCre
     }
     return true;
 }
-
 void AddSC_felwood()
 {
     Script *newscript;
-
     newscript = new Script;
     newscript->Name = "npcs_riverbreeze_and_silversky";
     newscript->pGossipHello = &GossipHello_npcs_riverbreeze_and_silversky;

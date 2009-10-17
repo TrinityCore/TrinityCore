@@ -17,9 +17,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
-
 #ifndef DO_POSTGRESQL
-
 #include "Util.h"
 #include "Policies/SingletonImp.h"
 #include "Platform/Define.h"
@@ -28,19 +26,15 @@
 #include "Database/MySQLDelayThread.h"
 #include "Database/SqlOperations.h"
 #include "Timer.h"
-
 void DatabaseMysql::ThreadStart()
 {
     mysql_thread_init();
 }
-
 void DatabaseMysql::ThreadEnd()
 {
     mysql_thread_end();
 }
-
 size_t DatabaseMysql::db_count = 0;
-
 DatabaseMysql::DatabaseMysql() : Database(), mMysql(0)
 {
     // before first connection
@@ -48,7 +42,6 @@ DatabaseMysql::DatabaseMysql() : Database(), mMysql(0)
     {
         // Mysql Library Init
         mysql_library_init(-1, NULL, NULL);
-
         if (!mysql_thread_safe())
         {
             sLog.outError("FATAL ERROR: Used MySQL library isn't thread-safe.");
@@ -56,26 +49,20 @@ DatabaseMysql::DatabaseMysql() : Database(), mMysql(0)
         }
     }
 }
-
 DatabaseMysql::~DatabaseMysql()
 {
     if (m_delayThread)
         HaltDelayThread();
-
     if (mMysql)
         mysql_close(mMysql);
-
     //Free Mysql library pointers for last ~DB
     if(--db_count == 0)
         mysql_library_end();
 }
-
 bool DatabaseMysql::Initialize(const char *infoString)
 {
-
     if(!Database::Initialize(infoString))
         return false;
-
     tranThread = NULL;
     MYSQL *mysqlInit;
     mysqlInit = mysql_init(NULL);
@@ -84,19 +71,13 @@ bool DatabaseMysql::Initialize(const char *infoString)
         sLog.outError( "Could not initialize Mysql connection" );
         return false;
     }
-
     InitDelayThread();
-
     Tokens tokens = StrSplit(infoString, ";");
-
     Tokens::iterator iter;
-
     std::string host, port_or_socket, user, password, database;
     int port;
     char const* unix_socket;
-
     iter = tokens.begin();
-
     if(iter != tokens.end())
         host = *iter++;
     if(iter != tokens.end())
@@ -107,7 +88,6 @@ bool DatabaseMysql::Initialize(const char *infoString)
         password = *iter++;
     if(iter != tokens.end())
         database = *iter++;
-
     mysql_options(mysqlInit,MYSQL_SET_CHARSET_NAME,"utf8");
     #ifdef WIN32
     if(host==".")                                           // named pipe use option (Windows)
@@ -137,17 +117,14 @@ bool DatabaseMysql::Initialize(const char *infoString)
         unix_socket = 0;
     }
     #endif
-
     mMysql = mysql_real_connect(mysqlInit, host.c_str(), user.c_str(),
         password.c_str(), database.c_str(), port, unix_socket, 0);
-
     if (mMysql)
     {
         sLog.outDetail( "Connected to MySQL database at %s",
             host.c_str());
         sLog.outString( "MySQL client library: %s", mysql_get_client_info());
         sLog.outString( "MySQL server ver: %s ", mysql_get_server_info( mMysql));
-
         /*----------SET AUTOCOMMIT ON---------*/
         // It seems mysql 5.0.x have enabled this feature
         // by default. In crash case you can lose data!!!
@@ -161,12 +138,10 @@ bool DatabaseMysql::Initialize(const char *infoString)
         else
             sLog.outDetail("AUTOCOMMIT NOT SET TO 1");
         /*-------------------------------------*/
-
         // set connection properties to UTF8 to properly handle locales for different
         // server configs - core sends data in UTF8, so MySQL must expect UTF8 too
         PExecute("SET NAMES `utf8`");
         PExecute("SET CHARACTER SET `utf8`");
-
     #if MYSQL_VERSION_ID >= 50003
         my_bool my_true = (my_bool)1;
         if (mysql_options(mMysql, MYSQL_OPT_RECONNECT, &my_true))
@@ -180,7 +155,6 @@ bool DatabaseMysql::Initialize(const char *infoString)
     #else
         #warning "Your mySQL client lib version does not support reconnecting after a timeout.\nIf this causes you any trouble we advice you to upgrade your mySQL client libs to at least mySQL 5.0.13 to resolve this problem."
     #endif
-
         return true;
     }
     else
@@ -191,12 +165,10 @@ bool DatabaseMysql::Initialize(const char *infoString)
         return false;
     }
 }
-
 bool DatabaseMysql::_Query(const char *sql, MYSQL_RES **pResult, MYSQL_FIELD **pFields, uint64* pRowCount, uint32* pFieldCount)
 {
     if (!mMysql)
         return 0;
-
     {
         // guarded block for thread-safe mySQL request
         ACE_Guard<ACE_Thread_Mutex> query_connection_guard(mMutex);
@@ -215,72 +187,54 @@ bool DatabaseMysql::_Query(const char *sql, MYSQL_RES **pResult, MYSQL_FIELD **p
             sLog.outDebug("[%u ms] SQL: %s", getMSTimeDiff(_s,getMSTime()), sql );
             #endif
         }
-
         *pResult = mysql_store_result(mMysql);
         *pRowCount = mysql_affected_rows(mMysql);
         *pFieldCount = mysql_field_count(mMysql);
         // end guarded block
     }
-
     if (!*pResult )
         return false;
-
     if (!*pRowCount)
     {
         mysql_free_result(*pResult);
         return false;
     }
-
     *pFields = mysql_fetch_fields(*pResult);
     return true;
 }
-
 QueryResult* DatabaseMysql::Query(const char *sql)
 {
     MYSQL_RES *result = NULL;
     MYSQL_FIELD *fields = NULL;
     uint64 rowCount = 0;
     uint32 fieldCount = 0;
-
     if(!_Query(sql,&result,&fields,&rowCount,&fieldCount))
         return NULL;
-
     QueryResultMysql *queryResult = new QueryResultMysql(result, fields, rowCount, fieldCount);
-
     queryResult->NextRow();
-
     return queryResult;
 }
-
 QueryNamedResult* DatabaseMysql::QueryNamed(const char *sql)
 {
     MYSQL_RES *result = NULL;
     MYSQL_FIELD *fields = NULL;
     uint64 rowCount = 0;
     uint32 fieldCount = 0;
-
     if(!_Query(sql,&result,&fields,&rowCount,&fieldCount))
         return NULL;
-
     QueryFieldNames names(fieldCount);
     for (uint32 i = 0; i < fieldCount; i++)
         names[i] = fields[i].name;
-
     QueryResultMysql *queryResult = new QueryResultMysql(result, fields, rowCount, fieldCount);
-
     queryResult->NextRow();
-
     return new QueryNamedResult(queryResult,names);
 }
-
 bool DatabaseMysql::Execute(const char *sql)
 {
     if (!mMysql)
         return false;
-
     // don't use queued execution if it has not been initialized
     if (!m_threadBody) return DirectExecute(sql);
-
     tranThread = ACE_Based::Thread::current();              // owner of this transaction
     TransactionQueues::iterator i = m_tranQueues.find(tranThread);
     if (i != m_tranQueues.end() && i->second != NULL)
@@ -292,19 +246,15 @@ bool DatabaseMysql::Execute(const char *sql)
         // Simple sql statement
         m_threadBody->Delay(new SqlStatement(sql));
     }
-
     return true;
 }
-
 bool DatabaseMysql::DirectExecute(const char* sql)
 {
     if (!mMysql)
         return false;
-
     {
         // guarded block for thread-safe mySQL request
         ACE_Guard<ACE_Thread_Mutex> query_connection_guard(mMutex);
-
         #ifdef MANGOS_DEBUG
         uint32 _s = getMSTime();
         #endif
@@ -322,10 +272,8 @@ bool DatabaseMysql::DirectExecute(const char* sql)
         }
         // end guarded block
     }
-
     return true;
 }
-
 bool DatabaseMysql::_TransactionCmd(const char *sql)
 {
     if (mysql_query(mMysql, sql))
@@ -340,18 +288,15 @@ bool DatabaseMysql::_TransactionCmd(const char *sql)
     }
     return true;
 }
-
 bool DatabaseMysql::BeginTransaction()
 {
     if (!mMysql)
         return false;
-
     // don't use queued execution if it has not been initialized
     if (!m_threadBody)
     {
         if (tranThread == ACE_Based::Thread::current())
             return false;                                   // huh? this thread already started transaction
-
         mMutex.acquire();
         if (!_TransactionCmd("START TRANSACTION"))
         {
@@ -360,24 +305,19 @@ bool DatabaseMysql::BeginTransaction()
         }
         return true;                                        // transaction started
     }
-
     tranThread = ACE_Based::Thread::current();              // owner of this transaction
     TransactionQueues::iterator i = m_tranQueues.find(tranThread);
     if (i != m_tranQueues.end() && i->second != NULL)
         // If for thread exists queue and also contains transaction
         // delete that transaction (not allow trans in trans)
         delete i->second;
-
     m_tranQueues[tranThread] = new SqlTransaction();
-
     return true;
 }
-
 bool DatabaseMysql::CommitTransaction()
 {
     if (!mMysql)
         return false;
-
     // don't use queued execution if it has not been initialized
     if (!m_threadBody)
     {
@@ -388,7 +328,6 @@ bool DatabaseMysql::CommitTransaction()
         mMutex.release();
         return _res;
     }
-
     tranThread = ACE_Based::Thread::current();
     TransactionQueues::iterator i = m_tranQueues.find(tranThread);
     if (i != m_tranQueues.end() && i->second != NULL)
@@ -400,12 +339,10 @@ bool DatabaseMysql::CommitTransaction()
     else
         return false;
 }
-
 bool DatabaseMysql::RollbackTransaction()
 {
     if (!mMysql)
         return false;
-
     // don't use queued execution if it has not been initialized
     if (!m_threadBody)
     {
@@ -416,7 +353,6 @@ bool DatabaseMysql::RollbackTransaction()
         mMutex.release();
         return _res;
     }
-
     tranThread = ACE_Based::Thread::current();
     TransactionQueues::iterator i = m_tranQueues.find(tranThread);
     if (i != m_tranQueues.end() && i->second != NULL)
@@ -426,28 +362,22 @@ bool DatabaseMysql::RollbackTransaction()
     }
     return true;
 }
-
 unsigned long DatabaseMysql::escape_string(char *to, const char *from, unsigned long length)
 {
     if (!mMysql || !to || !from || !length)
         return 0;
-
     return(mysql_real_escape_string(mMysql, to, from, length));
 }
-
 void DatabaseMysql::InitDelayThread()
 {
     assert(!m_delayThread);
-
     //New delay thread for delay execute
     m_threadBody = new MySQLDelayThread(this);              // will deleted at m_delayThread delete
     m_delayThread = new ACE_Based::Thread(m_threadBody);
 }
-
 void DatabaseMysql::HaltDelayThread()
 {
     if (!m_threadBody || !m_delayThread) return;
-
     m_threadBody->Stop();                                   //Stop event
     m_delayThread->wait();                                  //Wait for flush to DB
     delete m_delayThread;                                   //This also deletes m_threadBody

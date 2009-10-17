@@ -1,5 +1,4 @@
 // -*- C++ -*-
-
 //===========================================================================
 /**
  * @file Copy_Disabled.h
@@ -9,20 +8,14 @@
  * @author Carlos O'Ryan <coryan@uci.edu>
  */
 //===========================================================================
-
 #ifndef ACE_COPY_DISABLED_H
 #define ACE_COPY_DISABLED_H
-
 #include /**/ "ace/pre.h"
-
 #include /**/ "ace/ACE_export.h"
-
 #if !defined (ACE_LACKS_PRAGMA_ONCE)
 # pragma once
 #endif /* ACE_LACKS_PRAGMA_ONCE */
-
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
-
 /**
  * @class ACE_Copy_Disabled
  *
@@ -49,18 +42,13 @@ ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 class ACE_Export ACE_Copy_Disabled
 {
 public:
-
   /// Default constructor
   ACE_Copy_Disabled (void);
-
 private:
   ACE_Copy_Disabled (const ACE_Copy_Disabled &);
   ACE_Copy_Disabled &operator= (const ACE_Copy_Disabled &);
 };
-
 ACE_END_VERSIONED_NAMESPACE_DECL
-
 #include /**/ "ace/post.h"
-
 #endif /* ACE_COPY_DISABLED_H */
 

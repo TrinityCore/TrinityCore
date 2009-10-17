@@ -1,5 +1,4 @@
 // -*- C++ -*-
-
 // ============================================================================
 /**
  * @file Exception_Macros.h
@@ -16,20 +15,14 @@
  *  @author Krishnakumar B <kitty@cs.wustl.edu>, et al.
  */
 // ============================================================================
-
 // Macros for handling exceptions.
-
 #ifndef ACE_EXCEPTION_MACROS_H
 #define ACE_EXCEPTION_MACROS_H
-
 #include /**/ "ace/pre.h"
-
 #include /**/ "ace/config-all.h"
-
 # if !defined (ACE_LACKS_PRAGMA_ONCE)
 #   pragma once
 # endif /* ACE_LACKS_PRAGMA_ONCE */
-
 // By default, if the compiler supports native exception handling, assume
 // CORBA also support native exception handling. But it can be disabled by
 // defining ACE_CORBA_HAS_EXCEPTIONS=0. If the compiler does not support
@@ -49,8 +42,6 @@
 #  undef ACE_CORBA_HAS_EXCEPTIONS
 #  undef ACE_USES_NATIVE_EXCEPTIONS
 #endif /* ACE_HAS_EXCEPTIONS */
-
 #include /**/ "ace/post.h"
-
 #endif /* ACE_EXCEPTION_MACROS_H */
 

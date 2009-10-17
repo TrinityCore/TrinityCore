@@ -17,18 +17,14 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
-
 #ifndef TRINITY_SINGLETON_H
 #define TRINITY_SINGLETON_H
-
 /**
  * @brief class Singleton
  */
-
 #include "CreationPolicy.h"
 #include "ThreadingModel.h"
 #include "ObjectLifeTime.h"
-
 namespace Trinity
 {
     template
@@ -42,19 +38,14 @@ namespace Trinity
     {
         public:
             static T& Instance();
-
         protected:
             Singleton() {};
-
         private:
-
             // Prohibited actions...this does not prevent hijacking.
             Singleton(const Singleton &);
             Singleton& operator=(const Singleton &);
-
             // Singleton Helpers
             static void DestroySingleton();
-
             // data structure
             typedef typename ThreadingModel::Lock Guard;
             static T *si_instance;

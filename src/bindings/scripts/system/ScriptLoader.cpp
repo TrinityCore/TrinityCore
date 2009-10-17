@@ -1,17 +1,13 @@
 /* Copyright (C) 2006 - 2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
 * This program is free software licensed under GPL version 2
 * Please see the included DOCS/LICENSE.TXT for more information */
-
 #include "precompiled.h"
-
 //custom
-
 //examples
 extern void AddSC_example_creature();
 extern void AddSC_example_escort();
 extern void AddSC_example_gossip_codebox();
 extern void AddSC_example_misc();
-
 //world
 extern void AddSC_areatrigger_scripts();
 extern void AddSC_boss_emeriss();
@@ -24,7 +20,6 @@ extern void AddSC_item_scripts();
 extern void AddSC_npc_professions();
 extern void AddSC_npcs_special();
 extern void AddSC_npc_taxi();
-
 //eastern kingdoms
 extern void AddSC_blackrock_depths();               //Blackrock Depths
 extern void AddSC_boss_ambassador_flamelash();
@@ -169,7 +164,6 @@ extern void AddSC_boss_hazzarah();
 extern void AddSC_boss_renataki();
 extern void AddSC_boss_wushoolay();
 extern void AddSC_instance_zulgurub();
-
 //extern void AddSC_alterac_mountains();
 extern void AddSC_arathi_highlands();
 extern void AddSC_blasted_lands();
@@ -195,7 +189,6 @@ extern void AddSC_undercity();
 extern void AddSC_western_plaguelands();
 extern void AddSC_westfall();
 extern void AddSC_wetlands();
-
 //kalimdor
 extern void AddSC_instance_blackfathom_deeps();     //Blackfathom Depths
 extern void AddSC_hyjal();                          //CoT Battle for Mt. Hyjal
@@ -236,7 +229,6 @@ extern void AddSC_instance_temple_of_ahnqiraj();
 extern void AddSC_wailing_caverns();                //Wailing caverns
 extern void AddSC_instance_wailing_caverns();
 extern void AddSC_zulfarrak();                      //Zul'Farrak
-
 extern void AddSC_ashenvale();
 extern void AddSC_azshara();
 extern void AddSC_azuremyst_isle();
@@ -259,7 +251,6 @@ extern void AddSC_thousand_needles();
 extern void AddSC_thunder_bluff();
 extern void AddSC_ungoro_crater();
 extern void AddSC_winterspring();
-
 //northrend
 extern void AddSC_boss_slad_ran();
 extern void AddSC_boss_moorabi();
@@ -339,7 +330,6 @@ extern void AddSC_boss_xevozz();
 extern void AddSC_boss_zuramat();
 extern void AddSC_instance_violet_hold();
 extern void AddSC_violet_hold();
-
 extern void AddSC_borean_tundra();
 extern void AddSC_dragonblight();
 extern void AddSC_grizzly_hills();
@@ -349,7 +339,6 @@ extern void AddSC_sholazar_basin();
 extern void AddSC_storm_peaks();
 extern void AddSC_wintergrasp();
 extern void AddSC_zuldrak();
-
 //outland
 extern void AddSC_boss_exarch_maladaar();           //Auchindoun Auchenai Crypts
 extern void AddSC_boss_shirrak_the_dead_watcher();
@@ -420,7 +409,6 @@ extern void AddSC_boss_gatewatcher_iron_hand();     //TK The Mechanar
 extern void AddSC_boss_nethermancer_sepethrea();
 extern void AddSC_boss_pathaleon_the_calculator();
 extern void AddSC_instance_mechanar();
-
 extern void AddSC_blades_edge_mountains();
 extern void AddSC_boss_doomlordkazzak();
 extern void AddSC_boss_doomwalker();
@@ -432,17 +420,14 @@ extern void AddSC_shattrath_city();
 extern void AddSC_terokkar_forest();
 extern void AddSC_zangarmarsh();
 extern void AddSC_onevents();
-
 void AddScripts()
 {
     //custom
-
     //examples
     AddSC_example_creature();
     AddSC_example_escort();
     AddSC_example_gossip_codebox();
     AddSC_example_misc();
-
     //world
     AddSC_areatrigger_scripts();
     AddSC_boss_emeriss();
@@ -455,7 +440,6 @@ void AddScripts()
     AddSC_npc_professions();
     AddSC_npcs_special();
     AddSC_npc_taxi();
-
     //eastern kingdoms
     AddSC_blackrock_depths();               //Blackrock Depths
     AddSC_boss_ambassador_flamelash();
@@ -600,7 +584,6 @@ void AddScripts()
     AddSC_boss_renataki();
     AddSC_boss_wushoolay();
     AddSC_instance_zulgurub();
-
     //AddSC_alterac_mountains();
     AddSC_arathi_highlands();
     AddSC_blasted_lands();
@@ -626,7 +609,6 @@ void AddScripts()
     AddSC_western_plaguelands();
     AddSC_westfall();
     AddSC_wetlands();
-
     //kalimdor
     AddSC_instance_blackfathom_deeps();     //Blackfathom Depths
     AddSC_hyjal();                          //CoT Battle for Mt. Hyjal
@@ -667,7 +649,6 @@ void AddScripts()
     AddSC_wailing_caverns();                //Wailing caverns
     AddSC_instance_wailing_caverns();
     AddSC_zulfarrak();                      //Zul'Farrak
-
     AddSC_ashenvale();
     AddSC_azshara();
     AddSC_azuremyst_isle();
@@ -690,7 +671,6 @@ void AddScripts()
     AddSC_thunder_bluff();
     AddSC_ungoro_crater();
     AddSC_winterspring();
-
     //northrend
     AddSC_boss_slad_ran();               //Gundrak
     AddSC_boss_moorabi();
@@ -770,7 +750,6 @@ void AddScripts()
     AddSC_boss_zuramat();
     AddSC_instance_violet_hold();
     AddSC_violet_hold();
-
     AddSC_borean_tundra();
     AddSC_dragonblight();
     AddSC_grizzly_hills();
@@ -780,7 +759,6 @@ void AddScripts()
     AddSC_storm_peaks();
     AddSC_wintergrasp();
     AddSC_zuldrak();
-
     //outland
     AddSC_boss_exarch_maladaar();           //Auchindoun Auchenai Crypts
     AddSC_boss_shirrak_the_dead_watcher();
@@ -851,7 +829,6 @@ void AddScripts()
     AddSC_boss_nethermancer_sepethrea();
     AddSC_boss_pathaleon_the_calculator();
     AddSC_instance_mechanar();
-
     AddSC_blades_edge_mountains();
     AddSC_boss_doomlordkazzak();
     AddSC_boss_doomwalker();

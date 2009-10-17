@@ -1,5 +1,4 @@
 // -*- C++ -*-
-
 //=============================================================================
 /**
  *  @file Intrusive_List_Node.h
@@ -9,19 +8,14 @@
  *  @author Carlos O'Ryan <coryan@uci.edu>
  */
 //=============================================================================
-
 #ifndef ACE_INTRUSIVE_LIST_NODE_H
 #define ACE_INTRUSIVE_LIST_NODE_H
 #include /**/ "ace/pre.h"
-
 #include /**/ "ace/config-all.h"
-
 #if !defined (ACE_LACKS_PRAGMA_ONCE)
 # pragma once
 #endif /* ACE_LACKS_PRAGMA_ONCE */
-
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
-
 /**
  * @class ACE_Intrusive_List_Node
  *
@@ -52,7 +46,6 @@ public:
   T *next (void) const;
   void next (T *);
   //@}
-
 protected:
   /// Constructor
   /**
@@ -60,27 +53,21 @@ protected:
    * be instantiated.
    */
   ACE_Intrusive_List_Node (void);
-
 private:
   /// Head and tail of the list
   T *prev_;
   T *next_;
 };
-
 ACE_END_VERSIONED_NAMESPACE_DECL
-
 #if defined (__ACE_INLINE__)
 #include "ace/Intrusive_List_Node.inl"
 #endif /* __ACE_INLINE__ */
-
 #if defined (ACE_TEMPLATES_REQUIRE_SOURCE)
 #include "ace/Intrusive_List_Node.cpp"
 #endif /* ACE_TEMPLATES_REQUIRE_SOURCE */
-
 #if defined (ACE_TEMPLATES_REQUIRE_PRAGMA)
 #pragma implementation ("Intrusive_List_Node.cpp")
 #endif /* ACE_TEMPLATES_REQUIRE_PRAGMA */
-
 #include /**/ "ace/post.h"
 #endif /* ACE_INTRUSIVE_LIST_NODE_H */
 

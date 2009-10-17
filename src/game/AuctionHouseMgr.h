@@ -17,22 +17,15 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
-
 #ifndef _AUCTION_HOUSE_MGR_H
 #define _AUCTION_HOUSE_MGR_H
-
 #include "Policies/Singleton.h"
-
 #include "SharedDefines.h"
-
 #include "AuctionHouseBot.h"
-
 class Item;
 class Player;
 class WorldPacket;
-
 #define MIN_AUCTION_TIME (12*HOUR)
-
 enum AuctionError
 {
     AUCTION_OK = 0,
@@ -41,14 +34,12 @@ enum AuctionError
     AUCTION_ITEM_NOT_FOUND = 4,
     CANNOT_BID_YOUR_AUCTION_ERROR = 10
 };
-
 enum AuctionAction
 {
     AUCTION_SELL_ITEM = 0,
     AUCTION_CANCEL = 1,
     AUCTION_PLACE_BID = 2
 };
-
 struct AuctionEntry
 {
     uint32 Id;
@@ -63,7 +54,6 @@ struct AuctionEntry
     uint32 bidder;
     uint32 deposit;                                         //deposit can be calculated only when creating auction
     AuctionHouseEntry const* auctionHouseEntry;             // in AuctionHouse.dbc
-
     // helpers
     uint32 GetHouseId() const { return auctionHouseEntry->houseId; }
     uint32 GetHouseFaction() const { return auctionHouseEntry->faction; }
@@ -73,7 +63,6 @@ struct AuctionEntry
     void DeleteFromDB() const;
     void SaveToDB() const;
 };
-
 //this class is used as auctionhouse instance
 class AuctionHouseObject
 {
@@ -85,51 +74,37 @@ class AuctionHouseObject
         for (AuctionEntryMap::iterator itr = AuctionsMap.begin(); itr != AuctionsMap.end(); ++itr)
             delete itr->second;
     }
-
     typedef std::map<uint32, AuctionEntry*> AuctionEntryMap;
-
     uint32 Getcount() { return AuctionsMap.size(); }
-
     AuctionEntryMap::iterator GetAuctionsBegin() {return AuctionsMap.begin();}
     AuctionEntryMap::iterator GetAuctionsEnd() {return AuctionsMap.end();}
-
     AuctionEntry* GetAuction(uint32 id) const
     {
         AuctionEntryMap::const_iterator itr = AuctionsMap.find(id);
         return itr != AuctionsMap.end() ? itr->second : NULL;
     }
-
     void AddAuction(AuctionEntry *ah);
-
     bool RemoveAuction(AuctionEntry *auction, uint32 item_template);
-
     void Update();
-
     void BuildListBidderItems(WorldPacket& data, Player* player, uint32& count, uint32& totalcount);
     void BuildListOwnerItems(WorldPacket& data, Player* player, uint32& count, uint32& totalcount);
     void BuildListAuctionItems(WorldPacket& data, Player* player,
         std::wstring const& searchedname, uint32 listfrom, uint32 levelmin, uint32 levelmax, uint32 usable,
         uint32 inventoryType, uint32 itemClass, uint32 itemSubClass, uint32 quality,
         uint32& count, uint32& totalcount);
-
   private:
     AuctionEntryMap AuctionsMap;
-
     // storage for "next" auction item for next Update()
     AuctionEntryMap::const_iterator next;
 };
-
 class AuctionHouseMgr
 {
   public:
     AuctionHouseMgr();
     ~AuctionHouseMgr();
-
     typedef UNORDERED_MAP<uint32, Item*> ItemMap;
-
     AuctionHouseObject* GetAuctionsMap(uint32 factionTemplateId);
     AuctionHouseObject* GetBidsMap(uint32 factionTemplateId);
-
     Item* GetAItem(uint32 id)
     {
         ItemMap::const_iterator itr = mAitems.find(id);
@@ -139,7 +114,6 @@ class AuctionHouseMgr
         }
         return NULL;
     }
-
     //auction messages
     void SendAuctionWonMail(AuctionEntry * auction);
     void SendAuctionSalePendingMail(AuctionEntry * auction);
@@ -147,25 +121,18 @@ class AuctionHouseMgr
     void SendAuctionExpiredMail(AuctionEntry * auction);
     static uint32 GetAuctionDeposit(AuctionHouseEntry const* entry, uint32 time, Item *pItem);
     static AuctionHouseEntry const* GetAuctionHouseEntry(uint32 factionTemplateId);
-
   public:
     //load first auction items, because of check if item exists, when loading
     void LoadAuctionItems();
     void LoadAuctions();
-
     void AddAItem(Item* it);
     bool RemoveAItem(uint32 id);
-
     void Update();
-
   private:
     AuctionHouseObject mHordeAuctions;
     AuctionHouseObject mAllianceAuctions;
     AuctionHouseObject mNeutralAuctions;
-
     ItemMap mAitems;
 };
-
 #define auctionmgr Trinity::Singleton<AuctionHouseMgr>::Instance()
-
 #endif

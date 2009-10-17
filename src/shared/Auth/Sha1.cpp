@@ -17,36 +17,29 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
-
 #include "Auth/Sha1.h"
 #include "Auth/BigNumber.h"
 #include <stdarg.h>
-
 Sha1Hash::Sha1Hash()
 {
     SHA1_Init(&mC);
 }
-
 Sha1Hash::~Sha1Hash()
 {
     SHA1_Init(&mC);
 }
-
 void Sha1Hash::UpdateData(const uint8 *dta, int len)
 {
     SHA1_Update(&mC, dta, len);
 }
-
 void Sha1Hash::UpdateData(const std::string &str)
 {
     UpdateData((uint8 const*)str.c_str(), str.length());
 }
-
 void Sha1Hash::UpdateBigNumbers(BigNumber *bn0, ...)
 {
     va_list v;
     BigNumber *bn;
-
     va_start(v, bn0);
     bn = bn0;
     while (bn)
@@ -56,12 +49,10 @@ void Sha1Hash::UpdateBigNumbers(BigNumber *bn0, ...)
     }
     va_end(v);
 }
-
 void Sha1Hash::Initialize()
 {
     SHA1_Init(&mC);
 }
-
 void Sha1Hash::Finalize(void)
 {
     SHA1_Final(mDigest, &mC);

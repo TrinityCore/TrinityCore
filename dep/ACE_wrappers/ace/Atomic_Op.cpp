@@ -1,31 +1,23 @@
 // $Id: Atomic_Op.cpp 80826 2008-03-04 14:51:23Z wotte $
-
 #include "ace/Atomic_Op.h"
 #include "ace/OS_NS_unistd.h"
-
 ACE_RCSID (ace,
            Atomic_Op,
            "$Id: Atomic_Op.cpp 80826 2008-03-04 14:51:23Z wotte $")
-
 #if !defined (__ACE_INLINE__)
 #include "ace/Atomic_Op.inl"
 #endif /* __ACE_INLINE__ */
-
 #if defined (ACE_HAS_BUILTIN_ATOMIC_OP)
-
 #if defined (ACE_INCLUDE_ATOMIC_OP_SPARC)
 # include "ace/Atomic_Op_Sparc.h"
 #endif /* ACE_INCLUDE_ATOMIC_OP_SPARC */
-
 namespace {
-
 #if defined (_MSC_VER)
 // Disable "no return value" warning, as we will be putting
 // the return values directly into the EAX register.
 #pragma warning (push)
 #pragma warning (disable: 4035)
 #endif /* _MSC_VER */
-
 long
 single_cpu_increment (volatile long *value)
 {
@@ -49,7 +41,6 @@ single_cpu_increment (volatile long *value)
   ACE_NOTSUP_RETURN (-1);
 #endif /* ACE_HAS_INTEL_ASSEMBLY*/
 }
-
 long
 single_cpu_decrement (volatile long *value)
 {
@@ -73,7 +64,6 @@ single_cpu_decrement (volatile long *value)
   ACE_NOTSUP_RETURN (-1);
 #endif /* ACE_HAS_INTEL_ASSEMBLY*/
 }
-
 long
 single_cpu_exchange (volatile long *value, long rhs)
 {
@@ -96,7 +86,6 @@ single_cpu_exchange (volatile long *value, long rhs)
   ACE_NOTSUP_RETURN (-1);
 #endif /* ACE_HAS_INTEL_ASSEMBLY*/
 }
-
 long
 single_cpu_exchange_add (volatile long *value, long rhs)
 {
@@ -138,7 +127,6 @@ single_cpu_exchange_add (volatile long *value, long rhs)
   ACE_NOTSUP_RETURN (-1);
 #endif /* ACE_HAS_INTEL_ASSEMBLY*/
 }
-
 long
 multi_cpu_increment (volatile long *value)
 {
@@ -156,7 +144,6 @@ multi_cpu_increment (volatile long *value)
   ACE_NOTSUP_RETURN (-1);
 #endif /* ACE_HAS_INTEL_ASSEMBLY*/
 }
-
 long
 multi_cpu_decrement (volatile long *value)
 {
@@ -174,7 +161,6 @@ multi_cpu_decrement (volatile long *value)
   ACE_NOTSUP_RETURN (-1);
 #endif /* ACE_HAS_INTEL_ASSEMBLY*/
 }
-
 long
 multi_cpu_exchange (volatile long *value, long rhs)
 {
@@ -193,7 +179,6 @@ multi_cpu_exchange (volatile long *value, long rhs)
   ACE_NOTSUP_RETURN (-1);
 #endif /* ACE_HAS_INTEL_ASSEMBLY*/
 }
-
 long
 multi_cpu_exchange_add (volatile long *value, long rhs)
 {
@@ -230,20 +215,15 @@ multi_cpu_exchange_add (volatile long *value, long rhs)
   ACE_NOTSUP_RETURN (-1);
 #endif /* ACE_HAS_INTEL_ASSEMBLY*/
 }
-
 #if defined (_MSC_VER)
 #pragma warning (pop)
 #endif /* _MSC_VER */
-
 } // end namespace
-
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
-
 long (*ACE_Atomic_Op<ACE_Thread_Mutex, long>::increment_fn_) (volatile long *) = multi_cpu_increment;
 long (*ACE_Atomic_Op<ACE_Thread_Mutex, long>::decrement_fn_) (volatile long *) = multi_cpu_decrement;
 long (*ACE_Atomic_Op<ACE_Thread_Mutex, long>::exchange_fn_) (volatile long *, long) = multi_cpu_exchange;
 long (*ACE_Atomic_Op<ACE_Thread_Mutex, long>::exchange_add_fn_) (volatile long *, long) = multi_cpu_exchange_add;
-
 void
 ACE_Atomic_Op<ACE_Thread_Mutex, long>::init_functions (void)
 {
@@ -262,7 +242,6 @@ ACE_Atomic_Op<ACE_Thread_Mutex, long>::init_functions (void)
       exchange_add_fn_ = multi_cpu_exchange_add;
     }
 }
-
 void
 ACE_Atomic_Op<ACE_Thread_Mutex, long>::dump (void) const
 {
@@ -271,12 +250,10 @@ ACE_Atomic_Op<ACE_Thread_Mutex, long>::dump (void) const
   ACE_DEBUG ((LM_DEBUG, ACE_END_DUMP));
 #endif /* ACE_HAS_DUMP */
 }
-
 long (*ACE_Atomic_Op<ACE_Thread_Mutex, unsigned long>::increment_fn_) (volatile long *) = multi_cpu_increment;
 long (*ACE_Atomic_Op<ACE_Thread_Mutex, unsigned long>::decrement_fn_) (volatile long *) = multi_cpu_decrement;
 long (*ACE_Atomic_Op<ACE_Thread_Mutex, unsigned long>::exchange_fn_) (volatile long *, long) = multi_cpu_exchange;
 long (*ACE_Atomic_Op<ACE_Thread_Mutex, unsigned long>::exchange_add_fn_) (volatile long *, long) = multi_cpu_exchange_add;
-
 void
 ACE_Atomic_Op<ACE_Thread_Mutex, unsigned long>::init_functions (void)
 {
@@ -295,7 +272,6 @@ ACE_Atomic_Op<ACE_Thread_Mutex, unsigned long>::init_functions (void)
       exchange_add_fn_ = multi_cpu_exchange_add;
     }
 }
-
 void
 ACE_Atomic_Op<ACE_Thread_Mutex, unsigned long>::dump (void) const
 {
@@ -304,8 +280,6 @@ ACE_Atomic_Op<ACE_Thread_Mutex, unsigned long>::dump (void) const
   ACE_DEBUG ((LM_DEBUG, ACE_END_DUMP));
 #endif /* ACE_HAS_DUMP */
 }
-
 ACE_END_VERSIONED_NAMESPACE_DECL
-
 #endif /* ACE_HAS_BUILTIN_ATOMIC_OP */
 

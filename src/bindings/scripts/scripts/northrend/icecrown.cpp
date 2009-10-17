@@ -13,24 +13,19 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
-
 /* ScriptData
 SDName: Icecrown
 SD%Complete: 100
 SDComment: Quest support: 12807
 SDCategory: Icecrown
 EndScriptData */
-
 /* ContentData
 npc_arete
 EndContentData */
-
 #include "precompiled.h"
-
 /*######
 ## npc_arete
 ######*/
-
 #define GOSSIP_ARETE_ITEM1 "Lord-Commander, I would hear your tale."
 #define GOSSIP_ARETE_ITEM2 "<You nod slightly but do not complete the motion as the Lord-Commander narrows his eyes before he continues.>"
 #define GOSSIP_ARETE_ITEM3 "I thought that they now called themselves the Scarlet Onslaught?"
@@ -38,7 +33,6 @@ EndContentData */
 #define GOSSIP_ARETE_ITEM5 "That's fine. When do I start?"
 #define GOSSIP_ARETE_ITEM6 "Let's finish this!"
 #define GOSSIP_ARETE_ITEM7 "That's quite a tale, Lord-Commander."
-
 enum eArete
 {
     GOSSIP_TEXTID_ARETE1        = 13525,
@@ -48,26 +42,21 @@ enum eArete
     GOSSIP_TEXTID_ARETE5        = 13529,
     GOSSIP_TEXTID_ARETE6        = 13530,
     GOSSIP_TEXTID_ARETE7        = 13531,
-
     QUEST_THE_STORY_THUS_FAR    = 12807
 };
-
 bool GossipHello_npc_arete(Player* pPlayer, Creature* pCreature)
 {
     if (pCreature->isQuestGiver())
         pPlayer->PrepareQuestMenu(pCreature->GetGUID());
-
     if (pPlayer->GetQuestStatus(QUEST_THE_STORY_THUS_FAR) == QUEST_STATUS_INCOMPLETE)
     {
         pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ARETE_ITEM1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
         pPlayer->SEND_GOSSIP_MENU(GOSSIP_TEXTID_ARETE1, pCreature->GetGUID());
         return true;
     }
-
     pPlayer->SEND_GOSSIP_MENU(pCreature->GetNpcTextId(), pCreature->GetGUID());
     return true;
 }
-
 bool GossipSelect_npc_arete(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
 {
     switch(uiAction)
@@ -101,14 +90,11 @@ bool GossipSelect_npc_arete(Player* pPlayer, Creature* pCreature, uint32 uiSende
             pPlayer->AreaExploredOrEventHappens(QUEST_THE_STORY_THUS_FAR);
             break;
     }
-
     return true;
 }
-
 void AddSC_icecrown()
 {
     Script *newscript;
-
     newscript = new Script;
     newscript->Name = "npc_arete";
     newscript->pGossipHello = &GossipHello_npc_arete;

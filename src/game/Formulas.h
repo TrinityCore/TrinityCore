@@ -17,12 +17,9 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
-
 #ifndef TRINITY_FORMULAS_H
 #define TRINITY_FORMULAS_H
-
 #include "World.h"
-
 namespace Trinity
 {
     namespace Honor
@@ -35,7 +32,6 @@ namespace Trinity
     namespace XP
     {
         enum XPColorChar { RED, ORANGE, YELLOW, GREEN, GRAY };
-
         inline uint32 GetGrayLevel(uint32 pl_level)
         {
             if( pl_level <= 5 )
@@ -47,7 +43,6 @@ namespace Trinity
             else
                 return pl_level - 9;
         }
-
         inline XPColorChar GetColorCode(uint32 pl_level, uint32 mob_level)
         {
             if( mob_level >= pl_level + 5 )
@@ -61,7 +56,6 @@ namespace Trinity
             else
                 return GRAY;
         }
-
         inline uint32 GetZeroDifference(uint32 pl_level)
         {
             if( pl_level < 8 )  return 5;
@@ -77,7 +71,6 @@ namespace Trinity
             if( pl_level < 60 ) return 16;
             return 17;
         }
-
         inline uint32 BaseGain(uint32 pl_level, uint32 mob_level, ContentLevels content)
         {
             uint32 nBaseExp;
@@ -90,7 +83,6 @@ namespace Trinity
                     sLog.outError("BaseGain: Unsupported content level %u",content);
                     nBaseExp = 45;  break;
             }
-
             if( mob_level >= pl_level )
             {
                 uint32 nLevelDiff = mob_level - pl_level;
@@ -109,24 +101,19 @@ namespace Trinity
                 return 0;
             }
         }
-
         inline uint32 Gain(Player *pl, Unit *u)
         {
             if(u->GetTypeId()==TYPEID_UNIT && (
                 ((Creature*)u)->isTotem() || ((Creature*)u)->isPet() ||
                 (((Creature*)u)->GetCreatureInfo()->flags_extra & CREATURE_FLAG_EXTRA_NO_XP_AT_KILL) ))
                 return 0;
-
             uint32 xp_gain= BaseGain(pl->getLevel(), u->getLevel(), GetContentLevelsForMapAndZone(u->GetMapId(),u->GetZoneId()));
             if( xp_gain == 0 )
                 return 0;
-
             if(u->GetTypeId()==TYPEID_UNIT && ((Creature*)u)->isElite())
                 xp_gain *= 2;
-
             return (uint32)(xp_gain*sWorld.getRate(RATE_XP_KILL));
         }
-
         inline float xp_in_group_rate(uint32 count, bool isRaid)
         {
             if(isRaid)

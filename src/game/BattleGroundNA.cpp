@@ -17,7 +17,6 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
-
 #include "BattleGround.h"
 #include "BattleGroundNA.h"
 #include "Language.h"
@@ -25,11 +24,9 @@
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "WorldPacket.h"
-
 BattleGroundNA::BattleGroundNA()
 {
     m_BgObjects.resize(BG_NA_OBJECT_MAX);
-
     m_StartDelayTimes[BG_STARTING_EVENT_FIRST]  = BG_START_DELAY_1M;
     m_StartDelayTimes[BG_STARTING_EVENT_SECOND] = BG_START_DELAY_30S;
     m_StartDelayTimes[BG_STARTING_EVENT_THIRD]  = BG_START_DELAY_15S;
@@ -40,90 +37,69 @@ BattleGroundNA::BattleGroundNA()
     m_StartMessageIds[BG_STARTING_EVENT_THIRD]  = LANG_ARENA_FIFTEEN_SECONDS;
     m_StartMessageIds[BG_STARTING_EVENT_FOURTH] = LANG_ARENA_HAS_BEGUN;
 }
-
 BattleGroundNA::~BattleGroundNA()
 {
-
 }
-
 void BattleGroundNA::Update(uint32 diff)
 {
     BattleGround::Update(diff);
-
     /*if (GetStatus() == STATUS_IN_PROGRESS)
     {
         // update something
     }*/
 }
-
 void BattleGroundNA::StartingEventCloseDoors()
 {
     for(uint32 i = BG_NA_OBJECT_DOOR_1; i <= BG_NA_OBJECT_DOOR_4; ++i)
         SpawnBGObject(i, RESPAWN_IMMEDIATELY);
 }
-
 void BattleGroundNA::StartingEventOpenDoors()
 {
     for(uint32 i = BG_NA_OBJECT_DOOR_1; i <= BG_NA_OBJECT_DOOR_2; ++i)
         DoorOpen(i);
-
     for(uint32 i = BG_NA_OBJECT_BUFF_1; i <= BG_NA_OBJECT_BUFF_2; ++i)
         SpawnBGObject(i, 60);
 }
-
 void BattleGroundNA::AddPlayer(Player *plr)
 {
     BattleGround::AddPlayer(plr);
     //create score and add it to map, default values are set in constructor
     BattleGroundNAScore* sc = new BattleGroundNAScore;
-
     m_PlayerScores[plr->GetGUID()] = sc;
-
     UpdateWorldState(0xa0f, GetAlivePlayersCountByTeam(ALLIANCE));
     UpdateWorldState(0xa10, GetAlivePlayersCountByTeam(HORDE));
 }
-
 void BattleGroundNA::RemovePlayer(Player* /*plr*/, uint64 /*guid*/)
 {
     if (GetStatus() == STATUS_WAIT_LEAVE)
         return;
-
     UpdateWorldState(0xa0f, GetAlivePlayersCountByTeam(ALLIANCE));
     UpdateWorldState(0xa10, GetAlivePlayersCountByTeam(HORDE));
-
     CheckArenaWinConditions();
 }
-
 void BattleGroundNA::HandleKillPlayer(Player *player, Player *killer)
 {
     if (GetStatus() != STATUS_IN_PROGRESS)
         return;
-
     if (!killer)
     {
         sLog.outError("BattleGroundNA: Killer player not found");
         return;
     }
-
     BattleGround::HandleKillPlayer(player,killer);
-
     UpdateWorldState(0xa0f, GetAlivePlayersCountByTeam(ALLIANCE));
     UpdateWorldState(0xa10, GetAlivePlayersCountByTeam(HORDE));
-
     CheckArenaWinConditions();
 }
-
 bool BattleGroundNA::HandlePlayerUnderMap(Player *player)
 {
     player->TeleportTo(GetMapId(),4055.504395,2919.660645,13.611241,player->GetOrientation(),false);
     return true;
 }
-
 void BattleGroundNA::HandleAreaTrigger(Player *Source, uint32 Trigger)
 {
     if (GetStatus() != STATUS_IN_PROGRESS)
         return;
-
     //uint32 SpellId = 0;
     //uint64 buff_guid = 0;
     switch(Trigger)
@@ -136,24 +112,20 @@ void BattleGroundNA::HandleAreaTrigger(Player *Source, uint32 Trigger)
             Source->GetSession()->SendAreaTriggerMessage("Warning: Unhandled AreaTrigger in Battleground: %u", Trigger);
             break;
     }
-
     //if (buff_guid)
     //    HandleTriggerBuff(buff_guid,Source);
 }
-
 void BattleGroundNA::FillInitialWorldStates(WorldPacket &data)
 {
     data << uint32(0xa0f) << uint32(GetAlivePlayersCountByTeam(ALLIANCE));           // 7
     data << uint32(0xa10) << uint32(GetAlivePlayersCountByTeam(HORDE));           // 8
     data << uint32(0xa11) << uint32(1);           // 9
 }
-
 void BattleGroundNA::Reset()
 {
     //call parent's class reset
     BattleGround::Reset();
 }
-
 bool BattleGroundNA::SetupBattleGround()
 {
     // gates
@@ -168,10 +140,8 @@ bool BattleGroundNA::SetupBattleGround()
         sLog.outErrorDb("BatteGroundNA: Failed to spawn some object!");
         return false;
     }
-
     return true;
 }
-
 /*
 20:12:14 id:036668 [S2C] SMSG_INIT_WORLD_STATES (706 = 0x02C2) len: 86
 0000: 2f 02 00 00 72 0e 00 00 00 00 00 00 09 00 11 0a  |  /...r...........

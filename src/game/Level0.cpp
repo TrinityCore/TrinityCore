@@ -17,7 +17,6 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
-
 #include "Common.h"
 #include "Database/DatabaseEnv.h"
 #include "World.h"
@@ -30,7 +29,6 @@
 #include "SystemConfig.h"
 #include "revision.h"
 #include "Util.h"
-
 bool ChatHandler::HandleHelpCommand(const char* args)
 {
     char* cmd = strtok((char*)args, " ");
@@ -44,53 +42,44 @@ bool ChatHandler::HandleHelpCommand(const char* args)
         if(!ShowHelpForCommand(getCommandTable(), cmd))
             SendSysMessage(LANG_NO_HELP_CMD);
     }
-
     return true;
 }
-
 bool ChatHandler::HandleCommandsCommand(const char* args)
 {
     ShowHelpForCommand(getCommandTable(), "");
     return true;
 }
-
 bool ChatHandler::HandleAccountCommand(const char* /*args*/)
 {
     AccountTypes gmlevel = m_session->GetSecurity();
     PSendSysMessage(LANG_ACCOUNT_LEVEL, uint32(gmlevel));
     return true;
 }
-
 bool ChatHandler::HandleStartCommand(const char* /*args*/)
 {
     Player *chr = m_session->GetPlayer();
-
     if(chr->isInFlight())
     {
         SendSysMessage(LANG_YOU_IN_FLIGHT);
         SetSentErrorMessage(true);
         return false;
     }
-
     if(chr->isInCombat())
     {
         SendSysMessage(LANG_YOU_IN_COMBAT);
         SetSentErrorMessage(true);
         return false;
     }
-    
     if((chr->isDead()) || (chr->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_GHOST)))
     {
     // if player is dead and stuck, send ghost to graveyard
     chr->RepopAtGraveyard();
     return true;
     }
-
     // cast spell Stuck
     chr->CastSpell(chr,7355,false);
     return true;
 }
-
 bool ChatHandler::HandleServerInfoCommand(const char* /*args*/)
 {
     uint32 PlayersNum = sWorld.GetPlayerCount();
@@ -101,13 +90,11 @@ bool ChatHandler::HandleServerInfoCommand(const char* /*args*/)
     uint32 maxQueuedClientsNum = sWorld.GetMaxQueuedSessionCount();
     std::string uptime = secsToTimeString(sWorld.GetUptime());
     uint32 updateTime = sWorld.GetUpdateTime();
-
     PSendSysMessage(_FULLVERSION);
     //if(m_session)
     //    full = _FULLVERSION(REVISION_DATE,REVISION_TIME,"|cffffffff|Hurl:" REVISION_ID "|h" REVISION_ID "|h|r");
     //else
     //    full = _FULLVERSION(REVISION_DATE,REVISION_TIME,REVISION_ID);
-
     //SendSysMessage(full);
     //PSendSysMessage(LANG_USING_SCRIPT_LIB,sWorld.GetScriptsVersion());
     //PSendSysMessage(LANG_USING_WORLD_DB,sWorld.GetDBVersion());
@@ -116,10 +103,8 @@ bool ChatHandler::HandleServerInfoCommand(const char* /*args*/)
     PSendSysMessage(LANG_CONNECTED_USERS, activeClientsNum, maxActiveClientsNum, queuedClientsNum, maxQueuedClientsNum);
     PSendSysMessage(LANG_UPTIME, uptime.c_str());
     PSendSysMessage("Update time diff: %u.", updateTime);
-
     return true;
 }
-
 bool ChatHandler::HandleDismountCommand(const char* /*args*/)
 {
     //If player is not mounted, so go out :)
@@ -129,23 +114,19 @@ bool ChatHandler::HandleDismountCommand(const char* /*args*/)
         SetSentErrorMessage(true);
         return false;
     }
-
     if(m_session->GetPlayer( )->isInFlight())
     {
         SendSysMessage(LANG_YOU_IN_FLIGHT);
         SetSentErrorMessage(true);
         return false;
     }
-
     m_session->GetPlayer()->Unmount();
     m_session->GetPlayer()->RemoveAurasByType(SPELL_AURA_MOUNTED);
     return true;
 }
-
 bool ChatHandler::HandleSaveCommand(const char* /*args*/)
 {
     Player *player=m_session->GetPlayer();
-
     // save GM account without delay and output message (testing, etc)
     if(m_session->GetSecurity() > SEC_PLAYER)
     {
@@ -153,19 +134,15 @@ bool ChatHandler::HandleSaveCommand(const char* /*args*/)
         SendSysMessage(LANG_PLAYER_SAVED);
         return true;
     }
-
     // save or plan save after 20 sec (logout delay) if current next save time more this value and _not_ output any messages to prevent cheat planning
     uint32 save_interval = sWorld.getConfig(CONFIG_INTERVAL_SAVE);
     if ((save_interval==0 || save_interval > 20*IN_MILISECONDS && player->GetSaveTimer() <= save_interval - 20*IN_MILISECONDS))
         player->SaveToDB();
-
     return true;
 }
-
 bool ChatHandler::HandleGMListIngameCommand(const char* /*args*/)
 {
     bool first = true;
-
     HashMapHolder<Player>::MapType &m = HashMapHolder<Player>::GetContainer();
     HashMapHolder<Player>::MapType::const_iterator itr = m.begin();
     for(; itr != m.end(); ++itr)
@@ -179,49 +156,38 @@ bool ChatHandler::HandleGMListIngameCommand(const char* /*args*/)
                 SendSysMessage(LANG_GMS_ON_SRV);
                 first = false;
             }
-
             SendSysMessage(GetNameLink(itr->second).c_str());
         }
     }
-
     if(first)
         SendSysMessage(LANG_GMS_NOT_LOGGED);
-
     return true;
 }
-
 bool ChatHandler::HandleAccountPasswordCommand(const char* args)
 {
     if(!*args)
         return false;
-
     char *old_pass = strtok ((char*)args, " ");
     char *new_pass = strtok (NULL, " ");
     char *new_pass_c  = strtok (NULL, " ");
-
     if (!old_pass || !new_pass || !new_pass_c)
         return false;
-
     std::string password_old = old_pass;
     std::string password_new = new_pass;
     std::string password_new_c = new_pass_c;
-
     if (strcmp(new_pass, new_pass_c) != 0)
     {
         SendSysMessage (LANG_NEW_PASSWORDS_NOT_MATCH);
         SetSentErrorMessage (true);
         return false;
     }
-
     if (!accmgr.CheckPassword (m_session->GetAccountId(), password_old))
     {
         SendSysMessage (LANG_COMMAND_WRONGOLDPASSWORD);
         SetSentErrorMessage (true);
         return false;
     }
-
     AccountOpResult result = accmgr.ChangePassword(m_session->GetAccountId(), password_new);
-
     switch(result)
     {
         case AOR_OK:
@@ -237,29 +203,22 @@ bool ChatHandler::HandleAccountPasswordCommand(const char* args)
             SetSentErrorMessage(true);
             return false;
     }
-
     return true;
 }
-
 bool ChatHandler::HandleAccountAddonCommand(const char* args)
 {
     if(!*args)
         return false;
-
     char *szExp = strtok((char*)args," ");
-
     uint32 account_id = m_session->GetAccountId();
-
     int expansion=atoi(szExp);                                    //get int anyway (0 if error)
     if(expansion < 0 || expansion > sWorld.getConfig(CONFIG_EXPANSION))
          return false;
-
     // No SQL injection
     loginDatabase.PExecute("UPDATE account SET expansion = '%d' WHERE id = '%u'", expansion, account_id);
     PSendSysMessage(LANG_ACCOUNT_ADDON, expansion);
     return true;
 }
-
 bool ChatHandler::HandleAccountLockCommand(const char* args)
 {
     if (!*args)
@@ -267,7 +226,6 @@ bool ChatHandler::HandleAccountLockCommand(const char* args)
         SendSysMessage(LANG_USE_BOL);
         return true;
     }
-
     std::string argstr = (char*)args;
     if (argstr == "on")
     {
@@ -275,18 +233,15 @@ bool ChatHandler::HandleAccountLockCommand(const char* args)
         PSendSysMessage(LANG_COMMAND_ACCLOCKLOCKED);
         return true;
     }
-
     if (argstr == "off")
     {
         loginDatabase.PExecute( "UPDATE account SET locked = '0' WHERE id = '%d'",m_session->GetAccountId());
         PSendSysMessage(LANG_COMMAND_ACCLOCKUNLOCKED);
         return true;
     }
-
     SendSysMessage(LANG_USE_BOL);
     return true;
 }
-
 /// Display the 'Message of the day' for the realm
 bool ChatHandler::HandleServerMotdCommand(const char* /*args*/)
 {

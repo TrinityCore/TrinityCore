@@ -17,49 +17,38 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
-
 #include "ConfigEnv.h"
 #include "Policies/SingletonImp.h"
-
 INSTANTIATE_SINGLETON_1(Config);
-
 Config::Config() : mIgnoreCase(true), mConf(NULL)
 {
 }
-
 
 Config::~Config()
 {
     delete mConf;
 }
 
-
 bool Config::SetSource(const char *file, bool ignorecase)
 {
     mIgnoreCase = ignorecase;
     mFilename = file;
-
     return Reload();
 }
-
 bool Config::Reload()
 {
     delete mConf;
-
     mConf = new DOTCONFDocument(mIgnoreCase ?
         DOTCONFDocument::CASEINSENSETIVE :
     DOTCONFDocument::CASESENSETIVE);
-
     if (mConf->setContent(mFilename.c_str()) == -1)
     {
         delete mConf;
         mConf = NULL;
         return false;
     }
-
     return true;
 }
-
 std::string Config::GetStringDefault(const char * name, std::string def)
 {
     if(!mConf)
@@ -69,7 +58,6 @@ std::string Config::GetStringDefault(const char * name, std::string def)
         return std::string(def);
     return std::string(node->getValue());
 };
-
 bool Config::GetBoolDefault(const char * name, const bool def)
 {
     if(!mConf)
@@ -85,7 +73,6 @@ bool Config::GetBoolDefault(const char * name, const bool def)
     else
         return false;
 };
-
 int32 Config::GetIntDefault(const char * name, const int32 def)
 {
     if(!mConf)
@@ -95,7 +82,6 @@ int32 Config::GetIntDefault(const char * name, const int32 def)
         return def;
     return atoi(node->getValue());
 };
-
 float Config::GetFloatDefault(const char * name, const float def)
 {
     if(!mConf)

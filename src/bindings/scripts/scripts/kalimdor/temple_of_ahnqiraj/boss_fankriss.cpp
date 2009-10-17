@@ -13,54 +13,43 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
-
 /* ScriptData
 SDName: Boss_Fankriss
 SD%Complete: 100
 SDComment: sound not implemented
 SDCategory: Temple of Ahn'Qiraj
 EndScriptData */
-
 #include "precompiled.h"
-
 #define SOUND_SENTENCE_YOU 8588
 #define SOUND_SERVE_TO     8589
 #define SOUND_LAWS         8590
 #define SOUND_TRESPASS     8591
 #define SOUND_WILL_BE      8592
-
 #define SPELL_MORTAL_WOUND 28467
 #define SPELL_ROOT         28858
-
 // Enrage for his spawns
 #define SPELL_ENRAGE       28798
-
 struct TRINITY_DLL_DECL boss_fankrissAI : public ScriptedAI
 {
     boss_fankrissAI(Creature *c) : ScriptedAI(c) {}
-
     uint32 MortalWound_Timer;
     uint32 SpawnHatchlings_Timer;
     uint32 SpawnSpawns_Timer;
     int Rand;
     int RandX;
     int RandY;
-
     Creature* Hatchling;
     Creature* Spawn;
-
     void Reset()
     {
         MortalWound_Timer = 10000 + rand()%5000;
         SpawnHatchlings_Timer = 6000 + rand()%6000;
         SpawnSpawns_Timer = 15000 + rand()%30000;
     }
-
     void SummonSpawn(Unit* victim)
     {
         if (!victim)
             return;
-
         Rand = 10 + (rand()%10);
         switch (rand()%2)
         {
@@ -79,24 +68,20 @@ struct TRINITY_DLL_DECL boss_fankrissAI : public ScriptedAI
         if (Spawn)
             (Spawn->AI())->AttackStart(victim);
     }
-
     void EnterCombat(Unit *who)
     {
     }
-
     void UpdateAI(const uint32 diff)
     {
         //Return since we have no target
         if (!UpdateVictim())
             return;
-
         //MortalWound_Timer
         if (MortalWound_Timer < diff)
         {
             DoCast(m_creature->getVictim(),SPELL_MORTAL_WOUND);
             MortalWound_Timer = 10000 + rand()%10000;
         }else MortalWound_Timer -= diff;
-
         //Summon 1-3 Spawns of Fankriss at random time.
         if (SpawnSpawns_Timer < diff)
         {
@@ -117,7 +102,6 @@ struct TRINITY_DLL_DECL boss_fankrissAI : public ScriptedAI
             }
             SpawnSpawns_Timer = 30000 + rand()%30000;
         }else SpawnSpawns_Timer -= diff;
-
         // Teleporting Random Target to one of the three tunnels and spawn 4 hatchlings near the gamer.
         //We will only telport if fankriss has more than 3% of hp so teleported gamers can always loot.
         if (m_creature->GetHealth()*100 / m_creature->GetMaxHealth() > 3)
@@ -129,10 +113,8 @@ struct TRINITY_DLL_DECL boss_fankrissAI : public ScriptedAI
                 if (target && target->GetTypeId() == TYPEID_PLAYER)
                 {
                     DoCast(target, SPELL_ROOT);
-
                     if (DoGetThreat(target))
                         DoModifyThreatPercent(target, -100);
-
                     switch(rand()%3)
                     {
                         case 0:
@@ -185,16 +167,13 @@ struct TRINITY_DLL_DECL boss_fankrissAI : public ScriptedAI
                 SpawnHatchlings_Timer = 45000 + rand()%15000;
             }else SpawnHatchlings_Timer -= diff;
         }
-
         DoMeleeAttackIfReady();
     }
 };
-
 CreatureAI* GetAI_boss_fankriss(Creature* pCreature)
 {
     return new boss_fankrissAI (pCreature);
 }
-
 void AddSC_boss_fankriss()
 {
     Script *newscript;

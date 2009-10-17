@@ -1,23 +1,16 @@
 // $Id: SPIPE_Connector.cpp 80826 2008-03-04 14:51:23Z wotte $
-
 #include "ace/SPIPE_Connector.h"
 #include "ace/Log_Msg.h"
 #include "ace/OS_NS_sys_time.h"
 #include "ace/OS_NS_fcntl.h"
 #include "ace/OS_NS_unistd.h"
-
 #if !defined (__ACE_INLINE__)
 #include "ace/SPIPE_Connector.inl"
 #endif /* __ACE_INLINE__ */
-
 ACE_RCSID(ace, SPIPE_Connector, "$Id: SPIPE_Connector.cpp 80826 2008-03-04 14:51:23Z wotte $")
-
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
-
 ACE_ALLOC_HOOK_DEFINE(ACE_SPIPE_Connector)
-
 // Creates a Local ACE_SPIPE.
-
 ACE_SPIPE_Connector::ACE_SPIPE_Connector (ACE_SPIPE_Stream &new_io,
                                           const ACE_SPIPE_Addr &remote_sap,
                                           ACE_Time_Value *timeout,
@@ -35,7 +28,6 @@ ACE_SPIPE_Connector::ACE_SPIPE_Connector (ACE_SPIPE_Stream &new_io,
     ACE_ERROR ((LM_ERROR, ACE_TEXT ("address %s, %p\n"),
                remote_sap.get_path_name (), ACE_TEXT ("ACE_SPIPE_Connector")));
 }
-
 void
 ACE_SPIPE_Connector::dump (void) const
 {
@@ -43,12 +35,10 @@ ACE_SPIPE_Connector::dump (void) const
   ACE_TRACE ("ACE_SPIPE_Connector::dump");
 #endif /* ACE_HAS_DUMP */
 }
-
 ACE_SPIPE_Connector::ACE_SPIPE_Connector (void)
 {
   ACE_TRACE ("ACE_SPIPE_Connector::ACE_SPIPE_Connector");
 }
-
 int
 ACE_SPIPE_Connector::connect (ACE_SPIPE_Stream &new_io,
                               const ACE_SPIPE_Addr &remote_sap,
@@ -63,9 +53,7 @@ ACE_SPIPE_Connector::connect (ACE_SPIPE_Stream &new_io,
   ACE_TRACE ("ACE_SPIPE_Connector::connect");
   // Make darn sure that the O_CREAT flag is not set!
   ACE_CLR_BITS (flags, O_CREAT);
-
   ACE_HANDLE handle;
-
   ACE_UNUSED_ARG (pipe_mode);
 #if defined (ACE_WIN32) && \
    !defined (ACE_HAS_PHARLAP) && !defined (ACE_HAS_WINCE)
@@ -74,7 +62,6 @@ ACE_SPIPE_Connector::connect (ACE_SPIPE_Stream &new_io,
   ACE_Time_Value absolute_time;
   if (timeout != 0)
     absolute_time = ACE_OS::gettimeofday () + *timeout;
-
   // Loop until success or failure.
   for (;;)
     {
@@ -82,16 +69,13 @@ ACE_SPIPE_Connector::connect (ACE_SPIPE_Stream &new_io,
       if (handle != ACE_INVALID_HANDLE)
         // Success!
         break;
-
       // Check if we have a busy pipe condition.
       if (::GetLastError() != ERROR_PIPE_BUSY)
         // Nope, this is a failure condition.
         break;
-
       // This will hold the time out value used in the ::WaitNamedPipe
       // call.
       DWORD time_out_value;
-
       // Check if we are to block until we connect.
       if (timeout == 0)
         // Wait for as long as it takes.
@@ -114,18 +98,14 @@ ACE_SPIPE_Connector::connect (ACE_SPIPE_Stream &new_io,
             }
           // Get the amount of time remaining for ::WaitNamedPipe.
           time_out_value = relative_time.msec ();
-
         }
-
       // Wait for the named pipe to become available.
       ACE_TEXT_WaitNamedPipe (remote_sap.get_path_name (),
                               time_out_value);
-
       // Regardless of the return value, we'll do one more attempt to
       // connect to see if it is now available and to return
       // consistent error values.
     }
-
   // Set named pipe mode if we have a valid handle.
   if (handle != ACE_INVALID_HANDLE)
     {
@@ -150,12 +130,9 @@ ACE_SPIPE_Connector::connect (ACE_SPIPE_Stream &new_io,
                                               remote_sap.get_path_name (),
                                               flags, perms, sa);
 #endif /* !ACE_WIN32 || ACE_HAS_PHARLAP || ACE_HAS_WINCE */
-
   new_io.set_handle (handle);
   new_io.remote_addr_ = remote_sap; // class copy.
-
   return handle == ACE_INVALID_HANDLE ? -1 : 0;
 }
-
 ACE_END_VERSIONED_NAMESPACE_DECL
 

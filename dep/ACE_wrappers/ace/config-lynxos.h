@@ -1,27 +1,20 @@
 // $Id: config-lynxos.h 81780 2008-05-26 13:56:49Z olli $
-
 // The following configuration file is designed to work for LynxOS,
 // version 4.0.0 and later, using the GNU g++ compiler.
-
 #ifndef ACE_CONFIG_H
 #define ACE_CONFIG_H
 #include /**/ "ace/pre.h"
-
 #if ! defined (__ACE_INLINE__)
 # define __ACE_INLINE__
 #endif /* ! __ACE_INLINE__ */
-
 #if defined (__GNUG__)
 # include "ace/config-g++-common.h"
 #endif /* __GNUG__ */
-
 // Compile using multi-thread libraries.
 #if !defined (ACE_MT_SAFE)
 # define ACE_MT_SAFE 1
 #endif
-
 #include "ace/config-posix.h"
-
 #if defined (__x86__)
 # define ACE_HAS_PENTIUM
 #elif defined (__powerpc__)
@@ -31,7 +24,6 @@
   // This doesn't work on LynxOS 3.0.0, because it resets the TimeBaseRegister.
   // # define ACE_HAS_POWERPC_TIMER
 #endif /* __x86__ || __powerpc__ */
-
 #define ACE_DEFAULT_BASE_ADDR ((char *) 0)
 #define ACE_HAS_4_4BSD_SENDMSG_RECVMSG
 #define ACE_HAS_ALLOCA
@@ -103,10 +95,8 @@
 #define ACE_PAGE_SIZE 4096
 #define ACE_POSIX_SIG_PROACTOR
 #define ACE_SCANDIR_CMP_USES_CONST_VOIDPTR
-
 // LynxOS has poll.h but it is unusable since implementation is not provided
 #define ACE_LACKS_POLL_H
-
 #if ACE_MT_SAFE == 1
   // Platform supports threads.
 # define ACE_HAS_PTHREADS
@@ -119,25 +109,20 @@
 #   define ACE_LACKS_PTHREAD_ATTR_SETSTACKADDR
 # endif
 #endif /* ACE_MT_SAFE */
-
 #if __GNUC__ < 3
 # define ACE_LACKS_NUMERIC_LIMITS
 #endif /* __GNUC__ < 3 */
-
 // By default, don't include RCS Id strings in object code.
 #if !defined (ACE_USE_RCSID)
 # define ACE_USE_RCSID 0
 #endif /* ! ACE_USE_RCSID */
-
 // System include files are not in sys/, this gets rid of warning.
 #define __NO_INCLUDE_WARN__
-
 // "changes signedness" error (OS.i and many other files)
 #define ACE_HAS_SOCKLEN_T
 // LSOCK.cpp uses a macro from param.h, not included
 #define ALIGNBYTES (sizeof(int) - 1)
 #define ALIGN(p) (((unsigned)p + ALIGNBYTES) & ~ALIGNBYTES)
-
 #if ACE_LYNXOS_MAJOR == 4 && ACE_LYNXOS_MINOR == 0
 # define ACE_LACKS_GETOPT_PROTOTYPE
 # define ACE_LACKS_INET_ATON_PROTOTYPE
@@ -147,17 +132,14 @@
 # define ACE_LACKS_SYS_SELECT_H
 # define ACE_HAS_NONCONST_GETBY
 #endif
-
 #if (ACE_LYNXOS_MAJOR > 4) || (ACE_LYNXOS_MAJOR == 4 && ACE_LYNXOS_MINOR >= 2)
 // LynxOS 4.2 additons
 # define ACE_HAS_POSIX_SEM_TIMEOUT
 # define ACE_HAS_MUTEX_TIMEOUTS
 #endif
-
 #if defined (ACE_HAS_SVR4_DYNAMIC_LINKING)
 # define ACE_HAS_BROKEN_THREAD_KEYFREE
 #endif /* ACE_HAS_SVR4_DYNAMIC_LINKING */
-
 #include /**/ "ace/post.h"
 #endif /* ACE_CONFIG_H */
 

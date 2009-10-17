@@ -1,15 +1,12 @@
 // -*- C++ -*-
 //
 // $Id: Message_Block_T.inl 80826 2008-03-04 14:51:23Z wotte $
-
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
-
 template<class ACE_LOCK> ACE_INLINE
 ACE_Locked_Data_Block<ACE_LOCK>::ACE_Locked_Data_Block (void)
 {
   this->locking_strategy_ = &this->lock_;
 }
-
 template<class ACE_LOCK> ACE_INLINE
 ACE_Locked_Data_Block<ACE_LOCK>::
 ACE_Locked_Data_Block (size_t size,
@@ -27,5 +24,4 @@ ACE_Locked_Data_Block (size_t size,
                     data_block_allocator)
 {
 }
-
 ACE_END_VERSIONED_NAMESPACE_DECL

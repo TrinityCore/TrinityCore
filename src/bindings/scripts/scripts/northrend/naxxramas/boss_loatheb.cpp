@@ -15,26 +15,21 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
-
 #include "precompiled.h"
 #include "def_naxxramas.h"
-
 #define SPELL_NECROTIC_AURA         55593
 #define SPELL_SUMMON_SPORE          29234
 #define SPELL_DEATHBLOOM            HEROIC(29865,55053)
 #define SPELL_INEVITABLE_DOOM       HEROIC(29204,55052)
-
 enum Events
 {
     EVENT_AURA = 1,
     EVENT_BLOOM,
     EVENT_DOOM,
 };
-
 struct TRINITY_DLL_DECL boss_loathebAI : public BossAI
 {
     boss_loathebAI(Creature *c) : BossAI(c, BOSS_LOATHEB) {}
-
     void EnterCombat(Unit *who)
     {
         _EnterCombat();
@@ -42,14 +37,11 @@ struct TRINITY_DLL_DECL boss_loathebAI : public BossAI
         events.ScheduleEvent(EVENT_BLOOM, 30000);
         events.ScheduleEvent(EVENT_DOOM, 120000);
     }
-
     void UpdateAI(const uint32 diff)
     {
         if (!UpdateVictim())
             return;
-
         events.Update(diff);
-
         while(uint32 eventId = events.ExecuteEvent())
         {
             switch(eventId)
@@ -69,16 +61,13 @@ struct TRINITY_DLL_DECL boss_loathebAI : public BossAI
                     return;
             }
         }
-
         DoMeleeAttackIfReady();
     }
 };
-
 CreatureAI* GetAI_boss_loatheb(Creature* pCreature)
 {
     return new boss_loathebAI (pCreature);
 }
-
 void AddSC_boss_loatheb()
 {
     Script *newscript;
@@ -86,7 +75,6 @@ void AddSC_boss_loatheb()
     newscript->Name = "boss_loatheb";
     newscript->GetAI = &GetAI_boss_loatheb;
     newscript->RegisterSelf();
-
     // Fungal Creep
     GetAISpellInfo(29232)->condition = AICOND_DIE;
 }

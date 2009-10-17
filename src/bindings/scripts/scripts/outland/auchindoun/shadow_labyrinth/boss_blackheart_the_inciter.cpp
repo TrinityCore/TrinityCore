@@ -13,22 +13,18 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
-
 /* ScriptData
 SDName: Boss_Blackheart_the_Inciter
 SD%Complete: 75
 SDComment: Incite Chaos not functional since core lacks Mind Control support
 SDCategory: Auchindoun, Shadow Labyrinth
 EndScriptData */
-
 #include "precompiled.h"
 #include "def_shadow_labyrinth.h"
-
 #define SPELL_INCITE_CHAOS    33676
 #define SPELL_INCITE_CHAOS_B  33684                         //debuff applied to each member of party
 #define SPELL_CHARGE          33709
 #define SPELL_WAR_STOMP       33707
-
 #define SAY_INTRO1          -1555008 //not used
 #define SAY_INTRO2          -1555009 //not used
 #define SAY_INTRO3          -1555010 //not used
@@ -39,7 +35,6 @@ EndScriptData */
 #define SAY_SLAY2           -1555015
 #define SAY_HELP            -1555016 //not used
 #define SAY_DEATH           -1555017
-
 //below, not used
 #define SAY2_INTRO1         -1555018
 #define SAY2_INTRO2         -1555019
@@ -51,22 +46,18 @@ EndScriptData */
 #define SAY2_SLAY2          -1555025
 #define SAY2_HELP           -1555026
 #define SAY2_DEATH          -1555027
-
 struct TRINITY_DLL_DECL boss_blackheart_the_inciterAI : public ScriptedAI
 {
     boss_blackheart_the_inciterAI(Creature *c) : ScriptedAI(c)
     {
         pInstance = c->GetInstanceData();
     }
-
     ScriptedInstance *pInstance;
-
     bool InciteChaos;
     uint32 InciteChaos_Timer;
     uint32 InciteChaosWait_Timer;
     uint32 Charge_Timer;
     uint32 Knockback_Timer;
-
     void Reset()
     {
         InciteChaos = false;
@@ -74,38 +65,30 @@ struct TRINITY_DLL_DECL boss_blackheart_the_inciterAI : public ScriptedAI
         InciteChaosWait_Timer = 15000;
         Charge_Timer = 5000;
         Knockback_Timer = 15000;
-
         if (pInstance)
             pInstance->SetData(DATA_BLACKHEARTTHEINCITEREVENT, NOT_STARTED);
     }
-
     void KilledUnit(Unit *victim)
     {
         DoScriptText(RAND(SAY_SLAY1,SAY_SLAY2), m_creature);
     }
-
     void JustDied(Unit *victim)
     {
         DoScriptText(SAY_DEATH, m_creature);
-
         if (pInstance)
             pInstance->SetData(DATA_BLACKHEARTTHEINCITEREVENT, DONE);
     }
-
     void EnterCombat(Unit *who)
     {
         DoScriptText(RAND(SAY_AGGRO1,SAY_AGGRO2,SAY_AGGRO3), m_creature);
-
         if (pInstance)
             pInstance->SetData(DATA_BLACKHEARTTHEINCITEREVENT, IN_PROGRESS);
     }
-
     void UpdateAI(const uint32 diff)
     {
         //Return since we have no target
         if (!UpdateVictim())
             return;
-
         if (InciteChaos)
         {
             if (InciteChaosWait_Timer < diff)
@@ -113,28 +96,23 @@ struct TRINITY_DLL_DECL boss_blackheart_the_inciterAI : public ScriptedAI
                 InciteChaos = false;
                 InciteChaosWait_Timer = 15000;
             }else InciteChaosWait_Timer -= diff;
-
             return;
         }
-
         if (InciteChaos_Timer < diff)
         {
             DoCast(m_creature, SPELL_INCITE_CHAOS);
-
             std::list<HostilReference *> t_list = m_creature->getThreatManager().getThreatList();
-            for(std::list<HostilReference *>::iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)
+            for (std::list<HostilReference *>::iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)
             {
                 Unit* target = Unit::GetUnit(*m_creature, (*itr)->getUnitGuid());
                 if (target && target->GetTypeId() == TYPEID_PLAYER)
                     target->CastSpell(target,SPELL_INCITE_CHAOS_B,true);
             }
-
             DoResetThreat();
             InciteChaos = true;
             InciteChaos_Timer = 40000;
             return;
         }else InciteChaos_Timer -= diff;
-
         //Charge_Timer
         if (Charge_Timer < diff)
         {
@@ -142,14 +120,12 @@ struct TRINITY_DLL_DECL boss_blackheart_the_inciterAI : public ScriptedAI
                 DoCast(target, SPELL_CHARGE);
             Charge_Timer = 15000 + rand()%10000;
         }else Charge_Timer -= diff;
-
         //Knockback_Timer
         if (Knockback_Timer < diff)
         {
             DoCast(m_creature, SPELL_WAR_STOMP);
             Knockback_Timer = 18000 + rand()%6000;
         }else Knockback_Timer -= diff;
-
         DoMeleeAttackIfReady();
     }
 };
@@ -157,7 +133,6 @@ CreatureAI* GetAI_boss_blackheart_the_inciter(Creature* pCreature)
 {
     return new boss_blackheart_the_inciterAI (pCreature);
 }
-
 void AddSC_boss_blackheart_the_inciter()
 {
     Script *newscript;

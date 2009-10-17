@@ -1,5 +1,4 @@
 // -*- C++ -*-
-
 //=============================================================================
 /**
  *  @file    SPIPE_Connector.h
@@ -10,20 +9,15 @@
  *  @author Prashant Jain <pjain@cs.wustl.edu>
  */
 //=============================================================================
-
 #ifndef ACE_SPIPE_CONNECTOR_H
 #define ACE_SPIPE_CONNECTOR_H
 #include /**/ "ace/pre.h"
-
 #include "ace/SPIPE_Stream.h"
 #include "ace/os_include/os_fcntl.h"
-
 #if !defined (ACE_LACKS_PRAGMA_ONCE)
 # pragma once
 #endif /* ACE_LACKS_PRAGMA_ONCE */
-
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
-
 /**
  * @class ACE_SPIPE_Connector
  *
@@ -37,7 +31,6 @@ public:
   // = Initialization method.
   /// Default constructor.
   ACE_SPIPE_Connector (void);
-
   /**
    * Actively connect and produce a <new_stream> if things go well.
    * The @a remote_sap is the address that we are trying to connect
@@ -65,7 +58,6 @@ public:
                        int perms = 0,
                        LPSECURITY_ATTRIBUTES sa = 0,
                        int pipe_mode = PIPE_READMODE_MESSAGE | PIPE_WAIT);
-
   /**
    * Actively connect and produce a <new_stream> if things go well.
    * The @a remote_sap is the address that we are trying to connect
@@ -93,27 +85,20 @@ public:
                int perms = 0,
                LPSECURITY_ATTRIBUTES sa = 0,
                int pipe_mode = PIPE_READMODE_MESSAGE | PIPE_WAIT);
-
   /// Resets any event associations on this handle
   int reset_new_handle (ACE_HANDLE handle);
-
   // = Meta-type info
   typedef ACE_SPIPE_Addr PEER_ADDR;
   typedef ACE_SPIPE_Stream PEER_STREAM;
-
   /// Dump the state of an object.
   void dump (void) const;
-
   /// Declare the dynamic allocation hooks.
   ACE_ALLOC_HOOK_DECLARE;
 };
-
 ACE_END_VERSIONED_NAMESPACE_DECL
-
 #if defined (__ACE_INLINE__)
 #include "ace/SPIPE_Connector.inl"
 #endif /* __ACE_INLINE__ */
-
 #include /**/ "ace/post.h"
 #endif /* ACE_SPIPE_CONNECTOR_H */
 

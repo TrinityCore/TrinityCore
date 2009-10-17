@@ -13,56 +13,45 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
-
 /* ScriptData
 SDName: Boss_Gorosh_the_Dervish
 SD%Complete: 100
 SDComment:
 SDCategory: Blackrock Depths
 EndScriptData */
-
 #include "precompiled.h"
-
 #define SPELL_WHIRLWIND             15589
 #define SPELL_MORTALSTRIKE          24573
-
 struct TRINITY_DLL_DECL boss_gorosh_the_dervishAI : public ScriptedAI
 {
     boss_gorosh_the_dervishAI(Creature *c) : ScriptedAI(c) {}
-
     uint32 WhirlWind_Timer;
     uint32 MortalStrike_Timer;
-
     void Reset()
     {
         WhirlWind_Timer = 12000;
         MortalStrike_Timer = 22000;
     }
-
     void EnterCombat(Unit *who)
     {
     }
-
     void UpdateAI(const uint32 diff)
     {
         //Return since we have no target
         if (!UpdateVictim())
             return;
-
         //WhirlWind_Timer
         if (WhirlWind_Timer < diff)
         {
             DoCast(m_creature,SPELL_WHIRLWIND);
             WhirlWind_Timer = 15000;
         }else WhirlWind_Timer -= diff;
-
         //MortalStrike_Timer
         if (MortalStrike_Timer < diff)
         {
             DoCast(m_creature->getVictim(),SPELL_MORTALSTRIKE);
             MortalStrike_Timer = 15000;
         }else MortalStrike_Timer -= diff;
-
         DoMeleeAttackIfReady();
     }
 };
@@ -70,7 +59,6 @@ CreatureAI* GetAI_boss_gorosh_the_dervish(Creature* pCreature)
 {
     return new boss_gorosh_the_dervishAI (pCreature);
 }
-
 void AddSC_boss_gorosh_the_dervish()
 {
     Script *newscript;

@@ -1,6 +1,5 @@
 #ifndef DEF_GUNDRAK_H
 #define DEF_GUNDRAK_H
-
 enum Data
 {
     DATA_SLAD_RAN_EVENT,
@@ -9,7 +8,6 @@ enum Data
     DATA_GAL_DARAH_EVENT,
     DATA_ECK_THE_FEROCIOUS_EVENT
 };
-
 enum Data64
 {
     DATA_SLAD_RAN_ALTAR,
@@ -19,5 +17,4 @@ enum Data64
     DATA_MOORABI_STATUE,
     DATA_DRAKKARI_COLOSSUS_STATUE
 };
-
 #endif

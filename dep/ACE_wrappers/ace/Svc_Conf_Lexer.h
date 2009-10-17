@@ -1,5 +1,4 @@
 // -*- C++ -*-
-
 //=========================================================================
 /**
  * @file Svc_Conf_Lexer.h
@@ -12,20 +11,14 @@
  * @author Chad Elliott <elliott_c@ociweb.com>
  */
 //=========================================================================
-
 #ifndef SVC_CONF_LEXER_H
 #define SVC_CONF_LEXER_H
-
 #include /**/ "ace/pre.h"
 #include "ace/Svc_Conf.h"
-
 #if (ACE_USES_CLASSIC_SVC_CONF == 1)
 #include "ace/Encoding_Converter_Factory.h"
-
 class ACE_Encoding_Converter;
-
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
-
 /** This class lexes the classic ACE Service Configurator language.
  * The entry point is similar to what flex would generate.  However, it
  * is a static method in this class (which is really just name space).
@@ -38,12 +31,9 @@ public:
   /// parameter and uses input stored in the param parameter.
   static int yylex (YYSTYPE* ace_yylval,
                     ACE_Svc_Conf_Param* param);
-
 private:
   static size_t input(ACE_Svc_Conf_Param* param, char* buf, size_t max_size);
-
   static int scan (YYSTYPE* ace_yylval, ACE_Svc_Conf_Param* param);
-
 #if defined (ACE_USES_WCHAR)
   static bool convert_to_utf8 (
                    ACE_Svc_Conf_Param* param,
@@ -61,11 +51,8 @@ private:
                                size_t& bytes_used);
 #endif /* ACE_USES_WCHAR */
 };
-
 ACE_END_VERSIONED_NAMESPACE_DECL
 #endif /* ACE_USES_CLASSIC_SVC_CONF = 1 */
-
 #include /**/ "ace/post.h"
-
 #endif /* SVC_CONF_LEXER_H */
 

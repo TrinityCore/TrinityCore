@@ -17,24 +17,19 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
-
 /// \addtogroup world The World
 /// @{
 /// \file
-
 #ifndef __WORLD_H
 #define __WORLD_H
-
 #include "Common.h"
 #include "Timer.h"
 #include "Policies/Singleton.h"
 #include "SharedDefines.h"
 #include "ace/Atomic_Op.h"
-
 #include <map>
 #include <set>
 #include <list>
-
 class Object;
 class WorldPacket;
 class WorldSession;
@@ -45,7 +40,6 @@ struct ScriptInfo;
 class SqlResultQueue;
 class QueryResult;
 class WorldSocket;
-
 // ServerMessages.dbc
 enum ServerMessageType
 {
@@ -55,20 +49,17 @@ enum ServerMessageType
     SERVER_MSG_SHUTDOWN_CANCELLED = 4,
     SERVER_MSG_RESTART_CANCELLED  = 5
 };
-
 enum ShutdownMask
 {
     SHUTDOWN_MASK_RESTART = 1,
     SHUTDOWN_MASK_IDLE    = 2,
 };
-
 enum ShutdownExitCode
 {
     SHUTDOWN_EXIT_CODE = 0,
     ERROR_EXIT_CODE    = 1,
     RESTART_EXIT_CODE  = 2,
 };
-
 /// Timers for different object refresh rates
 enum WorldTimers
 {
@@ -83,7 +74,6 @@ enum WorldTimers
     WUPDATE_AUTOBROADCAST = 8,
     WUPDATE_COUNT       = 9
 };
-
 /// Configuration elements
 enum WorldConfigs
 {
@@ -254,7 +244,7 @@ enum WorldConfigs
     CONFIG_MIN_LOG_UPDATE,
     CONFIG_CHECK_DB,
     CONFIG_ENABLE_SINFO_LOGIN,
-    CONFIG_PET_LOS,   
+    CONFIG_PET_LOS,
     CONFIG_NUMTHREADS,
     CONFIG_OFFHAND_CHECK_AT_SPELL_UNLEARN,
     CONFIG_CHATLOG_CHANNEL,
@@ -273,7 +263,6 @@ enum WorldConfigs
     CONFIG_GUILD_BANK_EVENT_LOG_COUNT,
     CONFIG_VALUE_COUNT
 };
-
 /// Server rates
 enum Rates
 {
@@ -339,7 +328,6 @@ enum Rates
     RATE_MOVESPEED,
     MAX_RATES
 };
-
 /// Type of server
 enum RealmType
 {
@@ -351,7 +339,6 @@ enum RealmType
     REALM_TYPE_FFA_PVP = 16                                 // custom, free for all pvp mode like arena PvP in all zones except rest activated places and sanctuaries
                                                             // replaced by REALM_PVP in realm list
 };
-
 enum RealmZone
 {
     REALM_ZONE_UNKNOWN       = 0,                           // any language
@@ -385,7 +372,6 @@ enum RealmZone
     REALM_ZONE_QA_SERVER     = 28,                          // any language
     REALM_ZONE_CN9           = 29                           // basic-Latin at create, any at login
 };
-
 // DB scripting commands
 #define SCRIPT_COMMAND_TALK                  0              // source = unit, target=any, datalong (0=say, 1=whisper, 2=yell, 3=emote text, 4=boss emote text)
 #define SCRIPT_COMMAND_EMOTE                 1              // source = unit, datalong = anim_id
@@ -406,15 +392,12 @@ enum RealmZone
 #define SCRIPT_COMMAND_LOAD_PATH            20              // source = unit, path = datalong, repeatable datalong2
 #define SCRIPT_COMMAND_CALLSCRIPT_TO_UNIT   21              // datalong scriptid, lowguid datalong2, dataint table
 #define SCRIPT_COMMAND_KILL                 22              // datalong removecorpse
-
 /// Storage class for commands issued for delayed execution
 struct CliCommandHolder
 {
     typedef void Print(const char*);
-
     char *m_command;
     Print* m_print;
-
     CliCommandHolder(const char *command, Print* zprint)
         : m_print(zprint)
     {
@@ -422,19 +405,15 @@ struct CliCommandHolder
         m_command = new char[len];
         memcpy(m_command, command, len);
     }
-
     ~CliCommandHolder() { delete[] m_command; }
 };
-
 /// The World
 class World
 {
     public:
         static volatile uint32 m_worldLoopCounter;
-
         World();
         ~World();
-
         WorldSession* FindSession(uint32 id) const;
         void AddSession(WorldSession *s);
         void SendRNDBroadcast();
@@ -457,25 +436,19 @@ class World
             m_MaxPlayerCount = std::max(m_MaxPlayerCount, m_PlayerCount);
         }
         inline void DecreasePlayerCount() { m_PlayerCount--; }
-
         Player* FindPlayerInZone(uint32 zone);
         Weather* FindWeather(uint32 id) const;
         Weather* AddWeather(uint32 zone_id);
         void RemoveWeather(uint32 zone_id);
-
         /// Deny clients?
         bool IsClosed() { return m_isClosed; }
-
         /// Close world
         void SetClosed(bool val) { m_isClosed = val; }
-
         /// Get the active session server limit (or security level limitations)
         uint32 GetPlayerAmountLimit() const { return m_playerLimit >= 0 ? m_playerLimit : 0; }
         AccountTypes GetPlayerSecurityLimit() const { return m_allowedSecurityLevel < 0 ? SEC_PLAYER : m_allowedSecurityLevel; }
-
         /// Set the active session server limit (or security level limitation)
         void SetPlayerLimit(int32 limit, bool needUpdate = false);
-
         //player Queue
         typedef std::list<WorldSession*> Queue;
         void AddQueuedPlayer(WorldSession*);
@@ -483,28 +456,22 @@ class World
         int32 GetQueuePos(WorldSession*);
         bool HasRecentlyDisconnected(WorldSession*);
         uint32 GetQueueSize() const { return m_QueuedPlayer.size(); }
-
         /// \todo Actions on m_allowMovement still to be implemented
         /// Is movement allowed?
         bool getAllowMovement() const { return m_allowMovement; }
         /// Allow/Disallow object movements
         void SetAllowMovement(bool allow) { m_allowMovement = allow; }
-
         /// Set a new Message of the Day
         void SetMotd(const std::string& motd) { m_motd = motd; }
         /// Get the current Message of the Day
         const char* GetMotd() const { return m_motd.c_str(); }
-
         /// Set the string for new characters (first login)
         void SetNewCharString(std::string str) { m_newCharString = str; }
         /// Get the string for new characters (first login)
         const std::string& GetNewCharString() const { return m_newCharString; }
-
         LocaleConstant GetDefaultDbcLocale() const { return m_defaultDbcLocale; }
-
         /// Get the path where data (dbc, maps) are stored on disk
         std::string GetDataPath() const { return m_dataPath; }
-
         /// When server started?
         time_t const& GetStartTime() const { return m_startTime; }
         /// What time is it?
@@ -514,17 +481,14 @@ class World
         /// Update time
         uint32 GetUpdateTime() const { return m_updateTime; }
         void SetRecordDiffInterval(int32 t) { if(t >= 0) m_configs[CONFIG_INTERVAL_LOG_UPDATE] = (uint32)t; }
-
         /// Get the maximum skill level a player can reach
         uint16 GetConfigMaxSkillValue() const
         {
             uint32 lvl = getConfig(CONFIG_MAX_PLAYER_LEVEL);
             return lvl > 60 ? 300 + ((lvl - 60) * 75) / 10 : lvl*5;
         }
-
         void SetInitialWorldSettings();
         void LoadConfigSettings(bool reload = false);
-
         void SendWorldText(int32 string_id, ...);
         void SendGlobalText(const char* text, WorldSession *self);
         void SendGMText(int32 string_id, ...);
@@ -533,7 +497,6 @@ class World
         void SendZoneMessage(uint32 zone, WorldPacket *packet, WorldSession *self = 0, uint32 team = 0);
         void SendZoneText(uint32 zone, const char *text, WorldSession *self = 0, uint32 team = 0);
         void SendServerMessage(ServerMessageType type, const char *text = "", Player* player = NULL);
-
         /// Are we in the middle of a shutdown?
         bool IsShutdowning() const { return m_ShutdownTimer > 0; }
         void ShutdownServ(uint32 time, uint32 options, uint8 exitcode);
@@ -542,22 +505,18 @@ class World
         static uint8 GetExitCode() { return m_ExitCode; }
         static void StopNow(uint8 exitcode) { m_stopEvent = true; m_ExitCode = exitcode; }
         static bool IsStopped() { return m_stopEvent; }
-
         void Update(uint32 diff);
-
         void UpdateSessions( uint32 diff );
         /// Set a server rate (see #Rates)
         void setRate(Rates rate,float value) { rate_values[rate]=value; }
         /// Get a server rate (see #Rates)
         float getRate(Rates rate) const { return rate_values[rate]; }
-
         /// Set a server configuration element (see #WorldConfigs)
         void setConfig(uint32 index,uint32 value)
         {
             if(index<CONFIG_VALUE_COUNT)
                 m_configs[index]=value;
         }
-
         /// Get a server configuration element (see #WorldConfigs)
         uint32 getConfig(uint32 index) const
         {
@@ -566,64 +525,47 @@ class World
             else
                 return 0;
         }
-
         /// Are we on a "Player versus Player" server?
         bool IsPvPRealm() { return (getConfig(CONFIG_GAME_TYPE) == REALM_TYPE_PVP || getConfig(CONFIG_GAME_TYPE) == REALM_TYPE_RPPVP || getConfig(CONFIG_GAME_TYPE) == REALM_TYPE_FFA_PVP); }
         bool IsFFAPvPRealm() { return getConfig(CONFIG_GAME_TYPE) == REALM_TYPE_FFA_PVP; }
-
         void KickAll();
         void KickAllLess(AccountTypes sec);
         BanReturn BanAccount(BanMode mode, std::string nameOrIP, std::string duration, std::string reason, std::string author);
         bool RemoveBanAccount(BanMode mode, std::string nameOrIP);
-
         uint32 IncreaseScheduledScriptsCount() { return (uint32)++m_scheduledScripts; }
         uint32 DecreaseScheduledScriptCount() { return (uint32)--m_scheduledScripts; }
         uint32 DecreaseScheduledScriptCount(size_t count) { return (uint32)(m_scheduledScripts -= count); }
         bool IsScriptScheduled() const { return m_scheduledScripts > 0; }
-
         bool IsAllowedMap(uint32 mapid) { return m_forbiddenMapIds.count(mapid) == 0 ;}
-
         // for max speed access
         static float GetMaxVisibleDistanceOnContinents()    { return m_MaxVisibleDistanceOnContinents; }
         static float GetMaxVisibleDistanceInInstances()     { return m_MaxVisibleDistanceInInstances;  }
         static float GetMaxVisibleDistanceInBGArenas()      { return m_MaxVisibleDistanceInBGArenas;   }
         static float GetMaxVisibleDistanceForObject()       { return m_MaxVisibleDistanceForObject;    }
- 
         static float GetMaxVisibleDistanceInFlight()        { return m_MaxVisibleDistanceInFlight;     }
         static float GetVisibleUnitGreyDistance()           { return m_VisibleUnitGreyDistance;        }
         static float GetVisibleObjectGreyDistance()         { return m_VisibleObjectGreyDistance;      }
-
         void ProcessCliCommands();
         void QueueCliCommand( CliCommandHolder::Print* zprintf, char const* input ) { cliCmdQueue.add(new CliCommandHolder(input, zprintf)); }
-
         void UpdateResultQueue();
         void InitResultQueue();
-
         void ForceGameEventUpdate();
-
         void UpdateRealmCharCount(uint32 accid);
-
         void UpdateAllowedSecurity();
-
         LocaleConstant GetAvailableDbcLocale(LocaleConstant locale) const { if(m_availableDbcLocaleMask & (1 << locale)) return locale; else return m_defaultDbcLocale; }
-
         //used World DB version
         void LoadDBVersion();
         char const* GetDBVersion() { return m_DBVersion.c_str(); }
         char const* GetCreatureEventAIVersion() { return m_CreatureEventAIVersion.c_str(); }
-
         //used Script version
         void SetScriptsVersion(char const* version) { m_ScriptsVersion = version ? version : "unknown scripting library"; }
         char const* GetScriptsVersion() { return m_ScriptsVersion.c_str(); }
-
         void RecordTimeDiff(const char * text, ...);
-
         void LoadAutobroadcasts();
     protected:
         void _UpdateGameTime();
         // callback for UpdateRealmCharacters
         void _UpdateRealmCharCount(QueryResult *resultCharCount, uint32 accountId);
-
         void InitDailyQuestResetTime();
         void ResetDailyQuests();
     private:
@@ -631,12 +573,9 @@ class World
         static uint8 m_ExitCode;
         uint32 m_ShutdownTimer;
         uint32 m_ShutdownMask;
-
         bool m_isClosed;
-
         //atomic op counter for active scripts amount
         ACE_Atomic_Op<ACE_Thread_Mutex, long> m_scheduledScripts;
-
         time_t m_startTime;
         time_t m_gameTime;
         IntervalTimer m_timers[WUPDATE_COUNT];
@@ -645,7 +584,6 @@ class World
         uint32 m_updateTime, m_updateTimeSum;
         uint32 m_updateTimeCount;
         uint32 m_currentTime;
-
         typedef UNORDERED_MAP<uint32, Weather*> WeatherMap;
         WeatherMap m_weathers;
         typedef UNORDERED_MAP<uint32, WorldSession*> SessionMap;
@@ -656,9 +594,7 @@ class World
         uint32 m_maxQueuedSessionCount;
         uint32 m_PlayerCount;
         uint32 m_MaxPlayerCount;
-
         std::string m_newCharString;
-
         float rate_values[MAX_RATES];
         uint32 m_configs[CONFIG_VALUE_COUNT];
         int32 m_playerLimit;
@@ -670,41 +606,31 @@ class World
         std::string m_motd;
         std::string m_dataPath;
         std::set<uint32> m_forbiddenMapIds;
-
         // for max speed access
         static float m_MaxVisibleDistanceOnContinents;
         static float m_MaxVisibleDistanceInInstances;
         static float m_MaxVisibleDistanceInBGArenas;
         static float m_MaxVisibleDistanceForObject;
- 
         static float m_MaxVisibleDistanceInFlight;
         static float m_VisibleUnitGreyDistance;
         static float m_VisibleObjectGreyDistance;
-
         // CLI command holder to be thread safe
         ACE_Based::LockedQueue<CliCommandHolder*,ACE_Thread_Mutex> cliCmdQueue;
         SqlResultQueue *m_resultQueue;
-
         // next daily quests reset time
         time_t m_NextDailyQuestReset;
-
         //Player Queue
         Queue m_QueuedPlayer;
-
         //sessions that are added async
         void AddSession_(WorldSession* s);
         ACE_Based::LockedQueue<WorldSession*, ACE_Thread_Mutex> addSessQueue;
-
         //used versions
         std::string m_DBVersion;
         std::string m_CreatureEventAIVersion;
         std::string m_ScriptsVersion;
-
         std::list<std::string> m_Autobroadcasts;
 };
-
 extern uint32 realmID;
-
 #define sWorld Trinity::Singleton<World>::Instance()
 #endif
 /// @}

@@ -15,10 +15,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
-
 #include "precompiled.h"
 #include "def_naxxramas.h"
-
 //Razuvious - NO TEXT sound only
 //8852 aggro01 - Hah hah, I'm just getting warmed up!
 //8853 aggro02 Stand and fight!
@@ -32,18 +30,15 @@
 //8861 Sweep the leg! Do you have a problem with that?
 //8860 death - An honorable... death...
 //8947 - Aggro Mixed? - ?
-
 #define SOUND_AGGRO     RAND(8852,8853,8854)
 #define SOUND_SLAY      RAND(8861,8863)
 #define SOUND_COMMND    RAND(8855,8856,8858,8859,8861)
 #define SOUND_DEATH     8860
 #define SOUND_AGGROMIX  8847
-
 #define SPELL_UNBALANCING_STRIKE    26613
 #define SPELL_DISRUPTING_SHOUT      HEROIC(29107,55543)
 #define SPELL_JAGGED_KNIFE          55550
 #define SPELL_HOPELESS              29125
-
 enum Events
 {
     EVENT_STRIKE,
@@ -51,17 +46,14 @@ enum Events
     EVENT_KNIFE,
     EVENT_COMMAND,
 };
-
 struct TRINITY_DLL_DECL boss_razuviousAI : public BossAI
 {
     boss_razuviousAI(Creature *c) : BossAI(c, BOSS_RAZUVIOUS) {}
-
     void KilledUnit(Unit* victim)
     {
         if (!(rand()%3))
             DoPlaySoundToSet(me, SOUND_SLAY);
     }
-
     void DamageTaken(Unit* pDone_by, uint32& uiDamage)
     {
         // Damage done by the controlled Death Knight understudies should also count toward damage done by players
@@ -70,14 +62,12 @@ struct TRINITY_DLL_DECL boss_razuviousAI : public BossAI
             me->LowerPlayerDamageReq(uiDamage);
         }
     }
-
     void JustDied(Unit* killer)
     {
         _JustDied();
         DoPlaySoundToSet(me, SOUND_DEATH);
         me->CastSpell(me, SPELL_HOPELESS, true); // TODO: this may affect other creatures
     }
-
     void EnterCombat(Unit *who)
     {
         _EnterCombat();
@@ -86,14 +76,11 @@ struct TRINITY_DLL_DECL boss_razuviousAI : public BossAI
         events.ScheduleEvent(EVENT_SHOUT, 25000);
         events.ScheduleEvent(EVENT_COMMAND, 40000);
     }
-
     void UpdateAI(const uint32 diff)
     {
         if (!UpdateVictim())
             return;
-
         events.Update(diff);
-
         while(uint32 eventId = events.ExecuteEvent())
         {
             switch(eventId)
@@ -117,16 +104,13 @@ struct TRINITY_DLL_DECL boss_razuviousAI : public BossAI
                     return;
             }
         }
-
         DoMeleeAttackIfReady();
     }
 };
-
 CreatureAI* GetAI_boss_razuvious(Creature* pCreature)
 {
     return new boss_razuviousAI (pCreature);
 }
-
 void AddSC_boss_razuvious()
 {
     Script *newscript;

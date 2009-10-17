@@ -1,31 +1,24 @@
 // $Id: Configuration_Import_Export.cpp 80826 2008-03-04 14:51:23Z wotte $
-
 #include "ace/Configuration_Import_Export.h"
 #include "ace/OS_Errno.h"
 #include "ace/OS_NS_stdio.h"
 #include "ace/OS_NS_ctype.h"
 #include "ace/OS_NS_string.h"
-
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
-
 ACE_Config_ImpExp_Base::ACE_Config_ImpExp_Base (ACE_Configuration& config)
   : config_ (config)
 {
 }
-
 ACE_Config_ImpExp_Base::~ACE_Config_ImpExp_Base (void)
 {
 }
-
 ACE_Registry_ImpExp::ACE_Registry_ImpExp (ACE_Configuration& config)
     : ACE_Config_ImpExp_Base (config)
 {
 }
-
 ACE_Registry_ImpExp::~ACE_Registry_ImpExp (void)
 {
 }
-
 // Imports the configuration database from filename.
 // No existing data is removed.
 int
@@ -39,7 +32,6 @@ ACE_Registry_ImpExp::import_config (const ACE_TCHAR* filename)
   FILE* in = ACE_OS::fopen (filename, ACE_TEXT ("r"));
   if (!in)
     return -1;
-
   u_int buffer_size = 4096;
   u_int read_pos = 0;
   ACE_TCHAR *buffer = 0;
@@ -52,7 +44,6 @@ ACE_Registry_ImpExp::import_config (const ACE_TCHAR* filename)
     }
   ACE_Configuration_Section_Key section;
   ACE_TCHAR *end = 0;
-
   while (ACE_OS::fgets (buffer+read_pos, buffer_size - read_pos, in))
     {
       // Check if we got all the line.
@@ -70,7 +61,6 @@ ACE_Registry_ImpExp::import_config (const ACE_TCHAR* filename)
               (void) ACE_OS::fclose (in);
               return -1;
             }
-
           // copy the beginnning of the line
           ACE_OS::memcpy (temp_buffer, buffer, buffer_size);
           read_pos = buffer_size - 1;
@@ -80,11 +70,9 @@ ACE_Registry_ImpExp::import_config (const ACE_TCHAR* filename)
           continue;
         }
       read_pos = 0;
-
       // Check for a comment
       if (buffer[0] == ACE_TEXT (';') || buffer[0] == ACE_TEXT ('#'))
         continue;
-
       if (buffer[0] == ACE_TEXT ('['))
         {
           // We have a new section here, strip out the section name
@@ -96,7 +84,6 @@ ACE_Registry_ImpExp::import_config (const ACE_TCHAR* filename)
               return -3;
             }
           *end = 0;
-
           if (config_.expand_path (config_.root_section (), buffer + 1, section, 1))
             {
               ACE_OS::fclose (in);
@@ -105,14 +92,12 @@ ACE_Registry_ImpExp::import_config (const ACE_TCHAR* filename)
             }
           continue;
         }              // end if firs char is a [
-
       if (buffer[0] == ACE_TEXT ('"'))
         {
           // we have a value
           end = ACE_OS::strchr (buffer+1, '"');
           if (!end)  // no closing quote, not a value so just skip it
             continue;
-
           // null terminate the name
           *end = 0;
           ACE_TCHAR* name = buffer + 1;
@@ -198,19 +183,16 @@ ACE_Registry_ImpExp::import_config (const ACE_TCHAR* filename)
             }
         }             // end if maybe old format
     }                 // end while fgets
-
   if (ferror (in))
     {
       ACE_OS::fclose (in);
       delete [] buffer;
       return -1;
     }
-
   ACE_OS::fclose (in);
   delete [] buffer;
   return 0;
 }
-
 // This method exports the entire configuration database to <filename>.
 // Once the file is opened this method calls 'export_section' passing
 // the root section.
@@ -223,7 +205,6 @@ ACE_Registry_ImpExp::export_config (const ACE_TCHAR* filename)
       return -1;
     }
   int result = -1;
-
   FILE* out = ACE_OS::fopen (filename, ACE_TEXT ("w"));
   if (out)
     {
@@ -237,11 +218,9 @@ ACE_Registry_ImpExp::export_config (const ACE_TCHAR* filename)
     }
   return result;
 }
-
 // Method provided by derived classes in order to write one section
 // to the file specified.  Called by export_config when exporting
 // the entire configuration object.
-
 int
 ACE_Registry_ImpExp::export_section (const ACE_Configuration_Section_Key& section,
                                      const ACE_TString& path,
@@ -350,7 +329,6 @@ ACE_Registry_ImpExp::export_section (const ACE_Configuration_Section_Key& sectio
     }
   return 0;
 }
-
 //
 // This method read the line format origionally used in ACE 5.1
 //
@@ -362,7 +340,6 @@ ACE_Registry_ImpExp::process_previous_line_format (ACE_TCHAR* buffer,
   ACE_TCHAR *endp = ACE_OS::strpbrk (buffer, ACE_TEXT ("\r\n"));
   if (endp != 0)
     *endp = '\0';
-
   // assume this is a value, read in the value name
   ACE_TCHAR* end = ACE_OS::strchr (buffer, '=');
   if (end)  // no =, not a value so just skip it
@@ -388,16 +365,13 @@ ACE_Registry_ImpExp::process_previous_line_format (ACE_TCHAR* buffer,
   return 0;
 }                // end read_previous_line_format
 
-
 ACE_Ini_ImpExp::ACE_Ini_ImpExp (ACE_Configuration& config)
     : ACE_Config_ImpExp_Base (config)
 {
 }
-
 ACE_Ini_ImpExp::~ACE_Ini_ImpExp (void)
 {
 }
-
 // Method to read file and populate object.
 int
 ACE_Ini_ImpExp::import_config (const ACE_TCHAR* filename)
@@ -410,7 +384,6 @@ ACE_Ini_ImpExp::import_config (const ACE_TCHAR* filename)
   FILE* in = ACE_OS::fopen (filename, ACE_TEXT ("r"));
   if (!in)
     return -1;
-
   // @@ Make this a dynamic size!
   ACE_TCHAR buffer[4096];
   ACE_Configuration_Section_Key section;
@@ -422,7 +395,6 @@ ACE_Ini_ImpExp::import_config (const ACE_TCHAR* filename)
           line[0] == ACE_TEXT ('#')  ||
           line[0] == '\0')
         continue;
-
       if (line[0] == ACE_TEXT ('['))
         {
           // We have a new section here, strip out the section name
@@ -433,7 +405,6 @@ ACE_Ini_ImpExp::import_config (const ACE_TCHAR* filename)
               return -3;
             }
           *end = 0;
-
           if (config_.expand_path (config_.root_section (),
                                    line + 1,
                                    section,
@@ -442,10 +413,8 @@ ACE_Ini_ImpExp::import_config (const ACE_TCHAR* filename)
               ACE_OS::fclose (in);
               return -3;
             }
-
           continue;
         }
-
       // We have a line; name ends at equal sign.
       ACE_TCHAR *end = ACE_OS::strchr (line, ACE_TEXT ('='));
       if (end == 0)                            // No '='
@@ -478,24 +447,20 @@ ACE_Ini_ImpExp::import_config (const ACE_TCHAR* filename)
               ++value;
             }
         }
-
       if (config_.set_string_value (section, name, value))
         {
           ACE_OS::fclose (in);
           return -4;
         }
     }             // end while fgets
-
   if (ferror (in))
     {
       ACE_OS::fclose (in);
       return -1;
     }
-
   ACE_OS::fclose (in);
   return 0;
 }
-
 // This method exports the entire configuration database to <filename>.
 // Once the file is opened this method calls 'export_section' passing
 // the root section.
@@ -508,7 +473,6 @@ ACE_Ini_ImpExp::export_config (const ACE_TCHAR* filename)
       return -1;
     }
   int result = -1;
-
   FILE* out = ACE_OS::fopen (filename, ACE_TEXT ("w"));
   if (out)
     {
@@ -522,11 +486,9 @@ ACE_Ini_ImpExp::export_config (const ACE_TCHAR* filename)
     }
   return result;
 }
-
 // Method provided by derived classes in order to write one section to the
 // file specified.  Called by export_config when exporting the entire
 // configuration objet
-
 int
 ACE_Ini_ImpExp::export_section (const ACE_Configuration_Section_Key& section,
                                 const ACE_TString& path,
@@ -607,9 +569,7 @@ ACE_Ini_ImpExp::export_section (const ACE_Configuration_Section_Key& section,
               }
             default:
               return -3;
-
             }// end switch on type
-
           line += ACE_TEXT ("\n");
           if (ACE_OS::fputs (line.fast_rep (), out) < 0)
             return -4;
@@ -634,24 +594,19 @@ ACE_Ini_ImpExp::export_section (const ACE_Configuration_Section_Key& section,
       ++index;
     }
   return 0;
-
 }
-
 // Method to squish leading and trailing whitespaces from a string.
 // Whitespace is defined as: spaces (' '), tabs ('\t') or end-of-line
 // (cr/lf).  The terminating nul is moved up to expunge trailing
 // whitespace and the returned pointer points at the first
 // non-whitespace character in the string, which may be the nul
 // terminator if the string is all whitespace.
-
 ACE_TCHAR *
 ACE_Ini_ImpExp::squish (ACE_TCHAR *src)
 {
   ACE_TCHAR *cp = 0;
-
   if (src == 0)
     return 0;
-
   // Start at the end and work backwards over all whitespace.
   for (cp = src + ACE_OS::strlen (src) - 1;
        cp != src;
@@ -659,13 +614,10 @@ ACE_Ini_ImpExp::squish (ACE_TCHAR *src)
     if (!ACE_OS::ace_isspace (*cp))
       break;
   cp[1] = '\0';          // Chop trailing whitespace
-
   // Now start at the beginning and move over all whitespace.
   for (cp = src; ACE_OS::ace_isspace (*cp); ++cp)
     continue;
-
   return cp;
 }
-
 ACE_END_VERSIONED_NAMESPACE_DECL
 

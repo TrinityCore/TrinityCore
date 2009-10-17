@@ -17,13 +17,10 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
-
 #ifndef TRINITY_CREATIONPOLICY_H
 #define TRINITY_CREATIONPOLICY_H
-
 #include <stdlib.h>
 #include "Platform/Define.h"
-
 namespace Trinity
 {
     /**
@@ -36,7 +33,6 @@ namespace Trinity
             static T* Create(void) { return (new T); }
             static void Destroy(T *obj) { delete obj; }
     };
-
     /**
      * LocalStaticCreation policy creates an object on the stack
      * the first time call Create.
@@ -63,10 +59,8 @@ namespace Trinity
                 static MaxAlign si_localStatic;
                 return new(&si_localStatic) T;
             }
-
             static void Destroy(T *obj) { obj->~T(); }
     };
-
     /**
      * CreateUsingMalloc by pass the memory manger.
      */
@@ -80,14 +74,12 @@ namespace Trinity
                 if (!p) return 0;
                 return new(p) T;
             }
-
             static void Destroy(T* p)
             {
                 p->~T();
                 ::free(p);
             }
     };
-
     /**
      * CreateOnCallBack creates the object base on the call back.
      */
@@ -99,7 +91,6 @@ namespace Trinity
             {
                 return CALL_BACK::createCallBack();
             }
-
             static void Destroy(T *p)
             {
                 CALL_BACK::destroyCallBack(p);

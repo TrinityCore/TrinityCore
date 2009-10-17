@@ -1,26 +1,19 @@
 /**
  @file Crypto.cpp
-
  @author Morgan McGuire, matrix@graphics3d.com
-
 
  @created 2006-03-28
  @edited  2006-04-06
  */
-
 #include "G3D/platform.h"
 #include "G3D/Crypto.h"
 #include "G3D/g3dmath.h"
-
 namespace G3D {
-
 
 int Crypto::smallPrime(int n) {
     debugAssert(n < numSmallPrimes() && n >= 0);
-
     // From:
     // http://primes.utm.edu/lists/small/1000.txt
-
     static const int table[] = {
           2,      3,      5,      7,     11,     13,     17,     19,     23,     29,
          31,     37,     41,     43,     47,     53,     59,     61,     67,     71,
@@ -53,15 +46,12 @@ int Crypto::smallPrime(int n) {
        1823,   1831,   1847,   1861,   1867,   1871,   1873,   1877,   1879,   1889,
        1901,   1907,   1913,   1931,   1933,   1949,   1951,   1973,   1979,   1987,
        1993,   1997,   1999};
-
     return table[n];
 }
-
 
 int Crypto::numSmallPrimes() {
     return 303;
 }
-
 uint32 Crypto::crc32(const void* byte, size_t numBytes) {
     static const uint32 crc32Table[256] = {
         0x00000000, 0x77073096, 0xEE0E612C, 0x990951BA,
@@ -80,7 +70,6 @@ uint32 Crypto::crc32(const void* byte, size_t numBytes) {
         0x21B4F4B5, 0x56B3C423, 0xCFBA9599, 0xB8BDA50F,
         0x2802B89E, 0x5F058808, 0xC60CD9B2, 0xB10BE924,
         0x2F6F7C87, 0x58684C11, 0xC1611DAB, 0xB6662D3D,
-
         0x76DC4190, 0x01DB7106, 0x98D220BC, 0xEFD5102A,
         0x71B18589, 0x06B6B51F, 0x9FBFE4A5, 0xE8B8D433,
         0x7807C9A2, 0x0F00F934, 0x9609A88E, 0xE10E9818,
@@ -97,7 +86,6 @@ uint32 Crypto::crc32(const void* byte, size_t numBytes) {
         0x5768B525, 0x206F85B3, 0xB966D409, 0xCE61E49F,
         0x5EDEF90E, 0x29D9C998, 0xB0D09822, 0xC7D7A8B4,
         0x59B33D17, 0x2EB40D81, 0xB7BD5C3B, 0xC0BA6CAD,
-
         0xEDB88320, 0x9ABFB3B6, 0x03B6E20C, 0x74B1D29A,
         0xEAD54739, 0x9DD277AF, 0x04DB2615, 0x73DC1683,
         0xE3630B12, 0x94643B84, 0x0D6D6A3E, 0x7A6A5AA8,
@@ -114,7 +102,6 @@ uint32 Crypto::crc32(const void* byte, size_t numBytes) {
         0xCC0C7795, 0xBB0B4703, 0x220216B9, 0x5505262F,
         0xC5BA3BBE, 0xB2BD0B28, 0x2BB45A92, 0x5CB36A04,
         0xC2D7FFA7, 0xB5D0CF31, 0x2CD99E8B, 0x5BDEAE1D,
-
         0x9B64C2B0, 0xEC63F226, 0x756AA39C, 0x026D930A,
         0x9C0906A9, 0xEB0E363F, 0x72076785, 0x05005713,
         0x95BF4A82, 0xE2B87A14, 0x7BB12BAE, 0x0CB61B38,
@@ -132,16 +119,12 @@ uint32 Crypto::crc32(const void* byte, size_t numBytes) {
         0xB3667A2E, 0xC4614AB8, 0x5D681B02, 0x2A6F2B94,
         0xB40BBE37, 0xC30C8EA1, 0x5A05DF1B, 0x2D02EF8D,
     };
-
     // By definition, initialize to all binary 1's
     uint32 value = 0xFFFFFFFF;
-
     for (size_t i = 0; i < numBytes; ++i) {
         value = (value >> 8 ) ^ crc32Table[static_cast<const uint8*>(byte)[i] ^ (value & 0xFF)];
     }
-
     return value;
 }
-
 } // G3D
 

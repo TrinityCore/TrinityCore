@@ -17,15 +17,11 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
-
 #ifndef TRINITY_DESTINATIONHOLDERIMP_H
 #define TRINITY_DESTINATIONHOLDERIMP_H
-
 #include "MapManager.h"
 #include "DestinationHolder.h"
-
 #include <cmath>
-
 template<typename TRAVELLER>
 void
 DestinationHolder<TRAVELLER>::_findOffSetPoint(float x1, float y1, float x2, float y2, float offset, float &x, float &y)
@@ -61,7 +57,6 @@ DestinationHolder<TRAVELLER>::_findOffSetPoint(float x1, float y1, float x2, flo
         }
     }
 }
-
 template<typename TRAVELLER>
 uint32
 DestinationHolder<TRAVELLER>::SetDestination(TRAVELLER &traveller, float dest_x, float dest_y, float dest_z, bool sendMove)
@@ -70,42 +65,34 @@ DestinationHolder<TRAVELLER>::SetDestination(TRAVELLER &traveller, float dest_x,
     i_destX = dest_x;
     i_destY = dest_y;
     i_destZ = dest_z;
-
     return StartTravel(traveller, sendMove);
 }
-
 template<typename TRAVELLER>
 uint32
 DestinationHolder<TRAVELLER>::StartTravel(TRAVELLER &traveller, bool sendMove)
 {
     if(!i_destSet) return 0;
-
     i_fromX = traveller.GetPositionX();
     i_fromY = traveller.GetPositionY();
     i_fromZ = traveller.GetPositionZ();
-
     i_totalTravelTime = traveller.GetTotalTrevelTimeTo(i_destX,i_destY,i_destZ);
     i_timeElapsed = 0;
     if(sendMove)
         traveller.MoveTo(i_destX, i_destY, i_destZ, i_totalTravelTime);
     return i_totalTravelTime;
 }
-
 template<typename TRAVELLER>
 bool
 DestinationHolder<TRAVELLER>::UpdateTraveller(TRAVELLER &traveller, uint32 diff, bool micro_movement)
 {
     i_timeElapsed += diff;
-
     // Update every TRAVELLER_UPDATE_INTERVAL
     i_tracker.Update(diff);
     if(!i_tracker.Passed())
         return false;
     else
         ResetUpdate();
-
     if(!i_destSet) return true;
-
     float x, y, z;
     if (!micro_movement)
         GetLocationNowNoMicroMovement(x, y, z);
@@ -113,36 +100,29 @@ DestinationHolder<TRAVELLER>::UpdateTraveller(TRAVELLER &traveller, uint32 diff,
     {
         if (!traveller.GetTraveller().hasUnitState(UNIT_STAT_MOVING | UNIT_STAT_IN_FLIGHT))
             return true;
-
         if (traveller.GetTraveller().hasUnitState(UNIT_STAT_IN_FLIGHT))
             GetLocationNow(traveller.GetTraveller().GetBaseMap() ,x, y, z, true);                  // Should reposition Object with right Coord, so I can bypass some Grid Relocation
         else
             GetLocationNow(traveller.GetTraveller().GetBaseMap(), x, y, z, false);
-
         // Change movement computation to micro movement based on last tick coords, this makes system work
         // even on multiple floors zones without hugh vmaps usage ;)
-
         // Take care of underrun of uint32
         if (i_totalTravelTime >= i_timeElapsed)
             i_totalTravelTime -= i_timeElapsed;     // Consider only the remaining part
         else
             i_totalTravelTime = 0;
-
         i_timeElapsed = 0;
         i_fromX = x;                            // and change origine
         i_fromY = y;                            // then I take into account only micro movement
         i_fromZ = z;
     }
-
     if (traveller.GetTraveller().GetPositionX() != x || traveller.GetTraveller().GetPositionY() != y || traveller.GetTraveller().GetPositionZ() != z)
     {
         float ori = traveller.GetTraveller().GetAngle(x, y);
         traveller.Relocation(x, y, z, ori);
     }
-
     return true;
 }
-
 template<typename TRAVELLER>
 void
 DestinationHolder<TRAVELLER>::GetLocationNow(const Map * map, float &x, float &y, float &z, bool is3D) const
@@ -177,7 +157,6 @@ DestinationHolder<TRAVELLER>::GetLocationNow(const Map * map, float &x, float &y
         }
     }
 }
-
 template<typename TRAVELLER>
 float
 DestinationHolder<TRAVELLER>::GetDistance3dFromDestSq(const WorldObject &obj) const
@@ -186,14 +165,12 @@ DestinationHolder<TRAVELLER>::GetDistance3dFromDestSq(const WorldObject &obj) co
     obj.GetPosition(x,y,z);
     return (i_destX-x)*(i_destX-x)+(i_destY-y)*(i_destY-y)+(i_destZ-z)*(i_destZ-z);
 }
-
 template<typename TRAVELLER>
 float
 DestinationHolder<TRAVELLER>::GetDestinationDiff(float x, float y, float z) const
 {
     return sqrt(((x-i_destX)*(x-i_destX)) + ((y-i_destY)*(y-i_destY)) + ((z-i_destZ)*(z-i_destZ)));
 }
-
 template<typename TRAVELLER>
 void
 DestinationHolder<TRAVELLER>::GetLocationNowNoMicroMovement(float &x, float &y, float &z) const
@@ -212,6 +189,5 @@ DestinationHolder<TRAVELLER>::GetLocationNowNoMicroMovement(float &x, float &y, 
         z = i_fromZ + ((i_destZ - i_fromZ) * percent_passed);
     }
 }
-
 #endif
 

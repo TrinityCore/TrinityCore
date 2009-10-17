@@ -13,82 +13,65 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
-
 /* ScriptData
 SDName: Instance_Old_Hillsbrad
 SD%Complete: 75
 SDComment: If thrall escort fail, all parts will reset. In future, save sub-parts and continue from last known.
 SDCategory: Caverns of Time, Old Hillsbrad Foothills
 EndScriptData */
-
 #include "precompiled.h"
 #include "def_old_hillsbrad.h"
-
 #define MAX_ENCOUNTER      6
-
 #define THRALL_ENTRY    17876
 #define TARETHA_ENTRY   18887
 #define EPOCH_ENTRY    18096
-
 #define DRAKE_ENTRY             17848
-
 #define QUEST_ENTRY_DIVERSION   10283
 #define LODGE_QUEST_TRIGGER     20155
-
 struct TRINITY_DLL_DECL instance_old_hillsbrad : public ScriptedInstance
 {
     instance_old_hillsbrad(Map* pMap) : ScriptedInstance(pMap) {Initialize();};
-
     uint32 m_auiEncounter[MAX_ENCOUNTER];
     uint32 mBarrelCount;
     uint32 mThrallEventCount;
-
     uint64 ThrallGUID;
     uint64 TarethaGUID;
     uint64 EpochGUID;
-
     void Initialize()
     {
         memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
-
         mBarrelCount        = 0;
         mThrallEventCount   = 0;
         ThrallGUID          = 0;
         TarethaGUID         = 0;
         EpochGUID        = 0;
     }
-
     Player* GetPlayerInMap()
     {
         Map::PlayerList const& players = instance->GetPlayers();
-
         if (!players.isEmpty())
         {
-            for(Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
+            for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
             {
                 if (Player* plr = itr->getSource())
                     return plr;
             }
         }
-
         debug_log("TSCR: Instance Old Hillsbrad: GetPlayerInMap, but PlayerList is empty!");
         return NULL;
     }
-
     void UpdateQuestCredit()
     {
         Map::PlayerList const& players = instance->GetPlayers();
-
         if (!players.isEmpty())
         {
-            for(Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
+            for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
             {
                 if (Player* pPlayer = itr->getSource())
                     pPlayer->KilledMonsterCredit(LODGE_QUEST_TRIGGER,0);
             }
         }
     }
-
     void OnCreatureCreate(Creature* pCreature, bool add)
     {
         switch(pCreature->GetEntry())
@@ -104,17 +87,14 @@ struct TRINITY_DLL_DECL instance_old_hillsbrad : public ScriptedInstance
         break;
         }
     }
-
     void SetData(uint32 type, uint32 data)
     {
         Player* pPlayer = GetPlayerInMap();
-
         if (!pPlayer)
         {
             debug_log("TSCR: Instance Old Hillsbrad: SetData (Type: %u Data %u) cannot find any player.", type, data);
             return;
         }
-
         switch(type)
         {
             case TYPE_BARREL_DIVERSION:
@@ -123,14 +103,10 @@ struct TRINITY_DLL_DECL instance_old_hillsbrad : public ScriptedInstance
                 {
                     if (mBarrelCount >= 5)
                         return;
-
                     ++mBarrelCount;
                     DoUpdateWorldState(WORLD_STATE_OH, mBarrelCount);
-
                     debug_log("TSCR: Instance Old Hillsbrad: go_barrel_old_hillsbrad count %u",mBarrelCount);
-
                     m_auiEncounter[0] = IN_PROGRESS;
-
                     if (mBarrelCount == 5)
                     {
                         UpdateQuestCredit();
@@ -187,7 +163,6 @@ struct TRINITY_DLL_DECL instance_old_hillsbrad : public ScriptedInstance
                 break;
         }
     }
-
     uint32 GetData(uint32 data)
     {
         switch(data)
@@ -207,7 +182,6 @@ struct TRINITY_DLL_DECL instance_old_hillsbrad : public ScriptedInstance
         }
         return 0;
     }
-
     uint64 GetData64(uint32 data)
     {
         switch(data)
@@ -226,7 +200,6 @@ InstanceData* GetInstanceData_instance_old_hillsbrad(Map* pMap)
 {
     return new instance_old_hillsbrad(pMap);
 }
-
 void AddSC_instance_old_hillsbrad()
 {
     Script *newscript;

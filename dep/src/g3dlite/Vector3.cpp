@@ -1,16 +1,11 @@
 /**
  @file Vector3.cpp
-
  3D vector class
-
  @maintainer Morgan McGuire, matrix@graphics3d.com
-
  @cite Portions based on Dave Eberly's Magic Software Library at http://www.magic-software.com
-
  @created 2001-06-02
  @edited  2006-01-30
  */
-
 #include <limits>
 #include <stdlib.h>
 #include "G3D/Vector3.h"
@@ -20,11 +15,8 @@
 #include "G3D/Vector3int16.h"
 #include "G3D/Matrix3.h"
 #include "G3D/Vector2.h"
-
 namespace G3D {
-
 Vector3 Vector3::dummy;
-
 // Deprecated.
 const Vector3 Vector3::ZERO(0, 0, 0);
 const Vector3 Vector3::ZERO3(0, 0, 0);
@@ -33,18 +25,13 @@ const Vector3 Vector3::UNIT_Y(0, 1, 0);
 const Vector3 Vector3::UNIT_Z(0, 0, 1);
 const Vector3 Vector3::INF3((float)G3D::inf(), (float)G3D::inf(), (float)G3D::inf());
 const Vector3 Vector3::NAN3((float)G3D::nan(), (float)G3D::nan(), (float)G3D::nan());
-
 Vector3::Vector3(const class Vector2& v, float _z) : x(v.x), y(v.y), z(_z) {
 }
-
 Vector3::Axis Vector3::primaryAxis() const {
-
     Axis a = X_AXIS;
-
     double nx = abs(x);
     double ny = abs(y);
     double nz = abs(z);
-
     if (nx > ny) {
         if (nx > nz) {
             a = X_AXIS;
@@ -58,30 +45,23 @@ Vector3::Axis Vector3::primaryAxis() const {
             a = Z_AXIS;
         }
     }
-
     return a;
 }
-
 
 unsigned int Vector3::hashCode() const {
     unsigned int xhash = (*(int*)(void*)(&x));
     unsigned int yhash = (*(int*)(void*)(&y));
     unsigned int zhash = (*(int*)(void*)(&z));
-
     return xhash + (yhash * 37) + (zhash * 101);
 }
-
 std::ostream& operator<<(std::ostream& os, const Vector3& v) {
     return os << v.toString();
 }
 
-
 //----------------------------------------------------------------------------
-
 double frand() {
     return rand() / (double) RAND_MAX;
 }
-
 
 Vector3::Vector3(const class Vector3int16& v) {
     x = v.x;
@@ -89,25 +69,19 @@ Vector3::Vector3(const class Vector3int16& v) {
     z = v.z;
 }
 
-
 Vector3 Vector3::random() {
     Vector3 result;
-
     do {
         result = Vector3(uniformRandom(-1.0, 1.0),
                          uniformRandom(-1.0, 1.0),
                          uniformRandom(-1.0, 1.0));
     } while (result.squaredMagnitude() >= 1.0f);
-
     result.unitize();
-
     return result;
 }
-
 //----------------------------------------------------------------------------
 Vector3 Vector3::operator/ (float fScalar) const {
     Vector3 kQuot;
-
     if ( fScalar != 0.0 ) {
         float fInvScalar = 1.0f / fScalar;
         kQuot.x = fInvScalar * x;
@@ -118,7 +92,6 @@ Vector3 Vector3::operator/ (float fScalar) const {
         return Vector3::inf();
     }
 }
-
 //----------------------------------------------------------------------------
 Vector3& Vector3::operator/= (float fScalar) {
     if (fScalar != 0.0) {
@@ -131,14 +104,11 @@ Vector3& Vector3::operator/= (float fScalar) {
         y = (float)G3D::inf();
         z = (float)G3D::inf();
     }
-
     return *this;
 }
-
 //----------------------------------------------------------------------------
 float Vector3::unitize (float fTolerance) {
     float fMagnitude = magnitude();
-
     if (fMagnitude > fTolerance) {
         float fInvMagnitude = 1.0f / fMagnitude;
         x *= fInvMagnitude;
@@ -147,53 +117,38 @@ float Vector3::unitize (float fTolerance) {
     } else {
         fMagnitude = 0.0f;
     }
-
     return fMagnitude;
 }
-
 //----------------------------------------------------------------------------
-
 Vector3 Vector3::reflectAbout(const Vector3& normal) const {
-
     Vector3 out;
-
     Vector3 N = normal.direction();
-
     // 2 * normal.dot(this) * normal - this
     return N * 2 * this->dot(N) - *this;
 }
-
 //----------------------------------------------------------------------------
 #if 0
 Vector3 Vector3::cosRandom(const Vector3& normal) {
     double e1 = G3D::random(0, 1);
     double e2 = G3D::random(0, 1);
-
     // Angle from normal
     double theta = acos(sqrt(e1));
-
     // Angle about normal
     double phi   = 2 * G3D_PI * e2;
-
     // Make a coordinate system
     Vector3 U = normal.direction();
     Vector3 V = Vector3::unitX();
-
     if (abs(U.dot(V)) > .9) {
         V = Vector3::unitY();
     }
-
     Vector3 W = U.cross(V).direction();
     V = W.cross(U);
-
     // Convert to rectangular form
     return cos(theta) * U + sin(theta) * (cos(phi) * V + sin(phi) * W);
 }
 //----------------------------------------------------------------------------
-
 Vector3 Vector3::hemiRandom(const Vector3& normal) {
     Vector3 V = Vector3::random();
-
     if (V.dot(normal) < 0) {
         return -V;
     } else {
@@ -202,40 +157,30 @@ Vector3 Vector3::hemiRandom(const Vector3& normal) {
 }
 #endif
 //----------------------------------------------------------------------------
-
 Vector3 Vector3::reflectionDirection(const Vector3& normal) const {
     return -reflectAbout(normal).direction();
 }
-
 //----------------------------------------------------------------------------
-
 Vector3 Vector3::refractionDirection(
     const Vector3&  normal,
     float           iInside,
     float           iOutside) const {
-
     // From pg. 24 of Henrik Wann Jensen. Realistic Image Synthesis
     // Using Photon Mapping.  AK Peters. ISBN: 1568811470. July 2001.
-
     // Invert the directions from Wann Jensen's formulation
     // and normalize the vectors.
     const Vector3 W = -direction();
     Vector3 N = normal.direction();
-
     float h1 = iOutside;
     float h2 = iInside;
-
     if (normal.dot(*this) > 0.0f) {
         h1 = iInside;
         h2 = iOutside;
         N  = -N;
     }
-
     const float hRatio = h1 / h2;
     const float WdotN = W.dot(N);
-
     float det = 1.0f - (float)square(hRatio) * (1.0f - (float)square(WdotN));
-
     if (det < 0) {
         // Total internal reflection
         return Vector3::zero();
@@ -243,7 +188,6 @@ Vector3 Vector3::refractionDirection(
         return -hRatio * (W - WdotN * N) - N * sqrt(det);
     }
 }
-
 //----------------------------------------------------------------------------
 void Vector3::orthonormalize (Vector3 akVector[3]) {
     // If the input vectors are v0, v1, and v2, then the Gram-Schmidt
@@ -255,28 +199,23 @@ void Vector3::orthonormalize (Vector3 akVector[3]) {
     //
     // where |A| indicates length of vector A and A*B indicates dot
     // product of vectors A and B.
-
     // compute u0
     akVector[0].unitize();
-
     // compute u1
     float fDot0 = akVector[0].dot(akVector[1]);
     akVector[1] -= akVector[0] * fDot0;
     akVector[1].unitize();
-
     // compute u2
     float fDot1 = akVector[1].dot(akVector[2]);
     fDot0 = akVector[0].dot(akVector[2]);
     akVector[2] -= akVector[0] * fDot0 + akVector[1] * fDot1;
     akVector[2].unitize();
 }
-
 //----------------------------------------------------------------------------
 void Vector3::generateOrthonormalBasis (Vector3& rkU, Vector3& rkV,
                                         Vector3& rkW, bool bUnitLengthW) {
     if ( !bUnitLengthW )
         rkW.unitize();
-
     if ( G3D::abs(rkW.x) >= G3D::abs(rkW.y)
             && G3D::abs(rkW.x) >= G3D::abs(rkW.z) ) {
         rkU.x = -rkW.y;
@@ -287,30 +226,23 @@ void Vector3::generateOrthonormalBasis (Vector3& rkU, Vector3& rkV,
         rkU.y = + rkW.z;
         rkU.z = -rkW.y;
     }
-
     rkU.unitize();
     rkV = rkW.cross(rkU);
 }
-
 //----------------------------------------------------------------------------
-
 std::string Vector3::toString() const {
     return G3D::format("(%g, %g, %g)", x, y, z);
 }
 
-
 //----------------------------------------------------------------------------
-
 Matrix3 Vector3::cross() const {
     return Matrix3( 0, -z,  y,
                     z,  0, -x,
                    -y,  x,  0);
 }
 
-
 //----------------------------------------------------------------------------
 // 2-char swizzles
-
 Vector2 Vector3::xx() const  { return Vector2       (x, x); }
 Vector2 Vector3::yx() const  { return Vector2       (y, x); }
 Vector2 Vector3::zx() const  { return Vector2       (z, x); }
@@ -320,9 +252,7 @@ Vector2 Vector3::zy() const  { return Vector2       (z, y); }
 Vector2 Vector3::xz() const  { return Vector2       (x, z); }
 Vector2 Vector3::yz() const  { return Vector2       (y, z); }
 Vector2 Vector3::zz() const  { return Vector2       (z, z); }
-
 // 3-char swizzles
-
 Vector3 Vector3::xxx() const  { return Vector3       (x, x, x); }
 Vector3 Vector3::yxx() const  { return Vector3       (y, x, x); }
 Vector3 Vector3::zxx() const  { return Vector3       (z, x, x); }
@@ -350,9 +280,7 @@ Vector3 Vector3::zyz() const  { return Vector3       (z, y, z); }
 Vector3 Vector3::xzz() const  { return Vector3       (x, z, z); }
 Vector3 Vector3::yzz() const  { return Vector3       (y, z, z); }
 Vector3 Vector3::zzz() const  { return Vector3       (z, z, z); }
-
 // 4-char swizzles
-
 Vector4 Vector3::xxxx() const  { return Vector4       (x, x, x, x); }
 Vector4 Vector3::yxxx() const  { return Vector4       (y, x, x, x); }
 Vector4 Vector3::zxxx() const  { return Vector4       (z, x, x, x); }
@@ -434,9 +362,6 @@ Vector4 Vector3::zyzz() const  { return Vector4       (z, y, z, z); }
 Vector4 Vector3::xzzz() const  { return Vector4       (x, z, z, z); }
 Vector4 Vector3::yzzz() const  { return Vector4       (y, z, z, z); }
 Vector4 Vector3::zzzz() const  { return Vector4       (z, z, z, z); }
-
-
-
 
 
 

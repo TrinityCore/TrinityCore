@@ -15,21 +15,16 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
-
 #ifndef OUTDOOR_PVP_MGR_H_
 #define OUTDOOR_PVP_MGR_H_
-
 #define OUTDOORPVP_OBJECTIVE_UPDATE_INTERVAL 1000
-
 #include "OutdoorPvP.h"
 #include "Policies/Singleton.h"
-
 class Player;
 class GameObject;
 class Creature;
 class ZoneScript;
 struct GossipOption;
-
 // class to handle player enter / leave / areatrigger / GO use events
 class OutdoorPvPMgr
 {
@@ -38,7 +33,6 @@ public:
     OutdoorPvPMgr();
     // dtor
     ~OutdoorPvPMgr();
-
     // create outdoor pvp events
     void InitOutdoorPvP();
     // called when a player enters an outdoor pvp area
@@ -51,19 +45,12 @@ public:
     bool HandleCustomSpell(Player * plr, uint32 spellId, GameObject* go);
     // handle custom go if registered
     bool HandleOpenGo(Player * plr, uint64 guid);
-    
     ZoneScript * GetZoneScript(uint32 zoneId);
-
     void AddZone(uint32 zoneid, OutdoorPvP * handle);
-
     void Update(uint32 diff);
-
     void HandleGossipOption(Player * player, uint64 guid, uint32 gossipid);
-
     bool CanTalkTo(Player * player, Creature * creature, GossipOption & gso);
-
     void HandleDropFlag(Player * plr, uint32 spellId);
-
     typedef std::vector<OutdoorPvP*> OutdoorPvPSet;
     typedef std::map<uint32 /* zoneid */, OutdoorPvP*> OutdoorPvPMap;
 private:
@@ -76,8 +63,6 @@ private:
     // update interval
     uint32 m_UpdateTimer;
 };
-
 #define sOutdoorPvPMgr Trinity::Singleton<OutdoorPvPMgr>::Instance()
-
 #endif /*OUTDOOR_PVP_MGR_H_*/
 

@@ -1,15 +1,10 @@
 // $Id: OS_NS_stropts.cpp 80826 2008-03-04 14:51:23Z wotte $
-
 #include "ace/OS_NS_stropts.h"
-
 ACE_RCSID(ace, OS_NS_stropts, "$Id: OS_NS_stropts.cpp 80826 2008-03-04 14:51:23Z wotte $")
-
 #if !defined (ACE_HAS_INLINED_OSCALLS)
 # include "ace/OS_NS_stropts.inl"
 #endif /* ACE_HAS_INLINED_OSCALLS */
-
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
-
 int
 ACE_OS::ioctl (ACE_HANDLE socket,
                unsigned long io_control_code,
@@ -46,7 +41,6 @@ ACE_OS::ioctl (ACE_HANDLE socket,
   ACE_NOTSUP_RETURN (-1);
 # endif /* ACE_HAS_WINSOCK2 */
 }
-
 #if !(defined (ACE_HAS_WINCE) && (UNDER_CE < 500))
 int
 ACE_OS::ioctl (ACE_HANDLE socket,
@@ -59,18 +53,14 @@ ACE_OS::ioctl (ACE_HANDLE socket,
                ACE_OVERLAPPED_COMPLETION_FUNC func)
 {
 # if defined (ACE_HAS_WINSOCK2) && (ACE_HAS_WINSOCK2 != 0)
-
   QOS qos;
   unsigned long qos_len = sizeof (QOS);
-
   if (io_control_code == SIO_SET_QOS)
     {
       qos.SendingFlowspec = *(ace_qos.sending_flowspec ());
       qos.ReceivingFlowspec = *(ace_qos.receiving_flowspec ());
       qos.ProviderSpecific = (WSABUF) ace_qos.provider_specific ();
-
       qos_len += ace_qos.provider_specific ().iov_len;
-
       ACE_SOCKCALL_RETURN (::WSAIoctl ((ACE_SOCKET) socket,
                                        io_control_code,
                                        &qos,
@@ -86,7 +76,6 @@ ACE_OS::ioctl (ACE_HANDLE socket,
   else
     {
       unsigned long dwBufferLen = 0;
-
       // Query for the buffer size.
       int result = ::WSAIoctl ((ACE_SOCKET) socket,
                                 io_control_code,
@@ -98,11 +87,9 @@ ACE_OS::ioctl (ACE_HANDLE socket,
                                 0,
                                 0);
 
-
       if (result == SOCKET_ERROR)
         {
           unsigned long dwErr = ::WSAGetLastError ();
-
           if (dwErr == WSAEWOULDBLOCK)
             {
               errno = dwErr;
@@ -115,14 +102,11 @@ ACE_OS::ioctl (ACE_HANDLE socket,
                 return -1;
               }
           }
-
     char *qos_buf = 0;
     ACE_NEW_RETURN (qos_buf,
                     char [dwBufferLen],
                     -1);
-
     QOS *qos = reinterpret_cast<QOS*> (qos_buf);
-
     result = ::WSAIoctl ((ACE_SOCKET) socket,
                        io_control_code,
                        0,
@@ -132,10 +116,8 @@ ACE_OS::ioctl (ACE_HANDLE socket,
                        bytes_returned,
                        0,
                        0);
-
     if (result == SOCKET_ERROR)
       return result;
-
     ACE_Flow_Spec sending_flowspec (qos->SendingFlowspec.TokenRate,
                                     qos->SendingFlowspec.TokenBucketSize,
                                     qos->SendingFlowspec.PeakBandwidth,
@@ -152,7 +134,6 @@ ACE_OS::ioctl (ACE_HANDLE socket,
 #  endif /* ACE_HAS_WINSOCK2_GQOS */
                                     0,
                                     0);
-
     ACE_Flow_Spec receiving_flowspec (qos->ReceivingFlowspec.TokenRate,
                                       qos->ReceivingFlowspec.TokenBucketSize,
                                       qos->ReceivingFlowspec.PeakBandwidth,
@@ -169,15 +150,12 @@ ACE_OS::ioctl (ACE_HANDLE socket,
 #  endif /* ACE_HAS_WINSOCK2_GQOS */
                                       0,
                                       0);
-
        ace_qos.sending_flowspec (&sending_flowspec);
        ace_qos.receiving_flowspec (&receiving_flowspec);
        ace_qos.provider_specific (*((struct iovec *) (&qos->ProviderSpecific)));
 
-
       return result;
     }
-
 # else
   ACE_UNUSED_ARG (socket);
   ACE_UNUSED_ARG (io_control_code);
@@ -191,6 +169,5 @@ ACE_OS::ioctl (ACE_HANDLE socket,
 # endif /* ACE_HAS_WINSOCK2 */
 }
 #endif /* !(defined (ACE_HAS_WINCE) && (UNDER_CE < 500)) */
-
 ACE_END_VERSIONED_NAMESPACE_DECL
 

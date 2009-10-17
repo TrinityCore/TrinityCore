@@ -1,11 +1,9 @@
 #include "StreamSocket.h"
 #include "ISocketHandler.h"
 
-
 #ifdef SOCKETS_NAMESPACE
 namespace SOCKETS_NAMESPACE {
 #endif
-
 
 StreamSocket::StreamSocket(ISocketHandler& h) : Socket(h)
 ,m_bConnecting(false)
@@ -20,11 +18,9 @@ StreamSocket::StreamSocket(ISocketHandler& h) : Socket(h)
 {
 }
 
-
 StreamSocket::~StreamSocket()
 {
 }
-
 
 void StreamSocket::SetConnecting(bool x)
 {
@@ -42,12 +38,10 @@ void StreamSocket::SetConnecting(bool x)
     }
 }
 
-
 bool StreamSocket::Connecting()
 {
     return m_bConnecting;
 }
-
 
 bool StreamSocket::Ready()
 {
@@ -56,60 +50,50 @@ bool StreamSocket::Ready()
     return false;
 }
 
-
 void StreamSocket::SetConnectTimeout(int x)
 {
     m_connect_timeout = x;
 }
-
 
 int StreamSocket::GetConnectTimeout()
 {
     return m_connect_timeout;
 }
 
-
 void StreamSocket::SetFlushBeforeClose(bool x)
 {
     m_flush_before_close = x;
 }
-
 
 bool StreamSocket::GetFlushBeforeClose()
 {
     return m_flush_before_close;
 }
 
-
 int StreamSocket::GetConnectionRetry()
 {
     return m_connection_retry;
 }
-
 
 void StreamSocket::SetConnectionRetry(int x)
 {
     m_connection_retry = x;
 }
 
-
 int StreamSocket::GetConnectionRetries()
 {
     return m_retries;
 }
-
 
 void StreamSocket::IncreaseConnectionRetries()
 {
     m_retries++;
 }
 
-
 void StreamSocket::ResetConnectionRetries()
 {
     m_retries = 0;
 }
-
 
 void StreamSocket::SetCallOnConnect(bool x)
 {
@@ -117,12 +101,10 @@ void StreamSocket::SetCallOnConnect(bool x)
     m_call_on_connect = x;
 }
 
-
 bool StreamSocket::CallOnConnect()
 {
     return m_call_on_connect;
 }
-
 
 void StreamSocket::SetRetryClientConnect(bool x)
 {
@@ -130,30 +112,25 @@ void StreamSocket::SetRetryClientConnect(bool x)
     m_b_retry_connect = x;
 }
 
-
 bool StreamSocket::RetryClientConnect()
 {
     return m_b_retry_connect;
 }
-
 
 void StreamSocket::SetLineProtocol(bool x)
 {
     m_line_protocol = x;
 }
 
-
 bool StreamSocket::LineProtocol()
 {
     return m_line_protocol;
 }
 
-
 void StreamSocket::SetShutdown(int x)
 {
     m_shutdown = x;
 }
-
 
 int StreamSocket::GetShutdown()
 {
@@ -161,10 +138,7 @@ int StreamSocket::GetShutdown()
 }
 
 
-
-
 #ifdef SOCKETS_NAMESPACE
 } // namespace SOCKETS_NAMESPACE {
 #endif
-
 

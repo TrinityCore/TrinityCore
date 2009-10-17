@@ -17,16 +17,13 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
-
 #include "SQLStorage.h"
 #include "SQLStorageImpl.h"
-
 #ifdef DO_POSTGRESQL
 extern DatabasePostgre  WorldDatabase;
 #else
 extern DatabaseMysql  WorldDatabase;
 #endif
-
 const char CreatureInfosrcfmt[]="iiiiiiiisssiiiiiiiiiiffiffiifiiiiiiiiiiffiiiiiiiiiiiiiiiiiiiiiiiisiiffliiiiiliiis";
 const char CreatureInfodstfmt[]="iiiiiiiisssiiiiiiiiiiffiffiifiiiiiiiiiiffiiiiiiiiiiiiiiiiiiiiiiiisiiffliiiiiliiii";
 const char CreatureDataAddonInfofmt[]="iiiiiiis";
@@ -40,7 +37,6 @@ const char ItemPrototypedstfmt[]="iiiisiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii
 const char PageTextfmt[]="isi";
 const char InstanceTemplatesrcfmt[]="iiiiiiffffs";
 const char InstanceTemplatedstfmt[]="iiiiiiffffi";
-
 SQLStorage sCreatureStorage(CreatureInfosrcfmt, CreatureInfodstfmt, "entry","creature_template");
 SQLStorage sCreatureDataAddonStorage(CreatureDataAddonInfofmt,"guid","creature_addon");
 SQLStorage sCreatureModelStorage(CreatureModelfmt,"modelid","creature_model_info");
@@ -50,7 +46,6 @@ SQLStorage sGOStorage(GameObjectInfosrcfmt, GameObjectInfodstfmt, "entry","gameo
 SQLStorage sItemStorage(ItemPrototypesrcfmt, ItemPrototypedstfmt, "entry","item_template");
 SQLStorage sPageTextStore(PageTextfmt,"entry","page_text");
 SQLStorage sInstanceTemplate(InstanceTemplatesrcfmt, InstanceTemplatedstfmt, "map","instance_template");
-
 void SQLStorage::Free ()
 {
     uint32 offset=0;
@@ -60,7 +55,6 @@ void SQLStorage::Free ()
             for(uint32 y=0;y<MaxEntry;y++)
                 if(pIndex[y])
                     delete [] *(char**)((char*)(pIndex[y])+offset);
-
             offset += sizeof(char*);
         }
         else if (dst_format[x]==FT_LOGIC)
@@ -69,11 +63,9 @@ void SQLStorage::Free ()
             offset += sizeof(char);
         else
             offset += 4;
-
     delete [] pIndex;
     delete [] data;
 }
-
 void SQLStorage::Load()
 {
     SQLStorageLoader loader;

@@ -1,5 +1,4 @@
 // -*- C++ -*-
-
 //==========================================================================
 /**
  *  @file    Condition_T.h
@@ -11,25 +10,17 @@
  *  @author Douglas C. Schmidt <schmidt@cs.wustl.edu>
  */
 //==========================================================================
-
 #ifndef ACE_CONDITION_T_H
 #define ACE_CONDITION_T_H
-
 #include /**/ "ace/pre.h"
-
 #include "ace/OS_NS_Thread.h"
 #include "ace/Lock.h"
-
 #if !defined (ACE_LACKS_PRAGMA_ONCE)
 # pragma once
 #endif /* ACE_LACKS_PRAGMA_ONCE */
-
 #if defined (ACE_HAS_THREADS) /* ACE platform supports some form of threading. */
-
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
-
 class ACE_Time_Value;
-
 /**
  * @class ACE_Condition
  *
@@ -58,10 +49,8 @@ public:
   /// Initialize the condition variable.
   ACE_Condition (MUTEX &m, int type = USYNC_THREAD,
                  const ACE_TCHAR *name = 0, void *arg = 0);
-
   /// Implicitly destroy the condition variable.
   ~ACE_Condition (void);
-
   // = Lock accessors.
   /**
    * Block on condition, or until absolute time-of-day has passed.  If
@@ -70,10 +59,8 @@ public:
    * <wait> returns -1 and sets errno to ETIME.
    */
   int wait (const ACE_Time_Value *abstime);
-
   /// Block on condition.
   int wait (void);
-
   /**
    * Block on condition or until absolute time-of-day has passed.  If
    * abstime == 0 use "blocking" wait() semantics on the <mutex>
@@ -83,39 +70,29 @@ public:
    * and sets errno to ETIME.
    */
   int wait (MUTEX &mutex, const ACE_Time_Value *abstime = 0);
-
   /// Signal one waiting thread.
   int signal (void);
-
   /// Signal *all* waiting threads.
   int broadcast (void);
-
   // = Utility methods.
   /// Explicitly destroy the condition variable.
   int remove (void);
-
   /// Returns a reference to the underlying mutex_;
   MUTEX &mutex (void);
-
   /// Dump the state of an object.
   void dump (void) const;
-
   // ACE_ALLOC_HOOK_DECLARE;
   // Declare the dynamic allocation hooks.
-
 protected:
   /// Condition variable.
   ACE_cond_t cond_;
-
   /// Reference to mutex lock.
   MUTEX &mutex_;
-
 private:
   // = Prevent assignment and initialization.
   ACE_UNIMPLEMENTED_FUNC (void operator= (const ACE_Condition<MUTEX> &))
   ACE_UNIMPLEMENTED_FUNC (ACE_Condition (const ACE_Condition<MUTEX> &))
 };
-
 /**
  * @class ACE_Thread_Condition
  *
@@ -139,30 +116,22 @@ class ACE_Thread_Condition : public ACE_Condition<MUTEX>
 public:
   // = Initialization method.
   ACE_Thread_Condition (MUTEX &m, const ACE_TCHAR *name = 0, void *arg = 0);
-
   /// Dump the state of an object.
   void dump (void) const;
-
   // ACE_ALLOC_HOOK_DECLARE;
   // Declare the dynamic allocation hooks.
 };
-
 ACE_END_VERSIONED_NAMESPACE_DECL
-
 #if defined (__ACE_INLINE__)
 #include "ace/Condition_T.inl"
 #endif /* __ACE_INLINE__ */
-
 #if defined (ACE_TEMPLATES_REQUIRE_SOURCE)
 #include "ace/Condition_T.cpp"
 #endif /* ACE_TEMPLATES_REQUIRE_SOURCE */
-
 #if defined (ACE_TEMPLATES_REQUIRE_PRAGMA)
 #pragma implementation ("Condition_T.cpp")
 #endif /* ACE_TEMPLATES_REQUIRE_PRAGMA */
-
 #endif /* ACE_HAS_THREADS */
-
 #include /**/ "ace/post.h"
 #endif /* ACE_CONDITION_T_H */
 

@@ -1,15 +1,11 @@
 /* -*- C++ -*- */
 // $Id: config-openvms.h 81935 2008-06-12 22:01:53Z jtc $
-
 // The following configuration file is designed to work for OpenVMS 7.3-2
-
 #ifndef ACE_CONFIG_H
 #define ACE_CONFIG_H
-
 #if !defined (ACE_USE_RCSID)
 # define ACE_USE_RCSID 0
 #endif
-
 #ifdef __cplusplus
 #pragma message disable CODCAUUNR
 #pragma message disable CODEUNREACHABLE
@@ -20,16 +16,11 @@
 //#pragma message disable LONGEXTERN
 #pragma message disable UNSCOMZER
 #endif
-
 // Use a signed int to match POSIX
 #define __SIGNED_INT_TIME_T
-
 #define ACE_OPENVMS __VMS_VER
-
 #define ACE_DLL_SUFFIX ACE_TEXT("")
-
 #define ACE_HAS_DUMP    1
-
 // need this includes to ensure proper sequence of definitions so that
 // f.i. HP C/C++ does not '#define ' memcpy, memmove etc.
 #include <stdarg.h>
@@ -39,7 +30,6 @@
 #undef memset
 #undef memcpy
 #undef memmove
-
 #if defined(__ia64__)
   // on OpenVMS IA64 we need this get the singleton exported since we build
   // ACE/TAO with the NOTEMPLATES export option which prohibits exporting
@@ -52,13 +42,9 @@
 #else
   #define ACE_HAS_EXPLICIT_STATIC_TEMPLATE_MEMBER_INSTANTIATION
 #endif
-
 #define ACE_DEFAULT_BASE_ADDR ((char*)(0x30000000))
-
 #define ACE_MAX_UDP_PACKET_SIZE 65535
-
 #define ACE_HAS_STDCPP_STL_INCLUDES 1
-
 /* missing system headers */
 #define ACE_LACKS_STDINT_H  1
 #define ACE_LACKS_SYS_IPC_H 1
@@ -76,7 +62,6 @@
 #define ACE_LACKS_SYS_PARAM_H 1
 #define ACE_LACKS_SIGINFO_H 1
 #define ACE_LACKS_UCONTEXT_H 1
-
 /* missing rtl functions */
 #define ACE_LACKS_SETPGID 1
 #define ACE_LACKS_SETREUID 1
@@ -87,14 +72,10 @@
 #define ACE_LACKS_FCNTL 1
 #define ACE_LACKS_SETEGID 1
 #define ACE_LACKS_SETEUID 1
-
 #define ACE_LACKS_REALPATH 1
-
 #define ACE_LACKS_SYMLINKS 1
-
 #define ACE_LACKS_PWD_REENTRANT_FUNCTIONS 1
 #define ACE_LACKS_RAND_REENTRANT_FUNCTIONS 1
-
 #define ACE_HAS_P_READ_WRITE
 #define ACE_HAS_CHARPTR_DL 1
 #define ACE_HAS_CLOCK_GETTIME 1
@@ -110,7 +91,6 @@
 #define ACE_HAS_SIG_MACROS 1
 #define ACE_HAS_SIGWAIT 1
 #define ACE_HAS_SIGTIMEDWAIT 1
-
 #define ACE_HAS_SIG_C_FUNC 1
 #define ACE_HAS_SIGISMEMBER_BUG
 #define ACE_HAS_STRNLEN 1
@@ -129,7 +109,6 @@
 #define ACE_LACKS_SETSCHED
 #define ACE_LACKS_SYSCALL 1
 #define ACE_LACKS_WCSTOULL 1
-
 /* (missing) standard data types */
 #define ACE_LACKS_CONST_TIMESPEC_PTR 1
 #define ACE_LACKS_SUSECONDS_T 1
@@ -142,12 +121,10 @@
 #define ACE_LACKS_SEMBUF_T 1
 #define ACE_LACKS_STRRECVFD 1
 #define ACE_LACKS_T_ERRNO 1
-
 /* POSIX threads ompatibilities */
 #define ACE_LACKS_RWLOCK_T 1
 #define ACE_LACKS_PTHREAD_KILL 1
 #define ACE_LACKS_THREAD_PROCESS_SCOPING 1
-
 #define ACE_HAS_PTHREADS 1
 #define ACE_HAS_PTHREAD_PROCESS_ENUM 1
 #define ACE_LACKS_UNNAMED_SEMAPHORE 1
@@ -162,19 +139,16 @@
 #define ACE_HAS_PTHREAD_SETCONCURRENCY 1
 #define ACE_HAS_PTHREAD_GETCONCURRENCY 1
 #define ACE_HAS_PTHREAD_SCHEDPARAM 1
-
 /* language/platform conformance */
 #define ACE_NEW_THROWS_EXCEPTIONS 1
 #define ACE_TEMPLATES_REQUIRE_SOURCE 1
 #define ACE_USES_STD_NAMESPACE_FOR_STDCPP_LIB 1
 #define ACE_HAS_AUTOMATIC_INIT_FINI 1
 #define ACE_LACKS_UNIX_SIGNALS 1
-
 #define ACE_HAS_CONSISTENT_SIGNAL_PROTOTYPES 1
 #define ACE_HAS_CPLUSPLUS_HEADERS 1
 #define ACE_HAS_EXCEPTIONS 1
 #define ACE_LACKS_LINEBUFFERED_STREAMBUF 1
-
 #define ACE_HAS_GPERF 1
 #define ACE_HAS_IP_MULTICAST 1
 #define ACE_LACKS_PERFECT_MULTICAST_FILTERING 1
@@ -184,13 +158,11 @@
 #define ACE_HAS_STANDARD_CPP_LIBRARY 1
 #define ACE_HAS_STRING_CLASS 1
 #define ACE_HAS_SVR4_DYNAMIC_LINKING 1
-
 #define ACE_HAS_TEMPLATE_TYPEDEFS 1
 #define ACE_LACKS_NAMED_POSIX_SEM 1
 #define ACE_LACKS_SYSV_SHMEM 1
 #define ACE_LACKS_UNIX_DOMAIN_SOCKETS 1
 #define ACE_LACKS_UNIX_SYSLOG 1
 #define ACE_LACKS_ALPHASORT 1
-
 #endif
 

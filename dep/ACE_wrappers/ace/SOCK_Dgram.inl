@@ -1,29 +1,21 @@
 // -*- C++ -*-
 //
 // $Id: SOCK_Dgram.inl 80826 2008-03-04 14:51:23Z wotte $
-
 // SOCK_Dgram.i
-
 #include "ace/OS_NS_sys_socket.h"
-
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
-
 // Here's the simple-minded constructor.
-
 ACE_INLINE
 ACE_SOCK_Dgram::ACE_SOCK_Dgram (void)
 {
   ACE_TRACE ("ACE_SOCK_Dgram::ACE_SOCK_Dgram");
 }
-
 ACE_INLINE
 ACE_SOCK_Dgram::~ACE_SOCK_Dgram (void)
 {
   ACE_TRACE ("ACE_SOCK_Dgram::~ACE_SOCK_Dgram");
 }
-
 // <sendto> an N byte datagram to <addr> (connectionless version).
-
 ACE_INLINE ssize_t
 ACE_SOCK_Dgram::send (const void *buf,
                       size_t n,
@@ -40,9 +32,7 @@ ACE_SOCK_Dgram::send (const void *buf,
                          (struct sockaddr *) saddr,
                          len);
 }
-
 // <recvfrom> an n byte datagram (connectionless version).
-
 ACE_INLINE ssize_t
 ACE_SOCK_Dgram::recv (void *buf,
                       size_t n,
@@ -52,7 +42,6 @@ ACE_SOCK_Dgram::recv (void *buf,
   ACE_TRACE ("ACE_SOCK_Dgram::recv");
   sockaddr *saddr = (sockaddr *) addr.get_addr ();
   int addr_len = addr.get_size ();
-
   ssize_t const status = ACE_OS::recvfrom (this->get_handle (),
                                            (char *) buf,
                                            n,
@@ -63,7 +52,6 @@ ACE_SOCK_Dgram::recv (void *buf,
   addr.set_type (saddr->sa_family);
   return status;
 }
-
 ACE_INLINE ssize_t
 ACE_SOCK_Dgram::send (const iovec buffers[],
                       int buffer_count,
@@ -86,7 +74,6 @@ ACE_SOCK_Dgram::send (const iovec buffers[],
                          overlapped,
                          func);
 }
-
 ACE_INLINE ssize_t
 ACE_SOCK_Dgram::recv (iovec buffers[],
                       int buffer_count,
@@ -99,7 +86,6 @@ ACE_SOCK_Dgram::recv (iovec buffers[],
   ACE_TRACE ("ACE_SOCK_Dgram::recv");
   sockaddr *saddr = (sockaddr *) addr.get_addr ();
   int addr_len = addr.get_size ();
-
   ssize_t status = ACE_OS::recvfrom (this->get_handle (),
                                      buffers,
                                      buffer_count,
@@ -113,9 +99,7 @@ ACE_SOCK_Dgram::recv (iovec buffers[],
   addr.set_type (saddr->sa_family);
   return status;
 }
-
 // <sendto> an N byte datagram to <addr> (connectionless version).
-
 ACE_INLINE ssize_t
 ACE_SOCK_Dgram::send (const void *buf,
                       size_t n,
@@ -125,7 +109,6 @@ ACE_SOCK_Dgram::send (const void *buf,
                       ACE_OVERLAPPED_COMPLETION_FUNC func) const
 {
   ACE_TRACE ("ACE_SOCK_Dgram::send");
-
   iovec buffer[1];
   buffer[0].iov_len = static_cast<u_long> (n);  // Betting on < 4G
   buffer[0].iov_base = (char *) buf;
@@ -138,9 +121,7 @@ ACE_SOCK_Dgram::send (const void *buf,
                      overlapped,
                      func);
 }
-
 // <recvfrom> an n byte datagram (connectionless version).
-
 ACE_INLINE ssize_t
 ACE_SOCK_Dgram::recv (void *buf,
                       size_t n,
@@ -150,7 +131,6 @@ ACE_SOCK_Dgram::recv (void *buf,
                       ACE_OVERLAPPED_COMPLETION_FUNC func) const
 {
   ACE_TRACE ("ACE_SOCK_Dgram::recv");
-
   iovec buffer[1];
   buffer[0].iov_len = static_cast<u_long> (n);  // Betting on < 4G
   buffer[0].iov_base = (char *) buf;
@@ -163,5 +143,4 @@ ACE_SOCK_Dgram::recv (void *buf,
                      overlapped,
                      func);
 }
-
 ACE_END_VERSIONED_NAMESPACE_DECL

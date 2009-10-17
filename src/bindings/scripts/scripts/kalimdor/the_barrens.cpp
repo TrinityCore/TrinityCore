@@ -13,14 +13,12 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
-
 /* ScriptData
 SDName: The_Barrens
 SD%Complete: 90
 SDComment: Quest support: 863, 898, 1719, 2458, 4921, 6981,
 SDCategory: Barrens
 EndScriptData */
-
 /* ContentData
 npc_beaten_corpse
 npc_gilthares
@@ -29,30 +27,23 @@ npc_taskmaster_fizzule
 npc_twiggy_flathead
 npc_wizzlecrank_shredder
 EndContentData */
-
 #include "precompiled.h"
 #include "escort_ai.h"
-
 /*######
 ## npc_beaten_corpse
 ######*/
-
 #define GOSSIP_CORPSE "Examine corpse in detail..."
-
 enum eQuests
 {
     QUEST_LOST_IN_BATTLE    = 4921
 };
-
 bool GossipHello_npc_beaten_corpse(Player* pPlayer, Creature* pCreature)
 {
     if (pPlayer->GetQuestStatus(QUEST_LOST_IN_BATTLE) == QUEST_STATUS_INCOMPLETE || pPlayer->GetQuestStatus(QUEST_LOST_IN_BATTLE) == QUEST_STATUS_COMPLETE)
         pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_CORPSE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-
     pPlayer->SEND_GOSSIP_MENU(3557, pCreature->GetGUID());
     return true;
 }
-
 bool GossipSelect_npc_beaten_corpse(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
 {
     if (uiAction == GOSSIP_ACTION_INFO_DEF +1)
@@ -62,11 +53,9 @@ bool GossipSelect_npc_beaten_corpse(Player* pPlayer, Creature* pCreature, uint32
     }
     return true;
 }
-
 /*######
 # npc_gilthares
 ######*/
-
 enum eGilthares
 {
     SAY_GIL_START               = -1000370,
@@ -80,25 +69,19 @@ enum eGilthares
     SAY_GIL_ALMOST              = -1000378,
     SAY_GIL_SWEET               = -1000379,
     SAY_GIL_FREED               = -1000380,
-
     QUEST_FREE_FROM_HOLD        = 898,
     AREA_MERCHANT_COAST         = 391,
     FACTION_ESCORTEE            = 232                       //guessed, possible not needed for this quest
 };
-
 struct TRINITY_DLL_DECL npc_giltharesAI : public npc_escortAI
 {
     npc_giltharesAI(Creature* pCreature) : npc_escortAI(pCreature) { }
-
     void Reset() { }
-
     void WaypointReached(uint32 uiPointId)
     {
         Player* pPlayer = GetPlayerForEscort();
-
         if (!pPlayer)
             return;
-
         switch(uiPointId)
         {
             case 16:
@@ -122,13 +105,11 @@ struct TRINITY_DLL_DECL npc_giltharesAI : public npc_escortAI
                 break;
         }
     }
-
     void Aggro(Unit* pWho)
     {
         //not always use
         if (rand()%4)
             return;
-
         //only aggro text if not player and only in this area
         if (pWho->GetTypeId() != TYPEID_PLAYER && m_creature->GetAreaId() == AREA_MERCHANT_COAST)
         {
@@ -137,45 +118,35 @@ struct TRINITY_DLL_DECL npc_giltharesAI : public npc_escortAI
         }
     }
 };
-
 CreatureAI* GetAI_npc_gilthares(Creature* pCreature)
 {
     return new npc_giltharesAI(pCreature);
 }
-
 bool QuestAccept_npc_gilthares(Player* pPlayer, Creature* pCreature, const Quest* pQuest)
 {
     if (pQuest->GetQuestId() == QUEST_FREE_FROM_HOLD)
     {
         pCreature->setFaction(FACTION_ESCORTEE);
         pCreature->SetStandState(UNIT_STAND_STATE_STAND);
-
         DoScriptText(SAY_GIL_START, pCreature, pPlayer);
-
         if (npc_giltharesAI* pEscortAI = CAST_AI(npc_giltharesAI, pCreature->AI()))
             pEscortAI->Start(false, false, pPlayer->GetGUID(), pQuest);
     }
     return true;
 }
-
 /*######
 ## npc_sputtervalve
 ######*/
-
 #define GOSSIP_SPUTTERVALVE "Can you tell me about this shard?"
-
 bool GossipHello_npc_sputtervalve(Player* pPlayer, Creature* pCreature)
 {
     if (pCreature->isQuestGiver())
         pPlayer->PrepareQuestMenu(pCreature->GetGUID());
-
     if (pPlayer->GetQuestStatus(6981) == QUEST_STATUS_INCOMPLETE)
         pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SPUTTERVALVE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
-
     pPlayer->SEND_GOSSIP_MENU(pCreature->GetNpcTextId(), pCreature->GetGUID());
     return true;
 }
-
 bool GossipSelect_npc_sputtervalve(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
 {
     if (uiAction == GOSSIP_ACTION_INFO_DEF)
@@ -185,30 +156,25 @@ bool GossipSelect_npc_sputtervalve(Player* pPlayer, Creature* pCreature, uint32 
     }
     return true;
 }
-
 /*######
 ## npc_taskmaster_fizzule
 ######*/
-
 enum eEnums
 {
     FACTION_FRIENDLY_F  = 35,
     SPELL_FLARE         = 10113,
     SPELL_FOLLY         = 10137,
 };
-
 struct TRINITY_DLL_DECL npc_taskmaster_fizzuleAI : public ScriptedAI
 {
     npc_taskmaster_fizzuleAI(Creature* c) : ScriptedAI(c)
     {
         factionNorm = c->getFaction();
     }
-
     uint32 factionNorm;
     bool IsFriend;
     uint32 Reset_Timer;
     uint8 FlareCount;
-
     void Reset()
     {
         IsFriend = false;
@@ -216,33 +182,26 @@ struct TRINITY_DLL_DECL npc_taskmaster_fizzuleAI : public ScriptedAI
         FlareCount = 0;
         m_creature->setFaction(factionNorm);
     }
-
     void DoFriend()
     {
         m_creature->RemoveAllAuras();
         m_creature->DeleteThreatList();
         m_creature->CombatStop(true);
-
         m_creature->StopMoving();
         m_creature->GetMotionMaster()->MoveIdle();
-
         m_creature->setFaction(FACTION_FRIENDLY_F);
         m_creature->HandleEmoteCommand(EMOTE_ONESHOT_SALUTE);
     }
-
     void SpellHit(Unit *caster, const SpellEntry *spell)
     {
         if (spell->Id == SPELL_FLARE || spell->Id == SPELL_FOLLY)
         {
             ++FlareCount;
-
             if (FlareCount >= 2)
                 IsFriend = true;
         }
     }
-
     void EnterCombat(Unit* who) { }
-
     void UpdateAI(const uint32 diff)
     {
         if (IsFriend)
@@ -253,13 +212,10 @@ struct TRINITY_DLL_DECL npc_taskmaster_fizzuleAI : public ScriptedAI
                 return;
             } else Reset_Timer -= diff;
         }
-
         if (!UpdateVictim())
             return;
-
         DoMeleeAttackIfReady();
     }
-
     void ReceiveEmote(Player* pPlayer, uint32 emote)
     {
         if (emote == TEXTEMOTE_SALUTE)
@@ -268,22 +224,18 @@ struct TRINITY_DLL_DECL npc_taskmaster_fizzuleAI : public ScriptedAI
             {
                 if (m_creature->getFaction() == FACTION_FRIENDLY_F)
                     return;
-
                 DoFriend();
             }
         }
     }
 };
-
 CreatureAI* GetAI_npc_taskmaster_fizzule(Creature* pCreature)
 {
     return new npc_taskmaster_fizzuleAI(pCreature);
 }
-
 /*#####
 ## npc_twiggy_flathead
 #####*/
-
 #define BIG_WILL 6238
 #define AFFRAY_CHALLENGER 6240
 #define SAY_BIG_WILL_READY                  -1000267
@@ -291,7 +243,6 @@ CreatureAI* GetAI_npc_taskmaster_fizzule(Creature* pCreature)
 #define SAY_TWIGGY_FLATHEAD_FRAY            -1000269
 #define SAY_TWIGGY_FLATHEAD_DOWN            -1000270
 #define SAY_TWIGGY_FLATHEAD_OVER            -1000271
-
 float AffrayChallengerLoc[6][4]=
 {
     {-1683, -4326, 2.79, 0},
@@ -301,11 +252,9 @@ float AffrayChallengerLoc[6][4]=
     {-1674, -4326, 2.79, 3.49},
     {-1677, -4334, 2.79, 1.66}
 };
-
 struct TRINITY_DLL_DECL npc_twiggy_flatheadAI : public ScriptedAI
 {
     npc_twiggy_flatheadAI(Creature *c) : ScriptedAI(c) {}
-
     bool EventInProgress;
     bool EventGrate;
     bool EventBigWill;
@@ -316,7 +265,6 @@ struct TRINITY_DLL_DECL npc_twiggy_flatheadAI : public ScriptedAI
     uint64 PlayerGUID;
     uint64 AffrayChallenger[6];
     uint64 BigWill;
-
     void Reset()
     {
         EventInProgress = false;
@@ -326,47 +274,37 @@ struct TRINITY_DLL_DECL npc_twiggy_flatheadAI : public ScriptedAI
         Challenger_checker = 0;
         Wave = 0;
         PlayerGUID = 0;
-
-        for(uint8 i = 0; i < 6; ++i)
+        for (uint8 i = 0; i < 6; ++i)
         {
             AffrayChallenger[i] = 0;
             Challenger_down[i] = false;
         }
         BigWill = 0;
     }
-
     void EnterCombat(Unit *who) { }
-
     void MoveInLineOfSight(Unit *who)
     {
         if (!who || (!who->isAlive())) return;
-
         if (m_creature->IsWithinDistInMap(who, 10.0f) && (who->GetTypeId() == TYPEID_PLAYER) && CAST_PLR(who)->GetQuestStatus(1719) == QUEST_STATUS_INCOMPLETE && !EventInProgress)
         {
             PlayerGUID = who->GetGUID();
             EventInProgress = true;
         }
     }
-
     void KilledUnit(Unit *victim) { }
-
     void UpdateAI(const uint32 diff)
     {
         if (EventInProgress) {
             Player* pWarrior = NULL;
-
             if (PlayerGUID)
                 pWarrior = Unit::GetPlayer(PlayerGUID);
-
             if (!pWarrior)
                 return;
-
             if (!pWarrior->isAlive() && pWarrior->GetQuestStatus(1719) == QUEST_STATUS_INCOMPLETE) {
                 EventInProgress = false;
                 DoScriptText(SAY_TWIGGY_FLATHEAD_DOWN, m_creature);
                 pWarrior->FailQuest(1719);
-
-                for(uint8 i = 0; i < 6; ++i)
+                for (uint8 i = 0; i < 6; ++i)
                 {
                     if (AffrayChallenger[i])
                     {
@@ -383,7 +321,6 @@ struct TRINITY_DLL_DECL npc_twiggy_flatheadAI : public ScriptedAI
                     AffrayChallenger[i] = 0;
                     Challenger_down[i] = false;
                 }
-
                 if (BigWill)
                 {
                     Creature* pCreature = Unit::GetCreature((*m_creature), BigWill);
@@ -397,17 +334,14 @@ struct TRINITY_DLL_DECL npc_twiggy_flatheadAI : public ScriptedAI
                 }
                 BigWill = 0;
             }
-
             if (!EventGrate && EventInProgress)
             {
                 float x,y,z;
                 pWarrior->GetPosition(x, y, z);
-
                 if (x >= -1684 && x <= -1674 && y >= -4334 && y <= -4324) {
                     pWarrior->AreaExploredOrEventHappens(1719);
                     DoScriptText(SAY_TWIGGY_FLATHEAD_BEGIN, m_creature);
-
-                    for(uint8 i = 0; i < 6; ++i)
+                    for (uint8 i = 0; i < 6; ++i)
                     {
                         Creature* pCreature = m_creature->SummonCreature(AFFRAY_CHALLENGER, AffrayChallengerLoc[i][0], AffrayChallengerLoc[i][1], AffrayChallengerLoc[i][2], AffrayChallengerLoc[i][3], TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 600000);
                         if (!pCreature)
@@ -427,7 +361,7 @@ struct TRINITY_DLL_DECL npc_twiggy_flatheadAI : public ScriptedAI
             {
                 if (Challenger_checker < diff)
                 {
-                    for(uint8 i = 0; i < 6; ++i)
+                    for (uint8 i = 0; i < 6; ++i)
                     {
                         if (AffrayChallenger[i])
                         {
@@ -441,7 +375,6 @@ struct TRINITY_DLL_DECL npc_twiggy_flatheadAI : public ScriptedAI
                     }
                     Challenger_checker = 1000;
                 } else Challenger_checker -= diff;
-
                 if (Wave_Timer < diff)
                 {
                     if (AffrayChallenger[Wave] && Wave < 6 && !EventBigWill)
@@ -489,16 +422,13 @@ struct TRINITY_DLL_DECL npc_twiggy_flatheadAI : public ScriptedAI
         }
     }
 };
-
 CreatureAI* GetAI_npc_twiggy_flathead(Creature* pCreature)
 {
     return new npc_twiggy_flatheadAI (pCreature);
 }
-
 /*#####
 ## npc_wizzlecrank_shredder
 #####*/
-
 enum eEnums_Wizzlecrank
 {
     SAY_START           = -1000272,
@@ -509,13 +439,11 @@ enum eEnums_Wizzlecrank
     SAY_PROGRESS_2      = -1000277,
     SAY_PROGRESS_3      = -1000278,
     SAY_END             = -1000279,
-
     QUEST_ESCAPE        = 863,
     FACTION_RATCHET     = 637,
     NPC_PILOT_WIZZ      = 3451,
     NPC_MERCENARY       = 3282,
 };
-
 struct TRINITY_DLL_DECL npc_wizzlecrank_shredderAI : public npc_escortAI
 {
     npc_wizzlecrank_shredderAI(Creature* pCreature) : npc_escortAI(pCreature)
@@ -524,31 +452,25 @@ struct TRINITY_DLL_DECL npc_wizzlecrank_shredderAI : public npc_escortAI
         m_uiPostEventTimer = 1000;
         m_uiPostEventCount = 0;
     }
-
     bool m_bIsPostEvent;
     uint32 m_uiPostEventTimer;
     uint32 m_uiPostEventCount;
-
     void Reset()
     {
         if (!HasEscortState(STATE_ESCORT_ESCORTING))
         {
             if (m_creature->getStandState() == UNIT_STAND_STATE_DEAD)
                  m_creature->SetStandState(UNIT_STAND_STATE_STAND);
-
             m_bIsPostEvent = false;
             m_uiPostEventTimer = 1000;
             m_uiPostEventCount = 0;
         }
     }
-
     void WaypointReached(uint32 uiPointId)
     {
         Player* pPlayer = GetPlayerForEscort();
-
         if (!pPlayer)
             return;
-
         switch(uiPointId)
         {
         case 0:
@@ -569,14 +491,11 @@ struct TRINITY_DLL_DECL npc_wizzlecrank_shredderAI : public npc_escortAI
             break;
         }
     }
-
     void WaypointStart(uint32 uiPointId)
     {
         Player* pPlayer = GetPlayerForEscort();
-
         if (!pPlayer)
             return;
-
         switch(uiPointId)
         {
             case 9:
@@ -588,16 +507,13 @@ struct TRINITY_DLL_DECL npc_wizzlecrank_shredderAI : public npc_escortAI
                 break;
         }
     }
-
     void JustSummoned(Creature* pSummoned)
     {
         if (pSummoned->GetEntry() == NPC_PILOT_WIZZ)
             m_creature->SetStandState(UNIT_STAND_STATE_DEAD);
-
         if (pSummoned->GetEntry() == NPC_MERCENARY)
             pSummoned->AI()->AttackStart(m_creature);
     }
-
     void UpdateEscortAI(const uint32 uiDiff)
     {
         if (!UpdateVictim())
@@ -625,21 +541,17 @@ struct TRINITY_DLL_DECL npc_wizzlecrank_shredderAI : public npc_escortAI
                             }
                             break;
                     }
-
                     ++m_uiPostEventCount;
                     m_uiPostEventTimer = 5000;
                 }
                 else
                     m_uiPostEventTimer -= uiDiff;
             }
-
             return;
         }
-
         DoMeleeAttackIfReady();
     }
 };
-
 bool QuestAccept_npc_wizzlecrank_shredder(Player* pPlayer, Creature* pCreature, Quest const* quest)
 {
     if (quest->GetQuestId() == QUEST_ESCAPE)
@@ -650,44 +562,36 @@ bool QuestAccept_npc_wizzlecrank_shredder(Player* pPlayer, Creature* pCreature, 
     }
     return true;
 }
-
 CreatureAI* GetAI_npc_wizzlecrank_shredderAI(Creature* pCreature)
 {
     return new npc_wizzlecrank_shredderAI(pCreature);
 }
-
 void AddSC_the_barrens()
 {
     Script *newscript;
-
     newscript = new Script;
     newscript->Name = "npc_beaten_corpse";
     newscript->pGossipHello = &GossipHello_npc_beaten_corpse;
     newscript->pGossipSelect = &GossipSelect_npc_beaten_corpse;
     newscript->RegisterSelf();
-
     newscript = new Script;
     newscript->Name = "npc_gilthares";
     newscript->GetAI = &GetAI_npc_gilthares;
     newscript->pQuestAccept = &QuestAccept_npc_gilthares;
     newscript->RegisterSelf();
-
     newscript = new Script;
     newscript->Name = "npc_sputtervalve";
     newscript->pGossipHello = &GossipHello_npc_sputtervalve;
     newscript->pGossipSelect = &GossipSelect_npc_sputtervalve;
     newscript->RegisterSelf();
-
     newscript = new Script;
     newscript->Name = "npc_taskmaster_fizzule";
     newscript->GetAI = &GetAI_npc_taskmaster_fizzule;
     newscript->RegisterSelf();
-
     newscript = new Script;
     newscript->Name = "npc_twiggy_flathead";
     newscript->GetAI = &GetAI_npc_twiggy_flathead;
     newscript->RegisterSelf();
-
     newscript = new Script;
     newscript->Name = "npc_wizzlecrank_shredder";
     newscript->GetAI = &GetAI_npc_wizzlecrank_shredderAI;

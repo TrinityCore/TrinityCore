@@ -15,13 +15,11 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
-
 #ifndef DBC_FILE_LOADER_H
 #define DBC_FILE_LOADER_H
 #include "Platform/Define.h"
 #include "Utilities/ByteConverter.h"
 #include <cassert>
-
 enum
 {
     FT_NA='x',                                              //not used or unknown, 4 byte size
@@ -36,15 +34,12 @@ enum
     FT_SQL_PRESENT='p',                                      //Used in sql format to mark column present in sql dbc
     FT_SQL_ABSENT='a'                                       //Used in sql format to mark column absent in sql dbc
 };
-
 class DBCFileLoader
 {
     public:
         DBCFileLoader();
         ~DBCFileLoader();
-
         bool Load(const char *filename, const char *fmt);
-
         class Record
         {
             public:
@@ -67,7 +62,6 @@ class DBCFileLoader
                     assert(field < file.fieldCount);
                     return *reinterpret_cast<uint8*>(offset+file.GetOffset(field));
                 }
-
                 const char *getString(size_t field) const
                 {
                     assert(field < file.fieldCount);
@@ -75,20 +69,15 @@ class DBCFileLoader
                     assert(stringOffset < file.stringSize);
                     return reinterpret_cast<char*>(file.stringTable + stringOffset);
                 }
-
             private:
                 Record(DBCFileLoader &file_, unsigned char *offset_): offset(offset_), file(file_) {}
                 unsigned char *offset;
                 DBCFileLoader &file;
-
                 friend class DBCFileLoader;
-
         };
-
         // Get record by id
         Record getRecord(size_t id);
         /// Get begin iterator over records
-
         uint32 GetNumRows() const { return recordCount;}
         uint32 GetRowSize() const { return recordSize;}
         uint32 GetCols() const { return fieldCount; }
@@ -98,7 +87,6 @@ class DBCFileLoader
         char* AutoProduceStrings(const char* fmt, char* dataTable);
         static uint32 GetFormatRecordSize(const char * format, int32 * index_pos = NULL);
     private:
-
         uint32 recordSize;
         uint32 recordCount;
         uint32 fieldCount;

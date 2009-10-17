@@ -1,19 +1,13 @@
 // $Id: Thread.cpp 80826 2008-03-04 14:51:23Z wotte $
-
 #include "ace/Thread.h"
-
 ACE_RCSID(ace,
           Thread,
           "$Id: Thread.cpp 80826 2008-03-04 14:51:23Z wotte $")
-
 #if !defined (__ACE_INLINE__)
 #include "ace/Thread.inl"
 #endif /* !defined (__ACE_INLINE__) */
-
 #if defined (ACE_HAS_THREADS)
-
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
-
 size_t
 ACE_Thread::spawn_n (size_t n,
                      ACE_THR_FUNC func,
@@ -28,7 +22,6 @@ ACE_Thread::spawn_n (size_t n,
   ACE_TRACE ("ACE_Thread::spawn_n");
   ACE_thread_t t_id;
   size_t i;
-
   for (i = 0; i < n; i++)
     // Bail out if error occurs.
     if (ACE_OS::thr_create (func,
@@ -42,10 +35,8 @@ ACE_Thread::spawn_n (size_t n,
                             thread_adapter,
                             thr_name == 0 ? 0 : &thr_name[i]) != 0)
       break;
-
   return i;
 }
-
 size_t
 ACE_Thread::spawn_n (ACE_thread_t thread_ids[],
                      size_t n,
@@ -61,12 +52,10 @@ ACE_Thread::spawn_n (ACE_thread_t thread_ids[],
 {
   ACE_TRACE ("ACE_Thread::spawn_n");
   size_t i = 0;
-
   for (i = 0; i < n; i++)
     {
       ACE_thread_t t_id;
       ACE_hthread_t t_handle;
-
       int const result =
         ACE_OS::thr_create (func,
                             arg,
@@ -78,7 +67,6 @@ ACE_Thread::spawn_n (ACE_thread_t thread_ids[],
                             stack_size == 0 ? ACE_DEFAULT_THREAD_STACKSIZE : stack_size[i],
                             thread_adapter,
                             thr_name == 0 ? 0 : &thr_name[i]);
-
       if (result == 0)
         {
           if (thread_ids != 0)
@@ -90,11 +78,8 @@ ACE_Thread::spawn_n (ACE_thread_t thread_ids[],
         // Bail out if error occurs.
         break;
     }
-
   return i;
 }
-
 ACE_END_VERSIONED_NAMESPACE_DECL
-
 #endif /* ACE_HAS_THREADS */
 

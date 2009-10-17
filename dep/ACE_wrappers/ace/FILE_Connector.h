@@ -1,5 +1,4 @@
 /* -*- C++ -*- */
-
 //=============================================================================
 /**
  *  @file    FILE_Connector.h
@@ -9,21 +8,16 @@
  *  @author Doug Schmidt <schmidt@cs.wustl.edu>
  */
 //=============================================================================
-
 #ifndef ACE_FILE_CONNECTOR_H
 #define ACE_FILE_CONNECTOR_H
 #include /**/ "ace/pre.h"
-
 #include "ace/FILE_IO.h"
 #include "ace/Log_Msg.h"
 #include "ace/os_include/os_fcntl.h"
-
 #if !defined (ACE_LACKS_PRAGMA_ONCE)
 # pragma once
 #endif /* ACE_LACKS_PRAGMA_ONCE */
-
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
-
 /**
  * @class ACE_FILE_Connector
  *
@@ -42,7 +36,6 @@ public:
   // = Initialization methods.
   /// Default constructor.
   ACE_FILE_Connector (void);
-
   /**
    * Actively ``connect'' and produce a @a new_io ACE_FILE_IO object
    * if things go well.  The @a remote_sap is the file that we are
@@ -64,7 +57,6 @@ public:
                       int reuse_addr = 0,
                       int flags = O_RDWR | O_CREAT,
                       int perms = ACE_DEFAULT_FILE_PERMS);
-
   /**
    * Actively ``connect'' and produce a @a new_io <ACE_FILE_IO> object
    * if things go well.  The @a remote_sap is the file that we are
@@ -88,27 +80,20 @@ public:
                int reuse_addr = 0,
                int flags = O_RDWR | O_CREAT,
                int perms = ACE_DEFAULT_FILE_PERMS);
-
   /// Resets any event associations on this handle
   int reset_new_handle (ACE_HANDLE handle);
-
   /// Dump the state of an object.
   void dump (void) const;
-
   /// Declare the dynamic allocation hooks.
   ACE_ALLOC_HOOK_DECLARE;
-
   // = Meta-type "trait" information.
   typedef ACE_FILE_Addr PEER_ADDR;
   typedef ACE_FILE_IO PEER_STREAM;
 };
-
 ACE_END_VERSIONED_NAMESPACE_DECL
-
 #if defined (__ACE_INLINE__)
 #include "ace/FILE_Connector.inl"
 #endif /* __ACE_INLINE__ */
-
 #include /**/ "ace/post.h"
 #endif /* ACE_FILE_CONNECTOR_H */
 

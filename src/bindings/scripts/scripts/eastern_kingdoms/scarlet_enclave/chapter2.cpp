@@ -15,10 +15,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
-
 #include "precompiled.h"
 #include "escort_ai.h"
-
 //How to win friends and influence enemies
 // texts signed for creature 28939 but used for 28939,28940,28610
 enum win_friends
@@ -44,15 +42,12 @@ enum win_friends
     SAY_PERSUADED6                    = -1609519,
     SPELL_PERSUASIVE_STRIKE           = 52781
 };
-
 struct TRINITY_DLL_DECL npc_crusade_persuadedAI : public ScriptedAI
 {
     npc_crusade_persuadedAI(Creature *pCreature) : ScriptedAI(pCreature) {}
-
     uint32 uiSpeech_timer;
     uint32 uiSpeech_counter;
     uint64 uiPlayerGUID;
-
     void Reset()
     {
         uiSpeech_timer = 0;
@@ -61,7 +56,6 @@ struct TRINITY_DLL_DECL npc_crusade_persuadedAI : public ScriptedAI
         me->SetReactState(REACT_AGGRESSIVE);
         me->RestoreFaction();
     }
-
     void SpellHit(Unit *caster, const SpellEntry *spell)
     {
         if (spell->Id == SPELL_PERSUASIVE_STRIKE && caster->GetTypeId() == TYPEID_PLAYER && me->isAlive() && !uiSpeech_counter)
@@ -76,17 +70,14 @@ struct TRINITY_DLL_DECL npc_crusade_persuadedAI : public ScriptedAI
                 me->GetMotionMaster()->MoveIdle();
                 me->SetReactState(REACT_PASSIVE);
                 DoCastAOE(58111, true);
-
                 DoScriptText(RAND(SAY_PERSUADE1,SAY_PERSUADE2,SAY_PERSUADE3,
                                   SAY_PERSUADE4,SAY_PERSUADE5,SAY_PERSUADE6,
                                   SAY_PERSUADE7), caster);
-
                 DoScriptText(RAND(SAY_CRUSADER1,SAY_CRUSADER2,SAY_CRUSADER3,
                                   SAY_CRUSADER4,SAY_CRUSADER5,SAY_CRUSADER6), me);
             }
         }
     }
-
     void UpdateAI(const uint32 diff)
     {
         if (uiSpeech_counter)
@@ -99,7 +90,6 @@ struct TRINITY_DLL_DECL npc_crusade_persuadedAI : public ScriptedAI
                     EnterEvadeMode();
                     return;
                 }
-
                 switch(uiSpeech_counter)
                 {
                     case 1: DoScriptText(SAY_PERSUADED1, me); uiSpeech_timer = 8000; break;
@@ -115,30 +105,23 @@ struct TRINITY_DLL_DECL npc_crusade_persuadedAI : public ScriptedAI
                         pPlayer->GroupEventHappens(12720, me);
                         return;
                 }
-
                 ++uiSpeech_counter;
                 DoCastAOE(58111, true);
             }else uiSpeech_timer -= diff;
-
             return;
         }
-
         if(!UpdateVictim())
             return;
-
         DoMeleeAttackIfReady();
     }
 };
-
 CreatureAI* GetAI_npc_crusade_persuaded(Creature* pCreature)
 {
     return new npc_crusade_persuadedAI (pCreature);
 }
-
 /*######
 ## npc_koltira_deathweaver
 ######*/
-
 enum eKoltira
 {
     SAY_BREAKOUT1                   = -1609561,
@@ -151,32 +134,25 @@ enum eKoltira
     SAY_BREAKOUT8                   = -1609568,
     SAY_BREAKOUT9                   = -1609569,
     SAY_BREAKOUT10                  = -1609570,
-
     SPELL_KOLTIRA_TRANSFORM         = 52899,
     SPELL_ANTI_MAGIC_ZONE           = 52894,
-
     QUEST_BREAKOUT                  = 12727,
-
     NPC_CRIMSON_ACOLYTE             = 29007,
     NPC_HIGH_INQUISITOR_VALROTH     = 29001,
     NPC_KOLTIRA_ALT                 = 28447,
-
     //not sure about this id
     //NPC_DEATH_KNIGHT_MOUNT          = 29201,
     MODEL_DEATH_KNIGHT_MOUNT        = 25278
 };
-
 struct TRINITY_DLL_DECL npc_koltira_deathweaverAI : public npc_escortAI
 {
     npc_koltira_deathweaverAI(Creature *pCreature) : npc_escortAI(pCreature)
     {
         me->SetReactState(REACT_DEFENSIVE);
     }
-
     uint32 m_uiWave;
     uint32 m_uiWave_Timer;
     uint64 m_uiValrothGUID;
-
     void Reset()
     {
         if (!HasEscortState(STATE_ESCORT_ESCORTING))
@@ -189,7 +165,6 @@ struct TRINITY_DLL_DECL npc_koltira_deathweaverAI : public npc_escortAI
             me->RemoveAura(SPELL_ANTI_MAGIC_ZONE);
         }
     }
-
     void WaypointReached(uint32 uiPointId)
     {
         switch(uiPointId)
@@ -224,31 +199,25 @@ struct TRINITY_DLL_DECL npc_koltira_deathweaverAI : public npc_escortAI
                 break;
         }
     }
-
     void JustSummoned(Creature* pSummoned)
     {
         if (Player* pPlayer = GetPlayerForEscort())
         {
             pSummoned->AI()->AttackStart(pPlayer);
         }
-
         if (pSummoned->GetEntry() == NPC_HIGH_INQUISITOR_VALROTH)
             m_uiValrothGUID = pSummoned->GetGUID();
-
         pSummoned->AddThreat(me, 0.0f);
         pSummoned->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
     }
-
     void SummonAcolyte(uint32 uiAmount)
     {
-        for(uint32 i = 0; i < uiAmount; ++i)
+        for (uint32 i = 0; i < uiAmount; ++i)
             me->SummonCreature(NPC_CRIMSON_ACOLYTE, 1642.329, -6045.818, 127.583, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000);
     }
-
     void UpdateAI(const uint32 uiDiff)
     {
         npc_escortAI::UpdateAI(uiDiff);
-
         if (HasEscortState(STATE_ESCORT_PAUSED))
         {
             if (m_uiWave_Timer < uiDiff)
@@ -278,7 +247,6 @@ struct TRINITY_DLL_DECL npc_koltira_deathweaverAI : public npc_escortAI
                     case 4:
                     {
                         Creature* pTemp = Unit::GetCreature(*me, m_uiValrothGUID);
-
                         if (!pTemp || !pTemp->isAlive())
                         {
                             DoScriptText(SAY_BREAKOUT8, me);
@@ -302,7 +270,6 @@ struct TRINITY_DLL_DECL npc_koltira_deathweaverAI : public npc_escortAI
                         SetEscortPaused(false);
                         break;
                 }
-
                 ++m_uiWave;
             }
             else
@@ -310,24 +277,20 @@ struct TRINITY_DLL_DECL npc_koltira_deathweaverAI : public npc_escortAI
         }
     }
 };
-
 CreatureAI* GetAI_npc_koltira_deathweaver(Creature* pCreature)
 {
     return new npc_koltira_deathweaverAI(pCreature);
 }
-
 bool QuestAccept_npc_koltira_deathweaver(Player* pPlayer, Creature* pCreature, const Quest* pQuest)
 {
     if (pQuest->GetQuestId() == QUEST_BREAKOUT)
     {
         pCreature->SetStandState(UNIT_STAND_STATE_STAND);
-
         if (npc_escortAI* pEscortAI = CAST_AI(npc_koltira_deathweaverAI,pCreature->AI()))
             pEscortAI->Start(false, false, pPlayer->GetGUID());
     }
     return true;
 }
-
 //Scarlet courier
 enum ScarletCourierEnum
 {
@@ -337,37 +300,30 @@ enum ScarletCourierEnum
     GO_INCONSPICUOUS_TREE              = 191144,
     NPC_SCARLET_COURIER                = 29076
 };
-
 struct TRINITY_DLL_DECL mob_scarlet_courierAI : public ScriptedAI
 {
     mob_scarlet_courierAI(Creature *pCreature) : ScriptedAI(pCreature) {}
-
     uint32 uiStage;
     uint32 uiStage_timer;
-
     void Reset()
     {
         me->Mount(14338); // not sure about this id
         uiStage = 1;
         uiStage_timer = 3000;
     }
-
     void EnterCombat(Unit *who)
     {
         DoScriptText(SAY_TREE2, me);
         me->Unmount();
         uiStage = 0;
     }
-
     void MovementInform(uint32 type, uint32 id)
     {
         if(type != POINT_MOTION_TYPE)
             return;
-
         if(id == 1)
             uiStage = 2;
     }
-
     void UpdateAI(const uint32 diff)
     {
         if(uiStage && !me->isInCombat())
@@ -396,21 +352,16 @@ struct TRINITY_DLL_DECL mob_scarlet_courierAI : public ScriptedAI
                 uiStage = 0;
             }else uiStage_timer -= diff;
         }
-
         if(!UpdateVictim())
             return;
-
         DoMeleeAttackIfReady();
     }
 };
-
 CreatureAI* GetAI_mob_scarlet_courier(Creature* pCreature)
 {
     return new mob_scarlet_courierAI (pCreature);
 }
-
 //Koltira & Valroth- Breakout
-
 enum valroth
 {
     SAY_VALROTH1                      = -1609581,
@@ -424,28 +375,23 @@ enum valroth
     SPELL_VALROTH_SMITE               = 52926,
     SPELL_SUMMON_VALROTH_REMAINS      = 52929
 };
-
 struct TRINITY_DLL_DECL mob_high_inquisitor_valrothAI : public ScriptedAI
 {
     mob_high_inquisitor_valrothAI(Creature *pCreature) : ScriptedAI(pCreature) {}
-
     uint32 uiRenew_timer;
     uint32 uiInquisitor_Penance_timer;
     uint32 uiValroth_Smite_timer;
-
     void Reset()
     {
         uiRenew_timer = 1000;
         uiInquisitor_Penance_timer = 2000;
         uiValroth_Smite_timer = 1000;
     }
-
     void EnterCombat(Unit* who)
     {
         DoScriptText(SAY_VALROTH2, me);
         DoCast(who, SPELL_VALROTH_SMITE);
     }
-
     void UpdateAI(const uint32 diff)
     {
         if (uiRenew_timer < diff)
@@ -454,42 +400,35 @@ struct TRINITY_DLL_DECL mob_high_inquisitor_valrothAI : public ScriptedAI
             DoCast(me, SPELL_RENEW);
             uiRenew_timer = 1000 + rand()%5000;
         }else uiRenew_timer -= diff;
-
         if (uiInquisitor_Penance_timer < diff)
         {
             Shout();
             DoCast(me->getVictim(), SPELL_INQUISITOR_PENANCE);
             uiInquisitor_Penance_timer = 2000 + rand()%5000;
         }else uiInquisitor_Penance_timer -= diff;
-
         if (uiValroth_Smite_timer < diff)
         {
             Shout();
             DoCast(me->getVictim(), SPELL_VALROTH_SMITE);
             uiValroth_Smite_timer = 1000 + rand()%5000;
         }else uiValroth_Smite_timer -= diff;
-
         DoMeleeAttackIfReady();
     }
-
     void Shout()
     {
         if(rand()%100 < 15)
             DoScriptText(RAND(SAY_VALROTH3,SAY_VALROTH4,SAY_VALROTH5), me);
     }
-
     void JustDied(Unit* killer)
     {
         DoScriptText(SAY_VALROTH6, me);
         killer->CastSpell(me, SPELL_SUMMON_VALROTH_REMAINS, true);
     }
 };
-
 CreatureAI* GetAI_mob_high_inquisitor_valroth(Creature* pCreature)
 {
     return new mob_high_inquisitor_valrothAI (pCreature);
 }
-
 
 /*######
 ## npc_a_special_surprise
@@ -551,27 +490,21 @@ enum SpecialSurprise
     SAY_EXEC_TIME_10            = -1609076,
     SAY_EXEC_WAITING            = -1609077,
     EMOTE_DIES                  = -1609078,
-
     NPC_PLAGUEFIST              = 29053
 };
-
 struct TRINITY_DLL_DECL npc_a_special_surpriseAI : public ScriptedAI
 {
     npc_a_special_surpriseAI(Creature *pCreature) : ScriptedAI(pCreature) {}
-
     uint32 ExecuteSpeech_Timer;
     uint32 ExecuteSpeech_Counter;
     uint64 PlayerGUID;
-
     void Reset()
     {
         ExecuteSpeech_Timer = 0;
         ExecuteSpeech_Counter = 0;
         PlayerGUID = 0;
-
         me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
     }
-
     bool MeetQuestCondition(Unit* pPlayer)
     {
         switch(me->GetEntry())
@@ -617,19 +550,15 @@ struct TRINITY_DLL_DECL npc_a_special_surpriseAI : public ScriptedAI
                     return true;
                 break;
         }
-
         return false;
     }
-
     void MoveInLineOfSight(Unit* pWho)
     {
         if (PlayerGUID || pWho->GetTypeId() != TYPEID_PLAYER || !pWho->IsWithinDist(me, INTERACTION_DISTANCE))
             return;
-
         if (MeetQuestCondition(pWho))
             PlayerGUID = pWho->GetGUID();
     }
-
     void UpdateAI(const uint32 diff)
     {
         if (PlayerGUID && !me->getVictim() && me->isAlive())
@@ -637,15 +566,12 @@ struct TRINITY_DLL_DECL npc_a_special_surpriseAI : public ScriptedAI
             if (ExecuteSpeech_Timer < diff)
             {
                 Player* pPlayer = Unit::GetPlayer(PlayerGUID);
-
                 if (!pPlayer)
                 {
                     Reset();
                     return;
                 }
-
                 //TODO: simplify text's selection
-
                 switch(pPlayer->getRace())
                 {
                     case RACE_HUMAN:
@@ -929,12 +855,10 @@ struct TRINITY_DLL_DECL npc_a_special_surpriseAI : public ScriptedAI
                         }
                         break;
                 }
-
                 if (ExecuteSpeech_Counter >= 9)
                     ExecuteSpeech_Timer = 15000;
                 else
                     ExecuteSpeech_Timer = 7000;
-
                 ++ExecuteSpeech_Counter;
             }
             else
@@ -942,47 +866,39 @@ struct TRINITY_DLL_DECL npc_a_special_surpriseAI : public ScriptedAI
         }
     }
 };
-
 CreatureAI* GetAI_npc_a_special_surprise(Creature* pCreature)
 {
     return new npc_a_special_surpriseAI(pCreature);
 }
-
 void AddSC_the_scarlet_enclave_c2()
 {
     Script *newscript;
-
     // How to win friends and influence enemies
     newscript = new Script;
     newscript->Name = "npc_crusade_persuaded";
     newscript->GetAI = &GetAI_npc_crusade_persuaded;
     newscript->RegisterSelf();
-
     // Ambush At The Overlook
     newscript = new Script;
     newscript->Name = "mob_scarlet_courier";
     newscript->GetAI = &GetAI_mob_scarlet_courier;
     newscript->RegisterSelf();
-
     // 12727 Bloody Breakout
     newscript = new Script;
     newscript->Name = "npc_koltira_deathweaver";
     newscript->GetAI = &GetAI_npc_koltira_deathweaver;
     newscript->pQuestAccept = &QuestAccept_npc_koltira_deathweaver;
     newscript->RegisterSelf();
-
     newscript = new Script;
     newscript->Name = "mob_high_inquisitor_valroth";
     newscript->GetAI = &GetAI_mob_high_inquisitor_valroth;
     newscript->RegisterSelf();
-
     // A Special Suprise
     newscript = new Script;
     newscript->Name = "npc_a_special_surprise";
     newscript->GetAI = &GetAI_npc_a_special_surprise;
     newscript->RegisterSelf();
 }
-
 /*
 -- Bloody Breakout
 UPDATE `creature_template` SET `ScriptName`='npc_koltira_deathweaver' WHERE `entry`='28912';

@@ -1,5 +1,4 @@
 /* -*- C++ -*- */
-
 //=============================================================================
 /**
  *  @file    ATM_Connector.h
@@ -9,23 +8,17 @@
  *  @author Joe Hoffert <joeh@cs.wustl.edu>
  */
 //=============================================================================
-
 #ifndef ACE_ATM_CONNECTOR_H
 #define ACE_ATM_CONNECTOR_H
 #include /**/ "ace/pre.h"
-
 #include /**/ "ace/config-all.h"
-
 #if !defined (ACE_LACKS_PRAGMA_ONCE)
 # pragma once
 #endif /* ACE_LACKS_PRAGMA_ONCE */
-
 #if defined (ACE_HAS_ATM)
-
 #include "ace/ATM_Stream.h"
 #include "ace/ATM_Params.h"
 #include "ace/ATM_QoS.h"
-
 #if defined (ACE_WIN32) || defined (ACE_HAS_LINUX_ATM)
 #include "ace/SOCK_Connector.h"
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
@@ -38,10 +31,8 @@ typedef ACE_XTI_ATM_Mcast ATM_Connector;
 // Open versioned namespace, if enabled by the user.
 ACE_END_VERSIONED_NAMESPACE_DECL
 #endif
-
 // Open versioned namespace, if enabled by the user.
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
-
 /**
  * @class ACE_ATM_Connector
  *
@@ -54,7 +45,6 @@ public:
   // = Initialization methods.
   /// Default constructor.
   ACE_ATM_Connector (void);
-
   /**
    * Actively connect and produce a @a new_stream if things go well.
    * The @a remote_sap is the address that we are trying to connect
@@ -84,7 +74,6 @@ public:
                      int flags = O_RDWR,
 #endif /* ACE_WIN32 */
                      int perms = 0);
-
   /**
    * Actively connect and produce a @a new_stream if things go well.
    * The @a remote_sap is the address that we are trying to connect
@@ -115,7 +104,6 @@ public:
                int flags = O_RDWR,
 #endif /* ACE_WIN32 */
                int perms = 0);
-
   /**
    * Try to complete a non-blocking connection.
    * If connection completion is successful then @a new_stream contains
@@ -125,7 +113,6 @@ public:
   int complete (ACE_ATM_Stream &new_stream,
                 ACE_ATM_Addr *remote_sap,
                 ACE_Time_Value *tv);
-
   /**
    * Actively add a leaf to the root (i.e., point-to-multipoint). The
    * @a remote_sap is the address of the leaf that we
@@ -134,31 +121,23 @@ public:
   int add_leaf (ACE_ATM_Stream &current_stream,
                 const ACE_Addr &remote_sap,
                 ACE_ATM_QoS &qos);
-
   /// Resets any event associations on this handle
   int reset_new_handle (ACE_HANDLE handle);
-
   // = Meta-type info
   typedef ACE_ATM_Addr PEER_ADDR;
   typedef ACE_ATM_Stream PEER_STREAM;
-
   /// Dump the state of an object.
   void dump (void) const;
-
   /// Declare the dynamic allocation hooks.
   ACE_ALLOC_HOOK_DECLARE;
-
 private:
   ATM_Connector connector_;
 };
-
 // Open versioned namespace, if enabled by the user.
 ACE_END_VERSIONED_NAMESPACE_DECL
-
 #if defined (__ACE_INLINE__)
 #include "ace/ATM_Connector.inl"
 #endif /* __ACE_INLINE__ */
-
 #endif /* ACE_HAS_ATM */
 #include /**/ "ace/post.h"
 #endif /* ACE_ATM_CONNECTOR_H */

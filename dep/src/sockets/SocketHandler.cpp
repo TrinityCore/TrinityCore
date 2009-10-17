@@ -4,25 +4,20 @@
 **/
 /*
 Copyright (C) 2004-2007  Anders Hedstrom
-
 This library is made available under the terms of the GNU GPL.
-
 If you would like to use this library in a closed-source application,
 a separate license agreement is available. For information about
 the closed-source license agreement for the C++ sockets library,
 please visit http://www.alhem.net/Sockets/license.html and/or
 email license@alhem.net.
-
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
 as published by the Free Software Foundation; either version 2
 of the License, or (at your option) any later version.
-
 This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
-
 You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -36,7 +31,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <stdio.h>
 #include <errno.h>
 #include <cstdio>
-
 #include "SocketHandler.h"
 #include "UdpSocket.h"
 #include "ResolvSocket.h"
@@ -45,18 +39,15 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Mutex.h"
 #include "Utility.h"
 #include "SocketAddress.h"
-
 #ifdef SOCKETS_NAMESPACE
 namespace SOCKETS_NAMESPACE {
 #endif
-
 
 //#ifdef _DEBUG
 //#define DEB(x) x; fflush(stderr);
 //#else
 #define DEB(x)
 //#endif
-
 
 SocketHandler::SocketHandler(StdLog *p)
 :m_stdlog(p)
@@ -89,7 +80,6 @@ SocketHandler::SocketHandler(StdLog *p)
     FD_ZERO(&m_wfds);
     FD_ZERO(&m_efds);
 }
-
 
 SocketHandler::SocketHandler(Mutex& mutex,StdLog *p)
 :m_stdlog(p)
@@ -124,7 +114,6 @@ SocketHandler::SocketHandler(Mutex& mutex,StdLog *p)
     FD_ZERO(&m_efds);
 }
 
-
 SocketHandler::~SocketHandler()
 {
 #ifdef ENABLE_RESOLVER
@@ -147,7 +136,6 @@ DEB(                fprintf(stderr, "  fd closed %d\n", p -> GetSocket());)
 //              p -> OnDelete(); // hey, I turn this back on. what's the worst that could happen??!!
                 // MinionSocket breaks, calling MinderHandler methods in OnDelete -
                 // MinderHandler is already gone when that happens...
-
                 // only delete socket when controlled
                 // ie master sockethandler can delete non-detached sockets
                 // and a slave sockethandler can only delete a detach socket
@@ -182,12 +170,10 @@ DEB(        fprintf(stderr, "/Emptying sockets list in SocketHandler destructor,
     }
 }
 
-
 Mutex& SocketHandler::GetMutex() const
 {
     return m_mutex;
 }
-
 
 #ifdef ENABLE_DETACH
 void SocketHandler::SetSlave(bool x)
@@ -195,19 +181,16 @@ void SocketHandler::SetSlave(bool x)
     m_slave = x;
 }
 
-
 bool SocketHandler::IsSlave()
 {
     return m_slave;
 }
 #endif
 
-
 void SocketHandler::RegStdLog(StdLog *log)
 {
     m_stdlog = log;
 }
-
 
 void SocketHandler::LogError(Socket *p,const std::string& user_text,int err,const std::string& sys_err,loglevel_t t)
 {
@@ -216,7 +199,6 @@ void SocketHandler::LogError(Socket *p,const std::string& user_text,int err,cons
         m_stdlog -> error(this, p, user_text, err, sys_err, t);
     }
 }
-
 
 void SocketHandler::Add(Socket *p)
 {
@@ -238,7 +220,6 @@ void SocketHandler::Add(Socket *p)
     m_add[p -> GetSocket()] = p;
 }
 
-
 void SocketHandler::Get(SOCKET s,bool& r,bool& w,bool& e)
 {
     if (s >= 0)
@@ -248,7 +229,6 @@ void SocketHandler::Get(SOCKET s,bool& r,bool& w,bool& e)
         e = FD_ISSET(s, &m_efds) ? true : false;
     }
 }
-
 
 void SocketHandler::Set(SOCKET s,bool bRead,bool bWrite,bool bException)
 {
@@ -291,7 +271,6 @@ DEB(    fprintf(stderr, "Set(%d, %s, %s, %s)\n", s, bRead ? "true" : "false", bW
     }
 }
 
-
 int SocketHandler::Select(long sec,long usec)
 {
     struct timeval tv;
@@ -299,7 +278,6 @@ int SocketHandler::Select(long sec,long usec)
     tv.tv_usec = usec;
     return Select(&tv);
 }
-
 
 int SocketHandler::Select()
 {
@@ -316,7 +294,6 @@ int SocketHandler::Select()
     }
     return Select(NULL);
 }
-
 
 int SocketHandler::Select(struct timeval *tsel)
 {
@@ -528,7 +505,6 @@ DEB(            fprintf(stderr, "m_maxsock: %d\n", m_maxsock);
         } // m_fds loop
         m_preverror = -1;
     } // if (n > 0)
-
     // check CallOnConnect - EVENT
     if (!m_fds_callonconnect.empty())
     {
@@ -826,7 +802,6 @@ DEB(                            fprintf(stderr, "Close() before OnDelete\n");)
             }
         }
     }
-
     // check erased sockets
     bool check_max_fd = false;
     while (!m_fds_erase.empty())
@@ -965,7 +940,6 @@ DEB(                            fprintf(stderr, "Close() before OnDelete\n");)
     return n;
 }
 
-
 #ifdef ENABLE_RESOLVER
 bool SocketHandler::Resolving(Socket *p0)
 {
@@ -973,7 +947,6 @@ bool SocketHandler::Resolving(Socket *p0)
     return it != m_resolve_q.end();
 }
 #endif
-
 
 bool SocketHandler::Valid(Socket *p0)
 {
@@ -986,12 +959,10 @@ bool SocketHandler::Valid(Socket *p0)
     return false;
 }
 
-
 bool SocketHandler::OkToAccept(Socket *)
 {
     return true;
 }
-
 
 size_t SocketHandler::GetCount()
 {
@@ -1003,32 +974,27 @@ printf(" m_delete  : %d\n", m_delete.size());
     return m_sockets.size() + m_add.size() + m_delete.size();
 }
 
-
 #ifdef ENABLE_SOCKS4
 void SocketHandler::SetSocks4Host(ipaddr_t a)
 {
     m_socks4_host = a;
 }
 
-
 void SocketHandler::SetSocks4Host(const std::string& host)
 {
     Utility::u2ip(host, m_socks4_host);
 }
-
 
 void SocketHandler::SetSocks4Port(port_t port)
 {
     m_socks4_port = port;
 }
 
-
 void SocketHandler::SetSocks4Userid(const std::string& id)
 {
     m_socks4_userid = id;
 }
 #endif
-
 
 #ifdef ENABLE_RESOLVER
 int SocketHandler::Resolve(Socket *p,const std::string& host,port_t port)
@@ -1049,7 +1015,6 @@ DEB(    fprintf(stderr, " *** Resolve '%s:%d' id#%d  m_resolve_q size: %d  p: %p
     return resolv -> GetId();
 }
 
-
 #ifdef ENABLE_IPV6
 int SocketHandler::Resolve6(Socket *p,const std::string& host,port_t port)
 {
@@ -1069,7 +1034,6 @@ int SocketHandler::Resolve6(Socket *p,const std::string& host,port_t port)
 }
 #endif
 
-
 int SocketHandler::Resolve(Socket *p,ipaddr_t a)
 {
     // check cache
@@ -1086,7 +1050,6 @@ int SocketHandler::Resolve(Socket *p,ipaddr_t a)
     m_resolve_q[p] = true;
     return resolv -> GetId();
 }
-
 
 #ifdef ENABLE_IPV6
 int SocketHandler::Resolve(Socket *p,in6_addr& a)
@@ -1107,7 +1070,6 @@ int SocketHandler::Resolve(Socket *p,in6_addr& a)
 }
 #endif
 
-
 void SocketHandler::EnableResolver(port_t port)
 {
     if (!m_resolver)
@@ -1117,13 +1079,11 @@ void SocketHandler::EnableResolver(port_t port)
     }
 }
 
-
 bool SocketHandler::ResolverReady()
 {
     return m_resolver ? m_resolver -> Ready() : false;
 }
 #endif // ENABLE_RESOLVER
-
 
 #ifdef ENABLE_SOCKS4
 void SocketHandler::SetSocks4TryDirect(bool x)
@@ -1131,24 +1091,20 @@ void SocketHandler::SetSocks4TryDirect(bool x)
     m_bTryDirect = x;
 }
 
-
 ipaddr_t SocketHandler::GetSocks4Host()
 {
     return m_socks4_host;
 }
-
 
 port_t SocketHandler::GetSocks4Port()
 {
     return m_socks4_port;
 }
 
-
 const std::string& SocketHandler::GetSocks4Userid()
 {
     return m_socks4_userid;
 }
-
 
 bool SocketHandler::Socks4TryDirect()
 {
@@ -1156,20 +1112,17 @@ bool SocketHandler::Socks4TryDirect()
 }
 #endif
 
-
 #ifdef ENABLE_RESOLVER
 bool SocketHandler::ResolverEnabled()
 {
     return m_resolver ? true : false;
 }
 
-
 port_t SocketHandler::GetResolverPort()
 {
     return m_resolver_port;
 }
 #endif // ENABLE_RESOLVER
-
 
 #ifdef ENABLE_POOL
 ISocketHandler::PoolSocket *SocketHandler::FindConnection(int type,const std::string& protocol,SocketAddress& ad)
@@ -1193,19 +1146,16 @@ ISocketHandler::PoolSocket *SocketHandler::FindConnection(int type,const std::st
     return NULL;
 }
 
-
 void SocketHandler::EnablePool(bool x)
 {
     m_b_enable_pool = x;
 }
-
 
 bool SocketHandler::PoolEnabled()
 {
     return m_b_enable_pool;
 }
 #endif
-
 
 void SocketHandler::Remove(Socket *p)
 {
@@ -1247,7 +1197,6 @@ void SocketHandler::Remove(Socket *p)
     }
 }
 
-
 void SocketHandler::CheckSanity()
 {
     CheckList(m_fds, "active sockets"); // active sockets
@@ -1260,7 +1209,6 @@ void SocketHandler::CheckSanity()
     CheckList(m_fds_retry, "checklist retry client connect");
     CheckList(m_fds_close, "checklist close and delete");
 }
-
 
 void SocketHandler::CheckList(socket_v& ref,const std::string& listname)
 {
@@ -1287,7 +1235,6 @@ void SocketHandler::CheckList(socket_v& ref,const std::string& listname)
         }
     }
 }
-
 
 void SocketHandler::AddList(SOCKET s,list_t which_one,bool add)
 {
@@ -1345,7 +1292,6 @@ DEB(    fprintf(stderr, "AddList;  %5d: %s: %s\n", s, (which_one == LIST_CALLONC
 //DEB(  fprintf(stderr, "/AddList\n");)
 }
 
-
 #ifdef ENABLE_TRIGGERS
 int SocketHandler::TriggerID(Socket *src)
 {
@@ -1353,7 +1299,6 @@ int SocketHandler::TriggerID(Socket *src)
     m_trigger_src[id] = src;
     return id;
 }
-
 
 bool SocketHandler::Subscribe(int id, Socket *dst)
 {
@@ -1372,7 +1317,6 @@ bool SocketHandler::Subscribe(int id, Socket *dst)
     return false;
 }
 
-
 bool SocketHandler::Unsubscribe(int id, Socket *dst)
 {
     if (m_trigger_src.find(id) != m_trigger_src.end())
@@ -1389,7 +1333,6 @@ bool SocketHandler::Unsubscribe(int id, Socket *dst)
     LogError(dst, "Unsubscribe", id, "Trigger id not found", LOG_LEVEL_INFO);
     return false;
 }
-
 
 void SocketHandler::Trigger(int id, Socket::TriggerData& data, bool erase)
 {
@@ -1417,9 +1360,7 @@ void SocketHandler::Trigger(int id, Socket::TriggerData& data, bool erase)
 }
 #endif // ENABLE_TRIGGERS
 
-
 #ifdef SOCKETS_NAMESPACE
 }
 #endif
-
 

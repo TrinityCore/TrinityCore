@@ -1,17 +1,13 @@
 // -*- C++ -*-
 //
 // $Id: OS_NS_sys_stat.inl 80826 2008-03-04 14:51:23Z wotte $
-
 #include "ace/OS_NS_unistd.h"
 #include "ace/OS_NS_fcntl.h"
 #include "ace/OS_NS_errno.h"
 #include "ace/OS_NS_macros.h"
-
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
-
 namespace ACE_OS
 {
-
   ACE_INLINE ACE_HANDLE
   creat (const ACE_TCHAR *filename, mode_t mode)
   {
@@ -23,7 +19,6 @@ namespace ACE_OS
                        ACE_HANDLE, ACE_INVALID_HANDLE);
 #endif /* ACE_WIN32 */
   }
-
   ACE_INLINE int
   fstat (ACE_HANDLE handle, ACE_stat *stp)
   {
@@ -35,7 +30,6 @@ namespace ACE_OS
     ACE_OSCALL_RETURN (::_fxstat (_STAT_VER, handle, stp), int, -1);
 #elif defined (ACE_WIN32)
     BY_HANDLE_FILE_INFORMATION fdata;
-
     if (::GetFileInformationByHandle (handle, &fdata) == FALSE)
       {
         ACE_OS::set_errno_to_last_error ();
@@ -68,10 +62,8 @@ namespace ACE_OS
     ACE_OSCALL_RETURN (::fstat (handle, stp), int, -1);
 # endif /* !ACE_HAS_X86_STAT_MACROS */
   }
-
   // This function returns the number of bytes in the file referenced by
   // FD.
-
   ACE_INLINE ACE_OFF_T
   filesize (ACE_HANDLE handle)
   {
@@ -96,12 +88,10 @@ namespace ACE_OS
                     static_cast<ACE_OFF_T> (-1) : sb.st_size;
 #endif
   }
-
   ACE_INLINE ACE_OFF_T
   filesize (const ACE_TCHAR *filename)
   {
     ACE_OS_TRACE ("ACE_OS::filesize");
-
     ACE_HANDLE const h = ACE_OS::open (filename, O_RDONLY);
     if (h != ACE_INVALID_HANDLE)
       {
@@ -112,7 +102,6 @@ namespace ACE_OS
     else
       return -1;
   }
-
   ACE_INLINE int
   lstat (const char *file, ACE_stat *stp)
   {
@@ -127,7 +116,6 @@ namespace ACE_OS
     ACE_OSCALL_RETURN (::lstat (file, stp), int, -1);
 # endif /* ACE_LACKS_LSTAT */
   }
-
 #if defined (ACE_HAS_WCHAR)
   ACE_INLINE int
   lstat (const wchar_t *file, ACE_stat *stp)
@@ -140,7 +128,6 @@ namespace ACE_OS
 # endif /* ACE_LACKS_LSTAT */
   }
 #endif /* ACE_HAS_WCHAR */
-
   ACE_INLINE int
   mkdir (const char *path, mode_t mode)
   {
@@ -156,9 +143,7 @@ namespace ACE_OS
     ACE_OSCALL_RETURN (::mkdir (path, mode), int, -1);
 #endif
   }
-
 #if defined (ACE_HAS_WCHAR)
-
   ACE_INLINE int
   mkdir (const wchar_t *path, mode_t mode)
   {
@@ -174,9 +159,7 @@ namespace ACE_OS
     return ACE_OS::mkdir (ACE_Wide_To_Ascii (path).char_rep (), mode);
 #endif /* ACE_HAS_WINCE */
   }
-
 #endif /* ACE_HAS_WCHAR */
-
   ACE_INLINE int
   mkfifo (const ACE_TCHAR *file, mode_t mode)
   {
@@ -189,7 +172,6 @@ namespace ACE_OS
     ACE_OSCALL_RETURN (::mkfifo (ACE_TEXT_ALWAYS_CHAR (file), mode), int, -1);
 #endif /* ACE_LACKS_MKFIFO */
   }
-
   ACE_INLINE int
   stat (const char *file, ACE_stat *stp)
   {
@@ -198,9 +180,7 @@ namespace ACE_OS
     ACE_OSCALL_RETURN (::stat (const_cast <char *> (file), stp), int, -1);
 #elif defined (ACE_HAS_WINCE)
     ACE_TEXT_WIN32_FIND_DATA fdata;
-
     HANDLE fhandle;
-
     fhandle = ::FindFirstFile (ACE_TEXT_CHAR_TO_TCHAR (file), &fdata);
     if (fhandle == INVALID_HANDLE_VALUE)
       {
@@ -228,7 +208,6 @@ namespace ACE_OS
     ACE_OSCALL_RETURN (ACE_STAT_FUNC_NAME (file, stp), int, -1);
 #endif /* ACE_HAS_NONCONST_STAT */
   }
-
 #if defined (ACE_HAS_WCHAR)
   ACE_INLINE int
   stat (const wchar_t *file, ACE_stat *stp)
@@ -236,9 +215,7 @@ namespace ACE_OS
     ACE_OS_TRACE ("ACE_OS::stat");
 #if defined (ACE_HAS_WINCE)
     WIN32_FIND_DATAW fdata;
-
     HANDLE fhandle;
-
     fhandle = ::FindFirstFileW (file, &fdata);
     if (fhandle == INVALID_HANDLE_VALUE)
       {
@@ -268,7 +245,6 @@ namespace ACE_OS
 #endif /* ACE_HAS_WINCE */
   }
 #endif /* ACE_HAS_WCHAR */
-
   ACE_INLINE mode_t
   umask (mode_t cmask)
   {
@@ -286,7 +262,5 @@ namespace ACE_OS
     return ::umask (cmask); // This call shouldn't fail...
 # endif /* ACE_LACKS_UMASK */
   }
-
 } // ACE_OS namespace
-
 ACE_END_VERSIONED_NAMESPACE_DECL

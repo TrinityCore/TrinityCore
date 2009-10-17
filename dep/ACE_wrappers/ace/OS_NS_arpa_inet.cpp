@@ -1,16 +1,11 @@
 // -*- C++ -*-
 // $Id: OS_NS_arpa_inet.cpp 80826 2008-03-04 14:51:23Z wotte $
-
 #include "ace/OS_NS_arpa_inet.h"
-
 ACE_RCSID(ace, OS_NS_arpa_inet, "$Id: OS_NS_arpa_inet.cpp 80826 2008-03-04 14:51:23Z wotte $")
-
 #if !defined (ACE_HAS_INLINED_OSCALLS)
 # include "ace/OS_NS_arpa_inet.inl"
 #endif /* ACE_HAS_INLINED_OSCALLS */
-
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
-
 int
 ACE_OS::inet_aton (const char *host_name, struct in_addr *addr)
 {
@@ -24,7 +19,6 @@ ACE_OS::inet_aton (const char *host_name, struct in_addr *addr)
     host_name = " ";
 #  endif /* ACE_WIN32 */
   unsigned long ip_addr = ACE_OS::inet_addr (host_name);
-
   if (ip_addr == INADDR_NONE
       // Broadcast addresses are weird...
       && ACE_OS::strcmp (host_name, "255.255.255.255") != 0)
@@ -49,6 +43,5 @@ ACE_OS::inet_aton (const char *host_name, struct in_addr *addr)
   ACE_OSCALL_RETURN (::inet_aton (host_name, addr), int, 0);
 #endif  /* ACE_LACKS_INET_ATON */
 }
-
 ACE_END_VERSIONED_NAMESPACE_DECL
 

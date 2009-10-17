@@ -1,11 +1,8 @@
 // $Id: ACE_crc_ccitt.cpp 80826 2008-03-04 14:51:23Z wotte $
-
 #include "ace/ACE.h"
-
 ACE_RCSID (ace,
            ACE_crc_ccitt,
            "$Id: ACE_crc_ccitt.cpp 80826 2008-03-04 14:51:23Z wotte $")
-
 namespace
 {
   /*****************************************************************/
@@ -27,7 +24,6 @@ namespace
   /* in the FTP archive "ftp.adelaide.edu.au/pub/rocksoft".        */
   /*                                                               */
   /*****************************************************************/
-
   const ACE_UINT16 crc_table[] =
     {
      0x0000, 0x1189, 0x2312, 0x329B, 0x4624, 0x57AD, 0x6536, 0x74BF,
@@ -63,37 +59,29 @@ namespace
      0xF78F, 0xE606, 0xD49D, 0xC514, 0xB1AB, 0xA022, 0x92B9, 0x8330,
      0x7BC7, 0x6A4E, 0x58D5, 0x495C, 0x3DE3, 0x2C6A, 0x1EF1, 0x0F78
     };
-
   /*****************************************************************/
   /*                   End of CRC Lookup Table                     */
   /*****************************************************************/
 }
-
 #define COMPUTE(var, ch) (var) = (crc_table[(var ^ ch) & 0xFF] ^ (var >> 8))
-
 // Open versioned namespace, if enabled by the user.
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
-
 ACE_UINT16
 ACE::crc_ccitt (const char *string)
 {
   ACE_UINT16 crc = 0xFFFF;
-
   for (const char *p = string;
        *p != 0;
        ++p)
     {
       COMPUTE (crc, *p);
     }
-
   return ~crc;
 }
-
 ACE_UINT16
 ACE::crc_ccitt (const void *buffer, size_t len, ACE_UINT16 crc)
 {
   crc = ~crc;
-
   for (const char *p = (const char *) buffer,
                   *e = (const char *) buffer + len;
        p != e;
@@ -101,15 +89,12 @@ ACE::crc_ccitt (const void *buffer, size_t len, ACE_UINT16 crc)
     {
       COMPUTE (crc, *p);
     }
-
   return ~crc;
 }
-
 ACE_UINT16
 ACE::crc_ccitt (const iovec *iov, int len, ACE_UINT16 crc)
 {
   crc = ~crc;
-
   for (int i = 0; i < len; ++i)
     {
       for (const char *p = (const char *) iov[i].iov_base,
@@ -118,12 +103,9 @@ ACE::crc_ccitt (const iovec *iov, int len, ACE_UINT16 crc)
            ++p)
         COMPUTE (crc, *p);
     }
-
   return ~crc;
 }
-
 // Close versioned namespace, if enabled by the user.
 ACE_END_VERSIONED_NAMESPACE_DECL
-
 #undef COMPUTE
 

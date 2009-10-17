@@ -13,14 +13,12 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
-
 /* ScriptData
 SDName: Shattrath_City
 SD%Complete: 100
 SDComment: Quest support: 10004, 10009, 10211, 10231. Flask vendors, Teleport to Caverns of Time
 SDCategory: Shattrath City
 EndScriptData */
-
 /* ContentData
 npc_raliq_the_drunk
 npc_salsalabim
@@ -31,68 +29,54 @@ npc_dirty_larry
 npc_ishanah
 npc_khadgar
 EndContentData */
-
 #include "precompiled.h"
 #include "escort_ai.h"
-
 /*######
 ## npc_raliq_the_drunk
 ######*/
-
 #define GOSSIP_RALIQ            "You owe Sim'salabim money. Hand them over or die!"
-
 enum eRaliq
 {
     SPELL_UPPERCUT          = 10966,
     QUEST_CRACK_SKULLS      = 10009,
     FACTION_HOSTILE_RD      = 45
 };
-
 struct TRINITY_DLL_DECL npc_raliq_the_drunkAI : public ScriptedAI
 {
     npc_raliq_the_drunkAI(Creature* c) : ScriptedAI(c)
     {
         m_uiNormFaction = c->getFaction();
     }
-
     uint32 m_uiNormFaction;
     uint32 Uppercut_Timer;
-
     void Reset()
     {
         Uppercut_Timer = 5000;
         me->RestoreFaction();
     }
-
     void UpdateAI(const uint32 diff)
     {
         if (!UpdateVictim())
             return;
-
         if (Uppercut_Timer < diff)
         {
             DoCast(m_creature->getVictim(),SPELL_UPPERCUT);
             Uppercut_Timer = 15000;
         }else Uppercut_Timer -= diff;
-
         DoMeleeAttackIfReady();
     }
 };
-
 CreatureAI* GetAI_npc_raliq_the_drunk(Creature* pCreature)
 {
     return new npc_raliq_the_drunkAI (pCreature);
 }
-
 bool GossipHello_npc_raliq_the_drunk(Player* pPlayer, Creature* pCreature)
 {
     if (pPlayer->GetQuestStatus(QUEST_CRACK_SKULLS) == QUEST_STATUS_INCOMPLETE)
         pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_VENDOR, GOSSIP_RALIQ, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-
     pPlayer->SEND_GOSSIP_MENU(9440, pCreature->GetGUID());
     return true;
 }
-
 bool GossipSelect_npc_raliq_the_drunk(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
 {
     if (uiAction == GOSSIP_ACTION_INFO_DEF+1)
@@ -103,29 +87,22 @@ bool GossipSelect_npc_raliq_the_drunk(Player* pPlayer, Creature* pCreature, uint
     }
     return true;
 }
-
 /*######
 # npc_salsalabim
 ######*/
-
 #define FACTION_HOSTILE_SA              90
 #define FACTION_FRIENDLY_SA             35
 #define QUEST_10004                     10004
-
 #define SPELL_MAGNETIC_PULL             31705
-
 struct TRINITY_DLL_DECL npc_salsalabimAI : public ScriptedAI
 {
     npc_salsalabimAI(Creature* c) : ScriptedAI(c) {}
-
     uint32 MagneticPull_Timer;
-
     void Reset()
     {
         MagneticPull_Timer = 15000;
         me->RestoreFaction();
     }
-
     void DamageTaken(Unit *done_by, uint32 &damage)
     {
         if (done_by->GetTypeId() == TYPEID_PLAYER)
@@ -136,18 +113,15 @@ struct TRINITY_DLL_DECL npc_salsalabimAI : public ScriptedAI
             EnterEvadeMode();
         }
     }
-
     void UpdateAI(const uint32 diff)
     {
         if (!UpdateVictim())
             return;
-
         if (MagneticPull_Timer < diff)
         {
             DoCast(m_creature->getVictim(),SPELL_MAGNETIC_PULL);
             MagneticPull_Timer = 15000;
         }else MagneticPull_Timer -= diff;
-
         DoMeleeAttackIfReady();
     }
 };
@@ -155,7 +129,6 @@ CreatureAI* GetAI_npc_salsalabim(Creature* pCreature)
 {
     return new npc_salsalabimAI (pCreature);
 }
-
 bool GossipHello_npc_salsalabim(Player* pPlayer, Creature* pCreature)
 {
     if (pPlayer->GetQuestStatus(QUEST_10004) == QUEST_STATUS_INCOMPLETE)
@@ -171,7 +144,6 @@ bool GossipHello_npc_salsalabim(Player* pPlayer, Creature* pCreature)
     }
     return true;
 }
-
 /*
 ##################################################
 Shattrath City Flask Vendors provides flasks to people exalted with 3 factions:
@@ -182,7 +154,6 @@ purchasable for one Mark of Illidari each
 Purchase requires exalted reputation with Scryers/Aldor, Cenarion Expedition and The Sha'tar
 ##################################################
 */
-
 bool GossipHello_npc_shattrathflaskvendors(Player* pPlayer, Creature* pCreature)
 {
     if (pCreature->GetEntry() == 23484)
@@ -198,7 +169,6 @@ bool GossipHello_npc_shattrathflaskvendors(Player* pPlayer, Creature* pCreature)
             pPlayer->SEND_GOSSIP_MENU(11083, pCreature->GetGUID());
         }
     }
-
     if (pCreature->GetEntry() == 23483)
     {
         // Scryers vendor
@@ -212,46 +182,34 @@ bool GossipHello_npc_shattrathflaskvendors(Player* pPlayer, Creature* pCreature)
             pPlayer->SEND_GOSSIP_MENU(11084, pCreature->GetGUID());
         }
     }
-
     return true;
 }
-
 bool GossipSelect_npc_shattrathflaskvendors(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
 {
     if (uiAction == GOSSIP_ACTION_TRADE)
         pPlayer->SEND_VENDORLIST(pCreature->GetGUID());
-
     return true;
 }
-
 /*######
 # npc_zephyr
 ######*/
-
 #define GOSSIP_HZ "Take me to the Caverns of Time."
-
 bool GossipHello_npc_zephyr(Player* pPlayer, Creature* pCreature)
 {
     if (pPlayer->GetReputationRank(989) >= REP_REVERED)
         pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_HZ, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-
     pPlayer->SEND_GOSSIP_MENU(pCreature->GetNpcTextId(), pCreature->GetGUID());
-
     return true;
 }
-
 bool GossipSelect_npc_zephyr(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
 {
     if (uiAction == GOSSIP_ACTION_INFO_DEF+1)
         pPlayer->CastSpell(pPlayer,37778,false);
-
     return true;
 }
-
 /*######
 # npc_kservant
 ######*/
-
 #define SAY1       -1000306
 #define WHISP1     -1000307
 #define WHISP2     -1000308
@@ -274,20 +232,16 @@ bool GossipSelect_npc_zephyr(Player* pPlayer, Creature* pCreature, uint32 uiSend
 #define WHISP19    -1000325
 #define WHISP20    -1000326
 #define WHISP21    -1000327
-
 struct TRINITY_DLL_DECL npc_kservantAI : public npc_escortAI
 {
 public:
     npc_kservantAI(Creature *c) : npc_escortAI(c) {}
 
-
     void WaypointReached(uint32 i)
     {
         Player* pPlayer = GetPlayerForEscort();
-
         if (!pPlayer)
             return;
-
         switch(i)
         {
             case 0: DoScriptText(SAY1, m_creature, pPlayer); break;
@@ -317,12 +271,10 @@ public:
                 break;
         }
     }
-
     void MoveInLineOfSight(Unit* pWho)
     {
         if (HasEscortState(STATE_ESCORT_ESCORTING))
             return;
-
         if (pWho->GetTypeId() == TYPEID_PLAYER)
         {
             if (CAST_PLR(pWho)->GetQuestStatus(10211) == QUEST_STATUS_INCOMPLETE)
@@ -335,54 +287,42 @@ public:
             }
         }
     }
-
     void Reset() {}
 };
 CreatureAI* GetAI_npc_kservantAI(Creature* pCreature)
 {
     return new npc_kservantAI(pCreature);
 }
-
 /*######
 # npc_dirty_larry
 ######*/
-
 #define GOSSIP_BOOK "Ezekiel said that you might have a certain book..."
-
 #define SAY_1       -1000328
 #define SAY_2       -1000329
 #define SAY_3       -1000330
 #define SAY_4       -1000331
 #define SAY_5       -1000332
 #define SAY_GIVEUP  -1000333
-
 #define QUEST_WBI       10231
 #define NPC_CREEPJACK   19726
 #define NPC_MALONE      19725
-
 struct TRINITY_DLL_DECL npc_dirty_larryAI : public ScriptedAI
 {
     npc_dirty_larryAI(Creature* c) : ScriptedAI(c) {}
-
     bool Event;
     bool Attack;
     bool Done;
-
     uint64 PlayerGUID;
-
     uint32 SayTimer;
     uint32 Step;
-
     void Reset()
     {
         Event = false;
         Attack = false;
         Done = false;
-
         PlayerGUID = 0;
         SayTimer = 0;
         Step = 0;
-
         m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
         m_creature->setFaction(1194);
         Unit* Creepjack = me->FindNearestCreature(NPC_CREEPJACK, 20);
@@ -400,11 +340,9 @@ struct TRINITY_DLL_DECL npc_dirty_larryAI : public ScriptedAI
             Malone->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
         }
     }
-
     uint32 NextStep(uint32 Step)
     {
         Player* pPlayer = Unit::GetPlayer(PlayerGUID);
-
         switch(Step)
         {
         case 0:{ m_creature->SetInFront(pPlayer);
@@ -424,9 +362,7 @@ struct TRINITY_DLL_DECL npc_dirty_larryAI : public ScriptedAI
         default: return 0;
         }
     }
-
     void EnterCombat(Unit* who){}
-
     void UpdateAI(const uint32 diff)
     {
         if (SayTimer < diff)
@@ -434,7 +370,6 @@ struct TRINITY_DLL_DECL npc_dirty_larryAI : public ScriptedAI
             if (Event)
                 SayTimer = NextStep(++Step);
         }else SayTimer -= diff;
-
         if (Attack)
         {
             Player* pPlayer = Unit::GetPlayer(PlayerGUID);
@@ -463,7 +398,6 @@ struct TRINITY_DLL_DECL npc_dirty_larryAI : public ScriptedAI
             }
             Attack = false;
         }
-
         if ((m_creature->GetHealth()*100)/m_creature->GetMaxHealth() < 1 && !Done)
         {
             Unit* Creepjack = me->FindNearestCreature(NPC_CREEPJACK, 20);
@@ -496,19 +430,15 @@ struct TRINITY_DLL_DECL npc_dirty_larryAI : public ScriptedAI
         DoMeleeAttackIfReady();
     }
 };
-
 bool GossipHello_npc_dirty_larry(Player* pPlayer, Creature* pCreature)
 {
     if (pCreature->isQuestGiver())
         pPlayer->PrepareQuestMenu(pCreature->GetGUID());
-
     if (pPlayer->GetQuestStatus(QUEST_WBI) == QUEST_STATUS_INCOMPLETE)
         pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_BOOK, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-
     pPlayer->SEND_GOSSIP_MENU(pCreature->GetNpcTextId(), pCreature->GetGUID());
     return true;
 }
-
 bool GossipSelect_npc_dirty_larry(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
 {
     if (uiAction == GOSSIP_ACTION_INFO_DEF+1)
@@ -517,69 +447,52 @@ bool GossipSelect_npc_dirty_larry(Player* pPlayer, Creature* pCreature, uint32 u
         CAST_AI(npc_dirty_larryAI, pCreature->AI())->PlayerGUID = pPlayer->GetGUID();
         pPlayer->CLOSE_GOSSIP_MENU();
     }
-
     return true;
 }
-
 CreatureAI* GetAI_npc_dirty_larryAI(Creature* pCreature)
 {
     return new npc_dirty_larryAI (pCreature);
 }
-
 /*######
 # npc_ishanah
 ######*/
-
 #define ISANAH_GOSSIP_1 "Who are the Sha'tar?"
 #define ISANAH_GOSSIP_2 "Isn't Shattrath a draenei city? Why do you allow others here?"
-
 bool GossipHello_npc_ishanah(Player* pPlayer, Creature* pCreature)
 {
     if (pCreature->isQuestGiver())
         pPlayer->PrepareQuestMenu(pCreature->GetGUID());
-
     pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, ISANAH_GOSSIP_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
     pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, ISANAH_GOSSIP_2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
-
     pPlayer->SEND_GOSSIP_MENU(pCreature->GetNpcTextId(), pCreature->GetGUID());
-
     return true;
 }
-
 bool GossipSelect_npc_ishanah(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
 {
     if (uiAction == GOSSIP_ACTION_INFO_DEF+1)
         pPlayer->SEND_GOSSIP_MENU(9458, pCreature->GetGUID());
     else if (uiAction == GOSSIP_ACTION_INFO_DEF+2)
         pPlayer->SEND_GOSSIP_MENU(9459, pCreature->GetGUID());
-
     return true;
 }
-
 /*######
 # npc_khadgar
 ######*/
-
 #define KHADGAR_GOSSIP_1    "I've heard your name spoken only in whispers, mage. Who are you?"
 #define KHADGAR_GOSSIP_2    "Go on, please."
 #define KHADGAR_GOSSIP_3    "I see." //6th too this
 #define KHADGAR_GOSSIP_4    "What did you do then?"
 #define KHADGAR_GOSSIP_5    "What happened next?"
 #define KHADGAR_GOSSIP_7    "There was something else I wanted to ask you."
-
 bool GossipHello_npc_khadgar(Player* pPlayer, Creature* pCreature)
 {
     if (pCreature->isQuestGiver())
         pPlayer->PrepareQuestMenu(pCreature->GetGUID());
-
     if (!pPlayer->hasQuest(10211))
         pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, KHADGAR_GOSSIP_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-
         pPlayer->SEND_GOSSIP_MENU(9243, pCreature->GetGUID());
-
     return true;
 }
-
 bool GossipSelect_npc_khadgar(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
 {
     switch(uiAction)
@@ -615,54 +528,45 @@ bool GossipSelect_npc_khadgar(Player* pPlayer, Creature* pCreature, uint32 uiSen
     }
     return true;
 }
-
 void AddSC_shattrath_city()
 {
     Script *newscript;
-
     newscript = new Script;
     newscript->Name = "npc_raliq_the_drunk";
     newscript->GetAI = &GetAI_npc_raliq_the_drunk;
     newscript->pGossipHello =  &GossipHello_npc_raliq_the_drunk;
     newscript->pGossipSelect = &GossipSelect_npc_raliq_the_drunk;
     newscript->RegisterSelf();
-
     newscript = new Script;
     newscript->Name = "npc_salsalabim";
     newscript->GetAI = &GetAI_npc_salsalabim;
     newscript->pGossipHello =  &GossipHello_npc_salsalabim;
     newscript->RegisterSelf();
-
     newscript = new Script;
     newscript->Name = "npc_shattrathflaskvendors";
     newscript->pGossipHello =  &GossipHello_npc_shattrathflaskvendors;
     newscript->pGossipSelect = &GossipSelect_npc_shattrathflaskvendors;
     newscript->RegisterSelf();
-
     newscript = new Script;
     newscript->Name = "npc_zephyr";
     newscript->pGossipHello =  &GossipHello_npc_zephyr;
     newscript->pGossipSelect = &GossipSelect_npc_zephyr;
     newscript->RegisterSelf();
-
     newscript = new Script;
     newscript->Name = "npc_kservant";
     newscript->GetAI = &GetAI_npc_kservantAI;
     newscript->RegisterSelf();
-
     newscript = new Script;
     newscript->Name = "npc_dirty_larry";
     newscript->GetAI = &GetAI_npc_dirty_larryAI;
     newscript->pGossipHello =   &GossipHello_npc_dirty_larry;
     newscript->pGossipSelect = &GossipSelect_npc_dirty_larry;
     newscript->RegisterSelf();
-
     newscript = new Script;
     newscript->Name = "npc_ishanah";
     newscript->pGossipHello =  &GossipHello_npc_ishanah;
     newscript->pGossipSelect = &GossipSelect_npc_ishanah;
     newscript->RegisterSelf();
-
     newscript = new Script;
     newscript->Name = "npc_khadgar";
     newscript->pGossipHello =  &GossipHello_npc_khadgar;

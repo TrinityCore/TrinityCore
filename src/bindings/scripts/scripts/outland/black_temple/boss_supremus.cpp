@@ -13,21 +13,17 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
-
 /* ScriptData
 SDName: Boss_Supremus
 SD%Complete: 95
 SDComment: Need to implement molten punch
 SDCategory: Black Temple
 EndScriptData */
-
 #include "precompiled.h"
 #include "def_black_temple.h"
-
 #define EMOTE_NEW_TARGET            -1564010
 #define EMOTE_PUNCH_GROUND          -1564011                //DoScriptText(EMOTE_PUNCH_GROUND, m_creature);
 #define EMOTE_GROUND_CRACK          -1564012
-
 //Spells
 #define SPELL_MOLTEN_PUNCH          40126
 #define SPELL_HATEFUL_STRIKE        41926
@@ -35,26 +31,20 @@ EndScriptData */
 #define SPELL_VOLCANIC_ERUPTION     40117
 #define SPELL_VOLCANIC_SUMMON       40276
 #define SPELL_BERSERK               45078
-
 #define CREATURE_VOLCANO            23085
 #define CREATURE_STALKER            23095
-
 #define PHASE_STRIKE    1
 #define PHASE_CHASE     2
-
 #define EVENT_BERSERK           1
 #define EVENT_SWITCH_PHASE      2
 #define EVENT_FLAME             3
 #define EVENT_VOLCANO           4
 #define EVENT_SWITCH_TARGET     5
 #define EVENT_HATEFUL_STRIKE    6
-
 #define GCD_CAST    1
-
 struct TRINITY_DLL_DECL molten_flameAI : public NullCreatureAI
 {
     molten_flameAI(Creature *c) : NullCreatureAI(c) {}
-
     void InitializeAI()
     {
         float x, y, z;
@@ -64,19 +54,16 @@ struct TRINITY_DLL_DECL molten_flameAI : public NullCreatureAI
         me->CastSpell(me,SPELL_MOLTEN_FLAME,true);
     }
 };
-
 struct TRINITY_DLL_DECL boss_supremusAI : public ScriptedAI
 {
     boss_supremusAI(Creature *c) : ScriptedAI(c), summons(m_creature)
     {
         pInstance = c->GetInstanceData();
     }
-
     ScriptedInstance* pInstance;
     EventMap events;
     SummonList summons;
     uint32 phase;
-
     void Reset()
     {
         if (pInstance)
@@ -88,23 +75,18 @@ struct TRINITY_DLL_DECL boss_supremusAI : public ScriptedAI
             }
             //else ToggleDoors(false);
         }
-
         phase = 0;
-
         events.Reset();
         summons.DespawnAll();
     }
-
     void EnterCombat(Unit *who)
     {
         if (pInstance)
             pInstance->SetData(DATA_SUPREMUSEVENT, IN_PROGRESS);
-
         ChangePhase();
         events.ScheduleEvent(EVENT_BERSERK, 900000, GCD_CAST);
         events.ScheduleEvent(EVENT_FLAME, 20000, GCD_CAST);
     }
-
     void ChangePhase()
     {
         if (!phase || phase == PHASE_CHASE)
@@ -130,7 +112,6 @@ struct TRINITY_DLL_DECL boss_supremusAI : public ScriptedAI
         events.SetPhase(phase);
         events.ScheduleEvent(EVENT_SWITCH_PHASE, 60000, GCD_CAST);
     }
-
     void JustDied(Unit *killer)
     {
         if (pInstance)
@@ -140,15 +121,12 @@ struct TRINITY_DLL_DECL boss_supremusAI : public ScriptedAI
         }
         summons.DespawnAll();
     }
-
     void JustSummoned(Creature *summon) {summons.Summon(summon);}
     void SummonedCreatureDespawn(Creature *summon) {summons.Despawn(summon);}
-
     Unit* CalculateHatefulStrikeTarget()
     {
         uint32 health = 0;
         Unit* target = NULL;
-
         std::list<HostilReference*>& m_threatlist = m_creature->getThreatManager().getThreatList();
         std::list<HostilReference*>::iterator i = m_threatlist.begin();
         for (i = m_threatlist.begin(); i!= m_threatlist.end(); ++i)
@@ -163,17 +141,13 @@ struct TRINITY_DLL_DECL boss_supremusAI : public ScriptedAI
                 }
             }
         }
-
         return target;
     }
-
     void UpdateAI(const uint32 diff)
     {
         if (!UpdateVictim())
             return;
-
         events.Update(diff);
-
         while(uint32 eventId = events.ExecuteEvent())
         {
             switch(eventId)
@@ -220,15 +194,12 @@ struct TRINITY_DLL_DECL boss_supremusAI : public ScriptedAI
                     break;
             }
         }
-
         DoMeleeAttackIfReady();
     }
 };
-
 struct TRINITY_DLL_DECL npc_volcanoAI : public Scripted_NoMovementAI
 {
     npc_volcanoAI(Creature *c) : Scripted_NoMovementAI(c) {}
-
     void Reset()
     {
         m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
@@ -238,43 +209,34 @@ struct TRINITY_DLL_DECL npc_volcanoAI : public Scripted_NoMovementAI
         wait = 3000;
     }
     uint32 wait;
-
     void EnterCombat(Unit *who) {}
-
     void MoveInLineOfSight(Unit *who) {}
-
     void DoAction(const uint32 info)
     {
         m_creature->RemoveAura(SPELL_VOLCANIC_ERUPTION);
     }
-
     void UpdateAI(const uint32 diff)
     {
-        if (wait<=diff)//wait 3secs before casting
+        if (wait<=diff) //wait 3secs before casting
         {
             DoCast(m_creature, SPELL_VOLCANIC_ERUPTION);
             wait = 60000;
         }
         else wait -= diff;
     }
-
 };
-
 CreatureAI* GetAI_boss_supremus(Creature* pCreature)
 {
     return new boss_supremusAI (pCreature);
 }
-
 CreatureAI* GetAI_molten_flame(Creature* pCreature)
 {
     return new molten_flameAI (pCreature);
 }
-
 CreatureAI* GetAI_npc_volcano(Creature* pCreature)
 {
     return new npc_volcanoAI (pCreature);
 }
-
 void AddSC_boss_supremus()
 {
     Script *newscript;
@@ -282,12 +244,10 @@ void AddSC_boss_supremus()
     newscript->Name = "boss_supremus";
     newscript->GetAI = &GetAI_boss_supremus;
     newscript->RegisterSelf();
-
     newscript = new Script;
     newscript->Name = "molten_flame";
     newscript->GetAI = &GetAI_molten_flame;
     newscript->RegisterSelf();
-
     newscript = new Script;
     newscript->Name = "npc_volcano";
     newscript->GetAI = &GetAI_npc_volcano;

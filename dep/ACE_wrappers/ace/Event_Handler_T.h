@@ -1,5 +1,4 @@
 /* -*- C++ -*- */
-
 //=============================================================================
 /**
  *  @file    Event_Handler_T.h
@@ -9,21 +8,15 @@
  *  @author Douglas C. Schmidt <schmidt@cs.wustl.edu>
  */
 //=============================================================================
-
 #ifndef ACE_EVENT_HANDLER_T_H
 #define ACE_EVENT_HANDLER_T_H
 #include /**/ "ace/pre.h"
-
 #include "ace/Event_Handler.h"
-
 #if !defined (ACE_LACKS_PRAGMA_ONCE)
 # pragma once
 #endif /* ACE_LACKS_PRAGMA_ONCE */
-
 #if defined (ACE_HAS_TEMPLATE_TYPEDEFS)
-
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
-
 /**
  * @class ACE_Event_Handler_T
  *
@@ -65,23 +58,17 @@ class ACE_Event_Handler_T : public ACE_Event_Handler
 {
 public:
   // = Typedefs to simplify pointer-to-member-function registration.
-
   // Get/set the underlying handle.
   typedef ACE_HANDLE (T::*GET_HANDLE) (void) const;
   typedef void (T::*SET_HANDLE) (ACE_HANDLE);
-
   /// Handle I/O events.
   typedef int (T::*IO_HANDLER) (ACE_HANDLE);
-
   /// Handle timeout events.
   typedef int (T::*TO_HANDLER) (const ACE_Time_Value &, const void *);
-
   /// Handle close events.
   typedef int (T::*CL_HANDLER) (ACE_HANDLE, ACE_Reactor_Mask);
-
   /// = Initialization and termination methods.
   typedef int (T::*SIG_HANDLER) (int, siginfo_t*, ucontext_t*);
-
   /// Initialize the op_handler.
   ACE_Event_Handler_T (T *op_handler,
                        int delete_handler,
@@ -93,12 +80,9 @@ public:
                        IO_HANDLER output = 0,
                        SET_HANDLE set_handle = 0,
                        IO_HANDLER except = 0);
-
   /// Close down and delete the <op_handler>
   ~ACE_Event_Handler_T (void);
-
   // = Override all the ACE_Event_Handler methods.
-
   // These methods all delegate down to the <T> operations handler.
   virtual ACE_HANDLE get_handle (void) const;
   virtual void set_handle (ACE_HANDLE);
@@ -108,84 +92,60 @@ public:
   virtual int handle_timeout (const ACE_Time_Value &tv, const void *arg = 0);
   virtual int handle_close (ACE_HANDLE fd, ACE_Reactor_Mask close_mask);
   virtual int handle_signal (int signum, siginfo_t * = 0, ucontext_t * = 0);
-
   // = Get/set the operations handler.
   T *op_handler (void);
   void op_handler (T *);
-
   // = Get/set the target pointer-to-method used for dispatching.
-
   GET_HANDLE handle_get (void);
   void handle_get (GET_HANDLE);
-
   SET_HANDLE handle_set (void);
   void handle_set (SET_HANDLE);
-
   IO_HANDLER input_handler (void);
   void input_handler (IO_HANDLER);
-
   IO_HANDLER output_handler (void);
   void output_handler (IO_HANDLER);
-
   IO_HANDLER except_handler (void);
   void except_handler (IO_HANDLER);
-
   TO_HANDLER to_handler (void);
   void to_handler (TO_HANDLER);
-
   CL_HANDLER cl_handler (void);
   void cl_handler (CL_HANDLER);
-
   SIG_HANDLER sig_handler (void);
   void sig_handler (SIG_HANDLER);
-
   /// Dump the state of an object.
   void dump (void) const;
-
   /// Declare the dynamic allocation hooks.
   ACE_ALLOC_HOOK_DECLARE;
-
 protected:
   /// Pointer to the object that handles all the delegated operations.
   T *op_handler_;
-
   // = Handle input, output, and exception events.
   IO_HANDLER input_handler_;
   IO_HANDLER output_handler_;
   IO_HANDLER except_handler_;
-
   /// Handle timeout events.
   TO_HANDLER to_handler_;
-
   /// Handle close events.
   CL_HANDLER cl_handler_;
-
   /// Handle signal events.
   SIG_HANDLER sig_handler_;
-
   /// Keeps track of whether we need to delete the handler in the
   /// destructor.
   int delete_handler_;
-
   // = Get/set underlying handle.
   SET_HANDLE set_handle_;
   GET_HANDLE get_handle_;
 };
-
 ACE_END_VERSIONED_NAMESPACE_DECL
-
 #if defined (__ACE_INLINE__)
 #include "ace/Event_Handler_T.inl"
 #endif /* __ACE_INLINE__ */
-
 #if defined (ACE_TEMPLATES_REQUIRE_SOURCE)
 #include "ace/Event_Handler_T.cpp"
 #endif /* ACE_TEMPLATES_REQUIRE_SOURCE */
-
 #if defined (ACE_TEMPLATES_REQUIRE_PRAGMA)
 #pragma implementation ("Event_Handler_T.cpp")
 #endif /* ACE_TEMPLATES_REQUIRE_PRAGMA */
-
 #endif /* ACE_HAS_TEMPLATE_TYPEDEFS */
 #include /**/ "ace/post.h"
 #endif /* ACE_EVENT_HANDLER_H */

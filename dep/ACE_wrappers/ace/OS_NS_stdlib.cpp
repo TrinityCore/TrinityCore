@@ -1,29 +1,21 @@
 // $Id: OS_NS_stdlib.cpp 81804 2008-05-29 16:12:07Z vzykov $
-
 #include "ace/OS_NS_stdlib.h"
-
 ACE_RCSID (ace,
            OS_NS_stdlib,
            "$Id: OS_NS_stdlib.cpp 81804 2008-05-29 16:12:07Z vzykov $")
-
 #include "ace/Default_Constants.h"
-
 #if !defined (ACE_HAS_INLINED_OSCALLS)
 # include "ace/OS_NS_stdlib.inl"
 #endif /* ACE_HAS_INLINED_OSCALLS */
-
 #include "ace/OS_Memory.h"
-
 #include "ace/OS_NS_unistd.h"
 #include "ace/OS_NS_ctype.h"
-
 #if defined (ACE_LACKS_MKTEMP) \
     || defined (ACE_LACKS_MKSTEMP) \
     || defined (ACE_LACKS_REALPATH)
 #  include "ace/OS_NS_stdio.h"
 #  include "ace/OS_NS_sys_stat.h"
 #endif /* ACE_LACKS_MKTEMP || ACE_LACKS_MKSTEMP || ACE_LACKS_REALPATH */
-
 #if defined (ACE_LACKS_MKSTEMP)
 # include "ace/OS_NS_fcntl.h"
 # include "ace/OS_NS_ctype.h"
@@ -31,11 +23,8 @@ ACE_RCSID (ace,
 # include "ace/OS_NS_Thread.h"
 # include "ace/Numeric_Limits.h"
 #endif  /* ACE_LACKS_MKSTEMP */
-
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
-
 ACE_EXIT_HOOK ACE_OS::exit_hook_ = 0;
-
 void *
 ACE_OS::calloc (size_t elements, size_t sizeof_elements)
 {
@@ -47,12 +36,10 @@ ACE_OS::calloc (size_t elements, size_t sizeof_elements)
   return ACE_MALLOC_FUNC (elements * sizeof_elements);
 #endif /* ACE_HAS_WINCE */
 }
-
 void
 ACE_OS::exit (int status)
 {
   ACE_OS_TRACE ("ACE_OS::exit");
-
 #if defined (ACE_HAS_NONSTATIC_OBJECT_MANAGER) && !defined (ACE_HAS_WINCE) && !defined (ACE_DOESNT_INSTANTIATE_NONSTATIC_OBJECT_MANAGER)
   // Shut down the ACE_Object_Manager, if it had registered its exit_hook.
   // With ACE_HAS_NONSTATIC_OBJECT_MANAGER, the ACE_Object_Manager is
@@ -60,7 +47,6 @@ ACE_OS::exit (int status)
   if (exit_hook_)
     (*exit_hook_) ();
 #endif /* ACE_HAS_NONSTATIC_OBJECT_MANAGER && !ACE_HAS_WINCE && !ACE_DOESNT_INSTANTIATE_NONSTATIC_OBJECT_MANAGER */
-
 #if !defined (ACE_HAS_WINCE)
 # if defined (ACE_WIN32)
   ::ExitProcess ((UINT) status);
@@ -73,13 +59,11 @@ ACE_OS::exit (int status)
   ::TerminateProcess (::GetCurrentProcess (), status);
 #endif /* ACE_HAS_WINCE */
 }
-
 void
 ACE_OS::free (void *ptr)
 {
   ACE_FREE_FUNC (ACE_MALLOC_T (ptr));
 }
-
 // You may be asking yourself, why are we doing this?  Well, in winbase.h,
 // MS didn't follow their normal Api_FunctionA and Api_FunctionW style,
 // so we have to #undef their define to get access to the unicode version.
@@ -88,7 +72,6 @@ ACE_OS::free (void *ptr)
 #if defined (ACE_WIN32) && defined (UNICODE) && !defined (ACE_USES_TCHAR)
 #undef GetEnvironmentStrings
 #endif /* ACE_WIN32 && UNICODE !ACE_USES_TCHAR */
-
 ACE_TCHAR *
 ACE_OS::getenvstrings (void)
 {
@@ -104,12 +87,10 @@ ACE_OS::getenvstrings (void)
   ACE_NOTSUP_RETURN (0);
 #endif /* ACE_WIN32 */
 }
-
 // Return a dynamically allocated duplicate of <str>, substituting the
 // environment variables of form $VAR_NAME.  Note that the pointer is
 // allocated with <ACE_OS::malloc> and must be freed by
 // <ACE_OS::free>.
-
 ACE_TCHAR *
 ACE_OS::strenvdup (const ACE_TCHAR *str)
 {
@@ -174,26 +155,21 @@ ACE_OS::strenvdup (const ACE_TCHAR *str)
     return ACE_OS::strdup (str);
 #endif /* ACE_HAS_WINCE */
 }
-
 #if !defined (ACE_HAS_ITOA)
 char *
 ACE_OS::itoa_emulation (int value, char *string, int radix)
 {
   char *e = string;
   char *b = string;
-
   // Short circuit if 0
-
   if (value == 0)
     {
       string[0] = '0';
       string[1] = 0;
       return string;
     }
-
   // If negative and base 10, print a - and then do the
   // number.
-
   if (value < 0 && radix == 10)
     {
       string[0] = '-';
@@ -201,21 +177,15 @@ ACE_OS::itoa_emulation (int value, char *string, int radix)
       ++e; // Don't overwrite the negative sign.
       value = -value; // Drop negative sign so character selection is correct.
     }
-
   // Convert to base <radix>, but in reverse order
-
   while (value != 0)
     {
       int mod = value % radix;
       value = value / radix;
-
       *e++ = (mod < 10) ? '0' + mod : 'a' + mod - 10;
     }
-
   *e-- = 0;
-
   // Now reverse the string to get the correct result
-
   while (e > b)
     {
       char temp = *e;
@@ -224,50 +194,38 @@ ACE_OS::itoa_emulation (int value, char *string, int radix)
       ++b;
       --e;
     }
-
   return string;
 }
 #endif /* !ACE_HAS_ITOA */
-
 #if defined (ACE_HAS_WCHAR) && defined (ACE_LACKS_ITOW)
 wchar_t *
 ACE_OS::itow_emulation (int value, wchar_t *string, int radix)
 {
   wchar_t *e = string;
   wchar_t *b = string;
-
   // Short circuit if 0
-
   if (value == 0)
     {
       string[0] = '0';
       string[1] = 0;
       return string;
     }
-
   // If negative and base 10, print a - and then do the
   // number.
-
   if (value < 0 && radix == 10)
     {
       string[0] = '-';
       b++;
     }
-
   // Convert to base <radix>, but in reverse order
-
   while (value != 0)
     {
       int mod = value % radix;
       value = value / radix;
-
       *e++ = (mod < 10) ? '0' + mod : 'a' + mod - 10;
     }
-
   *e-- = 0;
-
   // Now reverse the string to get the correct result
-
   while (e > b)
   {
     wchar_t temp = *e;
@@ -276,17 +234,14 @@ ACE_OS::itow_emulation (int value, wchar_t *string, int radix)
     ++b;
     --e;
   }
-
   return string;
 }
 #endif /* ACE_HAS_WCHAR && ACE_LACKS_ITOW */
-
 void *
 ACE_OS::malloc (size_t nbytes)
 {
   return ACE_MALLOC_FUNC (nbytes);
 }
-
 #if defined (ACE_LACKS_MKTEMP)
 ACE_TCHAR *
 ACE_OS::mktemp (ACE_TCHAR *s)
@@ -298,7 +253,6 @@ ACE_OS::mktemp (ACE_TCHAR *s)
   else
     {
       ACE_TCHAR *xxxxxx = ACE_OS::strstr (s, ACE_TEXT ("XXXXXX"));
-
       if (xxxxxx == 0)
         // the template string doesn't contain "XXXXXX"!
         return s;
@@ -306,7 +260,6 @@ ACE_OS::mktemp (ACE_TCHAR *s)
         {
           ACE_TCHAR unique_letter = ACE_TEXT ('a');
           ACE_stat sb;
-
           // Find an unused filename for this process.  It is assumed
           // that the user will open the file immediately after
           // getting this filename back (so, yes, there is a race
@@ -336,20 +289,17 @@ ACE_OS::mktemp (ACE_TCHAR *s)
     }
 }
 #endif /* ACE_LACKS_MKTEMP */
-
 void *
 ACE_OS::realloc (void *ptr, size_t nbytes)
 {
   return ACE_REALLOC_FUNC (ACE_MALLOC_T (ptr), nbytes);
 }
-
 #if defined (ACE_LACKS_REALPATH) && !defined (ACE_HAS_WINCE)
 char *
 ACE_OS::realpath (const char *file_name,
                   char *resolved_name)
 {
   ACE_OS_TRACE ("ACE_OS::realpath");
-
   if (file_name == 0)
     {
       // Single Unix Specification V3:
@@ -357,7 +307,6 @@ ACE_OS::realpath (const char *file_name,
       errno = EINVAL;
       return 0;
     }
-
   if (*file_name == '\0')
     {
       // Single Unix Specification V3:
@@ -366,9 +315,7 @@ ACE_OS::realpath (const char *file_name,
       errno = ENOENT;
       return 0;
     }
-
   char* rpath;
-
   if (resolved_name == 0)
     {
       // Single Unix Specification V3:
@@ -388,9 +335,7 @@ ACE_OS::realpath (const char *file_name,
     {
       rpath = resolved_name;
     }
-
   char* dest;
-
   if (*file_name != '/')
     {
       // file_name is relative path so CWD needs to be added
@@ -406,22 +351,17 @@ ACE_OS::realpath (const char *file_name,
     {
       dest = rpath;
     }
-
 #if !defined (ACE_LACKS_SYMLINKS)
   char expand_buf[PATH_MAX]; // Extra buffer needed to expand symbolic links
   int nlinks = 0;
 #endif
-
   while (*file_name)
     {
       *dest++ = '/';
-
       // Skip multiple separators
       while (*file_name == '/')
         ++file_name;
-
       char* start = dest;
-
       // Process one path component
       while (*file_name && *file_name != '/')
         {
@@ -434,7 +374,6 @@ ACE_OS::realpath (const char *file_name,
               return 0;
             }
         }
-
       if (start == dest) // Are we done?
         {
           if (dest - rpath > 1)
@@ -456,7 +395,6 @@ ACE_OS::realpath (const char *file_name,
       else
         {
           ACE_stat st;
-
           *dest = '\0';
           if (ACE_OS::lstat(rpath, &st) < 0)
             {
@@ -464,7 +402,6 @@ ACE_OS::realpath (const char *file_name,
               ACE_OS::free (rpath);
                 return 0;
             }
-
           // Check if current path is a link
           if (S_ISLNK (st.st_mode))
             {
@@ -475,12 +412,9 @@ ACE_OS::realpath (const char *file_name,
                     ACE_OS::free (rpath);
                   return 0;
                 }
-
               char link_buf[PATH_MAX];
-
               ssize_t link_len = ACE_OS::readlink (rpath, link_buf, PATH_MAX);
               int tail_len = ACE_OS::strlen (file_name) + 1;
-
               // Check if there is room to expand link?
               if (link_len + tail_len > PATH_MAX)
                 {
@@ -489,11 +423,9 @@ ACE_OS::realpath (const char *file_name,
                     ACE_OS::free (rpath);
                   return 0;
                 }
-
               // Move tail and prefix it with expanded link
               ACE_OS::memmove (expand_buf + link_len, file_name, tail_len);
               ACE_OS::memcpy (expand_buf, link_buf, link_len);
-
               if (*link_buf == '/') // Absolute link?
                 {
                   dest = rpath;
@@ -509,13 +441,10 @@ ACE_OS::realpath (const char *file_name,
         }
 #  endif /* ACE_LACKS_SYMLINKS */
     }
-
   *dest = '\0';
-
   return rpath;
 }
 #endif /* ACE_LACKS_REALPATH && !ACE_HAS_WINCE */
-
 #if defined (ACE_LACKS_STRTOL)
 long
 ACE_OS::strtol_emulation (const char *nptr, char **endptr, int base)
@@ -525,7 +454,6 @@ ACE_OS::strtol_emulation (const char *nptr, char **endptr, int base)
   register int c;
   register unsigned long cutoff;
   register int neg = 0, any, cutlim;
-
   /*
    * Skip white space and pick up leading +/- sign if any.
    * If base is 0, allow 0x for hex and 0 for octal, else
@@ -547,7 +475,6 @@ ACE_OS::strtol_emulation (const char *nptr, char **endptr, int base)
   }
   if (base == 0)
     base = c == '0' ? 8 : 10;
-
   /*
    * Compute the cutoff value between legal numbers and illegal
    * numbers.  That is the largest legal value, divided by the
@@ -595,7 +522,6 @@ ACE_OS::strtol_emulation (const char *nptr, char **endptr, int base)
   return (acc);
 }
 #endif /* ACE_LACKS_STRTOL */
-
 #if defined (ACE_LACKS_STRTOUL)
 unsigned long
 ACE_OS::strtoul_emulation (const char *nptr,
@@ -607,7 +533,6 @@ ACE_OS::strtoul_emulation (const char *nptr,
   register int c;
   register unsigned long cutoff;
   register int neg = 0, any, cutlim;
-
   /*
    * See strtol for comments as to the logic used.
    */
@@ -632,7 +557,6 @@ ACE_OS::strtoul_emulation (const char *nptr,
     base = c == '0' ? 8 : 10;
   cutoff = (unsigned long) ULONG_MAX / (unsigned long) base;
   cutlim = (unsigned long) ULONG_MAX % (unsigned long) base;
-
   for (acc = 0, any = 0;; c = *s++)
     {
       if (ACE_OS::ace_isdigit(c))
@@ -664,7 +588,6 @@ ACE_OS::strtoul_emulation (const char *nptr,
   return (acc);
 }
 #endif /* ACE_LACKS_STRTOUL */
-
 #if defined (ACE_LACKS_STRTOULL)
 ACE_UINT64
 ACE_OS::strtoull_emulation (const char *nptr,
@@ -676,7 +599,6 @@ ACE_OS::strtoull_emulation (const char *nptr,
   register int c;
   register ACE_UINT64 cutoff;
   register int neg = 0, any, cutlim;
-
   /*
    * See strtol for comments as to the logic used.
    */
@@ -699,10 +621,8 @@ ACE_OS::strtoull_emulation (const char *nptr,
     }
   if (base == 0)
     base = c == '0' ? 8 : 10;
-
   cutoff = (ACE_UINT64) ACE_UINT64_MAX / (ACE_UINT64) base;
   cutlim = (ACE_UINT64) ACE_UINT64_MAX % (ACE_UINT64) base;
-
   for (acc = 0, any = 0;; c = *s++)
     {
       if (ACE_OS::ace_isdigit(c))
@@ -734,7 +654,6 @@ ACE_OS::strtoull_emulation (const char *nptr,
   return (acc);
 }
 #endif /* ACE_LACKS_STRTOULL */
-
 #if defined (ACE_LACKS_MKSTEMP)
 ACE_HANDLE
 ACE_OS::mkstemp_emulation (ACE_TCHAR * s)
@@ -744,37 +663,29 @@ ACE_OS::mkstemp_emulation (ACE_TCHAR * s)
       errno = EINVAL;
       return ACE_INVALID_HANDLE;
     }
-
   // The "XXXXXX" template to be filled in.
   ACE_TCHAR * const t  = ACE_OS::strstr (s, ACE_TEXT ("XXXXXX"));
-
   if (t == 0)
     {
       errno = EINVAL;
       return ACE_INVALID_HANDLE;
     }
-
   static unsigned int const NUM_RETRIES = 50;
   static unsigned int const NUM_CHARS   = 6;  // Do not change!
-
   // Use ACE_Time_Value::msec(ACE_UINT64&) as opposed to
   // ACE_Time_Value::msec(void) to avoid truncation.
   ACE_UINT64 msec;
-
   // Use a const ACE_Time_Value to resolve ambiguity between
   // ACE_Time_Value::msec (long) and ACE_Time_Value::msec(ACE_UINT64&) const.
   ACE_Time_Value const now = ACE_OS::gettimeofday();
   now.msec (msec);
-
   // Add the process and thread ids to ensure uniqueness.
   msec += ACE_OS::getpid();
   msec += (size_t) ACE_OS::thr_self();
-
   // ACE_thread_t may be a char* (returned by ACE_OS::thr_self()) so
   // we need to use a C-style cast as a catch-all in order to use a
   // static_cast<> to an integral type.
   ACE_RANDR_TYPE seed = static_cast<ACE_RANDR_TYPE> (msec);
-
   // We only care about UTF-8 / ASCII characters in generated
   // filenames.  A UTF-16 or UTF-32 character could potentially cause
   // a very large space to be searched in the below do/while() loop,
@@ -788,7 +699,6 @@ ACE_OS::mkstemp_emulation (ACE_TCHAR * s)
   // in parallel.
   float const MAX_VAL =
     static_cast<float> (ACE_Numeric_Limits<char>::max ());
-
   // Use high-order bits rather than low-order ones (e.g. rand() %
   // MAX_VAL).  See Numerical Recipes in C: The Art of Scientific
   // Computing (William  H. Press, Brian P. Flannery, Saul
@@ -796,11 +706,9 @@ ACE_OS::mkstemp_emulation (ACE_TCHAR * s)
   // University Press, 1992 (2nd ed., p. 277).
   //
   // e.g.: MAX_VAL * rand() / (RAND_MAX + 1.0)
-
   // Factor out the constant coefficient.
   float const coefficient =
     static_cast<float> (MAX_VAL / (RAND_MAX + 1.0f));
-
   // @@ These nested loops may be ineffecient.  Improvements are
   //    welcome.
   for (unsigned int i = 0; i < NUM_RETRIES; ++i)
@@ -808,7 +716,6 @@ ACE_OS::mkstemp_emulation (ACE_TCHAR * s)
       for (unsigned int n = 0; n < NUM_CHARS; ++n)
         {
           ACE_TCHAR r;
-
           // This do/while() loop allows this alphanumeric character
           // selection to work for EBCDIC, as well.
           do
@@ -816,17 +723,14 @@ ACE_OS::mkstemp_emulation (ACE_TCHAR * s)
               r = static_cast<ACE_TCHAR> (coefficient * ACE_OS::rand_r (seed));
             }
           while (!ACE_OS::ace_isalnum (r));
-
           t[n] = r;
         }
-
       static int const perms =
 #if defined (ACE_WIN32)
         0;      /* Do not share while open. */
 #else
         0600;   /* S_IRUSR | S_IWUSR */
 #endif  /* ACE_WIN32 */
-
       // Create the file with the O_EXCL bit set to ensure that we're
       // not subject to a symbolic link attack.
       //
@@ -835,20 +739,16 @@ ACE_OS::mkstemp_emulation (ACE_TCHAR * s)
       ACE_HANDLE const handle = ACE_OS::open (s,
                                               O_RDWR | O_CREAT | O_EXCL,
                                               perms);
-
       if (handle != ACE_INVALID_HANDLE)
         return handle;
     }
-
   errno = EEXIST;  // Couldn't create a unique temporary file.
   return ACE_INVALID_HANDLE;
 }
 #endif /* ACE_LACKS_MKSTEMP */
-
 #if !defined (ACE_HAS_GETPROGNAME) && !defined (ACE_HAS_SETPROGNAME)
 static const char *__progname = "";
 #endif /* !ACE_HAS_GETPROGNAME && !ACE_HAS_SETPROGNAME */
-
 #if !defined (ACE_HAS_GETPROGNAME)
 const char*
 ACE_OS::getprogname_emulation ()
@@ -856,7 +756,6 @@ ACE_OS::getprogname_emulation ()
     return __progname;
 }
 #endif /* !ACE_HAS_GETPROGNAME */
-
 #if !defined (ACE_HAS_SETPROGNAME)
 void
 ACE_OS::setprogname_emulation (const char* progname)
@@ -868,6 +767,5 @@ ACE_OS::setprogname_emulation (const char* progname)
     __progname = progname;
 }
 #endif /* !ACE_HAS_SETPROGNAME */
-
 ACE_END_VERSIONED_NAMESPACE_DECL
 
