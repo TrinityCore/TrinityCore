@@ -192,7 +192,7 @@ struct TRINITY_DLL_DECL boss_keristraszaAI : public ScriptedAI
 
         if (!Enrage && (m_creature->GetHealth() < m_creature->GetMaxHealth() * 0.25))
         {
-            DoScriptText(SAY_ENRAGE , m_creature);
+            DoScriptText(SAY_ENRAGE, m_creature);
             DoCast(m_creature, SPELL_ENRAGE);
             Enrage = true;
         }
