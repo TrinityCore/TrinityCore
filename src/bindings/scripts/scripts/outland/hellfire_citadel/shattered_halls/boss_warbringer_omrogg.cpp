@@ -29,7 +29,7 @@ EndContentData */
 #include "precompiled.h"
 #include "def_shattered_halls.h"
 
-enum
+enum eEnums
 {
     YELL_DIE_L                  = -1540039,
     YELL_DIE_R                  = -1540040,

@@ -24,7 +24,7 @@ EndScriptData */
 #include "precompiled.h"
 #include "def_the_eye.h"
 
-enum
+enum eEnums
 {
     SAY_AGGRO                   = -1550000,
     SAY_SLAY1                   = -1550001,

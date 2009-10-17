@@ -28,7 +28,7 @@ EndContentData */
 
 #include "precompiled.h"
 
-enum
+enum eEnums
 {
     SAY_INTRO                       = -1557000,
     SAY_AGGRO_1                     = -1557001,

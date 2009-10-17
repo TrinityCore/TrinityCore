@@ -25,7 +25,7 @@ EndScriptData */
 #include "escort_ai.h"
 #include "def_shadow_labyrinth.h"
 
-enum
+enum eEnums
 {
     SAY_INTRO       = -1555000,
     SAY_AGGRO1      = -1555001,
