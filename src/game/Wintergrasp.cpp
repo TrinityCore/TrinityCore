@@ -30,7 +30,10 @@ enum WintergraspQuest
     SLAY_THEM_ALL_2 = 13178, //Horde Quest
 
     NO_MERCY_MERCILESS = 13177,   //Alliance Quest
-    NO_MERCY_MERCILESS_1 = 13179  //Alliance Quest
+    NO_MERCY_MERCILESS_1 = 13179, //Alliance Quest
+
+    A_VICTORY_IN_WG = 13181,
+    H_VICTORY_IN_WG = 13183
 };
 
 enum CreatureEntry
@@ -1048,7 +1051,7 @@ void OPvPWintergrasp::EndBattle()
             baseHonor += (m_customHonorReward[DAMAGED_TOWER] * m_towerCount[OTHER_TEAM(team)][DAMAGED_TOWER]);
             baseHonor += (m_customHonorReward[DESTROYED_TOWER] * m_towerCount[OTHER_TEAM(team)][DAMAGED_TOWER]);
             baseHonor += (m_customHonorReward[INTACT_BUILDING] * intactNum);
-            baseHonor += (m_customHonorReward[DAMAGED_BUILDING] * damagedNum);            
+            baseHonor += (m_customHonorReward[DAMAGED_BUILDING] * damagedNum);
         }
 
         // Revive players, remove auras and give rewards
@@ -1061,7 +1064,7 @@ void OPvPWintergrasp::EndBattle()
                 (*itr)->ResurrectPlayer(1.0f);
                 ObjectAccessor::Instance().ConvertCorpseForPlayer((*itr)->GetGUID());
             }
-            
+
             if ((*itr)->getLevel() < 70)
                 continue; // No rewards for level <70
 
@@ -1112,7 +1115,7 @@ void OPvPWintergrasp::EndBattle()
                 if ((*itr)->HasAura(SPELL_LIEUTENANT) || (*itr)->HasAura(SPELL_CORPORAL))
                 {
                     // TODO - Honor from SpellReward should be shared by team players
-                    // TODO - Marks should be given depending on Rank but 3 are given 
+                    // TODO - Marks should be given depending on Rank but 3 are given
                     // each time so Won't give any to recruits
                     (*itr)->CastSpell(*itr, spellRewardId, true);
                     for (uint32 i = 0; i < intactNum; ++i)
@@ -1124,6 +1127,13 @@ void OPvPWintergrasp::EndBattle()
                     for (uint32 i = 0; i < m_towerCount[OTHER_TEAM(team)][DAMAGE_DESTROYED]; ++i)
                         (*itr)->CastSpell(*itr, SPELL_DESTROYED_TOWER, true);
                 }
+            if (team == getDefenderTeam())
+            {
+                if((*itr)->HasAura(SPELL_LIEUTENANT) || (*itr)->HasAura(SPELL_CORPORAL))
+                    (*itr)->AreaExploredOrEventHappens(A_VICTORY_IN_WG);
+                    (*itr)->AreaExploredOrEventHappens(H_VICTORY_IN_WG);
+
+            }
             REMOVE_WARTIME_AURAS(*itr);
             REMOVE_TENACITY_AURA(*itr);
             (*itr)->CombatStop(true);
