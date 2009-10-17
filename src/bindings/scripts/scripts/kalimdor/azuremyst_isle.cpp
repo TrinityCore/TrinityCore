@@ -38,7 +38,7 @@ EndContentData */
 ## npc_draenei_survivor
 ######*/
 
-enum
+enum eEnums
 {
     SAY_HEAL1           = -1000248,
     SAY_HEAL2           = -1000249,
@@ -91,7 +91,7 @@ struct TRINITY_DLL_DECL npc_draenei_survivorAI : public ScriptedAI
         if (CanSayHelp && who->GetTypeId() == TYPEID_PLAYER && m_creature->IsFriendlyTo(who) && m_creature->IsWithinDistInMap(who, 25.0f))
         {
             //Random switch between 4 texts
-            DoScriptText(RAND(SAY_HELP1, m_creature,SAY_HELP2, m_creature,SAY_HELP3, m_creature,SAY_HELP4, m_creature), who);
+            DoScriptText(RAND(SAY_HELP1, SAY_HELP2, SAY_HELP3, SAY_HELP4), m_creature, who);
 
             SayHelpTimer = 20000;
             CanSayHelp = false;
@@ -123,7 +123,7 @@ struct TRINITY_DLL_DECL npc_draenei_survivorAI : public ScriptedAI
 
                 if (Player* pPlayer = Unit::GetPlayer(pCaster))
                 {
-                    DoScriptText(RAND(SAY_HEAL1, m_creature,SAY_HEAL2, m_creature,SAY_HEAL3, m_creature,SAY_HEAL4, m_creature), pPlayer);
+                    DoScriptText(RAND(SAY_HEAL1, SAY_HEAL2, SAY_HEAL3, SAY_HEAL4), m_creature, pPlayer);
 
                     pPlayer->TalkedToCreature(m_creature->GetEntry(),m_creature->GetGUID());
                 }

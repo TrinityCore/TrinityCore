@@ -97,4 +97,4 @@ void AddSC_violet_hold()
     newscript->Name = "npc_teleportation_portal_vh";
     newscript->GetAI = &GetAI_npc_teleportation_portal;
     newscript->RegisterSelf();
-}
+}
