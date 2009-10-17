@@ -61,7 +61,7 @@ bool GossipSelect_npc_skorn_whitecloud(Player* pPlayer, Creature* pCreature, uin
 # npc_kyle_frenzied
 ######*/
 
-enum
+enum eKyleFrenzied
 {
     //emote signed for 7780 but propably thats wrong id.
     EMOTE_SEE_LUNCH         = -1000407,

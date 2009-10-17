@@ -24,7 +24,7 @@ EndScriptData */
 #include "precompiled.h"
 #include "escort_ai.h"
 
-enum
+enum eEnums
 {
     NPC_FELBOAR                 = 21878,
 

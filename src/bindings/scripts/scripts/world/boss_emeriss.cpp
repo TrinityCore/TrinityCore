@@ -23,7 +23,7 @@ EndScriptData */
 
 #include "precompiled.h"
 
-enum
+enum eEnums
 {
     SAY_AGGRO               = -1000401,
     SAY_CASTCORRUPTION      = -1000402, //signed for 6182

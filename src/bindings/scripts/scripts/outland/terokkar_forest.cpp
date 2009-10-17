@@ -301,7 +301,7 @@ CreatureAI* GetAI_mob_netherweb_victim(Creature* pCreature)
 #define GOSSIP_FLOON1           "You owe Sim'salabim money. Hand them over or die!"
 #define GOSSIP_FLOON2           "Hand over the money or die...again!"
 
-enum
+enum eFloon
 {
     SAY_FLOON_ATTACK        = -1000352,
 
@@ -531,7 +531,7 @@ bool GossipSelect_go_skull_pile(Player* pPlayer, GameObject* pGo, uint32 uiSende
 ## npc_slim
 ######*/
 
-enum
+enum eSlim
 {
     FACTION_CONSORTIUM  = 933
 };

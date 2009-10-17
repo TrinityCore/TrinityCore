@@ -33,7 +33,7 @@ EndContentData */
 #define GOSSIP_ITEM4 "Who was this stranger?"
 #define GOSSIP_ITEM5 "Thank you, Kodian. I'll do what I can."
 
-enum
+enum eEnums
 {
     GOSSIP_TEXTID_ORSONN1       = 12793,
     GOSSIP_TEXTID_ORSONN2       = 12794,

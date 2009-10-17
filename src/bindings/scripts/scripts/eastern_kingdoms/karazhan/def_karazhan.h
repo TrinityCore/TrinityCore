@@ -6,7 +6,7 @@
 #ifndef DEF_KARAZHAN_H
 #define DEF_KARAZHAN_H
 
-enum
+enum eEnums
 {
     TYPE_ATTUMEN                    = 1,
     TYPE_MOROES                     = 2,

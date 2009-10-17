@@ -26,7 +26,7 @@ EndScriptData */
 #include "precompiled.h"
 #include "def_utgarde_keep.h"
 
-enum
+enum eEnums
 {
     ACHIEVEMENT_ON_THE_ROCKS                 = 1919,
 

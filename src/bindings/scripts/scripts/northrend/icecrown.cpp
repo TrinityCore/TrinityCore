@@ -39,7 +39,7 @@ EndContentData */
 #define GOSSIP_ARETE_ITEM6 "Let's finish this!"
 #define GOSSIP_ARETE_ITEM7 "That's quite a tale, Lord-Commander."
 
-enum
+enum eArete
 {
     GOSSIP_TEXTID_ARETE1        = 13525,
     GOSSIP_TEXTID_ARETE2        = 13526,

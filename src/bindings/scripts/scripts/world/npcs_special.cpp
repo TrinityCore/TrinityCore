@@ -58,7 +58,7 @@ struct SpawnAssociation
     SpawnType m_SpawnType;
 };
 
-enum
+enum eEnums
 {
     SPELL_GUARDS_MARK               = 38067,
     AURA_DURATION_TIME_LEFT         = 5000
@@ -794,7 +794,7 @@ CreatureAI* GetAI_npc_doctor(Creature* pCreature)
 
 //TODO: get text for each NPC
 
-enum
+enum eGarments
 {
     SPELL_LESSER_HEAL_R2    = 2052,
     SPELL_FORTITUDE_R1      = 1243,
@@ -1042,7 +1042,7 @@ CreatureAI* GetAI_npc_guardian(Creature* pCreature)
 ## npc_kingdom_of_dalaran_quests
 ######*/
 
-enum
+enum eKingdomDalaran
 {
     SPELL_TELEPORT_DALARAN  = 53360,
     ITEM_KT_SIGNET          = 39740,

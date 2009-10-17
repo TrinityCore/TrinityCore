@@ -38,7 +38,7 @@ EndContentData */
 #define GOSSIP_ITEM_GO_ON   "Go on."
 #define GOSSIP_ITEM_TELL_ME "Tell me what's going on out here, Fizzcrank."
 
-enum
+enum eFizzcrank
 {
     GOSSIP_TEXTID_FIZZCRANK1    = 12456,
     GOSSIP_TEXTID_FIZZCRANK2    = 12457,
@@ -116,7 +116,7 @@ bool GossipSelect_npc_fizzcrank_fullthrottle(Player* pPlayer, Creature* pCreatur
 #define GOSSIP_ITEM_FREE_FLIGHT "I'd like passage to the Transitus Shield."
 #define GOSSIP_ITEM_FLIGHT      "May I use a drake to fly elsewhere?"
 
-enum
+enum eSurristrasz
 {
     SPELL_ABMER_TO_COLDARRA     = 46064
 };
@@ -158,7 +158,7 @@ bool GossipSelect_npc_surristrasz(Player* pPlayer, Creature* pCreature, uint32 u
 
 #define GOSSIP_ITEM_TELEPORT    "Teleport me to Amber Ledge, please."
 
-enum
+enum eTiare
 {
     SPELL_TELEPORT_COLDARRA     = 50135
 };
@@ -184,7 +184,7 @@ bool GossipSelect_npc_tiare(Player* pPlayer, Creature* pCreature, uint32 uiSende
 ## npc_sinkhole_kill_credit
 ######*/
 
-enum
+enum eSinkhole
 {
     SPELL_SET_CART                = 46797,
     SPELL_EXPLODE_CART            = 46799,
@@ -330,7 +330,7 @@ CreatureAI* GetAI_npc_khunok_the_behemoth(Creature* pCreature)
 ## npc_keristrasza
 ######*/
 
-enum
+enum eKeristrasza
 {
     SPELL_TELEPORT_TO_SARAGOSA = 46772
 };
@@ -367,7 +367,7 @@ bool GossipSelect_npc_keristrasza(Player* pPlayer, Creature* pCreature, uint32 u
 
 #define GOSSIP_ITEM_C_1 "I... I think so..."
 
-enum
+enum eCorastrasza
 {
     SPELL_SUMMON_WYRMREST_SKYTALON               = 61240,
     SPELL_WYRMREST_SKYTALON_RIDE_PERIODIC        = 61244,
@@ -410,15 +410,11 @@ bool GossipSelect_npc_corastrasza(Player* pPlayer, Creature* pCreature, uint32 u
 
 #define GOSSIP_ITEM_I  "<Search corpse for Issliruk's Totem.>"
 
-enum
+enum eIruk
 {
-
     QUEST_SPIRITS_WATCH_OVER_US             = 11961,
-
     SPELL_CREATURE_TOTEM_OF_ISSLIRUK        = 46816,
-
     GOSSIP_TEXT_I                           = 12585
-
 };
 
 bool GossipHello_npc_iruk(Player* pPlayer, Creature* pCreature)

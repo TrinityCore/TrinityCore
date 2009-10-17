@@ -23,7 +23,7 @@ EndScriptData */
 
 #include "precompiled.h"
 
-enum
+enum eSpells
 {
     SPELL_CURSEOFBLOOD              = 8282,
     SPELL_DISPELMAGIC               = 15090,

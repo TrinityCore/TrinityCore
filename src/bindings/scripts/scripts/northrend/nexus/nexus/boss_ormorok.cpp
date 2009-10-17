@@ -24,7 +24,7 @@ EndScriptData */
 #include "precompiled.h"
 #include "def_nexus.h"
 
-enum
+enum eEnums
 {
 //Spells
     SPELL_CRYSTAL_SPIKES_N                     = 47958, //Don't work, using walkaround

@@ -206,7 +206,7 @@ CreatureAI* GetAI_boss_nexusprince_shaffar(Creature* pCreature)
     return new boss_nexusprince_shaffarAI (pCreature);
 }
 
-enum
+enum eEnums
 {
     SPELL_ARCANE_BOLT               = 15254,
     SPELL_ETHEREAL_APPRENTICE       = 32372                 // Summon 18430
@@ -293,7 +293,7 @@ CreatureAI* GetAI_mob_ethereal_beacon(Creature* pCreature)
     return new mob_ethereal_beaconAI (pCreature);
 }
 
-enum
+enum eEnums
 {
     SPELL_ETHEREAL_APPRENTICE_FIREBOLT          = 32369,
     SPELL_ETHEREAL_APPRENTICE_FROSTBOLT         = 32370

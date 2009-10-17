@@ -24,7 +24,7 @@ EndScriptData */
 #include "precompiled.h"
 #include "def_sethekk_halls.h"
 
-enum
+enum eEnums
 {
     NPC_ANZU   = 23035,
     IKISS_DOOR = 177203,

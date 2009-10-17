@@ -5,7 +5,7 @@
 #ifndef DEF_WAILING_CAVERNS_H
 #define DEF_WAILING_CAVERNS_H
 
-enum
+enum eEnums
 {
     TYPE_LORD_COBRAHN         = 1,
     TYPE_LORD_PYTHAS          = 2,

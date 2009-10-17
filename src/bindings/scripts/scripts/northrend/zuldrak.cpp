@@ -22,7 +22,7 @@
 ## npc_drakuru_shackles
 ####*/
 
-enum
+enum eDrakuruShackles
 {
     SPELL_LEFT_CHAIN           = 59951,
     SPELL_RIGHT_CHAIN          = 59952,
@@ -97,7 +97,7 @@ CreatureAI* GetAI_npc_drakuru_shackles(Creature* pCreature)
 ## npc_captured_rageclaw
 ####*/
 
-enum
+enum eRageclaw
 {
     SPELL_UNSHACKLED           = 55085,
     SPELL_KNEEL                = 39656
@@ -174,7 +174,7 @@ CreatureAI* GetAI_npc_captured_rageclaw(Creature* pCreature)
 
 #define    GOSSIP_ITEM_G "I'm ready, Gymer. Let's go!"
 
-enum
+enum eGymer
 {
     QUEST_STORM_KING_VENGEANCE    = 12919,
     SPELL_GYMER                   = 55568

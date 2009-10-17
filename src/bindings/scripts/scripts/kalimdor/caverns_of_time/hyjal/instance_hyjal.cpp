@@ -25,7 +25,7 @@ EndScriptData */
 #include "def_hyjal.h"
 #include "hyjal_trash.h"
 
-enum
+enum eEnums
 {
     MAX_ENCOUNTER       = 5,
 

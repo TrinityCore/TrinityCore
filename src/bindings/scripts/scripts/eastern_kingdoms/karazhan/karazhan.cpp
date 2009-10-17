@@ -393,7 +393,7 @@ bool GossipSelect_npc_barnes(Player* pPlayer, Creature* pCreature, uint32 uiSend
 # npc_berthold
 ####*/
 
-enum
+enum eBerthold
 {
     SPELL_TELEPORT           = 39567
 };

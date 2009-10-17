@@ -204,7 +204,7 @@ bool GossipSelect_npcs_rutgar_and_frankal(Player* pPlayer, Creature* pCreature, 
 /*####
 # quest_a_pawn_on_the_eternal_board (Defines)
 ####*/
-enum
+enum eEternalBoard
 {
     QUEST_A_PAWN_ON_THE_ETERNAL_BOARD = 8519,
 

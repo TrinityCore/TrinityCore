@@ -26,7 +26,7 @@ EndScriptData */
 
 #define MAX_ENCOUNTER              4
 
-enum
+enum eEnums
 {
     SAY_BOSS_DIE_AD         = -1033007,
     SAY_BOSS_DIE_AS         = -1033008,

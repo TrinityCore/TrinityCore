@@ -36,7 +36,7 @@ EndContentData */
 ## npc_bunthen_plainswind
 ######*/
 
-enum
+enum eBunthen
 {
     QUEST_SEA_LION_HORDE        = 30,
     QUEST_SEA_LION_ALLY         = 272,

@@ -23,7 +23,7 @@ EndScriptData */
 
 #include "precompiled.h"
 
-enum
+enum eEnums
 {
     //Dathrohan spells
     SPELL_CRUSADERSHAMMER           = 17286,                //AOE stun

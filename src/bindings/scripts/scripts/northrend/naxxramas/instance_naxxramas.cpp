@@ -57,7 +57,7 @@ const MinionData minionData[] =
     {0,         0,}
 };
 
-enum
+enum eEnums
 {
     GO_HORSEMEN_CHEST_HERO  = 193426,
     GO_HORSEMEN_CHEST       = 181366,                   //four horsemen event, DoRespawnGameObject() when event == DONE

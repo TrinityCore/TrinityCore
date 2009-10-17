@@ -46,7 +46,7 @@ static Speech PlayerDeath[]=
     {-1585021},
 };
 
-enum
+enum eEnums
 {
     SAY_AGGRO               = -1585012,
     SAY_DEATH               = -1585022,
@@ -339,7 +339,7 @@ CreatureAI* GetAI_boss_priestess_delrissa(Creature* pCreature)
     return new boss_priestess_delrissaAI(pCreature);
 }
 
-enum
+enum eHealingPotion
 {
     SPELL_HEALING_POTION    = 15503
 };
@@ -478,7 +478,7 @@ struct TRINITY_DLL_DECL boss_priestess_lackey_commonAI : public ScriptedAI
     }
 };
 
-enum
+enum eRogueSpells
 {
     SPELL_KIDNEY_SHOT       = 27615,
     SPELL_GOUGE             = 12540,
@@ -575,7 +575,7 @@ CreatureAI* GetAI_boss_kagani_nightstrike(Creature* pCreature)
     return new boss_kagani_nightstrikeAI(pCreature);
 }
 
-enum
+enum eWarlockSpells
 {
     SPELL_IMMOLATE              = 44267,
     SPELL_SHADOW_BOLT           = 12471,
@@ -665,7 +665,7 @@ CreatureAI* GetAI_ellris_duskhallow(Creature* pCreature)
     return new boss_ellris_duskhallowAI(pCreature);
 }
 
-enum
+enum eKickDown
 {
     SPELL_KNOCKDOWN     = 11428,
     SPELL_SNAP_KICK     = 46182
@@ -715,7 +715,7 @@ CreatureAI* GetAI_eramas_brightblaze(Creature* pCreature)
     return new boss_eramas_brightblazeAI(pCreature);
 }
 
-enum
+enum eMageSpells
 {
     SPELL_POLYMORPH         = 13323,
     SPELL_ICE_BLOCK         = 27619,
@@ -839,7 +839,7 @@ CreatureAI* GetAI_yazzai(Creature* pCreature)
     return new boss_yazzaiAI(pCreature);
 }
 
-enum
+enum eWarriorSpells
 {
     SPELL_INTERCEPT_STUN        = 27577,
     SPELL_DISARM                = 27581,
@@ -952,7 +952,7 @@ CreatureAI* GetAI_warlord_salaris(Creature* pCreature)
     return new boss_warlord_salarisAI(pCreature);
 }
 
-enum
+enum eHunterSpells
 {
     SPELL_AIMED_SHOT            = 44271,
     SPELL_SHOOT                 = 15620,
@@ -1159,7 +1159,7 @@ CreatureAI* GetAI_apoko(Creature* pCreature)
     return new boss_apokoAI(pCreature);
 }
 
-enum
+enum eEngineerSpells
 {
     SPELL_GOBLIN_DRAGON_GUN     = 44272,
     SPELL_ROCKET_LAUNCH         = 44137,

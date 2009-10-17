@@ -23,7 +23,7 @@ EndScriptData */
 
 #include "precompiled.h"
 
-enum
+enum eEnums
 {
     SAY_AGGRO                   = -1189019,
     SAY_SPECIALAE               = -1189020,

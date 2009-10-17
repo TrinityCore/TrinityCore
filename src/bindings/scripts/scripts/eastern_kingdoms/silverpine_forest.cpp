@@ -92,7 +92,7 @@ bool GossipSelect_npc_astor_hadren(Player* pPlayer, Creature* pCreature, uint32 
 ## npc_deathstalker_erland
 ######*/
 
-enum
+enum eErland
 {
     SAY_QUESTACCEPT     = -1000335,
     SAY_START           = -1000336,

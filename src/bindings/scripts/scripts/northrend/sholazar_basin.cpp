@@ -37,7 +37,7 @@ EndContentData */
 
 #define GOSSIP_ITEM1 "I am ready to travel to your village now."
 
-enum
+enum eRainspeaker
 {
     SAY_START_IRO                       = -1571000,
     SAY_QUEST_ACCEPT_IRO                = -1571001,
@@ -168,7 +168,7 @@ CreatureAI* GetAI_npc_injured_rainspeaker_oracle(Creature* pCreature)
 #define GOSSIP_VEKJIK_ITEM1 "Shaman Vekjik, I have spoken with the big-tongues and they desire peace. I have brought this offering on their behalf."
 #define GOSSIP_VEKJIK_ITEM2 "No no... I had no intentions of betraying your people. I was only defending myself. it was all a misunderstanding."
 
-enum
+enum eVekjik
 {
     GOSSIP_TEXTID_VEKJIK1       = 13137,
     GOSSIP_TEXTID_VEKJIK2       = 13138,
@@ -224,7 +224,7 @@ bool GossipSelect_npc_vekjik(Player* pPlayer, Creature* pCreature, uint32 uiSend
 #define GOSSIP_ITEM_AOF2 "You can trust me. I am no friend of the Lich King."
 #define GOSSIP_ITEM_AOF3 "I will not fail."
 
-enum
+enum eFreya
 {
     QUEST_FREYA_PACT         = 12621,
 

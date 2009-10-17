@@ -69,7 +69,7 @@ CreatureAI* GetAI_mobs_bladespire_ogre(Creature* pCreature)
 ## mobs_nether_drake
 ######*/
 
-enum
+enum eNetherdrake
 {
     SAY_NIHIL_1                 = -1000396, //signed for 5955
     SAY_NIHIL_2                 = -1000397, //signed for 5955
@@ -242,7 +242,7 @@ CreatureAI* GetAI_mobs_nether_drake(Creature* pCreature)
 ## npc_daranelle
 ######*/
 
-enum
+enum eDaranelle
 {
     SAY_SPELL_INFLUENCE     = -1000174,
     SPELL_LASHHAN_CHANNEL   = 36904

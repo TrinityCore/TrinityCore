@@ -24,7 +24,7 @@ EndScriptData */
 #include "precompiled.h"
 #include "def_scarlet_monastery.h"
 
-enum
+enum eEnums
 {
     //Mograine says
     SAY_MO_AGGRO                 = -1189005,

@@ -39,7 +39,7 @@ EndContentData */
 
 #define GOSSIP_CORPSE "Examine corpse in detail..."
 
-enum
+enum eQuests
 {
     QUEST_LOST_IN_BATTLE    = 4921
 };
@@ -67,7 +67,7 @@ bool GossipSelect_npc_beaten_corpse(Player* pPlayer, Creature* pCreature, uint32
 # npc_gilthares
 ######*/
 
-enum eEnums
+enum eGilthares
 {
     SAY_GIL_START               = -1000370,
     SAY_GIL_AT_LAST             = -1000371,
@@ -190,7 +190,7 @@ bool GossipSelect_npc_sputtervalve(Player* pPlayer, Creature* pCreature, uint32 
 ## npc_taskmaster_fizzule
 ######*/
 
-enum
+enum eEnums
 {
     FACTION_FRIENDLY_F  = 35,
     SPELL_FLARE         = 10113,
@@ -499,7 +499,7 @@ CreatureAI* GetAI_npc_twiggy_flathead(Creature* pCreature)
 ## npc_wizzlecrank_shredder
 #####*/
 
-enum
+enum eEnums_Wizzlecrank
 {
     SAY_START           = -1000272,
     SAY_STARTUP1        = -1000273,

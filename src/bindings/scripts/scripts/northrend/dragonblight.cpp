@@ -27,7 +27,7 @@ EndContentData */
 
 #include "precompiled.h"
 
-enum
+enum eEnums
 {
     QUEST_RETURN_TO_AG_A    = 12499,
     QUEST_RETURN_TO_AG_H    = 12500,

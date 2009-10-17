@@ -149,7 +149,7 @@ CreatureAI* GetAI_npc_apothecary_hanes(Creature* pCreature)
 ## npc_plaguehound_tracker
 ######*/
 
-enum
+enum ePlaguehound
 {
     QUEST_SNIFF_OUT_ENEMY        = 11253
 };
@@ -211,7 +211,7 @@ CreatureAI* GetAI_npc_plaguehound_tracker(Creature* pCreature)
 #define GOSSIP_RAZAEL_REPORT "High Executor Anselm wants a report on the situation."
 #define GOSSIP_LYANA_REPORT "High Executor Anselm requests your report."
 
-enum
+enum eRazael
 {
     QUEST_REPORTS_FROM_THE_FIELD = 11221,
     NPC_RAZAEL = 23998,

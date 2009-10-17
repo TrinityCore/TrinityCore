@@ -23,7 +23,7 @@ EndScriptData */
 
 #include "precompiled.h"
 
-enum
+enum eEnums
 {
     SAY_AGGRO               = -1000360, //signed for 17969
     SAY_SUMMONDRUIDS        = -1000361, //signed for 17969

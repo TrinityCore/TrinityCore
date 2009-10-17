@@ -24,7 +24,7 @@
 #define SAY_AGGRO                  -1571003
 #define GOSSIP_AGNETTA             "Skip the warmup, sister... or are you too scared to face soemeone your own size?"
 
-enum
+enum eAgnetta
 {
     QUEST_ITS_THAT_YOUR_GOBLIN      = 12969,
     FACTION_HOSTILE_AT1             = 45
@@ -76,7 +76,7 @@ bool GossipSelect_npc_agnetta_tyrsdottar(Player* pPlayer, Creature* pCreature, u
 #define GOSSIP_ITEM2    "I'm sorry that I didn't get here sooner. What happened?"
 #define GOSSIP_ITEM3    "I'll go get some help. Hang in there."
 
-enum
+enum eFrostbornScout
 {
     QUEST_MISSING_SCOUTS  =  12864
 };
@@ -124,7 +124,7 @@ bool GossipSelect_npc_frostborn_scout(Player* pPlayer, Creature* pCreature, uint
 #define GOSSIP_SN2 "He did more than that, Thorim. He controls Ulduar now."
 #define GOSSIP_SN3 "It needn't end this way."
 
-enum
+enum eThorim
 {
     QUEST_SIBLING_RIVALRY = 13064,
     NPC_THORIM = 29445,

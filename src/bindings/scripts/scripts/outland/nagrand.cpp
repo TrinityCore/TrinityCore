@@ -523,7 +523,7 @@ bool GossipSelect_npc_lantresor_of_the_blade(Player* pPlayer, Creature* pCreatur
 ## npc_maghar_captive
 #####*/
 
-enum
+enum eMagharCaptive
 {
     SAY_MAG_START               = -1000482,
     SAY_MAG_NO_ESCAPE           = -1000483,

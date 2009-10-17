@@ -1,7 +1,7 @@
 #ifndef DEF_OBSIDIAN_SANCTUM_H
 #define DEF_OBSIDIAN_SANCTUM_H
 
-enum
+enum eEnums
 {
     TYPE_SARTHARION_EVENT       = 1,
 

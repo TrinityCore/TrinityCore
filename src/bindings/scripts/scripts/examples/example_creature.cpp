@@ -35,7 +35,7 @@ EndScriptData */
 // Functions with Handled Function marked above them are functions that are called automatically by the core
 // Functions that are marked Custom Function are functions I've created to simplify code
 
-enum
+enum eEnums
 {
     //List of text id's. The text is stored in database, also in a localized version
     //(if translation not exist for the textId, default english text will be used)

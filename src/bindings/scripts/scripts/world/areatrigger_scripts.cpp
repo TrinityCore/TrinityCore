@@ -31,7 +31,7 @@ EndContentData */
 ## at_legion_teleporter
 #####*/
 
-enum
+enum eLegionTeleporter
 {
     SPELL_TELE_A_TO         = 37387,
     QUEST_GAINING_ACCESS_A  = 10589,
@@ -61,7 +61,7 @@ bool AreaTrigger_at_legion_teleporter(Player* pPlayer, AreaTriggerEntry* pAt)
     return false;
 }
 
-enum
+enum eRavenholdt
 {
     QUEST_MANOR_RAVENHOLDT  = 6681,
     NPC_RAVENHOLDT          = 13936

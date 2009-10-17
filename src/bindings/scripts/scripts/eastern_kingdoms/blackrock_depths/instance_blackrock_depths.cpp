@@ -34,7 +34,7 @@ update `instance_template` set `script`='instance_blackrock_depths' where `map`=
 
 #define TIMER_TOMBOFTHESEVEN    15000
 
-enum
+enum eEnums
 {
     MAX_ENCOUNTER           = 6,
 

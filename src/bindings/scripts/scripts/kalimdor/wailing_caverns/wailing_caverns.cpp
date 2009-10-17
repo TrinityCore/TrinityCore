@@ -32,7 +32,7 @@ EndContentData */
 ## npc_disciple_of_naralex
 ######*/
 
-enum
+enum eEnums
 {
     //say
     SAY_MAKE_PREPARATIONS         = -1043001,

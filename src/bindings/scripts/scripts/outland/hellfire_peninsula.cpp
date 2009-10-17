@@ -38,7 +38,7 @@ EndContentData */
 ## npc_aeranas
 ######*/
 
-enum
+enum eAeranas
 {
     SAY_SUMMON              = -1000138,
     SAY_FREE                = -1000139,
@@ -122,7 +122,7 @@ CreatureAI* GetAI_npc_aeranas(Creature* pCreature)
 ## npc_ancestral_wolf
 ######*/
 
-enum
+enum eAncestralWolf
 {
     EMOTE_WOLF_LIFT_HEAD            = -1000496,
     EMOTE_WOLF_HOWL                 = -1000497,
@@ -201,7 +201,7 @@ bool GOHello_go_haaleshi_altar(Player* pPlayer, GameObject* pGo)
 
 #define GOSSIP_NALADU_ITEM1 "Why don't you escape?"
 
-enum
+enum eNaladu
 {
     GOSSIP_TEXTID_NALADU1   = 9788
 };
@@ -232,7 +232,7 @@ bool GossipSelect_npc_naladu(Player* pPlayer, Creature* pCreature, uint32 uiSend
 #define GOSSIP_TRACY_PROUDWELL_ITEM1    "I heard that your dog Fei Fei took Klatu's prayer beads..."
 #define GOSSIP_TRACY_PROUDWELL_ITEM2    "<back>"
 
-enum
+enum eTracy
 {
     GOSSIP_TEXTID_TRACY_PROUDWELL1       = 10689,
     QUEST_DIGGING_FOR_PRAYER_BEADS       = 10916
@@ -280,7 +280,7 @@ bool GossipSelect_npc_tracy_proudwell(Player* pPlayer, Creature* pCreature, uint
 #define GOSSIP_TROLLBANE_ITEM2      "<more>"
 #define GOSSIP_TROLLBANE_ITEM3      "Tell me of your homeland."
 
-enum
+enum eTrollbane
 {
     GOSSIP_TEXTID_TROLLBANE1        = 9932,
     GOSSIP_TEXTID_TROLLBANE2        = 9933,
@@ -321,7 +321,7 @@ bool GossipSelect_npc_trollbane(Player* pPlayer, Creature* pCreature, uint32 uiS
 ## npc_wounded_blood_elf
 ######*/
 
-enum
+enum eWoundedBloodElf
 {
     SAY_ELF_START               = -1000117,
     SAY_ELF_SUMMON1             = -1000118,

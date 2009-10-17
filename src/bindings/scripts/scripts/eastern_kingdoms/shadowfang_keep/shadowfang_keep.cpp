@@ -33,7 +33,7 @@ EndContentData */
 ## npc_shadowfang_prisoner
 ######*/
 
-enum
+enum eEnums
 {
     SAY_FREE_AS             = -1033000,
     SAY_OPEN_DOOR_AS        = -1033001,
