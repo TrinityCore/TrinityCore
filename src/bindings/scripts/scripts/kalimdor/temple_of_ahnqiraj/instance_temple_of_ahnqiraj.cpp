@@ -13,52 +13,40 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
-
 /* ScriptData
 SDName: Instance_Temple_of_Ahnqiraj
 SD%Complete: 80
 SDComment:
 SDCategory: Temple of Ahn'Qiraj
 EndScriptData */
-
 #include "precompiled.h"
 #include "def_temple_of_ahnqiraj.h"
-
 struct TRINITY_DLL_DECL instance_temple_of_ahnqiraj : public ScriptedInstance
 {
     instance_temple_of_ahnqiraj(Map* pMap) : ScriptedInstance(pMap) {Initialize();};
-
     //If Vem is dead...
     bool IsBossDied[3];
-
     //Storing Skeram, Vem and Kri.
     uint64 SkeramGUID;
     uint64 VemGUID;
     uint64 KriGUID;
     uint64 VeklorGUID;
     uint64 VeknilashGUID;
-
     uint32 BugTrioDeathCount;
-
     uint32 CthunPhase;
-
     void Initialize()
     {
         IsBossDied[0] = false;
         IsBossDied[1] = false;
         IsBossDied[2] = false;
-
         SkeramGUID = 0;
         VemGUID = 0;
         KriGUID = 0;
         VeklorGUID = 0;
         VeknilashGUID = 0;
-
         BugTrioDeathCount = 0;
-
         CthunPhase = 0;
     }
-
     void OnCreatureCreate(Creature* pCreature, bool add)
     {
         switch (pCreature->GetEntry())
@@ -70,13 +58,11 @@ struct TRINITY_DLL_DECL instance_temple_of_ahnqiraj : public ScriptedInstance
             case 15275: VeknilashGUID = pCreature->GetGUID(); break;
         }
     }
-
     bool IsEncounterInProgress() const
     {
         //not active in AQ40
         return false;
     }
-
     uint32 GetData(uint32 type)
     {
         switch(type)
@@ -85,26 +71,21 @@ struct TRINITY_DLL_DECL instance_temple_of_ahnqiraj : public ScriptedInstance
                 if (IsBossDied[0])
                     return 1;
                 break;
-
             case DATA_VEKLORISDEAD:
                 if (IsBossDied[1])
                     return 1;
                 break;
-
             case DATA_VEKNILASHISDEAD:
                 if (IsBossDied[2])
                     return 1;
                 break;
-
             case DATA_BUG_TRIO_DEATH:
                 return BugTrioDeathCount;
-
             case DATA_CTHUN_PHASE:
                 return CthunPhase;
         }
         return 0;
     }
-
     uint64 GetData64 (uint32 identifier)
     {
         switch(identifier)
@@ -122,7 +103,6 @@ struct TRINITY_DLL_DECL instance_temple_of_ahnqiraj : public ScriptedInstance
         }
         return 0;
     }                                                       // end GetData64
-
     void SetData(uint32 type, uint32 data)
     {
         switch(type)
@@ -130,31 +110,25 @@ struct TRINITY_DLL_DECL instance_temple_of_ahnqiraj : public ScriptedInstance
             case DATA_VEM_DEATH:
                 IsBossDied[0] = true;
                 break;
-
             case DATA_BUG_TRIO_DEATH:
                 BugTrioDeathCount++;
                 break;
-
             case DATA_VEKLOR_DEATH:
                 IsBossDied[1] = true;
                 break;
-
             case DATA_VEKNILASH_DEATH:
                 IsBossDied[2] = true;
                 break;
-
             case DATA_CTHUN_PHASE:
                 CthunPhase = data;
                 break;
         }
     }
 };
-
 InstanceData* GetInstanceData_instance_temple_of_ahnqiraj(Map* pMap)
 {
     return new instance_temple_of_ahnqiraj(pMap);
 }
-
 void AddSC_instance_temple_of_ahnqiraj()
 {
     Script *newscript;

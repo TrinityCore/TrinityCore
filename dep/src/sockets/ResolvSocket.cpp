@@ -4,25 +4,20 @@
 **/
 /*
 Copyright (C) 2004-2007  Anders Hedstrom
-
 This library is made available under the terms of the GNU GPL.
-
 If you would like to use this library in a closed-source application,
 a separate license agreement is available. For information about
 the closed-source license agreement for the C++ sockets library,
 please visit http://www.alhem.net/Sockets/license.html and/or
 email license@alhem.net.
-
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
 as published by the Free Software Foundation; either version 2
 of the License, or (at your option) any later version.
-
 This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
-
 You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -42,23 +37,19 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "ISocketHandler.h"
 #include "Lock.h"
 #include "Mutex.h"
-
 #ifdef SOCKETS_NAMESPACE
 namespace SOCKETS_NAMESPACE {
 #endif
-
 //#ifdef _DEBUG
 //#define DEB(x) x
 //#else
 #define DEB(x)
 //#endif
 
-
 // static
 ResolvSocket::cache_t ResolvSocket::m_cache;
 ResolvSocket::timeout_t ResolvSocket::m_cache_to;
 Mutex ResolvSocket::m_cache_mutex;
-
 
 ResolvSocket::ResolvSocket(ISocketHandler& h)
 :TcpSocket(h)
@@ -71,7 +62,6 @@ ResolvSocket::ResolvSocket(ISocketHandler& h)
 {
     SetLineProtocol();
 }
-
 
 ResolvSocket::ResolvSocket(ISocketHandler& h, Socket *parent, const std::string& host, port_t port, bool ipv6)
 :TcpSocket(h)
@@ -87,7 +77,6 @@ ResolvSocket::ResolvSocket(ISocketHandler& h, Socket *parent, const std::string&
     SetLineProtocol();
 }
 
-
 ResolvSocket::ResolvSocket(ISocketHandler& h, Socket *parent, ipaddr_t a)
 :TcpSocket(h)
 ,m_bServer(false)
@@ -101,7 +90,6 @@ ResolvSocket::ResolvSocket(ISocketHandler& h, Socket *parent, ipaddr_t a)
 {
     SetLineProtocol();
 }
-
 
 #ifdef ENABLE_IPV6
 ResolvSocket::ResolvSocket(ISocketHandler& h, Socket *parent, in6_addr& a)
@@ -117,11 +105,9 @@ ResolvSocket::ResolvSocket(ISocketHandler& h, Socket *parent, in6_addr& a)
 }
 #endif
 
-
 ResolvSocket::~ResolvSocket()
 {
 }
-
 
 void ResolvSocket::OnLine(const std::string& line)
 {
@@ -184,7 +170,6 @@ DEB(fprintf(stderr, " *** Returning cache for [%s][%s] = '%s'\n", m_query.c_str(
     std::string key = pa.getword();
     std::string value = pa.getrest();
 DEB(    fprintf(stderr, " *** ResolvSocket response;  %s: %s\n", key.c_str(), value.c_str());)
-
     if (key == "Cached")
     {
         m_cached = true;
@@ -267,7 +252,6 @@ DEB(fprintf(stderr, " *** Update cache for [%s][%s] = '%s'\n", m_query.c_str(), 
 #endif
 #endif
 }
-
 
 void ResolvSocket::OnDetached()
 {
@@ -370,7 +354,6 @@ DEB(    fprintf(stderr, " *** ResolvSocket::OnDetached(); query=%s, data=%s\n", 
     SetCloseAndDelete();
 }
 
-
 void ResolvSocket::OnConnect()
 {
     if (!m_resolv_host.empty())
@@ -405,7 +388,6 @@ void ResolvSocket::OnConnect()
     Send( msg );
 }
 
-
 void ResolvSocket::OnDelete()
 {
     if (m_parent)
@@ -427,11 +409,8 @@ DEB(fprintf(stderr, " *** Update cache for [%s][%s] = '%s'\n", m_query.c_str(), 
     }
 }
 
-
 #ifdef SOCKETS_NAMESPACE
 }
 #endif
-
 #endif // ENABLE_RESOLVER
-
 

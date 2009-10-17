@@ -1,5 +1,4 @@
 // -*- C++ -*-
-
 /**
  * @file Condition_Recursive_Thread_Mutex.cpp
  *
@@ -9,29 +8,22 @@
  *
  * @author Douglas C. Schmidt <schmidt@cs.wustl.edu>
  */
-
 #include "ace/Condition_Recursive_Thread_Mutex.h"
-
 #if defined (ACE_HAS_THREADS)
-
 #if defined (ACE_HAS_DUMP)
 #  include "ace/Log_Msg.h"
 #endif /* ACE_HAS_DUMP */
-
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
-
 int
 ACE_Condition<ACE_Recursive_Thread_Mutex>::remove (void)
 {
   return ACE_OS::cond_destroy (&this->cond_);
 }
-
 void
 ACE_Condition<ACE_Recursive_Thread_Mutex>::dump (void) const
 {
 #if defined (ACE_HAS_DUMP)
 // ACE_TRACE ("ACE_Condition<MUTEX>::dump");
-
   ACE_DEBUG ((LM_DEBUG, ACE_BEGIN_DUMP, this));
   // No dump method for ACE_cond_t even in emulated mode.
   // cond_.dump ();
@@ -40,35 +32,29 @@ ACE_Condition<ACE_Recursive_Thread_Mutex>::dump (void) const
   ACE_DEBUG ((LM_DEBUG, ACE_END_DUMP));
 #endif /* ACE_HAS_DUMP */
 }
-
 ACE_Condition<ACE_Recursive_Thread_Mutex>::~ACE_Condition (void)
 {
   this->remove ();
 }
-
 ACE_Condition<ACE_Recursive_Thread_Mutex>::ACE_Condition (ACE_Recursive_Thread_Mutex &m)
   : mutex_ (m)
 {
   ACE_OS::cond_init (&this->cond_);
 }
-
 int
 ACE_Condition<ACE_Recursive_Thread_Mutex>::wait (const ACE_Time_Value *abstime)
 {
   return this->wait (this->mutex_, abstime);
 }
-
 int
 ACE_Condition<ACE_Recursive_Thread_Mutex>::wait (ACE_Recursive_Thread_Mutex &mutex,
                                                  const ACE_Time_Value *abstime)
 {
   ACE_recursive_mutex_state mutex_state_holder;
   ACE_recursive_thread_mutex_t &recursive_mutex = mutex.mutex ();
-
   if (ACE_OS::recursive_mutex_cond_unlock (&recursive_mutex,
                                            mutex_state_holder) == -1)
     return -1;
-
   // We wait on the condition, specifying the nesting mutex. For platforms
   // with ACE_HAS_RECURSIVE_MUTEXES, this is the recursive mutex itself,
   // and is the same as recursive_mutex, above. The caller should have been
@@ -96,35 +82,28 @@ ACE_Condition<ACE_Recursive_Thread_Mutex>::wait (ACE_Recursive_Thread_Mutex &mut
     ACE_OS::recursive_mutex_cond_relock (&recursive_mutex,
                                          mutex_state_holder);
   }
-
   return result;
 }
-
 int
 ACE_Condition<ACE_Recursive_Thread_Mutex>::signal (void)
 {
   return ACE_OS::cond_signal (&this->cond_);
 }
-
 int
 ACE_Condition<ACE_Recursive_Thread_Mutex>::broadcast (void)
 {
   return ACE_OS::cond_broadcast (&this->cond_);
 }
-
 ACE_Recursive_Thread_Mutex &
 ACE_Condition<ACE_Recursive_Thread_Mutex>::mutex (void)
 {
   return this->mutex_;
 }
-
 ACE_Condition_Recursive_Thread_Mutex::ACE_Condition_Recursive_Thread_Mutex (
   ACE_Recursive_Thread_Mutex &m) :
     ACE_Condition<ACE_Recursive_Thread_Mutex> (m)
 {
 }
-
 ACE_END_VERSIONED_NAMESPACE_DECL
-
 #endif /* ACE_HAS_THREADS */
 

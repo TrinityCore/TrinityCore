@@ -17,17 +17,13 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
-
 /// \addtogroup Trinityd
 /// @{
 /// \file
-
 #ifndef _MASTER_H
 #define _MASTER_H
-
 #include "Common.h"
 #include "Policies/Singleton.h"
-
 /// Start the server
 class Master
 {
@@ -36,17 +32,13 @@ class Master
         ~Master();
         int Run();
         static volatile uint32 m_masterLoopCounter;
-
     private:
         bool _StartDB();
-
         void _HookSignals();
         void _UnhookSignals();
         static void _OnSignal(int s);
-
         void clearOnlineAccounts();
 };
-
 #define sMaster Trinity::Singleton<Master>::Instance()
 #endif
 /// @}

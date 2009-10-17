@@ -17,14 +17,11 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
-
 #if !defined(FIELD_H)
 #define FIELD_H
-
 class Field
 {
     public:
-
         enum DataTypes
         {
             DB_TYPE_UNKNOWN = 0x00,
@@ -33,15 +30,11 @@ class Field
             DB_TYPE_FLOAT   = 0x03,
             DB_TYPE_BOOL    = 0x04
         };
-
         Field();
         Field(Field &f);
         Field(const char *value, enum DataTypes type);
-
         ~Field();
-
         enum DataTypes GetType() const { return mType; }
-
         const char *GetString() const { return mValue; }
         std::string GetCppString() const
         {
@@ -76,11 +69,8 @@ class Field
             else
                 return 0;
         }
-
         void SetType(enum DataTypes type) { mType = type; }
-
         void SetValue(const char *value);
-
     private:
         char *mValue;
         enum DataTypes mType;

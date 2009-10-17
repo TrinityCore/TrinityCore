@@ -17,7 +17,6 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
-
 #include "Totem.h"
 #include "WorldPacket.h"
 #include "Log.h"
@@ -25,14 +24,12 @@
 #include "Player.h"
 #include "ObjectMgr.h"
 #include "SpellMgr.h"
-
 Totem::Totem(SummonPropertiesEntry const *properties, Unit *owner) : Minion(properties, owner)
 {
     m_unitTypeMask |= UNIT_MASK_TOTEM;
     m_duration = 0;
     m_type = TOTEM_PASSIVE;
 }
-
 void Totem::Update( uint32 time )
 {
     if (!m_owner->isAlive() || !isAlive())
@@ -40,7 +37,6 @@ void Totem::Update( uint32 time )
         UnSummon();                                         // remove self
         return;
     }
-
     if (m_duration <= time)
     {
         UnSummon();                                         // remove self
@@ -48,14 +44,11 @@ void Totem::Update( uint32 time )
     }
     else
         m_duration -= time;
-
     Creature::Update( time );
 }
-
 void Totem::InitStats(uint32 duration)
 {
     Minion::InitStats(duration);
-
     CreatureInfo const *cinfo = GetCreatureInfo();
     if(m_owner->GetTypeId() == TYPEID_PLAYER && cinfo)
     {
@@ -65,7 +58,6 @@ void Totem::InitStats(uint32 duration)
             display_id = minfo->modelid;
         SetDisplayId(display_id);
     }
-
     // Get spell casted by totem
     SpellEntry const * totemSpell = sSpellStore.LookupEntry(GetSpell());
     if (totemSpell)
@@ -74,36 +66,27 @@ void Totem::InitStats(uint32 duration)
         if (GetSpellCastTime(totemSpell))
             m_type = TOTEM_ACTIVE;
     }
-
     if(GetEntry() == SENTRY_TOTEM_ENTRY)
         SetReactState(REACT_AGGRESSIVE);
-
     m_duration = duration;
-
     SetLevel(m_owner->getLevel());
 }
-
 void Totem::InitSummon()
 {
     WorldPacket data(SMSG_GAMEOBJECT_SPAWN_ANIM_OBSOLETE, 8);
     data << GetGUID();
     SendMessageToSet(&data, true);
-
     if(m_type == TOTEM_PASSIVE)
-        CastSpell(this, GetSpell(), true); 
-
+        CastSpell(this, GetSpell(), true);
     // Some totems can have both instant effect and passive spell
     if (GetSpell(1))
         CastSpell(this, GetSpell(1), true);
 }
-
 void Totem::UnSummon()
 {
     SendObjectDeSpawnAnim(GetGUID());
-
     CombatStop();
     RemoveAurasDueToSpell(GetSpell());
-
     // clear owenr's totem slot
     for(int i = SUMMON_SLOT_TOTEM; i < MAX_TOTEM_SLOT; ++i)
     {
@@ -113,9 +96,7 @@ void Totem::UnSummon()
             break;
         }
     }
-
     m_owner->RemoveAurasDueToSpell(GetSpell());
-
     //remove aura all party members too
     Group *pGroup = NULL;
     if (m_owner->GetTypeId() == TYPEID_PLAYER)
@@ -132,10 +113,8 @@ void Totem::UnSummon()
             }
         }
     }
-
     AddObjectToRemoveList();
 }
-
 bool Totem::IsImmunedToSpellEffect(SpellEntry const* spellInfo, uint32 index) const
 {
     // TODO: possibly all negative auras immune?

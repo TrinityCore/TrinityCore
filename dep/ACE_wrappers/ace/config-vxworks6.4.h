@@ -1,23 +1,18 @@
 //* -*- C++ -*- */
 // $Id: config-vxworks6.4.h 81850 2008-06-06 08:39:54Z vzykov $
-
 // The following configuration file is designed to work for VxWorks
 // 6.4 platforms using one of these compilers:
 // 1) The GNU g++ compiler that is shipped with VxWorks 6.4
 // 2) The Diab compiler that is shipped with VxWorks 6.4
-
 #ifndef ACE_CONFIG_VXWORKS_6_4_H
 #define ACE_CONFIG_VXWORKS_6_4_H
 #include /**/ "ace/pre.h"
-
 #if ! defined (VXWORKS)
 # define VXWORKS
 #endif /* ! VXWORKS */
-
 #if ! defined (ACE_VXWORKS)
 # define ACE_VXWORKS 0x640
 #endif /* ! ACE_VXWORKS */
-
 #if !defined (__RTP__)
   // Fix for wrong typedef of time_t in kernel mode
   #ifndef _TIME_T
@@ -25,18 +20,14 @@
   typedef long time_t;
   #endif
 #endif
-
 #if ! defined (__ACE_INLINE__)
 # define __ACE_INLINE__
 #endif /* ! __ACE_INLINE__ */
-
 // Compiler-specific configuration.
 #if defined (__GNUG__)
 # include "ace/config-g++-common.h"
-
 # define ACE_LACKS_IOSTREAM_FX
 # define ACE_LACKS_LINEBUFFERED_STREAMBUF
-
 # if defined (__RTP__) && !defined (_HAS_C9X)
 // Workaround for the fact that under RTP the log2 method can't be used
 // without this define set, see TSR560446
@@ -44,7 +35,6 @@
 #   define _C99
 #  endif
 # endif
-
 #elif defined (__DCC__)
 # define ACE_HAS_STANDARD_CPP_LIBRARY 1
 # define ACE_TEMPLATES_REQUIRE_SOURCE
@@ -53,7 +43,6 @@
 #    error unsupported compiler on VxWorks
 #  endif  /* __cplusplus */
 #endif /* ! __GNUG__ && ! ghs */
-
 // Needed include to get all VxWorks CPU types
 #include "types/vxCpu.h"
 #if defined __RTP__
@@ -69,7 +58,6 @@
     # define ACE_HAS_PENTIUM
   #endif
 #endif
-
 #if !defined __RTP__
 # if defined (TOOL) && (TOOL == gnu)
 #  if defined (CPU) && (CPU == PPC85XX || CPU == PPC604 || CPU == PPC603)
@@ -78,7 +66,6 @@
 #  endif
 # endif
 #endif
-
 // OS-specific configuration
 #define ACE_HAS_4_4BSD_SENDMSG_RECVMSG
 #define ACE_HAS_3_PARAM_READDIR_R
@@ -161,7 +148,6 @@
 #define ACE_HAS_SIGTIMEDWAIT
 #define ACE_HAS_SIGSUSPEND
 #define ACE_HAS_GETIFADDRS
-
 #define ACE_LACKS_SETEGID
 #define ACE_LACKS_SETPGID
 #define ACE_LACKS_SETREGID
@@ -175,7 +161,6 @@
 #define ACE_LACKS_GETEGID
 #define ACE_LACKS_GETGID
 #define ACE_LACKS_SETGID
-
 #define ACE_LACKS_SYS_UIO_H
 #define ACE_LACKS_SYS_IPC_H
 #define ACE_LACKS_SYS_SEM_H
@@ -186,7 +171,6 @@
 #define ACE_LACKS_TERMIOS_H
 #define ACE_LACKS_POLL_H
 #define ACE_LACKS_FCNTL
-
 // Some string things
 #define ACE_LACKS_ITOW
 #define ACE_LACKS_WCSDUP
@@ -194,10 +178,8 @@
 #define ACE_LACKS_WCSNICMP
 #define ACE_LACKS_STRTOULL
 #define ACE_LACKS_WCSTOULL
-
 #define ACE_HAS_CHARPTR_SOCKOPT
 #define ACE_LACKS_SYMLINKS
-
 #if defined __RTP__
   // We are building for RTP mode
   #if !defined (ACE_AS_STATIC_LIBS)
@@ -274,7 +256,6 @@
   #  define ACE_MAIN ace_main
   #endif /* ! ACE_MAIN */
 #endif
-
 // It is possible to enable pthread support with VxWorks, when the user decides
 // to use this, we need some more defines
 #if defined ACE_HAS_PTHREADS
@@ -308,34 +289,27 @@
 # define ACE_LACKS_COND_T
 # define ACE_HAS_MUTEX_TIMEOUTS
 #endif
-
 #if !defined (ACE_MT_SAFE)
 # define ACE_MT_SAFE 1
 #endif
-
 // VxWorks defines the CPU define MAP, undef it to prevent problems with
 // application code
 #if defined (MAP)
 #undef MAP
 #endif /* MAP */
-
 #if !defined (ACE_NEEDS_HUGE_THREAD_STACKSIZE)
 # define ACE_NEEDS_HUGE_THREAD_STACKSIZE 65536
 #endif /* ACE_NEEDS_HUGE_THREAD_STACKSIZE */
-
 #if !defined (ACE_NTRACE)
 # define ACE_NTRACE 1
 #endif /* ACE_NTRACE */
-
 // By default, don't include RCS Id strings in object code.
 #if !defined (ACE_USE_RCSID)
 #define ACE_USE_RCSID 0
 #endif /* !ACE_USE_RCSID */
-
 #if defined (ACE_HAS_IP_MULTICAST)
 # define ACE_LACKS_PERFECT_MULTICAST_FILTERING 1
 #endif /* ACE_HAS_IP_MULTICAST */
-
 #include /**/ "ace/post.h"
 #endif /* ACE_CONFIG_VXWORKS_6_4_H */
 

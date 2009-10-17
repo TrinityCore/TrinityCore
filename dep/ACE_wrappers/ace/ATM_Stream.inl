@@ -1,9 +1,7 @@
 // -*- C++ -*-
 //
 // $Id: ATM_Stream.inl 80826 2008-03-04 14:51:23Z wotte $
-
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
-
 ACE_INLINE void
 ACE_ATM_Stream::dump (void) const
 {
@@ -11,13 +9,11 @@ ACE_ATM_Stream::dump (void) const
   ACE_TRACE ("ACE_ATM_Stream::dump");
 #endif /* ACE_HAS_DUMP */
 }
-
 ACE_INLINE
 ACE_ATM_Stream::ACE_ATM_Stream (void)
 {
   ACE_TRACE ("ACE_ATM_Stream::ACE_ATM_Stream");
 }
-
 ACE_INLINE
 int
 ACE_ATM_Stream::open (ACE_ATM_Params params)
@@ -30,7 +26,6 @@ ACE_ATM_Stream::open (ACE_ATM_Params params)
   return (handle == ACE_INVALID_HANDLE ? -1 : 0);
 #elif defined (ACE_HAS_FORE_ATM_WS2)
   params.set_flags( ACE_FLAG_MULTIPOINT_C_ROOT | ACE_FLAG_MULTIPOINT_D_ROOT );
-
   int retval = stream_.open (params.get_type(),
                              params.get_protocol_family(),
                              params.get_protocol(),
@@ -40,9 +35,7 @@ ACE_ATM_Stream::open (ACE_ATM_Params params)
                              params.get_reuse_addr());
   if (retval == -1)
     return -1;
-
   struct sockaddr_atm sock_addr;
-
   ACE_OS::memset(&sock_addr, 0, sizeof(struct sockaddr_atm));
   sock_addr.satm_family = AF_ATM;
   sock_addr.satm_number.AddressType=ADDR_ANY;
@@ -57,14 +50,12 @@ ACE_ATM_Stream::open (ACE_ATM_Params params)
       ACE_OS::printf("Error binding local address: %d",WSAGetLastError());
       return -1;
     }
-
   return 0;
 #else
   ACE_UNUSED_ARG(params);
   return 0;
 #endif /* ACE_HAS_FORE_ATM_XTI */
 }
-
 ACE_INLINE
 int
 ACE_ATM_Stream::close (void)
@@ -76,7 +67,6 @@ ACE_ATM_Stream::close (void)
   return 0;
 #endif /* ACE_HAS_FORE_ATM_XTI || ACE_HAS_FORE_ATM_WS2 */
 }
-
 ACE_INLINE
 ATM_Stream&
 ACE_ATM_Stream::get_stream (void)
@@ -84,7 +74,6 @@ ACE_ATM_Stream::get_stream (void)
   ACE_TRACE ("ACE_ATM_Stream::get_stream");
   return stream_;
 }
-
 ACE_INLINE
 ssize_t
 ACE_ATM_Stream::recv (void *buf,
@@ -106,7 +95,6 @@ ACE_ATM_Stream::recv (void *buf,
   return (0);
 #endif /* ACE_HAS_FORE_ATM_XTI */
 }
-
 ACE_INLINE
 ssize_t
 ACE_ATM_Stream::send_n (const void *buf,
@@ -129,5 +117,4 @@ ACE_ATM_Stream::send_n (const void *buf,
   return (0);
 #endif /* ACE_HAS_FORE_ATM_XTI */
 }
-
 ACE_END_VERSIONED_NAMESPACE_DECL

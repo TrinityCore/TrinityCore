@@ -1,5 +1,4 @@
 // -*- C++ -*-
-
 //=============================================================================
 /**
  *  @file    Future.h
@@ -12,32 +11,23 @@
  *  @author John Tucker <johnny_tucker@yahoo.com>
  */
 //=============================================================================
-
 #ifndef ACE_FUTURE_H
 #define ACE_FUTURE_H
-
 #include /**/ "ace/pre.h"
-
 #include "ace/Unbounded_Set.h"
 #include "ace/Strategies_T.h"
-
 #if !defined (ACE_LACKS_PRAGMA_ONCE)
 # pragma once
 #endif /* ACE_LACKS_PRAGMA_ONCE */
-
 #if defined (ACE_HAS_THREADS)
-
 #include "ace/Recursive_Thread_Mutex.h"
 #include "ace/Condition_Recursive_Thread_Mutex.h"
-
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
-
 // Forward decl.
 template <class T> class ACE_Future_Holder;
 template <class T> class ACE_Future_Observer;
 template <class T> class ACE_Future_Rep;
 template <class T> class ACE_Future;
-
 /**
  * @class ACE_Future_Holder
  *
@@ -49,16 +39,12 @@ class ACE_Future_Holder
 public:
   ACE_Future_Holder (const ACE_Future<T> &future);
   ~ACE_Future_Holder (void);
-
   /// Declare the dynamic allocation hooks.
   ACE_ALLOC_HOOK_DECLARE;
-
   ACE_Future<T> item_;
-
 protected:
   ACE_Future_Holder (void);
 };
-
 /**
  * @class ACE_Future_Observer
  *
@@ -75,19 +61,15 @@ class ACE_Future_Observer
 public:
   /// Destructor
   virtual ~ACE_Future_Observer (void);
-
   /// Called by the ACE_Future in which we are subscribed to when
   /// its value is written to.
   virtual void update (const ACE_Future<T> &future) = 0;
-
   /// Declare the dynamic allocation hooks.
   ACE_ALLOC_HOOK_DECLARE;
 protected:
-
   /// Constructor
   ACE_Future_Observer (void);
 };
-
 /**
  * @class ACE_Future_Rep
  *
@@ -105,7 +87,6 @@ class ACE_Future_Rep
 {
 private:
   friend class ACE_Future<T>;
-
   /**
    * Set the result value.  The specified <caller> represents the
    * future that invoked this <set> method, which is used to notify
@@ -115,12 +96,10 @@ private:
    */
   int set (const T &r,
            ACE_Future<T> &caller);
-
   /// Wait up to @a tv time to get the @a value.  Note that @a tv must be
   /// specified in absolute time rather than relative time.
   int get (T &value,
            ACE_Time_Value *tv) const;
-
   /**
    * Attaches the specified observer to a subject (i.e., the ACE_Future_Rep).
    * The update method of the specified subject will be invoked with a copy of
@@ -131,7 +110,6 @@ private:
    */
   int attach (ACE_Future_Observer<T> *observer,
                ACE_Future<T> &caller);
-
   /**
    * Detaches the specified observer from a subject (i.e., the ACE_Future_Rep).
    * The update method of the specified subject will not be invoked when the
@@ -142,7 +120,6 @@ private:
    * observer was not attached in the first place.
    */
   int detach (ACE_Future_Observer<T> *observer);
-
   /**
    * Type conversion. will block forever until the result is
    * available.  Note that this method is going away in a subsequent
@@ -153,25 +130,18 @@ private:
    * timeouts.
    */
   operator T ();
-
   /// Dump the state of an object.
   void dump (void) const;
-
   /// Declare the dynamic allocation hooks.
   ACE_ALLOC_HOOK_DECLARE;
-
   // = Encapsulate reference count and object lifetime of instances.
-
   // These methods must go after the others to work around a bug with
   // Borland's C++ Builder...
-
   /// Allocate a new ACE_Future_Rep<T> instance, returning NULL if it
   /// cannot be created.
   static ACE_Future_Rep<T> *internal_create (void);
-
   /// Create a ACE_Future_Rep<T> and initialize the reference count.
   static ACE_Future_Rep<T> *create (void);
-
   /**
    * Increase the reference count and return argument. Uses the
    * attribute "value_ready_mutex_" to synchronize reference count
@@ -180,7 +150,6 @@ private:
    * Precondition (rep != 0).
    */
   static ACE_Future_Rep<T> *attach (ACE_Future_Rep<T> *&rep);
-
   /**
    * Decreases the reference count and deletes rep if there are no
    * more references to rep.
@@ -188,7 +157,6 @@ private:
    * Precondition (rep != 0)
    */
   static void detach (ACE_Future_Rep<T> *&rep);
-
   /**
    * Decreases the rep's reference count and deletes rep if there
    * are no more references to rep. Then assigns new_rep to rep.
@@ -196,37 +164,24 @@ private:
    * Precondition (rep != 0 && new_rep != 0)
    */
   static void assign (ACE_Future_Rep<T> *&rep, ACE_Future_Rep<T> *new_rep);
-
   /// Is result available?
   int ready (void) const;
-
   /// Pointer to the result.
   T *value_;
-
   /// Reference count.
   int ref_count_;
-
   typedef ACE_Future_Observer<T> OBSERVER;
-
   typedef ACE_Unbounded_Set<OBSERVER *> OBSERVER_COLLECTION;
-
   /// Keep a list of ACE_Future_Observers unread by client's reader thread.
   OBSERVER_COLLECTION observer_collection_;
-
   // = Condition variable and mutex that protect the <value_>.
   mutable ACE_Recursive_Thread_Mutex value_ready_mutex_;
   mutable ACE_Condition_Recursive_Thread_Mutex value_ready_;
-
 private:
-
   ACE_Future_Rep (void);
-
 protected:
-
   ~ACE_Future_Rep (void);
-
 };
-
 /**
  * @class ACE_Future
  *
@@ -241,26 +196,20 @@ public:
   // = Initialization and termination methods.
   /// Constructor.
   ACE_Future (void);
-
   /// Copy constructor binds @a this and @a r to the same
   /// ACE_Future_Rep. An ACE_Future_Rep is created if necessary.
   ACE_Future (const ACE_Future<T> &r);
-
   /// Constructor that initialises an ACE_Future to point to the
   /// result @a r immediately.
   ACE_Future (const T &r);
-
   /// Destructor.
   ~ACE_Future (void);
-
   /// Assignment operator that binds @a this and @a r to the same
   /// ACE_Future_Rep. An ACE_Future_Rep is created if necessary.
   void operator = (const ACE_Future<T> &r);
-
   /// Cancel an ACE_Future and assign the value @a r.  It is used if a
   /// client does not want to wait for the value to be produced.
   int cancel (const T &r);
-
   /**
    * Cancel an ACE_Future.  Put the future into its initial
    * state. Returns 0 on succes and -1 on failure. It is now possible
@@ -268,7 +217,6 @@ public:
    * is now bound to a new ACE_Future_Rep.
    */
   int cancel (void);
-
   /**
    * Equality operator that returns @c true if both ACE_Future objects
    * point to the same ACE_Future_Rep object.
@@ -277,10 +225,8 @@ public:
    *       instantiated and not used yet.
    */
   bool operator == (const ACE_Future<T> &r) const;
-
   /// Inequality operator, which is the opposite of equality.
   bool operator != (const ACE_Future<T> &r) const;
-
   /**
    * Make the result available. Is used by the server thread to give
    * the result to all waiting clients. Returns 0 for success, -1 on failure.
@@ -290,7 +236,6 @@ public:
    * effect.
    */
   int set (const T &r);
-
   /**
    * Wait to get the object's value.
    *
@@ -305,7 +250,6 @@ public:
    */
   int get (T &value,
            ACE_Time_Value *tv = 0) const;
-
   /**
    * @deprecated  Note that this method is going away in a subsequent
    *              release since it doesn't distinguish between failure
@@ -317,10 +261,8 @@ public:
    * and also permits timeouts.
    */
   operator T ();
-
   /// Check if the result is available.
   int ready (void) const;
-
   /**
    * Attaches the specified observer to a subject (this ACE_Future).
    * The update method of the specified subject will be invoked with a copy of
@@ -335,7 +277,6 @@ public:
    * @retval -1   Error; check ACE_OS::last_error() for an error code.
    */
   int attach (ACE_Future_Observer<T> *observer);
-
   /**
    * Detaches the specified observer from a subject (this ACE_Future).
    * The update method of the specified subject will not be invoked when the
@@ -348,41 +289,30 @@ public:
    *              to calling this method.
    */
   int detach (ACE_Future_Observer<T> *observer);
-
   /// Dump the state of an object.
   void dump (void) const;
-
   /**
    * Get the underlying ACE_Future_Rep pointer. Note that this method should
    * rarely, if ever, be used and that modifying the underlying
    * ACE_Future_Rep should be done with extreme caution.
    */
   ACE_Future_Rep<T> *get_rep (void);
-
   /// Declare the dynamic allocation hooks.
   ACE_ALLOC_HOOK_DECLARE;
-
 private:
-
   // the ACE_Future_Rep
   /// Protect operations on the <Future>.
   typedef ACE_Future_Rep<T> FUTURE_REP;
   FUTURE_REP *future_rep_;
 };
-
 ACE_END_VERSIONED_NAMESPACE_DECL
-
 #if defined (ACE_TEMPLATES_REQUIRE_SOURCE)
 #include "ace/Future.cpp"
 #endif /* ACE_TEMPLATES_REQUIRE_SOURCE */
-
 #if defined (ACE_TEMPLATES_REQUIRE_PRAGMA)
 #pragma implementation ("Future.cpp")
 #endif /* ACE_TEMPLATES_REQUIRE_PRAGMA */
-
 #endif /* ACE_HAS_THREADS */
-
 #include /**/ "ace/post.h"
-
 #endif /* ACE_FUTURE_H */
 

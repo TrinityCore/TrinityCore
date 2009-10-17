@@ -1,5 +1,4 @@
 // -*- C++ -*-
-
 //=============================================================================
 /**
  *  @file    Log_Msg_Callback.h
@@ -9,21 +8,15 @@
  *  @author Douglas C. Schmidt <schmidt@cs.wustl.edu>
  */
 //=============================================================================
-
 #ifndef ACE_LOG_MSG_CALLBACK_H
 #define ACE_LOG_MSG_CALLBACK_H
 #include /**/ "ace/pre.h"
-
 #include /**/ "ace/ACE_export.h"
-
 #if !defined (ACE_LACKS_PRAGMA_ONCE)
 # pragma once
 #endif /* ACE_LACKS_PRAGMA_ONCE */
-
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
-
 class ACE_Log_Record;
-
 /**
  * @class ACE_Log_Msg_Callback
  *
@@ -56,15 +49,12 @@ class ACE_Export ACE_Log_Msg_Callback
 public:
   /// No-op virtual destructor.
   virtual ~ACE_Log_Msg_Callback (void);
-
   /// Callback routine.  This is called when we want to log a message.
   /// Since this routine is pure virtual, it must be overwritten by the
   /// subclass.
   virtual void log (ACE_Log_Record &log_record) = 0;
 };
-
 ACE_END_VERSIONED_NAMESPACE_DECL
-
 #include /**/ "ace/post.h"
 #endif /* ACE_LOG_MSG_CALLBACK_H */
 

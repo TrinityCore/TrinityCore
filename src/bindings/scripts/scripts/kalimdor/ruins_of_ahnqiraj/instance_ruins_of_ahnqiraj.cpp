@@ -13,13 +13,11 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
-
 /* ScriptData
 SDName: Instance_Ruins_of_Ahnqiraj
 SD%Complete: 0
 SDComment: Place holder
 SDCategory: Ruins of Ahn'Qiraj
 EndScriptData */
-
 #include "precompiled.h"
 

@@ -15,22 +15,17 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
-
 #ifndef MANGOS_CREATURE_EAI_H
 #define MANGOS_CREATURE_EAI_H
-
 #include "Common.h"
 #include "Creature.h"
 #include "CreatureAI.h"
 #include "Unit.h"
-
 class Player;
 class WorldObject;
-
 #define EVENT_UPDATE_TIME               500
 #define MAX_ACTIONS                     3
 #define MAX_PHASE                       32
-
 enum EventAI_Type
 {
     EVENT_T_TIMER                   = 0,                    // InitialMin, InitialMax, RepeatMin, RepeatMax
@@ -58,10 +53,8 @@ enum EventAI_Type
     EVENT_T_RECEIVE_EMOTE           = 22,                   // EmoteId, Condition, CondValue1, CondValue2
     EVENT_T_BUFFED                  = 23,                   // Param1 = SpellID, Param2 = Number of Time STacked, Param3/4 Repeat Min/Max
     EVENT_T_TARGET_BUFFED           = 24,                   // Param1 = SpellID, Param2 = Number of Time STacked, Param3/4 Repeat Min/Max
-
     EVENT_T_END,
 };
-
 enum EventAI_ActionType
 {
     ACTION_T_NONE                       = 0,                // No action
@@ -105,44 +98,35 @@ enum EventAI_ActionType
     ACTION_T_ZONE_COMBAT_PULSE          = 38,               // No Params
     ACTION_T_CALL_FOR_HELP              = 39,               // Radius
     ACTION_T_SET_SHEATH                 = 40,               // Sheath (0-passive,1-melee,2-ranged)
-
     ACTION_T_SET_ACTIVE                 = 101,  //Apply
     ACTION_T_SET_AGGRESSIVE             = 102,  //Apply
     ACTION_T_ATTACK_START_PULSE         = 103,  //Distance
     ACTION_T_SUMMON_GO                  = 104,  //GameObjectID, DespawnTime in ms
-
     ACTION_T_FORCE_DESPAWN              = 41,               // No Params
     ACTION_T_END = 105,
     ACTION_T_SET_INVINCIBILITY_HP_LEVEL = 42,               // MinHpValue, format(0-flat,1-percent from max health)
 };
-
 enum Target
 {
     //Self (m_creature)
     TARGET_T_SELF = 0,                                      //Self cast
-
     //Hostile targets (if pet then returns pet owner)
     TARGET_T_HOSTILE,                                       //Our current target (ie: highest aggro)
     TARGET_T_HOSTILE_SECOND_AGGRO,                          //Second highest aggro (generaly used for cleaves and some special attacks)
     TARGET_T_HOSTILE_LAST_AGGRO,                            //Dead last on aggro (no idea what this could be used for)
     TARGET_T_HOSTILE_RANDOM,                                //Just any random target on our threat list
     TARGET_T_HOSTILE_RANDOM_NOT_TOP,                        //Any random target except top threat
-
     //Invoker targets (if pet then returns pet owner)
     TARGET_T_ACTION_INVOKER,                                //Unit who caused this Event to occur (only works for EVENT_T_AGGRO, EVENT_T_KILL, EVENT_T_DEATH, EVENT_T_SPELLHIT, EVENT_T_OOC_LOS, EVENT_T_FRIENDLY_HP, EVENT_T_FRIENDLY_IS_CC, EVENT_T_FRIENDLY_MISSING_BUFF)
-
     //Hostile targets (including pets)
     TARGET_T_HOSTILE_WPET,                                  //Current target (can be a pet)
     TARGET_T_HOSTILE_WPET_SECOND_AGGRO,                     //Second highest aggro (generaly used for cleaves and some special attacks)
     TARGET_T_HOSTILE_WPET_LAST_AGGRO,                       //Dead last on aggro (no idea what this could be used for)
     TARGET_T_HOSTILE_WPET_RANDOM,                           //Just any random target on our threat list
     TARGET_T_HOSTILE_WPET_RANDOM_NOT_TOP,                   //Any random target except top threat
-
     TARGET_T_ACTION_INVOKER_WPET,
-
     TARGET_T_END
 };
-
 enum CastFlags
 {
     CAST_INTURRUPT_PREVIOUS     = 0x01,                     //Interrupt any spell casting
@@ -152,7 +136,6 @@ enum CastFlags
     CAST_FORCE_TARGET_SELF      = 0x10,                     //Forces the target to cast this spell on itself
     CAST_AURA_NOT_PRESENT       = 0x20,                     //Only casts the spell if the target does not have an aura from the spell
 };
-
 enum EventFlags
 {
     EFLAG_REPEATABLE            = 0x01,                     //Event repeats
@@ -164,14 +147,12 @@ enum EventFlags
     EFLAG_RESERVED_6            = 0x40,
     EFLAG_DEBUG_ONLY            = 0x80,                     //Event only occurs in debug build
 };
-
 enum SpawnedEventMode
 {
     SPAWNED_EVENT_ALWAY = 0,
     SPAWNED_EVENT_MAP   = 1,
     SPAWNED_EVENT_ZONE  = 2
 };
-
 // String text additional data, used in (CreatureEventAI)
 struct StringTextData
 {
@@ -182,7 +163,6 @@ struct StringTextData
 };
 // Text Maps
 typedef UNORDERED_MAP<int32, StringTextData> CreatureEventAI_TextMap;
-
 struct CreatureEventAI_Action
 {
     EventAI_ActionType type: 16;
@@ -395,19 +375,14 @@ struct CreatureEventAI_Action
         } raw;
     };
 };
-
 struct CreatureEventAI_Event
 {
     uint32 event_id;
-
     uint32 creature_id;
-
     uint32 event_inverse_phase_mask;
-
     EventAI_Type event_type : 16;
     uint8 event_chance : 8;
     uint8 event_flags  : 8;
-
     union
     {
         // EVENT_T_TIMER                                    = 0
@@ -526,7 +501,6 @@ struct CreatureEventAI_Event
             uint32 repeatMin;
             uint32 repeatMax;
         } buffed;
-
         // RAW
         struct
         {
@@ -536,41 +510,32 @@ struct CreatureEventAI_Event
             uint32 param4;
         } raw;
     };
-
     CreatureEventAI_Action action[MAX_ACTIONS];
 };
 //Event_Map
 typedef UNORDERED_MAP<uint32, std::vector<CreatureEventAI_Event> > CreatureEventAI_Event_Map;
-
 struct CreatureEventAI_Summon
 {
     uint32 id;
-
     float position_x;
     float position_y;
     float position_z;
     float orientation;
     uint32 SpawnTimeSecs;
 };
-
 //EventSummon_Map
 typedef UNORDERED_MAP<uint32, CreatureEventAI_Summon> CreatureEventAI_Summon_Map;
-
 struct CreatureEventAIHolder
 {
     CreatureEventAIHolder(CreatureEventAI_Event p) : Event(p), Time(0), Enabled(true){}
-
     CreatureEventAI_Event Event;
     uint32 Time;
     bool Enabled;
-
     // helper
     bool UpdateRepeatTimer(Creature* creature, uint32 repeatMin, uint32 repeatMax);
 };
-
 class TRINITY_DLL_SPEC CreatureEventAI : public CreatureAI
 {
-
     public:
         explicit CreatureEventAI(Creature *c);
         ~CreatureEventAI()
@@ -592,29 +557,23 @@ class TRINITY_DLL_SPEC CreatureEventAI : public CreatureAI
         void UpdateAI(const uint32 diff);
         void ReceiveEmote(Player* pPlayer, uint32 text_emote);
         static int Permissible(const Creature *);
-
         bool ProcessEvent(CreatureEventAIHolder& pHolder, Unit* pActionInvoker = NULL);
         void ProcessAction(CreatureEventAI_Action const& action, uint32 rnd, uint32 EventId, Unit* pActionInvoker);
         inline uint32 GetRandActionParam(uint32 rnd, uint32 param1, uint32 param2, uint32 param3);
         inline int32 GetRandActionParam(uint32 rnd, int32 param1, int32 param2, int32 param3);
         inline Unit* GetTargetByType(uint32 Target, Unit* pActionInvoker);
         inline Unit* SelectUnit(AttackingTarget target, uint32 position);
-
         void DoScriptText(int32 textEntry, WorldObject* pSource, Unit* target);
         bool CanCast(Unit* Target, SpellEntry const *Spell, bool Triggered);
-
         bool SpawnedEventConditionsCheck(CreatureEventAI_Event const& event);
-
         Unit* DoSelectLowestHpFriendly(float range, uint32 MinHPDiff);
         void DoFindFriendlyMissingBuff(std::list<Creature*>& _list, float range, uint32 spellid);
         void DoFindFriendlyCC(std::list<Creature*>& _list, float range);
-
                                                             //Holder for events (stores enabled, time, and eventid)
         std::list<CreatureEventAIHolder> CreatureEventAIList;
         uint32 EventUpdateTime;                             //Time between event updates
         uint32 EventDiff;                                   //Time between the last event call
         bool bEmptyList;
-
         //Variables used by Events themselves
         uint8 Phase;                                        // Current phase, max 32 phases
         bool CombatMovementEnabled;                         // If we allow targeted movment gen (movement twoards top threat)

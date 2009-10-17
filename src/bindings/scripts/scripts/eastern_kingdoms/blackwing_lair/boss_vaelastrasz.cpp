@@ -13,31 +13,25 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
-
 /* ScriptData
 SDName: Boss_Vaelastrasz
 SD%Complete: 75
 SDComment: Burning Adrenaline not correctly implemented in core
 SDCategory: Blackwing Lair
 EndScriptData */
-
 #include "precompiled.h"
-
 #define SAY_LINE1           -1469026
 #define SAY_LINE2           -1469027
 #define SAY_LINE3           -1469028
 #define SAY_HALFLIFE        -1469029
 #define SAY_KILLTARGET      -1469030
-
 #define GOSSIP_ITEM         "Start Event <Needs Gossip Text>"
-
 #define SPELL_ESSENCEOFTHERED       23513
 #define SPELL_FLAMEBREATH           23461
 #define SPELL_FIRENOVA              23462
 #define SPELL_TAILSWIPE             15847
 #define SPELL_BURNINGADRENALINE     23620
 #define SPELL_CLEAVE                20684                   //Chain cleave is most likely named something different and contains a dummy effect
-
 struct TRINITY_DLL_DECL boss_vaelAI : public ScriptedAI
 {
     boss_vaelAI(Creature *c) : ScriptedAI(c)
@@ -46,7 +40,6 @@ struct TRINITY_DLL_DECL boss_vaelAI : public ScriptedAI
         c->setFaction(35);
         c->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
     }
-
     uint64 PlayerGUID;
     uint32 SpeachTimer;
     uint32 SpeachNum;
@@ -58,7 +51,6 @@ struct TRINITY_DLL_DECL boss_vaelAI : public ScriptedAI
     uint32 TailSwipe_Timer;
     bool HasYelled;
     bool DoingSpeach;
-
     void Reset()
     {
         PlayerGUID = 0;
@@ -73,37 +65,29 @@ struct TRINITY_DLL_DECL boss_vaelAI : public ScriptedAI
         HasYelled = false;
         DoingSpeach = false;
     }
-
     void BeginSpeach(Unit* target)
     {
         //Stand up and begin speach
         PlayerGUID = target->GetGUID();
-
         //10 seconds
         DoScriptText(SAY_LINE1, m_creature);
-
         SpeachTimer = 10000;
         SpeachNum = 0;
         DoingSpeach = true;
-
         m_creature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
     }
-
     void KilledUnit(Unit *victim)
     {
         if (rand()%5)
             return;
-
         DoScriptText(SAY_KILLTARGET, m_creature, victim);
     }
-
     void EnterCombat(Unit *who)
     {
         DoCast(m_creature,SPELL_ESSENCEOFTHERED);
         DoZoneInCombat();
         m_creature->SetHealth(int(m_creature->GetMaxHealth()*.3));
     }
-
     void UpdateAI(const uint32 diff)
     {
         //Speach
@@ -138,37 +122,31 @@ struct TRINITY_DLL_DECL boss_vaelAI : public ScriptedAI
                 }
             }else SpeachTimer -= diff;
         }
-
         //Return since we have no target
         if (!UpdateVictim())
             return;
-
         // Yell if hp lower than 15%
         if (m_creature->GetHealth()*100 / m_creature->GetMaxHealth() < 15 && !HasYelled)
         {
             DoScriptText(SAY_HALFLIFE, m_creature);
             HasYelled = true;
         }
-
         //Cleave_Timer
         if (Cleave_Timer < diff)
         {
             DoCast(m_creature->getVictim(),SPELL_CLEAVE);
             Cleave_Timer = 15000;
         }else Cleave_Timer -= diff;
-
         //FlameBreath_Timer
         if (FlameBreath_Timer < diff)
         {
             DoCast(m_creature->getVictim(),SPELL_FLAMEBREATH);
             FlameBreath_Timer = 4000 + rand()%4000;
         }else FlameBreath_Timer -= diff;
-
         //BurningAdrenalineCaster_Timer
         if (BurningAdrenalineCaster_Timer < diff)
         {
             Unit* target = NULL;
-
             int i = 0 ;
             while (i < 3)                                   // max 3 tries to get a random target with power_mana
             {
@@ -180,27 +158,22 @@ struct TRINITY_DLL_DECL boss_vaelAI : public ScriptedAI
             }
             if (target)                                     // cast on self (see below)
                 target->CastSpell(target,SPELL_BURNINGADRENALINE,1);
-
             BurningAdrenalineCaster_Timer = 15000;
         }else BurningAdrenalineCaster_Timer -= diff;
-
         //BurningAdrenalineTank_Timer
         if (BurningAdrenalineTank_Timer < diff)
         {
             // have the victim cast the spell on himself otherwise the third effect aura will be applied
             // to Vael instead of the player
             m_creature->getVictim()->CastSpell(m_creature->getVictim(),SPELL_BURNINGADRENALINE,1);
-
             BurningAdrenalineTank_Timer = 45000;
         }else BurningAdrenalineTank_Timer -= diff;
-
         //FireNova_Timer
         if (FireNova_Timer < diff)
         {
             DoCast(m_creature->getVictim(),SPELL_FIRENOVA);
             FireNova_Timer = 5000;
         }else FireNova_Timer -= diff;
-
         //TailSwipe_Timer
         if (TailSwipe_Timer < diff)
         {
@@ -209,14 +182,11 @@ struct TRINITY_DLL_DECL boss_vaelAI : public ScriptedAI
             {
             DoCast(m_creature->getVictim(),SPELL_TAILSWIPE);
             }*/
-
             TailSwipe_Timer = 20000;
         }else TailSwipe_Timer -= diff;
-
         DoMeleeAttackIfReady();
     }
 };
-
 void SendDefaultMenu_boss_vael(Player* pPlayer, Creature* pCreature, uint32 uiAction)
 {
     if (uiAction == GOSSIP_ACTION_INFO_DEF + 1)               //Fight time
@@ -225,28 +195,22 @@ void SendDefaultMenu_boss_vael(Player* pPlayer, Creature* pCreature, uint32 uiAc
         CAST_AI(boss_vaelAI, pCreature->AI())->BeginSpeach(pPlayer);
     }
 }
-
 bool GossipSelect_boss_vael(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
 {
     if (uiSender == GOSSIP_SENDER_MAIN)
         SendDefaultMenu_boss_vael(pPlayer, pCreature, uiAction);
-
     return true;
 }
-
 bool GossipHello_boss_vael(Player* pPlayer, Creature* pCreature)
 {
     pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM        , GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
     pPlayer->SEND_GOSSIP_MENU(907, pCreature->GetGUID());
-
     return true;
 }
-
 CreatureAI* GetAI_boss_vael(Creature* pCreature)
 {
     return new boss_vaelAI (pCreature);
 }
-
 void AddSC_boss_vael()
 {
     Script *newscript;

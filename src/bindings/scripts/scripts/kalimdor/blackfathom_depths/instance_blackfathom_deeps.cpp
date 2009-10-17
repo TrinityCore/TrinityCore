@@ -13,28 +13,22 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
-
 /* ScriptData
 SDName: Instance_Blackfathom_Deeps
 SD%Complete: 50
 SDComment:
 SDCategory: Blackfathom Deeps
 EndScriptData */
-
 #include "precompiled.h"
 #include "def_blackfathom_deeps.h"
-
 #define MAX_ENCOUNTER 2
-
 /* Encounter 0 = Twilight Lord Kelris
    Encounter 1 = Shrine event
    Must kill twilight lord for shrine event to be possible
  */
-
 struct TRINITY_DLL_DECL instance_blackfathom_deeps : public ScriptedInstance
 {
     instance_blackfathom_deeps(Map* pMap) : ScriptedInstance(pMap) {Initialize();};
-
     uint64 m_uiTwilightLordKelrisGUID;
     uint64 m_uiShrine1GUID;
     uint64 m_uiShrine2GUID;
@@ -43,13 +37,10 @@ struct TRINITY_DLL_DECL instance_blackfathom_deeps : public ScriptedInstance
     uint64 m_uiShrineOfGelihastGUID;
     uint64 m_uiAltarOfTheDeepsGUID;
     uint64 m_uiMainDoorGUID;
-
     uint32 m_auiEncounter[MAX_ENCOUNTER];
-
     void Initialize()
     {
         memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
-
         m_uiTwilightLordKelrisGUID = 0;
         m_uiShrine1GUID = 0;
         m_uiShrine2GUID = 0;
@@ -59,13 +50,11 @@ struct TRINITY_DLL_DECL instance_blackfathom_deeps : public ScriptedInstance
         m_uiAltarOfTheDeepsGUID = 0;
         m_uiMainDoorGUID = 0;
     }
-
     void OnCreatureCreate(Creature* pCreature, bool add)
     {
         if (pCreature->GetEntry() == 4832)
             m_uiTwilightLordKelrisGUID = pCreature->GetGUID();
     }
-
     void OnGameObjectCreate(GameObject* pGo, bool add)
     {
         switch(pGo->GetEntry())
@@ -79,7 +68,6 @@ struct TRINITY_DLL_DECL instance_blackfathom_deeps : public ScriptedInstance
             case 21117:     m_uiMainDoorGUID = pGo->GetGUID();          break;
         }
     }
-
     void SetData(uint32 uiType, uint32 uiData)
     {
         switch(uiType)
@@ -92,7 +80,6 @@ struct TRINITY_DLL_DECL instance_blackfathom_deeps : public ScriptedInstance
                 break;
         }
     }
-
     uint32 GetData(uint32 uiType)
     {
         switch(uiType)
@@ -102,10 +89,8 @@ struct TRINITY_DLL_DECL instance_blackfathom_deeps : public ScriptedInstance
             case TYPE_SHRINE:
                 return m_auiEncounter[1];
         }
-
         return 0;
     }
-
     uint64 GetData64(uint32 uiData)
     {
         switch(uiData)
@@ -125,10 +110,8 @@ struct TRINITY_DLL_DECL instance_blackfathom_deeps : public ScriptedInstance
             case DATA_MAINDOOR:
                 return m_uiMainDoorGUID;
         }
-
         return 0;
     }
-
     void CheckFires()
     {
         GameObject *pShrine1 = instance->GetGameObject(m_uiShrine1GUID);
@@ -142,16 +125,13 @@ struct TRINITY_DLL_DECL instance_blackfathom_deeps : public ScriptedInstance
             HandleGameObject(m_uiMainDoorGUID,true);
     }
 };
-
 InstanceData* GetInstanceData_instance_blackfathom_deeps(Map* pMap)
 {
     return new instance_blackfathom_deeps(pMap);
 }
-
 bool GoHello_fire(Player *pPlayer, GameObject* pGo)
 {
     ScriptedInstance *pInstance = pGo->GetInstanceData();
-
     if (pInstance)
     {
         pGo->SetGoState(GO_STATE_ACTIVE);
@@ -159,7 +139,6 @@ bool GoHello_fire(Player *pPlayer, GameObject* pGo)
     }
     return false;
 }
-
 void AddSC_instance_blackfathom_deeps()
 {
     Script *newscript;
@@ -167,7 +146,6 @@ void AddSC_instance_blackfathom_deeps()
     newscript->Name = "instance_blackfathom_deeps";
     newscript->GetInstanceData = &GetInstanceData_instance_blackfathom_deeps;
     newscript->RegisterSelf();
-
     newscript = new Script;
     newscript->Name = "go_blackfathom_fire";
     newscript->pGOHello = &GoHello_fire;

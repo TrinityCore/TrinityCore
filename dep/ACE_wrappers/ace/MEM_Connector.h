@@ -1,5 +1,4 @@
 /* -*- C++ -*- */
-
 //=============================================================================
 /**
  *  @file    MEM_Connector.h
@@ -9,25 +8,18 @@
  *  @author Nanbor Wang <nanbor@cs.wustl.edu>
  */
 //=============================================================================
-
 #ifndef ACE_MEM_CONNECTOR_H
 #define ACE_MEM_CONNECTOR_H
 #include /**/ "ace/pre.h"
-
 #include /**/ "ace/ACE_export.h"
-
 #if !defined (ACE_LACKS_PRAGMA_ONCE)
 # pragma once
 #endif /* ACE_LACKS_PRAGMA_ONCE */
-
 #if (ACE_HAS_POSITION_INDEPENDENT_POINTERS == 1)
-
 #include "ace/SOCK_Connector.h"
 #include "ace/MEM_Stream.h"
 #include "ace/MEM_Addr.h"
-
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
-
 /**
  * @class ACE_MEM_Connector
  *
@@ -40,7 +32,6 @@ public:
   // = Initialization methods.
   /// Default constructor.
   ACE_MEM_Connector (void);
-
   /**
    * Actively connect to a peer, producing a connected @c ACE_MEM_Stream
    * object if the connection succeeds.
@@ -85,7 +76,6 @@ public:
                      int reuse_addr = 0,
                      int flags = 0,
                      int perms = 0);
-
   /**
    * Actively connect to a peer, producing a connected @c ACE_MEM_Stream
    * object if the connection succeeds.
@@ -134,47 +124,34 @@ public:
                int reuse_addr = 0,
                int flags = 0,
                int perms = 0);
-
   /// Get the preferred signaling strategy.
   ACE_MEM_IO::Signal_Strategy preferred_strategy (void) const;
-
   /// Set the preferred signaling strategy.
   void preferred_strategy (ACE_MEM_IO::Signal_Strategy strategy);
-
   /// Accessor to underlying malloc options.
   /// @deprecated This method has been deprecated.
   ACE_MEM_SAP::MALLOC_OPTIONS &malloc_options (void);
-
   // = Meta-type info
   typedef ACE_INET_Addr PEER_ADDR;
   typedef ACE_MEM_Stream PEER_STREAM;
-
   /// Dump the state of an object.
   void dump (void) const;
-
   /// Declare the dynamic allocation hooks.
   ACE_ALLOC_HOOK_DECLARE;
-
 private:
   /// The acceptor address this connector is connecting to.
   ACE_MEM_Addr address_;
-
   /// A cached MALLOC_OPTIONS that the MEM_Connector used to initialize
   /// the shared memory malloc update connection establishment.
   ACE_MEM_SAP::MALLOC_OPTIONS malloc_options_;
-
   /// Preferred signaling strategy.
   ACE_MEM_IO::Signal_Strategy preferred_strategy_;
 };
-
 ACE_END_VERSIONED_NAMESPACE_DECL
-
 #if defined (__ACE_INLINE__)
 #include "ace/MEM_Connector.inl"
 #endif /* __ACE_INLINE__ */
-
 #endif /* ACE_HAS_POSITION_INDEPENDENT_POINTERS == 1 */
-
 #include /**/ "ace/post.h"
 #endif /* ACE_MEM_CONNECTOR_H */
 

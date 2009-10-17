@@ -1,28 +1,22 @@
 #include "precompiled.h"
 #include "def_halls_of_stone.h"
-
 #define MAX_ENCOUNTER 4
-
 /* Halls of Stone encounters:
 0- Krystallus
 1- Maiden of Grief
 2- Escort Event
 3- Sjonnir The Ironshaper
 */
-
 struct TRINITY_DLL_DECL instance_halls_of_stone : public ScriptedInstance
 {
     instance_halls_of_stone(Map* pMap) : ScriptedInstance(pMap) {Initialize();};
-
     uint64 uiMaidenOfGrief;
     uint64 uiKrystallus;
     uint64 uiSjonnir;
-
     uint64 uiKaddrak;
     uint64 uiAbedneum;
     uint64 uiMarnak;
     uint64 uiBrann;
-
     uint64 uiMaidenOfGriefDoor;
     uint64 uiSjonnirDoor;
     uint64 uiBrannDoor;
@@ -32,22 +26,17 @@ struct TRINITY_DLL_DECL instance_halls_of_stone : public ScriptedInstance
     uint64 uiKaddrakGo;
     uint64 uiAbedneumGo;
     uint64 uiMarnakGo;
-
     uint32 m_auiEncounter[MAX_ENCOUNTER];
-
     std::string str_data;
-
     void Initialize()
     {
         uiMaidenOfGrief = 0;
         uiKrystallus = 0;
         uiSjonnir = 0;
-
         uiKaddrak = 0;
         uiMarnak = 0;
         uiAbedneum = 0;
         uiBrann = 0;
-
         uiMaidenOfGriefDoor = 0;
         uiSjonnirDoor = 0;
         uiBrannDoor = 0;
@@ -57,11 +46,9 @@ struct TRINITY_DLL_DECL instance_halls_of_stone : public ScriptedInstance
         uiTribunalConsole = 0;
         uiTribunalChest = 0;
         uiTribunalSkyFloor = 0;
-
-        for(uint8 i = 0; i < MAX_ENCOUNTER; ++i)
+        for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
             m_auiEncounter[i] = NOT_STARTED;
     }
-
     void OnCreatureCreate(Creature* pCreature, bool add)
     {
         switch(pCreature->GetEntry())
@@ -75,7 +62,6 @@ struct TRINITY_DLL_DECL instance_halls_of_stone : public ScriptedInstance
             case 28070: uiBrann = pCreature->GetGUID(); break;
         }
     }
-
     void OnGameObjectCreate(GameObject* pGo, bool add)
     {
         switch(pGo->GetEntry())
@@ -121,7 +107,6 @@ struct TRINITY_DLL_DECL instance_halls_of_stone : public ScriptedInstance
                 break;
         }
     }
-
     void SetData(uint32 type, uint32 data)
     {
         switch(type)
@@ -145,11 +130,9 @@ struct TRINITY_DLL_DECL instance_halls_of_stone : public ScriptedInstance
                     HandleGameObject(uiSjonnirDoor,true);
                 break;
         }
-
         if (data == DONE)
             SaveToDB();
     }
-
     uint32 GetData(uint32 type)
     {
         switch(type)
@@ -159,10 +142,8 @@ struct TRINITY_DLL_DECL instance_halls_of_stone : public ScriptedInstance
             case DATA_SJONNIR_EVENT:                   return m_auiEncounter[2];
             case DATA_BRANN_EVENT:                     return m_auiEncounter[3];
         }
-
         return 0;
     }
-
     uint64 GetData64(uint32 identifier)
     {
         switch(identifier)
@@ -179,23 +160,17 @@ struct TRINITY_DLL_DECL instance_halls_of_stone : public ScriptedInstance
             case DATA_GO_MARNAK:                       return uiMarnakGo;
             case DATA_GO_SKY_FLOOR:                    return uiTribunalSkyFloor;
         }
-
         return 0;
     }
-
     std::string GetSaveData()
     {
         OUT_SAVE_INST_DATA;
-
         std::ostringstream saveStream;
         saveStream << "H S " << m_auiEncounter[0] << " " << m_auiEncounter[1] << " " << m_auiEncounter[2] << " " << m_auiEncounter[3];
-
         str_data = saveStream.str();
-
         OUT_SAVE_INST_DATA_COMPLETE;
         return str_data;
     }
-
     void Load(const char* in)
     {
         if (!in)
@@ -203,37 +178,28 @@ struct TRINITY_DLL_DECL instance_halls_of_stone : public ScriptedInstance
             OUT_LOAD_INST_DATA_FAIL;
             return;
         }
-
         OUT_LOAD_INST_DATA(in);
-
         char dataHead1, dataHead2;
         uint16 data0, data1, data2, data3;
-
         std::istringstream loadStream(in);
         loadStream >> dataHead1 >> dataHead2 >> data0 >> data1 >> data2 >> data3;
-
         if (dataHead1 == 'H' && dataHead2 == 'S')
         {
             m_auiEncounter[0] = data0;
             m_auiEncounter[1] = data1;
             m_auiEncounter[2] = data2;
             m_auiEncounter[3] = data3;
-
-            for(uint8 i = 0; i < MAX_ENCOUNTER; ++i)
+            for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
                 if (m_auiEncounter[i] == IN_PROGRESS)
                     m_auiEncounter[i] = NOT_STARTED;
-
         } else OUT_LOAD_INST_DATA_FAIL;
-
         OUT_LOAD_INST_DATA_COMPLETE;
     }
 };
-
 InstanceData* GetInstanceData_instance_halls_of_stone(Map* pMap)
 {
     return new instance_halls_of_stone(pMap);
 }
-
 void AddSC_instance_halls_of_stone()
 {
     Script *newscript;

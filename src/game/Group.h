@@ -17,22 +17,17 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
-
 #ifndef TRINITYCORE_GROUP_H
 #define TRINITYCORE_GROUP_H
-
 #include "GroupReference.h"
 #include "GroupRefManager.h"
 #include "BattleGround.h"
 #include "LootMgr.h"
-
 #include <map>
 #include <vector>
-
 #define MAXGROUPSIZE 5
 #define MAXRAIDSIZE 40
 #define TARGETICONCOUNT 8
-
 enum RollVote
 {
     PASS              = 0,
@@ -41,7 +36,6 @@ enum RollVote
     NOT_EMITED_YET    = 3,
     NOT_VALID         = 4
 };
-
 enum GroupMemberOnlineStatus
 {
     MEMBER_STATUS_OFFLINE   = 0x0000,
@@ -54,15 +48,12 @@ enum GroupMemberOnlineStatus
     MEMBER_STATUS_UNK4      = 0x0040,                       // appears with dead and ghost flags
     MEMBER_STATUS_UNK5      = 0x0080,                       // never seen
 };
-
 enum GroupType
 {
     GROUPTYPE_NORMAL = 0,
     GROUPTYPE_RAID   = 1
 };
-
 class BattleGround;
-
 enum GroupUpdateFlags
 {
     GROUP_UPDATE_FLAG_NONE              = 0x00000000,       // nothing
@@ -89,13 +80,10 @@ enum GroupUpdateFlags
     GROUP_UPDATE_PET                    = 0x0007FC00,       // all pet flags
     GROUP_UPDATE_FULL                   = 0x0007FFFF,       // all known flags
 };
-
 #define GROUP_UPDATE_FLAGS_COUNT          20
                                                                 // 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10,11,12,13,14,15,16,17,18,19
 static const uint8 GroupUpdateLength[GROUP_UPDATE_FLAGS_COUNT] = { 0, 2, 2, 2, 1, 2, 2, 2, 2, 4, 8, 8, 1, 2, 2, 2, 1, 2, 2, 8};
-
 class InstanceSave;
-
 class Roll : public LootValidatorRef
 {
     public:
@@ -106,7 +94,6 @@ class Roll : public LootValidatorRef
         void setLoot(Loot *pLoot) { link(pLoot, this); }
         Loot *getLoot() { return getTarget(); }
         void targetObjectBuildLink();
-
         uint64 itemGUID;
         uint32 itemid;
         int32  itemRandomPropId;
@@ -119,7 +106,6 @@ class Roll : public LootValidatorRef
         uint8 totalPass;
         uint8 itemSlot;
 };
-
 struct InstanceGroupBind
 {
     InstanceSave *save;
@@ -128,7 +114,6 @@ struct InstanceGroupBind
        PlayerInstanceBind for the same instance. */
     InstanceGroupBind() : save(NULL), perm(false) {}
 };
-
 /** request member stats checken **/
 /** todo: uninvite people that not accepted invite **/
 class TRINITY_DLL_SPEC Group
@@ -143,18 +128,14 @@ class TRINITY_DLL_SPEC Group
         };
         typedef std::list<MemberSlot> MemberSlotList;
         typedef MemberSlotList::const_iterator member_citerator;
-
         typedef UNORDERED_MAP< uint32 /*mapId*/, InstanceGroupBind> BoundInstancesMap;
     protected:
         typedef MemberSlotList::iterator member_witerator;
         typedef std::set<Player*> InvitesList;
-
         typedef std::vector<Roll*> Rolls;
-
     public:
         Group();
         ~Group();
-
         // group manipulation methods
         bool   Create(const uint64 &guid, const char * name);
         bool   LoadGroupFromDB(const uint64 &leaderGuid, QueryResult *result = NULL, bool loadMembers = true);
@@ -172,7 +153,6 @@ class TRINITY_DLL_SPEC Group
         void   UpdateLooterGuid( Creature* creature, bool ifneed = false );
         void   SetLootThreshold(ItemQualities threshold) { m_lootThreshold = threshold; }
         void   Disband(bool hideDestroy=false);
-
         // properties accessories
         bool IsFull() const { return (m_groupType==GROUPTYPE_NORMAL) ? (m_memberSlots.size()>=MAXGROUPSIZE) : (m_memberSlots.size()>=MAXRAIDSIZE); }
         bool isRaidGroup() const { return m_groupType==GROUPTYPE_RAID; }
@@ -183,7 +163,6 @@ class TRINITY_DLL_SPEC Group
         LootMethod    GetLootMethod() const { return m_lootMethod; }
         const uint64& GetLooterGuid() const { return m_looterGuid; }
         ItemQualities GetLootThreshold() const { return m_lootThreshold; }
-
         // member manipulation methods
         bool IsMember(const uint64& guid) const { return _getMemberCSlot(guid) != m_memberSlots.end(); }
         bool IsLeader(const uint64& guid) const { return (GetLeaderGUID() == guid); }
@@ -203,37 +182,29 @@ class TRINITY_DLL_SPEC Group
             member_citerator mslot = _getMemberCSlot(guid);
             if(mslot==m_memberSlots.end())
                 return false;
-
             return mslot->assistant;
         }
         Player* GetInvited(const uint64& guid) const;
         Player* GetInvited(const std::string& name) const;
-
         bool SameSubGroup(uint64 guid1,const uint64& guid2) const
         {
             member_citerator mslot2 = _getMemberCSlot(guid2);
             if(mslot2==m_memberSlots.end())
                 return false;
-
             return SameSubGroup(guid1,&*mslot2);
         }
-
         bool SameSubGroup(uint64 guid1, MemberSlot const* slot2) const
         {
             member_citerator mslot1 = _getMemberCSlot(guid1);
             if(mslot1==m_memberSlots.end() || !slot2)
                 return false;
-
             return (mslot1->group==slot2->group);
         }
-
         bool HasFreeSlotSubGroup(uint8 subgroup) const
         {
             return (m_subGroupsCounts && m_subGroupsCounts[subgroup] < MAXGROUPSIZE);
         }
-
         bool SameSubGroup(Player const* member1, Player const* member2) const;
-
         MemberSlotList const& GetMemberSlots() const { return m_memberSlots; }
         GroupReference* GetFirstMember() { return m_memberMgr.getFirst(); }
         uint32 GetMembersCount() const { return m_memberSlots.size(); }
@@ -243,19 +214,14 @@ class TRINITY_DLL_SPEC Group
             member_citerator mslot = _getMemberCSlot(guid);
             if(mslot==m_memberSlots.end())
                 return (MAXRAIDSIZE/MAXGROUPSIZE+1);
-
             return mslot->group;
         }
-
         // some additional raid methods
         void ConvertToRaid();
-
         void SetBattlegroundGroup(BattleGround *bg) { m_bgGroup = bg; }
         uint32 CanJoinBattleGroundQueue(BattleGroundTypeId bgTypeId, BattleGroundQueueTypeId bgQueueTypeId, uint32 MinPlayerCount, uint32 MaxPlayerCount, bool isRated, uint32 arenaSlot);
-
         void ChangeMembersGroup(const uint64 &guid, const uint8 &group);
         void ChangeMembersGroup(Player *player, const uint8 &group);
-
         void SetAssistant(uint64 guid, const bool &state)
         {
             if(!isRaidGroup())
@@ -267,7 +233,6 @@ class TRINITY_DLL_SPEC Group
         {
             if(!isRaidGroup())
                 return;
-
             if(_setMainTank(guid))
                 SendUpdate();
         }
@@ -275,18 +240,15 @@ class TRINITY_DLL_SPEC Group
         {
             if(!isRaidGroup())
                 return;
-
             if(_setMainAssistant(guid))
                 SendUpdate();
         }
-
         void SetTargetIcon(uint8 id, uint64 guid);
         void SetDifficulty(uint8 difficulty);
         uint8 GetDifficulty() { return m_difficulty; }
         uint16 InInstance();
         bool InCombatToInstance(uint32 instanceId);
         void ResetInstances(uint8 method, Player* SendMsgTo);
-
         // -no description-
         //void SendInit(WorldSession *session);
         void SendTargetIconList(WorldSession *session);
@@ -296,11 +258,9 @@ class TRINITY_DLL_SPEC Group
         void BroadcastPacket(WorldPacket *packet, bool ignorePlayersInBGRaid, int group=-1, uint64 ignore=0);
         void BroadcastReadyCheck(WorldPacket *packet);
         void OfflineReadyCheck();
-
         /*********************************************************/
         /***                   LOOT SYSTEM                     ***/
         /*********************************************************/
-
         void SendLootStartRoll(uint32 CountDown, const Roll &r);
         void SendLootRoll(const uint64& SourceGuid, const uint64& TargetGuid, uint8 RollNumber, uint8 RollType, const Roll &r);
         void SendLootRollWon(const uint64& SourceGuid, const uint64& TargetGuid, uint8 RollNumber, uint8 RollType, const Roll &r);
@@ -323,45 +283,34 @@ class TRINITY_DLL_SPEC Group
         void CountTheRoll(Rolls::iterator roll, uint32 NumberOfPlayers);
         void CountRollVote(const uint64& playerGUID, const uint64& Guid, uint32 NumberOfPlayers, uint8 Choise);
         void EndRoll();
-
         void LinkMember(GroupReference *pRef) { m_memberMgr.insertFirst(pRef); }
         void DelinkMember(GroupReference* /*pRef*/ ) { }
-
         InstanceGroupBind* BindToInstance(InstanceSave *save, bool permanent, bool load = false);
         void UnbindInstance(uint32 mapid, uint8 difficulty, bool unload = false);
         InstanceGroupBind* GetBoundInstance(uint32 mapid, uint8 difficulty);
         BoundInstancesMap& GetBoundInstances(uint8 difficulty) { return m_boundInstances[difficulty]; }
-
         // FG: evil hacks
         void BroadcastGroupUpdate(void);
-
     protected:
         bool _addMember(const uint64 &guid, const char* name, bool isAssistant=false);
         bool _addMember(const uint64 &guid, const char* name, bool isAssistant, uint8 group);
         bool _removeMember(const uint64 &guid);             // returns true if leader has changed
         void _setLeader(const uint64 &guid);
-
         void _removeRolls(const uint64 &guid);
-
         bool _setMembersGroup(const uint64 &guid, const uint8 &group);
         bool _setAssistantFlag(const uint64 &guid, const bool &state);
         bool _setMainTank(const uint64 &guid);
         bool _setMainAssistant(const uint64 &guid);
-
         void _homebindIfInstance(Player *player);
-
         void _initRaidSubGroupsCounter()
         {
             // Sub group counters initialization
             if (!m_subGroupsCounts)
                 m_subGroupsCounts = new uint8[MAXRAIDSIZE / MAXGROUPSIZE];
-
             memset((void*)m_subGroupsCounts, 0, (MAXRAIDSIZE / MAXGROUPSIZE)*sizeof(uint8));
-
             for (member_citerator itr = m_memberSlots.begin(); itr != m_memberSlots.end(); ++itr)
                 ++m_subGroupsCounts[itr->group];
         }
-
         member_citerator _getMemberCSlot(uint64 Guid) const
         {
             for(member_citerator itr = m_memberSlots.begin(); itr != m_memberSlots.end(); ++itr)
@@ -371,7 +320,6 @@ class TRINITY_DLL_SPEC Group
             }
             return m_memberSlots.end();
         }
-
         member_witerator _getMemberWSlot(uint64 Guid)
         {
             for(member_witerator itr = m_memberSlots.begin(); itr != m_memberSlots.end(); ++itr)
@@ -381,19 +329,16 @@ class TRINITY_DLL_SPEC Group
             }
             return m_memberSlots.end();
         }
-
         void SubGroupCounterIncrease(uint8 subgroup)
         {
             if (m_subGroupsCounts)
                 ++m_subGroupsCounts[subgroup];
         }
-
         void SubGroupCounterDecrease(uint8 subgroup)
         {
             if (m_subGroupsCounts)
                 --m_subGroupsCounts[subgroup];
         }
-
         MemberSlotList      m_memberSlots;
         GroupRefManager     m_memberMgr;
         InvitesList         m_invitees;

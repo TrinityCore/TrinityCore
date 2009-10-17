@@ -15,13 +15,10 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
-
 #ifndef _AUTH_SARC4_H
 #define _AUTH_SARC4_H
-
 #include "Common.h"
 #include <openssl/evp.h>
-
 class SARC4
 {
     public:

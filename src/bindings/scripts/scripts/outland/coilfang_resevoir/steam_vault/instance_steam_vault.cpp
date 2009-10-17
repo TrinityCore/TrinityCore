@@ -13,63 +13,47 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
-
 /* ScriptData
 SDName: Instance_Steam_Vault
 SD%Complete: 80
 SDComment:  Instance script and access panel GO
 SDCategory: Coilfang Resevoir, The Steamvault
 EndScriptData */
-
 #include "precompiled.h"
 #include "def_steam_vault.h"
-
 #define MAX_ENCOUNTER 4
-
 #define MAIN_CHAMBERS_DOOR      183049
 #define ACCESS_PANEL_HYDRO      184125
 #define ACCESS_PANEL_MEK        184126
-
 /* Steam Vaults encounters:
 1 - Hydromancer Thespia Event
 2 - Mekgineer Steamrigger Event
 3 - Warlord Kalithresh Event
 */
-
 bool GOHello_go_main_chambers_access_panel(Player* pPlayer, GameObject* pGo)
 {
     ScriptedInstance* pInstance = pGo->GetInstanceData();
-
     if (!pInstance)
         return false;
-
     if (pGo->GetEntry() == ACCESS_PANEL_HYDRO && (pInstance->GetData(TYPE_HYDROMANCER_THESPIA) == DONE || pInstance->GetData(TYPE_HYDROMANCER_THESPIA) == SPECIAL))
         pInstance->SetData(TYPE_HYDROMANCER_THESPIA,SPECIAL);
-
     if (pGo->GetEntry() == ACCESS_PANEL_MEK && (pInstance->GetData(TYPE_MEKGINEER_STEAMRIGGER) == DONE || pInstance->GetData(TYPE_MEKGINEER_STEAMRIGGER) == SPECIAL))
         pInstance->SetData(TYPE_MEKGINEER_STEAMRIGGER,SPECIAL);
-
     return true;
 }
-
 struct TRINITY_DLL_DECL instance_steam_vault : public ScriptedInstance
 {
     instance_steam_vault(Map* pMap) : ScriptedInstance(pMap) {Initialize();};
-
     uint32 m_auiEncounter[MAX_ENCOUNTER];
-
     uint64 ThespiaGUID;
     uint64 MekgineerGUID;
     uint64 KalithreshGUID;
-
     uint64 MainChambersDoor;
     uint64 AccessPanelHydro;
     uint64 AccessPanelMek;
-
     void Initialize()
     {
         memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
-
         ThespiaGUID = 0;
         MekgineerGUID = 0;
         KalithreshGUID = 0;
@@ -77,16 +61,13 @@ struct TRINITY_DLL_DECL instance_steam_vault : public ScriptedInstance
         AccessPanelHydro = 0;
         AccessPanelMek = 0;
     }
-
     bool IsEncounterInProgress() const
     {
-        for(uint8 i = 0; i < MAX_ENCOUNTER; ++i)
+        for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
              if (m_auiEncounter[i] == IN_PROGRESS)
                  return true;
-
         return false;
     }
-
     void OnCreatureCreate(Creature* pCreature, bool add)
     {
           switch(pCreature->GetEntry())
@@ -96,7 +77,6 @@ struct TRINITY_DLL_DECL instance_steam_vault : public ScriptedInstance
           case 17798: KalithreshGUID = pCreature->GetGUID(); break;
         }
     }
-
     void OnGameObjectCreate(GameObject* pGo, bool add)
     {
         switch(pGo->GetEntry())
@@ -106,7 +86,6 @@ struct TRINITY_DLL_DECL instance_steam_vault : public ScriptedInstance
         case ACCESS_PANEL_MEK:   AccessPanelMek = pGo->GetGUID(); break;
         }
     }
-
     void SetData(uint32 type, uint32 data)
     {
         switch(type)
@@ -115,10 +94,8 @@ struct TRINITY_DLL_DECL instance_steam_vault : public ScriptedInstance
                 if (data == SPECIAL)
                 {
                     HandleGameObject(AccessPanelHydro, true);
-
                     if (GetData(TYPE_MEKGINEER_STEAMRIGGER) == SPECIAL)
                         HandleGameObject(MainChambersDoor, true);
-
                     debug_log("TSCR: Instance Steamvault: Access panel used.");
                 }
                 m_auiEncounter[0] = data;
@@ -127,10 +104,8 @@ struct TRINITY_DLL_DECL instance_steam_vault : public ScriptedInstance
                 if (data == SPECIAL)
                 {
                     HandleGameObject(AccessPanelMek, true);
-
                     if (GetData(TYPE_HYDROMANCER_THESPIA) == SPECIAL)
                         HandleGameObject(MainChambersDoor, true);
-
                     debug_log("TSCR: Instance Steamvault: Access panel used.");
                 }
                 m_auiEncounter[1] = data;
@@ -142,11 +117,9 @@ struct TRINITY_DLL_DECL instance_steam_vault : public ScriptedInstance
                 m_auiEncounter[3] = data;
                 break;
         }
-
         if (data == DONE || data == SPECIAL)
             SaveToDB();
     }
-
     uint32 GetData(uint32 type)
     {
         switch(type)
@@ -162,7 +135,6 @@ struct TRINITY_DLL_DECL instance_steam_vault : public ScriptedInstance
         }
         return 0;
     }
-
     uint64 GetData64(uint32 data)
     {
         switch(data)
@@ -176,7 +148,6 @@ struct TRINITY_DLL_DECL instance_steam_vault : public ScriptedInstance
         }
         return 0;
     }
-
     std::string GetSaveData()
     {
         OUT_SAVE_INST_DATA;
@@ -191,7 +162,6 @@ struct TRINITY_DLL_DECL instance_steam_vault : public ScriptedInstance
         }
         return NULL;
     }
-
     void Load(const char* in)
     {
         if (!in)
@@ -202,27 +172,23 @@ struct TRINITY_DLL_DECL instance_steam_vault : public ScriptedInstance
         OUT_LOAD_INST_DATA(in);
         std::istringstream stream(in);
         stream >> m_auiEncounter[0] >> m_auiEncounter[1] >> m_auiEncounter[2] >> m_auiEncounter[3];
-        for(uint8 i = 0; i < MAX_ENCOUNTER; ++i)
+        for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
             if (m_auiEncounter[i] == IN_PROGRESS)
                 m_auiEncounter[i] = NOT_STARTED;
         OUT_LOAD_INST_DATA_COMPLETE;
     }
 };
-
 InstanceData* GetInstanceData_instance_steam_vault(Map* pMap)
 {
     return new instance_steam_vault(pMap);
 }
-
 void AddSC_instance_steam_vault()
 {
     Script *newscript;
-
     newscript = new Script;
     newscript->Name = "go_main_chambers_access_panel";
     newscript->pGOHello = &GOHello_go_main_chambers_access_panel;
     newscript->RegisterSelf();
-
     newscript = new Script;
     newscript->Name = "instance_steam_vault";
     newscript->GetInstanceData = &GetInstanceData_instance_steam_vault;

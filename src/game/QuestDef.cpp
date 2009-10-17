@@ -17,11 +17,9 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
-
 #include "QuestDef.h"
 #include "Player.h"
 #include "World.h"
-
 Quest::Quest(Field * questRecord)
 {
     QuestId = questRecord[0].GetUInt32();
@@ -59,49 +57,34 @@ Quest::Quest(Field * questRecord)
     OfferRewardText = questRecord[32].GetCppString();
     RequestItemsText = questRecord[33].GetCppString();
     EndText = questRecord[34].GetCppString();
-
     for (int i = 0; i < QUEST_OBJECTIVES_COUNT; ++i)
         ObjectiveText[i] = questRecord[35+i].GetCppString();
-
     for (int i = 0; i < QUEST_OBJECTIVES_COUNT; ++i)
         ReqItemId[i] = questRecord[39+i].GetUInt32();
-
     for (int i = 0; i < QUEST_OBJECTIVES_COUNT; ++i)
         ReqItemCount[i] = questRecord[43+i].GetUInt32();
-
     for (int i = 0; i < QUEST_SOURCE_ITEM_IDS_COUNT; ++i)
         ReqSourceId[i] = questRecord[47+i].GetUInt32();
-
     for (int i = 0; i < QUEST_SOURCE_ITEM_IDS_COUNT; ++i)
         ReqSourceCount[i] = questRecord[51+i].GetUInt32();
-
     for (int i = 0; i < QUEST_OBJECTIVES_COUNT; ++i)
         ReqCreatureOrGOId[i] = questRecord[55+i].GetInt32();
-
     for (int i = 0; i < QUEST_OBJECTIVES_COUNT; ++i)
         ReqCreatureOrGOCount[i] = questRecord[59+i].GetUInt32();
-
     for (int i = 0; i < QUEST_OBJECTIVES_COUNT; ++i)
         ReqSpell[i] = questRecord[63+i].GetUInt32();
-
     for (int i = 0; i < QUEST_REWARD_CHOICES_COUNT; ++i)
         RewChoiceItemId[i] = questRecord[67+i].GetUInt32();
-
     for (int i = 0; i < QUEST_REWARD_CHOICES_COUNT; ++i)
         RewChoiceItemCount[i] = questRecord[73+i].GetUInt32();
-
     for (int i = 0; i < QUEST_REWARDS_COUNT; ++i)
         RewItemId[i] = questRecord[79+i].GetUInt32();
-
     for (int i = 0; i < QUEST_REWARDS_COUNT; ++i)
         RewItemCount[i] = questRecord[83+i].GetUInt32();
-
     for (int i = 0; i < QUEST_REPUTATIONS_COUNT; ++i)
         RewRepFaction[i] = questRecord[87+i].GetUInt32();
-
     for (int i = 0; i < QUEST_REPUTATIONS_COUNT; ++i)
         RewRepValue[i] = questRecord[92+i].GetInt32();
-
     RewHonorableKills = questRecord[97].GetUInt32();
     RewOrReqMoney = questRecord[98].GetInt32();
     RewMoneyMaxLevel = questRecord[99].GetUInt32();
@@ -113,32 +96,23 @@ Quest::Quest(Field * questRecord)
     PointX = questRecord[105].GetFloat();
     PointY = questRecord[106].GetFloat();
     PointOpt = questRecord[107].GetUInt32();
-
     for (int i = 0; i < QUEST_EMOTE_COUNT; ++i)
         DetailsEmote[i] = questRecord[108+i].GetUInt32();
-
     for (int i = 0; i < QUEST_EMOTE_COUNT; ++i)
         DetailsEmoteDelay[i] = questRecord[112+i].GetUInt32();
-
     IncompleteEmote = questRecord[116].GetUInt32();
     CompleteEmote = questRecord[117].GetUInt32();
-
     for (int i = 0; i < QUEST_EMOTE_COUNT; ++i)
         OfferRewardEmote[i] = questRecord[118+i].GetInt32();
-
     for (int i = 0; i < QUEST_EMOTE_COUNT; ++i)
         OfferRewardEmoteDelay[i] = questRecord[122+i].GetInt32();
-
     QuestStartScript = questRecord[126].GetUInt32();
     QuestCompleteScript = questRecord[127].GetUInt32();
-
     QuestFlags |= SpecialFlags << 16;
-
     m_reqitemscount = 0;
     m_reqCreatureOrGOcount = 0;
     m_rewitemscount = 0;
     m_rewchoiceitemscount = 0;
-
     for (int i=0; i < QUEST_OBJECTIVES_COUNT; ++i)
     {
         if ( ReqItemId[i] )
@@ -146,20 +120,17 @@ Quest::Quest(Field * questRecord)
         if ( ReqCreatureOrGOId[i] )
             ++m_reqCreatureOrGOcount;
     }
-
     for (int i=0; i < QUEST_REWARDS_COUNT; ++i)
     {
         if ( RewItemId[i] )
             ++m_rewitemscount;
     }
-
     for (int i=0; i < QUEST_REWARD_CHOICES_COUNT; ++i)
     {
         if (RewChoiceItemId[i])
             ++m_rewchoiceitemscount;
     }
 }
-
 uint32 Quest::XPValue( Player *pPlayer ) const
 {
     if( pPlayer )
@@ -183,7 +154,6 @@ uint32 Quest::XPValue( Player *pPlayer ) const
                 fullxp = RewMoneyMaxLevel / 0.6f;
             else if (qLevel == 0)
                 fullxp = RewMoneyMaxLevel;
-
             if( pLevel <= qLevel +  5 )
                 return (uint32)fullxp;
             else if( pLevel == qLevel +  6 )
@@ -200,12 +170,10 @@ uint32 Quest::XPValue( Player *pPlayer ) const
     }
     return 0;
 }
-
 int32  Quest::GetRewOrReqMoney() const
 {
     if(RewOrReqMoney <=0)
         return RewOrReqMoney;
-
     return int32(RewOrReqMoney * sWorld.getRate(RATE_DROP_MONEY));
 }
 

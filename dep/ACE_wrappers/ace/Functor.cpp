@@ -24,21 +24,15 @@
  */
 //=============================================================================
 
-
 #include "ace/Functor_T.h"
 #include "ace/Functor.h"
-
 #if !defined (__ACE_INLINE__)
 #include "ace/Functor.inl"
 #endif /* __ACE_INLINE__ */
-
 ACE_RCSID(ace, Functor, "$Id: Functor.cpp 80826 2008-03-04 14:51:23Z wotte $")
-
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
-
 ACE_Command_Base::~ACE_Command_Base (void)
 {
 }
-
 ACE_END_VERSIONED_NAMESPACE_DECL
 

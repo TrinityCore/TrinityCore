@@ -1,5 +1,4 @@
 // -*- C++ -*-
-
 //=============================================================================
 /**
  *  @file   OS_NS_sys_utsname.h
@@ -13,25 +12,18 @@
  *  Originally in OS.h.
  */
 //=============================================================================
-
 #ifndef ACE_OS_NS_SYS_UTSNAME_H
 # define ACE_OS_NS_SYS_UTSNAME_H
-
 # include /**/ "ace/pre.h"
-
 # include "ace/config-all.h"
-
 # if !defined (ACE_LACKS_PRAGMA_ONCE)
 #  pragma once
 # endif /* ACE_LACKS_PRAGMA_ONCE */
-
 #include /**/ "ace/ACE_export.h"
-
 #if defined (ACE_EXPORT_MACRO)
 #  undef ACE_EXPORT_MACRO
 #endif
 #define ACE_EXPORT_MACRO ACE_Export
-
 #if defined (ACE_LACKS_UTSNAME_T)
 #   if !defined (SYS_NMLN)
 #     define SYS_NMLN 257
@@ -55,18 +47,12 @@ ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 typedef struct utsname ACE_utsname;
 ACE_END_VERSIONED_NAMESPACE_DECL
 # endif /* ACE_LACKS_UTSNAME_T */
-
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
-
 namespace ACE_OS {
-
   extern ACE_Export
   int uname (ACE_utsname *name);
-
 } /* namespace ACE_OS */
-
 ACE_END_VERSIONED_NAMESPACE_DECL
-
 # include /**/ "ace/post.h"
 #endif /* ACE_OS_NS_SYS_UTSNAME_H */
 

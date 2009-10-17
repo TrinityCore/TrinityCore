@@ -1,39 +1,29 @@
 #include "precompiled.h"
 #include "def_vault_of_archavon.h"
-
 #define ENCOUNTERS 2
-
 /* Vault of Archavon encounters:
 1 - Archavon the Stone Watcher event
 2 - Emalon the Storm Watcher event
 */
-
 struct TRINITY_DLL_DECL instance_archavon : public ScriptedInstance
 {
     instance_archavon(Map *Map) : ScriptedInstance(Map) {Initialize();};
-
     uint32 Encounters[ENCOUNTERS];
-
     uint64 Archavon;
     uint64 Emalon;
-
     void Initialize()
     {
         Archavon = 0;
         Emalon = 0;
-
-        for(uint8 i = 0; i < ENCOUNTERS; i++)
+        for (uint8 i = 0; i < ENCOUNTERS; i++)
             Encounters[i] = NOT_STARTED;
     }
-
     bool IsEncounterInProgress() const
     {
-        for(uint8 i = 0; i < ENCOUNTERS; i++)
+        for (uint8 i = 0; i < ENCOUNTERS; i++)
             if(Encounters[i] == IN_PROGRESS) return true;
-
         return false;
     }
-
     void OnCreatureCreate(Creature *creature, bool add)
     {
         switch(creature->GetEntry())
@@ -42,7 +32,6 @@ struct TRINITY_DLL_DECL instance_archavon : public ScriptedInstance
         case 33993: Emalon = creature->GetGUID(); break;
         }
     }
-
     uint32 GetData(uint32 type)
     {
         switch(type)
@@ -52,7 +41,6 @@ struct TRINITY_DLL_DECL instance_archavon : public ScriptedInstance
         }
         return 0;
     }
-
     uint64 GetData64(uint32 identifier)
     {
         switch(identifier)
@@ -62,7 +50,6 @@ struct TRINITY_DLL_DECL instance_archavon : public ScriptedInstance
         }
         return 0;
     }
-
     void SetData(uint32 type, uint32 data)
     {
         switch(type)
@@ -70,11 +57,9 @@ struct TRINITY_DLL_DECL instance_archavon : public ScriptedInstance
             case DATA_ARCHAVON_EVENT: Encounters[0] = data; break;
             case DATA_EMALON_EVENT: Encounters[1] = data; break;
         }
-
         if(data == DONE)
             SaveToDB();
     }
-
     std::string GetSaveData()
     {
         OUT_SAVE_INST_DATA;
@@ -87,10 +72,8 @@ struct TRINITY_DLL_DECL instance_archavon : public ScriptedInstance
             OUT_SAVE_INST_DATA_COMPLETE;
             return out;
         }
-
         return NULL;
     }
-
     void Load(const char* in)
     {
         if(!in)
@@ -98,22 +81,19 @@ struct TRINITY_DLL_DECL instance_archavon : public ScriptedInstance
             OUT_LOAD_INST_DATA_FAIL;
             return;
         }
-
         OUT_LOAD_INST_DATA(in);
         std::istringstream stream(in);
         stream >> Encounters[0] >> Encounters[1];
-        for(uint8 i = 0; i < ENCOUNTERS; ++i)
+        for (uint8 i = 0; i < ENCOUNTERS; ++i)
             if(Encounters[i] == IN_PROGRESS)
                 Encounters[i] = NOT_STARTED;
         OUT_LOAD_INST_DATA_COMPLETE;
     }
 };
-
 InstanceData* GetInstanceData_instance_archavon(Map* map)
 {
     return new instance_archavon(map);
 }
-
 void AddSC_instance_archavon()
 {
     Script *newscript;

@@ -2,7 +2,6 @@
 // Microsoft Visual C++ generated include file.
 // Used by TrinityCore.rc
 //
-
 // Next default values for new objects
 //
 #ifdef APSTUDIO_INVOKED

@@ -13,22 +13,18 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
-
 /* ScriptData
 SDName: Instance_Mount_Hyjal
 SD%Complete: 100
 SDComment: Instance Data Scripts and functions to acquire mobs and set encounter status for use in various Hyjal Scripts
 SDCategory: Caverns of Time, Mount Hyjal
 EndScriptData */
-
 #include "precompiled.h"
 #include "def_hyjal.h"
 #include "hyjal_trash.h"
-
 enum eEnums
 {
     MAX_ENCOUNTER       = 5,
-
     GO_ANCIENT_GEM      = 185557
 };
 /* Battle of Mount Hyjal encounters:
@@ -38,16 +34,12 @@ enum eEnums
 3 - Azgalor event
 4 - Archimonde event
 */
-
 struct TRINITY_DLL_DECL instance_mount_hyjal : public ScriptedInstance
 {
     instance_mount_hyjal(Map* pMap) : ScriptedInstance(pMap) {Initialize();};
-
     uint32 m_auiEncounter[MAX_ENCOUNTER];
     std::string str_data;
-
     std::list<uint64> m_uiAncientGemGUID;
-
     uint64 RageWinterchill;
     uint64 Anetheron;
     uint64 Kazrogal;
@@ -58,25 +50,18 @@ struct TRINITY_DLL_DECL instance_mount_hyjal : public ScriptedInstance
     uint64 TyrandeWhisperwind;
     uint64 HordeGate;
     uint64 ElfGate;
-
     uint32 Trash;
-
 
     uint32 hordeRetreat;
     uint32 allianceRetreat;
     bool ArchiYell;
-
     uint32 RaidDamage;
-
     #define YELL_EFFORTS        "All of your efforts have been in vain, for the draining of the World Tree has already begun. Soon the heart of your world will beat no more."
     #define YELL_EFFORTS_NAME   "Archimonde"
-
     void Initialize()
     {
         memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
-
         m_uiAncientGemGUID.clear();
-
         RageWinterchill = 0;
         Anetheron = 0;
         Kazrogal = 0;
@@ -89,21 +74,16 @@ struct TRINITY_DLL_DECL instance_mount_hyjal : public ScriptedInstance
         ElfGate = 0;
         ArchiYell = false;
         RaidDamage = 0;
-
         Trash = 0;
-
         hordeRetreat = 0;
         allianceRetreat = 0;
     }
-
     bool IsEncounterInProgress() const
     {
-        for(uint8 i = 0; i < MAX_ENCOUNTER; ++i)
+        for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
             if (m_auiEncounter[i] == IN_PROGRESS) return true;
-
         return false;
     }
-
     void OnGameObjectCreate(GameObject* pGo, bool add)
     {
         switch(pGo->GetEntry())
@@ -127,7 +107,6 @@ struct TRINITY_DLL_DECL instance_mount_hyjal : public ScriptedInstance
                 break;
         }
     }
-
     void OnCreatureCreate(Creature* pCreature, bool add)
     {
         switch(pCreature->GetEntry())
@@ -142,7 +121,6 @@ struct TRINITY_DLL_DECL instance_mount_hyjal : public ScriptedInstance
             case 17948: TyrandeWhisperwind = pCreature->GetGUID(); break;
         }
     }
-
     uint64 GetData64(uint32 identifier)
     {
         switch(identifier)
@@ -156,10 +134,8 @@ struct TRINITY_DLL_DECL instance_mount_hyjal : public ScriptedInstance
             case DATA_THRALL: return Thrall;
             case DATA_TYRANDEWHISPERWIND: return TyrandeWhisperwind;
         }
-
         return 0;
     }
-
     void SetData(uint32 type, uint32 data)
     {
         switch(type)
@@ -176,12 +152,10 @@ struct TRINITY_DLL_DECL instance_mount_hyjal : public ScriptedInstance
                     {
                         if (ArchiYell)break;
                         ArchiYell = true;
-
                         Creature* pCreature = instance->GetCreature(Azgalor);
                         if (pCreature)
                         {
                             Creature* pUnit = pCreature->SummonCreature(21987,pCreature->GetPositionX(),pCreature->GetPositionY(),pCreature->GetPositionZ(),0,TEMPSUMMON_TIMED_DESPAWN,10000);
-
                             Map* pMap = pCreature->GetMap();
                             if (pMap->IsDungeon() && pUnit)
                             {
@@ -189,7 +163,6 @@ struct TRINITY_DLL_DECL instance_mount_hyjal : public ScriptedInstance
                                 Map::PlayerList const &PlayerList = pMap->GetPlayers();
                                 if (PlayerList.isEmpty())
                                      return;
-
                                 for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
                                 {
                                      if (i->getSource())
@@ -197,7 +170,6 @@ struct TRINITY_DLL_DECL instance_mount_hyjal : public ScriptedInstance
                                         WorldPacket data(SMSG_MESSAGECHAT, 200);
                                         pUnit->BuildMonsterChat(&data,CHAT_MSG_MONSTER_YELL,YELL_EFFORTS,0,YELL_EFFORTS_NAME,i->getSource()->GetGUID());
                                         i->getSource()->GetSession()->SendPacket(&data);
-
                                         WorldPacket data2(SMSG_PLAY_SOUND, 4);
                                         data2 << 10986;
                                         i->getSource()->GetSession()->SendPacket(&data2);
@@ -210,7 +182,6 @@ struct TRINITY_DLL_DECL instance_mount_hyjal : public ScriptedInstance
                 break;
             case DATA_ARCHIMONDEEVENT:      m_auiEncounter[4] = data; break;
             case DATA_RESET_TRASH_COUNT:    Trash = 0;            break;
-
             case DATA_TRASH:
                 if (data) Trash = data;
                 else     Trash--;
@@ -221,7 +192,7 @@ struct TRINITY_DLL_DECL instance_mount_hyjal : public ScriptedInstance
                 {
                     if (!m_uiAncientGemGUID.empty())
                     {
-                        for(std::list<uint64>::iterator itr = m_uiAncientGemGUID.begin(); itr != m_uiAncientGemGUID.end(); ++itr)
+                        for (std::list<uint64>::iterator itr = m_uiAncientGemGUID.begin(); itr != m_uiAncientGemGUID.end(); ++itr)
                         {
                             //don't know how long it expected
                             DoRespawnGameObject(*itr,DAY);
@@ -248,27 +219,20 @@ struct TRINITY_DLL_DECL instance_mount_hyjal : public ScriptedInstance
                 RaidDamage = 0;
                 break;
         }
-
          debug_log("TSCR: Instance Hyjal: Instance data updated for event %u (Data=%u)",type,data);
-
         if (data == DONE)
         {
             OUT_SAVE_INST_DATA;
-
             std::ostringstream saveStream;
             saveStream << m_auiEncounter[0] << " " << m_auiEncounter[1] << " " << m_auiEncounter[2] << " "
                 << m_auiEncounter[3] << " " << m_auiEncounter[4]
                 << " " << allianceRetreat << " " << hordeRetreat
                 << " " << RaidDamage;
-
             str_data = saveStream.str();
-
             SaveToDB();
             OUT_SAVE_INST_DATA_COMPLETE;
         }
-
     }
-
     uint32 GetData(uint32 type)
     {
         switch(type)
@@ -285,12 +249,10 @@ struct TRINITY_DLL_DECL instance_mount_hyjal : public ScriptedInstance
         }
         return 0;
     }
-
     std::string GetSaveData()
     {
         return str_data;
     }
-
     void Load(const char* in)
     {
         if (!in)
@@ -298,22 +260,19 @@ struct TRINITY_DLL_DECL instance_mount_hyjal : public ScriptedInstance
             OUT_LOAD_INST_DATA_FAIL;
             return;
         }
-
         OUT_LOAD_INST_DATA(in);
         std::istringstream loadStream(in);
         loadStream >> m_auiEncounter[0] >> m_auiEncounter[1] >> m_auiEncounter[2] >> m_auiEncounter[3] >> m_auiEncounter[4] >> allianceRetreat >> hordeRetreat >> RaidDamage;
-        for(uint8 i = 0; i < MAX_ENCOUNTER; ++i)
+        for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
             if (m_auiEncounter[i] == IN_PROGRESS)                // Do not load an encounter as IN_PROGRESS - reset it instead.
                 m_auiEncounter[i] = NOT_STARTED;
         OUT_LOAD_INST_DATA_COMPLETE;
     }
 };
-
 InstanceData* GetInstanceData_instance_mount_hyjal(Map* pMap)
 {
     return new instance_mount_hyjal(pMap);
 }
-
 void AddSC_instance_mount_hyjal()
 {
     Script *newscript;

@@ -1,5 +1,4 @@
 /* -*- C++ -*- */
-
 //=============================================================================
 /**
  *  @file    IOStream_T.h
@@ -14,33 +13,24 @@
  * we only put some conditional compilations in that file.
  */
 //=============================================================================
-
 #ifndef ACE_IOSTREAM_T_H
 #define ACE_IOSTREAM_T_H
 #include /**/ "ace/pre.h"
-
 #include "ace/IOStream.h"
-
 #if !defined (ACE_LACKS_PRAGMA_ONCE)
 # pragma once
 #endif /* ACE_LACKS_PRAGMA_ONCE */
-
 #if !defined (ACE_LACKS_ACE_IOSTREAM)
-
 #  include "ace/INET_Addr.h"
 #  include "ace/Global_Macros.h"
-
 #  if defined (ACE_LACKS_IOSTREAM_FX)
 #   include "ace/os_include/os_ctype.h"
 #  endif /**/
-
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
-
 #  if defined (ACE_HAS_STRING_CLASS)
 template <class STREAM> STREAM & operator>> (STREAM &stream, ACE_Quoted_String &str);
 template <class STREAM> STREAM & operator<< (STREAM &stream, ACE_Quoted_String &str);
 #  endif /* defined (ACE_HAS_STRING_CLASS) */
-
 template <class STREAM>
 class ACE_Streambuf_T : public ACE_Streambuf
 {
@@ -54,30 +44,23 @@ public:
   ACE_Streambuf_T (STREAM *peer,
                    u_int streambuf_size = ACE_STREAMBUF_SIZE,
                    int io_mode = ios::in | ios::out);
-
   virtual ssize_t send (char *buf, ssize_t len);
-
   virtual ssize_t recv (char *buf,
                         ssize_t len,
                         ACE_Time_Value *tv = 0);
-
   virtual ssize_t recv (char *buf,
                         ssize_t len,
                         int flags,
                         ACE_Time_Value * tv = 0);
-
   virtual ssize_t recv_n (char *buf,
                           ssize_t len,
                           int flags = 0,
                           ACE_Time_Value *tv = 0);
-
 protected:
   virtual ACE_HANDLE get_handle (void);
-
   /// This will be our ACE_SOCK_Stream or similar object.
   STREAM *peer_;
 };
-
 /**
  * @class ACE_IOStream
  *
@@ -114,22 +97,18 @@ public:
   // = Initialization and termination methods.
   ACE_IOStream (STREAM &stream,
                   u_int streambuf_size = ACE_STREAMBUF_SIZE);
-
   /**
    * The default constructor.  This will initiailze your STREAM and
    * then setup the iostream baseclass to use a custom streambuf based
    * on STREAM.
    */
   ACE_IOStream (u_int streambuf_size = ACE_STREAMBUF_SIZE);
-
   /// We have to get rid of the <streambuf_> ourselves since we gave it
   /// to the <iostream> base class;
   virtual ~ACE_IOStream (void);
-
   /// The only ambituity in the multiple inheritance is the <close>
   /// function.
   virtual int close (void);
-
   /**
    * Returns 1 if we're at the end of the <STREAM>, i.e., if the
    * connection has closed down or an error has occurred, else 0.
@@ -139,7 +118,6 @@ public:
    * successively.
    */
   int eof (void) const;
-
 #  if defined (ACE_HAS_STRING_CLASS)
   /**
    * A simple string operator.  The base <iostream> has them for char*
@@ -147,14 +125,11 @@ public:
    * provide our own here, we may not get what we want.
    */
   virtual ACE_IOStream<STREAM> &operator>> (ACE_IOStream_String &v);
-
   /// The converse of the <String::put> operator.
   virtual ACE_IOStream<STREAM> &operator<< (ACE_IOStream_String &v);
-
 #  endif /* ACE_HAS_STRING_CLASS */
   // = Using the macros to provide get/set operators.
   GETPUT_FUNC_SET (ACE_IOStream<STREAM>)
-
 #  if defined (ACE_LACKS_IOSTREAM_FX)
   virtual int ipfx (int noskip = 0)
     {
@@ -216,19 +191,15 @@ public:
   virtual int opfx (void)         {  return iostream::opfx (); }
   virtual void osfx (void)        {  iostream::osfx (); }
 #  endif /* ACE_LACKS_IOSTREAM_FX */
-
   /// Allow the programmer to provide a timeout for read operations.
   /// Give it a pointer to NULL to block forever.
   ACE_IOStream<STREAM> & operator>> (ACE_Time_Value *&tv);
-
 protected:
   /// This is where all of the action takes place.  The streambuf_ is
   /// the interface to the underlying STREAM.
   ACE_Streambuf_T<STREAM> *streambuf_;
-
 private:
   // = Private methods.
-
   // We move these into the private section so that they cannot be
   // used by the application programmer.  This is necessary because
   // streambuf_ will be buffering IO on the STREAM object.  If these
@@ -239,7 +210,6 @@ private:
   ACE_UNIMPLEMENTED_FUNC (ssize_t send_n (...))
   ACE_UNIMPLEMENTED_FUNC (ssize_t recv_n (...))
 };
-
 /**
  * @class ACE_SOCK_Dgram_SC
  *
@@ -273,26 +243,20 @@ public:
                   int flags = 0,
                   ACE_Time_Value *tv = 0);
   int get_remote_addr (ACE_INET_Addr &addr) const;
-
 protected:
   ACE_INET_Addr peer_;
 };
-
 ACE_END_VERSIONED_NAMESPACE_DECL
-
 #  if defined (__ACE_INLINE__)
 #    include "ace/IOStream_T.inl"
 #  endif /* __ACE_INLINE__ */
-
 #  if defined (ACE_TEMPLATES_REQUIRE_SOURCE)
 #    include "ace/IOStream_T.cpp"
 #  endif /* ACE_TEMPLATES_REQUIRE_SOURCE */
-
 #  if defined (ACE_TEMPLATES_REQUIRE_PRAGMA)
 #    pragma implementation ("IOStream_T.cpp")
 #  endif /* ACE_TEMPLATES_REQUIRE_PRAGMA */
 #endif /* ACE_LACKS_ACE_IOSTREAM */
-
 #include /**/ "ace/post.h"
 #endif /* ACE_IOSTREAM_T_H */
 

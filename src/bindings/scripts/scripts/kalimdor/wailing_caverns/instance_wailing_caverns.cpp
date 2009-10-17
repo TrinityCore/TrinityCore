@@ -13,42 +13,32 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
-
 /* ScriptData
 SDName: Instance_Wailing_Caverns
 SD%Complete: 99
 SDComment: Everything seems to work, still need some checking
 SDCategory: Wailing Caverns
 EndScriptData */
-
 #include "precompiled.h"
 #include "def_wailing_caverns.h"
-
 #define MAX_ENCOUNTER   9
-
 struct TRINITY_DLL_DECL instance_wailing_caverns : public ScriptedInstance
 {
     instance_wailing_caverns(Map* pMap) : ScriptedInstance(pMap) {Initialize();};
-
     uint32 m_auiEncounter[MAX_ENCOUNTER];
-
     bool yelled;
     uint64 NaralexGUID;
-
     void Initialize()
     {
         memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
-
         yelled = false;
         NaralexGUID = 0;
     }
-
     void OnCreatureCreate(Creature* pCreature, bool add)
     {
         if (pCreature->GetEntry() == DATA_NARALEX)
             NaralexGUID = pCreature->GetGUID();
     }
-
     void SetData(uint32 type, uint32 data)
     {
         switch (type)
@@ -66,7 +56,6 @@ struct TRINITY_DLL_DECL instance_wailing_caverns : public ScriptedInstance
         }
         if (data == DONE)SaveToDB();
     }
-
     uint32 GetData(uint32 type)
     {
         switch (type)
@@ -84,26 +73,21 @@ struct TRINITY_DLL_DECL instance_wailing_caverns : public ScriptedInstance
         }
         return 0;
     }
-
     uint64 GetData64(uint32 data)
     {
         if (data == DATA_NARALEX)return NaralexGUID;
         return 0;
     }
-
     std::string GetSaveData()
     {
         OUT_SAVE_INST_DATA;
-
         std::ostringstream saveStream;
         saveStream << m_auiEncounter[0] << " " << m_auiEncounter[1] << " " << m_auiEncounter[2] << " "
             << m_auiEncounter[3] << " " << m_auiEncounter[4] << " " << m_auiEncounter[5] << " "
             << m_auiEncounter[6] << " " << m_auiEncounter[7] << " " << m_auiEncounter[8];
-
         OUT_SAVE_INST_DATA_COMPLETE;
         return saveStream.str();
     }
-
     void Load(const char* in)
     {
         if (!in)
@@ -111,27 +95,20 @@ struct TRINITY_DLL_DECL instance_wailing_caverns : public ScriptedInstance
             OUT_LOAD_INST_DATA_FAIL;
             return;
         }
-
         OUT_LOAD_INST_DATA(in);
-
         std::istringstream loadStream(in);
         loadStream >> m_auiEncounter[0] >> m_auiEncounter[1] >> m_auiEncounter[2] >> m_auiEncounter[3]
         >> m_auiEncounter[4] >> m_auiEncounter[5] >> m_auiEncounter[6] >> m_auiEncounter[7] >> m_auiEncounter[8];
-
-        for(uint8 i = 0; i < MAX_ENCOUNTER; ++i)
+        for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
             if (m_auiEncounter[i] != DONE)
                 m_auiEncounter[i] = NOT_STARTED;
-
         OUT_LOAD_INST_DATA_COMPLETE;
     }
-
 };
-
 InstanceData* GetInstanceData_instance_wailing_caverns(Map* pMap)
 {
     return new instance_wailing_caverns(pMap);
 }
-
 void AddSC_instance_wailing_caverns()
 {
     Script *newscript;

@@ -17,16 +17,13 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
-
 #ifndef __TRINITY_LANGUAGE_H
 #define __TRINITY_LANGUAGE_H
-
 enum TrinityStrings
 {
     // for chat commands
     LANG_SELECT_CHAR_OR_CREATURE        = 1,
     LANG_SELECT_CREATURE                = 2,
-
     // level 0 chat
     LANG_SYSTEMMESSAGE                  = 3,
     LANG_EVENTMESSAGE                   = 4,
@@ -88,7 +85,6 @@ enum TrinityStrings
     LANG_CONNECTED_PLAYERS              = 60,
     LANG_ACCOUNT_ADDON                  = 61,
     // Room for more level 0              62-99 not used
-
     // level 1 chat
     LANG_GLOBAL_NOTIFY                  = 100,
     LANG_MAP_POSITION                   = 101,
@@ -108,14 +104,12 @@ enum TrinityStrings
     LANG_BAD_VALUE                      = 115,
     LANG_NO_CHAR_SELECTED               = 116,
     LANG_NOT_IN_GROUP                   = 117,
-
     LANG_YOU_CHANGE_HP                  = 118,
     LANG_YOURS_HP_CHANGED               = 119,
     LANG_YOU_CHANGE_MANA                = 120,
     LANG_YOURS_MANA_CHANGED             = 121,
     LANG_YOU_CHANGE_ENERGY              = 122,
     LANG_YOURS_ENERGY_CHANGED           = 123,
-
     LANG_CURRENT_ENERGY                 = 124,              //log
     LANG_YOU_CHANGE_RAGE                = 125,
     LANG_YOURS_RAGE_CHANGED             = 126,
@@ -129,7 +123,6 @@ enum TrinityStrings
     LANG_YOU_REMOVE_TAXIS               = 134,
     LANG_YOURS_TAXIS_ADDED              = 135,
     LANG_YOURS_TAXIS_REMOVED            = 136,
-
     LANG_YOU_CHANGE_ASPEED              = 137,
     LANG_YOURS_ASPEED_CHANGED           = 138,
     LANG_YOU_CHANGE_SPEED               = 139,
@@ -140,13 +133,11 @@ enum TrinityStrings
     LANG_YOURS_BACK_SPEED_CHANGED       = 144,
     LANG_YOU_CHANGE_FLY_SPEED           = 145,
     LANG_YOURS_FLY_SPEED_CHANGED        = 146,
-
     LANG_YOU_CHANGE_SIZE                = 147,
     LANG_YOURS_SIZE_CHANGED             = 148,
     LANG_NO_MOUNT                       = 149,
     LANG_YOU_GIVE_MOUNT                 = 150,
     LANG_MOUNT_GIVED                    = 151,
-
     LANG_CURRENT_MONEY                  = 152,
     LANG_YOU_TAKE_ALL_MONEY             = 153,
     LANG_YOURS_ALL_MONEY_GONE           = 154,
@@ -155,9 +146,7 @@ enum TrinityStrings
     LANG_YOU_GIVE_MONEY                 = 157,
     LANG_YOURS_MONEY_GIVEN              = 158,
     LANG_YOU_HEAR_SOUND                 = 159,
-
     LANG_NEW_MONEY                      = 160,              // Log
-
     LANG_REMOVE_BIT                     = 161,
     LANG_SET_BIT                        = 162,
     LANG_COMMAND_TELE_TABLEEMPTY        = 163,
@@ -166,7 +155,6 @@ enum TrinityStrings
     LANG_COMMAND_TELE_NOLOCATION        = 166,
     //                                    167               // not used
     LANG_COMMAND_TELE_LOCATION          = 168,
-
     LANG_MAIL_SENT                      = 169,
     LANG_SOUND_NOT_EXIST                = 170,
     LANG_CANT_TELEPORT_SELF             = 171,
@@ -175,7 +163,6 @@ enum TrinityStrings
     LANG_YOURS_RUNIC_POWER_CHANGED      = 174,
     LANG_LIQUID_STATUS                  = 175,
     // Room for more level 1              176-199 not used
-
     // level 2 chat
     LANG_NO_SELECTION                   = 200,
     LANG_OBJECT_GUID                    = 201,
@@ -183,24 +170,20 @@ enum TrinityStrings
     LANG_CHARS_ONLY                     = 203,
     LANG_TOO_LONG_SUBNAME               = 204,
     LANG_NOT_IMPLEMENTED                = 205,
-
     LANG_ITEM_ADDED_TO_LIST             = 206,
     LANG_ITEM_NOT_FOUND                 = 207,
     LANG_ITEM_DELETED_FROM_LIST         = 208,
     LANG_ITEM_NOT_IN_LIST               = 209,
     LANG_ITEM_ALREADY_IN_LIST           = 210,
-
     LANG_RESET_SPELLS_ONLINE            = 211,
     LANG_RESET_SPELLS_OFFLINE           = 212,
     LANG_RESET_TALENTS_ONLINE           = 213,
     LANG_RESET_TALENTS_OFFLINE          = 214,
     LANG_RESET_SPELLS                   = 215,
     LANG_RESET_TALENTS                  = 216,
-
     LANG_RESETALL_UNKNOWN_CASE          = 217,
     LANG_RESETALL_SPELLS                = 218,
     LANG_RESETALL_TALENTS               = 219,
-
     LANG_WAYPOINT_NOTFOUND              = 220,
     LANG_WAYPOINT_NOTFOUNDLAST          = 221,
     LANG_WAYPOINT_NOTFOUNDSEARCH        = 222,
@@ -234,19 +217,15 @@ enum TrinityStrings
     LANG_WAYPOINT_INFO_SPELL            = 250,
     LANG_WAYPOINT_INFO_TEXT             = 251,
     LANG_WAYPOINT_INFO_AISCRIPT         = 252,
-
     LANG_RENAME_PLAYER                  = 253,
     LANG_RENAME_PLAYER_GUID             = 254,
-
     LANG_WAYPOINT_WPCREATNOTFOUND       = 255,
     LANG_WAYPOINT_NPCNOTFOUND           = 256,
-
     LANG_MOVE_TYPE_SET                  = 257,
     LANG_MOVE_TYPE_SET_NODEL            = 258,
     LANG_USE_BOL                        = 259,
     LANG_VALUE_SAVED                    = 260,
     LANG_VALUE_SAVED_REJOIN             = 261,
-
     LANG_COMMAND_GOAREATRNOTFOUND       = 262,
     LANG_INVALID_TARGET_COORD           = 263,
     LANG_INVALID_ZONE_COORD             = 264,
@@ -274,18 +253,15 @@ enum TrinityStrings
     LANG_COMMAND_WHISPEROFF             = 286,
     LANG_COMMAND_CREATGUIDNOTFOUND      = 287,
       // TICKET STRINGS NEED REWRITE // 288-296 FREE
-
       // END
     LANG_COMMAND_SPAWNDIST              = 297,
     LANG_COMMAND_SPAWNTIME              = 298,
     LANG_COMMAND_MODIFY_HONOR           = 299,
-
     LANG_YOUR_CHAT_DISABLED             = 300,
     LANG_YOU_DISABLE_CHAT               = 301,
     LANG_CHAT_ALREADY_ENABLED           = 302,
     LANG_YOUR_CHAT_ENABLED              = 303,
     LANG_YOU_ENABLE_CHAT                = 304,
-
     LANG_COMMAND_MODIFY_REP             = 305,
     LANG_COMMAND_MODIFY_ARENA           = 306,
     LANG_COMMAND_FACTION_NOTFOUND       = 307,
@@ -331,7 +307,6 @@ enum TrinityStrings
     LANG_COMMAND_GOTAXINODENOTFOUND     = 347,
     LANG_GAMEOBJECT_HAVE_INVALID_DATA   = 348,
     // Room for more level 2              349-399 not used
-
     // level 3 chat
     LANG_SCRIPTS_RELOADED               = 400,
     LANG_YOU_CHANGE_SECURITY            = 401,
@@ -341,16 +316,12 @@ enum TrinityStrings
     LANG_CREATURE_MOVE_ENABLED          = 405,
     LANG_NO_WEATHER                     = 406,
     LANG_WEATHER_DISABLED               = 407,
-
     LANG_BAN_YOUBANNED                  = 408,
     LANG_BAN_YOUPERMBANNED              = 409,
     LANG_BAN_NOTFOUND                   = 410,
-
     LANG_UNBAN_UNBANNED                 = 411,
     LANG_UNBAN_ERROR                    = 412,
-
     LANG_ACCOUNT_NOT_EXIST              = 413,
-
     LANG_BANINFO_NOCHARACTER            = 414,
     LANG_BANINFO_NOIP                   = 415,
     LANG_BANINFO_NOACCOUNTBAN           = 416,
@@ -361,13 +332,11 @@ enum TrinityStrings
     LANG_BANINFO_YES                    = 421,
     LANG_BANINFO_NO                     = 422,
     LANG_BANINFO_IPENTRY                = 423,
-
     LANG_BANLIST_NOIP                   = 424,
     LANG_BANLIST_NOACCOUNT              = 425,
     LANG_BANLIST_NOCHARACTER            = 426,
     LANG_BANLIST_MATCHINGIP             = 427,
     LANG_BANLIST_MATCHINGACCOUNT        = 428,
-
     LANG_COMMAND_LEARN_MANY_SPELLS      = 429,
     LANG_COMMAND_LEARN_CLASS_SPELLS     = 430,
     LANG_COMMAND_LEARN_CLASS_TALENTS    = 431,
@@ -410,28 +379,21 @@ enum TrinityStrings
     LANG_COMMAND_TARGET_AURADETAIL      = 468,
     LANG_COMMAND_TARGET_LISTAURATYPE    = 469,
     LANG_COMMAND_TARGET_AURASIMPLE      = 470,
-
     LANG_COMMAND_QUEST_NOTFOUND         = 471,
     LANG_COMMAND_QUEST_STARTFROMITEM    = 472,
     LANG_COMMAND_QUEST_REMOVED          = 473,
     LANG_COMMAND_QUEST_REWARDED         = 474,
     LANG_COMMAND_QUEST_COMPLETE         = 475,
     LANG_COMMAND_QUEST_ACTIVE           = 476,
-
     LANG_COMMAND_FLYMODE_STATUS         = 477,
-
     LANG_COMMAND_OPCODESENT             = 478,
-
     LANG_COMMAND_IMPORT_SUCCESS         = 479,
     LANG_COMMAND_IMPORT_FAILED          = 480,
     LANG_COMMAND_EXPORT_SUCCESS         = 481,
     LANG_COMMAND_EXPORT_FAILED          = 482,
-
     LANG_COMMAND_SPELL_BROKEN           = 483,
-
     LANG_SET_SKILL                      = 484,
     LANG_SET_SKILL_ERROR                = 485,
-
     LANG_INVALID_SKILL_ID               = 486,
     LANG_LEARNING_GM_SKILLS             = 487,
     LANG_YOU_KNOWN_SPELL                = 488,
@@ -440,7 +402,6 @@ enum TrinityStrings
     LANG_FORGET_SPELL                   = 491,
     LANG_REMOVEALL_COOLDOWN             = 492,
     LANG_REMOVE_COOLDOWN                = 493,
-
     LANG_ADDITEM                        = 494,              //log
     LANG_ADDITEMSET                     = 495,              //log
     LANG_REMOVEITEM                     = 496,
@@ -450,9 +411,7 @@ enum TrinityStrings
     LANG_PLAYER_IN_GUILD                = 500,
     LANG_GUILD_NOT_CREATED              = 501,
     LANG_NO_ITEMS_FROM_ITEMSET_FOUND    = 502,
-
     LANG_DISTANCE                       = 503,
-
     LANG_ITEM_SLOT                      = 504,
     LANG_ITEM_SLOT_NOT_EXIST            = 505,
     LANG_ITEM_ADDED_TO_SLOT             = 506,
@@ -460,7 +419,6 @@ enum TrinityStrings
     LANG_ITEMLIST_SLOT                  = 508,
     LANG_ITEMLIST_MAIL                  = 509,
     LANG_ITEMLIST_AUCTION               = 510,
-
     LANG_WRONG_LINK_TYPE                = 511,
     LANG_ITEM_LIST_CHAT                 = 512,
     LANG_QUEST_LIST_CHAT                = 513,
@@ -472,13 +430,10 @@ enum TrinityStrings
     LANG_TELE_LIST                      = 519,
     LANG_SPELL_LIST                     = 520,
     LANG_SKILL_LIST_CHAT                = 521,
-
     LANG_GAMEOBJECT_NOT_EXIST           = 522,
-
     LANG_GAMEOBJECT_CURRENT             = 523,              //log
     LANG_GAMEOBJECT_DETAIL              = 524,
     LANG_GAMEOBJECT_ADD                 = 525,
-
     LANG_MOVEGENS_LIST                  = 526,
     LANG_MOVEGENS_IDLE                  = 527,
     LANG_MOVEGENS_RANDOM                = 528,
@@ -492,7 +447,6 @@ enum TrinityStrings
     LANG_MOVEGENS_HOME_PLAYER           = 536,
     LANG_MOVEGENS_FLIGHT                = 537,
     LANG_MOVEGENS_UNKNOWN               = 538,
-
     LANG_NPCINFO_CHAR                   = 539,
     LANG_NPCINFO_LEVEL                  = 540,
     LANG_NPCINFO_HEALTH                 = 541,
@@ -502,16 +456,13 @@ enum TrinityStrings
     LANG_NPCINFO_VENDOR                 = 545,
     LANG_NPCINFO_TRAINER                = 546,
     LANG_NPCINFO_DUNGEON_ID             = 547,
-
     LANG_PINFO_ACCOUNT                  = 548,
     LANG_PINFO_LEVEL                    = 549,
     LANG_PINFO_NO_REP                   = 550,
-
     LANG_YOU_SET_EXPLORE_ALL            = 551,
     LANG_YOU_SET_EXPLORE_NOTHING        = 552,
     LANG_YOURS_EXPLORE_SET_ALL          = 553,
     LANG_YOURS_EXPLORE_SET_NOTHING      = 554,
-
     LANG_HOVER_ENABLED                  = 555,
     LANG_HOVER_DISABLED                 = 556,
     LANG_YOURS_LEVEL_UP                 = 557,
@@ -519,7 +470,6 @@ enum TrinityStrings
     LANG_YOURS_LEVEL_PROGRESS_RESET     = 559,
     LANG_EXPLORE_AREA                   = 560,
     LANG_UNEXPLORE_AREA                 = 561,
-
     LANG_UPDATE                         = 562,
     LANG_UPDATE_CHANGE                  = 563,
     LANG_TOO_BIG_INDEX                  = 564,
@@ -535,26 +485,21 @@ enum TrinityStrings
     LANG_SET_32BIT_FIELD                = 574,
     LANG_CHANGE_32BIT                   = 575,              //log
     LANG_CHANGE_32BIT_FIELD             = 576,
-
     LANG_INVISIBLE_INVISIBLE              = 577,
     LANG_INVISIBLE_VISIBLE                = 578,
     LANG_SELECTED_TARGET_NOT_HAVE_VICTIM  = 579,
-
     LANG_COMMAND_LEARN_ALL_DEFAULT_AND_QUEST = 580,
     LANG_COMMAND_NEAROBJMESSAGE         = 581,
     LANG_COMMAND_RAWPAWNTIMES           = 582,
-
     LANG_EVENT_ENTRY_LIST_CHAT          = 583,
     LANG_NOEVENTFOUND                   = 584,
     LANG_EVENT_NOT_EXIST                = 585,
     LANG_EVENT_INFO                     = 586,
     LANG_EVENT_ALREADY_ACTIVE           = 587,
     LANG_EVENT_NOT_ACTIVE               = 588,
-
     LANG_MOVEGENS_POINT                 = 589,
     LANG_MOVEGENS_FEAR                  = 590,
     LANG_MOVEGENS_DISTRACT              = 591,
-
     LANG_COMMAND_LEARN_ALL_RECIPES      = 592,
     LANG_BANLIST_ACCOUNTS               = 593,
     LANG_BANLIST_ACCOUNTS_HEADER        = 594,
@@ -564,16 +509,13 @@ enum TrinityStrings
     LANG_GMLIST_HEADER                  = 598,
     LANG_GMLIST_EMPTY                   = 599,
     // End Level 3 list, continued at 1100
-
     // Battleground
     LANG_BG_A_WINS                      = 600,
     LANG_BG_H_WINS                      = 601,
-
     LANG_BG_WS_START_TWO_MINUTES        = 753,
     LANG_BG_WS_START_ONE_MINUTE         = 602,
     LANG_BG_WS_START_HALF_MINUTE        = 603,
     LANG_BG_WS_HAS_BEGUN                = 604,
-
     LANG_BG_WS_CAPTURED_HF              = 605,
     LANG_BG_WS_CAPTURED_AF              = 606,
     LANG_BG_WS_DROPPED_HF               = 607,
@@ -585,12 +527,10 @@ enum TrinityStrings
     LANG_BG_WS_F_PLACED                 = 613,
     LANG_BG_WS_ALLIANCE_FLAG_RESPAWNED  = 614,
     LANG_BG_WS_HORDE_FLAG_RESPAWNED     = 615,
-
     LANG_BG_EY_START_TWO_MINUTES        = 755,
     LANG_BG_EY_START_ONE_MINUTE         = 636,
     LANG_BG_EY_START_HALF_MINUTE        = 637,
     LANG_BG_EY_HAS_BEGUN                = 638,
-
     LANG_BG_AB_ALLY                     = 650,
     LANG_BG_AB_HORDE                    = 651,
     LANG_BG_AB_NODE_STABLES             = 652,
@@ -602,7 +542,6 @@ enum TrinityStrings
     LANG_BG_AB_NODE_DEFENDED            = 658,
     LANG_BG_AB_NODE_ASSAULTED           = 659,
     LANG_BG_AB_NODE_CLAIMED             = 660,
-
     LANG_BG_AB_START_TWO_MINUTES        = 754,
     LANG_BG_AB_START_ONE_MINUTE         = 661,
     LANG_BG_AB_START_HALF_MINUTE        = 662,
@@ -610,7 +549,6 @@ enum TrinityStrings
     LANG_BG_AB_A_NEAR_VICTORY           = 664,
     LANG_BG_AB_H_NEAR_VICTORY           = 665,
     LANG_BG_MARK_BY_MAIL                = 666,
-
     LANG_BG_EY_HAS_TAKEN_A_M_TOWER      = 667,
     LANG_BG_EY_HAS_TAKEN_H_M_TOWER      = 668,
     LANG_BG_EY_HAS_TAKEN_A_D_RUINS      = 669,
@@ -632,20 +570,17 @@ enum TrinityStrings
     LANG_BG_EY_CAPTURED_FLAG_H          = 685,
     LANG_BG_EY_DROPPED_FLAG             = 686,
     LANG_BG_EY_RESETED_FLAG             = 687,
-
     LANG_ARENA_ONE_TOOLOW               = 700,
     LANG_ARENA_ONE_MINUTE               = 701,
     LANG_ARENA_THIRTY_SECONDS           = 702,
     LANG_ARENA_FIFTEEN_SECONDS          = 703,
     LANG_ARENA_HAS_BEGUN                = 704,
-
     LANG_WAIT_BEFORE_SPEAKING           = 705,
     LANG_NOT_EQUIPPED_ITEM              = 706,
     LANG_PLAYER_DND                     = 707,
     LANG_PLAYER_AFK                     = 708,
     LANG_PLAYER_DND_DEFAULT             = 709,
     LANG_PLAYER_AFK_DEFAULT             = 710,
-
     LANG_BG_QUEUE_ANNOUNCE_SELF         = 711,
     LANG_BG_QUEUE_ANNOUNCE_WORLD        = 712,
     LANG_YOUR_ARENA_LEVEL_REQ_ERROR     = 713,
@@ -655,7 +590,6 @@ enum TrinityStrings
     LANG_BG_STARTED_ANNOUNCE_WORLD      = 717,
     LANG_ARENA_QUEUE_ANNOUNCE_WORLD_JOIN= 718,
     LANG_ARENA_QUEUE_ANNOUNCE_WORLD_EXIT= 719,
-
     LANG_BG_GROUP_TOO_LARGE             = 720,              // "Your group is too large for this battleground. Please regroup to join."
     LANG_ARENA_GROUP_TOO_LARGE          = 721,              // "Your group is too large for this arena. Please regroup to join."
     LANG_ARENA_YOUR_TEAM_ONLY           = 722,              // "Your group has members not in your arena team. Please regroup to join."
@@ -669,7 +603,6 @@ enum TrinityStrings
     LANG_BG_GROUP_MEMBER_ALREADY_IN_QUEUE = 730,            // "Someone in your party is already in this battleground queue. (S)he must leave it before joining as group."
     LANG_BG_GROUP_MEMBER_DESERTER       = 731,              // "Someone in your party is Deserter. You can't join as group."
     LANG_BG_GROUP_MEMBER_NO_FREE_QUEUE_SLOTS = 732,         // "Someone in your party is already in three battleground queues. You cannot join as group."
-
     LANG_CANNOT_TELE_TO_BG              = 733,              // "You cannot teleport to a battleground or arena map."
     LANG_CANNOT_SUMMON_TO_BG            = 734,              // "You cannot summon players to a battleground or arena map."
     LANG_CANNOT_GO_TO_BG_GM             = 735,              // "You must be in GM mode to teleport to a player in a battleground."
@@ -694,12 +627,10 @@ enum TrinityStrings
 //  LANG_BG_AB_START_TWO_MINUTES        = 754, - defined above
 //  LANG_BG_EY_START_TWO_MINUTES        = 755, - defined above
     // Room for batleground/arena strings 756-799 not used
-
     // Room for BG/ARENA                  751-769 not used
     LANG_ARENA_TESTING                  = 785,
     LANG_AUTO_ANN                       = 786,
     LANG_ANNOUNCE_COLOR                 = 787,
-
     // in game strings
     LANG_PET_INVALID_NAME               = 800,
     LANG_NOT_ENOUGH_GOLD                = 801,
@@ -718,7 +649,6 @@ enum TrinityStrings
     LANG_GUILD_MEMBER                   = 814,
     LANG_GUILD_INITIATE                 = 815,
     // Room for in-game strings           816-999 not used
-
     // Level 4 (CLI only commands)
     LANG_COMMAND_EXIT                   = 1000,
     LANG_ACCOUNT_DELETED                = 1001,
@@ -736,7 +666,6 @@ enum TrinityStrings
     LANG_ACCOUNT_LIST_LINE              = 1013,
     LANG_ACCOUNT_LIST_EMPTY             = 1014,
     // Room for more level 4              1015-1099 not used
-
     // Level 3 (continue)
     LANG_ACCOUNT_SETADDON               = 1100,
     LANG_MOTD_NEW                       = 1101,
@@ -769,14 +698,11 @@ enum TrinityStrings
     LANG_TAXINODE_ENTRY_LIST_CHAT       = 1128,
     LANG_TAXINODE_ENTRY_LIST_CONSOLE    = 1129,
     // Room for more level 3              1130-1199 not used
-
     // Debug commands
     LANG_CINEMATIC_NOT_EXIST            = 1200,
     LANG_MOVIE_NOT_EXIST                = 1201,
     // Room for more debug                1202-1299 not used
-
     // FREE IDS                           1300-9999
-
     // AV
     LANG_BG_AV_ALLY                     = 1300,
     LANG_BG_AV_HORDE                    = 1301,
@@ -786,11 +712,9 @@ enum TrinityStrings
     LANG_BG_AV_GRAVE_TAKEN              = 1305,
     LANG_BG_AV_GRAVE_DEFENDED           = 1306,
     LANG_BG_AV_GRAVE_ASSAULTED          = 1307,
-
     LANG_BG_AV_MINE_TAKEN               = 1308,
     LANG_BG_AV_MINE_NORTH               = 1309,
     LANG_BG_AV_MINE_SOUTH               = 1310,
-
     LANG_BG_AV_NODE_GRAVE_STORM_AID     = 1311,
     LANG_BG_AV_NODE_TOWER_DUN_S         = 1312,
     LANG_BG_AV_NODE_TOWER_DUN_N         = 1313,
@@ -806,7 +730,6 @@ enum TrinityStrings
     LANG_BG_AV_NODE_TOWER_FROST_E       = 1323,
     LANG_BG_AV_NODE_TOWER_FROST_W       = 1324,
     LANG_BG_AV_NODE_GRAVE_FROST_HUT     = 1325,
-
     LANG_BG_AV_START_ONE_MINUTE         = 1326,
     LANG_BG_AV_START_HALF_MINUTE        = 1327,
     LANG_BG_AV_HAS_BEGUN                = 1328,
@@ -816,7 +739,6 @@ enum TrinityStrings
     LANG_BG_AV_A_CAPTAIN_DEAD           = 1332,
     LANG_BG_AV_START_TWO_MINUTES        = 1333,
     // FREE IDS                           1334-1999
-
     // Ticket Strings 2000-2029
     LANG_COMMAND_TICKETNEW              = 2000,
     LANG_COMMAND_TICKETUPDATED          = 2001,
@@ -844,7 +766,6 @@ enum TrinityStrings
     LANG_COMMAND_TICKETLISTCOMMENT      = 2023,
     LANG_COMMAND_TICKETLISTADDCOMMENT   = 2024,
     LANG_COMMAND_TICKETLISTAGECREATE    = 2025,
-
     // Trinity strings                    5000-9999
     LANG_COMMAND_FREEZE                 = 5000,
     LANG_COMMAND_FREEZE_ERROR           = 5001,
@@ -872,12 +793,9 @@ enum TrinityStrings
     LANG_GM_BROADCAST                    = 6613,
     LANG_GM_NOTIFY                       = 6614,
     LANG_GM_ANNOUNCE_COLOR               = 6615,
-
     LANG_GM_SILENCE                      = 6616,              // "Silence is ON for %s" - Spell 1852
-
     LANG_WORLD_CLOSED                    = 7523,
     LANG_WORLD_OPENED                    = 7524,
-
 
     // Use for not-in-offcial-sources patches
     //                                    10000-10999
@@ -943,10 +861,8 @@ enum TrinityStrings
     LANG_OPVP_EP_FLIGHT_CGT             = 10053,
     LANG_OPVP_ZM_GOSSIP_ALLIANCE        = 10054,
     LANG_OPVP_ZM_GOSSIP_HORDE           = 10055,
-
     // Use for custom patches             11000-11999
     LANG_AUTO_BROADCAST                 = 11000,
-
     // NOT RESERVED IDS                   12000-1999999999
     // `db_script_string` table index     2000000000-2000009999 (MIN_DB_SCRIPT_STRING_ID-MAX_DB_SCRIPT_STRING_ID)
     // For other tables maybe             2000010000-2147483647 (max index)

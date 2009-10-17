@@ -17,20 +17,15 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
-
 /// \addtogroup u2w
 /// @{
 /// \file
-
 #ifndef TRINITY_WORLDLOG_H
 #define TRINITY_WORLDLOG_H
-
 #include "Common.h"
 #include "Policies/Singleton.h"
 #include "Errors.h"
-
 #include <stdarg.h>
-
 /// %Log packets to a file
 class MANGOS_DLL_DECL WorldLog : public MaNGOS::Singleton<WorldLog, MaNGOS::ClassLevelLockable<WorldLog, ACE_Thread_Mutex> >
 {
@@ -39,10 +34,8 @@ class MANGOS_DLL_DECL WorldLog : public MaNGOS::Singleton<WorldLog, MaNGOS::Clas
     WorldLog(const WorldLog &);
     WorldLog& operator=(const WorldLog &);
     typedef MaNGOS::ClassLevelLockable<WorldLog, ACE_Thread_Mutex>::Lock Guard;
-
     /// Close the file in destructor
     ~WorldLog();
-
     public:
         void Initialize();
         /// Is the world logger active?
@@ -50,13 +43,10 @@ class MANGOS_DLL_DECL WorldLog : public MaNGOS::Singleton<WorldLog, MaNGOS::Clas
         /// %Log to the file
         void outLog(char const *fmt, ...);
         void outTimestampLog(char const *fmt, ...);
-
     private:
         FILE *i_file;
-
         bool m_dbWorld;
 };
-
 #define sWorldLog WorldLog::Instance()
 #endif
 /// @}

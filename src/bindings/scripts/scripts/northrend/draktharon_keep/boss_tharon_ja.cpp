@@ -5,13 +5,11 @@ SD%Complete:
 SDComment:
 SDCategory:
 Script Data End */
-
 /*** SQL START ***
 update creature_template set scriptname = 'boss_tharon_ja' where entry = '';
 *** SQL END ***/
 #include "precompiled.h"
 #include "def_drak_tharon_keep.h"
-
 enum Spells
 {
     SPELL_COURSE_OF_LIFE                          = 49527,
@@ -40,7 +38,6 @@ enum PlayerSkills
 };
 //Phase 1 all abilities except Eye beam
 //Phase 2 turns players to skeletons with new abilities, boss grows skin
-
 //not in db
 enum Yells
 {
@@ -53,16 +50,13 @@ enum Yells
     SAY_SKELETON_2                              = -1600017,
     SAY_DEATH                                   = -1600018
 };
-
 struct TRINITY_DLL_DECL boss_tharon_jaAI : public ScriptedAI
 {
     boss_tharon_jaAI(Creature *c) : ScriptedAI(c)
     {
         pInstance = c->GetInstanceData();
     }
-
     ScriptedInstance* pInstance;
-
     void Reset()
     {
         if (pInstance)
@@ -71,7 +65,6 @@ struct TRINITY_DLL_DECL boss_tharon_jaAI : public ScriptedAI
     void EnterCombat(Unit* who)
     {
         DoScriptText(SAY_AGGRO, m_creature);
-
         if (pInstance)
             pInstance->SetData(DATA_THARON_JA_EVENT, IN_PROGRESS);
     }
@@ -82,33 +75,26 @@ struct TRINITY_DLL_DECL boss_tharon_jaAI : public ScriptedAI
         //Return since we have no target
         if (!UpdateVictim())
             return;
-
         DoMeleeAttackIfReady();
     }
-
     void KilledUnit(Unit *victim)
     {
         DoScriptText(RAND(SAY_KILL_1,SAY_KILL_2),m_creature);
     }
-
     void JustDied(Unit* killer)
     {
         DoScriptText(SAY_DEATH,m_creature);
-
         if (pInstance)
             pInstance->SetData(DATA_THARON_JA_EVENT, DONE);
     }
 };
-
 CreatureAI* GetAI_boss_tharon_ja(Creature* pCreature)
 {
     return new boss_tharon_jaAI (pCreature);
 }
-
 void AddSC_boss_tharon_ja()
 {
     Script *newscript;
-
     newscript = new Script;
     newscript->Name = "boss_tharon_ja";
     newscript->GetAI = &GetAI_boss_tharon_ja;

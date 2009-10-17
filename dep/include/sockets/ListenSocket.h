@@ -4,25 +4,20 @@
 **/
 /*
 Copyright (C) 2004-2007  Anders Hedstrom
-
 This library is made available under the terms of the GNU GPL.
-
 If you would like to use this library in a closed-source application,
 a separate license agreement is available. For information about
 the closed-source license agreement for the C++ sockets library,
 please visit http://www.alhem.net/Sockets/license.html and/or
 email license@alhem.net.
-
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
 as published by the Free Software Foundation; either version 2
 of the License, or (at your option) any later version.
-
 This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
-
 You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -30,13 +25,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef _SOCKETS_ListenSocket_H
 #define _SOCKETS_ListenSocket_H
 #include "sockets-config.h"
-
 #ifdef _WIN32
 #include <stdlib.h>
 #else
 #include <errno.h>
 #endif
-
 #include "ISocketHandler.h"
 #include "Socket.h"
 #include "Utility.h"
@@ -46,11 +39,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifdef ENABLE_EXCEPTIONS
 #include "Exception.h"
 #endif
-
 #ifdef SOCKETS_NAMESPACE
 namespace SOCKETS_NAMESPACE {
 #endif
-
 
 /** Binds incoming port number to new Socket class X.
     \ingroup basic */
@@ -84,7 +75,6 @@ public:
             delete m_creator;
         }
     }
-
     /** Close file descriptor. */
     int Close() {
         if (GetSocket() != INVALID_SOCKET)
@@ -93,7 +83,6 @@ public:
         }
         return 0;
     }
-
     /** Bind and listen to any interface.
         \param port Port (0 is random)
         \param depth Listen queue depth */
@@ -113,7 +102,6 @@ public:
             return Bind(ad, depth);
         }
     }
-
     int Bind(SocketAddress& ad,int depth) {
 #ifdef USE_SCTP
         if (dynamic_cast<SctpSocket *>(m_creator))
@@ -123,7 +111,6 @@ public:
 #endif
         return Bind(ad, "tcp", depth);
     }
-
     /** Bind and listen to any interface, with optional protocol.
         \param port Port (0 is random)
         \param protocol Network protocol
@@ -144,7 +131,6 @@ public:
             return Bind(ad, protocol, depth);
         }
     }
-
     /** Bind and listen to specific interface.
         \param intf Interface hostname
         \param port Port (0 is random)
@@ -175,7 +161,6 @@ public:
             return -1;
         }
     }
-
     /** Bind and listen to specific interface.
         \param intf Interface hostname
         \param port Port (0 is random)
@@ -207,7 +192,6 @@ public:
             return -1;
         }
     }
-
     /** Bind and listen to ipv4 interface.
         \param a Ipv4 interface address
         \param port Port (0 is random)
@@ -231,7 +215,6 @@ public:
         Ipv4Address ad(a, port);
         return Bind(ad, protocol, depth);
     }
-
 #ifdef ENABLE_IPV6
 #ifdef IPPROTO_IPV6
     /** Bind and listen to ipv6 interface.
@@ -259,7 +242,6 @@ public:
     }
 #endif
 #endif
-
     /** Bind and listen to network interface.
         \param ad Interface address
         \param protocol Network protocol
@@ -292,26 +274,22 @@ public:
         Attach(s);
         return 0;
     }
-
     /** Return assigned port number. */
     port_t GetPort()
     {
         return GetSockPort();
     }
-
     /** Return listen queue depth. */
     int GetDepth()
     {
         return m_depth;
     }
-
     /** OnRead on a ListenSocket receives an incoming connection. */
     void OnRead()
     {
         struct sockaddr sa;
         socklen_t sa_len = sizeof(struct sockaddr);
         SOCKET a_s = accept(GetSocket(), &sa, &sa_len);
-
         if (a_s == INVALID_SOCKET)
         {
             Handler().LogError(this, "accept", Errno, StrError(Errno), LOG_LEVEL_ERROR);
@@ -387,20 +365,16 @@ public:
             tmp -> OnAccept();
         }
     }
-
     /** Please don't use this method.
         "accept()" is handled automatically in the OnRead() method. */
         virtual SOCKET Accept(SOCKET socket, struct sockaddr *saptr, socklen_t *lenptr)
         {
                 return accept(socket, saptr, lenptr);
         }
-
         bool HasCreator() { return m_bHasCreate; }
-
     void OnOptions(int,int,int,SOCKET) {
         SetSoReuseaddr(true);
     }
-
 protected:
     ListenSocket(const ListenSocket& s) : Socket(s) {}
 private:
@@ -410,12 +384,8 @@ private:
     bool m_bHasCreate;
 };
 
-
-
 #ifdef SOCKETS_NAMESPACE
 }
 #endif
-
 #endif // _SOCKETS_ListenSocket_H
-
 

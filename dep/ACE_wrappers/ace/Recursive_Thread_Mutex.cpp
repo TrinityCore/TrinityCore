@@ -7,23 +7,15 @@
  *
  * @author Douglas C. Schmidt <schmidt@cs.wustl.edu>
  */
-
 #include "ace/Recursive_Thread_Mutex.h"
-
 #if defined (ACE_HAS_THREADS)
-
 #if !defined (__ACE_INLINE__)
 #include "ace/Recursive_Thread_Mutex.inl"
 #endif /* __ACE_INLINE__ */
-
 #include "ace/Log_Msg.h"
-
 ACE_RCSID(ace, Recursive_Thread_Mutex, "$Id: Recursive_Thread_Mutex.cpp 82253 2008-07-04 20:18:14Z shuston $")
-
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
-
 ACE_ALLOC_HOOK_DEFINE(ACE_Recursive_Thread_Mutex)
-
 ACE_Recursive_Thread_Mutex::ACE_Recursive_Thread_Mutex (const ACE_TCHAR *name,
                                                         ACE_mutexattr_t *arg)
   : removed_ (false)
@@ -36,13 +28,11 @@ ACE_Recursive_Thread_Mutex::ACE_Recursive_Thread_Mutex (const ACE_TCHAR *name,
                  ACE_TEXT ("%p\n"),
                  ACE_TEXT ("recursive_mutex_init")));
 }
-
 ACE_Recursive_Thread_Mutex::~ACE_Recursive_Thread_Mutex (void)
 {
   // ACE_TRACE ("ACE_Recursive_Thread_Mutex::~ACE_Recursive_Thread_Mutex");
   this->remove ();
 }
-
 int
 ACE_Recursive_Thread_Mutex::remove (void)
 {
@@ -55,7 +45,6 @@ ACE_Recursive_Thread_Mutex::remove (void)
     }
   return result;
 }
-
 // The counter part of the following two functions for Win32 are
 // located in file Synch.i
 ACE_thread_t
@@ -77,7 +66,6 @@ ACE_Recursive_Thread_Mutex::get_thread_id (void)
   return owner_id;
 #endif /* ACE_WIN32 */
 }
-
 int
 ACE_Recursive_Thread_Mutex::get_nesting_level (void)
 {
@@ -104,23 +92,18 @@ ACE_Recursive_Thread_Mutex::get_nesting_level (void)
   return nesting_level;
 #endif /* !ACE_HAS_WINCE */
 }
-
 ACE_Recursive_Thread_Mutex::ACE_Recursive_Thread_Mutex (const ACE_Recursive_Thread_Mutex &)
 {
 }
-
 void
 ACE_Recursive_Thread_Mutex::dump (void) const
 {
 #if defined (ACE_HAS_DUMP)
 // ACE_TRACE ("ACE_Recursive_Thread_Mutex::dump");
-
   ACE_DEBUG ((LM_DEBUG, ACE_BEGIN_DUMP, this));
   ACE_DEBUG ((LM_DEBUG, ACE_END_DUMP));
 #endif /* ACE_HAS_DUMP */
 }
-
 ACE_END_VERSIONED_NAMESPACE_DECL
-
 #endif /* ACE_HAS_THREADS */
 

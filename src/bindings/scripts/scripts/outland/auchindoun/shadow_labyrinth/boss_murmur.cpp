@@ -13,19 +13,15 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
-
 /* ScriptData
 SDName: Boss_Murmur
 SD%Complete: 90
 SDComment: Timers may be incorrect
 SDCategory: Auchindoun, Shadow Labyrinth
 EndScriptData */
-
 #include "precompiled.h"
 #include "def_shadow_labyrinth.h"
-
 #define EMOTE_SONIC_BOOM            -1555036
-
 #define SPELL_SONIC_BOOM_CAST       (HeroicMode?38796:33923)
 #define SPELL_SONIC_BOOM_EFFECT     (HeroicMode?38795:33666)
 #define SPELL_RESONANCE             33657
@@ -33,7 +29,6 @@ EndScriptData */
 #define SPELL_MAGNETIC_PULL         33689
 #define SPELL_SONIC_SHOCK           38797
 #define SPELL_THUNDERING_STORM      39365
-
 struct TRINITY_DLL_DECL boss_murmurAI : public ScriptedAI
 {
     boss_murmurAI(Creature *c) : ScriptedAI(c)
@@ -41,7 +36,6 @@ struct TRINITY_DLL_DECL boss_murmurAI : public ScriptedAI
         SetCombatMovement(false);
         HeroicMode = m_creature->GetMap()->IsHeroic();
     }
-
     uint32 SonicBoom_Timer;
     uint32 MurmursTouch_Timer;
     uint32 Resonance_Timer;
@@ -50,7 +44,6 @@ struct TRINITY_DLL_DECL boss_murmurAI : public ScriptedAI
     uint32 ThunderingStorm_Timer;
     bool HeroicMode;
     bool SonicBoom;
-
     void Reset()
     {
         SonicBoom_Timer = 30000;
@@ -60,17 +53,15 @@ struct TRINITY_DLL_DECL boss_murmurAI : public ScriptedAI
         ThunderingStorm_Timer = 15000;
         SonicShock_Timer = 10000;
         SonicBoom = false;
-
         //database should have `RegenHealth`=0 to prevent regen
         uint32 hp = (m_creature->GetMaxHealth()*40)/100;
         if (hp) m_creature->SetHealth(hp);
         m_creature->ResetPlayerDamageReq();
     }
-
     void SonicBoomEffect()
     {
         std::list<HostilReference *> t_list = m_creature->getThreatManager().getThreatList();
-        for(std::list<HostilReference *>::iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)
+        for (std::list<HostilReference *>::iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)
         {
            Unit* target = Unit::GetUnit(*m_creature, (*itr)->getUnitGuid());
            if (target && target->GetTypeId() == TYPEID_PLAYER)
@@ -84,28 +75,23 @@ struct TRINITY_DLL_DECL boss_murmurAI : public ScriptedAI
            }
         }
     }
-
     void EnterCombat(Unit *who) { }
-
     // Sonic Boom instant damage (needs core fix instead of this)
     void SpellHitTarget(Unit *target, const SpellEntry *spell)
     {
         if (target && target->isAlive() && spell && spell->Id == SPELL_SONIC_BOOM_EFFECT)
             m_creature->DealDamage(target,(target->GetHealth()*90)/100,NULL,SPELL_DIRECT_DAMAGE,SPELL_SCHOOL_MASK_NATURE,spell);
     }
-
     void UpdateAI(const uint32 diff)
     {
         //Return since we have no target or casting
         if (!UpdateVictim() || m_creature->IsNonMeleeSpellCasted(false))
             return;
-
         // Sonic Boom
         if (SonicBoom)
         {
             DoCast(m_creature, SPELL_SONIC_BOOM_EFFECT, true);
             SonicBoomEffect();
-
             SonicBoom = false;
             Resonance_Timer = 1500;
         }
@@ -117,7 +103,6 @@ struct TRINITY_DLL_DECL boss_murmurAI : public ScriptedAI
             SonicBoom = true;
             return;
         }else SonicBoom_Timer -= diff;
-
         // Murmur's Touch
         if (MurmursTouch_Timer < diff)
         {
@@ -125,7 +110,6 @@ struct TRINITY_DLL_DECL boss_murmurAI : public ScriptedAI
                 DoCast(target, SPELL_MURMURS_TOUCH);
             MurmursTouch_Timer = 25000 + rand()%10000;
         }else MurmursTouch_Timer -= diff;
-
         // Resonance
         if (!SonicBoom && !(m_creature->IsWithinMeleeRange(m_creature->getVictim())))
         {
@@ -135,7 +119,6 @@ struct TRINITY_DLL_DECL boss_murmurAI : public ScriptedAI
                 Resonance_Timer = 5000;
             }else Resonance_Timer -= diff;
         }
-
         // Magnetic Pull
         if (MagneticPull_Timer < diff)
         {
@@ -148,20 +131,18 @@ struct TRINITY_DLL_DECL boss_murmurAI : public ScriptedAI
                 }
             MagneticPull_Timer = 500;
         }else MagneticPull_Timer -= diff;
-
         if (HeroicMode)
         {
             // Thundering Storm
             if (ThunderingStorm_Timer < diff)
             {
                 std::list<HostilReference*>& m_threatlist = m_creature->getThreatManager().getThreatList();
-                for(std::list<HostilReference*>::iterator i = m_threatlist.begin(); i != m_threatlist.end(); ++i)
+                for (std::list<HostilReference*>::iterator i = m_threatlist.begin(); i != m_threatlist.end(); ++i)
                     if (Unit* target = Unit::GetUnit((*m_creature),(*i)->getUnitGuid()))
                         if (target->isAlive() && !m_creature->IsWithinDist(target, 35, false))
                             DoCast(target, SPELL_THUNDERING_STORM, true);
                 ThunderingStorm_Timer = 15000;
             }else ThunderingStorm_Timer -= diff;
-
             // Sonic Shock
             if (SonicShock_Timer < diff)
             {
@@ -171,14 +152,13 @@ struct TRINITY_DLL_DECL boss_murmurAI : public ScriptedAI
                 SonicShock_Timer = 10000+rand()%10000;
             }else SonicShock_Timer -= diff;
         }
-
         // Select nearest most aggro target if top aggro too far
         if (!m_creature->isAttackReady())
             return;
         if (!m_creature->IsWithinMeleeRange(m_creature->getVictim()))
         {
             std::list<HostilReference*>& m_threatlist = m_creature->getThreatManager().getThreatList();
-            for(std::list<HostilReference*>::iterator i = m_threatlist.begin(); i != m_threatlist.end(); ++i)
+            for (std::list<HostilReference*>::iterator i = m_threatlist.begin(); i != m_threatlist.end(); ++i)
                 if (Unit* target = Unit::GetUnit((*m_creature),(*i)->getUnitGuid()))
                     if (target->isAlive() && m_creature->IsWithinMeleeRange(target))
                     {
@@ -186,16 +166,13 @@ struct TRINITY_DLL_DECL boss_murmurAI : public ScriptedAI
                         break;
                     }
         }
-
         DoMeleeAttackIfReady();
     }
 };
-
 CreatureAI* GetAI_boss_murmur(Creature* pCreature)
 {
     return new boss_murmurAI (pCreature);
 }
-
 void AddSC_boss_murmur()
 {
     Script *newscript;

@@ -4,25 +4,20 @@
 **/
 /*
 Copyright (C) 2004-2007  Anders Hedstrom
-
 This library is made available under the terms of the GNU GPL.
-
 If you would like to use this library in a closed-source application,
 a separate license agreement is available. For information about
 the closed-source license agreement for the C++ sockets library,
 please visit http://www.alhem.net/Sockets/license.html and/or
 email license@alhem.net.
-
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
 as published by the Free Software Foundation; either version 2
 of the License, or (at your option) any later version.
-
 This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
-
 You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -39,33 +34,27 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #endif
 #include <ctype.h>
 #include <fcntl.h>
-
 #include "ISocketHandler.h"
 #include "Utility.h"
-
 #include "SocketAddress.h"
 #include "SocketHandler.h"
 #ifdef ENABLE_EXCEPTIONS
 #include "Exception.h"
 #endif
 #include "Ipv4Address.h"
-
 //#ifdef _DEBUG
 //#define DEB(x) x; fflush(stderr);
 //#else
 #define DEB(x)
 //#endif
-
 #ifdef SOCKETS_NAMESPACE
 namespace SOCKETS_NAMESPACE {
 #endif
-
 
 // statics
 #ifdef _WIN32
 WSAInitializer Socket::m_winsock_init;
 #endif
-
 
 Socket::Socket(ISocketHandler& h)
 //:m_flags(0)
@@ -111,7 +100,6 @@ Socket::Socket(ISocketHandler& h)
 {
 }
 
-
 Socket::~Socket()
 {
     Handler().Remove(this);
@@ -125,21 +113,17 @@ Socket::~Socket()
     }
 }
 
-
 void Socket::Init()
 {
 }
-
 
 void Socket::OnRead()
 {
 }
 
-
 void Socket::OnWrite()
 {
 }
-
 
 void Socket::OnException()
 {
@@ -150,21 +134,17 @@ void Socket::OnException()
     SetCloseAndDelete();
 }
 
-
 void Socket::OnDelete()
 {
 }
-
 
 void Socket::OnConnect()
 {
 }
 
-
 void Socket::OnAccept()
 {
 }
-
 
 int Socket::Close()
 {
@@ -191,12 +171,10 @@ int Socket::Close()
     return n;
 }
 
-
 SOCKET Socket::CreateSocket(int af,int type, const std::string& protocol)
 {
     struct protoent *p = NULL;
     SOCKET s;
-
 #ifdef ENABLE_POOL
     m_socket_type = type;
     m_socket_protocol = protocol;
@@ -215,7 +193,6 @@ SOCKET Socket::CreateSocket(int af,int type, const std::string& protocol)
         }
     }
     int protno = p ? p -> p_proto : 0;
-
     s = socket(af, type, protno);
     if (s == INVALID_SOCKET)
     {
@@ -232,30 +209,25 @@ SOCKET Socket::CreateSocket(int af,int type, const std::string& protocol)
     return s;
 }
 
-
 void Socket::Attach(SOCKET s)
 {
     m_socket = s;
 }
-
 
 SOCKET Socket::GetSocket()
 {
     return m_socket;
 }
 
-
 void Socket::SetDeleteByHandler(bool x)
 {
     m_bDel = x;
 }
 
-
 bool Socket::DeleteByHandler()
 {
     return m_bDel;
 }
-
 
 void Socket::SetCloseAndDelete(bool x)
 {
@@ -270,24 +242,20 @@ void Socket::SetCloseAndDelete(bool x)
     }
 }
 
-
 bool Socket::CloseAndDelete()
 {
     return m_bClose;
 }
-
 
 void Socket::SetRemoteAddress(SocketAddress& ad) //struct sockaddr* sa, socklen_t l)
 {
     m_remote_address = ad.GetCopy();
 }
 
-
 std::auto_ptr<SocketAddress> Socket::GetRemoteSocketAddress()
 {
     return m_remote_address -> GetCopy();
 }
-
 
 ISocketHandler& Socket::Handler() const
 {
@@ -298,12 +266,10 @@ ISocketHandler& Socket::Handler() const
     return m_handler;
 }
 
-
 ISocketHandler& Socket::MasterHandler() const
 {
     return m_handler;
 }
-
 
 ipaddr_t Socket::GetRemoteIP4()
 {
@@ -322,7 +288,6 @@ ipaddr_t Socket::GetRemoteIP4()
     }
     return l;
 }
-
 
 #ifdef ENABLE_IPV6
 #ifdef IPPROTO_IPV6
@@ -347,7 +312,6 @@ struct in6_addr Socket::GetRemoteIP6()
 #endif
 #endif
 
-
 port_t Socket::GetRemotePort()
 {
     if (!m_remote_address.get())
@@ -356,7 +320,6 @@ port_t Socket::GetRemotePort()
     }
     return m_remote_address -> GetPort();
 }
-
 
 std::string Socket::GetRemoteAddress()
 {
@@ -367,7 +330,6 @@ std::string Socket::GetRemoteAddress()
     return m_remote_address -> Convert(false);
 }
 
-
 std::string Socket::GetRemoteHostname()
 {
     if (!m_remote_address.get())
@@ -376,7 +338,6 @@ std::string Socket::GetRemoteHostname()
     }
     return m_remote_address -> Reverse();
 }
-
 
 bool Socket::SetNonblocking(bool bNb)
 {
@@ -410,7 +371,6 @@ bool Socket::SetNonblocking(bool bNb)
 #endif
 }
 
-
 bool Socket::SetNonblocking(bool bNb, SOCKET s)
 {
 #ifdef _WIN32
@@ -443,12 +403,10 @@ bool Socket::SetNonblocking(bool bNb, SOCKET s)
 #endif
 }
 
-
 void Socket::Set(bool bRead, bool bWrite, bool bException)
 {
     Handler().Set(m_socket, bRead, bWrite, bException);
 }
-
 
 bool Socket::Ready()
 {
@@ -457,28 +415,23 @@ bool Socket::Ready()
     return false;
 }
 
-
 void Socket::OnLine(const std::string& )
 {
 }
 
-
 void Socket::OnConnectFailed()
 {
 }
-
 
 Socket *Socket::GetParent()
 {
     return m_parent;
 }
 
-
 void Socket::SetParent(Socket *x)
 {
     m_parent = x;
 }
-
 
 port_t Socket::GetPort()
 {
@@ -486,12 +439,10 @@ port_t Socket::GetPort()
     return 0;
 }
 
-
 bool Socket::OnConnectRetry()
 {
     return true;
 }
-
 
 #ifdef ENABLE_RECONNECT
 void Socket::OnReconnect()
@@ -499,12 +450,10 @@ void Socket::OnReconnect()
 }
 #endif
 
-
 time_t Socket::Uptime()
 {
     return time(NULL) - m_tCreate;
 }
-
 
 #ifdef ENABLE_IPV6
 void Socket::SetIpv6(bool x)
@@ -512,82 +461,68 @@ void Socket::SetIpv6(bool x)
     m_ipv6 = x;
 }
 
-
 bool Socket::IsIpv6()
 {
     return m_ipv6;
 }
 #endif
 
-
 void Socket::DisableRead(bool x)
 {
     m_b_disable_read = x;
 }
-
 
 bool Socket::IsDisableRead()
 {
     return m_b_disable_read;
 }
 
-
 void Socket::SendBuf(const char *,size_t,int)
 {
 }
 
-
 void Socket::Send(const std::string&,int)
 {
 }
-
 
 void Socket::SetConnected(bool x)
 {
     m_connected = x;
 }
 
-
 bool Socket::IsConnected()
 {
     return m_connected;
 }
 
-
 void Socket::OnDisconnect()
 {
 }
-
 
 void Socket::SetLost()
 {
     m_bLost = true;
 }
 
-
 bool Socket::Lost()
 {
     return m_bLost;
 }
-
 
 void Socket::SetErasedByHandler(bool x)
 {
     m_b_erased_by_handler = x;
 }
 
-
 bool Socket::ErasedByHandler()
 {
     return m_b_erased_by_handler;
 }
 
-
 time_t Socket::TimeSinceClose()
 {
     return time(NULL) - m_tClose;
 }
-
 
 void Socket::SetClientRemoteAddress(SocketAddress& ad)
 {
@@ -598,7 +533,6 @@ void Socket::SetClientRemoteAddress(SocketAddress& ad)
     m_client_remote_address = ad.GetCopy();
 }
 
-
 std::auto_ptr<SocketAddress> Socket::GetClientRemoteAddress()
 {
     if (!m_client_remote_address.get())
@@ -608,82 +542,68 @@ std::auto_ptr<SocketAddress> Socket::GetClientRemoteAddress()
     return m_client_remote_address -> GetCopy();
 }
 
-
 uint64_t Socket::GetBytesSent(bool)
 {
     return 0;
 }
-
 
 uint64_t Socket::GetBytesReceived(bool)
 {
     return 0;
 }
 
-
 #ifdef HAVE_OPENSSL
 void Socket::OnSSLConnect()
 {
 }
 
-
 void Socket::OnSSLAccept()
 {
 }
-
 
 bool Socket::SSLNegotiate()
 {
     return false;
 }
 
-
 bool Socket::IsSSL()
 {
     return m_b_enable_ssl;
 }
-
 
 void Socket::EnableSSL(bool x)
 {
     m_b_enable_ssl = x;
 }
 
-
 bool Socket::IsSSLNegotiate()
 {
     return m_b_ssl;
 }
-
 
 void Socket::SetSSLNegotiate(bool x)
 {
     m_b_ssl = x;
 }
 
-
 bool Socket::IsSSLServer()
 {
     return m_b_ssl_server;
 }
-
 
 void Socket::SetSSLServer(bool x)
 {
     m_b_ssl_server = x;
 }
 
-
 void Socket::OnSSLConnectFailed()
 {
 }
-
 
 void Socket::OnSSLAcceptFailed()
 {
 }
 #endif // HAVE_OPENSSL
-
 
 #ifdef ENABLE_POOL
 void Socket::CopyConnection(Socket *sock)
@@ -694,56 +614,46 @@ void Socket::CopyConnection(Socket *sock)
 #endif
     SetSocketType( sock -> GetSocketType() );
     SetSocketProtocol( sock -> GetSocketProtocol() );
-
     SetClientRemoteAddress( *sock -> GetClientRemoteAddress() );
     SetRemoteAddress( *sock -> GetRemoteSocketAddress() );
 }
-
 
 void Socket::SetIsClient()
 {
     m_bClient = true;
 }
 
-
 void Socket::SetSocketType(int x)
 {
     m_socket_type = x;
 }
-
 
 int Socket::GetSocketType()
 {
     return m_socket_type;
 }
 
-
 void Socket::SetSocketProtocol(const std::string& x)
 {
     m_socket_protocol = x;
 }
-
 
 const std::string& Socket::GetSocketProtocol()
 {
     return m_socket_protocol;
 }
 
-
 void Socket::SetRetain()
 {
     if (m_bClient) m_bRetain = true;
 }
-
 
 bool Socket::Retain()
 {
     return m_bRetain;
 }
 
-
 #endif // ENABLE_POOL
-
 
 #ifdef ENABLE_SOCKS4
 void Socket::OnSocks4Connect()
@@ -751,12 +661,10 @@ void Socket::OnSocks4Connect()
     Handler().LogError(this, "OnSocks4Connect", 0, "Use with TcpSocket only");
 }
 
-
 void Socket::OnSocks4ConnectFailed()
 {
     Handler().LogError(this, "OnSocks4ConnectFailed", 0, "Use with TcpSocket only");
 }
-
 
 bool Socket::OnSocks4Read()
 {
@@ -764,61 +672,51 @@ bool Socket::OnSocks4Read()
     return true;
 }
 
-
 void Socket::SetSocks4Host(const std::string& host)
 {
     Utility::u2ip(host, m_socks4_host);
 }
-
 
 bool Socket::Socks4()
 {
     return m_bSocks4;
 }
 
-
 void Socket::SetSocks4(bool x)
 {
     m_bSocks4 = x;
 }
-
 
 void Socket::SetSocks4Host(ipaddr_t a)
 {
     m_socks4_host = a;
 }
 
-
 void Socket::SetSocks4Port(port_t p)
 {
     m_socks4_port = p;
 }
-
 
 void Socket::SetSocks4Userid(const std::string& x)
 {
     m_socks4_userid = x;
 }
 
-
 ipaddr_t Socket::GetSocks4Host()
 {
     return m_socks4_host;
 }
-
 
 port_t Socket::GetSocks4Port()
 {
     return m_socks4_port;
 }
 
-
 const std::string& Socket::GetSocks4Userid()
 {
     return m_socks4_userid;
 }
 #endif // ENABLE_SOCKS4
-
 
 #ifdef ENABLE_DETACH
 bool Socket::Detach()
@@ -833,7 +731,6 @@ bool Socket::Detach()
     return true;
 }
 
-
 void Socket::DetachSocket()
 {
     SetDetached();
@@ -841,11 +738,9 @@ void Socket::DetachSocket()
     m_pThread -> SetRelease(true);
 }
 
-
 void Socket::OnDetached()
 {
 }
-
 
 void Socket::SetDetach(bool x)
 {
@@ -853,30 +748,25 @@ void Socket::SetDetach(bool x)
     m_detach = x;
 }
 
-
 bool Socket::IsDetach()
 {
     return m_detach;
 }
-
 
 void Socket::SetDetached(bool x)
 {
     m_detached = x;
 }
 
-
 const bool Socket::IsDetached() const
 {
     return m_detached;
 }
 
-
 void Socket::SetSlaveHandler(ISocketHandler *p)
 {
     m_slave_handler = p;
 }
-
 
 Socket::SocketThread::SocketThread(Socket *p)
 :Thread(false)
@@ -884,7 +774,6 @@ Socket::SocketThread::SocketThread(Socket *p)
 {
     // Creator will release
 }
-
 
 Socket::SocketThread::~SocketThread()
 {
@@ -899,7 +788,6 @@ Socket::SocketThread::~SocketThread()
 #endif
     }
 }
-
 
 void Socket::SocketThread::Run()
 {
@@ -919,13 +807,11 @@ void Socket::SocketThread::Run()
 }
 #endif // ENABLE_DETACH
 
-
 #ifdef ENABLE_RESOLVER
 int Socket::Resolve(const std::string& host,port_t port)
 {
     return Handler().Resolve(this, host, port);
 }
-
 
 #ifdef ENABLE_IPV6
 int Socket::Resolve6(const std::string& host,port_t port)
@@ -934,12 +820,10 @@ int Socket::Resolve6(const std::string& host,port_t port)
 }
 #endif
 
-
 int Socket::Resolve(ipaddr_t a)
 {
     return Handler().Resolve(this, a);
 }
-
 
 #ifdef ENABLE_IPV6
 int Socket::Resolve(in6_addr& a)
@@ -948,11 +832,9 @@ int Socket::Resolve(in6_addr& a)
 }
 #endif
 
-
 void Socket::OnResolved(int,ipaddr_t,port_t)
 {
 }
-
 
 #ifdef ENABLE_IPV6
 void Socket::OnResolved(int,in6_addr&,port_t)
@@ -960,20 +842,16 @@ void Socket::OnResolved(int,in6_addr&,port_t)
 }
 #endif
 
-
 void Socket::OnReverseResolved(int,const std::string&)
 {
 }
-
 
 void Socket::OnResolveFailed(int)
 {
 }
 #endif // ENABLE_RESOLVER
 
-
 /* IP options */
-
 
 bool Socket::SetIpOptions(const void *p, socklen_t len)
 {
@@ -990,7 +868,6 @@ bool Socket::SetIpOptions(const void *p, socklen_t len)
 #endif
 }
 
-
 #ifdef IP_PKTINFO
 bool Socket::SetIpPktinfo(bool x)
 {
@@ -1003,7 +880,6 @@ bool Socket::SetIpPktinfo(bool x)
     return true;
 }
 #endif
-
 
 #ifdef IP_RECVTOS
 bool Socket::SetIpRecvTOS(bool x)
@@ -1018,7 +894,6 @@ bool Socket::SetIpRecvTOS(bool x)
 }
 #endif
 
-
 #ifdef IP_RECVTTL
 bool Socket::SetIpRecvTTL(bool x)
 {
@@ -1031,7 +906,6 @@ bool Socket::SetIpRecvTTL(bool x)
     return true;
 }
 #endif
-
 
 #ifdef IP_RECVOPTS
 bool Socket::SetIpRecvopts(bool x)
@@ -1046,7 +920,6 @@ bool Socket::SetIpRecvopts(bool x)
 }
 #endif
 
-
 #ifdef IP_RETOPTS
 bool Socket::SetIpRetopts(bool x)
 {
@@ -1059,7 +932,6 @@ bool Socket::SetIpRetopts(bool x)
     return true;
 }
 #endif
-
 
 bool Socket::SetIpTOS(unsigned char tos)
 {
@@ -1076,7 +948,6 @@ bool Socket::SetIpTOS(unsigned char tos)
 #endif
 }
 
-
 unsigned char Socket::IpTOS()
 {
     unsigned char tos = 0;
@@ -1091,7 +962,6 @@ unsigned char Socket::IpTOS()
 #endif
     return tos;
 }
-
 
 bool Socket::SetIpTTL(int ttl)
 {
@@ -1108,7 +978,6 @@ bool Socket::SetIpTTL(int ttl)
 #endif
 }
 
-
 int Socket::IpTTL()
 {
     int ttl = 0;
@@ -1123,7 +992,6 @@ int Socket::IpTTL()
 #endif
     return ttl;
 }
-
 
 bool Socket::SetIpHdrincl(bool x)
 {
@@ -1141,7 +1009,6 @@ bool Socket::SetIpHdrincl(bool x)
 #endif
 }
 
-
 #ifdef IP_RECVERR
 bool Socket::SetIpRecverr(bool x)
 {
@@ -1154,7 +1021,6 @@ bool Socket::SetIpRecverr(bool x)
     return true;
 }
 #endif
-
 
 #ifdef IP_MTU_DISCOVER
 bool Socket::SetIpMtudiscover(bool x)
@@ -1169,7 +1035,6 @@ bool Socket::SetIpMtudiscover(bool x)
 }
 #endif
 
-
 #ifdef IP_MTU
 int Socket::IpMtu()
 {
@@ -1183,7 +1048,6 @@ int Socket::IpMtu()
 }
 #endif
 
-
 #ifdef IP_ROUTER_ALERT
 bool Socket::SetIpRouterAlert(bool x)
 {
@@ -1196,7 +1060,6 @@ bool Socket::SetIpRouterAlert(bool x)
     return true;
 }
 #endif
-
 
 bool Socket::SetIpMulticastTTL(int ttl)
 {
@@ -1213,7 +1076,6 @@ bool Socket::SetIpMulticastTTL(int ttl)
 #endif
 }
 
-
 int Socket::IpMulticastTTL()
 {
     int ttl = 0;
@@ -1228,7 +1090,6 @@ int Socket::IpMulticastTTL()
 #endif
     return ttl;
 }
-
 
 bool Socket::SetMulticastLoop(bool x)
 {
@@ -1245,7 +1106,6 @@ bool Socket::SetMulticastLoop(bool x)
     return false;
 #endif
 }
-
 
 #ifdef LINUX
 bool Socket::IpAddMembership(struct ip_mreqn& ref)
@@ -1264,7 +1124,6 @@ bool Socket::IpAddMembership(struct ip_mreqn& ref)
 }
 #endif
 
-
 bool Socket::IpAddMembership(struct ip_mreq& ref)
 {
 #ifdef IP_ADD_MEMBERSHIP
@@ -1279,7 +1138,6 @@ bool Socket::IpAddMembership(struct ip_mreq& ref)
     return false;
 #endif
 }
-
 
 #ifdef LINUX
 bool Socket::IpDropMembership(struct ip_mreqn& ref)
@@ -1298,7 +1156,6 @@ bool Socket::IpDropMembership(struct ip_mreqn& ref)
 }
 #endif
 
-
 bool Socket::IpDropMembership(struct ip_mreq& ref)
 {
 #ifdef IP_DROP_MEMBERSHIP
@@ -1314,9 +1171,7 @@ bool Socket::IpDropMembership(struct ip_mreq& ref)
 #endif
 }
 
-
 /* SOCKET options */
-
 
 bool Socket::SetSoReuseaddr(bool x)
 {
@@ -1334,7 +1189,6 @@ bool Socket::SetSoReuseaddr(bool x)
 #endif
 }
 
-
 bool Socket::SetSoKeepalive(bool x)
 {
 #ifdef SO_KEEPALIVE
@@ -1351,7 +1205,6 @@ bool Socket::SetSoKeepalive(bool x)
 #endif
 }
 
-
 #ifdef SO_NOSIGPIPE
 bool Socket::SetSoNosigpipe(bool x)
 {
@@ -1364,7 +1217,6 @@ bool Socket::SetSoNosigpipe(bool x)
     return true;
 }
 #endif
-
 
 bool Socket::SoAcceptconn()
 {
@@ -1381,7 +1233,6 @@ bool Socket::SoAcceptconn()
     return value ? true : false;
 }
 
-
 #ifdef SO_BSDCOMPAT
 bool Socket::SetSoBsdcompat(bool x)
 {
@@ -1395,7 +1246,6 @@ bool Socket::SetSoBsdcompat(bool x)
 }
 #endif
 
-
 #ifdef SO_BINDTODEVICE
 bool Socket::SetSoBindtodevice(const std::string& intf)
 {
@@ -1407,7 +1257,6 @@ bool Socket::SetSoBindtodevice(const std::string& intf)
     return true;
 }
 #endif
-
 
 bool Socket::SetSoBroadcast(bool x)
 {
@@ -1425,7 +1274,6 @@ bool Socket::SetSoBroadcast(bool x)
 #endif
 }
 
-
 bool Socket::SetSoDebug(bool x)
 {
 #ifdef SO_DEBUG
@@ -1442,7 +1290,6 @@ bool Socket::SetSoDebug(bool x)
 #endif
 }
 
-
 int Socket::SoError()
 {
     int value = 0;
@@ -1457,7 +1304,6 @@ int Socket::SoError()
 #endif
     return value;
 }
-
 
 bool Socket::SetSoDontroute(bool x)
 {
@@ -1474,7 +1320,6 @@ bool Socket::SetSoDontroute(bool x)
     return false;
 #endif
 }
-
 
 bool Socket::SetSoLinger(int onoff, int linger)
 {
@@ -1494,7 +1339,6 @@ bool Socket::SetSoLinger(int onoff, int linger)
 #endif
 }
 
-
 bool Socket::SetSoOobinline(bool x)
 {
 #ifdef SO_OOBINLINE
@@ -1511,7 +1355,6 @@ bool Socket::SetSoOobinline(bool x)
 #endif
 }
 
-
 #ifdef SO_PASSCRED
 bool Socket::SetSoPasscred(bool x)
 {
@@ -1525,7 +1368,6 @@ bool Socket::SetSoPasscred(bool x)
 }
 #endif
 
-
 #ifdef SO_PEERCRED
 bool Socket::SoPeercred(struct ucred& ucr)
 {
@@ -1538,7 +1380,6 @@ bool Socket::SoPeercred(struct ucred& ucr)
 }
 #endif
 
-
 #ifdef SO_PRIORITY
 bool Socket::SetSoPriority(int x)
 {
@@ -1550,7 +1391,6 @@ bool Socket::SetSoPriority(int x)
     return true;
 }
 #endif
-
 
 bool Socket::SetSoRcvlowat(int x)
 {
@@ -1567,7 +1407,6 @@ bool Socket::SetSoRcvlowat(int x)
 #endif
 }
 
-
 bool Socket::SetSoSndlowat(int x)
 {
 #ifdef SO_SNDLOWAT
@@ -1582,7 +1421,6 @@ bool Socket::SetSoSndlowat(int x)
     return false;
 #endif
 }
-
 
 bool Socket::SetSoRcvtimeo(struct timeval& tv)
 {
@@ -1599,7 +1437,6 @@ bool Socket::SetSoRcvtimeo(struct timeval& tv)
 #endif
 }
 
-
 bool Socket::SetSoSndtimeo(struct timeval& tv)
 {
 #ifdef SO_SNDTIMEO
@@ -1614,7 +1451,6 @@ bool Socket::SetSoSndtimeo(struct timeval& tv)
     return false;
 #endif
 }
-
 
 bool Socket::SetSoRcvbuf(int x)
 {
@@ -1631,7 +1467,6 @@ bool Socket::SetSoRcvbuf(int x)
 #endif
 }
 
-
 int Socket::SoRcvbuf()
 {
     int value = 0;
@@ -1647,7 +1482,6 @@ int Socket::SoRcvbuf()
     return value;
 }
 
-
 #ifdef SO_RCVBUFFORCE
 bool Socket::SetSoRcvbufforce(int x)
 {
@@ -1659,7 +1493,6 @@ bool Socket::SetSoRcvbufforce(int x)
     return true;
 }
 #endif
-
 
 bool Socket::SetSoSndbuf(int x)
 {
@@ -1676,7 +1509,6 @@ bool Socket::SetSoSndbuf(int x)
 #endif
 }
 
-
 int Socket::SoSndbuf()
 {
     int value = 0;
@@ -1692,7 +1524,6 @@ int Socket::SoSndbuf()
     return value;
 }
 
-
 #ifdef SO_SNDBUFFORCE
 bool Socket::SetSoSndbufforce(int x)
 {
@@ -1704,7 +1535,6 @@ bool Socket::SetSoSndbufforce(int x)
     return true;
 }
 #endif
-
 
 #ifdef SO_TIMESTAMP
 bool Socket::SetSoTimestamp(bool x)
@@ -1718,7 +1548,6 @@ bool Socket::SetSoTimestamp(bool x)
     return true;
 }
 #endif
-
 
 int Socket::SoType()
 {
@@ -1735,30 +1564,25 @@ int Socket::SoType()
     return value;
 }
 
-
 #ifdef ENABLE_TRIGGERS
 void Socket::Subscribe(int id)
 {
     Handler().Subscribe(id, this);
 }
 
-
 void Socket::Unsubscribe(int id)
 {
     Handler().Unsubscribe(id, this);
 }
 
-
 void Socket::OnTrigger(int, const TriggerData&)
 {
 }
-
 
 void Socket::OnCancelled(int)
 {
 }
 #endif
-
 
 void Socket::SetTimeout(time_t secs)
 {
@@ -1772,16 +1596,13 @@ void Socket::SetTimeout(time_t secs)
     m_timeout_limit = secs;
 }
 
-
 void Socket::OnTimeout()
 {
 }
 
-
 void Socket::OnConnectTimeout()
 {
 }
-
 
 bool Socket::Timeout(time_t tnow)
 {
@@ -1789,7 +1610,6 @@ bool Socket::Timeout(time_t tnow)
         return true;
     return false;
 }
-
 
 /** Returns local port number for bound socket file descriptor. */
 port_t Socket::GetSockPort()
@@ -1813,7 +1633,6 @@ port_t Socket::GetSockPort()
     return ntohs(sa.sin_port);
 }
 
-
 /** Returns local ipv4 address for bound socket file descriptor. */
 ipaddr_t Socket::GetSockIP4()
 {
@@ -1834,7 +1653,6 @@ ipaddr_t Socket::GetSockIP4()
     return a;
 }
 
-
 /** Returns local ipv4 address as text for bound socket file descriptor. */
 std::string Socket::GetSockAddress()
 {
@@ -1854,7 +1672,6 @@ std::string Socket::GetSockAddress()
     return addr.Convert();
 }
 
-
 #ifdef ENABLE_IPV6
 #ifdef IPPROTO_IPV6
 /** Returns local ipv6 address for bound socket file descriptor. */
@@ -1873,7 +1690,6 @@ struct in6_addr Socket::GetSockIP6()
     return a;
 }
 
-
 /** Returns local ipv6 address as text for bound socket file descriptor. */
 std::string Socket::GetSockAddress6()
 {
@@ -1891,9 +1707,7 @@ std::string Socket::GetSockAddress6()
 #endif
 #endif
 
-
 #ifdef SOCKETS_NAMESPACE
 }
 #endif
-
 

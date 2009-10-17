@@ -9,11 +9,8 @@
  * mkcsregdb. The source is in $ACE_ROOT/apps/mkcsregdb. It will generate a new
  * copy of this file, with the registry_db_ array properly initialized.
  */
-
 #include "ace/Codeset_Registry.h"
-
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
-
 ACE_Codeset_Registry::registry_entry const
 ACE_Codeset_Registry::registry_db_[] =
 {
@@ -27,8 +24,6 @@ ACE_Codeset_Registry::registry_db_[] =
   {"IBM-1251 (CCSID 01251); MS Windows Cyrillic","CP1251",0x100204e3,1,{0x0015},1},
   {"IBM-855 (CCSID 04951); Cyrillic Personal Computer","CP855",0x10021357,1,{0x0015},1}
 };
-
 size_t const ACE_Codeset_Registry::num_registry_entries_ = 9;
-
 ACE_END_VERSIONED_NAMESPACE_DECL
 

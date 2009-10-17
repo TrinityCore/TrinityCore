@@ -17,20 +17,15 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
-
 #ifndef _CHANNEL_H
 #define _CHANNEL_H
-
 #include <list>
 #include <map>
 #include <string>
-
 #include "Common.h"
-
 #include "Opcodes.h"
 #include "Player.h"
 #include "WorldPacket.h"
-
 enum ChatNotify
 {
     CHAT_JOINED_NOTICE                = 0x00,           //+ "%s joined channel.";
@@ -72,7 +67,6 @@ enum ChatNotify
     CHAT_VOICE_ON_NOTICE              = 0x22,           //+ "[%s] Channel voice enabled by %s.";
     CHAT_VOICE_OFF_NOTICE             = 0x23,           //+ "[%s] Channel voice disabled by %s.";
 };
-
 enum ChannelFlags
 {
     CHANNEL_FLAG_NONE       = 0x00,
@@ -90,7 +84,6 @@ enum ChannelFlags
     // GuildRecruitment         0x38 = 0x20 | 0x10 | 0x08
     // LookingForGroup          0x50 = 0x40 | 0x10
 };
-
 enum ChannelDBCFlags
 {
     CHANNEL_DBC_FLAG_NONE       = 0x00000,
@@ -104,7 +97,6 @@ enum ChannelDBCFlags
     CHANNEL_DBC_FLAG_GUILD_REQ  = 0x20000,              // GuildRecruitment
     CHANNEL_DBC_FLAG_LFG        = 0x40000               // LookingForGroup
 };
-
 enum ChannelMemberFlags
 {
     MEMBER_FLAG_NONE        = 0x00,
@@ -117,14 +109,12 @@ enum ChannelMemberFlags
     // 0x40
     // 0x80
 };
-
 class Channel
 {
     struct PlayerInfo
     {
         uint64 player;
         uint8 flags;
-
         bool HasFlag(uint8 flag) { return flags & flag; }
         void SetFlag(uint8 flag) { if(!HasFlag(flag)) flags |= flag; }
         bool IsOwner() { return flags & MEMBER_FLAG_OWNER; }
@@ -146,7 +136,6 @@ class Channel
             else flags &= ~MEMBER_FLAG_MUTED;
         }
     };
-
     typedef     std::map<uint64, PlayerInfo> PlayerList;
     PlayerList  players;
     typedef     std::set<uint64> BannedList;
@@ -159,7 +148,6 @@ class Channel
     uint32      m_channelId;
     uint64      m_ownerGUID;
     bool        m_IsSaved;
-
     private:
         // initial packet data (notify type and channel name)
         void MakeNotifyPacket(WorldPacket *data, uint8 notify_type);
@@ -200,49 +188,40 @@ class Channel
         void MakeNotInLfg(WorldPacket *data);                                   //? 0x21
         void MakeVoiceOn(WorldPacket *data, uint64 guid);                       //+ 0x22
         void MakeVoiceOff(WorldPacket *data, uint64 guid);                      //+ 0x23
-
         void SendToAll(WorldPacket *data, uint64 p = 0);
         void SendToAllButOne(WorldPacket *data, uint64 who);
         void SendToOne(WorldPacket *data, uint64 who);
-
         bool IsOn(uint64 who) const { return players.find(who) != players.end(); }
         bool IsBanned(uint64 guid) const { return banned.find(guid) != banned.end(); }
-
         uint8 GetPlayerFlags(uint64 p) const
         {
             PlayerList::const_iterator p_itr = players.find(p);
             if(p_itr == players.end())
                 return 0;
-
             return p_itr->second.flags;
         }
-
         void SetModerator(uint64 p, bool set)
         {
             if(players[p].IsModerator() != set)
             {
                 uint8 oldFlag = GetPlayerFlags(p);
                 players[p].SetModerator(set);
-
                 WorldPacket data;
                 MakeModeChange(&data, p, oldFlag);
                 SendToAll(&data);
             }
         }
-
         void SetMute(uint64 p, bool set)
         {
             if(players[p].IsMuted() != set)
             {
                 uint8 oldFlag = GetPlayerFlags(p);
                 players[p].SetMuted(set);
-
                 WorldPacket data;
                 MakeModeChange(&data, p, oldFlag);
                 SendToAll(&data);
             }
         }
-
     public:
         uint32 m_Team;
         Channel(const std::string& name, uint32 channel_id, uint32 Team = 0);
@@ -257,7 +236,6 @@ class Channel
         uint32 GetNumPlayers() const { return players.size(); }
         uint8 GetFlags() const { return m_flags; }
         bool HasFlag(uint8 flag) { return m_flags & flag; }
-
         void Join(uint64 p, const char *pass);
         void Leave(uint64 p, bool send = true);
         void KickOrBan(uint64 good, const char *badname, bool ban);

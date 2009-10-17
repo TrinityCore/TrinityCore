@@ -17,14 +17,10 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
-
 #include "TreeNode.h"
-
 using namespace G3D;
-
 namespace VMAP
 {
-
     TreeNode const* TreeNode::getChild(TreeNode const* pValueArray,int pNo) const
     {
         if(iChilds[pNo] != -1)
@@ -32,7 +28,6 @@ namespace VMAP
         else
             return(NULL);
     }
-
     //=================================================================
     //=================================================================
     //=================================================================

@@ -8,7 +8,6 @@
 #ifndef ACE_CONFIG_QNX_RTP_H
 #define ACE_CONFIG_QNX_RTP_H
 #include /**/ "ace/pre.h"
-
 #include <sys/neutrino.h>
 #if !defined(_NTO_VERSION)
 #  error "Could not detect QNX version from macro _NTO_VERSION"
@@ -20,7 +19,6 @@
 #    include /**/ "ace/config-qnx-rtp-62x.h"
 #  endif
 #endif
-
 #include /**/ "ace/post.h"
 #endif /* ACE_CONFIG_QNX_RTP_H */
 

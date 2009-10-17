@@ -1,5 +1,4 @@
 // -*- C++ -*-
-
 //=============================================================================
 /**
  *  @file    Log_Msg_Backend.h
@@ -10,23 +9,16 @@
  */
 //=============================================================================
 
-
 #ifndef ACE_LOG_MSG_BACKEND_H
 #define ACE_LOG_MSG_BACKEND_H
 #include /**/ "ace/pre.h"
-
 #include /**/ "ace/ACE_export.h"
-
 #if !defined (ACE_LACKS_PRAGMA_ONCE)
 # pragma once
 #endif /* ACE_LACKS_PRAGMA_ONCE */
-
 #include "ace/os_include/sys/os_types.h"
-
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
-
 class ACE_Log_Record;
-
 /**
  * @class ACE_Log_Msg_Backend
  *
@@ -43,7 +35,6 @@ class ACE_Export ACE_Log_Msg_Backend
 public:
   /// No-op virtual destructor.
   virtual ~ACE_Log_Msg_Backend (void);
-
   /**
    * Open the back end object. Perform any actions needed to prepare
    * the object for later logging operations.
@@ -56,7 +47,6 @@ public:
    * @retval -1 for failure.
    */
   virtual int open (const ACE_TCHAR *logger_key) = 0;
-
   /**
    * Reset the backend.  If ACE_Log_Msg is reopened during execution, this
    * hook will be called. This method should perform any needed cleanup
@@ -67,10 +57,8 @@ public:
    *         -1 for failure.
    */
   virtual int reset (void) = 0;
-
   /// Close the backend completely.
   virtual int close (void) = 0;
-
   /**
    * Process a log record.
    *
@@ -81,9 +69,7 @@ public:
    */
   virtual ssize_t log (ACE_Log_Record &log_record) = 0;
 };
-
 ACE_END_VERSIONED_NAMESPACE_DECL
-
 #include /**/ "ace/post.h"
 #endif /* ACE_LOG_MSG_BACKEND_H */
 

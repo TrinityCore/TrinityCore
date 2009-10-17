@@ -17,18 +17,13 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
-
 #ifndef _AUTH_HMAC_H
 #define _AUTH_HMAC_H
-
 #include "Common.h"
 #include <openssl/hmac.h>
 #include <openssl/sha.h>
-
 class BigNumber;
-
 #define SEED_KEY_SIZE 16
-
 class HmacHash
 {
     public:

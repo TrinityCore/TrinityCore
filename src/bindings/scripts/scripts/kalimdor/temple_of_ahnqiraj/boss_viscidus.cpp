@@ -13,18 +13,14 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
-
 /* ScriptData
 SDName: Boss_Viscidus
 SD%Complete: 0
 SDComment: place holder
 SDCategory: Temple of Ahn'Qiraj
 EndScriptData */
-
 #include "precompiled.h"
-
 #define SPELL_POISON_SHOCK          25993
 #define SPELL_POISONBOLT_VOLLEY     25991
-
 #define SPELL_TOXIN_CLOUD           25989
 

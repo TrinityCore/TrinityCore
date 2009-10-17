@@ -1,13 +1,10 @@
 // -*- C++ -*-
 //
 // $Id: OS_NS_sys_select.inl 80826 2008-03-04 14:51:23Z wotte $
-
 #include "ace/OS_NS_errno.h"
 #include "ace/OS_NS_macros.h"
 #include "ace/Time_Value.h"
-
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
-
 // It would be really cool to add another version of select that would
 // function like the one we're defending against below!
 ACE_INLINE int
@@ -20,7 +17,6 @@ ACE_OS::select (int width,
   // We must defend against non-conformity!
   timeval copy;
   timeval *timep = 0;
-
   if (timeout != 0)
     {
       copy = *timeout;
@@ -46,7 +42,6 @@ ACE_OS::select (int width,
                        int, -1);
 #endif
 }
-
 ACE_INLINE int
 ACE_OS::select (int width,
                 fd_set *rfds, fd_set *wfds, fd_set *efds,
@@ -76,5 +71,4 @@ ACE_OS::select (int width,
 #endif
 #undef ___ACE_TIMEOUT
 }
-
 ACE_END_VERSIONED_NAMESPACE_DECL

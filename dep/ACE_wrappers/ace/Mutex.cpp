@@ -1,29 +1,21 @@
 // $Id: Mutex.cpp 80826 2008-03-04 14:51:23Z wotte $
-
 #include "ace/Mutex.h"
-
 #if !defined (__ACE_INLINE__)
 #include "ace/Mutex.inl"
 #endif /* __ACE_INLINE__ */
-
 #include "ace/Log_Msg.h"
 #include "ace/OS_NS_string.h"
 #include "ace/os_include/sys/os_mman.h"
 
-
 ACE_RCSID (ace,
            Mutex,
            "$Id: Mutex.cpp 80826 2008-03-04 14:51:23Z wotte $")
-
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
-
 ACE_ALLOC_HOOK_DEFINE(ACE_Mutex)
-
 void
 ACE_Mutex::dump (void) const
 {
 // ACE_TRACE ("ACE_Mutex::dump");
-
   ACE_DEBUG ((LM_DEBUG, ACE_BEGIN_DUMP, this));
 #if defined (ACE_HAS_PTHREADS) || defined(ACE_HAS_STHREADS)
   ACE_DEBUG ((LM_DEBUG, ACE_TEXT ("lockname_ = %s\n"), this->lockname_));
@@ -32,7 +24,6 @@ ACE_Mutex::dump (void) const
   ACE_DEBUG ((LM_DEBUG, ACE_TEXT ("\n")));
   ACE_DEBUG ((LM_DEBUG, ACE_END_DUMP));
 }
-
 ACE_Mutex::ACE_Mutex (int type, const ACE_TCHAR *name,
                       ACE_mutexattr_t *arg, mode_t mode)
   :
@@ -43,7 +34,6 @@ ACE_Mutex::ACE_Mutex (int type, const ACE_TCHAR *name,
     removed_ (false)
 {
   // ACE_TRACE ("ACE_Mutex::ACE_Mutex");
-
   // These platforms need process-wide mutex to be in shared memory.
 #if defined(ACE_HAS_PTHREADS) || defined (ACE_HAS_STHREADS)
   if (type == USYNC_PROCESS)
@@ -73,7 +63,6 @@ ACE_Mutex::ACE_Mutex (int type, const ACE_TCHAR *name,
               return;
             }
         }
-
       this->process_lock_ =
         (ACE_mutex_t *) ACE_OS::mmap (0,
                                       sizeof (ACE_mutex_t),
@@ -84,7 +73,6 @@ ACE_Mutex::ACE_Mutex (int type, const ACE_TCHAR *name,
       ACE_OS::close (fd);
       if (this->process_lock_ == MAP_FAILED)
         return;
-
       if (this->lockname_
           && ACE_OS::mutex_init (this->process_lock_,
                                  type,
@@ -103,7 +91,6 @@ ACE_Mutex::ACE_Mutex (int type, const ACE_TCHAR *name,
 #else
       ACE_UNUSED_ARG (mode);
 #endif /* ACE_HAS_PTHREADS || ACE_HAS_STHREADS */
-
       if (ACE_OS::mutex_init (&this->lock_,
                               type,
                               name,
@@ -115,12 +102,10 @@ ACE_Mutex::ACE_Mutex (int type, const ACE_TCHAR *name,
     }
 #endif /* ACE_HAS_PTHREADS || ACE_HAS_STHREADS */
 }
-
 ACE_Mutex::~ACE_Mutex (void)
 {
 // ACE_TRACE ("ACE_Mutex::~ACE_Mutex");
   this->remove ();
 }
-
 ACE_END_VERSIONED_NAMESPACE_DECL
 

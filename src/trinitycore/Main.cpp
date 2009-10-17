@@ -17,32 +17,25 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
-
 /// \addtogroup Trinityd Trinity Daemon
 /// @{
 /// \file
-
 #include <openssl/opensslv.h>
 #include <openssl/crypto.h>
-
 #include "Common.h"
 #include "Database/DatabaseEnv.h"
 #include "Config/ConfigEnv.h"
-
 #include "Log.h"
 #include "Master.h"
-
 
 #ifndef _TRINITY_CORE_CONFIG
 # define _TRINITY_CORE_CONFIG  "TrinityCore.conf"
 #endif //_TRINITY_CORE_CONFIG
-
 // Format is YYYYMMDDRR where RR is the change in the conf file
 // for that day.
 #ifndef _TRINITY_CORE_CONFVER
 # define _TRINITY_CORE_CONFVER 2009101701
 #endif //_TRINITY_CORE_CONFVER
-
 #ifdef WIN32
 #include "ServiceWin32.h"
 char serviceName[] = "TrinityCore";
@@ -56,13 +49,10 @@ char serviceDescription[] = "Massive Network Game Object Server";
  */
 int m_ServiceStatus = -1;
 #endif
-
 DatabaseType WorldDatabase;                                 ///< Accessor to the world database
 DatabaseType CharacterDatabase;                             ///< Accessor to the character database
 DatabaseType loginDatabase;                                 ///< Accessor to the realm/login database
-
 uint32 realmID;                                             ///< Id of the realm
-
 /// Print out the usage string for this program on the console.
 void usage(const char *prog)
 {
@@ -76,7 +66,6 @@ void usage(const char *prog)
         #endif
         ,prog);
 }
-
 /// Launch the Trinity server
 extern int main(int argc, char **argv)
 {
@@ -96,7 +85,6 @@ extern int main(int argc, char **argv)
             else
                 cfg_file = argv[c];
         }
-
         #ifdef WIN32
         ////////////
         //Services//
@@ -136,14 +124,12 @@ extern int main(int argc, char **argv)
         #endif
         ++c;
     }
-
     if (!sConfig.SetSource(cfg_file))
     {
         sLog.outError("Could not find configuration file %s.", cfg_file);
         return 1;
     }
     sLog.outString("Using configuration file %s.", cfg_file);
-
     uint32 confVersion = sConfig.GetIntDefault("ConfVersion", 0);
     if (confVersion < _TRINITY_CORE_CONFVER)
     {
@@ -155,7 +141,6 @@ extern int main(int argc, char **argv)
         clock_t pause = 3000 + clock();
         while (pause > clock()) {}
     }
-
     sLog.outDetail("%s (Library: %s)", OPENSSL_VERSION_TEXT, SSLeay_version(SSLEAY_VERSION));
     if (SSLeay() < 0x009080bfL )
     {
@@ -165,15 +150,12 @@ extern int main(int argc, char **argv)
         while (pause > clock()) {}
         return 1;
     }
-
     ///- and run the 'Master'
     /// \todo Why do we need this 'Master'? Can't all of this be in the Main as for Realmd?
     return sMaster.Run();
-
     // at sMaster return function exist with codes
     // 0 - normal shutdown
     // 1 - shutdown at error
     // 2 - restart command used, this code can be used by restarter for restart Trinityd
 }
-
 /// @}

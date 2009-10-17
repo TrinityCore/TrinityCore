@@ -13,25 +13,20 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
-
 /* ScriptData
 SDName: Arathi Highlands
 SD%Complete: 100
 SDComment: Quest support: 665
 SDCategory: Arathi Highlands
 EndScriptData */
-
 /* ContentData
 npc_professor_phizzlethorpe
 EndContentData */
-
 #include "precompiled.h"
 #include "escort_ai.h"
-
 /*######
 ## npc_professor_phizzlethorpe
 ######*/
-
 enum eEnums
 {
     SAY_PROGRESS_1      = -1000235,
@@ -44,22 +39,17 @@ enum eEnums
     SAY_PROGRESS_7      = -1000242,
     EMOTE_PROGRESS_8    = -1000243,
     SAY_PROGRESS_9      = -1000244,
-
     QUEST_SUNKEN_TREASURE   = 665,
     MOB_VENGEFUL_SURGE      = 2776
 };
-
 struct TRINITY_DLL_DECL npc_professor_phizzlethorpeAI : public npc_escortAI
 {
     npc_professor_phizzlethorpeAI(Creature *c) : npc_escortAI(c) {}
-
     void WaypointReached(uint32 uiPointId)
     {
         Player* pPlayer = GetPlayerForEscort();
-
         if (!pPlayer)
             return;
-
         switch(uiPointId)
         {
         case 4:DoScriptText(SAY_PROGRESS_2, m_creature, pPlayer);break;
@@ -85,23 +75,19 @@ struct TRINITY_DLL_DECL npc_professor_phizzlethorpeAI : public npc_escortAI
             break;
         }
     }
-
     void JustSummoned(Creature* pSummoned)
     {
         pSummoned->AI()->AttackStart(m_creature);
     }
-
     void EnterCombat(Unit* pWho)
     {
         DoScriptText(SAY_AGGRO, m_creature);
     }
-
     void UpdateAI(const uint32 diff)
     {
         npc_escortAI::UpdateAI(diff);
     }
 };
-
 bool QuestAccept_npc_professor_phizzlethorpe(Player* pPlayer, Creature* pCreature, Quest const* pQuest)
 {
     if (pQuest->GetQuestId() == QUEST_SUNKEN_TREASURE)
@@ -109,21 +95,17 @@ bool QuestAccept_npc_professor_phizzlethorpe(Player* pPlayer, Creature* pCreatur
         DoScriptText(SAY_PROGRESS_1, pCreature, pPlayer);
         if (npc_escortAI* pEscortAI = CAST_AI(npc_professor_phizzlethorpeAI, (pCreature->AI())))
             pEscortAI->Start(false, false, pPlayer->GetGUID(), pQuest);
-
         pCreature->setFaction(113);
     }
     return true;
 }
-
 CreatureAI* GetAI_npc_professor_phizzlethorpeAI(Creature* pCreature)
 {
     return new npc_professor_phizzlethorpeAI(pCreature);
 }
-
 void AddSC_arathi_highlands()
 {
     Script * newscript;
-
     newscript = new Script;
     newscript->Name = "npc_professor_phizzlethorpe";
     newscript->GetAI = &GetAI_npc_professor_phizzlethorpeAI;

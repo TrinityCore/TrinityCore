@@ -1,5 +1,4 @@
 // -*- C++ -*-
-
 //=============================================================================
 /**
  *  @file    Method_Request.h
@@ -11,22 +10,15 @@
  */
 //=============================================================================
 
-
 #ifndef ACE_METHOD_REQUEST_H
 #define ACE_METHOD_REQUEST_H
-
 #include /**/ "ace/pre.h"
-
 #include /**/ "ace/ACE_export.h"
-
 #if !defined (ACE_LACKS_PRAGMA_ONCE)
 # pragma once
 #endif /* ACE_LACKS_PRAGMA_ONCE */
-
 #include "ace/Global_Macros.h"
-
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
-
 /**
  * @class ACE_Method_Request
  *
@@ -48,14 +40,11 @@ public:
   // = Initialization and termination methods.
   /// Constructor.
   ACE_Method_Request (unsigned long priority = 0);
-
   /// Destructor.
   virtual ~ACE_Method_Request (void);
-
   // = Accessors.
   /// Get priority.
   unsigned long priority (void) const;
-
   /// Set priority.
   /**
    * Priority values are user-defined. The default (set in the constructor)
@@ -68,7 +57,6 @@ public:
    * @sa ACE_Activation_Queue::enqueue
    */
   void priority (unsigned long prio);
-
   // = Invocation method (must be overridden by subclasses).
   /// Invoked by the scheduler to execute the request.
   /**
@@ -80,21 +68,15 @@ public:
    *         if needed.
    */
   virtual int call (void) = 0;
-
 private:
-
   /// Disallow copying and assignment.
   ACE_Method_Request (const ACE_Method_Request &);
   void operator= (const ACE_Method_Request &);
-
 protected:
   /// The priority of the request.
   unsigned long priority_;
-
 };
-
 ACE_END_VERSIONED_NAMESPACE_DECL
-
 
 #include /**/ "ace/post.h"
 #endif /* ACE_METHOD_REQUEST_H */

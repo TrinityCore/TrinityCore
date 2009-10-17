@@ -13,14 +13,12 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
-
 /* ScriptData
 SDName: Terokkar_Forest
 SD%Complete: 85
 SDComment: Quest support: 9889, 10009, 10873, 10896, 10898, 11096, 10052, 10051. Skettis->Ogri'la Flight
 SDCategory: Terokkar Forest
 EndScriptData */
-
 /* ContentData
 mob_unkor_the_ruthless
 mob_infested_root_walker
@@ -30,31 +28,23 @@ npc_floon
 npc_isla_starmane
 npc_slim
 EndContentData */
-
 #include "precompiled.h"
 #include "escort_ai.h"
-
 /*######
 ## mob_unkor_the_ruthless
 ######*/
-
 #define SAY_SUBMIT                      -1000351
-
 #define FACTION_HOSTILE                 45
 #define FACTION_FRIENDLY                35
 #define QUEST_DONTKILLTHEFATONE         9889
-
 #define SPELL_PULVERIZE                 2676
 //#define SPELL_QUID9889                32174
-
 struct TRINITY_DLL_DECL mob_unkor_the_ruthlessAI : public ScriptedAI
 {
     mob_unkor_the_ruthlessAI(Creature* c) : ScriptedAI(c) {}
-
     bool CanDoQuest;
     uint32 UnkorUnfriendly_Timer;
     uint32 Pulverize_Timer;
-
     void Reset()
     {
         CanDoQuest = false;
@@ -63,9 +53,7 @@ struct TRINITY_DLL_DECL mob_unkor_the_ruthlessAI : public ScriptedAI
         m_creature->SetStandState(UNIT_STAND_STATE_STAND);
         m_creature->setFaction(FACTION_HOSTILE);
     }
-
     void EnterCombat(Unit *who) {}
-
     void DoNice()
     {
         DoScriptText(SAY_SUBMIT, m_creature);
@@ -76,7 +64,6 @@ struct TRINITY_DLL_DECL mob_unkor_the_ruthlessAI : public ScriptedAI
         m_creature->CombatStop(true);
         UnkorUnfriendly_Timer = 60000;
     }
-
     void DamageTaken(Unit *done_by, uint32 &damage)
     {
         if (done_by->GetTypeId() == TYPEID_PLAYER)
@@ -84,7 +71,7 @@ struct TRINITY_DLL_DECL mob_unkor_the_ruthlessAI : public ScriptedAI
         {
             if (Group* pGroup = CAST_PLR(done_by)->GetGroup())
             {
-                for(GroupReference *itr = pGroup->GetFirstMember(); itr != NULL; itr = itr->next())
+                for (GroupReference *itr = pGroup->GetFirstMember(); itr != NULL; itr = itr->next())
                 {
                     Player *pGroupie = itr->getSource();
                     if (pGroupie &&
@@ -105,7 +92,6 @@ struct TRINITY_DLL_DECL mob_unkor_the_ruthlessAI : public ScriptedAI
             }
         }
     }
-
     void UpdateAI(const uint32 diff)
     {
         if (CanDoQuest)
@@ -124,36 +110,28 @@ struct TRINITY_DLL_DECL mob_unkor_the_ruthlessAI : public ScriptedAI
                 }else UnkorUnfriendly_Timer -= diff;
             }
         }
-
         if (!UpdateVictim())
             return;
-
         if (Pulverize_Timer < diff)
         {
             DoCast(m_creature,SPELL_PULVERIZE);
             Pulverize_Timer = 9000;
         }else Pulverize_Timer -= diff;
-
         DoMeleeAttackIfReady();
     }
 };
-
 CreatureAI* GetAI_mob_unkor_the_ruthless(Creature* pCreature)
 {
     return new mob_unkor_the_ruthlessAI (pCreature);
 }
-
 /*######
 ## mob_infested_root_walker
 ######*/
-
 struct TRINITY_DLL_DECL mob_infested_root_walkerAI : public ScriptedAI
 {
     mob_infested_root_walkerAI(Creature *c) : ScriptedAI(c) {}
-
     void Reset() { }
     void EnterCombat(Unit *who) { }
-
     void DamageTaken(Unit *done_by, uint32 &damage)
     {
         if (done_by && done_by->GetTypeId() == TYPEID_PLAYER)
@@ -168,7 +146,6 @@ CreatureAI* GetAI_mob_infested_root_walker(Creature* pCreature)
     return new mob_infested_root_walkerAI (pCreature);
 }
 
-
 /*######
 ## mob_skywing
 ######*/
@@ -176,13 +153,11 @@ struct TRINITY_DLL_DECL npc_skywingAI : public npc_escortAI
 {
 public:
     npc_skywingAI(Creature *c) : npc_escortAI(c) {}
-
     void WaypointReached(uint32 i)
     {
         Player* pPlayer = GetPlayerForEscort();
         if (!pPlayer)
             return;
-
         switch(i)
         {
             case 8:
@@ -190,14 +165,11 @@ public:
                 break;
         }
     }
-
     void EnterCombat(Unit* who) {}
-
     void MoveInLineOfSight(Unit *who)
     {
         if (HasEscortState(STATE_ESCORT_ESCORTING))
             return;
-
         if (who->GetTypeId() == TYPEID_PLAYER)
         {
             if (CAST_PLR(who)->GetQuestStatus(10898) == QUEST_STATUS_INCOMPLETE)
@@ -210,31 +182,24 @@ public:
             }
         }
     }
-
     void Reset() {}
-
     void UpdateAI(const uint32 diff)
     {
         npc_escortAI::UpdateAI(diff);
     }
 };
-
 CreatureAI* GetAI_npc_skywingAI(Creature* pCreature)
 {
     return new npc_skywingAI(pCreature);
 }
-
 /*######
 ## mob_rotting_forest_rager
 ######*/
-
 struct TRINITY_DLL_DECL mob_rotting_forest_ragerAI : public ScriptedAI
 {
     mob_rotting_forest_ragerAI(Creature *c) : ScriptedAI(c) {}
-
     void Reset() { }
     void EnterCombat(Unit *who) { }
-
     void DamageTaken(Unit *done_by, uint32 &damage)
     {
         if (done_by->GetTypeId() == TYPEID_PLAYER)
@@ -248,14 +213,11 @@ CreatureAI* GetAI_mob_rotting_forest_rager(Creature* pCreature)
 {
     return new mob_rotting_forest_ragerAI (pCreature);
 }
-
 /*######
 ## mob_netherweb_victim
 ######*/
-
 #define QUEST_TARGET        22459
 //#define SPELL_FREE_WEBBED   38950
-
 const uint32 netherwebVictims[6] =
 {
     18470, 16805, 21242, 18452, 22482, 21285
@@ -263,11 +225,9 @@ const uint32 netherwebVictims[6] =
 struct TRINITY_DLL_DECL mob_netherweb_victimAI : public ScriptedAI
 {
     mob_netherweb_victimAI(Creature *c) : ScriptedAI(c) {}
-
     void Reset() { }
     void EnterCombat(Unit *who) { }
     void MoveInLineOfSight(Unit *who) { }
-
     void JustDied(Unit* Killer)
     {
         if (Killer->GetTypeId() == TYPEID_PLAYER)
@@ -281,7 +241,6 @@ struct TRINITY_DLL_DECL mob_netherweb_victimAI : public ScriptedAI
                 }
                 else
                     m_creature->SummonCreature(netherwebVictims[rand()%6], 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 60000);
-
                 if (rand()%100 < 75)
                     m_creature->SummonCreature(netherwebVictims[rand()%6], 0.0f, 0.0f, 0.0f,0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 60000);
                 m_creature->SummonCreature(netherwebVictims[rand()%6], 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 60000);
@@ -293,38 +252,30 @@ CreatureAI* GetAI_mob_netherweb_victim(Creature* pCreature)
 {
     return new mob_netherweb_victimAI (pCreature);
 }
-
 /*######
 ## npc_floon
 ######*/
-
 #define GOSSIP_FLOON1           "You owe Sim'salabim money. Hand them over or die!"
 #define GOSSIP_FLOON2           "Hand over the money or die...again!"
-
 enum eFloon
 {
     SAY_FLOON_ATTACK        = -1000352,
-
     SPELL_SILENCE           = 6726,
     SPELL_FROSTBOLT         = 9672,
     SPELL_FROST_NOVA        = 11831,
-
     FACTION_HOSTILE_FL      = 1738,
     QUEST_CRACK_SKULLS      = 10009
 };
-
 struct TRINITY_DLL_DECL npc_floonAI : public ScriptedAI
 {
     npc_floonAI(Creature* c) : ScriptedAI(c)
     {
         m_uiNormFaction = c->getFaction();
     }
-
     uint32 m_uiNormFaction;
     uint32 Silence_Timer;
     uint32 Frostbolt_Timer;
     uint32 FrostNova_Timer;
-
     void Reset()
     {
         Silence_Timer = 2000;
@@ -333,50 +284,40 @@ struct TRINITY_DLL_DECL npc_floonAI : public ScriptedAI
         if (m_creature->getFaction() != m_uiNormFaction)
             m_creature->setFaction(m_uiNormFaction);
     }
-
     void EnterCombat(Unit *who) {}
-
     void UpdateAI(const uint32 diff)
     {
         if (!UpdateVictim())
             return;
-
         if (Silence_Timer < diff)
         {
             DoCast(m_creature->getVictim(),SPELL_SILENCE);
             Silence_Timer = 30000;
         }else Silence_Timer -= diff;
-
         if (FrostNova_Timer < diff)
         {
             DoCast(m_creature,SPELL_FROST_NOVA);
             FrostNova_Timer = 20000;
         }else FrostNova_Timer -= diff;
-
         if (Frostbolt_Timer < diff)
         {
             DoCast(m_creature->getVictim(),SPELL_FROSTBOLT);
             Frostbolt_Timer = 5000;
         }else Frostbolt_Timer -= diff;
-
         DoMeleeAttackIfReady();
     }
 };
-
 CreatureAI* GetAI_npc_floon(Creature* pCreature)
 {
     return new npc_floonAI (pCreature);
 }
-
 bool GossipHello_npc_floon(Player* pPlayer, Creature* pCreature)
 {
     if (pPlayer->GetQuestStatus(QUEST_CRACK_SKULLS) == QUEST_STATUS_INCOMPLETE)
         pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_FLOON1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
-
     pPlayer->SEND_GOSSIP_MENU(9442, pCreature->GetGUID());
     return true;
 }
-
 bool GossipSelect_npc_floon(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
 {
     if (uiAction == GOSSIP_ACTION_INFO_DEF)
@@ -393,32 +334,25 @@ bool GossipSelect_npc_floon(Player* pPlayer, Creature* pCreature, uint32 uiSende
     }
     return true;
 }
-
 /*######
 ## npc_isla_starmane
 ######*/
-
 #define SAY_PROGRESS_1  -1000353
 #define SAY_PROGRESS_2  -1000354
 #define SAY_PROGRESS_3  -1000355
 #define SAY_PROGRESS_4  -1000356
-
 #define QUEST_EFTW_H    10052
 #define QUEST_EFTW_A    10051
 #define GO_CAGE         182794
 #define SPELL_CAT       32447
-
 struct TRINITY_DLL_DECL npc_isla_starmaneAI : public npc_escortAI
 {
     npc_isla_starmaneAI(Creature* c) : npc_escortAI(c) {}
-
     void WaypointReached(uint32 i)
     {
         Player* pPlayer = GetPlayerForEscort();
-
         if (!pPlayer)
             return;
-
         switch(i)
         {
         case 0:
@@ -444,12 +378,10 @@ struct TRINITY_DLL_DECL npc_isla_starmaneAI : public npc_escortAI
             m_creature->RemoveUnitMovementFlag(MOVEMENTFLAG_WALK_MODE); break;
         }
     }
-
     void Reset()
     {
         me->RestoreFaction();
     }
-
     void JustDied(Unit* killer)
     {
         if (Player* pPlayer = GetPlayerForEscort())
@@ -461,7 +393,6 @@ struct TRINITY_DLL_DECL npc_isla_starmaneAI : public npc_escortAI
         }
     }
 };
-
 bool QuestAccept_npc_isla_starmane(Player* pPlayer, Creature* pCreature, Quest const* quest)
 {
     if (quest->GetQuestId() == QUEST_EFTW_H || quest->GetQuestId() == QUEST_EFTW_A)
@@ -471,12 +402,10 @@ bool QuestAccept_npc_isla_starmane(Player* pPlayer, Creature* pCreature, Quest c
     }
     return true;
 }
-
 CreatureAI* GetAI_npc_isla_starmaneAI(Creature* pCreature)
 {
     return new npc_isla_starmaneAI(pCreature);
 }
-
 /*######
 ## go_skull_pile
 ######*/
@@ -484,7 +413,6 @@ CreatureAI* GetAI_npc_isla_starmaneAI(Creature* pCreature)
 #define GOSSIP_S_KARROG         "Summon Karrog"
 #define GOSSIP_S_GEZZARAK_THE_HUNTRESS         "Summon Gezzarak the Huntress"
 #define GOSSIP_S_VAKKIZ_THE_WINDRAGER         "Summon Vakkiz the Windrager"
-
 bool GossipHello_go_skull_pile(Player* pPlayer, GameObject* pGo)
 {
     if ((pPlayer->GetQuestStatus(11885) == QUEST_STATUS_INCOMPLETE) || pPlayer->GetQuestRewardStatus(11885))
@@ -494,11 +422,9 @@ bool GossipHello_go_skull_pile(Player* pPlayer, GameObject* pGo)
         pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_S_GEZZARAK_THE_HUNTRESS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
         pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_S_VAKKIZ_THE_WINDRAGER, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 4);
     }
-
     pPlayer->SEND_GOSSIP_MENU(pGo->GetGOInfo()->questgiver.gossipID, pGo->GetGUID());
     return true;
 }
-
 void SendActionMenu_go_skull_pile(Player* pPlayer, GameObject* pGo, uint32 uiAction)
 {
     switch(uiAction)
@@ -517,7 +443,6 @@ void SendActionMenu_go_skull_pile(Player* pPlayer, GameObject* pGo, uint32 uiAct
             break;
     }
 }
-
 bool GossipSelect_go_skull_pile(Player* pPlayer, GameObject* pGo, uint32 uiSender, uint32 uiAction)
 {
     switch(uiSender)
@@ -526,16 +451,13 @@ bool GossipSelect_go_skull_pile(Player* pPlayer, GameObject* pGo, uint32 uiSende
     }
     return true;
 }
-
 /*######
 ## npc_slim
 ######*/
-
 enum eSlim
 {
     FACTION_CONSORTIUM  = 933
 };
-
 bool GossipHello_npc_slim(Player* pPlayer, Creature* pCreature)
 {
     if (pCreature->isVendor() && pPlayer->GetReputationRank(FACTION_CONSORTIUM) >= REP_FRIENDLY)
@@ -545,41 +467,30 @@ bool GossipHello_npc_slim(Player* pPlayer, Creature* pCreature)
     }
     else
         pPlayer->SEND_GOSSIP_MENU(9895, pCreature->GetGUID());
-
     return true;
 }
-
 bool GossipSelect_npc_slim(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
 {
     if (uiAction == GOSSIP_ACTION_TRADE)
         pPlayer->SEND_VENDORLIST(pCreature->GetGUID());
-
     return true;
 }
-
 /*########
 ####npc_Akuno
 #####*/
-
 #define QUEST_NPC_AKUNO 10887
 #define Summon 21661
-
 struct TRINITY_DLL_DECL npc_akunoAI : public npc_escortAI
 {
     npc_akunoAI(Creature *c) : npc_escortAI(c) {}
-
     bool IsWalking;
-
     void WaypointReached(uint32 i)
     {
         Player* pPlayer = GetPlayerForEscort();
-
         if(!pPlayer)
             return;
-
         if(IsWalking && !m_creature->HasUnitMovementFlag(MOVEMENTFLAG_WALK_MODE))
             m_creature->AddUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
-
 
         switch(i)
         {
@@ -595,7 +506,6 @@ struct TRINITY_DLL_DECL npc_akunoAI : public npc_escortAI
             break;
         }
     }
-
     void Reset()
     {
         if (IsWalking && !m_creature->HasUnitMovementFlag(MOVEMENTFLAG_WALK_MODE))
@@ -606,7 +516,6 @@ struct TRINITY_DLL_DECL npc_akunoAI : public npc_escortAI
         IsWalking=false;
     }
 };
-
 bool QuestAccept_npc_akuno(Player* pPlayer, Creature* pCreature, Quest const* pQuest)
 {
     if(pQuest->GetQuestId() == QUEST_NPC_AKUNO)
@@ -616,66 +525,54 @@ bool QuestAccept_npc_akuno(Player* pPlayer, Creature* pCreature, Quest const* pQ
     }
     return true;
 }
-
 CreatureAI* GetAI_npc_akuno(Creature* pCreature)
 {
     return new npc_akunoAI(pCreature);
 }
-
 void AddSC_terokkar_forest()
 {
     Script *newscript;
-
     newscript = new Script;
     newscript->Name = "mob_unkor_the_ruthless";
     newscript->GetAI = &GetAI_mob_unkor_the_ruthless;
     newscript->RegisterSelf();
-
     newscript = new Script;
     newscript->Name = "mob_infested_root_walker";
     newscript->GetAI = &GetAI_mob_infested_root_walker;
     newscript->RegisterSelf();
-
     newscript = new Script;
     newscript->Name = "mob_rotting_forest_rager";
     newscript->GetAI = &GetAI_mob_rotting_forest_rager;
     newscript->RegisterSelf();
-
     newscript = new Script;
     newscript->Name = "mob_netherweb_victim";
     newscript->GetAI = &GetAI_mob_netherweb_victim;
     newscript->RegisterSelf();
-
     newscript = new Script;
     newscript->Name = "npc_floon";
     newscript->GetAI = &GetAI_npc_floon;
     newscript->pGossipHello =  &GossipHello_npc_floon;
     newscript->pGossipSelect = &GossipSelect_npc_floon;
     newscript->RegisterSelf();
-
     newscript = new Script;
     newscript->Name = "npc_isla_starmane";
     newscript->GetAI = &GetAI_npc_isla_starmaneAI;
     newscript->pQuestAccept = &QuestAccept_npc_isla_starmane;
     newscript->RegisterSelf();
-
     newscript = new Script;
     newscript->Name = "go_skull_pile";
     newscript->pGOHello  = &GossipHello_go_skull_pile;
     newscript->pGOSelect = &GossipSelect_go_skull_pile;
     newscript->RegisterSelf();
-
     newscript = new Script;
     newscript->Name = "npc_skywing";
     newscript->GetAI = &GetAI_npc_skywingAI;
     newscript->RegisterSelf();
-
     newscript = new Script;
     newscript->Name = "npc_slim";
     newscript->pGossipHello =  &GossipHello_npc_slim;
     newscript->pGossipSelect = &GossipSelect_npc_slim;
     newscript->RegisterSelf();
-
     newscript = new Script;
     newscript->Name = "npc_akuno";
     newscript->GetAI = &GetAI_npc_akuno;

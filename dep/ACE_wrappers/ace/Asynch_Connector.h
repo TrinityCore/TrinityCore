@@ -1,5 +1,4 @@
 /* -*- C++ -*- */
-
 //=============================================================================
 /**
  *  @file    Asynch_Connector.h
@@ -9,28 +8,20 @@
  *  @author Alexander Libman <alibman@ihug.com.au>
  */
 //=============================================================================
-
 #ifndef ACE_ASYNCH_CONNECTOR_H
 #define ACE_ASYNCH_CONNECTOR_H
 #include /**/ "ace/pre.h"
-
 #include /**/ "ace/config-all.h"
-
 #if !defined (ACE_LACKS_PRAGMA_ONCE)
 # pragma once
 #endif /* ACE_LACKS_PRAGMA_ONCE */
-
 #if (defined (ACE_WIN32) || defined (ACE_HAS_AIO_CALLS)) && !defined(ACE_HAS_WINCE)
 // This only works on platforms that support async i/o.
-
 #include "ace/Asynch_IO.h"
 #include "ace/INET_Addr.h"
-
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
-
 // Forward declarations
 class ACE_Message_Block;
-
 /**
  * @class ACE_Asynch_Connector
  *
@@ -41,31 +32,26 @@ class ACE_Message_Block;
  * Unlike the ACE_Connector, however, this class is designed to
  * be used asynchronously with the ACE Proactor framework.
  */
-
 template <class HANDLER>
 class ACE_Asynch_Connector : public ACE_Handler
 {
 public:
   /// A do nothing constructor.
   ACE_Asynch_Connector (void);
-
   /// Virtual destruction
   virtual ~ACE_Asynch_Connector (void);
-
   /**
    * This opens asynch connector
    */
   virtual int open (bool pass_addresses = false,
                     ACE_Proactor *proactor = 0,
                     bool validate_new_connection = true);
-
   /// This initiates a new asynchronous connect
   virtual int connect (const ACE_INET_Addr &remote_sap,
                        const ACE_INET_Addr &local_sap =
                          (const ACE_INET_Addr &)ACE_Addr::sap_any,
                        int reuse_addr = 1,
                        const void *act = 0);
-
   /**
    * This cancels all pending accepts operations that were issued by
    * the calling thread.
@@ -76,7 +62,6 @@ public:
    * @note On POSIX, delegates cancelation to ACE_POSIX_Asynch_Connect.
    */
   virtual int cancel (void);
-
 
   /**
    * Template method to validate peer before service is opened.
@@ -108,64 +93,48 @@ public:
   virtual int validate_connection (const ACE_Asynch_Connect::Result& result,
                                    const ACE_INET_Addr &remote,
                                    const ACE_INET_Addr& local);
-
   //
   // These are low level tweaking methods
   //
-
   /// Set and get flag that indicates if parsing and passing of
   /// addresses to the service_handler is necessary.
   virtual bool pass_addresses (void) const;
   virtual void pass_addresses (bool new_value);
-
   /// Set and get flag that indicates if address validation is
   /// required.
   virtual bool validate_new_connection (void) const;
   virtual void validate_new_connection (bool new_value);
-
 protected:
-
   /// This is called when an outstanding accept completes.
   virtual void handle_connect (const ACE_Asynch_Connect::Result &result);
-
 
   /// This parses the address from read buffer.
   void parse_address (const ACE_Asynch_Connect::Result &result,
                       ACE_INET_Addr &remote_address,
                       ACE_INET_Addr &local_address);
-
   /// Return the asynch Connect object.
   ACE_Asynch_Connect & asynch_connect (void);
-
   /**
    * This is the template method used to create new handler.
    * Subclasses must overwrite this method if a new handler creation
    * strategy is required.
    */
   virtual HANDLER *make_handler (void);
-
 private:
-
   /// Asynch_Connect used to make life easier :-)
   ACE_Asynch_Connect asynch_connect_;
-
   /// Flag that indicates if parsing of addresses is necessary.
   bool pass_addresses_;
-
   /// Flag that indicates if address validation is required.
   bool validate_new_connection_;
 };
-
 ACE_END_VERSIONED_NAMESPACE_DECL
-
 #if defined (ACE_TEMPLATES_REQUIRE_SOURCE)
 #include "ace/Asynch_Connector.cpp"
 #endif /* ACE_TEMPLATES_REQUIRE_SOURCE */
-
 #if defined (ACE_TEMPLATES_REQUIRE_PRAGMA)
 #pragma implementation ("Asynch_Connector.cpp")
 #endif /* ACE_TEMPLATES_REQUIRE_PRAGMA */
-
 #endif /* ACE_WIN32 || ACE_HAS_AIO_CALLS */
 #include /**/ "ace/post.h"
 #endif /* ACE_ASYNCH_CONNECTOR_H */

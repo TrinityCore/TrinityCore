@@ -15,20 +15,16 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
-
 #ifndef MANGOS_POOLHANDLER_H
 #define MANGOS_POOLHANDLER_H
-
 #include "Platform/Define.h"
 #include "Policies/Singleton.h"
 #include "Creature.h"
 #include "GameObject.h"
-
 struct PoolTemplateData
 {
     uint32  MaxLimit;
 };
-
 struct PoolObject
 {
     uint32  guid;
@@ -36,7 +32,6 @@ struct PoolObject
     bool    spawned;
     PoolObject(uint32 _guid, float _chance): guid(_guid), chance(fabs(_chance)), spawned(false) {}
 };
-
 template <class T>
 class PoolGroup
 {
@@ -61,11 +56,9 @@ class PoolGroup
         uint32 m_LastDespawnedNode ;                        // Store the guid of the removed creature/gameobject during a pool update
         uint32 m_SpawnedPoolAmount;                         // Used to know the number of spawned objects
 };
-
 class Pool                                                  // for Pool of Pool case
 {
 };
-
 class PoolHandler
 {
     public:
@@ -79,7 +72,6 @@ class PoolHandler
         void DespawnPool(uint16 pool_id);
         void UpdatePool(uint16 pool_id, uint32 guid, uint32 type);
         void Initialize();
-
     protected:
         bool m_IsPoolSystemStarted;
         uint16 max_pool_id;
@@ -89,7 +81,6 @@ class PoolHandler
         typedef std::vector<PoolGroup<Pool> >       PoolGroupPoolMap;
         typedef std::pair<uint32, uint16> SearchPair;
         typedef std::map<uint32, uint16> SearchMap;
-
         PoolTemplateDataMap mPoolTemplate;
         PoolGroupCreatureMap mPoolCreatureGroups;
         PoolGroupGameObjectMap mPoolGameobjectGroups;
@@ -97,8 +88,6 @@ class PoolHandler
         SearchMap mCreatureSearchMap;
         SearchMap mGameobjectSearchMap;
         SearchMap mPoolSearchMap;
-
 };
-
 #define poolhandler MaNGOS::Singleton<PoolHandler>::Instance()
 #endif

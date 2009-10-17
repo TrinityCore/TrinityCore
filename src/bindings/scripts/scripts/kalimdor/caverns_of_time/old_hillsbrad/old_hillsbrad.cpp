@@ -13,54 +13,42 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
-
 /* ScriptData
 SDName: Old_Hillsbrad
 SD%Complete: 40
 SDComment: Quest support: 10283, 10284. All friendly NPC's. Thrall waypoints fairly complete, missing many details, but possible to complete escort.
 SDCategory: Caverns of Time, Old Hillsbrad Foothills
 EndScriptData */
-
 /* ContentData
 npc_erozion
 npc_thrall_old_hillsbrad
 npc_taretha
 EndContentData */
-
 #include "precompiled.h"
 #include "escort_ai.h"
 #include "def_old_hillsbrad.h"
-
 #define QUEST_ENTRY_HILLSBRAD   10282
 #define QUEST_ENTRY_DIVERSION   10283
 #define QUEST_ENTRY_ESCAPE      10284
 #define QUEST_ENTRY_RETURN      10285
 #define ITEM_ENTRY_BOMBS        25853
-
 #define GOSSIP_HELLO_EROZION1   "I need a pack of Incendiary Bombs."
 #define GOSSIP_HELLO_EROZION2   "[PH] Teleport please, i'm tired."
-
 /*######
 ## npc_erozion
 ######*/
-
 bool GossipHello_npc_erozion(Player* pPlayer, Creature* pCreature)
 {
     if (pCreature->isQuestGiver())
         pPlayer->PrepareQuestMenu(pCreature->GetGUID());
-
     ScriptedInstance* pInstance = pCreature->GetInstanceData();
     if (pInstance && pInstance->GetData(TYPE_BARREL_DIVERSION) != DONE && !pPlayer->HasItemCount(ITEM_ENTRY_BOMBS,1))
         pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_HELLO_EROZION1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-
     if (!pPlayer->GetQuestRewardStatus(QUEST_ENTRY_RETURN) && pPlayer->GetQuestStatus(QUEST_ENTRY_RETURN) == QUEST_STATUS_COMPLETE)
         pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_HELLO_EROZION2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
-
     pPlayer->SEND_GOSSIP_MENU(9778, pCreature->GetGUID());
-
     return true;
 }
-
 bool GossipSelect_npc_erozion(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
 {
     if (uiAction == GOSSIP_ACTION_INFO_DEF+1)
@@ -79,11 +67,9 @@ bool GossipSelect_npc_erozion(Player* pPlayer, Creature* pCreature, uint32 uiSen
     }
     return true;
 }
-
 /*######
 ## npc_thrall_old_hillsbrad
 ######*/
-
 //Thrall texts
 #define SAY_TH_START_EVENT_PART1    -1560023
 #define SAY_TH_ARMORY               -1560024
@@ -96,73 +82,57 @@ bool GossipSelect_npc_erozion(Player* pPlayer, Creature* pCreature, uint32 uiSen
 #define SAY_TH_EPOCH_WONDER         -1560031
 #define SAY_TH_EPOCH_KILL_TARETHA   -1560032
 #define SAY_TH_EVENT_COMPLETE       -1560033
-
 #define SAY_TH_RANDOM_LOW_HP1       -1560034
 #define SAY_TH_RANDOM_LOW_HP2       -1560035
-
 #define SAY_TH_RANDOM_DIE1          -1560036
 #define SAY_TH_RANDOM_DIE2          -1560037
-
 #define SAY_TH_RANDOM_AGGRO1        -1560038
 #define SAY_TH_RANDOM_AGGRO2        -1560039
 #define SAY_TH_RANDOM_AGGRO3        -1560040
 #define SAY_TH_RANDOM_AGGRO4        -1560041
-
 #define SAY_TH_RANDOM_KILL1         -1560042
 #define SAY_TH_RANDOM_KILL2         -1560043
 #define SAY_TH_RANDOM_KILL3         -1560044
-
 #define SAY_TH_LEAVE_COMBAT1        -1560045
 #define SAY_TH_LEAVE_COMBAT2        -1560046
 #define SAY_TH_LEAVE_COMBAT3        -1560047
-
 //Taretha texts
 #define SAY_TA_FREE                 -1560048
 #define SAY_TA_ESCAPED              -1560049
-
 //Misc for Thrall
 #define SPELL_STRIKE                14516
 #define SPELL_SHIELD_BLOCK          12169
 #define SPELL_SUMMON_EROZION_IMAGE  33954                   //if thrall dies during escort?
-
 #define SPEED_WALK              (0.5f)
 #define SPEED_RUN               (1.0f)
 #define SPEED_MOUNT             (1.6f)
-
 #define THRALL_WEAPON_MODEL     22106
 #define THRALL_WEAPON_INFO      218169346
 #define THRALL_SHIELD_MODEL     18662
 #define THRALL_SHIELD_INFO      234948100
 #define THRALL_MODEL_UNEQUIPPED 17292
 #define THRALL_MODEL_EQUIPPED   18165
-
 //Misc Creature entries
 #define ENTRY_ARMORER               18764
 #define ENTRY_SCARLOC               17862
-
 #define MOB_ENTRY_RIFLE         17820
 #define MOB_ENTRY_WARDEN        17833
 #define MOB_ENTRY_VETERAN       17860
 #define MOB_ENTRY_WATCHMAN      17814
 #define MOB_ENTRY_SENTRY        17815
-
 #define MOB_ENTRY_BARN_GUARDSMAN    18092
 #define MOB_ENTRY_BARN_PROTECTOR    18093
 #define MOB_ENTRY_BARN_LOOKOUT      18094
-
 #define MOB_ENTRY_CHURCH_GUARDSMAN  23175
 #define MOB_ENTRY_CHURCH_PROTECTOR  23179
 #define MOB_ENTRY_CHURCH_LOOKOUT    23177
-
 #define MOB_ENTRY_INN_GUARDSMAN     23176
 #define MOB_ENTRY_INN_PROTECTOR     23180
 #define MOB_ENTRY_INN_LOOKOUT       23178
-
 #define SKARLOC_MOUNT           18798
 #define SKARLOC_MOUNT_MODEL     18223
 #define EROZION_ENTRY           18723
 #define ENTRY_EPOCH                 18096
-
 //gossip items
 #define GOSSIP_ID_START         9568
 #define GOSSIP_ID_SKARLOC1      9614                        //I'm glad Taretha is alive. We now must find a way to free her...
@@ -170,14 +140,10 @@ bool GossipSelect_npc_erozion(Player* pPlayer, Creature* pCreature, uint32 uiSen
 #define GOSSIP_ID_SKARLOC2      9579                        //What do you mean by this? Is Taretha in danger?
 #define GOSSIP_ITEM_SKARLOC2    "The situation is rather complicated, Thrall. It would be best for you to head into the mountains now, before more of Blackmoore's men show up. We'll make sure Taretha is safe."
 #define GOSSIP_ID_SKARLOC3      9580
-
 #define GOSSIP_ID_TARREN        9597                        //tarren mill is beyond these trees
 #define GOSSIP_ITEM_TARREN      "We're ready, Thrall."
-
 #define GOSSIP_ID_COMPLETE      9578                        //Thank you friends, I owe my freedom to you. Where is Taretha? I hoped to see her
-
 #define GOSSIP_ITEM_WALKING     "[PH] Start walking."
-
 struct TRINITY_DLL_DECL npc_thrall_old_hillsbradAI : public npc_escortAI
 {
     npc_thrall_old_hillsbradAI(Creature *c) : npc_escortAI(c)
@@ -186,19 +152,14 @@ struct TRINITY_DLL_DECL npc_thrall_old_hillsbradAI : public npc_escortAI
         HadMount = false;
         m_creature->setActive(true);
     }
-
     ScriptedInstance *pInstance;
-
     uint64 TarethaGUID;
-
     bool LowHp;
     bool HadMount;
-
     void WaypointReached(uint32 i)
     {
         if (!pInstance)
             return;
-
         switch(i)
         {
             case 8:
@@ -331,7 +292,6 @@ struct TRINITY_DLL_DECL npc_thrall_old_hillsbradAI : public npc_escortAI
                 //trigger epoch Yell("Thrall! Come outside and face your fate! ....")
                 //from here, thrall should not never be allowed to move to point 106 which he currently does.
                 break;
-
             case 106:
                 {
                     //trigger taretha to run down outside
@@ -340,19 +300,17 @@ struct TRINITY_DLL_DECL npc_thrall_old_hillsbradAI : public npc_escortAI
                         if (Player* pPlayer = GetPlayerForEscort())
                             CAST_AI(npc_escortAI, (Taretha->AI()))->Start(false, true, pPlayer->GetGUID());
                     }
-
                     //kill credit Creature for quest
                     Map* pMap = m_creature->GetMap();
                     Map::PlayerList const& players = pMap->GetPlayers();
                     if (!players.isEmpty() && pMap->IsDungeon())
                     {
-                        for(Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
+                        for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
                         {
                             if (Player* pPlayer = itr->getSource())
                                 pPlayer->KilledMonsterCredit(20156,m_creature->GetGUID());
                         }
                     }
-
                     //alot will happen here, thrall and taretha talk, erozion appear at spot to explain
                     m_creature->SummonCreature(EROZION_ENTRY,2646.47,680.416,55.38,4.16,TEMPSUMMON_TIMED_DESPAWN,120000);
                 }
@@ -364,14 +322,11 @@ struct TRINITY_DLL_DECL npc_thrall_old_hillsbradAI : public npc_escortAI
         }
     }
 
-
     void Reset()
     {
         LowHp = false;
-
         if (HadMount)
             DoMount();
-
         if (!HasEscortState(STATE_ESCORT_ESCORTING))
         {
             DoUnmount();
@@ -409,7 +364,6 @@ struct TRINITY_DLL_DECL npc_thrall_old_hillsbradAI : public npc_escortAI
             HadMount = true;
         }
     }
-
     void JustSummoned(Creature* summoned)
     {
          switch(summoned->GetEntry())
@@ -426,7 +380,6 @@ struct TRINITY_DLL_DECL npc_thrall_old_hillsbradAI : public npc_escortAI
              break;
          }
     }
-
     void KilledUnit(Unit *victim)
     {
         DoScriptText(RAND(SAY_TH_RANDOM_KILL1,SAY_TH_RANDOM_KILL2,SAY_TH_RANDOM_KILL3), m_creature);
@@ -435,21 +388,16 @@ struct TRINITY_DLL_DECL npc_thrall_old_hillsbradAI : public npc_escortAI
     {
         if (pInstance)
             pInstance->SetData(TYPE_THRALL_EVENT,FAIL);
-
         // Don't do a yell if he kills self (if player goes too far or at the end).
         if (slayer == m_creature)
             return;
-
         DoScriptText(RAND(SAY_TH_RANDOM_DIE1,SAY_TH_RANDOM_DIE2), m_creature);
     }
-
     void UpdateAI(const uint32 diff)
     {
         npc_escortAI::UpdateAI(diff);
-
         if (!UpdateVictim())
             return;
-
              //TODO: add his abilities'n-crap here
             if (!LowHp && ((m_creature->GetHealth()*100 / m_creature->GetMaxHealth()) < 20))
             {
@@ -458,12 +406,10 @@ struct TRINITY_DLL_DECL npc_thrall_old_hillsbradAI : public npc_escortAI
             }
     }
 };
-
 CreatureAI* GetAI_npc_thrall_old_hillsbrad(Creature* pCreature)
 {
     return new npc_thrall_old_hillsbradAI(pCreature);
 }
-
 bool GossipHello_npc_thrall_old_hillsbrad(Player* pPlayer, Creature* pCreature)
 {
     if (pCreature->isQuestGiver())
@@ -471,7 +417,6 @@ bool GossipHello_npc_thrall_old_hillsbrad(Player* pPlayer, Creature* pCreature)
         pPlayer->PrepareQuestMenu(pCreature->GetGUID());
         pPlayer->SendPreparedQuest(pCreature->GetGUID());
     }
-
     ScriptedInstance* pInstance = pCreature->GetInstanceData();
     if (pInstance)
     {
@@ -480,13 +425,11 @@ bool GossipHello_npc_thrall_old_hillsbrad(Player* pPlayer, Creature* pCreature)
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_WALKING, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
             pPlayer->SEND_GOSSIP_MENU(GOSSIP_ID_START, pCreature->GetGUID());
         }
-
         if (pInstance->GetData(TYPE_THRALL_PART1) == DONE && !pInstance->GetData(TYPE_THRALL_PART2))
         {
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_SKARLOC1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
             pPlayer->SEND_GOSSIP_MENU(GOSSIP_ID_SKARLOC1, pCreature->GetGUID());
         }
-
         if (pInstance->GetData(TYPE_THRALL_PART2) == DONE && !pInstance->GetData(TYPE_THRALL_PART3))
         {
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_TARREN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+3);
@@ -495,7 +438,6 @@ bool GossipHello_npc_thrall_old_hillsbrad(Player* pPlayer, Creature* pCreature)
     }
     return true;
 }
-
 bool GossipSelect_npc_thrall_old_hillsbrad(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
 {
     ScriptedInstance* pInstance = pCreature->GetInstanceData();
@@ -508,33 +450,25 @@ bool GossipSelect_npc_thrall_old_hillsbrad(Player* pPlayer, Creature* pCreature,
                 pInstance->SetData(TYPE_THRALL_EVENT,IN_PROGRESS);
                 pInstance->SetData(TYPE_THRALL_PART1,IN_PROGRESS);
             }
-
             DoScriptText(SAY_TH_START_EVENT_PART1, pCreature);
-
             if (npc_escortAI* pEscortAI = CAST_AI(npc_thrall_old_hillsbradAI, pCreature->AI()))
                 pEscortAI->Start(true, true, pPlayer->GetGUID());
-
             CAST_AI(npc_escortAI, (pCreature->AI()))->SetMaxPlayerDistance(100.0f);//not really needed, because it will not despawn if player is too far
             CAST_AI(npc_escortAI, (pCreature->AI()))->SetDespawnAtEnd(false);
             CAST_AI(npc_escortAI, (pCreature->AI()))->SetDespawnAtFar(false);
             break;
-
         case GOSSIP_ACTION_INFO_DEF+2:
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_SKARLOC2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+20);
             pPlayer->SEND_GOSSIP_MENU(GOSSIP_ID_SKARLOC2, pCreature->GetGUID());
             break;
-
         case GOSSIP_ACTION_INFO_DEF+20:
             pPlayer->SEND_GOSSIP_MENU(GOSSIP_ID_SKARLOC3, pCreature->GetGUID());
             pCreature->SummonCreature(SKARLOC_MOUNT,2038.81,270.26,63.20,5.41,TEMPSUMMON_TIMED_DESPAWN,12000);
             if (pInstance)
                 pInstance->SetData(TYPE_THRALL_PART2,IN_PROGRESS);
-
             DoScriptText(SAY_TH_START_EVENT_PART2, pCreature);
-
             CAST_AI(npc_thrall_old_hillsbradAI, pCreature->AI())->StartWP();
             break;
-
         case GOSSIP_ACTION_INFO_DEF+3:
             pPlayer->CLOSE_GOSSIP_MENU();
             if (pInstance)
@@ -544,25 +478,20 @@ bool GossipSelect_npc_thrall_old_hillsbrad(Player* pPlayer, Creature* pCreature,
     }
     return true;
 }
-
 /*######
 ## npc_taretha
 ######*/
-
 #define GOSSIP_ID_EPOCH1        9610                        //Thank you for helping Thrall escape, friends. Now I only hope
 #define GOSSIP_ITEM_EPOCH1      "Strange wizard?"
 #define GOSSIP_ID_EPOCH2        9613                        //Yes, friends. This man was no wizard of
 #define GOSSIP_ITEM_EPOCH2      "We'll get you out. Taretha. Don't worry. I doubt the wizard would wander too far away."
-
 struct TRINITY_DLL_DECL npc_tarethaAI : public npc_escortAI
 {
     npc_tarethaAI(Creature *c) : npc_escortAI(c)
     {
         pInstance = c->GetInstanceData();
     }
-
     ScriptedInstance *pInstance;
-
     void WaypointReached(uint32 i)
     {
         switch(i)
@@ -577,7 +506,6 @@ struct TRINITY_DLL_DECL npc_tarethaAI : public npc_escortAI
     }
     void Reset() {}
     void EnterCombat(Unit* who) {}
-
     void UpdateAI(const uint32 diff)
     {
         npc_escortAI::UpdateAI(diff);
@@ -587,7 +515,6 @@ CreatureAI* GetAI_npc_taretha(Creature* pCreature)
 {
     return new npc_tarethaAI(pCreature);
 }
-
 bool GossipHello_npc_taretha(Player* pPlayer, Creature* pCreature)
 {
     ScriptedInstance* pInstance = pCreature->GetInstanceData();
@@ -598,7 +525,6 @@ bool GossipHello_npc_taretha(Player* pPlayer, Creature* pCreature)
     }
     return true;
 }
-
 bool GossipSelect_npc_taretha(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
 {
     ScriptedInstance* pInstance = pCreature->GetInstanceData();
@@ -610,13 +536,11 @@ bool GossipSelect_npc_taretha(Player* pPlayer, Creature* pCreature, uint32 uiSen
     if (uiAction == GOSSIP_ACTION_INFO_DEF+2)
     {
         pPlayer->CLOSE_GOSSIP_MENU();
-
         if (pInstance && pInstance->GetData(TYPE_THRALL_EVENT) == IN_PROGRESS)
         {
             pInstance->SetData(TYPE_THRALL_PART4,IN_PROGRESS);
             if (pInstance->GetData64(DATA_EPOCH) == 0)
                  pCreature->SummonCreature(ENTRY_EPOCH,2639.13,698.55,65.43,4.59,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,120000);
-
              if (uint64 ThrallGUID = pInstance->GetData64(DATA_THRALL))
              {
                  Creature* Thrall = (Unit::GetCreature((*pCreature), ThrallGUID));
@@ -627,28 +551,23 @@ bool GossipSelect_npc_taretha(Player* pPlayer, Creature* pCreature, uint32 uiSen
     }
     return true;
 }
-
 /*######
 ## AddSC
 ######*/
-
 void AddSC_old_hillsbrad()
 {
     Script *newscript;
-
     newscript = new Script;
     newscript->Name = "npc_erozion";
     newscript->pGossipHello =   &GossipHello_npc_erozion;
     newscript->pGossipSelect =  &GossipSelect_npc_erozion;
     newscript->RegisterSelf();
-
     newscript = new Script;
     newscript->Name = "npc_thrall_old_hillsbrad";
     newscript->pGossipHello =  &GossipHello_npc_thrall_old_hillsbrad;
     newscript->pGossipSelect = &GossipSelect_npc_thrall_old_hillsbrad;
     newscript->GetAI = &GetAI_npc_thrall_old_hillsbrad;
     newscript->RegisterSelf();
-
     newscript = new Script;
     newscript->Name = "npc_taretha";
     newscript->pGossipHello =   &GossipHello_npc_taretha;

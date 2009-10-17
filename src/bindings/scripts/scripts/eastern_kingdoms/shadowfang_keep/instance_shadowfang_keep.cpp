@@ -13,58 +13,44 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
-
 /* ScriptData
 SDName: Instance_Shadowfang_Keep
 SD%Complete: 90
 SDComment:
 SDCategory: Shadowfang Keep
 EndScriptData */
-
 #include "precompiled.h"
 #include "def_shadowfang_keep.h"
-
 #define MAX_ENCOUNTER              4
-
 enum eEnums
 {
     SAY_BOSS_DIE_AD         = -1033007,
     SAY_BOSS_DIE_AS         = -1033008,
-
     NPC_ASH                 = 3850,
     NPC_ADA                 = 3849,
-
     GO_COURTYARD_DOOR       = 18895,                        //door to open when talking to NPC's
     GO_SORCERER_DOOR        = 18972,                        //door to open when Fenrus the Devourer
     GO_ARUGAL_DOOR          = 18971                         //door to open when Wolf Master Nandos
 };
-
 struct TRINITY_DLL_DECL instance_shadowfang_keep : public ScriptedInstance
 {
     instance_shadowfang_keep(Map* pMap) : ScriptedInstance(pMap) {Initialize();};
-
     uint32 m_auiEncounter[MAX_ENCOUNTER];
     std::string str_data;
-
     uint64 uiAshGUID;
     uint64 uiAdaGUID;
-
     uint64 DoorCourtyardGUID;
     uint64 DoorSorcererGUID;
     uint64 DoorArugalGUID;
-
     void Initialize()
     {
         memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
-
         uiAshGUID = 0;
         uiAdaGUID = 0;
-
         DoorCourtyardGUID = 0;
         DoorSorcererGUID = 0;
         DoorArugalGUID = 0;
     }
-
     void OnCreatureCreate(Creature* pCreature, bool add)
     {
         switch(pCreature->GetEntry())
@@ -73,7 +59,6 @@ struct TRINITY_DLL_DECL instance_shadowfang_keep : public ScriptedInstance
             case NPC_ADA: uiAdaGUID = pCreature->GetGUID(); break;
         }
     }
-
     void OnGameObjectCreate(GameObject* pGo, bool add)
     {
         switch(pGo->GetEntry())
@@ -95,19 +80,16 @@ struct TRINITY_DLL_DECL instance_shadowfang_keep : public ScriptedInstance
                 break;
         }
     }
-
     void DoSpeech()
     {
         Creature* pAda = instance->GetCreature(uiAdaGUID);
         Creature* pAsh = instance->GetCreature(uiAshGUID);
-
         if (pAda && pAda->isAlive() && pAsh && pAsh->isAlive())
         {
             DoScriptText(SAY_BOSS_DIE_AD,pAda);
             DoScriptText(SAY_BOSS_DIE_AS,pAsh);
         }
     }
-
     void SetData(uint32 type, uint32 data)
     {
         switch(type)
@@ -133,21 +115,16 @@ struct TRINITY_DLL_DECL instance_shadowfang_keep : public ScriptedInstance
                 m_auiEncounter[3] = data;
                 break;
         }
-
         if (data == DONE)
         {
             OUT_SAVE_INST_DATA;
-
             std::ostringstream saveStream;
             saveStream << m_auiEncounter[0] << " " << m_auiEncounter[1] << " " << m_auiEncounter[2] << " " << m_auiEncounter[3];
-
             str_data = saveStream.str();
-
             SaveToDB();
             OUT_SAVE_INST_DATA_COMPLETE;
         }
     }
-
     uint32 GetData(uint32 type)
     {
         switch(type)
@@ -163,12 +140,10 @@ struct TRINITY_DLL_DECL instance_shadowfang_keep : public ScriptedInstance
         }
         return 0;
     }
-
     std::string GetSaveData()
     {
         return str_data;
     }
-
     void Load(const char* in)
     {
         if (!in)
@@ -176,27 +151,21 @@ struct TRINITY_DLL_DECL instance_shadowfang_keep : public ScriptedInstance
             OUT_LOAD_INST_DATA_FAIL;
             return;
         }
-
         OUT_LOAD_INST_DATA(in);
-
         std::istringstream loadStream(in);
         loadStream >> m_auiEncounter[0] >> m_auiEncounter[1] >> m_auiEncounter[2] >> m_auiEncounter[3];
-
-        for(uint8 i = 0; i < MAX_ENCOUNTER; ++i)
+        for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
         {
             if (m_auiEncounter[i] == IN_PROGRESS)
                 m_auiEncounter[i] = NOT_STARTED;
         }
-
         OUT_LOAD_INST_DATA_COMPLETE;
     }
 };
-
 InstanceData* GetInstanceData_instance_shadowfang_keep(Map* pMap)
 {
     return new instance_shadowfang_keep(pMap);
 }
-
 void AddSC_instance_shadowfang_keep()
 {
     Script *newscript;

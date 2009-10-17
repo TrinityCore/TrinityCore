@@ -15,36 +15,29 @@
 * along with this program; if not, write to the Free Software
 * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
-
 #ifndef DBCENUMS_H
 #define DBCENUMS_H
-
 // Client expected level limitation, like as used in DBC item max levels for "until max player level"
 // use as default max player level, must be fit max level for used client
 // also see MAX_LEVEL and STRONG_MAX_LEVEL define
 #define DEFAULT_MAX_LEVEL 80
-
 // client supported max level for player/pets/etc. Avoid overflow or client stability affected.
 // also see GT_MAX_LEVEL define
 #define MAX_LEVEL    100
-
 // Server side limitation. Base at used code requirements.
 // also see MAX_LEVEL and GT_MAX_LEVEL define
 #define STRONG_MAX_LEVEL 255
-
 enum AreaTeams
 {
     AREATEAM_NONE  = 0,
     AREATEAM_ALLY  = 2,
     AREATEAM_HORDE = 4
 };
-
 enum AchievementFactionFlags
 {
     ACHIEVEMENT_FACTION_FLAG_HORDE    = 0x00000000,
     ACHIEVEMENT_FACTION_FLAG_ALLIANCE = 0x00000001,
 };
-
 enum AchievementFlags
 {
     ACHIEVEMENT_FLAG_COUNTER           = 0x00000001,        // Just count statistic (never stop and complete)
@@ -58,7 +51,6 @@ enum AchievementFlags
     ACHIEVEMENT_FLAG_REALM_FIRST_REACH = 0x00000100,        //
     ACHIEVEMENT_FLAG_REALM_FIRST_KILL  = 0x00000200,        //
 };
-
 enum AchievementCriteriaCondition
 {
     ACHIEVEMENT_CRITERIA_CONDITION_NONE      = 0,
@@ -69,7 +61,6 @@ enum AchievementCriteriaCondition
     ACHIEVEMENT_CRITERIA_CONDITION_UNK2      = 9,           // unk
     ACHIEVEMENT_CRITERIA_CONDITION_UNK3      = 13,          // unk
 };
-
 enum AchievementCriteriaCompletionFlags
 {
     ACHIEVEMENT_CRITERIA_FLAG_SHOW_PROGRESS_BAR = 0x00000001,         // Show progress as bar
@@ -79,13 +70,11 @@ enum AchievementCriteriaCompletionFlags
     ACHIEVEMENT_CRITERIA_FLAG_UNK5              = 0x00000010,         // not used
     ACHIEVEMENT_CRITERIA_FLAG_MONEY_COUNTER     = 0x00000020,         // Displays counter as money
 };
-
 enum AchievementCriteriaGroupFlags
 {
     // you mustn't be in a group while fulfilling this achievement
     ACHIEVEMENT_CRITERIA_GROUP_NOT_IN_GROUP = 2,
 };
-
 enum AchievementCriteriaTypes
 {
     ACHIEVEMENT_CRITERIA_TYPE_KILL_CREATURE = 0,
@@ -199,7 +188,6 @@ enum AchievementCriteriaTypes
     // 0..114 => 115 criteria types total
     ACHIEVEMENT_CRITERIA_TYPE_TOTAL = 115,
 };
-
 enum AreaFlags
 {
     AREA_FLAG_SNOW             = 0x00000001,                // snow (only Dun Morogh, Naxxramas, Razorfen Downs and Winterspring)
@@ -231,12 +219,10 @@ enum AreaFlags
     AREA_FLAG_UNK10            = 0x04000000,                // unknown
     AREA_FLAG_OUTDOOR_PVP2     = 0x08000000                 // Wintergrasp and it's subzones
 };
-
 enum FactionTemplateFlags
 {
     FACTION_TEMPLATE_FLAG_CONTESTED_GUARD   =   0x00001000, // faction will attack players that were involved in PvP combats
 };
-
 enum FactionMasks
 {
     FACTION_MASK_PLAYER   = 1,                              // any player
@@ -245,7 +231,6 @@ enum FactionMasks
     FACTION_MASK_MONSTER  = 8                               // aggressive creature from monster team
     // if none flags set then non-aggressive creature
 };
-
 enum MapTypes
 {
     MAP_COMMON          = 0,
@@ -254,13 +239,11 @@ enum MapTypes
     MAP_BATTLEGROUND    = 3,
     MAP_ARENA           = 4
 };
-
 enum AbilytyLearnType
 {
     ABILITY_LEARNED_ON_GET_PROFESSION_SKILL     = 1,
     ABILITY_LEARNED_ON_GET_RACE_OR_CLASS_SKILL  = 2
 };
-
 enum ItemEnchantmentType
 {
     ITEM_ENCHANTMENT_TYPE_NONE             = 0,
@@ -273,7 +256,6 @@ enum ItemEnchantmentType
     ITEM_ENCHANTMENT_TYPE_USE_SPELL        = 7,
     ITEM_ENCHANTMENT_TYPE_PRISMATIC_SOCKET = 8
 };
-
 enum TotemCategoryType
 {
     TOTEM_CATEGORY_TYPE_KNIFE   = 1,
@@ -284,7 +266,6 @@ enum TotemCategoryType
     TOTEM_CATEGORY_TYPE_HAMMER  = 23,
     TOTEM_CATEGORY_TYPE_SPANNER = 24
 };
-
 // SummonProperties.dbc, col 1
 enum SummonPropGroup
 {
@@ -294,7 +275,6 @@ enum SummonPropGroup
     SUMMON_PROP_GROUP_CONTROLLABLE   = 3,                   // 13 spells in 3.0.3, mostly controllable
     SUMMON_PROP_GROUP_UNKNOWN3       = 4                    // 86 spells in 3.0.3, taxi/mounts
 };
-
 // SummonProperties.dbc, col 3
 enum SummonPropType
 {
@@ -311,7 +291,6 @@ enum SummonPropType
     SUMMON_PROP_TYPE_DRAKE_VEH       = 10,                  // summon drake (vehicle), 3 spells
     SUMMON_PROP_TYPE_LIGHTWELL       = 11                   // summon lightwell, 6 spells in 3.0.3
 };
-
 // SummonProperties.dbc, col 5
 enum SummonPropFlags
 {
@@ -331,6 +310,5 @@ enum SummonPropFlags
     SUMMON_PROP_FLAG_UNK13           = 0x1000,              // 8 spells in 3.0.3, siege vehicle
     SUMMON_PROP_FLAG_UNK14           = 0x2000,              // 2 spells in 3.0.3, escort?
 };
-
 #endif
 

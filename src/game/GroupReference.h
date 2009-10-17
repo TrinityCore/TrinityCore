@@ -17,15 +17,11 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
-
 #ifndef _GROUPREFERENCE_H
 #define _GROUPREFERENCE_H
-
 #include "Utilities/LinkedReference/Reference.h"
-
 class Group;
 class Player;
-
 class TRINITY_DLL_SPEC GroupReference : public Reference<Group, Player>
 {
     protected:

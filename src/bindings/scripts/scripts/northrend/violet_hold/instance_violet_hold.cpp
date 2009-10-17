@@ -1,13 +1,10 @@
 #include "precompiled.h"
 #include "def_violet_hold.h"
-
 #define MAX_ENCOUNTER          3
-
 /* Violet Hold encounters:
 0 - First boss
 1 - Second boss
 2 - Cyanigosa*/
-
 /* Violet hold bosses:
 0 - Moragg
 1 - Erekem
@@ -41,7 +38,6 @@ const Location PortalLocation[] =
 struct TRINITY_DLL_DECL instance_violet_hold : public ScriptedInstance
 {
     instance_violet_hold(Map* pMap) : ScriptedInstance(pMap) {Initialize();};
-
     uint64 uiMoragg;
     uint64 uiErekem;
     uint64 uiIchoron;
@@ -50,7 +46,6 @@ struct TRINITY_DLL_DECL instance_violet_hold : public ScriptedInstance
     uint64 uiZuramat;
     uint64 uiCyanigosa;
     uint64 uiSinclari;
-
     uint64 uiMoraggCell;
     uint64 uiErekemCell;
     uint64 uiErekemRightGuardCell;
@@ -60,18 +55,13 @@ struct TRINITY_DLL_DECL instance_violet_hold : public ScriptedInstance
     uint64 uiXevozzCell;
     uint64 uiZuramatCell;
     uint64 uiMainDoor;
-
     uint8 uiWaveCount;
     uint8 uiLocation;
     uint8 uiFirstBoss;
     uint8 uiSecondBoss;
-
     uint8 m_auiEncounter[MAX_ENCOUNTER];
-
     bool HeroicMode;
-
     std::string str_data;
-
     void Initialize()
     {
         uiMoragg = 0;
@@ -82,7 +72,6 @@ struct TRINITY_DLL_DECL instance_violet_hold : public ScriptedInstance
         uiZuramat = 0;
         uiCyanigosa = 0;
         uiSinclari = 0;
-
         uiMoraggCell = 0;
         uiErekemCell = 0;
         uiErekemRightGuardCell = 0;
@@ -92,23 +81,18 @@ struct TRINITY_DLL_DECL instance_violet_hold : public ScriptedInstance
         uiXevozzCell = 0;
         uiZuramatCell = 0;
         uiMainDoor = 0;
-
         uiWaveCount = 0;
         uiLocation = 0;
         uiFirstBoss = 0;
         uiSecondBoss = 0;
-
         memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
     }
-
     bool IsEncounterInProgress() const
     {
-        for(uint8 i = 0; i < MAX_ENCOUNTER; ++i)
+        for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
             if (m_auiEncounter[i] == IN_PROGRESS) return true;
-
         return false;
     }
-
     void OnCreatureCreate(Creature* pCreature, bool add)
     {
         switch(pCreature->GetEntry())
@@ -139,7 +123,6 @@ struct TRINITY_DLL_DECL instance_violet_hold : public ScriptedInstance
                 break;
         }
     }
-
     void OnGameObjectCreate(GameObject* pGo, bool add)
     {
         switch(pGo->GetEntry())
@@ -182,7 +165,6 @@ struct TRINITY_DLL_DECL instance_violet_hold : public ScriptedInstance
                 break;
         }
     }
-
     void SetData(uint32 type, uint32 data)
     {
         switch(type)
@@ -248,7 +230,6 @@ struct TRINITY_DLL_DECL instance_violet_hold : public ScriptedInstance
                 break;
         }
     }
-
     uint32 GetData(uint32 type)
     {
         switch(type)
@@ -258,10 +239,8 @@ struct TRINITY_DLL_DECL instance_violet_hold : public ScriptedInstance
             case DATA_CYANIGOSA_EVENT:          return m_auiEncounter[2];
             case DATA_WAVE_COUNT:               return uiWaveCount;
         }
-
         return 0;
     }
-
     void StartBossEncounter(uint8 uiBoss)
     {
         Creature* pBoss = NULL;
@@ -322,7 +301,6 @@ struct TRINITY_DLL_DECL instance_violet_hold : public ScriptedInstance
                 break;
         }
     }
-
     uint64 GetData64(uint32 identifier)
     {
         switch(identifier)
@@ -345,24 +323,18 @@ struct TRINITY_DLL_DECL instance_violet_hold : public ScriptedInstance
             case DATA_MAIN_DOOR:                return uiMainDoor;
             case DATA_SINCLARI:                 return uiSinclari;
         }
-
         return 0;
     }
-
     std::string GetSaveData()
     {
         OUT_SAVE_INST_DATA;
-
         std::ostringstream saveStream;
         saveStream << "V H " << m_auiEncounter[0] << " " << m_auiEncounter[1] << " "
             << m_auiEncounter[2] << " " << uiFirstBoss << " " << uiSecondBoss;
-
         str_data = saveStream.str();
-
         OUT_SAVE_INST_DATA_COMPLETE;
         return str_data;
     }
-
     void Load(const char* in)
     {
         if (!in)
@@ -370,38 +342,29 @@ struct TRINITY_DLL_DECL instance_violet_hold : public ScriptedInstance
             OUT_LOAD_INST_DATA_FAIL;
             return;
         }
-
         OUT_LOAD_INST_DATA(in);
-
         char dataHead1, dataHead2;
         uint16 data0, data1, data2, data3, data4;
-
         std::istringstream loadStream(in);
         loadStream >> dataHead1 >> dataHead2 >> data0 >> data1 >> data2 >> data3 >> data4;
-
         if (dataHead1 == 'V' && dataHead2 == 'H')
         {
             m_auiEncounter[0] = data0;
             m_auiEncounter[1] = data1;
             m_auiEncounter[2] = data2;
-
-            for(uint8 i = 0; i < MAX_ENCOUNTER; ++i)
+            for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
                 if (m_auiEncounter[i] == IN_PROGRESS)
                     m_auiEncounter[i] = NOT_STARTED;
-
             uiFirstBoss = data3;
             uiSecondBoss = data4;
         }else OUT_LOAD_INST_DATA_FAIL;
-
         OUT_LOAD_INST_DATA_COMPLETE;
     }
 };
-
 InstanceData* GetInstanceData_instance_violet_hold(Map* pMap)
 {
     return new instance_violet_hold(pMap);
 }
-
 void AddSC_instance_violet_hold()
 {
     Script *newscript;

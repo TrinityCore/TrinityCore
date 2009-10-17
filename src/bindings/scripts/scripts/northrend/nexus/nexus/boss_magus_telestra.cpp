@@ -13,17 +13,14 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
-
 /* ScriptData
 SDName: Boss_Magus_Telestra
 SD%Complete:
 SDComment:
 SDCategory: The Nexus, The Nexus
 EndScriptData */
-
 #include "precompiled.h"
 #include "def_nexus.h"
-
 enum eEnums
 {
 //Spells
@@ -33,16 +30,13 @@ enum eEnums
     SPELL_FIREBOMB_H          = 56934,
     SPELL_GRAVITY_WELL        = 47756,
     SPELL_TELESTRA_BACK       = 47714,
-
 //At 50% HP - 3 clones, Frost, Fire, Arcane (and in 10% HP in Heroic)
     MOB_FIRE_MAGUS            = 26928,
     MOB_FROST_MAGUS           = 26930,
     MOB_ARCANE_MAGUS          = 26929,
-
     SPELL_FIRE_MAGUS_VISUAL   = 47705,
     SPELL_FROST_MAGUS_VISUAL  = 47706,
     SPELL_ARCANE_MAGUS_VISUAL = 47704,
-
 //Yell
     SAY_AGGRO                 = -1576000,
     SAY_KILL                  = -1576001,
@@ -50,17 +44,14 @@ enum eEnums
     SAY_MERGE                 = -1576003,
     SAY_SPLIT_1               = -1576004,
     SAY_SPLIT_2               = -1576005,
-
 //Achievement
     ACHIEV_SPLIT_PERSONALITY  = 2150,
     ACHIEV_TIMER              = 5 * 1000
 };
-
 float CenterOfRoom[1][4] =
 {
     {504.80, 89.07, -16.12, 6.27}
 };
-
 struct TRINITY_DLL_DECL boss_magus_telestraAI : public ScriptedAI
 {
     boss_magus_telestraAI(Creature* c) : ScriptedAI(c)
@@ -68,31 +59,24 @@ struct TRINITY_DLL_DECL boss_magus_telestraAI : public ScriptedAI
         pInstance = c->GetInstanceData();
         HeroicMode = c->GetMap()->IsHeroic();
     }
-
     ScriptedInstance* pInstance;
     bool HeroicMode;
-
     uint64 FireMagusGUID;
     uint64 FrostMagusGUID;
     uint64 ArcaneMagusGUID;
     bool FireMagusDead;
     bool FrostMagusDead;
     bool ArcaneMagusDead;
-
     uint32 AppearDelay_Timer;
     bool AppearDelay;
-
     uint8 Phase;
-
     uint32 SPELL_ICE_NOVA_Timer;
     uint32 SPELL_FIREBOMB_Timer;
     uint32 SPELL_GRAVITY_WELL_Timer;
     uint32 Cooldown;
-
     bool AchievementTimerRunning;
     uint8 AchievementProgress;
     uint32 AchievementTimer;
-
     void Reset()
     {
         Phase = 0;
@@ -101,36 +85,27 @@ struct TRINITY_DLL_DECL boss_magus_telestraAI : public ScriptedAI
         SPELL_FIREBOMB_Timer =  0;
         SPELL_GRAVITY_WELL_Timer = 15000;
         Cooldown = 0;
-
         FireMagusGUID = 0;
         FrostMagusGUID = 0;
         ArcaneMagusGUID = 0;
-
         AchievementProgress = 0;
         AchievementTimer = 0;
         AchievementTimerRunning = false;
-
         AppearDelay = false;
-
         m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
         m_creature->SetVisibility(VISIBILITY_ON);
-
         if (pInstance)
             pInstance->SetData(DATA_MAGUS_TELESTRA_EVENT, NOT_STARTED);
     }
-
     void EnterCombat(Unit* who)
     {
         DoScriptText(SAY_AGGRO, m_creature);
-
         if (pInstance)
             pInstance->SetData(DATA_MAGUS_TELESTRA_EVENT, IN_PROGRESS);
     }
-
     void JustDied(Unit* killer)
     {
         DoScriptText(SAY_DEATH, m_creature);
-
         if (HeroicMode && AchievementProgress == 2)
         {
             AchievementEntry const *AchievSplitPersonality = GetAchievementStore()->LookupEntry(ACHIEV_SPLIT_PERSONALITY);
@@ -140,21 +115,18 @@ struct TRINITY_DLL_DECL boss_magus_telestraAI : public ScriptedAI
                 if (pMap && pMap->IsDungeon())
                 {
                     Map::PlayerList const &players = pMap->GetPlayers();
-                    for(Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
+                    for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
                         itr->getSource()->CompletedAchievement(AchievSplitPersonality);
                 }
             }
         }
-
         if (pInstance)
             pInstance->SetData(DATA_MAGUS_TELESTRA_EVENT, DONE);
     }
-
     void KilledUnit(Unit *victim)
     {
         DoScriptText(SAY_KILL, m_creature);
     }
-
     uint64 SplitPersonality(uint32 entry)
     {
         Creature* Summoned = m_creature->SummonCreature(entry, m_creature->GetPositionX(), m_creature->GetPositionY(), m_creature->GetPositionZ(), m_creature->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 1000);
@@ -184,7 +156,6 @@ struct TRINITY_DLL_DECL boss_magus_telestraAI : public ScriptedAI
         }
         return 0;
     }
-
     void UpdateAI(const uint32 diff)
     {
         //Return since we have no target
@@ -192,7 +163,6 @@ struct TRINITY_DLL_DECL boss_magus_telestraAI : public ScriptedAI
         {
             return;
         }
-
         if (AppearDelay)
         {
             m_creature->StopMoving();
@@ -204,7 +174,6 @@ struct TRINITY_DLL_DECL boss_magus_telestraAI : public ScriptedAI
             }else AppearDelay_Timer -= diff;
             return;
         }
-
 
         if ((Phase == 1)||(Phase == 3))
         {
@@ -260,7 +229,6 @@ struct TRINITY_DLL_DECL boss_magus_telestraAI : public ScriptedAI
             }else
                 return;
         }
-
         if ((Phase == 0) && (m_creature->GetHealth() <= (m_creature->GetMaxHealth() * 0.5)))
         {
             Phase = 1;
@@ -277,7 +245,6 @@ struct TRINITY_DLL_DECL boss_magus_telestraAI : public ScriptedAI
             DoScriptText(RAND(SAY_SPLIT_1,SAY_SPLIT_2), m_creature);
             return;
         }
-
         if (HeroicMode && (Phase == 2) && (m_creature->GetHealth() <= (m_creature->GetMaxHealth() * 0.1)))
         {
             Phase = 3;
@@ -294,7 +261,6 @@ struct TRINITY_DLL_DECL boss_magus_telestraAI : public ScriptedAI
             DoScriptText(RAND(SAY_SPLIT_1,SAY_SPLIT_2), m_creature);
             return;
         }
-
         if (Cooldown)
         {
             if (Cooldown < diff)
@@ -305,7 +271,6 @@ struct TRINITY_DLL_DECL boss_magus_telestraAI : public ScriptedAI
                 return;
             }
         }
-
         if (SPELL_ICE_NOVA_Timer < diff)
         {
             if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0))
@@ -315,7 +280,6 @@ struct TRINITY_DLL_DECL boss_magus_telestraAI : public ScriptedAI
             }
             SPELL_ICE_NOVA_Timer = 15000;
         }else SPELL_ICE_NOVA_Timer -=diff;
-
         if (SPELL_GRAVITY_WELL_Timer < diff)
         {
             if (Unit* target = m_creature->getVictim())
@@ -325,7 +289,6 @@ struct TRINITY_DLL_DECL boss_magus_telestraAI : public ScriptedAI
             }
             SPELL_GRAVITY_WELL_Timer = 15000;
         }else SPELL_GRAVITY_WELL_Timer -=diff;
-
         if (SPELL_FIREBOMB_Timer < diff)
         {
             if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0))
@@ -335,20 +298,16 @@ struct TRINITY_DLL_DECL boss_magus_telestraAI : public ScriptedAI
             }
             SPELL_FIREBOMB_Timer = 2000;
         }else SPELL_FIREBOMB_Timer -=diff;
-
         DoMeleeAttackIfReady();
     }
 };
-
 CreatureAI* GetAI_boss_magus_telestra(Creature* pCreature)
 {
     return new boss_magus_telestraAI (pCreature);
 }
-
 void AddSC_boss_magus_telestra()
 {
     Script *newscript;
-
     newscript = new Script;
     newscript->Name = "boss_magus_telestra";
     newscript->GetAI = &GetAI_boss_magus_telestra;

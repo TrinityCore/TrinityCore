@@ -1,5 +1,4 @@
 // -*- C++ -*-
-
 //=============================================================================
 /**
  *  @file    Cleanup_Strategies_T.h
@@ -10,22 +9,16 @@
  */
 //=============================================================================
 
-
 #ifndef CLEANUP_STRATEGIES_H
 #define CLEANUP_STRATEGIES_H
 #include /**/ "ace/pre.h"
-
 #include /**/ "ace/config-all.h"
-
 #if !defined (ACE_LACKS_PRAGMA_ONCE)
 # pragma once
 #endif /* ACE_LACKS_PRAGMA_ONCE */
-
 // For linkers that cant grok long names.
 #define ACE_Cleanup_Strategy ACLE
-
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
-
 /**
  * @class ACE_Cleanup_Strategy
  *
@@ -38,19 +31,14 @@ ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 template <class KEY, class VALUE, class CONTAINER>
 class ACE_Cleanup_Strategy
 {
-
 public:
-
   /// Destructor.
   virtual ~ACE_Cleanup_Strategy (void);
-
   /// The method which will do the cleanup of the entry in the container.
   virtual int cleanup (CONTAINER &container, KEY *key, VALUE *value);
 };
-
 //////////////////////////////////////////////////////////////////////
 #define ACE_Recyclable_Handler_Cleanup_Strategy ARHCLE
-
 /**
  * @class ACE_Recyclable_Handler_Cleanup_Strategy
  *
@@ -65,16 +53,12 @@ public:
 template <class KEY, class VALUE, class CONTAINER>
 class ACE_Recyclable_Handler_Cleanup_Strategy : public ACE_Cleanup_Strategy<KEY, VALUE, CONTAINER>
 {
-
 public:
-
   /// The method which will do the cleanup of the entry in the container.
   virtual int cleanup (CONTAINER &container, KEY *key, VALUE *value);
 };
-
 //////////////////////////////////////////////////////////////////////
 #define ACE_Refcounted_Recyclable_Handler_Cleanup_Strategy ARRHCLE
-
 /**
  * @class ACE_Refcounted_Recyclable_Handler_Cleanup_Strategy
  *
@@ -93,9 +77,7 @@ public:
   /// The method which will do the cleanup of the entry in the container.
   virtual int cleanup (CONTAINER &container, KEY *key, VALUE *value);
 };
-
 //////////////////////////////////////////////////////////////////////
-
 /**
  * @class ACE_Handler_Cleanup_Strategy
  *
@@ -115,10 +97,8 @@ public:
   /// The method which will do the cleanup of the entry in the container.
   virtual int cleanup (CONTAINER &container, KEY *key, VALUE *value);
 };
-
 //////////////////////////////////////////////////////////////////////
 #define ACE_Null_Cleanup_Strategy ANCLE
-
 /**
  * @class ACE_Null_Cleanup_Strategy
  *
@@ -134,17 +114,13 @@ public:
   /// The dummy cleanup method.
   virtual int cleanup (CONTAINER &container, KEY *key, VALUE *value);
 };
-
 ACE_END_VERSIONED_NAMESPACE_DECL
-
 #if defined (ACE_TEMPLATES_REQUIRE_SOURCE)
 #include "ace/Cleanup_Strategies_T.cpp"
 #endif /* ACE_TEMPLATES_REQUIRE_SOURCE */
-
 #if defined (ACE_TEMPLATES_REQUIRE_PRAGMA)
 #pragma implementation ("Cleanup_Strategies_T.cpp")
 #endif /* ACE_TEMPLATES_REQUIRE_PRAGMA */
-
 #include /**/ "ace/post.h"
 #endif /* CLEANUP_STRATEGIES_H */
 

@@ -1,19 +1,15 @@
 /* Copyright (C) 2006 - 2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  * This program is free software licensed under GPL version 2
  * Please see the included DOCS/LICENSE.TXT for more information */
-
 /* ScriptData
 SDName: Instance_Sunwell_Plateau
 SD%Complete: 25
 SDComment: VERIFY SCRIPT
 SDCategory: Sunwell_Plateau
 EndScriptData */
-
 #include "precompiled.h"
 #include "def_sunwell_plateau.h"
-
 #define MAX_ENCOUNTER 6
-
 /* Sunwell Plateau:
 0 - Kalecgos and Sathrovarr
 1 - Brutallus
@@ -22,13 +18,10 @@ EndScriptData */
 4 - M'uru
 5 - Kil'Jaeden
 */
-
 struct TRINITY_DLL_DECL instance_sunwell_plateau : public ScriptedInstance
 {
     instance_sunwell_plateau(Map* pMap) : ScriptedInstance(pMap) {Initialize();};
-
     uint32 m_auiEncounter[MAX_ENCOUNTER];
-
     /** Creatures **/
     uint64 Kalecgos_Dragon;
     uint64 Kalecgos_Human;
@@ -44,21 +37,17 @@ struct TRINITY_DLL_DECL instance_sunwell_plateau : public ScriptedInstance
     uint64 Anveena;
     uint64 KalecgosKJ;
     uint32 SpectralPlayers;
-
     /** GameObjects **/
     uint64 ForceField;                                      // Kalecgos Encounter
     uint64 KalecgosWall[2];
     uint64 FireBarrier;                                     // Felmysts Encounter
     uint64 MurusGate[2];                                    // Murus Encounter
-
     /*** Misc ***/
     uint32 SpectralRealmTimer;
     std::vector<uint64> SpectralRealmList;
-
     void Initialize()
     {
         memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
-
         /*** Creatures ***/
         Kalecgos_Dragon         = 0;
         Kalecgos_Human          = 0;
@@ -74,7 +63,6 @@ struct TRINITY_DLL_DECL instance_sunwell_plateau : public ScriptedInstance
         Anveena                 = 0;
         KalecgosKJ              = 0;
         SpectralPlayers         = 0;
-
         /*** GameObjects ***/
         ForceField  = 0;
         FireBarrier = 0;
@@ -82,38 +70,31 @@ struct TRINITY_DLL_DECL instance_sunwell_plateau : public ScriptedInstance
         MurusGate[1] = 0;
         KalecgosWall[0] = 0;
         KalecgosWall[1] = 0;
-
         /*** Misc ***/
         SpectralRealmTimer = 5000;
     }
-
     bool IsEncounterInProgress() const
     {
-        for(uint8 i = 0; i < MAX_ENCOUNTER; ++i)
+        for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
             if (m_auiEncounter[i] == IN_PROGRESS)
                 return true;
-
         return false;
     }
-
     Player* GetPlayerInMap()
     {
         Map::PlayerList const& players = instance->GetPlayers();
-
         if (!players.isEmpty())
         {
-            for(Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
+            for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
             {
                 Player* plr = itr->getSource();
                 if (plr && !plr->HasAura(45839,0))
                         return plr;
             }
         }
-
         debug_log("TSCR: Instance Sunwell Plateau: GetPlayerInMap, but PlayerList is empty!");
         return NULL;
     }
-
     void OnCreatureCreate(Creature* pCreature, bool add)
     {
         switch(pCreature->GetEntry())
@@ -133,7 +114,6 @@ struct TRINITY_DLL_DECL instance_sunwell_plateau : public ScriptedInstance
             case 25319: KalecgosKJ          = pCreature->GetGUID(); break;
         }
     }
-
     void OnGameObjectCreate(GameObject* pGo, bool add)
     {
         switch(pGo->GetEntry())
@@ -154,7 +134,6 @@ struct TRINITY_DLL_DECL instance_sunwell_plateau : public ScriptedInstance
                 break;
         }
     }
-
     uint32 GetData(uint32 id)
     {
         switch(id)
@@ -168,7 +147,6 @@ struct TRINITY_DLL_DECL instance_sunwell_plateau : public ScriptedInstance
         }
         return 0;
     }
-
     uint64 GetData64(uint32 id)
     {
         switch(id)
@@ -193,7 +171,6 @@ struct TRINITY_DLL_DECL instance_sunwell_plateau : public ScriptedInstance
         }
         return 0;
     }
-
     void SetData(uint32 id, uint32 data)
     {
         switch(id)
@@ -239,11 +216,9 @@ struct TRINITY_DLL_DECL instance_sunwell_plateau : public ScriptedInstance
                 m_auiEncounter[4] = data; break;
             case DATA_KILJAEDEN_EVENT:     m_auiEncounter[5] = data; break;
         }
-
         if (data == DONE)
             SaveToDB();
     }
-
     std::string GetSaveData()
     {
         OUT_SAVE_INST_DATA;
@@ -259,7 +234,6 @@ struct TRINITY_DLL_DECL instance_sunwell_plateau : public ScriptedInstance
         }
         return NULL;
     }
-
     void Load(const char* in)
     {
         if (!in)
@@ -267,27 +241,23 @@ struct TRINITY_DLL_DECL instance_sunwell_plateau : public ScriptedInstance
             OUT_LOAD_INST_DATA_FAIL;
             return;
         }
-
         OUT_LOAD_INST_DATA(in);
         std::istringstream stream(in);
         stream >> m_auiEncounter[0] >> m_auiEncounter[1] >> m_auiEncounter[2] >> m_auiEncounter[3]
             >> m_auiEncounter[4] >> m_auiEncounter[5];
-        for(uint8 i = 0; i < MAX_ENCOUNTER; ++i)
+        for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
             if (m_auiEncounter[i] == IN_PROGRESS)                // Do not load an encounter as "In Progress" - reset it instead.
                 m_auiEncounter[i] = NOT_STARTED;
         OUT_LOAD_INST_DATA_COMPLETE;
     }
 };
-
 InstanceData* GetInstanceData_instance_sunwell_plateau(Map* pMap)
 {
     return new instance_sunwell_plateau(pMap);
 }
-
 void AddSC_instance_sunwell_plateau()
 {
     Script *newscript;
-
     newscript = new Script;
     newscript->Name = "instance_sunwell_plateau";
     newscript->GetInstanceData = &GetInstanceData_instance_sunwell_plateau;

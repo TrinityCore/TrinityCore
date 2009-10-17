@@ -1,6 +1,5 @@
 #ifndef DEF_VIOLET_HOLD_H
 #define DEF_VIOLET_HOLD_H
-
 enum Data
 {
     DATA_1ST_BOSS_EVENT,
@@ -8,7 +7,6 @@ enum Data
     DATA_CYANIGOSA_EVENT,
     DATA_WAVE_COUNT
 };
-
 enum Data64
 {
     DATA_MORAGG,
@@ -29,5 +27,4 @@ enum Data64
     DATA_MAIN_DOOR,
     DATA_SINCLARI
 };
-
 #endif

@@ -1,9 +1,7 @@
 // -*- C++ -*-
 //
 // $Id: LSOCK_Connector.inl 80826 2008-03-04 14:51:23Z wotte $
-
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
-
 // Establish a connection.
 ACE_INLINE int
 ACE_LSOCK_Connector::connect (ACE_LSOCK_Stream &new_stream,
@@ -23,5 +21,4 @@ ACE_LSOCK_Connector::connect (ACE_LSOCK_Stream &new_stream,
     new_stream.set_handle (new_stream.get_handle ());
   return result;
 }
-
 ACE_END_VERSIONED_NAMESPACE_DECL

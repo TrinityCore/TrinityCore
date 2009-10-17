@@ -17,23 +17,17 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
-
 #ifndef TRINITY_SOCKETDEFINES_H
 #define TRINITY_SOCKETDEFINES_H
-
 #ifdef WIN32
-
 /* Windows socket definitions
  */
 #define FD_SETSIZE 1024
 #include <winsock2.h>
 #include <Ws2tcpip.h>
-
 typedef SOCKET SocketHandle;
 typedef fd_set SelectSet;
-
 #else
-
 /* The unix socket definitions
  */
 #include <sys/socket.h>
@@ -41,7 +35,6 @@ typedef fd_set SelectSet;
 #ifdef __APPLE_CC__
 #include <sys/select.h>
 #endif
-
 typedef int SocketHandle;
 typedef fd_set SelectSet;
 #endif

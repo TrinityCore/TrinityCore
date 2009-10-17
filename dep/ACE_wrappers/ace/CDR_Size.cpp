@@ -2,17 +2,13 @@
 #include "ace/SString.h"
 #include "ace/OS_Memory.h"
 #include "ace/Truncate.h"
-
 #if !defined (__ACE_INLINE__)
 # include "ace/CDR_Size.inl"
 #endif /* ! __ACE_INLINE__ */
-
 ACE_RCSID (ace,
            CDR_Size,
            "$Id: CDR_Size.cpp 82559 2008-08-07 20:23:07Z parsons $")
-
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
-
 ACE_CDR::Boolean
 ACE_SizeCDR::write_wchar (ACE_CDR::WChar x)
 {
@@ -23,13 +19,11 @@ ACE_SizeCDR::write_wchar (ACE_CDR::WChar x)
       errno = EACCES;
       return (this->good_bit_ = false);
     }
-
   if (static_cast<ACE_CDR::Short> (major_version_) == 1
           && static_cast<ACE_CDR::Short> (minor_version_) == 2)
     {
       ACE_CDR::Octet len =
         static_cast<ACE_CDR::Octet> (ACE_OutputCDR::wchar_maxbytes ());
-
       if (this->write_1 (&len))
         {
           if (ACE_OutputCDR::wchar_maxbytes () == sizeof(ACE_CDR::WChar))
@@ -65,7 +59,6 @@ ACE_SizeCDR::write_wchar (ACE_CDR::WChar x)
       errno = EINVAL;
       return (this->good_bit_ = false);
     }
-
   if (ACE_OutputCDR::wchar_maxbytes () == sizeof (ACE_CDR::WChar))
     {
       const void *temp = &x;
@@ -76,11 +69,9 @@ ACE_SizeCDR::write_wchar (ACE_CDR::WChar x)
       ACE_CDR::Short sx = static_cast<ACE_CDR::Short> (x);
       return this->write_2 (reinterpret_cast<const ACE_CDR::UShort *> (&sx));
     }
-
   ACE_CDR::Octet ox = static_cast<ACE_CDR::Octet> (x);
   return this->write_1 (reinterpret_cast<const ACE_CDR::Octet *> (&ox));
 }
-
 ACE_CDR::Boolean
 ACE_SizeCDR::write_string (ACE_CDR::ULong len,
                              const ACE_CDR::Char *x)
@@ -101,10 +92,8 @@ ACE_SizeCDR::write_string (ACE_CDR::ULong len,
       if (this->write_ulong (1))
         return this->write_char (0);
     }
-
   return (this->good_bit_ = false);
 }
-
 ACE_CDR::Boolean
 ACE_SizeCDR::write_string (const ACE_CString &x)
 {
@@ -113,7 +102,6 @@ ACE_SizeCDR::write_string (const ACE_CString &x)
   return this->write_string (static_cast<ACE_CDR::ULong> (x.length ()),
                              x.c_str());
 }
-
 ACE_CDR::Boolean
 ACE_SizeCDR::write_wstring (ACE_CDR::ULong len,
                               const ACE_CDR::WChar *x)
@@ -125,7 +113,6 @@ ACE_SizeCDR::write_wstring (ACE_CDR::ULong len,
       errno = EACCES;
       return (this->good_bit_ = false);
     }
-
   if (static_cast<ACE_CDR::Short> (this->major_version_) == 1
       && static_cast<ACE_CDR::Short> (this->minor_version_) == 2)
     {
@@ -138,7 +125,6 @@ ACE_SizeCDR::write_wstring (ACE_CDR::ULong len,
             this->write_ulong (
               ACE_Utils::truncate_cast<ACE_CDR::ULong> (
                 ACE_OutputCDR::wchar_maxbytes () * len));
-
           if (good_ulong)
             {
               return this->write_wchar_array (x, len);
@@ -150,7 +136,6 @@ ACE_SizeCDR::write_wstring (ACE_CDR::ULong len,
           return this->write_ulong (0);
         }
     }
-
   else
     if (x != 0)
       {
@@ -161,35 +146,30 @@ ACE_SizeCDR::write_wstring (ACE_CDR::ULong len,
       return this->write_wchar (0);
    return (this->good_bit_ = false);
 }
-
 ACE_CDR::Boolean
 ACE_SizeCDR::write_1 (const ACE_CDR::Octet *)
 {
   this->adjust (1);
   return true;
 }
-
 ACE_CDR::Boolean
 ACE_SizeCDR::write_2 (const ACE_CDR::UShort *)
 {
   this->adjust (ACE_CDR::SHORT_SIZE);
   return true;
 }
-
 ACE_CDR::Boolean
 ACE_SizeCDR::write_4 (const ACE_CDR::ULong *)
 {
   this->adjust (ACE_CDR::LONG_SIZE);
   return true;
 }
-
 ACE_CDR::Boolean
 ACE_SizeCDR::write_8 (const ACE_CDR::ULongLong *)
 {
   this->adjust (ACE_CDR::LONGLONG_SIZE);
   return true;
 }
-
 ACE_CDR::Boolean
 ACE_SizeCDR::write_16 (const ACE_CDR::LongDouble *)
 {
@@ -197,22 +177,18 @@ ACE_SizeCDR::write_16 (const ACE_CDR::LongDouble *)
                 ACE_CDR::LONGDOUBLE_ALIGN);
   return true;
 }
-
 ACE_CDR::Boolean
 ACE_SizeCDR::write_wchar_array_i (const ACE_CDR::WChar *,
                                     ACE_CDR::ULong length)
 {
   if (length == 0)
     return true;
-
   size_t const align = (ACE_OutputCDR::wchar_maxbytes () == 2) ?
     ACE_CDR::SHORT_ALIGN :
     ACE_CDR::OCTET_ALIGN;
-
   this->adjust (ACE_OutputCDR::wchar_maxbytes () * length, align);
   return true;
 }
-
 
 ACE_CDR::Boolean
 ACE_SizeCDR::write_array (const void *,
@@ -222,11 +198,9 @@ ACE_SizeCDR::write_array (const void *,
 {
   if (length == 0)
     return true;
-
   this->adjust (size * length, align);
   return true;
 }
-
 ACE_CDR::Boolean
 ACE_SizeCDR::write_boolean_array (const ACE_CDR::Boolean*,
                                   ACE_CDR::ULong length)
@@ -234,13 +208,11 @@ ACE_SizeCDR::write_boolean_array (const ACE_CDR::Boolean*,
   this->adjust (length, 1);
   return true;
 }
-
 void
 ACE_SizeCDR::adjust (size_t size)
 {
   adjust (size, size);
 }
-
 void
 ACE_SizeCDR::adjust (size_t size,
                      size_t align)
@@ -251,13 +223,11 @@ ACE_SizeCDR::adjust (size_t size,
 #endif /* ACE_LACKS_CDR_ALIGNMENT */
   size_ += size;
 }
-
 ACE_CDR::Boolean
 operator<< (ACE_SizeCDR &ss, const ACE_CString &x)
 {
   ss.write_string (x);
   return ss.good_bit ();
 }
-
 ACE_END_VERSIONED_NAMESPACE_DECL
 

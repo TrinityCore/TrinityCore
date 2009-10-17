@@ -17,15 +17,12 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-
 #ifdef WIN32
 #ifndef _WIN32_SERVICE_
 #define _WIN32_SERVICE_
-
 bool WinServiceInstall();
 bool WinServiceUninstall();
 bool WinServiceRun();
-
 #endif                                                      // _WIN32_SERVICE_
 #endif                                                      // WIN32
 

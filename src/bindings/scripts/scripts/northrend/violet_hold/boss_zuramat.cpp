@@ -5,13 +5,11 @@ SD%Complete:
 SDComment:
 SDCategory:
 Script Data End */
-
 /*** SQL START ***
 update creature_template set scriptname = '' where entry = '';
 *** SQL END ***/
 #include "precompiled.h"
 #include "def_violet_hold.h"
-
 enum Spells
 {
     SPELL_SHROUD_OF_DARKNESS                       = 54524,
@@ -20,12 +18,10 @@ enum Spells
     SPELL_VOID_SHIFT                               = 54361,
     H_SPELL_VOID_SHIFT                             = 59743
 };
-
 enum Creatures
 {
     CREATURE_VOID_SENTRY                           = 29364
 };
-
 //not in db
 enum Yells
 {
@@ -38,18 +34,14 @@ enum Yells
     SAY_SHIELD                                  = -1608043,
     SAY_WHISPER                                 = -1608044
 };
-
 struct TRINITY_DLL_DECL boss_zuramatAI : public ScriptedAI
 {
     boss_zuramatAI(Creature *c) : ScriptedAI(c)
     {
         pInstance = c->GetInstanceData();
     }
-
     uint32 void_shift;
-
     ScriptedInstance* pInstance;
-
     void Reset()
     {
         if (pInstance)
@@ -60,7 +52,6 @@ struct TRINITY_DLL_DECL boss_zuramatAI : public ScriptedAI
                 pInstance->SetData(DATA_2ND_BOSS_EVENT, NOT_STARTED);
         }
     }
-
     void EnterCombat(Unit* who)
     {
         DoScriptText(SAY_AGGRO, m_creature);
@@ -72,21 +63,17 @@ struct TRINITY_DLL_DECL boss_zuramatAI : public ScriptedAI
                 pInstance->SetData(DATA_2ND_BOSS_EVENT, IN_PROGRESS);
         }
     }
-
     void MoveInLineOfSight(Unit* who) {}
-
     void UpdateAI(const uint32 diff)
     {
         //Return since we have no target
         if (!UpdateVictim())
             return;
-
         DoMeleeAttackIfReady();
     }
     void JustDied(Unit* killer)
     {
         DoScriptText(SAY_DEATH, m_creature);
-
         if (pInstance)
         {
             if (pInstance->GetData(DATA_WAVE_COUNT) == 6)
@@ -101,25 +88,20 @@ struct TRINITY_DLL_DECL boss_zuramatAI : public ScriptedAI
             }
         }
     }
-
     void KilledUnit(Unit *victim)
     {
         if (victim == m_creature)
             return;
-
         DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2,SAY_SLAY_3), m_creature);
     }
 };
-
 CreatureAI* GetAI_boss_zuramat(Creature* pCreature)
 {
     return new boss_zuramatAI (pCreature);
 }
-
 void AddSC_boss_zuramat()
 {
     Script *newscript;
-
     newscript = new Script;
     newscript->Name = "boss_zuramat";
     newscript->GetAI = &GetAI_boss_zuramat;

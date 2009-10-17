@@ -17,17 +17,14 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
-
 /// \addtogroup Trinityd
 /// @{
 /// \file
-
 #include "Common.h"
 #include "ObjectMgr.h"
 #include "World.h"
 #include "WorldSession.h"
 #include "Config/ConfigEnv.h"
-
 #include "AccountMgr.h"
 #include "Chat.h"
 #include "CliRunnable.h"
@@ -37,23 +34,19 @@
 #include "Player.h"
 #include "ScriptCalls.h"
 #include "Util.h"
-
 #if PLATFORM != WINDOWS
 #include <readline/readline.h>
 #include <readline/history.h>
-
 char * command_finder(const char* text, int state)
 {
     static int idx,len;
     const char* ret;
     ChatCommand *cmd = ChatHandler::getCommandTable();
-
     if(!state)
     {
         idx = 0;
         len = strlen(text);
     }
-
     while(ret = cmd[idx].Name)
     {
         if(!cmd[idx].AllowConsole)
@@ -61,7 +54,6 @@ char * command_finder(const char* text, int state)
             idx++;
             continue;
         }
-
         idx++;
         //printf("Checking %s \n", cmd[idx].Name);
         if (strncmp(ret, text, len) == 0)
@@ -69,15 +61,12 @@ char * command_finder(const char* text, int state)
         if(cmd[idx].Name == NULL)
             break;
     }
-
     return ((char*)NULL);
 }
-
 char ** cli_completion(const char * text, int start, int end)
 {
     char ** matches;
     matches = (char**)NULL;
-  
     if(start == 0)
         matches = rl_completion_matches((char*)text,&command_finder);
     else
@@ -85,7 +74,6 @@ char ** cli_completion(const char * text, int start, int end)
     return (matches);
 }
 #endif
-
 void utf8print(const char* str)
 {
 #if PLATFORM == PLATFORM_WINDOWS
@@ -93,7 +81,6 @@ void utf8print(const char* str)
     size_t wtemp_len = 6000-1;
     if(!Utf8toWStr(str,strlen(str),wtemp_buf,wtemp_len))
         return;
-
     char temp_buf[6000];
     CharToOemBuffW(&wtemp_buf[0],&temp_buf[0],wtemp_len+1);
     printf(temp_buf);
@@ -101,19 +88,16 @@ void utf8print(const char* str)
     printf(str);
 #endif
 }
-
 /// Delete a user account and all associated characters in this realm
 /// \todo This function has to be enhanced to respect the login/realm split (delete char, delete account chars in realm, delete account chars in realm then delete account
 bool ChatHandler::HandleAccountDeleteCommand(const char* args)
 {
     if(!*args)
         return false;
-
     ///- Get the account name from the command line
     char *account_name_str=strtok ((char*)args," ");
     if (!account_name_str)
         return false;
-
     std::string account_name = account_name_str;
     if(!AccountMgr::normalizeString(account_name))
     {
@@ -121,7 +105,6 @@ bool ChatHandler::HandleAccountDeleteCommand(const char* args)
         SetSentErrorMessage(true);
         return false;
     }
-
     uint32 account_id = accmgr.GetId(account_name);
     if(!account_id)
     {
@@ -129,13 +112,11 @@ bool ChatHandler::HandleAccountDeleteCommand(const char* args)
         SetSentErrorMessage(true);
         return false;
     }
-
     /// Commands not recommended call from chat, but support anyway
     /// can delete only for account with less security
     /// This is also reject self apply in fact
     if(HasLowerSecurityAccount (NULL,account_id,true))
         return false;
-
     AccountOpResult result = accmgr.DeleteAccount(account_id);
     switch(result)
     {
@@ -155,26 +136,20 @@ bool ChatHandler::HandleAccountDeleteCommand(const char* args)
             SetSentErrorMessage(true);
             return false;
     }
-
     return true;
 }
-
 bool ChatHandler::HandleCharacterDeleteCommand(const char* args)
 {
     if(!*args)
         return false;
-
     char *character_name_str = strtok((char*)args," ");
     if(!character_name_str)
         return false;
-
     std::string character_name = character_name_str;
     if(!normalizePlayerName(character_name))
         return false;
-
     uint64 character_guid;
     uint32 account_id;
-
     Player *player = objmgr.GetPlayer(character_name.c_str());
     if(player)
     {
@@ -191,18 +166,14 @@ bool ChatHandler::HandleCharacterDeleteCommand(const char* args)
             SetSentErrorMessage(true);
             return false;
         }
-
         account_id = objmgr.GetPlayerAccountIdByGUID(character_guid);
     }
-
     std::string account_name;
     accmgr.GetName (account_id,account_name);
-
     Player::DeleteFromDB(character_guid, account_id, true);
     PSendSysMessage(LANG_CHARACTER_DELETED,character_name.c_str(),GUID_LOPART(character_guid),account_name.c_str(), account_id);
     return true;
 }
-
 /// Exit the realm
 bool ChatHandler::HandleServerExitCommand(const char* /*args*/)
 {
@@ -210,7 +181,6 @@ bool ChatHandler::HandleServerExitCommand(const char* /*args*/)
     World::StopNow(SHUTDOWN_EXIT_CODE);
     return true;
 }
-
 /// Display info on users currently in the realm
 bool ChatHandler::HandleAccountOnlineListCommand(const char* /*args*/)
 {
@@ -221,59 +191,47 @@ bool ChatHandler::HandleAccountOnlineListCommand(const char* /*args*/)
         SendSysMessage(LANG_ACCOUNT_LIST_EMPTY);
         return true;
     }
-
     ///- Display the list of account/characters online
     SendSysMessage(LANG_ACCOUNT_LIST_BAR);
     SendSysMessage(LANG_ACCOUNT_LIST_HEADER);
     SendSysMessage(LANG_ACCOUNT_LIST_BAR);
-
     ///- Circle through accounts
     do
     {
         Field *fieldsDB = resultDB->Fetch();
         std::string name = fieldsDB[0].GetCppString();
         uint32 account = fieldsDB[1].GetUInt32();
-
         ///- Get the username, last IP and GM level of each account
         // No SQL injection. account is uint32.
         //                                                      0         1        2        3
         QueryResult *resultLogin = loginDatabase.PQuery("SELECT username, last_ip, gmlevel, expansion FROM account WHERE id = '%u'",account);
-
         if(resultLogin)
         {
             Field *fieldsLogin = resultLogin->Fetch();
             PSendSysMessage(LANG_ACCOUNT_LIST_LINE,
                 fieldsLogin[0].GetString(),name.c_str(),fieldsLogin[1].GetString(),fieldsLogin[2].GetUInt32(),fieldsLogin[3].GetUInt32());
-
             delete resultLogin;
         }
         else
             PSendSysMessage(LANG_ACCOUNT_LIST_ERROR,name.c_str());
-
     }while(resultDB->NextRow());
-
     delete resultDB;
-
     SendSysMessage(LANG_ACCOUNT_LIST_BAR);
     return true;
 }
-
 /// Create an account
 bool ChatHandler::HandleAccountCreateCommand(const char* args)
 {
     if(!*args)
         return false;
-
     ///- %Parse the command line arguments
     char *szAcc = strtok((char*)args, " ");
     char *szPassword = strtok(NULL, " ");
     if(!szAcc || !szPassword)
         return false;
-
     // normalized in accmgr.CreateAccount
     std::string account_name = szAcc;
     std::string password = szPassword;
-
     AccountOpResult result = accmgr.CreateAccount(account_name, password);
     switch(result)
     {
@@ -297,60 +255,47 @@ bool ChatHandler::HandleAccountCreateCommand(const char* args)
             SetSentErrorMessage(true);
             return false;
     }
-
     return true;
 }
-
 /// Set the level of logging
 bool ChatHandler::HandleServerSetLogFileLevelCommand(const char *args)
 {
     if(!*args)
         return false;
-
     char *NewLevel = strtok((char*)args, " ");
     if (!NewLevel)
         return false;
-
     sLog.SetLogFileLevel(NewLevel);
     return true;
 }
-
 /// Set the level of logging
 bool ChatHandler::HandleServerSetLogLevelCommand(const char *args)
 {
     if(!*args)
         return false;
-
     char *NewLevel = strtok((char*)args, " ");
     if (!NewLevel)
         return false;
-
     sLog.SetLogLevel(NewLevel);
     return true;
 }
-
 /// set diff time record interval
 bool ChatHandler::HandleServerSetDiffTimeCommand(const char *args)
 {
     if(!*args)
         return false;
-
     char *NewTimeStr = strtok((char*)args, " ");
     if(!NewTimeStr)
         return false;
-
     int32 NewTime =atoi(NewTimeStr);
     if(NewTime < 0)
         return false;
-
     sWorld.SetRecordDiffInterval(NewTime);
     printf( "Record diff every %u ms\n", NewTime);
     return true;
 }
 
-
 /// @}
-
 #ifdef linux
 // Non-blocking keypress detector, when return pressed, return 1, else always return 0
 int kb_hit_return()
@@ -365,13 +310,11 @@ int kb_hit_return()
     return FD_ISSET(STDIN_FILENO, &fds);
 }
 #endif
-
 /// %Thread start
 void CliRunnable::run()
 {
     ///- Init new SQL thread for the world database (one connection call enough)
     WorldDatabase.ThreadStart();                                // let thread do safe mySQL requests
-
     char commandbuf[256];
     bool canflush = true;
     ///- Display the list of available CLI functions then beep
@@ -381,18 +324,14 @@ void CliRunnable::run()
     #endif
     if(sConfig.GetBoolDefault("BeepAtStart", true))
         printf("\a");                                       // \a = Alert
-
     // print this here the first time
     // later it will be printed after command queue updates
     printf("TC>");
-
     ///- As long as the World is running (no World::m_stopEvent), get the command line and handle it
     while (!World::IsStopped())
     {
         fflush(stdout);
-
         char *command_str ;             // = fgets(commandbuf,sizeof(commandbuf),stdin);
-
         #if PLATFORM == WINDOWS
         command_str = fgets(commandbuf,sizeof(commandbuf),stdin);
         #else
@@ -408,7 +347,6 @@ void CliRunnable::run()
                     break;
                 }
 
-
             if(!*command_str)
             {
                 #if PLATFORM == WINDOWS
@@ -416,7 +354,6 @@ void CliRunnable::run()
                 #endif
                 continue;
             }
-
             std::string command;
             if(!consoleToUtf8(command_str,command))         // convert from console encoding to utf8
             {
@@ -430,15 +367,12 @@ void CliRunnable::run()
             #if PLATFORM != WINDOWS
             add_history(command.c_str());
             #endif
-
         }
         else if (feof(stdin))
         {
             World::StopNow(SHUTDOWN_EXIT_CODE);
         }
-
     }
-
     ///- End the database thread
     WorldDatabase.ThreadEnd();                                  // free mySQL thread resources
 }

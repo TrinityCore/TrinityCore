@@ -1,17 +1,13 @@
 /* -*- C++ -*- */
 // $Id: config-netbsd.h 80826 2008-03-04 14:51:23Z wotte $
-
 #ifndef ACE_CONFIG_H
 #define ACE_CONFIG_H
-
 #ifndef ACE_MT_SAFE
 #define ACE_MT_SAFE 1
 #endif
-
 #if defined (__GNUG__)
 # include "ace/config-g++-common.h"
 #endif /* __GNUG__ */
-
 #if defined(ACE_MT_SAFE) && (ACE_MT_SAFE != 0)
 #  define ACE_HAS_THREADS 1
 #  define ACE_HAS_PTHREADS 1
@@ -21,7 +17,6 @@
 #  define ACE_LACKS_PTHREAD_THR_SIGSETMASK 1
 #  define ACE_LACKS_PTHREAD_YIELD 1
 #endif /* ACE_MT_SAFE */
-
 #define ACE_HAS_CLOCK_SETTIME 1
 #define ACE_HAS_CLOCK_GETTIME 1
 #define ACE_HAS_SETTIMEOFDAY 1
@@ -123,7 +118,6 @@
 #define ACE_LACKS_WCSICMP 1
 #define ACE_LACKS_WCSNICMP 1
 #define ACE_SCANDIR_CMP_USES_CONST_VOIDPTR 1
-
 #if defined(__x86_64__)
 #define ACE_SIZEOF_DOUBLE 8
 #define ACE_SIZEOF_FLOAT 4
@@ -134,15 +128,11 @@
 #define ACE_SIZEOF_SHORT 2
 #define ACE_SIZEOF_VOID_P 8
 #define ACE_SIZEOF_WCHAR 4
-
 typedef unsigned long ACE_UINT64;
 typedef   signed long ACE_INT64;
-
 #define ACE_SSIZE_T_FORMAT_SPECIFIER  ACE_TEXT ("%ld")
 #define ACE_SIZE_T_FORMAT_SPECIFIER ACE_TEXT ("%lu")
-
 #elif defined(__i386__)
-
 #define ACE_SIZEOF_DOUBLE 8
 #define ACE_SIZEOF_FLOAT 4
 #define ACE_SIZEOF_INT 4
@@ -152,16 +142,12 @@ typedef   signed long ACE_INT64;
 #define ACE_SIZEOF_SHORT 2
 #define ACE_SIZEOF_VOID_P 4
 #define ACE_SIZEOF_WCHAR 4
-
 typedef unsigned long long ACE_UINT64;
 typedef   signed long long ACE_INT64;
-
 #else
 # error unknown CPU architecture
 #endif
-
 #endif  /* ACE_CONFIG_H */
-
 // Local Variables:
 // mode:C++
 // End:

@@ -1,5 +1,4 @@
 /* -*- C++ -*- */
-
 //=============================================================================
 /**
  *  @file Intrusive_List.h
@@ -9,19 +8,14 @@
  *  @author Carlos O'Ryan <coryan@uci.edu>
  */
 //=============================================================================
-
 #ifndef ACE_INTRUSIVE_LIST_H
 #define ACE_INTRUSIVE_LIST_H
 #include /**/ "ace/pre.h"
-
 #include /**/ "ace/config-all.h"
-
 #if !defined (ACE_LACKS_PRAGMA_ONCE)
 # pragma once
 #endif /* ACE_LACKS_PRAGMA_ONCE */
-
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
-
 /**
  * @class ACE_Intrusive_List
  *
@@ -62,53 +56,39 @@ public:
   /// Constructor.  Use user specified allocation strategy
   /// if specified.
   ACE_Intrusive_List (void);
-
   /// Destructor.
   ~ACE_Intrusive_List (void);
-
   // = Check boundary conditions.
-
   /// Returns 1 if the container is empty, otherwise returns 0.
   int is_empty (void) const;
-
   /// Returns 1 if the container is empty, otherwise returns 0.
   /// @deprecated Use is_empty() instead.
   int empty (void) const;
-
   /// Insert an element at the beginning of the list
   void push_front (T *node);
-
   /// Insert an element at the end of the list
   void push_back (T *node);
-
   /// Remove the element at the beginning of the list
   T *pop_front (void);
-
   /// Remove the element at the end of the list
   T *pop_back (void);
-
   /// Get the element at the head of the queue
   T *head (void) const;
-
   /// Get the element at the tail of the queue
   T *tail (void) const;
-
   /// Remove a element from the list
   /**
    * Verify that the element is still in the list before removing it.
    */
   void remove (T *node);
-
   /// Swap two lists
   void swap(ACE_Intrusive_List<T> & rhs);
-
   /// Remove a element from the list without checking
   /**
    * No attempts are performed to check if T* really belongs to the
    * list.  The effects of removing an invalid element are unspecified
    */
   void unsafe_remove (T *node);
-
 private:
   /** @name Disallow copying
    *
@@ -117,29 +97,22 @@ private:
   ACE_Intrusive_List (const ACE_Intrusive_List<T> &);
   ACE_Intrusive_List<T>& operator= (const ACE_Intrusive_List<T> &);
   //@}
-
 private:
   /// Head of the list
   T *head_;
-
   /// Tail of the list
   T *tail_;
 };
-
 ACE_END_VERSIONED_NAMESPACE_DECL
-
 #if defined (__ACE_INLINE__)
 #include "ace/Intrusive_List.inl"
 #endif /* __ACE_INLINE__ */
-
 #if defined (ACE_TEMPLATES_REQUIRE_SOURCE)
 #include "ace/Intrusive_List.cpp"
 #endif /* ACE_TEMPLATES_REQUIRE_SOURCE */
-
 #if defined (ACE_TEMPLATES_REQUIRE_PRAGMA)
 #pragma implementation ("Intrusive_List.cpp")
 #endif /* ACE_TEMPLATES_REQUIRE_PRAGMA */
-
 #include /**/ "ace/post.h"
 #endif /* ACE_INTRUSIVE_LIST_H */
 

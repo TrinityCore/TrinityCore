@@ -13,25 +13,20 @@
 * along with this program; if not, write to the Free Software
 * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
-
 /* ScriptData
 SDName: Wailing Caverns
 SD%Complete: 95
 SDComment: Need to add skill usage for Disciple of Naralex
 SDCategory: Wailing Caverns
 EndScriptData */
-
 /* ContentData
 EndContentData */
-
 #include "precompiled.h"
 #include "escort_ai.h"
 #include "def_wailing_caverns.h"
-
 /*######
 ## npc_disciple_of_naralex
 ######*/
-
 enum eEnums
 {
     //say
@@ -67,12 +62,10 @@ enum eEnums
     NPC_NIGHTMARE_ECTOPLASM       = 5763,
     NPC_MUTANUS_THE_DEVOURER      = 3654,
 };
-
 #define GOSSIP_ID_START_1       698  //Naralex sleeps again!
 #define GOSSIP_ID_START_2       699  //The fanglords are dead!
 #define GOSSIP_ITEM_NARALEX     "Let the event begin!"
 #define ACHIEVEMENT_WAILING_CAVERNS 630
-
 struct TRINITY_DLL_DECL npc_disciple_of_naralexAI : public npc_escortAI
 {
     npc_disciple_of_naralexAI(Creature *c) : npc_escortAI(c)
@@ -84,17 +77,14 @@ struct TRINITY_DLL_DECL npc_disciple_of_naralexAI : public npc_escortAI
         m_creature->setActive(true);
         m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
     }
-
     uint32 eventTimer;
     uint32 currentEvent;
     uint32 eventProgress;
     ScriptedInstance *pInstance;
-
     void WaypointReached(uint32 i)
     {
         if (!pInstance)
             return;
-
         switch (i)
         {
             case 4:
@@ -121,17 +111,13 @@ struct TRINITY_DLL_DECL npc_disciple_of_naralexAI : public npc_escortAI
             break;
         }
     }
-
     void Reset()
     {
-
     }
-
     void EnterCombat(Unit* who)
     {
         DoScriptText(SAY_ATTACKED, m_creature, who);
     }
-
     void JustDied(Unit *slayer)
     {
         if (pInstance)
@@ -142,17 +128,14 @@ struct TRINITY_DLL_DECL npc_disciple_of_naralexAI : public npc_escortAI
             pInstance->SetData(TYPE_NARALEX_PART3, FAIL);
         }
     }
-
     void JustSummoned(Creature* summoned)
     {
          summoned->AI()->AttackStart(m_creature);
     }
-
     void UpdateAI(const uint32 diff)
     {
         if (currentEvent != TYPE_NARALEX_PART3)
             npc_escortAI::UpdateAI(diff);
-
         if (!pInstance)
             return;
         if (eventTimer <= diff)
@@ -261,7 +244,7 @@ struct TRINITY_DLL_DECL npc_disciple_of_naralexAI : public npc_escortAI
                                     if (pMap && pMap->IsDungeon())
                                     {
                                         Map::PlayerList const &players = pMap->GetPlayers();
-                                        for(Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
+                                        for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
                                             itr->getSource()->CompletedAchievement(AchievWC);
                                     }
                                 }
@@ -329,16 +312,13 @@ struct TRINITY_DLL_DECL npc_disciple_of_naralexAI : public npc_escortAI
         }else eventTimer -= diff;
     }
 };
-
 CreatureAI* GetAI_npc_disciple_of_naralex(Creature* pCreature)
 {
     return new npc_disciple_of_naralexAI(pCreature);
 }
-
 bool GossipHello_npc_disciple_of_naralex(Player* pPlayer, Creature* pCreature)
 {
     ScriptedInstance *pInstance = pCreature->GetInstanceData();
-
     if (pInstance)
     {
         pCreature->CastSpell(pPlayer, SPELL_MARK_OF_THE_WILD_RANK_2, true);
@@ -347,7 +327,6 @@ bool GossipHello_npc_disciple_of_naralex(Player* pPlayer, Creature* pCreature)
         {
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_NARALEX, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
             pPlayer->SEND_GOSSIP_MENU(GOSSIP_ID_START_2, pCreature->GetGUID());
-
             if (!pInstance->GetData(TYPE_NARALEX_YELLED))
             {
                 DoScriptText(SAY_AT_LAST, pCreature);
@@ -361,7 +340,6 @@ bool GossipHello_npc_disciple_of_naralex(Player* pPlayer, Creature* pCreature)
     }
     return true;
 }
-
 bool GossipSelect_npc_disciple_of_naralex(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
 {
     ScriptedInstance *pInstance = pCreature->GetInstanceData();
@@ -370,23 +348,18 @@ bool GossipSelect_npc_disciple_of_naralex(Player* pPlayer, Creature* pCreature, 
         pPlayer->CLOSE_GOSSIP_MENU();
         if (pInstance)
             pInstance->SetData(TYPE_NARALEX_EVENT, IN_PROGRESS);
-
         DoScriptText(SAY_MAKE_PREPARATIONS, pCreature);
-
         pCreature->setFaction(250);
         pCreature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
-
         CAST_AI(npc_escortAI, (pCreature->AI()))->Start(false, false, pPlayer->GetGUID());
         CAST_AI(npc_escortAI, (pCreature->AI()))->SetDespawnAtFar(false);
         CAST_AI(npc_escortAI, (pCreature->AI()))->SetDespawnAtEnd(false);
     }
     return true;
 }
-
 void AddSC_wailing_caverns()
 {
     Script *newscript;
-
     newscript = new Script;
     newscript->Name = "npc_disciple_of_naralex";
     newscript->pGossipHello =  &GossipHello_npc_disciple_of_naralex;

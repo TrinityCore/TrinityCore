@@ -13,34 +13,26 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
-
 /* ScriptData
 SDName: Dun_Morogh
 SD%Complete: 50
 SDComment: Quest support: 1783
 SDCategory: Dun Morogh
 EndScriptData */
-
 /* ContentData
 npc_narm_faulk
 EndContentData */
-
 #include "precompiled.h"
-
 /*######
 ## npc_narm_faulk
 ######*/
-
 // signed for 6172
 #define SAY_HEAL -1000280
-
 struct TRINITY_DLL_DECL npc_narm_faulkAI : public ScriptedAI
 {
     uint32 lifeTimer;
     bool spellHit;
-
     npc_narm_faulkAI(Creature *c) : ScriptedAI(c) {}
-
     void Reset()
     {
         lifeTimer = 120000;
@@ -48,16 +40,13 @@ struct TRINITY_DLL_DECL npc_narm_faulkAI : public ScriptedAI
         m_creature->SetStandState(UNIT_STAND_STATE_DEAD);
         spellHit = false;
     }
-
     void EnterCombat(Unit *who)
     {
     }
-
     void MoveInLineOfSight(Unit *who)
     {
         return;
     }
-
     void UpdateAI(const uint32 diff)
     {
        if (m_creature->IsStandState())
@@ -71,7 +60,6 @@ struct TRINITY_DLL_DECL npc_narm_faulkAI : public ScriptedAI
                 lifeTimer -= diff;
         }
     }
-
     void SpellHit(Unit *Hitter, const SpellEntry *Spellkind)
     {
         if (Spellkind->Id == 8593 && !spellHit)
@@ -84,17 +72,14 @@ struct TRINITY_DLL_DECL npc_narm_faulkAI : public ScriptedAI
             spellHit = true;
         }
     }
-
 };
 CreatureAI* GetAI_npc_narm_faulk(Creature* pCreature)
 {
     return new npc_narm_faulkAI (pCreature);
 }
-
 void AddSC_dun_morogh()
 {
     Script *newscript;
-
     newscript = new Script;
     newscript->Name = "npc_narm_faulk";
     newscript->GetAI = &GetAI_npc_narm_faulk;

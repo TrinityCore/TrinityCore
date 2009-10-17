@@ -17,17 +17,13 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
-
 #if !defined(DATABASEENV_H)
 #define DATABASEENV_H
-
 #include "Common.h"
 #include "Log.h"
 #include "Errors.h"
-
 #include "Database/Field.h"
 #include "Database/QueryResult.h"
-
 #ifdef DO_POSTGRESQL
 #include "Database/QueryResultPostgre.h"
 #include "Database/Database.h"
@@ -47,10 +43,8 @@ typedef DatabaseMysql DatabaseType;
 #define _CONCAT3_(A,B,C) "CONCAT( " A " , " B " , " C " )"
 #define _OFFSET_         "LIMIT %d,1"
 #endif
-
 extern DatabaseType WorldDatabase;
 extern DatabaseType CharacterDatabase;
 extern DatabaseType loginDatabase;
-
 #endif
 

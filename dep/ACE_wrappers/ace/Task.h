@@ -1,5 +1,4 @@
 // -*- C++ -*-
-
 //=============================================================================
 /**
  *  @file    Task.h
@@ -9,21 +8,15 @@
  *  @author Douglas C. Schmidt <schmidt@cs.wustl.edu>
  */
 //=============================================================================
-
 #ifndef ACE_TASK_H
 #define ACE_TASK_H
 #include /**/ "ace/pre.h"
-
 #include "ace/Service_Object.h"
-
 #if !defined (ACE_LACKS_PRAGMA_ONCE)
 # pragma once
 #endif /* ACE_LACKS_PRAGMA_ONCE */
-
 #include "ace/Thread_Manager.h"
-
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
-
 /**
  * @class ACE_Task_Flags
  *
@@ -52,7 +45,6 @@ namespace ACE_Task_Flags
     ACE_FLUSHRW    = 030
   };
 }
-
 /**
  * @class ACE_Task_Base
  *
@@ -69,19 +61,14 @@ public:
   // = Initialization and termination methods.
   /// Constructor.
   ACE_Task_Base (ACE_Thread_Manager * = 0);
-
   /// Destructor.
   virtual ~ACE_Task_Base (void);
-
   // = Initialization and termination hooks.
-
   // These methods should be overridden by subclasses if you'd like to
   // provide <Task>-specific initialization and termination behavior.
-
   /// Hook called to initialize a task and prepare it for execution.
   /// @a args can be used to pass arbitrary information into <open>.
   virtual int open (void *args = 0);
-
   /**
    * Hook called from ACE_Thread_Exit when during thread exit and from
    * the default implementation of <module_closed>.  In general, this
@@ -92,7 +79,6 @@ public:
    * interpret this as a flag to shut down the <Task>.
    */
   virtual int close (u_long flags = 0);
-
   /**
    * Hook called during <ACE_Module::close>.  The default
    * implementation calls forwards the call to close(1).  Please
@@ -103,20 +89,15 @@ public:
    * ACE_Task instance exits.
    */
   virtual int module_closed (void);
-
   // = Immediate and deferred processing methods, respectively.
-
   // These methods should be overridden by subclasses if you'd like to
   // provide <Task>-specific message processing behavior.
-
   /// A hook method that can be used to pass a message to a
   /// task, where it can be processed immediately or queued for subsequent
   /// processing in the <svc> hook method.
   virtual int put (ACE_Message_Block *, ACE_Time_Value * = 0);
-
   /// Run by a daemon thread to handle deferred processing.
   virtual int svc (void);
-
   // = Active object activation method.
   /**
    * Turn the task into an active object, i.e., having @a n_threads of
@@ -187,7 +168,6 @@ public:
                         size_t stack_size[] = 0,
                         ACE_thread_t thread_ids[] = 0,
                         const char* thr_name[] = 0);
-
   /**
    * Block until there are no more threads running in this task.
    * This method will not wait for either detached or daemon threads;
@@ -199,9 +179,7 @@ public:
    * @retval -1 Failure (consult errno for further information).
    */
   virtual int wait (void);
-
   // = Suspend/resume a Task.
-
   // Note that these methods are not portable and should be avoided
   // since they are inherently error-prone to use.  They are only here
   // for (the rare) applications that know how to use them correctly.
@@ -209,32 +187,24 @@ public:
   virtual int suspend (void);
   /// Resume a suspended task.
   virtual int resume (void);
-
   /// Get the current group id.
   int grp_id (void) const;
-
   /// Set the current group id.
   void grp_id (int);
-
   /// Get the thread manager associated with this Task.
   ACE_Thread_Manager *thr_mgr (void) const;
-
   /// Set the thread manager associated with this Task.
   void thr_mgr (ACE_Thread_Manager *);
-
   /// True if queue is a reader, else false.
   int is_reader (void) const;
-
   /// True if queue is a writer, else false.
   int is_writer (void) const;
-
   /**
    * Returns the number of threads currently running within a task.
    * If we're a passive object this value is 0, else it's greater than
    * 0.
    */
   size_t thr_count (void) const;
-
   /**
    * Returns the thread ID of the thread whose exit caused this object's
    * thread count to be decremented to 0.
@@ -252,14 +222,11 @@ public:
    *          multiple threads are active.
    */
   ACE_thread_t last_thread (void) const;
-
   /// Routine that runs the service routine as a daemon thread.
   static ACE_THR_FUNC_RETURN svc_run (void *);
-
   /// Cleanup hook that is called when a thread exits to gracefully
   /// shutdown an ACE_Task.
   static void cleanup (void *object, void *params);
-
 protected:
   /**
    * Count of the number of threads running within the task.  If this
@@ -268,41 +235,30 @@ protected:
    * If the value == 0, then we're a passive object.
    */
   size_t thr_count_;
-
   /// Multi-threading manager.
   ACE_Thread_Manager *thr_mgr_;
-
   /// ACE_Task flags.
   u_long flags_;
-
   /// This maintains the group id of the Task.
   int grp_id_;
-
 #if defined (ACE_MT_SAFE) && (ACE_MT_SAFE != 0)
   /// Protect the state of a Task during concurrent operations, but
   /// only if we're configured as MT safe...
   ACE_Thread_Mutex lock_;
 #endif /* ACE_MT_SAFE */
-
   /// Holds the thread ID of the last thread to exit svc() in this object.
   ACE_thread_t  last_thread_id_;
-
 private:
-
   // = Disallow these operations.
   ACE_Task_Base &operator= (const ACE_Task_Base &);
   ACE_Task_Base (const ACE_Task_Base &);
 };
-
 ACE_END_VERSIONED_NAMESPACE_DECL
-
 #if defined (__ACE_INLINE__)
 #include "ace/Task.inl"
 #endif /* __ACE_INLINE__ */
-
 // Include the ACE_Task templates classes at this point.
 #include "ace/Task_T.h"
-
 #include /**/ "ace/post.h"
 #endif /* ACE_TASK_H */
 

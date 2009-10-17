@@ -4,14 +4,11 @@
  *
  * This program is free software licensed under GPL version 2
  * Please see the included DOCS/LICENSE.TXT for more information */
-
 #ifndef SC_SCRIPTMGR_H
 #define SC_SCRIPTMGR_H
-
 #include "Common.h"
 #include "Platform/CompilerDefs.h"
 #include "DBCStructure.h"
-
 class Player;
 class Creature;
 class CreatureAI;
@@ -24,11 +21,9 @@ class Map;
 class Unit;
 class WorldObject;
 struct ItemPrototype;
-
 #define MAX_SCRIPTS         5000                            //72 bytes each (approx 351kb)
 #define VISIBLE_RANGE       (166.0f)                        //MAX visible range (size of grid)
 #define DEFAULT_TEXT        "<Trinity Script Text Entry Missing!>"
-
 struct Script
 {
     Script() :
@@ -39,9 +34,7 @@ struct Script
         pEffectDummyCreature(NULL), pEffectDummyGameObj(NULL), pEffectDummyItem(NULL),
         GetAI(NULL), GetInstanceData(NULL)
     {}
-
     std::string Name;
-
     //Methods to be scripted
     void (*pOnLogin             )(Player*);
     void (*pOnLogout            )(Player*);
@@ -79,22 +72,17 @@ struct Script
     bool (*pEffectDummyCreature )(Unit*, uint32, uint32, Creature* );
     bool (*pEffectDummyGameObj  )(Unit*, uint32, uint32, GameObject* );
     bool (*pEffectDummyItem     )(Unit*, uint32, uint32, Item* );
-
     CreatureAI* (*GetAI)(Creature*);
     InstanceData* (*GetInstanceData)(Map*);
-
     void RegisterSelf();
 };
-
 //Generic scripting text function
 void DoScriptText(int32 textEntry, WorldObject* pSource, Unit* target = NULL);
-
 #if COMPILER == COMPILER_GNU
 #define FUNC_PTR(name,callconvention,returntype,parameters)    typedef returntype(*name)parameters __attribute__ ((callconvention));
 #else
 #define FUNC_PTR(name, callconvention, returntype, parameters)    typedef returntype(callconvention *name)parameters;
 #endif
-
 #ifdef WIN32
   #define TRINITY_DLL_EXPORT extern "C" __declspec(dllexport)
 #elif defined( __GNUC__ )
@@ -102,6 +90,5 @@ void DoScriptText(int32 textEntry, WorldObject* pSource, Unit* target = NULL);
 #else
 #define TRINITY_DLL_EXPORT extern "C" export
 #endif
-
 #endif
 

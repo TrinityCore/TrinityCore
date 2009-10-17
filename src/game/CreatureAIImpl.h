@@ -17,21 +17,17 @@
  */
 #ifndef CREATUREAIIMPL_H
 #define CREATUREAIIMPL_H
-
 #include "Common.h"
 #include "Platform/Define.h"
 #include "TemporarySummon.h"
 #include "CreatureAI.h"
-
 #define HEROIC(n,h) (HeroicMode ? h : n)
-
 template<class T>
 inline
 const T& RAND(const T& v1, const T& v2)
 {
     return (rand()%2) ? v1 : v2;
 }
-
 template<class T>
 inline
 const T& RAND(const T& v1, const T& v2, const T& v3)
@@ -44,7 +40,6 @@ const T& RAND(const T& v1, const T& v2, const T& v3)
         case 2: return v3;
     }
 }
-
 template<class T>
 inline
 const T& RAND(const T& v1, const T& v2, const T& v3, const T& v4)
@@ -58,7 +53,6 @@ const T& RAND(const T& v1, const T& v2, const T& v3, const T& v4)
         case 3: return v4;
     }
 }
-
 template<class T>
 inline
 const T& RAND(const T& v1, const T& v2, const T& v3, const T& v4, const T& v5)
@@ -73,7 +67,6 @@ const T& RAND(const T& v1, const T& v2, const T& v3, const T& v4, const T& v5)
         case 4: return v5;
     }
 }
-
 template<class T>
 inline
 const T& RAND(const T& v1, const T& v2, const T& v3, const T& v4, const T& v5, const T& v6)
@@ -89,7 +82,6 @@ const T& RAND(const T& v1, const T& v2, const T& v3, const T& v4, const T& v5, c
         case 5: return v6;
     }
 }
-
 template<class T>
 inline
 const T& RAND(const T& v1, const T& v2, const T& v3, const T& v4, const T& v5, const T& v6, const T& v7)
@@ -106,7 +98,6 @@ const T& RAND(const T& v1, const T& v2, const T& v3, const T& v4, const T& v5, c
         case 6: return v7;
     }
 }
-
 template<class T>
 inline
 const T& RAND(const T& v1, const T& v2, const T& v3, const T& v4, const T& v5, const T& v6, const T& v7, const T& v8)
@@ -124,7 +115,6 @@ const T& RAND(const T& v1, const T& v2, const T& v3, const T& v4, const T& v5, c
         case 7: return v8;
     }
 }
-
 template<class T>
 inline
 const T& RAND(const T& v1, const T& v2, const T& v3, const T& v4, const T& v5, const T& v6, const T& v7, const T& v8,
@@ -144,7 +134,6 @@ const T& RAND(const T& v1, const T& v2, const T& v3, const T& v4, const T& v5, c
         case 8: return v9;
     }
 }
-
 template<class T>
 inline
 const T& RAND(const T& v1, const T& v2, const T& v3, const T& v4, const T& v5, const T& v6, const T& v7, const T& v8,
@@ -165,7 +154,6 @@ const T& RAND(const T& v1, const T& v2, const T& v3, const T& v4, const T& v5, c
         case 9: return v10;
     }
 }
-
 template<class T>
 inline
 const T& RAND(const T& v1, const T& v2, const T& v3, const T& v4, const T& v5, const T& v6, const T& v7, const T& v8,
@@ -187,7 +175,6 @@ const T& RAND(const T& v1, const T& v2, const T& v3, const T& v4, const T& v5, c
         case 10: return v11;
     }
 }
-
 template<class T>
 inline
 const T& RAND(const T& v1, const T& v2, const T& v3, const T& v4, const T& v5, const T& v6, const T& v7, const T& v8,
@@ -210,7 +197,6 @@ const T& RAND(const T& v1, const T& v2, const T& v3, const T& v4, const T& v5, c
         case 11: return v12;
     }
 }
-
 template<class T>
 inline
 const T& RAND(const T& v1, const T& v2, const T& v3, const T& v4, const T& v5, const T& v6, const T& v7, const T& v8,
@@ -234,7 +220,6 @@ const T& RAND(const T& v1, const T& v2, const T& v3, const T& v4, const T& v5, c
         case 12: return v13;
     }
 }
-
 template<class T>
 inline
 const T& RAND(const T& v1, const T& v2, const T& v3, const T& v4, const T& v5, const T& v6, const T& v7, const T& v8,
@@ -259,7 +244,6 @@ const T& RAND(const T& v1, const T& v2, const T& v3, const T& v4, const T& v5, c
         case 13: return v14;
     }
 }
-
 template<class T>
 inline
 const T& RAND(const T& v1, const T& v2, const T& v3, const T& v4, const T& v5, const T& v6, const T& v7, const T& v8,
@@ -285,7 +269,6 @@ const T& RAND(const T& v1, const T& v2, const T& v3, const T& v4, const T& v5, c
         case 14: return v15;
     }
 }
-
 template<class T>
 inline
 const T& RAND(const T& v1, const T& v2, const T& v3, const T& v4, const T& v5, const T& v6, const T& v7, const T& v8,
@@ -312,26 +295,20 @@ const T& RAND(const T& v1, const T& v2, const T& v3, const T& v4, const T& v5, c
         case 15: return v16;
     }
 }
-
 class EventMap : private std::map<uint32, uint32>
 {
     private:
         uint32 m_time, m_phase;
     public:
         explicit EventMap() : m_phase(0), m_time(0) {}
-
         uint32 GetTimer() const { return m_time; }
-
         void Reset() { clear(); m_time = 0; m_phase = 0; }
-
         void Update(uint32 time) { m_time += time; }
-
         void SetPhase(uint32 phase)
         {
             if(phase && phase < 9)
                 m_phase = (1 << (phase + 24));
         }
-
         void ScheduleEvent(uint32 eventId, uint32 time, uint32 gcd = 0, uint32 phase = 0)
         {
             time += m_time;
@@ -347,13 +324,11 @@ class EventMap : private std::map<uint32, uint32>
             }
             insert(std::make_pair(time, eventId));
         }
-
         void RescheduleEvent(uint32 eventId, uint32 time, uint32 gcd = 0, uint32 phase = 0)
         {
             CancelEvent(eventId);
             ScheduleEvent(eventId, time, gcd, phase);
         }
-
         void RepeatEvent(uint32 time)
         {
             if(empty())
@@ -369,12 +344,10 @@ class EventMap : private std::map<uint32, uint32>
             }
             insert(std::make_pair(time, eventId));
         }
-
         void PopEvent()
         {
             erase(begin());
         }
-
         uint32 ExecuteEvent()
         {
             while(!empty())
@@ -392,7 +365,6 @@ class EventMap : private std::map<uint32, uint32>
             }
             return 0;
         }
-
         uint32 GetEvent()
         {
             while(!empty())
@@ -408,7 +380,6 @@ class EventMap : private std::map<uint32, uint32>
             }
             return 0;
         }
-
         void DelayEvents(uint32 time, uint32 gcd)
         {
             time += m_time;
@@ -426,7 +397,6 @@ class EventMap : private std::map<uint32, uint32>
                     ++itr;
             }
         }
-
         void CancelEvent(uint32 eventId)
         {
             for(iterator itr = begin(); itr != end();)
@@ -437,7 +407,6 @@ class EventMap : private std::map<uint32, uint32>
                     ++itr;
             }
         }
-
         void CancelEventsByGCD(uint32 gcd)
         {
             for(iterator itr = begin(); itr != end();)
@@ -449,7 +418,6 @@ class EventMap : private std::map<uint32, uint32>
             }
         }
 };
-
 enum AITarget
 {
     AITARGET_SELF,
@@ -459,16 +427,13 @@ enum AITarget
     AITARGET_BUFF,
     AITARGET_DEBUFF,
 };
-
 enum AICondition
 {
     AICOND_AGGRO,
     AICOND_COMBAT,
     AICOND_DIE,
 };
-
 #define AI_DEFAULT_COOLDOWN 5000
-
 struct AISpellInfoType
 {
     AISpellInfoType() : target(AITARGET_SELF), condition(AICOND_COMBAT)
@@ -479,9 +444,7 @@ struct AISpellInfoType
     uint32 realCooldown;
     float maxRange;
 };
-
 TRINITY_DLL_SPEC AISpellInfoType * GetAISpellInfo(uint32 i);
-
 
 inline void CreatureAI::SetGazeOn(Unit *target)
 {
@@ -491,12 +454,10 @@ inline void CreatureAI::SetGazeOn(Unit *target)
         me->SetReactState(REACT_PASSIVE);
     }
 }
-
 inline bool CreatureAI::UpdateVictimWithGaze()
 {
     if(!me->isInCombat())
         return false;
-
     if(me->HasReactState(REACT_PASSIVE))
     {
         if(me->getVictim())
@@ -504,17 +465,14 @@ inline bool CreatureAI::UpdateVictimWithGaze()
         else
             me->SetReactState(REACT_AGGRESSIVE);
     }
-
     if(Unit *victim = me->SelectVictim())
         AttackStart(victim);
     return me->getVictim();
 }
-
 inline bool CreatureAI::UpdateCombatState()
 {
     if(!me->isInCombat())
         return false;
-
     if(!me->HasReactState(REACT_PASSIVE))
     {
         if(Unit *victim = me->SelectVictim())
@@ -526,15 +484,12 @@ inline bool CreatureAI::UpdateCombatState()
         EnterEvadeMode();
         return false;
     }
-
     return true;
 }
-
 inline bool CreatureAI::UpdateVictim()
 {
     if(!me->isInCombat())
         return false;
-
     if(!me->HasReactState(REACT_PASSIVE))
     {
         if(Unit *victim = me->SelectVictim())
@@ -546,10 +501,8 @@ inline bool CreatureAI::UpdateVictim()
         EnterEvadeMode();
         return false;
     }
-
     return true;
 }
-
 /*
 inline bool CreatureAI::UpdateVictim()
 {
@@ -560,12 +513,10 @@ inline bool CreatureAI::UpdateVictim()
     return me->getVictim();
 }
 */
-
 inline bool CreatureAI::_EnterEvadeMode()
 {
     if(!me->isAlive())
         return false;
-
     // sometimes bosses stuck in combat?
     me->RemoveAllAuras();
     me->DeleteThreatList();
@@ -573,46 +524,36 @@ inline bool CreatureAI::_EnterEvadeMode()
     me->LoadCreaturesAddon();
     me->SetLootRecipient(NULL);
     me->ResetPlayerDamageReq();
-    
     if(me->IsInEvadeMode())
         return false;
-
     return true;
 }
-
 inline void UnitAI::DoCast(Unit* victim, uint32 spellId, bool triggered)
 {
     if(!victim || me->hasUnitState(UNIT_STAT_CASTING) && !triggered)
         return;
-
     me->CastSpell(victim, spellId, triggered);
 }
-
 inline void UnitAI::DoCastVictim(uint32 spellId, bool triggered)
 {
     me->CastSpell(me->getVictim(), spellId, triggered);
 }
-
 inline void UnitAI::DoCastAOE(uint32 spellId, bool triggered)
 {
     if(!triggered && me->hasUnitState(UNIT_STAT_CASTING))
         return;
-
     me->CastSpell((Unit*)NULL, spellId, triggered);
 }
-
 inline Creature *CreatureAI::DoSummon(uint32 uiEntry, const Position &pos, uint32 uiDespawntime, TempSummonType uiType)
 {
     return me->SummonCreature(uiEntry, pos, uiType, uiDespawntime);
 }
-
 inline Creature *CreatureAI::DoSummon(uint32 uiEntry, WorldObject* obj, float fRadius, uint32 uiDespawntime, TempSummonType uiType)
 {
     Position pos;
     obj->GetRandomNearPosition(pos, fRadius);
     return me->SummonCreature(uiEntry, pos, uiType, uiDespawntime);
 }
-
 inline Creature *CreatureAI::DoSummonFlyer(uint32 uiEntry, WorldObject *obj, float _fZ, float fRadius, uint32 uiDespawntime, TempSummonType uiType)
 {
     Position pos;
@@ -620,6 +561,5 @@ inline Creature *CreatureAI::DoSummonFlyer(uint32 uiEntry, WorldObject *obj, flo
     pos.m_positionZ += _fZ;
     return me->SummonCreature(uiEntry, pos, uiType, uiDespawntime);
 }
-
 #endif
 

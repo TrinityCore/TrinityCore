@@ -1,14 +1,11 @@
 // -*- C++ -*-
 //
 // $Id: OS_NS_ctype.inl 80826 2008-03-04 14:51:23Z wotte $
-
 #include "ace/os_include/os_ctype.h"
 #if defined ACE_HAS_WCHAR
 # include "ace/os_include/os_wctype.h"
 #endif /* ACE_HAS_WCHAR */
-
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
-
 ACE_INLINE int
 ACE_OS::ace_isalnum (ACE_TCHAR c)
 {
@@ -24,7 +21,6 @@ ACE_OS::ace_isalnum (ACE_TCHAR c)
   return isalnum ((unsigned char) c);
 #endif /* ACE_USES_WCHAR */
 }
-
 ACE_INLINE int
 ACE_OS::ace_isalpha (ACE_TCHAR c)
 {
@@ -34,7 +30,6 @@ ACE_OS::ace_isalpha (ACE_TCHAR c)
   return isalpha ((unsigned char) c);
 #endif /* ACE_USES_WCHAR */
 }
-
 ACE_INLINE int
 ACE_OS::ace_iscntrl (ACE_TCHAR c)
 {
@@ -44,7 +39,6 @@ ACE_OS::ace_iscntrl (ACE_TCHAR c)
   return iscntrl ((unsigned char) c);
 #endif /* ACE_USES_WCHAR */
 }
-
 ACE_INLINE int
 ACE_OS::ace_isdigit (ACE_TCHAR c)
 {
@@ -54,7 +48,6 @@ ACE_OS::ace_isdigit (ACE_TCHAR c)
   return isdigit ((unsigned char) c);
 #endif /* ACE_USES_WCHAR */
 }
-
 ACE_INLINE int
 ACE_OS::ace_isgraph (ACE_TCHAR c)
 {
@@ -64,7 +57,6 @@ ACE_OS::ace_isgraph (ACE_TCHAR c)
   return isgraph ((unsigned char) c);
 #endif /* ACE_USES_WCHAR */
 }
-
 ACE_INLINE int
 ACE_OS::ace_islower (ACE_TCHAR c)
 {
@@ -74,7 +66,6 @@ ACE_OS::ace_islower (ACE_TCHAR c)
   return islower ((unsigned char) c);
 #endif /* ACE_USES_WCHAR */
 }
-
 ACE_INLINE int
 ACE_OS::ace_isprint (ACE_TCHAR c)
 {
@@ -84,7 +75,6 @@ ACE_OS::ace_isprint (ACE_TCHAR c)
   return isprint ((unsigned char) c);
 #endif /* ACE_USES_WCHAR */
 }
-
 ACE_INLINE int
 ACE_OS::ace_ispunct (ACE_TCHAR c)
 {
@@ -94,7 +84,6 @@ ACE_OS::ace_ispunct (ACE_TCHAR c)
   return ispunct ((unsigned char) c);
 #endif /* ACE_USES_WCHAR */
 }
-
 ACE_INLINE int
 ACE_OS::ace_isspace (ACE_TCHAR c)
 {
@@ -104,7 +93,6 @@ ACE_OS::ace_isspace (ACE_TCHAR c)
   return isspace ((unsigned char) c);
 #endif /* ACE_USES_WCHAR */
 }
-
 ACE_INLINE int
 ACE_OS::ace_isupper (ACE_TCHAR c)
 {
@@ -114,7 +102,6 @@ ACE_OS::ace_isupper (ACE_TCHAR c)
   return isupper ((unsigned char) c);
 #endif /* ACE_USES_WCHAR */
 }
-
 ACE_INLINE int
 ACE_OS::ace_isxdigit (ACE_TCHAR c)
 {
@@ -124,13 +111,11 @@ ACE_OS::ace_isxdigit (ACE_TCHAR c)
   return isxdigit ((unsigned char) c);
 #endif /* ACE_USES_WCHAR */
 }
-
 ACE_INLINE int
 ACE_OS::ace_tolower (int c)
 {
   return tolower (c);
 }
-
 #if defined (ACE_HAS_WCHAR)
 ACE_INLINE wint_t
 ACE_OS::ace_towlower (wint_t c)
@@ -145,13 +130,11 @@ ACE_OS::ace_towlower (wint_t c)
 #endif /* ACE_LACKS_TOWLOWER */
 }
 #endif /* ACE_HAS_WCHAR */
-
 ACE_INLINE int
 ACE_OS::ace_toupper (int c)
 {
   return toupper (c);
 }
-
 #if defined (ACE_HAS_WCHAR) && !defined (ACE_LACKS_TOWUPPER)
 ACE_INLINE wint_t
 ACE_OS::ace_towupper (wint_t c)
@@ -159,5 +142,4 @@ ACE_OS::ace_towupper (wint_t c)
   return towupper (c);
 }
 #endif /* ACE_HAS_WCHAR && !ACE_LACKS_TOWUPPER */
-
 ACE_END_VERSIONED_NAMESPACE_DECL

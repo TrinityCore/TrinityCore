@@ -1,18 +1,12 @@
 // $Id: Stats.cpp 80826 2008-03-04 14:51:23Z wotte $
-
 #include "ace/Stats.h"
-
 #if !defined (__ACE_INLINE__)
 # include "ace/Stats.inl"
 #endif /* __ACE_INLINE__ */
-
 #include "ace/OS_NS_stdio.h"
 #include "ace/OS_NS_string.h"
-
 ACE_RCSID(ace, Stats, "$Id: Stats.cpp 80826 2008-03-04 14:51:23Z wotte $")
-
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
-
 ACE_UINT32
 ACE_Stats_Value::fractional_field (void) const
 {
@@ -27,11 +21,9 @@ ACE_Stats_Value::fractional_field (void) const
         {
           field *= 10;
         }
-
       return field;
     }
 }
-
 int
 ACE_Stats::sample (const ACE_INT32 value)
 {
@@ -44,13 +36,10 @@ ACE_Stats::sample (const ACE_INT32 value)
           overflow_ = EFAULT;
           return -1;
         }
-
       if (value < min_)
         min_ = value;
-
       if (value > max_)
         max_ = value;
-
       return 0;
     }
   else
@@ -61,7 +50,6 @@ ACE_Stats::sample (const ACE_INT32 value)
       return -1;
     }
 }
-
 void
 ACE_Stats::mean (ACE_Stats_Value &m,
                  const ACE_UINT32 scale_factor)
@@ -77,7 +65,6 @@ ACE_Stats::mean (ACE_Stats_Value &m,
       const ACE_UINT64 ACE_STATS_INTERNAL_OFFSET =
         ACE_UINT64_LITERAL (0x100000000);
 #endif /* ! ACE_LACKS_LONGLONG_T */
-
       ACE_UINT64 sum = ACE_STATS_INTERNAL_OFFSET;
       ACE_Unbounded_Queue_Iterator<ACE_INT32> i (samples_);
       while (! i.done ())
@@ -89,7 +76,6 @@ ACE_Stats::mean (ACE_Stats_Value &m,
               i.advance ();
             }
         }
-
       // sum_ was initialized with ACE_STATS_INTERNAL_OFFSET, so
       // subtract that off here.
       quotient (sum - ACE_STATS_INTERNAL_OFFSET,
@@ -102,7 +88,6 @@ ACE_Stats::mean (ACE_Stats_Value &m,
       m.fractional (0);
     }
 }
-
 int
 ACE_Stats::std_dev (ACE_Stats_Value &std_dev,
                     const ACE_UINT32 scale_factor)
@@ -115,18 +100,15 @@ ACE_Stats::std_dev (ACE_Stats_Value &std_dev,
   else
     {
       const ACE_UINT32 field = std_dev.fractional_field ();
-
       // The sample standard deviation is:
       //
       // sqrt (sum (sample_i - mean)^2 / (number_of_samples_ - 1))
-
       ACE_UINT64 mean_scaled;
       // Calculate the mean, scaled, so that we don't lose its
       // precision.
       ACE_Stats_Value avg (std_dev.precision ());
       mean (avg, 1u);
       avg.scaled_value (mean_scaled);
-
       // Calculate the summation term, of squared differences from the
       // mean.
       ACE_UINT64 sum_of_squares = 0;
@@ -137,11 +119,9 @@ ACE_Stats::std_dev (ACE_Stats_Value &std_dev,
           if (i.next (sample))
             {
               const ACE_UINT64 original_sum_of_squares = sum_of_squares;
-
               // Scale up by field width so that we don't lose the
               // precision of the mean.  Carefully . . .
               const ACE_UINT64 product (*sample * field);
-
               ACE_UINT64 difference;
               // NOTE: please do not reformat this code!  It //
               // works with the Diab compiler the way it is! //
@@ -155,11 +135,9 @@ ACE_Stats::std_dev (ACE_Stats_Value &std_dev,
                 }                                            //
               // NOTE: please do not reformat this code!  It //
               // works with the Diab compiler the way it is! //
-
               // Square using 64-bit arithmetic.
               sum_of_squares += difference * ACE_U64_TO_U32 (difference);
               i.advance ();
-
               if (sum_of_squares < original_sum_of_squares)
                 {
                   overflow_ = ENOSPC;
@@ -167,7 +145,6 @@ ACE_Stats::std_dev (ACE_Stats_Value &std_dev,
                 }
             }
         }
-
       // Divide the summation by (number_of_samples_ - 1), to get the
       // variance.  In addition, scale the variance down to undo the
       // mean scaling above.  Otherwise, it can get too big.
@@ -175,28 +152,23 @@ ACE_Stats::std_dev (ACE_Stats_Value &std_dev,
       quotient (sum_of_squares,
                 (number_of_samples_ - 1) * field * field,
                 variance);
-
       // Take the square root of the variance to get the standard
       // deviation.  First, scale up . . .
       ACE_UINT64 scaled_variance;
       variance.scaled_value (scaled_variance);
-
       // And scale up, once more, because we'll be taking the square
       // root.
       scaled_variance *= field;
       ACE_Stats_Value unscaled_standard_deviation (std_dev.precision ());
       square_root (scaled_variance,
                    unscaled_standard_deviation);
-
       // Unscale.
       quotient (unscaled_standard_deviation,
                 scale_factor * field,
                 std_dev);
     }
-
   return 0;
 }
-
 
 void
 ACE_Stats::reset (void)
@@ -207,7 +179,6 @@ ACE_Stats::reset (void)
   max_ = -0x8000 * 0x10000;
   samples_.reset ();
 }
-
 int
 ACE_Stats::print_summary (const u_int precision,
                           const ACE_UINT32 scale_factor,
@@ -218,7 +189,6 @@ ACE_Stats::print_summary (const u_int precision,
   ACE_TCHAR min_string [128];
   ACE_TCHAR max_string [128];
   int success = 0;
-
   for (int tmp_precision = precision;
        ! overflow_  &&  ! success  &&  tmp_precision >= 0;
        --tmp_precision)
@@ -229,11 +199,9 @@ ACE_Stats::print_summary (const u_int precision,
         ACE_OS::sprintf (format, ACE_TEXT ("%%%d"), tmp_precision);
       else
         ACE_OS::sprintf (format, ACE_TEXT ("%%d.%%0%du"), tmp_precision);
-
       ACE_Stats_Value u (tmp_precision);
       ((ACE_Stats *) this)->mean (u, scale_factor);
       ACE_OS::sprintf (mean_string, format, u.whole (), u.fractional ());
-
       ACE_Stats_Value sd (tmp_precision);
       if (((ACE_Stats *) this)->std_dev (sd, scale_factor))
         {
@@ -245,7 +213,6 @@ ACE_Stats::print_summary (const u_int precision,
           success = 1;
         }
       ACE_OS::sprintf (std_dev_string, format, sd.whole (), sd.fractional ());
-
       ACE_Stats_Value minimum (tmp_precision), maximum (tmp_precision);
       if (min_ != 0)
         {
@@ -262,7 +229,6 @@ ACE_Stats::print_summary (const u_int precision,
       ACE_OS::sprintf (max_string, format,
                        maximum.whole (), maximum.fractional ());
     }
-
   if (success == 1)
     {
       ACE_OS::fprintf (file, ACE_TEXT ("samples: %u (%s - %s); mean: ")
@@ -285,7 +251,6 @@ ACE_Stats::print_summary (const u_int precision,
       return -1;
     }
 }
-
 void
 ACE_Stats::quotient (const ACE_UINT64 dividend,
                      const ACE_UINT32 divisor,
@@ -294,13 +259,10 @@ ACE_Stats::quotient (const ACE_UINT64 dividend,
   // The whole part of the division comes from simple integer division.
   quotient.whole (static_cast<ACE_UINT32> (divisor == 0
                                            ?  0  :  dividend / divisor));
-
   if (quotient.precision () > 0  ||  divisor == 0)
     {
       const ACE_UINT32 field = quotient.fractional_field ();
-
       // Fractional = (dividend % divisor) * 10^precision / divisor
-
       // It would be nice to add round-up term:
       // Fractional = (dividend % divisor) * 10^precision / divisor  +
       //                10^precision/2 / 10^precision
@@ -316,7 +278,6 @@ ACE_Stats::quotient (const ACE_UINT64 dividend,
       quotient.fractional (0);
     }
 }
-
 void
 ACE_Stats::quotient (const ACE_Stats_Value &dividend,
                      const ACE_UINT32 divisor,
@@ -324,11 +285,9 @@ ACE_Stats::quotient (const ACE_Stats_Value &dividend,
 {
   // The whole part of the division comes from simple integer division.
   quotient.whole (divisor == 0  ?  0  :  dividend.whole () / divisor);
-
   if (quotient.precision () > 0  ||  divisor == 0)
     {
       const ACE_UINT32 field = quotient.fractional_field ();
-
       // Fractional = (dividend % divisor) * 10^precision / divisor.
       quotient.fractional (dividend.whole () % divisor * field / divisor  +
                            dividend.fractional () / divisor);
@@ -340,7 +299,6 @@ ACE_Stats::quotient (const ACE_Stats_Value &dividend,
       quotient.fractional (0);
     }
 }
-
 void
 ACE_Stats::square_root (const ACE_UINT64 n,
                         ACE_Stats_Value &square_root)
@@ -349,7 +307,6 @@ ACE_Stats::square_root (const ACE_UINT64 n,
   ACE_UINT32 ceiling = 0xFFFFFFFFu;
   ACE_UINT32 mid = 0;
   u_int i;
-
   // The maximum number of iterations is log_2 (2^64) == 64.
   for (i = 0; i < 64; ++i)
     {
@@ -369,35 +326,26 @@ ACE_Stats::square_root (const ACE_UINT64 n,
             ceiling = mid;
         }
     }
-
   square_root.whole (mid);
   ACE_UINT64 mid_squared = mid; mid_squared *= mid;
-
   if (square_root.precision ()  &&  mid_squared < n)
     {
       // (mid * 10^precision + fractional)^2 ==
       //   n^2 * 10^(precision * 2)
-
       const ACE_UINT32 field = square_root.fractional_field ();
-
       floor = 0;
       ceiling = field;
       mid = 0;
-
       // Do the 64-bit arithmetic carefully to avoid overflow.
       ACE_UINT64 target = n;
       target *= field;
       target *= field;
-
       ACE_UINT64 difference = 0;
-
       for (i = 0; i < square_root.precision (); ++i)
         {
           mid = (ceiling - floor) / 2 + floor;
-
           ACE_UINT64 current = square_root.whole () * field  +  mid;
           current *= square_root.whole () * field  +  mid;
-
           if (floor == mid)
             {
               difference = target - current;
@@ -408,11 +356,9 @@ ACE_Stats::square_root (const ACE_UINT64 n,
           else
             ceiling = mid;
         }
-
       // Check to see if the fractional part should be one greater.
       ACE_UINT64 next = square_root.whole () * field  +  mid + 1;
       next *= square_root.whole () * field  +  mid + 1;
-
       square_root.fractional (next - target < difference  ?  mid + 1  :  mid);
     }
   else
@@ -422,6 +368,5 @@ ACE_Stats::square_root (const ACE_UINT64 n,
       square_root.fractional (0);
     }
 }
-
 ACE_END_VERSIONED_NAMESPACE_DECL
 

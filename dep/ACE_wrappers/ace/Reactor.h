@@ -1,5 +1,4 @@
 // -*- C++ -*-
-
 //=============================================================================
 /**
  *  @file    Reactor.h
@@ -10,44 +9,33 @@
  *  @author Douglas C. Schmidt <schmidt@cs.wustl.edu>
  */
 //=============================================================================
-
 #ifndef ACE_REACTOR_H
 #define ACE_REACTOR_H
-
 #include /**/ "ace/pre.h"
-
 // Timer Queue is a complicated template class. A simple forward
 // declaration will not work.
 #include "ace/Timer_Queuefwd.h"
-
 #if !defined (ACE_LACKS_PRAGMA_ONCE)
 # pragma once
 #endif /* ACE_LACKS_PRAGMA_ONCE */
-
 // Contains the timer related interface for the Reactor.
 #include "ace/Reactor_Timer_Interface.h"
-
 // Event_Handler.h contains the definition of ACE_Reactor_Mask
 #include "ace/Event_Handler.h"
-
 // Get ACE_Time_Value in
 #include "ace/Time_Value.h"
-
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
-
 class ACE_Reactor_Impl;
 class ACE_Handle_Set;
 class ACE_Sig_Action;
 class ACE_Sig_Handler;
 class ACE_Sig_Set;
-
 /*
  * Hook to specialize the Reactor implementation with the concrete
  * Reactor type, for exmaple, select, thread pool reactor known
  * at compile time.
  */
 //@@ REACTOR_SPL_INCLUDE_FORWARD_DECL_ADD_HOOK
-
 /**
  * @class ACE_Reactor
  *
@@ -72,7 +60,6 @@ public:
     /// changes enabled bits).
     CLR_MASK = 4
   };
-
   /**
    * You can specify a hook function to event-handling methods that will
    * be called after each iteration of event handling.  If the hook function
@@ -84,28 +71,21 @@ public:
    * as normal, just as if there is no hook function specified.
    */
   typedef int (*REACTOR_EVENT_HOOK)(ACE_Reactor *);
-
   /// Get pointer to a process-wide ACE_Reactor.
   static ACE_Reactor *instance (void);
-
   /**
    * Set pointer to a process-wide ACE_Reactor and return existing
    * pointer.  If @a delete_reactor == true then we'll delete the Reactor
    * at destruction time.
    */
   static ACE_Reactor *instance (ACE_Reactor *, bool delete_reactor = false);
-
   /// Delete the dynamically allocated Singleton
   static void close_singleton (void);
-
   /// Name of the dll in which the dll lives.
   static const ACE_TCHAR *dll_name (void);
-
   /// Name of the component--ACE_Reactor in this case.
   static const ACE_TCHAR *name (void);
-
   // = Singleton reactor event loop management methods.
-
   // Note that these method ONLY work on the "Singleton Reactor,"
   // i.e., the one returned from <ACE_Reactor::instance>.
   /**
@@ -120,7 +100,6 @@ public:
    */
   static int run_event_loop (void);
   static int run_alertable_event_loop (void);
-
   /**
    * Run the event loop until the <ACE_Reactor::handle_events> or
    * <ACE_Reactor::alertable_handle_events> methods returns -1, the
@@ -133,7 +112,6 @@ public:
    */
   static int run_event_loop (ACE_Time_Value &tv);
   static int run_alertable_event_loop (ACE_Time_Value &tv);
-
   /**
    * Instruct the <ACE_Reactor::instance> to terminate its event loop
    * and notifies the <ACE_Reactor::instance> so that it can wake up
@@ -145,7 +123,6 @@ public:
    * @deprecated Use ACE_Reactor::instance()->end_reactor_event_loop() instead
    */
   static int end_event_loop (void);
-
   /**
    * Report if the <ACE_Reactor::instance>'s event loop is finished.
    * Note that this method can only be used by the singleton
@@ -155,7 +132,6 @@ public:
    * @deprecated Use ACE_Reactor::instance()->reactor_event_loop_done() instead
    */
   static int event_loop_done (void);
-
   /**
    * Resets the <ACE_Reactor::end_event_loop_> static so that the
    * <run_event_loop> method can be restarted.  Note that this method
@@ -166,16 +142,13 @@ public:
    * instead
    */
   static void reset_event_loop (void);
-
   /**
    * The singleton reactor is used by the ACE_Service_Config.
    * Therefore, we must check for the reconfiguration request and
    * handle it after handling an event.
    */
   static int check_reconfiguration (ACE_Reactor *);
-
   // = Reactor event loop management methods.
-
   // These methods work with an instance of a reactor.
   /**
    * Run the event loop until the
@@ -184,7 +157,6 @@ public:
    */
   int run_reactor_event_loop (REACTOR_EVENT_HOOK = 0);
   int run_alertable_reactor_event_loop (REACTOR_EVENT_HOOK = 0);
-
   /**
    * Run the event loop until the <ACE_Reactor::handle_events> or
    * <ACE_Reactor::alertable_handle_events> methods returns -1, the
@@ -195,7 +167,6 @@ public:
                               REACTOR_EVENT_HOOK = 0);
   int run_alertable_reactor_event_loop (ACE_Time_Value &tv,
                                         REACTOR_EVENT_HOOK = 0);
-
   /**
    * Instruct the Reactor to terminate its event loop and notifies the
    * Reactor so that it can wake up and deactivate
@@ -208,14 +179,11 @@ public:
    * further dispatching, the notifications will be lost.
    */
   int end_reactor_event_loop (void);
-
   /// Indicate if the Reactor's event loop has been ended.
   int reactor_event_loop_done (void);
-
   /// Resets the <ACE_Reactor::end_event_loop_> static so that the
   /// <run_event_loop> method can be restarted.
   void reset_reactor_event_loop (void);
-
   /**
    * Create the Reactor using @a implementation.  The flag
    * @a delete_implementation tells the Reactor whether or not to
@@ -223,14 +191,12 @@ public:
    */
   ACE_Reactor (ACE_Reactor_Impl *implementation = 0,
                bool delete_implementation = false);
-
   /// Close down and release all resources.
   /**
    * Any notifications that remain queued on this reactor instance are
    * lost.
    */
   virtual ~ACE_Reactor (void);
-
   /**
    * Initialize the ACE_Reactor to manage <max_number_of_handles>.
    * If <restart> is non-0 then the ACE_Reactor's <handle_events>
@@ -242,28 +208,21 @@ public:
             int restart = 0,
             ACE_Sig_Handler *signal_handler = 0,
             ACE_Timer_Queue *timer_queue = 0);
-
   /// Use a user specified signal handler instead.
   int set_sig_handler (ACE_Sig_Handler *signal_handler);
-
   /// Set a user-specified timer queue.
   int timer_queue (ACE_Timer_Queue *tq);
-
   /// Return the current ACE_Timer_Queue.
   ACE_Timer_Queue *timer_queue (void) const;
-
   /// Close down and release all resources.
   int close (void);
-
   // = Event loop drivers.
-
   /**
    * Returns non-zero if there are I/O events "ready" for dispatching,
    * but does not actually dispatch the event handlers.  By default,
    * don't block while checking this, i.e., "poll".
    */
   int work_pending (const ACE_Time_Value &max_wait_time = ACE_Time_Value::zero);
-
   /**
    * This event loop driver blocks for up to @a max_wait_time before
    * returning.  It will return earlier if events occur.  Note that
@@ -288,7 +247,6 @@ public:
    */
   int handle_events (ACE_Time_Value *max_wait_time = 0);
   int alertable_handle_events (ACE_Time_Value *max_wait_time = 0);
-
   /**
    * This method is just like the one above, except the
    * @a max_wait_time value is a reference and can therefore never be
@@ -301,9 +259,7 @@ public:
    */
   int handle_events (ACE_Time_Value &max_wait_time);
   int alertable_handle_events (ACE_Time_Value &max_wait_time);
-
   // = Register and remove handlers.
-
   /**
    * Register handler for I/O events.
    *
@@ -326,7 +282,6 @@ public:
    */
   int register_handler (ACE_Event_Handler *event_handler,
                         ACE_Reactor_Mask mask);
-
   /**
    * Register handler for I/O events.
    *
@@ -336,9 +291,7 @@ public:
   int register_handler (ACE_HANDLE io_handle,
                         ACE_Event_Handler *event_handler,
                         ACE_Reactor_Mask mask);
-
 #if defined (ACE_WIN32)
-
   /**
    * Register handler for OS events.
    *
@@ -357,9 +310,7 @@ public:
    */
   int register_handler (ACE_Event_Handler *event_handler,
                         ACE_HANDLE event_handle = ACE_INVALID_HANDLE);
-
 #endif /* ACE_WIN32 */
-
   /**
    * Register handler for I/O events.
    *
@@ -373,7 +324,6 @@ public:
                         ACE_HANDLE io_handle,
                         ACE_Event_Handler *event_handler,
                         ACE_Reactor_Mask mask);
-
   /**
    * Register handler for multiple I/O events.
    *
@@ -385,7 +335,6 @@ public:
   int register_handler (const ACE_Handle_Set &handles,
                         ACE_Event_Handler *event_handler,
                         ACE_Reactor_Mask masks);
-
   /**
    * Register handler for signals.
    *
@@ -401,7 +350,6 @@ public:
                         ACE_Sig_Action *new_disp = 0,
                         ACE_Event_Handler **old_sh = 0,
                         ACE_Sig_Action *old_disp = 0);
-
   /**
    * Register handler for multiple signals.
    *
@@ -413,7 +361,6 @@ public:
   int register_handler (const ACE_Sig_Set &sigset,
                         ACE_Event_Handler *event_handler,
                         ACE_Sig_Action *sig_action = 0);
-
   /**
    * Remove @a masks from @a handle registration.
    *
@@ -431,7 +378,6 @@ public:
    */
   int remove_handler (ACE_HANDLE handle,
                       ACE_Reactor_Mask masks);
-
   /**
    * Remove @a masks from @a event_handler registration.
    *
@@ -440,7 +386,6 @@ public:
    */
   int remove_handler (ACE_Event_Handler *event_handler,
                       ACE_Reactor_Mask masks);
-
   /**
    * Remove @a masks from multiple <handle> registrations.
    *
@@ -449,7 +394,6 @@ public:
    */
   int remove_handler (const ACE_Handle_Set &handles,
                       ACE_Reactor_Mask masks);
-
   /**
    * Remove signal handler registration.
    *
@@ -471,7 +415,6 @@ public:
                       ACE_Sig_Action *new_disp,
                       ACE_Sig_Action *old_disp = 0,
                       int sigkey = -1);
-
   /**
    * Remove multiple signal handler registrations.
    *
@@ -480,21 +423,17 @@ public:
    * times for every signal in @a sigset.
    */
   int remove_handler (const ACE_Sig_Set &sigset);
-
   // = Suspend and resume Handlers.
-
   /**
    * Suspend @a handle temporarily.
    */
   int suspend_handler (ACE_HANDLE handle);
-
   /**
    * Suspend @a event_handler temporarily.
    *
    * Handle is obtained from ACE_Event_Handler::get_handle().
    */
   int suspend_handler (ACE_Event_Handler *event_handler);
-
   /**
    * Suspend @a handles temporarily.
    *
@@ -502,24 +441,20 @@ public:
    * @a handles.
    */
   int suspend_handler (const ACE_Handle_Set &handles);
-
   /**
    * Suspend all registered handles temporarily.
    */
   int suspend_handlers (void);
-
   /**
    * Resume @a handle.
    */
   int resume_handler (ACE_HANDLE handle);
-
   /**
    * Resume @a event_handler.
    *
    * Handle is obtained from ACE_Event_Handler::get_handle().
    */
   int resume_handler (ACE_Event_Handler *event_handler);
-
   /**
    * Resume @a handles.
    *
@@ -527,20 +462,16 @@ public:
    * <handles>.
    */
   int resume_handler (const ACE_Handle_Set &handles);
-
   /**
    * Resume all registered handles.
    */
   int resume_handlers (void);
-
   /// Does the reactor allow the application to resume the handle on
   /// its own ie. can it pass on the control of handle resumption to
   /// the application. A positive value indicates that the handlers
   /// are application resumable. A value of 0 indicates otherwise.
   int resumable_handler (void);
-
   // = Timer management.
-
   /**
    * Schedule a timer event.
    *
@@ -572,7 +503,6 @@ public:
                                const ACE_Time_Value &delay,
                                const ACE_Time_Value &interval =
                                 ACE_Time_Value::zero);
-
   /**
    * Reset recurring timer interval.
    *
@@ -586,7 +516,6 @@ public:
    */
   virtual int reset_timer_interval (long timer_id,
                                     const ACE_Time_Value &interval);
-
   /**
    * Cancel timer.
    *
@@ -604,7 +533,6 @@ public:
   virtual int cancel_timer (long timer_id,
                             const void **arg = 0,
                             int dont_call_handle_close = 1);
-
   /**
    * Cancel all timers associated with event handler.
    *
@@ -621,9 +549,7 @@ public:
    */
   virtual int cancel_timer (ACE_Event_Handler *event_handler,
                             int dont_call_handle_close = 1);
-
   // = High-level Event_Handler scheduling operations
-
   /// Add @a masks_to_be_added to the @a event_handler's entry.
   /// @a event_handler must already have been registered.
   /// Note that this call does not cause the Reactor to re-examine
@@ -634,7 +560,6 @@ public:
   /// use ACE_Reactor::register_handler instead.
   int schedule_wakeup (ACE_Event_Handler *event_handler,
                        ACE_Reactor_Mask masks_to_be_added);
-
   /// Add @a masks_to_be_added to the @a handle's entry.  <event_handler>
   /// associated with @a handle must already have been registered.
   /// Note that this call does not cause the Reactor to re-examine
@@ -645,7 +570,6 @@ public:
   /// or use ACE_Reactor::register_handler instead.
   int schedule_wakeup (ACE_HANDLE handle,
                        ACE_Reactor_Mask masks_to_be_added);
-
   /// Clear @a masks_to_be_cleared from the @a event_handler's entry.
   /// Note that this call does not cause the Reactor to re-examine
   /// its set of handlers - the new masks will be noticed the next
@@ -655,7 +579,6 @@ public:
   /// call, or use ACE_Reactor::register_handler instead.
   int cancel_wakeup (ACE_Event_Handler *event_handler,
                      ACE_Reactor_Mask masks_to_be_cleared);
-
   /// Clear @a masks_to_be_cleared from the <handle>'s entry.
   /// Note that this call does not cause the Reactor to re-examine
   /// its set of handlers - the new masks will be noticed the next
@@ -665,9 +588,7 @@ public:
   /// call, or use ACE_Reactor::register_handler instead.
   int cancel_wakeup (ACE_HANDLE handle,
                      ACE_Reactor_Mask masks_to_be_cleared);
-
   // = Notification methods.
-
   /**
    * Dispatch user specified events.
    *
@@ -698,7 +619,6 @@ public:
   int notify (ACE_Event_Handler *event_handler = 0,
               ACE_Reactor_Mask masks = ACE_Event_Handler::EXCEPT_MASK,
               ACE_Time_Value *timeout = 0);
-
   /**
    * Set the maximum number of times that ACE_Reactor will
    * iterate and dispatch the ACE_Event_Handlers that are passed in
@@ -710,7 +630,6 @@ public:
    * overhead.
    */
   void max_notify_iterations (int iterations);
-
   /**
    * Get the maximum number of times that the ACE_Reactor will
    * iterate and dispatch the ACE_Event_Handler's that are passed in
@@ -718,7 +637,6 @@ public:
    * <ACE_Message_Queue::dequeue> loop.
    */
   int max_notify_iterations (void);
-
   /**
    * Purge any notifications pending in this reactor for the specified
    * ACE_Event_Handler object. If @a eh == 0, all notifications for
@@ -733,9 +651,7 @@ public:
   int purge_pending_notifications (ACE_Event_Handler *eh,
                                    ACE_Reactor_Mask =
                                             ACE_Event_Handler::ALL_EVENTS_MASK);
-
   // = Assorted helper methods.
-
   /**
    * Return the Event_Handler associated with @a handle.  Return 0 if
    * @a handle is not registered.
@@ -744,7 +660,6 @@ public:
    * handler before returning it.
    */
   ACE_Event_Handler *find_handler (ACE_HANDLE handle);
-
   /**
    * Check to see if @a handle is associated with a valid Event_Handler
    * bound to @a mask.  Return the @c event_handler associated with this
@@ -756,7 +671,6 @@ public:
   int handler (ACE_HANDLE handle,
                ACE_Reactor_Mask mask,
                ACE_Event_Handler **event_handler = 0);
-
   /**
    * Check to see if @a signum is associated with a valid Event_Handler
    * bound to a signal.  Return the @a event_handler associated with
@@ -764,69 +678,52 @@ public:
    */
   int handler (int signum,
                ACE_Event_Handler **event_handler = 0);
-
   /// Returns true if Reactor has been successfully initialized, else
   /// false.
   int initialized (void);
-
   /// Returns the current size of the Reactor's internal descriptor
   /// table.
   size_t size (void) const;
-
   /// Returns a reference to the Reactor's internal lock.
   ACE_Lock &lock (void);
-
   /// Wake up all threads in waiting in the event loop
   void wakeup_all_threads (void);
-
   /// Transfers ownership of Reactor to the @a new_owner.
   int owner (ACE_thread_t new_owner,
              ACE_thread_t *old_owner = 0);
-
   /// Return the ID of the "owner" thread.
   int owner (ACE_thread_t *owner);
-
   /// Set position of the owner thread.
   void requeue_position (int position);
-
   /// Get position of the owner thread.
   int requeue_position (void);
-
   /// Get the existing restart value.
   int restart (void);
-
   /// Set a new value for restart and return the original value.
   int restart (int r);
-
   // = Low-level wait_set mask manipulation methods.
-
   /// GET/SET/ADD/CLR the dispatch mask "bit" bound with the
   /// @a event_handler and @a mask.
   int mask_ops (ACE_Event_Handler *event_handler,
                 ACE_Reactor_Mask mask,
                 int ops);
-
   /// GET/SET/ADD/CLR the dispatch MASK "bit" bound with the @a handle
   /// and @a mask.
   int mask_ops (ACE_HANDLE handle,
                 ACE_Reactor_Mask mask,
                 int ops);
-
   // = Low-level ready_set mask manipulation methods.
   /// GET/SET/ADD/CLR the ready "bit" bound with the @a event_handler
   /// and @a mask.
   int ready_ops (ACE_Event_Handler *event_handler,
                  ACE_Reactor_Mask mask,
                  int ops);
-
   /// GET/SET/ADD/CLR the ready "bit" bound with the <handle> and @a mask.
   int ready_ops (ACE_HANDLE handle,
                  ACE_Reactor_Mask mask,
                  int ops);
-
   /// Get the implementation class
   ACE_Reactor_Impl *implementation (void) const;
-
   /**
    * Returns 0, if the size of the current message has been put in
    * @a size returns -1, if not.  ACE_HANDLE allows the reactor to
@@ -834,48 +731,35 @@ public:
    * implementation.
    */
   int current_info (ACE_HANDLE handle, size_t &msg_size);
-
   /// Return 1 if we any event associations were made by the reactor
   /// for the handles that it waits on, 0 otherwise.
   int uses_event_associations (void);
-
   /// Declare the dynamic allocation hooks.
   ACE_ALLOC_HOOK_DECLARE;
-
   /// Dump the state of the object.
   void dump (void) const;
-
 protected:
   /// Set the implementation class.
   void implementation (ACE_Reactor_Impl *implementation);
-
   /// Delegation/implementation class that all methods will be
   /// forwarded to.
   ACE_Reactor_Impl *implementation_;
-
   /// Flag used to indicate whether we are responsible for cleaning up
   /// the implementation instance
   bool delete_implementation_;
-
   /// Pointer to a process-wide ACE_Reactor singleton.
   static ACE_Reactor *reactor_;
-
   /// Must delete the reactor_ singleton if true.
   static bool delete_reactor_;
-
   /// Deny access since member-wise won't work...
   ACE_Reactor (const ACE_Reactor &);
   ACE_Reactor &operator = (const ACE_Reactor &);
 };
-
 ACE_END_VERSIONED_NAMESPACE_DECL
-
 
 #if defined (__ACE_INLINE__)
 #include "ace/Reactor.inl"
 #endif /* __ACE_INLINE__ */
-
 #include /**/ "ace/post.h"
-
 #endif /* ACE_REACTOR_H */
 

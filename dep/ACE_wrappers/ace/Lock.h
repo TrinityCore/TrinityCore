@@ -1,5 +1,4 @@
 // -*- C++ -*-
-
 //==========================================================================
 /**
  *  @file    Lock.h
@@ -11,19 +10,14 @@
  *  @author Douglas C. Schmidt <schmidt@cs.wustl.edu>
  */
 //==========================================================================
-
 #ifndef ACE_LOCK_H
 #define ACE_LOCK_H
 #include /**/ "ace/pre.h"
-
 #include /**/ "ace/ACE_export.h"
-
 #if !defined (ACE_LACKS_PRAGMA_ONCE)
 # pragma once
 #endif /* ACE_LACKS_PRAGMA_ONCE */
-
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
-
 /**
  * @class ACE_Lock
  *
@@ -45,45 +39,37 @@ class ACE_Export ACE_Lock
 public:
   /// CE needs a default ctor here.
   ACE_Lock (void);
-
   /// Noop virtual destructor
   virtual ~ACE_Lock (void);
-
   /**
    * Explicitly destroy the lock.  Note that only one thread should
    * call this method since it doesn't protect against race
    * conditions.
    */
   virtual int remove (void) = 0;
-
   /// Block the thread until the lock is acquired.  Returns -1 on
   /// failure.
   virtual int acquire (void) = 0;
-
   /**
    * Conditionally acquire the lock (i.e., won't block).  Returns -1
    * on failure.  If we "failed" because someone else already had the
    * lock, @c errno is set to @c EBUSY.
    */
   virtual int tryacquire (void) = 0;
-
   /// Release the lock.  Returns -1 on failure.
   virtual int release (void) = 0;
-
   /**
    * Block until the thread acquires a read lock.  If the locking
    * mechanism doesn't support read locks then this just calls
    * <acquire>.  Returns -1 on failure.
    */
   virtual int acquire_read (void) = 0;
-
   /**
    * Block until the thread acquires a write lock.  If the locking
    * mechanism doesn't support read locks then this just calls
    * <acquire>.  Returns -1 on failure.
    */
   virtual int acquire_write (void) = 0;
-
   /**
    * Conditionally acquire a read lock.  If the locking mechanism
    * doesn't support read locks then this just calls <acquire>.
@@ -91,7 +77,6 @@ public:
    * already had the lock, @c errno is set to @c EBUSY.
    */
   virtual int tryacquire_read (void) = 0;
-
   /**
    * Conditionally acquire a write lock.  If the locking mechanism
    * doesn't support read locks then this just calls <acquire>.
@@ -99,7 +84,6 @@ public:
    * already had the lock, @c errno is set to @c EBUSY.
    */
   virtual int tryacquire_write (void) = 0;
-
   /**
    * Conditionally try to upgrade a lock held for read to a write lock.
    * If the locking mechanism doesn't support read locks then this just
@@ -107,7 +91,6 @@ public:
    */
   virtual int tryacquire_write_upgrade (void) = 0;
 };
-
 /**
  * @class ACE_Adaptive_Lock
  *
@@ -126,9 +109,7 @@ public:
   /// You must also override the destructor function to match with how
   /// you construct the underneath <lock_>.
   virtual ~ACE_Adaptive_Lock (void);
-
   // = Lock/unlock operations.
-
   virtual int remove (void);
   virtual int acquire (void);
   virtual int tryacquire (void);
@@ -139,7 +120,6 @@ public:
   virtual int tryacquire_write (void);
   virtual int tryacquire_write_upgrade (void);
   void dump (void) const;
-
 protected:
   /**
    * Create and initialize create the actual lcok used in the class.
@@ -147,16 +127,12 @@ protected:
    * must overwrite this method for this class to work.
    */
   ACE_Adaptive_Lock (void);
-
   ACE_Lock *lock_;
 };
-
 ACE_END_VERSIONED_NAMESPACE_DECL
-
 #if defined (__ACE_INLINE__)
 #include "ace/Lock.inl"
 #endif /* __ACE_INLINE__ */
-
 #include /**/ "ace/post.h"
 #endif /* ACE_LOCK_H */
 

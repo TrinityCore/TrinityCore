@@ -1,5 +1,4 @@
 // -*- C++ -*-
-
 //=============================================================================
 /**
  *  @file    TP_Reactor.h
@@ -25,21 +24,15 @@
  */
 //=============================================================================
 
-
 #ifndef ACE_TP_REACTOR_H
 #define ACE_TP_REACTOR_H
-
 #include /**/ "ace/pre.h"
-
 #include "ace/Select_Reactor.h"
 #include "ace/Timer_Queue.h"    /* Simple forward decl won't work... */
-
 #if !defined (ACE_LACKS_PRAGMA_ONCE)
 # pragma once
 #endif /* ACE_LACKS_PRAGMA_ONCE */
-
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
-
 /**
  * @class ACE_EH_Dispatch_Info
  *
@@ -50,29 +43,23 @@ class ACE_EH_Dispatch_Info
 {
 public:
   ACE_EH_Dispatch_Info (void);
-
   void set (ACE_HANDLE handle,
             ACE_Event_Handler *event_handler,
             ACE_Reactor_Mask mask,
             ACE_EH_PTMF callback);
-
   bool dispatch (void) const;
-
   ACE_HANDLE handle_;
   ACE_Event_Handler *event_handler_;
   ACE_Reactor_Mask mask_;
   ACE_EH_PTMF callback_;
   int resume_flag_;
   bool reference_counting_required_;
-
 private:
   bool dispatch_;
-
   // Disallow copying and assignment.
   ACE_EH_Dispatch_Info (const ACE_EH_Dispatch_Info &);
   ACE_EH_Dispatch_Info &operator= (const ACE_EH_Dispatch_Info &);
 };
-
 
 /**
  * @class ACE_TP_Token_Guard
@@ -84,29 +71,22 @@ private:
  * stack. This class gives the status of the ownership of the token
  * and manages the ownership
  */
-
 class ACE_TP_Token_Guard
 {
 public:
-
   /// Constructor that will grab the token for us
   ACE_TP_Token_Guard (ACE_Select_Reactor_Token &token);
-
   /// Destructor. This will release the token if it hasnt been
   /// released till this point
   ~ACE_TP_Token_Guard (void);
-
   /// Release the token ..
   void release_token (void);
-
   /// Returns whether the thread that created this object ownes the
   /// token or not.
   bool is_owner (void);
-
   /// A helper method that grabs the token for us, after which the
   /// thread that owns that can do some actual work.
   int acquire_read_token (ACE_Time_Value *max_wait_time = 0);
-
   /**
    * A helper method that grabs the token for us, after which the
    * thread that owns that can do some actual work. This differs from
@@ -114,29 +94,21 @@ public:
    * acquire_read ()
    */
   int acquire_token (ACE_Time_Value *max_wait_time = 0);
-
 private:
-
   // Disallow default construction.
   ACE_TP_Token_Guard (void);
-
   // Disallow copying and assignment.
   ACE_TP_Token_Guard (const ACE_TP_Token_Guard &);
   ACE_TP_Token_Guard &operator= (const ACE_TP_Token_Guard &);
-
 private:
-
   /// The Select Reactor token.
   ACE_Select_Reactor_Token &token_;
-
   /// Flag that indicate whether the thread that created this object
   /// owns the token or not. A value of false indicates that this class
   /// hasnt got the token (and hence the thread) and a value of true
   /// vice-versa.
   bool owner_;
-
 };
-
 /**
  * @class ACE_TP_Reactor
  *
@@ -176,13 +148,11 @@ private:
 class ACE_Export ACE_TP_Reactor : public ACE_Select_Reactor
 {
 public:
-
   /// Initialize ACE_TP_Reactor with the default size.
   ACE_TP_Reactor (ACE_Sig_Handler * = 0,
                   ACE_Timer_Queue * = 0,
                   bool mask_signals = true,
                   int s_queue = ACE_Select_Reactor_Token::FIFO);
-
   /**
    * Initialize the ACE_TP_Reactor to manage
    * @a max_number_of_handles.  If @a restart is non-0 then the
@@ -197,7 +167,6 @@ public:
                   ACE_Timer_Queue *tq = 0,
                   bool mask_signals = true,
                   int s_queue = ACE_Select_Reactor_Token::FIFO);
-
   /**
    * This event loop driver that blocks for @a max_wait_time before
    * returning.  It will return earlier if timer events, I/O events,
@@ -216,69 +185,53 @@ public:
    * if an error occurs (check @c errno for more information).
    */
   virtual int handle_events (ACE_Time_Value *max_wait_time = 0);
-
   virtual int handle_events (ACE_Time_Value &max_wait_time);
-
   /// Does the reactor allow the application to resume the handle on
   /// its own ie. can it pass on the control of handle resumption to
   /// the application.  The TP reactor has can allow applications to
   /// resume handles.  So return a positive value.
   virtual int resumable_handler (void);
-
   /// Called from handle events
   static void no_op_sleep_hook (void *);
-
   /// The ACE_TP_Reactor implementation does not have a single owner thread.
   /// Attempts to set the owner explicitly are ignored. The reported owner
   /// thread is the current Leader in the pattern.
   virtual int owner (ACE_thread_t n_id, ACE_thread_t *o_id = 0);
-
   /// Return the thread ID of the current Leader.
   virtual int owner (ACE_thread_t *t_id);
-
   /// Declare the dynamic allocation hooks.
   ACE_ALLOC_HOOK_DECLARE;
-
 protected:
   // = Internal methods that do the actual work.
-
   /// Template method from the base class.
   virtual void clear_dispatch_mask (ACE_HANDLE handle,
                                     ACE_Reactor_Mask mask);
-
   /// Dispatch just 1 signal, timer, notification handlers
   int dispatch_i (ACE_Time_Value *max_wait_time,
                   ACE_TP_Token_Guard &guard);
-
   /// Get the event that needs dispatching. It could be either a
   /// signal, timer, notification handlers or return possibly 1 I/O
   /// handler for dispatching. In the most common use case, this would
   /// return 1 I/O handler for dispatching
   int get_event_for_dispatching (ACE_Time_Value *max_wait_time);
-
 #if 0
   // @Ciju
   // signal handling isn't in a production state yet.
   // Commenting it out for now.
-
   /// Method to handle signals
   /// @note It is just busted at this point in time.
   int handle_signals (int &event_count,
                       ACE_TP_Token_Guard &g);
 #endif // #if 0
-
   /// Handle timer events
   int handle_timer_events (int &event_count,
                            ACE_TP_Token_Guard &g);
-
   /// Handle notify events
   int handle_notify_events (int &event_count,
                             ACE_TP_Token_Guard &g);
-
   /// handle socket events
   int handle_socket_events (int &event_count,
                             ACE_TP_Token_Guard &g);
-
   /// This method shouldn't get called.
   virtual void notify_handle (ACE_HANDLE handle,
                               ACE_Reactor_Mask mask,
@@ -286,36 +239,26 @@ protected:
                               ACE_Event_Handler *eh,
                               ACE_EH_PTMF callback);
 private:
-
   /// Get the handle of the notify pipe from the ready set if there is
   /// an event in the notify pipe.
   ACE_HANDLE get_notify_handle (void);
-
   /// Get socket event dispatch information.
   int get_socket_event_info (ACE_EH_Dispatch_Info &info);
-
   /// Notify the appropriate <callback> in the context of the <eh>
   /// associated with <handle> that a particular event has occurred.
   int dispatch_socket_event (ACE_EH_Dispatch_Info &dispatch_info);
-
   /// Clear the @a handle from the read_set
   void clear_handle_read_set (ACE_HANDLE handle);
-
   int post_process_socket_event (ACE_EH_Dispatch_Info &dispatch_info,int status);
-
 private:
   /// Deny access since member-wise won't work...
   ACE_TP_Reactor (const ACE_TP_Reactor &);
   ACE_TP_Reactor &operator = (const ACE_TP_Reactor &);
 };
-
 ACE_END_VERSIONED_NAMESPACE_DECL
-
 #if defined (__ACE_INLINE__)
 #include "ace/TP_Reactor.inl"
 #endif /* __ACE_INLINE__ */
-
 #include /**/ "ace/post.h"
-
 #endif /* ACE_TP_REACTOR_H */
 

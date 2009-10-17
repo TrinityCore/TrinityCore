@@ -17,21 +17,16 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
-
 #ifndef TRINITY_THREADINGMODEL_H
 #define TRINITY_THREADINGMODEL_H
-
 /**
  * @class ThreadingModel<T>
  *
  */
-
 #include "Platform/Define.h"
-
 namespace Trinity
 {
     inline void Guard(void *) {}
-
     template<typename MUTEX> class TRINITY_DLL_DECL GeneralLock
     {
         public:
@@ -39,7 +34,6 @@ namespace Trinity
             {
                 i_mutex.acquire();
             }
-
             ~GeneralLock()
             {
                 i_mutex.release();
@@ -49,12 +43,10 @@ namespace Trinity
             GeneralLock& operator=(const GeneralLock &);
             MUTEX &i_mutex;
     };
-
     template <class T>
         class TRINITY_DLL_DECL SingleThreaded
     {
         public:
-
             struct Lock                                     // empty object
             {
                 Lock() {}
@@ -63,40 +55,31 @@ namespace Trinity
                 {
                 }
             };
-
             typedef T VolatileType;
     };
-
     // object level lockable
     template<class T, class MUTEX>
         class TRINITY_DLL_DECL ObjectLevelLockable
     {
         public:
             ObjectLevelLockable() : i_mtx() {}
-
             friend class Lock;
-
             class Lock
             {
                 public:
                     Lock(ObjectLevelLockable<T, MUTEX> &host) : i_lock(host.i_mtx)
                     {
                     }
-
                 private:
                     GeneralLock<MUTEX> i_lock;
             };
-
             typedef volatile T VolatileType;
-
         private:
             // prevent the compiler creating a copy construct
             ObjectLevelLockable(const ObjectLevelLockable<T, MUTEX> &);
             ObjectLevelLockable<T, MUTEX>& operator=(const ObjectLevelLockable<T, MUTEX> &);
-
             MUTEX i_mtx;
     };
-
     template<class T, class MUTEX>
         class TRINITY_DLL_DECL ClassLevelLockable
     {
@@ -104,9 +87,7 @@ namespace Trinity
             class Lock;
             friend class Lock;
             typedef volatile T VolatileType;
-
             ClassLevelLockable() {}
-
             class Lock
             {
                 public:
@@ -115,15 +96,11 @@ namespace Trinity
                     Lock() { ClassLevelLockable<T, MUTEX>::si_mtx.acquire(); }
                     ~Lock() { ClassLevelLockable<T, MUTEX>::si_mtx.release(); }
             };
-
         private:
             static MUTEX si_mtx;
     };
-
 }
-
 template<class T, class MUTEX> MUTEX Trinity::ClassLevelLockable<T, MUTEX>::si_mtx;
-
 #define INSTANTIATE_CLASS_MUTEX(CTYPE,MUTEX) \
     template class TRINITY_DLL_DECL Trinity::ClassLevelLockable<CTYPE, MUTEX >
 #endif

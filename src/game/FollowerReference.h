@@ -17,15 +17,11 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
-
 #ifndef _FOLLOWERREFERENCE_H
 #define _FOLLOWERREFERENCE_H
-
 #include "Utilities/LinkedReference/Reference.h"
-
 class TargetedMovementGeneratorBase;
 class Unit;
-
 class TRINITY_DLL_SPEC FollowerReference : public Reference<Unit, TargetedMovementGeneratorBase>
 {
     protected:

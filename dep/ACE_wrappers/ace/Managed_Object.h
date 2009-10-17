@@ -1,5 +1,4 @@
 // -*- C++ -*-
-
 //=============================================================================
 /**
  *  @file    Managed_Object.h
@@ -9,23 +8,16 @@
  *  @author David L. Levine <levine@cs.wustl.edu>
  */
 //=============================================================================
-
 #ifndef ACE_MANAGED_OBJECT_H
 #define ACE_MANAGED_OBJECT_H
-
 #include /**/ "ace/pre.h"
-
 #include /**/ "ace/config-all.h"
-
 #if !defined (ACE_LACKS_PRAGMA_ONCE)
 # pragma once
 #endif /* ACE_LACKS_PRAGMA_ONCE */
-
 #include "ace/Object_Manager.h"
 #include "ace/Global_Macros.h"
-
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
-
 /**
  * @class ACE_Cleanup_Adapter
  *
@@ -45,21 +37,16 @@ class ACE_Cleanup_Adapter : public ACE_Cleanup
 public:
   /// Default constructor.
   ACE_Cleanup_Adapter (void);
-
   /// Virtual destructor, needed by some compilers for vtable placement.
   virtual ~ACE_Cleanup_Adapter (void);
-
   /// Accessor for contained object.
   TYPE &object (void);
-
 private:
   ACE_UNIMPLEMENTED_FUNC (ACE_Cleanup_Adapter (const ACE_Cleanup_Adapter<TYPE> &))
   ACE_UNIMPLEMENTED_FUNC (void operator= (const ACE_Cleanup_Adapter<TYPE> &))
-
   /// Contained object.
   TYPE object_;
 };
-
 /**
  * @class ACE_Managed_Object
  *
@@ -108,7 +95,6 @@ public:
     // that this function doesn't need a lock.  Also, because it is
     // intended _only_ for use with hard-code values, it performs no
     // range checking on "id".
-
     // Cast the return type of the the object pointer based
     // on the type of the function template parameter.
     return &((ACE_Cleanup_Adapter<TYPE> *)
@@ -119,14 +105,12 @@ public:
   // because it can _only_ be used for accessing preallocated objects.
   // @note The function definition is inlined here so that it compiles
   // on AIX 4.1 w/xlC v. 3.01.
-
   static TYPE *get_preallocated_array (ACE_Object_Manager::Preallocated_Array identifier)
   {
     // The preallocated array are in a separate, "read-only" array so
     // that this function doesn't need a lock.  Also, because it is
     // intended _only_ for use with hard-code values, it performs no
     // range checking on "id".
-
     // Cast the return type of the the object pointer based
     // on the type of the function template parameter.
     return &((ACE_Cleanup_Adapter<TYPE> *)
@@ -137,33 +121,23 @@ public:
   // because it can _only_ be used for accessing preallocated arrays.
   // @note The function definition is inlined here so that it compiles
   // on AIX 4.1 w/xlC v. 3.01.
-
 protected:
-
   // Disallow instantiation of this class.
   ACE_UNIMPLEMENTED_FUNC (ACE_Managed_Object (void))
-
 private:
-
   ACE_UNIMPLEMENTED_FUNC (ACE_Managed_Object (const ACE_Managed_Object<TYPE> &))
   ACE_UNIMPLEMENTED_FUNC (void operator= (const ACE_Managed_Object<TYPE> &))
 };
-
 ACE_END_VERSIONED_NAMESPACE_DECL
-
 #if defined (__ACE_INLINE__)
 #include "ace/Managed_Object.inl"
 #endif /* __ACE_INLINE__ */
-
 #if defined (ACE_TEMPLATES_REQUIRE_SOURCE)
 #include "ace/Managed_Object.cpp"
 #endif /* ACE_TEMPLATES_REQUIRE_SOURCE */
-
 #if defined (ACE_TEMPLATES_REQUIRE_PRAGMA)
 #pragma implementation ("Managed_Object.cpp")
 #endif /* ACE_TEMPLATES_REQUIRE_PRAGMA */
-
 #include /**/ "ace/post.h"
-
 #endif /* ACE_MANAGED_OBJECT_H */
 

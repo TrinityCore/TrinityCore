@@ -17,24 +17,19 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
-
 #include <stdio.h>
-
 #include "ProgressBar.h"
-
 char const* const barGoLink::empty = " ";
 #ifdef _WIN32
 char const* const barGoLink::full  = "\x3D";
 #else
 char const* const barGoLink::full  = "*";
 #endif
-
 barGoLink::~barGoLink()
 {
     printf( "\n" );
     fflush(stdout);
 }
-
 barGoLink::barGoLink( int row_count )
 {
     rec_no    = 0;
@@ -54,11 +49,9 @@ barGoLink::barGoLink( int row_count )
     #endif
     fflush(stdout);
 }
-
 void barGoLink::step( void )
 {
     int i, n;
-
     if ( num_rec == 0 ) return;
     ++rec_no;
     n = rec_no * indic_len / num_rec;
@@ -78,7 +71,6 @@ void barGoLink::step( void )
         printf( "] %i%%  \r[", (int)percent);
         #endif
         fflush(stdout);
-
         rec_pos = n;
     }
 }

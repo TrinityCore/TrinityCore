@@ -13,46 +13,34 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
-
 /* ScriptData
 SDName: Instance_Nexus
 SD%Complete:
 SDComment:
 SDCategory: The Nexus, The Nexus
 EndScriptData */
-
 #include "precompiled.h"
 #include "def_nexus.h"
-
 #define NUMBER_OF_ENCOUNTERS      4
-
 struct TRINITY_DLL_DECL instance_nexus : public ScriptedInstance
 {
     instance_nexus(Map* pMap) : ScriptedInstance(pMap) { Initialize(); }
-
     uint32 m_auiEncounter[NUMBER_OF_ENCOUNTERS];
-
     uint64 Anomalus;
     uint64 Keristrasza;
-
     uint64 AnomalusContainmentSphere;
     uint64 OrmoroksContainmentSphere;
     uint64 TelestrasContainmentSphere;
-
     std::string strInstData;
-
     void Initialize()
     {
         memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
-
         Anomalus = 0;
     }
-
     void OnCreatureCreate(Creature* pCreature, bool add)
     {
         Map::PlayerList const& players = instance->GetPlayers();
         uint32 TeamInInstance = 0;
-
         if (!players.isEmpty())
         {
             if (Player* pPlayer = players.begin()->getSource())
@@ -106,7 +94,6 @@ struct TRINITY_DLL_DECL instance_nexus : public ScriptedInstance
                 }
         }
     }
-
     void OnGameObjectCreate(GameObject* pGo, bool add)
     {
         switch(pGo->GetEntry())
@@ -134,7 +121,6 @@ struct TRINITY_DLL_DECL instance_nexus : public ScriptedInstance
             }
         }
     }
-
     uint32 GetData(uint32 identifier)
     {
         switch(identifier)
@@ -146,7 +132,6 @@ struct TRINITY_DLL_DECL instance_nexus : public ScriptedInstance
         }
         return 0;
     }
-
     void SetData(uint32 identifier, uint32 data)
     {
         switch(identifier)
@@ -186,22 +171,17 @@ struct TRINITY_DLL_DECL instance_nexus : public ScriptedInstance
             }
             case DATA_KERISTRASZA_EVENT:    m_auiEncounter[3] = data; break;
         }
-
         if (data == DONE)
         {
             OUT_SAVE_INST_DATA;
-
             std::ostringstream saveStream;
             saveStream << m_auiEncounter[0] << " " << m_auiEncounter[1] << " " << m_auiEncounter[2] << " "
                 << m_auiEncounter[3];
-
             strInstData = saveStream.str();
-
             SaveToDB();
             OUT_SAVE_INST_DATA_COMPLETE;
         }
     }
-
     uint64 GetData64(uint32 uiIdentifier)
     {
         switch(uiIdentifier)
@@ -214,12 +194,10 @@ struct TRINITY_DLL_DECL instance_nexus : public ScriptedInstance
         }
         return 0;
     }
-
     std::string GetSaveData()
     {
         return strInstData;
     }
-
     void Load(const char* chrIn)
     {
         if (!chrIn)
@@ -227,27 +205,21 @@ struct TRINITY_DLL_DECL instance_nexus : public ScriptedInstance
             OUT_LOAD_INST_DATA_FAIL;
             return;
         }
-
         OUT_LOAD_INST_DATA(chrIn);
-
         std::istringstream loadStream(chrIn);
         loadStream >> m_auiEncounter[0] >> m_auiEncounter[1] >> m_auiEncounter[2] >> m_auiEncounter[3];
-
-        for(uint8 i = 0; i < NUMBER_OF_ENCOUNTERS; ++i)
+        for (uint8 i = 0; i < NUMBER_OF_ENCOUNTERS; ++i)
         {
             if (m_auiEncounter[i] == IN_PROGRESS)
                 m_auiEncounter[i] = NOT_STARTED;
         }
-
         OUT_LOAD_INST_DATA_COMPLETE;
     }
 };
-
 InstanceData* GetInstanceData_instance_nexus(Map* pMap)
 {
     return new instance_nexus(pMap);
 }
-
 void AddSC_instance_nexus()
 {
     Script *newscript;

@@ -17,14 +17,10 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
-
 #ifndef TRINITY_SKILLDISCOVERY_H
 #define TRINITY_SKILLDISCOVERY_H
-
 #include "Common.h"
-
 class Player;
-
 void LoadSkillDiscoveryTable();
 uint32 GetSkillDiscoverySpell(uint32 skillId, uint32 spellId, Player* player);
 uint32 GetExplicitDiscoverySpell(uint32 spellId, Player* player);

@@ -13,37 +13,28 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
-
 /* ScriptData
 SDName: Silvermoon_City
 SD%Complete: 100
 SDComment: Quest support: 9685
 SDCategory: Silvermoon City
 EndScriptData */
-
 /* ContentData
 npc_blood_knight_stillblade
 EndContentData */
-
 #include "precompiled.h"
-
 /*#######
 # npc_blood_knight_stillblade
 #######*/
-
 #define SAY_HEAL -1000334
-
 #define QUEST_REDEEMING_THE_DEAD        9685
 #define SPELL_SHIMMERING_VESSEL         31225
 #define SPELL_REVIVE_SELF               32343
-
 struct TRINITY_DLL_DECL npc_blood_knight_stillbladeAI : public ScriptedAI
 {
     npc_blood_knight_stillbladeAI(Creature *c) : ScriptedAI(c) {}
-
     uint32 lifeTimer;
     bool spellHit;
-
     void Reset()
     {
         lifeTimer = 120000;
@@ -51,16 +42,13 @@ struct TRINITY_DLL_DECL npc_blood_knight_stillbladeAI : public ScriptedAI
         m_creature->SetUInt32Value(UNIT_FIELD_BYTES_1,7);   // lay down
         spellHit = false;
     }
-
     void EnterCombat(Unit *who)
     {
     }
-
     void MoveInLineOfSight(Unit *who)
     {
         return;
     }
-
     void UpdateAI(const uint32 diff)
     {
         if (m_creature->IsStandState())
@@ -71,7 +59,6 @@ struct TRINITY_DLL_DECL npc_blood_knight_stillbladeAI : public ScriptedAI
                 lifeTimer -= diff;
         }
     }
-
     void SpellHit(Unit *Hitter, const SpellEntry *Spellkind)
     {
         if ((Spellkind->Id == SPELL_SHIMMERING_VESSEL) && !spellHit &&
@@ -87,12 +74,10 @@ struct TRINITY_DLL_DECL npc_blood_knight_stillbladeAI : public ScriptedAI
         }
     }
 };
-
 CreatureAI* GetAI_npc_blood_knight_stillblade(Creature* pCreature)
 {
     return new npc_blood_knight_stillbladeAI (pCreature);
 }
-
 void AddSC_silvermoon_city()
 {
     Script *newscript;

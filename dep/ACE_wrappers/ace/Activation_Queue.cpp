@@ -1,20 +1,15 @@
 #include "ace/Activation_Queue.h"
-
 #if !defined (__ACE_INLINE__)
 #include "ace/Activation_Queue.inl"
 #endif /* __ACE_INLINE__ */
-
 #include "ace/Log_Msg.h"
 #include "ace/Method_Request.h"
 #include "ace/Malloc_Base.h"
 #include "ace/Time_Value.h"
-
 ACE_RCSID (ace,
            Activation_Queue,
            "$Id: Activation_Queue.cpp 80826 2008-03-04 14:51:23Z wotte $")
-
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
-
 void
 ACE_Activation_Queue::dump (void) const
 {
@@ -30,11 +25,9 @@ ACE_Activation_Queue::dump (void) const
     //FUZZ: disable check_for_NULL
     ACE_DEBUG ((LM_DEBUG, ACE_TEXT ("(NULL)\n")));
     //FUZZ: enable check_for_NULL
-
   ACE_DEBUG ((LM_DEBUG, ACE_END_DUMP));
 #endif /* ACE_HAS_DUMP */
 }
-
 ACE_Activation_Queue::ACE_Activation_Queue (ACE_Message_Queue<ACE_SYNCH> *new_queue,
                                             ACE_Allocator *alloc,
                                             ACE_Allocator *db_alloc)
@@ -44,7 +37,6 @@ ACE_Activation_Queue::ACE_Activation_Queue (ACE_Message_Queue<ACE_SYNCH> *new_qu
 {
   if (this->allocator_ == 0)
     this->allocator_ = ACE_Allocator::instance ();
-
   if (new_queue)
     this->queue_ = new_queue;
   else
@@ -54,7 +46,6 @@ ACE_Activation_Queue::ACE_Activation_Queue (ACE_Message_Queue<ACE_SYNCH> *new_qu
       this->delete_queue_ = true;
     }
 }
-
 void
 ACE_Activation_Queue::queue (ACE_Message_Queue<ACE_SYNCH> *q)
 {
@@ -63,7 +54,6 @@ ACE_Activation_Queue::queue (ACE_Message_Queue<ACE_SYNCH> *q)
     {
       // Destroy the current queue.
       delete this->queue_;
-
       // Set the flag to false.  NOTE that the delete_queue_ flag is a
       // flag used to only indicate whether or not if an internal
       // ACE_Message_Queue has been created, therefore, it will not
@@ -72,21 +62,17 @@ ACE_Activation_Queue::queue (ACE_Message_Queue<ACE_SYNCH> *q)
       // function.
       this->delete_queue_ = false;
     }
-
   queue_ = q;
 }
-
 ACE_Activation_Queue::~ACE_Activation_Queue (void)
 {
   if (this->delete_queue_)
     delete this->queue_;
 }
-
 ACE_Method_Request *
 ACE_Activation_Queue::dequeue (ACE_Time_Value *tv)
 {
   ACE_Message_Block *mb = 0;
-
   // Dequeue the message.
   if (this->queue_->dequeue_head (mb, tv) != -1)
     {
@@ -100,13 +86,11 @@ ACE_Activation_Queue::dequeue (ACE_Time_Value *tv)
   else
     return 0;
 }
-
 int
 ACE_Activation_Queue::enqueue (ACE_Method_Request *mr,
                                ACE_Time_Value *tv)
 {
   ACE_Message_Block *mb = 0;
-
   // We pass sizeof (*mr) here so that flow control will work
   // correctly.  Since we also pass <mr> note that no unnecessary
   // memory is actually allocated -- just the size field is set.
@@ -124,16 +108,12 @@ ACE_Activation_Queue::enqueue (ACE_Method_Request *mr,
                                             this->data_block_allocator_,  // data_block allocator
                                             this->allocator_), // message_block allocator
                          -1);
-
   // Enqueue in priority order.
   int const result = this->queue_->enqueue_prio (mb, tv);
-
   // Free ACE_Message_Block if enqueue_prio failed.
   if (result == -1)
       ACE_DES_FREE (mb, this->allocator_->free, ACE_Message_Block);
-
   return result;
 }
-
 ACE_END_VERSIONED_NAMESPACE_DECL
 

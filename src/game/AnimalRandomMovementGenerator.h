@@ -17,10 +17,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
-
 #ifndef TRINITY_ANIMAL_RANDOMMOVEMENTGENERATOR_H
 #define TRINITY_ANIMAL_RANDOMMOVEMENTGENERATOR_H
-
 /** AnimalRandomMovementGenerator follows the research on
  *  quantifying scale-dependant effects of animal movement
  *  with simple per-location models (R.H. Gardner, R.V. O'Neil,

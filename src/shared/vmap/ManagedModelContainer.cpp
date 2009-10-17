@@ -17,22 +17,16 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
-
 #include "ManagedModelContainer.h"
-
 using namespace G3D;
-
 namespace VMAP
 {
-
     ManagedModelContainer::ManagedModelContainer(void) : ModelContainer()
     {
         refCount = 0;
     }
-
     ManagedModelContainer::~ManagedModelContainer(void)
     {
     }
-
 }
 

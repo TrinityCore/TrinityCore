@@ -13,35 +13,27 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
-
 /* ScriptData
 SDName: Feralas
 SD%Complete: 100
 SDComment: Quest support: 3520, 2767, Special vendor Gregan Brewspewer
 SDCategory: Feralas
 EndScriptData */
-
 #include "precompiled.h"
 #include "escort_ai.h"
-
 /*######
 ## npc_gregan_brewspewer
 ######*/
-
 #define GOSSIP_HELLO "Buy somethin', will ya?"
-
 bool GossipHello_npc_gregan_brewspewer(Player* pPlayer, Creature* pCreature)
 {
     if (pCreature->isQuestGiver())
         pPlayer->PrepareQuestMenu(pCreature->GetGUID());
-
     if (pCreature->isVendor() && pPlayer->GetQuestStatus(3909) == QUEST_STATUS_INCOMPLETE)
         pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_HELLO, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-
     pPlayer->SEND_GOSSIP_MENU(2433, pCreature->GetGUID());
     return true;
 }
-
 bool GossipSelect_npc_gregan_brewspewer(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
 {
     if (uiAction == GOSSIP_ACTION_INFO_DEF+1)
@@ -53,11 +45,9 @@ bool GossipSelect_npc_gregan_brewspewer(Player* pPlayer, Creature* pCreature, ui
         pPlayer->SEND_VENDORLIST(pCreature->GetGUID());
     return true;
 }
-
 /*######
 ## npc_oox22fe
 ######*/
-
 enum eOOX
 {
     //signed for 7806
@@ -66,23 +56,19 @@ enum eOOX
     SAY_OOX_AGGRO2          = -1000289,
     SAY_OOX_AMBUSH          = -1000290,
     SAY_OOX_END             = -1000292,
-
     NPC_YETI                = 7848,
     NPC_GORILLA             = 5260,
     NPC_WOODPAW_REAVER      = 5255,
     NPC_WOODPAW_BRUTE       = 5253,
     NPC_WOODPAW_ALPHA       = 5258,
     NPC_WOODPAW_MYSTIC      = 5254,
-
     QUEST_RESCUE_OOX22FE    = 2767,
     FACTION_ESCORTEE_A      = 774,
     FACTION_ESCORTEE_H      = 775
 };
-
 struct TRINITY_DLL_DECL npc_oox22feAI : public npc_escortAI
 {
     npc_oox22feAI(Creature* pCreature) : npc_escortAI(pCreature) { }
-
     void WaypointReached(uint32 i)
     {
         switch (i)
@@ -119,31 +105,26 @@ struct TRINITY_DLL_DECL npc_oox22feAI : public npc_escortAI
                 break;
         }
     }
-
     void Reset()
     {
         if (!HasEscortState(STATE_ESCORT_ESCORTING))
             m_creature->SetStandState(UNIT_STAND_STATE_DEAD);
     }
-
     void EnterCombat(Unit* who)
     {
         //For an small probability the npc says something when he get aggro
         if (urand(0,9) > 7)
             DoScriptText(RAND(SAY_OOX_AGGRO1,SAY_OOX_AGGRO2), m_creature);
     }
-
     void JustSummoned(Creature* summoned)
     {
         summoned->AI()->AttackStart(m_creature);
     }
 };
-
 CreatureAI* GetAI_npc_oox22fe(Creature* pCreature)
 {
     return new npc_oox22feAI(pCreature);
 }
-
 bool QuestAccept_npc_oox22fe(Player* pPlayer, Creature* pCreature, const Quest* pQuest)
 {
     if (pQuest->GetQuestId() == QUEST_RESCUE_OOX22FE)
@@ -151,53 +132,41 @@ bool QuestAccept_npc_oox22fe(Player* pPlayer, Creature* pCreature, const Quest* 
         DoScriptText(SAY_OOX_START, pCreature);
         //change that the npc is not lying dead on the ground
         pCreature->SetStandState(UNIT_STAND_STATE_STAND);
-
         if (pPlayer->GetTeam() == ALLIANCE)
             pCreature->setFaction(FACTION_ESCORTEE_A);
-
         if (pPlayer->GetTeam() == HORDE)
             pCreature->setFaction(FACTION_ESCORTEE_H);
-
         if (npc_escortAI* pEscortAI = CAST_AI(npc_oox22feAI, pCreature->AI()))
             pEscortAI->Start(true, false, pPlayer->GetGUID());
-
     }
     return true;
 }
-
 /*######
 ## npc_screecher_spirit
 ######*/
-
 bool GossipHello_npc_screecher_spirit(Player* pPlayer, Creature* pCreature)
 {
     pPlayer->SEND_GOSSIP_MENU(2039, pCreature->GetGUID());
     pPlayer->TalkedToCreature(pCreature->GetEntry(), pCreature->GetGUID());
     pCreature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-
     return true;
 }
-
 /*######
 ## AddSC
 ######*/
-
 void AddSC_feralas()
 {
     Script *newscript;
-
     newscript = new Script;
     newscript->Name = "npc_gregan_brewspewer";
     newscript->pGossipHello = &GossipHello_npc_gregan_brewspewer;
     newscript->pGossipSelect = &GossipSelect_npc_gregan_brewspewer;
     newscript->RegisterSelf();
-
     newscript = new Script;
     newscript->Name = "npc_oox22fe";
     newscript->GetAI = &GetAI_npc_oox22fe;
     newscript->pQuestAccept = &QuestAccept_npc_oox22fe;
     newscript->RegisterSelf();
-
     newscript = new Script;
     newscript->Name = "npc_screecher_spirit";
     newscript->pGossipHello = &GossipHello_npc_screecher_spirit;

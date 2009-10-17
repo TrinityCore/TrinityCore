@@ -1,32 +1,23 @@
 /**
   @file Vector4.h
-
   Homogeneous vector class.
-
   @maintainer Morgan McGuire, matrix@graphics3d.com
-
   @created 2002-07-09
   @edited  2005-03-28
-
   Copyright 2000-2006, Morgan McGuire.
   All rights reserved.
  */
-
 #ifndef G3D_VECTOR4_H
 #define G3D_VECTOR4_H
-
 #include "G3D/platform.h"
 #include "G3D/g3dmath.h"
 #include "G3D/Vector3.h"
 #include "G3D/Vector2.h"
 #include <string>
-
 namespace G3D {
-
 class Vector2;
 class Vector3;
 class Vector4;
-
 /**
  Do not subclass-- this implementation makes assumptions about the
  memory layout.
@@ -38,7 +29,6 @@ private:
     bool operator>(const Vector4&) const;
     bool operator<=(const Vector4&) const;
     bool operator>=(const Vector4&) const;
-
 public:
     // construction
     Vector4();
@@ -49,10 +39,8 @@ public:
     Vector4(const Vector3& rkVector, float fW);
     Vector4(const Vector2& v1, const Vector2& v2);
     Vector4(const Vector2& v1, float fz, float fw);
-
     // coordinates
     float x, y, z, w;
-
     // access vector V as V[0] = V.x, V[1] = V.y, V[2] = V.z, etc.
     //
     // WARNING.  These member functions rely on
@@ -62,80 +50,63 @@ public:
     const float& operator[] (int i) const;
     operator float* ();
     operator const float* () const;
-
     // assignment and comparison
     Vector4& operator= (const Vector4& rkVector);
     bool operator== (const Vector4& rkVector) const;
     bool operator!= (const Vector4& rkVector) const;
-
     inline void set(float _x, float _y, float _z, float _w) {
         x = _x;
         y = _y;
         z = _z;
         w = _w;
     }
-
     inline void set(const Vector3& v, float _w) {
         x = v.x;
         y = v.y;
         z = v.z;
         w = _w;
     }
-
     inline void set(const Vector2& v, float _z, float _w) {
         x = v.x;
         y = v.y;
         z = _z;
         w = _w;
     }
-
     unsigned int hashCode() const;
     bool fuzzyEq(const Vector4& other) const;
     bool fuzzyNe(const Vector4& other) const;
-
     inline static const Vector4& inf()      { static Vector4 v((float)G3D::inf(), (float)G3D::inf(), (float)G3D::inf(), (float)G3D::inf()); return v; }
     inline static const Vector4& nan()      { static Vector4 v((float)G3D::nan(), (float)G3D::nan(), (float)G3D::nan(), (float)G3D::nan()); return v; }
-
     /** sqrt(this->dot(*this)) */
     float length() const;
     float squaredLength() const;
-
     inline float sum() const {
         return x + y + z + w;
     }
-
     /** Returns true if this vector has finite length */
     bool isFinite() const;
-
     /** Returns true if this vector has length == 0 */
     bool isZero() const;
-
     /** Returns true if this vector has length == 1 */
     bool isUnit() const;
-
     // arithmetic operations
     Vector4 operator+ (const Vector4& rkVector) const;
     Vector4 operator- (const Vector4& rkVector) const;
-
     inline Vector4 operator*(const Vector4& rkVector) const {
         return Vector4(x * rkVector.x, y * rkVector.y, z * rkVector.z, w * rkVector.w);
     }
-
     inline Vector4 operator/(const Vector4& rkVector) const {
         return Vector4(x / rkVector.x, y / rkVector.y, z / rkVector.z, w / rkVector.w);
     }
-
     Vector4 operator* (float fScalar) const;
     Vector4 operator/ (float fScalar) const;
     Vector4 operator- () const;
     friend Vector4 operator* (float, const Vector4& rkVector);
-
     // arithmetic updates
     Vector4& operator+= (const Vector4& rkVector);
     Vector4& operator-= (const Vector4& rkVector);
     Vector4& operator*= (float fScalar);
     Vector4& operator/= (float fScalar);
-
     inline Vector4 clamp(const Vector4& low, const Vector4& high) const {
         return Vector4(
             G3D::clamp(x, low.x, high.x),
@@ -143,7 +114,6 @@ public:
             G3D::clamp(z, low.z, high.z),
             G3D::clamp(w, low.w, high.w));
     }
-
     inline Vector4 clamp(float low, float high) const {
         return Vector4(
             G3D::clamp(x, low, high),
@@ -151,21 +121,15 @@ public:
             G3D::clamp(z, low, high),
             G3D::clamp(w, low, high));
     }
-
     float dot (const Vector4& rkVector) const;
-
     Vector4 min(const Vector4& v) const;
     Vector4 max(const Vector4& v) const;
-
     std::string toString() const;
-
     /**
      Linear interpolation
      */
     Vector4 lerp(const Vector4& v, float alpha) const;
-
     // 2-char swizzles
-
     Vector2 xx() const;
     Vector2 yx() const;
     Vector2 zx() const;
@@ -182,9 +146,7 @@ public:
     Vector2 yw() const;
     Vector2 zw() const;
     Vector2 ww() const;
-
     // 3-char swizzles
-
     Vector3 xxx() const;
     Vector3 yxx() const;
     Vector3 zxx() const;
@@ -249,9 +211,7 @@ public:
     Vector3 yww() const;
     Vector3 zww() const;
     Vector3 www() const;
-
     // 4-char swizzles
-
     Vector4 xxxx() const;
     Vector4 yxxx() const;
     Vector4 zxxx() const;
@@ -508,18 +468,12 @@ public:
     Vector4 ywww() const;
     Vector4 zwww() const;
     Vector4 wwww() const;
-
 };
-
 }
-
 inline G3D::Vector4 operator* (float s, const G3D::Vector4& v) {
     return v * s;
 }
-
 unsigned int hashCode(const G3D::Vector4& v);
-
 #include "Vector4.inl"
-
 #endif
 

@@ -1,11 +1,8 @@
 // $Id: Get_Opt.cpp 81840 2008-06-05 13:46:45Z sma $
-
 #include "ace/Get_Opt.h"
-
 #if !defined (__ACE_INLINE__)
 #include "ace/Get_Opt.inl"
 #endif /* __ACE_INLINE__ */
-
 #include "ace/ACE.h"
 #include "ace/Log_Msg.h"
 #include "ace/SString.h"
@@ -13,11 +10,9 @@
 #include "ace/OS_NS_string.h"
 #include "ace/OS_NS_ctype.h"
 #include "ace/OS_NS_stdlib.h"
-
 ACE_RCSID (ace,
            Get_Opt,
            "$Id: Get_Opt.cpp 81840 2008-06-05 13:46:45Z sma $")
-
 /*
  * Copyright (c) 1987, 1993, 1994
  *      The Regents of the University of California.  All rights reserved.
@@ -50,7 +45,6 @@ ACE_RCSID (ace,
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  */
-
 /*-
  * Copyright (c) 2000 The NetBSD Foundation, Inc.
  * All rights reserved.
@@ -86,11 +80,8 @@ ACE_RCSID (ace,
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
-
 ACE_ALLOC_HOOK_DEFINE(ACE_Get_Opt)
-
 #ifdef ACE_USES_WCHAR
 void ACE_Get_Opt::ACE_Get_Opt_Init (const ACE_TCHAR *optstring)
 #else
@@ -119,10 +110,8 @@ ACE_Get_Opt::ACE_Get_Opt (int argc,
 #endif
 {
   ACE_TRACE ("ACE_Get_Opt::ACE_Get_Opt");
-
   ACE_NEW (this->optstring_, ACE_TString (optstring));
   ACE_NEW (this->last_option_, ACE_TString (ACE_TEXT ("")));
-
   // First check to see if POSIXLY_CORRECT was set.
   // Win32 is the only platform capable of wide-char env var.
 #if defined (ACE_WIN32)
@@ -132,7 +121,6 @@ ACE_Get_Opt::ACE_Get_Opt (int argc,
 #endif
   if (ACE_OS::getenv (env_check) != 0)
     this->ordering_ = REQUIRE_ORDER;
-
   // Now, check to see if any or the following were passed at
   // the begining of optstring: '+' same as POSIXLY_CORRECT;
   // '-' turns off POSIXLY_CORRECT; or ':' which signifies we
@@ -161,11 +149,9 @@ ACE_Get_Opt::ACE_Get_Opt (int argc,
         }
     }
 }
-
 ACE_Get_Opt::~ACE_Get_Opt (void)
 {
   ACE_TRACE ("ACE_Get_Opt::~ACE_Get_Opt");
-
   size_t i = 0;
   size_t size = this->long_opts_.size ();
   ACE_Get_Opt_Long_Option *option = 0;
@@ -187,16 +173,13 @@ ACE_Get_Opt::~ACE_Get_Opt (void)
   delete this->optstring_;
   delete this->last_option_;
 }
-
 int
 ACE_Get_Opt::nextchar_i (void)
 {
   ACE_TRACE ("ACE_Get_Opt::nextchar_i");
-
   if (this->ordering_ == PERMUTE_ARGS)
     if (this->permute () == EOF)
       return EOF;
-
   // Update scanning pointer.
   if (this->optind >= this->argc_)
     {
@@ -208,12 +191,10 @@ ACE_Get_Opt::nextchar_i (void)
             || this->nextchar_[1] == '\0')
     {
       // We didn't get an option.
-
       if (this->ordering_ == REQUIRE_ORDER
           || this->ordering_ == PERMUTE_ARGS)
         // If we permuted or require the options to be in order, we're done.
         return EOF;
-
       // It must be RETURN_IN_ORDER...
       this->optarg = this->argv_[this->optind++];
       this->nextchar_ = 0;
@@ -228,42 +209,34 @@ ACE_Get_Opt::nextchar_i (void)
       this->nextchar_ = 0;
       return EOF;
     }
-
   // If it's a long option, and we allow long options advance nextchar_.
   if (*this->nextchar_ == '-' && this->long_opts_.size () != 0)
     this->nextchar_++;
-
   return 0;
 }
-
 int
 ACE_Get_Opt::long_option_i (void)
 {
   ACE_TRACE ("ACE_Get_Opt::long_option_i");
-
   ACE_Get_Opt_Long_Option *p;
   ACE_TCHAR *s = this->nextchar_;
   int hits = 0;
   int exact = 0;
   ACE_Get_Opt_Long_Option *pfound = 0;
   int indfound = 0;
-
   // Advance to the end of the long option name so we can use
   // it to get the length for a string compare.
   while (*s && *s != '=')
     s++;
-
   size_t len = s - this->nextchar_;
   // set last_option_ to nextchar_, up to the '='.
   this->last_option (ACE_TString (this->nextchar_, len));
-
   size_t size = this->long_opts_.size ();
   u_int option_index = 0;
   for (option_index = 0; option_index < size ; option_index++)
     {
       p = this->long_opts_[option_index];
       ACE_ASSERT (p);
-
       if (!ACE_OS::strncmp (p->name_, this->nextchar_, len))
         {
           // Got at least a partial match.
@@ -278,7 +251,6 @@ ACE_Get_Opt::long_option_i (void)
             }
         }
     }
-
   if ((hits > 1) && !exact)
     {
       // Great, we found a match, but unfortunately we found more than
@@ -291,7 +263,6 @@ ACE_Get_Opt::long_option_i (void)
       this->optind++;
       return '?';
     }
-
   if (pfound != 0)
     {
       // Okay, we found a good one (either a single hit or an exact match).
@@ -363,25 +334,20 @@ ACE_Get_Opt::long_option_i (void)
     }
   return this->short_option_i ();
 }
-
 int
 ACE_Get_Opt::short_option_i (void)
 {
   ACE_TRACE ("ACE_Get_Opt::short_option_i");
-
   /* Look at and handle the next option-character.  */
   ACE_TCHAR opt = *this->nextchar_++;
   // Set last_option_ to opt
   this->last_option (opt);
-
   ACE_TCHAR *oli = 0;
   oli =
     const_cast<ACE_TCHAR*> (ACE_OS::strchr (this->optstring_->c_str (), opt));
-
   /* Increment `optind' when we start to process its last character.  */
   if (*this->nextchar_ == '\0')
     ++this->optind;
-
   if (oli == 0 || opt == ':')
     {
       if (this->opterr)
@@ -440,23 +406,19 @@ ACE_Get_Opt::short_option_i (void)
     }
   return opt;
 }
-
 int
 ACE_Get_Opt::operator () (void)
 {
   ACE_TRACE ("ACE_Get_Opt_Long::operator");
-
   // First of all, make sure we reinitialize any pointers..
   this->optarg = 0;
   this->long_option_ = 0;
-
   if (this->argv_ == 0)
     {
       // It can happen, e.g., on VxWorks.
       this->optind = 0;
       return -1;
     }
-
   // We check this because we can string short options together if the
   // preceding one doesn't take an argument.
   if (this->nextchar_ == 0 || *this->nextchar_ == '\0')
@@ -465,14 +427,11 @@ ACE_Get_Opt::operator () (void)
       if (retval != 0)
         return retval;
     }
-
   if (((this->argv_[this->optind][0] == '-')
        && (this->argv_[this->optind][1] == '-')) || this->long_only_)
     return this->long_option_i ();
-
   return this->short_option_i ();
 }
-
 int
 ACE_Get_Opt::long_option (const ACE_TCHAR *name,
                           OPTION_ARG_MODE has_arg)
@@ -480,14 +439,12 @@ ACE_Get_Opt::long_option (const ACE_TCHAR *name,
   ACE_TRACE ("ACE_Get_Opt::long_option (const ACE_TCHAR *name, OPTION_ARG_MODE has_arg)");
   return this->long_option (name, 0, has_arg);
 }
-
 int
 ACE_Get_Opt::long_option (const ACE_TCHAR *name,
                           int short_option,
                           OPTION_ARG_MODE has_arg)
 {
   ACE_TRACE ("ACE_Get_Opt::long_option (const ACE_TCHAR *name, int short_option, OPTION_ARG_MODE has_arg)");
-
   // We only allow valid alpha-numeric characters as short options.
   // If short_options is not a valid alpha-numeric, we can still return it
   // when the long option is found, but won't allow the caller to pass it on
@@ -554,13 +511,10 @@ ACE_Get_Opt::long_option (const ACE_TCHAR *name,
             *this->optstring_ += ACE_TEXT ("::");
         }
     }
-
   ACE_Get_Opt_Long_Option *option =
     new ACE_Get_Opt_Long_Option (name, has_arg, short_option);
-
   if (!option)
     return -1;
-
   // Add to array
   size_t size = this->long_opts_.size ();
   if (this->long_opts_.size (size + 1) != 0
@@ -573,7 +527,6 @@ ACE_Get_Opt::long_option (const ACE_TCHAR *name,
     }
   return 0;
 }
-
 const ACE_TCHAR*
 ACE_Get_Opt::long_option (void) const
 {
@@ -582,25 +535,21 @@ ACE_Get_Opt::long_option (void) const
     return this->long_option_->name_;
   return 0;
 }
-
 const ACE_TCHAR*
 ACE_Get_Opt::last_option (void) const
 {
   return this->last_option_->c_str ();
 }
-
 void
 ACE_Get_Opt::last_option (const ACE_TString &last_option)
 {
   *this->last_option_ = last_option;
 }
-
 void
 ACE_Get_Opt::dump (void) const
 {
 #if defined (ACE_HAS_DUMP)
   ACE_TRACE ("ACE_Get_Opt::dump");
-
   ACE_DEBUG ((LM_DEBUG, ACE_BEGIN_DUMP, this));
   ACE_DEBUG ((LM_DEBUG, ACE_TEXT ("\n")
               ACE_TEXT ("opstring_ = %s\n")
@@ -617,7 +566,6 @@ ACE_Get_Opt::dump (void) const
               this->nextchar_,
               this->optopt_,
               this->ordering_));
-
   // now loop through the
   size_t size = this->long_opts_.size ();
   for (u_int i = 0; i < size ; ++i)
@@ -633,24 +581,19 @@ ACE_Get_Opt::dump (void) const
   ACE_DEBUG ((LM_DEBUG, ACE_END_DUMP));
 #endif /* ACE_HAS_DUMP */
 }
-
 void
 ACE_Get_Opt::permute_args (void)
 {
   ACE_TRACE ("ACE_Get_Opt::permute_args");
-
   u_long cyclelen, i, j, ncycle, nnonopts, nopts;
   u_long opt_end = this->optind;
   int cstart, pos = 0;
   ACE_TCHAR *swap = 0;
-
   nnonopts = this->nonopt_end_ - this->nonopt_start_;
   nopts = opt_end - this->nonopt_end_;
   ncycle = ACE::gcd (nnonopts, nopts);
   cyclelen = (opt_end - this->nonopt_start_) / ncycle;
-
   this->optind = this->optind - nnonopts;
-
   for (i = 0; i < ncycle; i++)
     {
       cstart = this->nonopt_end_ + i;
@@ -662,46 +605,36 @@ ACE_Get_Opt::permute_args (void)
           else
             pos += nopts;
           swap = this->argv_[pos];
-
           ((ACE_TCHAR **)this->argv_)[pos] = argv_[cstart];
-
           ((ACE_TCHAR **)this->argv_)[cstart] = swap;
         }
     }
 }
-
 int
 ACE_Get_Opt::permute (void)
 {
   ACE_TRACE ("ACE_Get_Opt::permute");
-
   if (this->nonopt_start_ != this->nonopt_end_
       && this->nonopt_start_ != this->optind)
     this->permute_args ();
-
   this->nonopt_start_ = this->optind;
-
   // Skip over args untill we find the next option.
   while (this->optind < this->argc_
          && (this->argv_[this->optind][0] != '-'
              || this->argv_[this->optind][1] == '\0'))
     this->optind++;
-
   // Got an option, so mark this as the end of the non options.
   this->nonopt_end_ = this->optind;
-
   if (this->optind != this->argc_
       && ACE_OS::strcmp (this->argv_[this->optind],
                          ACE_TEXT ("--")) == 0)
     {
       // We found the marker for the end of the options.
       ++this->optind;
-
       if (this->nonopt_start_ != this->nonopt_end_
           && this->nonopt_end_ != this->optind)
         this->permute_args ();
     }
-
   if (this->optind == this->argc_)
     {
       if (this->nonopt_start_ != this->nonopt_end_)
@@ -710,13 +643,11 @@ ACE_Get_Opt::permute (void)
     }
   return 0;
 }
-
 const ACE_TCHAR *
 ACE_Get_Opt::optstring (void) const
 {
   return this->optstring_->c_str ();
 }
-
 ACE_Get_Opt::ACE_Get_Opt_Long_Option::ACE_Get_Opt_Long_Option (
   const ACE_TCHAR *name,
   int has_arg,
@@ -725,11 +656,9 @@ ACE_Get_Opt::ACE_Get_Opt_Long_Option::ACE_Get_Opt_Long_Option (
      has_arg_ (has_arg),
      val_ (val)
 {}
-
 ACE_Get_Opt::ACE_Get_Opt_Long_Option::~ACE_Get_Opt_Long_Option (void)
 {
   delete [] this->name_;
 }
-
 ACE_END_VERSIONED_NAMESPACE_DECL
 
