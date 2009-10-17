@@ -695,7 +695,7 @@ void AddSC_eversong_woods()
     Script *newscript;
 
     newscript = new Script;
-    newscript->Name =  "npc_prospector_anvilward";
+    newscript->Name = "npc_prospector_anvilward";
     newscript->GetAI = &GetAI_npc_prospector_anvilward;
     newscript->pGossipHello =  &GossipHello_npc_prospector_anvilward;
     newscript->pGossipSelect = &GossipSelect_npc_prospector_anvilward;
