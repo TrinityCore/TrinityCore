@@ -22104,8 +22104,9 @@ void Player::ActivateSpec(uint8 spec)
         uint32 glyph = m_Glyphs[m_activeSpec][slot];
 
         // apply primary glyph
-        if (glyph && GlyphPropertiesEntry const *gp = sGlyphPropertiesStore.LookupEntry(glyph))
-            CastSpell(this, gp->SpellId, true);
+        if (glyph)
+            if (GlyphPropertiesEntry const *gp = sGlyphPropertiesStore.LookupEntry(glyph))
+                CastSpell(this, gp->SpellId, true);
 
         SetGlyph(slot, glyph);
     }

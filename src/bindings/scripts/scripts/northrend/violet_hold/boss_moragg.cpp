@@ -67,7 +67,7 @@ struct TRINITY_DLL_DECL boss_moraggAI : public ScriptedAI
         
         if (uiOpticLinkTimer < diff)
         {
-            if (pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+            if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                 DoCast(pTarget,SPELL_OPTIC_LINK);
             uiOpticLinkTimer = 15000;
         } else uiOpticLinkTimer -= diff;

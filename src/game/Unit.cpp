@@ -4138,7 +4138,7 @@ void Unit::RemoveAllAuras(uint64 casterGUID, Aura * except /*=NULL*/, bool negat
     AuraMap::iterator iter = m_Auras.begin();
     while (!m_Auras.empty())
     {
-        Aura * aur = (*iter)->GetParentAura();
+        Aura * aur = (*iter).second;
         if (aur != except && (!casterGUID || aur->GetCasterGUID()==casterGUID)
             && ((negative && !aur->IsPositive()) || (positive && aur->IsPositive())))
             RemoveAura(aur);

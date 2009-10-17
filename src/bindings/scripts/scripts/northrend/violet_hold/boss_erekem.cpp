@@ -220,7 +220,7 @@ struct TRINITY_DLL_DECL mob_erekem_guardAI : public ScriptedAI
         
         if (uiLightningBoltTimer < diff)
         {
-            if (pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+            if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                 DoCast(pTarget, SPELL_LIGHTNING_BOLT);
             uiLightningBoltTimer = urand(18000,24000);
         } else uiLightningBoltTimer -= diff;
