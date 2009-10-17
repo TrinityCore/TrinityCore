@@ -198,7 +198,7 @@ struct TRINITY_DLL_DECL boss_anomalusAI : public ScriptedAI
         if (SPELL_SPARK_Timer < diff)
         {
             if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0))
-                DoCast(target, HeroicMode ? SPELL_SPARK_H : SPELL_SPARK_N);
+                DoCast(target, HEROIC(SPELL_SPARK_N, SPELL_SPARK_H));
             SPELL_SPARK_Timer = 5000;
         }else SPELL_SPARK_Timer -=diff;
 

@@ -345,7 +345,7 @@ struct TRINITY_DLL_DECL boss_dalronn_the_controllerAI : public ScriptedAI
         {
             if (!m_creature->IsNonMeleeSpellCasted(false))
             {
-                DoCast(SelectUnit(SELECT_TARGET_RANDOM, 0),HeroicMode ? H_SPELL_SHADOW_BOLT : SPELL_SHADOW_BOLT);
+                DoCast(SelectUnit(SELECT_TARGET_RANDOM, 0),HEROIC(SPELL_SHADOW_BOLT, H_SPELL_SHADOW_BOLT));
                 ShadowBolt_Timer = 1000;
             }
         }else ShadowBolt_Timer -= diff;

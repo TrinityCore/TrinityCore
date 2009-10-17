@@ -99,7 +99,7 @@ struct TRINITY_DLL_DECL boss_moorabiAI : public ScriptedAI
 
             if (SPELL_DETERMINED_STAB_TIMER < diff)
             {
-                DoCast(m_creature->getVictim(), HeroicMode ? SPELL_DETERMINED_GORE_1 : SPELL_DETERMINED_GORE);
+                DoCast(m_creature->getVictim(), HEROIC(SPELL_DETERMINED_GORE, SPELL_DETERMINED_GORE_1));
                 SPELL_DETERMINED_STAB_TIMER = 8000;
             } else SPELL_DETERMINED_STAB_TIMER -=diff;
         }

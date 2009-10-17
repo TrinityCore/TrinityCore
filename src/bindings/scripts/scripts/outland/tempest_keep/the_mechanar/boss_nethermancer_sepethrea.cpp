@@ -77,7 +77,7 @@ struct TRINITY_DLL_DECL boss_nethermancer_sepethreaAI : public ScriptedAI
             pInstance->SetData(DATA_NETHERMANCER_EVENT, IN_PROGRESS);
 
         DoScriptText(SAY_AGGRO, m_creature);
-        DoCast(who, HeroicMode ? H_SPELL_SUMMON_RAGIN_FLAMES : SPELL_SUMMON_RAGIN_FLAMES);
+        DoCast(who, HEROIC(SPELL_SUMMON_RAGIN_FLAMES, H_SPELL_SUMMON_RAGIN_FLAMES));
         DoScriptText(SAY_SUMMON, m_creature);
     }
 
@@ -223,7 +223,7 @@ struct TRINITY_DLL_DECL mob_ragin_flamesAI : public ScriptedAI
 
         if (inferno_Timer < diff)
         {
-            DoCast(m_creature->getVictim(),HeroicMode ? H_SPELL_INFERNO : SPELL_INFERNO);
+            DoCast(m_creature->getVictim(),HEROIC(SPELL_INFERNO, H_SPELL_INFERNO));
             m_creature->TauntApply(m_creature->getVictim());
             inferno_Timer = 10000;
         }else inferno_Timer -= diff;

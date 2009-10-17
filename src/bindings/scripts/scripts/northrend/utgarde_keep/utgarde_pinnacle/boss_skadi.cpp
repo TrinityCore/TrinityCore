@@ -136,10 +136,7 @@ struct TRINITY_DLL_DECL boss_skadiAI : public ScriptedAI
                             Phase = SKADI;
                             m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                             m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                            Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0);
-                            while (pTarget && pTarget->GetTypeId() != TYPEID_PLAYER)
-                                pTarget = SelectUnit(SELECT_TARGET_RANDOM,0);
-                            if (pTarget)
+                            if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM,0,100,true))
                                 AttackStart(pTarget);
                             break;
                     }
@@ -152,31 +149,21 @@ struct TRINITY_DLL_DECL boss_skadiAI : public ScriptedAI
 
                 if (uiCrushTimer < diff)
                 {
-                    DoCast(m_creature->getVictim(), HeroicMode ? H_SPELL_CRUSH : SPELL_CRUSH);
+                    DoCast(m_creature->getVictim(), HEROIC(SPELL_CRUSH, H_SPELL_CRUSH));
                     uiCrushTimer = 8000;
                 } else uiCrushTimer -= diff;
 
                 if (uiPoisonedSpearTimer < diff)
                 {
-                    Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0);
-                    while (pTarget && pTarget->GetTypeId() != TYPEID_PLAYER)
-                    {
-                      SelectUnit(SELECT_TARGET_RANDOM, 0);
-                    }
-                    if (pTarget)
-                        DoCast(pTarget, HeroicMode ? H_SPELL_POISONED_SPEAR : SPELL_POISONED_SPEAR);
+                    if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM,0,100,true))
+                        DoCast(pTarget, HEROIC(SPELL_POISONED_SPEAR, H_SPELL_POISONED_SPEAR));
                     uiPoisonedSpearTimer = 10000;
                 } else uiPoisonedSpearTimer -= diff;
 
                 if (uiWhirlwindTimer < diff)
                 {
-                    Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0);
-                    while (pTarget && (pTarget->GetTypeId() != TYPEID_PLAYER || pTarget == m_creature->getVictim()))
-                    {
-                      SelectUnit(SELECT_TARGET_RANDOM, 0);
-                    }
-                    if (pTarget)
-                        m_creature->CastSpell(pTarget, HeroicMode ? H_SPELL_WHIRLWIND : SPELL_WHIRLWIND, false);
+                    if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM,0,100,true))
+                        m_creature->CastSpell(pTarget, HEROIC(SPELL_WHIRLWIND, H_SPELL_WHIRLWIND), false);
                 } else uiWhirlwindTimer = 20000;
 
                 DoMeleeAttackIfReady();
@@ -242,8 +229,7 @@ struct TRINITY_DLL_DECL boss_skadiAI : public ScriptedAI
             if (pTemp)
             {
                 pTemp->SetInCombatWithZone();
-                Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0);
-                if (pTarget)
+                if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
                     pTemp->AI()->AttackStart(pTarget);
             }
         }

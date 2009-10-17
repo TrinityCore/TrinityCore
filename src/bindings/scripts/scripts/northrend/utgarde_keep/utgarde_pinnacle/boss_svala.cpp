@@ -261,7 +261,7 @@ struct TRINITY_DLL_DECL boss_svala_sorrowgraveAI : public ScriptedAI
 
             if (uiSinsterStrikeTimer < diff)
             {
-                DoCast(m_creature->getVictim(), HeroicMode ? H_SPELL_SINSTER_STRIKE : SPELL_SINSTER_STRIKE);
+                DoCast(m_creature->getVictim(), HEROIC(SPELL_SINSTER_STRIKE, H_SPELL_SINSTER_STRIKE));
                 uiSinsterStrikeTimer = 5000 + rand()%4000;
             } else uiSinsterStrikeTimer -= diff;
 
@@ -319,10 +319,7 @@ struct TRINITY_DLL_DECL boss_svala_sorrowgraveAI : public ScriptedAI
                 Phase = NORMAL;
                 pSacrificeTarget = NULL;
                 m_creature->SetUnitMovementFlags(MOVEMENTFLAG_WALK_MODE);
-                Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0);
-                while (pTarget && pTarget->GetTypeId() != TYPEID_PLAYER)
-                    pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0);
-                if (pTarget)
+                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                     m_creature->GetMotionMaster()->MoveChase(pTarget);
 
                 uiSacrificeTimer = 8000;

@@ -199,7 +199,7 @@ struct TRINITY_DLL_DECL boss_keristraszaAI : public ScriptedAI
 
         if (CRYSTALFIRE_BREATH_Timer < diff)
         {
-            DoCast(m_creature->getVictim(), HeroicMode ? SPELL_CRYSTALFIRE_BREATH_H : SPELL_CRYSTALFIRE_BREATH_N);
+            DoCast(m_creature->getVictim(), HEROIC(SPELL_CRYSTALFIRE_BREATH_N, SPELL_CRYSTALFIRE_BREATH_H));
             CRYSTALFIRE_BREATH_Timer = 14000;
         }else CRYSTALFIRE_BREATH_Timer -=diff;
 
@@ -214,11 +214,10 @@ struct TRINITY_DLL_DECL boss_keristraszaAI : public ScriptedAI
             DoScriptText(SAY_CRYSTAL_NOVA , m_creature);
             if (HeroicMode)
                 DoCast(m_creature, SPELL_CRYSTALIZE);
-            else
-                if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0))
-                    DoCast(target, SPELL_CRYSTAL_CHAINS);
+            else if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                DoCast(target, SPELL_CRYSTAL_CHAINS);
             CRYSTAL_CHAINS_CRYSTALIZE_Timer = HeroicMode ? 30000 : 11000;
-        }else CRYSTAL_CHAINS_CRYSTALIZE_Timer -= diff;
+        } else CRYSTAL_CHAINS_CRYSTALIZE_Timer -= diff;
 
         DoMeleeAttackIfReady();
     }

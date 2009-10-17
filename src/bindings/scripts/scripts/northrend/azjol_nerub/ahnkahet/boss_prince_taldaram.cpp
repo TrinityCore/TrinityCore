@@ -182,7 +182,7 @@ struct TRINITY_DLL_DECL boss_taldaramAI : public ScriptedAI
                 break;
                 case VANISHED:
                     if(pEmbraceTarget)
-                        DoCast(pEmbraceTarget,HeroicMode ? H_SPELL_EMBRACE_OF_THE_VAMPYR : SPELL_EMBRACE_OF_THE_VAMPYR );
+                        DoCast(pEmbraceTarget,HEROIC(SPELL_EMBRACE_OF_THE_VAMPYR, H_SPELL_EMBRACE_OF_THE_VAMPYR));
                     Phase = FEEDING;
                     uiPhaseTimer = 20000;
                 break;
@@ -340,7 +340,7 @@ struct TRINITY_DLL_DECL mob_taldaram_flamesphereAI : public ScriptedAI
         m_creature->SetFloatValue(OBJECT_FIELD_SCALE_X, 1.0f);
         DoCast(m_creature, SPELL_FLAME_SPHERE_VISUAL);
         DoCast(m_creature, SPELL_FLAME_SPHERE_SPAWN_EFFECT);
-        DoCast(m_creature, HeroicMode ? H_SPELL_FLAME_SPHERE_PERIODIC : SPELL_FLAME_SPHERE_PERIODIC);
+        DoCast(m_creature, HEROIC(SPELL_FLAME_SPHERE_PERIODIC, H_SPELL_FLAME_SPHERE_PERIODIC));
         uiDespawnTimer = 10000;
     }
     

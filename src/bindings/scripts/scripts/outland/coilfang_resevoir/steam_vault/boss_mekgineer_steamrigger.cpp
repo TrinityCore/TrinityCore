@@ -237,7 +237,7 @@ struct TRINITY_DLL_DECL mob_steamrigger_mechanicAI : public ScriptedAI
                             //m_creature->GetMotionMaster()->MovementExpired();
                             //m_creature->GetMotionMaster()->MoveIdle();
 
-                            DoCast(m_creature,HeroicMode ? H_SPELL_REPAIR : SPELL_REPAIR, true);
+                            DoCast(m_creature,HEROIC(SPELL_REPAIR, H_SPELL_REPAIR), true);
                         }
                         Repair_Timer = 5000;
                     }

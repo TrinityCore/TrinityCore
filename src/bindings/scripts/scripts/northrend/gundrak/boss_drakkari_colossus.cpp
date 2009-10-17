@@ -259,6 +259,7 @@ struct TRINITY_DLL_DECL npc_living_mojoAI : public ScriptedAI
                 Colossus->RemoveAura(SPELL_FREEZE_ANIM);
                 Colossus->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
                 Colossus->SetReactState(REACT_AGGRESSIVE);
+                Colossus->AI()->AttackStart(pDone_by);
                 EnterEvadeMode();
             }
         }
@@ -272,13 +273,13 @@ struct TRINITY_DLL_DECL npc_living_mojoAI : public ScriptedAI
 
         if (MojoWaveTimer < diff)
         {
-            DoCast(m_creature->getVictim(), HeroicMode ? H_SPELL_MOJO_WAVE : SPELL_MOJO_WAVE);
+            DoCast(m_creature->getVictim(), HEROIC(SPELL_MOJO_WAVE, H_SPELL_MOJO_WAVE));
             MojoWaveTimer = 15000;
         } else MojoWaveTimer -= diff;
 
         if (MojoPuddleTimer < diff)
         {
-            DoCast(m_creature->getVictim(), HeroicMode ? H_SPELL_MOJO_PUDDLE : SPELL_MOJO_PUDDLE);
+            DoCast(m_creature->getVictim(), HEROIC(SPELL_MOJO_PUDDLE, H_SPELL_MOJO_PUDDLE));
             MojoPuddleTimer = 18000;
         } else MojoPuddleTimer -= diff;
 

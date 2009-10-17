@@ -130,17 +130,14 @@ struct TRINITY_DLL_DECL boss_palehoofAI : public ScriptedAI
 
             if (uiImpaleTimer < diff)
             {
-                Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM,0);
-                while (pTarget && pTarget->GetTypeId() != TYPEID_PLAYER)
-                    pTarget = SelectUnit(SELECT_TARGET_RANDOM,0);
-                if (pTarget)
-                    DoCast(pTarget, HeroicMode ? H_SPELL_IMPALE : SPELL_IMPALE);
+                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                    DoCast(pTarget, HEROIC(SPELL_IMPALE, H_SPELL_IMPALE));
                 uiImpaleTimer = 8000 + rand()%4000;
             } else uiImpaleTimer -= diff;
 
             if (uiWhiteringRoarTimer < diff)
             {
-                DoCast(m_creature, HeroicMode ? H_SPELL_WITHERING_ROAR : SPELL_WITHERING_ROAR);
+                DoCast(m_creature, HEROIC(SPELL_WITHERING_ROAR, H_SPELL_WITHERING_ROAR));
                 uiWhiteringRoarTimer = 8000 + rand()%4000;
             } else uiWhiteringRoarTimer -= diff;
 
@@ -226,7 +223,7 @@ struct TRINITY_DLL_DECL mob_ravenous_furbolgAI : public ScriptedAI
 
         if (uiChainLightingTimer < diff)
         {
-            DoCast(m_creature->getVictim(), HeroicMode ? H_SPELL_CHAIN_LIGHTING : SPELL_CHAIN_LIGHTING);
+            DoCast(m_creature->getVictim(), HEROIC(SPELL_CHAIN_LIGHTING, H_SPELL_CHAIN_LIGHTING));
             uiChainLightingTimer = 5000 + rand()%5000;
         } else uiChainLightingTimer -=  diff;
 
@@ -305,7 +302,7 @@ struct TRINITY_DLL_DECL mob_frenzied_worgenAI : public ScriptedAI
 
         if (uiMortalWoundTimer < diff)
         {
-            DoCast(m_creature->getVictim(), HeroicMode ? H_SPELL_MORTAL_WOUND : SPELL_MORTAL_WOUND);
+            DoCast(m_creature->getVictim(), HEROIC(SPELL_MORTAL_WOUND, H_SPELL_MORTAL_WOUND));
             uiMortalWoundTimer = 3000 + rand()%4000;
         } else uiMortalWoundTimer -= diff;
 
@@ -392,17 +389,14 @@ struct TRINITY_DLL_DECL mob_ferocious_rhinoAI : public ScriptedAI
 
         if (uiGoreTimer < diff)
         {
-            DoCast(m_creature->getVictim(), HeroicMode ? H_SPELL_GORE : SPELL_GORE);
+            DoCast(m_creature->getVictim(), HEROIC(SPELL_GORE, H_SPELL_GORE));
             uiGoreTimer = 13000 + rand()%4000;
         } else uiGoreTimer -= diff;
 
         if (uiGrievousWoundTimer < diff)
         {
-            Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM,0);
-            while (pTarget && pTarget->GetTypeId() != TYPEID_PLAYER)
-                pTarget = SelectUnit(SELECT_TARGET_RANDOM,0);
-            if (pTarget)
-                DoCast(pTarget, HeroicMode ? H_SPELL_GRIEVOUS_WOUND : SPELL_GRIEVOUS_WOUND);
+            if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                DoCast(pTarget, HEROIC(SPELL_GRIEVOUS_WOUND, H_SPELL_GRIEVOUS_WOUND));
             uiGrievousWoundTimer = 18000 + rand()%4000;
         } else uiGrievousWoundTimer -= diff;
 
@@ -469,27 +463,21 @@ struct TRINITY_DLL_DECL mob_massive_jormungarAI : public ScriptedAI
 
         if (uiAcidSpitTimer < diff)
         {
-            Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM,0);
-            while (pTarget && pTarget->GetTypeId() != TYPEID_PLAYER)
-                pTarget = SelectUnit(SELECT_TARGET_RANDOM,0);
-            if (pTarget)
+            if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                 DoCast(pTarget, SPELL_ACID_SPIT);
             uiAcidSpitTimer = 2000 + rand()%2000;
         } else uiAcidSpitTimer -= diff;
 
         if (uiAcidSplatterTimer < diff)
         {
-            DoCast(m_creature, HeroicMode ? H_SPELL_POISON_BREATH : SPELL_POISON_BREATH);
+            DoCast(m_creature, HEROIC(SPELL_POISON_BREATH, H_SPELL_POISON_BREATH));
             uiAcidSplatterTimer = 10000 + rand()%4000;
         } else uiAcidSplatterTimer -= diff;
 
         if (uiPoisonBreathTimer < diff)
         {
-            Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM,0);
-            while (pTarget && pTarget->GetTypeId() != TYPEID_PLAYER)
-                pTarget = SelectUnit(SELECT_TARGET_RANDOM,0);
-            if (pTarget)
-                DoCast(pTarget, HeroicMode ? H_SPELL_POISON_BREATH : SPELL_POISON_BREATH);
+            if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                DoCast(pTarget, HEROIC(SPELL_POISON_BREATH, H_SPELL_POISON_BREATH));
             uiPoisonBreathTimer = 8000 + rand()%4000;
         } else uiPoisonBreathTimer -= diff;
 

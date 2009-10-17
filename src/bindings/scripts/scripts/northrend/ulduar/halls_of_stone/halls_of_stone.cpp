@@ -181,13 +181,11 @@ struct TRINITY_DLL_DECL mob_tribuna_controllerAI : public ScriptedAI
         {
             if (uiKaddrakEncounterTimer < diff)
             {
-                Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0);
-                while (pTarget && pTarget->GetTypeId() != TYPEID_PLAYER)
-                    pTarget = SelectUnit(SELECT_TARGET_RANDOM,0);
-                if (pTarget && !lKaddrakGUIDList.empty())
-                    for(std::list<Creature*>::iterator itr = lKaddrakGUIDList.begin(); itr != lKaddrakGUIDList.end(); ++itr)
-                        if ((*itr)->isAlive())
-                            (*itr)->CastSpell(pTarget, HeroicMode ? H_SPELL_GLARE_OF_THE_TRIBUNAL : SPELL_GLARE_OF_THE_TRIBUNAL, true);
+                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                    if (!lKaddrakGUIDList.empty())
+                        for (std::list<Creature*>::iterator itr = lKaddrakGUIDList.begin(); itr != lKaddrakGUIDList.end(); ++itr)
+                            if ((*itr)->isAlive())
+                                (*itr)->CastSpell(pTarget, HEROIC(SPELL_GLARE_OF_THE_TRIBUNAL, H_SPELL_GLARE_OF_THE_TRIBUNAL), true);
                 uiKaddrakEncounterTimer = 1500;
             } else uiKaddrakEncounterTimer -= diff;
         }
@@ -195,16 +193,13 @@ struct TRINITY_DLL_DECL mob_tribuna_controllerAI : public ScriptedAI
         {
             if (uiMarnakEncounterTimer < diff)
             {
-                Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0);
-                while (pTarget && pTarget->GetTypeId() != TYPEID_PLAYER)
-                    pTarget = SelectUnit(SELECT_TARGET_RANDOM,0);
-                if (pTarget)
+                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                 {
                     if (Creature* pSummon = m_creature->SummonCreature(CREATURE_DARK_MATTER_TARGET, pTarget->GetPositionX(), pTarget->GetPositionY(), pTarget->GetPositionZ(), 0.0f, TEMPSUMMON_TIMED_DESPAWN, 1000))
                     {
                         pSummon->SetDisplayId(11686);
                         pSummon->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                        pSummon->CastSpell(pTarget, HeroicMode ? H_SPELL_DARK_MATTER : SPELL_DARK_MATTER, true);
+                        pSummon->CastSpell(pTarget, HEROIC(SPELL_DARK_MATTER, H_SPELL_DARK_MATTER), true);
                     }
                 }
                 uiMarnakEncounterTimer = 30000 + rand()%1000;
@@ -214,16 +209,13 @@ struct TRINITY_DLL_DECL mob_tribuna_controllerAI : public ScriptedAI
         {
             if (uiAbedneumEncounterTimer < diff)
             {
-                Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0);
-                while (pTarget && pTarget->GetTypeId() != TYPEID_PLAYER)
-                    pTarget = SelectUnit(SELECT_TARGET_RANDOM,0);
-                if (pTarget)
+                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                 {
                     if (Creature* pSummon = m_creature->SummonCreature(CREATURE_SEARING_GAZE_TARGET, pTarget->GetPositionX(), pTarget->GetPositionY(), pTarget->GetPositionZ(), 0.0f, TEMPSUMMON_TIMED_DESPAWN, 1000))
                     {
                         pSummon->SetDisplayId(11686);
                         pSummon->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                        pSummon->CastSpell(pTarget, HeroicMode ? H_SPELL_SEARING_GAZE : SPELL_SEARING_GAZE, true);
+                        pSummon->CastSpell(pTarget, HEROIC(SPELL_SEARING_GAZE, H_SPELL_SEARING_GAZE), true);
                     }
                 }
                 uiAbedneumEncounterTimer = 30000 + rand()%1000;

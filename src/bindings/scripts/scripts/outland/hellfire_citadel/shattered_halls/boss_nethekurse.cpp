@@ -267,7 +267,7 @@ struct TRINITY_DLL_DECL boss_grand_warlock_nethekurseAI : public ScriptedAI
 
             if (Cleave_Timer < diff)
             {
-                DoCast(m_creature->getVictim(),(HeroicMode ? H_SPELL_SHADOW_SLAM : SPELL_SHADOW_CLEAVE));
+                DoCast(m_creature->getVictim(),(HEROIC(SPELL_SHADOW_CLEAVE), H_SPELL_SHADOW_SLAM));
                 Cleave_Timer = 6000+rand()%2500;
             }else Cleave_Timer -= diff;
         }
