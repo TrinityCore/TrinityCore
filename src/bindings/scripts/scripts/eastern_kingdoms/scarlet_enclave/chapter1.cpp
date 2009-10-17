@@ -1002,23 +1002,23 @@ void AddSC_the_scarlet_enclave_c1()
 
     // 12848 The Endless Hunger
     newscript = new Script;
-    newscript->Name="npc_unworthy_initiate";
+    newscript->Name = "npc_unworthy_initiate";
     newscript->GetAI = &GetAI_npc_unworthy_initiate;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="npc_unworthy_initiate_anchor";
+    newscript->Name = "npc_unworthy_initiate_anchor";
     newscript->GetAI = &GetAI_npc_unworthy_initiate_anchor;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="go_acherus_soul_prison";
+    newscript->Name = "go_acherus_soul_prison";
     newscript->pGOHello = &GOHello_go_acherus_soul_prison;
     newscript->RegisterSelf();
 
     // Death's Challenge
     newscript = new Script;
-    newscript->Name="npc_death_knight_initiate";
+    newscript->Name = "npc_death_knight_initiate";
     newscript->GetAI = &GetAI_npc_death_knight_initiate;
     newscript->pGossipHello = &GossipHello_npc_death_knight_initiate;
     newscript->pGossipSelect = &GossipSelect_npc_death_knight_initiate;
@@ -1026,45 +1026,45 @@ void AddSC_the_scarlet_enclave_c1()
 
     // 12680 Grand Theft Palomino
     newscript = new Script;
-    newscript->Name="npc_salanar_the_horseman";
+    newscript->Name = "npc_salanar_the_horseman";
     newscript->GetAI = &GetAI_npc_salanar_the_horseman;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="npc_dark_rider_of_acherus";
+    newscript->Name = "npc_dark_rider_of_acherus";
     newscript->GetAI = &GetAI_npc_dark_rider_of_acherus;
     newscript->RegisterSelf();
 
     // 12687 Into the Realm of Shadows
     newscript = new Script;
-    newscript->Name="npc_ros_dark_rider";
+    newscript->Name = "npc_ros_dark_rider";
     newscript->GetAI = &GetAI_npc_ros_dark_rider;
     newscript->RegisterSelf();
 
     // 12698 The Gift That Keeps On Giving
     newscript = new Script;
-    newscript->Name="npc_dkc1_gothik";
+    newscript->Name = "npc_dkc1_gothik";
     newscript->GetAI = &GetAI_npc_dkc1_gothik;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="npc_scarlet_ghoul";
+    newscript->Name = "npc_scarlet_ghoul";
     newscript->GetAI = &GetAI_npc_scarlet_ghoul;
     newscript->RegisterSelf();
 
     // Massacre At Light's Point
     newscript = new Script;
-    newscript->Name="npc_scarlet_miner";
+    newscript->Name = "npc_scarlet_miner";
     newscript->GetAI = &GetAI_npc_scarlet_miner;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="npc_scarlet_miner_cart";
+    newscript->Name = "npc_scarlet_miner_cart";
     newscript->GetAI = &GetAI_npc_scarlet_miner_cart;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="go_inconspicuous_mine_car";
+    newscript->Name = "go_inconspicuous_mine_car";
     newscript->pGOHello = &GOHello_go_inconspicuous_mine_car;
     newscript->RegisterSelf();
 }

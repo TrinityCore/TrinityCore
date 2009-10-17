@@ -443,7 +443,7 @@ void AddSC_hellfire_peninsula()
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="npc_wounded_blood_elf";
+    newscript->Name = "npc_wounded_blood_elf";
     newscript->GetAI = &GetAI_npc_wounded_blood_elf;
     newscript->pQuestAccept = &QuestAccept_npc_wounded_blood_elf;
     newscript->RegisterSelf();

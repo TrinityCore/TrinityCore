@@ -84,7 +84,7 @@ void AddSC_boss_lucifron()
 {
     Script *newscript;
     newscript = new Script;
-    newscript->Name="boss_lucifron";
+    newscript->Name = "boss_lucifron";
     newscript->GetAI = &GetAI_boss_lucifron;
     newscript->RegisterSelf();
 }

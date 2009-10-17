@@ -391,7 +391,7 @@ void AddSC_instance_serpentshrine_cavern()
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="go_bridge_console";
+    newscript->Name = "go_bridge_console";
     newscript->pGOHello = &GOHello_go_bridge_console;
     newscript->RegisterSelf();
 }

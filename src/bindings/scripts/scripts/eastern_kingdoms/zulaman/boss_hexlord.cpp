@@ -865,47 +865,47 @@ void AddSC_boss_hex_lord_malacrass()
 {
     Script *newscript;
     newscript = new Script;
-    newscript->Name="boss_hexlord_malacrass";
+    newscript->Name = "boss_hexlord_malacrass";
     newscript->GetAI = &GetAI_boss_hex_lord_malacrass;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="boss_thurg";
+    newscript->Name = "boss_thurg";
     newscript->GetAI = &GetAI_boss_thurg;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="boss_gazakroth";
+    newscript->Name = "boss_gazakroth";
     newscript->GetAI = &GetAI_boss_gazakroth;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="boss_lord_raadan";
+    newscript->Name = "boss_lord_raadan";
     newscript->GetAI = &GetAI_boss_lord_raadan;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="boss_darkheart";
+    newscript->Name = "boss_darkheart";
     newscript->GetAI = &GetAI_boss_darkheart;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="boss_slither";
+    newscript->Name = "boss_slither";
     newscript->GetAI = &GetAI_boss_slither;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="boss_fenstalker";
+    newscript->Name = "boss_fenstalker";
     newscript->GetAI = &GetAI_boss_fenstalker;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="boss_koragg";
+    newscript->Name = "boss_koragg";
     newscript->GetAI = &GetAI_boss_koragg;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="boss_alyson_antille";
+    newscript->Name = "boss_alyson_antille";
     newscript->GetAI = &GetAI_boss_alyson_antille;
     newscript->RegisterSelf();
 }

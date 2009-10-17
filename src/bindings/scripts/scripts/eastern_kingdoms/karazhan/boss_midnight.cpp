@@ -298,12 +298,12 @@ void AddSC_boss_attumen()
 {
     Script *newscript;
     newscript = new Script;
-    newscript->Name="boss_attumen";
+    newscript->Name = "boss_attumen";
     newscript->GetAI = &GetAI_boss_attumen;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="boss_midnight";
+    newscript->Name = "boss_midnight";
     newscript->GetAI = &GetAI_boss_midnight;
     newscript->RegisterSelf();
 }

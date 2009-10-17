@@ -243,47 +243,47 @@ void AddSC_item_scripts()
     Script *newscript;
 
     newscript = new Script;
-    newscript->Name="item_only_for_flight";
+    newscript->Name = "item_only_for_flight";
     newscript->pItemUse = &ItemUse_item_only_for_flight;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="item_draenei_fishing_net";
+    newscript->Name = "item_draenei_fishing_net";
     newscript->pItemUse = &ItemUse_item_draenei_fishing_net;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="item_nether_wraith_beacon";
+    newscript->Name = "item_nether_wraith_beacon";
     newscript->pItemUse = &ItemUse_item_nether_wraith_beacon;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="item_flying_machine";
+    newscript->Name = "item_flying_machine";
     newscript->pItemUse = &ItemUse_item_flying_machine;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="item_gor_dreks_ointment";
+    newscript->Name = "item_gor_dreks_ointment";
     newscript->pItemUse = &ItemUse_item_gor_dreks_ointment;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="item_incendiary_explosives";
+    newscript->Name = "item_incendiary_explosives";
     newscript->pItemUse = &ItemUse_item_incendiary_explosives;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="item_mysterious_egg";
+    newscript->Name = "item_mysterious_egg";
     newscript->pItemExpire = &ItemExpire_item_mysterious_egg;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="item_disgusting_jar";
+    newscript->Name = "item_disgusting_jar";
     newscript->pItemExpire = &ItemExpire_item_disgusting_jar;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="item_harvesters_gift";
+    newscript->Name = "item_harvesters_gift";
     newscript->pItemUse = &ItemUse_item_harvesters_gift;
     newscript->RegisterSelf();
 }

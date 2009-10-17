@@ -96,19 +96,19 @@ void AddSC_npc_wyrmresttempel_taxi()
     Script *newscript;
 
 newscript = new Script;
-newscript->Name="npc_wyrmresttempelmiddle_taxi";
+newscript->Name = "npc_wyrmresttempelmiddle_taxi";
 newscript->pGossipHello = &GossipHello_npc_wyrmresttempel_middle_taxi;
 newscript->pGossipSelect = &GossipSelect_npc_wyrmresttempel_middle_taxi;
 newscript->RegisterSelf();
 
 newscript = new Script;
-newscript->Name="npc_wyrmresttempelbottom_taxi";
+newscript->Name = "npc_wyrmresttempelbottom_taxi";
 newscript->pGossipHello = &GossipHello_npc_wyrmresttempel_bottom_taxi;
 newscript->pGossipSelect = &GossipSelect_npc_wyrmresttempel_bottom_taxi;
 newscript->RegisterSelf();
 
 newscript = new Script;
-newscript->Name="npc_wyrmresttempeltop_taxi";
+newscript->Name = "npc_wyrmresttempeltop_taxi";
 newscript->pGossipHello = &GossipHello_npc_wyrmresttempel_top_taxi;
 newscript->pGossipSelect = &GossipSelect_npc_wyrmresttempel_top_taxi;
 newscript->RegisterSelf();

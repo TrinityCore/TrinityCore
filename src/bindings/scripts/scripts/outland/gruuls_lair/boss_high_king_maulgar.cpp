@@ -769,27 +769,27 @@ void AddSC_boss_high_king_maulgar()
     Script *newscript;
 
     newscript = new Script;
-    newscript->Name="boss_high_king_maulgar";
+    newscript->Name = "boss_high_king_maulgar";
     newscript->GetAI = &GetAI_boss_high_king_maulgar;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="boss_kiggler_the_crazed";
+    newscript->Name = "boss_kiggler_the_crazed";
     newscript->GetAI = &GetAI_boss_kiggler_the_crazed;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="boss_blindeye_the_seer";
+    newscript->Name = "boss_blindeye_the_seer";
     newscript->GetAI = &GetAI_boss_blindeye_the_seer;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="boss_olm_the_summoner";
+    newscript->Name = "boss_olm_the_summoner";
     newscript->GetAI = &GetAI_boss_olm_the_summoner;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="boss_krosh_firehand";
+    newscript->Name = "boss_krosh_firehand";
     newscript->GetAI = &GetAI_boss_krosh_firehand;
     newscript->RegisterSelf();
 }

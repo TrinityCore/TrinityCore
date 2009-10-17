@@ -291,12 +291,12 @@ void AddSC_boss_sjonnir()
     Script *newscript;
 
     newscript = new Script;
-    newscript->Name="boss_sjonnir";
+    newscript->Name = "boss_sjonnir";
     newscript->GetAI = &GetAI_boss_sjonnir;
     newscript->RegisterSelf();
     
     newscript = new Script;
-    newscript->Name="mob_malformed_ooze";
+    newscript->Name = "mob_malformed_ooze";
     newscript->GetAI = &GetAI_mob_malformed_ooze;
     newscript->RegisterSelf();
     

@@ -77,7 +77,7 @@ void AddSC_boss_drakos()
     Script *newscript;
 
     newscript = new Script;
-    newscript->Name="boss_drakos";
+    newscript->Name = "boss_drakos";
     newscript->GetAI = &GetAI_boss_drakos;
     newscript->RegisterSelf();
 }

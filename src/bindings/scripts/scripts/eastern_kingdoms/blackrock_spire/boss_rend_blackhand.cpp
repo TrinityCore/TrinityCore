@@ -85,7 +85,7 @@ void AddSC_boss_rend_blackhand()
 {
     Script *newscript;
     newscript = new Script;
-    newscript->Name="boss_rend_blackhand";
+    newscript->Name = "boss_rend_blackhand";
     newscript->GetAI = &GetAI_boss_rend_blackhand;
     newscript->RegisterSelf();
 }

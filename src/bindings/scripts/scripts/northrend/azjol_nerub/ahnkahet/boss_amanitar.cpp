@@ -230,12 +230,12 @@ void AddSC_boss_amanitar()
     Script *newscript;
 
     newscript = new Script;
-    newscript->Name="boss_amanitar";
+    newscript->Name = "boss_amanitar";
     newscript->GetAI = &GetAI_boss_amanitar;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="mob_amanitar_mushrooms";
+    newscript->Name = "mob_amanitar_mushrooms";
     newscript->GetAI = &GetAI_mob_amanitar_mushrooms;
     newscript->RegisterSelf();
 }

@@ -954,13 +954,13 @@ void AddSC_the_scarlet_enclave_c2()
 
     // How to win friends and influence enemies
     newscript = new Script;
-    newscript->Name="npc_crusade_persuaded";
+    newscript->Name = "npc_crusade_persuaded";
     newscript->GetAI = &GetAI_npc_crusade_persuaded;
     newscript->RegisterSelf();
 
     // Ambush At The Overlook
     newscript = new Script;
-    newscript->Name="mob_scarlet_courier";
+    newscript->Name = "mob_scarlet_courier";
     newscript->GetAI = &GetAI_mob_scarlet_courier;
     newscript->RegisterSelf();
 
@@ -972,7 +972,7 @@ void AddSC_the_scarlet_enclave_c2()
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="mob_high_inquisitor_valroth";
+    newscript->Name = "mob_high_inquisitor_valroth";
     newscript->GetAI = &GetAI_mob_high_inquisitor_valroth;
     newscript->RegisterSelf();
 

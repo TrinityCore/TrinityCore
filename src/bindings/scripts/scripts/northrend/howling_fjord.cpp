@@ -280,7 +280,7 @@ void AddSC_howling_fjord()
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="npc_razael_and_lyana";
+    newscript->Name = "npc_razael_and_lyana";
     newscript->pGossipHello =  &GossipHello_npc_razael_and_lyana;
     newscript->pGossipSelect = &GossipSelect_npc_razael_and_lyana;
     newscript->RegisterSelf();

@@ -185,12 +185,12 @@ void AddSC_boss_hydromancer_thespia()
     Script *newscript;
 
     newscript = new Script;
-    newscript->Name="boss_hydromancer_thespia";
+    newscript->Name = "boss_hydromancer_thespia";
     newscript->GetAI = &GetAI_boss_thespiaAI;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="mob_coilfang_waterelemental";
+    newscript->Name = "mob_coilfang_waterelemental";
     newscript->GetAI = &GetAI_mob_coilfang_waterelementalAI;
     newscript->RegisterSelf();
 }

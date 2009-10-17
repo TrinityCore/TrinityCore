@@ -352,17 +352,17 @@ void AddSC_boss_nexusprince_shaffar()
     Script *newscript;
 
     newscript = new Script;
-    newscript->Name="boss_nexusprince_shaffar";
+    newscript->Name = "boss_nexusprince_shaffar";
     newscript->GetAI = &GetAI_boss_nexusprince_shaffar;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="mob_ethereal_beacon";
+    newscript->Name = "mob_ethereal_beacon";
     newscript->GetAI = &GetAI_mob_ethereal_beacon;
     newscript->RegisterSelf();
     
     newscript = new Script;
-    newscript->Name="mob_ethereal_apprentice";
+    newscript->Name = "mob_ethereal_apprentice";
     newscript->GetAI = &GetAI_mob_ethereal_apprentice;
     newscript->RegisterSelf();
 }

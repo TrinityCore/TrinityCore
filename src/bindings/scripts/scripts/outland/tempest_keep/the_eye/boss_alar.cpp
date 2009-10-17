@@ -506,17 +506,17 @@ void AddSC_boss_alar()
     Script *newscript;
 
     newscript = new Script;
-    newscript->Name="boss_alar";
+    newscript->Name = "boss_alar";
     newscript->GetAI = &GetAI_boss_alar;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="mob_ember_of_alar";
+    newscript->Name = "mob_ember_of_alar";
     newscript->GetAI = &GetAI_mob_ember_of_alar;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="mob_flame_patch_alar";
+    newscript->Name = "mob_flame_patch_alar";
     newscript->GetAI = &GetAI_mob_flame_patch_alar;
     newscript->RegisterSelf();
 }

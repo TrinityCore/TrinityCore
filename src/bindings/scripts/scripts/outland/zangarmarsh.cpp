@@ -385,32 +385,32 @@ void AddSC_zangarmarsh()
     Script *newscript;
 
     newscript = new Script;
-    newscript->Name="npcs_ashyen_and_keleth";
+    newscript->Name = "npcs_ashyen_and_keleth";
     newscript->pGossipHello =  &GossipHello_npcs_ashyen_and_keleth;
     newscript->pGossipSelect = &GossipSelect_npcs_ashyen_and_keleth;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="npc_cooshcoosh";
+    newscript->Name = "npc_cooshcoosh";
     newscript->GetAI = &GetAI_npc_cooshcoosh;
     newscript->pGossipHello =  &GossipHello_npc_cooshcoosh;
     newscript->pGossipSelect = &GossipSelect_npc_cooshcoosh;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="npc_elder_kuruti";
+    newscript->Name = "npc_elder_kuruti";
     newscript->pGossipHello =  &GossipHello_npc_elder_kuruti;
     newscript->pGossipSelect = &GossipSelect_npc_elder_kuruti;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="npc_mortog_steamhead";
+    newscript->Name = "npc_mortog_steamhead";
     newscript->pGossipHello =  &GossipHello_npc_mortog_steamhead;
     newscript->pGossipSelect = &GossipSelect_npc_mortog_steamhead;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="npc_kayra_longmane";
+    newscript->Name = "npc_kayra_longmane";
     newscript->GetAI = &GetAI_npc_kayra_longmaneAI;
     newscript->pQuestAccept = &QuestAccept_npc_kayra_longmane;
     newscript->RegisterSelf();

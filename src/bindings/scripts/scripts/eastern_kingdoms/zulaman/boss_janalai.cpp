@@ -677,27 +677,27 @@ void AddSC_boss_janalai()
 {
     Script *newscript;
     newscript = new Script;
-    newscript->Name="boss_janalai";
+    newscript->Name = "boss_janalai";
     newscript->GetAI = &GetAI_boss_janalaiAI;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="mob_janalai_firebomb";
+    newscript->Name = "mob_janalai_firebomb";
     newscript->GetAI = &GetAI_mob_janalai_firebombAI;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="mob_janalai_hatcher";
+    newscript->Name = "mob_janalai_hatcher";
     newscript->GetAI = &GetAI_mob_amanishi_hatcherAI;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="mob_janalai_hatchling";
+    newscript->Name = "mob_janalai_hatchling";
     newscript->GetAI = &GetAI_mob_hatchlingAI;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="mob_janalai_egg";
+    newscript->Name = "mob_janalai_egg";
     newscript->GetAI = &GetAI_mob_eggAI;
     newscript->RegisterSelf();
 }

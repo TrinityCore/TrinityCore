@@ -627,46 +627,46 @@ void AddSC_terokkar_forest()
     Script *newscript;
 
     newscript = new Script;
-    newscript->Name="mob_unkor_the_ruthless";
+    newscript->Name = "mob_unkor_the_ruthless";
     newscript->GetAI = &GetAI_mob_unkor_the_ruthless;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="mob_infested_root_walker";
+    newscript->Name = "mob_infested_root_walker";
     newscript->GetAI = &GetAI_mob_infested_root_walker;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="mob_rotting_forest_rager";
+    newscript->Name = "mob_rotting_forest_rager";
     newscript->GetAI = &GetAI_mob_rotting_forest_rager;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="mob_netherweb_victim";
+    newscript->Name = "mob_netherweb_victim";
     newscript->GetAI = &GetAI_mob_netherweb_victim;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="npc_floon";
+    newscript->Name = "npc_floon";
     newscript->GetAI = &GetAI_npc_floon;
     newscript->pGossipHello =  &GossipHello_npc_floon;
     newscript->pGossipSelect = &GossipSelect_npc_floon;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name= "npc_isla_starmane";
+    newscript->Name =  "npc_isla_starmane";
     newscript->GetAI = &GetAI_npc_isla_starmaneAI;
     newscript->pQuestAccept = &QuestAccept_npc_isla_starmane;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="go_skull_pile";
+    newscript->Name = "go_skull_pile";
     newscript->pGOHello  = &GossipHello_go_skull_pile;
     newscript->pGOSelect = &GossipSelect_go_skull_pile;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="npc_skywing";
+    newscript->Name = "npc_skywing";
     newscript->GetAI = &GetAI_npc_skywingAI;
     newscript->RegisterSelf();
 
@@ -677,7 +677,7 @@ void AddSC_terokkar_forest()
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="npc_akuno";
+    newscript->Name = "npc_akuno";
     newscript->GetAI = &GetAI_npc_akuno;
     newscript->pQuestAccept = &QuestAccept_npc_akuno;
     newscript->RegisterSelf();

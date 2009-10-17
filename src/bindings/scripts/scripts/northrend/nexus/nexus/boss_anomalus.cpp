@@ -291,12 +291,12 @@ void AddSC_boss_anomalus()
     Script *newscript;
 
     newscript = new Script;
-    newscript->Name="boss_anomalus";
+    newscript->Name = "boss_anomalus";
     newscript->GetAI = &GetAI_boss_anomalus;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="mob_chaotic_rift";
+    newscript->Name = "mob_chaotic_rift";
     newscript->GetAI = &GetAI_mob_chaotic_rift;
     newscript->RegisterSelf();
 }

@@ -188,12 +188,12 @@ void AddSC_boss_archavon()
     Script *newscript;
 
     newscript = new Script;
-    newscript->Name="boss_archavon";
+    newscript->Name = "boss_archavon";
     newscript->GetAI = &GetAI_boss_archavon;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="mob_archavon_warder";
+    newscript->Name = "mob_archavon_warder";
     newscript->GetAI = &GetAI_mob_warder;
     newscript->RegisterSelf();
 }

@@ -682,27 +682,27 @@ void AddSC_boss_reliquary_of_souls()
 {
     Script *newscript;
     newscript = new Script;
-    newscript->Name="boss_reliquary_of_souls";
+    newscript->Name = "boss_reliquary_of_souls";
     newscript->GetAI = &GetAI_boss_reliquary_of_souls;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="boss_essence_of_suffering";
+    newscript->Name = "boss_essence_of_suffering";
     newscript->GetAI = &GetAI_boss_essence_of_suffering;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="boss_essence_of_desire";
+    newscript->Name = "boss_essence_of_desire";
     newscript->GetAI = &GetAI_boss_essence_of_desire;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="boss_essence_of_anger";
+    newscript->Name = "boss_essence_of_anger";
     newscript->GetAI = &GetAI_boss_essence_of_anger;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="npc_enslaved_soul";
+    newscript->Name = "npc_enslaved_soul";
     newscript->GetAI = &GetAI_npc_enslaved_soul;
     newscript->RegisterSelf();
 }

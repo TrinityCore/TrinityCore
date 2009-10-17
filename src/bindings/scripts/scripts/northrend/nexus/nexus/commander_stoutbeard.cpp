@@ -58,7 +58,7 @@ void AddSC_boss_commander_stoutbeard()
     Script *newscript;
 
     newscript = new Script;
-    newscript->Name="boss_commander_stoutbeard";
+    newscript->Name = "boss_commander_stoutbeard";
     newscript->GetAI = &GetAI_boss_commander_stoutbeard;
     newscript->RegisterSelf();
 }

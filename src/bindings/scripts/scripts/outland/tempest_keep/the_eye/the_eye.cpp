@@ -92,7 +92,7 @@ void AddSC_the_eye()
 {
     Script *newscript;
     newscript = new Script;
-    newscript->Name="mob_crystalcore_devastator";
+    newscript->Name = "mob_crystalcore_devastator";
     newscript->GetAI = &GetAI_mob_crystalcore_devastator;
     newscript->RegisterSelf();
 }

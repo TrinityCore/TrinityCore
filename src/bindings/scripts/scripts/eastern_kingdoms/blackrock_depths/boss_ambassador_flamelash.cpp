@@ -100,7 +100,7 @@ void AddSC_boss_ambassador_flamelash()
 {
     Script *newscript;
     newscript = new Script;
-    newscript->Name="boss_ambassador_flamelash";
+    newscript->Name = "boss_ambassador_flamelash";
     newscript->GetAI = &GetAI_boss_ambassador_flamelash;
     newscript->RegisterSelf();
 }

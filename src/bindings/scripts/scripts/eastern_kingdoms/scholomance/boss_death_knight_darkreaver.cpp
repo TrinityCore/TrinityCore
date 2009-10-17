@@ -53,7 +53,7 @@ void AddSC_boss_death_knight_darkreaver()
     Script *newscript;
 
     newscript = new Script;
-    newscript->Name="boss_death_knight_darkreaver";
+    newscript->Name = "boss_death_knight_darkreaver";
     newscript->GetAI = &GetAI_boss_death_knight_darkreaver;
     newscript->RegisterSelf();
 }

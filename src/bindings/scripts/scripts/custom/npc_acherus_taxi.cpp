@@ -32,7 +32,7 @@ void AddSC_npc_acherus_taxi()
     Script *newscript;
 
 newscript = new Script;
-newscript->Name="npc_acherus_taxi";
+newscript->Name = "npc_acherus_taxi";
 newscript->pGossipHello = &GossipHello_npc_acherus_taxi;
 newscript->pGossipSelect = &GossipSelect_npc_acherus_taxi;
 newscript->RegisterSelf();

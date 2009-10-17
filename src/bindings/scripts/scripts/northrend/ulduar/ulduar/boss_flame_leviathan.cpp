@@ -365,32 +365,32 @@ void AddSC_boss_flame_leviathan()
 {
     Script *newscript;
     newscript = new Script;
-    newscript->Name="boss_flame_leviathan";
+    newscript->Name = "boss_flame_leviathan";
     newscript->GetAI = &GetAI_boss_flame_leviathan;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="boss_flame_leviathan_seat";
+    newscript->Name = "boss_flame_leviathan_seat";
     newscript->GetAI = &GetAI_boss_flame_leviathan_seat;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="boss_flame_leviathan_defense_turret";
+    newscript->Name = "boss_flame_leviathan_defense_turret";
     newscript->GetAI = &GetAI_boss_flame_leviathan_defense_turret;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="boss_flame_leviathan_overload_device";
+    newscript->Name = "boss_flame_leviathan_overload_device";
     newscript->GetAI = &GetAI_boss_flame_leviathan_overload_device;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="boss_flame_leviathan_safety_container";
+    newscript->Name = "boss_flame_leviathan_safety_container";
     newscript->GetAI = &GetAI_boss_flame_leviathan_safety_containerAI;
     newscript->RegisterSelf();  
 
     newscript = new Script;
-    newscript->Name="spell_pool_of_tar";
+    newscript->Name = "spell_pool_of_tar";
     newscript->GetAI = &GetAI_spell_pool_of_tar;
     newscript->RegisterSelf();
 }

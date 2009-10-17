@@ -667,7 +667,7 @@ void AddSC_the_barrens()
     Script *newscript;
 
     newscript = new Script;
-    newscript->Name="npc_beaten_corpse";
+    newscript->Name = "npc_beaten_corpse";
     newscript->pGossipHello = &GossipHello_npc_beaten_corpse;
     newscript->pGossipSelect = &GossipSelect_npc_beaten_corpse;
     newscript->RegisterSelf();
@@ -679,23 +679,23 @@ void AddSC_the_barrens()
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="npc_sputtervalve";
+    newscript->Name = "npc_sputtervalve";
     newscript->pGossipHello = &GossipHello_npc_sputtervalve;
     newscript->pGossipSelect = &GossipSelect_npc_sputtervalve;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="npc_taskmaster_fizzule";
+    newscript->Name = "npc_taskmaster_fizzule";
     newscript->GetAI = &GetAI_npc_taskmaster_fizzule;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="npc_twiggy_flathead";
+    newscript->Name = "npc_twiggy_flathead";
     newscript->GetAI = &GetAI_npc_twiggy_flathead;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="npc_wizzlecrank_shredder";
+    newscript->Name = "npc_wizzlecrank_shredder";
     newscript->GetAI = &GetAI_npc_wizzlecrank_shredderAI;
     newscript->pQuestAccept = &QuestAccept_npc_wizzlecrank_shredder;
     newscript->RegisterSelf();

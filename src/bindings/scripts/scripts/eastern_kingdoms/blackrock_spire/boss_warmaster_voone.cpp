@@ -115,7 +115,7 @@ void AddSC_boss_warmastervoone()
 {
     Script *newscript;
     newscript = new Script;
-    newscript->Name="boss_warmaster_voone";
+    newscript->Name = "boss_warmaster_voone";
     newscript->GetAI = &GetAI_boss_warmastervoone;
     newscript->RegisterSelf();
 }

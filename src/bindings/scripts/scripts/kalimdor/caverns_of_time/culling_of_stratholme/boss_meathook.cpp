@@ -133,7 +133,7 @@ void AddSC_boss_meathook()
     Script *newscript;
 
     newscript = new Script;
-    newscript->Name="boss_meathook";
+    newscript->Name = "boss_meathook";
     newscript->GetAI = &GetAI_boss_meathook;
     newscript->RegisterSelf();
 }

@@ -91,7 +91,7 @@ void AddSC_boss_azshir_the_sleepless()
 {
     Script *newscript;
     newscript = new Script;
-    newscript->Name="boss_azshir_the_sleepless";
+    newscript->Name = "boss_azshir_the_sleepless";
     newscript->GetAI = &GetAI_boss_azshir_the_sleepless;
     newscript->RegisterSelf();
 }

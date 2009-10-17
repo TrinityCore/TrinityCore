@@ -261,7 +261,7 @@ void AddSC_instance_molten_core()
 {
     Script *newscript;
     newscript = new Script;
-    newscript->Name="instance_molten_core";
+    newscript->Name = "instance_molten_core";
     newscript->GetInstanceData = &GetInstance_instance_molten_core;
     newscript->RegisterSelf();
 }

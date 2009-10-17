@@ -82,7 +82,7 @@ void AddSC_felwood()
     Script *newscript;
 
     newscript = new Script;
-    newscript->Name="npcs_riverbreeze_and_silversky";
+    newscript->Name = "npcs_riverbreeze_and_silversky";
     newscript->pGossipHello = &GossipHello_npcs_riverbreeze_and_silversky;
     newscript->pGossipSelect = &GossipSelect_npcs_riverbreeze_and_silversky;
     newscript->RegisterSelf();

@@ -73,7 +73,7 @@ struct TRINITY_DLL_DECL boss_keristraszaAI : public ScriptedAI
     void Reset()
     {
         CRYSTALFIRE_BREATH_Timer = 14000;
-        CRYSTAL_CHAINS_CRYSTALIZE_Timer = HeroicMode ? 30000 : 11000;
+        CRYSTAL_CHAINS_CRYSTALIZE_Timer = HEROIC(30000,11000);
         TAIL_SWEEP_Timer = 5000;
         Enrage = false;
 
@@ -216,7 +216,7 @@ struct TRINITY_DLL_DECL boss_keristraszaAI : public ScriptedAI
                 DoCast(m_creature, SPELL_CRYSTALIZE);
             else if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                 DoCast(target, SPELL_CRYSTAL_CHAINS);
-            CRYSTAL_CHAINS_CRYSTALIZE_Timer = HEROIC(11000,30000); // is this supposed to cast less often in normal ?
+            CRYSTAL_CHAINS_CRYSTALIZE_Timer = HEROIC(30000,11000);
         } else CRYSTAL_CHAINS_CRYSTALIZE_Timer -= diff;
 
         DoMeleeAttackIfReady();

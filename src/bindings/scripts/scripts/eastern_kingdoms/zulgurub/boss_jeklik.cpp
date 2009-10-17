@@ -279,12 +279,12 @@ void AddSC_boss_jeklik()
 {
     Script *newscript;
     newscript = new Script;
-    newscript->Name="boss_jeklik";
+    newscript->Name = "boss_jeklik";
     newscript->GetAI = &GetAI_boss_jeklik;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="mob_batrider";
+    newscript->Name = "mob_batrider";
     newscript->GetAI = &GetAI_mob_batrider;
     newscript->RegisterSelf();
 }

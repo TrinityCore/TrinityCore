@@ -189,14 +189,14 @@ void AddSC_silverpine_forest()
     Script *newscript;
 
     newscript = new Script;
-    newscript->Name="npc_astor_hadren";
+    newscript->Name = "npc_astor_hadren";
     newscript->pGossipHello =  &GossipHello_npc_astor_hadren;
     newscript->pGossipSelect = &GossipSelect_npc_astor_hadren;
     newscript->GetAI = &GetAI_npc_astor_hadren;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="npc_deathstalker_erland";
+    newscript->Name = "npc_deathstalker_erland";
     newscript->GetAI = &GetAI_npc_deathstalker_erlandAI;
     newscript->pQuestAccept = &QuestAccept_npc_deathstalker_erland;
     newscript->RegisterSelf();

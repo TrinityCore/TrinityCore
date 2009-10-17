@@ -301,12 +301,12 @@ void AddSC_boss_anetheron()
 {
     Script *newscript;
     newscript = new Script;
-    newscript->Name="boss_anetheron";
+    newscript->Name = "boss_anetheron";
     newscript->GetAI = &GetAI_boss_anetheron;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="mob_towering_infernal";
+    newscript->Name = "mob_towering_infernal";
     newscript->GetAI = &GetAI_mob_towering_infernal;
     newscript->RegisterSelf();
 }

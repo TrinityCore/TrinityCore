@@ -204,7 +204,7 @@ void AddSC_boss_noth()
 {
     Script *newscript;
     newscript = new Script;
-    newscript->Name="boss_noth";
+    newscript->Name = "boss_noth";
     newscript->GetAI = &GetAI_boss_noth;
     newscript->RegisterSelf();
 }

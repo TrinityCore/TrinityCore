@@ -98,7 +98,7 @@ void AddSC_boss_eregos()
     Script *newscript;
 
     newscript = new Script;
-    newscript->Name="boss_eregos";
+    newscript->Name = "boss_eregos";
     newscript->GetAI = &GetAI_boss_eregos;
     newscript->RegisterSelf();
 }

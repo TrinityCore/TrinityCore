@@ -276,12 +276,12 @@ void AddSC_boss_emalon()
     Script *newscript;
 
     newscript = new Script;
-    newscript->Name="boss_emalon";
+    newscript->Name = "boss_emalon";
     newscript->GetAI = &GetAI_boss_emalon;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="mob_tempest_minion";
+    newscript->Name = "mob_tempest_minion";
     newscript->GetAI = &GetAI_mob_tempest_minion;
     newscript->RegisterSelf();
 }

@@ -154,7 +154,7 @@ void AddSC_utgarde_keep()
     Script *newscript;
 
     newscript = new Script;
-    newscript->Name="npc_dragonflayer_forge_master";
+    newscript->Name = "npc_dragonflayer_forge_master";
     newscript->GetAI = &GetAI_npc_dragonflayer_forge_master;
     newscript->RegisterSelf();
 }

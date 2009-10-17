@@ -118,7 +118,7 @@ void AddSC_boss_mal_ganis()
     Script *newscript;
 
     newscript = new Script;
-    newscript->Name="boss_mal_ganis";
+    newscript->Name = "boss_mal_ganis";
     newscript->GetAI = &GetAI_boss_mal_ganis;
     newscript->RegisterSelf();
 }

@@ -110,7 +110,7 @@ void AddSC_boss_theravenian()
 {
     Script *newscript;
     newscript = new Script;
-    newscript->Name="boss_the_ravenian";
+    newscript->Name = "boss_the_ravenian";
     newscript->GetAI = &GetAI_boss_theravenian;
     newscript->RegisterSelf();
 }
