@@ -138,7 +138,7 @@ struct TRINITY_DLL_DECL boss_elder_nadoxAI : public ScriptedAI
 
         if (plague_Timer < diff)
         {
-            DoCast(m_creature->getVictim(),HeroicMode ? H_SPELL_BROOD_PLAGUE : SPELL_BROOD_PLAGUE);
+            DoCast(m_creature->getVictim(),HEROIC(SPELL_BROOD_PLAGUE, H_SPELL_BROOD_PLAGUE));
             plague_Timer = 15000;
         }else plague_Timer -= diff;
 

@@ -136,7 +136,7 @@ struct TRINITY_DLL_DECL boss_steelbreakerAI : public ScriptedAI
     void EnterCombat(Unit *who)
     {
         DoZoneInCombat();
-        DoCast(m_creature, (HeroicMode) ? SPELL_HIGH_VOLTAGE_H : SPELL_HIGH_VOLTAGE);
+        DoCast(m_creature, HEROIC(SPELL_HIGH_VOLTAGE, SPELL_HIGH_VOLTAGE_H));
         events.ScheduleEvent(EVENT_ENRAGE, 900000);
         UpdatePhase();
     }
@@ -204,18 +204,18 @@ struct TRINITY_DLL_DECL boss_steelbreakerAI : public ScriptedAI
                     DoCast(SPELL_BERSERK);
                 break;
                 case EVENT_FUSION_PUNCH:
-                    DoCast(me->getVictim(), (HeroicMode) ? SPELL_FUSION_PUNCH : SPELL_FUSION_PUNCH_H);
+                    DoCast(me->getVictim(), HEROIC(SPELL_FUSION_PUNCH_H, SPELL_FUSION_PUNCH));
                     events.ScheduleEvent(EVENT_FUSION_PUNCH, 13000 + (rand()%9)*1000);
                 break;
                 case EVENT_STATIC_DISRUPTION:
                 {
                     Unit *target = SelectTarget(SELECT_TARGET_RANDOM);
-                    DoCast(target, (HeroicMode) ? SPELL_STATIC_DISRUPTION : SPELL_STATIC_DISRUPTION_H);
+                    DoCast(target, HEROIC(SPELL_STATIC_DISRUPTION_H, SPELL_STATIC_DISRUPTION));
                     events.ScheduleEvent(EVENT_STATIC_DISRUPTION, 20000 + (rand()%20)*1000);
                 }
                 break;
                 case EVENT_OVERWHELMING_POWER:
-                    DoCast(me->getVictim(), (HeroicMode) ? SPELL_OVERWHELMING_POWER_H : SPELL_OVERWHELMING_POWER);
+                    DoCast(me->getVictim(), HEROIC(SPELL_OVERWHELMING_POWER, SPELL_OVERWHELMING_POWER_H));
                     events.ScheduleEvent(EVENT_OVERWHELMING_POWER, (HeroicMode) ? 35000 : 60000);
                 break;
             }
@@ -319,7 +319,7 @@ struct TRINITY_DLL_DECL boss_runemaster_molgeimAI : public ScriptedAI
                 }
                 break;
                 case EVENT_SHIELD_OF_RUNES:
-                    DoCast( m_creature, (HeroicMode) ? SPELL_SHIELD_OF_RUNES_H : SPELL_SHIELD_OF_RUNES);
+                    DoCast( m_creature, HEROIC(SPELL_SHIELD_OF_RUNES, SPELL_SHIELD_OF_RUNES_H));
                     events.ScheduleEvent(EVENT_SHIELD_OF_RUNES, 27000+ (rand()%7)*1000);
                 break;
                 case EVENT_RUNE_OF_DEATH:
@@ -366,7 +366,7 @@ struct TRINITY_DLL_DECL mob_lightning_elementalAI : public ScriptedAI
 
         if(m_creature->IsWithinMeleeRange(Target))
         {
-            DoCast(Target, (HeroicMode) ? SPELL_LIGHTNING_BLAST_H : SPELL_LIGHTNING_BLAST);
+            DoCast(Target, HEROIC(SPELL_LIGHTNING_BLAST, SPELL_LIGHTNING_BLAST_H));
             m_creature->Kill(m_creature); // hack until spell works
         }
 
@@ -483,20 +483,20 @@ struct TRINITY_DLL_DECL boss_stormcaller_brundirAI : public ScriptedAI
                 case EVENT_CHAIN_LIGHTNING:
                 {
                     Unit* Target = SelectUnit(SELECT_TARGET_RANDOM,0);
-                    DoCast(Target, (HeroicMode) ? SPELL_CHAIN_LIGHTNING_H : SPELL_CHAIN_LIGHTNING_N );
+                    DoCast(Target, HEROIC(SPELL_CHAIN_LIGHTNING_N , SPELL_CHAIN_LIGHTNING_H));
                     events.ScheduleEvent(EVENT_CHAIN_LIGHTNING, 9000+ (rand()%8)*1000);
                 }
                 break;
                 case EVENT_OVERLOAD:
-                    DoCast( (HeroicMode) ? SPELL_OVERLOAD_H : SPELL_OVERLOAD );
+                    DoCast(HEROIC(SPELL_OVERLOAD , SPELL_OVERLOAD_H));
                     events.ScheduleEvent(EVENT_OVERLOAD, 60000+ (rand()%65)*1000);
                 break;
                 case EVENT_LIGHTNING_WHIRL:
-                    DoCast( (HeroicMode) ? SPELL_LIGHTNING_WHIRL_H : SPELL_LIGHTNING_WHIRL );
+                    DoCast(HEROIC(SPELL_LIGHTNING_WHIRL , SPELL_LIGHTNING_WHIRL_H));
                     events.ScheduleEvent(EVENT_LIGHTNING_WHIRL, 20000+ (rand()%20)*1000);
                 break;
                 case EVENT_LIGHTNING_TENDRILS:
-                    DoCast( (HeroicMode) ? SPELL_LIGHTNING_TENDRILS_H : SPELL_LIGHTNING_TENDRILS );
+                    DoCast(HEROIC(SPELL_LIGHTNING_TENDRILS, SPELL_LIGHTNING_TENDRILS_H));
                     events.DelayEvents(15000, 5000);
                     DoResetThreat();
                 break;

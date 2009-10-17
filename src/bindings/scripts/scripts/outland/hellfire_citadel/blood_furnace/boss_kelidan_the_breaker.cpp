@@ -212,7 +212,7 @@ struct TRINITY_DLL_DECL boss_kelidan_the_breakerAI : public ScriptedAI
         {
             if (Firenova_Timer < diff)
             {
-                DoCast(m_creature,HeroicMode ? H_SPELL_FIRE_NOVA : SPELL_FIRE_NOVA,true);
+                DoCast(m_creature, HEROIC(SPELL_FIRE_NOVA, H_SPELL_FIRE_NOVA), true);
                 Firenova = false;
                 ShadowVolley_Timer = 2000;
             }else Firenova_Timer -=diff;
@@ -222,7 +222,7 @@ struct TRINITY_DLL_DECL boss_kelidan_the_breakerAI : public ScriptedAI
 
         if (ShadowVolley_Timer < diff)
         {
-            DoCast(m_creature,HeroicMode ? H_SPELL_SHADOW_BOLT_VOLLEY : SPELL_SHADOW_BOLT_VOLLEY);
+            DoCast(m_creature, HEROIC(SPELL_SHADOW_BOLT_VOLLEY, H_SPELL_SHADOW_BOLT_VOLLEY));
             ShadowVolley_Timer = 5000+rand()%8000;
         }else ShadowVolley_Timer -=diff;
 
@@ -346,7 +346,7 @@ struct TRINITY_DLL_DECL mob_shadowmoon_channelerAI : public ScriptedAI
 
         if (ShadowBolt_Timer < diff)
         {
-            DoCast(m_creature->getVictim(),HeroicMode ? H_SPELL_SHADOW_BOLT : SPELL_SHADOW_BOLT);
+            DoCast(m_creature->getVictim(), HEROIC(SPELL_SHADOW_BOLT, H_SPELL_SHADOW_BOLT));
             ShadowBolt_Timer = 5000+rand()%1000;
         }else ShadowBolt_Timer -=diff;
 

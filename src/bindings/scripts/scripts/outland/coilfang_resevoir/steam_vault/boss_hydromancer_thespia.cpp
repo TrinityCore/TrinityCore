@@ -162,7 +162,7 @@ struct TRINITY_DLL_DECL mob_coilfang_waterelementalAI : public ScriptedAI
 
         if (WaterBoltVolley_Timer < diff)
         {
-            DoCast(m_creature, HeroicMode ? H_SPELL_WATER_BOLT_VOLLEY : SPELL_WATER_BOLT_VOLLEY);
+            DoCast(m_creature, HEROIC(SPELL_WATER_BOLT_VOLLEY, H_SPELL_WATER_BOLT_VOLLEY));
             WaterBoltVolley_Timer = 7000+rand()%5000;
         }else WaterBoltVolley_Timer -= diff;
 
