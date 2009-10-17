@@ -40,7 +40,7 @@
 // Format is YYYYMMDDRR where RR is the change in the conf file
 // for that day.
 #ifndef _TRINITY_CORE_CONFVER
-# define _TRINITY_CORE_CONFVER 2009101501
+# define _TRINITY_CORE_CONFVER 2009101701
 #endif //_TRINITY_CORE_CONFVER
 
 #ifdef WIN32
