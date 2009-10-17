@@ -91,7 +91,7 @@ struct TRINITY_DLL_DECL boss_magus_telestraAI : public ScriptedAI
 
     bool AchievementTimerRunning;
     uint8 AchievementProgress;
-    uint32 AchievementTimer; 
+    uint32 AchievementTimer;
 
     void Reset()
     {
@@ -109,7 +109,7 @@ struct TRINITY_DLL_DECL boss_magus_telestraAI : public ScriptedAI
         AchievementProgress = 0;
         AchievementTimer = 0;
         AchievementTimerRunning = false;
-        
+
         AppearDelay = false;
 
         m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
@@ -218,7 +218,7 @@ struct TRINITY_DLL_DECL boss_magus_telestraAI : public ScriptedAI
             if (ArcaneMagusGUID)
                 ArcaneMagus = Unit::GetUnit((*m_creature), ArcaneMagusGUID);
             if (FireMagus && FireMagus->isDead())
-            {    
+            {
                 FireMagusDead = true;
                 if (!AchievementTimerRunning)
                     AchievementTimerRunning = true;

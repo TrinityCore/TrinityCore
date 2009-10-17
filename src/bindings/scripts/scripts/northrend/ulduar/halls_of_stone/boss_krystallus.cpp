@@ -38,64 +38,64 @@ struct TRINITY_DLL_DECL boss_krystallusAI : public ScriptedAI
     {
         pInstance = c->GetInstanceData();
     }
-    
+
     uint32 uiBoulderTossTimer;
     uint32 uiGroundSpikeTimer;
     uint32 uiGroundSlamTimer;
     uint32 uiShatterTimer;
     uint32 uiStompTimer;
-    
+
     bool bIsSlam;
-    
+
     ScriptedInstance* pInstance;
 
     void Reset()
     {
         bIsSlam = false;
-        
+
         uiBoulderTossTimer = 3000 + rand()%6000;
         uiGroundSpikeTimer = 9000 + rand()%5000;
         uiGroundSlamTimer = 15000 + rand()%3000;
         uiStompTimer = 20000 + rand()%9000;
         uiShatterTimer = 0;
-        
+
         if (pInstance)
             pInstance->SetData(DATA_KRYSTALLUS_EVENT, NOT_STARTED);
     }
     void EnterCombat(Unit* who)
     {
         DoScriptText(SAY_AGGRO, m_creature);
-        
+
         if (pInstance)
             pInstance->SetData(DATA_KRYSTALLUS_EVENT, IN_PROGRESS);
     }
-    
+
     void UpdateAI(const uint32 diff)
     {
         //Return since we have no target
         if (!UpdateVictim())
             return;
-        
+
         if (uiBoulderTossTimer < diff)
         {
             if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                 DoCast(pTarget, HEROIC(SPELL_BOULDER_TOSS, H_SPELL_BOULDER_TOSS));
             uiBoulderTossTimer = 9000 + rand()%6000;
         } else uiBoulderTossTimer -= diff;
-        
+
         if (uiGroundSpikeTimer < diff)
         {
             if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                 DoCast(pTarget, SPELL_GROUND_SPIKE);
             uiGroundSpikeTimer = 12000 + rand()%5000;
         } else uiGroundSpikeTimer -= diff;
-        
+
         if (uiStompTimer < diff)
         {
             DoCast(m_creature, HEROIC(SPELL_STOMP, H_SPELL_STOMP));
             uiStompTimer = 20000 + rand()%9000;
         } else uiStompTimer -= diff;
-        
+
         if (uiGroundSlamTimer < diff)
         {
             DoCast(m_creature, SPELL_GROUND_SLAM);
@@ -103,7 +103,7 @@ struct TRINITY_DLL_DECL boss_krystallusAI : public ScriptedAI
             uiShatterTimer = 10000;
             uiGroundSlamTimer = 15000 + rand()%3000;
         } else uiGroundSlamTimer -= diff;
-        
+
         if (bIsSlam)
         {
             if(uiShatterTimer < diff)
@@ -115,15 +115,15 @@ struct TRINITY_DLL_DECL boss_krystallusAI : public ScriptedAI
 
         DoMeleeAttackIfReady();
     }
-    
+
     void JustDied(Unit* killer)
     {
         DoScriptText(SAY_DEATH, m_creature);
-        
+
         if (pInstance)
             pInstance->SetData(DATA_KRYSTALLUS_EVENT, DONE);
     }
-    
+
     void KilledUnit(Unit *victim)
     {
         if (victim == m_creature)

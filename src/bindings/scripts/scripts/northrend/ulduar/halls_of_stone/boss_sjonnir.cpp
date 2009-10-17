@@ -71,9 +71,9 @@ struct TRINITY_DLL_DECL boss_sjonnirAI : public ScriptedAI
     {
         pInstance = c->GetInstanceData();
     }
-    
+
     bool bIsFrenzy;
-    
+
     uint32 uiChainLightningTimer;
     uint32 uiLightningShieldTimer;
     uint32 uiStaticChargeTimer;
@@ -82,13 +82,13 @@ struct TRINITY_DLL_DECL boss_sjonnirAI : public ScriptedAI
     uint32 uiFrenzyTimer;
     uint32 uiEncounterTimer;
     uint32 uiKilledIronSludges;
-    
+
     ScriptedInstance* pInstance;
 
     void Reset()
     {
         bIsFrenzy = false;
-        
+
         uiEncounterTimer = 0;
         uiChainLightningTimer = 3000 + rand()%5000;
         uiLightningShieldTimer = 20000 + rand()%5000;
@@ -97,46 +97,46 @@ struct TRINITY_DLL_DECL boss_sjonnirAI : public ScriptedAI
         uiSummonTimer = 5000;
         uiFrenzyTimer = 300000; //5 minutes
         uiKilledIronSludges = 0;
-        
+
         if (pInstance)
             pInstance->SetData(DATA_SJONNIR_EVENT, NOT_STARTED);
     }
-    
+
     void EnterCombat(Unit* who)
     {
         DoScriptText(SAY_AGGRO, m_creature);
-        
+
         uiEncounterTimer = 0;
-        
+
         if (pInstance)
             pInstance->SetData(DATA_SJONNIR_EVENT, IN_PROGRESS);
     }
-    
+
     void UpdateAI(const uint32 diff)
     {
         //Return since we have no target
         if (!UpdateVictim())
             return;
-        
+
         if (uiChainLightningTimer < diff)
         {
             if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                 DoCast(pTarget, HEROIC(SPELL_CHAIN_LIGHTING, H_SPELL_CHAIN_LIGHTING));
             uiChainLightningTimer = 10000 + rand()%5000;
         } else uiChainLightningTimer -= diff;
-        
+
         if (uiLightningShieldTimer < diff)
         {
             DoCast(m_creature, HEROIC(SPELL_LIGHTING_SHIELD, H_SPELL_LIGHTING_SHIELD));
             uiLightningShieldTimer -= diff;
         }
-        
+
         if (uiStaticChargeTimer < diff)
         {
             DoCast(m_creature->getVictim(), HEROIC(SPELL_STATIC_CHARGE, H_SPELL_STATIC_CHARGE));
             uiStaticChargeTimer = 20000 + rand()%5000;
         } uiStaticChargeTimer -= diff;
-        
+
         if (uiLightningRingTimer < diff)
         {
             if (m_creature->IsNonMeleeSpellCasted(false))
@@ -144,17 +144,17 @@ struct TRINITY_DLL_DECL boss_sjonnirAI : public ScriptedAI
             DoCast(m_creature, HEROIC(SPELL_LIGHTING_RING, H_SPELL_LIGHTING_RING));
             uiLightningRingTimer = 30000 + rand()%5000;
         } else uiLightningRingTimer -= diff;
-        
+
         if (uiSummonTimer < diff)
         {
             uint32 uiSummonPipe = rand()%2;
-            m_creature->SummonCreature(uiEncounterTimer > DATA_TIME_BEFORE_OOZE ? CREATURE_MALFORMED_OOZE : 
+            m_creature->SummonCreature(uiEncounterTimer > DATA_TIME_BEFORE_OOZE ? CREATURE_MALFORMED_OOZE :
                                        RAND(CREATURE_FORGED_IRON_DWARF,CREATURE_FORGED_IRON_TROGG),
                                        PipeLocations[uiSummonPipe].x, PipeLocations[uiSummonPipe].y, PipeLocations[uiSummonPipe].z, 0.0f,
                                        TEMPSUMMON_CORPSE_TIMED_DESPAWN, 30000);
             uiSummonTimer = 20000;
         } else uiSummonTimer -= diff;
-        
+
         if (!bIsFrenzy)
         {
           if (uiFrenzyTimer < diff)
@@ -164,23 +164,23 @@ struct TRINITY_DLL_DECL boss_sjonnirAI : public ScriptedAI
           }
           else uiFrenzyTimer -= diff;
         }
-        
+
         uiEncounterTimer +=diff;
 
         DoMeleeAttackIfReady();
     }
-    
+
     void JustSummoned(Creature* summon)
     {
         summon->GetMotionMaster()->MovePoint(0, CenterPoint.x, CenterPoint.y, CenterPoint.z);
         /*if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
             summon->AI()->AttackStart(pTarget);*/
     }
-    
+
     void JustDied(Unit* killer)
     {
         DoScriptText(SAY_DEATH, m_creature);
-        
+
         if (HeroicMode && uiKilledIronSludges > 4)
         {
             AchievementEntry const *AchievAbuseTheOoze = GetAchievementStore()->LookupEntry(ACHIEVEMENT_ABUSE_THE_OOZE);
@@ -195,7 +195,7 @@ struct TRINITY_DLL_DECL boss_sjonnirAI : public ScriptedAI
                 }
             }
         }
-        
+
         if (pInstance)
             pInstance->SetData(DATA_SJONNIR_EVENT, DONE);
     }
@@ -205,7 +205,7 @@ struct TRINITY_DLL_DECL boss_sjonnirAI : public ScriptedAI
             return;
         DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2,SAY_SLAY_3), m_creature);
     }
-    
+
     void KilledIronSludge()
     {
         ++uiKilledIronSludges;
@@ -220,16 +220,16 @@ CreatureAI* GetAI_boss_sjonnir(Creature* pCreature)
 struct TRINITY_DLL_DECL mob_malformed_oozeAI : public ScriptedAI
 {
     mob_malformed_oozeAI(Creature *c) : ScriptedAI(c) {}
-    
+
     uint32 uiMergeTimer;
     bool bIsMerging;
-    
+
     void Reset()
     {
         uiMergeTimer = 5000;
         bIsMerging = false;
     }
-    
+
     void UpdateAI(const uint32 diff)
     {
         if (bIsMerging)
@@ -244,13 +244,13 @@ struct TRINITY_DLL_DECL mob_malformed_oozeAI : public ScriptedAI
                 } else bIsMerging = false;
             } else uiMergeTimer -= diff;
         }
-        
+
         if (!UpdateVictim())
             return;
-        
+
         DoMeleeAttackIfReady();
     }
-    
+
     void MovementInform(uint32 type, uint32 id)
     {
         if(type != POINT_MOTION_TYPE)
@@ -270,9 +270,9 @@ struct TRINITY_DLL_DECL mob_iron_sludgeAI : public ScriptedAI
     {
         pInstance = c->GetInstanceData();
     }
-    
+
     ScriptedInstance* pInstance;
-    
+
     void JustDied(Unit* pKiller)
     {
         if (pInstance)
@@ -294,12 +294,12 @@ void AddSC_boss_sjonnir()
     newscript->Name = "boss_sjonnir";
     newscript->GetAI = &GetAI_boss_sjonnir;
     newscript->RegisterSelf();
-    
+
     newscript = new Script;
     newscript->Name = "mob_malformed_ooze";
     newscript->GetAI = &GetAI_mob_malformed_ooze;
     newscript->RegisterSelf();
-    
+
     newscript = new Script;
     newscript->Name = "mob_iron_sludge";
     newscript->GetAI = &GetAI_mob_iron_sludge;

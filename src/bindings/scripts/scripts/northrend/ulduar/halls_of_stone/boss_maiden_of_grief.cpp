@@ -41,7 +41,7 @@ enum Achievements
 
 struct TRINITY_DLL_DECL boss_maiden_of_griefAI : public ScriptedAI
 {
-    boss_maiden_of_griefAI(Creature *c) : ScriptedAI(c) 
+    boss_maiden_of_griefAI(Creature *c) : ScriptedAI(c)
     {
         pInstance = m_creature->GetInstanceData();
         IsHeroic = m_creature->GetMap()->IsHeroic();
@@ -56,7 +56,7 @@ struct TRINITY_DLL_DECL boss_maiden_of_griefAI : public ScriptedAI
     uint32 PillarOfWoeTimer;
     uint32 AchievTimer;
 
-    void Reset() 
+    void Reset()
     {
         PartingSorrowTimer = 25000 + rand()%5000;
         StormOfGriefTimer = 10000;
@@ -81,7 +81,7 @@ struct TRINITY_DLL_DECL boss_maiden_of_griefAI : public ScriptedAI
         //Return since we have no target
         if (!UpdateVictim())
             return;
-        
+
         //Achievement counter
         if (pInstance)
             if (pInstance->GetData(DATA_MAIDEN_OF_GRIEF_EVENT) == IN_PROGRESS)
@@ -134,10 +134,10 @@ struct TRINITY_DLL_DECL boss_maiden_of_griefAI : public ScriptedAI
 
         if (pInstance)
             pInstance->SetData(DATA_MAIDEN_OF_GRIEF_EVENT, DONE);
-        
+
         AchievementEntry const *AchievGoodGrief = GetAchievementStore()->LookupEntry(ACHIEVEMENT_GOOD_GRIEF);
         Map* pMap = m_creature->GetMap();
-        
+
         if (HeroicMode && AchievTimer < 60000 && pMap && pMap->IsDungeon() && AchievGoodGrief)
         {
             Map::PlayerList const &players = pMap->GetPlayers();

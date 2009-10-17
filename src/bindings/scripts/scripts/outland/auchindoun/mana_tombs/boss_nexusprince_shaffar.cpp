@@ -46,7 +46,7 @@ enum ePrince
 
     SPELL_ETHEREAL_BEACON           = 32371,                // Summons NPC_BEACON
     SPELL_ETHEREAL_BEACON_VISUAL    = 32368,
- 
+
     NPC_BEACON                      = 18431,
     NPC_SHAFFAR                     = 18344,
 
@@ -351,7 +351,7 @@ void AddSC_boss_nexusprince_shaffar()
     newscript->Name = "mob_ethereal_beacon";
     newscript->GetAI = &GetAI_mob_ethereal_beacon;
     newscript->RegisterSelf();
-    
+
     newscript = new Script;
     newscript->Name = "mob_ethereal_apprentice";
     newscript->GetAI = &GetAI_mob_ethereal_apprentice;

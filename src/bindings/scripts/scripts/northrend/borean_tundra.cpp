@@ -380,7 +380,7 @@ bool GossipHello_npc_corastrasza(Player* pPlayer, Creature* pCreature)
 {
     if (pCreature->isQuestGiver())
         pPlayer->PrepareQuestMenu(pCreature->GetGUID());
-    
+
     if (pPlayer->GetQuestStatus(QUEST_ACES_HIGH) == QUEST_STATUS_INCOMPLETE || pPlayer->GetQuestStatus(QUEST_ACES_HIGH_DAILY) == QUEST_STATUS_INCOMPLETE) //It's the same dragon for both quests.
     {
         pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_C_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
@@ -398,7 +398,7 @@ bool GossipSelect_npc_corastrasza(Player* pPlayer, Creature* pCreature, uint32 u
 
         pPlayer->CastSpell(pPlayer, SPELL_SUMMON_WYRMREST_SKYTALON, true);
         pPlayer->CastSpell(pPlayer, SPELL_WYRMREST_SKYTALON_RIDE_PERIODIC, true);
-        
+
     }
 
     return true;
@@ -419,10 +419,10 @@ enum eIruk
 
 bool GossipHello_npc_iruk(Player* pPlayer, Creature* pCreature)
 {
-     
+
     if (pPlayer->GetQuestStatus(QUEST_SPIRITS_WATCH_OVER_US) == QUEST_STATUS_INCOMPLETE)
         pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_I, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-    
+
     pPlayer->PlayerTalkClass->SendGossipMenu(GOSSIP_TEXT_I, pCreature->GetGUID());
     return true;
 }
@@ -435,7 +435,7 @@ bool GossipSelect_npc_iruk(Player* pPlayer, Creature* pCreature, uint32 uiSender
             pPlayer->CastSpell(pPlayer, SPELL_CREATURE_TOTEM_OF_ISSLIRUK, true);
             pPlayer->CLOSE_GOSSIP_MENU();
             break;
-        
+
     }
     return true;
 }
@@ -470,7 +470,7 @@ struct TRINITY_DLL_DECL mob_nerubar_victimAI : public ScriptedAI
                     CAST_PLR(Killer)->KilledMonsterCredit(WARSONG_PEON, 0);
                 }
                 else if(uiRand < 75)
-                    Killer->CastSpell(m_creature,nerubarVictims[rand()%3],true);            
+                    Killer->CastSpell(m_creature,nerubarVictims[rand()%3],true);
             }
         }
     }

@@ -48,7 +48,7 @@ enum Spells
     H_CREATURE_FLAME_SPHERE_2           = 31687
 };
 enum Misc
-{ 
+{
     DATA_EMBRACE_DMG                    = 20000,
     H_DATA_EMBRACE_DMG                  = 40000,
     DATA_SPHERE_DISTANCE                =    15
@@ -70,7 +70,7 @@ enum Yells
     SAY_VANISH_1                             = -1619027,
     SAY_VANISH_2                             = -1619028
 };
-enum CombatPhase 
+enum CombatPhase
 {
     NORMAL,
     CASTING_FLAME_SPHERES,
@@ -87,7 +87,7 @@ struct TRINITY_DLL_DECL boss_taldaramAI : public ScriptedAI
         m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
         m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
     }
-    
+
     uint32 uiBloodthirstTimer;
     uint32 uiVanishTimer;
     uint32 uiWaitTimer;
@@ -100,13 +100,13 @@ struct TRINITY_DLL_DECL boss_taldaramAI : public ScriptedAI
 
     Unit *pEmbraceTarget;
     Unit *pSphereTarget;
-    
+
     Creature* pSpheres[3];
-    
+
     CombatPhase Phase;
-    
+
     ScriptedInstance* pInstance;
-    
+
     void Reset()
     {
         uiBloodthirstTimer = 10000;
@@ -120,14 +120,14 @@ struct TRINITY_DLL_DECL boss_taldaramAI : public ScriptedAI
         if (pInstance)
             pInstance->SetData(DATA_PRINCE_TALDARAM_EVENT, NOT_STARTED);
     }
-    
+
     void EnterCombat(Unit* who)
     {
         if (pInstance)
             pInstance->SetData(DATA_PRINCE_TALDARAM_EVENT, IN_PROGRESS);
             DoScriptText(SAY_AGGRO, m_creature);
     }
-      
+
     void UpdateAI(const uint32 diff)
     {
         if (!UpdateVictim())
@@ -167,7 +167,7 @@ struct TRINITY_DLL_DECL boss_taldaramAI : public ScriptedAI
                             pSpheres[2]->GetMotionMaster()->MovePoint(0, x, y, pSpheres[2]->GetPositionZ());
                         }
                     }
-                    
+
                     Phase = NORMAL;
                     uiPhaseTimer = 0;
                 break;
@@ -197,7 +197,7 @@ struct TRINITY_DLL_DECL boss_taldaramAI : public ScriptedAI
                         DoCast(m_creature->getVictim(),SPELL_BLOODTHIRST);
                         uiBloodthirstTimer = 10000;
                     } else uiBloodthirstTimer -= diff;
-                    
+
                     if (uiFlamesphereTimer < diff)
                     {
                         DoCast(m_creature, SPELL_CONJURE_FLAME_SPHERE);
@@ -205,7 +205,7 @@ struct TRINITY_DLL_DECL boss_taldaramAI : public ScriptedAI
                         uiPhaseTimer = 3000 + diff;
                         uiFlamesphereTimer = 15000;
                     } else uiFlamesphereTimer -= diff;
-                                       
+
                     if (uiVanishTimer < diff )
                     {
                         //Count alive players
@@ -231,13 +231,13 @@ struct TRINITY_DLL_DECL boss_taldaramAI : public ScriptedAI
                         }
                         uiVanishTimer = urand(25000,35000);
                     } else uiVanishTimer -= diff;
-                    
+
                     DoMeleeAttackIfReady();
                 break;
             }
         } else uiPhaseTimer -= diff;
     }
-    
+
     void DamageTaken(Unit* done_by, uint32 &damage)
     {
         if (Phase == FEEDING && pEmbraceTarget && pEmbraceTarget->isAlive())
@@ -252,15 +252,15 @@ struct TRINITY_DLL_DECL boss_taldaramAI : public ScriptedAI
           }
         }
     }
-    
+
     void JustDied(Unit* killer)
     {
         DoScriptText(SAY_DEATH, m_creature);
-        
+
         if (pInstance)
         {
             pInstance->SetData(DATA_PRINCE_TALDARAM_EVENT, DONE);
-            
+
             //The Party's Over achievement:
             AchievementEntry const *AchievThePartyIsOver = GetAchievementStore()->LookupEntry(ACHIEVEMENT_THE_PARTY_IS_OVER);
             Map* pMap = m_creature->GetMap();
@@ -289,14 +289,14 @@ struct TRINITY_DLL_DECL boss_taldaramAI : public ScriptedAI
         }
         DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2), m_creature);
     }
-        
+
     bool CheckSpheres()
     {
         if(!pInstance)
 	        return false;
         uiSphereGuids[0] = pInstance->GetData64(DATA_SPHERE1);
         uiSphereGuids[1] = pInstance->GetData64(DATA_SPHERE2);
-        
+
         GameObject *pSpheres[2];
         for (uint8 i=0; i < 2; ++i)
         {
@@ -309,7 +309,7 @@ struct TRINITY_DLL_DECL boss_taldaramAI : public ScriptedAI
         RemovePrison();
         return true;
     }
-    
+
     void RemovePrison()
     {
         m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
@@ -324,14 +324,14 @@ struct TRINITY_DLL_DECL boss_taldaramAI : public ScriptedAI
 
 struct TRINITY_DLL_DECL mob_taldaram_flamesphereAI : public ScriptedAI
 {
-    mob_taldaram_flamesphereAI(Creature *c) : ScriptedAI(c) 
+    mob_taldaram_flamesphereAI(Creature *c) : ScriptedAI(c)
     {
         pInstance = c->GetInstanceData();
     }
-    
+
     uint32 uiDespawnTimer;
     ScriptedInstance* pInstance;
-    
+
     void Reset()
     {
         m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
@@ -343,15 +343,15 @@ struct TRINITY_DLL_DECL mob_taldaram_flamesphereAI : public ScriptedAI
         DoCast(m_creature, HEROIC(SPELL_FLAME_SPHERE_PERIODIC, H_SPELL_FLAME_SPHERE_PERIODIC));
         uiDespawnTimer = 10000;
     }
-    
+
     void EnterCombat(Unit *who) {}
     void MoveInLineOfSight(Unit *who) {}
-    
+
     void JustDied(Unit* slayer)
     {
         DoCast(m_creature, SPELL_FLAME_SPHERE_DEATH_EFFECT);
     }
-     
+
     void UpdateAI(const uint32 diff)
     {
         if (uiDespawnTimer < diff)
@@ -381,13 +381,13 @@ bool GOHello_prince_taldaram_sphere(Player *pPlayer, GameObject *pGO)
         // maybe these are hacks :(
         pGO->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_UNK1);
         pGO->SetGoState(GO_STATE_ACTIVE);
-        
+
         switch(pGO->GetEntry())
         {
             case 193093: pInstance->SetData(DATA_SPHERE1_EVENT,IN_PROGRESS); break;
             case 193094: pInstance->SetData(DATA_SPHERE2_EVENT,IN_PROGRESS); break;
         }
-        
+
         CAST_AI(boss_taldaramAI, pPrinceTaldaram->AI())->CheckSpheres();
     }
     return true;
@@ -401,12 +401,12 @@ void AddSC_boss_taldaram()
     newscript->Name = "boss_taldaram";
     newscript->GetAI = &GetAI_boss_taldaram;
     newscript->RegisterSelf();
-    
+
     newscript = new Script;
     newscript->Name = "mob_taldaram_flamesphere";
     newscript->GetAI = &GetAI_mob_taldaram_flamesphere;
     newscript->RegisterSelf();
-    
+
     newscript = new Script;
     newscript->Name = "prince_taldaram_sphere";
     newscript->pGOHello = &GOHello_prince_taldaram_sphere;

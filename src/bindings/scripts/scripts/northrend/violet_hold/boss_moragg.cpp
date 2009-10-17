@@ -26,17 +26,17 @@ struct TRINITY_DLL_DECL boss_moraggAI : public ScriptedAI
     {
         pInstance = c->GetInstanceData();
     }
-    
+
     uint32 uiOpticLinkTimer;
     uint32 uiCorrosiveSalivaTimer;
-    
+
     ScriptedInstance* pInstance;
 
     void Reset()
     {
         uiOpticLinkTimer = 10000;
         uiCorrosiveSalivaTimer = 5000;
-        
+
         if (pInstance)
         {
             if (pInstance->GetData(DATA_WAVE_COUNT) == 6)
@@ -45,7 +45,7 @@ struct TRINITY_DLL_DECL boss_moraggAI : public ScriptedAI
                 pInstance->SetData(DATA_2ND_BOSS_EVENT, NOT_STARTED);
         }
     }
-    
+
     void EnterCombat(Unit* who)
     {
         if (pInstance)
@@ -56,22 +56,22 @@ struct TRINITY_DLL_DECL boss_moraggAI : public ScriptedAI
                 pInstance->SetData(DATA_2ND_BOSS_EVENT, IN_PROGRESS);
         }
     }
-    
+
     void MoveInLineOfSight(Unit* who) {}
-    
+
     void UpdateAI(const uint32 diff)
     {
         //Return since we have no target
         if (!UpdateVictim())
             return;
-        
+
         if (uiOpticLinkTimer < diff)
         {
             if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                 DoCast(pTarget,SPELL_OPTIC_LINK);
             uiOpticLinkTimer = 15000;
         } else uiOpticLinkTimer -= diff;
-        
+
         if (uiCorrosiveSalivaTimer < diff)
         {
             DoCast(m_creature->getVictim(), SPELL_CORROSIVE_SALIVA);

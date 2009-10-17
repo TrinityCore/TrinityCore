@@ -44,7 +44,7 @@ struct TRINITY_DLL_DECL instance_azjol_nerub : public ScriptedInstance
     uint64 m_uiWatcherGashra;
     uint64 m_uiWatcherSilthik;
     uint64 m_uiWatcherNarjil;
-    
+
     uint64 m_uiKrikthirDoor;
 
     uint32 m_auiEncounter[MAX_ENCOUNTER];
@@ -83,7 +83,7 @@ struct TRINITY_DLL_DECL instance_azjol_nerub : public ScriptedInstance
             case 28729:    m_uiWatcherNarjil = pCreature->GetGUID();   break;
         }
     }
-    
+
     void OnGameObjectCreate(GameObject* pGo, bool add)
     {
         switch (pGo->GetEntry())

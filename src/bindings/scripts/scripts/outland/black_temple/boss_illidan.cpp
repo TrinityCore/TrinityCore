@@ -993,7 +993,7 @@ struct TRINITY_DLL_DECL npc_akama_illidanAI : public ScriptedAI
     uint32 WalkCount;
     uint32 TalkCount;
     uint32 Check_Timer;
-    
+
     void Reset()
     {
         WalkCount = 0;
@@ -1036,7 +1036,7 @@ struct TRINITY_DLL_DECL npc_akama_illidanAI : public ScriptedAI
         Phase = PHASE_AKAMA_NULL;
         Timer = 0;
 
-        ChannelCount = 0;        
+        ChannelCount = 0;
         TalkCount = 0;
         Check_Timer = 5000;
 
@@ -1059,7 +1059,7 @@ struct TRINITY_DLL_DECL npc_akama_illidanAI : public ScriptedAI
     void EnterCombat(Unit *who) {}
     void MoveInLineOfSight(Unit* who) {}
 
-    void MovementInform(uint32 MovementType, uint32 Data) 
+    void MovementInform(uint32 MovementType, uint32 Data)
     {
         if(MovementType == POINT_MOTION_TYPE)
             Timer = 1;
@@ -1093,7 +1093,7 @@ struct TRINITY_DLL_DECL npc_akama_illidanAI : public ScriptedAI
 
         pInstance->SetData(DATA_ILLIDANSTORMRAGEEVENT, IN_PROGRESS);
         for(uint8 i = 0; i < 2; ++i)
-            pInstance->HandleGameObject(DoorGUID[i], false);            
+            pInstance->HandleGameObject(DoorGUID[i], false);
         if (GETCRE(Illidan, IllidanGUID))
         {
             Illidan->RemoveAurasDueToSpell(SPELL_KNEEL);
@@ -1121,7 +1121,7 @@ struct TRINITY_DLL_DECL npc_akama_illidanAI : public ScriptedAI
         if (Creature* Channel = m_creature->SummonCreature(ILLIDAN_DOOR_TRIGGER, x, y, z+5, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 360000))
         {
             ChannelGUID = Channel->GetGUID();
-            Channel->SetDisplayId(11686); // Invisible but spell visuals can still be seen.            
+            Channel->SetDisplayId(11686); // Invisible but spell visuals can still be seen.
             DoCast(Channel, SPELL_AKAMA_DOOR_FAIL);
         }
 
@@ -1146,7 +1146,7 @@ struct TRINITY_DLL_DECL npc_akama_illidanAI : public ScriptedAI
             return;
         switch(NextPhase)
         {
-        case PHASE_CHANNEL:            
+        case PHASE_CHANNEL:
             BeginChannel();
             Timer = 5000;
             ChannelCount = 0;
@@ -1341,8 +1341,8 @@ struct TRINITY_DLL_DECL npc_akama_illidanAI : public ScriptedAI
             {
             case PHASE_CHANNEL:
                 if(JustCreated)
-                    HandleChannelSequence();                    
-                else{                    
+                    HandleChannelSequence();
+                else{
                     EnterPhase(PHASE_WALK);
                 }
                 break;
