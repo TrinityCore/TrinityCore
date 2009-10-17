@@ -19,7 +19,7 @@
 #ifndef DEF_ULDUAR_H
 #define DEF_ULDUAR_H
 
-enum eEnums
+enum eTypes
 {
     MAX_ENCOUNTER               = 14,
 

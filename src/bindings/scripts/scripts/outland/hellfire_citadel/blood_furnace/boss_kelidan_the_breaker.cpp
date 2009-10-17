@@ -29,7 +29,7 @@ EndContentData */
 #include "precompiled.h"
 #include "def_blood_furnace.h"
 
-enum eEnums
+enum eKelidan
 {
     SAY_WAKE                    = -1542000,
     SAY_ADD_AGGRO_1             = -1542001,
@@ -264,7 +264,7 @@ CreatureAI* GetAI_boss_kelidan_the_breaker(Creature* pCreature)
 ## mob_shadowmoon_channeler
 ######*/
 
-enum eEnums
+enum eShadowmoon
 {
     SPELL_SHADOW_BOLT       = 12739,
     H_SPELL_SHADOW_BOLT     = 15472,
