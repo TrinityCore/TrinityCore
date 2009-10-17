@@ -202,8 +202,8 @@ struct TRINITY_DLL_DECL instance_violet_hold : public ScriptedInstance
                 if (data == DONE)
                 {
                     SaveToDB();
-                    GameObject* pMainDoor = instance->GetGameObject(uiMainDoor);
-                    pMainDoor->SetGoState(GO_STATE_ACTIVE);
+                    if (GameObject* pMainDoor = instance->GetGameObject(uiMainDoor))
+                        pMainDoor->SetGoState(GO_STATE_ACTIVE);
                 }
                 break;
             case DATA_WAVE_COUNT:
