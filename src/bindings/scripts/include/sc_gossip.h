@@ -73,7 +73,7 @@
 #define GOSSIP_TEXT_FISHING             "Fishing"
 #define GOSSIP_TEXT_SKINNING            "Skinning"
 
-enum eEnums
+enum eTradeskill
 {
 // Skill defines
     TRADESKILL_ALCHEMY                  = 1,

@@ -1,7 +1,7 @@
 #ifndef DEF_NEXUS_H
 #define DEF_NEXUS_H
 
-enum eEnums
+enum eTypes
 {
     DATA_MAGUS_TELESTRA_EVENT,
     DATA_ANOMALUS_EVENT,
