@@ -421,6 +421,8 @@ WintergraspCreType OPvPWintergrasp::GetCreatureType(uint32 entry) const
         case 28094: // Demolisher
         case 28312: // Alliance Siege Engine
         case 32627: // Horde Siege Engine
+        case 28319: // Siege turret
+        case 32629: // Siege turret
             return CREATURE_SIEGE_VEHICLE;
         case 28366: // Wintergrasp Tower cannon
             return CREATURE_TURRET;
@@ -717,10 +719,10 @@ bool OPvPWintergrasp::UpdateGameObjectInfo(GameObject *go) const
     switch(go->GetGOInfo()->displayId)
     {
         case 8244: // Defender's Portal - Vehicle Teleporter
-            go->SetUInt32Value(GAMEOBJECT_FACTION, defFaction);
+            go->SetUInt32Value(GAMEOBJECT_FACTION, WintergraspFaction[getDefenderTeam()]);
             return true;
         case 7967: // Titan relic
-            go->SetUInt32Value(GAMEOBJECT_FACTION, attFaction);
+            go->SetUInt32Value(GAMEOBJECT_FACTION, WintergraspFaction[getAttackerTeam()]);
             return true;
 
         case 8165: // Wintergrasp Keep Door
@@ -859,13 +861,13 @@ void OPvPWintergrasp::CastTenacity(Unit *unit, int32 newStack)
         return;
 
     uint32 spellId = unit->GetTypeId() == TYPEID_PLAYER ? SPELL_TENACITY : SPELL_TENACITY_VEHICLE;
-
+    float percent = ((float)unit->GetHealth()) / unit->GetMaxHealth();
     if (newStack)
         unit->SetAuraStack(spellId, unit, newStack);
     else
         unit->RemoveAura(spellId);
     if (unit->GetTypeId() != TYPEID_PLAYER || unit->isAlive())
-        unit->SetHealth(uint32(unit->GetMaxHealth()*((float)unit->GetHealth()) / unit->GetMaxHealth()));
+        unit->SetHealth(uint32(unit->GetMaxHealth()*percent));
 }
 
 // Recalculates Tenacity and applies it to Players / Vehicles
