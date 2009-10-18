@@ -183,6 +183,7 @@ UPDATE creature_template SET `ScriptName`='boss_krik_thir' WHERE `entry`=28684;
 UPDATE creature_template SET `ScriptName`='npc_skittering_infector' WHERE `entry`=28736;
 UPDATE creature_template SET `ScriptName`='npc_anub_ar_skirmisher' WHERE `entry`=28734;
 UPDATE creature_template SET `ScriptName`='npc_anub_ar_shadowcaster' WHERE `entry`=28733;
+UPDATE `creature_template` SET `ScriptName`='boss_hadronox' WHERE `entry`=28921;
 
 /* AHN'KAHET: THE OLD KINGDOM */
 UPDATE `instance_template` SET `script`='instance_ahnkahet' WHERE `map`=619;
@@ -192,6 +193,8 @@ UPDATE `creature_template` SET `ScriptName`='boss_taldaram' WHERE `entry`=29308;
 UPDATE `creature_template` SET `ScriptName`='mob_taldaram_flamesphere' WHERE `entry` IN (30106,31686,31687);
 UPDATE `gameobject_template` SET `ScriptName`='prince_taldaram_sphere' WHERE `entry` IN (193093,193094);
 UPDATE `creature_template` SET `ScriptName`='boss_volazj' WHERE `entry`=29311;
+UPDATE `creature_template` SET `ScriptName`='boss_amanitar' WHERE `entry`=30258;
+UPDATE `creature_template` SET `ScriptName`='mob_amanitar_mushrooms' WHERE `entry` IN (30435,30391);
 
 /* AZSHARA */
 UPDATE `creature_template` SET `ScriptName`='mobs_spitelashes' WHERE `entry` IN (6190,6193,6194,6195,6196,7885,7886,12204,12205);
