@@ -10,35 +10,52 @@ Script Data End */
 update creature_template set scriptname = '' where entry = '';
 *** SQL END ***/
 #include "precompiled.h"
+#include "def_culling_of_stratholme.h"
 
-//Spells
-#define SPELL_CURSE_OF_EXERTION                   52772
-#define SPELL_TIME_WARP                           52766 //Time slows down, reducing attack, casting and movement speed by 70% for 6 sec.
-#define SPELL_TIME_STOP                           58848 //Stops time in a 50 yard sphere for 2 sec.
-#define SPELL_WOUNDING_STRIKE_N                   52771 //Used only on the tank
-#define SPELL_WOUNDING_STRIKE_H                   58830
+enum Spells
+{
+    SPELL_CURSE_OF_EXERTION                   = 52772,
+    SPELL_TIME_WARP                           = 52766, //Time slows down, reducing attack, casting and movement speed by 70% for 6 sec.
+    SPELL_TIME_STOP                           = 58848, //Stops time in a 50 yard sphere for 2 sec.
+    SPELL_WOUNDING_STRIKE                     = 52771, //Used only on the tank
+    H_SPELL_WOUNDING_STRIKE                   = 58830
+};
 
 //not in db
-//Say
-#define SAY_INTRO                                -1595000 //"Prince Arthas Menethil, on this day, a powerful darkness has taken hold of your soul. The death you are destined to visit upon others will this day be your own."
-#define SAY_AGGRO                                -1595001 //"We'll see about that, young prince."
-#define SAY_TIME_WARP_1                          -1595002 //"Tick tock, tick tock..."
-#define SAY_TIME_WARP_2                          -1595003 //"Not quick enough!"
-#define SAY_TIME_WARP_3                          -1595004 //"Let's get this over with. "
-#define SAY_SLAY_1                               -1595005 //"There is no future for you."
-#define SAY_SLAY_2                               -1595006 //"This is the hour of our greatest triumph!"
-#define SAY_SLAY_3                               -1595007 //"You were destined to fail. "
-#define SAY_DEATH                                -1595008 //"*gurgles*"
+enum Yells
+{
+    SAY_INTRO                                = -1595000, //"Prince Arthas Menethil, on this day, a powerful darkness has taken hold of your soul. The death you are destined to visit upon others will this day be your own."
+    SAY_AGGRO                                = -1595001, //"We'll see about that, young prince."
+    SAY_TIME_WARP_1                          = -1595002, //"Tick tock, tick tock..."
+    SAY_TIME_WARP_2                          = -1595003, //"Not quick enough!"
+    SAY_TIME_WARP_3                          = -1595004, //"Let's get this over with. "
+    SAY_SLAY_1                               = -1595005, //"There is no future for you."
+    SAY_SLAY_2                               = -1595006, //"This is the hour of our greatest triumph!"
+    SAY_SLAY_3                               = -1595007, //"You were destined to fail. "
+    SAY_DEATH                                = -1595008 //"*gurgles*"
+};
 
 struct TRINITY_DLL_DECL boss_epochAI : public ScriptedAI
 {
-    boss_epochAI(Creature *c) : ScriptedAI(c) {}
+    boss_epochAI(Creature *c) : ScriptedAI(c)
+    {
+        pInstance = c->GetInstanceData();
+    }
+    
+    ScriptedInstance* pInstance;
 
-    void Reset() {}
+    void Reset()
+    {
+        if (pInstance)
+            pInstance->SetData(DATA_EPOCH_EVENT, NOT_STARTED);
+    }
 
     void EnterCombat(Unit* who)
     {
         DoScriptText(SAY_AGGRO, m_creature);
+        
+        if (pInstance)
+            pInstance->SetData(DATA_EPOCH_EVENT, IN_PROGRESS);
     }
 
     void AttackStart(Unit* who) {}
@@ -55,6 +72,9 @@ struct TRINITY_DLL_DECL boss_epochAI : public ScriptedAI
     void JustDied(Unit* killer)
     {
         DoScriptText(SAY_DEATH, m_creature);
+        
+        if (pInstance)
+            pInstance->SetData(DATA_EPOCH_EVENT, DONE);
     }
 
     void KilledUnit(Unit *victim)
