@@ -27,7 +27,7 @@ EndScriptData */
 #include "precompiled.h"
 #include "def_azjol_nerub.h"
 
-enum
+enum Spells
 {
 
     SPELL_CARRION_BEETLES                  =       53520,
@@ -140,15 +140,8 @@ struct TRINITY_DLL_DECL boss_anub_arakAI : public ScriptedAI
             if (SPELL_IMPALE_Timer < diff)
             {
 
-                Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0);
-                if (m_creature->GetMap()->IsHeroic())
-                {
-                    m_creature->CastSpell(target,H_SPELL_IMPALE,true);
-
-                }else{
-                     m_creature->CastSpell(target,SPELL_IMPALE,true);
-                }
-
+                if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                    DoCast(target, HEROIC(SPELL_IMPALE,H_SPELL_IMPALE));
 
                 SPELL_IMPALE_Timer = 9000;
             }else SPELL_IMPALE_Timer -= diff;
@@ -243,9 +236,7 @@ struct TRINITY_DLL_DECL boss_anub_arakAI : public ScriptedAI
 
             if (SPELL_POUND_Timer < diff)
             {
-
-                 DoCast(m_creature->getVictim(), HeroicMode ? H_SPELL_POUND : SPELL_POUND);
-
+                 DoCast(m_creature->getVictim(), HEROIC(SPELL_POUND,H_SPELL_POUND));
                  SPELL_POUND_Timer = 16500;
             }else SPELL_POUND_Timer -= diff;
 
