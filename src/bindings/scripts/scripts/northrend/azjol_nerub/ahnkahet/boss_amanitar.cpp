@@ -24,11 +24,6 @@ SDComment:  Find correct mushrooms spell to make them visible - buffs of the mus
 SDCategory: Ahn'kahet
 Script Data End */
 
-/*** SQL START ***
-update creature_template set scriptname = 'boss_amanitar' where entry = '30258';
-UPDATE `creature_template` SET `ScriptName`='mob_amanitar_mushrooms' WHERE `entry` IN ('30435','30391');
-*** SQL END ***/
-
 #include "precompiled.h"
 #include "def_ahnkahet.h"
 
@@ -76,7 +71,7 @@ struct MANGOS_DLL_DECL boss_amanitarAI : public ScriptedAI
         m_creature->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_NATURE, true);
 
         if (pInstance && !FirstTime)
-            pInstance->SetData(DATA_AMANITAR, FAIL);
+            pInstance->SetData(DATA_AMANITAR_EVENT, FAIL);
 
         FirstTime = false;
 
@@ -88,7 +83,7 @@ struct MANGOS_DLL_DECL boss_amanitarAI : public ScriptedAI
     {
         if (pInstance)
         {
-            pInstance->SetData(DATA_AMANITAR, DONE);
+            pInstance->SetData(DATA_AMANITAR_EVENT, DONE);
             pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_MINI);
         }
     }
@@ -97,7 +92,8 @@ struct MANGOS_DLL_DECL boss_amanitarAI : public ScriptedAI
     {
         m_creature->SetInCombatWithZone();
 
-        if (pInstance) pInstance->SetData(DATA_AMANITAR, IN_PROGRESS);
+        if (pInstance)
+            pInstance->SetData(DATA_AMANITAR_EVENT, IN_PROGRESS);
 
         m_creature->CastSpell(m_creature, SPELL_MINI, false);
     }
@@ -115,6 +111,7 @@ struct MANGOS_DLL_DECL boss_amanitarAI : public ScriptedAI
             if (victim)
             {
                 Position pos;
+                victim->GetPosition(&pos);
                 m_creature->GetRandomNearPosition(pos, float(urand(5,80)));
                 m_creature->SummonCreature(PoisonousMushroom, pos, DSpwType, DSpwTime);
                 m_creature->GetRandomNearPosition(pos, float(urand(5,80)));
@@ -192,8 +189,8 @@ struct MANGOS_DLL_DECL mob_amanitar_mushroomsAI : public Scripted_NoMovementAI
         }
     }
 
-    void EnterCombat(Unit *who) { }
-    void AttackStart(Unit *victim) { }
+    void EnterCombat(Unit *who) {}
+    void AttackStart(Unit *victim) {}
 
     void UpdateAI(const uint32 diff)
     {
@@ -208,8 +205,7 @@ struct MANGOS_DLL_DECL mob_amanitar_mushroomsAI : public Scripted_NoMovementAI
         }
         if (deathtimer < diff)
         {
-            m_creature->setDeathState(JUST_DIED);
-            m_creature->RemoveCorpse();
+            m_creature->DisappearAndDie();
             deathtimer = 30000;
         } else deathtimer -= diff;
     }
