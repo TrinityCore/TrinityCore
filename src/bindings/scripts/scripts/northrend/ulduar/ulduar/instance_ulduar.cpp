@@ -281,9 +281,20 @@ struct TRINITY_DLL_DECL instance_ulduar : public ScriptedInstance
         return 0;
     }
 
-    const char* Save()
+    std::string GetSaveData()
     {
-        return m_strInstData.c_str();
+        OUT_SAVE_INST_DATA;
+
+        std::ostringstream saveStream;
+        saveStream << "U U " << m_auiEncounter[0] << " " << m_auiEncounter[1] << " " << m_auiEncounter[2] << " " << m_auiEncounter[3]
+                   << m_auiEncounter[4] << " " << m_auiEncounter[5] << " " << m_auiEncounter[6] << " " << m_auiEncounter[7]
+                   << m_auiEncounter[8] << " " << m_auiEncounter[9] << " " << m_auiEncounter[10] << " " << m_auiEncounter[11]
+                   << m_auiEncounter[12] << " " << m_auiEncounter[13];
+
+        m_strInstData = saveStream.str();
+
+        OUT_SAVE_INST_DATA_COMPLETE;
+        return m_strInstData;
     }
 
     void Load(const char* strIn)
@@ -295,15 +306,20 @@ struct TRINITY_DLL_DECL instance_ulduar : public ScriptedInstance
         }
 
         OUT_LOAD_INST_DATA(strIn);
+        
+        char dataHead1, dataHead2;
 
         std::istringstream loadStream(strIn);
-
-        for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
+        
+        if (dataHead1 == 'U' && dataHead2 == 'U')
         {
-            loadStream >> m_auiEncounter[i];
-
-            if (m_auiEncounter[i] == IN_PROGRESS)
-                m_auiEncounter[i] = NOT_STARTED;
+            for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
+            {
+                loadStream >> m_auiEncounter[i];
+                
+                if (m_auiEncounter[i] == IN_PROGRESS)
+                    m_auiEncounter[i] = NOT_STARTED;
+            }
         }
 
         OUT_LOAD_INST_DATA_COMPLETE;
