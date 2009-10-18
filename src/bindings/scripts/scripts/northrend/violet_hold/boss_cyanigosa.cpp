@@ -82,30 +82,24 @@ struct TRINITY_DLL_DECL boss_cyanigosaAI : public ScriptedAI
 
         if (uiBlizzardTimer < diff)
         {
-            Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0);
-            while (pTarget && pTarget->GetTypeId() != TYPEID_PLAYER)
-                pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0);
-            if (pTarget)
-                DoCast(pTarget, HeroicMode ? H_SPELL_BLIZZARD : SPELL_BLIZZARD);
+            if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0,100,true))
+                DoCast(pTarget, HEROIC(SPELL_BLIZZARD,H_SPELL_BLIZZARD));
         } else uiBlizzardTimer -= diff;
 
         if (uiTailSweepTimer < diff)
         {
-            DoCast(m_creature, HeroicMode ? H_SPELL_TAIL_SWEEP : SPELL_TAIL_SWEEP);
+            DoCast(m_creature, HEROIC(SPELL_TAIL_SWEEP,H_SPELL_TAIL_SWEEP));
         } else uiTailSweepTimer -= diff;
 
         if (uiUncontrollableEnergyTimer < diff)
         {
-            DoCast(m_creature->getVictim(), HeroicMode ? H_SPELL_UNCONTROLLABLE_ENERGY : SPELL_UNCONTROLLABLE_ENERGY);
+            DoCast(m_creature->getVictim(), HEROIC(SPELL_UNCONTROLLABLE_ENERGY,H_SPELL_UNCONTROLLABLE_ENERGY));
         } else uiUncontrollableEnergyTimer -= diff;
 
         if (HeroicMode)
             if (uiManaDestructionTimer < diff)
             {
-                Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0);
-                while (pTarget && pTarget->GetTypeId() != TYPEID_PLAYER)
-                    pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0);
-                if (pTarget)
+                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0,100,true))
                     DoCast(pTarget, SPELL_MANA_DESTRUCTION);
             } else uiManaDestructionTimer -= diff;
 
