@@ -1186,8 +1186,9 @@ UPDATE `creature_template` SET `ScriptName`='boss_skadi' WHERE `entry`=26693;
 UPDATE `creature_template` SET `ScriptName`='boss_ymiron' WHERE `entry`=26861;
 UPDATE `creature_template` SET `ScriptName`='mob_frenzied_worgen' WHERE `entry`=26683;
 UPDATE `creature_template` SET `ScriptName`='mob_ravenous_furbolg' WHERE `entry`=26684;
-UPDATE `creature_template` SET `ScriptName`='mob_ferocious_rhino' WHERE `entry`=26685;
-UPDATE `creature_template` SET `ScriptName`='mob_massive_jormungar' WHERE `entry`=26686;
+UPDATE `creature_template` SET `ScriptName`='mob_massive_jormungar' WHERE `entry`=26685;
+UPDATE `creature_template` SET `ScriptName`='mob_ferocious_rhino' WHERE `entry`=26686;
+UPDATE `creature_template` SET `ScriptName`='mob_palehoof_orb' WHERE `entry`=26688;
 UPDATE `instance_template` SET `script`='instance_utgarde_pinnacle' WHERE `map`=575;
 UPDATE `gameobject_template` SET `ScriptName`='go_palehoof_sphere'WHERE `entry`=188593;
 
@@ -1205,7 +1206,7 @@ UPDATE `creature_template` SET `ScriptName`='boss_lavanthor' WHERE `entry`=29312
 UPDATE `creature_template` SET `ScriptName`='boss_ichoron' WHERE `entry`=29313;
 UPDATE `creature_template` SET `ScriptName`='boss_zuramat' WHERE `entry`=29314;
 UPDATE `creature_template` SET `ScriptName`='boss_erekem' WHERE `entry`=29315;
-UPDATE `creature_template` SET `ScriptName`='mob_erekem_guard' WHERE `entry`=29395;
+UPDATE `creature_template` SET `ScriptName`='mob_erekem_guard' WHERE `entry`=32226;
 UPDATE `creature_template` SET `ScriptName`='boss_moragg' WHERE `entry`=29316;
 UPDATE `creature_template` SET `ScriptName`='boss_xevozz' WHERE `entry`=29266;
 UPDATE `creature_template` SET `ScriptName`='boss_cyanigosa' WHERE `entry`=31134;

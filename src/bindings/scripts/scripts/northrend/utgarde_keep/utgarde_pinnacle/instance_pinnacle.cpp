@@ -31,6 +31,7 @@ struct TRINITY_DLL_DECL instance_pinnacle : public ScriptedInstance
     uint64 uiRavenousFurbolg;
     uint64 uiFerociousRhino;
     uint64 uiMassiveJormungar;
+    uint64 uiPalehoofOrb;
 
     uint64 uiSvala;
 
@@ -62,9 +63,10 @@ struct TRINITY_DLL_DECL instance_pinnacle : public ScriptedInstance
             case 26861:    uiKingYmiron = pCreature->GetGUID();                     break;
             case 26683:    uiFrenziedWorgen = pCreature->GetGUID();                 break;
             case 26684:    uiRavenousFurbolg = pCreature->GetGUID();                break;
-            case 26685:    uiFerociousRhino = pCreature->GetGUID();                 break;
-            case 26686:    uiMassiveJormungar = pCreature->GetGUID();               break;
+            case 26685:    uiMassiveJormungar = pCreature->GetGUID();               break;
+            case 26686:    uiFerociousRhino = pCreature->GetGUID();                 break;
             case 29281:    uiSvala = pCreature->GetGUID();                          break;
+            case 26688:    uiPalehoofOrb = pCreature->GetGUID();                    break;
         }
     }
 
@@ -141,6 +143,7 @@ struct TRINITY_DLL_DECL instance_pinnacle : public ScriptedInstance
             case DATA_MOB_RAVENOUS_FURBOLG:   return uiRavenousFurbolg;
             case DATA_MOB_MASSIVE_JORMUNGAR:  return uiMassiveJormungar;
             case DATA_MOB_FEROCIOUS_RHINO:    return uiFerociousRhino;
+            case DATA_MOB_ORB:                return uiPalehoofOrb;
             case DATA_SVALA:                  return uiSvala;
             case DATA_GORTOK_PALEHOOF_SPHERE: return uiGortokPalehoofSphere;
         }
