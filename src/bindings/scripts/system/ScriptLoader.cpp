@@ -269,6 +269,7 @@ extern void AddSC_boss_eck();
 extern void AddSC_instance_gundrak();
 extern void AddSC_boss_krik_thir();             //Azjol-Nerub
 extern void AddSC_boss_hadronox();
+extern void AddSC_boss_anub_arak();
 extern void AddSC_instance_azjol_nerub();
 extern void AddSC_instance_ahnkahet();          //Azjol-Nerub Ahn'kahet
 extern void AddSC_boss_amanitar();
@@ -707,6 +708,7 @@ void AddScripts()
     AddSC_instance_ahnkahet();
     AddSC_boss_krik_thir();             //Azjol-Nerub Azjol-Nerub
     AddSC_boss_hadronox();
+    AddSC_boss_anub_arak();
     AddSC_instance_azjol_nerub();
     AddSC_boss_anubrekhan();            //Naxxramas
     AddSC_boss_maexxna();
