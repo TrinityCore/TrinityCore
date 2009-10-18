@@ -765,7 +765,8 @@ void OPvPWintergrasp::HandlePlayerEnterZone(Player * plr, uint32 zone)
 // Reapply Tenacity if needed
 void OPvPWintergrasp::HandlePlayerResurrects(Player * plr, uint32 zone)
 {
-    if (isWarTime() && m_tenacityStack && !plr->HasAura(SPELL_TENACITY) && plr->getLevel() > 69)
+    if (isWarTime() && m_tenacityStack && !plr->HasAura(SPELL_TENACITY) && plr->getLevel() > 69 &&
+          (plr->GetTeam() == TEAM_ALLIANCE && m_tenacityStack > 0 || plr->GetTeam() == TEAM_HORDE && m_tenacityStack < 0))
     {
         int32 newStack = m_tenacityStack < 0 ? -m_tenacityStack : m_tenacityStack;
         if (newStack > 20)
