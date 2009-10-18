@@ -141,7 +141,7 @@ struct TRINITY_DLL_DECL boss_anub_arakAI : public ScriptedAI
             {
 
                 if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0))
-                    DoCast(target, HEROIC(SPELL_IMPALE,H_SPELL_IMPALE));
+                    m_creature->CastSpell(target, HEROIC(SPELL_IMPALE,H_SPELL_IMPALE), true);
 
                 SPELL_IMPALE_Timer = 9000;
             }else SPELL_IMPALE_Timer -= diff;
