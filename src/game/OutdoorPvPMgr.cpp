@@ -249,3 +249,13 @@ void OutdoorPvPMgr::HandleDropFlag(Player *plr, uint32 spellId)
             return;
     }
 }
+
+void OutdoorPvPMgr::HandlePlayerResurrects(Player *plr, uint32 zoneid)
+{
+    OutdoorPvPMap::iterator itr = m_OutdoorPvPMap.find(zoneid);
+    if(itr == m_OutdoorPvPMap.end())
+        return;
+
+    if(itr->second->HasPlayer(plr))
+        itr->second->HandlePlayerResurrects(plr, zoneid);
+}

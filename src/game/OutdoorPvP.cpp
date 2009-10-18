@@ -251,6 +251,10 @@ void OutdoorPvP::HandlePlayerLeaveZone(Player * plr, uint32 zone)
     sLog.outDebug("Player %s left an outdoorpvp zone", plr->GetName());
 }
 
+void OutdoorPvP::HandlePlayerResurrects(Player * plr, uint32 zone)
+{
+}
+
 bool OutdoorPvP::Update(uint32 diff)
 {
     bool objective_changed = false;
