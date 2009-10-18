@@ -28,6 +28,20 @@ enum Creatures
     CREATURE_CYANIGOSA                              = 31134,
     CREATURE_SINCLARI                               = 30658
 };
+enum GameObjects
+{
+    GO_MAIN_DOOR                                    = 191723,
+    GO_XEVOZZ_DOOR                                  = 191556,
+    GO_LAVANTHOR_DOOR                               = 191566,
+    GO_ICHORON_DOOR                                 = 191557,
+    GO_ZURAMAT_DOOR                                 = 191565,
+    GO_EREKEM_DOOR                                  = 191564,
+    GO_EREKEM_GUARD_1_DOOR                          = 191563,
+    GO_EREKEM_GUARD_2_DOOR                          = 191562,
+    GO_MORAGG_DOOR                                  = 191606,
+    GO_INTRO_ACTIVATION_CRYSTAL                     = 193615,
+    GO_ACTIVATION_CRYSTAL_1                         = 193611
+};
 struct Location
 {
     float x,y,z,orientation;
@@ -144,41 +158,32 @@ struct TRINITY_DLL_DECL instance_violet_hold : public ScriptedInstance
     {
         switch(pGo->GetEntry())
         {
-            case 191562:
+            case GO_EREKEM_GUARD_1_DOOR:
                 uiErekemLeftGuardCell = pGo->GetGUID();
                 break;
-            case 191563:
+            case GO_EREKEM_GUARD_2_DOOR:
                 uiErekemRightGuardCell = pGo->GetGUID();
                 break;
-            case 191564:
+            case GO_EREKEM_DOOR:
                 uiErekemCell = pGo->GetGUID();
-                if (m_auiEncounter[1] == DONE)
-                    HandleGameObject(NULL, true, pGo);
                 break;
-            case 191565:
+            case GO_ZURAMAT_DOOR:
                 uiZuramatCell = pGo->GetGUID();
-                if (m_auiEncounter[5] == DONE)
-                    HandleGameObject(NULL, true, pGo);
                 break;
-            case 191566:
+            case GO_LAVANTHOR_DOOR:
                 uiLavanthorCell = pGo->GetGUID();
-                if (m_auiEncounter[3] == DONE)
-                    HandleGameObject(NULL, true, pGo);
                 break;
-            case 191606:
+            case GO_MORAGG_DOOR:
                 uiMoraggCell = pGo->GetGUID();
-                if (m_auiEncounter[0] == DONE)
-                    HandleGameObject(NULL, true, pGo);
                 break;
-            case 191722:
+            case GO_ICHORON_DOOR:
                 uiIchoronCell = pGo->GetGUID();
-                if (m_auiEncounter[2] == DONE)
-                    HandleGameObject(NULL, true, pGo);
                 break;
-            case 191723:
+            case GO_XEVOZZ_DOOR:
                 uiXevozzCell = pGo->GetGUID();
-                if (m_auiEncounter[4] == DONE)
-                    HandleGameObject(NULL, true, pGo);
+                break;
+            case GO_MAIN_DOOR:
+                uiMainDoor = pGo->GetGUID();
                 break;
         }
     }
