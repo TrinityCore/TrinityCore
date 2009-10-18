@@ -212,6 +212,7 @@ SET(trinityscript_LIB_SRCS
    scripts/kalimdor/caverns_of_time/culling_of_stratholme/boss_epoch.cpp
    scripts/kalimdor/caverns_of_time/culling_of_stratholme/boss_mal_ganis.cpp
    scripts/kalimdor/caverns_of_time/culling_of_stratholme/boss_salramm.cpp
+   scripts/kalimdor/caverns_of_time/culling_of_stratholme/boss_infinite.cpp
    scripts/kalimdor/caverns_of_time/culling_of_stratholme/def_culling_of_stratholme.h
    scripts/kalimdor/caverns_of_time/dark_portal/def_dark_portal.h
    scripts/kalimdor/caverns_of_time/dark_portal/instance_dark_portal.cpp
