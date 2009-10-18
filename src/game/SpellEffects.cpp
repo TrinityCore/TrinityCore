@@ -5613,23 +5613,25 @@ void Spell::EffectScriptEffect(uint32 effIndex)
                         // Serpent Sting - Instantly deals 40% of the damage done by your Serpent Sting.
                         if (familyFlag[0] & 0x4000)
                         {
+                            int32 TickCount = aura->GetPartAura(0)->GetTotalTicks();
                             spellId = 53353; // 53353 Chimera Shot - Serpent
-                            basePoint = aura->GetPartAura(0)->GetAmount() * 5 * 40 / 100;
+                            basePoint = aura->GetPartAura(0)->GetAmount() * TickCount * 40 / 100;
                         }
                         // Viper Sting - Instantly restores mana to you equal to 60% of the total amount drained by your Viper Sting.
-                        if (familyFlag[1] & 0x00000080)
+                        else if (familyFlag[1] & 0x00000080)
                         {
-                            int32 tickCount = aura->GetPartAura(0)->GetTickNumber();
+                            int32 TickCount = aura->GetPartAura(0)->GetTotalTicks();
                             spellId = 53358; // 53358 Chimera Shot - Viper
-                                // Amount of one aura tick
+
+                            // Amount of one aura tick
                             basePoint = aura->GetPartAura(0)->GetAmount() * aura->GetTarget()->GetMaxPower(POWER_MANA) / 100 ;
                             int32 casterBasePoint = aura->GetPartAura(0)->GetAmount() * unitTarget->GetMaxPower(POWER_MANA) / 50 ;
                             if (basePoint > casterBasePoint)
                                 basePoint = casterBasePoint;
-                            basePoint = basePoint * tickCount * 60 / 100;
+                            basePoint = basePoint * TickCount * 60 / 100;
                         }
                         // Scorpid Sting - Attempts to Disarm the target for 10 sec. This effect cannot occur more than once per 1 minute.
-                        if (familyFlag[0] & 0x00008000)
+                        else if (familyFlag[0] & 0x00008000)
                             spellId = 53359; // 53359 Chimera Shot - Scorpid
                         // ?? nothing say in spell desc (possibly need addition check)
                         //if (familyFlag & 0x0000010000000000LL || // dot
