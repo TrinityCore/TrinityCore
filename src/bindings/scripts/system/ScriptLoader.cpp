@@ -274,6 +274,7 @@ extern void AddSC_instance_azjol_nerub();
 extern void AddSC_instance_ahnkahet();          //Azjol-Nerub Ahn'kahet
 extern void AddSC_boss_amanitar();
 extern void AddSC_boss_taldaram();
+extern void AddSC_boss_jedoga_shadowseeker();
 extern void AddSC_boss_elder_nadox();
 extern void AddSC_boss_volazj();
 extern void AddSC_boss_anubrekhan();            //Naxxramas
@@ -704,6 +705,7 @@ void AddScripts()
     AddSC_boss_amanitar();
     AddSC_boss_taldaram();              //Azjol-Nerub Ahn'kahet
     AddSC_boss_elder_nadox();
+    AddSC_boss_jedoga_shadowseeker();
     AddSC_boss_volazj();
     AddSC_instance_ahnkahet();
     AddSC_boss_krik_thir();             //Azjol-Nerub Azjol-Nerub

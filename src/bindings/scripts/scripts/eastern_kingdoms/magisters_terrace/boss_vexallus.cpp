@@ -191,7 +191,7 @@ struct  TRINITY_DLL_DECL mob_pure_energyAI : public ScriptedAI
 {
     mob_pure_energyAI(Creature *c) : ScriptedAI(c) {}
 
-    void Reset() { }
+    void Reset() {}
 
     void JustDied(Unit* slayer)
     {
@@ -202,9 +202,9 @@ struct  TRINITY_DLL_DECL mob_pure_energyAI : public ScriptedAI
         }
     }
 
-    void EnterCombat(Unit *who) { }
-    void MoveInLineOfSight(Unit *who) { }
-    void AttackStart(Unit *who) { }
+    void EnterCombat(Unit *who) {}
+    void MoveInLineOfSight(Unit *who) {}
+    void AttackStart(Unit *who) {}
 };
 
 CreatureAI* GetAI_mob_pure_energy(Creature* pCreature)

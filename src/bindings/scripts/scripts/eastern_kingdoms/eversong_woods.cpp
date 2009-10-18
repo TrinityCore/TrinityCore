@@ -158,7 +158,7 @@ static Locations SpawnPosition[]=
     {-11.9, -18, 0.361, 5.87}
 };
 
-static uint32 PaladinEntry[]= {CHAMPION_BLOODWRATH, CHAMPION_LIGHTREND, CHAMPION_SWIFTBLADE, CHAMPION_SUNSTRIKER};
+static uint32 PaladinEntry[] = {CHAMPION_BLOODWRATH, CHAMPION_LIGHTREND, CHAMPION_SWIFTBLADE, CHAMPION_SUNSTRIKER};
 
 /*######
 ## npc_second_trial_paladin
@@ -182,7 +182,8 @@ struct TRINITY_DLL_DECL npc_secondTrialAI : public ScriptedAI
     uint32 timerJudLight;
     uint32 timerCommand;
 
-    void Reset() {
+    void Reset()
+    {
 
       timer = 2000;
       questPhase = 0;
@@ -196,95 +197,93 @@ struct TRINITY_DLL_DECL npc_secondTrialAI : public ScriptedAI
       spellJudLight   = false;
       spellCommand    = false;
 
-      switch(m_creature->GetEntry()) {
-        case CHAMPION_BLOODWRATH :
-          spellFlashLight = true;
-          timerFlashLight = TIMER_FLASH_OF_LIGHT;
-        break;
-        case CHAMPION_LIGHTREND :
-          spellJustice    = true;
-          timerJustice    = 500;
-        break;
-        case CHAMPION_SWIFTBLADE :
-          spellJudLight   = false;  // Misses Script Effect // http://www.wowhead.com/?spell=20271
-          timerJudLight   = 500;
-        break;
-        case CHAMPION_SUNSTRIKER :
-          spellFlashLight = true;
-          spellJudLight   = false;  // Misses Script Effect // http://www.wowhead.com/?spell=20271
-          spellCommand    = false;  // Misses Dummy // http://www.wowhead.com/?spell=20375
-          timerFlashLight = TIMER_FLASH_OF_LIGHT;
-          timerJudLight   = 500;
-          timerCommand    = 1500;
-        break;
+      switch(m_creature->GetEntry())
+      {
+          case CHAMPION_BLOODWRATH:
+              spellFlashLight = true;
+              timerFlashLight = TIMER_FLASH_OF_LIGHT;
+          break;
+          case CHAMPION_LIGHTREND:
+              spellJustice    = true;
+              timerJustice    = 500;
+          break;
+          case CHAMPION_SWIFTBLADE:
+              spellJudLight   = false;  // Misses Script Effect // http://www.wowhead.com/?spell=20271
+              timerJudLight   = 500;
+          break;
+          case CHAMPION_SUNSTRIKER:
+              spellFlashLight = true;
+              spellJudLight   = false;  // Misses Script Effect // http://www.wowhead.com/?spell=20271
+              spellCommand    = false;  // Misses Dummy // http://www.wowhead.com/?spell=20375
+              timerFlashLight = TIMER_FLASH_OF_LIGHT;
+              timerJudLight   = 500;
+              timerCommand    = 1500;
+          break;
       }
     }
 
-    void EnterCombat(Unit *who) { }
+    void EnterCombat(Unit *who) {}
 
     void UpdateAI(const uint32 diff)
     {
-      if (questPhase == 1) {
+        if (questPhase == 1)
+            if (timer < diff)
+            {
+                m_creature->SetUInt32Value(UNIT_FIELD_BYTES_1, UNIT_STAND_STATE_STAND);
+                m_creature->setFaction(FACTION_HOSTILE);
+                questPhase = 0;
 
-        if (timer < diff) {
-              m_creature->SetUInt32Value(UNIT_FIELD_BYTES_1, UNIT_STAND_STATE_STAND);
-              m_creature->setFaction(FACTION_HOSTILE);
-              questPhase = 0;
+                if (Unit *target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                {
+                    m_creature->AddThreat(target, 5000000.0f);
+                    AttackStart(target);
+                }
+            }
+            else
+                timer -= diff;
 
-              Unit *target = SelectUnit(SELECT_TARGET_RANDOM, 0);
-              if (target && target->GetTypeId() == TYPEID_PLAYER) // only on players.
-              {
-                m_creature->AddThreat(target, 5000000.0f);
-                AttackStart(target);
-              }
-         }
-         else timer -= diff;
-      }
-
-      if (!UpdateVictim())
+        if (!UpdateVictim())
           return;
 
-      // healer
-      if (spellFlashLight) {
-        if (m_creature->GetHealth()*100 / m_creature->GetMaxHealth() < 70){
-          if (timerFlashLight < diff) {
-            DoCast(m_creature, SPELL_FLASH_OF_LIGHT);
-            timerFlashLight = TIMER_FLASH_OF_LIGHT +  rand()%(TIMER_FLASH_OF_LIGHT);
-          }
-          else
-            timerFlashLight -= diff;
-        }
-      }
+        // healer
+        if (spellFlashLight)
+            if (m_creature->GetHealth()*100 / m_creature->GetMaxHealth() < 70)
+                if (timerFlashLight < diff)
+                {
+                    DoCast(m_creature, SPELL_FLASH_OF_LIGHT);
+                    timerFlashLight = TIMER_FLASH_OF_LIGHT +  rand()%TIMER_FLASH_OF_LIGHT;
+                }
+                else
+                    timerFlashLight -= diff;
 
-      if (spellJustice) {
-          if (timerJustice < diff)
+        if (spellJustice)
+            if (timerJustice < diff)
             {
-            DoCast(m_creature, SPELL_SEAL_OF_JUSTICE);
-            timerJustice = TIMER_SEAL_OF_JUSTICE +  rand()%(TIMER_SEAL_OF_JUSTICE);
-          }
-          else
-            timerJustice -= diff;
-      }
+                DoCast(m_creature, SPELL_SEAL_OF_JUSTICE);
+                timerJustice = TIMER_SEAL_OF_JUSTICE + rand()%TIMER_SEAL_OF_JUSTICE;
+            }
+            else
+                timerJustice -= diff;
 
-      if (spellJudLight) {
-          if (timerJudLight < diff) {
-            DoCast(m_creature,  SPELL_JUDGEMENT_OF_LIGHT);
-            timerJudLight = TIMER_JUDGEMENT_OF_LIGHT +  rand()%(TIMER_JUDGEMENT_OF_LIGHT);
-          }
-          else
-            timerJudLight -= diff;
-      }
+        if (spellJudLight)
+            if (timerJudLight < diff)
+            {
+                DoCast(m_creature,  SPELL_JUDGEMENT_OF_LIGHT);
+                timerJudLight = TIMER_JUDGEMENT_OF_LIGHT + rand()%TIMER_JUDGEMENT_OF_LIGHT;
+            }
+            else
+                timerJudLight -= diff;
 
-      if (spellCommand) {
-          if (timerCommand < diff) {
-            DoCast(m_creature,  TIMER_SEAL_OF_COMMAND);
-            timerCommand = TIMER_SEAL_OF_COMMAND +  rand()%(TIMER_SEAL_OF_COMMAND);
-          }
-          else
-            timerCommand -= diff;
-      }
+          if (spellCommand)
+              if (timerCommand < diff)
+              {
+                  DoCast(m_creature,  TIMER_SEAL_OF_COMMAND);
+                  timerCommand = TIMER_SEAL_OF_COMMAND + rand()%TIMER_SEAL_OF_COMMAND;
+              }
+              else
+                  timerCommand -= diff;
 
-      DoMeleeAttackIfReady();
+          DoMeleeAttackIfReady();
     }
 
     void Activate(uint64 summonerguid);
@@ -307,79 +306,79 @@ struct TRINITY_DLL_DECL master_kelerun_bloodmournAI : public ScriptedAI
 
     uint64 paladinGuid[4];
 
-    void Reset() {
-
-      questPhase = 0;
-      timer = 60000;
-      paladinPhase = 0;
-      uint64 paladinGuid[] = {0,0,0,0};
-
+    void Reset()
+    {
+        questPhase = 0;
+        timer = 60000;
+        paladinPhase = 0;
+        uint64 paladinGuid[] = {0,0,0,0};
     }
 
     void EnterCombat(Unit *who) {}
 
     void UpdateAI(const uint32 diff)
     {
-      // Quest accepted but object not activated, object despawned (if in sync 1 minute!)
-      if (questPhase == 1) {
-         if (timer < diff) Reset();
-         else timer -= diff;
-      }
-      // fight the 4 paladin mobs phase
-      else if (questPhase == 2) {
+        // Quest accepted but object not activated, object despawned (if in sync 1 minute!)
+        if (questPhase == 1)
+        {
+            if (timer < diff)
+            Reset();
+            else
+            timer -= diff;
+        }
+        // fight the 4 paladin mobs phase
+        else if (questPhase == 2)
+        {
+            if (timer < diff)
+            {
+                if (Creature* paladinSpawn = Unit::GetCreature((*m_creature), paladinGuid[paladinPhase]))
+                {
+                    CAST_AI(npc_secondTrialAI, paladinSpawn->AI())->Activate(m_creature->GetGUID());
 
-        if (timer < diff) {
+                    switch(paladinPhase)
+                    {
+                    case 0:
+                        DoScriptText(TEXT_SECOND_TRIAL_1,m_creature);
+                        break;
+                    case 1:
+                        DoScriptText(TEXT_SECOND_TRIAL_2,m_creature);
+                        break;
+                    case 2:
+                        DoScriptText(TEXT_SECOND_TRIAL_3,m_creature);
+                        break;
+                    case 3:
+                        DoScriptText(TEXT_SECOND_TRIAL_4,m_creature);
+                        break;
+                    }
+                }
+                else
+                Reset();
 
-          Creature* paladinSpawn;
-          paladinSpawn = (Unit::GetCreature((*m_creature), paladinGuid[paladinPhase]));
-            if (paladinSpawn) {
-               CAST_AI(npc_secondTrialAI, paladinSpawn->AI())->Activate(m_creature->GetGUID());
-
-               switch(paladinPhase) {
-                 case 0:
-                  DoScriptText(TEXT_SECOND_TRIAL_1,m_creature);
-                 break;
-                 case 1:
-                   DoScriptText(TEXT_SECOND_TRIAL_2,m_creature);
-                 break;
-                 case 2:
-                  DoScriptText(TEXT_SECOND_TRIAL_3,m_creature);
-                 break;
-                 case 3:
-                  DoScriptText(TEXT_SECOND_TRIAL_4,m_creature);
-                 break;
-               }
+                questPhase = 4;
+                timer = OFFSET_NEXT_ATTACK;
             }
             else
-              Reset();
-
-            questPhase=4;
-            timer = OFFSET_NEXT_ATTACK;
+            timer -= diff;
         }
-         else timer -= diff;
-      }
 
-      if (!UpdateVictim())
-          return;
+        if (!UpdateVictim())
+        return;
 
-      DoMeleeAttackIfReady();
+        DoMeleeAttackIfReady();
     }
 
     void StartEvent()
     {
 
-      if (questPhase == 1) { // no player check, quest can be finished as group, so no complex PlayerGUID/group search code
+        if (questPhase == 1)
+        { // no player check, quest can be finished as group, so no complex PlayerGUID/group search code
 
-        for (int i = 0; i<4; ++i) {
-          Creature* Summoned;
-          Summoned = DoSpawnCreature(PaladinEntry[i], SpawnPosition[i].x, SpawnPosition[i].y, SpawnPosition[i].z, SpawnPosition[i].o, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 180000);
+            for (uint8 i = 0; i < 4; ++i)
+            if (Creature *pSummoned = DoSpawnCreature(PaladinEntry[i], SpawnPosition[i].x, SpawnPosition[i].y, SpawnPosition[i].z, SpawnPosition[i].o, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 180000))
+            paladinGuid[i] = pSummoned->GetGUID();
 
-          if (Summoned)
-            paladinGuid[i] = Summoned->GetGUID();
-        }
-
-        timer = OFFSET_NEXT_ATTACK;
-        questPhase = 2;
+            timer = OFFSET_NEXT_ATTACK;
+            questPhase = 2;
         }
     }
 
@@ -394,7 +393,8 @@ bool GossipHello_master_kelerun_bloodmourn(Player* pPlayer, Creature* pCreature)
     // Escort quests or any other event-driven quests. If player in party, all players that can accept this quest will receive confirmation box to accept quest.
     // !not sure if this really works!
 
-    if (CAST_AI(master_kelerun_bloodmournAI, pCreature->AI())->questPhase == 0) {
+    if (CAST_AI(master_kelerun_bloodmournAI, pCreature->AI())->questPhase == 0)
+    {
         pPlayer->PrepareQuestMenu(pCreature->GetGUID());
         pPlayer->SendPreparedQuest(pCreature->GetGUID());
     }
@@ -412,65 +412,58 @@ bool QuestAccept_master_kelerun_bloodmourn(Player* pPlayer, Creature* pCreature,
     return true;
 }
 
-void master_kelerun_bloodmournAI::SecondTrialKill() {
+void master_kelerun_bloodmournAI::SecondTrialKill()
+{
+    if (questPhase > 0)
+    {
+      ++paladinPhase;
 
-      if (questPhase > 0) {
-
-        ++paladinPhase;
-
-        if (paladinPhase < 4)
-          questPhase=2;
-        else
+      if (paladinPhase < 4)
+          questPhase = 2;
+      else
           Reset();  // Quest Complete, QuestComplete handler is in npc_secondTrialAI::JustDied
-      }
-  }
-
-void npc_secondTrialAI::JustDied(Unit* Killer) {
-
-      if (Killer->GetTypeId() == TYPEID_PLAYER)
-      {
-          Creature* Summoner;
-          Summoner = (Unit::GetCreature((*m_creature), summonerGuid));
-
-          if (Summoner)
-            CAST_AI(master_kelerun_bloodmournAI, Summoner->AI())->SecondTrialKill();
-
-          // last kill quest complete for group
-          if (m_creature->GetEntry() == CHAMPION_SUNSTRIKER) {
-
-            if (Group *pGroup = CAST_PLR(Killer)->GetGroup())
-            {
-               for (GroupReference *itr = pGroup->GetFirstMember(); itr != NULL; itr = itr->next())
-               {
-                 Player *pGroupGuy = itr->getSource();
-
-                 // for any leave or dead (with not released body) group member at appropriate distance
-                 if (pGroupGuy && pGroupGuy->IsAtGroupRewardDistance(m_creature) && !pGroupGuy->GetCorpse() && pGroupGuy->GetQuestStatus(QUEST_SECOND_TRIAL) == QUEST_STATUS_INCOMPLETE)
-                   pGroupGuy->CompleteQuest(QUEST_SECOND_TRIAL);
-                }
-            }
-            else {
-               if (CAST_PLR(Killer)->GetQuestStatus(QUEST_SECOND_TRIAL) == QUEST_STATUS_INCOMPLETE)
-                   CAST_PLR(Killer)->CompleteQuest(QUEST_SECOND_TRIAL);
-            }
-          }
-      }
-  }
-
-void npc_secondTrialAI::KilledUnit(Unit* Killed) {
-
-  if (Killed->GetTypeId() == TYPEID_PLAYER) {
-
-      if (CAST_PLR(Killed)->GetQuestStatus(QUEST_SECOND_TRIAL) == QUEST_STATUS_INCOMPLETE)
-        CAST_PLR(Killed)->FailQuest(QUEST_SECOND_TRIAL);
-  }
+    }
 }
 
-void npc_secondTrialAI::Activate(uint64 summonerguid) {
+void npc_secondTrialAI::JustDied(Unit* Killer)
+{
+    if (Killer->GetTypeId() == TYPEID_PLAYER)
+    {
+        if (Creature *pSummoner = Unit::GetCreature((*m_creature), summonerGuid))
+            CAST_AI(master_kelerun_bloodmournAI, Summoner->AI())->SecondTrialKill();
 
-      questPhase=1;
-      summonerGuid = summonerguid;
+        // last kill quest complete for group
+        if (m_creature->GetEntry() == CHAMPION_SUNSTRIKER)
+        {
+            if (Group *pGroup = CAST_PLR(Killer)->GetGroup())
+            {
+                for (GroupReference *itr = pGroup->GetFirstMember(); itr != NULL; itr = itr->next())
+                {
+                    Player *pGroupGuy = itr->getSource();
+
+                    // for any leave or dead (with not released body) group member at appropriate distance
+                    if (pGroupGuy && pGroupGuy->IsAtGroupRewardDistance(m_creature) && !pGroupGuy->GetCorpse() && pGroupGuy->GetQuestStatus(QUEST_SECOND_TRIAL) == QUEST_STATUS_INCOMPLETE)
+                        pGroupGuy->CompleteQuest(QUEST_SECOND_TRIAL);
+                }
+            }
+            else if (CAST_PLR(Killer)->GetQuestStatus(QUEST_SECOND_TRIAL) == QUEST_STATUS_INCOMPLETE)
+                CAST_PLR(Killer)->CompleteQuest(QUEST_SECOND_TRIAL);
+        }
     }
+}
+
+void npc_secondTrialAI::KilledUnit(Unit* Killed)
+{
+    if (Killed->GetTypeId() == TYPEID_PLAYER)
+        if (CAST_PLR(Killed)->GetQuestStatus(QUEST_SECOND_TRIAL) == QUEST_STATUS_INCOMPLETE)
+            CAST_PLR(Killed)->FailQuest(QUEST_SECOND_TRIAL);
+}
+
+void npc_secondTrialAI::Activate(uint64 summonerguid)
+{
+      questPhase = 1;
+      summonerGuid = summonerguid;
+}
 
 CreatureAI* GetAI_master_kelerun_bloodmourn(Creature* pCreature)
 {
@@ -489,7 +482,7 @@ CreatureAI* GetAI_npc_secondTrial(Creature* pCreature)
 bool GOHello_go_second_trial(Player* pPlayer, GameObject* pGO)
 {
     // find spawn :: master_kelerun_bloodmourn
-    if (Creature* pCreature = pGO->FindNearestCreature(MASTER_KELERUN_BLOODMOURN, 30.0f))
+    if (Creature *pCreature = pGO->FindNearestCreature(MASTER_KELERUN_BLOODMOURN, 30.0f))
        CAST_AI(master_kelerun_bloodmournAI, pCreature->AI())->StartEvent();
 
     return true;
@@ -537,24 +530,15 @@ struct TRINITY_DLL_DECL npc_apprentice_mirvedaAI : public ScriptedAI
     void JustDied(Unit* killer)
     {
         if (PlayerGUID)
-        {
-            Player* pPlayer = Unit::GetPlayer(PlayerGUID);
-            if (pPlayer)
+            if (Player* pPlayer = Unit::GetPlayer(PlayerGUID))
                 CAST_PLR(pPlayer)->FailQuest(QUEST_UNEXPECTED_RESULT);
-        }
     }
 
     void UpdateAI(const uint32 diff)
     {
-        if (KillCount >= 3)
-        {
-            if (PlayerGUID)
-            {
-                Player* pPlayer = Unit::GetPlayer(PlayerGUID);
-                if (pPlayer)
-                    CAST_PLR(pPlayer)->CompleteQuest(QUEST_UNEXPECTED_RESULT);
-            }
-        }
+        if (KillCount >= 3 && PlayerGUID)
+            if (Player* pPlayer = Unit::GetPlayer(PlayerGUID))
+                CAST_PLR(pPlayer)->CompleteQuest(QUEST_UNEXPECTED_RESULT);
 
         if (Summon)
         {
@@ -594,7 +578,7 @@ struct Location
     float x, y, z;
 };
 
-static Location SpawnLocations[]=
+static Location SpawnLocations[] =
 {
     {8270.68, -7188.53, 139.619},
     {8284.27, -7187.78, 139.603},
@@ -647,11 +631,8 @@ struct TRINITY_DLL_DECL npc_infused_crystalAI : public Scripted_NoMovementAI
     void JustDied(Unit* killer)
     {
         if (PlayerGUID && !Completed)
-        {
-            Player* pPlayer = Unit::GetPlayer(PlayerGUID);
-            if (pPlayer)
+            if (Player* pPlayer = Unit::GetPlayer(PlayerGUID))
                 CAST_PLR(pPlayer)->FailQuest(QUEST_POWERING_OUR_DEFENSES);
-        }
     }
 
     void UpdateAI(const uint32 diff)
@@ -661,14 +642,12 @@ struct TRINITY_DLL_DECL npc_infused_crystalAI : public Scripted_NoMovementAI
             DoScriptText(EMOTE, m_creature);
             Completed = true;
             if (PlayerGUID)
-            {
-                Player* pPlayer = Unit::GetPlayer(PlayerGUID);
-                if (pPlayer)
+                if (Player* pPlayer = Unit::GetPlayer(PlayerGUID))
                     CAST_PLR(pPlayer)->CompleteQuest(QUEST_POWERING_OUR_DEFENSES);
-            }
+
             m_creature->DealDamage(m_creature,m_creature->GetHealth(),NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
             m_creature->RemoveCorpse();
-        }else EndTimer -= diff;
+        } else EndTimer -= diff;
 
         if (WaveTimer < diff && !Completed && Progress)
         {

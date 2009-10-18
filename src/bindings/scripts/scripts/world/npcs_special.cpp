@@ -135,7 +135,7 @@ struct TRINITY_DLL_DECL npc_air_force_botsAI : public ScriptedAI
     SpawnAssociation* m_pSpawnAssoc;
     uint64 m_uiSpawnedGUID;
 
-    void Reset() { }
+    void Reset() {}
 
     Creature* SummonGuard()
     {
