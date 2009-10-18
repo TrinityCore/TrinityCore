@@ -33,14 +33,15 @@ enum WintergraspQuest
     NO_MERCY_MERCILESS_1 = 13179, //Alliance Quest
 
     A_VICTORY_IN_WG = 13181,
-    H_VICTORY_IN_WG = 13183
+    H_VICTORY_IN_WG = 13183,
 };
 
 enum CreatureEntry
 {
     CRE_ENG_A = 30499,
     CRE_ENG_H = 30400,
-    CRE_PVP_KILL = 31086 //Quest Objective
+    CRE_PVP_KILL = 31086, //Quest Objective
+    SPIRIT_HEALER = 6491,
 };
 
 const TeamPair CreatureEntryPair[] =
@@ -86,6 +87,11 @@ void LoadTeamPair(TeamPairMap &pairMap, const TeamPair *pair)
 
 typedef std::list<const AreaPOIEntry *> AreaPOIList;
 
+OPvPWintergrasp::OPvPWintergrasp()
+{
+    m_TypeId = OPVP_WINTERGRASP;
+}
+
 bool OPvPWintergrasp::SetupOutdoorPvP()
 {
     if(!sWorld.getConfig(CONFIG_OUTDOORPVP_WINTERGRASP_ENABLED))
@@ -95,6 +101,8 @@ bool OPvPWintergrasp::SetupOutdoorPvP()
     m_changeDefender = false;
     m_workshopCount[TEAM_ALLIANCE] = 0;
     m_workshopCount[TEAM_HORDE] = 0;
+    m_tenacityStack = 0;
+    m_gate = NULL;
 
     // Select POI
     AreaPOIList areaPOIs;
@@ -433,6 +441,7 @@ WintergraspCreType OPvPWintergrasp::GetCreatureType(uint32 entry) const
         case 32296:case 32294: // Quartermaster
         case 30870:case 30869: // Flight Masters
         case 31841:case 31842: // Spirit Guides
+        case SPIRIT_HEALER:    // Spirit Healers
             return CREATURE_SPECIAL;
         default:
             return CREATURE_OTHER; // Revenants, Elementals, etc
@@ -753,6 +762,19 @@ void OPvPWintergrasp::HandlePlayerEnterZone(Player * plr, uint32 zone)
     UpdateTenacityStack();
 }
 
+// Reapply Tenacity if needed
+void OPvPWintergrasp::HandlePlayerResurrects(Player * plr, uint32 zone)
+{
+    if (isWarTime() && m_tenacityStack && !plr->HasAura(SPELL_TENACITY) && plr->getLevel() > 69)
+    {
+        int32 newStack = m_tenacityStack < 0 ? -m_tenacityStack : m_tenacityStack;
+        if (newStack > 20)
+            newStack = 20;
+        CastTenacity(plr, newStack);
+    }
+    OutdoorPvP::HandlePlayerResurrects(plr, zone);
+}
+
 void OPvPWintergrasp::HandlePlayerLeaveZone(Player * plr, uint32 zone)
 {
     if (!plr->GetSession()->PlayerLogout())
@@ -852,9 +874,17 @@ void OPvPWintergrasp::UpdateTenacityStack()
         return;
 
     TeamId team = TEAM_NEUTRAL;
-    uint32 allianceNum = m_players[TEAM_ALLIANCE].size();;
-    uint32 hordeNum = m_players[TEAM_HORDE].size();;
+    uint32 allianceNum = 0;
+    uint32 hordeNum = 0;
     int32 newStack = 0;
+
+    for (PlayerSet::iterator itr = m_players[TEAM_ALLIANCE].begin(); itr != m_players[TEAM_ALLIANCE].end(); ++itr)
+        if ((*itr)->getLevel() > 69)
+            ++allianceNum;
+
+    for (PlayerSet::iterator itr = m_players[TEAM_HORDE].begin(); itr != m_players[TEAM_HORDE].end(); ++itr)
+        if ((*itr)->getLevel() > 69)
+            ++hordeNum;
 
     if (allianceNum && hordeNum)
     {
@@ -1049,7 +1079,7 @@ void OPvPWintergrasp::EndBattle()
 
             baseHonor = m_customHonorReward[(team == getDefenderTeam()) ? WIN_BATTLE : LOSE_BATTLE];
             baseHonor += (m_customHonorReward[DAMAGED_TOWER] * m_towerCount[OTHER_TEAM(team)][DAMAGED_TOWER]);
-            baseHonor += (m_customHonorReward[DESTROYED_TOWER] * m_towerCount[OTHER_TEAM(team)][DAMAGED_TOWER]);
+            baseHonor += (m_customHonorReward[DESTROYED_TOWER] * m_towerCount[OTHER_TEAM(team)][DESTROYED_TOWER]);
             baseHonor += (m_customHonorReward[INTACT_BUILDING] * intactNum);
             baseHonor += (m_customHonorReward[DAMAGED_BUILDING] * damagedNum);
         }

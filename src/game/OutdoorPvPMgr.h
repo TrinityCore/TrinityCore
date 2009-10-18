@@ -45,6 +45,8 @@ public:
     void HandlePlayerEnterZone(Player * plr, uint32 areaflag);
     // called when player leaves an outdoor pvp area
     void HandlePlayerLeaveZone(Player * plr, uint32 areaflag);
+    // called when player resurrects
+    void HandlePlayerResurrects(Player * plr, uint32 areaflag);
     // return assigned outdoor pvp
     OutdoorPvP * GetOutdoorPvPToZoneId(uint32 zoneid);
     // handle custom (non-exist in dbc) spell if registered
