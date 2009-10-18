@@ -10,53 +10,61 @@ Script Data End */
 update creature_template set scriptname = 'boss_meathook' where entry = '';
 *** SQL END ***/
 #include "precompiled.h"
+#include "def_culling_of_stratholme.h"
 
-//Spell
-#define SPELL_CONSTRICTING_CHAINS_N                  52696 //Encases the targets in chains, dealing 1800 Physical damage every 1 sec. and stunning the target for 5 sec.
-#define SPELL_CONSTRICTING_CHAINS_H                  58823
-#define SPELL_DISEASE_EXPULSION_N                    52666 //Meathook belches out a cloud of disease, dealing 1710 to 1890 Nature damage and interrupting the spell casting of nearby enemy targets for 4 sec.
-#define SPELL_DISEASE_EXPULSION_H                    58824
-#define SPELL_FRENZY                                 58841 //Increases the caster's Physical damage by 10% for 30 sec.
-
+enum Spells
+{
+    SPELL_CONSTRICTING_CHAINS                    = 52696, //Encases the targets in chains, dealing 1800 Physical damage every 1 sec. and stunning the target for 5 sec.
+    H_SPELL_CONSTRICTING_CHAINS                  = 58823,
+    SPELL_DISEASE_EXPULSION                      = 52666, //Meathook belches out a cloud of disease, dealing 1710 to 1890 Nature damage and interrupting the spell casting of nearby enemy targets for 4 sec.
+    H_SPELL_DISEASE_EXPULSION                    = 58824,
+    SPELL_FRENZY                                 = 58841 //Increases the caster's Physical damage by 10% for 30 sec.
+};
 //not in db
-//Yell
-#define SAY_AGGRO                                 -1595026
-#define SAY_SLAY_1                                -1595027
-#define SAY_SLAY_2                                -1595028
-#define SAY_SLAY_3                                -1595029
-#define SAY_SPAWN                                 -1595030
-#define SAY_DEATH                                 -1595031
+enum Yells
+{
+    SAY_AGGRO                                 = -1595026,
+    SAY_SLAY_1                                = -1595027,
+    SAY_SLAY_2                                = -1595028,
+    SAY_SLAY_3                                = -1595029,
+    SAY_SPAWN                                 = -1595030,
+    SAY_DEATH                                 = -1595031
+};
 
 struct TRINITY_DLL_DECL boss_meathookAI : public ScriptedAI
 {
-    boss_meathookAI(Creature *c) : ScriptedAI(c) {}
+    boss_meathookAI(Creature *c) : ScriptedAI(c) 
+    {
+        pInstance = c->GetInstanceData();
+    }
 
-    uint32 Chain_Timer,
-           Disease_Timer,
-           Frenzy_Timer;
+    uint32 uiChainTimer;
+    uint32 uiDiseaseTimer;
+    uint32 uiFrenzyTimer;
+    
+    ScriptedInstance* pInstance;
 
     void Reset()
     {
-        Chain_Timer =   12000 + rand()%5000;   //seen on video 13, 17, 15, 12, 16
-        Disease_Timer =  2000 + rand()%1000;  //approx 3s
-        Frenzy_Timer =  20000 + rand()%10000; //made it up
+        uiChainTimer = urand(12000,17000);   //seen on video 13, 17, 15, 12, 16
+        uiDiseaseTimer = urand(2000,3000);   //approx 3s
+        uiFrenzyTimer = urand(20000,30000);  //made it up
+        
+        if (pInstance)
+            pInstance->SetData(DATA_MEATHOOK_EVENT, NOT_STARTED);
     }
 
     void EnterCombat(Unit* who)
     {
         DoScriptText(SAY_AGGRO, m_creature);
+        
+        if (pInstance)
+            pInstance->SetData(DATA_MEATHOOK_EVENT, IN_PROGRESS);
     }
 
     void AttackStart(Unit* who) {}
 
-    std::list <Unit*>pList;
-    void MoveInLineOfSight(Unit* who, const uint32 diff)
-    {
-        /*if (m_creature->isHostileTo(who))
-        {
-        pList.append(who);
-        }*/
-    }
+    void MoveInLineOfSight(Unit* who, const uint32 diff) {}
 
     void UpdateAI(const uint32 diff)
     {
@@ -64,42 +72,23 @@ struct TRINITY_DLL_DECL boss_meathookAI : public ScriptedAI
         if (!UpdateVictim())
             return;
 
-        if (Disease_Timer < diff)
+        if (uiDiseaseTimer < diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_DISEASE_EXPULSION_N);
-            Disease_Timer = 1500 + rand()%2500;
-        }else Disease_Timer -= diff;
+            DoCast(m_creature->getVictim(), HEROIC(SPELL_DISEASE_EXPULSION,H_SPELL_DISEASE_EXPULSION));
+            uiDiseaseTimer = urand(1500,4000);
+        }else uiDiseaseTimer -= diff;
 
-        if (Frenzy_Timer < diff)
+        if (uiFrenzyTimer < diff)
         {
             DoCast(m_creature->getVictim(), SPELL_FRENZY);
-            Frenzy_Timer = 20000 + rand()%10000;
-        }else Frenzy_Timer -= diff;
+            uiFrenzyTimer = urand(20000,30000);
+        }else uiFrenzyTimer -= diff;
 
-        if (Chain_Timer < diff)
+        if (uiChainTimer < diff)
         {
-
-        /*
-            std::list<HostilReference*>& m_threatlist = m_creature->getThreatManager().getThreatList();
-            std::list<HostilReference*>::iterator itr;
-
-            int st=0;
-            for (itr = m_threatlist.begin(); itr != m_threatlist.end(); ++itr)
-            {
-                //st++;
-                m_creature->getThreatManager().
-            }
-            Unit* targets[st];
-            int st2=0;
-            for (int i=1; i<=st; ++i){
-                if (!IsWithinLOSInMap(targets[i])
-                    st2++;
-            }
-            Unit* targets_out_of_LOS[st2];*/
-
-            DoCast(SelectUnit(SELECT_TARGET_RANDOM, 1), SPELL_CONSTRICTING_CHAINS_N); //anyone but the tank
-            Chain_Timer = 2000 + rand()%1000;
-        }else Chain_Timer -= diff;
+            DoCast(SelectUnit(SELECT_TARGET_RANDOM, 1), HEROIC(SPELL_CONSTRICTING_CHAINS,H_SPELL_CONSTRICTING_CHAINS)); //anyone but the tank
+            uiChainTimer = urand(2000,3000);
+        }else uiChainTimer -= diff;
 
         DoMeleeAttackIfReady();
     }
@@ -107,6 +96,9 @@ struct TRINITY_DLL_DECL boss_meathookAI : public ScriptedAI
     void JustDied(Unit* killer)
     {
         DoScriptText(SAY_DEATH, m_creature);
+        
+        if (pInstance)
+            pInstance->SetData(DATA_MEATHOOK_EVENT, DONE);
     }
 
     void KilledUnit(Unit *victim)
