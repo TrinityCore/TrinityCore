@@ -104,7 +104,7 @@ struct TRINITY_DLL_DECL boss_elder_nadoxAI : public ScriptedAI
 
     void JustDied(Unit* killer)
     {
-        DoScriptText(SAY_SLAY_3,m_creature);
+        DoScriptText(SAY_SLAY_3,m_creature); //SAY_SLAY_3 on death?
 
         if (HeroicMode && !DeadAhnkaharGuardian)
         {
@@ -134,7 +134,7 @@ struct TRINITY_DLL_DECL boss_elder_nadoxAI : public ScriptedAI
         {
             DoCast(m_creature->getVictim(),HEROIC(SPELL_BROOD_PLAGUE, H_SPELL_BROOD_PLAGUE));
             plague_Timer = 15000;
-        }else plague_Timer -= diff;
+        } else plague_Timer -= diff;
 
         if (HeroicMode)
             if (rage_Timer < diff)
@@ -146,25 +146,24 @@ struct TRINITY_DLL_DECL boss_elder_nadoxAI : public ScriptedAI
                     DoCast(Swarmer,H_SPELL_BROOD_RAGE,true);
                     rage_Timer = 15000;
                 }
-            }else rage_Timer -= diff;
+            } else rage_Timer -= diff;
 
         if (swarmer_spawn_Timer < diff)
         {
             DoCast(m_creature,SPELL_SUMMON_SWARMERS,true);
             DoCast(m_creature,SPELL_SUMMON_SWARMERS);
-            if (rand()%3 == 0)
-            {
+            if (urand(1,3) == 3) // 33% chance of dialog
                 DoScriptText(RAND(SAY_EGG_SAC_1,SAY_EGG_SAC_2), m_creature);
-            }
+
             swarmer_spawn_Timer = 10000;
-        }else swarmer_spawn_Timer -= diff;
+        } else swarmer_spawn_Timer -= diff;
 
         if (guard_spawn_Timer < diff)
         {
             m_creature->MonsterTextEmote(EMOTE_HATCHES,m_creature->GetGUID(),true);
             DoCast(m_creature,SPELL_SUMMON_SWARM_GUARD);
             guard_spawn_Timer = 25000;
-        }else guard_spawn_Timer -= diff;
+        } else guard_spawn_Timer -= diff;
 
         if (enrage_Timer < diff)
         {
@@ -174,14 +173,11 @@ struct TRINITY_DLL_DECL boss_elder_nadoxAI : public ScriptedAI
             float x, y, z, o;
             m_creature->GetHomePosition(x, y, z, o);
             if (z < 24)
-            {
                 if (!m_creature->IsNonMeleeSpellCasted(false))
-                {
                     DoCast(m_creature,SPELL_ENRAGE,true);
-                }
-            }
+
             enrage_Timer = 5000;
-        }else enrage_Timer -= diff;
+        } else enrage_Timer -= diff;
 
         DoMeleeAttackIfReady();
     }
@@ -206,7 +202,7 @@ struct TRINITY_DLL_DECL mob_ahnkahar_nerubianAI : public ScriptedAI
 
     void Reset()
     {
-        if (m_creature->GetEntry() == 30176)
+        if (m_creature->GetEntry() == 30176) //magic numbers are bad!
             DoCast(m_creature,SPELL_GUARDIAN_AURA,true);
         sprint_Timer = 10000;
     }
@@ -221,7 +217,7 @@ struct TRINITY_DLL_DECL mob_ahnkahar_nerubianAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
-        if (m_creature->GetEntry() == 30176)
+        if (m_creature->GetEntry() == 30176) //magic numbers are bad!
             m_creature->RemoveAurasDueToSpell(SPELL_GUARDIAN_AURA);
 
         if (pInstance)
@@ -240,7 +236,7 @@ struct TRINITY_DLL_DECL mob_ahnkahar_nerubianAI : public ScriptedAI
         {
             DoCast(m_creature,SPELL_SPRINT);
             sprint_Timer = 25000;
-        }else sprint_Timer -= diff;
+        } else sprint_Timer -= diff;
 
         DoMeleeAttackIfReady();
     }
@@ -253,11 +249,11 @@ struct MANGOS_DLL_DECL mob_nadox_eggsAI : public Scripted_NoMovementAI
         c->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE);
         c->UpdateAllStats();
     }
-    void Reset() { }
-    void EnterCombat(Unit* who) { }
-    void AttackStart(Unit* victim) { }
-    void MoveInLineOfSight(Unit* who) { }
-    void UpdateAI(const uint32 diff) { }
+    void Reset() {}
+    void EnterCombat(Unit* who) {}
+    void AttackStart(Unit* victim) {}
+    void MoveInLineOfSight(Unit* who) {}
+    void UpdateAI(const uint32 diff) {}
 };
 
 CreatureAI* GetAI_mob_ahnkahar_nerubian(Creature* pCreature)
@@ -285,7 +281,7 @@ void AddSC_boss_elder_nadox()
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name="mob_nadox_eggs";
+    newscript->Name = "mob_nadox_eggs";
     newscript->GetAI = &GetAI_mob_nadox_eggs;
     newscript->RegisterSelf();
 }
