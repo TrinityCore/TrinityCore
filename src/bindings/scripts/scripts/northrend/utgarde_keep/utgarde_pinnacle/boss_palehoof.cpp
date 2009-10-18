@@ -806,7 +806,7 @@ void AddSC_boss_palehoof()
     newscript->RegisterSelf();
     
     newscript = new Script;
-    newscript->Name="mob_palehoof_orb";
+    newscript->Name = "mob_palehoof_orb";
     newscript->GetAI = &GetAI_mob_palehoof_orb;
     newscript->RegisterSelf();
 

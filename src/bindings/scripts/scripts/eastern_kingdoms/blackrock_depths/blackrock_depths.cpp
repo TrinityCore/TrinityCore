@@ -561,7 +561,7 @@ struct TRINITY_DLL_DECL npc_dughal_stormwingAI : public npc_escortAI
         }
     }
 
-    void EnterCombat(Unit* who) { }
+    void EnterCombat(Unit* who) {}
     void Reset() {}
 
     void JustDied(Unit* killer)
@@ -1006,7 +1006,7 @@ struct TRINITY_DLL_DECL npc_tobias_seecherAI : public npc_escortAI
 {
     npc_tobias_seecherAI(Creature *c) :npc_escortAI(c) {}
 
-    void EnterCombat(Unit* who) { }
+    void EnterCombat(Unit* who) {}
     void Reset() {}
 
     void JustDied(Unit* killer)

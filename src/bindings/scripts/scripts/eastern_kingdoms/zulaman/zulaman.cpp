@@ -45,9 +45,9 @@ struct TRINITY_DLL_DECL npc_forest_frogAI : public ScriptedAI
 
     ScriptedInstance *pInstance;
 
-    void Reset() { }
+    void Reset() {}
 
-    void EnterCombat(Unit *who) { }
+    void EnterCombat(Unit *who) {}
 
     void DoSpawnRandom()
     {
