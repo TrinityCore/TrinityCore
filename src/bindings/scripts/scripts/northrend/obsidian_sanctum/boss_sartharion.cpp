@@ -165,12 +165,10 @@ struct TRINITY_DLL_DECL boss_sartharionAI : public ScriptedAI
 {
     boss_sartharionAI(Creature* pCreature) : ScriptedAI(pCreature)
     {
-        m_pInstance = pCreature->GetInstanceData();
-        m_bIsHeroic = pCreature->GetMap()->IsHeroic();
+        pInstance = pCreature->GetInstanceData();
     }
 
-    ScriptedInstance* m_pInstance;
-    bool m_bIsHeroic;
+    ScriptedInstance* pInstance;
 
     bool m_bIsBerserk;
     bool m_bIsSoftEnraged;
@@ -220,8 +218,8 @@ struct TRINITY_DLL_DECL boss_sartharionAI : public ScriptedAI
 
     void JustReachedHome()
     {
-        if (m_pInstance)
-            m_pInstance->SetData(TYPE_SARTHARION_EVENT, NOT_STARTED);
+        if (pInstance)
+            pInstance->SetData(TYPE_SARTHARION_EVENT, NOT_STARTED);
     }
 
     void Aggro(Unit* pWho)
@@ -229,9 +227,9 @@ struct TRINITY_DLL_DECL boss_sartharionAI : public ScriptedAI
         DoScriptText(SAY_SARTHARION_AGGRO,m_creature);
         DoZoneInCombat();
 
-        if (m_pInstance)
+        if (pInstance)
         {
-            m_pInstance->SetData(TYPE_SARTHARION_EVENT, IN_PROGRESS);
+            pInstance->SetData(TYPE_SARTHARION_EVENT, IN_PROGRESS);
             FetchDragons();
         }
     }
@@ -240,8 +238,8 @@ struct TRINITY_DLL_DECL boss_sartharionAI : public ScriptedAI
     {
         DoScriptText(SAY_SARTHARION_DEATH,m_creature);
 
-        if (m_pInstance)
-            m_pInstance->SetData(TYPE_SARTHARION_EVENT, DONE);
+        if (pInstance)
+            pInstance->SetData(TYPE_SARTHARION_EVENT, DONE);
     }
 
     void KilledUnit(Unit* pVictim)
@@ -251,9 +249,9 @@ struct TRINITY_DLL_DECL boss_sartharionAI : public ScriptedAI
 
     void FetchDragons()
     {
-        Unit* pTene = Unit::GetUnit(*m_creature, m_pInstance->GetData64(DATA_TENEBRON));
-        Unit* pShad = Unit::GetUnit(*m_creature, m_pInstance->GetData64(DATA_SHADRON));
-        Unit* pVesp = Unit::GetUnit(*m_creature, m_pInstance->GetData64(DATA_VESPERON));
+        Unit* pTene = Unit::GetUnit(*m_creature, pInstance->GetData64(DATA_TENEBRON));
+        Unit* pShad = Unit::GetUnit(*m_creature, pInstance->GetData64(DATA_SHADRON));
+        Unit* pVesp = Unit::GetUnit(*m_creature, pInstance->GetData64(DATA_VESPERON));
 
         //if at least one of the dragons are alive and are being called
         bool bCanUseWill = false;
@@ -291,9 +289,9 @@ struct TRINITY_DLL_DECL boss_sartharionAI : public ScriptedAI
 
     void CallDragon(uint32 uiDataId)
     {
-        if (m_pInstance)
+        if (pInstance)
         {
-            Creature* pTemp = Unit::GetCreature((*m_creature),m_pInstance->GetData64(uiDataId));
+            Creature* pTemp = Unit::GetCreature((*m_creature),pInstance->GetData64(uiDataId));
 
             if (pTemp && pTemp->isAlive() && !pTemp->getVictim())
             {
@@ -351,9 +349,9 @@ struct TRINITY_DLL_DECL boss_sartharionAI : public ScriptedAI
         if (!UpdateVictim())
             return;
 
-        Unit* pTene = Unit::GetUnit(*m_creature, m_pInstance ? m_pInstance->GetData64(DATA_TENEBRON) : 0);
-        Unit* pShad = Unit::GetUnit(*m_creature, m_pInstance ? m_pInstance->GetData64(DATA_SHADRON) : 0);
-        Unit* pVesp = Unit::GetUnit(*m_creature, m_pInstance ? m_pInstance->GetData64(DATA_VESPERON) : 0);
+        Unit* pTene = Unit::GetUnit(*m_creature, pInstance ? pInstance->GetData64(DATA_TENEBRON) : 0);
+        Unit* pShad = Unit::GetUnit(*m_creature, pInstance ? pInstance->GetData64(DATA_SHADRON) : 0);
+        Unit* pVesp = Unit::GetUnit(*m_creature, pInstance ? pInstance->GetData64(DATA_VESPERON) : 0);
 
         //spell will target dragons, if they are still alive at 35%
         if (!m_bIsBerserk && (m_creature->GetHealth()*100 / m_creature->GetMaxHealth()) <= 35
@@ -396,7 +394,7 @@ struct TRINITY_DLL_DECL boss_sartharionAI : public ScriptedAI
         if (m_uiFlameBreathTimer < uiDiff)
         {
             DoScriptText(SAY_SARTHARION_BREATH, m_creature);
-            DoCast(m_creature->getVictim(), m_bIsHeroic ? SPELL_FLAME_BREATH_H : SPELL_FLAME_BREATH);
+            DoCast(m_creature->getVictim(), HEROIC(SPELL_FLAME_BREATH, SPELL_FLAME_BREATH_H));
             m_uiFlameBreathTimer = urand(25000,35000);
         }
         else
@@ -405,7 +403,7 @@ struct TRINITY_DLL_DECL boss_sartharionAI : public ScriptedAI
         // Tail Sweep
         if (m_uiTailSweepTimer < uiDiff)
         {
-            DoCast(m_creature->getVictim(), m_bIsHeroic ? SPELL_TAIL_LASH_H : SPELL_TAIL_LASH);
+            DoCast(m_creature->getVictim(), HEROIC(SPELL_TAIL_LASH, SPELL_TAIL_LASH_H));
             m_uiTailSweepTimer = urand(15000,20000);
         }
         else
@@ -514,12 +512,10 @@ struct TRINITY_DLL_DECL dummy_dragonAI : public ScriptedAI
 {
     dummy_dragonAI(Creature* pCreature) : ScriptedAI(pCreature)
     {
-        m_pInstance = pCreature->GetInstanceData();
-        m_bIsHeroic = pCreature->GetMap()->IsHeroic();
+        pInstance = pCreature->GetInstanceData();
     }
 
-    ScriptedInstance* m_pInstance;
-    bool m_bIsHeroic;
+    ScriptedInstance* pInstance;
 
     uint32 m_uiWaypointId;
     uint32 m_uiMoveNextTimer;
@@ -539,13 +535,13 @@ struct TRINITY_DLL_DECL dummy_dragonAI : public ScriptedAI
 
     void MovementInform(uint32 uiType, uint32 uiPointId)
     {
-        if (!m_pInstance || uiType != POINT_MOTION_TYPE)
+        if (!pInstance || uiType != POINT_MOTION_TYPE)
             return;
 
         debug_log("dummy_dragonAI: %s reached point %u", m_creature->GetName(), uiPointId);
 
         //if healers messed up the raid and we was already initialized
-        if (m_pInstance->GetData(TYPE_SARTHARION_EVENT) != IN_PROGRESS)
+        if (pInstance->GetData(TYPE_SARTHARION_EVENT) != IN_PROGRESS)
         {
             EnterEvadeMode();
             return;
@@ -627,26 +623,6 @@ struct TRINITY_DLL_DECL dummy_dragonAI : public ScriptedAI
         //Refresh respawnTime so time again are set to 30secs?
     }
 
-    //Removes each drakes unique debuff from players
-    void RemoveDebuff(uint32 uiSpellId)
-    {
-        Map* pMap = m_creature->GetMap();
-
-        if (pMap && pMap->IsDungeon())
-        {
-            Map::PlayerList const &PlayerList = pMap->GetPlayers();
-
-            if (PlayerList.isEmpty())
-                return;
-
-            for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
-            {
-                if (i->getSource()->isAlive() && i->getSource()->HasAura(uiSpellId))
-                    i->getSource()->RemoveAurasDueToSpell(uiSpellId);
-            }
-        }
-    }
-
     void JustDied(Unit* pKiller)
     {
         int32 iTextId = 0;
@@ -670,16 +646,15 @@ struct TRINITY_DLL_DECL dummy_dragonAI : public ScriptedAI
 
         DoScriptText(iTextId, m_creature);
 
-        RemoveDebuff(uiSpellId);
-
-        if (m_pInstance)
+        if (pInstance)
         {
+            pInstance->DoRemoveAurasDueToSpellOnPlayers(uiSpellId);
             // not if solo mini-boss fight
-            if (m_pInstance->GetData(TYPE_SARTHARION_EVENT) != IN_PROGRESS)
+            if (pInstance->GetData(TYPE_SARTHARION_EVENT) != IN_PROGRESS)
                 return;
 
             // Twilight Revenge to main boss
-            if (Unit* pSartharion = Unit::GetUnit((*m_creature), m_pInstance->GetData64(DATA_SARTHARION)))
+            if (Unit* pSartharion = Unit::GetUnit((*m_creature), pInstance->GetData64(DATA_SARTHARION)))
                 if (pSartharion->isAlive())
                     m_creature->CastSpell(pSartharion,SPELL_TWILIGHT_REVENGE,true);
         }
@@ -748,7 +723,7 @@ struct TRINITY_DLL_DECL mob_tenebronAI : public dummy_dragonAI
         if (m_uiShadowFissureTimer < uiDiff)
         {
             if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
-                DoCast(pTarget, m_bIsHeroic ? SPELL_SHADOW_FISSURE_H : SPELL_SHADOW_FISSURE);
+                DoCast(pTarget, HEROIC(SPELL_SHADOW_FISSURE, SPELL_SHADOW_FISSURE));
 
             m_uiShadowFissureTimer = urand(15000,20000);
         }
@@ -759,7 +734,7 @@ struct TRINITY_DLL_DECL mob_tenebronAI : public dummy_dragonAI
         if (m_uiShadowBreathTimer < uiDiff)
         {
             DoScriptText(SAY_TENEBRON_BREATH, m_creature);
-            DoCast(m_creature->getVictim(), m_bIsHeroic ? SPELL_SHADOW_BREATH_H : SPELL_SHADOW_BREATH);
+            DoCast(m_creature->getVictim(), HEROIC(SPELL_SHADOW_BREATH, SPELL_SHADOW_BREATH_H));
             m_uiShadowBreathTimer = urand(20000,25000);
         }
         else
@@ -824,7 +799,7 @@ struct TRINITY_DLL_DECL mob_shadronAI : public dummy_dragonAI
         if (m_uiShadowFissureTimer < uiDiff)
         {
             if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
-                DoCast(pTarget, m_bIsHeroic ? SPELL_SHADOW_FISSURE_H : SPELL_SHADOW_FISSURE);
+                DoCast(pTarget, HEROIC(SPELL_SHADOW_FISSURE, SPELL_SHADOW_FISSURE_H));
 
             m_uiShadowFissureTimer = urand(15000,20000);
         }
@@ -835,7 +810,7 @@ struct TRINITY_DLL_DECL mob_shadronAI : public dummy_dragonAI
         if (m_uiShadowBreathTimer < uiDiff)
         {
             DoScriptText(SAY_SHADRON_BREATH, m_creature);
-            DoCast(m_creature->getVictim(), m_bIsHeroic ? SPELL_SHADOW_BREATH_H : SPELL_SHADOW_BREATH);
+            DoCast(m_creature->getVictim(), HEROIC(SPELL_SHADOW_BREATH, SPELL_SHADOW_BREATH_H));
             m_uiShadowBreathTimer = urand(20000,25000);
         }
         else
@@ -894,7 +869,7 @@ struct TRINITY_DLL_DECL mob_vesperonAI : public dummy_dragonAI
         if (m_uiShadowFissureTimer < uiDiff)
         {
             if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
-                DoCast(pTarget, m_bIsHeroic ? SPELL_SHADOW_FISSURE_H : SPELL_SHADOW_FISSURE);
+                DoCast(pTarget, HEROIC(SPELL_SHADOW_FISSURE, SPELL_SHADOW_FISSURE_H));
 
             m_uiShadowFissureTimer = urand(15000,20000);
         }
@@ -905,7 +880,7 @@ struct TRINITY_DLL_DECL mob_vesperonAI : public dummy_dragonAI
         if (m_uiShadowBreathTimer < uiDiff)
         {
             DoScriptText(SAY_VESPERON_BREATH, m_creature);
-            DoCast(m_creature->getVictim(), m_bIsHeroic ? SPELL_SHADOW_BREATH_H : SPELL_SHADOW_BREATH);
+            DoCast(m_creature->getVictim(), HEROIC(SPELL_SHADOW_BREATH, SPELL_SHADOW_BREATH_H));
             m_uiShadowBreathTimer = urand(20000,25000);
         }
         else
@@ -928,17 +903,17 @@ struct TRINITY_DLL_DECL mob_acolyte_of_shadronAI : public ScriptedAI
 {
     mob_acolyte_of_shadronAI(Creature* pCreature) : ScriptedAI(pCreature)
     {
-        m_pInstance = pCreature->GetInstanceData();
+        pInstance = pCreature->GetInstanceData();
     }
 
-    ScriptedInstance* m_pInstance;
+    ScriptedInstance* pInstance;
 
     void Reset()
     {
-        if (m_pInstance)
+        if (pInstance)
         {
             //if not solo figth, buff main boss, else place debuff on mini-boss. both spells TARGET_SCRIPT
-            if (m_pInstance->GetData(TYPE_SARTHARION_EVENT) == IN_PROGRESS)
+            if (pInstance->GetData(TYPE_SARTHARION_EVENT) == IN_PROGRESS)
                 DoCast(m_creature, SPELL_GIFT_OF_TWILIGTH_SAR);
             else
                 DoCast(m_creature, SPELL_GIFT_OF_TWILIGTH_SHA);
@@ -947,14 +922,14 @@ struct TRINITY_DLL_DECL mob_acolyte_of_shadronAI : public ScriptedAI
 
     void JustDied(Unit* killer)
     {
-        if (m_pInstance)
+        if (pInstance)
         {
             Creature* pDebuffTarget = NULL;
 
-            if (m_pInstance->GetData(TYPE_SARTHARION_EVENT) == IN_PROGRESS)
+            if (pInstance->GetData(TYPE_SARTHARION_EVENT) == IN_PROGRESS)
             {
                 //not solo fight, so main boss has deduff
-                pDebuffTarget = m_pInstance->instance->GetCreature(m_pInstance->GetData64(DATA_SARTHARION));
+                pDebuffTarget = pInstance->instance->GetCreature(pInstance->GetData64(DATA_SARTHARION));
 
                 if (pDebuffTarget && pDebuffTarget->isAlive() && pDebuffTarget->HasAura(SPELL_GIFT_OF_TWILIGTH_SAR))
                     pDebuffTarget->RemoveAurasDueToSpell(SPELL_GIFT_OF_TWILIGTH_SAR);
@@ -962,7 +937,7 @@ struct TRINITY_DLL_DECL mob_acolyte_of_shadronAI : public ScriptedAI
             else
             {
                 //event not in progress, then solo fight and must remove debuff mini-boss
-                pDebuffTarget = m_pInstance->instance->GetCreature(m_pInstance->GetData64(DATA_SHADRON));
+                pDebuffTarget = pInstance->instance->GetCreature(pInstance->GetData64(DATA_SHADRON));
 
                 if (pDebuffTarget && pDebuffTarget->isAlive() && pDebuffTarget->HasAura(SPELL_GIFT_OF_TWILIGTH_SHA))
                     pDebuffTarget->RemoveAurasDueToSpell(SPELL_GIFT_OF_TWILIGTH_SHA);
@@ -992,10 +967,10 @@ struct TRINITY_DLL_DECL mob_acolyte_of_vesperonAI : public ScriptedAI
 {
     mob_acolyte_of_vesperonAI(Creature* pCreature) : ScriptedAI(pCreature)
     {
-        m_pInstance = pCreature->GetInstanceData();
+        pInstance = pCreature->GetInstanceData();
     }
 
-    ScriptedInstance* m_pInstance;
+    ScriptedInstance* pInstance;
 
     void Reset()
     {
@@ -1005,9 +980,9 @@ struct TRINITY_DLL_DECL mob_acolyte_of_vesperonAI : public ScriptedAI
     void JustDied(Unit* pKiller)
     {
         // remove twilight torment on Vesperon
-        if (m_pInstance)
+        if (pInstance)
         {
-            Creature* pVesperon = m_pInstance->instance->GetCreature(m_pInstance->GetData64(DATA_VESPERON));
+            Creature* pVesperon = pInstance->instance->GetCreature(pInstance->GetData64(DATA_VESPERON));
 
             if (pVesperon && pVesperon->isAlive() && pVesperon->HasAura(SPELL_TWILIGHT_TORMENT_VESP))
                 pVesperon->RemoveAurasDueToSpell(SPELL_TWILIGHT_TORMENT_VESP);
