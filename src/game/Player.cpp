@@ -4411,6 +4411,7 @@ void Player::ResurrectPlayer(float restore_percent, bool applySickness)
     uint32 newzone, newarea;
     GetZoneAndAreaId(newzone,newarea);
     UpdateZone(newzone,newarea);
+    sOutdoorPvPMgr.HandlePlayerResurrects(this, newzone);
 
     // update visibility
     //ObjectAccessor::UpdateVisibilityForPlayer(this);

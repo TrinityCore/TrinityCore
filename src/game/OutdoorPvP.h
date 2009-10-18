@@ -235,6 +235,7 @@ protected:
 
     virtual void HandlePlayerEnterZone(Player * plr, uint32 zone);
     virtual void HandlePlayerLeaveZone(Player * plr, uint32 zone);
+    virtual void HandlePlayerResurrects(Player * plr, uint32 zone);
 
     void AddCapturePoint(OPvPCapturePoint* cp)
     {

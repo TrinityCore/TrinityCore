@@ -171,7 +171,7 @@ class OPvPWintergrasp : public OutdoorPvP
         typedef std::set<Creature*> CreatureSet;
         typedef std::set<GameObject*> GameObjectSet;
     public:
-        explicit OPvPWintergrasp() : m_tenacityStack(0), m_gate(NULL) {}
+        OPvPWintergrasp();
         bool SetupOutdoorPvP();
 
         uint32 GetCreatureEntry(uint32 guidlow, const CreatureData *data);
@@ -184,6 +184,7 @@ class OPvPWintergrasp : public OutdoorPvP
 
         void HandlePlayerEnterZone(Player *plr, uint32 zone);
         void HandlePlayerLeaveZone(Player *plr, uint32 zone);
+        void HandlePlayerResurrects(Player * plr, uint32 zone);
         void HandleKill(Player *killer, Unit *victim);
 
         bool Update(uint32 diff);
