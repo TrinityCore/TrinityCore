@@ -49,19 +49,20 @@ enum Spells
 };
 
 // not in db
-//Yell
-#define SAY_INTRO                                  -1601010
-#define SAY_AGGRO                                  -1601000
-#define SAY_SLAY_1                                 -1601001
-#define SAY_SLAY_2                                 -1601002
-#define SAY_SLAY_3                                 -1601003
-#define SAY_LOCUST_1                               -1601005
-#define SAY_LOCUST_2                               -1601006
-#define SAY_LOCUST_3                               -1601007
-#define SAY_SUBMERGE_1                             -1601008
-#define SAY_SUBMERGE_2                             -1601009
-#define SAY_DEATH                                  -1601004
-
+enum Yells
+{
+    SAY_INTRO                                  = -1601010,
+    SAY_AGGRO                                  = -1601000,
+    SAY_SLAY_1                                 = -1601001,
+    SAY_SLAY_2                                 = -1601002,
+    SAY_SLAY_3                                 = -1601003,
+    SAY_LOCUST_1                               = -1601005,
+    SAY_LOCUST_2                               = -1601006,
+    SAY_LOCUST_3                               = -1601007,
+    SAY_SUBMERGE_1                             = -1601008,
+    SAY_SUBMERGE_2                             = -1601009,
+    SAY_DEATH                                  = -1601004
+};
 #define SPAWNPOINT_Z                               224.3
 
 float SpawnPoint[2][2] =
@@ -75,7 +76,6 @@ struct TRINITY_DLL_DECL boss_anub_arakAI : public ScriptedAI
     boss_anub_arakAI(Creature *c) : ScriptedAI(c)
     {
         pInstance = c->GetInstanceData();
-        HeroicMode = c->GetMap()->IsHeroic();
     }
 
     ScriptedInstance* pInstance;
@@ -111,14 +111,19 @@ struct TRINITY_DLL_DECL boss_anub_arakAI : public ScriptedAI
 
         m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
         m_creature->RemoveAura(SPELL_SUBMERGE);
-
+        
+        if (pInstance)
+            pInstance->SetData(DATA_ANUBARAK_EVENT, NOT_STARTED);
     }
 
 
-   /* void EnterCombat(Unit* who)
+    void EnterCombat(Unit* who)
     {
         DoScriptText(SAY_AGGRO, m_creature);
-    }*/
+        
+        if (pInstance)
+            pInstance->SetData(DATA_ANUBARAK_EVENT, IN_PROGRESS);
+    }
 
 
     void UpdateAI(const uint32 diff)
@@ -270,22 +275,21 @@ struct TRINITY_DLL_DECL boss_anub_arakAI : public ScriptedAI
             DoMeleeAttackIfReady();
         }
     }
-    /*void JustDied(Unit* killer)
+    
+    void JustDied(Unit* killer)
     {
         DoScriptText(SAY_DEATH, m_creature);
-    }*/
+        
+        if (pInstance)
+            pInstance->SetData(DATA_ANUBARAK_EVENT, DONE);
+    }
 
     void KilledUnit(Unit *victim)
     {
         if (victim == m_creature)
             return;
-
-/*        switch(rand()%3)
-        {
-            case 0: DoScriptText(SAY_SLAY_1, m_creature);break;
-            case 1: DoScriptText(SAY_SLAY_2, m_creature);break;
-            case 2: DoScriptText(SAY_SLAY_3, m_creature);break;
-        }*/
+        
+        DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2,SAY_SLAY_3), m_creature);
     }
 };
 
