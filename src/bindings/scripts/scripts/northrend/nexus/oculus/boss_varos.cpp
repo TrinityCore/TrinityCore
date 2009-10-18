@@ -10,38 +10,54 @@ Script Data End */
 update creature_template set scriptname = '' where entry = '';
 *** SQL END ***/
 #include "precompiled.h"
+#include "def_oculus.h"
 
-//Spells
-#define SPELL_ENERGIZE_CORES                      50785 //Damage 5938 to 6562, effec2 Triggers 54069, effect3 Triggers 56251
-#define SPELL_ENERGIZE_CORES_TRIGGER_1            54069
-#define SPELL_ENERGIZE_CORES_TRIGGER_2            56251
-#define SPELL_ENERGIZE_CORES_2                    59372 //Damage 9025 to 9975, effect2 Triggers 54069, effect 56251
-#define SPELL_CALL_AZURE_RING_CAPTAIN             51002 //Effect    Send Event (12229)
-#define SPELL_CALL_AZURE_RING_CAPTAIN_2           51006 //Effect    Send Event (10665)
-#define SPELL_CALL_AZURE_RING_CAPTAIN_3           51007 //Effect    Send Event (18454)
-#define SPELL_CALL_AZURE_RING_CAPTAIN_4           51008 //Effect    Send Event (18455)
-#define SPELL_CALL_AMPLIFY_MAGIC                  51054
-#define SPELL_CALL_AMPLIFY_MAGIC_2                59371
-
+enum Spells
+{
+    SPELL_ENERGIZE_CORES                      = 50785, //Damage 5938 to 6562, effec2 Triggers 54069, effect3 Triggers 56251
+    SPELL_ENERGIZE_CORES_TRIGGER_1            = 54069,
+    SPELL_ENERGIZE_CORES_TRIGGER_2            = 56251,
+    SPELL_ENERGIZE_CORES_2                    = 59372, //Damage 9025 to 9975, effect2 Triggers 54069, effect 56251
+    SPELL_CALL_AZURE_RING_CAPTAIN             = 51002, //Effect    Send Event (12229)
+    SPELL_CALL_AZURE_RING_CAPTAIN_2           = 51006, //Effect    Send Event (10665)
+    SPELL_CALL_AZURE_RING_CAPTAIN_3           = 51007, //Effect    Send Event (18454)
+    SPELL_CALL_AZURE_RING_CAPTAIN_4           = 51008, //Effect    Send Event (18455)
+    SPELL_CALL_AMPLIFY_MAGIC                  = 51054,
+    SPELL_CALL_AMPLIFY_MAGIC_2                = 59371
+};
 //not in db
-//Yell
-#define SAY_AGGRO                              -1578022
-#define SAY_KILL_1                             -1578023
-#define SAY_KILL_2                             -1578024
-#define SAY_DEATH                              -1578025
-#define SAY_STRIKE_1                           -1578026
-#define SAY_STRIKE_2                           -1578027
-#define SAY_STRIKE_3                           -1578028
-#define SAY_SPAWN                              -1578029
+enum Yells
+{
+    SAY_AGGRO                              = -1578022,
+    SAY_KILL_1                             = -1578023,
+    SAY_KILL_2                             = -1578024,
+    SAY_DEATH                              = -1578025,
+    SAY_STRIKE_1                           = -1578026,
+    SAY_STRIKE_2                           = -1578027,
+    SAY_STRIKE_3                           = -1578028,
+    SAY_SPAWN                              = -1578029
+};
 
 struct TRINITY_DLL_DECL boss_varosAI : public ScriptedAI
 {
-    boss_varosAI(Creature *c) : ScriptedAI(c) {}
+    boss_varosAI(Creature *c) : ScriptedAI(c)
+    {
+        pInstance = c->GetInstanceData();
+    }
+    
+    ScriptedInstance* pInstance;
 
-    void Reset() {}
+    void Reset()
+    {
+        if (pInstance)
+            pInstance->SetData(DATA_VAROS_EVENT, NOT_STARTED);
+    }
     void EnterCombat(Unit* who)
     {
         DoScriptText(SAY_AGGRO, m_creature);
+        
+        if (pInstance)
+            pInstance->SetData(DATA_VAROS_EVENT, IN_PROGRESS);
     }
     void AttackStart(Unit* who) {}
     void MoveInLineOfSight(Unit* who) {}
@@ -56,6 +72,9 @@ struct TRINITY_DLL_DECL boss_varosAI : public ScriptedAI
     void JustDied(Unit* killer)
     {
         DoScriptText(SAY_DEATH, m_creature);
+        
+        if (pInstance)
+            pInstance->SetData(DATA_VAROS_EVENT, DONE);
     }
     void KilledUnit(Unit *victim)
     {
