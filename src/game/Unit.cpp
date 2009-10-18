@@ -10306,15 +10306,18 @@ void Unit::MeleeDamageBonus(Unit *pVictim, uint32 *pdamage,WeaponAttackType attT
     if (spellProto)
     {
         // Mod damage from spell mechanic
-        uint32 mechanicMask = GetAllSpellMechanicMask(spellProto);
+        uint32 mechanicMask = GetAllSpellMechanicMask(m_spellInfo);
+
+        // Shred, Maul - "Effects which increase Bleed damage also increase Shred damage"
+        if (m_spellInfo->SpellFamilyName == SPELLFAMILY_DRUID && m_spellInfo->SpellFamilyFlags[0] & 0x00008800)
+            mechanicMask |= (1<<MECHANIC_BLEED);
+
         if (mechanicMask)
         {
-            AuraEffectList const& mDamageDoneMechanic = pVictim->GetAurasByType(SPELL_AURA_MOD_MECHANIC_DAMAGE_TAKEN_PERCENT);
-            for (AuraEffectList::const_iterator i = mDamageDoneMechanic.begin(); i != mDamageDoneMechanic.end(); ++i)
-                if((mechanicMask & uint32(1<<((*i)->GetMiscValue())))
-                    // Shred - "Effects which increase Bleed damage also increase Shred damage"
-                    || ((*i)->GetMiscValue() == MECHANIC_BLEED && spellProto->SpellFamilyName == SPELLFAMILY_DRUID && spellProto->SpellFamilyFlags[0] & 0x8000))
-                    TakenTotalMod *= ((*i)->GetAmount()+100.0f)/100.0f;
+            Unit::AuraEffectList const& mDamageDoneMechanic = unitTarget->GetAurasByType(SPELL_AURA_MOD_MECHANIC_DAMAGE_TAKEN_PERCENT);
+            for(Unit::AuraEffectList::const_iterator i = mDamageDoneMechanic.begin();i != mDamageDoneMechanic.end(); ++i)
+                if(mechanicMask & uint32(1<<((*i)->GetMiscValue())))
+                    totalDamagePercentMod *= ((*i)->GetAmount()+100.0f)/100.0f;
         }
     }
 
