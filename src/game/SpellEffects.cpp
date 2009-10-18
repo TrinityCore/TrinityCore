@@ -647,6 +647,20 @@ void Spell::SpellDamageSchoolDmg(uint32 effect_idx)
                 {
                     damage += int32(m_caster->GetShieldBlockValue() * 1.3f);
                 }
+                // Judgement of Righteousness
+                else if (m_spellInfo->Id == 20187)
+                {
+                    float ap = m_caster->GetTotalAttackPowerValue(BASE_ATTACK);
+                    float sp = m_caster->SpellBaseDamageBonus(GetSpellSchoolMask(m_spellInfo));
+                    damage += int32(0.25f*ap + 0.4f*sp);
+                }
+                // Judgement of Wisdom, Light, Justice
+                else if (m_spellInfo->SpellFamilyFlags[0]&0x00800000)
+                {
+                    float ap = m_caster->GetTotalAttackPowerValue(BASE_ATTACK);
+                    float sp = m_caster->SpellBaseDamageBonus(GetSpellSchoolMask(m_spellInfo));
+                    damage += int32(0.16f*ap + 0.25f*sp);
+                }                
                 break;
             }
             case SPELLFAMILY_DEATHKNIGHT:
