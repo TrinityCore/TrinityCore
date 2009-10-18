@@ -26,8 +26,8 @@ EndScriptData */
 #include "precompiled.h"
 #include "def_ulduar.h"
 
-//wrong text ids. correct are beetwen -1000000 AND -1999999
-//beetwen -2000000 and -2999999 are custom texts so wtf?
+//wrong text ids. correct are between -1000000 AND -1999999
+//between -2000000 and -2999999 are custom texts so wtf?
 #define SAY_AGGRO                   -2000000
 #define SAY_KILL                    -2000001
 #define SAY_PHASE_2_TRANS           -2000002
@@ -132,7 +132,7 @@ struct TRINITY_DLL_DECL boss_razorscaleAI : public BossAI
             m_creature->GetMotionMaster()->MoveTargetedHome();
         }
 
-        if (((m_creature->GetHealth()*100 / m_creature->GetMaxHealth()) < 99) && (Phase == 1))
+        if ((m_creature->GetHealth()*100 / m_creature->GetMaxHealth()) < 99 && Phase == 1)
         {
             Phase = 2;
             m_creature->AddUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
@@ -142,7 +142,7 @@ struct TRINITY_DLL_DECL boss_razorscaleAI : public BossAI
             DoScriptText(SAY_PHASE_2_TRANS, m_creature);
         }
 
-        if (((m_creature->GetHealth()*100 / m_creature->GetMaxHealth()) < 50) && (Phase == 2))
+        if ((m_creature->GetHealth()*100 / m_creature->GetMaxHealth()) < 50 && Phase == 2)
         {
             Phase = 3;
             m_creature->RemoveUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
@@ -164,9 +164,9 @@ struct TRINITY_DLL_DECL boss_razorscaleAI : public BossAI
 
             if (DEVOURINGFLAMETimer < diff)
             {
-                Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 1);
-                if (target && !m_creature->HasInArc(M_PI, target))
-                    DoCast(target, SPELL_DEVOURINGFLAME);
+                if (Unit *target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true)
+                    if (!m_creature->HasInArc(M_PI, target))
+                        DoCast(target, SPELL_DEVOURINGFLAME);
 
                 DEVOURINGFLAMETimer = 10000;
             } else DEVOURINGFLAMETimer -= diff;
@@ -180,15 +180,13 @@ struct TRINITY_DLL_DECL boss_razorscaleAI : public BossAI
             if (WingBuffetTimer < diff)
             {
                 DoCast(m_creature->getVictim(), SPELL_WINGBUFFET);
-                WingBuffetTimer = 7000 + ((rand()%8)*1000);
+                WingBuffetTimer = urand(7000,14000);
             } else WingBuffetTimer -= diff;
 
             if (KnockAwayTimer < diff)
             {
-                if (rand()%100 <= 30)
-                {
+                if (urand(0,99) < 30)
                     DoCast(m_creature->getVictim(), SPELL_KNOCK_AWAY);
-                }
                 KnockAwayTimer = 15000;
             } else KnockAwayTimer -= diff;
 
@@ -197,16 +195,8 @@ struct TRINITY_DLL_DECL boss_razorscaleAI : public BossAI
                 if (BellowingRoarTimer < diff)
                 {
                     DoCast(m_creature->getVictim(), SPELL_BELLOWINGROAR);
-
                     BellowingRoarTimer = 30000;
                 } else BellowingRoarTimer -= diff;
-
-                if (SummonAddsTimer < diff)
-                {
-                    SummonAdds(Phase);
-
-                    SummonAddsTimer = 45000;
-                } else SummonAddsTimer -= diff;
             }
 
             DoMeleeAttackIfReady();
@@ -215,17 +205,9 @@ struct TRINITY_DLL_DECL boss_razorscaleAI : public BossAI
         if (Phase == 2)
         {
             if (InitialSpawn)
-            {
-                InitialSpawn = false;
+                SummonAdds();
 
-                for (uint32 i = 0; i < 4; ++i)
-                {
-                    uint32 random = rand()%4;
-                    Creature* Add = m_creature->SummonCreature(CREATURE_ADDS, SpawnLocations[random][0], SpawnLocations[random][1], SpawnLocations[random][2], 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 30000);
-                    if (Add)
-                        Add->AI()->AttackStart(SelectUnit(SELECT_TARGET_RANDOM, 0));
-                }
-            }
+            InitialSpawn = false;
 
             if (FireballTimer < diff)
             {
@@ -236,7 +218,7 @@ struct TRINITY_DLL_DECL boss_razorscaleAI : public BossAI
 
             if (MovementTimer < diff)
             {
-                if (rand()%100 <= 30)
+                if (urand(0,99) < 30)
                 {
                     DoScriptText(EMOTE_BREATH, m_creature);
                     DoCast(m_creature->getVictim(), SPELL_FLAMEBUFFET);
@@ -247,50 +229,27 @@ struct TRINITY_DLL_DECL boss_razorscaleAI : public BossAI
             } else MovementTimer -= diff;
 
             if (SummonAddsTimer < diff)
-            {
-                SummonAdds(Phase);
-
-                SummonAddsTimer = 45000;
-            } else SummonAddsTimer -= diff;
+                SummonAdds();
+            else SummonAddsTimer -= diff;
         }
     }
 
     void ChangePosition()
     {
         /* Malfunctioning, Razorscale is flying around randomly, attacking players from hundreds of yards away.
-        uint32 random = rand() % 4;
-        if (random<4){
-            m_creature->GetMotionMaster()->MovePoint(0, MovementLocations[random][0], MovementLocations[random][1], MovementLocations[random][2]);} */
+        uint8 random = urand(0,3);
+        m_creature->GetMotionMaster()->MovePoint(0, MovementLocations[random][0], MovementLocations[random][1], MovementLocations[random][2]); */
     }
 
-    void SummonAdds(uint32 Phase)
+    void SummonAdds()
     {
-        if (Phase == 2)
+        for (uint32 i = 0; i < 4; ++i)
         {
-            uint32 max = rand()%10;
-            for (uint32 i = 0; i < 4; ++i)
-            {
-                uint32 random = rand()%3;
-                Creature* Add = m_creature->SummonCreature(CREATURE_ADDS, SpawnLocations[random][0], SpawnLocations[random][1], SpawnLocations[random][2], 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 30000);
-                if (Add)
-                    Add->AI()->AttackStart(SelectUnit(SELECT_TARGET_RANDOM, 0));
-            }
+            uint8 random = urand(0,3);
+            if (Creature* Add = m_creature->SummonCreature(CREATURE_ADDS, SpawnLocations[random][0], SpawnLocations[random][1], SpawnLocations[random][2], 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 30000))
+                Add->AI()->AttackStart(SelectTarget(SELECT_TARGET_RANDOM, 0, 0, true));
         }
-
-        if (Phase == 3)
-        {
-            uint32 max = rand() % 10 +1;
-            if (max < 1)
-            {
-                for (uint32 i = 0; i < max; ++i)
-                {
-                    uint32 random = rand()%4;
-                    Creature* Add = m_creature->SummonCreature(CREATURE_ADDS, SpawnLocations[random][0], SpawnLocations[random][1], SpawnLocations[random][2], 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 30000);
-                    if (Add)
-                        Add->AI()->AttackStart(SelectUnit(SELECT_TARGET_RANDOM, 0));
-                }
-            }
-        }
+        SummonAddsTimer = 45000;
     }
 };
 
