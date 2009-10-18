@@ -38,9 +38,9 @@ struct TRINITY_DLL_DECL mobs_ghoul_flayerAI : public ScriptedAI
 {
     mobs_ghoul_flayerAI(Creature *c) : ScriptedAI(c) {}
 
-    void Reset() { }
+    void Reset() {}
 
-    void EnterCombat(Unit* who) { }
+    void EnterCombat(Unit* who) {}
 
     void JustDied(Unit* Killer)
     {
@@ -93,7 +93,7 @@ struct TRINITY_DLL_DECL npc_darrowshire_spiritAI : public ScriptedAI
         m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
     }
 
-    void EnterCombat(Unit *who) { }
+    void EnterCombat(Unit *who) {}
 
 };
 CreatureAI* GetAI_npc_darrowshire_spirit(Creature* pCreature)

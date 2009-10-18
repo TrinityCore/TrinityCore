@@ -303,7 +303,7 @@ void AddSC_boss_anub_arak()
     Script *newscript;
 
     newscript = new Script;
-    newscript->Name="boss_anub_arak";
+    newscript->Name = "boss_anub_arak";
     newscript->GetAI = &GetAI_boss_anub_arak;
     newscript->RegisterSelf();
 }

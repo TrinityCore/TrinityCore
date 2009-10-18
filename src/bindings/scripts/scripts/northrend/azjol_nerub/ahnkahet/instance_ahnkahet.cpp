@@ -26,7 +26,10 @@ EndScriptData */
 #include "precompiled.h"
 #include "def_ahnkahet.h"
 
-#define MAX_ENCOUNTER     5
+#define MAX_ENCOUNTER           5
+#define MAX_JEDOGA_INITIANDS    15
+
+#define AchievementVolunteerWork    2056
 
 /* Ahn'kahet encounters:
 0 - Elder Nadox
@@ -50,21 +53,39 @@ struct TRINITY_DLL_DECL instance_ahnkahet : public ScriptedInstance
     uint64 Prince_TaldaramPlatform;
     uint64 Prince_TaldaramGate;
 
+    uint64 InitiandGUIDs[MAX_JEDOGA_INITIANDS];
+    uint64 JedogaSacrifices;
+    uint64 JedogaTarget;
+
     uint32 m_auiEncounter[MAX_ENCOUNTER];
     uint32 spheres[2];
 
+    uint8 InitiandCnt,
+        switchtrigger,
+        initiandkilled;
+
     void Initialize()
     {
-         Elder_Nadox =0;
-         Prince_Taldaram =0;
-         Jedoga_Shadowseeker =0;
-         Herald_Volazj =0;
-         Amanitar =0;
+        Elder_Nadox =0;
+        Prince_Taldaram =0;
+        Jedoga_Shadowseeker =0;
+        Herald_Volazj =0;
+        Amanitar =0;
 
-         for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
-             m_auiEncounter[i] = NOT_STARTED;
+        for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
+            m_auiEncounter[i] = NOT_STARTED;
+
         spheres[0] = NOT_STARTED;
         spheres[1] = NOT_STARTED;
+
+        InitiandCnt = 0;
+        switchtrigger = 0;
+        initiandkilled = 0;
+        JedogaSacrifices = 0;
+        JedogaTarget = 0;
+
+        for (uint8 i=0; i<MAX_JEDOGA_INITIANDS; ++i)
+            InitiandGUIDs[i] = 0;
     }
 
     bool IsEncounterInProgress() const
@@ -79,11 +100,12 @@ struct TRINITY_DLL_DECL instance_ahnkahet : public ScriptedInstance
     {
         switch(pCreature->GetEntry())
         {
-            case 29309:    Elder_Nadox = pCreature->GetGUID();                   break;
-            case 29308:    Prince_Taldaram = pCreature->GetGUID();               break;
-            case 29310:    Jedoga_Shadowseeker = pCreature->GetGUID();           break;
-            case 29311:    Herald_Volazj = pCreature->GetGUID();                 break;
-            case 30258:    Amanitar = pCreature->GetGUID();                      break;
+            case 29309: Elder_Nadox = pCreature->GetGUID();                     break;
+            case 29308: Prince_Taldaram = pCreature->GetGUID();                 break;
+            case 29310: Jedoga_Shadowseeker = pCreature->GetGUID();             break;
+            case 29311: Herald_Volazj = pCreature->GetGUID();                   break;
+            case 30258: Amanitar = pCreature->GetGUID();                        break;
+            case 30114: InitiandGUIDs[InitiandCnt++] = pCreature->GetGUID();    break;
         }
     }
 
@@ -114,6 +136,15 @@ struct TRINITY_DLL_DECL instance_ahnkahet : public ScriptedInstance
         }
     }
 
+    void SetData64(uint32 idx, uint64 guid)
+    {
+        switch(idx)
+        {
+            case DATA_ADD_JEDOGA_OPFER: JedogaSacrifices = guid; break;
+            case DATA_PL_JEDOGA_TARGET: JedogaTarget = guid; break;
+        }
+    }
+
     uint64 GetData64(uint32 identifier)
     {
         switch(identifier)
@@ -126,6 +157,26 @@ struct TRINITY_DLL_DECL instance_ahnkahet : public ScriptedInstance
             case DATA_SPHERE1:                    return Prince_TaldaramSpheres[0];
             case DATA_SPHERE2:                    return Prince_TaldaramSpheres[1];
             case DATA_PRINCE_TALDARAM_PLATFORM:   return Prince_TaldaramPlatform;
+            case DATA_ADD_JEDOGA_INITIAND:
+                {
+                    uint8 i = 0;
+                    uint32 rnd = urand(0,MAX_JEDOGA_INITIANDS-1);
+                    do
+                    {
+                        if (i == rnd)
+                        {
+                            Creature* cr = instance->GetCreature(InitiandGUIDs[i]);
+                            if (cr && cr->isAlive()) return InitiandGUIDs[i];
+                            else
+                            {
+                                i = 0;
+                                rnd = urand(0,MAX_JEDOGA_INITIANDS-1);
+                            }
+                        } else ++i;
+                    } while (i < MAX_JEDOGA_INITIANDS);
+                }
+            case DATA_ADD_JEDOGA_OPFER: return JedogaSacrifices;
+            case DATA_PL_JEDOGA_TARGET: return JedogaTarget;
         }
         return 0;
     }
@@ -134,30 +185,50 @@ struct TRINITY_DLL_DECL instance_ahnkahet : public ScriptedInstance
     {
         switch(type)
         {
-        case DATA_ELDER_NADOX_EVENT:
-            m_auiEncounter[0] = data;break;
-        case DATA_PRINCE_TALDARAM_EVENT:
-	    if (data == DONE)
-	    {
-	        HandleGameObject(Prince_TaldaramGate,true);
-	    }
-            m_auiEncounter[1] = data; break;
-        case DATA_JEDOGA_SHADOWSEEKER_EVENT:
-            m_auiEncounter[2] = data; break;
-        case DATA_HERALD_VOLAZJ:
-            m_auiEncounter[3] = data; break;
-        case DATA_AMANITAR:
-            m_auiEncounter[4] = data; break;
-        case DATA_SPHERE1_EVENT:
-            spheres[0] = data; break;
-        case DATA_SPHERE2_EVENT:
-            spheres[1] = data; break;
-	}
-
-        if (data == DONE)
-        {
-            SaveToDB();
+            case DATA_ELDER_NADOX_EVENT: m_auiEncounter[0] = data; break;
+            case DATA_PRINCE_TALDARAM_EVENT:
+                if (data == DONE)
+                    HandleGameObject(Prince_TaldaramGate,true);
+                m_auiEncounter[1] = data;
+                break;
+            case DATA_JEDOGA_SHADOWSEEKER_EVENT:
+                m_auiEncounter[2] = data;
+                if (data == DONE)
+                {
+                    for (uint8 i = 0; i < MAX_JEDOGA_INITIANDS; ++i)
+                    {
+                        Creature* cr = instance->GetCreature(InitiandGUIDs[i]);
+                        if (cr && cr->isAlive())
+                        {
+                            cr->SetVisibility(VISIBILITY_OFF);
+                            cr->setDeathState(JUST_DIED);
+                            cr->RemoveCorpse();
+                        }
+                    }
+                    if (!initiandkilled && instance->IsHeroic())
+                        DoCompleteAchievement(AchievementVolunteerWork);
+                }
+                break;
+            case DATA_HERALD_VOLAZJ: m_auiEncounter[3] = data; break;
+            case DATA_AMANITAR: m_auiEncounter[4] = data; break;
+            case DATA_SPHERE1_EVENT: spheres[0] = data; break;
+            case DATA_SPHERE2_EVENT: spheres[1] = data; break;
+            case DATA_JEDOGA_TRIGGER_SWITCH: switchtrigger = data; break;
+            case DATA_INITIAND_KILLED: initiandkilled = data; break;
+            case DATA_JEDOGA_RESET_INITIANDS:
+                for (uint8 i=0; i < MAX_JEDOGA_INITIANDS; ++i)
+                {
+                    Creature* cr = instance->GetCreature(InitiandGUIDs[i]);
+                    if (cr)
+                    {
+                        cr->Respawn();
+                        if (!cr->IsInEvadeMode()) cr->AI()->EnterEvadeMode();
+                    }
+                }
+                break;
         }
+        if (data == DONE)
+            SaveToDB();
     }
 
     uint32 GetData(uint32 type)
@@ -171,25 +242,30 @@ struct TRINITY_DLL_DECL instance_ahnkahet : public ScriptedInstance
             case DATA_AMANITAR:                     return m_auiEncounter[4];
             case DATA_SPHERE1_EVENT:                return spheres[0];
             case DATA_SPHERE2_EVENT:                return spheres[1];
+            case DATA_ALL_INITIAND_DEAD:
+                for (uint8 i=0; i<MAX_JEDOGA_INITIANDS; ++i)
+                {
+                    Creature* cr = instance->GetCreature(InitiandGUIDs[i]);
+                    if (!cr || (cr && cr->isAlive())) return 0;
+                }
+                return 1;
+            case DATA_JEDOGA_TRIGGER_SWITCH: return switchtrigger;
+            case DATA_INITIAND_KILLED: return initiandkilled;
         }
         return 0;
     }
 
-   std::string GetSaveData()
+    std::string GetSaveData()
     {
         OUT_SAVE_INST_DATA;
-
-        std::string str_data;
 
         std::ostringstream saveStream;
         saveStream << "A K " << m_auiEncounter[0] << " " << m_auiEncounter[1] << " "
             << m_auiEncounter[2] << " " << m_auiEncounter[3] << " " << m_auiEncounter[4] << " "
             << spheres[0] << " " << spheres[1];
 
-        str_data = saveStream.str();
-
         OUT_SAVE_INST_DATA_COMPLETE;
-        return str_data;
+        return saveStream.str();
     }
 
     void Load(const char* in)

@@ -685,7 +685,7 @@ struct TRINITY_DLL_DECL dummy_dragonAI : public ScriptedAI
 
 struct TRINITY_DLL_DECL mob_tenebronAI : public dummy_dragonAI
 {
-    mob_tenebronAI(Creature* pCreature) : dummy_dragonAI(pCreature) { }
+    mob_tenebronAI(Creature* pCreature) : dummy_dragonAI(pCreature) {}
 
     uint32 m_uiShadowBreathTimer;
     uint32 m_uiShadowFissureTimer;
@@ -755,7 +755,7 @@ CreatureAI* GetAI_mob_tenebron(Creature* pCreature)
 
 struct TRINITY_DLL_DECL mob_shadronAI : public dummy_dragonAI
 {
-    mob_shadronAI(Creature* pCreature) : dummy_dragonAI(pCreature) { }
+    mob_shadronAI(Creature* pCreature) : dummy_dragonAI(pCreature) {}
 
     uint32 m_uiShadowBreathTimer;
     uint32 m_uiShadowFissureTimer;
@@ -831,7 +831,7 @@ CreatureAI* GetAI_mob_shadron(Creature* pCreature)
 
 struct TRINITY_DLL_DECL mob_vesperonAI : public dummy_dragonAI
 {
-    mob_vesperonAI(Creature* pCreature) : dummy_dragonAI(pCreature) { }
+    mob_vesperonAI(Creature* pCreature) : dummy_dragonAI(pCreature) {}
 
     uint32 m_uiShadowBreathTimer;
     uint32 m_uiShadowFissureTimer;
@@ -1009,7 +1009,7 @@ CreatureAI* GetAI_mob_acolyte_of_vesperon(Creature* pCreature)
 
 struct TRINITY_DLL_DECL mob_twilight_eggsAI : public ScriptedAI
 {
-    mob_twilight_eggsAI(Creature* pCreature) : ScriptedAI(pCreature) { }
+    mob_twilight_eggsAI(Creature* pCreature) : ScriptedAI(pCreature) {}
 
     uint32 m_uiFadeArmorTimer;
 
@@ -1018,8 +1018,8 @@ struct TRINITY_DLL_DECL mob_twilight_eggsAI : public ScriptedAI
         m_uiFadeArmorTimer = 1000;
     }
 
-    void AttackStart(Unit* pWho) { }
-    void MoveInLineOfSight(Unit* pWho) { }
+    void AttackStart(Unit* pWho) {}
+    void MoveInLineOfSight(Unit* pWho) {}
 };
 
 CreatureAI* GetAI_mob_twilight_eggs(Creature* pCreature)
@@ -1033,7 +1033,7 @@ CreatureAI* GetAI_mob_twilight_eggs(Creature* pCreature)
 
 struct TRINITY_DLL_DECL mob_twilight_whelpAI : public ScriptedAI
 {
-    mob_twilight_whelpAI(Creature* pCreature) : ScriptedAI(pCreature) { }
+    mob_twilight_whelpAI(Creature* pCreature) : ScriptedAI(pCreature) {}
 
     uint32 m_uiFadeArmorTimer;
 

@@ -118,9 +118,9 @@ struct TRINITY_DLL_DECL mob_scarlet_traineeAI : public npc_escortAI
 
     uint32 Start_Timer;
 
-    void Reset() { }
-    void WaypointReached(uint32 uiPoint) { }
-    void EnterCombat(Unit* who) { }
+    void Reset() {}
+    void WaypointReached(uint32 uiPoint) {}
+    void EnterCombat(Unit* who) {}
 
     void UpdateAI(const uint32 diff)
     {
