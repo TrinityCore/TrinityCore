@@ -49,10 +49,12 @@ enum WintergraspSpell
     SPELL_DESTROYED_TOWER   = 59136,
     SPELL_DAMAGED_BUILDING  = 59201,
     SPELL_INTACT_BUILDING   = 59203,
+
+    SPELL_ESSENCE_OF_WG     = 58045,
+
 // Unused: Not implemented
 //    SPELL_VICTORY_AURA      = 60044,
 //    SPELL_RULERS_OF_WG      = 52108,
-//    SPELL_ESSENCE_OF_WG     = 58045,
 };
 
 enum WintergraspRewardEvent

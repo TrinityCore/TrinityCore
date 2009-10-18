@@ -755,6 +755,11 @@ bool OPvPWintergrasp::UpdateGameObjectInfo(GameObject *go) const
 
 void OPvPWintergrasp::HandlePlayerEnterZone(Player * plr, uint32 zone)
 {
+    if(plr->GetTeam() == getDefenderTeam() && !isWarTime())
+    {
+        plr->CastSpell(plr,SPELL_ESSENCE_OF_WG,true);
+    }
+
     if (isWarTime() && !plr->HasAura(SPELL_RECRUIT) && !plr->HasAura(SPELL_CORPORAL)
         && !plr->HasAura(SPELL_LIEUTENANT))
         plr->CastSpell(plr, SPELL_RECRUIT, true);
@@ -789,6 +794,7 @@ void OPvPWintergrasp::HandlePlayerLeaveZone(Player * plr, uint32 zone)
     REMOVE_TENACITY_AURA(plr);
     OutdoorPvP::HandlePlayerLeaveZone(plr, zone);
     UpdateTenacityStack();
+    plr->RemoveAura(SPELL_ESSENCE_OF_WG);
 }
 
 void OPvPWintergrasp::PromotePlayer(Player *killer) const
@@ -1167,7 +1173,6 @@ void OPvPWintergrasp::EndBattle()
                     (*itr)->AreaExploredOrEventHappens(A_VICTORY_IN_WG);
                     (*itr)->AreaExploredOrEventHappens(H_VICTORY_IN_WG);
                 }
-
             }
             REMOVE_WARTIME_AURAS(*itr);
             REMOVE_TENACITY_AURA(*itr);
@@ -1177,6 +1182,7 @@ void OPvPWintergrasp::EndBattle()
 
     //3.2.0: TeamCastSpell(getAttackerTeam(), SPELL_TELEPORT_DALARAN);
     RemoveOfflinePlayerWGAuras();
+    TeamCastSpell(getDefenderTeam(),SPELL_ESSENCE_OF_WG);
 }
 
 void OPvPWintergrasp::SetData(uint32 id, uint32 value)
