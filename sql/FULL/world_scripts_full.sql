@@ -175,15 +175,16 @@ UPDATE `creature_template` SET `ScriptName`='mob_voidtraveler' WHERE `entry`=192
 
 /* AZJOL-NERUB */
 UPDATE `instance_template` SET `script`='instance_azjol_nerub' WHERE `map`=601;
-UPDATE creature_template SET `ScriptName`='npc_watcher_narjil' WHERE `entry`=28729;
-UPDATE creature_template SET `ScriptName`='npc_watcher_silthik' WHERE `entry`=28731;
-UPDATE creature_template SET `ScriptName`='npc_anub_ar_warrior' WHERE `entry`=28732;
-UPDATE creature_template SET `ScriptName`='npc_watcher_gashra' WHERE `entry`=28730;
-UPDATE creature_template SET `ScriptName`='boss_krik_thir' WHERE `entry`=28684;
-UPDATE creature_template SET `ScriptName`='npc_skittering_infector' WHERE `entry`=28736;
-UPDATE creature_template SET `ScriptName`='npc_anub_ar_skirmisher' WHERE `entry`=28734;
-UPDATE creature_template SET `ScriptName`='npc_anub_ar_shadowcaster' WHERE `entry`=28733;
+UPDATE `creature_template` SET `ScriptName`='npc_watcher_narjil' WHERE `entry`=28729;
+UPDATE `creature_template` SET `ScriptName`='npc_watcher_silthik' WHERE `entry`=28731;
+UPDATE `creature_template` SET `ScriptName`='npc_anub_ar_warrior' WHERE `entry`=28732;
+UPDATE `creature_template` SET `ScriptName`='npc_watcher_gashra' WHERE `entry`=28730;
+UPDATE `creature_template` SET `ScriptName`='boss_krik_thir' WHERE `entry`=28684;
+UPDATE `creature_template` SET `ScriptName`='npc_skittering_infector' WHERE `entry`=28736;
+UPDATE `creature_template` SET `ScriptName`='npc_anub_ar_skirmisher' WHERE `entry`=28734;
+UPDATE `creature_template` SET `ScriptName`='npc_anub_ar_shadowcaster' WHERE `entry`=28733;
 UPDATE `creature_template` SET `ScriptName`='boss_hadronox' WHERE `entry`=28921;
+UPDATE `creature_template` SET `ScriptName`='boss_anub_arak' WHERE `entry`=29120;
 
 /* AHN'KAHET: THE OLD KINGDOM */
 UPDATE `instance_template` SET `script`='instance_ahnkahet' WHERE `map`=619;
