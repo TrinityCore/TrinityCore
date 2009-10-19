@@ -3293,6 +3293,10 @@ void AuraEffect::HandleAuraMounted(bool apply, bool Real, bool /*changeAmount*/)
     else
     {
         m_target->Unmount();
+        //some mounts like Headless Horseman's Mount or broom stick are skill based spell
+        // need to remove ALL arura related to mounts, this will stop client crash with broom stick
+        // and never endless flying after using Headless Horseman's Mount
+        m_target->RemoveAurasByType(SPELL_AURA_MOUNTED);  
     }
 }
 
