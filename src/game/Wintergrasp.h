@@ -118,7 +118,7 @@ enum DamageState
 { // Do not change order
     DAMAGE_INTACT,
     DAMAGE_DAMAGED,
-    DAMAGE_DESTROYED,    
+    DAMAGE_DESTROYED,
 };
 
 const uint32 AreaPOIIconId[3][3] = {{7,8,9},{4,5,6},{1,2,3}};
