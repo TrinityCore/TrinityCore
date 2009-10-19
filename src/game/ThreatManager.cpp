@@ -32,24 +32,23 @@
 //==============================================================
 
 // The pHatingUnit is not used yet
-float ThreatCalcHelper::calcThreat(Unit* pHatedUnit, Unit* pHatingUnit, float pThreat, SpellSchoolMask schoolMask, SpellEntry const *pThreatSpell)
+float ThreatCalcHelper::calcThreat(Unit* pHatedUnit, Unit* pHatingUnit, float fThreat, SpellSchoolMask schoolMask, SpellEntry const *pThreatSpell)
 {
     if (pThreatSpell)
         if (Player* modOwner = pHatedUnit->GetSpellModOwner())
-            modOwner->ApplySpellMod(pThreatSpell->Id, SPELLMOD_THREAT, pThreat);
+            modOwner->ApplySpellMod(pThreatSpell->Id, SPELLMOD_THREAT, fThreat);
 
-    float threat = pHatedUnit->ApplyTotalThreatModifier(pThreat, schoolMask);
-    return threat;
+    return pHatedUnit->ApplyTotalThreatModifier(fThreat, schoolMask);
 }
 
 //============================================================
 //================= HostilReference ==========================
 //============================================================
 
-HostilReference::HostilReference(Unit* pUnit, ThreatManager *pThreatManager, float pThreat)
+HostilReference::HostilReference(Unit* pUnit, ThreatManager *pThreatManager, float fThreat)
 {
-    iThreat = pThreat;
-    iTempThreatModifyer = 0.0f;
+    iThreat = fThreat;
+    iTempThreatModifier = 0.0f;
     link(pUnit, pThreatManager);
     iUnitGuid = pUnit->GetGUID();
     iOnline = true;
@@ -83,29 +82,29 @@ void HostilReference::sourceObjectDestroyLink()
 
 void HostilReference::fireStatusChanged(ThreatRefStatusChangeEvent& pThreatRefStatusChangeEvent)
 {
-    if(getSource())
+    if (getSource())
         getSource()->processThreatEvent(&pThreatRefStatusChangeEvent);
 }
 
 //============================================================
 
-void HostilReference::addThreat(float pMod)
+void HostilReference::addThreat(float fModThreat)
 {
-    iThreat += pMod;
-    // the threat is changed. Source and target unit have to be availabe
+    iThreat += fModThreat;
+    // the threat is changed. Source and target unit have to be available
     // if the link was cut before relink it again
-    if(!isOnline())
+    if (!isOnline())
         updateOnlineStatus();
-    if(pMod != 0.0f)
+    if (fModThreat != 0.0f)
     {
-        ThreatRefStatusChangeEvent event(UEV_THREAT_REF_THREAT_CHANGE, this, pMod);
+        ThreatRefStatusChangeEvent event(UEV_THREAT_REF_THREAT_CHANGE, this, fModThreat);
         fireStatusChanged(event);
     }
 
-    if(isValid() && pMod >= 0)
+    if (isValid() && fModThreat >= 0.0f)
     {
         Unit* victim_owner = getTarget()->GetCharmerOrOwner();
-        if(victim_owner && victim_owner->isAlive())
+        if (victim_owner && victim_owner->isAlive())
             getSource()->addThreat(victim_owner, 0.0f);     // create a threat to the owner of a pet, if the pet attacks
     }
 }
@@ -118,25 +117,23 @@ void HostilReference::updateOnlineStatus()
     bool online = false;
     bool accessible = false;
 
-    if(!isValid())
-    {
-        Unit* target = ObjectAccessor::GetUnit(*getSourceUnit(), getUnitGuid());
-        if(target)
+    if (!isValid())
+        if (Unit* target = ObjectAccessor::GetUnit(*getSourceUnit(), getUnitGuid()))
             link(target, getSource());
-    }
+
     // only check for online status if
     // ref is valid
     // target is no player or not gamemaster
     // target is not in flight
-    if(isValid() &&
+    if (isValid() &&
         ((getTarget()->GetTypeId() != TYPEID_PLAYER || !((Player*)getTarget())->isGameMaster()) ||
         !getTarget()->hasUnitState(UNIT_STAT_IN_FLIGHT)))
     {
-        Creature* creature = (Creature* ) getSourceUnit();
+        Creature* creature = (Creature*)getSourceUnit();
         online = getTarget()->isInAccessiblePlaceFor(creature);
-        if(!online)
+        if (!online)
         {
-            if(creature->IsWithinCombatRange(getTarget(), creature->m_CombatDistance))
+            if (creature->IsWithinCombatRange(getTarget(), creature->m_CombatDistance))
                 online = true;                              // not accessible but stays online
         }
         else
@@ -152,10 +149,10 @@ void HostilReference::updateOnlineStatus()
 
 void HostilReference::setOnlineOfflineState(bool pIsOnline)
 {
-    if(iOnline != pIsOnline)
+    if (iOnline != pIsOnline)
     {
         iOnline = pIsOnline;
-        if(!iOnline)
+        if (!iOnline)
             setAccessibleState(false);                      // if not online that not accessable as well
 
         ThreatRefStatusChangeEvent event(UEV_THREAT_REF_ONLINE_STATUS, this);
@@ -167,7 +164,7 @@ void HostilReference::setOnlineOfflineState(bool pIsOnline)
 
 void HostilReference::setAccessibleState(bool pIsAccessible)
 {
-    if(iAccessible != pIsAccessible)
+    if (iAccessible != pIsAccessible)
     {
         iAccessible = pIsAccessible;
 
@@ -231,20 +228,20 @@ HostilReference* ThreatContainer::getReferenceByTarget(Unit* pVictim)
 //============================================================
 // Add the threat, if we find the reference
 
-HostilReference* ThreatContainer::addThreat(Unit* pVictim, float pThreat)
+HostilReference* ThreatContainer::addThreat(Unit* pVictim, float fThreat)
 {
     HostilReference* ref = getReferenceByTarget(pVictim);
-    if(ref)
-        ref->addThreat(pThreat);
+    if (ref)
+        ref->addThreat(fThreat);
     return ref;
 }
 
 //============================================================
 
-void ThreatContainer::modifyThreatPercent(Unit *pVictim, int32 pPercent)
+void ThreatContainer::modifyThreatPercent(Unit *pVictim, int32 iPercent)
 {
     if(HostilReference* ref = getReferenceByTarget(pVictim))
-        ref->addThreatPercent(pPercent);
+        ref->addThreatPercent(iPercent);
 }
 
 //============================================================
@@ -361,7 +358,7 @@ void ThreatManager::clearReferences()
 
 //============================================================
 
-void ThreatManager::addThreat(Unit* pVictim, float pThreat, SpellSchoolMask schoolMask, SpellEntry const *pThreatSpell)
+void ThreatManager::addThreat(Unit* pVictim, float fThreat, SpellSchoolMask schoolMask, SpellEntry const *pThreatSpell)
 {
     //function deals with adding threat and adding players and pets into ThreatList
     //mobs, NPCs, guards have ThreatList and HateOfflineList
@@ -373,19 +370,19 @@ void ThreatManager::addThreat(Unit* pVictim, float pThreat, SpellSchoolMask scho
         return;
 
     // not to GM
-    if(!pVictim || (pVictim->GetTypeId() == TYPEID_PLAYER && ((Player*)pVictim)->isGameMaster()) )
+    if (!pVictim || (pVictim->GetTypeId() == TYPEID_PLAYER && ((Player*)pVictim)->isGameMaster()))
         return;
 
     // not to dead and not for dead
-    if(!pVictim->isAlive() || !getOwner()->isAlive() )
+    if (!pVictim->isAlive() || !getOwner()->isAlive())
         return;
 
     assert(getOwner()->GetTypeId()== TYPEID_UNIT);
 
-    float threat = ThreatCalcHelper::calcThreat(pVictim, iOwner, pThreat, schoolMask, pThreatSpell);
+    float threat = ThreatCalcHelper::calcThreat(pVictim, iOwner, fThreat, schoolMask, pThreatSpell);
 
     // must check > 0.0f, otherwise dead loop
-    if(threat > 0.0f && pVictim->GetReducedThreatPercent())
+    if (threat > 0.0f && pVictim->GetReducedThreatPercent())
     {
         float reducedThreat = threat * pVictim->GetReducedThreatPercent() / 100;
         threat -= reducedThreat;
@@ -396,19 +393,19 @@ void ThreatManager::addThreat(Unit* pVictim, float pThreat, SpellSchoolMask scho
     _addThreat(pVictim, threat);
 }
 
-void ThreatManager::_addThreat(Unit *pVictim, float threat)
+void ThreatManager::_addThreat(Unit *pVictim, float fThreat)
 {
-    HostilReference* ref = iThreatContainer.addThreat(pVictim, threat);
+    HostilReference* ref = iThreatContainer.addThreat(pVictim, fThreat);
     // Ref is not in the online refs, search the offline refs next
-    if(!ref)
-        ref = iThreatOfflineContainer.addThreat(pVictim, threat);
+    if (!ref)
+        ref = iThreatOfflineContainer.addThreat(pVictim, fThreat);
 
-    if(!ref)                                                // there was no ref => create a new one
+    if (!ref)                                               // there was no ref => create a new one
     {
                                                             // threat has to be 0 here
         HostilReference* hostilReference = new HostilReference(pVictim, this, 0);
         iThreatContainer.addReference(hostilReference);
-        hostilReference->addThreat(threat);                 // now we add the real threat
+        hostilReference->addThreat(fThreat);                // now we add the real threat
         if(pVictim->GetTypeId() == TYPEID_PLAYER && ((Player*)pVictim)->isGameMaster())
             hostilReference->setOnlineOfflineState(false);  // GM is always offline
     }
@@ -416,9 +413,9 @@ void ThreatManager::_addThreat(Unit *pVictim, float threat)
 
 //============================================================
 
-void ThreatManager::modifyThreatPercent(Unit *pVictim, int32 pPercent)
+void ThreatManager::modifyThreatPercent(Unit *pVictim, int32 iPercent)
 {
-    iThreatContainer.modifyThreatPercent(pVictim, pPercent);
+    iThreatContainer.modifyThreatPercent(pVictim, iPercent);
 }
 
 //============================================================
@@ -451,8 +448,7 @@ void ThreatManager::tauntApply(Unit* pTaunter)
     HostilReference* ref = iThreatContainer.getReferenceByTarget(pTaunter);
     if(getCurrentVictim() && ref && (ref->getThreat() < getCurrentVictim()->getThreat()))
     {
-        if(ref->getTempThreatModifyer() == 0.0f)
-                                                            // Ok, temp threat is unused
+        if(ref->getTempThreatModifier() == 0.0f) // Ok, temp threat is unused
             ref->setTempThreat(getCurrentVictim()->getThreat());
     }
 }

@@ -34,33 +34,33 @@ HostilRefManager::~HostilRefManager()
 // The pVictim is hated than by them as well
 // use for buffs and healing threat functionality
 
-void HostilRefManager::threatAssist(Unit *pVictim, float pThreat, SpellEntry const *pThreatSpell, bool pSingleTarget)
+void HostilRefManager::threatAssist(Unit *pVictim, float fThreat, SpellEntry const *pThreatSpell, bool pSingleTarget)
 {
     HostilReference* ref;
 
-    uint32 size = pSingleTarget ? 1 : getSize();            // if pSingleTarget do not devide threat
+    float size = pSingleTarget ? 1.0f : getSize();            // if pSingleTarget do not divide threat
     ref = getFirst();
     while(ref != NULL)
     {
-        float threat = ThreatCalcHelper::calcThreat(pVictim, iOwner, pThreat, (pThreatSpell ? GetSpellSchoolMask(pThreatSpell) : SPELL_SCHOOL_MASK_NORMAL), pThreatSpell);
+        float threat = ThreatCalcHelper::calcThreat(pVictim, iOwner, fThreat, (pThreatSpell ? GetSpellSchoolMask(pThreatSpell) : SPELL_SCHOOL_MASK_NORMAL), pThreatSpell);
         if(pVictim == getOwner())
-            ref->addThreat(float (threat) / size);          // It is faster to modify the threat durectly if possible
+            ref->addThreat(threat / size);          // It is faster to modify the threat durectly if possible
         else
-            ref->getSource()->addThreat(pVictim, float (threat) / size);
+            ref->getSource()->addThreat(pVictim, threat / size);
         ref = ref->next();
     }
 }
 
 //=================================================
 
-void HostilRefManager::addThreatPercent(int32 pValue)
+void HostilRefManager::addThreatPercent(int32 iPercent)
 {
     HostilReference* ref;
 
     ref = getFirst();
-    while(ref != NULL)
+    while (ref != NULL)
     {
-        ref->addThreatPercent(pValue);
+        ref->addThreatPercent(iPercent);
         ref = ref->next();
     }
 }
@@ -68,14 +68,14 @@ void HostilRefManager::addThreatPercent(int32 pValue)
 //=================================================
 // The online / offline status is given to the method. The calculation has to be done before
 
-void HostilRefManager::setOnlineOfflineState(bool pIsOnline)
+void HostilRefManager::setOnlineOfflineState(bool bIsOnline)
 {
     HostilReference* ref;
 
     ref = getFirst();
     while(ref != NULL)
     {
-        ref->setOnlineOfflineState(pIsOnline);
+        ref->setOnlineOfflineState(bIsOnline);
         ref = ref->next();
     }
 }
@@ -131,7 +131,7 @@ void HostilRefManager::deleteReference(Unit *pCreature)
 //=================================================
 // set state for one reference, defined by Unit
 
-void HostilRefManager::setOnlineOfflineState(Unit *pCreature,bool pIsOnline)
+void HostilRefManager::setOnlineOfflineState(Unit *pCreature, bool bIsOnline)
 {
     HostilReference* ref = getFirst();
     while(ref)
@@ -139,7 +139,7 @@ void HostilRefManager::setOnlineOfflineState(Unit *pCreature,bool pIsOnline)
         HostilReference* nextRef = ref->next();
         if(ref->getSource()->getOwner() == pCreature)
         {
-            ref->setOnlineOfflineState(pIsOnline);
+            ref->setOnlineOfflineState(bIsOnline);
             break;
         }
         ref = nextRef;

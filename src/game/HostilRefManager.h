@@ -44,9 +44,9 @@ class HostilRefManager : public RefManager<Unit, ThreatManager>
         // send threat to all my hateres for the pVictim
         // The pVictim is hated than by them as well
         // use for buffs and healing threat functionality
-        void threatAssist(Unit *pVictim, float threat, SpellEntry const *threatSpell = 0, bool pSingleTarget=false);
+        void threatAssist(Unit *pVictim, float fThreat, SpellEntry const *threatSpell = 0, bool pSingleTarget = false);
 
-        void addThreatPercent(int32 pValue);
+        void addThreatPercent(int32 iPercent);
 
         // The references are not needed anymore
         // tell the source to remove them from the list and free the mem
@@ -56,10 +56,10 @@ class HostilRefManager : public RefManager<Unit, ThreatManager>
 
         void updateThreatTables();
 
-        void setOnlineOfflineState(bool pIsOnline);
+        void setOnlineOfflineState(bool bIsOnline);
 
         // set state for one reference, defined by Unit
-        void setOnlineOfflineState(Unit *pCreature,bool pIsOnline);
+        void setOnlineOfflineState(Unit *pCreature, bool bIsOnline);
 
         // delete one reference, defined by Unit
         void deleteReference(Unit *pCreature);
