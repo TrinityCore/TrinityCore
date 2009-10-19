@@ -465,6 +465,8 @@ UPDATE `creature_template` SET `ScriptName`='npc_alexstrasza_wr_gate' WHERE `ent
 
 /* DESOLACE */
 UPDATE `creature_template` SET `ScriptName`='npc_aged_dying_ancient_kodo' WHERE `entry` IN (4700,4701,4702,11627);
+UPDATE `gameobject_template` SET `ScriptName` = 'go_iruxos' WHERE `entry` = 176581;
+
 
 /* DIRE MAUL */
 
