@@ -45,7 +45,10 @@ enum Creatures
     CREATURE_ARTHAS                          = 24266, // Image of Arthas
     CREATURE_SVALA_SORROWGRAVE               = 26668, // Svala after transformation
     CREATURE_SVALA                           = 29281, // Svala before transformation
-    CREATURE_RITUAL_CHANNELER                = 27281,
+    CREATURE_RITUAL_CHANNELER                = 27281
+};
+enum ChannelerSpells
+{
     //ritual channeler's spells
     SPELL_PARALYZE                           = 48278,
     SPELL_SHADOWS_IN_THE_DARK                = 59407
@@ -115,8 +118,7 @@ struct TRINITY_DLL_DECL boss_svalaAI : public ScriptedAI
 
             if (pArthas = m_creature->SummonCreature(CREATURE_ARTHAS, 295.81, -366.16, 92.57, 1.58, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 20000))
             {
-                pArthas->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                pArthas->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                pArthas->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_NOT_SELECTABLE);
                 pArthas->SetFloatValue(OBJECT_FIELD_SCALE_X, 5);
             }
         }
@@ -170,8 +172,7 @@ struct TRINITY_DLL_DECL boss_svalaAI : public ScriptedAI
                 case 6:
                     if (Creature* pSvalaSorrowgrave = m_creature->SummonCreature(CREATURE_SVALA_SORROWGRAVE, 296.632, -346.075, 90.6307, 1.58, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 60000))
                     {
-                        m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                        m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                        m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_NOT_SELECTABLE);
                         m_creature->SetDisplayId(DATA_SVALA_DISPLAY_ID);
                         pArthas->DisappearAndDie();
                         Phase = FINISHED;
@@ -183,9 +184,9 @@ struct TRINITY_DLL_DECL boss_svalaAI : public ScriptedAI
     }
 };
 
-struct TRINITY_DLL_DECL mob_ritual_channelerAI : public ScriptedAI
+struct TRINITY_DLL_DECL mob_ritual_channelerAI : public Scripted_NoMovementAI
 {
-    mob_ritual_channelerAI(Creature *c) :ScriptedAI(c)
+    mob_ritual_channelerAI(Creature *c) :Scripted_NoMovementAI(c)
     {
         pInstance = c->GetInstanceData();
     }
@@ -199,7 +200,7 @@ struct TRINITY_DLL_DECL mob_ritual_channelerAI : public ScriptedAI
 
     void EnterCombat(Unit* who)
     {
-        if (who && who->HasAura(SPELL_PARALYZE,0))
+        if (who && !who->HasAura(SPELL_PARALYZE,0))
             DoCast(who,SPELL_PARALYZE);
         return;
     }
@@ -234,6 +235,7 @@ struct TRINITY_DLL_DECL boss_svala_sorrowgraveAI : public ScriptedAI
         Phase = NORMAL;
 
         DoTeleportTo(296.632, -346.075, 90.6307);
+        m_creature->SetUnitMovementFlags(MOVEMENTFLAG_WALK_MODE);
 
         for (uint8 i = 0; i < 3; ++i)
              pRitualChanneler[i] = NULL;
@@ -262,16 +264,15 @@ struct TRINITY_DLL_DECL boss_svala_sorrowgraveAI : public ScriptedAI
             if (uiSinsterStrikeTimer < diff)
             {
                 DoCast(m_creature->getVictim(), HEROIC(SPELL_SINSTER_STRIKE, H_SPELL_SINSTER_STRIKE));
-                uiSinsterStrikeTimer = 5000 + rand()%4000;
+                uiSinsterStrikeTimer = urand(5000,9000);
             } else uiSinsterStrikeTimer -= diff;
 
             if (uiCallFlamesTimer < diff)
             {
-                Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0);
-                if (pTarget && pTarget->GetTypeId() != TYPEID_PLAYER)
+                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                 {
                     DoCast(pTarget, SPELL_CALL_FLAMES);
-                    uiCallFlamesTimer = 8000 + rand()%4000;
+                    uiCallFlamesTimer = urand(8000,12000);
                 }
             } else uiCallFlamesTimer -= diff;
 
