@@ -60,8 +60,6 @@ struct TRINITY_DLL_DECL boss_ichoronAI : public ScriptedAI
     {
         Phase = BUBBLED;
 
-        DoCast(m_creature, SPELL_PROTECTIVE_BUBBLE);
-
         if (pInstance)
         {
             if (pInstance->GetData(DATA_WAVE_COUNT) == 6)
@@ -73,6 +71,8 @@ struct TRINITY_DLL_DECL boss_ichoronAI : public ScriptedAI
     void EnterCombat(Unit* who)
     {
         DoScriptText(SAY_AGGRO, m_creature);
+        
+        DoCast(m_creature, SPELL_PROTECTIVE_BUBBLE);
 
         if (pInstance)
         {
@@ -82,6 +82,8 @@ struct TRINITY_DLL_DECL boss_ichoronAI : public ScriptedAI
                 pInstance->SetData(DATA_2ND_BOSS_EVENT, IN_PROGRESS);
         }
     }
+    
+    void MoveInLineOfSight(Unit* who) {}
 
     void UpdateAI(const uint32 diff)
     {
