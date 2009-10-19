@@ -22,7 +22,7 @@
 #include "OutdoorPvPImpl.h"
 
 #define ZONE_WINTERGRASP         4197
-#define POS_X_CENTER             4700
+#define POS_X_CENTER             5100
 #define MAX_VEHICLE_PER_WORKSHOP    4
 
 const uint32 WintergraspFaction[3] = {1732, 1735, 35};
@@ -43,18 +43,16 @@ enum WintergraspSpell
     SPELL_TELEPORT_DALARAN  = 53360,
 
     SPELL_TOWER_CONTROL     = 62064,
+    SPELL_RULLERS_OF_WG     = 52108,
     SPELL_VICTORY_REWARD    = 56902,
     SPELL_DEFEAT_REWARD     = 58494,
     SPELL_DAMAGED_TOWER     = 59135,
     SPELL_DESTROYED_TOWER   = 59136,
     SPELL_DAMAGED_BUILDING  = 59201,
     SPELL_INTACT_BUILDING   = 59203,
-
     SPELL_ESSENCE_OF_WG     = 58045,
-
 // Unused: Not implemented
 //    SPELL_VICTORY_AURA      = 60044,
-//    SPELL_RULERS_OF_WG      = 52108,
 };
 
 enum WintergraspRewardEvent
@@ -117,10 +115,10 @@ enum BuildingType
 };
 
 enum DamageState
-{
+{ // Do not change order
     DAMAGE_INTACT,
     DAMAGE_DAMAGED,
-    DAMAGE_DESTROYED,
+    DAMAGE_DESTROYED,    
 };
 
 const uint32 AreaPOIIconId[3][3] = {{7,8,9},{4,5,6},{1,2,3}};
@@ -218,7 +216,8 @@ class OPvPWintergrasp : public OutdoorPvP
         uint32 m_timer;
         uint32 m_clock[5];
         uint32 m_workshopCount[2];
-        uint32 m_towerCount[2][2];
+        uint32 m_towerDestroyedCount[2];
+        uint32 m_towerDamagedCount[2];
 
         uint32 m_customHonorReward[WG_REWARD_EVENT_MAX];
 
