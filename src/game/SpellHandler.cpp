@@ -294,7 +294,7 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& recvPacket)
 
     // ignore for remote control state (for player case)
     Unit* mover = _player->m_mover;
-    if(mover != _player && mover->GetTypeId()==TYPEID_PLAYER)
+    if(mover != _player && mover->GetTypeId() == TYPEID_PLAYER)
     {
         recvPacket.rpos(recvPacket.wpos());                 // prevent spam at ignore packet
         return;
@@ -312,7 +312,7 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& recvPacket)
         return;
     }
 
-    if(mover->GetTypeId()==TYPEID_PLAYER)
+    if(mover->GetTypeId() == TYPEID_PLAYER)
     {
         // not have spell in spellbook or spell passive and not casted by client
         if (!((Player*)mover)->HasActiveSpell (spellId) || IsPassiveSpell(spellId) )
@@ -473,7 +473,7 @@ void WorldSession::HandleCancelChanneling( WorldPacket & recv_data)
 
     // ignore for remote control state (for player case)
     Unit* mover = _player->m_mover;
-    if(mover != _player && mover->GetTypeId()==TYPEID_PLAYER)
+    if(mover != _player && mover->GetTypeId() == TYPEID_PLAYER)
         return;
 
     mover->InterruptSpell(CURRENT_CHANNELED_SPELL);
@@ -570,7 +570,7 @@ void WorldSession::HandleMirrrorImageDataRequest( WorldPacket & recv_data )
     WorldPacket data(SMSG_MIRRORIMAGE_DATA, 68);
     data << (uint64)guid;
     data << (uint32)creator->GetDisplayId();
-    if (creator->GetTypeId()==TYPEID_PLAYER)
+    if (creator->GetTypeId() == TYPEID_PLAYER)
     {
         Player * pCreator = (Player *)creator;
         data << (uint8)pCreator->getRace();

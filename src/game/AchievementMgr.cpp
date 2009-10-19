@@ -255,7 +255,7 @@ bool AchievementCriteriaData::Meets(Player const* source, Unit const* target, ui
                 return false;
             return target->GetEntry() == creature.id;
         case ACHIEVEMENT_CRITERIA_DATA_TYPE_T_PLAYER_CLASS_RACE:
-            if (!target || target->GetTypeId()!=TYPEID_PLAYER)
+            if (!target || target->GetTypeId() != TYPEID_PLAYER)
                 return false;
             if(classRace.class_id && classRace.class_id != ((Player*)target)->getClass())
                 return false;
@@ -263,7 +263,7 @@ bool AchievementCriteriaData::Meets(Player const* source, Unit const* target, ui
                 return false;
             return true;
         case ACHIEVEMENT_CRITERIA_DATA_TYPE_T_PLAYER_LESS_HEALTH:
-            if (!target || target->GetTypeId()!=TYPEID_PLAYER)
+            if (!target || target->GetTypeId() != TYPEID_PLAYER)
                 return false;
             return target->GetHealth()*100 <= health.percent*target->GetMaxHealth();
         case ACHIEVEMENT_CRITERIA_DATA_TYPE_T_PLAYER_DEAD:
@@ -1210,7 +1210,7 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
                         continue;
 
                     // map specific case (BG in fact) expected player targeted damage/heal
-                    if(!unit || unit->GetTypeId()!=TYPEID_PLAYER)
+                    if(!unit || unit->GetTypeId() != TYPEID_PLAYER)
                         continue;
                 }
 

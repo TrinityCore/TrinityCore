@@ -630,7 +630,7 @@ void Spell::SelectSpellTargets()
                         AddUnitTarget(m_caster, i);
                     break;
                 case SPELL_EFFECT_SUMMON_PLAYER:
-                    if(m_caster->GetTypeId()==TYPEID_PLAYER && ((Player*)m_caster)->GetSelection())
+                    if(m_caster->GetTypeId() == TYPEID_PLAYER && ((Player*)m_caster)->GetSelection())
                     {
                         Player* target = objmgr.GetPlayer(((Player*)m_caster)->GetSelection());
                         if(target)
@@ -2321,7 +2321,7 @@ void Spell::SelectEffectTargets(uint32 i, uint32 cur)
                             }
                             else
                             {
-                                if (m_caster->GetTypeId()==TYPEID_PLAYER)
+                                if (m_caster->GetTypeId() == TYPEID_PLAYER)
                                     ((Player*)m_caster)->RemoveSpellCooldown(m_spellInfo->Id,true);
                                 SendCastResult(SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW);
                                 finish(false);
@@ -2543,7 +2543,7 @@ void Spell::SelectEffectTargets(uint32 i, uint32 cur)
                     // Pet not found - remove cooldown
                     else
                     {
-                        if (modOwner->GetTypeId()==TYPEID_PLAYER)
+                        if (modOwner->GetTypeId() == TYPEID_PLAYER)
                             modOwner->RemoveSpellCooldown(m_spellInfo->Id,true);
                         SendCastResult(SPELL_FAILED_NO_PET);
                         finish(false);
@@ -2648,11 +2648,11 @@ void Spell::prepare(SpellCastTargets const* targets, AuraEffect* triggeredByAura
         }
     }
 
-    if (m_caster->GetTypeId()==TYPEID_PLAYER)
+    if (m_caster->GetTypeId() == TYPEID_PLAYER)
         ((Player*)m_caster)->SetSpellModTakingSpell(this, true);
     // Fill cost data (not use power for item casts
     m_powerCost = m_CastItem ? 0 : CalculatePowerCost(m_spellInfo, m_caster, m_spellSchoolMask);
-    if (m_caster->GetTypeId()==TYPEID_PLAYER)
+    if (m_caster->GetTypeId() == TYPEID_PLAYER)
         ((Player*)m_caster)->SetSpellModTakingSpell(this, false);
 
     SpellCastResult result = CheckCast(true);
@@ -2811,7 +2811,7 @@ void Spell::cast(bool skipCheck)
         m_caster->SetInFront(m_targets.getUnitTarget());
 
     // Should this be done for original caster?
-    if (m_caster->GetTypeId()==TYPEID_PLAYER)
+    if (m_caster->GetTypeId() == TYPEID_PLAYER)
     {
         // Set spell which will drop charges for triggered cast spells
         // if not successfully casted, will be remove in finish(false)
@@ -2967,7 +2967,7 @@ void Spell::cast(bool skipCheck)
                     m_caster->CastSpell(m_targets.getUnitTarget() ? m_targets.getUnitTarget() : m_caster, *i, true);
     }
 
-    if (m_caster->GetTypeId()==TYPEID_PLAYER)
+    if (m_caster->GetTypeId() == TYPEID_PLAYER)
         ((Player*)m_caster)->SetSpellModTakingSpell(this, false);
 
     SetExecutedCurrently(false);
@@ -3015,7 +3015,7 @@ uint64 Spell::handle_delayed(uint64 t_offset)
 {
     UpdatePointers();
 
-    if (m_caster->GetTypeId()==TYPEID_PLAYER)
+    if (m_caster->GetTypeId() == TYPEID_PLAYER)
         ((Player*)m_caster)->SetSpellModTakingSpell(this, true);
 
     uint64 next_time = 0;
@@ -3052,7 +3052,7 @@ uint64 Spell::handle_delayed(uint64 t_offset)
         }
     }
 
-    if (m_caster->GetTypeId()==TYPEID_PLAYER)
+    if (m_caster->GetTypeId() == TYPEID_PLAYER)
         ((Player*)m_caster)->SetSpellModTakingSpell(this, false);
 
     // All targets passed - need finish phase
@@ -4329,7 +4329,7 @@ void Spell::TriggerSpell()
 SpellCastResult Spell::CheckCast(bool strict)
 {
     // check cooldowns to prevent cheating
-    if(m_caster->GetTypeId()==TYPEID_PLAYER)
+    if(m_caster->GetTypeId() == TYPEID_PLAYER)
     {
         //can cast triggered (by aura only?) spells while have this flag
         if (!m_IsTriggeredSpell && ((Player*)m_caster)->HasFlag(PLAYER_FLAGS, PLAYER_ALLOW_ONLY_ABILITY))
@@ -4411,7 +4411,7 @@ SpellCastResult Spell::CheckCast(bool strict)
 
     // cancel autorepeat spells if cast start when moving
     // (not wand currently autorepeat cast delayed to moving stop anyway in spell update code)
-    if( m_caster->GetTypeId()==TYPEID_PLAYER && ((Player*)m_caster)->isMoving() )
+    if( m_caster->GetTypeId() == TYPEID_PLAYER && ((Player*)m_caster)->isMoving() )
     {
         // skip stuck spell to allow use it in falling case and apply spell limitations at movement
         if( (!((Player*)m_caster)->m_movementInfo.HasMovementFlag(MOVEMENTFLAG_FALLING) || m_spellInfo->Effect[0] != SPELL_EFFECT_STUCK) &&
@@ -4569,13 +4569,13 @@ SpellCastResult Spell::CheckCast(bool strict)
         m_caster->GetZoneAndAreaId(zone,area);
 
         SpellCastResult locRes= spellmgr.GetSpellAllowedInLocationError(m_spellInfo,m_caster->GetMapId(),zone,area,
-            m_caster->GetTypeId()==TYPEID_PLAYER ? ((Player*)m_caster) : NULL);
+            m_caster->GetTypeId() == TYPEID_PLAYER ? ((Player*)m_caster) : NULL);
         if(locRes != SPELL_CAST_OK)
             return locRes;
     }
 
     // not let players cast spells at mount (and let do it to creatures)
-    if (m_caster->IsMounted() && m_caster->GetTypeId()==TYPEID_PLAYER && !m_IsTriggeredSpell &&
+    if (m_caster->IsMounted() && m_caster->GetTypeId() == TYPEID_PLAYER && !m_IsTriggeredSpell &&
         !IsPassiveSpell(m_spellInfo->Id) && !(m_spellInfo->Attributes & SPELL_ATTR_CASTABLE_WHILE_MOUNTED))
     {
         if (m_caster->isInFlight())
@@ -5002,7 +5002,7 @@ SpellCastResult Spell::CheckCast(bool strict)
             {
                 if(m_caster->GetPetGUID())                  //let warlock do a replacement summon
                 {
-                    if (m_caster->GetTypeId()==TYPEID_PLAYER && m_caster->getClass()==CLASS_WARLOCK)
+                    if (m_caster->GetTypeId() == TYPEID_PLAYER && m_caster->getClass()==CLASS_WARLOCK)
                     {
                         if (strict)                         //starting cast, trigger pet stun (cast by pet so it doesn't attack player)
                             if(Pet* pet = ((Player*)m_caster)->GetPet())
@@ -5043,7 +5043,7 @@ SpellCastResult Spell::CheckCast(bool strict)
             case SPELL_EFFECT_TELEPORT_UNITS_FACE_CASTER:
             {
               //Do not allow to cast it before BG starts.
-                if(m_caster->GetTypeId()==TYPEID_PLAYER)
+                if(m_caster->GetTypeId() == TYPEID_PLAYER)
                     if(BattleGround const *bg = ((Player*)m_caster)->GetBattleGround())
                         if(bg->GetStatus() != STATUS_IN_PROGRESS)
                             return SPELL_FAILED_TRY_AGAIN;
@@ -6060,7 +6060,7 @@ bool Spell::CheckTargetCreatureType(Unit* target) const
         m_spellInfo->SpellFamilyName==SPELLFAMILY_PALADIN && m_spellInfo->Category == 19)
     {
         // not allow cast at player
-        if(target->GetTypeId()==TYPEID_PLAYER)
+        if(target->GetTypeId() == TYPEID_PLAYER)
             return false;
 
         spellCreatureTargetMask = 0x7FF;

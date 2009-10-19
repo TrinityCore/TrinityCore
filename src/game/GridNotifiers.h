@@ -524,7 +524,7 @@ namespace Trinity
             RaiseDeadObjectCheck(Unit* funit, float range) : i_funit(funit), i_range(range) {}
             bool operator()(Creature* u)
             {
-                if (i_funit->GetTypeId()!=TYPEID_PLAYER || !((Player*)i_funit)->isHonorOrXPTarget(u) ||
+                if (i_funit->GetTypeId() != TYPEID_PLAYER || !((Player*)i_funit)->isHonorOrXPTarget(u) ||
                     u->getDeathState() != CORPSE || u->isDeadByDefault() || u->isInFlight() ||
                     ( u->GetCreatureTypeMask() & (1 << (CREATURE_TYPE_HUMANOID-1)) )==0 ||
                     (u->GetDisplayId() != u->GetNativeDisplayId()))
@@ -903,7 +903,7 @@ namespace Trinity
                 Unit const* owner = i_funit->GetOwner();
                 if(owner)
                     check = owner;
-                i_targetForPlayer = ( check->GetTypeId()==TYPEID_PLAYER );
+                i_targetForPlayer = ( check->GetTypeId() == TYPEID_PLAYER );
             }
             bool operator()(Unit* u)
             {

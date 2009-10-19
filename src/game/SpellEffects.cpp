@@ -547,7 +547,7 @@ void Spell::SpellDamageSchoolDmg(uint32 effect_idx)
             case SPELLFAMILY_ROGUE:
             {
                 // Envenom
-                if (m_caster->GetTypeId()==TYPEID_PLAYER && (m_spellInfo->SpellFamilyFlags[1] & 0x8))
+                if (m_caster->GetTypeId() == TYPEID_PLAYER && (m_spellInfo->SpellFamilyFlags[1] & 0x8))
                 {
                     // consume from stack dozes not more that have combo-points
                     if (uint32 combo = ((Player*)m_caster)->GetComboPoints())
@@ -572,7 +572,7 @@ void Spell::SpellDamageSchoolDmg(uint32 effect_idx)
                     }
                 }
                 // Eviscerate
-                else if ((m_spellInfo->SpellFamilyFlags[0] & 0x00020000) && m_caster->GetTypeId()==TYPEID_PLAYER)
+                else if ((m_spellInfo->SpellFamilyFlags[0] & 0x00020000) && m_caster->GetTypeId() == TYPEID_PLAYER)
                 {
                     if (uint32 combo = ((Player*)m_caster)->GetComboPoints())
                     {
@@ -875,7 +875,7 @@ void Spell::EffectDummy(uint32 i)
                 }
                 case 17271:                                 // Test Fetid Skull
                 {
-                    if(!itemTarget && m_caster->GetTypeId()!=TYPEID_PLAYER)
+                    if(!itemTarget && m_caster->GetTypeId() != TYPEID_PLAYER)
                         return;
 
                     uint32 spell_id = roll_chance_i(50)
@@ -1029,7 +1029,7 @@ void Spell::EffectDummy(uint32 i)
                     return;
                 case 33060:                                 // Make a Wish
                 {
-                    if(m_caster->GetTypeId()!=TYPEID_PLAYER)
+                    if(m_caster->GetTypeId() != TYPEID_PLAYER)
                         return;
 
                     uint32 spell_id = 0;
@@ -1325,7 +1325,7 @@ void Spell::EffectDummy(uint32 i)
             {
                 case 11958:                                 // Cold Snap
                 {
-                    if(m_caster->GetTypeId()!=TYPEID_PLAYER)
+                    if(m_caster->GetTypeId() != TYPEID_PLAYER)
                         return;
 
                     // immediately finishes the cooldown on Frost spells
@@ -1583,7 +1583,7 @@ void Spell::EffectDummy(uint32 i)
                 }
                 case 14185:                                 // Preparation
                 {
-                    if(m_caster->GetTypeId()!=TYPEID_PLAYER)
+                    if(m_caster->GetTypeId() != TYPEID_PLAYER)
                         return;
 
                     //immediately finishes the cooldown on certain Rogue abilities
@@ -1611,7 +1611,7 @@ void Spell::EffectDummy(uint32 i)
             {
                 case 23989:                                 // Readiness talent
                 {
-                    if(m_caster->GetTypeId()!=TYPEID_PLAYER)
+                    if(m_caster->GetTypeId() != TYPEID_PLAYER)
                         return;
 
                     // immediately finishes the cooldown on your other Hunter abilities except Bestial Wrath
@@ -1629,7 +1629,7 @@ void Spell::EffectDummy(uint32 i)
                 }
                 case 37506:                                 // Scatter Shot
                 {
-                    if (m_caster->GetTypeId()!=TYPEID_PLAYER)
+                    if (m_caster->GetTypeId() != TYPEID_PLAYER)
                         return;
 
                     // break Auto Shot and autohit
@@ -1722,7 +1722,7 @@ void Spell::EffectDummy(uint32 i)
                     // non-standard cast requirement check
                     if (!unitTarget || unitTarget->getAttackers().empty())
                     {
-                        if(m_caster->GetTypeId()==TYPEID_PLAYER)
+                        if(m_caster->GetTypeId() == TYPEID_PLAYER)
                             ((Player*)m_caster)->RemoveSpellCooldown(m_spellInfo->Id,true);
                         SendCastResult(SPELL_FAILED_TARGET_AFFECTING_COMBAT);
                         return;
@@ -1858,7 +1858,7 @@ void Spell::EffectDummy(uint32 i)
             // Lava Lash
             if (m_spellInfo->SpellFamilyFlags[2] & 0x00000004)
             {
-                if (m_caster->GetTypeId()!=TYPEID_PLAYER)
+                if (m_caster->GetTypeId() != TYPEID_PLAYER)
                     return;
 
                 if (Item *item = ((Player*)m_caster)->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND))
@@ -2929,7 +2929,7 @@ void Spell::EffectCreateItem(uint32 i)
 
 void Spell::EffectCreateItem2(uint32 i)
 {
-    if(m_caster->GetTypeId()!=TYPEID_PLAYER)
+    if(m_caster->GetTypeId() != TYPEID_PLAYER)
         return;
     Player* player = (Player*)m_caster;
 
@@ -2954,7 +2954,7 @@ void Spell::EffectCreateItem2(uint32 i)
 
 void Spell::EffectCreateRandomItem(uint32 i)
 {
-    if(m_caster->GetTypeId()!=TYPEID_PLAYER)
+    if(m_caster->GetTypeId() != TYPEID_PLAYER)
         return;
     Player* player = (Player*)m_caster;
 
@@ -3430,7 +3430,7 @@ void Spell::EffectSummonType(uint32 i)
     uint32 level = m_caster->getLevel();
 
     // level of creature summoned using engineering item based at engineering skill level
-    if(m_caster->GetTypeId()==TYPEID_PLAYER && m_CastItem)
+    if(m_caster->GetTypeId() == TYPEID_PLAYER && m_CastItem)
     {
         ItemPrototype const *proto = m_CastItem->GetProto();
         if(proto && proto->RequiredSkill == SKILL_ENGINERING)
@@ -4315,7 +4315,7 @@ void Spell::SpellDamageWeaponDmg(uint32 i)
             // Devastate bonus and sunder armor refresh
             if(m_spellInfo->SpellFamilyFlags[1] & 0x40)
             {
-                if (m_caster->GetTypeId()!=TYPEID_PLAYER)
+                if (m_caster->GetTypeId() != TYPEID_PLAYER)
                     return;
                 SpellEntry const *spellInfo = NULL;
                 uint32 stack = 0;
@@ -4377,14 +4377,14 @@ void Spell::SpellDamageWeaponDmg(uint32 i)
             // Hemorrhage
             if(m_spellInfo->SpellFamilyFlags[0] & 0x2000000)
             {
-                if(m_caster->GetTypeId()==TYPEID_PLAYER)
+                if(m_caster->GetTypeId() == TYPEID_PLAYER)
                     ((Player*)m_caster)->AddComboPoints(unitTarget, 1, this);
             }
             // Fan of Knives
             else if(m_spellInfo->SpellFamilyFlags[1] & 0x40000)
             {
                 // 50% more damage with daggers
-                if(m_caster->GetTypeId()==TYPEID_PLAYER)
+                if(m_caster->GetTypeId() == TYPEID_PLAYER)
                     if (Item* item = ((Player*)m_caster)->GetWeaponForAttack(m_attackType, true))
                         if (item->GetProto()->SubClass == ITEM_SUBCLASS_WEAPON_DAGGER)
                             totalDamagePercentMod *= 1.5f;
@@ -4463,7 +4463,7 @@ void Spell::SpellDamageWeaponDmg(uint32 i)
             // Mangle (Cat): CP
             if(m_spellInfo->SpellFamilyFlags[1] & 0x400)
             {
-                if(m_caster->GetTypeId()==TYPEID_PLAYER)
+                if(m_caster->GetTypeId() == TYPEID_PLAYER)
                     ((Player*)m_caster)->AddComboPoints(unitTarget,1, this);
             }
             // Shred, Maul - Rend and Tear
@@ -4767,7 +4767,7 @@ void Spell::EffectScriptEffect(uint32 effIndex)
             {
                 case 6962:
                 {
-                    if(m_caster->GetTypeId()!=TYPEID_PLAYER)
+                    if(m_caster->GetTypeId() != TYPEID_PLAYER)
                         return;
 
                     Player* plr = ((Player*)m_caster);
@@ -4900,7 +4900,7 @@ void Spell::EffectScriptEffect(uint32 effIndex)
                 // Bending Shinbone
                 case 8856:
                 {
-                    if(!itemTarget && m_caster->GetTypeId()!=TYPEID_PLAYER)
+                    if(!itemTarget && m_caster->GetTypeId() != TYPEID_PLAYER)
                         return;
 
                     uint32 spell_id = 0;
