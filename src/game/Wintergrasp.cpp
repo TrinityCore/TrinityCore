@@ -791,7 +791,7 @@ void OPvPWintergrasp::HandlePlayerResurrects(Player * plr, uint32 zone)
         if (plr->getLevel() > 69)
         {
             // Tenacity
-            if (!plr->HasAura(SPELL_TENACITY) &&  &&
+            if (!plr->HasAura(SPELL_TENACITY) &&
                 (plr->GetTeamId() == TEAM_ALLIANCE && m_tenacityStack > 0 ||
                 plr->GetTeamId() == TEAM_HORDE && m_tenacityStack < 0))
             {
@@ -805,7 +805,7 @@ void OPvPWintergrasp::HandlePlayerResurrects(Player * plr, uint32 zone)
             if (uint32 newStack = 3 - m_towerDestroyedCount[getAttackerTeam()])
             {
                 if (plr->GetTeamId() == getAttackerTeam())
-                    plr->SetStackAura(SPELL_TOWER_CONTROL, plr, newStack);
+                    plr->SetAuraStack(SPELL_TOWER_CONTROL, plr, newStack);
             }
             else // Spell Rullers (Defender only)
             {
