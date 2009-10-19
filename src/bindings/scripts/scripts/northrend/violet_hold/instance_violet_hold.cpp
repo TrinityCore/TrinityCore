@@ -24,6 +24,7 @@ enum Creatures
     CREATURE_ICHORON                                = 29313,
     CREATURE_ZURAMAT                                = 29314,
     CREATURE_EREKEM                                 = 29315,
+    CREATURE_EREKEM_GUARD                           = 29395,
     CREATURE_MORAGG                                 = 29316,
     CREATURE_CYANIGOSA                              = 31134,
     CREATURE_SINCLARI                               = 30658
@@ -40,7 +41,7 @@ enum GameObjects
     GO_EREKEM_GUARD_2_DOOR                          = 191562,
     GO_MORAGG_DOOR                                  = 191606,
     GO_INTRO_ACTIVATION_CRYSTAL                     = 193615,
-    GO_ACTIVATION_CRYSTAL_1                         = 193611
+    GO_ACTIVATION_CRYSTAL                           = 193611
 };
 struct Location
 {
@@ -58,6 +59,7 @@ struct TRINITY_DLL_DECL instance_violet_hold : public ScriptedInstance
 
     uint64 uiMoragg;
     uint64 uiErekem;
+    uint64 uiErekemGuard[2];
     uint64 uiIchoron;
     uint64 uiLavanthor;
     uint64 uiXevozz;
@@ -67,13 +69,15 @@ struct TRINITY_DLL_DECL instance_violet_hold : public ScriptedInstance
 
     uint64 uiMoraggCell;
     uint64 uiErekemCell;
-    uint64 uiErekemRightGuardCell;
     uint64 uiErekemLeftGuardCell;
+    uint64 uiErekemRightGuardCell;
     uint64 uiIchoronCell;
     uint64 uiLavanthorCell;
     uint64 uiXevozzCell;
     uint64 uiZuramatCell;
     uint64 uiMainDoor;
+    
+    uint64 uiActivationCrystal[3];
 
     uint8 uiWaveCount;
     uint8 uiLocation;
@@ -81,6 +85,8 @@ struct TRINITY_DLL_DECL instance_violet_hold : public ScriptedInstance
     uint8 uiSecondBoss;
 
     uint8 m_auiEncounter[MAX_ENCOUNTER];
+    uint8 uiCountErekemGuards;
+    uint8 uiCountActivationCrystals;
 
     bool HeroicMode;
 
@@ -99,8 +105,8 @@ struct TRINITY_DLL_DECL instance_violet_hold : public ScriptedInstance
 
         uiMoraggCell = 0;
         uiErekemCell = 0;
-        uiErekemRightGuardCell = 0;
-        uiErekemLeftGuardCell = 0;
+        uiErekemGuard[0] = 0;
+        uiErekemGuard[1] = 0;
         uiIchoronCell = 0;
         uiLavanthorCell = 0;
         uiXevozzCell = 0;
@@ -111,6 +117,8 @@ struct TRINITY_DLL_DECL instance_violet_hold : public ScriptedInstance
         uiLocation = 0;
         uiFirstBoss = 0;
         uiSecondBoss = 0;
+        uiCountErekemGuards = 0;
+        uiCountActivationCrystals = 0;
 
         memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
     }
@@ -141,6 +149,10 @@ struct TRINITY_DLL_DECL instance_violet_hold : public ScriptedInstance
                 break;
             case CREATURE_EREKEM:
                 uiErekem = pCreature->GetGUID();
+                break;
+            case CREATURE_EREKEM_GUARD:
+                if (uiCountErekemGuards < 2)
+                    uiErekemGuard[uiCountErekemGuards++] = pCreature->GetGUID();
                 break;
             case CREATURE_MORAGG:
                 uiMoragg = pCreature->GetGUID();
@@ -184,6 +196,10 @@ struct TRINITY_DLL_DECL instance_violet_hold : public ScriptedInstance
                 break;
             case GO_MAIN_DOOR:
                 uiMainDoor = pGo->GetGUID();
+                break;
+            case GO_ACTIVATION_CRYSTAL:
+                if (uiCountActivationCrystals < 3)
+                    uiActivationCrystal[uiCountActivationCrystals++] = pGo->GetGUID();
                 break;
         }
     }
@@ -289,6 +305,16 @@ struct TRINITY_DLL_DECL instance_violet_hold : public ScriptedInstance
                     pBoss->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
                     pBoss->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                 }
+                if (pBoss = instance->GetCreature(uiErekemGuard[0]))
+                {
+                    pBoss->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
+                    pBoss->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                }
+                if (pBoss = instance->GetCreature(uiErekemGuard[1]))
+                {
+                    pBoss->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
+                    pBoss->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                }
                 break;
             case 2:               //Ichoron
                 HandleGameObject(uiIchoronCell,true);
@@ -331,6 +357,8 @@ struct TRINITY_DLL_DECL instance_violet_hold : public ScriptedInstance
         {
             case DATA_MORAGG:                   return uiMoragg;
             case DATA_EREKEM:                   return uiErekem;
+            case DATA_EREKEM_GUARD_1:           return uiErekemGuard[0];
+            case DATA_EREKEM_GUARD_2:           return uiErekemGuard[1];
             case DATA_ICHORON:                  return uiIchoron;
             case DATA_LAVANTHOR:                return uiLavanthor;
             case DATA_XEVOZZ:                   return uiXevozz;
