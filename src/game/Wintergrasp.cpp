@@ -755,7 +755,7 @@ bool OPvPWintergrasp::UpdateGameObjectInfo(GameObject *go) const
 
 void OPvPWintergrasp::HandlePlayerEnterZone(Player * plr, uint32 zone)
 {
-    if(plr->GetTeam() == getDefenderTeam() && !isWarTime())
+    if(plr->GetTeamId() == getDefenderTeam() && !isWarTime())
     {
         plr->CastSpell(plr,SPELL_ESSENCE_OF_WG,true);
     }
