@@ -367,7 +367,7 @@ void OPvPWintergrasp::ProcessEvent(GameObject *obj, uint32 eventId)
                     if (state->GetTeam() == getAttackerTeam())
                     {
                         TeamCastSpell(getAttackerTeam(), -SPELL_TOWER_CONTROL);
-                        uint32 newStack = 3 -m_towerDestroyedCount[getAttackerTeam()];
+                        uint32 newStack = 3 - m_towerDestroyedCount[getAttackerTeam()];
                         if (newStack > 0)
                         {
                             for (PlayerSet::iterator itr = m_players[getAttackerTeam()].begin(); itr != m_players[getAttackerTeam()].end(); ++itr)
@@ -786,14 +786,38 @@ void OPvPWintergrasp::HandlePlayerEnterZone(Player * plr, uint32 zone)
 // Reapply Tenacity if needed
 void OPvPWintergrasp::HandlePlayerResurrects(Player * plr, uint32 zone)
 {
-    if (isWarTime() && !plr->HasAura(SPELL_TENACITY) && plr->getLevel() > 69 &&
-          (plr->GetTeamId() == TEAM_ALLIANCE && m_tenacityStack > 0 ||
-           plr->GetTeamId() == TEAM_HORDE && m_tenacityStack < 0))
+    if (isWarTime())
     {
-        int32 newStack = m_tenacityStack < 0 ? -m_tenacityStack : m_tenacityStack;
-        if (newStack > 20)
-            newStack = 20;
-        CastTenacity(plr, newStack);
+        if (plr->getLevel() > 69)
+        {
+            // Tenacity
+            if (!plr->HasAura(SPELL_TENACITY) &&  &&
+                (plr->GetTeamId() == TEAM_ALLIANCE && m_tenacityStack > 0 ||
+                plr->GetTeamId() == TEAM_HORDE && m_tenacityStack < 0))
+            {
+                int32 newStack = m_tenacityStack < 0 ? -m_tenacityStack : m_tenacityStack;
+                if (newStack > 20)
+                    newStack = 20;
+                CastTenacity(plr, newStack);
+            }
+
+            // Tower Control (Attacker only)
+            if (uint32 newStack = 3 - m_towerDestroyedCount[getAttackerTeam()])
+            {
+                if (plr->GetTeamId() == getAttackerTeam())
+                    plr->SetStackAura(SPELL_TOWER_CONTROL, plr, newStack);
+            }
+            else // Spell Rullers (Defender only)
+            {
+                if (plr->GetTeamId() == getDefenderTeam())
+                    plr->CastSpell(plr, SPELL_RULLERS_OF_WG, true);
+            }
+        }
+    }
+    else // Essence of Wintergrasp
+    {
+        if (plr->GetTeamId() == getDefenderTeam())
+            plr->CastSpell(plr, SPELL_ESSENCE_OF_WG, true);
     }
     OutdoorPvP::HandlePlayerResurrects(plr, zone);
 }
@@ -1110,6 +1134,7 @@ void OPvPWintergrasp::EndBattle()
             baseHonor += (m_customHonorReward[DESTROYED_TOWER] * m_towerDestroyedCount[OTHER_TEAM(team)]);
             baseHonor += (m_customHonorReward[INTACT_BUILDING] * intactNum);
             baseHonor += (m_customHonorReward[DAMAGED_BUILDING] * damagedNum);
+            baseHonor /= playersWithRankNum;
         }
 
         // Revive players, remove auras and give rewards
@@ -1165,7 +1190,7 @@ void OPvPWintergrasp::EndBattle()
                         honor = 0;
                     }
                 }
-                (*itr)->RewardHonor(NULL, playersWithRankNum, honor);
+                (*itr)->RewardHonor(NULL, 1, honor);
                 RewardMarkOfHonor(*itr, marks);
                 (*itr)->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET, spellRewardId);
             }
