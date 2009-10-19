@@ -95,7 +95,7 @@ OPvPWintergrasp::OPvPWintergrasp()
 
 bool OPvPWintergrasp::SetupOutdoorPvP()
 {
-    if(!sWorld.getConfig(CONFIG_OUTDOORPVP_WINTERGRASP_ENABLED))
+    if (!sWorld.getConfig(CONFIG_OUTDOORPVP_WINTERGRASP_ENABLED))
         return false;
 
     m_defender = TeamId(rand()%2);
@@ -771,7 +771,7 @@ bool OPvPWintergrasp::UpdateGameObjectInfo(GameObject *go) const
 
 void OPvPWintergrasp::HandlePlayerEnterZone(Player * plr, uint32 zone)
 {
-    if(plr->GetTeamId() == getDefenderTeam() && !isWarTime())
+    if (!isWarTime() && (plr->GetTeamId() == getDefenderTeam()))
         plr->CastSpell(plr,SPELL_ESSENCE_OF_WG,true);
 
     if (isWarTime() && !plr->HasAura(SPELL_RECRUIT) && !plr->HasAura(SPELL_CORPORAL)
@@ -847,7 +847,7 @@ void OPvPWintergrasp::HandleKill(Player *killer, Unit *victim)
         if (victim->getLevel() >= 70)
             ok = true;
 
-        if(killer->GetQuestStatus(SLAY_THEM_ALL_1) == QUEST_STATUS_INCOMPLETE || killer->GetQuestStatus(SLAY_THEM_ALL_2) == QUEST_STATUS_INCOMPLETE || killer->GetQuestStatus(NO_MERCY_MERCILESS_1) == QUEST_STATUS_INCOMPLETE || killer->GetQuestStatus(NO_MERCY_MERCILESS) == QUEST_STATUS_INCOMPLETE)
+        if (killer->GetQuestStatus(SLAY_THEM_ALL_1) == QUEST_STATUS_INCOMPLETE || killer->GetQuestStatus(SLAY_THEM_ALL_2) == QUEST_STATUS_INCOMPLETE || killer->GetQuestStatus(NO_MERCY_MERCILESS_1) == QUEST_STATUS_INCOMPLETE || killer->GetQuestStatus(NO_MERCY_MERCILESS) == QUEST_STATUS_INCOMPLETE)
             killer->KilledMonsterCredit(CRE_PVP_KILL,0);
     }
     else
@@ -996,7 +996,7 @@ void OPvPWintergrasp::UpdateClock()
 
 bool OPvPWintergrasp::Update(uint32 diff)
 {
-    if(!sWorld.getConfig(CONFIG_OUTDOORPVP_WINTERGRASP_ENABLED))
+    if (!sWorld.getConfig(CONFIG_OUTDOORPVP_WINTERGRASP_ENABLED))
         return false;
 
     if (m_timer > diff)
@@ -1187,7 +1187,7 @@ void OPvPWintergrasp::EndBattle()
                 }
             if (team == getDefenderTeam())
             {
-                if((*itr)->HasAura(SPELL_LIEUTENANT) || (*itr)->HasAura(SPELL_CORPORAL))
+                if ((*itr)->HasAura(SPELL_LIEUTENANT) || (*itr)->HasAura(SPELL_CORPORAL))
                 {
                     (*itr)->AreaExploredOrEventHappens(A_VICTORY_IN_WG);
                     (*itr)->AreaExploredOrEventHappens(H_VICTORY_IN_WG);
