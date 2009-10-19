@@ -1483,7 +1483,7 @@ bool ChatHandler::HandleModifyTalentCommand (const char* args)
         return false;
     }
 
-    if(target->GetTypeId()==TYPEID_PLAYER)
+    if(target->GetTypeId() == TYPEID_PLAYER)
     {
         // check online security
         if (HasLowerSecurity((Player*)target, 0))

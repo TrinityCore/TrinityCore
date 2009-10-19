@@ -1520,7 +1520,7 @@ void Pet::InitPetCreateSpells()
 bool Pet::resetTalents(bool no_cost)
 {
     Unit *owner = GetOwner();
-    if (!owner || owner->GetTypeId()!=TYPEID_PLAYER)
+    if (!owner || owner->GetTypeId() != TYPEID_PLAYER)
         return false;
 
     // not need after this call
@@ -1862,7 +1862,7 @@ void Pet::LearnPetPassives()
 void Pet::CastPetAuras(bool current)
 {
     Unit* owner = GetOwner();
-    if(!owner || owner->GetTypeId()!=TYPEID_PLAYER)
+    if(!owner || owner->GetTypeId() != TYPEID_PLAYER)
         return;
 
     if(!IsPermanentPetFor((Player*)owner))

@@ -3419,7 +3419,7 @@ void Map::ScriptsProcess()
                 WorldObject* worldObject;
                 Player* player;
 
-                if(target->GetTypeId()==TYPEID_PLAYER)
+                if(target->GetTypeId() == TYPEID_PLAYER)
                 {
                     if(source->GetTypeId()!=TYPEID_UNIT && source->GetTypeId()!=TYPEID_GAMEOBJECT)
                     {
@@ -3438,7 +3438,7 @@ void Map::ScriptsProcess()
                         break;
                     }
 
-                    if(source->GetTypeId()!=TYPEID_PLAYER)
+                    if(source->GetTypeId() != TYPEID_PLAYER)
                     {
                         sLog.outError("SCRIPT_COMMAND_QUEST_EXPLORED call for non-player(TypeId: %u, Entry: %u, GUID: %u), skipping.",source->GetTypeId(),source->GetEntry(),source->GetGUIDLow());
                         break;
@@ -3685,7 +3685,7 @@ void Map::ScriptsProcess()
                         break;
                     }
 
-                    if(target->GetTypeId()!=TYPEID_PLAYER)
+                    if(target->GetTypeId() != TYPEID_PLAYER)
                     {
                         sLog.outError("SCRIPT_COMMAND_PLAY_SOUND in targeted mode call for non-player (TypeId: %u, Entry: %u, GUID: %u), skipping.",target->GetTypeId(),target->GetEntry(),target->GetGUIDLow());
                         break;

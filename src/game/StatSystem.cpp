@@ -1063,7 +1063,7 @@ void Guardian::UpdateAttackPowerAndDamage(bool ranged)
         val = 2 * GetStat(STAT_STRENGTH) - 20.0f;
 
     Unit* owner = GetOwner();
-    if( owner && owner->GetTypeId()==TYPEID_PLAYER)
+    if( owner && owner->GetTypeId() == TYPEID_PLAYER)
     {
         if(isHunterPet())                      //hunter pets benefit from owner's attack power
         {

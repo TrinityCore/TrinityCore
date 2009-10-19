@@ -13130,7 +13130,7 @@ void Player::AddQuest( Quest const *pQuest, Object *questGiver )
         uint32 limittime = pQuest->GetLimitTime();
 
         // shared timed quest
-        if(questGiver && questGiver->GetTypeId()==TYPEID_PLAYER)
+        if(questGiver && questGiver->GetTypeId() == TYPEID_PLAYER)
             limittime = ((Player*)questGiver)->getQuestStatusMap()[quest_id].m_timer / IN_MILISECONDS;
 
         AddTimedQuest( quest_id );
@@ -19004,7 +19004,7 @@ bool Player::canSeeOrDetect(Unit const* u, bool detect, bool inVisibleList, bool
         if (!m_seer->IsWithinDistInMap(u, _map.GetVisibilityDistance() + (inVisibleList ? World::GetVisibleObjectGreyDistance() : 0.0f), is3dDistance))
             return false;
     }
-    else if(u->GetTypeId()==TYPEID_PLAYER)                     // distance for show player
+    else if(u->GetTypeId() == TYPEID_PLAYER)                     // distance for show player
     {
         // Players far than max visible distance for player or not in our map are not visible too
         if (!at_same_transport && !m_seer->IsWithinDistInMap(u, _map.GetVisibilityDistance() + (inVisibleList ? World::GetVisibleUnitGreyDistance() : 0.0f), is3dDistance))
@@ -19052,7 +19052,7 @@ bool Player::canSeeOrDetect(Unit const* u, bool detect, bool inVisibleList, bool
 
         // player see other player with stealth/invisibility only if he in same group or raid or same team (raid/team case dependent from conf setting)
         if(!m_mover->canDetectInvisibilityOf(u))
-            if(!(u->GetTypeId()==TYPEID_PLAYER && !IsHostileTo(u) && IsGroupVisibleFor(((Player*)u))))
+            if(!(u->GetTypeId() == TYPEID_PLAYER && !IsHostileTo(u) && IsGroupVisibleFor(((Player*)u))))
                 return false;
     }
 
@@ -19065,7 +19065,7 @@ bool Player::canSeeOrDetect(Unit const* u, bool detect, bool inVisibleList, bool
         if(!isAlive())
             detect = false;
         if(m_DetectInvTimer < 300 || !HaveAtClient(u))
-            if(!(u->GetTypeId()==TYPEID_PLAYER && !IsHostileTo(u) && IsGroupVisibleFor(((Player*)u))))
+            if(!(u->GetTypeId() == TYPEID_PLAYER && !IsHostileTo(u) && IsGroupVisibleFor(((Player*)u))))
                 if(!detect || !m_mover->canDetectStealthOf(u, GetDistance(u)))
                     return false;
     }
