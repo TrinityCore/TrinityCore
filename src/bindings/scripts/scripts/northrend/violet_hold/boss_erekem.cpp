@@ -63,10 +63,10 @@ struct TRINITY_DLL_DECL boss_erekemAI : public ScriptedAI
         uiEarthShockTimer = urand(2000,8000);
         uiLightningBoltTimer = urand(5000,10000);
         uiEarthShieldTimer = 20000;
-        pGuard1 = NULL;
-        pGuard2 = NULL;
         if (pInstance)
         {
+            pGuard1 = pInstance->instance->GetCreature(pInstance->GetData(DATA_EREKEM_GUARD_1));
+            pGuard2 = pInstance->instance->GetCreature(pInstance->GetData(DATA_EREKEM_GUARD_2));
             if (pInstance->GetData(DATA_WAVE_COUNT) == 6)
                 pInstance->SetData(DATA_1ST_BOSS_EVENT, NOT_STARTED);
             else if (pInstance->GetData(DATA_WAVE_COUNT) == 12)
@@ -115,7 +115,7 @@ struct TRINITY_DLL_DECL boss_erekemAI : public ScriptedAI
         {
             if (Creature *pTarget = GetChainHealTarget())
             {
-                DoCast(pTarget,HeroicMode ? H_SPELL_CHAIN_HEAL : SPELL_CHAIN_HEAL);
+                DoCast(pTarget, HEROIC(SPELL_CHAIN_HEAL,H_SPELL_CHAIN_HEAL));
                 //If one of the adds is dead spawn heals faster
                 uiChainHealTimer = ((pGuard1 && !pGuard1->isAlive()) || (pGuard2 && !pGuard2->isAlive()) ? 3000 : 8000) + rand()%3000;
             }
@@ -171,8 +171,13 @@ struct TRINITY_DLL_DECL boss_erekemAI : public ScriptedAI
 
     Creature* GetChainHealTarget()
     {
-        Creature* pTarget = NULL;
-        return pTarget;
+        if (m_creature->GetHealth()*100 / m_creature->GetMaxHealth() <= 85)
+            return m_creature;
+        if (pGuard1 && pGuard1->isAlive() && (pGuard1->GetHealth()*100 / pGuard1->GetMaxHealth() <= 75))
+            return pGuard1;
+        if (pGuard2 && pGuard2->isAlive() && (pGuard2->GetHealth()*100 / pGuard2->GetMaxHealth() <= 75))
+            return pGuard2;
+        return NULL;
     }
 };
 
