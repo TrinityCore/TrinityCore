@@ -78,7 +78,8 @@ void LoadTeamPair(TeamPairMap &pairMap, const TeamPair *pair)
 }
 
 #define REMOVE_WARTIME_AURAS(p) (p)->RemoveAura(SPELL_RECRUIT);\
-    (p)->RemoveAura(SPELL_CORPORAL);(p)->RemoveAura(SPELL_LIEUTENANT)
+    (p)->RemoveAura(SPELL_CORPORAL);(p)->RemoveAura(SPELL_LIEUTENANT);\
+    (p)->RemoveAura(SPELL_TOWER_CONTROL);(p)->RemoveAura(SPELL_RULLERS_OF_WG)
 #define REMOVE_TENACITY_AURA(p) CastTenacity(p, 0)
 
 // Visual defines, easier to understand code
@@ -308,12 +309,10 @@ bool OPvPWintergrasp::SetupOutdoorPvP()
     m_wartime = false;
     m_timer = sWorld.getConfig(CONFIG_OUTDOORPVP_WINTERGRASP_START_TIME) * MINUTE * IN_MILISECONDS;
 
-    m_towerCount[getDefenderTeam()][DAMAGE_INTACT] = 4;
-    m_towerCount[getAttackerTeam()][DAMAGE_INTACT] = 3;
-    m_towerCount[TEAM_ALLIANCE][DAMAGE_DAMAGED] = 0;
-    m_towerCount[TEAM_HORDE][DAMAGE_DAMAGED] = 0;
-    m_towerCount[TEAM_ALLIANCE][DAMAGE_DESTROYED] = 0;
-    m_towerCount[TEAM_HORDE][DAMAGE_DESTROYED] = 0;
+    m_towerDamagedCount[TEAM_ALLIANCE] = 0;
+    m_towerDestroyedCount[TEAM_ALLIANCE] = 0;
+    m_towerDamagedCount[TEAM_HORDE] = 0;
+    m_towerDestroyedCount[TEAM_HORDE] = 0;
 
     // Load custom rewards
     if (sWorld.getConfig(CONFIG_OUTDOORPVP_WINTERGRASP_CUSTOM_HONOR))
@@ -353,7 +352,7 @@ void OPvPWintergrasp::ProcessEvent(GameObject *obj, uint32 eventId)
                 state->damageState = DAMAGE_DAMAGED;
 
                 if (state->type == BUILDING_TOWER)
-                    ++m_towerCount[state->GetTeam()][DAMAGE_DAMAGED];
+                    ++m_towerDamagedCount[state->GetTeam()];
             }
             else if (eventId == obj->GetGOInfo()->building.destroyedEvent)
             {
@@ -363,8 +362,27 @@ void OPvPWintergrasp::ProcessEvent(GameObject *obj, uint32 eventId)
                     ModifyWorkshopCount(state->GetTeam(), false);
                 else if (state->type == BUILDING_TOWER)
                 {
-                    --m_towerCount[state->GetTeam()][DAMAGE_DAMAGED];
-                    ++m_towerCount[state->GetTeam()][DAMAGE_DESTROYED];
+                    --m_towerDamagedCount[state->GetTeam()];
+                    ++m_towerDestroyedCount[state->GetTeam()];
+                    if (state->GetTeam() == getAttackerTeam())
+                    {
+                        TeamCastSpell(getAttackerTeam(), -SPELL_TOWER_CONTROL);
+                        uint32 newStack = 3 -m_towerDestroyedCount[getAttackerTeam()];
+                        if (newStack > 0)
+                        {
+                            for (PlayerSet::iterator itr = m_players[getAttackerTeam()].begin(); itr != m_players[getAttackerTeam()].end(); ++itr)
+                                if ((*itr)->getLevel() > 69)
+                                    (*itr)->SetAuraStack(SPELL_TOWER_CONTROL, (*itr), newStack);
+                        }
+                        else
+                        {
+                            TeamCastSpell(getDefenderTeam(), SPELL_RULLERS_OF_WG);
+                            if (m_timer < 600000)
+                                m_timer = 0;
+                            else
+                                m_timer = m_timer - 600000; // - 10 mins    
+                        }
+                    }
                 }
             }
             BroadcastStateChange(state);
@@ -375,8 +393,9 @@ void OPvPWintergrasp::ProcessEvent(GameObject *obj, uint32 eventId)
 void OPvPWintergrasp::RemoveOfflinePlayerWGAuras()
 {
     // if server crashed while in battle there could be players with rank or tenacity
-    CharacterDatabase.PExecute("DELETE FROM character_aura WHERE spell IN (%u,%u,%u, %u)",
-        SPELL_RECRUIT, SPELL_CORPORAL, SPELL_LIEUTENANT, SPELL_TENACITY);
+    CharacterDatabase.PExecute("DELETE FROM character_aura WHERE spell IN (%u, %u, %u, %u, %u, %u, %u)",
+        SPELL_RECRUIT, SPELL_CORPORAL, SPELL_LIEUTENANT, SPELL_TENACITY,
+        SPELL_RULLERS_OF_WG, SPELL_ESSENCE_OF_WG, SPELL_TOWER_CONTROL);
 }
 
 void OPvPWintergrasp::ModifyWorkshopCount(TeamId team, bool add)
@@ -604,13 +623,10 @@ void OPvPWintergrasp::RebuildAllBuildings()
         itr->second->damageState = DAMAGE_INTACT;
         itr->second->SetTeam(getDefenderTeam() == TEAM_ALLIANCE ? OTHER_TEAM(itr->second->defaultTeam) : itr->second->defaultTeam);
     }
-
-    m_towerCount[getDefenderTeam()][DAMAGE_INTACT] = 4;
-    m_towerCount[getAttackerTeam()][DAMAGE_INTACT] = 3;
-    m_towerCount[TEAM_ALLIANCE][DAMAGE_DAMAGED] = 0;
-    m_towerCount[TEAM_HORDE][DAMAGE_DAMAGED] = 0;
-    m_towerCount[TEAM_ALLIANCE][DAMAGE_DESTROYED] = 0;
-    m_towerCount[TEAM_HORDE][DAMAGE_DESTROYED] = 0;
+    m_towerDamagedCount[TEAM_ALLIANCE] = 0;
+    m_towerDestroyedCount[TEAM_ALLIANCE] = 0;
+    m_towerDamagedCount[TEAM_HORDE] = 0;
+    m_towerDestroyedCount[TEAM_HORDE] = 0;
 }
 
 void OPvPWintergrasp::SendInitWorldStatesTo(Player *player) const
@@ -756,9 +772,7 @@ bool OPvPWintergrasp::UpdateGameObjectInfo(GameObject *go) const
 void OPvPWintergrasp::HandlePlayerEnterZone(Player * plr, uint32 zone)
 {
     if(plr->GetTeamId() == getDefenderTeam() && !isWarTime())
-    {
         plr->CastSpell(plr,SPELL_ESSENCE_OF_WG,true);
-    }
 
     if (isWarTime() && !plr->HasAura(SPELL_RECRUIT) && !plr->HasAura(SPELL_CORPORAL)
         && !plr->HasAura(SPELL_LIEUTENANT))
@@ -772,8 +786,9 @@ void OPvPWintergrasp::HandlePlayerEnterZone(Player * plr, uint32 zone)
 // Reapply Tenacity if needed
 void OPvPWintergrasp::HandlePlayerResurrects(Player * plr, uint32 zone)
 {
-    if (isWarTime() && m_tenacityStack && !plr->HasAura(SPELL_TENACITY) && plr->getLevel() > 69 &&
-          (plr->GetTeam() == TEAM_ALLIANCE && m_tenacityStack > 0 || plr->GetTeam() == TEAM_HORDE && m_tenacityStack < 0))
+    if (isWarTime() && !plr->HasAura(SPELL_TENACITY) && plr->getLevel() > 69 &&
+          (plr->GetTeamId() == TEAM_ALLIANCE && m_tenacityStack > 0 ||
+           plr->GetTeamId() == TEAM_HORDE && m_tenacityStack < 0))
     {
         int32 newStack = m_tenacityStack < 0 ? -m_tenacityStack : m_tenacityStack;
         if (newStack > 20)
@@ -1042,7 +1057,11 @@ void OPvPWintergrasp::StartBattle()
     // Add recruit Aura, Add Tenacity
     TeamCastSpell(getDefenderTeam(), SPELL_RECRUIT);
     TeamCastSpell(getAttackerTeam(), SPELL_RECRUIT);
+    for (PlayerSet::iterator itr = m_players[getAttackerTeam()].begin(); itr != m_players[getAttackerTeam()].end(); ++itr)
+        if ((*itr)->getLevel() > 69)
+            (*itr)->SetAuraStack(SPELL_TOWER_CONTROL, (*itr), 3);
     UpdateTenacityStack();
+    TeamCastSpell(getDefenderTeam(),-SPELL_ESSENCE_OF_WG);
 }
 
 void OPvPWintergrasp::EndBattle()
@@ -1087,8 +1106,8 @@ void OPvPWintergrasp::EndBattle()
                     ++playersWithRankNum;
 
             baseHonor = m_customHonorReward[(team == getDefenderTeam()) ? WIN_BATTLE : LOSE_BATTLE];
-            baseHonor += (m_customHonorReward[DAMAGED_TOWER] * m_towerCount[OTHER_TEAM(team)][DAMAGED_TOWER]);
-            baseHonor += (m_customHonorReward[DESTROYED_TOWER] * m_towerCount[OTHER_TEAM(team)][DESTROYED_TOWER]);
+            baseHonor += (m_customHonorReward[DAMAGED_TOWER] * m_towerDamagedCount[OTHER_TEAM(team)]);
+            baseHonor += (m_customHonorReward[DESTROYED_TOWER] * m_towerDestroyedCount[OTHER_TEAM(team)]);
             baseHonor += (m_customHonorReward[INTACT_BUILDING] * intactNum);
             baseHonor += (m_customHonorReward[DAMAGED_BUILDING] * damagedNum);
         }
@@ -1161,9 +1180,9 @@ void OPvPWintergrasp::EndBattle()
                         (*itr)->CastSpell(*itr, SPELL_INTACT_BUILDING, true);
                     for (uint32 i = 0; i < damagedNum; ++i)
                         (*itr)->CastSpell(*itr, SPELL_DAMAGED_BUILDING, true);
-                    for (uint32 i = 0; i < m_towerCount[OTHER_TEAM(team)][DAMAGE_DAMAGED]; ++i)
+                    for (uint32 i = 0; i < m_towerDamagedCount[OTHER_TEAM(team)]; ++i)
                         (*itr)->CastSpell(*itr, SPELL_DAMAGED_TOWER, true);
-                    for (uint32 i = 0; i < m_towerCount[OTHER_TEAM(team)][DAMAGE_DESTROYED]; ++i)
+                    for (uint32 i = 0; i < m_towerDestroyedCount[OTHER_TEAM(team)]; ++i)
                         (*itr)->CastSpell(*itr, SPELL_DESTROYED_TOWER, true);
                 }
             if (team == getDefenderTeam())
@@ -1182,7 +1201,7 @@ void OPvPWintergrasp::EndBattle()
 
     //3.2.0: TeamCastSpell(getAttackerTeam(), SPELL_TELEPORT_DALARAN);
     RemoveOfflinePlayerWGAuras();
-    TeamCastSpell(getDefenderTeam(),SPELL_ESSENCE_OF_WG);
+    TeamCastSpell(getDefenderTeam(), SPELL_ESSENCE_OF_WG);
 }
 
 void OPvPWintergrasp::SetData(uint32 id, uint32 value)
