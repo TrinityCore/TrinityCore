@@ -430,7 +430,7 @@ void npc_secondTrialAI::JustDied(Unit* Killer)
     if (Killer->GetTypeId() == TYPEID_PLAYER)
     {
         if (Creature *pSummoner = Unit::GetCreature((*m_creature), summonerGuid))
-            CAST_AI(master_kelerun_bloodmournAI, Summoner->AI())->SecondTrialKill();
+            CAST_AI(master_kelerun_bloodmournAI, pSummoner->AI())->SecondTrialKill();
 
         // last kill quest complete for group
         if (m_creature->GetEntry() == CHAMPION_SUNSTRIKER)

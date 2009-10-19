@@ -309,7 +309,7 @@ void InstanceData::DoSendNotifyToInstance(const char *format, ...)
             if (i->getSource() && i->getSource()->GetSession())
                 i->getSource()->GetSession()->SendNotification(format);
 }
-
+*/
 // Complete Achievement for all players in instance
 void InstanceData::DoCompleteAchievement(uint32 achievement)
 {
@@ -321,7 +321,6 @@ void InstanceData::DoCompleteAchievement(uint32 achievement)
             if (i->getSource())
                 i->getSource()->CompletedAchievement(AE);
 }
-*/
 
 // Remove Auras due to Spell on all players in instance
 void InstanceData::DoRemoveAurasDueToSpellOnPlayers(uint32 spell)
