@@ -307,7 +307,7 @@ struct TRINITY_DLL_DECL instance_ulduar : public ScriptedInstance
 
         OUT_LOAD_INST_DATA(strIn);
         
-        char dataHead1, dataHead2;
+        char dataHead1, dataHead2; // warning: uninitialized :(
 
         std::istringstream loadStream(strIn);
         
