@@ -157,6 +157,20 @@ bool GossipHello_npc_aged_dying_ancient_kodo(Player* pPlayer, Creature* pCreatur
     return true;
 }
 
+/*######
+## go_iruxos. Quest 5381
+######*/
+
+bool GOHello_go_iruxos(Player *player, GameObject* _GO)
+{
+        if (player->GetQuestStatus(5381) == QUEST_STATUS_INCOMPLETE)
+        {
+            player->SummonCreature(11876, player->GetInnPosX(),player->GetInnPosY(),player->GetInnPosZ(),0,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,10000);
+        }
+
+        return true;
+}
+
 void AddSC_desolace()
 {
     Script *newscript;
@@ -166,5 +180,10 @@ void AddSC_desolace()
     newscript->GetAI = &GetAI_npc_aged_dying_ancient_kodo;
     newscript->pEffectDummyCreature = &EffectDummyCreature_npc_aged_dying_ancient_kodo;
     newscript->pGossipHello = &GossipHello_npc_aged_dying_ancient_kodo;
+    newscript->RegisterSelf();
+    
+    newscript = new Script;
+    newscript->Name = "go_iruxos";
+    newscript->pGOHello = &GOHello_go_iruxos;
     newscript->RegisterSelf();
 }
