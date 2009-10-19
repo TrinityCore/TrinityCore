@@ -129,7 +129,7 @@ static Summon Text[]=
     {"Now, know demise!"}
 };
 
-#define EMOTE_LAUGHS    "laughs"
+#define EMOTE_LAUGHS    "Headless Horseman laughs"
 
 struct TRINITY_DLL_DECL mob_wisp_invisAI : public ScriptedAI
 {
@@ -406,15 +406,15 @@ struct TRINITY_DLL_DECL boss_headless_horsemanAI : public ScriptedAI
             headGUID = 0;
         }
 
-        if (pInstance)
-            pInstance->SetData(DATA_HORSEMAN_EVENT, NOT_STARTED);
+        //if (pInstance)
+        //    pInstance->SetData(DATA_HORSEMAN_EVENT, NOT_STARTED);
     }
 
     void FlyMode()
     {
         m_creature->SetVisibility(VISIBILITY_OFF);
         m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-        m_creature->AddUnitMovementFlag(MOVEMENTFLAG_HOVER);
+        m_creature->AddUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT + MOVEMENTFLAG_LEVITATING);
         m_creature->SetSpeed(MOVE_WALK,5.0f,true);
         wp_reached = false;
         count = 0;
@@ -447,7 +447,7 @@ struct TRINITY_DLL_DECL boss_headless_horsemanAI : public ScriptedAI
                     pInstance->SetData(GAMEOBJECT_PUMPKIN_SHRINE, 0);   //hide gameobject
                 break;
             case 19:
-                m_creature->RemoveUnitMovementFlag(MOVEMENTFLAG_HOVER);
+                m_creature->RemoveUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT + MOVEMENTFLAG_LEVITATING);
                 break;
             case 20:
             {
@@ -821,6 +821,13 @@ struct TRINITY_DLL_DECL mob_pulsing_pumpkinAI : public ScriptedAI
 
 bool GOHello_go_loosely_turned_soil(Player* pPlayer, GameObject* soil)
 {
+    ScriptedInstance* pInstance = pPlayer->GetInstanceData();
+    if (pInstance)
+    {
+        if(pInstance->GetData(DATA_HORSEMAN_EVENT) != NOT_STARTED)
+            return true;
+        pInstance->SetData(DATA_HORSEMAN_EVENT, IN_PROGRESS);
+    }
 /*  if (soil->GetGoType() == GAMEOBJECT_TYPE_QUESTGIVER && plr->getLevel() > 64)
     {
         plr->PrepareQuestMenu(soil->GetGUID());
