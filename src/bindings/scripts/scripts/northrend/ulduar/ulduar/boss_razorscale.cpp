@@ -164,7 +164,7 @@ struct TRINITY_DLL_DECL boss_razorscaleAI : public BossAI
 
             if (DEVOURINGFLAMETimer < diff)
             {
-                if (Unit *target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true)
+                if (Unit *target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                     if (!m_creature->HasInArc(M_PI, target))
                         DoCast(target, SPELL_DEVOURINGFLAME);
 

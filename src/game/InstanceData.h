@@ -155,10 +155,10 @@ class TRINITY_DLL_SPEC InstanceData : public ZoneScript
         /* Not used anywhere yet, not sure if they're needed:
         // Send Notify to all players in instance
         void DoSendNotifyToInstance(const char *format,...);
+        */
 
         // Complete Achievement for all players in instance
         void DoCompleteAchievement(uint32 achievement);
-        */
 
         // Remove Auras due to Spell on all players in instance
         void DoRemoveAurasDueToSpellOnPlayers(uint32 spell);
