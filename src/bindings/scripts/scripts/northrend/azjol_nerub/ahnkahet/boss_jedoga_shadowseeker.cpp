@@ -63,8 +63,6 @@ struct MANGOS_DLL_DECL boss_jedoga_shadowseekerAI : public ScriptedAI
     boss_jedoga_shadowseekerAI(Creature* c) : ScriptedAI(c)
     {
         pInstance = c->GetInstanceData();
-        HeroicMode = c->GetMap()->IsHeroic();
-        MaxDistance = 45.0f;
         FirstTime = true;
         predone = false;
     }
@@ -374,7 +372,7 @@ struct MANGOS_DLL_DECL mob_jedoga_initiandAI : public ScriptedAI
         if (walking)
         {
             Creature* boss = m_creature->GetMap()->GetCreature(pInstance->GetData64(DATA_JEDOGA_SHADOWSEEKER));
-            if (boss && !CAST_AI(boss_jedoga_shadowseekerAI, boss->AI())->bOpFerok) CAST_AI(boss_jedoga_shadowseekerAI, boss->AI())->opferfail = true;
+            if (boss && !CAST_AI(boss_jedoga_shadowseekerAI, boss->AI())->bOpFerok) CAST_AI(boss_jedoga_shadowseekerAI, boss->AI())->bOpFerokFail = true;
 
             if (Killer->GetTypeId() == TYPEID_PLAYER) pInstance->SetData(DATA_INITIAND_KILLED, 1);
             pInstance->SetData64(DATA_ADD_JEDOGA_OPFER, 0);
