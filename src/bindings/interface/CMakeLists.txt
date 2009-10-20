@@ -9,6 +9,7 @@ SET(trinityinterface_LIB_SRCS
    Scripts/sc_default.cpp
    Scripts/sc_defines.cpp
    Scripts/sc_defines.h
+   Scripts/on_events.cpp
 )
 
 add_library(trinityinterface SHARED ${trinityinterface_LIB_SRCS})
