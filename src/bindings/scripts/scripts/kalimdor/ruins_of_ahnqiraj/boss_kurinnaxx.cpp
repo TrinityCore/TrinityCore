@@ -43,6 +43,9 @@ struct TRINITY_DLL_DECL boss_kurinnaxxAI : public ScriptedAI
     
     uint32 uiMortalWoundTimer;
     uint32 uiSandtrapTimer;
+    uint32 uiWideSlashTimer;
+    uint32 uiSummonPlayerTimer;
+    uint32 uiTrashTimer;
     bool bIsEnraged;
     
     ScriptedInstance* pInstance;
@@ -51,7 +54,10 @@ struct TRINITY_DLL_DECL boss_kurinnaxxAI : public ScriptedAI
     {
         bIsEnraged = false;
         uiMortalWoundTimer = urand(2000,7000);
-        uiSandtrapTimer = 30000;
+        uiSandtrapTimer = urand(20000,30000);
+        uiWideSlashTimer = urand(10000,15000);
+        uiTrashTimer = urand(20000,25000);
+        uiSummonPlayerTimer = urand(30000,40000);
         
         if (pInstance)
             pInstance->SetData(DATA_KURINNAXX_EVENT, NOT_STARTED);
@@ -81,20 +87,42 @@ struct TRINITY_DLL_DECL boss_kurinnaxxAI : public ScriptedAI
             DoCast(m_creature,SPELL_ENRAGE);
         }
 
-        //uiMortalWoundTimer
+        //Mortal Wound spell
         if (uiMortalWoundTimer < diff)
         {
             DoCast(m_creature->getVictim(),SPELL_MORTALWOUND);
             uiMortalWoundTimer = urand(2000,7000);;
-        }else uiMortalWoundTimer -= diff;
+        } else uiMortalWoundTimer -= diff;
 
-        //uiSandtrapTimer
+        //Santrap spell
         if (uiSandtrapTimer < diff)
         {
             if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                 DoCast(pTarget,SPELL_SANDTRAP);
             uiSandtrapTimer = 30000;
-        }else uiSandtrapTimer -= diff;
+        } else uiSandtrapTimer -= diff;
+        
+        //Wide Slash spell
+        if (uiWideSlashTimer < diff)
+        {
+            DoCast(m_creature->getVictim(),SPELL_WIDE_SLASH);
+            uiWideSlashTimer = urand(10000,15000);
+        } else uiWideSlashTimer -= diff;
+        
+        //Trash spell
+        if (uiTrashTimer < diff)
+        {
+            DoCast(m_creature, SPELL_TRASH);
+            uiTrashTimer = urand(20000,25000);
+        } else uiTrashTimer -= diff;
+        
+        //Summon Player spell
+        if (uiSummonPlayerTimer < diff)
+        {
+            if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                DoCast(pTarget,SPELL_SUMMON_PLAYER);
+            uiSummonPlayerTimer = urand(30000,40000);
+        } else uiSummonPlayerTimer -= diff;
 
         DoMeleeAttackIfReady();
     }

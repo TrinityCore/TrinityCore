@@ -59,6 +59,14 @@ struct TRINITY_DLL_DECL instance_ruins_of_ahn_qiraj : public ScriptedInstance
         uiOssirian = 0;
     }
     
+    bool IsEncounterInProgress() const
+    {
+        for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
+            if (m_auiEncounter[i] == IN_PROGRESS) return true;
+
+        return false;
+    }
+    
     void OnCreatureCreate(Creature* pCreature, bool add)
     {
         switch (pCreature->GetEntry())
