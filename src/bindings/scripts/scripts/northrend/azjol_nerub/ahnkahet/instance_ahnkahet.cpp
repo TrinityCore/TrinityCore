@@ -158,13 +158,20 @@ struct TRINITY_DLL_DECL instance_ahnkahet : public ScriptedInstance
             case DATA_SPHERE2:                    return Prince_TaldaramSpheres[1];
             case DATA_PRINCE_TALDARAM_PLATFORM:   return Prince_TaldaramPlatform;
             case DATA_ADD_JEDOGA_INITIAND:
+            {
+                std::vector<uint64> vInitiands;
+                vInitiands.clear();
                 for (uint8 i=0; i<MAX_JEDOGA_INITIANDS; ++i)
                 {
                     Creature* cr = instance->GetCreature(InitiandGUIDs[i]);
                     if (cr && cr->isAlive())
-                        return InitiandGUIDs[i];
+                        vInitiands.push_back(InitiandGUIDs[i]);
                 }
-                return 0;
+                if (vInitiands.empty())
+                    return 0;
+                uint8 j = urand(0,vInitiands.size() -1);
+                return vInitiands[j];
+            }
             case DATA_ADD_JEDOGA_OPFER: return JedogaSacrifices;
             case DATA_PL_JEDOGA_TARGET: return JedogaTarget;
         }
