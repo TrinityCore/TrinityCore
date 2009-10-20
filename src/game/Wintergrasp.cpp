@@ -1134,7 +1134,8 @@ void OPvPWintergrasp::EndBattle()
             baseHonor += (m_customHonorReward[DESTROYED_TOWER] * m_towerDestroyedCount[OTHER_TEAM(team)]);
             baseHonor += (m_customHonorReward[INTACT_BUILDING] * intactNum);
             baseHonor += (m_customHonorReward[DAMAGED_BUILDING] * damagedNum);
-            baseHonor /= playersWithRankNum;
+            if (playersWithRankNum)
+                baseHonor /= playersWithRankNum;
         }
 
         // Revive players, remove auras and give rewards
