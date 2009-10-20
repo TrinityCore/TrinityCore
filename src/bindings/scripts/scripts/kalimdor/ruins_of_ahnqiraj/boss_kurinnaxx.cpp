@@ -22,31 +22,51 @@ SDCategory: Ruins of Ahn'Qiraj
 EndScriptData */
 
 #include "precompiled.h"
+#include "def_ruins_of_ahnqiraj.h"
 
-#define SPELL_MORTALWOUND 25646
-#define SPELL_SANDTRAP 25656
-#define SPELL_ENRAGE 28798
+enum Spells
+{
+    SPELL_MORTALWOUND            = 25646,
+    SPELL_SANDTRAP               = 25656,
+    SPELL_ENRAGE                 = 28798,
+    SPELL_SUMMON_PLAYER          = 26446,
+    SPELL_TRASH                  =  3391,
+    SPELL_WIDE_SLASH             = 25814
+};
 
 struct TRINITY_DLL_DECL boss_kurinnaxxAI : public ScriptedAI
 {
-    boss_kurinnaxxAI(Creature *c) : ScriptedAI(c) {}
-
-    Unit *pTarget;
-    uint32 MORTALWOUND_Timer;
-    uint32 SANDTRAP_Timer;
-    uint32 i;
+    boss_kurinnaxxAI(Creature *c) : ScriptedAI(c)
+    {
+        pInstance = c->GetInstanceData();
+    }
+    
+    uint32 uiMortalWoundTimer;
+    uint32 uiSandtrapTimer;
+    bool bIsEnraged;
+    
+    ScriptedInstance* pInstance;
 
     void Reset()
     {
-        i=0;
-        pTarget = NULL;
-        MORTALWOUND_Timer = 30000;
-        SANDTRAP_Timer = 30000;
+        bIsEnraged = false;
+        uiMortalWoundTimer = urand(2000,7000);
+        uiSandtrapTimer = 30000;
+        
+        if (pInstance)
+            pInstance->SetData(DATA_KURINNAXX_EVENT, NOT_STARTED);
     }
 
     void EnterCombat(Unit *who)
+    {   
+        if (pInstance)
+            pInstance->SetData(DATA_KURINNAXX_EVENT, IN_PROGRESS);
+    }
+    
+    void JustDied(Unit *killer)
     {
-        pTarget = who;
+        if (pInstance)
+            pInstance->SetData(DATA_KURINNAXX_EVENT, DONE);
     }
 
     void UpdateAI(const uint32 diff)
@@ -55,25 +75,26 @@ struct TRINITY_DLL_DECL boss_kurinnaxxAI : public ScriptedAI
             return;
 
         //If we are <30% cast enrage
-        if (i==0 && m_creature->GetHealth()*100 / m_creature->GetMaxHealth() <= 30 && !m_creature->IsNonMeleeSpellCasted(false))
+        if (!bIsEnraged && m_creature->GetHealth()*100 / m_creature->GetMaxHealth() <= 30 && !m_creature->IsNonMeleeSpellCasted(false))
         {
-            i=1;
-            DoCast(m_creature->getVictim(),SPELL_ENRAGE);
+            bIsEnraged = true;
+            DoCast(m_creature,SPELL_ENRAGE);
         }
 
-        //MORTALWOUND_Timer
-        if (MORTALWOUND_Timer < diff)
+        //uiMortalWoundTimer
+        if (uiMortalWoundTimer < diff)
         {
             DoCast(m_creature->getVictim(),SPELL_MORTALWOUND);
-            MORTALWOUND_Timer = 30000;
-        }else MORTALWOUND_Timer -= diff;
+            uiMortalWoundTimer = urand(2000,7000);;
+        }else uiMortalWoundTimer -= diff;
 
-        //SANDTRAP_Timer
-        if (SANDTRAP_Timer < diff)
+        //uiSandtrapTimer
+        if (uiSandtrapTimer < diff)
         {
-            DoCast(m_creature->getVictim(),SPELL_SANDTRAP);
-            SANDTRAP_Timer = 30000;
-        }else SANDTRAP_Timer -= diff;
+            if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                DoCast(pTarget,SPELL_SANDTRAP);
+            uiSandtrapTimer = 30000;
+        }else uiSandtrapTimer -= diff;
 
         DoMeleeAttackIfReady();
     }

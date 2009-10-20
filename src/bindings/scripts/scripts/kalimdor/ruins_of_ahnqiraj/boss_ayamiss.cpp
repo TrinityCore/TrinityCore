@@ -22,26 +22,35 @@ SDCategory: Ruins of Ahn'Qiraj
 EndScriptData */
 
 #include "precompiled.h"
+#include "def_ruins_of_ahnqiraj.h"
 
 /*
 To do:
 make him fly from 70-100%
 */
 
-#define SPELL_STINGERSPRAY 25749
-#define SPELL_POISONSTINGER 25748                           //only used in phase1
-#define SPELL_SUMMONSWARMER 25844                           //might be 25708
-// #define SPELL_PARALYZE 23414 doesnt work correct (core)
+enum Spells
+{
+    SPELL_STINGERSPRAY                 = 25749,
+    SPELL_POISONSTINGER                = 25748,  //only used in phase1
+    SPELL_SUMMONSWARMER                = 25844,  //might be 25708
+    SPELL_PARALYZE                     = 23414   //doesnt work correct (core)
+};
 
 struct TRINITY_DLL_DECL boss_ayamissAI : public ScriptedAI
 {
-    boss_ayamissAI(Creature *c) : ScriptedAI(c) {}
+    boss_ayamissAI(Creature *c) : ScriptedAI(c)
+    {
+        pInstance = c->GetInstanceData();
+    }
 
     Unit *pTarget;
     uint32 STINGERSPRAY_Timer;
     uint32 POISONSTINGER_Timer;
     uint32 SUMMONSWARMER_Timer;
     uint32 phase;
+    
+    ScriptedInstance *pInstance;
 
     void Reset()
     {
@@ -50,11 +59,23 @@ struct TRINITY_DLL_DECL boss_ayamissAI : public ScriptedAI
         POISONSTINGER_Timer = 30000;
         SUMMONSWARMER_Timer = 60000;
         phase=1;
+        
+        if (pInstance)
+            pInstance->SetData(DATA_AYAMISS_EVENT, NOT_STARTED);
     }
 
     void EnterCombat(Unit *who)
     {
         pTarget = who;
+        
+        if (pInstance)
+            pInstance->SetData(DATA_AYAMISS_EVENT, IN_PROGRESS);
+    }
+    
+    void JustDied(Unit *killer)
+    {
+        if (pInstance)
+            pInstance->SetData(DATA_AYAMISS_EVENT, DONE);
     }
 
     void UpdateAI(const uint32 diff)

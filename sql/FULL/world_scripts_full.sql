@@ -851,6 +851,12 @@ UPDATE `creature_template` SET `ScriptName`='npc_deaths_head_ward_keeper' WHERE 
 /* REDRIDGE MOUNTAINS */
 
 /* RUINS OF AHN'QIRAJ */
+UPDATE `creature_template` SET `ScriptName`='boss_kurinnaxx' WHERE `entry`=15348;
+UPDATE `creature_template` SET `ScriptName`='boss_rajaxx' WHERE `entry`=15341;
+UPDATE `creature_template` SET `ScriptName`='boss_moam' WHERE `entry`=15340;
+UPDATE `creature_template` SET `ScriptName`='boss_buru' WHERE `entry`=15370;
+UPDATE `creature_template` SET `ScriptName`='boss_ayamiss' WHERE `entry`=15369;
+UPDATE `creature_template` SET `ScriptName`='boss_ossirian' WHERE `entry`=15339;
 UPDATE `instance_template` SET `script`='instance_ruins_of_ahnqiraj' WHERE `map`=509;
 
 /* SCARLET MONASTERY */
