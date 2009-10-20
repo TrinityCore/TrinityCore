@@ -22,24 +22,64 @@ SDCategory: Ruins of Ahn'Qiraj
 EndScriptData */
 
 #include "precompiled.h"
+#include "def_ruins_of_ahnqiraj.h"
 
-#define SAY_ANDOROV_INTRO   -1509003
-#define SAY_ANDOROV_ATTACK  -1509004
+enum Yells
+{
+    SAY_ANDOROV_INTRO         = -1509003,
+    SAY_ANDOROV_ATTACK        = -1509004,
+    SAY_WAVE3                 = -1509005,
+    SAY_WAVE4                 = -1509006,
+    SAY_WAVE5                 = -1509007,
+    SAY_WAVE6                 = -1509008,
+    SAY_WAVE7                 = -1509009,
+    SAY_INTRO                 = -1509010,
+    SAY_UNK1                  = -1509011,
+    SAY_UNK2                  = -1509012,
+    SAY_UNK3                  = -1509013,
+    SAY_UNK4                  = -1509014,
+    SAY_DEAGGRO               = -1509015,
+    SAY_KILLS_ANDOROV         = -1509016,
+    SAY_COMPLETE_QUEST        = -1509017                        //Yell when realm complete quest 8743 for world event
+};
 
-#define SAY_WAVE3           -1509005
-#define SAY_WAVE4           -1509006
-#define SAY_WAVE5           -1509007
-#define SAY_WAVE6           -1509008
-#define SAY_WAVE7           -1509009
-#define SAY_INTRO           -1509010
+struct TRINITY_DLL_DECL boss_rajaxxAI : public ScriptedAI
+{
+    boss_rajaxxAI(Creature *c) : ScriptedAI(c)
+    {
+        pInstance = c->GetInstanceData();
+    }
+    
+    ScriptedInstance *pInstance;
+    
+    void Reset()
+    {
+        if (pInstance)
+            pInstance->SetData(DATA_RAJAXX_EVENT, NOT_STARTED);
+    }
+    
+    void EnterCombat(Unit *who)
+    {
+        if (pInstance)
+            pInstance->SetData(DATA_RAJAXX_EVENT, IN_PROGRESS);
+    }
+    
+    void JustDied(Unit *killer)
+    {
+        if (pInstance)
+            pInstance->SetData(DATA_RAJAXX_EVENT, DONE);
+    }
+};
+CreatureAI* GetAI_boss_rajaxx(Creature* pCreature)
+{
+    return new boss_rajaxxAI (pCreature);
+}
 
-#define SAY_UNK1            -1509011
-#define SAY_UNK2            -1509012
-#define SAY_UNK3            -1509013
-#define SAY_UNK4            -1509014
-
-#define SAY_DEAGGRO         -1509015
-#define SAY_KILLS_ANDOROV   -1509016
-
-#define SAY_COMPLETE_QUEST  -1509017                        //Yell when realm complete quest 8743 for world event
-
+void AddSC_boss_rajaxx()
+{
+    Script *newscript;
+    newscript = new Script;
+    newscript->Name = "boss_rajaxx";
+    newscript->GetAI = &GetAI_boss_rajaxx;
+    newscript->RegisterSelf();
+}

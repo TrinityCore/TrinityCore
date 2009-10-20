@@ -22,19 +22,29 @@ SDCategory: Ruins of Ahn'Qiraj
 EndScriptData */
 
 #include "precompiled.h"
+#include "def_ruins_of_ahnqiraj.h"
 
-#define EMOTE_AGGRO             -1509000
-#define EMOTE_MANA_FULL         -1509001
+enum Emotes
+{
+    EMOTE_AGGRO             = -1509000,
+    EMOTE_MANA_FULL         = -1509001
+};
 
-#define SPELL_TRAMPLE           15550
-#define SPELL_DRAINMANA         27256
-#define SPELL_ARCANEERUPTION    25672
-#define SPELL_SUMMONMANA        25681
-#define SPELL_GRDRSLEEP         24360                       //Greater Dreamless Sleep
+enum Spells
+{
+    SPELL_TRAMPLE           = 15550,
+    SPELL_DRAINMANA         = 27256,
+    SPELL_ARCANEERUPTION    = 25672,
+    SPELL_SUMMONMANA        = 25681,
+    SPELL_GRDRSLEEP         = 24360                       //Greater Dreamless Sleep
+};
 
 struct TRINITY_DLL_DECL boss_moamAI : public ScriptedAI
 {
-    boss_moamAI(Creature *c) : ScriptedAI(c) {}
+    boss_moamAI(Creature *c) : ScriptedAI(c)
+    {
+        pInstance = c->GetInstanceData();
+    }
 
     Unit *pTarget;
     uint32 TRAMPLE_Timer;
@@ -42,6 +52,8 @@ struct TRINITY_DLL_DECL boss_moamAI : public ScriptedAI
     uint32 SUMMONMANA_Timer;
     uint32 i;
     uint32 j;
+    
+    ScriptedInstance *pInstance;
 
     void Reset()
     {
@@ -50,12 +62,24 @@ struct TRINITY_DLL_DECL boss_moamAI : public ScriptedAI
         pTarget = NULL;
         TRAMPLE_Timer = 30000;
         DRAINMANA_Timer = 30000;
+        
+        if (pInstance)
+            pInstance->SetData(DATA_MOAM_EVENT, NOT_STARTED);
     }
 
     void EnterCombat(Unit *who)
     {
         DoScriptText(EMOTE_AGGRO, m_creature);
         pTarget = who;
+        
+        if (pInstance)
+            pInstance->SetData(DATA_MOAM_EVENT, IN_PROGRESS);
+    }
+    
+    void JustDied(Unit *killer)
+    {
+        if (pInstance)
+            pInstance->SetData(DATA_MOAM_EVENT, DONE);
     }
 
     void UpdateAI(const uint32 diff)

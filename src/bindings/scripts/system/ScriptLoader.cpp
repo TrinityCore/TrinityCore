@@ -224,6 +224,13 @@ extern void AddSC_boss_onyxia();                    //Onyxia's Lair
 extern void AddSC_boss_amnennar_the_coldbringer();  //Razorfen Downs
 extern void AddSC_razorfen_downs();
 extern void AddSC_razorfen_kraul();                 //Razorfen Kraul
+extern void AddSC_boss_kurinnaxx();                 //Ruins of ahn'qiraj
+extern void AddSC_boss_rajaxx();
+extern void AddSC_boss_moam();
+extern void AddSC_boss_buru();
+extern void AddSC_boss_ayamiss();
+extern void AddSC_boss_ossirian();
+extern void AddSC_instance_ruins_of_ahnqiraj();
 extern void AddSC_boss_cthun();                     //Temple of ahn'qiraj
 extern void AddSC_boss_fankriss();
 extern void AddSC_boss_huhuran();
@@ -659,6 +666,13 @@ void AddScripts()
     AddSC_boss_amnennar_the_coldbringer();  //Razorfen Downs
     AddSC_razorfen_downs();
     AddSC_razorfen_kraul();                 //Razorfen Kraul
+    AddSC_boss_kurinnaxx();                 //Ruins of ahn'qiraj
+    AddSC_boss_rajaxx();
+    AddSC_boss_moam();
+    AddSC_boss_buru();
+    AddSC_boss_ayamiss();
+    AddSC_boss_ossirian();
+    AddSC_instance_ruins_of_ahnqiraj();
     AddSC_boss_cthun();                     //Temple of ahn'qiraj
     AddSC_boss_fankriss();
     AddSC_boss_huhuran();

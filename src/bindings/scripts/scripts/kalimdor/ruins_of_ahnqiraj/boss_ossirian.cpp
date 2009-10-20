@@ -22,17 +22,58 @@ SDCategory: Ruins of Ahn'Qiraj
 EndScriptData */
 
 #include "precompiled.h"
+#include "def_ruins_of_ahnqiraj.h"
 
-#define SAY_SURPREME2   -1509019
-#define SAY_SURPREME3   -1509020
+enum Yells
+{
+    SAY_SURPREME2   = -1509019,
+    SAY_SURPREME3   = -1509020,
+    SAY_RAND_INTRO1 = -1509021,
+    SAY_RAND_INTRO2 = -1509022,
+    SAY_RAND_INTRO3 = -1509023,
+    SAY_RAND_INTRO4 = -1509024,                            //possibly old?
+    SAY_AGGRO       = -1509025,
+    SAY_SLAY        = -1509026,
+    SAY_DEATH       = -1509027
+};
 
-#define SAY_RAND_INTRO1 -1509021
-#define SAY_RAND_INTRO2 -1509022
-#define SAY_RAND_INTRO3 -1509023
-#define SAY_RAND_INTRO4 -1509024                            //possibly old?
+struct TRINITY_DLL_DECL boss_ossirianAI : public ScriptedAI
+{
+    boss_ossirianAI(Creature *c) : ScriptedAI(c)
+    {
+        pInstance = c->GetInstanceData();
+    }
+    
+    ScriptedInstance *pInstance;
+    
+    void Reset()
+    {
+        if (pInstance)
+            pInstance->SetData(DATA_OSSIRIAN_EVENT, NOT_STARTED);
+    }
+    
+    void EnterCombat(Unit *who)
+    {
+        if (pInstance)
+            pInstance->SetData(DATA_OSSIRIAN_EVENT, IN_PROGRESS);
+    }
+    
+    void JustDied(Unit *killer)
+    {
+        if (pInstance)
+            pInstance->SetData(DATA_OSSIRIAN_EVENT, DONE);
+    }
+};
+CreatureAI* GetAI_boss_ossirian(Creature* pCreature)
+{
+    return new boss_ossirianAI (pCreature);
+}
 
-#define SAY_AGGRO       -1509025
-
-#define SAY_SLAY        -1509026
-#define SAY_DEATH       -1509027
-
+void AddSC_boss_ossirian()
+{
+    Script *newscript;
+    newscript = new Script;
+    newscript->Name = "boss_ossirian";
+    newscript->GetAI = &GetAI_boss_ossirian;
+    newscript->RegisterSelf();
+}

@@ -22,6 +22,51 @@ SDCategory: Ruins of Ahn'Qiraj
 EndScriptData */
 
 #include "precompiled.h"
+#include "def_ruins_of_ahnqiraj.h"
 
- #define EMOTE_TARGET        -1509002
+enum Yells
+{
+    EMOTE_TARGET               = -1509002
+};
+
+struct TRINITY_DLL_DECL boss_buruAI : public ScriptedAI
+{
+    boss_buruAI(Creature *c) : ScriptedAI(c)
+    {
+        pInstance = c->GetInstanceData();
+    }
+    
+    ScriptedInstance *pInstance;
+    
+    void Reset()
+    {
+        if (pInstance)
+            pInstance->SetData(DATA_BURU_EVENT, NOT_STARTED);
+    }
+    
+    void EnterCombat(Unit *who)
+    {
+        if (pInstance)
+            pInstance->SetData(DATA_BURU_EVENT, IN_PROGRESS);
+    }
+    
+    void JustDied(Unit *killer)
+    {
+        if (pInstance)
+            pInstance->SetData(DATA_BURU_EVENT, DONE);
+    }
+};
+CreatureAI* GetAI_boss_buru(Creature* pCreature)
+{
+    return new boss_buruAI (pCreature);
+}
+
+void AddSC_boss_buru()
+{
+    Script *newscript;
+    newscript = new Script;
+    newscript->Name = "boss_buru";
+    newscript->GetAI = &GetAI_boss_buru;
+    newscript->RegisterSelf();
+}
 
