@@ -1314,14 +1314,13 @@ UPDATE `creature_template` SET `ScriptName`='mob_batrider' WHERE `entry`=14965;
 UPDATE `creature_template` SET `ScriptName`='mob_shade_of_jindo' WHERE `entry`=14986;
 UPDATE `creature_template` SET `ScriptName`='mob_ohgan' WHERE `entry`=14988;
 
-UPDATE `creature_template` SET `ScriptName`='EventAI',`modelid1` = 16925,`modelid3` = 16925, `minmana` = 1000000,`maxmana` = 1000000, `unit_flags` = 33554434 WHERE `entry` IN(29998,33753,33752,33751,33750);
-DELETE FROM `creature_ai_scripts` WHERE `creature_id` IN (29998,33753,33752,33751,33750);
-
 -- --------
 -- EVENT AI
 -- --------
-UPDATE `creature_template` SET `AIName` = 'EventAI' WHERE entry IN  (26796,26798,26929,26928,26930);
+UPDATE `creature_template` SET `AIName` = 'EventAI' WHERE entry IN (26796,26798,26929,26928,26930);
 DELETE FROM `creature_ai_scripts` WHERE `creature_id` IN (26796,26798,26929,26928,26930);
+UPDATE `creature_template` SET `ScriptName`='EventAI',`modelid1` = 16925,`modelid3` = 16925, `minmana` = 1000000,`maxmana` = 1000000, `unit_flags` = 33554434 WHERE `entry` IN(29998,33753,33752,33751,33750);
+DELETE FROM `creature_ai_scripts` WHERE `creature_id` IN (29998,33753,33752,33751,33750);
 INSERT INTO `creature_ai_scripts` VALUES 
 -- Commander Stoutbeard
 ( 2679600, 26796, 4, 0, 100, 4, 0, 0, 0, 0, 28, 0, 47543, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Commander Stoutbeard - crystal prison remove'),
@@ -1417,7 +1416,7 @@ INSERT INTO `creature_ai_scripts` VALUES ('2918103', '29181', '0', '0', '100', '
 INSERT INTO `creature_ai_scripts` VALUES ('2918104', '29181', '0', '0', '100', '3', '10000', '20000', '10000', '20000', '11', '21807', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', 'Rayne - SPELL_WRATH');
 
 -- spell 30298 tries to start event script 10675 but it doesn't exist. create it & make it spawn Geezle
-DELETE FROM `event_scripts` where `id`=10675;
+DELETE FROM `event_scripts` WHERE `id`=10675;
 INSERT INTO `event_scripts` (`id`, `delay`, `command`, `datalong`, `datalong2`, `x`, `y`, `z`, `o`) values 
 (10675, 0, 10, 17318, 90000, '-5139.79','-11248.27','5.23', '6.27609');
 
@@ -1429,9 +1428,20 @@ DELETE FROM `creature_ai_scripts` WHERE `creature_id` IN (25669,25671,25672);
 INSERT INTO `creature_ai_scripts`
 (`id`, `creature_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_type`, `action1_param1`, `action1_param2`, `action1_param3`, `action2_type`, `action2_param1`, `action2_param2`, `action2_param3`, `action3_type`, `action3_param1`, `action3_param2`, `action3_param3`, `comment`)
 VALUES
-(2566901, 25669, 10, 0, 100, 3, 1, 20, 2000, 2000, 33, 25669, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Scout Warsong Granary - Killed Moster at LOS'),(2567101, 25671, 10, 0, 100, 3, 1, 20, 2000, 2000, 33, 25671, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Scout Torp''s Farm - Killed Moster at LOS'),(2567201, 25672, 10, 0, 100, 3, 1, 20, 2000, 2000, 33, 25672, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Scout Warsong Slaughterhouse - Killed Moster at LOS');
+(2566901, 25669, 10, 0, 100, 3, 1, 20, 2000, 2000, 33, 25669, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Scout Warsong Granary - Killed Moster at LOS'), (2567101, 25671, 10, 0, 100, 3, 1, 20, 2000, 2000, 33, 25671, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Scout Torp''s Farm - Killed Moster at LOS'), (2567201, 25672, 10, 0, 100, 3, 1, 20, 2000, 2000, 33, 25672, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Scout Warsong Slaughterhouse - Killed Moster at LOS');
 
 -- WOTLK Naxxramas Worshipper update
-DELETE FROM `creature_ai_scripts` WHERE `id` = 1650612;
+DELETE FROM `creature_ai_scripts` WHERE `id`=1650612 AND `creature_id`=16506;
 INSERT INTO `creature_ai_scripts` (`id`, `creature_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_type`, `action1_param1`, `action1_param2`, `action1_param3`, `action2_type`, `action2_param1`, `action2_param2`, `action2_param3`, `action3_type`, `action3_param1`, `action3_param2`, `action3_param3`, `comment`) VALUES
 (1650612, 16506, 6, 0, 100, 0, 0, 0, 0, 0, 11, 28732, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Naxxramas Worshipper - Widow Embrace');
+
+-- Quest - Kroshius' Infernal Core (level 50 warlock specific)
+UPDATE `creature_template` SET `AIName`='EventAI' WHERE `entry`=14467;
+INSERT INTO `creature_ai_scripts`
+   (`id`, `creature_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_type`, `action1_param1`, `action1_param2`, `action1_param3`, `action2_type`, `action2_param1`, `action2_param2`, `action2_param3`, `action3_type`, `action3_param1`, `action3_param2`, `action3_param3`, `comment`)
+VALUES 
+   (1446701, 14467, 11, 0, 100, 0, 0, 0, 0, 0, 1, -980, 0, 0, 19, 768, 0, 0, 2, 16, 0, 0, 'Kroshius Spawn Say');
+INSERT INTO `creature_ai_texts`
+   (`entry`, `content_default`, `content_loc1`, `content_loc2`, `content_loc3`, `content_loc4`, `content_loc5`, `content_loc6`, `content_loc7`, `content_loc8`, `sound`, `type`, `language`, `emote`, `comment`)
+VALUES 
+   (-980, 'Kroshius live? Kroshius crush!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 1, 0, 0, NULL);
