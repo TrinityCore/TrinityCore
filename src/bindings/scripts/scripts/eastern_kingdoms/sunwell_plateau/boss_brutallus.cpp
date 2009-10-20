@@ -291,9 +291,15 @@ struct TRINITY_DLL_DECL boss_brutallusAI : public ScriptedAI
 
         if (BurnTimer < diff)
         {
-            if (Unit *target = SelectUnit(SELECT_TARGET_RANDOM, 0))
-                target->CastSpell(target, SPELL_BURN, true);
-            BurnTimer = 60000;
+            if (Unit *target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                if(!target->HasAura(SPELL_BURN))
+                {
+                    target->CastSpell(target, SPELL_BURN, true);
+                    BurnTimer = urand(60000,180000);
+                } else
+                    BurnTimer = 1000 + diff; // if target has SPELL_BURN, wait a bit.
+            else
+                BurnTimer = urand(60000,180000); // no targets!?
         } else BurnTimer -= diff;
 
         if (BerserkTimer < diff && !Enraged)
