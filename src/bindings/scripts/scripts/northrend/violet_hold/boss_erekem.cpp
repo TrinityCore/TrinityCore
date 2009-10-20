@@ -256,6 +256,7 @@ void AddSC_boss_erekem()
     newscript->GetAI = &GetAI_boss_erekem;
     newscript->RegisterSelf();
 
+    newscript = new Script;
     newscript->Name = "mob_erekem_guard";
     newscript->GetAI = &GetAI_mob_erekem_guard;
     newscript->RegisterSelf();
