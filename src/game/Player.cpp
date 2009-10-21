@@ -19466,8 +19466,6 @@ void Player::SendTransferAborted(uint32 mapid, uint8 reason, uint8 arg)
         case TRANSFER_ABORT_INSUF_EXPAN_LVL:
         case TRANSFER_ABORT_DIFFICULTY:
         case TRANSFER_ABORT_UNIQUE_MESSAGE:
-        case TRANSFER_ABORT_ZONE_IN_COMBAT:
-        case TRANSFER_ABORT_MAX_PLAYERS:
             data << uint8(arg);
             break;
     }
@@ -20291,9 +20289,9 @@ bool Player::RewardPlayerAndGroupAtKill(Unit* pVictim)
 
 void Player::RewardPlayerAndGroupAtEvent(uint32 creature_id, WorldObject* pRewardSource)
 {
-    if (!pRewardSource || pRewardSource->GetTypeId() != TYPEID_UNIT)
+    if (!pRewardSource)
         return;
-    uint64 creature_guid = pRewardSource->GetGUID();
+    uint64 creature_guid = (pRewardSource && pRewardSource->GetTypeId()==TYPEID_UNIT) ? pRewardSource->GetGUID() : uint64(0);
 
     // prepare data for near group iteration
     if(Group *pGroup = GetGroup())
@@ -20319,7 +20317,7 @@ void Player::RewardPlayerAndGroupAtEvent(uint32 creature_id, WorldObject* pRewar
 bool Player::IsAtGroupRewardDistance(WorldObject const* pRewardSource) const
 {
     if (!pRewardSource)
-        return false;
+        return;
     const WorldObject* player = GetCorpse();
     if(!player || isAlive())
         player = this;
