@@ -292,7 +292,7 @@ Player::Player (WorldSession *session): Unit(), m_achievementMgr(this), m_reputa
     m_ExtraFlags = 0;
 
     m_spellModTakingSpell = NULL;
-    m_pad = 0;
+    //m_pad = 0;
 
     // players always accept
     if(GetSession()->GetSecurity() == SEC_PLAYER)
@@ -1137,10 +1137,10 @@ void Player::Update( uint32 p_time )
     // If this is set during update SetSpellModTakingSpell call is missing somewhere in the code
     // Having this would prevent more aura charges to be dropped, so let's crash
     //assert (!m_spellModTakingSpell);
-    if(m_pad || m_spellModTakingSpell)
+    if(/*m_pad ||*/ m_spellModTakingSpell)
     {
-        sLog.outCrash("Player has m_pad %u during update!", m_pad);
-        if(m_spellModTakingSpell)
+        //sLog.outCrash("Player has m_pad %u during update!", m_pad);
+        //if(m_spellModTakingSpell)
             sLog.outCrash("Player has m_spellModTakingSpell %u during update!", m_spellModTakingSpell->m_spellInfo->Id);
         assert(false);
         m_spellModTakingSpell = NULL;
