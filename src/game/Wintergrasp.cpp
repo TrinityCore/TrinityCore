@@ -26,21 +26,16 @@ typedef uint32 TeamPair[2];
 
 enum WintergraspQuest
 {
-    SLAY_THEM_ALL_1 = 13180, //Horde Quest
-    SLAY_THEM_ALL_2 = 13178, //Horde Quest
-
-    NO_MERCY_MERCILESS = 13177,   //Alliance Quest
-    NO_MERCY_MERCILESS_1 = 13179, //Alliance Quest
-
     A_VICTORY_IN_WG = 13181,
     H_VICTORY_IN_WG = 13183,
+    CRE_PVP_KILL = 31086, //Quest Objective
+    CRE_PVP_KILL_V = 31093, //Quest Objective
 };
 
 enum CreatureEntry
 {
     CRE_ENG_A = 30499,
     CRE_ENG_H = 30400,
-    CRE_PVP_KILL = 31086, //Quest Objective
     SPIRIT_HEALER = 6491,
 };
 
@@ -380,7 +375,7 @@ void OPvPWintergrasp::ProcessEvent(GameObject *obj, uint32 eventId)
                             if (m_timer < 600000)
                                 m_timer = 0;
                             else
-                                m_timer = m_timer - 600000; // - 10 mins    
+                                m_timer = m_timer - 600000; // - 10 mins
                         }
                     }
                 }
@@ -870,16 +865,20 @@ void OPvPWintergrasp::HandleKill(Player *killer, Unit *victim)
     {
         if (victim->getLevel() >= 70)
             ok = true;
-
-        if (killer->GetQuestStatus(SLAY_THEM_ALL_1) == QUEST_STATUS_INCOMPLETE || killer->GetQuestStatus(SLAY_THEM_ALL_2) == QUEST_STATUS_INCOMPLETE || killer->GetQuestStatus(NO_MERCY_MERCILESS_1) == QUEST_STATUS_INCOMPLETE || killer->GetQuestStatus(NO_MERCY_MERCILESS) == QUEST_STATUS_INCOMPLETE)
-            killer->KilledMonsterCredit(CRE_PVP_KILL,0);
+        killer->RewardPlayerAndGroupAtEvent(CRE_PVP_KILL, 0);
     }
     else
     {
         switch(GetCreatureType(victim->GetEntry()))
         {
             case CREATURE_SIEGE_VEHICLE:
+                killer->RewardPlayerAndGroupAtEvent(CRE_PVP_KILL_V,0);
+                ok = true;
+                break;
             case CREATURE_GUARD:
+                killer->RewardPlayerAndGroupAtEvent(CRE_PVP_KILL, 0);
+                ok = true;
+                break;
             case CREATURE_TURRET:
                 ok = true;
                 break;
