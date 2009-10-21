@@ -20289,9 +20289,9 @@ bool Player::RewardPlayerAndGroupAtKill(Unit* pVictim)
 
 void Player::RewardPlayerAndGroupAtEvent(uint32 creature_id, WorldObject* pRewardSource)
 {
-    if (!pRewardSource)
+    if (!pRewardSource || pRewardSource->GetTypeId() != TYPEID_UNIT)
         return;
-    uint64 creature_guid = (pRewardSource && pRewardSource->GetTypeId()==TYPEID_UNIT) ? pRewardSource->GetGUID() : uint64(0);
+    uint64 creature_guid = pRewardSource->GetGUID();
 
     // prepare data for near group iteration
     if(Group *pGroup = GetGroup())
@@ -20317,7 +20317,7 @@ void Player::RewardPlayerAndGroupAtEvent(uint32 creature_id, WorldObject* pRewar
 bool Player::IsAtGroupRewardDistance(WorldObject const* pRewardSource) const
 {
     if (!pRewardSource)
-        return;
+        return false;
     const WorldObject* player = GetCorpse();
     if(!player || isAlive())
         player = this;
