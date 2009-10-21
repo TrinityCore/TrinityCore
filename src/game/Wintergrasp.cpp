@@ -865,18 +865,18 @@ void OPvPWintergrasp::HandleKill(Player *killer, Unit *victim)
     {
         if (victim->getLevel() >= 70)
             ok = true;
-        killer->RewardPlayerAndGroupAtEvent(CRE_PVP_KILL, 0);
+        killer->RewardPlayerAndGroupAtEvent(CRE_PVP_KILL, victim);
     }
     else
     {
         switch(GetCreatureType(victim->GetEntry()))
         {
             case CREATURE_SIEGE_VEHICLE:
-                killer->RewardPlayerAndGroupAtEvent(CRE_PVP_KILL_V,0);
+                killer->RewardPlayerAndGroupAtEvent(CRE_PVP_KILL_V, victim);
                 ok = true;
                 break;
             case CREATURE_GUARD:
-                killer->RewardPlayerAndGroupAtEvent(CRE_PVP_KILL, 0);
+                killer->RewardPlayerAndGroupAtEvent(CRE_PVP_KILL, victim);
                 ok = true;
                 break;
             case CREATURE_TURRET:
