@@ -2361,7 +2361,7 @@ Spell * m_spellModTakingSpell;
         uint16 m_baseManaRegen;
 
         SpellModList m_spellMods[MAX_SPELLMOD];
-        uint32 m_pad;
+        //uint32 m_pad;
 //        Spell * m_spellModTakingSpell;  // Spell for which charges are dropped in spell::finish
 
         EnchantDurationList m_enchantDuration;
