@@ -197,6 +197,9 @@ UPDATE `creature_template` SET `ScriptName`='boss_volazj' WHERE `entry`=29311;
 UPDATE `creature_template` SET `ScriptName`='boss_amanitar' WHERE `entry`=30258;
 UPDATE `creature_template` SET `ScriptName`='mob_amanitar_mushrooms' WHERE `entry` IN (30435,30391);
 UPDATE `creature_template` SET `ScriptName`='mob_nadox_eggs' WHERE `entry` IN (30172,30173);
+UPDATE `creature_template` SET `ScriptName`='boss_jedoga_shadowseeker' WHERE `entry`=29310;
+UPDATE `creature_template` SET `ScriptName`='mob_jedoga_initiand' WHERE `entry`=30114;
+UPDATE `creature_template` SET `ScriptName`='npc_jedogas_aufseher_trigger' WHERE `entry`=30181;
 
 /* AZSHARA */
 UPDATE `creature_template` SET `ScriptName`='mobs_spitelashes' WHERE `entry` IN (6190,6193,6194,6195,6196,7885,7886,12204,12205);
