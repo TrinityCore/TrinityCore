@@ -29,7 +29,7 @@ EndContentData */
 
 #include "precompiled.h"
 #include "escort_ai.h"
-#include "def_old_hillsbrad.h"
+#include "old_hillsbrad.h"
 
 #define QUEST_ENTRY_HILLSBRAD   10282
 #define QUEST_ENTRY_DIVERSION   10283

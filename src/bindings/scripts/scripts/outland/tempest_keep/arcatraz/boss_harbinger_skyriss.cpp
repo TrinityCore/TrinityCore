@@ -27,7 +27,7 @@ boss_harbinger_skyriss_illusion
 EndContentData */
 
 #include "precompiled.h"
-#include "def_arcatraz.h"
+#include "arcatraz.h"
 
 #define SAY_INTRO               -1552000
 #define SAY_AGGRO               -1552001

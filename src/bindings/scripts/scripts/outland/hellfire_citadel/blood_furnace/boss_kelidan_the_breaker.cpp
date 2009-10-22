@@ -27,7 +27,7 @@ mob_shadowmoon_channeler
 EndContentData */
 
 #include "precompiled.h"
-#include "def_blood_furnace.h"
+#include "blood_furnace.h"
 
 enum eKelidan
 {

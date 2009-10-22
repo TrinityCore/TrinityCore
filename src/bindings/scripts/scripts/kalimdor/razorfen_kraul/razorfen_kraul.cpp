@@ -27,7 +27,7 @@ EndContentData */
 
 #include "precompiled.h"
 #include "escort_ai.h"
-#include "def_razorfen_kraul.h"
+#include "razorfen_kraul.h"
 
 #define SAY_READY -1047000
 #define SAY_POINT -10470001

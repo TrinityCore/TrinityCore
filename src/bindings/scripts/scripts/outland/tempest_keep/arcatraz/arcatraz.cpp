@@ -28,7 +28,7 @@ mob_zerekethvoidzone
 EndContentData */
 
 #include "precompiled.h"
-#include "def_arcatraz.h"
+#include "arcatraz.h"
 
 /*#####
 # npc_millhouse_manastorm

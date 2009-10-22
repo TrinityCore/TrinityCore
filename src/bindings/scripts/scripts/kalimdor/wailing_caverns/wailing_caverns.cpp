@@ -26,7 +26,7 @@ EndContentData */
 
 #include "precompiled.h"
 #include "escort_ai.h"
-#include "def_wailing_caverns.h"
+#include "wailing_caverns.h"
 
 /*######
 ## npc_disciple_of_naralex

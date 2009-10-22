@@ -1,6 +1,6 @@
 
 #include "precompiled.h"
-#include "def_hyjal.h"
+#include "hyjal.h"
 #include "hyjal_trash.h"
 
 #define SPELL_RAIN_OF_FIRE 31340
