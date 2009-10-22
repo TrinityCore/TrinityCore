@@ -22,7 +22,7 @@ SDCategory: Zul'Aman
 EndScriptData */
 
 #include "precompiled.h"
-#include "def_zulaman.h"
+#include "zulaman.h"
 #include "GridNotifiers.h"
 
 enum eEnums

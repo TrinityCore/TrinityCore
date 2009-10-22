@@ -22,7 +22,7 @@ SDCategory: Zul'Aman
 EndScriptData */
 
 #include "precompiled.h"
-#include "def_zulaman.h"
+#include "zulaman.h"
 
 #define YELL_AGGRO              "Da shadow gonna fall on you... "
 #define SOUND_YELL_AGGRO        12041

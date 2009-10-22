@@ -22,7 +22,7 @@ SDCategory: Karazhan
 EndScriptData */
 
 #include "precompiled.h"
-#include "def_karazhan.h"
+#include "karazhan.h"
 
 #define SAY_SLAY1                   -1532065
 #define SAY_SLAY2                   -1532066

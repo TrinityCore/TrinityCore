@@ -21,7 +21,7 @@ SDComment: Find a way to start the intro, best code for the intro
 EndScriptData */
 
 #include "precompiled.h"
-#include "def_sunwell_plateau.h"
+#include "sunwell_plateau.h"
 
 enum Quotes
 {

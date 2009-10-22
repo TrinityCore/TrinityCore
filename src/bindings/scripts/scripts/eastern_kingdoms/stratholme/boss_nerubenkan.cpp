@@ -22,7 +22,7 @@ SDCategory: Stratholme
 EndScriptData */
 
 #include "precompiled.h"
-#include "def_stratholme.h"
+#include "stratholme.h"
 
 #define SPELL_ENCASINGWEBS          4962
 #define SPELL_PIERCEARMOR           6016

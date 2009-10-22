@@ -22,7 +22,7 @@ SDCategory: Stratholme
 EndScriptData */
 
 #include "precompiled.h"
-#include "def_stratholme.h"
+#include "stratholme.h"
 
 #define SPELL_DRAININGBLOW    16793
 #define SPELL_CROWDPUMMEL    10887

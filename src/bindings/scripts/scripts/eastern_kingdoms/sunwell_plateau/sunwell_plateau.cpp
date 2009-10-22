@@ -26,7 +26,7 @@ npc_captain_selana
 EndContentData */
 
 #include "precompiled.h"
-#include "def_sunwell_plateau.h"
+#include "sunwell_plateau.h"
 
 /*######
 ## npc_prophet_velen

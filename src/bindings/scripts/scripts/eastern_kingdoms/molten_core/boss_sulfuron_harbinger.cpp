@@ -22,7 +22,7 @@ SDCategory: Molten Core
 EndScriptData */
 
 #include "precompiled.h"
-#include "def_molten_core.h"
+#include "molten_core.h"
 
 #define SPELL_DARKSTRIKE            19777
 #define SPELL_DEMORALIZINGSHOUT     19778

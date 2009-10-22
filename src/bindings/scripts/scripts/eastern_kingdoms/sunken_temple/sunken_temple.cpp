@@ -26,7 +26,7 @@ at_malfurion_Stormrage_trigger
 EndContentData */
 
 #include "precompiled.h"
-#include "def_sunken_temple.h"
+#include "sunken_temple.h"
 
 /*#####
 # at_malfurion_Stormrage_trigger

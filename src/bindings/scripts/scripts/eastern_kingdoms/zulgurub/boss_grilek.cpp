@@ -22,7 +22,7 @@ SDCategory: Zul'Gurub
 EndScriptData */
 
 #include "precompiled.h"
-#include "def_zulgurub.h"
+#include "zulgurub.h"
 
 #define SPELL_AVARTAR                24646                  //The Enrage Spell
 #define SPELL_GROUNDTREMOR            6524

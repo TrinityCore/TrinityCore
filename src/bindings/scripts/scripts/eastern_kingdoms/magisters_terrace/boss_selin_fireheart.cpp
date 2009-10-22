@@ -22,7 +22,7 @@ SDCategory: Magister's Terrace
 EndScriptData */
 
 #include "precompiled.h"
-#include "def_magisters_terrace.h"
+#include "magisters_terrace.h"
 
 #define SAY_AGGRO                       -1585000
 #define SAY_ENERGY                      -1585001

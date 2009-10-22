@@ -22,7 +22,7 @@ SDCategory: Sunken Temple
 EndScriptData */
 
 #include "precompiled.h"
-#include "def_sunken_temple.h"
+#include "sunken_temple.h"
 
 #define GO_ATALAI_STATUE1 148830
 #define GO_ATALAI_STATUE2 148831

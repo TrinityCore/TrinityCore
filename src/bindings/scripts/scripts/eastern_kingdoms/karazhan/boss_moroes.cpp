@@ -22,7 +22,7 @@ SDCategory: Karazhan
 EndScriptData */
 
 #include "precompiled.h"
-#include "def_karazhan.h"
+#include "karazhan.h"
 
 #define SAY_AGGRO           -1532011
 #define SAY_SPECIAL_1       -1532012

@@ -28,7 +28,7 @@ npc_image_of_medivh
 EndContentData */
 
 #include "precompiled.h"
-#include "def_karazhan.h"
+#include "karazhan.h"
 #include "escort_ai.h"
 
 /*######

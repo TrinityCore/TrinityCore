@@ -22,7 +22,7 @@ SDCategory: Deadmines
 EndScriptData */
 
 #include "precompiled.h"
-#include "def_deadmines.h"
+#include "deadmines.h"
 #include "Spell.h"
 
 #define SOUND_CANNONFIRE    1400

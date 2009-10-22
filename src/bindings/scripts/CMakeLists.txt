@@ -30,7 +30,7 @@ SET(trinityscript_LIB_SRCS
    scripts/eastern_kingdoms/blackrock_depths/boss_magmus.cpp
    scripts/eastern_kingdoms/blackrock_depths/boss_moira_bronzebeard.cpp
    scripts/eastern_kingdoms/blackrock_depths/boss_tomb_of_seven.cpp
-   scripts/eastern_kingdoms/blackrock_depths/def_blackrock_depths.h
+   scripts/eastern_kingdoms/blackrock_depths/blackrock_depths.h
    scripts/eastern_kingdoms/blackrock_depths/instance_blackrock_depths.cpp
    scripts/eastern_kingdoms/blackrock_spire/boss_drakkisath.cpp
    scripts/eastern_kingdoms/blackrock_spire/boss_gyth.cpp
@@ -54,7 +54,7 @@ SET(trinityscript_LIB_SRCS
    scripts/eastern_kingdoms/blackwing_lair/boss_vaelastrasz.cpp
    scripts/eastern_kingdoms/blackwing_lair/boss_victor_nefarius.cpp
    scripts/eastern_kingdoms/blackwing_lair/instance_blackwing_lair.cpp
-   scripts/eastern_kingdoms/deadmines/def_deadmines.h
+   scripts/eastern_kingdoms/deadmines/deadmines.h
    scripts/eastern_kingdoms/deadmines/deadmines.cpp
    scripts/eastern_kingdoms/karazhan/boss_curator.cpp
    scripts/eastern_kingdoms/karazhan/boss_maiden_of_virtue.cpp
@@ -66,14 +66,14 @@ SET(trinityscript_LIB_SRCS
    scripts/eastern_kingdoms/karazhan/boss_shade_of_aran.cpp
    scripts/eastern_kingdoms/karazhan/boss_terestian_illhoof.cpp
    scripts/eastern_kingdoms/karazhan/bosses_opera.cpp
-   scripts/eastern_kingdoms/karazhan/def_karazhan.h
+   scripts/eastern_kingdoms/karazhan/karazhan.h
    scripts/eastern_kingdoms/karazhan/instance_karazhan.cpp
    scripts/eastern_kingdoms/karazhan/karazhan.cpp
    scripts/eastern_kingdoms/magisters_terrace/boss_felblood_kaelthas.cpp
    scripts/eastern_kingdoms/magisters_terrace/boss_priestess_delrissa.cpp
    scripts/eastern_kingdoms/magisters_terrace/boss_selin_fireheart.cpp
    scripts/eastern_kingdoms/magisters_terrace/boss_vexallus.cpp
-   scripts/eastern_kingdoms/magisters_terrace/def_magisters_terrace.h
+   scripts/eastern_kingdoms/magisters_terrace/magisters_terrace.h
    scripts/eastern_kingdoms/magisters_terrace/instance_magisters_terrace.cpp
    scripts/eastern_kingdoms/magisters_terrace/magisters_terrace.cpp
    scripts/eastern_kingdoms/molten_core/boss_baron_geddon.cpp
@@ -86,7 +86,7 @@ SET(trinityscript_LIB_SRCS
    scripts/eastern_kingdoms/molten_core/boss_ragnaros.cpp
    scripts/eastern_kingdoms/molten_core/boss_shazzrah.cpp
    scripts/eastern_kingdoms/molten_core/boss_sulfuron_harbinger.cpp
-   scripts/eastern_kingdoms/molten_core/def_molten_core.h
+   scripts/eastern_kingdoms/molten_core/molten_core.h
    scripts/eastern_kingdoms/molten_core/instance_molten_core.cpp
    scripts/eastern_kingdoms/molten_core/molten_core.cpp
    scripts/eastern_kingdoms/scarlet_enclave/the_scarlet_enclave.cpp
@@ -104,7 +104,7 @@ SET(trinityscript_LIB_SRCS
    scripts/eastern_kingdoms/scarlet_monastery/boss_headless_horseman.cpp
    scripts/eastern_kingdoms/scarlet_monastery/boss_mograine_and_whitemane.cpp
    scripts/eastern_kingdoms/scarlet_monastery/instance_scarlet_monastery.cpp
-   scripts/eastern_kingdoms/scarlet_monastery/def_scarlet_monastery.h
+   scripts/eastern_kingdoms/scarlet_monastery/scarlet_monastery.h
    scripts/eastern_kingdoms/scholomance/boss_darkmaster_gandling.cpp
    scripts/eastern_kingdoms/scholomance/boss_death_knight_darkreaver.cpp
    scripts/eastern_kingdoms/scholomance/boss_doctor_theolen_krastinov.cpp
@@ -117,9 +117,9 @@ SET(trinityscript_LIB_SRCS
    scripts/eastern_kingdoms/scholomance/boss_ras_frostwhisper.cpp
    scripts/eastern_kingdoms/scholomance/boss_the_ravenian.cpp
    scripts/eastern_kingdoms/scholomance/boss_vectus.cpp
-   scripts/eastern_kingdoms/scholomance/def_scholomance.h
+   scripts/eastern_kingdoms/scholomance/scholomance.h
    scripts/eastern_kingdoms/scholomance/instance_scholomance.cpp
-   scripts/eastern_kingdoms/shadowfang_keep/def_shadowfang_keep.h
+   scripts/eastern_kingdoms/shadowfang_keep/shadowfang_keep.h
    scripts/eastern_kingdoms/shadowfang_keep/instance_shadowfang_keep.cpp
    scripts/eastern_kingdoms/shadowfang_keep/shadowfang_keep.cpp
    scripts/eastern_kingdoms/stratholme/boss_baron_rivendare.cpp
@@ -133,10 +133,10 @@ SET(trinityscript_LIB_SRCS
    scripts/eastern_kingdoms/stratholme/boss_postmaster_malown.cpp
    scripts/eastern_kingdoms/stratholme/boss_ramstein_the_gorger.cpp
    scripts/eastern_kingdoms/stratholme/boss_timmy_the_cruel.cpp
-   scripts/eastern_kingdoms/stratholme/def_stratholme.h
+   scripts/eastern_kingdoms/stratholme/stratholme.h
    scripts/eastern_kingdoms/stratholme/instance_stratholme.cpp
    scripts/eastern_kingdoms/stratholme/stratholme.cpp
-   scripts/eastern_kingdoms/sunken_temple/def_sunken_temple.h
+   scripts/eastern_kingdoms/sunken_temple/sunken_temple.h
    scripts/eastern_kingdoms/sunken_temple/instance_sunken_temple.cpp
    scripts/eastern_kingdoms/sunken_temple/sunken_temple.cpp
    scripts/eastern_kingdoms/sunwell_plateau/boss_kiljaeden.cpp
@@ -146,7 +146,7 @@ SET(trinityscript_LIB_SRCS
    scripts/eastern_kingdoms/sunwell_plateau/boss_brutallus.cpp
    scripts/eastern_kingdoms/sunwell_plateau/boss_kalecgos.cpp
    scripts/eastern_kingdoms/sunwell_plateau/sunwell_plateau.cpp
-   scripts/eastern_kingdoms/sunwell_plateau/def_sunwell_plateau.h
+   scripts/eastern_kingdoms/sunwell_plateau/sunwell_plateau.h
    scripts/eastern_kingdoms/sunwell_plateau/instance_sunwell_plateau.cpp
    scripts/eastern_kingdoms/uldaman/boss_archaedas.cpp
    scripts/eastern_kingdoms/uldaman/instance_uldaman.cpp
@@ -158,7 +158,7 @@ SET(trinityscript_LIB_SRCS
    scripts/eastern_kingdoms/zulaman/boss_janalai.cpp
    scripts/eastern_kingdoms/zulaman/boss_nalorakk.cpp
    scripts/eastern_kingdoms/zulaman/boss_zuljin.cpp
-   scripts/eastern_kingdoms/zulaman/def_zulaman.h
+   scripts/eastern_kingdoms/zulaman/zulaman.h
    scripts/eastern_kingdoms/zulaman/instance_zulaman.cpp
    scripts/eastern_kingdoms/zulaman/zulaman.cpp
    scripts/eastern_kingdoms/zulgurub/boss_arlokk.cpp
@@ -174,7 +174,7 @@ SET(trinityscript_LIB_SRCS
    scripts/eastern_kingdoms/zulgurub/boss_thekal.cpp
    scripts/eastern_kingdoms/zulgurub/boss_venoxis.cpp
    scripts/eastern_kingdoms/zulgurub/boss_wushoolay.cpp
-   scripts/eastern_kingdoms/zulgurub/def_zulgurub.h
+   scripts/eastern_kingdoms/zulgurub/zulgurub.h
    scripts/eastern_kingdoms/zulgurub/instance_zulgurub.cpp
    scripts/eastern_kingdoms/alterac_mountains.cpp
    scripts/eastern_kingdoms/arathi_highlands.cpp

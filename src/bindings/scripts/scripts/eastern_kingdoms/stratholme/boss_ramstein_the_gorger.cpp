@@ -22,7 +22,7 @@ SDCategory: Stratholme
 EndScriptData */
 
 #include "precompiled.h"
- #include "def_stratholme.h"
+#include "stratholme.h"
 
 #define SPELL_TRAMPLE       5568
 #define SPELL_KNOCKOUT    17307
