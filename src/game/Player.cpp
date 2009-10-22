@@ -13662,7 +13662,7 @@ bool Player::SatisfyQuestStatus( Quest const* qInfo, bool msg )
 
 bool Player::SatisfyQuestTimed(Quest const* qInfo, bool msg)
 {
-    if (m_timedquests.empty() && qInfo->HasFlag(QUEST_TRINITY_FLAGS_TIMED))
+    if (!m_timedquests.empty() && qInfo->HasFlag(QUEST_TRINITY_FLAGS_TIMED))
     {
         if (msg)
             SendCanTakeQuestResponse(INVALIDREASON_QUEST_ONLY_ONE_TIMED);
