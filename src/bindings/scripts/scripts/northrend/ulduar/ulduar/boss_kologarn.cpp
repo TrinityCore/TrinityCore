@@ -17,7 +17,7 @@
  */
 
 #include "precompiled.h"
-#include "def_ulduar.h"
+#include "ulduar.h"
 #include "Vehicle.h"
 
 #define SPELL_ARM_DEAD_DAMAGE   HEROIC(63629,63979)

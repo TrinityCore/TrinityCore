@@ -298,27 +298,27 @@ SET(trinityscript_LIB_SRCS
    scripts/northrend/azjol_nerub/azjol_nerub/boss_krikthir_the_gatewatcher.cpp
    scripts/northrend/azjol_nerub/azjol_nerub/boss_hadronox.cpp
    scripts/northrend/azjol_nerub/azjol_nerub/boss_anubarak.cpp
-   scripts/northrend/azjol_nerub/azjol_nerub/def_azjol_nerub.h
+   scripts/northrend/azjol_nerub/azjol_nerub/azjol_nerub.h
    scripts/northrend/azjol_nerub/ahnkahet/instance_ahnkahet.cpp
    scripts/northrend/azjol_nerub/ahnkahet/boss_prince_taldaram.cpp
    scripts/northrend/azjol_nerub/ahnkahet/boss_elder_nadox.cpp
    scripts/northrend/azjol_nerub/ahnkahet/boss_jedoga_shadowseeker.cpp
    scripts/northrend/azjol_nerub/ahnkahet/boss_herald_volazj.cpp
    scripts/northrend/azjol_nerub/ahnkahet/boss_amanitar.cpp
-   scripts/northrend/azjol_nerub/ahnkahet/def_ahnkahet.h
+   scripts/northrend/azjol_nerub/ahnkahet/ahnkahet.h
    scripts/northrend/draktharon_keep/instance_drak_tharon_keep.cpp
    scripts/northrend/draktharon_keep/boss_trollgore.cpp
    scripts/northrend/draktharon_keep/boss_novos.cpp
    scripts/northrend/draktharon_keep/boss_dred.cpp
    scripts/northrend/draktharon_keep/boss_tharon_ja.cpp
-   scripts/northrend/draktharon_keep/def_drak_tharon_keep.h
+   scripts/northrend/draktharon_keep/drak_tharon_keep.h
    scripts/northrend/gundrak/instance_gundrak.cpp
    scripts/northrend/gundrak/boss_slad_ran.cpp
    scripts/northrend/gundrak/boss_moorabi.cpp
    scripts/northrend/gundrak/boss_drakkari_colossus.cpp
    scripts/northrend/gundrak/boss_gal_darah.cpp
    scripts/northrend/gundrak/boss_eck.cpp
-   scripts/northrend/gundrak/def_gundrak.h
+   scripts/northrend/gundrak/gundrak.h
    scripts/northrend/naxxramas/boss_anubrekhan.cpp
    scripts/northrend/naxxramas/boss_faerlina.cpp
    scripts/northrend/naxxramas/boss_gluth.cpp
@@ -334,11 +334,11 @@ SET(trinityscript_LIB_SRCS
    scripts/northrend/naxxramas/boss_razuvious.cpp
    scripts/northrend/naxxramas/boss_sapphiron.cpp
    scripts/northrend/naxxramas/boss_thaddius.cpp
-   scripts/northrend/naxxramas/def_naxxramas.h
+   scripts/northrend/naxxramas/naxxramas.h
    scripts/northrend/naxxramas/instance_naxxramas.cpp
    scripts/northrend/nexus/eye_of_eternity/instance_eye_of_eternity.cpp
    scripts/northrend/nexus/eye_of_eternity/boss_malygos.cpp
-   scripts/northrend/nexus/eye_of_eternity/def_eye_of_eternity.h
+   scripts/northrend/nexus/eye_of_eternity/eye_of_eternity.h
    scripts/northrend/nexus/nexus/instance_nexus.cpp
    scripts/northrend/nexus/nexus/boss_magus_telestra.cpp
    scripts/northrend/nexus/nexus/boss_anomalus.cpp
@@ -346,28 +346,28 @@ SET(trinityscript_LIB_SRCS
    scripts/northrend/nexus/nexus/boss_keristrasza.cpp
    scripts/northrend/nexus/nexus/commander_stoutbeard.cpp
    scripts/northrend/nexus/nexus/commander_kolurg.cpp
-   scripts/northrend/nexus/nexus/def_nexus.h
+   scripts/northrend/nexus/nexus/nexus.h
    scripts/northrend/nexus/oculus/instance_oculus.cpp
    scripts/northrend/nexus/oculus/boss_drakos.cpp
    scripts/northrend/nexus/oculus/boss_urom.cpp
    scripts/northrend/nexus/oculus/boss_varos.cpp
    scripts/northrend/nexus/oculus/boss_eregos.cpp
-   scripts/northrend/nexus/oculus/def_oculus.h
+   scripts/northrend/nexus/oculus/oculus.h
    scripts/northrend/obsidian_sanctum/instance_obsidian_sanctum.cpp
    scripts/northrend/obsidian_sanctum/boss_sartharion.cpp
-   scripts/northrend/obsidian_sanctum/def_obsidian_sanctum.h
+   scripts/northrend/obsidian_sanctum/obsidian_sanctum.h
    scripts/northrend/ulduar/halls_of_stone/instance_halls_of_stone.cpp
    scripts/northrend/ulduar/halls_of_stone/boss_maiden_of_grief.cpp
    scripts/northrend/ulduar/halls_of_stone/boss_krystallus.cpp
    scripts/northrend/ulduar/halls_of_stone/boss_sjonnir.cpp
-   scripts/northrend/ulduar/halls_of_stone/def_halls_of_stone.h
+   scripts/northrend/ulduar/halls_of_stone/halls_of_stone.h
    scripts/northrend/ulduar/halls_of_stone/halls_of_stone.cpp
    scripts/northrend/ulduar/halls_of_lightning/instance_halls_of_lightning.cpp
    scripts/northrend/ulduar/halls_of_lightning/boss_bjarngrim.cpp
    scripts/northrend/ulduar/halls_of_lightning/boss_ionar.cpp
    scripts/northrend/ulduar/halls_of_lightning/boss_volkhan.cpp
    scripts/northrend/ulduar/halls_of_lightning/boss_loken.cpp
-   scripts/northrend/ulduar/halls_of_lightning/def_halls_of_lightning.h
+   scripts/northrend/ulduar/halls_of_lightning/halls_of_lightning.h
    scripts/northrend/ulduar/ulduar/boss_algalon.cpp
    scripts/northrend/ulduar/ulduar/boss_assembly_of_iron.cpp
    scripts/northrend/ulduar/ulduar/boss_auriaya.cpp
@@ -383,24 +383,24 @@ SET(trinityscript_LIB_SRCS
    scripts/northrend/ulduar/ulduar/boss_xt002.cpp
    scripts/northrend/ulduar/ulduar/boss_yoggsaron.cpp
    scripts/northrend/ulduar/ulduar/ulduar_teleporter.cpp
-   scripts/northrend/ulduar/ulduar/def_ulduar.h
+   scripts/northrend/ulduar/ulduar/ulduar.h
    scripts/northrend/ulduar/ulduar/instance_ulduar.cpp
    scripts/northrend/utgarde_keep/utgarde_keep/instance_utgarde_keep.cpp
    scripts/northrend/utgarde_keep/utgarde_keep/boss_keleseth.cpp
    scripts/northrend/utgarde_keep/utgarde_keep/boss_skarvald_dalronn.cpp
    scripts/northrend/utgarde_keep/utgarde_keep/boss_ingvar_the_plunderer.cpp
-   scripts/northrend/utgarde_keep/utgarde_keep/def_utgarde_keep.h
+   scripts/northrend/utgarde_keep/utgarde_keep/utgarde_keep.h
    scripts/northrend/utgarde_keep/utgarde_keep/utgarde_keep.cpp
    scripts/northrend/utgarde_keep/utgarde_pinnacle/instance_pinnacle.cpp
    scripts/northrend/utgarde_keep/utgarde_pinnacle/boss_skadi.cpp
    scripts/northrend/utgarde_keep/utgarde_pinnacle/boss_ymiron.cpp
    scripts/northrend/utgarde_keep/utgarde_pinnacle/boss_palehoof.cpp
    scripts/northrend/utgarde_keep/utgarde_pinnacle/boss_svala.cpp
-   scripts/northrend/utgarde_keep/utgarde_pinnacle/def_pinnacle.h
+   scripts/northrend/utgarde_keep/utgarde_pinnacle/utgarde_pinnacle.h
    scripts/northrend/vault_of_archavon/instance_vault_of_archavon.cpp
    scripts/northrend/vault_of_archavon/boss_archavon.cpp
    scripts/northrend/vault_of_archavon/boss_emalon.cpp
-   scripts/northrend/vault_of_archavon/def_vault_of_archavon.h
+   scripts/northrend/vault_of_archavon/vault_of_archavon.h
    scripts/northrend/violet_hold/instance_violet_hold.cpp
    scripts/northrend/violet_hold/boss_cyanigosa.cpp
    scripts/northrend/violet_hold/boss_erekem.cpp
@@ -409,7 +409,7 @@ SET(trinityscript_LIB_SRCS
    scripts/northrend/violet_hold/boss_moragg.cpp
    scripts/northrend/violet_hold/boss_xevozz.cpp
    scripts/northrend/violet_hold/boss_zuramat.cpp
-   scripts/northrend/violet_hold/def_violet_hold.h
+   scripts/northrend/violet_hold/violet_hold.h
    scripts/northrend/violet_hold/violet_hold.cpp
    scripts/northrend/borean_tundra.cpp
    scripts/northrend/dragonblight.cpp

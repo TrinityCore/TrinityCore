@@ -25,7 +25,7 @@ SDCategory: Ahn'kahet
 EndScriptData */
 
 #include "precompiled.h"
-#include "def_ahnkahet.h"
+#include "ahnkahet.h"
 
 #define TEXT_AGGRO          -1619000
 #define TEXT_SACRIFICE_1_1  -1619001

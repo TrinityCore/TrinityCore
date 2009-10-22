@@ -15,7 +15,7 @@
  */
 
 #include "precompiled.h"
-#include "def_naxxramas.h"
+#include "naxxramas.h"
 
 enum Horsemen
 {

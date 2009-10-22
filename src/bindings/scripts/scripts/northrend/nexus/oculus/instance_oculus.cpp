@@ -1,5 +1,6 @@
 #include "precompiled.h"
-#include "def_oculus.h"
+#include "oculus.h"
+
 #define MAX_ENCOUNTER 4
 
 /* The Occulus encounters:

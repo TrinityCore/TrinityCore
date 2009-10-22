@@ -17,7 +17,7 @@
  */
 
 #include "precompiled.h"
-#include "def_naxxramas.h"
+#include "naxxramas.h"
 
 #define EMOTE_BREATH            -1533082
 #define EMOTE_ENRAGE            -1533083

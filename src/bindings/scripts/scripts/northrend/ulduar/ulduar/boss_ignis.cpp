@@ -17,7 +17,7 @@
  */
 
 #include "precompiled.h"
-#include "def_ulduar.h"
+#include "ulduar.h"
 
 #define SPELL_FLAME_JETS            62680
 #define SPELL_SCORCH                62546

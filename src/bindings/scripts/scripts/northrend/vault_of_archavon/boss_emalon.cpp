@@ -1,5 +1,5 @@
 #include "precompiled.h"
-#include "def_vault_of_archavon.h"
+#include "vault_of_archavon.h"
 
 //Emalon spells
 #define SPELL_CHAIN_LIGHTNING           HEROIC(64213, 64215)

@@ -25,7 +25,7 @@ SDCategory: Ahn'kahet
 Script Data End */
 
 #include "precompiled.h"
-#include "def_ahnkahet.h"
+#include "ahnkahet.h"
 
 #define SPELL_BASH              57094 // Victim
 #define SPELL_ENTANGLING_ROOTS  57095 // Random Victim 100Y

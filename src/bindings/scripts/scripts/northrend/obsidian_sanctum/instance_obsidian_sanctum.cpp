@@ -1,5 +1,5 @@
 #include "precompiled.h"
-#include "def_obsidian_sanctum.h"
+#include "obsidian_sanctum.h"
 
 #define MAX_ENCOUNTER     1
 

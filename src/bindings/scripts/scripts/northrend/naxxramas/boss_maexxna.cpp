@@ -17,7 +17,7 @@
  */
 
 #include "precompiled.h"
-#include "def_naxxramas.h"
+#include "naxxramas.h"
 
 #define SPELL_WEB_WRAP          28622
 #define SPELL_WEB_SPRAY         HEROIC(29484,54125)

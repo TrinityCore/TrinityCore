@@ -15,7 +15,7 @@
  */
 
 #include "precompiled.h"
-#include "def_naxxramas.h"
+#include "naxxramas.h"
 
 #define SAY_AGGRO               RAND(-1533075,-1533076,-1533077)
 #define SAY_SUMMON              -1533078

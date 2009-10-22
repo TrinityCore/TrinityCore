@@ -1,5 +1,5 @@
 #include "precompiled.h"
-#include "def_eye_of_eternity.h"
+#include "eye_of_eternity.h"
 
 struct TRINITY_DLL_DECL instance_eye_of_eternity : public ScriptedInstance
 {

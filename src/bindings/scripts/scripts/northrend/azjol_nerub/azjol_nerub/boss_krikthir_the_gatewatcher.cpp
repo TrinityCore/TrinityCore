@@ -28,7 +28,7 @@ update creature_template set scriptname = 'boss_krik_thir' where entry = '';
 *** SQL END ***/
 
 #include "precompiled.h"
-#include "def_azjol_nerub.h"
+#include "azjol_nerub.h"
 
 enum Spells
 {

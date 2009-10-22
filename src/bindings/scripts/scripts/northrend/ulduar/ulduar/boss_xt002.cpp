@@ -17,7 +17,7 @@
  */
 
 #include "precompiled.h"
-#include "def_ulduar.h"
+#include "ulduar.h"
 
 #define SPELL_SEARING_LIGHT         63018
 #define SPELL_SONIC_BOOM            38897

@@ -37,7 +37,7 @@ This is the timed gauntlet - waves of non-elite spiders
  Hadronox to make his way to you. When Hadronox enters the main room, she will web the doors, and no more non-elites will spawn.*/
 
 #include "precompiled.h"
-#include "def_azjol_nerub.h"
+#include "azjol_nerub.h"
 
 #define SPELL_ACID_CLOUD        53400 // Victim
 #define SPELL_LEECH_POISON      53030 // Victim

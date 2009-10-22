@@ -10,7 +10,7 @@ Script Data End */
 update creature_template set scriptname = 'boss_trollgore' where entry = '';
 *** SQL END ***/
 #include "precompiled.h"
-#include "def_drak_tharon_keep.h"
+#include "drak_tharon_keep.h"
 
 enum Spells
 {
