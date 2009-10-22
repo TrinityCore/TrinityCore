@@ -10,7 +10,7 @@ Script Data End */
 update creature_template set scriptname = '' where entry = '';
 *** SQL END ***/
 #include "precompiled.h"
-#include "def_culling_of_stratholme.h"
+#include "culling_of_stratholme.h"
 
 enum Spells
 {

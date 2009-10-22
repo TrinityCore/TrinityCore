@@ -22,7 +22,7 @@ SDCategory: Hellfire Citadel, Blood Furnace
 EndScriptData */
 
 #include "precompiled.h"
-#include "def_blood_furnace.h"
+#include "blood_furnace.h"
 
 enum eEnums
 {

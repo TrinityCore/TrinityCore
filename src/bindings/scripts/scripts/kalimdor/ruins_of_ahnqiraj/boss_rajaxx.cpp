@@ -22,7 +22,7 @@ SDCategory: Ruins of Ahn'Qiraj
 EndScriptData */
 
 #include "precompiled.h"
-#include "def_ruins_of_ahnqiraj.h"
+#include "ruins_of_ahnqiraj.h"
 
 enum Yells
 {

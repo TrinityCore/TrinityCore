@@ -22,7 +22,7 @@ SDCategory: Caverns of Time, The Dark Portal
 EndScriptData */
 
 #include "precompiled.h"
-#include "def_dark_portal.h"
+#include "dark_portal.h"
 
 enum eEnums
 {

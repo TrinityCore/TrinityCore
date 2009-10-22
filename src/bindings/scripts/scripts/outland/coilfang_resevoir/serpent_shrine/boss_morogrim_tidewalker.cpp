@@ -22,7 +22,7 @@ SDCategory: Coilfang Resevoir, Serpent Shrine Cavern
 EndScriptData */
 
 #include "precompiled.h"
-#include "def_serpent_shrine.h"
+#include "serpent_shrine.h"
 
 #define SAY_AGGRO                   -1548030
 #define SAY_SUMMON1                 -1548031

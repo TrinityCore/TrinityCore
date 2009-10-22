@@ -22,7 +22,7 @@ SDCategory: Auchindoun, Shadow Labyrinth
 EndScriptData */
 
 #include "precompiled.h"
-#include "def_shadow_labyrinth.h"
+#include "shadow_labyrinth.h"
 
 #define SAY_INTRO                       -1555028
 #define SAY_AGGRO1                      -1555029

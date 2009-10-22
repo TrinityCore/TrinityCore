@@ -22,7 +22,7 @@ SDCategory: The Lurker Below
 EndScriptData */
 
 #include "precompiled.h"
-#include "def_serpent_shrine.h"
+#include "serpent_shrine.h"
 #include "simple_ai.h"
 #include "Spell.h"
 

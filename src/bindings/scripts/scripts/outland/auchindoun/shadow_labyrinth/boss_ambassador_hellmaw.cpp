@@ -23,7 +23,7 @@ EndScriptData */
 
 #include "precompiled.h"
 #include "escort_ai.h"
-#include "def_shadow_labyrinth.h"
+#include "shadow_labyrinth.h"
 
 enum eEnums
 {

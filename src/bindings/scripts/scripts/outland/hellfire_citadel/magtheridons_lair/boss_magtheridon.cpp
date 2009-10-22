@@ -22,7 +22,7 @@ SDCategory: Hellfire Citadel, Magtheridon's lair
 EndScriptData */
 
 #include "precompiled.h"
-#include "def_magtheridons_lair.h"
+#include "magtheridons_lair.h"
 
 struct Yell
 {

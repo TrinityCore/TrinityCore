@@ -22,7 +22,8 @@ SDCategory: Ruins of Ahn'Qiraj
 EndScriptData */
 
 #include "precompiled.h"
-#include "def_ruins_of_ahnqiraj.h"
+#include "ruins_of_ahnqiraj.h"
+
 #define MAX_ENCOUNTER 6
 
 /* Ruins of Ahn'Qiraj encounters:

@@ -27,7 +27,7 @@ boss_warbringer_omrogg
 EndContentData */
 
 #include "precompiled.h"
-#include "def_shattered_halls.h"
+#include "shattered_halls.h"
 
 enum eEnums
 {

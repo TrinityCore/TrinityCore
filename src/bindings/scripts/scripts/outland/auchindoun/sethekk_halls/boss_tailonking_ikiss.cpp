@@ -22,7 +22,7 @@ SDCategory: Auchindoun, Sethekk Halls
 EndScriptData */
 
 #include "precompiled.h"
-#include "def_sethekk_halls.h"
+#include "sethekk_halls.h"
 
 #define SAY_INTRO                   -1556007
 
