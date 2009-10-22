@@ -51,6 +51,7 @@ enum WintergraspSpell
     SPELL_DAMAGED_BUILDING  = 59201,
     SPELL_INTACT_BUILDING   = 59203,
     SPELL_ESSENCE_OF_WG     = 58045,
+    SPELL_SPIRITUAL_IMMUNITY = 58729,
 // Unused: Not implemented
 //    SPELL_VICTORY_AURA      = 60044,
 };
@@ -105,6 +106,8 @@ enum WintergraspCreType
     CREATURE_ENGINEER,
     CREATURE_GUARD,
     CREATURE_SPECIAL,
+    CREATURE_SPIRIT_GUIDE,
+    CREATURE_SPIRIT_HEALER,
 };
 
 enum BuildingType
@@ -153,7 +156,8 @@ struct BuildingState
     {
         team = t;
         if(graveTeam)
-            *graveTeam = TeamId2Team[t];
+            if (uint32 newTeam = TeamId2Team[t])
+                *graveTeam = newTeam;
     }
 
 private:
@@ -198,7 +202,24 @@ class OPvPWintergrasp : public OutdoorPvP
         uint32 GetTimer() const { return m_timer / 1000; };
         TeamId GetTeam() const { return m_defender; };
         bool isWarTime() const { return m_wartime; };
+
+        // Temporal BG specific till 3.2
+        void SendAreaSpiritHealerQueryOpcode(Player *pl, const uint64& guid);
+        void AddPlayerToResurrectQueue(uint64 npc_guid, uint64 player_guid);
+        void RemovePlayerFromResurrectQueue(uint64 player_guid);
+        void RelocateDeadPlayers(Creature *cr);
+        // BG end
     protected:
+        // Temporal BG specific till 3.2
+        std::vector<uint64> m_ResurrectQueue;               // Player GUID
+        uint32 m_LastResurrectTime;
+        // Spirit Guide guid + Player list GUIDS
+        std::map<uint64, std::vector<uint64> >  m_ReviveQueue;
+
+        uint32 GetLastResurrectTime() const { return m_LastResurrectTime; }
+        uint32 GetReviveQueueSize() const { return m_ReviveQueue.size(); }
+        // BG end
+
         TeamId m_defender;
         int32 m_tenacityStack;
 
@@ -260,6 +281,10 @@ class SiegeWorkshop : public OPvPCapturePoint
         //void DespawnAllVehicles();
 
         //bool CanBuildVehicle() const { return m_vehicles.size() < MAX_VEHICLE_PER_WORKSHOP && m_buildingState->damageState != DAMAGE_DESTROYED; }
+
+        uint32 *m_spiEntry;
+        uint32 m_spiGuid;
+        Creature *m_spiritguide;
 
         uint32 *m_engEntry;
         uint32 m_engGuid;
