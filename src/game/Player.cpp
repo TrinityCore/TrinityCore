@@ -19466,6 +19466,8 @@ void Player::SendTransferAborted(uint32 mapid, uint8 reason, uint8 arg)
         case TRANSFER_ABORT_INSUF_EXPAN_LVL:
         case TRANSFER_ABORT_DIFFICULTY:
         case TRANSFER_ABORT_UNIQUE_MESSAGE:
+        case TRANSFER_ABORT_ZONE_IN_COMBAT:
+        case TRANSFER_ABORT_MAX_PLAYERS:
             data << uint8(arg);
             break;
     }
