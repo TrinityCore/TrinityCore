@@ -3643,6 +3643,10 @@ void SpellMgr::LoadSpellCustomAttr()
 
         switch(i)
         {
+        // Heroism
+        case 32182:
+            spellInfo->excludeCasterAuraSpell = 57723; // Exhaustion
+            break;
         // Heart of the Crusader
         case 20335:
         case 20336:
