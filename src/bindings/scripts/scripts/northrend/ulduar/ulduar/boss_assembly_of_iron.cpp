@@ -24,7 +24,7 @@ SDCategory: Ulduar - Ulduar
 EndScriptData */
 
 #include "precompiled.h"
-#include "def_ulduar.h"
+#include "ulduar.h"
 
 // Any boss
 #define SPELL_SUPERCHARGE   61920

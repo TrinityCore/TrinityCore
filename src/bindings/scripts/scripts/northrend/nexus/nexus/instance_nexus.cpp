@@ -22,7 +22,7 @@ SDCategory: The Nexus, The Nexus
 EndScriptData */
 
 #include "precompiled.h"
-#include "def_nexus.h"
+#include "nexus.h"
 
 #define NUMBER_OF_ENCOUNTERS      4
 

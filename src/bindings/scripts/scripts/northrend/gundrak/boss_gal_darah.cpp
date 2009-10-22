@@ -10,7 +10,7 @@ Script Data End */
 update creature_template set scriptname = '' where entry = '';
 *** SQL END ***/
 #include "precompiled.h"
-#include "def_gundrak.h"
+#include "gundrak.h"
 
 //Spells
 enum Spells

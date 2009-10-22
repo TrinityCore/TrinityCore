@@ -24,7 +24,7 @@ SDCategory: Azjol Nerub
 EndScriptData */
 
 #include "precompiled.h"
-#include "def_ahnkahet.h"
+#include "ahnkahet.h"
 
 #define MAX_ENCOUNTER           5
 #define MAX_JEDOGA_INITIANDS    15

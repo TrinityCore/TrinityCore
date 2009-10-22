@@ -17,7 +17,7 @@
  */
 
 #include "precompiled.h"
-#include "def_ulduar.h"
+#include "ulduar.h"
 
 /*
 #define SAY_AGGRO -1

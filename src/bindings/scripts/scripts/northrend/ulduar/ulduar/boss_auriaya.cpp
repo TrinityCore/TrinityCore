@@ -17,7 +17,7 @@
  */
 
 #include "precompiled.h"
-#include "def_ulduar.h"
+#include "ulduar.h"
 
 //boss_auriaya
 #define SPELL_TERRIFYING_SCREECH    64386

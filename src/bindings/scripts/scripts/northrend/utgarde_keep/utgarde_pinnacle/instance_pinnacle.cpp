@@ -1,5 +1,5 @@
 #include "precompiled.h"
-#include "def_pinnacle.h"
+#include "utgarde_pinnacle.h"
 
 #define MAX_ENCOUNTER     4
 

@@ -24,7 +24,7 @@ SDCategory: Azjol Nerub
 EndScriptData */
 
 #include "precompiled.h"
-#include "def_azjol_nerub.h"
+#include "azjol_nerub.h"
 
 #define MAX_ENCOUNTER     3
 

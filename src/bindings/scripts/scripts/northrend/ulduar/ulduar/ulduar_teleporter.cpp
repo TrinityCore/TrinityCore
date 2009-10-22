@@ -1,5 +1,5 @@
 #include "precompiled.h"
-#include "def_ulduar.h"
+#include "ulduar.h"
 
 /*
 The teleporter appears to be active and stable.

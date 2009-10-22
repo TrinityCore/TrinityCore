@@ -10,7 +10,7 @@ Script Data End */
 update creature_template set scriptname = 'boss_krystallus' where entry = '';
 *** SQL END ***/
 #include "precompiled.h"
-#include "def_halls_of_stone.h"
+#include "halls_of_stone.h"
 
 enum Spells
 {

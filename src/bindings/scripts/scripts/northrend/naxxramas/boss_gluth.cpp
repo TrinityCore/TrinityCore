@@ -15,7 +15,7 @@
  */
 
 #include "precompiled.h"
-#include "def_naxxramas.h"
+#include "naxxramas.h"
 
 #define SPELL_MORTAL_WOUND      25646
 #define SPELL_ENRAGE            HEROIC(28371,54427)

@@ -1,5 +1,5 @@
 #include "precompiled.h"
-#include "def_drak_tharon_keep.h"
+#include "drak_tharon_keep.h"
 
 #define MAX_ENCOUNTER     4
 /* Drak'Tharon Keep encounters:
