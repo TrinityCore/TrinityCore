@@ -22,7 +22,7 @@ SDCategory: Coilfang Resevoir, Serpent Shrine Cavern
 EndScriptData */
 
 #include "precompiled.h"
-#include "def_serpent_shrine.h"
+#include "serpent_shrine.h"
 
 #define MAX_ENCOUNTER 6
 #define SPELL_SCALDINGWATER 37284

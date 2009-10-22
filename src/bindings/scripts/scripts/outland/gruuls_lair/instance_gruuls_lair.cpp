@@ -22,7 +22,7 @@ SDCategory: Gruul's Lair
 EndScriptData */
 
 #include "precompiled.h"
-#include "def_gruuls_lair.h"
+#include "gruuls_lair.h"
 
 #define MAX_ENCOUNTER 2
 

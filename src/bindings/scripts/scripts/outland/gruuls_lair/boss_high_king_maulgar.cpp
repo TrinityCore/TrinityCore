@@ -22,7 +22,7 @@ SDCategory: Gruul's Lair
 EndScriptData */
 
 #include "precompiled.h"
-#include "def_gruuls_lair.h"
+#include "gruuls_lair.h"
 
 #define SAY_AGGRO               -1565000
 #define SAY_ENRAGE              -1565001

@@ -22,7 +22,7 @@ SDCategory: Black Temple
 EndScriptData */
 
 #include "precompiled.h"
-#include "def_black_temple.h"
+#include "black_temple.h"
 
 #define EMOTE_NEW_TARGET            -1564010
 #define EMOTE_PUNCH_GROUND          -1564011                //DoScriptText(EMOTE_PUNCH_GROUND, m_creature);

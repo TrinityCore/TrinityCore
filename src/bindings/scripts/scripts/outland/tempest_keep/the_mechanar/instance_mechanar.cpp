@@ -22,7 +22,7 @@ SDCategory: Mechanar
 EndScriptData */
 
 #include "precompiled.h"
-#include "def_mechanar.h"
+#include "mechanar.h"
 
 #define MAX_ENCOUNTER      1
 

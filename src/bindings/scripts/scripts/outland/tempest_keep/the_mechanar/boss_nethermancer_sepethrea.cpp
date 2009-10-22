@@ -22,7 +22,7 @@ SDCategory: Tempest Keep, The Mechanar
 EndScriptData */
 
 #include "precompiled.h"
-#include "def_mechanar.h"
+#include "mechanar.h"
 
 #define SAY_AGGRO                       -1554013
 #define SAY_SUMMON                      -1554014

@@ -1,6 +1,8 @@
 #include "precompiled.h"
-#include "def_culling_of_stratholme.h"
+#include "culling_of_stratholme.h"
+
 #define MAX_ENCOUNTER 5
+
 /* Culling of Stratholme encounters:
 0 - Meathook
 1 - Salramm the Fleshcrafter

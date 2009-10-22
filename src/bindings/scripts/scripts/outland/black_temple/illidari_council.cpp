@@ -22,7 +22,7 @@ SDCategory: Black Temple
 EndScriptData */
 
 #include "precompiled.h"
-#include "def_black_temple.h"
+#include "black_temple.h"
 
 //Speech'n'Sounds
 #define SAY_GATH_SLAY           -1564085

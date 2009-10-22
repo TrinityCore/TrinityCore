@@ -22,7 +22,7 @@ SDCategory: Black Temple
 EndScriptData */
 
 #include "precompiled.h"
-#include "def_black_temple.h"
+#include "black_temple.h"
 
  //Speech'n'sound
 #define SAY_INTRO                       -1564037

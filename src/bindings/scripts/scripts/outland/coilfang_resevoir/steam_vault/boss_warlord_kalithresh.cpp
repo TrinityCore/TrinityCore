@@ -22,7 +22,7 @@ SDCategory: Coilfang Resevoir, The Steamvault
 EndScriptData */
 
 #include "precompiled.h"
-#include "def_steam_vault.h"
+#include "steam_vault.h"
 
 #define SAY_INTRO                   -1545016
 #define SAY_REGEN                   -1545017

@@ -27,7 +27,7 @@ mob_steamrigger_mechanic
 EndContentData */
 
 #include "precompiled.h"
-#include "def_steam_vault.h"
+#include "steam_vault.h"
 
 #define SAY_MECHANICS               -1545007
 #define SAY_AGGRO_1                 -1545008

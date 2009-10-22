@@ -22,7 +22,7 @@ SDCategory: Blackfathom Deeps
 EndScriptData */
 
 #include "precompiled.h"
-#include "def_blackfathom_deeps.h"
+#include "blackfathom_deeps.h"
 
 #define MAX_ENCOUNTER 2
 

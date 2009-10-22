@@ -28,7 +28,7 @@ mob_lesser_shadow_fissure
 EndContentData */
 
 #include "precompiled.h"
-#include "def_shattered_halls.h"
+#include "shattered_halls.h"
 
 struct Say
 {

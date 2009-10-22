@@ -1,5 +1,5 @@
 #include "precompiled.h"
-#include "def_culling_of_stratholme.h"
+#include "culling_of_stratholme.h"
 
 enum Spells
 {

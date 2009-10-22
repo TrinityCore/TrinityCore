@@ -26,7 +26,7 @@ npc_spirit_of_olum
 EndContentData */
 
 #include "precompiled.h"
-#include "def_black_temple.h"
+#include "black_temple.h"
 
 /*###
 # npc_spirit_of_olum

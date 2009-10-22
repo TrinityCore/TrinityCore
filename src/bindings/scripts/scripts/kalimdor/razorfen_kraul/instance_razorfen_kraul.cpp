@@ -22,7 +22,7 @@ SDCategory: Razorfen Kraul
 EndScriptData */
 
 #include "precompiled.h"
-#include "def_razorfen_kraul.h"
+#include "razorfen_kraul.h"
 
 #define WARD_KEEPERS_NR 2
 

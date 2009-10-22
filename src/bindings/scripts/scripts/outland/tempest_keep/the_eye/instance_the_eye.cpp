@@ -22,7 +22,7 @@ SDCategory: Tempest Keep, The Eye
 EndScriptData */
 
 #include "precompiled.h"
-#include "def_the_eye.h"
+#include "the_eye.h"
 
 #define MAX_ENCOUNTER 5
 

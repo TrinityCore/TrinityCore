@@ -27,7 +27,7 @@ mob_coilfang_waterelemental
 EndContentData */
 
 #include "precompiled.h"
-#include "def_steam_vault.h"
+#include "steam_vault.h"
 
 #define SAY_SUMMON                  -1545000
 #define SAY_AGGRO_1                 -1545001

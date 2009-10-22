@@ -22,7 +22,7 @@ SDCategory: Black Temple
 EndScriptData */
 
 #include "precompiled.h"
-#include "def_black_temple.h"
+#include "black_temple.h"
 
 #define SAY_DEATH                   -1564013
 #define SAY_LOW_HEALTH              -1564014
