@@ -30,7 +30,7 @@ update `instance_template` set `script`='instance_blackrock_depths' where `map`=
 */
 
 #include "precompiled.h"
-#include "def_blackrock_depths.h"
+#include "blackrock_depths.h"
 
 #define TIMER_TOMBOFTHESEVEN    15000
 

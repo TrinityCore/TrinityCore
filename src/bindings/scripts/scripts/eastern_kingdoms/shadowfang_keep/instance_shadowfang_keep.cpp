@@ -22,7 +22,7 @@ SDCategory: Shadowfang Keep
 EndScriptData */
 
 #include "precompiled.h"
-#include "def_shadowfang_keep.h"
+#include "shadowfang_keep.h"
 
 #define MAX_ENCOUNTER              4
 

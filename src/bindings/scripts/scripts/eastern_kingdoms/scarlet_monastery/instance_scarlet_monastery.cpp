@@ -22,7 +22,7 @@ SDCategory: Scarlet Monastery
 EndScriptData */
 
 #include "precompiled.h"
-#include "def_scarlet_monastery.h"
+#include "scarlet_monastery.h"
 #include "sc_creature.h"
 
 #define ENTRY_PUMPKIN_SHRINE    186267

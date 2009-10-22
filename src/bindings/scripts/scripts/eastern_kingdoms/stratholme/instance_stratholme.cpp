@@ -22,7 +22,7 @@ SDCategory: Stratholme
 EndScriptData */
 
 #include "precompiled.h"
-#include "def_stratholme.h"
+#include "stratholme.h"
 
 #define GO_SERVICE_ENTRANCE     175368
 #define GO_GAUNTLET_GATE1       175357

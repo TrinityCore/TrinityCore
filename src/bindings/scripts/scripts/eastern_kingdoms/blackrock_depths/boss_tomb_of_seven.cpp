@@ -22,7 +22,7 @@ SDCategory: Blackrock Depths
 EndScriptData */
 
 #include "precompiled.h"
-#include "def_blackrock_depths.h"
+#include "blackrock_depths.h"
 
 enum eEnums
 {
