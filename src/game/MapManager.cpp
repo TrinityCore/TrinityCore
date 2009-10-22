@@ -30,6 +30,7 @@
 #include "Transports.h"
 #include "GridDefines.h"
 #include "MapInstanced.h"
+#include "InstanceData.h"
 #include "DestinationHolderImp.h"
 #include "World.h"
 #include "CellImpl.h"
@@ -228,12 +229,44 @@ bool MapManager::CanPlayerEnter(uint32 mapid, Player* player)
                 sLog.outDebug("Map::CanEnter - player '%s' is dead but doesn't have a corpse!", player->GetName());
             }
         }
-
-        // Requirements
+        
         InstanceTemplate const* instance = objmgr.GetInstanceTemplate(mapid);
         if(!instance)
             return false;
 
+        //Get instance where player's group is bound & its map
+        if (player->GetGroup())
+        {
+            InstanceGroupBind* boundedInstance = player->GetGroup()->GetBoundInstance(mapid, player->GetDifficulty());
+            if (boundedInstance && boundedInstance->save)
+            {
+                Map *boundedMap = MapManager::Instance().FindMap(mapid,boundedInstance->save->GetInstanceId());
+                //Encounters in progress
+                if (boundedMap && ((InstanceMap*)boundedMap)->GetInstanceData() && ((InstanceMap*)boundedMap)->GetInstanceData()->IsEncounterInProgress())
+                {
+                  sLog.outDebug("MAP: Player '%s' can't enter instance '%s' while an encounter is in progress.", player->GetName(), mapName);
+                  player->SendTransferAborted(mapid, TRANSFER_ABORT_ZONE_IN_COMBAT);
+                  return(false);
+                }
+                
+                //Instance is full
+                if (boundedMap)
+                {
+                    Map::PlayerList const &players = boundedMap->GetPlayers();
+                    uint8 count = 0;
+                    for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
+                        ++count;
+                    if (count == player->GetDifficulty() ? instance->maxPlayersHeroic : instance->maxPlayers)
+                    {
+                        sLog.outDebug("MAP: Player '%s' can't enter instance '%s' because it's full.", player->GetName(), mapName);
+                        player->SendTransferAborted(mapid, TRANSFER_ABORT_MAX_PLAYERS);
+                        return(false);
+                    }
+                }
+            }
+        }
+
+        //Other requirements
         return player->Satisfy(objmgr.GetAccessRequirement(instance->access_id), mapid, true);
     }
     else
