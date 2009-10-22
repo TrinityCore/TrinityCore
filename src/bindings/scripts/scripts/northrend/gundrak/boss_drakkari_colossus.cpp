@@ -25,7 +25,7 @@ SDCategory:
 Script Data End */
 
 #include "precompiled.h"
-#include "def_gundrak.h"
+#include "gundrak.h"
 
 enum Spells
 {

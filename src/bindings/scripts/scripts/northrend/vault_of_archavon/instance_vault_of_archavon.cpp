@@ -1,5 +1,5 @@
 #include "precompiled.h"
-#include "def_vault_of_archavon.h"
+#include "vault_of_archavon.h"
 
 #define ENCOUNTERS 2
 

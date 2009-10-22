@@ -17,7 +17,7 @@
  */
 
 #include "precompiled.h"
-#include "def_naxxramas.h"
+#include "naxxramas.h"
 
 #define SPELL_NECROTIC_AURA         55593
 #define SPELL_SUMMON_SPORE          29234

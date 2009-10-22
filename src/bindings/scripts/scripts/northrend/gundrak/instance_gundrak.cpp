@@ -1,5 +1,5 @@
 #include "precompiled.h"
-#include "def_gundrak.h"
+#include "gundrak.h"
 
 #define MAX_ENCOUNTER     5
 

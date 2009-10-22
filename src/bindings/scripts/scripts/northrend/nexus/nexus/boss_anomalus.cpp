@@ -22,7 +22,7 @@ SDCategory: The Nexus, The Nexus
 EndScriptData */
 
 #include "precompiled.h"
-#include "def_nexus.h"
+#include "nexus.h"
 
 bool DeadChaoticRift; // needed for achievement: Chaos Theory(2037)
 

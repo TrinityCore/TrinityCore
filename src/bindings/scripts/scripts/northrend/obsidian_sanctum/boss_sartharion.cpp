@@ -22,7 +22,7 @@ SDCategory: Obsidian Sanctum
 EndScriptData */
 
 #include "precompiled.h"
-#include "def_obsidian_sanctum.h"
+#include "obsidian_sanctum.h"
 
 enum eEnums
 {

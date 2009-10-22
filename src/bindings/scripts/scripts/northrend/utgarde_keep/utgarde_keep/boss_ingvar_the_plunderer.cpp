@@ -24,7 +24,7 @@ SDCategory: Udgarde Keep
 EndScriptData */
 
 #include "precompiled.h"
-#include "def_utgarde_keep.h"
+#include "utgarde_keep.h"
 
 enum eEnums
 {

@@ -10,7 +10,7 @@ Script Data End */
 update creature_template set scriptname = 'boss_ymiron' where entry = '';
 *** SQL END ***/
 #include "precompiled.h"
-#include "def_pinnacle.h"
+#include "utgarde_pinnacle.h"
 
 enum Spells
 {

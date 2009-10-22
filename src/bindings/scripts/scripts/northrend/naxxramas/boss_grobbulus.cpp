@@ -15,7 +15,7 @@
  */
 
 #include "precompiled.h"
-#include "def_naxxramas.h"
+#include "naxxramas.h"
 
 #define SPELL_BOMBARD_SLIME         28280
 

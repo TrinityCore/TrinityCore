@@ -24,7 +24,7 @@ Category:
 EndScriptData */
 
 #include "precompiled.h"
-#include "def_ulduar.h"
+#include "ulduar.h"
 
 //wrong text ids. correct are between -1000000 AND -1999999
 //between -2000000 and -2999999 are custom texts so wtf?

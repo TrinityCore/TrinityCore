@@ -24,7 +24,7 @@ SDCategory: Ahn'kahet
 EndScriptData */
 
 #include "precompiled.h"
-#include "def_ahnkahet.h"
+#include "ahnkahet.h"
 
 bool DeadAhnkaharGuardian; // needed for achievement: Respect Your Elders(2038)
 

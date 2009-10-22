@@ -10,7 +10,7 @@ Script Data End */
 update creature_template set scriptname = 'boss_skadi' where entry = '';
 *** SQL END ***/
 #include "precompiled.h"
-#include "def_pinnacle.h"
+#include "utgarde_pinnacle.h"
 
 //Phase 0 "gauntlet even" Skadi on a flying mount, waves of adds charging to the group periodicaly carrying harpoons
 //Phase 1 Kill the Skadi drake mount with harppons launcher

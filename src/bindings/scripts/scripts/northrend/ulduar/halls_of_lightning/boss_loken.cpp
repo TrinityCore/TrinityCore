@@ -22,7 +22,7 @@ SDCategory: Halls of Lightning
 EndScriptData */
 
 #include "precompiled.h"
-#include "def_halls_of_lightning.h"
+#include "halls_of_lightning.h"
 
 #define MAX_ENCOUNTER_TIME  2 * 60 * 1000
 

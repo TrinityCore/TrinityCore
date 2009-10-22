@@ -24,7 +24,7 @@ SDCategory: Utgarde Keep
 EndScriptData */
 
 #include "precompiled.h"
-#include "def_utgarde_keep.h"
+#include "utgarde_keep.h"
 
 #define MAX_ENCOUNTER     3
 

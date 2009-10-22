@@ -17,7 +17,7 @@
  */
 
 #include "precompiled.h"
-#include "def_utgarde_keep.h"
+#include "utgarde_keep.h"
 
 uint32 entry_search[3] =
 {

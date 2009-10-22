@@ -25,7 +25,7 @@ EndScriptData */
 
 
 #include "precompiled.h"
-#include "def_azjol_nerub.h"
+#include "azjol_nerub.h"
 
 enum Spells
 {

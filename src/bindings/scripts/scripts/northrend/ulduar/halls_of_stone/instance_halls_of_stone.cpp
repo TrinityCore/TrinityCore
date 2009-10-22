@@ -1,5 +1,5 @@
 #include "precompiled.h"
-#include "def_halls_of_stone.h"
+#include "halls_of_stone.h"
 
 #define MAX_ENCOUNTER 4
 

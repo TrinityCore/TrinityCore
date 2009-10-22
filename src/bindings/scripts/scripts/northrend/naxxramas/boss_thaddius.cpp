@@ -17,7 +17,7 @@
  */
 
 #include "precompiled.h"
-#include "def_naxxramas.h"
+#include "naxxramas.h"
 
 //Stalagg
 #define SAY_STAL_AGGRO          -1533023 //not used
