@@ -24,7 +24,7 @@ SQLUpdate:
 EndScriptData */
 
 #include "precompiled.h"
-#include "def_zulaman.h"
+#include "zulaman.h"
 #include "Weather.h"
 
 #define SPELL_STATIC_DISRUPTION     43622

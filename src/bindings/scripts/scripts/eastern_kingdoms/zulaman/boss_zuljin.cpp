@@ -21,7 +21,7 @@ SDComment:
 EndScriptData */
 
 #include "precompiled.h"
-#include "def_zulaman.h"
+#include "zulaman.h"
 
 //Speech
 #define YELL_TRANSFORM_TO_LYNX "Let me introduce to you my new bruddahs: fang and claw!"

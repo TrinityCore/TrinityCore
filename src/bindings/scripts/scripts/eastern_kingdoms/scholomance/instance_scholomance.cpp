@@ -22,7 +22,7 @@ SDCategory: Scholomance
 EndScriptData */
 
 #include "precompiled.h"
-#include "def_scholomance.h"
+#include "scholomance.h"
 
 #define GO_GATE_KIRTONOS    175570
 #define GO_GATE_GANDLING    177374

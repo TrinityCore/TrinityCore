@@ -21,7 +21,7 @@ SDComment:
 EndScriptData */
 
 #include "precompiled.h"
-#include "def_sunwell_plateau.h"
+#include "sunwell_plateau.h"
 
 enum Quotes
 {

@@ -22,7 +22,7 @@ SDCategory: Karazhan
 EndScriptData */
 
 #include "precompiled.h"
-#include "def_karazhan.h"
+#include "karazhan.h"
 
 #define EMOTE_PHASE_PORTAL          -1532089
 #define EMOTE_PHASE_BANISH          -1532090

@@ -10,7 +10,7 @@ SDCategory: Sunwell_Plateau
 EndScriptData */
 
 #include "precompiled.h"
-#include "def_sunwell_plateau.h"
+#include "sunwell_plateau.h"
 
 #define MAX_ENCOUNTER 6
 

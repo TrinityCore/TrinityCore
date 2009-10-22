@@ -29,7 +29,7 @@ mobs_spectral_ghostly_citizen
 EndContentData */
 
 #include "precompiled.h"
-#include "def_stratholme.h"
+#include "stratholme.h"
 
 /*######
 ## go_gauntlet_gate (this is the _first_ of the gauntlet gates, two exist)

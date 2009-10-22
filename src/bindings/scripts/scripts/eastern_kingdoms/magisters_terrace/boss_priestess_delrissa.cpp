@@ -22,7 +22,7 @@ SDCategory: Magister's Terrace
 EndScriptData */
 
 #include "precompiled.h"
-#include "def_magisters_terrace.h"
+#include "magisters_terrace.h"
 
 struct Speech
 {

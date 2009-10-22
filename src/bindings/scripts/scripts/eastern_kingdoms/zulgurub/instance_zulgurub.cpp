@@ -22,7 +22,7 @@ SDCategory: Zul'Gurub
 EndScriptData */
 
 #include "precompiled.h"
-#include "def_zulgurub.h"
+#include "zulgurub.h"
 
 struct TRINITY_DLL_DECL instance_zulgurub : public ScriptedInstance
 {

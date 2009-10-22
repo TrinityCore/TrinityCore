@@ -26,7 +26,7 @@ npc_forest_frog
 EndContentData */
 
 #include "precompiled.h"
-#include "def_zulaman.h"
+#include "zulaman.h"
 
 /*######
 ## npc_forest_frog

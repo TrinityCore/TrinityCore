@@ -22,7 +22,7 @@ SDCategory: Zul'Gurub
 EndScriptData */
 
 #include "precompiled.h"
-#include "def_zulgurub.h"
+#include "zulgurub.h"
 
 #define SAY_TRANSFORM       -1309000
 #define SAY_DEATH           -1309001

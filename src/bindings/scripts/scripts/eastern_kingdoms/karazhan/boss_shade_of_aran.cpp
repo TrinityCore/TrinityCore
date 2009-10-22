@@ -23,7 +23,7 @@ EndScriptData */
 
 #include "precompiled.h"
 #include "simple_ai.h"
-#include "def_karazhan.h"
+#include "karazhan.h"
 #include "GameObject.h"
 
 #define SAY_AGGRO1                  -1532073

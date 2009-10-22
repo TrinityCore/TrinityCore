@@ -25,7 +25,7 @@ EndScriptData */
 //TODO Remove blue visual from Orbs on reset and if it is used
 
 #include "precompiled.h"
-#include "def_sunwell_plateau.h"
+#include "sunwell_plateau.h"
 #include <math.h>
 
 /*** Speech and sounds***/

@@ -22,7 +22,7 @@ SDCategory: Zul'Gurub
 EndScriptData */
 
 #include "precompiled.h"
-#include "def_zulgurub.h"
+#include "zulgurub.h"
 
 #define SAY_AGGRO               -1309009
 #define SAY_DEATH               -1309010

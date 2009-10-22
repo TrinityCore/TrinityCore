@@ -22,7 +22,7 @@ SDCategory: Zul'Aman
 EndScriptData */
 
 #include "precompiled.h"
-#include "def_zulaman.h"
+#include "zulaman.h"
 //#include "spell.h"
 
 #define YELL_AGGRO "Get on your knees and bow to da fang and claw!"

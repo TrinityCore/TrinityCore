@@ -23,7 +23,7 @@ EndScriptData */
 
 #include "precompiled.h"
 #include "SpellMgr.h"
-#include "def_scarlet_monastery.h"
+#include "scarlet_monastery.h"
 
 //this texts are already used by 3975 and 3976
 #define SAY_ENTRANCE                -1189001
