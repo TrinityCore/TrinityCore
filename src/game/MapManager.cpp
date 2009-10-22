@@ -240,18 +240,26 @@ bool MapManager::CanPlayerEnter(uint32 mapid, Player* player)
             InstanceGroupBind* boundedInstance = player->GetGroup()->GetBoundInstance(mapid, player->GetDifficulty());
             if (boundedInstance && boundedInstance->save)
             {
-                Map *boundedMap = MapManager::Instance().FindMap(mapid,boundedInstance->save->GetInstanceId());
-                //Encounters in progress
-                if (boundedMap && ((InstanceMap*)boundedMap)->GetInstanceData() && ((InstanceMap*)boundedMap)->GetInstanceData()->IsEncounterInProgress())
+                if (Map *boundedMap = MapManager::Instance().FindMap(mapid,boundedInstance->save->GetInstanceId()))
                 {
-                  sLog.outDebug("MAP: Player '%s' can't enter instance '%s' while an encounter is in progress.", player->GetName(), mapName);
-                  player->SendTransferAborted(mapid, TRANSFER_ABORT_ZONE_IN_COMBAT);
-                  return(false);
-                }
-                
-                //Instance is full
-                if (boundedMap)
-                {
+                    //Player permanently bounded to different instance than groups one
+                    InstancePlayerBind* playerBoundedInstance = player->GetBoundInstance(mapid, player->GetDifficulty());
+                    if (playerBoundedInstance && playerBoundedInstance->perm && playerBoundedInstance->save &&
+                        boundedInstance->save->GetInstanceId() != playerBoundedInstance->save->GetInstanceId())
+                    {
+                        //TODO: send some kind of error message to the player
+                        return false;
+                    }
+                    
+                    //Encounters in progress
+                    if (((InstanceMap*)boundedMap)->GetInstanceData() && ((InstanceMap*)boundedMap)->GetInstanceData()->IsEncounterInProgress())
+                    {
+                        sLog.outDebug("MAP: Player '%s' can't enter instance '%s' while an encounter is in progress.", player->GetName(), mapName);
+                        player->SendTransferAborted(mapid, TRANSFER_ABORT_ZONE_IN_COMBAT);
+                        return(false);
+                    }
+                    
+                    //Instance is full
                     int8 maxPlayers = (player->GetDifficulty() == DIFFICULTY_HEROIC) ? instance->maxPlayersHeroic : instance->maxPlayers;
                     if (maxPlayers != -1) //-1: unlimited access
                     {
