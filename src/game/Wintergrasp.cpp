@@ -36,7 +36,8 @@ enum CreatureEntry
 {
     CRE_ENG_A = 30499,
     CRE_ENG_H = 30400,
-    SPIRIT_HEALER = 6491,
+    CRE_SPI_A = 31842,
+    CRE_SPI_H = 31841,
 };
 
 const TeamPair CreatureEntryPair[] =
@@ -52,14 +53,14 @@ const TeamPair CreatureEntryPair[] =
     {31053, 31054}, // Primalist & Anchorite
     {31091, 31036}, // Commander
     {32615, 32626}, // Warbringer & Brigadier General
-    {0,0}
+    {0,0} // Do not delete Used in LoadTeamPair
 };
 
 const TeamPair GODisplayPair[] =
 {
     {5651, 5652},
     {8256, 8257},
-    {0,0}
+    {0,0} // Do not delete Used in LoadTeamPair
 };
 
 void LoadTeamPair(TeamPairMap &pairMap, const TeamPair *pair)
@@ -72,9 +73,21 @@ void LoadTeamPair(TeamPairMap &pairMap, const TeamPair *pair)
     }
 }
 
+void RespawnCreatureIfNeeded(Creature *cr, uint32 guid)
+{
+    if (cr)
+    {
+        cr->SetOriginalEntry(guid);
+        if (guid != cr->GetEntry() || !cr->isAlive())
+            cr->Respawn(true);
+        cr->SetVisibility(VISIBILITY_ON);
+    }
+}
+
 #define REMOVE_WARTIME_AURAS(p) (p)->RemoveAura(SPELL_RECRUIT);\
     (p)->RemoveAura(SPELL_CORPORAL);(p)->RemoveAura(SPELL_LIEUTENANT);\
-    (p)->RemoveAura(SPELL_TOWER_CONTROL);(p)->RemoveAura(SPELL_RULLERS_OF_WG)
+    (p)->RemoveAura(SPELL_TOWER_CONTROL);(p)->RemoveAura(SPELL_RULLERS_OF_WG);\
+    (p)->RemoveAura(SPELL_SPIRITUAL_IMMUNITY)
 #define REMOVE_TENACITY_AURA(p) CastTenacity(p, 0)
 
 // Visual defines, easier to understand code
@@ -86,6 +99,8 @@ typedef std::list<const AreaPOIEntry *> AreaPOIList;
 OPvPWintergrasp::OPvPWintergrasp()
 {
     m_TypeId = OPVP_WINTERGRASP;
+
+    m_LastResurrectTime = 0; // Temporal copy of BG system till 3.2
 }
 
 bool OPvPWintergrasp::SetupOutdoorPvP()
@@ -99,6 +114,36 @@ bool OPvPWintergrasp::SetupOutdoorPvP()
     m_workshopCount[TEAM_HORDE] = 0;
     m_tenacityStack = 0;
     m_gate = NULL;
+
+    std::list<uint32> engGuids;
+    std::list<uint32> spiritGuids;
+
+    // Store Eng and spirit guide guids for later use
+    QueryResult *result = WorldDatabase.PQuery("SELECT guid, id FROM creature"
+        " WHERE creature.map=571 AND creature.id IN (%u, %u, %u, %u);",
+        CRE_ENG_A, CRE_ENG_H, CRE_SPI_A, CRE_SPI_H);
+
+    if (!result)
+        sLog.outError("Cannot find siege workshop master or spirit guides in creature!");
+    else
+    {
+        do
+        {
+            Field *fields = result->Fetch();
+            switch(fields[1].GetUInt32())
+            {
+                case CRE_ENG_A:
+                case CRE_ENG_H:
+                    engGuids.push_back(fields[0].GetUInt32());
+                    break;
+                case CRE_SPI_A:
+                case CRE_SPI_H:
+                    spiritGuids.push_back(fields[0].GetUInt32());
+                    break;
+            }
+        }while(result->NextRow());
+        delete result;
+    }
 
     // Select POI
     AreaPOIList areaPOIs;
@@ -118,7 +163,7 @@ bool OPvPWintergrasp::SetupOutdoorPvP()
     minX -= 20; minY -= 20; maxX += 20; maxY += 20;
 
     // Coords: 4290.330078, 1790.359985 - 5558.379883, 4048.889893
-    QueryResult *result = WorldDatabase.PQuery("SELECT guid FROM gameobject,gameobject_template"
+    result = WorldDatabase.PQuery("SELECT guid FROM gameobject,gameobject_template"
         " WHERE gameobject.map=571"
         " AND gameobject.position_x>%f AND gameobject.position_y>%f"
         " AND gameobject.position_x<%f AND gameobject.position_y<%f"
@@ -179,27 +224,16 @@ bool OPvPWintergrasp::SetupOutdoorPvP()
                 capturePointEntry = 190487;
                 break;
         }
-        // TODO - Get Engs from DB only 1 time, not 6
+
         if (capturePointEntry)
         {
             uint32 engGuid = 0;
-
-            QueryResult *result = WorldDatabase.PQuery("SELECT guid FROM creature"
-                " WHERE creature.map=571"
-                " AND creature.id IN (%u, %u);", CRE_ENG_A, CRE_ENG_H);
-
-            if (!result)
-            {
-                sLog.outError("Cannot find siege workshop master in creature!");
-                continue;
-            }
-
+            uint32 spiritGuid = 0;
+            // Find closest Eng to Workshop
             float minDist = 100;
-            do
+            for (std::list<uint32>::iterator itr = engGuids.begin(); itr != engGuids.end(); ++itr)
             {
-                Field *fields = result->Fetch();
-                uint32 guid = fields[0].GetUInt32();
-                const CreatureData *creData = objmgr.GetCreatureData(guid);
+                const CreatureData *creData = objmgr.GetCreatureData(*itr);
                 if (!creData)
                     continue;
 
@@ -207,41 +241,73 @@ bool OPvPWintergrasp::SetupOutdoorPvP()
                 if (minDist > dist)
                 {
                     minDist = dist;
-                    engGuid = guid;
+                    engGuid = *itr;
                 }
-            }while(result->NextRow());
-            delete result;
+            }
 
             if (!engGuid)
             {
                 sLog.outError("Cannot find nearby siege workshop master!");
                 continue;
             }
+            else
+                engGuids.remove(engGuid);
+            // Find closest Spirit Guide to Workshop
+            minDist = 255;
+            for (std::list<uint32>::iterator itr = spiritGuids.begin(); itr != spiritGuids.end(); ++itr)
+            {
+                const CreatureData *creData = objmgr.GetCreatureData(*itr);
+                if (!creData)
+                    continue;
 
+                float dist = (abs(creData->posX - x) + abs(creData->posY - y));
+                if (minDist > dist)
+                {
+                    minDist = dist;
+                    spiritGuid = *itr;
+                }
+            }
+
+            // Inside fortress won't be capturable
             SiegeWorkshop *workshop = new SiegeWorkshop(this, m_buildingStates[guid]);
-            if (!workshop->SetCapturePointData(capturePointEntry, goData->mapid, goData->posX + 40 * cos(goData->orientation + M_PI / 2), goData->posY + 40 * sin(goData->orientation + M_PI / 2), goData->posZ))
+            if (goData->posX < POS_X_CENTER && !workshop->SetCapturePointData(capturePointEntry, goData->mapid, goData->posX + 40 * cos(goData->orientation + M_PI / 2), goData->posY + 40 * sin(goData->orientation + M_PI / 2), goData->posZ))
             {
                 delete workshop;
                 sLog.outError("Cannot add capture point!");
                 continue;
             }
+
             const CreatureData *creData = objmgr.GetCreatureData(engGuid);
             if (!creData)
                 continue;
 
             workshop->m_engEntry = const_cast<uint32*>(&creData->id);
             const_cast<CreatureData*>(creData)->displayid = 0;
-            workshop->m_workshopGuid = guid;
             workshop->m_engGuid = engGuid;
-            //workshop->AddGO(0, guid, goData->id);
-            //workshop->AddCre(0, engGuid, creData->id);
-            //sLog.outDebug("Demolisher Engineerer lowguid %u is linked to workshop lowguid %u.", engGuid, guid);
+
+            // Back spirit is linked to one of the inside workshops, 1 workshop wont have spirit
+            if (spiritGuid)
+            {
+                spiritGuids.remove(spiritGuid);
+
+                const CreatureData *spiritData = objmgr.GetCreatureData(spiritGuid);
+                if (!spiritData)
+                    continue;
+
+                workshop->m_spiEntry = const_cast<uint32*>(&spiritData->id);
+                const_cast<CreatureData*>(spiritData)->displayid = 0;
+                workshop->m_spiGuid = spiritGuid;
+            }
+            workshop->m_workshopGuid = guid;
             AddCapturePoint(workshop);
             m_buildingStates[guid]->type = BUILDING_WORKSHOP;
             workshop->SetTeamByBuildingState();
         }
     }while(result->NextRow());
     delete result;
+
+    engGuids.clear();
+    spiritGuids.clear();
 
     if (!m_gate)
     {
@@ -446,6 +512,11 @@ WintergraspCreType OPvPWintergrasp::GetCreatureType(uint32 entry) const
         case 30739:case 30740: // Champions
         case 32307:case 32308: // Guards
             return CREATURE_GUARD;
+        case CRE_SPI_A: // Dwarven Spirit Guide
+        case CRE_SPI_H: // Taunka Spirit Guide
+            return CREATURE_SPIRIT_GUIDE;
+        case 6491: // Spirit Healers
+            return CREATURE_SPIRIT_HEALER;
         case 31101:case 31051: // Hoodoo Master & Sorceress
         case 31102:case 31052: // Vieron Blazefeather & Bowyer
         case 31107:case 31109: // Lieutenant & Senior Demolitionist
@@ -456,8 +527,6 @@ WintergraspCreType OPvPWintergrasp::GetCreatureType(uint32 entry) const
         case 32615:case 32626: // Warbringer && Brigadier General
         case 32296:case 32294: // Quartermaster
         case 30870:case 30869: // Flight Masters
-        case 31841:case 31842: // Spirit Guides
-        case SPIRIT_HEALER:    // Spirit Healers
             return CREATURE_SPECIAL;
         default:
             return CREATURE_OTHER; // Revenants, Elementals, etc
@@ -537,6 +606,18 @@ void OPvPWintergrasp::OnCreatureCreate(Creature *creature, bool add)
                     }
             }
             break;
+        case CREATURE_SPIRIT_GUIDE:
+            for (OutdoorPvP::OPvPCapturePointMap::iterator itr = m_capturePoints.begin(); itr != m_capturePoints.end(); ++itr)
+            {
+                if (SiegeWorkshop *workshop = dynamic_cast<SiegeWorkshop*>(itr->second))
+                    if (workshop->m_spiGuid == creature->GetDBTableGUIDLow())
+                    {
+                        workshop->m_spiritguide = add ? creature : NULL;
+                        break;
+                    }
+            }
+            creature->CastSpell(creature, SPELL_SPIRITUAL_IMMUNITY, true);
+        case CREATURE_SPIRIT_HEALER:
         case CREATURE_TURRET:
         case CREATURE_OTHER:
             UpdateCreatureInfo(creature);
@@ -696,22 +777,36 @@ bool OPvPWintergrasp::UpdateCreatureInfo(Creature *creature) const
                 creature->SetVisibility(VISIBILITY_ON);
             }
             return false;
+        case CREATURE_SPIRIT_GUIDE:
+            if (isWarTime())
+            {
+                creature->SetVisibility(VISIBILITY_ON);
+                //creature->setDeathState(ALIVE);
+            }
+            else
+            {
+                creature->SetVisibility(VISIBILITY_OFF);
+                //creature->setDeathState(DEAD);
+            }
+            return false;
+        case CREATURE_SPIRIT_HEALER:
+            creature->SetVisibility(isWarTime() ? VISIBILITY_OFF : VISIBILITY_ON);
+            return false;
         case CREATURE_ENGINEER:
             return false;
         case CREATURE_SIEGE_VEHICLE:
             creature->DisappearAndDie();
             return false;
+        case CREATURE_GUARD:
+        case CREATURE_SPECIAL:
+            TeamPairMap::const_iterator itr = m_creEntryPair.find(creature->GetCreatureData()->id);
+            if (itr != m_creEntryPair.end())
+            {
+                entry = getDefenderTeam() == TEAM_ALLIANCE ? itr->second : itr->first;
+                RespawnCreatureIfNeeded(creature, entry);
+            }
+            return false;
     }
-
-    TeamPairMap::const_iterator itr = m_creEntryPair.find(creature->GetCreatureData()->id);
-    if (itr != m_creEntryPair.end())
-    {
-        entry = getDefenderTeam() == TEAM_ALLIANCE ? itr->second : itr->first;
-        creature->SetOriginalEntry(entry);
-        if (entry != creature->GetEntry() || !creature->isAlive())
-            creature->Respawn(true);
-    }
-    return false;
 }
 
 // Return false = Need to rebuild at battle End/Start
@@ -766,10 +861,12 @@ bool OPvPWintergrasp::UpdateGameObjectInfo(GameObject *go) const
 
 void OPvPWintergrasp::HandlePlayerEnterZone(Player * plr, uint32 zone)
 {
-    if (!isWarTime() && (plr->GetTeamId() == getDefenderTeam()))
-        plr->CastSpell(plr,SPELL_ESSENCE_OF_WG,true);
-
-    if (isWarTime() && !plr->HasAura(SPELL_RECRUIT) && !plr->HasAura(SPELL_CORPORAL)
+    if (!isWarTime())
+    {
+        if (plr->GetTeamId() == getDefenderTeam())
+            plr->CastSpell(plr,SPELL_ESSENCE_OF_WG, true);
+    }
+    else if (!plr->HasAura(SPELL_RECRUIT) && !plr->HasAura(SPELL_CORPORAL)
         && !plr->HasAura(SPELL_LIEUTENANT))
         plr->CastSpell(plr, SPELL_RECRUIT, true);
 
@@ -778,7 +875,7 @@ void OPvPWintergrasp::HandlePlayerEnterZone(Player * plr, uint32 zone)
     UpdateTenacityStack();
 }
 
-// Reapply Tenacity if needed
+// Reapply Auras if needed
 void OPvPWintergrasp::HandlePlayerResurrects(Player * plr, uint32 zone)
 {
     if (isWarTime())
@@ -978,23 +1075,6 @@ void OPvPWintergrasp::UpdateTenacityStack()
     }
 }
 
-void OPvPWintergrasp::VehicleCastSpell(TeamId team, int32 spellId) const
-{
-    if (spellId > 0)
-        for (CreatureSet::const_iterator itr = m_vehicles[team].begin(); itr != m_vehicles[team].end(); ++itr)
-            (*itr)->CastSpell(*itr, (uint32)spellId, true);
-    else
-        for (CreatureSet::const_iterator itr = m_vehicles[team].begin(); itr != m_vehicles[team].end(); ++itr)
-            (*itr)->RemoveAura((uint32)-spellId); // by stack?
-}
-
-void OPvPWintergrasp::LieutenantCastSpell(TeamId team, int32 spellId) const
-{
-    for (PlayerSet::const_iterator itr = m_players[team].begin(); itr != m_players[team].end(); ++itr)
-        if ((*itr)->HasAura(SPELL_LIEUTENANT) && ((*itr)->getLevel() > 69))
-            (*itr)->CastSpell(*itr, (uint32)spellId, true);
-}
-
 void OPvPWintergrasp::UpdateClockDigit(uint32 &timer, uint32 digit, uint32 mod)
 {
     uint32 value = timer%mod;
@@ -1027,8 +1107,66 @@ bool OPvPWintergrasp::Update(uint32 diff)
         m_timer -= diff;
 
         if (isWarTime())
+        {
             OutdoorPvP::Update(diff); // update capture points
 
+            /*********************************************************/
+            /***        BATTLEGROUND RESSURECTION SYSTEM           ***/
+            /*********************************************************/
+
+            //this should be handled by spell system
+            m_LastResurrectTime += diff;
+            if (m_LastResurrectTime >= RESURRECTION_INTERVAL)
+            {
+                if (GetReviveQueueSize())
+                {
+                    for (std::map<uint64, std::vector<uint64> >::iterator itr = m_ReviveQueue.begin(); itr != m_ReviveQueue.end(); ++itr)
+                    {
+                        Creature *sh = NULL;
+                        for (std::vector<uint64>::const_iterator itr2 = (itr->second).begin(); itr2 != (itr->second).end(); ++itr2)
+                        {
+                            Player *plr = objmgr.GetPlayer(*itr2);
+                            if (!plr)
+                                continue;
+
+                            if (!sh && plr->IsInWorld())
+                            {
+                                sh = plr->GetMap()->GetCreature(itr->first);
+                                // only for visual effect
+                                if (sh)
+                                    // Spirit Heal, effect 117
+                                    sh->CastSpell(sh, SPELL_SPIRIT_HEAL, true);
+                            }
+
+                            // Resurrection visual
+                            plr->CastSpell(plr, SPELL_RESURRECTION_VISUAL, true);
+                            m_ResurrectQueue.push_back(*itr2);
+                        }
+                        (itr->second).clear();
+                    }
+
+                    m_ReviveQueue.clear();
+                    m_LastResurrectTime = 0;
+                }
+                else
+                    // queue is clear and time passed, just update last resurrection time
+                    m_LastResurrectTime = 0;
+            }
+            else if (m_LastResurrectTime > 500)    // Resurrect players only half a second later, to see spirit heal effect on NPC
+            {
+                for (std::vector<uint64>::const_iterator itr = m_ResurrectQueue.begin(); itr != m_ResurrectQueue.end(); ++itr)
+                {
+                    Player *plr = objmgr.GetPlayer(*itr);
+                    if (!plr)
+                        continue;
+                    plr->ResurrectPlayer(1.0f);
+                    plr->CastSpell(plr, 6962, true);
+                    plr->CastSpell(plr, SPELL_SPIRIT_HEAL_MANA, true);
+                    ObjectAccessor::Instance().ConvertCorpseForPlayer(*itr);
+                }
+                m_ResurrectQueue.clear();
+            }
+        }
         UpdateClock();
     }
     else
@@ -1080,10 +1218,12 @@ void OPvPWintergrasp::StartBattle()
     // Add recruit Aura, Add Tenacity
     TeamCastSpell(getDefenderTeam(), SPELL_RECRUIT);
     TeamCastSpell(getAttackerTeam(), SPELL_RECRUIT);
+    // Add Towert Control to attackers
     for (PlayerSet::iterator itr = m_players[getAttackerTeam()].begin(); itr != m_players[getAttackerTeam()].end(); ++itr)
         if ((*itr)->getLevel() > 69)
             (*itr)->SetAuraStack(SPELL_TOWER_CONTROL, (*itr), 3);
     UpdateTenacityStack();
+    // Remove non wartime auras
     TeamCastSpell(getDefenderTeam(),-SPELL_ESSENCE_OF_WG);
 }
 
@@ -1307,13 +1447,84 @@ SiegeWorkshop *OPvPWintergrasp::GetWorkshopByGOGuid(uint32 lowguid) const
     return NULL;
 }
 
+/*########################################################
+ * Copy of Battleground system to make Spirit Guides Work
+ *#######################################################*/
+void OPvPWintergrasp::SendAreaSpiritHealerQueryOpcode(Player *pl, const uint64& guid)
+{
+    WorldPacket data(SMSG_AREA_SPIRIT_HEALER_TIME, 12);
+    uint32 time_ = 30000 - GetLastResurrectTime();      // resurrect every 30 seconds
+    if (time_ == uint32(-1))
+        time_ = 0;
+    data << guid << time_;
+    pl->GetSession()->SendPacket(&data);
+}
+
+void OPvPWintergrasp::AddPlayerToResurrectQueue(uint64 npc_guid, uint64 player_guid)
+{
+    m_ReviveQueue[npc_guid].push_back(player_guid);
+
+    Player *plr = objmgr.GetPlayer(player_guid);
+    if (!plr)
+        return;
+
+    plr->CastSpell(plr, SPELL_WAITING_FOR_RESURRECT, true);
+}
+
+void OPvPWintergrasp::RemovePlayerFromResurrectQueue(uint64 player_guid)
+{
+    for (std::map<uint64, std::vector<uint64> >::iterator itr = m_ReviveQueue.begin(); itr != m_ReviveQueue.end(); ++itr)
+    {
+        for (std::vector<uint64>::iterator itr2 =(itr->second).begin(); itr2 != (itr->second).end(); ++itr2)
+        {
+            if (*itr2 == player_guid)
+            {
+                (itr->second).erase(itr2);
+
+                Player *plr = objmgr.GetPlayer(player_guid);
+                if (!plr)
+                    return;
+
+                plr->RemoveAurasDueToSpell(SPELL_WAITING_FOR_RESURRECT);
+
+                return;
+            }
+        }
+    }
+}
+
+void OPvPWintergrasp::RelocateDeadPlayers(Creature *cr)
+{
+    if (!cr || GetCreatureType(cr->GetEntry()) != CREATURE_SPIRIT_GUIDE)
+        return;
+
+    // Those who are waiting to resurrect at this node are taken to the closest own node's graveyard
+    std::vector<uint64> ghost_list = m_ReviveQueue[cr->GetGUID()];
+    if (!ghost_list.empty())
+    {
+        WorldSafeLocsEntry const *ClosestGrave = NULL;
+        for (std::vector<uint64>::const_iterator itr = ghost_list.begin(); itr != ghost_list.end(); ++itr)
+        {
+            Player* plr = objmgr.GetPlayer(*itr);
+            if (!plr)
+                continue;
+
+            if (!ClosestGrave)
+                ClosestGrave = objmgr.GetClosestGraveYard(plr->GetPositionX(), plr->GetPositionY(), plr->GetPositionZ(), plr->GetMapId(), plr->GetTeam());
+
+            if (ClosestGrave)
+                plr->TeleportTo(plr->GetMapId(), ClosestGrave->x, ClosestGrave->y, ClosestGrave->z, plr->GetOrientation());
+        }
+    }
+}
+
 /*######
 ##SiegeWorkshop
 ######*/
 
 SiegeWorkshop::SiegeWorkshop(OPvPWintergrasp *opvp, BuildingState *state)
 : OPvPCapturePoint(opvp), m_buildingState(state), m_wintergrasp(opvp)
-, m_engineer(NULL), m_engGuid(0)
+, m_engineer(NULL), m_engGuid(0), m_spiritguide(NULL), m_spiGuid(0)
 {
 }
 
@@ -1348,15 +1559,20 @@ void SiegeWorkshop::SetTeamByBuildingState()
 void SiegeWorkshop::ChangeTeam(TeamId oldTeam)
 {
     uint32 entry = 0;
+    uint32 guide_entry = 0;
+
     if (oldTeam != TEAM_NEUTRAL)
         m_wintergrasp->ModifyWorkshopCount(oldTeam, false);
+
     if (m_team != TEAM_NEUTRAL)
     {
         entry = m_team == TEAM_ALLIANCE ? CRE_ENG_A : CRE_ENG_H;
+        guide_entry = m_team == TEAM_ALLIANCE ? CRE_SPI_A : CRE_SPI_H;
         m_wintergrasp->ModifyWorkshopCount(m_team, true);
     }
 
-    GameObject::SetGoArtKit(CapturePointArtKit[m_team], m_capturePoint, m_capturePointGUID);
+    if (m_capturePoint)
+        GameObject::SetGoArtKit(CapturePointArtKit[m_team], m_capturePoint, m_capturePointGUID);
 
     m_buildingState->SetTeam(m_team);
     // TODO: this may be sent twice
@@ -1367,17 +1583,16 @@ void SiegeWorkshop::ChangeTeam(TeamId oldTeam)
 
     if (entry)
     {
-        *m_engEntry = entry;
-
         if (m_engineer)
         {
-            m_engineer->SetOriginalEntry(entry);
-            if (entry != m_engineer->GetEntry() || !m_engineer->isAlive())
-            {
-                m_engineer->Respawn(true);
-                //DespawnAllVehicles();
-            }
-            m_engineer->SetVisibility(VISIBILITY_ON);
+            *m_engEntry = entry;
+            RespawnCreatureIfNeeded(m_engineer, entry);
+        }
+        if (m_spiritguide)
+        {
+            *m_spiEntry = guide_entry;
+            RespawnCreatureIfNeeded(m_spiritguide, guide_entry);
+            m_wintergrasp->RelocateDeadPlayers(m_spiritguide);
         }
     }
     else if (m_engineer)
