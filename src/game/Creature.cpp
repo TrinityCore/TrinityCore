@@ -2185,6 +2185,12 @@ bool Creature::CanAssistTo(const Unit* u, const Unit* enemy, bool checkfaction /
 // friendlies and other mobs they shouldn't attack
 bool Creature::_IsTargetAcceptable(const Unit *target) const
 {
+    assert(target);
+
+    // if the target or myself are unattackable, the target is not acceptable
+    if (!isAttackableByAOE() || !target->isAttackableByAOE())
+        return false;
+
     const Unit *myVictim = getAttackerForHelper();
 
     // if I'm already fighting target, the target is acceptable
@@ -2202,6 +2208,7 @@ bool Creature::_IsTargetAcceptable(const Unit *target) const
         return false;
 
     // if the target's victim is friendly, and the target is neutral, the target is acceptable
+    // NOTE: !IsHostileTo(target) is true at this point
     if (IsFriendlyTo(targetVictim) && !IsFriendlyTo(target))
         return true;
 
