@@ -7631,8 +7631,20 @@ bool Unit::HandleProcTriggerSpell(Unit *pVictim, uint32 damage, AuraEffect* trig
 
     // Blade Barrier
     if (auraSpellInfo->SpellFamilyName == SPELLFAMILY_DEATHKNIGHT && auraSpellInfo->SpellIconID == 85)
+    {
         if (this->GetTypeId() != TYPEID_PLAYER || !((Player*)this)->IsBaseRuneSlotsOnCooldown(RUNE_BLOOD))
             return false;
+    }
+
+    // Rime
+    else if (auraSpellInfo->SpellFamilyName == SPELLFAMILY_DEATHKNIGHT && auraSpellInfo->SpellIconID == 56)
+    {
+        if (GetTypeId() != TYPEID_PLAYER)
+            return false;
+
+        // Howling Blast
+        ((Player*)this)->RemoveSpellCategoryCooldown(1248, true);
+    }
 
     // Custom basepoints/target for exist spell
     // dummy basepoints or other customs
