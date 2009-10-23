@@ -3038,6 +3038,16 @@ void AuraEffect::HandleAuraDummy(bool apply, bool Real, bool changeAmount)
                     }
                     return;
                 }
+                case 57723: // Exhaustion
+                case 57724: // Sated
+                {
+                    switch(GetId())
+                    {
+                        case 57723: m_target->ApplySpellImmune(GetId(), IMMUNITY_ID, 32182, apply); break; // Heroism
+                        case 57724: m_target->ApplySpellImmune(GetId(), IMMUNITY_ID, 2825, apply);  break; // Bloodlust
+                    }
+                    return;
+                }
                 case 57819: // Argent Champion
                 case 57820: // Ebon Champion
                 case 57821: // Champion of the Kirin Tor
