@@ -20,7 +20,7 @@
 SDName: Boss Drakkari Colossus
 SDAuthor: Manuel
 SD%Complete: 95 %
-SDComment: The event with the Living Mojos is not implemented, just is done that when one of the mojos around the boss take damage will make that the boss enter in combat!
+SDComment: The event with the Living Mojos is not implemented, just is done that when one of the mojos around the boss take damage will make the boss enter in combat!
 SDCategory:
 Script Data End */
 
@@ -49,7 +49,6 @@ enum Spells
 enum Entries
 {
     DRAKKARI_COLOSSUS   = 29307,
-    //DRAKKARI_ELEMENTAL  = 29573
 };
 
 struct TRINITY_DLL_DECL boss_drakkari_colossusAI : public ScriptedAI
@@ -70,6 +69,9 @@ struct TRINITY_DLL_DECL boss_drakkari_colossusAI : public ScriptedAI
     {
         if (pInstance)
             pInstance->SetData(DATA_DRAKKARI_COLOSSUS_EVENT, NOT_STARTED);
+
+        if(!m_creature->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE))
+            m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
 
         m_creature->clearUnitState(UNIT_STAT_STUNNED);
         m_creature->SetReactState(REACT_PASSIVE);
@@ -222,6 +224,7 @@ struct TRINITY_DLL_DECL boss_drakkari_elementalAI : public ScriptedAI
     void JustDied(Unit* killer)
     {
         Colossus->Kill(Colossus);
+        Colossus->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
     }
 };
 
