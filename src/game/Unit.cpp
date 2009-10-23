@@ -14865,7 +14865,7 @@ void Unit::BuildMovementPacket(ByteBuffer *data) const
     switch(GetTypeId())
     {
         case TYPEID_UNIT:
-            if(isInFlight())
+            if(canFly())
                 const_cast<Unit*>(this)->AddUnitMovementFlag(MOVEMENTFLAG_FORWARD | MOVEMENTFLAG_LEVITATING);
             break;
         case TYPEID_PLAYER:
