@@ -173,7 +173,7 @@ ObjectAccessor::FindPlayerByName(const char *name)
 void
 ObjectAccessor::SaveAllPlayers()
 {
-    Guard guard(*HashMapHolder<Player*>::GetLock());
+    Guard guard(*HashMapHolder<Player>::GetLock());
     HashMapHolder<Player>::MapType& m = HashMapHolder<Player>::GetContainer();
     HashMapHolder<Player>::MapType::iterator itr = m.begin();
     for (; itr != m.end(); ++itr)
