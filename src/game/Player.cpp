@@ -20291,9 +20291,9 @@ bool Player::RewardPlayerAndGroupAtKill(Unit* pVictim)
 
 void Player::RewardPlayerAndGroupAtEvent(uint32 creature_id, WorldObject* pRewardSource)
 {
-    if (!pRewardSource || pRewardSource->GetTypeId() != TYPEID_UNIT)
+    if (!pRewardSource)
         return;
-    uint64 creature_guid = pRewardSource->GetGUID();
+    uint64 creature_guid = (pRewardSource->GetTypeId() == TYPEID_UNIT) ? pRewardSource->GetGUID() : uint64(0);
 
     // prepare data for near group iteration
     if(Group *pGroup = GetGroup())
