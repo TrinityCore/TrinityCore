@@ -125,7 +125,7 @@ struct TRINITY_DLL_DECL boss_taldaramAI : public ScriptedAI
     {
         if (pInstance)
             pInstance->SetData(DATA_PRINCE_TALDARAM_EVENT, IN_PROGRESS);
-            DoScriptText(SAY_AGGRO, m_creature);
+        DoScriptText(SAY_AGGRO, m_creature);
     }
 
     void UpdateAI(const uint32 diff)
@@ -267,10 +267,7 @@ struct TRINITY_DLL_DECL boss_taldaramAI : public ScriptedAI
             if (pMap && pMap->IsDungeon() && HeroicMode && AchievThePartyIsOver)
             {
                 Map::PlayerList const &players = pMap->GetPlayers();
-                uint8 count = 0;
-                for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
-                  ++count;
-                if (count < 5)
+                if (players.getSize() < 5)
                     for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
                         itr->getSource()->CompletedAchievement(AchievThePartyIsOver);
             }
