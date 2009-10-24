@@ -174,15 +174,19 @@ struct TRINITY_DLL_DECL boss_taldaramAI : public ScriptedAI
                 case JUST_VANISHED:
                     if(pEmbraceTarget)
                     {
-                        DoModifyThreatPercent(pEmbraceTarget, 100);
-                        DoTeleportTo(pEmbraceTarget->GetPositionX(),pEmbraceTarget->GetPositionY(),pEmbraceTarget->GetPositionZ());
+                        m_creature->GetMotionMaster()->Clear();
+                        m_creature->SetSpeed(MOVE_WALK, 2.0f, true);
+                        m_creature->GetMotionMaster()->MoveChase(pEmbraceTarget);
                     }
                     Phase = VANISHED;
-                    uiPhaseTimer = 1400;
+                    uiPhaseTimer = 1300;
                 break;
                 case VANISHED:
                     if(pEmbraceTarget)
                         DoCast(pEmbraceTarget,HEROIC(SPELL_EMBRACE_OF_THE_VAMPYR, H_SPELL_EMBRACE_OF_THE_VAMPYR));
+                        m_creature->GetMotionMaster()->Clear();
+                        m_creature->SetSpeed(MOVE_WALK, 1.0f, true);
+                        m_creature->GetMotionMaster()->MoveChase(m_creature->getVictim());
                     Phase = FEEDING;
                     uiPhaseTimer = 20000;
                 break;
@@ -226,7 +230,7 @@ struct TRINITY_DLL_DECL boss_taldaramAI : public ScriptedAI
                             DoScriptText(RAND(SAY_VANISH_1,SAY_VANISH_2), m_creature);
                             DoCast(m_creature,SPELL_VANISH);
                             Phase = JUST_VANISHED;
-                            uiPhaseTimer = 1000;
+                            uiPhaseTimer = 500;
                             pEmbraceTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true);
                         }
                         uiVanishTimer = urand(25000,35000);
