@@ -746,6 +746,8 @@ void OPvPWintergrasp::BroadcastStateChange(BuildingState *state) const
 // Called at Start and Battle End
 bool OPvPWintergrasp::UpdateCreatureInfo(Creature *creature) const
 {
+    if (!creature)
+        return false;
     uint32 entry = creature->GetEntry();
     switch(GetCreatureType(entry))
     {
