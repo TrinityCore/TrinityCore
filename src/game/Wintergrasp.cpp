@@ -801,6 +801,7 @@ bool OPvPWintergrasp::UpdateCreatureInfo(Creature *creature) const
             return false;
         case CREATURE_GUARD:
         case CREATURE_SPECIAL:
+        {
             TeamPairMap::const_iterator itr = m_creEntryPair.find(creature->GetCreatureData()->id);
             if (itr != m_creEntryPair.end())
             {
@@ -808,6 +809,7 @@ bool OPvPWintergrasp::UpdateCreatureInfo(Creature *creature) const
                 RespawnCreatureIfNeeded(creature, entry);
             }
             return false;
+        }
         default:
             return false;
     }
