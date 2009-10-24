@@ -2188,7 +2188,10 @@ bool Creature::_IsTargetAcceptable(const Unit *target) const
     assert(target);
 
     // if the target cannot be attacked, the target is not acceptable
-    if (!canAttack(target, true))
+    if (IsFriendlyTo(target)
+        || !target->isAttackableByAOE()
+        || target->hasUnitState(UNIT_STAT_DIED)
+        || (m_vehicle && (IsOnVehicle(target) || m_vehicle->GetBase()->IsOnVehicle(target))))
         return false;
 
     const Unit *myVictim = getAttackerForHelper();
@@ -2199,7 +2202,7 @@ bool Creature::_IsTargetAcceptable(const Unit *target) const
         return true;
 
     // if the target's victim is friendly, and the target is neutral, the target is acceptable
-    if (targetVictim && IsFriendlyTo(targetVictim))// && !IsFriendlyTo(target)) <- already handled in !canAttack(target, true)
+    if (targetVictim && IsFriendlyTo(targetVictim))
         return true;
 
     // if the target's victim is not friendly, or the target is friendly, the target is not acceptable
