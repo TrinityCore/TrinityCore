@@ -70,13 +70,15 @@ struct MANGOS_DLL_DECL boss_amanitarAI : public ScriptedAI
         m_creature->SetMeleeDamageSchool(SPELL_SCHOOL_NATURE);
         m_creature->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_NATURE, true);
 
-        if (pInstance && !FirstTime)
-            pInstance->SetData(DATA_AMANITAR_EVENT, FAIL);
-
-        FirstTime = false;
-
         if (pInstance)
+        {
             pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_MINI);
+            if (pInstance && !FirstTime)
+            {
+                pInstance->SetData(DATA_AMANITAR_EVENT, FAIL);
+                FirstTime = false;
+            }
+        }
     }
 
     void JustDied(Unit *Killer)
@@ -90,8 +92,6 @@ struct MANGOS_DLL_DECL boss_amanitarAI : public ScriptedAI
 
     void EnterCombat(Unit *who)
     {
-        m_creature->SetInCombatWithZone();
-
         if (pInstance)
             pInstance->SetData(DATA_AMANITAR_EVENT, IN_PROGRESS);
 
@@ -100,10 +100,6 @@ struct MANGOS_DLL_DECL boss_amanitarAI : public ScriptedAI
 
     void SpawnAdds()
     {
-        uint32 DSpwTime = 30000;
-        float x = 0.0f, y = 0.0f, z = 0.0f;
-        TempSummonType DSpwType = TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN;
-
         for (uint8 i = 0; i < 30; ++i)
         {
             Unit* victim = SelectUnit(SELECT_TARGET_RANDOM, 0);
@@ -113,9 +109,9 @@ struct MANGOS_DLL_DECL boss_amanitarAI : public ScriptedAI
                 Position pos;
                 victim->GetPosition(&pos);
                 m_creature->GetRandomNearPosition(pos, float(urand(5,80)));
-                m_creature->SummonCreature(PoisonousMushroom, pos, DSpwType, DSpwTime);
+                m_creature->SummonCreature(PoisonousMushroom, pos, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 30000);
                 m_creature->GetRandomNearPosition(pos, float(urand(5,80)));
-                m_creature->SummonCreature(HealthyMushroom, pos, DSpwType, DSpwTime);
+                m_creature->SummonCreature(HealthyMushroom, pos, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 30000);
             }
         }
     }
@@ -175,17 +171,15 @@ struct MANGOS_DLL_DECL mob_amanitar_mushroomsAI : public Scripted_NoMovementAI
         deathtimer = 30000;
     }
 
-    void DamageTaken(Unit *killer, uint32 &damage)
+    void JustDied(Unit *killer)
     {
-        if (!killer || !damage) return;
+        if (!killer)
+            return;
 
-        if (m_creature->GetEntry() == HealthyMushroom && damage >= m_creature->GetHealth())
+        if (m_creature->GetEntry() == HealthyMushroom && killer->GetTypeId() == TYPEID_PLAYER)
         {
-            if (killer->GetTypeId() == TYPEID_PLAYER && m_creature->GetDistance(killer) <= 3.0f)
-            {
-                m_creature->InterruptNonMeleeSpells(false);
-                m_creature->CastSpell(killer, HEALTHY_MUSHROOM_SPELL_POTENT_FUNGUS, false);
-            }
+            m_creature->InterruptNonMeleeSpells(false);
+            m_creature->CastSpell(killer, HEALTHY_MUSHROOM_SPELL_POTENT_FUNGUS, false);
         }
     }
 
@@ -206,7 +200,6 @@ struct MANGOS_DLL_DECL mob_amanitar_mushroomsAI : public Scripted_NoMovementAI
         if (deathtimer < diff)
         {
             m_creature->DisappearAndDie();
-            deathtimer = 30000;
         } else deathtimer -= diff;
     }
 };
