@@ -47,7 +47,7 @@ struct TRINITY_DLL_DECL npc_teleportation_portalAI : public ScriptedAI
     void reset()
     {
         uiDespawnTimer = NEXT_WAVE_TIME;
-        uiSpawnTimer = 500;
+        uiSpawnTimer = 3000;
     }
 
     void EnterCombat(Unit *who) {}

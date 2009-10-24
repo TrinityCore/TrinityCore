@@ -1,14 +1,10 @@
 /* Script Data Start
 SDName: Boss zuramat
-SDAuthor: LordVanMartin
 SD%Complete:
-SDComment:
+SDComment: The phasemask for the voids dosen't work.
 SDCategory:
 Script Data End */
 
-/*** SQL START ***
-update creature_template set scriptname = '' where entry = '';
-*** SQL END ***/
 #include "precompiled.h"
 #include "violet_hold.h"
 
@@ -18,7 +14,11 @@ enum Spells
     H_SPELL_SHROUD_OF_DARKNESS                     = 59745,
     SPELL_SUMMON_VOID_SENTRY                       = 54369,
     SPELL_VOID_SHIFT                               = 54361,
-    H_SPELL_VOID_SHIFT                             = 59743
+    H_SPELL_VOID_SHIFT                             = 59743,
+    SPELL_VOID_SHIFTED                             = 54343,
+
+    SPELL_ZUMARAT_ADD_2                            = 59747,
+    H_SPELL_ZUMARAT_ADD_2                          = 59747
 };
 
 enum Creatures
@@ -46,9 +46,15 @@ struct TRINITY_DLL_DECL boss_zuramatAI : public ScriptedAI
         pInstance = c->GetInstanceData();
     }
 
-    uint32 void_shift;
-
     ScriptedInstance* pInstance;
+    Unit* Shifted;
+
+    uint32 SpellVoidShiftTimer;
+    uint32 SpellSummonVoidTimer;
+    uint32 SpellShroudOfDarknessTimer;
+    uint32 SpellVoidShiftedTimer;
+
+    bool shiftcast;
 
     void Reset()
     {
@@ -59,6 +65,12 @@ struct TRINITY_DLL_DECL boss_zuramatAI : public ScriptedAI
             else if (pInstance->GetData(DATA_WAVE_COUNT) == 12)
                 pInstance->SetData(DATA_2ND_BOSS_EVENT, NOT_STARTED);
         }
+
+        SpellShroudOfDarknessTimer = 22000;
+        SpellVoidShiftTimer = 15000;
+        SpellSummonVoidTimer = 12000;
+
+        shiftcast = false;
     }
 
     void EnterCombat(Unit* who)
@@ -81,8 +93,40 @@ struct TRINITY_DLL_DECL boss_zuramatAI : public ScriptedAI
         if (!UpdateVictim())
             return;
 
+        if(SpellSummonVoidTimer < diff)
+        {
+            m_creature->CastSpell(m_creature->getVictim(),SPELL_SUMMON_VOID_SENTRY,false);
+            SpellSummonVoidTimer = 20000;
+        } else SpellSummonVoidTimer -=diff;
+
+        if(SpellVoidShiftedTimer < diff && shiftcast)
+        {
+            if (Shifted)
+                m_creature->CastSpell(Shifted,SPELL_VOID_SHIFTED,false);
+            shiftcast = false;
+        } else SpellVoidShiftedTimer -=diff;
+
+        if(SpellVoidShiftTimer < diff)
+        {
+            Shifted =  SelectUnit(SELECT_TARGET_RANDOM, 0);
+            if (Shifted)
+            {
+                DoCast(Shifted, HEROIC(SPELL_VOID_SHIFT, H_SPELL_VOID_SHIFT));
+                shiftcast = true;
+                SpellVoidShiftTimer = 20000;
+            }
+            SpellVoidShiftedTimer = 5000;
+        } else SpellVoidShiftTimer -=diff;
+
+        if(SpellShroudOfDarknessTimer < diff)
+        {
+            DoCast(m_creature->getVictim(), HEROIC(SPELL_SHROUD_OF_DARKNESS, H_SPELL_SHROUD_OF_DARKNESS));
+            SpellShroudOfDarknessTimer = 20000;
+        } else SpellShroudOfDarknessTimer -=diff;
+
         DoMeleeAttackIfReady();
     }
+
     void JustDied(Unit* killer)
     {
         DoScriptText(SAY_DEATH, m_creature);
@@ -108,6 +152,13 @@ struct TRINITY_DLL_DECL boss_zuramatAI : public ScriptedAI
             return;
 
         DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2,SAY_SLAY_3), m_creature);
+    }
+    
+    void JustSummoned(Creature* summon)
+    {
+        summon->AI()->AttackStart(m_creature->getVictim());
+        summon->AI()->DoCastAOE(HEROIC(SPELL_ZUMARAT_ADD_2, H_SPELL_ZUMARAT_ADD_2));
+        summon->SetPhaseMask(17,true);
     }
 };
 
