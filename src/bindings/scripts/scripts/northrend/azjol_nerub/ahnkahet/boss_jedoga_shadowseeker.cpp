@@ -27,30 +27,35 @@ EndScriptData */
 #include "precompiled.h"
 #include "ahnkahet.h"
 
-#define TEXT_AGGRO          -1619000
-#define TEXT_SACRIFICE_1_1  -1619001
-#define TEXT_SACRIFICE_1_2  -1619002
-#define TEXT_SACRIFICE_2_1  -1619003
-#define TEXT_SACRIFICE_2_2  -1619004
-#define TEXT_SLAY_1         -1619005
-#define TEXT_SLAY_2         -1619006
-#define TEXT_SLAY_3         -1619007
-#define TEXT_DEATH          -1619008
-#define TEXT_PREACHING_1    -1619009
-#define TEXT_PREACHING_2    -1619010
-#define TEXT_PREACHING_3    -1619011
-#define TEXT_PREACHING_4    -1619012
-#define TEXT_PREACHING_5    -1619013
+enum Yells
+{
+    TEXT_AGGRO          = -1619000,
+    TEXT_SACRIFICE_1_1  = -1619001,
+    TEXT_SACRIFICE_1_2  = -1619002,
+    TEXT_SACRIFICE_2_1  = -1619003,
+    TEXT_SACRIFICE_2_2  = -1619004,
+    TEXT_SLAY_1         = -1619005,
+    TEXT_SLAY_2         = -1619006,
+    TEXT_SLAY_3         = -1619007,
+    TEXT_DEATH          = -1619008,
+    TEXT_PREACHING_1    = -1619009,
+    TEXT_PREACHING_2    = -1619010,
+    TEXT_PREACHING_3    = -1619011,
+    TEXT_PREACHING_4    = -1619012,
+    TEXT_PREACHING_5    = -1619013
+};
 
-#define SPELL_SPHERE_VISUAL         56075
-#define SPELL_GIFT_OF_THE_HERALD    56219
-
-#define SPELL_CYCLONE_STRIKE        56855 // Self
-#define SPELL_CYCLONE_STRIKE_H      60030
-#define SPELL_LIGHTNING_BOLT        56891 // 40Y
-#define SPELL_LIGHTNING_BOLT_H      60032 // 40Y
-#define SPELL_THUNDERSHOCK          56926 // 30Y
-#define SPELL_THUNDERSHOCK_H        60029 // 30Y
+enum Spells
+{
+    SPELL_SPHERE_VISUAL         = 56075,
+    SPELL_GIFT_OF_THE_HERALD    = 56219,
+    SPELL_CYCLONE_STRIKE        = 56855, // Self
+    SPELL_CYCLONE_STRIKE_H      = 60030,
+    SPELL_LIGHTNING_BOLT        = 56891, // 40Y
+    SPELL_LIGHTNING_BOLT_H      = 60032, // 40Y
+    SPELL_THUNDERSHOCK          = 56926, // 30Y
+    SPELL_THUNDERSHOCK_H        = 60029 // 30Y
+};
 
 float JEDOGA_POS[2][4] =
 {
@@ -414,8 +419,7 @@ struct MANGOS_DLL_DECL mob_jedoga_initiandAI : public ScriptedAI
                     {
                         CAST_AI(boss_jedoga_shadowseekerAI, boss->AI())->bOpFerok = true;
                         CAST_AI(boss_jedoga_shadowseekerAI, boss->AI())->bOpFerokFail = false;
-                        m_creature->DealDamage(boss, m_creature->GetHealth());
-                        m_creature->setDeathState(JUST_DIED);
+                        m_creature->Kill(m_creature);
                     }
                 }
                 break;
@@ -477,8 +481,11 @@ struct MANGOS_DLL_DECL mob_jedoga_initiandAI : public ScriptedAI
 // ------------------------------------------------------------------------------------------------------------
 // Jedogas Aufseher - Entry: 30181
 // ------------------------------------------------------------------------------------------------------------
-#define SPELL_BEAM_VISUAL_JEDOGAS_AUFSEHER_1    60342
-#define SPELL_BEAM_VISUAL_JEDOGAS_AUFSEHER_2    56312
+enum AufseherSpell
+{
+  SPELL_BEAM_VISUAL_JEDOGAS_AUFSEHER_1    = 60342,
+  SPELL_BEAM_VISUAL_JEDOGAS_AUFSEHER_2    = 56312
+};
 
 struct MANGOS_DLL_DECL npc_jedogas_aufseher_triggerAI : public Scripted_NoMovementAI
 {
