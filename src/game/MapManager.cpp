@@ -263,11 +263,7 @@ bool MapManager::CanPlayerEnter(uint32 mapid, Player* player)
                     int8 maxPlayers = (player->GetDifficulty() == DIFFICULTY_HEROIC) ? instance->maxPlayersHeroic : instance->maxPlayers;
                     if (maxPlayers != -1) //-1: unlimited access
                     {
-                        Map::PlayerList const &players = boundedMap->GetPlayers();
-                        uint8 count = 0;
-                        for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
-                            ++count;
-                        if (count >= maxPlayers)
+                        if (boundedMap->GetPlayers().getSize() >= maxPlayers)
                         {
                             sLog.outDebug("MAP: Player '%s' can't enter instance '%s' because it's full.", player->GetName(), mapName);
                             player->SendTransferAborted(mapid, TRANSFER_ABORT_MAX_PLAYERS);
