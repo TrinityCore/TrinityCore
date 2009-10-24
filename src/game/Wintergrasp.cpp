@@ -808,6 +808,8 @@ bool OPvPWintergrasp::UpdateCreatureInfo(Creature *creature) const
                 RespawnCreatureIfNeeded(creature, entry);
             }
             return false;
+        default:
+            return false;
     }
 }
 
