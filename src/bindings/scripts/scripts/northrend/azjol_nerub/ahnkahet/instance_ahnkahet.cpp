@@ -63,6 +63,8 @@ struct TRINITY_DLL_DECL instance_ahnkahet : public ScriptedInstance
     uint8 InitiandCnt,
         switchtrigger,
         initiandkilled;
+        
+    std::string str_data;
 
     void Initialize()
     {
@@ -261,8 +263,10 @@ struct TRINITY_DLL_DECL instance_ahnkahet : public ScriptedInstance
             << m_auiEncounter[2] << " " << m_auiEncounter[3] << " " << m_auiEncounter[4] << " "
             << spheres[0] << " " << spheres[1];
 
+        str_data = saveStream.str();
+        
         OUT_SAVE_INST_DATA_COMPLETE;
-        return saveStream.str();
+        return str_data;
     }
 
     void Load(const char* in)
