@@ -2187,19 +2187,19 @@ bool Creature::_IsTargetAcceptable(const Unit *target) const
 {
     assert(target);
 
-    const Unit *myVictim = getAttackerForHelper();
-    const Unit *targetVictim = target->getAttackerForHelper();
-
     // if the target cannot be attacked, the target is not acceptable
     if (!canAttack(target, true))
         return false;
+
+    const Unit *myVictim = getAttackerForHelper();
+    const Unit *targetVictim = target->getAttackerForHelper();
 
     // if I'm already fighting target, or I'm hostile towards the target, the target is acceptable
     if (myVictim == target || targetVictim == this || IsHostileTo(target))
         return true;
 
     // if the target's victim is friendly, and the target is neutral, the target is acceptable
-    if (targetVictim && IsFriendlyTo(targetVictim) && !IsFriendlyTo(target))
+    if (targetVictim && IsFriendlyTo(targetVictim))// && !IsFriendlyTo(target)) <- already handled in !canAttack(target, true)
         return true;
 
     // if the target's victim is not friendly, or the target is friendly, the target is not acceptable
