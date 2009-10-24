@@ -169,6 +169,37 @@ bool GossipSelect_npc_thorim(Player* pPlayer, Creature* pCreature, uint32 uiSend
     return true;
 }
 
+/*######
+## npc_goblin_prisioner
+######*/
+
+enum eGoblinPrisioner
+{
+    GO_RUSTY_CAGE = 191544
+};
+
+struct TRINITY_DLL_DECL npc_goblin_prisionerAI : public ScriptedAI
+{
+    npc_goblin_prisionerAI(Creature* pCreature) : ScriptedAI (pCreature){}
+
+    void Reset()
+    {
+        m_creature->SetReactState(REACT_PASSIVE);
+
+        if(GameObject* pGO = m_creature->FindNearestGameObject(GO_RUSTY_CAGE,5.0f))
+        {
+            if(pGO->GetGoState() == GO_STATE_ACTIVE)
+                pGO->SetGoState(GO_STATE_READY);
+        }
+    }
+
+};
+
+CreatureAI* GetAI_npc_goblin_prisioner(Creature* pCreature)
+{
+    return new npc_goblin_prisionerAI(pCreature);
+}
+
 void AddSC_storm_peaks()
 {
     Script* newscript;
@@ -190,5 +221,10 @@ void AddSC_storm_peaks()
     newscript->Name = "npc_thorim";
     newscript->pGossipHello = &GossipHello_npc_thorim;
     newscript->pGossipSelect = &GossipSelect_npc_thorim;
+    newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name = "npc_goblin_prisioner";
+    newscript->GetAI = &GetAI_npc_goblin_prisioner;
     newscript->RegisterSelf();
 }
