@@ -17,7 +17,7 @@
 /* ScriptData
 SDName: GO_Scripts
 SD%Complete: 100
-SDComment: Quest support: 4285,4287,4288(crystal pylons), 4296, 6481, 10990, 10991, 10992, Field_Repair_Bot->Teaches spell 22704. Barov_journal->Teaches spell 26089
+SDComment: Quest support: 4285,4287,4288(crystal pylons), 4296, 6481, 10990, 10991, 10992, Field_Repair_Bot->Teaches spell 22704. Barov_journal->Teaches spell 26089,12843
 SDCategory: Game Objects
 EndScriptData */
 
@@ -39,6 +39,7 @@ go_tablet_of_madness
 go_tablet_of_the_seven
 go_tele_to_dalaran_crystal
 go_tele_to_violet_stand
+go_rusty_cage
 EndContentData */
 
 #include "precompiled.h"
@@ -536,6 +537,24 @@ bool GOHello_go_matrix_punchograph(Player* pPlayer, GameObject* pGo)
     return false;
 }
 
+enum eRustyCage
+{
+    NPC_GOBLIN_PRISIONER    = 29466
+};
+
+bool GOHello_go_rusty_cage(Player* pPlayer, GameObject* pGO)
+{
+    if(Creature* m_creature = pGO->FindNearestCreature(NPC_GOBLIN_PRISIONER,5.0f,true))
+    {
+        pGO->SetGoState(GO_STATE_ACTIVE);
+        pPlayer->KilledMonsterCredit(NPC_GOBLIN_PRISIONER,m_creature->GetGUID());
+        m_creature->DisappearAndDie();
+        m_creature->RemoveCorpse();
+    }
+
+    return true;
+}
+
 void AddSC_go_scripts()
 {
     Script *newscript;
@@ -654,6 +673,11 @@ void AddSC_go_scripts()
     newscript = new Script;
     newscript->Name = "go_matrix_punchograph";
     newscript->pGOHello =           &GOHello_go_matrix_punchograph;
+    newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name = "go_rusty_cage";
+    newscript->pGOHello =           &GOHello_go_rusty_cage;
     newscript->RegisterSelf();
 }
 
