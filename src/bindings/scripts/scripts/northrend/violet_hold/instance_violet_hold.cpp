@@ -246,7 +246,7 @@ struct TRINITY_DLL_DECL instance_violet_hold : public ScriptedInstance
                         Creature *pSinclari = instance->GetCreature(uiSinclari);
                         if (pSinclari)
                             pSinclari->SummonCreature(CREATURE_CYANIGOSA,PortalLocation[0].x,PortalLocation[0].y,
-                                                       PortalLocation[0].z,PortalLocation[0].orientation,TEMPSUMMON_CORPSE_DESPAWN,90000);
+                                                       PortalLocation[0].z,PortalLocation[0].orientation,TEMPSUMMON_CORPSE_DESPAWN,0);
                         break;
                     }
                     case 1:
@@ -261,7 +261,7 @@ struct TRINITY_DLL_DECL instance_violet_hold : public ScriptedInstance
                         {
                             pSinclari->SummonCreature(CREATURE_TELEPORTATION_PORTAL,PortalLocation[uiLocation].x,PortalLocation[uiLocation].y,
                                                        PortalLocation[uiLocation].z,PortalLocation[uiLocation].orientation,
-                                                       TEMPSUMMON_CORPSE_DESPAWN,0);
+                                                       TEMPSUMMON_CORPSE_DESPAWN,900000);
                             uiLocation = (++uiLocation)%3;
                         }
                     }
