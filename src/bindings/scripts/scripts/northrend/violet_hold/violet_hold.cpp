@@ -17,7 +17,7 @@ enum Creatures
 bool GossipHello_npc_sinclari(Player* pPlayer, Creature* pCreature)
 {
     ScriptedInstance* pInstance = pCreature->GetInstanceData();
-    if (pInstance && pInstance->GetData(DATA_WAVE_COUNT) == 0)
+    if (pInstance && pInstance->GetData(DATA_WAVE_COUNT) == 0 && pPlayer)
         pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT,GOSSIP_START_EVENT,GOSSIP_SENDER_MAIN,GOSSIP_ACTION_INFO_DEF+1);
     pPlayer->SEND_GOSSIP_MENU(1, pCreature->GetGUID());
     return true;
@@ -25,7 +25,8 @@ bool GossipHello_npc_sinclari(Player* pPlayer, Creature* pCreature)
 
 bool GossipSelect_npc_sinclari(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
 {
-    pPlayer->CLOSE_GOSSIP_MENU();
+    if (pPlayer)
+        pPlayer->CLOSE_GOSSIP_MENU();
     ScriptedInstance* pInstance = pCreature->GetInstanceData();
     if (pInstance)
         pInstance->SetData(DATA_WAVE_COUNT,1);
