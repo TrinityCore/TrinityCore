@@ -170,17 +170,17 @@ bool GossipSelect_npc_thorim(Player* pPlayer, Creature* pCreature, uint32 uiSend
 }
 
 /*######
-## npc_goblin_prisioner
+## npc_goblin_prisoner
 ######*/
 
-enum eGoblinPrisioner
+enum eGoblinPrisoner
 {
     GO_RUSTY_CAGE = 191544
 };
 
-struct TRINITY_DLL_DECL npc_goblin_prisionerAI : public ScriptedAI
+struct TRINITY_DLL_DECL npc_goblin_prisonerAI : public ScriptedAI
 {
-    npc_goblin_prisionerAI(Creature* pCreature) : ScriptedAI (pCreature){}
+    npc_goblin_prisonerAI(Creature* pCreature) : ScriptedAI (pCreature){}
 
     void Reset()
     {
@@ -195,9 +195,9 @@ struct TRINITY_DLL_DECL npc_goblin_prisionerAI : public ScriptedAI
 
 };
 
-CreatureAI* GetAI_npc_goblin_prisioner(Creature* pCreature)
+CreatureAI* GetAI_npc_goblin_prisoner(Creature* pCreature)
 {
-    return new npc_goblin_prisionerAI(pCreature);
+    return new npc_goblin_prisonerAI(pCreature);
 }
 
 void AddSC_storm_peaks()
@@ -224,7 +224,7 @@ void AddSC_storm_peaks()
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name = "npc_goblin_prisioner";
-    newscript->GetAI = &GetAI_npc_goblin_prisioner;
+    newscript->Name = "npc_goblin_prisoner";
+    newscript->GetAI = &GetAI_npc_goblin_prisoner;
     newscript->RegisterSelf();
 }
