@@ -519,15 +519,18 @@ INSERT INTO `spell_script_target` (`entry`, `type`, `targetEntry`) VALUES
 
 -- Zul'Drak
 DELETE FROM `spell_script_target` WHERE `entry` IN (55083,55223,59951,59952);
-INSERT INTO `spell_script_target` VALUES (55083, 1, 29700),(55223, 1, 29686),(59951, 1, 29686),(59952, 1, 29686);
+INSERT INTO `spell_script_target` VALUES
+(55083, 1, 29700),(55223, 1, 29686),
+(59951, 1, 29686),(59952, 1, 29686);
 
 -- --------
 -- POSITION
 -- --------
 DELETE FROM spell_target_position WHERE `id` IN (46019, 46020, 53360);
-INSERT INTO spell_target_position () VALUES (46019, 580, 1704.34, 928.17, -74.558, 0);
-INSERT INTO spell_target_position () VALUES (46020, 580, 1704.34, 928.17, 53.079, 0);
-INSERT INTO spell_target_position () VALUES (53360, 571, 5807.829, 587.960, 660.939, 1.663);
+INSERT INTO spell_target_position () VALUES
+(46019, 580, 1704.34, 928.17, -74.558, 0),
+(46020, 580, 1704.34, 928.17, 53.079, 0),
+(53360, 571, 5807.829, 587.960, 660.939, 1.663);
 
 -- positions for teleports in acherus
 DELETE FROM `spell_target_position` WHERE `id` IN (54744,54746);
@@ -1090,7 +1093,7 @@ INSERT INTO `spell_proc_event` (`entry`, `SchoolMask`, `SpellFamilyName`, `Spell
 ( 44549, 0x00,   3, 0x00100220, 0x00001000, 0x00000000, 0x00000000, 0x00000000,   0,   0,   0), -- Brain Freeze (Rank 3)
 ( 44557, 0x00,   3, 0x00000020, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0,   0), -- Enduring Winter (Rank 1)
 ( 44560, 0x00,   3, 0x00000020, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0,   0), -- Enduring Winter (Rank 2)
-( 44561, 0x00,   3, 0x00000020, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0,   0); -- Enduring Winter (Rank 3)
+( 44561, 0x00,   3, 0x00000020, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0,   0), -- Enduring Winter (Rank 3)
 ( 44745, 0x00,   3, 0x00000000, 0x00000001, 0x00000000, 0x00004000, 0x00002000,   0,   0,   0), -- Shattered Barrier (Rank 1)
 ( 44835, 0x00,   7, 0x00000000, 0x00000080, 0x00000000, 0x00000010, 0x00000000,   0,   0,   0), -- Maim Interrupt
 ( 45054, 0x00,   0, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0,  15), -- Augment Pain
@@ -2127,13 +2130,14 @@ UPDATE creature_template SET spell1=52435,spell2=52576,spell5=52588,VehicleId=79
 UPDATE `creature_template` SET vehicleid=87 WHERE (`entry`='28817'); -- mine car
 
 DELETE FROM `spell_script_target` WHERE `entry` in (53658, 53679, 53701, 53705, 53706, 53677, 53685);
--- insert into spell_script_target values (53658, 1, 29173);
-insert into spell_script_target values (53679, 1, 29183);
-insert into spell_script_target values (53701, 1, 29175);
-insert into spell_script_target values (53705, 1, 29183);
-insert into spell_script_target values (53706, 1, 29183);
-insert into spell_script_target values (53677, 1, 29227);
-insert into spell_script_target values (53685, 1, 29175);
+insert into spell_script_target values
+-- (53658, 1, 29173),
+(53679, 1, 29183),
+(53701, 1, 29175),
+(53705, 1, 29183),
+(53706, 1, 29183),
+(53677, 1, 29227),
+(53685, 1, 29175);
 
 -- --------
 -- NAXXARAMAS
