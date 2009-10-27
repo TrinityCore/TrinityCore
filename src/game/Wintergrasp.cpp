@@ -970,8 +970,8 @@ void OPvPWintergrasp::PromotePlayer(Player *killer) const
         else
             killer->CastSpell(killer, SPELL_CORPORAL, true);
     }
-    else if (!killer->HasAura(SPELL_LIEUTENANT))
-        killer->CastSpell(killer, SPELL_RECRUIT, true);
+    else if (killer->HasAura(SPELL_LIEUTENANT))
+        killer->CastSpell(killer, SPELL_LIEUTENANT, true);
 }
 
 void OPvPWintergrasp::HandleKill(Player *killer, Unit *victim)
