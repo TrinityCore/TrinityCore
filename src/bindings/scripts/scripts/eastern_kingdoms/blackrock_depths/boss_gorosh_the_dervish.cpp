@@ -23,8 +23,11 @@ EndScriptData */
 
 #include "precompiled.h"
 
-#define SPELL_WHIRLWIND             15589
-#define SPELL_MORTALSTRIKE          24573
+enum Spells
+{
+    SPELL_WHIRLWIND                                        = 15589,
+    SPELL_MORTALSTRIKE                                     = 24573
+};
 
 struct TRINITY_DLL_DECL boss_gorosh_the_dervishAI : public ScriptedAI
 {

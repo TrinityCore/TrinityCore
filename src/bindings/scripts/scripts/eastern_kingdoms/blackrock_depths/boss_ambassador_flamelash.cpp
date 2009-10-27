@@ -23,7 +23,10 @@ EndScriptData */
 
 #include "precompiled.h"
 
-#define SPELL_FIREBLAST            15573
+enum Spells
+{
+    SPELL_FIREBLAST                                        = 15573
+};
 
 struct TRINITY_DLL_DECL boss_ambassador_flamelashAI : public ScriptedAI
 {

@@ -23,8 +23,11 @@ EndScriptData */
 
 #include "precompiled.h"
 
-#define SPELL_FIERYBURST        13900
-#define SPELL_WARSTOMP          24375
+enum Spells
+{
+    SPELL_FIERYBURST                                       = 13900,
+    SPELL_WARSTOMP                                         = 24375
+};
 
 struct TRINITY_DLL_DECL boss_magmusAI : public ScriptedAI
 {
