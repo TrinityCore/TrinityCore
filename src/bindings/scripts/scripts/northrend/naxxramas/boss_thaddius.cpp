@@ -20,39 +20,60 @@
 #include "naxxramas.h"
 
 //Stalagg
-#define SAY_STAL_AGGRO          -1533023 //not used
-#define SAY_STAL_SLAY           -1533024 //not used
-#define SAY_STAL_DEATH          -1533025 //not used
+enum StalaggYells
+{
+    SAY_STAL_AGGRO          = -1533023, //not used
+    SAY_STAL_SLAY           = -1533024, //not used
+    SAY_STAL_DEATH          = -1533025 //not used
+};
 
-#define SPELL_POWERSURGE         54529
-#define SPELL_POWERSURGE_H       28134
+enum StalagSpells
+{
+    SPELL_POWERSURGE        = 54529,
+    H_SPELL_POWERSURGE      = 28134
+};
 
 //Feugen
-#define SAY_FEUG_AGGRO          -1533026 //not used
-#define SAY_FEUG_SLAY           -1533027 //not used
-#define SAY_FEUG_DEATH          -1533028 //not used
+enum FeugenYells
+{
+    SAY_FEUG_AGGRO          = -1533026, //not used
+    SAY_FEUG_SLAY           = -1533027, //not used
+    SAY_FEUG_DEATH          = -1533028 //not used
+};
 
-#define SPELL_STATICFIELD       28135
-#define SPELL_STATICFIELD_H     54528
+enum FeugenSpells
+{
+      SPELL_STATICFIELD     = 28135,
+      H_SPELL_STATICFIELD   = 54528
+};
 
 //generic
 #define C_TESLA_COIL            16218           //the coils (emotes "Tesla Coil overloads!")
 
-//Thaddus
-#define SAY_GREET               -1533029 //not used
-#define SAY_AGGRO               RAND(-1533030,-1533031,-1533032)
-#define SAY_SLAY                -1533033
-#define SAY_ELECT               -1533034 //not used
-#define SAY_DEATH               -1533035
-#define SAY_SCREAM1             -1533036 //not used
-#define SAY_SCREAM2             -1533037 //not used
-#define SAY_SCREAM3             -1533038 //not used
-#define SAY_SCREAM4             -1533039 //not used
+//Thaddius
+enum ThaddiusYells
+{
+    SAY_GREET               = -1533029, //not used
+    SAY_AGGRO_1             = -1533030,
+    SAY_AGGRO_2             = -1533031,
+    SAY_AGGRO_3             = -1533032,
+    SAY_SLAY                = -1533033,
+    SAY_ELECT               = -1533034, //not used
+    SAY_DEATH               = -1533035,
+    SAY_SCREAM1             = -1533036, //not used
+    SAY_SCREAM2             = -1533037, //not used
+    SAY_SCREAM3             = -1533038, //not used
+    SAY_SCREAM4             = -1533039 //not used
+};
 
-#define SPELL_POLARITY_SHIFT        28089
-#define SPELL_BALL_LIGHTNING        28299
-#define SPELL_CHAIN_LIGHTNING       HEROIC(28167,54531)
-#define SPELL_BERSERK               27680
+enum ThaddiusSpells
+{
+    SPELL_POLARITY_SHIFT        = 28089,
+    SPELL_BALL_LIGHTNING        = 28299,
+    SPELL_CHAIN_LIGHTNING       = 28167,
+    H_SPELL_CHAIN_LIGHTNING     = 54531,
+    SPELL_BERSERK               = 27680
+};
 
 enum Events
 {
@@ -86,19 +107,19 @@ struct TRINITY_DLL_DECL boss_thaddiusAI : public BossAI
     void EnterCombat(Unit *who)
     {
         _EnterCombat();
-        DoScriptText(SAY_AGGRO, me);
+        DoScriptText(RAND(SAY_AGGRO_1,SAY_AGGRO_2,SAY_AGGRO_3), me);
         events.ScheduleEvent(EVENT_SHIFT, 30000);
-        events.ScheduleEvent(EVENT_CHAIN, 10000+rand()%10000);
-        events.ScheduleEvent(EVENT_BERSERK, 6*60000);
+        events.ScheduleEvent(EVENT_CHAIN, urand(10000,20000));
+        events.ScheduleEvent(EVENT_BERSERK, 360000);
     }
 
     void UpdateAI(const uint32 diff)
     {
-        if (!UpdateVictim())
-            return;
-
        if (CheckStalaggAlive == false && CheckFeugenAlive == false)
            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_STUNNED);
+
+       if (!UpdateVictim())
+           return;
         
        events.Update(diff);
 
@@ -114,8 +135,8 @@ struct TRINITY_DLL_DECL boss_thaddiusAI : public BossAI
                     events.ScheduleEvent(EVENT_SHIFT, 30000);
                     return;
                 case EVENT_CHAIN:
-                    DoCast(me->getVictim(), SPELL_CHAIN_LIGHTNING);
-                    events.ScheduleEvent(EVENT_CHAIN, 10000+rand()%10000);
+                    DoCast(me->getVictim(), HEROIC(SPELL_CHAIN_LIGHTNING,H_SPELL_CHAIN_LIGHTNING));
+                    events.ScheduleEvent(EVENT_CHAIN, urand(10000,20000));
                     return;
                 case EVENT_BERSERK:
                     DoCast(me, SPELL_BERSERK);
@@ -130,22 +151,20 @@ struct TRINITY_DLL_DECL boss_thaddiusAI : public BossAI
     }
 };
 
-struct TRINITY_DLL_DECL mob_stalaggAI : public CombatAI
+CreatureAI* GetAI_boss_thaddius(Creature* pCreature)
 {
-   mob_stalaggAI(Creature *c) : CombatAI(c)
-   {
-       m_pInstance = (ScriptedInstance*)c->GetInstanceData();
-       m_bIsHeroicMode = c->GetMap()->IsHeroic();
-       Reset();
-   }
+    return new boss_thaddiusAI (pCreature);
+}
 
-   ScriptedInstance* m_pInstance;
-   bool m_bIsHeroicMode;
-   uint32 PowerSurge_Timer;
+struct TRINITY_DLL_DECL mob_stalaggAI : public ScriptedAI
+{
+   mob_stalaggAI(Creature *c) : ScriptedAI(c) {}
+
+   uint32 PowerSurgeTimer;
 
    void reset()
    {
-       PowerSurge_Timer = 20000+rand()%5000;
+       PowerSurgeTimer = urand(20000,25000);
    }
 
    void JustDied(Unit *killer)
@@ -155,32 +174,30 @@ struct TRINITY_DLL_DECL mob_stalaggAI : public CombatAI
 
    void UpdateAI(const uint32 uiDiff)
    {
-       if (PowerSurge_Timer < uiDiff)
+       if (PowerSurgeTimer < uiDiff)
        {
-           DoCast(m_creature, m_bIsHeroicMode ? SPELL_POWERSURGE_H : SPELL_POWERSURGE);
-           PowerSurge_Timer = 15000+rand()%5000;
-       }else PowerSurge_Timer -= uiDiff;
+           DoCast(m_creature, HEROIC(SPELL_POWERSURGE,H_SPELL_POWERSURGE));
+           PowerSurgeTimer = urand(15000,20000);
+       }else PowerSurgeTimer -= uiDiff;
        DoMeleeAttackIfReady();
    }
 };
 
-struct TRINITY_DLL_DECL mob_feugenAI : public CombatAI
+CreatureAI* GetAI_mob_stalagg(Creature* pCreature)
 {
-   mob_feugenAI(Creature *c) : CombatAI(c)
-   {
-       m_pInstance = (ScriptedInstance*)c->GetInstanceData();
-       m_bIsHeroicMode = c->GetMap()->IsHeroic();
-       Reset();
-   }
+    return new mob_stalaggAI(pCreature);
+}
 
-   ScriptedInstance* m_pInstance;
-   bool m_bIsHeroicMode;
-   uint32 StaticField_Timer;
+struct TRINITY_DLL_DECL mob_feugenAI : public ScriptedAI
+{
+   mob_feugenAI(Creature *c) : ScriptedAI(c) {}
+
+   uint32 StaticFieldTimer;
    uint32 Checktimer;
 
    void reset()
    {
-       StaticField_Timer = 5000;
+       StaticFieldTimer = 5000;
    }
 
    void JustDied(Unit *killer)
@@ -190,24 +207,14 @@ struct TRINITY_DLL_DECL mob_feugenAI : public CombatAI
 
    void UpdateAI(const uint32 uiDiff)
    {
-       if (StaticField_Timer < uiDiff)
+       if (StaticFieldTimer < uiDiff)
        {
-           DoCast(m_creature, m_bIsHeroicMode ? SPELL_STATICFIELD_H : SPELL_STATICFIELD);
-           StaticField_Timer = 5000;
-       }else StaticField_Timer -= uiDiff;
+           DoCast(m_creature, HEROIC(SPELL_STATICFIELD,H_SPELL_STATICFIELD));
+           StaticFieldTimer = 5000;
+       }else StaticFieldTimer -= uiDiff;
        DoMeleeAttackIfReady();
    }
 };
-
-CreatureAI* GetAI_boss_thaddius(Creature* pCreature)
-{
-    return new boss_thaddiusAI (pCreature);
-}
-
-CreatureAI* GetAI_mob_stalagg(Creature* pCreature)
-{
-   return new mob_stalaggAI(pCreature);
-}
 
 CreatureAI* GetAI_mob_feugen(Creature* pCreature)
 {
