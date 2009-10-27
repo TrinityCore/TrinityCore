@@ -54,7 +54,7 @@ enum Events
 
 enum Creatures
 {
-    NPC_FAERLINA          = 15953
+    NPC_WORSHIPPER              = 16506
 };
 
 struct TRINITY_DLL_DECL boss_faerlinaAI : public BossAI
@@ -126,10 +126,10 @@ struct TRINITY_DLL_DECL boss_faerlinaAI : public BossAI
         DoMeleeAttackIfReady();
     }
     
-    void DispellEnrage()
+    void SpellHit(Unit* caster, const SpellEntry *spell)
     {
-        events.ScheduleEvent(EVENT_FRENZY, urand(60000,80000));
-	m_creature->RemoveAurasDueToSpell(HEROIC(SPELL_FRENZY,H_SPELL_FRENZY));
+        if (caster->GetEntry() == NPC_WORSHIPPER && spell->Id == HEROIC(SPELL_FRENZY,H_SPELL_FRENZY))
+            events.ScheduleEvent(EVENT_FRENZY, urand(60000,80000));
     }
 };
 
@@ -138,42 +138,12 @@ CreatureAI* GetAI_boss_faerlina(Creature* pCreature)
     return new boss_faerlinaAI (pCreature);
 }
 
-struct TRINITY_DLL_DECL mob_worshipperAI : public ScriptedAI
-{
-    mob_worshipperAI(Creature *c) : ScriptedAI(c)
-    {
-        pInstance = c->GetInstanceData();
-    }
-    
-    ScriptedInstance *pInstance;
-    
-    void JustDied(Unit *pKiller)
-    {
-        if (pInstance)
-	    if (Creature* pFaerlina = pInstance->instance->GetCreature(NPC_FAERLINA))
-	    {
-	        DoCast(pFaerlina,HEROIC(SPELL_WIDOWS_EMBRACE,H_SPELL_WIDOWS_EMBRACE));
-	        CAST_AI(boss_faerlinaAI,pFaerlina->AI())->DispellEnrage();
-	    }
-    }
-};
-
-CreatureAI* GetAI_mob_worshipper(Creature* pCreature)
-{
-    return new mob_worshipperAI (pCreature);
-}
-
 void AddSC_boss_faerlina()
 {
     Script *newscript;
     newscript = new Script;
     newscript->Name = "boss_faerlina";
     newscript->GetAI = &GetAI_boss_faerlina;
-    newscript->RegisterSelf();
-    
-    newscript = new Script;
-    newscript->Name = "mob_worshipper";
-    newscript->GetAI = &GetAI_mob_worshipper;
     newscript->RegisterSelf();
 }
 
