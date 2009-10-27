@@ -86,7 +86,7 @@ void RespawnCreatureIfNeeded(Creature *cr, uint32 guid)
 
 #define REMOVE_WARTIME_AURAS(p) (p)->RemoveAura(SPELL_RECRUIT);\
     (p)->RemoveAura(SPELL_CORPORAL);(p)->RemoveAura(SPELL_LIEUTENANT);\
-    (p)->RemoveAura(SPELL_TOWER_CONTROL);(p)->RemoveAura(SPELL_RULLERS_OF_WG);\
+    (p)->RemoveAura(SPELL_TOWER_CONTROL);\
     (p)->RemoveAura(SPELL_SPIRITUAL_IMMUNITY)
 #define REMOVE_TENACITY_AURA(p) CastTenacity(p, 0)
 
@@ -298,6 +298,8 @@ bool OPvPWintergrasp::SetupOutdoorPvP()
                 const_cast<CreatureData*>(spiritData)->displayid = 0;
                 workshop->m_spiGuid = spiritGuid;
             }
+            else
+                workshop->m_spiGuid = 0;
             workshop->m_workshopGuid = guid;
             AddCapturePoint(workshop);
             m_buildingStates[guid]->type = BUILDING_WORKSHOP;
@@ -428,16 +430,24 @@ void OPvPWintergrasp::ProcessEvent(GameObject *obj, uint32 eventId)
                     if (state->GetTeam() == getAttackerTeam())
                     {
                         TeamCastSpell(getAttackerTeam(), -SPELL_TOWER_CONTROL);
-                        uint32 newStack = 3 - m_towerDestroyedCount[getAttackerTeam()];
-                        if (newStack > 0)
+                        TeamCastSpell(getDefenderTeam(), -SPELL_TOWER_CONTROL);
+                        uint32 attStack = 3 - m_towerDestroyedCount[getAttackerTeam()];
+
+                        if (m_towerDestroyedCount[getAttackerTeam()])
+                        {
+                            for (PlayerSet::iterator itr = m_players[getDefenderTeam()].begin(); itr != m_players[getDefenderTeam()].end(); ++itr)
+                                if ((*itr)->getLevel() > 69)
+                                    (*itr)->SetAuraStack(SPELL_TOWER_CONTROL, (*itr), m_towerDestroyedCount[getAttackerTeam()]);
+                        }
+
+                        if (attStack)
                         {
                             for (PlayerSet::iterator itr = m_players[getAttackerTeam()].begin(); itr != m_players[getAttackerTeam()].end(); ++itr)
                                 if ((*itr)->getLevel() > 69)
-                                    (*itr)->SetAuraStack(SPELL_TOWER_CONTROL, (*itr), newStack);
+                                    (*itr)->SetAuraStack(SPELL_TOWER_CONTROL, (*itr), attStack);
                         }
                         else
                         {
-                            TeamCastSpell(getDefenderTeam(), SPELL_RULLERS_OF_WG);
                             if (m_timer < 600000)
                                 m_timer = 0;
                             else
@@ -454,9 +464,9 @@ void OPvPWintergrasp::ProcessEvent(GameObject *obj, uint32 eventId)
 void OPvPWintergrasp::RemoveOfflinePlayerWGAuras()
 {
     // if server crashed while in battle there could be players with rank or tenacity
-    CharacterDatabase.PExecute("DELETE FROM character_aura WHERE spell IN (%u, %u, %u, %u, %u, %u, %u)",
+    CharacterDatabase.PExecute("DELETE FROM character_aura WHERE spell IN (%u, %u, %u, %u, %u, %u)",
         SPELL_RECRUIT, SPELL_CORPORAL, SPELL_LIEUTENANT, SPELL_TENACITY,
-        SPELL_RULLERS_OF_WG, SPELL_ESSENCE_OF_WG, SPELL_TOWER_CONTROL);
+        SPELL_ESSENCE_OF_WG, SPELL_TOWER_CONTROL);
 }
 
 void OPvPWintergrasp::ModifyWorkshopCount(TeamId team, bool add)
@@ -889,34 +899,37 @@ void OPvPWintergrasp::HandlePlayerResurrects(Player * plr, uint32 zone)
         if (plr->getLevel() > 69)
         {
             // Tenacity
-            if (!plr->HasAura(SPELL_TENACITY) &&
-                (plr->GetTeamId() == TEAM_ALLIANCE && m_tenacityStack > 0 ||
-                plr->GetTeamId() == TEAM_HORDE && m_tenacityStack < 0))
+            if (plr->GetTeamId() == TEAM_ALLIANCE && m_tenacityStack > 0 ||
+                plr->GetTeamId() == TEAM_HORDE && m_tenacityStack < 0)
             {
+                if (plr->HasAura(SPELL_TENACITY))
+                    CastTenacity(plr, 0);
                 int32 newStack = m_tenacityStack < 0 ? -m_tenacityStack : m_tenacityStack;
                 if (newStack > 20)
                     newStack = 20;
                 CastTenacity(plr, newStack);
             }
 
-            // Tower Control (Attacker only)
-            if (uint32 newStack = 3 - m_towerDestroyedCount[getAttackerTeam()])
+            // Tower Control
+            if (plr->GetTeamId() == getAttackerTeam())
             {
-                if (plr->GetTeamId() == getAttackerTeam())
-                    plr->SetAuraStack(SPELL_TOWER_CONTROL, plr, newStack);
+                if (m_towerDestroyedCount[getAttackerTeam()] < 3)
+                    plr->SetAuraStack(SPELL_TOWER_CONTROL, plr, 3 - m_towerDestroyedCount[getAttackerTeam()]);
             }
-            else // Spell Rullers (Defender only)
+            else
             {
-                if (plr->GetTeamId() == getDefenderTeam())
-                    plr->CastSpell(plr, SPELL_RULLERS_OF_WG, true);
+                if (m_towerDestroyedCount[getAttackerTeam()])
+                    plr->SetAuraStack(SPELL_TOWER_CONTROL, plr, m_towerDestroyedCount[getAttackerTeam()]);
             }
         }
     }
+    /* Essence is not removed in ghost form so no need to reapply
     else // Essence of Wintergrasp
     {
         if (plr->GetTeamId() == getDefenderTeam())
             plr->CastSpell(plr, SPELL_ESSENCE_OF_WG, true);
     }
+    */
     OutdoorPvP::HandlePlayerResurrects(plr, zone);
 }
 
@@ -957,8 +970,8 @@ void OPvPWintergrasp::PromotePlayer(Player *killer) const
         else
             killer->CastSpell(killer, SPELL_CORPORAL, true);
     }
-    else if (killer->HasAura(SPELL_LIEUTENANT))
-        killer->CastSpell(killer, SPELL_LIEUTENANT, true);
+    else if (!killer->HasAura(SPELL_LIEUTENANT))
+        killer->CastSpell(killer, SPELL_RECRUIT, true);
 }
 
 void OPvPWintergrasp::HandleKill(Player *killer, Unit *victim)
@@ -1367,6 +1380,7 @@ void OPvPWintergrasp::EndBattle()
             REMOVE_WARTIME_AURAS(*itr);
             REMOVE_TENACITY_AURA(*itr);
             (*itr)->CombatStop(true);
+            (*itr)->getHostilRefManager().deleteReferences();
         }
     }
 
@@ -1589,12 +1603,12 @@ void SiegeWorkshop::ChangeTeam(TeamId oldTeam)
 
     if (entry)
     {
-        if (m_engineer)
+        if (m_engGuid)
         {
             *m_engEntry = entry;
             RespawnCreatureIfNeeded(m_engineer, entry);
         }
-        if (m_spiritguide)
+        if (m_spiGuid)
         {
             *m_spiEntry = guide_entry;
             RespawnCreatureIfNeeded(m_spiritguide, guide_entry);
