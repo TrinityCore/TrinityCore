@@ -23,10 +23,16 @@ EndScriptData */
 
 #include "precompiled.h"
 
-#define EMOTE_GENERIC_FRENZY_KILL   -1000001
+enum Yells
+{
+    EMOTE_GENERIC_FRENZY_KILL                              = -1000001
+};
 
-#define SPELL_GROUNDTREMOR          6524
-#define SPELL_FRENZY                28371
+enum Spells
+{
+    SPELL_GROUNDTREMOR                                     = 6524,
+    SPELL_FRENZY                                           = 28371
+};
 
 struct TRINITY_DLL_DECL boss_grizzleAI : public ScriptedAI
 {

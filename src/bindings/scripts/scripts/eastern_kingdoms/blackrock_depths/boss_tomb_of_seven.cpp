@@ -24,12 +24,20 @@ EndScriptData */
 #include "precompiled.h"
 #include "blackrock_depths.h"
 
-enum eEnums
+enum Spells
 {
-    SPELL_SMELT_DARK_IRON       = 14891,
-    SPELL_LEARN_SMELT           = 14894,
-    QUEST_SPECTRAL_CHALICE      = 4083,
-    SKILLPOINT_MIN              = 230
+    SPELL_SMELT_DARK_IRON                                  = 14891,
+    SPELL_LEARN_SMELT                                      = 14894,
+};
+
+enum Quests
+{
+    QUEST_SPECTRAL_CHALICE                                 = 4083
+};
+
+enum Misc
+{
+    DATA_SKILLPOINT_MIN                                    = 230
 };
 
 #define GOSSIP_ITEM_TEACH_1 "Teach me the art of smelting dark iron"
@@ -39,10 +47,10 @@ enum eEnums
 
 bool GossipHello_boss_gloomrel(Player* pPlayer, Creature* pCreature)
 {
-    if (pPlayer->GetQuestRewardStatus(QUEST_SPECTRAL_CHALICE) == 1 && pPlayer->GetSkillValue(SKILL_MINING) >= SKILLPOINT_MIN && !pPlayer->HasSpell(SPELL_SMELT_DARK_IRON))
+    if (pPlayer->GetQuestRewardStatus(QUEST_SPECTRAL_CHALICE) == 1 && pPlayer->GetSkillValue(SKILL_MINING) >= DATA_SKILLPOINT_MIN && !pPlayer->HasSpell(SPELL_SMELT_DARK_IRON))
         pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_TEACH_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
 
-    if (pPlayer->GetQuestRewardStatus(QUEST_SPECTRAL_CHALICE) == 0 && pPlayer->GetSkillValue(SKILL_MINING) >= SKILLPOINT_MIN)
+    if (pPlayer->GetQuestRewardStatus(QUEST_SPECTRAL_CHALICE) == 0 && pPlayer->GetSkillValue(SKILL_MINING) >= DATA_SKILLPOINT_MIN)
         pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_TRIBUTE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
 
     pPlayer->SEND_GOSSIP_MENU(pCreature->GetNpcTextId(), pCreature->GetGUID());
@@ -77,13 +85,13 @@ bool GossipSelect_boss_gloomrel(Player* pPlayer, Creature* pCreature, uint32 uiS
     return true;
 }
 
-enum eSpells
+enum DoomrelSpells
 {
-    SPELL_SHADOWBOLTVOLLEY               = 15245,
-    SPELL_IMMOLATE                       = 12742,
-    SPELL_CURSEOFWEAKNESS                = 12493,
-    SPELL_DEMONARMOR                     = 13787,
-    SPELL_SUMMON_VOIDWALKERS             = 15092
+    SPELL_SHADOWBOLTVOLLEY                                 = 15245,
+    SPELL_IMMOLATE                                         = 12742,
+    SPELL_CURSEOFWEAKNESS                                  = 12493,
+    SPELL_DEMONARMOR                                       = 13787,
+    SPELL_SUMMON_VOIDWALKERS                               = 15092
 };
 
 struct TRINITY_DLL_DECL boss_doomrelAI : public ScriptedAI

@@ -23,9 +23,12 @@ EndScriptData */
 
 #include "precompiled.h"
 
-#define SPELL_MIGHTYBLOW            14099
-#define SPELL_HAMSTRING             9080
-#define SPELL_CLEAVE                20691
+enum Spells
+{
+    SPELL_MIGHTYBLOW                                       = 14099,
+    SPELL_HAMSTRING                                        = 9080,
+    SPELL_CLEAVE                                           = 20691
+};
 
 struct TRINITY_DLL_DECL boss_general_angerforgeAI : public ScriptedAI
 {
