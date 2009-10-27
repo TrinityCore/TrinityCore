@@ -23,12 +23,15 @@ EndScriptData */
 
 #include "precompiled.h"
 
-#define SPELL_HEAL              10917
-#define SPELL_RENEW             10929
-#define SPELL_SHIELD            10901
-#define SPELL_MINDBLAST         10947
-#define SPELL_SHADOWWORDPAIN    10894
-#define SPELL_SMITE             10934
+enum Spells
+{
+    SPELL_HEAL                                             = 10917,
+    SPELL_RENEW                                            = 10929,
+    SPELL_SHIELD                                           = 10901,
+    SPELL_MINDBLAST                                        = 10947,
+    SPELL_SHADOWWORDPAIN                                   = 10894,
+    SPELL_SMITE                                            = 10934
+};
 
 struct TRINITY_DLL_DECL boss_moira_bronzebeardAI : public ScriptedAI
 {

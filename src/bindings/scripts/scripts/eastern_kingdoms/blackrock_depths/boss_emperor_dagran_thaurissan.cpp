@@ -23,11 +23,17 @@ EndScriptData */
 
 #include "precompiled.h"
 
-#define SAY_AGGRO                       -1230001
-#define SAY_SLAY                        -1230002
+enum Yells
+{
+    SAY_AGGRO                                              = -1230001,
+    SAY_SLAY                                               = -1230002
+};
 
-#define SPELL_HANDOFTHAURISSAN          17492
-#define SPELL_AVATAROFFLAME             15636
+enum Spells
+{
+    SPELL_HANDOFTHAURISSAN                                 = 17492,
+    SPELL_AVATAROFFLAME                                    = 15636
+};
 
 struct TRINITY_DLL_DECL boss_draganthaurissanAI : public ScriptedAI
 {
