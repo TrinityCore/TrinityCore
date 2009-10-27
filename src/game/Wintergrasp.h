@@ -43,7 +43,7 @@ enum WintergraspSpell
     SPELL_TELEPORT_DALARAN  = 53360,
 
     SPELL_TOWER_CONTROL     = 62064,
-    SPELL_RULLERS_OF_WG     = 52108,
+    //SPELL_RULLERS_OF_WG     = 52108,
     SPELL_VICTORY_REWARD    = 56902,
     SPELL_DEFEAT_REWARD     = 58494,
     SPELL_DAMAGED_TOWER     = 59135,
@@ -52,7 +52,6 @@ enum WintergraspSpell
     SPELL_INTACT_BUILDING   = 59203,
     SPELL_ESSENCE_OF_WG     = 58045,
     SPELL_SPIRITUAL_IMMUNITY = 58729,
-// Unused: Not implemented
 //    SPELL_VICTORY_AURA      = 60044,
 };
 
