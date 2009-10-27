@@ -19,23 +19,42 @@
 #include "precompiled.h"
 #include "naxxramas.h"
 
-#define SAY_GREET       -1533009
-#define SAY_AGGRO       RAND(-1533010,-1533011,-1533012,-1533013)
-#define SAY_SLAY        RAND(-1533014,-1533015)
-#define SAY_DEATH       -1533016
-
+enum Yells
+{
+    SAY_GREET       = -1533009,
+    SAY_AGGRO_1     = -1533010,
+    SAY_AGGRO_2     = -1533011,
+    SAY_AGGRO_3     = -1533012,
+    SAY_AGGRO_4     = -1533013,
+    SAY_SLAY_1      = -1533014,
+    SAY_SLAY_2      = -1533015,
+    SAY_DEATH       = -1533016
+};
 //#define SOUND_RANDOM_AGGRO  8955                            //soundId containing the 4 aggro sounds, we not using this
 
-#define SPELL_POSION_BOLT_VOLLEY    HEROIC(28796,54098)
-#define SPELL_RAIN_OF_FIRE          HEROIC(28794,54099)
-#define SPELL_FRENZY                HEROIC(28798,54100)
-#define SPELL_WIDOWS_EMBRACE        HEROIC(28732,54097)
+enum Spells
+{
+    SPELL_POISON_BOLT_VOLLEY    = 28796,
+    H_SPELL_POISON_BOLT_VOLLEY  = 54098,
+    SPELL_RAIN_OF_FIRE          = 28794,
+    H_SPELL_RAIN_OF_FIRE        = 54099,
+    SPELL_FRENZY                = 28798,
+    H_SPELL_FRENZY              = 54100,
+    SPELL_WIDOWS_EMBRACE        = 28732,
+    H_SPELL_WIDOWS_EMBRACE      = 54097
+};
 
 enum Events
 {
-    EVENT_POSION = 1,
+    EVENT_POISON = 1,
     EVENT_FIRE,
     EVENT_FRENZY,
+    EVENT_AFTERENRAGE
+};
+
+enum Creatures
+{
+    NPC_FAERLINA          = 15953
 };
 
 struct TRINITY_DLL_DECL boss_faerlinaAI : public BossAI
@@ -47,10 +66,10 @@ struct TRINITY_DLL_DECL boss_faerlinaAI : public BossAI
     void EnterCombat(Unit *who)
     {
         _EnterCombat();
-        DoScriptText(SAY_AGGRO, me);
-        events.ScheduleEvent(EVENT_POSION, 10000 + rand()%15000);
-        events.ScheduleEvent(EVENT_FIRE, 5000 + rand()%15000);
-        events.ScheduleEvent(EVENT_FRENZY, 60000 + rand()%20000);
+        DoScriptText(RAND(SAY_AGGRO_1,SAY_AGGRO_2,SAY_AGGRO_3,SAY_AGGRO_4), me);
+        events.ScheduleEvent(EVENT_POISON, urand(12000,15000));
+        events.ScheduleEvent(EVENT_FIRE, urand(6000,18000));
+        events.ScheduleEvent(EVENT_FRENZY, urand(60000,80000));
     }
 
     void MoveInLineOfSight(Unit *who)
@@ -66,7 +85,7 @@ struct TRINITY_DLL_DECL boss_faerlinaAI : public BossAI
     void KilledUnit(Unit* victim)
     {
         if (!(rand()%3))
-            DoScriptText(SAY_SLAY, me);
+            DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2), me);
     }
 
     void JustDied(Unit* Killer)
@@ -86,30 +105,62 @@ struct TRINITY_DLL_DECL boss_faerlinaAI : public BossAI
         {
             switch(eventId)
             {
-                case EVENT_POSION:
+                case EVENT_POISON:
                     if (!me->HasAura(SPELL_WIDOWS_EMBRACE))
-                        DoCastAOE(SPELL_POSION_BOLT_VOLLEY);
-                    events.ScheduleEvent(EVENT_POSION, 10000 + rand()%15000);
+                        DoCastAOE(HEROIC(SPELL_POISON_BOLT_VOLLEY,H_SPELL_POISON_BOLT_VOLLEY));
+                    events.ScheduleEvent(EVENT_POISON, urand(12000,15000));
                     return;
                 case EVENT_FIRE:
                     if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0))
-                        DoCast(target, SPELL_RAIN_OF_FIRE);
-                    events.ScheduleEvent(EVENT_FIRE, 5000 + rand()%15000);
+                        DoCast(target, HEROIC(SPELL_RAIN_OF_FIRE,H_SPELL_RAIN_OF_FIRE));
+                    events.ScheduleEvent(EVENT_FIRE, urand(6000,18000));
                     return;
                 case EVENT_FRENZY:
-                    DoCast(me,SPELL_FRENZY);
-                    events.ScheduleEvent(EVENT_FRENZY, 60000 + rand()%20000);
+                    DoCast(me,HEROIC(SPELL_FRENZY,H_SPELL_FRENZY));
                     return;
+		case EVENT_AFTERENRAGE:
+		    events.ScheduleEvent(EVENT_FRENZY, urand(60000,80000));
             }
         }
 
         DoMeleeAttackIfReady();
+    }
+    
+    void DispellEnrage()
+    {
+        events.ScheduleEvent(EVENT_FRENZY, urand(60000,80000));
+	m_creature->RemoveAurasDueToSpell(HEROIC(SPELL_FRENZY,H_SPELL_FRENZY));
     }
 };
 
 CreatureAI* GetAI_boss_faerlina(Creature* pCreature)
 {
     return new boss_faerlinaAI (pCreature);
+}
+
+struct TRINITY_DLL_DECL mob_worshipperAI : public ScriptedAI
+{
+    mob_worshipperAI(Creature *c) : ScriptedAI(c)
+    {
+        pInstance = c->GetInstanceData();
+    }
+    
+    ScriptedInstance *pInstance;
+    
+    void JustDied(Unit *pKiller)
+    {
+        if (pInstance)
+	    if (Creature* pFaerlina = pInstance->instance->GetCreature(NPC_FAERLINA))
+	    {
+	        DoCast(pFaerlina,HEROIC(SPELL_WIDOWS_EMBRACE,H_SPELL_WIDOWS_EMBRACE));
+	        CAST_AI(boss_faerlinaAI,pFaerlina->AI())->DispellEnrage();
+	    }
+    }
+};
+
+CreatureAI* GetAI_mob_worshipper(Creature* pCreature)
+{
+    return new mob_worshipperAI (pCreature);
 }
 
 void AddSC_boss_faerlina()
@@ -119,4 +170,11 @@ void AddSC_boss_faerlina()
     newscript->Name = "boss_faerlina";
     newscript->GetAI = &GetAI_boss_faerlina;
     newscript->RegisterSelf();
+    
+    newscript = new Script;
+    newscript->Name = "mob_worshipper";
+    newscript->GetAI = &GetAI_mob_worshipper;
+    newscript->RegisterSelf();
 }
+
+
