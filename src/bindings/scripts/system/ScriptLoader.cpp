@@ -59,7 +59,8 @@ extern void AddSC_boss_flamegor();
 extern void AddSC_boss_chromaggus();
 extern void AddSC_boss_nefarian();
 extern void AddSC_boss_victor_nefarius();
-extern void AddSC_instance_deadmines();             //Deadmines
+extern void AddSC_deadmines();                      //Deadmines
+extern void AddSC_instance_deadmines();
 extern void AddSC_boss_attumen();                   //Karazhan
 extern void AddSC_boss_curator();
 extern void AddSC_boss_maiden_of_virtue();
@@ -501,7 +502,8 @@ void AddScripts()
     AddSC_boss_chromaggus();
     AddSC_boss_nefarian();
     AddSC_boss_victor_nefarius();
-    AddSC_instance_deadmines();             //Deadmines
+    AddSC_deadmines();                      //Deadmines
+    AddSC_instance_deadmines();
     AddSC_boss_attumen();                   //Karazhan
     AddSC_boss_curator();
     AddSC_boss_maiden_of_virtue();

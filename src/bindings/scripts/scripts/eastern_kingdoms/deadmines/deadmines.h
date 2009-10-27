@@ -3,12 +3,25 @@
 
 #include "precompiled.h"
 
-#define CANNON_NOT_USED 1
-#define CANNON_GUNPOWDER_USED 2
-#define CANNON_BLAST_INITIATED 3
-#define PIRATES_ATTACK 4
-#define EVENT_DONE 5
+enum CannonState
+{
+    CANNON_NOT_USED,
+    CANNON_GUNPOWDER_USED,
+    CANNON_BLAST_INITIATED,
+    PIRATES_ATTACK,
+    EVENT_DONE
+};
 
-#define EVENT_STATE 1
+enum Data
+{
+    EVENT_STATE
+};
+
+enum GameObjects
+{
+    GO_IRONCLAD_DOOR                                       = 16397,
+    GO_DEFIAS_CANNON                                       = 16398,
+    GO_DOOR_LEVER                                          = 101833
+};
 #endif
 
