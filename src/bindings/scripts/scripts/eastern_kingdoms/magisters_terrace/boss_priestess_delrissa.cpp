@@ -231,7 +231,7 @@ struct TRINITY_DLL_DECL boss_priestess_delrissaAI : public ScriptedAI
         if (!UpdateVictim())
             return;
 
-        if (ResetTimer < diff)
+        if (ResetTimer <= diff)
         {
             float x, y, z, o;
             m_creature->GetHomePosition(x, y, z, o);
@@ -241,9 +241,9 @@ struct TRINITY_DLL_DECL boss_priestess_delrissaAI : public ScriptedAI
                 return;
             }
             ResetTimer = 5000;
-        }else ResetTimer -= diff;
+        } else ResetTimer -= diff;
 
-        if (HealTimer < diff)
+        if (HealTimer <= diff)
         {
             uint32 health = m_creature->GetHealth();
             Unit* target = m_creature;
@@ -260,75 +260,64 @@ struct TRINITY_DLL_DECL boss_priestess_delrissaAI : public ScriptedAI
             HealTimer = 15000;
         }else HealTimer -= diff;
 
-        if (RenewTimer < diff)
+        if (RenewTimer <= diff)
         {
             Unit* target = m_creature;
 
-            if (rand()%2 == 1)
-            {
+            if (urand(0,1))
                 if (Unit* pAdd = Unit::GetUnit(*m_creature, m_auiLackeyGUID[rand()%MAX_ACTIVE_LACKEY]))
-                {
                     if (pAdd->isAlive())
                         target = pAdd;
-                }
-            }
+
             DoCast(target,Heroic ? SPELL_RENEW_HEROIC : SPELL_RENEW_NORMAL);
             RenewTimer = 5000;
-        }else RenewTimer -= diff;
+        } else RenewTimer -= diff;
 
-        if (ShieldTimer < diff)
+        if (ShieldTimer <= diff)
         {
             Unit* target = m_creature;
 
-            if (rand()%2 == 1)
-            {
+            if (urand(0,1))
                 if (Unit* pAdd = Unit::GetUnit(*m_creature, m_auiLackeyGUID[rand()%MAX_ACTIVE_LACKEY]))
-                {
                     if (pAdd->isAlive() && !pAdd->HasAura(SPELL_SHIELD))
                         target = pAdd;
-                }
-            }
 
             DoCast(target, SPELL_SHIELD);
             ShieldTimer = 7500;
-        }else ShieldTimer -= diff;
+        } else ShieldTimer -= diff;
 
-        if (DispelTimer < diff)
+        if (DispelTimer <= diff)
         {
             Unit* target = NULL;
             bool friendly = false;
 
-            if (rand()%2 == 1)
-                target = SelectUnit(SELECT_TARGET_RANDOM, 0);
+            if (urand(0,1))
+                target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true);
             else
             {
                 friendly = true;
 
-                if (rand()%2 == 1)
+                if (urand(0,1))
                     target = m_creature;
                 else
-                {
                     if (Unit* pAdd = Unit::GetUnit(*m_creature, m_auiLackeyGUID[rand()%MAX_ACTIVE_LACKEY]))
-                    {
                         if (pAdd->isAlive())
                             target = pAdd;
-                    }
-                }
             }
 
             if (target)
                 DoCast(target, SPELL_DISPEL_MAGIC);
 
             DispelTimer = 12000;
-        }else DispelTimer -= diff;
+        } else DispelTimer -= diff;
 
         if (SWPainTimer < diff)
         {
-            if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
+            if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                 DoCast(pTarget, Heroic ? SPELL_SW_PAIN_HEROIC : SPELL_SW_PAIN_NORMAL);
 
             SWPainTimer = 10000;
-        }else SWPainTimer -= diff;
+        } else SWPainTimer -= diff;
 
         DoMeleeAttackIfReady();
     }
@@ -369,7 +358,7 @@ struct TRINITY_DLL_DECL boss_priestess_lackey_commonAI : public ScriptedAI
         // For later development, some alternative threat system should be made
         // We do not know what this system is based upon, but one theory is class (healers=high threat, dps=medium, etc)
         // We reset their threat frequently as an alternative until such a system exist
-        ResetThreatTimer = 5000 + rand()%15000;
+        ResetThreatTimer = urand(5000,20000);
 
         // in case she is not alive and Reset was for some reason called, respawn her (most likely party wipe after killing her)
         if (Creature* pDelrissa = Unit::GetCreature(*m_creature, pInstance ? pInstance->GetData64(DATA_DELRISSA) : 0))
@@ -446,7 +435,7 @@ struct TRINITY_DLL_DECL boss_priestess_lackey_commonAI : public ScriptedAI
         if (!pInstance)
             return;
 
-        if (Creature* Delrissa = (Unit::GetCreature(*m_creature, pInstance->GetData64(DATA_DELRISSA))))
+        if (Creature* Delrissa = Unit::GetCreature(*m_creature, pInstance->GetData64(DATA_DELRISSA)))
             Delrissa->AI()->KilledUnit(victim);
     }
 
@@ -464,17 +453,17 @@ struct TRINITY_DLL_DECL boss_priestess_lackey_commonAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
-        if (!UsedPotion && ((m_creature->GetHealth()*100 / m_creature->GetMaxHealth()) < 25))
+        if (!UsedPotion && (m_creature->GetHealth()*100 / m_creature->GetMaxHealth()) < 25)
         {
             DoCast(m_creature, SPELL_HEALING_POTION);
             UsedPotion = true;
         }
 
-        if (ResetThreatTimer < diff)
+        if (ResetThreatTimer <= diff)
         {
             DoResetThreat();
             ResetThreatTimer = 5000 + rand()%15000;
-        }else ResetThreatTimer -= diff;
+        } else ResetThreatTimer -= diff;
     }
 };
 
@@ -520,7 +509,7 @@ struct TRINITY_DLL_DECL boss_kagani_nightstrikeAI : public boss_priestess_lackey
 
         boss_priestess_lackey_commonAI::UpdateAI(diff);
 
-        if (Vanish_Timer < diff)
+        if (Vanish_Timer <= diff)
         {
             DoCast(m_creature, SPELL_VANISH);
 
@@ -534,36 +523,36 @@ struct TRINITY_DLL_DECL boss_kagani_nightstrikeAI : public boss_priestess_lackey
             InVanish = true;
             Vanish_Timer = 30000;
             Wait_Timer = 10000;
-        }else Vanish_Timer -= diff;
+        } else Vanish_Timer -= diff;
 
         if (InVanish)
         {
-            if (Wait_Timer < diff)
+            if (Wait_Timer <= diff)
             {
                 DoCast(m_creature->getVictim(), SPELL_BACKSTAB, true);
                 DoCast(m_creature->getVictim(), SPELL_KIDNEY_SHOT, true);
                 m_creature->SetVisibility(VISIBILITY_ON);       // ...? Hacklike
                 InVanish = false;
-            }else Wait_Timer -= diff;
+            } else Wait_Timer -= diff;
         }
 
-        if (Gouge_Timer < diff)
+        if (Gouge_Timer <= diff)
         {
             DoCast(m_creature->getVictim(), SPELL_GOUGE);
             Gouge_Timer = 5500;
-        }else Gouge_Timer -= diff;
+        } else Gouge_Timer -= diff;
 
-        if (Kick_Timer < diff)
+        if (Kick_Timer <= diff)
         {
             DoCast(m_creature->getVictim(), SPELL_KICK);
             Kick_Timer = 7000;
-        }else Kick_Timer -= diff;
+        } else Kick_Timer -= diff;
 
-        if (Eviscerate_Timer < diff)
+        if (Eviscerate_Timer <= diff)
         {
             DoCast(m_creature->getVictim(), SPELL_EVISCERATE);
             Eviscerate_Timer = 4000;
-        }else Eviscerate_Timer -= diff;
+        } else Eviscerate_Timer -= diff;
 
         if (!InVanish)
             DoMeleeAttackIfReady();
@@ -620,41 +609,41 @@ struct TRINITY_DLL_DECL boss_ellris_duskhallowAI : public boss_priestess_lackey_
 
         boss_priestess_lackey_commonAI::UpdateAI(diff);
 
-        if (Immolate_Timer < diff)
+        if (Immolate_Timer <= diff)
         {
             DoCast(m_creature->getVictim(),SPELL_IMMOLATE);
             Immolate_Timer = 6000;
-        }else Immolate_Timer -= diff;
+        } else Immolate_Timer -= diff;
 
-        if (Shadow_Bolt_Timer < diff)
+        if (Shadow_Bolt_Timer <= diff)
         {
             DoCast(m_creature->getVictim(),SPELL_SHADOW_BOLT);
             Shadow_Bolt_Timer = 5000;
-        }else Shadow_Bolt_Timer -= diff;
+        } else Shadow_Bolt_Timer -= diff;
 
-        if (Seed_of_Corruption_Timer < diff)
+        if (Seed_of_Corruption_Timer <= diff)
         {
             if (Unit* pUnit = SelectUnit(SELECT_TARGET_RANDOM, 0))
                 DoCast(pUnit, SPELL_SEED_OF_CORRUPTION);
 
             Seed_of_Corruption_Timer = 10000;
-        }else Seed_of_Corruption_Timer -= diff;
+        } else Seed_of_Corruption_Timer -= diff;
 
-        if (Curse_of_Agony_Timer < diff)
+        if (Curse_of_Agony_Timer <= diff)
         {
             if (Unit* pUnit = SelectUnit(SELECT_TARGET_RANDOM, 0))
                 DoCast(pUnit, SPELL_CURSE_OF_AGONY);
 
             Curse_of_Agony_Timer = 13000;
-        }else Curse_of_Agony_Timer -= diff;
+        } else Curse_of_Agony_Timer -= diff;
 
-        if (Fear_Timer < diff)
+        if (Fear_Timer <= diff)
         {
             if (Unit* pUnit = SelectUnit(SELECT_TARGET_RANDOM, 0))
                 DoCast(pUnit, SPELL_FEAR);
 
             Fear_Timer = 10000;
-        }else Fear_Timer -= diff;
+        } else Fear_Timer -= diff;
 
         DoMeleeAttackIfReady();
     }
@@ -694,17 +683,17 @@ struct TRINITY_DLL_DECL boss_eramas_brightblazeAI : public boss_priestess_lackey
 
         boss_priestess_lackey_commonAI::UpdateAI(diff);
 
-        if (Knockdown_Timer < diff)
+        if (Knockdown_Timer <= diff)
         {
             DoCast(m_creature->getVictim(),SPELL_KNOCKDOWN);
             Knockdown_Timer = 6000;
-        }else Knockdown_Timer -= diff;
+        } else Knockdown_Timer -= diff;
 
-        if (Snap_Kick_Timer < diff)
+        if (Snap_Kick_Timer <= diff)
         {
             DoCast(m_creature->getVictim(),SPELL_SNAP_KICK);
             Snap_Kick_Timer  = 4500;
-        }else Snap_Kick_Timer -= diff;
+        } else Snap_Kick_Timer -= diff;
 
         DoMeleeAttackIfReady();
     }

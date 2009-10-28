@@ -56,21 +56,21 @@ struct TRINITY_DLL_DECL npc_teleportation_portalAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
-        if (uiSpawnTimer < diff)
+        if (uiSpawnTimer <= diff)
         {
             if (Creature* pSummon = m_creature->SummonCreature(RAND(CREATURE_AZURE_CAPTAIN,CREATURE_AZURE_SPELLBREAKER,
                                                                CREATURE_AZURE_BINDER,CREATURE_AZURE_MAGE_SLAYER,CREATURE_AZURE_CAPTAIN),
-                                                       m_creature->GetPositionX()+rand()%3, m_creature->GetPositionY()+rand()%3,
+                                                       m_creature->GetPositionX()+urand(0,2), m_creature->GetPositionY()+urand(0,2),
                                                        m_creature->GetPositionZ(),m_creature->GetOrientation(),
                                                        TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000))
                 pSummon->Attack(pSummon->SelectNearestTarget(100),true);
             uiSpawnTimer = SPAWN_TIME;
         } else uiSpawnTimer -= diff;
-        if (uiDespawnTimer < diff)
-        {
-            m_creature->Kill(m_creature);
-            m_creature->RemoveCorpse();
-        } else uiDespawnTimer -= diff;
+
+        if (uiDespawnTimer <= diff)
+            m_creature->DisappearAndDie();
+        else
+            uiDespawnTimer -= diff;
     }
 
     void JustDied(Unit* killer)
