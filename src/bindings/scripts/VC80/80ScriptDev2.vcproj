@@ -450,7 +450,7 @@
 						>
 					</File>
 					<File
-						RelativePath="..\scripts\eastern_kingdoms\blackrock_depths\def_blackrock_depths.h"
+						RelativePath="..\scripts\eastern_kingdoms\blackrock_depths\blackrock_depths.h"
 						>
 					</File>
 					<File
@@ -562,7 +562,11 @@
 						>
 					</File>
 					<File
-						RelativePath="..\scripts\eastern_kingdoms\deadmines\def_deadmines.h"
+						RelativePath="..\scripts\eastern_kingdoms\deadmines\deadmines.h"
+						>
+					</File>
+					<File
+						RelativePath="..\scripts\eastern_kingdoms\deadmines\instance_deadmines.cpp"
 						>
 					</File>
 				</Filter>
@@ -610,7 +614,7 @@
 						>
 					</File>
 					<File
-						RelativePath="..\scripts\eastern_kingdoms\karazhan\def_karazhan.h"
+						RelativePath="..\scripts\eastern_kingdoms\karazhan\karazhan.h"
 						>
 					</File>
 					<File
@@ -642,7 +646,7 @@
 						>
 					</File>
 					<File
-						RelativePath="..\scripts\eastern_kingdoms\magisters_terrace\def_magisters_terrace.h"
+						RelativePath="..\scripts\eastern_kingdoms\magisters_terrace\magisters_terrace.h"
 						>
 					</File>
 					<File
@@ -698,7 +702,7 @@
 						>
 					</File>
 					<File
-						RelativePath="..\scripts\eastern_kingdoms\molten_core\def_molten_core.h"
+						RelativePath="..\scripts\eastern_kingdoms\molten_core\molten_core.h"
 						>
 					</File>
 					<File
@@ -711,7 +715,7 @@
 					</File>
 				</Filter>
 				<Filter
-					Name="scarlet_enclave"
+					Name="Scarlet Enclave"
 					>
 					<File
 						RelativePath="..\scripts\eastern_kingdoms\scarlet_enclave\the_scarlet_enclave.cpp"
@@ -774,7 +778,7 @@
 						>
 					</File>
 					<File
-						RelativePath="..\scripts\eastern_kingdoms\scarlet_monastery\def_scarlet_monastery.h"
+						RelativePath="..\scripts\eastern_kingdoms\scarlet_monastery\scarlet_monastery.h"
 						>
 					</File>
 					<File
@@ -834,7 +838,7 @@
 						>
 					</File>
 					<File
-						RelativePath="..\scripts\eastern_kingdoms\scholomance\def_scholomance.h"
+						RelativePath="..\scripts\eastern_kingdoms\scholomance\scholomance.h"
 						>
 					</File>
 					<File
@@ -846,7 +850,7 @@
 					Name="Shadowfang Keep"
 					>
 					<File
-						RelativePath="..\scripts\eastern_kingdoms\shadowfang_keep\def_shadowfang_keep.h"
+						RelativePath="..\scripts\eastern_kingdoms\shadowfang_keep\shadowfang_keep.h"
 						>
 					</File>
 					<File
@@ -906,7 +910,7 @@
 						>
 					</File>
 					<File
-						RelativePath="..\scripts\eastern_kingdoms\stratholme\def_stratholme.h"
+						RelativePath="..\scripts\eastern_kingdoms\stratholme\stratholme.h"
 						>
 					</File>
 					<File
@@ -922,7 +926,7 @@
 					Name="Sunken Temple"
 					>
 					<File
-						RelativePath="..\scripts\eastern_kingdoms\sunken_temple\def_sunken_temple.h"
+						RelativePath="..\scripts\eastern_kingdoms\sunken_temple\sunken_temple.h"
 						>
 					</File>
 					<File
@@ -962,7 +966,7 @@
 						>
 					</File>
 					<File
-						RelativePath="..\scripts\eastern_kingdoms\sunwell_plateau\def_sunwell_plateau.h"
+						RelativePath="..\scripts\eastern_kingdoms\sunwell_plateau\sunwell_plateau.h"
 						>
 					</File>
 					<File
@@ -1022,7 +1026,7 @@
 						>
 					</File>
 					<File
-						RelativePath="..\scripts\eastern_kingdoms\zulaman\def_zulaman.h"
+						RelativePath="..\scripts\eastern_kingdoms\zulaman\zulaman.h"
 						>
 					</File>
 					<File
@@ -1090,7 +1094,7 @@
 						>
 					</File>
 					<File
-						RelativePath="..\scripts\eastern_kingdoms\zulgurub\def_zulgurub.h"
+						RelativePath="..\scripts\eastern_kingdoms\zulgurub\zulgurub.h"
 						>
 					</File>
 					<File
@@ -1230,7 +1234,7 @@
 						>
 					</File>
 					<File
-						RelativePath="..\scripts\kalimdor\blackfathom_depths\def_blackfathom_deeps.h"
+						RelativePath="..\scripts\kalimdor\blackfathom_depths\blackfathom_deeps.h"
 						>
 					</File>
 				</Filter>
@@ -1256,12 +1260,12 @@
 							RelativePath="..\scripts\kalimdor\caverns_of_time\culling_of_stratholme\boss_salramm.cpp"
 							>
 						</File>
-                        <File
-                            RelativePath="..\scripts\kalimdor\caverns_of_time\culling_of_stratholme\boss_infinite.cpp"
-                            >
-                        </File>
 						<File
-							RelativePath="..\scripts\kalimdor\caverns_of_time\culling_of_stratholme\def_culling_of_stratholme.h"
+							RelativePath="..\scripts\kalimdor\caverns_of_time\culling_of_stratholme\boss_infinite.cpp"
+							>
+						</File>
+						<File
+							RelativePath="..\scripts\kalimdor\caverns_of_time\culling_of_stratholme\culling_of_stratholme.h"
 							>
 						</File>
 						<File
@@ -1289,7 +1293,7 @@
 							>
 						</File>
 						<File
-							RelativePath="..\scripts\kalimdor\caverns_of_time\dark_portal\def_dark_portal.h"
+							RelativePath="..\scripts\kalimdor\caverns_of_time\dark_portal\dark_portal.h"
 							>
 						</File>
 						<File
@@ -1321,7 +1325,7 @@
 							>
 						</File>
 						<File
-							RelativePath="..\scripts\kalimdor\caverns_of_time\hyjal\def_hyjal.h"
+							RelativePath="..\scripts\kalimdor\caverns_of_time\hyjal\hyjal.h"
 							>
 						</File>
 						<File
@@ -1365,7 +1369,7 @@
 							>
 						</File>
 						<File
-							RelativePath="..\scripts\kalimdor\caverns_of_time\old_hillsbrad\def_old_hillsbrad.h"
+							RelativePath="..\scripts\kalimdor\caverns_of_time\old_hillsbrad\old_hillsbrad.h"
 							>
 						</File>
 						<File
@@ -1430,7 +1434,7 @@
 						>
 					</File>
 					<File
-						RelativePath="..\scripts\kalimdor\razorfen_kraul\def_razorfen_kraul.h"
+						RelativePath="..\scripts\kalimdor\razorfen_kraul\razorfen_kraul.h"
 						>
 					</File>
 				</Filter>
@@ -1463,6 +1467,10 @@
 					</File>
 					<File
 						RelativePath="..\scripts\kalimdor\ruins_of_ahnqiraj\instance_ruins_of_ahnqiraj.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\scripts\kalimdor\ruins_of_ahnqiraj\ruins_of_ahnqiraj.h"
 						>
 					</File>
 				</Filter>
@@ -1506,7 +1514,7 @@
 						>
 					</File>
 					<File
-						RelativePath="..\scripts\kalimdor\temple_of_ahnqiraj\def_temple_of_ahnqiraj.h"
+						RelativePath="..\scripts\kalimdor\temple_of_ahnqiraj\temple_of_ahnqiraj.h"
 						>
 					</File>
 					<File
@@ -1522,7 +1530,7 @@
 					Name="Wailing Caverns"
 					>
 					<File
-						RelativePath="..\scripts\kalimdor\wailing_caverns\def_wailing_caverns.h"
+						RelativePath="..\scripts\kalimdor\wailing_caverns\wailing_caverns.h"
 						>
 					</File>
 					<File
@@ -1660,7 +1668,7 @@
 							>
 						</File>
 						<File
-							RelativePath="..\scripts\northrend\azjol_nerub\ahnkahet\def_ahnkahet.h"
+							RelativePath="..\scripts\northrend\azjol_nerub\ahnkahet\ahnkahet.h"
 							>
 						</File>
 						<File
@@ -1684,7 +1692,7 @@
 							>
 						</File>
 						<File
-							RelativePath="..\scripts\northrend\azjol_nerub\azjol_nerub\def_azjol_nerub.h"
+							RelativePath="..\scripts\northrend\azjol_nerub\azjol_nerub\azjol_nerub.h"
 							>
 						</File>
 						<File
@@ -1713,7 +1721,7 @@
 						>
 					</File>
 					<File
-						RelativePath="..\scripts\northrend\draktharon_keep\def_drak_tharon_keep.h"
+						RelativePath="..\scripts\northrend\draktharon_keep\drak_tharon_keep.h"
 						>
 					</File>
 					<File
@@ -1745,7 +1753,7 @@
 						>
 					</File>
 					<File
-						RelativePath="..\scripts\northrend\gundrak\def_gundrak.h"
+						RelativePath="..\scripts\northrend\gundrak\gundrak.h"
 						>
 					</File>
 					<File
@@ -1817,7 +1825,7 @@
 						>
 					</File>
 					<File
-						RelativePath="..\scripts\northrend\naxxramas\def_naxxramas.h"
+						RelativePath="..\scripts\northrend\naxxramas\naxxramas.h"
 						>
 					</File>
 					<File
@@ -1856,7 +1864,7 @@
 							>
 						</File>
 						<File
-							RelativePath="..\scripts\northrend\nexus\nexus\def_nexus.h"
+							RelativePath="..\scripts\northrend\nexus\nexus\nexus.h"
 							>
 						</File>
 						<File
@@ -1884,7 +1892,7 @@
 							>
 						</File>
 						<File
-							RelativePath="..\scripts\northrend\nexus\oculus\def_oculus.h"
+							RelativePath="..\scripts\northrend\nexus\oculus\oculus.h"
 							>
 						</File>
 						<File
@@ -1900,7 +1908,7 @@
 							>
 						</File>
 						<File
-							RelativePath="..\scripts\northrend\nexus\eye_of_eternity\def_eye_of_eternity.h"
+							RelativePath="..\scripts\northrend\nexus\eye_of_eternity\eye_of_eternity.h"
 							>
 						</File>
 						<File
@@ -1917,7 +1925,7 @@
 						>
 					</File>
 					<File
-						RelativePath="..\scripts\northrend\obsidian_sanctum\def_obsidian_sanctum.h"
+						RelativePath="..\scripts\northrend\obsidian_sanctum\obsidian_sanctum.h"
 						>
 					</File>
 					<File
@@ -1944,7 +1952,7 @@
 							>
 						</File>
 						<File
-							RelativePath="..\scripts\northrend\ulduar\halls_of_stone\def_halls_of_stone.h"
+							RelativePath="..\scripts\northrend\ulduar\halls_of_stone\halls_of_stone.h"
 							>
 						</File>
 						<File
@@ -1972,7 +1980,7 @@
 							>
 						</File>
 						<File
-							RelativePath="..\scripts\northrend\ulduar\halls_of_lightning\def_halls_of_lightning.h"
+							RelativePath="..\scripts\northrend\ulduar\halls_of_lightning\halls_of_lightning.h"
 							>
 						</File>
 						<File
@@ -2040,7 +2048,7 @@
 							>
 						</File>
 						<File
-							RelativePath="..\scripts\northrend\ulduar\ulduar\def_ulduar.h"
+							RelativePath="..\scripts\northrend\ulduar\ulduar\ulduar.h"
 							>
 						</File>
 						<File
@@ -2068,7 +2076,7 @@
 							>
 						</File>
 						<File
-							RelativePath="..\scripts\northrend\utgarde_keep\utgarde_keep\def_utgarde_keep.h"
+							RelativePath="..\scripts\northrend\utgarde_keep\utgarde_keep\utgarde_keep.h"
 							>
 						</File>
 						<File
@@ -2100,7 +2108,7 @@
 							>
 						</File>
 						<File
-							RelativePath="..\scripts\northrend\utgarde_keep\utgarde_pinnacle\def_pinnacle.h"
+							RelativePath="..\scripts\northrend\utgarde_keep\utgarde_pinnacle\utgarde_pinnacle.h"
 							>
 						</File>
 						<File
@@ -2121,7 +2129,7 @@
 						>
 					</File>
 					<File
-						RelativePath="..\scripts\northrend\vault_of_archavon\def_vault_of_archavon.h"
+						RelativePath="..\scripts\northrend\vault_of_archavon\vault_of_archavon.h"
 						>
 					</File>
 					<File
@@ -2161,7 +2169,7 @@
 						>
 					</File>
 					<File
-						RelativePath="..\scripts\northrend\violet_hold\def_violet_hold.h"
+						RelativePath="..\scripts\northrend\violet_hold\violet_hold.h"
 						>
 					</File>
 					<File
@@ -2248,7 +2256,7 @@
 							>
 						</File>
 						<File
-							RelativePath="..\scripts\outland\auchindoun\sethekk_halls\def_sethekk_halls.h"
+							RelativePath="..\scripts\outland\auchindoun\sethekk_halls\sethekk_halls.h"
 							>
 						</File>
 						<File
@@ -2276,7 +2284,7 @@
 							>
 						</File>
 						<File
-							RelativePath="..\scripts\outland\auchindoun\shadow_labyrinth\def_shadow_labyrinth.h"
+							RelativePath="..\scripts\outland\auchindoun\shadow_labyrinth\shadow_labyrinth.h"
 							>
 						</File>
 						<File
@@ -2325,7 +2333,7 @@
 						>
 					</File>
 					<File
-						RelativePath="..\scripts\outland\black_temple\def_black_temple.h"
+						RelativePath="..\scripts\outland\black_temple\black_temple.h"
 						>
 					</File>
 					<File
@@ -2368,7 +2376,7 @@
 							>
 						</File>
 						<File
-							RelativePath="..\scripts\outland\coilfang_resevoir\serpent_shrine\def_serpent_shrine.h"
+							RelativePath="..\scripts\outland\coilfang_resevoir\serpent_shrine\serpent_shrine.h"
 							>
 						</File>
 						<File
@@ -2392,7 +2400,7 @@
 							>
 						</File>
 						<File
-							RelativePath="..\scripts\outland\coilfang_resevoir\steam_vault\def_steam_vault.h"
+							RelativePath="..\scripts\outland\coilfang_resevoir\steam_vault\steam_vault.h"
 							>
 						</File>
 						<File
@@ -2425,7 +2433,7 @@
 						>
 					</File>
 					<File
-						RelativePath="..\scripts\outland\gruuls_lair\def_gruuls_lair.h"
+						RelativePath="..\scripts\outland\gruuls_lair\gruuls_lair.h"
 						>
 					</File>
 					<File
@@ -2452,7 +2460,7 @@
 							>
 						</File>
 						<File
-							RelativePath="..\scripts\outland\hellfire_citadel\blood_furnace\def_blood_furnace.h"
+							RelativePath="..\scripts\outland\hellfire_citadel\blood_furnace\blood_furnace.h"
 							>
 						</File>
 						<File
@@ -2468,7 +2476,7 @@
 							>
 						</File>
 						<File
-							RelativePath="..\scripts\outland\hellfire_citadel\magtheridons_lair\def_magtheridons_lair.h"
+							RelativePath="..\scripts\outland\hellfire_citadel\magtheridons_lair\magtheridons_lair.h"
 							>
 						</File>
 						<File
@@ -2492,7 +2500,7 @@
 							>
 						</File>
 						<File
-							RelativePath="..\scripts\outland\hellfire_citadel\hellfire_ramparts\def_hellfire_ramparts.h"
+							RelativePath="..\scripts\outland\hellfire_citadel\hellfire_ramparts\hellfire_ramparts.h"
 							>
 						</File>
 						<File
@@ -2516,7 +2524,7 @@
 							>
 						</File>
 						<File
-							RelativePath="..\scripts\outland\hellfire_citadel\shattered_halls\def_shattered_halls.h"
+							RelativePath="..\scripts\outland\hellfire_citadel\shattered_halls\shattered_halls.h"
 							>
 						</File>
 						<File
@@ -2540,7 +2548,7 @@
 							>
 						</File>
 						<File
-							RelativePath="..\scripts\outland\tempest_keep\arcatraz\def_arcatraz.h"
+							RelativePath="..\scripts\outland\tempest_keep\arcatraz\arcatraz.h"
 							>
 						</File>
 						<File
@@ -2584,7 +2592,7 @@
 							>
 						</File>
 						<File
-							RelativePath="..\scripts\outland\tempest_keep\the_eye\def_the_eye.h"
+							RelativePath="..\scripts\outland\tempest_keep\the_eye\the_eye.h"
 							>
 						</File>
 						<File
@@ -2616,7 +2624,7 @@
 							>
 						</File>
 						<File
-							RelativePath="..\scripts\outland\tempest_keep\the_mechanar\def_mechanar.h"
+							RelativePath="..\scripts\outland\tempest_keep\the_mechanar\mechanar.h"
 							>
 						</File>
 						<File

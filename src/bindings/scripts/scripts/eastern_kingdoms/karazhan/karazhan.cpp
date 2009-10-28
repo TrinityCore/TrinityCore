@@ -262,7 +262,7 @@ struct TRINITY_DLL_DECL npc_barnesAI : public npc_escortAI
 
         if (HasEscortState(STATE_ESCORT_PAUSED))
         {
-            if (TalkTimer < diff)
+            if (TalkTimer <= diff)
             {
                 if (TalkCount > 3)
                 {
@@ -275,19 +275,18 @@ struct TRINITY_DLL_DECL npc_barnesAI : public npc_escortAI
 
                 Talk(TalkCount);
                 ++TalkCount;
-            }
-            else
-                TalkTimer -= diff;
+            } else TalkTimer -= diff;
         }
 
         if (PerformanceReady)
         {
             if (!RaidWiped)
             {
-                if (WipeTimer < diff)
+                if (WipeTimer <= diff)
                 {
                     Map* pMap = m_creature->GetMap();
-                    if (!pMap->IsDungeon()) return;
+                    if (!pMap->IsDungeon())
+                        return;
 
                     Map::PlayerList const &PlayerList = pMap->GetPlayers();
                     if (PlayerList.isEmpty())
@@ -311,7 +310,7 @@ struct TRINITY_DLL_DECL npc_barnesAI : public npc_escortAI
                     }
 
                     WipeTimer = 15000;
-                }else WipeTimer -= diff;
+                } else WipeTimer -= diff;
             }
 
         }
@@ -590,32 +589,29 @@ struct TRINITY_DLL_DECL npc_image_of_medivhAI : public ScriptedAI
     void UpdateAI(const uint32 diff)
     {
 
-        if (YellTimer < diff)
+        if (YellTimer <= diff)
         {
             if (EventStarted)
-            {
                 YellTimer = NextStep(Step++);
-            }
-        }else YellTimer -= diff;
+        } else YellTimer -= diff;
 
         if (Step >= 7 && Step <= 12)
         {
             Unit* arca = Unit::GetUnit((*m_creature),ArcanagosGUID);
 
-            if (FireArcanagosTimer < diff)
+            if (FireArcanagosTimer <= diff)
             {
                 if (arca)
                     arca->CastSpell(m_creature, SPELL_FIRE_BALL, false);
                 FireArcanagosTimer = 6000;
-            }else FireArcanagosTimer -= diff;
+            } else FireArcanagosTimer -= diff;
 
-            if (FireMedivhTimer < diff)
+            if (FireMedivhTimer <= diff)
             {
                 if (arca)
                     DoCast(arca, SPELL_FIRE_BALL);
                 FireMedivhTimer = 5000;
-            }else FireMedivhTimer -= diff;
-
+            } else FireMedivhTimer -= diff;
         }
     }
 };

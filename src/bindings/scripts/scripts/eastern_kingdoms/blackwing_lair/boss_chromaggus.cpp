@@ -29,11 +29,11 @@ EndScriptData */
 //These spells are actually called elemental shield
 //What they do is decrease all damage by 75% then they increase
 //One school of damage by 1100%
-#define SPELL_FIRE_VURNALBILTY      22277
-#define SPELL_FROST_VURNALBILTY     22278
-#define SPELL_SHADOW_VURNALBILTY    22279
-#define SPELL_NATURE_VURNALBILTY    22280
-#define SPELL_ARCANE_VURNALBILTY    22281
+#define SPELL_FIRE_VULNERABILITY      22277
+#define SPELL_FROST_VULNERABILITY     22278
+#define SPELL_SHADOW_VULNERABILITY    22279
+#define SPELL_NATURE_VULNERABILITY    22280
+#define SPELL_ARCANE_VULNERABILITY    22281
 
 #define SPELL_INCINERATE            23308                   //Incinerate 23308,23309
 #define SPELL_TIMELAPSE             23310                   //Time lapse 23310, 23311(old threat mod that was removed in 2.01)
@@ -172,7 +172,7 @@ struct TRINITY_DLL_DECL boss_chromaggusAI : public ScriptedAI
 
     void Reset()
     {
-        CurrentVurln_Spell = 0;                             //We use this to store our last vurlnability spell so we can remove it later
+        CurrentVurln_Spell = 0;                             //We use this to store our last vulnerabilty spell so we can remove it later
 
         Shimmer_Timer = 0;                                  //Time till we change vurlnerabilites
         Breath1_Timer = 30000;                              //First breath is 30 seconds
@@ -193,67 +193,49 @@ struct TRINITY_DLL_DECL boss_chromaggusAI : public ScriptedAI
             return;
 
         //Shimmer_Timer Timer
-        if (Shimmer_Timer < diff)
+        if (Shimmer_Timer <= diff)
         {
-            //Remove old vurlnability spell
+            //Remove old vulnerabilty spell
             if (CurrentVurln_Spell)
                 m_creature->RemoveAurasDueToSpell(CurrentVurln_Spell);
 
-            //Cast new random vurlnabilty on self
-            uint32 spell;
-            switch (rand()%5)
-            {
-                case 0: spell = SPELL_FIRE_VURNALBILTY; break;
-                case 1: spell = SPELL_FROST_VURNALBILTY; break;
-                case 2: spell = SPELL_SHADOW_VURNALBILTY; break;
-                case 3: spell = SPELL_NATURE_VURNALBILTY; break;
-                case 4: spell = SPELL_ARCANE_VURNALBILTY; break;
-            }
+            //Cast new random vulnerabilty on self
+            uint32 spell = RAND(SPELL_FIRE_VULNERABILITY, SPELL_FROST_VULNERABILITY,
+                SPELL_SHADOW_VULNERABILITY, SPELL_NATURE_VULNERABILITY, SPELL_ARCANE_VULNERABILITY);
 
             DoCast(m_creature,spell);
             CurrentVurln_Spell = spell;
 
             DoScriptText(EMOTE_SHIMMER, m_creature);
             Shimmer_Timer = 45000;
-        }else Shimmer_Timer -= diff;
+        } else Shimmer_Timer -= diff;
 
         //Breath1_Timer
-        if (Breath1_Timer < diff)
+        if (Breath1_Timer <= diff)
         {
             DoCast(m_creature->getVictim(),Breath1_Spell);
             Breath1_Timer = 60000;
-        }else Breath1_Timer -= diff;
+        } else Breath1_Timer -= diff;
 
         //Breath2_Timer
-        if (Breath2_Timer < diff)
+        if (Breath2_Timer <= diff)
         {
             DoCast(m_creature->getVictim(),Breath2_Spell);
             Breath2_Timer = 60000;
-        }else Breath2_Timer -= diff;
+        } else Breath2_Timer -= diff;
 
         //Affliction_Timer
-        if (Affliction_Timer < diff)
+        if (Affliction_Timer <= diff)
         {
-            uint32 SpellAfflict = 0;
-
-            switch (rand()%5)
-            {
-                case 0: SpellAfflict = SPELL_BROODAF_BLUE; break;
-                case 1: SpellAfflict = SPELL_BROODAF_BLACK; break;
-                case 2: SpellAfflict = SPELL_BROODAF_RED; break;
-                case 3: SpellAfflict = SPELL_BROODAF_BRONZE; break;
-                case 4: SpellAfflict = SPELL_BROODAF_GREEN; break;
-            }
+            uint32 SpellAfflict = RAND(SPELL_BROODAF_BLUE, SPELL_BROODAF_BLACK,
+                SPELL_BROODAF_RED, SPELL_BROODAF_BRONZE, SPELL_BROODAF_GREEN);
 
             std::list<HostilReference*>::iterator i;
 
             for (i = m_creature->getThreatManager().getThreatList().begin(); i != m_creature->getThreatManager().getThreatList().end(); )
             {
-                Unit* pUnit = NULL;
-                pUnit = Unit::GetUnit((*m_creature), (*i)->getUnitGuid());
                 ++i;
-
-                if (pUnit)
+                if (Unit* pUnit = Unit::GetUnit((*m_creature), (*i)->getUnitGuid()))
                 {
                     //Cast affliction
                     DoCast(pUnit, SpellAfflict, true);
@@ -280,15 +262,15 @@ struct TRINITY_DLL_DECL boss_chromaggusAI : public ScriptedAI
             }
 
             Affliction_Timer = 10000;
-        }else Affliction_Timer -= diff;
+        } else Affliction_Timer -= diff;
 
         //Frenzy_Timer
-        if (Frenzy_Timer < diff)
+        if (Frenzy_Timer <= diff)
         {
             DoCast(m_creature,SPELL_FRENZY);
             DoScriptText(EMOTE_FRENZY, m_creature);
-            Frenzy_Timer = 10000 + (rand() % 5000);
-        }else Frenzy_Timer -= diff;
+            Frenzy_Timer = urand(10000,15000);
+        } else Frenzy_Timer -= diff;
 
         //Enrage if not already enraged and below 20%
         if (!Enraged && (m_creature->GetHealth()*100 / m_creature->GetMaxHealth()) < 20)

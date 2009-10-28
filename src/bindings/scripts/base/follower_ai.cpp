@@ -186,7 +186,7 @@ void FollowerAI::UpdateAI(const uint32 uiDiff)
 {
     if (HasFollowState(STATE_FOLLOW_INPROGRESS) && !m_creature->getVictim())
     {
-        if (m_uiUpdateFollowTimer < uiDiff)
+        if (m_uiUpdateFollowTimer <= uiDiff)
         {
             if (HasFollowState(STATE_FOLLOW_COMPLETE) && !HasFollowState(STATE_FOLLOW_POSTEVENT))
             {

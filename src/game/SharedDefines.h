@@ -534,7 +534,7 @@ enum Language
     LANG_ZOMBIE         = 36,
     LANG_GNOMISH_BINARY = 37,
     LANG_GOBLIN_BINARY  = 38,
-    LANG_ADDON          = 0xFFFFFFFF                        // used by addons, in 2.4.0 not exit, replaced by messagetype?
+    LANG_ADDON          = 0xFFFFFFFF                        // used by addons, in 2.4.0 not exist, replaced by messagetype?
 };
 
 #define LANGUAGES_COUNT   19
@@ -1945,8 +1945,8 @@ enum CreatureTypeFlags
     CREATURE_TYPEFLAGS_UNK15           = 0x04000,           //? Possibly not in use
     CREATURE_TYPEFLAGS_ENGINEERLOOT    = 0x08000,           //can be looted by engineer
     CREATURE_TYPEFLAGS_EXOTIC          = 0x10000,           //can be tamed by hunter as exotic pet
-    CREATURE_TYPEFLAGS_UNK18           = 0x20000,           //? Related to veichles/pvp?
-    CREATURE_TYPEFLAGS_UNK19           = 0x40000,           //? Related to veichle/siege weapons?
+    CREATURE_TYPEFLAGS_UNK18           = 0x20000,           //? Related to vehicles/pvp?
+    CREATURE_TYPEFLAGS_UNK19           = 0x40000,           //? Related to vehicles/siege weapons?
     CREATURE_TYPEFLAGS_UNK20           = 0x80000
 };
 

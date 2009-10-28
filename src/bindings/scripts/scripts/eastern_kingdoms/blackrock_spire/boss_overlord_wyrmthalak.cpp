@@ -69,32 +69,32 @@ struct TRINITY_DLL_DECL boss_overlordwyrmthalakAI : public ScriptedAI
             return;
 
         //BlastWave_Timer
-        if (BlastWave_Timer < diff)
+        if (BlastWave_Timer <= diff)
         {
             DoCast(m_creature->getVictim(),SPELL_BLASTWAVE);
             BlastWave_Timer = 20000;
-        }else BlastWave_Timer -= diff;
+        } else BlastWave_Timer -= diff;
 
         //Shout_Timer
-        if (Shout_Timer < diff)
+        if (Shout_Timer <= diff)
         {
             DoCast(m_creature->getVictim(),SPELL_SHOUT);
             Shout_Timer = 10000;
-        }else Shout_Timer -= diff;
+        } else Shout_Timer -= diff;
 
         //Cleave_Timer
-        if (Cleave_Timer < diff)
+        if (Cleave_Timer <= diff)
         {
             DoCast(m_creature->getVictim(),SPELL_CLEAVE);
             Cleave_Timer = 7000;
-        }else Cleave_Timer -= diff;
+        } else Cleave_Timer -= diff;
 
         //Knockaway_Timer
-        if (Knockaway_Timer < diff)
+        if (Knockaway_Timer <= diff)
         {
             DoCast(m_creature->getVictim(),SPELL_KNOCKAWAY);
             Knockaway_Timer = 14000;
-        }else Knockaway_Timer -= diff;
+        } else Knockaway_Timer -= diff;
 
         //Summon two Beserks
         if (!Summoned && m_creature->GetHealth()*100 / m_creature->GetMaxHealth() < 51)

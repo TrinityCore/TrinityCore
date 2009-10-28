@@ -43,7 +43,7 @@ enum Misc
 
 struct TRINITY_DLL_DECL instance_deadmines : public ScriptedInstance
 {
-    instance_deadmines(Map* pMap) : ScriptedInstance(pMap) {Initialize();};
+    instance_deadmines(Map* pMap) : ScriptedInstance(pMap) { Initialize(); };
     
     GameObject* IronCladDoor;
     GameObject* DefiasCannon;
@@ -68,7 +68,7 @@ struct TRINITY_DLL_DECL instance_deadmines : public ScriptedInstance
         if (!IronCladDoor || !DefiasCannon || !DoorLever)
             return;
         
-        switch(State)
+        switch (State)
         {
             case CANNON_GUNPOWDER_USED:
                 CannonBlast_Timer = DATA_CANNON_BLAST_TIMER;
@@ -76,11 +76,11 @@ struct TRINITY_DLL_DECL instance_deadmines : public ScriptedInstance
                 IronCladDoor->SetName("Mr. Smite");
                 IronCladDoor->MonsterYell(SAY_MR_SMITE_ALARM1, LANG_UNIVERSAL, 0);
                 DoPlaySound(IronCladDoor, SOUND_MR_SMITE_ALARM1);
-                State=CANNON_BLAST_INITIATED;
+                State = CANNON_BLAST_INITIATED;
                 break;
             case CANNON_BLAST_INITIATED:
                 PiratesDelay_Timer = DATA_PIRATES_DELAY_TIMER;
-                if (CannonBlast_Timer<diff)
+                if (CannonBlast_Timer <= diff)
                 {
                     SummonCreatures();
                     ShootCannon();
@@ -89,16 +89,14 @@ struct TRINITY_DLL_DECL instance_deadmines : public ScriptedInstance
                     IronCladDoor->MonsterYell(SAY_MR_SMITE_ALARM2, LANG_UNIVERSAL, 0);
                     DoPlaySound(IronCladDoor, SOUND_MR_SMITE_ALARM2);
                     State = PIRATES_ATTACK;
-                }else
-                    CannonBlast_Timer-=diff;
+                } else CannonBlast_Timer -= diff;
                 break;
             case PIRATES_ATTACK:
-                if (PiratesDelay_Timer<diff)
+                if (PiratesDelay_Timer <= diff)
                 {
                     MoveCreaturesInside();
                     State = EVENT_DONE;
-                }else
-                    PiratesDelay_Timer-=diff;
+                } else PiratesDelay_Timer -= diff;
                 break;
         }
     }

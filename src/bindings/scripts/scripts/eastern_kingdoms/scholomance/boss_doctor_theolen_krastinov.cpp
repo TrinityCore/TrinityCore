@@ -66,7 +66,7 @@ struct TRINITY_DLL_DECL boss_theolenkrastinovAI : public ScriptedAI
             return;
 
         //Rend_Timer
-        if (m_uiRend_Timer < uiDiff)
+        if (m_uiRend_Timer <= uiDiff)
         {
             DoCast(m_creature->getVictim(), SPELL_REND);
             m_uiRend_Timer = 10000;
@@ -75,7 +75,7 @@ struct TRINITY_DLL_DECL boss_theolenkrastinovAI : public ScriptedAI
             m_uiRend_Timer -= uiDiff;
 
         //Backhand_Timer
-        if (m_uiBackhand_Timer < uiDiff)
+        if (m_uiBackhand_Timer <= uiDiff)
         {
             DoCast(m_creature->getVictim(), SPELL_BACKHAND);
             m_uiBackhand_Timer = 10000;
@@ -86,7 +86,7 @@ struct TRINITY_DLL_DECL boss_theolenkrastinovAI : public ScriptedAI
         //Frenzy_Timer
         if (m_creature->GetHealth()*100 / m_creature->GetMaxHealth() < 26)
         {
-            if (m_uiFrenzy_Timer < uiDiff)
+            if (m_uiFrenzy_Timer <= uiDiff)
             {
                 DoCast(m_creature,SPELL_FRENZY);
                 DoScriptText(EMOTE_GENERIC_FRENZY_KILL, m_creature);

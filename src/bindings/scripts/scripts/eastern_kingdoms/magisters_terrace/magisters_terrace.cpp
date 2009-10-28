@@ -102,7 +102,7 @@ struct TRINITY_DLL_DECL npc_kalecgosAI : public ScriptedAI
     {
         if (m_uiTransformTimer)
         {
-            if (m_uiTransformTimer < uiDiff)
+            if (m_uiTransformTimer <= uiDiff)
             {
                 m_creature->CastSpell(m_creature,SPELL_ORB_KILL_CREDIT,false);
                 DoWorkaroundForQuestCredit();

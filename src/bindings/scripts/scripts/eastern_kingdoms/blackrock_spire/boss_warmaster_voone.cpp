@@ -62,46 +62,46 @@ struct TRINITY_DLL_DECL boss_warmastervooneAI : public ScriptedAI
             return;
 
         //Snapkick_Timer
-        if (Snapkick_Timer < diff)
+        if (Snapkick_Timer <= diff)
         {
             DoCast(m_creature->getVictim(),SPELL_SNAPKICK);
             Snapkick_Timer = 6000;
-        }else Snapkick_Timer -= diff;
+        } else Snapkick_Timer -= diff;
 
         //Cleave_Timer
-        if (Cleave_Timer < diff)
+        if (Cleave_Timer <= diff)
         {
             DoCast(m_creature->getVictim(),SPELL_CLEAVE);
             Cleave_Timer = 12000;
-        }else Cleave_Timer -= diff;
+        } else Cleave_Timer -= diff;
 
         //Uppercut_Timer
-        if (Uppercut_Timer < diff)
+        if (Uppercut_Timer <= diff)
         {
             DoCast(m_creature->getVictim(),SPELL_UPPERCUT);
             Uppercut_Timer = 14000;
-        }else Uppercut_Timer -= diff;
+        } else Uppercut_Timer -= diff;
 
         //MortalStrike_Timer
-        if (MortalStrike_Timer < diff)
+        if (MortalStrike_Timer <= diff)
         {
             DoCast(m_creature->getVictim(),SPELL_MORTALSTRIKE);
             MortalStrike_Timer = 10000;
-        }else MortalStrike_Timer -= diff;
+        } else MortalStrike_Timer -= diff;
 
         //Pummel_Timer
-        if (Pummel_Timer < diff)
+        if (Pummel_Timer <= diff)
         {
             DoCast(m_creature->getVictim(),SPELL_PUMMEL);
             Pummel_Timer = 16000;
-        }else Pummel_Timer -= diff;
+        } else Pummel_Timer -= diff;
 
         //ThrowAxe_Timer
-        if (ThrowAxe_Timer < diff)
+        if (ThrowAxe_Timer <= diff)
         {
             DoCast(m_creature->getVictim(),SPELL_THROWAXE);
             ThrowAxe_Timer = 8000;
-        }else ThrowAxe_Timer -= diff;
+        } else ThrowAxe_Timer -= diff;
 
         DoMeleeAttackIfReady();
     }

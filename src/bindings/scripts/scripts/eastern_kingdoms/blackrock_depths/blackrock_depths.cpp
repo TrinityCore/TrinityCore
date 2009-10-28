@@ -374,24 +374,24 @@ struct TRINITY_DLL_DECL mob_phalanxAI : public ScriptedAI
             return;
 
         //ThunderClap_Timer
-        if (ThunderClap_Timer < diff)
+        if (ThunderClap_Timer <= diff)
         {
             DoCast(m_creature->getVictim(),SPELL_THUNDERCLAP);
             ThunderClap_Timer = 10000;
-        }else ThunderClap_Timer -= diff;
+        } else ThunderClap_Timer -= diff;
 
         //FireballVolley_Timer
         if (m_creature->GetHealth()*100 / m_creature->GetMaxHealth() < 51)
         {
-            if (FireballVolley_Timer < diff)
+            if (FireballVolley_Timer <= diff)
             {
                 DoCast(m_creature->getVictim(),SPELL_FIREBALLVOLLEY);
                 FireballVolley_Timer = 15000;
-            }else FireballVolley_Timer -= diff;
+            } else FireballVolley_Timer -= diff;
         }
 
         //MightyBlow_Timer
-        if (MightyBlow_Timer < diff)
+        if (MightyBlow_Timer <= diff)
         {
             DoCast(m_creature->getVictim(),SPELL_MIGHTYBLOW);
             MightyBlow_Timer = 10000;

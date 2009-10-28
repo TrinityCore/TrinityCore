@@ -58,22 +58,22 @@ struct TRINITY_DLL_DECL boss_grizzleAI : public ScriptedAI
             return;
 
         //GroundTremor_Timer
-        if (GroundTremor_Timer < diff)
+        if (GroundTremor_Timer <= diff)
         {
             DoCast(m_creature->getVictim(),SPELL_GROUNDTREMOR);
             GroundTremor_Timer = 8000;
-        }else GroundTremor_Timer -= diff;
+        } else GroundTremor_Timer -= diff;
 
         //Frenzy_Timer
         if (m_creature->GetHealth()*100 / m_creature->GetMaxHealth() < 51)
         {
-            if (Frenzy_Timer < diff)
+            if (Frenzy_Timer <= diff)
             {
                 DoCast(m_creature,SPELL_FRENZY);
                 DoScriptText(EMOTE_GENERIC_FRENZY_KILL, m_creature);
 
                 Frenzy_Timer = 15000;
-            }else Frenzy_Timer -= diff;
+            } else Frenzy_Timer -= diff;
         }
 
         DoMeleeAttackIfReady();

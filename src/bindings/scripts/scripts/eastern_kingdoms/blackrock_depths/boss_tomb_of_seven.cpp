@@ -161,34 +161,34 @@ struct TRINITY_DLL_DECL boss_doomrelAI : public ScriptedAI
             return;
 
         //ShadowVolley_Timer
-        if (ShadowVolley_Timer < diff)
+        if (ShadowVolley_Timer <= diff)
         {
             DoCast(m_creature->getVictim(),SPELL_SHADOWBOLTVOLLEY);
             ShadowVolley_Timer = 12000;
-        }else ShadowVolley_Timer -= diff;
+        } else ShadowVolley_Timer -= diff;
 
         //Immolate_Timer
-        if (Immolate_Timer < diff)
+        if (Immolate_Timer <= diff)
         {
-            if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM,0))
+            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                 DoCast(target,SPELL_IMMOLATE);
 
             Immolate_Timer = 25000;
-        }else Immolate_Timer -= diff;
+        } else Immolate_Timer -= diff;
 
         //CurseOfWeakness_Timer
-        if (CurseOfWeakness_Timer < diff)
+        if (CurseOfWeakness_Timer <= diff)
         {
             DoCast(m_creature->getVictim(),SPELL_CURSEOFWEAKNESS);
             CurseOfWeakness_Timer = 45000;
-        }else CurseOfWeakness_Timer -= diff;
+        } else CurseOfWeakness_Timer -= diff;
 
         //DemonArmor_Timer
-        if (DemonArmor_Timer < diff)
+        if (DemonArmor_Timer <= diff)
         {
             DoCast(m_creature,SPELL_DEMONARMOR);
             DemonArmor_Timer = 300000;
-        }else DemonArmor_Timer -= diff;
+        } else DemonArmor_Timer -= diff;
 
         //Summon Voidwalkers
         if (!Voidwalkers && m_creature->GetHealth()*100 / m_creature->GetMaxHealth() < 51)

@@ -91,7 +91,7 @@ struct TRINITY_DLL_DECL npc_crusade_persuadedAI : public ScriptedAI
     {
         if (uiSpeech_counter)
         {
-            if (uiSpeech_timer < diff)
+            if (uiSpeech_timer <= diff)
             {
                 Player* pPlayer = Unit::GetPlayer(uiPlayerGUID);
                 if(!pPlayer)
@@ -251,7 +251,7 @@ struct TRINITY_DLL_DECL npc_koltira_deathweaverAI : public npc_escortAI
 
         if (HasEscortState(STATE_ESCORT_PAUSED))
         {
-            if (m_uiWave_Timer < uiDiff)
+            if (m_uiWave_Timer <= uiDiff)
             {
                 switch(m_uiWave)
                 {
@@ -372,7 +372,7 @@ struct TRINITY_DLL_DECL mob_scarlet_courierAI : public ScriptedAI
     {
         if(uiStage && !me->isInCombat())
         {
-            if (uiStage_timer < diff)
+            if (uiStage_timer <= diff)
             {
                 switch(uiStage)
                 {
@@ -448,26 +448,26 @@ struct TRINITY_DLL_DECL mob_high_inquisitor_valrothAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
-        if (uiRenew_timer < diff)
+        if (uiRenew_timer <= diff)
         {
             Shout();
             DoCast(me, SPELL_RENEW);
             uiRenew_timer = 1000 + rand()%5000;
-        }else uiRenew_timer -= diff;
+        } else uiRenew_timer -= diff;
 
-        if (uiInquisitor_Penance_timer < diff)
+        if (uiInquisitor_Penance_timer <= diff)
         {
             Shout();
             DoCast(me->getVictim(), SPELL_INQUISITOR_PENANCE);
             uiInquisitor_Penance_timer = 2000 + rand()%5000;
-        }else uiInquisitor_Penance_timer -= diff;
+        } else uiInquisitor_Penance_timer -= diff;
 
-        if (uiValroth_Smite_timer < diff)
+        if (uiValroth_Smite_timer <= diff)
         {
             Shout();
             DoCast(me->getVictim(), SPELL_VALROTH_SMITE);
             uiValroth_Smite_timer = 1000 + rand()%5000;
-        }else uiValroth_Smite_timer -= diff;
+        } else uiValroth_Smite_timer -= diff;
 
         DoMeleeAttackIfReady();
     }
@@ -633,7 +633,7 @@ struct TRINITY_DLL_DECL npc_a_special_surpriseAI : public ScriptedAI
     {
         if (PlayerGUID && !me->getVictim() && me->isAlive())
         {
-            if (ExecuteSpeech_Timer < diff)
+            if (ExecuteSpeech_Timer <= diff)
             {
                 Player* pPlayer = Unit::GetPlayer(PlayerGUID);
 

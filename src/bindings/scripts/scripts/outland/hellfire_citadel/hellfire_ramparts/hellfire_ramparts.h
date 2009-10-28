@@ -7,7 +7,7 @@
 
 #define MAX_ENCOUNTER  2
 
-enum eEnums
+enum eTypes
 {
     TYPE_VAZRUDEN       = 1,
     TYPE_NAZAN          = 2

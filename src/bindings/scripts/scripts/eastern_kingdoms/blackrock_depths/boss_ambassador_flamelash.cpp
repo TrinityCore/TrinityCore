@@ -74,14 +74,14 @@ struct TRINITY_DLL_DECL boss_ambassador_flamelashAI : public ScriptedAI
             return;
 
         //FireBlast_Timer
-        if (FireBlast_Timer < diff)
+        if (FireBlast_Timer <= diff)
         {
             DoCast(m_creature->getVictim(),SPELL_FIREBLAST);
             FireBlast_Timer = 7000;
-        }else FireBlast_Timer -= diff;
+        } else FireBlast_Timer -= diff;
 
         //Spirit_Timer
-        if (Spirit_Timer < diff)
+        if (Spirit_Timer <= diff)
         {
             SummonSpirits(m_creature->getVictim());
             SummonSpirits(m_creature->getVictim());
@@ -89,7 +89,7 @@ struct TRINITY_DLL_DECL boss_ambassador_flamelashAI : public ScriptedAI
             SummonSpirits(m_creature->getVictim());
 
             Spirit_Timer = 30000;
-        }else Spirit_Timer -= diff;
+        } else Spirit_Timer -= diff;
 
         DoMeleeAttackIfReady();
     }
