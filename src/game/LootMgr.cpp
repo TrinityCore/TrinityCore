@@ -57,11 +57,11 @@ class LootTemplate::LootGroup                               // A set of loot def
         bool HasQuestDrop() const;                          // True if group includes at least 1 quest drop entry
         bool HasQuestDropForPlayer(Player const * player) const;
                                                             // The same for active quests of the player
-        void Process(Loot& loot) const;                     // Rolls an item from the group (if any) and adds the item to the loot
+        void Process(Loot& loot, uint16 lootMode) const;    // Rolls an item from the group (if any) and adds the item to the loot
         float RawTotalChance() const;                       // Overall chance for the group (without equal chanced items)
         float TotalChance() const;                          // Overall chance for the group
 
-        void Verify(LootStore const& lootstore, uint32 id, uint32 group_id) const;
+        void Verify(LootStore const& lootstore, uint32 id, uint8 group_id) const;
         void CollectLootIds(LootIdSet& set) const;
         void CheckLootRefs(LootTemplateMap const& store, LootIdSet* ref_set) const;
     private:
@@ -99,8 +99,8 @@ void LootStore::LoadLootTable()
 
     sLog.outString( "%s :", GetName());
 
-    //                                                 0      1     2                    3        4              5         6              7                 8
-    QueryResult *result = WorldDatabase.PQuery("SELECT entry, item, ChanceOrQuestChance, groupid, mincountOrRef, maxcount, lootcondition, condition_value1, condition_value2 FROM %s",GetName());
+    //                                                 0      1     2                    3         4        5              6         7              8                 9
+    QueryResult *result = WorldDatabase.PQuery("SELECT entry, item, ChanceOrQuestChance, lootmode, groupid, mincountOrRef, maxcount, lootcondition, condition_value1, condition_value2 FROM %s",GetName());
 
     if (result)
     {
@@ -114,12 +114,13 @@ void LootStore::LoadLootTable()
             uint32 entry               = fields[0].GetUInt32();
             uint32 item                = fields[1].GetUInt32();
             float  chanceOrQuestChance = fields[2].GetFloat();
-            uint8  group               = fields[3].GetUInt8();
-            int32  mincountOrRef       = fields[4].GetInt32();
-            uint32 maxcount            = fields[5].GetUInt32();
-            ConditionType condition    = (ConditionType)fields[6].GetUInt8();
-            uint32 cond_value1         = fields[7].GetUInt32();
-            uint32 cond_value2         = fields[8].GetUInt32();
+            uint16 lootmode            = fields[3].GetUInt16();
+            uint8  group               = fields[4].GetUInt8();
+            int32  mincountOrRef       = fields[5].GetInt32();
+            uint32 maxcount            = fields[6].GetUInt32();
+            ConditionType condition    = (ConditionType)fields[7].GetUInt8();
+            uint32 cond_value1         = fields[8].GetUInt32();
+            uint32 cond_value2         = fields[9].GetUInt32();
 
             if(maxcount > std::numeric_limits<uint8>::max())
             {
@@ -136,7 +137,7 @@ void LootStore::LoadLootTable()
             // (condition + cond_value1/2) are converted into single conditionId
             uint16 conditionId = objmgr.GetConditionId(condition, cond_value1, cond_value2);
 
-            LootStoreItem storeitem = LootStoreItem(item, chanceOrQuestChance, group, conditionId, mincountOrRef, maxcount);
+            LootStoreItem storeitem = LootStoreItem(item, chanceOrQuestChance, lootmode, group, conditionId, mincountOrRef, maxcount);
 
             if (!storeitem.IsValid(*this,entry))            // Validity checks
                 continue;
@@ -387,7 +388,7 @@ void Loot::AddItem(LootStoreItem const & item)
 }
 
 // Calls processor of corresponding LootTemplate (which handles everything including references)
-void Loot::FillLoot(uint32 loot_id, LootStore const& store, Player* loot_owner, bool personal)
+void Loot::FillLoot(uint32 loot_id, LootStore const& store, Player* loot_owner, bool personal, uint16 lootMode /*= DEFAULT_LOOT_MODE*/)
 {
     // Must be provided
     if(!loot_owner)
@@ -404,7 +405,7 @@ void Loot::FillLoot(uint32 loot_id, LootStore const& store, Player* loot_owner, 
     items.reserve(MAX_NR_LOOT_ITEMS);
     quest_items.reserve(MAX_NR_QUEST_ITEMS);
 
-    tab->Process(*this, store,store.IsRatesAllowed ());     // Processing is done there, callback via Loot::AddItem()
+    tab->Process(*this, store, store.IsRatesAllowed(), lootMode);     // Processing is done there, callback via Loot::AddItem()
 
     // Setting access rights for group loot case
     Group * pGroup=loot_owner->GetGroup();
@@ -857,10 +858,10 @@ bool LootTemplate::LootGroup::HasQuestDropForPlayer(Player const * player) const
 }
 
 // Rolls an item from the group (if any takes its chance) and adds the item to the loot
-void LootTemplate::LootGroup::Process(Loot& loot) const
+void LootTemplate::LootGroup::Process(Loot& loot, uint16 lootMode) const
 {
     LootStoreItem const * item = Roll();
-    if (item != NULL)
+    if (item != NULL && item->lootmode & lootMode) // only add this item if roll succeeds and the mode matches
         loot.AddItem(*item);
 }
 
@@ -887,7 +888,7 @@ float LootTemplate::LootGroup::TotalChance() const
     return result;
 }
 
-void LootTemplate::LootGroup::Verify(LootStore const& lootstore, uint32 id, uint32 group_id) const
+void LootTemplate::LootGroup::Verify(LootStore const& lootstore, uint32 id, uint8 group_id) const
 {
     float chance = RawTotalChance();
     if (chance > 101.0f)                                    // TODO: replace with 100% when DBs will be ready
@@ -944,20 +945,23 @@ void LootTemplate::AddEntry(LootStoreItem& item)
 }
 
 // Rolls for every item in the template and adds the rolled items the the loot
-void LootTemplate::Process(Loot& loot, LootStore const& store, bool rate, uint8 groupId) const
+void LootTemplate::Process(Loot& loot, LootStore const& store, bool rate, uint16 lootMode, uint8 groupId) const
 {
     if (groupId)                                            // Group reference uses own processing of the group
     {
         if (groupId > Groups.size())
             return;                                         // Error message already printed at loading stage
 
-        Groups[groupId-1].Process(loot);
+        Groups[groupId-1].Process(loot, lootMode);
         return;
     }
 
     // Rolling non-grouped items
     for (LootStoreItemList::const_iterator i = Entries.begin() ; i != Entries.end() ; ++i )
     {
+        if (i->lootmode &~ lootMode)                        // Do not add if mode mismatch
+            continue;
+
         if (!i->Roll(rate))
             continue;                                       // Bad luck for the entry
 
@@ -968,16 +972,16 @@ void LootTemplate::Process(Loot& loot, LootStore const& store, bool rate, uint8 
             if(!Referenced)
                 continue;                                   // Error message already printed at loading stage
 
-            for (uint32 loop=0; loop < i->maxcount; ++loop )// Ref multiplicator
-                Referenced->Process(loot, store, rate, i->group);
+            for (uint32 loop=0; loop < i->maxcount; ++loop) // Ref multiplicator
+                Referenced->Process(loot, store, rate, lootMode, i->group);
         }
         else                                                // Plain entries (not a reference, not grouped)
             loot.AddItem(*i);                               // Chance is already checked, just add
     }
 
     // Now processing groups
-    for (LootGroups::const_iterator i = Groups.begin( ) ; i != Groups.end( ) ; ++i )
-        i->Process(loot);
+    for (LootGroups::const_iterator i = Groups.begin(); i != Groups.end(); ++i)
+        i->Process(loot, lootMode);
 }
 
 // True if template includes at least 1 quest drop entry

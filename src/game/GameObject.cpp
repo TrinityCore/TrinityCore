@@ -60,6 +60,8 @@ GameObject::GameObject() : WorldObject(), m_goValue(new GameObjectValue)
 
     m_DBTableGuid = 0;
     m_rotation = 0;
+
+    ResetLootMode(); // restore default loot mode
 }
 
 GameObject::~GameObject()
