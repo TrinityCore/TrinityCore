@@ -34,7 +34,7 @@ template<class T>
 void
 ConfusedMovementGenerator<T>::Initialize(T &unit)
 {
-    const float wander_distance=11;
+    const float wander_distance = 11;
     float x,y,z;
     x = unit.GetPositionX();
     y = unit.GetPositionY();
@@ -49,20 +49,21 @@ ConfusedMovementGenerator<T>::Initialize(T &unit)
 
     VMAP::IVMapManager *vMaps = VMAP::VMapFactory::createOrGetVMapManager();
 
-    for (unsigned int idx=0; idx < MAX_CONF_WAYPOINTS+1; ++idx)
+    for (uint8 idx = 0; idx <= MAX_CONF_WAYPOINTS; ++idx)
     {
-        const float wanderX=wander_distance*rand_norm() - wander_distance/2;
-        const float wanderY=wander_distance*rand_norm() - wander_distance/2;
-
         const bool isInLoS = vMaps->isInLineOfSight(unit.GetMapId(), x, y, z + 2.0f, i_waypoints[idx][0], i_waypoints[idx][1], z + 2.0f);
-        if (!isInLoS)
+        if (isInLoS)
+        {
+            const float wanderX = wander_distance*rand_norm() - wander_distance/2;
+            const float wanderY = wander_distance*rand_norm() - wander_distance/2;
+            i_waypoints[idx][0] = x + wanderX;
+            i_waypoints[idx][1] = y + wanderY;
+        }
+        else
         {
             i_waypoints[idx][0] = x;
             i_waypoints[idx][1] = y;
         }
-
-        i_waypoints[idx][0] = x + wanderX;
-        i_waypoints[idx][1] = y + wanderY;
 
         // prevent invalid coordinates generation
         Trinity::NormalizeMapCoord(i_waypoints[idx][0]);
@@ -77,7 +78,7 @@ ConfusedMovementGenerator<T>::Initialize(T &unit)
         }
 
         unit.UpdateGroundPositionZ(i_waypoints[idx][0],i_waypoints[idx][1],z);
-        i_waypoints[idx][2] =  z;
+        i_waypoints[idx][2] = z;
     }
 
     unit.SetUInt64Value(UNIT_FIELD_TARGET, 0);
