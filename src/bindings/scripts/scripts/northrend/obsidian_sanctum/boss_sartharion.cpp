@@ -214,6 +214,8 @@ struct TRINITY_DLL_DECL boss_sartharionAI : public ScriptedAI
 
         if (m_creature->HasAura(SPELL_TWILIGHT_REVENGE))
             m_creature->RemoveAurasDueToSpell(SPELL_TWILIGHT_REVENGE);
+
+        m_creature->ResetLootMode();
     }
 
     void JustReachedHome()
@@ -247,6 +249,18 @@ struct TRINITY_DLL_DECL boss_sartharionAI : public ScriptedAI
         DoScriptText(RAND(SAY_SARTHARION_SLAY_1,SAY_SARTHARION_SLAY_2,SAY_SARTHARION_SLAY_3), m_creature);
     }
 
+    // m_creature->ResetLootMode() is called from Reset()
+    // AddDrakeLootMode() should only ever be called from FetchDragons(), which is called from Aggro()
+    void AddDrakeLootMode()
+    {
+        if (m_creature->HasLootMode(4))      // Has two Drake loot modes
+            m_creature->AddLootMode(8);      // Add 3rd Drake loot mode
+        else if (m_creature->HasLootMode(2)) // Has one Drake loot mode
+            m_creature->AddLootMode(4);      // Add 2nd Drake loot mode
+        else                                 // Has no Drake loot modes
+            m_creature->AddLootMode(2);      // Add 1st Drake loot mode
+    }
+
     void FetchDragons()
     {
         Unit* pTene = Unit::GetUnit(*m_creature, pInstance->GetData64(DATA_TENEBRON));
@@ -258,6 +272,7 @@ struct TRINITY_DLL_DECL boss_sartharionAI : public ScriptedAI
 
         if (pTene && pTene->isAlive() && !pTene->getVictim())
         {
+            AddDrakeLootMode();
             bCanUseWill = true;
             pTene->GetMotionMaster()->MovePoint(POINT_ID_INIT, m_aTene[0].m_fX, m_aTene[0].m_fY, m_aTene[0].m_fZ);
 
@@ -267,6 +282,7 @@ struct TRINITY_DLL_DECL boss_sartharionAI : public ScriptedAI
 
         if (pShad && pShad->isAlive() && !pShad->getVictim())
         {
+            AddDrakeLootMode();
             bCanUseWill = true;
             pShad->GetMotionMaster()->MovePoint(POINT_ID_INIT, m_aShad[0].m_fX, m_aShad[0].m_fY, m_aShad[0].m_fZ);
 
@@ -276,6 +292,7 @@ struct TRINITY_DLL_DECL boss_sartharionAI : public ScriptedAI
 
         if (pVesp && pVesp->isAlive() && !pVesp->getVictim())
         {
+            AddDrakeLootMode();
             bCanUseWill = true;
             pVesp->GetMotionMaster()->MovePoint(POINT_ID_INIT, m_aVesp[0].m_fX, m_aVesp[0].m_fY, m_aVesp[0].m_fZ);
 

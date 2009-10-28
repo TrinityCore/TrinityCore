@@ -157,6 +157,8 @@ m_creatureInfo(NULL), m_reactState(REACT_AGGRESSIVE), m_formation(NULL)
 
     m_SightDistance = sWorld.getConfig(CONFIG_SIGHT_MONSTER);
     m_CombatDistance = 0;//MELEE_RANGE;
+
+    ResetLootMode(); // restore default loot mode
 }
 
 Creature::~Creature()

@@ -7856,7 +7856,7 @@ void Player::SendLoot(uint64 guid, LootType loot_type)
             {
                 sLog.outDebug("       if(lootid)");
                 loot->clear();
-                loot->FillLoot(lootid, LootTemplates_Gameobject, this, false);
+                loot->FillLoot(lootid, LootTemplates_Gameobject, this, false, go->GetLootMode());
             }
 
             if (loot_type == LOOT_FISHING)
@@ -7985,7 +7985,7 @@ void Player::SendLoot(uint64 guid, LootType loot_type)
                 loot->clear();
 
                 if (uint32 lootid = creature->GetCreatureInfo()->lootid)
-                    loot->FillLoot(lootid, LootTemplates_Creature, recipient, false);
+                    loot->FillLoot(lootid, LootTemplates_Creature, recipient, false, creature->GetLootMode());
 
                 loot->generateMoneyLoot(creature->GetCreatureInfo()->mingold,creature->GetCreatureInfo()->maxgold);
 
