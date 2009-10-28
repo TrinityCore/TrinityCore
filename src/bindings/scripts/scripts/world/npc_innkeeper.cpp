@@ -1,4 +1,6 @@
-/* Copyright (C) 2006 - 2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+/*
+ * Copyright (C) 2008 - 2009 Trinity <http://www.trinitycore.org/>
+ *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -16,8 +18,9 @@
 
 /* ScriptData
 SDName: Npc_Innkeeper
-SD%Complete: 50
-SDComment: This script are currently not in use. EventSystem cannot be used on Windows build of SD2
+SDAuthor: WarHead
+SD%Complete: 99% - SendBindPoint(pCreature); needs question if you really want to bind before the real bind is done (don't know how atm)
+SDComment: Complete
 SDCategory: NPCs
 EndScriptData */
 
@@ -32,48 +35,39 @@ EndScriptData */
 #define LOCALE_TRICK_OR_TREAT_3 "Süßes oder Saures!"
 #define LOCALE_TRICK_OR_TREAT_6 "¡Truco o trato!"
 
-bool isEventActive()
+#define LOCALE_INNKEEPER_0 "Make this inn my home."
+#define LOCALE_INNKEEPER_3 "Ich möchte dieses Gasthaus zu meinem Heimatort machen."
+ 
+bool GossipHello_npc_innkeeper(Player *pPlayer, Creature *pCreature)
 {
-    /*
-     const GameEvent::ActiveEvents *ActiveEventsList = gameeventmgr.GetActiveEventList();
-     GameEvent::ActiveEvents::const_iterator itr;
-     for (itr = ActiveEventsList->begin(); itr != ActiveEventsList->end(); ++itr)
-     {
-         if (*itr==HALLOWEEN_EVENTID)
-         {
-             return true;
-         }
-     }*/
-    return false;
-}
+    if (gameeventmgr.IsActiveEvent(HALLOWEEN_EVENTID) && !pPlayer->HasAura(SPELL_TRICK_OR_TREATED))
+    {
+        char* localizedEntry;
+        switch (pPlayer->GetSession()->GetSessionDbcLocale())
+        {
+            case LOCALE_frFR: localizedEntry = LOCALE_TRICK_OR_TREAT_2; break;
+            case LOCALE_deDE: localizedEntry = LOCALE_TRICK_OR_TREAT_3; break;
+            case LOCALE_esES: localizedEntry = LOCALE_TRICK_OR_TREAT_6; break;
+            case LOCALE_enUS: default: localizedEntry = LOCALE_TRICK_OR_TREAT_0;
+        }
+        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, localizedEntry, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+HALLOWEEN_EVENTID);
+    }
 
-bool GossipHello_npc_innkeeper(Player* pPlayer, Creature* pCreature)
-{
     if (pCreature->isQuestGiver())
         pPlayer->PrepareQuestMenu(pCreature->GetGUID());
 
-    if (isEventActive()&& !pPlayer->GetAura(SPELL_TRICK_OR_TREATED, pPlayer->GetGUID()))
+    if (pCreature->isVendor())
+        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_VENDOR, GOSSIP_TEXT_BROWSE_GOODS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
+
+    if (pCreature->isInnkeeper())
     {
         char* localizedEntry;
-        switch (pPlayer->GetSession()->GetSessionDbLocaleIndex())
+        switch (pPlayer->GetSession()->GetSessionDbcLocale())
         {
-            case 0:
-                localizedEntry=LOCALE_TRICK_OR_TREAT_0;
-                break;
-            case 2:
-                localizedEntry=LOCALE_TRICK_OR_TREAT_2;
-                break;
-            case 3:
-                localizedEntry=LOCALE_TRICK_OR_TREAT_3;
-                break;
-            case 6:
-                localizedEntry=LOCALE_TRICK_OR_TREAT_6;
-                break;
-            default:
-                localizedEntry=LOCALE_TRICK_OR_TREAT_0;
+            case LOCALE_deDE: localizedEntry = LOCALE_INNKEEPER_3; break;
+            case LOCALE_enUS: default: localizedEntry = LOCALE_INNKEEPER_0;
         }
-
-        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, localizedEntry, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+HALLOWEEN_EVENTID);
+        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_INTERACT_1, localizedEntry, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INN);
     }
 
     pPlayer->TalkedToCreature(pCreature->GetEntry(), pCreature->GetGUID());
@@ -83,54 +77,46 @@ bool GossipHello_npc_innkeeper(Player* pPlayer, Creature* pCreature)
 
 bool GossipSelect_npc_innkeeper(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
 {
-    if (uiAction == GOSSIP_ACTION_INFO_DEF+HALLOWEEN_EVENTID && isEventActive() && !pPlayer->GetAura(SPELL_TRICK_OR_TREATED, pPlayer->GetGUID()))
+    if (uiAction == GOSSIP_ACTION_INFO_DEF+HALLOWEEN_EVENTID && gameeventmgr.IsActiveEvent(HALLOWEEN_EVENTID) && !pPlayer->HasAura(SPELL_TRICK_OR_TREATED))
     {
-        pPlayer->CLOSE_GOSSIP_MENU();
         pPlayer->CastSpell(pPlayer, SPELL_TRICK_OR_TREATED, true);
-
-        // either trick or treat, 50% chance
-        if (rand()%2)
-        {
+ 
+        if (urand(0, 1))
             pPlayer->CastSpell(pPlayer, SPELL_TREAT, true);
-        }
         else
         {
-            int32 trickspell=0;
-            switch (rand()%9)                               // note that female characters can get male costumes and vice versa
+            uint32 trickspell = 0;
+            switch (urand(0, 13))
             {
-                case 0:
-                    trickspell=24753;                       // cannot cast, random 30sec
-                    break;
-                case 1:
-                    trickspell=24713;                       // lepper gnome costume
-                    break;
-                case 2:
-                    trickspell=24735;                       // male ghost costume
-                    break;
-                case 3:
-                    trickspell=24736;                       // female ghostcostume
-                    break;
-                case 4:
-                    trickspell=24710;                       // male ninja costume
-                    break;
-                case 5:
-                    trickspell=24711;                       // female ninja costume
-                    break;
-                case 6:
-                    trickspell=24708;                       // male pirate costume
-                    break;
-                case 7:
-                    trickspell=24709;                       // female pirate costume
-                    break;
-                case 8:
-                    trickspell=24723;                       // skeleton costume
-                    break;
+                case 0: trickspell = 24753; break; // cannot cast, random 30sec
+                case 1: trickspell = 24713; break; // lepper gnome costume
+                case 2: trickspell = 24735; break; // male ghost costume
+                case 3: trickspell = 24736; break; // female ghostcostume
+                case 4: trickspell = 24710; break; // male ninja costume
+                case 5: trickspell = 24711; break; // female ninja costume
+                case 6: trickspell = 24708; break; // male pirate costume
+                case 7: trickspell = 24709; break; // female pirate costume
+                case 8: trickspell = 24723; break; // skeleton costume
+                case 9: trickspell = 24753; break; // Trick
+                case 10: trickspell = 24924; break; // Hallow's End Candy
+                case 11: trickspell = 24925; break; // Hallow's End Candy
+                case 12: trickspell = 24926; break; // Hallow's End Candy
+                case 13: trickspell = 24927; break; // Hallow's End Candy
             }
             pPlayer->CastSpell(pPlayer, trickspell, true);
         }
-        return true;                                        // prevent Trinity core handling
+        pPlayer->CLOSE_GOSSIP_MENU();
+        return true;
     }
-    return false;                                           // the player didn't select "trick or treat" or cheated, normal core handling
+
+    pPlayer->CLOSE_GOSSIP_MENU();
+
+    switch (uiAction)
+    {
+        case GOSSIP_ACTION_TRADE: pPlayer->SEND_VENDORLIST(pCreature->GetGUID()); break;
+        case GOSSIP_ACTION_INN: pPlayer->GetSession()->SendBindPoint(pCreature); break;
+    }
+    return true;
 }
 
 void AddSC_npc_innkeeper()
