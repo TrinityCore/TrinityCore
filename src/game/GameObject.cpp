@@ -984,55 +984,80 @@ void GameObject::Use(Unit* user)
             if(user->GetTypeId() != TYPEID_PLAYER)
                 return;
 
+            if (!ChairListSlots.size()) //this is called once at first chair use to make list of available slots
+                if (info->chair.slots > 0) //sometimes chairs in DB have error in fields and we dont know number of slots
+                    for (uint32 i=0; i<info->chair.slots; i++)
+                        ChairListSlots[i] = 0; //Last user of current slot set to 0 (none sit here yet)
+                else
+                    ChairListSlots[0] = 0; //error in DB, make one default slot
+
             Player* player = (Player*)user;
 
             // a chair may have n slots. we have to calculate their positions and teleport the player to the nearest one
 
-            // check if the db is sane
-            if(info->chair.slots > 0)
+            float lowestDist = DEFAULT_VISIBILITY_DISTANCE;
+
+            uint32 nearest_slot = 0;
+            float x_lowest = GetPositionX();
+            float y_lowest = GetPositionY();
+
+            // the object orientation + 1/2 pi
+            // every slot will be on that straight line
+            float orthogonalOrientation = GetOrientation()+M_PI*0.5f;
+            // find nearest slot
+            bool found_free_slot = false;
+            for (ChairSlotAndUser::iterator itr = ChairListSlots.begin(); itr != ChairListSlots.end(); ++itr)
             {
-                float lowestDist = DEFAULT_VISIBILITY_DISTANCE;
+                // the distance between this slot and the center of the go - imagine a 1D space
+                float relativeDistance = (info->size*itr->first)-(info->size*(info->chair.slots-1)/2.0f);
 
-                float x_lowest = GetPositionX();
-                float y_lowest = GetPositionY();
+                float x_i = GetPositionX() + relativeDistance * cos(orthogonalOrientation);
+                float y_i = GetPositionY() + relativeDistance * sin(orthogonalOrientation);
 
-                // the object orientation + 1/2 pi
-                // every slot will be on that straight line
-                float orthogonalOrientation = GetOrientation()+M_PI*0.5f;
-                // find nearest slot
-                for (uint32 i=0; i<info->chair.slots; ++i)
+                if(itr->second)
+                    if(Player* ChairUser = objmgr.GetPlayer(itr->second))
+                        if(ChairUser->IsSitState() && ChairUser->getStandState() != UNIT_STAND_STATE_SIT && ChairUser->GetDistance2d(x_i, y_i) == 0)
+                            continue;        // This seat is already occupied by ChairUser. NOTE: Not sure if the ChairUser->getStandState() != UNIT_STAND_STATE_SIT check is required.
+                        else
+                            itr->second = 0; // This seat is unoccupied.
+                    else
+                        itr->second = 0;     // The seat may of had an occupant, but they're offline.
+
+                found_free_slot = true;
+
+                // calculate the distance between the player and this slot
+                float thisDistance = player->GetDistance2d(x_i, y_i);
+
+                /* debug code. It will spawn a npc on each slot to visualize them.
+                Creature* helper = player->SummonCreature(14496, x_i, y_i, GetPositionZ(), GetOrientation(), TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 10000);
+                std::ostringstream output;
+                output << i << ": thisDist: " << thisDistance;
+                helper->MonsterSay(output.str().c_str(), LANG_UNIVERSAL, 0);
+                */
+
+                if(thisDistance <= lowestDist)
                 {
-                    // the distance between this slot and the center of the go - imagine a 1D space
-                    float relativeDistance = (info->size*i)-(info->size*(info->chair.slots-1)/2.0f);
-
-                    float x_i = GetPositionX() + relativeDistance * cos(orthogonalOrientation);
-                    float y_i = GetPositionY() + relativeDistance * sin(orthogonalOrientation);
-
-                    // calculate the distance between the player and this slot
-                    float thisDistance = player->GetDistance2d(x_i, y_i);
-
-                    /* debug code. It will spawn a npc on each slot to visualize them.
-                    Creature* helper = player->SummonCreature(14496, x_i, y_i, GetPositionZ(), GetOrientation(), TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 10000);
-                    std::ostringstream output;
-                    output << i << ": thisDist: " << thisDistance;
-                    helper->MonsterSay(output.str().c_str(), LANG_UNIVERSAL, 0);
-                    */
-
-                    if(thisDistance <= lowestDist)
-                    {
-                        lowestDist = thisDistance;
-                        x_lowest = x_i;
-                        y_lowest = y_i;
-                    }
+                    nearest_slot = itr->first;
+                    lowestDist = thisDistance;
+                    x_lowest = x_i;
+                    y_lowest = y_i;
                 }
-                player->TeleportTo(GetMapId(), x_lowest, y_lowest, GetPositionZ(), GetOrientation(),TELE_TO_NOT_LEAVE_TRANSPORT | TELE_TO_NOT_LEAVE_COMBAT | TELE_TO_NOT_UNSUMMON_PET);
             }
-            else
+
+            if(found_free_slot)
             {
-                // fallback, will always work
-                player->TeleportTo(GetMapId(), GetPositionX(), GetPositionY(), GetPositionZ(), GetOrientation(),TELE_TO_NOT_LEAVE_TRANSPORT | TELE_TO_NOT_LEAVE_COMBAT | TELE_TO_NOT_UNSUMMON_PET);
+                ChairSlotAndUser::iterator itr = ChairListSlots.find(nearest_slot);
+                if (itr != ChairListSlots.end())
+                {
+                    itr->second = player->GetGUID(); //this slot in now used by player
+                    player->TeleportTo(GetMapId(), x_lowest, y_lowest, GetPositionZ(), GetOrientation(),TELE_TO_NOT_LEAVE_TRANSPORT | TELE_TO_NOT_LEAVE_COMBAT | TELE_TO_NOT_UNSUMMON_PET);
+                    player->SetStandState(UNIT_STAND_STATE_SIT_LOW_CHAIR+info->chair.height);
+                    return;
+                }
             }
-            player->SetStandState(UNIT_STAND_STATE_SIT_LOW_CHAIR+info->chair.height);
+            //else
+                //player->GetSession()->SendNotification("There's nowhere left for you to sit.");
+
             return;
         }
         //big gun, its a spell/aura
