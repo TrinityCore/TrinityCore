@@ -277,7 +277,7 @@ struct TRINITY_DLL_DECL eye_of_cthunAI : public Scripted_NoMovementAI
 
                     m_creature->InterruptNonMeleeSpells(false);
 
-                    //Select random pTarget for dark beam to start on
+                    //Select random target for dark beam to start on
                     Unit *pTarget = NULL;
                     pTarget = SelectUnit(SELECT_TARGET_RANDOM,0);
 
@@ -555,7 +555,7 @@ struct TRINITY_DLL_DECL cthunAI : public ScriptedAI
         //Check if we have a target
         if (!UpdateVictim())
         {
-            //No pTarget so we'll use this section to do our random wispers instance wide
+            //No target so we'll use this section to do our random wispers instance wide
             //WisperTimer
             if (WisperTimer <= diff)
             {
@@ -736,7 +736,7 @@ struct TRINITY_DLL_DECL cthunAI : public ScriptedAI
 
                     if (pTarget)
                     {
-                        //Set pTarget in stomach
+                        //Set target in stomach
                         Stomach_Map[pTarget->GetGUID()] = true;
                         pTarget->InterruptNonMeleeSpells(false);
                         pTarget->CastSpell(pTarget, SPELL_MOUTH_TENTACLE, true, NULL, NULL, m_creature->GetGUID());

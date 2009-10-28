@@ -14,7 +14,7 @@ update creature_template set scriptname = 'boss_meathook' where entry = '';
 
 enum Spells
 {
-    SPELL_CONSTRICTING_CHAINS                    = 52696, //Encases the targets in chains, dealing 1800 Physical damage every 1 sec. and stunning the pTarget for 5 sec.
+    SPELL_CONSTRICTING_CHAINS                    = 52696, //Encases the targets in chains, dealing 1800 Physical damage every 1 sec. and stunning the target for 5 sec.
     H_SPELL_CONSTRICTING_CHAINS                  = 58823,
     SPELL_DISEASE_EXPULSION                      = 52666, //Meathook belches out a cloud of disease, dealing 1710 to 1890 Nature damage and interrupting the spell casting of nearby enemy targets for 4 sec.
     H_SPELL_DISEASE_EXPULSION                    = 58824,

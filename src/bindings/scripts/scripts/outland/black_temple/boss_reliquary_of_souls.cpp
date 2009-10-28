@@ -197,7 +197,7 @@ struct TRINITY_DLL_DECL boss_reliquary_of_soulsAI : public ScriptedAI
             {
                 DoModifyThreatPercent(pUnit, -100);
                 float threat = pTarget->getThreatManager().getThreat(pUnit);
-                m_creature->AddThreat(pUnit, threat);       // This makes it so that the unit has the same amount of threat in Reliquary's threatlist as in the pTarget creature's (One of the Essences).
+                m_creature->AddThreat(pUnit, threat);       // This makes it so that the unit has the same amount of threat in Reliquary's threatlist as in the target creature's (One of the Essences).
             }
         }
     }

@@ -216,7 +216,7 @@ struct TRINITY_DLL_DECL boss_shahrazAI : public ScriptedAI
             PrismaticShieldTimer = 15000;
         } else PrismaticShieldTimer -= diff;
 
-        // Select 3 random targets (can select same pTarget more than once), teleport to a random location then make them cast explosions until they get away from each other.
+        // Select 3 random targets (can select same target more than once), teleport to a random location then make them cast explosions until they get away from each other.
         if (FatalAttractionTimer <= diff)
         {
             ExplosionCount = 0;

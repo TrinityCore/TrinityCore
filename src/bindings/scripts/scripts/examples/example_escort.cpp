@@ -78,7 +78,7 @@ struct TRINITY_DLL_DECL example_escortAI : public npc_escortAI
             case 4:
                 if (Player* pPlayer = GetPlayerForEscort())
                 {
-                    //pTmpPlayer is the pTarget of the text
+                    //pTmpPlayer is the target of the text
                     DoScriptText(SAY_WP_3, m_creature, pPlayer);
                     //pTmpPlayer is the source of the text
                     DoScriptText(SAY_WP_4, pPlayer);

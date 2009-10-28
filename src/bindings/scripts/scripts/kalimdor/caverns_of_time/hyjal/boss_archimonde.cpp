@@ -324,7 +324,7 @@ struct TRINITY_DLL_DECL boss_archimondeAI : public hyjal_trashAI
         {
             if (!m_creature->IsWithinDistInMap(pTarget, m_creature->GetAttackDistance(pTarget)))
                 return true;                                // Cast Finger of Death
-            else                                            // This pTarget is closest, he is our new tank
+            else                                            // This target is closest, he is our new tank
                 m_creature->AddThreat(pTarget, m_creature->getThreatManager().getThreat(m_creature->getVictim()));
         }
 

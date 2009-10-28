@@ -154,7 +154,7 @@ struct TRINITY_DLL_DECL boss_flame_leviathanAI : public BossAI
                     UpdateVictim(); // begin to kill other things
                 return;
             case EVENT_MISSILE:
-                //TODO: without unitpTarget no visual effect
+                //TODO: without target no visual effect
                 //DoCastAOE(SPELL_MISSILE_BARRAGE);
                 DoCast(me->getVictim(), SPELL_MISSILE_BARRAGE);
                 events.RepeatEvent(1500);

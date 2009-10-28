@@ -21,7 +21,7 @@ update creature_template set scriptname = 'boss_skadi' where entry = '';
 #define H_SPELL_CRUSH                            59330
 #define SPELL_POISONED_SPEAR                     50225
 #define H_SPELL_POISONED_SPEAR                   59331
-#define SPELL_WHIRLWIND                          50228 //random pTarget,  but not the tank approx. every 20s
+#define SPELL_WHIRLWIND                          50228 //random target, but not the tank approx. every 20s
 #define H_SPELL_WHIRLWIND                        59332
 
 //Spawned creatures

@@ -96,7 +96,7 @@ struct TRINITY_DLL_DECL boss_murmurAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
-        //Return since we have no pTarget or casting
+        //Return since we have no target or casting
         if (!UpdateVictim() || m_creature->IsNonMeleeSpellCasted(false))
             return;
 
@@ -172,7 +172,7 @@ struct TRINITY_DLL_DECL boss_murmurAI : public ScriptedAI
             } else SonicShock_Timer -= diff;
         }
 
-        // Select nearest most aggro pTarget if top aggro too far
+        // Select nearest most aggro target if top aggro too far
         if (!m_creature->isAttackReady())
             return;
         if (!m_creature->IsWithinMeleeRange(m_creature->getVictim()))

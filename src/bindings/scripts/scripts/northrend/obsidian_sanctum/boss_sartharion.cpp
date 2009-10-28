@@ -353,7 +353,7 @@ struct TRINITY_DLL_DECL boss_sartharionAI : public ScriptedAI
         Unit* pShad = Unit::GetUnit(*m_creature, pInstance ? pInstance->GetData64(DATA_SHADRON) : 0);
         Unit* pVesp = Unit::GetUnit(*m_creature, pInstance ? pInstance->GetData64(DATA_VESPERON) : 0);
 
-        //spell will pTarget dragons, if they are still alive at 35%
+        //spell will target dragons, if they are still alive at 35%
         if (!m_bIsBerserk && (m_creature->GetHealth()*100 / m_creature->GetMaxHealth()) <= 35
             && ((pTene && pTene->isAlive()) || (pShad && pShad->isAlive()) || (pVesp && pVesp->isAlive())))
         {
@@ -712,7 +712,7 @@ struct TRINITY_DLL_DECL mob_tenebronAI : public dummy_dragonAI
 
     void UpdateAI(const uint32 uiDiff)
     {
-        //if no pTarget, update dummy and return
+        //if no target, update dummy and return
         if (!UpdateVictim())
         {
             dummy_dragonAI::UpdateAI(uiDiff);
@@ -788,7 +788,7 @@ struct TRINITY_DLL_DECL mob_shadronAI : public dummy_dragonAI
 
     void UpdateAI(const uint32 uiDiff)
     {
-        //if no pTarget, update dummy and return
+        //if no target, update dummy and return
         if (!UpdateVictim())
         {
             dummy_dragonAI::UpdateAI(uiDiff);
@@ -858,7 +858,7 @@ struct TRINITY_DLL_DECL mob_vesperonAI : public dummy_dragonAI
 
     void UpdateAI(const uint32 uiDiff)
     {
-        //if no pTarget, update dummy and return
+        //if no target, update dummy and return
         if (!UpdateVictim())
         {
             dummy_dragonAI::UpdateAI(uiDiff);

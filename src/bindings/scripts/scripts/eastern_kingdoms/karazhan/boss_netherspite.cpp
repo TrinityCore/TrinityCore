@@ -103,7 +103,7 @@ struct TRINITY_DLL_DECL boss_netherspiteAI : public ScriptedAI
         xh = pTarget->GetPositionX();
         yh = pTarget->GetPositionY();
 
-        // check if pTarget is between (not checking distance from the beam yet)
+        // check if target is between (not checking distance from the beam yet)
         if(dist(xn,yn,xh,yh)>=dist(xn,yn,xp,yp) || dist(xp,yp,xh,yh)>=dist(xn,yn,xp,yp))
             return false;
         // check  distance from the beam
@@ -187,8 +187,8 @@ struct TRINITY_DLL_DECL boss_netherspiteAI : public ScriptedAI
                     pTarget->AddAura(PlayerBuff[j], pTarget);
                 else
                     pTarget->AddAura(NetherBuff[j], pTarget);
-                // cast visual beam on the chosen pTarget if switched
-                // simple pTarget switching isn't working -> using BeamerGUID to cast (workaround)
+                // cast visual beam on the chosen target if switched
+                // simple target switching isn't working -> using BeamerGUID to cast (workaround)
                 if(!current || pTarget != current)
                 {
                     BeamTarget[j] = pTarget->GetGUID();
@@ -206,7 +206,7 @@ struct TRINITY_DLL_DECL boss_netherspiteAI : public ScriptedAI
                         BeamerGUID[j] = beamer->GetGUID();
                     }
                 }
-                // aggro pTarget if Red Beam
+                // aggro target if Red Beam
                 if(j==RED_PORTAL && m_creature->getVictim() != pTarget && pTarget->GetTypeId() == TYPEID_PLAYER)
                     m_creature->getThreatManager().addThreat(pTarget, 100000.0f+DoGetThreat(m_creature->getVictim()));
             }

@@ -284,7 +284,7 @@ struct TRINITY_DLL_DECL pyrewood_ambushAI : public ScriptedAI
 
         if(KillCount && Phase < 6)
         {
-            if(!UpdateVictim()) //reset() on pTarget Despawn...
+            if(!UpdateVictim()) //reset() on target Despawn...
                 return;
 
             DoMeleeAttackIfReady();

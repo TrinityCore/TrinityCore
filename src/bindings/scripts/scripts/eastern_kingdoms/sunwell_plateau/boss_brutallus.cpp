@@ -297,7 +297,7 @@ struct TRINITY_DLL_DECL boss_brutallusAI : public ScriptedAI
                     pTarget->CastSpell(pTarget, SPELL_BURN, true);
                     BurnTimer = urand(60000,180000);
                 } else
-                    BurnTimer = 1000 + diff; // if pTarget has SPELL_BURN, wait a bit.
+                    BurnTimer = 1000 + diff; // if target has SPELL_BURN, wait a bit.
             else
                 BurnTimer = urand(60000,180000); // no targets!?
         } else BurnTimer -= diff;

@@ -197,7 +197,7 @@ Unit* ScriptedAI::SelectUnit(SelectAggroTarget pTarget, uint32 uiPosition)
 
 SpellEntry const* ScriptedAI::SelectSpell(Unit* pTarget, int32 uiSchool, int32 uiMechanic, SelectTargetType selectTargets, uint32 uiPowerCostMin, uint32 uiPowerCostMax, float fRangeMin, float fRangeMax, SelectEffect selectEffects)
 {
-    //No pTarget so we can't cast
+    //No target so we can't cast
     if (!pTarget)
         return false;
 
@@ -264,7 +264,7 @@ SpellEntry const* ScriptedAI::SelectSpell(Unit* pTarget, int32 uiSchool, int32 u
         if (fRangeMax && m_creature->GetSpellMaxRangeForTarget(pTarget, pTempRange) > fRangeMax)
             continue;
 
-        //Check if our pTarget is in range
+        //Check if our target is in range
          if (m_creature->IsWithinDistInMap(pTarget, m_creature->GetSpellMinRangeForTarget(pTarget, pTempRange)) || !m_creature->IsWithinDistInMap(pTarget, m_creature->GetSpellMaxRangeForTarget(pTarget, pTempRange)))
             continue;
 
@@ -282,7 +282,7 @@ SpellEntry const* ScriptedAI::SelectSpell(Unit* pTarget, int32 uiSchool, int32 u
 
 bool ScriptedAI::CanCast(Unit* pTarget, SpellEntry const* pSpell, bool bTriggered)
 {
-    //No pTarget so we can't cast
+    //No target so we can't cast
     if (!pTarget || !pSpell)
         return false;
 

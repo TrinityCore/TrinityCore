@@ -217,11 +217,10 @@ struct TRINITY_DLL_DECL boss_kelesethAI : public ScriptedAI
             if (pTarget && pTarget->isAlive() && pTarget->GetTypeId() == TYPEID_PLAYER)
             {
                 //DoCast(pTarget, SPELL_FROST_TOMB_SUMMON, true);
-                Creature* Chains = m_creature->SummonCreature(CREATURE_FROSTTOMB, pTarget->GetPositionX(), pTarget->GetPositionY(), pTarget->GetPositionZ(), 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 20000);
-                if (Chains)
+                if (Creature *pChains = m_creature->SummonCreature(CREATURE_FROSTTOMB, pTarget->GetPositionX(), pTarget->GetPositionY(), pTarget->GetPositionZ(), 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 20000))
                 {
-                    CAST_AI(mob_frost_tombAI, Chains->AI())->SetPrisoner(pTarget);
-                    Chains->CastSpell(pTarget, SPELL_FROST_TOMB, true);
+                    CAST_AI(mob_frost_tombAI, pChains->AI())->SetPrisoner(pTarget);
+                    pChains->CastSpell(pTarget, SPELL_FROST_TOMB, true);
 
                     DoScriptText(SAY_FROST_TOMB, m_creature);
                 }

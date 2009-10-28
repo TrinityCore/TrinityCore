@@ -431,7 +431,7 @@ struct TRINITY_DLL_DECL mob_molten_golemAI : public ScriptedAI
 
     void UpdateAI(const uint32 uiDiff)
     {
-        //Return since we have no pTarget or if we are frozen
+        //Return since we have no target or if we are frozen
         if (!UpdateVictim() || m_bIsFrozen)
             return;
 

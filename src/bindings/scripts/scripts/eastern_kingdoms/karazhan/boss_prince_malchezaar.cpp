@@ -288,7 +288,7 @@ struct TRINITY_DLL_DECL boss_malchezaarAI : public ScriptedAI
         if (!t_list.size())
             return;
 
-        //begin + 1 , so we don't pTarget the one with the highest threat
+        //begin + 1, so we don't target the one with the highest threat
         std::list<HostilReference *>::iterator itr = t_list.begin();
         std::advance(itr, 1);
         for (; itr!= t_list.end(); ++itr)                   //store the threat list in a different container
@@ -442,7 +442,7 @@ struct TRINITY_DLL_DECL boss_malchezaarAI : public ScriptedAI
                         if (pTarget)
                         {
                             axe->AI()->AttackStart(pTarget);
-                            // axe->getThreatManager().tauntApply(pTarget); //Taunt Apply and fade out does not work properly
+                            //axe->getThreatManager().tauntApply(pTarget); //Taunt Apply and fade out does not work properly
                                                             // So we'll use a hack to add a lot of threat to our target
                             axe->AddThreat(pTarget, 10000000.0f);
                         }

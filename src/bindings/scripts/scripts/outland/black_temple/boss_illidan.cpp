@@ -73,7 +73,7 @@ const char*  SAY_KILL2        = "This is too easy!";
 #define SPELL_PARASITIC_SHADOWFIEND     41917 // DoT of 3k Shadow every 2 seconds. Lasts 10 seconds. (Script effect: Summon 2 parasites once the debuff has ticked off)
 #define SPELL_PARASITIC_SHADOWFIEND2    41914 // Used by Parasitic
 #define SPELL_SUMMON_PARASITICS         41915 // Summons 2 Parasitic Shadowfiends on the target. It's supposed to be cast as soon as the Parasitic Shadowfiend debuff is gone, but the spells aren't linked :(
-#define SPELL_AGONIZING_FLAMES          40932 // 4k fire damage initial to pTarget and anyone w/i 5 yards. PHASE 3 ONLY
+#define SPELL_AGONIZING_FLAMES          40932 // 4k fire damage initial to target and anyone w/i 5 yards. PHASE 3 ONLY
 #define SPELL_ENRAGE                    40683 // Increases damage by 50% and attack speed by 30%. 20 seconds, PHASE 5 ONLY
 // Flying (Phase 2)
 #define SPELL_THROW_GLAIVE              39635 // Throws a glaive on the ground
@@ -100,7 +100,7 @@ const char*  SAY_KILL2        = "This is too easy!";
 #define SPELL_SUMMON_SHADOWDEMON        41117 // Summon four shadowfiends
 #define SPELL_SHADOWFIEND_PASSIVE       41913 // Passive aura for shadowfiends
 #define SPELL_SHADOW_DEMON_PASSIVE      41079 // Adds the "shadowform" aura to Shadow Demons.
-#define SPELL_CONSUME_SOUL              41080 // Once the Shadow Demons reach their pTarget, they use this to kill them
+#define SPELL_CONSUME_SOUL              41080 // Once the Shadow Demons reach their target, they use this to kill them
 #define SPELL_PARALYZE                  41083 // Shadow Demons cast this on their target
 #define SPELL_PURPLE_BEAM               39123 // Purple Beam connecting Shadow Demon to their target
 //Phase Flight spells
@@ -1727,7 +1727,7 @@ struct TRINITY_DLL_DECL shadow_demonAI : public ScriptedAI
             DoCast(m_creature->getVictim(), SPELL_PURPLE_BEAM, true);
             DoCast(m_creature->getVictim(), SPELL_PARALYZE, true);
         }
-        // Kill our pTarget if we're very close.
+        // Kill our target if we're very close.
         if (m_creature->IsWithinDistInMap(m_creature->getVictim(), 3))
             DoCast(m_creature->getVictim(), SPELL_CONSUME_SOUL);
     }
