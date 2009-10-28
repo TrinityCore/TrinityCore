@@ -5,7 +5,7 @@
 #ifndef DEF_HYJAL_H
 #define DEF_HYJAL_H
 
-#define ERROR_INST_DATA     "TSCR: Instance data not set properly for Mount Hyjal. Encounters will be buggy"
+#define ERROR_INST_DATA     "TSCR: Instance data not set properly for Mount Hyjal. Encounters will be buggy."
 
 enum eTypes
 {

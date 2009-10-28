@@ -26,14 +26,14 @@
 #include "Platform/Define.h"
 #include "Policies/Singleton.h"
 
-#define max_ge_check_delay 86400                            // 1 day in seconds
+#define max_ge_check_delay DAY  // 1 day in seconds
 
 enum GameEventState
 {
     GAMEEVENT_NORMAL = 0,   // standard game events
     GAMEEVENT_WORLD_INACTIVE = 1,   // not yet started
     GAMEEVENT_WORLD_CONDITIONS = 2,  // condition matching phase
-    GAMEEVENT_WORLD_NEXTPHASE = 3,   // conditions are met, now 'lenght' timer to start next event
+    GAMEEVENT_WORLD_NEXTPHASE = 3,   // conditions are met, now 'length' timer to start next event
     GAMEEVENT_WORLD_FINISHED = 4,    // next events are started, unapply this one
     GAMEEVENT_INTERNAL = 5, // never handled in update
 };
@@ -67,7 +67,7 @@ struct GameEventData
     std::set<uint16 /*gameevent id*/> prerequisite_events;  // events that must be completed before starting this event
     std::string description;
 
-    bool isValid() const { return ((length > 0) || (state > GAMEEVENT_NORMAL)); }
+    bool isValid() const { return length > 0 || state > GAMEEVENT_NORMAL; }
 };
 
 struct ModelEquip
@@ -121,7 +121,7 @@ class GameEventMgr
         void GameEventSpawn(int16 event_id);
         void GameEventUnspawn(int16 event_id);
         void ChangeEquipOrModel(int16 event_id, bool activate);
-        void UpdateEventQuests(uint16 event_id, bool Activate);
+        void UpdateEventQuests(uint16 event_id, bool activate);
         void UpdateEventNPCFlags(uint16 event_id);
         void UpdateEventNPCVendor(uint16 event_id, bool activate);
         void UpdateBattleGroundSettings();

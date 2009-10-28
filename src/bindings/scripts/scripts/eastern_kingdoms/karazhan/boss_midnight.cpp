@@ -221,19 +221,19 @@ struct TRINITY_DLL_DECL boss_attumenAI : public ScriptedAI
         if (m_creature->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE))
             return;
 
-        if (CleaveTimer < diff)
+        if (CleaveTimer <= diff)
         {
             DoCast(m_creature->getVictim(), SPELL_SHADOWCLEAVE);
             CleaveTimer = urand(10000,15000);
         } else CleaveTimer -= diff;
 
-        if (CurseTimer < diff)
+        if (CurseTimer <= diff)
         {
             DoCast(m_creature->getVictim(), SPELL_INTANGIBLE_PRESENCE);
             CurseTimer = 30000;
         } else CurseTimer -= diff;
 
-        if (RandomYellTimer < diff)
+        if (RandomYellTimer <= diff)
         {
             DoScriptText(RAND(SAY_RANDOM1,SAY_RANDOM2), m_creature);
             RandomYellTimer = urand(30000,60000);
@@ -241,7 +241,7 @@ struct TRINITY_DLL_DECL boss_attumenAI : public ScriptedAI
 
         if (m_creature->GetUInt32Value(UNIT_FIELD_DISPLAYID) == MOUNTED_DISPLAYID)
         {
-            if (ChargeTimer < diff)
+            if (ChargeTimer <= diff)
             {
                 Unit *target;
                 std::list<HostilReference *> t_list = m_creature->getThreatManager().getThreatList();

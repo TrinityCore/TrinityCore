@@ -108,7 +108,7 @@ struct TRINITY_DLL_DECL boss_gythAI : public ScriptedAI
 
         if (!bAggro && Line1Count == 0 && Line2Count == 0)
         {
-            if (Aggro_Timer < diff)
+            if (Aggro_Timer <= diff)
             {
                 bAggro = true;
                 // Visible now!
@@ -121,7 +121,7 @@ struct TRINITY_DLL_DECL boss_gythAI : public ScriptedAI
         // Summon Dragon pack. 2 Dragons and 3 Whelps
         if (!bAggro && !SummonedRend && Line1Count > 0)
         {
-            if (Dragons_Timer < diff)
+            if (Dragons_Timer <= diff)
             {
                 SummonCreatureWithRandomTarget(10372);
                 SummonCreatureWithRandomTarget(10372);
@@ -136,7 +136,7 @@ struct TRINITY_DLL_DECL boss_gythAI : public ScriptedAI
         //Summon Orc pack. 1 Orc Handler 1 Elite Dragonkin and 3 Whelps
         if (!bAggro && !SummonedRend && Line1Count == 0 && Line2Count > 0)
         {
-            if (Orc_Timer < diff)
+            if (Orc_Timer <= diff)
             {
                 SummonCreatureWithRandomTarget(10447);
                 SummonCreatureWithRandomTarget(10317);
@@ -152,21 +152,21 @@ struct TRINITY_DLL_DECL boss_gythAI : public ScriptedAI
         if (bAggro)
         {
             // CorrosiveAcid_Timer
-            if (CorrosiveAcid_Timer < diff)
+            if (CorrosiveAcid_Timer <= diff)
             {
                 DoCast(m_creature->getVictim(), SPELL_CORROSIVEACID);
                 CorrosiveAcid_Timer = 7000;
             } else CorrosiveAcid_Timer -= diff;
 
             // Freeze_Timer
-            if (Freeze_Timer < diff)
+            if (Freeze_Timer <= diff)
             {
                 DoCast(m_creature->getVictim(), SPELL_FREEZE);
                 Freeze_Timer = 16000;
             } else Freeze_Timer -= diff;
 
             // Flamebreath_Timer
-            if (Flamebreath_Timer < diff)
+            if (Flamebreath_Timer <= diff)
             {
                 DoCast(m_creature->getVictim(),SPELL_FLAMEBREATH);
                 Flamebreath_Timer = 10500;

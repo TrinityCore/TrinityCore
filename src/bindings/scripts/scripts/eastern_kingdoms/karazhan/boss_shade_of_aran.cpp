@@ -291,12 +291,12 @@ struct TRINITY_DLL_DECL boss_aranAI : public ScriptedAI
             return;
 
         //Normal casts
-        if (NormalCastTimer < diff)
+        if (NormalCastTimer <= diff)
         {
             if (!m_creature->IsNonMeleeSpellCasted(false))
             {
                 Unit* target = NULL;
-                target = SelectUnit(SELECT_TARGET_RANDOM, 0);
+                target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true);
                 if (!target)
                     return;
 
@@ -307,17 +307,17 @@ struct TRINITY_DLL_DECL boss_aranAI : public ScriptedAI
                 if (!ArcaneCooldown)
                 {
                     Spells[AvailableSpells] = SPELL_ARCMISSLE;
-                    AvailableSpells++;
+                    ++AvailableSpells;
                 }
                 if (!FireCooldown)
                 {
                     Spells[AvailableSpells] = SPELL_FIREBALL;
-                    AvailableSpells++;
+                    ++AvailableSpells;
                 }
                 if (!FrostCooldown)
                 {
                     Spells[AvailableSpells] = SPELL_FROSTBOLT;
-                    AvailableSpells++;
+                    ++AvailableSpells;
                 }
 
                 //If no available spells wait 1 second and try again
@@ -328,25 +328,24 @@ struct TRINITY_DLL_DECL boss_aranAI : public ScriptedAI
                 }
             }
             NormalCastTimer = 1000;
-        }else NormalCastTimer -= diff;
+        } else NormalCastTimer -= diff;
 
-        if (SecondarySpellTimer < diff)
+        if (SecondarySpellTimer <= diff)
         {
-            switch (rand()%2)
+            switch (urand(0,1))
             {
-
                 case 0:
                     DoCast(m_creature, SPELL_AOE_CS);
                     break;
                 case 1:
-                    if (Unit* pUnit = SelectUnit(SELECT_TARGET_RANDOM, 0))
-                        DoCast(pUnit, SPELL_CHAINSOFICE);
+                    if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                        DoCast(pTarget, SPELL_CHAINSOFICE);
                     break;
             }
-            SecondarySpellTimer = 5000 + (rand()%15000);
-        }else SecondarySpellTimer -= diff;
+            SecondarySpellTimer = urand(5000,20000);
+        } else SecondarySpellTimer -= diff;
 
-        if (SuperCastTimer < diff)
+        if (SuperCastTimer <= diff)
         {
             uint8 Available[2];
 
@@ -433,7 +432,7 @@ struct TRINITY_DLL_DECL boss_aranAI : public ScriptedAI
             DoScriptText(SAY_ELEMENTALS, m_creature);
         }
 
-        if (BerserkTimer < diff)
+        if (BerserkTimer <= diff)
         {
             for (uint32 i = 0; i < 5; ++i)
             {
@@ -456,9 +455,9 @@ struct TRINITY_DLL_DECL boss_aranAI : public ScriptedAI
                 FlameWreathTimer -= diff;
             else FlameWreathTimer = 0;
 
-            if (FlameWreathCheckTime < diff)
+            if (FlameWreathCheckTime <= diff)
             {
-                for (uint32 i = 0; i < 3; ++i)
+                for (uint8 i = 0; i < 3; ++i)
                 {
                     if (!FlameWreathTarget[i])
                         continue;
@@ -526,11 +525,11 @@ struct TRINITY_DLL_DECL water_elementalAI : public ScriptedAI
         if (!UpdateVictim())
             return;
 
-        if (CastTimer < diff)
+        if (CastTimer <= diff)
         {
             DoCast(m_creature->getVictim(), SPELL_WATERBOLT);
-            CastTimer = 2000 + (rand()%3000);
-        }else CastTimer -= diff;
+            CastTimer = urand(2000,5000);
+        } else CastTimer -= diff;
     }
 };
 

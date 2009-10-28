@@ -280,14 +280,14 @@ struct TRINITY_DLL_DECL boss_felblood_kaelthasAI : public ScriptedAI
                         DoCast(m_creature, SPELL_SHOCK_BARRIER, true);
                         DoCast(m_creature->getVictim(), SPELL_PYROBLAST);
                         PyroblastTimer = 60000;
-                    }else PyroblastTimer -= diff;
+                    } else PyroblastTimer -= diff;
                 }
 
                 if (FireballTimer < diff)
                 {
                     DoCast(m_creature->getVictim(), Heroic ? SPELL_FIREBALL_HEROIC : SPELL_FIREBALL_NORMAL);
-                    FireballTimer = 2000 + rand()%4000;
-                }else FireballTimer -= diff;
+                    FireballTimer = urand(2000,6000);
+                } else FireballTimer -= diff;
 
                 if (PhoenixTimer < diff)
                 {

@@ -400,7 +400,7 @@ struct TRINITY_DLL_DECL npc_death_knight_initiateAI : public CombatAI
         {
             if (m_bIsDuelInProgress)
             {
-                if (m_uiDuelTimer < uiDiff)
+                if (m_uiDuelTimer <= uiDiff)
                 {
                     m_creature->setFaction(FACTION_HOSTILE);
 
@@ -513,7 +513,7 @@ struct TRINITY_DLL_DECL npc_dark_rider_of_acherusAI : public ScriptedAI
         if (!Intro)
             return;
 
-        if (PhaseTimer < diff)
+        if (PhaseTimer <= diff)
         {
             switch(Phase)
             {
@@ -941,7 +941,7 @@ struct TRINITY_DLL_DECL npc_scarlet_minerAI : public npc_escortAI
     {
         if (IntroPhase)
         {
-            if (IntroTimer < diff)
+            if (IntroTimer <= diff)
             {
                 if (IntroPhase == 1)
                 {

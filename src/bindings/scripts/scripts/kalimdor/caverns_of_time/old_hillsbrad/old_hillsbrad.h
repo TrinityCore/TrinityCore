@@ -13,7 +13,7 @@
 #define TYPE_THRALL_PART4     6
 #define DATA_THRALL           7
 #define DATA_TARETHA          8
-#define DATA_EPOCH          9
+#define DATA_EPOCH            9
 #define WORLD_STATE_OH        2436
 #endif
 

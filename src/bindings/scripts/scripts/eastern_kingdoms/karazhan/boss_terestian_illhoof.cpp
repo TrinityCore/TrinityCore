@@ -102,12 +102,12 @@ struct TRINITY_DLL_DECL mob_kilrekAI : public ScriptedAI
         if (!UpdateVictim())
             return;
 
-        if (AmplifyTimer < diff)
+        if (AmplifyTimer <= diff)
         {
             m_creature->InterruptNonMeleeSpells(false);
             DoCast(m_creature->getVictim(),SPELL_AMPLIFY_FLAMES);
 
-            AmplifyTimer = 10000 + rand()%10000;
+            AmplifyTimer = urand(10000,20000);
         }else AmplifyTimer -= diff;
 
         DoMeleeAttackIfReady();
@@ -275,16 +275,15 @@ struct TRINITY_DLL_DECL boss_terestianAI : public ScriptedAI
         if (!UpdateVictim())
             return;
 
-        if (SacrificeTimer < diff)
+        if (SacrificeTimer <= diff)
         {
-            Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 1);
-            if (target && target->isAlive() && target->GetTypeId() == TYPEID_PLAYER)
+            Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 100, true);
+            if (target && target->isAlive())
             {
                 DoCast(target, SPELL_SACRIFICE, true);
                 DoCast(target, SPELL_SUMMON_DEMONCHAINS, true);
 
-                Creature* Chains = m_creature->FindNearestCreature(CREATURE_DEMONCHAINS, 5000);
-                if (Chains)
+                if (Creature* Chains = m_creature->FindNearestCreature(CREATURE_DEMONCHAINS, 5000))
                 {
                     CAST_AI(mob_demon_chainAI, Chains->AI())->SacrificeGUID = target->GetGUID();
                     Chains->CastSpell(Chains, SPELL_DEMON_CHAINS, true);
@@ -292,15 +291,15 @@ struct TRINITY_DLL_DECL boss_terestianAI : public ScriptedAI
                     SacrificeTimer = 30000;
                 }
             }
-        }else SacrificeTimer -= diff;
+        } else SacrificeTimer -= diff;
 
-        if (ShadowboltTimer < diff)
+        if (ShadowboltTimer <= diff)
         {
             DoCast(SelectUnit(SELECT_TARGET_TOPAGGRO, 0), SPELL_SHADOW_BOLT);
             ShadowboltTimer = 10000;
-        }else ShadowboltTimer -= diff;
+        } else ShadowboltTimer -= diff;
 
-        if (SummonTimer < diff)
+        if (SummonTimer <= diff)
         {
             if(!PortalGUID[0])
                 DoCast(m_creature->getVictim(), SPELL_FIENDISH_PORTAL, false);
@@ -310,19 +309,19 @@ struct TRINITY_DLL_DECL boss_terestianAI : public ScriptedAI
 
             if(PortalGUID[0] && PortalGUID[1])
             {
-                if (Creature* pPortal = Unit::GetCreature(*m_creature, PortalGUID[rand()%2]))
+                if (Creature* pPortal = Unit::GetCreature(*m_creature, PortalGUID[urand(0,1)]))
                     pPortal->CastSpell(m_creature->getVictim(), SPELL_SUMMON_FIENDISIMP, false);
                 SummonTimer = 5000;
             }
-        }else SummonTimer -= diff;
+        } else SummonTimer -= diff;
 
         if (!Berserk)
         {
-            if (BerserkTimer < diff)
+            if (BerserkTimer <= diff)
             {
                 DoCast(m_creature, SPELL_BERSERK);
                 Berserk = true;
-            }else BerserkTimer -= diff;
+            } else BerserkTimer -= diff;
         }
 
         DoMeleeAttackIfReady();
@@ -352,11 +351,11 @@ struct TRINITY_DLL_DECL mob_fiendish_impAI : public ScriptedAI
         if (!UpdateVictim())
             return;
 
-        if (FireboltTimer < diff)
+        if (FireboltTimer <= diff)
         {
             DoCast(m_creature->getVictim(), SPELL_FIREBOLT);
             FireboltTimer = 2200;
-        }else FireboltTimer -= diff;
+        } else FireboltTimer -= diff;
 
         DoMeleeAttackIfReady();
     }
