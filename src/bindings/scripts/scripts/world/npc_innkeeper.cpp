@@ -40,7 +40,7 @@ EndScriptData */
  
 bool GossipHello_npc_innkeeper(Player *pPlayer, Creature *pCreature)
 {
-    if (gameeventmgr.IsActiveEvent(HALLOWEEN_EVENTID) && !pPlayer->HasAura(SPELL_TRICK_OR_TREATED))
+    if (IsEventActive(HALLOWEEN_EVENTID) && !pPlayer->HasAura(SPELL_TRICK_OR_TREATED))
     {
         char* localizedEntry;
         switch (pPlayer->GetSession()->GetSessionDbcLocale())
@@ -77,7 +77,7 @@ bool GossipHello_npc_innkeeper(Player *pPlayer, Creature *pCreature)
 
 bool GossipSelect_npc_innkeeper(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
 {
-    if (uiAction == GOSSIP_ACTION_INFO_DEF+HALLOWEEN_EVENTID && gameeventmgr.IsActiveEvent(HALLOWEEN_EVENTID) && !pPlayer->HasAura(SPELL_TRICK_OR_TREATED))
+    if (uiAction == GOSSIP_ACTION_INFO_DEF+HALLOWEEN_EVENTID && IsEventActive(HALLOWEEN_EVENTID) && !pPlayer->HasAura(SPELL_TRICK_OR_TREATED))
     {
         pPlayer->CastSpell(pPlayer, SPELL_TRICK_OR_TREATED, true);
  

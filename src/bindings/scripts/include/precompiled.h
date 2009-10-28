@@ -8,7 +8,7 @@
 #include "../ScriptMgr.h"
 #include "Cell.h"
 #include "CellImpl.h"
-#include "GameEventMgr.cpp"
+#include "GameEventMgr.h"
 #include "GridNotifiers.h"
 #include "GridNotifiersImpl.h"
 #include "Unit.h"
