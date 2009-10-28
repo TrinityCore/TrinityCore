@@ -236,7 +236,7 @@ struct TRINITY_DLL_DECL boss_terestianAI : public ScriptedAI
         if (pSummoned->GetEntry() == CREATURE_PORTAL)
         {
             PortalGUID[PortalsCount] = pSummoned->GetGUID();
-            PortalsCount++;
+            ++PortalsCount;
 
             if (pSummoned->GetUInt32Value(UNIT_CREATED_BY_SPELL) == SPELL_FIENDISH_PORTAL_1)
             {

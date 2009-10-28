@@ -238,7 +238,7 @@ struct TRINITY_DLL_DECL instance_serpentshrine_cavern : public ScriptedInstance
             /*case TRASHMOB_COILFANG_PRIESTESS:
             case TRASHMOB_COILFANG_SHATTERER:
                 if(pCreature->isAlive())
-                    TrashCount++;
+                    ++TrashCount;
                 break;*/
         }
     }
@@ -290,7 +290,7 @@ struct TRINITY_DLL_DECL instance_serpentshrine_cavern : public ScriptedInstance
         case DATA_TRASH :
             {
                 if(data == 1 && TrashCount < MIN_KILLS)
-                    TrashCount++;//+1 died
+                    ++TrashCount;//+1 died
                 SaveToDB();
                 break;
             }

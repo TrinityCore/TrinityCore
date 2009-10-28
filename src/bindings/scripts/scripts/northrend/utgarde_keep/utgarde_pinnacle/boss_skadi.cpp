@@ -220,7 +220,7 @@ struct TRINITY_DLL_DECL boss_skadiAI : public ScriptedAI
         for (uint8 i = 0; i < uiMaxSpawn; ++i)
         {
             Creature* pTemp;
-            switch (rand()%3)
+            switch (urand(0,2))
             {
                 case 0: pTemp = m_creature->SummonCreature(CREATURE_YMIRJAR_WARRIOR, SpawnLoc[spot].x+rand()%5, SpawnLoc[spot].y+rand()%5, SpawnLoc[spot].z, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000); break;
                 case 1: pTemp = m_creature->SummonCreature(CREATURE_YMIRJAR_WITCH_DOCTOR, SpawnLoc[spot].x+rand()%5, SpawnLoc[spot].y+rand()%5, SpawnLoc[spot].z, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000); break;

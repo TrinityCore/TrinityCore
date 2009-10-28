@@ -185,17 +185,18 @@ struct TRINITY_DLL_DECL boss_halazziAI : public ScriptedAI
             TotemTimer = 12000;
             break;
         case PHASE_MERGE:
-            if (Unit *Lynx = Unit::GetUnit(*m_creature, LynxGUID))
+            if (Unit *pLynx = Unit::GetUnit(*m_creature, LynxGUID))
             {
                 m_creature->MonsterYell(YELL_MERGE, LANG_UNIVERSAL, NULL);
                 DoPlaySoundToSet(m_creature, SOUND_MERGE);
-                Lynx->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                Lynx->GetMotionMaster()->Clear();
-                Lynx->GetMotionMaster()->MoveFollow(m_creature, 0, 0);
+                pLynx->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                pLynx->GetMotionMaster()->Clear();
+                pLynx->GetMotionMaster()->MoveFollow(m_creature, 0, 0);
                 m_creature->GetMotionMaster()->Clear();
-                m_creature->GetMotionMaster()->MoveFollow(Lynx, 0, 0);
-                TransformCount++;
-            }break;
+                m_creature->GetMotionMaster()->MoveFollow(pLynx, 0, 0);
+                ++TransformCount;
+            }
+            break;
         default:
             break;
         }

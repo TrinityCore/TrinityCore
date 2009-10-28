@@ -123,12 +123,12 @@ struct TRINITY_DLL_DECL boss_jandicebarovAI : public ScriptedAI
         //                  if (Illusioncounter < 3)
         //                  {
         //                    Illusion_Timer = 500;
-        //                    Illusioncounter++;
+        //                    ++Illusioncounter;
         //                  }
         //                  else {
         //                      //15 seconds until we should cast this again
         //                      Illusion_Timer = 15000;
-        //                      Illusioncounter=0;
+        //                      Illusioncounter = 0;
         //                  }
         //
         //            } else Illusion_Timer -= diff;

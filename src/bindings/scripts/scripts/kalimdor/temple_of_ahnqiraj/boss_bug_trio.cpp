@@ -270,7 +270,7 @@ struct TRINITY_DLL_DECL boss_yaujAI : public ScriptedAI
                 Unit *pKri = Unit::GetUnit((*m_creature), pInstance->GetData64(DATA_KRI));
                 Unit *pVem = Unit::GetUnit((*m_creature), pInstance->GetData64(DATA_VEM));
 
-                switch(rand()%3)
+                switch (urand(0,2))
                 {
                     case 0:
                         if (pKri)

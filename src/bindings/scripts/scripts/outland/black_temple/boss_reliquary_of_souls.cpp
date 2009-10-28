@@ -311,22 +311,23 @@ struct TRINITY_DLL_DECL boss_reliquary_of_soulsAI : public ScriptedAI
                 if (SoulCount < NUMBER_ENSLAVED_SOUL)
                 {
                     if (SummonSoul())
-                        SoulCount++;
+                        ++SoulCount;
                     Timer = 500;
                     return;
-                }break;
+                }
+                break;
             case 7:
                 if (SoulDeathCount >= SoulCount)
                 {
                     Counter = 1;
-                    Phase++;
+                    ++Phase;
                     Timer = 5000;
                 }
                 return;
             default:
                 break;
             }
-            Counter++;
+            ++Counter;
         } else Timer -= diff;
     }
 };
@@ -627,11 +628,9 @@ struct TRINITY_DLL_DECL boss_essence_of_angerAI : public ScriptedAI
 void npc_enslaved_soulAI::JustDied(Unit *killer)
 {
     if (ReliquaryGUID)
-    {
-        Creature* Reliquary = (Unit::GetCreature((*m_creature), ReliquaryGUID));
-        if (Reliquary)
-            CAST_AI(boss_reliquary_of_soulsAI, Reliquary->AI())->SoulDeathCount++;
-    }
+        if (Creature *Reliquary = (Unit::GetCreature((*m_creature), ReliquaryGUID)))
+            ++(CAST_AI(boss_reliquary_of_soulsAI, Reliquary->AI())->SoulDeathCount);
+
     DoCast(m_creature, SPELL_SOUL_RELEASE, true);
 }
 

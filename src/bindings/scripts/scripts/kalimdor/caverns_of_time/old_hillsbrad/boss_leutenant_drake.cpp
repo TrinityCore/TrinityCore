@@ -134,7 +134,7 @@ struct TRINITY_DLL_DECL boss_lieutenant_drakeAI : public ScriptedAI
         if (CanPatrol && wpId == 0)
         {
             m_creature->GetMotionMaster()->MovePoint(DrakeWP[0].wpId, DrakeWP[0].x, DrakeWP[0].y, DrakeWP[0].z);
-            wpId++;
+            ++wpId;
         }
 
         //Return since we have no target

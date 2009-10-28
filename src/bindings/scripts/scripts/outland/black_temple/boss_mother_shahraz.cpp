@@ -199,7 +199,7 @@ struct TRINITY_DLL_DECL boss_shahrazAI : public ScriptedAI
                     DoCast(pTarget, SPELL_BEAM_SINFUL);
                     break;
             }
-            BeamCount++;
+            ++BeamCount;
             uint32 Beam = CurrentBeam;
             if (BeamCount > 3)
                 while(CurrentBeam == Beam)
@@ -245,7 +245,7 @@ struct TRINITY_DLL_DECL boss_shahrazAI : public ScriptedAI
                     }
                 }
 
-                ExplosionCount++;
+                ++ExplosionCount;
                 FatalAttractionExplodeTimer = 1000;
             }
             else

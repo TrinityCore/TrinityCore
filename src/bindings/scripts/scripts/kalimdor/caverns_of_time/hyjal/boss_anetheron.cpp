@@ -80,7 +80,7 @@ struct TRINITY_DLL_DECL boss_anetheronAI : public hyjal_trashAI
 
     void KilledUnit(Unit *victim)
     {
-        switch(rand()%3)
+        switch (urand(0,2))
         {
             case 0:
                 DoPlaySoundToSet(m_creature, SOUND_ONSLAY1);

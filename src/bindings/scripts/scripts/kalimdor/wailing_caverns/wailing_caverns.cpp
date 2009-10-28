@@ -165,7 +165,7 @@ struct TRINITY_DLL_DECL npc_disciple_of_naralexAI : public npc_escortAI
                     case TYPE_NARALEX_PART1:
                         if (eventProgress == 1)
                         {
-                            eventProgress++;
+                            ++eventProgress;
                             DoScriptText(SAY_TEMPLE_OF_PROMISE, m_creature);
                             m_creature->SummonCreature(NPC_DEVIATE_RAVAGER, -82.1763, 227.874, -93.3233, 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 5000);
                             m_creature->SummonCreature(NPC_DEVIATE_RAVAGER, -72.9506, 216.645, -93.6756, 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 5000);
@@ -174,7 +174,7 @@ struct TRINITY_DLL_DECL npc_disciple_of_naralexAI : public npc_escortAI
                     case TYPE_NARALEX_PART2:
                         if (eventProgress == 1)
                         {
-                            eventProgress++;
+                            ++eventProgress;
                             DoScriptText(SAY_BANISH_THE_SPIRITS, m_creature);
                             DoCast(m_creature, SPELL_SERPENTINE_CLEANSING);
                             //CAST_AI(npc_escortAI, m_creature->AI())->SetCanDefend(false);
@@ -196,7 +196,7 @@ struct TRINITY_DLL_DECL npc_disciple_of_naralexAI : public npc_escortAI
                     case TYPE_NARALEX_PART3:
                         if (eventProgress == 1)
                         {
-                            eventProgress++;
+                            ++eventProgress;
                             eventTimer = 4000;
                             m_creature->SetStandState(UNIT_STAND_STATE_KNEEL);
                             DoScriptText(SAY_EMERALD_DREAM, m_creature);
@@ -204,7 +204,7 @@ struct TRINITY_DLL_DECL npc_disciple_of_naralexAI : public npc_escortAI
                         else
                         if (eventProgress == 2)
                         {
-                            eventProgress++;
+                            ++eventProgress;
                             eventTimer = 15000;
                             //CAST_AI(npc_escortAI, m_creature->AI())->SetCanDefend(false);
                             if (Creature* naralex = pInstance->instance->GetCreature(pInstance->GetData64(DATA_NARALEX)))
@@ -214,7 +214,7 @@ struct TRINITY_DLL_DECL npc_disciple_of_naralexAI : public npc_escortAI
                         else
                         if (eventProgress == 3)
                         {
-                            eventProgress++;
+                            ++eventProgress;
                             eventTimer = 15000;
                             if (Creature* naralex = pInstance->instance->GetCreature(pInstance->GetData64(DATA_NARALEX)))
                                 DoScriptText(EMOTE_TROUBLED_SLEEP, naralex);
@@ -225,7 +225,7 @@ struct TRINITY_DLL_DECL npc_disciple_of_naralexAI : public npc_escortAI
                         else
                         if (eventProgress == 4)
                         {
-                            eventProgress++;
+                            ++eventProgress;
                             eventTimer = 30000;
                             if (Creature* naralex = pInstance->instance->GetCreature(pInstance->GetData64(DATA_NARALEX)))
                                 DoScriptText(EMOTE_WRITHE_IN_AGONY, naralex);
@@ -240,7 +240,7 @@ struct TRINITY_DLL_DECL npc_disciple_of_naralexAI : public npc_escortAI
                         else
                         if (eventProgress == 5)
                         {
-                            eventProgress++;
+                            ++eventProgress;
                             if (Creature* naralex = pInstance->instance->GetCreature(pInstance->GetData64(DATA_NARALEX)))
                                 DoScriptText(EMOTE_HORRENDOUS_VISION, naralex);
                             m_creature->SummonCreature(NPC_MUTANUS_THE_DEVOURER, 150.872, 262.905, -103.503, 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 300000);
@@ -250,7 +250,7 @@ struct TRINITY_DLL_DECL npc_disciple_of_naralexAI : public npc_escortAI
                         else
                         if (eventProgress == 6 && pInstance->GetData(TYPE_MUTANUS_THE_DEVOURER) == DONE)
                         {
-                            eventProgress++;
+                            ++eventProgress;
                             eventTimer = 3000;
                             if (Creature* naralex = pInstance->instance->GetCreature(pInstance->GetData64(DATA_NARALEX)))
                             {
@@ -275,7 +275,7 @@ struct TRINITY_DLL_DECL npc_disciple_of_naralexAI : public npc_escortAI
                         else
                         if (eventProgress == 7)
                         {
-                            eventProgress++;
+                            ++eventProgress;
                             eventTimer = 6000;
                             if (Creature* naralex = pInstance->instance->GetCreature(pInstance->GetData64(DATA_NARALEX)))
                                 DoScriptText(SAY_THANK_YOU, naralex);
@@ -283,7 +283,7 @@ struct TRINITY_DLL_DECL npc_disciple_of_naralexAI : public npc_escortAI
                         else
                         if (eventProgress == 8)
                         {
-                            eventProgress++;
+                            ++eventProgress;
                             eventTimer = 8000;
                             if (Creature* naralex = pInstance->instance->GetCreature(pInstance->GetData64(DATA_NARALEX)))
                             {
@@ -297,7 +297,7 @@ struct TRINITY_DLL_DECL npc_disciple_of_naralexAI : public npc_escortAI
                         else
                         if (eventProgress == 9)
                         {
-                            eventProgress++;
+                            ++eventProgress;
                             eventTimer = 1500;
                             if (Creature* naralex = pInstance->instance->GetCreature(pInstance->GetData64(DATA_NARALEX)))
                                 naralex->GetMotionMaster()->MovePoint(25, naralex->GetPositionX(), naralex->GetPositionY(), naralex->GetPositionZ());
@@ -305,7 +305,7 @@ struct TRINITY_DLL_DECL npc_disciple_of_naralexAI : public npc_escortAI
                         else
                         if (eventProgress == 10)
                         {
-                            eventProgress++;
+                            ++eventProgress;
                             eventTimer = 2500;
                             if (Creature* naralex = pInstance->instance->GetCreature(pInstance->GetData64(DATA_NARALEX)))
                             {

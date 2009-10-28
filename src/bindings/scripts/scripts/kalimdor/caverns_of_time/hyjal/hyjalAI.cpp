@@ -462,18 +462,19 @@ void hyjalAI::SummonCreature(uint32 entry, float Base[4][3])
                 }
                 break;
             case 17907:    //FROST_WYRM ,
-                if (FirstBossDead && WaveCount == 1)
-                {//summon at gate
+                if (FirstBossDead && WaveCount == 1) //summon at gate
                     pCreature = m_creature->SummonCreature(entry, SpawnPointSpecial[SPAWN_WYRM_GATE][0],SpawnPointSpecial[SPAWN_WYRM_GATE][1],SpawnPointSpecial[SPAWN_WYRM_GATE][2], 0, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 120000);
-                }else{
+                else
+                {
                     pCreature = m_creature->SummonCreature(entry, SpawnPointSpecial[SPAWN_NEAR_TOWER][0], SpawnPointSpecial[SPAWN_NEAR_TOWER][1],SpawnPointSpecial[SPAWN_NEAR_TOWER][2], 0, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 120000);
                     if (pCreature)
                         CAST_AI(hyjal_trashAI, pCreature->AI())->useFlyPath = true;
                 }
                 break;
             case 17908:    //GIANT_INFERNAL
-                InfernalCount++;
-                if (InfernalCount > 7)InfernalCount = 0;
+                ++InfernalCount;
+                if (InfernalCount > 7)
+                    InfernalCount = 0;
                 pCreature = m_creature->SummonCreature(entry, InfernalPos[InfernalCount][0], InfernalPos[InfernalCount][1], InfernalPos[InfernalCount][2], 0, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 120000);
                 break;
             default:
