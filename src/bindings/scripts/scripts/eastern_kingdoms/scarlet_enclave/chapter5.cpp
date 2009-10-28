@@ -625,12 +625,12 @@ struct TRINITY_DLL_DECL npc_highlord_darion_mograineAI : public npc_escortAI
                             pTemp->RemoveUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
                             pTemp->setFaction(2084);
                             uiGhoulGUID[uiSummon_counter] = pTemp->GetGUID();
-                            uiSummon_counter++;
+                            ++uiSummon_counter;
                         }
                         else
                         {
                             uiSummon_counter = 0;
-                            uiStep++;
+                            ++uiStep;
                         }
                         break;
 
@@ -643,12 +643,12 @@ struct TRINITY_DLL_DECL npc_highlord_darion_mograineAI : public npc_escortAI
                             pTemp->RemoveUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
                             pTemp->setFaction(2084);
                             uiAbominationGUID[uiSummon_counter] = pTemp->GetGUID();
-                            uiSummon_counter++;
+                            ++uiSummon_counter;
                         }
                         else
                         {
                             uiSummon_counter = 0;
-                            uiStep++;
+                            ++uiStep;
                         }
                         break;
 
@@ -661,12 +661,12 @@ struct TRINITY_DLL_DECL npc_highlord_darion_mograineAI : public npc_escortAI
                             pTemp->RemoveUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
                             pTemp->setFaction(2084);
                             uiWarriorGUID[uiSummon_counter] = pTemp->GetGUID();
-                            uiSummon_counter++;
+                            ++uiSummon_counter;
                         }
                         else
                         {
                             uiSummon_counter = 0;
-                            uiStep++;
+                            ++uiStep;
                         }
                         break;
 
@@ -679,12 +679,12 @@ struct TRINITY_DLL_DECL npc_highlord_darion_mograineAI : public npc_escortAI
                             pTemp->RemoveUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
                             pTemp->setFaction(2084);
                             uiBehemothGUID[uiSummon_counter] = pTemp->GetGUID();
-                            uiSummon_counter++;
+                            ++uiSummon_counter;
                         }
                         else
                         {
                             uiSummon_counter = 0;
-                            uiStep++;
+                            ++uiStep;
                         }
                         break;
 
@@ -1472,7 +1472,7 @@ struct TRINITY_DLL_DECL npc_highlord_darion_mograineAI : public npc_escortAI
     void JumpToNextStep(uint32 uiTimer)
     {
         uiPhase_timer = uiTimer;
-        uiStep++;
+        ++uiStep;
     }
 
     void NPCChangeTarget(uint64 ui_GUID)

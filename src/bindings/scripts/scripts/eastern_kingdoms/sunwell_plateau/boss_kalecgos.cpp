@@ -210,7 +210,7 @@ struct TRINITY_DLL_DECL boss_kalecgosAI : public ScriptedAI
                 me->RemoveAllAuras();
                 me->DeleteThreatList();
                 me->CombatStop();
-                TalkSequence++;
+                ++TalkSequence;
             }
             if (TalkTimer <= diff)
             {
@@ -218,7 +218,7 @@ struct TRINITY_DLL_DECL boss_kalecgosAI : public ScriptedAI
                     GoodEnding();
                 else
                     BadEnding();
-                TalkSequence++;
+                ++TalkSequence;
             } else TalkTimer -= diff;
         }
         else
@@ -690,20 +690,20 @@ struct TRINITY_DLL_DECL boss_kalecAI : public ScriptedAI
             {
             case 0:
                 DoScriptText(SAY_GOOD_AGGRO, me);
-                YellSequence++;
+                ++YellSequence;
                 break;
             case 1:
                 if (HealthBelowPct(50))
                 {
                     DoScriptText(SAY_GOOD_NEAR_DEATH, me);
-                    YellSequence++;
+                    ++YellSequence;
                 }
                 break;
             case 2:
                 if (HealthBelowPct(10))
                 {
                     DoScriptText(SAY_GOOD_NEAR_DEATH2, me);
-                    YellSequence++;
+                    ++YellSequence;
                 }
                 break;
             default:
@@ -737,7 +737,7 @@ bool GOkalecgos_teleporter(Player* pPlayer, GameObject* pGo)
     for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
     {
         if(i->getSource() && i->getSource()->GetPositionZ() < DEMON_REALM_Z + 5)
-            SpectralPlayers++;
+            ++SpectralPlayers;
     }
     if (pPlayer->HasAura(AURA_SPECTRAL_EXHAUSTION) || (MAX_PLAYERS_IN_SPECTRAL_REALM && SpectralPlayers >= MAX_PLAYERS_IN_SPECTRAL_REALM))
         pPlayer->GetSession()->SendNotification(GO_FAILED);

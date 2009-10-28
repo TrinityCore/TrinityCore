@@ -146,7 +146,7 @@ struct TRINITY_DLL_DECL instance_old_hillsbrad : public ScriptedInstance
                 {
                     if (mThrallEventCount <= 20)
                     {
-                        mThrallEventCount++;
+                        ++mThrallEventCount;
                         m_auiEncounter[1] = NOT_STARTED;
                         debug_log("TSCR: Instance Old Hillsbrad: Thrall event failed %u times. Resetting all sub-events.",mThrallEventCount);
                         m_auiEncounter[2] = NOT_STARTED;

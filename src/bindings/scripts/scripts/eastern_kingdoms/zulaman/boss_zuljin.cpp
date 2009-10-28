@@ -474,7 +474,7 @@ struct TRINITY_DLL_DECL boss_zuljinAI : public ScriptedAI
                             if (m_creature->IsWithinMeleeRange(pTarget))
                             {
                                 m_creature->CastSpell(pTarget, SPELL_CLAW_RAGE_DAMAGE, true);
-                                Claw_Counter++;
+                                ++Claw_Counter;
                                 if (Claw_Counter == 12)
                                 {
                                     Claw_Rage_Timer = 15000 + rand()%5000;
@@ -522,7 +522,7 @@ struct TRINITY_DLL_DECL boss_zuljinAI : public ScriptedAI
                         if (m_creature->IsWithinMeleeRange(pTarget))
                         {
                             m_creature->CastSpell(pTarget, SPELL_LYNX_RUSH_DAMAGE, true);
-                            Claw_Counter++;
+                            ++Claw_Counter;
                             if (Claw_Counter == 9)
                             {
                                 Lynx_Rush_Timer = 15000 + rand()%5000;

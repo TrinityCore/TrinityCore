@@ -486,7 +486,7 @@ struct TRINITY_DLL_DECL boss_lady_vashjAI : public ScriptedAI
                 if (EnchantedElemental_Pos == 7)
                     EnchantedElemental_Pos = 0;
                 else
-                    EnchantedElemental_Pos++;
+                    ++EnchantedElemental_Pos;
 
                 EnchantedElemental_Timer = 10000+rand()%5000;
             } else EnchantedElemental_Timer -= diff;

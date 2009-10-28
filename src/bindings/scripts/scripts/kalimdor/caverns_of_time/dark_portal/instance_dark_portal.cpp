@@ -263,7 +263,7 @@ struct TRINITY_DLL_DECL instance_dark_portal : public ScriptedInstance
         if(Creature *summon = m_creature->SummonCreature(entry, pos, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 600000))
             return summon;
 
-        debug_log("TSCR: Instance Dark Portal: what just happened there? No boss, no loot, no fun...");
+        debug_log("TSCR: Instance Dark Portal: What just happened there? No boss, no loot, no fun...");
         return NULL;
     }
 
@@ -271,36 +271,34 @@ struct TRINITY_DLL_DECL instance_dark_portal : public ScriptedInstance
     {
         if (Creature* pMedivh = instance->GetCreature(MedivhGUID))
         {
-            int tmp = rand()%(4-1);
+            uint8 tmp = urand(0,2);
 
             if (tmp >= CurrentRiftId)
-                tmp++;
-                    debug_log("TSCR: Instance Dark Portal: Creating Time Rift at locationId %i (old locationId was %u).",tmp,CurrentRiftId);
+                ++tmp;
 
-                    CurrentRiftId = tmp;
+            debug_log("TSCR: Instance Dark Portal: Creating Time Rift at locationId %i (old locationId was %u).",tmp,CurrentRiftId);
 
-                    Creature* pTemp = pMedivh->SummonCreature(C_TIME_RIFT,
-                        PortalLocation[tmp][0],PortalLocation[tmp][1],PortalLocation[tmp][2],PortalLocation[tmp][3],
-                        TEMPSUMMON_CORPSE_DESPAWN,0);
-                    if (pTemp)
+            CurrentRiftId = tmp;
+
+            Creature *pTemp = pMedivh->SummonCreature(C_TIME_RIFT,
+                PortalLocation[tmp][0],PortalLocation[tmp][1],PortalLocation[tmp][2],PortalLocation[tmp][3],
+                TEMPSUMMON_CORPSE_DESPAWN,0);
+            if (pTemp)
+            {
+                pTemp->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                pTemp->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+
+                if (Creature *pBoss = SummonedPortalBoss(pTemp))
+                {
+                    if (pBoss->GetEntry() == C_AEONUS)
+                        pBoss->AddThreat(pMedivh,0.0f);
+                    else
                     {
-
-                        pTemp->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                        pTemp->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-
-                        if (Creature* pBoss = SummonedPortalBoss(pTemp))
-                        {
-                            if (pBoss->GetEntry() == C_AEONUS)
-                            {
-                                pBoss->AddThreat(pMedivh,0.0f);
-                            }
-                            else
-                            {
-                                pBoss->AddThreat(pTemp,0.0f);
-                                pTemp->CastSpell(pBoss,SPELL_RIFT_CHANNEL,false);
-                            }
-                        }
+                        pBoss->AddThreat(pTemp,0.0f);
+                        pTemp->CastSpell(pBoss,SPELL_RIFT_CHANNEL,false);
                     }
+                }
+            }
         }
     }
 

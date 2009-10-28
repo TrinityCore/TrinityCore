@@ -325,7 +325,7 @@ struct TRINITY_DLL_DECL eye_of_cthunAI : public Scripted_NoMovementAI
                         m_creature->CastSpell(m_creature, SPELL_DARK_GLARE, false);
 
                         //Increase tick
-                        DarkGlareTick++;
+                        ++DarkGlareTick;
 
                         //1 second per tick
                         DarkGlareTickTimer = 1000;
@@ -628,7 +628,7 @@ struct TRINITY_DLL_DECL cthunAI : public ScriptedAI
                     Spawned = me->SummonCreature(MOB_FLESH_TENTACLE, TENTACLE_POS1_X, TENTACLE_POS1_Y, TENTACLE_POS1_Z, TENTACLE_POS1_O, TEMPSUMMON_CORPSE_DESPAWN, 0);
 
                     if (!Spawned)
-                        FleshTentaclesKilled++;
+                        ++FleshTentaclesKilled;
                     else
                         CAST_AI(flesh_tentacleAI, (Spawned->AI()))->SpawnedByCthun(m_creature->GetGUID());
 
@@ -636,7 +636,7 @@ struct TRINITY_DLL_DECL cthunAI : public ScriptedAI
                     Spawned = me->SummonCreature(MOB_FLESH_TENTACLE, TENTACLE_POS2_X, TENTACLE_POS2_Y, TENTACLE_POS2_Z, TENTACLE_POS2_O, TEMPSUMMON_CORPSE_DESPAWN, 0);
 
                     if (!Spawned)
-                        FleshTentaclesKilled++;
+                        ++FleshTentaclesKilled;
                     else
                         CAST_AI(flesh_tentacleAI, (Spawned->AI()))->SpawnedByCthun(m_creature->GetGUID());
 
@@ -821,7 +821,8 @@ struct TRINITY_DLL_DECL cthunAI : public ScriptedAI
                     EyeTentacleTimer = 30000;
                 } else EyeTentacleTimer -= diff;
 
-            }break;
+            }
+            break;
 
             //Weakened state
             case 4:
@@ -905,7 +906,7 @@ struct TRINITY_DLL_DECL cthunAI : public ScriptedAI
 
     void FleshTentcleKilled()
     {
-        FleshTentaclesKilled++;
+        ++FleshTentaclesKilled;
     }
 };
 

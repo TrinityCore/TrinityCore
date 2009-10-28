@@ -228,7 +228,7 @@ struct TRINITY_DLL_DECL boss_hydross_the_unstableAI : public ScriptedAI
                 {
                     uint32 mark_spell;
 
-                    switch(MarkOfCorruption_Count)
+                    switch (MarkOfCorruption_Count)
                     {
                         case 0: mark_spell = SPELL_MARK_OF_CORRUPTION1; break;
                         case 1: mark_spell = SPELL_MARK_OF_CORRUPTION2; break;
@@ -241,7 +241,7 @@ struct TRINITY_DLL_DECL boss_hydross_the_unstableAI : public ScriptedAI
                     DoCast(m_creature->getVictim(), mark_spell);
 
                     if (MarkOfCorruption_Count < 5)
-                        MarkOfCorruption_Count++;
+                        ++MarkOfCorruption_Count;
                 }
 
                 MarkOfCorruption_Timer = 15000;
@@ -308,7 +308,7 @@ struct TRINITY_DLL_DECL boss_hydross_the_unstableAI : public ScriptedAI
                     DoCast(m_creature->getVictim(), mark_spell);
 
                     if (MarkOfHydross_Count < 5)
-                        MarkOfHydross_Count++;
+                        ++MarkOfHydross_Count;
                 }
 
                 MarkOfHydross_Timer = 15000;

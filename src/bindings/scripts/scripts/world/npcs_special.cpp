@@ -770,7 +770,7 @@ void npc_doctorAI::UpdateAI(const uint32 diff)
                 Coordinates.erase(itr);
             }
             SummonPatient_Timer = 10000;
-            SummonPatientCount++;
+            ++SummonPatientCount;
         } else SummonPatient_Timer -= diff;
     }
 }
@@ -1442,11 +1442,11 @@ bool ReceiveEmote_npc_winter_reveler(Player* pPlayer, Creature* pCreature, uint3
     {
         pCreature->CastSpell(pCreature, 26218, false);
         pPlayer->CastSpell(pPlayer, 26218, false);
-        switch(rand()%3)
+        switch (urand(0,2))
         {
-        case 0: pCreature->CastSpell(pPlayer, 26207, false); break;
-        case 1: pCreature->CastSpell(pPlayer, 26206, false); break;
-        case 2: pCreature->CastSpell(pPlayer, 45036, false); break;
+            case 0: pCreature->CastSpell(pPlayer, 26207, false); break;
+            case 1: pCreature->CastSpell(pPlayer, 26206, false); break;
+            case 2: pCreature->CastSpell(pPlayer, 45036, false); break;
         }
     }
     return true;

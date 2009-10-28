@@ -624,7 +624,8 @@ struct TRINITY_DLL_DECL boss_kaelthasAI : public ScriptedAI
                         }
                         break;
                 }
-            }break;
+            }
+            break;
 
             case 2:
             {
@@ -661,24 +662,25 @@ struct TRINITY_DLL_DECL boss_kaelthasAI : public ScriptedAI
                         PhaseSubphase = 0;
                     } else Phase_Timer -= diff;
                 }
-            }break;
+            }
+            break;
 
             case 3:
             {
                 if (PhaseSubphase == 0)
                 {
                     //Respawn advisors
-                    Unit* Target = SelectUnit(SELECT_TARGET_RANDOM, 0);
+                    Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0);
 
-                    Creature* Advisor;
-                    for (uint32 i = 0; i < MAX_ADVISORS; ++i)
+                    Creature *Advisor;
+                    for (uint8 i = 0; i < MAX_ADVISORS; ++i)
                     {
-                        Advisor = (Unit::GetCreature((*m_creature), m_auiAdvisorGuid[i]));
+                        Advisor = Unit::GetCreature((*m_creature), m_auiAdvisorGuid[i]);
 
                         if (!Advisor)
                             error_log("SD2: Kael'Thas Advisor %u does not exist. Possibly despawned? Incorrectly Killed?", i);
                         else
-                            CAST_AI(advisorbase_ai, Advisor->AI())->Revive(Target);
+                            CAST_AI(advisorbase_ai, Advisor->AI())->Revive(pTarget);
                     }
 
                     PhaseSubphase = 1;

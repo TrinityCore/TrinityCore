@@ -227,14 +227,20 @@ struct TRINITY_DLL_DECL boss_morogrim_tidewalkerAI : public ScriptedAI
                 for (uint8 i = 0; i < 4; ++i)
                 {
                     counter = 0;
-                    do{pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1, 50, true);    //target players only
-                    if (counter < Playercount)
-                        break;
-                    if (pTarget) itr = list.find(pTarget->GetGUID());
-                    counter++;
-                    }while(itr != list.end());
-                    if (pTarget){list.insert(pTarget->GetGUID());
-                    ApplyWateryGrave(pTarget, i);
+                    do
+                    {
+                        pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1, 50, true);    //target players only
+                        if (counter < Playercount)
+                            break;
+                        if (pTarget)
+                            itr = list.find(pTarget->GetGUID());
+                        ++counter;
+                    } while(itr != list.end());
+
+                    if (pTarget)
+                    {
+                        list.insert(pTarget->GetGUID());
+                        ApplyWateryGrave(pTarget, i);
                     }
                 }
 

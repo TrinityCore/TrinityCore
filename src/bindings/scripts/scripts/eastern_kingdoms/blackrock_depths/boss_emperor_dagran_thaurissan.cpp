@@ -76,12 +76,12 @@ struct TRINITY_DLL_DECL boss_draganthaurissanAI : public ScriptedAI
             //if (Counter < 3)
             //{
             //    HandOfThaurissan_Timer = 1000;
-            //    Counter++;
+            //    ++Counter;
             //}
             //else
             //{
                 HandOfThaurissan_Timer = 5000;
-                //Counter=0;
+                //Counter = 0;
             //}
         } else HandOfThaurissan_Timer -= diff;
 

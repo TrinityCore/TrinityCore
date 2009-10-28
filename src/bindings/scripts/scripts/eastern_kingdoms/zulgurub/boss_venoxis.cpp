@@ -112,11 +112,11 @@ struct TRINITY_DLL_DECL boss_venoxisAI : public ScriptedAI
                 if (HolyNova_Timer <= diff)
                 {
                     TargetInRange = 0;
-                    for (uint8 i=0; i<10; ++i)
+                    for (uint8 i = 0; i < 10; ++i)
                     {
                         if (Unit *pTarget = SelectUnit(SELECT_TARGET_TOPAGGRO,i))
                             if (m_creature->IsWithinMeleeRange(pTarget))
-                                TargetInRange++;
+                                ++TargetInRange;
                     }
 
                     if (TargetInRange > 1)

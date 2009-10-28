@@ -399,7 +399,7 @@ struct TRINITY_DLL_DECL instance_blackrock_depths : public ScriptedInstance
             if (TombTimer <= diff)
             {
                 TombTimer = TIMER_TOMBOFTHESEVEN;
-                TombEventCounter++;
+                ++TombEventCounter;
                 TombOfSevenEvent();
             } else TombTimer -= diff;
         }

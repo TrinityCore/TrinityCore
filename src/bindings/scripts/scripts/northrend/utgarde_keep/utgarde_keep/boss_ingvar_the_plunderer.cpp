@@ -375,7 +375,7 @@ struct TRINITY_DLL_DECL mob_annhylde_the_callerAI : public ScriptedAI
                         CAST_AI(boss_ingvar_the_plundererAI, (c_ingvar->AI()))->StartZombiePhase();
 
                         m_creature->GetMotionMaster()->MovePoint(2,x+1,y,z+30);
-                        Resurect_Phase++;
+                        ++Resurect_Phase;
                     }
                 }
 

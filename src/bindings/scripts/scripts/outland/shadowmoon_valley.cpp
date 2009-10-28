@@ -759,7 +759,8 @@ struct TRINITY_DLL_DECL npc_overlord_morghorAI : public ScriptedAI
                 return 5000;
             }else{
                 CAST_PLR(plr)->FailQuest(QUEST_LORD_ILLIDAN_STORMRAGE); Step = 30; return 100;
-            }break;
+            }
+            break;
         case 17: DoScriptText(LORD_ILLIDAN_SAY_5, Illi); return 5000; break;
         case 18: DoScriptText(LORD_ILLIDAN_SAY_6, Illi); return 5000; break;
         case 19: DoScriptText(LORD_ILLIDAN_SAY_7, Illi); return 5000; break;
@@ -784,7 +785,8 @@ struct TRINITY_DLL_DECL npc_overlord_morghorAI : public ScriptedAI
             Unit* Yarzill = me->FindNearestCreature(C_YARZILL, 50);
             if (Yarzill)
                 Yarzill->SetUInt64Value(UNIT_FIELD_TARGET, PlayerGUID);
-            return 500; }break;
+            return 500; }
+ break;
         case 28:
             plr->RemoveAurasDueToSpell(SPELL_TWO);
             plr->RemoveAurasDueToSpell(41519);
@@ -796,19 +798,22 @@ struct TRINITY_DLL_DECL npc_overlord_morghorAI : public ScriptedAI
             Unit* Yarzill = me->FindNearestCreature(C_YARZILL, 50);
             if (Yarzill)
                 DoScriptText(YARZILL_THE_MERC_SAY, Yarzill, plr);
-            return 5000; }break;
+            return 5000; }
+ break;
         case 30:
             {
             Unit* Yarzill = me->FindNearestCreature(C_YARZILL, 50);
             if (Yarzill)
                 Yarzill->SetUInt64Value(UNIT_FIELD_TARGET, 0);
-            return 5000; }break;
+            return 5000; }
+ break;
         case 31:
             {
             Unit* Yarzill = me->FindNearestCreature(C_YARZILL, 50);
             if (Yarzill)
                 Yarzill->CastSpell(plr, 41540, true);
-            return 1000;}break;
+            return 1000;}
+break;
         case 32: m_creature->GetMotionMaster()->MovePoint(0, -5085.77, 577.231, 86.6719); return 5000; break;
         case 33: Reset(); return 100; break;
 

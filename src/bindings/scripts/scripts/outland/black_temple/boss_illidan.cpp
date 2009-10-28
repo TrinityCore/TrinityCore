@@ -640,7 +640,7 @@ struct TRINITY_DLL_DECL boss_illidan_stormrageAI : public ScriptedAI
         default:
             break;
         }
-        FlightCount++;
+        ++FlightCount;
     }
 
     void HandleTransformSequence()
@@ -688,7 +688,7 @@ struct TRINITY_DLL_DECL boss_illidan_stormrageAI : public ScriptedAI
         }
         if (Phase == PHASE_TRANSFORM_SEQUENCE)
             Timer[EVENT_TRANSFORM_SEQUENCE] = DemonTransformation[TransformCount].timer;
-        TransformCount++;
+        ++TransformCount;
     }
 
     void UpdateAI(const uint32 diff)
@@ -785,7 +785,8 @@ struct TRINITY_DLL_DECL boss_illidan_stormrageAI : public ScriptedAI
                     if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1, 200, true))
                         m_creature->CastSpell(pTarget, SPELL_PARASITIC_SHADOWFIEND, true);
                     Timer[EVENT_PARASITIC_SHADOWFIEND] = 35000 + rand()%10000;
-                }break;
+                }
+                break;
 
             case EVENT_PARASITE_CHECK:
                 Timer[EVENT_PARASITE_CHECK] = 0;
@@ -1156,7 +1157,7 @@ struct TRINITY_DLL_DECL npc_akama_illidanAI : public ScriptedAI
                     CAST_AI(boss_illidan_stormrageAI, Illidan->AI())->DeleteFromThreatList(m_creature->GetGUID());
                 EnterEvadeMode();
                 m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                WalkCount++;
+                ++WalkCount;
             }
             JustCreated = false;
             BeginWalk();
@@ -1222,7 +1223,7 @@ struct TRINITY_DLL_DECL npc_akama_illidanAI : public ScriptedAI
             EnterPhase(PHASE_WALK);
             break;
         }
-        TalkCount++;
+        ++TalkCount;
     }
 
     void HandleChannelSequence()
@@ -1280,7 +1281,7 @@ struct TRINITY_DLL_DECL npc_akama_illidanAI : public ScriptedAI
         default:
             break;
         }
-        ChannelCount++;
+        ++ChannelCount;
     }
 
     void HandleWalkSequence()
@@ -1306,7 +1307,7 @@ struct TRINITY_DLL_DECL npc_akama_illidanAI : public ScriptedAI
         if (Phase == PHASE_WALK)
         {
             Timer = 0;
-            WalkCount++;
+            ++WalkCount;
             m_creature->GetMotionMaster()->MovePoint(WalkCount, AkamaWP[WalkCount].x, AkamaWP[WalkCount].y, AkamaWP[WalkCount].z);
         }
     }
@@ -1359,7 +1360,8 @@ struct TRINITY_DLL_DECL npc_akama_illidanAI : public ScriptedAI
                         DoCast(m_creature->getVictim(), SPELL_CHAIN_LIGHTNING);
                         Timer = 30000;
                     }
-                }break;
+                }
+                break;
             case PHASE_FIGHT_MINIONS:
                 {
                     float x, y, z;
@@ -1551,7 +1553,8 @@ struct TRINITY_DLL_DECL boss_maievAI : public ScriptedAI
                     Timer[EVENT_MAIEV_STEALTH] = 0;
                     BlinkToPlayer();
                     EnterPhase(Phase);
-                }break;
+                }
+                break;
             case EVENT_MAIEV_TAUNT:
                 {
                     uint32 random = rand()%4;
@@ -1560,7 +1563,8 @@ struct TRINITY_DLL_DECL boss_maievAI : public ScriptedAI
                     m_creature->MonsterYell(text, LANG_UNIVERSAL, 0);
                     DoPlaySoundToSet(m_creature, sound);
                     Timer[EVENT_MAIEV_TAUNT] = 22000 + rand()%21 * 1000;
-                }break;
+                }
+                break;
             case EVENT_MAIEV_SHADOW_STRIKE:
                 DoCast(m_creature->getVictim(), SPELL_SHADOW_STRIKE);
                 Timer[EVENT_MAIEV_SHADOW_STRIKE] = 60000;
@@ -1880,13 +1884,15 @@ void boss_illidan_stormrageAI::JustSummoned(Creature* summon)
                 pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 999, true);
             if (pTarget)
                 summon->AI()->AttackStart(pTarget);
-        }break;
+        }
+        break;
     case SHADOW_DEMON:
         if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 999, true)) // only on players.
         {
             summon->AddThreat(pTarget, 5000000.0f);
             summon->AI()->AttackStart(pTarget);
-        }break;
+        }
+        break;
     case MAIEV_SHADOWSONG:
         {
             summon->SetVisibility(VISIBILITY_OFF); // Leave her invisible until she has to talk
@@ -1894,11 +1900,13 @@ void boss_illidan_stormrageAI::JustSummoned(Creature* summon)
             MaievGUID = summon->GetGUID();
             CAST_AI(boss_maievAI, summon->AI())->GetIllidanGUID(m_creature->GetGUID());
             summon->AI()->DoAction(PHASE_TALK_SEQUENCE);
-        }break;
+        }
+        break;
     case FLAME_OF_AZZINOTH:
         {
             summon->AI()->AttackStart(summon->SelectNearestTarget(999));
-        }break;
+        }
+        break;
     default:
         break;
     }
@@ -1938,7 +1946,8 @@ void boss_illidan_stormrageAI::HandleTalkSequence()
             m_creature->SetInFront(Maiev); // Face her, so it's not rude =P
             Maiev->GetMotionMaster()->MoveIdle();
             m_creature->GetMotionMaster()->MoveIdle();
-        }break;
+        }
+        break;
     case 14:
         if (GETCRE(Maiev, MaievGUID))
         {
@@ -1947,7 +1956,8 @@ void boss_illidan_stormrageAI::HandleTalkSequence()
             Maiev->AddThreat(m_creature, 10000000.0f); // Have Maiev add a lot of threat on us so that players don't pull her off if they damage her via AOE
             Maiev->AI()->AttackStart(m_creature); // Force Maiev to attack us.
             EnterPhase(PHASE_NORMAL_MAIEV);
-        }break;
+        }
+        break;
     case 15:
         DoCast(m_creature, SPELL_DEATH); // Animate his kneeling + stun him
         Summons.DespawnAll();
@@ -1984,7 +1994,7 @@ void boss_illidan_stormrageAI::HandleTalkSequence()
     }
     if (Phase == PHASE_TALK_SEQUENCE)
         Talk(TalkCount); // This function does most of the talking
-    TalkCount++;
+    ++TalkCount;
 }
 
 void boss_illidan_stormrageAI::CastEyeBlast()

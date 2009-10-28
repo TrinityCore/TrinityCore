@@ -324,13 +324,13 @@ struct TRINITY_DLL_DECL boss_alarAI : public ScriptedAI
                 }
                 else
                 {
-                    if (rand()%5) // next platform
+                    if (urand(0,4)) // next platform
                     {
                         DoSpawnCreature(CREATURE_EMBER_OF_ALAR, 0, 0, 0, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000);
                         if (cur_wp == 3)
                             cur_wp = 0;
                         else
-                            cur_wp++;
+                            ++cur_wp;
                         WaitEvent = WE_PLATFORM;
                     }
                     else // flame quill

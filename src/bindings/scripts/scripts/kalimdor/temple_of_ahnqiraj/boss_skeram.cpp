@@ -144,7 +144,7 @@ struct TRINITY_DLL_DECL boss_skeramAI : public ScriptedAI
         if (Blink_Timer <= diff)
         {
             //DoCast(m_creature, SPELL_BLINK);
-            switch(rand()%3)
+            switch (urand(0,2))
             {
                 case 0:
                     m_creature->GetMap()->CreatureRelocation(m_creature, -8340.782227,2083.814453,125.648788,0.0f);
@@ -206,7 +206,7 @@ struct TRINITY_DLL_DECL boss_skeramAI : public ScriptedAI
 
         ov_mycoordinates *bossc=place1, *i1=place2, *i2=place3;
 
-        switch(rand()%3)
+        switch (urand(0,2))
         {
             case 0:
                 bossc=place1;
