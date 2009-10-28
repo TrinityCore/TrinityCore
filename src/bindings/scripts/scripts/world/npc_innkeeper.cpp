@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  * Copyright (C) 2008 - 2009 Trinity <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify
@@ -32,11 +32,11 @@ EndScriptData */
 
 #define LOCALE_TRICK_OR_TREAT_0 "Trick or Treat!"
 #define LOCALE_TRICK_OR_TREAT_2 "Des bonbons ou des blagues!"
-#define LOCALE_TRICK_OR_TREAT_3 "Süßes oder Saures!"
-#define LOCALE_TRICK_OR_TREAT_6 "¡Truco o trato!"
+#define LOCALE_TRICK_OR_TREAT_3 "SÃ¼ÃŸes oder Saures!"
+#define LOCALE_TRICK_OR_TREAT_6 "Â¡Truco o trato!"
 
 #define LOCALE_INNKEEPER_0 "Make this inn my home."
-#define LOCALE_INNKEEPER_3 "Ich möchte dieses Gasthaus zu meinem Heimatort machen."
+#define LOCALE_INNKEEPER_3 "Ich mÃ¶chte dieses Gasthaus zu meinem Heimatort machen."
  
 bool GossipHello_npc_innkeeper(Player *pPlayer, Creature *pCreature)
 {
