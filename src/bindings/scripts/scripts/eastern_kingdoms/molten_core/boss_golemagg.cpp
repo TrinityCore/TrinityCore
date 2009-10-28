@@ -73,7 +73,7 @@ struct TRINITY_DLL_DECL boss_golemaggAI : public ScriptedAI
             return;
 
         //Pyroblast
-        if (m_uiPyroblastTimer < uiDiff)
+        if (m_uiPyroblastTimer <= uiDiff)
         {
             if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
                 DoCast(pTarget, SPELL_PYROBLAST);
@@ -93,7 +93,7 @@ struct TRINITY_DLL_DECL boss_golemaggAI : public ScriptedAI
         // Earthquake
         if (m_bEnraged)
         {
-            if (m_uiEarthquakeTimer < uiDiff)
+            if (m_uiEarthquakeTimer <= uiDiff)
             {
                 DoCast(m_creature->getVictim(), SPELL_EARTHQUAKE);
                 m_uiEarthquakeTimer = 3*IN_MILISECONDS;
@@ -104,7 +104,7 @@ struct TRINITY_DLL_DECL boss_golemaggAI : public ScriptedAI
 
         /*
         // Golemagg's Trust
-        if (m_uiBuffTimer < uiDiff)
+        if (m_uiBuffTimer <= uidiff)
         {
             DoCast(m_creature, SPELL_GOLEMAGG_TRUST);
             m_uiBuffTimer = 2.5*IN_MILISECONDS;
@@ -159,7 +159,7 @@ struct TRINITY_DLL_DECL mob_core_ragerAI : public ScriptedAI
             return;
 
         // Mangle
-        if (m_uiMangleTimer < uiDiff)
+        if (m_uiMangleTimer <= uiDiff)
         {
             DoCast(m_creature->getVictim(), SPELL_MANGLE);
             m_uiMangleTimer = 10*IN_MILISECONDS;

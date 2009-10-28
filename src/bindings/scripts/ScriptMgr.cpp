@@ -77,7 +77,7 @@ void ScriptsFree()
 }
 
 TRINITY_DLL_EXPORT
-void ScriptsInit(char const* cfg_file = "trinitycore.conf")
+void ScriptsInit(char const* cfg_file = _TRINITY_SCRIPT_CONFIG)
 {
     //Trinity Script startup
     outstring_log(" _____     _       _ _         ____            _       _");

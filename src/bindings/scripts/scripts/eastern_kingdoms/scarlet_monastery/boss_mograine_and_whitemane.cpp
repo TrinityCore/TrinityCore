@@ -187,18 +187,18 @@ struct TRINITY_DLL_DECL boss_scarlet_commander_mograineAI : public ScriptedAI
             return;
 
         //m_uiCrusaderStrike_Timer
-        if (m_uiCrusaderStrike_Timer < uiDiff)
+        if (m_uiCrusaderStrike_Timer <= uiDiff)
         {
             DoCast(m_creature->getVictim(),SPELL_CRUSADERSTRIKE);
             m_uiCrusaderStrike_Timer = 10000;
-        }else m_uiCrusaderStrike_Timer -= uiDiff;
+        } else m_uiCrusaderStrike_Timer -= uiDiff;
 
         //m_uiHammerOfJustice_Timer
-        if (m_uiHammerOfJustice_Timer < uiDiff)
+        if (m_uiHammerOfJustice_Timer <= uiDiff)
         {
             DoCast(m_creature->getVictim(),SPELL_HAMMEROFJUSTICE);
             m_uiHammerOfJustice_Timer = 60000;
-        }else m_uiHammerOfJustice_Timer -= uiDiff;
+        } else m_uiHammerOfJustice_Timer -= uiDiff;
 
         DoMeleeAttackIfReady();
     }
@@ -291,7 +291,7 @@ struct TRINITY_DLL_DECL boss_high_inquisitor_whitemaneAI : public ScriptedAI
             return;
 
         //If we are <75% hp cast healing spells at self or Mograine
-        if (m_uiHeal_Timer < uiDiff)
+        if (m_uiHeal_Timer <= uiDiff)
         {
             Creature* pTarget = NULL;
 
@@ -312,21 +312,21 @@ struct TRINITY_DLL_DECL boss_high_inquisitor_whitemaneAI : public ScriptedAI
                 DoCast(pTarget, SPELL_HEAL);
 
             m_uiHeal_Timer = 13000;
-        }else m_uiHeal_Timer -= uiDiff;
+        } else m_uiHeal_Timer -= uiDiff;
 
         //m_uiPowerWordShield_Timer
-        if (m_uiPowerWordShield_Timer < uiDiff)
+        if (m_uiPowerWordShield_Timer <= uiDiff)
         {
             DoCast(m_creature,SPELL_POWERWORDSHIELD);
             m_uiPowerWordShield_Timer = 15000;
-        }else m_uiPowerWordShield_Timer -= uiDiff;
+        } else m_uiPowerWordShield_Timer -= uiDiff;
 
         //m_uiHolySmite_Timer
-        if (m_uiHolySmite_Timer < uiDiff)
+        if (m_uiHolySmite_Timer <= uiDiff)
         {
             DoCast(m_creature->getVictim(),SPELL_HOLYSMITE);
             m_uiHolySmite_Timer = 6000;
-        }else m_uiHolySmite_Timer -= uiDiff;
+        } else m_uiHolySmite_Timer -= uiDiff;
 
         DoMeleeAttackIfReady();
     }

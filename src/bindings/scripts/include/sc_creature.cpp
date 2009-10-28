@@ -543,7 +543,7 @@ enum eNPCs
 // It is assumed the information is found elswehere and can be handled by mangos. So far no luck finding such information/way to extract it.
 bool ScriptedAI::EnterEvadeIfOutOfCombatArea(const uint32 uiDiff)
 {
-    if (m_uiEvadeCheckCooldown < uiDiff)
+    if (m_uiEvadeCheckCooldown <= uiDiff)
         m_uiEvadeCheckCooldown = 2500;
     else
     {

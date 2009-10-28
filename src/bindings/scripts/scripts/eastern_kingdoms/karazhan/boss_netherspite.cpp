@@ -263,11 +263,11 @@ struct TRINITY_DLL_DECL boss_netherspiteAI : public ScriptedAI
             return;
 
         // Void Zone
-        if(VoidZoneTimer < diff)
+        if (VoidZoneTimer <= diff)
         {
             DoCast(SelectTarget(SELECT_TARGET_RANDOM,1,45,true),SPELL_VOIDZONE,true);
             VoidZoneTimer = 15000;
-        }else VoidZoneTimer -= diff;
+        } else VoidZoneTimer -= diff;
 
         // NetherInfusion Berserk
         if(!Berserk && NetherInfusionTimer < diff)
@@ -280,56 +280,56 @@ struct TRINITY_DLL_DECL boss_netherspiteAI : public ScriptedAI
         if(PortalPhase) // PORTAL PHASE
         {
             // Distribute beams and buffs
-            if(PortalTimer < diff)
+            if (PortalTimer <= diff)
             {
                 UpdatePortals();
                 PortalTimer = 1000;
-            }else PortalTimer -= diff;
+            } else PortalTimer -= diff;
 
             // Empowerment & Nether Burn
-            if(EmpowermentTimer < diff)
+            if (EmpowermentTimer <= diff)
             {
                 DoCast(m_creature, SPELL_EMPOWERMENT);
                 m_creature->AddAura(SPELL_NETHERBURN_AURA, m_creature);
                 EmpowermentTimer = 90000;
-            }else EmpowermentTimer -= diff;
+            } else EmpowermentTimer -= diff;
 
-            if(PhaseTimer < diff)
+            if (PhaseTimer <= diff)
             {
-                if(!m_creature->IsNonMeleeSpellCasted(false))
+                if (!m_creature->IsNonMeleeSpellCasted(false))
                 {
                     SwitchToBanishPhase();
                     return;
                 }
-            }else PhaseTimer -= diff;
+            } else PhaseTimer -= diff;
         }
         else // BANISH PHASE
         {
             // Netherbreath
-            if(NetherbreathTimer < diff)
+            if (NetherbreathTimer <= diff)
             {
                 if(Unit* target = SelectTarget(SELECT_TARGET_RANDOM,0,40,true))
                     DoCast(target,SPELL_NETHERBREATH);
-                NetherbreathTimer = 5000+rand()%2000;
-            }else NetherbreathTimer -= diff;
+                NetherbreathTimer = urand(5000,7000);
+            } else NetherbreathTimer -= diff;
 
-            if(PhaseTimer < diff)
+            if (PhaseTimer <= diff)
             {
-                if(!m_creature->IsNonMeleeSpellCasted(false))
+                if (!m_creature->IsNonMeleeSpellCasted(false))
                 {
                     SwitchToPortalPhase();
                     return;
                 }
-            }else PhaseTimer -= diff;
+            } else PhaseTimer -= diff;
         }
 
         DoMeleeAttackIfReady();
     }
 };
 
-CreatureAI* GetAI_boss_netherspite(Creature *_Creature)
+CreatureAI* GetAI_boss_netherspite(Creature *pCreature)
 {
-    return new boss_netherspiteAI(_Creature);
+    return new boss_netherspiteAI(pCreature);
 }
 
 void AddSC_boss_netherspite()

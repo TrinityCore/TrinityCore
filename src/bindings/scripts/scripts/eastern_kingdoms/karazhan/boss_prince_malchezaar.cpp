@@ -408,7 +408,7 @@ struct TRINITY_DLL_DECL boss_malchezaarAI : public ScriptedAI
 
                 m_creature->SetBaseWeaponDamage(OFF_ATTACK, MINDAMAGE, cinfo->mindmg);
                 m_creature->SetBaseWeaponDamage(OFF_ATTACK, MAXDAMAGE, cinfo->maxdmg);
-                //Sigh, updating only works on main attack , do it manually ....
+                //Sigh, updating only works on main attack, do it manually ....
                 m_creature->SetFloatValue(UNIT_FIELD_MINOFFHANDDAMAGE, cinfo->mindmg);
                 m_creature->SetFloatValue(UNIT_FIELD_MAXOFFHANDDAMAGE, cinfo->maxdmg);
 
@@ -430,8 +430,8 @@ struct TRINITY_DLL_DECL boss_malchezaarAI : public ScriptedAI
 
                 DoScriptText(SAY_AXE_TOSS2, m_creature);
 
-                Unit *target = SelectUnit(SELECT_TARGET_RANDOM, 0);
-                for (uint32 i=0; i<2; ++i)
+                Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true);
+                for (uint8 i = 0; i < 2; ++i)
                 {
                     Creature *axe = m_creature->SummonCreature(MALCHEZARS_AXE, m_creature->GetPositionX(), m_creature->GetPositionY(), m_creature->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 1000);
                     if (axe)
@@ -455,33 +455,31 @@ struct TRINITY_DLL_DECL boss_malchezaarAI : public ScriptedAI
                 return;
             }
 
-            if (SunderArmorTimer < diff)
+            if (SunderArmorTimer <= diff)
             {
                 DoCast(m_creature->getVictim(), SPELL_SUNDER_ARMOR);
-                SunderArmorTimer = 10000 + rand()%8000;
+                SunderArmorTimer = urand(10000,18000);
 
-            }else SunderArmorTimer -= diff;
+            } else SunderArmorTimer -= diff;
 
-            if (Cleave_Timer < diff)
+            if (Cleave_Timer <= diff)
             {
                 DoCast(m_creature->getVictim(), SPELL_CLEAVE);
-                Cleave_Timer = 6000 + rand()%6000;
+                Cleave_Timer = urand(6000,12000);
 
-            }else Cleave_Timer -= diff;
+            } else Cleave_Timer -= diff;
         }
         else
         {
-            if (AxesTargetSwitchTimer < diff)
+            if (AxesTargetSwitchTimer <= diff)
             {
-                AxesTargetSwitchTimer = 7500 + rand()%12500 ;
+                AxesTargetSwitchTimer = urand(7500,20000);
 
-                Unit *target = SelectUnit(SELECT_TARGET_RANDOM, 0);
-                if (target)
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                 {
                     for (uint8 i = 0; i < 2; ++i)
                     {
-                        Unit *axe = Unit::GetUnit(*m_creature, axes[i]);
-                        if (axe)
+                        if (Unit *axe = Unit::GetUnit(*m_creature, axes[i]))
                         {
                             float threat = 1000000.0f;
                             if (axe->getVictim())
@@ -495,35 +493,36 @@ struct TRINITY_DLL_DECL boss_malchezaarAI : public ScriptedAI
                 }
             } else AxesTargetSwitchTimer -= diff;
 
-            if (AmplifyDamageTimer < diff)
+            if (AmplifyDamageTimer <= diff)
             {
-                DoCast(SelectUnit(SELECT_TARGET_RANDOM, 0), SPELL_AMPLIFY_DAMAGE);
-                AmplifyDamageTimer = 20000 + rand()%10000;
-            }else AmplifyDamageTimer -= diff;
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                    DoCast(target, SPELL_AMPLIFY_DAMAGE);
+                AmplifyDamageTimer = urand(20000,30000);
+            } else AmplifyDamageTimer -= diff;
         }
 
         //Time for global and double timers
-        if (InfernalTimer < diff)
+        if (InfernalTimer <= diff)
         {
             SummonInfernal(diff);
-            InfernalTimer =  phase == 3 ? 14500 : 44500;    //15 secs in phase 3, 45 otherwise
-        }else InfernalTimer -= diff;
+            InfernalTimer = phase == 3 ? 14500 : 44500;    //15 secs in phase 3, 45 otherwise
+        } else InfernalTimer -= diff;
 
-        if (ShadowNovaTimer < diff)
+        if (ShadowNovaTimer <= diff)
         {
             DoCast(m_creature->getVictim(), SPELL_SHADOWNOVA);
-            ShadowNovaTimer = phase == 3 ? 31000 : -1;
-        }else ShadowNovaTimer -= diff;
+            ShadowNovaTimer = phase == 3 ? 31000 : _UI32_MAX;
+        } else ShadowNovaTimer -= diff;
 
         if (phase != 2)
         {
-            if (SWPainTimer < diff)
+            if (SWPainTimer <= diff)
             {
                 Unit* target = NULL;
                 if (phase == 1)
-                    target = m_creature->getVictim();       // the tank
-                else                                        //anyone but the tank
-                    target = SelectUnit(SELECT_TARGET_RANDOM, 1);
+                    target = m_creature->getVictim();        // the tank
+                else                                         // anyone but the tank
+                    target = SelectTarget(SELECT_TARGET_RANDOM, 1, 100, true);
 
                 if (target)
                     DoCast(target, SPELL_SW_PAIN);
@@ -534,16 +533,16 @@ struct TRINITY_DLL_DECL boss_malchezaarAI : public ScriptedAI
 
         if (phase != 3)
         {
-            if (EnfeebleTimer < diff)
+            if (EnfeebleTimer <= diff)
             {
                 EnfeebleHealthEffect();
                 EnfeebleTimer = 30000;
                 ShadowNovaTimer = 5000;
                 EnfeebleResetTimer = 9000;
-            }else EnfeebleTimer -= diff;
+            } else EnfeebleTimer -= diff;
         }
 
-        if (phase==2)
+        if (phase == 2)
             DoMeleeAttacksIfReady();
         else
             DoMeleeAttackIfReady();

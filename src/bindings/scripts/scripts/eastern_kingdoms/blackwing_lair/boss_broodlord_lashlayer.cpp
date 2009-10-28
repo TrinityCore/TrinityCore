@@ -60,35 +60,35 @@ struct TRINITY_DLL_DECL boss_broodlordAI : public ScriptedAI
             return;
 
         //Cleave_Timer
-        if (Cleave_Timer < diff)
+        if (Cleave_Timer <= diff)
         {
             DoCast(m_creature->getVictim(),SPELL_CLEAVE);
             Cleave_Timer = 7000;
-        }else Cleave_Timer -= diff;
+        } else Cleave_Timer -= diff;
 
         // BlastWave
-        if (BlastWave_Timer < diff)
+        if (BlastWave_Timer <= diff)
         {
             DoCast(m_creature->getVictim(),SPELL_BLASTWAVE);
-            BlastWave_Timer = 8000 + rand()%8000;
-        }else BlastWave_Timer -= diff;
+            BlastWave_Timer = urand(8000,16000);
+        } else BlastWave_Timer -= diff;
 
         //MortalStrike_Timer
-        if (MortalStrike_Timer < diff)
+        if (MortalStrike_Timer <= diff)
         {
             DoCast(m_creature->getVictim(),SPELL_MORTALSTRIKE);
-            MortalStrike_Timer = 25000 + rand()%10000;
-        }else MortalStrike_Timer -= diff;
+            MortalStrike_Timer = urand(25000,35000);
+        } else MortalStrike_Timer -= diff;
 
-        if (KnockBack_Timer < diff)
+        if (KnockBack_Timer <= diff)
         {
             DoCast(m_creature->getVictim(),SPELL_KNOCKBACK);
             //Drop 50% aggro
             if (DoGetThreat(m_creature->getVictim()))
                 DoModifyThreatPercent(m_creature->getVictim(),-50);
 
-            KnockBack_Timer = 15000 + rand()%15000;
-        }else KnockBack_Timer -= diff;
+            KnockBack_Timer = urand(15000,30000);
+        } else KnockBack_Timer -= diff;
 
         if (EnterEvadeIfOutOfCombatArea(diff))
             DoScriptText(SAY_LEASH, m_creature);

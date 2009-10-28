@@ -234,7 +234,7 @@ struct TRINITY_DLL_DECL boss_nightbaneAI : public ScriptedAI
 
         Flying = true;
 
-        FlyTimer = 45000+rand()%15000; //timer wrong between 45 and 60 seconds
+        FlyTimer = urand(45000,60000); //timer wrong between 45 and 60 seconds
         ++FlyCount;
 
         RainofBonesTimer = 5000; //timer wrong (maybe)
@@ -244,8 +244,8 @@ struct TRINITY_DLL_DECL boss_nightbaneAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
-        if (WaitTimer)
-        if (WaitTimer < diff)
+        /* The timer for this was never setup apparently, not sure if the code works properly:
+        if (WaitTimer <= diff)
         {
             if (Intro)
             {
@@ -261,7 +261,6 @@ struct TRINITY_DLL_DECL boss_nightbaneAI : public ScriptedAI
                     ++MovePhase;
                 }
             }
-
             if (Flying)
             {
                 if (MovePhase >= 7)
@@ -278,7 +277,8 @@ struct TRINITY_DLL_DECL boss_nightbaneAI : public ScriptedAI
             }
 
             WaitTimer = 0;
-        }else WaitTimer -= diff;
+        } else WaitTimer -= diff;
+        */
 
         if (!UpdateVictim())
             return;
@@ -295,39 +295,39 @@ struct TRINITY_DLL_DECL boss_nightbaneAI : public ScriptedAI
                 Movement = false;
             }
 
-            if (BellowingRoarTimer < diff)
+            if (BellowingRoarTimer <= diff)
             {
                 DoCast(m_creature->getVictim(),SPELL_BELLOWING_ROAR);
-                BellowingRoarTimer = 30000+rand()%10000 ; //Timer
-            }else BellowingRoarTimer -= diff;
+                BellowingRoarTimer = urand(30000,40000);
+            } else BellowingRoarTimer -= diff;
 
-            if (SmolderingBreathTimer < diff)
+            if (SmolderingBreathTimer <= diff)
             {
                 DoCast(m_creature->getVictim(),SPELL_SMOLDERING_BREATH);
-                SmolderingBreathTimer = 20000;//timer
-            }else SmolderingBreathTimer -= diff;
+                SmolderingBreathTimer = 20000;
+            } else SmolderingBreathTimer -= diff;
 
-            if (CharredEarthTimer < diff)
+            if (CharredEarthTimer <= diff)
             {
-                if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                     DoCast(target,SPELL_CHARRED_EARTH);
-                CharredEarthTimer = 20000; //timer
-            }else CharredEarthTimer -= diff;
+                CharredEarthTimer = 20000;
+            } else CharredEarthTimer -= diff;
 
-            if (TailSweepTimer < diff)
+            if (TailSweepTimer <= diff)
             {
-                if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                     if (!m_creature->HasInArc(M_PI, target))
                         DoCast(target,SPELL_TAIL_SWEEP);
-                TailSweepTimer = 15000;//timer
-            }else TailSweepTimer -= diff;
+                TailSweepTimer = 15000;
+            } else TailSweepTimer -= diff;
 
-            if (SearingCindersTimer < diff)
+            if (SearingCindersTimer <= diff)
             {
-                if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                     DoCast(target,SPELL_SEARING_CINDERS);
-                SearingCindersTimer = 10000; //timer
-            }else SearingCindersTimer -= diff;
+                SearingCindersTimer = 10000;
+            } else SearingCindersTimer -= diff;
 
             uint32 Prozent;
             Prozent = (m_creature->GetHealth()*100) / m_creature->GetMaxHealth();
@@ -363,44 +363,41 @@ struct TRINITY_DLL_DECL boss_nightbaneAI : public ScriptedAI
                     DoCast(m_creature->getVictim(),SPELL_RAIN_OF_BONES);
                     RainBones = true;
                     SmokingBlastTimer = 20000;
-                }else RainofBonesTimer -= diff;
+                } else RainofBonesTimer -= diff;
 
-                if (DistractingAshTimer < diff)
+                if (DistractingAshTimer <= diff)
                 {
-                    if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                         DoCast(target,SPELL_DISTRACTING_ASH);
-                    DistractingAshTimer = 2000;//timer wrong
-                }else DistractingAshTimer -= diff;
+                    DistractingAshTimer = 2000; //timer wrong
+                } else DistractingAshTimer -= diff;
             }
 
             if (RainBones)
             {
-                if (SmokingBlastTimer < diff)
+                if (SmokingBlastTimer <= diff)
                  {
                     DoCast(m_creature->getVictim(),SPELL_SMOKING_BLAST);
-                    SmokingBlastTimer = 1500 ; //timer wrong
-                 }else SmokingBlastTimer -= diff;
+                    SmokingBlastTimer = 1500; //timer wrong
+                 } else SmokingBlastTimer -= diff;
             }
 
-            if (FireballBarrageTimer < diff)
+            if (FireballBarrageTimer <= diff)
             {
                 if (Unit* target = SelectUnit(SELECT_TARGET_FARTHEST, 0))
                     DoCast(target,SPELL_FIREBALL_BARRAGE);
-                FireballBarrageTimer = 20000; //Timer
-            }else FireballBarrageTimer -= diff;
+                FireballBarrageTimer = 20000;
+            } else FireballBarrageTimer -= diff;
 
-            if (FlyTimer < diff) //landing
+            if (FlyTimer <= diff) //landing
             {
-                if (rand()%2 == 0)
-                    m_creature->MonsterYell(YELL_LAND_PHASE_1, LANG_UNIVERSAL, NULL);
-                else
-                    m_creature->MonsterYell(YELL_LAND_PHASE_2, LANG_UNIVERSAL, NULL);
+                m_creature->MonsterYell(RAND(*YELL_LAND_PHASE_1,*YELL_LAND_PHASE_2), LANG_UNIVERSAL, NULL);
 
-                (*m_creature).GetMotionMaster()->Clear(false);
+                m_creature->GetMotionMaster()->Clear(false);
                 m_creature->GetMotionMaster()->MovePoint(3,IntroWay[3][0],IntroWay[3][1],IntroWay[3][2]);
 
                 Flying = true;
-            }else FlyTimer -= diff;
+            } else FlyTimer -= diff;
         }
     }
 };

@@ -68,24 +68,24 @@ void guardAI::UpdateAI(const uint32 diff)
 
     //Buff timer (only buff when we are alive and not in combat
     if (m_creature->isAlive() && !m_creature->isInCombat())
-        if (BuffTimer < diff)
-    {
-        //Find a spell that targets friendly and applies an aura (these are generally buffs)
-        SpellEntry const *info = SelectSpell(m_creature, -1, -1, SELECT_TARGET_ANY_FRIEND, 0, 0, 0, 0, SELECT_EFFECT_AURA);
-
-        if (info && !GlobalCooldown)
+        if (BuffTimer <= diff)
         {
-            //Cast the buff spell
-            DoCastSpell(m_creature, info);
+            //Find a spell that targets friendly and applies an aura (these are generally buffs)
+            SpellEntry const *info = SelectSpell(m_creature, -1, -1, SELECT_TARGET_ANY_FRIEND, 0, 0, 0, 0, SELECT_EFFECT_AURA);
 
-            //Set our global cooldown
-            GlobalCooldown = GENERIC_CREATURE_COOLDOWN;
+            if (info && !GlobalCooldown)
+            {
+                //Cast the buff spell
+                DoCastSpell(m_creature, info);
 
-            //Set our timer to 10 minutes before rebuff
-            BuffTimer = 600000;
-        }                                                   //Try agian in 30 seconds
-        else BuffTimer = 30000;
-    }else BuffTimer -= diff;
+                //Set our global cooldown
+                GlobalCooldown = GENERIC_CREATURE_COOLDOWN;
+
+                //Set our timer to 10 minutes before rebuff
+                BuffTimer = 600000;
+            }                                                   //Try again in 30 seconds
+            else BuffTimer = 30000;
+        } else BuffTimer -= diff;
 
     //Return since we have no target
     if (!UpdateVictim())

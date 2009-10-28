@@ -108,61 +108,61 @@ struct TRINITY_DLL_DECL boss_nefarianAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
-        if(DespawnTimer < diff)
+        if( DespawnTimer <= diff)
         {
             if(!UpdateVictim())
                 m_creature->ForcedDespawn();
             DespawnTimer = 5000;
-        }else DespawnTimer -= diff;
+        } else DespawnTimer -= diff;
 
         if (!UpdateVictim())
             return;
 
         //ShadowFlame_Timer
-        if (ShadowFlame_Timer < diff)
+        if (ShadowFlame_Timer <= diff)
         {
             DoCast(m_creature->getVictim(),SPELL_SHADOWFLAME);
             ShadowFlame_Timer = 12000;
-        }else ShadowFlame_Timer -= diff;
+        } else ShadowFlame_Timer -= diff;
 
         //BellowingRoar_Timer
-        if (BellowingRoar_Timer < diff)
+        if (BellowingRoar_Timer <= diff)
         {
             DoCast(m_creature->getVictim(),SPELL_BELLOWINGROAR);
             BellowingRoar_Timer = 30000;
-        }else BellowingRoar_Timer -= diff;
+        } else BellowingRoar_Timer -= diff;
 
         //VeilOfShadow_Timer
-        if (VeilOfShadow_Timer < diff)
+        if (VeilOfShadow_Timer <= diff)
         {
             DoCast(m_creature->getVictim(),SPELL_VEILOFSHADOW);
             VeilOfShadow_Timer = 15000;
-        }else VeilOfShadow_Timer -= diff;
+        } else VeilOfShadow_Timer -= diff;
 
         //Cleave_Timer
-        if (Cleave_Timer < diff)
+        if (Cleave_Timer <= diff)
         {
             DoCast(m_creature->getVictim(),SPELL_CLEAVE);
             Cleave_Timer = 7000;
-        }else Cleave_Timer -= diff;
+        } else Cleave_Timer -= diff;
 
         //TailLash_Timer
-        if (TailLash_Timer < diff)
+        if (TailLash_Timer <= diff)
         {
             //Cast NYI since we need a better check for behind target
             //DoCast(m_creature->getVictim(),SPELL_TAILLASH);
 
             TailLash_Timer = 10000;
-        }else TailLash_Timer -= diff;
+        } else TailLash_Timer -= diff;
 
         //ClassCall_Timer
-        if (ClassCall_Timer < diff)
+        if (ClassCall_Timer <= diff)
         {
             //Cast a random class call
             //On official it is based on what classes are currently on the hostil list
             //but we can't do that yet so just randomly call one
 
-            switch (rand()%9)
+            switch (urand(0,8))
             {
                 case 0:
                     DoScriptText(SAY_MAGE, m_creature);

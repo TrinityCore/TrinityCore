@@ -59,36 +59,34 @@ struct TRINITY_DLL_DECL boss_high_interrogator_gerstahnAI : public ScriptedAI
             return;
 
         //ShadowWordPain_Timer
-        if (ShadowWordPain_Timer < diff)
+        if (ShadowWordPain_Timer <= diff)
         {
-            Unit* target = NULL;
-            target = SelectUnit(SELECT_TARGET_RANDOM,0);
-            if (target)DoCast(target,SPELL_SHADOWWORDPAIN);
+            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                DoCast(target,SPELL_SHADOWWORDPAIN);
             ShadowWordPain_Timer = 7000;
-        }else ShadowWordPain_Timer -= diff;
+        } else ShadowWordPain_Timer -= diff;
 
         //ManaBurn_Timer
-        if (ManaBurn_Timer < diff)
+        if (ManaBurn_Timer <= diff)
         {
-            Unit* target = NULL;
-            target = SelectUnit(SELECT_TARGET_RANDOM,0);
-            if (target)DoCast(target,SPELL_MANABURN);
+            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                DoCast(target,SPELL_MANABURN);
             ManaBurn_Timer = 10000;
-        }else ManaBurn_Timer -= diff;
+        } else ManaBurn_Timer -= diff;
 
         //PsychicScream_Timer
-        if (PsychicScream_Timer < diff)
+        if (PsychicScream_Timer <= diff)
         {
             DoCast(m_creature->getVictim(),SPELL_PSYCHICSCREAM);
             PsychicScream_Timer = 30000;
-        }else PsychicScream_Timer -= diff;
+        } else PsychicScream_Timer -= diff;
 
         //ShadowShield_Timer
-        if (ShadowShield_Timer < diff)
+        if (ShadowShield_Timer <= diff)
         {
             DoCast(m_creature,SPELL_SHADOWSHIELD);
             ShadowShield_Timer = 25000;
-        }else ShadowShield_Timer -= diff;
+        } else ShadowShield_Timer -= diff;
 
         DoMeleeAttackIfReady();
     }

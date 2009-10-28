@@ -1488,13 +1488,13 @@ bool GameEventMgr::hasGameObjectActiveEventExcept(uint32 go_id, uint16 event_id)
     return false;
 }
 
-void GameEventMgr::UpdateEventQuests(uint16 event_id, bool Activate)
+void GameEventMgr::UpdateEventQuests(uint16 event_id, bool activate)
 {
     QuestRelList::iterator itr;
     for (itr = mGameEventCreatureQuests[event_id].begin(); itr != mGameEventCreatureQuests[event_id].end(); ++itr)
     {
         QuestRelations &CreatureQuestMap = objmgr.mCreatureQuestRelations;
-        if (Activate)                                       // Add the pair(id,quest) to the multimap
+        if (activate)                                       // Add the pair(id,quest) to the multimap
             CreatureQuestMap.insert(QuestRelations::value_type(itr->first, itr->second));
         else
         {
@@ -1519,7 +1519,7 @@ void GameEventMgr::UpdateEventQuests(uint16 event_id, bool Activate)
     for (itr = mGameEventGameObjectQuests[event_id].begin(); itr != mGameEventGameObjectQuests[event_id].end(); ++itr)
     {
         QuestRelations &GameObjectQuestMap = objmgr.mGOQuestRelations;
-        if (Activate)                                       // Add the pair(id,quest) to the multimap
+        if (activate)                                       // Add the pair(id,quest) to the multimap
             GameObjectQuestMap.insert(QuestRelations::value_type(itr->first, itr->second));
         else
         {
