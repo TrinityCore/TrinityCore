@@ -227,7 +227,7 @@ struct TRINITY_DLL_DECL boss_morogrim_tidewalkerAI : public ScriptedAI
                 for (uint8 i = 0; i < 4; ++i)
                 {
                     counter = 0;
-                    do{pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1, 50, true);    //pTarget players only
+                    do{pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1, 50, true);    //target players only
                     if (counter < Playercount)
                         break;
                     if (pTarget) itr = list.find(pTarget->GetGUID());
@@ -308,7 +308,7 @@ struct TRINITY_DLL_DECL mob_water_globuleAI : public ScriptedAI
 
         if (who->isTargetableForAttack() && who->isInAccessiblePlaceFor(m_creature) && m_creature->IsHostileTo(who))
         {
-            //no attack radius check - it attacks the first pTarget that moves in his los
+            //no attack radius check - it attacks the first target that moves in his los
             //who->RemoveSpellsCausingAura(SPELL_AURA_MOD_STEALTH);
             AttackStart(who);
         }

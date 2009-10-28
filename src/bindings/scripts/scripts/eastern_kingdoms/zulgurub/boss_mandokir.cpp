@@ -147,7 +147,7 @@ struct TRINITY_DLL_DECL boss_mandokirAI : public ScriptedAI
 
             if (Watch_Timer <= diff)                         //Every 20 Sec Mandokir will check this
             {
-                if (WatchTarget)                             //If someone is watched and If the Position of the watched pTarget is different from the one stored, or are attacking, mandokir will charge him
+                if (WatchTarget)                             //If someone is watched and If the Position of the watched target is different from the one stored, or are attacking, mandokir will charge him
                 {
                     Unit* pUnit = Unit::GetUnit(*m_creature, WatchTarget);
 
@@ -185,7 +185,7 @@ struct TRINITY_DLL_DECL boss_mandokirAI : public ScriptedAI
                 }
             }
 
-            if ((Watch_Timer < 1000) && endWatch)           //1 sec before the debuf expire, store the pTarget position
+            if ((Watch_Timer < 1000) && endWatch)           //1 sec before the debuf expire, store the target position
             {
                 Unit* pUnit = Unit::GetUnit(*m_creature, WatchTarget);
                 if (pUnit)
@@ -232,7 +232,7 @@ struct TRINITY_DLL_DECL boss_mandokirAI : public ScriptedAI
                     Fear_Timer = 4000;
                 } else Fear_Timer -=diff;
 
-                //Mortal Strike if pTarget below 50% hp
+                //Mortal Strike if target below 50% hp
                 if (m_creature->getVictim() && m_creature->getVictim()->GetHealth() < m_creature->getVictim()->GetMaxHealth()*0.5)
                 {
                     if (MortalStrike_Timer <= diff)

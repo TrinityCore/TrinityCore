@@ -161,7 +161,7 @@ struct TRINITY_DLL_DECL boss_najentusAI : public ScriptedAI
                     {
                         m_creature->CastSpell(pTarget, SPELL_IMPALING_SPINE, true);
                         SpineTargetGUID = pTarget->GetGUID();
-                        //must let pTarget summon, otherwise you cannot click the spine
+                        //must let target summon, otherwise you cannot click the spine
                         pTarget->SummonGameObject(GOBJECT_SPINE, pTarget->GetPositionX(), pTarget->GetPositionY(), pTarget->GetPositionZ(), m_creature->GetOrientation(), 0, 0, 0, 0, 30);
                         DoScriptText(rand()%2 ? SAY_NEEDLE1 : SAY_NEEDLE2, m_creature);
                         events.DelayEvents(1500, GCD_CAST);

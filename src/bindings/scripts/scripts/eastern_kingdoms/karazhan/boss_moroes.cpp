@@ -276,7 +276,7 @@ struct TRINITY_DLL_DECL boss_moroesAI : public ScriptedAI
                 {
                     DoCast(pTarget, SPELL_BLIND);
                     Blind_Timer = 40000;
-                } else Blind_Timer = 1000 + diff; // if pTarget is out of melee range, wait a bit.
+                } else Blind_Timer = 1000 + diff; // if target is out of melee range, wait a bit.
             } else Blind_Timer -= diff;
         }
 

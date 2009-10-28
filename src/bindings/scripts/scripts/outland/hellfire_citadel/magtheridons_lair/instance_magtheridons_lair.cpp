@@ -24,8 +24,8 @@ EndScriptData */
 #include "precompiled.h"
 #include "magtheridons_lair.h"
 
-#define SPELL_SOUL_TRANSFER         30531 // core bug, does not support pTarget 7
-#define SPELL_BLAZE_TARGET          30541 // core bug, does not support pTarget 7
+#define SPELL_SOUL_TRANSFER         30531 // core bug, does not support target 7
+#define SPELL_BLAZE_TARGET          30541 // core bug, does not support target 7
 
 #define CHAMBER_CENTER_X            -15.14
 #define CHAMBER_CENTER_Y              1.8

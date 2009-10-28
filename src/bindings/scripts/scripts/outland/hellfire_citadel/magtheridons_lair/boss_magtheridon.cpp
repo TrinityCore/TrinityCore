@@ -59,11 +59,11 @@ static Yell RandomTaunt[]=
 #define SPELL_CLEAVE                30619
 #define SPELL_QUAKE_TRIGGER         30657 // must be cast with 30561 as the proc spell
 #define SPELL_QUAKE_KNOCKBACK       30571
-#define SPELL_BLAZE_TARGET          30541 // core bug, does not support pTarget 7
+#define SPELL_BLAZE_TARGET          30541 // core bug, does not support target 7
 #define SPELL_BLAZE_TRAP            30542
 #define SPELL_DEBRIS_KNOCKDOWN      36449
 #define SPELL_DEBRIS_VISUAL         30632
-#define SPELL_DEBRIS_DAMAGE         30631 // core bug, does not support pTarget 8
+#define SPELL_DEBRIS_DAMAGE         30631 // core bug, does not support target 8
 #define SPELL_CAMERA_SHAKE          36455
 #define SPELL_BERSERK               27680
 
@@ -79,7 +79,7 @@ static Yell RandomTaunt[]=
 #define SPELL_DARK_MENDING          30528
 #define SPELL_FEAR                  30530 //39176
 #define SPELL_BURNING_ABYSSAL       30511
-#define SPELL_SOUL_TRANSFER         30531 // core bug, does not support pTarget 7
+#define SPELL_SOUL_TRANSFER         30531 // core bug, does not support target 7
 
 #define SPELL_FIRE_BLAST            37110
 
@@ -173,7 +173,7 @@ struct TRINITY_DLL_DECL boss_magtheridonAI : public ScriptedAI
         m_creature->SetFloatValue(UNIT_FIELD_BOUNDINGRADIUS, 10);
         m_creature->SetFloatValue(UNIT_FIELD_COMBATREACH, 10);
 
-        // pTarget 7, random pTarget with certain entry spell, need core fix
+        // target 7, random target with certain entry spell, need core fix
         SpellEntry *TempSpell;
         TempSpell = GET_SPELL(SPELL_BLAZE_TARGET);
         if (TempSpell && TempSpell->EffectImplicitTargetA[0] != 6)

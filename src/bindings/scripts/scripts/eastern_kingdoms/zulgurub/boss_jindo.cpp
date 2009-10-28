@@ -94,7 +94,7 @@ struct TRINITY_DLL_DECL boss_jindoAI : public ScriptedAI
             Hex_Timer = 12000 + rand()%8000;
         } else Hex_Timer -= diff;
 
-        //Casting the delusion curse with a shade. So shade will attack the same pTarget with the curse.
+        //Casting the delusion curse with a shade. So shade will attack the same target with the curse.
         if (Delusions_Timer <= diff)
         {
             if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM,0))

@@ -45,7 +45,7 @@ EndScriptData */
 #define SPELL_FIENDISH_PORTAL       30171                   // Opens portal and summons Fiendish Portal, 2 sec cast
 #define SPELL_FIENDISH_PORTAL_1     30179                   // Opens portal and summons Fiendish Portal, instant cast
 
-#define SPELL_FIREBOLT              30050                   // Blasts a pTarget for 150 Fire damage.
+#define SPELL_FIREBOLT              30050                   // Blasts a target for 150 Fire damage.
 #define SPELL_BROKEN_PACT           30065                   // All damage taken increased by 25%.
 #define SPELL_AMPLIFY_FLAMES        30053                   // Increases the Fire damage taken by an enemy by 500 for 25 sec.
 
@@ -328,7 +328,7 @@ struct TRINITY_DLL_DECL boss_terestianAI : public ScriptedAI
     }
 };
 
-#define SPELL_FIREBOLT  30050   // Blasts a pTarget for 181-209 Fire damage.
+#define SPELL_FIREBOLT  30050   // Blasts a target for 181-209 Fire damage.
 
 struct TRINITY_DLL_DECL mob_fiendish_impAI : public ScriptedAI
 {

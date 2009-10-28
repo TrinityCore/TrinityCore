@@ -290,7 +290,7 @@ struct TRINITY_DLL_DECL boss_bjarngrimAI : public ScriptedAI
             {
                 if (m_uiIntercept_Timer <= uiDiff)
                 {
-                    //not much point is this, better random pTarget and more often?
+                    //not much point is this, better random target and more often?
                     DoCast(m_creature->getVictim(), SPELL_INTERCEPT);
                     m_uiIntercept_Timer = 45000 + rand()%1000;
                 }
