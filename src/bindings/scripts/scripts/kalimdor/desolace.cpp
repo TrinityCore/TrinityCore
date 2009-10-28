@@ -161,12 +161,10 @@ bool GossipHello_npc_aged_dying_ancient_kodo(Player* pPlayer, Creature* pCreatur
 ## go_iruxos. Quest 5381
 ######*/
 
-bool GOHello_go_iruxos(Player *player, GameObject* _GO)
+bool GOHello_go_iruxos(Player *pPlayer, GameObject* pGO)
 {
-        if (player->GetQuestStatus(5381) == QUEST_STATUS_INCOMPLETE)
-        {
-            player->SummonCreature(11876, player->GetInnPosX(),player->GetInnPosY(),player->GetInnPosZ(),0,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,10000);
-        }
+        if (pPlayer->GetQuestStatus(5381) == QUEST_STATUS_INCOMPLETE)
+            pPlayer->SummonCreature(11876, pPlayer->GetInnPosX(),pPlayer->GetInnPosY(),pPlayer->GetInnPosZ(),0,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,10000);
 
         return true;
 }

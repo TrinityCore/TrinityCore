@@ -511,7 +511,7 @@ struct TRINITY_DLL_DECL boss_malchezaarAI : public ScriptedAI
         if (ShadowNovaTimer <= diff)
         {
             DoCast(m_creature->getVictim(), SPELL_SHADOWNOVA);
-            ShadowNovaTimer = phase == 3 ? 31000 : _UI32_MAX;
+            ShadowNovaTimer = phase == 3 ? 31000 : 4294967295;
         } else ShadowNovaTimer -= diff;
 
         if (phase != 2)
