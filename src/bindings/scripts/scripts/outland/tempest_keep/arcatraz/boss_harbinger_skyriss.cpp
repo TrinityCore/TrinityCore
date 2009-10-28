@@ -119,8 +119,8 @@ struct TRINITY_DLL_DECL boss_harbinger_skyrissAI : public ScriptedAI
         else
             summon->SetHealth((summon->GetMaxHealth()*66)/100);
         if (m_creature->getVictim())
-            if (Unit *target = SelectUnit(SELECT_TARGET_RANDOM, 0))
-                summon->AI()->AttackStart(target);
+            if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                summon->AI()->AttackStart(pTarget);
      }
 
     void KilledUnit(Unit* victim)
@@ -152,7 +152,7 @@ struct TRINITY_DLL_DECL boss_harbinger_skyrissAI : public ScriptedAI
             if (!pInstance)
                 return;
 
-            if (Intro_Timer < diff)
+            if (Intro_Timer <= diff)
             {
                 switch(Intro_Phase)
                 {
@@ -179,7 +179,7 @@ struct TRINITY_DLL_DECL boss_harbinger_skyrissAI : public ScriptedAI
                         Intro = true;
                         break;
                 }
-            }else Intro_Timer -=diff;
+            } else Intro_Timer -=diff;
         }
 
         if (!UpdateVictim())
@@ -196,58 +196,58 @@ struct TRINITY_DLL_DECL boss_harbinger_skyrissAI : public ScriptedAI
             IsImage33 = true;
         }
 
-        if (MindRend_Timer < diff)
+        if (MindRend_Timer <= diff)
         {
-            if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM,1))
-                DoCast(target,HEROIC(SPELL_MIND_REND, H_SPELL_MIND_REND));
+            if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM,1))
+                DoCast(pTarget,HEROIC(SPELL_MIND_REND, H_SPELL_MIND_REND));
             else
                 DoCast(m_creature->getVictim(),HEROIC(SPELL_MIND_REND, H_SPELL_MIND_REND));
 
             MindRend_Timer = 8000;
-        }else MindRend_Timer -=diff;
+        } else MindRend_Timer -=diff;
 
-        if (Fear_Timer < diff)
+        if (Fear_Timer <= diff)
         {
             if (m_creature->IsNonMeleeSpellCasted(false))
                 return;
 
             DoScriptText(RAND(SAY_FEAR_1,SAY_FEAR_2), m_creature);
 
-            if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM,1))
-                DoCast(target,SPELL_FEAR);
+            if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM,1))
+                DoCast(pTarget,SPELL_FEAR);
             else
                 DoCast(m_creature->getVictim(),SPELL_FEAR);
 
             Fear_Timer = 25000;
-        }else Fear_Timer -=diff;
+        } else Fear_Timer -=diff;
 
-        if (Domination_Timer < diff)
+        if (Domination_Timer <= diff)
         {
             if (m_creature->IsNonMeleeSpellCasted(false))
                 return;
 
             DoScriptText(RAND(SAY_MIND_1,SAY_MIND_2), m_creature);
 
-            if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM,1))
-                DoCast(target,HEROIC(SPELL_DOMINATION, H_SPELL_DOMINATION));
+            if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM,1))
+                DoCast(pTarget,HEROIC(SPELL_DOMINATION, H_SPELL_DOMINATION));
             else
                 DoCast(m_creature->getVictim(),HEROIC(SPELL_DOMINATION, H_SPELL_DOMINATION));
 
             Domination_Timer = 16000+rand()%16000;
-        }else Domination_Timer -=diff;
+        } else Domination_Timer -=diff;
 
         if (HeroicMode)
         {
-            if (ManaBurn_Timer < diff)
+            if (ManaBurn_Timer <= diff)
             {
                 if (m_creature->IsNonMeleeSpellCasted(false))
                     return;
 
-                if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM,1))
-                    DoCast(target,H_SPELL_MANA_BURN);
+                if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM,1))
+                    DoCast(pTarget,H_SPELL_MANA_BURN);
 
                 ManaBurn_Timer = 16000+rand()%16000;
-            }else ManaBurn_Timer -=diff;
+            } else ManaBurn_Timer -=diff;
         }
 
         DoMeleeAttackIfReady();

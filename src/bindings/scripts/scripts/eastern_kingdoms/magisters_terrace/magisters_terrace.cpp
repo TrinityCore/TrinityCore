@@ -112,7 +112,7 @@ struct TRINITY_DLL_DECL npc_kalecgosAI : public ScriptedAI
                 m_creature->UpdateEntry(NPC_KAEL);
 
                 m_uiTransformTimer = 0;
-            }else m_uiTransformTimer -= uiDiff;
+            } else m_uiTransformTimer -= uiDiff;
         }
     }
 };

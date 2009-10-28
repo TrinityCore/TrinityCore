@@ -138,7 +138,7 @@ struct TRINITY_DLL_DECL boss_ambassador_hellmawAI : public npc_escortAI
     {
         if (!Intro && !HasEscortState(STATE_ESCORT_ESCORTING))
         {
-            if (EventCheck_Timer < diff)
+            if (EventCheck_Timer <= diff)
             {
                 if (m_pInstance)
                 {
@@ -169,25 +169,25 @@ struct TRINITY_DLL_DECL boss_ambassador_hellmawAI : public npc_escortAI
             return;
         }
 
-        if (CorrosiveAcid_Timer < diff)
+        if (CorrosiveAcid_Timer <= diff)
         {
             DoCast(m_creature->getVictim(),SPELL_CORROSIVE_ACID);
             CorrosiveAcid_Timer = 15000 + rand()%10000;
-        }else CorrosiveAcid_Timer -= diff;
+        } else CorrosiveAcid_Timer -= diff;
 
-        if (Fear_Timer < diff)
+        if (Fear_Timer <= diff)
         {
             DoCast(m_creature,SPELL_FEAR);
             Fear_Timer = 20000 + rand()%15000;
-        }else Fear_Timer -= diff;
+        } else Fear_Timer -= diff;
 
         if (HeroicMode)
         {
-            if (!Enraged && Enrage_Timer < diff)
+            if (!Enraged && Enrage_Timer <= diff)
             {
                 DoCast(m_creature,SPELL_ENRAGE);
                 Enraged = true;
-            }else Enrage_Timer -= diff;
+            } else Enrage_Timer -= diff;
         }
     }
 };

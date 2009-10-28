@@ -273,7 +273,7 @@ struct TRINITY_DLL_DECL boss_felblood_kaelthasAI : public ScriptedAI
                 // *Heroic mode only:
                 if (Heroic)
                 {
-                    if (PyroblastTimer < diff)
+                    if (PyroblastTimer <= diff)
                     {
                         m_creature->InterruptSpell(CURRENT_CHANNELED_SPELL);
                         m_creature->InterruptSpell(CURRENT_GENERIC_SPELL);
@@ -283,18 +283,18 @@ struct TRINITY_DLL_DECL boss_felblood_kaelthasAI : public ScriptedAI
                     } else PyroblastTimer -= diff;
                 }
 
-                if (FireballTimer < diff)
+                if (FireballTimer <= diff)
                 {
                     DoCast(m_creature->getVictim(), Heroic ? SPELL_FIREBALL_HEROIC : SPELL_FIREBALL_NORMAL);
                     FireballTimer = urand(2000,6000);
                 } else FireballTimer -= diff;
 
-                if (PhoenixTimer < diff)
+                if (PhoenixTimer <= diff)
                 {
 
-                    Unit* target = SelectUnit(SELECT_TARGET_RANDOM,1);
+                    Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM,1);
 
-                    uint32 random = rand()%2 + 1;
+                    uint8 random = urand(1,2);
                     float x = KaelLocations[random][0];
                     float y = KaelLocations[random][1];
 
@@ -303,25 +303,25 @@ struct TRINITY_DLL_DECL boss_felblood_kaelthasAI : public ScriptedAI
                     {
                         Phoenix->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE + UNIT_FLAG_NON_ATTACKABLE);
                         SetThreatList(Phoenix);
-                        Phoenix->AI()->AttackStart(target);
+                        Phoenix->AI()->AttackStart(pTarget);
                     }
 
                     DoScriptText(SAY_PHOENIX, m_creature);
 
                     PhoenixTimer = 60000;
-                }else PhoenixTimer -= diff;
+                } else PhoenixTimer -= diff;
 
-                if (FlameStrikeTimer < diff)
+                if (FlameStrikeTimer <= diff)
                 {
-                    if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                    if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                     {
                         m_creature->InterruptSpell(CURRENT_CHANNELED_SPELL);
                         m_creature->InterruptSpell(CURRENT_GENERIC_SPELL);
-                        DoCast(target, SPELL_FLAMESTRIKE3, true);
+                        DoCast(pTarget, SPELL_FLAMESTRIKE3, true);
                         DoScriptText(SAY_FLAMESTRIKE, m_creature);
                     }
-                    FlameStrikeTimer = 15000 + rand()%10000;
-                }else FlameStrikeTimer -= diff;
+                    FlameStrikeTimer = urand(15000,25000);
+                } else FlameStrikeTimer -= diff;
 
                 // Below 50%
                 if (m_creature->GetMaxHealth() * 0.5 > m_creature->GetHealth())
@@ -341,7 +341,7 @@ struct TRINITY_DLL_DECL boss_felblood_kaelthasAI : public ScriptedAI
 
             case 1:
             {
-                if (GravityLapseTimer < diff)
+                if (GravityLapseTimer <= diff)
                 {
                     switch(GravityLapsePhase)
                     {
@@ -385,15 +385,15 @@ struct TRINITY_DLL_DECL boss_felblood_kaelthasAI : public ScriptedAI
 
                             for (uint8 i = 0; i < 3; ++i)
                             {
-                                Unit* target = NULL;
-                                target = SelectUnit(SELECT_TARGET_RANDOM,0);
+                                Unit *pTarget = NULL;
+                                pTarget = SelectUnit(SELECT_TARGET_RANDOM,0);
 
                                 Creature* Orb = DoSpawnCreature(CREATURE_ARCANE_SPHERE, 5, 5, 0, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 30000);
-                                if (Orb && target)
+                                if (Orb && pTarget)
                                 {
                                     //SetThreatList(Orb);
-                                    Orb->AddThreat(target, 1.0f);
-                                    Orb->AI()->AttackStart(target);
+                                    Orb->AddThreat(pTarget, 1.0f);
+                                    Orb->AI()->AttackStart(pTarget);
                                 }
 
                             }
@@ -410,7 +410,7 @@ struct TRINITY_DLL_DECL boss_felblood_kaelthasAI : public ScriptedAI
                             GravityLapsePhase = 0;
                             break;
                     }
-                }else GravityLapseTimer -= diff;
+                } else GravityLapseTimer -= diff;
             }
             break;
         }
@@ -441,7 +441,7 @@ struct TRINITY_DLL_DECL mob_felkael_flamestrikeAI : public ScriptedAI
     void MoveInLineOfSight(Unit *who) {}
     void UpdateAI(const uint32 diff)
     {
-        if (FlameStrikeTimer < diff)
+        if (FlameStrikeTimer <= diff)
         {
             DoCast(m_creature, Heroic ? SPELL_FLAMESTRIKE1_HEROIC : SPELL_FLAMESTRIKE1_NORMAL, true);
             m_creature->Kill(m_creature);
@@ -532,13 +532,12 @@ struct TRINITY_DLL_DECL mob_felkael_phoenixAI : public ScriptedAI
             if (Rebirth)
             {
 
-                if (Death_Timer < diff)
+                if (Death_Timer <= diff)
                 {
                     m_creature->SummonCreature(CREATURE_PHOENIX_EGG, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 45000);
-                    m_creature->setDeathState(JUST_DIED);
-                    m_creature->RemoveCorpse();
+                    m_creature->DisappearAndDie();
                     Rebirth = false;
-                }else Death_Timer -= diff;
+                } else Death_Timer -= diff;
             }
 
         }
@@ -546,10 +545,10 @@ struct TRINITY_DLL_DECL mob_felkael_phoenixAI : public ScriptedAI
         if (!UpdateVictim())
             return;
 
-        if (BurnTimer < diff)
+        if (BurnTimer <= diff)
         {
             //spell Burn should possible do this, but it doesn't, so do this for now.
-            uint32 dmg = urand(1650,2050);
+            uint16 dmg = urand(1650,2050);
             m_creature->DealDamage(m_creature, dmg, 0, DOT, SPELL_SCHOOL_MASK_FIRE, NULL, false);
             BurnTimer += 2000;
         } BurnTimer -= diff;
@@ -567,7 +566,6 @@ struct TRINITY_DLL_DECL mob_felkael_phoenix_eggAI : public ScriptedAI
     void Reset()
     {
         HatchTimer = 10000;
-
     }
 
     void EnterCombat(Unit* who) {}
@@ -575,7 +573,7 @@ struct TRINITY_DLL_DECL mob_felkael_phoenix_eggAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
-        if (HatchTimer < diff)
+        if (HatchTimer <= diff)
         {
             m_creature->SummonCreature(CREATURE_PHOENIX, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 60000);
             m_creature->Kill(m_creature);
@@ -586,7 +584,7 @@ struct TRINITY_DLL_DECL mob_felkael_phoenix_eggAI : public ScriptedAI
 
 struct TRINITY_DLL_DECL mob_arcane_sphereAI : public ScriptedAI
 {
-    mob_arcane_sphereAI(Creature *c) : ScriptedAI(c) {Reset();}
+    mob_arcane_sphereAI(Creature *c) : ScriptedAI(c) { Reset(); }
 
     uint32 DespawnTimer;
     uint32 ChangeTargetTimer;
@@ -606,21 +604,22 @@ struct TRINITY_DLL_DECL mob_arcane_sphereAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
-        if (DespawnTimer < diff)
+        if (DespawnTimer <= diff)
             m_creature->Kill(m_creature);
-        else DespawnTimer -= diff;
+        else
+            DespawnTimer -= diff;
 
         //Return since we have no target
         if (!UpdateVictim())
             return;
 
-        if (ChangeTargetTimer < diff)
+        if (ChangeTargetTimer <= diff)
         {
-            if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM,0))
+            if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
             {
-                m_creature->AddThreat(target, 1.0f);
-                m_creature->TauntApply(target);
-                AttackStart(target);
+                m_creature->AddThreat(pTarget, 1.0f);
+                m_creature->TauntApply(pTarget);
+                AttackStart(pTarget);
             }
 
             ChangeTargetTimer = urand(5000,15000);

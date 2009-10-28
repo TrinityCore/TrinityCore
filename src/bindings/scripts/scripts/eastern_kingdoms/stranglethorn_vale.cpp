@@ -72,7 +72,7 @@ struct TRINITY_DLL_DECL mob_yennikuAI : public ScriptedAI
     {
         if (bReset)
         {
-            if (Reset_Timer < diff)
+            if (Reset_Timer <= diff)
             {
                 EnterEvadeMode();
                 bReset = false;

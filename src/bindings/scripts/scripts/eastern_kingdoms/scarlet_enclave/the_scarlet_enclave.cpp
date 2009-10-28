@@ -48,7 +48,7 @@ struct TRINITY_DLL_DECL npc_valkyr_battle_maidenAI : public PassiveAI
 
     void UpdateAI(const uint32 diff)
     {
-        if(FlyBackTimer < diff)
+        if (FlyBackTimer <= diff)
         {
             Player *plr = NULL;
             if(me->isSummon())
@@ -91,7 +91,7 @@ struct TRINITY_DLL_DECL npc_valkyr_battle_maidenAI : public PassiveAI
                     break;
             }
             ++phase;
-        }else FlyBackTimer-=diff;
+        } else FlyBackTimer-=diff;
     }
 };
 

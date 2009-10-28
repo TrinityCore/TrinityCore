@@ -92,55 +92,55 @@ struct TRINITY_DLL_DECL boss_marliAI : public ScriptedAI
 
         if (m_creature->getVictim() && m_creature->isAlive())
         {
-            if (PoisonVolley_Timer < diff)
+            if (PoisonVolley_Timer <= diff)
             {
                 DoCast(m_creature->getVictim(),SPELL_POISONVOLLEY);
                 PoisonVolley_Timer = 10000 + rand()%10000;
-            }else PoisonVolley_Timer -= diff;
+            } else PoisonVolley_Timer -= diff;
 
-            if (!PhaseTwo && Aspect_Timer < diff)
+            if (!PhaseTwo && Aspect_Timer <= diff)
             {
                 DoCast(m_creature->getVictim(),SPELL_ASPECT_OF_MARLI);
                 Aspect_Timer = 13000 + rand()%5000;
-            }else Aspect_Timer -= diff;
+            } else Aspect_Timer -= diff;
 
-            if (!Spawned && SpawnStartSpiders_Timer < diff)
+            if (!Spawned && SpawnStartSpiders_Timer <= diff)
             {
                 DoScriptText(SAY_SPIDER_SPAWN, m_creature);
 
-                Unit* target = SelectUnit(SELECT_TARGET_RANDOM,0);
-                if (!target)
+                Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM,0);
+                if (!pTarget)
                     return;
 
-                Spider = m_creature->SummonCreature(15041,target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(),0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
+                Spider = m_creature->SummonCreature(15041,pTarget->GetPositionX(), pTarget->GetPositionY(), pTarget->GetPositionZ(),0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
                 if (Spider)
-                    Spider->AI()->AttackStart(target);
-                Spider = m_creature->SummonCreature(15041,target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(),0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
+                    Spider->AI()->AttackStart(pTarget);
+                Spider = m_creature->SummonCreature(15041,pTarget->GetPositionX(), pTarget->GetPositionY(), pTarget->GetPositionZ(),0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
                 if (Spider)
-                    Spider->AI()->AttackStart(target);
-                Spider = m_creature->SummonCreature(15041,target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(),0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
+                    Spider->AI()->AttackStart(pTarget);
+                Spider = m_creature->SummonCreature(15041,pTarget->GetPositionX(), pTarget->GetPositionY(), pTarget->GetPositionZ(),0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
                 if (Spider)
-                    Spider->AI()->AttackStart(target);
-                Spider = m_creature->SummonCreature(15041,target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(),0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
+                    Spider->AI()->AttackStart(pTarget);
+                Spider = m_creature->SummonCreature(15041,pTarget->GetPositionX(), pTarget->GetPositionY(), pTarget->GetPositionZ(),0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
                 if (Spider)
-                    Spider->AI()->AttackStart(target);
+                    Spider->AI()->AttackStart(pTarget);
 
                 Spawned = true;
-            }else SpawnStartSpiders_Timer -= diff;
+            } else SpawnStartSpiders_Timer -= diff;
 
-            if (SpawnSpider_Timer < diff)
+            if (SpawnSpider_Timer <= diff)
             {
-                Unit* target = SelectUnit(SELECT_TARGET_RANDOM,0);
-                if (!target)
+                Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM,0);
+                if (!pTarget)
                     return;
 
-                Spider = m_creature->SummonCreature(15041,target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(),0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
+                Spider = m_creature->SummonCreature(15041,pTarget->GetPositionX(), pTarget->GetPositionY(), pTarget->GetPositionZ(),0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
                 if (Spider)
-                    Spider->AI()->AttackStart(target);
+                    Spider->AI()->AttackStart(pTarget);
                 SpawnSpider_Timer = 12000 + rand()%5000;
-            }else SpawnSpider_Timer -= diff;
+            } else SpawnSpider_Timer -= diff;
 
-            if (!PhaseTwo && Transform_Timer < diff)
+            if (!PhaseTwo && Transform_Timer <= diff)
             {
                 DoScriptText(SAY_TRANSFORM, m_creature);
                 DoCast(m_creature,SPELL_SPIDER_FORM);
@@ -154,35 +154,34 @@ struct TRINITY_DLL_DECL boss_marliAI : public ScriptedAI
                     DoModifyThreatPercent(m_creature->getVictim(),-100);
 
                 PhaseTwo = true;
-                Transform_Timer = 35000 + rand()%25000;
-            }else Transform_Timer -= diff;
+                Transform_Timer = urand(35000,60000);
+            } else Transform_Timer -= diff;
 
             if (PhaseTwo)
             {
-                if (Charge_Timer < diff)
+                if (Charge_Timer <= diff)
                 {
-                    Unit* target = NULL;
-                    int i = 0 ;
-                    while (i < 3)                           // max 3 tries to get a random target with power_mana
+                    Unit *pTarget = NULL;
+                    int i = 0;
+                    while (i < 3)                           // max 3 tries to get a random pTarget with power_mana
                     {
-                        ++i;                                //not aggro leader
-                        target = SelectUnit(SELECT_TARGET_RANDOM,1);
-                        if (target)
-                            if (target->getPowerType() == POWER_MANA)
-                                i=3;
+                        ++i;
+                        if (pTarget = SelectTarget(SELECT_TARGET_RANDOM,1, 100, true)) // not aggro leader
+                            if (pTarget->getPowerType() == POWER_MANA)
+                                i = 3;
                     }
-                    if (target)
+                    if (pTarget)
                     {
-                        DoCast(target, SPELL_CHARGE);
-                        //m_creature->GetMap()->CreatureRelocation(m_creature, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0);
-                        //m_creature->SendMonsterMove(target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0, true,1);
-                        AttackStart(target);
+                        DoCast(pTarget, SPELL_CHARGE);
+                        //m_creature->GetMap()->CreatureRelocation(m_creature, pTarget->GetPositionX(), pTarget->GetPositionY(), pTarget->GetPositionZ(), 0);
+                        //m_creature->SendMonsterMove(pTarget->GetPositionX(), pTarget->GetPositionY(), pTarget->GetPositionZ(), 0, true,1);
+                        AttackStart(pTarget);
                     }
 
                     Charge_Timer = 8000;
-                }else Charge_Timer -= diff;
+                } else Charge_Timer -= diff;
 
-                if (TransformBack_Timer < diff)
+                if (TransformBack_Timer <= diff)
                 {
                     m_creature->SetDisplayId(15220);
                     const CreatureInfo *cinfo = m_creature->GetCreatureInfo();
@@ -191,8 +190,8 @@ struct TRINITY_DLL_DECL boss_marliAI : public ScriptedAI
                     m_creature->UpdateDamagePhysical(BASE_ATTACK);
 
                     PhaseTwo = false;
-                    TransformBack_Timer = 25000 + rand()%15000;
-                }else TransformBack_Timer -= diff;
+                    TransformBack_Timer = urand(25000,40000);
+                } else TransformBack_Timer -= diff;
 
             }
 
@@ -224,11 +223,11 @@ struct TRINITY_DLL_DECL mob_spawn_of_marliAI : public ScriptedAI
             return;
 
         //LevelUp_Timer
-        if (LevelUp_Timer < diff)
+        if (LevelUp_Timer <= diff)
         {
             DoCast(m_creature,SPELL_LEVELUP);
             LevelUp_Timer = 3000;
-        }else LevelUp_Timer -= diff;
+        } else LevelUp_Timer -= diff;
 
         DoMeleeAttackIfReady();
     }

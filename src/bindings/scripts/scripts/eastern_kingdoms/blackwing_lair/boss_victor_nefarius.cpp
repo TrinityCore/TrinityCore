@@ -72,8 +72,7 @@ struct TRINITY_DLL_DECL boss_victor_nefariusAI : public ScriptedAI
     boss_victor_nefariusAI(Creature *c) : ScriptedAI(c)
     {
         NefarianGUID = 0;
-        srand(time(NULL));
-        switch (rand()%20)
+        switch (urand(0,19))
         {
             case 0:
                 DrakType1 = CREATURE_BRONZE_DRAKANOID;
@@ -184,7 +183,7 @@ struct TRINITY_DLL_DECL boss_victor_nefariusAI : public ScriptedAI
         m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
     }
 
-    void BeginEvent(Player* target)
+    void BeginEvent(Player *pTarget)
     {
         DoScriptText(SAY_GAMESBEGIN_2, m_creature);
 
@@ -200,7 +199,7 @@ struct TRINITY_DLL_DECL boss_victor_nefariusAI : public ScriptedAI
         m_creature->SetUInt32Value(UNIT_NPC_FLAGS,0);
         m_creature->setFaction(103);
         m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-        AttackStart(target);
+        AttackStart(pTarget);
     }
 
     void EnterCombat(Unit *who)
@@ -214,7 +213,7 @@ struct TRINITY_DLL_DECL boss_victor_nefariusAI : public ScriptedAI
         if (who && who->GetTypeId() == TYPEID_PLAYER && m_creature->IsHostileTo(who))
         {
             //Add them to our threat list
-            m_creature->AddThreat(who,0.0f);
+            m_creature->AddThreat(who, 0.0f);
         }
     }
 
@@ -229,8 +228,8 @@ struct TRINITY_DLL_DECL boss_victor_nefariusAI : public ScriptedAI
             //ShadowBoltTimer
             if (ShadowBoltTimer <= diff)
             {
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                    DoCast(target,SPELL_SHADOWBOLT);
+                if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                    DoCast(pTarget, SPELL_SHADOWBOLT);
 
                 ShadowBoltTimer = urand(3000,10000);
             } else ShadowBoltTimer -= diff;
@@ -238,8 +237,8 @@ struct TRINITY_DLL_DECL boss_victor_nefariusAI : public ScriptedAI
             //FearTimer
             if (FearTimer <= diff)
             {
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                    DoCast(target,SPELL_FEAR);
+                if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                    DoCast(pTarget, SPELL_FEAR);
 
                 FearTimer = 10000 + (rand()%10000);
             } else FearTimer -= diff;
@@ -250,7 +249,7 @@ struct TRINITY_DLL_DECL boss_victor_nefariusAI : public ScriptedAI
                 //Spawn 2 random types of creatures at the 2 locations
                 uint32 CreatureID;
                 Creature* Spawned = NULL;
-                Unit* target = NULL;
+                Unit *pTarget = NULL;
 
                 //1 in 3 chance it will be a chromatic
                 if (urand(0,2) == 0)
@@ -262,10 +261,10 @@ struct TRINITY_DLL_DECL boss_victor_nefariusAI : public ScriptedAI
 
                 //Spawn Creature and force it to start attacking a random target
                 Spawned = m_creature->SummonCreature(CreatureID,ADD_X1,ADD_Y1,ADD_Z1,5.000,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,5000);
-                target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true);
-                if (target && Spawned)
+                pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true);
+                if (pTarget && Spawned)
                 {
-                    Spawned->AI()->AttackStart(target);
+                    Spawned->AI()->AttackStart(pTarget);
                     Spawned->setFaction(103);
                 }
 
@@ -278,10 +277,10 @@ struct TRINITY_DLL_DECL boss_victor_nefariusAI : public ScriptedAI
                 ++SpawnedAdds;
 
                 Spawned = m_creature->SummonCreature(CreatureID,ADD_X2,ADD_Y2,ADD_Z2,5.000,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,5000);
-                target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true);
-                if (target && Spawned)
+                pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true);
+                if (pTarget && Spawned)
                 {
-                    Spawned->AI()->AttackStart(target);
+                    Spawned->AI()->AttackStart(pTarget);
                     Spawned->setFaction(103);
                 }
 
@@ -306,10 +305,10 @@ struct TRINITY_DLL_DECL boss_victor_nefariusAI : public ScriptedAI
 
                     //Spawn nef and have him attack a random target
                     Creature* Nefarian = m_creature->SummonCreature(CREATURE_NEFARIAN,NEF_X,NEF_Y,NEF_Z,0,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,120000);
-                    target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true);
-                    if (target && Nefarian)
+                    pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true);
+                    if (pTarget && Nefarian)
                     {
-                        Nefarian->AI()->AttackStart(target);
+                        Nefarian->AI()->AttackStart(pTarget);
                         Nefarian->setFaction(103);
                         NefarianGUID = Nefarian->GetGUID();
                     }

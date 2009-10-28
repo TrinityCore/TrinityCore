@@ -76,7 +76,7 @@ struct TRINITY_DLL_DECL mob_doom_blossomAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
-        if (CheckTeronTimer < diff)
+        if (CheckTeronTimer <= diff)
         {
             if (TeronGUID)
             {
@@ -90,13 +90,13 @@ struct TRINITY_DLL_DECL mob_doom_blossomAI : public ScriptedAI
                 Despawn();
 
             CheckTeronTimer = 5000;
-        }else CheckTeronTimer -= diff;
+        } else CheckTeronTimer -= diff;
 
         if (ShadowBoltTimer < diff && m_creature->isInCombat())
         {
             DoCast(SelectUnit(SELECT_TARGET_RANDOM, 0), SPELL_SHADOWBOLT);
             ShadowBoltTimer = 10000;
-        }else ShadowBoltTimer -= diff;
+        } else ShadowBoltTimer -= diff;
         return;
     }
 
@@ -154,30 +154,30 @@ struct TRINITY_DLL_DECL mob_shadowy_constructAI : public ScriptedAI
                 targets.push_back(pUnit);
         }
         targets.sort(ObjectDistanceOrder(m_creature));
-        Unit* target = targets.front();
-        if (target && m_creature->IsWithinDistInMap(target, m_creature->GetAttackDistance(target)))
+        Unit *pTarget = targets.front();
+        if (pTarget && m_creature->IsWithinDistInMap(pTarget, m_creature->GetAttackDistance(pTarget)))
         {
-            DoCast(target, SPELL_ATROPHY);
-            m_creature->AI()->AttackStart(target);
+            DoCast(pTarget, SPELL_ATROPHY);
+            m_creature->AI()->AttackStart(pTarget);
         }
     }
 
     void UpdateAI(const uint32 diff)
     {
-        if (CheckPlayerTimer < diff)
+        if (CheckPlayerTimer <= diff)
         {
             CheckPlayers();
             CheckPlayerTimer = 3000;
-        }else CheckPlayerTimer -= diff;
+        } else CheckPlayerTimer -= diff;
 
-        if (CheckTeronTimer < diff)
+        if (CheckTeronTimer <= diff)
         {
             Creature* Teron = (Unit::GetCreature((*m_creature), TeronGUID));
             if (!Teron || !Teron->isAlive() || Teron->IsInEvadeMode())
                 m_creature->DealDamage(m_creature, m_creature->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
 
             CheckTeronTimer = 5000;
-        }else CheckTeronTimer -= diff;
+        } else CheckTeronTimer -= diff;
     }
 };
 
@@ -266,7 +266,7 @@ struct TRINITY_DLL_DECL boss_teron_gorefiendAI : public ScriptedAI
     float CalculateRandomLocation(float Loc, uint32 radius)
     {
         float coord = Loc;
-        switch(rand()%2)
+        switch (urand(0,1))
         {
             case 0:
                 coord += rand()%radius;
@@ -329,12 +329,12 @@ struct TRINITY_DLL_DECL boss_teron_gorefiendAI : public ScriptedAI
                     Construct->CastSpell(Construct, SPELL_PASSIVE_SHADOWFORM, true);
                     SetThreatList(Construct);               // Use same function as Doom Blossom to set Threat List.
                     CAST_AI(mob_shadowy_constructAI, Construct->AI())->GhostGUID = GhostGUID;
-                    Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 1);
-                    if (!target)                             // someone's trying to solo.
-                        target = m_creature->getVictim();
+                    Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 1);
+                    if (!pTarget)                             // someone's trying to solo.
+                        pTarget = m_creature->getVictim();
 
-                    if (target)
-                        Construct->GetMotionMaster()->MoveChase(target);
+                    if (pTarget)
+                        Construct->GetMotionMaster()->MoveChase(pTarget);
                 }
             }
         }
@@ -344,7 +344,7 @@ struct TRINITY_DLL_DECL boss_teron_gorefiendAI : public ScriptedAI
     {
         if (Intro && !Done)
         {
-            if (AggroTimer < diff)
+            if (AggroTimer <= diff)
             {
                 m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
@@ -364,13 +364,13 @@ struct TRINITY_DLL_DECL boss_teron_gorefiendAI : public ScriptedAI
                     EnterEvadeMode();
                     return;
                 }
-            }else AggroTimer -= diff;
+            } else AggroTimer -= diff;
         }
 
         if (!UpdateVictim() || !Done)
             return;
 
-        if (SummonShadowsTimer < diff)
+        if (SummonShadowsTimer <= diff)
         {
             //MindControlGhost();
 
@@ -381,91 +381,91 @@ struct TRINITY_DLL_DECL boss_teron_gorefiendAI : public ScriptedAI
                 Shadow = m_creature->SummonCreature(CREATURE_SHADOWY_CONSTRUCT, X, m_creature->GetPositionY(), m_creature->GetPositionZ(), 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 0);
                 if (Shadow)
                 {
-                    Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 1);
-                    if (!target)
-                        target = m_creature->getVictim();
+                    Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 1);
+                    if (!pTarget)
+                        pTarget = m_creature->getVictim();
 
-                    if (target)
-                        Shadow->AI()->AttackStart(target);
+                    if (pTarget)
+                        Shadow->AI()->AttackStart(pTarget);
                 }
             }
             SummonShadowsTimer = 60000;
-        }else SummonShadowsTimer -= diff;
+        } else SummonShadowsTimer -= diff;
 
-        if (SummonDoomBlossomTimer < diff)
+        if (SummonDoomBlossomTimer <= diff)
         {
-            if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0))
+            if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
             {
-                float X = CalculateRandomLocation(target->GetPositionX(), 20);
-                float Y = CalculateRandomLocation(target->GetPositionY(), 20);
-                float Z = target->GetPositionZ();
+                float X = CalculateRandomLocation(pTarget->GetPositionX(), 20);
+                float Y = CalculateRandomLocation(pTarget->GetPositionY(), 20);
+                float Z = pTarget->GetPositionZ();
                 Z = m_creature->GetMap()->GetVmapHeight(X, Y, Z, true);
                 Creature* DoomBlossom = m_creature->SummonCreature(CREATURE_DOOM_BLOSSOM, X, Y, Z, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 20000);
                 if (DoomBlossom)
                 {
                     DoomBlossom->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                     DoomBlossom->setFaction(m_creature->getFaction());
-                    DoomBlossom->AddThreat(target, 1.0f);
+                    DoomBlossom->AddThreat(pTarget, 1.0f);
                     CAST_AI(mob_doom_blossomAI, DoomBlossom->AI())->SetTeronGUID(m_creature->GetGUID());
-                    target->CombatStart(DoomBlossom);
+                    pTarget->CombatStart(DoomBlossom);
                     SetThreatList(DoomBlossom);
                     SummonDoomBlossomTimer = 35000;
                 }
             }
-        }else SummonDoomBlossomTimer -= diff;
+        } else SummonDoomBlossomTimer -= diff;
 
-        if (IncinerateTimer < diff)
+        if (IncinerateTimer <= diff)
         {
-            Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 1);
-            if (!target)
-                target = m_creature->getVictim();
+            Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 1);
+            if (!pTarget)
+                pTarget = m_creature->getVictim();
 
-            if (target)
+            if (pTarget)
             {
                 DoScriptText(RAND(SAY_SPECIAL1,SAY_SPECIAL2), m_creature);
-                DoCast(target, SPELL_INCINERATE);
+                DoCast(pTarget, SPELL_INCINERATE);
                 IncinerateTimer = 20000 + rand()%31 * 1000;
             }
-        }else IncinerateTimer -= diff;
+        } else IncinerateTimer -= diff;
 
-        if (CrushingShadowsTimer < diff)
+        if (CrushingShadowsTimer <= diff)
         {
-            Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0);
-            if (target && target->isAlive())
-                DoCast(target, SPELL_CRUSHING_SHADOWS);
+            Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0);
+            if (pTarget && pTarget->isAlive())
+                DoCast(pTarget, SPELL_CRUSHING_SHADOWS);
             CrushingShadowsTimer = 10000 + rand()%16 * 1000;
-        }else CrushingShadowsTimer -= diff;
+        } else CrushingShadowsTimer -= diff;
 
         /*** NOTE FOR FUTURE DEV: UNCOMMENT BELOW ONLY IF MIND CONTROL IS FULLY IMPLEMENTED **/
-        /*if (ShadowOfDeathTimer < diff)
+        /*if (ShadowOfDeathTimer <= diff)
         {
-            Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 1);
+            Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 1);
 
-            if (!target)
-               target = m_creature->getVictim();
+            if (!pTarget)
+               pTarget = m_creature->getVictim();
 
-            if (target && target->isAlive() && target->GetTypeId() == TYPEID_PLAYER)
+            if (pTarget && pTarget->isAlive() && pTarget->GetTypeId() == TYPEID_PLAYER)
             {
-                DoCast(target, SPELL_SHADOW_OF_DEATH);
-                GhostGUID = target->GetGUID();
+                DoCast(pTarget, SPELL_SHADOW_OF_DEATH);
+                GhostGUID = pTarget->GetGUID();
                 ShadowOfDeathTimer = 30000;
                 SummonShadowsTimer = 53000; // Make it VERY close but slightly less so that we can check if the aura is still on the player
             }
-        }else ShadowOfDeathTimer -= diff;*/
+        } else ShadowOfDeathTimer -= diff;*/
 
-        if (RandomYellTimer < diff)
+        if (RandomYellTimer <= diff)
         {
             DoScriptText(RAND(SAY_SPELL1,SAY_SPELL2), m_creature);
             RandomYellTimer = 50000 + rand()%51 * 1000;
-        }else RandomYellTimer -= diff;
+        } else RandomYellTimer -= diff;
 
         if (!m_creature->HasAura(SPELL_BERSERK))
         {
-            if (EnrageTimer < diff)
+            if (EnrageTimer <= diff)
         {
             DoCast(m_creature, SPELL_BERSERK);
             DoScriptText(SAY_ENRAGE, m_creature);
-        }else EnrageTimer -= diff;
+        } else EnrageTimer -= diff;
         }
 
         DoMeleeAttackIfReady();

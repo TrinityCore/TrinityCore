@@ -42,10 +42,6 @@ struct TRINITY_DLL_DECL boss_kruulAI : public ScriptedAI
     uint32 VoidBolt_Timer;
     uint32 Rage_Timer;
     uint32 Hound_Timer;
-    int Rand;
-    int RandX;
-    int RandY;
-    Creature* Summoned;
 
     void Reset()
     {
@@ -66,28 +62,12 @@ struct TRINITY_DLL_DECL boss_kruulAI : public ScriptedAI
     {
         // When a player, pet or totem gets killed, Lord Kazzak casts this spell to instantly regenerate 70,000 health.
         DoCast(m_creature,SPELL_CAPTURESOUL);
-
     }
 
-    void SummonHounds(Unit* victim)
+    void SummonHounds(Unit* pVictim)
     {
-        Rand = rand()%10;
-        switch (rand()%2)
-        {
-            case 0: RandX = 0 - Rand; break;
-            case 1: RandX = 0 + Rand; break;
-        }
-        Rand = 0;
-        Rand = rand()%10;
-        switch (rand()%2)
-        {
-            case 0: RandY = 0 - Rand; break;
-            case 1: RandY = 0 + Rand; break;
-        }
-        Rand = 0;
-        Summoned = DoSpawnCreature(19207, RandX, RandY, 0, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 300000);
-        if (Summoned)
-            (Summoned->AI())->AttackStart(victim);
+        if (Creature *Hound = DoSpawnCreature(19207, RAND(irand(0,-9),irand(0,9)), RAND(irand(0,-9),irand(0,9)), 0, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 300000))
+            Hound->AI()->AttackStart(pVictim);
     }
 
     void UpdateAI(const uint32 diff)
@@ -97,72 +77,64 @@ struct TRINITY_DLL_DECL boss_kruulAI : public ScriptedAI
             return;
 
         //ShadowVolley_Timer
-        if (ShadowVolley_Timer < diff)
+        if (ShadowVolley_Timer <= diff)
         {
-            if (rand()%100 < 46)
-            {
+            if (urand(0,99) < 45)
                 DoCast(m_creature->getVictim(),SPELL_SHADOWVOLLEY);
-            }
 
             ShadowVolley_Timer = 5000;
-        }else ShadowVolley_Timer -= diff;
+        } else ShadowVolley_Timer -= diff;
 
         //Cleave_Timer
-        if (Cleave_Timer < diff)
+        if (Cleave_Timer <= diff)
         {
-            if (rand()%100 < 50)
-            {
+            if (urand(0,1))
                 DoCast(m_creature->getVictim(),SPELL_CLEAVE);
-            }
 
             Cleave_Timer = 10000;
-        }else Cleave_Timer -= diff;
+        } else Cleave_Timer -= diff;
 
         //ThunderClap_Timer
-        if (ThunderClap_Timer < diff)
+        if (ThunderClap_Timer <= diff)
         {
-            if (rand()%100 < 20)
-            {
+            if (urand(0,9) < 2)
                 DoCast(m_creature->getVictim(),SPELL_THUNDERCLAP);
-            }
 
             ThunderClap_Timer = 12000;
-        }else ThunderClap_Timer -= diff;
+        } else ThunderClap_Timer -= diff;
 
         //TwistedReflection_Timer
-        if (TwistedReflection_Timer < diff)
+        if (TwistedReflection_Timer <= diff)
         {
             DoCast(m_creature->getVictim(),SPELL_TWISTEDREFLECTION);
             TwistedReflection_Timer = 30000;
-        }else TwistedReflection_Timer -= diff;
+        } else TwistedReflection_Timer -= diff;
 
         //VoidBolt_Timer
-        if (VoidBolt_Timer < diff)
+        if (VoidBolt_Timer <= diff)
         {
-            if (rand()%100 < 40)
-            {
+            if (urand(0,9) < 4)
                 DoCast(m_creature->getVictim(),SPELL_VOIDBOLT);
-            }
 
             VoidBolt_Timer = 18000;
-        }else VoidBolt_Timer -= diff;
+        } else VoidBolt_Timer -= diff;
 
         //Rage_Timer
-        if (Rage_Timer < diff)
+        if (Rage_Timer <= diff)
         {
             DoCast(m_creature,SPELL_RAGE);
             Rage_Timer = 70000;
-        }else Rage_Timer -= diff;
+        } else Rage_Timer -= diff;
 
         //Hound_Timer
-        if (Hound_Timer < diff)
+        if (Hound_Timer <= diff)
         {
             SummonHounds(m_creature->getVictim());
             SummonHounds(m_creature->getVictim());
             SummonHounds(m_creature->getVictim());
 
             Hound_Timer = 45000;
-        }else Hound_Timer -= diff;
+        } else Hound_Timer -= diff;
 
         DoMeleeAttackIfReady();
     }

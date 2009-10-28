@@ -182,7 +182,7 @@ struct TRINITY_DLL_DECL boss_morogrim_tidewalkerAI : public ScriptedAI
             return;
 
         //Earthquake_Timer
-        if (Earthquake_Timer < diff)
+        if (Earthquake_Timer <= diff)
         {
             if (!Earthquake)
             {
@@ -196,45 +196,45 @@ struct TRINITY_DLL_DECL boss_morogrim_tidewalkerAI : public ScriptedAI
 
                 for (uint8 i = 0; i < 10; ++i)
                 {
-                    Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0);
+                    Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0);
                     Creature* Murloc = m_creature->SummonCreature(MurlocCords[i][0],MurlocCords[i][1],MurlocCords[i][2],MurlocCords[i][3],MurlocCords[i][4], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 10000);
-                    if (target && Murloc)
-                        Murloc->AI()->AttackStart(target);
+                    if (pTarget && Murloc)
+                        Murloc->AI()->AttackStart(pTarget);
                 }
                 DoScriptText(EMOTE_EARTHQUAKE, m_creature);
                 Earthquake = false;
                 Earthquake_Timer = 40000+rand()%5000;
             }
-        }else Earthquake_Timer -= diff;
+        } else Earthquake_Timer -= diff;
 
         //TidalWave_Timer
-        if (TidalWave_Timer < diff)
+        if (TidalWave_Timer <= diff)
         {
             DoCast(m_creature->getVictim(), SPELL_TIDAL_WAVE);
             TidalWave_Timer = 20000;
-        }else TidalWave_Timer -= diff;
+        } else TidalWave_Timer -= diff;
 
         if (!Phase2)
         {
             //WateryGrave_Timer
-            if (WateryGrave_Timer < diff)
+            if (WateryGrave_Timer <= diff)
             {
                 //Teleport 4 players under the waterfalls
-                Unit *target;
+                Unit *pTarget;
                 using std::set;
                 set<int>list;
                 set<int>::iterator itr;
                 for (uint8 i = 0; i < 4; ++i)
                 {
                     counter = 0;
-                    do{target = SelectTarget(SELECT_TARGET_RANDOM, 1, 50, true);    //target players only
+                    do{pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1, 50, true);    //pTarget players only
                     if (counter < Playercount)
                         break;
-                    if (target) itr = list.find(target->GetGUID());
+                    if (pTarget) itr = list.find(pTarget->GetGUID());
                     counter++;
                     }while(itr != list.end());
-                    if (target){list.insert(target->GetGUID());
-                    ApplyWateryGrave(target, i);
+                    if (pTarget){list.insert(pTarget->GetGUID());
+                    ApplyWateryGrave(pTarget, i);
                     }
                 }
 
@@ -242,7 +242,7 @@ struct TRINITY_DLL_DECL boss_morogrim_tidewalkerAI : public ScriptedAI
 
                 DoScriptText(EMOTE_WATERY_GRAVE, m_creature);
                 WateryGrave_Timer = 30000;
-            }else WateryGrave_Timer -= diff;
+            } else WateryGrave_Timer -= diff;
 
             //Start Phase2
             if ((m_creature->GetHealth()*100 / m_creature->GetMaxHealth()) < 25)
@@ -251,27 +251,30 @@ struct TRINITY_DLL_DECL boss_morogrim_tidewalkerAI : public ScriptedAI
         else
         {
             //WateryGlobules_Timer
-            if (WateryGlobules_Timer < diff)
+            if (WateryGlobules_Timer <= diff)
             {
-                Unit* globuletarget;
+                Unit* pGlobuleTarget;
                 using std::set;
                 set<int>globulelist;
                 set<int>::iterator itr;
-                for (int8 g = 0; g < 4; g++)  //one unit cant cast more than one spell per update, so some players have to cast for us XD
+                for (uint8 g = 0; g < 4; g++)  //one unit can't cast more than one spell per update, so some players have to cast for us XD
                 {
                     counter = 0;
-                    do {globuletarget = SelectTarget(SELECT_TARGET_RANDOM, 0,50,true);
-                    if (globuletarget) itr = globulelist.find(globuletarget->GetGUID());
-                    if (counter > Playercount)
-                        break;
-                    counter++;
+                    do {
+                        pGlobuleTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 50, true);
+                        if (pGlobuleTarget)
+                            itr = globulelist.find(pGlobuleTarget->GetGUID());
+                        if (counter > Playercount)
+                            break;
+                        ++counter;
                     } while (itr != globulelist.end());
-                    if (globuletarget)globulelist.insert(globuletarget->GetGUID());
-                    globuletarget->CastSpell(globuletarget, globulespell[g], true);
+                    if (pGlobuleTarget)
+                        globulelist.insert(pGlobuleTarget->GetGUID());
+                    pGlobuleTarget->CastSpell(pGlobuleTarget, globulespell[g], true);
                 }
                 DoScriptText(EMOTE_WATERY_GLOBULES, m_creature);
                 WateryGlobules_Timer = 25000;
-            }else WateryGlobules_Timer -= diff;
+            } else WateryGlobules_Timer -= diff;
         }
 
         DoMeleeAttackIfReady();
@@ -305,7 +308,7 @@ struct TRINITY_DLL_DECL mob_water_globuleAI : public ScriptedAI
 
         if (who->isTargetableForAttack() && who->isInAccessiblePlaceFor(m_creature) && m_creature->IsHostileTo(who))
         {
-            //no attack radius check - it attacks the first target that moves in his los
+            //no attack radius check - it attacks the first pTarget that moves in his los
             //who->RemoveSpellsCausingAura(SPELL_AURA_MOD_STEALTH);
             AttackStart(who);
         }
@@ -317,7 +320,7 @@ struct TRINITY_DLL_DECL mob_water_globuleAI : public ScriptedAI
         if (!UpdateVictim())
             return;
 
-        if (Check_Timer < diff)
+        if (Check_Timer <= diff)
         {
             if (m_creature->IsWithinDistInMap(m_creature->getVictim(), 5))
             {
@@ -328,7 +331,7 @@ struct TRINITY_DLL_DECL mob_water_globuleAI : public ScriptedAI
                 return;
             }
             Check_Timer = 500;
-        }else Check_Timer -= diff;
+        } else Check_Timer -= diff;
 
         //do NOT deal any melee damage to the target.
     }

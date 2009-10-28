@@ -177,11 +177,11 @@ struct TRINITY_DLL_DECL boss_janalaiAI : public ScriptedAI
 //        DoZoneInCombat();
     }
 
-    void DamageDeal(Unit* target, uint32 &damage)
+    void DamageDeal(Unit *pTarget, uint32 &damage)
     {
         if (isFlameBreathing)
         {
-            if (!m_creature->HasInArc(M_PI/6, target))
+            if (!m_creature->HasInArc(M_PI/6, pTarget))
                 damage = 0;
         }
     }
@@ -294,17 +294,17 @@ struct TRINITY_DLL_DECL boss_janalaiAI : public ScriptedAI
                 DoCast(FireBomb, SPELL_FIRE_BOMB_THROW, true);
                 FireBomb->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             }
-            BombCount++;
+            ++BombCount;
             if (BombCount == 40)
             {
                 BombSequenceTimer = 5000;
-            }else BombSequenceTimer = 100;
+            } else BombSequenceTimer = 100;
         }
         else
         {
             Boom();
             isBombing = false;
-            BombTimer = 20000+rand()%20000;
+            BombTimer = urand(20000,40000);
             m_creature->RemoveAurasDueToSpell(SPELL_FIRE_BOMB_CHANNEL);
             if (EnrageTimer <= 10000)
                 EnrageTimer = 0;
@@ -318,17 +318,17 @@ struct TRINITY_DLL_DECL boss_janalaiAI : public ScriptedAI
         if (isFlameBreathing)
         {
             if (!m_creature->IsNonMeleeSpellCasted(false))
-            {
                 isFlameBreathing = false;
-            }else return;
+            else
+                return;
         }
 
         if (isBombing)
         {
-            if (BombSequenceTimer < diff)
-            {
+            if (BombSequenceTimer <= diff)
                 HandleBombSequence();
-            }else BombSequenceTimer -= diff;
+            else
+                BombSequenceTimer -= diff;
             return;
         }
 
@@ -339,7 +339,7 @@ struct TRINITY_DLL_DECL boss_janalaiAI : public ScriptedAI
         if (!enraged && m_creature->GetHealth() * 4 < m_creature->GetMaxHealth())
             EnrageTimer = 0;
 
-        if (EnrageTimer < diff)
+        if (EnrageTimer <= diff)
         {
             if (!enraged)
             {
@@ -353,9 +353,9 @@ struct TRINITY_DLL_DECL boss_janalaiAI : public ScriptedAI
                 m_creature->CastSpell(m_creature, SPELL_BERSERK, true);
                 EnrageTimer = 300000;
             }
-        }else EnrageTimer -= diff;
+        } else EnrageTimer -= diff;
 
-        if (BombTimer < diff)
+        if (BombTimer <= diff)
         {
             DoScriptText(SAY_FIRE_BOMBS, m_creature);
 
@@ -377,14 +377,12 @@ struct TRINITY_DLL_DECL boss_janalaiAI : public ScriptedAI
             if (!pMap->IsDungeon()) return;
             Map::PlayerList const &PlayerList = pMap->GetPlayers();
             for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
-            {
                 if (Player* i_pl = i->getSource())
                     if (i_pl->isAlive())
                         DoTeleportPlayer(i_pl, JanalainPos[0][0]-5+rand()%10, JanalainPos[0][1]-5+rand()%10, JanalainPos[0][2], 0);
-            }
             //m_creature->CastSpell(Temp, SPELL_SUMMON_PLAYERS, true); // core bug, spell does not work if too far
             return;
-        }else BombTimer -= diff;
+        } else BombTimer -= diff;
 
         if (!noeggs)
         {
@@ -400,7 +398,7 @@ struct TRINITY_DLL_DECL boss_janalaiAI : public ScriptedAI
                 HatchAllEggs(2);
                 noeggs = true;
             }
-            else if (HatcherTimer < diff)
+            else if (HatcherTimer <= diff)
             {
                 if (HatchAllEggs(0))
                 {
@@ -411,25 +409,25 @@ struct TRINITY_DLL_DECL boss_janalaiAI : public ScriptedAI
                 }
                 else
                     noeggs = true;
-            }else HatcherTimer -= diff;
+            } else HatcherTimer -= diff;
         }
 
         EnterEvadeIfOutOfCombatArea(diff);
 
         DoMeleeAttackIfReady();
 
-        if (FireBreathTimer < diff)
+        if (FireBreathTimer <= diff)
         {
-            if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM,0))
+            if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM,0))
             {
                 m_creature->AttackStop();
                 m_creature->GetMotionMaster()->Clear();
-                m_creature->CastSpell(target, SPELL_FLAME_BREATH, false);
+                m_creature->CastSpell(pTarget, SPELL_FLAME_BREATH, false);
                 m_creature->StopMoving();
                 isFlameBreathing = true;
             }
             FireBreathTimer = 8000;
-        }else FireBreathTimer -= diff;
+        } else FireBreathTimer -= diff;
     }
 };
 
@@ -515,18 +513,13 @@ struct TRINITY_DLL_DECL mob_amanishi_hatcherAI : public ScriptedAI
         //error_log("Eggs %d at %d", templist.size(), side);
 
         for (std::list<Creature*>::iterator i = templist.begin(); i != templist.end() && num > 0; ++i)
-        {
             if ((*i)->GetDisplayId() != 11686)
             {
                (*i)->CastSpell(*i, SPELL_HATCH_EGG, false);
                 num--;
             }
-        }
 
-        if (num)
-            return false;   // no more templist
-        else
-            return true;
+        return num != 0;   // if num == 0, no more templist
     }
 
     void EnterCombat(Unit* who) {}
@@ -548,8 +541,7 @@ struct TRINITY_DLL_DECL mob_amanishi_hatcherAI : public ScriptedAI
     {
         if (!pInstance || !(pInstance->GetData(DATA_JANALAIEVENT) == IN_PROGRESS))
         {
-            m_creature->SetVisibility(VISIBILITY_OFF);
-            m_creature->setDeathState(JUST_DIED);
+            m_creature->DisappearAndDie();
             return;
         }
 
@@ -559,17 +551,17 @@ struct TRINITY_DLL_DECL mob_amanishi_hatcherAI : public ScriptedAI
             {
                 m_creature->GetMotionMaster()->Clear();
                 m_creature->GetMotionMaster()->MovePoint(0,hatcherway[side][waypoint][0],hatcherway[side][waypoint][1],hatcherway[side][waypoint][2]);
-                waypoint++;
+                ++waypoint;
                 WaitTimer = 0;
             }
         }
         else
         {
-            if (WaitTimer < diff)
+            if (WaitTimer <= diff)
             {
                 if (HatchEggs(HatchNum))
                 {
-                    HatchNum++;
+                    ++HatchNum;
                     WaitTimer = 10000;
                 }
                 else if (!hasChangedSide)
@@ -581,11 +573,9 @@ struct TRINITY_DLL_DECL mob_amanishi_hatcherAI : public ScriptedAI
                     hasChangedSide = true;
                 }
                 else
-                {
-                    m_creature->SetVisibility(VISIBILITY_OFF);
-                    m_creature->setDeathState(JUST_DIED);
-                }
-            }else WaitTimer -= diff;
+                    m_creature->DisappearAndDie();
+
+            } else WaitTimer -= diff;
         }
     }
 };
@@ -622,19 +612,18 @@ struct TRINITY_DLL_DECL mob_hatchlingAI : public ScriptedAI
     {
         if (!pInstance || !(pInstance->GetData(DATA_JANALAIEVENT) == IN_PROGRESS))
         {
-            m_creature->SetVisibility(VISIBILITY_OFF);
-            m_creature->setDeathState(JUST_DIED);
+            m_creature->DisappearAndDie();
             return;
         }
 
         if (!UpdateVictim())
             return;
 
-        if (BuffetTimer < diff)
+        if (BuffetTimer <= diff)
         {
             m_creature->CastSpell(m_creature->getVictim(), SPELL_FLAMEBUFFET, false);
             BuffetTimer = 10000;
-        }else BuffetTimer -= diff;
+        } else BuffetTimer -= diff;
 
         DoMeleeAttackIfReady();
     }

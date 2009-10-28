@@ -279,7 +279,7 @@ struct TRINITY_DLL_DECL npc_rinjiAI : public npc_escortAI
         {
             if (HasEscortState(STATE_ESCORT_ESCORTING) && m_uiPostEventCount)
             {
-                if (m_uiPostEventTimer < uiDiff)
+                if (m_uiPostEventTimer <= uiDiff)
                 {
                     m_uiPostEventTimer = 3000;
 

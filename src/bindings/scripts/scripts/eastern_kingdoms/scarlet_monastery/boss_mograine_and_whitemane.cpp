@@ -262,7 +262,7 @@ struct TRINITY_DLL_DECL boss_high_inquisitor_whitemaneAI : public ScriptedAI
         if (m_bCanResurrect)
         {
             //When casting resuruction make sure to delay so on rez when reinstate battle deepsleep runs out
-            if (m_pInstance && m_uiWait_Timer < uiDiff)
+            if (m_pInstance && m_uiWait_Timer <= uiDiff)
             {
                 if (Unit* Mograine = Unit::GetUnit((*m_creature), m_pInstance->GetData64(DATA_MOGRAINE)))
                 {

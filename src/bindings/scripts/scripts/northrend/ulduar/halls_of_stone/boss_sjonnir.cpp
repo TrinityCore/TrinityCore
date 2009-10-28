@@ -118,26 +118,26 @@ struct TRINITY_DLL_DECL boss_sjonnirAI : public ScriptedAI
         if (!UpdateVictim())
             return;
 
-        if (uiChainLightningTimer < diff)
+        if (uiChainLightningTimer <= diff)
         {
             if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                 DoCast(pTarget, HEROIC(SPELL_CHAIN_LIGHTING, H_SPELL_CHAIN_LIGHTING));
             uiChainLightningTimer = 10000 + rand()%5000;
         } else uiChainLightningTimer -= diff;
 
-        if (uiLightningShieldTimer < diff)
+        if (uiLightningShieldTimer <= diff)
         {
             DoCast(m_creature, HEROIC(SPELL_LIGHTING_SHIELD, H_SPELL_LIGHTING_SHIELD));
             uiLightningShieldTimer -= diff;
         }
 
-        if (uiStaticChargeTimer < diff)
+        if (uiStaticChargeTimer <= diff)
         {
             DoCast(m_creature->getVictim(), HEROIC(SPELL_STATIC_CHARGE, H_SPELL_STATIC_CHARGE));
             uiStaticChargeTimer = 20000 + rand()%5000;
         } uiStaticChargeTimer -= diff;
 
-        if (uiLightningRingTimer < diff)
+        if (uiLightningRingTimer <= diff)
         {
             if (m_creature->IsNonMeleeSpellCasted(false))
                 m_creature->InterruptNonMeleeSpells(false);
@@ -145,7 +145,7 @@ struct TRINITY_DLL_DECL boss_sjonnirAI : public ScriptedAI
             uiLightningRingTimer = 30000 + rand()%5000;
         } else uiLightningRingTimer -= diff;
 
-        if (uiSummonTimer < diff)
+        if (uiSummonTimer <= diff)
         {
             uint32 uiSummonPipe = rand()%2;
             m_creature->SummonCreature(uiEncounterTimer > DATA_TIME_BEFORE_OOZE ? CREATURE_MALFORMED_OOZE :
@@ -157,7 +157,7 @@ struct TRINITY_DLL_DECL boss_sjonnirAI : public ScriptedAI
 
         if (!bIsFrenzy)
         {
-          if (uiFrenzyTimer < diff)
+          if (uiFrenzyTimer <= diff)
           {
               DoCast(m_creature, SPELL_FRENZY);
               bIsFrenzy = true;
@@ -234,7 +234,7 @@ struct TRINITY_DLL_DECL mob_malformed_oozeAI : public ScriptedAI
     {
         if (bIsMerging)
         {
-            if (uiMergeTimer < diff)
+            if (uiMergeTimer <= diff)
             {
                 if (Creature* pTemp = m_creature->FindNearestCreature(CREATURE_MALFORMED_OOZE, 1.0f, true))
                 {

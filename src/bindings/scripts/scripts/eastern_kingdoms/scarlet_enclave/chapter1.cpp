@@ -146,7 +146,7 @@ struct TRINITY_DLL_DECL npc_unworthy_initiateAI : public ScriptedAI
         }
     }
 
-    void EventStart(Creature* anchor, Player* target)
+    void EventStart(Creature* anchor, Player *pTarget)
     {
         wait_timer = 5000;
         phase = PHASE_TO_EQUIP;
@@ -158,8 +158,8 @@ struct TRINITY_DLL_DECL npc_unworthy_initiateAI : public ScriptedAI
         float z;
         anchor->GetContactPoint(me, anchorX, anchorY, z, 1.0f);
 
-        playerGUID = target->GetGUID();
-        DoScriptText(say_event_start[rand()%8], me, target);
+        playerGUID = pTarget->GetGUID();
+        DoScriptText(say_event_start[rand()%8], me, pTarget);
     }
 
     void UpdateAI(const uint32 diff);
@@ -247,8 +247,8 @@ void npc_unworthy_initiateAI::UpdateAI(const uint32 diff)
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
                 phase = PHASE_ATTACKING;
 
-                if (Player* target = Unit::GetPlayer(playerGUID))
-                    me->AI()->AttackStart(target);
+                if (Player *pTarget = Unit::GetPlayer(playerGUID))
+                    me->AI()->AttackStart(pTarget);
                 wait_timer = 0;
             }
         }
@@ -538,7 +538,7 @@ struct TRINITY_DLL_DECL npc_dark_rider_of_acherusAI : public ScriptedAI
                 default:
                     break;
             }
-        }else PhaseTimer -= diff;
+        } else PhaseTimer -= diff;
 
     }
 
@@ -878,7 +878,7 @@ struct TRINITY_DLL_DECL npc_scarlet_minerAI : public npc_escortAI
         AddWaypoint(11, 2202.595947, -6061.325684, 5.882018 );
         AddWaypoint(12, 2188.974609, -6080.866699, 3.370027 );
 
-        if(rand()%2)
+        if(urand(0,1))
         {
             AddWaypoint(13, 2176.483887, -6110.407227, 1.855181 );
             AddWaypoint(14, 2172.516602, -6146.752441, 1.074235 );
@@ -956,7 +956,7 @@ struct TRINITY_DLL_DECL npc_scarlet_minerAI : public npc_escortAI
                         car->AI()->DoAction();
                     IntroPhase = 0;
                 }
-            }else IntroTimer-=diff;
+            } else IntroTimer-=diff;
         }
         npc_escortAI::UpdateAI(diff);
     }
@@ -987,9 +987,9 @@ bool GOHello_go_inconspicuous_mine_car(Player* pPlayer, GameObject* pGO)
                 {
                     car->AI()->SetGUID(miner->GetGUID());
                     CAST_AI(npc_scarlet_minerAI, miner->AI())->InitCartQuest(pPlayer);
-                }else error_log("TSCR: GOHello_go_inconspicuous_mine_car vehicle entry is not correct.");
-            }else error_log("TSCR: GOHello_go_inconspicuous_mine_car player is not on the vehicle.");
-        }else error_log("TSCR: GOHello_go_inconspicuous_mine_car Scarlet Miner cant be found by script.");
+                } else error_log("TSCR: GOHello_go_inconspicuous_mine_car vehicle entry is not correct.");
+            } else error_log("TSCR: GOHello_go_inconspicuous_mine_car player is not on the vehicle.");
+        } else error_log("TSCR: GOHello_go_inconspicuous_mine_car Scarlet Miner cant be found by script.");
     }
     return true;
 }

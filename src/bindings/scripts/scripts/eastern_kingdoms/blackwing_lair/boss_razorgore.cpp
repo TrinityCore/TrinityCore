@@ -102,8 +102,8 @@ struct TRINITY_DLL_DECL boss_razorgoreAI : public ScriptedAI
 
         // Aura Check. If the gamer is affected by confliguration we attack a random gamer.
         if (m_creature->getVictim() && m_creature->getVictim()->HasAura(SPELL_CONFLAGRATION))
-            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 100, true))
-                m_creature->TauntApply(target);
+            if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1, 100, true))
+                m_creature->TauntApply(pTarget);
 
         DoMeleeAttackIfReady();
     }

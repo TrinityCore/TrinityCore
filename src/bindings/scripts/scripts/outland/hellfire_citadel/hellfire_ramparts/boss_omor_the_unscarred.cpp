@@ -112,17 +112,17 @@ struct TRINITY_DLL_DECL boss_omor_the_unscarredAI : public ScriptedAI
         //only two may be wrong, perhaps increase timer and spawn periodically instead.
         if (SummonedCount < 2)
         {
-            if (Summon_Timer < diff)
+            if (Summon_Timer <= diff)
             {
                 m_creature->InterruptNonMeleeSpells(false);
                 DoCast(m_creature,SPELL_SUMMON_FIENDISH_HOUND);
                 Summon_Timer = 15000+rand()%15000;
-            }else Summon_Timer -= diff;
+            } else Summon_Timer -= diff;
         }
 
         if (CanPullBack)
         {
-            if (ShadowWhip_Timer < diff)
+            if (ShadowWhip_Timer <= diff)
             {
                 if (Player* temp = Unit::GetPlayer(PlayerGUID))
                 {
@@ -136,9 +136,9 @@ struct TRINITY_DLL_DECL boss_omor_the_unscarredAI : public ScriptedAI
                 PlayerGUID = 0;
                 ShadowWhip_Timer = 2000;
                 CanPullBack = false;
-            }else ShadowWhip_Timer -= diff;
+            } else ShadowWhip_Timer -= diff;
         }
-        else if (OrbitalStrike_Timer < diff)
+        else if (OrbitalStrike_Timer <= diff)
         {
             Unit* temp = NULL;
             if (m_creature->IsWithinMeleeRange(m_creature->getVictim()))
@@ -154,39 +154,39 @@ struct TRINITY_DLL_DECL boss_omor_the_unscarredAI : public ScriptedAI
                 if (PlayerGUID)
                     CanPullBack = true;
             }
-        }else OrbitalStrike_Timer -= diff;
+        } else OrbitalStrike_Timer -= diff;
 
         if ((m_creature->GetHealth()*100) / m_creature->GetMaxHealth() < 20)
         {
-            if (DemonicShield_Timer < diff)
+            if (DemonicShield_Timer <= diff)
             {
                 DoCast(m_creature,SPELL_DEMONIC_SHIELD);
                 DemonicShield_Timer = 15000;
-            }else DemonicShield_Timer -= diff;
+            } else DemonicShield_Timer -= diff;
         }
 
-        if (Aura_Timer < diff)
+        if (Aura_Timer <= diff)
         {
             DoScriptText(SAY_CURSE, m_creature);
 
-            if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM,0))
+            if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM,0))
             {
-                DoCast(target,HEROIC(SPELL_TREACHEROUS_AURA, H_SPELL_BANE_OF_TREACHERY));
+                DoCast(pTarget,HEROIC(SPELL_TREACHEROUS_AURA, H_SPELL_BANE_OF_TREACHERY));
                 Aura_Timer = 8000+rand()%8000;
             }
-        }else Aura_Timer -= diff;
+        } else Aura_Timer -= diff;
 
-        if (Shadowbolt_Timer < diff)
+        if (Shadowbolt_Timer <= diff)
         {
-            if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM,0))
+            if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM,0))
             {
-                if (target)
-                    target = m_creature->getVictim();
+                if (pTarget)
+                    pTarget = m_creature->getVictim();
 
-                DoCast(target,HEROIC(SPELL_SHADOW_BOLT, H_SPELL_SHADOW_BOLT));
+                DoCast(pTarget,HEROIC(SPELL_SHADOW_BOLT, H_SPELL_SHADOW_BOLT));
                 Shadowbolt_Timer = 4000+rand()%2500;
             }
-        }else Shadowbolt_Timer -= diff;
+        } else Shadowbolt_Timer -= diff;
 
         DoMeleeAttackIfReady();
     }

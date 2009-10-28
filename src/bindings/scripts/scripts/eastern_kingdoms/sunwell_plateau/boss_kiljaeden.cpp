@@ -109,7 +109,7 @@ enum SpellIds
     SPELL_ARMAGEDDON_VISUAL                             = 45911, // Does the hellfire visual to indicate where the meteor missle lands
     SPELL_ARMAGEDDON_VISUAL2                            = 45914, // Does the light visual to indicate where the meteor missle lands
     SPELL_ARMAGEDDON_VISUAL3                            = 24207, // This shouldn't correct but same as seen on the movie
-    SPELL_ARMAGEDDON_SUMMON_TRIGGER                     = 45921, // Summons the triggers that cast the spells on himself need random target select
+    SPELL_ARMAGEDDON_SUMMON_TRIGGER                     = 45921, // Summons the triggers that cast the spells on himself need random pTarget select
     SPELL_ARMAGEDDON_DAMAGE                             = 45915, // This does the area damage
 
     /* Shield Orb Spells*/
@@ -560,16 +560,16 @@ struct TRINITY_DLL_DECL boss_kiljaedenAI : public Scripted_NoMovementAI
         for (uint8 i = 0; i < 4; ++i)
         {
             float x,y,z;
-            Unit* target;
+            Unit *pTarget;
             for (uint8 z = 0; z < 6; ++z)
             {
-                target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true);
-                if (!target->HasAura(SPELL_VENGEANCE_OF_THE_BLUE_FLIGHT,0))break;
+                pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true);
+                if (!pTarget->HasAura(SPELL_VENGEANCE_OF_THE_BLUE_FLIGHT,0))break;
             }
-            target->GetPosition(x,y,z);
+            pTarget->GetPosition(x,y,z);
             Creature* SinisterReflection = m_creature->SummonCreature(CREATURE_SINISTER_REFLECTION, x,y,z,0, TEMPSUMMON_CORPSE_DESPAWN, 0);
             if (SinisterReflection)
-                SinisterReflection->AI()->AttackStart(target);
+                SinisterReflection->AI()->AttackStart(pTarget);
         }
     }
 
@@ -580,7 +580,7 @@ struct TRINITY_DLL_DECL boss_kiljaedenAI : public Scripted_NoMovementAI
 
         if (IsWaiting)
         {
-            if (WaitTimer < diff)
+            if (WaitTimer <= diff)
             {
                 IsWaiting = false;
                 ChangeTimers(false, 0);
@@ -702,16 +702,16 @@ struct TRINITY_DLL_DECL boss_kiljaedenAI : public Scripted_NoMovementAI
                         TimerIsDeactiveted[TIMER_ORBS_EMPOWER] = true;
                         break;
                     case TIMER_ARMAGEDDON: //Phase 4
-                        Unit* target;
+                        Unit *pTarget;
                         for (uint8 z = 0; z < 6; ++z)
                         {
-                            target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true);
-                            if (!target->HasAura(SPELL_VENGEANCE_OF_THE_BLUE_FLIGHT,0)) break;
+                            pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true);
+                            if (!pTarget->HasAura(SPELL_VENGEANCE_OF_THE_BLUE_FLIGHT,0)) break;
                         }
-                        if (target)
+                        if (pTarget)
                         {
                             float x, y, z;
-                            target->GetPosition(x, y, z);
+                            pTarget->GetPosition(x, y, z);
                             m_creature->SummonCreature(CREATURE_ARMAGEDDON_TARGET, x,y,z,0, TEMPSUMMON_TIMED_DESPAWN,15000);
                         }
                         Timer[TIMER_ARMAGEDDON] = 2000; // No, I'm not kidding
@@ -933,13 +933,13 @@ struct TRINITY_DLL_DECL mob_hand_of_the_deceiverAI : public ScriptedAI
             DoCast(m_creature, SPELL_SHADOW_INFUSION, true);
 
         // Shadow Bolt Volley - Shoots Shadow Bolts at all enemies within 30 yards, for ~2k Shadow damage.
-        if (ShadowBoltVolleyTimer < diff){
+        if (ShadowBoltVolleyTimer <= diff){
             DoCast(m_creature->getVictim(), SPELL_SHADOW_BOLT_VOLLEY);
             ShadowBoltVolleyTimer = 12000;
-        }else ShadowBoltVolleyTimer -= diff;
+        } else ShadowBoltVolleyTimer -= diff;
 
         // Felfire Portal - Creatres a portal, that spawns Volatile Felfire Fiends, which do suicide bombing.
-        if (FelfirePortalTimer < diff){
+        if (FelfirePortalTimer <= diff){
             Creature* Portal = DoSpawnCreature(CREATURE_FELFIRE_PORTAL, 0, 0,0, 0, TEMPSUMMON_TIMED_DESPAWN, 20000);
             if (Portal)
             {
@@ -952,7 +952,7 @@ struct TRINITY_DLL_DECL mob_hand_of_the_deceiverAI : public ScriptedAI
                 }
             }
             FelfirePortalTimer = 20000;
-        }else FelfirePortalTimer -= diff;
+        } else FelfirePortalTimer -= diff;
 
         DoMeleeAttackIfReady();
     }
@@ -993,13 +993,13 @@ struct TRINITY_DLL_DECL mob_felfire_portalAI : public Scripted_NoMovementAI
         if (!UpdateVictim())
             return;
 
-        if (SpawnFiendTimer < diff)
+        if (SpawnFiendTimer <= diff)
         {
             Creature* Fiend = DoSpawnCreature(CREATURE_VOLATILE_FELFIRE_FIEND, 0, 0, 0, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 20000);
             if (Fiend)
                 Fiend->AddThreat(SelectUnit(SELECT_TARGET_RANDOM,0), 100000.0f);
             SpawnFiendTimer = urand(4000,8000);
-        }else SpawnFiendTimer -= diff;
+        } else SpawnFiendTimer -= diff;
     }
 };
 
@@ -1042,7 +1042,7 @@ struct TRINITY_DLL_DECL mob_volatile_felfire_fiendAI : public ScriptedAI
 
         if (ExplodeTimer)
         {
-            if (ExplodeTimer < diff)
+            if (ExplodeTimer <= diff)
                 ExplodeTimer = 0;
             else ExplodeTimer -= diff;
         }
@@ -1075,7 +1075,7 @@ struct TRINITY_DLL_DECL mob_armageddonAI : public Scripted_NoMovementAI
 
     void UpdateAI(const uint32 diff)
     {
-        if (Timer < diff)
+        if (Timer <= diff)
         {
             switch(Spell)
             {
@@ -1161,7 +1161,7 @@ struct TRINITY_DLL_DECL mob_shield_orbAI : public ScriptedAI
         }
         else
         {
-            if (CheckTimer < diff)
+            if (CheckTimer <= diff)
             {
                 DoTeleportTo(x,y,SHIELD_ORB_Z);
                 PointReached = true;
@@ -1169,7 +1169,7 @@ struct TRINITY_DLL_DECL mob_shield_orbAI : public ScriptedAI
 
         }
 
-        if (Timer < diff)
+        if (Timer <= diff)
         {
             if (Unit* random = Unit::GetUnit(*m_creature, pInstance ? pInstance->GetData64(DATA_PLAYER_GUID) : 0))
                 DoCast(random, SPELL_SHADOW_BOLT, false);
@@ -1241,7 +1241,7 @@ struct TRINITY_DLL_DECL mob_sinster_reflectionAI : public ScriptedAI
 
         switch(Class){
             case CLASS_DRUID:
-                if (Timer[1] < diff)
+                if (Timer[1] <= diff)
                 {
                     DoCast(m_creature->getVictim(), SPELL_SR_MOONFIRE, false);
                     Timer[1] = 3000;
@@ -1249,19 +1249,19 @@ struct TRINITY_DLL_DECL mob_sinster_reflectionAI : public ScriptedAI
                 DoMeleeAttackIfReady();
                 break;
             case CLASS_HUNTER:
-                if (Timer[1] < diff)
+                if (Timer[1] <= diff)
                 {
                     DoCast(m_creature->getVictim(), SPELL_SR_MULTI_SHOT, false);
                     Timer[1] = 9000;
                 }
-                if (Timer[2] < diff)
+                if (Timer[2] <= diff)
                 {
                     DoCast(m_creature->getVictim(), SPELL_SR_SHOOT, false);
                     Timer[2] = 5000;
                 }
                 if (m_creature->IsWithinMeleeRange(m_creature->getVictim(), 6))
                 {
-                    if (Timer[3] < diff)
+                    if (Timer[3] <= diff)
                     {
                         DoCast(m_creature->getVictim(), SPELL_SR_MULTI_SHOT, false);
                         Timer[3] = 7000;
@@ -1270,7 +1270,7 @@ struct TRINITY_DLL_DECL mob_sinster_reflectionAI : public ScriptedAI
                 }
                 break;
             case CLASS_MAGE:
-                if (Timer[1] < diff)
+                if (Timer[1] <= diff)
                 {
                     DoCast(m_creature->getVictim(), SPELL_SR_FIREBALL, false);
                     Timer[1] = 3000;
@@ -1278,12 +1278,12 @@ struct TRINITY_DLL_DECL mob_sinster_reflectionAI : public ScriptedAI
                 DoMeleeAttackIfReady();
                 break;
             case CLASS_WARLOCK:
-                if (Timer[1] < diff)
+                if (Timer[1] <= diff)
                 {
                     DoCast(m_creature->getVictim(), SPELL_SR_SHADOW_BOLT, false);
                     Timer[1] = 4000;
                 }
-                if (Timer[2] < diff)
+                if (Timer[2] <= diff)
                 {
                     DoCast(SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true), SPELL_SR_CURSE_OF_AGONY, true);
                     Timer[2] = 3000;
@@ -1291,7 +1291,7 @@ struct TRINITY_DLL_DECL mob_sinster_reflectionAI : public ScriptedAI
                 DoMeleeAttackIfReady();
                 break;
             case CLASS_WARRIOR:
-                if (Timer[1] < diff)
+                if (Timer[1] <= diff)
                 {
                     DoCast(m_creature->getVictim(), SPELL_SR_WHIRLWIND, false);
                     Timer[1] = 10000;
@@ -1299,12 +1299,12 @@ struct TRINITY_DLL_DECL mob_sinster_reflectionAI : public ScriptedAI
                 DoMeleeAttackIfReady();
                 break;
             case CLASS_PALADIN:
-                if (Timer[1] < diff)
+                if (Timer[1] <= diff)
                 {
                     DoCast(m_creature->getVictim(), SPELL_SR_HAMMER_OF_JUSTICE, false);
                     Timer[1] = 7000;
                 }
-                if (Timer[2] < diff)
+                if (Timer[2] <= diff)
                 {
                     DoCast(m_creature->getVictim(), SPELL_SR_HOLY_SHOCK, false);
                     Timer[2] = 3000;
@@ -1312,12 +1312,12 @@ struct TRINITY_DLL_DECL mob_sinster_reflectionAI : public ScriptedAI
                 DoMeleeAttackIfReady();
                 break;
             case CLASS_PRIEST:
-                if (Timer[1] < diff)
+                if (Timer[1] <= diff)
                 {
                     DoCast(m_creature->getVictim(), SPELL_SR_HOLY_SMITE, false);
                     Timer[1] = 5000;
                 }
-                if (Timer[2] < diff)
+                if (Timer[2] <= diff)
                 {
                     DoCast(m_creature,  SPELL_SR_RENEW, false);
                     Timer[2] = 7000;
@@ -1325,7 +1325,7 @@ struct TRINITY_DLL_DECL mob_sinster_reflectionAI : public ScriptedAI
                 DoMeleeAttackIfReady();
                 break;
             case CLASS_SHAMAN:
-                if (Timer[1] < diff)
+                if (Timer[1] <= diff)
                 {
                     DoCast(m_creature->getVictim(), SPELL_SR_EARTH_SHOCK, false);
                     Timer[1] = 5000;
@@ -1333,7 +1333,7 @@ struct TRINITY_DLL_DECL mob_sinster_reflectionAI : public ScriptedAI
                 DoMeleeAttackIfReady();
                 break;
             case CLASS_ROGUE:
-                if (Timer[1] < diff)
+                if (Timer[1] <= diff)
                 {
                     DoCast(m_creature->getVictim(), SPELL_SR_HEMORRHAGE, true);
                     Timer[1] = 5000;

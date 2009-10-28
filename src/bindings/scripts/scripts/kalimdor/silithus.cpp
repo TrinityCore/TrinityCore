@@ -798,7 +798,7 @@ struct TRINITY_DLL_DECL mob_qiraj_war_spawnAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
-        Unit* target;
+        Unit *pTarget;
         Player* plr = m_creature->GetPlayer(PlayerGUID);
 
         if(!Timers)
@@ -815,18 +815,18 @@ struct TRINITY_DLL_DECL mob_qiraj_war_spawnAI : public ScriptedAI
         }
         if(m_creature->GetEntry() == 15424 || m_creature->GetEntry() == 15422|| m_creature->GetEntry() == 15414)
         {
-            if(SpellTimer1 < diff)
+            if(SpellTimer1 <= diff)
             {
                 DoCast(m_creature, SpawnCast[1].SpellId);
                 DoCast(m_creature, 24319);
                 SpellTimer1 = SpawnCast[1].Timer2;
             } else SpellTimer1 -= diff;
-            if(SpellTimer2 < diff)
+            if(SpellTimer2 <= diff)
             {
                 DoCast(m_creature, SpawnCast[2].SpellId);
                 SpellTimer2 = SpawnCast[2].Timer2;
             } else SpellTimer2 -= diff;
-            if(SpellTimer3 < diff)
+            if(SpellTimer3 <= diff)
             {
                 DoCast(m_creature, SpawnCast[3].SpellId);
                 SpellTimer3 = SpawnCast[3].Timer2;
@@ -834,7 +834,7 @@ struct TRINITY_DLL_DECL mob_qiraj_war_spawnAI : public ScriptedAI
         }
         if (m_creature->GetEntry() == 15423 || m_creature->GetEntry() == 15424 || m_creature->GetEntry() == 15422 || m_creature->GetEntry() == 15414)
         {
-            if(SpellTimer4 < diff)
+            if(SpellTimer4 <= diff)
             {
                 m_creature->RemoveAllAttackers();
                 m_creature->AttackStop();
@@ -845,22 +845,21 @@ struct TRINITY_DLL_DECL mob_qiraj_war_spawnAI : public ScriptedAI
         if (!hasTarget)
         {
             if (m_creature->GetEntry() == 15424 || m_creature->GetEntry() == 15422 || m_creature->GetEntry() == 15414)
-                target = m_creature->FindNearestCreature(15423,20,true);
+                pTarget = m_creature->FindNearestCreature(15423,20,true);
             if (m_creature->GetEntry() == 15423)
             {
-                uint8 tar;
-                tar = rand()%3;
+                uint8 tar = urand(0,2);
 
                 if (tar == 0)
-                    target = m_creature->FindNearestCreature(15422,20,true);
+                    pTarget = m_creature->FindNearestCreature(15422,20,true);
                 else if (tar == 1)
-                    target = m_creature->FindNearestCreature(15424,20,true);
+                    pTarget = m_creature->FindNearestCreature(15424,20,true);
                 else if (tar == 2)
-                    target = m_creature->FindNearestCreature(15414,20,true);
+                    pTarget = m_creature->FindNearestCreature(15414,20,true);
             }
             hasTarget = true;
-            if(target)
-                m_creature->AI()->AttackStart(target);
+            if(pTarget)
+                m_creature->AI()->AttackStart(pTarget);
         }
         if (!(trigger = m_creature->FindNearestCreature(15379,100)))
             DoCast(m_creature, 33652);
@@ -941,8 +940,8 @@ struct TRINITY_DLL_DECL npc_anachronos_quest_triggerAI : public ScriptedAI
 
                 if(WaveCount < 5) //1-4 Wave
                 {
-                    ((mob_qiraj_war_spawnAI*)Spawn->AI())->MobGUID = m_creature->GetGUID();
-                    ((mob_qiraj_war_spawnAI*)Spawn->AI())->PlayerGUID = PlayerGUID;
+                    CAST_AI(mob_qiraj_war_spawnAI, Spawn->AI())->MobGUID = m_creature->GetGUID();
+                    CAST_AI(mob_qiraj_war_spawnAI, Spawn->AI())->PlayerGUID = PlayerGUID;
                 }
             }
         }
@@ -1003,13 +1002,13 @@ struct TRINITY_DLL_DECL npc_anachronos_quest_triggerAI : public ScriptedAI
 
         if(WaveCount < 4)
         {
-            if(!Announced && AnnounceTimer < diff)
+            if(!Announced && AnnounceTimer <= diff)
             {
                 DoScriptText(WavesInfo[WaveCount].WaveTextId, m_creature);
                 Announced = true;
             } else AnnounceTimer -= diff;
 
-            if(WaveTimer < diff)
+            if(WaveTimer <= diff)
                 SummonNextWave();
             else WaveTimer -= diff;
         }
@@ -1022,7 +1021,7 @@ void mob_qiraj_war_spawnAI::JustDied(Unit* slayer)
 {
     m_creature->RemoveCorpse();
     if(Creature* Mob = (Unit::GetCreature(*m_creature, MobGUID)))
-        ((npc_anachronos_quest_triggerAI*)Mob->AI())->LiveCounter();
+        CAST_AI(npc_anachronos_quest_triggerAI, Mob->AI())->LiveCounter();
 
 };
 /*#####
@@ -1069,11 +1068,11 @@ bool GOQuestAccept_GO_crystalline_tear(Player* plr, GameObject* go, Quest const*
 
             if(Anachronos)
             {
-                ((npc_anachronos_the_ancientAI*)Anachronos->AI())->PlayerGUID = plr->GetGUID();
-                ((npc_anachronos_quest_triggerAI*)CAST_CRE(Anachronos_Quest_Trigger)->AI())->Failed=false;
-                ((npc_anachronos_quest_triggerAI*)CAST_CRE(Anachronos_Quest_Trigger)->AI())->PlayerGUID = plr->GetGUID();
-                ((npc_anachronos_quest_triggerAI*)CAST_CRE(Anachronos_Quest_Trigger)->AI())->EventStarted=true;
-                ((npc_anachronos_quest_triggerAI*)CAST_CRE(Anachronos_Quest_Trigger)->AI())->Announced=true;
+                CAST_AI(npc_anachronos_the_ancientAI, Anachronos->AI())->PlayerGUID = plr->GetGUID();
+                CAST_AI(npc_anachronos_quest_triggerAI, CAST_CRE(Anachronos_Quest_Trigger)->AI())->Failed=false;
+                CAST_AI(npc_anachronos_quest_triggerAI, CAST_CRE(Anachronos_Quest_Trigger)->AI())->PlayerGUID = plr->GetGUID();
+                CAST_AI(npc_anachronos_quest_triggerAI, CAST_CRE(Anachronos_Quest_Trigger)->AI())->EventStarted=true;
+                CAST_AI(npc_anachronos_quest_triggerAI, CAST_CRE(Anachronos_Quest_Trigger)->AI())->Announced=true;
             }
         }
     }

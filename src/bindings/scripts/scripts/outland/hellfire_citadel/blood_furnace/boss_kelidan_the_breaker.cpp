@@ -190,40 +190,40 @@ struct TRINITY_DLL_DECL boss_kelidan_the_breakerAI : public ScriptedAI
     {
         if (!UpdateVictim())
         {
-            if (check_Timer < diff)
+            if (check_Timer <= diff)
             {
                 if (!m_creature->IsNonMeleeSpellCasted(false))
                     DoCast(m_creature,SPELL_EVOCATION);
                 check_Timer = 5000;
-            }else check_Timer -= diff;
+            } else check_Timer -= diff;
             return;
         }
 
         if (Firenova)
         {
-            if (Firenova_Timer < diff)
+            if (Firenova_Timer <= diff)
             {
                 DoCast(m_creature, HEROIC(SPELL_FIRE_NOVA, H_SPELL_FIRE_NOVA), true);
                 Firenova = false;
                 ShadowVolley_Timer = 2000;
-            }else Firenova_Timer -=diff;
+            } else Firenova_Timer -=diff;
 
             return;
         }
 
-        if (ShadowVolley_Timer < diff)
+        if (ShadowVolley_Timer <= diff)
         {
             DoCast(m_creature, HEROIC(SPELL_SHADOW_BOLT_VOLLEY, H_SPELL_SHADOW_BOLT_VOLLEY));
             ShadowVolley_Timer = 5000+rand()%8000;
-        }else ShadowVolley_Timer -=diff;
+        } else ShadowVolley_Timer -=diff;
 
-        if (Corruption_Timer < diff)
+        if (Corruption_Timer <= diff)
         {
             DoCast(m_creature,SPELL_CORRUPTION);
             Corruption_Timer = 30000+rand()%20000;
-        }else Corruption_Timer -=diff;
+        } else Corruption_Timer -=diff;
 
-        if (BurningNova_Timer < diff)
+        if (BurningNova_Timer <= diff)
         {
             if (m_creature->IsNonMeleeSpellCasted(false))
                 m_creature->InterruptNonMeleeSpells(true);
@@ -248,7 +248,7 @@ struct TRINITY_DLL_DECL boss_kelidan_the_breakerAI : public ScriptedAI
             BurningNova_Timer = 20000+rand()%8000;
             Firenova_Timer= 5000;
             Firenova = true;
-        }else BurningNova_Timer -=diff;
+        } else BurningNova_Timer -=diff;
 
         DoMeleeAttackIfReady();
     }
@@ -314,7 +314,7 @@ struct TRINITY_DLL_DECL mob_shadowmoon_channelerAI : public ScriptedAI
     {
         if (!UpdateVictim())
         {
-            if (check_Timer < diff)
+            if (check_Timer <= diff)
             {
                 if (!m_creature->IsNonMeleeSpellCasted(false))
                     if (Creature *Kelidan = me->FindNearestCreature(ENTRY_KELIDAN, 100))
@@ -324,22 +324,22 @@ struct TRINITY_DLL_DECL mob_shadowmoon_channelerAI : public ScriptedAI
                             DoCast(channeled,SPELL_CHANNELING);
                     }
                 check_Timer = 5000;
-            }else check_Timer -= diff;
+            } else check_Timer -= diff;
             return;
         }
 
-        if (MarkOfShadow_Timer < diff)
+        if (MarkOfShadow_Timer <= diff)
         {
-            if (Unit *target = SelectUnit(SELECT_TARGET_RANDOM, 0))
-                DoCast(target,SPELL_MARK_OF_SHADOW);
+            if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                DoCast(pTarget,SPELL_MARK_OF_SHADOW);
             MarkOfShadow_Timer = 15000+rand()%5000;
-        }else MarkOfShadow_Timer -=diff;
+        } else MarkOfShadow_Timer -=diff;
 
-        if (ShadowBolt_Timer < diff)
+        if (ShadowBolt_Timer <= diff)
         {
             DoCast(m_creature->getVictim(), HEROIC(SPELL_SHADOW_BOLT, H_SPELL_SHADOW_BOLT));
             ShadowBolt_Timer = 5000+rand()%1000;
-        }else ShadowBolt_Timer -=diff;
+        } else ShadowBolt_Timer -=diff;
 
         DoMeleeAttackIfReady();
     }

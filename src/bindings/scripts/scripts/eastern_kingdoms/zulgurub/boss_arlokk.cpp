@@ -150,7 +150,7 @@ struct TRINITY_DLL_DECL boss_arlokkAI : public ScriptedAI
 
         if (!m_bIsPhaseTwo)
         {
-            if (m_uiShadowWordPain_Timer < uiDiff)
+            if (m_uiShadowWordPain_Timer <= uiDiff)
             {
                 DoCast(m_creature->getVictim(),SPELL_SHADOWWORDPAIN);
                 m_uiShadowWordPain_Timer = 15000;
@@ -158,7 +158,7 @@ struct TRINITY_DLL_DECL boss_arlokkAI : public ScriptedAI
             else
                 m_uiShadowWordPain_Timer -= uiDiff;
 
-            if (m_uiMark_Timer < uiDiff)
+            if (m_uiMark_Timer <= uiDiff)
             {
                 m_pMarkedTarget = SelectUnit(SELECT_TARGET_RANDOM,0);
 
@@ -175,7 +175,7 @@ struct TRINITY_DLL_DECL boss_arlokkAI : public ScriptedAI
         else
         {
             //Cleave_Timer
-            if (m_uiCleave_Timer < uiDiff)
+            if (m_uiCleave_Timer <= uiDiff)
             {
                 DoCast(m_creature->getVictim(), SPELL_CLEAVE);
                 m_uiCleave_Timer = 16000;
@@ -184,7 +184,7 @@ struct TRINITY_DLL_DECL boss_arlokkAI : public ScriptedAI
                 m_uiCleave_Timer -= uiDiff;
 
             //Gouge_Timer
-            if (m_uiGouge_Timer < uiDiff)
+            if (m_uiGouge_Timer <= uiDiff)
             {
                 DoCast(m_creature->getVictim(), SPELL_GOUGE);
 
@@ -198,7 +198,7 @@ struct TRINITY_DLL_DECL boss_arlokkAI : public ScriptedAI
 
         if (m_uiSummonCount <= 30)
         {
-            if (m_uiSummon_Timer < uiDiff)
+            if (m_uiSummon_Timer <= uiDiff)
             {
                 DoSummonPhanters();
                 m_uiSummon_Timer = 5000;
@@ -207,7 +207,7 @@ struct TRINITY_DLL_DECL boss_arlokkAI : public ScriptedAI
                 m_uiSummon_Timer -= uiDiff;
         }
 
-        if (m_uiVanish_Timer < uiDiff)
+        if (m_uiVanish_Timer <= uiDiff)
         {
             //Invisble Model
             m_creature->SetDisplayId(MODEL_ID_BLANK);
@@ -226,7 +226,7 @@ struct TRINITY_DLL_DECL boss_arlokkAI : public ScriptedAI
 
         if (m_bIsVanished)
         {
-            if (m_uiVisible_Timer < uiDiff)
+            if (m_uiVisible_Timer <= uiDiff)
             {
                 //The Panther Model
                 m_creature->SetDisplayId(MODEL_ID_PANTHER);

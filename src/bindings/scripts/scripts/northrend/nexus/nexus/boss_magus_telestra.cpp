@@ -178,8 +178,8 @@ struct TRINITY_DLL_DECL boss_magus_telestraAI : public ScriptedAI
                     break;
                 }
             }
-            if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0))
-                Summoned->AI()->AttackStart(target);
+            if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                Summoned->AI()->AttackStart(pTarget);
             return Summoned->GetGUID();
         }
         return 0;
@@ -197,11 +197,11 @@ struct TRINITY_DLL_DECL boss_magus_telestraAI : public ScriptedAI
         {
             m_creature->StopMoving();
             m_creature->AttackStop();
-            if (AppearDelay_Timer < diff)
+            if (AppearDelay_Timer <= diff)
             {
                 m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 AppearDelay = false;
-            }else AppearDelay_Timer -= diff;
+            } else AppearDelay_Timer -= diff;
             return;
         }
 
@@ -296,7 +296,7 @@ struct TRINITY_DLL_DECL boss_magus_telestraAI : public ScriptedAI
 
         if (Cooldown)
         {
-            if (Cooldown < diff)
+            if (Cooldown <= diff)
                 Cooldown = 0;
             else
             {
@@ -305,35 +305,35 @@ struct TRINITY_DLL_DECL boss_magus_telestraAI : public ScriptedAI
             }
         }
 
-        if (SPELL_ICE_NOVA_Timer < diff)
+        if (SPELL_ICE_NOVA_Timer <= diff)
         {
-            if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0))
+            if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
             {
-                DoCast(target, HEROIC(SPELL_ICE_NOVA_N, SPELL_ICE_NOVA_H));
+                DoCast(pTarget, HEROIC(SPELL_ICE_NOVA_N, SPELL_ICE_NOVA_H));
                 Cooldown = 1500;
             }
             SPELL_ICE_NOVA_Timer = 15000;
-        }else SPELL_ICE_NOVA_Timer -=diff;
+        } else SPELL_ICE_NOVA_Timer -=diff;
 
-        if (SPELL_GRAVITY_WELL_Timer < diff)
+        if (SPELL_GRAVITY_WELL_Timer <= diff)
         {
-            if (Unit* target = m_creature->getVictim())
+            if (Unit *pTarget = m_creature->getVictim())
             {
-                DoCast(target, SPELL_GRAVITY_WELL);
+                DoCast(pTarget, SPELL_GRAVITY_WELL);
                 Cooldown = 6000;
             }
             SPELL_GRAVITY_WELL_Timer = 15000;
-        }else SPELL_GRAVITY_WELL_Timer -=diff;
+        } else SPELL_GRAVITY_WELL_Timer -=diff;
 
-        if (SPELL_FIREBOMB_Timer < diff)
+        if (SPELL_FIREBOMB_Timer <= diff)
         {
-            if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0))
+            if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
             {
-                DoCast(target, HEROIC(SPELL_FIREBOMB_N, SPELL_FIREBOMB_H));
+                DoCast(pTarget, HEROIC(SPELL_FIREBOMB_N, SPELL_FIREBOMB_H));
                 Cooldown = 2000;
             }
             SPELL_FIREBOMB_Timer = 2000;
-        }else SPELL_FIREBOMB_Timer -=diff;
+        } else SPELL_FIREBOMB_Timer -=diff;
 
         DoMeleeAttackIfReady();
     }

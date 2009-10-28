@@ -238,17 +238,17 @@ struct TRINITY_DLL_DECL boss_gothikAI : public BossAI
         }
     }
 
-    void SpellHitTarget(Unit *target, const SpellEntry *spell)
+    void SpellHitTarget(Unit *pTarget, const SpellEntry *spell)
     {
         if (!me->isInCombat())
             return;
 
         switch(spell->Id)
         {
-            case SPELL_INFORM_DEAD_TRAINEE: DoSummon(MOB_DEAD_TRAINEE, target, 0);  break;
-            case SPELL_INFORM_DEAD_KNIGHT:  DoSummon(MOB_DEAD_KNIGHT, target, 0);   break;
-            case SPELL_INFORM_DEAD_RIDER:   DoSummon(MOB_DEAD_RIDER, target, 1.0f);
-                DoSummon(MOB_DEAD_HORSE, target, 1.0f); break;
+            case SPELL_INFORM_DEAD_TRAINEE: DoSummon(MOB_DEAD_TRAINEE, pTarget, 0);  break;
+            case SPELL_INFORM_DEAD_KNIGHT:  DoSummon(MOB_DEAD_KNIGHT, pTarget, 0);   break;
+            case SPELL_INFORM_DEAD_RIDER:   DoSummon(MOB_DEAD_RIDER, pTarget, 1.0f);
+                DoSummon(MOB_DEAD_HORSE, pTarget, 1.0f); break;
         }
     }
 

@@ -72,14 +72,14 @@ struct TRINITY_DLL_DECL boss_murmurAI : public ScriptedAI
         std::list<HostilReference *> t_list = m_creature->getThreatManager().getThreatList();
         for (std::list<HostilReference *>::iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)
         {
-           Unit* target = Unit::GetUnit(*m_creature, (*itr)->getUnitGuid());
-           if (target && target->GetTypeId() == TYPEID_PLAYER)
+           Unit *pTarget = Unit::GetUnit(*m_creature, (*itr)->getUnitGuid());
+           if (pTarget && pTarget->GetTypeId() == TYPEID_PLAYER)
            {
                //Not do anything without aura, spell can be resisted!
-               if (target->HasAura(SPELL_SONIC_BOOM_CAST) && m_creature->IsWithinDistInMap(target, 34.0f))
+               if (pTarget->HasAura(SPELL_SONIC_BOOM_CAST) && m_creature->IsWithinDistInMap(pTarget, 34.0f))
                {
                    //This will be wrong calculation. Also, comments suggest it must deal damage
-                   target->SetHealth(uint32(target->GetMaxHealth() - target->GetMaxHealth() * 0.8));
+                   pTarget->SetHealth(uint32(pTarget->GetMaxHealth() - pTarget->GetMaxHealth() * 0.8));
                }
            }
         }
@@ -88,15 +88,15 @@ struct TRINITY_DLL_DECL boss_murmurAI : public ScriptedAI
     void EnterCombat(Unit *who) { }
 
     // Sonic Boom instant damage (needs core fix instead of this)
-    void SpellHitTarget(Unit *target, const SpellEntry *spell)
+    void SpellHitTarget(Unit *pTarget, const SpellEntry *spell)
     {
-        if (target && target->isAlive() && spell && spell->Id == SPELL_SONIC_BOOM_EFFECT)
-            m_creature->DealDamage(target,(target->GetHealth()*90)/100,NULL,SPELL_DIRECT_DAMAGE,SPELL_SCHOOL_MASK_NATURE,spell);
+        if (pTarget && pTarget->isAlive() && spell && spell->Id == SPELL_SONIC_BOOM_EFFECT)
+            m_creature->DealDamage(pTarget,(pTarget->GetHealth()*90)/100,NULL,SPELL_DIRECT_DAMAGE,SPELL_SCHOOL_MASK_NATURE,spell);
     }
 
     void UpdateAI(const uint32 diff)
     {
-        //Return since we have no target or casting
+        //Return since we have no pTarget or casting
         if (!UpdateVictim() || m_creature->IsNonMeleeSpellCasted(false))
             return;
 
@@ -109,80 +109,80 @@ struct TRINITY_DLL_DECL boss_murmurAI : public ScriptedAI
             SonicBoom = false;
             Resonance_Timer = 1500;
         }
-        if (SonicBoom_Timer < diff)
+        if (SonicBoom_Timer <= diff)
         {
             DoScriptText(EMOTE_SONIC_BOOM, m_creature);
             DoCast(m_creature, SPELL_SONIC_BOOM_CAST);
             SonicBoom_Timer = 30000;
             SonicBoom = true;
             return;
-        }else SonicBoom_Timer -= diff;
+        } else SonicBoom_Timer -= diff;
 
         // Murmur's Touch
-        if (MurmursTouch_Timer < diff)
+        if (MurmursTouch_Timer <= diff)
         {
-            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM,0,80,true))
-                DoCast(target, SPELL_MURMURS_TOUCH);
+            if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM,0,80,true))
+                DoCast(pTarget, SPELL_MURMURS_TOUCH);
             MurmursTouch_Timer = 25000 + rand()%10000;
-        }else MurmursTouch_Timer -= diff;
+        } else MurmursTouch_Timer -= diff;
 
         // Resonance
         if (!SonicBoom && !(m_creature->IsWithinMeleeRange(m_creature->getVictim())))
         {
-            if (Resonance_Timer < diff)
+            if (Resonance_Timer <= diff)
             {
                 DoCast(m_creature, SPELL_RESONANCE);
                 Resonance_Timer = 5000;
-            }else Resonance_Timer -= diff;
+            } else Resonance_Timer -= diff;
         }
 
         // Magnetic Pull
-        if (MagneticPull_Timer < diff)
+        if (MagneticPull_Timer <= diff)
         {
-            if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM,0))
-                if (target->GetTypeId() == TYPEID_PLAYER && target->isAlive())
+            if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM,0))
+                if (pTarget->GetTypeId() == TYPEID_PLAYER && pTarget->isAlive())
                 {
-                    DoCast(target, SPELL_MAGNETIC_PULL);
+                    DoCast(pTarget, SPELL_MAGNETIC_PULL);
                     MagneticPull_Timer = 15000+rand()%15000;
                     return;
                 }
             MagneticPull_Timer = 500;
-        }else MagneticPull_Timer -= diff;
+        } else MagneticPull_Timer -= diff;
 
         if (HeroicMode)
         {
             // Thundering Storm
-            if (ThunderingStorm_Timer < diff)
+            if (ThunderingStorm_Timer <= diff)
             {
                 std::list<HostilReference*>& m_threatlist = m_creature->getThreatManager().getThreatList();
                 for (std::list<HostilReference*>::iterator i = m_threatlist.begin(); i != m_threatlist.end(); ++i)
-                    if (Unit* target = Unit::GetUnit((*m_creature),(*i)->getUnitGuid()))
-                        if (target->isAlive() && !m_creature->IsWithinDist(target, 35, false))
-                            DoCast(target, SPELL_THUNDERING_STORM, true);
+                    if (Unit *pTarget = Unit::GetUnit((*m_creature),(*i)->getUnitGuid()))
+                        if (pTarget->isAlive() && !m_creature->IsWithinDist(pTarget, 35, false))
+                            DoCast(pTarget, SPELL_THUNDERING_STORM, true);
                 ThunderingStorm_Timer = 15000;
-            }else ThunderingStorm_Timer -= diff;
+            } else ThunderingStorm_Timer -= diff;
 
             // Sonic Shock
-            if (SonicShock_Timer < diff)
+            if (SonicShock_Timer <= diff)
             {
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM,0,20,false))
-                    if (target->isAlive())
-                        DoCast(target, SPELL_SONIC_SHOCK);
+                if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM,0,20,false))
+                    if (pTarget->isAlive())
+                        DoCast(pTarget, SPELL_SONIC_SHOCK);
                 SonicShock_Timer = 10000+rand()%10000;
-            }else SonicShock_Timer -= diff;
+            } else SonicShock_Timer -= diff;
         }
 
-        // Select nearest most aggro target if top aggro too far
+        // Select nearest most aggro pTarget if top aggro too far
         if (!m_creature->isAttackReady())
             return;
         if (!m_creature->IsWithinMeleeRange(m_creature->getVictim()))
         {
             std::list<HostilReference*>& m_threatlist = m_creature->getThreatManager().getThreatList();
             for (std::list<HostilReference*>::iterator i = m_threatlist.begin(); i != m_threatlist.end(); ++i)
-                if (Unit* target = Unit::GetUnit((*m_creature),(*i)->getUnitGuid()))
-                    if (target->isAlive() && m_creature->IsWithinMeleeRange(target))
+                if (Unit *pTarget = Unit::GetUnit((*m_creature),(*i)->getUnitGuid()))
+                    if (pTarget->isAlive() && m_creature->IsWithinMeleeRange(pTarget))
                     {
-                        m_creature->TauntApply(target);
+                        m_creature->TauntApply(pTarget);
                         break;
                     }
         }

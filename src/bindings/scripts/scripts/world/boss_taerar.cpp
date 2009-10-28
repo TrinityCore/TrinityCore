@@ -92,7 +92,7 @@ struct TRINITY_DLL_DECL boss_taerarAI : public ScriptedAI
 
     void UpdateAI(const uint32 uiDiff)
     {
-        if (m_bShades && m_uiShades_Timer < uiDiff)
+        if (m_bShades && m_uiShades_Timer <= uiDiff)
         {
             //Become unbanished again
             m_creature->setFaction(14);
@@ -111,7 +111,7 @@ struct TRINITY_DLL_DECL boss_taerarAI : public ScriptedAI
             return;
 
         //Sleep_Timer
-        if (m_uiSleep_Timer < uiDiff)
+        if (m_uiSleep_Timer <= uiDiff)
         {
             if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
                 DoCast(pTarget, SPELL_SLEEP);
@@ -122,7 +122,7 @@ struct TRINITY_DLL_DECL boss_taerarAI : public ScriptedAI
             m_uiSleep_Timer -= uiDiff;
 
         //NoxiousBreath_Timer
-        if (m_uiNoxiousBreath_Timer < uiDiff)
+        if (m_uiNoxiousBreath_Timer <= uiDiff)
         {
             DoCast(m_creature->getVictim(), SPELL_NOXIOUSBREATH);
             m_uiNoxiousBreath_Timer = 14000 + rand()%6000;
@@ -131,7 +131,7 @@ struct TRINITY_DLL_DECL boss_taerarAI : public ScriptedAI
             m_uiNoxiousBreath_Timer -= uiDiff;
 
         //Tailsweep every 2 seconds
-        if (m_uiTailSweep_Timer < uiDiff)
+        if (m_uiTailSweep_Timer <= uiDiff)
         {
             DoCast(m_creature, SPELL_TAILSWEEP);
             m_uiTailSweep_Timer = 2000;
@@ -140,7 +140,7 @@ struct TRINITY_DLL_DECL boss_taerarAI : public ScriptedAI
             m_uiTailSweep_Timer -= uiDiff;
 
         //MarkOfNature_Timer
-        //if (m_uiMarkOfNature_Timer < uiDiff)
+        //if (m_uiMarkOfNature_Timer <= uiDiff)
         //{
         //    DoCast(m_creature->getVictim(), SPELL_MARKOFNATURE);
         //    m_uiMarkOfNature_Timer = 45000;
@@ -149,7 +149,7 @@ struct TRINITY_DLL_DECL boss_taerarAI : public ScriptedAI
         //    m_uiMarkOfNature_Timer -= uiDiff;
 
         //ArcaneBlast_Timer
-        if (m_uiArcaneBlast_Timer < uiDiff)
+        if (m_uiArcaneBlast_Timer <= uiDiff)
         {
             DoCast(m_creature->getVictim(), SPELL_ARCANEBLAST);
             m_uiArcaneBlast_Timer = 7000 + rand()%5000;
@@ -158,7 +158,7 @@ struct TRINITY_DLL_DECL boss_taerarAI : public ScriptedAI
             m_uiArcaneBlast_Timer -= uiDiff;
 
         //BellowingRoar_Timer
-        if (m_uiBellowingRoar_Timer < uiDiff)
+        if (m_uiBellowingRoar_Timer <= uiDiff)
         {
             DoCast(m_creature->getVictim(), SPELL_BELLOWINGROAR);
             m_uiBellowingRoar_Timer = 20000 + rand()%10000;
@@ -215,7 +215,7 @@ struct TRINITY_DLL_DECL boss_shadeoftaerarAI : public ScriptedAI
             return;
 
         //PoisonCloud_Timer
-        if (m_uiPoisonCloud_Timer < uiDiff)
+        if (m_uiPoisonCloud_Timer <= uiDiff)
         {
             DoCast(m_creature->getVictim(), SPELL_POSIONCLOUD);
             m_uiPoisonCloud_Timer = 30000;
@@ -224,7 +224,7 @@ struct TRINITY_DLL_DECL boss_shadeoftaerarAI : public ScriptedAI
             m_uiPoisonCloud_Timer -= uiDiff;
 
         //PosionBreath_Timer
-        if (m_uiPosionBreath_Timer < uiDiff)
+        if (m_uiPosionBreath_Timer <= uiDiff)
         {
             DoCast(m_creature->getVictim(), SPELL_POSIONBREATH);
             m_uiPosionBreath_Timer = 12000;

@@ -107,19 +107,19 @@ struct TRINITY_DLL_DECL boss_slad_ranAI : public ScriptedAI
         if (!UpdateVictim())
             return;
 
-        if (uiPoisonNovaTimer < diff)
+        if (uiPoisonNovaTimer <= diff)
         {
             DoCast(m_creature->getVictim(), HEROIC(SPELL_POISON_NOVA, H_SPELL_POISON_NOVA));
             uiPoisonNovaTimer = 15000;
         } else uiPoisonNovaTimer -= diff;
 
-        if (uiPowerfullBiteTimer < diff)
+        if (uiPowerfullBiteTimer <= diff)
         {
             DoCast(m_creature->getVictim(), HEROIC(SPELL_POWERFULL_BITE, H_SPELL_POWERFULL_BITE));
             uiPowerfullBiteTimer = 10000;
         } else uiPowerfullBiteTimer -= diff;
 
-        if (uiVenomBoltTimer < diff)
+        if (uiVenomBoltTimer <= diff)
         {
             DoCast(m_creature->getVictim(), HEROIC(SPELL_VENOM_BOLT, H_SPELL_VENOM_BOLT));
             uiVenomBoltTimer = 10000;
@@ -127,7 +127,7 @@ struct TRINITY_DLL_DECL boss_slad_ranAI : public ScriptedAI
 
         if (uiPhase)
         {
-            if(uiSpawnTimer < diff)
+            if (uiSpawnTimer <= diff)
             {
                 if (uiPhase == 1)
                     for (uint8 i = 0; i < (HeroicMode ? 5 : 3); ++i)
@@ -188,7 +188,7 @@ struct TRINITY_DLL_DECL mob_slad_ran_constrictorAI : public ScriptedAI
     {
         if (!UpdateVictim())
             return;
-        if (uiGripOfSladRanTimer < diff)
+        if (uiGripOfSladRanTimer <= diff)
         {
             DoCast(m_creature->getVictim(), SPELL_GRIP_OF_SLAD_RAN);
             uiGripOfSladRanTimer = 5000;
@@ -216,7 +216,7 @@ struct TRINITY_DLL_DECL mob_slad_ran_viperAI : public ScriptedAI
         if (!UpdateVictim())
             return;
 
-        if (uiVenomousBiteTimer < diff)
+        if (uiVenomousBiteTimer <= diff)
         {
             DoCast(m_creature->getVictim(), HEROIC(SPELL_VENOMOUS_BITE, H_SPELL_VENOMOUS_BITE));
             uiVenomousBiteTimer = 10000;

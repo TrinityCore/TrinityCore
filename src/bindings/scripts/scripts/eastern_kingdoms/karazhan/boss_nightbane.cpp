@@ -309,23 +309,23 @@ struct TRINITY_DLL_DECL boss_nightbaneAI : public ScriptedAI
 
             if (CharredEarthTimer <= diff)
             {
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                    DoCast(target,SPELL_CHARRED_EARTH);
+                if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                    DoCast(pTarget,SPELL_CHARRED_EARTH);
                 CharredEarthTimer = 20000;
             } else CharredEarthTimer -= diff;
 
             if (TailSweepTimer <= diff)
             {
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                    if (!m_creature->HasInArc(M_PI, target))
-                        DoCast(target,SPELL_TAIL_SWEEP);
+                if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                    if (!m_creature->HasInArc(M_PI, pTarget))
+                        DoCast(pTarget,SPELL_TAIL_SWEEP);
                 TailSweepTimer = 15000;
             } else TailSweepTimer -= diff;
 
             if (SearingCindersTimer <= diff)
             {
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                    DoCast(target,SPELL_SEARING_CINDERS);
+                if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                    DoCast(pTarget,SPELL_SEARING_CINDERS);
                 SearingCindersTimer = 10000;
             } else SearingCindersTimer -= diff;
 
@@ -367,8 +367,8 @@ struct TRINITY_DLL_DECL boss_nightbaneAI : public ScriptedAI
 
                 if (DistractingAshTimer <= diff)
                 {
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                        DoCast(target,SPELL_DISTRACTING_ASH);
+                    if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                        DoCast(pTarget,SPELL_DISTRACTING_ASH);
                     DistractingAshTimer = 2000; //timer wrong
                 } else DistractingAshTimer -= diff;
             }
@@ -384,8 +384,8 @@ struct TRINITY_DLL_DECL boss_nightbaneAI : public ScriptedAI
 
             if (FireballBarrageTimer <= diff)
             {
-                if (Unit* target = SelectUnit(SELECT_TARGET_FARTHEST, 0))
-                    DoCast(target,SPELL_FIREBALL_BARRAGE);
+                if (Unit *pTarget = SelectUnit(SELECT_TARGET_FARTHEST, 0))
+                    DoCast(pTarget,SPELL_FIREBALL_BARRAGE);
                 FireballBarrageTimer = 20000;
             } else FireballBarrageTimer -= diff;
 

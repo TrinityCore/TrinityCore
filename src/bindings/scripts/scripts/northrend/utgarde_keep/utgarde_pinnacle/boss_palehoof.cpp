@@ -155,20 +155,20 @@ struct TRINITY_DLL_DECL boss_palehoofAI : public ScriptedAI
         if (pTemp && pTemp->isAlive())
             pTemp->DisappearAndDie();
         
-        if (uiArcingSmashTimer < diff)
+        if (uiArcingSmashTimer <= diff)
         {
             DoCast(m_creature,SPELL_ARCING_SMASH);
             uiArcingSmashTimer = urand(13000,17000);
         } else uiArcingSmashTimer -= diff;
         
-        if (uiImpaleTimer < diff)
+        if (uiImpaleTimer <= diff)
         {
           if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM,0,100,true))
               DoCast(pTarget, HEROIC(SPELL_IMPALE,H_SPELL_IMPALE));
           uiImpaleTimer = urand(8000,12000);
         } else uiImpaleTimer -= diff;
         
-        if (uiWhiteringRoarTimer < diff)
+        if (uiWhiteringRoarTimer <= diff)
         {
             DoCast(m_creature, HEROIC(SPELL_WITHERING_ROAR,H_SPELL_WITHERING_ROAR));
             uiWhiteringRoarTimer = urand(8000,12000);
@@ -213,7 +213,7 @@ struct TRINITY_DLL_DECL boss_palehoofAI : public ScriptedAI
                 if(!DoneAdds[i%4]&&next==0){
                     move=(Phase)(i%4);
                     break;
-                }else if(!DoneAdds[i%4]&&next>0)
+                } else if(!DoneAdds[i%4]&&next>0)
                     next--;
             }
             AddCount++;
@@ -288,19 +288,19 @@ struct TRINITY_DLL_DECL mob_ravenous_furbolgAI : public ScriptedAI
         if (!UpdateVictim())
             return;
 
-        if (uiChainLightingTimer < diff)
+        if (uiChainLightingTimer <= diff)
         {
             DoCast(m_creature->getVictim(), HEROIC(SPELL_CHAIN_LIGHTING, H_SPELL_CHAIN_LIGHTING));
             uiChainLightingTimer = 5000 + rand()%5000;
         } else uiChainLightingTimer -=  diff;
 
-        if (uiCrazedTimer < diff)
+        if (uiCrazedTimer <= diff)
         {
             DoCast(m_creature, SPELL_CRAZED);
             uiCrazedTimer = 8000 + rand()%4000;
         } else uiCrazedTimer -=  diff;
 
-        if (uiTerrifyingRoarTimer < diff)
+        if (uiTerrifyingRoarTimer <= diff)
         {
             DoCast(m_creature, SPELL_TERRIFYING_ROAR);
             uiTerrifyingRoarTimer = 10000 + rand()%10000;
@@ -394,19 +394,19 @@ struct TRINITY_DLL_DECL mob_frenzied_worgenAI : public ScriptedAI
         if (!UpdateVictim())
             return;
 
-        if (uiMortalWoundTimer < diff)
+        if (uiMortalWoundTimer <= diff)
         {
             DoCast(m_creature->getVictim(), HEROIC(SPELL_MORTAL_WOUND, H_SPELL_MORTAL_WOUND));
             uiMortalWoundTimer = 3000 + rand()%4000;
         } else uiMortalWoundTimer -= diff;
 
-        if (uiEnrage1Timer < diff)
+        if (uiEnrage1Timer <= diff)
         {
             DoCast(m_creature, SPELL_ENRAGE_1);
             uiEnrage1Timer = 15000;
         } else uiEnrage1Timer -= diff;
 
-        if (uiEnrage2Timer < diff)
+        if (uiEnrage2Timer <= diff)
         {
             DoCast(m_creature, SPELL_ENRAGE_2);
             uiEnrage2Timer = 10000;
@@ -503,19 +503,19 @@ struct TRINITY_DLL_DECL mob_ferocious_rhinoAI : public ScriptedAI
         if (!UpdateVictim())
             return;
 
-        if (uiStompTimer < diff)
+        if (uiStompTimer <= diff)
         {
             DoCast(m_creature->getVictim(), SPELL_STOMP);
             uiStompTimer = 8000 + rand()%4000;
         } else uiStompTimer -= diff;
 
-        if (uiGoreTimer < diff)
+        if (uiGoreTimer <= diff)
         {
             DoCast(m_creature->getVictim(), HEROIC(SPELL_GORE, H_SPELL_GORE));
             uiGoreTimer = 13000 + rand()%4000;
         } else uiGoreTimer -= diff;
 
-        if (uiGrievousWoundTimer < diff)
+        if (uiGrievousWoundTimer <= diff)
         {
             if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                 DoCast(pTarget, HEROIC(SPELL_GRIEVOUS_WOUND, H_SPELL_GRIEVOUS_WOUND));
@@ -616,20 +616,20 @@ struct TRINITY_DLL_DECL mob_massive_jormungarAI : public ScriptedAI
         if (!UpdateVictim())
             return;
 
-        if (uiAcidSpitTimer < diff)
+        if (uiAcidSpitTimer <= diff)
         {
             if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                 DoCast(pTarget, SPELL_ACID_SPIT);
             uiAcidSpitTimer = 2000 + rand()%2000;
         } else uiAcidSpitTimer -= diff;
 
-        if (uiAcidSplatterTimer < diff)
+        if (uiAcidSplatterTimer <= diff)
         {
             DoCast(m_creature, HEROIC(SPELL_POISON_BREATH, H_SPELL_POISON_BREATH));
             uiAcidSplatterTimer = 10000 + rand()%4000;
         } else uiAcidSplatterTimer -= diff;
 
-        if (uiPoisonBreathTimer < diff)
+        if (uiPoisonBreathTimer <= diff)
         {
             if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                 DoCast(pTarget, HEROIC(SPELL_POISON_BREATH, H_SPELL_POISON_BREATH));

@@ -110,14 +110,14 @@ struct TRINITY_DLL_DECL boss_gal_darahAI : public ScriptedAI
                 }
                 else
                 {
-                    if (uiStampedeTimer < diff)
+                    if (uiStampedeTimer <= diff)
                     {
                         DoCast(m_creature,SPELL_STAMPEDE);
                         DoScriptText(RAND(SAY_SUMMON_RHINO_1,SAY_SUMMON_RHINO_2,SAY_SUMMON_RHINO_3),m_creature);
                         uiStampedeTimer = 15000;
                     } else uiStampedeTimer -= diff;
 
-                    if (uiWhirlingSlashTimer < diff)
+                    if (uiWhirlingSlashTimer <= diff)
                     {
                         DoCast(m_creature->getVictim(), HEROIC(SPELL_WHIRLING_SLASH, H_SPELL_WHIRLING_SLASH));
                         uiWhirlingSlashTimer = 20000;
@@ -135,25 +135,25 @@ struct TRINITY_DLL_DECL boss_gal_darahAI : public ScriptedAI
                 }
                 else
                 {
-                    if (uiPunctureTimer < diff)
+                    if (uiPunctureTimer <= diff)
                     {
                         DoCast(m_creature->getVictim(), HEROIC(SPELL_PUNCTURE, H_SPELL_PUNCTURE));
                         uiPunctureTimer = 8000;
                     } else uiPunctureTimer -= diff;
 
-                    if (uiEnrageTimer < diff)
+                    if (uiEnrageTimer <= diff)
                     {
                         DoCast(m_creature->getVictim(), HEROIC(SPELL_ENRAGE, H_SPELL_ENRAGE));
                         uiEnrageTimer = 20000;
                     } else uiEnrageTimer -= diff;
 
-                    if(uiStompTimer < diff)
+                    if (uiStompTimer <= diff)
                     {
                         DoCast(m_creature->getVictim(), HEROIC(SPELL_STOMP, H_SPELL_STOMP));
                         uiStompTimer = 20000;
                     } else uiStompTimer -= diff;
 
-                    if (uiImpalingChargeTimer < diff)
+                    if (uiImpalingChargeTimer <= diff)
                     {
                         if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                             DoCast(pTarget,HEROIC(SPELL_IMPALING_CHARGE, H_SPELL_IMPALING_CHARGE));

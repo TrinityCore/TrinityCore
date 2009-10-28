@@ -144,7 +144,7 @@ struct TRINITY_DLL_DECL boss_lokenAI : public ScriptedAI
         if (m_bIsAura)
         {
             // workaround for PULSING_SHOCKWAVE
-            if (m_uiPulsingShockwave_Timer < uiDiff)
+            if (m_uiPulsingShockwave_Timer <= uiDiff)
             {
                 Map* pMap = m_creature->GetMap();
                 if (pMap->IsDungeon())
@@ -169,11 +169,11 @@ struct TRINITY_DLL_DECL boss_lokenAI : public ScriptedAI
                         }
                 }
                 m_uiPulsingShockwave_Timer = 2000;
-            }else m_uiPulsingShockwave_Timer -= uiDiff;
+            } else m_uiPulsingShockwave_Timer -= uiDiff;
         }
         else
         {
-            if (m_uiResumePulsingShockwave_Timer < uiDiff)
+            if (m_uiResumePulsingShockwave_Timer <= uiDiff)
             {
                 //breaks at movement, can we assume when it's time, this spell is casted and also must stop movement?
                 m_creature->CastSpell(m_creature, SPELL_PULSING_SHOCKWAVE_AURA, true);
@@ -186,7 +186,7 @@ struct TRINITY_DLL_DECL boss_lokenAI : public ScriptedAI
                 m_uiResumePulsingShockwave_Timer -= uiDiff;
         }
 
-        if (m_uiArcLightning_Timer < uiDiff)
+        if (m_uiArcLightning_Timer <= uiDiff)
         {
             if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
                 DoCast(pTarget, SPELL_ARC_LIGHTNING);
@@ -196,7 +196,7 @@ struct TRINITY_DLL_DECL boss_lokenAI : public ScriptedAI
         else
             m_uiArcLightning_Timer -= uiDiff;
 
-        if (m_uiLightningNova_Timer < uiDiff)
+        if (m_uiLightningNova_Timer <= uiDiff)
         {
             DoScriptText(RAND(SAY_NOVA_1,SAY_NOVA_2,SAY_NOVA_3), m_creature);
             DoScriptText(EMOTE_NOVA, m_creature);

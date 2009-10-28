@@ -352,8 +352,8 @@ struct TRINITY_DLL_DECL boss_strawmanAI : public ScriptedAI
 
         if (BrainWipeTimer <= diff)
         {
-            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                DoCast(target, SPELL_BRAIN_WIPE);
+            if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                DoCast(pTarget, SPELL_BRAIN_WIPE);
             BrainWipeTimer = 20000;
         } else BrainWipeTimer -= diff;
 
@@ -528,7 +528,7 @@ struct TRINITY_DLL_DECL boss_roarAI : public ScriptedAI
             {
                 m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                 AggroTimer = 0;
-            }else AggroTimer -= diff;
+            } else AggroTimer -= diff;
         }
 
         if (!UpdateVictim())
@@ -800,15 +800,15 @@ struct TRINITY_DLL_DECL boss_bigbadwolfAI : public ScriptedAI
         {
             if (!IsChasing)
             {
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                 {
                     DoScriptText(SAY_WOLF_HOOD, m_creature);
-                    DoCast(target, SPELL_LITTLE_RED_RIDING_HOOD, true);
-                    TempThreat = DoGetThreat(target);
+                    DoCast(pTarget, SPELL_LITTLE_RED_RIDING_HOOD, true);
+                    TempThreat = DoGetThreat(pTarget);
                     if (TempThreat)
-                        DoModifyThreatPercent(target, -100);
-                    HoodGUID = target->GetGUID();
-                    m_creature->AddThreat(target, 1000000.0f);
+                        DoModifyThreatPercent(pTarget, -100);
+                    HoodGUID = pTarget->GetGUID();
+                    m_creature->AddThreat(pTarget, 1000000.0f);
                     ChaseTimer = 20000;
                     IsChasing = true;
                 }
@@ -817,12 +817,12 @@ struct TRINITY_DLL_DECL boss_bigbadwolfAI : public ScriptedAI
             {
                 IsChasing = false;
 
-                if (Unit* target = Unit::GetUnit((*m_creature), HoodGUID))
+                if (Unit *pTarget = Unit::GetUnit((*m_creature), HoodGUID))
                 {
                     HoodGUID = 0;
-                    if (DoGetThreat(target))
-                        DoModifyThreatPercent(target, -100);
-                    m_creature->AddThreat(target, TempThreat);
+                    if (DoGetThreat(pTarget))
+                        DoModifyThreatPercent(pTarget, -100);
+                    m_creature->AddThreat(pTarget, TempThreat);
                     TempThreat = 0;
                 }
 
@@ -911,19 +911,19 @@ void PretendToDie(Creature* pCreature)
     pCreature->SetStandState(UNIT_STAND_STATE_DEAD);
 };
 
-void Resurrect(Creature* target)
+void Resurrect(Creature *pTarget)
 {
-    target->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-    target->SetHealth(target->GetMaxHealth());
-    target->SetStandState(UNIT_STAND_STATE_STAND);
-    target->CastSpell(target, SPELL_RES_VISUAL, true);
-    if (target->getVictim())
+    pTarget->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+    pTarget->SetHealth(pTarget->GetMaxHealth());
+    pTarget->SetStandState(UNIT_STAND_STATE_STAND);
+    pTarget->CastSpell(pTarget, SPELL_RES_VISUAL, true);
+    if (pTarget->getVictim())
     {
-        target->GetMotionMaster()->MoveChase(target->getVictim());
-        target->AI()->AttackStart(target->getVictim());
+        pTarget->GetMotionMaster()->MoveChase(pTarget->getVictim());
+        pTarget->AI()->AttackStart(pTarget->getVictim());
     }
         else
-            target->GetMotionMaster()->Initialize();
+            pTarget->GetMotionMaster()->Initialize();
 };
 
 struct TRINITY_DLL_DECL boss_julianneAI : public ScriptedAI
@@ -1253,7 +1253,7 @@ void boss_julianneAI::UpdateAI(const uint32 diff)
         {
             DoScriptText(SAY_JULIANNE_ENTER, m_creature);
             EntryYellTimer = 0;
-        }else EntryYellTimer -= diff;
+        } else EntryYellTimer -= diff;
     }
 
     if (AggroYellTimer)
@@ -1264,7 +1264,7 @@ void boss_julianneAI::UpdateAI(const uint32 diff)
             m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
             m_creature->setFaction(16);
             AggroYellTimer = 0;
-        }else AggroYellTimer -= diff;
+        } else AggroYellTimer -= diff;
     }
 
     if (DrinkPoisonTimer)
@@ -1276,7 +1276,7 @@ void boss_julianneAI::UpdateAI(const uint32 diff)
             Phase = PHASE_ROMULO;
             SummonRomuloTimer = 10000;
             DrinkPoisonTimer = 0;
-        }else DrinkPoisonTimer -= diff;
+        } else DrinkPoisonTimer -= diff;
     }
 
     if (Phase == PHASE_ROMULO && !SummonedRomulo)
@@ -1309,7 +1309,7 @@ void boss_julianneAI::UpdateAI(const uint32 diff)
 
             ResurrectSelfTimer = 0;
             ResurrectTimer = 1000;
-        }else ResurrectSelfTimer -= diff;
+        } else ResurrectSelfTimer -= diff;
     }
 
     if (!UpdateVictim() || IsFakingDeath)
@@ -1333,8 +1333,8 @@ void boss_julianneAI::UpdateAI(const uint32 diff)
 
     if (BlindingPassionTimer <= diff)
     {
-        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-            DoCast(target, SPELL_BLINDING_PASSION);
+        if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+            DoCast(pTarget, SPELL_BLINDING_PASSION);
         BlindingPassionTimer = urand(30000,45000);
     } else BlindingPassionTimer -= diff;
 
@@ -1388,10 +1388,10 @@ void boss_romuloAI::UpdateAI(const uint32 diff)
 
     if (BackwardLungeTimer <= diff)
     {
-        Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 100, true);
-        if (target && !m_creature->HasInArc(M_PI, target))
+        Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1, 100, true);
+        if (pTarget && !m_creature->HasInArc(M_PI, pTarget))
         {
-            DoCast(target, SPELL_BACKWARD_LUNGE);
+            DoCast(pTarget, SPELL_BACKWARD_LUNGE);
             BackwardLungeTimer = urand(15000,30000);
         }
     } else BackwardLungeTimer -= diff;
@@ -1404,8 +1404,8 @@ void boss_romuloAI::UpdateAI(const uint32 diff)
 
     if (DeadlySwatheTimer <= diff)
     {
-        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-            DoCast(target, SPELL_DEADLY_SWATHE);
+        if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+            DoCast(pTarget, SPELL_DEADLY_SWATHE);
         DeadlySwatheTimer = urand(15000,25000);
     } else DeadlySwatheTimer -= diff;
 

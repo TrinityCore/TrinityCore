@@ -86,19 +86,19 @@ struct TRINITY_DLL_DECL boss_herodAI : public ScriptedAI
         }
 
         //Cleave_Timer
-        if (Cleave_Timer < diff)
+        if (Cleave_Timer <= diff)
         {
             DoCast(m_creature->getVictim(),SPELL_CLEAVE);
             Cleave_Timer = 12000;
-        }else Cleave_Timer -= diff;
+        } else Cleave_Timer -= diff;
 
         // Whirlwind_Timer
-        if (Whirlwind_Timer < diff)
+        if (Whirlwind_Timer <= diff)
         {
             DoScriptText(SAY_WHIRLWIND, m_creature);
             DoCast(m_creature->getVictim(),SPELL_WHIRLWIND);
             Whirlwind_Timer = 30000;
-        }else Whirlwind_Timer -= diff;
+        } else Whirlwind_Timer -= diff;
 
         DoMeleeAttackIfReady();
     }
@@ -126,11 +126,11 @@ struct TRINITY_DLL_DECL mob_scarlet_traineeAI : public npc_escortAI
     {
         if (Start_Timer)
         {
-            if (Start_Timer < diff)
+            if (Start_Timer <= diff)
             {
                 Start(true,true);
                 Start_Timer = 0;
-            }else Start_Timer -= diff;
+            } else Start_Timer -= diff;
         }
 
         npc_escortAI::UpdateAI(diff);

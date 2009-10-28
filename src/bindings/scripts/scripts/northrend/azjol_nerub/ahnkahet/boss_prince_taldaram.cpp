@@ -132,7 +132,7 @@ struct TRINITY_DLL_DECL boss_taldaramAI : public ScriptedAI
     {
         if (!UpdateVictim())
             return;
-        if (uiPhaseTimer < diff)
+        if (uiPhaseTimer <= diff)
         {
             switch (Phase)
             {
@@ -196,13 +196,13 @@ struct TRINITY_DLL_DECL boss_taldaramAI : public ScriptedAI
                     pEmbraceTarget = NULL;
                 break;
                 case NORMAL:
-                    if (uiBloodthirstTimer < diff)
+                    if (uiBloodthirstTimer <= diff)
                     {
                         DoCast(m_creature->getVictim(),SPELL_BLOODTHIRST);
                         uiBloodthirstTimer = 10000;
                     } else uiBloodthirstTimer -= diff;
 
-                    if (uiFlamesphereTimer < diff)
+                    if (uiFlamesphereTimer <= diff)
                     {
                         DoCast(m_creature, SPELL_CONJURE_FLAME_SPHERE);
                         Phase = CASTING_FLAME_SPHERES;
@@ -210,19 +210,19 @@ struct TRINITY_DLL_DECL boss_taldaramAI : public ScriptedAI
                         uiFlamesphereTimer = 15000;
                     } else uiFlamesphereTimer -= diff;
 
-                    if (uiVanishTimer < diff )
+                    if (uiVanishTimer <= diff)
                     {
                         //Count alive players
-                        Unit *target = NULL;
+                        Unit *pTarget = NULL;
                         std::list<HostilReference *> t_list = m_creature->getThreatManager().getThreatList();
                         std::vector<Unit *> target_list;
                         for (std::list<HostilReference *>::iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)
                         {
-                            target = Unit::GetUnit(*m_creature, (*itr)->getUnitGuid());
+                            pTarget = Unit::GetUnit(*m_creature, (*itr)->getUnitGuid());
                             // exclude pets & totems
-                            if (target && target->GetTypeId() == TYPEID_PLAYER && target->isAlive())
-                                target_list.push_back(target);
-                            target = NULL;
+                            if (pTarget && pTarget->GetTypeId() == TYPEID_PLAYER && pTarget->isAlive())
+                                target_list.push_back(pTarget);
+                            pTarget = NULL;
                         }
                         //He only vanishes if there are 3 or more alive players
                         if (target_list.size() > 2)
@@ -355,7 +355,7 @@ struct TRINITY_DLL_DECL mob_taldaram_flamesphereAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
-        if (uiDespawnTimer < diff)
+        if (uiDespawnTimer <= diff)
             m_creature->DisappearAndDie();
         else
             uiDespawnTimer -= diff;

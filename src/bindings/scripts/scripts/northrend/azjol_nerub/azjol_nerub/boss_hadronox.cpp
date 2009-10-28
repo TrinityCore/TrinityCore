@@ -91,7 +91,7 @@ struct MANGOS_DLL_DECL boss_hadronoxAI : public ScriptedAI
         FirstTime = false;
     }
 
-    //when Hadronox kills any enemy (that includes a party member) she will regain 10% of her HP if the target had Leech Poison on
+    //when Hadronox kills any enemy (that includes a party member) she will regain 10% of her HP if the pTarget had Leech Poison on
     void KilledUnit(Unit* Victim)
     {
         // not sure if this aura check is correct, I think it is though
@@ -127,7 +127,7 @@ struct MANGOS_DLL_DECL boss_hadronoxAI : public ScriptedAI
         float x=0.0f, y=0.0f, z=0.0f;
         m_creature->GetRespawnCoord(x,y,z);
 
-        if (CheckDistanceTimer < uiDiff)
+        if (CheckDistanceTimer <= uiDiff)
             CheckDistanceTimer = 5000;
         else
         {
@@ -156,13 +156,13 @@ struct MANGOS_DLL_DECL boss_hadronoxAI : public ScriptedAI
         else if (!IsCombatMovement())
             SetCombatMovement(true);
 
-        if (piercetimer < diff)
+        if (piercetimer <= diff)
         {
             DoCast(m_creature->getVictim(), SPELL_PIERCE_ARMOR);
             piercetimer = 8000;
         } else piercetimer -= diff;
 
-        if (acidtimer < diff)
+        if (acidtimer <= diff)
         {
             if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                 DoCast(pTarget, HEROIC(SPELL_ACID_CLOUD, SPELL_ACID_CLOUD_H));
@@ -170,7 +170,7 @@ struct MANGOS_DLL_DECL boss_hadronoxAI : public ScriptedAI
             acidtimer = urand(20000,30000);
         } else acidtimer -= diff;
 
-        if (leechtimer < diff)
+        if (leechtimer <= diff)
         {
             if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                 DoCast(pTarget, HEROIC(SPELL_LEECH_POISON, SPELL_LEECH_POISON_H));
@@ -178,7 +178,7 @@ struct MANGOS_DLL_DECL boss_hadronoxAI : public ScriptedAI
             leechtimer = urand(11000,14000);
         } else leechtimer -= diff;
 
-        if (grabtimer < diff)
+        if (grabtimer <= diff)
         {
             if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0)) // Draws all players (and attacking Mobs) to itself.
                 DoCast(pTarget, HEROIC(SPELL_WEB_GRAB, SPELL_WEB_GRAB_H));
@@ -186,7 +186,7 @@ struct MANGOS_DLL_DECL boss_hadronoxAI : public ScriptedAI
             grabtimer = urand(15000,30000);
         } else grabtimer -= diff;
 
-        if (doorstimer < diff)
+        if (doorstimer <= diff)
         {/* Debuff bleibt auf den Spielern bis zum Tod...
             DoCast(m_creature, RAND(SPELL_WEB_FRONT_DOORS, SPELL_WEB_SIDE_DOORS));
             */

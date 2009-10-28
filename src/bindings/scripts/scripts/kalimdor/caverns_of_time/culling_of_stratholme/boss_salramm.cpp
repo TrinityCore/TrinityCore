@@ -85,37 +85,37 @@ struct TRINITY_DLL_DECL boss_salrammAI : public ScriptedAI
             return;
 
         //Curse of twisted flesh timer
-        if (Curse_flesh_Timer < diff)
+        if (Curse_flesh_Timer <= diff)
         {
             DoCast(m_creature->getVictim(),SPELL_CURSE_OF_TWISTED_FLESH);
             Curse_flesh_Timer = 37000;
-        }else Curse_flesh_Timer -= diff;
+        } else Curse_flesh_Timer -= diff;
 
         //Shadow bolt timer
-        if (Shadow_bolt_Timer < diff)
+        if (Shadow_bolt_Timer <= diff)
         {
-            if (Unit* random_target = SelectUnit(SELECT_TARGET_RANDOM, 0))
-                DoCast(random_target, HEROIC(SPELL_SHADOW_BOLT, H_SPELL_SHADOW_BOLT));
+            if (Unit* random_pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                DoCast(random_pTarget, HEROIC(SPELL_SHADOW_BOLT, H_SPELL_SHADOW_BOLT));
             Shadow_bolt_Timer = urand(8000,12000);
-        }else Shadow_bolt_Timer -= diff;
+        } else Shadow_bolt_Timer -= diff;
 
         //Steal Flesh timer
-        if (Steal_flesh_Timer < diff)
+        if (Steal_flesh_Timer <= diff)
         {
             DoScriptText(RAND(SAY_STEAL_FLESH_1,SAY_STEAL_FLESH_2,SAY_STEAL_FLESH_3), m_creature);
-            if (Unit* random_target = SelectUnit(SELECT_TARGET_RANDOM, 0))
-                DoCast(random_target,SPELL_STEAL_FLESH);
+            if (Unit* random_pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                DoCast(random_pTarget,SPELL_STEAL_FLESH);
             Steal_flesh_Timer = 10000;
-        }else Steal_flesh_Timer -= diff;
+        } else Steal_flesh_Timer -= diff;
 
         //Summon ghouls timer
-        if (Summon_ghouls_Timer < diff)
+        if (Summon_ghouls_Timer <= diff)
         {
             DoScriptText(RAND(SAY_SUMMON_GHOULS_1,SAY_SUMMON_GHOULS_2), m_creature);
-            if (Unit* random_target = SelectUnit(SELECT_TARGET_RANDOM, 0))
-                DoCast(random_target,SPELL_SUMMON_GHOULS);
+            if (Unit* random_pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                DoCast(random_pTarget,SPELL_SUMMON_GHOULS);
             Summon_ghouls_Timer = 10000;
-        }else Summon_ghouls_Timer -= diff;
+        } else Summon_ghouls_Timer -= diff;
 
         DoMeleeAttackIfReady();
     }

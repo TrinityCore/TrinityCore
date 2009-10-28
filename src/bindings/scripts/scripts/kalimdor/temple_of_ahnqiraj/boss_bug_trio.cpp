@@ -83,18 +83,18 @@ struct TRINITY_DLL_DECL boss_kriAI : public ScriptedAI
             return;
 
         //Cleave_Timer
-        if (Cleave_Timer < diff)
+        if (Cleave_Timer <= diff)
         {
             DoCast(m_creature->getVictim(),SPELL_CLEAVE);
             Cleave_Timer = 5000 + rand()%7000;
-        }else Cleave_Timer -= diff;
+        } else Cleave_Timer -= diff;
 
         //ToxicVolley_Timer
-        if (ToxicVolley_Timer < diff)
+        if (ToxicVolley_Timer <= diff)
         {
             DoCast(m_creature->getVictim(),SPELL_TOXIC_VOLLEY);
             ToxicVolley_Timer = 10000 + rand()%5000;
-        }else ToxicVolley_Timer -= diff;
+        } else ToxicVolley_Timer -= diff;
 
         if (m_creature->GetHealth() <= m_creature->GetMaxHealth() * 0.05 && !Death)
         {
@@ -105,7 +105,7 @@ struct TRINITY_DLL_DECL boss_kriAI : public ScriptedAI
         if (!VemDead)
         {
             //Checking if Vem is dead. If yes we will enrage.
-            if (Check_Timer < diff)
+            if (Check_Timer <= diff)
             {
                 if (pInstance && pInstance->GetData(DATA_VEMISDEAD))
                 {
@@ -113,7 +113,7 @@ struct TRINITY_DLL_DECL boss_kriAI : public ScriptedAI
                     VemDead = true;
                 }
                 Check_Timer = 2000;
-            }else Check_Timer -=diff;
+            } else Check_Timer -=diff;
         }
 
         DoMeleeAttackIfReady();
@@ -167,35 +167,35 @@ struct TRINITY_DLL_DECL boss_vemAI : public ScriptedAI
             return;
 
         //Charge_Timer
-        if (Charge_Timer < diff)
+        if (Charge_Timer <= diff)
         {
-            Unit* target = NULL;
-            target = SelectUnit(SELECT_TARGET_RANDOM,0);
-            if (target)
+            Unit *pTarget = NULL;
+            pTarget = SelectUnit(SELECT_TARGET_RANDOM,0);
+            if (pTarget)
             {
-                DoCast(target, SPELL_CHARGE);
-                //m_creature->SendMonsterMove(target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0, true,1);
-                AttackStart(target);
+                DoCast(pTarget, SPELL_CHARGE);
+                //m_creature->SendMonsterMove(pTarget->GetPositionX(), pTarget->GetPositionY(), pTarget->GetPositionZ(), 0, true,1);
+                AttackStart(pTarget);
             }
 
             Charge_Timer = 8000 + rand()%8000;
-        }else Charge_Timer -= diff;
+        } else Charge_Timer -= diff;
 
         //KnockBack_Timer
-        if (KnockBack_Timer < diff)
+        if (KnockBack_Timer <= diff)
         {
             DoCast(m_creature->getVictim(),SPELL_KNOCKBACK);
             if (DoGetThreat(m_creature->getVictim()))
                 DoModifyThreatPercent(m_creature->getVictim(),-80);
             KnockBack_Timer = 15000 + rand()%10000;
-        }else KnockBack_Timer -= diff;
+        } else KnockBack_Timer -= diff;
 
         //Enrage_Timer
-        if (!Enraged && Enrage_Timer < diff)
+        if (!Enraged && Enrage_Timer <= diff)
         {
             DoCast(m_creature,SPELL_ENRAGE);
             Enraged = true;
-        }else Charge_Timer -= diff;
+        } else Charge_Timer -= diff;
 
         DoMeleeAttackIfReady();
     }
@@ -237,10 +237,10 @@ struct TRINITY_DLL_DECL boss_yaujAI : public ScriptedAI
 
         for (uint8 i = 0; i < 10; ++i)
         {
-            Unit* target = SelectUnit(SELECT_TARGET_RANDOM,0);
+            Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM,0);
             Creature* Summoned = m_creature->SummonCreature(15621,m_creature->GetPositionX(), m_creature->GetPositionY(), m_creature->GetPositionZ(),0,TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN,90000);
-            if (Summoned && target)
-                (Summoned->AI())->AttackStart(target);
+            if (Summoned && pTarget)
+                Summoned->AI()->AttackStart(pTarget);
         }
     }
 
@@ -255,15 +255,15 @@ struct TRINITY_DLL_DECL boss_yaujAI : public ScriptedAI
             return;
 
         //Fear_Timer
-        if (Fear_Timer < diff)
+        if (Fear_Timer <= diff)
         {
             DoCast(m_creature->getVictim(),SPELL_FEAR);
             DoResetThreat();
             Fear_Timer = 20000;
-        }else Fear_Timer -= diff;
+        } else Fear_Timer -= diff;
 
         //Casting Heal to other twins or herself.
-        if (Heal_Timer < diff)
+        if (Heal_Timer <= diff)
         {
             if (pInstance)
             {
@@ -287,10 +287,10 @@ struct TRINITY_DLL_DECL boss_yaujAI : public ScriptedAI
             }
 
             Heal_Timer = 15000+rand()%15000;
-        }else Heal_Timer -= diff;
+        } else Heal_Timer -= diff;
 
         //Checking if Vem is dead. If yes we will enrage.
-        if (Check_Timer < diff)
+        if (Check_Timer <= diff)
         {
             if (!VemDead)
             {
@@ -304,7 +304,7 @@ struct TRINITY_DLL_DECL boss_yaujAI : public ScriptedAI
                 }
             }
             Check_Timer = 2000;
-        }else Check_Timer -= diff;
+        } else Check_Timer -= diff;
 
         DoMeleeAttackIfReady();
     }

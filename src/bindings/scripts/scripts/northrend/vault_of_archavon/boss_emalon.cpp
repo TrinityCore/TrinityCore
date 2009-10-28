@@ -134,8 +134,8 @@ struct TRINITY_DLL_DECL boss_emalonAI : public ScriptedAI
             switch(eventId)
             {
             case EVENT_CHAIN_LIGHTNING:
-                if(Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0))
-                    DoCast(target, SPELL_CHAIN_LIGHTNING);
+                if(Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                    DoCast(pTarget, SPELL_CHAIN_LIGHTNING);
                 events.ScheduleEvent(EVENT_CHAIN_LIGHTNING, 25000);
                 return;
             case EVENT_LIGHTNING_NOVA:
@@ -229,11 +229,11 @@ struct TRINITY_DLL_DECL mob_tempest_minionAI : public ScriptedAI
         {
             if(OverchargedAura->GetStackAmount() < 10)
             {
-                if(OverchargedTimer < diff)
+                if (OverchargedTimer <= diff)
                 {
                     DoCast(me, SPELL_OVERCHARGED);
                     OverchargedTimer = 2000;
-                }else OverchargedTimer -=diff;
+                } else OverchargedTimer -=diff;
             }
             else
             {

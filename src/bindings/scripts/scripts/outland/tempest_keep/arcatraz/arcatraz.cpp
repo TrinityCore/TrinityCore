@@ -132,7 +132,7 @@ struct TRINITY_DLL_DECL npc_millhouse_manastormAI : public ScriptedAI
     {
         if (!Init)
         {
-            if (EventProgress_Timer < diff)
+            if (EventProgress_Timer <= diff)
             {
                 if (Phase < 8)
                 {
@@ -185,7 +185,7 @@ struct TRINITY_DLL_DECL npc_millhouse_manastormAI : public ScriptedAI
             LowHp = true;
         }
 
-        if (Pyroblast_Timer < diff)
+        if (Pyroblast_Timer <= diff)
         {
             if (m_creature->IsNonMeleeSpellCasted(false))
                 return;
@@ -194,13 +194,13 @@ struct TRINITY_DLL_DECL npc_millhouse_manastormAI : public ScriptedAI
 
             DoCast(m_creature->getVictim(),SPELL_PYROBLAST);
             Pyroblast_Timer = 40000;
-        }else Pyroblast_Timer -=diff;
+        } else Pyroblast_Timer -=diff;
 
-        if (Fireball_Timer < diff)
+        if (Fireball_Timer <= diff)
         {
             DoCast(m_creature->getVictim(),SPELL_FIREBALL);
             Fireball_Timer = 4000;
-        }else Fireball_Timer -=diff;
+        } else Fireball_Timer -=diff;
 
         DoMeleeAttackIfReady();
     }
@@ -371,7 +371,7 @@ struct TRINITY_DLL_DECL npc_warden_mellicharAI : public ScriptedAI
         if (!IsRunning)
             return;
 
-        if (EventProgress_Timer < diff)
+        if (EventProgress_Timer <= diff)
         {
             if (pInstance)
             {
@@ -391,7 +391,7 @@ struct TRINITY_DLL_DECL npc_warden_mellicharAI : public ScriptedAI
                 switch(Phase)
                 {
                     case 2:
-                        switch(rand()%2)
+                        switch (urand(0,1))
                         {
                             case 0: m_creature->SummonCreature(ENTRY_TRICKSTER,478.326,-148.505,42.56,3.19,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,600000); break;
                             case 1: m_creature->SummonCreature(ENTRY_PH_HUNTER,478.326,-148.505,42.56,3.19,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,600000); break;
@@ -404,14 +404,14 @@ struct TRINITY_DLL_DECL npc_warden_mellicharAI : public ScriptedAI
                        DoScriptText(YELL_RELEASE2B, m_creature);
                         break;
                     case 5:
-                        switch(rand()%2)
+                        switch (urand(0,1))
                         {
                             case 0: m_creature->SummonCreature(ENTRY_AKKIRIS,420.179,-174.396,42.58,0.02,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,600000); break;
                             case 1: m_creature->SummonCreature(ENTRY_SULFURON,420.179,-174.396,42.58,0.02,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,600000); break;
                         }
                         break;
                     case 6:
-                        switch(rand()%2)
+                        switch (urand(0,1))
                         {
                             case 0: m_creature->SummonCreature(ENTRY_TW_DRAK,471.795,-174.58,42.58,3.06,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,600000); break;
                             case 1: m_creature->SummonCreature(ENTRY_BL_DRAK,471.795,-174.58,42.58,3.06,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,600000); break;

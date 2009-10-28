@@ -132,7 +132,7 @@ struct TRINITY_DLL_DECL npc_kerlonianAI : public FollowerAI
 
             if (!HasFollowState(STATE_FOLLOW_PAUSED))
             {
-                if (m_uiFallAsleepTimer < uiDiff)
+                if (m_uiFallAsleepTimer <= uiDiff)
                 {
                     SetSleeping();
                     m_uiFallAsleepTimer = urand(25000, 90000);

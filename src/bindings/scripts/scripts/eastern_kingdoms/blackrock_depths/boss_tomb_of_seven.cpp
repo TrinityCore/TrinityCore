@@ -170,8 +170,8 @@ struct TRINITY_DLL_DECL boss_doomrelAI : public ScriptedAI
         //Immolate_Timer
         if (Immolate_Timer <= diff)
         {
-            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                DoCast(target,SPELL_IMMOLATE);
+            if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                DoCast(pTarget,SPELL_IMMOLATE);
 
             Immolate_Timer = 25000;
         } else Immolate_Timer -= diff;

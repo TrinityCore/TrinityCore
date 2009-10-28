@@ -80,7 +80,7 @@ struct TRINITY_DLL_DECL boss_ysondreAI : public ScriptedAI
             return;
 
         //Sleep_Timer
-        if (m_uiSleep_Timer < uiDiff)
+        if (m_uiSleep_Timer <= uiDiff)
         {
             if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
                 DoCast(pTarget, SPELL_SLEEP);
@@ -91,7 +91,7 @@ struct TRINITY_DLL_DECL boss_ysondreAI : public ScriptedAI
             m_uiSleep_Timer -= uiDiff;
 
         //NoxiousBreath_Timer
-        if (m_uiNoxiousBreath_Timer < uiDiff)
+        if (m_uiNoxiousBreath_Timer <= uiDiff)
         {
             DoCast(m_creature->getVictim(), SPELL_NOXIOUSBREATH);
             m_uiNoxiousBreath_Timer = 14000 + rand()%6000;
@@ -100,10 +100,10 @@ struct TRINITY_DLL_DECL boss_ysondreAI : public ScriptedAI
             m_uiNoxiousBreath_Timer -= uiDiff;
 
         //Tailsweep every 2 seconds
-        if (m_uiTailSweep_Timer < uiDiff)
+        if (m_uiTailSweep_Timer <= uiDiff)
         {
-            if (Unit *target = SelectUnit(SELECT_TARGET_RANDOM, 0))
-                DoCast(target, SPELL_TAILSWEEP);
+            if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                DoCast(pTarget, SPELL_TAILSWEEP);
 
             m_uiTailSweep_Timer = 2000;
         }
@@ -111,7 +111,7 @@ struct TRINITY_DLL_DECL boss_ysondreAI : public ScriptedAI
             m_uiTailSweep_Timer -= uiDiff;
 
         //MarkOfNature_Timer
-        //if (m_uiMarkOfNature_Timer < uiDiff)
+        //if (m_uiMarkOfNature_Timer <= uiDiff)
         //{
         //    DoCast(m_creature->getVictim(), SPELL_MARKOFNATURE);
         //    m_uiMarkOfNature_Timer = 45000;
@@ -120,11 +120,11 @@ struct TRINITY_DLL_DECL boss_ysondreAI : public ScriptedAI
         //    m_uiMarkOfNature_Timer -= uiDiff;
 
         //LightningWave_Timer
-        if (m_uiLightningWave_Timer < uiDiff)
+        if (m_uiLightningWave_Timer <= uiDiff)
         {
             //Cast LIGHTNINGWAVE on a Random target
-            if (Unit *target = SelectUnit(SELECT_TARGET_RANDOM, 0))
-                DoCast(target, SPELL_LIGHTNINGWAVE);
+            if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                DoCast(pTarget, SPELL_LIGHTNINGWAVE);
 
             m_uiLightningWave_Timer = 7000 + rand()%5000;
         }
@@ -164,7 +164,7 @@ struct TRINITY_DLL_DECL mob_dementeddruidsAI : public ScriptedAI
             return;
 
         //MoonFire_Timer
-        if (m_uiMoonFire_Timer < uiDiff)
+        if (m_uiMoonFire_Timer <= uiDiff)
         {
             DoCast(m_creature->getVictim(), SPELL_MOONFIRE);
             m_uiMoonFire_Timer = 5000;

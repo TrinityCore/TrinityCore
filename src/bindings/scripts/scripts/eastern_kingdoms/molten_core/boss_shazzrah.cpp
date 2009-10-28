@@ -57,53 +57,50 @@ struct TRINITY_DLL_DECL boss_shazzrahAI : public ScriptedAI
             return;
 
         //ArcaneExplosion_Timer
-        if (ArcaneExplosion_Timer < diff)
+        if (ArcaneExplosion_Timer <= diff)
         {
             DoCast(m_creature->getVictim(),SPELL_ARCANEEXPLOSION);
             ArcaneExplosion_Timer = 5000 + rand()%4000;
-        }else ArcaneExplosion_Timer -= diff;
+        } else ArcaneExplosion_Timer -= diff;
 
         //ShazzrahCurse_Timer
-        if (ShazzrahCurse_Timer < diff)
+        if (ShazzrahCurse_Timer <= diff)
         {
-            Unit* target = NULL;
-            target = SelectUnit(SELECT_TARGET_RANDOM,0);
-            if (target) DoCast(target,SPELL_SHAZZRAHCURSE);
+            Unit *pTarget = NULL;
+            pTarget = SelectUnit(SELECT_TARGET_RANDOM,0);
+            if (pTarget) DoCast(pTarget,SPELL_SHAZZRAHCURSE);
 
             ShazzrahCurse_Timer = 25000 + rand()%5000;
-        }else ShazzrahCurse_Timer -= diff;
+        } else ShazzrahCurse_Timer -= diff;
 
         //DeadenMagic_Timer
-        if (DeadenMagic_Timer < diff)
+        if (DeadenMagic_Timer <= diff)
         {
             DoCast(m_creature,SPELL_DEADENMAGIC);
             DeadenMagic_Timer = 35000;
-        }else DeadenMagic_Timer -= diff;
+        } else DeadenMagic_Timer -= diff;
 
         //Countspell_Timer
-        if (Countspell_Timer < diff)
+        if (Countspell_Timer <= diff)
         {
             DoCast(m_creature->getVictim(),SPELL_COUNTERSPELL);
             Countspell_Timer = 16000 + rand()%4000;
-        }else Countspell_Timer -= diff;
+        } else Countspell_Timer -= diff;
 
         //Blink_Timer
-        if (Blink_Timer < diff)
+        if (Blink_Timer <= diff)
         {
             // Teleporting him to a random gamer and casting Arcane Explosion after that.
             // Blink is not working cause of LoS System we need to do this hardcoded.
-            Unit* target = NULL;
-            target = SelectUnit(SELECT_TARGET_RANDOM,0);
-
-            if (target)
+            if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM,0, 100, true))
             {
-            DoTeleportTo(target->GetPositionX(), target->GetPositionY(), target->GetPositionZ());
-            DoCast(target,SPELL_ARCANEEXPLOSION);
-            DoResetThreat();
+                DoTeleportTo(pTarget->GetPositionX(), pTarget->GetPositionY(), pTarget->GetPositionZ());
+                DoCast(pTarget, SPELL_ARCANEEXPLOSION);
+                DoResetThreat();
             }
 
             Blink_Timer = 45000;
-        }else Blink_Timer -= diff;
+        } else Blink_Timer -= diff;
 
         DoMeleeAttackIfReady();
     }

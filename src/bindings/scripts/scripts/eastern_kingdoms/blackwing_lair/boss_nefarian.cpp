@@ -203,7 +203,7 @@ struct TRINITY_DLL_DECL boss_nefarianAI : public ScriptedAI
             }
 
             ClassCall_Timer = 35000 + (rand() % 5000);
-        }else ClassCall_Timer -= diff;
+        } else ClassCall_Timer -= diff;
 
         //Phase3 begins when we are below X health
         if (!Phase3 && (m_creature->GetHealth()*100 / m_creature->GetMaxHealth()) < 20)

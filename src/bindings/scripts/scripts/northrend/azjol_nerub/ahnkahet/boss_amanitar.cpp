@@ -127,29 +127,29 @@ struct MANGOS_DLL_DECL boss_amanitarAI : public ScriptedAI
         //Return since we have no target
         if (!UpdateVictim()) return;
 
-        if (spawntimer < diff)
+        if (spawntimer <= diff)
         {
             SpawnAdds();
             spawntimer = urand(35000,40000);
         } else spawntimer -= diff;
 
-        if (roottimer < diff)
+        if (roottimer <= diff)
         {
-            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                m_creature->CastSpell(target, SPELL_ENTANGLING_ROOTS, false);
+            if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                m_creature->CastSpell(pTarget, SPELL_ENTANGLING_ROOTS, false);
             roottimer = urand(15000,30000);
         }
 
-        if (bashtimer < diff)
+        if (bashtimer <= diff)
         {
             m_creature->CastSpell(m_creature->getVictim(), SPELL_BASH, false);
             bashtimer = urand(15000,30000);
         } else bashtimer -= diff;
 
-        if (bolttimer < diff)
+        if (bolttimer <= diff)
         {
-            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                m_creature->CastSpell(target, SPELL_VENOM_BOLT_VOLLEY, false);
+            if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                m_creature->CastSpell(pTarget, SPELL_VENOM_BOLT_VOLLEY, false);
             bolttimer = urand(15000,30000);
         } else bolttimer -= diff;
 
@@ -196,14 +196,14 @@ struct MANGOS_DLL_DECL mob_amanitar_mushroomsAI : public Scripted_NoMovementAI
     {
         if (m_creature->GetEntry() == NPC_POISONOUS_MUSHROOM)
         {
-            if (auratimer < diff)
+            if (auratimer <= diff)
             {
                 m_creature->CastSpell(m_creature, POISONOUS_MUSHROOM_SPELL_VISUAL_AREA, true);
                 m_creature->CastSpell(m_creature, POISONOUS_MUSHROOM_SPELL_POISON_CLOUD, false);
                 auratimer = 7000;
             } else auratimer -= diff;
         }
-        if (deathtimer < diff)
+        if (deathtimer <= diff)
         {
             m_creature->DisappearAndDie();
         } else deathtimer -= diff;

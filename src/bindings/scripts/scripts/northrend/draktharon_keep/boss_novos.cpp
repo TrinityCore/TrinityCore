@@ -126,7 +126,7 @@ struct TRINITY_DLL_DECL boss_novosAI : public Scripted_NoMovementAI
         switch (Phase)
         {
             case PHASE_1:
-                if (uiTimer < diff)
+                if (uiTimer <= diff)
                 {
                     Creature *pSummon = m_creature->SummonCreature(RAND(CREATURE_FETID_TROLL_CORPSE,CREATURE_HULKING_CORPSE,CREATURE_RISEN_SHADOWCASTER), AddSpawnPoint.x, AddSpawnPoint.y , AddSpawnPoint.z, 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN,20000);
                     pSummon->GetMotionMaster()->MovePoint(0, AddDestinyPoint.x, AddDestinyPoint.y, AddDestinyPoint.z);
@@ -134,7 +134,7 @@ struct TRINITY_DLL_DECL boss_novosAI : public Scripted_NoMovementAI
                     //DoCast(m_creature,SPELL_SUMMON_MINIONS);
                     uiTimer = 3000;
                 } else uiTimer -= diff;
-                if (uiCrystalHandlerTimer < diff)
+                if (uiCrystalHandlerTimer <= diff)
                 {
                     //TODO: say
                     Creature *pCrystalHandler = m_creature->SummonCreature(CREATURE_CRYSTAL_HANDLER, AddSpawnPoint.x, AddSpawnPoint.y , AddSpawnPoint.z, 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN,20000);
@@ -143,7 +143,7 @@ struct TRINITY_DLL_DECL boss_novosAI : public Scripted_NoMovementAI
                 } else uiCrystalHandlerTimer -= diff;
                 break;
             case PHASE_2:
-                if (uiTimer < diff)
+                if (uiTimer <= diff)
                 {
                     Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM,0);
                     while (pTarget && pTarget->GetTypeId() != TYPEID_PLAYER)

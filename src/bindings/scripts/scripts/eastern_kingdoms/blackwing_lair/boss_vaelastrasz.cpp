@@ -74,10 +74,10 @@ struct TRINITY_DLL_DECL boss_vaelAI : public ScriptedAI
         DoingSpeech = false;
     }
 
-    void BeginSpeech(Unit* target)
+    void BeginSpeech(Unit *pTarget)
     {
         //Stand up and begin speach
-        PlayerGUID = target->GetGUID();
+        PlayerGUID = pTarget->GetGUID();
 
         //10 seconds
         DoScriptText(SAY_LINE1, m_creature);
@@ -167,18 +167,18 @@ struct TRINITY_DLL_DECL boss_vaelAI : public ScriptedAI
         //BurningAdrenalineCaster_Timer
         if (BurningAdrenalineCaster_Timer <= diff)
         {
-            Unit* target = NULL;
+            Unit *pTarget = NULL;
 
             uint8 i = 0;
-            while (i < 3)                                   // max 3 tries to get a random target with power_mana
+            while (i < 3)                                   // max 3 tries to get a random pTarget with power_mana
             {
                 ++i;
-                if (target = SelectTarget(SELECT_TARGET_RANDOM, 1, 100, true)) //not aggro leader
-                    if (target->getPowerType() == POWER_MANA)
+                if (pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1, 100, true)) //not aggro leader
+                    if (pTarget->getPowerType() == POWER_MANA)
                         i = 3;
             }
-            if (target)                                     // cast on self (see below)
-                target->CastSpell(target,SPELL_BURNINGADRENALINE,1);
+            if (pTarget)                                     // cast on self (see below)
+                pTarget->CastSpell(pTarget,SPELL_BURNINGADRENALINE,1);
 
             BurningAdrenalineCaster_Timer = 15000;
         } else BurningAdrenalineCaster_Timer -= diff;

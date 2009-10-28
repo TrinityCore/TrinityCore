@@ -101,7 +101,7 @@ struct TRINITY_DLL_DECL boss_high_botanist_freywinnAI : public ScriptedAI
         if (!UpdateVictim())
             return;
 
-        if (TreeForm_Timer < diff)
+        if (TreeForm_Timer <= diff)
         {
             DoScriptText(RAND(SAY_TREE_1,SAY_TREE_2), m_creature);
 
@@ -118,11 +118,11 @@ struct TRINITY_DLL_DECL boss_high_botanist_freywinnAI : public ScriptedAI
             MoveFree = false;
 
             TreeForm_Timer = 75000;
-        }else TreeForm_Timer -= diff;
+        } else TreeForm_Timer -= diff;
 
         if (!MoveFree)
         {
-            if (MoveCheck_Timer < diff)
+            if (MoveCheck_Timer <= diff)
             {
                 if (!Adds_List.empty())
                 {
@@ -140,7 +140,7 @@ struct TRINITY_DLL_DECL boss_high_botanist_freywinnAI : public ScriptedAI
                     }
                 }
 
-                if (DeadAddsCount < 3 && TreeForm_Timer-30000 < diff)
+                if (DeadAddsCount < 3 && TreeForm_Timer-30000 <= diff)
                     DeadAddsCount = 3;
 
                 if (DeadAddsCount >= 3)
@@ -164,11 +164,11 @@ struct TRINITY_DLL_DECL boss_high_botanist_freywinnAI : public ScriptedAI
             return;*/
 
         //one random seedling every 5 secs, but not in tree form
-        if (SummonSeedling_Timer < diff)
+        if (SummonSeedling_Timer <= diff)
         {
             DoSummonSeedling();
             SummonSeedling_Timer = 6000;
-        }else SummonSeedling_Timer -= diff;
+        } else SummonSeedling_Timer -= diff;
 
         DoMeleeAttackIfReady();
     }

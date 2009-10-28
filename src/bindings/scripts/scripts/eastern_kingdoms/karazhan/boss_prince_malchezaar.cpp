@@ -288,15 +288,15 @@ struct TRINITY_DLL_DECL boss_malchezaarAI : public ScriptedAI
         if (!t_list.size())
             return;
 
-        //begin + 1 , so we don't target the one with the highest threat
+        //begin + 1 , so we don't pTarget the one with the highest threat
         std::list<HostilReference *>::iterator itr = t_list.begin();
         std::advance(itr, 1);
         for (; itr!= t_list.end(); ++itr)                   //store the threat list in a different container
         {
-            Unit *target = Unit::GetUnit(*m_creature, (*itr)->getUnitGuid());
+            Unit *pTarget = Unit::GetUnit(*m_creature, (*itr)->getUnitGuid());
                                                             //only on alive players
-            if (target && target->isAlive() && target->GetTypeId() == TYPEID_PLAYER)
-                targets.push_back(target);
+            if (pTarget && pTarget->isAlive() && pTarget->GetTypeId() == TYPEID_PLAYER)
+                targets.push_back(pTarget);
         }
 
         //cut down to size if we have more than 5 targets
@@ -306,14 +306,14 @@ struct TRINITY_DLL_DECL boss_malchezaarAI : public ScriptedAI
         int i = 0;
         for (std::vector<Unit *>::iterator iter = targets.begin(); iter!= targets.end(); ++iter, ++i)
         {
-            Unit *target = *iter;
-            if (target)
+            Unit *pTarget = *iter;
+            if (pTarget)
             {
-                enfeeble_targets[i] = target->GetGUID();
-                enfeeble_health[i] = target->GetHealth();
+                enfeeble_targets[i] = pTarget->GetGUID();
+                enfeeble_health[i] = pTarget->GetHealth();
 
-                target->CastSpell(target, SPELL_ENFEEBLE, true, 0, 0, m_creature->GetGUID());
-                target->SetHealth(1);
+                pTarget->CastSpell(pTarget, SPELL_ENFEEBLE, true, 0, 0, m_creature->GetGUID());
+                pTarget->SetHealth(1);
             }
         }
 
@@ -323,9 +323,9 @@ struct TRINITY_DLL_DECL boss_malchezaarAI : public ScriptedAI
     {
         for (uint8 i = 0; i < 5; ++i)
         {
-            Unit *target = Unit::GetUnit(*m_creature, enfeeble_targets[i]);
-            if (target && target->isAlive())
-                target->SetHealth(enfeeble_health[i]);
+            Unit *pTarget = Unit::GetUnit(*m_creature, enfeeble_targets[i]);
+            if (pTarget && pTarget->isAlive())
+                pTarget->SetHealth(enfeeble_health[i]);
             enfeeble_targets[i] = 0;
             enfeeble_health[i] = 0;
         }
@@ -372,7 +372,7 @@ struct TRINITY_DLL_DECL boss_malchezaarAI : public ScriptedAI
         {
             EnfeebleResetHealth();
             EnfeebleResetTimer=0;
-        }else EnfeebleResetTimer -= diff;
+        } else EnfeebleResetTimer -= diff;
 
         if (m_creature->hasUnitState(UNIT_STAT_STUNNED))     //While shifting to phase 2 malchezaar stuns himself
             return;
@@ -430,7 +430,7 @@ struct TRINITY_DLL_DECL boss_malchezaarAI : public ScriptedAI
 
                 DoScriptText(SAY_AXE_TOSS2, m_creature);
 
-                Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true);
+                Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true);
                 for (uint8 i = 0; i < 2; ++i)
                 {
                     Creature *axe = m_creature->SummonCreature(MALCHEZARS_AXE, m_creature->GetPositionX(), m_creature->GetPositionY(), m_creature->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 1000);
@@ -439,12 +439,12 @@ struct TRINITY_DLL_DECL boss_malchezaarAI : public ScriptedAI
                         axe->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                         axe->setFaction(m_creature->getFaction());
                         axes[i] = axe->GetGUID();
-                        if (target)
+                        if (pTarget)
                         {
-                            axe->AI()->AttackStart(target);
-                            // axe->getThreatManager().tauntApply(target); //Taunt Apply and fade out does not work properly
+                            axe->AI()->AttackStart(pTarget);
+                            // axe->getThreatManager().tauntApply(pTarget); //Taunt Apply and fade out does not work properly
                                                             // So we'll use a hack to add a lot of threat to our target
-                            axe->AddThreat(target, 10000000.0f);
+                            axe->AddThreat(pTarget, 10000000.0f);
                         }
                     }
                 }
@@ -475,7 +475,7 @@ struct TRINITY_DLL_DECL boss_malchezaarAI : public ScriptedAI
             {
                 AxesTargetSwitchTimer = urand(7500,20000);
 
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                 {
                     for (uint8 i = 0; i < 2; ++i)
                     {
@@ -484,10 +484,10 @@ struct TRINITY_DLL_DECL boss_malchezaarAI : public ScriptedAI
                             float threat = 1000000.0f;
                             if (axe->getVictim())
                                 DoModifyThreatPercent(axe->getVictim(), -100);
-                            if (target)
-                                axe->AddThreat(target, threat);
+                            if (pTarget)
+                                axe->AddThreat(pTarget, threat);
                             //axe->getThreatManager().tauntFadeOut(axe->getVictim());
-                            //axe->getThreatManager().tauntApply(target);
+                            //axe->getThreatManager().tauntApply(pTarget);
                         }
                     }
                 }
@@ -495,8 +495,8 @@ struct TRINITY_DLL_DECL boss_malchezaarAI : public ScriptedAI
 
             if (AmplifyDamageTimer <= diff)
             {
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                    DoCast(target, SPELL_AMPLIFY_DAMAGE);
+                if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                    DoCast(pTarget, SPELL_AMPLIFY_DAMAGE);
                 AmplifyDamageTimer = urand(20000,30000);
             } else AmplifyDamageTimer -= diff;
         }
@@ -518,17 +518,17 @@ struct TRINITY_DLL_DECL boss_malchezaarAI : public ScriptedAI
         {
             if (SWPainTimer <= diff)
             {
-                Unit* target = NULL;
+                Unit *pTarget = NULL;
                 if (phase == 1)
-                    target = m_creature->getVictim();        // the tank
+                    pTarget = m_creature->getVictim();        // the tank
                 else                                         // anyone but the tank
-                    target = SelectTarget(SELECT_TARGET_RANDOM, 1, 100, true);
+                    pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1, 100, true);
 
-                if (target)
-                    DoCast(target, SPELL_SW_PAIN);
+                if (pTarget)
+                    DoCast(pTarget, SPELL_SW_PAIN);
 
                 SWPainTimer = 20000;
-            }else SWPainTimer -= diff;
+            } else SWPainTimer -= diff;
         }
 
         if (phase != 3)

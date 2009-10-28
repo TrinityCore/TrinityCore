@@ -118,7 +118,7 @@ struct TRINITY_DLL_DECL npc_crusade_persuadedAI : public ScriptedAI
 
                 ++uiSpeech_counter;
                 DoCastAOE(58111, true);
-            }else uiSpeech_timer -= diff;
+            } else uiSpeech_timer -= diff;
 
             return;
         }
@@ -394,7 +394,7 @@ struct TRINITY_DLL_DECL mob_scarlet_courierAI : public ScriptedAI
                 }
                 uiStage_timer = 3000;
                 uiStage = 0;
-            }else uiStage_timer -= diff;
+            } else uiStage_timer -= diff;
         }
 
         if(!UpdateVictim())

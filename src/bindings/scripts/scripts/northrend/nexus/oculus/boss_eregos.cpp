@@ -53,7 +53,7 @@ enum AmberDrake
     SPELL_AMBER_SHOCK_LANCE                    = 49840,         //(60 yds) - Instant - Deals 4822 to 5602 Arcane damage and detonates all Shock Charges on an enemy dragon. Damage is increased by 6525 for each detonated.
 //  SPELL_AMBER_STOP_TIME                                    //Instant - 1 min cooldown - Halts the passage of time, freezing all enemy dragons in place for 10 sec. This attack applies 5 Shock Charges to each affected target.
     //you do not have access to until you kill the  Mage-Lord Urom.
-    SPELL_AMBER_TEMPORAL_RIFT                  = 49592         //(60 yds) - Channeled - Channels a temporal rift on an enemy dragon for 10 sec. While trapped in the rift, all damage done to the target is increased by 100%. In addition, for every 15,000 damage done to a target affected by Temporal Rift, 1 Shock Charge is generated.
+    SPELL_AMBER_TEMPORAL_RIFT                  = 49592         //(60 yds) - Channeled - Channels a temporal rift on an enemy dragon for 10 sec. While trapped in the rift, all damage done to the pTarget is increased by 100%. In addition, for every 15,000 damage done to a pTarget affected by Temporal Rift, 1 Shock Charge is generated.
 };
 /*Emerald Drake,
 (npc 27692)  (item 37815),

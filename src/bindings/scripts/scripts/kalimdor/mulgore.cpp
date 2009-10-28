@@ -132,7 +132,7 @@ struct TRINITY_DLL_DECL npc_kyle_frenziedAI : public ScriptedAI
             if (m_bIsMovingToLunch)
                 return;
 
-            if (uiEventTimer < diff)
+            if (uiEventTimer <= diff)
             {
                 uiEventTimer = 5000;
                 ++uiEventPhase;

@@ -76,7 +76,7 @@ struct TRINITY_DLL_DECL boss_flamegorAI : public ScriptedAI
         {
             DoScriptText(EMOTE_FRENZY, m_creature);
             DoCast(m_creature,SPELL_FRENZY);
-            Frenzy_Timer = 8000 + (rand()%2000);
+            Frenzy_Timer = urand(8000, 10000);
         } else Frenzy_Timer -= diff;
 
         DoMeleeAttackIfReady();

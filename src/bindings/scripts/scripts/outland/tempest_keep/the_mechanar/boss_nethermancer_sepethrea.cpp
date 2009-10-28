@@ -101,21 +101,21 @@ struct TRINITY_DLL_DECL boss_nethermancer_sepethreaAI : public ScriptedAI
             return;
 
         //Frost Attack
-        if (frost_attack_Timer < diff)
+        if (frost_attack_Timer <= diff)
         {
             DoCast(m_creature->getVictim(),SPELL_FROST_ATTACK);
             frost_attack_Timer = 7000 + rand()%3000;
-        }else frost_attack_Timer -= diff;
+        } else frost_attack_Timer -= diff;
 
         //Arcane Blast
-        if (arcane_blast_Timer < diff)
+        if (arcane_blast_Timer <= diff)
         {
             DoCast(m_creature->getVictim(), SPELL_ARCANE_BLAST);
             arcane_blast_Timer = 15000;
-        }else arcane_blast_Timer -= diff;
+        } else arcane_blast_Timer -= diff;
 
         //Dragons Breath
-        if (dragons_breath_Timer < diff)
+        if (dragons_breath_Timer <= diff)
         {
             DoCast(m_creature->getVictim(),SPELL_DRAGONS_BREATH);
             {
@@ -125,21 +125,21 @@ struct TRINITY_DLL_DECL boss_nethermancer_sepethreaAI : public ScriptedAI
                 DoScriptText(RAND(SAY_DRAGONS_BREATH_1,SAY_DRAGONS_BREATH_2), m_creature);
             }
             dragons_breath_Timer = 12000 + rand()%10000;
-        }else dragons_breath_Timer -= diff;
+        } else dragons_breath_Timer -= diff;
 
         //Knockback
-        if (knockback_Timer < diff)
+        if (knockback_Timer <= diff)
         {
             DoCast(m_creature->getVictim(),SPELL_KNOCKBACK);
             knockback_Timer = 15000 + rand()%10000;
-        }else knockback_Timer -= diff;
+        } else knockback_Timer -= diff;
 
         //Solarburn
-        if (solarburn_Timer < diff)
+        if (solarburn_Timer <= diff)
         {
             DoCast(m_creature->getVictim(),SPELL_SOLARBURN);
             solarburn_Timer = 30000;
-        }else solarburn_Timer -= diff;
+        } else solarburn_Timer -= diff;
 
         DoMeleeAttackIfReady();
     }
@@ -189,7 +189,7 @@ struct TRINITY_DLL_DECL mob_ragin_flamesAI : public ScriptedAI
     void UpdateAI(const uint32 diff)
     {
          //Check_Timer
-        if (Check_Timer < diff)
+        if (Check_Timer <= diff)
         {
             if (pInstance)
             {
@@ -201,30 +201,30 @@ struct TRINITY_DLL_DECL mob_ragin_flamesAI : public ScriptedAI
                 }
             }
             Check_Timer = 1000;
-        }else Check_Timer -= diff;
+        } else Check_Timer -= diff;
 
         if (!UpdateVictim())
             return;
 
         if (!onlyonce)
         {
-            if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM,0))
-                m_creature->GetMotionMaster()->MoveChase(target);
+            if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM,0))
+                m_creature->GetMotionMaster()->MoveChase(pTarget);
             onlyonce = true;
         }
 
-        if (inferno_Timer < diff)
+        if (inferno_Timer <= diff)
         {
             DoCast(m_creature->getVictim(),HEROIC(SPELL_INFERNO, H_SPELL_INFERNO));
             m_creature->TauntApply(m_creature->getVictim());
             inferno_Timer = 10000;
-        }else inferno_Timer -= diff;
+        } else inferno_Timer -= diff;
 
-        if (flame_timer < diff)
+        if (flame_timer <= diff)
         {
             DoCast(m_creature,SPELL_FIRE_TAIL);
             flame_timer = 500;
-        }else flame_timer -=diff;
+        } else flame_timer -=diff;
 
         DoMeleeAttackIfReady();
     }

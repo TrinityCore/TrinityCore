@@ -301,13 +301,13 @@ struct MANGOS_DLL_DECL boss_jedoga_shadowseekerAI : public ScriptedAI
             if (!UpdateVictim())
                 return;
 
-            if (uiCycloneTimer < diff)
+            if (uiCycloneTimer <= diff)
             {
                 m_creature->CastSpell(m_creature, HEROIC(SPELL_CYCLONE_STRIKE, SPELL_CYCLONE_STRIKE_H), false);
                 uiCycloneTimer = urand(15000,30000);
             } else uiCycloneTimer -= diff;
 
-            if (uiBoltTimer < diff)
+            if (uiBoltTimer <= diff)
             {
                 if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                     m_creature->CastSpell(pTarget, HEROIC(SPELL_LIGHTNING_BOLT, SPELL_LIGHTNING_BOLT_H), false);
@@ -315,7 +315,7 @@ struct MANGOS_DLL_DECL boss_jedoga_shadowseekerAI : public ScriptedAI
                 uiBoltTimer = urand(15000,30000);
             } else uiBoltTimer -= diff;
 
-            if (uiThunderTimer < diff)
+            if (uiThunderTimer <= diff)
             {
                 if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                     m_creature->CastSpell(pTarget, HEROIC(SPELL_THUNDERSHOCK, SPELL_THUNDERSHOCK_H), false);
@@ -323,7 +323,7 @@ struct MANGOS_DLL_DECL boss_jedoga_shadowseekerAI : public ScriptedAI
                 uiThunderTimer = urand(15000,30000);
             } else uiThunderTimer -= diff;
 
-            if (uiOpFerTimer < diff)
+            if (uiOpFerTimer <= diff)
                 MoveUp();
             else
                 uiOpFerTimer -= diff;
@@ -428,7 +428,7 @@ struct MANGOS_DLL_DECL mob_jedoga_initiandAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
-        if (pInstance && checktimer < diff)
+        if (pInstance && checktimer <= diff)
         {
             if (m_creature->GetGUID() == pInstance->GetData64(DATA_ADD_JEDOGA_OPFER) && !walking)
             {

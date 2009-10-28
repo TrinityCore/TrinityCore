@@ -93,7 +93,7 @@ struct TRINITY_DLL_DECL boss_zuramatAI : public ScriptedAI
         if (!UpdateVictim())
             return;
 
-        if(SpellSummonVoidTimer < diff)
+        if (SpellSummonVoidTimer <= diff)
         {
             m_creature->CastSpell(m_creature->getVictim(),SPELL_SUMMON_VOID_SENTRY,false);
             SpellSummonVoidTimer = 20000;
@@ -106,7 +106,7 @@ struct TRINITY_DLL_DECL boss_zuramatAI : public ScriptedAI
             shiftcast = false;
         } else SpellVoidShiftedTimer -=diff;
 
-        if(SpellVoidShiftTimer < diff)
+        if (SpellVoidShiftTimer <= diff)
         {
             Shifted =  SelectUnit(SELECT_TARGET_RANDOM, 0);
             if (Shifted)
@@ -118,7 +118,7 @@ struct TRINITY_DLL_DECL boss_zuramatAI : public ScriptedAI
             SpellVoidShiftedTimer = 5000;
         } else SpellVoidShiftTimer -=diff;
 
-        if(SpellShroudOfDarknessTimer < diff)
+        if (SpellShroudOfDarknessTimer <= diff)
         {
             DoCast(m_creature->getVictim(), HEROIC(SPELL_SHROUD_OF_DARKNESS, H_SPELL_SHROUD_OF_DARKNESS));
             SpellShroudOfDarknessTimer = 20000;

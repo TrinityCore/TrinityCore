@@ -131,7 +131,7 @@ struct TRINITY_DLL_DECL boss_svalaAI : public ScriptedAI
         if (Phase != INTRO)
             return;
 
-        if (uiIntroTimer < diff)
+        if (uiIntroTimer <= diff)
         {
             if(!pArthas)
                 return;
@@ -261,13 +261,13 @@ struct TRINITY_DLL_DECL boss_svala_sorrowgraveAI : public ScriptedAI
             if (!UpdateVictim())
                 return;
 
-            if (uiSinsterStrikeTimer < diff)
+            if (uiSinsterStrikeTimer <= diff)
             {
                 DoCast(m_creature->getVictim(), HEROIC(SPELL_SINSTER_STRIKE, H_SPELL_SINSTER_STRIKE));
                 uiSinsterStrikeTimer = urand(5000,9000);
             } else uiSinsterStrikeTimer -= diff;
 
-            if (uiCallFlamesTimer < diff)
+            if (uiCallFlamesTimer <= diff)
             {
                 if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                 {
@@ -276,7 +276,7 @@ struct TRINITY_DLL_DECL boss_svala_sorrowgraveAI : public ScriptedAI
                 }
             } else uiCallFlamesTimer -= diff;
 
-            if (uiRitualOfSwordTimer < diff)
+            if (uiRitualOfSwordTimer <= diff)
             {
                 pSacrificeTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true);
                 if (pSacrificeTarget)
@@ -302,7 +302,7 @@ struct TRINITY_DLL_DECL boss_svala_sorrowgraveAI : public ScriptedAI
         }
         else  //SACRIFICING
         {
-            if (uiSacrificeTimer < diff)
+            if (uiSacrificeTimer <= diff)
             {
                 bool bSacrificed = false;
                 for (uint8 i = 0; i < 3; ++i)

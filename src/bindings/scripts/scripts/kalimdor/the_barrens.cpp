@@ -247,7 +247,7 @@ struct TRINITY_DLL_DECL npc_taskmaster_fizzuleAI : public ScriptedAI
     {
         if (IsFriend)
         {
-            if (Reset_Timer < diff)
+            if (Reset_Timer <= diff)
             {
                 EnterEvadeMode();
                 return;
@@ -425,7 +425,7 @@ struct TRINITY_DLL_DECL npc_twiggy_flatheadAI : public ScriptedAI
             }
             else if (EventInProgress)
             {
-                if (Challenger_checker < diff)
+                if (Challenger_checker <= diff)
                 {
                     for (uint8 i = 0; i < 6; ++i)
                     {
@@ -442,7 +442,7 @@ struct TRINITY_DLL_DECL npc_twiggy_flatheadAI : public ScriptedAI
                     Challenger_checker = 1000;
                 } else Challenger_checker -= diff;
 
-                if (Wave_Timer < diff)
+                if (Wave_Timer <= diff)
                 {
                     if (AffrayChallenger[Wave] && Wave < 6 && !EventBigWill)
                     {
@@ -454,7 +454,7 @@ struct TRINITY_DLL_DECL npc_twiggy_flatheadAI : public ScriptedAI
                             pCreature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                             pCreature->HandleEmoteCommand(EMOTE_ONESHOT_ROAR);
                             pCreature->setFaction(14);
-                            (pCreature->AI())->AttackStart(pWarrior);
+                            pCreature->AI()->AttackStart(pWarrior);
                             ++Wave;
                             Wave_Timer = 20000;
                         }
@@ -604,7 +604,7 @@ struct TRINITY_DLL_DECL npc_wizzlecrank_shredderAI : public npc_escortAI
         {
             if (m_bIsPostEvent)
             {
-                if (m_uiPostEventTimer < uiDiff)
+                if (m_uiPostEventTimer <= uiDiff)
                 {
                     switch(m_uiPostEventCount)
                     {

@@ -78,7 +78,7 @@ enum Classes
     CLASS_SHAMAN        = 7,
     CLASS_MAGE          = 8,
     CLASS_WARLOCK       = 9,
-    // CLASS_UNK2       = 10,unused
+    //CLASS_UNK           = 10,
     CLASS_DRUID         = 11,
 };
 

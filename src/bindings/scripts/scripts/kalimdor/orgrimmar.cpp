@@ -99,7 +99,7 @@ struct TRINITY_DLL_DECL npc_shenthulAI : public ScriptedAI
     {
         if (CanEmote)
         {
-            if (Reset_Timer < diff)
+            if (Reset_Timer <= diff)
             {
                 if (Player* pPlayer = Unit::GetPlayer(PlayerGUID))
                 {
@@ -112,7 +112,7 @@ struct TRINITY_DLL_DECL npc_shenthulAI : public ScriptedAI
 
         if (CanTalk && !CanEmote)
         {
-            if (Salute_Timer < diff)
+            if (Salute_Timer <= diff)
             {
                 m_creature->HandleEmoteCommand(EMOTE_ONESHOT_SALUTE);
                 CanEmote = true;
@@ -192,17 +192,17 @@ struct TRINITY_DLL_DECL npc_thrall_warchiefAI : public ScriptedAI
         if (!UpdateVictim())
             return;
 
-        if (ChainLightning_Timer < diff)
+        if (ChainLightning_Timer <= diff)
         {
             DoCast(m_creature->getVictim(),SPELL_CHAIN_LIGHTNING);
             ChainLightning_Timer = 9000;
-        }else ChainLightning_Timer -= diff;
+        } else ChainLightning_Timer -= diff;
 
-        if (Shock_Timer < diff)
+        if (Shock_Timer <= diff)
         {
             DoCast(m_creature->getVictim(),SPELL_SHOCK);
             Shock_Timer = 15000;
-        }else Shock_Timer -= diff;
+        } else Shock_Timer -= diff;
 
         DoMeleeAttackIfReady();
     }

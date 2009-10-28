@@ -78,7 +78,7 @@ enum Spells
     SPELL_PYROGENICS        =   45230, //15secs
     SPELL_FLAME_TOUCHED     =   45348,
     SPELL_CONFLAGRATION     =   45342, //30-35 secs
-    SPELL_BLAZE             =   45235, //on main target every 3 secs
+    SPELL_BLAZE             =   45235, //on main pTarget every 3 secs
     SPELL_FLAME_SEAR        =   46771,
     SPELL_BLAZE_SUMMON      =   45236, //187366 GO
     SPELL_BLAZE_BURN        =   45246
@@ -181,7 +181,7 @@ struct TRINITY_DLL_DECL boss_sacrolashAI : public ScriptedAI
             m_creature->RemoveFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
     }
 
-    void SpellHitTarget(Unit* target,const SpellEntry* spell)
+    void SpellHitTarget(Unit *pTarget,const SpellEntry* spell)
     {
         switch(spell->Id)
         {
@@ -189,36 +189,36 @@ struct TRINITY_DLL_DECL boss_sacrolashAI : public ScriptedAI
         case SPELL_SHADOW_NOVA:
         case SPELL_CONFOUNDING_BLOW:
         case SPELL_SHADOW_FURY:
-            HandleTouchedSpells(target, SPELL_DARK_TOUCHED);
+            HandleTouchedSpells(pTarget, SPELL_DARK_TOUCHED);
             break;
         case SPELL_CONFLAGRATION:
-            HandleTouchedSpells(target, SPELL_FLAME_TOUCHED);
+            HandleTouchedSpells(pTarget, SPELL_FLAME_TOUCHED);
             break;
         }
     }
 
-    void HandleTouchedSpells(Unit* target, uint32 TouchedType)
+    void HandleTouchedSpells(Unit *pTarget, uint32 TouchedType)
     {
         switch(TouchedType)
         {
         case SPELL_FLAME_TOUCHED:
-            if (!target->HasAura(SPELL_DARK_FLAME))
+            if (!pTarget->HasAura(SPELL_DARK_FLAME))
             {
-                if (target->HasAura(SPELL_DARK_TOUCHED))
+                if (pTarget->HasAura(SPELL_DARK_TOUCHED))
                 {
-                    target->RemoveAurasDueToSpell(SPELL_DARK_TOUCHED);
-                    target->CastSpell(target, SPELL_DARK_FLAME, true);
-                }else target->CastSpell(target, SPELL_FLAME_TOUCHED, true);
+                    pTarget->RemoveAurasDueToSpell(SPELL_DARK_TOUCHED);
+                    pTarget->CastSpell(pTarget, SPELL_DARK_FLAME, true);
+                } else pTarget->CastSpell(pTarget, SPELL_FLAME_TOUCHED, true);
             }
             break;
         case SPELL_DARK_TOUCHED:
-            if (!target->HasAura(SPELL_DARK_FLAME))
+            if (!pTarget->HasAura(SPELL_DARK_FLAME))
             {
-                if (target->HasAura(SPELL_FLAME_TOUCHED))
+                if (pTarget->HasAura(SPELL_FLAME_TOUCHED))
                 {
-                    target->RemoveAurasDueToSpell(SPELL_FLAME_TOUCHED);
-                    target->CastSpell(target, SPELL_DARK_FLAME, true);
-                }else target->CastSpell(target, SPELL_DARK_TOUCHED, true);
+                    pTarget->RemoveAurasDueToSpell(SPELL_FLAME_TOUCHED);
+                    pTarget->CastSpell(pTarget, SPELL_DARK_FLAME, true);
+                } else pTarget->CastSpell(pTarget, SPELL_DARK_TOUCHED, true);
             }
             break;
         }
@@ -247,75 +247,75 @@ struct TRINITY_DLL_DECL boss_sacrolashAI : public ScriptedAI
 
         if (SisterDeath)
         {
-            if (ConflagrationTimer < diff)
+            if (ConflagrationTimer <= diff)
             {
                 if (!m_creature->IsNonMeleeSpellCasted(false))
                 {
                     m_creature->InterruptSpell(CURRENT_GENERIC_SPELL);
-                    Unit* target = NULL;
-                    target = SelectUnit(SELECT_TARGET_RANDOM, 0);
-                    if (target)
-                        DoCast(target, SPELL_CONFLAGRATION);
+                    Unit *pTarget = NULL;
+                    pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0);
+                    if (pTarget)
+                        DoCast(pTarget, SPELL_CONFLAGRATION);
                     ConflagrationTimer = 30000+(rand()%5000);
                 }
-            }else ConflagrationTimer -= diff;
+            } else ConflagrationTimer -= diff;
         }
         else
         {
-            if (ShadownovaTimer < diff)
+            if (ShadownovaTimer <= diff)
             {
                 if (!m_creature->IsNonMeleeSpellCasted(false))
                 {
-                    Unit* target = NULL;
-                    target = SelectUnit(SELECT_TARGET_RANDOM, 0);
-                    if (target)
-                        DoCast(target, SPELL_SHADOW_NOVA);
+                    Unit *pTarget = NULL;
+                    pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0);
+                    if (pTarget)
+                        DoCast(pTarget, SPELL_SHADOW_NOVA);
 
                     if (!SisterDeath)
                     {
-                        if (target)
-                            DoScriptText(EMOTE_SHADOW_NOVA, m_creature, target);
+                        if (pTarget)
+                            DoScriptText(EMOTE_SHADOW_NOVA, m_creature, pTarget);
                         DoScriptText(YELL_SHADOW_NOVA, m_creature);
                     }
                     ShadownovaTimer = 30000+(rand()%5000);
                 }
-            }else ShadownovaTimer -=diff;
+            } else ShadownovaTimer -=diff;
         }
 
-        if (ConfoundingblowTimer < diff)
+        if (ConfoundingblowTimer <= diff)
         {
             if (!m_creature->IsNonMeleeSpellCasted(false))
             {
-                Unit* target = NULL;
-                target = SelectUnit(SELECT_TARGET_RANDOM, 0);
-                if (target)
-                    DoCast(target, SPELL_CONFOUNDING_BLOW);
+                Unit *pTarget = NULL;
+                pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0);
+                if (pTarget)
+                    DoCast(pTarget, SPELL_CONFOUNDING_BLOW);
                 ConfoundingblowTimer = 20000 + (rand()%5000);
             }
-        }else ConfoundingblowTimer -=diff;
+        } else ConfoundingblowTimer -=diff;
 
-        if (ShadowimageTimer < diff)
+        if (ShadowimageTimer <= diff)
         {
-            Unit* target = NULL;
+            Unit *pTarget = NULL;
             Creature* temp = NULL;
             for (uint8 i = 0; i<3; ++i)
             {
-                target = SelectUnit(SELECT_TARGET_RANDOM, 0);
+                pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0);
                 temp = DoSpawnCreature(MOB_SHADOW_IMAGE,0,0,0,0,TEMPSUMMON_CORPSE_DESPAWN,10000);
-                if (temp && target)
-                    temp->AI()->AttackStart(target);
+                if (temp && pTarget)
+                    temp->AI()->AttackStart(pTarget);
             }
             ShadowimageTimer = 20000;
-        }else ShadowimageTimer -=diff;
+        } else ShadowimageTimer -=diff;
 
-        if (ShadowbladesTimer < diff)
+        if (ShadowbladesTimer <= diff)
         {
             if (!m_creature->IsNonMeleeSpellCasted(false))
             {
                 DoCast(m_creature, SPELL_SHADOW_BLADES);
                 ShadowbladesTimer = 10000;
             }
-        }else ShadowbladesTimer -=diff;
+        } else ShadowbladesTimer -=diff;
 
         if (EnrageTimer < diff && !Enraged)
         {
@@ -323,7 +323,7 @@ struct TRINITY_DLL_DECL boss_sacrolashAI : public ScriptedAI
             DoScriptText(YELL_ENRAGE, m_creature);
             DoCast(m_creature,SPELL_ENRAGE);
             Enraged = true;
-        }else EnrageTimer -= diff;
+        } else EnrageTimer -= diff;
 
         if (m_creature->isAttackReady() && !m_creature->IsNonMeleeSpellCasted(false))
         {
@@ -470,48 +470,48 @@ struct TRINITY_DLL_DECL boss_alythessAI : public Scripted_NoMovementAI
             m_creature->RemoveFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
     }
 
-    void SpellHitTarget(Unit* target,const SpellEntry* spell)
+    void SpellHitTarget(Unit *pTarget,const SpellEntry* spell)
     {
         switch(spell->Id)
         {
 
         case SPELL_BLAZE:
-            target->CastSpell(target, SPELL_BLAZE_SUMMON, true);
+            pTarget->CastSpell(pTarget, SPELL_BLAZE_SUMMON, true);
         case SPELL_CONFLAGRATION:
         case SPELL_FLAME_SEAR:
-            HandleTouchedSpells(target, SPELL_FLAME_TOUCHED);
+            HandleTouchedSpells(pTarget, SPELL_FLAME_TOUCHED);
             break;
         case SPELL_SHADOW_NOVA:
-            HandleTouchedSpells(target, SPELL_DARK_TOUCHED);
+            HandleTouchedSpells(pTarget, SPELL_DARK_TOUCHED);
             break;
         }
     }
 
-    void HandleTouchedSpells(Unit* target, uint32 TouchedType)
+    void HandleTouchedSpells(Unit *pTarget, uint32 TouchedType)
     {
         switch(TouchedType)
         {
         case SPELL_FLAME_TOUCHED:
-            if (!target->HasAura(SPELL_DARK_FLAME))
+            if (!pTarget->HasAura(SPELL_DARK_FLAME))
             {
-                if (target->HasAura(SPELL_DARK_TOUCHED))
+                if (pTarget->HasAura(SPELL_DARK_TOUCHED))
                 {
-                    target->RemoveAurasDueToSpell(SPELL_DARK_TOUCHED);
-                    target->CastSpell(target, SPELL_DARK_FLAME, true);
+                    pTarget->RemoveAurasDueToSpell(SPELL_DARK_TOUCHED);
+                    pTarget->CastSpell(pTarget, SPELL_DARK_FLAME, true);
                 }else
                 {
-                    target->CastSpell(target, SPELL_FLAME_TOUCHED, true);
+                    pTarget->CastSpell(pTarget, SPELL_FLAME_TOUCHED, true);
                 }
             }
             break;
         case SPELL_DARK_TOUCHED:
-            if (!target->HasAura(SPELL_DARK_FLAME))
+            if (!pTarget->HasAura(SPELL_DARK_FLAME))
             {
-                if (target->HasAura(SPELL_FLAME_TOUCHED))
+                if (pTarget->HasAura(SPELL_FLAME_TOUCHED))
                 {
-                    target->RemoveAurasDueToSpell(SPELL_FLAME_TOUCHED);
-                    target->CastSpell(target, SPELL_DARK_FLAME, true);
-                }else target->CastSpell(target, SPELL_DARK_TOUCHED, true);
+                    pTarget->RemoveAurasDueToSpell(SPELL_FLAME_TOUCHED);
+                    pTarget->CastSpell(pTarget, SPELL_DARK_FLAME, true);
+                } else pTarget->CastSpell(pTarget, SPELL_DARK_TOUCHED, true);
             }
             break;
         }
@@ -551,10 +551,10 @@ struct TRINITY_DLL_DECL boss_alythessAI : public Scripted_NoMovementAI
     {
         if (IntroStepCounter < 9)
         {
-            if (IntroYellTimer < diff)
+            if (IntroYellTimer <= diff)
             {
                 IntroYellTimer = IntroStep(++IntroStepCounter);
-            }else IntroYellTimer -= diff;
+            } else IntroYellTimer -= diff;
         }
 
         if (!SisterDeath)
@@ -578,69 +578,69 @@ struct TRINITY_DLL_DECL boss_alythessAI : public Scripted_NoMovementAI
 
         if (SisterDeath)
         {
-            if (ShadownovaTimer < diff)
+            if (ShadownovaTimer <= diff)
             {
                 if (!m_creature->IsNonMeleeSpellCasted(false))
                 {
-                    Unit* target = NULL;
-                    target = SelectUnit(SELECT_TARGET_RANDOM, 0);
-                    if (target)
-                        DoCast(target, SPELL_SHADOW_NOVA);
+                    Unit *pTarget = NULL;
+                    pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0);
+                    if (pTarget)
+                        DoCast(pTarget, SPELL_SHADOW_NOVA);
                     ShadownovaTimer= 30000+(rand()%5000);
                 }
-            }else ShadownovaTimer -=diff;
+            } else ShadownovaTimer -=diff;
         }
         else
         {
-            if (ConflagrationTimer < diff)
+            if (ConflagrationTimer <= diff)
             {
                 if (!m_creature->IsNonMeleeSpellCasted(false))
                 {
                     m_creature->InterruptSpell(CURRENT_GENERIC_SPELL);
-                    Unit* target = NULL;
-                    target = SelectUnit(SELECT_TARGET_RANDOM, 0);
-                    if (target)
-                        DoCast(target, SPELL_CONFLAGRATION);
+                    Unit *pTarget = NULL;
+                    pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0);
+                    if (pTarget)
+                        DoCast(pTarget, SPELL_CONFLAGRATION);
                     ConflagrationTimer = 30000+(rand()%5000);
 
                     if (!SisterDeath)
                     {
-                        if (target)
-                            DoScriptText(EMOTE_CONFLAGRATION, m_creature, target);
+                        if (pTarget)
+                            DoScriptText(EMOTE_CONFLAGRATION, m_creature, pTarget);
                         DoScriptText(YELL_CANFLAGRATION, m_creature);
                     }
 
                     BlazeTimer = 4000;
                 }
-            }else ConflagrationTimer -= diff;
+            } else ConflagrationTimer -= diff;
         }
 
-        if (FlamesearTimer < diff)
+        if (FlamesearTimer <= diff)
         {
             if (!m_creature->IsNonMeleeSpellCasted(false))
             {
                 DoCast(m_creature, SPELL_FLAME_SEAR);
                 FlamesearTimer = 15000;
             }
-        }else FlamesearTimer -=diff;
+        } else FlamesearTimer -=diff;
 
-        if (PyrogenicsTimer < diff)
+        if (PyrogenicsTimer <= diff)
         {
             if (!m_creature->IsNonMeleeSpellCasted(false))
             {
                 DoCast(m_creature, SPELL_PYROGENICS,true);
                 PyrogenicsTimer = 15000;
             }
-        }else PyrogenicsTimer -= diff;
+        } else PyrogenicsTimer -= diff;
 
-        if (BlazeTimer < diff)
+        if (BlazeTimer <= diff)
         {
             if (!m_creature->IsNonMeleeSpellCasted(false))
             {
                 DoCast(m_creature->getVictim(), SPELL_BLAZE);
                 BlazeTimer = 3800;
             }
-        }else BlazeTimer -= diff;
+        } else BlazeTimer -= diff;
 
         if (EnrageTimer < diff && !Enraged)
         {
@@ -648,7 +648,7 @@ struct TRINITY_DLL_DECL boss_alythessAI : public Scripted_NoMovementAI
             DoScriptText(YELL_BERSERK, m_creature);
             DoCast(m_creature, SPELL_ENRAGE);
             Enraged = true;
-        }else EnrageTimer -= diff;
+        } else EnrageTimer -= diff;
     }
 };
 
@@ -674,20 +674,20 @@ struct TRINITY_DLL_DECL mob_shadow_imageAI : public ScriptedAI
 
     void EnterCombat(Unit *who){}
 
-    void SpellHitTarget(Unit* target,const SpellEntry* spell)
+    void SpellHitTarget(Unit *pTarget,const SpellEntry* spell)
     {
         switch(spell->Id)
         {
 
         case SPELL_SHADOW_FURY:
         case SPELL_DARK_STRIKE:
-            if (!target->HasAura(SPELL_DARK_FLAME))
+            if (!pTarget->HasAura(SPELL_DARK_FLAME))
             {
-                if (target->HasAura(SPELL_FLAME_TOUCHED))
+                if (pTarget->HasAura(SPELL_FLAME_TOUCHED))
                 {
-                    target->RemoveAurasDueToSpell(SPELL_FLAME_TOUCHED);
-                    target->CastSpell(target, SPELL_DARK_FLAME, true);
-                } else target->CastSpell(target,SPELL_DARK_TOUCHED,true);
+                    pTarget->RemoveAurasDueToSpell(SPELL_FLAME_TOUCHED);
+                    pTarget->CastSpell(pTarget, SPELL_DARK_FLAME, true);
+                } else pTarget->CastSpell(pTarget,SPELL_DARK_TOUCHED,true);
             }
             break;
         }
@@ -698,7 +698,7 @@ struct TRINITY_DLL_DECL mob_shadow_imageAI : public ScriptedAI
         if (!m_creature->HasAura(SPELL_IMAGE_VISUAL))
             DoCast(m_creature, SPELL_IMAGE_VISUAL);
 
-        if (KillTimer < diff)
+        if (KillTimer <= diff)
         {
             m_creature->Kill(m_creature);
             KillTimer = 9999999;
@@ -707,13 +707,13 @@ struct TRINITY_DLL_DECL mob_shadow_imageAI : public ScriptedAI
         if (!UpdateVictim())
             return;
 
-        if (ShadowfuryTimer < diff)
+        if (ShadowfuryTimer <= diff)
         {
             DoCast(m_creature, SPELL_SHADOW_FURY);
             ShadowfuryTimer = 10000;
         } else ShadowfuryTimer -=diff;
 
-        if (DarkstrikeTimer < diff)
+        if (DarkstrikeTimer <= diff)
         {
             if (!m_creature->IsNonMeleeSpellCasted(false))
             {

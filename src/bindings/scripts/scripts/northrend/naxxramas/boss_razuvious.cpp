@@ -107,8 +107,8 @@ struct TRINITY_DLL_DECL boss_razuviousAI : public BossAI
                     events.ScheduleEvent(EVENT_SHOUT, 25000);
                     return;
                 case EVENT_KNIFE:
-                    if (Unit *target = SelectTarget(SELECT_TARGET_RANDOM, 0, 45))
-                        DoCast(target, SPELL_JAGGED_KNIFE);
+                    if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 45))
+                        DoCast(pTarget, SPELL_JAGGED_KNIFE);
                     events.ScheduleEvent(EVENT_KNIFE, 25000);
                     return;
                 case EVENT_COMMAND:

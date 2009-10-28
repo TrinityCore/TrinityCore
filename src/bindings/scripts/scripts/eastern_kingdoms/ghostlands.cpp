@@ -126,7 +126,7 @@ bool GOHello_gilded_brazier(Player* pPlayer, GameObject* pGo)
     {
         Creature *Stillblade = pPlayer->SummonCreature(17716, 8106.11, -7542.06, 151.775, 3.02598, TEMPSUMMON_DEAD_DESPAWN, 60000);
         if (Stillblade)
-            (Stillblade->AI())->AttackStart(pPlayer);
+            Stillblade->AI()->AttackStart(pPlayer);
     }
     return true;
 };

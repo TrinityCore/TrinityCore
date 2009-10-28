@@ -59,13 +59,13 @@ struct TRINITY_DLL_DECL boss_shadowvoshAI : public ScriptedAI
         {
             DoCast(m_creature->getVictim(),SPELL_CURSEOFBLOOD);
             CurseOfBlood_Timer = 45000;
-        }else CurseOfBlood_Timer -= diff;
+        } else CurseOfBlood_Timer -= diff;
 
         //Hex_Timer
         if (Hex_Timer <= diff)
         {
-            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                DoCast(target,SPELL_HEX);
+            if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                DoCast(pTarget,SPELL_HEX);
             Hex_Timer = 15000;
         } else Hex_Timer -= diff;
 

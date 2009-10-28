@@ -103,10 +103,10 @@ struct TRINITY_DLL_DECL boss_flame_leviathanAI : public BossAI
     }
 
     // TODO: effect 0 and effect 1 may be on different target
-    void SpellHitTarget(Unit *target, const SpellEntry *spell)
+    void SpellHitTarget(Unit *pTarget, const SpellEntry *spell)
     {
         if (spell->Id == SPELL_PURSUED)
-            AttackStart(target);
+            AttackStart(pTarget);
     }
 
     void JustDied(Unit *victim)
@@ -154,7 +154,7 @@ struct TRINITY_DLL_DECL boss_flame_leviathanAI : public BossAI
                     UpdateVictim(); // begin to kill other things
                 return;
             case EVENT_MISSILE:
-                //TODO: without unittarget no visual effect
+                //TODO: without unitpTarget no visual effect
                 //DoCastAOE(SPELL_MISSILE_BARRAGE);
                 DoCast(me->getVictim(), SPELL_MISSILE_BARRAGE);
                 events.RepeatEvent(1500);
