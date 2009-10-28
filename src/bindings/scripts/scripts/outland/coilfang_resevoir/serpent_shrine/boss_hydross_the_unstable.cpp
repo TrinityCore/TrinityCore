@@ -222,7 +222,7 @@ struct TRINITY_DLL_DECL boss_hydross_the_unstableAI : public ScriptedAI
         if (CorruptedForm)
         {
             //MarkOfCorruption_Timer
-            if (MarkOfCorruption_Timer < diff)
+            if (MarkOfCorruption_Timer <= diff)
             {
                 if (MarkOfCorruption_Count <= 5)
                 {
@@ -245,20 +245,20 @@ struct TRINITY_DLL_DECL boss_hydross_the_unstableAI : public ScriptedAI
                 }
 
                 MarkOfCorruption_Timer = 15000;
-            }else MarkOfCorruption_Timer -= diff;
+            } else MarkOfCorruption_Timer -= diff;
 
             //VileSludge_Timer
-            if (VileSludge_Timer < diff)
+            if (VileSludge_Timer <= diff)
             {
-                Unit *target = SelectUnit(SELECT_TARGET_RANDOM, 0);
-                if (target)
-                    DoCast(target, SPELL_VILE_SLUDGE);
+                Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0);
+                if (pTarget)
+                    DoCast(pTarget, SPELL_VILE_SLUDGE);
 
                 VileSludge_Timer = 15000;
-            }else VileSludge_Timer -= diff;
+            } else VileSludge_Timer -= diff;
 
             //PosCheck_Timer
-            if (PosCheck_Timer < diff)
+            if (PosCheck_Timer <= diff)
             {
                 if (m_creature->IsWithinDist2d(HYDROSS_X, HYDROSS_Y, SWITCH_RADIUS))
                 {
@@ -283,13 +283,13 @@ struct TRINITY_DLL_DECL boss_hydross_the_unstableAI : public ScriptedAI
                 }
 
                 PosCheck_Timer = 2500;
-            }else PosCheck_Timer -=diff;
+            } else PosCheck_Timer -=diff;
         }
         // clean form
         else
         {
             //MarkOfHydross_Timer
-            if (MarkOfHydross_Timer < diff)
+            if (MarkOfHydross_Timer <= diff)
             {
                 if (MarkOfHydross_Count <= 5)
                 {
@@ -312,20 +312,20 @@ struct TRINITY_DLL_DECL boss_hydross_the_unstableAI : public ScriptedAI
                 }
 
                 MarkOfHydross_Timer = 15000;
-            }else MarkOfHydross_Timer -= diff;
+            } else MarkOfHydross_Timer -= diff;
 
             //WaterTomb_Timer
-            if (WaterTomb_Timer < diff)
+            if (WaterTomb_Timer <= diff)
             {
-                Unit *target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true);
-                if (target)
-                    DoCast(target, SPELL_WATER_TOMB);
+                Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true);
+                if (pTarget)
+                    DoCast(pTarget, SPELL_WATER_TOMB);
 
                 WaterTomb_Timer = 7000;
-            }else WaterTomb_Timer -= diff;
+            } else WaterTomb_Timer -= diff;
 
             //PosCheck_Timer
-            if (PosCheck_Timer < diff)
+            if (PosCheck_Timer <= diff)
             {
                 if (!m_creature->IsWithinDist2d(HYDROSS_X, HYDROSS_Y, SWITCH_RADIUS))
                 {
@@ -350,15 +350,15 @@ struct TRINITY_DLL_DECL boss_hydross_the_unstableAI : public ScriptedAI
                 }
 
                 PosCheck_Timer = 2500;
-            }else PosCheck_Timer -=diff;
+            } else PosCheck_Timer -=diff;
         }
 
         //EnrageTimer
-        if (EnrageTimer < diff)
+        if (EnrageTimer <= diff)
         {
             DoCast(m_creature, SPELL_ENRAGE);
             EnrageTimer = 60000;
-        }else EnrageTimer -= diff;
+        } else EnrageTimer -= diff;
 
         DoMeleeAttackIfReady();
     }

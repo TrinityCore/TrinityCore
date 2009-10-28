@@ -60,7 +60,7 @@ struct TRINITY_DLL_DECL boss_ironayaAI : public ScriptedAI
         {
             m_creature->CastSpell(m_creature->getVictim(),SPELL_KNOCKAWAY, true);
 
-            // current aggro target is knocked away pick new target
+            // current aggro pTarget is knocked away pick new target
             Unit* Target = SelectUnit(SELECT_TARGET_TOPAGGRO, 0);
 
             if (!Target || Target == m_creature->getVictim())
@@ -74,11 +74,11 @@ struct TRINITY_DLL_DECL boss_ironayaAI : public ScriptedAI
         }
 
         //Arcing_Timer
-        if (Arcing_Timer < diff)
+        if (Arcing_Timer <= diff)
         {
             DoCast(m_creature,SPELL_ARCINGSMASH);
             Arcing_Timer = 13000;
-        }else Arcing_Timer -= diff;
+        } else Arcing_Timer -= diff;
 
         if (!hasCastedWstomp && m_creature->GetHealth()*4 < m_creature->GetMaxHealth())
         {

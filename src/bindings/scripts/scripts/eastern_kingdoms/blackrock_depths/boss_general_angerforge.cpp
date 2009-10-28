@@ -39,14 +39,6 @@ struct TRINITY_DLL_DECL boss_general_angerforgeAI : public ScriptedAI
     uint32 Cleave_Timer;
     uint32 Adds_Timer;
     bool Medics;
-    int Rand1;
-    int Rand1X;
-    int Rand1Y;
-    int Rand2;
-    int Rand2X;
-    int Rand2Y;
-    Creature* SummonedAdds;
-    Creature* SummonedMedics;
 
     void Reset()
     {
@@ -63,44 +55,14 @@ struct TRINITY_DLL_DECL boss_general_angerforgeAI : public ScriptedAI
 
     void SummonAdds(Unit* victim)
     {
-        Rand1 = rand()%15;
-        switch (rand()%2)
-        {
-            case 0: Rand1X = 0 - Rand1; break;
-            case 1: Rand1X = 0 + Rand1; break;
-        }
-        Rand1 = 0;
-        Rand1 = rand()%15;
-        switch (rand()%2)
-        {
-            case 0: Rand1Y = 0 - Rand1; break;
-            case 1: Rand1Y = 0 + Rand1; break;
-        }
-        Rand1 = 0;
-        SummonedAdds = DoSpawnCreature(8901, Rand1X, Rand1Y, 0, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 120000);
-        if (SummonedAdds)
-            (SummonedAdds->AI())->AttackStart(victim);
+        if (Creature *SummonedAdd = DoSpawnCreature(8901, RAND(irand(0,-14),irand(0,14)), RAND(irand(0,-14),irand(0,14)), 0, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 120000))
+            SummonedAdd->AI()->AttackStart(victim);
     }
 
     void SummonMedics(Unit* victim)
     {
-        Rand2 = rand()%10;
-        switch (rand()%2)
-        {
-            case 0: Rand2X = 0 - Rand2; break;
-            case 1: Rand2X = 0 + Rand2; break;
-        }
-        Rand2 = 0;
-        Rand2 = rand()%10;
-        switch (rand()%2)
-        {
-            case 0: Rand2Y = 0 - Rand2; break;
-            case 1: Rand2Y = 0 + Rand2; break;
-        }
-        Rand2 = 0;
-        SummonedMedics = DoSpawnCreature(8894, Rand2X, Rand2Y, 0, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 120000);
-        if (SummonedMedics)
-            (SummonedMedics->AI())->AttackStart(victim);
+        if (Creature *SummonedMedic = DoSpawnCreature(8894, RAND(irand(0,-9),irand(0,9)), RAND(irand(0,-9),irand(0,9)), 0, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 120000))
+            SummonedMedic->AI()->AttackStart(victim);
     }
 
     void UpdateAI(const uint32 diff)

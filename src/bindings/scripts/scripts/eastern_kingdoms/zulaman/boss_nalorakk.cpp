@@ -144,7 +144,7 @@ struct TRINITY_DLL_DECL boss_nalorakkAI : public ScriptedAI
         m_creature->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 1, 5122);
     }
 
-    void SendAttacker(Unit* target)
+    void SendAttacker(Unit *pTarget)
     {
         std::list<Creature*> templist;
         float x, y, z;
@@ -173,7 +173,7 @@ struct TRINITY_DLL_DECL boss_nalorakkAI : public ScriptedAI
             if ((*i) && m_creature->IsWithinDistInMap((*i),25))
             {
                 (*i)->SetNoCallAssistance(true);
-                (*i)->AI()->AttackStart(target);
+                (*i)->AI()->AttackStart(pTarget);
             }
         }
     }
@@ -278,16 +278,16 @@ struct TRINITY_DLL_DECL boss_nalorakkAI : public ScriptedAI
 
     void KilledUnit(Unit* victim)
     {
-        switch(rand()%2)
+        switch (urand(0,1))
         {
-        case 0:
-            m_creature->MonsterYell(YELL_KILL_ONE, LANG_UNIVERSAL, NULL);
-            DoPlaySoundToSet(m_creature, SOUND_YELL_KILL_ONE);
-            break;
-        case 1:
-            m_creature->MonsterYell(YELL_KILL_TWO, LANG_UNIVERSAL, NULL);
-            DoPlaySoundToSet(m_creature, SOUND_YELL_KILL_TWO);
-            break;
+            case 0:
+                m_creature->MonsterYell(YELL_KILL_ONE, LANG_UNIVERSAL, NULL);
+                DoPlaySoundToSet(m_creature, SOUND_YELL_KILL_ONE);
+                break;
+            case 1:
+                m_creature->MonsterYell(YELL_KILL_TWO, LANG_UNIVERSAL, NULL);
+                DoPlaySoundToSet(m_creature, SOUND_YELL_KILL_TWO);
+                break;
         }
     }
 
@@ -336,26 +336,26 @@ struct TRINITY_DLL_DECL boss_nalorakkAI : public ScriptedAI
         if (waitTimer)
         {
             if (inMove)
-                if (waitTimer < diff)
+                if (waitTimer <= diff)
                 {
                     (*m_creature).GetMotionMaster()->MovementExpired();
                     (*m_creature).GetMotionMaster()->MovePoint(MovePhase,NalorakkWay[MovePhase][0],NalorakkWay[MovePhase][1],NalorakkWay[MovePhase][2]);
                     waitTimer = 0;
-                }else waitTimer -= diff;
+                } else waitTimer -= diff;
         }
 
         if (!UpdateVictim())
             return;
 
-        if (Berserk_Timer < diff)
+        if (Berserk_Timer <= diff)
         {
             DoCast(m_creature, SPELL_BERSERK, true);
             m_creature->MonsterYell(YELL_BERSERK, LANG_UNIVERSAL, NULL);
             DoPlaySoundToSet(m_creature, SOUND_YELL_BERSERK);
             Berserk_Timer = 600000;
-        }else Berserk_Timer -= diff;
+        } else Berserk_Timer -= diff;
 
-        if (ShapeShift_Timer < diff)
+        if (ShapeShift_Timer <= diff)
         {
             if (inBearForm)
             {
@@ -381,17 +381,17 @@ struct TRINITY_DLL_DECL boss_nalorakkAI : public ScriptedAI
                 ShapeShift_Timer = 20000 + rand()%5000; // dur 30s
                 inBearForm = true;
             }
-        }else ShapeShift_Timer -= diff;
+        } else ShapeShift_Timer -= diff;
 
         if (!inBearForm)
         {
-            if (BrutalSwipe_Timer < diff)
+            if (BrutalSwipe_Timer <= diff)
             {
                 DoCast(m_creature->getVictim(), SPELL_BRUTALSWIPE);
                 BrutalSwipe_Timer = 7000 + rand()%5000;
-            }else BrutalSwipe_Timer -= diff;
+            } else BrutalSwipe_Timer -= diff;
 
-            if (Mangle_Timer < diff)
+            if (Mangle_Timer <= diff)
             {
                 if (m_creature->getVictim() && !m_creature->getVictim()->HasAura(SPELL_MANGLEEFFECT))
                 {
@@ -399,37 +399,37 @@ struct TRINITY_DLL_DECL boss_nalorakkAI : public ScriptedAI
                     Mangle_Timer = 1000;
                 }
                 else Mangle_Timer = 10000 + rand()%5000;
-            }else Mangle_Timer -= diff;
+            } else Mangle_Timer -= diff;
 
-            if (Surge_Timer < diff)
+            if (Surge_Timer <= diff)
             {
                 m_creature->MonsterYell(YELL_SURGE, LANG_UNIVERSAL, NULL);
                 DoPlaySoundToSet(m_creature, SOUND_YELL_SURGE);
-                Unit *target = SelectTarget(SELECT_TARGET_RANDOM, 1, 45, true);
-                if (target)
-                    DoCast(target, SPELL_SURGE);
+                Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1, 45, true);
+                if (pTarget)
+                    DoCast(pTarget, SPELL_SURGE);
                 Surge_Timer = 15000 + rand()%5000;
-            }else Surge_Timer -= diff;
+            } else Surge_Timer -= diff;
         }
         else
         {
-            if (LaceratingSlash_Timer < diff)
+            if (LaceratingSlash_Timer <= diff)
             {
                 DoCast(m_creature->getVictim(), SPELL_LACERATINGSLASH);
                 LaceratingSlash_Timer = 18000 + rand()%5000;
-            }else LaceratingSlash_Timer -= diff;
+            } else LaceratingSlash_Timer -= diff;
 
-            if (RendFlesh_Timer < diff)
+            if (RendFlesh_Timer <= diff)
             {
                 DoCast(m_creature->getVictim(), SPELL_RENDFLESH);
                 RendFlesh_Timer = 5000 + rand()%5000;
-            }else RendFlesh_Timer -= diff;
+            } else RendFlesh_Timer -= diff;
 
-            if (DeafeningRoar_Timer < diff)
+            if (DeafeningRoar_Timer <= diff)
             {
                 DoCast(m_creature->getVictim(), SPELL_DEAFENINGROAR);
                 DeafeningRoar_Timer = 15000 + rand()%5000;
-            }else DeafeningRoar_Timer -= diff;
+            } else DeafeningRoar_Timer -= diff;
         }
 
         DoMeleeAttackIfReady();

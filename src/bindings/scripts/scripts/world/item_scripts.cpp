@@ -41,9 +41,9 @@ enum eOnlyForFlight
     SPELL_ARCANE_CHARGES    = 45072
 };
 
-bool ItemUse_item_only_for_flight(Player* pPlayer, Item* _Item, SpellCastTargets const& targets)
+bool ItemUse_item_only_for_flight(Player* pPlayer, Item* pItem, SpellCastTargets const& targets)
 {
-    uint32 itemId = _Item->GetEntry();
+    uint32 itemId = pItem->GetEntry();
     bool disabled = false;
 
     //for special scripts
@@ -68,7 +68,7 @@ bool ItemUse_item_only_for_flight(Player* pPlayer, Item* _Item, SpellCastTargets
         return false;
 
     // error
-    pPlayer->SendEquipError(EQUIP_ERR_CANT_DO_RIGHT_NOW,_Item,NULL);
+    pPlayer->SendEquipError(EQUIP_ERR_CANT_DO_RIGHT_NOW,pItem,NULL);
     return true;
 }
 
@@ -78,16 +78,16 @@ bool ItemUse_item_only_for_flight(Player* pPlayer, Item* _Item, SpellCastTargets
 
 //This is just a hack and should be removed from here.
 //Creature/Item are in fact created before spell are sucessfully casted, without any checks at all to ensure proper/expected behavior.
-bool ItemUse_item_draenei_fishing_net(Player* pPlayer, Item* _Item, SpellCastTargets const& targets)
+bool ItemUse_item_draenei_fishing_net(Player* pPlayer, Item* pItem, SpellCastTargets const& targets)
 {
     //if (targets.getGOTarget() && targets.getGOTarget()->GetTypeId() == TYPEID_GAMEOBJECT &&
     //targets.getGOTarget()->GetGOInfo()->type == GAMEOBJECT_TYPE_SPELL_FOCUS && targets.getGOTarget()->GetEntry() == 181616)
     //{
     if (pPlayer->GetQuestStatus(9452) == QUEST_STATUS_INCOMPLETE)
     {
-        if (rand()%100 < 35)
+        if (urand(0,99) < 35)
         {
-            Creature *Murloc = pPlayer->SummonCreature(17102,pPlayer->GetPositionX() ,pPlayer->GetPositionY()+20, pPlayer->GetPositionZ(), 0,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,10000);
+            Creature *Murloc = pPlayer->SummonCreature(17102, pPlayer->GetPositionX(), pPlayer->GetPositionY()+20, pPlayer->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 10000);
             if (Murloc)
                 Murloc->AI()->AttackStart(pPlayer);
         }
@@ -97,11 +97,10 @@ bool ItemUse_item_draenei_fishing_net(Player* pPlayer, Item* _Item, SpellCastTar
             uint8 msg = pPlayer->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, 23614, 1);
             if (msg == EQUIP_ERR_OK)
             {
-                Item* item = pPlayer->StoreNewItem(dest,23614,true);
-                if (item)
+                if (Item* item = pPlayer->StoreNewItem(dest,23614,true))
                     pPlayer->SendNewItem(item,1,false,true);
-            }else
-            pPlayer->SendEquipError(msg,NULL,NULL);
+            } else
+                pPlayer->SendEquipError(msg,NULL,NULL);
         }
     }
     //}
@@ -112,15 +111,15 @@ bool ItemUse_item_draenei_fishing_net(Player* pPlayer, Item* _Item, SpellCastTar
 # item_nether_wraith_beacon
 #####*/
 
-bool ItemUse_item_nether_wraith_beacon(Player* pPlayer, Item* _Item, SpellCastTargets const& targets)
+bool ItemUse_item_nether_wraith_beacon(Player* pPlayer, Item* pItem, SpellCastTargets const& targets)
 {
     if (pPlayer->GetQuestStatus(10832) == QUEST_STATUS_INCOMPLETE)
     {
         Creature *Nether;
-        Nether = pPlayer->SummonCreature(22408,pPlayer->GetPositionX() ,pPlayer->GetPositionY()+20, pPlayer->GetPositionZ(), 0,TEMPSUMMON_TIMED_DESPAWN,180000);
-        Nether = pPlayer->SummonCreature(22408,pPlayer->GetPositionX() ,pPlayer->GetPositionY()-20, pPlayer->GetPositionZ(), 0,TEMPSUMMON_TIMED_DESPAWN,180000);
+        Nether = pPlayer->SummonCreature(22408, pPlayer->GetPositionX(), pPlayer->GetPositionY()+20, pPlayer->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 180000);
+        Nether = pPlayer->SummonCreature(22408, pPlayer->GetPositionX(), pPlayer->GetPositionY()-20, pPlayer->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 180000);
         if (Nether)
-            (Nether->AI())->AttackStart(pPlayer);
+            Nether->AI()->AttackStart(pPlayer);
     }
     return false;
 }
@@ -129,9 +128,9 @@ bool ItemUse_item_nether_wraith_beacon(Player* pPlayer, Item* _Item, SpellCastTa
 # item_flying_machine
 #####*/
 
-bool ItemUse_item_flying_machine(Player* pPlayer, Item* _Item, SpellCastTargets const& targets)
+bool ItemUse_item_flying_machine(Player* pPlayer, Item* pItem, SpellCastTargets const& targets)
 {
-    uint32 itemId = _Item->GetEntry();
+    uint32 itemId = pItem->GetEntry();
     if (itemId == 34060)
         if (pPlayer->GetBaseSkillValue(SKILL_RIDING) >= 225)
             return false;
@@ -141,7 +140,7 @@ bool ItemUse_item_flying_machine(Player* pPlayer, Item* _Item, SpellCastTargets 
             return false;
 
     debug_log("TSCR: Player attempt to use item %u, but did not meet riding requirement",itemId);
-    pPlayer->SendEquipError(EQUIP_ERR_ERR_CANT_EQUIP_SKILL,_Item,NULL);
+    pPlayer->SendEquipError(EQUIP_ERR_ERR_CANT_EQUIP_SKILL,pItem,NULL);
     return true;
 }
 
@@ -149,13 +148,13 @@ bool ItemUse_item_flying_machine(Player* pPlayer, Item* _Item, SpellCastTargets 
 # item_gor_dreks_ointment
 #####*/
 
-bool ItemUse_item_gor_dreks_ointment(Player* pPlayer, Item* _Item, SpellCastTargets const& targets)
+bool ItemUse_item_gor_dreks_ointment(Player* pPlayer, Item* pItem, SpellCastTargets const& targets)
 {
     if (targets.getUnitTarget() && targets.getUnitTarget()->GetTypeId()==TYPEID_UNIT &&
         targets.getUnitTarget()->GetEntry() == 20748 && !targets.getUnitTarget()->HasAura(32578))
         return false;
 
-    pPlayer->SendEquipError(EQUIP_ERR_CANT_DO_RIGHT_NOW,_Item,NULL);
+    pPlayer->SendEquipError(EQUIP_ERR_CANT_DO_RIGHT_NOW,pItem,NULL);
     return true;
 }
 
@@ -163,15 +162,13 @@ bool ItemUse_item_gor_dreks_ointment(Player* pPlayer, Item* _Item, SpellCastTarg
 # item_incendiary_explosives
 #####*/
 
-bool ItemUse_item_incendiary_explosives(Player* pPlayer, Item* _Item, SpellCastTargets const& targets)
+bool ItemUse_item_incendiary_explosives(Player* pPlayer, Item* pItem, SpellCastTargets const& targets)
 {
     if (pPlayer->FindNearestCreature(26248,15) || pPlayer->FindNearestCreature(26249,15))
-    {
         return false;
-    }
     else
     {
-        pPlayer->SendEquipError(EQUIP_ERR_OUT_OF_RANGE,_Item,NULL);
+        pPlayer->SendEquipError(EQUIP_ERR_OUT_OF_RANGE,pItem,NULL);
         return true;
     }
 }
@@ -180,14 +177,13 @@ bool ItemUse_item_incendiary_explosives(Player* pPlayer, Item* _Item, SpellCastT
 # item_mysterious_egg
 #####*/
 
-bool ItemExpire_item_mysterious_egg(Player* pPlayer, ItemPrototype const * _ItemProto)
+bool ItemExpire_item_mysterious_egg(Player* pPlayer, ItemPrototype const * pItemProto)
 {
     ItemPosCountVec dest;
     uint8 msg = pPlayer->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, 39883, 1); // Cracked Egg
     if (msg == EQUIP_ERR_OK)
-    {
         pPlayer->StoreNewItem(dest, 39883, true, Item::GenerateItemRandomPropertyId(39883));
-    }
+
     return true;
 }
 
@@ -195,14 +191,13 @@ bool ItemExpire_item_mysterious_egg(Player* pPlayer, ItemPrototype const * _Item
 # item_disgusting_jar
 #####*/
 
-bool ItemExpire_item_disgusting_jar(Player* pPlayer, ItemPrototype const * _ItemProto)
+bool ItemExpire_item_disgusting_jar(Player* pPlayer, ItemPrototype const * pItemProto)
 {
     ItemPosCountVec dest;
     uint8 msg = pPlayer->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, 44718, 1); // Ripe Disgusting Jar
     if (msg == EQUIP_ERR_OK)
-    {
         pPlayer->StoreNewItem(dest, 44718, true, Item::GenerateItemRandomPropertyId(44718));
-    }
+
     return true;
 }
 
@@ -210,7 +205,7 @@ bool ItemExpire_item_disgusting_jar(Player* pPlayer, ItemPrototype const * _Item
 # item_harvesters_gift
 #####*/
 #define GHOULS 28845
-bool ItemUse_item_harvesters_gift(Player* pPlayer, Item* _Item, SpellCastTargets const& targets)
+bool ItemUse_item_harvesters_gift(Player* pPlayer, Item* pItem, SpellCastTargets const& targets)
 {
     std::list<Creature*> MinionList;
     pPlayer->GetAllMinionsByEntry(MinionList,GHOULS);
@@ -220,9 +215,7 @@ bool ItemUse_item_harvesters_gift(Player* pPlayer, Item* _Item, SpellCastTargets
         if (!MinionList.empty())
         {
             if (MinionList.size() < 5)
-            {
                 return false;
-            }
             else
             {
                 //This should be sent to the player as red text.
@@ -230,12 +223,11 @@ bool ItemUse_item_harvesters_gift(Player* pPlayer, Item* _Item, SpellCastTargets
                 return true;
             }
         }
-        else return false;
+        else
+            return false;
     }
     else
-    {
         return true;
-    }
 }
 
 void AddSC_item_scripts()

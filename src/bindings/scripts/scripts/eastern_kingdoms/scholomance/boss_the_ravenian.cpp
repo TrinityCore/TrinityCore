@@ -70,32 +70,32 @@ struct TRINITY_DLL_DECL boss_theravenianAI : public ScriptedAI
             return;
 
         //Trample_Timer
-        if (Trample_Timer < diff)
+        if (Trample_Timer <= diff)
         {
             DoCast(m_creature->getVictim(),SPELL_TRAMPLE);
             Trample_Timer = 10000;
-        }else Trample_Timer -= diff;
+        } else Trample_Timer -= diff;
 
         //Cleave_Timer
-        if (Cleave_Timer < diff)
+        if (Cleave_Timer <= diff)
         {
             DoCast(m_creature->getVictim(),SPELL_CLEAVE);
             Cleave_Timer = 7000;
-        }else Cleave_Timer -= diff;
+        } else Cleave_Timer -= diff;
 
         //SunderingCleave_Timer
-        if (SunderingCleave_Timer < diff)
+        if (SunderingCleave_Timer <= diff)
         {
             DoCast(m_creature->getVictim(),SPELL_SUNDERINCLEAVE);
             SunderingCleave_Timer = 20000;
-        }else SunderingCleave_Timer -= diff;
+        } else SunderingCleave_Timer -= diff;
 
         //KnockAway_Timer
-        if (KnockAway_Timer < diff)
+        if (KnockAway_Timer <= diff)
         {
             DoCast(m_creature->getVictim(),SPELL_KNOCKAWAY);
             KnockAway_Timer = 12000;
-        }else KnockAway_Timer -= diff;
+        } else KnockAway_Timer -= diff;
 
         DoMeleeAttackIfReady();
     }

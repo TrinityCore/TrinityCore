@@ -103,25 +103,25 @@ struct TRINITY_DLL_DECL boss_doomwalkerAI : public ScriptedAI
         //Spell Enrage, when hp <= 20% gain enrage
         if (((m_creature->GetHealth()*100)/ m_creature->GetMaxHealth()) <= 20)
         {
-            if (Enrage_Timer < diff)
+            if (Enrage_Timer <= diff)
             {
                 DoCast(m_creature,SPELL_ENRAGE);
                 Enrage_Timer = 6000;
                 InEnrage = true;
-            }else Enrage_Timer -= diff;
+            } else Enrage_Timer -= diff;
         }
 
         //Spell Overrun
-        if (Overrun_Timer < diff)
+        if (Overrun_Timer <= diff)
         {
             DoScriptText(RAND(SAY_OVERRUN_1,SAY_OVERRUN_2), m_creature);
 
             DoCast(m_creature->getVictim(),SPELL_OVERRUN);
             Overrun_Timer = 25000 + rand()%15000;
-        }else Overrun_Timer -= diff;
+        } else Overrun_Timer -= diff;
 
         //Spell Earthquake
-        if (Quake_Timer < diff)
+        if (Quake_Timer <= diff)
         {
             if (rand()%2)
                 return;
@@ -134,29 +134,29 @@ struct TRINITY_DLL_DECL boss_doomwalkerAI : public ScriptedAI
 
             DoCast(m_creature,SPELL_EARTHQUAKE);
             Quake_Timer = 30000 + rand()%25000;
-        }else Quake_Timer -= diff;
+        } else Quake_Timer -= diff;
 
         //Spell Chain Lightning
-        if (Chain_Timer < diff)
+        if (Chain_Timer <= diff)
         {
-            Unit* target = NULL;
-            target = SelectUnit(SELECT_TARGET_RANDOM,1);
+            Unit *pTarget = NULL;
+            pTarget = SelectUnit(SELECT_TARGET_RANDOM,1);
 
-            if (!target)
-                target = m_creature->getVictim();
+            if (!pTarget)
+                pTarget = m_creature->getVictim();
 
-            if (target)
-                DoCast(target,SPELL_CHAIN_LIGHTNING);
+            if (pTarget)
+                DoCast(pTarget,SPELL_CHAIN_LIGHTNING);
 
             Chain_Timer = 7000 + rand()%20000;
-        }else Chain_Timer -= diff;
+        } else Chain_Timer -= diff;
 
         //Spell Sunder Armor
-        if (Armor_Timer < diff)
+        if (Armor_Timer <= diff)
         {
             DoCast(m_creature->getVictim(),SPELL_SUNDER_ARMOR);
             Armor_Timer = 10000 + rand()%15000;
-        }else Armor_Timer -= diff;
+        } else Armor_Timer -= diff;
 
         DoMeleeAttackIfReady();
     }

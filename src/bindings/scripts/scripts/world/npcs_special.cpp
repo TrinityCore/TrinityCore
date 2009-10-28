@@ -191,7 +191,7 @@ struct TRINITY_DLL_DECL npc_air_force_botsAI : public ScriptedAI
                     Aura* pMarkAura = pWho->GetAura(SPELL_GUARDS_MARK, 0);
                     if (pMarkAura)
                     {
-                        // the target wasn't able to move out of our range within 25 seconds
+                        // the pTarget wasn't able to move out of our range within 25 seconds
                         if (!pLastSpawnedGuard)
                         {
                             pLastSpawnedGuard = SummonGuard();
@@ -278,11 +278,11 @@ struct TRINITY_DLL_DECL npc_chicken_cluckAI : public ScriptedAI
         // Reset flags after a certain time has passed so that the next player has to start the 'event' again
         if (m_creature->HasFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER))
         {
-            if (ResetFlagTimer < diff)
+            if (ResetFlagTimer <= diff)
             {
                 EnterEvadeMode();
                 return;
-            }else ResetFlagTimer -= diff;
+            } else ResetFlagTimer -= diff;
         }
 
         if (UpdateVictim())
@@ -373,7 +373,7 @@ struct TRINITY_DLL_DECL npc_dancing_flamesAI : public ScriptedAI
                 active = true;
                 can_iteract = 3500;
                 m_creature->HandleEmoteCommand(EMOTE_ONESHOT_DANCE);
-            }else can_iteract -= diff;
+            } else can_iteract -= diff;
         }
     }
 
@@ -732,7 +732,7 @@ void npc_doctorAI::UpdateAI(const uint32 diff)
 
     if (Event)
     {
-        if (SummonPatient_Timer < diff)
+        if (SummonPatient_Timer <= diff)
         {
             Creature* Patient = NULL;
             Location* Point = NULL;
@@ -771,7 +771,7 @@ void npc_doctorAI::UpdateAI(const uint32 diff)
             }
             SummonPatient_Timer = 10000;
             SummonPatientCount++;
-        }else SummonPatient_Timer -= diff;
+        } else SummonPatient_Timer -= diff;
     }
 }
 
@@ -989,7 +989,7 @@ struct TRINITY_DLL_DECL npc_garments_of_questsAI : public npc_escortAI
                     EnterEvadeMode();                       //something went wrong
 
                 RunAwayTimer = 30000;
-            }else RunAwayTimer -= diff;
+            } else RunAwayTimer -= diff;
         }
 
     npc_escortAI::UpdateAI(diff);
@@ -1414,7 +1414,7 @@ struct TRINITY_DLL_DECL npc_tonk_mineAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
-        if (ExplosionTimer < diff)
+        if (ExplosionTimer <= diff)
         {
             m_creature->CastSpell(m_creature, SPELL_TONK_MINE_DETONATE, true);
             m_creature->setDeathState(DEAD); // unsummon it
@@ -1513,7 +1513,7 @@ struct TRINITY_DLL_DECL npc_snake_trap_serpentsAI : public ScriptedAI
         m_creature->SetStatFloatValue(UNIT_FIELD_RANGED_ATTACK_POWER , Info->attackpower);
     }
 
-    //Redefined for random target selection:
+    //Redefined for random pTarget selection:
     void MoveInLineOfSight(Unit *who)
     {
         if (!m_creature->getVictim() && who->isTargetableForAttack() && (m_creature->IsHostileTo(who)) && who->isInAccessiblePlaceFor(m_creature))
@@ -1553,7 +1553,7 @@ struct TRINITY_DLL_DECL npc_snake_trap_serpentsAI : public ScriptedAI
             return;
         }
 
-        if (SpellTimer < diff)
+        if (SpellTimer <= diff)
         {
             if (IsViper) //Viper
             {
@@ -1576,7 +1576,7 @@ struct TRINITY_DLL_DECL npc_snake_trap_serpentsAI : public ScriptedAI
                     DoCast(m_creature->getVictim(),SPELL_DEADLY_POISON);
                 SpellTimer = VENOMOUS_SNAKE_TIMER + (rand() %5)*100;
             }
-        }else SpellTimer-=diff;
+        } else SpellTimer-=diff;
         DoMeleeAttackIfReady();
     }
 };
@@ -1614,7 +1614,7 @@ struct TRINITY_DLL_DECL mob_mojoAI : public ScriptedAI
     {
         if (m_creature->HasAura(20372,0))
         {
-            if (hearts<diff)
+            if (hearts<= diff)
             {
                 m_creature->RemoveAurasDueToSpell(20372);
                 hearts = 15000;
@@ -1837,7 +1837,7 @@ struct TRINITY_DLL_DECL npc_training_dummy : Scripted_NoMovementAI
         {
             EnterEvadeMode();
             ResetTimer = 10000;
-        }else ResetTimer -= diff;
+        } else ResetTimer -= diff;
         return;
     }
     void MoveInLineOfSight(Unit *who){return;}

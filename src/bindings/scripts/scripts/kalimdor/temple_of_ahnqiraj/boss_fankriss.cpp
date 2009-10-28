@@ -77,7 +77,7 @@ struct TRINITY_DLL_DECL boss_fankrissAI : public ScriptedAI
         Rand = 0;
         Spawn = DoSpawnCreature(15630, RandX, RandY, 0, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000);
         if (Spawn)
-            (Spawn->AI())->AttackStart(victim);
+            Spawn->AI()->AttackStart(victim);
     }
 
     void EnterCombat(Unit *who)
@@ -91,14 +91,14 @@ struct TRINITY_DLL_DECL boss_fankrissAI : public ScriptedAI
             return;
 
         //MortalWound_Timer
-        if (MortalWound_Timer < diff)
+        if (MortalWound_Timer <= diff)
         {
             DoCast(m_creature->getVictim(),SPELL_MORTAL_WOUND);
             MortalWound_Timer = 10000 + rand()%10000;
-        }else MortalWound_Timer -= diff;
+        } else MortalWound_Timer -= diff;
 
         //Summon 1-3 Spawns of Fankriss at random time.
-        if (SpawnSpawns_Timer < diff)
+        if (SpawnSpawns_Timer <= diff)
         {
             switch(rand()%3)
             {
@@ -116,74 +116,74 @@ struct TRINITY_DLL_DECL boss_fankrissAI : public ScriptedAI
                     break;
             }
             SpawnSpawns_Timer = 30000 + rand()%30000;
-        }else SpawnSpawns_Timer -= diff;
+        } else SpawnSpawns_Timer -= diff;
 
         // Teleporting Random Target to one of the three tunnels and spawn 4 hatchlings near the gamer.
         //We will only telport if fankriss has more than 3% of hp so teleported gamers can always loot.
         if (m_creature->GetHealth()*100 / m_creature->GetMaxHealth() > 3)
         {
-            if (SpawnHatchlings_Timer< diff)
+            if (SpawnHatchlings_Timer<= diff)
             {
-                Unit* target = NULL;
-                target = SelectUnit(SELECT_TARGET_RANDOM,0);
-                if (target && target->GetTypeId() == TYPEID_PLAYER)
+                Unit *pTarget = NULL;
+                pTarget = SelectUnit(SELECT_TARGET_RANDOM,0);
+                if (pTarget && pTarget->GetTypeId() == TYPEID_PLAYER)
                 {
-                    DoCast(target, SPELL_ROOT);
+                    DoCast(pTarget, SPELL_ROOT);
 
-                    if (DoGetThreat(target))
-                        DoModifyThreatPercent(target, -100);
+                    if (DoGetThreat(pTarget))
+                        DoModifyThreatPercent(pTarget, -100);
 
-                    switch(rand()%3)
+                    switch(urand(0,2))
                     {
                         case 0:
-                            DoTeleportPlayer(target, -8106.0142,1289.2900,-74.419533,5.112);
-                            Hatchling = m_creature->SummonCreature(15962, target->GetPositionX()-3, target->GetPositionY()-3, target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
+                            DoTeleportPlayer(pTarget, -8106.0142,1289.2900,-74.419533,5.112);
+                            Hatchling = m_creature->SummonCreature(15962, pTarget->GetPositionX()-3, pTarget->GetPositionY()-3, pTarget->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
                             if (Hatchling)
-                                (Hatchling->AI())->AttackStart(target);
-                            Hatchling = m_creature->SummonCreature(15962, target->GetPositionX()-3, target->GetPositionY()+3, target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
+                                Hatchling->AI()->AttackStart(pTarget);
+                            Hatchling = m_creature->SummonCreature(15962, pTarget->GetPositionX()-3, pTarget->GetPositionY()+3, pTarget->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
                             if (Hatchling)
-                                (Hatchling->AI())->AttackStart(target);
-                            Hatchling = m_creature->SummonCreature(15962, target->GetPositionX()-5, target->GetPositionY()-5, target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
+                                Hatchling->AI()->AttackStart(pTarget);
+                            Hatchling = m_creature->SummonCreature(15962, pTarget->GetPositionX()-5, pTarget->GetPositionY()-5, pTarget->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
                             if (Hatchling)
-                                (Hatchling->AI())->AttackStart(target);
-                            Hatchling = m_creature->SummonCreature(15962, target->GetPositionX()-5, target->GetPositionY()+5, target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
+                                Hatchling->AI()->AttackStart(pTarget);
+                            Hatchling = m_creature->SummonCreature(15962, pTarget->GetPositionX()-5, pTarget->GetPositionY()+5, pTarget->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
                             if (Hatchling)
-                                (Hatchling->AI())->AttackStart(target);
+                                Hatchling->AI()->AttackStart(pTarget);
                             break;
                         case 1:
-                            DoTeleportPlayer(target, -7990.135354,1155.1907,-78.849319,2.608);
-                            Hatchling = m_creature->SummonCreature(15962, target->GetPositionX()-3, target->GetPositionY()-3, target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
+                            DoTeleportPlayer(pTarget, -7990.135354,1155.1907,-78.849319,2.608);
+                            Hatchling = m_creature->SummonCreature(15962, pTarget->GetPositionX()-3, pTarget->GetPositionY()-3, pTarget->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
                             if (Hatchling)
-                                (Hatchling->AI())->AttackStart(target);
-                            Hatchling = m_creature->SummonCreature(15962, target->GetPositionX()-3, target->GetPositionY()+3, target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
+                                Hatchling->AI()->AttackStart(pTarget);
+                            Hatchling = m_creature->SummonCreature(15962, pTarget->GetPositionX()-3, pTarget->GetPositionY()+3, pTarget->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
                             if (Hatchling)
-                                (Hatchling->AI())->AttackStart(target);
-                            Hatchling = m_creature->SummonCreature(15962, target->GetPositionX()-5, target->GetPositionY()-5, target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
+                                Hatchling->AI()->AttackStart(pTarget);
+                            Hatchling = m_creature->SummonCreature(15962, pTarget->GetPositionX()-5, pTarget->GetPositionY()-5, pTarget->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
                             if (Hatchling)
-                                (Hatchling->AI())->AttackStart(target);
-                            Hatchling = m_creature->SummonCreature(15962, target->GetPositionX()-5, target->GetPositionY()+5, target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
+                                Hatchling->AI()->AttackStart(pTarget);
+                            Hatchling = m_creature->SummonCreature(15962, pTarget->GetPositionX()-5, pTarget->GetPositionY()+5, pTarget->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
                             if (Hatchling)
-                                (Hatchling->AI())->AttackStart(target);
+                                Hatchling->AI()->AttackStart(pTarget);
                             break;
                         case 2:
-                            DoTeleportPlayer(target,-8159.7753,1127.9064,-76.868660,0.675);
-                            Hatchling = m_creature->SummonCreature(15962, target->GetPositionX()-3, target->GetPositionY()-3, target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
+                            DoTeleportPlayer(pTarget,-8159.7753,1127.9064,-76.868660,0.675);
+                            Hatchling = m_creature->SummonCreature(15962, pTarget->GetPositionX()-3, pTarget->GetPositionY()-3, pTarget->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
                             if (Hatchling)
-                                (Hatchling->AI())->AttackStart(target);
-                            Hatchling = m_creature->SummonCreature(15962, target->GetPositionX()-3, target->GetPositionY()+3, target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
+                                Hatchling->AI()->AttackStart(pTarget);
+                            Hatchling = m_creature->SummonCreature(15962, pTarget->GetPositionX()-3, pTarget->GetPositionY()+3, pTarget->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
                             if (Hatchling)
-                                (Hatchling->AI())->AttackStart(target);
-                            Hatchling = m_creature->SummonCreature(15962, target->GetPositionX()-5, target->GetPositionY()-5, target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
+                                Hatchling->AI()->AttackStart(pTarget);
+                            Hatchling = m_creature->SummonCreature(15962, pTarget->GetPositionX()-5, pTarget->GetPositionY()-5, pTarget->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
                             if (Hatchling)
-                                (Hatchling->AI())->AttackStart(target);
-                            Hatchling = m_creature->SummonCreature(15962, target->GetPositionX()-5, target->GetPositionY()+5, target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
+                                Hatchling->AI()->AttackStart(pTarget);
+                            Hatchling = m_creature->SummonCreature(15962, pTarget->GetPositionX()-5, pTarget->GetPositionY()+5, pTarget->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
                             if (Hatchling)
-                                (Hatchling->AI())->AttackStart(target);
+                                Hatchling->AI()->AttackStart(pTarget);
                             break;
                     }
                 }
                 SpawnHatchlings_Timer = 45000 + rand()%15000;
-            }else SpawnHatchlings_Timer -= diff;
+            } else SpawnHatchlings_Timer -= diff;
         }
 
         DoMeleeAttackIfReady();

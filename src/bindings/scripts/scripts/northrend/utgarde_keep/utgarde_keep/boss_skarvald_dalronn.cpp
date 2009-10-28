@@ -160,7 +160,7 @@ struct TRINITY_DLL_DECL boss_skarvald_the_constructorAI : public ScriptedAI
         if (!ghost)
         {
             if (Check_Timer)
-                if (Check_Timer < diff)
+                if (Check_Timer <= diff)
                 {
                     Check_Timer = 5000;
                     Unit* dalronn = Unit::GetUnit(*m_creature, pInstance ? pInstance->GetData64(DATA_DALRONN) : 0);
@@ -170,29 +170,29 @@ struct TRINITY_DLL_DECL boss_skarvald_the_constructorAI : public ScriptedAI
                         Response_Timer = 2000;
                         Check_Timer = 0;
                     }
-                }else Check_Timer -= diff;
+                } else Check_Timer -= diff;
 
             if (Response_Timer)
                 if (Dalronn_isDead)
-                    if (Response_Timer < diff)
+                    if (Response_Timer <= diff)
                     {
                         DoScriptText(YELL_SKARVALD_DAL_DIEDFIRST,m_creature);
 
                         Response_Timer = 0;
-                    }else Response_Timer -= diff;
+                    } else Response_Timer -= diff;
         }
 
-        if (Charge_Timer < diff)
+        if (Charge_Timer <= diff)
         {
             DoCast(SelectUnit(SELECT_TARGET_RANDOM, 1), SPELL_CHARGE);
             Charge_Timer = 5000+rand()%5000;
-        }else Charge_Timer -= diff;
+        } else Charge_Timer -= diff;
 
-        if (StoneStrike_Timer < diff)
+        if (StoneStrike_Timer <= diff)
         {
             DoCast(m_creature->getVictim(), SPELL_STONE_STRIKE);
             StoneStrike_Timer = 5000+rand()%5000;
-        }else StoneStrike_Timer -= diff;
+        } else StoneStrike_Timer -= diff;
 
         DoMeleeAttackIfReady();
     }
@@ -308,17 +308,17 @@ struct TRINITY_DLL_DECL boss_dalronn_the_controllerAI : public ScriptedAI
             return;
 
         if (AggroYell_Timer)
-            if (AggroYell_Timer < diff)
+            if (AggroYell_Timer <= diff)
             {
                 DoScriptText(YELL_DALRONN_AGGRO,m_creature);
 
                 AggroYell_Timer = 0;
-            }else AggroYell_Timer -= diff;
+            } else AggroYell_Timer -= diff;
 
         if (!ghost)
         {
             if (Check_Timer)
-                if (Check_Timer < diff)
+                if (Check_Timer <= diff)
                 {
                     Check_Timer = 5000;
                     Unit* skarvald = Unit::GetUnit(*m_creature, pInstance ? pInstance->GetData64(DATA_SKARVALD) : 0);
@@ -328,42 +328,42 @@ struct TRINITY_DLL_DECL boss_dalronn_the_controllerAI : public ScriptedAI
                         Response_Timer = 2000;
                         Check_Timer = 0;
                     }
-                }else Check_Timer -= diff;
+                } else Check_Timer -= diff;
 
             if (Response_Timer)
                 if (Skarvald_isDead)
-                    if (Response_Timer < diff)
+                    if (Response_Timer <= diff)
                     {
                         DoScriptText(YELL_DALRONN_SKA_DIEDFIRST,m_creature);
 
                         Response_Timer = 0;
-                    }else Response_Timer -= diff;
+                    } else Response_Timer -= diff;
         }
 
-        if (ShadowBolt_Timer < diff)
+        if (ShadowBolt_Timer <= diff)
         {
             if (!m_creature->IsNonMeleeSpellCasted(false))
             {
                 DoCast(SelectUnit(SELECT_TARGET_RANDOM, 0),HEROIC(SPELL_SHADOW_BOLT, H_SPELL_SHADOW_BOLT));
                 ShadowBolt_Timer = 1000;
             }
-        }else ShadowBolt_Timer -= diff;
+        } else ShadowBolt_Timer -= diff;
 
-        if (Debilitate_Timer < diff)
+        if (Debilitate_Timer <= diff)
         {
             if (!m_creature->IsNonMeleeSpellCasted(false))
              {
                 DoCast(SelectUnit(SELECT_TARGET_RANDOM, 0),SPELL_DEBILITATE);
                 Debilitate_Timer = 5000+rand()%5000;
             }
-        }else Debilitate_Timer -= diff;
+        } else Debilitate_Timer -= diff;
 
         if (HeroicMode)
-            if (Summon_Timer < diff)
+            if (Summon_Timer <= diff)
             {
                 DoCast(m_creature,H_SPELL_SUMMON_SKELETONS);
                 Summon_Timer = (rand()%10000) + 20000;
-            }else Summon_Timer -= diff;
+            } else Summon_Timer -= diff;
 
         DoMeleeAttackIfReady();
     }

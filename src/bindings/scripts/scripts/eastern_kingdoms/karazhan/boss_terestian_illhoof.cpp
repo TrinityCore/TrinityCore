@@ -45,7 +45,7 @@ EndScriptData */
 #define SPELL_FIENDISH_PORTAL       30171                   // Opens portal and summons Fiendish Portal, 2 sec cast
 #define SPELL_FIENDISH_PORTAL_1     30179                   // Opens portal and summons Fiendish Portal, instant cast
 
-#define SPELL_FIREBOLT              30050                   // Blasts a target for 150 Fire damage.
+#define SPELL_FIREBOLT              30050                   // Blasts a pTarget for 150 Fire damage.
 #define SPELL_BROKEN_PACT           30065                   // All damage taken increased by 25%.
 #define SPELL_AMPLIFY_FLAMES        30053                   // Increases the Fire damage taken by an enemy by 500 for 25 sec.
 
@@ -93,7 +93,7 @@ struct TRINITY_DLL_DECL mob_kilrekAI : public ScriptedAI
                 if (Terestian && Terestian->isAlive())
                     DoCast(Terestian, SPELL_BROKEN_PACT, true);
             }
-        }else ERROR_INST_DATA(m_creature);
+        } else ERROR_INST_DATA(m_creature);
     }
 
     void UpdateAI(const uint32 diff)
@@ -108,7 +108,7 @@ struct TRINITY_DLL_DECL mob_kilrekAI : public ScriptedAI
             DoCast(m_creature->getVictim(),SPELL_AMPLIFY_FLAMES);
 
             AmplifyTimer = urand(10000,20000);
-        }else AmplifyTimer -= diff;
+        } else AmplifyTimer -= diff;
 
         DoMeleeAttackIfReady();
     }
@@ -277,15 +277,15 @@ struct TRINITY_DLL_DECL boss_terestianAI : public ScriptedAI
 
         if (SacrificeTimer <= diff)
         {
-            Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 100, true);
-            if (target && target->isAlive())
+            Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1, 100, true);
+            if (pTarget && pTarget->isAlive())
             {
-                DoCast(target, SPELL_SACRIFICE, true);
-                DoCast(target, SPELL_SUMMON_DEMONCHAINS, true);
+                DoCast(pTarget, SPELL_SACRIFICE, true);
+                DoCast(pTarget, SPELL_SUMMON_DEMONCHAINS, true);
 
                 if (Creature* Chains = m_creature->FindNearestCreature(CREATURE_DEMONCHAINS, 5000))
                 {
-                    CAST_AI(mob_demon_chainAI, Chains->AI())->SacrificeGUID = target->GetGUID();
+                    CAST_AI(mob_demon_chainAI, Chains->AI())->SacrificeGUID = pTarget->GetGUID();
                     Chains->CastSpell(Chains, SPELL_DEMON_CHAINS, true);
                     DoScriptText(RAND(SAY_SACRIFICE1,SAY_SACRIFICE2), m_creature);
                     SacrificeTimer = 30000;
@@ -328,7 +328,7 @@ struct TRINITY_DLL_DECL boss_terestianAI : public ScriptedAI
     }
 };
 
-#define SPELL_FIREBOLT  30050   // Blasts a target for 181-209 Fire damage.
+#define SPELL_FIREBOLT  30050   // Blasts a pTarget for 181-209 Fire damage.
 
 struct TRINITY_DLL_DECL mob_fiendish_impAI : public ScriptedAI
 {

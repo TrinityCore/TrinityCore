@@ -291,7 +291,7 @@ struct TRINITY_DLL_DECL instance_utgarde_keep : public ScriptedInstance
             forge_event[1] = data4;
             forge_event[2] = data5;
 
-        }else OUT_LOAD_INST_DATA_FAIL;
+        } else OUT_LOAD_INST_DATA_FAIL;
 
         OUT_LOAD_INST_DATA_COMPLETE;
     }

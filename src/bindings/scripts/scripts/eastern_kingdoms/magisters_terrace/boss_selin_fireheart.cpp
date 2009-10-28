@@ -110,7 +110,7 @@ struct TRINITY_DLL_DECL boss_selin_fireheartAI : public ScriptedAI
                                                             // Small door opened after event are expected to be closed by default
             // Set Inst data for encounter
             pInstance->SetData(DATA_SELIN_EVENT, NOT_STARTED);
-        }else error_log(ERROR_INST_DATA);
+        } else error_log(ERROR_INST_DATA);
 
         DrainLifeTimer = 3000 + rand()%4000;
         DrainManaTimer = DrainLifeTimer + 5000;
@@ -239,7 +239,7 @@ struct TRINITY_DLL_DECL boss_selin_fireheartAI : public ScriptedAI
             uint32 maxPowerMana = m_creature->GetMaxPower(POWER_MANA);
             if (maxPowerMana && ((m_creature->GetPower(POWER_MANA)*100 / maxPowerMana) < 10))
             {
-                if (DrainLifeTimer < diff)
+                if (DrainLifeTimer <= diff)
                 {
                     DoCast(SelectUnit(SELECT_TARGET_RANDOM, 0), SPELL_DRAIN_LIFE);
                     DrainLifeTimer = 10000;
@@ -248,7 +248,7 @@ struct TRINITY_DLL_DECL boss_selin_fireheartAI : public ScriptedAI
                 // Heroic only
                 if (Heroic)
                 {
-                    if (DrainManaTimer < diff)
+                    if (DrainManaTimer <= diff)
                     {
                         DoCast(SelectUnit(SELECT_TARGET_RANDOM, 1), SPELL_DRAIN_MANA);
                         DrainManaTimer = 10000;
@@ -256,7 +256,7 @@ struct TRINITY_DLL_DECL boss_selin_fireheartAI : public ScriptedAI
                 }
             }
 
-            if (FelExplosionTimer < diff)
+            if (FelExplosionTimer <= diff)
             {
                 if (!m_creature->IsNonMeleeSpellCasted(false))
                 {
@@ -269,7 +269,7 @@ struct TRINITY_DLL_DECL boss_selin_fireheartAI : public ScriptedAI
             maxPowerMana = m_creature->GetMaxPower(POWER_MANA);
             if (maxPowerMana && ((m_creature->GetPower(POWER_MANA)*100 / maxPowerMana) < 10))
             {
-                if (DrainCrystalTimer < diff)
+                if (DrainCrystalTimer <= diff)
                 {
                     SelectNearestCrystal();
                     if (Heroic) DrainCrystalTimer = 10000 + rand()%5000;
@@ -281,7 +281,7 @@ struct TRINITY_DLL_DECL boss_selin_fireheartAI : public ScriptedAI
         {
             if (IsDraining)
             {
-                if (EmpowerTimer < diff)
+                if (EmpowerTimer <= diff)
                 {
                     IsDraining = false;
                     DrainingCrystal = false;

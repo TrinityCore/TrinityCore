@@ -106,11 +106,11 @@ struct TRINITY_DLL_DECL npc_ameAI : public npc_escortAI
         if (!UpdateVictim())
             return;
 
-        if (DEMORALIZINGSHOUT_Timer < diff)
+        if (DEMORALIZINGSHOUT_Timer <= diff)
         {
             DoCast(m_creature->getVictim(),SPELL_DEMORALIZINGSHOUT);
             DEMORALIZINGSHOUT_Timer = 70000;
-        }else DEMORALIZINGSHOUT_Timer -= diff;
+        } else DEMORALIZINGSHOUT_Timer -= diff;
 
     }
 };
@@ -242,7 +242,7 @@ struct TRINITY_DLL_DECL npc_ringoAI : public FollowerAI
         {
             if (HasFollowState(STATE_FOLLOW_POSTEVENT))
             {
-                if (m_uiEndEventTimer < uiDiff)
+                if (m_uiEndEventTimer <= uiDiff)
                 {
                     if (!pSpraggle || !pSpraggle->isAlive())
                     {
@@ -300,7 +300,7 @@ struct TRINITY_DLL_DECL npc_ringoAI : public FollowerAI
             {
                 if (!HasFollowState(STATE_FOLLOW_PAUSED))
                 {
-                    if (m_uiFaintTimer < uiDiff)
+                    if (m_uiFaintTimer <= uiDiff)
                     {
                         SetFaint();
                         m_uiFaintTimer = urand(60000, 120000);

@@ -59,11 +59,11 @@ static Yell RandomTaunt[]=
 #define SPELL_CLEAVE                30619
 #define SPELL_QUAKE_TRIGGER         30657 // must be cast with 30561 as the proc spell
 #define SPELL_QUAKE_KNOCKBACK       30571
-#define SPELL_BLAZE_TARGET          30541 // core bug, does not support target 7
+#define SPELL_BLAZE_TARGET          30541 // core bug, does not support pTarget 7
 #define SPELL_BLAZE_TRAP            30542
 #define SPELL_DEBRIS_KNOCKDOWN      36449
 #define SPELL_DEBRIS_VISUAL         30632
-#define SPELL_DEBRIS_DAMAGE         30631 // core bug, does not support target 8
+#define SPELL_DEBRIS_DAMAGE         30631 // core bug, does not support pTarget 8
 #define SPELL_CAMERA_SHAKE          36455
 #define SPELL_BERSERK               27680
 
@@ -79,7 +79,7 @@ static Yell RandomTaunt[]=
 #define SPELL_DARK_MENDING          30528
 #define SPELL_FEAR                  30530 //39176
 #define SPELL_BURNING_ABYSSAL       30511
-#define SPELL_SOUL_TRANSFER         30531 // core bug, does not support target 7
+#define SPELL_SOUL_TRANSFER         30531 // core bug, does not support pTarget 7
 
 #define SPELL_FIRE_BLAST            37110
 
@@ -138,28 +138,28 @@ struct TRINITY_DLL_DECL mob_abyssalAI : public ScriptedAI
         {
             if (trigger == 1)
             {
-                if (FireBlast_Timer < diff)
+                if (FireBlast_Timer <= diff)
                 {
                     m_creature->CastSpell(m_creature, SPELL_DEBRIS_DAMAGE, true);
                     trigger = 3;
-                }else FireBlast_Timer -= diff;
+                } else FireBlast_Timer -= diff;
             }
             return;
         }
 
-        if (Despawn_Timer < diff)
+        if (Despawn_Timer <= diff)
         {
             m_creature->ForcedDespawn();
-        }else Despawn_Timer -= diff;
+        } else Despawn_Timer -= diff;
 
         if (!UpdateVictim())
             return;
 
-        if (FireBlast_Timer < diff)
+        if (FireBlast_Timer <= diff)
         {
             DoCast(m_creature->getVictim(), SPELL_FIRE_BLAST);
             FireBlast_Timer = 5000+rand()%10000;
-        }else FireBlast_Timer -= diff;
+        } else FireBlast_Timer -= diff;
 
         DoMeleeAttackIfReady();
     }
@@ -173,7 +173,7 @@ struct TRINITY_DLL_DECL boss_magtheridonAI : public ScriptedAI
         m_creature->SetFloatValue(UNIT_FIELD_BOUNDINGRADIUS, 10);
         m_creature->SetFloatValue(UNIT_FIELD_COMBATREACH, 10);
 
-        // target 7, random target with certain entry spell, need core fix
+        // pTarget 7, random pTarget with certain entry spell, need core fix
         SpellEntry *TempSpell;
         TempSpell = GET_SPELL(SPELL_BLAZE_TARGET);
         if (TempSpell && TempSpell->EffectImplicitTargetA[0] != 6)
@@ -264,7 +264,7 @@ struct TRINITY_DLL_DECL boss_magtheridonAI : public ScriptedAI
             {
                 DebuffClicker(clicker);
                 (*i).second = 0;
-            }else ClickerNum++;
+            } else ClickerNum++;
         }
 
         // if 5 clickers from other cubes apply shadow cage
@@ -316,11 +316,11 @@ struct TRINITY_DLL_DECL boss_magtheridonAI : public ScriptedAI
     {
         if (!m_creature->isInCombat())
         {
-            if (RandChat_Timer < diff)
+            if (RandChat_Timer <= diff)
             {
                 DoScriptText(RandomTaunt[rand()%6].id, m_creature);
                 RandChat_Timer = 90000;
-            }else RandChat_Timer -= diff;
+            } else RandChat_Timer -= diff;
         }
 
         if (!UpdateVictim())
@@ -328,20 +328,20 @@ struct TRINITY_DLL_DECL boss_magtheridonAI : public ScriptedAI
 
         if (NeedCheckCube) NeedCheckCubeStatus();
 
-        if (Berserk_Timer < diff)
+        if (Berserk_Timer <= diff)
         {
             m_creature->CastSpell(m_creature, SPELL_BERSERK, true);
             DoScriptText(EMOTE_BERSERK, m_creature);
             Berserk_Timer = 60000;
-        }else Berserk_Timer -= diff;
+        } else Berserk_Timer -= diff;
 
-        if (Cleave_Timer < diff)
+        if (Cleave_Timer <= diff)
         {
             DoCast(m_creature->getVictim(),SPELL_CLEAVE);
             Cleave_Timer = 10000;
-        }else Cleave_Timer -= diff;
+        } else Cleave_Timer -= diff;
 
-        if (BlastNova_Timer < diff)
+        if (BlastNova_Timer <= diff)
         {
             // to avoid earthquake interruption
             if (!m_creature->hasUnitState(UNIT_STAT_STUNNED))
@@ -350,9 +350,9 @@ struct TRINITY_DLL_DECL boss_magtheridonAI : public ScriptedAI
                 DoCast(m_creature, SPELL_BLASTNOVA);
                 BlastNova_Timer = 60000;
             }
-        }else BlastNova_Timer -= diff;
+        } else BlastNova_Timer -= diff;
 
-        if (Quake_Timer < diff)
+        if (Quake_Timer <= diff)
         {
             // to avoid blastnova interruption
             if (!m_creature->IsNonMeleeSpellCasted(false))
@@ -360,14 +360,14 @@ struct TRINITY_DLL_DECL boss_magtheridonAI : public ScriptedAI
                 m_creature->CastSpell(m_creature, SPELL_QUAKE_TRIGGER, true);
                 Quake_Timer = 50000;
             }
-        }else Quake_Timer -= diff;
+        } else Quake_Timer -= diff;
 
-        if (Blaze_Timer < diff)
+        if (Blaze_Timer <= diff)
         {
-            if (Unit *target = SelectUnit(SELECT_TARGET_RANDOM, 0))
+            if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
             {
                 float x, y, z;
-                target->GetPosition(x, y, z);
+                pTarget->GetPosition(x, y, z);
                 Creature *summon = m_creature->SummonCreature(MOB_ABYSSAL, x, y, z, 0, TEMPSUMMON_CORPSE_DESPAWN, 0);
                 if (summon)
                 {
@@ -377,7 +377,7 @@ struct TRINITY_DLL_DECL boss_magtheridonAI : public ScriptedAI
                 }
             }
             Blaze_Timer = 20000 + rand()%20000;
-        }else Blaze_Timer -= diff;
+        } else Blaze_Timer -= diff;
 
         if (!Phase3 && m_creature->GetHealth()*10 < m_creature->GetMaxHealth()*3
             && !m_creature->IsNonMeleeSpellCasted(false) // blast nova
@@ -394,17 +394,17 @@ struct TRINITY_DLL_DECL boss_magtheridonAI : public ScriptedAI
 
         if (Phase3)
         {
-            if (Debris_Timer < diff)
+            if (Debris_Timer <= diff)
             {
-                if (Unit *target = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
                 {
                     float x, y, z;
-                    target->GetPosition(x, y, z);
+                    pTarget->GetPosition(x, y, z);
                     Creature *summon = m_creature->SummonCreature(MOB_ABYSSAL, x, y, z, 0, TEMPSUMMON_CORPSE_DESPAWN, 0);
                     if (summon) CAST_AI(mob_abyssalAI, summon->AI())->SetTrigger(1);
                 }
                 Debris_Timer = 10000;
-            }else Debris_Timer -= diff;
+            } else Debris_Timer -= diff;
         }
 
         DoMeleeAttackIfReady();
@@ -476,32 +476,32 @@ struct TRINITY_DLL_DECL mob_hellfire_channelerAI : public ScriptedAI
         if (!UpdateVictim())
             return;
 
-        if (ShadowBoltVolley_Timer < diff)
+        if (ShadowBoltVolley_Timer <= diff)
         {
             DoCast(m_creature, SPELL_SHADOW_BOLT_VOLLEY);
             ShadowBoltVolley_Timer = 10000 + rand()%10000;
-        }else ShadowBoltVolley_Timer -= diff;
+        } else ShadowBoltVolley_Timer -= diff;
 
-        if (DarkMending_Timer < diff)
+        if (DarkMending_Timer <= diff)
         {
             if ((m_creature->GetHealth()*100 / m_creature->GetMaxHealth()) < 50)
                 DoCast(m_creature, SPELL_DARK_MENDING);
             DarkMending_Timer = 10000 +(rand() % 10000);
-        }else DarkMending_Timer -= diff;
+        } else DarkMending_Timer -= diff;
 
-        if (Fear_Timer < diff)
+        if (Fear_Timer <= diff)
         {
-            if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 1))
-                DoCast(target, SPELL_FEAR);
+            if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 1))
+                DoCast(pTarget, SPELL_FEAR);
             Fear_Timer = 25000 + rand()%15000;
-        }else Fear_Timer -= diff;
+        } else Fear_Timer -= diff;
 
-        if (Infernal_Timer < diff)
+        if (Infernal_Timer <= diff)
         {
-            if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0))
-                m_creature->CastSpell(target, SPELL_BURNING_ABYSSAL, true);
+            if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                m_creature->CastSpell(pTarget, SPELL_BURNING_ABYSSAL, true);
             Infernal_Timer = 30000 + rand()%10000;
-        }else Infernal_Timer -= diff;
+        } else Infernal_Timer -= diff;
 
         DoMeleeAttackIfReady();
     }

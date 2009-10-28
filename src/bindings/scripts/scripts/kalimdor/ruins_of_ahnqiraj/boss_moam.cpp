@@ -118,14 +118,14 @@ struct TRINITY_DLL_DECL boss_moamAI : public ScriptedAI
             }
             
             //Trample Spell
-            if (uiTrampleTimer < diff)
+            if (uiTrampleTimer <= diff)
             {
                 DoCast(m_creature->getVictim(),SPELL_TRAMPLE);
                 uiTrampleTimer = urand(3000,7000);
             } else uiTrampleTimer -= diff;
             
             //Drain Mana
-            if (uiDrainManaTimer < diff)
+            if (uiDrainManaTimer <= diff)
             {
                 DrainMana();
                 uiDrainManaTimer = urand(3000,7000);
@@ -134,7 +134,7 @@ struct TRINITY_DLL_DECL boss_moamAI : public ScriptedAI
             DoMeleeAttackIfReady();
             
             //After 90secs change phase
-            if (uiPhaseTimer < diff)
+            if (uiPhaseTimer <= diff)
             {
                 Phase = STONE;
                 DoCast(m_creature,SPELL_SUMMONMANA);

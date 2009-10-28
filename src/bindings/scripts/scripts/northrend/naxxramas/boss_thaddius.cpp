@@ -174,11 +174,11 @@ struct TRINITY_DLL_DECL mob_stalaggAI : public ScriptedAI
 
    void UpdateAI(const uint32 uiDiff)
    {
-       if (PowerSurgeTimer < uiDiff)
+       if (PowerSurgeTimer <= uiDiff)
        {
            DoCast(m_creature, HEROIC(SPELL_POWERSURGE,H_SPELL_POWERSURGE));
            PowerSurgeTimer = urand(15000,20000);
-       }else PowerSurgeTimer -= uiDiff;
+       } else PowerSurgeTimer -= uiDiff;
        DoMeleeAttackIfReady();
    }
 };
@@ -207,11 +207,11 @@ struct TRINITY_DLL_DECL mob_feugenAI : public ScriptedAI
 
    void UpdateAI(const uint32 uiDiff)
    {
-       if (StaticFieldTimer < uiDiff)
+       if (StaticFieldTimer <= uiDiff)
        {
            DoCast(m_creature, HEROIC(SPELL_STATICFIELD,H_SPELL_STATICFIELD));
            StaticFieldTimer = 5000;
-       }else StaticFieldTimer -= uiDiff;
+       } else StaticFieldTimer -= uiDiff;
        DoMeleeAttackIfReady();
    }
 };

@@ -194,7 +194,7 @@ struct TRINITY_DLL_DECL instance_ruins_of_ahn_qiraj : public ScriptedInstance
                 if (m_auiEncounter[i] == IN_PROGRESS)
                     m_auiEncounter[i] = NOT_STARTED;
 
-        }else OUT_LOAD_INST_DATA_FAIL;
+        } else OUT_LOAD_INST_DATA_FAIL;
     }
 };
 

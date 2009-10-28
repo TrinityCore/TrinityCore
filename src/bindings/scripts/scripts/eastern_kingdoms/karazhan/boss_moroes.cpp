@@ -271,12 +271,12 @@ struct TRINITY_DLL_DECL boss_moroesAI : public ScriptedAI
 
             if (Blind_Timer <= diff)
             {
-                Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, m_creature->GetMeleeReach()*5, true);
-                if (target && m_creature->IsWithinMeleeRange(target))
+                Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, m_creature->GetMeleeReach()*5, true);
+                if (pTarget && m_creature->IsWithinMeleeRange(pTarget))
                 {
-                    DoCast(target, SPELL_BLIND);
+                    DoCast(pTarget, SPELL_BLIND);
                     Blind_Timer = 40000;
-                } else Blind_Timer = 1000 + diff; // if target is out of melee range, wait a bit.
+                } else Blind_Timer = 1000 + diff; // if pTarget is out of melee range, wait a bit.
             } else Blind_Timer -= diff;
         }
 
@@ -286,8 +286,8 @@ struct TRINITY_DLL_DECL boss_moroesAI : public ScriptedAI
             {
                 DoScriptText(RAND(SAY_SPECIAL_1,SAY_SPECIAL_2), m_creature);
 
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                    target->CastSpell(target, SPELL_GARROTE,true);
+                if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                    pTarget->CastSpell(pTarget, SPELL_GARROTE,true);
 
                 InVanish = false;
             } else Wait_Timer -= diff;
@@ -398,17 +398,17 @@ struct TRINITY_DLL_DECL boss_baroness_dorothea_millstipeAI : public boss_moroes_
 
         if (ManaBurn_Timer <= diff)
         {
-            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                if (target->getPowerType() == POWER_MANA)
-                    DoCast(target,SPELL_MANABURN);
+            if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                if (pTarget->getPowerType() == POWER_MANA)
+                    DoCast(pTarget,SPELL_MANABURN);
             ManaBurn_Timer = 5000;                          // 3 sec cast
         } else ManaBurn_Timer -= diff;
 
         if (ShadowWordPain_Timer <= diff)
         {
-            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+            if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
             {
-                DoCast(target,SPELL_SWPAIN);
+                DoCast(pTarget,SPELL_SWPAIN);
                 ShadowWordPain_Timer = 7000;
             }
         } else ShadowWordPain_Timer -= diff;
@@ -507,9 +507,9 @@ struct TRINITY_DLL_DECL boss_lady_catriona_von_indiAI : public boss_moroes_guest
 
         if (GreaterHeal_Timer <= diff)
         {
-            Unit* target = SelectGuestTarget();
+            Unit *pTarget = SelectGuestTarget();
 
-            DoCast(target, SPELL_GREATERHEAL);
+            DoCast(pTarget, SPELL_GREATERHEAL);
             GreaterHeal_Timer = 17000;
         } else GreaterHeal_Timer -= diff;
 
@@ -521,8 +521,8 @@ struct TRINITY_DLL_DECL boss_lady_catriona_von_indiAI : public boss_moroes_guest
 
         if (DispelMagic_Timer <= diff)
         {
-            if (Unit* target = RAND(SelectGuestTarget(), SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true)))
-                DoCast(target, SPELL_DISPELMAGIC);
+            if (Unit *pTarget = RAND(SelectGuestTarget(), SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true)))
+                DoCast(pTarget, SPELL_DISPELMAGIC);
 
             DispelMagic_Timer = 25000;
         } else DispelMagic_Timer -= diff;
@@ -571,26 +571,26 @@ struct TRINITY_DLL_DECL boss_lady_keira_berrybuckAI : public boss_moroes_guestAI
 
         if (HolyLight_Timer <= diff)
         {
-            Unit* target = SelectGuestTarget();
+            Unit *pTarget = SelectGuestTarget();
 
-            DoCast(target, SPELL_HOLYLIGHT);
+            DoCast(pTarget, SPELL_HOLYLIGHT);
             HolyLight_Timer = 10000;
         } else HolyLight_Timer -= diff;
 
         if (GreaterBless_Timer <= diff)
         {
-            Unit* target = SelectGuestTarget();
+            Unit *pTarget = SelectGuestTarget();
 
-            DoCast(target, SPELL_GREATERBLESSOFMIGHT);
+            DoCast(pTarget, SPELL_GREATERBLESSOFMIGHT);
 
             GreaterBless_Timer = 50000;
         } else GreaterBless_Timer -= diff;
 
         if (Cleanse_Timer <= diff)
         {
-            Unit* target = SelectGuestTarget();
+            Unit *pTarget = SelectGuestTarget();
 
-            DoCast(target, SPELL_CLEANSE);
+            DoCast(pTarget, SPELL_CLEANSE);
 
             Cleanse_Timer = 10000;
         } else Cleanse_Timer -= diff;

@@ -385,7 +385,7 @@ struct TRINITY_DLL_DECL instance_stratholme : public ScriptedInstance
                     SetData(TYPE_BARON_RUN, FAIL);
                 BaronRun_Timer = 0;
                 debug_log("TSCR: Instance Stratholme: Baron run event reached end. Event has state %u.",GetData(TYPE_BARON_RUN));
-            }else BaronRun_Timer -= diff;
+            } else BaronRun_Timer -= diff;
         }
 
         if (SlaugtherSquare_Timer)
@@ -402,7 +402,7 @@ struct TRINITY_DLL_DECL instance_stratholme : public ScriptedInstance
                     debug_log("TSCR: Instance Stratholme: Black guard sentries spawned. Opening gates to baron.");
                 }
                 SlaugtherSquare_Timer = 0;
-            }else SlaugtherSquare_Timer -= diff;
+            } else SlaugtherSquare_Timer -= diff;
         }
     }
 };

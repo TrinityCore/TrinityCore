@@ -156,34 +156,34 @@ struct TRINITY_DLL_DECL boss_razorscaleAI : public BossAI
 
         if (Phase == 1 || Phase == 3)
         {
-            if (FlameBreathTimer < diff)
+            if (FlameBreathTimer <= diff)
             {
                 DoCast(m_creature->getVictim(), SPELL_FLAMEBREATH);
                 FlameBreathTimer = 15000;
             } else FlameBreathTimer -= diff;
 
-            if (DEVOURINGFLAMETimer < diff)
+            if (DEVOURINGFLAMETimer <= diff)
             {
-                if (Unit *target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                    if (!m_creature->HasInArc(M_PI, target))
-                        DoCast(target, SPELL_DEVOURINGFLAME);
+                if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                    if (!m_creature->HasInArc(M_PI, pTarget))
+                        DoCast(pTarget, SPELL_DEVOURINGFLAME);
 
                 DEVOURINGFLAMETimer = 10000;
             } else DEVOURINGFLAMETimer -= diff;
 
-            if (FUSEARMORTimer < diff)
+            if (FUSEARMORTimer <= diff)
             {
                 DoCast(m_creature->getVictim(), SPELL_FUSEARMOR);
                 FUSEARMORTimer = 10000;
             } else FUSEARMORTimer -= diff;
 
-            if (WingBuffetTimer < diff)
+            if (WingBuffetTimer <= diff)
             {
                 DoCast(m_creature->getVictim(), SPELL_WINGBUFFET);
                 WingBuffetTimer = urand(7000,14000);
             } else WingBuffetTimer -= diff;
 
-            if (KnockAwayTimer < diff)
+            if (KnockAwayTimer <= diff)
             {
                 if (urand(0,99) < 30)
                     DoCast(m_creature->getVictim(), SPELL_KNOCK_AWAY);
@@ -192,7 +192,7 @@ struct TRINITY_DLL_DECL boss_razorscaleAI : public BossAI
 
             if (Phase == 3)
             {
-                if (BellowingRoarTimer < diff)
+                if (BellowingRoarTimer <= diff)
                 {
                     DoCast(m_creature->getVictim(), SPELL_BELLOWINGROAR);
                     BellowingRoarTimer = 30000;
@@ -209,14 +209,14 @@ struct TRINITY_DLL_DECL boss_razorscaleAI : public BossAI
 
             InitialSpawn = false;
 
-            if (FireballTimer < diff)
+            if (FireballTimer <= diff)
             {
                 DoCast(SelectUnit(SELECT_TARGET_RANDOM, 0), SPELL_FIREBALL);
 
                 FireballTimer = 18000;
             } else FireballTimer -= diff;
 
-            if (MovementTimer < diff)
+            if (MovementTimer <= diff)
             {
                 if (urand(0,99) < 30)
                 {
@@ -228,7 +228,7 @@ struct TRINITY_DLL_DECL boss_razorscaleAI : public BossAI
                 MovementTimer = 25000;
             } else MovementTimer -= diff;
 
-            if (SummonAddsTimer < diff)
+            if (SummonAddsTimer <= diff)
                 SummonAdds();
             else SummonAddsTimer -= diff;
         }

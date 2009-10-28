@@ -78,11 +78,11 @@ struct TRINITY_DLL_DECL boss_pandemoniusAI : public ScriptedAI
         if (!UpdateVictim())
             return;
 
-        if (VoidBlast_Timer < diff)
+        if (VoidBlast_Timer <= diff)
         {
-            if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0))
+            if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
             {
-                DoCast(target,HEROIC(SPELL_VOID_BLAST, H_SPELL_VOID_BLAST));
+                DoCast(pTarget,HEROIC(SPELL_VOID_BLAST, H_SPELL_VOID_BLAST));
                 VoidBlast_Timer = 500;
                 ++VoidBlast_Counter;
             }
@@ -92,11 +92,11 @@ struct TRINITY_DLL_DECL boss_pandemoniusAI : public ScriptedAI
                 VoidBlast_Timer = 15000+rand()%10000;
                 VoidBlast_Counter = 0;
             }
-        }else VoidBlast_Timer -= diff;
+        } else VoidBlast_Timer -= diff;
 
         if (!VoidBlast_Counter)
         {
-            if (DarkShell_Timer < diff)
+            if (DarkShell_Timer <= diff)
             {
                 if (m_creature->IsNonMeleeSpellCasted(false))
                     m_creature->InterruptNonMeleeSpells(true);
@@ -105,7 +105,7 @@ struct TRINITY_DLL_DECL boss_pandemoniusAI : public ScriptedAI
 
                 DoCast(m_creature,HEROIC(SPELL_DARK_SHELL, H_SPELL_DARK_SHELL));
                 DarkShell_Timer = 20000;
-            }else DarkShell_Timer -= diff;
+            } else DarkShell_Timer -= diff;
         }
 
         DoMeleeAttackIfReady();

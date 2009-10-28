@@ -129,7 +129,7 @@ struct TRINITY_DLL_DECL example_creatureAI : public ScriptedAI
         if (!m_creature->getVictim())
         {
             //Random Say timer
-            if (m_uiSay_Timer < uiDiff)
+            if (m_uiSay_Timer <= uiDiff)
             {
                 //Random switch between 5 outcomes
                 DoScriptText(RAND(SAY_RANDOM_0,SAY_RANDOM_1,SAY_RANDOM_2,SAY_RANDOM_3,SAY_RANDOM_4), m_creature);
@@ -140,7 +140,7 @@ struct TRINITY_DLL_DECL example_creatureAI : public ScriptedAI
                 m_uiSay_Timer -= uiDiff;
 
             //Rebuff timer
-            if (m_uiRebuff_Timer < uiDiff)
+            if (m_uiRebuff_Timer <= uiDiff)
             {
                 DoCast(m_creature, SPELL_BUFF);
                 m_uiRebuff_Timer = 900000;                  //Rebuff agian in 15 minutes
@@ -154,7 +154,7 @@ struct TRINITY_DLL_DECL example_creatureAI : public ScriptedAI
             return;
 
         //Spell 1 timer
-        if (m_uiSpell_1_Timer < uiDiff)
+        if (m_uiSpell_1_Timer <= uiDiff)
         {
             //Cast spell one on our current target.
             if (rand()%50 > 10)
@@ -168,7 +168,7 @@ struct TRINITY_DLL_DECL example_creatureAI : public ScriptedAI
             m_uiSpell_1_Timer -= uiDiff;
 
         //Spell 2 timer
-        if (m_uiSpell_2_Timer < uiDiff)
+        if (m_uiSpell_2_Timer <= uiDiff)
         {
             //Cast spell one on our current target.
             DoCast(m_creature->getVictim(), SPELL_TWO);
@@ -181,7 +181,7 @@ struct TRINITY_DLL_DECL example_creatureAI : public ScriptedAI
         if (m_uiPhase > 1)
         {
             //Spell 3 timer
-            if (m_uiSpell_3_Timer < uiDiff)
+            if (m_uiSpell_3_Timer <= uiDiff)
             {
                 //Cast spell one on our current target.
                 DoCast(m_creature->getVictim(), SPELL_THREE);
@@ -191,7 +191,7 @@ struct TRINITY_DLL_DECL example_creatureAI : public ScriptedAI
             else
                 m_uiSpell_3_Timer -= uiDiff;
 
-            if (m_uiBeserk_Timer < uiDiff)
+            if (m_uiBeserk_Timer <= uiDiff)
             {
                 //Say our line then cast uber death spell
                 DoScriptText(SAY_BESERK, m_creature, m_creature->getVictim());
@@ -205,7 +205,7 @@ struct TRINITY_DLL_DECL example_creatureAI : public ScriptedAI
         }
         else if (m_uiPhase == 1)                            //Phase timer
         {
-            if (m_uiPhase_Timer < uiDiff)
+            if (m_uiPhase_Timer <= uiDiff)
             {
                 //Go to next phase
                 ++m_uiPhase;

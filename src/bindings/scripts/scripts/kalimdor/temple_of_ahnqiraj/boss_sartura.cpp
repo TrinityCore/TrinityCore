@@ -90,52 +90,52 @@ struct TRINITY_DLL_DECL boss_sarturaAI : public ScriptedAI
 
         if (WhirlWind)
         {
-            if (WhirlWindRandom_Timer < diff)
+            if (WhirlWindRandom_Timer <= diff)
             {
                 //Attack random Gamers
-                Unit* target = NULL;
-                target = SelectUnit(SELECT_TARGET_RANDOM,1);
-                if (target)
-                m_creature->AddThreat(target, 1.0f);
-                m_creature->TauntApply(target);
-                AttackStart(target);
+                Unit *pTarget = NULL;
+                pTarget = SelectUnit(SELECT_TARGET_RANDOM,1);
+                if (pTarget)
+                m_creature->AddThreat(pTarget, 1.0f);
+                m_creature->TauntApply(pTarget);
+                AttackStart(pTarget);
 
                 WhirlWindRandom_Timer = 3000 + rand()%4000;
-            }else WhirlWindRandom_Timer -= diff;
+            } else WhirlWindRandom_Timer -= diff;
 
-            if (WhirlWindEnd_Timer < diff)
+            if (WhirlWindEnd_Timer <= diff)
             {
                 WhirlWind = false;
                 WhirlWind_Timer = 25000 + rand()%15000;
-            }else WhirlWindEnd_Timer -= diff;
+            } else WhirlWindEnd_Timer -= diff;
         }
 
         if (!WhirlWind)
         {
-            if (WhirlWind_Timer < diff)
+            if (WhirlWind_Timer <= diff)
             {
                 DoCast(m_creature, SPELL_WHIRLWIND);
                 WhirlWind = true;
                 WhirlWindEnd_Timer = 15000;
-            }else WhirlWind_Timer -= diff;
+            } else WhirlWind_Timer -= diff;
 
-            if (AggroReset_Timer < diff)
+            if (AggroReset_Timer <= diff)
             {
                 //Attack random Gamers
-                Unit* target = NULL;
-                target = SelectUnit(SELECT_TARGET_RANDOM,1);
-                if (target)
-                m_creature->AddThreat(target, 1.0f);
-                m_creature->TauntApply(target);
-                AttackStart(target);
+                Unit *pTarget = NULL;
+                pTarget = SelectUnit(SELECT_TARGET_RANDOM,1);
+                if (pTarget)
+                m_creature->AddThreat(pTarget, 1.0f);
+                m_creature->TauntApply(pTarget);
+                AttackStart(pTarget);
 
                     AggroReset = true;
                     AggroReset_Timer = 2000 + rand()%3000;
-            }else AggroReset_Timer -= diff;
+            } else AggroReset_Timer -= diff;
 
             if (AggroReset)
             {
-                if (AggroResetEnd_Timer <diff)
+                if (AggroResetEnd_Timer <= diff)
                 {
                     AggroReset = false;
                     AggroResetEnd_Timer = 5000;
@@ -156,7 +156,7 @@ struct TRINITY_DLL_DECL boss_sarturaAI : public ScriptedAI
             //After 10 minutes hard enrage
             if (!EnragedHard)
             {
-                if (EnrageHard_Timer < diff)
+                if (EnrageHard_Timer <= diff)
                 {
                     DoCast(m_creature, SPELL_ENRAGEHARD);
                     EnragedHard = true;
@@ -205,61 +205,61 @@ struct TRINITY_DLL_DECL mob_sartura_royal_guardAI : public ScriptedAI
         if (!UpdateVictim())
             return;
 
-        if (!WhirlWind && WhirlWind_Timer < diff)
+        if (!WhirlWind && WhirlWind_Timer <= diff)
         {
             DoCast(m_creature, SPELL_WHIRLWINDADD);
             WhirlWind = true;
             WhirlWind_Timer = 25000 + rand()%15000;
             WhirlWindEnd_Timer = 15000;
-        }else WhirlWind_Timer -= diff;
+        } else WhirlWind_Timer -= diff;
 
         if (WhirlWind)
         {
-            if (WhirlWindRandom_Timer < diff)
+            if (WhirlWindRandom_Timer <= diff)
             {
                 //Attack random Gamers
-                Unit* target = NULL;
-                target = SelectUnit(SELECT_TARGET_RANDOM,1);
-                if (target)
-                m_creature->AddThreat(target, 1.0f);
-                m_creature->TauntApply(target);
-                AttackStart(target);
+                Unit *pTarget = NULL;
+                pTarget = SelectUnit(SELECT_TARGET_RANDOM,1);
+                if (pTarget)
+                m_creature->AddThreat(pTarget, 1.0f);
+                m_creature->TauntApply(pTarget);
+                AttackStart(pTarget);
 
                 WhirlWindRandom_Timer = 3000 + rand()%4000;
-            }else WhirlWindRandom_Timer -= diff;
+            } else WhirlWindRandom_Timer -= diff;
 
-            if (WhirlWindEnd_Timer < diff)
+            if (WhirlWindEnd_Timer <= diff)
             {
                 WhirlWind = false;
-            }else WhirlWindEnd_Timer -= diff;
+            } else WhirlWindEnd_Timer -= diff;
         }
 
         if (!WhirlWind)
         {
-            if (AggroReset_Timer < diff)
+            if (AggroReset_Timer <= diff)
             {
                 //Attack random Gamers
-                Unit* target = NULL;
-                target = SelectUnit(SELECT_TARGET_RANDOM,1);
-                if (target)
-                m_creature->AddThreat(target, 1.0f);
-                m_creature->TauntApply(target);
-                AttackStart(target);
+                Unit *pTarget = NULL;
+                pTarget = SelectUnit(SELECT_TARGET_RANDOM,1);
+                if (pTarget)
+                m_creature->AddThreat(pTarget, 1.0f);
+                m_creature->TauntApply(pTarget);
+                AttackStart(pTarget);
 
                 AggroReset = true;
                 AggroReset_Timer = 2000 + rand()%3000;
-            }else AggroReset_Timer -= diff;
+            } else AggroReset_Timer -= diff;
 
-            if (KnockBack_Timer < diff)
+            if (KnockBack_Timer <= diff)
             {
                 DoCast(m_creature, SPELL_WHIRLWINDADD);
                 KnockBack_Timer = 10000 + rand()%10000;
-            }else KnockBack_Timer -= diff;
+            } else KnockBack_Timer -= diff;
         }
 
         if (AggroReset)
         {
-            if (AggroResetEnd_Timer <diff)
+            if (AggroResetEnd_Timer <= diff)
             {
                 AggroReset = false;
                 AggroResetEnd_Timer = 5000;

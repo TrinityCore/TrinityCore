@@ -64,55 +64,55 @@ struct TRINITY_DLL_DECL boss_sulfuronAI : public ScriptedAI
             return;
 
         //DemoralizingShout_Timer
-        if (DemoralizingShout_Timer < diff)
+        if (DemoralizingShout_Timer <= diff)
         {
             DoCast(m_creature->getVictim(),SPELL_DEMORALIZINGSHOUT);
             DemoralizingShout_Timer = 15000 + rand()%5000;
-        }else DemoralizingShout_Timer -= diff;
+        } else DemoralizingShout_Timer -= diff;
 
         //Inspire_Timer
-        if (Inspire_Timer < diff)
+        if (Inspire_Timer <= diff)
         {
-            Creature* target = NULL;
+            Creature *pTarget = NULL;
             std::list<Creature*> pList = DoFindFriendlyMissingBuff(45.0f,SPELL_INSPIRE);
             if (!pList.empty())
             {
                 std::list<Creature*>::iterator i = pList.begin();
                 advance(i, (rand()%pList.size()));
-                target = (*i);
+                pTarget = (*i);
             }
 
-            if (target)
-                DoCast(target,SPELL_INSPIRE);
+            if (pTarget)
+                DoCast(pTarget,SPELL_INSPIRE);
 
             DoCast(m_creature,SPELL_INSPIRE);
 
             Inspire_Timer = 20000 + rand()%6000;
-        }else Inspire_Timer -= diff;
+        } else Inspire_Timer -= diff;
 
         //Knockdown_Timer
-        if (Knockdown_Timer < diff)
+        if (Knockdown_Timer <= diff)
         {
             DoCast(m_creature->getVictim(),SPELL_KNOCKDOWN);
             Knockdown_Timer = 12000 + rand()%3000;
-        }else Knockdown_Timer -= diff;
+        } else Knockdown_Timer -= diff;
 
         //Flamespear_Timer
-        if (Flamespear_Timer < diff)
+        if (Flamespear_Timer <= diff)
         {
-            Unit* target = NULL;
-            target = SelectUnit(SELECT_TARGET_RANDOM,0);
-            if (target) DoCast(target,SPELL_FLAMESPEAR);
+            Unit *pTarget = NULL;
+            pTarget = SelectUnit(SELECT_TARGET_RANDOM,0);
+            if (pTarget) DoCast(pTarget,SPELL_FLAMESPEAR);
 
             Flamespear_Timer = 12000 + rand()%4000;
-        }else Flamespear_Timer -= diff;
+        } else Flamespear_Timer -= diff;
 
         //DarkStrike_Timer
-        if (Darkstrike_Timer < diff)
+        if (Darkstrike_Timer <= diff)
         {
             DoCast(m_creature, SPELL_DARKSTRIKE);
             Darkstrike_Timer = 15000 + rand()%3000;
-        }else Darkstrike_Timer -= diff;
+        } else Darkstrike_Timer -= diff;
 
         DoMeleeAttackIfReady();
     }
@@ -143,7 +143,7 @@ struct TRINITY_DLL_DECL mob_flamewaker_priestAI : public ScriptedAI
             return;
 
         //Casting Heal to Sulfuron or other Guards.
-        if (Heal_Timer < diff)
+        if (Heal_Timer <= diff)
         {
             Unit* pUnit = DoSelectLowestHpFriendly(60.0f, 1);
             if (!pUnit)
@@ -152,27 +152,27 @@ struct TRINITY_DLL_DECL mob_flamewaker_priestAI : public ScriptedAI
             DoCast(pUnit, SPELL_HEAL);
 
             Heal_Timer = 15000+rand()%5000;
-        }else Heal_Timer -= diff;
+        } else Heal_Timer -= diff;
 
         //ShadowWordPain_Timer
-        if (ShadowWordPain_Timer < diff)
+        if (ShadowWordPain_Timer <= diff)
         {
-            Unit* target = NULL;
-            target = SelectUnit(SELECT_TARGET_RANDOM,0);
-            if (target) DoCast(target,SPELL_SHADOWWORDPAIN);
+            Unit *pTarget = NULL;
+            pTarget = SelectUnit(SELECT_TARGET_RANDOM,0);
+            if (pTarget) DoCast(pTarget,SPELL_SHADOWWORDPAIN);
 
             ShadowWordPain_Timer = 18000+rand()%8000;
-        }else ShadowWordPain_Timer -= diff;
+        } else ShadowWordPain_Timer -= diff;
 
         //Immolate_Timer
-        if (Immolate_Timer < diff)
+        if (Immolate_Timer <= diff)
         {
-            Unit* target = NULL;
-            target = SelectUnit(SELECT_TARGET_RANDOM,0);
-            if (target) DoCast(target,SPELL_IMMOLATE);
+            Unit *pTarget = NULL;
+            pTarget = SelectUnit(SELECT_TARGET_RANDOM,0);
+            if (pTarget) DoCast(pTarget,SPELL_IMMOLATE);
 
             Immolate_Timer = 15000+rand()%10000;
-        }else Immolate_Timer -= diff;
+        } else Immolate_Timer -= diff;
 
         DoMeleeAttackIfReady();
     }

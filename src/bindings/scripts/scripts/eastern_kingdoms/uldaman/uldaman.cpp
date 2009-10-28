@@ -56,13 +56,13 @@ struct TRINITY_DLL_DECL mob_jadespine_basiliskAI : public ScriptedAI
             return;
 
         //Cslumber_Timer
-        if (Cslumber_Timer < diff)
+        if (Cslumber_Timer <= diff)
         {
             //Cast
             // DoCast(m_creature->getVictim(),SPELL_CSLUMBER);
             m_creature->CastSpell(m_creature->getVictim(),SPELL_CSLUMBER, true);
 
-            //Stop attacking target thast asleep and pick new target
+            //Stop attacking pTarget thast asleep and pick new target
             Cslumber_Timer = 28000;
 
             Unit* Target = SelectUnit(SELECT_TARGET_TOPAGGRO, 0);
@@ -73,7 +73,7 @@ struct TRINITY_DLL_DECL mob_jadespine_basiliskAI : public ScriptedAI
             if (Target)
                 m_creature->TauntApply(Target);
 
-        }else Cslumber_Timer -= diff;
+        } else Cslumber_Timer -= diff;
 
         DoMeleeAttackIfReady();
     }

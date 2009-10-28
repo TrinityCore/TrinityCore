@@ -164,7 +164,7 @@ Creature* ScriptedAI::DoSpawnCreature(uint32 uiId, float fX, float fY, float fZ,
     return m_creature->SummonCreature(uiId, m_creature->GetPositionX()+fX, m_creature->GetPositionY()+fY, m_creature->GetPositionZ()+fZ, fAngle, (TempSummonType)uiType, uiDespawntime);
 }
 
-Unit* ScriptedAI::SelectUnit(SelectAggroTarget target, uint32 uiPosition)
+Unit* ScriptedAI::SelectUnit(SelectAggroTarget pTarget, uint32 uiPosition)
 {
     //ThreatList m_threatlist;
     std::list<HostilReference*>& threatlist = m_creature->getThreatManager().getThreatList();
@@ -174,7 +174,7 @@ Unit* ScriptedAI::SelectUnit(SelectAggroTarget target, uint32 uiPosition)
     if (uiPosition >= threatlist.size() || !threatlist.size())
         return NULL;
 
-    switch (target)
+    switch (pTarget)
     {
     case SELECT_TARGET_RANDOM:
         advance (itr , uiPosition +  (rand() % (threatlist.size() - uiPosition ) ));
@@ -197,7 +197,7 @@ Unit* ScriptedAI::SelectUnit(SelectAggroTarget target, uint32 uiPosition)
 
 SpellEntry const* ScriptedAI::SelectSpell(Unit* pTarget, int32 uiSchool, int32 uiMechanic, SelectTargetType selectTargets, uint32 uiPowerCostMin, uint32 uiPowerCostMax, float fRangeMin, float fRangeMax, SelectEffect selectEffects)
 {
-    //No target so we can't cast
+    //No pTarget so we can't cast
     if (!pTarget)
         return false;
 
@@ -264,7 +264,7 @@ SpellEntry const* ScriptedAI::SelectSpell(Unit* pTarget, int32 uiSchool, int32 u
         if (fRangeMax && m_creature->GetSpellMaxRangeForTarget(pTarget, pTempRange) > fRangeMax)
             continue;
 
-        //Check if our target is in range
+        //Check if our pTarget is in range
          if (m_creature->IsWithinDistInMap(pTarget, m_creature->GetSpellMinRangeForTarget(pTarget, pTempRange)) || !m_creature->IsWithinDistInMap(pTarget, m_creature->GetSpellMaxRangeForTarget(pTarget, pTempRange)))
             continue;
 
@@ -282,7 +282,7 @@ SpellEntry const* ScriptedAI::SelectSpell(Unit* pTarget, int32 uiSchool, int32 u
 
 bool ScriptedAI::CanCast(Unit* pTarget, SpellEntry const* pSpell, bool bTriggered)
 {
-    //No target so we can't cast
+    //No pTarget so we can't cast
     if (!pTarget || !pSpell)
         return false;
 

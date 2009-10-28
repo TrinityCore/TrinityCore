@@ -17,12 +17,12 @@ enum Spells
     SPELL_ARCANE_SHIELD                      = 53813, //Dummy --> Channeled, shields the caster from damage.
     SPELL_EMPOWERED_ARCANE_EXPLOSION         = 51110,
     SPELL_EMPOWERED_ARCANE_EXPLOSION_2       = 59377,
-    SPELL_FROSTBOMB                          = 51103, //Urom throws a bomb, hitting its target with the highest aggro which inflict directly 650 frost damage and drops a frost zone on the ground. This zone deals 650 frost damage per second and reduce the movement speed by 35%. Lasts 1 minute.
+    SPELL_FROSTBOMB                          = 51103, //Urom throws a bomb, hitting its pTarget with the highest aggro which inflict directly 650 frost damage and drops a frost zone on the ground. This zone deals 650 frost damage per second and reduce the movement speed by 35%. Lasts 1 minute.
     SPELL_SUMMON_MENAGERIE                   = 50476, //Summons an assortment of creatures and teleports the caster to safety.
     SPELL_SUMMON_MENAGERIE_2                 = 50495,
     SPELL_SUMMON_MENAGERIE_3                 = 50496,
     SPELL_TELEPORT                           = 51112, //Teleports to the center of Oculus
-    SPELL_TIME_BOMB                          = 51121, //Deals arcane damage to a random player, and after 6 seconds, deals zone damage to nearby equal to the health missing of the target afflicted by the debuff.
+    SPELL_TIME_BOMB                          = 51121, //Deals arcane damage to a random player, and after 6 seconds, deals zone damage to nearby equal to the health missing of the pTarget afflicted by the debuff.
     SPELL_TIME_BOMB_2                        = 59376
 };
 //not in db

@@ -76,11 +76,11 @@ struct TRINITY_DLL_DECL npc_aeranasAI : public ScriptedAI
     {
         if (Faction_Timer)
         {
-            if (Faction_Timer < diff)
+            if (Faction_Timer <= diff)
             {
                 m_creature->setFaction(FACTION_HOSTILE);
                 Faction_Timer = 0;
-            }else Faction_Timer -= diff;
+            } else Faction_Timer -= diff;
         }
 
         if (!UpdateVictim())
@@ -97,17 +97,17 @@ struct TRINITY_DLL_DECL npc_aeranasAI : public ScriptedAI
             return;
         }
 
-        if (Shock_Timer < diff)
+        if (Shock_Timer <= diff)
         {
             DoCast(m_creature->getVictim(),SPELL_SHOCK);
             Shock_Timer = 10000;
-        }else Shock_Timer -= diff;
+        } else Shock_Timer -= diff;
 
-        if (EnvelopingWinds_Timer < diff)
+        if (EnvelopingWinds_Timer <= diff)
         {
             DoCast(m_creature->getVictim(),SPELL_ENVELOPING_WINDS);
             EnvelopingWinds_Timer = 25000;
-        }else EnvelopingWinds_Timer -= diff;
+        } else EnvelopingWinds_Timer -= diff;
 
         DoMeleeAttackIfReady();
     }

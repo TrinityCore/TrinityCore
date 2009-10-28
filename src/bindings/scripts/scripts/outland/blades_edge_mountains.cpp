@@ -200,7 +200,7 @@ struct TRINITY_DLL_DECL mobs_nether_drakeAI : public ScriptedAI
                         break;
                 }
                 NihilSpeech_Timer = 5000;
-            }else NihilSpeech_Timer -=diff;
+            } else NihilSpeech_Timer -=diff;
 
             //anything below here is not interesting for Nihil, so skip it
             return;
@@ -213,21 +213,21 @@ struct TRINITY_DLL_DECL mobs_nether_drakeAI : public ScriptedAI
         {
             DoCast(m_creature->getVictim(),SPELL_INTANGIBLE_PRESENCE);
             IntangiblePresence_Timer = 15000+rand()%15000;
-        }else IntangiblePresence_Timer -= diff;
+        } else IntangiblePresence_Timer -= diff;
 
         if (ManaBurn_Timer <= diff)
         {
-            Unit* target = m_creature->getVictim();
-            if (target && target->getPowerType() == POWER_MANA)
-                DoCast(target,SPELL_MANA_BURN);
+            Unit *pTarget = m_creature->getVictim();
+            if (pTarget && pTarget->getPowerType() == POWER_MANA)
+                DoCast(pTarget,SPELL_MANA_BURN);
             ManaBurn_Timer = 8000+rand()%8000;
-        }else ManaBurn_Timer -= diff;
+        } else ManaBurn_Timer -= diff;
 
         if (ArcaneBlast_Timer <= diff)
         {
             DoCast(m_creature->getVictim(),SPELL_ARCANE_BLAST);
             ArcaneBlast_Timer = 2500+rand()%5000;
-        }else ArcaneBlast_Timer -= diff;
+        } else ArcaneBlast_Timer -= diff;
 
         DoMeleeAttackIfReady();
     }

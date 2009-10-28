@@ -52,27 +52,27 @@ struct TRINITY_DLL_DECL boss_gahzrankaAI : public ScriptedAI
             return;
 
         //Frostbreath_Timer
-        if (Frostbreath_Timer < diff)
+        if (Frostbreath_Timer <= diff)
         {
             DoCast(m_creature->getVictim(),SPELL_FROSTBREATH);
             Frostbreath_Timer = 7000 + rand()%4000;
-        }else Frostbreath_Timer -= diff;
+        } else Frostbreath_Timer -= diff;
 
         //MassiveGeyser_Timer
-        if (MassiveGeyser_Timer < diff)
+        if (MassiveGeyser_Timer <= diff)
         {
             DoCast(m_creature->getVictim(),SPELL_MASSIVEGEYSER);
             DoResetThreat();
 
             MassiveGeyser_Timer = 22000 + rand()%10000;
-        }else MassiveGeyser_Timer -= diff;
+        } else MassiveGeyser_Timer -= diff;
 
         //Slam_Timer
-        if (Slam_Timer < diff)
+        if (Slam_Timer <= diff)
         {
             DoCast(m_creature->getVictim(),SPELL_SLAM);
             Slam_Timer = 12000 + rand()%8000;
-        }else Slam_Timer -= diff;
+        } else Slam_Timer -= diff;
 
         DoMeleeAttackIfReady();
     }

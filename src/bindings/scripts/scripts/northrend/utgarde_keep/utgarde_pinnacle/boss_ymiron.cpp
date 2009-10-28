@@ -168,7 +168,7 @@ struct TRINITY_DLL_DECL boss_ymironAI : public ScriptedAI
     {
         if (m_bIsWalking)
         {
-            if (m_uiPause_Timer < diff)
+            if (m_uiPause_Timer <= diff)
             {
                 DoScriptText(ActiveBot[m_uiActiveOrder[m_uiActivedNumber]].say, m_creature);
                 DoCast(m_creature, SPELL_CHANNEL_YMIRON_TO_SPIRIT); // should be on spirit
@@ -196,7 +196,7 @@ struct TRINITY_DLL_DECL boss_ymironAI : public ScriptedAI
         }
         else if (m_bIsPause)
         {
-            if (m_uiPause_Timer < diff)
+            if (m_uiPause_Timer <= diff)
             {
                 m_uiAbility_BJORN_Timer = 5000;
                 m_uiAbility_HALDOR_Timer = 5000;
@@ -216,32 +216,32 @@ struct TRINITY_DLL_DECL boss_ymironAI : public ScriptedAI
         if (!m_bIsPause)
         {
             // Normal spells ------------------------------------------------------------------------
-            if (m_uiBane_Timer < diff)
+            if (m_uiBane_Timer <= diff)
             {
                 DoCast(m_creature, HEROIC(SPELL_BANE, H_SPELL_BANE));
                 m_uiBane_Timer = urand(20000,25000);
             } else m_uiBane_Timer -= diff;
 
-            if (m_uiFetidRot_Timer < diff)
+            if (m_uiFetidRot_Timer <= diff)
             {
                 DoCast(m_creature->getVictim(), HEROIC(SPELL_FETID_ROT, H_SPELL_FETID_ROT));
                 m_uiFetidRot_Timer = urand(10000,15000);
             } else m_uiFetidRot_Timer -= diff;
 
-            if (m_uiDarkSlash_Timer < diff)
+            if (m_uiDarkSlash_Timer <= diff)
             {
                 DoCast(m_creature->getVictim(), SPELL_DARK_SLASH);
                 m_uiDarkSlash_Timer = urand(30000,35000);
             } else m_uiDarkSlash_Timer -= diff;
 
-            if (m_uiAncestors_Vengeance_Timer < diff)
+            if (m_uiAncestors_Vengeance_Timer <= diff)
             {
                 DoCast(m_creature, SPELL_ANCESTORS_VENGEANCE);
                 m_uiAncestors_Vengeance_Timer = HEROIC(urand(60000,65000),urand(45000,50000));
             } else m_uiAncestors_Vengeance_Timer -= diff;
 
             // Abilities ------------------------------------------------------------------------------
-            if (m_bIsActiveWithBJORN && m_uiAbility_BJORN_Timer < diff)
+            if (m_bIsActiveWithBJORN && m_uiAbility_BJORN_Timer <= diff)
             {
                 //DoCast(m_creature, SPELL_SUMMON_SPIRIT_FOUNT); // works fine, but using summon has better control
                 if (Creature* pTemp = m_creature->SummonCreature(CREATURE_SPIRIT_FOUNT, 385+rand()%10, -330+rand()%10, 104.756, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 180000))
@@ -257,19 +257,19 @@ struct TRINITY_DLL_DECL boss_ymironAI : public ScriptedAI
                 m_bIsActiveWithBJORN = false; // only one orb
             } else m_uiAbility_BJORN_Timer -= diff;
 
-            if (m_bIsActiveWithHALDOR && m_uiAbility_HALDOR_Timer < diff)
+            if (m_bIsActiveWithHALDOR && m_uiAbility_HALDOR_Timer <= diff)
             {
                 DoCast(m_creature->getVictim(), HEROIC(SPELL_SPIRIT_STRIKE, H_SPELL_SPIRIT_STRIKE));
                 m_uiAbility_HALDOR_Timer = 5000; // overtime
             } else m_uiAbility_HALDOR_Timer -= diff;
 
-            if (m_bIsActiveWithRANULF && m_uiAbility_RANULF_Timer < diff)
+            if (m_bIsActiveWithRANULF && m_uiAbility_RANULF_Timer <= diff)
             {
                 DoCast(m_creature, HEROIC(SPELL_SPIRIT_BURST, H_SPELL_SPIRIT_BURST));
                 m_uiAbility_RANULF_Timer = 10000; // overtime
             } else m_uiAbility_RANULF_Timer -= diff;
 
-            if (m_bIsActiveWithTORGYN && m_uiAbility_TORGYN_Timer < diff)
+            if (m_bIsActiveWithTORGYN && m_uiAbility_TORGYN_Timer <= diff)
             {
                 float x,y,z;
                 x = m_creature->GetPositionX()-5;

@@ -92,7 +92,7 @@ struct TRINITY_DLL_DECL npc_calvin_montagueAI : public ScriptedAI
     {
         if (m_uiPhase)
         {
-            if (m_uiPhaseTimer < uiDiff)
+            if (m_uiPhaseTimer <= uiDiff)
                 m_uiPhaseTimer = 7500;
             else
             {

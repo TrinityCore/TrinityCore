@@ -202,7 +202,7 @@ struct TRINITY_DLL_DECL boss_kelthuzadAI : public BossAI
             }
             else if (GuardiansOfIcecrown_Count < HEROIC(2,5))
             {
-                if (GuardiansOfIcecrown_Timer < diff)
+                if (GuardiansOfIcecrown_Timer <= diff)
                 {
                     DoSummon(MOB_ICECROWN, Pos[RAND(2,5,8)]);
                     ++GuardiansOfIcecrown_Count;
@@ -227,8 +227,8 @@ struct TRINITY_DLL_DECL boss_kelthuzadAI : public BossAI
                         events.RepeatEvent(urand(10000,20000));
                         return;
                     case EVENT_CHAIN:
-                        if (Unit *target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0, true))
-                            DoCast(target, SPELL_CHAINS_OF_KELTHUZAD);
+                        if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 0, true))
+                            DoCast(pTarget, SPELL_CHAINS_OF_KELTHUZAD);
                         DoScriptText(SAY_CHAIN, me);
                         events.RepeatEvent(urand(30000,60000));
                         return;
@@ -256,13 +256,13 @@ struct TRINITY_DLL_DECL boss_kelthuzadAI : public BossAI
                         return;
                     }
                     case EVENT_FISSURE:
-                        if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM,0))
-                            DoCast(target, SPELL_SHADOW_FISURE);
+                        if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM,0))
+                            DoCast(pTarget, SPELL_SHADOW_FISURE);
                         events.RepeatEvent(25000);
                         return;
                     case EVENT_BLAST:
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0, true))
-                            DoCast(target, SPELL_FROST_BLAST);
+                        if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 0, true))
+                            DoCast(pTarget, SPELL_FROST_BLAST);
                         if (rand()%2)
                             DoScriptText(SAY_FROST_BLAST, m_creature);
                         events.RepeatEvent(urand(30000,60000));

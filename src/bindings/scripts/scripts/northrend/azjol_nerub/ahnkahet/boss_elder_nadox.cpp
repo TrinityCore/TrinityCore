@@ -130,14 +130,14 @@ struct TRINITY_DLL_DECL boss_elder_nadoxAI : public ScriptedAI
         if (!UpdateVictim())
             return;
 
-        if (plague_Timer < diff)
+        if (plague_Timer <= diff)
         {
             DoCast(m_creature->getVictim(),HEROIC(SPELL_BROOD_PLAGUE, H_SPELL_BROOD_PLAGUE));
             plague_Timer = 15000;
         } else plague_Timer -= diff;
 
         if (HeroicMode)
-            if (rage_Timer < diff)
+            if (rage_Timer <= diff)
             {
                 Unit* Swarmer = m_creature->FindNearestCreature(MOB_AHNKAHAR_SWARMER, 35);
 
@@ -148,7 +148,7 @@ struct TRINITY_DLL_DECL boss_elder_nadoxAI : public ScriptedAI
                 }
             } else rage_Timer -= diff;
 
-        if (swarmer_spawn_Timer < diff)
+        if (swarmer_spawn_Timer <= diff)
         {
             DoCast(m_creature,SPELL_SUMMON_SWARMERS,true);
             DoCast(m_creature,SPELL_SUMMON_SWARMERS);
@@ -158,14 +158,14 @@ struct TRINITY_DLL_DECL boss_elder_nadoxAI : public ScriptedAI
             swarmer_spawn_Timer = 10000;
         } else swarmer_spawn_Timer -= diff;
 
-        if (guard_spawn_Timer < diff)
+        if (guard_spawn_Timer <= diff)
         {
             m_creature->MonsterTextEmote(EMOTE_HATCHES,m_creature->GetGUID(),true);
             DoCast(m_creature,SPELL_SUMMON_SWARM_GUARD);
             guard_spawn_Timer = 25000;
         } else guard_spawn_Timer -= diff;
 
-        if (enrage_Timer < diff)
+        if (enrage_Timer <= diff)
         {
             if (m_creature->HasAura(SPELL_ENRAGE,0))
                 return;
@@ -232,7 +232,7 @@ struct TRINITY_DLL_DECL mob_ahnkahar_nerubianAI : public ScriptedAI
         if (!UpdateVictim())
             return;
 
-        if (sprint_Timer < diff)
+        if (sprint_Timer <= diff)
         {
             DoCast(m_creature,SPELL_SPRINT);
             sprint_Timer = 25000;

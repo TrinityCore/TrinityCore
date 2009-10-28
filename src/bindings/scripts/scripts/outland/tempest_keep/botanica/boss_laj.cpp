@@ -157,32 +157,32 @@ struct TRINITY_DLL_DECL boss_lajAI : public ScriptedAI
 
         if (CanSummon)
         {
-            if (Summon_Timer < diff)
+            if (Summon_Timer <= diff)
             {
                 DoScriptText(EMOTE_SUMMON, m_creature);
                 DoSummons();
                 Summon_Timer = 2500;
-            }else Summon_Timer -= diff;
+            } else Summon_Timer -= diff;
         }
 
-        if (Allergic_Timer < diff)
+        if (Allergic_Timer <= diff)
         {
             DoCast(m_creature->getVictim(),SPELL_ALLERGIC_REACTION);
             Allergic_Timer = 25000+rand()%15000;
-        }else Allergic_Timer -= diff;
+        } else Allergic_Timer -= diff;
 
-        if (Teleport_Timer < diff)
+        if (Teleport_Timer <= diff)
         {
             DoCast(m_creature,SPELL_TELEPORT_SELF);
             Teleport_Timer = 30000+rand()%10000;
             CanSummon = true;
-        }else Teleport_Timer -= diff;
+        } else Teleport_Timer -= diff;
 
-        if (Transform_Timer < diff)
+        if (Transform_Timer <= diff)
         {
             DoTransform();
             Transform_Timer = 25000+rand()%15000;
-        }else Transform_Timer -= diff;
+        } else Transform_Timer -= diff;
 
         DoMeleeAttackIfReady();
     }

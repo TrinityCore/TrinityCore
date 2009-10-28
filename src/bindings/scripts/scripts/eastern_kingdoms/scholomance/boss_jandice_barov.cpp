@@ -38,10 +38,6 @@ struct TRINITY_DLL_DECL boss_jandicebarovAI : public ScriptedAI
     //uint32 Illusioncounter;
     uint32 Invisible_Timer;
     bool Invisible;
-    int Rand;
-    int RandX;
-    int RandY;
-    Creature* Summoned;
 
     void Reset()
     {
@@ -57,28 +53,13 @@ struct TRINITY_DLL_DECL boss_jandicebarovAI : public ScriptedAI
 
     void SummonIllusions(Unit* victim)
     {
-        Rand = rand()%10;
-        switch (rand()%2)
-        {
-        case 0: RandX = 0 - Rand; break;
-        case 1: RandX = 0 + Rand; break;
-        }
-        Rand = 0;
-        Rand = rand()%10;
-        switch (rand()%2)
-        {
-        case 0: RandY = 0 - Rand; break;
-        case 1: RandY = 0 + Rand; break;
-        }
-        Rand = 0;
-        Summoned = DoSpawnCreature(11439, RandX, RandY, 0, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 60000);
-        if (Summoned)
-            (Summoned->AI())->AttackStart(victim);
+        if (Creature *Illusion = DoSpawnCreature(11439, RAND(irand(0,-9),irand(0,9)), RAND(irand(0,-9),irand(0,9)), 0, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 60000))
+            Illusion->AI()->AttackStart(victim);
     }
 
     void UpdateAI(const uint32 diff)
     {
-        if (Invisible && Invisible_Timer < diff)
+        if (Invisible && Invisible_Timer <= diff)
         {
             //Become visible again
             m_creature->setFaction(14);
@@ -97,17 +78,17 @@ struct TRINITY_DLL_DECL boss_jandicebarovAI : public ScriptedAI
             return;
 
         //CurseOfBlood_Timer
-        if (CurseOfBlood_Timer < diff)
+        if (CurseOfBlood_Timer <= diff)
         {
             //Cast
             DoCast(m_creature->getVictim(),SPELL_CURSEOFBLOOD);
 
             //45 seconds
             CurseOfBlood_Timer = 30000;
-        }else CurseOfBlood_Timer -= diff;
+        } else CurseOfBlood_Timer -= diff;
 
         //Illusion_Timer
-        if (!Invisible && Illusion_Timer < diff)
+        if (!Invisible && Illusion_Timer <= diff)
         {
 
             //Inturrupt any spell casting
@@ -118,22 +99,22 @@ struct TRINITY_DLL_DECL boss_jandicebarovAI : public ScriptedAI
             DoModifyThreatPercent(m_creature->getVictim(),-99);
 
             //Summon 10 Illusions attacking random gamers
-            Unit* target = NULL;
+            Unit *pTarget = NULL;
             for (uint8 i = 0; i < 10; ++i)
             {
-                target = SelectUnit(SELECT_TARGET_RANDOM,0);
-                if (target)
-                    SummonIllusions(target);
+                pTarget = SelectUnit(SELECT_TARGET_RANDOM,0);
+                if (pTarget)
+                    SummonIllusions(pTarget);
             }
             Invisible = true;
             Invisible_Timer = 3000;
 
             //25 seconds until we should cast this agian
             Illusion_Timer = 25000;
-        }else Illusion_Timer -= diff;
+        } else Illusion_Timer -= diff;
 
         //            //Illusion_Timer
-        //            if (Illusion_Timer < diff)
+        //            if (Illusion_Timer <= diff)
         //            {
         //                  //Cast
         //                DoCast(m_creature->getVictim(),SPELL_ILLUSION);
@@ -150,7 +131,7 @@ struct TRINITY_DLL_DECL boss_jandicebarovAI : public ScriptedAI
         //                      Illusioncounter=0;
         //                  }
         //
-        //            }else Illusion_Timer -= diff;
+        //            } else Illusion_Timer -= diff;
 
         DoMeleeAttackIfReady();
     }
@@ -181,14 +162,14 @@ struct TRINITY_DLL_DECL mob_illusionofjandicebarovAI : public ScriptedAI
             return;
 
         //Cleave_Timer
-        if (Cleave_Timer < diff)
+        if (Cleave_Timer <= diff)
         {
             //Cast
             DoCast(m_creature->getVictim(),SPELL_CLEAVE);
 
             //5-8 seconds
             Cleave_Timer = 5000 + rand()%3000;
-        }else Cleave_Timer -= diff;
+        } else Cleave_Timer -= diff;
 
         DoMeleeAttackIfReady();
     }

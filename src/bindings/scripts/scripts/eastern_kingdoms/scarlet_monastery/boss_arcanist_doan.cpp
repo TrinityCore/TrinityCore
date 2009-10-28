@@ -87,27 +87,27 @@ struct TRINITY_DLL_DECL boss_arcanist_doanAI : public ScriptedAI
             bShielded = true;
         }
 
-        if (Polymorph_Timer < diff)
+        if (Polymorph_Timer <= diff)
         {
-            if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM,1))
-                DoCast(target,SPELL_POLYMORPH);
+            if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM,1))
+                DoCast(pTarget,SPELL_POLYMORPH);
 
             Polymorph_Timer = 20000;
-        }else Polymorph_Timer -= diff;
+        } else Polymorph_Timer -= diff;
 
         //AoESilence_Timer
-        if (AoESilence_Timer < diff)
+        if (AoESilence_Timer <= diff)
         {
             DoCast(m_creature->getVictim(),SPELL_AOESILENCE);
             AoESilence_Timer = 15000 + rand()%5000;
-        }else AoESilence_Timer -= diff;
+        } else AoESilence_Timer -= diff;
 
         //ArcaneExplosion_Timer
-        if (ArcaneExplosion_Timer < diff)
+        if (ArcaneExplosion_Timer <= diff)
         {
             DoCast(m_creature->getVictim(),SPELL_ARCANEEXPLOSION);
             ArcaneExplosion_Timer = 8000;
-        }else ArcaneExplosion_Timer -= diff;
+        } else ArcaneExplosion_Timer -= diff;
 
         DoMeleeAttackIfReady();
     }

@@ -105,50 +105,50 @@ struct TRINITY_DLL_DECL boss_pathaleon_the_calculatorAI : public ScriptedAI
         if (!UpdateVictim())
             return;
 
-        if (Summon_Timer < diff)
+        if (Summon_Timer <= diff)
         {
             for (uint8 i = 0; i < 3; ++i)
             {
-                Unit* target = SelectUnit(SELECT_TARGET_RANDOM,0);
+                Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM,0);
                 Creature* Wraith = m_creature->SummonCreature(21062,m_creature->GetPositionX(), m_creature->GetPositionY(), m_creature->GetPositionZ(),0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
-                if (target && Wraith)
-                    Wraith->AI()->AttackStart(target);
+                if (pTarget && Wraith)
+                    Wraith->AI()->AttackStart(pTarget);
             }
             DoScriptText(SAY_SUMMON, m_creature);
             Summon_Timer = 30000 + rand()%15000;
-        }else Summon_Timer -= diff;
+        } else Summon_Timer -= diff;
 
-        if (ManaTap_Timer < diff)
+        if (ManaTap_Timer <= diff)
         {
             DoCast(m_creature->getVictim(),SPELL_MANA_TAP);
             ManaTap_Timer = 14000 + rand()%8000;
-        }else ManaTap_Timer -= diff;
+        } else ManaTap_Timer -= diff;
 
-        if (ArcaneTorrent_Timer < diff)
+        if (ArcaneTorrent_Timer <= diff)
         {
             DoCast(m_creature->getVictim(),SPELL_ARCANE_TORRENT);
             ArcaneTorrent_Timer = 12000 + rand()%6000;
-        }else ArcaneTorrent_Timer -= diff;
+        } else ArcaneTorrent_Timer -= diff;
 
-        if (Domination_Timer < diff)
+        if (Domination_Timer <= diff)
         {
-            if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM,1))
+            if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM,1))
             {
                 DoScriptText(RAND(SAY_DOMINATION_1,SAY_DOMINATION_2), m_creature);
 
-                DoCast(target,SPELL_DOMINATION);
+                DoCast(pTarget,SPELL_DOMINATION);
             }
                 Domination_Timer = 25000 + rand()%5000;
-            }else Domination_Timer -= diff;
+            } else Domination_Timer -= diff;
 
         //Only casting if Heroic Mode is used
         if (HeroicMode)
         {
-            if (ArcaneExplosion_Timer < diff)
+            if (ArcaneExplosion_Timer <= diff)
             {
                 DoCast(m_creature->getVictim(),H_SPELL_ARCANE_EXPLOSION);
                 ArcaneExplosion_Timer = 10000 + rand()%4000;
-            }else ArcaneExplosion_Timer -= diff;
+            } else ArcaneExplosion_Timer -= diff;
         }
 
         if (!Enraged && m_creature->GetHealth()*100 / m_creature->GetMaxHealth() < 21)
@@ -194,32 +194,32 @@ struct TRINITY_DLL_DECL mob_nether_wraithAI : public ScriptedAI
         if (!UpdateVictim())
             return;
 
-        if (ArcaneMissiles_Timer < diff)
+        if (ArcaneMissiles_Timer <= diff)
         {
-            if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM,1))
-                DoCast(target,SPELL_ARCANE_MISSILES);
+            if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM,1))
+                DoCast(pTarget,SPELL_ARCANE_MISSILES);
             else
                 DoCast(m_creature->getVictim(),SPELL_ARCANE_MISSILES);
 
             ArcaneMissiles_Timer = 5000 + rand()%5000;
-        }else ArcaneMissiles_Timer -=diff;
+        } else ArcaneMissiles_Timer -=diff;
 
         if (!Detonation)
         {
-            if (Detonation_Timer < diff)
+            if (Detonation_Timer <= diff)
             {
                 DoCast(m_creature,SPELL_DETONATION);
                 Detonation = true;
-            }else Detonation_Timer -= diff;
+            } else Detonation_Timer -= diff;
         }
 
         if (Detonation)
         {
-            if (Die_Timer < diff)
+            if (Die_Timer <= diff)
             {
                 m_creature->setDeathState(JUST_DIED);
                 m_creature->RemoveCorpse();
-            }else Die_Timer -= diff;
+            } else Die_Timer -= diff;
         }
 
         DoMeleeAttackIfReady();

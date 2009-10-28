@@ -68,7 +68,7 @@ struct TRINITY_DLL_DECL boss_rage_winterchillAI : public hyjal_trashAI
 
     void KilledUnit(Unit *victim)
     {
-        switch(rand()%2)
+        switch (urand(0,1))
         {
             case 0:
                 DoPlaySoundToSet(m_creature, SOUND_ONSLAY1);
@@ -86,9 +86,9 @@ struct TRINITY_DLL_DECL boss_rage_winterchillAI : public hyjal_trashAI
         pos = i;
         if (i == 7 && pInstance)
         {
-            Unit* target = Unit::GetUnit((*m_creature), pInstance->GetData64(DATA_JAINAPROUDMOORE));
-            if (target && target->isAlive())
-                m_creature->AddThreat(target,0.0);
+            Unit *pTarget = Unit::GetUnit((*m_creature), pInstance->GetData64(DATA_JAINAPROUDMOORE));
+            if (pTarget && pTarget->isAlive())
+                m_creature->AddThreat(pTarget,0.0f);
         }
     }
 
@@ -130,16 +130,16 @@ struct TRINITY_DLL_DECL boss_rage_winterchillAI : public hyjal_trashAI
         if (!UpdateVictim())
             return;
 
-        if (FrostArmorTimer < diff)
+        if (FrostArmorTimer <= diff)
         {
             DoCast(m_creature, SPELL_FROST_ARMOR);
             FrostArmorTimer = 40000+rand()%20000;
-        }else FrostArmorTimer -= diff;
-        if (DecayTimer < diff)
+        } else FrostArmorTimer -= diff;
+        if (DecayTimer <= diff)
         {
             DoCast(m_creature->getVictim(), SPELL_DEATH_AND_DECAY);
             DecayTimer = 60000+rand()%20000;
-            switch(rand()%2)
+            switch (urand(0,1))
             {
                 case 0:
                     DoPlaySoundToSet(m_creature, SOUND_DECAY1);
@@ -150,12 +150,12 @@ struct TRINITY_DLL_DECL boss_rage_winterchillAI : public hyjal_trashAI
                     m_creature->MonsterYell(SAY_DECAY2, LANG_UNIVERSAL, NULL);
                     break;
             }
-        }else DecayTimer -= diff;
-        if (NovaTimer < diff)
+        } else DecayTimer -= diff;
+        if (NovaTimer <= diff)
         {
             DoCast(m_creature->getVictim(), SPELL_FROST_NOVA);
             NovaTimer = 30000+rand()%15000;
-            switch(rand()%2)
+            switch (urand(0,1))
             {
                 case 0:
                     DoPlaySoundToSet(m_creature, SOUND_NOVA1);
@@ -166,12 +166,12 @@ struct TRINITY_DLL_DECL boss_rage_winterchillAI : public hyjal_trashAI
                     m_creature->MonsterYell(SAY_NOVA2, LANG_UNIVERSAL, NULL);
                     break;
             }
-        }else NovaTimer -= diff;
-        if (IceboltTimer < diff)
+        } else NovaTimer -= diff;
+        if (IceboltTimer <= diff)
         {
             DoCast(SelectTarget(SELECT_TARGET_RANDOM,0,40,true), SPELL_ICEBOLT);
             IceboltTimer = 11000+rand()%20000;
-        }else IceboltTimer -= diff;
+        } else IceboltTimer -= diff;
 
         DoMeleeAttackIfReady();
     }

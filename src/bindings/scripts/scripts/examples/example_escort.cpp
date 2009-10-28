@@ -78,7 +78,7 @@ struct TRINITY_DLL_DECL example_escortAI : public npc_escortAI
             case 4:
                 if (Player* pPlayer = GetPlayerForEscort())
                 {
-                    //pTmpPlayer is the target of the text
+                    //pTmpPlayer is the pTarget of the text
                     DoScriptText(SAY_WP_3, m_creature, pPlayer);
                     //pTmpPlayer is the source of the text
                     DoScriptText(SAY_WP_4, pPlayer);
@@ -131,7 +131,7 @@ struct TRINITY_DLL_DECL example_escortAI : public npc_escortAI
         //Combat check
         if (m_creature->getVictim())
         {
-            if (m_uiDeathCoilTimer < uiDiff)
+            if (m_uiDeathCoilTimer <= uiDiff)
             {
                 DoScriptText(SAY_SPELL, m_creature);
                 m_creature->CastSpell(m_creature->getVictim(), SPELL_DEATH_COIL, false);
@@ -145,7 +145,7 @@ struct TRINITY_DLL_DECL example_escortAI : public npc_escortAI
             //Out of combat but being escorted
             if (HasEscortState(STATE_ESCORT_ESCORTING))
             {
-                if (m_uiChatTimer < uiDiff)
+                if (m_uiChatTimer <= uiDiff)
                 {
                     if (m_creature->HasAura(SPELL_ELIXIR_OF_FORTITUDE, 0))
                     {

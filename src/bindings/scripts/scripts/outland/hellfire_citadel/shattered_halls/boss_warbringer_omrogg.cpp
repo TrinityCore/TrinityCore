@@ -122,12 +122,12 @@ struct TRINITY_DLL_DECL mob_omrogg_headsAI : public ScriptedAI
         if (!DeathYell)
             return;
 
-        if (Death_Timer < diff)
+        if (Death_Timer <= diff)
         {
             DoScriptText(YELL_DIE_R, m_creature);
             Death_Timer = false;
             m_creature->setDeathState(JUST_DIED);
-        }else Death_Timer -= diff;
+        } else Death_Timer -= diff;
     }
 };
 
@@ -288,7 +288,7 @@ struct TRINITY_DLL_DECL boss_warbringer_omroggAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
-        if (Delay_Timer < diff)
+        if (Delay_Timer <= diff)
         {
             Delay_Timer = 3500;
 
@@ -328,7 +328,7 @@ struct TRINITY_DLL_DECL boss_warbringer_omroggAI : public ScriptedAI
                 DoScriptText(KillingDelay[ikilling].id, source);
                 KillingYell = false;
             }
-        }else Delay_Timer -= diff;
+        } else Delay_Timer -= diff;
 
         if (!UpdateVictim())
             return;
@@ -341,39 +341,39 @@ struct TRINITY_DLL_DECL boss_warbringer_omroggAI : public ScriptedAI
 
             if (BlastCount == 3)
                 BlastCount = 0;
-        }else BlastWave_Timer -= diff;
+        } else BlastWave_Timer -= diff;
 
-        if (BurningMaul_Timer < diff)
+        if (BurningMaul_Timer <= diff)
         {
             DoScriptText(EMOTE_ENRAGE, m_creature);
             DoCast(m_creature,HEROIC(SPELL_BURNING_MAUL, H_SPELL_BURNING_MAUL));
             BurningMaul_Timer = 40000;
             BlastWave_Timer = 16000;
             BlastCount = 1;
-        }else BurningMaul_Timer -= diff;
+        } else BurningMaul_Timer -= diff;
 
-        if (ResetThreat_Timer < diff)
+        if (ResetThreat_Timer <= diff)
         {
-            if (Unit *target = SelectUnit(SELECT_TARGET_RANDOM,0))
+            if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM,0))
             {
                 DoYellForThreat();
                 DoResetThreat();
-                m_creature->AddThreat(target, 0.0f);
+                m_creature->AddThreat(pTarget, 0.0f);
             }
             ResetThreat_Timer = 25000+rand()%15000;
-        }else ResetThreat_Timer -= diff;
+        } else ResetThreat_Timer -= diff;
 
-        if (Fear_Timer < diff)
+        if (Fear_Timer <= diff)
         {
             DoCast(m_creature,SPELL_FEAR);
             Fear_Timer = 15000+rand()%20000;
-        }else Fear_Timer -= diff;
+        } else Fear_Timer -= diff;
 
-        if (ThunderClap_Timer < diff)
+        if (ThunderClap_Timer <= diff)
         {
             DoCast(m_creature,SPELL_THUNDERCLAP);
             ThunderClap_Timer = 15000+rand()%15000;
-        }else ThunderClap_Timer -= diff;
+        } else ThunderClap_Timer -= diff;
 
         DoMeleeAttackIfReady();
     }

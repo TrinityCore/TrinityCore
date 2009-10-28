@@ -63,49 +63,49 @@ struct TRINITY_DLL_DECL boss_rasfrostAI : public ScriptedAI
             return;
 
         //IceArmor_Timer
-        if (IceArmor_Timer < diff)
+        if (IceArmor_Timer <= diff)
         {
             DoCast(m_creature, SPELL_ICEARMOR);
             IceArmor_Timer = 180000;
-        }else IceArmor_Timer -= diff;
+        } else IceArmor_Timer -= diff;
 
         //Frostbolt_Timer
-        if (Frostbolt_Timer < diff)
+        if (Frostbolt_Timer <= diff)
         {
-            Unit* target = NULL;
-            target = SelectUnit(SELECT_TARGET_RANDOM,0);
-            if (target) DoCast(target,SPELL_FROSTBOLT);
+            Unit *pTarget = NULL;
+            pTarget = SelectUnit(SELECT_TARGET_RANDOM,0);
+            if (pTarget) DoCast(pTarget,SPELL_FROSTBOLT);
 
             Frostbolt_Timer = 8000;
-        }else Frostbolt_Timer -= diff;
+        } else Frostbolt_Timer -= diff;
 
         //Freeze_Timer
-        if (Freeze_Timer < diff)
+        if (Freeze_Timer <= diff)
         {
             DoCast(m_creature->getVictim(),SPELL_FREEZE);
             Freeze_Timer = 24000;
-        }else Freeze_Timer -= diff;
+        } else Freeze_Timer -= diff;
 
         //Fear_Timer
-        if (Fear_Timer < diff)
+        if (Fear_Timer <= diff)
         {
             DoCast(m_creature->getVictim(),SPELL_FEAR);
             Fear_Timer = 30000;
-        }else Fear_Timer -= diff;
+        } else Fear_Timer -= diff;
 
         //ChillNova_Timer
-        if (ChillNova_Timer < diff)
+        if (ChillNova_Timer <= diff)
         {
             DoCast(m_creature->getVictim(),SPELL_CHILLNOVA);
             ChillNova_Timer = 14000;
-        }else ChillNova_Timer -= diff;
+        } else ChillNova_Timer -= diff;
 
         //FrostVolley_Timer
-        if (FrostVolley_Timer < diff)
+        if (FrostVolley_Timer <= diff)
         {
             DoCast(m_creature->getVictim(),SPELL_FROSTVOLLEY);
             FrostVolley_Timer = 15000;
-        }else FrostVolley_Timer -= diff;
+        } else FrostVolley_Timer -= diff;
 
         DoMeleeAttackIfReady();
     }

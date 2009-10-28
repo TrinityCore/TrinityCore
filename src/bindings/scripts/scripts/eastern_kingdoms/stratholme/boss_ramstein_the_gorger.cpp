@@ -70,18 +70,18 @@ struct TRINITY_DLL_DECL boss_ramstein_the_gorgerAI : public ScriptedAI
             return;
 
         //Trample
-        if (Trample_Timer < diff)
+        if (Trample_Timer <= diff)
         {
             DoCast(m_creature,SPELL_TRAMPLE);
             Trample_Timer = 7000;
-        }else Trample_Timer -= diff;
+        } else Trample_Timer -= diff;
 
         //Knockout
-        if (Knockout_Timer < diff)
+        if (Knockout_Timer <= diff)
         {
             DoCast(m_creature->getVictim(),SPELL_KNOCKOUT);
             Knockout_Timer = 10000;
-        }else Knockout_Timer -= diff;
+        } else Knockout_Timer -= diff;
 
         DoMeleeAttackIfReady();
     }

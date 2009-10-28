@@ -81,7 +81,7 @@ struct TRINITY_DLL_DECL boss_shirrak_the_dead_watcherAI : public ScriptedAI
     void UpdateAI(const uint32 diff)
     {
         //Inhibitmagic_Timer
-        if (Inhibitmagic_Timer < diff)
+        if (Inhibitmagic_Timer <= diff)
         {
             float dist;
             Map* pMap = m_creature->GetMap();
@@ -100,48 +100,48 @@ struct TRINITY_DLL_DECL boss_shirrak_the_dead_watcherAI : public ScriptedAI
                             m_creature->AddAura(SPELL_INHIBITMAGIC, i_pl);
                     }
             Inhibitmagic_Timer = 3000+(rand()%1000);
-        }else Inhibitmagic_Timer -= diff;
+        } else Inhibitmagic_Timer -= diff;
 
         //Return since we have no target
         if (!UpdateVictim())
             return;
 
         //Attractmagic_Timer
-        if (Attractmagic_Timer < diff)
+        if (Attractmagic_Timer <= diff)
         {
             DoCast(m_creature,SPELL_ATTRACTMAGIC);
             Attractmagic_Timer = 30000;
             Carnivorousbite_Timer = 1500;
-        }else Attractmagic_Timer -= diff;
+        } else Attractmagic_Timer -= diff;
 
         //Carnivorousbite_Timer
-        if (Carnivorousbite_Timer < diff)
+        if (Carnivorousbite_Timer <= diff)
         {
             DoCast(m_creature,SPELL_CARNIVOROUSBITE);
             Carnivorousbite_Timer = 10000;
-        }else Carnivorousbite_Timer -= diff;
+        } else Carnivorousbite_Timer -= diff;
 
         //FocusFire_Timer
-        if (FocusFire_Timer < diff)
+        if (FocusFire_Timer <= diff)
         {
             // Summon Focus Fire & Emote
-            Unit *target = SelectUnit(SELECT_TARGET_RANDOM,1);
-            if (target && target->GetTypeId() == TYPEID_PLAYER && target->isAlive())
+            Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM,1);
+            if (pTarget && pTarget->GetTypeId() == TYPEID_PLAYER && pTarget->isAlive())
             {
-                focusedTarget = target;
-                m_creature->SummonCreature(ENTRY_FOCUS_FIRE,target->GetPositionX(),target->GetPositionY(),target->GetPositionZ(),0,TEMPSUMMON_TIMED_DESPAWN,5500);
+                focusedTarget = pTarget;
+                m_creature->SummonCreature(ENTRY_FOCUS_FIRE,pTarget->GetPositionX(),pTarget->GetPositionY(),pTarget->GetPositionZ(),0,TEMPSUMMON_TIMED_DESPAWN,5500);
 
                 // TODO: Find better way to handle emote
                 // Emote
                 std::string *emote = new std::string(EMOTE_FOCUSES_ON);
-                emote->append(target->GetName());
+                emote->append(pTarget->GetName());
                 emote->append("!");
                 const char* text = emote->c_str();
                 m_creature->MonsterTextEmote(text, 0, true);
                 delete emote;
             }
             FocusFire_Timer = 15000+(rand()%5000);
-        }else FocusFire_Timer -= diff;
+        } else FocusFire_Timer -= diff;
 
         DoMeleeAttackIfReady();
     }
@@ -179,7 +179,7 @@ struct TRINITY_DLL_DECL mob_focus_fireAI : public ScriptedAI
             return;
 
         //FieryBlast_Timer
-        if (fiery2 && FieryBlast_Timer < diff)
+        if (fiery2 && FieryBlast_Timer <= diff)
         {
             DoCast(m_creature,SPELL_FIERY_BLAST);
 
@@ -187,7 +187,7 @@ struct TRINITY_DLL_DECL mob_focus_fireAI : public ScriptedAI
             else if (fiery2) fiery2 = false;
 
             FieryBlast_Timer = 1000;
-        }else FieryBlast_Timer -= diff;
+        } else FieryBlast_Timer -= diff;
 
         //DoMeleeAttackIfReady();
     }

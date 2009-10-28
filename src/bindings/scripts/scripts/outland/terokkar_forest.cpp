@@ -117,22 +117,22 @@ struct TRINITY_DLL_DECL mob_unkor_the_ruthlessAI : public ScriptedAI
             }
             else
             {
-                if (UnkorUnfriendly_Timer < diff)
+                if (UnkorUnfriendly_Timer <= diff)
                 {
                     EnterEvadeMode();
                     return;
-                }else UnkorUnfriendly_Timer -= diff;
+                } else UnkorUnfriendly_Timer -= diff;
             }
         }
 
         if (!UpdateVictim())
             return;
 
-        if (Pulverize_Timer < diff)
+        if (Pulverize_Timer <= diff)
         {
             DoCast(m_creature,SPELL_PULVERIZE);
             Pulverize_Timer = 9000;
-        }else Pulverize_Timer -= diff;
+        } else Pulverize_Timer -= diff;
 
         DoMeleeAttackIfReady();
     }
@@ -340,23 +340,23 @@ struct TRINITY_DLL_DECL npc_floonAI : public ScriptedAI
         if (!UpdateVictim())
             return;
 
-        if (Silence_Timer < diff)
+        if (Silence_Timer <= diff)
         {
             DoCast(m_creature->getVictim(),SPELL_SILENCE);
             Silence_Timer = 30000;
-        }else Silence_Timer -= diff;
+        } else Silence_Timer -= diff;
 
-        if (FrostNova_Timer < diff)
+        if (FrostNova_Timer <= diff)
         {
             DoCast(m_creature,SPELL_FROST_NOVA);
             FrostNova_Timer = 20000;
-        }else FrostNova_Timer -= diff;
+        } else FrostNova_Timer -= diff;
 
-        if (Frostbolt_Timer < diff)
+        if (Frostbolt_Timer <= diff)
         {
             DoCast(m_creature->getVictim(),SPELL_FROSTBOLT);
             Frostbolt_Timer = 5000;
-        }else Frostbolt_Timer -= diff;
+        } else Frostbolt_Timer -= diff;
 
         DoMeleeAttackIfReady();
     }

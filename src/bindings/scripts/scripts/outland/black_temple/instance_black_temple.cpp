@@ -222,7 +222,7 @@ struct TRINITY_DLL_DECL instance_black_temple : public ScriptedInstance
             if (data == IN_PROGRESS)
             {
                 HandleGameObject(ShadeOfAkamaDoor, false);
-            }else HandleGameObject(ShadeOfAkamaDoor, true);
+            } else HandleGameObject(ShadeOfAkamaDoor, true);
             m_auiEncounter[2] = data; break;
         case DATA_TERONGOREFIENDEVENT:
             if (data == IN_PROGRESS)

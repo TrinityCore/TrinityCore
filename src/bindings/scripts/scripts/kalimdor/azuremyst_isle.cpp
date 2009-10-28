@@ -133,7 +133,7 @@ struct TRINITY_DLL_DECL npc_draenei_survivorAI : public ScriptedAI
 
                 RunAwayTimer = 10000;
                 SayThanksTimer = 0;
-            }else SayThanksTimer -= diff;
+            } else SayThanksTimer -= diff;
 
             return;
         }
@@ -148,11 +148,11 @@ struct TRINITY_DLL_DECL npc_draenei_survivorAI : public ScriptedAI
             return;
         }
 
-        if (SayHelpTimer < diff)
+        if (SayHelpTimer <= diff)
         {
             CanSayHelp = true;
             SayHelpTimer = 20000;
-        }else SayHelpTimer -= diff;
+        } else SayHelpTimer -= diff;
     }
 };
 CreatureAI* GetAI_npc_draenei_survivor(Creature* pCreature)
@@ -218,12 +218,12 @@ struct TRINITY_DLL_DECL npc_engineer_spark_overgrindAI : public ScriptedAI
     {
         if (!m_creature->isInCombat() && !IsTreeEvent)
         {
-            if (Emote_Timer < diff)
+            if (Emote_Timer <= diff)
             {
                 DoScriptText(SAY_TEXT, m_creature);
                 DoScriptText(SAY_EMOTE, m_creature);
                 Emote_Timer = 120000 + rand()%30000;
-            }else Emote_Timer -= diff;
+            } else Emote_Timer -= diff;
         }
         else if (IsTreeEvent)
             return;
@@ -231,7 +231,7 @@ struct TRINITY_DLL_DECL npc_engineer_spark_overgrindAI : public ScriptedAI
         if (!UpdateVictim())
             return;
 
-        if (Dynamite_Timer < diff)
+        if (Dynamite_Timer <= diff)
         {
             DoCast(m_creature->getVictim(), SPELL_DYNAMITE);
             Dynamite_Timer = 8000;
@@ -517,13 +517,13 @@ struct TRINITY_DLL_DECL npc_geezleAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
-        if (SayTimer < diff)
+        if (SayTimer <= diff)
         {
             if (EventStarted)
             {
                 SayTimer = NextStep(Step++);
             }
-        }else SayTimer -= diff;
+        } else SayTimer -= diff;
     }
 };
 
@@ -564,7 +564,7 @@ struct TRINITY_DLL_DECL npc_nestlewood_owlkinAI : public ScriptedAI
                 //once we are able to, despawn us
                 m_creature->ForcedDespawn();
                 return;
-            }else DespawnTimer -= diff;
+            } else DespawnTimer -= diff;
         }
 
         if (!UpdateVictim())

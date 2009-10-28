@@ -51,11 +51,11 @@ struct TRINITY_DLL_DECL boss_houndmaster_lokseyAI : public ScriptedAI
         if (!UpdateVictim())
             return;
 
-        if (BloodLust_Timer < diff)
+        if (BloodLust_Timer <= diff)
         {
             DoCast(m_creature,SPELL_BLOODLUST);
             BloodLust_Timer = 20000;
-        }else BloodLust_Timer -= diff;
+        } else BloodLust_Timer -= diff;
 
         DoMeleeAttackIfReady();
     }

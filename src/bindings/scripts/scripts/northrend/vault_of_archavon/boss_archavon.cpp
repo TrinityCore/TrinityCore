@@ -90,13 +90,13 @@ struct TRINITY_DLL_DECL boss_archavonAI : public ScriptedAI
             switch(eventId)
             {
                 case EVENT_ROCK_SHARDS:
-                    if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0))
-                        DoCast(target, SPELL_ROCK_SHARDS);
+                    if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                        DoCast(pTarget, SPELL_ROCK_SHARDS);
                     events.ScheduleEvent(EVENT_ROCK_SHARDS, 15000);
                     return;
                 case EVENT_CHOKING_CLOUD:
-                    if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0))
-                        DoCast(target, SPELL_CRUSHING_LEAP, true); //10y~80y, ignore range
+                    if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                        DoCast(pTarget, SPELL_CRUSHING_LEAP, true); //10y~80y, ignore range
                     events.ScheduleEvent(EVENT_CHOKING_CLOUD, 30000);
                     return;
                 case EVENT_STOMP:
@@ -154,8 +154,8 @@ struct TRINITY_DLL_DECL mob_warderAI : public ScriptedAI //npc 32353
             {
                 case EVENT_ROCK_SHOWER:
                 {
-                    if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0))
-                        DoCast(target, SPELL_ROCK_SHOWER);
+                    if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                        DoCast(pTarget, SPELL_ROCK_SHOWER);
                     events.ScheduleEvent(EVENT_ROCK_SHARDS, 6000);
                     return;
                 }

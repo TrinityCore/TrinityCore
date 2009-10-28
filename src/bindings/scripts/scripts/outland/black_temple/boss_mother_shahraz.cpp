@@ -176,10 +176,10 @@ struct TRINITY_DLL_DECL boss_shahrazAI : public ScriptedAI
         }
 
         //Randomly cast one beam.
-        if (BeamTimer < diff)
+        if (BeamTimer <= diff)
         {
-            Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0);
-            if (!target || !target->isAlive())
+            Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0);
+            if (!pTarget || !pTarget->isAlive())
                 return;
 
             BeamTimer = 9000;
@@ -187,16 +187,16 @@ struct TRINITY_DLL_DECL boss_shahrazAI : public ScriptedAI
             switch(CurrentBeam)
             {
                 case 0:
-                    DoCast(target, SPELL_BEAM_SINISTER);
+                    DoCast(pTarget, SPELL_BEAM_SINISTER);
                     break;
                 case 1:
-                    DoCast(target, SPELL_BEAM_VILE);
+                    DoCast(pTarget, SPELL_BEAM_VILE);
                     break;
                 case 2:
-                    DoCast(target, SPELL_BEAM_WICKED);
+                    DoCast(pTarget, SPELL_BEAM_WICKED);
                     break;
                 case 3:
-                    DoCast(target, SPELL_BEAM_SINFUL);
+                    DoCast(pTarget, SPELL_BEAM_SINFUL);
                     break;
             }
             BeamCount++;
@@ -205,19 +205,19 @@ struct TRINITY_DLL_DECL boss_shahrazAI : public ScriptedAI
                 while(CurrentBeam == Beam)
                     CurrentBeam = rand()%3;
 
-        }else BeamTimer -= diff;
+        } else BeamTimer -= diff;
 
         // Random Prismatic Shield every 15 seconds.
-        if (PrismaticShieldTimer < diff)
+        if (PrismaticShieldTimer <= diff)
         {
             uint32 random = rand()%6;
             if (PrismaticAuras[random])
                 DoCast(m_creature, PrismaticAuras[random]);
             PrismaticShieldTimer = 15000;
-        }else PrismaticShieldTimer -= diff;
+        } else PrismaticShieldTimer -= diff;
 
-        // Select 3 random targets (can select same target more than once), teleport to a random location then make them cast explosions until they get away from each other.
-        if (FatalAttractionTimer < diff)
+        // Select 3 random targets (can select same pTarget more than once), teleport to a random location then make them cast explosions until they get away from each other.
+        if (FatalAttractionTimer <= diff)
         {
             ExplosionCount = 0;
 
@@ -226,9 +226,9 @@ struct TRINITY_DLL_DECL boss_shahrazAI : public ScriptedAI
             DoScriptText(RAND(SAY_SPELL2,SAY_SPELL3), m_creature);
             FatalAttractionExplodeTimer = 2000;
             FatalAttractionTimer = 40000 + rand()%31 * 1000;
-        }else FatalAttractionTimer -= diff;
+        } else FatalAttractionTimer -= diff;
 
-        if (FatalAttractionExplodeTimer < diff)
+        if (FatalAttractionExplodeTimer <= diff)
         {
             // Just make them explode three times... they're supposed to keep exploding while they are in range, but it'll take too much code. I'll try to think of an efficient way for it later.
             if (ExplosionCount < 3)
@@ -253,34 +253,34 @@ struct TRINITY_DLL_DECL boss_shahrazAI : public ScriptedAI
                 FatalAttractionExplodeTimer = FatalAttractionTimer + 2000;
                 ExplosionCount = 0;
             }
-        }else FatalAttractionExplodeTimer -= diff;
+        } else FatalAttractionExplodeTimer -= diff;
 
-        if (ShriekTimer < diff)
+        if (ShriekTimer <= diff)
         {
             DoCast(m_creature->getVictim(), SPELL_SILENCING_SHRIEK);
             ShriekTimer = 25000+rand()%10 * 1000;
-        }else ShriekTimer -= diff;
+        } else ShriekTimer -= diff;
 
-        if (SaberTimer < diff)
+        if (SaberTimer <= diff)
         {
             DoCast(m_creature->getVictim(), SPELL_SABER_LASH);
             SaberTimer = 25000+rand()%10 * 1000;
-        }else SaberTimer -= diff;
+        } else SaberTimer -= diff;
 
         //Enrage
         if (!m_creature->HasAura(SPELL_BERSERK))
-            if (EnrageTimer < diff)
+            if (EnrageTimer <= diff)
         {
             DoCast(m_creature, SPELL_BERSERK);
             DoScriptText(SAY_ENRAGE, m_creature);
-        }else EnrageTimer -= diff;
+        } else EnrageTimer -= diff;
 
         //Random taunts
-        if (RandomYellTimer < diff)
+        if (RandomYellTimer <= diff)
         {
             DoScriptText(RAND(SAY_TAUNT1,SAY_TAUNT2,SAY_TAUNT3), m_creature);
             RandomYellTimer = 60000 + rand()%91 * 1000;
-        }else RandomYellTimer -= diff;
+        } else RandomYellTimer -= diff;
 
         DoMeleeAttackIfReady();
     }

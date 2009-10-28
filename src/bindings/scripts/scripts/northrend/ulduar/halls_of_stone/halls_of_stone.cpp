@@ -179,7 +179,7 @@ struct TRINITY_DLL_DECL mob_tribuna_controllerAI : public ScriptedAI
     {
         if(bKaddrakActivated)
         {
-            if (uiKaddrakEncounterTimer < diff)
+            if (uiKaddrakEncounterTimer <= diff)
             {
                 if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                     if (!lKaddrakGUIDList.empty())
@@ -191,7 +191,7 @@ struct TRINITY_DLL_DECL mob_tribuna_controllerAI : public ScriptedAI
         }
         if (bMarnakActivated)
         {
-            if (uiMarnakEncounterTimer < diff)
+            if (uiMarnakEncounterTimer <= diff)
             {
                 if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                 {
@@ -207,7 +207,7 @@ struct TRINITY_DLL_DECL mob_tribuna_controllerAI : public ScriptedAI
         }
         if (bAbedneumActivated)
         {
-            if (uiAbedneumEncounterTimer < diff)
+            if (uiAbedneumEncounterTimer <= diff)
             {
                 if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                 {
@@ -281,7 +281,7 @@ struct TRINITY_DLL_DECL npc_brann_hosAI : public npc_escortAI
                 {
                     if (!pCreature->isAlive())
                         pCreature->Respawn();
-                    ((mob_tribuna_controllerAI*)pCreature->AI())->UpdateFacesList();
+                    CAST_AI(mob_tribuna_controllerAI, pCreature->AI())->UpdateFacesList();
                     uiControllerGUID = pCreature->GetGUID();
                 }
                 break;
@@ -350,7 +350,7 @@ struct TRINITY_DLL_DECL npc_brann_hosAI : public npc_escortAI
 
     void UpdateEscortAI(const uint32 uiDiff)
     {
-        if (uiPhaseTimer < uiDiff)
+        if (uiPhaseTimer <= uiDiff)
         {
             switch(uiStep)
             {
@@ -390,7 +390,7 @@ struct TRINITY_DLL_DECL npc_brann_hosAI : public npc_escortAI
                     if (pInstance)
                         pInstance->HandleGameObject(pInstance->GetData64(DATA_GO_KADDRAK),true);
                     if (Creature* pTemp = Unit::GetCreature(*m_creature, uiControllerGUID))
-                        ((mob_tribuna_controllerAI*)pTemp->AI())->bKaddrakActivated = true;
+                        CAST_AI(mob_tribuna_controllerAI, pTemp->AI())->bKaddrakActivated = true;
                     JumpToNextStep(5000);
                     break;
                 case 9:
@@ -413,7 +413,7 @@ struct TRINITY_DLL_DECL npc_brann_hosAI : public npc_escortAI
                     if (pInstance)
                         pInstance->HandleGameObject(pInstance->GetData64(DATA_GO_MARNAK),true);
                     if (Creature* pTemp = Unit::GetCreature(*m_creature, uiControllerGUID))
-                        ((mob_tribuna_controllerAI*)pTemp->AI())->bMarnakActivated = true;
+                        CAST_AI(mob_tribuna_controllerAI, pTemp->AI())->bMarnakActivated = true;
                     JumpToNextStep(10000);
                     break;
                 case 13:
@@ -445,7 +445,7 @@ struct TRINITY_DLL_DECL npc_brann_hosAI : public npc_escortAI
                     if (pInstance)
                         pInstance->HandleGameObject(pInstance->GetData64(DATA_GO_ABEDNEUM),true);
                     if (Creature* pTemp = Unit::GetCreature(*m_creature, uiControllerGUID))
-                        ((mob_tribuna_controllerAI*)pTemp->AI())->bAbedneumActivated = true;
+                        CAST_AI(mob_tribuna_controllerAI, pTemp->AI())->bAbedneumActivated = true;
                     JumpToNextStep(5000);
                     break;
                 case 19:
@@ -652,7 +652,7 @@ bool GossipSelect_npc_brann_hos(Player* pPlayer, Creature* pCreature, uint32 uiS
     if (uiAction == GOSSIP_ACTION_INFO_DEF+1 || uiAction == GOSSIP_ACTION_INFO_DEF+2)
     {
         pPlayer->CLOSE_GOSSIP_MENU();
-        ((npc_brann_hosAI*)pCreature->AI())->StartWP();
+        CAST_AI(npc_brann_hosAI, pCreature->AI())->StartWP();
     }
 
     return true;

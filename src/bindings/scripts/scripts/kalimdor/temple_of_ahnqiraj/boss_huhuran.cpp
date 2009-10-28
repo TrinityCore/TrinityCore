@@ -71,54 +71,54 @@ struct TRINITY_DLL_DECL boss_huhuranAI : public ScriptedAI
             return;
 
         //Frenzy_Timer
-        if (!Frenzy && Frenzy_Timer < diff)
+        if (!Frenzy && Frenzy_Timer <= diff)
         {
             DoCast(m_creature, SPELL_FRENZY);
             DoScriptText(EMOTE_GENERIC_FRENZY_KILL, m_creature);
             Frenzy = true;
             PoisonBolt_Timer = 3000;
             Frenzy_Timer = 25000 + rand()%10000;
-        }else Frenzy_Timer -= diff;
+        } else Frenzy_Timer -= diff;
 
         // Wyvern Timer
-        if (Wyvern_Timer < diff)
+        if (Wyvern_Timer <= diff)
         {
-            if (Unit *target = SelectUnit(SELECT_TARGET_RANDOM,0))
-                DoCast(target,SPELL_WYVERNSTING);
+            if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM,0))
+                DoCast(pTarget,SPELL_WYVERNSTING);
             Wyvern_Timer = 15000 + rand()%17000;
-        }else Wyvern_Timer -= diff;
+        } else Wyvern_Timer -= diff;
 
         //Spit Timer
-        if (Spit_Timer < diff)
+        if (Spit_Timer <= diff)
         {
             DoCast(m_creature->getVictim(),SPELL_ACIDSPIT);
             Spit_Timer = 5000 + rand()%5000;
-        }else Spit_Timer -= diff;
+        } else Spit_Timer -= diff;
 
         //NoxiousPoison_Timer
-        if (NoxiousPoison_Timer < diff)
+        if (NoxiousPoison_Timer <= diff)
         {
             DoCast(m_creature->getVictim(),SPELL_NOXIOUSPOISON);
             NoxiousPoison_Timer = 12000 + rand()%12000;
-        }else NoxiousPoison_Timer -= diff;
+        } else NoxiousPoison_Timer -= diff;
 
         //PoisonBolt only if frenzy or berserk
         if (Frenzy || Berserk)
         {
-            if (PoisonBolt_Timer < diff)
+            if (PoisonBolt_Timer <= diff)
             {
                 DoCast(m_creature->getVictim(),SPELL_POISONBOLT);
                 PoisonBolt_Timer = 3000;
-            }else PoisonBolt_Timer -= diff;
+            } else PoisonBolt_Timer -= diff;
         }
 
         //FrenzyBack_Timer
-        if (Frenzy && FrenzyBack_Timer < diff)
+        if (Frenzy && FrenzyBack_Timer <= diff)
         {
             m_creature->InterruptNonMeleeSpells(false);
             Frenzy = false;
             FrenzyBack_Timer = 15000;
-        }else FrenzyBack_Timer -= diff;
+        } else FrenzyBack_Timer -= diff;
 
         if (!Berserk && m_creature->GetHealth()*100 / m_creature->GetMaxHealth() < 31)
         {

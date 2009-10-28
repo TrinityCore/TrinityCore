@@ -582,7 +582,7 @@ struct TRINITY_DLL_DECL npc_highlord_darion_mograineAI : public npc_escortAI
 
         if (!bIsBattle)
         {
-            if (uiPhase_timer < diff)
+            if (uiPhase_timer <= diff)
             {
                 // ******* Before battle *****************************************************************
                 switch(uiStep)
@@ -1287,43 +1287,43 @@ struct TRINITY_DLL_DECL npc_highlord_darion_mograineAI : public npc_escortAI
                         break;
                 }
 
-            }else uiPhase_timer -= diff;
+            } else uiPhase_timer -= diff;
         }
 
         // ******* During battle *****************************************************************
         else
         {
-            if (uiAnti_magic_zone < diff)
+            if (uiAnti_magic_zone <= diff)
             {
                 DoCast(me, SPELL_ANTI_MAGIC_ZONE1);
                 uiAnti_magic_zone = 25000 + rand()%5000;
             } else uiAnti_magic_zone -= diff;
 
-            if (uiDeath_strike < diff)
+            if (uiDeath_strike <= diff)
             {
                 DoCast(me->getVictim(), SPELL_DEATH_STRIKE);
                 uiDeath_strike = 5000 + rand()%5000;
             } else uiDeath_strike -= diff;
 
-            if (uiDeath_embrace < diff)
+            if (uiDeath_embrace <= diff)
             {
                 DoCast(me->getVictim(), SPELL_DEATH_EMBRACE);
                 uiDeath_embrace = 5000 + rand()%5000;
             } else uiDeath_embrace -= diff;
 
-            if (uiIcy_touch < diff)
+            if (uiIcy_touch <= diff)
             {
                 DoCast(me->getVictim(), SPELL_ICY_TOUCH1);
                 uiIcy_touch = 5000 + rand()%5000;
             } else uiIcy_touch -= diff;
 
-            if (uiUnholy_blight < diff)
+            if (uiUnholy_blight <= diff)
             {
                 DoCast(me->getVictim(), SPELL_UNHOLY_BLIGHT);
                 uiUnholy_blight = 5000 + rand()%5000;
             } else uiUnholy_blight -= diff;
 
-            if (uiFight_speech < diff)
+            if (uiFight_speech <= diff)
             {
                 DoScriptText(RAND(SAY_LIGHT_OF_DAWN09,SAY_LIGHT_OF_DAWN10,SAY_LIGHT_OF_DAWN11,
                                   SAY_LIGHT_OF_DAWN12,SAY_LIGHT_OF_DAWN13,SAY_LIGHT_OF_DAWN14,
@@ -1335,14 +1335,14 @@ struct TRINITY_DLL_DECL npc_highlord_darion_mograineAI : public npc_escortAI
             } else uiFight_speech -= diff;
 
             // Check spawns
-            if (uiSpawncheck < diff)
+            if (uiSpawncheck <= diff)
             {
                 SpawnNPC();
                 uiSpawncheck = 1000;
             } else uiSpawncheck -= diff;
 
             // Check targets
-            if (uiTargetcheck < diff)
+            if (uiTargetcheck <= diff)
             {
                 for (uint8 i = 0; i < ENCOUNTER_GHOUL_NUMBER; ++i)
                     NPCChangeTarget(uiGhoulGUID[i]);
@@ -1371,7 +1371,7 @@ struct TRINITY_DLL_DECL npc_highlord_darion_mograineAI : public npc_escortAI
                         uiTirionGUID = pTemp->GetGUID();
                     }
             }
-            if (uiFight_duration < diff)
+            if (uiFight_duration <= diff)
             {
                 bIsBattle = false;
                 uiFight_duration = 300000;
@@ -1614,8 +1614,8 @@ bool GossipSelect_npc_highlord_darion_mograine(Player* pPlayer, Creature* pCreat
     {
         case GOSSIP_ACTION_INFO_DEF+1:
             pPlayer->CLOSE_GOSSIP_MENU();
-            ((npc_highlord_darion_mograineAI*)pCreature->AI())->uiStep = 1;
-            ((npc_highlord_darion_mograineAI*)pCreature->AI())->Start(true, false, pPlayer->GetGUID());
+            CAST_AI(npc_highlord_darion_mograineAI, pCreature->AI())->uiStep = 1;
+            CAST_AI(npc_highlord_darion_mograineAI, pCreature->AI())->Start(true, false, pPlayer->GetGUID());
             break;
     }
     return true;

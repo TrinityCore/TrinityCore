@@ -143,57 +143,57 @@ struct TRINITY_DLL_DECL boss_onyxiaAI : public ScriptedAI
 
         if (Phase == 1 || Phase == 3)
         {
-            if (FlameBreathTimer < diff)
+            if (FlameBreathTimer <= diff)
             {
                 DoCast(m_creature->getVictim(), SPELL_FLAMEBREATH);
                 FlameBreathTimer = 15000;
-            }else FlameBreathTimer -= diff;
+            } else FlameBreathTimer -= diff;
 
-            if (TailSweepTimer < diff)
+            if (TailSweepTimer <= diff)
             {
-                Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 1);
-                if (target && !m_creature->HasInArc(M_PI, target))
-                    DoCast(target, SPELL_TAILSWEEP);
+                Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 1);
+                if (pTarget && !m_creature->HasInArc(M_PI, pTarget))
+                    DoCast(pTarget, SPELL_TAILSWEEP);
 
                 TailSweepTimer = 10000;
-            }else TailSweepTimer -= diff;
+            } else TailSweepTimer -= diff;
 
-            if (CleaveTimer < diff)
+            if (CleaveTimer <= diff)
             {
                 DoCast(m_creature->getVictim(), SPELL_CLEAVE);
                 CleaveTimer = 10000;
-            }else CleaveTimer -= diff;
+            } else CleaveTimer -= diff;
 
-            if (WingBuffetTimer < diff)
+            if (WingBuffetTimer <= diff)
             {
                 DoCast(m_creature->getVictim(), SPELL_WINGBUFFET);
                 WingBuffetTimer = 7000 + ((rand()%8)*1000);
-            }else WingBuffetTimer -= diff;
+            } else WingBuffetTimer -= diff;
 
-            if (KnockAwayTimer < diff)
+            if (KnockAwayTimer <= diff)
             {
                 if (rand() <= 30)
                 {
                     DoCast(m_creature->getVictim(), SPELL_KNOCK_AWAY);
                 }
                 KnockAwayTimer = 15000;
-            }else KnockAwayTimer -= diff;
+            } else KnockAwayTimer -= diff;
 
             if (Phase == 3)
             {
-                if (BellowingRoarTimer < diff)
+                if (BellowingRoarTimer <= diff)
                 {
                     DoCast(m_creature->getVictim(), SPELL_BELLOWINGROAR);
 
                     BellowingRoarTimer = 30000;
-                }else BellowingRoarTimer -= diff;
+                } else BellowingRoarTimer -= diff;
 
-                if (SummonWhelpsTimer < diff)
+                if (SummonWhelpsTimer <= diff)
                 {
                     SummonWhelps(Phase);
 
                     SummonWhelpsTimer = 45000;
-                }else SummonWhelpsTimer -= diff;
+                } else SummonWhelpsTimer -= diff;
             }
 
             DoMeleeAttackIfReady();
@@ -214,7 +214,7 @@ struct TRINITY_DLL_DECL boss_onyxiaAI : public ScriptedAI
                 }
             }
 
-            if (EngulfingFlamesTimer < diff)
+            if (EngulfingFlamesTimer <= diff)
             {
                 DoCast(SelectUnit(SELECT_TARGET_RANDOM, 0), SPELL_ENGULFINGFLAMES);
                 m_creature->HandleEmoteCommand(ANIM_FLY);
@@ -223,7 +223,7 @@ struct TRINITY_DLL_DECL boss_onyxiaAI : public ScriptedAI
             }
             else EngulfingFlamesTimer -= diff;
 
-            if (FireballTimer < diff)
+            if (FireballTimer <= diff)
             {
                 DoCast(SelectUnit(SELECT_TARGET_RANDOM, 0), SPELL_FIREBALL);
 
@@ -231,7 +231,7 @@ struct TRINITY_DLL_DECL boss_onyxiaAI : public ScriptedAI
             }
             else FireballTimer -= diff;
 
-            if (MovementTimer < diff)
+            if (MovementTimer <= diff)
             {
                 if (rand()%100 < 30)
                 {
@@ -241,9 +241,9 @@ struct TRINITY_DLL_DECL boss_onyxiaAI : public ScriptedAI
                 else ChangePosition();
 
                 MovementTimer = 25000;
-            }else MovementTimer -= diff;
+            } else MovementTimer -= diff;
 
-            if (SummonWhelpsTimer < diff)
+            if (SummonWhelpsTimer <= diff)
             {
                 SummonWhelps(Phase);
 
