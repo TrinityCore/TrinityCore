@@ -103,7 +103,7 @@ class GameEventMgr
         uint32 NextCheck(uint16 entry) const;
         void LoadFromDB();
         uint32 Update();
-        bool IsActiveEvent(uint16 event_id) { return ( m_ActiveEvents.find(event_id)!=m_ActiveEvents.end()); }
+        bool IsActiveEvent(uint16 event_id) { return ( m_ActiveEvents.find(event_id) != m_ActiveEvents.end()); }
         uint32 Initialize();
         void StartInternalEvent(uint16 event_id);
         bool StartEvent(uint16 event_id, bool overwrite = false);
@@ -173,6 +173,7 @@ class GameEventMgr
 #define gameeventmgr Trinity::Singleton<GameEventMgr>::Instance()
 
 TRINITY_DLL_SPEC bool IsHolidayActive(HolidayIds id);
+TRINITY_DLL_SPEC bool IsEventActive(uint16 event_id);
 
 #endif
 

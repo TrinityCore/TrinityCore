@@ -1645,14 +1645,20 @@ void GameEventMgr::SendWorldStateUpdate(Player * plr, uint16 event_id)
     }
 }
 
-TRINITY_DLL_SPEC bool IsHolidayActive( HolidayIds id )
+TRINITY_DLL_SPEC bool IsHolidayActive(HolidayIds id)
 {
     GameEventMgr::GameEventDataMap const& events = gameeventmgr.GetEventMap();
     GameEventMgr::ActiveEvents const& ae = gameeventmgr.GetActiveEventList();
 
     for (GameEventMgr::ActiveEvents::const_iterator itr = ae.begin(); itr != ae.end(); ++itr)
-        if(events[*itr].holiday_id==id)
+        if(events[*itr].holiday_id == id)
             return true;
 
     return false;
+}
+
+TRINITY_DLL_SPEC bool IsEventActive(uint16 event_id)
+{
+    GameEventMgr::ActiveEvents const& ae = gameeventmgr.GetActiveEventList();
+    return ae.find(event_id) != ae.end();
 }
