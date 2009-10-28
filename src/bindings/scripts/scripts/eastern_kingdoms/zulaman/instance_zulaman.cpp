@@ -190,7 +190,7 @@ struct TRINITY_DLL_DECL instance_zulaman : public ScriptedInstance
             BossKilled = data1;
             ChestLooted = data2;
             QuestMinute = data3;
-        }else error_log("TSCR: Zul'aman: corrupted save data.");
+        } else error_log("TSCR: Zul'aman: corrupted save data.");
     }
 
     void SetData(uint32 type, uint32 data)
@@ -288,7 +288,7 @@ struct TRINITY_DLL_DECL instance_zulaman : public ScriptedInstance
     {
         if (QuestMinute)
         {
-            if (QuestTimer < diff)
+            if (QuestTimer <= diff)
             {
                 QuestMinute--;
                 SaveToDB();
@@ -297,7 +297,7 @@ struct TRINITY_DLL_DECL instance_zulaman : public ScriptedInstance
                 {
                     DoUpdateWorldState(3104, 1);
                     DoUpdateWorldState(3106, QuestMinute);
-                }else DoUpdateWorldState(3104, 0);
+                } else DoUpdateWorldState(3104, 0);
             }
             QuestTimer -= diff;
         }

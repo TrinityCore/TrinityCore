@@ -146,7 +146,7 @@ struct TRINITY_DLL_DECL instance_culling_of_stratholme : public ScriptedInstance
                 if (m_auiEncounter[i] == IN_PROGRESS)
                     m_auiEncounter[i] = NOT_STARTED;
 
-        }else OUT_LOAD_INST_DATA_FAIL;
+        } else OUT_LOAD_INST_DATA_FAIL;
 
         OUT_LOAD_INST_DATA_COMPLETE;
     }

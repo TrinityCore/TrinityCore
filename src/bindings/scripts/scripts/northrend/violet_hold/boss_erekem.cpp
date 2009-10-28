@@ -105,13 +105,13 @@ struct TRINITY_DLL_DECL boss_erekemAI : public ScriptedAI
             }
         }
 
-        if (uiEarthShieldTimer < diff)
+        if (uiEarthShieldTimer <= diff)
         {
             DoCast(m_creature, HEROIC(SPELL_EARTH_SHIELD, H_SPELL_EARTH_SHIELD));
             uiEarthShieldTimer = 20000;
         } else uiEarthShieldTimer -= diff;
 
-        if (uiChainHealTimer < diff)
+        if (uiChainHealTimer <= diff)
         {
             if (Creature *pTarget = GetChainHealTarget())
             {
@@ -121,19 +121,19 @@ struct TRINITY_DLL_DECL boss_erekemAI : public ScriptedAI
             }
         } else uiChainHealTimer -= diff;
 
-        if (uiBloodlustTimer < diff)
+        if (uiBloodlustTimer <= diff)
         {
             DoCast(m_creature,SPELL_BLOODLUST);
             uiBloodlustTimer = urand(35000,45000);
         } else uiBloodlustTimer -= diff;
 
-        if (uiEarthShockTimer < diff)
+        if (uiEarthShockTimer <= diff)
         {
             DoCast(m_creature->getVictim(), SPELL_EARTH_SHOCK);
             uiEarthShockTimer = urand(8000,13000);
         } else uiEarthShockTimer -= diff;
 
-        if (uiLightningBoltTimer < diff)
+        if (uiLightningBoltTimer <= diff)
         {
             if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM,0,100,true))
                 DoCast(pTarget, SPELL_LIGHTNING_BOLT);
@@ -222,19 +222,19 @@ struct TRINITY_DLL_DECL mob_erekem_guardAI : public ScriptedAI
         
         DoMeleeAttackIfReady();
         
-        if (uiStrikeTimer < diff)
+        if (uiStrikeTimer <= diff)
         {
             DoCast(m_creature->getVictim(), SPELL_STRIKE);
             uiStrikeTimer = urand(4000,8000);
         } else uiStrikeTimer -= diff;
         
-        if (uiHowlingScreechTimer < diff)
+        if (uiHowlingScreechTimer <= diff)
         {
             DoCast(m_creature->getVictim(), SPELL_HOWLING_SCREECH);
             uiHowlingScreechTimer = urand(8000,13000);
         } else uiHowlingScreechTimer -= diff;
         
-        if (uiGushingWoundTimer < diff)
+        if (uiGushingWoundTimer <= diff)
         {
             DoCast(m_creature->getVictim(), SPELL_GUSHING_WOUND);
             uiGushingWoundTimer = urand(7000,12000);

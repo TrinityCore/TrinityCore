@@ -117,7 +117,7 @@ struct TRINITY_DLL_DECL boss_drakkari_colossusAI : public ScriptedAI
             Summoned = false;
         }
 
-        if (MightyBlowTimer < diff)
+        if (MightyBlowTimer <= diff)
         {
             if (!m_creature->hasUnitState(UNIT_STAT_STUNNED))
             {
@@ -197,12 +197,12 @@ struct TRINITY_DLL_DECL boss_drakkari_elementalAI : public ScriptedAI
             Colossus->clearUnitState(UNIT_STAT_STUNNED);
         }
 
-        if (SurgeTimer < diff)
+        if (SurgeTimer <= diff)
         {
             if(m_creature->GetVisibility() == VISIBILITY_ON)
             {
-                Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0);
-                m_creature->CastSpell(target,SPELL_SURGE,false);
+                Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0);
+                m_creature->CastSpell(pTarget,SPELL_SURGE,false);
             }
 
             SurgeTimer = 7000;
@@ -274,13 +274,13 @@ struct TRINITY_DLL_DECL npc_living_mojoAI : public ScriptedAI
         if (!UpdateVictim())
             return;
 
-        if (MojoWaveTimer < diff)
+        if (MojoWaveTimer <= diff)
         {
             DoCast(m_creature->getVictim(), HEROIC(SPELL_MOJO_WAVE, H_SPELL_MOJO_WAVE));
             MojoWaveTimer = 15000;
         } else MojoWaveTimer -= diff;
 
-        if (MojoPuddleTimer < diff)
+        if (MojoPuddleTimer <= diff)
         {
             DoCast(m_creature->getVictim(), HEROIC(SPELL_MOJO_PUDDLE, H_SPELL_MOJO_PUDDLE));
             MojoPuddleTimer = 18000;

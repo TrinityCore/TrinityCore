@@ -63,22 +63,22 @@ struct TRINITY_DLL_DECL boss_hungarfenAI : public ScriptedAI
             }
         }
 
-        if (Mushroom_Timer < diff)
+        if (Mushroom_Timer <= diff)
         {
-            if (Unit *target = SelectUnit(SELECT_TARGET_RANDOM,0))
-                m_creature->SummonCreature(17990, target->GetPositionX()+(rand()%8), target->GetPositionY()+(rand()%8), target->GetPositionZ(), (rand()%5), TEMPSUMMON_TIMED_DESPAWN, 22000);
+            if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM,0))
+                m_creature->SummonCreature(17990, pTarget->GetPositionX()+(rand()%8), pTarget->GetPositionY()+(rand()%8), pTarget->GetPositionZ(), (rand()%5), TEMPSUMMON_TIMED_DESPAWN, 22000);
             else
                 m_creature->SummonCreature(17990, m_creature->GetPositionX()+(rand()%8), m_creature->GetPositionY()+(rand()%8), m_creature->GetPositionZ(), (rand()%5), TEMPSUMMON_TIMED_DESPAWN, 22000);
 
             Mushroom_Timer = 10000;
-        }else Mushroom_Timer -= diff;
+        } else Mushroom_Timer -= diff;
 
-        if (AcidGeyser_Timer < diff)
+        if (AcidGeyser_Timer <= diff)
         {
-            if (Unit *target = SelectUnit(SELECT_TARGET_RANDOM,0))
-                DoCast(target,SPELL_ACID_GEYSER);
+            if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM,0))
+                DoCast(pTarget,SPELL_ACID_GEYSER);
             AcidGeyser_Timer = 10000+rand()%7500;
-        }else AcidGeyser_Timer -= diff;
+        } else AcidGeyser_Timer -= diff;
 
         DoMeleeAttackIfReady();
     }
@@ -125,13 +125,13 @@ struct TRINITY_DLL_DECL mob_underbog_mushroomAI : public ScriptedAI
         {
             DoCast(m_creature,SPELL_GROW);
             Grow_Timer = 3000;
-        }else Grow_Timer -= diff;
+        } else Grow_Timer -= diff;
 
         if (Shrink_Timer <= diff)
         {
             m_creature->RemoveAurasDueToSpell(SPELL_GROW);
             Stop = true;
-        }else Shrink_Timer -= diff;
+        } else Shrink_Timer -= diff;
     }
 };
 CreatureAI* GetAI_mob_underbog_mushroom(Creature* pCreature)

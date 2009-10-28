@@ -92,11 +92,11 @@ struct TRINITY_DLL_DECL boss_interrogator_vishasAI : public ScriptedAI
         }
 
         //ShadowWordPain_Timer
-        if (ShadowWordPain_Timer < diff)
+        if (ShadowWordPain_Timer <= diff)
         {
             DoCast(m_creature->getVictim(),SPELL_SHADOWWORDPAIN);
             ShadowWordPain_Timer = 5000 + rand()%10000;;
-        }else ShadowWordPain_Timer -= diff;
+        } else ShadowWordPain_Timer -= diff;
 
         DoMeleeAttackIfReady();
     }

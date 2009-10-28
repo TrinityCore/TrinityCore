@@ -65,7 +65,7 @@ struct TRINITY_DLL_DECL npc_blood_knight_stillbladeAI : public ScriptedAI
     {
         if (m_creature->IsStandState())
         {
-            if (lifeTimer < diff)
+            if (lifeTimer <= diff)
                 m_creature->AI()->EnterEvadeMode();
             else
                 lifeTimer -= diff;

@@ -151,31 +151,31 @@ struct  TRINITY_DLL_DECL boss_vexallusAI : public ScriptedAI
                     m_creature->SummonCreature(NPC_PURE_ENERGY, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_CORPSE_DESPAWN, 0);
             }
 
-            if (ChainLightningTimer < diff)
+            if (ChainLightningTimer <= diff)
             {
-                if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0))
-                    DoCast(target, Heroic ? SPELL_H_CHAIN_LIGHTNING : SPELL_CHAIN_LIGHTNING);
+                if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                    DoCast(pTarget, Heroic ? SPELL_H_CHAIN_LIGHTNING : SPELL_CHAIN_LIGHTNING);
 
                 ChainLightningTimer = 8000;
-            }else ChainLightningTimer -= diff;
+            } else ChainLightningTimer -= diff;
 
-            if (ArcaneShockTimer < diff)
+            if (ArcaneShockTimer <= diff)
             {
-                if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0))
-                if (target)
-                    DoCast(target, Heroic ? SPELL_H_ARCANE_SHOCK : SPELL_ARCANE_SHOCK);
+                if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                if (pTarget)
+                    DoCast(pTarget, Heroic ? SPELL_H_ARCANE_SHOCK : SPELL_ARCANE_SHOCK);
 
                 ArcaneShockTimer = 8000;
-            }else ArcaneShockTimer -= diff;
+            } else ArcaneShockTimer -= diff;
         }
         else
         {
-            if (OverloadTimer < diff)
+            if (OverloadTimer <= diff)
             {
                 DoCast(m_creature->getVictim(), SPELL_OVERLOAD);
 
                 OverloadTimer = 2000;
-            }else OverloadTimer -= diff;
+            } else OverloadTimer -= diff;
         }
 
         DoMeleeAttackIfReady();

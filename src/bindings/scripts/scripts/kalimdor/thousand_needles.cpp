@@ -319,7 +319,7 @@ struct TRINITY_DLL_DECL npc_pluckyAI : public ScriptedAI
     {
         if (m_creature->HasFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP))
         {
-            if (m_uiResetTimer < uiDiff)
+            if (m_uiResetTimer <= uiDiff)
             {
                 if (!m_creature->getVictim())
                     EnterEvadeMode();

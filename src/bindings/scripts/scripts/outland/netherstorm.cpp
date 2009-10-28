@@ -219,7 +219,7 @@ struct TRINITY_DLL_DECL npc_manaforge_control_consoleAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
-        if (Event_Timer < diff)
+        if (Event_Timer <= diff)
         {
             switch(Phase)
             {
@@ -271,7 +271,7 @@ struct TRINITY_DLL_DECL npc_manaforge_control_consoleAI : public ScriptedAI
 
         if (Wave)
         {
-            if (Wave_Timer < diff)
+            if (Wave_Timer <= diff)
             {
                 DoWaveSpawnForCreature(m_creature);
             } else Wave_Timer -= diff;
@@ -732,21 +732,21 @@ struct TRINITY_DLL_DECL mob_phase_hunterAI : public ScriptedAI
         if (!UpdateVictim())
             return;
 
-        if (ManaBurnTimer < diff) // cast Mana Burn
+        if (ManaBurnTimer <= diff) // cast Mana Burn
         {
             if (m_creature->getVictim()->GetCreateMana() > 0)
             {
                 DoCast(m_creature->getVictim(), SPELL_MANA_BURN);
                 ManaBurnTimer = 8000 + (rand()%10 * 1000); // 8-18 sec cd
             }
-        }else ManaBurnTimer -= diff;
+        } else ManaBurnTimer -= diff;
 
         if (PlayerGUID) // start: support for quest 10190
         {
-            Unit* target = Unit::GetUnit((*m_creature), PlayerGUID);
+            Unit *pTarget = Unit::GetUnit((*m_creature), PlayerGUID);
 
-            if (target && !Weak && m_creature->GetHealth() < (m_creature->GetMaxHealth() / 100 * WeakPercent)
-                && CAST_PLR(target)->GetQuestStatus(10190) == QUEST_STATUS_INCOMPLETE)
+            if (pTarget && !Weak && m_creature->GetHealth() < (m_creature->GetMaxHealth() / 100 * WeakPercent)
+                && CAST_PLR(pTarget)->GetQuestStatus(10190) == QUEST_STATUS_INCOMPLETE)
             {
                 DoScriptText(EMOTE_WEAK, m_creature);
                 Weak = true;
@@ -771,8 +771,8 @@ struct TRINITY_DLL_DECL mob_phase_hunterAI : public ScriptedAI
                 {
                     DrainedPhaseHunter->SetLevel(Level); // set the summoned mob's data
                     DrainedPhaseHunter->SetHealth(Health);
-                    DrainedPhaseHunter->AddThreat(target, 10000.0f);
-                    DrainedPhaseHunter->AI()->AttackStart(target);
+                    DrainedPhaseHunter->AddThreat(pTarget, 10000.0f);
+                    DrainedPhaseHunter->AI()->AttackStart(pTarget);
                 }
             }
         }// end: support for quest 10190

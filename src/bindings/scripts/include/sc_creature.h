@@ -49,7 +49,7 @@ struct TRINITY_DLL_DECL ScriptedAI : public CreatureAI
     //CreatureAI Functions
     //*************
 
-    void AttackStartNoMove(Unit *target);
+    void AttackStartNoMove(Unit *pTarget);
 
     // Called at any Damage from any attacker (before damage apply)
     void DamageTaken(Unit* pDone_by, uint32& uiDamage) {}
@@ -73,7 +73,7 @@ struct TRINITY_DLL_DECL ScriptedAI : public CreatureAI
     void SpellHit(Unit* caster, const SpellEntry *spell) {}
 
     // Called when spell hits a target
-    void SpellHitTarget(Unit* target, const SpellEntry *spell) {}
+    void SpellHitTarget(Unit *pTarget, const SpellEntry *spell) {}
 
     //Called at waypoint reached or PointMovement end
     void MovementInform(uint32 type, uint32 id){}
@@ -153,7 +153,7 @@ struct TRINITY_DLL_DECL ScriptedAI : public CreatureAI
     Creature* DoSpawnCreature(uint32 uiId, float fX, float fY, float fZ, float fAngle, uint32 uiType, uint32 uiDespawntime);
 
     //Selects a unit from the creature's current aggro list
-    Unit* SelectUnit(SelectAggroTarget target, uint32 uiPosition);
+    Unit* SelectUnit(SelectAggroTarget pTarget, uint32 uiPosition);
 
     bool HealthBelowPct(uint32 pct) const { return me->GetHealth() * 100 < m_creature->GetMaxHealth() * pct; }
 

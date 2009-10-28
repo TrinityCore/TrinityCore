@@ -133,14 +133,14 @@ struct TRINITY_DLL_DECL instance_serpentshrine_cavern : public ScriptedInstance
         //Lurker Fishing event
         if(LurkerSubEvent == LURKER_FISHING)
         {
-            if(FishingTimer < diff)
+            if (FishingTimer <= diff)
             {
                 LurkerSubEvent = LURKER_HOOKED;
                 SetData(DATA_STRANGE_POOL, IN_PROGRESS);//just fished, signal Lurker script to emerge and start fight, we use IN_PROGRESS so it won't get saved and lurker will be alway invis at start if server restarted
-            }else FishingTimer -= diff;
+            } else FishingTimer -= diff;
         }
         //Water checks
-        if(WaterCheckTimer < diff)
+        if (WaterCheckTimer <= diff)
         {
             if(TrashCount >= MIN_KILLS)
                 Water = WATERSTATE_SCALDING;
@@ -163,7 +163,7 @@ struct TRINITY_DLL_DECL instance_serpentshrine_cavern : public ScriptedInstance
                             {
                                 pPlayer->CastSpell(pPlayer, SPELL_SCALDINGWATER,true);
                             }
-                        }else if(Water == WATERSTATE_FRENZY)
+                        } else if(Water == WATERSTATE_FRENZY)
                         {
                             //spawn frenzy
                             if(DoSpawnFrenzy)
@@ -183,12 +183,12 @@ struct TRINITY_DLL_DECL instance_serpentshrine_cavern : public ScriptedInstance
 
             }
             WaterCheckTimer = 500;//remove stress from core
-        }else WaterCheckTimer -= diff;
-        if(FrenzySpawnTimer < diff)
+        } else WaterCheckTimer -= diff;
+        if (FrenzySpawnTimer <= diff)
         {
             DoSpawnFrenzy = true;
             FrenzySpawnTimer = 2000;
-        }else FrenzySpawnTimer -= diff;
+        } else FrenzySpawnTimer -= diff;
     }
 
     void OnGameObjectCreate(GameObject* pGo, bool add)

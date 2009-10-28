@@ -230,9 +230,9 @@ struct TRINITY_DLL_DECL mob_headAI : public ScriptedAI
     }
 
     void EnterCombat(Unit *who) {}
-    void SaySound(int32 textEntry, Unit *target = 0)
+    void SaySound(int32 textEntry, Unit *pTarget = 0)
     {
-        DoScriptText(textEntry, m_creature, target);
+        DoScriptText(textEntry, m_creature, pTarget);
         //DoCast(m_creature,SPELL_HEAD_SPEAKS,true);
         Creature *speaker = DoSpawnCreature(HELPER,0,0,0,0,TEMPSUMMON_TIMED_DESPAWN,1000);
         if (speaker)
@@ -297,7 +297,7 @@ struct TRINITY_DLL_DECL mob_headAI : public ScriptedAI
     {
         if (!withbody)
         {
-            if (wait < diff)
+            if (wait <= diff)
             {
                 wait = 1000;
                 if (!m_creature->getVictim()) return;
@@ -305,7 +305,7 @@ struct TRINITY_DLL_DECL mob_headAI : public ScriptedAI
                 m_creature->GetMotionMaster()->MoveFleeing(m_creature->getVictim());
             } else wait -= diff;
 
-            if (laugh < diff)
+            if (laugh <= diff)
             {
                 laugh = urand(15000,30000);
                 DoPlaySoundToSet(m_creature, RandomLaugh[urand(0,2)]);
@@ -320,7 +320,7 @@ struct TRINITY_DLL_DECL mob_headAI : public ScriptedAI
         {
             if (die)
             {
-                if (wait < diff)
+                if (wait <= diff)
                 {
                     die = false;
                     if (Unit *body = Unit::GetUnit((*m_creature), bodyGUID))
@@ -488,9 +488,9 @@ struct TRINITY_DLL_DECL boss_headless_horsemanAI : public ScriptedAI
         }
     }
 
-    void SaySound(int32 textEntry, Unit *target = 0)
+    void SaySound(int32 textEntry, Unit *pTarget = 0)
     {
-        DoScriptText(textEntry, m_creature, target);
+        DoScriptText(textEntry, m_creature, pTarget);
         laugh += 4000;
     }
 
@@ -608,7 +608,7 @@ struct TRINITY_DLL_DECL boss_headless_horsemanAI : public ScriptedAI
                 {
                     if (!IsFlying)
                     {
-                        if (say_timer < diff)
+                        if (say_timer <= diff)
                         {
                             say_timer = 3000;
                             Player *plr = SelectRandomPlayer(100.0f,false);
@@ -647,7 +647,7 @@ struct TRINITY_DLL_DECL boss_headless_horsemanAI : public ScriptedAI
                 case 1:
                     if (burned)
                         break;
-                    if (burn < diff)
+                    if (burn <= diff)
                     {
                         if (Creature *flame = m_creature->SummonCreature(HELPER,Spawn[0].x,Spawn[0].y,Spawn[0].z,0,TEMPSUMMON_TIMED_DESPAWN,17000))
                             CAST_AI(mob_wisp_invisAI, flame->AI())->SetType(2);
@@ -655,7 +655,7 @@ struct TRINITY_DLL_DECL boss_headless_horsemanAI : public ScriptedAI
                     } else burn -= diff;
                     break;
                 case 2:
-                    if (conflagrate < diff)
+                    if (conflagrate <= diff)
                     {
                         if (Unit *plr = SelectRandomPlayer(30.0f))
                             m_creature->CastSpell(plr,SPELL_CONFLAGRATION,false);
@@ -663,7 +663,7 @@ struct TRINITY_DLL_DECL boss_headless_horsemanAI : public ScriptedAI
                     } else conflagrate -= diff;
                     break;
                 case 3:
-                    if (summonadds < diff)
+                    if (summonadds <= diff)
                     {
                         m_creature->InterruptNonMeleeSpells(false);
                         DoCast(m_creature,SPELL_SUMMON_PUMPKIN);
@@ -673,7 +673,7 @@ struct TRINITY_DLL_DECL boss_headless_horsemanAI : public ScriptedAI
                     break;
             }
 
-            if (laugh < diff)
+            if (laugh <= diff)
             {
                 laugh = urand(11000,22000);
                 m_creature->MonsterTextEmote(EMOTE_LAUGHS,NULL);
@@ -683,7 +683,7 @@ struct TRINITY_DLL_DECL boss_headless_horsemanAI : public ScriptedAI
             if (UpdateVictim())
             {
                 DoMeleeAttackIfReady();
-                if (cleave < diff)
+                if (cleave <= diff)
                 {
                     DoCast(m_creature->getVictim(),SPELL_CLEAVE);
                     cleave = urand(2000,6000);       //1 cleave per 2.0-6.0sec
@@ -692,7 +692,7 @@ struct TRINITY_DLL_DECL boss_headless_horsemanAI : public ScriptedAI
         }
         else
         {
-            if (regen < diff)
+            if (regen <= diff)
             {
                 regen = 1000;                   //"body calls head"
                 if (m_creature->GetHealth()/m_creature->GetMaxHealth() == 1 && !returned)
@@ -712,7 +712,7 @@ struct TRINITY_DLL_DECL boss_headless_horsemanAI : public ScriptedAI
             }
             else regen -= diff;
 
-            if (whirlwind < diff)
+            if (whirlwind <= diff)
             {
                 whirlwind = urand(4000,8000);
                 if (urand(0,1))

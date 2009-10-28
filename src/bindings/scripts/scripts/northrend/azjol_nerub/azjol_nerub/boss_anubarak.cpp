@@ -142,14 +142,14 @@ struct TRINITY_DLL_DECL boss_anub_arakAI : public ScriptedAI
         if (Phase == 1)
         {
 
-            if (SPELL_IMPALE_Timer < diff)
+            if (SPELL_IMPALE_Timer <= diff)
             {
 
-                if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0))
-                    m_creature->CastSpell(target, HEROIC(SPELL_IMPALE,H_SPELL_IMPALE), true);
+                if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                    m_creature->CastSpell(pTarget, HEROIC(SPELL_IMPALE,H_SPELL_IMPALE), true);
 
                 SPELL_IMPALE_Timer = 9000;
-            }else SPELL_IMPALE_Timer -= diff;
+            } else SPELL_IMPALE_Timer -= diff;
 
             if(!Summoned_Guardian)
             {
@@ -168,7 +168,7 @@ struct TRINITY_DLL_DECL boss_anub_arakAI : public ScriptedAI
 
             if(!Summoned_Venomancer)
             {
-                if(VENOMANCER_Timer < diff)
+                if (VENOMANCER_Timer <= diff)
                 {
                     if(Phase_Time > 1)
                     {
@@ -186,12 +186,12 @@ struct TRINITY_DLL_DECL boss_anub_arakAI : public ScriptedAI
                         Summoned_Venomancer = true;
                     }
 
-                }else VENOMANCER_Timer -= diff;
+                } else VENOMANCER_Timer -= diff;
             }
 
             if(!Summoned_Datter)
             {
-                if(DATTER_Timer < diff)
+                if (DATTER_Timer <= diff)
                 {
                     if(Phase_Time > 2)
                     {
@@ -207,10 +207,10 @@ struct TRINITY_DLL_DECL boss_anub_arakAI : public ScriptedAI
                         }
                         Summoned_Datter = true;
                     }
-                }else DATTER_Timer -= diff;
+                } else DATTER_Timer -= diff;
             }
 
-            if (UNDERGROUND_Timer < diff)
+            if (UNDERGROUND_Timer <= diff)
             {
                 m_creature->RemoveAura(SPELL_SUBMERGE);
 
@@ -218,32 +218,32 @@ struct TRINITY_DLL_DECL boss_anub_arakAI : public ScriptedAI
                 m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
 
                 Phase = 0;
-            }else UNDERGROUND_Timer -= diff;
+            } else UNDERGROUND_Timer -= diff;
 
         }
 
         if (Phase == 0)
         {
-            if (SPELL_LEECHING_SWARM_Timer < diff)
+            if (SPELL_LEECHING_SWARM_Timer <= diff)
             {
                 m_creature->CastSpell(m_creature,SPELL_LEECHING_SWARM,true);
 
                 SPELL_LEECHING_SWARM_Timer = 19000;
-            }else SPELL_LEECHING_SWARM_Timer -= diff;
+            } else SPELL_LEECHING_SWARM_Timer -= diff;
 
-            if (SPELL_CARRION_BEETLES_Timer < diff)
+            if (SPELL_CARRION_BEETLES_Timer <= diff)
             {
                 Channeling = true;
                 m_creature->CastSpell(m_creature->getVictim(),SPELL_CARRION_BEETLES,false);
 
                 SPELL_CARRION_BEETLES_Timer = 25000;
-            }else SPELL_CARRION_BEETLES_Timer -= diff;
+            } else SPELL_CARRION_BEETLES_Timer -= diff;
 
-            if (SPELL_POUND_Timer < diff)
+            if (SPELL_POUND_Timer <= diff)
             {
                  DoCast(m_creature->getVictim(), HEROIC(SPELL_POUND,H_SPELL_POUND));
                  SPELL_POUND_Timer = 16500;
-            }else SPELL_POUND_Timer -= diff;
+            } else SPELL_POUND_Timer -= diff;
 
         }
 

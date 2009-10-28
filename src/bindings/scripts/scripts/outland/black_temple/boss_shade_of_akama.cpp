@@ -142,7 +142,7 @@ struct TRINITY_DLL_DECL mob_ashtongue_sorcererAI : public ScriptedAI
         if (StartBanishing)
             return;
 
-        if (CheckTimer < diff)
+        if (CheckTimer <= diff)
         {
             Creature* Shade = Unit::GetCreature((*m_creature), ShadeGUID);
             if (Shade && Shade->isAlive() && m_creature->isAlive())
@@ -158,7 +158,7 @@ struct TRINITY_DLL_DECL mob_ashtongue_sorcererAI : public ScriptedAI
                 }
             }
             CheckTimer = 2000;
-        }else CheckTimer -= diff;
+        } else CheckTimer -= diff;
     }
 };
 
@@ -276,7 +276,7 @@ struct TRINITY_DLL_DECL boss_shade_of_akamaAI : public ScriptedAI
                         GridSearcherSucceeded = true;
                     }
                 }
-            }else error_log("SD2 ERROR: No Channelers are stored in the list. This encounter will not work properly");
+            } else error_log("SD2 ERROR: No Channelers are stored in the list. This encounter will not work properly");
         }
     }
 
@@ -333,8 +333,8 @@ struct TRINITY_DLL_DECL boss_shade_of_akamaAI : public ScriptedAI
                 {
                     Spawn->RemoveUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
                     Spawn->GetMotionMaster()->MovePoint(0, AGGRO_X, AGGRO_Y, AGGRO_Z);
-                    Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 1);
-                    Spawn->AI()->AttackStart(target);
+                    Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 1);
+                    Spawn->AI()->AttackStart(pTarget);
                 }
             }
         }
@@ -386,7 +386,7 @@ struct TRINITY_DLL_DECL boss_shade_of_akamaAI : public ScriptedAI
                 return;
             }
 
-            if (DefenderTimer < diff)
+            if (DefenderTimer <= diff)
             {
                 uint32 ran = rand()%2;
                 Creature* Defender = m_creature->SummonCreature(CREATURE_DEFENDER, SpawnLocations[ran].x, SpawnLocations[ran].y, Z_SPAWN, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 25000);
@@ -403,19 +403,19 @@ struct TRINITY_DLL_DECL boss_shade_of_akamaAI : public ScriptedAI
                             // They move towards AKama
                             Defender->GetMotionMaster()->MovePoint(0, x, y, z);
                             Defender->AI()->AttackStart(Akama);
-                        }else move = false;
-                    }else move = false;
+                        } else move = false;
+                    } else move = false;
                     if (!move)
                         Defender->GetMotionMaster()->MovePoint(0, AKAMA_X, AKAMA_Y, AKAMA_Z);
                 }
                 DefenderTimer = 15000;
-            }else DefenderTimer -= diff;
+            } else DefenderTimer -= diff;
 
-            if (SummonTimer < diff)
+            if (SummonTimer <= diff)
             {
                 SummonCreature();
                 SummonTimer = 35000;
-            }else SummonTimer -= diff;
+            } else SummonTimer -= diff;
 
             if (DeathCount >= 6)
             {
@@ -442,7 +442,7 @@ struct TRINITY_DLL_DECL boss_shade_of_akamaAI : public ScriptedAI
         }
         else                                                // No longer banished, let's fight Akama now
         {
-            if (ReduceHealthTimer < diff)
+            if (ReduceHealthTimer <= diff)
             {
                 if (AkamaGUID)
                 {
@@ -454,7 +454,7 @@ struct TRINITY_DLL_DECL boss_shade_of_akamaAI : public ScriptedAI
                         ReduceHealthTimer = 12000;
                     }
                 }
-            }else ReduceHealthTimer -= diff;
+            } else ReduceHealthTimer -= diff;
 
             if (HasKilledAkama)
             {
@@ -468,7 +468,7 @@ struct TRINITY_DLL_DECL boss_shade_of_akamaAI : public ScriptedAI
                     m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                     m_creature->GetMotionMaster()->MoveTargetedHome();
                 }
-                if (ResetTimer < diff)
+                if (ResetTimer <= diff)
                 {
                     EnterEvadeMode();// Reset a little while after killing Akama, evade and respawn Akama
                     return;
@@ -651,11 +651,11 @@ struct TRINITY_DLL_DECL npc_akamaAI : public ScriptedAI
             {
                 if (CAST_AI(boss_shade_of_akamaAI, Shade->AI())->IsBanished)
                 {
-                    if (CastSoulRetrieveTimer < diff)
+                    if (CastSoulRetrieveTimer <= diff)
                     {
                         DoCast(Shade, SPELL_AKAMA_SOUL_CHANNEL);
                         CastSoulRetrieveTimer = 500;
-                    }else CastSoulRetrieveTimer -= diff;
+                    } else CastSoulRetrieveTimer -= diff;
                 }
                 else
                 {
@@ -675,7 +675,7 @@ struct TRINITY_DLL_DECL npc_akamaAI : public ScriptedAI
 
         if (!ShadeHasDied && StartCombat)
         {
-            if (CheckTimer < diff)
+            if (CheckTimer <= diff)
             {
                 if (ShadeGUID)
                 {
@@ -694,7 +694,7 @@ struct TRINITY_DLL_DECL npc_akamaAI : public ScriptedAI
                     }
                 }
                 CheckTimer = 5000;
-            }else CheckTimer -= diff;
+            } else CheckTimer -= diff;
         }
 
         if (SummonBrokenTimer && BrokenSummonIndex < 4)
@@ -720,7 +720,7 @@ struct TRINITY_DLL_DECL npc_akamaAI : public ScriptedAI
                 }
                 ++BrokenSummonIndex;
                 SummonBrokenTimer = 1000;
-            }else SummonBrokenTimer -= diff;
+            } else SummonBrokenTimer -= diff;
         }
 
         if (SoulRetrieveTimer)
@@ -778,24 +778,24 @@ struct TRINITY_DLL_DECL npc_akamaAI : public ScriptedAI
                     SoulRetrieveTimer = 0;
                     break;
                 }
-            }else SoulRetrieveTimer -= diff;
+            } else SoulRetrieveTimer -= diff;
 
         if (!UpdateVictim())
             return;
 
-        if (DestructivePoisonTimer < diff)
+        if (DestructivePoisonTimer <= diff)
         {
             Creature* Shade = Unit::GetCreature((*m_creature), ShadeGUID);
             if (Shade && Shade->isAlive())
                 DoCast(Shade, SPELL_DESTRUCTIVE_POISON);
             DestructivePoisonTimer = 15000;
-        }else DestructivePoisonTimer -= diff;
+        } else DestructivePoisonTimer -= diff;
 
-        if (LightningBoltTimer < diff)
+        if (LightningBoltTimer <= diff)
         {
             DoCast(m_creature->getVictim(), SPELL_LIGHTNING_BOLT);
             LightningBoltTimer = 10000;
-        }else LightningBoltTimer -= diff;
+        } else LightningBoltTimer -= diff;
 
         DoMeleeAttackIfReady();
     }

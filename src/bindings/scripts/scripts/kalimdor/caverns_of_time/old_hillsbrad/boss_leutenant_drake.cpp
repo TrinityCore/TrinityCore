@@ -142,27 +142,27 @@ struct TRINITY_DLL_DECL boss_lieutenant_drakeAI : public ScriptedAI
             return;
 
         //Whirlwind
-        if (Whirlwind_Timer < diff)
+        if (Whirlwind_Timer <= diff)
         {
             DoCast(m_creature->getVictim(), SPELL_WHIRLWIND);
             Whirlwind_Timer = 20000+rand()%5000;
-        }else Whirlwind_Timer -= diff;
+        } else Whirlwind_Timer -= diff;
 
         //Fear
-        if (Fear_Timer < diff)
+        if (Fear_Timer <= diff)
         {
             DoScriptText(SAY_SHOUT, m_creature);
             DoCast(m_creature->getVictim(), SPELL_FRIGHTENING_SHOUT);
             Fear_Timer = 25000+rand()%10000;
-        }else Fear_Timer -= diff;
+        } else Fear_Timer -= diff;
 
         //Mortal Strike
-        if (MortalStrike_Timer < diff)
+        if (MortalStrike_Timer <= diff)
         {
             DoScriptText(SAY_MORTAL, m_creature);
             DoCast(m_creature->getVictim(), SPELL_MORTAL_STRIKE);
             MortalStrike_Timer = 20000+rand()%10000;
-        }else MortalStrike_Timer -= diff;
+        } else MortalStrike_Timer -= diff;
 
         DoMeleeAttackIfReady();
     }

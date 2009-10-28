@@ -175,20 +175,20 @@ struct TRINITY_DLL_DECL boss_reliquary_of_soulsAI : public ScriptedAI
         float y = Coords[random].y;
         Creature* Soul = m_creature->SummonCreature(CREATURE_ENSLAVED_SOUL, x, y, m_creature->GetPositionZ(), m_creature->GetOrientation(), TEMPSUMMON_CORPSE_DESPAWN, 0);
         if (!Soul) return false;
-        if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0))
+        if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
         {
             CAST_AI(npc_enslaved_soulAI, Soul->AI())->ReliquaryGUID = m_creature->GetGUID();
-            Soul->AI()->AttackStart(target);
-        }else EnterEvadeMode();
+            Soul->AI()->AttackStart(pTarget);
+        } else EnterEvadeMode();
         return true;
     }
 
-    void MergeThreatList(Creature* target)
+    void MergeThreatList(Creature *pTarget)
     {
-        if (!target)
+        if (!pTarget)
             return;
 
-        std::list<HostilReference*>& m_threatlist = target->getThreatManager().getThreatList();
+        std::list<HostilReference*>& m_threatlist = pTarget->getThreatManager().getThreatList();
         std::list<HostilReference*>::iterator itr = m_threatlist.begin();
         for (; itr != m_threatlist.end(); itr++)
         {
@@ -196,8 +196,8 @@ struct TRINITY_DLL_DECL boss_reliquary_of_soulsAI : public ScriptedAI
             if (pUnit)
             {
                 DoModifyThreatPercent(pUnit, -100);
-                float threat = target->getThreatManager().getThreat(pUnit);
-                m_creature->AddThreat(pUnit, threat);       // This makes it so that the unit has the same amount of threat in Reliquary's threatlist as in the target creature's (One of the Essences).
+                float threat = pTarget->getThreatManager().getThreat(pUnit);
+                m_creature->AddThreat(pUnit, threat);       // This makes it so that the unit has the same amount of threat in Reliquary's threatlist as in the pTarget creature's (One of the Essences).
             }
         }
     }
@@ -230,7 +230,7 @@ struct TRINITY_DLL_DECL boss_reliquary_of_soulsAI : public ScriptedAI
             }
         }
 
-        if (Timer < diff)
+        if (Timer <= diff)
         {
             switch(Counter)
             {
@@ -253,7 +253,7 @@ struct TRINITY_DLL_DECL boss_reliquary_of_soulsAI : public ScriptedAI
                     Summon->AI()->AttackStart(SelectUnit(SELECT_TARGET_TOPAGGRO, 0));
                     EssenceGUID = Summon->GetGUID();
                     DoStartNoMovement(m_creature);
-                }else EnterEvadeMode();
+                } else EnterEvadeMode();
                 break;
             case 3:
                 Timer = 1000;
@@ -271,7 +271,7 @@ struct TRINITY_DLL_DECL boss_reliquary_of_soulsAI : public ScriptedAI
                         Essence->RemoveAllAuras();
                         Essence->DeleteThreatList();
                         Essence->GetMotionMaster()->MoveFollow(m_creature,0.0f,0.0f);
-                    }else return;
+                    } else return;
                 }
                 break;
             case 4:
@@ -327,7 +327,7 @@ struct TRINITY_DLL_DECL boss_reliquary_of_soulsAI : public ScriptedAI
                 break;
             }
             Counter++;
-        }else Timer -= diff;
+        } else Timer -= diff;
     }
 };
 
@@ -400,11 +400,11 @@ struct TRINITY_DLL_DECL boss_essence_of_sufferingAI : public ScriptedAI
             return; // No targets added for some reason. No point continuing.
         targets.sort(ObjectDistanceOrder(m_creature)); // Sort players by distance.
         targets.resize(1); // Only need closest target.
-        Unit* target = targets.front(); // Get the first target.
-        if (target)
-            target->CastSpell(m_creature, SPELL_FIXATE_TAUNT, true);
+        Unit *pTarget = targets.front(); // Get the first target.
+        if (pTarget)
+            pTarget->CastSpell(m_creature, SPELL_FIXATE_TAUNT, true);
         DoResetThreat();
-        m_creature->AddThreat(target,1000000);
+        m_creature->AddThreat(pTarget,1000000);
     }
 
     void UpdateAI(const uint32 diff)
@@ -412,7 +412,7 @@ struct TRINITY_DLL_DECL boss_essence_of_sufferingAI : public ScriptedAI
         if (m_creature->isInCombat())
         {
             //Supposed to be cast on nearest target
-            if (FixateTimer < diff)
+            if (FixateTimer <= diff)
             {
                 CastFixate();
                 FixateTimer = 5000;
@@ -420,25 +420,25 @@ struct TRINITY_DLL_DECL boss_essence_of_sufferingAI : public ScriptedAI
                 {
                     DoScriptText(SUFF_SAY_AGGRO, m_creature);
                 }
-            }else FixateTimer -= diff;
+            } else FixateTimer -= diff;
         }
 
         //Return since we have no target
         if (!UpdateVictim())
             return;
 
-        if (EnrageTimer < diff)
+        if (EnrageTimer <= diff)
         {
             DoCast(m_creature, SPELL_ENRAGE);
             EnrageTimer = 60000;
             DoScriptText(SUFF_EMOTE_ENRAGE, m_creature);
-        }else EnrageTimer -= diff;
+        } else EnrageTimer -= diff;
 
-        if (SoulDrainTimer < diff)
+        if (SoulDrainTimer <= diff)
         {
             DoCast(SelectUnit(SELECT_TARGET_RANDOM,0), SPELL_SOUL_DRAIN);
             SoulDrainTimer = 60000;
-        }else SoulDrainTimer -= diff;
+        } else SoulDrainTimer -= diff;
 
         DoMeleeAttackIfReady();
     }
@@ -505,22 +505,22 @@ struct TRINITY_DLL_DECL boss_essence_of_desireAI : public ScriptedAI
         if (!UpdateVictim())
             return;
 
-        if (RuneShieldTimer < diff)
+        if (RuneShieldTimer <= diff)
         {
             m_creature->InterruptNonMeleeSpells(false);
             m_creature->CastSpell(m_creature, SPELL_RUNE_SHIELD, true);
             SoulShockTimer += 2000;
             DeadenTimer += 2000;
             RuneShieldTimer = 60000;
-        }else RuneShieldTimer -= diff;
+        } else RuneShieldTimer -= diff;
 
-        if (SoulShockTimer < diff)
+        if (SoulShockTimer <= diff)
         {
             DoCast(m_creature->getVictim(), SPELL_SOUL_SHOCK);
             SoulShockTimer = 5000;
-        }else SoulShockTimer -= diff;
+        } else SoulShockTimer -= diff;
 
-        if (DeadenTimer < diff)
+        if (DeadenTimer <= diff)
         {
             m_creature->InterruptNonMeleeSpells(false);
             DoCast(m_creature->getVictim(), SPELL_DEADEN);
@@ -529,7 +529,7 @@ struct TRINITY_DLL_DECL boss_essence_of_desireAI : public ScriptedAI
             {
                 DoScriptText(DESI_SAY_SPEC, m_creature);
             }
-        }else DeadenTimer -= diff;
+        } else DeadenTimer -= diff;
 
         DoMeleeAttackIfReady();
     }
@@ -592,7 +592,7 @@ struct TRINITY_DLL_DECL boss_essence_of_angerAI : public ScriptedAI
             CheckedAggro = true;
         }
 
-        if (CheckTankTimer < diff)
+        if (CheckTankTimer <= diff)
         {
             if (m_creature->getVictim()->GetGUID() != AggroTargetGUID)
             {
@@ -601,9 +601,9 @@ struct TRINITY_DLL_DECL boss_essence_of_angerAI : public ScriptedAI
                 AggroTargetGUID = m_creature->getVictim()->GetGUID();
             }
             CheckTankTimer = 2000;
-        }else CheckTankTimer -= diff;
+        } else CheckTankTimer -= diff;
 
-        if (SoulScreamTimer < diff)
+        if (SoulScreamTimer <= diff)
         {
             DoCast(m_creature->getVictim(), SPELL_SOUL_SCREAM);
             SoulScreamTimer = 9000 + rand()%2000;
@@ -611,14 +611,14 @@ struct TRINITY_DLL_DECL boss_essence_of_angerAI : public ScriptedAI
             {
                 DoScriptText(ANGER_SAY_SPEC, m_creature);
             }
-        }else SoulScreamTimer -= diff;
+        } else SoulScreamTimer -= diff;
 
-        if (SpiteTimer < diff)
+        if (SpiteTimer <= diff)
         {
             DoCast(m_creature, SPELL_SPITE_TARGET);
             SpiteTimer = 30000;
             DoScriptText(ANGER_SAY_SPEC, m_creature);
-        }else SpiteTimer -= diff;
+        } else SpiteTimer -= diff;
 
         DoMeleeAttackIfReady();
     }

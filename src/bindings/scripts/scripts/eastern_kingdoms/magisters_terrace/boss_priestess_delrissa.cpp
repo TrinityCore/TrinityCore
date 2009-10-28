@@ -246,72 +246,72 @@ struct TRINITY_DLL_DECL boss_priestess_delrissaAI : public ScriptedAI
         if (HealTimer <= diff)
         {
             uint32 health = m_creature->GetHealth();
-            Unit* target = m_creature;
+            Unit *pTarget = m_creature;
             for (uint8 i = 0; i < MAX_ACTIVE_LACKEY; ++i)
             {
                 if (Unit* pAdd = Unit::GetUnit(*m_creature, m_auiLackeyGUID[i]))
                 {
                     if (pAdd->isAlive() && pAdd->GetHealth() < health)
-                        target = pAdd;
+                        pTarget = pAdd;
                 }
             }
 
-            DoCast(target, SPELL_FLASH_HEAL);
+            DoCast(pTarget, SPELL_FLASH_HEAL);
             HealTimer = 15000;
-        }else HealTimer -= diff;
+        } else HealTimer -= diff;
 
         if (RenewTimer <= diff)
         {
-            Unit* target = m_creature;
+            Unit *pTarget = m_creature;
 
             if (urand(0,1))
                 if (Unit* pAdd = Unit::GetUnit(*m_creature, m_auiLackeyGUID[rand()%MAX_ACTIVE_LACKEY]))
                     if (pAdd->isAlive())
-                        target = pAdd;
+                        pTarget = pAdd;
 
-            DoCast(target,Heroic ? SPELL_RENEW_HEROIC : SPELL_RENEW_NORMAL);
+            DoCast(pTarget,Heroic ? SPELL_RENEW_HEROIC : SPELL_RENEW_NORMAL);
             RenewTimer = 5000;
         } else RenewTimer -= diff;
 
         if (ShieldTimer <= diff)
         {
-            Unit* target = m_creature;
+            Unit *pTarget = m_creature;
 
             if (urand(0,1))
                 if (Unit* pAdd = Unit::GetUnit(*m_creature, m_auiLackeyGUID[rand()%MAX_ACTIVE_LACKEY]))
                     if (pAdd->isAlive() && !pAdd->HasAura(SPELL_SHIELD))
-                        target = pAdd;
+                        pTarget = pAdd;
 
-            DoCast(target, SPELL_SHIELD);
+            DoCast(pTarget, SPELL_SHIELD);
             ShieldTimer = 7500;
         } else ShieldTimer -= diff;
 
         if (DispelTimer <= diff)
         {
-            Unit* target = NULL;
+            Unit *pTarget = NULL;
             bool friendly = false;
 
             if (urand(0,1))
-                target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true);
+                pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true);
             else
             {
                 friendly = true;
 
                 if (urand(0,1))
-                    target = m_creature;
+                    pTarget = m_creature;
                 else
                     if (Unit* pAdd = Unit::GetUnit(*m_creature, m_auiLackeyGUID[rand()%MAX_ACTIVE_LACKEY]))
                         if (pAdd->isAlive())
-                            target = pAdd;
+                            pTarget = pAdd;
             }
 
-            if (target)
-                DoCast(target, SPELL_DISPEL_MAGIC);
+            if (pTarget)
+                DoCast(pTarget, SPELL_DISPEL_MAGIC);
 
             DispelTimer = 12000;
         } else DispelTimer -= diff;
 
-        if (SWPainTimer < diff)
+        if (SWPainTimer <= diff)
         {
             if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                 DoCast(pTarget, Heroic ? SPELL_SW_PAIN_HEROIC : SPELL_SW_PAIN_NORMAL);
@@ -754,14 +754,14 @@ struct TRINITY_DLL_DECL boss_yazzaiAI : public boss_priestess_lackey_commonAI
 
         boss_priestess_lackey_commonAI::UpdateAI(diff);
 
-        if (Polymorph_Timer < diff)
+        if (Polymorph_Timer <= diff)
         {
-            if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0))
+            if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
             {
-                DoCast(target, SPELL_POLYMORPH);
+                DoCast(pTarget, SPELL_POLYMORPH);
                 Polymorph_Timer = 20000;
             }
-        }else Polymorph_Timer -= diff;
+        } else Polymorph_Timer -= diff;
 
         if (((m_creature->GetHealth()*100 / m_creature->GetMaxHealth()) < 35) && !HasIceBlocked)
         {
@@ -769,42 +769,42 @@ struct TRINITY_DLL_DECL boss_yazzaiAI : public boss_priestess_lackey_commonAI
             HasIceBlocked = true;
         }
 
-        if (Blizzard_Timer < diff)
+        if (Blizzard_Timer <= diff)
         {
             if (Unit* pUnit = SelectUnit(SELECT_TARGET_RANDOM, 0))
                 DoCast(pUnit, SPELL_BLIZZARD);
 
             Blizzard_Timer = 8000;
-        }else Blizzard_Timer -= diff;
+        } else Blizzard_Timer -= diff;
 
-        if (Ice_Lance_Timer < diff)
+        if (Ice_Lance_Timer <= diff)
         {
             DoCast(m_creature->getVictim(), SPELL_ICE_LANCE);
             Ice_Lance_Timer = 12000;
-        }else Ice_Lance_Timer -= diff;
+        } else Ice_Lance_Timer -= diff;
 
-        if (Cone_of_Cold_Timer < diff)
+        if (Cone_of_Cold_Timer <= diff)
         {
             DoCast(m_creature->getVictim(), SPELL_CONE_OF_COLD);
             Cone_of_Cold_Timer = 10000;
-        }else Cone_of_Cold_Timer -= diff;
+        } else Cone_of_Cold_Timer -= diff;
 
-        if (Frostbolt_Timer < diff)
+        if (Frostbolt_Timer <= diff)
         {
             DoCast(m_creature->getVictim(), SPELL_FROSTBOLT);
             Frostbolt_Timer = 8000;
-        }else Frostbolt_Timer -= diff;
+        } else Frostbolt_Timer -= diff;
 
-        if (Blink_Timer < diff)
+        if (Blink_Timer <= diff)
         {
             bool InMeleeRange = false;
             std::list<HostilReference*>& t_list = m_creature->getThreatManager().getThreatList();
             for (std::list<HostilReference*>::iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)
             {
-                if (Unit* target = Unit::GetUnit(*m_creature, (*itr)->getUnitGuid()))
+                if (Unit *pTarget = Unit::GetUnit(*m_creature, (*itr)->getUnitGuid()))
                 {
                     //if in melee range
-                    if (target->IsWithinDistInMap(m_creature, 5))
+                    if (pTarget->IsWithinDistInMap(m_creature, 5))
                     {
                         InMeleeRange = true;
                         break;
@@ -817,7 +817,7 @@ struct TRINITY_DLL_DECL boss_yazzaiAI : public boss_priestess_lackey_commonAI
                 DoCast(m_creature, SPELL_BLINK);
 
             Blink_Timer = 8000;
-        }else Blink_Timer -= diff;
+        } else Blink_Timer -= diff;
 
         DoMeleeAttackIfReady();
     }
@@ -875,16 +875,16 @@ struct TRINITY_DLL_DECL boss_warlord_salarisAI : public boss_priestess_lackey_co
 
         boss_priestess_lackey_commonAI::UpdateAI(diff);
 
-        if (Intercept_Stun_Timer < diff)
+        if (Intercept_Stun_Timer <= diff)
         {
             bool InMeleeRange = false;
             std::list<HostilReference*>& t_list = m_creature->getThreatManager().getThreatList();
             for (std::list<HostilReference*>::iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)
             {
-                if (Unit* target = Unit::GetUnit(*m_creature, (*itr)->getUnitGuid()))
+                if (Unit *pTarget = Unit::GetUnit(*m_creature, (*itr)->getUnitGuid()))
                 {
                     //if in melee range
-                    if (target->IsWithinDistInMap(m_creature, ATTACK_DISTANCE))
+                    if (pTarget->IsWithinDistInMap(m_creature, ATTACK_DISTANCE))
                     {
                         InMeleeRange = true;
                         break;
@@ -900,37 +900,37 @@ struct TRINITY_DLL_DECL boss_warlord_salarisAI : public boss_priestess_lackey_co
             }
 
             Intercept_Stun_Timer = 10000;
-        }else Intercept_Stun_Timer -= diff;
+        } else Intercept_Stun_Timer -= diff;
 
-        if (Disarm_Timer < diff)
+        if (Disarm_Timer <= diff)
         {
             DoCast(m_creature->getVictim(),SPELL_DISARM);
             Disarm_Timer = 6000;
-        }else Disarm_Timer -= diff;
+        } else Disarm_Timer -= diff;
 
-        if (Hamstring_Timer < diff)
+        if (Hamstring_Timer <= diff)
         {
             DoCast(m_creature->getVictim(), SPELL_HAMSTRING);
             Hamstring_Timer = 4500;
-        }else Hamstring_Timer -= diff;
+        } else Hamstring_Timer -= diff;
 
-        if (Mortal_Strike_Timer < diff)
+        if (Mortal_Strike_Timer <= diff)
         {
             DoCast(m_creature->getVictim(), SPELL_MORTAL_STRIKE);
             Mortal_Strike_Timer = 4500;
-        }else Mortal_Strike_Timer -= diff;
+        } else Mortal_Strike_Timer -= diff;
 
-        if (Piercing_Howl_Timer < diff)
+        if (Piercing_Howl_Timer <= diff)
         {
             DoCast(m_creature->getVictim(), SPELL_PIERCING_HOWL);
             Piercing_Howl_Timer = 10000;
-        }else Piercing_Howl_Timer -= diff;
+        } else Piercing_Howl_Timer -= diff;
 
-        if (Frightening_Shout_Timer < diff)
+        if (Frightening_Shout_Timer <= diff)
         {
             DoCast(m_creature->getVictim(), SPELL_FRIGHTENING_SHOUT);
             Frightening_Shout_Timer = 18000;
-        }else Frightening_Shout_Timer -= diff;
+        } else Frightening_Shout_Timer -= diff;
 
         DoMeleeAttackIfReady();
     }
@@ -997,13 +997,13 @@ struct TRINITY_DLL_DECL boss_garaxxasAI : public boss_priestess_lackey_commonAI
 
         if (m_creature->IsWithinDistInMap(m_creature->getVictim(), ATTACK_DISTANCE))
         {
-            if (Wing_Clip_Timer < diff)
+            if (Wing_Clip_Timer <= diff)
             {
                 DoCast(m_creature->getVictim(), SPELL_WING_CLIP);
                 Wing_Clip_Timer = 4000;
-            }else Wing_Clip_Timer -= diff;
+            } else Wing_Clip_Timer -= diff;
 
-            if (Freezing_Trap_Timer < diff)
+            if (Freezing_Trap_Timer <= diff)
             {
                 //attempt find go summoned from spell (casted by m_creature)
                 GameObject* pGo = m_creature->GetGameObject(SPELL_FREEZING_TRAP);
@@ -1017,35 +1017,35 @@ struct TRINITY_DLL_DECL boss_garaxxasAI : public boss_priestess_lackey_commonAI
                     DoCast(m_creature->getVictim(), SPELL_FREEZING_TRAP);
                     Freezing_Trap_Timer = 15000;
                 }
-            }else Freezing_Trap_Timer -= diff;
+            } else Freezing_Trap_Timer -= diff;
 
             DoMeleeAttackIfReady();
         }
         else
         {
-            if (Concussive_Shot_Timer < diff)
+            if (Concussive_Shot_Timer <= diff)
             {
                 DoCast(m_creature->getVictim(), SPELL_CONCUSSIVE_SHOT);
                 Concussive_Shot_Timer = 8000;
-            }else Concussive_Shot_Timer -= diff;
+            } else Concussive_Shot_Timer -= diff;
 
-            if (Multi_Shot_Timer < diff)
+            if (Multi_Shot_Timer <= diff)
             {
                 DoCast(m_creature->getVictim(), SPELL_MULTI_SHOT);
                 Multi_Shot_Timer = 10000;
-            }else Multi_Shot_Timer -= diff;
+            } else Multi_Shot_Timer -= diff;
 
-            if (Aimed_Shot_Timer < diff)
+            if (Aimed_Shot_Timer <= diff)
             {
                 DoCast(m_creature->getVictim(), SPELL_AIMED_SHOT);
                 Aimed_Shot_Timer = 6000;
-            }else Aimed_Shot_Timer -= diff;
+            } else Aimed_Shot_Timer -= diff;
 
-            if (Shoot_Timer < diff)
+            if (Shoot_Timer <= diff)
             {
                 DoCast(m_creature->getVictim(), SPELL_SHOOT);
                 Shoot_Timer = 2500;
-            }else Shoot_Timer -= diff;
+            } else Shoot_Timer -= diff;
         }
     }
 };
@@ -1097,20 +1097,20 @@ struct TRINITY_DLL_DECL boss_apokoAI : public boss_priestess_lackey_commonAI
 
         boss_priestess_lackey_commonAI::UpdateAI(diff);
 
-        if (Totem_Timer < diff)
+        if (Totem_Timer <= diff)
         {
             DoCast(m_creature, RAND(SPELL_WINDFURY_TOTEM,SPELL_FIRE_NOVA_TOTEM,SPELL_EARTHBIND_TOTEM));
             ++Totem_Amount;
             Totem_Timer = Totem_Amount*2000;
         } else Totem_Timer -= diff;
 
-        if (War_Stomp_Timer < diff)
+        if (War_Stomp_Timer <= diff)
         {
             DoCast(m_creature, SPELL_WAR_STOMP);
             War_Stomp_Timer = 10000;
         } else War_Stomp_Timer -= diff;
 
-        if (Purge_Timer < diff)
+        if (Purge_Timer <= diff)
         {
             if (Unit* pUnit = SelectUnit(SELECT_TARGET_RANDOM, 0))
                 DoCast(pUnit, SPELL_PURGE);
@@ -1118,13 +1118,13 @@ struct TRINITY_DLL_DECL boss_apokoAI : public boss_priestess_lackey_commonAI
             Purge_Timer = 15000;
         } else Purge_Timer -= diff;
 
-        if (Frost_Shock_Timer < diff)
+        if (Frost_Shock_Timer <= diff)
         {
             DoCast(m_creature->getVictim(), SPELL_FROST_SHOCK);
             Frost_Shock_Timer = 7000;
         } else Frost_Shock_Timer -= diff;
 
-        if (Healing_Wave_Timer < diff)
+        if (Healing_Wave_Timer <= diff)
         {
             // std::vector<Add*>::iterator itr = Group.begin() + rand()%Group.size();
             // uint64 guid = (*itr)->guid;
@@ -1187,25 +1187,25 @@ struct TRINITY_DLL_DECL boss_zelfanAI : public boss_priestess_lackey_commonAI
 
         boss_priestess_lackey_commonAI::UpdateAI(diff);
 
-        if (Goblin_Dragon_Gun_Timer < diff)
+        if (Goblin_Dragon_Gun_Timer <= diff)
         {
             DoCast(m_creature->getVictim(), SPELL_GOBLIN_DRAGON_GUN);
             Goblin_Dragon_Gun_Timer = 10000;
-        }else Goblin_Dragon_Gun_Timer -= diff;
+        } else Goblin_Dragon_Gun_Timer -= diff;
 
-        if (Rocket_Launch_Timer < diff)
+        if (Rocket_Launch_Timer <= diff)
         {
             DoCast(m_creature->getVictim(), SPELL_ROCKET_LAUNCH);
             Rocket_Launch_Timer = 9000;
-        }else Rocket_Launch_Timer -= diff;
+        } else Rocket_Launch_Timer -= diff;
 
-        if (Fel_Iron_Bomb_Timer < diff)
+        if (Fel_Iron_Bomb_Timer <= diff)
         {
             DoCast(m_creature->getVictim(), SPELL_FEL_IRON_BOMB);
             Fel_Iron_Bomb_Timer = 15000;
-        }else Fel_Iron_Bomb_Timer -= diff;
+        } else Fel_Iron_Bomb_Timer -= diff;
 
-        if (Recombobulate_Timer < diff)
+        if (Recombobulate_Timer <= diff)
         {
             for (uint8 i = 0; i < MAX_ACTIVE_LACKEY; ++i)
             {
@@ -1219,13 +1219,13 @@ struct TRINITY_DLL_DECL boss_zelfanAI : public boss_priestess_lackey_commonAI
                 }
             }
             Recombobulate_Timer = 2000;
-        }else Recombobulate_Timer -= diff;
+        } else Recombobulate_Timer -= diff;
 
-        if (High_Explosive_Sheep_Timer < diff)
+        if (High_Explosive_Sheep_Timer <= diff)
         {
             DoCast(m_creature, SPELL_HIGH_EXPLOSIVE_SHEEP);
             High_Explosive_Sheep_Timer = 65000;
-        }else High_Explosive_Sheep_Timer -= diff;
+        } else High_Explosive_Sheep_Timer -= diff;
 
         DoMeleeAttackIfReady();
     }
@@ -1253,7 +1253,7 @@ CreatureAI* GetAI_zelfan(Creature* pCreature)
 //
 //    void UpdateAI(const uint32 diff)
 //    {
-//        if (Explosion_Timer < diff)
+//        if (Explosion_Timer <= diff)
 //        {
 //            DoCast(m_creature->getVictim(), SPELL_SHEEP_EXPLOSION);
 //        }else

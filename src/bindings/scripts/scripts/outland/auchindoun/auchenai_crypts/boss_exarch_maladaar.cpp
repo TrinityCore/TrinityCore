@@ -64,7 +64,7 @@ struct TRINITY_DLL_DECL mob_stolen_soulAI : public ScriptedAI
         if (!UpdateVictim())
             return;
 
-        if (Class_Timer < diff)
+        if (Class_Timer <= diff)
         {
             switch (myClass)
             {
@@ -197,11 +197,11 @@ struct TRINITY_DLL_DECL boss_exarch_maladaarAI : public ScriptedAI
             summoned->SetDisplayId(soulmodel);
             summoned->setFaction(m_creature->getFaction());
 
-            if (Unit *target = Unit::GetUnit(*m_creature,soulholder))
+            if (Unit *pTarget = Unit::GetUnit(*m_creature,soulholder))
             {
 
             CAST_AI(mob_stolen_soulAI, summoned->AI())->SetMyClass(soulclass);
-             summoned->AI()->AttackStart(target);
+             summoned->AI()->AttackStart(pTarget);
             }
         }
     }
@@ -238,11 +238,11 @@ struct TRINITY_DLL_DECL boss_exarch_maladaarAI : public ScriptedAI
             StolenSoul_Timer = 15000 + rand()% 15000;
         }
 
-        if (StolenSoul_Timer < diff)
+        if (StolenSoul_Timer <= diff)
         {
-            if (Unit *target = SelectUnit(SELECT_TARGET_RANDOM,0))
+            if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM,0))
             {
-                if (target->GetTypeId() == TYPEID_PLAYER)
+                if (pTarget->GetTypeId() == TYPEID_PLAYER)
                 {
                     if (m_creature->IsNonMeleeSpellCasted(false))
                         m_creature->InterruptNonMeleeSpells(true);
@@ -253,31 +253,31 @@ struct TRINITY_DLL_DECL boss_exarch_maladaarAI : public ScriptedAI
                     else
                         DoScriptText(SAY_SOUL_CLEAVE, m_creature);
 
-                    soulmodel = target->GetDisplayId();
-                    soulholder = target->GetGUID();
-                    soulclass = target->getClass();
+                    soulmodel = pTarget->GetDisplayId();
+                    soulholder = pTarget->GetGUID();
+                    soulclass = pTarget->getClass();
 
-                    DoCast(target,SPELL_STOLEN_SOUL);
+                    DoCast(pTarget,SPELL_STOLEN_SOUL);
                     m_creature->SummonCreature(ENTRY_STOLEN_SOUL, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 10000);
 
                     StolenSoul_Timer = 20000 + rand()% 10000;
                 } else StolenSoul_Timer = 1000;
             }
-        }else StolenSoul_Timer -= diff;
+        } else StolenSoul_Timer -= diff;
 
-        if (Ribbon_of_Souls_timer < diff)
+        if (Ribbon_of_Souls_timer <= diff)
         {
-            if (Unit *target = SelectUnit(SELECT_TARGET_RANDOM,0))
-                DoCast(target,SPELL_RIBBON_OF_SOULS);
+            if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM,0))
+                DoCast(pTarget,SPELL_RIBBON_OF_SOULS);
 
             Ribbon_of_Souls_timer = 5000 + (rand()%20 * 1000);
-        }else Ribbon_of_Souls_timer -= diff;
+        } else Ribbon_of_Souls_timer -= diff;
 
-        if (Fear_timer < diff)
+        if (Fear_timer <= diff)
         {
             DoCast(m_creature,SPELL_SOUL_SCREAM);
             Fear_timer = 15000 + rand()% 15000;
-        }else Fear_timer -= diff;
+        } else Fear_timer -= diff;
 
         DoMeleeAttackIfReady();
     }
@@ -311,7 +311,7 @@ struct TRINITY_DLL_DECL mob_avatar_of_martyredAI : public ScriptedAI
         if (!UpdateVictim())
             return;
 
-        if (Mortal_Strike_timer < diff)
+        if (Mortal_Strike_timer <= diff)
         {
             DoCast(m_creature->getVictim(), SPELL_AV_MORTAL_STRIKE);
             Mortal_Strike_timer = 10000 + rand()%20 * 1000;

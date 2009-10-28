@@ -93,8 +93,8 @@ struct TRINITY_DLL_DECL boss_anubrekhanAI : public BossAI
                     //Cast Impale on a random target
                     //Do NOT cast it when we are afflicted by locust swarm
                     if (!me->HasAura(SPELL_LOCUSTSWARM))
-                        if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0))
-                            DoCast(target, SPELL_IMPALE);
+                        if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                            DoCast(pTarget, SPELL_IMPALE);
                     events.ScheduleEvent(EVENT_IMPALE, 15000, 1);
                     events.DelayEvents(1500, 1);
                     return;

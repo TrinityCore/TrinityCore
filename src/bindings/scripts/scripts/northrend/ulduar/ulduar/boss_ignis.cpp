@@ -71,20 +71,20 @@ struct TRINITY_DLL_DECL boss_ignis_AI : public BossAI
             m_creature->GetMotionMaster()->MoveTargetedHome();
         }
 
-        if (FLAME_JETS_Timer < diff)
+        if (FLAME_JETS_Timer <= diff)
         {
             DoCast(m_creature,SPELL_FLAME_JETS);
             DoScriptText(SAY_SLAY, m_creature);
             FLAME_JETS_Timer = 25000;
         } else FLAME_JETS_Timer -= diff;
 
-        if (SCORCH_Timer < diff)
+        if (SCORCH_Timer <= diff)
         {
             DoCast(m_creature->getVictim(),SPELL_SCORCH);
             SCORCH_Timer = 20000;
         } else SCORCH_Timer -= diff;
 
-        if (SLAG_POT_Timer < diff)
+        if (SLAG_POT_Timer <= diff)
         {
             DoCast(m_creature,SPELL_SLAG_POT);
             DoScriptText(SAY_SLAY, m_creature);

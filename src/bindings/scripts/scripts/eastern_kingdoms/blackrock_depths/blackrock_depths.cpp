@@ -260,7 +260,7 @@ struct TRINITY_DLL_DECL npc_grimstoneAI : public npc_escortAI
                         }
                     }
                 }
-            }else MobDeath_Timer -= diff;
+            } else MobDeath_Timer -= diff;
         }
 
         if (Event_Timer)
@@ -328,7 +328,7 @@ struct TRINITY_DLL_DECL npc_grimstoneAI : public npc_escortAI
                     break;
                 }
                 ++EventPhase;
-            }else Event_Timer -= diff;
+            } else Event_Timer -= diff;
         }
 
         if (CanWalk)
@@ -395,7 +395,7 @@ struct TRINITY_DLL_DECL mob_phalanxAI : public ScriptedAI
         {
             DoCast(m_creature->getVictim(),SPELL_MIGHTYBLOW);
             MightyBlow_Timer = 10000;
-        }else MightyBlow_Timer -= diff;
+        } else MightyBlow_Timer -= diff;
 
         DoMeleeAttackIfReady();
     }
@@ -1199,7 +1199,7 @@ struct TRINITY_DLL_DECL npc_rocknotAI : public npc_escortAI
                 DoGo(DATA_GO_BAR_KEG,0);
                 BreakKeg_Timer = 0;
                 BreakDoor_Timer = 1000;
-            }else BreakKeg_Timer -= diff;
+            } else BreakKeg_Timer -= diff;
         }
 
         if (BreakDoor_Timer)
@@ -1218,7 +1218,7 @@ struct TRINITY_DLL_DECL npc_rocknotAI : public npc_escortAI
                 pInstance->SetData(TYPE_BAR,DONE);
 
                 BreakDoor_Timer = 0;
-            }else BreakDoor_Timer -= diff;
+            } else BreakDoor_Timer -= diff;
         }
 
         npc_escortAI::UpdateAI(diff);

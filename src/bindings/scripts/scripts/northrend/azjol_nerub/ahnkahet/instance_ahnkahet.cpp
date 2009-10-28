@@ -300,7 +300,7 @@ struct TRINITY_DLL_DECL instance_ahnkahet : public ScriptedInstance
             spheres[0] = data5;
             spheres[1] = data6;
 
-        }else OUT_LOAD_INST_DATA_FAIL;
+        } else OUT_LOAD_INST_DATA_FAIL;
 
         OUT_LOAD_INST_DATA_COMPLETE;
     }

@@ -55,29 +55,29 @@ struct TRINITY_DLL_DECL celebras_the_cursedAI : public ScriptedAI
             return;
 
         //Wrath
-        if (Wrath_Timer < diff)
+        if (Wrath_Timer <= diff)
         {
-            Unit* target = NULL;
-            target = SelectUnit(SELECT_TARGET_RANDOM,0);
-            if (target)
-                DoCast(target,SPELL_WRATH);
+            Unit *pTarget = NULL;
+            pTarget = SelectUnit(SELECT_TARGET_RANDOM,0);
+            if (pTarget)
+                DoCast(pTarget,SPELL_WRATH);
             Wrath_Timer = 8000;
-        }else Wrath_Timer -= diff;
+        } else Wrath_Timer -= diff;
 
         //EntanglingRoots
-        if (EntanglingRoots_Timer < diff)
+        if (EntanglingRoots_Timer <= diff)
         {
             DoCast(m_creature->getVictim(),SPELL_ENTANGLINGROOTS);
             EntanglingRoots_Timer = 20000;
-        }else EntanglingRoots_Timer -= diff;
+        } else EntanglingRoots_Timer -= diff;
 
         //CorruptForces
-        if (CorruptForces_Timer < diff)
+        if (CorruptForces_Timer <= diff)
         {
             m_creature->InterruptNonMeleeSpells(false);
             DoCast(m_creature,SPELL_CORRUPT_FORCES);
             CorruptForces_Timer = 20000;
-        }else CorruptForces_Timer -= diff;
+        } else CorruptForces_Timer -= diff;
 
         DoMeleeAttackIfReady();
     }

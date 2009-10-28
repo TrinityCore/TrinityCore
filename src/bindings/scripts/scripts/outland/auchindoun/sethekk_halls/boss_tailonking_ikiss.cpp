@@ -135,21 +135,21 @@ struct TRINITY_DLL_DECL boss_talon_king_ikissAI : public ScriptedAI
             Blink = false;
         }
 
-        if (ArcaneVolley_Timer < diff)
+        if (ArcaneVolley_Timer <= diff)
         {
             DoCast(m_creature,HEROIC(SPELL_ARCANE_VOLLEY, H_SPELL_ARCANE_VOLLEY));
             ArcaneVolley_Timer = 7000+rand()%5000;
-        }else ArcaneVolley_Timer -= diff;
+        } else ArcaneVolley_Timer -= diff;
 
-        if (Sheep_Timer < diff)
+        if (Sheep_Timer <= diff)
         {
-            //second top aggro target in normal, random target in heroic correct?
-            Unit *target = NULL;
-            target = HeroicMode ? SelectUnit(SELECT_TARGET_RANDOM,0) : SelectUnit(SELECT_TARGET_TOPAGGRO,1);
-            if (target)
-                DoCast(target,HEROIC(SPELL_POLYMORPH, H_SPELL_POLYMORPH));
+            //second top aggro pTarget in normal, random pTarget in heroic correct?
+            Unit *pTarget = NULL;
+            pTarget = HeroicMode ? SelectUnit(SELECT_TARGET_RANDOM,0) : SelectUnit(SELECT_TARGET_TOPAGGRO,1);
+            if (pTarget)
+                DoCast(pTarget,HEROIC(SPELL_POLYMORPH, H_SPELL_POLYMORPH));
             Sheep_Timer = 15000+rand()%2500;
-        }else Sheep_Timer -= diff;
+        } else Sheep_Timer -= diff;
 
         //may not be correct time to cast
         if (!ManaShield && ((m_creature->GetHealth()*100) / m_creature->GetMaxHealth() < 20))
@@ -160,36 +160,36 @@ struct TRINITY_DLL_DECL boss_talon_king_ikissAI : public ScriptedAI
 
         if (HeroicMode)
         {
-            if (Slow_Timer < diff)
+            if (Slow_Timer <= diff)
             {
                 DoCast(m_creature,H_SPELL_SLOW);
                 Slow_Timer = 15000+rand()%25000;
-            }else Slow_Timer -= diff;
+            } else Slow_Timer -= diff;
         }
 
-        if (Blink_Timer < diff)
+        if (Blink_Timer <= diff)
         {
             DoScriptText(EMOTE_ARCANE_EXP, m_creature);
 
-            if (Unit *target = SelectUnit(SELECT_TARGET_RANDOM,0))
+            if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM,0))
             {
                 if (m_creature->IsNonMeleeSpellCasted(false))
                     m_creature->InterruptNonMeleeSpells(false);
 
                 //Spell doesn't work, but we use for visual effect at least
-                DoCast(target,SPELL_BLINK);
+                DoCast(pTarget,SPELL_BLINK);
 
-                float X = target->GetPositionX();
-                float Y = target->GetPositionY();
-                float Z = target->GetPositionZ();
+                float X = pTarget->GetPositionX();
+                float Y = pTarget->GetPositionY();
+                float Z = pTarget->GetPositionZ();
 
                 DoTeleportTo(X,Y,Z);
 
-                DoCast(target,SPELL_BLINK_TELEPORT);
+                DoCast(pTarget,SPELL_BLINK_TELEPORT);
                 Blink = true;
             }
             Blink_Timer = 35000+rand()%5000;
-        }else Blink_Timer -= diff;
+        } else Blink_Timer -= diff;
 
         if (!Blink)
             DoMeleeAttackIfReady();

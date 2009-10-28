@@ -69,21 +69,21 @@ struct TRINITY_DLL_DECL boss_moira_bronzebeardAI : public ScriptedAI
         {
             DoCast(m_creature->getVictim(),SPELL_MINDBLAST);
             MindBlast_Timer = 14000;
-        }else MindBlast_Timer -= diff;
+        } else MindBlast_Timer -= diff;
 
         //ShadowWordPain_Timer
         if (ShadowWordPain_Timer <= diff)
         {
             DoCast(m_creature->getVictim(),SPELL_SHADOWWORDPAIN);
             ShadowWordPain_Timer = 18000;
-        }else ShadowWordPain_Timer -= diff;
+        } else ShadowWordPain_Timer -= diff;
 
         //Smite_Timer
         if (Smite_Timer <= diff)
         {
             DoCast(m_creature->getVictim(),SPELL_SMITE);
             Smite_Timer = 10000;
-        }else Smite_Timer -= diff;
+        } else Smite_Timer -= diff;
 
     }
 };

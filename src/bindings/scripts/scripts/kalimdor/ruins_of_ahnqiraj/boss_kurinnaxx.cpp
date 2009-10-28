@@ -88,14 +88,14 @@ struct TRINITY_DLL_DECL boss_kurinnaxxAI : public ScriptedAI
         }
 
         //Mortal Wound spell
-        if (uiMortalWoundTimer < diff)
+        if (uiMortalWoundTimer <= diff)
         {
             DoCast(m_creature->getVictim(),SPELL_MORTALWOUND);
             uiMortalWoundTimer = urand(2000,7000);;
         } else uiMortalWoundTimer -= diff;
 
         //Santrap spell
-        if (uiSandtrapTimer < diff)
+        if (uiSandtrapTimer <= diff)
         {
             if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                 DoCast(pTarget,SPELL_SANDTRAP);
@@ -103,21 +103,21 @@ struct TRINITY_DLL_DECL boss_kurinnaxxAI : public ScriptedAI
         } else uiSandtrapTimer -= diff;
         
         //Wide Slash spell
-        if (uiWideSlashTimer < diff)
+        if (uiWideSlashTimer <= diff)
         {
             DoCast(m_creature->getVictim(),SPELL_WIDE_SLASH);
             uiWideSlashTimer = urand(10000,15000);
         } else uiWideSlashTimer -= diff;
         
         //Trash spell
-        if (uiTrashTimer < diff)
+        if (uiTrashTimer <= diff)
         {
             DoCast(m_creature, SPELL_TRASH);
             uiTrashTimer = urand(20000,25000);
         } else uiTrashTimer -= diff;
         
         //Summon Player spell
-        if (uiSummonPlayerTimer < diff)
+        if (uiSummonPlayerTimer <= diff)
         {
             if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                 DoCast(pTarget,SPELL_SUMMON_PLAYER);

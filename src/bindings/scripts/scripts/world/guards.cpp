@@ -2550,7 +2550,7 @@ struct TRINITY_DLL_DECL guard_shattrath_aldorAI : public guardAI
 
         if (CanTeleport)
         {
-            if (Exile_Timer < diff)
+            if (Exile_Timer <= diff)
             {
                 if (Unit* temp = Unit::GetUnit(*m_creature,PlayerGUID))
                 {
@@ -2560,9 +2560,9 @@ struct TRINITY_DLL_DECL guard_shattrath_aldorAI : public guardAI
                 PlayerGUID = 0;
                 Exile_Timer = 8500;
                 CanTeleport = false;
-            }else Exile_Timer -= diff;
+            } else Exile_Timer -= diff;
         }
-        else if (Banish_Timer < diff)
+        else if (Banish_Timer <= diff)
         {
             Unit* temp = m_creature->getVictim();
             if (temp && temp->GetTypeId() == TYPEID_PLAYER)
@@ -2573,7 +2573,7 @@ struct TRINITY_DLL_DECL guard_shattrath_aldorAI : public guardAI
                 if (PlayerGUID)
                     CanTeleport = true;
             }
-        }else Banish_Timer -= diff;
+        } else Banish_Timer -= diff;
 
         DoMeleeAttackIfReady();
     }
@@ -2746,7 +2746,7 @@ struct TRINITY_DLL_DECL guard_shattrath_scryerAI : public guardAI
 
         if (CanTeleport)
         {
-            if (Exile_Timer < diff)
+            if (Exile_Timer <= diff)
             {
                 if (Unit* temp = Unit::GetUnit(*m_creature,PlayerGUID))
                 {
@@ -2756,9 +2756,9 @@ struct TRINITY_DLL_DECL guard_shattrath_scryerAI : public guardAI
                 PlayerGUID = 0;
                 Exile_Timer = 8500;
                 CanTeleport = false;
-            }else Exile_Timer -= diff;
+            } else Exile_Timer -= diff;
         }
-        else if (Banish_Timer < diff)
+        else if (Banish_Timer <= diff)
         {
             Unit* temp = m_creature->getVictim();
             if (temp && temp->GetTypeId() == TYPEID_PLAYER)
@@ -2769,7 +2769,7 @@ struct TRINITY_DLL_DECL guard_shattrath_scryerAI : public guardAI
                 if (PlayerGUID)
                     CanTeleport = true;
             }
-        }else Banish_Timer -= diff;
+        } else Banish_Timer -= diff;
 
         DoMeleeAttackIfReady();
     }

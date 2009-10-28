@@ -57,7 +57,7 @@ struct TRINITY_DLL_DECL generic_creatureAI : public ScriptedAI
 
         //Buff timer (only buff when we are alive and not in combat
         if (!m_creature->isInCombat() && m_creature->isAlive())
-            if (BuffTimer < diff)
+            if (BuffTimer <= diff)
             {
                 //Find a spell that targets friendly and applies an aura (these are generally buffs)
                 SpellEntry const *info = SelectSpell(m_creature, -1, -1, SELECT_TARGET_ANY_FRIEND, 0, 0, 0, 0, SELECT_EFFECT_AURA);
@@ -74,7 +74,7 @@ struct TRINITY_DLL_DECL generic_creatureAI : public ScriptedAI
                     BuffTimer = 600000;
                 }//Try agian in 30 seconds
                 else BuffTimer = 30000;
-            }else BuffTimer -= diff;
+            } else BuffTimer -= diff;
 
         //Return since we have no target
         if (!UpdateVictim())
@@ -175,7 +175,7 @@ struct TRINITY_DLL_DECL trigger_periodicAI : public NullCreatureAI
 
     void UpdateAI(const uint32 diff)
     {
-        if (timer < diff)
+        if (timer <= diff)
         {
             if (spell)
                 me->CastSpell(me, spell, true);

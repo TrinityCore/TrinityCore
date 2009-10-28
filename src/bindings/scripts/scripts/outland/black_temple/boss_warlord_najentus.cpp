@@ -119,9 +119,9 @@ struct TRINITY_DLL_DECL boss_najentusAI : public ScriptedAI
     bool RemoveImpalingSpine()
     {
         if (!SpineTargetGUID) return false;
-        Unit* target = Unit::GetUnit(*m_creature, SpineTargetGUID);
-        if (target && target->HasAura(SPELL_IMPALING_SPINE))
-            target->RemoveAurasDueToSpell(SPELL_IMPALING_SPINE);
+        Unit *pTarget = Unit::GetUnit(*m_creature, SpineTargetGUID);
+        if (pTarget && pTarget->HasAura(SPELL_IMPALING_SPINE))
+            pTarget->RemoveAurasDueToSpell(SPELL_IMPALING_SPINE);
         SpineTargetGUID=0;
         return true;
     }
@@ -155,14 +155,14 @@ struct TRINITY_DLL_DECL boss_najentusAI : public ScriptedAI
                     break;
                 case EVENT_SPINE:
                 {
-                    Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 1);
-                    if (!target) target = m_creature->getVictim();
-                    if (target)
+                    Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 1);
+                    if (!pTarget) pTarget = m_creature->getVictim();
+                    if (pTarget)
                     {
-                        m_creature->CastSpell(target, SPELL_IMPALING_SPINE, true);
-                        SpineTargetGUID = target->GetGUID();
-                        //must let target summon, otherwise you cannot click the spine
-                        target->SummonGameObject(GOBJECT_SPINE, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), m_creature->GetOrientation(), 0, 0, 0, 0, 30);
+                        m_creature->CastSpell(pTarget, SPELL_IMPALING_SPINE, true);
+                        SpineTargetGUID = pTarget->GetGUID();
+                        //must let pTarget summon, otherwise you cannot click the spine
+                        pTarget->SummonGameObject(GOBJECT_SPINE, pTarget->GetPositionX(), pTarget->GetPositionY(), pTarget->GetPositionZ(), m_creature->GetOrientation(), 0, 0, 0, 0, 30);
                         DoScriptText(rand()%2 ? SAY_NEEDLE1 : SAY_NEEDLE2, m_creature);
                         events.DelayEvents(1500, GCD_CAST);
                         events.DelayEvents(15000, GCD_YELL);
@@ -173,17 +173,17 @@ struct TRINITY_DLL_DECL boss_najentusAI : public ScriptedAI
                 case EVENT_NEEDLE:
                 {
                     //m_creature->CastSpell(m_creature, SPELL_NEEDLE_SPINE, true);
-                    std::list<Unit*> target;
-                    SelectTargetList(target, 3, SELECT_TARGET_RANDOM, 80, true);
-                    for (std::list<Unit*>::iterator i = target.begin(); i != target.end(); ++i)
+                    std::list<Unit*> pTargets;
+                    SelectTargetList(pTargets, 3, SELECT_TARGET_RANDOM, 80, true);
+                    for (std::list<Unit*>::iterator i = pTargets.begin(); i != pTargets.end(); ++i)
                         m_creature->CastSpell(*i, 39835, true);
-                    events.ScheduleEvent(EVENT_NEEDLE, 15000+rand()%10000, GCD_CAST);
+                    events.ScheduleEvent(EVENT_NEEDLE, urand(15000,25000), GCD_CAST);
                     events.DelayEvents(1500, GCD_CAST);
                     return;
                 }
                 case EVENT_YELL:
-                    DoScriptText(rand()%2 ? SAY_SPECIAL1 : SAY_SPECIAL2, m_creature);
-                    events.ScheduleEvent(EVENT_YELL, 25000 + (rand()%76)*1000, GCD_YELL);
+                    DoScriptText(RAND(SAY_SPECIAL1, SAY_SPECIAL2), m_creature);
+                    events.ScheduleEvent(EVENT_YELL, urand(25000,100000), GCD_YELL);
                     events.DelayEvents(15000, GCD_YELL);
                     break;
             }

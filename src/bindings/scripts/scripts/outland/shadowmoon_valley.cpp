@@ -113,7 +113,7 @@ struct TRINITY_DLL_DECL mob_mature_netherwing_drakeAI : public ScriptedAI
     {
         if (bCanEat || bIsEating)
         {
-            if (EatTimer < diff)
+            if (EatTimer <= diff)
             {
                 if (bCanEat && !bIsEating)
                 {
@@ -158,11 +158,11 @@ struct TRINITY_DLL_DECL mob_mature_netherwing_drakeAI : public ScriptedAI
         if (!UpdateVictim())
             return;
 
-        if (CastTimer < diff)
+        if (CastTimer <= diff)
         {
             DoCast(m_creature->getVictim(), SPELL_NETHER_BREATH);
             CastTimer = 5000;
-        }else CastTimer -= diff;
+        } else CastTimer -= diff;
 
         DoMeleeAttackIfReady();
     }
@@ -263,7 +263,7 @@ struct TRINITY_DLL_DECL mob_enslaved_netherwing_drakeAI : public ScriptedAI
         if (!UpdateVictim())
         {
             if (Tapped)
-                if (FlyTimer < diff)
+                if (FlyTimer <= diff)
             {
                 Tapped = false;
                 if (PlayerGUID)
@@ -293,7 +293,7 @@ struct TRINITY_DLL_DECL mob_enslaved_netherwing_drakeAI : public ScriptedAI
                         m_creature->GetMotionMaster()->MovePoint(1, pos);
                     }
                 }
-            }else FlyTimer -= diff;
+            } else FlyTimer -= diff;
             return;
         }
 
@@ -368,7 +368,7 @@ struct TRINITY_DLL_DECL mob_dragonmaw_peonAI : public ScriptedAI
             }
             PoisonTimer = 0;
             m_creature->DealDamage(m_creature, m_creature->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
-        }else PoisonTimer -= diff;
+        } else PoisonTimer -= diff;
     }
 };
 
@@ -827,7 +827,7 @@ struct TRINITY_DLL_DECL npc_overlord_morghorAI : public ScriptedAI
             {
                 ConversationTimer = NextStep(++Step);
             }
-        }else ConversationTimer -= diff;
+        } else ConversationTimer -= diff;
     }
 };
 
@@ -989,7 +989,7 @@ struct TRINITY_DLL_DECL npc_earthmender_wildaAI : public npc_escortAI
         //TODO: add more abilities
         if (m_creature->GetHealth()*100 / m_creature->GetMaxHealth() <= 30)
         {
-            if (m_uiHealingTimer < uiDiff)
+            if (m_uiHealingTimer <= uiDiff)
             {
                 DoCast(m_creature, SPELL_HEALING_WAVE);
                 m_uiHealingTimer = 15000;
@@ -1162,53 +1162,53 @@ struct TRINITY_DLL_DECL mob_illidari_spawnAI : public ScriptedAI
         //Illidari Soldier
         if (m_creature->GetEntry() == 22075)
         {
-            if (SpellTimer1 < diff)
+            if (SpellTimer1 <= diff)
             {
                 DoCast(m_creature->getVictim(), SpawnCast[0].SpellId);//Spellbreaker
                 SpellTimer1 = SpawnCast[0].Timer2 + (rand()%5 * 1000);
-            }else SpellTimer1 -= diff;
+            } else SpellTimer1 -= diff;
         }
         //Illidari Mind Breaker
         if (m_creature->GetEntry() == 22074)
         {
-            if (SpellTimer1 < diff)
+            if (SpellTimer1 <= diff)
             {
-                if (Unit *target = SelectUnit(SELECT_TARGET_RANDOM,0))
+                if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM,0))
                 {
-                    if (target->GetTypeId() == TYPEID_PLAYER)
+                    if (pTarget->GetTypeId() == TYPEID_PLAYER)
                     {
-                        DoCast(target, SpawnCast[1].SpellId); //Focused Bursts
+                        DoCast(pTarget, SpawnCast[1].SpellId); //Focused Bursts
                         SpellTimer1 = SpawnCast[1].Timer2 + (rand()%5 * 1000);
-                    }else SpellTimer1 = 2000;
+                    } else SpellTimer1 = 2000;
                 }
-            }else SpellTimer1 -= diff;
+            } else SpellTimer1 -= diff;
 
-            if (SpellTimer2 < diff)
+            if (SpellTimer2 <= diff)
             {
                 DoCast(m_creature->getVictim(), SpawnCast[2].SpellId);//Psychic Scream
                 SpellTimer2 = SpawnCast[2].Timer2 + (rand()%13 * 1000);
-            }else SpellTimer2 -= diff;
+            } else SpellTimer2 -= diff;
 
-            if (SpellTimer3 < diff)
+            if (SpellTimer3 <= diff)
             {
                 DoCast(m_creature->getVictim(), SpawnCast[3].SpellId);//Mind Blast
                 SpellTimer3 = SpawnCast[3].Timer2 + (rand()%8 * 1000);
-            }else SpellTimer3 -= diff;
+            } else SpellTimer3 -= diff;
         }
         //Illidari Highlord
         if (m_creature->GetEntry() == 19797)
         {
-            if (SpellTimer1 < diff)
+            if (SpellTimer1 <= diff)
             {
                 DoCast(m_creature->getVictim(), SpawnCast[4].SpellId);//Curse Of Flames
                 SpellTimer1 = SpawnCast[4].Timer2 + (rand()%10 * 1000);
-            }else SpellTimer1 -= diff;
+            } else SpellTimer1 -= diff;
 
-            if (SpellTimer2 < diff)
+            if (SpellTimer2 <= diff)
             {
                 DoCast(m_creature->getVictim(), SpawnCast[5].SpellId);//Flamestrike
                 SpellTimer2 = SpawnCast[5].Timer2 + (rand()%7 * 13000);
-            }else SpellTimer2 -= diff;
+            } else SpellTimer2 -= diff;
         }
 
         DoMeleeAttackIfReady();
@@ -1302,13 +1302,13 @@ struct TRINITY_DLL_DECL mob_torloth_the_magnificentAI : public ScriptedAI
             if (AnimationTimer <= diff)
             {
                 HandleAnimation();
-            }else AnimationTimer -= diff;
+            } else AnimationTimer -= diff;
         }
 
         if (AnimationCount < 6)
         {
             m_creature->CombatStop();
-        }else if (!Timers)
+        } else if (!Timers)
         {
 
             SpellTimer1 = SpawnCast[6].Timer1;
@@ -1319,23 +1319,23 @@ struct TRINITY_DLL_DECL mob_torloth_the_magnificentAI : public ScriptedAI
 
         if (Timers)
         {
-            if (SpellTimer1 < diff)
+            if (SpellTimer1 <= diff)
             {
                 DoCast(m_creature->getVictim(), SpawnCast[6].SpellId);//Cleave
                 SpellTimer1 = SpawnCast[6].Timer2 + (rand()%10 * 1000);
-            }else SpellTimer1 -= diff;
+            } else SpellTimer1 -= diff;
 
-            if (SpellTimer2 < diff)
+            if (SpellTimer2 <= diff)
             {
                 DoCast(m_creature->getVictim(), SpawnCast[7].SpellId);//Shadowfury
                 SpellTimer2 = SpawnCast[7].Timer2 + (rand()%5 * 1000);
-            }else SpellTimer2 -= diff;
+            } else SpellTimer2 -= diff;
 
-            if (SpellTimer3 < diff)
+            if (SpellTimer3 <= diff)
             {
                 DoCast(m_creature, SpawnCast[8].SpellId);
                 SpellTimer3 = SpawnCast[8].Timer2 + (rand()%7 * 1000);//Spell Reflection
-            }else SpellTimer3 -= diff;
+            } else SpellTimer3 -= diff;
         }
 
         DoMeleeAttackIfReady();
@@ -1528,7 +1528,7 @@ struct TRINITY_DLL_DECL npc_lord_illidan_stormrageAI : public ScriptedAI
                 }
                 Failed = true;
             }
-        }else if (pPlayer->isDead() || !pPlayer->IsWithinDistInMap(m_creature, EVENT_AREA_RADIUS))
+        } else if (pPlayer->isDead() || !pPlayer->IsWithinDistInMap(m_creature, EVENT_AREA_RADIUS))
         {
             pPlayer->FailQuest(QUEST_BATTLE_OF_THE_CRIMSON_WATCH);
             Failed = true;
@@ -1549,16 +1549,16 @@ struct TRINITY_DLL_DECL npc_lord_illidan_stormrageAI : public ScriptedAI
 
         if (!LiveCount && WaveCount < 4)
         {
-            if (!Announced && AnnounceTimer < diff)
+            if (!Announced && AnnounceTimer <= diff)
             {
                 DoScriptText(WavesInfo[WaveCount].WaveTextId, m_creature);
                 Announced = true;
-            }else AnnounceTimer -= diff;
+            } else AnnounceTimer -= diff;
 
-            if (WaveTimer < diff)
+            if (WaveTimer <= diff)
             {
                 SummonNextWave();
-            }else WaveTimer -= diff;
+            } else WaveTimer -= diff;
         }
         CheckEventFail();
 

@@ -75,31 +75,31 @@ struct TRINITY_DLL_DECL boss_instructormaliciaAI : public ScriptedAI
             return;
 
         //CallOfGraves_Timer
-        if (CallOfGraves_Timer < diff)
+        if (CallOfGraves_Timer <= diff)
         {
             DoCast(m_creature->getVictim(),SPELL_CALLOFGRAVES);
             CallOfGraves_Timer = 65000;
-        }else CallOfGraves_Timer -= diff;
+        } else CallOfGraves_Timer -= diff;
 
         //Corruption_Timer
-        if (Corruption_Timer < diff)
+        if (Corruption_Timer <= diff)
         {
-            Unit* target = NULL;
-            target = SelectUnit(SELECT_TARGET_RANDOM,0);
-            if (target) DoCast(target,SPELL_CORRUPTION);
+            Unit *pTarget = NULL;
+            pTarget = SelectUnit(SELECT_TARGET_RANDOM,0);
+            if (pTarget) DoCast(pTarget,SPELL_CORRUPTION);
 
             Corruption_Timer = 24000;
-        }else Corruption_Timer -= diff;
+        } else Corruption_Timer -= diff;
 
         //Renew_Timer
-        if (Renew_Timer < diff)
+        if (Renew_Timer <= diff)
         {
             DoCast(m_creature, SPELL_RENEW);
             Renew_Timer = 10000;
-        }else Renew_Timer -= diff;
+        } else Renew_Timer -= diff;
 
         //FlashHeal_Timer
-        if (FlashHeal_Timer < diff)
+        if (FlashHeal_Timer <= diff)
         {
             DoCast(m_creature,SPELL_FLASHHEAL);
 
@@ -114,10 +114,10 @@ struct TRINITY_DLL_DECL boss_instructormaliciaAI : public ScriptedAI
                 FlashCounter=0;
                 FlashHeal_Timer = 30000;
             }
-        }else FlashHeal_Timer -= diff;
+        } else FlashHeal_Timer -= diff;
 
         //HealingTouch_Timer
-        if (HealingTouch_Timer < diff)
+        if (HealingTouch_Timer <= diff)
         {
             DoCast(m_creature,SPELL_HEALINGTOUCH);
 
@@ -132,7 +132,7 @@ struct TRINITY_DLL_DECL boss_instructormaliciaAI : public ScriptedAI
                 TouchCounter=0;
                 HealingTouch_Timer = 30000;
             }
-        }else HealingTouch_Timer -= diff;
+        } else HealingTouch_Timer -= diff;
 
         DoMeleeAttackIfReady();
     }

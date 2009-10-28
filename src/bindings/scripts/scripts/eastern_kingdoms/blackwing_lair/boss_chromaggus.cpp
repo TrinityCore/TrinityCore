@@ -62,8 +62,7 @@ struct TRINITY_DLL_DECL boss_chromaggusAI : public ScriptedAI
         //5 possiblities for the first breath, 4 for the second, 20 total possiblites
         //This way we don't end up casting 2 of the same breath
         //TL TL would be stupid
-        srand(time(NULL));
-        switch (rand()%20)
+        switch (urand(0,19))
         {
             //B1 - Incin
             case 0:
@@ -240,15 +239,15 @@ struct TRINITY_DLL_DECL boss_chromaggusAI : public ScriptedAI
                     //Cast affliction
                     DoCast(pUnit, SpellAfflict, true);
 
-                    //Chromatic mutation if target is effected by all afflictions
+                    //Chromatic mutation if pTarget is effected by all afflictions
                     if (pUnit->HasAura(SPELL_BROODAF_BLUE)
                         && pUnit->HasAura(SPELL_BROODAF_BLACK)
                         && pUnit->HasAura(SPELL_BROODAF_RED)
                         && pUnit->HasAura(SPELL_BROODAF_BRONZE)
                         && pUnit->HasAura(SPELL_BROODAF_GREEN))
                     {
-                        //target->RemoveAllAuras();
-                        //DoCast(target,SPELL_CHROMATIC_MUT_1);
+                        //pTarget->RemoveAllAuras();
+                        //DoCast(pTarget,SPELL_CHROMATIC_MUT_1);
 
                         //Chromatic mutation is causing issues
                         //Assuming it is caused by a lack of core support for Charm

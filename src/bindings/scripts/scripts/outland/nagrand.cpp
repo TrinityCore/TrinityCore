@@ -161,7 +161,7 @@ struct TRINITY_DLL_DECL mob_lumpAI : public ScriptedAI
         //check if we waiting for a reset
         if (bReset)
         {
-            if (Reset_Timer < diff)
+            if (Reset_Timer <= diff)
             {
                 EnterEvadeMode();
                 bReset = false;
@@ -176,11 +176,11 @@ struct TRINITY_DLL_DECL mob_lumpAI : public ScriptedAI
             return;
 
         //Spear_Throw_Timer
-        if (Spear_Throw_Timer < diff)
+        if (Spear_Throw_Timer <= diff)
         {
             DoCast(m_creature->getVictim(), SPELL_SPEAR_THROW);
             Spear_Throw_Timer = 20000;
-        }else Spear_Throw_Timer -= diff;
+        } else Spear_Throw_Timer -= diff;
 
         DoMeleeAttackIfReady();
     }
@@ -625,7 +625,7 @@ struct TRINITY_DLL_DECL npc_maghar_captiveAI : public npc_escortAI
         if (/*!m_creature->SelectHostilTarget() ||*/ !m_creature->getVictim())
             return;
 
-        if (m_uiChainLightningTimer < uiDiff)
+        if (m_uiChainLightningTimer <= uiDiff)
         {
             DoCast(m_creature->getVictim(), SPELL_CHAIN_LIGHTNING);
             m_uiChainLightningTimer = urand(7000, 14000);
@@ -635,7 +635,7 @@ struct TRINITY_DLL_DECL npc_maghar_captiveAI : public npc_escortAI
 
         if (m_creature->GetHealth()*100 < m_creature->GetMaxHealth()*30)
         {
-            if (m_uiHealTimer < uiDiff)
+            if (m_uiHealTimer <= uiDiff)
             {
                 DoCast(m_creature, SPELL_HEALING_WAVE);
                 m_uiHealTimer = 5000;
@@ -644,7 +644,7 @@ struct TRINITY_DLL_DECL npc_maghar_captiveAI : public npc_escortAI
                 m_uiHealTimer -= uiDiff;
         }
 
-        if (m_uiFrostShockTimer < uiDiff)
+        if (m_uiFrostShockTimer <= uiDiff)
         {
             DoCast(m_creature->getVictim(), SPELL_FROST_SHOCK);
             m_uiFrostShockTimer = urand(7500, 15000);
@@ -769,7 +769,7 @@ struct TRINITY_DLL_DECL mob_sparrowhawkAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
-        if (Check_Timer < diff)
+        if (Check_Timer <= diff)
         {
             if (PlayerGUID)
             {

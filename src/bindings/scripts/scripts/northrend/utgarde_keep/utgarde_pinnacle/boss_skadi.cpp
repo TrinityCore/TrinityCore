@@ -21,7 +21,7 @@ update creature_template set scriptname = 'boss_skadi' where entry = '';
 #define H_SPELL_CRUSH                            59330
 #define SPELL_POISONED_SPEAR                     50225
 #define H_SPELL_POISONED_SPEAR                   59331
-#define SPELL_WHIRLWIND                          50228 //random target,  but not the tank approx. every 20s
+#define SPELL_WHIRLWIND                          50228 //random pTarget,  but not the tank approx. every 20s
 #define H_SPELL_WHIRLWIND                        59332
 
 //Spawned creatures
@@ -124,7 +124,7 @@ struct TRINITY_DLL_DECL boss_skadiAI : public ScriptedAI
         switch(Phase)
         {
             case FLYING:
-                if (uiMovementTimer < diff)
+                if (uiMovementTimer <= diff)
                 {
                     switch(uiWaypointId)
                     {
@@ -147,20 +147,20 @@ struct TRINITY_DLL_DECL boss_skadiAI : public ScriptedAI
                 if (!UpdateVictim())
                     return;
 
-                if (uiCrushTimer < diff)
+                if (uiCrushTimer <= diff)
                 {
                     DoCast(m_creature->getVictim(), HEROIC(SPELL_CRUSH, H_SPELL_CRUSH));
                     uiCrushTimer = 8000;
                 } else uiCrushTimer -= diff;
 
-                if (uiPoisonedSpearTimer < diff)
+                if (uiPoisonedSpearTimer <= diff)
                 {
                     if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM,0,100,true))
                         DoCast(pTarget, HEROIC(SPELL_POISONED_SPEAR, H_SPELL_POISONED_SPEAR));
                     uiPoisonedSpearTimer = 10000;
                 } else uiPoisonedSpearTimer -= diff;
 
-                if (uiWhirlwindTimer < diff)
+                if (uiWhirlwindTimer <= diff)
                 {
                     if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM,0,100,true))
                         m_creature->CastSpell(pTarget, HEROIC(SPELL_WHIRLWIND, H_SPELL_WHIRLWIND), false);

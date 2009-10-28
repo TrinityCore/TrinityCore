@@ -85,9 +85,9 @@ struct TRINITY_DLL_DECL boss_gythAI : public ScriptedAI
         Unit* Summoned = m_creature->SummonCreature(creatureId, m_creature->GetPositionX(), m_creature->GetPositionY(), m_creature->GetPositionZ(), 0, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 240000);
         if (Summoned)
         {
-            Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0);
-            if (target)
-                Summoned->AddThreat(target, 1.0f);
+            Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0);
+            if (pTarget)
+                Summoned->AddThreat(pTarget, 1.0f);
         }
     }
 

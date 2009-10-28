@@ -136,7 +136,7 @@ struct TRINITY_DLL_DECL boss_ragnarosAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
-        if (WasBanished && Attack_Timer < diff)
+        if (WasBanished && Attack_Timer <= diff)
         {
             //Become unbanished again
             m_creature->setFaction(14);
@@ -155,54 +155,50 @@ struct TRINITY_DLL_DECL boss_ragnarosAI : public ScriptedAI
             return;
 
         //WrathOfRagnaros_Timer
-        if (WrathOfRagnaros_Timer < diff)
+        if (WrathOfRagnaros_Timer <= diff)
         {
             DoCast(m_creature->getVictim(),SPELL_WRATHOFRAGNAROS);
 
-            if (rand()%2 == 0)
-            {
+            if (urand(0,1))
                 DoScriptText(SAY_WRATH, m_creature);
-            }
 
             WrathOfRagnaros_Timer = 30000;
-        }else WrathOfRagnaros_Timer -= diff;
+        } else WrathOfRagnaros_Timer -= diff;
 
         //HandOfRagnaros_Timer
-        if (HandOfRagnaros_Timer < diff)
+        if (HandOfRagnaros_Timer <= diff)
         {
             DoCast(m_creature,SPELL_HANDOFRAGNAROS);
 
-            if (rand()%2==0)
-            {
+            if (urand(0,1))
                 DoScriptText(SAY_HAND, m_creature);
-            }
 
             HandOfRagnaros_Timer = 25000;
-        }else HandOfRagnaros_Timer -= diff;
+        } else HandOfRagnaros_Timer -= diff;
 
         //LavaBurst_Timer
-        if (LavaBurst_Timer < diff)
+        if (LavaBurst_Timer <= diff)
         {
             DoCast(m_creature->getVictim(),SPELL_LAVABURST);
             LavaBurst_Timer = 10000;
-        }else LavaBurst_Timer -= diff;
+        } else LavaBurst_Timer -= diff;
 
         //Erruption_Timer
-        if (LavaBurst_Timer < diff)
+        if (LavaBurst_Timer <= diff)
         {
             DoCast(m_creature->getVictim(),SPELL_ERRUPTION);
-            Erruption_Timer = 20000 + rand()%25000;
-        }else Erruption_Timer -= diff;
+            Erruption_Timer = urand(20000,45000);
+        } else Erruption_Timer -= diff;
 
         //ElementalFire_Timer
-        if (ElementalFire_Timer < diff)
+        if (ElementalFire_Timer <= diff)
         {
             DoCast(m_creature->getVictim(),SPELL_ELEMENTALFIRE);
-            ElementalFire_Timer = 10000 + rand()%4000;
-        }else ElementalFire_Timer -= diff;
+            ElementalFire_Timer = urand(10000,14000);
+        } else ElementalFire_Timer -= diff;
 
         //Submerge_Timer
-        if (!WasBanished && Submerge_Timer < diff)
+        if (!WasBanished && Submerge_Timer <= diff)
         {
             //Creature spawning and ragnaros becomming unattackable
             //is not very well supported in the core
@@ -254,7 +250,7 @@ struct TRINITY_DLL_DECL boss_ragnarosAI : public ScriptedAI
             }
 
             Submerge_Timer = 180000;
-        }else Submerge_Timer -= diff;
+        } else Submerge_Timer -= diff;
 
         //If we are within range melee the target
         if (m_creature->IsWithinMeleeRange(m_creature->getVictim()))
@@ -269,7 +265,7 @@ struct TRINITY_DLL_DECL boss_ragnarosAI : public ScriptedAI
         else
         {
             //MagmaBurst_Timer
-            if (MagmaBurst_Timer < diff)
+            if (MagmaBurst_Timer <= diff)
             {
                 DoCast(m_creature->getVictim(),SPELL_MAGMABURST);
 
@@ -281,7 +277,7 @@ struct TRINITY_DLL_DECL boss_ragnarosAI : public ScriptedAI
                 }
 
                 MagmaBurst_Timer = 2500;
-            }else MagmaBurst_Timer -= diff;
+            } else MagmaBurst_Timer -= diff;
         }
     }
 };

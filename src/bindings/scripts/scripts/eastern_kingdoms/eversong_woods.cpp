@@ -227,16 +227,16 @@ struct TRINITY_DLL_DECL npc_secondTrialAI : public ScriptedAI
     void UpdateAI(const uint32 diff)
     {
         if (questPhase == 1)
-            if (timer < diff)
+            if (timer <= diff)
             {
                 m_creature->SetUInt32Value(UNIT_FIELD_BYTES_1, UNIT_STAND_STATE_STAND);
                 m_creature->setFaction(FACTION_HOSTILE);
                 questPhase = 0;
 
-                if (Unit *target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                 {
-                    m_creature->AddThreat(target, 5000000.0f);
-                    AttackStart(target);
+                    m_creature->AddThreat(pTarget, 5000000.0f);
+                    AttackStart(pTarget);
                 }
             }
             else
@@ -248,7 +248,7 @@ struct TRINITY_DLL_DECL npc_secondTrialAI : public ScriptedAI
         // healer
         if (spellFlashLight)
             if (m_creature->GetHealth()*100 / m_creature->GetMaxHealth() < 70)
-                if (timerFlashLight < diff)
+                if (timerFlashLight <= diff)
                 {
                     DoCast(m_creature, SPELL_FLASH_OF_LIGHT);
                     timerFlashLight = TIMER_FLASH_OF_LIGHT +  rand()%TIMER_FLASH_OF_LIGHT;
@@ -257,7 +257,7 @@ struct TRINITY_DLL_DECL npc_secondTrialAI : public ScriptedAI
                     timerFlashLight -= diff;
 
         if (spellJustice)
-            if (timerJustice < diff)
+            if (timerJustice <= diff)
             {
                 DoCast(m_creature, SPELL_SEAL_OF_JUSTICE);
                 timerJustice = TIMER_SEAL_OF_JUSTICE + rand()%TIMER_SEAL_OF_JUSTICE;
@@ -266,7 +266,7 @@ struct TRINITY_DLL_DECL npc_secondTrialAI : public ScriptedAI
                 timerJustice -= diff;
 
         if (spellJudLight)
-            if (timerJudLight < diff)
+            if (timerJudLight <= diff)
             {
                 DoCast(m_creature,  SPELL_JUDGEMENT_OF_LIGHT);
                 timerJudLight = TIMER_JUDGEMENT_OF_LIGHT + rand()%TIMER_JUDGEMENT_OF_LIGHT;
@@ -275,7 +275,7 @@ struct TRINITY_DLL_DECL npc_secondTrialAI : public ScriptedAI
                 timerJudLight -= diff;
 
           if (spellCommand)
-              if (timerCommand < diff)
+              if (timerCommand <= diff)
               {
                   DoCast(m_creature,  TIMER_SEAL_OF_COMMAND);
                   timerCommand = TIMER_SEAL_OF_COMMAND + rand()%TIMER_SEAL_OF_COMMAND;
@@ -321,7 +321,7 @@ struct TRINITY_DLL_DECL master_kelerun_bloodmournAI : public ScriptedAI
         // Quest accepted but object not activated, object despawned (if in sync 1 minute!)
         if (questPhase == 1)
         {
-            if (timer < diff)
+            if (timer <= diff)
             Reset();
             else
             timer -= diff;
@@ -329,7 +329,7 @@ struct TRINITY_DLL_DECL master_kelerun_bloodmournAI : public ScriptedAI
         // fight the 4 paladin mobs phase
         else if (questPhase == 2)
         {
-            if (timer < diff)
+            if (timer <= diff)
             {
                 if (Creature* paladinSpawn = Unit::GetCreature((*m_creature), paladinGuid[paladinPhase]))
                 {
@@ -658,7 +658,7 @@ struct TRINITY_DLL_DECL npc_infused_crystalAI : public Scripted_NoMovementAI
             m_creature->SummonCreature(MOB_ENRAGED_WRAITH, SpawnLocations[ran2].x, SpawnLocations[ran2].y, SpawnLocations[ran2].z, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 10000);
             m_creature->SummonCreature(MOB_ENRAGED_WRAITH, SpawnLocations[ran3].x, SpawnLocations[ran3].y, SpawnLocations[ran3].z, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 10000);
             WaveTimer = 30000;
-        }else WaveTimer -= diff;
+        } else WaveTimer -= diff;
     }
 };
 

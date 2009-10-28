@@ -17,7 +17,7 @@
 /* ScriptData
 SDName: mob_anubisath_sentinel
 SD%Complete: 95
-SDComment: Shadow storm is not properly implemented in core it should only target ppl outside of melee range.
+SDComment: Shadow storm is not properly implemented in core it should only pTarget ppl outside of melee range.
 SDCategory: Temple of Ahn'Qiraj
 EndScriptData */
 

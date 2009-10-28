@@ -78,7 +78,7 @@ struct TRINITY_DLL_DECL boss_magistrate_barthilasAI : public ScriptedAI
         if (!UpdateVictim())
             return;
 
-        if (FuriousAnger_Timer < diff)
+        if (FuriousAnger_Timer <= diff)
         {
             FuriousAnger_Timer = 4000;
             if (AngerCount > 25)
@@ -86,28 +86,28 @@ struct TRINITY_DLL_DECL boss_magistrate_barthilasAI : public ScriptedAI
 
             ++AngerCount;
             m_creature->CastSpell(m_creature,SPELL_FURIOUS_ANGER,false);
-        }else FuriousAnger_Timer -= diff;
+        } else FuriousAnger_Timer -= diff;
 
         //DrainingBlow
-        if (DrainingBlow_Timer < diff)
+        if (DrainingBlow_Timer <= diff)
         {
             DoCast(m_creature->getVictim(),SPELL_DRAININGBLOW);
             DrainingBlow_Timer = 15000;
-        }else DrainingBlow_Timer -= diff;
+        } else DrainingBlow_Timer -= diff;
 
         //CrowdPummel
-        if (CrowdPummel_Timer < diff)
+        if (CrowdPummel_Timer <= diff)
         {
             DoCast(m_creature->getVictim(),SPELL_CROWDPUMMEL);
             CrowdPummel_Timer = 15000;
-        }else CrowdPummel_Timer -= diff;
+        } else CrowdPummel_Timer -= diff;
 
         //MightyBlow
-        if (MightyBlow_Timer < diff)
+        if (MightyBlow_Timer <= diff)
         {
             DoCast(m_creature->getVictim(),SPELL_MIGHTYBLOW);
             MightyBlow_Timer = 20000;
-        }else MightyBlow_Timer -= diff;
+        } else MightyBlow_Timer -= diff;
 
         DoMeleeAttackIfReady();
     }

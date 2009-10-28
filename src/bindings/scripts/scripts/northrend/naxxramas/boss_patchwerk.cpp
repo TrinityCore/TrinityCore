@@ -103,11 +103,11 @@ struct TRINITY_DLL_DECL boss_patchwerkAI : public BossAI
                     std::list<HostilReference*>::iterator i = me->getThreatManager().getThreatList().begin();
                     for (; i != me->getThreatManager().getThreatList().end(); ++i)
                     {
-                        Unit* target = (*i)->getTarget();
-                        if (target->isAlive() && target->GetHealth() > MostHP && me->IsWithinMeleeRange(target))
+                        Unit *pTarget = (*i)->getTarget();
+                        if (pTarget->isAlive() && pTarget->GetHealth() > MostHP && me->IsWithinMeleeRange(pTarget))
                         {
-                            MostHP = target->GetHealth();
-                            pMostHPTarget = target;
+                            MostHP = pTarget->GetHealth();
+                            pMostHPTarget = pTarget;
                         }
                     }
 

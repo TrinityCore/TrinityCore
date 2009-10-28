@@ -61,19 +61,19 @@ struct TRINITY_DLL_DECL boss_eckAI : public ScriptedAI
         if (!UpdateVictim())
             return;
 
-        if (uiBiteTimer < diff)
+        if (uiBiteTimer <= diff)
         {
             DoCast(m_creature->getVictim(),SPELL_ECK_BITE);
             uiBiteTimer = 8000 + rand()%4000;
         } else uiBiteTimer -= diff;
 
-        if (uiSpitTimer < diff)
+        if (uiSpitTimer <= diff)
         {
             DoCast(m_creature->getVictim(),SPELL_ECK_SPIT);
             uiSpitTimer = 6000 + rand()%8000;
         } else uiSpitTimer -= diff;
 
-        if (uiSpringTimer < diff)
+        if (uiSpringTimer <= diff)
         {
             Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM,1);
             if(pTarget && pTarget->GetTypeId() == TYPEID_PLAYER)
@@ -86,7 +86,7 @@ struct TRINITY_DLL_DECL boss_eckAI : public ScriptedAI
         //Berserk on timer or 20% of health
         if (!bBerserk)
         {
-            if (uiBerserkTimer < diff)
+            if (uiBerserkTimer <= diff)
             {
                 DoCast(m_creature,SPELL_ECK_BERSERK);
                 bBerserk = true;

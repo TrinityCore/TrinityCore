@@ -53,38 +53,38 @@ struct TRINITY_DLL_DECL boss_hazzarahAI : public ScriptedAI
             return;
 
         //ManaBurn_Timer
-        if (ManaBurn_Timer < diff)
+        if (ManaBurn_Timer <= diff)
         {
             DoCast(m_creature->getVictim(),SPELL_MANABURN);
             ManaBurn_Timer = 8000 + rand()%8000;
-        }else ManaBurn_Timer -= diff;
+        } else ManaBurn_Timer -= diff;
 
         //Sleep_Timer
-        if (Sleep_Timer < diff)
+        if (Sleep_Timer <= diff)
         {
             DoCast(m_creature->getVictim(),SPELL_SLEEP);
             Sleep_Timer = 12000 + rand()%8000;
-        }else Sleep_Timer -= diff;
+        } else Sleep_Timer -= diff;
 
         //Illusions_Timer
-        if (Illusions_Timer < diff)
+        if (Illusions_Timer <= diff)
         {
             //We will summon 3 illusions that will spawn on a random gamer and attack this gamer
             //We will just use one model for the beginning
-            Unit* target = NULL;
+            Unit *pTarget = NULL;
             for (uint8 i = 0; i < 3; ++i)
             {
-                target = SelectUnit(SELECT_TARGET_RANDOM,0);
-                if (!target)
+                pTarget = SelectUnit(SELECT_TARGET_RANDOM,0);
+                if (!pTarget)
                     return;
 
-                Illusion = m_creature->SummonCreature(15163,target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(),0,TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN,30000);
+                Illusion = m_creature->SummonCreature(15163,pTarget->GetPositionX(), pTarget->GetPositionY(), pTarget->GetPositionZ(),0,TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN,30000);
                 if (Illusion)
-                    (Illusion->AI())->AttackStart(target);
+                    Illusion->AI()->AttackStart(pTarget);
             }
 
             Illusions_Timer = 15000 + rand()%10000;
-        }else Illusions_Timer -= diff;
+        } else Illusions_Timer -= diff;
 
         DoMeleeAttackIfReady();
     }

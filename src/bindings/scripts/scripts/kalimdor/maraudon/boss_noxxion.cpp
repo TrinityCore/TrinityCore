@@ -35,10 +35,6 @@ struct TRINITY_DLL_DECL boss_noxxionAI : public ScriptedAI
     uint32 Adds_Timer;
     uint32 Invisible_Timer;
     bool Invisible;
-    int Rand;
-    int RandX;
-    int RandY;
-    Creature* Summoned;
 
     void Reset()
     {
@@ -53,30 +49,15 @@ struct TRINITY_DLL_DECL boss_noxxionAI : public ScriptedAI
     {
     }
 
-    void SummonAdds(Unit* victim)
+    void SummonAdds(Unit* pVictim)
     {
-        Rand = rand()%8;
-        switch (rand()%2)
-        {
-            case 0: RandX = 0 - Rand; break;
-            case 1: RandX = 0 + Rand; break;
-        }
-        Rand = 0;
-        Rand = rand()%8;
-        switch (rand()%2)
-        {
-            case 0: RandY = 0 - Rand; break;
-            case 1: RandY = 0 + Rand; break;
-        }
-        Rand = 0;
-        Summoned = DoSpawnCreature(13456, RandX, RandY, 0, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 90000);
-        if (Summoned)
-            (Summoned->AI())->AttackStart(victim);
+        if (Creature *Add = DoSpawnCreature(13456, RAND(irand(0,-7),irand(0,7)), RAND(irand(0,-7),irand(0,7)), 0, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 90000))
+            Add->AI()->AttackStart(pVictim);
     }
 
     void UpdateAI(const uint32 diff)
     {
-        if (Invisible && Invisible_Timer < diff)
+        if (Invisible && Invisible_Timer <= diff)
         {
             //Become visible again
             m_creature->setFaction(14);
@@ -97,21 +78,21 @@ struct TRINITY_DLL_DECL boss_noxxionAI : public ScriptedAI
             return;
 
         //ToxicVolley_Timer
-        if (ToxicVolley_Timer < diff)
+        if (ToxicVolley_Timer <= diff)
         {
             DoCast(m_creature->getVictim(),SPELL_TOXICVOLLEY);
             ToxicVolley_Timer = 9000;
-        }else ToxicVolley_Timer -= diff;
+        } else ToxicVolley_Timer -= diff;
 
         //Uppercut_Timer
-        if (Uppercut_Timer < diff)
+        if (Uppercut_Timer <= diff)
         {
             DoCast(m_creature->getVictim(),SPELL_UPPERCUT);
             Uppercut_Timer = 12000;
-        }else Uppercut_Timer -= diff;
+        } else Uppercut_Timer -= diff;
 
         //Adds_Timer
-        if (!Invisible && Adds_Timer < diff)
+        if (!Invisible && Adds_Timer <= diff)
         {
             //Inturrupt any spell casting
             //m_creature->m_canMove = true;
@@ -129,7 +110,7 @@ struct TRINITY_DLL_DECL boss_noxxionAI : public ScriptedAI
             Invisible_Timer = 15000;
 
             Adds_Timer = 40000;
-        }else Adds_Timer -= diff;
+        } else Adds_Timer -= diff;
 
         DoMeleeAttackIfReady();
     }

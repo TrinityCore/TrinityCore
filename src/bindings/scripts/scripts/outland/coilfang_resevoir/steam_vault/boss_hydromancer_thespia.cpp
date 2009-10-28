@@ -93,36 +93,36 @@ struct TRINITY_DLL_DECL boss_thespiaAI : public ScriptedAI
             return;
 
         //LightningCloud_Timer
-        if (LightningCloud_Timer < diff)
+        if (LightningCloud_Timer <= diff)
         {
             //cast twice in Heroic mode
-            if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM,0))
-                DoCast(target, SPELL_LIGHTNING_CLOUD);
+            if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM,0))
+                DoCast(pTarget, SPELL_LIGHTNING_CLOUD);
             if (HeroicMode)
-                if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM,0))
-                    DoCast(target, SPELL_LIGHTNING_CLOUD);
+                if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM,0))
+                    DoCast(pTarget, SPELL_LIGHTNING_CLOUD);
             LightningCloud_Timer = 15000+rand()%10000;
-        }else LightningCloud_Timer -=diff;
+        } else LightningCloud_Timer -=diff;
 
         //LungBurst_Timer
-        if (LungBurst_Timer < diff)
+        if (LungBurst_Timer <= diff)
         {
-            if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM,0))
-                DoCast(target, SPELL_LUNG_BURST);
+            if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM,0))
+                DoCast(pTarget, SPELL_LUNG_BURST);
             LungBurst_Timer = 7000+rand()%5000;
-        }else LungBurst_Timer -=diff;
+        } else LungBurst_Timer -=diff;
 
         //EnvelopingWinds_Timer
-        if (EnvelopingWinds_Timer < diff)
+        if (EnvelopingWinds_Timer <= diff)
         {
             //cast twice in Heroic mode
-            if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM,0))
-                DoCast(target, SPELL_ENVELOPING_WINDS);
+            if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM,0))
+                DoCast(pTarget, SPELL_ENVELOPING_WINDS);
             if (HeroicMode)
-                if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM,0))
-                    DoCast(target, SPELL_ENVELOPING_WINDS);
+                if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM,0))
+                    DoCast(pTarget, SPELL_ENVELOPING_WINDS);
             EnvelopingWinds_Timer = 10000+rand()%5000;
-        }else EnvelopingWinds_Timer -=diff;
+        } else EnvelopingWinds_Timer -=diff;
 
         DoMeleeAttackIfReady();
     }
@@ -151,11 +151,11 @@ struct TRINITY_DLL_DECL mob_coilfang_waterelementalAI : public ScriptedAI
         if (!UpdateVictim())
             return;
 
-        if (WaterBoltVolley_Timer < diff)
+        if (WaterBoltVolley_Timer <= diff)
         {
             DoCast(m_creature, HEROIC(SPELL_WATER_BOLT_VOLLEY, H_SPELL_WATER_BOLT_VOLLEY));
             WaterBoltVolley_Timer = 7000+rand()%5000;
-        }else WaterBoltVolley_Timer -= diff;
+        } else WaterBoltVolley_Timer -= diff;
 
         DoMeleeAttackIfReady();
     }

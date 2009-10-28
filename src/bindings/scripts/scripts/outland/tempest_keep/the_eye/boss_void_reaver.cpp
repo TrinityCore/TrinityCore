@@ -97,49 +97,49 @@ struct TRINITY_DLL_DECL boss_void_reaverAI : public ScriptedAI
             return;
 
         // Pounding
-        if (Pounding_Timer < diff)
+        if (Pounding_Timer <= diff)
         {
             DoCast(m_creature->getVictim(),SPELL_POUNDING);
 
             DoScriptText(RAND(SAY_POUNDING1,SAY_POUNDING2), m_creature);
              Pounding_Timer = 15000;                         //cast time(3000) + cooldown time(12000)
-        }else Pounding_Timer -= diff;
+        } else Pounding_Timer -= diff;
 
         // Arcane Orb
-        if (ArcaneOrb_Timer < diff)
+        if (ArcaneOrb_Timer <= diff)
         {
-            Unit *target = NULL;
+            Unit *pTarget = NULL;
             std::list<HostilReference *> t_list = m_creature->getThreatManager().getThreatList();
             std::vector<Unit *> target_list;
             for (std::list<HostilReference *>::iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)
             {
-                target = Unit::GetUnit(*m_creature, (*itr)->getUnitGuid());
-                if (!target)
+                pTarget = Unit::GetUnit(*m_creature, (*itr)->getUnitGuid());
+                if (!pTarget)
                     continue;
 
                 // exclude pets & totems
-                if (target->GetTypeId() != TYPEID_PLAYER)
+                if (pTarget->GetTypeId() != TYPEID_PLAYER)
                     continue;
 
                 //18 yard radius minimum
-                if (target && target->GetTypeId() == TYPEID_PLAYER && target->isAlive() && !target->IsWithinDist(m_creature, 18, false))
-                    target_list.push_back(target);
-                target = NULL;
+                if (pTarget && pTarget->GetTypeId() == TYPEID_PLAYER && pTarget->isAlive() && !pTarget->IsWithinDist(m_creature, 18, false))
+                    target_list.push_back(pTarget);
+                pTarget = NULL;
             }
 
             if (target_list.size())
-                target = *(target_list.begin()+rand()%target_list.size());
+                pTarget = *(target_list.begin()+rand()%target_list.size());
             else
-                target = m_creature->getVictim();
+                pTarget = m_creature->getVictim();
 
-            if (target)
-                m_creature->CastSpell(target->GetPositionX(),target->GetPositionY(),target->GetPositionZ(), SPELL_ARCANE_ORB, false, NULL, NULL, NULL, target);
+            if (pTarget)
+                m_creature->CastSpell(pTarget->GetPositionX(),pTarget->GetPositionY(),pTarget->GetPositionZ(), SPELL_ARCANE_ORB, false, NULL, NULL, NULL, pTarget);
 
             ArcaneOrb_Timer = 3000;
-        }else ArcaneOrb_Timer -= diff;
+        } else ArcaneOrb_Timer -= diff;
 
         // Single Target knock back, reduces aggro
-        if (KnockAway_Timer < diff)
+        if (KnockAway_Timer <= diff)
         {
             DoCast(m_creature->getVictim(),SPELL_KNOCK_AWAY);
 
@@ -148,14 +148,14 @@ struct TRINITY_DLL_DECL boss_void_reaverAI : public ScriptedAI
                 DoModifyThreatPercent(m_creature->getVictim(),-25);
 
             KnockAway_Timer = 30000;
-        }else KnockAway_Timer -= diff;
+        } else KnockAway_Timer -= diff;
 
         //Berserk
         if (Berserk_Timer < diff && !Enraged)
         {
             DoCast(m_creature,SPELL_BERSERK);
             Enraged = true;
-        }else Berserk_Timer -= diff;
+        } else Berserk_Timer -= diff;
 
         DoMeleeAttackIfReady();
 

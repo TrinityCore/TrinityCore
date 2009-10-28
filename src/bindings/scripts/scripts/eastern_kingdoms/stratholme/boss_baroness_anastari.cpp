@@ -67,45 +67,45 @@ struct TRINITY_DLL_DECL boss_baroness_anastariAI : public ScriptedAI
             return;
 
         //BansheeWail
-        if (BansheeWail_Timer < diff)
+        if (BansheeWail_Timer <= diff)
         {
             if (rand()%100 < 95)
                 DoCast(m_creature->getVictim(),SPELL_BANSHEEWAIL);
             //4 seconds until we should cast this again
             BansheeWail_Timer = 4000;
-        }else BansheeWail_Timer -= diff;
+        } else BansheeWail_Timer -= diff;
 
         //BansheeCurse
-        if (BansheeCurse_Timer < diff)
+        if (BansheeCurse_Timer <= diff)
         {
             if (rand()%100 < 75)
                 DoCast(m_creature->getVictim(),SPELL_BANSHEECURSE);
             //18 seconds until we should cast this again
             BansheeCurse_Timer = 18000;
-        }else BansheeCurse_Timer -= diff;
+        } else BansheeCurse_Timer -= diff;
 
         //Silence
-        if (Silence_Timer < diff)
+        if (Silence_Timer <= diff)
         {
             if (rand()%100 < 80)
                 DoCast(m_creature->getVictim(),SPELL_SILENCE);
             //13 seconds until we should cast this again
             Silence_Timer = 13000;
-        }else Silence_Timer -= diff;
+        } else Silence_Timer -= diff;
 
         //Possess
-        /*            if (Possess_Timer < diff)
+        /*            if (Possess_Timer <= diff)
         {
         //Cast
           if (rand()%100 < 65)
         {
-        Unit* target = NULL;
-        target = SelectUnit(SELECT_TARGET_RANDOM,0);
-        if (target)DoCast(target,SPELL_POSSESS);
+        Unit *pTarget = NULL;
+        pTarget = SelectUnit(SELECT_TARGET_RANDOM,0);
+        if (pTarget)DoCast(pTarget,SPELL_POSSESS);
         }
         //50 seconds until we should cast this again
         Possess_Timer = 50000;
-        }else Possess_Timer -= diff;
+        } else Possess_Timer -= diff;
         */
 
         DoMeleeAttackIfReady();

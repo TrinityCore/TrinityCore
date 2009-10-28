@@ -134,7 +134,7 @@ struct TRINITY_DLL_DECL boss_archaedasAI : public ScriptedAI
             return;
 
         // wake a wall minion
-        if (WallMinionTimer < diff) {
+        if (WallMinionTimer <= diff) {
             pInstance->SetData (NULL, 2);
 
             WallMinionTimer = 10000;
@@ -164,14 +164,14 @@ struct TRINITY_DLL_DECL boss_archaedasAI : public ScriptedAI
             vaultWalkersAwake = true;
         }
 
-        if (Tremor_Timer < diff)
+        if (Tremor_Timer <= diff)
         {
             //Cast
             DoCast(m_creature->getVictim(),SPELL_GROUND_TREMOR);
 
             //45 seconds until we should cast this agian
             Tremor_Timer  = 45000;
-        }else Tremor_Timer  -= diff;
+        } else Tremor_Timer  -= diff;
 
         DoMeleeAttackIfReady();
     }

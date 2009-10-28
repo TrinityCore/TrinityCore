@@ -64,14 +64,14 @@ struct TRINITY_DLL_DECL boss_moraggAI : public ScriptedAI
         if (!UpdateVictim())
             return;
 
-        if (uiOpticLinkTimer < diff)
+        if (uiOpticLinkTimer <= diff)
         {
             if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                 DoCast(pTarget,SPELL_OPTIC_LINK);
             uiOpticLinkTimer = 15000;
         } else uiOpticLinkTimer -= diff;
 
-        if (uiCorrosiveSalivaTimer < diff)
+        if (uiCorrosiveSalivaTimer <= diff)
         {
             DoCast(m_creature->getVictim(), SPELL_CORROSIVE_SALIVA);
             uiCorrosiveSalivaTimer = 10000;

@@ -100,7 +100,7 @@ struct mob_ancient_wispAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
-        if (CheckTimer < diff)
+        if (CheckTimer <= diff)
         {
             if (Unit* Archimonde = Unit::GetUnit((*m_creature), ArchimondeGUID))
             {
@@ -110,7 +110,7 @@ struct mob_ancient_wispAI : public ScriptedAI
                     DoCast(Archimonde, SPELL_ANCIENT_SPARK);
             }
             CheckTimer = 1000;
-        }else CheckTimer -= diff;
+        } else CheckTimer -= diff;
     }
 };
 
@@ -128,7 +128,7 @@ struct TRINITY_DLL_DECL mob_doomfireAI : public ScriptedAI
 };
 
 /* This is the script for the Doomfire Spirit Mob. This mob simply follow players or
-   travels in random directions if target cannot be found. */
+   travels in random directions if pTarget cannot be found. */
 struct TRINITY_DLL_DECL mob_doomfire_targettingAI : public ScriptedAI
 {
     mob_doomfire_targettingAI(Creature* c) : ScriptedAI(c) {}
@@ -156,7 +156,7 @@ struct TRINITY_DLL_DECL mob_doomfire_targettingAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
-        if (ChangeTargetTimer < diff)
+        if (ChangeTargetTimer <= diff)
         {
             if (Unit *temp = Unit::GetUnit(*m_creature,TargetGUID))
             {
@@ -171,17 +171,17 @@ struct TRINITY_DLL_DECL mob_doomfire_targettingAI : public ScriptedAI
             }
 
             ChangeTargetTimer = 5000;
-        }else ChangeTargetTimer -= diff;
+        } else ChangeTargetTimer -= diff;
     }
 };
 
 /* Finally, Archimonde's script. His script isn't extremely complex, most are simply spells on timers.
    The only complicated aspect of the battle is Finger of Death and Doomfire, with Doomfire being the
    hardest bit to code. Finger of Death is simply a distance check - if no one is in melee range, then
-   select a random target and cast the spell on them. However, if someone IS in melee range, and this
+   select a random pTarget and cast the spell on them. However, if someone IS in melee range, and this
    is NOT the main tank (creature's victim), then we aggro that player and they become the new victim.
    For Doomfire, we summon a mob (Doomfire Spirit) for the Doomfire mob to follow. It's spirit will
-   randomly select it's target to follow and then we create the random movement making it unpredictable. */
+   randomly select it's pTarget to follow and then we create the random movement making it unpredictable. */
 
 struct TRINITY_DLL_DECL boss_archimondeAI : public hyjal_trashAI
 {
@@ -226,9 +226,9 @@ struct TRINITY_DLL_DECL boss_archimondeAI : public hyjal_trashAI
         DrainNordrassilTimer = 0;
         FearTimer = 42000;
         AirBurstTimer = 30000;
-        GripOfTheLegionTimer = 5000 + rand()%20000;
+        GripOfTheLegionTimer = urand(5000,25000);
         DoomfireTimer = 20000;
-        SoulChargeTimer = 2000 + rand()%27000;
+        SoulChargeTimer = urand(2000,30000);
         SoulChargeCount = 0;
         MeleeRangeCheckTimer = 15000;
         HandOfDeathTimer = 2000;
@@ -282,7 +282,7 @@ struct TRINITY_DLL_DECL boss_archimondeAI : public hyjal_trashAI
                 break;
         }
 
-        SoulChargeTimer = 2000 + rand()%28000;
+        SoulChargeTimer = urand(2000,30000);
         ++SoulChargeCount;
     }
 
@@ -319,13 +319,13 @@ struct TRINITY_DLL_DECL boss_archimondeAI : public hyjal_trashAI
             return false;
 
         targets.sort(ObjectDistanceOrder(m_creature));
-        Unit* target = targets.front();
-        if (target)
+        Unit *pTarget = targets.front();
+        if (pTarget)
         {
-            if (!m_creature->IsWithinDistInMap(target, m_creature->GetAttackDistance(target)))
+            if (!m_creature->IsWithinDistInMap(pTarget, m_creature->GetAttackDistance(pTarget)))
                 return true;                                // Cast Finger of Death
-            else                                            // This target is closest, he is our new tank
-                m_creature->AddThreat(target, m_creature->getThreatManager().getThreat(m_creature->getVictim()));
+            else                                            // This pTarget is closest, he is our new tank
+                m_creature->AddThreat(pTarget, m_creature->getThreatManager().getThreat(m_creature->getVictim()));
         }
 
         return false;
@@ -361,14 +361,14 @@ struct TRINITY_DLL_DECL boss_archimondeAI : public hyjal_trashAI
     }
 
     //this is code doing close to what the summoning spell would do (spell 31903)
-    void SummonDoomfire(Unit* target)
+    void SummonDoomfire(Unit *pTarget)
     {
         m_creature->SummonCreature(CREATURE_DOOMFIRE_SPIRIT,
-            target->GetPositionX()+15.0,target->GetPositionY()+15.0,target->GetPositionZ(),0,
+            pTarget->GetPositionX()+15.0,pTarget->GetPositionY()+15.0,pTarget->GetPositionZ(),0,
             TEMPSUMMON_TIMED_DESPAWN, 27000);
 
         m_creature->SummonCreature(CREATURE_DOOMFIRE,
-            target->GetPositionX()-15.0,target->GetPositionY()-15.0,target->GetPositionZ(),0,
+            pTarget->GetPositionX()-15.0,pTarget->GetPositionY()-15.0,pTarget->GetPositionZ(),0,
             TEMPSUMMON_TIMED_DESPAWN, 27000);
     }
 
@@ -405,7 +405,7 @@ struct TRINITY_DLL_DECL boss_archimondeAI : public hyjal_trashAI
         }
 
         if (HasCast)
-            SoulChargeTimer = 2000 + rand()%28000;
+            SoulChargeTimer = urand(2000,30000);
     }
 
     void UpdateAI(const uint32 diff)
@@ -427,7 +427,7 @@ struct TRINITY_DLL_DECL boss_archimondeAI : public hyjal_trashAI
                 }
             }
 
-            if (DrainNordrassilTimer < diff)
+            if (DrainNordrassilTimer <= diff)
             {
                 if (!IsChanneling)
                 {
@@ -450,7 +450,7 @@ struct TRINITY_DLL_DECL boss_archimondeAI : public hyjal_trashAI
                     Nordrassil->CastSpell(m_creature, SPELL_DRAIN_WORLD_TREE_2, true);
                     DrainNordrassilTimer = 1000;
                 }
-            }else DrainNordrassilTimer -= diff;
+            } else DrainNordrassilTimer -= diff;
         }
 
         if (!UpdateVictim())
@@ -461,7 +461,7 @@ struct TRINITY_DLL_DECL boss_archimondeAI : public hyjal_trashAI
 
         if (!Enraged)
         {
-            if (EnrageTimer < diff)
+            if (EnrageTimer <= diff)
             {
                 if ((m_creature->GetHealth()*100 / m_creature->GetMaxHealth()) > 10)
                 {
@@ -470,9 +470,9 @@ struct TRINITY_DLL_DECL boss_archimondeAI : public hyjal_trashAI
                     Enraged = true;
                     DoScriptText(SAY_ENRAGE, m_creature);
                 }
-            }else EnrageTimer -= diff;
+            } else EnrageTimer -= diff;
 
-            if (CheckDistanceTimer < diff)
+            if (CheckDistanceTimer <= diff)
             {
                 // To simplify the check, we simply summon a Creature in the location and then check how far we are from the creature
                 Creature* Check = m_creature->SummonCreature(CREATURE_CHANNEL_TARGET, NORDRASSIL_X, NORDRASSIL_Y, NORDRASSIL_Z, 0, TEMPSUMMON_TIMED_DESPAWN, 2000);
@@ -489,7 +489,7 @@ struct TRINITY_DLL_DECL boss_archimondeAI : public hyjal_trashAI
                     }
                 }
                 CheckDistanceTimer = 5000;
-            }else CheckDistanceTimer -= diff;
+            } else CheckDistanceTimer -= diff;
         }
 
         if (BelowTenPercent)
@@ -505,12 +505,12 @@ struct TRINITY_DLL_DECL boss_archimondeAI : public hyjal_trashAI
                 Enraged = true;
             }
 
-            if (SummonWispTimer < diff)
+            if (SummonWispTimer <= diff)
             {
                 DoSpawnCreature(CREATURE_ANCIENT_WISP, rand()%40, rand()%40, 0, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
                 SummonWispTimer = 1500;
                 ++WispCount;
-            }else SummonWispTimer -= diff;
+            } else SummonWispTimer -= diff;
 
             if (WispCount >= 30)
                 m_creature->DealDamage(m_creature, m_creature->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
@@ -518,47 +518,47 @@ struct TRINITY_DLL_DECL boss_archimondeAI : public hyjal_trashAI
 
         if (Enraged)
         {
-            if (HandOfDeathTimer < diff)
+            if (HandOfDeathTimer <= diff)
             {
                 DoCast(m_creature->getVictim(), SPELL_HAND_OF_DEATH);
                 HandOfDeathTimer = 2000;
-            }else HandOfDeathTimer -= diff;
+            } else HandOfDeathTimer -= diff;
             return;                                         // Don't do anything after this point.
         }
 
         if (SoulChargeCount)
         {
-            if (SoulChargeTimer < diff)
+            if (SoulChargeTimer <= diff)
                 UnleashSoulCharge();
             else SoulChargeTimer -= diff;
         }
 
-        if (GripOfTheLegionTimer < diff)
+        if (GripOfTheLegionTimer <= diff)
         {
             DoCast(SelectUnit(SELECT_TARGET_RANDOM, 0), SPELL_GRIP_OF_THE_LEGION);
-            GripOfTheLegionTimer = 5000 + rand()%20000;
-        }else GripOfTheLegionTimer -= diff;
+            GripOfTheLegionTimer = urand(5000,25000);
+        } else GripOfTheLegionTimer -= diff;
 
-        if (AirBurstTimer < diff)
+        if (AirBurstTimer <= diff)
         {
-            if (rand()%2 == 0)
+            if (urand(0,1))
                 DoScriptText(SAY_AIR_BURST1, m_creature);
             else
                 DoScriptText(SAY_AIR_BURST2, m_creature);
 
             DoCast(SelectUnit(SELECT_TARGET_RANDOM, 1), SPELL_AIR_BURST);//not on tank
-            AirBurstTimer = 25000 + rand()%15000;
-        }else AirBurstTimer -= diff;
+            AirBurstTimer = urand(25000,40000);
+        } else AirBurstTimer -= diff;
 
-        if (FearTimer < diff)
+        if (FearTimer <= diff)
         {
             DoCast(m_creature->getVictim(), SPELL_FEAR);
             FearTimer = 42000;
-        }else FearTimer -= diff;
+        } else FearTimer -= diff;
 
-        if (DoomfireTimer < diff)
+        if (DoomfireTimer <= diff)
         {
-            if (rand()%2 == 0)
+            if (urand(0,1))
                 DoScriptText(SAY_DOOMFIRE1, m_creature);
             else
                 DoScriptText(SAY_DOOMFIRE2, m_creature);
@@ -572,9 +572,9 @@ struct TRINITY_DLL_DECL boss_archimondeAI : public hyjal_trashAI
 
             //supposedly three doomfire can be up at the same time
             DoomfireTimer = 20000;
-        }else DoomfireTimer -= diff;
+        } else DoomfireTimer -= diff;
 
-        if (MeleeRangeCheckTimer < diff)
+        if (MeleeRangeCheckTimer <= diff)
         {
             if (CanUseFingerOfDeath())
             {
@@ -583,7 +583,7 @@ struct TRINITY_DLL_DECL boss_archimondeAI : public hyjal_trashAI
             }
 
             MeleeRangeCheckTimer = 5000;
-        }else MeleeRangeCheckTimer -= diff;
+        } else MeleeRangeCheckTimer -= diff;
 
         DoMeleeAttackIfReady();
     }

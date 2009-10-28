@@ -147,7 +147,7 @@ struct TRINITY_DLL_DECL boss_supremusAI : public ScriptedAI
     Unit* CalculateHatefulStrikeTarget()
     {
         uint32 health = 0;
-        Unit* target = NULL;
+        Unit *pTarget = NULL;
 
         std::list<HostilReference*>& m_threatlist = m_creature->getThreatManager().getThreatList();
         std::list<HostilReference*>::iterator i = m_threatlist.begin();
@@ -159,12 +159,12 @@ struct TRINITY_DLL_DECL boss_supremusAI : public ScriptedAI
                 if (pUnit->GetHealth() > health)
                 {
                     health = pUnit->GetHealth();
-                    target = pUnit;
+                    pTarget = pUnit;
                 }
             }
         }
 
-        return target;
+        return pTarget;
     }
 
     void UpdateAI(const uint32 diff)
@@ -187,28 +187,28 @@ struct TRINITY_DLL_DECL boss_supremusAI : public ScriptedAI
                     events.ScheduleEvent(EVENT_FLAME, 20000, GCD_CAST);
                     break;
                 case EVENT_HATEFUL_STRIKE:
-                    if (Unit* target = CalculateHatefulStrikeTarget())
-                        DoCast(target, SPELL_HATEFUL_STRIKE);
+                    if (Unit *pTarget = CalculateHatefulStrikeTarget())
+                        DoCast(pTarget, SPELL_HATEFUL_STRIKE);
                     events.DelayEvents(1000, GCD_CAST);
                     events.ScheduleEvent(EVENT_HATEFUL_STRIKE, 5000, GCD_CAST, PHASE_STRIKE);
                     break;
                 case EVENT_SWITCH_TARGET:
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 100, true))
+                    if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1, 100, true))
                     {
                         DoResetThreat();
-                        m_creature->AddThreat(target, 5000000.0f);
+                        m_creature->AddThreat(pTarget, 5000000.0f);
                         DoScriptText(EMOTE_NEW_TARGET, m_creature);
                     }
                     events.ScheduleEvent(EVENT_SWITCH_TARGET, 10000, 0, PHASE_CHASE);
                     break;
                 case EVENT_VOLCANO:
                 {
-                    Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 999, true);
-                    if (!target) target = m_creature->getVictim();
-                    if (target)
+                    Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 999, true);
+                    if (!pTarget) pTarget = m_creature->getVictim();
+                    if (pTarget)
                     {
-                        //DoCast(target, SPELL_VOLCANIC_SUMMON);//movement bugged
-                        m_creature->SummonCreature(CREATURE_VOLCANO,target->GetPositionX(),target->GetPositionY(),target->GetPositionZ(),0,TEMPSUMMON_TIMED_DESPAWN,30000);
+                        //DoCast(pTarget, SPELL_VOLCANIC_SUMMON);//movement bugged
+                        m_creature->SummonCreature(CREATURE_VOLCANO,pTarget->GetPositionX(),pTarget->GetPositionY(),pTarget->GetPositionZ(),0,TEMPSUMMON_TIMED_DESPAWN,30000);
                         DoScriptText(EMOTE_GROUND_CRACK, m_creature);
                         events.DelayEvents(1500, GCD_CAST);
                     }

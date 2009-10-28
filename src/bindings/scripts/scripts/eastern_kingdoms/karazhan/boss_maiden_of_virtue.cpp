@@ -103,16 +103,16 @@ struct TRINITY_DLL_DECL boss_maiden_of_virtueAI : public ScriptedAI
 
         if (Holyfire_Timer <= diff)
         {
-            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                DoCast(target,SPELL_HOLYFIRE);
+            if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                DoCast(pTarget,SPELL_HOLYFIRE);
 
                 Holyfire_Timer = urand(8000,23000);      //Anywhere from 8 to 23 seconds, good luck having several of those in a row!
         } else Holyfire_Timer -= diff;
 
         if (Holywrath_Timer <= diff)
         {
-            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                DoCast(target,SPELL_HOLYWRATH);
+            if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                DoCast(pTarget,SPELL_HOLYWRATH);
 
             Holywrath_Timer = urand(20000,25000);        //20-30 secs sounds nice
         } else Holywrath_Timer -= diff;

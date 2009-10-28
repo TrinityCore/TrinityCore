@@ -230,7 +230,7 @@ struct TRINITY_DLL_DECL boss_volkhanAI : public ScriptedAI
 
         if (m_bIsStriking)
         {
-            if (m_uiPause_Timer < uiDiff)
+            if (m_uiPause_Timer <= uiDiff)
             {
                 if (m_creature->GetMotionMaster()->GetCurrentMovementGeneratorType() != TARGETED_MOTION_TYPE)
                 {
@@ -251,7 +251,7 @@ struct TRINITY_DLL_DECL boss_volkhanAI : public ScriptedAI
         // When to start shatter? After 60, 40 or 20% hp?
         if (!m_bHasTemper && m_uiHealthAmountModifier >= 3)
         {
-            if (m_uiShatteringStomp_Timer < uiDiff)
+            if (m_uiShatteringStomp_Timer <= uiDiff)
             {
                 //should he stomp even if he has no brittle golem to shatter?
 
@@ -271,7 +271,7 @@ struct TRINITY_DLL_DECL boss_volkhanAI : public ScriptedAI
         // Shatter Golems 3 seconds after Shattering Stomp
         if (m_bCanShatterGolem)
         {
-            if (m_uiShatter_Timer < uiDiff)
+            if (m_uiShatter_Timer <= uiDiff)
             {
                 ShatterGolem();
                 m_uiShatter_Timer = 3000;
@@ -431,11 +431,11 @@ struct TRINITY_DLL_DECL mob_molten_golemAI : public ScriptedAI
 
     void UpdateAI(const uint32 uiDiff)
     {
-        //Return since we have no target or if we are frozen
+        //Return since we have no pTarget or if we are frozen
         if (!UpdateVictim() || m_bIsFrozen)
             return;
 
-        if (m_uiBlast_Timer < uiDiff)
+        if (m_uiBlast_Timer <= uiDiff)
         {
             DoCast(m_creature, SPELL_BLAST_WAVE);
             m_uiBlast_Timer = 20000;
@@ -443,7 +443,7 @@ struct TRINITY_DLL_DECL mob_molten_golemAI : public ScriptedAI
         else
             m_uiBlast_Timer -= uiDiff;
 
-        if (m_uiImmolation_Timer < uiDiff)
+        if (m_uiImmolation_Timer <= uiDiff)
         {
             DoCast(m_creature->getVictim(), m_bIsHeroic ? SPELL_IMMOLATION_STRIKE_H : SPELL_IMMOLATION_STRIKE_N);
             m_uiImmolation_Timer = 5000;

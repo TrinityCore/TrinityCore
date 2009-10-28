@@ -50,21 +50,21 @@ struct TRINITY_DLL_DECL boss_wushoolayAI : public ScriptedAI
             return;
 
         //LightningCloud_Timer
-        if (LightningCloud_Timer < diff)
+        if (LightningCloud_Timer <= diff)
         {
             DoCast(m_creature->getVictim(),SPELL_LIGHTNINGCLOUD);
             LightningCloud_Timer = 15000 + rand()%5000;
-        }else LightningCloud_Timer -= diff;
+        } else LightningCloud_Timer -= diff;
 
         //LightningWave_Timer
-        if (LightningWave_Timer < diff)
+        if (LightningWave_Timer <= diff)
         {
-            Unit* target = NULL;
-            target = SelectUnit(SELECT_TARGET_RANDOM,0);
-            if (target) DoCast(target,SPELL_LIGHTNINGWAVE);
+            Unit *pTarget = NULL;
+            pTarget = SelectUnit(SELECT_TARGET_RANDOM,0);
+            if (pTarget) DoCast(pTarget,SPELL_LIGHTNINGWAVE);
 
             LightningWave_Timer = 12000 + rand()%4000;
-        }else LightningWave_Timer -= diff;
+        } else LightningWave_Timer -= diff;
 
         DoMeleeAttackIfReady();
     }

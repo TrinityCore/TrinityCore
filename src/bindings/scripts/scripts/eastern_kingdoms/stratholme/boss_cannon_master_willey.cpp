@@ -113,7 +113,7 @@ struct TRINITY_DLL_DECL boss_cannon_master_willeyAI : public ScriptedAI
             return;
 
         //Pummel
-        if (Pummel_Timer < diff)
+        if (Pummel_Timer <= diff)
         {
             //Cast
             if (rand()%100 < 90) //90% chance to cast
@@ -122,10 +122,10 @@ struct TRINITY_DLL_DECL boss_cannon_master_willeyAI : public ScriptedAI
             }
             //12 seconds until we should cast this again
             Pummel_Timer = 12000;
-        }else Pummel_Timer -= diff;
+        } else Pummel_Timer -= diff;
 
         //KnockAway
-        if (KnockAway_Timer < diff)
+        if (KnockAway_Timer <= diff)
         {
             //Cast
             if (rand()%100 < 80) //80% chance to cast
@@ -134,19 +134,19 @@ struct TRINITY_DLL_DECL boss_cannon_master_willeyAI : public ScriptedAI
             }
             //14 seconds until we should cast this again
             KnockAway_Timer = 14000;
-        }else KnockAway_Timer -= diff;
+        } else KnockAway_Timer -= diff;
 
         //Shoot
-        if (Shoot_Timer < diff)
+        if (Shoot_Timer <= diff)
         {
             //Cast
             DoCast(m_creature->getVictim(),SPELL_SHOOT);
             //1 seconds until we should cast this again
             Shoot_Timer = 1000;
-        }else Shoot_Timer -= diff;
+        } else Shoot_Timer -= diff;
 
         //SummonRifleman
-        if (SummonRifleman_Timer < diff)
+        if (SummonRifleman_Timer <= diff)
         {
             //Cast
             switch (rand()%9)
@@ -199,7 +199,7 @@ struct TRINITY_DLL_DECL boss_cannon_master_willeyAI : public ScriptedAI
             }
             //30 seconds until we should cast this again
             SummonRifleman_Timer = 30000;
-        }else SummonRifleman_Timer -= diff;
+        } else SummonRifleman_Timer -= diff;
 
         DoMeleeAttackIfReady();
     }

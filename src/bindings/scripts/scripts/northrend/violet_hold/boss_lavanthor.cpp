@@ -71,19 +71,19 @@ struct TRINITY_DLL_DECL boss_lavanthorAI : public ScriptedAI
         if (!UpdateVictim())
             return;
 
-        if (uiFireboltTimer < diff)
+        if (uiFireboltTimer <= diff)
         {
             DoCast(m_creature->getVictim(), HEROIC(SPELL_FIREBOLT, H_SPELL_FIREBOLT));
             uiFireboltTimer = urand(5000,13000);
         } else uiFireboltTimer -= diff;
 
-        if (uiFlameBreathTimer < diff)
+        if (uiFlameBreathTimer <= diff)
         {
             DoCast(m_creature->getVictim(), HEROIC(SPELL_FLAME_BREATH, H_SPELL_FLAME_BREATH));
             uiFlameBreathTimer = urand(10000,15000);
         } else uiFlameBreathTimer -= diff;
 
-        if (uiLavaBurnTimer < diff)
+        if (uiLavaBurnTimer <= diff)
         {
             DoCast(m_creature->getVictim(), HEROIC(SPELL_LAVA_BURN, H_SPELL_LAVA_BURN));
             uiLavaBurnTimer = urand(15000,23000);
@@ -91,7 +91,7 @@ struct TRINITY_DLL_DECL boss_lavanthorAI : public ScriptedAI
 
         if (HeroicMode)
         {
-            if (uiCauterizingFlamesTimer < diff)
+            if (uiCauterizingFlamesTimer <= diff)
             {
                 DoCast(m_creature->getVictim(), SPELL_CAUTERIZING_FLAMES);
                 uiCauterizingFlamesTimer = urand(10000,16000);

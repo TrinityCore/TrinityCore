@@ -98,12 +98,12 @@ struct TRINITY_DLL_DECL instance_uldaman : public ScriptedInstance
     {
         for (std::vector<uint64>::iterator i = stoneKeeper.begin(); i != stoneKeeper.end(); ++i)
         {
-            Creature *target = instance->GetCreature(*i);
-            if (!target || !target->isAlive() || target->getFaction()==14)
+            Creature *pTarget = instance->GetCreature(*i);
+            if (!pTarget || !pTarget->isAlive() || pTarget->getFaction()==14)
                 continue;
-            target->RemoveFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_DISABLE_MOVE);
-            target->setFaction(14);
-            target->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+            pTarget->RemoveFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_DISABLE_MOVE);
+            pTarget->setFaction(14);
+            pTarget->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             return;        // only want the first one we find
         }
         // if we get this far than all four are dead so open the door
@@ -118,11 +118,11 @@ struct TRINITY_DLL_DECL instance_uldaman : public ScriptedInstance
 
         for (std::vector<uint64>::iterator i = archaedasWallMinions.begin(); i != archaedasWallMinions.end(); ++i)
         {
-            Creature *target = instance->GetCreature(*i);
-            if (!target || !target->isAlive() || target->getFaction()==14)
+            Creature *pTarget = instance->GetCreature(*i);
+            if (!pTarget || !pTarget->isAlive() || pTarget->getFaction()==14)
                 continue;
-            archaedas->CastSpell(target, SPELL_AWAKEN_VAULT_WALKER, true);
-            target->CastSpell(target, SPELL_ARCHAEDAS_AWAKEN,true);
+            archaedas->CastSpell(pTarget, SPELL_AWAKEN_VAULT_WALKER, true);
+            pTarget->CastSpell(pTarget, SPELL_ARCHAEDAS_AWAKEN,true);
             return;        // only want the first one we find
         }
     }
@@ -133,31 +133,31 @@ struct TRINITY_DLL_DECL instance_uldaman : public ScriptedInstance
         // first despawn any aggroed wall minions
         for (std::vector<uint64>::iterator i = archaedasWallMinions.begin(); i != archaedasWallMinions.end(); ++i)
         {
-            Creature *target = instance->GetCreature(*i);
-            if (!target || target->isDead() || target->getFaction()!=14)
+            Creature *pTarget = instance->GetCreature(*i);
+            if (!pTarget || pTarget->isDead() || pTarget->getFaction()!=14)
                 continue;
-            target->setDeathState(JUST_DIED);
-            target->RemoveCorpse();
+            pTarget->setDeathState(JUST_DIED);
+            pTarget->RemoveCorpse();
         }
 
         // Vault Walkers
         for (std::vector<uint64>::iterator i = vaultWalker.begin(); i != vaultWalker.end(); ++i)
         {
-            Creature *target = instance->GetCreature(*i);
-            if (!target || target->isDead() || target->getFaction()!=14)
+            Creature *pTarget = instance->GetCreature(*i);
+            if (!pTarget || pTarget->isDead() || pTarget->getFaction()!=14)
                 continue;
-            target->setDeathState(JUST_DIED);
-            target->RemoveCorpse();
+            pTarget->setDeathState(JUST_DIED);
+            pTarget->RemoveCorpse();
         }
 
         // Earthen Guardians
         for (std::vector<uint64>::iterator i = earthenGuardian.begin(); i != earthenGuardian.end(); ++i)
         {
-            Creature *target = instance->GetCreature(*i);
-            if (!target || target->isDead() || target->getFaction()!=14)
+            Creature *pTarget = instance->GetCreature(*i);
+            if (!pTarget || pTarget->isDead() || pTarget->getFaction()!=14)
                 continue;
-            target->setDeathState(JUST_DIED);
-            target->RemoveCorpse();
+            pTarget->setDeathState(JUST_DIED);
+            pTarget->RemoveCorpse();
         }
     }
 
@@ -179,36 +179,36 @@ struct TRINITY_DLL_DECL instance_uldaman : public ScriptedInstance
         // first respawn any aggroed wall minions
         for (std::vector<uint64>::iterator i = archaedasWallMinions.begin(); i != archaedasWallMinions.end(); ++i)
         {
-            Creature *target = instance->GetCreature(*i);
-            if (target && target->isDead())
+            Creature *pTarget = instance->GetCreature(*i);
+            if (pTarget && pTarget->isDead())
             {
-                target->Respawn();
-                target->GetMotionMaster()->MoveTargetedHome();
-                SetFrozenState(target);
+                pTarget->Respawn();
+                pTarget->GetMotionMaster()->MoveTargetedHome();
+                SetFrozenState(pTarget);
             }
         }
 
         // Vault Walkers
         for (std::vector<uint64>::iterator i = vaultWalker.begin(); i != vaultWalker.end(); ++i)
         {
-            Creature *target = instance->GetCreature(*i);
-            if (target && target->isDead())
+            Creature *pTarget = instance->GetCreature(*i);
+            if (pTarget && pTarget->isDead())
             {
-                target->Respawn();
-                target->GetMotionMaster()->MoveTargetedHome();
-                SetFrozenState(target);
+                pTarget->Respawn();
+                pTarget->GetMotionMaster()->MoveTargetedHome();
+                SetFrozenState(pTarget);
             }
         }
 
         // Earthen Guardians
         for (std::vector<uint64>::iterator i = earthenGuardian.begin(); i != earthenGuardian.end(); ++i)
         {
-            Creature *target = instance->GetCreature(*i);
-            if (target && target->isDead())
+            Creature *pTarget = instance->GetCreature(*i);
+            if (pTarget && pTarget->isDead())
             {
-                target->Respawn();
-                target->GetMotionMaster()->MoveTargetedHome();
-                SetFrozenState(target);
+                pTarget->Respawn();
+                pTarget->GetMotionMaster()->MoveTargetedHome();
+                SetFrozenState(pTarget);
             }
         }
     }

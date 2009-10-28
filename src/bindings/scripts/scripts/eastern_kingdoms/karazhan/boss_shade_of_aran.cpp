@@ -183,10 +183,10 @@ struct TRINITY_DLL_DECL boss_aranAI : public ScriptedAI
         //store the threat list in a different container
         for (std::list<HostilReference *>::iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)
         {
-            Unit *target = Unit::GetUnit(*m_creature, (*itr)->getUnitGuid());
+            Unit *pTarget = Unit::GetUnit(*m_creature, (*itr)->getUnitGuid());
             //only on alive players
-            if (target && target->isAlive() && target->GetTypeId() == TYPEID_PLAYER)
-                targets.push_back(target);
+            if (pTarget && pTarget->isAlive() && pTarget->GetTypeId() == TYPEID_PLAYER)
+                targets.push_back(pTarget);
         }
 
         //cut down to size if we have more than 3 targets
@@ -221,7 +221,7 @@ struct TRINITY_DLL_DECL boss_aranAI : public ScriptedAI
                     pInstance->HandleGameObject(pInstance->GetData64(DATA_GO_LIBRARY_DOOR), false);
                     CloseDoorTimer = 0;
                 }
-            }else CloseDoorTimer -= diff;
+            } else CloseDoorTimer -= diff;
         }
 
         //Cooldowns for casts
@@ -295,9 +295,8 @@ struct TRINITY_DLL_DECL boss_aranAI : public ScriptedAI
         {
             if (!m_creature->IsNonMeleeSpellCasted(false))
             {
-                Unit* target = NULL;
-                target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true);
-                if (!target)
+                Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true);
+                if (!pTarget)
                     return;
 
                 uint32 Spells[3];
@@ -324,7 +323,7 @@ struct TRINITY_DLL_DECL boss_aranAI : public ScriptedAI
                 if (AvailableSpells)
                 {
                     CurrentNormalSpell = Spells[rand() % AvailableSpells];
-                    DoCast(target, CurrentNormalSpell);
+                    DoCast(pTarget, CurrentNormalSpell);
                 }
             }
             NormalCastTimer = 1000;
@@ -365,16 +364,12 @@ struct TRINITY_DLL_DECL boss_aranAI : public ScriptedAI
                     break;
             }
 
-            LastSuperSpell = Available[rand()%2];
+            LastSuperSpell = Available[urand(0,1)];
 
             switch (LastSuperSpell)
             {
                 case SUPER_AE:
-
-                    if (rand()%2)
-                        DoScriptText(SAY_EXPLOSION1, m_creature);
-                    else
-                        DoScriptText(SAY_EXPLOSION2, m_creature);
+                    DoScriptText(RAND(SAY_EXPLOSION1,SAY_EXPLOSION2), m_creature);
 
                     m_creature->CastSpell(m_creature, SPELL_BLINK_CENTER, true);
                     m_creature->CastSpell(m_creature, SPELL_PLAYERPULL, true);
@@ -383,10 +378,7 @@ struct TRINITY_DLL_DECL boss_aranAI : public ScriptedAI
                     break;
 
                 case SUPER_FLAME:
-                    if (rand()%2)
-                        DoScriptText(SAY_FLAMEWREATH1, m_creature);
-                    else
-                        DoScriptText(SAY_FLAMEWREATH2, m_creature);
+                    DoScriptText(RAND(SAY_FLAMEWREATH1,SAY_FLAMEWREATH2), m_creature);
 
                     FlameWreathTimer = 20000;
                     FlameWreathCheckTime = 500;
@@ -399,11 +391,7 @@ struct TRINITY_DLL_DECL boss_aranAI : public ScriptedAI
                     break;
 
                 case SUPER_BLIZZARD:
-
-                    if (rand()%2)
-                        DoScriptText(SAY_BLIZZARD1, m_creature);
-                    else
-                        DoScriptText(SAY_BLIZZARD2, m_creature);
+                    DoScriptText(RAND(SAY_BLIZZARD1,SAY_BLIZZARD2), m_creature);
 
                     if (Creature* pSpawn = m_creature->SummonCreature(CREATURE_ARAN_BLIZZARD, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN, 25000))
                     {
@@ -413,8 +401,8 @@ struct TRINITY_DLL_DECL boss_aranAI : public ScriptedAI
                     break;
             }
 
-            SuperCastTimer = 35000 + (rand()%5000);
-        }else SuperCastTimer -= diff;
+            SuperCastTimer = urand(35000,40000);
+        } else SuperCastTimer -= diff;
 
         if (!ElementalsSpawned && m_creature->GetHealth()*100 / m_creature->GetMaxHealth() < 40)
         {
@@ -446,7 +434,7 @@ struct TRINITY_DLL_DECL boss_aranAI : public ScriptedAI
             DoScriptText(SAY_TIMEOVER, m_creature);
 
             BerserkTimer = 60000;
-        }else BerserkTimer -= diff;
+        } else BerserkTimer -= diff;
 
         //Flame Wreath check
         if (FlameWreathTimer)
@@ -471,7 +459,7 @@ struct TRINITY_DLL_DECL boss_aranAI : public ScriptedAI
                     }
                 }
                 FlameWreathCheckTime = 500;
-            }else FlameWreathCheckTime -= diff;
+            } else FlameWreathCheckTime -= diff;
         }
 
         if (ArcaneCooldown && FireCooldown && FrostCooldown)

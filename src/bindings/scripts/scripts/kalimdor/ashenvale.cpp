@@ -113,17 +113,17 @@ struct TRINITY_DLL_DECL npc_torekAI : public npc_escortAI
         if (!UpdateVictim())
             return;
 
-        if (Rend_Timer < diff)
+        if (Rend_Timer <= diff)
         {
             DoCast(m_creature->getVictim(),SPELL_REND);
             Rend_Timer = 20000;
-        }else Rend_Timer -= diff;
+        } else Rend_Timer -= diff;
 
-        if (Thunderclap_Timer < diff)
+        if (Thunderclap_Timer <= diff)
         {
             DoCast(m_creature,SPELL_THUNDERCLAP);
             Thunderclap_Timer = 30000;
-        }else Thunderclap_Timer -= diff;
+        } else Thunderclap_Timer -= diff;
     }
 };
 

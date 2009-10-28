@@ -74,7 +74,7 @@ struct TRINITY_DLL_DECL mobs_risen_husk_spiritAI : public ScriptedAI
         if (!UpdateVictim())
             return;
 
-        if (m_uiConsumeFlesh_Timer < uiDiff)
+        if (m_uiConsumeFlesh_Timer <= uiDiff)
         {
             if (m_creature->GetEntry() == NPC_RISEN_HUSK)
                 DoCast(m_creature->getVictim(), SPELL_CONSUME_FLESH);
@@ -84,7 +84,7 @@ struct TRINITY_DLL_DECL mobs_risen_husk_spiritAI : public ScriptedAI
         else
             m_uiConsumeFlesh_Timer -= uiDiff;
 
-        if (m_uiIntangiblePresence_Timer < uiDiff)
+        if (m_uiIntangiblePresence_Timer <= uiDiff)
         {
             if (m_creature->GetEntry() == NPC_RISEN_SPIRIT)
                 DoCast(m_creature->getVictim(), SPELL_INTANGIBLE_PRESENCE);

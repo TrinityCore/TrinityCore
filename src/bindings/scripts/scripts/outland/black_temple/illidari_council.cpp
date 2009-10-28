@@ -143,7 +143,7 @@ struct TRINITY_DLL_DECL mob_blood_elf_council_voice_triggerAI : public ScriptedA
             Council[1] = pInstance->GetData64(DATA_VERASDARKSHADOW);
             Council[2] = pInstance->GetData64(DATA_LADYMALANDE);
             Council[3] = pInstance->GetData64(DATA_HIGHNETHERMANCERZEREVOR);
-        }else error_log(ERROR_INST_DATA);
+        } else error_log(ERROR_INST_DATA);
     }
 
     void EnterCombat(Unit* who) {}
@@ -171,7 +171,7 @@ struct TRINITY_DLL_DECL mob_blood_elf_council_voice_triggerAI : public ScriptedA
             ++YellCounter;
             if (YellCounter > 3)
                 YellCounter = 0;                            // Reuse for Enrage Yells
-        }else AggroYellTimer -= diff;
+        } else AggroYellTimer -= diff;
         }
 
         if (EnrageTimer)
@@ -185,7 +185,7 @@ struct TRINITY_DLL_DECL mob_blood_elf_council_voice_triggerAI : public ScriptedA
                 EnrageTimer = CouncilEnrage[YellCounter].timer;
             }
             ++YellCounter;
-        }else EnrageTimer -= diff;
+        } else EnrageTimer -= diff;
         }
     }
 };
@@ -249,12 +249,12 @@ struct TRINITY_DLL_DECL mob_illidari_councilAI : public ScriptedAI
     void AttackStart(Unit* who) {}
     void MoveInLineOfSight(Unit* who) {}
 
-    void StartEvent(Unit *target)
+    void StartEvent(Unit *pTarget)
     {
         if (!pInstance)
             return;
 
-        if (target && target->isAlive())
+        if (pTarget && pTarget->isAlive())
         {
             Council[0] = pInstance->GetData64(DATA_GATHIOSTHESHATTERER);
             Council[1] = pInstance->GetData64(DATA_HIGHNETHERMANCERZEREVOR);
@@ -275,7 +275,7 @@ struct TRINITY_DLL_DECL mob_illidari_councilAI : public ScriptedAI
                 {
                     Member = Unit::GetUnit((*m_creature), Council[i]);
                     if (Member && Member->isAlive())
-                        CAST_CRE(Member)->AI()->AttackStart(target);
+                        CAST_CRE(Member)->AI()->AttackStart(pTarget);
                 }
             }
 
@@ -311,7 +311,7 @@ struct TRINITY_DLL_DECL mob_illidari_councilAI : public ScriptedAI
                     pMember->DealDamage(pMember, pMember->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
                 ++DeathCount;
                 EndEventTimer = 1500;
-            }else EndEventTimer -= diff;
+            } else EndEventTimer -= diff;
         }
 
         if (CheckTimer)
@@ -342,7 +342,7 @@ struct TRINITY_DLL_DECL mob_illidari_councilAI : public ScriptedAI
                     Reset();
 
                 CheckTimer = 2000;
-            }else CheckTimer -= diff;
+            } else CheckTimer -= diff;
         }
 
     }
@@ -480,7 +480,7 @@ struct TRINITY_DLL_DECL boss_gathios_the_shattererAI : public boss_illidari_coun
     void CastAuraOnCouncil()
     {
         uint32 spellid = 0;
-        switch(rand()%2)
+        switch (urand(0,1))
         {
             case 0: spellid = SPELL_DEVOTION_AURA;   break;
             case 1: spellid = SPELL_CHROMATIC_AURA;  break;
@@ -498,53 +498,53 @@ struct TRINITY_DLL_DECL boss_gathios_the_shattererAI : public boss_illidari_coun
         if (!UpdateVictim())
             return;
 
-        if (BlessingTimer < diff)
+        if (BlessingTimer <= diff)
         {
             if (Unit* pUnit = SelectCouncilMember())
             {
-                switch(rand()%2)
+                switch (urand(0,1))
                 {
                     case 0: DoCast(pUnit, SPELL_BLESS_SPELLWARD);  break;
                     case 1: DoCast(pUnit, SPELL_BLESS_PROTECTION); break;
                 }
             }
             BlessingTimer = 60000;
-        }else BlessingTimer -= diff;
+        } else BlessingTimer -= diff;
 
-        if (ConsecrationTimer < diff)
+        if (ConsecrationTimer <= diff)
         {
             DoCast(m_creature, SPELL_CONSECRATION);
             ConsecrationTimer = 40000;
-        }else ConsecrationTimer -= diff;
+        } else ConsecrationTimer -= diff;
 
-        if (HammerOfJusticeTimer < diff)
+        if (HammerOfJusticeTimer <= diff)
         {
-            if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0))
+            if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
             {
                 // is in ~10-40 yd range
-                if (m_creature->IsInRange(target, 10.0f, 40.0f, false))
+                if (m_creature->IsInRange(pTarget, 10.0f, 40.0f, false))
                 {
-                    DoCast(target, SPELL_HAMMER_OF_JUSTICE);
+                    DoCast(pTarget, SPELL_HAMMER_OF_JUSTICE);
                     HammerOfJusticeTimer = 20000;
                 }
             }
-        }else HammerOfJusticeTimer -= diff;
+        } else HammerOfJusticeTimer -= diff;
 
-        if (SealTimer < diff)
+        if (SealTimer <= diff)
         {
-            switch(rand()%2)
+            switch (urand(0,1))
             {
                 case 0: DoCast(m_creature, SPELL_SEAL_OF_COMMAND);  break;
                 case 1: DoCast(m_creature, SPELL_SEAL_OF_BLOOD);    break;
             }
             SealTimer = 40000;
-        }else SealTimer -= diff;
+        } else SealTimer -= diff;
 
-        if (AuraTimer < diff)
+        if (AuraTimer <= diff)
         {
             CastAuraOnCouncil();
             AuraTimer = 90000;
-        }else AuraTimer -= diff;
+        } else AuraTimer -= diff;
 
         DoMeleeAttackIfReady();
     }
@@ -588,7 +588,7 @@ struct TRINITY_DLL_DECL boss_high_nethermancer_zerevorAI : public boss_illidari_
 
         if (Cooldown)
         {
-            if (Cooldown < diff) Cooldown = 0;
+            if (Cooldown <= diff) Cooldown = 0;
             else
             {
                 Cooldown -= diff;
@@ -596,49 +596,49 @@ struct TRINITY_DLL_DECL boss_high_nethermancer_zerevorAI : public boss_illidari_
             }
         }
 
-        if (DampenMagicTimer < diff)
+        if (DampenMagicTimer <= diff)
         {
             DoCast(m_creature, SPELL_DAMPEN_MAGIC);
             Cooldown = 1000;
             DampenMagicTimer = 67200;                      // almost 1,12 minutes
             ArcaneBoltTimer += 1000;                        // Give the Mage some time to spellsteal Dampen.
-        }else DampenMagicTimer -= diff;
+        } else DampenMagicTimer -= diff;
 
-        if (ArcaneExplosionTimer < diff)
+        if (ArcaneExplosionTimer <= diff)
         {
             DoCast(m_creature->getVictim(), SPELL_ARCANE_EXPLOSION);
             Cooldown = 1000;
             ArcaneExplosionTimer = 14000;
-        }else ArcaneExplosionTimer -= diff;
+        } else ArcaneExplosionTimer -= diff;
 
-        if (ArcaneBoltTimer < diff)
+        if (ArcaneBoltTimer <= diff)
         {
             DoCast(m_creature->getVictim(), SPELL_ARCANE_BOLT);
             ArcaneBoltTimer = 3000;
             Cooldown = 2000;
-        }else ArcaneBoltTimer -= diff;
+        } else ArcaneBoltTimer -= diff;
 
-        if (BlizzardTimer < diff)
+        if (BlizzardTimer <= diff)
         {
-            if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0))
+            if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
             {
-                DoCast(target, SPELL_BLIZZARD);
+                DoCast(pTarget, SPELL_BLIZZARD);
                 BlizzardTimer = 45000 + rand()%46 * 1000;
                 FlamestrikeTimer += 10000;
                 Cooldown = 1000;
             }
-        }else BlizzardTimer -= diff;
+        } else BlizzardTimer -= diff;
 
-        if (FlamestrikeTimer < diff)
+        if (FlamestrikeTimer <= diff)
         {
-            if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0))
+            if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
             {
-                DoCast(target, SPELL_FLAMESTRIKE);
+                DoCast(pTarget, SPELL_FLAMESTRIKE);
                 FlamestrikeTimer = 55000 + rand()%46 * 1000;
                 BlizzardTimer += 10000;
                 Cooldown = 2000;
             }
-        }else FlamestrikeTimer -= diff;
+        } else FlamestrikeTimer -= diff;
     }
 };
 
@@ -674,35 +674,35 @@ struct TRINITY_DLL_DECL boss_lady_malandeAI : public boss_illidari_councilAI
         if (!UpdateVictim())
             return;
 
-        if (EmpoweredSmiteTimer < diff)
+        if (EmpoweredSmiteTimer <= diff)
         {
-            if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0))
+            if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
             {
-                DoCast(target, SPELL_EMPOWERED_SMITE);
+                DoCast(pTarget, SPELL_EMPOWERED_SMITE);
                 EmpoweredSmiteTimer = 38000;
             }
-        }else EmpoweredSmiteTimer -= diff;
+        } else EmpoweredSmiteTimer -= diff;
 
-        if (CircleOfHealingTimer < diff)
+        if (CircleOfHealingTimer <= diff)
         {
             DoCast(m_creature, SPELL_CIRCLE_OF_HEALING);
             CircleOfHealingTimer = 60000;
-        }else CircleOfHealingTimer -= diff;
+        } else CircleOfHealingTimer -= diff;
 
-        if (DivineWrathTimer < diff)
+        if (DivineWrathTimer <= diff)
         {
-            if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0))
+            if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
             {
-                DoCast(target, SPELL_DIVINE_WRATH);
+                DoCast(pTarget, SPELL_DIVINE_WRATH);
                 DivineWrathTimer = 40000 + rand()%41 * 1000;
             }
-        }else DivineWrathTimer -= diff;
+        } else DivineWrathTimer -= diff;
 
-        if (ReflectiveShieldTimer < diff)
+        if (ReflectiveShieldTimer <= diff)
         {
             DoCast(m_creature, SPELL_REFLECTIVE_SHIELD);
             ReflectiveShieldTimer = 65000;
-        }else ReflectiveShieldTimer -= diff;
+        } else ReflectiveShieldTimer -= diff;
 
         DoMeleeAttackIfReady();
     }
@@ -750,21 +750,21 @@ struct TRINITY_DLL_DECL boss_veras_darkshadowAI : public boss_illidari_councilAI
 
         if (!HasVanished)
         {
-            if (DeadlyPoisonTimer < diff)
+            if (DeadlyPoisonTimer <= diff)
             {
                 DoCast(m_creature->getVictim(), SPELL_DEADLY_POISON);
                 DeadlyPoisonTimer = 15000 + rand()%31 * 1000;
-            }else DeadlyPoisonTimer -= diff;
+            } else DeadlyPoisonTimer -= diff;
 
-            if (AppearEnvenomTimer < diff)                   // Cast Envenom. This is cast 4 seconds after Vanish is over
+            if (AppearEnvenomTimer <= diff)                   // Cast Envenom. This is cast 4 seconds after Vanish is over
             {
                 DoCast(m_creature->getVictim(), SPELL_ENVENOM);
                 AppearEnvenomTimer = 90000;
-            }else AppearEnvenomTimer -= diff;
+            } else AppearEnvenomTimer -= diff;
 
-            if (VanishTimer < diff)                          // Disappear and stop attacking, but follow a random unit
+            if (VanishTimer <= diff)                          // Disappear and stop attacking, but follow a random unit
             {
-                if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
                 {
                     VanishTimer = 30000;
                     AppearEnvenomTimer= 28000;
@@ -773,35 +773,35 @@ struct TRINITY_DLL_DECL boss_veras_darkshadowAI : public boss_illidari_councilAI
                     m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                     DoResetThreat();
                                                             // Chase a unit. Check before DoMeleeAttackIfReady prevents from attacking
-                    m_creature->AddThreat(target, 500000.0f);
-                    m_creature->GetMotionMaster()->MoveChase(target);
+                    m_creature->AddThreat(pTarget, 500000.0f);
+                    m_creature->GetMotionMaster()->MoveChase(pTarget);
                 }
-            }else VanishTimer -= diff;
+            } else VanishTimer -= diff;
 
             DoMeleeAttackIfReady();
         }
         else
         {
-            if (VanishTimer < diff)                          // Become attackable and poison current target
+            if (VanishTimer <= diff)                          // Become attackable and poison current target
             {
-                Unit* target = m_creature->getVictim();
-                DoCast(target, SPELL_DEADLY_POISON);
+                Unit *pTarget = m_creature->getVictim();
+                DoCast(pTarget, SPELL_DEADLY_POISON);
                 m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 DoResetThreat();
-                m_creature->AddThreat(target, 3000.0f);     // Make Veras attack his target for a while, he will cast Envenom 4 seconds after.
+                m_creature->AddThreat(pTarget, 3000.0f);     // Make Veras attack his pTarget for a while, he will cast Envenom 4 seconds after.
                 DeadlyPoisonTimer += 6000;
                 VanishTimer = 90000;
                 AppearEnvenomTimer = 4000;
                 HasVanished = false;
-            }else VanishTimer -= diff;
+            } else VanishTimer -= diff;
 
-            if (AppearEnvenomTimer < diff)                   // Appear 2 seconds before becoming attackable (Shifting out of vanish)
+            if (AppearEnvenomTimer <= diff)                   // Appear 2 seconds before becoming attackable (Shifting out of vanish)
             {
                 m_creature->GetMotionMaster()->Clear();
                 m_creature->GetMotionMaster()->MoveChase(m_creature->getVictim());
                 m_creature->SetVisibility(VISIBILITY_ON);
                 AppearEnvenomTimer = 6000;
-            }else AppearEnvenomTimer -= diff;
+            } else AppearEnvenomTimer -= diff;
         }
     }
 };

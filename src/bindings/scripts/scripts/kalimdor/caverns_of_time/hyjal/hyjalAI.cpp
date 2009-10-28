@@ -400,7 +400,7 @@ void hyjalAI::Reset()
             pInstance->DoUpdateWorldState(WORLD_STATE_ENEMYCOUNT, 0);
             pInstance->SetData(DATA_RESET_TRASH_COUNT, 0);
         }
-    }else error_log(ERROR_INST_DATA);
+    } else error_log(ERROR_INST_DATA);
 
     //Visibility
     DoHide = true;
@@ -720,7 +720,7 @@ void hyjalAI::DeSpawnVeins()
             if (GameObject* gem = pInstance->instance->GetGameObject(pInstance->GetData64(ai->VeinGUID[i])))
                 gem->Delete();
         }
-    }else if (Faction)
+    } else if (Faction)
     {
         Creature* pUnit=Unit::GetCreature((*m_creature),pInstance->GetData64(DATA_THRALL));
         if (!pUnit)return;
@@ -742,7 +742,7 @@ void hyjalAI::UpdateAI(const uint32 diff)
         {
             m_creature->CastSpell(m_creature,SPELL_MASS_TELEPORT,false);
             DoMassTeleport = false;
-        }else MassTeleportTimer -= diff;
+        } else MassTeleportTimer -= diff;
         return;
     }
     if (DoHide)
@@ -779,14 +779,14 @@ void hyjalAI::UpdateAI(const uint32 diff)
     }
     if (DoRespawn)
     {
-        if (RespawnTimer < diff)
+        if (RespawnTimer <= diff)
         {
             DoRespawn = false;
             RespawnNearPos(m_creature->GetPositionX(), m_creature->GetPositionY());
             if (Faction == 0)
             {
                 RespawnNearPos(5037.76, -1889.71);
-            }else if (Faction == 1)
+            } else if (Faction == 1)
             {
                 RespawnNearPos(5563, -2763.19);
                 RespawnNearPos(5542.2, -2629.36);
@@ -802,7 +802,7 @@ void hyjalAI::UpdateAI(const uint32 diff)
         DoOverrun(Faction, diff);
     if (bRetreat)
     {
-        if (RetreatTimer < diff)
+        if (RetreatTimer <= diff)
         {
             IsDummy = true;
             bRetreat = false;
@@ -819,7 +819,7 @@ void hyjalAI::UpdateAI(const uint32 diff)
                     break;
             }
             m_creature->SetVisibility(VISIBILITY_OFF);
-        }else RetreatTimer -= diff;
+        } else RetreatTimer -= diff;
     }
 
     if (!EventBegun)
@@ -834,17 +834,17 @@ void hyjalAI::UpdateAI(const uint32 diff)
                 NextWaveTimer = 5000;
         }
 
-        if (NextWaveTimer < diff)
+        if (NextWaveTimer <= diff)
         {
             if (Faction == 0)
                 SummonNextWave(AllianceWaves, WaveCount, AllianceBase);
             else if (Faction == 1)
                 SummonNextWave(HordeWaves, WaveCount, HordeBase);
             ++WaveCount;
-        }else NextWaveTimer -= diff;
+        } else NextWaveTimer -= diff;
     }
 
-    if (CheckTimer < diff)
+    if (CheckTimer <= diff)
     {
         for (uint8 i = 0; i < 2; ++i)
         {
@@ -873,7 +873,7 @@ void hyjalAI::UpdateAI(const uint32 diff)
             }
         }
         CheckTimer = 5000;
-    }else CheckTimer -= diff;
+    } else CheckTimer -= diff;
 
     if (!UpdateVictim())
         return;
@@ -882,26 +882,26 @@ void hyjalAI::UpdateAI(const uint32 diff)
     {
         if (Spell[i].SpellId)
         {
-            if (SpellTimer[i] < diff)
+            if (SpellTimer[i] <= diff)
             {
                 if (m_creature->IsNonMeleeSpellCasted(false))
                     m_creature->InterruptNonMeleeSpells(false);
 
-                Unit* target = NULL;
+                Unit *pTarget = NULL;
 
                 switch(Spell[i].TargetType)
                 {
-                    case TARGETTYPE_SELF: target = m_creature; break;
-                    case TARGETTYPE_RANDOM: target = SelectUnit(SELECT_TARGET_RANDOM, 0); break;
-                    case TARGETTYPE_VICTIM: target = m_creature->getVictim(); break;
+                    case TARGETTYPE_SELF: pTarget = m_creature; break;
+                    case TARGETTYPE_RANDOM: pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0); break;
+                    case TARGETTYPE_VICTIM: pTarget = m_creature->getVictim(); break;
                 }
 
-                if (target && target->isAlive())
+                if (pTarget && pTarget->isAlive())
                 {
-                    DoCast(target, Spell[i].SpellId);
+                    DoCast(pTarget, Spell[i].SpellId);
                     SpellTimer[i] = Spell[i].Cooldown;
                 }
-            }else SpellTimer[i] -= diff;
+            } else SpellTimer[i] -= diff;
         }
     }
 
@@ -1032,7 +1032,7 @@ void hyjalAI::DoOverrun(uint32 faction, const uint32 diff)
     npc_escortAI::UpdateAI(diff);
     if (WaitForTeleport)
     {
-        if (TeleportTimer < diff)
+        if (TeleportTimer <= diff)
         {
             CellPair pair(Trinity::ComputeCellPair(m_creature->GetPositionX(), m_creature->GetPositionY()));
             Cell cell(pair);

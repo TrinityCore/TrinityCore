@@ -84,20 +84,20 @@ struct TRINITY_DLL_DECL boss_moorabiAI : public ScriptedAI
         {
             m_creature->RemoveAura(SPELL_MOJO_FRENZY);
 
-            if (SPELL_GROUND_TREMOR_TIMER < diff)
+            if (SPELL_GROUND_TREMOR_TIMER <= diff)
             {
                 DoScriptText(SAY_QUAKE, m_creature);
                 m_creature->CastSpell(m_creature->getVictim(),SPELL_QUAKE,true);
                 SPELL_GROUND_TREMOR_TIMER = 10000;
             } else SPELL_GROUND_TREMOR_TIMER -= diff;
 
-            if (SPELL_NUMBING_SHOUT_TIMER < diff)
+            if (SPELL_NUMBING_SHOUT_TIMER <= diff)
             {
                 m_creature->CastSpell(m_creature->getVictim(),SPELL_NUMBING_ROAR,true);
                 SPELL_NUMBING_SHOUT_TIMER = 10000;
             } else SPELL_NUMBING_SHOUT_TIMER -=diff;
 
-            if (SPELL_DETERMINED_STAB_TIMER < diff)
+            if (SPELL_DETERMINED_STAB_TIMER <= diff)
             {
                 DoCast(m_creature->getVictim(), HEROIC(SPELL_DETERMINED_GORE, SPELL_DETERMINED_GORE_1));
                 SPELL_DETERMINED_STAB_TIMER = 8000;
@@ -106,7 +106,7 @@ struct TRINITY_DLL_DECL boss_moorabiAI : public ScriptedAI
         else
         {
             //CAST TRANSFORMATION
-            if (SPELL_TRANSFORMATION_TIMER < diff)
+            if (SPELL_TRANSFORMATION_TIMER <= diff)
             {
                 DoScriptText(EMOTE_TRANSFORM, m_creature);
                 DoScriptText(SAY_TRANSFORM, m_creature);
@@ -115,7 +115,7 @@ struct TRINITY_DLL_DECL boss_moorabiAI : public ScriptedAI
             } else SPELL_TRANSFORMATION_TIMER -= diff;
 
             //CAST GROUND TERMOR || QUAKE
-            if (SPELL_GROUND_TREMOR_TIMER < diff)
+            if (SPELL_GROUND_TREMOR_TIMER <= diff)
             {
                 DoScriptText(SAY_QUAKE, m_creature);
                 m_creature->CastSpell(m_creature->getVictim(),SPELL_GROUND_TREMOR,true);
@@ -123,13 +123,13 @@ struct TRINITY_DLL_DECL boss_moorabiAI : public ScriptedAI
             } else SPELL_GROUND_TREMOR_TIMER -= diff;
 
             //CAST NUMBING SHOUT || DETERMINED_STAB
-            if (SPELL_NUMBING_SHOUT_TIMER < diff)
+            if (SPELL_NUMBING_SHOUT_TIMER <= diff)
             {
                 m_creature->CastSpell(m_creature->getVictim(),SPELL_NUMBING_SHOUT,true);
                 SPELL_NUMBING_SHOUT_TIMER = 10000;
             } else SPELL_NUMBING_SHOUT_TIMER -= diff;
 
-            if (SPELL_DETERMINED_STAB_TIMER < diff)
+            if (SPELL_DETERMINED_STAB_TIMER <= diff)
             {
                 m_creature->CastSpell(m_creature->getVictim(),SPELL_DETERMINED_STAB,true);
                 SPELL_DETERMINED_STAB_TIMER = 8000;

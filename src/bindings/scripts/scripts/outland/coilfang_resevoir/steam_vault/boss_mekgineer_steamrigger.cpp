@@ -17,7 +17,7 @@
 /* ScriptData
 SDName: Boss_Mekgineer_Steamrigger
 SD%Complete: 60
-SDComment: Mechanics' interrrupt heal doesn't work very well, also a proper movement needs to be implemented -> summon further away and move towards target to repair.
+SDComment: Mechanics' interrrupt heal doesn't work very well, also a proper movement needs to be implemented -> summon further away and move towards pTarget to repair.
 SDCategory: Coilfang Resevoir, The Steamvault
 EndScriptData */
 
@@ -119,23 +119,23 @@ struct TRINITY_DLL_DECL boss_mekgineer_steamriggerAI : public ScriptedAI
         if (!UpdateVictim())
             return;
 
-        if (Shrink_Timer < diff)
+        if (Shrink_Timer <= diff)
         {
             DoCast(m_creature->getVictim(),SPELL_SUPER_SHRINK_RAY);
             Shrink_Timer = 20000;
-        }else Shrink_Timer -= diff;
+        } else Shrink_Timer -= diff;
 
-        if (Saw_Blade_Timer < diff)
+        if (Saw_Blade_Timer <= diff)
         {
-            if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM,1))
-                DoCast(target,SPELL_SAW_BLADE);
+            if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM,1))
+                DoCast(pTarget,SPELL_SAW_BLADE);
             else
                 DoCast(m_creature->getVictim(),SPELL_SAW_BLADE);
 
             Saw_Blade_Timer = 15000;
         } else Saw_Blade_Timer -= diff;
 
-        if (Electrified_Net_Timer < diff)
+        if (Electrified_Net_Timer <= diff)
         {
             DoCast(m_creature->getVictim(),SPELL_ELECTRIFIED_NET);
             Electrified_Net_Timer = 10000;
@@ -213,7 +213,7 @@ struct TRINITY_DLL_DECL mob_steamrigger_mechanicAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
-        if (Repair_Timer < diff)
+        if (Repair_Timer <= diff)
         {
             if (pInstance && pInstance->GetData64(DATA_MEKGINEERSTEAMRIGGER) && pInstance->GetData(TYPE_MEKGINEER_STEAMRIGGER) == IN_PROGRESS)
             {
@@ -237,8 +237,8 @@ struct TRINITY_DLL_DECL mob_steamrigger_mechanicAI : public ScriptedAI
                         //m_creature->GetMotionMaster()->MoveFollow(pMekgineer,0,0);
                     }
                 }
-            }else Repair_Timer = 5000;
-        }else Repair_Timer -= diff;
+            } else Repair_Timer = 5000;
+        } else Repair_Timer -= diff;
 
         if (!UpdateVictim())
             return;

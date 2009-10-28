@@ -115,11 +115,11 @@ struct TRINITY_DLL_DECL boss_skeramAI : public ScriptedAI
             return;
 
         //ArcaneExplosion_Timer
-        if (ArcaneExplosion_Timer < diff)
+        if (ArcaneExplosion_Timer <= diff)
         {
             DoCast(m_creature->getVictim(), SPELL_ARCANE_EXPLOSION);
             ArcaneExplosion_Timer = 8000 + rand()%10000;
-        }else ArcaneExplosion_Timer -= diff;
+        } else ArcaneExplosion_Timer -= diff;
 
         //If we are within range melee the target
         if (m_creature->IsWithinMeleeRange(m_creature->getVictim()))
@@ -133,15 +133,15 @@ struct TRINITY_DLL_DECL boss_skeramAI : public ScriptedAI
         }else
         {
             //EarthShock_Timer
-            if (EarthShock_Timer < diff)
+            if (EarthShock_Timer <= diff)
             {
                 DoCast(m_creature->getVictim(),SPELL_EARTH_SHOCK);
                 EarthShock_Timer = 1000;
-            }else EarthShock_Timer -= diff;
+            } else EarthShock_Timer -= diff;
         }
 
         //Blink_Timer
-        if (Blink_Timer < diff)
+        if (Blink_Timer <= diff)
         {
             //DoCast(m_creature, SPELL_BLINK);
             switch(rand()%3)
@@ -162,7 +162,7 @@ struct TRINITY_DLL_DECL boss_skeramAI : public ScriptedAI
             DoStopAttack();
 
             Blink_Timer= 20000 + rand()%20000;
-        }else Blink_Timer -= diff;
+        } else Blink_Timer -= diff;
 
         int procent = (int) (m_creature->GetHealth()*100 / m_creature->GetMaxHealth() +0.5);
 
@@ -182,7 +182,7 @@ struct TRINITY_DLL_DECL boss_skeramAI : public ScriptedAI
         //Invisible_Timer
         if (Invisible)
         {
-            if (Invisible_Timer < diff)
+            if (Invisible_Timer <= diff)
             {
                 //Making Skeram visible after telporting
                 m_creature->SetVisibility(VISIBILITY_ON);
@@ -190,7 +190,7 @@ struct TRINITY_DLL_DECL boss_skeramAI : public ScriptedAI
 
                 Invisible_Timer = 2500;
                 Invisible = false;
-            }else Invisible_Timer -= diff;
+            } else Invisible_Timer -= diff;
         }
 
         DoMeleeAttackIfReady();
@@ -225,20 +225,17 @@ struct TRINITY_DLL_DECL boss_skeramAI : public ScriptedAI
                 break;
         }
 
-        for (int tryi = 0; tryi < 41; tryi ++)
+        for (uint16 i = 0; i < 41; ++i)
         {
-            Unit *targetpl = SelectUnit(SELECT_TARGET_RANDOM, 0);
-            if (targetpl->GetTypeId() == TYPEID_PLAYER)
+            if (Player *pTarget = CAST_PLR(SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true)))
             {
-                Group *grp = CAST_PLR(targetpl)->GetGroup();
-                if (grp)
-                {
-                    for (int ici = 0; ici < TARGETICONCOUNT; ++ici)
+                if (Group *pGrp = pTarget->GetGroup())
+                    for (uint8 ico = 0; ico < TARGETICONCOUNT; ++ico)
                     {
-                        //if (grp ->m_targetIcons[ici] == m_creature->GetGUID()) -- private member:(
-                        grp->SetTargetIcon(ici, 0);
+                        //if (grp->m_targetIcons[ico] == m_creature->GetGUID()) -- private member :(
+                        pGrp->SetTargetIcon(ico, 0);
                     }
-                }
+
                 break;
             }
         }
@@ -261,15 +258,15 @@ struct TRINITY_DLL_DECL boss_skeramAI : public ScriptedAI
             case 25: Images25 = true; break;
         }
 
-        Unit* target = SelectUnit(SELECT_TARGET_RANDOM,0);
+        Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM,0);
 
         Image1 = m_creature->SummonCreature(15263, i1->x, i1->y, i1->z, i1->r, TEMPSUMMON_CORPSE_DESPAWN, 30000);
         if (Image1)
         {
             Image1->SetMaxHealth(m_creature->GetMaxHealth() / 5);
             Image1->SetHealth(m_creature->GetHealth() / 5);
-            if (target)
-                Image1->AI()->AttackStart(target);
+            if (pTarget)
+                Image1->AI()->AttackStart(pTarget);
             CAST_AI(boss_skeramAI, Image1->AI())->IsImage = true;
         }
 
@@ -278,8 +275,8 @@ struct TRINITY_DLL_DECL boss_skeramAI : public ScriptedAI
         {
             Image2->SetMaxHealth(m_creature->GetMaxHealth() / 5);
             Image2->SetHealth(m_creature->GetHealth() / 5);
-            if (target)
-                Image2->AI()->AttackStart(target);
+            if (pTarget)
+                Image2->AI()->AttackStart(pTarget);
             CAST_AI(boss_skeramAI, Image2->AI())->IsImage = true;
         }
         Invisible = true;

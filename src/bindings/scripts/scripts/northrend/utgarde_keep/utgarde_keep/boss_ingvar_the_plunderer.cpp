@@ -187,19 +187,19 @@ struct TRINITY_DLL_DECL boss_ingvar_the_plundererAI : public ScriptedAI
                     DoCast(m_creature,SPELL_SUMMON_BANSHEE); // Summons direktly on caster position
                     //DoCast(m_creature,SPELL_SCOURG_RESURRECTION_EFFEKTSPAWN); // Dont needet ?
                     SpawnResTimer = 0;
-                }else SpawnResTimer -= diff;
+                } else SpawnResTimer -= diff;
 
             return;
         }
 
         // This is used for a spell queue ... the spells should not castet if one spell is already casting
         if (wait_Timer)
-            if (wait_Timer < diff)
+            if (wait_Timer <= diff)
             {
                 wait_Timer = 0;
-            }else wait_Timer -= diff;
+            } else wait_Timer -= diff;
 
-        if (Cleave_Timer < diff)
+        if (Cleave_Timer <= diff)
         {
             if (!wait_Timer)
             {
@@ -211,9 +211,9 @@ struct TRINITY_DLL_DECL boss_ingvar_the_plundererAI : public ScriptedAI
 
                 wait_Timer = 1000;
             }
-        }else Cleave_Timer -= diff;
+        } else Cleave_Timer -= diff;
 
-        if (Smash_Timer < diff)
+        if (Smash_Timer <= diff)
         {
             if (!wait_Timer)
             {
@@ -225,35 +225,35 @@ struct TRINITY_DLL_DECL boss_ingvar_the_plundererAI : public ScriptedAI
 
                 wait_Timer = 5000;
             }
-        }else Smash_Timer -= diff;
+        } else Smash_Timer -= diff;
 
         if (!undead)
         {
-            if (Enrage_Timer < diff)
+            if (Enrage_Timer <= diff)
             {
                 DoCast(m_creature,HEROIC(SPELL_ENRAGE, H_SPELL_ENRAGE));
                 Enrage_Timer = 10000;
-            }else Enrage_Timer -= diff;
-        }else // In Undead form used to summon weapon
+            } else Enrage_Timer -= diff;
+        } else // In Undead form used to summon weapon
         {
-            if (Enrage_Timer < diff)
+            if (Enrage_Timer <= diff)
             {
                 if (!wait_Timer)
                 {
-                    // Spawn target for Axe
-                    Unit* target = SelectUnit(SELECT_TARGET_TOPAGGRO, 1);
-                    if (target)
+                    // Spawn pTarget for Axe
+                    Unit *pTarget = SelectUnit(SELECT_TARGET_TOPAGGRO, 1);
+                    if (pTarget)
                     {
-                        Creature* temp = m_creature->SummonCreature(ENTRY_THROW_TARGET,target->GetPositionX(),target->GetPositionY(),target->GetPositionZ(),0,TEMPSUMMON_TIMED_DESPAWN,2000);
+                        Creature* temp = m_creature->SummonCreature(ENTRY_THROW_TARGET,pTarget->GetPositionX(),pTarget->GetPositionY(),pTarget->GetPositionZ(),0,TEMPSUMMON_TIMED_DESPAWN,2000);
 
                         DoCast(m_creature,SPELL_SHADOW_AXE_SUMMON);
                     }
                     Enrage_Timer = 30000;
                 }
-            }else Enrage_Timer -= diff;
+            } else Enrage_Timer -= diff;
         }
 
-        if (Roar_Timer < diff)
+        if (Roar_Timer <= diff)
         {
             if (!wait_Timer)
             {
@@ -265,7 +265,7 @@ struct TRINITY_DLL_DECL boss_ingvar_the_plundererAI : public ScriptedAI
 
                 wait_Timer = 5000;
             }
-        }else Roar_Timer -= diff;
+        } else Roar_Timer -= diff;
 
         DoMeleeAttackIfReady();
     }
@@ -362,7 +362,7 @@ struct TRINITY_DLL_DECL mob_annhylde_the_callerAI : public ScriptedAI
                     }
                     Resurect_Timer = 3000;
                     Resurect_Phase = 2;
-                }else if (Resurect_Phase == 2)
+                } else if (Resurect_Phase == 2)
                 {
                     Creature* ingvar = Unit::GetCreature(*m_creature, pInstance ? pInstance->GetData64(DATA_INGVAR) : 0);
                     if (ingvar)
@@ -379,7 +379,7 @@ struct TRINITY_DLL_DECL mob_annhylde_the_callerAI : public ScriptedAI
                     }
                 }
 
-            }else Resurect_Timer -= diff;
+            } else Resurect_Timer -= diff;
     }
 };
 
@@ -406,12 +406,12 @@ struct TRINITY_DLL_DECL mob_ingvar_throw_dummyAI : public ScriptedAI
 
     void Reset()
     {
-        Unit* target = m_creature->FindNearestCreature(ENTRY_THROW_TARGET,50);
-        if (target)
+        Unit *pTarget = m_creature->FindNearestCreature(ENTRY_THROW_TARGET,50);
+        if (pTarget)
         {
             DoCast(m_creature, HEROIC(SPELL_SHADOW_AXE_DAMAGE, H_SPELL_SHADOW_AXE_DAMAGE));
             float x,y,z;
-            target->GetPosition(x,y,z);
+            pTarget->GetPosition(x,y,z);
             m_creature->GetMotionMaster()->MovePoint(0,x,y,z);
         }
         Despawn_Timer = 7000;
@@ -421,12 +421,12 @@ struct TRINITY_DLL_DECL mob_ingvar_throw_dummyAI : public ScriptedAI
     void EnterCombat(Unit *who) {}
     void UpdateAI(const uint32 diff)
     {
-        if (Despawn_Timer < diff)
+        if (Despawn_Timer <= diff)
         {
             m_creature->DealDamage(m_creature,m_creature->GetHealth());
             m_creature->RemoveCorpse();
             Despawn_Timer = 0;
-        }else Despawn_Timer -= diff;
+        } else Despawn_Timer -= diff;
     }
 };
 

@@ -148,7 +148,7 @@ struct TRINITY_DLL_DECL mob_restless_soulAI : public ScriptedAI
     {
         if (Tagged)
         {
-            if (Die_Timer < diff)
+            if (Die_Timer <= diff)
             {
                 if (Unit* pTemp = Unit::GetUnit(*m_creature,Tagger))
                     pTemp->Kill(pTemp);
@@ -210,7 +210,7 @@ struct TRINITY_DLL_DECL mobs_spectral_ghostly_citizenAI : public ScriptedAI
     {
         if (Tagged)
         {
-            if (Die_Timer < diff)
+            if (Die_Timer <= diff)
                 m_creature->Kill(m_creature);
             else Die_Timer -= diff;
         }

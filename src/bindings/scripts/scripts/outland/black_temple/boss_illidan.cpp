@@ -73,7 +73,7 @@ const char*  SAY_KILL2        = "This is too easy!";
 #define SPELL_PARASITIC_SHADOWFIEND     41917 // DoT of 3k Shadow every 2 seconds. Lasts 10 seconds. (Script effect: Summon 2 parasites once the debuff has ticked off)
 #define SPELL_PARASITIC_SHADOWFIEND2    41914 // Used by Parasitic
 #define SPELL_SUMMON_PARASITICS         41915 // Summons 2 Parasitic Shadowfiends on the target. It's supposed to be cast as soon as the Parasitic Shadowfiend debuff is gone, but the spells aren't linked :(
-#define SPELL_AGONIZING_FLAMES          40932 // 4k fire damage initial to target and anyone w/i 5 yards. PHASE 3 ONLY
+#define SPELL_AGONIZING_FLAMES          40932 // 4k fire damage initial to pTarget and anyone w/i 5 yards. PHASE 3 ONLY
 #define SPELL_ENRAGE                    40683 // Increases damage by 50% and attack speed by 30%. 20 seconds, PHASE 5 ONLY
 // Flying (Phase 2)
 #define SPELL_THROW_GLAIVE              39635 // Throws a glaive on the ground
@@ -100,7 +100,7 @@ const char*  SAY_KILL2        = "This is too easy!";
 #define SPELL_SUMMON_SHADOWDEMON        41117 // Summon four shadowfiends
 #define SPELL_SHADOWFIEND_PASSIVE       41913 // Passive aura for shadowfiends
 #define SPELL_SHADOW_DEMON_PASSIVE      41079 // Adds the "shadowform" aura to Shadow Demons.
-#define SPELL_CONSUME_SOUL              41080 // Once the Shadow Demons reach their target, they use this to kill them
+#define SPELL_CONSUME_SOUL              41080 // Once the Shadow Demons reach their pTarget, they use this to kill them
 #define SPELL_PARALYZE                  41083 // Shadow Demons cast this on their target
 #define SPELL_PURPLE_BEAM               39123 // Purple Beam connecting Shadow Demon to their target
 //Phase Flight spells
@@ -466,7 +466,7 @@ struct TRINITY_DLL_DECL boss_illidan_stormrageAI : public ScriptedAI
     {
         if (victim == m_creature) return;
         // TODO: Find better way to handle emote
-        switch(rand()%2)
+        switch (urand(0,1))
         {
         case 0:
             m_creature->MonsterYell(SAY_KILL1, LANG_UNIVERSAL, victim->GetGUID());
@@ -782,8 +782,8 @@ struct TRINITY_DLL_DECL boss_illidan_stormrageAI : public ScriptedAI
 
             case EVENT_PARASITIC_SHADOWFIEND:
                 {
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 200, true))
-                        m_creature->CastSpell(target, SPELL_PARASITIC_SHADOWFIEND, true);
+                    if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1, 200, true))
+                        m_creature->CastSpell(pTarget, SPELL_PARASITIC_SHADOWFIEND, true);
                     Timer[EVENT_PARASITIC_SHADOWFIEND] = 35000 + rand()%10000;
                 }break;
 
@@ -904,13 +904,13 @@ struct TRINITY_DLL_DECL flame_of_azzinothAI : public ScriptedAI
 
     void ChargeCheck()
     {
-        Unit* target = SelectTarget(SELECT_TARGET_FARTHEST, 0, 200, false);
-        if (target && (!m_creature->IsWithinCombatRange(target, FLAME_CHARGE_DISTANCE)))
+        Unit *pTarget = SelectTarget(SELECT_TARGET_FARTHEST, 0, 200, false);
+        if (pTarget && (!m_creature->IsWithinCombatRange(pTarget, FLAME_CHARGE_DISTANCE)))
         {
-            m_creature->AddThreat(target, 5000000.0f);
-            AttackStart(target);
-            DoCast(target, SPELL_CHARGE);
-            m_creature->MonsterTextEmote(EMOTE_SETS_GAZE_ON, target->GetGUID());
+            m_creature->AddThreat(pTarget, 5000000.0f);
+            AttackStart(pTarget);
+            DoCast(pTarget, SPELL_CHARGE);
+            m_creature->MonsterTextEmote(EMOTE_SETS_GAZE_ON, pTarget->GetGUID());
         }
     }
 
@@ -923,8 +923,8 @@ struct TRINITY_DLL_DECL flame_of_azzinothAI : public ScriptedAI
                 Glaive->InterruptNonMeleeSpells(true);
                 DoCast(m_creature, SPELL_FLAME_ENRAGE, true);
                 DoResetThreat();
-                Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0);
-                if (target && target->isAlive())
+                Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0);
+                if (pTarget && pTarget->isAlive())
                 {
                     m_creature->AddThreat(m_creature->getVictim(), 5000000.0f);
                     AttackStart(m_creature->getVictim());
@@ -945,20 +945,20 @@ struct TRINITY_DLL_DECL flame_of_azzinothAI : public ScriptedAI
         if (!UpdateVictim())
             return;
 
-        if (FlameBlastTimer < diff)
+        if (FlameBlastTimer <= diff)
         {
             DoCast(m_creature->getVictim(), SPELL_BLAZE_SUMMON, true); //appear at victim
             DoCast(m_creature->getVictim(), SPELL_FLAME_BLAST);
             FlameBlastTimer = 15000; //10000 is official-like?
             DoZoneInCombat(); //in case someone is revived
-        }else FlameBlastTimer -= diff;
+        } else FlameBlastTimer -= diff;
 
-        if (CheckTimer < diff)
+        if (CheckTimer <= diff)
         {
             ChargeCheck();
             EnrageCheck();
             CheckTimer = 1000;
-        }else CheckTimer -= diff;
+        } else CheckTimer -= diff;
 
         DoMeleeAttackIfReady();
     }
@@ -1315,13 +1315,13 @@ struct TRINITY_DLL_DECL npc_akama_illidanAI : public ScriptedAI
     {
         if(m_creature->GetVisibility() == VISIBILITY_OFF)
         {
-            if(Check_Timer < diff)
+            if (Check_Timer <= diff)
             {
                 if(pInstance && pInstance->GetData(DATA_ILLIDARICOUNCILEVENT) == DONE)
                     m_creature->SetVisibility(VISIBILITY_ON);
 
                 Check_Timer = 5000;
-            }else Check_Timer -= diff;
+            } else Check_Timer -= diff;
         }
         Event = false;
         if (Timer)
@@ -1510,9 +1510,9 @@ struct TRINITY_DLL_DECL boss_maievAI : public ScriptedAI
     {
         if (GETCRE(Illidan, IllidanGUID))
         {
-            Unit* target = CAST_AI(boss_illidan_stormrageAI, Illidan->AI())->SelectUnit(SELECT_TARGET_RANDOM, 0);
+            Unit *pTarget = CAST_AI(boss_illidan_stormrageAI, Illidan->AI())->SelectUnit(SELECT_TARGET_RANDOM, 0);
 
-            if (!target || !m_creature->IsWithinDistInMap(target, 80) || Illidan->IsWithinDistInMap(target, 20))
+            if (!pTarget || !m_creature->IsWithinDistInMap(pTarget, 80) || Illidan->IsWithinDistInMap(pTarget, 20))
             {
                 uint8 pos = rand()%4;
                 BlinkTo(HoverPosition[pos].x, HoverPosition[pos].y, HoverPosition[pos].z);
@@ -1520,7 +1520,7 @@ struct TRINITY_DLL_DECL boss_maievAI : public ScriptedAI
             else
             {
                 float x, y, z;
-                target->GetPosition(x, y, z);
+                pTarget->GetPosition(x, y, z);
                 BlinkTo(x, y, z);
             }
         }
@@ -1668,7 +1668,7 @@ struct TRINITY_DLL_DECL cage_trap_triggerAI : public ScriptedAI
     void UpdateAI(const uint32 diff)
     {
         if (DespawnTimer)
-            if (DespawnTimer < diff)
+            if (DespawnTimer <= diff)
                 m_creature->DealDamage(m_creature, m_creature->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
             else DespawnTimer -= diff;
 
@@ -1710,8 +1710,8 @@ struct TRINITY_DLL_DECL shadow_demonAI : public ScriptedAI
 
     void JustDied(Unit *killer)
     {
-        if (Unit* target = Unit::GetUnit((*m_creature), TargetGUID))
-            target->RemoveAurasDueToSpell(SPELL_PARALYZE);
+        if (Unit *pTarget = Unit::GetUnit((*m_creature), TargetGUID))
+            pTarget->RemoveAurasDueToSpell(SPELL_PARALYZE);
     }
 
     void UpdateAI(const uint32 diff)
@@ -1727,7 +1727,7 @@ struct TRINITY_DLL_DECL shadow_demonAI : public ScriptedAI
             DoCast(m_creature->getVictim(), SPELL_PURPLE_BEAM, true);
             DoCast(m_creature->getVictim(), SPELL_PARALYZE, true);
         }
-        // Kill our target if we're very close.
+        // Kill our pTarget if we're very close.
         if (m_creature->IsWithinDistInMap(m_creature->getVictim(), 3))
             DoCast(m_creature->getVictim(), SPELL_CONSUME_SOUL);
     }
@@ -1778,8 +1778,8 @@ struct TRINITY_DLL_DECL mob_parasitic_shadowfiendAI : public ScriptedAI
     {
         if (!m_creature->getVictim())
         {
-            if (Unit *target = SelectTarget(SELECT_TARGET_RANDOM, 0, 999, true))
-                AttackStart(target);
+            if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 999, true))
+                AttackStart(pTarget);
             else
             {
                 m_creature->SetVisibility(VISIBILITY_OFF);
@@ -1788,7 +1788,7 @@ struct TRINITY_DLL_DECL mob_parasitic_shadowfiendAI : public ScriptedAI
             }
         }
 
-        if (CheckTimer < diff)
+        if (CheckTimer <= diff)
         {
             GETUNIT(Illidan, IllidanGUID);
             if (!Illidan || CAST_CRE(Illidan)->IsInEvadeMode())
@@ -1796,8 +1796,8 @@ struct TRINITY_DLL_DECL mob_parasitic_shadowfiendAI : public ScriptedAI
                 m_creature->SetVisibility(VISIBILITY_OFF);
                 m_creature->setDeathState(JUST_DIED);
                 return;
-            }else CheckTimer = 5000;
-        }else CheckTimer -= diff;
+            } else CheckTimer = 5000;
+        } else CheckTimer -= diff;
 
         DoMeleeAttackIfReady();
     }
@@ -1874,18 +1874,18 @@ void boss_illidan_stormrageAI::JustSummoned(Creature* summon)
                 summon->setDeathState(JUST_DIED);
                 return;
             }
-            Unit *target = SelectTarget(SELECT_TARGET_TOPAGGRO, 0, 999, true);
-            if (!target || target->HasAura(SPELL_PARASITIC_SHADOWFIEND)
-                || target->HasAura(SPELL_PARASITIC_SHADOWFIEND2))
-                target = SelectTarget(SELECT_TARGET_RANDOM, 0, 999, true);
-            if (target)
-                summon->AI()->AttackStart(target);
+            Unit *pTarget = SelectTarget(SELECT_TARGET_TOPAGGRO, 0, 999, true);
+            if (!pTarget || pTarget->HasAura(SPELL_PARASITIC_SHADOWFIEND)
+                || pTarget->HasAura(SPELL_PARASITIC_SHADOWFIEND2))
+                pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 999, true);
+            if (pTarget)
+                summon->AI()->AttackStart(pTarget);
         }break;
     case SHADOW_DEMON:
-        if (Unit *target = SelectTarget(SELECT_TARGET_RANDOM, 0, 999, true)) // only on players.
+        if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 999, true)) // only on players.
         {
-            summon->AddThreat(target, 5000000.0f);
-            summon->AI()->AttackStart(target);
+            summon->AddThreat(pTarget, 5000000.0f);
+            summon->AI()->AttackStart(pTarget);
         }break;
     case MAIEV_SHADOWSONG:
         {

@@ -54,7 +54,7 @@ struct TRINITY_DLL_DECL boss_vectusAI : public ScriptedAI
             return;
 
         //FireShield_Timer
-        if (m_uiFireShield_Timer < uiDiff)
+        if (m_uiFireShield_Timer <= uiDiff)
         {
             DoCast(m_creature, SPELL_FIRESHIELD);
             m_uiFireShield_Timer = 90000;
@@ -63,7 +63,7 @@ struct TRINITY_DLL_DECL boss_vectusAI : public ScriptedAI
             m_uiFireShield_Timer -= uiDiff;
 
         //BlastWave_Timer
-        if (m_uiBlastWave_Timer < uiDiff)
+        if (m_uiBlastWave_Timer <= uiDiff)
         {
             DoCast(m_creature->getVictim(), SPELL_BLAST_WAVE);
             m_uiBlastWave_Timer = 12000;
@@ -74,7 +74,7 @@ struct TRINITY_DLL_DECL boss_vectusAI : public ScriptedAI
         //Frenzy_Timer
         if (m_creature->GetHealth()*100 / m_creature->GetMaxHealth() < 25)
         {
-            if (m_uiFrenzy_Timer < uiDiff)
+            if (m_uiFrenzy_Timer <= uiDiff)
             {
                 DoCast(m_creature, SPELL_FRENZY);
                 DoScriptText(EMOTE_GENERIC_FRENZY_KILL, m_creature);

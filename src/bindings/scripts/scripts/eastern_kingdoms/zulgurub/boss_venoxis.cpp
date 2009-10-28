@@ -91,31 +91,31 @@ struct TRINITY_DLL_DECL boss_venoxisAI : public ScriptedAI
 
             if ((m_creature->GetHealth()*100 / m_creature->GetMaxHealth() > 50))
             {
-                if (Dispell_Timer < diff)
+                if (Dispell_Timer <= diff)
                 {
                     DoCast(m_creature, SPELL_DISPELL);
                     Dispell_Timer = 15000 + rand()%15000;
-                }else Dispell_Timer -= diff;
+                } else Dispell_Timer -= diff;
 
-                if (Renew_Timer < diff)
+                if (Renew_Timer <= diff)
                 {
                     DoCast(m_creature, SPELL_RENEW);
                     Renew_Timer = 20000 + rand()%10000;
-                }else Renew_Timer -= diff;
+                } else Renew_Timer -= diff;
 
-                if (HolyWrath_Timer < diff)
+                if (HolyWrath_Timer <= diff)
                 {
                     DoCast(m_creature->getVictim(), SPELL_HOLY_WRATH);
                     HolyWrath_Timer = 15000 + rand()%10000;
-                }else HolyWrath_Timer -= diff;
+                } else HolyWrath_Timer -= diff;
 
-                if (HolyNova_Timer < diff)
+                if (HolyNova_Timer <= diff)
                 {
                     TargetInRange = 0;
                     for (uint8 i=0; i<10; ++i)
                     {
-                        if (Unit* target = SelectUnit(SELECT_TARGET_TOPAGGRO,i))
-                            if (m_creature->IsWithinMeleeRange(target))
+                        if (Unit *pTarget = SelectUnit(SELECT_TARGET_TOPAGGRO,i))
+                            if (m_creature->IsWithinMeleeRange(pTarget))
                                 TargetInRange++;
                     }
 
@@ -129,15 +129,15 @@ struct TRINITY_DLL_DECL boss_venoxisAI : public ScriptedAI
                         HolyNova_Timer = 2000;
                     }
 
-                }else HolyNova_Timer -= diff;
+                } else HolyNova_Timer -= diff;
 
                 if (HolyFire_Timer < diff && TargetInRange < 3)
                 {
-                    if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM,0))
-                        DoCast(target, SPELL_HOLY_FIRE);
+                    if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM,0))
+                        DoCast(pTarget, SPELL_HOLY_FIRE);
 
                     HolyFire_Timer = 8000;
-                }else HolyFire_Timer -= diff;
+                } else HolyFire_Timer -= diff;
             }
             else
             {
@@ -155,19 +155,19 @@ struct TRINITY_DLL_DECL boss_venoxisAI : public ScriptedAI
                     PhaseTwo = true;
                 }
 
-                if (PhaseTwo && PoisonCloud_Timer < diff)
+                if (PhaseTwo && PoisonCloud_Timer <= diff)
                 {
                     DoCast(m_creature->getVictim(), SPELL_POISON_CLOUD);
                     PoisonCloud_Timer = 15000;
                 }PoisonCloud_Timer -=diff;
 
-                if (PhaseTwo && VenomSpit_Timer < diff)
+                if (PhaseTwo && VenomSpit_Timer <= diff)
                 {
-                    if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM,0))
-                        DoCast(target, SPELL_VENOMSPIT);
+                    if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM,0))
+                        DoCast(pTarget, SPELL_VENOMSPIT);
 
                     VenomSpit_Timer = 15000 + rand()%5000;
-                }else VenomSpit_Timer -= diff;
+                } else VenomSpit_Timer -= diff;
 
                 if (PhaseTwo && (m_creature->GetHealth()*100 / m_creature->GetMaxHealth() < 11))
                 {

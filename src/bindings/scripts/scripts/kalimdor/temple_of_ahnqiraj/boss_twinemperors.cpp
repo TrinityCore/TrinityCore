@@ -77,7 +77,7 @@ struct TRINITY_DLL_DECL boss_twinemperorsAI : public ScriptedAI
 
     virtual bool IAmVeklor() = 0;
     virtual void Reset() = 0;
-    virtual void CastSpellOnBug(Creature *target) = 0;
+    virtual void CastSpellOnBug(Creature *pTarget) = 0;
 
     void TwinReset()
     {
@@ -191,7 +191,7 @@ struct TRINITY_DLL_DECL boss_twinemperorsAI : public ScriptedAI
         if (IAmVeklor())                                    // this spell heals caster and the other brother so let VN cast it
             return;
 
-        if (Heal_Timer < diff)
+        if (Heal_Timer <= diff)
         {
             Unit *pOtherBoss = GetOtherBoss();
             if (pOtherBoss && pOtherBoss->IsWithinDist(m_creature,60))
@@ -256,7 +256,7 @@ struct TRINITY_DLL_DECL boss_twinemperorsAI : public ScriptedAI
 
             tspellcasted = true;
 
-            if (AfterTeleportTimer < diff)
+            if (AfterTeleportTimer <= diff)
             {
                 AfterTeleport = false;
                 m_creature->clearUnitState(UNIT_STAT_STUNNED);
@@ -343,10 +343,10 @@ struct TRINITY_DLL_DECL boss_twinemperorsAI : public ScriptedAI
 
     void HandleBugs(uint32 diff)
     {
-        if (BugsTimer < diff || Abuse_Bug_Timer < diff)
+        if (BugsTimer < diff || Abuse_Bug_Timer <= diff)
         {
             Creature *c = RespawnNearbyBugsAndGetOne();
-            if (Abuse_Bug_Timer < diff)
+            if (Abuse_Bug_Timer <= diff)
             {
                 if (c)
                 {
@@ -373,7 +373,7 @@ struct TRINITY_DLL_DECL boss_twinemperorsAI : public ScriptedAI
 
     void CheckEnrage(uint32 diff)
     {
-        if (EnrageTimer < diff)
+        if (EnrageTimer <= diff)
         {
             if (!m_creature->IsNonMeleeSpellCasted(true))
             {
@@ -409,10 +409,10 @@ struct TRINITY_DLL_DECL boss_veknilashAI : public boss_twinemperorsAI
         m_creature->ApplySpellImmune(0, IMMUNITY_DAMAGE, SPELL_SCHOOL_MASK_MAGIC, true);
     }
 
-    void CastSpellOnBug(Creature *target)
+    void CastSpellOnBug(Creature *pTarget)
     {
-        target->setFaction(14);
-        (target->AI())->AttackStart(m_creature->getThreatManager().getHostilTarget());
+        pTarget->setFaction(14);
+        pTarget->AI()->AttackStart(m_creature->getThreatManager().getHostilTarget());
         SpellEntry *spell = GET_SPELL(SPELL_MUTATE_BUG);
         uint8 eff_mask=0;
         for (int i=0; i<3; ++i)
@@ -421,8 +421,8 @@ struct TRINITY_DLL_DECL boss_veknilashAI : public boss_twinemperorsAI
                 continue;
             eff_mask|=1<<i;
         }
-        target->AddAura(new Aura(spell, eff_mask, target, target, target));
-        target->SetHealth(target->GetMaxHealth());
+        pTarget->AddAura(new Aura(spell, eff_mask, pTarget, pTarget, pTarget));
+        pTarget->SetHealth(pTarget->GetMaxHealth());
     }
 
     void UpdateAI(const uint32 diff)
@@ -435,19 +435,19 @@ struct TRINITY_DLL_DECL boss_veknilashAI : public boss_twinemperorsAI
             return;
 
         //UnbalancingStrike_Timer
-        if (UnbalancingStrike_Timer < diff)
+        if (UnbalancingStrike_Timer <= diff)
         {
             DoCast(m_creature->getVictim(),SPELL_UNBALANCING_STRIKE);
             UnbalancingStrike_Timer = 8000+rand()%12000;
-        }else UnbalancingStrike_Timer -= diff;
+        } else UnbalancingStrike_Timer -= diff;
 
-        if (UpperCut_Timer < diff)
+        if (UpperCut_Timer <= diff)
         {
             Unit* randomMelee = SelectTarget(SELECT_TARGET_RANDOM, 0, NOMINAL_MELEE_RANGE, true);
             if (randomMelee)
                 DoCast(randomMelee,SPELL_UPPERCUT);
             UpperCut_Timer = 15000+rand()%15000;
-        }else UpperCut_Timer -= diff;
+        } else UpperCut_Timer -= diff;
 
         HandleBugs(diff);
 
@@ -455,10 +455,10 @@ struct TRINITY_DLL_DECL boss_veknilashAI : public boss_twinemperorsAI
         TryHealBrother(diff);
 
         //Teleporting to brother
-        if (Teleport_Timer < diff)
+        if (Teleport_Timer <= diff)
         {
             TeleportToMyBrother();
-        }else Teleport_Timer -= diff;
+        } else Teleport_Timer -= diff;
 
         CheckEnrage(diff);
 
@@ -495,9 +495,9 @@ struct TRINITY_DLL_DECL boss_veklorAI : public boss_twinemperorsAI
         m_creature->SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, 0);
     }
 
-    void CastSpellOnBug(Creature *target)
+    void CastSpellOnBug(Creature *pTarget)
     {
-        target->setFaction(14);
+        pTarget->setFaction(14);
         SpellEntry *spell = GET_SPELL(SPELL_EXPLODEBUG);
         uint8 eff_mask=0;
         for (int i=0; i<3; ++i)
@@ -506,8 +506,8 @@ struct TRINITY_DLL_DECL boss_veklorAI : public boss_twinemperorsAI
                 continue;
             eff_mask|=1<<i;
         }
-        target->AddAura(new Aura(spell, eff_mask, target, target, target));
-        target->SetHealth(target->GetMaxHealth());
+        pTarget->AddAura(new Aura(spell, eff_mask, pTarget, pTarget, pTarget));
+        pTarget->SetHealth(pTarget->GetMaxHealth());
     }
 
     void UpdateAI(const uint32 diff)
@@ -525,26 +525,26 @@ struct TRINITY_DLL_DECL boss_veklorAI : public boss_twinemperorsAI
             return;
 
         //ShadowBolt_Timer
-        if (ShadowBolt_Timer < diff)
+        if (ShadowBolt_Timer <= diff)
         {
             if (!m_creature->IsWithinDist(m_creature->getVictim(), 45.0f))
                 m_creature->GetMotionMaster()->MoveChase(m_creature->getVictim(), VEKLOR_DIST, 0);
             else
                 DoCast(m_creature->getVictim(),SPELL_SHADOWBOLT);
             ShadowBolt_Timer = 2000;
-        }else ShadowBolt_Timer -= diff;
+        } else ShadowBolt_Timer -= diff;
 
         //Blizzard_Timer
-        if (Blizzard_Timer < diff)
+        if (Blizzard_Timer <= diff)
         {
-            Unit* target = NULL;
-            target = SelectTarget(SELECT_TARGET_RANDOM, 0, 45, true);
-            if (target)
-                DoCast(target,SPELL_BLIZZARD);
+            Unit *pTarget = NULL;
+            pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 45, true);
+            if (pTarget)
+                DoCast(pTarget,SPELL_BLIZZARD);
             Blizzard_Timer = 15000+rand()%15000;
-        }else Blizzard_Timer -= diff;
+        } else Blizzard_Timer -= diff;
 
-        if (ArcaneBurst_Timer < diff)
+        if (ArcaneBurst_Timer <= diff)
         {
             Unit *mvic;
             if ((mvic=SelectTarget(SELECT_TARGET_NEAREST, 0, NOMINAL_MELEE_RANGE, true))!=NULL)
@@ -552,7 +552,7 @@ struct TRINITY_DLL_DECL boss_veklorAI : public boss_twinemperorsAI
                 DoCast(mvic,SPELL_ARCANEBURST);
                 ArcaneBurst_Timer = 5000;
             }
-        }else ArcaneBurst_Timer -= diff;
+        } else ArcaneBurst_Timer -= diff;
 
         HandleBugs(diff);
 
@@ -560,10 +560,10 @@ struct TRINITY_DLL_DECL boss_veklorAI : public boss_twinemperorsAI
         TryHealBrother(diff);
 
         //Teleporting to brother
-        if (Teleport_Timer < diff)
+        if (Teleport_Timer <= diff)
         {
             TeleportToMyBrother();
-        }else Teleport_Timer -= diff;
+        } else Teleport_Timer -= diff;
 
         CheckEnrage(diff);
 

@@ -101,36 +101,36 @@ struct TRINITY_DLL_DECL boss_the_makerAI : public ScriptedAI
         if (!UpdateVictim())
             return;
 
-        if (AcidSpray_Timer < diff)
+        if (AcidSpray_Timer <= diff)
         {
             DoCast(m_creature->getVictim(),SPELL_ACID_SPRAY);
             AcidSpray_Timer = 15000+rand()%8000;
-        }else AcidSpray_Timer -=diff;
+        } else AcidSpray_Timer -=diff;
 
-        if (ExplodingBreaker_Timer < diff)
+        if (ExplodingBreaker_Timer <= diff)
         {
-            if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM,0))
-                DoCast(target,SPELL_EXPLODING_BREAKER);
+            if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM,0))
+                DoCast(pTarget,SPELL_EXPLODING_BREAKER);
             ExplodingBreaker_Timer = 4000+rand()%8000;
-        }else ExplodingBreaker_Timer -=diff;
+        } else ExplodingBreaker_Timer -=diff;
 
         /* // Disabled until Core Support for mind control
-        if (domination_timer_timer < diff)
+        if (domination_timer_timer <= diff)
         {
-        Unit* target;
-        target = SelectUnit(SELECT_TARGET_RANDOM,0);
+        Unit *pTarget;
+        pTarget = SelectUnit(SELECT_TARGET_RANDOM,0);
 
-        DoCast(target,SPELL_DOMINATION);
+        DoCast(pTarget,SPELL_DOMINATION);
 
         domination_timer = 120000;
-        }else domination_timer -=diff;
+        } else domination_timer -=diff;
         */
 
-        if (Knockdown_Timer < diff)
+        if (Knockdown_Timer <= diff)
         {
             DoCast(m_creature->getVictim(),SPELL_KNOCKDOWN);
             Knockdown_Timer = 4000+rand()%8000;
-        }else Knockdown_Timer -=diff;
+        } else Knockdown_Timer -=diff;
 
         DoMeleeAttackIfReady();
     }

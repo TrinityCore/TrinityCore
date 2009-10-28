@@ -67,7 +67,7 @@ struct TRINITY_DLL_DECL instance_razorfen_kraul : public ScriptedInstance
 
     void Update(uint32 diff)
     {
-        if (WardCheck_Timer < diff)
+        if (WardCheck_Timer <= diff)
         {
             HandleGameObject(DoorWardGUID, WardKeeperAlive);
             WardKeeperAlive = 0;

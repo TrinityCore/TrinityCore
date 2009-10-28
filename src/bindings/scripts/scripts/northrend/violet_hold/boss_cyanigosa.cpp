@@ -75,29 +75,29 @@ struct TRINITY_DLL_DECL boss_cyanigosaAI : public ScriptedAI
         if (!UpdateVictim())
             return;
 
-        if (uiArcaneVacumTimer < diff)
+        if (uiArcaneVacumTimer <= diff)
         {
             DoCast(m_creature, SPELL_ARCANE_VACUM);
         } else uiArcaneVacumTimer -= diff;
 
-        if (uiBlizzardTimer < diff)
+        if (uiBlizzardTimer <= diff)
         {
             if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0,100,true))
                 DoCast(pTarget, HEROIC(SPELL_BLIZZARD,H_SPELL_BLIZZARD));
         } else uiBlizzardTimer -= diff;
 
-        if (uiTailSweepTimer < diff)
+        if (uiTailSweepTimer <= diff)
         {
             DoCast(m_creature, HEROIC(SPELL_TAIL_SWEEP,H_SPELL_TAIL_SWEEP));
         } else uiTailSweepTimer -= diff;
 
-        if (uiUncontrollableEnergyTimer < diff)
+        if (uiUncontrollableEnergyTimer <= diff)
         {
             DoCast(m_creature->getVictim(), HEROIC(SPELL_UNCONTROLLABLE_ENERGY,H_SPELL_UNCONTROLLABLE_ENERGY));
         } else uiUncontrollableEnergyTimer -= diff;
 
         if (HeroicMode)
-            if (uiManaDestructionTimer < diff)
+            if (uiManaDestructionTimer <= diff)
             {
                 if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0,100,true))
                     DoCast(pTarget, SPELL_MANA_DESTRUCTION);

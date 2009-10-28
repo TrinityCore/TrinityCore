@@ -66,28 +66,28 @@ struct TRINITY_DLL_DECL boss_maleki_the_pallidAI : public ScriptedAI
             return;
 
         //Frostbolt
-        if (Frostbolt_Timer < diff)
+        if (Frostbolt_Timer <= diff)
         {
              if (rand()%100 < 90)
                 DoCast(m_creature->getVictim(),SPELL_FROSTBOLT);
             Frostbolt_Timer = 3500;
-        }else Frostbolt_Timer -= diff;
+        } else Frostbolt_Timer -= diff;
 
         //IceTomb
-        if (IceTomb_Timer < diff)
+        if (IceTomb_Timer <= diff)
         {
             if (rand()%100 < 65)
                 DoCast(m_creature->getVictim(),SPELL_ICETOMB);
             IceTomb_Timer = 28000;
-        }else IceTomb_Timer -= diff;
+        } else IceTomb_Timer -= diff;
 
         //DrainLife
-        if (DrainLife_Timer < diff)
+        if (DrainLife_Timer <= diff)
         {
               if (rand()%100 < 55)
                 DoCast(m_creature->getVictim(),SPELL_DRAINLIFE);
             DrainLife_Timer = 31000;
-        }else DrainLife_Timer -= diff;
+        } else DrainLife_Timer -= diff;
 
         DoMeleeAttackIfReady();
     }

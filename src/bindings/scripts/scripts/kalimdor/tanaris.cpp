@@ -89,11 +89,11 @@ struct TRINITY_DLL_DECL mob_aquementasAI : public ScriptedAI
     {
         if (isFriendly)
         {
-            if (SwitchFaction_Timer < diff)
+            if (SwitchFaction_Timer <= diff)
             {
                 m_creature->setFaction(91);
                 isFriendly = false;
-            }else SwitchFaction_Timer -= diff;
+            } else SwitchFaction_Timer -= diff;
         }
 
         if (!UpdateVictim())
@@ -101,25 +101,25 @@ struct TRINITY_DLL_DECL mob_aquementasAI : public ScriptedAI
 
         if (!isFriendly)
         {
-            if (SendItem_Timer < diff)
+            if (SendItem_Timer <= diff)
             {
                 if (m_creature->getVictim()->GetTypeId() == TYPEID_PLAYER)
                     SendItem(m_creature->getVictim());
                 SendItem_Timer = 5000;
-            }else SendItem_Timer -= diff;
+            } else SendItem_Timer -= diff;
         }
 
-        if (FrostShock_Timer < diff)
+        if (FrostShock_Timer <= diff)
         {
             DoCast(m_creature->getVictim(),SPELL_FROST_SHOCK);
             FrostShock_Timer = 15000;
-        }else FrostShock_Timer -= diff;
+        } else FrostShock_Timer -= diff;
 
-        if (AquaJet_Timer < diff)
+        if (AquaJet_Timer <= diff)
         {
             DoCast(m_creature,SPELL_AQUA_JET);
             AquaJet_Timer = 15000;
-        }else AquaJet_Timer -= diff;
+        } else AquaJet_Timer -= diff;
 
         DoMeleeAttackIfReady();
     }
@@ -510,7 +510,7 @@ struct TRINITY_DLL_DECL npc_toogaAI : public FollowerAI
             //we are doing the post-event, or...
             if (HasFollowState(STATE_FOLLOW_POSTEVENT))
             {
-                if (m_uiPostEventTimer < uiDiff)
+                if (m_uiPostEventTimer <= uiDiff)
                 {
                     m_uiPostEventTimer = 5000;
 
@@ -552,7 +552,7 @@ struct TRINITY_DLL_DECL npc_toogaAI : public FollowerAI
             //...we are doing regular speech check
             else if (HasFollowState(STATE_FOLLOW_INPROGRESS))
             {
-                if (m_uiCheckSpeechTimer < uiDiff)
+                if (m_uiCheckSpeechTimer <= uiDiff)
                 {
                     m_uiCheckSpeechTimer = 5000;
 

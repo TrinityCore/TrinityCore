@@ -87,7 +87,7 @@ struct TRINITY_DLL_DECL boss_epoch_hunterAI : public ScriptedAI
             return;
 
         //Sand Breath
-        if (SandBreath_Timer < diff)
+        if (SandBreath_Timer <= diff)
         {
             if (m_creature->IsNonMeleeSpellCasted(false))
                 m_creature->InterruptNonMeleeSpells(false);
@@ -97,26 +97,26 @@ struct TRINITY_DLL_DECL boss_epoch_hunterAI : public ScriptedAI
             DoScriptText(RAND(SAY_BREATH1,SAY_BREATH2), m_creature);
 
             SandBreath_Timer = 10000 + rand()%10000;
-        }else SandBreath_Timer -= diff;
+        } else SandBreath_Timer -= diff;
 
-        if (ImpendingDeath_Timer < diff)
+        if (ImpendingDeath_Timer <= diff)
         {
             DoCast(m_creature->getVictim(),SPELL_IMPENDING_DEATH);
             ImpendingDeath_Timer = 25000+rand()%5000;
-        }else ImpendingDeath_Timer -= diff;
+        } else ImpendingDeath_Timer -= diff;
 
-        if (WingBuffet_Timer < diff)
+        if (WingBuffet_Timer <= diff)
         {
-            if (Unit *target = SelectUnit(SELECT_TARGET_RANDOM,0))
-                DoCast(target,SPELL_WING_BUFFET);
+            if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM,0))
+                DoCast(pTarget,SPELL_WING_BUFFET);
             WingBuffet_Timer = 25000+rand()%10000;
-        }else WingBuffet_Timer -= diff;
+        } else WingBuffet_Timer -= diff;
 
-        if (Mda_Timer < diff)
+        if (Mda_Timer <= diff)
         {
             DoCast(m_creature,SPELL_MAGIC_DISRUPTION_AURA);
             Mda_Timer = 15000;
-        }else Mda_Timer -= diff;
+        } else Mda_Timer -= diff;
 
         DoMeleeAttackIfReady();
     }
