@@ -672,6 +672,13 @@ class TRINITY_DLL_SPEC GameObject : public WorldObject
         LootState getLootState() const { return m_lootState; }
         void SetLootState(LootState s) { m_lootState = s; }
 
+        uint16 GetLootMode() { return m_LootMode; }
+        bool HasLootMode(uint16 lootMode) { return m_LootMode & lootMode; }
+        void SetLootMode(uint16 lootMode) { m_LootMode = lootMode; }
+        void AddLootMode(uint16 lootMode) { m_LootMode |= lootMode; }
+        void RemoveLootMode(uint16 lootMode) { m_LootMode &= ~lootMode; }
+        void ResetLootMode() { m_LootMode = DEFAULT_LOOT_MODE; }
+
         void AddToSkillupList(uint32 PlayerGuidLow) { m_SkillupList.push_back(PlayerGuidLow); }
         bool IsInSkillupList(uint32 PlayerGuidLow) const
         {
@@ -738,6 +745,8 @@ class TRINITY_DLL_SPEC GameObject : public WorldObject
         GameObjectValue * const m_goValue;
 
         uint64 m_rotation;
+
+        uint16 m_LootMode;                                  // bitmask, default DEFAULT_LOOT_MODE, determines what loot will be lootable
     private:
         void SwitchDoorOrButton(bool activate, bool alternative = false);
 

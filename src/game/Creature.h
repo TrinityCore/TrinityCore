@@ -621,6 +621,13 @@ class TRINITY_DLL_SPEC Creature : public Unit
         void SetLootRecipient (Unit* unit);
         void AllLootRemovedFromCorpse();
 
+        uint16 GetLootMode() { return m_LootMode; }
+        bool HasLootMode(uint16 lootMode) { return m_LootMode & lootMode; }
+        void SetLootMode(uint16 lootMode) { m_LootMode = lootMode; }
+        void AddLootMode(uint16 lootMode) { m_LootMode |= lootMode; }
+        void RemoveLootMode(uint16 lootMode) { m_LootMode &= ~lootMode; }
+        void ResetLootMode() { m_LootMode = DEFAULT_LOOT_MODE; }
+
         SpellEntry const *reachWithSpellAttack(Unit *pVictim);
         SpellEntry const *reachWithSpellCure(Unit *pVictim);
 
@@ -778,6 +785,7 @@ class TRINITY_DLL_SPEC Creature : public Unit
         CreatureInfo const* m_creatureInfo;                 // in heroic mode can different from ObjMgr::GetCreatureTemplate(GetEntry())
         CreatureData const* m_creatureData;
 
+        uint16 m_LootMode;                                  // bitmask, default DEFAULT_LOOT_MODE, determines what loot will be lootable
     private:
         //WaypointMovementGenerator vars
         uint32 m_waypointID;

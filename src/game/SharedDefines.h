@@ -24,6 +24,9 @@
 #include "Platform/Define.h"
 #include <cassert>
 
+// default loot mode for creatures and gameobjects
+#define DEFAULT_LOOT_MODE 1
+
 enum Gender
 {
     GENDER_MALE                        = 0,
