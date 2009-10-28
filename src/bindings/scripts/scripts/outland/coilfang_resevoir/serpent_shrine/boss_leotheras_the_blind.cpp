@@ -173,7 +173,7 @@ struct TRINITY_DLL_DECL boss_leotheras_the_blindAI : public ScriptedAI
     float x,y,z;
 
     uint64 InnderDemon[5];
-    uint32 InnderDemon_Count;
+    uint32 InnerDemon_Count;
     uint64 Demon;
     uint64 SpellBinderGUID[3];
 
@@ -193,7 +193,7 @@ struct TRINITY_DLL_DECL boss_leotheras_the_blindAI : public ScriptedAI
         IsFinalForm = false;
         NeedThreatReset = false;
         EnrageUsed = false;
-        InnderDemon_Count = 0;
+        InnerDemon_Count = 0;
         m_creature->SetSpeed(MOVE_RUN, 2.0f, true);
         m_creature->SetDisplayId(MODEL_NIGHTELF);
         m_creature->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID  , 0);
@@ -259,7 +259,7 @@ struct TRINITY_DLL_DECL boss_leotheras_the_blindAI : public ScriptedAI
         {
             Unit *add = Unit::GetUnit(*m_creature,SpellBinderGUID[i]);
             if (add && add->isAlive())
-                AliveChannelers++;
+                ++AliveChannelers;
         }
 
         // channelers == 0 remove banish aura
@@ -319,7 +319,7 @@ struct TRINITY_DLL_DECL boss_leotheras_the_blindAI : public ScriptedAI
             }
         }
 
-        InnderDemon_Count = 0;
+        InnerDemon_Count = 0;
     }
 
     void CastConsumingMadness() //remove this once SPELL_INSIDIOUS_WHISPER is supported by core
@@ -505,13 +505,14 @@ struct TRINITY_DLL_DECL boss_leotheras_the_blindAI : public ScriptedAI
                                 eff_mask|=1<<i;
                             }
                             (*itr)->AddAura(new Aura(spell, eff_mask, *itr, *itr, *itr));
-                            if (InnderDemon_Count > 4) InnderDemon_Count = 0;
+                            if (InnerDemon_Count > 4)
+                                InnerDemon_Count = 0;
 
                             //Safe storing of creatures
-                            InnderDemon[InnderDemon_Count] = demon->GetGUID();
+                            InnderDemon[InnerDemon_Count] = demon->GetGUID();
 
                             //Update demon count
-                            InnderDemon_Count++;
+                            ++InnerDemon_Count;
                         }
                     }
                 }

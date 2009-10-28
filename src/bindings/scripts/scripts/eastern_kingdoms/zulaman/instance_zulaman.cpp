@@ -243,7 +243,7 @@ struct TRINITY_DLL_DECL instance_zulaman : public ScriptedInstance
             HandleGameObject(ZulJinDoorGUID, data != IN_PROGRESS);
             break;
         case DATA_CHESTLOOTED:
-            ChestLooted++;
+            ++ChestLooted;
             SaveToDB();
             break;
         case TYPE_RAND_VENDOR_1:
@@ -256,7 +256,7 @@ struct TRINITY_DLL_DECL instance_zulaman : public ScriptedInstance
 
         if (data == DONE)
         {
-            BossKilled++;
+            ++BossKilled;
             if (QuestMinute && BossKilled >= 4)
             {
                 QuestMinute = 0;

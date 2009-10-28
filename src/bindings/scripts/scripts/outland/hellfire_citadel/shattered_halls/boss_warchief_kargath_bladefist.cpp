@@ -247,15 +247,16 @@ struct TRINITY_DLL_DECL boss_warchief_kargath_bladefistAI : public ScriptedAI
 
                 for (uint8 i = 0; i < summoned; ++i)
                 {
-                    switch(rand()%3)
+                    switch (urand(0,2))
                     {
                         case 0: m_creature->SummonCreature(MOB_HEARTHEN_GUARD,AddsEntrance[0],AddsEntrance[1], AddsEntrance[2], 0,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,30000); break;
                         case 1: m_creature->SummonCreature(MOB_SHARPSHOOTER_GUARD,AddsEntrance[0],AddsEntrance[1], AddsEntrance[2], 0,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,30000); break;
                         case 2: m_creature->SummonCreature(MOB_REAVER_GUARD,AddsEntrance[0],AddsEntrance[1], AddsEntrance[2], 0,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,30000); break;
                     }
                 }
-                if (rand()%100 < 20) summoned++;
-                    Summon_Assistant_Timer = 25000 + (rand()%10000) ;
+                if (urand(0,9) < 2)
+                    ++summoned;
+                Summon_Assistant_Timer = urand(25000,35000);
             } else Summon_Assistant_Timer -= diff;
 
             DoMeleeAttackIfReady();

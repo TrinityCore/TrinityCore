@@ -194,40 +194,40 @@ struct TRINITY_DLL_DECL boss_palehoofAI : public ScriptedAI
 
     void NextPhase()
     {
-        if(currentPhase==PHASE_NONE)
+        if(currentPhase == PHASE_NONE)
         {
             pInstance->SetData(DATA_GORTOK_PALEHOOF_EVENT, IN_PROGRESS);
             m_creature->SummonCreature(MOB_STASIS_CONTROLLER,moveLocs[5].x,moveLocs[5].y,moveLocs[5].z,0,TEMPSUMMON_CORPSE_DESPAWN);
         }
         Phase move = PHASE_NONE;
-        if(AddCount>=(HeroicMode?4:2))
-        {
-            move=PHASE_GORTOK_PALEHOOF;
-        }
+        if (AddCount >= HEROIC(2,4))
+            move = PHASE_GORTOK_PALEHOOF;
         else
         {
             //select random not yet defeated add
-            uint8 next = rand()%4;
-            for(int i=0;i<16;i++)
+            uint8 next = urand(0,3);
+            for(uint8 i=0; i < 16; i++)
             {
-                if(!DoneAdds[i%4]&&next==0){
-                    move=(Phase)(i%4);
+                if(!DoneAdds[i%4] && next == 0)
+                {
+                    move = (Phase)(i%4);
                     break;
-                } else if(!DoneAdds[i%4]&&next>0)
-                    next--;
+                } else if (!DoneAdds[i%4] && next > 0)
+                    --next;
             }
-            AddCount++;
-            DoneAdds[move]=true;
-            move=(Phase)(move%4);
+            ++AddCount;
+            DoneAdds[move] = true;
+            move = (Phase)(move%4);
         }
         //send orb to summon spot
         Creature *pOrb = Unit::GetCreature((*m_creature), pInstance ? pInstance->GetData64(DATA_MOB_ORB) : 0);
-        if (pOrb && pOrb->isAlive()){
-            if(currentPhase==PHASE_NONE)
+        if (pOrb && pOrb->isAlive())
+        {
+            if(currentPhase == PHASE_NONE)
                 pOrb->CastSpell(m_creature,SPELL_ORB_VISUAL,true);
             pOrb->GetMotionMaster()->MovePoint(move,moveLocs[move].x,moveLocs[move].y,moveLocs[move].z);
         }
-        currentPhase=move;
+        currentPhase = move;
     }
     
     void JustReachedHome()

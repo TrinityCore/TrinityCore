@@ -390,7 +390,7 @@ struct TRINITY_DLL_DECL boss_felmystAI : public ScriptedAI
             break;
         case 8:
             m_creature->RemoveAurasDueToSpell(SPELL_FOG_BREATH);
-            BreathCount++;
+            ++BreathCount;
             Timer[EVENT_SUMMON_FOG] = 0;
             Timer[EVENT_FLIGHT_SEQUENCE] = 1;
             if (BreathCount < 3) FlightCount = 4;
@@ -419,7 +419,7 @@ struct TRINITY_DLL_DECL boss_felmystAI : public ScriptedAI
         default:
             break;
         }
-        FlightCount++;
+        ++FlightCount;
     }
 
     void UpdateAI(const uint32 diff)
@@ -471,7 +471,8 @@ struct TRINITY_DLL_DECL boss_felmystAI : public ScriptedAI
                 {
                     m_creature->CastSpell(pTarget, SPELL_ENCAPSULATE_CHANNEL, false);
                     Timer[EVENT_ENCAPSULATE] = 25000 + rand()%5 * 1000;
-                }break;
+                }
+                break;
             case EVENT_FLIGHT:
                 EnterPhase(PHASE_FLIGHT);
                 break;

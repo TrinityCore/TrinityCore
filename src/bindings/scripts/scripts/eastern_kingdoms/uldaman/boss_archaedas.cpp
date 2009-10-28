@@ -310,23 +310,25 @@ bool GOHello_go_altar_of_archaedas(Player* pPlayer, GameObject* pGo)
     pPlayer->CastSpell (pPlayer, SPELL_BOSS_OBJECT_VISUAL, false);
 
     /*
-    if (altarOfArchaedasCounter < NUMBER_NEEDED_TO_ACTIVATE) {
+    if (altarOfArchaedasCounter < NUMBER_NEEDED_TO_ACTIVATE)
         return false;        // not enough people yet
-    }
 
     // Check to make sure at least three people are still casting
-    uint32 count=0;
+    uint8 count = 0;
     Unit *pTarget;
-    for (uint32 x=0; x<=5; x++) {
+    for (uint8 x = 0; x <= 5; ++x)
+    {
         pTarget = Unit::GetUnit(*pPlayer, altarOfArchaedasCount[x]);
-        if (!pTarget) continue;
-        if (pTarget->IsNonMeleeSpellCasted(true)) count++;
-        if (count >= NUMBER_NEEDED_TO_ACTIVATE) break;
+        if (!pTarget)
+            continue;
+        if (pTarget->IsNonMeleeSpellCasted(true))
+            ++count;
+        if (count >= NUMBER_NEEDED_TO_ACTIVATE)
+            break;
     }
 
-    if (count < NUMBER_NEEDED_TO_ACTIVATE) {
+    if (count < NUMBER_NEEDED_TO_ACTIVATE)
         return false;            // not enough people
-    }
     */
 
     ScriptedInstance* pInstance = pPlayer->GetInstanceData();
@@ -420,7 +422,7 @@ bool GOHello_go_altar_of_the_keepers(Player* pPlayer, GameObject* pGo)
 
     //bool alreadyUsed;
 
-    //pGo->AddUse ();
+    //pGo->AddUse();
 
     //alreadyUsed = false;
     //for (uint32 loop=0; loop<5; ++loop)
@@ -434,30 +436,33 @@ bool GOHello_go_altar_of_the_keepers(Player* pPlayer, GameObject* pGo)
 
     //if (altarOfTheKeeperCounter < NUMBER_NEEDED_TO_ACTIVATE)
     //{
-        //error_log ("not enough people yet, altarOfTheKeeperCounter = %d", altarOfTheKeeperCounter);
-    //    return false;        // not enough people yet
+          //error_log("not enough people yet, altarOfTheKeeperCounter = %d", altarOfTheKeeperCounter);
+    //    return false; // not enough people yet
     //}
 /*
     // Check to make sure at least three people are still casting
-    uint32 count=0;
+    uint8 count = 0;
     Unit *pTarget;
-    for (uint32 x = 0; x < 5; ++x)
+    for (uint8 x = 0; x < 5; ++x)
     {
         pTarget = Unit::GetUnit(*pPlayer, altarOfTheKeeperCount[x]);
-        //error_log ("number of people currently activating it: %d", x+1);
-        if (!pTarget) continue;
-        if (pTarget->IsNonMeleeSpellCasted(true)) count++;
-        if (count >= NUMBER_NEEDED_TO_ACTIVATE) break;
+        //error_log("number of people currently activating it: %d", x+1);
+        if (!pTarget)
+            continue;
+        if (pTarget->IsNonMeleeSpellCasted(true))
+            ++count;
+        if (count >= NUMBER_NEEDED_TO_ACTIVATE)
+            break;
     }
 
     if (count < NUMBER_NEEDED_TO_ACTIVATE)
     {
-        // error_log ("still not enough people");
-        return true;            // not enough people
+        //error_log("still not enough people");
+        return true; // not enough people
     }
 */
     //error_log ("activating stone keepers");
-    pInstance->SetData(NULL,1);        // activate the Stone Keepers
+    pInstance->SetData(NULL,1); // activate the Stone Keepers
     return true;
 }
 

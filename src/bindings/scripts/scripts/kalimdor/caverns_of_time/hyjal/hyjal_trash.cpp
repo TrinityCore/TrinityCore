@@ -748,7 +748,7 @@ struct mob_necromancerAI : public hyjal_trashAI
 
     void KilledUnit(Unit* victim)
     {
-        switch (rand()%3)
+        switch (urand(0,2))
         {
             case 0:
                 DoSpawnCreature(17902,3,0,0,0,TEMPSUMMON_TIMED_DESPAWN, 60000);
@@ -759,10 +759,7 @@ struct mob_necromancerAI : public hyjal_trashAI
                 DoSpawnCreature(17903,-3,0,0,0,TEMPSUMMON_TIMED_DESPAWN, 60000);
                 break;
             case 2:
-                if (rand()%2)
-                    DoSpawnCreature(17902,3,0,0,0,TEMPSUMMON_TIMED_DESPAWN, 60000);
-                else
-                    DoSpawnCreature(17903,3,0,0,0,TEMPSUMMON_TIMED_DESPAWN, 60000);
+                DoSpawnCreature(RAND(17902,17903),3,0,0,0,TEMPSUMMON_TIMED_DESPAWN, 60000);
                 break;
         }
     }

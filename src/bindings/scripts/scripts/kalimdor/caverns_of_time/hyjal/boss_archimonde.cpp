@@ -380,7 +380,7 @@ struct TRINITY_DLL_DECL boss_archimondeAI : public hyjal_trashAI
         uint32 chargeSpell = 0;
         uint32 unleashSpell = 0;
 
-        switch(rand()%3)
+        switch (urand(0,2))
         {
             case 0:
                 chargeSpell = SPELL_SOUL_CHARGE_RED;

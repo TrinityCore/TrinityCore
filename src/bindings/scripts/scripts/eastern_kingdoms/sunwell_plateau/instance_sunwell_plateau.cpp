@@ -213,7 +213,8 @@ struct TRINITY_DLL_DECL instance_sunwell_plateau : public ScriptedInstance
                         HandleGameObject(KalecgosWall[1],false);
                     }
                     m_auiEncounter[0] = data;
-                }break;
+                }
+                break;
             case DATA_BRUTALLUS_EVENT:     m_auiEncounter[1] = data; break;
             case DATA_FELMYST_EVENT:
                 if (data == DONE)

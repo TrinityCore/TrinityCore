@@ -264,7 +264,7 @@ struct TRINITY_DLL_DECL boss_magtheridonAI : public ScriptedAI
             {
                 DebuffClicker(clicker);
                 (*i).second = 0;
-            } else ClickerNum++;
+            } else ++ClickerNum;
         }
 
         // if 5 clickers from other cubes apply shadow cage
