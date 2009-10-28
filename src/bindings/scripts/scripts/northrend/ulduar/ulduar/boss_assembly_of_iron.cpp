@@ -305,7 +305,7 @@ struct TRINITY_DLL_DECL boss_runemaster_molgeimAI : public ScriptedAI
                 case EVENT_ENRAGE:
                     DoCast(SPELL_BERSERK);
                 break;
-                case EVENT_RUNE_OF_POWER: // Improve pTarget selection; random alive friendly
+                case EVENT_RUNE_OF_POWER: // Improve target selection; random alive friendly
                 {
                     Unit *Target = DoSelectLowestHpFriendly(60);
                     if(!Target || (Target && !Target->isAlive()))

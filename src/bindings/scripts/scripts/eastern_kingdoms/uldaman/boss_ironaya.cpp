@@ -60,7 +60,7 @@ struct TRINITY_DLL_DECL boss_ironayaAI : public ScriptedAI
         {
             m_creature->CastSpell(m_creature->getVictim(),SPELL_KNOCKAWAY, true);
 
-            // current aggro pTarget is knocked away pick new target
+            // current aggro target is knocked away pick new target
             Unit* Target = SelectUnit(SELECT_TARGET_TOPAGGRO, 0);
 
             if (!Target || Target == m_creature->getVictim())

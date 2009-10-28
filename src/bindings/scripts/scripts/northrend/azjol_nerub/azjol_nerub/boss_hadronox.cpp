@@ -91,7 +91,7 @@ struct MANGOS_DLL_DECL boss_hadronoxAI : public ScriptedAI
         FirstTime = false;
     }
 
-    //when Hadronox kills any enemy (that includes a party member) she will regain 10% of her HP if the pTarget had Leech Poison on
+    //when Hadronox kills any enemy (that includes a party member) she will regain 10% of her HP if the target had Leech Poison on
     void KilledUnit(Unit* Victim)
     {
         // not sure if this aura check is correct, I think it is though

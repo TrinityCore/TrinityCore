@@ -240,7 +240,7 @@ struct TRINITY_DLL_DECL boss_ingvar_the_plundererAI : public ScriptedAI
             {
                 if (!wait_Timer)
                 {
-                    // Spawn pTarget for Axe
+                    // Spawn target for Axe
                     Unit *pTarget = SelectUnit(SELECT_TARGET_TOPAGGRO, 1);
                     if (pTarget)
                     {

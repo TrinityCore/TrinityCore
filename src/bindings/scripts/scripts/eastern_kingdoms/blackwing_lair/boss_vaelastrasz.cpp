@@ -170,7 +170,7 @@ struct TRINITY_DLL_DECL boss_vaelAI : public ScriptedAI
             Unit *pTarget = NULL;
 
             uint8 i = 0;
-            while (i < 3)                                   // max 3 tries to get a random pTarget with power_mana
+            while (i < 3)                                   // max 3 tries to get a random target with power_mana
             {
                 ++i;
                 if (pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1, 100, true)) //not aggro leader

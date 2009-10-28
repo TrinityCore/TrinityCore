@@ -143,7 +143,7 @@ struct TRINITY_DLL_DECL boss_talon_king_ikissAI : public ScriptedAI
 
         if (Sheep_Timer <= diff)
         {
-            //second top aggro pTarget in normal, random pTarget in heroic correct?
+            //second top aggro target in normal, random target in heroic correct?
             Unit *pTarget = NULL;
             pTarget = HeroicMode ? SelectUnit(SELECT_TARGET_RANDOM,0) : SelectUnit(SELECT_TARGET_TOPAGGRO,1);
             if (pTarget)

@@ -191,7 +191,7 @@ struct TRINITY_DLL_DECL npc_air_force_botsAI : public ScriptedAI
                     Aura* pMarkAura = pWho->GetAura(SPELL_GUARDS_MARK, 0);
                     if (pMarkAura)
                     {
-                        // the pTarget wasn't able to move out of our range within 25 seconds
+                        // the target wasn't able to move out of our range within 25 seconds
                         if (!pLastSpawnedGuard)
                         {
                             pLastSpawnedGuard = SummonGuard();
@@ -1513,7 +1513,7 @@ struct TRINITY_DLL_DECL npc_snake_trap_serpentsAI : public ScriptedAI
         m_creature->SetStatFloatValue(UNIT_FIELD_RANGED_ATTACK_POWER , Info->attackpower);
     }
 
-    //Redefined for random pTarget selection:
+    //Redefined for random target selection:
     void MoveInLineOfSight(Unit *who)
     {
         if (!m_creature->getVictim() && who->isTargetableForAttack() && (m_creature->IsHostileTo(who)) && who->isInAccessiblePlaceFor(m_creature))

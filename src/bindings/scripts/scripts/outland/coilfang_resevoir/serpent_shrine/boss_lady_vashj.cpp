@@ -293,7 +293,7 @@ struct TRINITY_DLL_DECL boss_lady_vashjAI : public ScriptedAI
         {
             case 0:
                 //Shoot
-                //Used in Phases 1 and 3 after Entangle or while having nobody in melee range. A shot that hits her pTarget for 4097-5543 Physical damage.
+                //Used in Phases 1 and 3 after Entangle or while having nobody in melee range. A shot that hits her target for 4097-5543 Physical damage.
                 DoCast(m_creature->getVictim(), SPELL_SHOOT);
                 break;
             case 1:
@@ -339,7 +339,7 @@ struct TRINITY_DLL_DECL boss_lady_vashjAI : public ScriptedAI
             if (ShockBlast_Timer <= diff)
             {
                 //Shock Burst
-                //Randomly used in Phases 1 and 3 on Vashj's pTarget, it's a Shock spell doing 8325-9675 nature damage and stunning the pTarget for 5 seconds, during which she will not attack her pTarget but switch to the next person on the aggro list.
+                //Randomly used in Phases 1 and 3 on Vashj's target, it's a Shock spell doing 8325-9675 nature damage and stunning the target for 5 seconds, during which she will not attack her target but switch to the next person on the aggro list.
                 DoCast(m_creature->getVictim(), SPELL_SHOCK_BLAST);
                 m_creature->TauntApply(m_creature->getVictim());
 
@@ -350,7 +350,7 @@ struct TRINITY_DLL_DECL boss_lady_vashjAI : public ScriptedAI
             if (StaticCharge_Timer <= diff)
             {
                 //Static Charge
-                //Used on random people (only 1 person at any given time) in Phases 1 and 3, it's a debuff doing 2775 to 3225 Nature damage to the pTarget and everybody in about 5 yards around it, every 1 seconds for 30 seconds. It can be removed by Cloak of Shadows, Iceblock, Divine Shield, etc, but not by Cleanse or Dispel Magic.
+                //Used on random people (only 1 person at any given time) in Phases 1 and 3, it's a debuff doing 2775 to 3225 Nature damage to the target and everybody in about 5 yards around it, every 1 seconds for 30 seconds. It can be removed by Cloak of Shadows, Iceblock, Divine Shield, etc, but not by Cleanse or Dispel Magic.
                 Unit *pTarget = NULL;
                 pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 200, true);
 

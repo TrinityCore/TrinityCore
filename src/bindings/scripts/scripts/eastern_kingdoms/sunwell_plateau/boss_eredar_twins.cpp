@@ -78,7 +78,7 @@ enum Spells
     SPELL_PYROGENICS        =   45230, //15secs
     SPELL_FLAME_TOUCHED     =   45348,
     SPELL_CONFLAGRATION     =   45342, //30-35 secs
-    SPELL_BLAZE             =   45235, //on main pTarget every 3 secs
+    SPELL_BLAZE             =   45235, //on main target every 3 secs
     SPELL_FLAME_SEAR        =   46771,
     SPELL_BLAZE_SUMMON      =   45236, //187366 GO
     SPELL_BLAZE_BURN        =   45246

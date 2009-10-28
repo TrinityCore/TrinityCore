@@ -788,7 +788,7 @@ struct TRINITY_DLL_DECL boss_veras_darkshadowAI : public boss_illidari_councilAI
                 DoCast(pTarget, SPELL_DEADLY_POISON);
                 m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 DoResetThreat();
-                m_creature->AddThreat(pTarget, 3000.0f);     // Make Veras attack his pTarget for a while, he will cast Envenom 4 seconds after.
+                m_creature->AddThreat(pTarget, 3000.0f);      // Make Veras attack his target for a while, he will cast Envenom 4 seconds after.
                 DeadlyPoisonTimer += 6000;
                 VanishTimer = 90000;
                 AppearEnvenomTimer = 4000;

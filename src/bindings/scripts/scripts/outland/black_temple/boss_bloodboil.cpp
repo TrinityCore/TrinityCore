@@ -126,7 +126,7 @@ struct TRINITY_DLL_DECL boss_gurtogg_bloodboilAI : public ScriptedAI
         DoScriptText(SAY_DEATH, m_creature);
     }
 
-    // Note: This seems like a very complicated fix. The fix needs to be handled by the core, as implementation of limited-pTarget AoE spells are still not limited.
+    // Note: This seems like a very complicated fix. The fix needs to be handled by the core, as implementation of limited-target AoE spells are still not limited.
     void CastBloodboil()
     {
         // Get the Threat List

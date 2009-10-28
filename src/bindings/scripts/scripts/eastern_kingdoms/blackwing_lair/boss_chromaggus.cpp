@@ -239,7 +239,7 @@ struct TRINITY_DLL_DECL boss_chromaggusAI : public ScriptedAI
                     //Cast affliction
                     DoCast(pUnit, SpellAfflict, true);
 
-                    //Chromatic mutation if pTarget is effected by all afflictions
+                    //Chromatic mutation if target is effected by all afflictions
                     if (pUnit->HasAura(SPELL_BROODAF_BLUE)
                         && pUnit->HasAura(SPELL_BROODAF_BLACK)
                         && pUnit->HasAura(SPELL_BROODAF_RED)
