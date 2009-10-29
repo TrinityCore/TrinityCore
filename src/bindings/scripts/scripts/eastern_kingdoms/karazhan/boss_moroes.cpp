@@ -276,7 +276,7 @@ struct TRINITY_DLL_DECL boss_moroesAI : public ScriptedAI
                 for (std::list<Unit*>::iterator i = pTargets.begin(); i != pTargets.end(); ++i)
                     if(!m_creature->IsWithinMeleeRange(*i))
                     {
-                        DoCast(pTarget, SPELL_BLIND);
+                        DoCast(*i, SPELL_BLIND);
                         break;
                     }
                 Blind_Timer = 40000;
