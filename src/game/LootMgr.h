@@ -24,6 +24,7 @@
 #include "ItemEnchantmentMgr.h"
 #include "ByteBuffer.h"
 #include "Utilities/LinkedReference/RefManager.h"
+#include "SharedDefines.h"
 
 #include <map>
 #include <vector>
