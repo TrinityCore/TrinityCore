@@ -241,7 +241,7 @@ void LootStore::ReportNotExistedId(uint32 id) const
 // RATE_DROP_ITEMS is no longer used for all types of entries
 bool LootStoreItem::Roll(bool rate) const
 {
-    if(chance>=100.0f)
+    if(chance >= 100.0f)
         return true;
 
     if(mincountOrRef < 0)                                   // reference case
@@ -269,7 +269,7 @@ bool LootStoreItem::IsValid(LootStore const& store, uint32 entry) const
         return false;
     }
 
-    if( mincountOrRef > 0 )                                 // item (quest or non-quest) entry, maybe grouped
+    if (mincountOrRef > 0)                                  // item (quest or non-quest) entry, maybe grouped
     {
         ItemPrototype const *proto = objmgr.GetItemPrototype(itemid);
         if(!proto)
@@ -391,7 +391,7 @@ void Loot::AddItem(LootStoreItem const & item)
 void Loot::FillLoot(uint32 loot_id, LootStore const& store, Player* loot_owner, bool personal, uint16 lootMode /*= DEFAULT_LOOT_MODE*/)
 {
     // Must be provided
-    if(!loot_owner)
+    if (!loot_owner)
         return;
 
     LootTemplate const* tab = store.GetLootFor(loot_id);
@@ -408,7 +408,7 @@ void Loot::FillLoot(uint32 loot_id, LootStore const& store, Player* loot_owner, 
     tab->Process(*this, store, store.IsRatesAllowed(), lootMode);     // Processing is done there, callback via Loot::AddItem()
 
     // Setting access rights for group loot case
-    Group * pGroup=loot_owner->GetGroup();
+    Group * pGroup = loot_owner->GetGroup();
     if(!personal && pGroup)
     {
         for (GroupReference *itr = pGroup->GetFirstMember(); itr != NULL; itr = itr->next())
