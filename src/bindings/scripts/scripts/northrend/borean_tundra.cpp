@@ -479,6 +479,35 @@ CreatureAI* GetAI_mob_nerubar_victim(Creature *pCreature)
 {
     return new mob_nerubar_victimAI (pCreature);
 }
+/*######
+## npc_scourge_prisoner
+######*/
+
+enum eScourgePrisoner
+{
+    GO_SCOURGE_CAGE = 187867
+};
+
+struct TRINITY_DLL_DECL npc_scourge_prisonerAI : public ScriptedAI
+{
+    npc_scourge_prisonerAI(Creature* pCreature) : ScriptedAI (pCreature){}
+    
+    void Reset()
+    {
+        m_creature->SetReactState(REACT_PASSIVE);
+        
+        if(GameObject* pGO = m_creature->FindNearestGameObject(GO_SCOURGE_CAGE,5.0f))
+        {
+            if(pGO->GetGoState() == GO_STATE_ACTIVE)
+                pGO->SetGoState(GO_STATE_READY);
+        }
+    }
+    
+};
+CreatureAI* GetAI_npc_scourge_prisoner(Creature* pCreature)
+{
+    return new npc_scourge_prisonerAI(pCreature);
+}
 void AddSC_borean_tundra()
 {
     Script *newscript;
@@ -532,5 +561,10 @@ void AddSC_borean_tundra()
     newscript = new Script;
     newscript->Name = "mob_nerubar_victim";
     newscript->GetAI = &GetAI_mob_nerubar_victim;
+    newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name = "scourge_prisoner";
+    newscript->GetAI = &GetAI_npc_scourge_prisoner;
     newscript->RegisterSelf();
 }

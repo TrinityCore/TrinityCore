@@ -40,6 +40,7 @@ go_tablet_of_the_seven
 go_tele_to_dalaran_crystal
 go_tele_to_violet_stand
 go_rusty_cage
+go_scourge_cage
 EndContentData */
 
 #include "precompiled.h"
@@ -555,6 +556,24 @@ bool GOHello_go_rusty_cage(Player* pPlayer, GameObject* pGO)
     return true;
 }
 
+enum eScourgeCage
+{
+    NPC_SCOURGE_PRISONER = 25610
+};
+
+bool GOHello_go_scourge_cage(Player* pPlayer, GameObject* pGO)
+{
+    if(Creature* m_creature = pGO->FindNearestCreature(NPC_SCOURGE_PRISONER,5.0f,true))
+    {
+        pGO->SetGoState(GO_STATE_ACTIVE);
+        pPlayer->KilledMonsterCredit(NPC_SCOURGE_PRISONER,m_creature->GetGUID());
+        m_creature->DisappearAndDie();
+        m_creature->RemoveCorpse();
+    }
+    
+    return true;
+}
+
 void AddSC_go_scripts()
 {
     Script *newscript;
@@ -678,6 +697,11 @@ void AddSC_go_scripts()
     newscript = new Script;
     newscript->Name = "go_rusty_cage";
     newscript->pGOHello =           &GOHello_go_rusty_cage;
+    newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name = "go_scourge_cage";
+    newscript->pGOHello =           &GOHello_go_scourge_cage;
     newscript->RegisterSelf();
 }
 
