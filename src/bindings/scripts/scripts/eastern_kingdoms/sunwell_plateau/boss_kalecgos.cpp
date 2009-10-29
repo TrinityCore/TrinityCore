@@ -40,7 +40,7 @@ enum Quotes
     SAY_GOOD_NEAR_DEATH2    = -1580008,
     SAY_GOOD_PLRWIN         = -1580009,
 
-    //Shattrowar
+    //Sathrovarr
     SAY_SATH_AGGRO          = -1580010,
     SAY_SATH_DEATH          = -1580011,
     SAY_SATH_SPELL1         = -1580012,
@@ -105,7 +105,7 @@ enum SWPActions
 
 #define MAX_PLAYERS_IN_SPECTRAL_REALM 0 //over this, teleport object won't work, 0 disables check
 
-uint32 WildMagic[]= { 44978, 45001, 45002, 45004, 45006, 45010 };
+uint32 WildMagic[] = { 44978, 45001, 45002, 45004, 45006, 45010 };
 
 struct TRINITY_DLL_DECL boss_kalecgosAI : public ScriptedAI
 {
@@ -165,7 +165,7 @@ struct TRINITY_DLL_DECL boss_kalecgosAI : public ScriptedAI
         FrostBreathTimer = 15000;
         WildMagicTimer = 10000;
         TailLashTimer = 25000;
-        SpectralBlastTimer = 20000+(rand()%5000);
+        SpectralBlastTimer = urand(20000,25000);
         CheckTimer = 1000;
         ResetTimer = 30000;
 
