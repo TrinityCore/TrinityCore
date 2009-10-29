@@ -319,13 +319,14 @@ void WorldSession::HandleCorpseQueryOpcode(WorldPacket & /*recv_data*/)
         }
     }
 
-    WorldPacket data(MSG_CORPSE_QUERY, 1+(5*4));
+    WorldPacket data(MSG_CORPSE_QUERY, 1+(6*4));
     data << uint8(1);                                       // corpse found
     data << int32(mapid);
     data << float(x);
     data << float(y);
     data << float(z);
     data << int32(corpsemapid);
+    data << uint32(0);
     SendPacket(&data);
 }
 
