@@ -6780,26 +6780,44 @@ void Player::DuelComplete(DuelCompleteType type)
     GetSession()->SendPacket(&data);
     duel->opponent->GetSession()->SendPacket(&data);
 
-    if(type != DUEL_INTERUPTED)
+    if (type != DUEL_INTERUPTED)
     {
         data.Initialize(SMSG_DUEL_WINNER, (1+20));          // we guess size
-        data << (uint8)((type==DUEL_WON) ? 0 : 1);          // 0 = just won; 1 = fled
+        data << uint8(type == DUEL_WON ? 0 : 1);            // 0 = just won; 1 = fled
         data << duel->opponent->GetName();
         data << GetName();
         SendMessageToSet(&data,true);
     }
 
-    if (type == DUEL_WON)
+    switch (type)
     {
-        GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LOSE_DUEL, 1);
-        if (duel->opponent)
-        {
-             duel->opponent->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_WIN_DUEL, 1);
+        case DUEL_FLED:
+            // if initiator and opponent are on the same team
+            // or initiator and opponent are not PvP enabled, forcibly stop attacking
+            if (duel->initiator->GetTeam() == duel->opponent->GetTeam())
+            {
+                duel->initiator->AttackStop();
+                duel->opponent->AttackStop();
+            }
+            else
+            {
+                if (!duel->initiator->IsPvP())
+                    duel->initiator->AttackStop();
+                if (!duel->opponent->IsPvP())
+                    duel->opponent->AttackStop();
+            }
+            break;
+        case DUEL_WON:    
+            GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LOSE_DUEL, 1);
+            if (duel->opponent)
+            {
+                 duel->opponent->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_WIN_DUEL, 1);
 
-            //Credit for quest Death's Challenge
-            if (getClass() == CLASS_DEATH_KNIGHT && duel->opponent->GetQuestStatus(12733) == QUEST_STATUS_INCOMPLETE)
-                duel->opponent->CastSpell(duel->opponent, 52994, true);
-        }
+                //Credit for quest Death's Challenge
+                if (getClass() == CLASS_DEATH_KNIGHT && duel->opponent->GetQuestStatus(12733) == QUEST_STATUS_INCOMPLETE)
+                    duel->opponent->CastSpell(duel->opponent, 52994, true);
+            }
+            break;
     }
 
     //Remove Duel Flag object
@@ -6812,9 +6830,7 @@ void Player::DuelComplete(DuelCompleteType type)
     for (AuraMap::iterator i = itsAuras.begin(); i != itsAuras.end(); )
     {
         if (!i->second->IsPositive() && i->second->GetCasterGUID() == GetGUID() && i->second->GetAuraApplyTime() >= duel->startTime)
-        {
             duel->opponent->RemoveAura(i);
-        }
         else
             ++i;
     }
@@ -6823,9 +6839,7 @@ void Player::DuelComplete(DuelCompleteType type)
     for (AuraMap::iterator i = myAuras.begin(); i != myAuras.end(); )
     {
         if (!i->second->IsPositive() && i->second->GetCasterGUID() == duel->opponent->GetGUID() && i->second->GetAuraApplyTime() >= duel->startTime)
-        {
             RemoveAura(i);
-        }
         else
             ++i;
     }
