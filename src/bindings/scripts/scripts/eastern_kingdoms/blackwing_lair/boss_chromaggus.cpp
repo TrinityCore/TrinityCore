@@ -23,36 +23,39 @@ EndScriptData */
 
 #include "precompiled.h"
 
-#define EMOTE_FRENZY                -1469002
-#define EMOTE_SHIMMER               -1469003
+enum Emotes
+{
+    EMOTE_FRENZY                                           = -1469002,
+    EMOTE_SHIMMER                                          = -1469003
+};
 
-//These spells are actually called elemental shield
-//What they do is decrease all damage by 75% then they increase
-//One school of damage by 1100%
-#define SPELL_FIRE_VULNERABILITY      22277
-#define SPELL_FROST_VULNERABILITY     22278
-#define SPELL_SHADOW_VULNERABILITY    22279
-#define SPELL_NATURE_VULNERABILITY    22280
-#define SPELL_ARCANE_VULNERABILITY    22281
-
-#define SPELL_INCINERATE            23308                   //Incinerate 23308,23309
-#define SPELL_TIMELAPSE             23310                   //Time lapse 23310, 23311(old threat mod that was removed in 2.01)
-#define SPELL_CORROSIVEACID         23313                   //Corrosive Acid 23313, 23314
-#define SPELL_IGNITEFLESH           23315                   //Ignite Flesh 23315,23316
-#define SPELL_FROSTBURN             23187                   //Frost burn 23187, 23189
-
-//Brood Affliction 23173 - Scripted Spell that cycles through all targets within 100 yards and has a chance to cast one of the afflictions on them
-//Since Scripted spells arn't coded I'll just write a function that does the same thing
-#define SPELL_BROODAF_BLUE          23153                   //Blue affliction 23153
-#define SPELL_BROODAF_BLACK         23154                   //Black affliction 23154
-#define SPELL_BROODAF_RED           23155                   //Red affliction 23155 (23168 on death)
-#define SPELL_BROODAF_BRONZE        23170                   //Bronze Affliction  23170
-#define SPELL_BROODAF_GREEN         23169                   //Brood Affliction Green 23169
-
-#define SPELL_CHROMATIC_MUT_1       23174                   //Spell cast on player if they get all 5 debuffs
-
-#define SPELL_FRENZY                28371                   //The frenzy spell may be wrong
-#define SPELL_ENRAGE                28747
+enum Spells
+{
+    //These spells are actually called elemental shield
+    //What they do is decrease all damage by 75% then they increase
+    //One school of damage by 1100%
+    SPELL_FIRE_VULNERABILITY                               = 22277,
+    SPELL_FROST_VULNERABILITY                              = 22278,
+    SPELL_SHADOW_VULNERABILITY                             = 22279,
+    SPELL_NATURE_VULNERABILITY                             = 22280,
+    SPELL_ARCANE_VULNERABILITY                             = 22281,
+    //Other spells
+    SPELL_INCINERATE                                       = 23308,   //Incinerate 23308,23309
+    SPELL_TIMELAPSE                                        = 23310,   //Time lapse 23310, 23311(old threat mod that was removed in 2.01)
+    SPELL_CORROSIVEACID                                    = 23313,   //Corrosive Acid 23313, 23314
+    SPELL_IGNITEFLESH                                      = 23315,   //Ignite Flesh 23315,23316
+    SPELL_FROSTBURN                                        = 23187,   //Frost burn 23187, 23189
+    //Brood Affliction 23173 - Scripted Spell that cycles through all targets within 100 yards and has a chance to cast one of the afflictions on them
+    //Since Scripted spells arn't coded I'll just write a function that does the same thing
+    SPELL_BROODAF_BLUE                                     = 23153,   //Blue affliction 23153
+    SPELL_BROODAF_BLACK                                    = 23154,   //Black affliction 23154
+    SPELL_BROODAF_RED                                      = 23155,   //Red affliction 23155 (23168 on death)
+    SPELL_BROODAF_BRONZE                                   = 23170,   //Bronze Affliction  23170
+    SPELL_BROODAF_GREEN                                    = 23169,   //Brood Affliction Green 23169
+    SPELL_CHROMATIC_MUT_1                                  = 23174,   //Spell cast on player if they get all 5 debuffs
+    SPELL_FRENZY                                           = 28371,   //The frenzy spell may be wrong
+    SPELL_ENRAGE                                           = 28747
+};
 
 struct TRINITY_DLL_DECL boss_chromaggusAI : public ScriptedAI
 {
@@ -226,18 +229,13 @@ struct TRINITY_DLL_DECL boss_chromaggusAI : public ScriptedAI
         //Affliction_Timer
         if (Affliction_Timer <= diff)
         {
-            uint32 SpellAfflict = RAND(SPELL_BROODAF_BLUE, SPELL_BROODAF_BLACK,
-                SPELL_BROODAF_RED, SPELL_BROODAF_BRONZE, SPELL_BROODAF_GREEN);
-
-            std::list<HostilReference*>::iterator i;
-
-            for (i = m_creature->getThreatManager().getThreatList().begin(); i != m_creature->getThreatManager().getThreatList().end(); )
+            for (std::list<HostilReference*>::iterator i = m_creature->getThreatManager().getThreatList().begin(); i != m_creature->getThreatManager().getThreatList().end(); ++i)
             {
-                ++i;
                 if (Unit* pUnit = Unit::GetUnit((*m_creature), (*i)->getUnitGuid()))
                 {
                     //Cast affliction
-                    DoCast(pUnit, SpellAfflict, true);
+                    DoCast(pUnit, RAND(SPELL_BROODAF_BLUE, SPELL_BROODAF_BLACK,
+                                       SPELL_BROODAF_RED, SPELL_BROODAF_BRONZE, SPELL_BROODAF_GREEN), true);
 
                     //Chromatic mutation if target is effected by all afflictions
                     if (pUnit->HasAura(SPELL_BROODAF_BLUE)
