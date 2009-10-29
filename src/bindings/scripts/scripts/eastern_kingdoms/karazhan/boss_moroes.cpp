@@ -265,18 +265,21 @@ struct TRINITY_DLL_DECL boss_moroesAI : public ScriptedAI
 
             if (Gouge_Timer <= diff)
             {
-                DoCast(m_creature->getVictim(), SPELL_GOUGE);
+                DoCastVictim(SPELL_GOUGE);
                 Gouge_Timer = 40000;
             } else Gouge_Timer -= diff;
 
             if (Blind_Timer <= diff)
             {
-                Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, m_creature->GetMeleeReach()*5, true);
-                if (pTarget && m_creature->IsWithinMeleeRange(pTarget))
-                {
-                    DoCast(pTarget, SPELL_BLIND);
-                    Blind_Timer = 40000;
-                } else Blind_Timer = 1000 + diff; // if target is out of melee range, wait a bit.
+                std::list<Unit*> pTargets;
+                SelectTargetList(pTargets, 5, SELECT_TARGET_RANDOM, m_creature->GetMeleeReach()*5, true);
+                for (std::list<Unit*>::iterator i = pTargets.begin(); i != pTargets.end(); ++i)
+                    if(!m_creature->IsWithinMeleeRange(*i))
+                    {
+                        DoCast(pTarget, SPELL_BLIND);
+                        break;
+                    }
+                Blind_Timer = 40000;
             } else Blind_Timer -= diff;
         }
 
