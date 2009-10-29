@@ -581,7 +581,7 @@ inline bool CreatureAI::_EnterEvadeMode()
 
 inline void UnitAI::DoCast(Unit* victim, uint32 spellId, bool triggered)
 {
-    if(!victim || me->hasUnitState(UNIT_STAT_CASTING) && !triggered)
+    if(!victim || (me->hasUnitState(UNIT_STAT_CASTING) && !triggered))
         return;
 
     me->CastSpell(victim, spellId, triggered);
