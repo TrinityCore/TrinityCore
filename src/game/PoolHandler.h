@@ -58,7 +58,7 @@ class PoolGroup
         typedef std::vector<PoolObject> PoolObjectList;
         PoolObjectList ExplicitlyChanced;
         PoolObjectList EqualChanced;
-        uint32 m_LastDespawnedNode ;                        // Store the guid of the removed creature/gameobject during a pool update
+        uint32 m_LastDespawnedNode;                         // Store the guid of the removed creature/gameobject during a pool update
         uint32 m_SpawnedPoolAmount;                         // Used to know the number of spawned objects
 };
 
