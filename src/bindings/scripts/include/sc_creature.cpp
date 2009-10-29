@@ -618,7 +618,10 @@ void BossAI::_JustDied()
     events.Reset();
     summons.DespawnAll();
     if(instance)
+    {
         instance->SetBossState(bossId, DONE);
+        instance->SaveToDB();
+    }
 }
 
 void BossAI::_EnterCombat()
