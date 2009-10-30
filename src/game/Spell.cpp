@@ -2558,14 +2558,14 @@ void Spell::SelectEffectTargets(uint32 i, uint32 cur)
 
 void Spell::prepare(SpellCastTargets const* targets, AuraEffect* triggeredByAura)
 {
-    if(m_CastItem)
+    if (m_CastItem)
         m_castItemGUID = m_CastItem->GetGUID();
     else
         m_castItemGUID = 0;
 
     m_targets = *targets;
 
-    if(!m_targets.getUnitTargetGUID() && m_spellInfo->Targets & TARGET_FLAG_UNIT)
+    if (!m_targets.getUnitTargetGUID() && m_spellInfo->Targets & TARGET_FLAG_UNIT)
     {
         Unit *target = NULL;
         if(m_caster->GetTypeId() == TYPEID_UNIT)
@@ -2573,7 +2573,7 @@ void Spell::prepare(SpellCastTargets const* targets, AuraEffect* triggeredByAura
         else
             target = ObjectAccessor::GetUnit(*m_caster, ((Player*)m_caster)->GetSelection());
 
-        if(target && IsValidSingleTargetSpell(target))
+        if (target && IsValidSingleTargetSpell(target))
             m_targets.setUnitTarget(target);
         else
         {
@@ -2586,7 +2586,7 @@ void Spell::prepare(SpellCastTargets const* targets, AuraEffect* triggeredByAura
     // Fill aura scaling information
     if (m_caster->IsControlledByPlayer() && !IsPassiveSpell(m_spellInfo->Id) && m_spellInfo->spellLevel && !IsChanneledSpell(m_spellInfo) && !m_IsTriggeredSpell)
     {
-        for (uint8 i = 0; i< MAX_SPELL_EFFECTS; ++i)
+        for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
         {
             if (m_spellInfo->Effect[i] == SPELL_EFFECT_APPLY_AURA)
             {
@@ -6350,7 +6350,9 @@ bool SpellEvent::IsDeletable() const
 
 bool Spell::IsValidSingleTargetEffect(Unit const* target, Targets type) const
 {
-    switch(type)
+    if (target->GetMapId() == MAPID_INVALID)
+        return false;
+    switch (type)
     {
         case TARGET_UNIT_TARGET_ENEMY:
             return !m_caster->IsFriendlyTo(target);
