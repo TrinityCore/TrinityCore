@@ -200,6 +200,152 @@ CreatureAI* GetAI_npc_goblin_prisoner(Creature* pCreature)
     return new npc_goblin_prisonerAI(pCreature);
 }
 
+/*######
+## npc_victorious_challenger
+######*/
+
+#define GOSSIP_CHALLENGER            "Let's do this, sister."
+
+enum eVictoriousChallenger
+{
+    QUEST_TAKING_ALL_CHALLENGERS    = 12971,
+    QUEST_DEFENDING_YOUR_TITLE      = 13423,
+
+    SPELL_SUNDER_ARMOR              = 11971,
+    SPELL_REND_VC                   = 11977
+};
+
+struct TRINITY_DLL_DECL npc_victorious_challengerAI : public ScriptedAI
+{
+    npc_victorious_challengerAI(Creature* pCreature) : ScriptedAI(pCreature) {}
+
+    uint32 SunderArmorTimer;
+    uint32 RendTimer;
+
+    void Reset()
+    {
+        m_creature->RestoreFaction();
+
+        SunderArmorTimer = 10000;
+        RendTimer        = 15000;
+    }
+
+    void UpdateAI(const uint32 diff)
+    {
+        //Return since we have no target
+        if (!UpdateVictim())
+            return;
+
+        if(RendTimer < diff)
+        {
+            m_creature->CastSpell(m_creature->getVictim(),SPELL_REND_VC,true);
+            RendTimer = 15000;
+        }else RendTimer -= diff;
+
+        if(SunderArmorTimer < diff)
+        {
+            m_creature->CastSpell(m_creature->getVictim(), SPELL_SUNDER_ARMOR, true);
+            SunderArmorTimer = 10000;
+        }else SunderArmorTimer -= diff;
+
+        DoMeleeAttackIfReady();
+    }
+
+    void KilledUnit(Unit* victim)
+    {
+        m_creature->RestoreFaction();
+    }
+
+};
+
+bool GossipHello_npc_victorious_challenger(Player* pPlayer, Creature* pCreature)
+{
+    if(pCreature->isQuestGiver())
+        pPlayer->PrepareQuestMenu(pCreature->GetGUID());
+
+    if (pPlayer->GetQuestStatus(QUEST_TAKING_ALL_CHALLENGERS) == QUEST_STATUS_INCOMPLETE || pPlayer->GetQuestStatus(QUEST_DEFENDING_YOUR_TITLE) == QUEST_STATUS_INCOMPLETE)
+    {
+        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_CHALLENGER, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+        pPlayer->SEND_GOSSIP_MENU(pCreature->GetNpcTextId(), pCreature->GetGUID());
+        return true;
+    }
+
+    return false;
+}
+
+bool GossipSelect_npc_victorious_challenger(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction )
+{
+    if (uiAction == GOSSIP_ACTION_INFO_DEF+1)
+    {
+        pPlayer->CLOSE_GOSSIP_MENU();
+        pCreature->setFaction(14);
+        pCreature->AI()->AttackStart(pPlayer);
+    }
+
+    return true;
+}
+
+CreatureAI* GetAI_npc_victorious_challenger(Creature* pCreature)
+{
+    return new npc_victorious_challengerAI(pCreature);
+}
+
+/*######
+## npc_loklira_crone
+######*/
+
+#define GOSSIP_LOKLIRACRONE     "Tell me about this proposal"
+#define GOSSIP_LOKLIRACRONE1    "What happened then?"
+#define GOSSIP_LOKLIRACRONE2    "You want me to take part in the Hyldsmeet to end the war?"
+#define GOSSIP_LOKLIRACRONE3    "Very well. I'll take part in this competition."
+
+enum eLokliraCrone
+{
+    QUEST_HYLDSMEET     = 12970,
+
+    GOSSIP_TEXTID_LOK1  = 13778,
+    GOSSIP_TEXTID_LOK2  = 13779,
+    GOSSIP_TEXTID_LOK3  = 13780
+};
+
+bool GossipHello_npc_loklira_crone(Player* pPlayer, Creature* pCreature)
+{
+    if (pCreature->isQuestGiver())
+        pPlayer->PrepareQuestMenu(pCreature->GetGUID());
+
+    if (pPlayer->GetQuestStatus(QUEST_HYLDSMEET) == QUEST_STATUS_INCOMPLETE)
+    {
+        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_LOKLIRACRONE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+        pPlayer->SEND_GOSSIP_MENU(pCreature->GetNpcTextId(), pCreature->GetGUID());
+        return true;
+    }
+    return false;
+}
+
+bool GossipSelect_npc_loklira_crone(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+{
+    switch (uiAction)
+    {
+        case GOSSIP_ACTION_INFO_DEF+1:
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_LOKLIRACRONE1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
+            pPlayer->SEND_GOSSIP_MENU(GOSSIP_TEXTID_LOK1, pCreature->GetGUID());
+            break;
+        case GOSSIP_ACTION_INFO_DEF+2:
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_LOKLIRACRONE2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+3);
+            pPlayer->SEND_GOSSIP_MENU(GOSSIP_TEXTID_LOK2, pCreature->GetGUID());
+            break;
+        case GOSSIP_ACTION_INFO_DEF+3:
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_LOKLIRACRONE3, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+4);
+            pPlayer->SEND_GOSSIP_MENU(GOSSIP_TEXTID_LOK3, pCreature->GetGUID());
+            break;
+        case GOSSIP_ACTION_INFO_DEF+4:
+            pPlayer->CLOSE_GOSSIP_MENU();
+            pPlayer->CompleteQuest(QUEST_HYLDSMEET);
+            break;
+    }
+    return true;
+}
+
 void AddSC_storm_peaks()
 {
     Script* newscript;
@@ -226,5 +372,18 @@ void AddSC_storm_peaks()
     newscript = new Script;
     newscript->Name = "npc_goblin_prisoner";
     newscript->GetAI = &GetAI_npc_goblin_prisoner;
+    newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name = "npc_victorious_challenger";
+    newscript->GetAI = &GetAI_npc_victorious_challenger;
+    newscript->pGossipHello = &GossipHello_npc_victorious_challenger;
+    newscript->pGossipSelect = &GossipSelect_npc_victorious_challenger;
+    newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name = "npc_loklira_crone";
+    newscript->pGossipHello = &GossipHello_npc_loklira_crone;
+    newscript->pGossipSelect = &GossipSelect_npc_loklira_crone;
     newscript->RegisterSelf();
 }
