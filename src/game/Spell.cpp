@@ -5989,15 +5989,15 @@ void Spell::Delayed() // only called in DealDamage()
 
 void Spell::DelayedChannel()
 {
-    if(!m_caster || m_caster->GetTypeId() != TYPEID_PLAYER || getState() != SPELL_STATE_CASTING)
+    if (!m_caster || m_caster->GetTypeId() != TYPEID_PLAYER || getState() != SPELL_STATE_CASTING)
         return;
 
-    if(isDelayableNoMore())                                 // Spells may only be delayed twice
+    if (isDelayableNoMore())                                    // Spells may only be delayed twice
         return;
 
     //check pushback reduce
     int32 delaytime = GetSpellDuration(m_spellInfo) * 25 / 100; // channeling delay is normally 25% of its time per hit
-    int32 delayReduce = 100;                               // must be initialized to 100 for percent modifiers
+    int32 delayReduce = 100;                                    // must be initialized to 100 for percent modifiers
     ((Player*)m_caster)->ApplySpellMod(m_spellInfo->Id, SPELLMOD_NOT_LOSE_CASTING_TIME, delayReduce, this);
     delayReduce += m_caster->GetTotalAuraModifier(SPELL_AURA_REDUCE_PUSHBACK) - 100;
     if(delayReduce >= 100)
@@ -6005,7 +6005,7 @@ void Spell::DelayedChannel()
 
     delaytime = delaytime * (100 - delayReduce) / 100;
 
-    if(int32(m_timer) < delaytime)
+    if(int32(m_timer) <= delaytime)
     {
         delaytime = m_timer;
         m_timer = 0;
@@ -6016,16 +6016,9 @@ void Spell::DelayedChannel()
     sLog.outDebug("Spell %u partially interrupted for %i ms, new duration: %u ms", m_spellInfo->Id, delaytime, m_timer);
 
     for (std::list<TargetInfo>::const_iterator ihit = m_UniqueTargetInfo.begin(); ihit != m_UniqueTargetInfo.end(); ++ihit)
-    {
         if ((*ihit).missCondition == SPELL_MISS_NONE)
-        {
-            Unit* unit = m_caster->GetGUID() == ihit->targetGUID ? m_caster : ObjectAccessor::GetUnit(*m_caster, ihit->targetGUID);
-            if (unit)
-            {
+            if (Unit* unit = m_caster->GetGUID() == ihit->targetGUID ? m_caster : ObjectAccessor::GetUnit(*m_caster, ihit->targetGUID))
                 unit->DelayAura(m_spellInfo->Id, m_caster->GetGUID(), delaytime);
-            }
-        }
-    }
 
     // partially interrupt persistent area auras
     if(DynamicObject* dynObj = m_caster->GetDynObject(m_spellInfo->Id))
@@ -6036,15 +6029,16 @@ void Spell::DelayedChannel()
 
 void Spell::UpdatePointers()
 {
-    if(m_originalCasterGUID==m_caster->GetGUID())
+    if(m_originalCasterGUID == m_caster->GetGUID())
         m_originalCaster = m_caster;
     else
     {
         m_originalCaster = ObjectAccessor::GetUnit(*m_caster,m_originalCasterGUID);
-        if(m_originalCaster && !m_originalCaster->IsInWorld()) m_originalCaster = NULL;
+        if (m_originalCaster && !m_originalCaster->IsInWorld())
+            m_originalCaster = NULL;
     }
 
-    if(m_castItemGUID && m_caster->GetTypeId() == TYPEID_PLAYER)
+    if (m_castItemGUID && m_caster->GetTypeId() == TYPEID_PLAYER)
         m_CastItem = ((Player*)m_caster)->GetItemByGuid(m_castItemGUID);
 
     m_targets.Update(m_caster);
@@ -6350,8 +6344,6 @@ bool SpellEvent::IsDeletable() const
 
 bool Spell::IsValidSingleTargetEffect(Unit const* target, Targets type) const
 {
-    if (target->GetMapId() == MAPID_INVALID)
-        return false;
     switch (type)
     {
         case TARGET_UNIT_TARGET_ENEMY:
@@ -6369,7 +6361,12 @@ bool Spell::IsValidSingleTargetEffect(Unit const* target, Targets type) const
 
 bool Spell::IsValidSingleTargetSpell(Unit const* target) const
 {
-    for (int i = 0; i < 3; ++i)
+    if (target->GetMapId() == MAPID_INVALID)
+    {
+        sLog.outDebug("Spell::IsValidSingleTargetSpell - a spell was cast on '%s' (GUIDLow: %u), but they have an invalid map id!", target->GetName(), target->GetGUIDLow());
+        return false;
+    }
+    for (uint8 i = 0; i < 3; ++i)
     {
         if(!IsValidSingleTargetEffect(target, Targets(m_spellInfo->EffectImplicitTargetA[i])))
             return false;
@@ -6383,9 +6380,9 @@ bool Spell::IsValidSingleTargetSpell(Unit const* target) const
 void Spell::CalculateDamageDoneForAllTargets()
 {
     float multiplier[3];
-    for (int i = 0; i < 3; ++i)
+    for (uint8 i = 0; i < 3; ++i)
     {
-        if ( m_applyMultiplierMask & (1 << i) )
+        if (m_applyMultiplierMask & (1 << i))
         {
             // Get multiplier
             multiplier[i] = m_spellInfo->DmgMultiplier[i];
@@ -6396,7 +6393,7 @@ void Spell::CalculateDamageDoneForAllTargets()
         }
     }
 
-    bool usesAmmo=true;
+    bool usesAmmo = true;
     Unit::AuraEffectList const& Auras = m_caster->GetAurasByType(SPELL_AURA_ABILITY_CONSUME_NO_AMMO);
     for (Unit::AuraEffectList::const_iterator j = Auras.begin(); j != Auras.end(); ++j)
     {
@@ -6409,7 +6406,7 @@ void Spell::CalculateDamageDoneForAllTargets()
         TargetInfo &target = *ihit;
 
         uint32 mask = target.effectMask;
-        if(!mask)
+        if (!mask)
             continue;
 
         Unit* unit = m_caster->GetGUID()==target.targetGUID ? m_caster : ObjectAccessor::GetUnit(*m_caster, target.targetGUID);
