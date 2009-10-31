@@ -19,7 +19,7 @@
 /* Script Data Start
 SDName: Boss Tharon'ja
 SDAuthor: Tartalo
-SD%Complete:
+SD%Complete: 100
 SDComment:
 SDCategory:
 Script Data End */
@@ -73,7 +73,8 @@ enum Yells
 };
 enum Models
 {
-    MODEL_FLESH                                            = 27696
+    MODEL_FLESH                                            = 27696,
+    MODEL_SKELETON                                         = 27511
 };
 enum CombatPhase
 {
@@ -170,12 +171,8 @@ struct TRINITY_DLL_DECL boss_tharon_jaAI : public ScriptedAI
                         Unit *pTemp = Unit::GetUnit((*m_creature),(*itr)->getUnitGuid());
                         if (pTemp && pTemp->GetTypeId() == TYPEID_PLAYER)
                         {
-                            Player *pTarget = CAST_PLR(pTemp);
-                            DoCast(pTemp, SPELL_GIFT_OF_THARON_JA);
-                            pTarget->AddTemporarySpell(SPELL_PLAYER_PHASE2_BONE_ARMOR);
-                            pTarget->AddTemporarySpell(SPELL_PLAYER_PHASE2_SLAYING_STRIKE);
-                            pTarget->AddTemporarySpell(SPELL_PLAYER_PHASE2_TAUNT);
-                            pTarget->AddTemporarySpell(SPELL_PLAYER_PHASE2_TOUCH_OF_LIFE);
+                            m_creature->AddAura(SPELL_GIFT_OF_THARON_JA,pTemp);
+                            pTemp->SetDisplayId(MODEL_SKELETON);
                         }
                     }
                     uiPhaseTimer = 20000;
@@ -232,11 +229,7 @@ struct TRINITY_DLL_DECL boss_tharon_jaAI : public ScriptedAI
                         {
                             if (pTemp->HasAura(SPELL_GIFT_OF_THARON_JA))
                                 pTemp->RemoveAura(SPELL_GIFT_OF_THARON_JA);
-                            Player *pTarget = CAST_PLR(pTemp);
-                            pTarget->RemoveTemporarySpell(SPELL_PLAYER_PHASE2_BONE_ARMOR);
-                            pTarget->RemoveTemporarySpell(SPELL_PLAYER_PHASE2_SLAYING_STRIKE);
-                            pTarget->RemoveTemporarySpell(SPELL_PLAYER_PHASE2_TAUNT);
-                            pTarget->RemoveTemporarySpell(SPELL_PLAYER_PHASE2_TOUCH_OF_LIFE);
+                            pTemp->DeMorph();
                         }
                     }
                 } else uiPhaseTimer -= diff;
