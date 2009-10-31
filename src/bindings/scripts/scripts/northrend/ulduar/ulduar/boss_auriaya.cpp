@@ -78,7 +78,7 @@ struct TRINITY_DLL_DECL boss_auriaya_AI : public BossAI
             TERRIFYING_SCREECH_Timer = 180000;
         } else TERRIFYING_SCREECH_Timer -= diff;
 
-        if (SONIC_BOOM_Timer <= diff)
+        if (SONIC_SCREECH_Timer <= diff)
         {
             DoCastVictim(SPELL_SONIC_SCREECH);
             SONIC_SCREECH_Timer = 30000;

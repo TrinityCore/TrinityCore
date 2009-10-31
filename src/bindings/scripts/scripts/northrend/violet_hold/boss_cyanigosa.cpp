@@ -14,7 +14,7 @@ update creature_template set scriptname = '' where entry = '';
 
 enum Spells
 {
-    SPELL_ARCANE_VACUM                             = 58694,
+    SPELL_ARCANE_VACUUM                            = 58694,
     SPELL_BLIZZARD                                 = 58693,
     H_SPELL_BLIZZARD                               = 59369,
     SPELL_MANA_DESTRUCTION                         = 59374,
@@ -45,7 +45,7 @@ struct TRINITY_DLL_DECL boss_cyanigosaAI : public ScriptedAI
         pInstance = c->GetInstanceData();
     }
 
-    uint32 uiArcaneVacumTimer;
+    uint32 uiArcaneVacuumTimer;
     uint32 uiBlizzardTimer;
     uint32 uiManaDestructionTimer;
     uint32 uiTailSweepTimer;
@@ -55,6 +55,11 @@ struct TRINITY_DLL_DECL boss_cyanigosaAI : public ScriptedAI
 
     void Reset()
     {
+        uiArcaneVacuumTimer = 10000;
+        uiBlizzardTimer = 15000;
+        uiManaDestructionTimer = 30000;
+        uiTailSweepTimer = 20000;
+        uiUncontrollableEnergyTimer = 25000;
         if (pInstance)
             pInstance->SetData(DATA_CYANIGOSA_EVENT, NOT_STARTED);
     }
@@ -75,32 +80,37 @@ struct TRINITY_DLL_DECL boss_cyanigosaAI : public ScriptedAI
         if (!UpdateVictim())
             return;
 
-        if (uiArcaneVacumTimer <= diff)
+        if (uiArcaneVacuumTimer <= diff)
         {
-            DoCast(m_creature, SPELL_ARCANE_VACUM);
-        } else uiArcaneVacumTimer -= diff;
+            DoCast(SPELL_ARCANE_VACUUM);
+            uiArcaneVacuumTimer = 10000;
+        } else uiArcaneVacuumTimer -= diff;
 
         if (uiBlizzardTimer <= diff)
         {
-            if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0,100,true))
+            if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                 DoCast(pTarget, HEROIC(SPELL_BLIZZARD,H_SPELL_BLIZZARD));
+            uiBlizzardTimer = 15000;
         } else uiBlizzardTimer -= diff;
 
         if (uiTailSweepTimer <= diff)
         {
-            DoCast(m_creature, HEROIC(SPELL_TAIL_SWEEP,H_SPELL_TAIL_SWEEP));
+            DoCast(HEROIC(SPELL_TAIL_SWEEP,H_SPELL_TAIL_SWEEP));
+            uiTailSweepTimer = 20000;
         } else uiTailSweepTimer -= diff;
 
         if (uiUncontrollableEnergyTimer <= diff)
         {
-            DoCast(m_creature->getVictim(), HEROIC(SPELL_UNCONTROLLABLE_ENERGY,H_SPELL_UNCONTROLLABLE_ENERGY));
+            DoCastVictim(HEROIC(SPELL_UNCONTROLLABLE_ENERGY,H_SPELL_UNCONTROLLABLE_ENERGY));
+            uiUncontrollableEnergyTimer = 25000;
         } else uiUncontrollableEnergyTimer -= diff;
 
         if (HeroicMode)
             if (uiManaDestructionTimer <= diff)
             {
-                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0,100,true))
+                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                     DoCast(pTarget, SPELL_MANA_DESTRUCTION);
+                uiManaDestructionTimer = 30000;
             } else uiManaDestructionTimer -= diff;
 
         DoMeleeAttackIfReady();
