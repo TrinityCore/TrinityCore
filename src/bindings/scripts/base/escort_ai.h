@@ -71,7 +71,7 @@ struct TRINITY_DLL_DECL npc_escortAI : public ScriptedAI
         void SetEscortPaused(bool uPaused);
 
         bool HasEscortState(uint32 uiEscortState) { return (m_uiEscortState & uiEscortState); }
-        virtual bool IsEscorted() { return true; }
+        virtual bool IsEscorted() { return (m_uiEscortState & STATE_ESCORT_ESCORTING); }
 
         void SetMaxPlayerDistance(float newMax) { MaxPlayerDistance = newMax; }
         float GetMaxPlayerDistance() { return MaxPlayerDistance; }
