@@ -67,9 +67,7 @@ struct TRINITY_DLL_DECL boss_freyaAI : public BossAI
         DoMeleeAttackIfReady();
 
         EnterEvadeIfOutOfCombatArea(diff);
-
     }
-
 };
 
 CreatureAI* GetAI_boss_freya(Creature* pCreature)
@@ -84,5 +82,4 @@ void AddSC_boss_freya()
     newscript->Name = "boss_freya";
     newscript->GetAI = &GetAI_boss_freya;
     newscript->RegisterSelf();
-
 }

@@ -20,8 +20,10 @@
 #include "ulduar.h"
 
 //boss_auriaya
-#define SPELL_TERRIFYING_SCREECH    64386
-#define SPELL_SONIC_BOOM            38897
+#define SPELL_TERRIFYING_SCREECH          64386
+#define SPELL_SETINEL_BLAST               64679
+#define SPELL_SONIC_SCREECH               64422
+#define SPELL_SUMMON_SWARMING_GUARDIAN    64397
 //wrong text ids. correct are beetwen -1000000 AND -1999999
 //beetwen -2000000 and -2999999 are custom texts so wtf?
 #define SAY_AGGRO                   -2615016
@@ -37,12 +39,12 @@ struct TRINITY_DLL_DECL boss_auriaya_AI : public BossAI
     ScriptedInstance* m_pInstance;
 
     uint32 TERRIFYING_SCREECH_Timer;
-    uint32 SONIC_BOOM_Timer;
+    uint32 SONIC_SCREECH_Timer;
 
     void Reset()
     {
-        TERRIFYING_SCREECH_Timer = 0;
-        SONIC_BOOM_Timer = 2000;
+        TERRIFYING_SCREECH_Timer = 180000;
+        SONIC_SCREECH_Timer = 30000;
     }
 
     void EnterCombat(Unit* who)
@@ -71,16 +73,16 @@ struct TRINITY_DLL_DECL boss_auriaya_AI : public BossAI
 
         if (TERRIFYING_SCREECH_Timer <= diff)
         {
-            DoCast(m_creature,SPELL_TERRIFYING_SCREECH);
+            DoCast(SPELL_TERRIFYING_SCREECH);
             DoScriptText(SAY_SLAY_1, m_creature);
-            TERRIFYING_SCREECH_Timer = 360000;
+            TERRIFYING_SCREECH_Timer = 180000;
         } else TERRIFYING_SCREECH_Timer -= diff;
 
         if (SONIC_BOOM_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(),SPELL_SONIC_BOOM);
-            SONIC_BOOM_Timer = 20000;
-        } else SONIC_BOOM_Timer -= diff;
+            DoCastVictim(SPELL_SONIC_SCREECH);
+            SONIC_SCREECH_Timer = 30000;
+        } else SONIC_SCREECH_Timer -= diff;
 
         DoMeleeAttackIfReady();
     }
