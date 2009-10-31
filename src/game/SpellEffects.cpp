@@ -1188,9 +1188,62 @@ void Spell::EffectDummy(uint32 i)
                     m_caster->CastSpell(m_caster, 43068, true);
                     return;
                 }
+                case 49357:                                 // Brewfest Mount Transformation
+                    if (m_caster->GetTypeId() != TYPEID_PLAYER)
+                        return;
+                    if (!m_caster->HasAuraType(SPELL_AURA_MOUNTED))
+                        return;
+                    m_caster->RemoveAurasByType(SPELL_AURA_MOUNTED);
+                    // Ram for Alliance, Kodo for Horde
+                    if (((Player*)m_caster)->GetTeam() == ALLIANCE)
+                    {
+                        if (m_caster->GetSpeedRate(MOVE_RUN) >= 2.0f)
+                            // 100% Ram
+                            m_caster->CastSpell(m_caster, 43900, true);
+                        else
+                            // 60% Ram
+                            m_caster->CastSpell(m_caster, 43899, true);
+                    }
+                    else
+                    {
+                        if (((Player*)m_caster)->GetSpeedRate(MOVE_RUN) >= 2.0f)
+                            // 100% Kodo
+                            m_caster->CastSpell(m_caster, 49379, true);
+                        else
+                            // 60% Kodo
+                            m_caster->CastSpell(m_caster, 49378, true);
+                    }
+                    return;
+                case 52845:                                 // Brewfest Mount Transformation (Faction Swap)
+                    if (m_caster->GetTypeId() != TYPEID_PLAYER)
+                        return;
+                    if (!m_caster->HasAuraType(SPELL_AURA_MOUNTED))
+                        return;
+                    m_caster->RemoveAurasByType(SPELL_AURA_MOUNTED);
+                    // Ram for Horde, Kodo for Alliance
+                    if (((Player*)m_caster)->GetTeam() == HORDE)
+                    {
+                        if (m_caster->GetSpeedRate(MOVE_RUN) >= 2.0f)
+                            // 100% Ram
+                            m_caster->CastSpell(m_caster, 43900, true);
+                        else
+                            // 60% Ram
+                            m_caster->CastSpell(m_caster, 43899, true);
+                    }
+                    else
+                    {
+                        if (((Player*)m_caster)->GetSpeedRate(MOVE_RUN) >= 2.0f)
+                            // 100% Kodo
+                            m_caster->CastSpell(m_caster, 49379, true);
+                        else
+                            // 60% Kodo
+                            m_caster->CastSpell(m_caster, 49378, true);
+                    }
+                    return;
                 case 55004:                                 // Nitro Boosts
-                    if(!m_CastItem) return;
-                    if(roll_chance_i(95))                   // Nitro Boosts - success
+                    if (!m_CastItem)
+                        return;
+                    if (roll_chance_i(95))                  // Nitro Boosts - success
                         m_caster->CastSpell(m_caster, 54861, true, m_CastItem);
                     else                                    // Knocked Up   - backfire 5%
                         m_caster->CastSpell(m_caster, 46014, true, m_CastItem);
@@ -1201,9 +1254,9 @@ void Spell::EffectDummy(uint32 i)
                         return;
 
                     // spell has a 1/3 chance to trigger one of the below
-                    if(roll_chance_i(66))
+                    if (roll_chance_i(66))
                         return;
-                    if(((Player*)m_caster)->GetTeam() == ALLIANCE)
+                    if (((Player*)m_caster)->GetTeam() == ALLIANCE)
                     {
                         // 1000001 - gnomish binary
                         m_caster->CastSpell(m_caster, 50242, true);
