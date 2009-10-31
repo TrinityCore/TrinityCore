@@ -2508,18 +2508,23 @@ bool InstanceMap::CanEnter(Player *player)
         return false;
     }
 
+    // allow GM's to enter
+    if (player->isGameMaster())
+        return Map::CanEnter(player);
+
     // cannot enter if the instance is full (player cap), GMs don't count
     uint32 maxPlayers = GetMaxPlayers();
-    if (!player->isGameMaster() && GetPlayersCountExceptGMs() >= maxPlayers)
+    if (GetPlayersCountExceptGMs() >= maxPlayers)
     {
         sLog.outDetail("MAP: Instance '%u' of map '%s' cannot have more than '%u' players. Player '%s' rejected", GetInstanceId(), GetMapName(), maxPlayers, player->GetName());
         player->SendTransferAborted(GetId(), TRANSFER_ABORT_MAX_PLAYERS);
         return false;
     }
 
-    // cannot enter while players in the instance are in combat
-    Group *pGroup = player->GetGroup();
-    if(!player->isGameMaster() && pGroup && pGroup->InCombatToInstance(GetInstanceId()) && player->GetMapId() != GetId())
+    // cannot enter while an encounter is in progress on raids
+    /*Group *pGroup = player->GetGroup();
+    if(!player->isGameMaster() && pGroup && pGroup->InCombatToInstance(GetInstanceId()) && player->GetMapId() != GetId())*/
+    if (IsRaid() && GetInstanceData()->IsEncounterInProgress())
     {
         player->SendTransferAborted(GetId(), TRANSFER_ABORT_ZONE_IN_COMBAT);
         return false;
