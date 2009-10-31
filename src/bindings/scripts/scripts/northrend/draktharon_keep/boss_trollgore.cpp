@@ -84,6 +84,9 @@ struct TRINITY_DLL_DECL boss_trollgoreAI : public ScriptedAI
         uiExplodeCorpseTimer = 3000;
 
         bAchiev = HeroicMode;
+
+        if (m_creature->HasAura(HEROIC(SPELL_CONSUME,H_SPELL_CONSUME)))
+            m_creature->RemoveAura(HEROIC(SPELL_CONSUME,H_SPELL_CONSUME));
         
         if (pInstance)
             pInstance->SetData(DATA_TROLLGORE_EVENT, NOT_STARTED);
