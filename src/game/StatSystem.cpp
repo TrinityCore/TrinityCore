@@ -1174,6 +1174,21 @@ void Guardian::UpdateDamagePhysical(WeaponAttackType attType)
         }
     }
 
+    Unit::AuraEffectList const& mDummy = GetAurasByType(SPELL_AURA_MOD_ATTACKSPEED);
+    for(Unit::AuraEffectList::const_iterator itr = mDummy.begin(); itr != mDummy.end(); ++itr)
+    {
+        switch ((*itr)->GetSpellProto()->Id)
+        {
+            case 61682:
+            case 61683:
+                mindamage = mindamage * (100.0f-float((*itr)->GetAmount()))/100.0f;
+                maxdamage = maxdamage * (100.0f-float((*itr)->GetAmount()))/100.0f;
+                break;
+            default:
+                break;
+        }
+    }
+
     SetStatFloatValue(UNIT_FIELD_MINDAMAGE, mindamage);
     SetStatFloatValue(UNIT_FIELD_MAXDAMAGE, maxdamage);
 }
