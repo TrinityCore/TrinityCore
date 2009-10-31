@@ -4859,7 +4859,7 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
         {
             switch (dummySpell->Id)
             {
-                // BloodWorms Health Leech
+                // Bloodworms Health Leech
                 case 50453:
                 {
                     if (Unit *owner = this->GetOwner())
@@ -4920,6 +4920,12 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                         return false;
 
                     triggered_spell_id = 26654;
+                    break;
+                }
+                // Glyph of Blocking
+                case 58375:
+                {
+                    triggered_spell_id = 58374;
                     break;
                 }
                 // Unstable Power
