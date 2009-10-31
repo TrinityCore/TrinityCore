@@ -1,3 +1,21 @@
+/*
+ * Copyright (C) 2008-2009 Trinity <http://www.trinitycore.org/>
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+ */
+
 #include "precompiled.h"
 #include "drak_tharon_keep.h"
 
@@ -8,6 +26,21 @@
 2 - King Dred
 3 - Tharon Ja
 */
+
+enum Creatures
+{
+    NPC_TROLLGORE                                          = 26630,
+    NPC_NOVOS                                              = 26631,
+    NPC_KING_DRED                                          = 27483,
+    NPC_THARON_JA                                          = 26632
+};
+enum GameObjects
+{
+    GO_NOVOS_CRYSTAL_1                                     = 189299,
+    GO_NOVOS_CRYSTAL_2                                     = 189300,
+    GO_NOVOS_CRYSTAL_3                                     = 189301,
+    GO_NOVOS_CRYSTAL_4                                     = 189302
+};
 
 struct TRINITY_DLL_DECL instance_drak_tharon : public ScriptedInstance
 {
@@ -51,16 +84,16 @@ struct TRINITY_DLL_DECL instance_drak_tharon : public ScriptedInstance
     {
         switch(pGo->GetEntry())
         {
-            case 189299:
+            case GO_NOVOS_CRYSTAL_1:
                 uiNovosCrystal1 = pGo->GetGUID();
                 break;
-            case 189300:
+            case GO_NOVOS_CRYSTAL_2:
                 uiNovosCrystal2 = pGo->GetGUID();
                 break;
-            case 189301:
+            case GO_NOVOS_CRYSTAL_3:
                 uiNovosCrystal3 = pGo->GetGUID();
                 break;
-            case 189302:
+            case GO_NOVOS_CRYSTAL_4:
                 uiNovosCrystal4 = pGo->GetGUID();
                 break;
         }
@@ -70,16 +103,16 @@ struct TRINITY_DLL_DECL instance_drak_tharon : public ScriptedInstance
     {
         switch(pCreature->GetEntry())
         {
-            case 26630:
+            case NPC_TROLLGORE:
                 uiTrollgore = pCreature->GetGUID();
                 break;
-            case 26631:
+            case NPC_NOVOS:
                 uiNovos = pCreature->GetGUID();
                 break;
-            case 27483:
-                uiTrollgore = pCreature->GetGUID();
+            case NPC_KING_DRED:
+                uiDred = pCreature->GetGUID();
                 break;
-            case 26632:
+            case NPC_THARON_JA:
                 uiTharonJa = pCreature->GetGUID();
                 break;
         }
