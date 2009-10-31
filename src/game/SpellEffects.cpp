@@ -556,12 +556,12 @@ void Spell::SpellDamageSchoolDmg(uint32 effect_idx)
                         if (AuraEffect const * aurEff = unitTarget->GetAura(SPELL_AURA_PERIODIC_DAMAGE, SPELLFAMILY_ROGUE, 0x10000, 0, 0, m_caster->GetGUID()))
                         {
                             // count consumed deadly poison doses at target
-                            Aura *poison = 0;
+                            //Aura *poison = 0;
                             uint32 spellId = aurEff->GetId();
                             uint32 doses = aurEff->GetParentAura()->GetStackAmount();
                             if (doses > combo)
                                 doses = combo;
-                            for (int i=0; i< doses; i++)
+                            for (uint32 i = 0; i < doses; ++i)
                                 unitTarget->RemoveAuraFromStack(spellId);
                             damage *= doses;
                             damage += int32(((Player*)m_caster)->GetTotalAttackPowerValue(BASE_ATTACK) * 0.03f * doses);
@@ -818,6 +818,18 @@ void Spell::EffectDummy(uint32 i)
                     m_caster->CastSpell(unitTarget,spell_id,true,NULL);
                     return;
                 }
+                case 13280:                                 // Gnomish Death Ray
+                {
+                    if (!unitTarget)
+                        return;
+
+                    if (urand(0, 99) < 15)
+                        m_caster->CastSpell(m_caster, 13493, true, NULL);    // failure
+                    else
+                        m_caster->CastSpell(unitTarget, 13279, true, NULL);
+
+                    return;
+                }
                 case 13567:                                 // Dummy Trigger
                 {
                     // can be used for different aura triggering, so select by aura
@@ -1068,6 +1080,11 @@ void Spell::EffectDummy(uint32 i)
                     m_caster->CastCustomSpell(unitTarget, 37675, &basepoints0, NULL, NULL, true);
                     return;
                 }
+                case 40109:                                 // Knockdown Fel Cannon: The Bolt
+                {
+                    unitTarget->CastSpell(unitTarget, 40075, true);
+                    return;
+                }
                 case 40802:                                 // Mingo's Fortune Generator (Mingo's Fortune Giblets)
                 {
                     // selecting one from Bloodstained Fortune item
@@ -1157,6 +1174,18 @@ void Spell::EffectDummy(uint32 i)
                 {
                     // Emissary of Hate Credit
                     m_caster->CastSpell(m_caster, 45088, true);
+                    return;
+                }
+                case 49625:                                 // Brave's Flare
+                {
+                    //Trigger Brave's Flare Effect (with EffectTarget)
+                    m_caster->CastSpell(m_caster, 43106, true);
+                    return;
+                }
+                case 49634:                                 // Sergeant's Flare
+                {
+                    //Trigger Sergeant's Flare Effect (with EffectTarget)
+                    m_caster->CastSpell(m_caster, 43068, true);
                     return;
                 }
                 case 55004:                                 // Nitro Boosts
@@ -1256,6 +1285,7 @@ void Spell::EffectDummy(uint32 i)
                     return;
                 }
                 case 62324: // Throw Passenger
+                {
                     if(m_targets.HasTraj())
                     {
                         if(Vehicle *vehicle = m_caster->GetVehicleKit())
@@ -1293,6 +1323,15 @@ void Spell::EffectDummy(uint32 i)
                             }
                     }
                     return;
+                }
+                case 64385:                                 // Unusual Compass
+                {
+                    m_caster->SetOrientation(float(urand(0,62832)) / 10000.0f);
+                    WorldPacket data;
+                    m_caster->BuildHeartBeatMsg(&data);
+                    m_caster->SendMessageToSet(&data,true);
+                    return;
+                }
             }
 
             //All IconID Check in there
@@ -1609,6 +1648,21 @@ void Spell::EffectDummy(uint32 i)
         case SPELLFAMILY_HUNTER:
             switch(m_spellInfo->Id)
             {
+                case 781:                                 // Disengage
+                {
+                    if (m_caster->GetTypeId() != TYPEID_PLAYER)
+                        return;
+
+                    WorldPacket data(SMSG_MOVE_KNOCK_BACK, 50);
+                    data.append(m_caster->GetPackGUID());
+                    data << getMSTime();
+                    data << float(cosf(m_caster->GetOrientation()+M_PI));
+                    data << float(sinf(m_caster->GetOrientation()+M_PI));
+                    data << float(15);
+                    data << float(-7.0f);
+                    ((Player*)m_caster)->GetSession()->SendPacket(&data);
+                    return;
+                }
                 case 23989:                                 // Readiness talent
                 {
                     if(m_caster->GetTypeId() != TYPEID_PLAYER)
@@ -3287,92 +3341,94 @@ void Spell::EffectOpenLock(uint32 effIndex)
 
 void Spell::EffectSummonChangeItem(uint32 i)
 {
-    if(m_caster->GetTypeId() != TYPEID_PLAYER)
+    if (m_caster->GetTypeId() != TYPEID_PLAYER)
         return;
 
     Player *player = (Player*)m_caster;
 
     // applied only to using item
-    if(!m_CastItem)
+    if (!m_CastItem)
         return;
 
     // ... only to item in own inventory/bank/equip_slot
-    if(m_CastItem->GetOwnerGUID()!=player->GetGUID())
+    if (m_CastItem->GetOwnerGUID() != player->GetGUID())
         return;
 
     uint32 newitemid = m_spellInfo->EffectItemType[i];
-    if(!newitemid)
+    if (!newitemid)
         return;
 
     uint16 pos = m_CastItem->GetPos();
 
-    Item *pNewItem = Item::CreateItem( newitemid, 1, player);
-    if( !pNewItem )
+    Item *pNewItem = Item::CreateItem(newitemid, 1, player);
+    if (!pNewItem)
         return;
 
-    for (uint8 j= PERM_ENCHANTMENT_SLOT; j<=TEMP_ENCHANTMENT_SLOT; ++j)
-    {
-        if(m_CastItem->GetEnchantmentId(EnchantmentSlot(j)))
+    for (uint8 j = PERM_ENCHANTMENT_SLOT; j <= TEMP_ENCHANTMENT_SLOT; ++j)
+        if (m_CastItem->GetEnchantmentId(EnchantmentSlot(j)))
             pNewItem->SetEnchantment(EnchantmentSlot(j), m_CastItem->GetEnchantmentId(EnchantmentSlot(j)), m_CastItem->GetEnchantmentDuration(EnchantmentSlot(j)), m_CastItem->GetEnchantmentCharges(EnchantmentSlot(j)));
-    }
 
-    if(m_CastItem->GetUInt32Value(ITEM_FIELD_DURABILITY) < m_CastItem->GetUInt32Value(ITEM_FIELD_MAXDURABILITY))
+    if (m_CastItem->GetUInt32Value(ITEM_FIELD_DURABILITY) < m_CastItem->GetUInt32Value(ITEM_FIELD_MAXDURABILITY))
     {
         double loosePercent = 1 - m_CastItem->GetUInt32Value(ITEM_FIELD_DURABILITY) / double(m_CastItem->GetUInt32Value(ITEM_FIELD_MAXDURABILITY));
         player->DurabilityLoss(pNewItem, loosePercent);
     }
 
-    if( player->IsInventoryPos( pos ) )
+    if (player->IsInventoryPos(pos))
     {
         ItemPosCountVec dest;
-        uint8 msg = player->CanStoreItem( m_CastItem->GetBagSlot(), m_CastItem->GetSlot(), dest, pNewItem, true );
-        if( msg == EQUIP_ERR_OK )
+        uint8 msg = player->CanStoreItem(m_CastItem->GetBagSlot(), m_CastItem->GetSlot(), dest, pNewItem, true );
+        if (msg == EQUIP_ERR_OK)
         {
             player->DestroyItem(m_CastItem->GetBagSlot(), m_CastItem->GetSlot(), true);
 
             // prevent crash at access and unexpected charges counting with item update queue corrupt
-            if(m_CastItem==m_targets.getItemTarget())
+            if (m_CastItem == m_targets.getItemTarget())
                 m_targets.setItemTarget(NULL);
 
             m_CastItem = NULL;
 
-            player->StoreItem( dest, pNewItem, true);
+            player->StoreItem(dest, pNewItem, true);
             return;
         }
     }
-    else if( player->IsBankPos ( pos ) )
+    else if (player->IsBankPos(pos))
     {
         ItemPosCountVec dest;
-        uint8 msg = player->CanBankItem( m_CastItem->GetBagSlot(), m_CastItem->GetSlot(), dest, pNewItem, true );
-        if( msg == EQUIP_ERR_OK )
+        uint8 msg = player->CanBankItem(m_CastItem->GetBagSlot(), m_CastItem->GetSlot(), dest, pNewItem, true);
+        if (msg == EQUIP_ERR_OK)
         {
             player->DestroyItem(m_CastItem->GetBagSlot(), m_CastItem->GetSlot(), true);
 
             // prevent crash at access and unexpected charges counting with item update queue corrupt
-            if(m_CastItem==m_targets.getItemTarget())
+            if (m_CastItem == m_targets.getItemTarget())
                 m_targets.setItemTarget(NULL);
 
             m_CastItem = NULL;
 
-            player->BankItem( dest, pNewItem, true);
+            player->BankItem(dest, pNewItem, true);
             return;
         }
     }
-    else if( player->IsEquipmentPos ( pos ) )
+    else if (player->IsEquipmentPos(pos))
     {
         uint16 dest;
-        uint8 msg = player->CanEquipItem( m_CastItem->GetSlot(), dest, pNewItem, true );
-        if( msg == EQUIP_ERR_OK )
+
+        player->DestroyItem(m_CastItem->GetBagSlot(), m_CastItem->GetSlot(), true);
+
+        uint8 msg = player->CanEquipItem(m_CastItem->GetSlot(), dest, pNewItem, true);
+
+        if (msg == EQUIP_ERR_OK || msg == EQUIP_ERR_CANT_DO_RIGHT_NOW)
         {
-            player->DestroyItem(m_CastItem->GetBagSlot(), m_CastItem->GetSlot(), true);
+            if (msg == EQUIP_ERR_CANT_DO_RIGHT_NOW) dest = EQUIPMENT_SLOT_MAINHAND;
 
             // prevent crash at access and unexpected charges counting with item update queue corrupt
-            if(m_CastItem==m_targets.getItemTarget())
+            if (m_CastItem == m_targets.getItemTarget())
                 m_targets.setItemTarget(NULL);
 
             m_CastItem = NULL;
 
-            player->EquipItem( dest, pNewItem, true);
+            player->EquipItem(dest, pNewItem, true);
             player->AutoUnequipOffhandIfNeed();
             return;
         }
@@ -5032,6 +5088,20 @@ void Spell::EffectScriptEffect(uint32 effIndex)
                     unitTarget->RemoveMovementImpairingAuras();
                     break;
                 }
+                // Plant Warmaul Ogre Banner
+                case 32307:
+                {
+                    Player *p_caster = dynamic_cast<Player*>(m_caster);
+                    if (!p_caster)
+                        break;
+                    p_caster->RewardPlayerAndGroupAtEvent(18388, unitTarget);
+                    Creature *cTarget = dynamic_cast<Creature*>(unitTarget);
+                    if (!cTarget)
+                        break;
+                    cTarget->setDeathState(CORPSE);
+                    cTarget->RemoveCorpse();
+                    break;
+                }
                 // Tidal Surge
                 case 38358:
                     if(unitTarget)
@@ -5172,6 +5242,28 @@ void Spell::EffectScriptEffect(uint32 effIndex)
 
                     break;
                 }
+                // Roll Dice - Decahedral Dwarven Dice
+                case 47770:
+                {
+                    char buf[128];
+                    char *gender = "his";
+                    if(m_caster->getGender() > 0)
+                        gender = "her";
+                    sprintf(buf, "%s rubs %s [Decahedral Dwarven Dice] between %s hands and rolls. One %u and one %u.", m_caster->GetName(), gender, gender, urand(1,10), urand(1,10));
+                    m_caster->MonsterTextEmote(buf, 0);
+                    break;
+                }
+                // Roll 'dem Bones - Worn Troll Dice
+                case 47776:
+                {
+                    char buf[128];
+                    char *gender = "his";
+                    if(m_caster->getGender() > 0)
+                        gender = "her";
+                    sprintf(buf, "%s causually tosses %s [Worn Troll Dice]. One %u and one %u.", m_caster->GetName(), gender, urand(1,6), urand(1,6));
+                    m_caster->MonsterTextEmote(buf, 0);
+                    break;
+                }
                 // Vigilance
                 case 50725:
                 {
@@ -5229,6 +5321,19 @@ void Spell::EffectScriptEffect(uint32 effIndex)
                     m_originalCaster->CastSpell(m_originalCaster, damage, false);
                     break;
                 }
+                // Deathbolt from Thalgran Blightbringer
+                // reflected by Freya's Ward
+                // Retribution by Sevenfold Retribution
+                case 51854:
+                {
+                    if (!m_caster || !unitTarget)
+                        return;
+                    if (unitTarget->HasAura(51845))
+                        unitTarget->CastSpell(m_caster, 51856, true);
+                    else
+                        m_caster->CastSpell(unitTarget, 51855, true);
+                    break;
+                }
                 // Summon Ghouls On Scarlet Crusade
                 case 51904:
                 {
@@ -5237,7 +5342,7 @@ void Spell::EffectScriptEffect(uint32 effIndex)
 
                     float x, y, z;
                     float radius = GetSpellRadius(m_spellInfo, effIndex, true);
-                    for (uint32 i = 0; i < 15; ++i)
+                    for (uint8 i = 0; i < 15; ++i)
                     {
                         m_caster->GetRandomPoint(m_targets.m_dstPos, radius, x, y, z);
                         m_caster->CastSpell(x, y, z, 54522, true);
