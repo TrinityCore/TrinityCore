@@ -5547,14 +5547,23 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                 triggered_spell_id = 54181;
                 break;
             }
-            switch(dummySpell->Id)
+            switch (dummySpell->Id)
             {
                 // Siphon Life
                 case 63108:
                 {
+                    // Glyph of Siphon Life
+                    if (HasAura(56216))
+                        triggerAmount += triggerAmount * 25 / 100;
                     triggered_spell_id = 63106;
                     target = this;
                     basepoints0 = int32(damage*triggerAmount/100);
+                    break;
+                }
+                // Glyph of Life Tap
+                case 63320:
+                {
+                    triggered_spell_id = 63321;
                     break;
                 }
                 // Nightfall
@@ -9263,7 +9272,13 @@ uint32 Unit::SpellDamageBonus(Unit *pVictim, SpellEntry const *spellProto, uint3
             if (spellProto->SpellIconID == 186)
             {
                 if (pVictim->HasAuraState(AURA_STATE_FROZEN, spellProto, this))
-                    DoneTotalMod *= 3.0f;
+                {
+                    // Glyph of Ice Lance
+                    if (owner->HasAura(56377) && pVictim->getLevel() > owner->getLevel())
+                        DoneTotalMod *= 4.0f;
+                    else
+                        DoneTotalMod *= 3.0f;
+                }
             }
 
             // Torment the weak
