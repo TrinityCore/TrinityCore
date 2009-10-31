@@ -1537,7 +1537,13 @@ bool Creature::LoadFromDB(uint32 guid, Map *map)
     }
 
     m_DBTableGuid = guid;
-    if (map->GetInstanceId() != 0) guid = objmgr.GenerateLowGuid(HIGHGUID_UNIT);
+    if (map->GetInstanceId() == 0)
+    {
+        if (map->GetCreature(MAKE_NEW_GUID(guid,data->id,HIGHGUID_UNIT)))
+            return false;
+    }
+    else
+        guid = objmgr.GenerateLowGuid(HIGHGUID_UNIT);
 
     uint16 team = 0;
     if(!Create(guid,map,data->phaseMask,data->id,0,team,data->posX,data->posY,data->posZ,data->orientation,data))

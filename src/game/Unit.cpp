@@ -11176,6 +11176,7 @@ void Unit::setDeathState(DeathState s)
         GetMotionMaster()->Clear(false);
         GetMotionMaster()->MoveIdle();
         if(m_vehicleKit) m_vehicleKit->Die();
+        StopMoving();
         //without this when removing IncreaseMaxHealth aura player may stuck with 1 hp
         //do not why since in IncreaseMaxHealth currenthealth is checked
         SetHealth(0);

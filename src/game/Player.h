@@ -169,7 +169,7 @@ struct ActionButton
     void SetActionAndType(uint32 action, ActionButtonType type)
     {
         uint32 newData = action | (uint32(type) << 24);
-        if (newData != packedData)
+        if (newData != packedData || uState == ACTIONBUTTON_DELETED)
         {
             packedData = newData;
             if (uState != ACTIONBUTTON_NEW)
