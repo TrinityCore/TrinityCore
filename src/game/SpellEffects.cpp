@@ -1715,14 +1715,16 @@ void Spell::EffectDummy(uint32 i)
             if (m_spellInfo->SpellFamilyFlags[1] & 0x20000 && i == 1)
             {
                 int32 dmg = m_damage * damage / 100;
+                if (!unitTarget)
+                    unitTarget = m_caster;
                 m_caster->CastCustomSpell(unitTarget, 54171, &dmg, 0, 0, true);
                 return;
             }
             switch(m_spellInfo->SpellIconID)
             {
-                case  156:                                  // Holy Shock
+                case 156:                                   // Holy Shock
                 {
-                    if(!unitTarget)
+                    if (!unitTarget)
                         return;
 
                     int hurt = 0;
@@ -1742,7 +1744,7 @@ void Spell::EffectDummy(uint32 i)
                             return;
                     }
 
-                    if(m_caster->IsFriendlyTo(unitTarget))
+                    if (m_caster->IsFriendlyTo(unitTarget))
                         m_caster->CastSpell(unitTarget, heal, true, 0);
                     else
                         m_caster->CastSpell(unitTarget, hurt, true, 0);
@@ -1759,11 +1761,11 @@ void Spell::EffectDummy(uint32 i)
                 }
                 case 20425:                                   // Judgement of command
                 {
-                    if(!unitTarget)
+                    if (!unitTarget)
                         return;
 
                     SpellEntry const* spell_proto = sSpellStore.LookupEntry(damage);
-                    if(!spell_proto)
+                    if (!spell_proto)
                         return;
 
                     m_caster->CastSpell(unitTarget, spell_proto, true, NULL);
@@ -1776,7 +1778,7 @@ void Spell::EffectDummy(uint32 i)
                     // non-standard cast requirement check
                     if (!unitTarget || unitTarget->getAttackers().empty())
                     {
-                        if(m_caster->GetTypeId() == TYPEID_PLAYER)
+                        if (m_caster->GetTypeId() == TYPEID_PLAYER)
                             ((Player*)m_caster)->RemoveSpellCooldown(m_spellInfo->Id,true);
                         SendCastResult(SPELL_FAILED_TARGET_AFFECTING_COMBAT);
                         return;
@@ -1784,7 +1786,7 @@ void Spell::EffectDummy(uint32 i)
 
                     // Righteous Defense (step 2) (in old version 31980 dummy effect)
                     // Clear targets for eff 1
-                    for (std::list<TargetInfo>::iterator ihit= m_UniqueTargetInfo.begin(); ihit != m_UniqueTargetInfo.end(); ++ihit)
+                    for (std::list<TargetInfo>::iterator ihit = m_UniqueTargetInfo.begin(); ihit != m_UniqueTargetInfo.end(); ++ihit)
                         ihit->effectMask &= ~(1<<1);
 
                     // not empty (checked)
@@ -1795,7 +1797,7 @@ void Spell::EffectDummy(uint32 i)
                     uint32 count = 0;
                     for (Unit::AttackerSet::const_iterator aItr = attackers.begin(); aItr != attackers.end() && count < 3; ++aItr)
                     {
-                        if(!roll_chance_f(chance))
+                        if (!roll_chance_f(chance))
                             continue;
                         ++count;
                         AddUnitTarget((*aItr), 1);
@@ -1806,7 +1808,7 @@ void Spell::EffectDummy(uint32 i)
                 }
                 case 37877:                                 // Blessing of Faith
                 {
-                    if(!unitTarget)
+                    if (!unitTarget)
                         return;
 
                     uint32 spell_id = 0;
@@ -1831,7 +1833,7 @@ void Spell::EffectDummy(uint32 i)
                 // TODO: use expect spell for enchant (if exist talent)
                 // In 3.0.3 no mods present for rockbiter
                 uint32 spell_id = 0;
-                switch(m_spellInfo->Id)
+                switch (m_spellInfo->Id)
                 {
                     case  8017: spell_id = 36494; break;    // Rank 1
                     case  8018: spell_id = 36750; break;    // Rank 2
@@ -1844,20 +1846,20 @@ void Spell::EffectDummy(uint32 i)
 
                 SpellEntry const *spellInfo = sSpellStore.LookupEntry( spell_id );
 
-                if(!spellInfo)
+                if (!spellInfo)
                 {
                     sLog.outError("WORLD: unknown spell id %i", spell_id);
                     return;
                 }
 
-                if(m_caster->GetTypeId() != TYPEID_PLAYER)
+                if (m_caster->GetTypeId() != TYPEID_PLAYER)
                     return;
 
                 for (uint8 j = BASE_ATTACK; j <= OFF_ATTACK; ++j)
                 {
-                    if(Item* item = ((Player*)m_caster)->GetWeaponForAttack(WeaponAttackType(j)))
+                    if (Item* item = ((Player*)m_caster)->GetWeaponForAttack(WeaponAttackType(j)))
                     {
-                        if(item->IsFitToSpellRequirements(m_spellInfo))
+                        if (item->IsFitToSpellRequirements(m_spellInfo))
                         {
                             Spell *spell = new Spell(m_caster, spellInfo, true);
 
@@ -1867,7 +1869,7 @@ void Spell::EffectDummy(uint32 i)
                             spell->m_currentBasePoints[1] = damage-1;
 
                             SpellCastTargets targets;
-                            targets.setItemTarget( item );
+                            targets.setItemTarget(item);
                             spell->prepare(&targets);
                         }
                     }
@@ -1875,7 +1877,7 @@ void Spell::EffectDummy(uint32 i)
                 return;
             }
             // Cleansing Totem Pulse
-            if(m_spellInfo->SpellFamilyFlags[0] & 0x04000000 && m_spellInfo->SpellIconID==1673)
+            if (m_spellInfo->SpellFamilyFlags[0] & 0x04000000 && m_spellInfo->SpellIconID==1673)
             {
                 int32 bp1 = 1;
                 // Cleansing Totem Effect
@@ -1889,9 +1891,9 @@ void Spell::EffectDummy(uint32 i)
                 return;
             }
             // Mana Spring Totem
-            if(m_spellInfo->SpellFamilyFlags[0] & 0x4000)
+            if (m_spellInfo->SpellFamilyFlags[0] & 0x4000)
             {
-                if(unitTarget->getPowerType()!=POWER_MANA)
+                if (unitTarget->getPowerType()!=POWER_MANA)
                     return;
                 m_caster->CastCustomSpell(unitTarget, 52032, &damage, 0, 0, true, 0, 0, m_originalCasterGUID);
                 return;

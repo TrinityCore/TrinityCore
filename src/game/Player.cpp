@@ -1252,7 +1252,7 @@ void Player::Update( uint32 p_time )
                 else
                 {
                     // prevent base and off attack in same time, delay attack at 0.2 sec
-                    if(getAttackTimer(BASE_ATTACK) < ATTACK_DISPLAY_DELAY)
+                    if (getAttackTimer(BASE_ATTACK) < ATTACK_DISPLAY_DELAY)
                         setAttackTimer(BASE_ATTACK,ATTACK_DISPLAY_DELAY);
 
                     // do attack
@@ -1372,9 +1372,9 @@ void Player::Update( uint32 p_time )
     }
 
     // not auto-free ghost from body in instances
-    #pragma omp critical(UpdateThreadSafety)
     if(m_deathTimer > 0 && !GetBaseMap()->Instanceable())
     {
+        #pragma omp critical(UpdateThreadSafety)
         if(p_time >= m_deathTimer)
         {
             m_deathTimer = 0;
@@ -1392,7 +1392,7 @@ void Player::Update( uint32 p_time )
     SendUpdateToOutOfRangeGroupMembers();
 
     Pet* pet = GetPet();
-    if(pet && !IsWithinDistInMap(pet, OWNER_MAX_DISTANCE) && !pet->isPossessed())
+    if (pet && !IsWithinDistInMap(pet, OWNER_MAX_DISTANCE) && !pet->isPossessed())
     //if(pet && !IsWithinDistInMap(pet, OWNER_MAX_DISTANCE) && (GetCharmGUID() && (pet->GetGUID() != GetCharmGUID())))
         RemovePet(pet, PET_SAVE_NOT_IN_SLOT, true);
 

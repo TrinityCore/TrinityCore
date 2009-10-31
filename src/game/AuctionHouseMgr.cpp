@@ -528,9 +528,10 @@ void AuctionHouseObject::Update()
     } while (result->NextRow());
     delete result;
 
-    vector<uint32>::iterator iter = expiredAuctions.begin();
     while (!expiredAuctions.empty())
     {
+        vector<uint32>::iterator iter = expiredAuctions.begin();
+
         // from auctionhousehandler.cpp, creates auction pointer & player pointer
         AuctionEntry* auction = GetAuction(*iter);
 

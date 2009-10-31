@@ -1468,7 +1468,7 @@ void WorldObject::SendPlaySound(uint32 Sound, bool OnlySelf)
 {
     WorldPacket data(SMSG_PLAY_SOUND, 4);
     data << Sound;
-    if (OnlySelf && GetTypeId() == TYPEID_PLAYER )
+    if (OnlySelf && GetTypeId() == TYPEID_PLAYER)
         ((Player*)this)->GetSession()->SendPacket( &data );
     else
         SendMessageToSet( &data, true ); // ToSelf ignored in this case
