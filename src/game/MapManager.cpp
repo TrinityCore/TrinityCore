@@ -318,14 +318,14 @@ MapManager::Update(uint32 diff)
     //  sLog.outError("This is thread %d out of %d threads,updating map %u",omp_get_thread_num(),omp_get_num_threads(),iter->second->GetId());
     }
 #else
-    for (MapMapType::iterator iter = i_maps.begin(); iter != i_maps.end(); ++iter)
+    for (; iter != i_maps.end(); ++iter)
     {
         iter->second->Update(i_timer.GetCurrent());
         sWorld.RecordTimeDiff("UpdateMap %u", iter->second->GetId());
     }
 #endif
 
-    for (MapMapType::iterator iter = i_maps.begin(); iter != i_maps.end(); ++iter)
+    for (; iter != i_maps.end(); ++iter)
         iter->second->DelayedUpdate(i_timer.GetCurrent());
 
     ObjectAccessor::Instance().Update(i_timer.GetCurrent());
