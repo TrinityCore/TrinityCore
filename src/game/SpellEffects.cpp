@@ -2354,11 +2354,11 @@ void Spell::EffectJump(uint32 i)
 
 void Spell::EffectTeleportUnits(uint32 i)
 {
-    if(!unitTarget || unitTarget->isInFlight())
+    if (!unitTarget || unitTarget->isInFlight())
         return;
 
     // If not exist data for dest location - return
-    if(!m_targets.HasDst())
+    if (!m_targets.HasDst())
     {
         sLog.outError( "Spell::EffectTeleportUnits - does not have destination for spell ID %u\n", m_spellInfo->Id );
         return;
@@ -2366,7 +2366,8 @@ void Spell::EffectTeleportUnits(uint32 i)
 
     // Init dest coordinates
     uint32 mapid = m_targets.m_dstPos.GetMapId();
-    if(mapid == MAPID_INVALID) mapid = unitTarget->GetMapId();
+    if(mapid == MAPID_INVALID)
+        mapid = unitTarget->GetMapId();
     float x, y, z;
     m_targets.m_dstPos.GetPosition(x, y, z);
     float orientation = m_targets.getUnitTarget() ? m_targets.getUnitTarget()->GetOrientation() : unitTarget->GetOrientation();
@@ -2375,10 +2376,10 @@ void Spell::EffectTeleportUnits(uint32 i)
     if(mapid == unitTarget->GetMapId())
         unitTarget->NearTeleportTo(x, y, z, orientation, unitTarget == m_caster);
     else if(unitTarget->GetTypeId() == TYPEID_PLAYER)
-        ((Player*)unitTarget)->TeleportTo(mapid, x, y, z, orientation, unitTarget==m_caster ? TELE_TO_SPELL : 0);
+        ((Player*)unitTarget)->TeleportTo(mapid, x, y, z, orientation, unitTarget == m_caster ? TELE_TO_SPELL : 0);
 
     // post effects for TARGET_DST_DB
-    switch ( m_spellInfo->Id )
+    switch (m_spellInfo->Id)
     {
         // Dimensional Ripper - Everlook
         case 23442:

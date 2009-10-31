@@ -14944,9 +14944,9 @@ bool Player::LoadFromDB( uint32 guid, SqlQueryHolder *holder )
             {
                 sLog.outError("Player (guidlow %d) was in BG in database, but BG was not found, and entry point was invalid! Teleport to default race/class locations.",guid);
                 RelocateToHomebind();
-            } else {
-                Relocate(&_loc);
             }
+            else
+                Relocate(&_loc);
 
             // We are not in BG anymore
             m_bgData.bgInstanceID = 0;

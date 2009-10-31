@@ -10601,33 +10601,33 @@ void Unit::CombatStart(Unit* target, bool initialAggro)
 void Unit::SetInCombatState(bool PvP, Unit* enemy)
 {
     // only alive units can be in combat
-    if(!isAlive())
+    if (!isAlive())
         return;
 
-    if(PvP)
+    if (PvP)
         m_CombatTimer = 5000;
 
-    if(isInCombat() || hasUnitState(UNIT_STAT_EVADE))
+    if (isInCombat() || hasUnitState(UNIT_STAT_EVADE))
         return;
 
     SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IN_COMBAT);
 
-    if(GetTypeId() != TYPEID_PLAYER)
+    if (GetTypeId() != TYPEID_PLAYER)
     {
         // Set home position at place of engaging combat for escorted creatures
-        if(( ((Creature*)this)->IsAIEnabled && ((Creature*)this)->AI()->IsEscorted() ) ||
-            ((Creature*)this)->GetMotionMaster()->GetCurrentMovementGeneratorType() == WAYPOINT_MOTION_TYPE)
+        if(( IsAIEnabled && ((Creature*)this)->AI()->IsEscorted() ) ||
+            GetMotionMaster()->GetCurrentMovementGeneratorType() == WAYPOINT_MOTION_TYPE)
             ((Creature*)this)->SetHomePosition(GetPositionX(), GetPositionY(), GetPositionZ(), GetOrientation());
 
-        if(enemy)
+        if (enemy)
         {
-            if(((Creature*)this)->IsAIEnabled)
+            if (IsAIEnabled)
                 ((Creature*)this)->AI()->EnterCombat(enemy);
-            if(((Creature*)this)->GetFormation())
+            if (((Creature*)this)->GetFormation())
                 ((Creature*)this)->GetFormation()->MemberAttackStart((Creature*)this, enemy);
         }
 
-        if(((Creature*)this)->isPet())
+        if (isPet())
         {
             UpdateSpeed(MOVE_RUN, true);
             UpdateSpeed(MOVE_SWIM, true);
@@ -10648,25 +10648,23 @@ void Unit::ClearInCombat()
     RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IN_COMBAT);
 
     // Player's state will be cleared in Player::UpdateContestedPvP
-    if(GetTypeId() != TYPEID_PLAYER)
+    if (GetTypeId() != TYPEID_PLAYER)
     {
         clearUnitState(UNIT_STAT_ATTACK_PLAYER);
-        if(HasFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_OTHER_TAGGER))
+        if (HasFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_OTHER_TAGGER))
             SetUInt32Value(UNIT_DYNAMIC_FLAGS, ((Creature*)this)->GetCreatureInfo()->dynamicflags);
     }
     else
         ((Player*)this)->UpdatePotionCooldown();
 
-    if(GetTypeId() != TYPEID_PLAYER && ((Creature*)this)->isPet())
+    if (GetTypeId() != TYPEID_PLAYER && ((Creature*)this)->isPet())
     {
-        if(Unit *owner = GetOwner())
-        {
+        if (Unit *owner = GetOwner())
             for (uint8 i = 0; i < MAX_MOVE_TYPE; ++i)
-                if(owner->GetSpeedRate(UnitMoveType(i)) > GetSpeedRate(UnitMoveType(i)))
+                if (owner->GetSpeedRate(UnitMoveType(i)) > GetSpeedRate(UnitMoveType(i)))
                     SetSpeed(UnitMoveType(i), owner->GetSpeedRate(UnitMoveType(i)), true);
-        }
     }
-    else if(!isCharmed())
+    else if (!isCharmed())
         return;
 
     RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PET_IN_COMBAT);
