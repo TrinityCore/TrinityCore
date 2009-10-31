@@ -255,16 +255,16 @@ void Unit::Update( uint32 p_time )
     //not implemented before 3.0.2
     //if(!hasUnitState(UNIT_STAT_CASTING))
     {
-        if(uint32 base_att = getAttackTimer(BASE_ATTACK))
+        if (uint32 base_att = getAttackTimer(BASE_ATTACK))
             setAttackTimer(BASE_ATTACK, (p_time >= base_att ? 0 : base_att - p_time));
-        if(uint32 ranged_att = getAttackTimer(RANGED_ATTACK))
+        if (uint32 ranged_att = getAttackTimer(RANGED_ATTACK))
             setAttackTimer(RANGED_ATTACK, (p_time >= ranged_att ? 0 : ranged_att - p_time));
-        if(uint32 off_att = getAttackTimer(OFF_ATTACK))
+        if (uint32 off_att = getAttackTimer(OFF_ATTACK))
             setAttackTimer(OFF_ATTACK, (p_time >= off_att ? 0 : off_att - p_time));
     }
 
     // update abilities available only for fraction of time
-    UpdateReactives( p_time );
+    UpdateReactives(p_time);
 
     ModifyAuraState(AURA_STATE_HEALTHLESS_20_PERCENT, GetHealth() < GetMaxHealth()*0.20f);
     ModifyAuraState(AURA_STATE_HEALTHLESS_35_PERCENT, GetHealth() < GetMaxHealth()*0.35f);
@@ -14880,16 +14880,16 @@ void Unit::ExitVehicle()
 
 void Unit::BuildMovementPacket(ByteBuffer *data) const
 {
-    switch(GetTypeId())
+    switch (GetTypeId())
     {
         case TYPEID_UNIT:
-            if(canFly())
+            if (canFly())
                 const_cast<Unit*>(this)->AddUnitMovementFlag(MOVEMENTFLAG_FORWARD | MOVEMENTFLAG_LEVITATING);
             break;
         case TYPEID_PLAYER:
             // remove unknown, unused etc flags for now
             const_cast<Unit*>(this)->RemoveUnitMovementFlag(MOVEMENTFLAG_SPLINE2);
-            if(isInFlight())
+            if (isInFlight())
             {
                 WPAssert(const_cast<Unit*>(this)->GetMotionMaster()->GetCurrentMovementGeneratorType() == FLIGHT_MOTION_TYPE);
                 const_cast<Unit*>(this)->AddUnitMovementFlag(MOVEMENTFLAG_FORWARD | MOVEMENTFLAG_SPLINE2);
@@ -14899,18 +14899,18 @@ void Unit::BuildMovementPacket(ByteBuffer *data) const
 
     *data << uint32(GetUnitMovementFlags()); // movement flags
     *data << uint16(m_movementInfo.unk1);    // 2.3.0
-    *data << uint32(getMSTime());                           // time
+    *data << uint32(getMSTime());            // time
     *data << GetPositionX();
     *data << GetPositionY();
     *data << GetPositionZ();
     *data << GetOrientation();
 
     // 0x00000200
-    if(GetUnitMovementFlags() & MOVEMENTFLAG_ONTRANSPORT)
+    if (GetUnitMovementFlags() & MOVEMENTFLAG_ONTRANSPORT)
     {
-        if(m_vehicle)
+        if (m_vehicle)
             data->append(m_vehicle->GetBase()->GetPackGUID());
-        else if(GetTransport())
+        else if (GetTransport())
             data->append(GetTransport()->GetPackGUID());
         else
         {

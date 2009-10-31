@@ -703,7 +703,7 @@ void Map::Update(const uint32 &t_diff)
                 plr->Update(t_diff);
 
     m_notifyTimer.Update(t_diff);
-    if(m_notifyTimer.Passed())
+    if (m_notifyTimer.Passed())
     {
         m_notifyTimer.Reset();
         RelocationNotify();
@@ -799,7 +799,7 @@ void Map::Update(const uint32 &t_diff)
                     // marked cells are those that have been visited
                     // don't visit the same cell twice
                     uint32 cell_id = (y * TOTAL_NUMBER_OF_CELLS_PER_MAP) + x;
-                    if(!isCellMarked(cell_id))
+                    if (!isCellMarked(cell_id))
                     {
                         markCell(cell_id);
                         CellPair pair(x,y);
@@ -837,7 +837,7 @@ void Map::Remove(Player *player, bool remove)
     else
     {
         Cell cell(p);
-        if( !getNGrid(cell.data.Part.grid_x, cell.data.Part.grid_y) )
+        if (!getNGrid(cell.data.Part.grid_x, cell.data.Part.grid_y))
             sLog.outError("Map::Remove() i_grids was NULL x:%d, y:%d",cell.data.Part.grid_x,cell.data.Part.grid_y);
         else
         {
@@ -850,7 +850,7 @@ void Map::Remove(Player *player, bool remove)
         }
     }
 
-    if( remove )
+    if (remove)
         DeleteFromWorld(player);
 }
 
@@ -859,7 +859,7 @@ bool Map::RemoveBones(uint64 guid, float x, float y)
     if (IsRemovalGrid(x, y))
     {
         Corpse * corpse = ObjectAccessor::Instance().GetObjectInWorld(GetId(), x, y, guid, (Corpse*)NULL);
-        if(corpse && corpse->GetTypeId() == TYPEID_CORPSE && corpse->GetType() == CORPSE_BONES)
+        if (corpse && corpse->GetTypeId() == TYPEID_CORPSE && corpse->GetType() == CORPSE_BONES)
             corpse->DeleteBonesFromWorld();
         else
             return false;
@@ -872,20 +872,20 @@ void
 Map::Remove(T *obj, bool remove)
 {
     obj->RemoveFromWorld();
-    if(obj->isActiveObject())
+    if (obj->isActiveObject())
         RemoveFromActive(obj);
 
     CellPair p = Trinity::ComputeCellPair(obj->GetPositionX(), obj->GetPositionY());
-    if(p.x_coord >= TOTAL_NUMBER_OF_CELLS_PER_MAP || p.y_coord >= TOTAL_NUMBER_OF_CELLS_PER_MAP )
+    if (p.x_coord >= TOTAL_NUMBER_OF_CELLS_PER_MAP || p.y_coord >= TOTAL_NUMBER_OF_CELLS_PER_MAP)
         sLog.outError("Map::Remove: Object " I64FMT " have invalid coordinates X:%f Y:%f grid cell [%u:%u]", obj->GetGUID(), obj->GetPositionX(), obj->GetPositionY(), p.x_coord, p.y_coord);
     else
     {
         Cell cell(p);
-        if(loaded(GridPair(cell.data.Part.grid_x, cell.data.Part.grid_y)))
+        if (loaded(GridPair(cell.data.Part.grid_x, cell.data.Part.grid_y)))
         {
             DEBUG_LOG("Remove object " I64FMT " from grid[%u,%u]", obj->GetGUID(), cell.data.Part.grid_x, cell.data.Part.grid_y);
             NGridType *grid = getNGrid(cell.GridX(), cell.GridY());
-            assert( grid != NULL );
+            assert(grid != NULL);
 
             RemoveFromGrid(obj,grid,cell);
             UpdateObjectVisibility(obj,cell,p);
@@ -894,7 +894,7 @@ Map::Remove(T *obj, bool remove)
 
     obj->ResetMap();
 
-    if( remove )
+    if (remove)
     {
         // if option set then object already saved at this moment
         if(!sWorld.getConfig(CONFIG_SAVE_RESPAWN_TIME_IMMEDIATELY))
@@ -918,17 +918,17 @@ Map::PlayerRelocation(Player *player, float x, float y, float z, float orientati
 
     player->Relocate(x, y, z, orientation);
 
-    if( old_cell.DiffGrid(new_cell) || old_cell.DiffCell(new_cell) )
+    if (old_cell.DiffGrid(new_cell) || old_cell.DiffCell(new_cell))
     {
         DEBUG_LOG("Player %s relocation grid[%u,%u]cell[%u,%u]->grid[%u,%u]cell[%u,%u]", player->GetName(), old_cell.GridX(), old_cell.GridY(), old_cell.CellX(), old_cell.CellY(), new_cell.GridX(), new_cell.GridY(), new_cell.CellX(), new_cell.CellY());
 
         // update player position for group at taxi flight
-        if(player->GetGroup() && player->isInFlight())
+        if (player->GetGroup() && player->isInFlight())
             player->SetGroupUpdateFlag(GROUP_UPDATE_FLAG_POSITION);
 
         NGridType* oldGrid = getNGrid(old_cell.GridX(), old_cell.GridY());
         RemoveFromGrid(player, oldGrid,old_cell);
-        if( !old_cell.DiffGrid(new_cell) )
+        if (!old_cell.DiffGrid(new_cell))
             AddToGrid(player, oldGrid,new_cell);
         else
             EnsureGridLoadedAtEnter(new_cell, player);
@@ -937,7 +937,7 @@ Map::PlayerRelocation(Player *player, float x, float y, float z, float orientati
     AddUnitToNotify(player);
 
     NGridType* newGrid = getNGrid(new_cell.GridX(), new_cell.GridY());
-    if( !same_cell && newGrid->GetGridState()!= GRID_STATE_ACTIVE )
+    if (!same_cell && newGrid->GetGridState()!= GRID_STATE_ACTIVE)
     {
         ResetGridExpiry(*newGrid, 0.1f);
         newGrid->SetGridState(GRID_STATE_ACTIVE);
@@ -955,13 +955,13 @@ Map::CreatureRelocation(Creature *creature, float x, float y, float z, float ang
     Cell new_cell(new_val);
 
     // delay creature move for grid/cell to grid/cell moves
-    if( old_cell.DiffCell(new_cell) || old_cell.DiffGrid(new_cell) )
+    if (old_cell.DiffCell(new_cell) || old_cell.DiffGrid(new_cell))
     {
         #ifdef TRINITY_DEBUG
-        if((sLog.getLogFilter() & LOG_FILTER_CREATURE_MOVES)==0)
+        if ((sLog.getLogFilter() & LOG_FILTER_CREATURE_MOVES) == 0)
             sLog.outDebug("Creature (GUID: %u Entry: %u) added to moving list from grid[%u,%u]cell[%u,%u] to grid[%u,%u]cell[%u,%u].", creature->GetGUIDLow(), creature->GetEntry(), old_cell.GridX(), old_cell.GridY(), old_cell.CellX(), old_cell.CellY(), new_cell.GridX(), new_cell.GridY(), new_cell.CellX(), new_cell.CellY());
         #endif
-        AddCreatureToMoveList(creature,x,y,z,ang);
+        AddCreatureToMoveList(creature, x, y, z, ang);
         // in diffcell/diffgrid case notifiers called at finishing move creature in Map::MoveAllCreaturesInMoveList
     }
     else
@@ -970,12 +970,12 @@ Map::CreatureRelocation(Creature *creature, float x, float y, float z, float ang
         AddUnitToNotify(creature);
     }
 
-    if(creature->IsVehicle())
+    if (creature->IsVehicle())
     {
         for (SeatMap::iterator itr = creature->GetVehicleKit()->m_Seats.begin(); itr != creature->GetVehicleKit()->m_Seats.end(); ++itr)
-            if(Unit *passenger = itr->second.passenger)
+            if (Unit *passenger = itr->second.passenger)
             {
-                if(passenger->GetTypeId() == TYPEID_PLAYER)
+                if (passenger->GetTypeId() == TYPEID_PLAYER)
                     PlayerRelocation((Player*)passenger,
                     x + passenger->m_movementInfo.t_x,
                     y + passenger->m_movementInfo.t_y,
@@ -995,15 +995,15 @@ Map::CreatureRelocation(Creature *creature, float x, float y, float z, float ang
 
 void Map::AddCreatureToMoveList(Creature *c, float x, float y, float z, float ang)
 {
-    if(!c)
+    if (!c)
         return;
 
-    i_creaturesToMove[c] = CreatureMover(x,y,z,ang);
+    i_creaturesToMove[c] = CreatureMover(x, y, z, ang);
 }
 
 void Map::MoveAllCreaturesInMoveList()
 {
-    while(!i_creaturesToMove.empty())
+    while (!i_creaturesToMove.empty())
     {
         // get data and remove element;
         CreatureMoveList::iterator iter = i_creaturesToMove.begin();
@@ -1016,7 +1016,7 @@ void Map::MoveAllCreaturesInMoveList()
         Cell new_cell(new_val);
 
         // do move or do move to respawn or remove creature if previous all fail
-        if(CreatureCellRelocation(c,new_cell))
+        if (CreatureCellRelocation(c,new_cell))
         {
             // update pos
             c->Relocate(cm.x, cm.y, cm.z, cm.ang);
@@ -1027,12 +1027,12 @@ void Map::MoveAllCreaturesInMoveList()
         {
             // if creature can't be move in new cell/grid (not loaded) move it to repawn cell/grid
             // creature coordinates will be updated and notifiers send
-            if(!CreatureRespawnRelocation(c))
+            if (!CreatureRespawnRelocation(c))
             {
                 // ... or unload (if respawn grid also not loaded)
                 #ifdef TRINITY_DEBUG
-                if((sLog.getLogFilter() & LOG_FILTER_CREATURE_MOVES)==0)
-                    sLog.outDebug("Creature (GUID: %u Entry: %u ) can't be move to unloaded respawn grid.",c->GetGUIDLow(),c->GetEntry());
+                if ((sLog.getLogFilter() & LOG_FILTER_CREATURE_MOVES) == 0)
+                    sLog.outDebug("Creature (GUID: %u Entry: %u) can't be move to unloaded respawn grid.",c->GetGUIDLow(),c->GetEntry());
                 #endif
                 AddObjectToRemoveList(c);
             }
@@ -1043,10 +1043,10 @@ void Map::MoveAllCreaturesInMoveList()
 bool Map::CreatureCellRelocation(Creature *c, Cell new_cell)
 {
     Cell const& old_cell = c->GetCurrentCell();
-    if(!old_cell.DiffGrid(new_cell) )                       // in same grid
+    if (!old_cell.DiffGrid(new_cell))                       // in same grid
     {
         // if in same cell then none do
-        if(old_cell.DiffCell(new_cell))
+        if (old_cell.DiffCell(new_cell))
         {
             #ifdef TRINITY_DEBUG
             if((sLog.getLogFilter() & LOG_FILTER_CREATURE_MOVES)==0)
@@ -1068,7 +1068,7 @@ bool Map::CreatureCellRelocation(Creature *c, Cell new_cell)
     }
 
     // in diff. grids but active creature
-    if(c->isActiveObject())
+    if (c->isActiveObject())
     {
         EnsureGridLoadedAtEnter(new_cell);
 
@@ -1084,7 +1084,7 @@ bool Map::CreatureCellRelocation(Creature *c, Cell new_cell)
     }
 
     // in diff. loaded grid normal creature
-    if(loaded(GridPair(new_cell.GridX(), new_cell.GridY())))
+    if (loaded(GridPair(new_cell.GridX(), new_cell.GridY())))
     {
         #ifdef TRINITY_DEBUG
         if((sLog.getLogFilter() & LOG_FILTER_CREATURE_MOVES)==0)
@@ -1100,7 +1100,7 @@ bool Map::CreatureCellRelocation(Creature *c, Cell new_cell)
 
     // fail to move: normal creature attempt move to unloaded grid
     #ifdef TRINITY_DEBUG
-    if((sLog.getLogFilter() & LOG_FILTER_CREATURE_MOVES)==0)
+    if ((sLog.getLogFilter() & LOG_FILTER_CREATURE_MOVES) == 0)
         sLog.outDebug("Creature (GUID: %u Entry: %u) attempt move from grid[%u,%u]cell[%u,%u] to unloaded grid[%u,%u]cell[%u,%u].", c->GetGUIDLow(), c->GetEntry(), old_cell.GridX(), old_cell.GridY(), old_cell.CellX(), old_cell.CellY(), new_cell.GridX(), new_cell.GridY(), new_cell.CellX(), new_cell.CellY());
     #endif
     return false;
