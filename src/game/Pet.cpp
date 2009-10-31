@@ -1352,7 +1352,7 @@ bool Pet::addSpell(uint32 spell_id,ActiveStates active /*= ACT_DECIDE*/, PetSpel
 
     m_spells[spell_id] = newspell;
 
-    if (IsPassiveSpell(spell_id))
+    if (IsPassiveSpell(spell_id) && (!spellInfo->CasterAuraState || HasAuraState(AuraState(spellInfo->CasterAuraState))))
         CastSpell(this, spell_id, true);
     else
         m_charmInfo->AddSpellToActionBar(spell_id);

@@ -8446,6 +8446,18 @@ void Unit::ModifyAuraState(AuraState flag, bool apply)
                         CastSpell(this, itr->first, true, NULL);
                 }
             }
+            else if (((Creature*)this)->isPet())
+            {
+                Pet *pet = ((Pet*)this);
+                for (PetSpellMap::const_iterator itr = pet->m_spells.begin(); itr != pet->m_spells.end(); ++itr)
+                {
+                    if(itr->second.state == PLAYERSPELL_REMOVED) continue;
+                    SpellEntry const *spellInfo = sSpellStore.LookupEntry(itr->first);
+                    if (!spellInfo || !IsPassiveSpell(itr->first)) continue;
+                    if (spellInfo->CasterAuraState == flag)
+                        CastSpell(this, itr->first, true, NULL);
+                }
+            }
         }
     }
     else
