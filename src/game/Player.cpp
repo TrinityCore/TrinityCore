@@ -21975,7 +21975,7 @@ void Player::_SaveTalents()
             if (itr->second->state == PLAYERSPELL_REMOVED)
             {
                 delete itr->second;
-                m_talents[i]->erase(itr);
+                m_talents[i]->erase(itr++);
             }
             else
             {
