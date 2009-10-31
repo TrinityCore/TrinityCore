@@ -127,7 +127,7 @@ bool GossipSelect_npc_myranda_the_hag(Player* pPlayer, Creature* pCreature, uint
     if (uiAction == GOSSIP_ACTION_INFO_DEF + 1)
     {
         pPlayer->CLOSE_GOSSIP_MENU();
-        pCreature->CastSpell(pPlayer, SPELL_SCARLET_ILLUSION, false);
+        pPlayer->CastSpell(pPlayer, SPELL_SCARLET_ILLUSION, false);
     }
     return true;
 }

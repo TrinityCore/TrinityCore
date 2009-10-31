@@ -508,6 +508,86 @@ CreatureAI* GetAI_npc_scourge_prisoner(Creature* pCreature)
 {
     return new npc_scourge_prisonerAI(pCreature);
 }
+
+/*######
+## npc_jenny
+######*/
+enum eJenny
+{
+    QUEST_LOADER_UP             = 11881,
+
+    NPC_FEZZIX_GEARTWIST        = 25849,
+    NPC_JENNY                   = 25969,
+
+    SPELL_GIVE_JENNY_CREDIT     = 46358,
+    SPELL_CRATES_CARRIED        = 46340,
+    SPELL_DROP_CRATE            = 46342,
+
+    FACTION_ESCORT_A_NEUTRAL_ACTIVE     = 231,
+    FACTION_ESCORT_H_NEUTRAL_ACTIVE     = 232
+};
+
+struct TRINITY_DLL_DECL npc_jennyAI : public ScriptedAI
+{
+    npc_jennyAI(Creature *c) : ScriptedAI(c) {}
+
+    bool setCrateNumber;
+
+    void Reset()
+    {
+        if(!setCrateNumber == false)
+            setCrateNumber = true;
+
+        m_creature->SetReactState(REACT_PASSIVE);
+
+        if(((Player*)m_creature->GetOwner())->GetTeamId() == TEAM_ALLIANCE)
+        {
+            m_creature->setFaction(FACTION_ESCORT_A_NEUTRAL_ACTIVE);
+        }else{
+            m_creature->setFaction(FACTION_ESCORT_H_NEUTRAL_ACTIVE);
+        }
+    }
+
+    void DamageTaken(Unit* pDone_by, uint32& uiDamage)
+    {
+        m_creature->CastSpell(m_creature,SPELL_DROP_CRATE,true);
+    }
+
+    void MoveInLineOfSight(Unit* pWho)
+    {
+        if(pWho->GetEntry() == NPC_FEZZIX_GEARTWIST)
+        {
+            if(((Player*)m_creature->GetOwner())->GetQuestStatus(QUEST_LOADER_UP) == QUEST_STATUS_INCOMPLETE && m_creature->GetAura(SPELL_CRATES_CARRIED))
+            {
+                m_creature->CastSpell(((Player*)m_creature->GetOwner()),SPELL_GIVE_JENNY_CREDIT,true); // Maybe is not working.
+                ((Player*)m_creature->GetOwner())->CompleteQuest(QUEST_LOADER_UP);
+                m_creature->DisappearAndDie();
+            }
+        }
+    }
+
+    void UpdateAI(const uint32 diff)
+    {
+        if(setCrateNumber)
+        {
+            m_creature->AddAura(SPELL_CRATES_CARRIED,m_creature);
+            setCrateNumber = false;
+        }
+
+        if(setCrateNumber == false && !m_creature->HasAura(SPELL_CRATES_CARRIED))
+        {
+            m_creature->DisappearAndDie();
+        }
+
+    }
+};
+
+CreatureAI* GetAI_npc_jenny(Creature *pCreature)
+{
+    return new npc_jennyAI (pCreature);
+}
+
+
 void AddSC_borean_tundra()
 {
     Script *newscript;
@@ -564,7 +644,12 @@ void AddSC_borean_tundra()
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name = "scourge_prisoner";
+    newscript->Name = "npc_scourge_prisoner";
     newscript->GetAI = &GetAI_npc_scourge_prisoner;
+    newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name = "npc_jenny";
+    newscript->GetAI = &GetAI_npc_jenny;
     newscript->RegisterSelf();
 }
