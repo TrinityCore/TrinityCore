@@ -5227,10 +5227,8 @@ void AuraEffect::HandleModCombatSpeedPct(bool apply, bool Real, bool /*changeAmo
 
 void AuraEffect::HandleModAttackSpeed(bool apply, bool Real, bool /*changeAmount*/)
 {
-    if(!m_target->isAlive() )
-        return;
-
     m_target->ApplyAttackTimePercentMod(BASE_ATTACK,m_amount,apply);
+    m_target->UpdateDamagePhysical(BASE_ATTACK);
 }
 
 void AuraEffect::HandleHaste(bool apply, bool Real, bool /*changeAmount*/)
@@ -6626,12 +6624,12 @@ void AuraEffect::PeriodicDummyTick()
             {
                 // Feeding Frenzy Rank 1
                 case 53511:
-                    if ( m_target->GetHealth() * 100 < m_target->GetMaxHealth() * 35 )
+                    if ( m_target->getVictim() && m_target->getVictim()->GetHealth() * 100 < m_target->getVictim()->GetMaxHealth() * 35 )
                         m_target->CastSpell(m_target, 60096, true, 0, this);
                     return;
                 // Feeding Frenzy Rank 2
                 case 53512:
-                    if ( m_target->GetHealth() * 100 < m_target->GetMaxHealth() * 35 )
+                    if ( m_target->getVictim() && m_target->getVictim()->GetHealth() * 100 < m_target->getVictim()->GetMaxHealth() * 35 )
                         m_target->CastSpell(m_target, 60097, true, 0, this);
                     return;
                 default:
