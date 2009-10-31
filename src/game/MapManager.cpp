@@ -325,7 +325,7 @@ MapManager::Update(uint32 diff)
     }
 #endif
 
-    for (; iter != i_maps.end(); ++iter)
+    for (iter = i_maps.begin(); iter != i_maps.end(); ++iter)
         iter->second->DelayedUpdate(i_timer.GetCurrent());
 
     ObjectAccessor::Instance().Update(i_timer.GetCurrent());
