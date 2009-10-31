@@ -66,9 +66,9 @@ enum CombatPhase
     PHASE_1,
     PHASE_2
 };
-enum Achievement
+enum Achievements
 {
-    ACHIEVEMENT_OH_NOVOS                   = 2057
+    ACHIEV_OH_NOVOS                   = 2057
 };
 
 struct Location
@@ -77,7 +77,8 @@ struct Location
 };
 
 static Location AddSpawnPoint = { -379.20, -816.76, 59.70};
-static Location AddDestinyPoint = { -282.169, -711.369, 27.375};
+static Location CrystalHandlerSpawnPoint = { -326.626343, -709.956604, 27.813314 };
+static Location AddDestinyPoint = { -382.169, -711.369, 27.375};
 
 struct TRINITY_DLL_DECL boss_novosAI : public Scripted_NoMovementAI
 {
@@ -103,6 +104,7 @@ struct TRINITY_DLL_DECL boss_novosAI : public Scripted_NoMovementAI
         Phase = IDLE;
         luiCrystals.clear();
         bAchiev = true;
+        m_creature->CastStop();
         if (pInstance)
         {
             pInstance->SetData(DATA_NOVOS_EVENT, NOT_STARTED);
@@ -155,7 +157,7 @@ struct TRINITY_DLL_DECL boss_novosAI : public Scripted_NoMovementAI
                 if (uiCrystalHandlerTimer <= diff)
                 {
                     //TODO: say
-                    Creature *pCrystalHandler = m_creature->SummonCreature(CREATURE_CRYSTAL_HANDLER, AddSpawnPoint.x, AddSpawnPoint.y , AddSpawnPoint.z, 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN,20000);
+                    Creature *pCrystalHandler = m_creature->SummonCreature(CREATURE_CRYSTAL_HANDLER, CrystalHandlerSpawnPoint.x, CrystalHandlerSpawnPoint.y , CrystalHandlerSpawnPoint.z, 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN,20000);
                     pCrystalHandler->GetMotionMaster()->MovePoint(0, AddDestinyPoint.x, AddDestinyPoint.y, AddDestinyPoint.z);
                     uiCrystalHandlerTimer = urand(20000,30000);
                 } else uiCrystalHandlerTimer -= diff;
@@ -163,12 +165,9 @@ struct TRINITY_DLL_DECL boss_novosAI : public Scripted_NoMovementAI
             case PHASE_2:
                 if (uiTimer <= diff)
                 {
-                    Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM,0);
-                    while (pTarget && pTarget->GetTypeId() != TYPEID_PLAYER)
-                        pTarget = SelectUnit(SELECT_TARGET_RANDOM,0);
-                    if (pTarget)
-                        DoCast(pTarget, HeroicMode ? RAND(H_SPELL_ARCANE_BLAST,H_SPELL_BLIZZARD,H_SPELL_FROSTBOLT,H_SPELL_WRATH_OF_MISERY) :
-                               RAND(SPELL_ARCANE_BLAST,SPELL_BLIZZARD,SPELL_FROSTBOLT,SPELL_WRATH_OF_MISERY));
+                    if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                        DoCast(pTarget, HEROIC(RAND(SPELL_ARCANE_BLAST,SPELL_BLIZZARD,SPELL_FROSTBOLT,SPELL_WRATH_OF_MISERY),
+                                               RAND(H_SPELL_ARCANE_BLAST,H_SPELL_BLIZZARD,H_SPELL_FROSTBOLT,H_SPELL_WRATH_OF_MISERY)));
                     uiTimer = urand(1000,3000);
                 } else uiTimer -= diff;
                 break;
@@ -177,21 +176,11 @@ struct TRINITY_DLL_DECL boss_novosAI : public Scripted_NoMovementAI
     void JustDied(Unit* killer)
     {
         if (pInstance)
+        {
             pInstance->SetData(DATA_NOVOS_EVENT, DONE);
 
-        if (HeroicMode && bAchiev)
-        {
-            AchievementEntry const *AchievOhNovos = GetAchievementStore()->LookupEntry(ACHIEVEMENT_OH_NOVOS);
-            if (AchievOhNovos)
-            {
-                Map* pMap = m_creature->GetMap();
-                if (pMap && pMap->IsDungeon())
-                {
-                    Map::PlayerList const &players = pMap->GetPlayers();
-                    for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
-                        itr->getSource()->CompletedAchievement(AchievOhNovos);
-                }
-            }
+            if (HeroicMode && bAchiev)
+                pInstance->DoCompleteAchievement(ACHIEV_OH_NOVOS);
         }
     }
 
