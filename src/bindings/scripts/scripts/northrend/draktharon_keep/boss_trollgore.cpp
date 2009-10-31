@@ -83,7 +83,7 @@ struct TRINITY_DLL_DECL boss_trollgoreAI : public ScriptedAI
         uiInfectedWoundTimer = urand(6000,10000);
         uiExplodeCorpseTimer = 3000;
 
-        bAchiev = true;
+        bAchiev = HeroicMode;
         
         if (pInstance)
             pInstance->SetData(DATA_TROLLGORE_EVENT, NOT_STARTED);

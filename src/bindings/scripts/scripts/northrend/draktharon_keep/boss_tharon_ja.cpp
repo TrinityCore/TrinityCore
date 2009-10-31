@@ -168,8 +168,15 @@ struct TRINITY_DLL_DECL boss_tharon_jaAI : public ScriptedAI
                     for (std::list<HostilReference*>::iterator itr = threatlist.begin(); itr != threatlist.end(); ++itr)
                     {
                         Unit *pTemp = Unit::GetUnit((*m_creature),(*itr)->getUnitGuid());
-                        if (pTemp->GetTypeId() == TYPEID_PLAYER)
+                        if (pTemp && pTemp->GetTypeId() == TYPEID_PLAYER)
+                        {
+                            Player *pTarget = CAST_PLR(pTemp);
                             DoCast(pTemp, SPELL_GIFT_OF_THARON_JA);
+                            pTarget->AddTemporarySpell(SPELL_PLAYER_PHASE2_BONE_ARMOR);
+                            pTarget->AddTemporarySpell(SPELL_PLAYER_PHASE2_SLAYING_STRIKE);
+                            pTarget->AddTemporarySpell(SPELL_PLAYER_PHASE2_TAUNT);
+                            pTarget->AddTemporarySpell(SPELL_PLAYER_PHASE2_TOUCH_OF_LIFE);
+                        }
                     }
                     uiPhaseTimer = 20000;
                     uiLightningBreathTimer = urand(3000,4000);
@@ -217,6 +224,21 @@ struct TRINITY_DLL_DECL boss_tharon_jaAI : public ScriptedAI
                     uiCurseOfLifeTimer = 1000;
                     uiRainOfFireTimer = urand(14000,18000);
                     uiShadowVolleyTimer = urand(8000,10000);
+                    std::list<HostilReference*>& threatlist = m_creature->getThreatManager().getThreatList();
+                    for (std::list<HostilReference*>::iterator itr = threatlist.begin(); itr != threatlist.end(); ++itr)
+                    {
+                        Unit *pTemp = Unit::GetUnit((*m_creature),(*itr)->getUnitGuid());
+                        if (pTemp && pTemp->GetTypeId() == TYPEID_PLAYER)
+                        {
+                            if (pTemp->HasAura(SPELL_GIFT_OF_THARON_JA))
+                                pTemp->RemoveAura(SPELL_GIFT_OF_THARON_JA);
+                            Player *pTarget = CAST_PLR(pTemp);
+                            pTarget->RemoveTemporarySpell(SPELL_PLAYER_PHASE2_BONE_ARMOR);
+                            pTarget->RemoveTemporarySpell(SPELL_PLAYER_PHASE2_SLAYING_STRIKE);
+                            pTarget->RemoveTemporarySpell(SPELL_PLAYER_PHASE2_TAUNT);
+                            pTarget->RemoveTemporarySpell(SPELL_PLAYER_PHASE2_TOUCH_OF_LIFE);
+                        }
+                    }
                 } else uiPhaseTimer -= diff;
                 break;
         }
