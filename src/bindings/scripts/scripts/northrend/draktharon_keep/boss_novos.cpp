@@ -82,7 +82,7 @@ static Location AddDestinyPoint = { -382.169, -711.369, 27.375};
 
 struct TRINITY_DLL_DECL boss_novosAI : public Scripted_NoMovementAI
 {
-    boss_novosAI(Creature *c) : Scripted_NoMovementAI(c)
+    boss_novosAI(Creature *c) : Scripted_NoMovementAI(c), lSummons(me)
     {
         pInstance = c->GetInstanceData();
         Reset();
@@ -92,6 +92,8 @@ struct TRINITY_DLL_DECL boss_novosAI : public Scripted_NoMovementAI
     uint32 uiCrystalHandlerTimer;
 
     bool bAchiev;
+
+    SummonList lSummons;
 
     std::list<uint64> luiCrystals;
 
@@ -105,6 +107,7 @@ struct TRINITY_DLL_DECL boss_novosAI : public Scripted_NoMovementAI
         luiCrystals.clear();
         bAchiev = true;
         m_creature->CastStop();
+        lSummons.DespawnAll();
         if (pInstance)
         {
             pInstance->SetData(DATA_NOVOS_EVENT, NOT_STARTED);
@@ -182,6 +185,7 @@ struct TRINITY_DLL_DECL boss_novosAI : public Scripted_NoMovementAI
             if (HeroicMode && bAchiev)
                 pInstance->DoCompleteAchievement(ACHIEV_OH_NOVOS);
         }
+        lSummons.DespawnAll();
     }
 
     void KilledUnit(Unit *victim)
@@ -189,6 +193,11 @@ struct TRINITY_DLL_DECL boss_novosAI : public Scripted_NoMovementAI
         if (victim == m_creature)
             return;
         DoScriptText(SAY_KILL, m_creature);
+    }
+
+    void JustSummoned(Creature *summon)
+    {
+        lSummons.Summon(summon);
     }
 
     void RemoveCrystal()
