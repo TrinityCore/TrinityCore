@@ -300,22 +300,21 @@ MapManager::Update(uint32 diff)
 
     MapMapType::iterator iter = i_maps.begin();
 #ifdef MULTI_THREAD_MAP
-    uint32 i;
     std::vector<Map*> update_queue(i_maps.size());
     int omp_set_num_threads(sWorld.getConfig(CONFIG_NUMTHREADS));
-    for (i = 0; iter != i_maps.end(); ++iter, ++i)
+    for (uint32 i = 0; iter != i_maps.end(); ++iter, ++i)
         update_queue[i] = iter->second;
 /*
     gomp in gcc <4.4 version cannot parallelise loops using random access iterators
     so until gcc 4.4 isnt standard, we need the update_queue workaround
 */
 #pragma omp parallel for schedule(dynamic) private(i) shared(update_queue)
-    for (; i > 0; --i)
+    for (uint32 i = 0; i < i_maps.size(); ++i)
     {
         checkAndCorrectGridStatesArray();                   // debugging code, should be deleted some day
         update_queue[i]->Update(i_timer.GetCurrent());
         sWorld.RecordTimeDiff("UpdateMap %u", update_queue[i]->GetId());
-    //  sLog.outError("This is thread %d out of %d threads,updating map %u",omp_get_thread_num(),omp_get_num_threads(),iter->second->GetId());
+        //sLog.outError("This is thread %d out of %d threads,updating map %u",omp_get_thread_num(),omp_get_num_threads(),iter->second->GetId());
     }
 #else
     for (; iter != i_maps.end(); ++iter)
