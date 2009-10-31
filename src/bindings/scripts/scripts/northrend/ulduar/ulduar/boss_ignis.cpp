@@ -80,7 +80,7 @@ struct TRINITY_DLL_DECL boss_ignis_AI : public BossAI
 
         if (SCORCH_Timer <= diff)
         {
-            DoCastVictim(SPELL_SCORCH);
+            DoCast(SPELL_SCORCH);
             SCORCH_Timer = 20000;
         } else SCORCH_Timer -= diff;
 
