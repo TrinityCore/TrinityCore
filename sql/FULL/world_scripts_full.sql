@@ -549,6 +549,9 @@ UPDATE `creature_template` SET `ScriptName`='boss_trollgore' WHERE `entry`=26630
 UPDATE `creature_template` SET `ScriptName`='boss_novos' WHERE `entry`=26631;
 UPDATE `creature_template` SET `ScriptName`='mob_crystal_handler' WHERE `entry`=26627;
 UPDATE `creature_template` SET `ScriptName`='mob_novos_minion' WHERE `entry` IN (27600,27597,27598);
+UPDATE `creature_template` SET `ScriptName`='npc_drakkari_gutripper' WHERE `entry`=26641;
+UPDATE `creature_template` SET `ScriptName`='npc_drakkari_scytheclaw' WHERE `entry`=26628;
+UPDATE `creature_template` SET `ScriptName`='boss_dred' WHERE `entry`=27483;
 UPDATE `creature_template` SET `ScriptName`='boss_tharon_ja' WHERE `entry`=26632;
 
 /* GRUUL'S LAIR */

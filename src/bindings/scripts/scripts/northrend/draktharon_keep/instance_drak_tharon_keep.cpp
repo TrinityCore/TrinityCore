@@ -20,6 +20,7 @@
 #include "drak_tharon_keep.h"
 
 #define MAX_ENCOUNTER     4
+
 /* Drak'Tharon Keep encounters:
 0 - Trollgore
 1 - Novos
@@ -46,6 +47,8 @@ struct TRINITY_DLL_DECL instance_drak_tharon : public ScriptedInstance
 {
     instance_drak_tharon(Map* pMap) : ScriptedInstance(pMap) {Initialize();};
 
+    uint8 uiDredAchievCounter;
+
     uint64 uiTrollgore;
     uint64 uiNovos;
     uint64 uiDred;
@@ -70,6 +73,7 @@ struct TRINITY_DLL_DECL instance_drak_tharon : public ScriptedInstance
         uiNovosCrystal2 = 0;
         uiNovosCrystal3 = 0;
         uiNovosCrystal4 = 0;
+        uiDredAchievCounter = 0;
     }
 
     bool IsEncounterInProgress() const
@@ -151,6 +155,10 @@ struct TRINITY_DLL_DECL instance_drak_tharon : public ScriptedInstance
             case DATA_THARON_JA_EVENT:
                 m_auiEncounter[3] = data;
                 break;
+
+            case DATA_KING_DRED_ACHIEV:
+                uiDredAchievCounter = data;
+                break;
         }
 
         if (data == DONE)
@@ -167,6 +175,7 @@ struct TRINITY_DLL_DECL instance_drak_tharon : public ScriptedInstance
             case DATA_NOVOS_EVENT:        return m_auiEncounter[1];
             case DATA_DRED_EVENT:         return m_auiEncounter[2];
             case DATA_THARON_JA_EVENT:    return m_auiEncounter[3];
+            case DATA_KING_DRED_ACHIEV:   return uiDredAchievCounter;
         }
         return 0;
     }
