@@ -295,22 +295,22 @@ void
 MapManager::Update(uint32 diff)
 {
     i_timer.Update(diff);
-    if( !i_timer.Passed() )
+    if (!i_timer.Passed())
         return;
 
+    MapMapType::iterator iter = i_maps.begin();
 #ifdef MULTI_THREAD_MAP
-    uint32 i=0;
-    MapMapType::iterator iter;
+    uint32 i;
     std::vector<Map*> update_queue(i_maps.size());
     int omp_set_num_threads(sWorld.getConfig(CONFIG_NUMTHREADS));
-    for (iter = i_maps.begin(), i=0; iter != i_maps.end(); ++iter, i++)
-        update_queue[i]=iter->second;
+    for (i = 0; iter != i_maps.end(); ++iter, ++i)
+        update_queue[i] = iter->second;
 /*
     gomp in gcc <4.4 version cannot parallelise loops using random access iterators
     so until gcc 4.4 isnt standard, we need the update_queue workaround
 */
 #pragma omp parallel for schedule(dynamic) private(i) shared(update_queue)
-    for (int32 i = 0; i < i_maps.size(); ++i)
+    for (; i > 0; --i)
     {
         checkAndCorrectGridStatesArray();                   // debugging code, should be deleted some day
         update_queue[i]->Update(i_timer.GetCurrent());
@@ -318,7 +318,7 @@ MapManager::Update(uint32 diff)
     //  sLog.outError("This is thread %d out of %d threads,updating map %u",omp_get_thread_num(),omp_get_num_threads(),iter->second->GetId());
     }
 #else
-    for (MapMapType::iterator iter=i_maps.begin(); iter != i_maps.end(); ++iter)
+    for (MapMapType::iterator iter = i_maps.begin(); iter != i_maps.end(); ++iter)
     {
         iter->second->Update(i_timer.GetCurrent());
         sWorld.RecordTimeDiff("UpdateMap %u", iter->second->GetId());
@@ -340,17 +340,15 @@ MapManager::Update(uint32 diff)
 void MapManager::DoDelayedMovesAndRemoves()
 {
     /*
-    int i =0;
     std::vector<Map*> update_queue(i_maps.size());
-    MapMapType::iterator iter;
-    for (iter = i_maps.begin(); iter != i_maps.end(); ++iter, i++)
+    for (MapMapType::iterator iter = i_maps.begin(), uint32 i = 0; iter != i_maps.end(); ++iter, ++i)
     update_queue[i] = iter->second;
 
     omp_set_num_threads(sWorld.getConfig(CONFIG_NUMTHREADS));
 
 #pragma omp parallel for schedule(dynamic) private(i) shared(update_queue)
-    for (i=0; i<i_maps.size(); i++)
-    update_queue[i]->DoDelayedMovesAndRemoves();
+    for (uint32 i = 0; i < i_maps.size(); ++i)
+        update_queue[i]->DoDelayedMovesAndRemoves();
     */
 }
 
