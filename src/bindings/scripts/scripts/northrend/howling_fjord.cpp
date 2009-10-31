@@ -263,6 +263,40 @@ bool GossipSelect_npc_razael_and_lyana(Player* pPlayer, Creature* pCreature, uin
     return true;
 }
 
+/*######
+## npc_mcgoyver
+######*/
+
+#define GOSSIP_ITEM_MG_I  "Create Dark Iron Ingots"
+
+enum eMcGoyver
+{
+    QUEST_WE_CAN_REBUILD_IT                = 11483,
+
+    SPELL_CREATURE_DARK_IRON_INGOTS      = 44512,
+};
+
+bool GossipHello_npc_mcgoyver(Player* pPlayer, Creature* pCreature)
+{
+    if(pPlayer->GetQuestStatus(QUEST_WE_CAN_REBUILD_IT) == QUEST_STATUS_INCOMPLETE)
+        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_MG_I, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+
+    pPlayer->SEND_GOSSIP_MENU(pCreature->GetNpcTextId(), pCreature->GetGUID());
+    return true;
+}
+
+bool GossipSelect_npc_mcgoyver(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+{
+    switch(uiAction)
+    {
+        case GOSSIP_ACTION_INFO_DEF+1:
+            pPlayer->CastSpell(pPlayer, SPELL_CREATURE_DARK_IRON_INGOTS, true);
+            pPlayer->CLOSE_GOSSIP_MENU();
+            break;
+    }
+    return true;
+}
+
 void AddSC_howling_fjord()
 {
     Script *newscript;
@@ -282,5 +316,11 @@ void AddSC_howling_fjord()
     newscript->Name = "npc_razael_and_lyana";
     newscript->pGossipHello =  &GossipHello_npc_razael_and_lyana;
     newscript->pGossipSelect = &GossipSelect_npc_razael_and_lyana;
+    newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name = "npc_mcgoyver";
+    newscript->pGossipHello = &GossipHello_npc_mcgoyver;
+    newscript->pGossipSelect = &GossipSelect_npc_mcgoyver;
     newscript->RegisterSelf();
  }

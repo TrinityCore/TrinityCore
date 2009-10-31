@@ -356,8 +356,12 @@ UPDATE `creature_template` SET `ScriptName`='npc_keristrasza' WHERE `entry`=2620
 UPDATE `creature_template` SET `ScriptName`='npc_iruk' WHERE `entry`=26219;
 UPDATE `creature_template` SET `ScriptName`='npc_corastrasza' WHERE `entry`=32548;
 UPDATE `creature_template` SET `ScriptName`='mob_nerubar_victim' WHERE `entry`=25284;
-UPDATE `creature_template` SET `ScriptName`='npc_gefangener_der_geiﬂel' WHERE `entry`=25610;
+UPDATE `creature_template` SET `ScriptName`='npc_scourge_prisoner' WHERE `entry`=25610;
 UPDATE `gameobject_template` SET `ScriptName`='go_scourge_cage' WHERE `entry`=187867;
+UPDATE `creature_template` SET `ScriptName`='npc_loklira_crone' WHERE `entry`=29975;
+UPDATE `creature_template` SET `ScriptName`='npc_victorious_challenger' WHERE `entry`=30012;
+UPDATE `creature_template` SET `ScriptName`='npc_mcgoyver' WHERE `entry`=24040;
+UPDATE `creature_template` SET `ScriptName`='npc_jenny' WHERE `entry`=25969;
 
 /* BURNING STEPPES */
 UPDATE `creature_template` SET `ScriptName`='npc_ragged_john' WHERE `entry`=9563;
