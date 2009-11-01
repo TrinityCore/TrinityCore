@@ -65,7 +65,10 @@ struct TRINITY_DLL_DECL boss_dredAI : public ScriptedAI
     void Reset()
     {
         if (pInstance)
+        {
             pInstance->SetData(DATA_DRED_EVENT,NOT_STARTED);
+            pInstance->SetData(DATA_KING_DRED_ACHIEV, 0);
+        }
 
         BellowingRoarTimer = 33000;
         GrievousBiteTimer  = 20000;
@@ -165,7 +168,7 @@ struct TRINITY_DLL_DECL npc_drakkari_gutripperAI : public ScriptedAI
 
     void Reset()
     {
-        GutRipTimer = urand(10,15)*1000;
+        GutRipTimer = urand(10000,15000);
     }
 
     void UpdateAI(const uint32 diff)
@@ -177,7 +180,7 @@ struct TRINITY_DLL_DECL npc_drakkari_gutripperAI : public ScriptedAI
         if (GutRipTimer < diff)
         {
             DoCastVictim(SPELL_GUT_RIP,false);
-            GutRipTimer = urand(10,15)*1000;
+            GutRipTimer = urand(10000,15000);
         }else GutRipTimer -=diff;
 
         DoMeleeAttackIfReady();
@@ -213,7 +216,7 @@ struct TRINITY_DLL_DECL npc_drakkari_scytheclawAI : public ScriptedAI
 
     void Reset()
     {
-        RendTimer = urand(10,15)*1000;
+        RendTimer = urand(10000,15000);
     }
 
     void UpdateAI(const uint32 diff)
@@ -225,7 +228,7 @@ struct TRINITY_DLL_DECL npc_drakkari_scytheclawAI : public ScriptedAI
         if (RendTimer < diff)
         {
             DoCastVictim(SPELL_REND,false);
-            RendTimer = urand(10,15)*1000;
+            RendTimer = urand(10000,15000);
         }else RendTimer -=diff;
 
         DoMeleeAttackIfReady();
