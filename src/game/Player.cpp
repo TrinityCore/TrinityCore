@@ -7358,7 +7358,7 @@ void Player::CastItemCombatSpell(Unit *target, WeaponAttackType attType, uint32 
     if (!target || !target->isAlive() || target == this)
         return;
 
-    for (UINT8 i = EQUIPMENT_SLOT_START; i < EQUIPMENT_SLOT_END; ++i)
+    for (uint8 i = EQUIPMENT_SLOT_START; i < EQUIPMENT_SLOT_END; ++i)
     {
         // If usable, try to cast item spell
         if (Item * item = GetItemByPos(INVENTORY_SLOT_BAG_0,i))
