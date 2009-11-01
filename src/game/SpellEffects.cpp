@@ -556,13 +556,29 @@ void Spell::SpellDamageSchoolDmg(uint32 effect_idx)
                         if (AuraEffect const * aurEff = unitTarget->GetAura(SPELL_AURA_PERIODIC_DAMAGE, SPELLFAMILY_ROGUE, 0x10000, 0, 0, m_caster->GetGUID()))
                         {
                             // count consumed deadly poison doses at target
-                            //Aura *poison = 0;
+                            bool needConsume = true;
                             uint32 spellId = aurEff->GetId();
                             uint32 doses = aurEff->GetParentAura()->GetStackAmount();
                             if (doses > combo)
                                 doses = combo;
-                            for (uint32 i = 0; i < doses; ++i)
-                                unitTarget->RemoveAuraFromStack(spellId);
+                            // Master Poisoner
+                            Unit::AuraEffectList const& auraList = ((Player*)m_caster)->GetAurasByType(SPELL_AURA_MOD_AURA_DURATION_BY_DISPEL_NOT_STACK);
+                            for (Unit::AuraEffectList::const_iterator iter = auraList.begin(); iter != auraList.end(); ++iter)
+                            {
+                                if ((*iter)->GetSpellProto()->SpellFamilyName == SPELLFAMILY_ROGUE && (*iter)->GetSpellProto()->SpellIconID == 1960)
+                                {
+                                    uint32 chance = (*iter)->GetSpellProto()->CalculateSimpleValue(2);
+
+                                    if (chance && roll_chance_i(chance))
+                                        needConsume = false;
+
+                                    break;
+                                }
+                            }
+
+                            if (needConsume)
+                                for (uint32 i = 0; i < doses; ++i)
+                                    unitTarget->RemoveAuraFromStack(spellId);
                             damage *= doses;
                             damage += int32(((Player*)m_caster)->GetTotalAttackPowerValue(BASE_ATTACK) * 0.03f * doses);
                         }
