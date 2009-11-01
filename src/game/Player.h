@@ -1125,7 +1125,7 @@ class MANGOS_DLL_SPEC Player : public Unit
         Item* StoreItem( ItemPosCountVec const& pos, Item *pItem, bool update );
         Item* EquipNewItem( uint16 pos, uint32 item, bool update );
         Item* EquipItem( uint16 pos, Item *pItem, bool update );
-        void AutoUnequipOffhandIfNeed();
+        void AutoUnequipOffhandIfNeed(bool force = false);
         bool StoreNewItemInBestSlots(uint32 item_id, uint32 item_count);
         void AutoStoreLoot(uint8 bag, uint8 slot, uint32 loot_id, LootStore const& store, bool broadcast = false);
         void AutoStoreLoot(uint32 loot_id, LootStore const& store, bool broadcast = false) { AutoStoreLoot(NULL_BAG,NULL_SLOT,loot_id,store,broadcast); }
@@ -1854,15 +1854,7 @@ class MANGOS_DLL_SPEC Player : public Unit
         void SetCanParry(bool value);
         bool CanBlock() const { return m_canBlock; }
         void SetCanBlock(bool value);
-        bool CanTitanGrip() const
-        {
-            Item *mainItem = GetItemByPos( INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND );
-
-            if (mainItem && ( mainItem->GetProto()->SubClass == ITEM_SUBCLASS_WEAPON_POLEARM || mainItem->GetProto()->SubClass == ITEM_SUBCLASS_WEAPON_STAFF ))
-            return false;
-
-            return m_canTitanGrip ; 
-        }
+        bool CanTitanGrip() const { return m_canTitanGrip; }
         void SetCanTitanGrip(bool value) { m_canTitanGrip = value; }
         bool CanTameExoticPets() const { return isGameMaster() || HasAuraType(SPELL_AURA_ALLOW_TAME_PET_TYPE); }
 
@@ -1929,7 +1921,7 @@ class MANGOS_DLL_SPEC Player : public Unit
 
         bool InBattleGroundQueue() const
         {
-            for (uint8 i=0; i < PLAYER_MAX_BATTLEGROUND_QUEUES; ++i)
+            for (uint8 i = 0; i < PLAYER_MAX_BATTLEGROUND_QUEUES; ++i)
                 if (m_bgBattleGroundQueueID[i].bgQueueTypeId != BATTLEGROUND_QUEUE_NONE)
                     return true;
             return false;
@@ -1938,14 +1930,14 @@ class MANGOS_DLL_SPEC Player : public Unit
         BattleGroundQueueTypeId GetBattleGroundQueueTypeId(uint32 index) const { return m_bgBattleGroundQueueID[index].bgQueueTypeId; }
         uint32 GetBattleGroundQueueIndex(BattleGroundQueueTypeId bgQueueTypeId) const
         {
-            for (uint8 i=0; i < PLAYER_MAX_BATTLEGROUND_QUEUES; ++i)
+            for (uint8 i = 0; i < PLAYER_MAX_BATTLEGROUND_QUEUES; ++i)
                 if (m_bgBattleGroundQueueID[i].bgQueueTypeId == bgQueueTypeId)
                     return i;
             return PLAYER_MAX_BATTLEGROUND_QUEUES;
         }
         bool IsInvitedForBattleGroundQueueType(BattleGroundQueueTypeId bgQueueTypeId) const
         {
-            for (uint8 i=0; i < PLAYER_MAX_BATTLEGROUND_QUEUES; ++i)
+            for (uint8 i = 0; i < PLAYER_MAX_BATTLEGROUND_QUEUES; ++i)
                 if (m_bgBattleGroundQueueID[i].bgQueueTypeId == bgQueueTypeId)
                     return m_bgBattleGroundQueueID[i].invitedToInstance != 0;
             return false;
