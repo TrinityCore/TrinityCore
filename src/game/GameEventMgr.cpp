@@ -1221,26 +1221,21 @@ void GameEventMgr::GameEventSpawn(int16 event_id)
     for (GuidList::iterator itr = mGameEventCreatureGuids[internal_event_id].begin(); itr != mGameEventCreatureGuids[internal_event_id].end(); ++itr)
     {
         // Add to correct cell
-        CreatureData const* data = objmgr.GetCreatureData(*itr);
-        if (data)
+        if (CreatureData const* data = objmgr.GetCreatureData(*itr))
         {
             objmgr.AddCreatureToGrid(*itr, data);
 
             // Spawn if necessary (loaded grids only)
             Map* map = const_cast<Map*>(MapManager::Instance().CreateBaseMap(data->mapid));
             // We use spawn coords to spawn
-            if(!map->Instanceable() && !map->IsRemovalGrid(data->posX,data->posY))
+            if (!map->Instanceable() && map->IsLoaded(data->posX, data->posY))
             {
                 Creature* pCreature = new Creature;
                 //sLog.outDebug("Spawning creature %u",*itr);
                 if (!pCreature->LoadFromDB(*itr, map))
-                {
                     delete pCreature;
-                }
                 else
-                {
                     map->Add(pCreature);
-                }
             }
         }
     }
@@ -1254,25 +1249,22 @@ void GameEventMgr::GameEventSpawn(int16 event_id)
     for (GuidList::iterator itr = mGameEventGameobjectGuids[internal_event_id].begin(); itr != mGameEventGameobjectGuids[internal_event_id].end(); ++itr)
     {
         // Add to correct cell
-        GameObjectData const* data = objmgr.GetGOData(*itr);
-        if (data)
+        if (GameObjectData const* data = objmgr.GetGOData(*itr))
         {
             objmgr.AddGameobjectToGrid(*itr, data);
             // Spawn if necessary (loaded grids only)
             // this base map checked as non-instanced and then only existed
             Map* map = const_cast<Map*>(MapManager::Instance().CreateBaseMap(data->mapid));
             // We use current coords to unspawn, not spawn coords since creature can have changed grid
-            if(!map->Instanceable() && !map->IsRemovalGrid(data->posX, data->posY))
+            if (!map->Instanceable() && map->IsLoaded(data->posX, data->posY))
             {
                 GameObject* pGameobject = new GameObject;
                 //sLog.outDebug("Spawning gameobject %u", *itr);
                 if (!pGameobject->LoadFromDB(*itr, map))
-                {
                     delete pGameobject;
-                }
                 else
                 {
-                    if(pGameobject->isSpawnedByDefault())
+                    if (pGameobject->isSpawnedByDefault())
                         map->Add(pGameobject);
                 }
             }

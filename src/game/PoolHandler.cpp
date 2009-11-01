@@ -229,26 +229,21 @@ void PoolGroup<T>::SpawnObject(uint32 limit, bool cache)
 template <>
 bool PoolGroup<Creature>::Spawn1Object(uint32 guid)
 {
-    CreatureData const* data = objmgr.GetCreatureData(guid);
-    if (data)
+    if (CreatureData const* data = objmgr.GetCreatureData(guid))
     {
         objmgr.AddCreatureToGrid(guid, data);
 
         // Spawn if necessary (loaded grids only)
         Map* map = const_cast<Map*>(MapManager::Instance().CreateBaseMap(data->mapid));
         // We use spawn coords to spawn
-        if (!map->Instanceable() && !map->IsRemovalGrid(data->posX, data->posY))
+        if (!map->Instanceable() && map->IsLoaded(data->posX, data->posY))
         {
             Creature* pCreature = new Creature;
             //sLog.outDebug("Spawning creature %u",guid);
             if (!pCreature->LoadFromDB(guid, map))
-            {
                 delete pCreature;
-            }
             else
-            {
                 map->Add(pCreature);
-            }
         }
         return true;
     }
@@ -259,22 +254,19 @@ bool PoolGroup<Creature>::Spawn1Object(uint32 guid)
 template <>
 bool PoolGroup<GameObject>::Spawn1Object(uint32 guid)
 {
-    GameObjectData const* data = objmgr.GetGOData(guid);
-    if (data)
+    if (GameObjectData const* data = objmgr.GetGOData(guid))
     {
         objmgr.AddGameobjectToGrid(guid, data);
         // Spawn if necessary (loaded grids only)
         // this base map checked as non-instanced and then only existed
         Map* map = const_cast<Map*>(MapManager::Instance().CreateBaseMap(data->mapid));
         // We use current coords to unspawn, not spawn coords since creature can have changed grid
-        if (!map->Instanceable() && !map->IsRemovalGrid(data->posX, data->posY))
+        if (!map->Instanceable() && map->IsLoaded(data->posX, data->posY))
         {
             GameObject* pGameobject = new GameObject;
             //sLog.outDebug("Spawning gameobject %u", guid);
             if (!pGameobject->LoadFromDB(guid, map))
-            {
                 delete pGameobject;
-            }
             else
             {
                 if (pGameobject->isSpawnedByDefault())
