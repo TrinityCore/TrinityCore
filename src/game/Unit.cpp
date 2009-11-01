@@ -5710,6 +5710,15 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                     pVictim->CastCustomSpell(pVictim,15290,&team,&self,NULL,true,castItem,triggeredByAura);
                     return true;                                // no hidden cooldown
                 }
+                // Shadow Affinity (Ranks 1-3)
+                case 15318:
+                case 15272:
+                case 15320:
+                {
+                    basepoints0 = triggerAmount * target->GetCreateMana() / 100;
+                    triggered_spell_id = 64103;
+                    break;
+                }
                 // Priest Tier 6 Trinket (Ashtongue Talisman of Acumen)
                 case 40438:
                 {
