@@ -5184,7 +5184,8 @@ SpellCastResult Spell::CheckCast(bool strict)
                 // allow always ghost flight spells
                 if (m_originalCaster && m_originalCaster->GetTypeId() == TYPEID_PLAYER && m_originalCaster->isAlive())
                 {
-                    if (!((Player*)m_originalCaster)->IsKnowHowFlyIn(m_originalCaster->GetMapId(),m_originalCaster->GetZoneId()))
+                    //if (!((Player*)m_originalCaster)->IsKnowHowFlyIn(m_originalCaster->GetMapId(),m_originalCaster->GetZoneId()))
+                    if (m_originalCaster->GetZoneId() == 4197 || m_originalCaster->GetZoneId() == 4395)
                         return m_IsTriggeredSpell ? SPELL_FAILED_DONT_REPORT : SPELL_FAILED_NOT_HERE;
                 }
                 break;

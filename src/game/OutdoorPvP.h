@@ -34,6 +34,7 @@ enum OutdoorPvPTypes
     OUTDOOR_PVP_SI,
     OUTDOOR_PVP_EP,
     OPVP_WINTERGRASP,
+    OUTDOOR_PVP_NR,
 };
 
 const uint8 CapturePointArtKit[3] = {2, 1, 21};
