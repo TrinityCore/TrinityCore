@@ -3334,7 +3334,28 @@ void AuraEffect::HandleAuraFeatherFall(bool apply, bool Real, bool /*changeAmoun
 
     WorldPacket data;
     if(apply)
+    {
+        Unit* caster = GetCaster();
+
+        if (caster->GetGUID() == m_target->GetGUID())
+        {
+            m_target->RemoveAurasByType(SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED);
+            m_target->RemoveAurasByType(SPELL_AURA_FLY);
+        }
+
+        if (GetId() == 61243) // No fly zone - Parachute
+        {
+            float x, y, z;
+            caster->GetPosition(x, y, z);
+            float ground_Z = caster->GetMap()->GetVmapHeight(x, y, z, true);
+            if (fabs(ground_Z - z) < 0.1f)
+            {
+                m_target->RemoveAurasByType(SPELL_AURA_FEATHER_FALL);
+                return;
+            }
+        }
         data.Initialize(SMSG_MOVE_FEATHER_FALL, 8+4);
+    }
     else
         data.Initialize(SMSG_MOVE_NORMAL_FALL, 8+4);
     data.append(m_target->GetPackGUID());

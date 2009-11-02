@@ -2284,6 +2284,10 @@ INSERT INTO `spell_linked_spell` (`spell_trigger`, `spell_effect`, `type`, `comm
 
 update game_graveyard_zone set ghost_zone = 4603 where id = 1474;
 
+-- No Fly Zone
+INSERT INTO `spell_linked_spell` (spell_trigger, spell_effect, type, comment) VALUES
+    (-58600, 61243, 0, 'No fly zone - Parachute'),
+    (-58730, 61243, 0, 'No fly zone - Parachute');
 
 -- temp
 

@@ -949,6 +949,14 @@ void OPvPWintergrasp::HandlePlayerEnterZone(Player * plr, uint32 zone)
     if (!sWorld.getConfig(CONFIG_OUTDOORPVP_WINTERGRASP_ENABLED))
         return;
 
+    // No fly zone or parachute
+    if (!plr->HasAura(SPELL_NOFLYZONE_WG) && !plr->HasAura(SPELL_PARACHUTE_WG) &&
+        (plr->HasAuraType(SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED) || plr->HasAuraType(SPELL_AURA_FLY)))
+    {
+        plr->CastSpell(plr, SPELL_NOFLYZONE_WG, true);
+        ChatHandler(plr).PSendSysMessage(LANG_ZONE_NOFLYZONE);
+    }
+
     if (!isWarTime())
     {
         if (plr->GetTeamId() == getDefenderTeam())
@@ -1032,6 +1040,7 @@ void OPvPWintergrasp::HandlePlayerLeaveZone(Player * plr, uint32 zone)
     OutdoorPvP::HandlePlayerLeaveZone(plr, zone);
     UpdateTenacityStack();
     plr->RemoveAura(SPELL_ESSENCE_OF_WG);
+    plr->RemoveAura(SPELL_NOFLYZONE_WG);
 }
 
 void OPvPWintergrasp::PromotePlayer(Player *killer) const

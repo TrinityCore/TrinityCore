@@ -734,7 +734,8 @@ enum TrinityStrings
     LANG_GUILD_VETERAN                  = 813,
     LANG_GUILD_MEMBER                   = 814,
     LANG_GUILD_INITIATE                 = 815,
-    // Room for in-game strings           816-999 not used
+    LANG_ZONE_NOFLYZONE                 = 816,
+    // Room for in-game strings           817-999 not used
 
     // Level 4 (CLI only commands)
     LANG_COMMAND_EXIT                   = 1000,
