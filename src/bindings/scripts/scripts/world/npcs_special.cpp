@@ -1835,15 +1835,21 @@ CreatureAI* GetAI_npc_lightwellAI(Creature* pCreature)
 
 struct TRINITY_DLL_DECL npc_training_dummy : Scripted_NoMovementAI
 {
-    npc_training_dummy(Creature *c) : Scripted_NoMovementAI(c) {}
+    npc_training_dummy(Creature *c) : Scripted_NoMovementAI(c)
+    {
+        m_Entry = c->GetEntry();
+    }
 
+    uint64 m_Entry;
     uint32 ResetTimer;
+    uint32 DespawnTimer;
     void Reset()
     {
         m_creature->SetControlled(true,UNIT_STAT_STUNNED);//disable rotate
         m_creature->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);//imune to knock aways like blast wave
         m_creature->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_STUN, true);
         ResetTimer = 10000;
+        DespawnTimer = 15000;
     }
 
     void DamageTaken(Unit *done_by, uint32 &damage)
@@ -1852,7 +1858,11 @@ struct TRINITY_DLL_DECL npc_training_dummy : Scripted_NoMovementAI
         damage = 0;
     }
 
-    void EnterCombat(Unit *who){return;}
+    void EnterCombat(Unit *who)
+    {
+        if (m_Entry != 2674 && m_Entry != 2673)
+            return;
+    }
 
     void UpdateAI(const uint32 diff)
     {
@@ -1860,12 +1870,25 @@ struct TRINITY_DLL_DECL npc_training_dummy : Scripted_NoMovementAI
             return;
         if (!m_creature->hasUnitState(UNIT_STAT_STUNNED))
             m_creature->SetControlled(true,UNIT_STAT_STUNNED);//disable rotate
-        if (ResetTimer <= diff)
+
+        if (m_Entry != 2674 && m_Entry != 2673)
         {
-            EnterEvadeMode();
-            ResetTimer = 10000;
-        } else ResetTimer -= diff;
-        return;
+            if (ResetTimer <= diff)
+            {
+                EnterEvadeMode();
+                ResetTimer = 10000;
+            }
+            else
+                ResetTimer -= diff;
+            return;
+        }
+        else
+        {
+            if (DespawnTimer <= diff)
+                m_creature->ForcedDespawn();
+            else
+                DespawnTimer -= diff;
+        }
     }
     void MoveInLineOfSight(Unit *who){return;}
 };
