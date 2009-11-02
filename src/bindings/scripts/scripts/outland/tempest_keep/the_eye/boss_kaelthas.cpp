@@ -1285,9 +1285,9 @@ struct TRINITY_DLL_DECL boss_master_engineer_telonicusAI : public advisorbase_ai
 };
 
 //Flame Strike AI
-struct TRINITY_DLL_DECL mob_kael_flamestrikeAI : public ScriptedAI
+struct TRINITY_DLL_DECL mob_kael_flamestrikeAI : public Scripted_NoMovementAI
 {
-    mob_kael_flamestrikeAI(Creature* pCreature) : ScriptedAI(pCreature) {}
+    mob_kael_flamestrikeAI(Creature* pCreature) : Scripted_NoMovementAI(pCreature) {}
 
     uint32 Timer;
     bool Casting;
@@ -1304,6 +1304,8 @@ struct TRINITY_DLL_DECL mob_kael_flamestrikeAI : public ScriptedAI
     }
 
     void MoveInLineOfSight(Unit *who) {}
+
+    void EnterCombat(Unit *who) {return;}
 
     void UpdateAI(const uint32 diff)
     {
