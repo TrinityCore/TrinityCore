@@ -294,18 +294,18 @@ struct TRINITY_DLL_DECL boss_taldaramAI : public ScriptedAI
     bool CheckSpheres()
     {
         if(!pInstance)
-	        return false;
+            return false;
         uiSphereGuids[0] = pInstance->GetData64(DATA_SPHERE1);
         uiSphereGuids[1] = pInstance->GetData64(DATA_SPHERE2);
 
         GameObject *pSpheres[2];
         for (uint8 i=0; i < 2; ++i)
         {
-	        pSpheres[i] = pInstance->instance->GetGameObject(uiSphereGuids[i]);
-	        if (!pSpheres[i])
-	            return false;
-	        if (pSpheres[i]->GetGoState() != GO_STATE_ACTIVE)
-	            return false;
+            pSpheres[i] = pInstance->instance->GetGameObject(uiSphereGuids[i]);
+            if (!pSpheres[i])
+                return false;
+            if (pSpheres[i]->GetGoState() != GO_STATE_ACTIVE)
+                return false;
         }
         RemovePrison();
         return true;

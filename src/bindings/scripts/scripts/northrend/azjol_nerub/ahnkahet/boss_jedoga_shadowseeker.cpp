@@ -135,7 +135,7 @@ struct MANGOS_DLL_DECL boss_jedoga_shadowseekerAI : public ScriptedAI
     void KilledUnit(Unit* Victim)
     {
         if (!Victim || Victim->GetTypeId() != TYPEID_PLAYER)
-		    return;
+            return;
 
         DoScriptText(RAND(TEXT_SLAY_1, TEXT_SLAY_2, TEXT_SLAY_3), m_creature);
     }

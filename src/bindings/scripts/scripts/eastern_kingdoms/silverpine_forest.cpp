@@ -249,8 +249,8 @@ struct TRINITY_DLL_DECL pyrewood_ambushAI : public ScriptedAI
     {
         if (Creature *pSummoned = m_creature->SummonCreature(creatureId, PyrewoodSpawnPoints[position][0], PyrewoodSpawnPoints[position][1], PyrewoodSpawnPoints[position][2], PyrewoodSpawnPoints[position][3], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 15000))
         {
-			Player *pPlayer = NULL;
-			Unit *pTarget = NULL;
+            Player *pPlayer = NULL;
+            Unit *pTarget = NULL;
             if (PlayerGUID)
             {
                 pPlayer = Unit::GetPlayer(PlayerGUID);
@@ -270,9 +270,9 @@ struct TRINITY_DLL_DECL pyrewood_ambushAI : public ScriptedAI
     void JustDied(Unit *pKiller)
     {
         if (PlayerGUID)
-			if (Player *pPlayer = Unit::GetPlayer(PlayerGUID))
-				if (pPlayer->GetQuestStatus(QUEST_PYREWOOD_AMBUSH) == QUEST_STATUS_INCOMPLETE)
-					pPlayer->FailQuest(QUEST_PYREWOOD_AMBUSH);
+            if (Player *pPlayer = Unit::GetPlayer(PlayerGUID))
+                if (pPlayer->GetQuestStatus(QUEST_PYREWOOD_AMBUSH) == QUEST_STATUS_INCOMPLETE)
+                    pPlayer->FailQuest(QUEST_PYREWOOD_AMBUSH);
     }
 
     void UpdateAI(const uint32 diff)
@@ -292,7 +292,7 @@ struct TRINITY_DLL_DECL pyrewood_ambushAI : public ScriptedAI
         }
 
         switch (Phase)
-		{
+        {
             case 0:
                 if(WaitTimer == WAIT_SECS)
                     m_creature->MonsterSay(NPCSAY_INIT, LANG_UNIVERSAL, 0); //no blizzlike
