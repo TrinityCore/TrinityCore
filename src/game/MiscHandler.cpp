@@ -152,8 +152,7 @@ void WorldSession::HandleWhoOpcode( WorldPacket & recv_data )
 
     uint32 clientcount = 0;
 
-    uint8 level_min, level_max;
-    uint32 racemask, classmask, zones_count, str_count;
+    uint32 level_min, level_max, racemask, classmask, zones_count, str_count;
     uint32 zoneids[10];                                     // 10 is client limit
     std::string player_name, guild_name;
 
@@ -165,7 +164,7 @@ void WorldSession::HandleWhoOpcode( WorldPacket & recv_data )
 
     recv_data >> racemask;                                  // race mask
     recv_data >> classmask;                                 // class mask
-    recv_data >> zones_count;                               // zones count, client limit=10 (2.0.10)
+    recv_data >> zones_count;                               // zones count, client limit = 10 (2.0.10)
 
     if (zones_count > 10)
         return;                                             // can't be received from real client or broken packet
