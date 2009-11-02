@@ -52,7 +52,7 @@ struct FriendInfo
     uint32 Flags;
     uint32 Area;
     uint8 Level;
-    uin8 Class;
+    uint8 Class;
     std::string Note;
 
     FriendInfo()
