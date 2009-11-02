@@ -391,8 +391,8 @@ struct TRINITY_DLL_DECL boss_felblood_kaelthasAI : public ScriptedAI
                                 Creature* Orb = DoSpawnCreature(CREATURE_ARCANE_SPHERE, 5, 5, 0, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 30000);
                                 if (Orb && pTarget)
                                 {
-                                    //SetThreatList(Orb);
-                                    Orb->AddThreat(pTarget, 1.0f);
+                                    Orb->SetSpeed(MOVE_RUN, 0.5f);
+                                    Orb->AddThreat(pTarget, 1000000.0f);
                                     Orb->AI()->AttackStart(pTarget);
                                 }
 
