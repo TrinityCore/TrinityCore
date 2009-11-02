@@ -51,8 +51,8 @@ struct FriendInfo
     FriendStatus Status;
     uint32 Flags;
     uint32 Area;
-    uint32 Level;
-    uint32 Class;
+    uint8 Level;
+    uin8 Class;
     std::string Note;
 
     FriendInfo()
