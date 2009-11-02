@@ -118,8 +118,8 @@ struct TRINITY_DLL_DECL boss_faerlinaAI : public BossAI
                 case EVENT_FRENZY:
                     DoCast(me,HEROIC(SPELL_FRENZY,H_SPELL_FRENZY));
                     return;
-		case EVENT_AFTERENRAGE:
-		    events.ScheduleEvent(EVENT_FRENZY, urand(60000,80000));
+        case EVENT_AFTERENRAGE:
+            events.ScheduleEvent(EVENT_FRENZY, urand(60000,80000));
             }
         }
 
