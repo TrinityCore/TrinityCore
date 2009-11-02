@@ -123,6 +123,35 @@ void ScriptsInit(char const* cfg_file = _TRINITY_SCRIPT_CONFIG)
 //*********************************
 //*** Functions used globally ***
 
+std::string GetConfigValueStr(char const* option)
+{
+    //Get db string from file
+    std::string dbstring = TScriptConfig.GetStringDefault(option, "");
+
+    if (dbstring.empty())
+    {
+        error_log("TSCR: %s is not a valid option.", option);
+        return "error";
+    }
+    return dbstring;
+}
+
+int32 GetConfigValueInt32(char const* option)
+{
+    //Get db int from file
+    int32 dbint = TScriptConfig.GetIntDefault(option, 0);
+
+    return dbint;
+}
+
+float GetConfigValueFloat(char const* option)
+{
+    //Get db int from file
+    float dbfloat = TScriptConfig.GetFloatDefault(option, 0);
+
+    return dbfloat;
+}
+
 void DoScriptText(int32 iTextEntry, WorldObject* pSource, Unit* pTarget)
 {
     if (!pSource)
