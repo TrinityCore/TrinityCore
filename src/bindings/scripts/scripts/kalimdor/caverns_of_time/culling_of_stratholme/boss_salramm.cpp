@@ -1,8 +1,26 @@
+/*
+* Copyright (C) 2008-2009 Trinity <http://www.trinitycore.org/>
+*
+* This program is free software; you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation; either version 2 of the License, or
+* (at your option) any later version.
+*
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with this program; if not, write to the Free Software
+* Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+*/
+
 /* Script Data Start
 SDName: Boss salramm
-SDAuthor: LordVanMartin
-SD%Complete:
-SDComment:
+SDAuthor: Tartalo
+SD%Complete: 80
+SDComment: TODO: Intro
 SDCategory:
 Script Data End */
 
@@ -94,8 +112,8 @@ struct TRINITY_DLL_DECL boss_salrammAI : public ScriptedAI
         //Shadow bolt timer
         if (Shadow_bolt_Timer <= diff)
         {
-            if (Unit* random_pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
-                DoCast(random_pTarget, HEROIC(SPELL_SHADOW_BOLT, H_SPELL_SHADOW_BOLT));
+            if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                DoCast(pTarget, HEROIC(SPELL_SHADOW_BOLT, H_SPELL_SHADOW_BOLT));
             Shadow_bolt_Timer = urand(8000,12000);
         } else Shadow_bolt_Timer -= diff;
 

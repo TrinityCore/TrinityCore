@@ -1,3 +1,21 @@
+/*
+* Copyright (C) 2008-2009 Trinity <http://www.trinitycore.org/>
+*
+* This program is free software; you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation; either version 2 of the License, or
+* (at your option) any later version.
+*
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with this program; if not, write to the Free Software
+* Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+*/
+
 #include "precompiled.h"
 #include "culling_of_stratholme.h"
 
@@ -20,6 +38,11 @@ struct TRINITY_DLL_DECL instance_culling_of_stratholme : public ScriptedInstance
     uint64 uiEpoch;
     uint64 uiMalGanis;
     uint64 uiInfinite;
+
+    uint64 uiShkafGate;
+    uint64 uiMalGanisGate1;
+    uint64 uiMalGanisGate2;
+    uint64 uiMalGanisChest;
     
     uint8 m_auiEncounter[MAX_ENCOUNTER];
     std::string str_data;
@@ -36,20 +59,39 @@ struct TRINITY_DLL_DECL instance_culling_of_stratholme : public ScriptedInstance
     {
         switch(pCreature->GetEntry())
         {
-            case CREATURE_MEATHOOK:
+            case NPC_MEATHOOK:
                 uiMeathook = pCreature->GetGUID();
                 break;
-            case CREATURE_SALRAMM:
+            case NPC_SALRAMM:
                 uiSalramm = pCreature->GetGUID();
                 break;
-            case CREATURE_EPOCH:
+            case NPC_EPOCH:
                 uiEpoch = pCreature->GetGUID();
                 break;
-            case CREATURE_MAL_GANIS:
+            case NPC_MAL_GANIS:
                 uiMalGanis = pCreature->GetGUID();
                 break;
-            case CREATURE_INFINITE:
+            case NPC_INFINITE:
                 uiInfinite = pCreature->GetGUID();
+                break;
+        }
+    }
+
+    void OnGameObjectCreate(GameObject* pGo, bool add)
+    {
+        switch(pGo->GetEntry())
+        {
+            case GO_SHKAF_GATE:
+                uiShkafGate = pGo->GetGUID();
+                break;
+            case GO_MALGANIS_GATE_1:
+                uiMalGanisGate1 = pGo->GetGUID();
+                break;
+            case GO_MALGANIS_GATE_2:
+                uiMalGanisGate2 = pGo->GetGUID();
+                break;
+            case GO_MALGANIS_CHEST:
+                uiMalGanisChest = pGo->GetGUID();
                 break;
         }
     }
@@ -69,6 +111,9 @@ struct TRINITY_DLL_DECL instance_culling_of_stratholme : public ScriptedInstance
                 break;
             case DATA_MAL_GANIS_EVENT:
                 m_auiEncounter[3] = data;
+                GameObject *pGate;
+                if (data == IN_PROGRESS && (pGate = instance->GetGameObject(uiMalGanisGate2)))
+                    pGate->SetGoState(GO_STATE_READY);
                 break;
             case DATA_INFINITE_EVENT:
                 m_auiEncounter[4] = data;
@@ -99,7 +144,11 @@ struct TRINITY_DLL_DECL instance_culling_of_stratholme : public ScriptedInstance
             case DATA_MEATHOOK:                   return uiMeathook;
             case DATA_SALRAMM:                    return uiSalramm;
             case DATA_EPOCH:                      return uiEpoch;
+            case DATA_MAL_GANIS:                  return uiMalGanis;
             case DATA_INFINITE:                   return uiInfinite;
+            case DATA_MAL_GANIS_GATE_1:           return uiMalGanisGate1;
+            case DATA_MAL_GANIS_GATE_2:           return uiMalGanisGate2;
+            case DATA_MAL_GANIS_CHEST:            return uiMalGanisChest;
         }
         return 0;
     }

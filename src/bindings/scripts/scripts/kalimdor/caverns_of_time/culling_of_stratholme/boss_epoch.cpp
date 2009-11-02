@@ -1,14 +1,30 @@
+/*
+* Copyright (C) 2008-2009 Trinity <http://www.trinitycore.org/>
+*
+* This program is free software; you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation; either version 2 of the License, or
+* (at your option) any later version.
+*
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with this program; if not, write to the Free Software
+* Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+*/
+
+
 /* Script Data Start
 SDName: Boss epoch
-SDAuthor: LordVanMartin
-SD%Complete:
-SDComment:
+SDAuthor: Tartalo
+SD%Complete: 80
+SDComment: TODO: Intro, consecutive attacks to a random target durin time wrap, adjust timers
 SDCategory:
 Script Data End */
 
-/*** SQL START ***
-update creature_template set scriptname = '' where entry = '';
-*** SQL END ***/
 #include "precompiled.h"
 #include "culling_of_stratholme.h"
 
@@ -34,6 +50,11 @@ enum Yells
     SAY_SLAY_3                               = -1595007, //"You were destined to fail. "
     SAY_DEATH                                = -1595008 //"*gurgles*"
 };
+enum CombatPhases
+{
+    INTRO,
+    COMBAT
+};
 
 struct TRINITY_DLL_DECL boss_epochAI : public ScriptedAI
 {
@@ -41,11 +62,28 @@ struct TRINITY_DLL_DECL boss_epochAI : public ScriptedAI
     {
         pInstance = c->GetInstanceData();
     }
+
+    uint8 uiStep;
+
+    uint32 uiStepTimer;
+    uint32 uiWoundingStrikeTimer;
+    uint32 uiTimeWarpTimer;
+    uint32 uiTimeStopTimer;
+    uint32 uiCurseOfExertionTimer;
+
+    CombatPhases Phase;
     
     ScriptedInstance* pInstance;
 
     void Reset()
     {
+        uiStep = 1;
+        uiStepTimer = 26000;
+        uiCurseOfExertionTimer = 9300;
+        uiTimeWarpTimer = 25300;
+        uiTimeStopTimer = 21300;
+        uiWoundingStrikeTimer = 5300;
+        
         if (pInstance)
             pInstance->SetData(DATA_EPOCH_EVENT, NOT_STARTED);
     }
@@ -58,13 +96,42 @@ struct TRINITY_DLL_DECL boss_epochAI : public ScriptedAI
             pInstance->SetData(DATA_EPOCH_EVENT, IN_PROGRESS);
     }
 
-    void AttackStart(Unit* who) {}
-    void MoveInLineOfSight(Unit* who) {}
     void UpdateAI(const uint32 diff)
     {
+        if (Phase == INTRO)
+        {
+            return;
+        }
+        
         //Return since we have no target
         if (!UpdateVictim())
             return;
+
+        if (uiCurseOfExertionTimer < diff)
+        {
+            if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                DoCast(pTarget, SPELL_CURSE_OF_EXERTION);
+            uiCurseOfExertionTimer = 9300;
+        } else uiCurseOfExertionTimer -= diff;
+
+        if (uiWoundingStrikeTimer < diff)
+        {
+            DoCastVictim(HEROIC(SPELL_WOUNDING_STRIKE, H_SPELL_WOUNDING_STRIKE));
+            uiWoundingStrikeTimer = 5300;
+        } else uiWoundingStrikeTimer -= diff;
+
+        if (uiTimeStopTimer < diff)
+        {
+            DoCastAOE(SPELL_TIME_STOP);
+            uiTimeStopTimer = 21300;
+        } else uiTimeStopTimer -= diff;
+
+        if (uiTimeWarpTimer < diff)
+        {
+            DoScriptText(RAND(SAY_TIME_WARP_1,SAY_TIME_WARP_2,SAY_TIME_WARP_3), m_creature);
+            DoCastAOE(SPELL_TIME_WARP);
+            uiTimeWarpTimer = 25300;
+        } else uiTimeWarpTimer -= diff;
 
         DoMeleeAttackIfReady();
     }
