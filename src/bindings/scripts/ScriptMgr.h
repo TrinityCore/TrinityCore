@@ -86,6 +86,11 @@ struct Script
     void RegisterSelf();
 };
 
+//Config file accessors
+std::string GetConfigValueStr(char const* option);
+int32 GetConfigValueInt32(char const* option);
+float GetConfigValueFloat(char const* option);
+
 //Generic scripting text function
 void DoScriptText(int32 textEntry, WorldObject* pSource, Unit *pTarget = NULL);
 
