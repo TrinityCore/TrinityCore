@@ -187,6 +187,8 @@ SET(game_STAT_SRCS
    OutdoorPvPMgr.h
    OutdoorPvPNA.cpp
    OutdoorPvPNA.h
+   OutdoorPvPNR.cpp
+   OutdoorPvPNR.h
    OutdoorPvPSI.cpp
    OutdoorPvPSI.h
    OutdoorPvPTF.cpp

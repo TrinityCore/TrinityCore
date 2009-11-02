@@ -1675,6 +1675,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\src\game\OutdoorPvPNR.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\game\OutdoorPvPNR.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\src\game\OutdoorPvPSI.cpp"
 				>
 			</File>
