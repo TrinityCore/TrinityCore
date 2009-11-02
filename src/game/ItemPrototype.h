@@ -522,7 +522,7 @@ struct ItemPrototype
     uint32 AllowableClass;
     uint32 AllowableRace;
     uint32 ItemLevel;
-    uint8 RequiredLevel;
+    uint32 RequiredLevel;
     uint32 RequiredSkill;                                   // id from SkillLine.dbc
     uint32 RequiredSkillRank;
     uint32 RequiredSpell;                                   // id from Spell.dbc
