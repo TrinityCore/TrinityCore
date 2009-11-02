@@ -1015,7 +1015,7 @@ struct TRINITY_DLL_DECL npc_anachronos_quest_triggerAI : public ScriptedAI
         CheckEventFail();
         if (WaveCount == 4 || Failed)
             EnterEvadeMode();
-	};
+    };
 };
 void mob_qiraj_war_spawnAI::JustDied(Unit* slayer)
 {
