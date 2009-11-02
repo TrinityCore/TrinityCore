@@ -201,6 +201,14 @@ class OPvPWintergrasp : public OutdoorPvP
         uint32 GetTimer() const { return m_timer / 1000; };
         TeamId GetTeam() const { return m_defender; };
         bool isWarTime() const { return m_wartime; };
+        void setTimer(uint32 timer)
+        {
+            if (timer >= 0)
+                m_timer = timer;
+        };
+        void forceChangeTeam();
+        void forceStopBattle();
+        void forceStartBattle();
 
         // Temporal BG specific till 3.2
         void SendAreaSpiritHealerQueryOpcode(Player *pl, const uint64& guid);
