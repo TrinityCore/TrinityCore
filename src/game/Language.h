@@ -693,9 +693,26 @@ enum TrinityStrings
 //  LANG_BG_WS_START_TWO_MINUTES        = 753, - defined above
 //  LANG_BG_AB_START_TWO_MINUTES        = 754, - defined above
 //  LANG_BG_EY_START_TWO_MINUTES        = 755, - defined above
-    // Room for batleground/arena strings 756-799 not used
 
-    // Room for BG/ARENA                  751-769 not used
+    LANG_BG_WG_BATTLE_STARTS            = 756,
+    LANG_BG_WG_DEFENDED                 = 757,
+    LANG_BG_WG_CAPTURED                 = 758,
+    LANG_BG_WG_WORKSHOP_DAMAGED         = 759,
+    LANG_BG_WG_WORKSHOP_DESTROYED       = 760,
+    LANG_BG_WG_TOWER_DAMAGED            = 761,
+    LANG_BG_WG_TOWER_DESTROYED          = 762,
+    LANG_BG_WG_FORTRESS_UNDER_ATTACK    = 763,
+    LANG_BG_WG_SWITCH_FACTION           = 764,
+    LANG_BG_WG_CHANGE_TIMER             = 765,
+    LANG_BG_WG_BATTLE_FORCE_START       = 766,
+    LANG_BG_WG_BATTLE_FORCE_STOP        = 767,
+    LANG_BG_WG_STATUS                   = 768,
+    LANG_BG_WG_DISABLE                  = 769,
+    LANG_BG_WG_ENABLE                   = 770,
+    LANG_BG_WG_RANK1                    = 771,
+    LANG_BG_WG_RANK2                    = 772,
+
+    // Room for BG/ARENA                = 773-784, 788-799 not used
     LANG_ARENA_TESTING                  = 785,
     LANG_AUTO_ANN                       = 786,
     LANG_ANNOUNCE_COLOR                 = 787,
