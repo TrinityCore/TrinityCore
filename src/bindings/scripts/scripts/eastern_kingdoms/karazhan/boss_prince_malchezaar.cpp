@@ -188,7 +188,7 @@ struct TRINITY_DLL_DECL boss_malchezaarAI : public ScriptedAI
         InfernalCleanup();
         positions.clear();
 
-        for (uint8 i =0; i < 5; ++i)
+        for (uint8 i = 0; i < 5; ++i)
             enfeeble_targets[i] = 0;
 
         for (uint8 i = 0; i < TOTAL_INFERNAL_POINTS; ++i)
@@ -202,8 +202,8 @@ struct TRINITY_DLL_DECL boss_malchezaarAI : public ScriptedAI
         Cleave_Timer = 8000;
         InfernalTimer = 45000;
         InfernalCleanupTimer = 47000;
-        AxesTargetSwitchTimer = 7500 + rand()%12500;
-        SunderArmorTimer = 5000 + rand()%5000;
+        AxesTargetSwitchTimer = urand(7500,20000);
+        SunderArmorTimer = urand(5000,10000);
         phase = 1;
 
         if (pInstance)
@@ -242,21 +242,20 @@ struct TRINITY_DLL_DECL boss_malchezaarAI : public ScriptedAI
     void InfernalCleanup()
     {
         //Infernal Cleanup
-        for (std::vector<uint64>::iterator itr = infernals.begin(); itr!= infernals.end(); ++itr)
-        {
-            Unit *pInfernal = Unit::GetUnit(*m_creature, *itr);
-            if (pInfernal && pInfernal->isAlive())
-            {
-                pInfernal->SetVisibility(VISIBILITY_OFF);
-                pInfernal->setDeathState(JUST_DIED);
-            }
-        }
+        for (std::vector<uint64>::iterator itr = infernals.begin(); itr != infernals.end(); ++itr)
+            if (Unit *pInfernal = Unit::GetUnit(*m_creature, *itr))
+                if (pInfernal->isAlive())
+                {
+                    pInfernal->SetVisibility(VISIBILITY_OFF);
+                    pInfernal->setDeathState(JUST_DIED);
+                }
+
         infernals.clear();
     }
 
     void AxesCleanup()
     {
-        for (uint8 i=0; i<2; ++i)
+        for (uint8 i = 0; i < 2; ++i)
         {
             Unit *axe = Unit::GetUnit(*m_creature, axes[i]);
             if (axe && axe->isAlive())
@@ -291,23 +290,18 @@ struct TRINITY_DLL_DECL boss_malchezaarAI : public ScriptedAI
         //begin + 1, so we don't target the one with the highest threat
         std::list<HostilReference *>::iterator itr = t_list.begin();
         std::advance(itr, 1);
-        for (; itr!= t_list.end(); ++itr)                   //store the threat list in a different container
-        {
-            Unit *pTarget = Unit::GetUnit(*m_creature, (*itr)->getUnitGuid());
-                                                            //only on alive players
-            if (pTarget && pTarget->isAlive() && pTarget->GetTypeId() == TYPEID_PLAYER)
-                targets.push_back(pTarget);
-        }
+        for (; itr != t_list.end(); ++itr) //store the threat list in a different container
+            if (Unit *pTarget = Unit::GetUnit(*m_creature, (*itr)->getUnitGuid()))
+                if (pTarget->isAlive() && pTarget->GetTypeId() == TYPEID_PLAYER)
+                    targets.push_back(pTarget);
 
         //cut down to size if we have more than 5 targets
-        while(targets.size() > 5)
+        while (targets.size() > 5)
             targets.erase(targets.begin()+rand()%targets.size());
 
-        int i = 0;
-        for (std::vector<Unit *>::iterator iter = targets.begin(); iter!= targets.end(); ++iter, ++i)
-        {
-            Unit *pTarget = *iter;
-            if (pTarget)
+        uint32 i = 0;
+        for (std::vector<Unit *>::iterator iter = targets.begin(); iter != targets.end(); ++iter, ++i)
+            if (Unit *pTarget = *iter)
             {
                 enfeeble_targets[i] = pTarget->GetGUID();
                 enfeeble_health[i] = pTarget->GetHealth();
@@ -315,8 +309,6 @@ struct TRINITY_DLL_DECL boss_malchezaarAI : public ScriptedAI
                 pTarget->CastSpell(pTarget, SPELL_ENFEEBLE, true, 0, 0, m_creature->GetGUID());
                 pTarget->SetHealth(1);
             }
-        }
-
     }
 
     void EnfeebleResetHealth()
@@ -367,17 +359,16 @@ struct TRINITY_DLL_DECL boss_malchezaarAI : public ScriptedAI
         if (!UpdateVictim())
             return;
 
-        if (EnfeebleResetTimer)
-            if (EnfeebleResetTimer <= diff)                  //Let's not forget to reset that
+        if (EnfeebleResetTimer && EnfeebleResetTimer <= diff) // Let's not forget to reset that
         {
             EnfeebleResetHealth();
-            EnfeebleResetTimer=0;
+            EnfeebleResetTimer = 0;
         } else EnfeebleResetTimer -= diff;
 
-        if (m_creature->hasUnitState(UNIT_STAT_STUNNED))     //While shifting to phase 2 malchezaar stuns himself
+        if (m_creature->hasUnitState(UNIT_STAT_STUNNED))      // While shifting to phase 2 malchezaar stuns himself
             return;
 
-        if (m_creature->GetUInt64Value(UNIT_FIELD_TARGET)!=m_creature->getVictim()->GetGUID())
+        if (m_creature->GetUInt64Value(UNIT_FIELD_TARGET) != m_creature->getVictim()->GetGUID())
             m_creature->SetUInt64Value(UNIT_FIELD_TARGET, m_creature->getVictim()->GetGUID());
 
         if (phase == 1)
@@ -481,11 +472,10 @@ struct TRINITY_DLL_DECL boss_malchezaarAI : public ScriptedAI
                     {
                         if (Unit *axe = Unit::GetUnit(*m_creature, axes[i]))
                         {
-                            float threat = 1000000.0f;
                             if (axe->getVictim())
                                 DoModifyThreatPercent(axe->getVictim(), -100);
                             if (pTarget)
-                                axe->AddThreat(pTarget, threat);
+                                axe->AddThreat(pTarget, 1000000.0f);
                             //axe->getThreatManager().tauntFadeOut(axe->getVictim());
                             //axe->getThreatManager().tauntApply(pTarget);
                         }
@@ -505,13 +495,13 @@ struct TRINITY_DLL_DECL boss_malchezaarAI : public ScriptedAI
         if (InfernalTimer <= diff)
         {
             SummonInfernal(diff);
-            InfernalTimer = phase == 3 ? 14500 : 44500;    //15 secs in phase 3, 45 otherwise
+            InfernalTimer = phase == 3 ? 14500 : 44500;    // 15 secs in phase 3, 45 otherwise
         } else InfernalTimer -= diff;
 
         if (ShadowNovaTimer <= diff)
         {
             DoCast(m_creature->getVictim(), SPELL_SHADOWNOVA);
-            ShadowNovaTimer = phase == 3 ? 31000 : 4294967295;
+            ShadowNovaTimer = phase == 3 ? 31000 : uint32(-1);
         } else ShadowNovaTimer -= diff;
 
         if (phase != 2)
@@ -521,7 +511,7 @@ struct TRINITY_DLL_DECL boss_malchezaarAI : public ScriptedAI
                 Unit *pTarget = NULL;
                 if (phase == 1)
                     pTarget = m_creature->getVictim();        // the tank
-                else                                         // anyone but the tank
+                else                                          // anyone but the tank
                     pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1, 100, true);
 
                 if (pTarget)

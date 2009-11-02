@@ -1914,7 +1914,7 @@ void ObjectMgr::LoadItemPrototypes()
     {
         ItemPrototype const* proto = sItemStorage.LookupEntry<ItemPrototype >(i);
         ItemEntry const *dbcitem = sItemStore.LookupEntry(i);
-        if(!proto)
+        if (!proto)
         {
             /* to many errors, and possible not all items really used in game
             if (dbcitem)
@@ -1923,9 +1923,9 @@ void ObjectMgr::LoadItemPrototypes()
             continue;
         }
 
-        if(dbcitem)
+        if (dbcitem)
         {
-            if(proto->Class != dbcitem->Class)
+            if (proto->Class != dbcitem->Class)
             {
                 sLog.outErrorDb("Item (Entry: %u) not correct class %u, must be %u (still using DB value).",i,proto->Class,dbcitem->Class);
                 // It safe let use Class from DB
@@ -1939,71 +1939,69 @@ void ObjectMgr::LoadItemPrototypes()
             }
             */
 
-            if(proto->Unk0 != dbcitem->Unk0)
+            if (proto->Unk0 != dbcitem->Unk0)
             {
                 sLog.outErrorDb("Item (Entry: %u) not correct %i Unk0, must be %i (still using DB value).",i,proto->Unk0,dbcitem->Unk0);
                 // It safe let use Unk0 from DB
             }
 
-            if(proto->Material != dbcitem->Material)
+            if (proto->Material != dbcitem->Material)
             {
                 sLog.outErrorDb("Item (Entry: %u) not correct %i material, must be %i (still using DB value).",i,proto->Material,dbcitem->Material);
                 // It safe let use Material from DB
             }
 
-            if(proto->InventoryType != dbcitem->InventoryType)
+            if (proto->InventoryType != dbcitem->InventoryType)
             {
                 sLog.outErrorDb("Item (Entry: %u) not correct %u inventory type, must be %u (still using DB value).",i,proto->InventoryType,dbcitem->InventoryType);
                 // It safe let use InventoryType from DB
             }
 
-            if(proto->DisplayInfoID != dbcitem->DisplayId)
+            if (proto->DisplayInfoID != dbcitem->DisplayId)
             {
                 sLog.outErrorDb("Item (Entry: %u) not correct %u display id, must be %u (using it).",i,proto->DisplayInfoID,dbcitem->DisplayId);
                 const_cast<ItemPrototype*>(proto)->DisplayInfoID = dbcitem->DisplayId;
             }
-            if(proto->Sheath != dbcitem->Sheath)
+            if (proto->Sheath != dbcitem->Sheath)
             {
                 sLog.outErrorDb("Item (Entry: %u) not correct %u sheath, must be %u  (using it).",i,proto->Sheath,dbcitem->Sheath);
                 const_cast<ItemPrototype*>(proto)->Sheath = dbcitem->Sheath;
             }
         }
         else
-        {
             sLog.outErrorDb("Item (Entry: %u) not correct (not listed in list of existed items).",i);
-        }
 
-        if(proto->Class >= MAX_ITEM_CLASS)
+        if (proto->Class >= MAX_ITEM_CLASS)
         {
             sLog.outErrorDb("Item (Entry: %u) has wrong Class value (%u)",i,proto->Class);
             const_cast<ItemPrototype*>(proto)->Class = ITEM_CLASS_MISC;
         }
 
-        if(proto->SubClass >= MaxItemSubclassValues[proto->Class])
+        if (proto->SubClass >= MaxItemSubclassValues[proto->Class])
         {
             sLog.outErrorDb("Item (Entry: %u) has wrong Subclass value (%u) for class %u",i,proto->SubClass,proto->Class);
             const_cast<ItemPrototype*>(proto)->SubClass = 0;// exist for all item classes
         }
 
-        if(proto->Quality >= MAX_ITEM_QUALITY)
+        if (proto->Quality >= MAX_ITEM_QUALITY)
         {
             sLog.outErrorDb("Item (Entry: %u) has wrong Quality value (%u)",i,proto->Quality);
             const_cast<ItemPrototype*>(proto)->Quality = ITEM_QUALITY_NORMAL;
         }
 
-        if(proto->BuyCount <= 0)
+        if (proto->BuyCount <= 0)
         {
             sLog.outErrorDb("Item (Entry: %u) has wrong BuyCount value (%u), set to default(1).",i,proto->BuyCount);
             const_cast<ItemPrototype*>(proto)->BuyCount = 1;
         }
 
-        if(proto->InventoryType >= MAX_INVTYPE)
+        if (proto->InventoryType >= MAX_INVTYPE)
         {
             sLog.outErrorDb("Item (Entry: %u) has wrong InventoryType value (%u)",i,proto->InventoryType);
             const_cast<ItemPrototype*>(proto)->InventoryType = INVTYPE_NON_EQUIP;
         }
 
-        if(proto->RequiredSkill >= MAX_SKILL_TYPE)
+        if (proto->RequiredSkill >= MAX_SKILL_TYPE)
         {
             sLog.outErrorDb("Item (Entry: %u) has wrong RequiredSkill value (%u)",i,proto->RequiredSkill);
             const_cast<ItemPrototype*>(proto)->RequiredSkill = 0;
@@ -2011,20 +2009,18 @@ void ObjectMgr::LoadItemPrototypes()
 
         {
             // can be used in equip slot, as page read use in inventory, or spell casting at use
-            bool req = proto->InventoryType!=INVTYPE_NON_EQUIP || proto->PageText;
-            if(!req)
-            {
-                for (int j = 0; j < MAX_ITEM_PROTO_SPELLS; ++j)
+            bool req = proto->InventoryType != INVTYPE_NON_EQUIP || proto->PageText;
+            if (!req)
+                for (uint8 j = 0; j < MAX_ITEM_PROTO_SPELLS; ++j)
                 {
-                    if(proto->Spells[j].SpellId)
+                    if (proto->Spells[j].SpellId)
                     {
                         req = true;
                         break;
                     }
                 }
-            }
-
-            if(req)
+            
+            if (req)
             {
                 if(!(proto->AllowableClass & CLASSMASK_ALL_PLAYABLE))
                     sLog.outErrorDb("Item (Entry: %u) not have in `AllowableClass` any playable classes (%u) and can't be equipped or use.",i,proto->AllowableClass);
@@ -2034,71 +2030,71 @@ void ObjectMgr::LoadItemPrototypes()
             }
         }
 
-        if(proto->RequiredSpell && !sSpellStore.LookupEntry(proto->RequiredSpell))
+        if (proto->RequiredSpell && !sSpellStore.LookupEntry(proto->RequiredSpell))
         {
             sLog.outErrorDb("Item (Entry: %u) have wrong (non-existed) spell in RequiredSpell (%u)",i,proto->RequiredSpell);
             const_cast<ItemPrototype*>(proto)->RequiredSpell = 0;
         }
 
-        if(proto->RequiredReputationRank >= MAX_REPUTATION_RANK)
+        if (proto->RequiredReputationRank >= MAX_REPUTATION_RANK)
             sLog.outErrorDb("Item (Entry: %u) has wrong reputation rank in RequiredReputationRank (%u), item can't be used.",i,proto->RequiredReputationRank);
 
-        if(proto->RequiredReputationFaction)
+        if (proto->RequiredReputationFaction)
         {
-            if(!sFactionStore.LookupEntry(proto->RequiredReputationFaction))
+            if (!sFactionStore.LookupEntry(proto->RequiredReputationFaction))
             {
                 sLog.outErrorDb("Item (Entry: %u) has wrong (not existing) faction in RequiredReputationFaction (%u)",i,proto->RequiredReputationFaction);
                 const_cast<ItemPrototype*>(proto)->RequiredReputationFaction = 0;
             }
 
-            if(proto->RequiredReputationRank == MIN_REPUTATION_RANK)
+            if (proto->RequiredReputationRank == MIN_REPUTATION_RANK)
                 sLog.outErrorDb("Item (Entry: %u) has min. reputation rank in RequiredReputationRank (0) but RequiredReputationFaction > 0, faction setting is useless.",i);
         }
 
-        if(proto->MaxCount < -1)
+        if (proto->MaxCount < -1)
         {
             sLog.outErrorDb("Item (Entry: %u) has too large negative in maxcount (%i), replace by value (-1) no storing limits.",i,proto->MaxCount);
             const_cast<ItemPrototype*>(proto)->MaxCount = -1;
         }
 
-        if(proto->Stackable == 0)
+        if (proto->Stackable == 0)
         {
             sLog.outErrorDb("Item (Entry: %u) has wrong value in stackable (%i), replace by default 1.",i,proto->Stackable);
             const_cast<ItemPrototype*>(proto)->Stackable = 1;
         }
-        else if(proto->Stackable < -1)
+        else if (proto->Stackable < -1)
         {
             sLog.outErrorDb("Item (Entry: %u) has too large negative in stackable (%i), replace by value (-1) no stacking limits.",i,proto->Stackable);
             const_cast<ItemPrototype*>(proto)->Stackable = -1;
         }
-        else if(proto->Stackable > 1000)
+        else if (proto->Stackable > 1000)
         {
             sLog.outErrorDb("Item (Entry: %u) has too large value in stackable (%u), replace by hardcoded upper limit (1000).",i,proto->Stackable);
             const_cast<ItemPrototype*>(proto)->Stackable = 1000;
         }
 
-        if(proto->ContainerSlots > MAX_BAG_SIZE)
+        if (proto->ContainerSlots > MAX_BAG_SIZE)
         {
             sLog.outErrorDb("Item (Entry: %u) has too large value in ContainerSlots (%u), replace by hardcoded limit (%u).",i,proto->ContainerSlots,MAX_BAG_SIZE);
             const_cast<ItemPrototype*>(proto)->ContainerSlots = MAX_BAG_SIZE;
         }
 
-        if(proto->StatsCount > MAX_ITEM_PROTO_STATS)
+        if (proto->StatsCount > MAX_ITEM_PROTO_STATS)
         {
             sLog.outErrorDb("Item (Entry: %u) has too large value in statscount (%u), replace by hardcoded limit (%u).",i,proto->StatsCount,MAX_ITEM_PROTO_STATS);
             const_cast<ItemPrototype*>(proto)->StatsCount = MAX_ITEM_PROTO_STATS;
         }
 
-        for (int j = 0; j < MAX_ITEM_PROTO_STATS; ++j)
+        for (uint8 j = 0; j < MAX_ITEM_PROTO_STATS; ++j)
         {
             // for ItemStatValue != 0
-            if(proto->ItemStat[j].ItemStatValue && proto->ItemStat[j].ItemStatType >= MAX_ITEM_MOD)
+            if (proto->ItemStat[j].ItemStatValue && proto->ItemStat[j].ItemStatType >= MAX_ITEM_MOD)
             {
                 sLog.outErrorDb("Item (Entry: %u) has wrong stat_type%d (%u)",i,j+1,proto->ItemStat[j].ItemStatType);
                 const_cast<ItemPrototype*>(proto)->ItemStat[j].ItemStatType = 0;
             }
 
-            switch(proto->ItemStat[j].ItemStatType)
+            switch (proto->ItemStat[j].ItemStatType)
             {
                 case ITEM_MOD_SPELL_HEALING_DONE:
                 case ITEM_MOD_SPELL_DAMAGE_DONE:
@@ -2109,7 +2105,7 @@ void ObjectMgr::LoadItemPrototypes()
             }
         }
 
-        for (int j = 0; j < MAX_ITEM_PROTO_DAMAGES; ++j)
+        for (uint8 j = 0; j < MAX_ITEM_PROTO_DAMAGES; ++j)
         {
             if(proto->Damage[j].DamageType >= MAX_SPELL_SCHOOL)
             {
@@ -2119,10 +2115,10 @@ void ObjectMgr::LoadItemPrototypes()
         }
 
         // special format
-        if((proto->Spells[0].SpellId == SPELL_ID_GENERIC_LEARN) || (proto->Spells[0].SpellId == SPELL_ID_GENERIC_LEARN_PET))
+        if ((proto->Spells[0].SpellId == SPELL_ID_GENERIC_LEARN) || (proto->Spells[0].SpellId == SPELL_ID_GENERIC_LEARN_PET))
         {
             // spell_1
-            if(proto->Spells[0].SpellTrigger != ITEM_SPELLTRIGGER_ON_USE)
+            if (proto->Spells[0].SpellTrigger != ITEM_SPELLTRIGGER_ON_USE)
             {
                 sLog.outErrorDb("Item (Entry: %u) has wrong item spell trigger value in spelltrigger_%d (%u) for special learning format",i,0+1,proto->Spells[0].SpellTrigger);
                 const_cast<ItemPrototype*>(proto)->Spells[0].SpellId = 0;
@@ -2132,14 +2128,14 @@ void ObjectMgr::LoadItemPrototypes()
             }
 
             // spell_2 have learning spell
-            if(proto->Spells[1].SpellTrigger != ITEM_SPELLTRIGGER_LEARN_SPELL_ID)
+            if (proto->Spells[1].SpellTrigger != ITEM_SPELLTRIGGER_LEARN_SPELL_ID)
             {
                 sLog.outErrorDb("Item (Entry: %u) has wrong item spell trigger value in spelltrigger_%d (%u) for special learning format.",i,1+1,proto->Spells[1].SpellTrigger);
                 const_cast<ItemPrototype*>(proto)->Spells[0].SpellId = 0;
                 const_cast<ItemPrototype*>(proto)->Spells[1].SpellId = 0;
                 const_cast<ItemPrototype*>(proto)->Spells[1].SpellTrigger = ITEM_SPELLTRIGGER_ON_USE;
             }
-            else if(!proto->Spells[1].SpellId)
+            else if (!proto->Spells[1].SpellId)
             {
                 sLog.outErrorDb("Item (Entry: %u) not has expected spell in spellid_%d in special learning format.",i,1+1);
                 const_cast<ItemPrototype*>(proto)->Spells[0].SpellId = 0;
@@ -2148,7 +2144,7 @@ void ObjectMgr::LoadItemPrototypes()
             else
             {
                 SpellEntry const* spellInfo = sSpellStore.LookupEntry(proto->Spells[1].SpellId);
-                if(!spellInfo)
+                if (!spellInfo)
                 {
                     sLog.outErrorDb("Item (Entry: %u) has wrong (not existing) spell in spellid_%d (%u)",i,1+1,proto->Spells[1].SpellId);
                     const_cast<ItemPrototype*>(proto)->Spells[0].SpellId = 0;
@@ -2156,7 +2152,7 @@ void ObjectMgr::LoadItemPrototypes()
                     const_cast<ItemPrototype*>(proto)->Spells[1].SpellTrigger = ITEM_SPELLTRIGGER_ON_USE;
                 }
                 // allowed only in special format
-                else if((proto->Spells[1].SpellId==SPELL_ID_GENERIC_LEARN) || (proto->Spells[1].SpellId==SPELL_ID_GENERIC_LEARN_PET))
+                else if ((proto->Spells[1].SpellId==SPELL_ID_GENERIC_LEARN) || (proto->Spells[1].SpellId == SPELL_ID_GENERIC_LEARN_PET))
                 {
                     sLog.outErrorDb("Item (Entry: %u) has broken spell in spellid_%d (%u)",i,1+1,proto->Spells[1].SpellId);
                     const_cast<ItemPrototype*>(proto)->Spells[0].SpellId = 0;
@@ -2166,15 +2162,15 @@ void ObjectMgr::LoadItemPrototypes()
             }
 
             // spell_3*,spell_4*,spell_5* is empty
-            for (int j = 2; j < MAX_ITEM_PROTO_SPELLS; ++j)
+            for (uint8 j = 2; j < MAX_ITEM_PROTO_SPELLS; ++j)
             {
-                if(proto->Spells[j].SpellTrigger != ITEM_SPELLTRIGGER_ON_USE)
+                if (proto->Spells[j].SpellTrigger != ITEM_SPELLTRIGGER_ON_USE)
                 {
                     sLog.outErrorDb("Item (Entry: %u) has wrong item spell trigger value in spelltrigger_%d (%u)",i,j+1,proto->Spells[j].SpellTrigger);
                     const_cast<ItemPrototype*>(proto)->Spells[j].SpellId = 0;
                     const_cast<ItemPrototype*>(proto)->Spells[j].SpellTrigger = ITEM_SPELLTRIGGER_ON_USE;
                 }
-                else if(proto->Spells[j].SpellId != 0)
+                else if (proto->Spells[j].SpellId != 0)
                 {
                     sLog.outErrorDb("Item (Entry: %u) has wrong spell in spellid_%d (%u) for learning special format",i,j+1,proto->Spells[j].SpellId);
                     const_cast<ItemPrototype*>(proto)->Spells[j].SpellId = 0;
@@ -2184,9 +2180,9 @@ void ObjectMgr::LoadItemPrototypes()
         // normal spell list
         else
         {
-            for (int j = 0; j < MAX_ITEM_PROTO_SPELLS; ++j)
+            for (uint8 j = 0; j < MAX_ITEM_PROTO_SPELLS; ++j)
             {
-                if(proto->Spells[j].SpellTrigger >= MAX_ITEM_SPELLTRIGGER || proto->Spells[j].SpellTrigger == ITEM_SPELLTRIGGER_LEARN_SPELL_ID)
+                if (proto->Spells[j].SpellTrigger >= MAX_ITEM_SPELLTRIGGER || proto->Spells[j].SpellTrigger == ITEM_SPELLTRIGGER_LEARN_SPELL_ID)
                 {
                     sLog.outErrorDb("Item (Entry: %u) has wrong item spell trigger value in spelltrigger_%d (%u)",i,j+1,proto->Spells[j].SpellTrigger);
                     const_cast<ItemPrototype*>(proto)->Spells[j].SpellId = 0;
@@ -2196,13 +2192,13 @@ void ObjectMgr::LoadItemPrototypes()
                 if(proto->Spells[j].SpellId)
                 {
                     SpellEntry const* spellInfo = sSpellStore.LookupEntry(proto->Spells[j].SpellId);
-                    if(!spellInfo)
+                    if (!spellInfo)
                     {
                         sLog.outErrorDb("Item (Entry: %u) has wrong (not existing) spell in spellid_%d (%u)",i,j+1,proto->Spells[j].SpellId);
                         const_cast<ItemPrototype*>(proto)->Spells[j].SpellId = 0;
                     }
                     // allowed only in special format
-                    else if((proto->Spells[j].SpellId==SPELL_ID_GENERIC_LEARN) || (proto->Spells[j].SpellId==SPELL_ID_GENERIC_LEARN_PET))
+                    else if ((proto->Spells[j].SpellId==SPELL_ID_GENERIC_LEARN) || (proto->Spells[j].SpellId==SPELL_ID_GENERIC_LEARN_PET))
                     {
                         sLog.outErrorDb("Item (Entry: %u) has broken spell in spellid_%d (%u)",i,j+1,proto->Spells[j].SpellId);
                         const_cast<ItemPrototype*>(proto)->Spells[j].SpellId = 0;
@@ -2211,66 +2207,66 @@ void ObjectMgr::LoadItemPrototypes()
             }
         }
 
-        if(proto->Bonding >= MAX_BIND_TYPE)
+        if (proto->Bonding >= MAX_BIND_TYPE)
             sLog.outErrorDb("Item (Entry: %u) has wrong Bonding value (%u)",i,proto->Bonding);
 
-        if(proto->PageText && !sPageTextStore.LookupEntry<PageText>(proto->PageText))
+        if (proto->PageText && !sPageTextStore.LookupEntry<PageText>(proto->PageText))
             sLog.outErrorDb("Item (Entry: %u) has non existing first page (Id:%u)", i,proto->PageText);
 
-        if(proto->LockID && !sLockStore.LookupEntry(proto->LockID))
+        if (proto->LockID && !sLockStore.LookupEntry(proto->LockID))
             sLog.outErrorDb("Item (Entry: %u) has wrong LockID (%u)",i,proto->LockID);
 
-        if(proto->Sheath >= MAX_SHEATHETYPE)
+        if (proto->Sheath >= MAX_SHEATHETYPE)
         {
             sLog.outErrorDb("Item (Entry: %u) has wrong Sheath (%u)",i,proto->Sheath);
             const_cast<ItemPrototype*>(proto)->Sheath = SHEATHETYPE_NONE;
         }
 
-        if(proto->RandomProperty && !sItemRandomPropertiesStore.LookupEntry(GetItemEnchantMod(proto->RandomProperty)))
+        if (proto->RandomProperty && !sItemRandomPropertiesStore.LookupEntry(GetItemEnchantMod(proto->RandomProperty)))
         {
             sLog.outErrorDb("Item (Entry: %u) has unknown (wrong or not listed in `item_enchantment_template`) RandomProperty (%u)",i,proto->RandomProperty);
             const_cast<ItemPrototype*>(proto)->RandomProperty = 0;
         }
 
-        if(proto->RandomSuffix && !sItemRandomSuffixStore.LookupEntry(GetItemEnchantMod(proto->RandomSuffix)))
+        if (proto->RandomSuffix && !sItemRandomSuffixStore.LookupEntry(GetItemEnchantMod(proto->RandomSuffix)))
         {
             sLog.outErrorDb("Item (Entry: %u) has wrong RandomSuffix (%u)",i,proto->RandomSuffix);
             const_cast<ItemPrototype*>(proto)->RandomSuffix = 0;
         }
 
-        if(proto->ItemSet && !sItemSetStore.LookupEntry(proto->ItemSet))
+        if (proto->ItemSet && !sItemSetStore.LookupEntry(proto->ItemSet))
         {
             sLog.outErrorDb("Item (Entry: %u) have wrong ItemSet (%u)",i,proto->ItemSet);
             const_cast<ItemPrototype*>(proto)->ItemSet = 0;
         }
 
-        if(proto->Area && !GetAreaEntryByAreaID(proto->Area))
+        if (proto->Area && !GetAreaEntryByAreaID(proto->Area))
             sLog.outErrorDb("Item (Entry: %u) has wrong Area (%u)",i,proto->Area);
 
-        if(proto->Map && !sMapStore.LookupEntry(proto->Map))
+        if (proto->Map && !sMapStore.LookupEntry(proto->Map))
             sLog.outErrorDb("Item (Entry: %u) has wrong Map (%u)",i,proto->Map);
 
-        if(proto->BagFamily)
+        if (proto->BagFamily)
         {
             // check bits
             for (uint32 j = 0; j < sizeof(proto->BagFamily)*8; ++j)
             {
                 uint32 mask = 1 << j;
-                if((proto->BagFamily & mask)==0)
+                if ((proto->BagFamily & mask)==0)
                     continue;
 
                 ItemBagFamilyEntry const* bf = sItemBagFamilyStore.LookupEntry(j+1);
-                if(!bf)
+                if (!bf)
                 {
                     sLog.outErrorDb("Item (Entry: %u) has bag family bit set not listed in ItemBagFamily.dbc, remove bit",i);
                     const_cast<ItemPrototype*>(proto)->BagFamily &= ~mask;
                     continue;
                 }
 
-                if(BAG_FAMILY_MASK_CURRENCY_TOKENS & mask)
+                if (BAG_FAMILY_MASK_CURRENCY_TOKENS & mask)
                 {
                     CurrencyTypesEntry const* ctEntry = sCurrencyTypesStore.LookupEntry(proto->ItemId);
-                    if(!ctEntry)
+                    if (!ctEntry)
                     {
                         sLog.outErrorDb("Item (Entry: %u) has currency bag family bit set in BagFamily but not listed in CurrencyTypes.dbc, remove bit",i);
                         const_cast<ItemPrototype*>(proto)->BagFamily &= ~mask;
@@ -2279,34 +2275,34 @@ void ObjectMgr::LoadItemPrototypes()
             }
         }
 
-        if(proto->TotemCategory && !sTotemCategoryStore.LookupEntry(proto->TotemCategory))
+        if (proto->TotemCategory && !sTotemCategoryStore.LookupEntry(proto->TotemCategory))
             sLog.outErrorDb("Item (Entry: %u) has wrong TotemCategory (%u)",i,proto->TotemCategory);
 
-        for (int j = 0; j < MAX_ITEM_PROTO_SOCKETS; ++j)
+        for (uint8 j = 0; j < MAX_ITEM_PROTO_SOCKETS; ++j)
         {
-            if(proto->Socket[j].Color && (proto->Socket[j].Color & SOCKET_COLOR_ALL) != proto->Socket[j].Color)
+            if (proto->Socket[j].Color && (proto->Socket[j].Color & SOCKET_COLOR_ALL) != proto->Socket[j].Color)
             {
                 sLog.outErrorDb("Item (Entry: %u) has wrong socketColor_%d (%u)",i,j+1,proto->Socket[j].Color);
                 const_cast<ItemPrototype*>(proto)->Socket[j].Color = 0;
             }
         }
 
-        if(proto->GemProperties && !sGemPropertiesStore.LookupEntry(proto->GemProperties))
+        if (proto->GemProperties && !sGemPropertiesStore.LookupEntry(proto->GemProperties))
             sLog.outErrorDb("Item (Entry: %u) has wrong GemProperties (%u)",i,proto->GemProperties);
 
-        if(proto->FoodType >= MAX_PET_DIET)
+        if (proto->FoodType >= MAX_PET_DIET)
         {
             sLog.outErrorDb("Item (Entry: %u) has wrong FoodType value (%u)",i,proto->FoodType);
             const_cast<ItemPrototype*>(proto)->FoodType = 0;
         }
 
-        if(proto->ItemLimitCategory && !sItemLimitCategoryStore.LookupEntry(proto->ItemLimitCategory))
+        if (proto->ItemLimitCategory && !sItemLimitCategoryStore.LookupEntry(proto->ItemLimitCategory))
         {
             sLog.outErrorDb("Item (Entry: %u) has wrong LimitCategory value (%u)",i,proto->ItemLimitCategory);
             const_cast<ItemPrototype*>(proto)->ItemLimitCategory = 0;
         }
 
-        if(proto->HolidayId && !sHolidaysStore.LookupEntry(proto->HolidayId))
+        if (proto->HolidayId && !sHolidaysStore.LookupEntry(proto->HolidayId))
         {
             sLog.outErrorDb("Item (Entry: %u) has wrong HolidayId value (%u)", i, proto->HolidayId);
             const_cast<ItemPrototype*>(proto)->HolidayId = 0;
@@ -2508,7 +2504,7 @@ void ObjectMgr::LoadPetLevelInfo()
         }
 
         // fill level gaps
-        for (uint32 level = 1; level < sWorld.getConfig(CONFIG_MAX_PLAYER_LEVEL); ++level)
+        for (uint8 level = 1; level < sWorld.getConfig(CONFIG_MAX_PLAYER_LEVEL); ++level)
         {
             if(pInfo[level].health == 0)
             {
@@ -2519,7 +2515,7 @@ void ObjectMgr::LoadPetLevelInfo()
     }
 }
 
-PetLevelInfo const* ObjectMgr::GetPetLevelInfo(uint32 creature_id, uint32 level) const
+PetLevelInfo const* ObjectMgr::GetPetLevelInfo(uint32 creature_id, uint8 level) const
 {
     if(level > sWorld.getConfig(CONFIG_MAX_PLAYER_LEVEL))
         level = sWorld.getConfig(CONFIG_MAX_PLAYER_LEVEL);
@@ -2842,7 +2838,7 @@ void ObjectMgr::LoadPlayerInfo()
                 continue;
             }
 
-            uint32 current_level = fields[1].GetUInt32();
+            uint8 current_level = fields[1].GetUInt8();
             if(current_level > sWorld.getConfig(CONFIG_MAX_PLAYER_LEVEL))
             {
                 if(current_level > STRONG_MAX_LEVEL)        // hardcoded level maximum
@@ -2893,7 +2889,7 @@ void ObjectMgr::LoadPlayerInfo()
         }
 
         // fill level gaps
-        for (uint32 level = 1; level < sWorld.getConfig(CONFIG_MAX_PLAYER_LEVEL); ++level)
+        for (uint8 level = 1; level < sWorld.getConfig(CONFIG_MAX_PLAYER_LEVEL); ++level)
         {
             if(pClassInfo->levelInfo[level].basehealth == 0)
             {
@@ -3011,7 +3007,7 @@ void ObjectMgr::LoadPlayerInfo()
             }
 
             // fill level gaps
-            for (uint32 level = 1; level < sWorld.getConfig(CONFIG_MAX_PLAYER_LEVEL); ++level)
+            for (uint8 level = 1; level < sWorld.getConfig(CONFIG_MAX_PLAYER_LEVEL); ++level)
             {
                 if(pInfo->levelInfo[level].stats[0] == 0)
                 {
@@ -3025,7 +3021,7 @@ void ObjectMgr::LoadPlayerInfo()
     // Loading xp per level data
     {
         mPlayerXPperLevel.resize(sWorld.getConfig(CONFIG_MAX_PLAYER_LEVEL));
-        for (uint32 level = 0; level < sWorld.getConfig(CONFIG_MAX_PLAYER_LEVEL); ++level)
+        for (uint8 level = 0; level < sWorld.getConfig(CONFIG_MAX_PLAYER_LEVEL); ++level)
             mPlayerXPperLevel[level] = 0;
 
         //                                                 0    1
@@ -3077,9 +3073,9 @@ void ObjectMgr::LoadPlayerInfo()
     }
 
     // fill level gaps
-    for (uint32 level = 1; level < sWorld.getConfig(CONFIG_MAX_PLAYER_LEVEL); ++level)
+    for (uint8 level = 1; level < sWorld.getConfig(CONFIG_MAX_PLAYER_LEVEL); ++level)
     {
-        if( mPlayerXPperLevel[level] == 0)
+        if (mPlayerXPperLevel[level] == 0)
         {
             sLog.outErrorDb("Level %i does not have XP for level data. Using data of level [%i] + 100.",level+1, level);
             mPlayerXPperLevel[level] = mPlayerXPperLevel[level-1]+100;
@@ -3087,29 +3083,29 @@ void ObjectMgr::LoadPlayerInfo()
     }
 }
 
-void ObjectMgr::GetPlayerClassLevelInfo(uint32 class_, uint32 level, PlayerClassLevelInfo* info) const
+void ObjectMgr::GetPlayerClassLevelInfo(uint32 class_, uint8 level, PlayerClassLevelInfo* info) const
 {
-    if(level < 1 || class_ >= MAX_CLASSES)
+    if (level < 1 || class_ >= MAX_CLASSES)
         return;
 
     PlayerClassInfo const* pInfo = &playerClassInfo[class_];
 
-    if(level > sWorld.getConfig(CONFIG_MAX_PLAYER_LEVEL))
+    if (level > sWorld.getConfig(CONFIG_MAX_PLAYER_LEVEL))
         level = sWorld.getConfig(CONFIG_MAX_PLAYER_LEVEL);
 
     *info = pInfo->levelInfo[level-1];
 }
 
-void ObjectMgr::GetPlayerLevelInfo(uint32 race, uint32 class_, uint32 level, PlayerLevelInfo* info) const
+void ObjectMgr::GetPlayerLevelInfo(uint32 race, uint32 class_, uint8 level, PlayerLevelInfo* info) const
 {
-    if(level < 1 || race   >= MAX_RACES || class_ >= MAX_CLASSES)
+    if (level < 1 || race   >= MAX_RACES || class_ >= MAX_CLASSES)
         return;
 
     PlayerInfo const* pInfo = &playerInfo[race][class_];
-    if(pInfo->displayId_m==0 || pInfo->displayId_f==0)
+    if (pInfo->displayId_m==0 || pInfo->displayId_f==0)
         return;
 
-    if(level <= sWorld.getConfig(CONFIG_MAX_PLAYER_LEVEL))
+    if (level <= sWorld.getConfig(CONFIG_MAX_PLAYER_LEVEL))
         *info = pInfo->levelInfo[level-1];
     else
         BuildPlayerLevelInfo(race,class_,level,info);
@@ -3198,10 +3194,10 @@ void ObjectMgr::LoadGuilds()
 
     QueryResult *result = CharacterDatabase.Query( "SELECT guildid FROM guild" );
 
-    if( !result )
+    if (!result)
     {
 
-        barGoLink bar( 1 );
+        barGoLink bar(1);
 
         bar.step();
 
@@ -3210,7 +3206,7 @@ void ObjectMgr::LoadGuilds()
         return;
     }
 
-    barGoLink bar( result->GetRowCount() );
+    barGoLink bar(result->GetRowCount());
 
     do
     {
@@ -3220,7 +3216,7 @@ void ObjectMgr::LoadGuilds()
         ++count;
 
         newguild = new Guild;
-        if(!newguild->LoadGuildFromDB(fields[0].GetUInt32()))
+        if (!newguild->LoadGuildFromDB(fields[0].GetUInt32()))
         {
             newguild->Disband();
             delete newguild;
@@ -3228,7 +3224,7 @@ void ObjectMgr::LoadGuilds()
         }
         AddGuild(newguild);
 
-    }while( result->NextRow() );
+    }while (result->NextRow());
 
     delete result;
 
@@ -6380,25 +6376,25 @@ void ObjectMgr::LoadExplorationBaseXP()
     uint32 count = 0;
     QueryResult *result = WorldDatabase.Query("SELECT level,basexp FROM exploration_basexp");
 
-    if( !result )
+    if (!result)
     {
-        barGoLink bar( 1 );
+        barGoLink bar(1);
 
         bar.step();
 
         sLog.outString();
-        sLog.outString( ">> Loaded %u BaseXP definitions", count );
+        sLog.outString(">> Loaded %u BaseXP definitions", count);
         return;
     }
 
-    barGoLink bar( result->GetRowCount() );
+    barGoLink bar(result->GetRowCount());
 
     do
     {
         bar.step();
 
         Field *fields = result->Fetch();
-        uint32 level  = fields[0].GetUInt32();
+        uint8 level  = fields[0].GetUInt8();
         uint32 basexp = fields[1].GetUInt32();
         mBaseXPTable[level] = basexp;
         ++count;
@@ -6411,12 +6407,12 @@ void ObjectMgr::LoadExplorationBaseXP()
     sLog.outString( ">> Loaded %u BaseXP definitions", count );
 }
 
-uint32 ObjectMgr::GetBaseXP(uint32 level)
+uint32 ObjectMgr::GetBaseXP(uint8 level)
 {
     return mBaseXPTable[level] ? mBaseXPTable[level] : 0;
 }
 
-uint32 ObjectMgr::GetXPForLevel(uint32 level)
+uint32 ObjectMgr::GetXPForLevel(uint8 level)
 {
     if (level < mPlayerXPperLevel.size())
         return mPlayerXPperLevel[level];
@@ -6428,9 +6424,9 @@ void ObjectMgr::LoadPetNames()
     uint32 count = 0;
     QueryResult *result = WorldDatabase.Query("SELECT word,entry,half FROM pet_name_generation");
 
-    if( !result )
+    if (!result)
     {
-        barGoLink bar( 1 );
+        barGoLink bar(1);
 
         bar.step();
 
@@ -6439,7 +6435,7 @@ void ObjectMgr::LoadPetNames()
         return;
     }
 
-    barGoLink bar( result->GetRowCount() );
+    barGoLink bar(result->GetRowCount());
 
     do
     {
@@ -6449,7 +6445,7 @@ void ObjectMgr::LoadPetNames()
         std::string word = fields[0].GetString();
         uint32 entry     = fields[1].GetUInt32();
         bool   half      = fields[2].GetBool();
-        if(half)
+        if (half)
             PetHalfName1[entry].push_back(word);
         else
             PetHalfName0[entry].push_back(word);
@@ -6465,14 +6461,14 @@ void ObjectMgr::LoadPetNames()
 void ObjectMgr::LoadPetNumber()
 {
     QueryResult* result = CharacterDatabase.Query("SELECT MAX(id) FROM character_pet");
-    if(result)
+    if (result)
     {
         Field *fields = result->Fetch();
         m_hiPetNumber = fields[0].GetUInt32()+1;
         delete result;
     }
 
-    barGoLink bar( 1 );
+    barGoLink bar(1);
     bar.step();
 
     sLog.outString();
@@ -6484,11 +6480,11 @@ std::string ObjectMgr::GeneratePetName(uint32 entry)
     std::vector<std::string> & list0 = PetHalfName0[entry];
     std::vector<std::string> & list1 = PetHalfName1[entry];
 
-    if(list0.empty() || list1.empty())
+    if (list0.empty() || list1.empty())
     {
         CreatureInfo const *cinfo = GetCreatureTemplate(entry);
         char* petname = GetPetName(cinfo->family, sWorld.GetDefaultDbcLocale());
-        if(!petname)
+        if (!petname)
             petname = cinfo->Name;
         return std::string(petname);
     }
@@ -6504,21 +6500,21 @@ uint32 ObjectMgr::GeneratePetNumber()
 void ObjectMgr::LoadCorpses()
 {
     uint32 count = 0;
-    //                                                     0           1           2           3            4    5     6     7            8         10
+    //                                                    0           1           2           3            4    5     6     7            8         10
     QueryResult *result = CharacterDatabase.Query("SELECT position_x, position_y, position_z, orientation, map, data, time, corpse_type, instance, guid FROM corpse WHERE corpse_type <> 0");
 
-    if( !result )
+    if(!result)
     {
-        barGoLink bar( 1 );
+        barGoLink bar(1);
 
         bar.step();
 
         sLog.outString();
-        sLog.outString( ">> Loaded %u corpses", count );
+        sLog.outString(">> Loaded %u corpses", count);
         return;
     }
 
-    barGoLink bar( result->GetRowCount() );
+    barGoLink bar(result->GetRowCount());
 
     do
     {
@@ -6529,7 +6525,7 @@ void ObjectMgr::LoadCorpses()
         uint32 guid = fields[result->GetFieldCount()-1].GetUInt32();
 
         Corpse *corpse = new Corpse;
-        if(!corpse->LoadFromDB(guid,fields))
+        if (!corpse->LoadFromDB(guid,fields))
         {
             delete corpse;
             continue;
@@ -6543,7 +6539,7 @@ void ObjectMgr::LoadCorpses()
     delete result;
 
     sLog.outString();
-    sLog.outString( ">> Loaded %u corpses", count );
+    sLog.outString(">> Loaded %u corpses", count);
 }
 
 void ObjectMgr::LoadReputationOnKill()
@@ -6587,26 +6583,26 @@ void ObjectMgr::LoadReputationOnKill()
         repOnKill.repvalue2            = fields[8].GetInt32();
         repOnKill.team_dependent       = fields[9].GetUInt8();
 
-        if(!GetCreatureTemplate(creature_id))
+        if (!GetCreatureTemplate(creature_id))
         {
             sLog.outErrorDb("Table `creature_onkill_reputation` have data for not existed creature entry (%u), skipped",creature_id);
             continue;
         }
 
-        if(repOnKill.repfaction1)
+        if (repOnKill.repfaction1)
         {
             FactionEntry const *factionEntry1 = sFactionStore.LookupEntry(repOnKill.repfaction1);
-            if(!factionEntry1)
+            if (!factionEntry1)
             {
                 sLog.outErrorDb("Faction (faction.dbc) %u does not exist but is used in `creature_onkill_reputation`",repOnKill.repfaction1);
                 continue;
             }
         }
 
-        if(repOnKill.repfaction2)
+        if (repOnKill.repfaction2)
         {
             FactionEntry const *factionEntry2 = sFactionStore.LookupEntry(repOnKill.repfaction2);
-            if(!factionEntry2)
+            if (!factionEntry2)
             {
                 sLog.outErrorDb("Faction (faction.dbc) %u does not exist but is used in `creature_onkill_reputation`",repOnKill.repfaction2);
                 continue;
@@ -6628,7 +6624,7 @@ void ObjectMgr::LoadPointsOfInterest()
 {
     uint32 count = 0;
 
-    //                                                0      1  2  3      4     5
+    //                                                0      1  2  3      4     5     6
     QueryResult *result = WorldDatabase.Query("SELECT entry, x, y, icon, flags, data, icon_name FROM points_of_interest");
 
     if(!result)
@@ -6659,7 +6655,7 @@ void ObjectMgr::LoadPointsOfInterest()
         POI.data                 = fields[5].GetUInt32();
         POI.icon_name            = fields[6].GetCppString();
 
-        if(!MaNGOS::IsValidMapCoord(POI.x,POI.y))
+        if (!MaNGOS::IsValidMapCoord(POI.x,POI.y))
         {
             sLog.outErrorDb("Table `points_of_interest` (Entry: %u) have invalid coordinates (X: %f Y: %f), ignored.",point_id,POI.x,POI.y);
             continue;

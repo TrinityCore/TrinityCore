@@ -1167,9 +1167,9 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
         bool isTotem() const    { return m_unitTypeMask & UNIT_MASK_TOTEM; }
         bool IsVehicle() const  { return m_unitTypeMask & UNIT_MASK_VEHICLE; }
 
-        uint32 getLevel() const { return GetUInt32Value(UNIT_FIELD_LEVEL); }
-        virtual uint32 getLevelForTarget(Unit const* /*target*/) const { return getLevel(); }
-        void SetLevel(uint32 lvl);
+        uint8 getLevel() const { return GetUInt32Value(UNIT_FIELD_LEVEL); }
+        virtual uint8 getLevelForTarget(Unit const* /*target*/) const { return getLevel(); }
+        void SetLevel(uint8 lvl);
         uint8 getRace() const { return GetByteValue(UNIT_FIELD_BYTES_0, 0); }
         uint32 getRaceMask() const { return 1 << (getRace()-1); }
         uint8 getClass() const { return GetByteValue(UNIT_FIELD_BYTES_0, 1); }

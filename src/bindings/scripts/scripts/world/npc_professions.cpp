@@ -195,7 +195,7 @@ int32 DoHighUnlearnCost(Player* pPlayer)                     //tailor, alchemy
 
 int32 DoMedUnlearnCost(Player* pPlayer)                      //blacksmith, leatherwork
 {
-    uint32 level = pPlayer->getLevel();
+    uint8 level = pPlayer->getLevel();
     if (level < 51)
         return 250000;
     else if (level < 66)
@@ -206,7 +206,7 @@ int32 DoMedUnlearnCost(Player* pPlayer)                      //blacksmith, leath
 
 int32 DoLowUnlearnCost(Player* pPlayer)                      //blacksmith
 {
-    uint32 level = pPlayer->getLevel();
+    uint8 level = pPlayer->getLevel();
     if (level < 66)
         return 50000;
     else
@@ -224,14 +224,14 @@ bool EquippedOk(Player* pPlayer, uint32 spellId)
     if (!spell)
         return false;
 
-    for (uint8 i=0; i<3; ++i)
+    for (uint8 i = 0; i < 3; ++i)
     {
         uint32 reqSpell = spell->EffectTriggerSpell[i];
         if (!reqSpell)
             continue;
 
         Item* pItem;
-        for (uint8 j = EQUIPMENT_SLOT_START; j < EQUIPMENT_SLOT_END; j++)
+        for (uint8 j = EQUIPMENT_SLOT_START; j < EQUIPMENT_SLOT_END; ++j)
         {
             pItem = pPlayer->GetItemByPos(INVENTORY_SLOT_BAG_0, j);
             if (pItem)

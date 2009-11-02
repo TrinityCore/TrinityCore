@@ -530,7 +530,7 @@ class TRINITY_DLL_SPEC Creature : public Unit
             return GetCreatureInfo()->rank == CREATURE_ELITE_WORLDBOSS;
         }
 
-        uint32 getLevelForTarget(Unit const* target) const; // overwrite Unit::getLevelForTarget for boss level support
+        uint8 getLevelForTarget(Unit const* target) const; // overwrite Unit::getLevelForTarget for boss level support
 
         bool IsInEvadeMode() const { return hasUnitState(UNIT_STAT_EVADE); }
 

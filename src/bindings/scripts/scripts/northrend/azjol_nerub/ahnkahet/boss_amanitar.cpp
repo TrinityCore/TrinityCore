@@ -125,7 +125,8 @@ struct MANGOS_DLL_DECL boss_amanitarAI : public ScriptedAI
     void UpdateAI(const uint32 diff)
     {
         //Return since we have no target
-        if (!UpdateVictim()) return;
+        if (!UpdateVictim())
+            return;
 
         if (spawntimer <= diff)
         {
@@ -136,20 +137,20 @@ struct MANGOS_DLL_DECL boss_amanitarAI : public ScriptedAI
         if (roottimer <= diff)
         {
             if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                m_creature->CastSpell(pTarget, SPELL_ENTANGLING_ROOTS, false);
+                DoCast(pTarget, SPELL_ENTANGLING_ROOTS);
             roottimer = urand(15000,30000);
         }
 
         if (bashtimer <= diff)
         {
-            m_creature->CastSpell(m_creature->getVictim(), SPELL_BASH, false);
+            DoCastVictim(SPELL_BASH);
             bashtimer = urand(15000,30000);
         } else bashtimer -= diff;
 
         if (bolttimer <= diff)
         {
             if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                m_creature->CastSpell(pTarget, SPELL_VENOM_BOLT_VOLLEY, false);
+                DoCast(pTarget, SPELL_VENOM_BOLT_VOLLEY);
             bolttimer = urand(15000,30000);
         } else bolttimer -= diff;
 
@@ -169,9 +170,10 @@ struct MANGOS_DLL_DECL mob_amanitar_mushroomsAI : public Scripted_NoMovementAI
 
     void Reset()
     {
-        m_creature->CastSpell(m_creature, SPELL_PUTRID_MUSHROOM, true); // Hack, to make the mushrooms visible, can't find orig. spell...
+        DoCast(m_creature, SPELL_PUTRID_MUSHROOM, true); // Hack, to make the mushrooms visible, can't find orig. spell...
 
-        if (m_creature->GetEntry() == NPC_POISONOUS_MUSHROOM) m_creature->CastSpell(m_creature, POISONOUS_MUSHROOM_SPELL_VISUAL_AURA, true);
+        if (m_creature->GetEntry() == NPC_POISONOUS_MUSHROOM)
+            DoCast(m_creature, POISONOUS_MUSHROOM_SPELL_VISUAL_AURA, true);
 
         auratimer = 0;
         deathtimer = 30000;
@@ -198,8 +200,8 @@ struct MANGOS_DLL_DECL mob_amanitar_mushroomsAI : public Scripted_NoMovementAI
         {
             if (auratimer <= diff)
             {
-                m_creature->CastSpell(m_creature, POISONOUS_MUSHROOM_SPELL_VISUAL_AREA, true);
-                m_creature->CastSpell(m_creature, POISONOUS_MUSHROOM_SPELL_POISON_CLOUD, false);
+                DoCast(m_creature, POISONOUS_MUSHROOM_SPELL_VISUAL_AREA, true);
+                DoCast(m_creature, POISONOUS_MUSHROOM_SPELL_POISON_CLOUD, false);
                 auratimer = 7000;
             } else auratimer -= diff;
         }

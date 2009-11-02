@@ -415,14 +415,14 @@ class ObjectMgr
             return sInstanceTemplate.LookupEntry<InstanceTemplate>(map);
         }
 
-        PetLevelInfo const* GetPetLevelInfo(uint32 creature_id, uint32 level) const;
+        PetLevelInfo const* GetPetLevelInfo(uint32 creature_id, uint8 level) const;
 
         PlayerClassInfo const* GetPlayerClassInfo(uint32 class_) const
         {
             if(class_ >= MAX_CLASSES) return NULL;
             return &playerClassInfo[class_];
         }
-        void GetPlayerClassLevelInfo(uint32 class_,uint32 level, PlayerClassLevelInfo* info) const;
+        void GetPlayerClassLevelInfo(uint32 class_,uint8 level, PlayerClassLevelInfo* info) const;
 
         PlayerInfo const* GetPlayerInfo(uint32 race, uint32 class_) const
         {
@@ -432,7 +432,7 @@ class ObjectMgr
             if(info->displayId_m==0 || info->displayId_f==0) return NULL;
             return info;
         }
-        void GetPlayerLevelInfo(uint32 race, uint32 class_,uint32 level, PlayerLevelInfo* info) const;
+        void GetPlayerLevelInfo(uint32 race, uint32 class_, uint8 level, PlayerLevelInfo* info) const;
 
         uint64 GetPlayerGUIDByName(std::string name) const;
         bool GetPlayerNameByGUID(const uint64 &guid, std::string &name) const;
@@ -606,8 +606,8 @@ class ObjectMgr
         void LoadGMTickets();
 
         std::string GeneratePetName(uint32 entry);
-        uint32 GetBaseXP(uint32 level);
-        uint32 GetXPForLevel(uint32 level);
+        uint32 GetBaseXP(uint8 level);
+        uint32 GetXPForLevel(uint8 level);
 
         int32 GetFishingBaseSkillLevel(uint32 entry) const
         {

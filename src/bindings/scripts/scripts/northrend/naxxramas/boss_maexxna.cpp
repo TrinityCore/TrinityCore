@@ -31,9 +31,9 @@
 #define MAX_POS_WRAP            3
 const float PosWrap[MAX_POS_WRAP][3] =
 {
-    {3546.796, -3869.082, 296.450+20},
-    {3531.271, -3847.424, 299.450+20},
-    {3497.067, -3843.384, 302.384+20},
+    {3546.796, -3869.082, 296.450},
+    {3531.271, -3847.424, 299.450},
+    {3497.067, -3843.384, 302.384},
 };
 
 enum Events
@@ -74,12 +74,12 @@ struct TRINITY_DLL_DECL boss_maexxnaAI : public BossAI
             switch(eventId)
             {
                 case EVENT_WRAP:
-                    for (uint32 i = 0; i < HEROIC(1,2); ++i)
+                    for (uint8 i = 0; i < HEROIC(1,2); ++i)
                     {
                         if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1, 0, true, -SPELL_WEB_WRAP))
                         {
                             pTarget->RemoveAura(SPELL_WEB_SPRAY);
-                            uint32 pos = rand()%MAX_POS_WRAP;
+                            uint8 pos = rand()%MAX_POS_WRAP;
                             pTarget->GetMotionMaster()->MoveJump(PosWrap[pos][0], PosWrap[pos][1], PosWrap[pos][2], 20, 20);
                             if (Creature *wrap = DoSummon(MOB_WEB_WRAP, pTarget, 0, 60000))
                             {
@@ -104,8 +104,8 @@ struct TRINITY_DLL_DECL boss_maexxnaAI : public BossAI
                     return;
                 case EVENT_SUMMON:
                 {
-                    uint32 amount = 8+rand()%2;
-                    for (uint32 i = 0; i < amount; ++i)
+                    uint8 amount = urand(8,10);
+                    for (uint8 i = 0; i < amount; ++i)
                         DoSummon(MOB_SPIDERLING, me);
                     events.ScheduleEvent(EVENT_SUMMON, 40000);
                     break;

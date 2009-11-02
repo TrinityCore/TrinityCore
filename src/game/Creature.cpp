@@ -1390,9 +1390,9 @@ void Creature::SelectLevel(const CreatureInfo *cinfo)
     uint32 rank = isPet()? 0 : cinfo->rank;
 
     // level
-    uint32 minlevel = std::min(cinfo->maxlevel, cinfo->minlevel);
-    uint32 maxlevel = std::max(cinfo->maxlevel, cinfo->minlevel);
-    uint32 level = minlevel == maxlevel ? minlevel : urand(minlevel, maxlevel);
+    uint8 minlevel = std::min(cinfo->maxlevel, cinfo->minlevel);
+    uint8 maxlevel = std::max(cinfo->maxlevel, cinfo->minlevel);
+    uint8 level = minlevel == maxlevel ? minlevel : urand(minlevel, maxlevel);
     SetLevel(level);
 
     float rellevel = maxlevel == minlevel ? 0 : (float(level - minlevel))/(maxlevel - minlevel);
@@ -2510,12 +2510,12 @@ void Creature::AllLootRemovedFromCorpse()
     }
 }
 
-uint32 Creature::getLevelForTarget( Unit const* target ) const
+uint8 Creature::getLevelForTarget(Unit const* target) const
 {
     if(!isWorldBoss())
         return Unit::getLevelForTarget(target);
 
-    uint32 level = target->getLevel()+sWorld.getConfig(CONFIG_WORLD_BOSS_LEVEL_DIFF);
+    uint16 level = target->getLevel()+sWorld.getConfig(CONFIG_WORLD_BOSS_LEVEL_DIFF);
     if(level < 1)
         return 1;
     if(level > 255)

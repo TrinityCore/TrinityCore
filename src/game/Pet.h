@@ -162,7 +162,7 @@ class Pet : public Guardian
         void LooseHappiness();
         HappinessState GetHappinessState();
         void GivePetXP(uint32 xp);
-        void GivePetLevel(uint32 level);
+        void GivePetLevel(uint8 level);
         void SynchronizeLevelWithOwner();
         bool HaveInDiet(ItemPrototype const* item) const;
         uint32 GetCurrentFoodBenefitLevel(uint32 itemlevel);
@@ -213,7 +213,7 @@ class Pet : public Guardian
         uint32 resetTalentsCost() const;
         void InitTalentForLevel();
 
-        uint8 GetMaxTalentPointsForLevel(uint32 level);
+        uint8 GetMaxTalentPointsForLevel(uint8 level);
         uint8 GetFreeTalentPoints() { return GetByteValue(UNIT_FIELD_BYTES_1, 1); }
         void SetFreeTalentPoints(uint8 points) { SetByteValue(UNIT_FIELD_BYTES_1, 1, points); }
 

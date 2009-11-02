@@ -1743,7 +1743,7 @@ bool ChatHandler::HandleNpcTameCommand(const char* /*args*/)
     pet->SetReactState(REACT_DEFENSIVE);
 
     // calculate proper level
-    uint32 level = (creatureTarget->getLevel() < (player->getLevel() - 5)) ? (player->getLevel() - 5) : creatureTarget->getLevel();
+    uint8 level = (creatureTarget->getLevel() < (player->getLevel() - 5)) ? (player->getLevel() - 5) : creatureTarget->getLevel();
 
     // prepare visual effect for levelup
     pet->SetUInt32Value(UNIT_FIELD_LEVEL, level - 1);
@@ -2139,7 +2139,7 @@ bool ChatHandler::HandlePInfoCommand(const char* args)
     uint32 accId = 0;
     uint32 money = 0;
     uint32 total_player_time = 0;
-    uint32 level = 0;
+    uint8 level = 0;
     uint32 latency = 0;
     uint8 race;
     uint8 Class;

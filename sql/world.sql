@@ -694,7 +694,7 @@ DROP TABLE IF EXISTS `exploration_basexp`;
 SET @saved_cs_client     = @@character_set_client;
 SET character_set_client = utf8;
 CREATE TABLE `exploration_basexp` (
-  `level` tinyint(4) NOT NULL default '0',
+  `level` tinyint(4) unsigned NOT NULL default '0',
   `basexp` mediumint(9) NOT NULL default '0',
   PRIMARY KEY  (`level`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Exploration System';
