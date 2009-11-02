@@ -444,14 +444,14 @@ CREATE TABLE `character_aura` (
   `guid` int(11) unsigned NOT NULL default '0' COMMENT 'Global Unique Identifier',
   `caster_guid` bigint(20) unsigned NOT NULL default '0' COMMENT 'Full Global Unique Identifier',
   `spell` int(11) unsigned NOT NULL default '0',
-  `effect_mask` int(11) unsigned NOT NULL default '0',
-  `stackcount` int(11) NOT NULL default '1',
+  `effect_mask` tinyint(3) unsigned NOT NULL default '0',
+  `stackcount` tinyint(3) unsigned NOT NULL default '1',
   `amount0` int(11) NOT NULL default '0',
   `amount1` int(11) NOT NULL default '0',
   `amount2` int(11) NOT NULL default '0',
   `maxduration` int(11) NOT NULL default '0',
   `remaintime` int(11) NOT NULL default '0',
-  `remaincharges` int(11) NOT NULL default '0',
+  `remaincharges` tinyint(3) unsigned NOT NULL default '0',
   PRIMARY KEY  (`guid`,`spell`,`effect_mask`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT='Player System';
 
@@ -1492,14 +1492,14 @@ CREATE TABLE `pet_aura` (
   `guid` int(11) unsigned NOT NULL default '0' COMMENT 'Global Unique Identifier',
   `caster_guid` bigint(20) unsigned NOT NULL default '0' COMMENT 'Full Global Unique Identifier',
   `spell` int(11) unsigned NOT NULL default '0',
-  `effect_mask` int(11) unsigned NOT NULL default '0',
-  `stackcount` int(11) NOT NULL default '1',
+  `effect_mask` tinyint(3) unsigned NOT NULL default '0',
+  `stackcount` tinyint(3) unsigned NOT NULL default '1',
   `amount0` int(11) NOT NULL default '0',
   `amount1` int(11) NOT NULL default '0',
   `amount2` int(11) NOT NULL default '0',
   `maxduration` int(11) NOT NULL default '0',
   `remaintime` int(11) NOT NULL default '0',
-  `remaincharges` int(11) NOT NULL default '0',
+  `remaincharges` tinyint(3) unsigned NOT NULL default '0',
   PRIMARY KEY  (`guid`,`spell`,`effect_mask`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT='Pet System';
 

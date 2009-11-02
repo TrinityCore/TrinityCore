@@ -1291,12 +1291,12 @@ void GameObject::Use(Unit* user)
 
         case GAMEOBJECT_TYPE_FLAGSTAND:                     // 24
         {
-            if(user->GetTypeId() != TYPEID_PLAYER)
+            if (user->GetTypeId() != TYPEID_PLAYER)
                 return;
 
             Player* player = (Player*)user;
 
-            if( player->CanUseBattleGroundObject() )
+            if (player->CanUseBattleGroundObject())
             {
                 // in battleground check
                 BattleGround *bg = player->GetBattleGround();
@@ -1316,16 +1316,16 @@ void GameObject::Use(Unit* user)
         }
         case GAMEOBJECT_TYPE_FLAGDROP:                      // 26
         {
-            if(user->GetTypeId() != TYPEID_PLAYER)
+            if (user->GetTypeId() != TYPEID_PLAYER)
                 return;
 
             Player* player = (Player*)user;
 
-            if( player->CanUseBattleGroundObject() )
+            if (player->CanUseBattleGroundObject())
             {
                 // in battleground check
                 BattleGround *bg = player->GetBattleGround();
-                if(!bg)
+                if (!bg)
                     return;
                 // BG flag dropped
                 // WS:
@@ -1334,7 +1334,7 @@ void GameObject::Use(Unit* user)
                 // EotS:
                 // 184142 - Netherstorm Flag
                 GameObjectInfo const* info = GetGOInfo();
-                if(info)
+                if (info)
                 {
                     switch(info->id)
                     {
@@ -1362,10 +1362,10 @@ void GameObject::Use(Unit* user)
         case GAMEOBJECT_TYPE_BARBER_CHAIR:                  //32
         {
             GameObjectInfo const* info = GetGOInfo();
-            if(!info)
+            if (!info)
                 return;
 
-            if(user->GetTypeId() != TYPEID_PLAYER)
+            if (user->GetTypeId() != TYPEID_PLAYER)
                 return;
 
             Player* player = (Player*)user;
@@ -1384,11 +1384,11 @@ void GameObject::Use(Unit* user)
             break;
     }
 
-    if(!spellId)
+    if (!spellId)
         return;
 
     SpellEntry const *spellInfo = sSpellStore.LookupEntry( spellId );
-    if(!spellInfo)
+    if (!spellInfo)
     {
         if(user->GetTypeId() != TYPEID_PLAYER || !sOutdoorPvPMgr.HandleCustomSpell((Player*)user,spellId,this))
             sLog.outError("WORLD: unknown spell id %u at use action for gameobject (Entry: %u GoType: %u )", spellId,GetEntry(),GetGoType());
@@ -1402,7 +1402,7 @@ void GameObject::Use(Unit* user)
 
     // spell target is user of GO
     SpellCastTargets targets;
-    targets.setUnitTarget( user );
+    targets.setUnitTarget(user);
 
     spell->prepare(&targets);
 }
@@ -1410,7 +1410,7 @@ void GameObject::Use(Unit* user)
 void GameObject::CastSpell(Unit* target, uint32 spellId)
 {
     SpellEntry const *spellInfo = sSpellStore.LookupEntry(spellId);
-    if(!spellInfo)
+    if (!spellInfo)
         return;
 
     bool self = false;
@@ -1462,7 +1462,7 @@ void GameObject::SendCustomAnim()
 bool GameObject::IsInRange(float x, float y, float z, float radius) const
 {
     GameObjectDisplayInfoEntry const * info = sGameObjectDisplayInfoStore.LookupEntry(GetUInt32Value(GAMEOBJECT_DISPLAYID));
-    if(!info)
+    if (!info)
         return IsWithinDist3d(x, y, z, radius);
 
     float sinA = sin(GetOrientation());
@@ -1482,15 +1482,15 @@ bool GameObject::IsInRange(float x, float y, float z, float radius) const
 
 void GameObject::TakenDamage(uint32 damage)
 {
-    if(!m_goValue->building.health)
+    if (!m_goValue->building.health)
         return;
 
-    if(m_goValue->building.health > damage)
+    if (m_goValue->building.health > damage)
         m_goValue->building.health -= damage;
     else
         m_goValue->building.health = 0;
 
-    if(HasFlag(GAMEOBJECT_FLAGS, GO_FLAG_DAMAGED)) // from damaged to destroyed
+    if (HasFlag(GAMEOBJECT_FLAGS, GO_FLAG_DAMAGED)) // from damaged to destroyed
     {
         if(!m_goValue->building.health)
         {
@@ -1503,11 +1503,11 @@ void GameObject::TakenDamage(uint32 damage)
     }
     else // from intact to damaged
     {
-        if(m_goValue->building.health <= m_goInfo->building.damagedNumHits)
+        if (m_goValue->building.health <= m_goInfo->building.damagedNumHits)
         {
-            if(!m_goInfo->building.destroyedDisplayId)
+            if (!m_goInfo->building.destroyedDisplayId)
                 m_goValue->building.health = 0;
-            else if(!m_goValue->building.health)
+            else if (!m_goValue->building.health)
                 m_goValue->building.health = 1;
 
             SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_DAMAGED);
@@ -1535,14 +1535,9 @@ void GameObject::EventInform(uint32 eventId)
 const char* GameObject::GetNameForLocaleIdx(int32 loc_idx) const
 {
     if (loc_idx >= 0)
-    {
-        GameObjectLocale const *cl = objmgr.GetGameObjectLocale(GetEntry());
-        if (cl)
-        {
+        if (GameObjectLocale const *cl = objmgr.GetGameObjectLocale(GetEntry()))
             if (cl->Name.size() > loc_idx && !cl->Name[loc_idx].empty())
                 return cl->Name[loc_idx].c_str();
-        }
-    }
 
     return GetName();
 }
@@ -1567,7 +1562,7 @@ void GameObject::UpdateRotationFields(float rotation2 /*=0.0f*/, float rotation3
 
     m_rotation = rotation;
 
-    if(rotation2==0.0f && rotation3==0.0f)
+    if(rotation2 == 0.0f && rotation3 == 0.0f)
     {
         rotation2 = f_rot1;
         rotation3 = f_rot2;

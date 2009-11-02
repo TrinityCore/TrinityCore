@@ -847,7 +847,7 @@ class TRINITY_DLL_SPEC PlayerTaxi
         PlayerTaxi();
         ~PlayerTaxi() {}
         // Nodes
-        void InitTaxiNodesForLevel(uint32 race, uint32 chrClass, uint32 level);
+        void InitTaxiNodesForLevel(uint32 race, uint32 chrClass, uint8 level);
         void LoadTaxiMask(const char* data);
 
         bool IsTaximaskNodeKnown(uint32 nodeidx) const
@@ -1010,7 +1010,7 @@ class MANGOS_DLL_SPEC Player : public Unit
         void SetPvPDeath(bool on) { if(on) m_ExtraFlags |= PLAYER_EXTRA_PVP_DEATH; else m_ExtraFlags &= ~PLAYER_EXTRA_PVP_DEATH; }
 
         void GiveXP(uint32 xp, Unit* victim);
-        void GiveLevel(uint32 level);
+        void GiveLevel(uint8 level);
 
         void InitStatsForLevel(bool reapplyMods = false);
 
@@ -2347,8 +2347,8 @@ Spell * m_spellModTakingSpell;
         PlayerTalentMap *m_talents[MAX_TALENT_SPECS];
         uint32 m_lastPotionId;                              // last used health/mana potion in combat, that block next potion use
 
-        uint32 m_activeSpec;
-        uint32 m_specsCount;
+        uint8 m_activeSpec;
+        uint8 m_specsCount;
 
         uint32 m_Glyphs[MAX_TALENT_SPECS][MAX_GLYPH_SLOT_INDEX];
 
