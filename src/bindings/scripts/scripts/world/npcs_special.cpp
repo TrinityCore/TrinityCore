@@ -40,6 +40,7 @@ EndContentData */
 #include "precompiled.h"
 #include "escort_ai.h"
 #include "ObjectMgr.h"
+#include "World.h"
 
 /*########
 # npc_air_force_bots
@@ -1170,6 +1171,7 @@ bool GossipSelect_npc_mount_vendor(Player* pPlayer, Creature* pCreature, uint32 
 
 #define GOSSIP_HELLO_ROGUE1 "I wish to unlearn my talents"
 #define GOSSIP_HELLO_ROGUE2 "<Take the letter>"
+#define GOSSIP_HELLO_ROGUE3 "Purchase a Dual Talent Specialization."
 
 bool GossipHello_npc_rogue_trainer(Player* pPlayer, Creature* pCreature)
 {
@@ -1181,6 +1183,9 @@ bool GossipHello_npc_rogue_trainer(Player* pPlayer, Creature* pCreature)
 
     if (pCreature->isCanTrainingAndResetTalentsOf(pPlayer))
         pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TRAINER, GOSSIP_HELLO_ROGUE1, GOSSIP_SENDER_MAIN, GOSSIP_OPTION_UNLEARNTALENTS);
+
+    if (!(pPlayer->GetSpecsCount() == 1 && pCreature->isCanTrainingAndResetTalentsOf(pPlayer) && !(pPlayer->getLevel() < sWorld.getConfig(CONFIG_MIN_DUALSPEC_LEVEL))))
+        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TRAINER, GOSSIP_HELLO_ROGUE3, GOSSIP_SENDER_MAIN, GOSSIP_OPTION_LEARNDUALSPEC);
 
     if (pPlayer->getClass() == CLASS_ROGUE && pPlayer->getLevel() >= 24 && !pPlayer->HasItemCount(17126,1) && !pPlayer->GetQuestRewardStatus(6681))
     {
@@ -1206,6 +1211,29 @@ bool GossipSelect_npc_rogue_trainer(Player* pPlayer, Creature* pCreature, uint32
         case GOSSIP_OPTION_UNLEARNTALENTS:
             pPlayer->CLOSE_GOSSIP_MENU();
             pPlayer->SendTalentWipeConfirm(pCreature->GetGUID());
+            break;
+        case GOSSIP_OPTION_LEARNDUALSPEC:
+            if(pPlayer->GetSpecsCount() == 1 && !(pPlayer->getLevel() < sWorld.getConfig(CONFIG_MIN_DUALSPEC_LEVEL)))
+            {
+                if (pPlayer->GetMoney() < 10000000)
+                {
+                    pPlayer->SendBuyError( BUY_ERR_NOT_ENOUGHT_MONEY, 0, 0, 0);
+                    pPlayer->PlayerTalkClass->CloseGossip();
+                    break;
+                }
+                else
+                {
+                    pPlayer->ModifyMoney(-10000000);
+
+                    // Cast spells that teach dual spec
+                    // Both are also ImplicitTarget self and must be cast by player
+                    pPlayer->CastSpell(pPlayer,63680,true,NULL,NULL,pPlayer->GetGUID());
+                    pPlayer->CastSpell(pPlayer,63624,true,NULL,NULL,pPlayer->GetGUID());
+
+                    // Should show another Gossip text with "Congratulations..."
+                    pPlayer->PlayerTalkClass->CloseGossip();
+                }
+            }
             break;
     }
     return true;
