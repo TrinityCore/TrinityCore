@@ -67,7 +67,7 @@ class Guardian : public Minion
     public:
         Guardian(SummonPropertiesEntry const *properties, Unit *owner);
         void InitStats(uint32 duration);
-        bool InitStatsForLevel(uint32 level);
+        bool InitStatsForLevel(uint8 level);
         void InitSummon();
 
         bool UpdateStats(Stats stat);

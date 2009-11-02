@@ -152,10 +152,8 @@ class TRINITY_DLL_SPEC InstanceData : public ZoneScript
         //sends world state update to all players in instance
         void DoUpdateWorldState(uint32 uiStateId, uint32 uiStateData);
 
-        /* Not used anywhere yet, not sure if they're needed:
         // Send Notify to all players in instance
         void DoSendNotifyToInstance(const char *format,...);
-        */
 
         // Complete Achievement for all players in instance
         void DoCompleteAchievement(uint32 achievement);
