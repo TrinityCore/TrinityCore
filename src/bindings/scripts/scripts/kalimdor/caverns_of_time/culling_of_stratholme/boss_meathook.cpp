@@ -1,34 +1,49 @@
+/*
+* Copyright (C) 2008-2009 Trinity <http://www.trinitycore.org/>
+*
+* This program is free software; you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation; either version 2 of the License, or
+* (at your option) any later version.
+*
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with this program; if not, write to the Free Software
+* Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+*/
+
 /* Script Data Start
 SDName: Boss meathook
-SDAuthor: LordVanMartin
-SD%Complete:
-SDComment:
+SDAuthor: Tartalo
+SD%Complete: 100
+SDComment: It may need timer adjustment
 SDCategory:
 Script Data End */
 
-/*** SQL START ***
-update creature_template set scriptname = 'boss_meathook' where entry = '';
-*** SQL END ***/
 #include "precompiled.h"
 #include "culling_of_stratholme.h"
 
 enum Spells
 {
-    SPELL_CONSTRICTING_CHAINS                    = 52696, //Encases the targets in chains, dealing 1800 Physical damage every 1 sec. and stunning the target for 5 sec.
-    H_SPELL_CONSTRICTING_CHAINS                  = 58823,
-    SPELL_DISEASE_EXPULSION                      = 52666, //Meathook belches out a cloud of disease, dealing 1710 to 1890 Nature damage and interrupting the spell casting of nearby enemy targets for 4 sec.
-    H_SPELL_DISEASE_EXPULSION                    = 58824,
-    SPELL_FRENZY                                 = 58841 //Increases the caster's Physical damage by 10% for 30 sec.
+    SPELL_CONSTRICTING_CHAINS                              = 52696, //Encases the targets in chains, dealing 1800 Physical damage every 1 sec. and stunning the target for 5 sec.
+    H_SPELL_CONSTRICTING_CHAINS                            = 58823,
+    SPELL_DISEASE_EXPULSION                                = 52666, //Meathook belches out a cloud of disease, dealing 1710 to 1890 Nature damage and interrupting the spell casting of nearby enemy targets for 4 sec.
+    H_SPELL_DISEASE_EXPULSION                              = 58824,
+    SPELL_FRENZY                                           = 58841 //Increases the caster's Physical damage by 10% for 30 sec.
 };
 //not in db
 enum Yells
 {
-    SAY_AGGRO                                 = -1595026,
-    SAY_SLAY_1                                = -1595027,
-    SAY_SLAY_2                                = -1595028,
-    SAY_SLAY_3                                = -1595029,
-    SAY_SPAWN                                 = -1595030,
-    SAY_DEATH                                 = -1595031
+    SAY_AGGRO                                              = -1595026,
+    SAY_SLAY_1                                             = -1595027,
+    SAY_SLAY_2                                             = -1595028,
+    SAY_SLAY_3                                             = -1595029,
+    SAY_SPAWN                                              = -1595030,
+    SAY_DEATH                                              = -1595031
 };
 
 struct TRINITY_DLL_DECL boss_meathookAI : public ScriptedAI
@@ -36,6 +51,8 @@ struct TRINITY_DLL_DECL boss_meathookAI : public ScriptedAI
     boss_meathookAI(Creature *c) : ScriptedAI(c) 
     {
         pInstance = c->GetInstanceData();
+        if (pInstance)
+            DoScriptText(SAY_SPAWN,m_creature);
     }
 
     uint32 uiChainTimer;
@@ -47,8 +64,8 @@ struct TRINITY_DLL_DECL boss_meathookAI : public ScriptedAI
     void Reset()
     {
         uiChainTimer = urand(12000,17000);   //seen on video 13, 17, 15, 12, 16
-        uiDiseaseTimer = urand(2000,3000);   //approx 3s
-        uiFrenzyTimer = urand(20000,30000);  //made it up
+        uiDiseaseTimer = urand(2000,4000);   //approx 3s
+        uiFrenzyTimer = urand(21000,26000);  //made it up
         
         if (pInstance)
             pInstance->SetData(DATA_MEATHOOK_EVENT, NOT_STARTED);
@@ -62,10 +79,6 @@ struct TRINITY_DLL_DECL boss_meathookAI : public ScriptedAI
             pInstance->SetData(DATA_MEATHOOK_EVENT, IN_PROGRESS);
     }
 
-    void AttackStart(Unit* who) {}
-
-    void MoveInLineOfSight(Unit* who, const uint32 diff) {}
-
     void UpdateAI(const uint32 diff)
     {
         //Return since we have no target
@@ -74,20 +87,21 @@ struct TRINITY_DLL_DECL boss_meathookAI : public ScriptedAI
 
         if (uiDiseaseTimer <= diff)
         {
-            DoCast(m_creature->getVictim(), HEROIC(SPELL_DISEASE_EXPULSION,H_SPELL_DISEASE_EXPULSION));
+            DoCastAOE(HEROIC(SPELL_DISEASE_EXPULSION,H_SPELL_DISEASE_EXPULSION));
             uiDiseaseTimer = urand(1500,4000);
         } else uiDiseaseTimer -= diff;
 
         if (uiFrenzyTimer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_FRENZY);
-            uiFrenzyTimer = urand(20000,30000);
+            DoCast(m_creature, SPELL_FRENZY);
+            uiFrenzyTimer = urand(21000,26000);
         } else uiFrenzyTimer -= diff;
 
         if (uiChainTimer <= diff)
         {
-            DoCast(SelectUnit(SELECT_TARGET_RANDOM, 1), HEROIC(SPELL_CONSTRICTING_CHAINS,H_SPELL_CONSTRICTING_CHAINS)); //anyone but the tank
-            uiChainTimer = urand(2000,3000);
+            if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                DoCast(pTarget, HEROIC(SPELL_CONSTRICTING_CHAINS,H_SPELL_CONSTRICTING_CHAINS)); //anyone but the tank
+            uiChainTimer = urand(2000,4000);
         } else uiChainTimer -= diff;
 
         DoMeleeAttackIfReady();
