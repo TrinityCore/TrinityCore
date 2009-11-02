@@ -425,7 +425,7 @@ void Pet::SavePetToDB(PetSaveMode mode)
             << GetEntry() << ", "
             << owner << ", "
             << GetNativeDisplayId() << ", "
-            << getLevel() << ", "
+            << uint32(getLevel()) << ", "
             << GetUInt32Value(UNIT_FIELD_PETEXPERIENCE) << ", "
             << uint32(GetReactState()) << ", "
             << uint32(mode) << ", '"
