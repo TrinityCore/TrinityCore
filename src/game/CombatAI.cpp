@@ -54,6 +54,11 @@ int TurretAI::Permissible(const Creature *creature)
     return PERMIT_BASE_NO;
 }
 
+int AOEAI::Permissible(const Creature *creature)
+{
+    return PERMIT_BASE_NO;
+}
+
 void CombatAI::InitializeAI()
 {
     for (uint32 i = 0; i < CREATURE_MAX_SPELLS; ++i)
@@ -245,4 +250,33 @@ void TurretAI::UpdateAI(const uint32 diff)
     //if(!DoSpellAttackIfReady(me->m_spells[0]))
         //if(HostilReference *ref = me->getThreatManager().getCurrentVictim())
             //ref->removeReference();
+}
+
+//////////////
+//AOEAI
+//////////////
+
+AOEAI::AOEAI(Creature *c) : CreatureAI(c)
+{
+    ASSERT(me->m_spells[0]);    
+    me->SetVisibility(VISIBILITY_ON);//visible to see all spell anims
+    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);//can't be targeted
+    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_ATTACKABLE_1);//can't be damaged
+    me->SetDisplayId(11686);//invisible model,around a size of a player
+}
+
+bool AOEAI::CanAIAttack(const Unit *who) const
+{
+    return false;
+}
+
+void AOEAI::AttackStart(Unit *who)
+{
+    
+}
+
+void AOEAI::UpdateAI(const uint32 diff)
+{
+    if(!me->HasAura(me->m_spells[0]))
+        me->CastSpell(me, me->m_spells[0],false);
 }
