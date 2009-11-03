@@ -4252,7 +4252,7 @@ bool ChatHandler::HandleWintergraspStatusCommand(const char* args)
         return false;
     }
 
-    PSendSysMessage(LANG_BG_WG_STATUS, pvpWG->GetTeam() ? "Horde" : "Alliance", secsToTimeString(pvpWG->GetTimer(), true), pvpWG->isWarTime() ? "Yes" : "No");
+    PSendSysMessage(LANG_BG_WG_STATUS, objmgr.GetTrinityStringForDBCLocale(pvpWG->GetTeam() == TEAM_ALLIANCE ? LANG_BG_AB_ALLY : LANG_BG_AB_HORDE), secsToTimeString(pvpWG->GetTimer(), true).c_str(), pvpWG->isWarTime() ? "Yes" : "No");
     return true;
 }
 
