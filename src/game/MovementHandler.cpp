@@ -307,10 +307,7 @@ void WorldSession::HandleMovementOpcodes( WorldPacket & recv_data )
 
     // fall damage generation (ignore in flight case that can be triggered also at lags in moment teleportation to another map).
     if (opcode == MSG_MOVE_FALL_LAND && plMover && !plMover->isInFlight())
-    {
         plMover->HandleFall(movementInfo);
-        _player->RemoveAurasByType(SPELL_AURA_FEATHER_FALL);
-    }
 
     if (plMover && ((movementInfo.flags & MOVEMENTFLAG_SWIMMING) != 0) != plMover->IsInWater())
     {
