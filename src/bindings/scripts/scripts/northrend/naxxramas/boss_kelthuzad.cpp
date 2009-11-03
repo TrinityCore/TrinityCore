@@ -24,37 +24,39 @@ EndScriptData */
 #include "precompiled.h"
 #include "naxxramas.h"
 
-//when shappiron dies. dialog between kel and lich king (in this order)
-#define SAY_SAPP_DIALOG1            -1533084 //not used
-#define SAY_SAPP_DIALOG2_LICH       -1533085 //not used
-#define SAY_SAPP_DIALOG3            -1533086 //not used
-#define SAY_SAPP_DIALOG4_LICH       -1533087 //not used
-#define SAY_SAPP_DIALOG5            -1533088 //not used
-
-//when cat dies
-#define SAY_CAT_DIED                -1533089 //not used
-
-//when each of the 4 wing bosses dies
-#define SAY_TAUNT1                  -1533090 //not used
-#define SAY_TAUNT2                  -1533091 //not used
-#define SAY_TAUNT3                  -1533092 //not used
-#define SAY_TAUNT4                  -1533093 //not used
-
-#define SAY_SUMMON_MINIONS          -1533105                //start of phase 1 not used
-
-#define SAY_AGGRO   RAND(-1533094,-1533095,-1533096)       //start of phase 2
-#define SAY_SLAY    RAND(-1533097,-1533098)
-#define SAY_DEATH   -1533099
-#define SAY_CHAIN   RAND(-1533100,-1533101)
-#define SAY_FROST_BLAST             -1533102
-#define SAY_SPECIAL RAND(-1533106,-1533107,-1533108)
-
-#define SAY_REQUEST_AID             -1533103                //start of phase 3
-#define SAY_ANSWER_REQUEST          -1533104                //lich king answer
-
+enum Yells
+{
+    //when shappiron dies. dialog between kel and lich king (in this order)
+    SAY_SAPP_DIALOG1                                       = -1533084, //not used
+    SAY_SAPP_DIALOG2_LICH                                  = -1533085, //not used
+    SAY_SAPP_DIALOG3                                       = -1533086, //not used
+    SAY_SAPP_DIALOG4_LICH                                  = -1533087, //not used
+    SAY_SAPP_DIALOG5                                       = -1533088, //not used
+    SAY_CAT_DIED                                           = -1533089, //when cat dies, not used
+    //when each of the 4 wing bosses dies
+    SAY_TAUNT1                                             = -1533090, //not used
+    SAY_TAUNT2                                             = -1533091, //not used
+    SAY_TAUNT3                                             = -1533092, //not used
+    SAY_TAUNT4                                             = -1533093, //not used
+    SAY_SUMMON_MINIONS                                     = -1533105, //start of phase 1 not used
+    SAY_AGGRO_1                                            = -1533094, //start of phase 2
+    SAY_AGGRO_2                                            = -1533095,
+    SAY_AGGRO_3                                            = -1533096,
+    SAY_SLAY_1                                             = -1533097,
+    SAY_SLAY_2                                             = -1533098,
+    SAY_DEATH                                              = -1533099,
+    SAY_CHAIN_1                                            = -1533100,
+    SAY_CHAIN_2                                            = -1533101,
+    SAY_FROST_BLAST                                        = -1533102,
+    SAY_SPECIAL_1                                          = -1533106,
+    SAY_SPECIAL_2                                          = -1533107,
+    SAY_SPECIAL_3                                          = -1533108,
+    SAY_REQUEST_AID                                        = -1533103, //start of phase 3
+    SAY_ANSWER_REQUEST                                     = -1533104  //lich king answer
+};
 enum Event
 {
-    EVENT_BOLT = 1,
+    EVENT_BOLT,
     EVENT_NOVA,
     EVENT_CHAIN,
     EVENT_DETONATE,
@@ -69,34 +71,42 @@ enum Event
     EVENT_PHASE,
 };
 
-#define SPELL_FROST_BOLT            HEROIC(28478,55802)
-#define SPELL_FROST_BOLT_AOE        HEROIC(28479,55807)
-#define SPELL_SHADOW_FISURE         27810
-#define SPELL_VOID_BLAST            27812
-#define SPELL_MANA_DETONATION       27819
-#define SPELL_FROST_BLAST           27808
-#define SPELL_CHAINS_OF_KELTHUZAD   28410 //28408 script effect
-#define SPELL_BERSERK               28498
+enum Spells
+{
+    SPELL_FROST_BOLT                                       = 28478,
+    H_SPELL_FROST_BOLT                                     = 55802,
+    SPELL_FROST_BOLT_AOE                                   = 28479,
+    H_SPELL_FROST_BOLT_AOE                                 = 55807,
+    SPELL_SHADOW_FISURE                                    = 27810,
+    SPELL_VOID_BLAST                                       = 27812,
+    SPELL_MANA_DETONATION                                  = 27819,
+    SPELL_FROST_BLAST                                      = 27808,
+    SPELL_CHAINS_OF_KELTHUZAD                              = 28410, //28408 script effect
+    SPELL_BERSERK                                          = 28498
+};
 
-#define MOB_WASTE                   16427 // Soldiers of the Frozen Wastes
-#define MOB_ABOMINATION             16428 // Unstoppable Abominations
-#define MOB_WEAVER                  16429 // Soul Weavers
-#define MOB_ICECROWN                16441 // Guardians of Icecrown
+enum Creatures
+{
+    NPC_WASTE                                              = 16427, // Soldiers of the Frozen Wastes
+    NPC_ABOMINATION                                        = 16428, // Unstoppable Abominations
+    NPC_WEAVER                                             = 16429, // Soul Weavers
+    NPC_ICECROWN                                           = 16441 // Guardians of Icecrown
+};
 
 const Position Pos[12] =
 {
-    {3783.272705, -5062.697266, 143.711203,3.617599},//LEFT_FAR
-    {3730.291260, -5027.239258,143.956909,4.461900},//LEFT_MIDDLE
-    {3683.868652,-5057.281250,143.183884,5.237086},//LEFT_NEAR
-    {3759.355225,-5174.128418,143.802383,2.170104},//RIGHT_FAR
-    {3700.724365,-5185.123047,143.928024,1.309310},//RIGHT_MIDDLE
-    {3665.121094,-5138.679199,143.183212,0.604023},//RIGHT_NEAR
-    {3754.431396,-5080.727734,142.036316,3.736189},//LEFT_FAR
-    {3724.396484, -5061.330566,142.032700, 4.564785},//LEFT_MIDDLE
-    {3687.158424,-5076.834473,142.017319,5.237086},//LEFT_NEAR
-    {3687.571777,-5126.831055,142.017807,0.604023},//RIGHT_FAR
-    {3707.990733,-5151.450195,142.032562,1.376855},//RIGHT_MIDDLE
-    {3739.500000,-5141.883989,142.0141130, 2.121412}//RIGHT_NEAR
+    {3783.272705, -5062.697266, 143.711203, 3.617599},     //LEFT_FAR
+    {3730.291260, -5027.239258, 143.956909, 4.461900},     //LEFT_MIDDLE
+    {3683.868652, -5057.281250, 143.183884, 5.237086},     //LEFT_NEAR
+    {3759.355225, -5174.128418, 143.802383, 2.170104},     //RIGHT_FAR
+    {3700.724365, -5185.123047, 143.928024, 1.309310},     //RIGHT_MIDDLE
+    {3665.121094, -5138.679199, 143.183212, 0.604023},     //RIGHT_NEAR
+    {3754.431396, -5080.727734, 142.036316, 3.736189},     //LEFT_FAR
+    {3724.396484, -5061.330566, 142.032700, 4.564785},     //LEFT_MIDDLE
+    {3687.158424, -5076.834473, 142.017319, 5.237086},     //LEFT_NEAR
+    {3687.571777, -5126.831055, 142.017807, 0.604023},     //RIGHT_FAR
+    {3707.990733, -5151.450195, 142.032562, 1.376855},     //RIGHT_MIDDLE
+    {3739.500000, -5141.883989, 142.014113, 2.121412}      //RIGHT_NEAR
 };
 
 struct TRINITY_DLL_DECL boss_kelthuzadAI : public BossAI
@@ -121,7 +131,7 @@ struct TRINITY_DLL_DECL boss_kelthuzadAI : public BossAI
 
     void KilledUnit()
     {
-        DoScriptText(SAY_SLAY, m_creature);
+        DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2), m_creature);
     }
 
     void JustDied(Unit* Killer)
@@ -133,7 +143,7 @@ struct TRINITY_DLL_DECL boss_kelthuzadAI : public BossAI
     void EnterCombat(Unit* who)
     {
         _EnterCombat();
-        DoScriptText(SAY_AGGRO, me);
+        DoScriptText(RAND(SAY_AGGRO_1,SAY_AGGRO_2,SAY_AGGRO_3), me);
         Phase=1;
         me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
         me->SetReactState(REACT_PASSIVE);
@@ -157,15 +167,15 @@ struct TRINITY_DLL_DECL boss_kelthuzadAI : public BossAI
                 switch(eventId)
                 {
                     case EVENT_WASTE:
-                        DoSummon(MOB_WASTE, Pos[RAND(0,3,6,9)]);
+                        DoSummon(NPC_WASTE, Pos[RAND(0,3,6,9)]);
                         events.RepeatEvent(5000);
                         break;
                     case EVENT_ABOMIN:
-                        DoSummon(MOB_ABOMINATION, Pos[RAND(1,4,7,10)]);
+                        DoSummon(NPC_ABOMINATION, Pos[RAND(1,4,7,10)]);
                         events.RepeatEvent(25000);
                         break;
                     case EVENT_WEAVER:
-                        DoSummon(MOB_WEAVER, Pos[RAND(0,3,6,9)]);
+                        DoSummon(NPC_WEAVER, Pos[RAND(0,3,6,9)]);
                         events.RepeatEvent(20000);
                         break;
                     case EVENT_PHASE:
@@ -177,7 +187,8 @@ struct TRINITY_DLL_DECL boss_kelthuzadAI : public BossAI
                         events.ScheduleEvent(EVENT_DETONATE, 20000);
                         events.ScheduleEvent(EVENT_FISSURE, 25000);
                         events.ScheduleEvent(EVENT_BLAST, urand(30000,60000));
-                        events.ScheduleEvent(EVENT_CHAIN, urand(30000,60000));
+                        if (HeroicMode)
+                            events.ScheduleEvent(EVENT_CHAIN, urand(30000,60000));
                         Phase = 2;
                         return;
                     default:
@@ -204,7 +215,7 @@ struct TRINITY_DLL_DECL boss_kelthuzadAI : public BossAI
             {
                 if (GuardiansOfIcecrown_Timer <= diff)
                 {
-                    DoSummon(MOB_ICECROWN, Pos[RAND(2,5,8)]);
+                    DoSummon(NPC_ICECROWN, Pos[RAND(2,5,8)]);
                     ++GuardiansOfIcecrown_Count;
                     GuardiansOfIcecrown_Timer = 5000;
                 }
@@ -219,17 +230,17 @@ struct TRINITY_DLL_DECL boss_kelthuzadAI : public BossAI
                 switch(eventId)
                 {
                     case EVENT_BOLT:
-                        DoCast(m_creature->getVictim(),SPELL_FROST_BOLT);
+                        DoCastVictim(HEROIC(SPELL_FROST_BOLT,H_SPELL_FROST_BOLT));
                         events.RepeatEvent(urand(1000,10000));
                         return;
                     case EVENT_NOVA:
-                        DoCastAOE(SPELL_FROST_BOLT_AOE);
+                        DoCastAOE(HEROIC(SPELL_FROST_BOLT_AOE,H_SPELL_FROST_BOLT_AOE));
                         events.RepeatEvent(urand(10000,20000));
                         return;
                     case EVENT_CHAIN:
-                        if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 0, true))
+                        if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1, 200, true))
                             DoCast(pTarget, SPELL_CHAINS_OF_KELTHUZAD);
-                        DoScriptText(SAY_CHAIN, me);
+                        DoScriptText(RAND(SAY_CHAIN_1,SAY_CHAIN_2), me);
                         events.RepeatEvent(urand(30000,60000));
                         return;
                     case EVENT_DETONATE:
@@ -249,7 +260,7 @@ struct TRINITY_DLL_DECL boss_kelthuzadAI : public BossAI
                             std::vector<Unit*>::iterator itr = unitList.begin();
                             advance(itr, rand()%unitList.size());
                             DoCast(*itr, SPELL_MANA_DETONATION);
-                            DoScriptText(SAY_SPECIAL, me);
+                            DoScriptText(RAND(SAY_SPECIAL_1,SAY_SPECIAL_2,SAY_SPECIAL_3), me);
                         }
 
                         events.RepeatEvent(20000);
