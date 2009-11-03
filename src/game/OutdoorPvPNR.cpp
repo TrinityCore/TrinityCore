@@ -37,6 +37,7 @@ void OutdoorPvPNR::HandlePlayerEnterZone(Player * plr, uint32 zone)
     {
         plr->CastSpell(plr, SPELL_NOFLYZONE, true);
         ChatHandler(plr).PSendSysMessage(LANG_ZONE_NOFLYZONE);
+        plr->GetSession()->SendNotification(LANG_ZONE_NOFLYZONE);
     }
     OutdoorPvP::HandlePlayerEnterZone(plr, zone);
 }

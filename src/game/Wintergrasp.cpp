@@ -955,6 +955,7 @@ void OPvPWintergrasp::HandlePlayerEnterZone(Player * plr, uint32 zone)
     {
         plr->CastSpell(plr, SPELL_NOFLYZONE_WG, true);
         ChatHandler(plr).PSendSysMessage(LANG_ZONE_NOFLYZONE);
+        plr->GetSession()->SendNotification(LANG_ZONE_NOFLYZONE);
     }
 
     if (!isWarTime())
