@@ -100,7 +100,7 @@ struct GameObjectInfo
             uint32 eventId;                                 //6 lootedEvent
             uint32 linkedTrapId;                            //7
             uint32 questId;                                 //8 not used currently but store quest required for GO activation for player
-            uint8 level;                                    //9
+            uint32 level;                                   //9
             uint32 losOK;                                   //10
             uint32 leaveLoot;                               //11
             uint32 notInCombat;                             //12
@@ -124,7 +124,7 @@ struct GameObjectInfo
         struct
         {
             uint32 lockId;                                  //0 -> Lock.dbc
-            uint8 level;                                   //1
+            uint32 level;                                   //1
             uint32 radius;                                  //2 radius for trap activation
             uint32 spellId;                                 //3
             uint32 charges;                                 //4 need respawn (if > 0)
