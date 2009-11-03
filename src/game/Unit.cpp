@@ -6810,8 +6810,6 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                 if (GetTypeId() != TYPEID_PLAYER)
                     return false;
                 basepoints0 = triggerAmount * damage / 100;
-                // Blood Aura
-                triggered_spell_id = 53168;
                 break;
             }
             // Butchery
