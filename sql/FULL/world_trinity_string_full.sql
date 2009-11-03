@@ -628,11 +628,7 @@ INSERT INTO `trinity_string` (`entry`, `content_default`, `content_loc1`, `conte
 (813, 'Veteran', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (814, 'Member', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (815, 'Initiate', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-<<<<<<< local
-(816, 'Warning: You''ve entered a no-fly zone and are about to be dismounted', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-=======
 (816, 'Warning: You''ve entered a no-fly zone and are about to be dismounted!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
->>>>>>> other
 (1000, 'Exiting daemon...', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (1001, 'Account deleted: %s', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (1002, 'Account %s NOT deleted (probably sql file format was updated)', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
