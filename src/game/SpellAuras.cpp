@@ -3350,7 +3350,7 @@ void AuraEffect::HandleAuraFeatherFall(bool apply, bool Real, bool /*changeAmoun
             float ground_Z = caster->GetMap()->GetVmapHeight(x, y, z, true);
             if (fabs(ground_Z - z) < 0.1f)
             {
-                m_target->RemoveAurasByType(SPELL_AURA_FEATHER_FALL);
+                m_target->RemoveAura(GetId());
                 return;
             }
         }
