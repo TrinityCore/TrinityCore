@@ -1424,14 +1424,19 @@ void OPvPWintergrasp::EndBattle()
                 (*itr)->ResurrectPlayer(1.0f);
                 ObjectAccessor::Instance().ConvertCorpseForPlayer((*itr)->GetGUID());
             }
-            REMOVE_WARTIME_AURAS(*itr);
             REMOVE_TENACITY_AURA(*itr);
             (*itr)->CombatStop(true);
             (*itr)->getHostilRefManager().deleteReferences();
         }
 
         if (m_timer == 1) // Battle End was forced so no reward.
+        {
+            for (PlayerSet::iterator itr = m_players[team].begin(); itr != m_players[team].end(); ++itr)
+            {
+                REMOVE_WARTIME_AURAS(*itr);
+            }
             continue;
+        }
 
         // calculate rewards
         uint32 intactNum = 0;
@@ -1541,6 +1546,7 @@ void OPvPWintergrasp::EndBattle()
                     (*itr)->AreaExploredOrEventHappens(H_VICTORY_IN_WG);
                 }
             }
+            REMOVE_WARTIME_AURAS(*itr);
         }
     }
 
