@@ -419,7 +419,7 @@ void GameObject::Update(uint32 /*p_time*/)
                 {
                     std::set<uint32>::const_iterator it = m_unique_users.begin();
                     std::set<uint32>::const_iterator end = m_unique_users.end();
-                    for (; it != end; it++)
+                    for (; it != end; ++it)
                     {
                         Unit* owner = Unit::GetUnit(*this, uint64(*it));
                         // For now we do not support go cast
@@ -986,12 +986,12 @@ void GameObject::Use(Unit* user)
             if(user->GetTypeId() != TYPEID_PLAYER)
                 return;
 
-            if (!ChairListSlots.size()) //this is called once at first chair use to make list of available slots
-                if (info->chair.slots > 0) //sometimes chairs in DB have error in fields and we dont know number of slots
-                    for (uint32 i=0; i<info->chair.slots; i++)
-                        ChairListSlots[i] = 0; //Last user of current slot set to 0 (none sit here yet)
+            if (!ChairListSlots.size())        // this is called once at first chair use to make list of available slots
+                if (info->chair.slots > 0)     // sometimes chairs in DB have error in fields and we dont know number of slots
+                    for (uint32 i = 0; i < info->chair.slots; ++i)
+                        ChairListSlots[i] = 0; // Last user of current slot set to 0 (none sit here yet)
                 else
-                    ChairListSlots[0] = 0; //error in DB, make one default slot
+                    ChairListSlots[0] = 0;     // error in DB, make one default slot
 
             Player* player = (Player*)user;
 
