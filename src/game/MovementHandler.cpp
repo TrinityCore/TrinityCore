@@ -225,14 +225,19 @@ void WorldSession::HandleMoveTeleportAck(WorldPacket& recv_data)
 
 void WorldSession::HandleMovementOpcodes( WorldPacket & recv_data )
 {
-    uint32 opcode = recv_data.GetOpcode();
+    uint16 opcode = recv_data.GetOpcode();
     //sLog.outDebug("WORLD: Recvd %s (%u, 0x%X) opcode", LookupOpcodeName(opcode), opcode, opcode);
 
     Unit *mover = _player->m_mover;
+
+    // vehicles become the mover, so mover->GetVehicle() should never be true
+    // also, if the mover is a vehicle, it should never be on a transport
+    assert(mover && !mover->GetVehicle() && (!mover->IsVehicle() || !mover->GetTransport()));
+
     Player *plMover = mover->GetTypeId() == TYPEID_PLAYER ? (Player*)mover : NULL;
 
     // ignore, waiting processing in WorldSession::HandleMoveWorldportAckOpcode and WorldSession::HandleMoveTeleportAck
-    if(plMover && plMover->IsBeingTeleported())
+    if (plMover && plMover->IsBeingTeleported())
     {
         recv_data.rpos(recv_data.wpos());                   // prevent warnings spam
         return;
@@ -243,7 +248,7 @@ void WorldSession::HandleMovementOpcodes( WorldPacket & recv_data )
     ReadMovementInfo(recv_data, &movementInfo);
     /*----------------*/
 
-    if(recv_data.size() != recv_data.rpos())
+    if (recv_data.size() != recv_data.rpos())
     {
         sLog.outError("MovementHandler: player %s (guid %d, account %u) sent a packet (opcode %u) that is " SIZEFMTD " bytes larger than it should be. Kicked as cheater.", _player->GetName(), _player->GetGUIDLow(), _player->GetSession()->GetAccountId(), recv_data.GetOpcode(), recv_data.size() - recv_data.rpos());
         KickPlayer();
@@ -251,7 +256,7 @@ void WorldSession::HandleMovementOpcodes( WorldPacket & recv_data )
         return;
     }
 
-    if (!MaNGOS::IsValidMapCoord(movementInfo.x, movementInfo.y, movementInfo.z, movementInfo.o))
+    if (!Trinity::IsValidMapCoord(movementInfo.x, movementInfo.y, movementInfo.z, movementInfo.o))
     {
         recv_data.rpos(recv_data.wpos());                   // prevent warnings spam
         return;
@@ -262,21 +267,21 @@ void WorldSession::HandleMovementOpcodes( WorldPacket & recv_data )
     {
         // transports size limited
         // (also received at zeppelin leave by some reason with t_* as absolute in continent coordinates, can be safely skipped)
-        if( movementInfo.t_x > 50 || movementInfo.t_y > 50 || movementInfo.t_z > 50 )
+        if (movementInfo.t_x > 50 || movementInfo.t_y > 50 || movementInfo.t_z > 50)
         {
             recv_data.rpos(recv_data.wpos());                   // prevent warnings spam
             return;
         }
 
-        if( !MaNGOS::IsValidMapCoord(movementInfo.x+movementInfo.t_x, movementInfo.y + movementInfo.t_y,
-            movementInfo.z + movementInfo.t_z, movementInfo.o + movementInfo.t_o) )
+        if (!Trinity::IsValidMapCoord(movementInfo.x+movementInfo.t_x, movementInfo.y + movementInfo.t_y,
+            movementInfo.z + movementInfo.t_z, movementInfo.o + movementInfo.t_o))
         {
             recv_data.rpos(recv_data.wpos());                   // prevent warnings spam
             return;
         }
 
         // if we boarded a transport, add us to it
-        if (plMover && !plMover->m_transport)
+        if (plMover && !plMover->GetTransport() && !mover->IsVehicle())
         {
             // elevators also cause the client to send MOVEMENTFLAG_ONTRANSPORT - just unmount if the guid can be found in the transport list
             for (MapManager::TransportSet::const_iterator iter = MapManager::Instance().m_Transports.begin(); iter != MapManager::Instance().m_Transports.end(); ++iter)
@@ -290,10 +295,10 @@ void WorldSession::HandleMovementOpcodes( WorldPacket & recv_data )
             }
         }
 
-        if(!mover->GetTransport() && !mover->GetVehicle())
+        if (!mover->GetTransport() && !mover->IsVehicle())
             movementInfo.flags &= ~MOVEMENTFLAG_ONTRANSPORT;
     }
-    else if (plMover && plMover->m_transport)               // if we were on a transport, leave
+    else if (plMover && plMover->m_transport)                   // if we were on a transport, leave
     {
         plMover->m_transport->RemovePassenger(plMover);
         plMover->m_transport = NULL;
@@ -312,7 +317,7 @@ void WorldSession::HandleMovementOpcodes( WorldPacket & recv_data )
     if (plMover && ((movementInfo.flags & MOVEMENTFLAG_SWIMMING) != 0) != plMover->IsInWater())
     {
         // now client not include swimming flag in case jumping under water
-        plMover->SetInWater( !plMover->IsInWater() || plMover->GetBaseMap()->IsUnderWater(movementInfo.x, movementInfo.y, movementInfo.z) );
+        plMover->SetInWater(!plMover->IsInWater() || plMover->GetBaseMap()->IsUnderWater(movementInfo.x, movementInfo.y, movementInfo.z));
     }
 
     /*----------------------*/
@@ -326,20 +331,14 @@ void WorldSession::HandleMovementOpcodes( WorldPacket & recv_data )
 
     mover->m_movementInfo = movementInfo;
 
-    if(mover->GetVehicle())
-    {
-        mover->SetOrientation(movementInfo.o);
-        return;
-    }
-
-    if(plMover)                                             // nothing is charmed, or player charmed
+    if (plMover)                                            // nothing is charmed, or player charmed
     {
         plMover->SetPosition(movementInfo.x, movementInfo.y, movementInfo.z, movementInfo.o);
         plMover->UpdateFallInformationIfNeed(movementInfo, recv_data.GetOpcode());
 
-        if(movementInfo.z < -500.0f)
+        if (movementInfo.z < -500.0f)
         {
-            if(plMover->InBattleGround()
+            if (plMover->InBattleGround()
                 && plMover->GetBattleGround()
                 && plMover->GetBattleGround()->HandlePlayerUnderMap(_player))
             {
@@ -350,11 +349,11 @@ void WorldSession::HandleMovementOpcodes( WorldPacket & recv_data )
                 // NOTE: this is actually called many times while falling
                 // even after the player has been teleported away
                 // TODO: discard movement packets after the player is rooted
-                if(plMover->isAlive())
+                if (plMover->isAlive())
                 {
                     plMover->EnvironmentalDamage(DAMAGE_FALL_TO_VOID, GetPlayer()->GetMaxHealth());
                     // pl can be alive if GM/etc
-                    if(!plMover->isAlive())
+                    if (!plMover->isAlive())
                     {
                         // change the death state to CORPSE to prevent the death timer from
                         // starting in the next player update

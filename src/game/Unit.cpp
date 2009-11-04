@@ -15169,7 +15169,6 @@ void Unit::OutDebugInfo() const
         sLog.outString("On vehicle %u.", GetVehicleBase()->GetEntry());
 }
 
-// MrSmite 09-05-2009 PetAI_v1.0
 void CharmInfo::SetIsCommandAttack(bool val)
 {
     m_isCommandAttack = val;
