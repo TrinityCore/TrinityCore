@@ -3329,14 +3329,17 @@ void AuraEffect::HandleAuraWaterWalk(bool apply, bool Real, bool /*changeAmount*
 void AuraEffect::HandleAuraFeatherFall(bool apply, bool Real, bool /*changeAmount*/)
 {
     // only at real add/remove aura
-    if(!Real)
+    if (!Real)
+        return;
+
+    if (!m_target)
         return;
 
     WorldPacket data;
-    if(apply)
+    if (apply)
     {
         Unit* caster = GetCaster();
-        if (!caster || !m_target)
+        if (!caster)
             return;
 
         if (caster->GetGUID() == m_target->GetGUID())
