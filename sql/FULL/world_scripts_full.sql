@@ -1349,7 +1349,7 @@ UPDATE `creature_template` SET `ScriptName`='mob_ohgan' WHERE `entry`=14988;
 -- --------
 UPDATE `creature_template` SET `AIName` = 'EventAI' WHERE entry IN (26796,26798,26929,26928,26930);
 DELETE FROM `creature_ai_scripts` WHERE `creature_id` IN (26796,26798,26929,26928,26930);
-UPDATE `creature_template` SET `ScriptName`='EventAI',`modelid1` = 16925,`modelid3` = 16925, `minmana` = 1000000,`maxmana` = 1000000, `unit_flags` = 33554434 WHERE `entry` IN(29998,33753,33752,33751,33750);
+UPDATE `creature_template` SET `ScriptName`='EventAI' WHERE `entry` IN(29998,33753,33752,33751,33750);
 DELETE FROM `creature_ai_scripts` WHERE `creature_id` IN (29998,33753,33752,33751,33750);
 INSERT INTO `creature_ai_scripts` VALUES 
 -- Commander Stoutbeard
@@ -1410,7 +1410,7 @@ INSERT INTO `creature_ai_scripts` (`creature_id`,`event_type`,`event_chance`,`ev
    (23035,6,100,6,34,2,3,'Anzu - Set Inst Data on Death');
 
 -- dk final quest
-UPDATE `creature_template` SET `unit_flags`=32768,`AIName`='EventAI' WHERE `entry` IN (29199,29204,29200,29174,29182,29186,29190,29219,29206,29176,29178,29179,29180,29177,29181);
+UPDATE `creature_template` SET `AIName`='EventAI' WHERE `entry` IN (29199,29204,29200,29174,29182,29186,29190,29219,29206,29176,29178,29179,29180,29177,29181);
 DELETE FROM `creature_ai_scripts` WHERE `creature_id` IN (29199,29204,29200,29174,29182,29186,29190,29219,29206,29176,29178,29179,29180,29177,29181);
 INSERT INTO `creature_ai_scripts` VALUES
    (2919901,29199,0,0,100,3,10000,20000,10000,20000,11,52374,1,0,0,0,0,0,0,0,0,0,'Koltira Deathweaver - SPELL_BLOOD_STRIKE1'),
