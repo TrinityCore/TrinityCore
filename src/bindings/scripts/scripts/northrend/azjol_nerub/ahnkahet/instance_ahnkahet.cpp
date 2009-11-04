@@ -53,7 +53,7 @@ struct TRINITY_DLL_DECL instance_ahnkahet : public ScriptedInstance
     uint64 Prince_TaldaramPlatform;
     uint64 Prince_TaldaramGate;
 
-    uint64 InitiandGUIDs[MAX_JEDOGA_INITIANDS];
+    std::set<uint64> InitiandGUIDs;
     uint64 JedogaSacrifices;
     uint64 JedogaTarget;
 
@@ -68,14 +68,14 @@ struct TRINITY_DLL_DECL instance_ahnkahet : public ScriptedInstance
 
     void Initialize()
     {
+        memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
+        InitiandGUIDs.clear();
+        
         Elder_Nadox =0;
         Prince_Taldaram =0;
         Jedoga_Shadowseeker =0;
         Herald_Volazj =0;
         Amanitar =0;
-
-        for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
-            m_auiEncounter[i] = NOT_STARTED;
 
         spheres[0] = NOT_STARTED;
         spheres[1] = NOT_STARTED;
@@ -85,9 +85,6 @@ struct TRINITY_DLL_DECL instance_ahnkahet : public ScriptedInstance
         initiandkilled = 0;
         JedogaSacrifices = 0;
         JedogaTarget = 0;
-
-        for (uint8 i=0; i<MAX_JEDOGA_INITIANDS; ++i)
-            InitiandGUIDs[i] = 0;
     }
 
     bool IsEncounterInProgress() const
@@ -107,7 +104,7 @@ struct TRINITY_DLL_DECL instance_ahnkahet : public ScriptedInstance
             case 29310: Jedoga_Shadowseeker = pCreature->GetGUID();             break;
             case 29311: Herald_Volazj = pCreature->GetGUID();                   break;
             case 30258: Amanitar = pCreature->GetGUID();                        break;
-            case 30114: InitiandGUIDs[InitiandCnt++] = pCreature->GetGUID();    break;
+            case 30114: InitiandGUIDs.insert(pCreature->GetGUID());             break;
         }
     }
 
@@ -163,11 +160,11 @@ struct TRINITY_DLL_DECL instance_ahnkahet : public ScriptedInstance
             {
                 std::vector<uint64> vInitiands;
                 vInitiands.clear();
-                for (uint8 i=0; i<MAX_JEDOGA_INITIANDS; ++i)
+                for (std::set<uint64>::const_iterator itr = InitiandGUIDs.begin(); itr != InitiandGUIDs.end(); ++itr)
                 {
-                    Creature* cr = instance->GetCreature(InitiandGUIDs[i]);
+                    Creature* cr = instance->GetCreature(*itr);
                     if (cr && cr->isAlive())
-                        vInitiands.push_back(InitiandGUIDs[i]);
+                        vInitiands.push_back(*itr);
                 }
                 if (vInitiands.empty())
                     return 0;
@@ -194,9 +191,9 @@ struct TRINITY_DLL_DECL instance_ahnkahet : public ScriptedInstance
                 m_auiEncounter[2] = data;
                 if (data == DONE)
                 {
-                    for (uint8 i = 0; i < MAX_JEDOGA_INITIANDS; ++i)
+                    for (std::set<uint64>::const_iterator itr = InitiandGUIDs.begin(); itr != InitiandGUIDs.end(); ++itr)
                     {
-                        Creature* cr = instance->GetCreature(InitiandGUIDs[i]);
+                        Creature* cr = instance->GetCreature(*itr);
                         if (cr && cr->isAlive())
                         {
                             cr->SetVisibility(VISIBILITY_OFF);
@@ -215,9 +212,9 @@ struct TRINITY_DLL_DECL instance_ahnkahet : public ScriptedInstance
             case DATA_JEDOGA_TRIGGER_SWITCH: switchtrigger = data; break;
             case DATA_INITIAND_KILLED: initiandkilled = data; break;
             case DATA_JEDOGA_RESET_INITIANDS:
-                for (uint8 i=0; i < MAX_JEDOGA_INITIANDS; ++i)
+                for (std::set<uint64>::const_iterator itr = InitiandGUIDs.begin(); itr != InitiandGUIDs.end(); ++itr)
                 {
-                    Creature* cr = instance->GetCreature(InitiandGUIDs[i]);
+                    Creature* cr = instance->GetCreature(*itr);
                     if (cr)
                     {
                         cr->Respawn();
@@ -242,9 +239,9 @@ struct TRINITY_DLL_DECL instance_ahnkahet : public ScriptedInstance
             case DATA_SPHERE1_EVENT:                return spheres[0];
             case DATA_SPHERE2_EVENT:                return spheres[1];
             case DATA_ALL_INITIAND_DEAD:
-                for (uint8 i=0; i<MAX_JEDOGA_INITIANDS; ++i)
+                for (std::set<uint64>::const_iterator itr = InitiandGUIDs.begin(); itr != InitiandGUIDs.end(); ++itr)
                 {
-                    Creature* cr = instance->GetCreature(InitiandGUIDs[i]);
+                    Creature* cr = instance->GetCreature(*itr);
                     if (!cr || (cr && cr->isAlive())) return 0;
                 }
                 return 1;
