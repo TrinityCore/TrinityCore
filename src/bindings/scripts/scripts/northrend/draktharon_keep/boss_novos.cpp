@@ -78,7 +78,7 @@ struct Location
 
 static Location AddSpawnPoint = { -379.20, -816.76, 59.70};
 static Location CrystalHandlerSpawnPoint = { -326.626343, -709.956604, 27.813314 };
-static Location AddDestinyPoint = { -382.169, -711.369, 27.375};
+static Location AddDestinyPoint = { -379.314545, -772.577637, 28.58837 };
 
 struct TRINITY_DLL_DECL boss_novosAI : public Scripted_NoMovementAI
 {

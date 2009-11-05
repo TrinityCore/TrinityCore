@@ -50,6 +50,7 @@ enum Spells
     H_SPELL_POISON_CLOUD                                   = 59969,
     SPELL_RETURN_FLESH                                     = 53463 //Channeled spell ending phase two and returning to phase 1. This ability will stun the party for 6 seconds.
 };
+/* not needed
 enum PlayerSkills
 {
     //Players' skills during Phase2
@@ -58,7 +59,7 @@ enum PlayerSkills
     SPELL_PLAYER_PHASE2_BONE_ARMOR                         = 49609,
     SPELL_PLAYER_PHASE2_TOUCH_OF_LIFE                      = 49617
 };
-
+*/
 //not in db
 enum Yells
 {
@@ -73,7 +74,7 @@ enum Yells
 };
 enum Models
 {
-    MODEL_FLESH                                            = 27696,
+    MODEL_FLESH                                            = 27073,
     MODEL_SKELETON                                         = 27511
 };
 enum CombatPhase
@@ -215,7 +216,7 @@ struct TRINITY_DLL_DECL boss_tharon_jaAI : public ScriptedAI
                 if (uiPhaseTimer < diff)
                 {
                     DoScriptText(RAND(SAY_SKELETON_1,SAY_SKELETON_2), m_creature);
-                    m_creature->SetDisplayId(m_creature->GetNativeDisplayId());
+                    m_creature->DeMorph();
                     Phase = SKELETAL;
                     uiPhaseTimer = 20000;
                     uiCurseOfLifeTimer = 1000;
