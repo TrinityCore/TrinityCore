@@ -650,16 +650,10 @@ void OPvPWintergrasp::OnCreatureCreate(Creature *creature, bool add)
                     }
                 }
 
-                if (m_tenacityStack > 0)
-                {
-                    if (team == TEAM_ALLIANCE)
-                        creature->SetAuraStack(SPELL_TENACITY_VEHICLE, creature, m_tenacityStack);
-                }
-                else if (m_tenacityStack < 0)
-                {
-                    if (team == TEAM_HORDE)
-                        creature->SetAuraStack(SPELL_TENACITY_VEHICLE, creature, -m_tenacityStack);
-                }
+                if (m_tenacityStack > 0 && team == TEAM_ALLIANCE)
+                    CastTenacity(creature, m_tenacityStack);
+                else if (m_tenacityStack < 0 && team == TEAM_HORDE)
+                    CastTenacity(creature, -m_tenacityStack);
             }
             else // the faction may be changed in uncharm
             {
@@ -1182,15 +1176,17 @@ void OPvPWintergrasp::UpdateTenacityStack()
     if (newStack)
     {
         team = newStack > 0 ? TEAM_ALLIANCE : TEAM_HORDE;
-        if (newStack < 0) newStack = -newStack;
-        int32 auraStack = newStack > 20 ? 20 : newStack; // Dont let it be higher than 20
+        if (newStack < 0)
+            newStack = -newStack;
+        if (newStack > 20)
+            newStack = 20;
 
         for (PlayerSet::const_iterator itr = m_players[team].begin(); itr != m_players[team].end(); ++itr)
             if ((*itr)->getLevel() > 69)
-                CastTenacity((*itr), auraStack);
+                CastTenacity((*itr), newStack);
 
         for (CreatureSet::const_iterator itr = m_vehicles[team].begin(); itr != m_vehicles[team].end(); ++itr)
-            CastTenacity((*itr), auraStack);
+            CastTenacity((*itr), newStack);
     }
 }
 
