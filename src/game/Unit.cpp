@@ -3149,14 +3149,14 @@ uint32 Unit::GetWeaponSkillValue (WeaponAttackType attType, Unit const* target) 
         Item* item = ((Player*)this)->GetWeaponForAttack(attType,true);
 
         // feral or unarmed skill only for base attack
-        if(attType != BASE_ATTACK && !item )
+        if (attType != BASE_ATTACK && !item)
             return 0;
 
-        if(IsInFeralForm())
+        if (IsInFeralForm())
             return GetMaxSkillValueForLevel();              // always maximized SKILL_FERAL_COMBAT in fact
 
-        // weapon skill or (unarmed for base attack)
-        uint32  skill = item ? item->GetSkill() : SKILL_UNARMED;
+        // weapon skill or (unarmed for base attack and fist weapons)
+        uint32  skill = item && item->GetSkill() != SKILL_FIST_WEAPONS ? item->GetSkill() : SKILL_UNARMED;
 
         // in PvP use full skill instead current skill value
         value = (target && target->IsControlledByPlayer())
@@ -3166,9 +3166,9 @@ uint32 Unit::GetWeaponSkillValue (WeaponAttackType attType, Unit const* target) 
         value += uint32(((Player*)this)->GetRatingBonusValue(CR_WEAPON_SKILL));
         switch (attType)
         {
-            case BASE_ATTACK:   value+=uint32(((Player*)this)->GetRatingBonusValue(CR_WEAPON_SKILL_MAINHAND));break;
-            case OFF_ATTACK:    value+=uint32(((Player*)this)->GetRatingBonusValue(CR_WEAPON_SKILL_OFFHAND));break;
-            case RANGED_ATTACK: value+=uint32(((Player*)this)->GetRatingBonusValue(CR_WEAPON_SKILL_RANGED));break;
+            case BASE_ATTACK:   value += uint32(((Player*)this)->GetRatingBonusValue(CR_WEAPON_SKILL_MAINHAND)); break;
+            case OFF_ATTACK:    value += uint32(((Player*)this)->GetRatingBonusValue(CR_WEAPON_SKILL_OFFHAND));  break;
+            case RANGED_ATTACK: value += uint32(((Player*)this)->GetRatingBonusValue(CR_WEAPON_SKILL_RANGED));   break;
         }
     }
     else
