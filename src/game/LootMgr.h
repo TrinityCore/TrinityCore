@@ -137,6 +137,7 @@ struct Loot;
 class LootTemplate;
 
 typedef std::vector<QuestItem> QuestItemList;
+typedef std::vector<LootItem> LootItemList;
 typedef std::map<uint32, QuestItemList *> QuestItemMap;
 typedef std::vector<LootStoreItem> LootStoreItemList;
 typedef UNORDERED_MAP<uint32, LootTemplate*> LootTemplateMap;
@@ -153,7 +154,7 @@ class LootStore
         void Verify() const;
 
         void LoadAndCollectLootIds(LootIdSet& ids_set);
-        void CheckLootRefs(LootIdSet* ref_set = NULL) const;// check existence reference and remove it from ref_set
+        void CheckLootRefs(LootIdSet* ref_set = NULL) const; // check existence reference and remove it from ref_set
         void ReportUnusedIds(LootIdSet const& ids_set) const;
         void ReportNotExistedId(uint32 id) const;
 
