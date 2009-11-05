@@ -19,14 +19,19 @@
 #include "precompiled.h"
 #include "naxxramas.h"
 
-#define SPELL_NECROTIC_AURA         55593
-#define SPELL_SUMMON_SPORE          29234
-#define SPELL_DEATHBLOOM            HEROIC(29865,55053)
-#define SPELL_INEVITABLE_DOOM       HEROIC(29204,55052)
+enum Spells
+{
+    SPELL_NECROTIC_AURA                                    = 55593,
+    SPELL_SUMMON_SPORE                                     = 29234,
+    SPELL_DEATHBLOOM                                       = 29865,
+    H_SPELL_DEATHBLOOM                                     = 55053,
+    SPELL_INEVITABLE_DOOM                                  = 29204,
+    H_SPELL_INEVITABLE_DOOM                                = 55052
+};
 
 enum Events
 {
-    EVENT_AURA = 1,
+    EVENT_AURA,
     EVENT_BLOOM,
     EVENT_DOOM,
 };
@@ -60,11 +65,11 @@ struct TRINITY_DLL_DECL boss_loathebAI : public BossAI
                     return;
                 case EVENT_BLOOM:
                     DoCastAOE(SPELL_SUMMON_SPORE, true);
-                    DoCastAOE(SPELL_DEATHBLOOM);
+                    DoCastAOE(HEROIC(SPELL_DEATHBLOOM,H_SPELL_DEATHBLOOM));
                     events.ScheduleEvent(EVENT_BLOOM, 30000);
                     return;
                 case EVENT_DOOM:
-                    DoCastAOE(SPELL_INEVITABLE_DOOM);
+                    DoCastAOE(HEROIC(SPELL_INEVITABLE_DOOM,H_SPELL_INEVITABLE_DOOM));
                     events.ScheduleEvent(EVENT_DOOM, events.GetTimer() < 5*60000 ? 30000 : 15000);
                     return;
             }
@@ -79,6 +84,26 @@ CreatureAI* GetAI_boss_loatheb(Creature* pCreature)
     return new boss_loathebAI (pCreature);
 }
 
+enum SporeSpells
+{
+    SPELL_FUNGAL_CREEP                                     = 29232
+};
+
+struct TRINITY_DLL_DECL mob_loatheb_sporeAI : public ScriptedAI
+{
+    mob_loatheb_sporeAI(Creature *c) : ScriptedAI(c) {}
+
+    void JustDied(Unit* killer)
+    {
+        DoCast(killer, SPELL_FUNGAL_CREEP);
+    }
+};
+
+CreatureAI* GetAI_mob_loatheb_spore(Creature* pCreature)
+{
+    return new mob_loatheb_sporeAI (pCreature);
+}
+
 void AddSC_boss_loatheb()
 {
     Script *newscript;
@@ -87,7 +112,12 @@ void AddSC_boss_loatheb()
     newscript->GetAI = &GetAI_boss_loatheb;
     newscript->RegisterSelf();
 
+    newscript = new Script;
+    newscript->Name = "mob_loatheb_spore";
+    newscript->GetAI = &GetAI_mob_loatheb_spore;
+    newscript->RegisterSelf();
+
     // Fungal Creep
-    GetAISpellInfo(29232)->condition = AICOND_DIE;
+    //GetAISpellInfo(29232)->condition = AICOND_DIE;
 }
 
