@@ -230,11 +230,7 @@ void WorldSession::HandleMovementOpcodes( WorldPacket & recv_data )
 
     Unit *mover = _player->m_mover;
 
-    // vehicles become the mover, so mover->GetVehicle() should never be true
-    // also, if the mover is a vehicle, it should never be on a transport
-    assert(mover);
-    assert(!mover->GetVehicle());
-    assert((mover->IsVehicle() && !mover->GetTransport()) || !mover->IsVehicle());
+    assert(mover != NULL);                                  // there must always be a mover
 
     Player *plMover = mover->GetTypeId() == TYPEID_PLAYER ? (Player*)mover : NULL;
 
@@ -283,7 +279,7 @@ void WorldSession::HandleMovementOpcodes( WorldPacket & recv_data )
         }
 
         // if we boarded a transport, add us to it
-        if (plMover && !plMover->GetTransport() && !mover->IsVehicle())
+        if (plMover && !plMover->GetTransport())
         {
             // elevators also cause the client to send MOVEMENTFLAG_ONTRANSPORT - just unmount if the guid can be found in the transport list
             for (MapManager::TransportSet::const_iterator iter = MapManager::Instance().m_Transports.begin(); iter != MapManager::Instance().m_Transports.end(); ++iter)
@@ -297,10 +293,10 @@ void WorldSession::HandleMovementOpcodes( WorldPacket & recv_data )
             }
         }
 
-        if (!mover->GetTransport() && !mover->IsVehicle())
+        if (!mover->GetTransport() && !mover->GetVehicle())
             movementInfo.flags &= ~MOVEMENTFLAG_ONTRANSPORT;
     }
-    else if (plMover && plMover->m_transport)                   // if we were on a transport, leave
+    else if (plMover && plMover->GetTransport())                // if we were on a transport, leave
     {
         plMover->m_transport->RemovePassenger(plMover);
         plMover->m_transport = NULL;
@@ -332,6 +328,13 @@ void WorldSession::HandleMovementOpcodes( WorldPacket & recv_data )
     GetPlayer()->SendMessageToSet(&data, false);
 
     mover->m_movementInfo = movementInfo;
+
+    // this is almost never true (not sure why it is sometimes, but it is), normally use mover->IsVehicle()
+    if (mover->GetVehicle())
+    {
+        mover->SetOrientation(movementInfo.o);
+        return;
+    }
 
     if (plMover)                                            // nothing is charmed, or player charmed
     {
