@@ -18,77 +18,73 @@
 
 /* ScriptData
 SDName: razorscale
+SDAuthor: MaXiMiUS
 SD%Complete: 65
 EndScriptData */
 
 #include "precompiled.h"
 #include "ulduar.h"
 
-//wrong text ids. correct are between -1000000 AND -1999999
-//between -2000000 and -2999999 are custom texts so wtf?
+//not in db
 #define SAY_AGGRO                   -2000000
 #define SAY_KILL                    -2000001
 #define SAY_PHASE_2_TRANS           -2000002
 #define SAY_PHASE_3_TRANS           -2000003
 #define EMOTE_BREATH                -2000004
 
-#define SPELL_FLAMEBUFFET           64016
-#define SPELL_FIREBALL              62796
-
-#define SPELL_WINGBUFFET            62666
-#define SPELL_FLAMEBREATH           63317
-#define SPELL_FUSEARMOR             64771
-#define SPELL_DEVOURINGFLAME        63014
-
-#define SPELL_SUMMONADDS            17646
-
-#define CREATURE_ADDS               33846
-
-static float MovementLocations[4][3] =
+enum Spells
 {
-    {607.7, -281.9, 408.6},
-    {602.0, -245.5, 424.7},
-    {612.3, -230.8, 409.1},
-    {624.1, -251.8, 426.1}
+    SPELL_FLAMEBUFFET      = 64016,
+    SPELL_FIREBALL         = 62796,
+
+    SPELL_WINGBUFFET       = 62666,
+    SPELL_FLAMEBREATH      = 63317,
+    SPELL_FUSEARMOR        = 64771,
+    SPELL_DEVOURINGFLAME   = 63014
 };
 
-static float SpawnLocations[4][3] =
+enum Mobs
 {
-    {602.0, -248.1, 391.2},
-    {624.4, -232-4, 391.1},
-    {643.3, -256.4, 391.4},
-    {626.6, -271.5, 391.4},
+    NPC_DARK_RUNE_SENTINEL = 33846
 };
 
 struct TRINITY_DLL_DECL boss_razorscaleAI : public BossAI
 {
     boss_razorscaleAI(Creature *pCreature) : BossAI(pCreature, TYPE_RAZORSCALE) {}
 
-    uint32 Phase;
+    uint8 Phase;
 
     uint32 FlameBreathTimer;
-    uint32 FUSEARMORTimer;
-    uint32 DEVOURINGFLAMETimer;
-    uint32 MovementTimer;
+    uint32 FuseArmorTimer;
+    uint32 DevouringFlameTimer;
+    uint32 FlameBuffetTimer;
     uint32 SummonAddsTimer;
     uint32 WingBuffetTimer;
     uint32 FireballTimer;
+    //uint32 StunTimer;
+    //uint32 CastSpellsTimer;
 
     bool InitialSpawn;
+    bool IsFlying;
 
     void Reset()
     {
         Phase = 1;
 
+        FlyPhase(Phase, 0);
+
         FlameBreathTimer = 20000;
-        DEVOURINGFLAMETimer = 2000;
-        FUSEARMORTimer = 15000;
-        MovementTimer = 3000;
+        DevouringFlameTimer = 2000;
+        FuseArmorTimer = 15000;
+        FlameBuffetTimer = 3000;
         SummonAddsTimer = 45000;
         WingBuffetTimer = 17000;
         FireballTimer = 18000;
+        //StunTimer = 30000;
+        //CastSpellsTimer = 0;
 
         InitialSpawn = true;
+        IsFlying = true;
 
         m_creature->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_TAUNT, true);
         m_creature->ApplySpellImmune(1, IMMUNITY_EFFECT,SPELL_EFFECT_ATTACK_ME, true);
@@ -122,55 +118,40 @@ struct TRINITY_DLL_DECL boss_razorscaleAI : public BossAI
             m_creature->GetMotionMaster()->MoveTargetedHome();
         }
 
-        if ((m_creature->GetHealth()*100 / m_creature->GetMaxHealth()) < 99 && Phase == 1)
+        if(!m_creature->getVictim()->GetCharmerOrOwnerPlayerOrPlayerItself()) // Victim is not controlled by a player (should never happen)
+            m_creature->getVictim()->CombatStop();                            // Forcibly stop combat with this victim
+
+        if ((m_creature->GetHealth()*100 / m_creature->GetMaxHealth()) < 99 && Phase == 1) // TODO: Only land (exit Phase 1) if brought down with harpoon guns! This is important!
         {
             Phase = 2;
-            m_creature->AddUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
-            m_creature->SetHover(true);
-            m_creature->GetMotionMaster()->Clear(false);
-            m_creature->GetMotionMaster()->MoveIdle();
-            DoScriptText(SAY_PHASE_2_TRANS, m_creature);
+            DoScriptText(SAY_PHASE_2_TRANS, m_creature); // Audio: "Move quickly! She won't remain grounded for long!"
         }
 
-        if ((m_creature->GetHealth()*100 / m_creature->GetMaxHealth()) < 50 && Phase == 2)
+        if ((m_creature->GetHealth()*100 / m_creature->GetMaxHealth()) < 33 && Phase == 2) // Health under 33%, Razorscale can't fly anymore.
         {
             Phase = 3;
-            m_creature->RemoveUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
-            m_creature->SetHover(false);
-            m_creature->GetMotionMaster()->MovePoint(0, 619.6, -261.1, 391.471832);
-            DoStartMovement(m_creature->getVictim());
-            m_creature->RemoveUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
-            DoScriptText(SAY_PHASE_3_TRANS, m_creature);
-            m_creature->GetMotionMaster()->MoveChase(m_creature->getVictim());
+            DoScriptText(SAY_PHASE_3_TRANS, m_creature); // "Razorscale lands permanently!"
+            // TODO: Cast Devouring Flame on all harpoon guns simultaneously, briefly after Phase 3 starts (lasts until the harpoon guns are destroyed)
         }
 
-        if (Phase == 1 || Phase == 3)
+        /*
+        if (Phase == 2 && CastSpellsTimer > 0) // 5 seconds of spell casting, after stun breaks, during Phase 2
         {
-            if (FlameBreathTimer <= diff)
-            {
-                DoCastVictim(SPELL_FLAMEBREATH);
-                FlameBreathTimer = 15000;
-            } else FlameBreathTimer -= diff;
+            if (CastSpellsTimer <= diff)       // 5 seconds are up
+                Phase = 1;                     // Return to phase 1
+            else
+                CastSpellsTimer -= diff;
+        }*/
 
-            if (DEVOURINGFLAMETimer <= diff)
-            {
-                std::list<Unit*> pTargets;
-                SelectTargetList(pTargets, 10, SELECT_TARGET_RANDOM, 100, true);
-                for (std::list<Unit*>::iterator i = pTargets.begin(); i != pTargets.end(); ++i)
-                    if (!m_creature->HasInArc(M_PI, *i))
-                    {
-                        DoCast(*i, SPELL_DEVOURINGFLAME);
-                        break;
-                    }
+        FlyPhase(Phase, diff);
 
-                DEVOURINGFLAMETimer = 10000;
-            } else DEVOURINGFLAMETimer -= diff;
-
-            if (FUSEARMORTimer <= diff)
+        if (Phase >= 2) // Ground Phase (Phase 3 = permanent ground phase)
+        {
+            if (FuseArmorTimer <= diff)
             {
                 DoCastVictim(SPELL_FUSEARMOR);
-                FUSEARMORTimer = 10000;
-            } else FUSEARMORTimer -= diff;
+                FuseArmorTimer = 10000;
+            } else FuseArmorTimer -= diff;
 
             if (WingBuffetTimer <= diff)
             {
@@ -178,10 +159,53 @@ struct TRINITY_DLL_DECL boss_razorscaleAI : public BossAI
                 WingBuffetTimer = urand(7000,14000);
             } else WingBuffetTimer -= diff;
 
+            if (FireballTimer <= diff)
+            {
+                if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 200, true))
+                {
+                    m_creature->SetInFront(pTarget);
+                    DoCast(pTarget, SPELL_FIREBALL);
+                }
+
+                FireballTimer = 18000;
+            } else FireballTimer -= diff;
+
+            if (FlameBreathTimer <= diff)
+            {
+                DoScriptText(EMOTE_BREATH, m_creature); // TODO: "Razorscale takes a deep breath..."
+                DoCastVictim(SPELL_FLAMEBREATH);
+                FlameBreathTimer = 15000;
+                WingBuffetTimer = 0;
+            } else FlameBreathTimer -= diff;
+
+            if (Phase == 3)
+            {
+                if (FlameBuffetTimer <= diff)
+                {
+                    DoScriptText(EMOTE_BREATH, m_creature);
+                    std::list<Unit*> pTargets;
+                    SelectTargetList(pTargets, HEROIC(3,9), SELECT_TARGET_RANDOM, 100, true);
+                    uint8 i = 0;
+                    for (std::list<Unit*>::iterator itr = pTargets.begin(); itr != pTargets.end();)
+                    {
+                        if (m_creature->HasInArc(M_PI, *itr))
+                        {
+                            DoCast(*itr, SPELL_FLAMEBUFFET, true);
+                            ++i;
+                        }
+                        if (++itr == pTargets.end() || i == HEROIC(3,9))
+                        {
+                            AttackStart(*--itr); // seems to attack targets randomly during perma-ground phase..
+                            break;
+                        }
+                    }
+                    FlameBuffetTimer = 25000;
+                } else FlameBuffetTimer -= diff;
+            }
+
             DoMeleeAttackIfReady();
         }
-
-        if (Phase == 2)
+        else if (Phase == 1) //Flying Phase
         {
             if (InitialSpawn)
                 SummonAdds();
@@ -190,30 +214,25 @@ struct TRINITY_DLL_DECL boss_razorscaleAI : public BossAI
 
             if (FireballTimer <= diff)
             {
-                std::list<Unit*> pTargets;
-                SelectTargetList(pTargets, 10, SELECT_TARGET_RANDOM, 100, true);
-                for (std::list<Unit*>::iterator i = pTargets.begin(); i != pTargets.end(); ++i)
-                    if (!m_creature->HasInArc(M_PI, *i))
-                    {
-                        DoCast(*i, SPELL_FIREBALL);
-                        break;
-                    }
+                if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 200, true))
+                {
+                    m_creature->SetInFront(pTarget);
+                    DoCast(pTarget, SPELL_FIREBALL);
+                }
 
                 FireballTimer = 18000;
             } else FireballTimer -= diff;
 
-            if (MovementTimer <= diff)
+            if (DevouringFlameTimer <= diff)
             {
-                if (urand(0,99) < 30)
+                if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 200, true))
                 {
-                    DoScriptText(EMOTE_BREATH, m_creature);
-                    if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                        DoCast(pTarget, SPELL_FLAMEBUFFET);
+                    m_creature->SetInFront(pTarget);
+                    DoCast(pTarget, SPELL_DEVOURINGFLAME);
                 }
-                else ChangePosition();
 
-                MovementTimer = 25000;
-            } else MovementTimer -= diff;
+                DevouringFlameTimer = 10000;
+            } else DevouringFlameTimer -= diff;
 
             if (SummonAddsTimer <= diff)
                 SummonAdds();
@@ -221,23 +240,74 @@ struct TRINITY_DLL_DECL boss_razorscaleAI : public BossAI
         }
     }
 
-    void ChangePosition()
-    {
-        /* Malfunctioning, Razorscale is flying around randomly, attacking players from hundreds of yards away.
-        uint8 random = urand(0,3);
-        m_creature->GetMotionMaster()->MovePoint(0, MovementLocations[random][0], MovementLocations[random][1], MovementLocations[random][2]); */
-    }
-
     void SummonAdds()
     {
-        for (uint32 i = 0; i < 4; ++i)
+        // TODO: Adds will come in waves from mole machines. One mole can spawn a Dark Rune Watcher
+        // with 1-2 Guardians, or a lone Sentinel. Up to 4 mole machines can spawn adds at any given time.
+        uint8 random = urand(1,4);
+        for (uint8 i = 0; i < random; ++i)
         {
-            uint8 random = urand(0,3);
-            if (Creature *pAdd = m_creature->SummonCreature(CREATURE_ADDS, SpawnLocations[random][0], SpawnLocations[random][1], SpawnLocations[random][2], 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 30000))
-                if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 200, true))
-                    pAdd->AI()->AttackStart(pTarget);
+            Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 200, true);
+            float x = std::max(500.0f, std::min(650.0f, pTarget->GetPositionX() + irand(-20,20)));   // Safe range is between 500 and 650
+            float y = std::max(-235.0f, std::min(-145.0f, pTarget->GetPositionY() + irand(-20,20))); // Safe range is between -235 and -145
+            float z = m_creature->GetBaseMap()->GetHeight(x, y, MAX_HEIGHT);                         // Ground level
+            // TODO: Spawn drillers, then spawn adds 5 seconds later
+            if (Creature *pAdd = m_creature->SummonCreature(NPC_DARK_RUNE_SENTINEL, x, y, z, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 30000))
+                pAdd->AI()->AttackStart(pTarget);
         }
         SummonAddsTimer = 45000;
+    }
+
+    void FlyPhase(uint8 Phase, const uint32 diff)
+    {
+        const float x = 587.54;
+        const float y = -174.92;
+        const float GroundLevel = m_creature->GetBaseMap()->GetHeight(x, y, MAX_HEIGHT);
+        const float FlightHeight = GroundLevel + 4.0f; // TODO: Fly out of range of attacks (442 is sufficient height for this), minus ~(10*number of harpoon gun chains attached to Razorscale)
+        
+        if (Phase == 1) // Always flying during Phase 1
+            IsFlying = true;
+
+        m_creature->SetFlying(IsFlying);
+        m_creature->SendMovementFlagUpdate();
+
+        if (Phase == 1) // Flying Phase
+        {
+            if (m_creature->GetPositionZ() == FlightHeight) // Correct height, stop moving
+                m_creature->RemoveUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
+            else        // Incorrect height
+            {
+                m_creature->AddUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
+                m_creature->GetMotionMaster()->MovePoint(0, x, y, FlightHeight);
+            }
+        }
+        else // Ground Phases
+        {
+            const float CurrentGroundLevel = m_creature->GetBaseMap()->GetHeight(m_creature->GetPositionX(), m_creature->GetPositionY(), MAX_HEIGHT);
+            //if (StunTimer == 30000) // Only fly around if not stunned.
+            //{
+                m_creature->AddUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
+                if (IsFlying && m_creature->GetPositionZ() > CurrentGroundLevel) // Fly towards the ground
+                    m_creature->GetMotionMaster()->MovePoint(0, m_creature->GetPositionX(), m_creature->GetPositionY(), CurrentGroundLevel);
+                else
+                    IsFlying = false; // Landed, no longer flying
+            //}
+
+            //if (!IsFlying &&Phase == 2 && CastSpellsTimer == 0 && StunTimer >= diff) // No longer flying, non-permanent ground phase, and not casting spells
+            //{
+                // TODO: Add stun here. 30 second stun after Razorscale is grounded by harpoon guns
+                //StunTimer -= diff;
+            //}
+            //else if (StunTimer != 30000 && (StunTimer < 0 || Phase == 3)) // Stun is active, and needs to end. Note: Stun breaks instantly if Phase 3 starts
+            //{
+                // TODO: Remove stun here.
+                //DoCast(SPELL_WINGBUFFET);   // "Used in the beginning of the phase."
+                //WingBuffetTimer = urand(7000,14000);
+                //StunTimer = 30000;          // Reinitialize the stun timer
+                //if (Phase == 2)             // Non-permanent ground phase
+                //    CastSpellsTimer = 5000; // Five seconds of casting before returning to Phase 1
+           //}
+        }
     }
 };
 
