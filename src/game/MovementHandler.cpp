@@ -232,7 +232,9 @@ void WorldSession::HandleMovementOpcodes( WorldPacket & recv_data )
 
     // vehicles become the mover, so mover->GetVehicle() should never be true
     // also, if the mover is a vehicle, it should never be on a transport
-    assert(mover && !mover->GetVehicle() && (!mover->IsVehicle() || !mover->GetTransport()));
+    assert(mover);
+    assert(!mover->GetVehicle());
+    assert((mover->IsVehicle() && !mover->GetTransport()) || !mover->IsVehicle());
 
     Player *plMover = mover->GetTypeId() == TYPEID_PLAYER ? (Player*)mover : NULL;
 
