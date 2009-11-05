@@ -1118,6 +1118,9 @@ void WorldSession::HandleGuildBankSwapItems( WorldPacket & recv_data )
     if(!pGuild)
         return;
 
+    if (BankTab >= pGuild->GetPurchasedTabs())
+        return;
+
     Player *pl = GetPlayer();
 
     // Bank <-> Bank
