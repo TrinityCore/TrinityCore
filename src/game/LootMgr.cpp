@@ -468,11 +468,11 @@ QuestItemList* Loot::FillQuestLoot(Player* player)
     for (uint8 i = 0; i < quest_items.size(); ++i)
     {
         LootItem &item = quest_items[i];
-        if(!item.is_looted && item.AllowedForPlayer(player) )
+        if (!item.is_looted && item.AllowedForPlayer(player))
         {
             ql->push_back(QuestItem(i));
 
-            // questitems get blocked when they first apper in a
+            // questitems get blocked when they first appear in a
             // player's quest vector
             //
             // increase once if one looter only, looter-times if free for all
@@ -862,7 +862,13 @@ void LootTemplate::LootGroup::Process(Loot& loot, uint16 lootMode) const
 {
     LootStoreItem const * item = Roll();
     if (item != NULL && item->lootmode & lootMode) // only add this item if roll succeeds and the mode matches
+    {
+        for (LootItemList::const_iterator _item = loot.items.begin(); _item != loot.items.end(); ++_item)
+           if (_item->itemid == i->itemid)
+               return;                             // Never add the same item twice
+
         loot.AddItem(*item);
+    }
 }
 
 // Overall chance for the group without equal chanced items
