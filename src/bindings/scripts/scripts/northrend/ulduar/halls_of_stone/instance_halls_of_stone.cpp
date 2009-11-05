@@ -10,6 +10,12 @@
 3- Sjonnir The Ironshaper
 */
 
+enum GameObjects
+{
+    GO_TRIBUNAL_CHEST       = 190586,
+    GO_TRIBUNAL_CHEST_HERO  = 193996
+};
+
 struct TRINITY_DLL_DECL instance_halls_of_stone : public ScriptedInstance
 {
     instance_halls_of_stone(Map* pMap) : ScriptedInstance(pMap) {Initialize();};
@@ -71,7 +77,7 @@ struct TRINITY_DLL_DECL instance_halls_of_stone : public ScriptedInstance
             case 27978: uiSjonnir = pCreature->GetGUID(); break;
             case 30897: uiMarnak = pCreature->GetGUID(); break;
             case 30898: uiKaddrak = pCreature->GetGUID(); break;
-            case 30099: uiAbedneum = pCreature->GetGUID(); break;
+            case 30899: uiAbedneum = pCreature->GetGUID(); break;
             case 28070: uiBrann = pCreature->GetGUID(); break;
         }
     }
@@ -113,8 +119,11 @@ struct TRINITY_DLL_DECL instance_halls_of_stone : public ScriptedInstance
             case 193907:
                 uiTribunalConsole = pGo->GetGUID();
                 break;
-            case 190586:
+            case GO_TRIBUNAL_CHEST:
+            case GO_TRIBUNAL_CHEST_HERO:
                 uiTribunalChest = pGo->GetGUID();
+                if (m_auiEncounter[2] == DONE)
+                    pGo->RemoveFlag(GAMEOBJECT_FLAGS,GO_FLAG_INTERACT_COND);
                 break;
             case 191527:
                 uiTribunalSkyFloor = pGo->GetGUID();
@@ -142,7 +151,12 @@ struct TRINITY_DLL_DECL instance_halls_of_stone : public ScriptedInstance
             case DATA_BRANN_EVENT:
                 m_auiEncounter[2] = data;
                 if (m_auiEncounter[2] == DONE)
+                {
                     HandleGameObject(uiSjonnirDoor,true);
+                    GameObject *pGo = instance->GetGameObject(uiTribunalChest);
+                    if (pGo)
+                        pGo->RemoveFlag(GAMEOBJECT_FLAGS,GO_FLAG_INTERACT_COND);
+                }
                 break;
         }
 

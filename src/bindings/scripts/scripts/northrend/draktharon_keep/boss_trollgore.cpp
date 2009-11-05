@@ -59,7 +59,7 @@ enum Creatures
     NPC_DRAKKARI_INVADER_2                                 = 27709
 };
 
-Position SpawnPoint = { -260.493011, -622.968018, 26.605301, 3.036870 };
+Position AddSpawnPoint = { -260.493011, -622.968018, 26.605301, 3.036870 };
 
 struct TRINITY_DLL_DECL boss_trollgoreAI : public ScriptedAI
 {
@@ -118,7 +118,7 @@ struct TRINITY_DLL_DECL boss_trollgoreAI : public ScriptedAI
         if (uiSpawnTimer < diff)
         {
             for (uint8 i = 0; i < urand(2,HEROIC(3,5)); ++i)
-                DoSpawnCreature(RAND(NPC_DRAKKARI_INVADER_1,NPC_DRAKKARI_INVADER_2), SpawnPoint.GetPositionX(), SpawnPoint.GetPositionY(), SpawnPoint.GetPositionZ(), SpawnPoint.GetOrientation(), TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 90000);
+                DoSpawnCreature(RAND(NPC_DRAKKARI_INVADER_1,NPC_DRAKKARI_INVADER_2), AddSpawnPoint.GetPositionX(), AddSpawnPoint.GetPositionY(), AddSpawnPoint.GetPositionZ(), AddSpawnPoint.GetOrientation(), TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 90000);
             uiSpawnTimer = urand(30000,40000);
         } else uiSpawnTimer -= diff;
 

@@ -14,42 +14,42 @@ update creature_template set scriptname = 'boss_sjonnir' where entry = '';
 
 enum Spells
 {
-    SPELL_LIGHTING_RING                        = 51849, //Periodic Trigger (interval 2s) spell = 50841
-    H_SPELL_LIGHTING_RING                      = 59861, //Periodic Trigger (interval 2s) spell = 59849
-    SPELL_LIGHTING_RING_1                      = 50840, //Periodic Trigger (interval 2s) spell = 50841
-    H_SPELL_LIGHTING_RING_1                    = 59848, //Periodic Trigger (interval 2s) spell = 59849
-    SPELL_STATIC_CHARGE                        = 50834, //Periodic Trigger 2s interval, spell =50835
-    H_SPELL_STATIC_CHARGE                      = 59846, //Periodic Trigger 2s interval, spell =50847
-    SPELL_CHAIN_LIGHTING                       = 50830,
-    H_SPELL_CHAIN_LIGHTING                     = 59844,
-    SPELL_LIGHTING_SHIELD                      = 50831,
-    H_SPELL_LIGHTING_SHIELD                    = 59845,
-    SPELL_FRENZY                               = 28747
+    SPELL_LIGHTING_RING                                    = 51849, //Periodic Trigger (interval 2s) spell = 50841
+    H_SPELL_LIGHTING_RING                                  = 59861, //Periodic Trigger (interval 2s) spell = 59849
+    SPELL_LIGHTING_RING_1                                  = 50840, //Periodic Trigger (interval 2s) spell = 50841
+    H_SPELL_LIGHTING_RING_1                                = 59848, //Periodic Trigger (interval 2s) spell = 59849
+    SPELL_STATIC_CHARGE                                    = 50834, //Periodic Trigger 2s interval, spell =50835
+    H_SPELL_STATIC_CHARGE                                  = 59846, //Periodic Trigger 2s interval, spell =50847
+    SPELL_CHAIN_LIGHTING                                   = 50830,
+    H_SPELL_CHAIN_LIGHTING                                 = 59844,
+    SPELL_LIGHTING_SHIELD                                  = 50831,
+    H_SPELL_LIGHTING_SHIELD                                = 59845,
+    SPELL_FRENZY                                           = 28747
 };
 
 enum Yells
 {
-    SAY_AGGRO                               = -1603011,
-    SAY_SLAY_1                              = -1603012,
-    SAY_SLAY_2                              = -1603013,
-    SAY_SLAY_3                              = -1603014,
-    SAY_DEATH                               = -1603015
+    SAY_AGGRO                                              = -1603011,
+    SAY_SLAY_1                                             = -1603012,
+    SAY_SLAY_2                                             = -1603013,
+    SAY_SLAY_3                                             = -1603014,
+    SAY_DEATH                                              = -1603015
 };
 
-#define EMOTE_GENERIC_FRENZY                  -1000002
+#define EMOTE_GENERIC_FRENZY                               -1000002
 
 enum Creatures
 {
-    CREATURE_FORGED_IRON_TROGG              = 27979,
-    CREATURE_MALFORMED_OOZE                 = 27981,
-    CREATURE_FORGED_IRON_DWARF              = 27982,
-    CREATURE_IRON_SLUDGE                    = 28165
+    CREATURE_FORGED_IRON_TROGG                             = 27979,
+    CREATURE_MALFORMED_OOZE                                = 27981,
+    CREATURE_FORGED_IRON_DWARF                             = 27982,
+    CREATURE_IRON_SLUDGE                                   = 28165
 };
 
 enum Misc
 {
-    DATA_TIME_BEFORE_OOZE                   = 150000, //2min 30 secs
-    ACHIEVEMENT_ABUSE_THE_OOZE              = 2155
+    DATA_TIME_BEFORE_OOZE                                  = 150000, //2min 30 secs
+    ACHIEV_ABUSE_THE_OOZE                                  = 2155
 };
 
 struct Locations
@@ -67,7 +67,7 @@ static Locations CenterPoint = {1295.21, 667.157, 189.691};
 
 struct TRINITY_DLL_DECL boss_sjonnirAI : public ScriptedAI
 {
-    boss_sjonnirAI(Creature *c) : ScriptedAI(c)
+    boss_sjonnirAI(Creature *c) : ScriptedAI(c), lSummons(me)
     {
         pInstance = c->GetInstanceData();
     }
@@ -83,6 +83,8 @@ struct TRINITY_DLL_DECL boss_sjonnirAI : public ScriptedAI
     uint32 uiEncounterTimer;
     uint32 uiKilledIronSludges;
 
+    SummonList lSummons;
+
     ScriptedInstance* pInstance;
 
     void Reset()
@@ -97,6 +99,8 @@ struct TRINITY_DLL_DECL boss_sjonnirAI : public ScriptedAI
         uiSummonTimer = 5000;
         uiFrenzyTimer = 300000; //5 minutes
         uiKilledIronSludges = 0;
+
+        lSummons.DespawnAll();
 
         if (pInstance)
             pInstance->SetData(DATA_SJONNIR_EVENT, NOT_STARTED);
@@ -175,29 +179,20 @@ struct TRINITY_DLL_DECL boss_sjonnirAI : public ScriptedAI
         summon->GetMotionMaster()->MovePoint(0, CenterPoint.x, CenterPoint.y, CenterPoint.z);
         /*if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
             summon->AI()->AttackStart(pTarget);*/
+        lSummons.Summon(summon);
     }
 
     void JustDied(Unit* killer)
     {
         DoScriptText(SAY_DEATH, m_creature);
-
-        if (HeroicMode && uiKilledIronSludges > 4)
-        {
-            AchievementEntry const *AchievAbuseTheOoze = GetAchievementStore()->LookupEntry(ACHIEVEMENT_ABUSE_THE_OOZE);
-            if (AchievAbuseTheOoze)
-            {
-                Map* pMap = m_creature->GetMap();
-                if (pMap && pMap->IsDungeon())
-                {
-                    Map::PlayerList const &players = pMap->GetPlayers();
-                    for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
-                        itr->getSource()->CompletedAchievement(AchievAbuseTheOoze);
-                }
-            }
-        }
+        lSummons.DespawnAll();
 
         if (pInstance)
+        {
             pInstance->SetData(DATA_SJONNIR_EVENT, DONE);
+            if (HeroicMode && uiKilledIronSludges > 4)
+                pInstance->DoCompleteAchievement(ACHIEV_ABUSE_THE_OOZE);
+        }
     }
     void KilledUnit(Unit *victim)
     {
@@ -222,40 +217,29 @@ struct TRINITY_DLL_DECL mob_malformed_oozeAI : public ScriptedAI
     mob_malformed_oozeAI(Creature *c) : ScriptedAI(c) {}
 
     uint32 uiMergeTimer;
-    bool bIsMerging;
 
     void Reset()
     {
-        uiMergeTimer = 5000;
-        bIsMerging = false;
+        uiMergeTimer = 10000;
     }
 
     void UpdateAI(const uint32 diff)
     {
-        if (bIsMerging)
+        if (uiMergeTimer <= diff)
         {
-            if (uiMergeTimer <= diff)
+            if (Creature* pTemp = m_creature->FindNearestCreature(CREATURE_MALFORMED_OOZE, 3.0f, true))
             {
-                if (Creature* pTemp = m_creature->FindNearestCreature(CREATURE_MALFORMED_OOZE, 1.0f, true))
-                {
-                    DoSpawnCreature(CREATURE_IRON_SLUDGE, 0, 0, 0, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 20000);
-                    pTemp->DisappearAndDie();
-                    m_creature->DisappearAndDie();
-                } else bIsMerging = false;
-            } else uiMergeTimer -= diff;
-        }
+                DoSpawnCreature(CREATURE_IRON_SLUDGE, 0, 0, 0, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 20000);
+                pTemp->DisappearAndDie();
+                m_creature->DisappearAndDie();
+            }
+            uiMergeTimer = 3000;
+        } else uiMergeTimer -= diff;
 
         if (!UpdateVictim())
             return;
 
         DoMeleeAttackIfReady();
-    }
-
-    void MovementInform(uint32 type, uint32 id)
-    {
-        if(type != POINT_MOTION_TYPE)
-            return;
-        bIsMerging = true;
     }
 };
 
