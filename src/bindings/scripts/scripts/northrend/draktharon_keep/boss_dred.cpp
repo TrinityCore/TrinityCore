@@ -29,21 +29,26 @@ Script Data End */
 
 enum eSpells
 {
-    SPELL_BELLOWING_ROAR                     = 44863, // fears the group, can be resisted/dispelled
-    SPELL_GRIEVOUS_BITE                      = 48920,
-    SPELL_MANGLING_SLASH                     = 48873, //casted on the current tank, adds debuf
-    SPELL_FEARSOME_ROAR                      = 48849,
-    H_SPELL_FEARSOME_ROAR                    = 48849, //Not stacking, debuff
-    SPELL_PIERCING_SLASH                     = 48878, //debuff -->Armor reduced by 75%
-    SPELL_RAPTOR_CALL                        = 59416, //dummy
-
-    SPELL_GUT_RIP                            = 49710,
-    SPELL_REND                               = 13738
+    SPELL_BELLOWING_ROAR                                   = 44863, // fears the group, can be resisted/dispelled
+    SPELL_GRIEVOUS_BITE                                    = 48920,
+    SPELL_MANGLING_SLASH                                   = 48873, //casted on the current tank, adds debuf
+    SPELL_FEARSOME_ROAR                                    = 48849,
+    H_SPELL_FEARSOME_ROAR                                  = 48849, //Not stacking, debuff
+    SPELL_PIERCING_SLASH                                   = 48878, //debuff -->Armor reduced by 75%
+    SPELL_RAPTOR_CALL                                      = 59416, //dummy
+    SPELL_GUT_RIP                                          = 49710,
+    SPELL_REND                                             = 13738
 };
 
 enum eArchivements
 {
-    ACHIEV_BETTER_OFF_DRED = 2039
+    ACHIEV_BETTER_OFF_DRED                                 = 2039
+};
+
+enum Creatures
+{
+    NPC_RAPTOR_1                                           = 26641,
+    NPC_RAPTOR_2                                           = 26628
 };
 
 struct TRINITY_DLL_DECL boss_dredAI : public ScriptedAI
@@ -75,7 +80,7 @@ struct TRINITY_DLL_DECL boss_dredAI : public ScriptedAI
         ManglingSlashTimer = 18500;
         FearsomeRoarTimer  = urand(10000,20000);
         PiercingSlashTimer = 17000;
-        RaptorCallTimer    = 12000;
+        RaptorCallTimer    = urand(20000,25000);
     }
 
     void EnterCombat(Unit* who)
@@ -127,12 +132,9 @@ struct TRINITY_DLL_DECL boss_dredAI : public ScriptedAI
             float x,y,z;
 
             m_creature->GetClosePoint(x,y,z,m_creature->GetObjectSize()/3,10.0f);
-            m_creature->SummonCreature(26628,x,y,z,0,TEMPSUMMON_DEAD_DESPAWN,1000);
+            m_creature->SummonCreature(RAND(NPC_RAPTOR_1,NPC_RAPTOR_2),x,y,z,0,TEMPSUMMON_DEAD_DESPAWN,1000);
 
-            m_creature->GetClosePoint(x,y,z,m_creature->GetObjectSize()/3,10.0f);
-            m_creature->SummonCreature(26641,x,y,z,0,TEMPSUMMON_DEAD_DESPAWN,1000);
-
-            RaptorCallTimer = 20000;
+            RaptorCallTimer = urand(20000,25000);
         } else RaptorCallTimer -=diff;
 
         DoMeleeAttackIfReady();

@@ -55,12 +55,15 @@ enum Achievements
 };
 enum Creatures
 {
-    NPC_DRAKKARI_INVADERS                                  = 22222
+    NPC_DRAKKARI_INVADER_1                                 = 27753,
+    NPC_DRAKKARI_INVADER_2                                 = 27709
 };
+
+Position SpawnPoint = { -260.493011, -622.968018, 26.605301, 3.036870 };
 
 struct TRINITY_DLL_DECL boss_trollgoreAI : public ScriptedAI
 {
-    boss_trollgoreAI(Creature *c) : ScriptedAI(c)
+    boss_trollgoreAI(Creature *c) : ScriptedAI(c), lSummons(me)
     {
         pInstance = c->GetInstanceData();
     }
@@ -70,8 +73,11 @@ struct TRINITY_DLL_DECL boss_trollgoreAI : public ScriptedAI
     uint32 uiCrushTimer;
     uint32 uiInfectedWoundTimer;
     uint32 uiExplodeCorpseTimer;
+    uint32 uiSpawnTimer;
 
     bool bAchiev;
+
+    SummonList lSummons;
 
     ScriptedInstance* pInstance;
 
@@ -82,8 +88,11 @@ struct TRINITY_DLL_DECL boss_trollgoreAI : public ScriptedAI
         uiCrushTimer = urand(1000,5000);
         uiInfectedWoundTimer = urand(6000,10000);
         uiExplodeCorpseTimer = 3000;
+        uiSpawnTimer = urand(30000,40000);
 
         bAchiev = HeroicMode;
+
+        lSummons.DespawnAll();
 
         if (m_creature->HasAura(HEROIC(SPELL_CONSUME,H_SPELL_CONSUME)))
             m_creature->RemoveAura(HEROIC(SPELL_CONSUME,H_SPELL_CONSUME));
@@ -99,13 +108,19 @@ struct TRINITY_DLL_DECL boss_trollgoreAI : public ScriptedAI
         if (pInstance)
             pInstance->SetData(DATA_TROLLGORE_EVENT, IN_PROGRESS);
     }
-    void AttackStart(Unit* who) {}
-    void MoveInLineOfSight(Unit* who) {}
+
     void UpdateAI(const uint32 diff)
     {
         //Return since we have no target
         if (!UpdateVictim())
             return;
+
+        if (uiSpawnTimer < diff)
+        {
+            for (uint8 i = 0; i < urand(2,HEROIC(3,5)); ++i)
+                DoSpawnCreature(RAND(NPC_DRAKKARI_INVADER_1,NPC_DRAKKARI_INVADER_2), SpawnPoint.GetPositionX(), SpawnPoint.GetPositionY(), SpawnPoint.GetPositionZ(), SpawnPoint.GetOrientation(), TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 90000);
+            uiSpawnTimer = urand(30000,40000);
+        } else uiSpawnTimer -= diff;
 
         if (uiConsumeTimer < diff)
         {
@@ -149,9 +164,12 @@ struct TRINITY_DLL_DECL boss_trollgoreAI : public ScriptedAI
 
         DoMeleeAttackIfReady();
     }
+    
     void JustDied(Unit* killer)
     {
         DoScriptText(SAY_DEATH, m_creature);
+
+        lSummons.DespawnAll();
 
         if (pInstance)
         {
@@ -160,11 +178,17 @@ struct TRINITY_DLL_DECL boss_trollgoreAI : public ScriptedAI
             pInstance->SetData(DATA_TROLLGORE_EVENT, DONE);
         }
     }
+    
     void KilledUnit(Unit *victim)
     {
         if (victim == m_creature)
             return;
         DoScriptText(SAY_KILL, m_creature);
+    }
+
+    void JustSummoned(Creature* summon)
+    {
+        summon->AI()->AttackStart(m_creature);
     }
 };
 
