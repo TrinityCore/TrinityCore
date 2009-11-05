@@ -864,7 +864,7 @@ void LootTemplate::LootGroup::Process(Loot& loot, uint16 lootMode) const
     if (item != NULL && item->lootmode & lootMode) // only add this item if roll succeeds and the mode matches
     {
         for (LootItemList::const_iterator _item = loot.items.begin(); _item != loot.items.end(); ++_item)
-           if (_item->itemid == i->itemid)
+           if (_item->itemid == item->itemid)
                return;                             // Never add the same item twice
 
         loot.AddItem(*item);
