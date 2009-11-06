@@ -273,12 +273,13 @@ struct TRINITY_DLL_DECL boss_razorscaleAI : public BossAI
 
         if (Phase == 1) // Flying Phase
         {
-            if (m_creature->GetPositionZ() == FlightHeight) // Correct height, stop moving
-                m_creature->RemoveUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
+            if (m_creature->GetPositionZ() > FlightHeight) // Correct height, stop moving
+                m_creature->AddUnitMovementFlag(MOVEMENTFLAG_ROOT);
             else        // Incorrect height
             {
-                m_creature->AddUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
-                m_creature->GetMotionMaster()->MovePoint(0, x, y, FlightHeight);
+                m_creature->RemoveUnitMovementFlag(MOVEMENTFLAG_ROOT);
+                // TODO: Move faster while flying
+                m_creature->GetMotionMaster()->MovePoint(0, x, y, FlightHeight + 0.5f); // Fly to slightly above (x, y, FlightHeight)
             }
         }
         else // Ground Phases
@@ -286,9 +287,11 @@ struct TRINITY_DLL_DECL boss_razorscaleAI : public BossAI
             const float CurrentGroundLevel = m_creature->GetBaseMap()->GetHeight(m_creature->GetPositionX(), m_creature->GetPositionY(), MAX_HEIGHT);
             //if (StunTimer == 30000) // Only fly around if not stunned.
             //{
-                m_creature->AddUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
+                m_creature->RemoveUnitMovementFlag(MOVEMENTFLAG_ROOT);
                 if (IsFlying && m_creature->GetPositionZ() > CurrentGroundLevel) // Fly towards the ground
                     m_creature->GetMotionMaster()->MovePoint(0, m_creature->GetPositionX(), m_creature->GetPositionY(), CurrentGroundLevel);
+                    // TODO: Move faster while flying
+                    // TODO: Swoop up just before landing
                 else
                     IsFlying = false; // Landed, no longer flying
             //}
