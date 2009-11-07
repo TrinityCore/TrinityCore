@@ -113,6 +113,7 @@ enum WintergraspCreType
     CREATURE_SPECIAL,
     CREATURE_SPIRIT_GUIDE,
     CREATURE_SPIRIT_HEALER,
+    CREATURE_QUESTGIVER,
 };
 
 enum BuildingType
@@ -179,6 +180,8 @@ class OPvPWintergrasp : public OutdoorPvP
         typedef std::map<uint32, BuildingState *> BuildingStateMap;
         typedef std::set<Creature*> CreatureSet;
         typedef std::set<GameObject*> GameObjectSet;
+        typedef std::map<std::pair<uint32, bool>, Position> QuestGiverPositionMap;
+        typedef std::map<uint32, Creature*> QuestGiverMap;
     public:
         OPvPWintergrasp();
         bool SetupOutdoorPvP();
@@ -242,8 +245,10 @@ class OPvPWintergrasp : public OutdoorPvP
         CreatureSet m_creatures;
         CreatureSet m_vehicles[2];
         GameObjectSet m_gobjects;
+        QuestGiverMap m_questgivers;
 
         TeamPairMap m_creEntryPair, m_goDisplayPair;
+        QuestGiverPositionMap m_qgPosMap;
 
         bool m_wartime;
         bool m_changeDefender;
@@ -268,7 +273,7 @@ class OPvPWintergrasp : public OutdoorPvP
         void UpdateTenacityStack();
         void CastTenacity(Unit *utr, int32 newStack);
         void UpdateAllWorldObject();
-        bool UpdateCreatureInfo(Creature *creature) const;
+        bool UpdateCreatureInfo(Creature *creature);
         bool UpdateGameObjectInfo(GameObject *go) const;
 
         bool CanBuildVehicle(SiegeWorkshop *workshop) const;
@@ -276,12 +281,12 @@ class OPvPWintergrasp : public OutdoorPvP
 
         void RebuildAllBuildings();
 
-        void LieutenantCastSpell(TeamId team, int32 spellId) const;
-        void VehicleCastSpell(TeamId team, int32 spellId) const;
-
         void SendInitWorldStatesTo(Player *player = NULL) const;
         void RemoveOfflinePlayerWGAuras();
         void RewardMarkOfHonor(Player *player, uint32 count);
+        void MoveQuestGiver(uint32 guid);
+        void LoadQuestGiverMap(uint32 guid, Position posHorde, Position posAlli);
+        bool UpdateQuestGiverPosition(uint32 guid, Creature *creature);
 };
 
 class SiegeWorkshop : public OPvPCapturePoint

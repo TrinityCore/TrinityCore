@@ -471,14 +471,6 @@ bool GOHello_go_bashir_crystalforge(Player* pPlayer, GameObject* pGO)
     return false;
 }
 
-bool GOHello_go_wg2voa_portal(Player* pPlayer, GameObject* pGO)
-{
-    // teleport player inside VoA if faction controls WG, core has already set faction for this GO
-    pPlayer->TeleportTo(571,5405.61,2854.35,418.90,2.4636);
-    pPlayer->SetPvP(false);
-    return false;
-}
-
 /*######
 ## matrix_punchograph
 ######*/
@@ -682,11 +674,6 @@ void AddSC_go_scripts()
     newscript = new Script;
     newscript->Name = "go_bashir_crystalforge";
     newscript->pGOHello =           &GOHello_go_bashir_crystalforge;
-    newscript->RegisterSelf();
-
-    newscript = new Script;
-    newscript->Name = "go_wg2voa_portal";
-    newscript->pGOHello =           &GOHello_go_wg2voa_portal;
     newscript->RegisterSelf();
 
     newscript = new Script;
