@@ -362,6 +362,11 @@ UPDATE `creature_template` SET `ScriptName`='npc_loklira_crone' WHERE `entry`=29
 UPDATE `creature_template` SET `ScriptName`='npc_victorious_challenger' WHERE `entry`=30012;
 UPDATE `creature_template` SET `ScriptName`='npc_mcgoyver' WHERE `entry`=24040;
 UPDATE `creature_template` SET `ScriptName`='npc_jenny' WHERE `entry`=25969;
+UPDATE `creature_template` SET `ScriptName`='npc_lurgglbr' WHERE `entry`=25208;
+UPDATE `creature_template` SET `ScriptName`='npc_nexus_drake_hatchling' WHERE `entry`=26127;
+UPDATE `creature_template` SET `ScriptName`='npc_nesingwary_trapper' WHERE `entry`=25835;
+UPDATE `item_template` SET `ScriptName`='item_pile_fake_furs' WHERE `entry`=35127;
+
 
 /* BURNING STEPPES */
 UPDATE `creature_template` SET `ScriptName`='npc_ragged_john' WHERE `entry`=9563;
