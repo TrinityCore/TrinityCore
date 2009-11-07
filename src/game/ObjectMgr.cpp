@@ -1464,6 +1464,40 @@ uint32 ObjectMgr::AddGOData(uint32 entry, uint32 mapId, float x, float y, float 
     return guid;
 }
 
+bool ObjectMgr::MoveCreData(uint32 guid, uint32 mapId, Position pos)
+{
+    CreatureData& data = NewOrExistCreatureData(guid);
+    if (!data.id)
+        return false;
+
+    RemoveCreatureFromGrid(guid, &data);
+    if (data.posX == pos.GetPositionX() && data.posY == pos.GetPositionY() && data.posZ == pos.GetPositionZ())
+        return true;
+    data.posX = pos.GetPositionX();
+    data.posY = pos.GetPositionY();
+    data.posZ = pos.GetPositionZ();
+    data.orientation = pos.GetOrientation();
+    AddCreatureToGrid(guid, &data);
+
+    // Spawn if necessary (loaded grids only)
+    if(Map* map = const_cast<Map*>(MapManager::Instance().CreateBaseMap(mapId)))
+    {
+        // We use spawn coords to spawn
+        if(!map->Instanceable() && map->IsLoaded(data.posX, data.posY))
+        {
+            Creature *creature = new Creature;
+            if(!creature->LoadFromDB(guid, map))
+            {
+                sLog.outError("AddCreature: cannot add creature entry %u to map", guid);
+                delete creature;
+                return false;
+            }
+            map->Add(creature);
+        }
+    }
+    return true;
+}
+
 uint32 ObjectMgr::AddCreData(uint32 entry, uint32 team, uint32 mapId, float x, float y, float z, float o, uint32 spawntimedelay)
 {
     CreatureInfo const *cInfo = GetCreatureTemplate(entry);

@@ -22,6 +22,7 @@
 #include "ObjectMgr.h"
 #include "World.h"
 #include "Chat.h"
+#include "MapManager.h"
 
 typedef uint32 TeamPair[2];
 
@@ -45,14 +46,7 @@ const TeamPair CreatureEntryPair[] =
 {
     {32307, 32308}, // Guards
     {30739, 30740}, // Champions
-    {31101, 31051}, // Hoodoo Master & Sorceress
-    {31102, 31052}, // Vieron Blazefeather & Bowyer
     {32296, 32294}, // Quartermaster
-    {31107, 31109}, // Lieutenant & Senior Demolitionist
-    {31151, 31153}, // Tactical Officer
-    {31106, 31108}, // Siegesmith & Siege Master
-    {31053, 31054}, // Primalist & Anchorite
-    {31091, 31036}, // Commander
     {32615, 32626}, // Warbringer & Brigadier General
     {0,0} // Do not delete Used in LoadTeamPair
 };
@@ -74,12 +68,12 @@ void LoadTeamPair(TeamPairMap &pairMap, const TeamPair *pair)
     }
 }
 
-void RespawnCreatureIfNeeded(Creature *cr, uint32 guid)
+void RespawnCreatureIfNeeded(Creature *cr, uint32 entry)
 {
     if (cr)
     {
-        cr->SetOriginalEntry(guid);
-        if (guid != cr->GetEntry() || !cr->isAlive())
+        cr->SetOriginalEntry(entry);
+        if (entry != cr->GetEntry() || !cr->isAlive())
             cr->Respawn(true);
         cr->SetVisibility(VISIBILITY_ON);
     }
@@ -119,17 +113,18 @@ bool OPvPWintergrasp::SetupOutdoorPvP()
     std::list<uint32> engGuids;
     std::list<uint32> spiritGuids;
 
-    // Store Eng and spirit guide guids for later use
-    QueryResult *result = WorldDatabase.PQuery("SELECT guid, id FROM creature"
-        " WHERE creature.map=571 AND creature.id IN (%u, %u, %u, %u);",
-        CRE_ENG_A, CRE_ENG_H, CRE_SPI_A, CRE_SPI_H);
-
+    // Store Eng, spirit guide guids and questgiver for later use
+    QueryResult *result = WorldDatabase.PQuery("SELECT guid, id FROM creature WHERE creature.map=571"
+        " AND creature.id IN (%u, %u, %u, %u, %u, %u, %u, %u, %u, %u, %u, %u, %u, %u, %u, %u, %u, %u);",
+        CRE_ENG_A, CRE_ENG_H, CRE_SPI_A, CRE_SPI_H, 31101, 31051, 31102, 31052,
+        31107, 31109, 31151, 31153, 31106, 31108, 31053, 31054, 31091, 31036);
     if (!result)
         sLog.outError("Cannot find siege workshop master or spirit guides in creature!");
     else
     {
         do
         {
+            Position posHorde, posAlli;
             Field *fields = result->Fetch();
             switch(fields[1].GetUInt32())
             {
@@ -140,6 +135,78 @@ bool OPvPWintergrasp::SetupOutdoorPvP()
                 case CRE_SPI_A:
                 case CRE_SPI_H:
                     spiritGuids.push_back(fields[0].GetUInt32());
+                    break;
+                case 31051:
+                    posHorde.Relocate(5081.7, 2173.73, 365.878, 0.855211);
+                    posAlli.Relocate(5296.56, 2789.87, 409.275, 0.733038);
+                    LoadQuestGiverMap(fields[0].GetUInt32(), posHorde, posAlli);
+                    break;
+                case 31101:
+                    posHorde.Relocate(5296.56, 2789.87, 409.275, 0.733038);
+                    posAlli.Relocate(5016.57, 3677.53, 362.982, 5.7525);
+                    LoadQuestGiverMap(fields[0].GetUInt32(), posHorde, posAlli);
+                    break;
+                case 31052:
+                    posHorde.Relocate(5100.07, 2168.89, 365.779, 1.97222);
+                    posAlli.Relocate(5298.43, 2738.76, 409.316, 3.97174);
+                    LoadQuestGiverMap(fields[0].GetUInt32(), posHorde, posAlli);
+                    break;
+                case 31102:
+                    posHorde.Relocate(5298.43, 2738.76, 409.316, 3.97174);
+                    posAlli.Relocate(5030.44, 3659.82, 363.194, 1.83336);
+                    LoadQuestGiverMap(fields[0].GetUInt32(), posHorde, posAlli);
+                    break;
+                case 31109:
+                    posHorde.Relocate(5080.4, 2199, 359.489, 2.96706);
+                    posAlli.Relocate(5234.97, 2883.4, 409.275, 4.29351);
+                    LoadQuestGiverMap(fields[0].GetUInt32(), posHorde, posAlli);
+                    break;
+                case 31107:
+                    posHorde.Relocate(5234.97, 2883.4, 409.275, 4.29351);
+                    posAlli.Relocate(5008.64, 3659.91, 361.07, 4.0796);
+                    LoadQuestGiverMap(fields[0].GetUInt32(), posHorde, posAlli);
+                    break;
+                case 31153:
+                    posHorde.Relocate(5088.49, 2188.18, 365.647, 5.25344);
+                    posAlli.Relocate(5366.13, 2833.4, 409.323, 3.14159);
+                    LoadQuestGiverMap(fields[0].GetUInt32(), posHorde, posAlli);
+                    break;
+                case 31151:
+                    posHorde.Relocate(5366.13, 2833.4, 409.323, 3.14159);
+                    posAlli.Relocate(5032.33, 3680.7, 363.018, 3.43167);
+                    LoadQuestGiverMap(fields[0].GetUInt32(), posHorde, posAlli);
+                    break;
+                case 31108:
+                    posHorde.Relocate(5095.67, 2193.28, 365.924, 4.93928);
+                    posAlli.Relocate(5295.56, 2926.67, 409.275, 0.872665);
+                    LoadQuestGiverMap(fields[0].GetUInt32(), posHorde, posAlli);
+                    break;
+                case 31106:
+                    posHorde.Relocate(5295.56, 2926.67, 409.275, 0.872665);
+                    posAlli.Relocate(5032.66, 3674.28, 363.053, 2.9447);
+                    LoadQuestGiverMap(fields[0].GetUInt32(), posHorde, posAlli);
+                    break;
+                case 31054:
+                    posHorde.Relocate(5088.61, 2167.66, 365.689, 0.680678);
+                    posAlli.Relocate(5371.4, 3026.51, 409.206, 3.25003);
+                    LoadQuestGiverMap(fields[0].GetUInt32(), posHorde, posAlli);
+                    break;
+                case 31053:
+                    posHorde.Relocate(5371.4, 3026.51, 409.206, 3.25003);
+                    posAlli.Relocate(5032.44, 3668.66, 363.11, 2.87402);
+                    LoadQuestGiverMap(fields[0].GetUInt32(), posHorde, posAlli);
+                    break;
+                case 31036:
+                    posHorde.Relocate(5078.28, 2183.7, 365.029, 1.46608);
+                    posAlli.Relocate(5359.13, 2837.99, 409.364, 4.69893);
+                    LoadQuestGiverMap(fields[0].GetUInt32(), posHorde, posAlli);
+                    break;
+                case 31091:
+                    posHorde.Relocate(5359.13, 2837.99, 409.364, 4.69893);
+                    posAlli.Relocate(5022.43, 3659.91, 361.61, 1.35426);
+                    LoadQuestGiverMap(fields[0].GetUInt32(), posHorde, posAlli);
+                    break;
+                default:
                     break;
             }
         }while(result->NextRow());
@@ -388,7 +455,6 @@ bool OPvPWintergrasp::SetupOutdoorPvP()
         m_customHonorReward[DAMAGED_BUILDING] = sWorld.getConfig(CONFIG_OUTDOORPVP_WINTERGRASP_DAMAGED_BUILDING);
         m_customHonorReward[INTACT_BUILDING] = sWorld.getConfig(CONFIG_OUTDOORPVP_WINTERGRASP_INTACT_BUILDING);
     }
-
     RemoveOfflinePlayerWGAuras();
 
     RegisterZone(ZONE_WINTERGRASP);
@@ -603,6 +669,7 @@ WintergraspCreType OPvPWintergrasp::GetCreatureType(uint32 entry) const
         case 31106:case 31108: // Siegesmith & Siege Master
         case 31053:case 31054: // Primalist & Anchorite
         case 31091:case 31036: // Commander
+            return CREATURE_QUESTGIVER;
         case 32615:case 32626: // Warbringer && Brigadier General
         case 32296:case 32294: // Quartermaster
         case 30870:case 30869: // Flight Masters
@@ -668,6 +735,9 @@ void OPvPWintergrasp::OnCreatureCreate(Creature *creature, bool add)
             SendUpdateWorldState(VehNumWorldState[team], m_vehicles[team].size());
             break;
         }
+        case CREATURE_QUESTGIVER:
+            m_questgivers[creature->GetDBTableGUIDLow()] = creature;
+            break;
         case CREATURE_ENGINEER:
             for (OutdoorPvP::OPvPCapturePointMap::iterator itr = m_capturePoints.begin(); itr != m_capturePoints.end(); ++itr)
             {
@@ -693,10 +763,13 @@ void OPvPWintergrasp::OnCreatureCreate(Creature *creature, bool add)
         case CREATURE_SPIRIT_HEALER:
         case CREATURE_TURRET:
         case CREATURE_OTHER:
-            UpdateCreatureInfo(creature);
+            if (add)
+                UpdateCreatureInfo(creature);
         default:
-            if (add) m_creatures.insert(creature);
-            else m_creatures.erase(creature);
+            if (add)
+                m_creatures.insert(creature);
+            else
+                m_creatures.erase(creature);
             break;
     }
 }
@@ -740,6 +813,8 @@ void OPvPWintergrasp::UpdateAllWorldObject()
         UpdateGameObjectInfo(*itr);
     for (CreatureSet::iterator itr = m_creatures.begin(); itr != m_creatures.end(); ++itr)
         UpdateCreatureInfo(*itr);
+    for (QuestGiverMap::iterator itr = m_questgivers.begin(); itr != m_questgivers.end(); ++itr)
+        UpdateQuestGiverPosition((*itr).first, (*itr).second);
 
     // rebuild and update building states
     RebuildAllBuildings();
@@ -817,7 +892,7 @@ void OPvPWintergrasp::BroadcastStateChange(BuildingState *state) const
 }
 
 // Called at Start and Battle End
-bool OPvPWintergrasp::UpdateCreatureInfo(Creature *creature) const
+bool OPvPWintergrasp::UpdateCreatureInfo(Creature *creature)
 {
     if (!creature)
         return false;
@@ -834,8 +909,7 @@ bool OPvPWintergrasp::UpdateCreatureInfo(Creature *creature) const
             }
             else
             {
-                if (creature->IsVehicle())
-                    creature->GetVehicleKit()->RemoveAllPassengers();
+                creature->GetVehicleKit()->RemoveAllPassengers();
                 creature->SetVisibility(VISIBILITY_OFF);
                 creature->setFaction(35);
             }
@@ -886,6 +960,37 @@ bool OPvPWintergrasp::UpdateCreatureInfo(Creature *creature) const
         default:
             return false;
     }
+}
+
+bool OPvPWintergrasp::UpdateQuestGiverPosition(uint32 guid, Creature *creature)
+{
+    Position pos = m_qgPosMap[std::pair<uint32, bool>(guid, getDefenderTeam() == TEAM_HORDE)];
+    if (!pos.GetPositionX())
+        return false;
+
+    if (creature)
+    {
+        // if not questgiver or position is the same, do nothing
+        if (creature->GetPositionX() == pos.GetPositionX() &&
+            creature->GetPositionY() == pos.GetPositionY() &&
+            creature->GetPositionZ() == pos.GetPositionZ())
+            return false;
+
+        creature->CombatStop(true);
+        creature->getHostilRefManager().deleteReferences();
+        creature->SetHomePosition(pos);
+        creature->DestroyForNearbyPlayers();
+        if (!creature->GetMap()->IsLoaded(pos.GetPositionX(), pos.GetPositionY()))
+            creature->GetMap()->LoadGrid(pos.GetPositionX(), pos.GetPositionY());
+        creature->GetMap()->CreatureRelocation(creature, pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation());
+        if (!creature->isAlive())
+            creature->Respawn(true);
+    }
+    else
+    {
+        objmgr.MoveCreData(guid, 571, pos);
+    }
+    return true;
 }
 
 // Return false = Need to rebuild at battle End/Start
@@ -1604,6 +1709,15 @@ void OPvPWintergrasp::RewardMarkOfHonor(Player *plr, uint32 count)
     if (count != 0 && !dest.empty()) // can add some
         if (Item* item = plr->StoreNewItem(dest, WG_MARK_OF_HONOR, true, 0))
             plr->SendNewItem(item, count, true, false);
+}
+
+void OPvPWintergrasp::LoadQuestGiverMap(uint32 guid, Position posHorde, Position posAlli)
+{
+    m_qgPosMap[std::pair<uint32, bool>(guid, true)] = posHorde,
+    m_qgPosMap[std::pair<uint32, bool>(guid, false)] = posAlli,
+    m_questgivers[guid] = NULL;
+    if (getDefenderTeam() == TEAM_ALLIANCE)
+        objmgr.MoveCreData(guid, 571, posAlli);
 }
 
 SiegeWorkshop *OPvPWintergrasp::GetWorkshop(uint32 lowguid) const
