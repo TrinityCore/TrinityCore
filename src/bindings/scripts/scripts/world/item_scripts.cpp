@@ -230,6 +230,64 @@ bool ItemUse_item_harvesters_gift(Player* pPlayer, Item* pItem, SpellCastTargets
         return true;
 }
 
+/*#####
+# item_pile_fake_furs
+#####*/
+
+enum ePileFakeFur
+{
+    GO_CARIBOU_TRAP_1                                      = 187982,
+    GO_CARIBOU_TRAP_2                                      = 187995,
+    GO_CARIBOU_TRAP_3                                      = 187996,
+    GO_CARIBOU_TRAP_4                                      = 187997,
+    GO_CARIBOU_TRAP_5                                      = 187998,
+    GO_CARIBOU_TRAP_6                                      = 187999,
+    GO_CARIBOU_TRAP_7                                      = 188000,
+    GO_CARIBOU_TRAP_8                                      = 188001,
+    GO_CARIBOU_TRAP_9                                      = 188002,
+    GO_CARIBOU_TRAP_10                                     = 188003,
+    GO_CARIBOU_TRAP_11                                     = 188004,
+    GO_CARIBOU_TRAP_12                                     = 188005,
+    GO_CARIBOU_TRAP_13                                     = 188006,
+    GO_CARIBOU_TRAP_14                                     = 188007,
+    GO_CARIBOU_TRAP_15                                     = 188008,
+    GO_HIGH_QUALITY_FUR                                    = 187983,
+    NPC_NESINGWARY_TRAPPER                                 = 25835
+};
+bool ItemUse_item_pile_fake_furs(Player* pPlayer, Item* _Item, SpellCastTargets const& targets)
+{
+    GameObject* pGo;
+    if ((pGo = pPlayer->FindNearestGameObject(GO_CARIBOU_TRAP_1, 5.0f)) ||
+        (pGo = pPlayer->FindNearestGameObject(GO_CARIBOU_TRAP_2, 5.0f)) ||
+        (pGo = pPlayer->FindNearestGameObject(GO_CARIBOU_TRAP_3, 5.0f)) ||
+        (pGo = pPlayer->FindNearestGameObject(GO_CARIBOU_TRAP_4, 5.0f)) ||
+        (pGo = pPlayer->FindNearestGameObject(GO_CARIBOU_TRAP_5, 5.0f)) ||
+        (pGo = pPlayer->FindNearestGameObject(GO_CARIBOU_TRAP_6, 5.0f)) ||
+        (pGo = pPlayer->FindNearestGameObject(GO_CARIBOU_TRAP_7, 5.0f)) ||
+        (pGo = pPlayer->FindNearestGameObject(GO_CARIBOU_TRAP_8, 5.0f)) ||
+        (pGo = pPlayer->FindNearestGameObject(GO_CARIBOU_TRAP_9, 5.0f)) ||
+        (pGo = pPlayer->FindNearestGameObject(GO_CARIBOU_TRAP_10, 5.0f)) ||
+        (pGo = pPlayer->FindNearestGameObject(GO_CARIBOU_TRAP_11, 5.0f)) ||
+        (pGo = pPlayer->FindNearestGameObject(GO_CARIBOU_TRAP_12, 5.0f)) ||
+        (pGo = pPlayer->FindNearestGameObject(GO_CARIBOU_TRAP_13, 5.0f)) ||
+        (pGo = pPlayer->FindNearestGameObject(GO_CARIBOU_TRAP_14, 5.0f)) ||
+        (pGo = pPlayer->FindNearestGameObject(GO_CARIBOU_TRAP_15, 5.0f)))
+    {
+        if (pGo->FindNearestCreature(NPC_NESINGWARY_TRAPPER,10.0f,true) || pGo->FindNearestCreature(NPC_NESINGWARY_TRAPPER,10.0f,false) || pGo->FindNearestGameObject(GO_HIGH_QUALITY_FUR,2.0f))
+            return true;
+        float x, y, z;
+        pGo->GetClosePoint(x, y, z, pGo->GetObjectSize() / 3, 7.0f);
+        pGo->SummonGameObject(GO_HIGH_QUALITY_FUR,pGo->GetPositionX(),pGo->GetPositionY(),pGo->GetPositionZ(),0,0,0,0,0,1000);
+        if (TempSummon* summon = pPlayer->SummonCreature(NPC_NESINGWARY_TRAPPER, x, y, z, pGo->GetOrientation(), TEMPSUMMON_DEAD_DESPAWN, 1000))
+        {
+            summon->SetVisibility(VISIBILITY_OFF);
+            summon->SetReactState(REACT_PASSIVE);
+            summon->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
+        }
+    } else
+        return true;
+}
+
 void AddSC_item_scripts()
 {
     Script *newscript;
@@ -277,6 +335,11 @@ void AddSC_item_scripts()
     newscript = new Script;
     newscript->Name = "item_harvesters_gift";
     newscript->pItemUse = &ItemUse_item_harvesters_gift;
+    newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name = "item_pile_fake_furs";
+    newscript->pItemUse = &ItemUse_item_pile_fake_furs;
     newscript->RegisterSelf();
 }
 

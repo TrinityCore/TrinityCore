@@ -27,9 +27,20 @@ npc_surristrasz
 npc_tiare
 npc_iruk
 npc_corastrasza
+npc_jenny
+npc_sinkhole_kill_credit
+npc_khunok_the_behemoth
+npc_scourge_prisoner
+mob_nerubar_victim
+npc_keristrasza
+npc_nesingwary_trapper
+npc_lurgglbr
+npc_nexus_drake_hatchling
 EndContentData */
 
 #include "precompiled.h"
+#include "escort_ai.h"
+#include "follower_ai.h"
 
 /*######
 ## npc_fizzcrank_fullthrottle
@@ -521,10 +532,7 @@ enum eJenny
 
     SPELL_GIVE_JENNY_CREDIT     = 46358,
     SPELL_CRATES_CARRIED        = 46340,
-    SPELL_DROP_CRATE            = 46342,
-
-    FACTION_ESCORT_A_NEUTRAL_ACTIVE     = 231,
-    FACTION_ESCORT_H_NEUTRAL_ACTIVE     = 232
+    SPELL_DROP_CRATE            = 46342
 };
 
 struct TRINITY_DLL_DECL npc_jennyAI : public ScriptedAI
@@ -585,6 +593,380 @@ struct TRINITY_DLL_DECL npc_jennyAI : public ScriptedAI
 CreatureAI* GetAI_npc_jenny(Creature *pCreature)
 {
     return new npc_jennyAI (pCreature);
+}
+
+/*######
+## npc_npc_nesingwary_trapper
+######*/
+
+enum eNesingwaryTrapper
+{
+    GO_HIGH_QUALITY_FUR = 187983,
+    
+    GO_CARIBOU_TRAP_1   = 187982,
+    GO_CARIBOU_TRAP_2   = 187995,
+    GO_CARIBOU_TRAP_3   = 187996,
+    GO_CARIBOU_TRAP_4   = 187997,
+    GO_CARIBOU_TRAP_5   = 187998,
+    GO_CARIBOU_TRAP_6   = 187999,
+    GO_CARIBOU_TRAP_7   = 188000,
+    GO_CARIBOU_TRAP_8   = 188001,
+    GO_CARIBOU_TRAP_9   = 188002,
+    GO_CARIBOU_TRAP_10  = 188003,
+    GO_CARIBOU_TRAP_11  = 188004,
+    GO_CARIBOU_TRAP_12  = 188005,
+    GO_CARIBOU_TRAP_13  = 188006,
+    GO_CARIBOU_TRAP_14  = 188007,
+    GO_CARIBOU_TRAP_15  = 188008,
+    
+    SPELL_TRAPPED       = 46104,
+};
+
+//#define SAY_NESINGWARY_1 -1571008
+
+struct TRINITY_DLL_DECL npc_nesingwary_trapperAI : public ScriptedAI
+{
+    npc_nesingwary_trapperAI(Creature *c) : ScriptedAI(c) {m_creature->SetVisibility(VISIBILITY_OFF);}
+    
+    GameObject* go_caribou;
+    uint8  Phase;
+    uint32 Phase_Timer;
+    
+    void Reset()
+    {
+        m_creature->SetVisibility(VISIBILITY_OFF);
+        Phase_Timer = 2500;
+        Phase = 1;
+    }
+    void EnterCombat(Unit *who) {}
+    void MoveInLineOfSight(Unit *who) {}
+    
+    void JustDied(Unit* who)
+    {
+        go_caribou->SetLootState(GO_JUST_DEACTIVATED);
+        
+        TempSummon *summon = (TempSummon*)m_creature;
+        ((Player*)(summon->GetSummoner()))->KilledMonsterCredit(m_creature->GetEntry(),0);
+        
+        go_caribou->SetGoState(GO_STATE_READY);
+    }
+    
+    void UpdateAI(const uint32 diff)
+    {
+        if (Phase_Timer < diff)
+        {
+            switch (Phase)
+            {
+                case 1:
+                    m_creature->SetVisibility(VISIBILITY_ON);
+                    
+                    Phase_Timer = 2000;
+                    Phase = 2;
+                    break;
+                    
+                case 2:
+                    if (GameObject* go_fur = m_creature->FindNearestGameObject(GO_HIGH_QUALITY_FUR,11.0f))
+                        m_creature->GetMotionMaster()->MovePoint(0,go_fur->GetPositionX(),go_fur->GetPositionY(),go_fur->GetPositionZ());
+                    Phase_Timer = 1500;
+                    Phase = 3;
+                    break;
+                    
+                case 3:
+                    //DoScriptText(SAY_NESINGWARY_1, m_creature);
+                    
+                    Phase_Timer = 2000;
+                    Phase = 4;
+                    break;
+                    
+                case 4:
+                    m_creature->HandleEmoteCommand(EMOTE_ONESHOT_LOOT);
+                    
+                    Phase_Timer = 1000;
+                    Phase = 5;
+                    break;
+                    
+                case 5:
+                    m_creature->HandleEmoteCommand(EMOTE_ONESHOT_NONE);
+                    
+                    Phase_Timer = 500;
+                    Phase = 6;
+                    break;
+                    
+                case 6:
+                    if (GameObject* go_fur = m_creature->FindNearestGameObject(GO_HIGH_QUALITY_FUR,11.0f))
+                        go_fur->Delete();
+                    
+                    Phase_Timer = 500;
+                    Phase = 7;
+                    break;
+                    
+                case 7:
+                    if ((go_caribou = m_creature->FindNearestGameObject(GO_CARIBOU_TRAP_1, 5.0f)) ||
+                        (go_caribou = m_creature->FindNearestGameObject(GO_CARIBOU_TRAP_2, 5.0f)) ||
+                        (go_caribou = m_creature->FindNearestGameObject(GO_CARIBOU_TRAP_3, 5.0f)) ||
+                        (go_caribou = m_creature->FindNearestGameObject(GO_CARIBOU_TRAP_4, 5.0f)) ||
+                        (go_caribou = m_creature->FindNearestGameObject(GO_CARIBOU_TRAP_5, 5.0f)) ||
+                        (go_caribou = m_creature->FindNearestGameObject(GO_CARIBOU_TRAP_6, 5.0f)) ||
+                        (go_caribou = m_creature->FindNearestGameObject(GO_CARIBOU_TRAP_7, 5.0f)) ||
+                        (go_caribou = m_creature->FindNearestGameObject(GO_CARIBOU_TRAP_8, 5.0f)) ||
+                        (go_caribou = m_creature->FindNearestGameObject(GO_CARIBOU_TRAP_9, 5.0f)) ||
+                        (go_caribou = m_creature->FindNearestGameObject(GO_CARIBOU_TRAP_10, 5.0f)) ||
+                        (go_caribou = m_creature->FindNearestGameObject(GO_CARIBOU_TRAP_11, 5.0f)) ||
+                        (go_caribou = m_creature->FindNearestGameObject(GO_CARIBOU_TRAP_12, 5.0f)) ||
+                        (go_caribou = m_creature->FindNearestGameObject(GO_CARIBOU_TRAP_13, 5.0f)) ||
+                        (go_caribou = m_creature->FindNearestGameObject(GO_CARIBOU_TRAP_14, 5.0f)) ||
+                        (go_caribou = m_creature->FindNearestGameObject(GO_CARIBOU_TRAP_15, 5.0f)))
+                        
+                        go_caribou->SetGoState(GO_STATE_ACTIVE);
+                        
+                        Phase = 8;
+                        Phase_Timer = 1000;
+                        break;
+                        
+                case 8:
+                    m_creature->CastSpell(m_creature,SPELL_TRAPPED,true);
+                    Phase = 0;
+                    break;
+            }
+        } else Phase_Timer -= diff;
+    }
+};
+
+CreatureAI* GetAI_npc_nesingwary_trapper(Creature *pCreature)
+{
+    return new npc_nesingwary_trapperAI (pCreature);
+}
+
+/*######
+## npc_lurgglbr
+######*/
+
+enum eLurgglbr
+{
+    QUEST_ESCAPE_WINTERFIN_CAVERNS      = 11570,
+    
+    GO_CAGE                             = 187369,
+    
+    FACTION_ESCORTEE_A                  = 774,
+    FACTION_ESCORTEE_H                  = 775,
+};
+
+#define SAY_WP_1_LUR_START  -1571004
+#define SAY_WP_1_LUR_END    -1571005
+#define SAY_WP_41_LUR_START -1571006
+#define SAY_WP_41_LUR_END   -1571007
+
+struct TRINITY_DLL_DECL npc_lurgglbrAI : public npc_escortAI
+{
+    npc_lurgglbrAI(Creature* c) : npc_escortAI(c){}
+    
+    uint32 IntroTimer;
+    uint32 IntroPhase;
+    
+    void Reset()
+    {
+        IntroTimer = 0;
+        IntroPhase = 0;
+    }
+    
+    void WaypointReached(uint32 i)
+    {
+        switch(i)
+        {
+            case 0:
+                IntroPhase = 1;
+                IntroTimer = 2000;
+                break;
+            case 41:
+                IntroPhase = 4;
+                IntroTimer = 2000;
+                break;
+        }
+    }
+    
+    void UpdateAI(const uint32 diff)
+    {
+        if (IntroPhase)
+        {
+            if (IntroTimer < diff)
+            {
+                switch(IntroPhase)
+                {
+                    case 1:
+                        //DoScriptText(SAY_WP_1_LUR_START,m_creature);
+                        
+                        IntroPhase = 2;
+                        IntroTimer = 7500;
+                        break;
+                        
+                    case 2:
+                        //DoScriptText(SAY_WP_1_LUR_END,m_creature);
+                        
+                        IntroPhase = 3;
+                        IntroTimer = 7500;
+                        break;
+                    case 3:
+                        m_creature->SetReactState(REACT_AGGRESSIVE);
+                        
+                        IntroPhase = 0;
+                        IntroTimer = 0;
+                        break;
+                        
+                    case 4:
+                        //DoScriptText(SAY_WP_41_LUR_START,m_creature);
+                        
+                        IntroPhase = 5;
+                        IntroTimer = 8000;
+                        break;
+                    case 5:
+                        //DoScriptText(SAY_WP_41_LUR_END,m_creature);
+                        
+                        IntroPhase = 6;
+                        IntroTimer = 2500;
+                        break;
+                        
+                    case 6:
+                        if (Player* pPlayer = GetPlayerForEscort())
+                            pPlayer->AreaExploredOrEventHappens(QUEST_ESCAPE_WINTERFIN_CAVERNS);
+                        
+                        IntroPhase = 7;
+                        IntroTimer = 2500;
+                        break;
+                        
+                    case 7:
+                        m_creature->ForcedDespawn();
+                        
+                        IntroPhase = 0;
+                        IntroTimer = 0;
+                        break;
+                }
+            }else IntroTimer-=diff;
+        }
+        npc_escortAI::UpdateAI(diff);
+    }
+};
+
+CreatureAI* GetAI_npc_lurgglbr(Creature* pCreature)
+{
+    return new npc_lurgglbrAI(pCreature);
+}
+
+bool QuestAccept_npc_lurgglbr(Player* pPlayer, Creature* pCreature, Quest const *_Quest)
+{
+    if (_Quest->GetQuestId() == QUEST_ESCAPE_WINTERFIN_CAVERNS)
+    {
+        if(GameObject* pGo = pCreature->FindNearestGameObject(GO_CAGE,5.0f))
+        {
+            pGo->SetRespawnTime(0);
+            pGo->SetGoType(GAMEOBJECT_TYPE_BUTTON);
+            pGo->UseDoorOrButton(20);
+        }
+        
+        if (npc_escortAI* pEscortAI = CAST_AI(npc_lurgglbrAI, pCreature->AI()))
+            pEscortAI->Start(true, false, pPlayer->GetGUID());
+        
+        if (pPlayer->GetTeam() == ALLIANCE)
+            pCreature->setFaction(FACTION_ESCORTEE_A);
+        
+        if (pPlayer->GetTeam() == HORDE)
+            pCreature->setFaction(FACTION_ESCORTEE_H);
+        
+        return true;
+    }
+    return false;
+}
+
+/*######
+## npc_nexus_drake_hatchling
+######*/
+
+enum eNexusDrakeHatchling
+{
+    SPELL_DRAKE_HARPOON             = 46607,
+    SPELL_RED_DRAGONBLOOD           = 46620,
+    SPELL_DRAKE_HATCHLING_SUBDUED   = 46691,
+    SPELL_SUBDUED                   = 46675,
+    
+    NPC_RAELORASZ                   = 26117,
+    
+    QUEST_DRAKE_HUNT                = 11919,
+    QUEST_DRAKE_HUNT_D              = 11940
+};
+
+struct TRINITY_DLL_DECL npc_nexus_drake_hatchlingAI : public FollowerAI //The spell who makes the npc follow the player is missing, also we can use FollowerAI!
+{
+    npc_nexus_drake_hatchlingAI(Creature *c) : FollowerAI(c) {Reset();}
+    
+    bool WithRedDragonBlood;
+    
+    Unit* pPlayer;
+    
+    void Reset()
+    {
+        WithRedDragonBlood = false;
+    }
+    
+    void EnterCombat(Unit* pWho)
+    {
+        if (m_creature->canAttack(pWho))
+            m_creature->AI()->AttackStart(pWho);
+    }
+    
+    void SpellHit(Unit *caster, const SpellEntry *spell)
+    {
+        if (spell->Id == SPELL_DRAKE_HARPOON)
+        {
+            pPlayer = caster;
+            
+            m_creature->CastSpell(m_creature,SPELL_RED_DRAGONBLOOD,true);
+            
+            WithRedDragonBlood = true;
+        }
+    }
+    
+    void MoveInLineOfSight(Unit *pWho)
+    {
+        FollowerAI::MoveInLineOfSight(pWho);
+        
+        if (m_creature->HasAura(SPELL_SUBDUED) && pWho->GetEntry() == NPC_RAELORASZ)
+        {
+            if (m_creature->IsWithinDistInMap(pWho, INTERACTION_DISTANCE))
+            {
+                ((Player*)(pPlayer))->KilledMonsterCredit(26175,0);
+                ((Player*)(pPlayer))->RemoveAura(SPELL_DRAKE_HATCHLING_SUBDUED);
+                SetFollowComplete();
+                m_creature->DisappearAndDie();
+            }
+        }
+    }
+    
+    void UpdateAI(const uint32 diff)
+    {
+        if (WithRedDragonBlood && !m_creature->HasAura(SPELL_RED_DRAGONBLOOD))
+        {
+            if (npc_nexus_drake_hatchlingAI* pDrakeAI = CAST_AI(npc_nexus_drake_hatchlingAI, m_creature->AI()))
+            {
+                EnterEvadeMode();
+                pDrakeAI->StartFollow((Player*)(pPlayer), 35, NULL);
+            }
+            
+            m_creature->CastSpell(m_creature,SPELL_SUBDUED,true);
+            ((Player*)(pPlayer))->CastSpell((Player*)(pPlayer),SPELL_DRAKE_HATCHLING_SUBDUED,true);
+            
+            m_creature->AttackStop();
+            WithRedDragonBlood = false;
+        }
+        
+        if (!UpdateVictim())
+            return;
+        
+        DoMeleeAttackIfReady();
+    }
+};
+
+CreatureAI* GetAI_npc_nexus_drake_hatchling(Creature* pCreature)
+{
+    return new npc_nexus_drake_hatchlingAI(pCreature);
 }
 
 
@@ -651,5 +1033,22 @@ void AddSC_borean_tundra()
     newscript = new Script;
     newscript->Name = "npc_jenny";
     newscript->GetAI = &GetAI_npc_jenny;
+    newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name = "npc_nesingwary_trapper";
+    newscript->GetAI = &GetAI_npc_nesingwary_trapper;
+    newscript->RegisterSelf();
+    newscript = new Script;
+    
+    newscript = new Script;
+    newscript->Name = "npc_lurgglbr";
+    newscript->GetAI = &GetAI_npc_lurgglbr;
+    newscript->pQuestAccept = &QuestAccept_npc_lurgglbr;
+    newscript->RegisterSelf();
+    
+    newscript = new Script;
+    newscript->Name = "npc_nexus_drake_hatchling";
+    newscript->GetAI = &GetAI_npc_nexus_drake_hatchling;
     newscript->RegisterSelf();
 }
