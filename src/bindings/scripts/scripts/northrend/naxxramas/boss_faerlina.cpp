@@ -62,6 +62,13 @@ struct TRINITY_DLL_DECL boss_faerlinaAI : public BossAI
     boss_faerlinaAI(Creature *c) : BossAI(c, BOSS_FAERLINA), greet(false) {}
 
     bool greet;
+    bool delayFrenzy;
+
+    void Reset()
+    {
+        delayFrenzy = false;
+        _Reset();
+    }
 
     void EnterCombat(Unit *who)
     {
@@ -69,7 +76,7 @@ struct TRINITY_DLL_DECL boss_faerlinaAI : public BossAI
         DoScriptText(RAND(SAY_AGGRO_1,SAY_AGGRO_2,SAY_AGGRO_3,SAY_AGGRO_4), me);
         events.ScheduleEvent(EVENT_POISON, urand(12000,15000));
         events.ScheduleEvent(EVENT_FIRE, urand(6000,18000));
-        events.ScheduleEvent(EVENT_FRENZY, urand(60000,80000));
+        events.ScheduleEvent(EVENT_FRENZY, urand(60000,80000),1);
     }
 
     void MoveInLineOfSight(Unit *who)
@@ -117,9 +124,10 @@ struct TRINITY_DLL_DECL boss_faerlinaAI : public BossAI
                     return;
                 case EVENT_FRENZY:
                     DoCast(me,HEROIC(SPELL_FRENZY,H_SPELL_FRENZY));
+                    delayFrenzy = false;
                     return;
-        case EVENT_AFTERENRAGE:
-            events.ScheduleEvent(EVENT_FRENZY, urand(60000,80000));
+                case EVENT_AFTERENRAGE:
+                    events.ScheduleEvent(EVENT_FRENZY, urand(60000,80000));
             }
         }
 
@@ -128,8 +136,19 @@ struct TRINITY_DLL_DECL boss_faerlinaAI : public BossAI
     
     void SpellHit(Unit* caster, const SpellEntry *spell)
     {
-        if (caster->GetEntry() == NPC_WORSHIPPER && spell->Id == HEROIC(SPELL_FRENZY,H_SPELL_FRENZY))
-            events.ScheduleEvent(EVENT_FRENZY, urand(60000,80000));
+        if (spell->Id == SPELL_WIDOWS_EMBRACE || spell->Id == H_SPELL_WIDOWS_EMBRACE)
+        {
+            if (m_creature->HasAura(HEROIC(SPELL_FRENZY,H_SPELL_FRENZY)))
+            {
+                if (!delayFrenzy)
+                {
+                    events.DelayEvents(30000, 1);
+                    delayFrenzy = true;
+                }
+            }
+            else
+                events.ScheduleEvent(EVENT_AFTERENRAGE, 60000);
+        }
     }
 };
 
@@ -138,12 +157,48 @@ CreatureAI* GetAI_boss_faerlina(Creature* pCreature)
     return new boss_faerlinaAI (pCreature);
 }
 
+struct TRINITY_DLL_DECL mob_faerlina_addAI : public ScriptedAI
+{
+    mob_faerlina_addAI(Creature* pCreature) : ScriptedAI(pCreature)
+    {
+        pInstance = pCreature->GetInstanceData();
+    }
+
+    ScriptedInstance *pInstance;
+
+    void Reset()
+    {
+        if (!HeroicMode)
+            m_creature->ApplySpellImmune(0, IMMUNITY_MECHANIC, SPELL_EFFECT_BIND, true);
+    }
+
+    void JustDied(Unit *killer)
+    {
+        if (pInstance)
+        {
+            if (Creature *pFaerlina = pInstance->instance->GetCreature(pInstance->GetData64(DATA_FAERLINA)))
+                DoCast(pFaerlina,HEROIC(SPELL_WIDOWS_EMBRACE,H_SPELL_WIDOWS_EMBRACE));
+        }
+    }
+    
+};
+
+CreatureAI* GetAI_mob_faerlina_add(Creature* pCreature)
+{
+    return new mob_faerlina_addAI (pCreature);
+}
+
 void AddSC_boss_faerlina()
 {
     Script *newscript;
     newscript = new Script;
     newscript->Name = "boss_faerlina";
     newscript->GetAI = &GetAI_boss_faerlina;
+    newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name = "mob_faerlina_add";
+    newscript->GetAI = &GetAI_mob_faerlina_add;
     newscript->RegisterSelf();
 }
 

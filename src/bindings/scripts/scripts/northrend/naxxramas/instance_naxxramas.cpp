@@ -109,12 +109,14 @@ struct TRINITY_DLL_DECL instance_naxxramas : public InstanceData
     GameObject* pGothikGate, *HorsemenChest;
     Creature* Sapphiron;
     uint32 HorsemenNum;
+    uint64 uiFaerlina;
 
     void OnCreatureCreate(Creature* pCreature, bool add)
     {
         switch(pCreature->GetEntry())
         {
             case 15989: Sapphiron = add ? pCreature : NULL; return;
+            case 15953: uiFaerlina = pCreature->GetGUID(); return;
         }
 
         AddMinion(pCreature, add);
@@ -155,6 +157,13 @@ struct TRINITY_DLL_DECL instance_naxxramas : public InstanceData
                     pGothikGate->SetGoState(GOState(value));
                 break;
         }
+    }
+
+    uint64 GetData64(uint32 id)
+    {
+        if (id == DATA_FAERLINA)
+            return uiFaerlina;
+        return 0;
     }
 
     bool SetBossState(uint32 id, EncounterState state)
