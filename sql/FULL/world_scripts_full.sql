@@ -799,6 +799,7 @@ UPDATE `creature_template` SET `ScriptName`='npc_maghar_captive' WHERE `entry`=1
 UPDATE `instance_template` SET `script`='instance_naxxramas' WHERE `map`=533;
 UPDATE `creature_template` SET `ScriptName`='boss_anubrekhan' WHERE `entry`=15956;
 UPDATE `creature_template` SET `ScriptName`='boss_faerlina' WHERE `entry`=15953;
+UPDATE `creature_template` SET `ScriptName`='mob_faerlina_add' WHERE `entry`=16506;
 UPDATE `creature_template` SET `ScriptName`='boss_maexxna' WHERE `entry`=15952;
 UPDATE `creature_template` SET `ScriptName`='mob_webwrap' WHERE `entry`=16486;
 UPDATE `creature_template` SET `ScriptName`='boss_noth' WHERE `entry`=15954;
