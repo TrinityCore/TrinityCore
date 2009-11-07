@@ -2493,14 +2493,15 @@ void Spell::EffectTeleportUnits(uint32 i)
 
     // Init dest coordinates
     uint32 mapid = m_targets.m_dstPos.GetMapId();
-    if(mapid == MAPID_INVALID)
+    if (mapid == MAPID_INVALID)
         mapid = unitTarget->GetMapId();
-    float x, y, z;
-    m_targets.m_dstPos.GetPosition(x, y, z);
-    float orientation = m_targets.getUnitTarget() ? m_targets.getUnitTarget()->GetOrientation() : unitTarget->GetOrientation();
-    sLog.outDebug("Spell::EffectTeleportUnits - teleport unit to %u %f %f %f\n", mapid, x, y, z);
+    float x, y, z, orientation;
+    m_targets.m_dstPos.GetPosition(x, y, z, orientation);
+    if (!orientation && m_targets.getUnitTarget())
+        orientation = m_targets.getUnitTarget()->GetOrientation();
+    sLog.outDebug("Spell::EffectTeleportUnits - teleport unit to %u %f %f %f %f\n", mapid, x, y, z, orientation);
 
-    if(mapid == unitTarget->GetMapId())
+    if (mapid == unitTarget->GetMapId())
         unitTarget->NearTeleportTo(x, y, z, orientation, unitTarget == m_caster);
     else if(unitTarget->GetTypeId() == TYPEID_PLAYER)
         ((Player*)unitTarget)->TeleportTo(mapid, x, y, z, orientation, unitTarget == m_caster ? TELE_TO_SPELL : 0);

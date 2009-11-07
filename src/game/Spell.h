@@ -149,7 +149,7 @@ class SpellCastTargets
         void setUnitTarget(Unit *target);
         void setSrc(float x, float y, float z);
         void setSrc(Position *pos);
-        void setDst(float x, float y, float z, uint32 mapId = MAPID_INVALID);
+        void setDst(float x, float y, float z, float orientation, uint32 mapId = MAPID_INVALID);
         void setDst(Position *pos);
 
         uint64 getGOTargetGUID() const { return m_GOTargetGUID; }
