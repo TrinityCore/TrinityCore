@@ -303,7 +303,10 @@ struct TRINITY_DLL_DECL boss_sacrolashAI : public ScriptedAI
                 pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0);
                 temp = DoSpawnCreature(MOB_SHADOW_IMAGE,0,0,0,0,TEMPSUMMON_CORPSE_DESPAWN,10000);
                 if (temp && pTarget)
+                {
+                    temp->AddThreat(pTarget,1000000);//don't change target(healers)
                     temp->AI()->AttackStart(pTarget);
+                }
             }
             ShadowimageTimer = 20000;
         } else ShadowimageTimer -=diff;
@@ -572,6 +575,16 @@ struct TRINITY_DLL_DECL boss_alythessAI : public Scripted_NoMovementAI
                 }
             }
         }
+        if(!m_creature->getVictim())
+        {
+            Creature* sisiter = Unit::GetCreature((*m_creature),pInstance->GetData64(DATA_SACROLASH));
+            if (sisiter && !sisiter->isDead() && sisiter->getVictim())
+            {
+                m_creature->AddThreat(sisiter->getVictim(),0.0f);
+                DoStartNoMovement(sisiter->getVictim());
+                m_creature->Attack(sisiter->getVictim(),false);
+            }
+        }
 
         if (!UpdateVictim())
             return;
@@ -667,6 +680,7 @@ struct TRINITY_DLL_DECL mob_shadow_imageAI : public ScriptedAI
 
     void Reset()
     {
+        m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
         ShadowfuryTimer = 5000 + (rand()%15000);
         DarkstrikeTimer = 3000;
         KillTimer = 15000;
