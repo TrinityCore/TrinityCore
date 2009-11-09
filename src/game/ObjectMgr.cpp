@@ -8550,6 +8550,11 @@ uint64 ObjectMgr::GenerateGMTicketId()
 
 void ObjectMgr::LoadGMTickets()
 {
+    if(!m_GMTicketList.empty())
+    {
+        for(GmTicketList::const_iterator itr = m_GMTicketList.begin(); itr != m_GMTicketList.end(); ++itr)
+            delete *itr;
+    }
     m_GMTicketList.clear();
 
     QueryResult *result = CharacterDatabase.Query( "SELECT guid, playerGuid, name, message, createtime, map, posX, posY, posZ, timestamp, closed, assignedto, comment FROM gm_tickets" );
@@ -8587,11 +8592,19 @@ void ObjectMgr::LoadGMTickets()
 
     } while( result->NextRow() );
 
+    delete result;
+
     result = CharacterDatabase.PQuery("SELECT MAX(guid) from gm_tickets");
-    m_GMticketid = (*result)[0].GetUInt64();
+    m_GMticketid = 0;
+
+    if(result)
+    {
+        Field *fields = result->Fetch();
+        m_GMticketid = fields[0].GetUInt64();
+    }
+    delete result;
 
     sLog.outString(">>> %u GM Tickets loaded from the database.", count);
-    delete result;
 }
 
 void ObjectMgr::AddOrUpdateGMTicket(GM_Ticket &ticket, bool create)
