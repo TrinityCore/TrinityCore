@@ -17,7 +17,7 @@
 /* ScriptData
 SDName: Azuremyst_Isle
 SD%Complete: 75
-SDComment: Quest support: 9283, 9537, 9582, 9554, 9531, 9303(special flight path, proper model for mount missing). Injured Draenei cosmetic only
+SDComment: Quest support: 9283, 9537, 9582, 9554, 9531, 9303(special flight path, proper model for mount missing). Injured Draenei cosmetic only, 9582.
 SDCategory: Azuremyst Isle
 EndScriptData */
 
@@ -28,6 +28,8 @@ npc_injured_draenei
 npc_magwin
 npc_geezle
 mob_nestlewood_owlkin
+go_ravager_cage
+npc_death_ravager
 EndContentData */
 
 #include "precompiled.h"
@@ -598,6 +600,75 @@ bool EffectDummyCreature_npc_nestlewood_owlkin(Unit *pCaster, uint32 spellId, ui
     return false;
 }
 
+enum eRavegerCage
+{
+    NPC_DEATH_RAVAGER       = 17556,
+
+    SPELL_REND              = 13443,
+    SPELL_ENRAGING_BITE     = 30736,
+
+    QUEST_STRENGTH_ONE      = 9582
+};
+
+bool go_ravager_cage(Player* pPlayer, GameObject* pGo)
+{
+
+    if(pPlayer->GetQuestStatus(QUEST_STRENGTH_ONE) == QUEST_STATUS_INCOMPLETE)
+    {
+        if(Creature* ravager = pGo->FindNearestCreature(NPC_DEATH_RAVAGER, 5.0f, true))
+        {
+            ravager->RemoveFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_NON_ATTACKABLE);
+            ravager->SetReactState(REACT_AGGRESSIVE);
+            ravager->AI()->AttackStart(pPlayer);
+        }
+    }
+    return true ;
+}
+
+struct TRINITY_DLL_DECL npc_death_ravagerAI : public ScriptedAI
+{
+    npc_death_ravagerAI(Creature *c) : ScriptedAI(c){}
+
+    uint32 RendTimer;
+    uint32 EnragingBiteTimer;
+
+    void Reset()
+    {
+        RendTimer = 30000;
+        EnragingBiteTimer = 20000;
+
+        m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+        m_creature->SetReactState(REACT_PASSIVE);
+    }
+
+    void UpdateAI(const uint32 diff)
+    {
+        if (!UpdateVictim())
+            return;
+
+        if(RendTimer <= diff)
+        {
+            DoCast(m_creature->getVictim(), SPELL_REND);
+            RendTimer = 30000;
+        }
+        else RendTimer -= diff;
+
+        if(EnragingBiteTimer <= diff)
+        {
+            DoCast(m_creature->getVictim(), SPELL_ENRAGING_BITE);
+            EnragingBiteTimer = 15000;
+        }
+        else EnragingBiteTimer -= diff;
+
+        DoMeleeAttackIfReady();
+    }
+};
+
+CreatureAI* GetAI_npc_death_ravagerAI(Creature* pCreature)
+{
+    return new npc_death_ravagerAI(pCreature);
+}
+
 void AddSC_azuremyst_isle()
 {
     Script *newscript;
@@ -634,6 +705,16 @@ void AddSC_azuremyst_isle()
     newscript->Name = "npc_nestlewood_owlkin";
     newscript->GetAI = &GetAI_npc_nestlewood_owlkinAI;
     newscript->pEffectDummyCreature = &EffectDummyCreature_npc_nestlewood_owlkin;
+    newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name="npc_death_ravager";
+    newscript->GetAI = &GetAI_npc_death_ravagerAI;
+    newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name="go_ravager_cage";
+    newscript->pGOHello = &go_ravager_cage;
     newscript->RegisterSelf();
 }
 
