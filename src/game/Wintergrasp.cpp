@@ -945,7 +945,7 @@ bool OPvPWintergrasp::UpdateCreatureInfo(Creature *creature)
         case CREATURE_ENGINEER:
             return false;
         case CREATURE_SIEGE_VEHICLE:
-            creature->DisappearAndDie();
+            //creature->DisappearAndDie();
             return false;
         case CREATURE_GUARD:
         case CREATURE_SPECIAL:
