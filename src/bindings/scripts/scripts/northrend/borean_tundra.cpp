@@ -637,13 +637,15 @@ struct TRINITY_DLL_DECL npc_nesingwary_trapperAI : public ScriptedAI
         m_creature->SetVisibility(VISIBILITY_OFF);
         Phase_Timer = 2500;
         Phase = 1;
+	go_caribou = NULL;
     }
     void EnterCombat(Unit *who) {}
     void MoveInLineOfSight(Unit *who) {}
     
     void JustDied(Unit* who)
     {
-        go_caribou->SetLootState(GO_JUST_DEACTIVATED);
+        if (go_caribou && go_caribou->GetTypeId() == TYPEID_GAMEOBJECT)
+	    go_caribou->SetLootState(GO_JUST_DEACTIVATED);
         
         TempSummon *summon = (TempSummon*)m_creature;
 	if (summon)
@@ -722,9 +724,9 @@ struct TRINITY_DLL_DECL npc_nesingwary_trapperAI : public ScriptedAI
                         
                         go_caribou->SetGoState(GO_STATE_ACTIVE);
                         
-                        Phase = 8;
-                        Phase_Timer = 1000;
-                        break;
+                    Phase = 8;
+                    Phase_Timer = 1000;
+                    break;
                         
                 case 8:
                     m_creature->CastSpell(m_creature,SPELL_TRAPPED,true);
