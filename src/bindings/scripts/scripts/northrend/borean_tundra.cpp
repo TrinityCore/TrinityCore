@@ -645,15 +645,16 @@ struct TRINITY_DLL_DECL npc_nesingwary_trapperAI : public ScriptedAI
     void JustDied(Unit* who)
     {
         if (go_caribou && go_caribou->GetTypeId() == TYPEID_GAMEOBJECT)
-	    go_caribou->SetLootState(GO_JUST_DEACTIVATED);
+            go_caribou->SetLootState(GO_JUST_DEACTIVATED);
         
         TempSummon *summon = (TempSummon*)m_creature;
-	if (summon)
-	    if (Unit *pTemp = summon->GetSummoner())
-	        if (pTemp->GetTypeId() == TYPEID_PLAYER)
-		    CAST_PLR(pTemp)->KilledMonsterCredit(m_creature->GetEntry(),0);
+        if (summon)
+            if (Unit *pTemp = summon->GetSummoner())
+                if (pTemp->GetTypeId() == TYPEID_PLAYER)
+                    CAST_PLR(pTemp)->KilledMonsterCredit(m_creature->GetEntry(),0);
         
-        go_caribou->SetGoState(GO_STATE_READY);
+        if (go_caribou && go_caribou->GetTypeId() == TYPEID_GAMEOBJECT)
+            go_caribou->SetGoState(GO_STATE_READY);
     }
     
     void UpdateAI(const uint32 diff)
