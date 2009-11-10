@@ -223,6 +223,8 @@ UPDATE `creature_template` SET `ScriptName`='npc_magwin' WHERE `entry`=17312;
 UPDATE `creature_template` SET `ScriptName`='npc_geezle' WHERE `entry`=17318;
 UPDATE `creature_template` SET `ScriptName`='npc_nestlewood_owlkin' WHERE `entry`=16518;
 UPDATE `creature_template` SET `ScriptName`='npc_draenei_survivor' WHERE `entry`=16483;
+UPDATE `creature_template` SET `ScriptName`='npc_death_ravager' WHERE `entry`=17556;
+UPDATE `gameobject_template` SET `ScriptName`='go_ravager_cage' WHERE `entry`=181849;
 
 /* BADLANDS */
 
@@ -1164,6 +1166,8 @@ UPDATE `creature_template` SET `ScriptName`='npc_kanati' WHERE `entry`=10638;
 UPDATE `creature_template` SET `ScriptName`='npc_paoka_swiftmountain' WHERE `entry`=10427;
 UPDATE `creature_template` SET `ScriptName`='npc_plucky' WHERE `entry`=6626;
 UPDATE `creature_template` SET `ScriptName`='npc_lakota_windsong' WHERE `entry`=10646;
+UPDATE `creature_template` SET `ScriptName`='npc_enraged_panther' WHERE `entry`=10992;
+UPDATE `gameobject_template` SET `ScriptName`='go_panther_cage' WHERE `entry`=176195;
 
 /* THUNDER BLUFF */
 UPDATE `creature_template` SET `ScriptName`='npc_cairne_bloodhoof' WHERE `entry`=3057;
