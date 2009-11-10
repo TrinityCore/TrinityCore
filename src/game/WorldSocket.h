@@ -175,6 +175,10 @@ class WorldSocket : protected WorldHandler
         /// Need to be called with m_OutBufferLock lock held
         int iSendPacket (const WorldPacket& pct);
 
+        /// Try to write WorldPacket to m_OutBuffer even partially, 
+        /// Need to be called with m_OutBufferLock lock held
+        int iSendPartialPacket(WorldPacket& pct);
+
         /// Flush m_PacketQueue if there are packets in it
         /// Need to be called with m_OutBufferLock lock held
         /// @return true if it wrote to the buffer ( AKA you need
