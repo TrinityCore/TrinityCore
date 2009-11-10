@@ -646,7 +646,10 @@ struct TRINITY_DLL_DECL npc_nesingwary_trapperAI : public ScriptedAI
         go_caribou->SetLootState(GO_JUST_DEACTIVATED);
         
         TempSummon *summon = (TempSummon*)m_creature;
-        ((Player*)(summon->GetSummoner()))->KilledMonsterCredit(m_creature->GetEntry(),0);
+	if (summon)
+	    if (Unit *pTemp = summon->GetSummoner())
+	        if (pTemp->GetTypeId() == TYPEID_PLAYER)
+		    CAST_PLR(pTemp)->KilledMonsterCredit(m_creature->GetEntry(),0);
         
         go_caribou->SetGoState(GO_STATE_READY);
     }
