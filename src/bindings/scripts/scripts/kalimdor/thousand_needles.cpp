@@ -17,7 +17,7 @@
 /* ScriptData
 SDName: Thousand Needles
 SD%Complete: 100
-SDComment: Support for Quest: 1950, 4770, 4904, 4966
+SDComment: Support for Quest: 1950, 4770, 4904, 4966, 5151.
 SDCategory: Thousand Needles
 EndScriptData */
 
@@ -26,6 +26,8 @@ npc_kanati
 npc_lakota_windsong
 npc_swiftmountain
 npc_plucky
+go_panther_cage
+npc_enraged_panther
 EndContentData */
 
 #include "precompiled.h"
@@ -365,9 +367,50 @@ CreatureAI* GetAI_npc_plucky(Creature* pCreature)
     return new npc_pluckyAI(pCreature);
 }
 
-/*#####
-#
-######*/
+enum ePantherCage
+{
+    ENRAGED_PANTHER = 10992
+};
+
+bool go_panther_cage(Player* pPlayer, GameObject* pGo)
+{
+
+    if (pPlayer->GetQuestStatus(5151) == QUEST_STATUS_INCOMPLETE)
+    {
+        if(Creature* panther = pGo->FindNearestCreature(ENRAGED_PANTHER, 5, true))
+        {
+            panther->RemoveFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_NON_ATTACKABLE);
+            panther->SetReactState(REACT_AGGRESSIVE);
+            panther->AI()->AttackStart(pPlayer);
+        }
+    }
+
+    return true ;
+}
+
+struct TRINITY_DLL_DECL npc_enraged_pantherAI : public ScriptedAI
+{
+    npc_enraged_pantherAI(Creature *c) : ScriptedAI(c) {}
+
+    void Reset()
+    {
+        m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+        m_creature->SetReactState(REACT_PASSIVE);
+    }
+
+    void UpdateAI(const uint32 diff)
+    {
+        if (!UpdateVictim())
+            return;
+
+        DoMeleeAttackIfReady();
+    }
+};
+
+CreatureAI* GetAI_npc_enraged_panther(Creature* pCreature)
+{
+    return new npc_enraged_pantherAI(pCreature);
+}
 
 void AddSC_thousand_needles()
 {
@@ -396,6 +439,16 @@ void AddSC_thousand_needles()
     newscript->GetAI = &GetAI_npc_plucky;
     newscript->pGossipHello =   &GossipHello_npc_plucky;
     newscript->pGossipSelect = &GossipSelect_npc_plucky;
+    newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name="npc_enraged_panther";
+    newscript->GetAI = &GetAI_npc_enraged_panther;
+    newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name="go_panther_cage";
+    newscript->pGOHello = &go_panther_cage;
     newscript->RegisterSelf();
 }
 
