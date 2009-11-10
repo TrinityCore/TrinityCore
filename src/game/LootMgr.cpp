@@ -863,10 +863,22 @@ void LootTemplate::LootGroup::Process(Loot& loot, uint16 lootMode) const
     LootStoreItem const * item = Roll();
     if (item != NULL && item->lootmode & lootMode) // only add this item if roll succeeds and the mode matches
     {
-        for (LootItemList::const_iterator _item = loot.items.begin(); _item != loot.items.end(); ++_item)
-           if (_item->itemid == item->itemid)
-               return;                             // Never add the same item twice
-
+        if (ItemPrototype const* _proto = sItemStorage.LookupEntry<ItemPrototype>(item->itemid))
+        {
+            uint8 _item_counter = 0;
+            LootItemList::const_iterator _item = loot.items.begin();
+            for (; _item != loot.items.end(); ++_item)
+                if (_item->itemid == item->itemid)
+                {
+                    ++_item_counter;
+                    if (_proto->InventoryType == 0 && _item_counter == 3)     // Non-equippable items are limited to 3 drops
+                        return;
+                    else if(_proto->InventoryType != 0 && _item_counter == 1) // Equippable item are limited to 1 drop
+                        return;
+                }
+            //if (_item != loot.items.end())
+            //    return;
+        }
         loot.AddItem(*item);
     }
 }
@@ -971,15 +983,28 @@ void LootTemplate::Process(Loot& loot, LootStore const& store, bool rate, uint16
         if (!i->Roll(rate))
             continue;                                         // Bad luck for the entry
 
-        for (LootItemList::const_iterator _item = loot.items.begin(); _item != loot.items.end(); ++_item)
-           if (_item->itemid == i->itemid)
-               continue;                                      // Never add the same item twice
+        if (ItemPrototype const* _proto = sItemStorage.LookupEntry<ItemPrototype>(i->itemid))
+        {
+            uint8 _item_counter = 0;
+            LootItemList::const_iterator _item = loot.items.begin();
+            for (; _item != loot.items.end(); ++_item)
+                if (_item->itemid == i->itemid)
+                {
+                    ++_item_counter;
+                    if (_proto->InventoryType == 0 && _item_counter == 3)     // Non-equippable items are limited to 3 drops
+                        continue;
+                    else if(_proto->InventoryType != 0 && _item_counter == 1) // Equippable item are limited to 1 drop
+                        continue;
+                }
+            if (_item != loot.items.end())
+                continue;
+        }
 
         if (i->mincountOrRef < 0)                             // References processing
         {
             LootTemplate const* Referenced = LootTemplates_Reference.GetLootFor(-i->mincountOrRef);
 
-            if(!Referenced)
+            if (!Referenced)
                 continue;                                     // Error message already printed at loading stage
 
             for (uint32 loop = 0; loop < i->maxcount; ++loop) // Ref multiplicator
