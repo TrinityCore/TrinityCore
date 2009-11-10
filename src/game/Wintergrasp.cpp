@@ -909,7 +909,8 @@ bool OPvPWintergrasp::UpdateCreatureInfo(Creature *creature)
             }
             else
             {
-                creature->GetVehicleKit()->RemoveAllPassengers();
+                if (creature->IsVehicle() && creature->GetVehicleKit())
+                    creature->GetVehicleKit()->RemoveAllPassengers();
                 creature->SetVisibility(VISIBILITY_OFF);
                 creature->setFaction(35);
             }
