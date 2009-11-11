@@ -263,46 +263,57 @@ struct TRINITY_DLL_DECL boss_sartharionAI : public ScriptedAI
 
     void FetchDragons()
     {
-        Unit* pTene = Unit::GetUnit(*m_creature, pInstance->GetData64(DATA_TENEBRON));
-        Unit* pShad = Unit::GetUnit(*m_creature, pInstance->GetData64(DATA_SHADRON));
-        Unit* pVesp = Unit::GetUnit(*m_creature, pInstance->GetData64(DATA_VESPERON));
+        Creature* pFetchTene = Unit::GetCreature((*m_creature), pInstance->GetData64(DATA_TENEBRON));
+        Creature* pFetchShad = Unit::GetCreature((*m_creature), pInstance->GetData64(DATA_SHADRON));
+        Creature* pFetchVesp = Unit::GetCreature((*m_creature), pInstance->GetData64(DATA_VESPERON));
 
         //if at least one of the dragons are alive and are being called
         bool bCanUseWill = false;
 
-        if (pTene && pTene->isAlive() && !pTene->getVictim())
+        if (pFetchTene && pFetchTene->isAlive() && !pFetchTene->getVictim())
         {
-            AddDrakeLootMode();
             bCanUseWill = true;
-            pTene->GetMotionMaster()->MovePoint(POINT_ID_INIT, m_aTene[0].m_fX, m_aTene[0].m_fY, m_aTene[0].m_fZ);
+            pFetchTene->GetMotionMaster()->MovePoint(POINT_ID_INIT, m_aTene[0].m_fX, m_aTene[0].m_fY, m_aTene[0].m_fZ);
 
-            if (!pTene->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
-                pTene->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+            if (!pFetchTene->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
+                pFetchTene->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
         }
 
-        if (pShad && pShad->isAlive() && !pShad->getVictim())
+        if (pFetchShad && pFetchShad->isAlive() && !pFetchShad->getVictim())
         {
-            AddDrakeLootMode();
             bCanUseWill = true;
-            pShad->GetMotionMaster()->MovePoint(POINT_ID_INIT, m_aShad[0].m_fX, m_aShad[0].m_fY, m_aShad[0].m_fZ);
+            pFetchShad->GetMotionMaster()->MovePoint(POINT_ID_INIT, m_aShad[0].m_fX, m_aShad[0].m_fY, m_aShad[0].m_fZ);
 
-            if (!pShad->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
-                pShad->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+            if (!pFetchShad->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
+                pFetchShad->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
         }
 
-        if (pVesp && pVesp->isAlive() && !pVesp->getVictim())
+        if (pFetchVesp && pFetchVesp->isAlive() && !pFetchVesp->getVictim())
         {
-            AddDrakeLootMode();
             bCanUseWill = true;
-            pVesp->GetMotionMaster()->MovePoint(POINT_ID_INIT, m_aVesp[0].m_fX, m_aVesp[0].m_fY, m_aVesp[0].m_fZ);
+            pFetchVesp->GetMotionMaster()->MovePoint(POINT_ID_INIT, m_aVesp[0].m_fX, m_aVesp[0].m_fY, m_aVesp[0].m_fZ);
 
-            if (!pVesp->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
-                pVesp->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+            if (!pFetchVesp->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
+                pFetchVesp->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
         }
 
         if (bCanUseWill)
             DoCast(m_creature, SPELL_WILL_OF_SARTHARION);
     }
+
+   void ApplyDebuff(uint32 spellPowerOf)
+   {
+       std::list<HostilReference*>& threatlist = m_creature->getThreatManager().getThreatList();
+       for (std::list<HostilReference*>::iterator itr = threatlist.begin(); itr != threatlist.end(); ++itr)
+       {
+           Unit *target = Unit::GetUnit((*m_creature),(*itr)->getUnitGuid());
+           if (target && target->GetTypeId() == TYPEID_PLAYER)
+           {
+                m_creature->AddAura(spellPowerOf,target);
+           }
+       }
+   }
+
 
     void CallDragon(uint32 uiDataId)
     {
@@ -319,20 +330,24 @@ struct TRINITY_DLL_DECL boss_sartharionAI : public ScriptedAI
                     pTemp->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
 
                 int32 iTextId = 0;
+               AddDrakeLootMode();
 
                 switch(pTemp->GetEntry())
                 {
                     case NPC_TENEBRON:
                         iTextId = SAY_SARTHARION_CALL_TENEBRON;
                         pTemp->GetMotionMaster()->MovePoint(POINT_ID_LAND, m_aTene[1].m_fX, m_aTene[1].m_fY, m_aTene[1].m_fZ);
+                       ApplyDebuff(SPELL_POWER_OF_TENEBRON);
                         break;
                     case NPC_SHADRON:
                         iTextId = SAY_SARTHARION_CALL_SHADRON;
                         pTemp->GetMotionMaster()->MovePoint(POINT_ID_LAND, m_aShad[1].m_fX, m_aShad[1].m_fY, m_aShad[1].m_fZ);
+                       ApplyDebuff(SPELL_POWER_OF_SHADRON);
                         break;
                     case NPC_VESPERON:
                         iTextId = SAY_SARTHARION_CALL_VESPERON;
                         pTemp->GetMotionMaster()->MovePoint(POINT_ID_LAND, m_aVesp[1].m_fX, m_aVesp[1].m_fY, m_aVesp[1].m_fZ);
+                       ApplyDebuff(SPELL_POWER_OF_VESPERON);
                         break;
                 }
 
