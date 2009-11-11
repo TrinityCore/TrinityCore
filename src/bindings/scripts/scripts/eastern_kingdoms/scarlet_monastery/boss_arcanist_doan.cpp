@@ -66,7 +66,7 @@ struct TRINITY_DLL_DECL boss_arcanist_doanAI : public ScriptedAI
 
         if (bShielded && bCanDetonate)
         {
-            DoCast(m_creature,SPELL_FIREAOE);
+            DoCast(m_creature, SPELL_FIREAOE);
             bCanDetonate = false;
         }
 
@@ -81,7 +81,7 @@ struct TRINITY_DLL_DECL boss_arcanist_doanAI : public ScriptedAI
                 return;
 
             DoScriptText(SAY_SPECIALAE, m_creature);
-            DoCast(m_creature,SPELL_ARCANEBUBBLE);
+            DoCast(m_creature, SPELL_ARCANEBUBBLE);
 
             bCanDetonate = true;
             bShielded = true;
@@ -90,7 +90,7 @@ struct TRINITY_DLL_DECL boss_arcanist_doanAI : public ScriptedAI
         if (Polymorph_Timer <= diff)
         {
             if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM,1))
-                DoCast(pTarget,SPELL_POLYMORPH);
+                DoCast(pTarget, SPELL_POLYMORPH);
 
             Polymorph_Timer = 20000;
         } else Polymorph_Timer -= diff;
@@ -98,14 +98,14 @@ struct TRINITY_DLL_DECL boss_arcanist_doanAI : public ScriptedAI
         //AoESilence_Timer
         if (AoESilence_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(),SPELL_AOESILENCE);
+            DoCast(m_creature->getVictim(), SPELL_AOESILENCE);
             AoESilence_Timer = 15000 + rand()%5000;
         } else AoESilence_Timer -= diff;
 
         //ArcaneExplosion_Timer
         if (ArcaneExplosion_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(),SPELL_ARCANEEXPLOSION);
+            DoCast(m_creature->getVictim(), SPELL_ARCANEEXPLOSION);
             ArcaneExplosion_Timer = 8000;
         } else ArcaneExplosion_Timer -= diff;
 

@@ -437,7 +437,7 @@ struct TRINITY_DLL_DECL boss_veknilashAI : public boss_twinemperorsAI
         //UnbalancingStrike_Timer
         if (UnbalancingStrike_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(),SPELL_UNBALANCING_STRIKE);
+            DoCast(m_creature->getVictim(), SPELL_UNBALANCING_STRIKE);
             UnbalancingStrike_Timer = 8000+rand()%12000;
         } else UnbalancingStrike_Timer -= diff;
 
@@ -445,7 +445,7 @@ struct TRINITY_DLL_DECL boss_veknilashAI : public boss_twinemperorsAI
         {
             Unit* randomMelee = SelectTarget(SELECT_TARGET_RANDOM, 0, NOMINAL_MELEE_RANGE, true);
             if (randomMelee)
-                DoCast(randomMelee,SPELL_UPPERCUT);
+                DoCast(randomMelee, SPELL_UPPERCUT);
             UpperCut_Timer = 15000+rand()%15000;
         } else UpperCut_Timer -= diff;
 
@@ -485,7 +485,7 @@ struct TRINITY_DLL_DECL boss_veklorAI : public boss_twinemperorsAI
     {
         TwinReset();
         ShadowBolt_Timer = 0;
-        Blizzard_Timer = 15000 + rand()%5000;;
+        Blizzard_Timer = 15000 + rand()%5000;
         ArcaneBurst_Timer = 1000;
         Scorpions_Timer = 7000 + rand()%7000;
 
@@ -530,7 +530,7 @@ struct TRINITY_DLL_DECL boss_veklorAI : public boss_twinemperorsAI
             if (!m_creature->IsWithinDist(m_creature->getVictim(), 45.0f))
                 m_creature->GetMotionMaster()->MoveChase(m_creature->getVictim(), VEKLOR_DIST, 0);
             else
-                DoCast(m_creature->getVictim(),SPELL_SHADOWBOLT);
+                DoCast(m_creature->getVictim(), SPELL_SHADOWBOLT);
             ShadowBolt_Timer = 2000;
         } else ShadowBolt_Timer -= diff;
 
@@ -540,7 +540,7 @@ struct TRINITY_DLL_DECL boss_veklorAI : public boss_twinemperorsAI
             Unit *pTarget = NULL;
             pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 45, true);
             if (pTarget)
-                DoCast(pTarget,SPELL_BLIZZARD);
+                DoCast(pTarget, SPELL_BLIZZARD);
             Blizzard_Timer = 15000+rand()%15000;
         } else Blizzard_Timer -= diff;
 
@@ -549,7 +549,7 @@ struct TRINITY_DLL_DECL boss_veklorAI : public boss_twinemperorsAI
             Unit *mvic;
             if ((mvic=SelectTarget(SELECT_TARGET_NEAREST, 0, NOMINAL_MELEE_RANGE, true))!=NULL)
             {
-                DoCast(mvic,SPELL_ARCANEBURST);
+                DoCast(mvic, SPELL_ARCANEBURST);
                 ArcaneBurst_Timer = 5000;
             }
         } else ArcaneBurst_Timer -= diff;

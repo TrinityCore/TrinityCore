@@ -353,8 +353,8 @@ struct TRINITY_DLL_DECL npc_dancing_flamesAI : public ScriptedAI
     {
         active = true;
         can_iteract = 3500;
-        DoCast(m_creature,SPELL_BRAZIER,true);
-        DoCast(m_creature,SPELL_FIERY_AURA,false);
+        DoCast(m_creature, SPELL_BRAZIER, true);
+        DoCast(m_creature, SPELL_FIERY_AURA, false);
         float x, y, z;
         m_creature->GetPosition(x,y,z);
         m_creature->Relocate(x,y,z + 0.94f);
@@ -398,7 +398,7 @@ struct TRINITY_DLL_DECL npc_dancing_flamesAI : public ScriptedAI
                 case TEXTEMOTE_DANCE:
                 {
                     if (!pPlayer->HasAura(SPELL_SEDUCTION))
-                        m_creature->CastSpell(pPlayer,SPELL_SEDUCTION,true);
+                        DoCast(pPlayer, SPELL_SEDUCTION, true);
                 }
                 break;
             }
@@ -1027,7 +1027,7 @@ struct TRINITY_DLL_DECL npc_guardianAI : public ScriptedAI
 
         if (m_creature->isAttackReady())
         {
-            m_creature->CastSpell(m_creature->getVictim(),SPELL_DEATHTOUCH, true);
+            DoCast(m_creature->getVictim(), SPELL_DEATHTOUCH, true);
             m_creature->resetAttackTimer();
         }
     }
@@ -1443,7 +1443,7 @@ struct TRINITY_DLL_DECL npc_tonk_mineAI : public ScriptedAI
     {
         if (ExplosionTimer <= diff)
         {
-            m_creature->CastSpell(m_creature, SPELL_TONK_MINE_DETONATE, true);
+            DoCast(m_creature, SPELL_TONK_MINE_DETONATE, true);
             m_creature->setDeathState(DEAD); // unsummon it
         } else
             ExplosionTimer -= diff;
@@ -1592,7 +1592,7 @@ struct TRINITY_DLL_DECL npc_snake_trap_serpentsAI : public ScriptedAI
                     else
                         spell = SPELL_CRIPPLING_POISON;
 
-                    DoCast(m_creature->getVictim(),spell);
+                    DoCast(m_creature->getVictim(), spell);
                 }
 
                 SpellTimer = VIPER_TIMER;
@@ -1600,7 +1600,7 @@ struct TRINITY_DLL_DECL npc_snake_trap_serpentsAI : public ScriptedAI
             else //Venomous Snake
             {
                 if (rand() % 10 < 8) //80% chance to cast
-                    DoCast(m_creature->getVictim(),SPELL_DEADLY_POISON);
+                    DoCast(m_creature->getVictim(), SPELL_DEADLY_POISON);
                 SpellTimer = VENOMOUS_SNAKE_TIMER + (rand() %5)*100;
             }
         } else SpellTimer-=diff;
@@ -1681,7 +1681,7 @@ struct TRINITY_DLL_DECL mob_mojoAI : public ScriptedAI
             }
             m_creature->AddAura(43906,pPlayer);//add polymorph frog thing
             victimGUID = pPlayer->GetGUID();
-            m_creature->CastSpell(m_creature,20372,true);//tag.hearts
+            DoCast(m_creature, 20372, true);//tag.hearts
             m_creature->GetMotionMaster()->MoveFollow(pPlayer,0,0);
             hearts = 15000;
         }
@@ -1824,7 +1824,7 @@ struct TRINITY_DLL_DECL npc_lightwellAI : public PassiveAI
 
     void Reset()
     {
-        m_creature->CastSpell(m_creature, 59907, false); // Spell for Lightwell Charges
+        DoCast(m_creature, 59907, false); // Spell for Lightwell Charges
     }
 };
 

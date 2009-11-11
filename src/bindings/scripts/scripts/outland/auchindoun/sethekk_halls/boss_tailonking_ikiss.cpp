@@ -130,14 +130,14 @@ struct TRINITY_DLL_DECL boss_talon_king_ikissAI : public ScriptedAI
 
         if (Blink)
         {
-            DoCast(m_creature,HEROIC(SPELL_ARCANE_EXPLOSION, H_SPELL_ARCANE_EXPLOSION));
-            m_creature->CastSpell(m_creature,SPELL_ARCANE_BUBBLE,true);
+            DoCast(m_creature, HEROIC(SPELL_ARCANE_EXPLOSION, H_SPELL_ARCANE_EXPLOSION));
+            DoCast(m_creature, SPELL_ARCANE_BUBBLE, true);
             Blink = false;
         }
 
         if (ArcaneVolley_Timer <= diff)
         {
-            DoCast(m_creature,HEROIC(SPELL_ARCANE_VOLLEY, H_SPELL_ARCANE_VOLLEY));
+            DoCast(m_creature, HEROIC(SPELL_ARCANE_VOLLEY, H_SPELL_ARCANE_VOLLEY));
             ArcaneVolley_Timer = 7000+rand()%5000;
         } else ArcaneVolley_Timer -= diff;
 
@@ -147,14 +147,14 @@ struct TRINITY_DLL_DECL boss_talon_king_ikissAI : public ScriptedAI
             Unit *pTarget = NULL;
             pTarget = HeroicMode ? SelectUnit(SELECT_TARGET_RANDOM,0) : SelectUnit(SELECT_TARGET_TOPAGGRO,1);
             if (pTarget)
-                DoCast(pTarget,HEROIC(SPELL_POLYMORPH, H_SPELL_POLYMORPH));
+                DoCast(pTarget, HEROIC(SPELL_POLYMORPH, H_SPELL_POLYMORPH));
             Sheep_Timer = 15000+rand()%2500;
         } else Sheep_Timer -= diff;
 
         //may not be correct time to cast
         if (!ManaShield && ((m_creature->GetHealth()*100) / m_creature->GetMaxHealth() < 20))
         {
-            DoCast(m_creature,SPELL_MANA_SHIELD);
+            DoCast(m_creature, SPELL_MANA_SHIELD);
             ManaShield = true;
         }
 
@@ -162,7 +162,7 @@ struct TRINITY_DLL_DECL boss_talon_king_ikissAI : public ScriptedAI
         {
             if (Slow_Timer <= diff)
             {
-                DoCast(m_creature,H_SPELL_SLOW);
+                DoCast(m_creature, H_SPELL_SLOW);
                 Slow_Timer = 15000+rand()%25000;
             } else Slow_Timer -= diff;
         }
@@ -177,7 +177,7 @@ struct TRINITY_DLL_DECL boss_talon_king_ikissAI : public ScriptedAI
                     m_creature->InterruptNonMeleeSpells(false);
 
                 //Spell doesn't work, but we use for visual effect at least
-                DoCast(pTarget,SPELL_BLINK);
+                DoCast(pTarget, SPELL_BLINK);
 
                 float X = pTarget->GetPositionX();
                 float Y = pTarget->GetPositionY();
@@ -185,7 +185,7 @@ struct TRINITY_DLL_DECL boss_talon_king_ikissAI : public ScriptedAI
 
                 DoTeleportTo(X,Y,Z);
 
-                DoCast(pTarget,SPELL_BLINK_TELEPORT);
+                DoCast(pTarget, SPELL_BLINK_TELEPORT);
                 Blink = true;
             }
             Blink_Timer = 35000+rand()%5000;

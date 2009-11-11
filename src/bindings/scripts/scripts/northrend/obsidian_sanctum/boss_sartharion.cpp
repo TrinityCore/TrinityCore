@@ -677,7 +677,7 @@ struct TRINITY_DLL_DECL dummy_dragonAI : public ScriptedAI
             // Twilight Revenge to main boss
             if (Unit* pSartharion = Unit::GetUnit((*m_creature), pInstance->GetData64(DATA_SARTHARION)))
                 if (pSartharion->isAlive())
-                    m_creature->CastSpell(pSartharion,SPELL_TWILIGHT_REVENGE,true);
+                    DoCast(pSartharion, SPELL_TWILIGHT_REVENGE, true);
         }
     }
 

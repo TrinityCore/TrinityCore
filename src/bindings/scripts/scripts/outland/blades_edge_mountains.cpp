@@ -211,7 +211,7 @@ struct TRINITY_DLL_DECL mobs_nether_drakeAI : public ScriptedAI
 
         if (IntangiblePresence_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(),SPELL_INTANGIBLE_PRESENCE);
+            DoCast(m_creature->getVictim(), SPELL_INTANGIBLE_PRESENCE);
             IntangiblePresence_Timer = 15000+rand()%15000;
         } else IntangiblePresence_Timer -= diff;
 
@@ -219,13 +219,13 @@ struct TRINITY_DLL_DECL mobs_nether_drakeAI : public ScriptedAI
         {
             Unit *pTarget = m_creature->getVictim();
             if (pTarget && pTarget->getPowerType() == POWER_MANA)
-                DoCast(pTarget,SPELL_MANA_BURN);
+                DoCast(pTarget, SPELL_MANA_BURN);
             ManaBurn_Timer = 8000+rand()%8000;
         } else ManaBurn_Timer -= diff;
 
         if (ArcaneBlast_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(),SPELL_ARCANE_BLAST);
+            DoCast(m_creature->getVictim(), SPELL_ARCANE_BLAST);
             ArcaneBlast_Timer = 2500+rand()%5000;
         } else ArcaneBlast_Timer -= diff;
 
@@ -264,7 +264,7 @@ struct TRINITY_DLL_DECL npc_daranelleAI : public ScriptedAI
             {
                 DoScriptText(SAY_SPELL_INFLUENCE, m_creature, who);
                 //TODO: Move the below to updateAI and run if this statement == true
-                m_creature->CastSpell(who,37028,true);
+                DoCast(who, 37028, true);
             }
         }
 

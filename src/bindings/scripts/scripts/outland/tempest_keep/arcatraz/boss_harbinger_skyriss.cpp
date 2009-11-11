@@ -199,9 +199,9 @@ struct TRINITY_DLL_DECL boss_harbinger_skyrissAI : public ScriptedAI
         if (MindRend_Timer <= diff)
         {
             if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM,1))
-                DoCast(pTarget,HEROIC(SPELL_MIND_REND, H_SPELL_MIND_REND));
+                DoCast(pTarget, HEROIC(SPELL_MIND_REND, H_SPELL_MIND_REND));
             else
-                DoCast(m_creature->getVictim(),HEROIC(SPELL_MIND_REND, H_SPELL_MIND_REND));
+                DoCast(m_creature->getVictim(), HEROIC(SPELL_MIND_REND, H_SPELL_MIND_REND));
 
             MindRend_Timer = 8000;
         } else MindRend_Timer -=diff;
@@ -214,9 +214,9 @@ struct TRINITY_DLL_DECL boss_harbinger_skyrissAI : public ScriptedAI
             DoScriptText(RAND(SAY_FEAR_1,SAY_FEAR_2), m_creature);
 
             if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM,1))
-                DoCast(pTarget,SPELL_FEAR);
+                DoCast(pTarget, SPELL_FEAR);
             else
-                DoCast(m_creature->getVictim(),SPELL_FEAR);
+                DoCast(m_creature->getVictim(), SPELL_FEAR);
 
             Fear_Timer = 25000;
         } else Fear_Timer -=diff;
@@ -229,9 +229,9 @@ struct TRINITY_DLL_DECL boss_harbinger_skyrissAI : public ScriptedAI
             DoScriptText(RAND(SAY_MIND_1,SAY_MIND_2), m_creature);
 
             if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM,1))
-                DoCast(pTarget,HEROIC(SPELL_DOMINATION, H_SPELL_DOMINATION));
+                DoCast(pTarget, HEROIC(SPELL_DOMINATION, H_SPELL_DOMINATION));
             else
-                DoCast(m_creature->getVictim(),HEROIC(SPELL_DOMINATION, H_SPELL_DOMINATION));
+                DoCast(m_creature->getVictim(), HEROIC(SPELL_DOMINATION, H_SPELL_DOMINATION));
 
             Domination_Timer = 16000+rand()%16000;
         } else Domination_Timer -=diff;
@@ -244,7 +244,7 @@ struct TRINITY_DLL_DECL boss_harbinger_skyrissAI : public ScriptedAI
                     return;
 
                 if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM,1))
-                    DoCast(pTarget,H_SPELL_MANA_BURN);
+                    DoCast(pTarget, H_SPELL_MANA_BURN);
 
                 ManaBurn_Timer = 16000+rand()%16000;
             } else ManaBurn_Timer -=diff;

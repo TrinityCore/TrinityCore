@@ -220,7 +220,7 @@ struct TRINITY_DLL_DECL eye_of_cthunAI : public Scripted_NoMovementAI
                     if (pTarget)
                     {
                         m_creature->InterruptNonMeleeSpells(false);
-                        DoCast(pTarget,SPELL_GREEN_BEAM);
+                        DoCast(pTarget, SPELL_GREEN_BEAM);
 
                         //Correctly update our target
                         m_creature->SetUInt64Value(UNIT_FIELD_TARGET, pTarget->GetGUID());
@@ -294,7 +294,7 @@ struct TRINITY_DLL_DECL eye_of_cthunAI : public Scripted_NoMovementAI
                     }
 
                     //Add red coloration to C'thun
-                    DoCast(m_creature,SPELL_RED_COLORATION);
+                    DoCast(m_creature, SPELL_RED_COLORATION);
 
                     //Freeze animation
 
@@ -322,7 +322,7 @@ struct TRINITY_DLL_DECL eye_of_cthunAI : public Scripted_NoMovementAI
                         m_creature->StopMoving();
 
                         //Actual dark glare cast, maybe something missing here?
-                        m_creature->CastSpell(m_creature, SPELL_DARK_GLARE, false);
+                        DoCast(m_creature, SPELL_DARK_GLARE, false);
 
                         //Increase tick
                         ++DarkGlareTick;
@@ -962,7 +962,7 @@ struct TRINITY_DLL_DECL eye_tentacleAI : public ScriptedAI
         {
             Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM,0);
             if (pTarget && !pTarget->HasAura(SPELL_DIGESTIVE_ACID))
-                DoCast(pTarget,SPELL_MIND_FLAY);
+                DoCast(pTarget, SPELL_MIND_FLAY);
 
             //Mindflay every 10 seconds
             MindflayTimer = 10000;
@@ -1045,14 +1045,14 @@ struct TRINITY_DLL_DECL claw_tentacleAI : public ScriptedAI
         //GroundRuptureTimer
         if (GroundRuptureTimer <= diff)
         {
-            DoCast(m_creature->getVictim(),SPELL_GROUND_RUPTURE);
+            DoCast(m_creature->getVictim(), SPELL_GROUND_RUPTURE);
             GroundRuptureTimer = 30000;
         } else GroundRuptureTimer -= diff;
 
         //HamstringTimer
         if (HamstringTimer <= diff)
         {
-            DoCast(m_creature->getVictim(),SPELL_HAMSTRING);
+            DoCast(m_creature->getVictim(), SPELL_HAMSTRING);
             HamstringTimer = 5000;
         } else HamstringTimer -= diff;
 
@@ -1139,21 +1139,21 @@ struct TRINITY_DLL_DECL giant_claw_tentacleAI : public ScriptedAI
         //GroundRuptureTimer
         if (GroundRuptureTimer <= diff)
         {
-            DoCast(m_creature->getVictim(),SPELL_GROUND_RUPTURE);
+            DoCast(m_creature->getVictim(), SPELL_GROUND_RUPTURE);
             GroundRuptureTimer = 30000;
         } else GroundRuptureTimer -= diff;
 
         //ThrashTimer
         if (ThrashTimer <= diff)
         {
-            DoCast(m_creature->getVictim(),SPELL_THRASH);
+            DoCast(m_creature->getVictim(), SPELL_THRASH);
             ThrashTimer = 10000;
         } else ThrashTimer -= diff;
 
         //HamstringTimer
         if (HamstringTimer <= diff)
         {
-            DoCast(m_creature->getVictim(),SPELL_HAMSTRING);
+            DoCast(m_creature->getVictim(), SPELL_HAMSTRING);
             HamstringTimer = 10000;
         } else HamstringTimer -= diff;
 
@@ -1202,7 +1202,7 @@ struct TRINITY_DLL_DECL giant_eye_tentacleAI : public ScriptedAI
         {
             Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM,0);
             if (pTarget && !pTarget->HasAura(SPELL_DIGESTIVE_ACID))
-                DoCast(pTarget,SPELL_GREEN_BEAM);
+                DoCast(pTarget, SPELL_GREEN_BEAM);
 
             //Beam every 2 seconds
             BeamTimer = 2100;

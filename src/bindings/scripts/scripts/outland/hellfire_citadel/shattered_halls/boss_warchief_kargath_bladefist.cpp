@@ -139,7 +139,7 @@ struct TRINITY_DLL_DECL boss_warchief_kargath_bladefistAI : public ScriptedAI
             if (target_num > 0) // to prevent loops
             {
                 Wait_Timer = 1;
-                DoCast(m_creature,SPELL_BLADE_DANCE,true);
+                DoCast(m_creature, SPELL_BLADE_DANCE, true);
                 target_num--;
             }
         }
@@ -237,7 +237,7 @@ struct TRINITY_DLL_DECL boss_warchief_kargath_bladefistAI : public ScriptedAI
             if (Charge_timer)
                 if (Charge_timer <= diff)
                 {
-                    DoCast(SelectUnit(SELECT_TARGET_RANDOM,0),H_SPELL_CHARGE);
+                    DoCast(SelectUnit(SELECT_TARGET_RANDOM, 0), H_SPELL_CHARGE);
                     Charge_timer = 0;
                 } else Charge_timer -= diff;
 

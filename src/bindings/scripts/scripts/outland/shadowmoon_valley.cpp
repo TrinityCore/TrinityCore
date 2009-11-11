@@ -1718,7 +1718,7 @@ struct TRINITY_DLL_DECL npc_enraged_spiritAI : public ScriptedAI
                  if (Owner && Owner->GetTypeId() == TYPEID_PLAYER)
                      // DoCast(Owner, credit); -- not working!
                      CAST_PLR(Owner)->KilledMonsterCredit(credit, Summoned->GetGUID());
-                 DoCast(totemOspirits,SPELL_SOUL_CAPTURED);
+                 DoCast(totemOspirits, SPELL_SOUL_CAPTURED);
              }
         }
     }

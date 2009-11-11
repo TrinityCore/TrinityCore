@@ -159,7 +159,7 @@ struct TRINITY_DLL_DECL boss_gruulAI : public ScriptedAI
         if (m_uiGrowth_Timer <= uiDiff)
         {
             DoScriptText(EMOTE_GROW, m_creature);
-            DoCast(m_creature,SPELL_GROWTH);
+            DoCast(m_creature, SPELL_GROWTH);
             m_uiGrowth_Timer = 30000;
         }
         else
@@ -188,9 +188,9 @@ struct TRINITY_DLL_DECL boss_gruulAI : public ScriptedAI
                 Unit *pTarget = SelectUnit(SELECT_TARGET_TOPAGGRO,1);
 
                 if (pTarget && m_creature->IsWithinMeleeRange(m_creature->getVictim()))
-                    DoCast(pTarget,SPELL_HURTFUL_STRIKE);
+                    DoCast(pTarget, SPELL_HURTFUL_STRIKE);
                 else
-                    DoCast(m_creature->getVictim(),SPELL_HURTFUL_STRIKE);
+                    DoCast(m_creature->getVictim(), SPELL_HURTFUL_STRIKE);
 
                 m_uiHurtfulStrike_Timer= 8000;
             }
@@ -210,7 +210,7 @@ struct TRINITY_DLL_DECL boss_gruulAI : public ScriptedAI
             if (m_uiCaveIn_Timer <= uiDiff)
             {
                 if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM,0))
-                    DoCast(pTarget,SPELL_CAVE_IN);
+                    DoCast(pTarget, SPELL_CAVE_IN);
 
                 if (m_uiCaveIn_StaticTimer >= 4000)
                     m_uiCaveIn_StaticTimer -= 2000;

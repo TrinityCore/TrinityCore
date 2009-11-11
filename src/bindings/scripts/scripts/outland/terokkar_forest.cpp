@@ -112,7 +112,7 @@ struct TRINITY_DLL_DECL mob_unkor_the_ruthlessAI : public ScriptedAI
         {
             if (!UnkorUnfriendly_Timer)
             {
-                //DoCast(m_creature,SPELL_QUID9889);        //not using spell for now
+                //DoCast(m_creature, SPELL_QUID9889);        //not using spell for now
                 DoNice();
             }
             else
@@ -130,7 +130,7 @@ struct TRINITY_DLL_DECL mob_unkor_the_ruthlessAI : public ScriptedAI
 
         if (Pulverize_Timer <= diff)
         {
-            DoCast(m_creature,SPELL_PULVERIZE);
+            DoCast(m_creature, SPELL_PULVERIZE);
             Pulverize_Timer = 9000;
         } else Pulverize_Timer -= diff;
 
@@ -160,7 +160,7 @@ struct TRINITY_DLL_DECL mob_infested_root_walkerAI : public ScriptedAI
             if (m_creature->GetHealth() <= damage)
                 if (rand()%100 < 75)
                     //Summon Wood Mites
-                    m_creature->CastSpell(m_creature,39130,true);
+                    DoCast(m_creature, 39130, true);
     }
 };
 CreatureAI* GetAI_mob_infested_root_walker(Creature* pCreature)
@@ -240,7 +240,7 @@ struct TRINITY_DLL_DECL mob_rotting_forest_ragerAI : public ScriptedAI
             if (m_creature->GetHealth() <= damage)
                 if (rand()%100 < 75)
                     //Summon Lots of Wood Mights
-                    m_creature->CastSpell(m_creature,39134,true);
+                    DoCast(m_creature, 39134, true);
     }
 };
 CreatureAI* GetAI_mob_rotting_forest_rager(Creature* pCreature)
@@ -342,19 +342,19 @@ struct TRINITY_DLL_DECL npc_floonAI : public ScriptedAI
 
         if (Silence_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(),SPELL_SILENCE);
+            DoCast(m_creature->getVictim(), SPELL_SILENCE);
             Silence_Timer = 30000;
         } else Silence_Timer -= diff;
 
         if (FrostNova_Timer <= diff)
         {
-            DoCast(m_creature,SPELL_FROST_NOVA);
+            DoCast(m_creature, SPELL_FROST_NOVA);
             FrostNova_Timer = 20000;
         } else FrostNova_Timer -= diff;
 
         if (Frostbolt_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(),SPELL_FROSTBOLT);
+            DoCast(m_creature->getVictim(), SPELL_FROSTBOLT);
             Frostbolt_Timer = 5000;
         } else Frostbolt_Timer -= diff;
 

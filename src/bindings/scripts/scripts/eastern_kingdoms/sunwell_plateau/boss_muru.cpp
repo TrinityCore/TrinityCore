@@ -178,7 +178,7 @@ struct TRINITY_DLL_DECL boss_entropiusAI : public ScriptedAI
 
         if (EnrageTimer < diff && !m_creature->HasAura(SPELL_ENRAGE, 0))
         {
-            DoCast(m_creature,SPELL_ENRAGE, false);
+            DoCast(m_creature, SPELL_ENRAGE, false);
         } else EnrageTimer -= diff;
 
         if (BlackHoleSummonTimer <= diff)

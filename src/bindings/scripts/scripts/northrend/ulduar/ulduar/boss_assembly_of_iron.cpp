@@ -315,7 +315,7 @@ struct TRINITY_DLL_DECL boss_runemaster_molgeimAI : public ScriptedAI
                 }
                 break;
                 case EVENT_SHIELD_OF_RUNES:
-                    DoCast( m_creature, HEROIC(SPELL_SHIELD_OF_RUNES, SPELL_SHIELD_OF_RUNES_H));
+                    DoCast(m_creature, HEROIC(SPELL_SHIELD_OF_RUNES, SPELL_SHIELD_OF_RUNES_H));
                     events.ScheduleEvent(EVENT_SHIELD_OF_RUNES, 27000+ (rand()%7)*1000);
                 break;
                 case EVENT_RUNE_OF_DEATH:

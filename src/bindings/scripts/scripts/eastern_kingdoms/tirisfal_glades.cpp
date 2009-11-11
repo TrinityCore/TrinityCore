@@ -107,10 +107,10 @@ struct TRINITY_DLL_DECL npc_calvin_montagueAI : public ScriptedAI
                     ++m_uiPhase;
                     break;
                 case 2:
-                    if (Unit* pUnit = Unit::GetUnit(*m_creature, m_uiPlayerGUID))
-                        CAST_PLR(pUnit)->AreaExploredOrEventHappens(QUEST_590);
+                    if (Player *pPlayer = Unit::GetPlayer(m_uiPlayerGUID))
+                        pPlayer->AreaExploredOrEventHappens(QUEST_590);
 
-                    m_creature->CastSpell(m_creature,SPELL_DRINK,true);
+                    DoCast(m_creature, SPELL_DRINK, true);
                     ++m_uiPhase;
                     break;
                 case 3:
@@ -132,9 +132,9 @@ CreatureAI* GetAI_npc_calvin_montague(Creature* pCreature)
     return new npc_calvin_montagueAI (pCreature);
 }
 
-bool QuestAccept_npc_calvin_montague(Player* pPlayer, Creature* pCreature, Quest const* quest)
+bool QuestAccept_npc_calvin_montague(Player* pPlayer, Creature* pCreature, Quest const* pQuest)
 {
-    if (quest->GetQuestId() == QUEST_590)
+    if (pQuest->GetQuestId() == QUEST_590)
     {
         pCreature->setFaction(FACTION_HOSTILE);
         pCreature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);

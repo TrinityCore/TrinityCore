@@ -92,7 +92,7 @@ struct TRINITY_DLL_DECL boss_epoch_hunterAI : public ScriptedAI
             if (m_creature->IsNonMeleeSpellCasted(false))
                 m_creature->InterruptNonMeleeSpells(false);
 
-            DoCast(m_creature->getVictim(),SPELL_SAND_BREATH);
+            DoCast(m_creature->getVictim(), SPELL_SAND_BREATH);
 
             DoScriptText(RAND(SAY_BREATH1,SAY_BREATH2), m_creature);
 
@@ -101,20 +101,20 @@ struct TRINITY_DLL_DECL boss_epoch_hunterAI : public ScriptedAI
 
         if (ImpendingDeath_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(),SPELL_IMPENDING_DEATH);
+            DoCast(m_creature->getVictim(), SPELL_IMPENDING_DEATH);
             ImpendingDeath_Timer = 25000+rand()%5000;
         } else ImpendingDeath_Timer -= diff;
 
         if (WingBuffet_Timer <= diff)
         {
             if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM,0))
-                DoCast(pTarget,SPELL_WING_BUFFET);
+                DoCast(pTarget, SPELL_WING_BUFFET);
             WingBuffet_Timer = 25000+rand()%10000;
         } else WingBuffet_Timer -= diff;
 
         if (Mda_Timer <= diff)
         {
-            DoCast(m_creature,SPELL_MAGIC_DISRUPTION_AURA);
+            DoCast(m_creature, SPELL_MAGIC_DISRUPTION_AURA);
             Mda_Timer = 15000;
         } else Mda_Timer -= diff;
 

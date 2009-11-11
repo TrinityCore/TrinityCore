@@ -207,12 +207,10 @@ struct TRINITY_DLL_DECL mob_shade_of_jindoAI : public ScriptedAI
     void Reset()
     {
         ShadowShock_Timer = 1000;
-        m_creature->CastSpell(m_creature, SPELL_INVISIBLE,true);
+        DoCast(m_creature, SPELL_INVISIBLE, true);
     }
 
-    void EnterCombat(Unit *who)
-    {
-    }
+    void EnterCombat(Unit *who){}
 
     void UpdateAI (const uint32 diff)
     {

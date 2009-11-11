@@ -152,7 +152,7 @@ struct TRINITY_DLL_DECL boss_arlokkAI : public ScriptedAI
         {
             if (m_uiShadowWordPain_Timer <= uiDiff)
             {
-                DoCast(m_creature->getVictim(),SPELL_SHADOWWORDPAIN);
+                DoCast(m_creature->getVictim(), SPELL_SHADOWWORDPAIN);
                 m_uiShadowWordPain_Timer = 15000;
             }
             else

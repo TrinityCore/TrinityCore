@@ -148,8 +148,8 @@ struct TRINITY_DLL_DECL boss_anetheronAI : public hyjal_trashAI
 
         if (SwarmTimer <= diff)
         {
-            if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM,0,100,true))
-                DoCast(pTarget,SPELL_CARRION_SWARM);
+            if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                DoCast(pTarget, SPELL_CARRION_SWARM);
 
             SwarmTimer = urand(45000,60000);
             switch (urand(0,1))
@@ -169,7 +169,7 @@ struct TRINITY_DLL_DECL boss_anetheronAI : public hyjal_trashAI
         {
             for (uint8 i = 0; i < 3; ++i)
             {
-                if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM,0,100,true))
+                if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                     pTarget->CastSpell(pTarget,SPELL_SLEEP,true);
             }
             SleepTimer = 60000;
@@ -187,12 +187,12 @@ struct TRINITY_DLL_DECL boss_anetheronAI : public hyjal_trashAI
         } else SleepTimer -= diff;
         if (AuraTimer <= diff)
         {
-            DoCast(m_creature, SPELL_VAMPIRIC_AURA,true);
+            DoCast(m_creature, SPELL_VAMPIRIC_AURA, true);
             AuraTimer = urand(10000,20000);
         } else AuraTimer -= diff;
         if (InfernoTimer <= diff)
         {
-            DoCast(SelectTarget(SELECT_TARGET_RANDOM,0,100,true), SPELL_INFERNO);
+            DoCast(SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true), SPELL_INFERNO);
             InfernoTimer = 45000;
             switch (urand(0,1))
             {

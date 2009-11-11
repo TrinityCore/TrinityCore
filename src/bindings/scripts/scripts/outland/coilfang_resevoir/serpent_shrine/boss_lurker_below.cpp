@@ -128,7 +128,7 @@ struct TRINITY_DLL_DECL boss_the_lurker_belowAI : public Scripted_NoMovementAI
             pInstance->SetData(DATA_THELURKERBELOWEVENT, NOT_STARTED);
             pInstance->SetData(DATA_STRANGE_POOL, NOT_STARTED);
         }
-        DoCast(m_creature,SPELL_SUBMERGE);//submerge anim
+        DoCast(m_creature, SPELL_SUBMERGE);//submerge anim
         m_creature->SetVisibility(VISIBILITY_OFF);//we start invis under water, submerged
         m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
         m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
@@ -185,7 +185,7 @@ struct TRINITY_DLL_DECL boss_the_lurker_belowAI : public Scripted_NoMovementAI
                 {
                     m_creature->RemoveAllAuras();
                     m_creature->RemoveFlag(UNIT_NPC_EMOTESTATE,EMOTE_STATE_SUBMERGED);
-                    DoCast(m_creature,SPELL_EMERGE,false);
+                    DoCast(m_creature, SPELL_EMERGE, false);
                     WaitTimer2 = 60000;//never reached
                     WaitTimer = 3000;
                 } else WaitTimer2 -= diff;
@@ -212,7 +212,7 @@ struct TRINITY_DLL_DECL boss_the_lurker_belowAI : public Scripted_NoMovementAI
             if (PhaseTimer <= diff)
             {
                 m_creature->InterruptNonMeleeSpells(false);
-                DoCast(m_creature,SPELL_SUBMERGE);
+                DoCast(m_creature, SPELL_SUBMERGE);
                 PhaseTimer = 60000;//60secs submerged
                 Submerged = true;
             } else PhaseTimer-=diff;
@@ -232,7 +232,7 @@ struct TRINITY_DLL_DECL boss_the_lurker_belowAI : public Scripted_NoMovementAI
             if (WhirlTimer <= diff)
             {
                 WhirlTimer = 18000;
-                DoCast(m_creature,SPELL_WHIRL);
+                DoCast(m_creature, SPELL_WHIRL);
             } else WhirlTimer -= diff;
 
             if (CheckTimer <= diff)//check if there are players in melee range
@@ -260,13 +260,13 @@ struct TRINITY_DLL_DECL boss_the_lurker_belowAI : public Scripted_NoMovementAI
                     for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
                     {
                         if (i->getSource() && i->getSource()->isAlive() && m_creature->HasInArc((double)diff/20000*(double)M_PI*2,i->getSource()) && m_creature->IsWithinDist(i->getSource(), SPOUT_DIST) && !i->getSource()->IsInWater())
-                            DoCast(i->getSource(),SPELL_SPOUT,true);//only knock back palyers in arc, in 100yards, not in water
+                            DoCast(i->getSource(), SPELL_SPOUT, true);//only knock back palyers in arc, in 100yards, not in water
                     }
                 }
 
                 if (SpoutAnimTimer <= diff)
                 {
-                    DoCast(m_creature,SPELL_SPOUT_ANIM,true);
+                    DoCast(m_creature, SPELL_SPOUT_ANIM, true);
                     SpoutAnimTimer = 1000;
                 } else SpoutAnimTimer -= diff;
 
@@ -283,7 +283,7 @@ struct TRINITY_DLL_DECL boss_the_lurker_belowAI : public Scripted_NoMovementAI
                 if (!pTarget && m_creature->getVictim())
                     pTarget = m_creature->getVictim();
                 if (pTarget)
-                    DoCast(pTarget,SPELL_GEYSER,true);
+                    DoCast(pTarget, SPELL_GEYSER, true);
                 GeyserTimer = rand()%5000 + 15000;
             } else GeyserTimer -= diff;
 
@@ -295,7 +295,7 @@ struct TRINITY_DLL_DECL boss_the_lurker_belowAI : public Scripted_NoMovementAI
                     if (!pTarget && m_creature->getVictim())
                         pTarget = m_creature->getVictim();
                     if (pTarget)
-                        DoCast(pTarget,SPELL_WATERBOLT,true);
+                        DoCast(pTarget, SPELL_WATERBOLT, true);
                     WaterboltTimer = 3000;
                 } else WaterboltTimer -= diff;
             }
@@ -314,7 +314,7 @@ struct TRINITY_DLL_DECL boss_the_lurker_belowAI : public Scripted_NoMovementAI
                 m_creature->RemoveAllAuras();
                 m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
                 m_creature->RemoveFlag(UNIT_NPC_EMOTESTATE,EMOTE_STATE_SUBMERGED);
-                DoCast(m_creature,SPELL_EMERGE,true);
+                DoCast(m_creature, SPELL_EMERGE, true);
                 Spawned = false;
                 SpoutTimer = 3000; // directly cast Spout after emerging!
                 PhaseTimer = 120000;

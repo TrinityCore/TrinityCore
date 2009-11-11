@@ -160,12 +160,12 @@ struct TRINITY_DLL_DECL boss_svalaAI : public ScriptedAI
                     break;
                 case 4:
                     DoScriptText(SAY_DIALOG_WITH_ARTHAS_3, m_creature);
-                    DoCast(m_creature,SPELL_SVALA_TRANSFORMING1);
+                    DoCast(m_creature, SPELL_SVALA_TRANSFORMING1);
                     ++uiIntroPhase;
                     uiIntroTimer = 2800;
                     break;
                 case 5:
-                    DoCast(m_creature,SPELL_SVALA_TRANSFORMING2);
+                    DoCast(m_creature, SPELL_SVALA_TRANSFORMING2);
                     ++uiIntroPhase;
                     uiIntroTimer = 200;
                     break;
@@ -201,7 +201,7 @@ struct TRINITY_DLL_DECL mob_ritual_channelerAI : public Scripted_NoMovementAI
     void EnterCombat(Unit* who)
     {
         if (who && !who->HasAura(SPELL_PARALYZE,0))
-            DoCast(who,SPELL_PARALYZE);
+            DoCast(who, SPELL_PARALYZE);
         return;
     }
 };
@@ -282,7 +282,7 @@ struct TRINITY_DLL_DECL boss_svala_sorrowgraveAI : public ScriptedAI
                 if (pSacrificeTarget)
                 {
                     DoScriptText(RAND(SAY_SACRIFICE_PLAYER_1,SAY_SACRIFICE_PLAYER_2,SAY_SACRIFICE_PLAYER_3,SAY_SACRIFICE_PLAYER_4,SAY_SACRIFICE_PLAYER_5),m_creature);
-                    DoCast(pSacrificeTarget,SPELL_RITUAL_OF_THE_SWORD);
+                    DoCast(pSacrificeTarget, SPELL_RITUAL_OF_THE_SWORD);
                     //Spell doesn't teleport
                     DoTeleportPlayer(pSacrificeTarget, 296.632, -346.075, 90.63, 4.6);
                     m_creature->SetUnitMovementFlags(MOVEMENTFLAG_FLY_MODE);

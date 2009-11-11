@@ -293,7 +293,7 @@ struct TRINITY_DLL_DECL boss_volkhanAI : public ScriptedAI
 
             m_bHasTemper = true;
 
-            m_creature->CastSpell(m_creature, SPELL_TEMPER, false);
+            DoCast(m_creature, SPELL_TEMPER, false);
         }
 
         DoMeleeAttackIfReady();

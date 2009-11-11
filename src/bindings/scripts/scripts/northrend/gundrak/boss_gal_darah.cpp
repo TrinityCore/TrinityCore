@@ -112,7 +112,7 @@ struct TRINITY_DLL_DECL boss_gal_darahAI : public ScriptedAI
                 {
                     if (uiStampedeTimer <= diff)
                     {
-                        DoCast(m_creature,SPELL_STAMPEDE);
+                        DoCast(m_creature, SPELL_STAMPEDE);
                         DoScriptText(RAND(SAY_SUMMON_RHINO_1,SAY_SUMMON_RHINO_2,SAY_SUMMON_RHINO_3),m_creature);
                         uiStampedeTimer = 15000;
                     } else uiStampedeTimer -= diff;
@@ -156,7 +156,7 @@ struct TRINITY_DLL_DECL boss_gal_darahAI : public ScriptedAI
                     if (uiImpalingChargeTimer <= diff)
                     {
                         if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                            DoCast(pTarget,HEROIC(SPELL_IMPALING_CHARGE, H_SPELL_IMPALING_CHARGE));
+                            DoCast(pTarget, HEROIC(SPELL_IMPALING_CHARGE, H_SPELL_IMPALING_CHARGE));
                         uiImpalingChargeTimer = 30000;
                         ++uiPhaseCounter;
                     } else uiImpalingChargeTimer -= diff;

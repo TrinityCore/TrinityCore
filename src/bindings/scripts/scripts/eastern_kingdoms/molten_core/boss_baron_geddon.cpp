@@ -58,7 +58,7 @@ struct TRINITY_DLL_DECL boss_baron_geddonAI : public ScriptedAI
         if (m_creature->GetHealth()*100 / m_creature->GetMaxHealth() <= 2)
         {
             m_creature->InterruptNonMeleeSpells(true);
-            DoCast(m_creature,SPELL_ARMAGEDDOM);
+            DoCast(m_creature, SPELL_ARMAGEDDOM);
             DoScriptText(EMOTE_SERVICE, m_creature);
             return;
         }
@@ -66,7 +66,7 @@ struct TRINITY_DLL_DECL boss_baron_geddonAI : public ScriptedAI
         //Inferno_Timer
         if (Inferno_Timer <= diff)
         {
-            DoCast(m_creature,SPELL_INFERNO);
+            DoCast(m_creature, SPELL_INFERNO);
             Inferno_Timer = 45000;
         } else Inferno_Timer -= diff;
 
@@ -74,7 +74,7 @@ struct TRINITY_DLL_DECL boss_baron_geddonAI : public ScriptedAI
         if (IgniteMana_Timer <= diff)
         {
             if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM,0))
-                DoCast(pTarget,SPELL_IGNITEMANA);
+                DoCast(pTarget, SPELL_IGNITEMANA);
 
             IgniteMana_Timer = 30000;
         } else IgniteMana_Timer -= diff;
@@ -83,7 +83,7 @@ struct TRINITY_DLL_DECL boss_baron_geddonAI : public ScriptedAI
         if (LivingBomb_Timer <= diff)
         {
            if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM,0))
-               DoCast(pTarget,SPELL_LIVINGBOMB);
+               DoCast(pTarget, SPELL_LIVINGBOMB);
 
             LivingBomb_Timer = 35000;
         } else LivingBomb_Timer -= diff;

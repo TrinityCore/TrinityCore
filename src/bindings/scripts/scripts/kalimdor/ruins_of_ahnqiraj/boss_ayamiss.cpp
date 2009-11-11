@@ -92,21 +92,21 @@ struct TRINITY_DLL_DECL boss_ayamissAI : public ScriptedAI
         //STINGERSPRAY_Timer (only in phase2)
         if (phase==2 && STINGERSPRAY_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(),SPELL_STINGERSPRAY);
+            DoCast(m_creature->getVictim(), SPELL_STINGERSPRAY);
             STINGERSPRAY_Timer = 30000;
         } else STINGERSPRAY_Timer -= diff;
 
         //POISONSTINGER_Timer (only in phase1)
         if (phase==1 && POISONSTINGER_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(),SPELL_POISONSTINGER);
+            DoCast(m_creature->getVictim(), SPELL_POISONSTINGER);
             POISONSTINGER_Timer = 30000;
         } else POISONSTINGER_Timer -= diff;
 
         //SUMMONSWARMER_Timer (only in phase1)
         if (SUMMONSWARMER_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(),SPELL_SUMMONSWARMER);
+            DoCast(m_creature->getVictim(), SPELL_SUMMONSWARMER);
             SUMMONSWARMER_Timer = 60000;
         } else SUMMONSWARMER_Timer -= diff;
 

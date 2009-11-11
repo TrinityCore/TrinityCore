@@ -78,7 +78,7 @@ struct TRINITY_DLL_DECL npc_draenei_survivorAI : public ScriptedAI
 
         CanSayHelp = true;
 
-        m_creature->CastSpell(m_creature, SPELL_IRRIDATION, true);
+        DoCast(m_creature, SPELL_IRRIDATION, true);
 
         m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PVP_ATTACKABLE);
         m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IN_COMBAT);
@@ -107,7 +107,7 @@ struct TRINITY_DLL_DECL npc_draenei_survivorAI : public ScriptedAI
             m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PVP_ATTACKABLE);
             m_creature->SetStandState(UNIT_STAND_STATE_STAND);
 
-            m_creature->CastSpell(m_creature, SPELL_STUNNED, true);
+            DoCast(m_creature, SPELL_STUNNED, true);
 
             pCaster = Caster->GetGUID();
 

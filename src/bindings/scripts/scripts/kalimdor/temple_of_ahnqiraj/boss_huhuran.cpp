@@ -84,21 +84,21 @@ struct TRINITY_DLL_DECL boss_huhuranAI : public ScriptedAI
         if (Wyvern_Timer <= diff)
         {
             if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM,0))
-                DoCast(pTarget,SPELL_WYVERNSTING);
+                DoCast(pTarget, SPELL_WYVERNSTING);
             Wyvern_Timer = 15000 + rand()%17000;
         } else Wyvern_Timer -= diff;
 
         //Spit Timer
         if (Spit_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(),SPELL_ACIDSPIT);
+            DoCast(m_creature->getVictim(), SPELL_ACIDSPIT);
             Spit_Timer = 5000 + rand()%5000;
         } else Spit_Timer -= diff;
 
         //NoxiousPoison_Timer
         if (NoxiousPoison_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(),SPELL_NOXIOUSPOISON);
+            DoCast(m_creature->getVictim(), SPELL_NOXIOUSPOISON);
             NoxiousPoison_Timer = 12000 + rand()%12000;
         } else NoxiousPoison_Timer -= diff;
 
@@ -107,7 +107,7 @@ struct TRINITY_DLL_DECL boss_huhuranAI : public ScriptedAI
         {
             if (PoisonBolt_Timer <= diff)
             {
-                DoCast(m_creature->getVictim(),SPELL_POISONBOLT);
+                DoCast(m_creature->getVictim(), SPELL_POISONBOLT);
                 PoisonBolt_Timer = 3000;
             } else PoisonBolt_Timer -= diff;
         }

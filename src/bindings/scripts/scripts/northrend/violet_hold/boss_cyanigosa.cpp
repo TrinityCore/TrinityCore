@@ -89,13 +89,13 @@ struct TRINITY_DLL_DECL boss_cyanigosaAI : public ScriptedAI
         if (uiBlizzardTimer <= diff)
         {
             if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                DoCast(pTarget, HEROIC(SPELL_BLIZZARD,H_SPELL_BLIZZARD));
+                DoCast(pTarget, HEROIC(SPELL_BLIZZARD, H_SPELL_BLIZZARD));
             uiBlizzardTimer = 15000;
         } else uiBlizzardTimer -= diff;
 
         if (uiTailSweepTimer <= diff)
         {
-            DoCast(HEROIC(SPELL_TAIL_SWEEP,H_SPELL_TAIL_SWEEP));
+            DoCast(HEROIC(SPELL_TAIL_SWEEP, H_SPELL_TAIL_SWEEP));
             uiTailSweepTimer = 20000;
         } else uiTailSweepTimer -= diff;
 

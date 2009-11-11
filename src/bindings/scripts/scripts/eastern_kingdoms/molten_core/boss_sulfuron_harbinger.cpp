@@ -66,7 +66,7 @@ struct TRINITY_DLL_DECL boss_sulfuronAI : public ScriptedAI
         //DemoralizingShout_Timer
         if (DemoralizingShout_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(),SPELL_DEMORALIZINGSHOUT);
+            DoCast(m_creature->getVictim(), SPELL_DEMORALIZINGSHOUT);
             DemoralizingShout_Timer = 15000 + rand()%5000;
         } else DemoralizingShout_Timer -= diff;
 
@@ -83,9 +83,9 @@ struct TRINITY_DLL_DECL boss_sulfuronAI : public ScriptedAI
             }
 
             if (pTarget)
-                DoCast(pTarget,SPELL_INSPIRE);
+                DoCast(pTarget, SPELL_INSPIRE);
 
-            DoCast(m_creature,SPELL_INSPIRE);
+            DoCast(m_creature, SPELL_INSPIRE);
 
             Inspire_Timer = 20000 + rand()%6000;
         } else Inspire_Timer -= diff;
@@ -93,7 +93,7 @@ struct TRINITY_DLL_DECL boss_sulfuronAI : public ScriptedAI
         //Knockdown_Timer
         if (Knockdown_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(),SPELL_KNOCKDOWN);
+            DoCast(m_creature->getVictim(), SPELL_KNOCKDOWN);
             Knockdown_Timer = 12000 + rand()%3000;
         } else Knockdown_Timer -= diff;
 
@@ -102,7 +102,7 @@ struct TRINITY_DLL_DECL boss_sulfuronAI : public ScriptedAI
         {
             Unit *pTarget = NULL;
             pTarget = SelectUnit(SELECT_TARGET_RANDOM,0);
-            if (pTarget) DoCast(pTarget,SPELL_FLAMESPEAR);
+            if (pTarget) DoCast(pTarget, SPELL_FLAMESPEAR);
 
             Flamespear_Timer = 12000 + rand()%4000;
         } else Flamespear_Timer -= diff;
@@ -159,7 +159,7 @@ struct TRINITY_DLL_DECL mob_flamewaker_priestAI : public ScriptedAI
         {
             Unit *pTarget = NULL;
             pTarget = SelectUnit(SELECT_TARGET_RANDOM,0);
-            if (pTarget) DoCast(pTarget,SPELL_SHADOWWORDPAIN);
+            if (pTarget) DoCast(pTarget, SPELL_SHADOWWORDPAIN);
 
             ShadowWordPain_Timer = 18000+rand()%8000;
         } else ShadowWordPain_Timer -= diff;
@@ -169,7 +169,7 @@ struct TRINITY_DLL_DECL mob_flamewaker_priestAI : public ScriptedAI
         {
             Unit *pTarget = NULL;
             pTarget = SelectUnit(SELECT_TARGET_RANDOM,0);
-            if (pTarget) DoCast(pTarget,SPELL_IMMOLATE);
+            if (pTarget) DoCast(pTarget, SPELL_IMMOLATE);
 
             Immolate_Timer = 15000+rand()%10000;
         } else Immolate_Timer -= diff;

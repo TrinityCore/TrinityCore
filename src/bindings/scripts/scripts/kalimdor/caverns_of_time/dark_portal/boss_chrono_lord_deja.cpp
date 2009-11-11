@@ -115,7 +115,7 @@ struct TRINITY_DLL_DECL boss_chrono_lord_dejaAI : public ScriptedAI
         if (ArcaneDischarge_Timer <= diff)
         {
             Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0);
-            DoCast(pTarget,HEROIC(SPELL_ARCANE_DISCHARGE, H_SPELL_ARCANE_DISCHARGE));
+            DoCast(pTarget, HEROIC(SPELL_ARCANE_DISCHARGE, H_SPELL_ARCANE_DISCHARGE));
             ArcaneDischarge_Timer = 20000+rand()%10000;
         } else ArcaneDischarge_Timer -= diff;
 
@@ -131,7 +131,7 @@ struct TRINITY_DLL_DECL boss_chrono_lord_dejaAI : public ScriptedAI
         {
             if (Attraction_Timer <= diff)
             {
-                DoCast(m_creature,SPELL_ATTRACTION);
+                DoCast(m_creature, SPELL_ATTRACTION);
                 Attraction_Timer = 25000+rand()%10000;
             } else Attraction_Timer -= diff;
         }

@@ -72,7 +72,7 @@ struct TRINITY_DLL_DECL npc_aged_dying_ancient_kodoAI : public ScriptedAI
                 DoScriptText(RAND(SAY_SMEED_HOME_1,SAY_SMEED_HOME_2,SAY_SMEED_HOME_3), pWho);
 
                 //spell have no implemented effect (dummy), so useful to notify spellHit
-                m_creature->CastSpell(m_creature,SPELL_KODO_KOMBO_GOSSIP,true);
+                DoCast(m_creature, SPELL_KODO_KOMBO_GOSSIP, true);
             }
         }
     }

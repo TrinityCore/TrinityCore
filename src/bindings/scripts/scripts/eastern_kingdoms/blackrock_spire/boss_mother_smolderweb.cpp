@@ -45,7 +45,7 @@ struct TRINITY_DLL_DECL boss_mothersmolderwebAI : public ScriptedAI
     void DamageTaken(Unit *done_by, uint32 &damage)
     {
         if (m_creature->GetHealth() <= damage)
-            m_creature->CastSpell(m_creature,SPELL_SUMMON_SPIRE_SPIDERLING,true);
+            DoCast(m_creature, SPELL_SUMMON_SPIRE_SPIDERLING, true);
     }
 
     void UpdateAI(const uint32 diff)
@@ -57,14 +57,14 @@ struct TRINITY_DLL_DECL boss_mothersmolderwebAI : public ScriptedAI
         //Crystalize_Timer
         if (Crystalize_Timer <= diff)
         {
-            DoCast(m_creature,SPELL_CRYSTALIZE);
+            DoCast(m_creature, SPELL_CRYSTALIZE);
             Crystalize_Timer = 15000;
         } else Crystalize_Timer -= diff;
 
         //MothersMilk_Timer
         if (MothersMilk_Timer <= diff)
         {
-            DoCast(m_creature,SPELL_MOTHERSMILK);
+            DoCast(m_creature, SPELL_MOTHERSMILK);
             MothersMilk_Timer = urand(5000,12500);
         } else MothersMilk_Timer -= diff;
 

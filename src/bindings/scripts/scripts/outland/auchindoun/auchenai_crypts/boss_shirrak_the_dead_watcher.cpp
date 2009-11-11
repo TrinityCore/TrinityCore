@@ -109,7 +109,7 @@ struct TRINITY_DLL_DECL boss_shirrak_the_dead_watcherAI : public ScriptedAI
         //Attractmagic_Timer
         if (Attractmagic_Timer <= diff)
         {
-            DoCast(m_creature,SPELL_ATTRACTMAGIC);
+            DoCast(m_creature, SPELL_ATTRACTMAGIC);
             Attractmagic_Timer = 30000;
             Carnivorousbite_Timer = 1500;
         } else Attractmagic_Timer -= diff;
@@ -117,7 +117,7 @@ struct TRINITY_DLL_DECL boss_shirrak_the_dead_watcherAI : public ScriptedAI
         //Carnivorousbite_Timer
         if (Carnivorousbite_Timer <= diff)
         {
-            DoCast(m_creature,SPELL_CARNIVOROUSBITE);
+            DoCast(m_creature, SPELL_CARNIVOROUSBITE);
             Carnivorousbite_Timer = 10000;
         } else Carnivorousbite_Timer -= diff;
 
@@ -181,7 +181,7 @@ struct TRINITY_DLL_DECL mob_focus_fireAI : public ScriptedAI
         //FieryBlast_Timer
         if (fiery2 && FieryBlast_Timer <= diff)
         {
-            DoCast(m_creature,SPELL_FIERY_BLAST);
+            DoCast(m_creature, SPELL_FIERY_BLAST);
 
             if (fiery1) fiery1 = false;
             else if (fiery2) fiery2 = false;

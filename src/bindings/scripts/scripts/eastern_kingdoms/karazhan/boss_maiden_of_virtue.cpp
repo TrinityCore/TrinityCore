@@ -83,7 +83,7 @@ struct TRINITY_DLL_DECL boss_maiden_of_virtueAI : public ScriptedAI
 
         if (Enrage_Timer < diff && !Enraged)
         {
-            DoCast(m_creature, SPELL_BERSERK,true);
+            DoCast(m_creature, SPELL_BERSERK, true);
             Enraged = true;
         } else Enrage_Timer -= diff;
 
@@ -95,7 +95,7 @@ struct TRINITY_DLL_DECL boss_maiden_of_virtueAI : public ScriptedAI
 
         if (Repentance_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(),SPELL_REPENTANCE);
+            DoCast(m_creature->getVictim(), SPELL_REPENTANCE);
             DoScriptText(RAND(SAY_REPENTANCE1,SAY_REPENTANCE2), m_creature);
 
             Repentance_Timer = urand(25000,35000);        //A little randomness on that spell
@@ -104,7 +104,7 @@ struct TRINITY_DLL_DECL boss_maiden_of_virtueAI : public ScriptedAI
         if (Holyfire_Timer <= diff)
         {
             if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                DoCast(pTarget,SPELL_HOLYFIRE);
+                DoCast(pTarget, SPELL_HOLYFIRE);
 
                 Holyfire_Timer = urand(8000,23000);      //Anywhere from 8 to 23 seconds, good luck having several of those in a row!
         } else Holyfire_Timer -= diff;
@@ -112,7 +112,7 @@ struct TRINITY_DLL_DECL boss_maiden_of_virtueAI : public ScriptedAI
         if (Holywrath_Timer <= diff)
         {
             if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                DoCast(pTarget,SPELL_HOLYWRATH);
+                DoCast(pTarget, SPELL_HOLYWRATH);
 
             Holywrath_Timer = urand(20000,25000);        //20-30 secs sounds nice
         } else Holywrath_Timer -= diff;

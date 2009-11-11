@@ -55,14 +55,14 @@ struct TRINITY_DLL_DECL boss_gorosh_the_dervishAI : public ScriptedAI
         //WhirlWind_Timer
         if (WhirlWind_Timer <= diff)
         {
-            DoCast(m_creature,SPELL_WHIRLWIND);
+            DoCast(m_creature, SPELL_WHIRLWIND);
             WhirlWind_Timer = 15000;
         } else WhirlWind_Timer -= diff;
 
         //MortalStrike_Timer
         if (MortalStrike_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(),SPELL_MORTALSTRIKE);
+            DoCast(m_creature->getVictim(), SPELL_MORTALSTRIKE);
             MortalStrike_Timer = 15000;
         } else MortalStrike_Timer -= diff;
 

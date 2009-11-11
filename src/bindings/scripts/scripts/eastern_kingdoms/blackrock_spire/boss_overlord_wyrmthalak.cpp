@@ -71,28 +71,28 @@ struct TRINITY_DLL_DECL boss_overlordwyrmthalakAI : public ScriptedAI
         //BlastWave_Timer
         if (BlastWave_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(),SPELL_BLASTWAVE);
+            DoCast(m_creature->getVictim(), SPELL_BLASTWAVE);
             BlastWave_Timer = 20000;
         } else BlastWave_Timer -= diff;
 
         //Shout_Timer
         if (Shout_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(),SPELL_SHOUT);
+            DoCast(m_creature->getVictim(), SPELL_SHOUT);
             Shout_Timer = 10000;
         } else Shout_Timer -= diff;
 
         //Cleave_Timer
         if (Cleave_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(),SPELL_CLEAVE);
+            DoCast(m_creature->getVictim(), SPELL_CLEAVE);
             Cleave_Timer = 7000;
         } else Cleave_Timer -= diff;
 
         //Knockaway_Timer
         if (Knockaway_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(),SPELL_KNOCKAWAY);
+            DoCast(m_creature->getVictim(), SPELL_KNOCKAWAY);
             Knockaway_Timer = 14000;
         } else Knockaway_Timer -= diff;
 

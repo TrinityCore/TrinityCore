@@ -205,7 +205,7 @@ struct TRINITY_DLL_DECL boss_chromaggusAI : public ScriptedAI
             uint32 spell = RAND(SPELL_FIRE_VULNERABILITY, SPELL_FROST_VULNERABILITY,
                 SPELL_SHADOW_VULNERABILITY, SPELL_NATURE_VULNERABILITY, SPELL_ARCANE_VULNERABILITY);
 
-            DoCast(m_creature,spell);
+            DoCast(m_creature, spell);
             CurrentVurln_Spell = spell;
 
             DoScriptText(EMOTE_SHIMMER, m_creature);
@@ -215,14 +215,14 @@ struct TRINITY_DLL_DECL boss_chromaggusAI : public ScriptedAI
         //Breath1_Timer
         if (Breath1_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(),Breath1_Spell);
+            DoCast(m_creature->getVictim(), Breath1_Spell);
             Breath1_Timer = 60000;
         } else Breath1_Timer -= diff;
 
         //Breath2_Timer
         if (Breath2_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(),Breath2_Spell);
+            DoCast(m_creature->getVictim(), Breath2_Spell);
             Breath2_Timer = 60000;
         } else Breath2_Timer -= diff;
 
@@ -249,7 +249,7 @@ struct TRINITY_DLL_DECL boss_chromaggusAI : public ScriptedAI
                             && pUnit->HasAura(SPELL_BROODAF_GREEN))
                         {
                             //pTarget->RemoveAllAuras();
-                            //DoCast(pTarget,SPELL_CHROMATIC_MUT_1);
+                            //DoCast(pTarget, SPELL_CHROMATIC_MUT_1);
 
                             //Chromatic mutation is causing issues
                             //Assuming it is caused by a lack of core support for Charm
@@ -269,7 +269,7 @@ struct TRINITY_DLL_DECL boss_chromaggusAI : public ScriptedAI
         //Frenzy_Timer
         if (Frenzy_Timer <= diff)
         {
-            DoCast(m_creature,SPELL_FRENZY);
+            DoCast(m_creature, SPELL_FRENZY);
             DoScriptText(EMOTE_FRENZY, m_creature);
             Frenzy_Timer = urand(10000,15000);
         } else Frenzy_Timer -= diff;
@@ -277,7 +277,7 @@ struct TRINITY_DLL_DECL boss_chromaggusAI : public ScriptedAI
         //Enrage if not already enraged and below 20%
         if (!Enraged && (m_creature->GetHealth()*100 / m_creature->GetMaxHealth()) < 20)
         {
-            DoCast(m_creature,SPELL_ENRAGE);
+            DoCast(m_creature, SPELL_ENRAGE);
             Enraged = true;
         }
 

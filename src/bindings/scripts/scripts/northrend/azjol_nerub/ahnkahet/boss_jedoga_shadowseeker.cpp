@@ -271,7 +271,7 @@ struct MANGOS_DLL_DECL boss_jedoga_shadowseekerAI : public ScriptedAI
         DoScriptText(RAND(TEXT_SACRIFICE_2_1, TEXT_SACRIFICE_2_2), m_creature);
 
         m_creature->InterruptNonMeleeSpells(false);
-        m_creature->CastSpell(m_creature, SPELL_GIFT_OF_THE_HERALD, false);
+        DoCast(m_creature, SPELL_GIFT_OF_THE_HERALD, false);
 
         bOpFerok = false;
         bCanDown = true;
@@ -303,7 +303,7 @@ struct MANGOS_DLL_DECL boss_jedoga_shadowseekerAI : public ScriptedAI
 
             if (uiCycloneTimer <= diff)
             {
-                m_creature->CastSpell(m_creature, HEROIC(SPELL_CYCLONE_STRIKE, SPELL_CYCLONE_STRIKE_H), false);
+                DoCast(m_creature, HEROIC(SPELL_CYCLONE_STRIKE, SPELL_CYCLONE_STRIKE_H), false);
                 uiCycloneTimer = urand(15000,30000);
             } else uiCycloneTimer -= diff;
 
@@ -363,7 +363,7 @@ struct MANGOS_DLL_DECL mob_jedoga_initiandAI : public ScriptedAI
         }
         else
         {
-            m_creature->CastSpell(m_creature, SPELL_SPHERE_VISUAL, false);
+            DoCast(m_creature, SPELL_SPHERE_VISUAL, false);
             m_creature->ApplySpellImmune(0, IMMUNITY_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, true);
             m_creature->ApplySpellImmune(0, IMMUNITY_DAMAGE, SPELL_SCHOOL_MASK_MAGIC, true);
             m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE + UNIT_FLAG_NON_ATTACKABLE);
@@ -461,7 +461,7 @@ struct MANGOS_DLL_DECL mob_jedoga_initiandAI : public ScriptedAI
                 }
                 if (pInstance->GetData(DATA_JEDOGA_SHADOWSEEKER_EVENT) == IN_PROGRESS && !m_creature->HasAura(SPELL_SPHERE_VISUAL))
                 {
-                    m_creature->CastSpell(m_creature, SPELL_SPHERE_VISUAL, false);
+                    DoCast(m_creature, SPELL_SPHERE_VISUAL, false);
                     m_creature->ApplySpellImmune(0, IMMUNITY_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, true);
                     m_creature->ApplySpellImmune(0, IMMUNITY_DAMAGE, SPELL_SCHOOL_MASK_MAGIC, true);
                     m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE + UNIT_FLAG_NON_ATTACKABLE);
@@ -533,7 +533,7 @@ struct MANGOS_DLL_DECL npc_jedogas_aufseher_triggerAI : public Scripted_NoMoveme
             }
             if (!casted)
             {
-                m_creature->CastSpell(m_creature, SPELL_BEAM_VISUAL_JEDOGAS_AUFSEHER_1, false);
+                DoCast(m_creature, SPELL_BEAM_VISUAL_JEDOGAS_AUFSEHER_1, false);
                 casted = true;
             }
         }
@@ -541,7 +541,7 @@ struct MANGOS_DLL_DECL npc_jedogas_aufseher_triggerAI : public Scripted_NoMoveme
         {
             if (!casted2 && pInstance->GetData(DATA_JEDOGA_TRIGGER_SWITCH))
             {
-                m_creature->CastSpell(m_creature, SPELL_BEAM_VISUAL_JEDOGAS_AUFSEHER_2, false);
+                DoCast(m_creature, SPELL_BEAM_VISUAL_JEDOGAS_AUFSEHER_2, false);
                 casted2 = true;
             }
             if (casted2 && !pInstance->GetData(DATA_JEDOGA_TRIGGER_SWITCH))

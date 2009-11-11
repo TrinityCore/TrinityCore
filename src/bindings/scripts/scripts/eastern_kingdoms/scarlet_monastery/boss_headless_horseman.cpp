@@ -173,7 +173,7 @@ struct TRINITY_DLL_DECL mob_wisp_invisAI : public ScriptedAI
                 break;
         }
         if (spell)
-            DoCast(m_creature,spell);
+            DoCast(m_creature, spell);
     }
 
     void SpellHit(Unit* caster, const SpellEntry *spell)
@@ -188,7 +188,7 @@ struct TRINITY_DLL_DECL mob_wisp_invisAI : public ScriptedAI
             return;
 
         if (m_creature->IsWithinDist(who, 0.1, false) && !who->HasAura(SPELL_SQUASH_SOUL))
-            DoCast(who,SPELL_SQUASH_SOUL);
+            DoCast(who, SPELL_SQUASH_SOUL);
     }
 
     void UpdateAI(const uint32 diff)
@@ -199,7 +199,7 @@ struct TRINITY_DLL_DECL mob_wisp_invisAI : public ScriptedAI
             {
                 m_creature->RemoveAurasDueToSpell(SPELL_SMOKE);
                 if (spell2)
-                    DoCast(m_creature,spell2);
+                    DoCast(m_creature, spell2);
                 delay = 0;
             } else delay -= diff;
         }
@@ -233,7 +233,7 @@ struct TRINITY_DLL_DECL mob_headAI : public ScriptedAI
     void SaySound(int32 textEntry, Unit *pTarget = 0)
     {
         DoScriptText(textEntry, m_creature, pTarget);
-        //DoCast(m_creature,SPELL_HEAD_SPEAKS,true);
+        //DoCast(m_creature, SPELL_HEAD_SPEAKS, true);
         Creature *speaker = DoSpawnCreature(HELPER,0,0,0,0,TEMPSUMMON_TIMED_DESPAWN,1000);
         if (speaker)
             speaker->CastSpell(speaker,SPELL_HEAD_SPEAKS,false);
@@ -265,7 +265,7 @@ struct TRINITY_DLL_DECL mob_headAI : public ScriptedAI
                     m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                     m_creature->StopMoving();
                     //m_creature->GetMotionMaster()->MoveIdle();
-                    DoCast(m_creature,SPELL_HEAD_IS_DEAD);
+                    DoCast(m_creature, SPELL_HEAD_IS_DEAD);
                 }
                 break;
         }
@@ -285,8 +285,8 @@ struct TRINITY_DLL_DECL mob_headAI : public ScriptedAI
                 bodyGUID = caster->GetGUID();
             m_creature->RemoveAllAuras();
             m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-            DoCast(m_creature,SPELL_HEAD_LANDS,true);
-            DoCast(m_creature,SPELL_HEAD,false);
+            DoCast(m_creature, SPELL_HEAD_LANDS, true);
+            DoCast(m_creature, SPELL_HEAD, false);
             SaySound(SAY_LOST_HEAD);
             m_creature->GetMotionMaster()->Clear(false);
             m_creature->GetMotionMaster()->MoveFleeing(caster->getVictim());
@@ -309,7 +309,7 @@ struct TRINITY_DLL_DECL mob_headAI : public ScriptedAI
             {
                 laugh = urand(15000,30000);
                 DoPlaySoundToSet(m_creature, RandomLaugh[urand(0,2)]);
-                //DoCast(m_creature,SPELL_HEAD_SPEAKS,true); //this spell remove buff "head"
+                //DoCast(m_creature, SPELL_HEAD_SPEAKS, true); //this spell remove buff "head"
                 Creature *speaker = DoSpawnCreature(HELPER,0,0,0,0,TEMPSUMMON_TIMED_DESPAWN,1000);
                 if (speaker)
                     speaker->CastSpell(speaker,SPELL_HEAD_SPEAKS,false);
@@ -397,7 +397,7 @@ struct TRINITY_DLL_DECL boss_headless_horsemanAI : public ScriptedAI
         returned = true;
         burned = false;
         IsFlying = false;
-        DoCast(m_creature,SPELL_HEAD);
+        DoCast(m_creature, SPELL_HEAD);
         if (headGUID)
         {
             if (Creature* Head = Unit::GetCreature((*m_creature), headGUID))
@@ -439,7 +439,7 @@ struct TRINITY_DLL_DECL boss_headless_horsemanAI : public ScriptedAI
             {
                 if (Creature *smoke = m_creature->SummonCreature(HELPER,Spawn[1].x,Spawn[1].y,Spawn[1].z,0,TEMPSUMMON_TIMED_DESPAWN,20000))
                     CAST_AI(mob_wisp_invisAI, smoke->AI())->SetType(3);
-                DoCast(m_creature,SPELL_RHYME_BIG);
+                DoCast(m_creature, SPELL_RHYME_BIG);
                 break;
             }
             case 6:
@@ -555,7 +555,7 @@ struct TRINITY_DLL_DECL boss_headless_horsemanAI : public ScriptedAI
             m_creature->SetName("Headless Horseman");
             m_creature->SetHealth(m_creature->GetMaxHealth());
             SaySound(SAY_REJOINED);
-            DoCast(m_creature,SPELL_HEAD);
+            DoCast(m_creature, SPELL_HEAD);
             caster->GetMotionMaster()->Clear(false);
             caster->GetMotionMaster()->MoveFollow(m_creature,6,urand(0,5));
             //DoResetThreat();//not sure if need
@@ -587,10 +587,10 @@ struct TRINITY_DLL_DECL boss_headless_horsemanAI : public ScriptedAI
                 Head->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                 //Head->CastSpell(Head,SPELL_HEAD_INVIS,false);
                 m_creature->InterruptNonMeleeSpells(false);
-                DoCast(m_creature,SPELL_IMMUNE,true);
-                DoCast(m_creature,SPELL_BODY_REGEN,true);
-                m_creature->CastSpell(Head, SPELL_FLYING_HEAD,true);
-                DoCast(m_creature,SPELL_CONFUSE,false);                     //test
+                DoCast(m_creature, SPELL_IMMUNE, true);
+                DoCast(m_creature, SPELL_BODY_REGEN, true);
+                DoCast(Head, SPELL_FLYING_HEAD, true);
+                DoCast(m_creature, SPELL_CONFUSE, false);                     //test
                 done_by->ProcDamageAndSpell(m_creature,PROC_FLAG_KILL,PROC_FLAG_KILLED,PROC_EX_NONE,0);
                 whirlwind = urand(4000,8000);
                 regen = 0;
@@ -619,7 +619,7 @@ struct TRINITY_DLL_DECL boss_headless_horsemanAI : public ScriptedAI
                             }
                             else
                             {
-                                DoCast(m_creature,SPELL_RHYME_BIG);
+                                DoCast(m_creature, SPELL_RHYME_BIG);
                                 if (plr)
                                 {
                                     plr->Say(Text[count].text,0);
@@ -658,7 +658,7 @@ struct TRINITY_DLL_DECL boss_headless_horsemanAI : public ScriptedAI
                     if (conflagrate <= diff)
                     {
                         if (Unit *plr = SelectRandomPlayer(30.0f))
-                            m_creature->CastSpell(plr,SPELL_CONFLAGRATION,false);
+                            DoCast(plr, SPELL_CONFLAGRATION, false);
                         conflagrate = urand(10000,16000);
                     } else conflagrate -= diff;
                     break;
@@ -666,7 +666,7 @@ struct TRINITY_DLL_DECL boss_headless_horsemanAI : public ScriptedAI
                     if (summonadds <= diff)
                     {
                         m_creature->InterruptNonMeleeSpells(false);
-                        DoCast(m_creature,SPELL_SUMMON_PUMPKIN);
+                        DoCast(m_creature, SPELL_SUMMON_PUMPKIN);
                         SaySound(SAY_SPROUTING_PUMPKINS);
                         summonadds = urand(25000,35000);
                     } else summonadds -= diff;
@@ -685,7 +685,7 @@ struct TRINITY_DLL_DECL boss_headless_horsemanAI : public ScriptedAI
                 DoMeleeAttackIfReady();
                 if (cleave <= diff)
                 {
-                    DoCast(m_creature->getVictim(),SPELL_CLEAVE);
+                    DoCast(m_creature->getVictim(), SPELL_CLEAVE);
                     cleave = urand(2000,6000);       //1 cleave per 2.0-6.0sec
                 } else cleave -= diff;
             }
@@ -718,8 +718,8 @@ struct TRINITY_DLL_DECL boss_headless_horsemanAI : public ScriptedAI
                 if (urand(0,1))
                 {
                     m_creature->RemoveAurasDueToSpell(SPELL_CONFUSE);
-                    DoCast(m_creature,SPELL_WHIRLWIND,true);
-                    DoCast(m_creature,SPELL_CONFUSE);
+                    DoCast(m_creature, SPELL_WHIRLWIND, true);
+                    DoCast(m_creature, SPELL_CONFUSE);
                 } else
                     m_creature->RemoveAurasDueToSpell(SPELL_WHIRLWIND);
             } else whirlwind -= diff;
@@ -739,7 +739,7 @@ void mob_headAI::Disappear()
             withbody = true;
             m_creature->RemoveAllAuras();
             body->RemoveAurasDueToSpell(SPELL_IMMUNE);//hack, SpellHit doesn't calls if body has immune aura
-            DoCast(body,SPELL_FLYING_HEAD);
+            DoCast(body, SPELL_FLYING_HEAD);
             m_creature->SetHealth(m_creature->GetMaxHealth());
             m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
             m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
@@ -771,8 +771,8 @@ struct TRINITY_DLL_DECL mob_pulsing_pumpkinAI : public ScriptedAI
             debuffGUID = debuff->GetGUID();
         }
         sprouted = false;
-        DoCast(m_creature,SPELL_PUMPKIN_AURA,true);
-        DoCast(m_creature,SPELL_SPROUTING);
+        DoCast(m_creature, SPELL_PUMPKIN_AURA, true);
+        DoCast(m_creature, SPELL_SPROUTING);
         m_creature->SetFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_STUNNED);
     }
 
@@ -785,7 +785,7 @@ struct TRINITY_DLL_DECL mob_pulsing_pumpkinAI : public ScriptedAI
             sprouted = true;
             m_creature->RemoveAllAuras();
             m_creature->RemoveFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_STUNNED);
-            DoCast(m_creature,SPELL_SPROUT_BODY,true);
+            DoCast(m_creature, SPELL_SPROUT_BODY, true);
             m_creature->UpdateEntry(PUMPKIN_FIEND);
             DoStartMovement(m_creature->getVictim());
         }

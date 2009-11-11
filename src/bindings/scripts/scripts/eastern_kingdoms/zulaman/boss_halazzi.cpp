@@ -155,15 +155,12 @@ struct TRINITY_DLL_DECL boss_halazziAI : public ScriptedAI
         case PHASE_ENRAGE:
             if (Phase == PHASE_MERGE)
             {
-                m_creature->CastSpell(m_creature, SPELL_TRANSFORM_MERGE, true);
+                DoCast(m_creature, SPELL_TRANSFORM_MERGE, true);
                 m_creature->Attack(m_creature->getVictim(), true);
                 m_creature->GetMotionMaster()->MoveChase(m_creature->getVictim());
             }
-            if (Unit *Lynx = Unit::GetUnit(*m_creature, LynxGUID))
-            {
-                Lynx->SetVisibility(VISIBILITY_OFF);
-                Lynx->setDeathState(JUST_DIED);
-            }
+            if (Creature *Lynx = Unit::GetCreature(*m_creature, LynxGUID))
+                Lynx->DisappearAndDie();
             m_creature->SetMaxHealth(600000);
             m_creature->SetHealth(600000 - 150000 * TransformCount);
             FrenzyTimer = 16000;
@@ -174,7 +171,7 @@ struct TRINITY_DLL_DECL boss_halazziAI : public ScriptedAI
         case PHASE_SPLIT:
             m_creature->MonsterYell(YELL_SPLIT, LANG_UNIVERSAL, NULL);
             DoPlaySoundToSet(m_creature, SOUND_SPLIT);
-            m_creature->CastSpell(m_creature, SPELL_TRANSFORM_SPLIT, true);
+            DoCast(m_creature, SPELL_TRANSFORM_SPLIT, true);
             break;
         case PHASE_HUMAN:
             //DoCast(m_creature, SPELL_SUMMON_LYNX, true);
@@ -221,8 +218,8 @@ struct TRINITY_DLL_DECL boss_halazziAI : public ScriptedAI
             if (SaberlashTimer <= diff)
             {
                 // A tank with more than 490 defense skills should receive no critical hit
-                //m_creature->CastSpell(m_creature, 41296, true);
-                m_creature->CastSpell(m_creature->getVictim(), SPELL_SABER_LASH, true);
+                //DoCast(m_creature, 41296, true);
+                DoCast(m_creature->getVictim(), SPELL_SABER_LASH, true);
                 //m_creature->RemoveAurasDueToSpell(41296);
                 SaberlashTimer = 30000;
             } else SaberlashTimer -= diff;
@@ -230,7 +227,7 @@ struct TRINITY_DLL_DECL boss_halazziAI : public ScriptedAI
             if (FrenzyTimer <= diff)
             {
                 DoCast(m_creature, SPELL_FRENZY);
-                FrenzyTimer = (10+rand()%5)*1000;
+                FrenzyTimer = urand(10000,15000);
             } else FrenzyTimer -= diff;
 
             if (Phase == PHASE_LYNX)
@@ -255,9 +252,9 @@ struct TRINITY_DLL_DECL boss_halazziAI : public ScriptedAI
                 if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM,0))
                 {
                     if (pTarget->IsNonMeleeSpellCasted(false))
-                        DoCast(pTarget,SPELL_EARTHSHOCK);
+                        DoCast(pTarget, SPELL_EARTHSHOCK);
                     else
-                        DoCast(pTarget,SPELL_FLAMESHOCK);
+                        DoCast(pTarget, SPELL_FLAMESHOCK);
                     ShockTimer = 10000 + rand()%5000;
                 }
             } else ShockTimer -= diff;

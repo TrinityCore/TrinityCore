@@ -268,7 +268,7 @@ struct TRINITY_DLL_DECL npc_secondTrialAI : public ScriptedAI
         if (spellJudLight)
             if (timerJudLight <= diff)
             {
-                DoCast(m_creature,  SPELL_JUDGEMENT_OF_LIGHT);
+                DoCast(m_creature, SPELL_JUDGEMENT_OF_LIGHT);
                 timerJudLight = TIMER_JUDGEMENT_OF_LIGHT + rand()%TIMER_JUDGEMENT_OF_LIGHT;
             }
             else
@@ -277,7 +277,7 @@ struct TRINITY_DLL_DECL npc_secondTrialAI : public ScriptedAI
           if (spellCommand)
               if (timerCommand <= diff)
               {
-                  DoCast(m_creature,  TIMER_SEAL_OF_COMMAND);
+                  DoCast(m_creature, TIMER_SEAL_OF_COMMAND);
                   timerCommand = TIMER_SEAL_OF_COMMAND + rand()%TIMER_SEAL_OF_COMMAND;
               }
               else

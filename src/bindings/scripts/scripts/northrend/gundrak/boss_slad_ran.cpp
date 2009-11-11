@@ -192,7 +192,7 @@ struct TRINITY_DLL_DECL mob_slad_ran_constrictorAI : public ScriptedAI
         {
             DoCast(m_creature->getVictim(), SPELL_GRIP_OF_SLAD_RAN);
             uiGripOfSladRanTimer = 5000;
-        } else uiGripOfSladRanTimer -= diff;;
+        } else uiGripOfSladRanTimer -= diff;
     }
 
     ScriptedInstance* pInstance;

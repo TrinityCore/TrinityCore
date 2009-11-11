@@ -89,21 +89,21 @@ struct TRINITY_DLL_DECL boss_azuregosAI : public ScriptedAI
         //        //MarkOfFrost_Timer
         //        if (MarkOfFrost_Timer <= diff)
         //        {
-        //            DoCast(m_creature->getVictim(),SPELL_MARKOFFROST);
+        //            DoCast(m_creature->getVictim(), SPELL_MARKOFFROST);
         //            MarkOfFrost_Timer = 25000;
         //        } else MarkOfFrost_Timer -= diff;
 
         //Chill_Timer
         if (Chill_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(),SPELL_CHILL);
+            DoCast(m_creature->getVictim(), SPELL_CHILL);
             Chill_Timer = 13000 + rand()%12000;
         } else Chill_Timer -= diff;
 
         //Breath_Timer
         if (Breath_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(),SPELL_FROSTBREATH);
+            DoCast(m_creature->getVictim(), SPELL_FROSTBREATH);
             Breath_Timer = 10000 + rand()%5000;
         } else Breath_Timer -= diff;
 
@@ -111,21 +111,21 @@ struct TRINITY_DLL_DECL boss_azuregosAI : public ScriptedAI
         if (ManaStorm_Timer <= diff)
         {
             if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM,0))
-                DoCast(pTarget,SPELL_MANASTORM);
+                DoCast(pTarget, SPELL_MANASTORM);
             ManaStorm_Timer = 7500 + rand()%5000;
         } else ManaStorm_Timer -= diff;
 
         //Reflect_Timer
         if (Reflect_Timer <= diff)
         {
-            DoCast(m_creature,SPELL_REFLECT);
+            DoCast(m_creature, SPELL_REFLECT);
             Reflect_Timer = 20000 + rand()%15000;
         } else Reflect_Timer -= diff;
 
         //Cleave_Timer
         if (Cleave_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(),SPELL_CLEAVE);
+            DoCast(m_creature->getVictim(), SPELL_CLEAVE);
             Cleave_Timer = 7000;
         } else Cleave_Timer -= diff;
 

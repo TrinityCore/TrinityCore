@@ -179,7 +179,7 @@ struct TRINITY_DLL_DECL boss_supremusAI : public ScriptedAI
             switch(eventId)
             {
                 case EVENT_BERSERK:
-                    m_creature->CastSpell(m_creature, SPELL_BERSERK, true);
+                    DoCast(m_creature, SPELL_BERSERK, true);
                     break;
                 case EVENT_FLAME:
                     DoCast(m_creature, SPELL_MOLTEN_PUNCH);

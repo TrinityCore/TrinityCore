@@ -55,14 +55,14 @@ struct TRINITY_DLL_DECL boss_pyroguard_emberseerAI : public ScriptedAI
         //FireNova_Timer
         if (FireNova_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(),SPELL_FIRENOVA);
+            DoCast(m_creature->getVictim(), SPELL_FIRENOVA);
             FireNova_Timer = 6000;
         } else FireNova_Timer -= diff;
 
         //FlameBuffet_Timer
         if (FlameBuffet_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(),SPELL_FLAMEBUFFET);
+            DoCast(m_creature->getVictim(), SPELL_FLAMEBUFFET);
             FlameBuffet_Timer = 14000;
         } else FlameBuffet_Timer -= diff;
 
@@ -70,7 +70,7 @@ struct TRINITY_DLL_DECL boss_pyroguard_emberseerAI : public ScriptedAI
         if (PyroBlast_Timer <= diff)
         {
             if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                DoCast(pTarget,SPELL_PYROBLAST);
+                DoCast(pTarget, SPELL_PYROBLAST);
             PyroBlast_Timer = 15000;
         } else PyroBlast_Timer -= diff;
 

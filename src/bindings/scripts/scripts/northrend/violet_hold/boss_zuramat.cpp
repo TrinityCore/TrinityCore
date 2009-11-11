@@ -95,14 +95,14 @@ struct TRINITY_DLL_DECL boss_zuramatAI : public ScriptedAI
 
         if (SpellSummonVoidTimer <= diff)
         {
-            m_creature->CastSpell(m_creature->getVictim(),SPELL_SUMMON_VOID_SENTRY,false);
+            DoCast(m_creature->getVictim(), SPELL_SUMMON_VOID_SENTRY, false);
             SpellSummonVoidTimer = 20000;
         } else SpellSummonVoidTimer -=diff;
 
         if(SpellVoidShiftedTimer < diff && shiftcast)
         {
             if (Shifted)
-                m_creature->CastSpell(Shifted,SPELL_VOID_SHIFTED,false);
+                DoCast(Shifted, SPELL_VOID_SHIFTED, false);
             shiftcast = false;
         } else SpellVoidShiftedTimer -=diff;
 

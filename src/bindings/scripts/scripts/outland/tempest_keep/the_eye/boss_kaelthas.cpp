@@ -640,12 +640,12 @@ struct TRINITY_DLL_DECL boss_kaelthasAI : public ScriptedAI
                 //Spawn weapons
                 if (PhaseSubphase == 1)
                 {
-                    m_creature->CastSpell(m_creature, SPELL_SUMMON_WEAPONS, false);
+                    DoCast(m_creature, SPELL_SUMMON_WEAPONS, false);
 
                     uint8 uiMaxWeapon = sizeof(m_auiSpellSummonWeapon)/sizeof(uint32);
 
                     for (uint32 i = 0; i < uiMaxWeapon; ++i)
-                        m_creature->CastSpell(m_creature,m_auiSpellSummonWeapon[i],true);
+                        DoCast(m_creature, m_auiSpellSummonWeapon[i], true);
 
                     PhaseSubphase = 2;
                     Phase_Timer = TIME_PHASE_2_3;
@@ -887,7 +887,7 @@ struct TRINITY_DLL_DECL boss_kaelthasAI : public ScriptedAI
                                 {
                                     if (Unit* pUnit = Unit::GetUnit((*m_creature), (*i)->getUnitGuid()))
                                     {
-                                        m_creature->CastSpell(pUnit, SPELL_KNOCKBACK, true);
+                                        DoCast(pUnit, SPELL_KNOCKBACK, true);
                                         //Gravity lapse - needs an exception in Spell system to work
 
                                         pUnit->CastSpell(pUnit, SPELL_GRAVITY_LAPSE, true, 0, 0, m_creature->GetGUID());
@@ -1340,13 +1340,13 @@ struct TRINITY_DLL_DECL mob_phoenix_tkAI : public ScriptedAI
     void Reset()
     {
         Cycle_Timer = 2000;
-        m_creature->CastSpell(m_creature,SPELL_BURN,true);
+        DoCast(m_creature, SPELL_BURN, true);
     }
 
     void JustDied(Unit* killer)
     {
         //is this spell in use anylonger?
-        //m_creature->CastSpell(m_creature,SPELL_EMBER_BLAST,true);
+        //DoCast(m_creature, SPELL_EMBER_BLAST, true);
         m_creature->SummonCreature(NPC_PHOENIX_EGG,m_creature->GetPositionX(),m_creature->GetPositionY(),m_creature->GetPositionZ(),m_creature->GetOrientation(),TEMPSUMMON_TIMED_DESPAWN,16000);
     }
 

@@ -58,21 +58,21 @@ struct TRINITY_DLL_DECL boss_ebonrocAI : public ScriptedAI
         //Shadowflame Timer
         if (ShadowFlame_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(),SPELL_SHADOWFLAME);
+            DoCast(m_creature->getVictim(), SPELL_SHADOWFLAME);
             ShadowFlame_Timer = urand(12000,15000);
         } else ShadowFlame_Timer -= diff;
 
         //Wing Buffet Timer
         if (WingBuffet_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(),SPELL_WINGBUFFET);
+            DoCast(m_creature->getVictim(), SPELL_WINGBUFFET);
             WingBuffet_Timer = 25000;
         } else WingBuffet_Timer -= diff;
 
         //Shadow of Ebonroc Timer
         if (ShadowOfEbonroc_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(),SPELL_SHADOWOFEBONROC);
+            DoCast(m_creature->getVictim(), SPELL_SHADOWOFEBONROC);
             ShadowOfEbonroc_Timer = urand(25000,350000);
         } else ShadowOfEbonroc_Timer -= diff;
 

@@ -57,7 +57,7 @@ struct TRINITY_DLL_DECL mob_crystalcore_devastatorAI : public ScriptedAI
         //Knockaway_Timer
         if (Knockaway_Timer <= diff)
         {
-            m_creature->CastSpell(m_creature->getVictim(),SPELL_KNOCKAWAY, true);
+            DoCast(m_creature->getVictim(), SPELL_KNOCKAWAY, true);
 
             // current aggro target is knocked away pick new target
             Unit* pTarget = SelectUnit(SELECT_TARGET_TOPAGGRO, 0);
@@ -74,7 +74,7 @@ struct TRINITY_DLL_DECL mob_crystalcore_devastatorAI : public ScriptedAI
         //Countercharge_Timer
         if (Countercharge_Timer <= diff)
         {
-            DoCast(m_creature,SPELL_COUNTERCHARGE);
+            DoCast(m_creature, SPELL_COUNTERCHARGE);
             Countercharge_Timer = 45000;
         } else Countercharge_Timer -= diff;
 

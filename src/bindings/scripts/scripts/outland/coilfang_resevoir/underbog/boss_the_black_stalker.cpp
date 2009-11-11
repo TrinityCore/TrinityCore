@@ -106,7 +106,7 @@ struct TRINITY_DLL_DECL boss_the_black_stalkerAI : public ScriptedAI
         // Spore Striders
         if (HeroicMode && SporeStriders_Timer <= diff)
         {
-            DoCast(m_creature,SPELL_SUMMON_SPORE_STRIDER);
+            DoCast(m_creature, SPELL_SUMMON_SPORE_STRIDER);
             SporeStriders_Timer = 10000+rand()%5000;
         } else SporeStriders_Timer -= diff;
 

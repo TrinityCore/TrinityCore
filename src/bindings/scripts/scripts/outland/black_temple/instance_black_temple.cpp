@@ -157,9 +157,9 @@ struct TRINITY_DLL_DECL instance_black_temple : public ScriptedInstance
             if (m_auiEncounter[1] == DONE)HandleGameObject(NULL,true,pGo);break;
         case 185478: ShadeOfAkamaDoor = pGo->GetGUID();break;
         case 185480: CommonDoor = pGo->GetGUID();
-            if (m_auiEncounter[3] == DONE)HandleGameObject(NULL,true,pGo);;break;
+            if (m_auiEncounter[3] == DONE)HandleGameObject(NULL,true,pGo);break;
         case 186153: TeronDoor = pGo->GetGUID();
-            if (m_auiEncounter[3] == DONE)HandleGameObject(NULL,true,pGo);;break;
+            if (m_auiEncounter[3] == DONE)HandleGameObject(NULL,true,pGo);break;
         case 185892: GuurtogDoor = pGo->GetGUID();
             if (m_auiEncounter[4] == DONE)HandleGameObject(NULL,true,pGo);break;
         case 185479: TempleDoor = pGo->GetGUID();

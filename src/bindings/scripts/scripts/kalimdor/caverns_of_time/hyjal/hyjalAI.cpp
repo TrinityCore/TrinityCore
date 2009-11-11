@@ -741,7 +741,7 @@ void hyjalAI::UpdateAI(const uint32 diff)
     {
         if (MassTeleportTimer < diff && DoMassTeleport)
         {
-            m_creature->CastSpell(m_creature,SPELL_MASS_TELEPORT,false);
+            DoCast(m_creature, SPELL_MASS_TELEPORT, false);
             DoMassTeleport = false;
         } else MassTeleportTimer -= diff;
         return;
@@ -979,7 +979,7 @@ void hyjalAI::WaypointReached(uint32 i)
         WaitForTeleport = true;
         TeleportTimer = 20000;
         if (m_creature->GetEntry() == JAINA)
-            m_creature->CastSpell(m_creature,SPELL_MASS_TELEPORT,false);
+            DoCast(m_creature, SPELL_MASS_TELEPORT, false);
         if (m_creature->GetEntry() == THRALL && DummyGuid)
         {
             Unit* Dummy = Unit::GetUnit((*m_creature),DummyGuid);
@@ -987,7 +987,7 @@ void hyjalAI::WaypointReached(uint32 i)
             {
                 CAST_AI(hyjalAI, CAST_CRE(Dummy)->AI())->DoMassTeleport = true;
                 CAST_AI(hyjalAI, CAST_CRE(Dummy)->AI())->MassTeleportTimer = 20000;
-                Dummy->CastSpell(m_creature,SPELL_MASS_TELEPORT,false);
+                Dummy->CastSpell(m_creature, SPELL_MASS_TELEPORT, false);
             }
         }
         //do some talking

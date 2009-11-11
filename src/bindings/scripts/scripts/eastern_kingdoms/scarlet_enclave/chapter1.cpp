@@ -721,7 +721,7 @@ struct TRINITY_DLL_DECL npc_scarlet_ghoulAI : public ScriptedAI
     {
         // Ghouls should display their Birth Animation
         // Crawling out of the ground
-        //m_creature->CastSpell(m_creature,35177,true);
+        //DoCast(m_creature, 35177, true);
         //m_creature->MonsterSay("Mommy?",LANG_UNIVERSAL,0);
         m_creature->SetReactState(REACT_DEFENSIVE);
     }

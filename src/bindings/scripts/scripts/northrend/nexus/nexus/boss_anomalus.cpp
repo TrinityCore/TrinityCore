@@ -163,7 +163,7 @@ struct TRINITY_DLL_DECL boss_anomalusAI : public ScriptedAI
         {
             Phase = 2;
             DoScriptText(SAY_SHIELD , m_creature);
-            DoCast(m_creature,SPELL_RIFT_SHIELD);
+            DoCast(m_creature, SPELL_RIFT_SHIELD);
 
             int tmp = rand()%(2);
             Creature* Rift = m_creature->SummonCreature(MOB_CHAOTIC_RIFT, RiftLocation[tmp][0], RiftLocation[tmp][1], RiftLocation[tmp][2], 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 1000);
@@ -181,7 +181,7 @@ struct TRINITY_DLL_DECL boss_anomalusAI : public ScriptedAI
         {
             Phase = 3;
             DoScriptText(SAY_SHIELD , m_creature);
-            DoCast(m_creature,SPELL_RIFT_SHIELD);
+            DoCast(m_creature, SPELL_RIFT_SHIELD);
 
             int tmp = rand()%(2);
             Creature* Rift = m_creature->SummonCreature(MOB_CHAOTIC_RIFT, RiftLocation[tmp][0], RiftLocation[tmp][1], RiftLocation[tmp][2], 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 1000);

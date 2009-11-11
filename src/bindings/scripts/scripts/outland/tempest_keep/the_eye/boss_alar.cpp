@@ -204,7 +204,7 @@ struct TRINITY_DLL_DECL boss_alarAI : public ScriptedAI
 
         if (Berserk_Timer <= diff)
         {
-            m_creature->CastSpell(m_creature, SPELL_BERSERK, true);
+            DoCast(m_creature, SPELL_BERSERK, true);
             Berserk_Timer = 60000;
         } else Berserk_Timer -= diff;
 
@@ -235,7 +235,7 @@ struct TRINITY_DLL_DECL boss_alarAI : public ScriptedAI
                         Platforms_Move_Timer = 30000+rand()%5000;
                         break;
                     case WE_QUILL:
-                        m_creature->CastSpell(m_creature, SPELL_FLAME_QUILLS, true);
+                        DoCast(m_creature, SPELL_FLAME_QUILLS, true);
                         Platforms_Move_Timer = 1;
                         WaitTimer = 10000;
                         WaitEvent = WE_DUMMY;
@@ -252,7 +252,7 @@ struct TRINITY_DLL_DECL boss_alarAI : public ScriptedAI
                         m_creature->SetSpeed(MOVE_RUN, DefaultMoveSpeedRate);
                         m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                         DoZoneInCombat();
-                        m_creature->CastSpell(m_creature, SPELL_REBIRTH, true);
+                        DoCast(m_creature, SPELL_REBIRTH, true);
                         MeltArmor_Timer = 60000;
                         Charge_Timer = 7000;
                         DiveBomb_Timer = 40000+rand()%5000;
@@ -261,7 +261,7 @@ struct TRINITY_DLL_DECL boss_alarAI : public ScriptedAI
                         break;
                     case WE_METEOR:
                         m_creature->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_FIRE, false);
-                        m_creature->CastSpell(m_creature, SPELL_DIVE_BOMB_VISUAL, false);
+                        DoCast(m_creature, SPELL_DIVE_BOMB_VISUAL, false);
                         WaitEvent = WE_DIVE;
                         WaitTimer = 4000;
                         return;
@@ -269,7 +269,7 @@ struct TRINITY_DLL_DECL boss_alarAI : public ScriptedAI
                         if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
                         {
                             m_creature->RemoveAurasDueToSpell(SPELL_DIVE_BOMB_VISUAL);
-                            m_creature->CastSpell(pTarget, SPELL_DIVE_BOMB, true);
+                            DoCast(pTarget, SPELL_DIVE_BOMB, true);
                             float dist = 3.0f;
                             if (m_creature->IsWithinDist3d(pTarget->GetPositionX(), pTarget->GetPositionY(), pTarget->GetPositionZ(), 5.0f))
                                 dist = 5.0f;
@@ -293,7 +293,7 @@ struct TRINITY_DLL_DECL boss_alarAI : public ScriptedAI
                         m_creature->SetFloatValue(UNIT_FIELD_BOUNDINGRADIUS, 10);
                         m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                         m_creature->SetDisplayId(m_creature->GetNativeDisplayId());
-                        m_creature->CastSpell(m_creature, SPELL_REBIRTH_2, true);
+                        DoCast(m_creature, SPELL_REBIRTH_2, true);
                         break;
                     case WE_DUMMY:
                     default:
@@ -413,7 +413,7 @@ struct TRINITY_DLL_DECL boss_alarAI : public ScriptedAI
                     m_creature->AI()->AttackStart(pTarget);
                 else
                 {
-                    m_creature->CastSpell(m_creature, SPELL_FLAME_BUFFET, true);
+                    DoCast(m_creature, SPELL_FLAME_BUFFET, true);
                     m_creature->setAttackTimer(BASE_ATTACK, 1500);
                 }
             }
@@ -447,7 +447,7 @@ struct TRINITY_DLL_DECL mob_ember_of_alarAI : public ScriptedAI
         if (damage >= m_creature->GetHealth() && pKiller != m_creature && !toDie)
         {
             damage = 0;
-            m_creature->CastSpell(m_creature, SPELL_EMBER_BLAST, true);
+            DoCast(m_creature, SPELL_EMBER_BLAST, true);
             m_creature->SetDisplayId(11686);
             m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             if (pInstance && pInstance->GetData(DATA_ALAREVENT) == 2)

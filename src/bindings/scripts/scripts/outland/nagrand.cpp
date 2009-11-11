@@ -566,7 +566,7 @@ struct TRINITY_DLL_DECL npc_maghar_captiveAI : public npc_escortAI
 
     void Aggro(Unit* pWho)
     {
-        m_creature->CastSpell(m_creature, SPELL_EARTHBIND_TOTEM, false);
+        DoCast(m_creature, SPELL_EARTHBIND_TOTEM, false);
     }
 
     void WaypointReached(uint32 uiPointId)
@@ -808,7 +808,7 @@ struct TRINITY_DLL_DECL mob_sparrowhawkAI : public ScriptedAI
         {
             if (spell->Id == SPELL_SPARROWHAWK_NET && CAST_PLR(caster)->GetQuestStatus(10987) == QUEST_STATUS_INCOMPLETE)
             {
-                m_creature->CastSpell(caster, SPELL_ITEM_CAPTIVE_SPARROWHAWK, true);
+                DoCast(caster, SPELL_ITEM_CAPTIVE_SPARROWHAWK, true);
                 m_creature->DealDamage(m_creature, m_creature->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
                 m_creature->RemoveFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
             }

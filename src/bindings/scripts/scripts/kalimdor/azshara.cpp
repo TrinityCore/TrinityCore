@@ -59,7 +59,7 @@ struct TRINITY_DLL_DECL mobs_spitelashesAI : public ScriptedAI
             (Spellkind->Id==118 || Spellkind->Id== 12824 || Spellkind->Id== 12825 || Spellkind->Id== 12826))
         {
             spellhit=true;
-            DoCast(m_creature,29124);                       //become a sheep
+            DoCast(m_creature, 29124);                       //become a sheep
         }
     }
 
@@ -77,8 +77,8 @@ struct TRINITY_DLL_DECL mobs_spitelashesAI : public ScriptedAI
             morphtimer+=diff;
             if (morphtimer>=5000)
             {
-                DoCast(m_creature,28406);                   //summon copies
-                DoCast(m_creature,6924);                    //visual explosion
+                DoCast(m_creature, 28406);                   //summon copies
+                DoCast(m_creature, 6924);                    //visual explosion
             }
         }
         if (!UpdateVictim())

@@ -897,7 +897,7 @@ struct TRINITY_DLL_DECL mob_shield_generator_channelAI : public ScriptedAI
                 //start visual channel
                 if (!Casted || !Vashj->HasAura(SPELL_MAGIC_BARRIER))
                 {
-                    m_creature->CastSpell(Vashj,SPELL_MAGIC_BARRIER,true);
+                    DoCast(Vashj, SPELL_MAGIC_BARRIER, true);
                     Casted = true;
                 }
             }

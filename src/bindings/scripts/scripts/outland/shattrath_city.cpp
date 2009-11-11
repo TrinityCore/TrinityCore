@@ -71,7 +71,7 @@ struct TRINITY_DLL_DECL npc_raliq_the_drunkAI : public ScriptedAI
 
         if (Uppercut_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(),SPELL_UPPERCUT);
+            DoCast(m_creature->getVictim(), SPELL_UPPERCUT);
             Uppercut_Timer = 15000;
         } else Uppercut_Timer -= diff;
 
@@ -144,7 +144,7 @@ struct TRINITY_DLL_DECL npc_salsalabimAI : public ScriptedAI
 
         if (MagneticPull_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(),SPELL_MAGNETIC_PULL);
+            DoCast(m_creature->getVictim(), SPELL_MAGNETIC_PULL);
             MagneticPull_Timer = 15000;
         } else MagneticPull_Timer -= diff;
 

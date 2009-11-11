@@ -297,20 +297,20 @@ struct TRINITY_DLL_DECL boss_nightbaneAI : public ScriptedAI
 
             if (BellowingRoarTimer <= diff)
             {
-                DoCast(m_creature->getVictim(),SPELL_BELLOWING_ROAR);
+                DoCast(m_creature->getVictim(), SPELL_BELLOWING_ROAR);
                 BellowingRoarTimer = urand(30000,40000);
             } else BellowingRoarTimer -= diff;
 
             if (SmolderingBreathTimer <= diff)
             {
-                DoCast(m_creature->getVictim(),SPELL_SMOLDERING_BREATH);
+                DoCast(m_creature->getVictim(), SPELL_SMOLDERING_BREATH);
                 SmolderingBreathTimer = 20000;
             } else SmolderingBreathTimer -= diff;
 
             if (CharredEarthTimer <= diff)
             {
                 if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                    DoCast(pTarget,SPELL_CHARRED_EARTH);
+                    DoCast(pTarget, SPELL_CHARRED_EARTH);
                 CharredEarthTimer = 20000;
             } else CharredEarthTimer -= diff;
 
@@ -318,14 +318,14 @@ struct TRINITY_DLL_DECL boss_nightbaneAI : public ScriptedAI
             {
                 if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                     if (!m_creature->HasInArc(M_PI, pTarget))
-                        DoCast(pTarget,SPELL_TAIL_SWEEP);
+                        DoCast(pTarget, SPELL_TAIL_SWEEP);
                 TailSweepTimer = 15000;
             } else TailSweepTimer -= diff;
 
             if (SearingCindersTimer <= diff)
             {
                 if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                    DoCast(pTarget,SPELL_SEARING_CINDERS);
+                    DoCast(pTarget, SPELL_SEARING_CINDERS);
                 SearingCindersTimer = 10000;
             } else SearingCindersTimer -= diff;
 
@@ -360,7 +360,7 @@ struct TRINITY_DLL_DECL boss_nightbaneAI : public ScriptedAI
 
                 if (RainofBonesTimer < diff && !RainBones) // only once at the beginning of phase 2
                 {
-                    DoCast(m_creature->getVictim(),SPELL_RAIN_OF_BONES);
+                    DoCast(m_creature->getVictim(), SPELL_RAIN_OF_BONES);
                     RainBones = true;
                     SmokingBlastTimer = 20000;
                 } else RainofBonesTimer -= diff;
@@ -368,7 +368,7 @@ struct TRINITY_DLL_DECL boss_nightbaneAI : public ScriptedAI
                 if (DistractingAshTimer <= diff)
                 {
                     if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                        DoCast(pTarget,SPELL_DISTRACTING_ASH);
+                        DoCast(pTarget, SPELL_DISTRACTING_ASH);
                     DistractingAshTimer = 2000; //timer wrong
                 } else DistractingAshTimer -= diff;
             }
@@ -377,7 +377,7 @@ struct TRINITY_DLL_DECL boss_nightbaneAI : public ScriptedAI
             {
                 if (SmokingBlastTimer <= diff)
                  {
-                    DoCast(m_creature->getVictim(),SPELL_SMOKING_BLAST);
+                    DoCast(m_creature->getVictim(), SPELL_SMOKING_BLAST);
                     SmokingBlastTimer = 1500; //timer wrong
                  } else SmokingBlastTimer -= diff;
             }
@@ -385,7 +385,7 @@ struct TRINITY_DLL_DECL boss_nightbaneAI : public ScriptedAI
             if (FireballBarrageTimer <= diff)
             {
                 if (Unit *pTarget = SelectUnit(SELECT_TARGET_FARTHEST, 0))
-                    DoCast(pTarget,SPELL_FIREBALL_BARRAGE);
+                    DoCast(pTarget, SPELL_FIREBALL_BARRAGE);
                 FireballBarrageTimer = 20000;
             } else FireballBarrageTimer -= diff;
 

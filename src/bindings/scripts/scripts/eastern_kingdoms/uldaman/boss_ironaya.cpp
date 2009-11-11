@@ -58,7 +58,7 @@ struct TRINITY_DLL_DECL boss_ironayaAI : public ScriptedAI
         //If we are <50% hp do knockaway ONCE
         if (!hasCastedKnockaway && m_creature->GetHealth()*2 < m_creature->GetMaxHealth())
         {
-            m_creature->CastSpell(m_creature->getVictim(),SPELL_KNOCKAWAY, true);
+            DoCast(m_creature->getVictim(), SPELL_KNOCKAWAY, true);
 
             // current aggro target is knocked away pick new target
             Unit* Target = SelectUnit(SELECT_TARGET_TOPAGGRO, 0);
@@ -76,13 +76,13 @@ struct TRINITY_DLL_DECL boss_ironayaAI : public ScriptedAI
         //Arcing_Timer
         if (Arcing_Timer <= diff)
         {
-            DoCast(m_creature,SPELL_ARCINGSMASH);
+            DoCast(m_creature, SPELL_ARCINGSMASH);
             Arcing_Timer = 13000;
         } else Arcing_Timer -= diff;
 
         if (!hasCastedWstomp && m_creature->GetHealth()*4 < m_creature->GetMaxHealth())
         {
-            DoCast(m_creature,SPELL_WSTOMP);
+            DoCast(m_creature, SPELL_WSTOMP);
             hasCastedWstomp = true;
         }
 

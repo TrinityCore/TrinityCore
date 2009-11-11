@@ -604,7 +604,7 @@ struct TRINITY_DLL_DECL boss_kiljaedenAI : public Scripted_NoMovementAI
                     case TIMER_SOUL_FLAY:
                         if (!m_creature->IsNonMeleeSpellCasted(false))
                         {
-                            m_creature->CastSpell(m_creature->getVictim(), SPELL_SOUL_FLAY, false);
+                            DoCast(m_creature->getVictim(), SPELL_SOUL_FLAY, false);
                             m_creature->getVictim()->CastSpell(m_creature->getVictim(), SPELL_SOUL_FLAY_SLOW, true);
                             Timer[TIMER_SOUL_FLAY] = 3500;
                         }
@@ -1319,7 +1319,7 @@ struct TRINITY_DLL_DECL mob_sinster_reflectionAI : public ScriptedAI
                 }
                 if (Timer[2] <= diff)
                 {
-                    DoCast(m_creature,  SPELL_SR_RENEW, false);
+                    DoCast(m_creature, SPELL_SR_RENEW, false);
                     Timer[2] = 7000;
                 }
                 DoMeleeAttackIfReady();

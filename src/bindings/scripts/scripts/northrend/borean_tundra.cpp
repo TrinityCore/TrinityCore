@@ -558,7 +558,7 @@ struct TRINITY_DLL_DECL npc_jennyAI : public ScriptedAI
 
     void DamageTaken(Unit* pDone_by, uint32& uiDamage)
     {
-        m_creature->CastSpell(m_creature,SPELL_DROP_CRATE,true);
+        DoCast(m_creature, SPELL_DROP_CRATE, true);
     }
 
     void MoveInLineOfSight(Unit* pWho)
@@ -567,7 +567,7 @@ struct TRINITY_DLL_DECL npc_jennyAI : public ScriptedAI
         {
             if(CAST_PLR(m_creature->GetOwner())->GetQuestStatus(QUEST_LOADER_UP) == QUEST_STATUS_INCOMPLETE && m_creature->GetAura(SPELL_CRATES_CARRIED))
             {
-                m_creature->CastSpell(CAST_PLR(m_creature->GetOwner()),SPELL_GIVE_JENNY_CREDIT,true); // Maybe is not working.
+                DoCast(CAST_PLR(m_creature->GetOwner()), SPELL_GIVE_JENNY_CREDIT, true); // Maybe is not working.
                 CAST_PLR(m_creature->GetOwner())->CompleteQuest(QUEST_LOADER_UP);
                 m_creature->DisappearAndDie();
             }
@@ -714,7 +714,7 @@ struct TRINITY_DLL_DECL npc_nesingwary_trapperAI : public ScriptedAI
                     Phase_Timer = 1000;
                     break;
                 case 8:
-                    m_creature->CastSpell(m_creature,SPELL_TRAPPED,true);
+                    DoCast(m_creature, SPELL_TRAPPED, true);
                     Phase = 0;
                     break;
             }
@@ -901,7 +901,7 @@ struct TRINITY_DLL_DECL npc_nexus_drake_hatchlingAI : public FollowerAI //The sp
         if (spell->Id == SPELL_DRAKE_HARPOON && caster->GetTypeId() == TYPEID_PLAYER)
         {
             pHarpooner = CAST_PLR(caster);
-            m_creature->CastSpell(m_creature,SPELL_RED_DRAGONBLOOD,true);
+            DoCast(m_creature, SPELL_RED_DRAGONBLOOD, true);
         }
     }
 
@@ -934,7 +934,7 @@ struct TRINITY_DLL_DECL npc_nexus_drake_hatchlingAI : public FollowerAI //The sp
                 pDrakeAI->StartFollow(pHarpooner, 35, NULL);
             }
 
-            m_creature->CastSpell(m_creature, SPELL_SUBDUED, true);
+            DoCast(m_creature, SPELL_SUBDUED, true);
             pHarpooner->CastSpell(pHarpooner, SPELL_DRAKE_HATCHLING_SUBDUED, true);
 
             m_creature->AttackStop();

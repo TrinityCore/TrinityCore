@@ -149,20 +149,20 @@ struct TRINITY_DLL_DECL boss_nexusprince_shaffarAI : public ScriptedAI
             if (m_creature->IsNonMeleeSpellCasted(false))
                 m_creature->InterruptNonMeleeSpells(true);
 
-            DoCast(m_creature,SPELL_FROSTNOVA);
+            DoCast(m_creature, SPELL_FROSTNOVA);
             FrostNova_Timer  = 17500 + rand()%7500;
             CanBlink = true;
         } else FrostNova_Timer -= diff;
 
         if (Frostbolt_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(),SPELL_FROSTBOLT);
+            DoCast(m_creature->getVictim(), SPELL_FROSTBOLT);
             Frostbolt_Timer = 4500 + rand()%1500;
         } else Frostbolt_Timer -= diff;
 
         if (FireBall_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(),SPELL_FIREBALL);
+            DoCast(m_creature->getVictim(), SPELL_FIREBALL);
             FireBall_Timer = 4500 + rand()%1500;
         } else FireBall_Timer -= diff;
 
@@ -178,7 +178,7 @@ struct TRINITY_DLL_DECL boss_nexusprince_shaffarAI : public ScriptedAI
                 if (m_creature->GetMotionMaster()->GetCurrentMovementGeneratorType() == TARGETED_MOTION_TYPE)
                     m_creature->GetMotionMaster()->MovementExpired();
 
-                DoCast(m_creature,SPELL_BLINK);
+                DoCast(m_creature, SPELL_BLINK);
                 Blink_Timer = 1000 + rand()%1500;
                 CanBlink = false;
             } else Blink_Timer -= diff;
@@ -192,7 +192,7 @@ struct TRINITY_DLL_DECL boss_nexusprince_shaffarAI : public ScriptedAI
             if (!urand(0,3))
                 DoScriptText(SAY_SUMMON, m_creature);
 
-            DoCast(m_creature,SPELL_ETHEREAL_BEACON, true);
+            DoCast(m_creature, SPELL_ETHEREAL_BEACON, true);
 
             Beacon_Timer = 10000;
         } else Beacon_Timer -= diff;
@@ -272,7 +272,7 @@ struct TRINITY_DLL_DECL mob_ethereal_beaconAI : public ScriptedAI
 
         if (ArcaneBolt_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(),SPELL_ARCANE_BOLT);
+            DoCast(m_creature->getVictim(), SPELL_ARCANE_BOLT);
             ArcaneBolt_Timer = 2000 + rand()%2500;
         } else ArcaneBolt_Timer -= diff;
 
@@ -281,7 +281,7 @@ struct TRINITY_DLL_DECL mob_ethereal_beaconAI : public ScriptedAI
             if (m_creature->IsNonMeleeSpellCasted(false))
                 m_creature->InterruptNonMeleeSpells(true);
 
-            m_creature->CastSpell(m_creature,SPELL_ETHEREAL_APPRENTICE,true);
+            DoCast(m_creature, SPELL_ETHEREAL_APPRENTICE, true);
             m_creature->ForcedDespawn();
             return;
         } else Apprentice_Timer -= diff;
@@ -322,10 +322,10 @@ struct TRINITY_DLL_DECL mob_ethereal_apprenticeAI : public ScriptedAI
         {
             if (isFireboltTurn)
             {
-                m_creature->CastSpell(m_creature->getVictim(), SPELL_ETHEREAL_APPRENTICE_FIREBOLT, true);
+                DoCast(m_creature->getVictim(), SPELL_ETHEREAL_APPRENTICE_FIREBOLT, true);
                 isFireboltTurn = false;
             }else{
-                m_creature->CastSpell(m_creature->getVictim(), SPELL_ETHEREAL_APPRENTICE_FROSTBOLT, true);
+                DoCast(m_creature->getVictim(), SPELL_ETHEREAL_APPRENTICE_FROSTBOLT, true);
                 isFireboltTurn = true;
             }
             Cast_Timer = 3000;

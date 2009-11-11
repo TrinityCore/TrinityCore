@@ -118,7 +118,7 @@ struct TRINITY_DLL_DECL boss_nazanAI : public ScriptedAI
         if (Fireball_Timer <= diff)
         {
             if (Unit *victim = SelectUnit(SELECT_TARGET_RANDOM,0))
-                DoCast(victim, SPELL_FIREBALL,true);
+                DoCast(victim, SPELL_FIREBALL, true);
             Fireball_Timer = urand(4000,7000);
         } else Fireball_Timer -= diff;
 

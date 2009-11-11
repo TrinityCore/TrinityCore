@@ -466,7 +466,7 @@ struct TRINITY_DLL_DECL mob_felkael_phoenixAI : public ScriptedAI
     {
         m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE + UNIT_FLAG_NON_ATTACKABLE);
         m_creature->AddUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
-        m_creature->CastSpell(m_creature,SPELL_PHOENIX_BURN,true);
+        DoCast(m_creature, SPELL_PHOENIX_BURN, true);
         BurnTimer = 2000;
         Death_Timer = 3000;
         Rebirth = false;

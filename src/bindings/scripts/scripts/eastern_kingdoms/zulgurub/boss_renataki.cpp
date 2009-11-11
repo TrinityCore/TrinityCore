@@ -86,7 +86,7 @@ struct TRINITY_DLL_DECL boss_renatakiAI : public ScriptedAI
                 if (pTarget)
                 {
                     DoTeleportTo(pTarget->GetPositionX(), pTarget->GetPositionY(), pTarget->GetPositionZ());
-                    DoCast(pTarget,SPELL_AMBUSH);
+                    DoCast(pTarget, SPELL_AMBUSH);
                 }
 
                 Ambushed = true;

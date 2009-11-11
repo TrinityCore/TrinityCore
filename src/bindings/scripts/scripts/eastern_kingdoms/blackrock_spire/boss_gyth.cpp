@@ -168,7 +168,7 @@ struct TRINITY_DLL_DECL boss_gythAI : public ScriptedAI
             // Flamebreath_Timer
             if (Flamebreath_Timer <= diff)
             {
-                DoCast(m_creature->getVictim(),SPELL_FLAMEBREATH);
+                DoCast(m_creature->getVictim(), SPELL_FLAMEBREATH);
                 Flamebreath_Timer = 10500;
             } else Flamebreath_Timer -= diff;
 

@@ -188,7 +188,7 @@ struct TRINITY_DLL_DECL boss_kelesethAI : public ScriptedAI
         {
             Unit *pTarget = SelectUnit(SELECT_TARGET_TOPAGGRO, 0);
             if (pTarget && pTarget->isAlive() && pTarget->GetTypeId() == TYPEID_PLAYER)
-                m_creature->CastSpell(pTarget, Heroic ? SPELL_SHADOWBOLT_HEROIC : SPELL_SHADOWBOLT, true);
+                m_creature->CastSpell(pTarget, HEROIC(SPELL_SHADOWBOLT, SPELL_SHADOWBOLT_HEROIC), true);
             ShadowboltTimer = 10000;
         } else ShadowboltTimer -= diff;
 
@@ -199,8 +199,7 @@ struct TRINITY_DLL_DECL boss_kelesethAI : public ScriptedAI
                 DoScriptText(SAY_SKELETONS, m_creature);
                 for (uint8 i = 0; i < 5; ++i)
                 {
-                    Skeleton = m_creature->SummonCreature(CREATURE_SKELETON, SkeletonSpawnPoint[i][0], SkeletonSpawnPoint[i][1] , SKELETONSPAWN_Z, 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN,20000);
-                    if (Skeleton)
+                    if (Skeleton = m_creature->SummonCreature(CREATURE_SKELETON, SkeletonSpawnPoint[i][0], SkeletonSpawnPoint[i][1] , SKELETONSPAWN_Z, 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 20000))
                     {
                         Skeleton->RemoveUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
                         Skeleton->GetMotionMaster()->MovePoint(0, m_creature->GetPositionX(), m_creature->GetPositionY() , m_creature->GetPositionZ());
@@ -213,18 +212,18 @@ struct TRINITY_DLL_DECL boss_kelesethAI : public ScriptedAI
 
         if (FrostTombTimer <= diff)
         {
-            Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 1);
-            if (pTarget && pTarget->isAlive() && pTarget->GetTypeId() == TYPEID_PLAYER)
-            {
-                //DoCast(pTarget, SPELL_FROST_TOMB_SUMMON, true);
-                if (Creature *pChains = m_creature->SummonCreature(CREATURE_FROSTTOMB, pTarget->GetPositionX(), pTarget->GetPositionY(), pTarget->GetPositionZ(), 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 20000))
+            if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                if (pTarget->isAlive())
                 {
-                    CAST_AI(mob_frost_tombAI, pChains->AI())->SetPrisoner(pTarget);
-                    pChains->CastSpell(pTarget, SPELL_FROST_TOMB, true);
+                    //DoCast(pTarget, SPELL_FROST_TOMB_SUMMON, true);
+                    if (Creature *pChains = m_creature->SummonCreature(CREATURE_FROSTTOMB, pTarget->GetPositionX(), pTarget->GetPositionY(), pTarget->GetPositionZ(), 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 20000))
+                    {
+                        CAST_AI(mob_frost_tombAI, pChains->AI())->SetPrisoner(pTarget);
+                        pChains->CastSpell(pTarget, SPELL_FROST_TOMB, true);
 
-                    DoScriptText(SAY_FROST_TOMB, m_creature);
+                        DoScriptText(SAY_FROST_TOMB, m_creature);
+                    }
                 }
-            }
             FrostTombTimer = 15000;
         } else FrostTombTimer -= diff;
 
@@ -249,7 +248,7 @@ struct TRINITY_DLL_DECL mob_vrykul_skeletonAI : public ScriptedAI
     void Reset()
     {
         Respawn_Time = 12000;
-        Decrepify_Timer = 10000 + rand()%20000;
+        Decrepify_Timer = urand(10000,20000);
         isDead = false;
     }
 
@@ -282,7 +281,7 @@ struct TRINITY_DLL_DECL mob_vrykul_skeletonAI : public ScriptedAI
         isDead = false;
         m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
         m_creature->SetStandState(UNIT_STAND_STATE_STAND);
-        m_creature->CastSpell(m_creature,SPELL_SCOURGE_RESSURRECTION,true);
+        DoCast(m_creature, SPELL_SCOURGE_RESSURRECTION, true);
 
         if (m_creature->getVictim())
         {
@@ -312,7 +311,7 @@ struct TRINITY_DLL_DECL mob_vrykul_skeletonAI : public ScriptedAI
 
                 if (Decrepify_Timer <= diff)
                 {
-                    DoCast(m_creature->getVictim(),SPELL_DECREPIFY);
+                    DoCast(m_creature->getVictim(), SPELL_DECREPIFY);
                     Decrepify_Timer = 30000;
                 } else Decrepify_Timer -= diff;
 

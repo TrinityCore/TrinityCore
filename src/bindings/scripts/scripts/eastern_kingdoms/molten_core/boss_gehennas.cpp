@@ -70,7 +70,7 @@ struct TRINITY_DLL_DECL boss_gehennasAI : public ScriptedAI
         //GehennasCurse_Timer
         if (GehennasCurse_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(),SPELL_GEHENNASCURSE);
+            DoCast(m_creature->getVictim(), SPELL_GEHENNASCURSE);
             GehennasCurse_Timer = urand(22000,30000);
         } else GehennasCurse_Timer -= diff;
 

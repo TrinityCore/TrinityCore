@@ -257,7 +257,7 @@ struct TRINITY_DLL_DECL boss_exarch_maladaarAI : public ScriptedAI
                     soulholder = pTarget->GetGUID();
                     soulclass = pTarget->getClass();
 
-                    DoCast(pTarget,SPELL_STOLEN_SOUL);
+                    DoCast(pTarget, SPELL_STOLEN_SOUL);
                     m_creature->SummonCreature(ENTRY_STOLEN_SOUL, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 10000);
 
                     StolenSoul_Timer = 20000 + rand()% 10000;
@@ -268,14 +268,14 @@ struct TRINITY_DLL_DECL boss_exarch_maladaarAI : public ScriptedAI
         if (Ribbon_of_Souls_timer <= diff)
         {
             if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM,0))
-                DoCast(pTarget,SPELL_RIBBON_OF_SOULS);
+                DoCast(pTarget, SPELL_RIBBON_OF_SOULS);
 
             Ribbon_of_Souls_timer = 5000 + (rand()%20 * 1000);
         } else Ribbon_of_Souls_timer -= diff;
 
         if (Fear_timer <= diff)
         {
-            DoCast(m_creature,SPELL_SOUL_SCREAM);
+            DoCast(m_creature, SPELL_SOUL_SCREAM);
             Fear_timer = 15000 + rand()% 15000;
         } else Fear_timer -= diff;
 

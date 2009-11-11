@@ -117,7 +117,7 @@ struct TRINITY_DLL_DECL boss_ingvar_the_plundererAI : public ScriptedAI
     {
         if (damage >= m_creature->GetHealth() && !undead)
         {
-            //DoCast(m_creature,SPELL_INGVAR_FEIGN_DEATH,true);  // Dont work ???
+            //DoCast(m_creature, SPELL_INGVAR_FEIGN_DEATH, true);  // Dont work ???
             // visuel hack
             m_creature->SetHealth(0);
             m_creature->InterruptNonMeleeSpells(true);
@@ -184,8 +184,8 @@ struct TRINITY_DLL_DECL boss_ingvar_the_plundererAI : public ScriptedAI
             if (SpawnResTimer)
                 if (SpawnResTimer <= diff)
                 {
-                    DoCast(m_creature,SPELL_SUMMON_BANSHEE); // Summons direktly on caster position
-                    //DoCast(m_creature,SPELL_SCOURG_RESURRECTION_EFFEKTSPAWN); // Dont needet ?
+                    DoCast(m_creature, SPELL_SUMMON_BANSHEE); // Summons direktly on caster position
+                    //DoCast(m_creature, SPELL_SCOURG_RESURRECTION_EFFEKTSPAWN); // Dont needet ?
                     SpawnResTimer = 0;
                 } else SpawnResTimer -= diff;
 
@@ -204,9 +204,9 @@ struct TRINITY_DLL_DECL boss_ingvar_the_plundererAI : public ScriptedAI
             if (!wait_Timer)
             {
                 if (undead)
-                    DoCast(m_creature->getVictim(),HEROIC(SPELL_WOE_STRIKE, H_SPELL_WOE_STRIKE));
+                    DoCast(m_creature->getVictim(), HEROIC(SPELL_WOE_STRIKE, H_SPELL_WOE_STRIKE));
                 else
-                    DoCast(m_creature->getVictim(),SPELL_CLEAVE);
+                    DoCast(m_creature->getVictim(), SPELL_CLEAVE);
                 Cleave_Timer = rand()%5000 + 2000;
 
                 wait_Timer = 1000;
@@ -220,7 +220,7 @@ struct TRINITY_DLL_DECL boss_ingvar_the_plundererAI : public ScriptedAI
                 if (undead)
                     DoCast(m_creature->getVictim(), SPELL_DARK_SMASH);
                 else
-                    DoCast(m_creature->getVictim(),HEROIC(SPELL_SMASH, H_SPELL_SMASH));
+                    DoCast(m_creature->getVictim(), HEROIC(SPELL_SMASH, H_SPELL_SMASH));
                 Smash_Timer = 10000;
 
                 wait_Timer = 5000;
@@ -231,7 +231,7 @@ struct TRINITY_DLL_DECL boss_ingvar_the_plundererAI : public ScriptedAI
         {
             if (Enrage_Timer <= diff)
             {
-                DoCast(m_creature,HEROIC(SPELL_ENRAGE, H_SPELL_ENRAGE));
+                DoCast(m_creature, HEROIC(SPELL_ENRAGE, H_SPELL_ENRAGE));
                 Enrage_Timer = 10000;
             } else Enrage_Timer -= diff;
         } else // In Undead form used to summon weapon
@@ -246,7 +246,7 @@ struct TRINITY_DLL_DECL boss_ingvar_the_plundererAI : public ScriptedAI
                     {
                         Creature* temp = m_creature->SummonCreature(ENTRY_THROW_TARGET,pTarget->GetPositionX(),pTarget->GetPositionY(),pTarget->GetPositionZ(),0,TEMPSUMMON_TIMED_DESPAWN,2000);
 
-                        DoCast(m_creature,SPELL_SHADOW_AXE_SUMMON);
+                        DoCast(m_creature, SPELL_SHADOW_AXE_SUMMON);
                     }
                     Enrage_Timer = 30000;
                 }
@@ -258,9 +258,9 @@ struct TRINITY_DLL_DECL boss_ingvar_the_plundererAI : public ScriptedAI
             if (!wait_Timer)
             {
                 if (undead)
-                    DoCast(m_creature,HEROIC(SPELL_DREADFUL_ROAR, H_SPELL_DREADFUL_ROAR));
+                    DoCast(m_creature, HEROIC(SPELL_DREADFUL_ROAR, H_SPELL_DREADFUL_ROAR));
                 else
-                    DoCast(m_creature,HEROIC(SPELL_STAGGERING_ROAR, H_SPELL_STAGGERING_ROAR));
+                    DoCast(m_creature, HEROIC(SPELL_STAGGERING_ROAR, H_SPELL_STAGGERING_ROAR));
                 Roar_Timer = 10000;
 
                 wait_Timer = 5000;
@@ -332,7 +332,7 @@ struct TRINITY_DLL_DECL mob_annhylde_the_callerAI : public ScriptedAI
             case 1:
                 ingvar->RemoveAura(SPELL_SUMMON_BANSHEE);
                 ingvar->CastSpell(ingvar,SPELL_SCOURG_RESURRECTION_DUMMY,true);
-                DoCast(ingvar,SPELL_SCOURG_RESURRECTION_BEAM);
+                DoCast(ingvar, SPELL_SCOURG_RESURRECTION_BEAM);
                 Resurect_Timer = 8000;
                 Resurect_Phase = 1;
                 break;

@@ -68,7 +68,7 @@ struct TRINITY_DLL_DECL boss_high_inquisitor_fairbanksAI : public ScriptedAI
         //If we are <25% hp cast Heal
         if (m_creature->GetHealth()*100 / m_creature->GetMaxHealth() <= 25 && !m_creature->IsNonMeleeSpellCasted(false) && Heal_Timer <= diff)
         {
-            DoCast(m_creature,SPELL_HEAL);
+            DoCast(m_creature, SPELL_HEAL);
             Heal_Timer = 30000;
         } else Heal_Timer -= diff;
 
@@ -76,7 +76,7 @@ struct TRINITY_DLL_DECL boss_high_inquisitor_fairbanksAI : public ScriptedAI
         if (Fear_Timer <= diff)
         {
             if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM,1))
-                DoCast(pTarget,SPELL_FEAR);
+                DoCast(pTarget, SPELL_FEAR);
 
             Fear_Timer = 40000;
         } else Fear_Timer -= diff;
@@ -85,7 +85,7 @@ struct TRINITY_DLL_DECL boss_high_inquisitor_fairbanksAI : public ScriptedAI
         if (Sleep_Timer <= diff)
         {
             if (Unit *pTarget = SelectUnit(SELECT_TARGET_TOPAGGRO,0))
-                DoCast(pTarget,SPELL_SLEEP);
+                DoCast(pTarget, SPELL_SLEEP);
 
             Sleep_Timer = 30000;
         } else Sleep_Timer -= diff;
@@ -93,7 +93,7 @@ struct TRINITY_DLL_DECL boss_high_inquisitor_fairbanksAI : public ScriptedAI
         //PowerWordShield_Timer
         if (!PowerWordShield && m_creature->GetHealth()*100 / m_creature->GetMaxHealth() <= 25)
         {
-            DoCast(m_creature,SPELL_POWERWORDSHIELD);
+            DoCast(m_creature, SPELL_POWERWORDSHIELD);
             PowerWordShield = true;
         }
 
@@ -109,7 +109,7 @@ struct TRINITY_DLL_DECL boss_high_inquisitor_fairbanksAI : public ScriptedAI
         //CurseOfBlood_Timer
         if (CurseOfBlood_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(),SPELL_CURSEOFBLOOD);
+            DoCast(m_creature->getVictim(), SPELL_CURSEOFBLOOD);
             CurseOfBlood_Timer = 25000;
         } else CurseOfBlood_Timer -= diff;
 

@@ -94,7 +94,7 @@ struct TRINITY_DLL_DECL boss_moamAI : public ScriptedAI
     {
         for (uint8 i=0;i<6;++i)
         {
-            if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM,0,100,true))
+            if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
             {
                 pTarget->ModifyPower(POWER_MANA, -500);
                 m_creature->ModifyPower(POWER_MANA, 1000);
@@ -112,7 +112,7 @@ struct TRINITY_DLL_DECL boss_moamAI : public ScriptedAI
             //If we are 100%MANA cast Arcane Erruption
             if (m_creature->GetPower(POWER_MANA) == m_creature->GetMaxPower(POWER_MANA))
             {
-                DoCast(m_creature->getVictim(),SPELL_ARCANEERUPTION);
+                DoCast(m_creature->getVictim(), SPELL_ARCANEERUPTION);
                 DoScriptText(EMOTE_MANA_FULL, m_creature);
                 m_creature->SetPower(POWER_MANA,0);
             }
@@ -120,7 +120,7 @@ struct TRINITY_DLL_DECL boss_moamAI : public ScriptedAI
             //Trample Spell
             if (uiTrampleTimer <= diff)
             {
-                DoCast(m_creature->getVictim(),SPELL_TRAMPLE);
+                DoCast(m_creature->getVictim(), SPELL_TRAMPLE);
                 uiTrampleTimer = urand(3000,7000);
             } else uiTrampleTimer -= diff;
             
@@ -137,10 +137,10 @@ struct TRINITY_DLL_DECL boss_moamAI : public ScriptedAI
             if (uiPhaseTimer <= diff)
             {
                 Phase = STONE;
-                DoCast(m_creature,SPELL_SUMMONMANA);
-                DoCast(m_creature,SPELL_SUMMONMANA);
-                DoCast(m_creature,SPELL_SUMMONMANA);
-                DoCast(m_creature,SPELL_GRDRSLEEP);
+                DoCast(m_creature, SPELL_SUMMONMANA);
+                DoCast(m_creature, SPELL_SUMMONMANA);
+                DoCast(m_creature, SPELL_SUMMONMANA);
+                DoCast(m_creature, SPELL_GRDRSLEEP);
             } else uiPhaseTimer -= diff;
         }
     }

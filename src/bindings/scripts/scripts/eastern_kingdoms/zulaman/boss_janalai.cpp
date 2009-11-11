@@ -343,14 +343,14 @@ struct TRINITY_DLL_DECL boss_janalaiAI : public ScriptedAI
         {
             if (!enraged)
             {
-                m_creature->CastSpell(m_creature, SPELL_ENRAGE, true);
+                DoCast(m_creature, SPELL_ENRAGE, true);
                 enraged = true;
                 EnrageTimer = 300000;
             }
             else
             {
                 DoScriptText(SAY_BERSERK, m_creature);
-                m_creature->CastSpell(m_creature, SPELL_BERSERK, true);
+                DoCast(m_creature, SPELL_BERSERK, true);
                 EnrageTimer = 300000;
             }
         } else EnrageTimer -= diff;
@@ -363,9 +363,9 @@ struct TRINITY_DLL_DECL boss_janalaiAI : public ScriptedAI
             m_creature->GetMotionMaster()->Clear();
             DoTeleportTo(JanalainPos[0][0],JanalainPos[0][1],JanalainPos[0][2]);
             m_creature->StopMoving();
-            m_creature->CastSpell(m_creature, SPELL_FIRE_BOMB_CHANNEL, false);
+            DoCast(m_creature, SPELL_FIRE_BOMB_CHANNEL, false);
             //DoTeleportPlayer(m_creature, JanalainPos[0][0], JanalainPos[0][1],JanalainPos[0][2], 0);
-            //m_creature->CastSpell(m_creature, SPELL_TELE_TO_CENTER, true);
+            //DoCast(m_creature, SPELL_TELE_TO_CENTER, true);
 
             FireWall();
             SpawnBombs();
@@ -380,7 +380,7 @@ struct TRINITY_DLL_DECL boss_janalaiAI : public ScriptedAI
                 if (Player* i_pl = i->getSource())
                     if (i_pl->isAlive())
                         DoTeleportPlayer(i_pl, JanalainPos[0][0]-5+rand()%10, JanalainPos[0][1]-5+rand()%10, JanalainPos[0][2], 0);
-            //m_creature->CastSpell(Temp, SPELL_SUMMON_PLAYERS, true); // core bug, spell does not work if too far
+            //DoCast(Temp, SPELL_SUMMON_PLAYERS, true) // core bug, spell does not work if too far
             return;
         } else BombTimer -= diff;
 
@@ -394,7 +394,7 @@ struct TRINITY_DLL_DECL boss_janalaiAI : public ScriptedAI
                 m_creature->GetMotionMaster()->Clear();
                 DoTeleportTo(JanalainPos[0][0],JanalainPos[0][1],JanalainPos[0][2]);
                 m_creature->StopMoving();
-                m_creature->CastSpell(m_creature, SPELL_HATCH_ALL, false);
+                DoCast(m_creature, SPELL_HATCH_ALL, false);
                 HatchAllEggs(2);
                 noeggs = true;
             }
@@ -422,7 +422,7 @@ struct TRINITY_DLL_DECL boss_janalaiAI : public ScriptedAI
             {
                 m_creature->AttackStop();
                 m_creature->GetMotionMaster()->Clear();
-                m_creature->CastSpell(pTarget, SPELL_FLAME_BREATH, false);
+                DoCast(pTarget, SPELL_FLAME_BREATH, false);
                 m_creature->StopMoving();
                 isFlameBreathing = true;
             }
@@ -445,7 +445,7 @@ struct TRINITY_DLL_DECL mob_janalai_firebombAI : public ScriptedAI
     void SpellHit(Unit *caster, const SpellEntry *spell)
     {
         if (spell->Id == SPELL_FIRE_BOMB_THROW)
-            m_creature->CastSpell(m_creature, SPELL_FIRE_BOMB_DUMMY, true);
+            DoCast(m_creature, SPELL_FIRE_BOMB_DUMMY, true);
     }
 
     void EnterCombat(Unit* who) {}
@@ -621,7 +621,7 @@ struct TRINITY_DLL_DECL mob_hatchlingAI : public ScriptedAI
 
         if (BuffetTimer <= diff)
         {
-            m_creature->CastSpell(m_creature->getVictim(), SPELL_FLAMEBUFFET, false);
+            DoCast(m_creature->getVictim(), SPELL_FLAMEBUFFET, false);
             BuffetTimer = 10000;
         } else BuffetTimer -= diff;
 

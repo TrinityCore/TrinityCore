@@ -65,7 +65,7 @@ struct TRINITY_DLL_DECL mobs_risen_husk_spiritAI : public ScriptedAI
         if (pDoneBy->GetTypeId() == TYPEID_PLAYER)
         {
             if (damage >= m_creature->GetHealth() && CAST_PLR(pDoneBy)->GetQuestStatus(QUEST_WHATS_HAUNTING_WITCH_HILL) == QUEST_STATUS_INCOMPLETE)
-                m_creature->CastSpell(pDoneBy, SPELL_SUMMON_RESTLESS_APPARITION, false);
+                DoCast(pDoneBy, SPELL_SUMMON_RESTLESS_APPARITION, false);
         }
     }
 

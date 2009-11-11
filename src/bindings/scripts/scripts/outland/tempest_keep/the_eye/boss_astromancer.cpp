@@ -419,7 +419,7 @@ struct TRINITY_DLL_DECL mob_solarium_priestAI : public ScriptedAI
 
             if (pTarget)
             {
-                DoCast(pTarget,SPELL_SOLARIUM_GREAT_HEAL);
+                DoCast(pTarget, SPELL_SOLARIUM_GREAT_HEAL);
                 healTimer = 9000;
             }
         } else healTimer -= diff;

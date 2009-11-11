@@ -70,28 +70,28 @@ struct TRINITY_DLL_DECL boss_razorgoreAI : public ScriptedAI
         //Cleave_Timer
         if (Cleave_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(),SPELL_CLEAVE);
+            DoCast(m_creature->getVictim(), SPELL_CLEAVE);
             Cleave_Timer = urand(7000,10000);
         } else Cleave_Timer -= diff;
 
         //WarStomp_Timer
         if (WarStomp_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(),SPELL_WARSTOMP);
+            DoCast(m_creature->getVictim(), SPELL_WARSTOMP);
             WarStomp_Timer = urand(15000,25000);
         } else WarStomp_Timer -= diff;
 
         //FireballVolley_Timer
         if (FireballVolley_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(),SPELL_FIREBALLVOLLEY);
+            DoCast(m_creature->getVictim(), SPELL_FIREBALLVOLLEY);
             FireballVolley_Timer = urand(12000,15000);
         } else FireballVolley_Timer -= diff;
 
         //Conflagration_Timer
         if (Conflagration_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(),SPELL_CONFLAGRATION);
+            DoCast(m_creature->getVictim(), SPELL_CONFLAGRATION);
             //We will remove this threat reduction and add an aura check.
 
             //if (DoGetThreat(m_creature->getVictim()))

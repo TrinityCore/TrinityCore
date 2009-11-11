@@ -381,7 +381,7 @@ struct TRINITY_DLL_DECL boss_baroness_dorothea_millstipeAI : public boss_moroes_
         MindFlay_Timer = 1000;
         ShadowWordPain_Timer = 6000;
 
-        DoCast(m_creature,SPELL_SHADOWFORM, true);
+        DoCast(m_creature, SPELL_SHADOWFORM, true);
 
         boss_moroes_guestAI::Reset();
     }
@@ -395,7 +395,7 @@ struct TRINITY_DLL_DECL boss_baroness_dorothea_millstipeAI : public boss_moroes_
 
         if (MindFlay_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(),SPELL_MINDFLY);
+            DoCast(m_creature->getVictim(), SPELL_MINDFLY);
             MindFlay_Timer = 12000;                         // 3 sec channeled
         } else MindFlay_Timer -= diff;
 
@@ -403,7 +403,7 @@ struct TRINITY_DLL_DECL boss_baroness_dorothea_millstipeAI : public boss_moroes_
         {
             if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                 if (pTarget->getPowerType() == POWER_MANA)
-                    DoCast(pTarget,SPELL_MANABURN);
+                    DoCast(pTarget, SPELL_MANABURN);
             ManaBurn_Timer = 5000;                          // 3 sec cast
         } else ManaBurn_Timer -= diff;
 
@@ -411,7 +411,7 @@ struct TRINITY_DLL_DECL boss_baroness_dorothea_millstipeAI : public boss_moroes_
         {
             if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
             {
-                DoCast(pTarget,SPELL_SWPAIN);
+                DoCast(pTarget, SPELL_SWPAIN);
                 ShadowWordPain_Timer = 7000;
             }
         } else ShadowWordPain_Timer -= diff;
@@ -449,20 +449,20 @@ struct TRINITY_DLL_DECL boss_baron_rafe_dreugerAI : public boss_moroes_guestAI
 
         if (SealOfCommand_Timer <= diff)
         {
-            DoCast(m_creature,SPELL_SEALOFCOMMAND);
+            DoCast(m_creature, SPELL_SEALOFCOMMAND);
             SealOfCommand_Timer = 32000;
             JudgementOfCommand_Timer = 29000;
         } else SealOfCommand_Timer -= diff;
 
         if (JudgementOfCommand_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(),SPELL_JUDGEMENTOFCOMMAND);
+            DoCast(m_creature->getVictim(), SPELL_JUDGEMENTOFCOMMAND);
             JudgementOfCommand_Timer = SealOfCommand_Timer + 29000;
         } else JudgementOfCommand_Timer -= diff;
 
         if (HammerOfJustice_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(),SPELL_HAMMEROFJUSTICE);
+            DoCast(m_creature->getVictim(), SPELL_HAMMEROFJUSTICE);
             HammerOfJustice_Timer = 12000;
         } else HammerOfJustice_Timer -= diff;
     }
@@ -504,7 +504,7 @@ struct TRINITY_DLL_DECL boss_lady_catriona_von_indiAI : public boss_moroes_guest
 
         if (PowerWordShield_Timer <= diff)
         {
-            DoCast(m_creature,SPELL_PWSHIELD);
+            DoCast(m_creature, SPELL_PWSHIELD);
             PowerWordShield_Timer = 15000;
         } else PowerWordShield_Timer -= diff;
 
@@ -518,7 +518,7 @@ struct TRINITY_DLL_DECL boss_lady_catriona_von_indiAI : public boss_moroes_guest
 
         if (HolyFire_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(),SPELL_HOLYFIRE);
+            DoCast(m_creature->getVictim(), SPELL_HOLYFIRE);
             HolyFire_Timer = 22000;
         } else HolyFire_Timer -= diff;
 
@@ -568,7 +568,7 @@ struct TRINITY_DLL_DECL boss_lady_keira_berrybuckAI : public boss_moroes_guestAI
 
         if (DivineShield_Timer <= diff)
         {
-            DoCast(m_creature,SPELL_DIVINESHIELD);
+            DoCast(m_creature, SPELL_DIVINESHIELD);
             DivineShield_Timer = 31000;
         } else DivineShield_Timer -= diff;
 
@@ -631,7 +631,7 @@ struct TRINITY_DLL_DECL boss_lord_robin_darisAI : public boss_moroes_guestAI
 
         if (Hamstring_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(),SPELL_HAMSTRING);
+            DoCast(m_creature->getVictim(), SPELL_HAMSTRING);
             Hamstring_Timer = 12000;
         } else Hamstring_Timer -= diff;
 
@@ -643,7 +643,7 @@ struct TRINITY_DLL_DECL boss_lord_robin_darisAI : public boss_moroes_guestAI
 
         if (WhirlWind_Timer <= diff)
         {
-            DoCast(m_creature,SPELL_WHIRLWIND);
+            DoCast(m_creature, SPELL_WHIRLWIND);
             WhirlWind_Timer = 21000;
         } else WhirlWind_Timer -= diff;
     }
@@ -683,25 +683,25 @@ struct TRINITY_DLL_DECL boss_lord_crispin_ferenceAI : public boss_moroes_guestAI
 
         if (Disarm_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(),SPELL_DISARM);
+            DoCast(m_creature->getVictim(), SPELL_DISARM);
             Disarm_Timer = 12000;
         } else Disarm_Timer -= diff;
 
         if (HeroicStrike_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(),SPELL_HEROICSTRIKE);
+            DoCast(m_creature->getVictim(), SPELL_HEROICSTRIKE);
             HeroicStrike_Timer = 10000;
         } else HeroicStrike_Timer -= diff;
 
         if (ShieldBash_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(),SPELL_SHIELDBASH);
+            DoCast(m_creature->getVictim(), SPELL_SHIELDBASH);
             ShieldBash_Timer = 13000;
         } else ShieldBash_Timer -= diff;
 
         if (ShieldWall_Timer <= diff)
         {
-            DoCast(m_creature,SPELL_SHIELDWALL);
+            DoCast(m_creature, SPELL_SHIELDWALL);
             ShieldWall_Timer = 21000;
         } else ShieldWall_Timer -= diff;
     }

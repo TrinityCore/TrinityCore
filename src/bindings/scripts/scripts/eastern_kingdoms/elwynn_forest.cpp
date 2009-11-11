@@ -75,7 +75,7 @@ struct TRINITY_DLL_DECL npc_henze_faulkAI : public ScriptedAI
     {
         if (Spellkind->Id == 8593 && !spellHit)
         {
-            DoCast(m_creature,32343);
+            DoCast(m_creature, 32343);
             m_creature->SetStandState(UNIT_STAND_STATE_STAND);
             m_creature->SetUInt32Value(UNIT_DYNAMIC_FLAGS, 0);
             //m_creature->RemoveAllAuras();

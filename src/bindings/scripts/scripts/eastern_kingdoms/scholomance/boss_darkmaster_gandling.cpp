@@ -90,21 +90,21 @@ struct TRINITY_DLL_DECL boss_darkmaster_gandlingAI : public ScriptedAI
         //ArcaneMissiles_Timer
         if (ArcaneMissiles_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(),SPELL_ARCANEMISSILES);
+            DoCast(m_creature->getVictim(), SPELL_ARCANEMISSILES);
             ArcaneMissiles_Timer = 8000;
         } else ArcaneMissiles_Timer -= diff;
 
         //ShadowShield_Timer
         if (ShadowShield_Timer <= diff)
         {
-            DoCast(m_creature,SPELL_SHADOWSHIELD);
+            DoCast(m_creature, SPELL_SHADOWSHIELD);
             ShadowShield_Timer = 14000 + rand()%14000;
         } else ShadowShield_Timer -= diff;
 
         //Curse_Timer
         if (Curse_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(),SPELL_CURSE);
+            DoCast(m_creature->getVictim(), SPELL_CURSE);
             Curse_Timer = 15000 + rand()%12000;
         } else Curse_Timer -= diff;
 

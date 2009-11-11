@@ -55,7 +55,7 @@ struct TRINITY_DLL_DECL boss_magmusAI : public ScriptedAI
         //FieryBurst_Timer
         if (FieryBurst_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(),SPELL_FIERYBURST);
+            DoCast(m_creature->getVictim(), SPELL_FIERYBURST);
             FieryBurst_Timer = 6000;
         } else FieryBurst_Timer -= diff;
 
@@ -64,7 +64,7 @@ struct TRINITY_DLL_DECL boss_magmusAI : public ScriptedAI
         {
             if (WarStomp_Timer <= diff)
             {
-                DoCast(m_creature->getVictim(),SPELL_WARSTOMP);
+                DoCast(m_creature->getVictim(), SPELL_WARSTOMP);
                 WarStomp_Timer = 8000;
             } else WarStomp_Timer -= diff;
         }

@@ -88,7 +88,7 @@ struct TRINITY_DLL_DECL boss_gatewatcher_iron_handAI : public ScriptedAI
         //Shadow Power
         if (Shadow_Power_Timer <= diff)
         {
-            DoCast(m_creature,HEROIC(SPELL_SHADOW_POWER, H_SPELL_SHADOW_POWER));
+            DoCast(m_creature, HEROIC(SPELL_SHADOW_POWER, H_SPELL_SHADOW_POWER));
             Shadow_Power_Timer = 20000 + rand()%8000;
         } else Shadow_Power_Timer -= diff;
 
@@ -97,7 +97,7 @@ struct TRINITY_DLL_DECL boss_gatewatcher_iron_handAI : public ScriptedAI
         {
             //TODO: expect cast this about 5 times in a row (?), announce it by emote only once
             DoScriptText(EMOTE_HAMMER, m_creature);
-            DoCast(m_creature->getVictim(),HEROIC(SPELL_JACKHAMMER, H_SPELL_JACKHAMMER));
+            DoCast(m_creature->getVictim(), HEROIC(SPELL_JACKHAMMER, H_SPELL_JACKHAMMER));
 
             //chance to yell, but not same time as emote (after spell in fact casted)
             if (rand()%2)
@@ -110,7 +110,7 @@ struct TRINITY_DLL_DECL boss_gatewatcher_iron_handAI : public ScriptedAI
         //Stream of Machine Fluid
         if (Stream_of_Machine_Fluid_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(),SPELL_STREAM_OF_MACHINE_FLUID);
+            DoCast(m_creature->getVictim(), SPELL_STREAM_OF_MACHINE_FLUID);
             Stream_of_Machine_Fluid_Timer = 35000 + rand()%15000;
         } else Stream_of_Machine_Fluid_Timer -= diff;
 

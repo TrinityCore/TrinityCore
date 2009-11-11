@@ -74,7 +74,7 @@ struct TRINITY_DLL_DECL boss_ambassador_hellmawAI : public npc_escortAI
         if (m_pInstance && m_creature->isAlive())
         {
             if (m_pInstance->GetData(TYPE_OVERSEER) != DONE)
-                m_creature->CastSpell(m_creature, SPELL_BANISH, true);
+                DoCast(m_creature, SPELL_BANISH, true);
         }
     }
 
@@ -171,13 +171,13 @@ struct TRINITY_DLL_DECL boss_ambassador_hellmawAI : public npc_escortAI
 
         if (CorrosiveAcid_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(),SPELL_CORROSIVE_ACID);
+            DoCast(m_creature->getVictim(), SPELL_CORROSIVE_ACID);
             CorrosiveAcid_Timer = 15000 + rand()%10000;
         } else CorrosiveAcid_Timer -= diff;
 
         if (Fear_Timer <= diff)
         {
-            DoCast(m_creature,SPELL_FEAR);
+            DoCast(m_creature, SPELL_FEAR);
             Fear_Timer = 20000 + rand()%15000;
         } else Fear_Timer -= diff;
 
@@ -185,7 +185,7 @@ struct TRINITY_DLL_DECL boss_ambassador_hellmawAI : public npc_escortAI
         {
             if (!Enraged && Enrage_Timer <= diff)
             {
-                DoCast(m_creature,SPELL_ENRAGE);
+                DoCast(m_creature, SPELL_ENRAGE);
                 Enraged = true;
             } else Enrage_Timer -= diff;
         }

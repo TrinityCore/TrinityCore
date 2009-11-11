@@ -288,7 +288,7 @@ struct TRINITY_DLL_DECL npc_pluckyAI : public ScriptedAI
         if (m_creature->HasFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP))
             m_creature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
 
-        m_creature->CastSpell(m_creature, SPELL_PLUCKY_CHICKEN, false);
+        DoCast(m_creature, SPELL_PLUCKY_CHICKEN, false);
     }
 
     void ReceiveEmote(Player* pPlayer, uint32 uiTextEmote)
@@ -299,7 +299,7 @@ struct TRINITY_DLL_DECL npc_pluckyAI : public ScriptedAI
             {
                 m_creature->setFaction(FACTION_FRIENDLY);
                 m_creature->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-                m_creature->CastSpell(m_creature, SPELL_PLUCKY_HUMAN, false);
+                DoCast(m_creature, SPELL_PLUCKY_HUMAN, false);
             }
         }
 
@@ -311,7 +311,7 @@ struct TRINITY_DLL_DECL npc_pluckyAI : public ScriptedAI
             {
                 m_creature->setFaction(FACTION_FRIENDLY);
                 m_creature->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-                m_creature->CastSpell(m_creature, SPELL_PLUCKY_HUMAN, false);
+                DoCast(m_creature, SPELL_PLUCKY_HUMAN, false);
                 m_creature->HandleEmoteCommand(EMOTE_ONESHOT_WAVE);
             }
         }

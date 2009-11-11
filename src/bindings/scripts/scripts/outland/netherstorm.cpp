@@ -257,7 +257,7 @@ struct TRINITY_DLL_DECL npc_manaforge_control_consoleAI : public ScriptedAI
                         Unit* u = Unit::GetUnit((*m_creature),someplayer);
                         if (u && u->GetTypeId() == TYPEID_PLAYER)
                             CAST_PLR(u)->KilledMonsterCredit(m_creature->GetEntry(),m_creature->GetGUID());
-                        DoCast(m_creature,SPELL_DISABLE_VISUAL);
+                        DoCast(m_creature, SPELL_DISABLE_VISUAL);
                     }
                     if (goConsole)
                     {

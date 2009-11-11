@@ -62,27 +62,27 @@ struct TRINITY_DLL_DECL boss_broodlordAI : public ScriptedAI
         //Cleave_Timer
         if (Cleave_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(),SPELL_CLEAVE);
+            DoCast(m_creature->getVictim(), SPELL_CLEAVE);
             Cleave_Timer = 7000;
         } else Cleave_Timer -= diff;
 
         // BlastWave
         if (BlastWave_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(),SPELL_BLASTWAVE);
+            DoCast(m_creature->getVictim(), SPELL_BLASTWAVE);
             BlastWave_Timer = urand(8000,16000);
         } else BlastWave_Timer -= diff;
 
         //MortalStrike_Timer
         if (MortalStrike_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(),SPELL_MORTALSTRIKE);
+            DoCast(m_creature->getVictim(), SPELL_MORTALSTRIKE);
             MortalStrike_Timer = urand(25000,35000);
         } else MortalStrike_Timer -= diff;
 
         if (KnockBack_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(),SPELL_KNOCKBACK);
+            DoCast(m_creature->getVictim(), SPELL_KNOCKBACK);
             //Drop 50% aggro
             if (DoGetThreat(m_creature->getVictim()))
                 DoModifyThreatPercent(m_creature->getVictim(),-50);

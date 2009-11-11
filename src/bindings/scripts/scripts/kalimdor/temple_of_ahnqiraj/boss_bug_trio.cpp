@@ -85,20 +85,20 @@ struct TRINITY_DLL_DECL boss_kriAI : public ScriptedAI
         //Cleave_Timer
         if (Cleave_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(),SPELL_CLEAVE);
+            DoCast(m_creature->getVictim(), SPELL_CLEAVE);
             Cleave_Timer = 5000 + rand()%7000;
         } else Cleave_Timer -= diff;
 
         //ToxicVolley_Timer
         if (ToxicVolley_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(),SPELL_TOXIC_VOLLEY);
+            DoCast(m_creature->getVictim(), SPELL_TOXIC_VOLLEY);
             ToxicVolley_Timer = 10000 + rand()%5000;
         } else ToxicVolley_Timer -= diff;
 
         if (m_creature->GetHealth() <= m_creature->GetMaxHealth() * 0.05 && !Death)
         {
-            DoCast(m_creature->getVictim(),SPELL_POISON_CLOUD);
+            DoCast(m_creature->getVictim(), SPELL_POISON_CLOUD);
             Death = true;
         }
 
@@ -184,7 +184,7 @@ struct TRINITY_DLL_DECL boss_vemAI : public ScriptedAI
         //KnockBack_Timer
         if (KnockBack_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(),SPELL_KNOCKBACK);
+            DoCast(m_creature->getVictim(), SPELL_KNOCKBACK);
             if (DoGetThreat(m_creature->getVictim()))
                 DoModifyThreatPercent(m_creature->getVictim(),-80);
             KnockBack_Timer = 15000 + rand()%10000;
@@ -193,7 +193,7 @@ struct TRINITY_DLL_DECL boss_vemAI : public ScriptedAI
         //Enrage_Timer
         if (!Enraged && Enrage_Timer <= diff)
         {
-            DoCast(m_creature,SPELL_ENRAGE);
+            DoCast(m_creature, SPELL_ENRAGE);
             Enraged = true;
         } else Charge_Timer -= diff;
 
@@ -257,7 +257,7 @@ struct TRINITY_DLL_DECL boss_yaujAI : public ScriptedAI
         //Fear_Timer
         if (Fear_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(),SPELL_FEAR);
+            DoCast(m_creature->getVictim(), SPELL_FEAR);
             DoResetThreat();
             Fear_Timer = 20000;
         } else Fear_Timer -= diff;

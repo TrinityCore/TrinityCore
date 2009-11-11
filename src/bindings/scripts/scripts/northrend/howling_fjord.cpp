@@ -84,7 +84,7 @@ struct TRINITY_DLL_DECL npc_Apothecary_HanesAI : public npc_escortAI
         {
             if (PotTimer <= diff)
             {
-                DoCast(me,17534,true);
+                DoCast(me, 17534, true);
                 PotTimer = 10000;
             } else PotTimer -= diff;
         }

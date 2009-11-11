@@ -87,7 +87,7 @@ struct TRINITY_DLL_DECL boss_ignis_AI : public BossAI
         if (SLAG_POT_Timer <= diff)
         {
             if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                DoCast(pTarget,SPELL_SLAG_POT);
+                DoCast(pTarget, SPELL_SLAG_POT);
             DoScriptText(SAY_SLAY, m_creature);
             SLAG_POT_Timer = 30000;
         } else SLAG_POT_Timer -= diff;

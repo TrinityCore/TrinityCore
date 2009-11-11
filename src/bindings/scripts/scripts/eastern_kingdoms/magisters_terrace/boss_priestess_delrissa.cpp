@@ -269,7 +269,7 @@ struct TRINITY_DLL_DECL boss_priestess_delrissaAI : public ScriptedAI
                     if (pAdd->isAlive())
                         pTarget = pAdd;
 
-            DoCast(pTarget,Heroic ? SPELL_RENEW_HEROIC : SPELL_RENEW_NORMAL);
+            DoCast(pTarget, Heroic ? SPELL_RENEW_HEROIC : SPELL_RENEW_NORMAL);
             RenewTimer = 5000;
         } else RenewTimer -= diff;
 
@@ -599,7 +599,7 @@ struct TRINITY_DLL_DECL boss_ellris_duskhallowAI : public boss_priestess_lackey_
 
     void Aggro(Unit* pWho)
     {
-        DoCast(m_creature,SPELL_SUMMON_IMP);
+        DoCast(m_creature, SPELL_SUMMON_IMP);
     }
 
     void UpdateAI(const uint32 diff)
@@ -611,13 +611,13 @@ struct TRINITY_DLL_DECL boss_ellris_duskhallowAI : public boss_priestess_lackey_
 
         if (Immolate_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(),SPELL_IMMOLATE);
+            DoCast(m_creature->getVictim(), SPELL_IMMOLATE);
             Immolate_Timer = 6000;
         } else Immolate_Timer -= diff;
 
         if (Shadow_Bolt_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(),SPELL_SHADOW_BOLT);
+            DoCast(m_creature->getVictim(), SPELL_SHADOW_BOLT);
             Shadow_Bolt_Timer = 5000;
         } else Shadow_Bolt_Timer -= diff;
 
@@ -685,13 +685,13 @@ struct TRINITY_DLL_DECL boss_eramas_brightblazeAI : public boss_priestess_lackey
 
         if (Knockdown_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(),SPELL_KNOCKDOWN);
+            DoCast(m_creature->getVictim(), SPELL_KNOCKDOWN);
             Knockdown_Timer = 6000;
         } else Knockdown_Timer -= diff;
 
         if (Snap_Kick_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(),SPELL_SNAP_KICK);
+            DoCast(m_creature->getVictim(), SPELL_SNAP_KICK);
             Snap_Kick_Timer  = 4500;
         } else Snap_Kick_Timer -= diff;
 
@@ -904,7 +904,7 @@ struct TRINITY_DLL_DECL boss_warlord_salarisAI : public boss_priestess_lackey_co
 
         if (Disarm_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(),SPELL_DISARM);
+            DoCast(m_creature->getVictim(), SPELL_DISARM);
             Disarm_Timer = 6000;
         } else Disarm_Timer -= diff;
 

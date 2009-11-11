@@ -81,7 +81,7 @@ struct TRINITY_DLL_DECL boss_jandicebarovAI : public ScriptedAI
         if (CurseOfBlood_Timer <= diff)
         {
             //Cast
-            DoCast(m_creature->getVictim(),SPELL_CURSEOFBLOOD);
+            DoCast(m_creature->getVictim(), SPELL_CURSEOFBLOOD);
 
             //45 seconds
             CurseOfBlood_Timer = 30000;
@@ -117,7 +117,7 @@ struct TRINITY_DLL_DECL boss_jandicebarovAI : public ScriptedAI
         //            if (Illusion_Timer <= diff)
         //            {
         //                  //Cast
-        //                DoCast(m_creature->getVictim(),SPELL_ILLUSION);
+        //                DoCast(m_creature->getVictim(), SPELL_ILLUSION);
         //
         //                  //3 Illusion will be summoned
         //                  if (Illusioncounter < 3)
@@ -165,7 +165,7 @@ struct TRINITY_DLL_DECL mob_illusionofjandicebarovAI : public ScriptedAI
         if (Cleave_Timer <= diff)
         {
             //Cast
-            DoCast(m_creature->getVictim(),SPELL_CLEAVE);
+            DoCast(m_creature->getVictim(), SPELL_CLEAVE);
 
             //5-8 seconds
             Cleave_Timer = 5000 + rand()%3000;

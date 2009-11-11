@@ -121,20 +121,20 @@ struct TRINITY_DLL_DECL boss_lajAI : public ScriptedAI
         switch(rand()%4)
         {
             case 0:
-                DoCast(m_creature,SPELL_SUMMON_LASHER_1,true);
-                DoCast(m_creature,SPELL_SUMMON_FLAYER_1,true);
+                DoCast(m_creature, SPELL_SUMMON_LASHER_1, true);
+                DoCast(m_creature, SPELL_SUMMON_FLAYER_1, true);
                 break;
             case 1:
-                DoCast(m_creature,SPELL_SUMMON_LASHER_2,true);
-                DoCast(m_creature,SPELL_SUMMON_FLAYER_2,true);
+                DoCast(m_creature, SPELL_SUMMON_LASHER_2, true);
+                DoCast(m_creature, SPELL_SUMMON_FLAYER_2, true);
                 break;
             case 2:
-                DoCast(m_creature,SPELL_SUMMON_LASHER_3,true);
-                DoCast(m_creature,SPELL_SUMMON_FLAYER_3,true);
+                DoCast(m_creature, SPELL_SUMMON_LASHER_3, true);
+                DoCast(m_creature, SPELL_SUMMON_FLAYER_3, true);
                 break;
             case 3:
-                DoCast(m_creature,SPELL_SUMMON_LASHER_4,true);
-                DoCast(m_creature,SPELL_SUMMON_FLAYER_4,true);
+                DoCast(m_creature, SPELL_SUMMON_LASHER_4, true);
+                DoCast(m_creature, SPELL_SUMMON_FLAYER_4, true);
                 break;
         }
         CanSummon = false;
@@ -167,13 +167,13 @@ struct TRINITY_DLL_DECL boss_lajAI : public ScriptedAI
 
         if (Allergic_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(),SPELL_ALLERGIC_REACTION);
+            DoCast(m_creature->getVictim(), SPELL_ALLERGIC_REACTION);
             Allergic_Timer = 25000+rand()%15000;
         } else Allergic_Timer -= diff;
 
         if (Teleport_Timer <= diff)
         {
-            DoCast(m_creature,SPELL_TELEPORT_SELF);
+            DoCast(m_creature, SPELL_TELEPORT_SELF);
             Teleport_Timer = 30000+rand()%10000;
             CanSummon = true;
         } else Teleport_Timer -= diff;

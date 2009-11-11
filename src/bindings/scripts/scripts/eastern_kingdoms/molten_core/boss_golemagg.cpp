@@ -58,7 +58,7 @@ struct TRINITY_DLL_DECL boss_golemaggAI : public ScriptedAI
         m_uiBuffTimer = 2.5*IN_MILISECONDS;
         m_bEnraged = false;
 
-        m_creature->CastSpell(m_creature, SPELL_MAGMASPLASH, true);
+        DoCast(m_creature, SPELL_MAGMASPLASH, true);
     }
 
     void JustDied(Unit* pKiller)
