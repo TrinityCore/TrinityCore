@@ -13749,7 +13749,7 @@ void Unit::Kill(Unit *pVictim, bool durabilityLoss)
     // Inform pets (if any) when player kills target)
     if (this->GetTypeId() == TYPEID_PLAYER && ((Player*)this)->GetPet())
     {
-        Pet *pPet = ((Player *)this)->GetPet();
+        Pet *pPet = ((Player*)this)->GetPet();
 
         if (pPet && pPet->isAlive() && pPet->isControlled())
             pPet->AI()->KilledUnit(pVictim);
@@ -13779,7 +13779,7 @@ void Unit::Kill(Unit *pVictim, bool durabilityLoss)
         if(player->RewardPlayerAndGroupAtKill(pVictim))
             player->ProcDamageAndSpell(pVictim, PROC_FLAG_KILL, PROC_FLAG_KILLED, PROC_EX_NONE, 0);
         else
-            player->ProcDamageAndSpell(pVictim, PROC_FLAG_NONE, PROC_FLAG_KILLED,PROC_EX_NONE, 0);
+            player->ProcDamageAndSpell(pVictim, PROC_FLAG_NONE, PROC_FLAG_KILLED, PROC_EX_NONE, 0);
     }
 
     // Proc auras on death - must be before aura/combat remove
@@ -13811,7 +13811,7 @@ void Unit::Kill(Unit *pVictim, bool durabilityLoss)
         }
     }
 
-    if(!SpiritOfRedemption)
+    if (!SpiritOfRedemption)
     {
         DEBUG_LOG("SET JUST_DIED");
         pVictim->setDeathState(JUST_DIED);
@@ -13823,10 +13823,10 @@ void Unit::Kill(Unit *pVictim, bool durabilityLoss)
     {
         // remember victim PvP death for corpse type and corpse reclaim delay
         // at original death (not at SpiritOfRedemtionTalent timeout)
-        ((Player*)pVictim)->SetPvPDeath(player!=NULL);
+        ((Player*)pVictim)->SetPvPDeath(player != NULL);
 
         // only if not player and not controlled by player pet. And not at BG
-        if ( (durabilityLoss && !player && !((Player*)pVictim)->InBattleGround()) || ( player && sWorld.getConfig(CONFIG_DURABILITY_LOSS_IN_PVP) ) )
+        if ((durabilityLoss && !player && !((Player*)pVictim)->InBattleGround()) || (player && sWorld.getConfig(CONFIG_DURABILITY_LOSS_IN_PVP)))
         {
             DEBUG_LOG("We are dead, losing %u percent durability", sWorld.getRate(RATE_DURABILITY_LOSS_ON_DEATH));
             ((Player*)pVictim)->DurabilityLossAll(sWorld.getRate(RATE_DURABILITY_LOSS_ON_DEATH),false);
@@ -13839,7 +13839,7 @@ void Unit::Kill(Unit *pVictim, bool durabilityLoss)
             ((Creature*)this)->AI()->KilledUnit(pVictim);
 
         // last damage from non duel opponent or opponent controlled creature
-        if(((Player*)pVictim)->duel)
+        if (((Player*)pVictim)->duel)
         {
             ((Player*)pVictim)->duel->opponent->CombatStopWithPets(true);
             ((Player*)pVictim)->CombatStopWithPets(true);
@@ -13851,7 +13851,7 @@ void Unit::Kill(Unit *pVictim, bool durabilityLoss)
         DEBUG_LOG("DealDamageNotPlayer");
         Creature *cVictim = (Creature*)pVictim;
 
-        if(!cVictim->isPet())
+        if (!cVictim->isPet())
         {
             cVictim->DeleteThreatList();
             CreatureInfo const* cInfo = cVictim->GetCreatureInfo();
