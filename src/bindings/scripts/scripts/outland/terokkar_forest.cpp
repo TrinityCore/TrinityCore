@@ -558,60 +558,56 @@ bool GossipSelect_npc_slim(Player* pPlayer, Creature* pCreature, uint32 uiSender
 }
 
 /*########
-####npc_Akuno
+####npc_akuno
 #####*/
 
-#define QUEST_NPC_AKUNO 10887
-#define Summon 21661
+enum eAkuno
+{
+    QUEST_ESCAPING_THE_TOMB = 10887,
+    NPC_CABAL_SKRIMISHER    = 21661
+};
 
 struct TRINITY_DLL_DECL npc_akunoAI : public npc_escortAI
 {
     npc_akunoAI(Creature *c) : npc_escortAI(c) {}
 
-    bool IsWalking;
-
     void WaypointReached(uint32 i)
     {
         Player* pPlayer = GetPlayerForEscort();
 
-        if(!pPlayer)
+        if (!pPlayer)
             return;
-
-        if(IsWalking && !m_creature->HasUnitMovementFlag(MOVEMENTFLAG_WALK_MODE))
-            m_creature->AddUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
 
         switch(i)
         {
-        case 0: m_creature->setFaction(5); break;
-        case 3:
-            m_creature->SummonCreature(Summon,-2795.99,5420.33,-34.53,0,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
-            m_creature->SummonCreature(Summon,-2793.55,5412.79,-34.53,0,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
-            break;
-        case 11:
-            if(pPlayer && pPlayer->GetTypeId() == TYPEID_PLAYER)
-                pPlayer->GroupEventHappens(QUEST_NPC_AKUNO,m_creature);
-            m_creature->setFaction(18);
-            break;
+            case 3:
+                m_creature->SummonCreature(NPC_CABAL_SKRIMISHER,-2795.99,5420.33,-34.53,0,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
+                m_creature->SummonCreature(NPC_CABAL_SKRIMISHER,-2793.55,5412.79,-34.53,0,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
+                break;
+            case 11:
+                if (pPlayer && pPlayer->GetTypeId() == TYPEID_PLAYER)
+                    pPlayer->GroupEventHappens(QUEST_ESCAPING_THE_TOMB,m_creature);
+                break;
         }
     }
 
-    void Reset()
+    void JustSummoned(Creature* summon)
     {
-        if (IsWalking && !m_creature->HasUnitMovementFlag(MOVEMENTFLAG_WALK_MODE))
-        {
-            m_creature->AddUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
-            return;
-        }
-        IsWalking=false;
+        summon->AI()->AttackStart(m_creature);
     }
 };
 
 bool QuestAccept_npc_akuno(Player* pPlayer, Creature* pCreature, Quest const* pQuest)
 {
-    if(pQuest->GetQuestId() == QUEST_NPC_AKUNO)
+    if (pQuest->GetQuestId() == QUEST_ESCAPING_THE_TOMB)
     {
         if (npc_akunoAI* pEscortAI = CAST_AI(npc_akunoAI, pCreature->AI()))
-          pEscortAI->Start(false, true, pPlayer->GetGUID());
+            pEscortAI->Start(false, false, pPlayer->GetGUID());
+
+        if (pPlayer->GetTeamId() == TEAM_ALLIANCE)
+            pCreature->setFaction(FACTION_ESCORT_A_NEUTRAL_PASSIVE);
+        else
+            pCreature->setFaction(FACTION_ESCORT_H_NEUTRAL_PASSIVE);
     }
     return true;
 }
