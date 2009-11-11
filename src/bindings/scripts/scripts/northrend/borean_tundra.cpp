@@ -231,7 +231,7 @@ struct TRINITY_DLL_DECL npc_sinkhole_kill_creditAI : public ScriptedAI
         }
     }
 
-    void EnterCombat(Unit* who) { }
+    void EnterCombat(Unit* who){}
 
     void UpdateAI(const uint32 diff)
     {
@@ -275,7 +275,7 @@ struct TRINITY_DLL_DECL npc_sinkhole_kill_creditAI : public ScriptedAI
                     DoCast(m_creature, SPELL_EXPLODE_CART, true);
                     if (Unit* worm = m_creature->FindNearestCreature(26250, 3))
                     {
-                        m_creature->DealDamage(worm, worm->GetHealth());
+                        m_creature->Kill(worm);
                         worm->RemoveFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
                     }
                     Phase_Timer = 2000;
@@ -284,7 +284,7 @@ struct TRINITY_DLL_DECL npc_sinkhole_kill_creditAI : public ScriptedAI
                 case 7:
                     DoCast(m_creature, SPELL_EXPLODE_CART, true);
                     if(Player *caster = Unit::GetPlayer(casterGuid))
-                        CAST_PLR(caster)->KilledMonster(m_creature->GetCreatureInfo(),m_creature->GetGUID());
+                        caster->KilledMonster(m_creature->GetCreatureInfo(),m_creature->GetGUID());
                     Phase_Timer = 5000;
                     Phase = 8;
                     break;
@@ -393,9 +393,7 @@ bool GossipHello_npc_corastrasza(Player* pPlayer, Creature* pCreature)
         pPlayer->PrepareQuestMenu(pCreature->GetGUID());
 
     if (pPlayer->GetQuestStatus(QUEST_ACES_HIGH) == QUEST_STATUS_INCOMPLETE || pPlayer->GetQuestStatus(QUEST_ACES_HIGH_DAILY) == QUEST_STATUS_INCOMPLETE) //It's the same dragon for both quests.
-    {
         pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_C_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-    }
 
     pPlayer->SEND_GOSSIP_MENU(pCreature->GetNpcTextId(), pCreature->GetGUID());
     return true;
@@ -440,7 +438,7 @@ bool GossipHello_npc_iruk(Player* pPlayer, Creature* pCreature)
 
 bool GossipSelect_npc_iruk(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
 {
-    switch(uiAction)
+    switch (uiAction)
     {
         case GOSSIP_ACTION_INFO_DEF+1:
             pPlayer->CastSpell(pPlayer, SPELL_CREATURE_TOTEM_OF_ISSLIRUK, true);
@@ -470,18 +468,18 @@ struct TRINITY_DLL_DECL mob_nerubar_victimAI : public ScriptedAI
 
     void JustDied(Unit* Killer)
     {
-        if(Killer->GetTypeId() == TYPEID_PLAYER)
+        if (Killer->GetTypeId() == TYPEID_PLAYER)
         {
-            if( CAST_PLR(Killer)->GetQuestStatus(11611) == QUEST_STATUS_INCOMPLETE)
+            if (CAST_PLR(Killer)->GetQuestStatus(11611) == QUEST_STATUS_INCOMPLETE)
             {
-                uint8 uiRand = rand()%100;
-                if(uiRand < 25)
+                uint8 uiRand = urand(0,99);
+                if (uiRand < 25)
                 {
                     Killer->CastSpell(m_creature,45532,true);
                     CAST_PLR(Killer)->KilledMonsterCredit(WARSONG_PEON, 0);
                 }
-                else if(uiRand < 75)
-                    Killer->CastSpell(m_creature,nerubarVictims[rand()%3],true);
+                else if (uiRand < 75)
+                    Killer->CastSpell(m_creature, nerubarVictims[urand(0,2)], true);
             }
         }
     }
@@ -502,18 +500,16 @@ enum eScourgePrisoner
 struct TRINITY_DLL_DECL npc_scourge_prisonerAI : public ScriptedAI
 {
     npc_scourge_prisonerAI(Creature* pCreature) : ScriptedAI (pCreature){}
-    
+
     void Reset()
     {
         m_creature->SetReactState(REACT_PASSIVE);
-        
-        if(GameObject* pGO = m_creature->FindNearestGameObject(GO_SCOURGE_CAGE,5.0f))
-        {
-            if(pGO->GetGoState() == GO_STATE_ACTIVE)
+
+        if (GameObject* pGO = m_creature->FindNearestGameObject(GO_SCOURGE_CAGE,5.0f))
+            if (pGO->GetGoState() == GO_STATE_ACTIVE)
                 pGO->SetGoState(GO_STATE_READY);
-        }
     }
-    
+
 };
 CreatureAI* GetAI_npc_scourge_prisoner(Creature* pCreature)
 {
@@ -548,11 +544,15 @@ struct TRINITY_DLL_DECL npc_jennyAI : public ScriptedAI
 
         m_creature->SetReactState(REACT_PASSIVE);
 
-        if(((Player*)m_creature->GetOwner())->GetTeamId() == TEAM_ALLIANCE)
+        switch (CAST_PLR(m_creature->GetOwner())->GetTeamId())
         {
-            m_creature->setFaction(FACTION_ESCORT_A_NEUTRAL_ACTIVE);
-        }else{
-            m_creature->setFaction(FACTION_ESCORT_H_NEUTRAL_ACTIVE);
+            case TEAM_ALLIANCE:
+                m_creature->setFaction(FACTION_ESCORT_A_NEUTRAL_ACTIVE);
+                break;
+            default:
+            case TEAM_HORDE:
+                m_creature->setFaction(FACTION_ESCORT_H_NEUTRAL_ACTIVE);
+                break;
         }
     }
 
@@ -565,10 +565,10 @@ struct TRINITY_DLL_DECL npc_jennyAI : public ScriptedAI
     {
         if(pWho->GetEntry() == NPC_FEZZIX_GEARTWIST)
         {
-            if(((Player*)m_creature->GetOwner())->GetQuestStatus(QUEST_LOADER_UP) == QUEST_STATUS_INCOMPLETE && m_creature->GetAura(SPELL_CRATES_CARRIED))
+            if(CAST_PLR(m_creature->GetOwner())->GetQuestStatus(QUEST_LOADER_UP) == QUEST_STATUS_INCOMPLETE && m_creature->GetAura(SPELL_CRATES_CARRIED))
             {
-                m_creature->CastSpell(((Player*)m_creature->GetOwner()),SPELL_GIVE_JENNY_CREDIT,true); // Maybe is not working.
-                ((Player*)m_creature->GetOwner())->CompleteQuest(QUEST_LOADER_UP);
+                m_creature->CastSpell(CAST_PLR(m_creature->GetOwner()),SPELL_GIVE_JENNY_CREDIT,true); // Maybe is not working.
+                CAST_PLR(m_creature->GetOwner())->CompleteQuest(QUEST_LOADER_UP);
                 m_creature->DisappearAndDie();
             }
         }
@@ -582,11 +582,8 @@ struct TRINITY_DLL_DECL npc_jennyAI : public ScriptedAI
             setCrateNumber = false;
         }
 
-        if(setCrateNumber == false && !m_creature->HasAura(SPELL_CRATES_CARRIED))
-        {
+        if (setCrateNumber == false && !m_creature->HasAura(SPELL_CRATES_CARRIED))
             m_creature->DisappearAndDie();
-        }
-
     }
 };
 
@@ -602,7 +599,7 @@ CreatureAI* GetAI_npc_jenny(Creature *pCreature)
 enum eNesingwaryTrapper
 {
     GO_HIGH_QUALITY_FUR = 187983,
-    
+
     GO_CARIBOU_TRAP_1   = 187982,
     GO_CARIBOU_TRAP_2   = 187995,
     GO_CARIBOU_TRAP_3   = 187996,
@@ -618,7 +615,7 @@ enum eNesingwaryTrapper
     GO_CARIBOU_TRAP_13  = 188006,
     GO_CARIBOU_TRAP_14  = 188007,
     GO_CARIBOU_TRAP_15  = 188008,
-    
+
     SPELL_TRAPPED       = 46104,
 };
 
@@ -626,86 +623,76 @@ enum eNesingwaryTrapper
 
 struct TRINITY_DLL_DECL npc_nesingwary_trapperAI : public ScriptedAI
 {
-    npc_nesingwary_trapperAI(Creature *c) : ScriptedAI(c) {m_creature->SetVisibility(VISIBILITY_OFF);}
-    
-    GameObject* go_caribou;
+    npc_nesingwary_trapperAI(Creature *c) : ScriptedAI(c) { c->SetVisibility(VISIBILITY_OFF); }
+
+    GameObject *go_caribou;
     uint8  Phase;
     uint32 Phase_Timer;
-    
+
     void Reset()
     {
         m_creature->SetVisibility(VISIBILITY_OFF);
         Phase_Timer = 2500;
         Phase = 1;
-	go_caribou = NULL;
+        go_caribou = NULL;
     }
     void EnterCombat(Unit *who) {}
     void MoveInLineOfSight(Unit *who) {}
-    
-    void JustDied(Unit* who)
+
+    void JustDied(Unit *who)
     {
         if (go_caribou && go_caribou->GetTypeId() == TYPEID_GAMEOBJECT)
             go_caribou->SetLootState(GO_JUST_DEACTIVATED);
-        
-        TempSummon *summon = (TempSummon*)m_creature;
-        if (summon)
+
+        if (TempSummon *summon = (TempSummon*)m_creature)
             if (Unit *pTemp = summon->GetSummoner())
                 if (pTemp->GetTypeId() == TYPEID_PLAYER)
                     CAST_PLR(pTemp)->KilledMonsterCredit(m_creature->GetEntry(),0);
-        
+
         if (go_caribou && go_caribou->GetTypeId() == TYPEID_GAMEOBJECT)
             go_caribou->SetGoState(GO_STATE_READY);
     }
-    
+
     void UpdateAI(const uint32 diff)
     {
-        if (Phase_Timer < diff)
+        if (Phase_Timer <= diff)
         {
             switch (Phase)
             {
                 case 1:
                     m_creature->SetVisibility(VISIBILITY_ON);
-                    
                     Phase_Timer = 2000;
                     Phase = 2;
                     break;
-                    
+
                 case 2:
-                    if (GameObject* go_fur = m_creature->FindNearestGameObject(GO_HIGH_QUALITY_FUR,11.0f))
-                        m_creature->GetMotionMaster()->MovePoint(0,go_fur->GetPositionX(),go_fur->GetPositionY(),go_fur->GetPositionZ());
+                    if (GameObject *go_fur = m_creature->FindNearestGameObject(GO_HIGH_QUALITY_FUR, 11.0f))
+                        m_creature->GetMotionMaster()->MovePoint(0, go_fur->GetPositionX(), go_fur->GetPositionY(), go_fur->GetPositionZ());
                     Phase_Timer = 1500;
                     Phase = 3;
                     break;
-                    
                 case 3:
                     //DoScriptText(SAY_NESINGWARY_1, m_creature);
-                    
                     Phase_Timer = 2000;
                     Phase = 4;
                     break;
-                    
                 case 4:
                     m_creature->HandleEmoteCommand(EMOTE_ONESHOT_LOOT);
-                    
                     Phase_Timer = 1000;
                     Phase = 5;
                     break;
-                    
                 case 5:
                     m_creature->HandleEmoteCommand(EMOTE_ONESHOT_NONE);
-                    
                     Phase_Timer = 500;
                     Phase = 6;
                     break;
-                    
                 case 6:
-                    if (GameObject* go_fur = m_creature->FindNearestGameObject(GO_HIGH_QUALITY_FUR,11.0f))
+                    if (GameObject *go_fur = m_creature->FindNearestGameObject(GO_HIGH_QUALITY_FUR, 11.0f))
                         go_fur->Delete();
-                    
                     Phase_Timer = 500;
                     Phase = 7;
                     break;
-                    
+
                 case 7:
                     if ((go_caribou = m_creature->FindNearestGameObject(GO_CARIBOU_TRAP_1, 5.0f)) ||
                         (go_caribou = m_creature->FindNearestGameObject(GO_CARIBOU_TRAP_2, 5.0f)) ||
@@ -722,13 +709,10 @@ struct TRINITY_DLL_DECL npc_nesingwary_trapperAI : public ScriptedAI
                         (go_caribou = m_creature->FindNearestGameObject(GO_CARIBOU_TRAP_13, 5.0f)) ||
                         (go_caribou = m_creature->FindNearestGameObject(GO_CARIBOU_TRAP_14, 5.0f)) ||
                         (go_caribou = m_creature->FindNearestGameObject(GO_CARIBOU_TRAP_15, 5.0f)))
-                        
                         go_caribou->SetGoState(GO_STATE_ACTIVE);
-                        
                     Phase = 8;
                     Phase_Timer = 1000;
                     break;
-                        
                 case 8:
                     m_creature->CastSpell(m_creature,SPELL_TRAPPED,true);
                     Phase = 0;
@@ -750,9 +734,9 @@ CreatureAI* GetAI_npc_nesingwary_trapper(Creature *pCreature)
 enum eLurgglbr
 {
     QUEST_ESCAPE_WINTERFIN_CAVERNS      = 11570,
-    
+
     GO_CAGE                             = 187369,
-    
+
     FACTION_ESCORTEE_A                  = 774,
     FACTION_ESCORTEE_H                  = 775,
 };
@@ -765,19 +749,19 @@ enum eLurgglbr
 struct TRINITY_DLL_DECL npc_lurgglbrAI : public npc_escortAI
 {
     npc_lurgglbrAI(Creature* c) : npc_escortAI(c){}
-    
+
     uint32 IntroTimer;
     uint32 IntroPhase;
-    
+
     void Reset()
     {
         IntroTimer = 0;
         IntroPhase = 0;
     }
-    
+
     void WaypointReached(uint32 i)
     {
-        switch(i)
+        switch (i)
         {
             case 0:
                 IntroPhase = 1;
@@ -789,64 +773,55 @@ struct TRINITY_DLL_DECL npc_lurgglbrAI : public npc_escortAI
                 break;
         }
     }
-    
+
     void UpdateAI(const uint32 diff)
     {
         if (IntroPhase)
         {
-            if (IntroTimer < diff)
+            if (IntroTimer <= diff)
             {
                 switch(IntroPhase)
                 {
                     case 1:
                         //DoScriptText(SAY_WP_1_LUR_START,m_creature);
-                        
                         IntroPhase = 2;
                         IntroTimer = 7500;
                         break;
-                        
                     case 2:
                         //DoScriptText(SAY_WP_1_LUR_END,m_creature);
-                        
                         IntroPhase = 3;
                         IntroTimer = 7500;
                         break;
                     case 3:
                         m_creature->SetReactState(REACT_AGGRESSIVE);
-                        
                         IntroPhase = 0;
                         IntroTimer = 0;
                         break;
-                        
                     case 4:
                         //DoScriptText(SAY_WP_41_LUR_START,m_creature);
-                        
                         IntroPhase = 5;
                         IntroTimer = 8000;
                         break;
                     case 5:
                         //DoScriptText(SAY_WP_41_LUR_END,m_creature);
-                        
                         IntroPhase = 6;
                         IntroTimer = 2500;
                         break;
-                        
+
                     case 6:
                         if (Player* pPlayer = GetPlayerForEscort())
                             pPlayer->AreaExploredOrEventHappens(QUEST_ESCAPE_WINTERFIN_CAVERNS);
-                        
                         IntroPhase = 7;
                         IntroTimer = 2500;
                         break;
-                        
+
                     case 7:
                         m_creature->ForcedDespawn();
-                        
                         IntroPhase = 0;
                         IntroTimer = 0;
                         break;
                 }
-            }else IntroTimer-=diff;
+            } else IntroTimer -= diff;
         }
         npc_escortAI::UpdateAI(diff);
     }
@@ -857,26 +832,31 @@ CreatureAI* GetAI_npc_lurgglbr(Creature* pCreature)
     return new npc_lurgglbrAI(pCreature);
 }
 
-bool QuestAccept_npc_lurgglbr(Player* pPlayer, Creature* pCreature, Quest const *_Quest)
+bool QuestAccept_npc_lurgglbr(Player* pPlayer, Creature* pCreature, Quest const *pQuest)
 {
-    if (_Quest->GetQuestId() == QUEST_ESCAPE_WINTERFIN_CAVERNS)
+    if (pQuest->GetQuestId() == QUEST_ESCAPE_WINTERFIN_CAVERNS)
     {
-        if(GameObject* pGo = pCreature->FindNearestGameObject(GO_CAGE,5.0f))
+        if(GameObject* pGo = pCreature->FindNearestGameObject(GO_CAGE, 5.0f))
         {
             pGo->SetRespawnTime(0);
             pGo->SetGoType(GAMEOBJECT_TYPE_BUTTON);
             pGo->UseDoorOrButton(20);
         }
-        
+
         if (npc_escortAI* pEscortAI = CAST_AI(npc_lurgglbrAI, pCreature->AI()))
             pEscortAI->Start(true, false, pPlayer->GetGUID());
-        
-        if (pPlayer->GetTeam() == ALLIANCE)
-            pCreature->setFaction(FACTION_ESCORTEE_A);
-        
-        if (pPlayer->GetTeam() == HORDE)
-            pCreature->setFaction(FACTION_ESCORTEE_H);
-        
+
+        switch (pPlayer->GetTeam())
+        {
+            case ALLIANCE:
+                pCreature->setFaction(FACTION_ESCORTEE_A);
+                break;
+            default:
+            case HORDE:
+                pCreature->setFaction(FACTION_ESCORTEE_H);
+                break;
+        }
+
         return true;
     }
     return false;
@@ -892,81 +872,78 @@ enum eNexusDrakeHatchling
     SPELL_RED_DRAGONBLOOD           = 46620,
     SPELL_DRAKE_HATCHLING_SUBDUED   = 46691,
     SPELL_SUBDUED                   = 46675,
-    
+
     NPC_RAELORASZ                   = 26117,
-    
+
     QUEST_DRAKE_HUNT                = 11919,
     QUEST_DRAKE_HUNT_D              = 11940
 };
 
 struct TRINITY_DLL_DECL npc_nexus_drake_hatchlingAI : public FollowerAI //The spell who makes the npc follow the player is missing, also we can use FollowerAI!
 {
-    npc_nexus_drake_hatchlingAI(Creature *c) : FollowerAI(c) {Reset();}
-    
-    bool WithRedDragonBlood;
-    
-    Unit* pPlayer;
-    
+    npc_nexus_drake_hatchlingAI(Creature *c) : FollowerAI(c) { Reset(); }
+
+    Player *pHarpooner;
+
     void Reset()
     {
-        WithRedDragonBlood = false;
-	pPlayer = NULL;
+       pHarpooner = NULL;
     }
-    
+
     void EnterCombat(Unit* pWho)
     {
         if (m_creature->canAttack(pWho))
             m_creature->AI()->AttackStart(pWho);
     }
-    
+
     void SpellHit(Unit *caster, const SpellEntry *spell)
     {
-        if (spell->Id == SPELL_DRAKE_HARPOON)
+        if (spell->Id == SPELL_DRAKE_HARPOON && caster->GetTypeId() == TYPEID_PLAYER)
         {
-            pPlayer = caster;
-            
+            pHarpooner = CAST_PLR(caster);
             m_creature->CastSpell(m_creature,SPELL_RED_DRAGONBLOOD,true);
-            
-            WithRedDragonBlood = true;
         }
     }
-    
+
     void MoveInLineOfSight(Unit *pWho)
     {
         FollowerAI::MoveInLineOfSight(pWho);
-        
+
+        if (!pHarpooner || !pHarpooner->IsInWorld())
+            return;
+
         if (m_creature->HasAura(SPELL_SUBDUED) && pWho->GetEntry() == NPC_RAELORASZ)
         {
-            if (m_creature->IsWithinDistInMap(pWho, INTERACTION_DISTANCE) && pPlayer && pPlayer->GetTypeId() == TYPEID_PLAYER)
+            if (m_creature->IsWithinDistInMap(pWho, INTERACTION_DISTANCE))
             {
-		CAST_PLR(pPlayer)->KilledMonsterCredit(26175,0);
-		CAST_PLR(pPlayer)->RemoveAura(SPELL_DRAKE_HATCHLING_SUBDUED);
+                pHarpooner->KilledMonsterCredit(26175,0);
+                pHarpooner->RemoveAura(SPELL_DRAKE_HATCHLING_SUBDUED);
                 SetFollowComplete();
                 m_creature->DisappearAndDie();
             }
         }
     }
-    
+
     void UpdateAI(const uint32 diff)
     {
-        if (WithRedDragonBlood && !m_creature->HasAura(SPELL_RED_DRAGONBLOOD) && pPlayer && pPlayer->GetTypeId() == TYPEID_PLAYER)
+        if (pHarpooner && pHarpooner->IsInWorld() && !m_creature->HasAura(SPELL_RED_DRAGONBLOOD))
         {
             if (npc_nexus_drake_hatchlingAI* pDrakeAI = CAST_AI(npc_nexus_drake_hatchlingAI, m_creature->AI()))
             {
                 EnterEvadeMode();
-                pDrakeAI->StartFollow(CAST_PLR(pPlayer), 35, NULL);
+                pDrakeAI->StartFollow(pHarpooner, 35, NULL);
             }
-            
-            m_creature->CastSpell(m_creature,SPELL_SUBDUED,true);
-            pPlayer->CastSpell(pPlayer,SPELL_DRAKE_HATCHLING_SUBDUED,true);
-            
+
+            m_creature->CastSpell(m_creature, SPELL_SUBDUED, true);
+            pHarpooner->CastSpell(pHarpooner, SPELL_DRAKE_HATCHLING_SUBDUED, true);
+
             m_creature->AttackStop();
-            WithRedDragonBlood = false;
+            pHarpooner = NULL;
         }
-        
+
         if (!UpdateVictim())
             return;
-        
+
         DoMeleeAttackIfReady();
     }
 };
@@ -1047,15 +1024,15 @@ void AddSC_borean_tundra()
     newscript->GetAI = &GetAI_npc_nesingwary_trapper;
     newscript->RegisterSelf();
     newscript = new Script;
-    
+
     newscript = new Script;
     newscript->Name = "npc_lurgglbr";
     newscript->GetAI = &GetAI_npc_lurgglbr;
     newscript->pQuestAccept = &QuestAccept_npc_lurgglbr;
     newscript->RegisterSelf();
-    
+
     newscript = new Script;
     newscript->Name = "npc_nexus_drake_hatchling";
     newscript->GetAI = &GetAI_npc_nexus_drake_hatchling;
     newscript->RegisterSelf();
-}
+}
