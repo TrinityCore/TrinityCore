@@ -33,7 +33,7 @@
 #include "SpellMgr.h"
 #include "CreatureAIImpl.h"
 
-bool CreatureEventAIHolder::UpdateRepeatTimer( Creature* creature, uint32 repeatMin, uint32 repeatMax )
+bool CreatureEventAIHolder::UpdateRepeatTimer(Creature* creature, uint32 repeatMin, uint32 repeatMax)
 {
     if (repeatMin == repeatMax)
         Time = repeatMin;
@@ -51,7 +51,7 @@ bool CreatureEventAIHolder::UpdateRepeatTimer( Creature* creature, uint32 repeat
 
 int CreatureEventAI::Permissible(const Creature *creature)
 {
-    if( creature->GetAIName() == "EventAI" )
+    if (creature->GetAIName() == "EventAI")
         return PERMIT_BASE_SPECIAL;
     return PERMIT_BASE_NO;
 }
@@ -108,7 +108,7 @@ CreatureEventAI::CreatureEventAI(Creature *c ) : CreatureAI(c)
     }
 }
 
-bool CreatureEventAI::ProcessEvent(CreatureEventAIHolder& pHolder, Unit* pActionInvoker)
+bool CreatureEventAI::ProcessEvent(CreatureEventAIHolder& pHolder, Unit* pActionInvoker /*=NULL*/)
 {
     if (!pHolder.Enabled || pHolder.Time)
         return false;
@@ -336,7 +336,7 @@ bool CreatureEventAI::ProcessEvent(CreatureEventAIHolder& pHolder, Unit* pAction
         return false;
 
     //Process actions
-    for (uint32 j = 0; j < MAX_ACTIONS; j++)
+    for (uint8 j = 0; j < MAX_ACTIONS; ++j)
         ProcessAction(pHolder.Event.action[j], rnd, pHolder.Event.event_id, pActionInvoker);
 
     return true;
@@ -1017,7 +1017,7 @@ void CreatureEventAI::UpdateAI(const uint32 diff)
     if (!bEmptyList)
     {
         //Events are only updated once every EVENT_UPDATE_TIME ms to prevent lag with large amount of events
-        if (EventUpdateTime < diff)
+        if (EventUpdateTime <= diff)
         {
             EventDiff += diff;
 
@@ -1027,7 +1027,7 @@ void CreatureEventAI::UpdateAI(const uint32 diff)
                 //Decrement Timers
                 if ((*i).Time)
                 {
-                    if ((*i).Time > EventDiff)
+                    if (EventDiff <= (*i).Time)
                     {
                         //Do not decrement timers if event cannot trigger in this phase
                         if (!((*i).Event.event_inverse_phase_mask & (1 << Phase)))
