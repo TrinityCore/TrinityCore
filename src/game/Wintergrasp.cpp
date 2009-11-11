@@ -977,8 +977,11 @@ bool OPvPWintergrasp::UpdateQuestGiverPosition(uint32 guid, Creature *creature)
             creature->GetPositionZ() == pos.GetPositionZ())
             return false;
 
-        creature->CombatStop(true);
-        creature->getHostilRefManager().deleteReferences();
+        if (creature->isInCombat())
+        {
+            creature->CombatStop(true);
+            creature->getHostilRefManager().deleteReferences();
+        }
         creature->SetHomePosition(pos);
         creature->DestroyForNearbyPlayers();
         if (!creature->GetMap()->IsLoaded(pos.GetPositionX(), pos.GetPositionY()))
@@ -1252,9 +1255,9 @@ void OPvPWintergrasp::UpdateTenacityStack()
     if (allianceNum && hordeNum)
     {
         if (allianceNum < hordeNum)
-            newStack = (hordeNum / allianceNum - 1)*4; // positive, should cast on alliance
+            newStack = int32((hordeNum / (float)allianceNum - 1)*4); // positive, should cast on alliance
         else if (allianceNum > hordeNum)
-            newStack = (1 - int32(allianceNum / hordeNum))*4; // negative, should cast on horde
+            newStack = int32((1 - allianceNum / (float)hordeNum)*4); // negative, should cast on horde
     }
 
     if (newStack == m_tenacityStack)
