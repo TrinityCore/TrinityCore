@@ -126,7 +126,7 @@ struct TRINITY_DLL_DECL boss_skarvald_the_constructorAI : public ScriptedAI
                     DoScriptText(YELL_SKARVALD_SKA_DIEDFIRST,m_creature);
 
                     m_creature->RemoveFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
-                    //DoCast(m_creature,SPELL_SUMMON_SKARVALD_GHOST,true);
+                    //DoCast(m_creature, SPELL_SUMMON_SKARVALD_GHOST, true);
                     Creature* temp = m_creature->SummonCreature(MOB_SKARVALD_GHOST,m_creature->GetPositionX(),m_creature->GetPositionY(),m_creature->GetPositionZ(),0,TEMPSUMMON_CORPSE_DESPAWN,5000);
                     if (temp)
                     {
@@ -277,7 +277,7 @@ struct TRINITY_DLL_DECL boss_dalronn_the_controllerAI : public ScriptedAI
                     DoScriptText(YELL_DALRONN_DAL_DIEDFIRST,m_creature);
 
                     m_creature->RemoveFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
-                    //DoCast(m_creature,SPELL_SUMMON_DALRONN_GHOST,true);
+                    //DoCast(m_creature, SPELL_SUMMON_DALRONN_GHOST, true);
                     Creature* temp = m_creature->SummonCreature(MOB_DALRONN_GHOST,m_creature->GetPositionX(),m_creature->GetPositionY(),m_creature->GetPositionZ(),0,TEMPSUMMON_CORPSE_DESPAWN,5000);
                     if (temp)
                     {
@@ -353,7 +353,7 @@ struct TRINITY_DLL_DECL boss_dalronn_the_controllerAI : public ScriptedAI
         {
             if (!m_creature->IsNonMeleeSpellCasted(false))
              {
-                DoCast(SelectUnit(SELECT_TARGET_RANDOM, 0),SPELL_DEBILITATE);
+                DoCast(SelectUnit(SELECT_TARGET_RANDOM, 0), SPELL_DEBILITATE);
                 Debilitate_Timer = 5000+rand()%5000;
             }
         } else Debilitate_Timer -= diff;
@@ -361,7 +361,7 @@ struct TRINITY_DLL_DECL boss_dalronn_the_controllerAI : public ScriptedAI
         if (HeroicMode)
             if (Summon_Timer <= diff)
             {
-                DoCast(m_creature,H_SPELL_SUMMON_SKELETONS);
+                DoCast(m_creature, H_SPELL_SUMMON_SKELETONS);
                 Summon_Timer = (rand()%10000) + 20000;
             } else Summon_Timer -= diff;
 

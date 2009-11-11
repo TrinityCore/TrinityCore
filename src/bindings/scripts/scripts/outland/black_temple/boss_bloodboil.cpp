@@ -281,7 +281,7 @@ struct TRINITY_DLL_DECL boss_gurtogg_bloodboilAI : public ScriptedAI
                                                             // If VMaps are disabled, this spell can call the whole instance
                     DoCast(m_creature, SPELL_INSIGNIFIGANCE, true);
                     DoCast(pTarget, SPELL_FEL_RAGE_TARGET, true);
-                    DoCast(pTarget,SPELL_FEL_RAGE_2, true);
+                    DoCast(pTarget, SPELL_FEL_RAGE_2, true);
                     /* These spells do not work, comment them out for now.
                     DoCast(pTarget, SPELL_FEL_RAGE_2, true);
                     DoCast(pTarget, SPELL_FEL_RAGE_3, true);*/

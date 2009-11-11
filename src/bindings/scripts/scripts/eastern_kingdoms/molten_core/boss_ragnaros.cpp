@@ -118,7 +118,7 @@ struct TRINITY_DLL_DECL boss_ragnarosAI : public ScriptedAI
         HasSubmergedOnce = false;
         WasBanished = false;
 
-        m_creature->CastSpell(m_creature,SPELL_MELTWEAPON,true);
+        DoCast(m_creature, SPELL_MELTWEAPON, true);
         HasAura = true;
     }
 
@@ -141,7 +141,7 @@ struct TRINITY_DLL_DECL boss_ragnarosAI : public ScriptedAI
             //Become unbanished again
             m_creature->setFaction(14);
             m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-            DoCast(m_creature,SPELL_RAGEMERGE);
+            DoCast(m_creature, SPELL_RAGEMERGE);
             WasBanished = false;
         } else if (WasBanished)
         {
@@ -157,7 +157,7 @@ struct TRINITY_DLL_DECL boss_ragnarosAI : public ScriptedAI
         //WrathOfRagnaros_Timer
         if (WrathOfRagnaros_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(),SPELL_WRATHOFRAGNAROS);
+            DoCast(m_creature->getVictim(), SPELL_WRATHOFRAGNAROS);
 
             if (urand(0,1))
                 DoScriptText(SAY_WRATH, m_creature);
@@ -168,7 +168,7 @@ struct TRINITY_DLL_DECL boss_ragnarosAI : public ScriptedAI
         //HandOfRagnaros_Timer
         if (HandOfRagnaros_Timer <= diff)
         {
-            DoCast(m_creature,SPELL_HANDOFRAGNAROS);
+            DoCast(m_creature, SPELL_HANDOFRAGNAROS);
 
             if (urand(0,1))
                 DoScriptText(SAY_HAND, m_creature);
@@ -179,21 +179,21 @@ struct TRINITY_DLL_DECL boss_ragnarosAI : public ScriptedAI
         //LavaBurst_Timer
         if (LavaBurst_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(),SPELL_LAVABURST);
+            DoCast(m_creature->getVictim(), SPELL_LAVABURST);
             LavaBurst_Timer = 10000;
         } else LavaBurst_Timer -= diff;
 
         //Erruption_Timer
         if (LavaBurst_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(),SPELL_ERRUPTION);
+            DoCast(m_creature->getVictim(), SPELL_ERRUPTION);
             Erruption_Timer = urand(20000,45000);
         } else Erruption_Timer -= diff;
 
         //ElementalFire_Timer
         if (ElementalFire_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(),SPELL_ELEMENTALFIRE);
+            DoCast(m_creature->getVictim(), SPELL_ELEMENTALFIRE);
             ElementalFire_Timer = urand(10000,14000);
         } else ElementalFire_Timer -= diff;
 
@@ -206,7 +206,7 @@ struct TRINITY_DLL_DECL boss_ragnarosAI : public ScriptedAI
 
             m_creature->InterruptNonMeleeSpells(false);
             //Root self
-            DoCast(m_creature,23973);
+            DoCast(m_creature, 23973);
             m_creature->setFaction(35);
             m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             m_creature->HandleEmoteCommand(EMOTE_ONESHOT_SUBMERGE);
@@ -227,7 +227,7 @@ struct TRINITY_DLL_DECL boss_ragnarosAI : public ScriptedAI
 
                 HasSubmergedOnce = true;
                 WasBanished = true;
-                DoCast(m_creature,SPELL_RAGSUBMERGE);
+                DoCast(m_creature, SPELL_RAGSUBMERGE);
                 Attack_Timer = 90000;
 
             }
@@ -245,7 +245,7 @@ struct TRINITY_DLL_DECL boss_ragnarosAI : public ScriptedAI
                 }
 
                 WasBanished = true;
-                DoCast(m_creature,SPELL_RAGSUBMERGE);
+                DoCast(m_creature, SPELL_RAGSUBMERGE);
                 Attack_Timer = 90000;
             }
 
@@ -267,7 +267,7 @@ struct TRINITY_DLL_DECL boss_ragnarosAI : public ScriptedAI
             //MagmaBurst_Timer
             if (MagmaBurst_Timer <= diff)
             {
-                DoCast(m_creature->getVictim(),SPELL_MAGMABURST);
+                DoCast(m_creature->getVictim(), SPELL_MAGMABURST);
 
                 if (!HasYelledMagmaBurst)
                 {

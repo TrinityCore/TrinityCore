@@ -235,7 +235,7 @@ struct TRINITY_DLL_DECL boss_sacrolashAI : public ScriptedAI
                 if (Temp && Temp->isDead())
                 {
                     DoScriptText(YELL_SISTER_ALYTHESS_DEAD, m_creature);
-                    DoCast(m_creature,SPELL_EMPOWER);
+                    DoCast(m_creature, SPELL_EMPOWER);
                     m_creature->InterruptSpell(CURRENT_GENERIC_SPELL);
                     SisterDeath = true;
                 }
@@ -324,7 +324,7 @@ struct TRINITY_DLL_DECL boss_sacrolashAI : public ScriptedAI
         {
             m_creature->InterruptSpell(CURRENT_GENERIC_SPELL);
             DoScriptText(YELL_ENRAGE, m_creature);
-            DoCast(m_creature,SPELL_ENRAGE);
+            DoCast(m_creature, SPELL_ENRAGE);
             Enraged = true;
         } else EnrageTimer -= diff;
 
@@ -641,7 +641,7 @@ struct TRINITY_DLL_DECL boss_alythessAI : public Scripted_NoMovementAI
         {
             if (!m_creature->IsNonMeleeSpellCasted(false))
             {
-                DoCast(m_creature, SPELL_PYROGENICS,true);
+                DoCast(m_creature, SPELL_PYROGENICS, true);
                 PyrogenicsTimer = 15000;
             }
         } else PyrogenicsTimer -= diff;

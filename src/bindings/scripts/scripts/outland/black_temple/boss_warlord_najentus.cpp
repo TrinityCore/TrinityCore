@@ -99,7 +99,7 @@ struct TRINITY_DLL_DECL boss_najentusAI : public ScriptedAI
         if (spell->Id == SPELL_HURL_SPINE && m_creature->HasAura(SPELL_TIDAL_SHIELD))
         {
             m_creature->RemoveAurasDueToSpell(SPELL_TIDAL_SHIELD);
-            m_creature->CastSpell(m_creature, SPELL_TIDAL_BURST, true);
+            DoCast(m_creature, SPELL_TIDAL_BURST, true);
             ResetTimer();
         }
     }
@@ -145,12 +145,12 @@ struct TRINITY_DLL_DECL boss_najentusAI : public ScriptedAI
             switch(eventId)
             {
                 case EVENT_SHIELD:
-                    m_creature->CastSpell(m_creature, SPELL_TIDAL_SHIELD, true);
+                    DoCast(m_creature, SPELL_TIDAL_SHIELD, true);
                     ResetTimer(45000);
                     break;
                 case EVENT_BERSERK:
                     DoScriptText(SAY_ENRAGE2, m_creature);
-                    m_creature->CastSpell(m_creature, SPELL_BERSERK, true);
+                    DoCast(m_creature, SPELL_BERSERK, true);
                     events.DelayEvents(15000, GCD_YELL);
                     break;
                 case EVENT_SPINE:
@@ -159,7 +159,7 @@ struct TRINITY_DLL_DECL boss_najentusAI : public ScriptedAI
                     if (!pTarget) pTarget = m_creature->getVictim();
                     if (pTarget)
                     {
-                        m_creature->CastSpell(pTarget, SPELL_IMPALING_SPINE, true);
+                        DoCast(pTarget, SPELL_IMPALING_SPINE, true);
                         SpineTargetGUID = pTarget->GetGUID();
                         //must let target summon, otherwise you cannot click the spine
                         pTarget->SummonGameObject(GOBJECT_SPINE, pTarget->GetPositionX(), pTarget->GetPositionY(), pTarget->GetPositionZ(), m_creature->GetOrientation(), 0, 0, 0, 0, 30);
@@ -172,11 +172,11 @@ struct TRINITY_DLL_DECL boss_najentusAI : public ScriptedAI
                 }
                 case EVENT_NEEDLE:
                 {
-                    //m_creature->CastSpell(m_creature, SPELL_NEEDLE_SPINE, true);
+                    //DoCast(m_creature, SPELL_NEEDLE_SPINE, true);
                     std::list<Unit*> pTargets;
                     SelectTargetList(pTargets, 3, SELECT_TARGET_RANDOM, 80, true);
                     for (std::list<Unit*>::iterator i = pTargets.begin(); i != pTargets.end(); ++i)
-                        m_creature->CastSpell(*i, 39835, true);
+                        DoCast(*i, 39835, true);
                     events.ScheduleEvent(EVENT_NEEDLE, urand(15000,25000), GCD_CAST);
                     events.DelayEvents(1500, GCD_CAST);
                     return;

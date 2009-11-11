@@ -152,13 +152,13 @@ struct TRINITY_DLL_DECL boss_thekalAI : public ScriptedAI
 
             if (!PhaseTwo && MortalCleave_Timer <= diff)
             {
-                DoCast(m_creature->getVictim(),SPELL_MORTALCLEAVE);
+                DoCast(m_creature->getVictim(), SPELL_MORTALCLEAVE);
                 MortalCleave_Timer = 15000 + rand()%5000;
             } else MortalCleave_Timer -= diff;
 
             if (!PhaseTwo && Silence_Timer <= diff)
             {
-                DoCast(m_creature->getVictim(),SPELL_SILENCE);
+                DoCast(m_creature->getVictim(), SPELL_SILENCE);
                 Silence_Timer = 20000 + rand()%5000;
             } else Silence_Timer -= diff;
 
@@ -179,7 +179,7 @@ struct TRINITY_DLL_DECL boss_thekalAI : public ScriptedAI
             {
                 if (Resurrect_Timer <= diff)
                 {
-                    DoCast(m_creature,SPELL_TIGER_FORM);
+                    DoCast(m_creature, SPELL_TIGER_FORM);
                     m_creature->SetFloatValue(OBJECT_FIELD_SCALE_X, 2.00f);
                     m_creature->SetStandState(UNIT_STAND_STATE_STAND);
                     m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
@@ -204,7 +204,7 @@ struct TRINITY_DLL_DECL boss_thekalAI : public ScriptedAI
                 {
                     if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM,0))
                     {
-                        DoCast(pTarget,SPELL_CHARGE);
+                        DoCast(pTarget, SPELL_CHARGE);
                         DoResetThreat();
                         AttackStart(pTarget);
                     }
@@ -214,19 +214,19 @@ struct TRINITY_DLL_DECL boss_thekalAI : public ScriptedAI
 
                 if (Frenzy_Timer <= diff)
                 {
-                    DoCast(m_creature,SPELL_FRENZY);
+                    DoCast(m_creature, SPELL_FRENZY);
                     Frenzy_Timer = 30000;
                 } else Frenzy_Timer -= diff;
 
                 if (ForcePunch_Timer <= diff)
                 {
-                    DoCast(m_creature->getVictim(),SPELL_SILENCE);
+                    DoCast(m_creature->getVictim(), SPELL_SILENCE);
                     ForcePunch_Timer = 16000 + rand()%5000;
                 } else ForcePunch_Timer -= diff;
 
                 if (SummonTigers_Timer <= diff)
                 {
-                    DoCast(m_creature->getVictim(),SPELL_SUMMONTIGERS);
+                    DoCast(m_creature->getVictim(), SPELL_SUMMONTIGERS);
                     SummonTigers_Timer = 10000 + rand()%4000;
                 } else SummonTigers_Timer -= diff;
 
@@ -289,14 +289,14 @@ struct TRINITY_DLL_DECL mob_zealot_lorkhanAI : public ScriptedAI
         //Shield_Timer
         if (Shield_Timer <= diff)
         {
-            DoCast(m_creature,SPELL_SHIELD);
+            DoCast(m_creature, SPELL_SHIELD);
             Shield_Timer = 61000;
         } else Shield_Timer -= diff;
 
         //BloodLust_Timer
         if (BloodLust_Timer <= diff)
         {
-            DoCast(m_creature,SPELL_BLOODLUST);
+            DoCast(m_creature, SPELL_BLOODLUST);
             BloodLust_Timer = 20000+rand()%8000;
         } else BloodLust_Timer -= diff;
 
@@ -330,7 +330,7 @@ struct TRINITY_DLL_DECL mob_zealot_lorkhanAI : public ScriptedAI
         //Disarm_Timer
         if (Disarm_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(),SPELL_DISARM);
+            DoCast(m_creature->getVictim(), SPELL_DISARM);
             Disarm_Timer = 15000+rand()%10000;
         } else Disarm_Timer -= diff;
 
@@ -433,21 +433,21 @@ struct TRINITY_DLL_DECL mob_zealot_zathAI : public ScriptedAI
         //SweepingStrikes_Timer
         if (SweepingStrikes_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(),SPELL_SWEEPINGSTRIKES);
+            DoCast(m_creature->getVictim(), SPELL_SWEEPINGSTRIKES);
             SweepingStrikes_Timer = 22000+rand()%4000;
         } else SweepingStrikes_Timer -= diff;
 
         //SinisterStrike_Timer
         if (SinisterStrike_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(),SPELL_SINISTERSTRIKE);
+            DoCast(m_creature->getVictim(), SPELL_SINISTERSTRIKE);
             SinisterStrike_Timer = 8000+rand()%8000;
         } else SinisterStrike_Timer -= diff;
 
         //Gouge_Timer
         if (Gouge_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(),SPELL_GOUGE);
+            DoCast(m_creature->getVictim(), SPELL_GOUGE);
 
             if (DoGetThreat(m_creature->getVictim()))
                 DoModifyThreatPercent(m_creature->getVictim(),-100);
@@ -458,14 +458,14 @@ struct TRINITY_DLL_DECL mob_zealot_zathAI : public ScriptedAI
         //Kick_Timer
         if (Kick_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(),SPELL_KICK);
+            DoCast(m_creature->getVictim(), SPELL_KICK);
             Kick_Timer = 15000+rand()%10000;
         } else Kick_Timer -= diff;
 
         //Blind_Timer
         if (Blind_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(),SPELL_BLIND);
+            DoCast(m_creature->getVictim(), SPELL_BLIND);
             Blind_Timer = 10000+rand()%10000;
         } else Blind_Timer -= diff;
 

@@ -386,7 +386,7 @@ struct TRINITY_DLL_DECL boss_malchezaarAI : public ScriptedAI
                 DoScriptText(SAY_AXE_TOSS1, m_creature);
 
                 //passive thrash aura
-                m_creature->CastSpell(m_creature, SPELL_THRASH_AURA, true);
+                DoCast(m_creature, SPELL_THRASH_AURA, true);
 
                 //models
                 SetEquipmentSlots(false, EQUIP_ID_AXE, EQUIP_ID_AXE, EQUIP_NO_CHANGE);

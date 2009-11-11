@@ -107,14 +107,14 @@ struct TRINITY_DLL_DECL boss_hakkarAI : public ScriptedAI
         //BloodSiphon_Timer
         if (BloodSiphon_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(),SPELL_BLOODSIPHON);
+            DoCast(m_creature->getVictim(), SPELL_BLOODSIPHON);
             BloodSiphon_Timer = 90000;
         } else BloodSiphon_Timer -= diff;
 
         //CorruptedBlood_Timer
         if (CorruptedBlood_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(),SPELL_CORRUPTEDBLOOD);
+            DoCast(m_creature->getVictim(), SPELL_CORRUPTEDBLOOD);
             CorruptedBlood_Timer = 30000 + rand()%15000;
         } else CorruptedBlood_Timer -= diff;
 
@@ -122,7 +122,7 @@ struct TRINITY_DLL_DECL boss_hakkarAI : public ScriptedAI
         /*if (CauseInsanity_Timer <= diff)
         {
         if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM,0))
-        DoCast(pTarget,SPELL_CAUSEINSANITY);
+        DoCast(pTarget, SPELL_CAUSEINSANITY);
 
         CauseInsanity_Timer = 35000 + rand()%8000;
         } else CauseInsanity_Timer -= diff;*/
@@ -131,7 +131,7 @@ struct TRINITY_DLL_DECL boss_hakkarAI : public ScriptedAI
         if (WillOfHakkar_Timer <= diff)
         {
             if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM,0))
-                DoCast(pTarget,SPELL_WILLOFHAKKAR);
+                DoCast(pTarget, SPELL_WILLOFHAKKAR);
 
             WillOfHakkar_Timer = 25000 + rand()%10000;
         } else WillOfHakkar_Timer -= diff;
@@ -151,7 +151,7 @@ struct TRINITY_DLL_DECL boss_hakkarAI : public ScriptedAI
                 {
                     if (AspectOfJeklik_Timer <= diff)
                     {
-                        DoCast(m_creature->getVictim(),SPELL_ASPECT_OF_JEKLIK);
+                        DoCast(m_creature->getVictim(), SPELL_ASPECT_OF_JEKLIK);
                         AspectOfJeklik_Timer = 10000 + rand()%4000;
                     } else AspectOfJeklik_Timer -= diff;
                 }
@@ -168,7 +168,7 @@ struct TRINITY_DLL_DECL boss_hakkarAI : public ScriptedAI
                 {
                     if (AspectOfVenoxis_Timer <= diff)
                     {
-                        DoCast(m_creature->getVictim(),SPELL_ASPECT_OF_VENOXIS);
+                        DoCast(m_creature->getVictim(), SPELL_ASPECT_OF_VENOXIS);
                         AspectOfVenoxis_Timer = 8000;
                     } else AspectOfVenoxis_Timer -= diff;
                 }
@@ -185,7 +185,7 @@ struct TRINITY_DLL_DECL boss_hakkarAI : public ScriptedAI
                 {
                     if (AspectOfMarli_Timer <= diff)
                     {
-                        DoCast(m_creature->getVictim(),SPELL_ASPECT_OF_MARLI);
+                        DoCast(m_creature->getVictim(), SPELL_ASPECT_OF_MARLI);
                         AspectOfMarli_Timer = 10000;
                     } else AspectOfMarli_Timer -= diff;
 
@@ -203,7 +203,7 @@ struct TRINITY_DLL_DECL boss_hakkarAI : public ScriptedAI
                 {
                     if (AspectOfThekal_Timer <= diff)
                     {
-                        DoCast(m_creature,SPELL_ASPECT_OF_THEKAL);
+                        DoCast(m_creature, SPELL_ASPECT_OF_THEKAL);
                         AspectOfThekal_Timer = 15000;
                     } else AspectOfThekal_Timer -= diff;
                 }
@@ -220,7 +220,7 @@ struct TRINITY_DLL_DECL boss_hakkarAI : public ScriptedAI
                 {
                     if (AspectOfArlokk_Timer <= diff)
                     {
-                        DoCast(m_creature,SPELL_ASPECT_OF_ARLOKK);
+                        DoCast(m_creature, SPELL_ASPECT_OF_ARLOKK);
                         DoResetThreat();
 
                         AspectOfArlokk_Timer = 10000 + rand()%5000;

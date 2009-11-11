@@ -91,7 +91,7 @@ struct TRINITY_DLL_DECL boss_drakkari_colossusAI : public ScriptedAI
     {
         m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
         m_creature->addUnitState(UNIT_STAT_STUNNED);
-        m_creature->CastSpell(m_creature,SPELL_EMERGE,false);
+        DoCast(m_creature, SPELL_EMERGE, false);
     }
 
     void UpdateAI(const uint32 diff)
@@ -103,7 +103,7 @@ struct TRINITY_DLL_DECL boss_drakkari_colossusAI : public ScriptedAI
         if (Summoned == false && m_creature->GetHealth()*100 / m_creature->GetMaxHealth() <= 50 && m_creature->GetHealth()*100 / m_creature->GetMaxHealth() > 6)
         {
             PrepareToSummonElemental();
-            m_creature->CastSpell(m_creature->getVictim(), SPELL_EMERGE_2, true);
+            DoCast(m_creature->getVictim(), SPELL_EMERGE_2, true);
             Summoned = true;
         }
 
@@ -121,7 +121,7 @@ struct TRINITY_DLL_DECL boss_drakkari_colossusAI : public ScriptedAI
         {
             if (!m_creature->hasUnitState(UNIT_STAT_STUNNED))
             {
-                m_creature->CastSpell(m_creature->getVictim(),SPELL_MIGHTY_BLOW,true);
+                DoCast(m_creature->getVictim(), SPELL_MIGHTY_BLOW, true);
             }
 
             MightyBlowTimer = 10000;
@@ -179,7 +179,7 @@ struct TRINITY_DLL_DECL boss_drakkari_elementalAI : public ScriptedAI
         if(GoToColossus == false && m_creature->GetHealth()*100 / m_creature->GetMaxHealth() <= 50)
         {
             m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-            m_creature->CastSpell(Colossus ,SPELL_MERGE,true);
+            DoCast(Colossus, SPELL_MERGE, true);
 
             GoToColossus = true;
             PreparationDone = true;
@@ -189,7 +189,7 @@ struct TRINITY_DLL_DECL boss_drakkari_elementalAI : public ScriptedAI
         {
             m_creature->addUnitState(UNIT_STAT_STUNNED);
             m_creature->SetVisibility(VISIBILITY_OFF);
-            m_creature->CastSpell(Colossus ,SPELL_MERGE,true);
+            DoCast(Colossus, SPELL_MERGE, true);
 
             PreparationDone = false;
 
@@ -202,7 +202,7 @@ struct TRINITY_DLL_DECL boss_drakkari_elementalAI : public ScriptedAI
             if(m_creature->GetVisibility() == VISIBILITY_ON)
             {
                 Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0);
-                m_creature->CastSpell(pTarget,SPELL_SURGE,false);
+                DoCast(pTarget, SPELL_SURGE, false);
             }
 
             SurgeTimer = 7000;

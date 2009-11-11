@@ -485,12 +485,12 @@ struct mob_giant_infernalAI : public hyjal_trashAI
             return;
         if (!imol)
         {
-            DoCast(m_creature,SPELL_IMMOLATION);
+            DoCast(m_creature, SPELL_IMMOLATION);
             imol=true;
         }
         if (FlameBuffetTimer<= diff)
         {
-            DoCast(m_creature->getVictim(),SPELL_FLAME_BUFFET,true);
+            DoCast(m_creature->getVictim(), SPELL_FLAME_BUFFET, true);
             FlameBuffetTimer = 7000;
         } else FlameBuffetTimer -= diff;
         DoMeleeAttackIfReady();
@@ -580,12 +580,12 @@ struct mob_abominationAI : public hyjal_trashAI
             }
         }
         if (!m_creature->HasAura(SPELL_DISEASE_CLOUD))
-            DoCast(m_creature,SPELL_DISEASE_CLOUD);
+            DoCast(m_creature, SPELL_DISEASE_CLOUD);
         if (!UpdateVictim())
             return;
         if (KnockDownTimer<= diff)
         {
-            DoCast(m_creature->getVictim(),SPELL_KNOCKDOWN);
+            DoCast(m_creature->getVictim(), SPELL_KNOCKDOWN);
             KnockDownTimer = 15000+rand()%10000;
         } else KnockDownTimer -= diff;
         DoMeleeAttackIfReady();
@@ -681,7 +681,7 @@ struct mob_ghoulAI : public hyjal_trashAI
         }
         if (FrenzyTimer<= diff)
         {
-            DoCast(m_creature,SPELL_FRENZY);
+            DoCast(m_creature, SPELL_FRENZY);
             FrenzyTimer = 15000+rand()%15000;
         } else FrenzyTimer -= diff;
         if (!UpdateVictim())
@@ -798,7 +798,7 @@ struct mob_necromancerAI : public hyjal_trashAI
             return;
         if (ShadowBoltTimer<= diff)
         {
-            DoCast(m_creature->getVictim(),SPELL_SHADOW_BOLT);
+            DoCast(m_creature->getVictim(), SPELL_SHADOW_BOLT);
             ShadowBoltTimer = 20000+rand()%10000;
         } else ShadowBoltTimer -= diff;
 
@@ -889,17 +889,17 @@ struct mob_bansheeAI : public hyjal_trashAI
             return;
         if (CourseTimer<= diff)
         {
-            DoCast(m_creature->getVictim(),SPELL_BANSHEE_CURSE);
+            DoCast(m_creature->getVictim(), SPELL_BANSHEE_CURSE);
             CourseTimer = 20000+rand()%5000;
         } else CourseTimer -= diff;
         if (WailTimer<= diff)
         {
-            DoCast(m_creature->getVictim(),SPELL_BANSHEE_WAIL);
+            DoCast(m_creature->getVictim(), SPELL_BANSHEE_WAIL);
             WailTimer = 15000+rand()%5000;
         } else WailTimer -= diff;
         if (ShellTimer<= diff)
         {
-            DoCast(m_creature,SPELL_ANTI_MAGIC_SHELL);
+            DoCast(m_creature, SPELL_ANTI_MAGIC_SHELL);
             ShellTimer = 50000+rand()%10000;
         } else ShellTimer -= diff;
         DoMeleeAttackIfReady();
@@ -984,7 +984,7 @@ struct mob_crypt_fiendAI : public hyjal_trashAI
             return;
         if (WebTimer<= diff)
         {
-            DoCast(m_creature->getVictim(),SPELL_WEB);
+            DoCast(m_creature->getVictim(), SPELL_WEB);
             WebTimer = 20000+rand()%5000;
         } else WebTimer -= diff;
         DoMeleeAttackIfReady();
@@ -1069,7 +1069,7 @@ struct mob_fel_stalkerAI : public hyjal_trashAI
             return;
         if (ManaBurnTimer<= diff)
         {
-            DoCast(m_creature->getVictim(),SPELL_MANA_BURN);
+            DoCast(m_creature->getVictim(), SPELL_MANA_BURN);
             ManaBurnTimer = 9000+rand()%5000;
         } else ManaBurnTimer -= diff;
         DoMeleeAttackIfReady();
@@ -1114,7 +1114,7 @@ struct mob_frost_wyrmAI : public hyjal_trashAI
             if (pTarget && pTarget->isAlive())
             {
                 m_creature->AddThreat(pTarget,0.0);
-                DoCast(pTarget,SPELL_FROST_BREATH,true);
+                DoCast(pTarget, SPELL_FROST_BREATH, true);
             }
         }
     }
@@ -1177,7 +1177,7 @@ struct mob_frost_wyrmAI : public hyjal_trashAI
         {
             if (!m_creature->IsWithinDist(m_creature->getVictim(), 25))
             {
-                DoCast(m_creature->getVictim(),SPELL_FROST_BREATH);
+                DoCast(m_creature->getVictim(), SPELL_FROST_BREATH);
                 m_creature->StopMoving();
                 m_creature->GetMotionMaster()->Clear();
                 FrostBreathTimer = 4000;
@@ -1229,7 +1229,7 @@ struct mob_gargoyleAI : public hyjal_trashAI
             if (pTarget && pTarget->isAlive())
             {
                 m_creature->AddThreat(pTarget,0.0);
-                DoCast(pTarget,SPELL_GARGOYLE_STRIKE,true);
+                DoCast(pTarget, SPELL_GARGOYLE_STRIKE, true);
             }
         }
     }
@@ -1310,7 +1310,7 @@ struct mob_gargoyleAI : public hyjal_trashAI
         {
             if (m_creature->IsWithinDist(m_creature->getVictim(), 20))
             {
-                DoCast(m_creature->getVictim(),SPELL_GARGOYLE_STRIKE);
+                DoCast(m_creature->getVictim(), SPELL_GARGOYLE_STRIKE);
                 m_creature->StopMoving();
                 m_creature->GetMotionMaster()->Clear();
                 StrikeTimer = 2000+rand()%1000;

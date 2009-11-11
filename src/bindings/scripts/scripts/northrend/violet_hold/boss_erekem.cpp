@@ -115,7 +115,7 @@ struct TRINITY_DLL_DECL boss_erekemAI : public ScriptedAI
         {
             if (Creature *pTarget = GetChainHealTarget())
             {
-                DoCast(pTarget, HEROIC(SPELL_CHAIN_HEAL,H_SPELL_CHAIN_HEAL));
+                DoCast(pTarget, HEROIC(SPELL_CHAIN_HEAL, H_SPELL_CHAIN_HEAL));
                 //If one of the adds is dead spawn heals faster
                 uiChainHealTimer = ((pGuard1 && !pGuard1->isAlive()) || (pGuard2 && !pGuard2->isAlive()) ? 3000 : 8000) + rand()%3000;
             }
@@ -123,7 +123,7 @@ struct TRINITY_DLL_DECL boss_erekemAI : public ScriptedAI
 
         if (uiBloodlustTimer <= diff)
         {
-            DoCast(m_creature,SPELL_BLOODLUST);
+            DoCast(m_creature, SPELL_BLOODLUST);
             uiBloodlustTimer = urand(35000,45000);
         } else uiBloodlustTimer -= diff;
 
@@ -135,7 +135,7 @@ struct TRINITY_DLL_DECL boss_erekemAI : public ScriptedAI
 
         if (uiLightningBoltTimer <= diff)
         {
-            if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM,0,100,true))
+            if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                 DoCast(pTarget, SPELL_LIGHTNING_BOLT);
             uiLightningBoltTimer = urand(18000,24000);
         } else uiLightningBoltTimer -= diff;

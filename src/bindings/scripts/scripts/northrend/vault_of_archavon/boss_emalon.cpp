@@ -239,7 +239,7 @@ struct TRINITY_DLL_DECL mob_tempest_minionAI : public ScriptedAI
             {
                 if(OverchargedAura->GetStackAmount() == 10)
                 {
-                    DoCast(me,SPELL_OVERCHARGED_BLAST);
+                    DoCast(me, SPELL_OVERCHARGED_BLAST);
                     m_creature->ForcedDespawn();
                     DoScriptText(EMOTE_MINION_RESPAWN, m_creature);
                 }

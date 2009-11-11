@@ -103,14 +103,14 @@ struct TRINITY_DLL_DECL boss_the_makerAI : public ScriptedAI
 
         if (AcidSpray_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(),SPELL_ACID_SPRAY);
+            DoCast(m_creature->getVictim(), SPELL_ACID_SPRAY);
             AcidSpray_Timer = 15000+rand()%8000;
         } else AcidSpray_Timer -=diff;
 
         if (ExplodingBreaker_Timer <= diff)
         {
             if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM,0))
-                DoCast(pTarget,SPELL_EXPLODING_BREAKER);
+                DoCast(pTarget, SPELL_EXPLODING_BREAKER);
             ExplodingBreaker_Timer = 4000+rand()%8000;
         } else ExplodingBreaker_Timer -=diff;
 
@@ -120,7 +120,7 @@ struct TRINITY_DLL_DECL boss_the_makerAI : public ScriptedAI
         Unit *pTarget;
         pTarget = SelectUnit(SELECT_TARGET_RANDOM,0);
 
-        DoCast(pTarget,SPELL_DOMINATION);
+        DoCast(pTarget, SPELL_DOMINATION);
 
         domination_timer = 120000;
         } else domination_timer -=diff;
@@ -128,7 +128,7 @@ struct TRINITY_DLL_DECL boss_the_makerAI : public ScriptedAI
 
         if (Knockdown_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(),SPELL_KNOCKDOWN);
+            DoCast(m_creature->getVictim(), SPELL_KNOCKDOWN);
             Knockdown_Timer = 4000+rand()%8000;
         } else Knockdown_Timer -=diff;
 

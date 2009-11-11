@@ -136,7 +136,7 @@ struct TRINITY_DLL_DECL boss_skadiAI : public ScriptedAI
                             Phase = SKADI;
                             m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                             m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                            if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM,0,100,true))
+                            if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                                 AttackStart(pTarget);
                             break;
                     }
@@ -155,14 +155,14 @@ struct TRINITY_DLL_DECL boss_skadiAI : public ScriptedAI
 
                 if (uiPoisonedSpearTimer <= diff)
                 {
-                    if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM,0,100,true))
+                    if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                         DoCast(pTarget, HEROIC(SPELL_POISONED_SPEAR, H_SPELL_POISONED_SPEAR));
                     uiPoisonedSpearTimer = 10000;
                 } else uiPoisonedSpearTimer -= diff;
 
                 if (uiWhirlwindTimer <= diff)
                 {
-                    if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM,0,100,true))
+                    if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                         m_creature->CastSpell(pTarget, HEROIC(SPELL_WHIRLWIND, H_SPELL_WHIRLWIND), false);
                 } else uiWhirlwindTimer = 20000;
 

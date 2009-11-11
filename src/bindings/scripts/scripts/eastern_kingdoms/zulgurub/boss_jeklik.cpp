@@ -80,7 +80,7 @@ struct TRINITY_DLL_DECL boss_jeklikAI : public ScriptedAI
     void EnterCombat(Unit *who)
     {
         DoScriptText(SAY_AGGRO, m_creature);
-        DoCast(m_creature,SPELL_BAT_FORM);
+        DoCast(m_creature, SPELL_BAT_FORM);
     }
 
     void JustDied(Unit* Killer)
@@ -104,7 +104,7 @@ struct TRINITY_DLL_DECL boss_jeklikAI : public ScriptedAI
                 {
                     if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM,0))
                     {
-                        DoCast(pTarget,SPELL_CHARGE);
+                        DoCast(pTarget, SPELL_CHARGE);
                         AttackStart(pTarget);
                     }
 
@@ -113,13 +113,13 @@ struct TRINITY_DLL_DECL boss_jeklikAI : public ScriptedAI
 
                 if (SonicBurst_Timer <= diff)
                 {
-                    DoCast(m_creature->getVictim(),SPELL_SONICBURST);
+                    DoCast(m_creature->getVictim(), SPELL_SONICBURST);
                     SonicBurst_Timer = 8000 + rand()%5000;
                 } else SonicBurst_Timer -= diff;
 
                 if (Screech_Timer <= diff)
                 {
-                    DoCast(m_creature->getVictim(),SPELL_SCREECH);
+                    DoCast(m_creature->getVictim(), SPELL_SCREECH);
                     Screech_Timer = 18000 + rand()%8000;
                 } else Screech_Timer -= diff;
 
@@ -177,7 +177,7 @@ struct TRINITY_DLL_DECL boss_jeklikAI : public ScriptedAI
                     if (GreaterHeal_Timer <= diff)
                     {
                         m_creature->InterruptNonMeleeSpells(false);
-                        DoCast(m_creature,SPELL_GREATERHEAL);
+                        DoCast(m_creature, SPELL_GREATERHEAL);
                         GreaterHeal_Timer = 25000 + rand()%10000;
                     }GreaterHeal_Timer -=diff;
 

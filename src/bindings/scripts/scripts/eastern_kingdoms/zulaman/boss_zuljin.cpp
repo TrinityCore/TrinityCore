@@ -274,7 +274,7 @@ struct TRINITY_DLL_DECL boss_zuljinAI : public ScriptedAI
                     m_creature->AttackerStateUpdate(m_creature->getVictim());
                     if (m_creature->getVictim() && health == m_creature->getVictim()->GetHealth())
                     {
-                        m_creature->CastSpell(m_creature->getVictim(), SPELL_OVERPOWER, false);
+                        DoCast(m_creature->getVictim(), SPELL_OVERPOWER, false);
                         Overpower_Timer = 5000;
                     }
                 } else m_creature->AttackerStateUpdate(m_creature->getVictim());
@@ -353,7 +353,7 @@ struct TRINITY_DLL_DECL boss_zuljinAI : public ScriptedAI
             if (NextPhase == 2)
             {
                 m_creature->GetMotionMaster()->Clear();
-                m_creature->CastSpell(m_creature, SPELL_ENERGY_STORM, true); // enemy aura
+                DoCast(m_creature, SPELL_ENERGY_STORM, true); // enemy aura
                 for (uint8 i = 0; i < 4; ++i)
                 {
                     Creature* Vortex = DoSpawnCreature(CREATURE_FEATHER_VORTEX, 0, 0, 0, 0, TEMPSUMMON_CORPSE_DESPAWN, 0);
@@ -396,7 +396,7 @@ struct TRINITY_DLL_DECL boss_zuljinAI : public ScriptedAI
 
         if (Berserk_Timer <= diff)
         {
-            m_creature->CastSpell(m_creature, SPELL_BERSERK, true);
+            DoCast(m_creature, SPELL_BERSERK, true);
             m_creature->MonsterYell(YELL_BERSERK, LANG_UNIVERSAL, NULL);
             DoPlaySoundToSet(m_creature, SOUND_BERSERK);
             Berserk_Timer = 60000;
@@ -423,8 +423,8 @@ struct TRINITY_DLL_DECL boss_zuljinAI : public ScriptedAI
 
             if (Grievous_Throw_Timer <= diff)
             {
-                if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
-                    m_creature->CastSpell(pTarget, SPELL_GRIEVOUS_THROW, false);
+                if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                    DoCast(pTarget, SPELL_GRIEVOUS_THROW, false);
                 Grievous_Throw_Timer = 10000;
             } else Grievous_Throw_Timer -= diff;
             break;
@@ -473,7 +473,7 @@ struct TRINITY_DLL_DECL boss_zuljinAI : public ScriptedAI
                             AttackStart(pTarget);
                             if (m_creature->IsWithinMeleeRange(pTarget))
                             {
-                                m_creature->CastSpell(pTarget, SPELL_CLAW_RAGE_DAMAGE, true);
+                                DoCast(pTarget, SPELL_CLAW_RAGE_DAMAGE, true);
                                 ++Claw_Counter;
                                 if (Claw_Counter == 12)
                                 {
@@ -521,7 +521,7 @@ struct TRINITY_DLL_DECL boss_zuljinAI : public ScriptedAI
                     {
                         if (m_creature->IsWithinMeleeRange(pTarget))
                         {
-                            m_creature->CastSpell(pTarget, SPELL_LYNX_RUSH_DAMAGE, true);
+                            DoCast(pTarget, SPELL_LYNX_RUSH_DAMAGE, true);
                             ++Claw_Counter;
                             if (Claw_Counter == 9)
                             {
@@ -591,7 +591,7 @@ struct TRINITY_DLL_DECL feather_vortexAI : public ScriptedAI
     void SpellHit(Unit *caster, const SpellEntry *spell)
     {
         if (spell->Id == SPELL_ZAP_INFORM)
-            m_creature->CastSpell(caster, SPELL_ZAP_DAMAGE, true);
+            DoCast(caster, SPELL_ZAP_DAMAGE, true);
     }
 
     void UpdateAI(const uint32 diff)

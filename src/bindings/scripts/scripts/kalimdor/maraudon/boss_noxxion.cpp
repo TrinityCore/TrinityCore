@@ -80,14 +80,14 @@ struct TRINITY_DLL_DECL boss_noxxionAI : public ScriptedAI
         //ToxicVolley_Timer
         if (ToxicVolley_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(),SPELL_TOXICVOLLEY);
+            DoCast(m_creature->getVictim(), SPELL_TOXICVOLLEY);
             ToxicVolley_Timer = 9000;
         } else ToxicVolley_Timer -= diff;
 
         //Uppercut_Timer
         if (Uppercut_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(),SPELL_UPPERCUT);
+            DoCast(m_creature->getVictim(), SPELL_UPPERCUT);
             Uppercut_Timer = 12000;
         } else Uppercut_Timer -= diff;
 

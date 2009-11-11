@@ -101,7 +101,7 @@ struct MANGOS_DLL_DECL boss_amanitarAI : public ScriptedAI
         if (pInstance)
             pInstance->SetData(DATA_AMANITAR_EVENT, IN_PROGRESS);
 
-        m_creature->CastSpell(m_creature, SPELL_MINI, false);
+        DoCast(m_creature, SPELL_MINI, false);
     }
 
     void SpawnAdds()
@@ -187,7 +187,7 @@ struct MANGOS_DLL_DECL mob_amanitar_mushroomsAI : public Scripted_NoMovementAI
         if (m_creature->GetEntry() == NPC_HEALTHY_MUSHROOM && killer->GetTypeId() == TYPEID_PLAYER)
         {
             m_creature->InterruptNonMeleeSpells(false);
-            m_creature->CastSpell(killer, HEALTHY_MUSHROOM_SPELL_POTENT_FUNGUS, false);
+            DoCast(killer, HEALTHY_MUSHROOM_SPELL_POTENT_FUNGUS, false);
         }
     }
 

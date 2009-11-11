@@ -82,7 +82,7 @@ struct TRINITY_DLL_DECL boss_pandemoniusAI : public ScriptedAI
         {
             if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
             {
-                DoCast(pTarget,HEROIC(SPELL_VOID_BLAST, H_SPELL_VOID_BLAST));
+                DoCast(pTarget, HEROIC(SPELL_VOID_BLAST, H_SPELL_VOID_BLAST));
                 VoidBlast_Timer = 500;
                 ++VoidBlast_Counter;
             }
@@ -103,7 +103,7 @@ struct TRINITY_DLL_DECL boss_pandemoniusAI : public ScriptedAI
 
                 DoScriptText(EMOTE_DARK_SHELL, m_creature);
 
-                DoCast(m_creature,HEROIC(SPELL_DARK_SHELL, H_SPELL_DARK_SHELL));
+                DoCast(m_creature, HEROIC(SPELL_DARK_SHELL, H_SPELL_DARK_SHELL));
                 DarkShell_Timer = 20000;
             } else DarkShell_Timer -= diff;
         }

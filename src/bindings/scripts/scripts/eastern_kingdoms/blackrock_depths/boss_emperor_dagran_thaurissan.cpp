@@ -70,7 +70,7 @@ struct TRINITY_DLL_DECL boss_draganthaurissanAI : public ScriptedAI
         if (HandOfThaurissan_Timer <= diff)
         {
             if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM,0))
-                DoCast(pTarget,SPELL_HANDOFTHAURISSAN);
+                DoCast(pTarget, SPELL_HANDOFTHAURISSAN);
 
             //3 Hands of Thaurissan will be casted
             //if (Counter < 3)
@@ -88,7 +88,7 @@ struct TRINITY_DLL_DECL boss_draganthaurissanAI : public ScriptedAI
         //AvatarOfFlame_Timer
         if (AvatarOfFlame_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(),SPELL_AVATAROFFLAME);
+            DoCast(m_creature->getVictim(), SPELL_AVATAROFFLAME);
             AvatarOfFlame_Timer = 18000;
         } else AvatarOfFlame_Timer -= diff;
 

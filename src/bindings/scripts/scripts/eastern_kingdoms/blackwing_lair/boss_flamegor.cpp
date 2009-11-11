@@ -57,14 +57,14 @@ struct TRINITY_DLL_DECL boss_flamegorAI : public ScriptedAI
         //ShadowFlame_Timer
         if (ShadowFlame_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(),SPELL_SHADOWFLAME);
+            DoCast(m_creature->getVictim(), SPELL_SHADOWFLAME);
             ShadowFlame_Timer = 15000 + rand()%7000;
         } else ShadowFlame_Timer -= diff;
 
         //WingBuffet_Timer
         if (WingBuffet_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(),SPELL_WINGBUFFET);
+            DoCast(m_creature->getVictim(), SPELL_WINGBUFFET);
             if (DoGetThreat(m_creature->getVictim()))
                 DoModifyThreatPercent(m_creature->getVictim(),-75);
 
@@ -75,7 +75,7 @@ struct TRINITY_DLL_DECL boss_flamegorAI : public ScriptedAI
         if (Frenzy_Timer <= diff)
         {
             DoScriptText(EMOTE_FRENZY, m_creature);
-            DoCast(m_creature,SPELL_FRENZY);
+            DoCast(m_creature, SPELL_FRENZY);
             Frenzy_Timer = urand(8000, 10000);
         } else Frenzy_Timer -= diff;
 

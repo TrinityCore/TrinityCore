@@ -134,7 +134,7 @@ struct TRINITY_DLL_DECL example_escortAI : public npc_escortAI
             if (m_uiDeathCoilTimer <= uiDiff)
             {
                 DoScriptText(SAY_SPELL, m_creature);
-                m_creature->CastSpell(m_creature->getVictim(), SPELL_DEATH_COIL, false);
+                DoCast(m_creature->getVictim(), SPELL_DEATH_COIL, false);
                 m_uiDeathCoilTimer = 4000;
             }
             else
@@ -150,12 +150,12 @@ struct TRINITY_DLL_DECL example_escortAI : public npc_escortAI
                     if (m_creature->HasAura(SPELL_ELIXIR_OF_FORTITUDE, 0))
                     {
                         DoScriptText(SAY_RAND_1, m_creature);
-                        m_creature->CastSpell(m_creature, SPELL_BLUE_FIREWORK, false);
+                        DoCast(m_creature, SPELL_BLUE_FIREWORK, false);
                     }
                     else
                     {
                         DoScriptText(SAY_RAND_2, m_creature);
-                        m_creature->CastSpell(m_creature, SPELL_ELIXIR_OF_FORTITUDE, false);
+                        DoCast(m_creature, SPELL_ELIXIR_OF_FORTITUDE, false);
                     }
 
                     m_uiChatTimer = 12000;

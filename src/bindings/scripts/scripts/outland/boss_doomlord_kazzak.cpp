@@ -84,7 +84,7 @@ struct TRINITY_DLL_DECL boss_doomlordkazzakAI : public ScriptedAI
          if (victim->GetTypeId() != TYPEID_PLAYER)
              return;
 
-            DoCast(m_creature,SPELL_CAPTURESOUL);
+            DoCast(m_creature, SPELL_CAPTURESOUL);
 
             DoScriptText(RAND(SAY_KILL1,SAY_KILL2,SAY_KILL3), m_creature);
     }
@@ -110,21 +110,21 @@ struct TRINITY_DLL_DECL boss_doomlordkazzakAI : public ScriptedAI
         //Cleave_Timer
         if (Cleave_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(),SPELL_CLEAVE);
+            DoCast(m_creature->getVictim(), SPELL_CLEAVE);
             Cleave_Timer = 8000 + rand()%4000;
         } else Cleave_Timer -= diff;
 
         //ThunderClap_Timer
         if (ThunderClap_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(),SPELL_THUNDERCLAP);
+            DoCast(m_creature->getVictim(), SPELL_THUNDERCLAP);
             ThunderClap_Timer = 10000 + rand()%4000;
         } else ThunderClap_Timer -= diff;
 
         //VoidBolt_Timer
         if (VoidBolt_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(),SPELL_VOIDBOLT);
+            DoCast(m_creature->getVictim(), SPELL_VOIDBOLT);
             VoidBolt_Timer = 15000 + rand()%3000;
         } else VoidBolt_Timer -= diff;
 
@@ -143,7 +143,7 @@ struct TRINITY_DLL_DECL boss_doomlordkazzakAI : public ScriptedAI
         if (Enrage_Timer <= diff)
         {
             DoScriptText(EMOTE_FRENZY, m_creature);
-            DoCast(m_creature,SPELL_ENRAGE);
+            DoCast(m_creature, SPELL_ENRAGE);
             Enrage_Timer = 30000;
         } else Enrage_Timer -= diff;
 

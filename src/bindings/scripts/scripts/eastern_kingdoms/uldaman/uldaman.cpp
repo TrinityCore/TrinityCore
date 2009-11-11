@@ -59,8 +59,8 @@ struct TRINITY_DLL_DECL mob_jadespine_basiliskAI : public ScriptedAI
         if (Cslumber_Timer <= diff)
         {
             //Cast
-            // DoCast(m_creature->getVictim(),SPELL_CSLUMBER);
-            m_creature->CastSpell(m_creature->getVictim(),SPELL_CSLUMBER, true);
+            // DoCast(m_creature->getVictim(), SPELL_CSLUMBER);
+            DoCast(m_creature->getVictim(), SPELL_CSLUMBER, true);
 
             //Stop attacking target thast asleep and pick new target
             Cslumber_Timer = 28000;
@@ -68,7 +68,7 @@ struct TRINITY_DLL_DECL mob_jadespine_basiliskAI : public ScriptedAI
             Unit* Target = SelectUnit(SELECT_TARGET_TOPAGGRO, 0);
 
             if (!Target || Target == m_creature->getVictim())
-                Target = SelectUnit(SELECT_TARGET_RANDOM, 0);
+                Target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true);
 
             if (Target)
                 m_creature->TauntApply(Target);

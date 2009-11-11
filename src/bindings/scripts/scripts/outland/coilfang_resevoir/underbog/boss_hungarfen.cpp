@@ -58,7 +58,7 @@ struct TRINITY_DLL_DECL boss_hungarfenAI : public ScriptedAI
         {
             if (!Root)
             {
-                DoCast(m_creature,SPELL_FOUL_SPORES);
+                DoCast(m_creature, SPELL_FOUL_SPORES);
                 Root = true;
             }
         }
@@ -76,7 +76,7 @@ struct TRINITY_DLL_DECL boss_hungarfenAI : public ScriptedAI
         if (AcidGeyser_Timer <= diff)
         {
             if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM,0))
-                DoCast(pTarget,SPELL_ACID_GEYSER);
+                DoCast(pTarget, SPELL_ACID_GEYSER);
             AcidGeyser_Timer = 10000+rand()%7500;
         } else AcidGeyser_Timer -= diff;
 
@@ -106,8 +106,8 @@ struct TRINITY_DLL_DECL mob_underbog_mushroomAI : public ScriptedAI
         Grow_Timer = 0;
         Shrink_Timer = 20000;
 
-        DoCast(m_creature,SPELL_PUTRID_MUSHROOM,true);
-        DoCast(m_creature,SPELL_SPORE_CLOUD,true);
+        DoCast(m_creature, SPELL_PUTRID_MUSHROOM, true);
+        DoCast(m_creature, SPELL_SPORE_CLOUD, true);
     }
 
     void MoveInLineOfSight(Unit *who) { return; }
@@ -123,7 +123,7 @@ struct TRINITY_DLL_DECL mob_underbog_mushroomAI : public ScriptedAI
 
         if (Grow_Timer <= diff)
         {
-            DoCast(m_creature,SPELL_GROW);
+            DoCast(m_creature, SPELL_GROW);
             Grow_Timer = 3000;
         } else Grow_Timer -= diff;
 

@@ -159,11 +159,11 @@ struct TRINITY_DLL_DECL boss_mandokirAI : public ScriptedAI
                     {
                         if (m_creature->IsWithinMeleeRange(pUnit))
                         {
-                            DoCast(pUnit,24316);
+                            DoCast(pUnit, 24316);
                         }
                         else
                         {
-                            DoCast(pUnit,SPELL_CHARGE);
+                            DoCast(pUnit, SPELL_CHARGE);
                             //m_creature->SendMonsterMove(pUnit->GetPositionX(), pUnit->GetPositionY(), pUnit->GetPositionZ(), 0, true,1);
                             AttackStart(pUnit);
                         }
@@ -202,14 +202,14 @@ struct TRINITY_DLL_DECL boss_mandokirAI : public ScriptedAI
                 //Cleave
                 if (Cleave_Timer <= diff)
                 {
-                    DoCast(m_creature->getVictim(),SPELL_CLEAVE);
+                    DoCast(m_creature->getVictim(), SPELL_CLEAVE);
                     Cleave_Timer = 7000;
                 } else Cleave_Timer -= diff;
 
                 //Whirlwind
                 if (Whirlwind_Timer <= diff)
                 {
-                    DoCast(m_creature,SPELL_WHIRLWIND);
+                    DoCast(m_creature, SPELL_WHIRLWIND);
                     Whirlwind_Timer = 18000;
                 } else Whirlwind_Timer -= diff;
 
@@ -227,7 +227,7 @@ struct TRINITY_DLL_DECL boss_mandokirAI : public ScriptedAI
                     }
 
                     if (TargetInRange > 3)
-                        DoCast(m_creature->getVictim(),SPELL_FEAR);
+                        DoCast(m_creature->getVictim(), SPELL_FEAR);
 
                     Fear_Timer = 4000;
                 } else Fear_Timer -=diff;
@@ -237,7 +237,7 @@ struct TRINITY_DLL_DECL boss_mandokirAI : public ScriptedAI
                 {
                     if (MortalStrike_Timer <= diff)
                     {
-                        DoCast(m_creature->getVictim(),SPELL_MORTAL_STRIKE);
+                        DoCast(m_creature->getVictim(), SPELL_MORTAL_STRIKE);
                         MortalStrike_Timer = 15000;
                     } else MortalStrike_Timer -= diff;
                 }

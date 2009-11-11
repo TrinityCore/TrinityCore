@@ -294,10 +294,10 @@ struct TRINITY_DLL_DECL boss_victor_nefariusAI : public ScriptedAI
                     m_creature->InterruptNonMeleeSpells(false);
 
                     //Root self
-                    DoCast(m_creature,33356);
+                    DoCast(m_creature, 33356);
 
                     //Make super invis
-                    DoCast(m_creature,8149);
+                    DoCast(m_creature, 8149);
 
                     //Teleport self to a hiding spot (this causes errors in the Trinity log but no real issues)
                     DoTeleportTo(HIDE_X,HIDE_Y,HIDE_Z);

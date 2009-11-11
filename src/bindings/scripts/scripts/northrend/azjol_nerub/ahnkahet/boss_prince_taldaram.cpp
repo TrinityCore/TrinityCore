@@ -183,7 +183,7 @@ struct TRINITY_DLL_DECL boss_taldaramAI : public ScriptedAI
                 break;
                 case VANISHED:
                     if(pEmbraceTarget)
-                        DoCast(pEmbraceTarget,HEROIC(SPELL_EMBRACE_OF_THE_VAMPYR, H_SPELL_EMBRACE_OF_THE_VAMPYR));
+                        DoCast(pEmbraceTarget, HEROIC(SPELL_EMBRACE_OF_THE_VAMPYR, H_SPELL_EMBRACE_OF_THE_VAMPYR));
                         m_creature->GetMotionMaster()->Clear();
                         m_creature->SetSpeed(MOVE_WALK, 1.0f, true);
                         m_creature->GetMotionMaster()->MoveChase(m_creature->getVictim());
@@ -198,7 +198,7 @@ struct TRINITY_DLL_DECL boss_taldaramAI : public ScriptedAI
                 case NORMAL:
                     if (uiBloodthirstTimer <= diff)
                     {
-                        DoCast(m_creature->getVictim(),SPELL_BLOODTHIRST);
+                        DoCast(m_creature->getVictim(), SPELL_BLOODTHIRST);
                         uiBloodthirstTimer = 10000;
                     } else uiBloodthirstTimer -= diff;
 
@@ -228,7 +228,7 @@ struct TRINITY_DLL_DECL boss_taldaramAI : public ScriptedAI
                         if (target_list.size() > 2)
                         {
                             DoScriptText(RAND(SAY_VANISH_1,SAY_VANISH_2), m_creature);
-                            DoCast(m_creature,SPELL_VANISH);
+                            DoCast(m_creature, SPELL_VANISH);
                             Phase = JUST_VANISHED;
                             uiPhaseTimer = 500;
                             pEmbraceTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true);

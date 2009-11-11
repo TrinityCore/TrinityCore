@@ -105,7 +105,7 @@ struct TRINITY_DLL_DECL boss_doomwalkerAI : public ScriptedAI
         {
             if (Enrage_Timer <= diff)
             {
-                DoCast(m_creature,SPELL_ENRAGE);
+                DoCast(m_creature, SPELL_ENRAGE);
                 Enrage_Timer = 6000;
                 InEnrage = true;
             } else Enrage_Timer -= diff;
@@ -116,7 +116,7 @@ struct TRINITY_DLL_DECL boss_doomwalkerAI : public ScriptedAI
         {
             DoScriptText(RAND(SAY_OVERRUN_1,SAY_OVERRUN_2), m_creature);
 
-            DoCast(m_creature->getVictim(),SPELL_OVERRUN);
+            DoCast(m_creature->getVictim(), SPELL_OVERRUN);
             Overrun_Timer = 25000 + rand()%15000;
         } else Overrun_Timer -= diff;
 
@@ -132,7 +132,7 @@ struct TRINITY_DLL_DECL boss_doomwalkerAI : public ScriptedAI
             if (InEnrage)
                 m_creature->RemoveAura(SPELL_ENRAGE);
 
-            DoCast(m_creature,SPELL_EARTHQUAKE);
+            DoCast(m_creature, SPELL_EARTHQUAKE);
             Quake_Timer = 30000 + rand()%25000;
         } else Quake_Timer -= diff;
 
@@ -146,7 +146,7 @@ struct TRINITY_DLL_DECL boss_doomwalkerAI : public ScriptedAI
                 pTarget = m_creature->getVictim();
 
             if (pTarget)
-                DoCast(pTarget,SPELL_CHAIN_LIGHTNING);
+                DoCast(pTarget, SPELL_CHAIN_LIGHTNING);
 
             Chain_Timer = 7000 + rand()%20000;
         } else Chain_Timer -= diff;
@@ -154,7 +154,7 @@ struct TRINITY_DLL_DECL boss_doomwalkerAI : public ScriptedAI
         //Spell Sunder Armor
         if (Armor_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(),SPELL_SUNDER_ARMOR);
+            DoCast(m_creature->getVictim(), SPELL_SUNDER_ARMOR);
             Armor_Timer = 10000 + rand()%15000;
         } else Armor_Timer -= diff;
 

@@ -98,7 +98,7 @@ struct TRINITY_DLL_DECL boss_scarlet_commander_mograineAI : public ScriptedAI
     void EnterCombat(Unit* pWho)
     {
         DoScriptText(SAY_MO_AGGRO, m_creature);
-        DoCast(m_creature,SPELL_RETRIBUTIONAURA);
+        DoCast(m_creature, SPELL_RETRIBUTIONAURA);
 
         m_creature->CallForHelp(VISIBLE_RANGE);
     }
@@ -189,14 +189,14 @@ struct TRINITY_DLL_DECL boss_scarlet_commander_mograineAI : public ScriptedAI
         //m_uiCrusaderStrike_Timer
         if (m_uiCrusaderStrike_Timer <= uiDiff)
         {
-            DoCast(m_creature->getVictim(),SPELL_CRUSADERSTRIKE);
+            DoCast(m_creature->getVictim(), SPELL_CRUSADERSTRIKE);
             m_uiCrusaderStrike_Timer = 10000;
         } else m_uiCrusaderStrike_Timer -= uiDiff;
 
         //m_uiHammerOfJustice_Timer
         if (m_uiHammerOfJustice_Timer <= uiDiff)
         {
-            DoCast(m_creature->getVictim(),SPELL_HAMMEROFJUSTICE);
+            DoCast(m_creature->getVictim(), SPELL_HAMMEROFJUSTICE);
             m_uiHammerOfJustice_Timer = 60000;
         } else m_uiHammerOfJustice_Timer -= uiDiff;
 
@@ -317,14 +317,14 @@ struct TRINITY_DLL_DECL boss_high_inquisitor_whitemaneAI : public ScriptedAI
         //m_uiPowerWordShield_Timer
         if (m_uiPowerWordShield_Timer <= uiDiff)
         {
-            DoCast(m_creature,SPELL_POWERWORDSHIELD);
+            DoCast(m_creature, SPELL_POWERWORDSHIELD);
             m_uiPowerWordShield_Timer = 15000;
         } else m_uiPowerWordShield_Timer -= uiDiff;
 
         //m_uiHolySmite_Timer
         if (m_uiHolySmite_Timer <= uiDiff)
         {
-            DoCast(m_creature->getVictim(),SPELL_HOLYSMITE);
+            DoCast(m_creature->getVictim(), SPELL_HOLYSMITE);
             m_uiHolySmite_Timer = 6000;
         } else m_uiHolySmite_Timer -= uiDiff;
 

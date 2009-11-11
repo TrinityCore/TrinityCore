@@ -134,7 +134,7 @@ struct TRINITY_DLL_DECL boss_anub_arakAI : public ScriptedAI
 
         if (Channeling == true)
         {
-            for(int ind = 0 ; ind < 4; ind++) m_creature->CastSpell(m_creature->getVictim(),SPELL_SUMMON_CARRION_BEETLES,true);
+            for(int ind = 0 ; ind < 4; ind++) DoCast(m_creature->getVictim(), SPELL_SUMMON_CARRION_BEETLES, true);
             Channeling = false;
 
         }
@@ -226,7 +226,7 @@ struct TRINITY_DLL_DECL boss_anub_arakAI : public ScriptedAI
         {
             if (SPELL_LEECHING_SWARM_Timer <= diff)
             {
-                m_creature->CastSpell(m_creature,SPELL_LEECHING_SWARM,true);
+                DoCast(m_creature, SPELL_LEECHING_SWARM, true);
 
                 SPELL_LEECHING_SWARM_Timer = 19000;
             } else SPELL_LEECHING_SWARM_Timer -= diff;
@@ -234,14 +234,14 @@ struct TRINITY_DLL_DECL boss_anub_arakAI : public ScriptedAI
             if (SPELL_CARRION_BEETLES_Timer <= diff)
             {
                 Channeling = true;
-                m_creature->CastSpell(m_creature->getVictim(),SPELL_CARRION_BEETLES,false);
+                DoCast(m_creature->getVictim(), SPELL_CARRION_BEETLES, false);
 
                 SPELL_CARRION_BEETLES_Timer = 25000;
             } else SPELL_CARRION_BEETLES_Timer -= diff;
 
             if (SPELL_POUND_Timer <= diff)
             {
-                 DoCast(m_creature->getVictim(), HEROIC(SPELL_POUND,H_SPELL_POUND));
+                 DoCast(m_creature->getVictim(), HEROIC(SPELL_POUND, H_SPELL_POUND));
                  SPELL_POUND_Timer = 16500;
             } else SPELL_POUND_Timer -= diff;
 
@@ -261,7 +261,7 @@ struct TRINITY_DLL_DECL boss_anub_arakAI : public ScriptedAI
             VENOMANCER_Timer = 25000;
             DATTER_Timer = 32000;
 
-            m_creature->CastSpell(m_creature,SPELL_SUBMERGE,false);
+            DoCast(m_creature, SPELL_SUBMERGE, false);
 
             m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
             m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);

@@ -230,7 +230,7 @@ struct TRINITY_DLL_DECL mobs_spectral_ghostly_citizenAI : public ScriptedAI
                 break;
             case TEXTEMOTE_RUDE:
                 if (m_creature->IsWithinDistInMap(pPlayer, 5))
-                    m_creature->CastSpell(pPlayer,SPELL_SLAP,false);
+                    DoCast(pPlayer, SPELL_SLAP, false);
                 else
                     m_creature->HandleEmoteCommand(EMOTE_ONESHOT_RUDE);
                 break;

@@ -68,7 +68,7 @@ struct TRINITY_DLL_DECL boss_lordalexeibarovAI : public ScriptedAI
         {
             Unit *pTarget = NULL;
             pTarget = SelectUnit(SELECT_TARGET_RANDOM,0);
-            if (pTarget) DoCast(pTarget,SPELL_IMMOLATE);
+            if (pTarget) DoCast(pTarget, SPELL_IMMOLATE);
 
             Immolate_Timer = 12000;
         } else Immolate_Timer -= diff;
@@ -76,7 +76,7 @@ struct TRINITY_DLL_DECL boss_lordalexeibarovAI : public ScriptedAI
         //VeilofShadow_Timer
         if (VeilofShadow_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(),SPELL_VEILOFSHADOW);
+            DoCast(m_creature->getVictim(), SPELL_VEILOFSHADOW);
             VeilofShadow_Timer = 20000;
         } else VeilofShadow_Timer -= diff;
 

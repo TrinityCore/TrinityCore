@@ -111,13 +111,13 @@ struct TRINITY_DLL_DECL mob_aquementasAI : public ScriptedAI
 
         if (FrostShock_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(),SPELL_FROST_SHOCK);
+            DoCast(m_creature->getVictim(), SPELL_FROST_SHOCK);
             FrostShock_Timer = 15000;
         } else FrostShock_Timer -= diff;
 
         if (AquaJet_Timer <= diff)
         {
-            DoCast(m_creature,SPELL_AQUA_JET);
+            DoCast(m_creature, SPELL_AQUA_JET);
             AquaJet_Timer = 15000;
         } else AquaJet_Timer -= diff;
 

@@ -129,7 +129,7 @@ struct TRINITY_DLL_DECL boss_novosAI : public Scripted_NoMovementAI
         Phase = PHASE_1;
         uiCrystalHandlerTimer = 30000;
         uiTimer = 1000;
-        DoCast(m_creature,SPELL_ARCANE_FIELD);
+        DoCast(m_creature, SPELL_ARCANE_FIELD);
         if (pInstance)
         {
             for (std::list<uint64>::iterator itr = luiCrystals.begin(); itr != luiCrystals.end(); ++itr)
@@ -154,7 +154,7 @@ struct TRINITY_DLL_DECL boss_novosAI : public Scripted_NoMovementAI
                     Creature *pSummon = m_creature->SummonCreature(RAND(CREATURE_FETID_TROLL_CORPSE,CREATURE_HULKING_CORPSE,CREATURE_RISEN_SHADOWCASTER), AddSpawnPoint.x, AddSpawnPoint.y , AddSpawnPoint.z, 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN,20000);
                     pSummon->GetMotionMaster()->MovePoint(0, AddDestinyPoint.x, AddDestinyPoint.y, AddDestinyPoint.z);
                     //If spell is casted stops casting arcane field so no spell casting
-                    //DoCast(m_creature,SPELL_SUMMON_MINIONS);
+                    //DoCast(m_creature, SPELL_SUMMON_MINIONS);
                     uiTimer = 3000;
                 } else uiTimer -= diff;
                 if (uiCrystalHandlerTimer <= diff)

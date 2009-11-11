@@ -335,7 +335,7 @@ struct TRINITY_DLL_DECL boss_warbringer_omroggAI : public ScriptedAI
 
         if (BlastCount && BlastWave_Timer <= diff)
         {
-            DoCast(m_creature,SPELL_BLAST_WAVE);
+            DoCast(m_creature, SPELL_BLAST_WAVE);
             BlastWave_Timer = 5000;
             ++BlastCount;
 
@@ -346,7 +346,7 @@ struct TRINITY_DLL_DECL boss_warbringer_omroggAI : public ScriptedAI
         if (BurningMaul_Timer <= diff)
         {
             DoScriptText(EMOTE_ENRAGE, m_creature);
-            DoCast(m_creature,HEROIC(SPELL_BURNING_MAUL, H_SPELL_BURNING_MAUL));
+            DoCast(m_creature, HEROIC(SPELL_BURNING_MAUL, H_SPELL_BURNING_MAUL));
             BurningMaul_Timer = 40000;
             BlastWave_Timer = 16000;
             BlastCount = 1;
@@ -365,13 +365,13 @@ struct TRINITY_DLL_DECL boss_warbringer_omroggAI : public ScriptedAI
 
         if (Fear_Timer <= diff)
         {
-            DoCast(m_creature,SPELL_FEAR);
+            DoCast(m_creature, SPELL_FEAR);
             Fear_Timer = 15000+rand()%20000;
         } else Fear_Timer -= diff;
 
         if (ThunderClap_Timer <= diff)
         {
-            DoCast(m_creature,SPELL_THUNDERCLAP);
+            DoCast(m_creature, SPELL_THUNDERCLAP);
             ThunderClap_Timer = 15000+rand()%15000;
         } else ThunderClap_Timer -= diff;
 

@@ -130,7 +130,7 @@ struct TRINITY_DLL_DECL boss_baron_rivendareAI : public ScriptedAI
         if (ShadowBolt_Timer <= diff)
         {
             if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
-                DoCast(m_creature->getVictim(),SPELL_SHADOWBOLT);
+                DoCast(m_creature->getVictim(), SPELL_SHADOWBOLT);
 
             ShadowBolt_Timer = 10000;
         } else ShadowBolt_Timer -= diff;
@@ -138,7 +138,7 @@ struct TRINITY_DLL_DECL boss_baron_rivendareAI : public ScriptedAI
         //Cleave
         if (Cleave_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(),SPELL_CLEAVE);
+            DoCast(m_creature->getVictim(), SPELL_CLEAVE);
             //13 seconds until we should cast this again
             Cleave_Timer = 7000 + (rand()%10000);
         } else Cleave_Timer -= diff;
@@ -146,14 +146,14 @@ struct TRINITY_DLL_DECL boss_baron_rivendareAI : public ScriptedAI
         //MortalStrike
         if (MortalStrike_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(),SPELL_MORTALSTRIKE);
+            DoCast(m_creature->getVictim(), SPELL_MORTALSTRIKE);
             MortalStrike_Timer = 10000 + (rand()%15000);
         } else MortalStrike_Timer -= diff;
 
         //RaiseDead
         //            if (RaiseDead_Timer <= diff)
         //          {
-        //      DoCast(m_creature,SPELL_RAISEDEAD);
+        //      DoCast(m_creature, SPELL_RAISEDEAD);
         //                RaiseDead_Timer = 45000;
         //            } else RaiseDead_Timer -= diff;
 

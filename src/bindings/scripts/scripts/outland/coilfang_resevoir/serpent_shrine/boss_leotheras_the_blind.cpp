@@ -131,7 +131,7 @@ struct TRINITY_DLL_DECL mob_inner_demonAI : public ScriptedAI
         } else Link_Timer -= diff;
 
         if (!m_creature->HasAura(AURA_DEMONIC_ALIGNMENT))
-            DoCast(m_creature, AURA_DEMONIC_ALIGNMENT,true);
+            DoCast(m_creature, AURA_DEMONIC_ALIGNMENT, true);
 
         if (ShadowBolt_Timer <= diff)
         {
@@ -198,7 +198,7 @@ struct TRINITY_DLL_DECL boss_leotheras_the_blindAI : public ScriptedAI
         m_creature->SetDisplayId(MODEL_NIGHTELF);
         m_creature->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID  , 0);
         m_creature->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID+1, 0);
-        m_creature->CastSpell(m_creature, SPELL_DUAL_WIELD, true);
+        DoCast(m_creature, SPELL_DUAL_WIELD, true);
         m_creature->SetCorpseDelay(1000*60*60);
         if (pInstance)
             pInstance->SetData(DATA_LEOTHERASTHEBLINDEVENT, NOT_STARTED);
@@ -469,7 +469,7 @@ struct TRINITY_DLL_DECL boss_leotheras_the_blindAI : public ScriptedAI
                 // will cast only when in range of spell
                 if (m_creature->IsWithinDist(m_creature->getVictim(), 30))
                 {
-                    //m_creature->CastSpell(m_creature->getVictim(), SPELL_CHAOS_BLAST, true);
+                    //DoCast(m_creature->getVictim(), SPELL_CHAOS_BLAST, true);
                     int damage = 100;
                     m_creature->CastCustomSpell(m_creature->getVictim(), SPELL_CHAOS_BLAST, &damage, NULL, NULL, false, NULL, NULL, m_creature->GetGUID());
                 }
@@ -592,7 +592,7 @@ struct TRINITY_DLL_DECL boss_leotheras_the_blind_demonformAI : public ScriptedAI
     void JustDied(Unit *victim)
     {
         //invisibility (blizzlike, at the end of the fight he doesn't die, he disappears)
-        m_creature->CastSpell(m_creature, 8149, true);
+        DoCast(m_creature, 8149, true);
     }
 
     void EnterCombat(Unit *who)
@@ -614,7 +614,7 @@ struct TRINITY_DLL_DECL boss_leotheras_the_blind_demonformAI : public ScriptedAI
             // will cast only when in range od spell
             if (m_creature->IsWithinDist(m_creature->getVictim(), 30))
             {
-                //m_creature->CastSpell(m_creature->getVictim(),SPELL_CHAOS_BLAST,true);
+                //DoCast(m_creature->getVictim(), SPELL_CHAOS_BLAST, true);
                 int damage = 100;
                 m_creature->CastCustomSpell(m_creature->getVictim(), SPELL_CHAOS_BLAST, &damage, NULL, NULL, false, NULL, NULL, m_creature->GetGUID());
                 ChaosBlast_Timer = 3000;
@@ -628,7 +628,7 @@ struct TRINITY_DLL_DECL mob_greyheart_spellbinderAI : public ScriptedAI
 {
     mob_greyheart_spellbinderAI(Creature *c) : ScriptedAI(c)
     {
-        pInstance = c->GetInstanceData();;
+        pInstance = c->GetInstanceData();
         leotherasGUID = 0;
         AddedBanish = false;
     }

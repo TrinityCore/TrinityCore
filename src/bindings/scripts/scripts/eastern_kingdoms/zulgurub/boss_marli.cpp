@@ -94,13 +94,13 @@ struct TRINITY_DLL_DECL boss_marliAI : public ScriptedAI
         {
             if (PoisonVolley_Timer <= diff)
             {
-                DoCast(m_creature->getVictim(),SPELL_POISONVOLLEY);
+                DoCast(m_creature->getVictim(), SPELL_POISONVOLLEY);
                 PoisonVolley_Timer = 10000 + rand()%10000;
             } else PoisonVolley_Timer -= diff;
 
             if (!PhaseTwo && Aspect_Timer <= diff)
             {
-                DoCast(m_creature->getVictim(),SPELL_ASPECT_OF_MARLI);
+                DoCast(m_creature->getVictim(), SPELL_ASPECT_OF_MARLI);
                 Aspect_Timer = 13000 + rand()%5000;
             } else Aspect_Timer -= diff;
 
@@ -143,12 +143,12 @@ struct TRINITY_DLL_DECL boss_marliAI : public ScriptedAI
             if (!PhaseTwo && Transform_Timer <= diff)
             {
                 DoScriptText(SAY_TRANSFORM, m_creature);
-                DoCast(m_creature,SPELL_SPIDER_FORM);
+                DoCast(m_creature, SPELL_SPIDER_FORM);
                 const CreatureInfo *cinfo = m_creature->GetCreatureInfo();
                 m_creature->SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, (cinfo->mindmg +((cinfo->mindmg/100) * 35)));
                 m_creature->SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, (cinfo->maxdmg +((cinfo->maxdmg/100) * 35)));
                 m_creature->UpdateDamagePhysical(BASE_ATTACK);
-                DoCast(m_creature->getVictim(),SPELL_ENVOLWINGWEB);
+                DoCast(m_creature->getVictim(), SPELL_ENVOLWINGWEB);
 
                 if (DoGetThreat(m_creature->getVictim()))
                     DoModifyThreatPercent(m_creature->getVictim(),-100);
@@ -225,7 +225,7 @@ struct TRINITY_DLL_DECL mob_spawn_of_marliAI : public ScriptedAI
         //LevelUp_Timer
         if (LevelUp_Timer <= diff)
         {
-            DoCast(m_creature,SPELL_LEVELUP);
+            DoCast(m_creature, SPELL_LEVELUP);
             LevelUp_Timer = 3000;
         } else LevelUp_Timer -= diff;
 

@@ -121,7 +121,7 @@ struct TRINITY_DLL_DECL boss_venoxisAI : public ScriptedAI
 
                     if (TargetInRange > 1)
                     {
-                        DoCast(m_creature->getVictim(),SPELL_HOLY_NOVA);
+                        DoCast(m_creature->getVictim(), SPELL_HOLY_NOVA);
                         HolyNova_Timer = 1000;
                     }
                     else
@@ -145,7 +145,7 @@ struct TRINITY_DLL_DECL boss_venoxisAI : public ScriptedAI
                 {
                     DoScriptText(SAY_TRANSFORM, m_creature);
                     m_creature->InterruptNonMeleeSpells(false);
-                    DoCast(m_creature,SPELL_SNAKE_FORM);
+                    DoCast(m_creature, SPELL_SNAKE_FORM);
                     m_creature->SetFloatValue(OBJECT_FIELD_SCALE_X, 2.00f);
                     const CreatureInfo *cinfo = m_creature->GetCreatureInfo();
                     m_creature->SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, (cinfo->mindmg +((cinfo->mindmg/100) * 25)));

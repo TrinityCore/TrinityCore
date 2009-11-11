@@ -168,9 +168,9 @@ struct TRINITY_DLL_DECL boss_krik_thirAI : public ScriptedAI
 
         if (CurseFatigueTimer <= diff)
         {
-            //WowWiki say "Curse of Fatigue-Kirk'thir will cast Curse of Fatigue on 2-3 targets periodically. "
-            Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0);
-            Unit *pTarget_1 = SelectUnit(SELECT_TARGET_RANDOM, 1);
+            //WowWiki say "Curse of Fatigue-Kirk'thir will cast Curse of Fatigue on 2-3 targets periodically."
+            Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true);
+            Unit *pTarget_1 = SelectTarget(SELECT_TARGET_RANDOM, 1, 100, true);
 
             DoCast(pTarget, HEROIC(SPELL_CURSE_OF_FATIGUE, H_SPELL_CURSE_OF_FATIGUE));
             DoCast(pTarget_1, HEROIC(SPELL_CURSE_OF_FATIGUE, H_SPELL_CURSE_OF_FATIGUE));
@@ -179,7 +179,7 @@ struct TRINITY_DLL_DECL boss_krik_thirAI : public ScriptedAI
         } else CurseFatigueTimer -= diff;
 
         if (!m_creature->HasAura(SPELL_FRENZY) && m_creature->GetHealth()*100 / m_creature->GetMaxHealth() <= 10)
-            m_creature->CastSpell(m_creature,SPELL_FRENZY,true);
+            DoCast(m_creature, SPELL_FRENZY, true);
 
         DoMeleeAttackIfReady();
     }
@@ -201,7 +201,8 @@ struct TRINITY_DLL_DECL boss_krik_thirAI : public ScriptedAI
             {
                 Map::PlayerList const &players = pMap->GetPlayers();
                 for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
-                    itr->getSource()->CompletedAchievement(AchievWatchHimDie);
+                    if (itr->getSource())
+                        itr->getSource()->CompletedAchievement(AchievWatchHimDie);
             }
         }
     }
@@ -255,7 +256,7 @@ struct TRINITY_DLL_DECL npc_anub_ar_skirmisherAI : public ScriptedAI
             {
                 DoResetThreat();
                 m_creature->AddThreat(pTarget,1.0f);
-                DoCast(pTarget,SPELL_CHARGE,true);
+                DoCast(pTarget, SPELL_CHARGE, true);
             }
 
             ChargeTimer = 15000;
@@ -263,7 +264,7 @@ struct TRINITY_DLL_DECL npc_anub_ar_skirmisherAI : public ScriptedAI
 
         if (BackstabTimer <= diff)
         {
-            DoCast(m_creature->getVictim(),SPELL_BACKSTAB);
+            DoCast(m_creature->getVictim(), SPELL_BACKSTAB);
             BackstabTimer = 12000;
         } else BackstabTimer -= diff;
 
@@ -292,7 +293,7 @@ struct TRINITY_DLL_DECL npc_anub_ar_shadowcasterAI : public ScriptedAI
 
         if (ShadowBoltTimer <= diff)
         {
-            if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM,0,100,true))
+            if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                  DoCast(pTarget, HEROIC(SPELL_SHADOW_BOLT, H_SPELL_SHADOW_BOLT), true);
             ShadowBoltTimer = 15000;
         } else ShadowBoltTimer -= diff;
@@ -327,13 +328,13 @@ struct TRINITY_DLL_DECL npc_anub_ar_warriorAI : public ScriptedAI
 
         if (StrikeTimer <= diff)
         {
-            m_creature->CastSpell(m_creature->getVictim(), SPELL_STRIKE, true);
+            DoCast(m_creature->getVictim(), SPELL_STRIKE, true);
             StrikeTimer = 15000;
         } else StrikeTimer -= diff;
 
         if (CleaveTimer <= diff)
         {
-            m_creature->CastSpell(m_creature->getVictim(), SPELL_CLEAVE, true);
+            DoCast(m_creature->getVictim(), SPELL_CLEAVE, true);
             CleaveTimer = 17000;
         } else CleaveTimer -= diff;
 
@@ -358,7 +359,7 @@ struct TRINITY_DLL_DECL npc_watcher_gashraAI : public ScriptedAI
 
     void EnterCombat(Unit* who)
     {
-        m_creature->CastSpell(m_creature,SPELL_ENRAGE,true);
+        DoCast(m_creature, SPELL_ENRAGE, true);
     }
 
     void UpdateAI(const uint32 diff)
@@ -368,8 +369,8 @@ struct TRINITY_DLL_DECL npc_watcher_gashraAI : public ScriptedAI
 
         if (WebWrapTimer <= diff)
         {
-            if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM,0,100,true))
-                m_creature->CastSpell(pTarget, SPELL_WEB_WRAP,true);
+            if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                DoCast(pTarget, SPELL_WEB_WRAP, true);
             WebWrapTimer = 17000;
         } else WebWrapTimer -= diff;
 
@@ -405,8 +406,8 @@ struct TRINITY_DLL_DECL npc_watcher_narjilAI : public ScriptedAI
 
         if (WebWrapTimer <= diff)
         {
-            if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM,0,100,true))
-                DoCast(pTarget, SPELL_WEB_WRAP,true);
+            if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                DoCast(pTarget, SPELL_WEB_WRAP, true);
             WebWrapTimer = 15000;
         } else WebWrapTimer -= diff;
 
@@ -448,8 +449,8 @@ struct TRINITY_DLL_DECL npc_watcher_silthikAI : public ScriptedAI
 
         if (WebWrapTimer <= diff)
         {
-            if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM,0,100,true))
-                DoCast(pTarget, SPELL_WEB_WRAP,true);
+            if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                DoCast(pTarget, SPELL_WEB_WRAP, true);
 
             WebWrapTimer = 15000;
         } else WebWrapTimer -= diff;

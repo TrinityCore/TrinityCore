@@ -84,28 +84,28 @@ struct TRINITY_DLL_DECL boss_kurinnaxxAI : public ScriptedAI
         if (!bIsEnraged && m_creature->GetHealth()*100 / m_creature->GetMaxHealth() <= 30 && !m_creature->IsNonMeleeSpellCasted(false))
         {
             bIsEnraged = true;
-            DoCast(m_creature,SPELL_ENRAGE);
+            DoCast(m_creature, SPELL_ENRAGE);
         }
 
         //Mortal Wound spell
         if (uiMortalWoundTimer <= diff)
         {
-            DoCast(m_creature->getVictim(),SPELL_MORTALWOUND);
-            uiMortalWoundTimer = urand(2000,7000);;
+            DoCast(m_creature->getVictim(), SPELL_MORTALWOUND);
+            uiMortalWoundTimer = urand(2000,7000);
         } else uiMortalWoundTimer -= diff;
 
         //Santrap spell
         if (uiSandtrapTimer <= diff)
         {
             if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                DoCast(pTarget,SPELL_SANDTRAP);
+                DoCast(pTarget, SPELL_SANDTRAP);
             uiSandtrapTimer = 30000;
         } else uiSandtrapTimer -= diff;
         
         //Wide Slash spell
         if (uiWideSlashTimer <= diff)
         {
-            DoCast(m_creature->getVictim(),SPELL_WIDE_SLASH);
+            DoCast(m_creature->getVictim(), SPELL_WIDE_SLASH);
             uiWideSlashTimer = urand(10000,15000);
         } else uiWideSlashTimer -= diff;
         
@@ -120,7 +120,7 @@ struct TRINITY_DLL_DECL boss_kurinnaxxAI : public ScriptedAI
         if (uiSummonPlayerTimer <= diff)
         {
             if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                DoCast(pTarget,SPELL_SUMMON_PLAYER);
+                DoCast(pTarget, SPELL_SUMMON_PLAYER);
             uiSummonPlayerTimer = urand(30000,40000);
         } else uiSummonPlayerTimer -= diff;
 

@@ -104,7 +104,7 @@ struct TRINITY_DLL_DECL boss_brutallusAI : public ScriptedAI
 
         
 
-        m_creature->CastSpell(m_creature, SPELL_DUAL_WIELD, true);        
+        DoCast(m_creature, SPELL_DUAL_WIELD, true);        
 
         if (pInstance)
             pInstance->SetData(DATA_BRUTALLUS_EVENT, NOT_STARTED);

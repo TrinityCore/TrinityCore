@@ -157,20 +157,20 @@ struct TRINITY_DLL_DECL boss_palehoofAI : public ScriptedAI
         
         if (uiArcingSmashTimer <= diff)
         {
-            DoCast(m_creature,SPELL_ARCING_SMASH);
+            DoCast(m_creature, SPELL_ARCING_SMASH);
             uiArcingSmashTimer = urand(13000,17000);
         } else uiArcingSmashTimer -= diff;
         
         if (uiImpaleTimer <= diff)
         {
-          if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM,0,100,true))
-              DoCast(pTarget, HEROIC(SPELL_IMPALE,H_SPELL_IMPALE));
+          if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+              DoCast(pTarget, HEROIC(SPELL_IMPALE, H_SPELL_IMPALE));
           uiImpaleTimer = urand(8000,12000);
         } else uiImpaleTimer -= diff;
         
         if (uiWhiteringRoarTimer <= diff)
         {
-            DoCast(m_creature, HEROIC(SPELL_WITHERING_ROAR,H_SPELL_WITHERING_ROAR));
+            DoCast(m_creature, HEROIC(SPELL_WITHERING_ROAR, H_SPELL_WITHERING_ROAR));
             uiWhiteringRoarTimer = urand(8000,12000);
         } else uiWhiteringRoarTimer -= diff;
         
@@ -747,7 +747,7 @@ struct TRINITY_DLL_DECL mob_palehoof_orbAI : public ScriptedAI
             case PHASE_FEROCIOUS_RHINO: pNext = Unit::GetCreature((*m_creature), pInstance ? pInstance->GetData64(DATA_MOB_FEROCIOUS_RHINO) : 0); break;
             case PHASE_GORTOK_PALEHOOF: pNext = Unit::GetCreature((*m_creature), pInstance ? pInstance->GetData64(DATA_GORTOK_PALEHOOF) : 0); break;
         }
-        DoCast(pNext,SPELL_ORB_CHANNEL,false);
+        DoCast(pNext, SPELL_ORB_CHANNEL, false);
         currentPhase=(Phase)id;
         SummonTimer=5000;
     }

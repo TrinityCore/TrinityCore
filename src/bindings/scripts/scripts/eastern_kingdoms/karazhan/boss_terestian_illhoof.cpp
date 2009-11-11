@@ -105,7 +105,7 @@ struct TRINITY_DLL_DECL mob_kilrekAI : public ScriptedAI
         if (AmplifyTimer <= diff)
         {
             m_creature->InterruptNonMeleeSpells(false);
-            DoCast(m_creature->getVictim(),SPELL_AMPLIFY_FLAMES);
+            DoCast(m_creature->getVictim(), SPELL_AMPLIFY_FLAMES);
 
             AmplifyTimer = urand(10000,20000);
         } else AmplifyTimer -= diff;
