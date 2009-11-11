@@ -171,7 +171,7 @@ struct TRINITY_DLL_DECL npc_highborne_lamenterAI : public ScriptedAI
         {
             if (EventCast_Timer <= diff)
             {
-                DoCast(m_creature,SPELL_HIGHBORNE_AURA);
+                DoCast(m_creature, SPELL_HIGHBORNE_AURA);
                 EventCast = false;
             } else EventCast_Timer -= diff;
         }

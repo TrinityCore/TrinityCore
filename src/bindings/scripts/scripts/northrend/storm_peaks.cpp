@@ -238,13 +238,13 @@ struct TRINITY_DLL_DECL npc_victorious_challengerAI : public ScriptedAI
 
         if(RendTimer < diff)
         {
-            m_creature->CastSpell(m_creature->getVictim(),SPELL_REND_VC,true);
+            DoCast(m_creature->getVictim(), SPELL_REND_VC, true);
             RendTimer = 15000;
         }else RendTimer -= diff;
 
         if(SunderArmorTimer < diff)
         {
-            m_creature->CastSpell(m_creature->getVictim(), SPELL_SUNDER_ARMOR, true);
+            DoCast(m_creature->getVictim(), SPELL_SUNDER_ARMOR, true);
             SunderArmorTimer = 10000;
         }else SunderArmorTimer -= diff;
 

@@ -103,7 +103,7 @@ struct TRINITY_DLL_DECL boss_nethermancer_sepethreaAI : public ScriptedAI
         //Frost Attack
         if (frost_attack_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(),SPELL_FROST_ATTACK);
+            DoCast(m_creature->getVictim(), SPELL_FROST_ATTACK);
             frost_attack_Timer = 7000 + rand()%3000;
         } else frost_attack_Timer -= diff;
 
@@ -117,7 +117,7 @@ struct TRINITY_DLL_DECL boss_nethermancer_sepethreaAI : public ScriptedAI
         //Dragons Breath
         if (dragons_breath_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(),SPELL_DRAGONS_BREATH);
+            DoCast(m_creature->getVictim(), SPELL_DRAGONS_BREATH);
             {
                 if (rand()%2)
                     return;
@@ -130,14 +130,14 @@ struct TRINITY_DLL_DECL boss_nethermancer_sepethreaAI : public ScriptedAI
         //Knockback
         if (knockback_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(),SPELL_KNOCKBACK);
+            DoCast(m_creature->getVictim(), SPELL_KNOCKBACK);
             knockback_Timer = 15000 + rand()%10000;
         } else knockback_Timer -= diff;
 
         //Solarburn
         if (solarburn_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(),SPELL_SOLARBURN);
+            DoCast(m_creature->getVictim(), SPELL_SOLARBURN);
             solarburn_Timer = 30000;
         } else solarburn_Timer -= diff;
 
@@ -215,14 +215,14 @@ struct TRINITY_DLL_DECL mob_ragin_flamesAI : public ScriptedAI
 
         if (inferno_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(),HEROIC(SPELL_INFERNO, H_SPELL_INFERNO));
+            DoCast(m_creature->getVictim(), HEROIC(SPELL_INFERNO, H_SPELL_INFERNO));
             m_creature->TauntApply(m_creature->getVictim());
             inferno_Timer = 10000;
         } else inferno_Timer -= diff;
 
         if (flame_timer <= diff)
         {
-            DoCast(m_creature,SPELL_FIRE_TAIL);
+            DoCast(m_creature, SPELL_FIRE_TAIL);
             flame_timer = 500;
         } else flame_timer -=diff;
 

@@ -120,13 +120,13 @@ struct TRINITY_DLL_DECL boss_pathaleon_the_calculatorAI : public ScriptedAI
 
         if (ManaTap_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(),SPELL_MANA_TAP);
+            DoCast(m_creature->getVictim(), SPELL_MANA_TAP);
             ManaTap_Timer = 14000 + rand()%8000;
         } else ManaTap_Timer -= diff;
 
         if (ArcaneTorrent_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(),SPELL_ARCANE_TORRENT);
+            DoCast(m_creature->getVictim(), SPELL_ARCANE_TORRENT);
             ArcaneTorrent_Timer = 12000 + rand()%6000;
         } else ArcaneTorrent_Timer -= diff;
 
@@ -136,7 +136,7 @@ struct TRINITY_DLL_DECL boss_pathaleon_the_calculatorAI : public ScriptedAI
             {
                 DoScriptText(RAND(SAY_DOMINATION_1,SAY_DOMINATION_2), m_creature);
 
-                DoCast(pTarget,SPELL_DOMINATION);
+                DoCast(pTarget, SPELL_DOMINATION);
             }
                 Domination_Timer = 25000 + rand()%5000;
             } else Domination_Timer -= diff;
@@ -146,7 +146,7 @@ struct TRINITY_DLL_DECL boss_pathaleon_the_calculatorAI : public ScriptedAI
         {
             if (ArcaneExplosion_Timer <= diff)
             {
-                DoCast(m_creature->getVictim(),H_SPELL_ARCANE_EXPLOSION);
+                DoCast(m_creature->getVictim(), H_SPELL_ARCANE_EXPLOSION);
                 ArcaneExplosion_Timer = 10000 + rand()%4000;
             } else ArcaneExplosion_Timer -= diff;
         }
@@ -197,9 +197,9 @@ struct TRINITY_DLL_DECL mob_nether_wraithAI : public ScriptedAI
         if (ArcaneMissiles_Timer <= diff)
         {
             if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM,1))
-                DoCast(pTarget,SPELL_ARCANE_MISSILES);
+                DoCast(pTarget, SPELL_ARCANE_MISSILES);
             else
-                DoCast(m_creature->getVictim(),SPELL_ARCANE_MISSILES);
+                DoCast(m_creature->getVictim(), SPELL_ARCANE_MISSILES);
 
             ArcaneMissiles_Timer = 5000 + rand()%5000;
         } else ArcaneMissiles_Timer -=diff;
@@ -208,7 +208,7 @@ struct TRINITY_DLL_DECL mob_nether_wraithAI : public ScriptedAI
         {
             if (Detonation_Timer <= diff)
             {
-                DoCast(m_creature,SPELL_DETONATION);
+                DoCast(m_creature, SPELL_DETONATION);
                 Detonation = true;
             } else Detonation_Timer -= diff;
         }

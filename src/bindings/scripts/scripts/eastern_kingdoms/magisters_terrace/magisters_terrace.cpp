@@ -104,11 +104,11 @@ struct TRINITY_DLL_DECL npc_kalecgosAI : public ScriptedAI
         {
             if (m_uiTransformTimer <= uiDiff)
             {
-                m_creature->CastSpell(m_creature,SPELL_ORB_KILL_CREDIT,false);
+                DoCast(m_creature, SPELL_ORB_KILL_CREDIT, false);
                 DoWorkaroundForQuestCredit();
 
                 // Transform and update entry, now ready for quest/read gossip
-                m_creature->CastSpell(m_creature,SPELL_TRANSFORM_TO_KAEL,false);
+                DoCast(m_creature, SPELL_TRANSFORM_TO_KAEL, false);
                 m_creature->UpdateEntry(NPC_KAEL);
 
                 m_uiTransformTimer = 0;

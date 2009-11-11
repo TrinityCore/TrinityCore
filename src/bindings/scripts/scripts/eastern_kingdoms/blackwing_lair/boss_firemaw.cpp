@@ -55,14 +55,14 @@ struct TRINITY_DLL_DECL boss_firemawAI : public ScriptedAI
         //ShadowFlame_Timer
         if (ShadowFlame_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(),SPELL_SHADOWFLAME);
+            DoCast(m_creature->getVictim(), SPELL_SHADOWFLAME);
             ShadowFlame_Timer = urand(15000,18000);
         } else ShadowFlame_Timer -= diff;
 
         //WingBuffet_Timer
         if (WingBuffet_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(),SPELL_WINGBUFFET);
+            DoCast(m_creature->getVictim(), SPELL_WINGBUFFET);
             if (DoGetThreat(m_creature->getVictim()))
                 DoModifyThreatPercent(m_creature->getVictim(),-75);
 
@@ -72,7 +72,7 @@ struct TRINITY_DLL_DECL boss_firemawAI : public ScriptedAI
         //FlameBuffet_Timer
         if (FlameBuffet_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(),SPELL_FLAMEBUFFET);
+            DoCast(m_creature->getVictim(), SPELL_FLAMEBUFFET);
             FlameBuffet_Timer = 5000;
         } else FlameBuffet_Timer -= diff;
 

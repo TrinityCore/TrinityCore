@@ -148,17 +148,17 @@ struct TRINITY_DLL_DECL npc_millhouse_manastormAI : public ScriptedAI
                             break;
                         case 3:
                             DoScriptText(SAY_WATER, m_creature);
-                            DoCast(m_creature,SPELL_CONJURE_WATER);
+                            DoCast(m_creature, SPELL_CONJURE_WATER);
                             EventProgress_Timer = 7000;
                             break;
                         case 4:
                             DoScriptText(SAY_BUFFS, m_creature);
-                            DoCast(m_creature,SPELL_ICE_ARMOR);
+                            DoCast(m_creature, SPELL_ICE_ARMOR);
                             EventProgress_Timer = 7000;
                             break;
                         case 5:
                              DoScriptText(SAY_DRINK, m_creature);
-                            DoCast(m_creature,SPELL_ARCANE_INTELLECT);
+                            DoCast(m_creature, SPELL_ARCANE_INTELLECT);
                             EventProgress_Timer = 7000;
                             break;
                         case 6:
@@ -192,13 +192,13 @@ struct TRINITY_DLL_DECL npc_millhouse_manastormAI : public ScriptedAI
 
              DoScriptText(SAY_PYRO, m_creature);
 
-            DoCast(m_creature->getVictim(),SPELL_PYROBLAST);
+            DoCast(m_creature->getVictim(), SPELL_PYROBLAST);
             Pyroblast_Timer = 40000;
         } else Pyroblast_Timer -=diff;
 
         if (Fireball_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(),SPELL_FIREBALL);
+            DoCast(m_creature->getVictim(), SPELL_FIREBALL);
             Fireball_Timer = 4000;
         } else Fireball_Timer -=diff;
 
@@ -270,7 +270,7 @@ struct TRINITY_DLL_DECL npc_warden_mellicharAI : public ScriptedAI
         Phase = 1;
 
         m_creature->SetFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_NON_ATTACKABLE);
-        DoCast(m_creature,SPELL_TARGET_OMEGA);
+        DoCast(m_creature, SPELL_TARGET_OMEGA);
 
         if (pInstance)
             pInstance->SetData(TYPE_HARBINGERSKYRISS,NOT_STARTED);
@@ -299,7 +299,7 @@ struct TRINITY_DLL_DECL npc_warden_mellicharAI : public ScriptedAI
     void EnterCombat(Unit *who)
     {
         DoScriptText(YELL_INTRO1, m_creature);
-        DoCast(m_creature,SPELL_BUBBLE_VISUAL);
+        DoCast(m_creature, SPELL_BUBBLE_VISUAL);
 
         if (pInstance)
         {
@@ -342,20 +342,20 @@ struct TRINITY_DLL_DECL npc_warden_mellicharAI : public ScriptedAI
             switch(Phase)
             {
                 case 2:
-                    DoCast(m_creature,SPELL_TARGET_ALPHA);
+                    DoCast(m_creature, SPELL_TARGET_ALPHA);
                     pInstance->SetData(TYPE_WARDEN_1,IN_PROGRESS);
                     pInstance->HandleGameObject(pInstance->GetData64(DATA_SPHERE_SHIELD), false);
                     break;
                 case 3:
-                    DoCast(m_creature,SPELL_TARGET_BETA);
+                    DoCast(m_creature, SPELL_TARGET_BETA);
                     pInstance->SetData(TYPE_WARDEN_2,IN_PROGRESS);
                     break;
                 case 5:
-                    DoCast(m_creature,SPELL_TARGET_DELTA);
+                    DoCast(m_creature, SPELL_TARGET_DELTA);
                     pInstance->SetData(TYPE_WARDEN_3,IN_PROGRESS);
                     break;
                 case 6:
-                    DoCast(m_creature,SPELL_TARGET_GAMMA);
+                    DoCast(m_creature, SPELL_TARGET_GAMMA);
                     pInstance->SetData(TYPE_WARDEN_4,IN_PROGRESS);
                     break;
                 case 7:
@@ -386,7 +386,7 @@ struct TRINITY_DLL_DECL npc_warden_mellicharAI : public ScriptedAI
             {
                 //continue beam omega pod, unless we are about to summon skyriss
                 if (Phase != 7)
-                    DoCast(m_creature,SPELL_TARGET_OMEGA);
+                    DoCast(m_creature, SPELL_TARGET_OMEGA);
 
                 switch(Phase)
                 {
@@ -488,7 +488,7 @@ struct TRINITY_DLL_DECL mob_zerekethvoidzoneAI : public ScriptedAI
         m_creature->setFaction(16);
         m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
 
-        DoCast(m_creature,SPELL_VOID_ZONE_DAMAGE);
+        DoCast(m_creature, SPELL_VOID_ZONE_DAMAGE);
     }
 
     void EnterCombat(Unit* who) {}

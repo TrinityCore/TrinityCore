@@ -368,7 +368,7 @@ struct TRINITY_DLL_DECL boss_illidan_stormrageAI : public ScriptedAI
     boss_illidan_stormrageAI(Creature* c) : ScriptedAI(c), Summons(m_creature)
     {
         pInstance = c->GetInstanceData();
-        m_creature->CastSpell(m_creature, SPELL_DUAL_WIELD, true);
+        DoCast(m_creature, SPELL_DUAL_WIELD, true);
 
         SpellEntry *TempSpell = GET_SPELL(SPELL_SHADOWFIEND_PASSIVE);
         if (TempSpell)
@@ -783,7 +783,7 @@ struct TRINITY_DLL_DECL boss_illidan_stormrageAI : public ScriptedAI
             case EVENT_PARASITIC_SHADOWFIEND:
                 {
                     if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1, 200, true))
-                        m_creature->CastSpell(pTarget, SPELL_PARASITIC_SHADOWFIEND, true);
+                        DoCast(pTarget, SPELL_PARASITIC_SHADOWFIEND, true);
                     Timer[EVENT_PARASITIC_SHADOWFIEND] = 35000 + rand()%10000;
                 }
                 break;
@@ -799,7 +799,7 @@ struct TRINITY_DLL_DECL boss_illidan_stormrageAI : public ScriptedAI
 
                 //PHASE_NORMAL_2
             case EVENT_AGONIZING_FLAMES:
-                DoCast(SelectUnit(SELECT_TARGET_RANDOM,0), SPELL_AGONIZING_FLAMES);
+                DoCast(SelectUnit(SELECT_TARGET_RANDOM, 0), SPELL_AGONIZING_FLAMES);
                 Timer[EVENT_AGONIZING_FLAMES] = 0;
                 break;
 
@@ -1709,7 +1709,7 @@ struct TRINITY_DLL_DECL shadow_demonAI : public ScriptedAI
     void Reset()
     {
         TargetGUID = 0;
-        m_creature->CastSpell(m_creature, SPELL_SHADOW_DEMON_PASSIVE, true);
+        DoCast(m_creature, SPELL_SHADOW_DEMON_PASSIVE, true);
     }
 
     void JustDied(Unit *killer)
@@ -2059,8 +2059,8 @@ void boss_illidan_stormrageAI::SummonFlamesOfAzzinoth()
 
 void boss_illidan_stormrageAI::SummonMaiev()
 {
-    m_creature->CastSpell(m_creature, SPELL_SHADOW_PRISON, true);
-    m_creature->CastSpell(m_creature, 40403, true);
+    DoCast(m_creature, SPELL_SHADOW_PRISON, true);
+    DoCast(m_creature, 40403, true);
     if (!MaievGUID) // If Maiev cannot be summoned, reset the encounter and post some errors to the console.
     {
         EnterEvadeMode();

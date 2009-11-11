@@ -247,8 +247,8 @@ struct TRINITY_DLL_DECL boss_grandmaster_vorpilAI : public ScriptedAI
 
         if (ShadowBoltVolley_Timer <= diff)
         {
-            DoCast(m_creature,SPELL_SHADOWBOLT_VOLLEY);
-            ShadowBoltVolley_Timer = 15000 + rand()%15000;;
+            DoCast(m_creature, SPELL_SHADOWBOLT_VOLLEY);
+            ShadowBoltVolley_Timer = 15000 + rand()%15000;
         } else ShadowBoltVolley_Timer -= diff;
 
         if (HeroicMode && banish_Timer <= diff)
@@ -256,7 +256,7 @@ struct TRINITY_DLL_DECL boss_grandmaster_vorpilAI : public ScriptedAI
             Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM,0,30,false);
             if (pTarget)
             {
-                DoCast(pTarget,SPELL_BANISH);
+                DoCast(pTarget, SPELL_BANISH);
                 banish_Timer = 16000;
             }
         } else banish_Timer -= diff;
@@ -271,9 +271,9 @@ struct TRINITY_DLL_DECL boss_grandmaster_vorpilAI : public ScriptedAI
                         i_pl->TeleportTo(m_creature->GetMapId(), VorpilPosition[0],VorpilPosition[1],VorpilPosition[2], 0, TELE_TO_NOT_LEAVE_COMBAT);
 
             m_creature->GetMap()->CreatureRelocation(m_creature, VorpilPosition[0],VorpilPosition[1],VorpilPosition[2],0.0f);
-            DoCast(m_creature,SPELL_DRAW_SHADOWS,true);
+            DoCast(m_creature, SPELL_DRAW_SHADOWS, true);
 
-            DoCast(m_creature,HeroicMode?H_SPELL_RAIN_OF_FIRE:SPELL_RAIN_OF_FIRE);
+            DoCast(m_creature, HeroicMode?H_SPELL_RAIN_OF_FIRE:SPELL_RAIN_OF_FIRE);
 
             ShadowBoltVolley_Timer = 6000;
             DrawShadows_Timer = 30000;

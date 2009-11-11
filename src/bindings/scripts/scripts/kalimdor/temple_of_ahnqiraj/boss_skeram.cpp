@@ -135,7 +135,7 @@ struct TRINITY_DLL_DECL boss_skeramAI : public ScriptedAI
             //EarthShock_Timer
             if (EarthShock_Timer <= diff)
             {
-                DoCast(m_creature->getVictim(),SPELL_EARTH_SHOCK);
+                DoCast(m_creature->getVictim(), SPELL_EARTH_SHOCK);
                 EarthShock_Timer = 1000;
             } else EarthShock_Timer -= diff;
         }

@@ -57,7 +57,7 @@ struct TRINITY_DLL_DECL boss_azshir_the_sleeplessAI : public ScriptedAI
             //SoulSiphon_Timer
             if (SoulSiphon_Timer <= diff)
             {
-                DoCast(m_creature->getVictim(),SPELL_SOULSIPHON);
+                DoCast(m_creature->getVictim(), SPELL_SOULSIPHON);
                 return;
 
                 SoulSiphon_Timer = 20000;
@@ -67,14 +67,14 @@ struct TRINITY_DLL_DECL boss_azshir_the_sleeplessAI : public ScriptedAI
         //CallOfTheGrave_Timer
         if (CallOftheGrave_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(),SPELL_CALLOFTHEGRAVE);
+            DoCast(m_creature->getVictim(), SPELL_CALLOFTHEGRAVE);
             CallOftheGrave_Timer = 30000;
         } else CallOftheGrave_Timer -= diff;
 
         //Terrify_Timer
         if (Terrify_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(),SPELL_TERRIFY);
+            DoCast(m_creature->getVictim(), SPELL_TERRIFY);
             Terrify_Timer = 20000;
         } else Terrify_Timer -= diff;
 

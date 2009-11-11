@@ -41,12 +41,10 @@ struct TRINITY_DLL_DECL boss_shadowvoshAI : public ScriptedAI
         Hex_Timer = 8000;
         Cleave_Timer = 14000;
 
-        //m_creature->CastSpell(m_creature,SPELL_ICEARMOR,true);
+        //DoCast(m_creature, SPELL_ICEARMOR, true);
     }
 
-    void EnterCombat(Unit *who)
-    {
-    }
+    void EnterCombat(Unit *who){}
 
     void UpdateAI(const uint32 diff)
     {
@@ -57,7 +55,7 @@ struct TRINITY_DLL_DECL boss_shadowvoshAI : public ScriptedAI
         //CurseOfBlood_Timer
         if (CurseOfBlood_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(),SPELL_CURSEOFBLOOD);
+            DoCast(m_creature->getVictim(), SPELL_CURSEOFBLOOD);
             CurseOfBlood_Timer = 45000;
         } else CurseOfBlood_Timer -= diff;
 
@@ -65,14 +63,14 @@ struct TRINITY_DLL_DECL boss_shadowvoshAI : public ScriptedAI
         if (Hex_Timer <= diff)
         {
             if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                DoCast(pTarget,SPELL_HEX);
+                DoCast(pTarget, SPELL_HEX);
             Hex_Timer = 15000;
         } else Hex_Timer -= diff;
 
         //Cleave_Timer
         if (Cleave_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(),SPELL_CLEAVE);
+            DoCast(m_creature->getVictim(), SPELL_CLEAVE);
             Cleave_Timer = 7000;
         } else Cleave_Timer -= diff;
 

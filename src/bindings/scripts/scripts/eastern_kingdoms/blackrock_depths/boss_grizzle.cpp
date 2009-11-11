@@ -60,7 +60,7 @@ struct TRINITY_DLL_DECL boss_grizzleAI : public ScriptedAI
         //GroundTremor_Timer
         if (GroundTremor_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(),SPELL_GROUNDTREMOR);
+            DoCast(m_creature->getVictim(), SPELL_GROUNDTREMOR);
             GroundTremor_Timer = 8000;
         } else GroundTremor_Timer -= diff;
 
@@ -69,7 +69,7 @@ struct TRINITY_DLL_DECL boss_grizzleAI : public ScriptedAI
         {
             if (Frenzy_Timer <= diff)
             {
-                DoCast(m_creature,SPELL_FRENZY);
+                DoCast(m_creature, SPELL_FRENZY);
                 DoScriptText(EMOTE_GENERIC_FRENZY_KILL, m_creature);
 
                 Frenzy_Timer = 15000;

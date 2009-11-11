@@ -78,11 +78,11 @@ struct TRINITY_DLL_DECL npc_medivh_bmAI : public ScriptedAI
             return;
 
         if (pInstance->GetData(TYPE_MEDIVH) == IN_PROGRESS)
-            m_creature->CastSpell(m_creature,SPELL_CHANNEL,true);
+            DoCast(m_creature, SPELL_CHANNEL, true);
         else if (m_creature->HasAura(SPELL_CHANNEL))
             m_creature->RemoveAura(SPELL_CHANNEL);
 
-        m_creature->CastSpell(m_creature,SPELL_PORTAL_RUNE,true);
+        DoCast(m_creature, SPELL_PORTAL_RUNE, true);
     }
 
     void MoveInLineOfSight(Unit *who)
@@ -97,7 +97,7 @@ struct TRINITY_DLL_DECL npc_medivh_bmAI : public ScriptedAI
 
             DoScriptText(SAY_INTRO, m_creature);
             pInstance->SetData(TYPE_MEDIVH,IN_PROGRESS);
-            m_creature->CastSpell(m_creature,SPELL_CHANNEL,false);
+            DoCast(m_creature, SPELL_CHANNEL, false);
             Check_Timer = 5000;
                  }
         else if (who->GetTypeId() == TYPEID_UNIT && m_creature->IsWithinDistInMap(who, 15.0f))

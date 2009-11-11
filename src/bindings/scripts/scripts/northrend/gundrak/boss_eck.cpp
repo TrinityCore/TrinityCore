@@ -63,13 +63,13 @@ struct TRINITY_DLL_DECL boss_eckAI : public ScriptedAI
 
         if (uiBiteTimer <= diff)
         {
-            DoCast(m_creature->getVictim(),SPELL_ECK_BITE);
+            DoCast(m_creature->getVictim(), SPELL_ECK_BITE);
             uiBiteTimer = 8000 + rand()%4000;
         } else uiBiteTimer -= diff;
 
         if (uiSpitTimer <= diff)
         {
-            DoCast(m_creature->getVictim(),SPELL_ECK_SPIT);
+            DoCast(m_creature->getVictim(), SPELL_ECK_SPIT);
             uiSpitTimer = 6000 + rand()%8000;
         } else uiSpitTimer -= diff;
 
@@ -78,7 +78,7 @@ struct TRINITY_DLL_DECL boss_eckAI : public ScriptedAI
             Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM,1);
             if(pTarget && pTarget->GetTypeId() == TYPEID_PLAYER)
             {
-                DoCast(pTarget,RAND(SPELL_ECK_SPRING_1,SPELL_ECK_SPRING_2));
+                DoCast(pTarget, RAND(SPELL_ECK_SPRING_1, SPELL_ECK_SPRING_2));
                 uiSpringTimer = 5000 + rand()%10000;
             }
         } else uiSpringTimer -= diff;
@@ -88,7 +88,7 @@ struct TRINITY_DLL_DECL boss_eckAI : public ScriptedAI
         {
             if (uiBerserkTimer <= diff)
             {
-                DoCast(m_creature,SPELL_ECK_BERSERK);
+                DoCast(m_creature, SPELL_ECK_BERSERK);
                 bBerserk = true;
             }
             else
@@ -96,7 +96,7 @@ struct TRINITY_DLL_DECL boss_eckAI : public ScriptedAI
                 uiBerserkTimer -= diff;
                 if (m_creature->GetHealth()*100 / m_creature->GetMaxHealth() < 20)
                 {
-                    DoCast(m_creature,SPELL_ECK_BERSERK);
+                    DoCast(m_creature, SPELL_ECK_BERSERK);
                     bBerserk = true;
                 }
             }

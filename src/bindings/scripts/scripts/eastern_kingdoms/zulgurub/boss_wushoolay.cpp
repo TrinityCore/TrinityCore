@@ -52,7 +52,7 @@ struct TRINITY_DLL_DECL boss_wushoolayAI : public ScriptedAI
         //LightningCloud_Timer
         if (LightningCloud_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(),SPELL_LIGHTNINGCLOUD);
+            DoCast(m_creature->getVictim(), SPELL_LIGHTNINGCLOUD);
             LightningCloud_Timer = 15000 + rand()%5000;
         } else LightningCloud_Timer -= diff;
 
@@ -61,7 +61,7 @@ struct TRINITY_DLL_DECL boss_wushoolayAI : public ScriptedAI
         {
             Unit *pTarget = NULL;
             pTarget = SelectUnit(SELECT_TARGET_RANDOM,0);
-            if (pTarget) DoCast(pTarget,SPELL_LIGHTNINGWAVE);
+            if (pTarget) DoCast(pTarget, SPELL_LIGHTNINGWAVE);
 
             LightningWave_Timer = 12000 + rand()%4000;
         } else LightningWave_Timer -= diff;

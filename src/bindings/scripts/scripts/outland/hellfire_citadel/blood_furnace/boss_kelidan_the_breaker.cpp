@@ -193,7 +193,7 @@ struct TRINITY_DLL_DECL boss_kelidan_the_breakerAI : public ScriptedAI
             if (check_Timer <= diff)
             {
                 if (!m_creature->IsNonMeleeSpellCasted(false))
-                    DoCast(m_creature,SPELL_EVOCATION);
+                    DoCast(m_creature, SPELL_EVOCATION);
                 check_Timer = 5000;
             } else check_Timer -= diff;
             return;
@@ -219,7 +219,7 @@ struct TRINITY_DLL_DECL boss_kelidan_the_breakerAI : public ScriptedAI
 
         if (Corruption_Timer <= diff)
         {
-            DoCast(m_creature,SPELL_CORRUPTION);
+            DoCast(m_creature, SPELL_CORRUPTION);
             Corruption_Timer = 30000+rand()%20000;
         } else Corruption_Timer -=diff;
 
@@ -321,7 +321,7 @@ struct TRINITY_DLL_DECL mob_shadowmoon_channelerAI : public ScriptedAI
                     {
                         uint64 channeler = CAST_AI(boss_kelidan_the_breakerAI, Kelidan->AI())->GetChanneled(m_creature);
                         if (Unit *channeled = Unit::GetUnit(*m_creature, channeler))
-                            DoCast(channeled,SPELL_CHANNELING);
+                            DoCast(channeled, SPELL_CHANNELING);
                     }
                 check_Timer = 5000;
             } else check_Timer -= diff;
@@ -331,7 +331,7 @@ struct TRINITY_DLL_DECL mob_shadowmoon_channelerAI : public ScriptedAI
         if (MarkOfShadow_Timer <= diff)
         {
             if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
-                DoCast(pTarget,SPELL_MARK_OF_SHADOW);
+                DoCast(pTarget, SPELL_MARK_OF_SHADOW);
             MarkOfShadow_Timer = 15000+rand()%5000;
         } else MarkOfShadow_Timer -=diff;
 

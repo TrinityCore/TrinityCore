@@ -62,8 +62,8 @@ struct TRINITY_DLL_DECL npc_drakuru_shacklesAI : public ScriptedAI
                 m_creature->SetInFront(Rageclaw);
                 Rageclaw->SetInFront(m_creature);
 
-                m_creature->CastSpell(Rageclaw, SPELL_LEFT_CHAIN, true);
-                m_creature->CastSpell(Rageclaw, SPELL_RIGHT_CHAIN, true);
+                DoCast(Rageclaw, SPELL_LEFT_CHAIN, true);
+                DoCast(Rageclaw, SPELL_RIGHT_CHAIN, true);
             }
         }
         else
@@ -119,7 +119,7 @@ struct TRINITY_DLL_DECL npc_captured_rageclawAI : public ScriptedAI
         Despawn = false;
         DespawnTimer = 0;
         m_creature->setFaction(35);
-        m_creature->CastSpell(m_creature, SPELL_KNEEL, true); // Little Hack for kneel - Thanks Illy :P
+        DoCast(m_creature, SPELL_KNEEL, true); // Little Hack for kneel - Thanks Illy :P
     }
 
     void MoveInLineOfSight(Unit *who){}

@@ -87,7 +87,7 @@ struct TRINITY_DLL_DECL boss_majordomoAI : public ScriptedAI
         //Cast Ageis if less than 50% hp
         if (m_creature->GetHealth()*100 / m_creature->GetMaxHealth() < 50)
         {
-            DoCast(m_creature,SPELL_AEGIS);
+            DoCast(m_creature, SPELL_AEGIS);
         }
 
         //MagicReflection_Timer
@@ -111,7 +111,7 @@ struct TRINITY_DLL_DECL boss_majordomoAI : public ScriptedAI
         //Blastwave_Timer
         if (Blastwave_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(),SPELL_BLASTWAVE);
+            DoCast(m_creature->getVictim(), SPELL_BLASTWAVE);
             Blastwave_Timer = 10000;
         } else Blastwave_Timer -= diff;
 

@@ -105,7 +105,7 @@ struct TRINITY_DLL_DECL boss_salrammAI : public ScriptedAI
         //Curse of twisted flesh timer
         if (Curse_flesh_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(),SPELL_CURSE_OF_TWISTED_FLESH);
+            DoCast(m_creature->getVictim(), SPELL_CURSE_OF_TWISTED_FLESH);
             Curse_flesh_Timer = 37000;
         } else Curse_flesh_Timer -= diff;
 
@@ -122,7 +122,7 @@ struct TRINITY_DLL_DECL boss_salrammAI : public ScriptedAI
         {
             DoScriptText(RAND(SAY_STEAL_FLESH_1,SAY_STEAL_FLESH_2,SAY_STEAL_FLESH_3), m_creature);
             if (Unit* random_pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
-                DoCast(random_pTarget,SPELL_STEAL_FLESH);
+                DoCast(random_pTarget, SPELL_STEAL_FLESH);
             Steal_flesh_Timer = 10000;
         } else Steal_flesh_Timer -= diff;
 
@@ -131,7 +131,7 @@ struct TRINITY_DLL_DECL boss_salrammAI : public ScriptedAI
         {
             DoScriptText(RAND(SAY_SUMMON_GHOULS_1,SAY_SUMMON_GHOULS_2), m_creature);
             if (Unit* random_pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
-                DoCast(random_pTarget,SPELL_SUMMON_GHOULS);
+                DoCast(random_pTarget, SPELL_SUMMON_GHOULS);
             Summon_ghouls_Timer = 10000;
         } else Summon_ghouls_Timer -= diff;
 

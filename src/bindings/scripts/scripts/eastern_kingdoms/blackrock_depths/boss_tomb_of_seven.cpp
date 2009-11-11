@@ -163,7 +163,7 @@ struct TRINITY_DLL_DECL boss_doomrelAI : public ScriptedAI
         //ShadowVolley_Timer
         if (ShadowVolley_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(),SPELL_SHADOWBOLTVOLLEY);
+            DoCast(m_creature->getVictim(), SPELL_SHADOWBOLTVOLLEY);
             ShadowVolley_Timer = 12000;
         } else ShadowVolley_Timer -= diff;
 
@@ -171,7 +171,7 @@ struct TRINITY_DLL_DECL boss_doomrelAI : public ScriptedAI
         if (Immolate_Timer <= diff)
         {
             if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                DoCast(pTarget,SPELL_IMMOLATE);
+                DoCast(pTarget, SPELL_IMMOLATE);
 
             Immolate_Timer = 25000;
         } else Immolate_Timer -= diff;
@@ -179,21 +179,21 @@ struct TRINITY_DLL_DECL boss_doomrelAI : public ScriptedAI
         //CurseOfWeakness_Timer
         if (CurseOfWeakness_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(),SPELL_CURSEOFWEAKNESS);
+            DoCast(m_creature->getVictim(), SPELL_CURSEOFWEAKNESS);
             CurseOfWeakness_Timer = 45000;
         } else CurseOfWeakness_Timer -= diff;
 
         //DemonArmor_Timer
         if (DemonArmor_Timer <= diff)
         {
-            DoCast(m_creature,SPELL_DEMONARMOR);
+            DoCast(m_creature, SPELL_DEMONARMOR);
             DemonArmor_Timer = 300000;
         } else DemonArmor_Timer -= diff;
 
         //Summon Voidwalkers
         if (!Voidwalkers && m_creature->GetHealth()*100 / m_creature->GetMaxHealth() < 51)
         {
-            m_creature->CastSpell(m_creature->getVictim(), SPELL_SUMMON_VOIDWALKERS, true);
+            DoCast(m_creature->getVictim(), SPELL_SUMMON_VOIDWALKERS, true);
             Voidwalkers = true;
         }
 

@@ -85,27 +85,27 @@ struct TRINITY_DLL_DECL boss_magistrate_barthilasAI : public ScriptedAI
                 return;
 
             ++AngerCount;
-            m_creature->CastSpell(m_creature,SPELL_FURIOUS_ANGER,false);
+            DoCast(m_creature, SPELL_FURIOUS_ANGER, false);
         } else FuriousAnger_Timer -= diff;
 
         //DrainingBlow
         if (DrainingBlow_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(),SPELL_DRAININGBLOW);
+            DoCast(m_creature->getVictim(), SPELL_DRAININGBLOW);
             DrainingBlow_Timer = 15000;
         } else DrainingBlow_Timer -= diff;
 
         //CrowdPummel
         if (CrowdPummel_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(),SPELL_CROWDPUMMEL);
+            DoCast(m_creature->getVictim(), SPELL_CROWDPUMMEL);
             CrowdPummel_Timer = 15000;
         } else CrowdPummel_Timer -= diff;
 
         //MightyBlow
         if (MightyBlow_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(),SPELL_MIGHTYBLOW);
+            DoCast(m_creature->getVictim(), SPELL_MIGHTYBLOW);
             MightyBlow_Timer = 20000;
         } else MightyBlow_Timer -= diff;
 

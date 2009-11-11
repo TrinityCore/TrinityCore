@@ -109,7 +109,7 @@ struct TRINITY_DLL_DECL npc_enslaved_soulAI : public ScriptedAI
 
     void EnterCombat(Unit* who)
     {
-        m_creature->CastSpell(m_creature, ENSLAVED_SOUL_PASSIVE, true);
+        DoCast(m_creature, ENSLAVED_SOUL_PASSIVE, true);
         DoZoneInCombat();
     }
 
@@ -242,7 +242,7 @@ struct TRINITY_DLL_DECL boss_reliquary_of_soulsAI : public ScriptedAI
             case 1:
                 Timer = 2800;
                 m_creature->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_SUBMERGE);  // Release the cube
-                DoCast(m_creature,SPELL_SUBMERGE);
+                DoCast(m_creature, SPELL_SUBMERGE);
                 DoStartNoMovement(m_creature);
                 break;
             case 2:
@@ -260,7 +260,7 @@ struct TRINITY_DLL_DECL boss_reliquary_of_soulsAI : public ScriptedAI
                 if (Phase == 3)
                 {
                     if (!Essence->isAlive())
-                        m_creature->CastSpell(m_creature, 7, true);
+                        DoCast(m_creature, 7, true);
                     else return;
                 }
                 else
@@ -372,9 +372,9 @@ struct TRINITY_DLL_DECL boss_essence_of_sufferingAI : public ScriptedAI
             {
             DoScriptText(SUFF_SAY_FREED, m_creature);
             DoZoneInCombat();
-            m_creature->CastSpell(m_creature, AURA_OF_SUFFERING, true); // linked aura need core support
-            m_creature->CastSpell(m_creature, ESSENCE_OF_SUFFERING_PASSIVE, true);
-            m_creature->CastSpell(m_creature, ESSENCE_OF_SUFFERING_PASSIVE2, true);
+            DoCast(m_creature, AURA_OF_SUFFERING, true); // linked aura need core support
+            DoCast(m_creature, ESSENCE_OF_SUFFERING_PASSIVE, true);
+            DoCast(m_creature, ESSENCE_OF_SUFFERING_PASSIVE2, true);
             }
         else return;
     }
@@ -437,7 +437,7 @@ struct TRINITY_DLL_DECL boss_essence_of_sufferingAI : public ScriptedAI
 
         if (SoulDrainTimer <= diff)
         {
-            DoCast(SelectUnit(SELECT_TARGET_RANDOM,0), SPELL_SOUL_DRAIN);
+            DoCast(SelectUnit(SELECT_TARGET_RANDOM, 0), SPELL_SOUL_DRAIN);
             SoulDrainTimer = 60000;
         } else SoulDrainTimer -= diff;
 
@@ -509,7 +509,7 @@ struct TRINITY_DLL_DECL boss_essence_of_desireAI : public ScriptedAI
         if (RuneShieldTimer <= diff)
         {
             m_creature->InterruptNonMeleeSpells(false);
-            m_creature->CastSpell(m_creature, SPELL_RUNE_SHIELD, true);
+            DoCast(m_creature, SPELL_RUNE_SHIELD, true);
             SoulShockTimer += 2000;
             DeadenTimer += 2000;
             RuneShieldTimer = 60000;

@@ -86,7 +86,7 @@ struct TRINITY_DLL_DECL npc_forest_frogAI : public ScriptedAI
         if (spell->Id == SPELL_REMOVE_AMANI_CURSE && caster->GetTypeId() == TYPEID_PLAYER && m_creature->GetEntry() == ENTRY_FOREST_FROG)
         {
             //increase or decrease chance of mojo?
-            if (rand()%99 == 50) DoCast(caster,SPELL_PUSH_MOJO,true);
+            if (rand()%99 == 50) DoCast(caster, SPELL_PUSH_MOJO, true);
             else DoSpawnRandom();
         }
     }
@@ -119,7 +119,8 @@ struct TRINITY_DLL_DECL npc_zulaman_hostageAI : public ScriptedAI
     }
     void UpdateAI(const uint32 diff)
     {
-        if (IsLoot) m_creature->CastSpell(m_creature, 7, false);
+        if (IsLoot)
+            DoCast(m_creature, 7, false);
     }
 };
 

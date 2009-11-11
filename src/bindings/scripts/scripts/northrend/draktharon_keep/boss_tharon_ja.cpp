@@ -136,7 +136,7 @@ struct TRINITY_DLL_DECL boss_tharon_jaAI : public ScriptedAI
                 if (uiCurseOfLifeTimer < diff)
                 {
                     if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                        DoCast(pTarget, HEROIC(SPELL_CURSE_OF_LIFE,H_SPELL_CURSE_OF_LIFE));
+                        DoCast(pTarget, HEROIC(SPELL_CURSE_OF_LIFE, H_SPELL_CURSE_OF_LIFE));
                     uiCurseOfLifeTimer = urand(10000,15000);
                 } else uiCurseOfLifeTimer -= diff;
                 
@@ -187,14 +187,14 @@ struct TRINITY_DLL_DECL boss_tharon_jaAI : public ScriptedAI
                 if (uiLightningBreathTimer < diff)
                 {
                     if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                        DoCast(pTarget,HEROIC(SPELL_LIGHTNING_BREATH,H_SPELL_LIGHTNING_BREATH));
+                        DoCast(pTarget, HEROIC(SPELL_LIGHTNING_BREATH, H_SPELL_LIGHTNING_BREATH));
                     uiLightningBreathTimer = urand(6000,7000);
                 } else uiLightningBreathTimer -= diff;
 
                 if (uiEyeBeamTimer < diff)
                 {
                     if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                        DoCast(pTarget,HEROIC(SPELL_EYE_BEAM,H_SPELL_EYE_BEAM));
+                        DoCast(pTarget, HEROIC(SPELL_EYE_BEAM, H_SPELL_EYE_BEAM));
                     uiEyeBeamTimer = urand(4000,6000);
                 } else uiEyeBeamTimer -= diff;
 

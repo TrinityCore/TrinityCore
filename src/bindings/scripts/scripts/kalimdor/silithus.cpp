@@ -632,19 +632,19 @@ struct TRINITY_DLL_DECL npc_anachronos_the_ancientAI : public ScriptedAI
                     Caelestrasz->GetMotionMaster()->MoveCharge(-8165,1530,65,7);
                     break; //Text: sands will stop
                 case 34:
-                    m_creature->CastSpell(plr, 23017, true);//Arcane Channeling
+                    DoCast(plr, 23017, true);//Arcane Channeling
                     break;
                 case 35:
                     m_creature->CastSpell(-8088,1520.43,2.67,25158,true);
                     break;
                 case 36:
-                    m_creature->CastSpell(plr, 25159, true);
+                    DoCast(plr, 25159, true);
                     break;
                 case 37:
                     m_creature->SummonGameObject(GO_GATE_OF_AHN_QIRAJ,-8130,1525,17.5,0,0,0,0,0,0);
                     break;
                 case 38:
-                    m_creature->CastSpell(plr, 25166, true);
+                    DoCast(plr, 25166, true);
                     m_creature->SummonGameObject(GO_GLYPH_OF_AHN_QIRAJ,-8130,1525,17.5,0,0,0,0,0,0);
                     break;
                 case 39:

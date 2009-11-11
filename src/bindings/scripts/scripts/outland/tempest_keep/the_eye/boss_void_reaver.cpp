@@ -99,7 +99,7 @@ struct TRINITY_DLL_DECL boss_void_reaverAI : public ScriptedAI
         // Pounding
         if (Pounding_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(),SPELL_POUNDING);
+            DoCast(m_creature->getVictim(), SPELL_POUNDING);
 
             DoScriptText(RAND(SAY_POUNDING1,SAY_POUNDING2), m_creature);
              Pounding_Timer = 15000;                         //cast time(3000) + cooldown time(12000)
@@ -141,7 +141,7 @@ struct TRINITY_DLL_DECL boss_void_reaverAI : public ScriptedAI
         // Single Target knock back, reduces aggro
         if (KnockAway_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(),SPELL_KNOCK_AWAY);
+            DoCast(m_creature->getVictim(), SPELL_KNOCK_AWAY);
 
             //Drop 25% aggro
             if (DoGetThreat(m_creature->getVictim()))
@@ -153,7 +153,7 @@ struct TRINITY_DLL_DECL boss_void_reaverAI : public ScriptedAI
         //Berserk
         if (Berserk_Timer < diff && !Enraged)
         {
-            DoCast(m_creature,SPELL_BERSERK);
+            DoCast(m_creature, SPELL_BERSERK);
             Enraged = true;
         } else Berserk_Timer -= diff;
 

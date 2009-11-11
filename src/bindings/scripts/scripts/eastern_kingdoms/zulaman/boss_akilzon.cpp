@@ -266,7 +266,7 @@ struct TRINITY_DLL_DECL boss_akilzonAI : public ScriptedAI
         {
             m_creature->MonsterYell(SAY_ONENRAGE, LANG_UNIVERSAL, NULL);
             DoPlaySoundToSet(m_creature, SOUND_ONENRAGE);
-            m_creature->CastSpell(m_creature, SPELL_BERSERK, true);
+            DoCast(m_creature, SPELL_BERSERK, true);
             Enrage_Timer = 600000;
         } else Enrage_Timer -= diff;
 
@@ -275,7 +275,7 @@ struct TRINITY_DLL_DECL boss_akilzonAI : public ScriptedAI
             Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 1);
             if (!pTarget) pTarget = m_creature->getVictim();
             TargetGUID = pTarget->GetGUID();
-            m_creature->CastSpell(pTarget, SPELL_STATIC_DISRUPTION, false);
+            DoCast(pTarget, SPELL_STATIC_DISRUPTION, false);
             m_creature->SetInFront(m_creature->getVictim());
             StaticDisruption_Timer = (10+rand()%8)*1000; // < 20s
 
@@ -311,7 +311,7 @@ struct TRINITY_DLL_DECL boss_akilzonAI : public ScriptedAI
                 return;
             }
             pTarget->CastSpell(pTarget, 44007, true);//cloud visual
-            m_creature->CastSpell(pTarget, SPELL_ELECTRICAL_STORM, false);//storm cyclon + visual
+            DoCast(pTarget, SPELL_ELECTRICAL_STORM, false);//storm cyclon + visual
             float x,y,z;
             pTarget->GetPosition(x,y,z);
             if (pTarget)
@@ -399,7 +399,7 @@ struct TRINITY_DLL_DECL mob_soaring_eagleAI : public ScriptedAI
         if (TargetGUID)
         {
             if (Unit *pTarget = Unit::GetUnit(*m_creature, TargetGUID))
-                m_creature->CastSpell(pTarget, SPELL_EAGLE_SWOOP, true);
+                DoCast(pTarget, SPELL_EAGLE_SWOOP, true);
             TargetGUID = 0;
             m_creature->SetSpeed(MOVE_RUN, 1.2f);
             EagleSwoop_Timer = 5000 + rand()%5000;

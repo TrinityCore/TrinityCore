@@ -231,7 +231,7 @@ struct TRINITY_DLL_DECL boss_ionarAI : public ScriptedAI
                 else if (m_uiSparkAtHomeCount == MAX_SPARKS)
                 {
                     m_creature->SetVisibility(VISIBILITY_ON);
-                    m_creature->CastSpell(m_creature, SPELL_SPARK_DESPAWN, false);
+                    DoCast(m_creature, SPELL_SPARK_DESPAWN, false);
 
                     DespawnSpark();
 
@@ -259,7 +259,7 @@ struct TRINITY_DLL_DECL boss_ionarAI : public ScriptedAI
         if (m_uiStaticOverload_Timer <= uiDiff)
         {
             if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
-                DoCast(pTarget, HEROIC(SPELL_STATIC_OVERLOAD_N,SPELL_STATIC_OVERLOAD_H));
+                DoCast(pTarget, HEROIC(SPELL_STATIC_OVERLOAD_N, SPELL_STATIC_OVERLOAD_H));
 
             m_uiStaticOverload_Timer = 5000 + rand()%1000;
         }
@@ -268,7 +268,7 @@ struct TRINITY_DLL_DECL boss_ionarAI : public ScriptedAI
 
         if (m_uiBallLightning_Timer <= uiDiff)
         {
-            DoCast(m_creature->getVictim(), HEROIC(SPELL_BALL_LIGHTNING_N,SPELL_BALL_LIGHTNING_H));
+            DoCast(m_creature->getVictim(), HEROIC(SPELL_BALL_LIGHTNING_N, SPELL_BALL_LIGHTNING_H));
             m_uiBallLightning_Timer = 10000 + rand()%1000;
         }
         else

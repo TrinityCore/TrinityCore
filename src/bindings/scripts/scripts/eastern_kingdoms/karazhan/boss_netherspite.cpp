@@ -228,8 +228,8 @@ struct TRINITY_DLL_DECL boss_netherspiteAI : public ScriptedAI
     {
         m_creature->RemoveAurasDueToSpell(SPELL_EMPOWERMENT);
         m_creature->RemoveAurasDueToSpell(SPELL_NETHERBURN_AURA);
-        DoCast(m_creature,SPELL_BANISH_VISUAL,true);
-        DoCast(m_creature,SPELL_BANISH_ROOT,true);
+        DoCast(m_creature, SPELL_BANISH_VISUAL, true);
+        DoCast(m_creature, SPELL_BANISH_ROOT, true);
         DestroyPortals();
         PhaseTimer = 30000;
         PortalPhase = false;
@@ -309,7 +309,7 @@ struct TRINITY_DLL_DECL boss_netherspiteAI : public ScriptedAI
             if (NetherbreathTimer <= diff)
             {
                 if(Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM,0,40,true))
-                    DoCast(pTarget,SPELL_NETHERBREATH);
+                    DoCast(pTarget, SPELL_NETHERBREATH);
                 NetherbreathTimer = urand(5000,7000);
             } else NetherbreathTimer -= diff;
 

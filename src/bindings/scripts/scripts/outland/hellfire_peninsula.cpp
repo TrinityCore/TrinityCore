@@ -99,13 +99,13 @@ struct TRINITY_DLL_DECL npc_aeranasAI : public ScriptedAI
 
         if (Shock_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(),SPELL_SHOCK);
+            DoCast(m_creature->getVictim(), SPELL_SHOCK);
             Shock_Timer = 10000;
         } else Shock_Timer -= diff;
 
         if (EnvelopingWinds_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(),SPELL_ENVELOPING_WINDS);
+            DoCast(m_creature->getVictim(), SPELL_ENVELOPING_WINDS);
             EnvelopingWinds_Timer = 25000;
         } else EnvelopingWinds_Timer -= diff;
 
@@ -151,7 +151,7 @@ struct TRINITY_DLL_DECL npc_ancestral_wolfAI : public npc_escortAI
     void Reset()
     {
         pRyga = NULL;
-        m_creature->CastSpell(m_creature, SPELL_ANCESTRAL_WOLF_BUFF, true);
+        DoCast(m_creature, SPELL_ANCESTRAL_WOLF_BUFF, true);
     }
 
     void MoveInLineOfSight(Unit* pWho)

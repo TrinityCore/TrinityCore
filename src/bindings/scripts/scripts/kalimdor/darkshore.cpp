@@ -110,7 +110,7 @@ struct TRINITY_DLL_DECL npc_kerlonianAI : public FollowerAI
         DoScriptText(RAND(SAY_KER_SLEEP_1,SAY_KER_SLEEP_2,SAY_KER_SLEEP_3,SAY_KER_SLEEP_4), m_creature);
 
         m_creature->SetStandState(UNIT_STAND_STATE_SLEEP);
-        m_creature->CastSpell(m_creature, SPELL_SLEEP_VISUAL, false);
+        DoCast(m_creature, SPELL_SLEEP_VISUAL, false);
     }
 
     void ClearSleeping()

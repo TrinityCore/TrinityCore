@@ -108,7 +108,7 @@ struct TRINITY_DLL_DECL npc_ameAI : public npc_escortAI
 
         if (DEMORALIZINGSHOUT_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(),SPELL_DEMORALIZINGSHOUT);
+            DoCast(m_creature->getVictim(), SPELL_DEMORALIZINGSHOUT);
             DEMORALIZINGSHOUT_Timer = 70000;
         } else DEMORALIZINGSHOUT_Timer -= diff;
 

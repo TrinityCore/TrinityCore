@@ -155,7 +155,7 @@ struct TRINITY_DLL_DECL npc_cooshcooshAI : public ScriptedAI
 
         if (LightningBolt_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(),SPELL_LIGHTNING_BOLT);
+            DoCast(m_creature->getVictim(), SPELL_LIGHTNING_BOLT);
             LightningBolt_Timer = 5000;
         } else LightningBolt_Timer -= diff;
 

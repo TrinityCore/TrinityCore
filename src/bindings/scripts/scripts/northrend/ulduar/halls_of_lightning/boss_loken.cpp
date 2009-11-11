@@ -176,7 +176,7 @@ struct TRINITY_DLL_DECL boss_lokenAI : public ScriptedAI
             if (m_uiResumePulsingShockwave_Timer <= uiDiff)
             {
                 //breaks at movement, can we assume when it's time, this spell is casted and also must stop movement?
-                m_creature->CastSpell(m_creature, SPELL_PULSING_SHOCKWAVE_AURA, true);
+                DoCast(m_creature, SPELL_PULSING_SHOCKWAVE_AURA, true);
 
                   DoCast(m_creature, m_bIsHeroic ? SPELL_PULSING_SHOCKWAVE_H : SPELL_PULSING_SHOCKWAVE_N); // need core support
                 m_bIsAura = true;

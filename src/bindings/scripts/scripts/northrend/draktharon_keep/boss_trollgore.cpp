@@ -125,7 +125,7 @@ struct TRINITY_DLL_DECL boss_trollgoreAI : public ScriptedAI
         if (uiConsumeTimer < diff)
         {
             DoScriptText(SAY_CONSUME, m_creature);
-            DoCast(HEROIC(SPELL_CONSUME,H_SPELL_CONSUME));
+            DoCast(HEROIC(SPELL_CONSUME, H_SPELL_CONSUME));
             uiConsumeTimer = 15000;
         } else uiConsumeTimer -= diff;
 
@@ -157,7 +157,7 @@ struct TRINITY_DLL_DECL boss_trollgoreAI : public ScriptedAI
 
         if (uiExplodeCorpseTimer < diff)
         {
-            DoCast(HEROIC(SPELL_CORPSE_EXPLODE,H_SPELL_CORPSE_EXPLODE));
+            DoCast(HEROIC(SPELL_CORPSE_EXPLODE, H_SPELL_CORPSE_EXPLODE));
             DoScriptText(SAY_EXPLODE, m_creature);
             uiExplodeCorpseTimer = urand(15000,19000);
         } uiExplodeCorpseTimer -= diff;

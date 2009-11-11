@@ -72,7 +72,7 @@ struct TRINITY_DLL_DECL mob_naga_distillerAI : public ScriptedAI
         m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
         m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
 
-        DoCast(m_creature,SPELL_WARLORDS_RAGE_NAGA,true);
+        DoCast(m_creature, SPELL_WARLORDS_RAGE_NAGA, true);
 
         if (pInstance)
             pInstance->SetData(TYPE_DISTILLER,IN_PROGRESS);
@@ -151,7 +151,7 @@ struct TRINITY_DLL_DECL boss_warlord_kalithreshAI : public ScriptedAI
             if (Creature* distiller = me->FindNearestCreature(17954, 100.0f))
             {
                 DoScriptText(SAY_REGEN, m_creature);
-                DoCast(m_creature,SPELL_WARLORDS_RAGE);
+                DoCast(m_creature, SPELL_WARLORDS_RAGE);
                 CAST_AI(mob_naga_distillerAI, distiller->AI())->StartRageGen(m_creature);
             }
             Rage_Timer = 3000+rand()%15000;
@@ -168,7 +168,7 @@ struct TRINITY_DLL_DECL boss_warlord_kalithreshAI : public ScriptedAI
         if (Impale_Timer <= diff)
         {
             if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM,0))
-                DoCast(pTarget,SPELL_IMPALE);
+                DoCast(pTarget, SPELL_IMPALE);
 
             Impale_Timer = 7500+rand()%5000;
         } else Impale_Timer -= diff;

@@ -119,11 +119,11 @@ struct TRINITY_DLL_DECL boss_faerlinaAI : public BossAI
                     return;
                 case EVENT_FIRE:
                     if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
-                        DoCast(pTarget, HEROIC(SPELL_RAIN_OF_FIRE,H_SPELL_RAIN_OF_FIRE));
+                        DoCast(pTarget, HEROIC(SPELL_RAIN_OF_FIRE, H_SPELL_RAIN_OF_FIRE));
                     events.ScheduleEvent(EVENT_FIRE, urand(6000,18000));
                     return;
                 case EVENT_FRENZY:
-                    DoCast(me,HEROIC(SPELL_FRENZY,H_SPELL_FRENZY));
+                    DoCast(me, HEROIC(SPELL_FRENZY, H_SPELL_FRENZY));
                     delayFrenzy = false;
                     return;
                 case EVENT_AFTERENRAGE:
@@ -177,7 +177,7 @@ struct TRINITY_DLL_DECL mob_faerlina_addAI : public ScriptedAI
         if (pInstance)
         {
             if (Creature *pFaerlina = pInstance->instance->GetCreature(pInstance->GetData64(DATA_FAERLINA)))
-                DoCast(pFaerlina,HEROIC(SPELL_WIDOWS_EMBRACE,H_SPELL_WIDOWS_EMBRACE));
+                DoCast(pFaerlina, HEROIC(SPELL_WIDOWS_EMBRACE, H_SPELL_WIDOWS_EMBRACE));
         }
     }
     

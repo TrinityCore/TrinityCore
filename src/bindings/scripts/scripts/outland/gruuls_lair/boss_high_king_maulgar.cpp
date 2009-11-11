@@ -133,7 +133,7 @@ struct TRINITY_DLL_DECL boss_high_king_maulgarAI : public ScriptedAI
         Charging_Timer = 0;
         Roar_Timer = 0;
 
-        m_creature->CastSpell(m_creature, SPELL_DUAL_WIELD, false);
+        DoCast(m_creature, SPELL_DUAL_WIELD, false);
 
         Phase2 = false;
 
@@ -258,7 +258,7 @@ struct TRINITY_DLL_DECL boss_high_king_maulgarAI : public ScriptedAI
             Phase2 = true;
             DoScriptText(SAY_ENRAGE, m_creature);
 
-            m_creature->CastSpell(m_creature, SPELL_DUAL_WIELD, true);
+            DoCast(m_creature, SPELL_DUAL_WIELD, true);
             m_creature->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, 0);
             m_creature->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID+1, 0);
         }

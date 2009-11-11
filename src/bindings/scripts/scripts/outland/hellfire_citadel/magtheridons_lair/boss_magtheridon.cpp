@@ -109,7 +109,7 @@ struct TRINITY_DLL_DECL mob_abyssalAI : public ScriptedAI
     {
         if (trigger == 2 && spell->Id == SPELL_BLAZE_TARGET)
         {
-            m_creature->CastSpell(m_creature, SPELL_BLAZE_TRAP, true);
+            DoCast(m_creature, SPELL_BLAZE_TRAP, true);
             m_creature->SetVisibility(VISIBILITY_OFF);
             Despawn_Timer = 130000;
         }
@@ -122,7 +122,7 @@ struct TRINITY_DLL_DECL mob_abyssalAI : public ScriptedAI
         if (trigger == 1) //debris
         {
             m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-            m_creature->CastSpell(m_creature, SPELL_DEBRIS_VISUAL, true);
+            DoCast(m_creature, SPELL_DEBRIS_VISUAL, true);
             FireBlast_Timer = 5000;
             Despawn_Timer = 10000;
         }
@@ -140,7 +140,7 @@ struct TRINITY_DLL_DECL mob_abyssalAI : public ScriptedAI
             {
                 if (FireBlast_Timer <= diff)
                 {
-                    m_creature->CastSpell(m_creature, SPELL_DEBRIS_DAMAGE, true);
+                    DoCast(m_creature, SPELL_DEBRIS_DAMAGE, true);
                     trigger = 3;
                 } else FireBlast_Timer -= diff;
             }
@@ -220,7 +220,7 @@ struct TRINITY_DLL_DECL boss_magtheridonAI : public ScriptedAI
         m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
         m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
         m_creature->addUnitState(UNIT_STAT_STUNNED);
-        m_creature->CastSpell(m_creature, SPELL_SHADOW_CAGE_C, true);
+        DoCast(m_creature, SPELL_SHADOW_CAGE_C, true);
     }
 
     void JustReachedHome()
@@ -271,7 +271,7 @@ struct TRINITY_DLL_DECL boss_magtheridonAI : public ScriptedAI
         if (ClickerNum >= CLICKERS_COUNT && !m_creature->HasAura(SPELL_SHADOW_CAGE))
         {
             DoScriptText(SAY_BANISH, m_creature);
-            m_creature->CastSpell(m_creature, SPELL_SHADOW_CAGE, true);
+            DoCast(m_creature, SPELL_SHADOW_CAGE, true);
         }
         else if (ClickerNum < CLICKERS_COUNT && m_creature->HasAura(SPELL_SHADOW_CAGE))
             m_creature->RemoveAurasDueToSpell(SPELL_SHADOW_CAGE);
@@ -330,14 +330,14 @@ struct TRINITY_DLL_DECL boss_magtheridonAI : public ScriptedAI
 
         if (Berserk_Timer <= diff)
         {
-            m_creature->CastSpell(m_creature, SPELL_BERSERK, true);
+            DoCast(m_creature, SPELL_BERSERK, true);
             DoScriptText(EMOTE_BERSERK, m_creature);
             Berserk_Timer = 60000;
         } else Berserk_Timer -= diff;
 
         if (Cleave_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(),SPELL_CLEAVE);
+            DoCast(m_creature->getVictim(), SPELL_CLEAVE);
             Cleave_Timer = 10000;
         } else Cleave_Timer -= diff;
 
@@ -357,7 +357,7 @@ struct TRINITY_DLL_DECL boss_magtheridonAI : public ScriptedAI
             // to avoid blastnova interruption
             if (!m_creature->IsNonMeleeSpellCasted(false))
             {
-                m_creature->CastSpell(m_creature, SPELL_QUAKE_TRIGGER, true);
+                DoCast(m_creature, SPELL_QUAKE_TRIGGER, true);
                 Quake_Timer = 50000;
             }
         } else Quake_Timer -= diff;
@@ -372,7 +372,7 @@ struct TRINITY_DLL_DECL boss_magtheridonAI : public ScriptedAI
                 if (summon)
                 {
                     CAST_AI(mob_abyssalAI, summon->AI())->SetTrigger(2);
-                    m_creature->CastSpell(summon, SPELL_BLAZE_TARGET, true);
+                    DoCast(summon, SPELL_BLAZE_TARGET, true);
                     summon->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 }
             }
@@ -385,8 +385,8 @@ struct TRINITY_DLL_DECL boss_magtheridonAI : public ScriptedAI
         {
             Phase3 = true;
             DoScriptText(SAY_CHAMBER_DESTROY, m_creature);
-            m_creature->CastSpell(m_creature, SPELL_CAMERA_SHAKE, true);
-            m_creature->CastSpell(m_creature, SPELL_DEBRIS_KNOCKDOWN, true);
+            DoCast(m_creature, SPELL_CAMERA_SHAKE, true);
+            DoCast(m_creature, SPELL_DEBRIS_KNOCKDOWN, true);
 
             if (pInstance)
                 pInstance->SetData(DATA_COLLAPSE, true);
@@ -451,7 +451,7 @@ struct TRINITY_DLL_DECL mob_hellfire_channelerAI : public ScriptedAI
         if (pInstance)
             pInstance->SetData(DATA_CHANNELER_EVENT, NOT_STARTED);
 
-        m_creature->CastSpell(m_creature, SPELL_SHADOW_GRASP_C, false);
+        DoCast(m_creature, SPELL_SHADOW_GRASP_C, false);
     }
 
     void JustSummoned(Creature *summon)
@@ -462,7 +462,7 @@ struct TRINITY_DLL_DECL mob_hellfire_channelerAI : public ScriptedAI
     void DamageTaken(Unit*, uint32 &damage)
     {
         if (damage >= m_creature->GetHealth())
-            m_creature->CastSpell(m_creature, SPELL_SOUL_TRANSFER, true);
+            DoCast(m_creature, SPELL_SOUL_TRANSFER, true);
     }
 
     void JustDied(Unit* who)
@@ -499,7 +499,7 @@ struct TRINITY_DLL_DECL mob_hellfire_channelerAI : public ScriptedAI
         if (Infernal_Timer <= diff)
         {
             if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
-                m_creature->CastSpell(pTarget, SPELL_BURNING_ABYSSAL, true);
+                DoCast(pTarget, SPELL_BURNING_ABYSSAL, true);
             Infernal_Timer = 30000 + rand()%10000;
         } else Infernal_Timer -= diff;
 

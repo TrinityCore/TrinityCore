@@ -50,12 +50,10 @@ struct TRINITY_DLL_DECL boss_rasfrostAI : public ScriptedAI
         FrostVolley_Timer = 24000;
         Fear_Timer = 45000;
 
-        m_creature->CastSpell(m_creature,SPELL_ICEARMOR,true);
+        DoCast(m_creature, SPELL_ICEARMOR, true);
     }
 
-    void EnterCombat(Unit *who)
-    {
-    }
+    void EnterCombat(Unit *who){}
 
     void UpdateAI(const uint32 diff)
     {
@@ -72,9 +70,8 @@ struct TRINITY_DLL_DECL boss_rasfrostAI : public ScriptedAI
         //Frostbolt_Timer
         if (Frostbolt_Timer <= diff)
         {
-            Unit *pTarget = NULL;
-            pTarget = SelectUnit(SELECT_TARGET_RANDOM,0);
-            if (pTarget) DoCast(pTarget,SPELL_FROSTBOLT);
+            if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                DoCast(pTarget, SPELL_FROSTBOLT);
 
             Frostbolt_Timer = 8000;
         } else Frostbolt_Timer -= diff;
@@ -82,28 +79,28 @@ struct TRINITY_DLL_DECL boss_rasfrostAI : public ScriptedAI
         //Freeze_Timer
         if (Freeze_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(),SPELL_FREEZE);
+            DoCast(m_creature->getVictim(), SPELL_FREEZE);
             Freeze_Timer = 24000;
         } else Freeze_Timer -= diff;
 
         //Fear_Timer
         if (Fear_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(),SPELL_FEAR);
+            DoCast(m_creature->getVictim(), SPELL_FEAR);
             Fear_Timer = 30000;
         } else Fear_Timer -= diff;
 
         //ChillNova_Timer
         if (ChillNova_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(),SPELL_CHILLNOVA);
+            DoCast(m_creature->getVictim(), SPELL_CHILLNOVA);
             ChillNova_Timer = 14000;
         } else ChillNova_Timer -= diff;
 
         //FrostVolley_Timer
         if (FrostVolley_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(),SPELL_FROSTVOLLEY);
+            DoCast(m_creature->getVictim(), SPELL_FROSTVOLLEY);
             FrostVolley_Timer = 15000;
         } else FrostVolley_Timer -= diff;
 

@@ -107,7 +107,7 @@ struct TRINITY_DLL_DECL boss_watchkeeper_gargolmarAI : public ScriptedAI
 
         if (MortalWound_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(),HEROIC(SPELL_MORTAL_WOUND, H_SPELL_MORTAL_WOUND));
+            DoCast(m_creature->getVictim(), HEROIC(SPELL_MORTAL_WOUND, H_SPELL_MORTAL_WOUND));
             MortalWound_Timer = 5000+rand()%8000;
         } else MortalWound_Timer -= diff;
 
@@ -116,7 +116,7 @@ struct TRINITY_DLL_DECL boss_watchkeeper_gargolmarAI : public ScriptedAI
             DoScriptText(SAY_SURGE, m_creature);
 
             if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM,0))
-                DoCast(pTarget,SPELL_SURGE);
+                DoCast(pTarget, SPELL_SURGE);
 
             Surge_Timer = 5000+rand()%8000;
         } else Surge_Timer -= diff;
@@ -125,7 +125,7 @@ struct TRINITY_DLL_DECL boss_watchkeeper_gargolmarAI : public ScriptedAI
         {
             if (Retaliation_Timer <= diff)
             {
-                DoCast(m_creature,SPELL_RETALIATION);
+                DoCast(m_creature, SPELL_RETALIATION);
                 Retaliation_Timer = 30000;
             } else Retaliation_Timer -= diff;
         }

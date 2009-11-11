@@ -115,7 +115,7 @@ struct TRINITY_DLL_DECL boss_omor_the_unscarredAI : public ScriptedAI
             if (Summon_Timer <= diff)
             {
                 m_creature->InterruptNonMeleeSpells(false);
-                DoCast(m_creature,SPELL_SUMMON_FIENDISH_HOUND);
+                DoCast(m_creature, SPELL_SUMMON_FIENDISH_HOUND);
                 Summon_Timer = 15000+rand()%15000;
             } else Summon_Timer -= diff;
         }
@@ -130,7 +130,7 @@ struct TRINITY_DLL_DECL boss_omor_the_unscarredAI : public ScriptedAI
                     if (temp->HasUnitMovementFlag(MOVEMENTFLAG_FALLING))
                     {
                         m_creature->InterruptNonMeleeSpells(false);
-                        DoCast(temp,SPELL_SHADOW_WHIP);
+                        DoCast(temp, SPELL_SHADOW_WHIP);
                     }
                 }
                 PlayerGUID = 0;
@@ -147,7 +147,7 @@ struct TRINITY_DLL_DECL boss_omor_the_unscarredAI : public ScriptedAI
 
             if (temp && temp->GetTypeId() == TYPEID_PLAYER)
             {
-                DoCast(temp,SPELL_ORBITAL_STRIKE);
+                DoCast(temp, SPELL_ORBITAL_STRIKE);
                 OrbitalStrike_Timer = 14000+rand()%2000;
                 PlayerGUID = temp->GetGUID();
 
@@ -160,7 +160,7 @@ struct TRINITY_DLL_DECL boss_omor_the_unscarredAI : public ScriptedAI
         {
             if (DemonicShield_Timer <= diff)
             {
-                DoCast(m_creature,SPELL_DEMONIC_SHIELD);
+                DoCast(m_creature, SPELL_DEMONIC_SHIELD);
                 DemonicShield_Timer = 15000;
             } else DemonicShield_Timer -= diff;
         }
@@ -171,7 +171,7 @@ struct TRINITY_DLL_DECL boss_omor_the_unscarredAI : public ScriptedAI
 
             if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM,0))
             {
-                DoCast(pTarget,HEROIC(SPELL_TREACHEROUS_AURA, H_SPELL_BANE_OF_TREACHERY));
+                DoCast(pTarget, HEROIC(SPELL_TREACHEROUS_AURA, H_SPELL_BANE_OF_TREACHERY));
                 Aura_Timer = 8000+rand()%8000;
             }
         } else Aura_Timer -= diff;
@@ -183,7 +183,7 @@ struct TRINITY_DLL_DECL boss_omor_the_unscarredAI : public ScriptedAI
                 if (pTarget)
                     pTarget = m_creature->getVictim();
 
-                DoCast(pTarget,HEROIC(SPELL_SHADOW_BOLT, H_SPELL_SHADOW_BOLT));
+                DoCast(pTarget, HEROIC(SPELL_SHADOW_BOLT, H_SPELL_SHADOW_BOLT));
                 Shadowbolt_Timer = 4000+rand()%2500;
             }
         } else Shadowbolt_Timer -= diff;

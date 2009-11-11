@@ -159,7 +159,7 @@ struct TRINITY_DLL_DECL npc_barnesAI : public npc_escortAI
         switch(i)
         {
             case 0:
-                m_creature->CastSpell(m_creature, SPELL_TUXEDO, false);
+                DoCast(m_creature, SPELL_TUXEDO, false);
                 pInstance->DoUseDoorOrButton(pInstance->GetData64(DATA_GO_STAGEDOORLEFT));
                 break;
             case 4:
@@ -546,7 +546,7 @@ struct TRINITY_DLL_DECL npc_image_of_medivhAI : public ScriptedAI
             return 10000;
         case 10:
             if (arca)
-                m_creature->CastSpell(arca, SPELL_CONFLAGRATION_BLAST, false);
+                DoCast(arca, SPELL_CONFLAGRATION_BLAST, false);
             return 1000;
         case 11:
             if (arca)

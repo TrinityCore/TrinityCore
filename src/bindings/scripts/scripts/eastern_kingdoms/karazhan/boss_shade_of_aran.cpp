@@ -201,7 +201,7 @@ struct TRINITY_DLL_DECL boss_aranAI : public ScriptedAI
                 FlameWreathTarget[i] = (*itr)->GetGUID();
                 FWTargPosX[i] = (*itr)->GetPositionX();
                 FWTargPosY[i] = (*itr)->GetPositionY();
-                m_creature->CastSpell((*itr), SPELL_FLAME_WREATH, true);
+                DoCast((*itr), SPELL_FLAME_WREATH, true);
                 ++i;
             }
         }
@@ -255,9 +255,9 @@ struct TRINITY_DLL_DECL boss_aranAI : public ScriptedAI
 
             if (!DrinkInturrupted)
             {
-                m_creature->CastSpell(m_creature, SPELL_MASS_POLY, true);
-                m_creature->CastSpell(m_creature, SPELL_CONJURE, false);
-                m_creature->CastSpell(m_creature, SPELL_DRINK, false);
+                DoCast(m_creature, SPELL_MASS_POLY, true);
+                DoCast(m_creature, SPELL_CONJURE, false);
+                DoCast(m_creature, SPELL_DRINK, false);
                 m_creature->SetStandState(UNIT_STAND_STATE_SIT);
                 DrinkInturruptTimer = 10000;
             }
@@ -270,7 +270,7 @@ struct TRINITY_DLL_DECL boss_aranAI : public ScriptedAI
             m_creature->RemoveAurasDueToSpell(SPELL_DRINK);
             m_creature->SetStandState(UNIT_STAND_STATE_STAND);
             m_creature->SetPower(POWER_MANA, m_creature->GetMaxPower(POWER_MANA)-32000);
-            m_creature->CastSpell(m_creature, SPELL_POTION, false);
+            DoCast(m_creature, SPELL_POTION, false);
         }
 
         //Drink Inturrupt Timer
@@ -280,8 +280,8 @@ struct TRINITY_DLL_DECL boss_aranAI : public ScriptedAI
         else
         {
             m_creature->SetStandState(UNIT_STAND_STATE_STAND);
-            m_creature->CastSpell(m_creature, SPELL_POTION, true);
-            m_creature->CastSpell(m_creature, SPELL_AOE_PYROBLAST, false);
+            DoCast(m_creature, SPELL_POTION, true);
+            DoCast(m_creature, SPELL_AOE_PYROBLAST, false);
             DrinkInturrupted = true;
             Drinking = false;
         }
@@ -371,10 +371,10 @@ struct TRINITY_DLL_DECL boss_aranAI : public ScriptedAI
                 case SUPER_AE:
                     DoScriptText(RAND(SAY_EXPLOSION1,SAY_EXPLOSION2), m_creature);
 
-                    m_creature->CastSpell(m_creature, SPELL_BLINK_CENTER, true);
-                    m_creature->CastSpell(m_creature, SPELL_PLAYERPULL, true);
-                    m_creature->CastSpell(m_creature, SPELL_MASSSLOW, true);
-                    m_creature->CastSpell(m_creature, SPELL_AEXPLOSION, false);
+                    DoCast(m_creature, SPELL_BLINK_CENTER, true);
+                    DoCast(m_creature, SPELL_PLAYERPULL, true);
+                    DoCast(m_creature, SPELL_MASSSLOW, true);
+                    DoCast(m_creature, SPELL_AEXPLOSION, false);
                     break;
 
                 case SUPER_FLAME:

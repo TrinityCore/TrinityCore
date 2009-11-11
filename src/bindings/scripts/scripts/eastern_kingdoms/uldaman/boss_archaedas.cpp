@@ -167,7 +167,7 @@ struct TRINITY_DLL_DECL boss_archaedasAI : public ScriptedAI
         if (Tremor_Timer <= diff)
         {
             //Cast
-            DoCast(m_creature->getVictim(),SPELL_GROUND_TREMOR);
+            DoCast(m_creature->getVictim(), SPELL_GROUND_TREMOR);
 
             //45 seconds until we should cast this agian
             Tremor_Timer  = 45000;
