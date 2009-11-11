@@ -910,6 +910,7 @@ struct TRINITY_DLL_DECL npc_nexus_drake_hatchlingAI : public FollowerAI //The sp
     void Reset()
     {
         WithRedDragonBlood = false;
+	pPlayer = NULL;
     }
     
     void EnterCombat(Unit* pWho)
@@ -936,10 +937,10 @@ struct TRINITY_DLL_DECL npc_nexus_drake_hatchlingAI : public FollowerAI //The sp
         
         if (m_creature->HasAura(SPELL_SUBDUED) && pWho->GetEntry() == NPC_RAELORASZ)
         {
-            if (m_creature->IsWithinDistInMap(pWho, INTERACTION_DISTANCE))
+            if (m_creature->IsWithinDistInMap(pWho, INTERACTION_DISTANCE) && pPlayer && pPlayer->GetTypeId() == TYPEID_PLAYER)
             {
-                ((Player*)(pPlayer))->KilledMonsterCredit(26175,0);
-                ((Player*)(pPlayer))->RemoveAura(SPELL_DRAKE_HATCHLING_SUBDUED);
+		CAST_PLR(pPlayer)->KilledMonsterCredit(26175,0);
+		CAST_PLR(pPlayer)->RemoveAura(SPELL_DRAKE_HATCHLING_SUBDUED);
                 SetFollowComplete();
                 m_creature->DisappearAndDie();
             }
@@ -948,16 +949,16 @@ struct TRINITY_DLL_DECL npc_nexus_drake_hatchlingAI : public FollowerAI //The sp
     
     void UpdateAI(const uint32 diff)
     {
-        if (WithRedDragonBlood && !m_creature->HasAura(SPELL_RED_DRAGONBLOOD))
+        if (WithRedDragonBlood && !m_creature->HasAura(SPELL_RED_DRAGONBLOOD) && pPlayer && pPlayer->GetTypeId() == TYPEID_PLAYER)
         {
             if (npc_nexus_drake_hatchlingAI* pDrakeAI = CAST_AI(npc_nexus_drake_hatchlingAI, m_creature->AI()))
             {
                 EnterEvadeMode();
-                pDrakeAI->StartFollow((Player*)(pPlayer), 35, NULL);
+                pDrakeAI->StartFollow(CAST_PLR(pPlayer), 35, NULL);
             }
             
             m_creature->CastSpell(m_creature,SPELL_SUBDUED,true);
-            ((Player*)(pPlayer))->CastSpell((Player*)(pPlayer),SPELL_DRAKE_HATCHLING_SUBDUED,true);
+            pPlayer->CastSpell(pPlayer,SPELL_DRAKE_HATCHLING_SUBDUED,true);
             
             m_creature->AttackStop();
             WithRedDragonBlood = false;
