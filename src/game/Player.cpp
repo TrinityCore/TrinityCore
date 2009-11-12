@@ -13385,9 +13385,9 @@ void Player::FailQuest(uint32 questId)
                 // Destroy items recieved on starting the quest.
                 DestroyItemCount(pQuest->ReqItemId[i], pQuest->ReqItemCount[i], true, true);
         for (uint8 i = 0; i < QUEST_SOURCE_ITEM_IDS_COUNT; ++i)
-            if (pQuest->SrcItemId[i] > 0 && pQuest->SrcItemCount[i] > 0)
+			if (pQuest->ReqSourceId[i] > 0 && pQuest->ReqSourceCount[i] > 0)
                 // Destroy items recieved during the quest.
-                DestroyItemCount(pQuest->SrcItemId[i], pQuest->SrcItemCount[i], true, true);
+                DestroyItemCount(pQuest->ReqSourceId[i], pQuest->ReqSourceCount[i], true, true);
     }
 }
 
