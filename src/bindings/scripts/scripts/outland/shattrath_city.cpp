@@ -463,8 +463,11 @@ struct TRINITY_DLL_DECL npc_dirty_larryAI : public ScriptedAI
             Attack = false;
         }
 
-        if ((m_creature->GetHealth()*100)/m_creature->GetMaxHealth() < 1 && !Done)
+        if ((m_creature->GetHealth()*100)/m_creature->GetMaxHealth() < 5 && !Done)
         {
+            m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+            m_creature->RemoveAllAuras();
+
             Unit* Creepjack = me->FindNearestCreature(NPC_CREEPJACK, 20);
             if (Creepjack)
             {
@@ -481,7 +484,6 @@ struct TRINITY_DLL_DECL npc_dirty_larryAI : public ScriptedAI
                 Malone->GetMotionMaster()->MoveTargetedHome();
                 Malone->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
             }
-            m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
             m_creature->setFaction(1194);
             Done = true;
             DoScriptText(SAY_GIVEUP, m_creature, NULL);
