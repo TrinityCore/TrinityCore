@@ -105,15 +105,19 @@ enum EventAI_ActionType
     ACTION_T_ZONE_COMBAT_PULSE          = 38,               // No Params
     ACTION_T_CALL_FOR_HELP              = 39,               // Radius
     ACTION_T_SET_SHEATH                 = 40,               // Sheath (0-passive,1-melee,2-ranged)
+    ACTION_T_FORCE_DESPAWN              = 41,               // No Params
+    ACTION_T_SET_INVINCIBILITY_HP_LEVEL = 42,               // MinHpValue, format(0-flat,1-percent from max health)
 
+    ACTION_T_SET_PHASE_MASK             = 97,
+    ACTION_T_SET_STAND_STATE            = 98,
+    ACTION_T_MOVE_RANDOM_POINT          = 99,
+    ACTION_T_SET_VISIBILITY             = 100,
     ACTION_T_SET_ACTIVE                 = 101,  //Apply
     ACTION_T_SET_AGGRESSIVE             = 102,  //Apply
     ACTION_T_ATTACK_START_PULSE         = 103,  //Distance
     ACTION_T_SUMMON_GO                  = 104,  //GameObjectID, DespawnTime in ms
 
-    ACTION_T_FORCE_DESPAWN              = 41,               // No Params
-    ACTION_T_END = 105,
-    ACTION_T_SET_INVINCIBILITY_HP_LEVEL = 42,               // MinHpValue, format(0-flat,1-percent from max health)
+    ACTION_T_END                        = 105,
 };
 
 enum Target

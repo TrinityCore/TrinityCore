@@ -689,6 +689,10 @@ void CreatureEventAIMgr::LoadCreatureEventAI_Scripts()
                         sLog.outErrorDb("CreatureEventAI:  Event %u Action %u currently unused ACTION type. Did you forget to update database?", i, j+1);
                         break;
 
+                    case ACTION_T_MOVE_RANDOM_POINT:
+                    case ACTION_T_SET_STAND_STATE:
+                    case ACTION_T_SET_PHASE_MASK:
+                    case ACTION_T_SET_VISIBILITY:
                     case ACTION_T_SET_ACTIVE:
                     case ACTION_T_SET_AGGRESSIVE:
                     case ACTION_T_ATTACK_START_PULSE:
