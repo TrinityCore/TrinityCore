@@ -302,16 +302,6 @@ struct TRINITY_DLL_DECL boss_sartharionAI : public ScriptedAI
             DoCast(m_creature, SPELL_WILL_OF_SARTHARION);
     }
 
-   void ApplyDebuff(uint32 spellPowerOf)
-   {
-       std::list<HostilReference*>& threatlist = m_creature->getThreatManager().getThreatList();
-       for (std::list<HostilReference*>::iterator itr = threatlist.begin(); itr != threatlist.end(); ++itr)
-           if (Unit *target = Unit::GetUnit(*m_creature, (*itr)->getUnitGuid()))
-               if (target->GetTypeId() == TYPEID_PLAYER)
-                    m_creature->AddAura(spellPowerOf, target);
-   }
-
-
     void CallDragon(uint32 uiDataId)
     {
         if (pInstance)
@@ -332,17 +322,17 @@ struct TRINITY_DLL_DECL boss_sartharionAI : public ScriptedAI
                         case NPC_TENEBRON:
                             iTextId = SAY_SARTHARION_CALL_TENEBRON;
                             pTemp->GetMotionMaster()->MovePoint(POINT_ID_LAND, m_aTene[1].m_fX, m_aTene[1].m_fY, m_aTene[1].m_fZ);
-                           ApplyDebuff(SPELL_POWER_OF_TENEBRON);
+                            DoAddAuraToAllHostilePlayers(SPELL_POWER_OF_TENEBRON);
                             break;
                         case NPC_SHADRON:
                             iTextId = SAY_SARTHARION_CALL_SHADRON;
                             pTemp->GetMotionMaster()->MovePoint(POINT_ID_LAND, m_aShad[1].m_fX, m_aShad[1].m_fY, m_aShad[1].m_fZ);
-                           ApplyDebuff(SPELL_POWER_OF_SHADRON);
+                            DoAddAuraToAllHostilePlayers(SPELL_POWER_OF_SHADRON);
                             break;
                         case NPC_VESPERON:
                             iTextId = SAY_SARTHARION_CALL_VESPERON;
                             pTemp->GetMotionMaster()->MovePoint(POINT_ID_LAND, m_aVesp[1].m_fX, m_aVesp[1].m_fY, m_aVesp[1].m_fZ);
-                           ApplyDebuff(SPELL_POWER_OF_VESPERON);
+                            DoAddAuraToAllHostilePlayers(SPELL_POWER_OF_VESPERON);
                             break;
                     }
 
