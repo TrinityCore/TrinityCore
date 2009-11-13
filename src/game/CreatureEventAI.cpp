@@ -755,6 +755,22 @@ void CreatureEventAI::ProcessAction(CreatureEventAI_Action const& action, uint32
         break;
 
         // TRINITY ONLY
+        case ACTION_T_MOVE_RANDOM_POINT: //dosen't work in combat
+        {
+            float x,y,z;
+            me->GetClosePoint(x, y, z, me->GetObjectSize() / 3, action.raw.param1);
+            me->GetMotionMaster()->MovePoint(0,x,y,z);
+            break;
+        }
+        case ACTION_T_SET_STAND_STATE:
+            me->SetStandState(UnitStandStateType(action.raw.param1));
+            break;
+        case ACTION_T_SET_PHASE_MASK:
+            me->SetPhaseMask(action.raw.param1, true);
+            break;
+        case ACTION_T_SET_VISIBILITY:
+            me->SetVisibility(UnitVisibility(action.raw.param1));
+            break;
         case ACTION_T_SET_ACTIVE:
             me->setActive(action.raw.param1 ? true : false);
             break;
