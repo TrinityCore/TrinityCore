@@ -29,7 +29,7 @@ Quest::Quest(Field * questRecord)
     ZoneOrSort = questRecord[2].GetInt32();
     SkillOrClass = questRecord[3].GetInt32();
     MinLevel = questRecord[4].GetUInt32();
-    QuestLevel = questRecord[5].GetUInt32();
+    QuestLevel = questRecord[5].GetInt32();
     Type = questRecord[6].GetUInt32();
     RequiredRaces = questRecord[7].GetUInt32();
     RequiredSkillValue = questRecord[8].GetUInt32();
@@ -167,7 +167,7 @@ uint32 Quest::XPValue( Player *pPlayer ) const
         if( RewMoneyMaxLevel > 0 )
         {
             uint32 pLevel = pPlayer->getLevel();
-            uint32 qLevel = QuestLevel;
+            int32 qLevel = QuestLevel;
             float fullxp = 0;
             if (qLevel >= 15)
                 fullxp = RewMoneyMaxLevel / 6.0f;
@@ -181,18 +181,18 @@ uint32 Quest::XPValue( Player *pPlayer ) const
                 fullxp = RewMoneyMaxLevel / 1.2f;
             else if (qLevel >= 1 && qLevel <= 10)
                 fullxp = RewMoneyMaxLevel / 0.6f;
-            else if (qLevel == 0)
+            else if (qLevel <= 0)
                 fullxp = RewMoneyMaxLevel;
 
-            if( pLevel <= qLevel +  5 )
+            if ((pLevel <= qLevel + 5) || qLevel == -1)
                 return (uint32)fullxp;
-            else if( pLevel == qLevel +  6 )
+            else if (pLevel == qLevel + 6)
                 return (uint32)(fullxp * 0.8f);
-            else if( pLevel == qLevel +  7 )
+            else if (pLevel == qLevel + 7)
                 return (uint32)(fullxp * 0.6f);
-            else if( pLevel == qLevel +  8 )
+            else if (pLevel == qLevel + 8)
                 return (uint32)(fullxp * 0.4f);
-            else if( pLevel == qLevel +  9 )
+            else if (pLevel == qLevel + 9)
                 return (uint32)(fullxp * 0.2f);
             else
                 return (uint32)(fullxp * 0.1f);
@@ -203,7 +203,7 @@ uint32 Quest::XPValue( Player *pPlayer ) const
 
 int32  Quest::GetRewOrReqMoney() const
 {
-    if(RewOrReqMoney <=0)
+    if(RewOrReqMoney <= 0)
         return RewOrReqMoney;
 
     return int32(RewOrReqMoney * sWorld.getRate(RATE_DROP_MONEY));

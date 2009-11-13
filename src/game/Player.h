@@ -1211,7 +1211,7 @@ class MANGOS_DLL_SPEC Player : public Unit
         /***                    QUEST SYSTEM                   ***/
         /*********************************************************/
 
-        uint32 GetQuestLevel( Quest const* pQuest ) const { return pQuest && pQuest->GetQuestLevel() ? pQuest->GetQuestLevel() : getLevel(); }
+        int32 GetQuestLevel( Quest const* pQuest ) const { return pQuest && pQuest->GetQuestLevel() ? pQuest->GetQuestLevel() : getLevel(); }
 
         void PrepareQuestMenu( uint64 guid );
         void SendPreparedQuest( uint64 guid );
