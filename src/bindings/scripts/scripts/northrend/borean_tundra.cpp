@@ -1035,4 +1035,4 @@ void AddSC_borean_tundra()
     newscript->Name = "npc_nexus_drake_hatchling";
     newscript->GetAI = &GetAI_npc_nexus_drake_hatchling;
     newscript->RegisterSelf();
-}
+}
