@@ -881,13 +881,17 @@ enum eNexusDrakeHatchling
 
 struct TRINITY_DLL_DECL npc_nexus_drake_hatchlingAI : public FollowerAI //The spell who makes the npc follow the player is missing, also we can use FollowerAI!
 {
-    npc_nexus_drake_hatchlingAI(Creature *c) : FollowerAI(c) { Reset(); }
+    npc_nexus_drake_hatchlingAI(Creature *c) : FollowerAI(c)
+    {
+          pHarpooner = NULL;
+    }
 
     Player *pHarpooner;
+    bool WithRedDragonBlood;
 
     void Reset()
     {
-       pHarpooner = NULL;
+       WithRedDragonBlood = false;
     }
 
     void EnterCombat(Unit* pWho)
@@ -903,6 +907,7 @@ struct TRINITY_DLL_DECL npc_nexus_drake_hatchlingAI : public FollowerAI //The sp
             pHarpooner = CAST_PLR(caster);
             DoCast(m_creature, SPELL_RED_DRAGONBLOOD, true);
         }
+        WithRedDragonBlood = true;
     }
 
     void MoveInLineOfSight(Unit *pWho)
@@ -919,6 +924,7 @@ struct TRINITY_DLL_DECL npc_nexus_drake_hatchlingAI : public FollowerAI //The sp
                 pHarpooner->KilledMonsterCredit(26175,0);
                 pHarpooner->RemoveAura(SPELL_DRAKE_HATCHLING_SUBDUED);
                 SetFollowComplete();
+                pHarpooner = NULL;
                 m_creature->DisappearAndDie();
             }
         }
@@ -926,7 +932,7 @@ struct TRINITY_DLL_DECL npc_nexus_drake_hatchlingAI : public FollowerAI //The sp
 
     void UpdateAI(const uint32 diff)
     {
-        if (pHarpooner && pHarpooner->IsInWorld() && !m_creature->HasAura(SPELL_RED_DRAGONBLOOD))
+        if (WithRedDragonBlood && pHarpooner && pHarpooner->IsInWorld() && !m_creature->HasAura(SPELL_RED_DRAGONBLOOD))
         {
             if (npc_nexus_drake_hatchlingAI* pDrakeAI = CAST_AI(npc_nexus_drake_hatchlingAI, m_creature->AI()))
             {
@@ -938,7 +944,7 @@ struct TRINITY_DLL_DECL npc_nexus_drake_hatchlingAI : public FollowerAI //The sp
             pHarpooner->CastSpell(pHarpooner, SPELL_DRAKE_HATCHLING_SUBDUED, true);
 
             m_creature->AttackStop();
-            pHarpooner = NULL;
+            WithRedDragonBlood = false;
         }
 
         if (!UpdateVictim())
