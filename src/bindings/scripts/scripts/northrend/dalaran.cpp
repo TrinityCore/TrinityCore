@@ -67,26 +67,30 @@ struct TRINITY_DLL_DECL npc_mageguard_dalaranAI : public Scripted_NoMovementAI
         if (!pWho)
             return;
 
-        Player* pVisiblePlayer = NULL;
-
-        if (pWho->GetTypeId() == TYPEID_PLAYER)
-            pVisiblePlayer = CAST_PLR(pWho);
-
-        if (!pVisiblePlayer || pVisiblePlayer->isGameMaster())
+        if (pWho->GetZoneId() != 4395) // Dalaran
             return;
 
-        if (m_creature->GetDistance(pVisiblePlayer) >= 12.0f)
+        if (!me->IsWithinDist(pWho, 50.0f, false))
             return;
 
+        Player *pPlayer = pWho->GetCharmerOrOwnerPlayerOrPlayerItself();
+
+        if (!pPlayer || pPlayer->isGameMaster())
+            return;
+
+        float x = pWho->GetPositionX();
+        float y = pWho->GetPositionY();
         switch (m_creature->GetEntry())
         {
             case 29254:
-                if (pVisiblePlayer->GetTeam() == HORDE)
-                    DoCast(pVisiblePlayer, SPELL_TRESPASSER_A);
+                if (pPlayer->GetTeam() == HORDE)
+                    if (x < 5760.0f && y > 665.0f && y < 812.0f) // Silver Enclave (Dalaran), fast check
+                        DoCast(pWho, SPELL_TRESPASSER_A);
                 break;
             case 29255:
-                if (pVisiblePlayer->GetTeam() == ALLIANCE)
-                    DoCast(pVisiblePlayer, SPELL_TRESPASSER_H);
+                if (pPlayer->GetTeam() == ALLIANCE)
+                    if (x > 5864.0f && y > 507.0f && y < 600.0f) // Sunreaver's Sanctuary (Dalaran), fast check
+                        DoCast(pWho, SPELL_TRESPASSER_H);
                 break;
         }
         return;
