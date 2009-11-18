@@ -3968,6 +3968,23 @@ void Unit::RemoveAurasDueToSpellByDispel(uint32 spellId, uint64 casterGUID, Unit
                     dispeller->CastCustomSpell(dispeller, 31117, &damage, NULL, NULL, true, NULL, NULL, GetGUID());
                 }
             }
+            if (aur->GetSpellProto()->SpellFamilyName == SPELLFAMILY_SHAMAN && (aur->GetSpellProto()->SpellFamilyFlags[0] & 0x10000000))
+            {
+                Unit *caster = GetUnit(*this, casterGUID);
+                uint32 triggered_spell_id = 0;
+                if (caster)
+                {
+                    // Lava Flows
+                    if (caster->HasAura(51482))      // Rank 3
+                        triggered_spell_id = 65264;
+                    else if (caster->HasAura(51481)) // Rank 2
+                        triggered_spell_id = 65263;
+                    else if (caster->HasAura(51480)) // Rank 1
+                        triggered_spell_id = 64694;
+                    if (triggered_spell_id)
+                        caster->CastSpell(caster, triggered_spell_id, true);
+                }
+            }
             return;
         }
         else
@@ -6575,7 +6592,7 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                 // Shaman Tier 6 Trinket
                 case 40463:
                 {
-                    if( !procSpell )
+                    if (!procSpell)
                         return false;
 
                     float chance;
@@ -6603,29 +6620,11 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                     target = this;
                     break;
                 }
-                // Lava Flows (Rank 1)
-                case 51480:
-                {
-                    triggered_spell_id = 64694;
-                    break;
-                }
-                // Lava Flows (Rank 2)
-                case 51481:
-                {
-                    triggered_spell_id = 65263;
-                    break;
-                }
-                // Lava Flows (Rank 3)
-                case 51482:
-                {
-                    triggered_spell_id = 65264;
-                    break;
-                }
                 // Glyph of Healing Wave
                 case 55440:
                 {
                     // Not proc from self heals
-                    if (this==pVictim)
+                    if (this == pVictim)
                         return false;
                     basepoints0 = triggerAmount * damage / 100;
                     target = this;
