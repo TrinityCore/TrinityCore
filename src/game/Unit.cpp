@@ -3884,7 +3884,7 @@ bool Unit::RemoveNoStackAurasDueToAura(Aura *Aur)
     return true;
 }
 
-void Unit::RemoveAura(uint32 spellId, uint64 caster ,AuraRemoveMode removeMode)
+void Unit::RemoveAura(uint32 spellId, uint64 caster, AuraRemoveMode removeMode)
 {
     for (AuraMap::iterator iter = m_Auras.lower_bound(spellId); iter != m_Auras.upper_bound(spellId); )
     {
@@ -3903,7 +3903,7 @@ void Unit::RemoveAura(Aura * aur ,AuraRemoveMode mode)
     // no need to remove
     if (!aur || aur->IsRemoved())
         return;
-    for (AuraMap::iterator iter = m_Auras.lower_bound(aur->GetId()); iter != m_Auras.upper_bound(aur->GetId()); )
+    for (AuraMap::iterator iter = m_Auras.lower_bound(aur->GetId()); iter != m_Auras.upper_bound(aur->GetId());)
     {
         if (aur == iter->second)
         {
@@ -3915,9 +3915,9 @@ void Unit::RemoveAura(Aura * aur ,AuraRemoveMode mode)
     }
 }
 
-void Unit::RemoveAurasDueToSpell(uint32 spellId, uint64 caster ,AuraRemoveMode removeMode)
+void Unit::RemoveAurasDueToSpell(uint32 spellId, uint64 caster, AuraRemoveMode removeMode)
 {
-    for (AuraMap::iterator iter = m_Auras.lower_bound(spellId); iter != m_Auras.upper_bound(spellId); )
+    for (AuraMap::iterator iter = m_Auras.lower_bound(spellId); iter != m_Auras.upper_bound(spellId);)
     {
         if (!caster || iter->second->GetCasterGUID()==caster)
         {
@@ -3929,9 +3929,9 @@ void Unit::RemoveAurasDueToSpell(uint32 spellId, uint64 caster ,AuraRemoveMode r
     }
 }
 
-void Unit::RemoveAuraFromStack(uint32 spellId, uint64 caster ,AuraRemoveMode removeMode)
+void Unit::RemoveAuraFromStack(uint32 spellId, uint64 caster, AuraRemoveMode removeMode)
 {
-    for (AuraMap::iterator iter = m_Auras.lower_bound(spellId); iter != m_Auras.upper_bound(spellId); )
+    for (AuraMap::iterator iter = m_Auras.lower_bound(spellId); iter != m_Auras.upper_bound(spellId);)
     {
         if (!caster || iter->second->GetCasterGUID()==caster)
         {
@@ -3949,9 +3949,9 @@ inline void Unit::RemoveAuraFromStack(AuraMap::iterator &iter,AuraRemoveMode rem
         RemoveAura(iter, removeMode);
 }
 
-void Unit::RemoveAurasDueToSpellByDispel(uint32 spellId, uint64 casterGUID, Unit *dispeler)
+void Unit::RemoveAurasDueToSpellByDispel(uint32 spellId, uint64 casterGUID, Unit *dispeller)
 {
-    for (AuraMap::iterator iter = m_Auras.lower_bound(spellId); iter != m_Auras.upper_bound(spellId); )
+    for (AuraMap::iterator iter = m_Auras.lower_bound(spellId); iter != m_Auras.upper_bound(spellId);)
     {
         Aura *aur = iter->second;
         if (casterGUID == aur->GetCasterGUID())
@@ -3965,7 +3965,7 @@ void Unit::RemoveAurasDueToSpellByDispel(uint32 spellId, uint64 casterGUID, Unit
                 {
                     int32 damage = aurEff->GetAmount()*9;
                     // backfire damage and silence
-                    dispeler->CastCustomSpell(dispeler, 31117, &damage, NULL, NULL, true, NULL, NULL,GetGUID());
+                    dispeller->CastCustomSpell(dispeller, 31117, &damage, NULL, NULL, true, NULL, NULL, GetGUID());
                 }
             }
             return;
@@ -3980,7 +3980,7 @@ void Unit::RemoveAurasDueToSpellBySteal(uint32 spellId, uint64 casterGUID, Unit 
     if (casterGUID == stealer->GetGUID())
         return;
 
-    for (AuraMap::iterator iter = m_Auras.lower_bound(spellId); iter != m_Auras.upper_bound(spellId); )
+    for (AuraMap::iterator iter = m_Auras.lower_bound(spellId); iter != m_Auras.upper_bound(spellId);)
     {
         Aura * aur = iter->second;
         if (casterGUID == aur->GetCasterGUID())
