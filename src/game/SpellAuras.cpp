@@ -2099,14 +2099,21 @@ void AuraEffect::HandleShapeshiftBoosts(bool apply)
                 if (spellInfo->Stances & (1<<(form)))
                     m_target->CastSpell(m_target, itr->first, true, NULL, this);
             }
-            //LotP
+            // Leader of the Pack
             if (((Player*)m_target)->HasSpell(17007))
             {
                 SpellEntry const *spellInfo = sSpellStore.LookupEntry(24932);
                 if (spellInfo && spellInfo->Stances & (1<<(form)))
                     m_target->CastSpell(m_target, 24932, true, NULL, this);
             }
-            // HotW
+            // Improved Barkskin - apply/remove armor bonus due to shapeshift
+            if (((Player*)m_target)->HasSpell(63410) || ((Player*)m_target)->HasSpell(63411))
+            {
+                m_target->RemoveAurasDueToSpell(66530);
+                if (form == FORM_TRAVEL || form == FORM_NONE) // "while in Travel Form or while not shapeshifted"
+                    m_target->CastSpell(m_target, 66530, true);
+            }
+            // Heart of the Wild
             if (HotWSpellId)
             {
                 Unit::AuraEffectList const& mModTotalStatPct = m_target->GetAurasByType(SPELL_AURA_MOD_TOTAL_STAT_PERCENTAGE);
@@ -2189,17 +2196,20 @@ void AuraEffect::HandleShapeshiftBoosts(bool apply)
         if (spellId2)
             m_target->RemoveAurasDueToSpell(spellId2);
 
+        // Improved Barkskin - apply/remove armor bonus due to shapeshift
+        if (((Player*)m_target)->HasSpell(63410) || ((Player*)m_target)->HasSpell(63411))
+        {
+            m_target->RemoveAurasDueToSpell(66530);
+            m_target->CastSpell(m_target,66530,true);
+        }
+
         Unit::AuraMap& tAuras = m_target->GetAuras();
-        for (Unit::AuraMap::iterator itr = tAuras.begin(); itr != tAuras.end(); )
+        for (Unit::AuraMap::iterator itr = tAuras.begin(); itr != tAuras.end();)
         {
             if (itr->second->IsRemovedOnShapeLost())
-            {
                 m_target->RemoveAura(itr);
-            }
             else
-            {
                 ++itr;
-            }
         }
     }
 }
