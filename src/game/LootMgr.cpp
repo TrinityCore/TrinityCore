@@ -860,26 +860,56 @@ bool LootTemplate::LootGroup::HasQuestDropForPlayer(Player const * player) const
 // Rolls an item from the group (if any takes its chance) and adds the item to the loot
 void LootTemplate::LootGroup::Process(Loot& loot, uint16 lootMode) const
 {
-    LootStoreItem const * item = Roll();
-    if (item != NULL && item->lootmode & lootMode) // only add this item if roll succeeds and the mode matches
+    // build up list of possible drops
+    std::list<uint32> *possibleDrops = new std::list<uint32>();
+    for (LootStoreItemList::const_iterator itr = EqualChanced.begin(); itr != EqualChanced.end(); ++itr)
+        possibleDrops->push_back(itr->itemid);         // add all of the equal chanced items to possibleDrops
+
+    for (LootStoreItemList::const_iterator itr = ExplicitlyChanced.begin(); itr != ExplicitlyChanced.end(); ++itr)
+        possibleDrops->push_back(itr->itemid);         // add all of the explicitly chanced items to possibleDrops
+
+    possibleDrops->unique();                           // remove duplicates
+
+    uint8 uiFailSafeLoopBreaker = 0;
+
+    while (!possibleDrops->empty())                    // continue rolling while possibleDrops contains data
     {
-        if (ItemPrototype const* _proto = sItemStorage.LookupEntry<ItemPrototype>(item->itemid))
+        ++uiFailSafeLoopBreaker;
+        if (uiFailSafeLoopBreaker == 255)
         {
-            uint8 _item_counter = 0;
-            LootItemList::const_iterator _item = loot.items.begin();
-            for (; _item != loot.items.end(); ++_item)
-                if (_item->itemid == item->itemid)
-                {
-                    ++_item_counter;
-                    if (_proto->InventoryType == 0 && _item_counter == 3)     // Non-equippable items are limited to 3 drops
-                        return;
-                    else if(_proto->InventoryType != 0 && _item_counter == 1) // Equippable item are limited to 1 drop
-                        return;
-                }
-            //if (_item != loot.items.end())
-            //    return;
+            sLog.outError("Tried to roll for loot from the same loot group too many times, aborting to avoid a crash.");
+            return;
         }
-        loot.AddItem(*item);
+
+        LootStoreItem const *item = Roll();
+
+        if (item != NULL && item->lootmode & lootMode) // only add this item if roll succeeds and the mode matches
+        {
+            if (std::find(possibleDrops->begin(), possibleDrops->end(), item->itemid) == possibleDrops->end())
+                continue;                              // if item->itemid can't be found in possibleDrops, roll again
+
+            bool duplicate = false;
+            if (ItemPrototype const *_proto = sItemStorage.LookupEntry<ItemPrototype>(item->itemid))
+            {
+                uint8 _item_counter = 0;
+                for (LootItemList::const_iterator _item = loot.items.begin(); _item != loot.items.end(); ++_item)
+                    if (_item->itemid == item->itemid)                            // search through the items that have already dropped
+                    {
+                        ++_item_counter;
+                        if (_proto->InventoryType == 0 && _item_counter == 3)     // Non-equippable items are limited to 3 drops
+                            duplicate = true;
+                        else if(_proto->InventoryType != 0 && _item_counter == 1) // Equippable item are limited to 1 drop
+                            duplicate = true;
+                    }
+            }
+            if (duplicate) // if item->itemid is a duplicate, remove it from possibleDrops
+                possibleDrops->remove(item->itemid);
+            else           // otherwise, add the item and exit the function
+            {
+                loot.AddItem(*item);
+                return;
+            }
+        }
     }
 }
 
@@ -983,12 +1013,12 @@ void LootTemplate::Process(Loot& loot, LootStore const& store, bool rate, uint16
         if (!i->Roll(rate))
             continue;                                         // Bad luck for the entry
 
-        if (ItemPrototype const* _proto = sItemStorage.LookupEntry<ItemPrototype>(i->itemid))
+        if (ItemPrototype const *_proto = sItemStorage.LookupEntry<ItemPrototype>(i->itemid))
         {
             uint8 _item_counter = 0;
             LootItemList::const_iterator _item = loot.items.begin();
             for (; _item != loot.items.end(); ++_item)
-                if (_item->itemid == i->itemid)
+                if (_item->itemid == i->itemid)                               // search through the items that have already dropped
                 {
                     ++_item_counter;
                     if (_proto->InventoryType == 0 && _item_counter == 3)     // Non-equippable items are limited to 3 drops
@@ -1029,22 +1059,22 @@ bool LootTemplate::HasQuestDrop(LootTemplateMap const& store, uint8 groupId) con
         return Groups[groupId-1].HasQuestDrop();
     }
 
-    for (LootStoreItemList::const_iterator i = Entries.begin(); i != Entries.end(); ++i )
+    for (LootStoreItemList::const_iterator i = Entries.begin(); i != Entries.end(); ++i)
     {
         if (i->mincountOrRef < 0)                           // References
         {
             LootTemplateMap::const_iterator Referenced = store.find(-i->mincountOrRef);
-            if( Referenced ==store.end() )
+            if( Referenced ==store.end())
                 continue;                                   // Error message [should be] already printed at loading stage
-            if (Referenced->second->HasQuestDrop(store, i->group) )
+            if (Referenced->second->HasQuestDrop(store, i->group))
                 return true;
         }
-        else if ( i->needs_quest )
+        else if (i->needs_quest)
             return true;                                    // quest drop found
     }
 
     // Now processing groups
-    for (LootGroups::const_iterator i = Groups.begin() ; i != Groups.end() ; ++i )
+    for (LootGroups::const_iterator i = Groups.begin() ; i != Groups.end(); ++i)
         if (i->HasQuestDrop())
             return true;
 
@@ -1062,14 +1092,14 @@ bool LootTemplate::HasQuestDropForPlayer(LootTemplateMap const& store, Player co
     }
 
     // Checking non-grouped entries
-    for (LootStoreItemList::const_iterator i = Entries.begin() ; i != Entries.end() ; ++i )
+    for (LootStoreItemList::const_iterator i = Entries.begin() ; i != Entries.end(); ++i)
     {
         if (i->mincountOrRef < 0)                           // References processing
         {
             LootTemplateMap::const_iterator Referenced = store.find(-i->mincountOrRef);
-            if (Referenced == store.end() )
+            if (Referenced == store.end())
                 continue;                                   // Error message already printed at loading stage
-            if (Referenced->second->HasQuestDropForPlayer(store, player, i->group) )
+            if (Referenced->second->HasQuestDropForPlayer(store, player, i->group))
                 return true;
         }
         else if (player->HasQuestForItem(i->itemid))
@@ -1145,7 +1175,7 @@ void LoadLootTemplates_Disenchant()
     // remove real entries and check existence loot
     for (uint32 i = 1; i < sItemStorage.MaxEntry; ++i)
     {
-        if (ItemPrototype const* proto = sItemStorage.LookupEntry<ItemPrototype>(i))
+        if (ItemPrototype const *proto = sItemStorage.LookupEntry<ItemPrototype>(i))
         {
             if (uint32 lootid = proto->DisenchantID)
             {
@@ -1183,7 +1213,7 @@ void LoadLootTemplates_Gameobject()
     LootTemplates_Gameobject.LoadAndCollectLootIds(ids_set);
 
     // remove real entries and check existence loot
-    for (uint32 i = 1; i < sGOStorage.MaxEntry; ++i )
+    for (uint32 i = 1; i < sGOStorage.MaxEntry; ++i)
     {
         if (GameObjectInfo const* gInfo = sGOStorage.LookupEntry<GameObjectInfo>(i))
         {
@@ -1209,8 +1239,8 @@ void LoadLootTemplates_Item()
     LootTemplates_Item.LoadAndCollectLootIds(ids_set);
 
     // remove real entries and check existence loot
-    for (uint32 i = 1; i < sItemStorage.MaxEntry; ++i )
-        if(ItemPrototype const* proto = sItemStorage.LookupEntry<ItemPrototype>(i))
+    for (uint32 i = 1; i < sItemStorage.MaxEntry; ++i)
+        if(ItemPrototype const *proto = sItemStorage.LookupEntry<ItemPrototype>(i))
             if(ids_set.count(proto->ItemId))
                 ids_set.erase(proto->ItemId);
 
@@ -1224,13 +1254,13 @@ void LoadLootTemplates_Milling()
     LootTemplates_Milling.LoadAndCollectLootIds(ids_set);
 
     // remove real entries and check existence loot
-    for (uint32 i = 1; i < sItemStorage.MaxEntry; ++i )
+    for (uint32 i = 1; i < sItemStorage.MaxEntry; ++i)
     {
-        ItemPrototype const* proto = sItemStorage.LookupEntry<ItemPrototype>(i);
+        ItemPrototype const *proto = sItemStorage.LookupEntry<ItemPrototype>(i);
         if(!proto)
             continue;
 
-        if((proto->BagFamily & BAG_FAMILY_MASK_HERBS)==0)
+        if((proto->BagFamily & BAG_FAMILY_MASK_HERBS) == 0)
             continue;
 
         if(ids_set.count(proto->ItemId))
@@ -1247,7 +1277,7 @@ void LoadLootTemplates_Pickpocketing()
     LootTemplates_Pickpocketing.LoadAndCollectLootIds(ids_set);
 
     // remove real entries and check existence loot
-    for (uint32 i = 1; i < sCreatureStorage.MaxEntry; ++i )
+    for (uint32 i = 1; i < sCreatureStorage.MaxEntry; ++i)
     {
         if(CreatureInfo const* cInfo = sCreatureStorage.LookupEntry<CreatureInfo>(i))
         {
@@ -1273,13 +1303,13 @@ void LoadLootTemplates_Prospecting()
     LootTemplates_Prospecting.LoadAndCollectLootIds(ids_set);
 
     // remove real entries and check existence loot
-    for (uint32 i = 1; i < sItemStorage.MaxEntry; ++i )
+    for (uint32 i = 1; i < sItemStorage.MaxEntry; ++i)
     {
-        ItemPrototype const* proto = sItemStorage.LookupEntry<ItemPrototype>(i);
+        ItemPrototype const *proto = sItemStorage.LookupEntry<ItemPrototype>(i);
         if (!proto)
             continue;
 
-        if ((proto->BagFamily & BAG_FAMILY_MASK_MINING_SUPP)==0)
+        if ((proto->BagFamily & BAG_FAMILY_MASK_MINING_SUPP) == 0)
             continue;
 
         if (ids_set.count(proto->ItemId))
