@@ -3794,6 +3794,10 @@ void SpellMgr::LoadSpellCustomAttr()
         case 62324: // Throw Passenger
             spellInfo->Targets |= TARGET_FLAG_CASTER;
             break;
+        // cleansing totem pulse when it is spawned
+        case 8172:
+            spellInfo->AttributesEx5 |= SPELL_ATTR_EX5_START_PERIODIC_AT_APPLY;
+            break;
         default:
             break;
         }
