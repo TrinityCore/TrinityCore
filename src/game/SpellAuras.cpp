@@ -3316,7 +3316,7 @@ void AuraEffect::HandleAuraMounted(bool apply, bool Real, bool /*changeAmount*/)
         //some mounts like Headless Horseman's Mount or broom stick are skill based spell
         // need to remove ALL arura related to mounts, this will stop client crash with broom stick
         // and never endless flying after using Headless Horseman's Mount
-        m_target->RemoveAurasByType(SPELL_AURA_MOUNTED);  
+        m_target->RemoveAurasByType(SPELL_AURA_MOUNTED);
     }
 }
 
@@ -5109,7 +5109,11 @@ void AuraEffect::HandleAuraModIncreaseEnergyPercent(bool apply, bool /*Real*/, b
 
 void AuraEffect::HandleAuraModIncreaseHealthPercent(bool apply, bool /*Real*/, bool /*changeAmount*/)
 {
+    // Unit will keep hp% after MaxHealth being modified if unit is alive.
+    float percent = ((float)m_target->GetHealth()) / m_target->GetMaxHealth();
     m_target->HandleStatModifier(UNIT_MOD_HEALTH, TOTAL_PCT, float(m_amount), apply);
+    if (m_target->isAlive())
+        m_target->SetHealth(uint32(m_target->GetMaxHealth()*percent));
 }
 
 void AuraEffect::HandleAuraIncreaseBaseHealthPercent(bool apply, bool /*Real*/, bool /*changeAmount*/)
