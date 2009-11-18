@@ -2001,19 +2001,7 @@ void Spell::EffectDummy(uint32 i)
             // Death strike
             if (m_spellInfo->SpellFamilyFlags[0] & 0x00000010)
             {
-                uint32 count = 0;
-                Unit::AuraMap const& auras = unitTarget->GetAuras();
-                for (Unit::AuraMap::const_iterator itr = auras.begin(); itr!=auras.end(); ++itr)
-                {
-                    if(itr->second->GetSpellProto()->Dispel == DISPEL_DISEASE &&
-                        itr->second->GetCasterGUID() == m_caster->GetGUID())
-                    {
-                        ++count;
-                        // max. 15%
-                        if(count == 3)
-                            break;
-                    }
-                }
+                uint32 count = unitTarget->GetDiseasesByCaster(m_caster->GetGUID());
                 int32 bp = count * m_caster->GetMaxHealth() * m_spellInfo->DmgMultiplier[0] / 100;
                 // Improved Death Strike
                 if (AuraEffect const * aurEff = m_caster->GetAuraEffect(SPELL_AURA_ADD_PCT_MODIFIER, SPELLFAMILY_DEATHKNIGHT, 2751, 0))
