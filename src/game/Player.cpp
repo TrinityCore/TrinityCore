@@ -371,7 +371,7 @@ Player::Player (WorldSession *session): Unit(), m_achievementMgr(this), m_reputa
 
     m_DetectInvTimer = 1*IN_MILISECONDS;
 
-    for (int j=0; j < PLAYER_MAX_BATTLEGROUND_QUEUES; ++j)
+    for (uint8 j = 0; j < PLAYER_MAX_BATTLEGROUND_QUEUES; ++j)
     {
         m_bgBattleGroundQueueID[j].bgQueueTypeId  = BATTLEGROUND_QUEUE_NONE;
         m_bgBattleGroundQueueID[j].invitedToInstance = 0;
@@ -437,7 +437,7 @@ Player::Player (WorldSession *session): Unit(), m_achievementMgr(this), m_reputa
         m_talents[i] = new PlayerTalentMap();
     }
 
-    for (int i = 0; i < BASEMOD_END; ++i)
+    for (uint8 i = 0; i < BASEMOD_END; ++i)
     {
         m_auraBaseMod[i][FLAT_MOD] = 0.0f;
         m_auraBaseMod[i][PCT_MOD] = 1.0f;
@@ -449,6 +449,7 @@ Player::Player (WorldSession *session): Unit(), m_achievementMgr(this), m_reputa
     m_baseSpellPower = 0;
     m_baseFeralAP = 0;
     m_baseManaRegen = 0;
+    m_baseHealthRegen = 0;
 
     // Honor System
     m_lastHonorUpdateTime = time(NULL);
