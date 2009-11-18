@@ -56,7 +56,7 @@ enum WintergraspSpell
     // other
     SPELL_NOFLYZONE_WG      = 58730,
     SPELL_PARACHUTE_WG      = 61243,
-    
+
 //    SPELL_TELEPORT_DALARAN  = 53360,
 //    SPELL_VICTORY_AURA      = 60044,
 };
@@ -271,7 +271,6 @@ class OPvPWintergrasp : public OutdoorPvP
         void UpdateClockDigit(uint32 &timer, uint32 digit, uint32 mod);
         void PromotePlayer(Player *player) const;
         void UpdateTenacityStack();
-        void CastTenacity(Unit *utr, int32 newStack);
         void UpdateAllWorldObject();
         bool UpdateCreatureInfo(Creature *creature);
         bool UpdateGameObjectInfo(GameObject *go) const;

@@ -83,7 +83,6 @@ void RespawnCreatureIfNeeded(Creature *cr, uint32 entry)
     (p)->RemoveAura(SPELL_CORPORAL);(p)->RemoveAura(SPELL_LIEUTENANT);\
     (p)->RemoveAura(SPELL_TOWER_CONTROL);\
     (p)->RemoveAura(SPELL_SPIRITUAL_IMMUNITY)
-#define REMOVE_TENACITY_AURA(p) CastTenacity(p, 0)
 
 // Visual defines, easier to understand code
 #define getDefenderTeam() m_defender
@@ -718,9 +717,9 @@ void OPvPWintergrasp::OnCreatureCreate(Creature *creature, bool add)
                 }
 
                 if (m_tenacityStack > 0 && team == TEAM_ALLIANCE)
-                    CastTenacity(creature, m_tenacityStack);
+                    creature->SetAuraStack(SPELL_TENACITY_VEHICLE, creature, m_tenacityStack);
                 else if (m_tenacityStack < 0 && team == TEAM_HORDE)
-                    CastTenacity(creature, -m_tenacityStack);
+                    creature->SetAuraStack(SPELL_TENACITY_VEHICLE, creature, -m_tenacityStack);
             }
             else // the faction may be changed in uncharm
             {
@@ -1106,11 +1105,12 @@ void OPvPWintergrasp::HandlePlayerResurrects(Player * plr, uint32 zone)
                 plr->GetTeamId() == TEAM_HORDE && m_tenacityStack < 0)
             {
                 if (plr->HasAura(SPELL_TENACITY))
-                    CastTenacity(plr, 0);
+                    plr->RemoveAurasDueToSpell(SPELL_TENACITY);
+
                 int32 newStack = m_tenacityStack < 0 ? -m_tenacityStack : m_tenacityStack;
                 if (newStack > 20)
                     newStack = 20;
-                CastTenacity(plr, newStack);
+                plr->SetAuraStack(SPELL_TENACITY, plr, newStack);
             }
 
             // Tower Control
@@ -1140,7 +1140,7 @@ void OPvPWintergrasp::HandlePlayerLeaveZone(Player * plr, uint32 zone)
             plr->GetVehicle()->Dismiss();
         REMOVE_WARTIME_AURAS(plr);
     }
-    REMOVE_TENACITY_AURA(plr);
+    plr->RemoveAurasDueToSpell(SPELL_TENACITY);
     OutdoorPvP::HandlePlayerLeaveZone(plr, zone);
     UpdateTenacityStack();
     plr->RemoveAura(SPELL_ESSENCE_OF_WG);
@@ -1217,22 +1217,6 @@ void OPvPWintergrasp::HandleKill(Player *killer, Unit *victim)
     }
 }
 
-// Cast or removes Tenacity. MaxHP Modified, HP keeps it's % ratio
-void OPvPWintergrasp::CastTenacity(Unit *unit, int32 newStack)
-{
-    if (!unit)
-        return;
-
-    uint32 spellId = unit->GetTypeId() == TYPEID_PLAYER ? SPELL_TENACITY : SPELL_TENACITY_VEHICLE;
-    float percent = ((float)unit->GetHealth()) / unit->GetMaxHealth();
-    if (newStack)
-        unit->SetAuraStack(spellId, unit, newStack);
-    else
-        unit->RemoveAura(spellId);
-    if (unit->GetTypeId() != TYPEID_PLAYER || unit->isAlive())
-        unit->SetHealth(uint32(unit->GetMaxHealth()*percent));
-}
-
 // Recalculates Tenacity and applies it to Players / Vehicles
 void OPvPWintergrasp::UpdateTenacityStack()
 {
@@ -1275,10 +1259,10 @@ void OPvPWintergrasp::UpdateTenacityStack()
     {
         for (PlayerSet::const_iterator itr = m_players[team].begin(); itr != m_players[team].end(); ++itr)
             if ((*itr)->getLevel() > 69)
-                REMOVE_TENACITY_AURA((*itr));
+                (*itr)->RemoveAurasDueToSpell(SPELL_TENACITY);
 
         for (CreatureSet::const_iterator itr = m_vehicles[team].begin(); itr != m_vehicles[team].end(); ++itr)
-            REMOVE_TENACITY_AURA((*itr));
+            (*itr)->RemoveAurasDueToSpell(SPELL_TENACITY_VEHICLE);
     }
 
     // Apply new buff
@@ -1292,10 +1276,10 @@ void OPvPWintergrasp::UpdateTenacityStack()
 
         for (PlayerSet::const_iterator itr = m_players[team].begin(); itr != m_players[team].end(); ++itr)
             if ((*itr)->getLevel() > 69)
-                CastTenacity((*itr), newStack);
+                (*itr)->SetAuraStack(SPELL_TENACITY, (*itr), newStack);
 
         for (CreatureSet::const_iterator itr = m_vehicles[team].begin(); itr != m_vehicles[team].end(); ++itr)
-            CastTenacity((*itr), newStack);
+            (*itr)->SetAuraStack(SPELL_TENACITY_VEHICLE, (*itr), newStack);
     }
 }
 
@@ -1529,7 +1513,7 @@ void OPvPWintergrasp::EndBattle()
                 (*itr)->ResurrectPlayer(1.0f);
                 ObjectAccessor::Instance().ConvertCorpseForPlayer((*itr)->GetGUID());
             }
-            REMOVE_TENACITY_AURA(*itr);
+            (*itr)->RemoveAurasDueToSpell(SPELL_TENACITY);
             (*itr)->CombatStop(true);
             (*itr)->getHostilRefManager().deleteReferences();
         }
