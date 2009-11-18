@@ -5595,10 +5595,16 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                 {
                     // Glyph of Siphon Life
                     if (HasAura(56216))
-                        triggerAmount += triggerAmount * 25 / 100;
+                        triggerAmount += triggerAmount / 4;
                     triggered_spell_id = 63106;
                     target = this;
                     basepoints0 = int32(damage*triggerAmount/100);
+                    break;
+                }
+                // Glyph of Shadowflame
+                case 63310:
+                {
+                    triggered_spell_id = 63311;
                     break;
                 }
                 // Glyph of Life Tap
