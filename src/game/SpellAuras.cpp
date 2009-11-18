@@ -3522,7 +3522,7 @@ void AuraEffect::HandleAuraModShapeshift(bool apply, bool Real, bool changeAmoun
            break;
     }
 
-    if(apply)
+    if (apply)
     {
         // remove other shapeshift before applying a new one
         if(m_target->m_ShapeShiftFormSpellId)
@@ -3535,9 +3535,9 @@ void AuraEffect::HandleAuraModShapeshift(bool apply, bool Real, bool changeAmoun
 
         if(PowerType != POWER_MANA)
         {
-            uint32 oldVal = m_target->GetPower(PowerType);
+            uint32 oldPower = m_target->GetPower(PowerType);
             // reset power to default values only at power change
-            if(m_target->getPowerType()!=PowerType)
+            if(m_target->getPowerType() != PowerType)
                 m_target->setPowerType(PowerType);
 
             switch(form)
@@ -3547,20 +3547,19 @@ void AuraEffect::HandleAuraModShapeshift(bool apply, bool Real, bool changeAmoun
                 case FORM_DIREBEAR:
                 {
                     // get furor proc chance
-                    int32 FurorChance = 0;
-                    if(AuraEffect const * dummy = m_target->GetDummyAura(SPELLFAMILY_DRUID, 238, 0))
-                        FurorChance = dummy->GetAmount();
+                    uint32 FurorChance = 0;
+                    if (AuraEffect const * dummy = m_target->GetDummyAura(SPELLFAMILY_DRUID, 238, 0))
+                        FurorChance = dummy->GetAmount() > 0 ? uint32(dummy->GetAmount()) : 0;
 
                     if (GetMiscValue() == FORM_CAT)
                     {
-                        int32 basePoints = (FurorChance < oldVal ? FurorChance : oldVal);
-                        m_target->CastCustomSpell(m_target,17099,&basePoints,NULL,NULL,true,NULL,this);
+                        int32 basePoints = int32(std::min(oldPower, FurorChance));
+                        m_target->CastCustomSpell(m_target, 17099, &basePoints, NULL, NULL, true, NULL, this);
                     }
                     else
                     {
-                        m_target->SetPower(POWER_RAGE,0);
-                        if(urand(1,100) <= FurorChance)
-                            m_target->CastSpell(m_target,17057,true,NULL,this);
+                        uint32 newEnergy = std::min(m_target->GetPower(POWER_ENERGY), FurorChance);
+                        m_target->SetPower(POWER_ENERGY, newEnergy);
                     }
                     break;
                 }
