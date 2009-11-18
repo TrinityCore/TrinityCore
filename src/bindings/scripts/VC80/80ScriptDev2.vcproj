@@ -2182,6 +2182,10 @@
 					>
 				</File>
 				<File
+					RelativePath="..\scripts\northrend\dalaran.cpp"
+					>
+				</File>
+				<File
 					RelativePath="..\scripts\northrend\dragonblight.cpp"
 					>
 				</File>
