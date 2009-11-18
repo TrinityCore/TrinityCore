@@ -427,7 +427,7 @@ Player::Player (WorldSession *session): Unit(), m_achievementMgr(this), m_reputa
     m_lastPotionId = 0;
 
     m_activeSpec = 0;
-    m_specsCount = 0;
+    m_specsCount = 1;
 
     for (uint8 i = 0; i < MAX_TALENT_SPECS; ++i)
     {
