@@ -559,7 +559,7 @@ void Unit::RemoveAurasWithInterruptFlags(uint32 flag, uint32 except)
 
 void Unit::RemoveAurasWithFamily(uint32 family, uint32 familyFlag1, uint32 familyFlag2, uint32 familyFlag3, uint64 casterGUID)
 {
-    for (AuraMap::iterator iter = m_Auras.begin(); iter != m_Auras.end(); )
+    for (AuraMap::iterator iter = m_Auras.begin(); iter != m_Auras.end();)
     {
         if (!casterGUID || iter->second->GetCasterGUID() == casterGUID)
         {

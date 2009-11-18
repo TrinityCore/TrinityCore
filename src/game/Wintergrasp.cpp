@@ -966,7 +966,6 @@ bool OPvPWintergrasp::UpdateQuestGiverPosition(uint32 guid, Creature *creature)
 {
     assert(guid);
     Position pos = m_qgPosMap[std::pair<uint32, bool>(guid, getDefenderTeam() == TEAM_HORDE)];
-    assert(pos);
 
     if (creature && creature->IsInWorld())
     {
