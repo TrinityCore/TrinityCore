@@ -14353,21 +14353,21 @@ void Unit::RemoveCharmedBy(Unit *charmer)
     }
 
     //a guardian should always have charminfo
-    if(charmer->GetTypeId() == TYPEID_PLAYER && this != charmer->GetFirstControlled())
+    if (charmer->GetTypeId() == TYPEID_PLAYER && this != charmer->GetFirstControlled())
         ((Player*)charmer)->SendRemoveControlBar();
-    else if(GetTypeId() == TYPEID_PLAYER || GetTypeId() == TYPEID_UNIT && !((Creature*)this)->isGuardian())
+    else if (GetTypeId() == TYPEID_PLAYER || GetTypeId() == TYPEID_UNIT && !((Creature*)this)->isGuardian())
         DeleteCharmInfo();
 }
 
 void Unit::RestoreFaction()
 {
-    if(GetTypeId() == TYPEID_PLAYER)
+    if (GetTypeId() == TYPEID_PLAYER)
         ((Player*)this)->setFactionForRace(getRace());
     else
     {
-        if(HasUnitTypeMask(UNIT_MASK_MINION))
+        if (HasUnitTypeMask(UNIT_MASK_MINION))
         {
-            if(Unit* owner = GetOwner())
+            if (Unit* owner = GetOwner())
             {
                 setFaction(owner->getFaction());
                 return;
@@ -14402,22 +14402,22 @@ Unit *Unit::GetVehicleBase() const
 Creature *Unit::GetVehicleCreatureBase() const
 {
     Unit *veh = GetVehicleBase();
-    if(veh->GetTypeId() == TYPEID_UNIT)
+    if (veh->GetTypeId() == TYPEID_UNIT)
         return (Creature*)veh;
     return NULL;
 }
 
 bool Unit::IsInPartyWith(Unit const *unit) const
 {
-    if(this == unit)
+    if (this == unit)
         return true;
 
     const Unit *u1 = GetCharmerOrOwnerOrSelf();
     const Unit *u2 = unit->GetCharmerOrOwnerOrSelf();
-    if(u1 == u2)
+    if (u1 == u2)
         return true;
 
-    if(u1->GetTypeId() == TYPEID_PLAYER && u2->GetTypeId() == TYPEID_PLAYER)
+    if (u1->GetTypeId() == TYPEID_PLAYER && u2->GetTypeId() == TYPEID_PLAYER)
         return ((Player*)u1)->IsInSameGroupWith((Player*)u2);
     else
         return false;
@@ -14425,15 +14425,15 @@ bool Unit::IsInPartyWith(Unit const *unit) const
 
 bool Unit::IsInRaidWith(Unit const *unit) const
 {
-    if(this == unit)
+    if (this == unit)
         return true;
 
     const Unit *u1 = GetCharmerOrOwnerOrSelf();
     const Unit *u2 = unit->GetCharmerOrOwnerOrSelf();
-    if(u1 == u2)
+    if (u1 == u2)
         return true;
 
-    if(u1->GetTypeId() == TYPEID_PLAYER && u2->GetTypeId() == TYPEID_PLAYER)
+    if (u1->GetTypeId() == TYPEID_PLAYER && u2->GetTypeId() == TYPEID_PLAYER)
         return ((Player*)u1)->IsInSameRaidWith((Player*)u2);
     else
         return false;
@@ -14442,33 +14442,33 @@ bool Unit::IsInRaidWith(Unit const *unit) const
 void Unit::GetRaidMember(std::list<Unit*> &nearMembers, float radius)
 {
     Player *owner = GetCharmerOrOwnerPlayerOrPlayerItself();
-    if(!owner)
+    if (!owner)
         return;
 
     Group *pGroup = owner->GetGroup();
-    if(pGroup)
+    if (pGroup)
     {
         for (GroupReference *itr = pGroup->GetFirstMember(); itr != NULL; itr = itr->next())
         {
             Player* Target = itr->getSource();
 
-            if( Target && !IsHostileTo(Target) )
+            if (Target && !IsHostileTo(Target))
             {
-                if(Target->isAlive() && IsWithinDistInMap(Target, radius) )
+                if (Target->isAlive() && IsWithinDistInMap(Target, radius))
                     nearMembers.push_back(Target);
 
-                if(Guardian* pet = Target->GetGuardianPet())
-                    if(pet->isAlive() &&  IsWithinDistInMap(pet, radius) )
+                if (Guardian* pet = Target->GetGuardianPet())
+                    if (pet->isAlive() &&  IsWithinDistInMap(pet, radius))
                         nearMembers.push_back(pet);
             }
         }
     }
     else
     {
-        if(owner->isAlive() && (owner == this || IsWithinDistInMap(owner, radius)))
+        if (owner->isAlive() && (owner == this || IsWithinDistInMap(owner, radius)))
             nearMembers.push_back(owner);
-        if(Guardian* pet = owner->GetGuardianPet())
-            if(pet->isAlive() && (pet == this && IsWithinDistInMap(pet, radius)))
+        if (Guardian* pet = owner->GetGuardianPet())
+            if (pet->isAlive() && (pet == this && IsWithinDistInMap(pet, radius)))
                 nearMembers.push_back(pet);
     }
 }
@@ -14480,7 +14480,7 @@ void Unit::GetPartyMemberInDist(std::list<Unit*> &TagUnitMap, float radius)
     if (owner->GetTypeId() == TYPEID_PLAYER)
         pGroup = ((Player*)owner)->GetGroup();
 
-    if(pGroup)
+    if (pGroup)
     {
         uint8 subgroup = ((Player*)owner)->GetSubGroup();
 
@@ -14489,23 +14489,23 @@ void Unit::GetPartyMemberInDist(std::list<Unit*> &TagUnitMap, float radius)
             Player* Target = itr->getSource();
 
             // IsHostileTo check duel and controlled by enemy
-            if( Target && Target->GetSubGroup()==subgroup && !IsHostileTo(Target) )
+            if (Target && Target->GetSubGroup()==subgroup && !IsHostileTo(Target))
             {
-                if(Target->isAlive() && IsWithinDistInMap(Target, radius) )
+                if (Target->isAlive() && IsWithinDistInMap(Target, radius))
                     TagUnitMap.push_back(Target);
 
-                if(Guardian* pet = Target->GetGuardianPet())
-                    if(pet->isAlive() &&  IsWithinDistInMap(pet, radius) )
+                if (Guardian* pet = Target->GetGuardianPet())
+                    if (pet->isAlive() &&  IsWithinDistInMap(pet, radius))
                         TagUnitMap.push_back(pet);
             }
         }
     }
     else
     {
-        if(owner->isAlive() && (owner == this || IsWithinDistInMap(owner, radius)))
+        if (owner->isAlive() && (owner == this || IsWithinDistInMap(owner, radius)))
             TagUnitMap.push_back(owner);
-        if(Guardian* pet = owner->GetGuardianPet())
-            if(pet->isAlive() && (pet == this && IsWithinDistInMap(pet, radius)))
+        if (Guardian* pet = owner->GetGuardianPet())
+            if (pet->isAlive() && (pet == this && IsWithinDistInMap(pet, radius)))
                 TagUnitMap.push_back(pet);
     }
 }
@@ -14526,13 +14526,13 @@ void Unit::GetPartyMembers(std::list<Unit*> &TagUnitMap)
             Player* Target = itr->getSource();
 
             // IsHostileTo check duel and controlled by enemy
-            if( Target && Target->GetSubGroup()==subgroup && !IsHostileTo(Target) )
+            if (Target && Target->GetSubGroup()==subgroup && !IsHostileTo(Target))
             {
-                if(Target->isAlive() && IsInMap(Target) )
+                if (Target->isAlive() && IsInMap(Target))
                     TagUnitMap.push_back(Target);
 
-                if(Guardian* pet = Target->GetGuardianPet())
-                    if(pet->isAlive() && IsInMap(Target) )
+                if (Guardian* pet = Target->GetGuardianPet())
+                    if (pet->isAlive() && IsInMap(Target))
                         TagUnitMap.push_back(pet);
             }
         }
@@ -14551,6 +14551,9 @@ void Unit::HandleAuraEffect(AuraEffect * aureff, bool apply)
 {
     if (aureff->GetParentAura()->IsRemoved())
         return;
+
+    sLog.outDebug("HandleAuraEffect: %u, apply: %u: amount: %u", aureff->GetAuraName(), apply, aureff->GetAmount());
+
     if (apply)
     {
         if (aureff->IsApplied())
