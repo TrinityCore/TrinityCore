@@ -143,10 +143,10 @@ m_creatureInfo(NULL), m_reactState(REACT_AGGRESSIVE), m_formation(NULL)
 , m_AlreadySearchedAssistance(false)
 , m_creatureData(NULL), m_PlayerDamageReq(0)
 {
-    m_regenTimer = 200;
+    m_regenTimer = 2000;
     m_valuesCount = UNIT_END;
 
-    for (uint8 i =0; i<CREATURE_MAX_SPELLS; ++i)
+    for (uint8 i = 0; i < CREATURE_MAX_SPELLS; ++i)
         m_spells[i] = 0;
 
     m_CreatureSpellCooldowns.clear();
@@ -570,6 +570,7 @@ void Creature::Update(uint32 diff)
             else
                 if(!bIsPolymorphed) // if polymorphed, skip the timer
                     m_regenTimer -= diff;*/
+            m_regenTimer = 2000;
             break;
         }
         case DEAD_FALLING:
