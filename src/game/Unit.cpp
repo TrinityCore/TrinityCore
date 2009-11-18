@@ -13655,12 +13655,6 @@ bool Unit::HandleAuraRaidProcFromChargeWithValue( AuraEffect* triggeredByAura )
     int32 heal = triggeredByAura->GetAmount();
     uint64 caster_guid = triggeredByAura->GetCasterGUID();
 
-    //Currently only Prayer Of Mending
-    if (!(spellProto->SpellFamilyName==SPELLFAMILY_PRIEST && spellProto->SpellFamilyFlags[1] & 0x20))
-    {
-        sLog.outDebug("Unit::HandleAuraRaidProcFromChargeWithValue, received not handled spell: %u", spellProto->Id);
-        return false;
-    }
     // jumps
     int32 jumps = triggeredByAura->GetParentAura()->GetAuraCharges()-1;
 
@@ -13668,24 +13662,35 @@ bool Unit::HandleAuraRaidProcFromChargeWithValue( AuraEffect* triggeredByAura )
     triggeredByAura->GetParentAura()->SetAuraCharges(1);             // will removed at next charges decrease
 
     // next target selection
-    if(jumps > 0 && IS_PLAYER_GUID(caster_guid))
+    if(jumps > 0 && IS_PLAYER_GUID(GetGUID()) && IS_PLAYER_GUID(caster_guid))
     {
         float radius;
         if (spellProto->EffectRadiusIndex[effIdx])
             radius = GetSpellRadiusForTarget(triggeredByAura->GetCaster(), sSpellRadiusStore.LookupEntry(spellProto->EffectRadiusIndex[effIdx]));
         else
-            radius = GetSpellMaxRangeForTarget(triggeredByAura->GetCaster() ,sSpellRangeStore.LookupEntry(spellProto->rangeIndex));
+            radius = GetSpellMaxRangeForTarget(triggeredByAura->GetCaster(), sSpellRangeStore.LookupEntry(spellProto->rangeIndex));
 
         if(Player* caster = ((Player*)triggeredByAura->GetCaster()))
         {
             caster->ApplySpellMod(spellProto->Id, SPELLMOD_RADIUS, radius,NULL);
+            heal = caster->SpellHealingBonus(this, spellProto, heal, HEAL);
 
-            if (Unit* target= GetNextRandomRaidMemberOrPet(radius))
+            if(Player *target = ((Player*)this)->GetNextRandomRaidMember(radius))
             {
+                // aura will applied from caster, but spell casted from current aura holder
+                SpellModifier *mod = new SpellModifier;
+                mod->op = SPELLMOD_CHARGES;
+                mod->value = jumps-5;               // negative
+                mod->type = SPELLMOD_FLAT;
+                mod->spellId = spellProto->Id;
+                mod->mask = spellProto->SpellFamilyFlags;
+                mod->charges = 0;
+
+                caster->AddSpellMod(mod, true);
                 CastCustomSpell(target,spellProto->Id,&heal,NULL,NULL,true,NULL,triggeredByAura,caster->GetGUID());
-                if (Aura * aur = target->GetAura(spellProto->Id, caster->GetGUID()))
-                    aur->SetAuraCharges(jumps);
-                caster->SpellHealingBonus(this, spellProto, heal, HEAL);
+                caster->AddSpellMod(mod, false);
+
+                heal = caster->SpellHealingBonus(this, spellProto, heal, HEAL);
             }
         }
     }
@@ -13693,6 +13698,7 @@ bool Unit::HandleAuraRaidProcFromChargeWithValue( AuraEffect* triggeredByAura )
     // heal
     CastCustomSpell(this,33110,&heal,NULL,NULL,true,NULL,NULL,caster_guid);
     return true;
+
 }
 bool Unit::HandleAuraRaidProcFromCharge( AuraEffect* triggeredByAura )
 {
