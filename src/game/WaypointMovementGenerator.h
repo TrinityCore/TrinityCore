@@ -114,14 +114,14 @@ public PathMovementBase<Player>
         void SkipCurrentNode() { ++i_currentNode; }
         bool GetDestination(float& x, float& y, float& z) const { i_destinationHolder.GetDestination(x,y,z); return true; }
 
-	private:
-		// storage for preloading the flightmaster grid at end
-		// before reaching final waypoint
-		uint32 m_endMapId;
-		uint32 m_preloadTargetNode;
-		float m_endGridX;
-		float m_endGridY;
-		void PreloadEndGrid();
+    private:
+        // storage for preloading the flightmaster grid at end
+        // before reaching final waypoint
+        uint32 m_endMapId;
+        uint32 m_preloadTargetNode;
+        float m_endGridX;
+        float m_endGridY;
+        void PreloadEndGrid();
 };
 #endif
 
