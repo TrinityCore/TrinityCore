@@ -576,7 +576,7 @@ void Unit::RemoveAurasWithFamily(uint32 family, uint32 familyFlag1, uint32 famil
 
 void Unit::RemoveAurasWithMechanic(uint32 mechanic_mask, AuraRemoveMode removemode, uint32 except)
 {
-    for (AuraMap::iterator iter = m_Auras.begin(); iter != m_Auras.end(); =)
+    for (AuraMap::iterator iter = m_Auras.begin(); iter != m_Auras.end();)
     {
         if (!except || iter->second->GetId() != except)
         {
