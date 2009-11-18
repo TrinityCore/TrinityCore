@@ -3651,7 +3651,7 @@ void SpellMgr::LoadSpellCustomAttr()
         case 20335:
         case 20336:
         case 20337:
-        // Entries were not updated after spell effect change, we have to do that manually:/
+        // Entries were not updated after spell effect change, we have to do that manually :/
             spellInfo->AttributesEx3 |= SPELL_ATTR_EX3_CAN_PROC_TRIGGERED;
             break;
         case 16007: // Draco-Incarcinatrix 900
@@ -3718,7 +3718,8 @@ void SpellMgr::LoadSpellCustomAttr()
         case 28542: // Life Drain - Sapphiron
             spellInfo->MaxAffectedTargets = 3;
             break;
-        case 38310: //Multi-Shot
+        case 38310: // Multi-Shot
+        case 53385: // Divine Storm (Damage)
             spellInfo->MaxAffectedTargets = 4;
             break;
         case 42005: // Bloodboil
