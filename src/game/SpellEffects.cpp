@@ -638,10 +638,10 @@ void Spell::SpellDamageSchoolDmg(uint32 effect_idx)
                             float dmg_min = item->GetProto()->Damage->DamageMin;
                             float dmg_max = item->GetProto()->Damage->DamageMax;
                             if (dmg_max == 0.0f && dmg_min > dmg_max)
-                                damage += uint32(dmg_min);
+                                damage += int32(dmg_min);
                             else
-                                damage += urand(uint32(dmg_min), uint32(dmg_max));
-                            damage += ((Player*)m_caster)->GetAmmoDPS()*item->GetProto()->Delay/1000;
+                                damage += irand(int32(dmg_min), int32(dmg_max));
+                            damage += ((Player*)m_caster)->GetAmmoDPS()*item->GetProto()->Delay*float(0.1);
                         }
                     }
 
