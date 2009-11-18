@@ -21,7 +21,7 @@
 //Extended headers
 #include "ObjectMgr.h"
 #include "World.h"
-#include "MapManager.h"	// for flightmaster grid preloading
+#include "MapManager.h" // for flightmaster grid preloading
 //Creature-specific headers
 #include "Creature.h"
 #include "CreatureAI.h"
@@ -256,17 +256,16 @@ void FlightPathMovementGenerator::Initialize(Player &player)
 
     player.SendMonsterMoveByPath(GetPath(),GetCurrentNode(),GetPathAtMapEnd());
 
-	// Storage to preload flightmaster grid at end of flight. For multi-stop flights, this will
-	// be reinitialized for each flightmaster at the end of each spline (or stop) in the flight.
+    // Storage to preload flightmaster grid at end of flight. For multi-stop flights, this will
+    // be reinitialized for each flightmaster at the end of each spline (or stop) in the flight.
 
-	uint32 nodeCount = i_mapIds.size();		// Get the number of nodes in the path. i_path and i_mapIds are the
-											//  same size when loaded in ObjectMgr::GetTaxiPathNodes, called from LoadPath()
+    uint32 nodeCount = i_mapIds.size();     // Get the number of nodes in the path. i_path and i_mapIds are the
+                                            //  same size when loaded in ObjectMgr::GetTaxiPathNodes, called from LoadPath()
 
-	m_endMapId = i_mapIds[nodeCount -1];	// Get the map ID from the last node
-	m_preloadTargetNode = nodeCount / 2;	// Split the number of nodes in half to preload the flightmaster half-way through the flight
-	m_endGridX = i_path[nodeCount -1].x;	// Get the X position from the last node
-	m_endGridY = i_path[nodeCount -1].y;	// Get tye Y position from the last node
-
+    m_endMapId = i_mapIds[nodeCount -1];    // Get the map ID from the last node
+    m_preloadTargetNode = nodeCount / 2;    // Split the number of nodes in half to preload the flightmaster half-way through the flight
+    m_endGridX = i_path[nodeCount -1].x;    // Get the X position from the last node
+    m_endGridY = i_path[nodeCount -1].y;    // Get tye Y position from the last node
 }
 
 void FlightPathMovementGenerator::Finalize(Player & player)
@@ -280,31 +279,29 @@ void FlightPathMovementGenerator::Finalize(Player & player)
 
 bool FlightPathMovementGenerator::Update(Player &player, const uint32 &diff)
 {
-    if( MovementInProgress() )
+    if(MovementInProgress())
     {
         Traveller<Player> traveller(player);
-        if( i_destinationHolder.UpdateTraveller(traveller, diff) )
+        if(i_destinationHolder.UpdateTraveller(traveller, diff))
         {
             i_destinationHolder.ResetUpdate(FLIGHT_TRAVEL_UPDATE);
-            if( i_destinationHolder.HasArrived() )
+            if(i_destinationHolder.HasArrived())
             {
                 uint32 curMap = i_mapIds[i_currentNode];
                 ++i_currentNode;
-                if( MovementInProgress() )
+                if(MovementInProgress())
                 {
                     DEBUG_LOG("loading node %u for player %s", i_currentNode, player.GetName());
-                    if(i_mapIds[i_currentNode]==curMap)
+                    if(i_mapIds[i_currentNode] == curMap)
                     {
                         // do not send movement, it was sent already
                         i_destinationHolder.SetDestination(traveller, i_path[i_currentNode].x, i_path[i_currentNode].y, i_path[i_currentNode].z, false);
                     }
 
-					// check if it's time to preload the flightmaster grid
-					// at path end
-					if (i_currentNode == m_preloadTargetNode)
-					{
-						PreloadEndGrid();
-					}
+                    // check if it's time to preload the flightmaster grid at path end
+                    if (i_currentNode == m_preloadTargetNode)
+                        PreloadEndGrid();
+
                     return true;
                 }
                 //else HasArrived()
@@ -338,20 +335,17 @@ void FlightPathMovementGenerator::SetCurrentNodeAfterTeleport()
 
 void FlightPathMovementGenerator::PreloadEndGrid()
 {
-	// used to preload the final grid where the flightmaster is
-	Map *endMap = MapManager::Instance().FindMap(m_endMapId);
+    // used to preload the final grid where the flightmaster is
+    Map *endMap = MapManager::Instance().FindMap(m_endMapId);
 
-	// Load the grid
-	if (endMap)
-	{
-		sLog.outDetail("Preloading flightmaster at grid (%f, %f) for map %u", m_endGridX, m_endGridY, m_endMapId);
-		endMap->LoadGrid(m_endGridX, m_endGridY);
-	}
-	else
-	{
-		sLog.outDetail("Unable to determine map to preload flightmaster grid");
-	}
-
+    // Load the grid
+    if (endMap)
+    {
+        sLog.outDetail("Preloading flightmaster at grid (%f, %f) for map %u", m_endGridX, m_endGridY, m_endMapId);
+        endMap->LoadGrid(m_endGridX, m_endGridY);
+    }
+    else
+        sLog.outDetail("Unable to determine map to preload flightmaster grid");
 }
 
 //
