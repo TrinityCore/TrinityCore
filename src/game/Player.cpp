@@ -7204,11 +7204,11 @@ void Player::_ApplyWeaponDependentAuraMods(Item *item,WeaponAttackType attackTyp
 void Player::_ApplyWeaponDependentAuraCritMod(Item *item, WeaponAttackType attackType, AuraEffect* aura, bool apply)
 {
     // generic not weapon specific case processes in aura code
-    if(aura->GetSpellProto()->EquippedItemClass == -1)
+    if (aura->GetSpellProto()->EquippedItemClass == -1)
         return;
 
     BaseModGroup mod = BASEMOD_END;
-    switch(attackType)
+    switch (attackType)
     {
         case BASE_ATTACK:   mod = CRIT_PERCENTAGE;        break;
         case OFF_ATTACK:    mod = OFFHAND_CRIT_PERCENTAGE;break;
@@ -7217,23 +7217,25 @@ void Player::_ApplyWeaponDependentAuraCritMod(Item *item, WeaponAttackType attac
     }
 
     if (item->IsFitToSpellRequirements(aura->GetSpellProto()))
-    {
         HandleBaseModValue(mod, FLAT_MOD, float (aura->GetAmount()), apply);
-    }
 }
 
 void Player::_ApplyWeaponDependentAuraDamageMod(Item *item, WeaponAttackType attackType, AuraEffect* aura, bool apply)
 {
+    //don't apply mod if item is broken
+    if (item->IsBroken())
+        return;
+
     // ignore spell mods for not wands
-    if((aura->GetMiscValue() & SPELL_SCHOOL_MASK_NORMAL)==0 && (getClassMask() & CLASSMASK_WAND_USERS)==0)
+    if ((aura->GetMiscValue() & SPELL_SCHOOL_MASK_NORMAL) == 0 && (getClassMask() & CLASSMASK_WAND_USERS) == 0)
         return;
 
     // generic not weapon specific case processes in aura code
-    if(aura->GetSpellProto()->EquippedItemClass == -1)
+    if (aura->GetSpellProto()->EquippedItemClass == -1)
         return;
 
     UnitMods unitMod = UNIT_MOD_END;
-    switch(attackType)
+    switch (attackType)
     {
         case BASE_ATTACK:   unitMod = UNIT_MOD_DAMAGE_MAINHAND; break;
         case OFF_ATTACK:    unitMod = UNIT_MOD_DAMAGE_OFFHAND;  break;
@@ -7242,7 +7244,7 @@ void Player::_ApplyWeaponDependentAuraDamageMod(Item *item, WeaponAttackType att
     }
 
     UnitModifierType unitModType = TOTAL_VALUE;
-    switch(aura->GetAuraName())
+    switch (aura->GetAuraName())
     {
         case SPELL_AURA_MOD_DAMAGE_DONE:         unitModType = TOTAL_VALUE; break;
         case SPELL_AURA_MOD_DAMAGE_PERCENT_DONE: unitModType = TOTAL_PCT;   break;
@@ -7250,9 +7252,7 @@ void Player::_ApplyWeaponDependentAuraDamageMod(Item *item, WeaponAttackType att
     }
 
     if (item->IsFitToSpellRequirements(aura->GetSpellProto()))
-    {
         HandleStatModifier(unitMod, unitModType, float(aura->GetAmount()),apply);
-    }
 }
 
 void Player::ApplyItemEquipSpell(Item *item, bool apply, bool form_change)
