@@ -431,7 +431,7 @@ Player::Player (WorldSession *session): Unit(), m_achievementMgr(this), m_reputa
 
     for (uint8 i = 0; i < MAX_TALENT_SPECS; ++i)
     {
-        for (int g = 0; g < MAX_GLYPH_SLOT_INDEX; ++g)
+        for (uint8 g = 0; g < MAX_GLYPH_SLOT_INDEX; ++g)
             m_Glyphs[i][g] = 0;
 
         m_talents[i] = new PlayerTalentMap();
@@ -449,7 +449,6 @@ Player::Player (WorldSession *session): Unit(), m_achievementMgr(this), m_reputa
     m_baseSpellPower = 0;
     m_baseFeralAP = 0;
     m_baseManaRegen = 0;
-    m_baseHealthRegen = 0;
 
     // Honor System
     m_lastHonorUpdateTime = time(NULL);
@@ -21927,7 +21926,7 @@ void Player::_SaveTalents()
 {
     for (uint8 i = 0; i < MAX_TALENT_SPECS; ++i)
     {
-        for (PlayerTalentMap::iterator itr = m_talents[i]->begin(); itr != m_talents[i]->end(); )
+        for (PlayerTalentMap::iterator itr = m_talents[i]->begin(); itr != m_talents[i]->end();)
         {
             if (itr->second->state == PLAYERSPELL_REMOVED || itr->second->state == PLAYERSPELL_CHANGED)
                 CharacterDatabase.PExecute("DELETE FROM character_talent WHERE guid = '%u' and spell = '%u' and spec = '%u'", GetGUIDLow(), itr->first, itr->second->spec);
