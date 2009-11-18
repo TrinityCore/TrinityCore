@@ -115,14 +115,14 @@ struct TRINITY_DLL_DECL boss_trollgoreAI : public ScriptedAI
         if (!UpdateVictim())
             return;
 
-        if (uiSpawnTimer < diff)
+        if (uiSpawnTimer <= diff)
         {
             for (uint8 i = 0; i < urand(2,HEROIC(3,5)); ++i)
                 DoSpawnCreature(RAND(NPC_DRAKKARI_INVADER_1,NPC_DRAKKARI_INVADER_2), AddSpawnPoint.GetPositionX(), AddSpawnPoint.GetPositionY(), AddSpawnPoint.GetPositionZ(), AddSpawnPoint.GetOrientation(), TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 90000);
             uiSpawnTimer = urand(30000,40000);
         } else uiSpawnTimer -= diff;
 
-        if (uiConsumeTimer < diff)
+        if (uiConsumeTimer <= diff)
         {
             DoScriptText(SAY_CONSUME, m_creature);
             DoCast(HEROIC(SPELL_CONSUME, H_SPELL_CONSUME));
@@ -131,7 +131,7 @@ struct TRINITY_DLL_DECL boss_trollgoreAI : public ScriptedAI
 
         if (bAchiev)
         {
-            if (uiAuraCountTimer < diff)
+            if (uiAuraCountTimer <= diff)
             {
                 if (m_creature->HasAura(HEROIC(SPELL_CONSUME,H_SPELL_CONSUME)))
                 {
@@ -143,24 +143,24 @@ struct TRINITY_DLL_DECL boss_trollgoreAI : public ScriptedAI
             } else uiAuraCountTimer -= diff;
         }
 
-        if (uiCrushTimer < diff)
+        if (uiCrushTimer <= diff)
         {
             DoCastVictim(SPELL_CRUSH);
             uiCrushTimer = urand(10000,15000);
         } else uiCrushTimer -= diff;
 
-        if (uiInfectedWoundTimer < diff)
+        if (uiInfectedWoundTimer <= diff)
         {
             DoCastVictim(SPELL_INFECTED_WOUND);
             uiInfectedWoundTimer = urand(25000,35000);
         } else uiInfectedWoundTimer -= diff;
 
-        if (uiExplodeCorpseTimer < diff)
+        if (uiExplodeCorpseTimer <= diff)
         {
             DoCast(HEROIC(SPELL_CORPSE_EXPLODE, H_SPELL_CORPSE_EXPLODE));
             DoScriptText(SAY_EXPLODE, m_creature);
             uiExplodeCorpseTimer = urand(15000,19000);
-        } uiExplodeCorpseTimer -= diff;
+        } else uiExplodeCorpseTimer -= diff;
 
         DoMeleeAttackIfReady();
     }
