@@ -21993,9 +21993,13 @@ void Player::ActivateSpec(uint8 spec)
 
     UnsummonPetTemporaryIfAny();
     ClearComboPointHolders();
+    ClearAllReactives();
     UnsummonAllTotems();
     RemoveAllControlled();
     RemoveAllAurasOnDeath();
+    if (GetPet())
+        GetPet()->RemoveAllAurasOnDeath();
+
     //RemoveAllAuras(this->GetGUID(), NULL, false, true); // removes too many auras
     //ExitVehicle(); // should be impossible to switch specs from inside a vehicle..
 

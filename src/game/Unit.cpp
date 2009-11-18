@@ -4188,7 +4188,7 @@ void Unit::RemoveArenaAuras(bool onleave)
 {
     // in join, remove positive buffs, on end, remove negative
     // used to remove positive visible auras in arenas
-    for (AuraMap::iterator iter = m_Auras.begin(); iter != m_Auras.end(); )
+    for (AuraMap::iterator iter = m_Auras.begin(); iter != m_Auras.end();)
     {
         if ( !(iter->second->GetSpellProto()->AttributesEx4 & (1<<21)) // don't remove stances, shadowform, pally/hunter auras
             && !iter->second->IsPassive()                               // don't remove passive auras
@@ -4204,7 +4204,7 @@ void Unit::RemoveAllAurasOnDeath()
 {
     // used just after dieing to remove all visible auras
     // and disable the mods for the passive ones
-    for (AuraMap::iterator iter = m_Auras.begin(); iter != m_Auras.end(); )
+    for (AuraMap::iterator iter = m_Auras.begin(); iter != m_Auras.end();)
     {
         if (!iter->second->IsPassive() && !iter->second->IsDeathPersistent())
             RemoveAura(iter, AURA_REMOVE_BY_DEATH);
@@ -13184,7 +13184,7 @@ void Unit::ClearAllReactives()
 
     if (HasAuraState(AURA_STATE_DEFENSE))
         ModifyAuraState(AURA_STATE_DEFENSE, false);
-    if (getClass() == CLASS_HUNTER && HasAuraState( AURA_STATE_HUNTER_PARRY))
+    if (getClass() == CLASS_HUNTER && HasAuraState(AURA_STATE_HUNTER_PARRY))
         ModifyAuraState(AURA_STATE_HUNTER_PARRY, false);
     if(getClass() == CLASS_WARRIOR && GetTypeId() == TYPEID_PLAYER)
         ((Player*)this)->ClearComboPoints();
