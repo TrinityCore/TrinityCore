@@ -4240,9 +4240,6 @@ bool ChatHandler::HandleNpcSetLinkCommand(const char* args)
 
 bool ChatHandler::HandleWintergraspStatusCommand(const char* args)
 {
-    if(!*args)
-        return false;
-
     OPvPWintergrasp *pvpWG = (OPvPWintergrasp*)sOutdoorPvPMgr.GetOutdoorPvPToZoneId(4197);
 
     if (!pvpWG || !sWorld.getConfig(CONFIG_OUTDOORPVP_WINTERGRASP_ENABLED))
@@ -4252,7 +4249,12 @@ bool ChatHandler::HandleWintergraspStatusCommand(const char* args)
         return false;
     }
 
-    PSendSysMessage(LANG_BG_WG_STATUS, objmgr.GetTrinityStringForDBCLocale(pvpWG->GetTeam() == TEAM_ALLIANCE ? LANG_BG_AB_ALLY : LANG_BG_AB_HORDE), secsToTimeString(pvpWG->GetTimer(), true).c_str(), pvpWG->isWarTime() ? "Yes" : "No");
+    PSendSysMessage(LANG_BG_WG_STATUS, objmgr.GetTrinityStringForDBCLocale(
+        pvpWG->GetTeam() == TEAM_ALLIANCE ? LANG_BG_AB_ALLY : LANG_BG_AB_HORDE),
+        secsToTimeString(pvpWG->GetTimer(), true).c_str(),
+        pvpWG->isWarTime() ? "Yes" : "No",
+        pvpWG->GetNumPlayersH(),
+        pvpWG->GetNumPlayersA());
     return true;
 }
 
@@ -4298,7 +4300,7 @@ bool ChatHandler::HandleWintergraspEnableCommand(const char* args)
         SendSysMessage(LANG_BG_WG_DISABLE);
         SetSentErrorMessage(true);
         return false;
-    }    
+    }
 
     if (!strncmp(args, "on", 3))
     {
