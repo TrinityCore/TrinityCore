@@ -361,6 +361,7 @@ UPDATE `creature_template` SET `ScriptName`='npc_corastrasza' WHERE `entry`=3254
 UPDATE `creature_template` SET `ScriptName`='mob_nerubar_victim' WHERE `entry`=25284;
 UPDATE `creature_template` SET `ScriptName`='npc_scourge_prisoner' WHERE `entry`=25610;
 UPDATE `gameobject_template` SET `ScriptName`='go_scourge_cage' WHERE `entry` IN (187854, 187855, 187856, 187857, 187858, 187859, 187860, 187862, 187863, 187864, 187865, 187866, 187867, 187868, 187870, 187871, 187872, 187873, 187874, 187861, 190803);
+UPDATE `gameobject_template` SET `ScriptName`='go_arcane_prison' WHERE `entry`=187561;
 UPDATE `creature_template` SET `ScriptName`='npc_loklira_crone' WHERE `entry`=29975;
 UPDATE `creature_template` SET `ScriptName`='npc_victorious_challenger' WHERE `entry`=30012;
 UPDATE `creature_template` SET `ScriptName`='npc_mcgoyver' WHERE `entry`=24040;
