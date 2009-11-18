@@ -527,7 +527,7 @@ INSERT INTO `spell_script_target` VALUES
 -- POSITION
 -- --------
 DELETE FROM spell_target_position WHERE `id` IN (46019, 46020, 53360);
-INSERT INTO spell_target_position () VALUES
+INSERT INTO spell_target_position (`id`, `target_map`, `target_position_x`, `target_position_y`, `target_position_z`, `target_orientation`) VALUES
 (46019, 580, 1704.34, 928.17, -74.558, 0),
 (46020, 580, 1704.34, 928.17, 53.079, 0),
 (53360, 571, 5807.829, 587.960, 660.939, 1.663);
@@ -537,6 +537,12 @@ DELETE FROM `spell_target_position` WHERE `id` IN (54744,54746);
 INSERT INTO `spell_target_position` (`id`, `target_map`, `target_position_x`, `target_position_y`, `target_position_z`, `target_orientation`) VALUES
 (54744, 0, 2418.67, -5621.41, 420.644, 3.89597),
 (54746, 0, 2402.15, -5633.74, 377.021, 3.65249);
+
+-- positions for Dalaran 'Trespasser!' spell
+DELETE FROM `spell_target_position` WHERE `id` IN (54028,54029);
+INSERT INTO `spell_target_position` (`id`, `target_map`, `target_position_x`, `target_position_y`, `target_position_z`, `target_orientation`) VALUES
+(54028, 571, 5758.79, 678.359, 642.726, 5.572);
+(54029, 571, 5849.16, 602.093, 651.13, 2.364);
 
 -- --------
 -- MISC

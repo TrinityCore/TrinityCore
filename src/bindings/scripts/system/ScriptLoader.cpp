@@ -356,6 +356,7 @@ extern void AddSC_boss_zuramat();
 extern void AddSC_instance_violet_hold();
 extern void AddSC_violet_hold();
 
+extern void AddSC_dalaran();
 extern void AddSC_borean_tundra();
 extern void AddSC_dragonblight();
 extern void AddSC_grizzly_hills();
@@ -803,6 +804,7 @@ void AddScripts()
     AddSC_instance_violet_hold();
     AddSC_violet_hold();
 
+    AddSC_dalaran();
     AddSC_borean_tundra();
     AddSC_dragonblight();
     AddSC_grizzly_hills();
