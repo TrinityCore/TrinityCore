@@ -4461,8 +4461,7 @@ void Spell::SpellDamageWeaponDmg(uint32 i)
                         break;
                     }
                 }
-
-                if(!spellInfo)
+                if (!spellInfo)
                 {
                     // get highest rank of the Sunder Armor spell
                     const PlayerSpellMap& sp_list = ((Player*)m_caster)->GetSpellMap();
@@ -5861,6 +5860,7 @@ void Spell::EffectScriptEffect(uint32 effIndex)
                     return;
                 uint32 spellId1 = 0;
                 uint32 spellId2 = 0;
+                uint32 spellId3 = 0;
 
                 // Judgement self add switch
                 switch (m_spellInfo->Id)
@@ -5875,12 +5875,26 @@ void Spell::EffectScriptEffect(uint32 effIndex)
                 }
                 // all seals have aura dummy in 2 effect
                 Unit::AuraMap & sealAuras = m_caster->GetAuras();
-                for (Unit::AuraMap::iterator iter = sealAuras.begin(); iter != sealAuras.end(); )
+                for (Unit::AuraMap::iterator iter = sealAuras.begin(); iter != sealAuras.end();)
                 {
+                    switch (iter->second->GetId())
+                    {
+                        // Heart of the Crusader
+                        case 20335: // Rank 1
+                            spellId3 = 21183;
+                            break;
+                        case 20336: // Rank 2
+                            spellId3 = 54498;
+                            break;
+                        case 20337: // Rank 3
+                            spellId3 = 54499;
+                            break;
+                    }
+
                     if (IsSealSpell(iter->second->GetSpellProto()))
                     {
                         if (AuraEffect * aureff = iter->second->GetPartAura(2))
-                            if (aureff->GetAuraName()==SPELL_AURA_DUMMY)
+                            if (aureff->GetAuraName() == SPELL_AURA_DUMMY)
                             {
                                 if (sSpellStore.LookupEntry(aureff->GetAmount()))
                                     spellId2 = aureff->GetAmount();
@@ -5890,11 +5904,11 @@ void Spell::EffectScriptEffect(uint32 effIndex)
                         {
                             switch (iter->first)
                             {
-                            // Seal of light, Seal of wisdom, Seal of justice
+                                // Seal of light, Seal of wisdom, Seal of justice
                                 case 20165:
                                 case 20166:
                                 case 20164:
-                                spellId2 = 54158;
+                                    spellId2 = 54158;
                             }
                         }
                         break;
@@ -5906,6 +5920,8 @@ void Spell::EffectScriptEffect(uint32 effIndex)
                     m_caster->CastSpell(unitTarget, spellId1, true);
                 if (spellId2)
                     m_caster->CastSpell(unitTarget, spellId2, true);
+                if (spellId3)
+                    m_caster->CastSpell(unitTarget, spellId3, true);
                 return;
             }
         }
