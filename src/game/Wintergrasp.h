@@ -215,6 +215,15 @@ class OPvPWintergrasp : public OutdoorPvP
             if (timer >= 0)
                 m_timer = timer;
         };
+        uint32 GetNumPlayersA() const
+        {
+            return m_players[TEAM_ALLIANCE].size();
+        }
+
+        uint32 GetNumPlayersH() const
+        {
+            return m_players[TEAM_HORDE].size();
+        }
         void forceChangeTeam();
         void forceStopBattle();
         void forceStartBattle();
