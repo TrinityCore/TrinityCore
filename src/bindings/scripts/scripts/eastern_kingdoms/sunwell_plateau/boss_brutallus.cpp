@@ -319,7 +319,7 @@ struct TRINITY_DLL_DECL boss_brutallusAI : public ScriptedAI
             for (std::list<Unit*>::iterator i = pTargets.begin(); i != pTargets.end(); ++i)
                 if(!(*i)->HasAura(SPELL_BURN))
                 {
-                    DoCast(*i, SPELL_BURN, true);
+                    (*i)->CastSpell((*i), SPELL_BURN, true);
                     break;
                 }
             BurnTimer = urand(60000,180000);
