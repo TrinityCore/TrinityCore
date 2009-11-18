@@ -24,17 +24,18 @@ EndScriptData
 
 /* ContentData
 npc_air_force_bots       80%    support for misc (invisible) guard bots in areas where player allowed to fly. Summon guards after a preset time if tagged by spell
+npc_lunaclaw_spirit      80%    support for quests 6001/6002 (Body and Heart)
 npc_chicken_cluck       100%    support for quest 3861 (Cluck!)
 npc_dancing_flames      100%    midsummer event NPC
 npc_guardian            100%    guardianAI used to prevent players from accessing off-limits areas. Not in use by SD2
-npc_garments_of_quests  80%     NPC's related to all Garments of-quests 5621, 5624, 5625, 5648, 565
+npc_garments_of_quests   80%    NPC's related to all Garments of-quests 5621, 5624, 5625, 5648, 565
 npc_injured_patient     100%    patients for triage-quests (6622 and 6624)
 npc_doctor              100%    Gustaf Vanhowzen and Gregory Victor, quest 6622 and 6624 (Triage)
 npc_kingdom_of_dalaran_quests   Misc NPC's gossip option related to quests 12791, 12794 and 12796
 npc_mount_vendor        100%    Regular mount vendors all over the world. Display gossip if player doesn't meet the requirements to buy
-npc_rogue_trainer       80%     Scripted trainers, so they are able to offer item 17126 for class quest 6681
+npc_rogue_trainer        80%    Scripted trainers, so they are able to offer item 17126 for class quest 6681
 npc_sayge               100%    Darkmoon event fortune teller, buff player based on answers given
-npc_snake_trap_serpents 80%     AI for snakes that summoned by Snake Trap
+npc_snake_trap_serpents  80%    AI for snakes that summoned by Snake Trap
 EndContentData */
 
 #include "precompiled.h"
@@ -245,6 +246,40 @@ struct TRINITY_DLL_DECL npc_air_force_botsAI : public ScriptedAI
 CreatureAI* GetAI_npc_air_force_bots(Creature* pCreature)
 {
     return new npc_air_force_botsAI(pCreature);
+}
+
+/*######
+## npc_lunaclaw_spirit
+######*/
+
+enum
+{
+    QUEST_BODY_HEART_A      = 6001,
+    QUEST_BODY_HEART_H      = 6002,
+
+    TEXT_ID_DEFAULT         = 4714,
+    TEXT_ID_PROGRESS        = 4715
+};
+
+#define GOSSIP_ITEM_GRANT   "You have thought well, spirit. I ask you to grant me the strength of your body and the strength of your heart."
+
+bool GossipHello_npc_lunaclaw_spirit(Player *pPlayer, Creature *pCreature)
+{
+    if (pPlayer->GetQuestStatus(QUEST_BODY_HEART_A) == QUEST_STATUS_INCOMPLETE || pPlayer->GetQuestStatus(QUEST_BODY_HEART_H) == QUEST_STATUS_INCOMPLETE)
+        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_GRANT, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+
+        pPlayer->SEND_GOSSIP_MENU(TEXT_ID_DEFAULT, pCreature->GetGUID());
+    return true;
+}
+
+bool GossipSelect_npc_lunaclaw_spirit(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+{
+    if (uiAction == GOSSIP_ACTION_INFO_DEF+1)
+    {
+        pPlayer->SEND_GOSSIP_MENU(TEXT_ID_PROGRESS, pCreature->GetGUID());
+        pPlayer->AreaExploredOrEventHappens(pPlayer->GetTeam() == ALLIANCE ? QUEST_BODY_HEART_A : QUEST_BODY_HEART_H);
+    }
+    return true;
 }
 
 /*########
@@ -1584,10 +1619,10 @@ struct TRINITY_DLL_DECL npc_snake_trap_serpentsAI : public ScriptedAI
         {
             if (IsViper) //Viper
             {
-                if (rand() % 3 == 0) //33% chance to cast
+                if (urand(0,2) == 0) //33% chance to cast
                 {
                     uint32 spell;
-                    if (rand() % 2 == 0)
+                    if (urand(0,1) == 0)
                         spell = SPELL_MIND_NUMBING_POISON;
                     else
                         spell = SPELL_CRIPPLING_POISON;
@@ -1599,11 +1634,11 @@ struct TRINITY_DLL_DECL npc_snake_trap_serpentsAI : public ScriptedAI
             }
             else //Venomous Snake
             {
-                if (rand() % 10 < 8) //80% chance to cast
+                if (urand(0,9) < 8) //80% chance to cast
                     DoCast(m_creature->getVictim(), SPELL_DEADLY_POISON);
                 SpellTimer = VENOMOUS_SNAKE_TIMER + (rand() %5)*100;
             }
-        } else SpellTimer-=diff;
+        } else SpellTimer -= diff;
         DoMeleeAttackIfReady();
     }
 };
@@ -1632,20 +1667,19 @@ struct TRINITY_DLL_DECL mob_mojoAI : public ScriptedAI
     {
         victimGUID = 0;
         hearts = 15000;
-        Unit* own = m_creature->GetOwner();
-        if (own)
+        if (Unit* own = m_creature->GetOwner())
             m_creature->GetMotionMaster()->MoveFollow(own,0,0);
     }
     void Aggro(Unit *who){}
     void UpdateAI(const uint32 diff)
     {
-        if (m_creature->HasAura(20372,0))
+        if (m_creature->HasAura(20372))
         {
-            if (hearts<= diff)
+            if (hearts <= diff)
             {
                 m_creature->RemoveAurasDueToSpell(20372);
                 hearts = 15000;
-            }hearts-=diff;
+            } hearts -= diff;
         }
     }
     void ReceiveEmote(Player* pPlayer, uint32 emote)
@@ -1905,6 +1939,12 @@ void AddSC_npcs_special()
     newscript = new Script;
     newscript->Name = "npc_air_force_bots";
     newscript->GetAI = &GetAI_npc_air_force_bots;
+    newscript->RegisterSelf();
+	
+    newscript = new Script;
+    newscript->Name = "npc_lunaclaw_spirit";
+    newscript->pGossipHello =  &GossipHello_npc_lunaclaw_spirit;
+    newscript->pGossipSelect = &GossipSelect_npc_lunaclaw_spirit;
     newscript->RegisterSelf();
 
     newscript = new Script;
