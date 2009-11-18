@@ -650,6 +650,22 @@ void Unit::DealDamageMods(Unit *pVictim, uint32 &damage, uint32* absorb)
 
 uint32 Unit::DealDamage(Unit *pVictim, uint32 damage, CleanDamage const* cleanDamage, DamageEffectType damagetype, SpellSchoolMask damageSchoolMask, SpellEntry const *spellProto, bool durabilityLoss)
 {
+    // if attacker is a player and spell is not empty/fail
+    if (GetTypeId() == TYPEID_PLAYER && spellProto)
+    {
+        // on divine storm dealed damage - heal
+        if (spellProto->SpellFamilyName == SPELLFAMILY_PALADIN && spellProto->SpellFamilyFlags[1] & 0x20000)
+        {
+            Unit *pRaidGrpMember = GetNextRandomRaidMemberOrPet(30.0f);
+            int32 divineDmg = damage / 4;
+
+            if (!pRaidGrpMember)
+                pRaidGrpMember = this;
+
+            CastCustomSpell(pRaidGrpMember, 54172, &divineDmg, 0, 0, true);
+        }
+    }
+
     if(pVictim->GetTypeId() == TYPEID_UNIT && ((Creature*)pVictim)->IsAIEnabled)
         ((Creature*)pVictim)->AI()->DamageTaken(this, damage);
 
@@ -6256,7 +6272,7 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                 triggered_spell_id = 54203;
                 break;
             }
-            switch(dummySpell->Id)
+            switch (dummySpell->Id)
             {
                 // Heart of the Crusader
                 case 20335: // rank 1
