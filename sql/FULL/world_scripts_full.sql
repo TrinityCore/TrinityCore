@@ -375,9 +375,7 @@ UPDATE `item_template` SET `ScriptName`='item_pile_fake_furs' WHERE `entry`=3512
 /* BURNING STEPPES */
 UPDATE `creature_template` SET `ScriptName`='npc_ragged_john' WHERE `entry`=9563;
 
-/*  */
 /* CAVERNS OF TIME */
-/*  */
 
 /* MT. HYJAL */
 UPDATE `instance_template` SET `script`='instance_hyjal' WHERE `map`=534;
@@ -472,6 +470,11 @@ UPDATE `creature_template` SET `ScriptName`='mob_coilfang_elite' WHERE `entry`=2
 UPDATE `creature_template` SET `ScriptName`='mob_coilfang_strider' WHERE `entry`=22056;
 UPDATE `creature_template` SET `ScriptName`='mob_toxic_sporebat' WHERE `entry`=22140;
 UPDATE `creature_template` SET `ScriptName`='mob_shield_generator_channel' WHERE `entry`=19870;
+
+/* CRYSTALSONG FOREST */
+
+/* DALARAN */
+UPDATE `creature_template` SET `ScriptName`='npc_mageguard_dalaran' WHERE `entry` IN (29254,29255);
 
 /* DARKSHORE */
 UPDATE `creature_template` SET `ScriptName`='npc_kerlonian' WHERE `entry`=11218;
