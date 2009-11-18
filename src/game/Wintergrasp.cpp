@@ -964,11 +964,11 @@ bool OPvPWintergrasp::UpdateCreatureInfo(Creature *creature)
 
 bool OPvPWintergrasp::UpdateQuestGiverPosition(uint32 guid, Creature *creature)
 {
+    assert(guid);
     Position pos = m_qgPosMap[std::pair<uint32, bool>(guid, getDefenderTeam() == TEAM_HORDE)];
-    if (!pos.GetPositionX())
-        return false;
+    assert(pos);
 
-    if (creature)
+    if (creature && creature->IsInWorld())
     {
         // if not questgiver or position is the same, do nothing
         if (creature->GetPositionX() == pos.GetPositionX() &&
@@ -976,7 +976,7 @@ bool OPvPWintergrasp::UpdateQuestGiverPosition(uint32 guid, Creature *creature)
             creature->GetPositionZ() == pos.GetPositionZ())
             return false;
 
-        if (creature->isInCombat())
+        if (creature->isAlive() && creature->isInCombat())
         {
             creature->CombatStop(true);
             creature->getHostilRefManager().deleteReferences();
@@ -990,9 +990,8 @@ bool OPvPWintergrasp::UpdateQuestGiverPosition(uint32 guid, Creature *creature)
             creature->Respawn(true);
     }
     else
-    {
         objmgr.MoveCreData(guid, 571, pos);
-    }
+
     return true;
 }
 
