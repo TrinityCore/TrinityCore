@@ -641,7 +641,7 @@ void Spell::SpellDamageSchoolDmg(uint32 effect_idx)
                                 damage += int32(dmg_min);
                             else
                                 damage += irand(int32(dmg_min), int32(dmg_max));
-                            damage += ((Player*)m_caster)->GetAmmoDPS()*item->GetProto()->Delay*0.1f;
+                            damage += ((Player*)m_caster)->GetAmmoDPS()*item->GetProto()->Delay*0.001f;
                         }
                     }
 
