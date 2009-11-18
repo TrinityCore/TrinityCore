@@ -641,7 +641,7 @@ void Spell::SpellDamageSchoolDmg(uint32 effect_idx)
                                 damage += int32(dmg_min);
                             else
                                 damage += irand(int32(dmg_min), int32(dmg_max));
-                            damage += ((Player*)m_caster)->GetAmmoDPS()*item->GetProto()->Delay*float(0.1);
+                            damage += ((Player*)m_caster)->GetAmmoDPS()*item->GetProto()->Delay*0.1f;
                         }
                     }
 
@@ -2018,7 +2018,7 @@ void Spell::EffectDummy(uint32 i)
                 // Improved Death Strike
                 if (AuraEffect const * aurEff = m_caster->GetAuraEffect(SPELL_AURA_ADD_PCT_MODIFIER, SPELLFAMILY_DEATHKNIGHT, 2751, 0))
                     bp = bp * (m_caster->CalculateSpellDamage(aurEff->GetSpellProto(), 2, aurEff->GetSpellProto()->EffectBasePoints[2], m_caster) + 100.0f) / 100.0f;
-                m_caster->CastCustomSpell(m_caster, 45470, &bp, NULL, NULL, true);
+                m_caster->CastCustomSpell(m_caster, 45470, &bp, NULL, NULL, false);
                 return;
             }
             // Scourge Strike
@@ -2826,9 +2826,7 @@ void Spell::SpellDamageHeal(uint32 /*i*/)
         }
         // Death Pact - return pct of max health to caster
         else if (m_spellInfo->SpellFamilyName == SPELLFAMILY_DEATHKNIGHT && m_spellInfo->SpellFamilyFlags[0] & 0x00080000)
-        {
-                addhealth = int32(caster->GetMaxHealth()*damage/100.0f);
-        }
+            addhealth = caster->SpellHealingBonus(unitTarget, m_spellInfo, int32(caster->GetMaxHealth() * damage / 100.0f), HEAL);
         else
             addhealth = caster->SpellHealingBonus(unitTarget, m_spellInfo, addhealth, HEAL);
 
@@ -2851,9 +2849,9 @@ void Spell::EffectHealPct( uint32 /*i*/ )
         if (m_spellInfo->Id == 59754 && unitTarget == m_caster)
             return;
 
-        uint32 addhealth = unitTarget->GetMaxHealth() * damage / 100;
-        if(Player* modOwner = m_caster->GetSpellModOwner())
-            modOwner->ApplySpellMod(m_spellInfo->Id, SPELLMOD_DAMAGE, addhealth, this);
+        uint32 addhealth = caster->SpellHealingBonus(unitTarget, m_spellInfo, unitTarget->GetMaxHealth() * damage / 100.0f, HEAL);
+        //if(Player *modOwner = m_caster->GetSpellModOwner())
+        //    modOwner->ApplySpellMod(m_spellInfo->Id, SPELLMOD_DAMAGE, addhealth, this);
 
         int32 gain = caster->DealHeal(unitTarget, addhealth, m_spellInfo);
         unitTarget->getHostilRefManager().threatAssist(m_caster, float(gain) * 0.5f, m_spellInfo);
