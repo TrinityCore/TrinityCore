@@ -54,7 +54,7 @@ enum eCatFigurine
     SPELL_SUMMON_GHOST_SABER    = 5968,
 };
 
-bool GOHello_go_cat_figurine(Player* pPlayer, GameObject* pGo)
+bool GOHello_go_cat_figurine(Player *pPlayer, GameObject *pGO)
 {
     pPlayer->CastSpell(pPlayer,SPELL_SUMMON_GHOST_SABER,true);
     return false;
@@ -64,12 +64,12 @@ bool GOHello_go_cat_figurine(Player* pPlayer, GameObject* pGo)
 ## go_crystal_pylons (3x)
 ######*/
 
-bool GOHello_go_northern_crystal_pylon(Player* pPlayer, GameObject* pGo)
+bool GOHello_go_northern_crystal_pylon(Player *pPlayer, GameObject *pGO)
 {
-    if (pGo->GetGoType() == GAMEOBJECT_TYPE_QUESTGIVER)
+    if (pGO->GetGoType() == GAMEOBJECT_TYPE_QUESTGIVER)
     {
-        pPlayer->PrepareQuestMenu(pGo->GetGUID());
-        pPlayer->SendPreparedQuest(pGo->GetGUID());
+        pPlayer->PrepareQuestMenu(pGO->GetGUID());
+        pPlayer->SendPreparedQuest(pGO->GetGUID());
     }
 
     if (pPlayer->GetQuestStatus(4285) == QUEST_STATUS_INCOMPLETE)
@@ -78,12 +78,12 @@ bool GOHello_go_northern_crystal_pylon(Player* pPlayer, GameObject* pGo)
     return true;
 }
 
-bool GOHello_go_eastern_crystal_pylon(Player* pPlayer, GameObject* pGo)
+bool GOHello_go_eastern_crystal_pylon(Player *pPlayer, GameObject *pGO)
 {
-    if (pGo->GetGoType() == GAMEOBJECT_TYPE_QUESTGIVER)
+    if (pGO->GetGoType() == GAMEOBJECT_TYPE_QUESTGIVER)
     {
-        pPlayer->PrepareQuestMenu(pGo->GetGUID());
-        pPlayer->SendPreparedQuest(pGo->GetGUID());
+        pPlayer->PrepareQuestMenu(pGO->GetGUID());
+        pPlayer->SendPreparedQuest(pGO->GetGUID());
     }
 
     if (pPlayer->GetQuestStatus(4287) == QUEST_STATUS_INCOMPLETE)
@@ -92,12 +92,12 @@ bool GOHello_go_eastern_crystal_pylon(Player* pPlayer, GameObject* pGo)
     return true;
 }
 
-bool GOHello_go_western_crystal_pylon(Player* pPlayer, GameObject* pGo)
+bool GOHello_go_western_crystal_pylon(Player *pPlayer, GameObject *pGO)
 {
-    if (pGo->GetGoType() == GAMEOBJECT_TYPE_QUESTGIVER)
+    if (pGO->GetGoType() == GAMEOBJECT_TYPE_QUESTGIVER)
     {
-        pPlayer->PrepareQuestMenu(pGo->GetGUID());
-        pPlayer->SendPreparedQuest(pGo->GetGUID());
+        pPlayer->PrepareQuestMenu(pGO->GetGUID());
+        pPlayer->SendPreparedQuest(pGO->GetGUID());
     }
 
     if (pPlayer->GetQuestStatus(4288) == QUEST_STATUS_INCOMPLETE)
@@ -110,7 +110,7 @@ bool GOHello_go_western_crystal_pylon(Player* pPlayer, GameObject* pGo)
 ## go_barov_journal
 ######*/
 
-bool GOHello_go_barov_journal(Player* pPlayer, GameObject* pGo)
+bool GOHello_go_barov_journal(Player *pPlayer, GameObject *pGO)
 {
     if (pPlayer->HasSkill(SKILL_TAILORING) && pPlayer->GetBaseSkillValue(SKILL_TAILORING) >= 280 && !pPlayer->HasSpell(26086))
     {
@@ -123,7 +123,7 @@ bool GOHello_go_barov_journal(Player* pPlayer, GameObject* pGo)
 ## go_field_repair_bot_74A
 ######*/
 
-bool GOHello_go_field_repair_bot_74A(Player* pPlayer, GameObject* pGo)
+bool GOHello_go_field_repair_bot_74A(Player *pPlayer, GameObject *pGO)
 {
     if (pPlayer->HasSkill(SKILL_ENGINERING) && pPlayer->GetBaseSkillValue(SKILL_ENGINERING) >= 300 && !pPlayer->HasSpell(22704))
     {
@@ -141,7 +141,7 @@ enum eGildedBrazier
     NPC_STILLBLADE  = 17716,
 };
 
-bool GOHello_go_gilded_brazier(Player* pPlayer, GameObject* pGO)
+bool GOHello_go_gilded_brazier(Player *pPlayer, GameObject *pGO)
 {
     if (pGO->GetGoType() == GAMEOBJECT_TYPE_GOOBER)
         if (Creature* pCreature = pPlayer->SummonCreature(NPC_STILLBLADE, 8087.632, -7542.740, 151.568, 0.122, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000))
@@ -154,7 +154,7 @@ bool GOHello_go_gilded_brazier(Player* pPlayer, GameObject* pGO)
 ## go_orb_of_command
 ######*/
 
-bool GOHello_go_orb_of_command(Player* pPlayer, GameObject* pGo)
+bool GOHello_go_orb_of_command(Player *pPlayer, GameObject *pGO)
 {
     if (pPlayer->GetQuestRewardStatus(7761))
         pPlayer->CastSpell(pPlayer,23460,true);
@@ -166,7 +166,7 @@ bool GOHello_go_orb_of_command(Player* pPlayer, GameObject* pGo)
 ## go_tablet_of_madness
 ######*/
 
-bool GOHello_go_tablet_of_madness(Player* pPlayer, GameObject* pGo)
+bool GOHello_go_tablet_of_madness(Player *pPlayer, GameObject *pGO)
 {
     if (pPlayer->HasSkill(SKILL_ALCHEMY) && pPlayer->GetSkillValue(SKILL_ALCHEMY) >= 300 && !pPlayer->HasSpell(24266))
     {
@@ -180,9 +180,9 @@ bool GOHello_go_tablet_of_madness(Player* pPlayer, GameObject* pGo)
 ######*/
 
 //TODO: use gossip option ("Transcript the Tablet") instead, if Trinity adds support.
-bool GOHello_go_tablet_of_the_seven(Player* pPlayer, GameObject* pGo)
+bool GOHello_go_tablet_of_the_seven(Player *pPlayer, GameObject *pGO)
 {
-    if (pGo->GetGoType() != GAMEOBJECT_TYPE_QUESTGIVER)
+    if (pGO->GetGoType() != GAMEOBJECT_TYPE_QUESTGIVER)
         return true;
 
     if (pPlayer->GetQuestStatus(4296) == QUEST_STATUS_INCOMPLETE)
@@ -195,7 +195,7 @@ bool GOHello_go_tablet_of_the_seven(Player* pPlayer, GameObject* pGo)
 ## go_jump_a_tron
 ######*/
 
-bool GOHello_go_jump_a_tron(Player* pPlayer, GameObject* pGo)
+bool GOHello_go_jump_a_tron(Player *pPlayer, GameObject *pGO)
 {
     if (pPlayer->GetQuestStatus(10111) == QUEST_STATUS_INCOMPLETE)
      pPlayer->CastSpell(pPlayer,33382,true);
@@ -223,12 +223,12 @@ const uint32 NpcPrisonEntry[] =
     20783, 20784, 20785, 20786, 20788, 20789, 20790         //bad guys
 };
 
-bool GOHello_go_ethereum_prison(Player* pPlayer, GameObject* pGo)
+bool GOHello_go_ethereum_prison(Player *pPlayer, GameObject *pGO)
 {
     int Random = rand() % (sizeof(NpcPrisonEntry) / sizeof(uint32));
 
     if (Creature* pCreature = pPlayer->SummonCreature(NpcPrisonEntry[Random],
-        pGo->GetPositionX(), pGo->GetPositionY(), pGo->GetPositionZ(), pGo->GetAngle(pPlayer),
+        pGO->GetPositionX(), pGO->GetPositionY(), pGO->GetPositionZ(), pGO->GetAngle(pPlayer),
         TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000))
     {
         if (!pCreature->IsHostileTo(pPlayer))
@@ -267,12 +267,12 @@ const uint32 NpcStasisEntry[] =
     22825, 20888, 22827, 22826, 22828
 };
 
-bool GOHello_go_ethereum_stasis(Player* pPlayer, GameObject* pGo)
+bool GOHello_go_ethereum_stasis(Player *pPlayer, GameObject *pGO)
 {
     int Random = rand() % (sizeof(NpcStasisEntry) / sizeof(uint32));
 
     pPlayer->SummonCreature(NpcStasisEntry[Random],
-        pGo->GetPositionX(), pGo->GetPositionY(), pGo->GetPositionZ(), pGo->GetAngle(pPlayer),
+        pGO->GetPositionX(), pGO->GetPositionY(), pGO->GetPositionZ(), pGO->GetAngle(pPlayer),
         TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000);
 
     return false;
@@ -287,7 +287,7 @@ enum eResoniteCask
     NPC_GOGGEROC    = 11920
 };
 
-bool GOHello_go_resonite_cask(Player* pPlayer, GameObject* pGO)
+bool GOHello_go_resonite_cask(Player *pPlayer, GameObject *pGO)
 {
     if (pGO->GetGoType() == GAMEOBJECT_TYPE_GOOBER)
         pGO->SummonCreature(NPC_GOGGEROC, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 300000);
@@ -301,7 +301,7 @@ bool GOHello_go_resonite_cask(Player* pPlayer, GameObject* pGO)
 
 #define NPC_ARIKARA  10882
 
-bool GOHello_go_sacred_fire_of_life(Player* pPlayer, GameObject* pGO)
+bool GOHello_go_sacred_fire_of_life(Player *pPlayer, GameObject *pGO)
 {
     if (pGO->GetGoType() == GAMEOBJECT_TYPE_GOOBER)
         pPlayer->SummonCreature(NPC_ARIKARA, -5008.338, -2118.894, 83.657, 0.874, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000);
@@ -323,14 +323,14 @@ enum eShrineOfTheBirds
     GO_SHRINE_FALCON    = 185553
 };
 
-bool GOHello_go_shrine_of_the_birds(Player* pPlayer, GameObject* pGo)
+bool GOHello_go_shrine_of_the_birds(Player *pPlayer, GameObject *pGO)
 {
     uint32 BirdEntry = 0;
 
     float fX, fY, fZ;
-    pGo->GetClosePoint(fX, fY, fZ, pGo->GetObjectSize(), INTERACTION_DISTANCE);
+    pGO->GetClosePoint(fX, fY, fZ, pGO->GetObjectSize(), INTERACTION_DISTANCE);
 
-    switch(pGo->GetEntry())
+    switch(pGO->GetEntry())
     {
         case GO_SHRINE_HAWK:
             BirdEntry = NPC_HAWK_GUARD;
@@ -344,7 +344,7 @@ bool GOHello_go_shrine_of_the_birds(Player* pPlayer, GameObject* pGo)
     }
 
     if (BirdEntry)
-        pPlayer->SummonCreature(BirdEntry, fX, fY, fZ, pGo->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 60000);
+        pPlayer->SummonCreature(BirdEntry, fX, fY, fZ, pGO->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 60000);
 
     return false;
 }
@@ -361,7 +361,7 @@ enum eSouthfury
 
 };
 
-bool GOHello_go_southfury_moonstone(Player* pPlayer, GameObject* pGo)
+bool GOHello_go_southfury_moonstone(Player *pPlayer, GameObject *pGO)
 {
     //implicitTarget=48 not implemented as of writing this code, and manual summon may be just ok for our purpose
     //pPlayer->CastSpell(pPlayer,SPELL_SUMMON_RIZZLE,false);
@@ -382,7 +382,7 @@ enum eDalaranCrystal
     QUEST_TELE_CRYSTAL_FLAG     = 12845
 };
 
-bool GOHello_go_tele_to_dalaran_crystal(Player* pPlayer, GameObject* pGo)
+bool GOHello_go_tele_to_dalaran_crystal(Player *pPlayer, GameObject *pGO)
 {
     if (pPlayer->GetQuestRewardStatus(QUEST_TELE_CRYSTAL_FLAG))
         return false;
@@ -395,7 +395,7 @@ bool GOHello_go_tele_to_dalaran_crystal(Player* pPlayer, GameObject* pGo)
 ## go_tele_to_violet_stand
 ######*/
 
-bool GOHello_go_tele_to_violet_stand(Player* pPlayer, GameObject* pGo)
+bool GOHello_go_tele_to_violet_stand(Player *pPlayer, GameObject *pGO)
 {
     if (pPlayer->GetQuestRewardStatus(QUEST_LEARN_LEAVE_RETURN) || pPlayer->GetQuestStatus(QUEST_LEARN_LEAVE_RETURN) == QUEST_STATUS_INCOMPLETE)
         return false;
@@ -419,7 +419,7 @@ enum eFelCrystalforge
     SPELL_CREATE_5_FLASK_OF_BEAST   = 40965,
 };
 
-bool GOHello_go_fel_crystalforge(Player* pPlayer, GameObject* pGO)
+bool GOHello_go_fel_crystalforge(Player *pPlayer, GameObject *pGO)
 {
     if ( pGO->GetGoType() == GAMEOBJECT_TYPE_QUESTGIVER ) /* != GAMEOBJECT_TYPE_QUESTGIVER) */
         pPlayer->PrepareQuestMenu(pGO->GetGUID()); /* return true*/
@@ -432,7 +432,7 @@ bool GOHello_go_fel_crystalforge(Player* pPlayer, GameObject* pGO)
     return true;
 }
 
-bool GOSelect_go_fel_crystalforge(Player* pPlayer, GameObject* pGO, uint32 uiSender, uint32 uiAction)
+bool GOSelect_go_fel_crystalforge(Player *pPlayer, GameObject *pGO, uint32 uiSender, uint32 uiAction)
 {
     switch(uiAction)
     {
@@ -465,7 +465,7 @@ enum eBashirCrystalforge
     SPELL_CREATE_5_FLASK_OF_SORCERER   = 40970,
 };
 
-bool GOHello_go_bashir_crystalforge(Player* pPlayer, GameObject* pGO)
+bool GOHello_go_bashir_crystalforge(Player *pPlayer, GameObject *pGO)
 {
     pPlayer->CastSpell(pPlayer,SPELL_CREATE_1_FLASK_OF_SORCERER,false);
     return false;
@@ -492,9 +492,9 @@ enum eMatrixPunchograph
     MATRIX_PUNCHOGRAPH_3005_D = 142696,
 };
 
-bool GOHello_go_matrix_punchograph(Player* pPlayer, GameObject* pGo)
+bool GOHello_go_matrix_punchograph(Player *pPlayer, GameObject *pGO)
 {
-    switch(pGo->GetEntry())
+    switch(pGO->GetEntry())
     {
         case MATRIX_PUNCHOGRAPH_3005_A:
             if(pPlayer->HasItemCount(ITEM_WHITE_PUNCH_CARD, 1))
@@ -535,14 +535,13 @@ enum eRustyCage
     NPC_GOBLIN_PRISIONER    = 29466
 };
 
-bool GOHello_go_rusty_cage(Player* pPlayer, GameObject* pGO)
+bool GOHello_go_rusty_cage(Player *pPlayer, GameObject *pGO)
 {
-    if(Creature* m_creature = pGO->FindNearestCreature(NPC_GOBLIN_PRISIONER,5.0f,true))
+    if(Creature *pGoblinPrisoner = pGO->FindNearestCreature(NPC_GOBLIN_PRISIONER, 5.0f, true))
     {
         pGO->SetGoState(GO_STATE_ACTIVE);
-        pPlayer->KilledMonsterCredit(NPC_GOBLIN_PRISIONER,m_creature->GetGUID());
-        m_creature->DisappearAndDie();
-        m_creature->RemoveCorpse();
+        pPlayer->KilledMonsterCredit(NPC_GOBLIN_PRISIONER, pGoblinPrisoner->GetGUID());
+        pGoblinPrisoner->DisappearAndDie();
     }
 
     return true;
@@ -553,17 +552,33 @@ enum eScourgeCage
     NPC_SCOURGE_PRISONER = 25610
 };
 
-bool GOHello_go_scourge_cage(Player* pPlayer, GameObject* pGO)
+bool GOHello_go_scourge_cage(Player *pPlayer, GameObject *pGO)
 {
-    if(Creature* m_creature = pGO->FindNearestCreature(NPC_SCOURGE_PRISONER,5.0f,true))
+    if (Creature *pNearestPrisoner = pGO->FindNearestCreature(NPC_SCOURGE_PRISONER, 5.0f, true))
     {
         pGO->SetGoState(GO_STATE_ACTIVE);
-        pPlayer->KilledMonsterCredit(NPC_SCOURGE_PRISONER,m_creature->GetGUID());
-        m_creature->DisappearAndDie();
-        m_creature->RemoveCorpse();
+        pPlayer->KilledMonsterCredit(NPC_SCOURGE_PRISONER, pNearestPrisoner->GetGUID());
+        pNearestPrisoner->DisappearAndDie();
     }
     
     return true;
+}
+
+enum eArcanePrison
+{
+    QUEST_PRISON_BREAK                  = 11587,
+    SPELL_ARCANE_PRISONER_KILL_CREDIT   = 45456
+};
+
+bool GOHello_go_arcane_prison(Player *pPlayer, GameObject *pGO)
+{
+    if (pPlayer->GetQuestStatus(QUEST_PRISON_BREAK) == QUEST_STATUS_INCOMPLETE)
+    {
+        pGO->SummonCreature(25318, 3485.089844, 6115.7422188, 70.966812, 0, TEMPSUMMON_TIMED_DESPAWN, 60000);
+        pPlayer->CastSpell(pPlayer, SPELL_ARCANE_PRISONER_KILL_CREDIT, true);
+        return true;
+    } else
+        return false;
 }
 
 void AddSC_go_scripts()
@@ -689,6 +704,11 @@ void AddSC_go_scripts()
     newscript = new Script;
     newscript->Name = "go_scourge_cage";
     newscript->pGOHello =           &GOHello_go_scourge_cage;
+    newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name = "go_arcane_prison";
+    newscript->pGOHello =           &GOHello_go_arcane_prison;
     newscript->RegisterSelf();
 }
 
