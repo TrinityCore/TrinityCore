@@ -1132,7 +1132,7 @@ void LootTemplate::CheckLootRefs(LootTemplateMap const& store, LootIdSet* ref_se
         {
             if (!LootTemplates_Reference.GetLootFor(-ieItr->mincountOrRef))
                 LootTemplates_Reference.ReportNotExistedId(-ieItr->mincountOrRef);
-            else if(ref_set)
+            else if (ref_set)
                 ref_set->erase(-ieItr->mincountOrRef);
         }
     }
