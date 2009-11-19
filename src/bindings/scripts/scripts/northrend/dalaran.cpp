@@ -36,6 +36,16 @@ enum Spells
     SPELL_TRESPASSER_H = 54029
 };
 
+inline float __round(float x, int precision)
+{
+    if (precision > 0)
+    {
+        x *= pow(10.0f, precision);
+        return int(x > 0.0 ? x + 0.5 : x - 0.5)/precision;
+    }
+    return int(x > 0.0 ? x + 0.5 : x - 0.5);
+}
+
 struct TRINITY_DLL_DECL npc_mageguard_dalaranAI : public Scripted_NoMovementAI
 {
     npc_mageguard_dalaranAI(Creature* pCreature) : Scripted_NoMovementAI(pCreature)
@@ -70,7 +80,7 @@ struct TRINITY_DLL_DECL npc_mageguard_dalaranAI : public Scripted_NoMovementAI
         if (pWho->GetZoneId() != 4395) // Dalaran
             return;
 
-        if (!me->IsWithinDist(pWho, 50.0f, false))
+        if (!me->IsWithinDist(pWho, 100.0f, false))
             return;
 
         Player *pPlayer = pWho->GetCharmerOrOwnerPlayerOrPlayerItself();
@@ -78,21 +88,25 @@ struct TRINITY_DLL_DECL npc_mageguard_dalaranAI : public Scripted_NoMovementAI
         if (!pPlayer || pPlayer->isGameMaster())
             return;
 
+        float radians = me->GetAngle(pWho);
+        float xWeight = __round(cos(radians), 3);
+        float yWeight = __round(sin(radians), 3);
         float x = pWho->GetPositionX();
         float y = pWho->GetPositionY();
-        switch (m_creature->GetEntry())
-        {
-            case 29254:
-                if (pPlayer->GetTeam() == HORDE)
-                    if (x < 5760.0f && y > 665.0f && y < 812.0f) // Silver Enclave (Dalaran), fast check
+        float myX = me->GetPositionX();
+        float myY = me->GetPositionY();
+        if (x + (2.0f * xWeight) < myX && y + (2.0f * yWeight) < myY)
+            switch (m_creature->GetEntry())
+            {
+                case 29254:
+                    if (pPlayer->GetTeam() == HORDE)
                         DoCast(pWho, SPELL_TRESPASSER_A);
-                break;
-            case 29255:
-                if (pPlayer->GetTeam() == ALLIANCE)
-                    if (x > 5864.0f && y > 507.0f && y < 600.0f) // Sunreaver's Sanctuary (Dalaran), fast check
+                    break;
+                case 29255:
+                    if (pPlayer->GetTeam() == ALLIANCE)
                         DoCast(pWho, SPELL_TRESPASSER_H);
-                break;
-        }
+                    break;
+            }
         return;
     }
 
