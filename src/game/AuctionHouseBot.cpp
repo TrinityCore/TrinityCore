@@ -532,9 +532,7 @@ void AuctionHouseBot::addNewAuctionBuyerBotBid(Player *AHBplayer, AHBConfig *con
         possibleBids.erase(iter);
 
         if (!auction)
-        {
             continue;
-        }
 
         // get exact item information
         Item *pItem = auctionmgr.GetAItem(auction->item_guidlow);
