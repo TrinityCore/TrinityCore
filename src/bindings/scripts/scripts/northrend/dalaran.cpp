@@ -40,7 +40,8 @@ inline float __round(float x, int precision)
 {
     if (precision > 0)
     {
-        x *= pow(10.0f, precision);
+        precision = pow(10.0f, precision);
+        x *= precision;
         return int(x > 0.0 ? x + 0.5 : x - 0.5)/precision;
     }
     return int(x > 0.0 ? x + 0.5 : x - 0.5);
