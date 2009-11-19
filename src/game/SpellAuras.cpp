@@ -6693,7 +6693,7 @@ void AuraEffect::PeriodicDummyTick()
             switch (spell->Id)
             {
                 case 49016: //Hysteria
-                    uint32 damage = uint32(caster->GetMaxHealth()*0.01f);
+                    uint32 damage = uint32(m_target->GetMaxHealth()*0.01f);
                     m_target->DealDamage(m_target, damage, NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
                     break;
             }
