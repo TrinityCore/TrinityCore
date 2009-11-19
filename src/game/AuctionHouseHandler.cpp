@@ -330,7 +330,7 @@ void WorldSession::HandleAuctionPlaceBid(WorldPacket & recv_data)
         return;
 
     // price too low for next bid if not buyout
-    if (price < auction->buyout || auction->buyout == 0 &&
+    if ((price < auction->buyout || auction->buyout == 0) &&
         price < auction->bid + auction->GetAuctionOutBid())
     {
         //auction has already higher bid, client tests it!
