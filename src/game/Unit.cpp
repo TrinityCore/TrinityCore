@@ -10299,7 +10299,7 @@ void Unit::MeleeDamageBonus(Unit *pVictim, uint32 *pdamage, WeaponAttackType att
 
     // ..done (base at attack power for marked target and base at attack power for creature type)
     int32 APbonus = 0;
-    if(attType == RANGED_ATTACK)
+    if (attType == RANGED_ATTACK)
     {
         APbonus += pVictim->GetTotalAuraModifier(SPELL_AURA_RANGED_ATTACK_POWER_ATTACKER_BONUS);
 
