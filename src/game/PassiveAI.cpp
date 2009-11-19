@@ -28,7 +28,7 @@ NullCreatureAI::NullCreatureAI(Creature *c) : CreatureAI(c) { me->SetReactState(
 
 void PassiveAI::UpdateAI(const uint32)
 {
-    if(me->isInCombat() && me->getAttackers().empty())
+    if (me->isInCombat() && me->getAttackers().empty())
         EnterEvadeMode();
 }
 
@@ -63,19 +63,19 @@ void PossessedAI::KilledUnit(Unit* victim)
 
 void CritterAI::DamageTaken(Unit *done_by, uint32 &)
 {
-    if(!me->hasUnitState(UNIT_STAT_FLEEING))
+    if (!me->hasUnitState(UNIT_STAT_FLEEING))
         me->SetControlled(true, UNIT_STAT_FLEEING);
 }
 
 void CritterAI::EnterEvadeMode()
 {
-    if(me->hasUnitState(UNIT_STAT_FLEEING))
+    if (me->hasUnitState(UNIT_STAT_FLEEING))
         me->SetControlled(false, UNIT_STAT_FLEEING);
     CreatureAI::EnterEvadeMode();
 }
 
 void TriggerAI::IsSummonedBy(Unit *summoner)
 {
-    if(me->m_spells[0])
+    if (me->m_spells[0])
         me->CastSpell(me, me->m_spells[0], false, 0, 0, summoner->GetGUID());
 }

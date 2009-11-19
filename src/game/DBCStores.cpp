@@ -585,7 +585,7 @@ AreaTableEntry const* GetAreaEntryByAreaID(uint32 area_id)
     if(areaflag < 0)
         return NULL;
 
-    return sAreaStore.LookupEntry(areaflag );
+    return sAreaStore.LookupEntry(areaflag);
 }
 
 AreaTableEntry const* GetAreaEntryByAreaFlagAndMap(uint32 area_flag,uint32 map_id)
@@ -695,7 +695,7 @@ void Map2ZoneCoordinates(float& x,float& y,uint32 zone)
     std::swap(x,y);                                         // client have map coords swapped
 }
 
-uint32 const* GetTalentTabPages(uint32 cls)
+uint32 const* GetTalentTabPages(uint8 cls)
 {
     return sTalentTabPages[cls];
 }
