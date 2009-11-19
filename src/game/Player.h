@@ -2529,7 +2529,7 @@ template <class T> T Player::ApplySpellMod(uint32 spellId, SpellModOp op, T &bas
 
         // Charges can be set only for mods with auras
         if (!mod->ownerAura)
-            assert(mod->charges==0);
+            assert(mod->charges == 0);
 
         if(!IsAffectedBySpellmod(spellInfo,mod,spell))
             continue;
