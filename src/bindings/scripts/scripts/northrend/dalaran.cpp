@@ -36,16 +36,11 @@ enum Spells
     SPELL_TRESPASSER_H = 54029
 };
 
-inline float __round(float x, int precision)
+enum NPCs // All outdoor guards are within 35.0f of these NPCs
 {
-    if (precision > 0)
-    {
-        precision = pow(10.0f, precision);
-        x *= precision;
-        return int(x > 0.0 ? x + 0.5 : x - 0.5)/precision;
-    }
-    return int(x > 0.0 ? x + 0.5 : x - 0.5);
-}
+    NPC_APPLEBOUGH_A = 29547,
+    NPC_SWEETBERRY_H = 29715,
+};
 
 struct TRINITY_DLL_DECL npc_mageguard_dalaranAI : public Scripted_NoMovementAI
 {
@@ -54,34 +49,20 @@ struct TRINITY_DLL_DECL npc_mageguard_dalaranAI : public Scripted_NoMovementAI
         pCreature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
         pCreature->ApplySpellImmune(0, IMMUNITY_DAMAGE, SPELL_SCHOOL_NORMAL, true);
         pCreature->ApplySpellImmune(0, IMMUNITY_DAMAGE, SPELL_SCHOOL_MASK_MAGIC, true);
-
-        Reset();
     }
 
-    void Reset() {}
+    void Reset(){}
 
-    void Aggro(Unit* pWho)
-    {
-        return;
-    }
+    void Aggro(Unit* pWho){}
 
-    void AttackStart(Unit* pWho)
-    {
-        return;
-    }
+    void AttackStart(Unit* pWho){}
 
     void MoveInLineOfSight(Unit *pWho)
     {
-        if (m_creature->isInCombat())
+        if (!pWho || me->GetZoneId() != 4395)          // Must be in Dalaran
             return;
 
-        if (!pWho)
-            return;
-
-        if (pWho->GetZoneId() != 4395) // Dalaran
-            return;
-
-        if (!me->IsWithinDist(pWho, 100.0f, false))
+        if (!me->IsWithinDist(pWho, 65.0f, false))
             return;
 
         Player *pPlayer = pWho->GetCharmerOrOwnerPlayerOrPlayerItself();
@@ -89,29 +70,29 @@ struct TRINITY_DLL_DECL npc_mageguard_dalaranAI : public Scripted_NoMovementAI
         if (!pPlayer || pPlayer->isGameMaster())
             return;
 
-        float radians = me->GetAngle(pWho);
-        float xWeight = __round(cos(radians), 3);
-        float yWeight = __round(sin(radians), 3);
         float x = pWho->GetPositionX();
         float y = pWho->GetPositionY();
-        float myX = me->GetPositionX();
-        float myY = me->GetPositionY();
-        if (x + (2.0f * xWeight) < myX && y + (2.0f * yWeight) < myY)
-            switch (m_creature->GetEntry())
-            {
-                case 29254:
-                    if (pPlayer->GetTeam() == HORDE)
-                        DoCast(pWho, SPELL_TRESPASSER_A);
-                    break;
-                case 29255:
-                    if (pPlayer->GetTeam() == ALLIANCE)
-                        DoCast(pWho, SPELL_TRESPASSER_H);
-                    break;
-            }
+        switch (m_creature->GetEntry())
+        {
+            case 29254:
+                if (pPlayer->GetTeam() == HORDE)
+                    if (const Creature *pOutdoorNPC = me->FindNearestCreature(NPC_APPLEBOUGH_A, 200.0f))
+                        if ((!me->HasInArc(M_PI, pWho) &&  me->IsWithinDist(pOutdoorNPC, 35.0f, false))  // Behind me, and "outdoors"
+                         || ( me->HasInArc(M_PI, pWho) && !me->IsWithinDist(pOutdoorNPC, 35.0f, false))) // In front of me, and "indoors"
+                            DoCast(pWho, SPELL_TRESPASSER_A); // Teleport the Horde unit out
+                break;
+            case 29255:
+                if (pPlayer->GetTeam() == ALLIANCE)
+                    if (const Creature *pOutdoorNPC = me->FindNearestCreature(NPC_SWEETBERRY_H, 200.0f))
+                        if ((!me->HasInArc(M_PI, pWho) &&  me->IsWithinDist(pOutdoorNPC, 35.0f, false))  // Behind me, and "outdoors"
+                         || ( me->HasInArc(M_PI, pWho) && !me->IsWithinDist(pOutdoorNPC, 35.0f, false))) // In front of me, and "indoors"
+                            DoCast(pWho, SPELL_TRESPASSER_H); // Teleport the Alliance unit out
+                break;
+        }
         return;
     }
 
-    void UpdateAI(const uint32 diff) {}
+    void UpdateAI(const uint32 diff){}
 };
 
 CreatureAI* GetAI_npc_mageguard_dalaran(Creature* pCreature)
