@@ -76,17 +76,23 @@ struct TRINITY_DLL_DECL npc_mageguard_dalaranAI : public Scripted_NoMovementAI
         {
             case 29254:
                 if (pPlayer->GetTeam() == HORDE)
-                    if (const Creature *pOutdoorNPC = me->FindNearestCreature(NPC_APPLEBOUGH_A, 200.0f))
-                        if ((!me->HasInArc(M_PI, pWho) &&  me->IsWithinDist(pOutdoorNPC, 35.0f, false))  // Behind me, and "outdoors"
-                         || ( me->HasInArc(M_PI, pWho) && !me->IsWithinDist(pOutdoorNPC, 35.0f, false))) // In front of me, and "indoors"
+                    if (Creature *pOutdoorNPC = me->FindNearestCreature(NPC_APPLEBOUGH_A, 35.0f))
+                    {
+                        if (!me->HasInArc(1.5*M_PI, pWho))    // Behind me, and "outdoors"
                             DoCast(pWho, SPELL_TRESPASSER_A); // Teleport the Horde unit out
+                    }
+                    else if (me->HasInArc(M_PI, pWho))        // In front of me, and "indoors"
+                        DoCast(pWho, SPELL_TRESPASSER_A);     // Teleport the Horde unit out
                 break;
             case 29255:
                 if (pPlayer->GetTeam() == ALLIANCE)
-                    if (const Creature *pOutdoorNPC = me->FindNearestCreature(NPC_SWEETBERRY_H, 200.0f))
-                        if ((!me->HasInArc(M_PI, pWho) &&  me->IsWithinDist(pOutdoorNPC, 35.0f, false))  // Behind me, and "outdoors"
-                         || ( me->HasInArc(M_PI, pWho) && !me->IsWithinDist(pOutdoorNPC, 35.0f, false))) // In front of me, and "indoors"
+                    if (Creature *pOutdoorNPC = me->FindNearestCreature(NPC_SWEETBERRY_H, 35.0f))
+                    {
+                        if (!me->HasInArc(1.5*M_PI, pWho))    // Behind me, and "outdoors"
                             DoCast(pWho, SPELL_TRESPASSER_H); // Teleport the Alliance unit out
+                    }
+                    else if (me->HasInArc(M_PI, pWho))        // In front of me, and "indoors"
+                        DoCast(pWho, SPELL_TRESPASSER_H);     // Teleport the Alliance unit out
                 break;
         }
         return;
