@@ -6690,6 +6690,14 @@ void AuraEffect::PeriodicDummyTick()
         }
         case SPELLFAMILY_DEATHKNIGHT:
         {
+            switch (spell->Id)
+            {
+                case 49016: //Hysteria
+                    uint32 damage = uint32(caster->GetMaxHealth()*0.01f);
+                    m_target->DealDamage(m_target, damage, NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+                    break;
+            }
+
             // Death and Decay
             if (spell->SpellFamilyFlags[0] & 0x20)
             {
@@ -6701,8 +6709,7 @@ void AuraEffect::PeriodicDummyTick()
             if (spell->SpellFamilyFlags[1] & 0x00004000)
             {
                 // Get 0 effect aura
-                AuraEffect *slow = GetParentAura()->GetPartAura(0);
-                if (slow)
+                if (AuraEffect *slow = GetParentAura()->GetPartAura(0))
                 {
                     slow->ApplyModifier(false, true);
                     slow->SetAmount(slow->GetAmount() + GetAmount());
@@ -6729,18 +6736,18 @@ void AuraEffect::PeriodicDummyTick()
                     return;
 
                 // Remove death rune added on proc
-                for (uint8 i=0; i<MAX_RUNES && m_amount; ++i)
+                for (uint8 i = 0; i < MAX_RUNES && m_amount; ++i)
                 {
                     if (m_spellProto->SpellIconID == 2622)
                     {
                         if (((Player*)m_target)->GetCurrentRune(i) != RUNE_DEATH ||
-                            ((Player*)m_target)->GetBaseRune(i) == RUNE_BLOOD )
+                            ((Player*)m_target)->GetBaseRune(i) == RUNE_BLOOD)
                             continue;
                     }
                     else
                     {
                         if (((Player*)m_target)->GetCurrentRune(i) != RUNE_DEATH ||
-                            ((Player*)m_target)->GetBaseRune(i) != RUNE_BLOOD )
+                            ((Player*)m_target)->GetBaseRune(i) != RUNE_BLOOD)
                             continue;
                     }
 
