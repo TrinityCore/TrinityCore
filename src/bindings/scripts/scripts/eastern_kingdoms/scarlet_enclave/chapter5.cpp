@@ -342,11 +342,11 @@ struct TRINITY_DLL_DECL npc_highlord_darion_mograineAI : public npc_escortAI
             uiTotal_scourge = ENCOUNTER_TOTAL_SCOURGE;
             uiSummon_counter = 0;
 
-            uiAnti_magic_zone = 1000 + rand()%5000;
-            uiDeath_strike = 5000 + rand()%5000;
-            uiDeath_embrace = 5000 + rand()%5000;
-            uiIcy_touch = 5000 + rand()%5000;
-            uiUnholy_blight = 5000 + rand()%5000;
+            uiAnti_magic_zone = urand(1000,6000);
+            uiDeath_strike = urand(5000,10000);
+            uiDeath_embrace = urand(5000,10000);
+            uiIcy_touch = urand(5000,10000);
+            uiUnholy_blight = urand(5000,10000);
 
             uiFight_speech = 15000;
             uiSpawncheck = 1000;
@@ -463,7 +463,7 @@ struct TRINITY_DLL_DECL npc_highlord_darion_mograineAI : public npc_escortAI
 
     void WaypointReached(uint32 i)
     {
-        switch(i)
+        switch (i)
         {
             case 0:
                 me->RemoveUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
@@ -585,7 +585,7 @@ struct TRINITY_DLL_DECL npc_highlord_darion_mograineAI : public npc_escortAI
             if (uiPhase_timer <= diff)
             {
                 // ******* Before battle *****************************************************************
-                switch(uiStep)
+                switch (uiStep)
                 {
                     case 0:  // countdown
                         //UpdateWorldState(me->GetMap(), WORLD_STATE_COUNTDOWN, 1);
@@ -1360,7 +1360,7 @@ struct TRINITY_DLL_DECL npc_highlord_darion_mograineAI : public npc_escortAI
             } else uiTargetcheck -= diff;
 
             // Battle end
-            if (uiFight_duration < diff + 5000)
+            if (uiFight_duration <= diff + 5000)
             {
                 if (!uiTirionGUID)
                     if (Unit* pTemp = me->SummonCreature(NPC_HIGHLORD_TIRION_FORDRING, LightofDawnLoc[0].x, LightofDawnLoc[0].y, LightofDawnLoc[0].z, 1.528, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 600000))
