@@ -6750,7 +6750,7 @@ void Spell::EffectPlayerPull(uint32 i)
     if(!unitTarget)
         return;
 
-    unitTarget->GetMotionMaster()->MoveJump(m_caster->GetPositionX(), m_caster->GetPositionY(), float(damage ? damage : unitTarget->GetDistance2d(m_caster)), float(m_spellInfo->EffectMiscValue[i])/10);
+    unitTarget->GetMotionMaster()->MoveJump(m_caster->GetPositionX(), m_caster->GetPositionY(), m_caster->GetPositionZ(), float(damage ? damage : unitTarget->GetDistance2d(m_caster)), float(m_spellInfo->EffectMiscValue[i])/10);
 }
 
 void Spell::EffectDispelMechanic(uint32 i)
