@@ -51,10 +51,10 @@ ChatChannelsEntry const* GetChannelEntryFor(uint32 channel_id);
 
 bool IsTotemCategoryCompatiableWith(uint32 itemTotemCategoryId, uint32 requiredTotemCategoryId);
 
-void Zone2MapCoordinates(float& x,float& y,uint32 zone);
-void Map2ZoneCoordinates(float& x,float& y,uint32 zone);
+void Zone2MapCoordinates(float &x, float &y, uint32 zone);
+void Map2ZoneCoordinates(float &x, float &y, uint32 zone);
 
-uint32 const* /*[3]*/ GetTalentTabPages(uint32 cls);
+uint32 const* /*[3]*/ GetTalentTabPages(uint8 cls);
 
 extern DBCStorage <AchievementEntry>             sAchievementStore;
 extern DBCStorage <AchievementCriteriaEntry>     sAchievementCriteriaStore;

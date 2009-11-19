@@ -3364,19 +3364,19 @@ void Player::learnSpell(uint32 spell_id, bool dependent)
     bool learning = addSpell(spell_id,active,true,dependent,false);
 
     // learn all disabled higher ranks (recursive)
-    if(disabled)
+    if (disabled)
     {
         SpellChainNode const* node = spellmgr.GetSpellChainNode(spell_id);
-        if(node)
+        if (node)
         {
             PlayerSpellMap::iterator iter = m_spells.find(node->next);
-            if (iter != m_spells.end() && iter->second->disabled )
+            if (iter != m_spells.end() && iter->second->disabled)
                 learnSpell(node->next,false);
         }
     }
 
     // prevent duplicated entires in spell book, also not send if not in world (loading)
-    if(!learning || !IsInWorld ())
+    if (!learning || !IsInWorld())
         return;
 
     WorldPacket data(SMSG_LEARNED_SPELL, 4);
@@ -3394,16 +3394,15 @@ void Player::removeSpell(uint32 spell_id, bool disabled, bool learn_low_rank)
         return;
 
     // unlearn non talent higher ranks (recursive)
-    SpellChainNode const* node = spellmgr.GetSpellChainNode(spell_id);
-    if (node)
+    if (SpellChainNode const* node = spellmgr.GetSpellChainNode(spell_id))
     {
-        if(HasSpell(node->next) && !GetTalentSpellPos(node->next))
+        if (HasSpell(node->next) && !GetTalentSpellPos(node->next))
         removeSpell(node->next,disabled);
     }
     //unlearn spells dependent from recently removed spells
     SpellsRequiringSpellMap const& reqMap = spellmgr.GetSpellsRequiringSpell();
     SpellsRequiringSpellMap::const_iterator itr2 = reqMap.find(spell_id);
-    for (uint32 i=reqMap.count(spell_id); i>0; i--,itr2++)
+    for (uint32 i = reqMap.count(spell_id); i > 0; --i, ++itr2)
         removeSpell(itr2->second,disabled,false);
 
     // re-search, it can be corrupted in prev loop
@@ -3417,12 +3416,12 @@ void Player::removeSpell(uint32 spell_id, bool disabled, bool learn_low_rank)
     if (disabled)
     {
         itr->second->disabled = disabled;
-        if(itr->second->state != PLAYERSPELL_NEW)
+        if (itr->second->state != PLAYERSPELL_NEW)
             itr->second->state = PLAYERSPELL_CHANGED;
     }
     else
     {
-        if(itr->second->state == PLAYERSPELL_NEW)
+        if (itr->second->state == PLAYERSPELL_NEW)
         {
             delete itr->second;
             m_spells.erase(itr);
@@ -3434,40 +3433,40 @@ void Player::removeSpell(uint32 spell_id, bool disabled, bool learn_low_rank)
     RemoveAurasDueToSpell(spell_id);
 
     // remove pet auras
-    for (int i = 0; i < MAX_SPELL_EFFECTS; ++i)
-        if(PetAura const* petSpell = spellmgr.GetPetAura(spell_id, i))
+    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+        if (PetAura const* petSpell = spellmgr.GetPetAura(spell_id, i))
             RemovePetAura(petSpell);
 
     // free talent points
     uint32 talentCosts = GetTalentSpellCost(spell_id);
     if(talentCosts > 0)
     {
-        if(talentCosts < m_usedTalentCount)
+        if (talentCosts < m_usedTalentCount)
             m_usedTalentCount -= talentCosts;
         else
             m_usedTalentCount = 0;
     }
 
     // update free primary prof.points (if not overflow setting, can be in case GM use before .learn prof. learning)
-    if(spellmgr.IsPrimaryProfessionFirstRankSpell(spell_id))
+    if (spellmgr.IsPrimaryProfessionFirstRankSpell(spell_id))
     {
         uint32 freeProfs = GetFreePrimaryProfessionPoints()+1;
-        if(freeProfs <= sWorld.getConfig(CONFIG_MAX_PRIMARY_TRADE_SKILL))
+        if (freeProfs <= sWorld.getConfig(CONFIG_MAX_PRIMARY_TRADE_SKILL))
             SetFreePrimaryProfessions(freeProfs);
     }
 
     // remove dependent skill
     SpellLearnSkillNode const* spellLearnSkill = spellmgr.GetSpellLearnSkill(spell_id);
-    if(spellLearnSkill)
+    if (spellLearnSkill)
     {
         uint32 prev_spell = spellmgr.GetPrevSpellInChain(spell_id);
-        if(!prev_spell)                                     // first rank, remove skill
+        if (!prev_spell)                                    // first rank, remove skill
             SetSkill(spellLearnSkill->skill,0,0);
         else
         {
             // search prev. skill setting by spell ranks chain
             SpellLearnSkillNode const* prevSkill = spellmgr.GetSpellLearnSkill(prev_spell);
-            while(!prevSkill && prev_spell)
+            while (!prevSkill && prev_spell)
             {
                 prev_spell = spellmgr.GetPrevSpellInChain(prev_spell);
                 prevSkill = spellmgr.GetSpellLearnSkill(spellmgr.GetFirstSpellInChain(prev_spell));
@@ -3507,14 +3506,14 @@ void Player::removeSpell(uint32 spell_id, bool disabled, bool learn_low_rank)
             if(_spell_idx->second->learnOnGetSkill == ABILITY_LEARNED_ON_GET_RACE_OR_CLASS_SKILL &&
                 pSkill->categoryId != SKILL_CATEGORY_CLASS ||// not unlearn class skills (spellbook/talent pages)
                 // lockpicking/runeforging special case, not have ABILITY_LEARNED_ON_GET_RACE_OR_CLASS_SKILL
-                ((pSkill->id==SKILL_LOCKPICKING || pSkill->id==SKILL_RUNEFORGING) && _spell_idx->second->max_value==0))
+                ((pSkill->id == SKILL_LOCKPICKING || pSkill->id == SKILL_RUNEFORGING) && _spell_idx->second->max_value == 0))
             {
                 // not reset skills for professions and racial abilities
                 if ((pSkill->categoryId==SKILL_CATEGORY_SECONDARY || pSkill->categoryId==SKILL_CATEGORY_PROFESSION) &&
                     (IsProfessionSkill(pSkill->id) || _spell_idx->second->racemask!=0))
                     continue;
 
-                SetSkill(pSkill->id, 0, 0 );
+                SetSkill(pSkill->id, 0, 0);
             }
         }
     }
@@ -3536,8 +3535,8 @@ void Player::removeSpell(uint32 spell_id, bool disabled, bool learn_low_rank)
         if (talentCosts)
         {
             // I cannot see why mangos has these lines.
-            //if(learn_low_rank)
-            //    learnSpell (prev_id,false);
+            //if (learn_low_rank)
+            //    learnSpell(prev_id,false);
         }
         // if ranked non-stackable spell: need activate lesser rank and update dendence state
         else if (cur_active && !SpellMgr::canStackSpellRanks(spellInfo) && spellmgr.GetSpellRank(spellInfo->Id) != 0)
@@ -3562,7 +3561,7 @@ void Player::removeSpell(uint32 spell_id, bool disabled, bool learn_low_rank)
                         WorldPacket data(SMSG_SUPERCEDED_SPELL, 4 + 4);
                         data << uint32(spell_id);
                         data << uint32(prev_id);
-                        GetSession()->SendPacket( &data );
+                        GetSession()->SendPacket(&data);
                         prev_activate = true;
                     }
                 }
@@ -3570,14 +3569,14 @@ void Player::removeSpell(uint32 spell_id, bool disabled, bool learn_low_rank)
         }
     }
 
-    if(spell_id == 46917 && m_canTitanGrip)
+    if (spell_id == 46917 && m_canTitanGrip)
         SetCanTitanGrip(false);
 
-    if(sWorld.getConfig(CONFIG_OFFHAND_CHECK_AT_SPELL_UNLEARN))
+    if (sWorld.getConfig(CONFIG_OFFHAND_CHECK_AT_SPELL_UNLEARN))
         AutoUnequipOffhandIfNeed();
 
     // remove from spell book if not replaced by lesser rank
-    if(!prev_activate)
+    if (!prev_activate)
     {
         WorldPacket data(SMSG_REMOVED_SPELL, 4);
         data << uint32(spell_id);
@@ -3585,19 +3584,19 @@ void Player::removeSpell(uint32 spell_id, bool disabled, bool learn_low_rank)
     }
 }
 
-void Player::RemoveSpellCooldown( uint32 spell_id, bool update /* = false */ )
+void Player::RemoveSpellCooldown( uint32 spell_id, bool update /* = false */)
 {
     m_spellCooldowns.erase(spell_id);
 
-    if(update)
+    if (update)
         SendClearCooldown(spell_id, this);
 }
 
 // I am not sure which one is more efficient
-void Player::RemoveCategoryCooldown( uint32 cat )
+void Player::RemoveCategoryCooldown(uint32 cat)
 {
     SpellCategoryStore::const_iterator i_scstore = sSpellCategoryStore.find(cat);
-    if(i_scstore != sSpellCategoryStore.end())
+    if (i_scstore != sSpellCategoryStore.end())
         for (SpellCategorySet::const_iterator i_scset = i_scstore->second.begin(); i_scset != i_scstore->second.end(); ++i_scset)
             RemoveSpellCooldown(*i_scset, true);
 }
@@ -3641,7 +3640,7 @@ void Player::RemoveArenaSpellCooldowns()
 
 void Player::RemoveAllSpellCooldown()
 {
-    if(!m_spellCooldowns.empty())
+    if (!m_spellCooldowns.empty())
     {
         for (SpellCooldowns::const_iterator itr = m_spellCooldowns.begin(); itr != m_spellCooldowns.end(); ++itr)
             SendClearCooldown(itr->first, this);
@@ -3656,7 +3655,7 @@ void Player::_LoadSpellCooldowns(QueryResult *result)
 
     //QueryResult *result = CharacterDatabase.PQuery("SELECT spell,item,time FROM character_spell_cooldown WHERE guid = '%u'",GetGUIDLow());
 
-    if(result)
+    if (result)
     {
         time_t curTime = time(NULL);
 
