@@ -87,7 +87,7 @@ struct TRINITY_DLL_DECL npc_mageguard_dalaranAI : public Scripted_NoMovementAI
                     if (Creature *pOutdoorNPC = me->FindNearestCreature(NPC_SWEETBERRY_H, 35.0f))
                     {
                         if (me->isInBackInMap(pWho, 12.0f))
-                            DoCast(pWho, SPELL_TRESPASSER_A);
+                            DoCast(pWho, SPELL_TRESPASSER_H);
                     }
                     else                                  // In my line of sight, and "indoors"
                         DoCast(pWho, SPELL_TRESPASSER_H); // Teleport the Alliance unit out
