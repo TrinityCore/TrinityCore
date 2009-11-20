@@ -5216,19 +5216,19 @@ void Spell::EffectScriptEffect(uint32 effIndex)
                     if(m_caster->GetTypeId() != TYPEID_PLAYER)
                         return;
 
-                    int bag=19;
-                    int slot=0;
-                    Item* item = NULL;
+                    uint8 bag = 19;
+                    uint8 slot = 0;
+                    Item *item = NULL;
 
                     while (bag < 256)
                     {
-                        item = ((Player*)m_caster)->GetItemByPos(bag,slot);
+                        item = ((Player*)m_caster)->GetItemByPos(bag, slot);
                         if (item && item->GetEntry() == 38587) break;
-                        slot++;
+                        ++slot;
                         if (slot == 39)
                         {
                             slot = 0;
-                            bag++;
+                            ++bag;
                         }
                     }
                     if (bag < 256)
@@ -5236,7 +5236,7 @@ void Spell::EffectScriptEffect(uint32 effIndex)
                         if (((Player*)m_caster)->GetItemByPos(bag,slot)->GetCount() == 1) ((Player*)m_caster)->RemoveItem(bag,slot,true);
                         else ((Player*)m_caster)->GetItemByPos(bag,slot)->SetCount(((Player*)m_caster)->GetItemByPos(bag,slot)->GetCount()-1);
                         // Spell 42518 (Braufest - Gratisprobe des Braufest herstellen)
-                        m_caster->CastSpell(m_caster,42518,true);
+                        m_caster->CastSpell(m_caster, 42518, true);
                         return;
                     }
                     break;
@@ -5244,10 +5244,21 @@ void Spell::EffectScriptEffect(uint32 effIndex)
                 // Force Cast - Portal Effect: Sunwell Isle
                 case 44876:
                 {
-                    if(!unitTarget)
+                    if (!unitTarget)
                         return;
 
                     unitTarget->CastSpell(unitTarget, 44870, true);
+                    break;
+                }
+                // Brutallus - Burn
+                case 45141:
+                case 45151:
+                {
+                    //Workaround for Range ... should be global for every ScriptEffect
+                    float radius = GetSpellRadius(sSpellRadiusStore.LookupEntry(m_spellInfo->EffectRadiusIndex[effIndex]));
+                    if (unitTarget && unitTarget->GetTypeId() == TYPEID_PLAYER && unitTarget->GetDistance(m_caster) >= radius && !unitTarget->HasAura(46394) && unitTarget != m_caster)
+                        unitTarget->CastSpell(unitTarget, 46394, true);
+
                     break;
                 }
                 // spell of Brutallus - Stomp
