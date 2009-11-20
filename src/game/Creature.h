@@ -702,8 +702,9 @@ class TRINITY_DLL_SPEC Creature : public Unit
         }
 
         void SetHomePosition(float x, float y, float z, float o) { m_homePosition.Relocate(x, y, z, o); }
-        void SetHomePosition(const Position &pos) { m_homePosition.Relocate(pos);}
+        void SetHomePosition(const Position &pos) { m_homePosition.Relocate(pos); }
         void GetHomePosition(float &x, float &y, float &z, float &ori) { m_homePosition.GetPosition(x, y, z, ori); }
+        Position GetHomePosition() { return m_homePosition; }
 
         uint32 GetGlobalCooldown() const { return m_GlobalCooldown; }
 
