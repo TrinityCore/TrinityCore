@@ -32,12 +32,12 @@ EndScriptData */
    Must kill twilight lord for shrine event to be possible
  */
 
-/*const Position LorgusPosition[4] =
-{ { },
-  { },
-  { },
-  { }
-};*/
+const Position LorgusPosition[4] =
+{ { -458.500610, -38.343079, -33.474445 },
+  { -469.423615, -88.400513, -39.265102 },
+  { -622.354980, -10.350100, -22.777000 },
+  { -759.640564,  16.658913, -29.159529 }
+};
 
 struct TRINITY_DLL_DECL instance_blackfathom_deeps : public ScriptedInstance
 {
@@ -70,8 +70,15 @@ struct TRINITY_DLL_DECL instance_blackfathom_deeps : public ScriptedInstance
 
     void OnCreatureCreate(Creature* pCreature, bool add)
     {
-        if (pCreature->GetEntry() == NPC_TWILIGHT_LORD_KELRIS)
-            m_uiTwilightLordKelrisGUID = pCreature->GetGUID();
+        switch (pCreature->GetEntry())
+        {
+            case NPC_TWILIGHT_LORD_KELRIS:
+                m_uiTwilightLordKelrisGUID = pCreature->GetGUID();
+                break;
+            case NPC_LORGUS_JETT:
+                pCreature->SetHomePosition(LorgusPosition[urand(0,3)]);
+                break;
+        }
     }
 
     void OnGameObjectCreate(GameObject* pGo, bool add)
