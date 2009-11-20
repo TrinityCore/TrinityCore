@@ -5807,22 +5807,22 @@ void AuraEffect::PeriodicTick()
                 return;
 
             // Consecrate ticks can miss and will not show up in the combat log
-            if( GetSpellProto()->Effect[GetEffIndex()]==SPELL_EFFECT_PERSISTENT_AREA_AURA &&
-                pCaster->SpellHitResult(m_target,GetSpellProto(),false)!=SPELL_MISS_NONE)
+            if (GetSpellProto()->Effect[GetEffIndex()] == SPELL_EFFECT_PERSISTENT_AREA_AURA &&
+                pCaster->SpellHitResult(m_target,GetSpellProto(),false) != SPELL_MISS_NONE)
                 return;
 
             // Check for immune (not use charges)
-            if(m_target->IsImmunedToDamage(GetSpellProto()))
+            if (m_target->IsImmunedToDamage(GetSpellProto()))
                 return;
 
             // some auras remove at specific health level or more
-            if(m_auraName==SPELL_AURA_PERIODIC_DAMAGE)
+            if (m_auraName == SPELL_AURA_PERIODIC_DAMAGE)
             {
-                switch(GetId())
+                switch (GetId())
                 {
                     case 43093: case 31956: case 38801:  // Grievous Wound
                     case 35321: case 38363: case 39215:  // Gushing Wound
-                        if(m_target->GetHealth() == m_target->GetMaxHealth() )
+                        if(m_target->GetHealth() == m_target->GetMaxHealth())
                         {
                             m_target->RemoveAurasDueToSpell(GetId());
                             return;
@@ -5834,14 +5834,14 @@ void AuraEffect::PeriodicTick()
                             GetEffIndex() < 2 && GetSpellProto()->Effect[GetEffIndex()]==SPELL_EFFECT_DUMMY ?
                             pCaster->CalculateSpellDamage(GetSpellProto(),GetEffIndex()+1,GetSpellProto()->EffectBasePoints[GetEffIndex()+1],m_target) :
                             100;
-                        if(m_target->GetHealth()*100 >= m_target->GetMaxHealth()*percent )
+                        if(m_target->GetHealth()*100 >= m_target->GetMaxHealth()*percent)
                         {
                             m_target->RemoveAurasDueToSpell(GetId());
                             return;
                         }
                         break;
                     }
-                    case 41337:// Aura of Anger
+                    case 41337: // Aura of Anger
                     {
                         if (AuraEffect * aurEff = GetParentAura()->GetPartAura(1))
                         {
@@ -5850,6 +5850,13 @@ void AuraEffect::PeriodicTick()
                             aurEff->ApplyModifier(true, false, true);
                         }
                         m_amount = 100 * m_tickNumber;
+                        break;
+                    }
+                    // Brutallus Burn
+                    case 46394:
+                    {
+                        if (m_tickNumber % 11 == 0)
+                            m_amount *= 2;
                         break;
                     }
                     default:
