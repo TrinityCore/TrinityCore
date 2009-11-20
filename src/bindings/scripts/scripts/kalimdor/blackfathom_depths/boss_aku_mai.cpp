@@ -72,7 +72,7 @@ struct TRINITY_DLL_DECL boss_aku_maiAI : public ScriptedAI
         {
             DoCast(m_creature,SPELL_FRENZIED_RAGE);
             bIsEnraged = true;
-        } else uiPoisonCloudTimer -= diff;
+        }
         
         DoMeleeAttackIfReady();
     }
