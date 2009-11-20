@@ -19,13 +19,15 @@ enum Data64
 
 enum Data
 {
+    TYPE_GELIHAST,
     TYPE_KELRIS,
     TYPE_SHRINE
 };
 
 enum Creatures
 {
-    NPC_TWILIGHT_LORD_KELRIS                               = 4832
+    NPC_TWILIGHT_LORD_KELRIS                               = 4832,
+    NPC_LORCUS_JETT                                        = 12902
 };
 
 enum GameObjects
