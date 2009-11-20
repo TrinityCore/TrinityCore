@@ -29,7 +29,6 @@ EndScriptData */
 
 enum Spells
 {
-
     SPELL_CARRION_BEETLES                  =       53520,
     SPELL_SUMMON_CARRION_BEETLES           =       53521,
     SPELL_LEECHING_SWARM                   =       53467,
@@ -41,11 +40,13 @@ enum Spells
     H_SPELL_POUND                          =       59433,
 
     SPELL_SUBMERGE                         =       53421,
+};
 
+enum Creatures
+{
     CREATURE_GUARDIAN                      =       29216,
-    CREATURE_VENOMANCER                     =       29217,
+    CREATURE_VENOMANCER                    =       29217,
     CREATURE_DATTER                        =       29213
-
 };
 
 // not in db
@@ -78,7 +79,7 @@ struct TRINITY_DLL_DECL boss_anub_arakAI : public ScriptedAI
         pInstance = c->GetInstanceData();
     }
 
-    ScriptedInstance* pInstance;
+    ScriptedInstance *pInstance;
 
     bool Channeling;
     bool HeroicMode;
@@ -109,7 +110,7 @@ struct TRINITY_DLL_DECL boss_anub_arakAI : public ScriptedAI
         Phase_Time = 0;
         Channeling = false;
 
-        m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+        m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_NOT_SELECTABLE);
         m_creature->RemoveAura(SPELL_SUBMERGE);
         
         if (pInstance)
@@ -117,7 +118,7 @@ struct TRINITY_DLL_DECL boss_anub_arakAI : public ScriptedAI
     }
 
 
-    void EnterCombat(Unit* who)
+    void EnterCombat(Unit *pWho)
     {
         DoScriptText(SAY_AGGRO, m_creature);
         
@@ -134,30 +135,26 @@ struct TRINITY_DLL_DECL boss_anub_arakAI : public ScriptedAI
 
         if (Channeling == true)
         {
-            for(int ind = 0 ; ind < 4; ind++) DoCast(m_creature->getVictim(), SPELL_SUMMON_CARRION_BEETLES, true);
+            for (uint8 i = 0; i < 4; ++i)
+                DoCast(m_creature->getVictim(), SPELL_SUMMON_CARRION_BEETLES, true);
             Channeling = false;
-
         }
 
         if (Phase == 1)
         {
-
             if (SPELL_IMPALE_Timer <= diff)
             {
-
-                if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                     m_creature->CastSpell(pTarget, HEROIC(SPELL_IMPALE,H_SPELL_IMPALE), true);
 
                 SPELL_IMPALE_Timer = 9000;
             } else SPELL_IMPALE_Timer -= diff;
 
-            if(!Summoned_Guardian)
+            if (!Summoned_Guardian)
             {
-                Creature* Guardian;
-                for(uint8 i=0; i < 2; ++i)
+                for (uint8 i = 0; i < 2; ++i)
                 {
-                    Guardian = m_creature->SummonCreature(CREATURE_GUARDIAN,SpawnPoint[i][0],SpawnPoint[i][1],SPAWNPOINT_Z,0,TEMPSUMMON_CORPSE_DESPAWN,0);
-                    if(Guardian)
+                    if (Creature *Guardian = m_creature->SummonCreature(CREATURE_GUARDIAN,SpawnPoint[i][0],SpawnPoint[i][1],SPAWNPOINT_Z,0,TEMPSUMMON_CORPSE_DESPAWN,0))
                     {
                         Guardian->AddThreat(m_creature->getVictim(), 0.0f);
                         DoZoneInCombat(Guardian);
@@ -170,14 +167,11 @@ struct TRINITY_DLL_DECL boss_anub_arakAI : public ScriptedAI
             {
                 if (VENOMANCER_Timer <= diff)
                 {
-                    if(Phase_Time > 1)
+                    if (Phase_Time > 1)
                     {
-
-                        Creature* Venomancer;
-                        for(uint8 i=0; i < 2; ++i)
+                        for (uint8 i = 0; i < 2; ++i)
                         {
-                            Venomancer = m_creature->SummonCreature(CREATURE_VENOMANCER,SpawnPoint[i][0],SpawnPoint[i][1],SPAWNPOINT_Z,0,TEMPSUMMON_CORPSE_DESPAWN,0);
-                            if(Venomancer)
+                            if (Creature *Venomancer = m_creature->SummonCreature(CREATURE_VENOMANCER,SpawnPoint[i][0],SpawnPoint[i][1],SPAWNPOINT_Z,0,TEMPSUMMON_CORPSE_DESPAWN,0))
                             {
                                 Venomancer->AddThreat(m_creature->getVictim(), 0.0f);
                                 DoZoneInCombat(Venomancer);
@@ -185,7 +179,6 @@ struct TRINITY_DLL_DECL boss_anub_arakAI : public ScriptedAI
                         }
                         Summoned_Venomancer = true;
                     }
-
                 } else VENOMANCER_Timer -= diff;
             }
 
@@ -193,13 +186,11 @@ struct TRINITY_DLL_DECL boss_anub_arakAI : public ScriptedAI
             {
                 if (DATTER_Timer <= diff)
                 {
-                    if(Phase_Time > 2)
+                    if (Phase_Time > 2)
                     {
-                        Creature* Datter;
-                        for(uint8 i=0; i < 2; ++i)
+                        for (uint8 i = 0; i < 2; ++i)
                         {
-                            Datter = m_creature->SummonCreature(CREATURE_DATTER,SpawnPoint[i][0],SpawnPoint[i][1],SPAWNPOINT_Z,0,TEMPSUMMON_CORPSE_DESPAWN,0);
-                            if(Datter)
+                            if (Creature *Datter = m_creature->SummonCreature(CREATURE_DATTER,SpawnPoint[i][0],SpawnPoint[i][1],SPAWNPOINT_Z,0,TEMPSUMMON_CORPSE_DESPAWN,0))
                             {
                                 Datter->AddThreat(m_creature->getVictim(), 0.0f);
                                 DoZoneInCombat(Datter);
@@ -213,13 +204,9 @@ struct TRINITY_DLL_DECL boss_anub_arakAI : public ScriptedAI
             if (UNDERGROUND_Timer <= diff)
             {
                 m_creature->RemoveAura(SPELL_SUBMERGE);
-
-                m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-
+                m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_NOT_SELECTABLE);
                 Phase = 0;
             } else UNDERGROUND_Timer -= diff;
-
         }
 
         if (Phase == 0)
@@ -227,29 +214,26 @@ struct TRINITY_DLL_DECL boss_anub_arakAI : public ScriptedAI
             if (SPELL_LEECHING_SWARM_Timer <= diff)
             {
                 DoCast(m_creature, SPELL_LEECHING_SWARM, true);
-
                 SPELL_LEECHING_SWARM_Timer = 19000;
             } else SPELL_LEECHING_SWARM_Timer -= diff;
 
             if (SPELL_CARRION_BEETLES_Timer <= diff)
             {
                 Channeling = true;
-                DoCast(m_creature->getVictim(), SPELL_CARRION_BEETLES, false);
-
+                DoCastVictim(SPELL_CARRION_BEETLES);
                 SPELL_CARRION_BEETLES_Timer = 25000;
             } else SPELL_CARRION_BEETLES_Timer -= diff;
 
             if (SPELL_POUND_Timer <= diff)
             {
-                 DoCast(m_creature->getVictim(), HEROIC(SPELL_POUND, H_SPELL_POUND));
+                 DoCastVictim(HEROIC(SPELL_POUND, H_SPELL_POUND));
                  SPELL_POUND_Timer = 16500;
             } else SPELL_POUND_Timer -= diff;
-
         }
 
-        if ((Phase_Time == 0 && (m_creature->GetHealth()*100 / m_creature->GetMaxHealth()) <= 75)
-            || (Phase_Time == 1 && (m_creature->GetHealth()*100 / m_creature->GetMaxHealth()) <= 50)
-            || (Phase_Time == 2 && (m_creature->GetHealth()*100 / m_creature->GetMaxHealth()) <= 25))
+        if ((Phase_Time == 0 && m_creature->GetHealth()*100 / m_creature->GetMaxHealth() <= 75)
+            || (Phase_Time == 1 && m_creature->GetHealth()*100 / m_creature->GetMaxHealth() <= 50)
+            || (Phase_Time == 2 && m_creature->GetHealth()*100 / m_creature->GetMaxHealth() <= 25))
         {
             ++Phase_Time;
 
@@ -263,20 +247,16 @@ struct TRINITY_DLL_DECL boss_anub_arakAI : public ScriptedAI
 
             DoCast(m_creature, SPELL_SUBMERGE, false);
 
-            m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-            m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+            m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_NOT_SELECTABLE);
 
             Phase = 1;
-
         }
 
-        if (!Phase == 1)
-        {
+        if (Phase != 1)
             DoMeleeAttackIfReady();
-        }
     }
     
-    void JustDied(Unit* killer)
+    void JustDied(Unit *pKiller)
     {
         DoScriptText(SAY_DEATH, m_creature);
         
@@ -284,16 +264,16 @@ struct TRINITY_DLL_DECL boss_anub_arakAI : public ScriptedAI
             pInstance->SetData(DATA_ANUBARAK_EVENT, DONE);
     }
 
-    void KilledUnit(Unit *victim)
+    void KilledUnit(Unit *pVictim)
     {
-        if (victim == m_creature)
+        if (pVictim == m_creature)
             return;
         
         DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2,SAY_SLAY_3), m_creature);
     }
 };
 
-CreatureAI* GetAI_boss_anub_arak(Creature* pCreature)
+CreatureAI* GetAI_boss_anub_arak(Creature *pCreature)
 {
     return new boss_anub_arakAI (pCreature);
 }
