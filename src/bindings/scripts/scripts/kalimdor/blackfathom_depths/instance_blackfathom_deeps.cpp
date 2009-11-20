@@ -158,6 +158,8 @@ struct TRINITY_DLL_DECL instance_blackfathom_deeps : public ScriptedInstance
                 break;
             case DATA_FIRE:
                 m_uiCountFires = uiData;
+                if (uiData == 4)
+                    CheckFires();
                 break;
         }
     }
