@@ -44,7 +44,7 @@ struct TRINITY_DLL_DECL instance_blackfathom_deeps : public ScriptedInstance
     uint64 m_uiAltarOfTheDeepsGUID;
     uint64 m_uiMainDoorGUID;
 
-    uint32 m_auiEncounter[MAX_ENCOUNTER];
+    uint8 m_auiEncounter[MAX_ENCOUNTER];
 
     void Initialize()
     {
@@ -62,7 +62,7 @@ struct TRINITY_DLL_DECL instance_blackfathom_deeps : public ScriptedInstance
 
     void OnCreatureCreate(Creature* pCreature, bool add)
     {
-        if (pCreature->GetEntry() == 4832)
+        if (pCreature->GetEntry() == NPC_TWILIGHT_LORD_KELRIS)
             m_uiTwilightLordKelrisGUID = pCreature->GetGUID();
     }
 
@@ -70,13 +70,31 @@ struct TRINITY_DLL_DECL instance_blackfathom_deeps : public ScriptedInstance
     {
         switch(pGo->GetEntry())
         {
-            case 21118:     m_uiShrine1GUID = pGo->GetGUID();           break;
-            case 21119:     m_uiShrine2GUID = pGo->GetGUID();           break;
-            case 21120:     m_uiShrine3GUID = pGo->GetGUID();           break;
-            case 21121:     m_uiShrine4GUID = pGo->GetGUID();           break;
-            case 103015:    m_uiShrineOfGelihastGUID = pGo->GetGUID();  break;
-            case 103016:    m_uiAltarOfTheDeepsGUID = pGo->GetGUID();   break;
-            case 21117:     m_uiMainDoorGUID = pGo->GetGUID();          break;
+            case GO_FIRE_OF_AKU_MAI_1:
+                m_uiShrine1GUID = pGo->GetGUID();
+                pGo->SetGoState(GO_STATE_READY);
+                break;
+            case GO_FIRE_OF_AKU_MAI_2:
+                m_uiShrine2GUID = pGo->GetGUID();
+                pGo->SetGoState(GO_STATE_READY);
+                break;
+            case GO_FIRE_OF_AKU_MAI_3:
+                m_uiShrine3GUID = pGo->GetGUID();
+                pGo->SetGoState(GO_STATE_READY);
+                break;
+            case GO_FIRE_OF_AKU_MAI_4:
+                m_uiShrine4GUID = pGo->GetGUID();
+                pGo->SetGoState(GO_STATE_READY);
+                break;
+            case GO_SHRINE_OF_GELIHAST:
+                m_uiShrineOfGelihastGUID = pGo->GetGUID();
+                break;
+            case GO_ALTAR_OF_THE_DEEPS:
+                m_uiAltarOfTheDeepsGUID = pGo->GetGUID();
+                break;
+            case GO_AKU_MAI_DOOR:
+                m_uiMainDoorGUID = pGo->GetGUID();
+                break;
         }
     }
 
@@ -148,14 +166,16 @@ InstanceData* GetInstanceData_instance_blackfathom_deeps(Map* pMap)
     return new instance_blackfathom_deeps(pMap);
 }
 
-bool GoHello_fire(Player *pPlayer, GameObject* pGo)
+bool GoHello_blackfathom_fire(Player *pPlayer, GameObject* pGo)
 {
     ScriptedInstance *pInstance = pGo->GetInstanceData();
 
     if (pInstance)
     {
         pGo->SetGoState(GO_STATE_ACTIVE);
+        pGo->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_UNK1);
         ((instance_blackfathom_deeps*)pInstance)->CheckFires();
+        return true;
     }
     return false;
 }
@@ -170,6 +190,6 @@ void AddSC_instance_blackfathom_deeps()
 
     newscript = new Script;
     newscript->Name = "go_blackfathom_fire";
-    newscript->pGOHello = &GoHello_fire;
+    newscript->pGOHello = &GoHello_blackfathom_fire;
     newscript->RegisterSelf();
 }
