@@ -206,6 +206,7 @@ SET(trinityscript_LIB_SRCS
    scripts/examples/example_escort.cpp
    scripts/examples/example_gossip_codebox.cpp
    scripts/examples/example_misc.cpp
+   scripts/kalimdor/blackfathom_depths/boss_gelihast.cpp
    scripts/kalimdor/blackfathom_depths/instance_blackfathom_deeps.cpp
    scripts/kalimdor/blackfathom_depths/blackfathom_deeps.cpp
    scripts/kalimdor/blackfathom_depths/blackfathom_deeps.h
