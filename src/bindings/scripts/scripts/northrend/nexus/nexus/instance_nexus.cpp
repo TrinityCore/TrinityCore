@@ -28,7 +28,7 @@ EndScriptData */
 
 struct TRINITY_DLL_DECL instance_nexus : public ScriptedInstance
 {
-    instance_nexus(Map* pMap) : ScriptedInstance(pMap) { Initialize(); }
+    instance_nexus(Map *pMap) : ScriptedInstance(pMap) { Initialize(); }
 
     uint32 m_auiEncounter[NUMBER_OF_ENCOUNTERS];
 
@@ -48,68 +48,66 @@ struct TRINITY_DLL_DECL instance_nexus : public ScriptedInstance
         Anomalus = 0;
     }
 
-    void OnCreatureCreate(Creature* pCreature, bool add)
+    void OnCreatureCreate(Creature *pCreature, bool bAdd)
     {
-        Map::PlayerList const& players = instance->GetPlayers();
+        Map::PlayerList const &players = instance->GetPlayers();
         uint32 TeamInInstance = 0;
 
         if (!players.isEmpty())
         {
             if (Player* pPlayer = players.begin()->getSource())
-            {
                 TeamInInstance = pPlayer->GetTeam();
-            }
         }
-        switch(pCreature->GetEntry())
+        switch (pCreature->GetEntry())
         {
-            case 26763: Anomalus = pCreature->GetGUID(); break;
-            case 26723: Keristrasza = pCreature->GetGUID(); break;
+            case 26763:
+                Anomalus = pCreature->GetGUID();
+                break;
+            case 26723:
+                Keristrasza = pCreature->GetGUID();
+                break;
+            // Alliance npcs are spawned by default, if you are alliance, you will fight against horde npcs.
             case 26800:
-                {
-                    //26799
-                    pCreature->setFaction(16);
-                    if (TeamInInstance == ALLIANCE)
-                        pCreature->SetDisplayId(24358);
-                    break;
-                }
+            {
+                pCreature->setFaction(16);
+                if (TeamInInstance == ALLIANCE)
+                    pCreature->UpdateEntry(26799, HORDE);
+                break;
+            }
             case 26802:
-                {
-                    //26801
-                    pCreature->setFaction(16);
-                    if (TeamInInstance == ALLIANCE)
-                        pCreature->SetDisplayId(24354);
-                    break;
-                }
+            {
+                pCreature->setFaction(16);
+                if (TeamInInstance == ALLIANCE)
+                    pCreature->UpdateEntry(26801, HORDE);
+                break;
+            }
             case 26805:
-                {
-                    //26803
-                    pCreature->setFaction(16);
-                    if (TeamInInstance == ALLIANCE)
-                        pCreature->SetDisplayId(24357);
-                    break;
-                }
+            {
+                pCreature->setFaction(16);
+                if (TeamInInstance == ALLIANCE)
+                    pCreature->UpdateEntry(26803, HORDE);
+                break;
+            }
             case 27949:
-                {
-                    //27947
-                    pCreature->setFaction(16);
-                    if (TeamInInstance == ALLIANCE)
-                        pCreature->SetDisplayId(24352);
-                    break;
-                }
+            {
+                pCreature->setFaction(16);
+                if (TeamInInstance == ALLIANCE)
+                    pCreature->UpdateEntry(27947, HORDE);
+                break;
+            }
             case 26796:
-                {
-                    //26798
-                    pCreature->setFaction(16);
-                    if (TeamInInstance == ALLIANCE)
-                        pCreature->SetDisplayId(24352);
-                    break;
-                }
+            {
+                pCreature->setFaction(16);
+                if (TeamInInstance == ALLIANCE)
+                    pCreature->UpdateEntry(26798, HORDE);
+                break;
+            }
         }
     }
 
-    void OnGameObjectCreate(GameObject* pGo, bool add)
+    void OnGameObjectCreate(GameObject *pGo, bool bAdd)
     {
-        switch(pGo->GetEntry())
+        switch (pGo->GetEntry())
         {
             case 188527:
             {
@@ -149,7 +147,7 @@ struct TRINITY_DLL_DECL instance_nexus : public ScriptedInstance
 
     void SetData(uint32 identifier, uint32 data)
     {
-        switch(identifier)
+        switch (identifier)
         {
             case DATA_MAGUS_TELESTRA_EVENT:
             {
@@ -166,8 +164,7 @@ struct TRINITY_DLL_DECL instance_nexus : public ScriptedInstance
             {
                 if (data == DONE)
                 {
-                    GameObject *Sphere = instance->GetGameObject(AnomalusContainmentSphere);
-                    if (Sphere)
+                    if (GameObject *Sphere = instance->GetGameObject(AnomalusContainmentSphere))
                         Sphere->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_UNK1);
                 }
                 m_auiEncounter[1] = data;
@@ -177,14 +174,15 @@ struct TRINITY_DLL_DECL instance_nexus : public ScriptedInstance
             {
                 if (data == DONE)
                 {
-                    GameObject *Sphere = instance->GetGameObject(OrmoroksContainmentSphere);
-                    if (Sphere)
+                    if (GameObject *Sphere = instance->GetGameObject(OrmoroksContainmentSphere))
                         Sphere->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_UNK1);
                 }
                 m_auiEncounter[2] = data;
                 break;
             }
-            case DATA_KERISTRASZA_EVENT:    m_auiEncounter[3] = data; break;
+            case DATA_KERISTRASZA_EVENT:
+                m_auiEncounter[3] = data;
+                break;
         }
 
         if (data == DONE)
@@ -220,7 +218,7 @@ struct TRINITY_DLL_DECL instance_nexus : public ScriptedInstance
         return strInstData;
     }
 
-    void Load(const char* chrIn)
+    void Load(const char *chrIn)
     {
         if (!chrIn)
         {
@@ -234,16 +232,14 @@ struct TRINITY_DLL_DECL instance_nexus : public ScriptedInstance
         loadStream >> m_auiEncounter[0] >> m_auiEncounter[1] >> m_auiEncounter[2] >> m_auiEncounter[3];
 
         for (uint8 i = 0; i < NUMBER_OF_ENCOUNTERS; ++i)
-        {
             if (m_auiEncounter[i] == IN_PROGRESS)
                 m_auiEncounter[i] = NOT_STARTED;
-        }
 
         OUT_LOAD_INST_DATA_COMPLETE;
     }
 };
 
-InstanceData* GetInstanceData_instance_nexus(Map* pMap)
+InstanceData *GetInstanceData_instance_nexus(Map *pMap)
 {
     return new instance_nexus(pMap);
 }
