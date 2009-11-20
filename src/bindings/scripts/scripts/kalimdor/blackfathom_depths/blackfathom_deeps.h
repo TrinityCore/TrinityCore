@@ -5,19 +5,37 @@
 #ifndef DEF_BFD_H
 #define DEF_BFD_H
 
-enum eEnums
+enum Data64
 {
-    DATA_SHRINE1                = 1,
-    DATA_SHRINE2                = 2,
-    DATA_SHRINE3                = 3,
-    DATA_SHRINE4                = 4,
-    DATA_TWILIGHT_LORD_KELRIS   = 5,
-    DATA_SHRINE_OF_GELIHAST     = 6,
-    DATA_ALTAR_OF_THE_DEEPS     = 7,
-    DATA_MAINDOOR               = 8,
-
-    TYPE_KELRIS                 = 10,
-    TYPE_SHRINE                 = 11
+    DATA_SHRINE1,
+    DATA_SHRINE2,
+    DATA_SHRINE3,
+    DATA_SHRINE4,
+    DATA_TWILIGHT_LORD_KELRIS,
+    DATA_SHRINE_OF_GELIHAST,
+    DATA_ALTAR_OF_THE_DEEPS,
+    DATA_MAINDOOR,
 };
 
+enum Data
+{
+    TYPE_KELRIS,
+    TYPE_SHRINE
+};
+
+enum Creatures
+{
+    NPC_TWILIGHT_LORD_KELRIS                               = 4832
+};
+
+enum GameObjects
+{
+    GO_SHRINE_OF_GELIHAST                                  = 103015,
+    GO_FIRE_OF_AKU_MAI_1                                   = 21118,
+    GO_FIRE_OF_AKU_MAI_2                                   = 21119,
+    GO_FIRE_OF_AKU_MAI_3                                   = 21120,
+    GO_FIRE_OF_AKU_MAI_4                                   = 21121,
+    GO_AKU_MAI_DOOR                                        = 21117,
+    GO_ALTAR_OF_THE_DEEPS                                  = 103016
+};
 #endif
