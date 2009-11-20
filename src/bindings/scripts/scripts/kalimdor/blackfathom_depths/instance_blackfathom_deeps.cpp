@@ -24,12 +24,20 @@ EndScriptData */
 #include "precompiled.h"
 #include "blackfathom_deeps.h"
 
-#define MAX_ENCOUNTER 2
+#define MAX_ENCOUNTER 3
 
-/* Encounter 0 = Twilight Lord Kelris
-   Encounter 1 = Shrine event
+/* Encounter 0 = Gelihast
+   Encounter 1 = Twilight Lord Kelris
+   Encounter 2 = Shrine event
    Must kill twilight lord for shrine event to be possible
  */
+
+const Position LorgusPosition[4] =
+{ { },
+  { },
+  { },
+  { }
+};
 
 struct TRINITY_DLL_DECL instance_blackfathom_deeps : public ScriptedInstance
 {
@@ -73,24 +81,30 @@ struct TRINITY_DLL_DECL instance_blackfathom_deeps : public ScriptedInstance
             case GO_FIRE_OF_AKU_MAI_1:
                 m_uiShrine1GUID = pGo->GetGUID();
                 pGo->SetGoState(GO_STATE_READY);
+                pGo->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_UNK1);
                 break;
             case GO_FIRE_OF_AKU_MAI_2:
                 m_uiShrine2GUID = pGo->GetGUID();
                 pGo->SetGoState(GO_STATE_READY);
+                pGo->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_UNK1);
                 break;
             case GO_FIRE_OF_AKU_MAI_3:
                 m_uiShrine3GUID = pGo->GetGUID();
                 pGo->SetGoState(GO_STATE_READY);
+                pGo->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_UNK1);
                 break;
             case GO_FIRE_OF_AKU_MAI_4:
                 m_uiShrine4GUID = pGo->GetGUID();
                 pGo->SetGoState(GO_STATE_READY);
+                pGo->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_UNK1);
                 break;
             case GO_SHRINE_OF_GELIHAST:
                 m_uiShrineOfGelihastGUID = pGo->GetGUID();
+                pGo->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_UNK1);
                 break;
             case GO_ALTAR_OF_THE_DEEPS:
                 m_uiAltarOfTheDeepsGUID = pGo->GetGUID();
+                pGo->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_UNK1);
                 break;
             case GO_AKU_MAI_DOOR:
                 m_uiMainDoorGUID = pGo->GetGUID();
@@ -102,11 +116,31 @@ struct TRINITY_DLL_DECL instance_blackfathom_deeps : public ScriptedInstance
     {
         switch(uiType)
         {
-            case TYPE_KELRIS:
+            case TYPE_GELIHAST:
                 m_auiEncounter[0] = uiData;
+                if (uiData == DONE)
+                    if (GameObject *pGo = instance->GetGameObject(m_uiShrineOfGelihastGUID))
+                        pGo->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_UNK1);
+                break;
+            case TYPE_KELRIS:
+                m_auiEncounter[1] = uiData;
+                if (uiData == DONE)
+                {
+                    if (GameObject *pGo = instance->GetGameObject(m_uiShrine1GUID))
+                        pGo->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_UNK1);
+                    if (GameObject *pGo = instance->GetGameObject(m_uiShrine2GUID))
+                        pGo->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_UNK1);
+                    if (GameObject *pGo = instance->GetGameObject(m_uiShrine3GUID))
+                        pGo->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_UNK1);
+                    if (GameObject *pGo = instance->GetGameObject(m_uiShrine4GUID))
+                        pGo->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_UNK1);
+                }
                 break;
             case TYPE_SHRINE:
-                m_auiEncounter[1] = uiData;
+                m_auiEncounter[2] = uiData;
+                if (uiData == DONE)
+                    if (GameObject *pGo = instance->GetGameObject(m_uiAltarOfTheDeepsGUID))
+                        pGo->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_UNK1);
                 break;
         }
     }
