@@ -24,11 +24,12 @@ EndScriptData */
 #include "precompiled.h"
 #include "blackfathom_deeps.h"
 
-#define MAX_ENCOUNTER 3
+#define MAX_ENCOUNTER 4
 
 /* Encounter 0 = Gelihast
    Encounter 1 = Twilight Lord Kelris
    Encounter 2 = Shrine event
+   Encounter 3 = Aku'Mai
    Must kill twilight lord for shrine event to be possible
  */
 
@@ -53,6 +54,7 @@ struct TRINITY_DLL_DECL instance_blackfathom_deeps : public ScriptedInstance
     uint64 m_uiMainDoorGUID;
 
     uint8 m_auiEncounter[MAX_ENCOUNTER];
+    uint8 m_uiCountFires;
 
     void Initialize()
     {
@@ -66,6 +68,7 @@ struct TRINITY_DLL_DECL instance_blackfathom_deeps : public ScriptedInstance
         m_uiShrineOfGelihastGUID = 0;
         m_uiAltarOfTheDeepsGUID = 0;
         m_uiMainDoorGUID = 0;
+        m_uiCountFires = 0;
     }
 
     void OnCreatureCreate(Creature* pCreature, bool add)
@@ -107,13 +110,17 @@ struct TRINITY_DLL_DECL instance_blackfathom_deeps : public ScriptedInstance
                 break;
             case GO_SHRINE_OF_GELIHAST:
                 m_uiShrineOfGelihastGUID = pGo->GetGUID();
-                pGo->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_UNK1);
+                if (m_auiEncounter[0] != DONE)
+                    pGo->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_UNK1);
                 break;
             case GO_ALTAR_OF_THE_DEEPS:
                 m_uiAltarOfTheDeepsGUID = pGo->GetGUID();
-                pGo->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_UNK1);
+                if (m_auiEncounter[3] != DONE)
+                    pGo->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_UNK1);
                 break;
             case GO_AKU_MAI_DOOR:
+                if (m_auiEncounter[2] == DONE)
+                    HandleGameObject(NULL,true,pGo);
                 m_uiMainDoorGUID = pGo->GetGUID();
                 break;
         }
@@ -143,11 +150,14 @@ struct TRINITY_DLL_DECL instance_blackfathom_deeps : public ScriptedInstance
                         pGo->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_UNK1);
                 }
                 break;
-            case TYPE_SHRINE:
-                m_auiEncounter[2] = uiData;
+            case TYPE_AKU_MAI:
+                m_auiEncounter[3] = uiData;
                 if (uiData == DONE)
                     if (GameObject *pGo = instance->GetGameObject(m_uiAltarOfTheDeepsGUID))
                         pGo->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_UNK1);
+                break;
+            case DATA_FIRE:
+                m_uiCountFires = uiData;
                 break;
         }
     }
@@ -156,10 +166,16 @@ struct TRINITY_DLL_DECL instance_blackfathom_deeps : public ScriptedInstance
     {
         switch(uiType)
         {
-            case TYPE_KELRIS:
+            case TYPE_GELIHAST:
                 return m_auiEncounter[0];
-            case TYPE_SHRINE:
+            case TYPE_KELRIS:
                 return m_auiEncounter[1];
+            case TYPE_SHRINE:
+                return m_auiEncounter[2];
+            case TYPE_AKU_MAI:
+                return m_auiEncounter[3];
+            case DATA_FIRE:
+                return m_uiCountFires;
         }
 
         return 0;
@@ -198,7 +214,10 @@ struct TRINITY_DLL_DECL instance_blackfathom_deeps : public ScriptedInstance
             pShrine2 && pShrine2->GetGoState() == GO_STATE_ACTIVE &&
             pShrine3 && pShrine3->GetGoState() == GO_STATE_ACTIVE &&
             pShrine4 && pShrine4->GetGoState() == GO_STATE_ACTIVE)
+        {
             HandleGameObject(m_uiMainDoorGUID,true);
+            m_auiEncounter[2] = DONE;
+        }
     }
 };
 
@@ -207,30 +226,11 @@ InstanceData* GetInstanceData_instance_blackfathom_deeps(Map* pMap)
     return new instance_blackfathom_deeps(pMap);
 }
 
-bool GoHello_blackfathom_fire(Player *pPlayer, GameObject* pGo)
-{
-    ScriptedInstance *pInstance = pGo->GetInstanceData();
-
-    if (pInstance)
-    {
-        pGo->SetGoState(GO_STATE_ACTIVE);
-        pGo->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_UNK1);
-        ((instance_blackfathom_deeps*)pInstance)->CheckFires();
-        return true;
-    }
-    return false;
-}
-
 void AddSC_instance_blackfathom_deeps()
 {
     Script *newscript;
     newscript = new Script;
     newscript->Name = "instance_blackfathom_deeps";
     newscript->GetInstanceData = &GetInstanceData_instance_blackfathom_deeps;
-    newscript->RegisterSelf();
-
-    newscript = new Script;
-    newscript->Name = "go_blackfathom_fire";
-    newscript->pGOHello = &GoHello_blackfathom_fire;
     newscript->RegisterSelf();
 }
