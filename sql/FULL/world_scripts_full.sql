@@ -281,6 +281,7 @@ UPDATE `creature_template` SET `ScriptName`='mob_parasitic_shadowfiend' WHERE `e
 /* BLACKFATHOM DEPTHS */
 UPDATE `instance_template` SET `script`='instance_blackfathom_deeps' WHERE `map`=48;
 UPDATE `gameobject_template` SET `ScriptName`='go_blackfathom_fire' WHERE `entry` IN (21118,21119,21120,21121);
+UPDATE `gameobject_template` SET `ScriptName`='go_blackfathom_altar' WHERE `entry` IN (103015,103016);
 
 
 /* BLACKROCK DEPTHS */

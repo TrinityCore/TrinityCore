@@ -199,7 +199,8 @@ extern void AddSC_westfall();
 extern void AddSC_wetlands();
 
 //kalimdor
-extern void AddSC_instance_blackfathom_deeps();     //Blackfathom Depths
+extern void AddSC_blackfathom_deeps();              //Blackfathom Depths
+extern void AddSC_instance_blackfathom_deeps();
 extern void AddSC_hyjal();                          //CoT Battle for Mt. Hyjal
 extern void AddSC_boss_archimonde();
 extern void AddSC_instance_mount_hyjal();
@@ -647,7 +648,8 @@ void AddScripts()
     AddSC_wetlands();
 
     //kalimdor
-    AddSC_instance_blackfathom_deeps();     //Blackfathom Depths
+    AddSC_blackfathom_deeps();              //Blackfathom Depths
+    AddSC_instance_blackfathom_deeps();
     AddSC_hyjal();                          //CoT Battle for Mt. Hyjal
     AddSC_boss_archimonde();
     AddSC_instance_mount_hyjal();

@@ -207,6 +207,7 @@ SET(trinityscript_LIB_SRCS
    scripts/examples/example_gossip_codebox.cpp
    scripts/examples/example_misc.cpp
    scripts/kalimdor/blackfathom_depths/instance_blackfathom_deeps.cpp
+   scripts/kalimdor/blackfathom_depths/blackfathom_deeps.cpp
    scripts/kalimdor/blackfathom_depths/blackfathom_deeps.h
    scripts/kalimdor/caverns_of_time/culling_of_stratholme/instance_culling_of_stratholme.cpp
    scripts/kalimdor/caverns_of_time/culling_of_stratholme/boss_meathook.cpp
