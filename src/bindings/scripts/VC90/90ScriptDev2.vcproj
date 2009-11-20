@@ -1315,7 +1315,23 @@
 					Name="Blackfathom Depths"
 					>
 					<File
+						RelativePath="..\scripts\kalimdor\blackfathom_depths\blackfathom_deeps.cpp"
+						>
+					</File>
+					<File
 						RelativePath="..\scripts\kalimdor\blackfathom_depths\blackfathom_deeps.h"
+						>
+					</File>
+					<File
+						RelativePath="..\scripts\kalimdor\blackfathom_depths\boss_aku_mai.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\scripts\kalimdor\blackfathom_depths\boss_gelihast.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\scripts\kalimdor\blackfathom_depths\boss_kelris.cpp"
 						>
 					</File>
 					<File
