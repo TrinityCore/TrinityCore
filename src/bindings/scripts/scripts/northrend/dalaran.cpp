@@ -18,7 +18,7 @@
 
 /* Script Data Start
 SDName: Dalaran
-SDAuthor: WarHead
+SDAuthor: WarHead, MaXiMiUS
 SD%Complete: 99%
 SDComment: For what is 63990+63991? Same function but don't work correct...
 SDCategory: Dalaran
@@ -59,7 +59,7 @@ struct TRINITY_DLL_DECL npc_mageguard_dalaranAI : public Scripted_NoMovementAI
 
     void MoveInLineOfSight(Unit *pWho)
     {
-        if (!pWho || me->GetZoneId() != 4395)          // Must be in Dalaran
+        if (!pWho || !pWho->IsInWorld() || pWho->GetZoneId() != 4395)
             return;
 
         if (!me->IsWithinDist(pWho, 65.0f, false))
@@ -67,34 +67,33 @@ struct TRINITY_DLL_DECL npc_mageguard_dalaranAI : public Scripted_NoMovementAI
 
         Player *pPlayer = pWho->GetCharmerOrOwnerPlayerOrPlayerItself();
 
-        if (!pPlayer || pPlayer->isGameMaster())
+        if (!pPlayer || pPlayer->isGameMaster() || pPlayer->IsBeingTeleported())
             return;
 
-        float x = pWho->GetPositionX();
-        float y = pWho->GetPositionY();
         switch (m_creature->GetEntry())
         {
             case 29254:
                 if (pPlayer->GetTeam() == HORDE)
                     if (Creature *pOutdoorNPC = me->FindNearestCreature(NPC_APPLEBOUGH_A, 35.0f))
                     {
-                        if (!me->HasInArc(1.5*M_PI, pWho))    // Behind me, and "outdoors"
-                            DoCast(pWho, SPELL_TRESPASSER_A); // Teleport the Horde unit out
+                        if (me->isInBackInMap(pWho, 12.0f))
+                            DoCast(pWho, SPELL_TRESPASSER_A);
                     }
-                    else if (me->HasInArc(M_PI, pWho))        // In front of me, and "indoors"
-                        DoCast(pWho, SPELL_TRESPASSER_A);     // Teleport the Horde unit out
+                    else                                  // In my line of sight, and "indoors"
+                        DoCast(pWho, SPELL_TRESPASSER_A); // Teleport the Horde unit out
                 break;
             case 29255:
                 if (pPlayer->GetTeam() == ALLIANCE)
                     if (Creature *pOutdoorNPC = me->FindNearestCreature(NPC_SWEETBERRY_H, 35.0f))
                     {
-                        if (!me->HasInArc(1.5*M_PI, pWho))    // Behind me, and "outdoors"
-                            DoCast(pWho, SPELL_TRESPASSER_H); // Teleport the Alliance unit out
+                        if (me->isInBackInMap(pWho, 12.0f))
+                            DoCast(pWho, SPELL_TRESPASSER_A);
                     }
-                    else if (me->HasInArc(M_PI, pWho))        // In front of me, and "indoors"
-                        DoCast(pWho, SPELL_TRESPASSER_H);     // Teleport the Alliance unit out
+                    else                                  // In my line of sight, and "indoors"
+                        DoCast(pWho, SPELL_TRESPASSER_H); // Teleport the Alliance unit out
                 break;
         }
+        me->SetOrientation(me->GetHomePosition().GetOrientation());
         return;
     }
 
