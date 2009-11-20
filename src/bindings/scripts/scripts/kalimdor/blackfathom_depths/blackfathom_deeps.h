@@ -27,7 +27,7 @@ enum Data
 enum Creatures
 {
     NPC_TWILIGHT_LORD_KELRIS                               = 4832,
-    NPC_LORCUS_JETT                                        = 12902
+    NPC_LORGUS_JETT                                        = 12902
 };
 
 enum GameObjects
