@@ -326,7 +326,7 @@ void WorldSession::HandleAuctionPlaceBid(WorldPacket & recv_data)
     }
 
     // cheating
-    if (price <= auction->bid || price <= auction->startbid)
+    if (price <= auction->bid || price < auction->startbid)
         return;
 
     // price too low for next bid if not buyout
