@@ -21,7 +21,8 @@ enum Data
 {
     TYPE_GELIHAST,
     TYPE_KELRIS,
-    TYPE_SHRINE
+    TYPE_SHRINE,
+    TYPE_AKU_MAI
 };
 
 enum Creatures
