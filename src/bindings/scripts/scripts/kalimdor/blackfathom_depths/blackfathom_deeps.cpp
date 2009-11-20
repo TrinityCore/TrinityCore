@@ -46,7 +46,7 @@ bool GoHello_blackfathom_fire(Player *pPlayer, GameObject* pGo)
 }
 
 
-bool AddSC_blackfathom_deeps()
+void AddSC_blackfathom_deeps()
 {
     Script *newscript;
     newscript = new Script;
