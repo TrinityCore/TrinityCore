@@ -32,12 +32,12 @@ EndScriptData */
    Must kill twilight lord for shrine event to be possible
  */
 
-const Position LorgusPosition[4] =
+/*const Position LorgusPosition[4] =
 { { },
   { },
   { },
   { }
-};
+};*/
 
 struct TRINITY_DLL_DECL instance_blackfathom_deeps : public ScriptedInstance
 {
