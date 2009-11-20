@@ -73,24 +73,24 @@ struct TRINITY_DLL_DECL npc_mageguard_dalaranAI : public Scripted_NoMovementAI
         switch (m_creature->GetEntry())
         {
             case 29254:
-                if (pPlayer->GetTeam() == HORDE)
-                    if (Creature *pOutdoorNPC = me->FindNearestCreature(NPC_APPLEBOUGH_A, 35.0f))
+                if (pPlayer->GetTeam() == HORDE)              // Horde unit found in Alliance area
+                    if (Creature *pOutdoorNPC = GetClosestCreatureWithEntry(me, NPC_APPLEBOUGH_A, 35.0f))
                     {
-                        if (me->isInBackInMap(pWho, 12.0f))
-                            DoCast(pWho, SPELL_TRESPASSER_A);
+                        if (me->isInBackInMap(pWho, 12.0f))   // In my line of sight, "outdoors", and behind me
+                            DoCast(pWho, SPELL_TRESPASSER_A); // Teleport the Horde unit out
                     }
-                    else                                  // In my line of sight, and "indoors"
-                        DoCast(pWho, SPELL_TRESPASSER_A); // Teleport the Horde unit out
+                    else                                      // In my line of sight, and "indoors"
+                        DoCast(pWho, SPELL_TRESPASSER_A);     // Teleport the Horde unit out
                 break;
             case 29255:
-                if (pPlayer->GetTeam() == ALLIANCE)
-                    if (Creature *pOutdoorNPC = me->FindNearestCreature(NPC_SWEETBERRY_H, 35.0f))
+                if (pPlayer->GetTeam() == ALLIANCE)           // Alliance unit found in Horde area
+                    if (Creature *pOutdoorNPC = GetClosestCreatureWithEntry(me, NPC_SWEETBERRY_H, 35.0f))
                     {
-                        if (me->isInBackInMap(pWho, 12.0f))
-                            DoCast(pWho, SPELL_TRESPASSER_H);
+                        if (me->isInBackInMap(pWho, 12.0f))   // In my line of sight, "outdoors", and behind me
+                            DoCast(pWho, SPELL_TRESPASSER_H); // Teleport the Alliance unit out
                     }
-                    else                                  // In my line of sight, and "indoors"
-                        DoCast(pWho, SPELL_TRESPASSER_H); // Teleport the Alliance unit out
+                    else                                      // In my line of sight, and "indoors"
+                        DoCast(pWho, SPELL_TRESPASSER_H);     // Teleport the Alliance unit out
                 break;
         }
         me->SetOrientation(me->GetHomePosition().GetOrientation());
