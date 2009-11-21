@@ -1715,21 +1715,14 @@ void Spell::EffectDummy(uint32 i)
             }
             break;
         case SPELLFAMILY_HUNTER:
-            switch(m_spellInfo->Id)
+            switch (m_spellInfo->Id)
             {
                 case 781:                                 // Disengage
                 {
                     if (m_caster->GetTypeId() != TYPEID_PLAYER)
                         return;
 
-                    WorldPacket data(SMSG_MOVE_KNOCK_BACK, 50);
-                    data.append(m_caster->GetPackGUID());
-                    data << getMSTime();
-                    data << float(cosf(m_caster->GetOrientation()+M_PI));
-                    data << float(sinf(m_caster->GetOrientation()+M_PI));
-                    data << float(15);
-                    data << float(-7.0f);
-                    ((Player*)m_caster)->GetSession()->SendPacket(&data);
+                    m_caster->JumpTo(15.0f, 7.0f, false);
                     return;
                 }
                 case 23989:                                 // Readiness talent
