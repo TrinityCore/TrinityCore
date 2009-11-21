@@ -3786,10 +3786,6 @@ bool Player::resetTalents(bool no_cost)
         PlayerTalentMap::const_iterator foundTalent = m_talents[m_activeSpec]->find(i);
         if (foundTalent == m_talents[m_activeSpec]->end() || foundTalent->second->state == PLAYERSPELL_REMOVED)
             continue;
-        else
-            foundTalent->second->state = PLAYERSPELL_REMOVED;
-
-        removeSpell(i, !IsPassiveSpell(i), false);
 
         /*
         for (PlayerTalentMap::iterator itr = m_talents[m_activeSpec]->begin(); itr != m_talents[m_activeSpec]->end(); ++itr)
@@ -3829,6 +3825,8 @@ bool Player::resetTalents(bool no_cost)
                     ++itr;
             }
         }
+        removeSpell(i, !IsPassiveSpell(i), false);
+        foundTalent->second->state = PLAYERSPELL_REMOVED;
     }
 
     SetFreeTalentPoints(talentPointsForLevel);
@@ -22011,8 +22009,6 @@ void Player::ActivateSpec(uint8 spec)
         if (!talentInfo)
             continue;
 
-        removeSpell(itr->first, !IsPassiveSpell(itr->first), false);
-
         for (uint8 rank = 0; rank < MAX_TALENT_RANK; ++rank)
         {
             for (PlayerSpellMap::iterator itr2 = GetSpellMap().begin(); itr2 != GetSpellMap().end();)
@@ -22043,6 +22039,7 @@ void Player::ActivateSpec(uint8 spec)
                     ++itr2;
             }
         }
+        removeSpell(itr->first, !IsPassiveSpell(itr->first), false);
     }
 
     // set glyphs
