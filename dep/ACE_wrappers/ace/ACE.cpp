@@ -2700,7 +2700,7 @@ ACE::handle_timed_accept (ACE_HANDLE listener,
 
   // We need a loop here if <restart> is enabled.
 
-  for (; ; )
+  for (;;)
     {
 #if defined (ACE_HAS_POLL) && defined (ACE_HAS_LIMITED_SELECT)
 

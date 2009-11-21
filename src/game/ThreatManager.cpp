@@ -277,7 +277,7 @@ HostilReference* ThreatContainer::selectNextVictim(Creature* pAttacker, HostilRe
     std::list<HostilReference*>::const_iterator lastRef = iThreatList.end();
     lastRef--;
 
-    for (std::list<HostilReference*>::const_iterator iter = iThreatList.begin(); iter != iThreatList.end() && !found; )
+    for (std::list<HostilReference*>::const_iterator iter = iThreatList.begin(); iter != iThreatList.end() && !found;)
     {
         currentRef = (*iter);
 
@@ -377,7 +377,7 @@ void ThreatManager::addThreat(Unit* pVictim, float fThreat, SpellSchoolMask scho
     if (!pVictim->isAlive() || !getOwner()->isAlive())
         return;
 
-    assert(getOwner()->GetTypeId()== TYPEID_UNIT);
+    assert(getOwner()->GetTypeId() == TYPEID_UNIT);
 
     float threat = ThreatCalcHelper::calcThreat(pVictim, iOwner, fThreat, schoolMask, pThreatSpell);
 

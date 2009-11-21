@@ -83,7 +83,7 @@ ACE_WIN32_Proactor::close (void)
     {
       // To avoid memory leaks we should delete all results from queue.
 
-      for (; ; )
+      for (;;)
         {
           ACE_OVERLAPPED *overlapped = 0;
           u_long bytes_transferred = 0;

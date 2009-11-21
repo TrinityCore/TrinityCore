@@ -524,7 +524,7 @@ namespace VMAP
                 nindexes -= rest;
             }
 
-            for (unsigned int i=0; i<(nindexes); )
+            for (unsigned int i=0; i<(nindexes);)
             {
                 Triangle t = Triangle(tempVertexArray[tempIndexArray[i+2]], tempVertexArray[tempIndexArray[i+1]], tempVertexArray[tempIndexArray[i+0]] );
                 i+=3;

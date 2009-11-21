@@ -1720,7 +1720,7 @@ Item* Guild::StoreItem(uint8 tabId, GuildItemPosCountVec const& dest, Item* pIte
 
     Item* lastItem = pItem;
 
-    for (GuildItemPosCountVec::const_iterator itr = dest.begin(); itr != dest.end(); )
+    for (GuildItemPosCountVec::const_iterator itr = dest.begin(); itr != dest.end();)
     {
         uint8 slot = itr->Slot;
         uint32 count = itr->Count;

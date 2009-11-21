@@ -76,7 +76,7 @@ ACE_SPIPE_Connector::connect (ACE_SPIPE_Stream &new_io,
     absolute_time = ACE_OS::gettimeofday () + *timeout;
 
   // Loop until success or failure.
-  for (; ; )
+  for (;;)
     {
       handle = ACE_OS::open (remote_sap.get_path_name(), flags, perms, sa);
       if (handle != ACE_INVALID_HANDLE)

@@ -938,7 +938,7 @@ ace_yytnamerr (char *ace_yyres, const char *ace_yystr)
       YYSIZE_T ace_yyn = 0;
       char const *ace_yyp = ace_yystr;
 
-      for (; ; )
+      for (;;)
   switch (*++ace_yyp)
     {
     case '\'':
@@ -1786,7 +1786,7 @@ ace_yyerrorlab:
 ace_yyerrlab1:
   ace_yyerrstatus = 3;  /* Each real token shifted decrements this.  */
 
-  for (; ; )
+  for (;;)
     {
       ace_yyn = ace_yypact[ace_yystate];
       if (ace_yyn != YYPACT_NINF)

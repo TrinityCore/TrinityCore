@@ -725,7 +725,7 @@ void Spell::SelectSpellTargets()
         else if (m_auraScaleMask)
         {
             bool checkLvl = !m_UniqueTargetInfo.empty();
-            for (std::list<TargetInfo>::iterator ihit = m_UniqueTargetInfo.begin(); ihit != m_UniqueTargetInfo.end(); )
+            for (std::list<TargetInfo>::iterator ihit = m_UniqueTargetInfo.begin(); ihit != m_UniqueTargetInfo.end();)
             {
                 // remove targets which did not pass min level check
                 if(m_auraScaleMask && ihit->effectMask == m_auraScaleMask)
@@ -834,7 +834,7 @@ void Spell::prepareDataForTriggerSystem(AuraEffect * triggeredByAura)
             m_procEx |= PROC_EX_INTERNAL_TRIGGERED;
     }
     // Totem casts require spellfamilymask defined in spell_proc_event to proc
-    if (m_originalCaster && m_caster != m_originalCaster && m_caster->GetTypeId()==TYPEID_UNIT && ((Creature*)m_caster)->isTotem() && m_caster->IsControlledByPlayer())
+    if (m_originalCaster && m_caster != m_originalCaster && m_caster->GetTypeId() == TYPEID_UNIT && ((Creature*)m_caster)->isTotem() && m_caster->IsControlledByPlayer())
     {
         m_procEx |= PROC_EX_INTERNAL_REQ_FAMILY;
     }
@@ -2298,7 +2298,7 @@ void Spell::SelectEffectTargets(uint32 i, uint32 cur)
                         if (!(m_targets.getUnitTarget() && (m_targets.getUnitTarget()->GetEntry() == 26125 && m_targets.getUnitTarget()->GetOwnerGUID() == m_caster->GetGUID()
                             || (m_targets.getUnitTarget()->getDeathState() == CORPSE
                                 && m_targets.getUnitTarget()->GetDisplayId() == m_targets.getUnitTarget()->GetNativeDisplayId()
-                                && m_targets.getUnitTarget()->GetTypeId()== TYPEID_UNIT
+                                && m_targets.getUnitTarget()->GetTypeId() == TYPEID_UNIT
                                 && !((Creature*)m_targets.getUnitTarget())->isDeadByDefault()
                                 && !(m_targets.getUnitTarget()->GetCreatureTypeMask() & CREATURE_TYPEMASK_MECHANICAL_OR_ELEMENTAL))
                                 && m_targets.getUnitTarget()->GetDisplayId() == m_targets.getUnitTarget()->GetNativeDisplayId())))
@@ -3324,7 +3324,7 @@ void Spell::finish(bool ok)
     if(!ok)
         return;
 
-    if (m_caster->GetTypeId()==TYPEID_UNIT && ((Creature*)m_caster)->isSummon())
+    if (m_caster->GetTypeId() == TYPEID_UNIT && ((Creature*)m_caster)->isSummon())
     {
         // Unsummon statue
         uint32 spell = m_caster->GetUInt32Value(UNIT_CREATED_BY_SPELL);

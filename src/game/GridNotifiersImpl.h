@@ -151,7 +151,7 @@ inline void Trinity::DynamicObjectUpdater::VisitHelper(Unit* target)
     if(!target->isAlive() || target->isInFlight() )
         return;
 
-    if(target->GetTypeId()==TYPEID_UNIT && ((Creature*)target)->isTotem())
+    if(target->GetTypeId() == TYPEID_UNIT && ((Creature*)target)->isTotem())
         return;
 
     if (!i_dynobject.IsWithinDistInMap(target, i_dynobject.GetRadius()))
@@ -162,7 +162,7 @@ inline void Trinity::DynamicObjectUpdater::VisitHelper(Unit* target)
         return;
 
     // Evade target
-    if( target->GetTypeId()==TYPEID_UNIT && ((Creature*)target)->IsInEvadeMode() )
+    if( target->GetTypeId() == TYPEID_UNIT && ((Creature*)target)->IsInEvadeMode() )
         return;
 
     //Check player targets and remove if in GM mode or GM invisibility (for not self casting case)
