@@ -1608,7 +1608,7 @@ void Spell::EffectDummy(uint32 i)
 
                 uint32 hurt = 0;
                 uint32 heal = 0;
-                switch(m_spellInfo->Id)
+                switch (m_spellInfo->Id)
                 {
                     case 47540: hurt = 47758; heal = 47757; break;
                     case 53005: hurt = 53001; heal = 52986; break;
@@ -1789,10 +1789,10 @@ void Spell::EffectDummy(uint32 i)
                     if (!unitTarget)
                         return;
 
-                    int hurt = 0;
-                    int heal = 0;
+                    uint32 hurt = 0;
+                    uint32 heal = 0;
 
-                    switch(m_spellInfo->Id)
+                    switch (m_spellInfo->Id)
                     {
                         case 20473: hurt = 25912; heal = 25914; break;
                         case 20929: hurt = 25911; heal = 25913; break;
@@ -1802,7 +1802,7 @@ void Spell::EffectDummy(uint32 i)
                         case 48824: hurt = 48822; heal = 48820; break;
                         case 48825: hurt = 48823; heal = 48821; break;
                         default:
-                            sLog.outError("Spell::EffectDummy: Spell %u not handled in HS",m_spellInfo->Id);
+                            sLog.outError("Spell::EffectDummy: Spell %u not handled in Holy Shock",m_spellInfo->Id);
                             return;
                     }
 
