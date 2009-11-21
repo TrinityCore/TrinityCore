@@ -3787,6 +3787,15 @@ bool Player::resetTalents(bool no_cost)
         if ((getClassMask() & talentTabInfo->ClassMask) == 0)
             continue;
 
+        removeSpell(i, !IsPassiveSpell(i), false);
+        /*
+        for (PlayerTalentMap::iterator itr = m_talents[m_activeSpec]->begin(); itr != m_talents[m_activeSpec]->end(); ++itr)
+        {
+            removeSpell(itr->first, !IsPassiveSpell(itr->first), false);
+            itr->second->state = PLAYERSPELL_REMOVED;
+        }
+        */
+
         for (uint8 rank = 0; rank < MAX_TALENT_RANK; ++rank)
         {
             for (PlayerSpellMap::iterator itr = GetSpellMap().begin(); itr != GetSpellMap().end();)
@@ -3817,16 +3826,6 @@ bool Player::resetTalents(bool no_cost)
                     ++itr;
             }
         }
-
-        /*
-        // This is redundant, no talent-related spells should remain at all after the previous loop, and
-        // besides, this loop doesn't even properly remove spells that are learned when you acquire a talent.
-        for (PlayerTalentMap::iterator itr2 = m_talents[m_activeSpec]->begin(); itr2 != m_talents[m_activeSpec]->end(); ++itr2)
-        {
-            removeSpell(itr2->first, !IsPassiveSpell(itr2->first), false);
-            itr2->second->state = PLAYERSPELL_REMOVED;
-        }
-        */
     }
 
     SetFreeTalentPoints(talentPointsForLevel);
@@ -22012,6 +22011,8 @@ void Player::ActivateSpec(uint8 spec)
 
     // Remove all talents and talent-learned spells under this spec.
     for (PlayerTalentMap::iterator itr = m_talents[m_activeSpec]->begin(); itr != m_talents[m_activeSpec]->end(); ++itr)
+    {
+        removeSpell(itr->first, !IsPassiveSpell(itr->first), false);
         for (PlayerSpellMap::iterator itr2 = GetSpellMap().begin(); itr2 != GetSpellMap().end();)
         {
             if (itr2->second->state == PLAYERSPELL_REMOVED || itr2->second->disabled)
@@ -22039,6 +22040,7 @@ void Player::ActivateSpec(uint8 spec)
             else
                 ++itr2;
         }
+    }
 
     // set glyphs
     for (uint8 slot = 0; slot < MAX_GLYPH_SLOT_INDEX; ++slot)
