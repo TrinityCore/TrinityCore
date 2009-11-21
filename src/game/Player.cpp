@@ -3797,32 +3797,30 @@ bool Player::resetTalents(bool no_cost)
             {
                 for (PlayerSpellMap::iterator itr = GetSpellMap().begin(); itr != GetSpellMap().end();)
                 {
-                    if (itr->second->state == PLAYERSPELL_REMOVED || itr->second->disabled)
-                    {
-                        ++itr;
-                        continue;
-                    }
-
                     // remove learned spells (all ranks)
                     uint32 itrFirstId = spellmgr.GetFirstSpellInChain(itr->first);
 
                     // unlearn if first rank is talent or learned by talent
                     if (itrFirstId == talentInfo->RankID[rank])
                     {
-                        removeSpell(itr->first, !IsPassiveSpell(itr->first), false);
+                        itr->second->disabled = false;
+                        itr->second->state = PLAYERSPELL_NEW;
+                        removeSpell(itr->first, false, false);
                         itr = GetSpellMap().begin();
                         continue;
                     }
                     else if (spellmgr.IsSpellLearnToSpell(talentInfo->RankID[rank], itrFirstId))
                     {
-                        removeSpell(itr->first, !IsPassiveSpell(itr->first));
+                        itr->second->disabled = false;
+                        itr->second->state = PLAYERSPELL_NEW;
+                        removeSpell(itr->first, false, true);
                         itr = GetSpellMap().begin();
                         continue;
                     }
                     else
                         ++itr;
                 }
-                removeSpell(talentInfo->TalentID, !IsPassiveSpell(talentInfo->TalentID), false);
+                //removeSpell(talentInfo->RankID[rank], false, false);
                 m_talents[m_activeSpec]->find(talentInfo->RankID[rank])->second->state = PLAYERSPELL_REMOVED; // mark the talent in the talent map as removed
             }
         }
@@ -22001,12 +21999,31 @@ void Player::ActivateSpec(uint8 spec)
     //ExitVehicle(); // should be impossible to switch specs from inside a vehicle..
 
     // Remove all talents and talent-learned spells under this spec.
-    for (PlayerTalentMap::iterator itr = m_talents[m_activeSpec]->begin(); itr != m_talents[m_activeSpec]->end(); ++itr)
+    for (uint32 i = 0; i < sTalentStore.GetNumRows(); ++i)
     {
-        TalentEntry const *talentInfo = sTalentStore.LookupEntry(itr->first);
+        TalentEntry const *talentInfo = sTalentStore.LookupEntry(i);
 
         if (!talentInfo)
             continue;
+
+        TalentTabEntry const *talentTabInfo = sTalentTabStore.LookupEntry(talentInfo->TalentTab);
+
+        if (!talentTabInfo)
+            continue;
+
+        // unlearn only talents for character class
+        // some spell learned by one class as normal spells or know at creation but another class learn it as talent,
+        // to prevent unexpected lost normal learned spell skip another class talents
+        if ((getClassMask() & talentTabInfo->ClassMask) == 0)
+            continue;
+
+        /*
+        for (PlayerTalentMap::iterator itr = m_talents[m_activeSpec]->begin(); itr != m_talents[m_activeSpec]->end(); ++itr)
+        {
+            removeSpell(itr->first, !IsPassiveSpell(itr->first), false);
+            itr->second->state = PLAYERSPELL_REMOVED;
+        }
+        */
 
         for (int8 rank = MAX_TALENT_RANK-1; rank >= 0; --rank)
         {
@@ -22014,32 +22031,30 @@ void Player::ActivateSpec(uint8 spec)
             {
                 for (PlayerSpellMap::iterator itr = GetSpellMap().begin(); itr != GetSpellMap().end();)
                 {
-                    if (itr->second->state == PLAYERSPELL_REMOVED || itr->second->disabled)
-                    {
-                        ++itr;
-                        continue;
-                    }
-
                     // remove learned spells (all ranks)
                     uint32 itrFirstId = spellmgr.GetFirstSpellInChain(itr->first);
 
                     // unlearn if first rank is talent or learned by talent
                     if (itrFirstId == talentInfo->RankID[rank])
                     {
-                        removeSpell(itr->first, !IsPassiveSpell(itr->first), false);
+                        itr->second->disabled = false;
+                        itr->second->state = PLAYERSPELL_NEW;
+                        removeSpell(itr->first, false, false);
                         itr = GetSpellMap().begin();
                         continue;
                     }
                     else if (spellmgr.IsSpellLearnToSpell(talentInfo->RankID[rank], itrFirstId))
                     {
-                        removeSpell(itr->first, !IsPassiveSpell(itr->first));
+                        itr->second->disabled = false;
+                        itr->second->state = PLAYERSPELL_NEW;
+                        removeSpell(itr->first, false, true);
                         itr = GetSpellMap().begin();
                         continue;
                     }
                     else
                         ++itr;
                 }
-                removeSpell(talentInfo->TalentID, !IsPassiveSpell(talentInfo->TalentID), false);
+                //removeSpell(talentInfo->RankID[rank], false, false);
                 //m_talents[m_activeSpec]->find(talentInfo->RankID[rank])->second->state = PLAYERSPELL_REMOVED; // mark the talent in the talent map as removed
             }
         }
