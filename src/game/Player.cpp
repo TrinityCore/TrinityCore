@@ -3784,7 +3784,7 @@ bool Player::resetTalents(bool no_cost)
             continue;
 
         PlayerTalentMap::const_iterator foundTalent = m_talents[m_activeSpec]->find(i);
-        if (foundTalent == m_talents[spec]->end() || foundTalent->second->state == PLAYERSPELL_REMOVED)
+        if (foundTalent == m_talents[m_activeSpec]->end() || foundTalent->second->state == PLAYERSPELL_REMOVED)
             continue;
         else
             foundTalent->second->state = PLAYERSPELL_REMOVED;
