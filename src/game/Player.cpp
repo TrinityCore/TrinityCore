@@ -3804,19 +3804,13 @@ bool Player::resetTalents(bool no_cost)
                     // unlearn if first rank is talent or learned by talent
                     if (itrFirstId == talentInfo->RankID[rank])
                     {
-                        itr->second->state = PLAYERSPELL_NEW;
-                        removeSpell(itr->first, false, false);
-                        itr->second->disabled = true;
-                        itr->second->state = PLAYERSPELL_REMOVED;
+                        removeSpell(itr->first, true, false);
                         itr = GetSpellMap().begin();
                         continue;
                     }
                     else if (spellmgr.IsSpellLearnToSpell(talentInfo->RankID[rank], itrFirstId))
                     {
-                        itr->second->state = PLAYERSPELL_NEW;
-                        removeSpell(itr->first, false, true);
-                        itr->second->disabled = true;
-                        itr->second->state = PLAYERSPELL_REMOVED;
+                        removeSpell(itr->first, true, true);
                         itr = GetSpellMap().begin();
                         continue;
                     }
@@ -3828,6 +3822,8 @@ bool Player::resetTalents(bool no_cost)
             }
         }
     }
+
+    _SaveSpells();
 
     SetFreeTalentPoints(talentPointsForLevel);
 
@@ -22031,18 +22027,13 @@ void Player::ActivateSpec(uint8 spec)
                         // unlearn if first rank is talent or learned by talent
                         if (itrFirstId == talentInfo->RankID[rank])
                         {
-                            itr->second->state = PLAYERSPELL_NEW;
-                            removeSpell(itr->first, false, false);
-                            itr->second->disabled = true;
-                            itr->second->state = PLAYERSPELL_REMOVED;
+                            removeSpell(itr->first, true, false);
+                            itr = GetSpellMap().begin();
                             continue;
                         }
                         else if (spellmgr.IsSpellLearnToSpell(talentInfo->RankID[rank], itrFirstId))
                         {
-                            itr->second->state = PLAYERSPELL_NEW;
-                            removeSpell(itr->first, false, true);
-                            itr->second->disabled = true;
-                            itr->second->state = PLAYERSPELL_REMOVED;
+                            removeSpell(itr->first, true, true);
                             itr = GetSpellMap().begin();
                             continue;
                         }
@@ -22106,6 +22097,8 @@ void Player::ActivateSpec(uint8 spec)
 
     m_usedTalentCount = spentTalents;
     InitTalentForLevel();
+
+    _SaveSpells();
 
     m_actionButtons.clear();
     if (QueryResult *result = CharacterDatabase.PQuery("SELECT button,action,type FROM character_action WHERE guid = '%u' AND spec = '%u' ORDER BY button", GetGUIDLow(), m_activeSpec))
