@@ -223,8 +223,11 @@ struct TRINITY_DLL_DECL BossAI : public ScriptedAI
 
 // SD2's grid searchers
 
+//return closest gameobject in grid, with range from pSource
+GameObject* GetClosestGameObjectWithEntry(WorldObject *pSource, uint32 uiEntry, float fMaxSearchRange);
+
 //return closest creature alive in grid, with range from pSource
-Creature* GetClosestCreatureWithEntry(WorldObject* pSource, uint32 Entry, float MaxSearchRange);
+Creature* GetClosestCreatureWithEntry(WorldObject *pSource, uint32 Entry, float fMaxSearchRange);
 
 #endif
 
