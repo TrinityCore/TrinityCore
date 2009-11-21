@@ -286,11 +286,11 @@ void WorldSession::HandleAuctionPlaceBid(WorldPacket & recv_data)
 {
     uint64 auctioneer;
     uint32 auctionId;
-    int32 price;
+    uint32 price;
     recv_data >> auctioneer;
     recv_data >> auctionId >> price;
 
-    if (!auctionId || price <= 0)
+    if (!auctionId || !price)
         return;                                             //check for cheaters
 
     Creature *pCreature = GetPlayer()->GetNPCIfCanInteractWith(auctioneer, UNIT_NPC_FLAG_AUCTIONEER);
