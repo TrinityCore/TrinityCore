@@ -3758,38 +3758,38 @@ bool Player::resetTalents(bool no_cost)
 
     uint32 cost = 0;
 
-    if(!no_cost && !sWorld.getConfig(CONFIG_NO_RESET_TALENT_COST))
+    if (!no_cost && !sWorld.getConfig(CONFIG_NO_RESET_TALENT_COST))
     {
         cost = resetTalentsCost();
 
         if (GetMoney() < cost)
         {
-            SendBuyError( BUY_ERR_NOT_ENOUGHT_MONEY, 0, 0, 0);
+            SendBuyError(BUY_ERR_NOT_ENOUGHT_MONEY, 0, 0, 0);
             return false;
         }
     }
 
-    for (uint32 i = 0; i < sTalentStore.GetNumRows(); i++)
+    for (uint32 i = 0; i < sTalentStore.GetNumRows(); ++i)
     {
         TalentEntry const *talentInfo = sTalentStore.LookupEntry(i);
 
-        if (!talentInfo) continue;
+        if (!talentInfo)
+            continue;
 
-        TalentTabEntry const *talentTabInfo = sTalentTabStore.LookupEntry( talentInfo->TalentTab );
+        TalentTabEntry const *talentTabInfo = sTalentTabStore.LookupEntry(talentInfo->TalentTab);
 
-        if(!talentTabInfo)
+        if (!talentTabInfo)
             continue;
 
         // unlearn only talents for character class
         // some spell learned by one class as normal spells or know at creation but another class learn it as talent,
         // to prevent unexpected lost normal learned spell skip another class talents
-        if( (getClassMask() & talentTabInfo->ClassMask) == 0 )
+        if ((getClassMask() & talentTabInfo->ClassMask) == 0)
             continue;
 
-        // Re-use pre-dual talent way of resetting talents, to ensure talents aren't being stored in spell storage.
         for (uint8 rank = 0; rank < MAX_TALENT_RANK; ++rank)
         {
-            for (PlayerSpellMap::iterator itr = GetSpellMap().begin(); itr != GetSpellMap().end(); )
+            for (PlayerSpellMap::iterator itr = GetSpellMap().begin(); itr != GetSpellMap().end();)
             {
                 if(itr->second->state == PLAYERSPELL_REMOVED || itr->second->disabled)
                 {
@@ -3803,13 +3803,13 @@ bool Player::resetTalents(bool no_cost)
                 // unlearn if first rank is talent or learned by talent
                 if (itrFirstId == talentInfo->RankID[rank])
                 {
-                    removeSpell(itr->first,!IsPassiveSpell(itr->first),false);
+                    removeSpell(itr->first, !IsPassiveSpell(itr->first), false);
                     itr = GetSpellMap().begin();
                     continue;
                 }
-                else if (spellmgr.IsSpellLearnToSpell(talentInfo->RankID[rank],itrFirstId))
+                else if (spellmgr.IsSpellLearnToSpell(talentInfo->RankID[rank], itrFirstId))
                 {
-                    removeSpell(itr->first,!IsPassiveSpell(itr->first));
+                    removeSpell(itr->first, !IsPassiveSpell(itr->first));
                     itr = GetSpellMap().begin();
                     continue;
                 }
@@ -3818,16 +3818,20 @@ bool Player::resetTalents(bool no_cost)
             }
         }
 
+        /*
+        // This is redundant, no talent-related spells should remain at all after the previous loop, and
+        // besides, this loop doesn't even properly remove spells that are learned when you acquire a talent.
         for (PlayerTalentMap::iterator itr2 = m_talents[m_activeSpec]->begin(); itr2 != m_talents[m_activeSpec]->end(); ++itr2)
         {
-            removeSpell(itr2->first, !IsPassiveSpell(itr2->first),false);
+            removeSpell(itr2->first, !IsPassiveSpell(itr2->first), false);
             itr2->second->state = PLAYERSPELL_REMOVED;
         }
+        */
     }
 
     SetFreeTalentPoints(talentPointsForLevel);
 
-    if(!no_cost)
+    if (!no_cost)
     {
         ModifyMoney(-(int32)cost);
         GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_GOLD_SPENT_FOR_TALENTS, cost);
@@ -21999,35 +22003,42 @@ void Player::ActivateSpec(uint8 spec)
     ClearAllReactives();
     UnsummonAllTotems();
     RemoveAllControlled();
-    RemoveAllAurasOnDeath();
+    /*RemoveAllAurasOnDeath();
     if (GetPet())
-        GetPet()->RemoveAllAurasOnDeath();
+        GetPet()->RemoveAllAurasOnDeath();*/
 
     //RemoveAllAuras(this->GetGUID(), NULL, false, true); // removes too many auras
     //ExitVehicle(); // should be impossible to switch specs from inside a vehicle..
 
-    uint32 const* talentTabIds = GetTalentTabPages(getClass());
-
-    for (uint8 i = 0; i < 3; ++i)
-    {
-        uint32 talentTabId = talentTabIds[i];
-
-        for (uint32 talentId = 0; talentId < sTalentStore.GetNumRows(); ++talentId)
+    // Remove all talents and talent-learned spells under this spec.
+    for (PlayerTalentMap::iterator itr = m_talents[m_activeSpec]->begin(); itr != m_talents[m_activeSpec]->end(); ++itr)
+        for (PlayerSpellMap::iterator itr2 = GetSpellMap().begin(); itr2 != GetSpellMap().end();)
         {
-            TalentEntry const* talentInfo = sTalentStore.LookupEntry(talentId);
-            if (!talentInfo)
+            if (itr2->second->state == PLAYERSPELL_REMOVED || itr2->second->disabled)
+            {
+                ++itr2;
                 continue;
+            }
 
-            // skip another tab talents
-            if (talentInfo->TalentTab != talentTabId)
+            // remove learned spells (all ranks)
+            uint32 itrFirstId = spellmgr.GetFirstSpellInChain(itr2->first);
+
+            // unlearn if first rank is talent or learned by talent
+            if (itrFirstId == itr->first)
+            {
+                removeSpell(itr2->first, !IsPassiveSpell(itr2->first), false);
+                itr2 = GetSpellMap().begin();
                 continue;
-
-            // remove all talent ranks, starting at highest rank
-            for (int8 rank = MAX_TALENT_RANK-1; rank >= 0; --rank)
-                if (talentInfo->RankID[rank] != 0 && HasTalent(talentInfo->RankID[rank], m_activeSpec))
-                    removeSpell(talentInfo->RankID[rank], true);
+            }
+            else if (spellmgr.IsSpellLearnToSpell(itr->first, itrFirstId))
+            {
+                removeSpell(itr2->first, !IsPassiveSpell(itr2->first));
+                itr2 = GetSpellMap().begin();
+                continue;
+            }
+            else
+                ++itr2;
         }
-    }
 
     // set glyphs
     for (uint8 slot = 0; slot < MAX_GLYPH_SLOT_INDEX; ++slot)
@@ -22038,6 +22049,9 @@ void Player::ActivateSpec(uint8 spec)
 
     SetActiveSpec(spec);
     uint32 spentTalents = 0;
+
+    // find class talent tabs (all players have 3 talent tabs)
+    uint32 const *talentTabIds = GetTalentTabPages(getClass());
 
     for (uint8 i = 0; i < 3; ++i)
     {
@@ -22090,7 +22104,7 @@ void Player::ActivateSpec(uint8 spec)
 
     Powers pw = getPowerType();
     if (pw != POWER_MANA)
-        SetPower(POWER_MANA, 0); // what on earth is this for?!
+        SetPower(POWER_MANA, 0); // Mana must be 0 even if it isn't the active power type.
 
     SetPower(pw, 0);
 }
