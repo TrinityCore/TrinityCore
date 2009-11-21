@@ -3792,7 +3792,7 @@ bool Player::resetTalents(bool no_cost)
         */
 
         PlayerTalentMap::iterator plrTalent = m_talents[m_activeSpec]->find(talentInfo->TalentID);
-        if (plrTalent != m_talents[m_activeSpec]->end())
+        if (plrTalent != m_talents[m_activeSpec]->end( || !m_talents[m_activeSpec]->empty())
         {
             for (int8 rank = MAX_TALENT_RANK-1; rank >= 0; --rank)
             {
@@ -3821,7 +3821,8 @@ bool Player::resetTalents(bool no_cost)
                     else
                         ++itr;
                 }
-                plrTalent->second->state = PLAYERSPELL_REMOVED; // mark the talent in the talent map as removed
+                if (!m_talents[m_activeSpec]->empty())
+                    plrTalent->second->state = PLAYERSPELL_REMOVED; // mark the talent in the talent map as removed
             }
         }
     }
@@ -22016,7 +22017,7 @@ void Player::ActivateSpec(uint8 spec)
                 continue;
 
             PlayerTalentMap::iterator plrTalent = m_talents[m_activeSpec]->find(talentInfo->TalentID);
-            if (plrTalent != m_talents[m_activeSpec]->end() || m_talents[m_activeSpec]->empty())
+            if (plrTalent != m_talents[m_activeSpec]->end())
             {
                 for (int8 rank = MAX_TALENT_RANK-1; rank >= 0; --rank)
                 {
@@ -22045,8 +22046,7 @@ void Player::ActivateSpec(uint8 spec)
                         else
                             ++itr;
                     }
-                    if (!m_talents[m_activeSpec]->empty())
-                        plrTalent->second->state = PLAYERSPELL_REMOVED; // mark the talent in the talent map as removed
+                    //plrTalent->second->state = PLAYERSPELL_REMOVED; // mark the talent in the talent map as removed
                 }
             }
         }
