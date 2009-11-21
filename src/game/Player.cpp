@@ -3792,7 +3792,7 @@ bool Player::resetTalents(bool no_cost)
         */
 
         PlayerTalentMap::iterator plrTalent = m_talents[m_activeSpec]->find(talentInfo->TalentID);
-        if (plrTalent != m_talents[m_activeSpec]->end( || m_talents[m_activeSpec]->empty())
+        if (plrTalent != m_talents[m_activeSpec]->end() || m_talents[m_activeSpec]->empty())
         {
             for (int8 rank = MAX_TALENT_RANK-1; rank >= 0; --rank)
             {
