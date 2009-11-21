@@ -3805,7 +3805,6 @@ bool Player::resetTalents(bool no_cost)
                     if (itrFirstId == talentInfo->RankID[rank])
                     {
                         itr->second->disabled = false;
-                        itr->second->state = PLAYERSPELL_NEW;
                         removeSpell(itr->first, false, false);
                         itr = GetSpellMap().begin();
                         continue;
@@ -3813,7 +3812,6 @@ bool Player::resetTalents(bool no_cost)
                     else if (spellmgr.IsSpellLearnToSpell(talentInfo->RankID[rank], itrFirstId))
                     {
                         itr->second->disabled = false;
-                        itr->second->state = PLAYERSPELL_NEW;
                         removeSpell(itr->first, false, true);
                         itr = GetSpellMap().begin();
                         continue;
@@ -22030,7 +22028,6 @@ void Player::ActivateSpec(uint8 spec)
                         if (itrFirstId == talentInfo->RankID[rank])
                         {
                             itr->second->disabled = false;
-                            itr->second->state = PLAYERSPELL_NEW;
                             removeSpell(itr->first, false, false);
                             itr = GetSpellMap().begin();
                             continue;
@@ -22038,7 +22035,6 @@ void Player::ActivateSpec(uint8 spec)
                         else if (spellmgr.IsSpellLearnToSpell(talentInfo->RankID[rank], itrFirstId))
                         {
                             itr->second->disabled = false;
-                            itr->second->state = PLAYERSPELL_NEW;
                             removeSpell(itr->first, false, true);
                             itr = GetSpellMap().begin();
                             continue;
