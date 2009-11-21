@@ -3396,7 +3396,7 @@ void Player::removeSpell(uint32 spell_id, bool disabled, bool learn_low_rank)
         removeSpell(node->next,disabled);
     }
     //unlearn spells dependent from recently removed spells
-    SpellsRequiringSpellMap const& reqMap = spellmgr.GetSpellsRequiringSpell();
+    SpellsRequiringSpellMap const &reqMap = spellmgr.GetSpellsRequiringSpell();
     SpellsRequiringSpellMap::const_iterator itr2 = reqMap.find(spell_id);
     for (uint32 i = reqMap.count(spell_id); i > 0; --i, ++itr2)
         removeSpell(itr2->second,disabled,false);
@@ -3430,12 +3430,12 @@ void Player::removeSpell(uint32 spell_id, bool disabled, bool learn_low_rank)
 
     // remove pet auras
     for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-        if (PetAura const* petSpell = spellmgr.GetPetAura(spell_id, i))
+        if (PetAura const *petSpell = spellmgr.GetPetAura(spell_id, i))
             RemovePetAura(petSpell);
 
     // free talent points
     uint32 talentCosts = GetTalentSpellCost(spell_id);
-    if(talentCosts > 0)
+    if (talentCosts > 0)
     {
         if (talentCosts < m_usedTalentCount)
             m_usedTalentCount -= talentCosts;
@@ -3452,7 +3452,7 @@ void Player::removeSpell(uint32 spell_id, bool disabled, bool learn_low_rank)
     }
 
     // remove dependent skill
-    SpellLearnSkillNode const* spellLearnSkill = spellmgr.GetSpellLearnSkill(spell_id);
+    SpellLearnSkillNode const *spellLearnSkill = spellmgr.GetSpellLearnSkill(spell_id);
     if (spellLearnSkill)
     {
         uint32 prev_spell = spellmgr.GetPrevSpellInChain(spell_id);
@@ -3461,7 +3461,7 @@ void Player::removeSpell(uint32 spell_id, bool disabled, bool learn_low_rank)
         else
         {
             // search prev. skill setting by spell ranks chain
-            SpellLearnSkillNode const* prevSkill = spellmgr.GetSpellLearnSkill(prev_spell);
+            SpellLearnSkillNode const *prevSkill = spellmgr.GetSpellLearnSkill(prev_spell);
             while (!prevSkill && prev_spell)
             {
                 prev_spell = spellmgr.GetPrevSpellInChain(prev_spell);
@@ -3481,7 +3481,7 @@ void Player::removeSpell(uint32 spell_id, bool disabled, bool learn_low_rank)
                 uint32 new_skill_max_value = prevSkill->maxvalue == 0 ? GetMaxSkillValueForLevel() : prevSkill->maxvalue;
 
                 if (skill_max_value > new_skill_max_value)
-                    skill_max_value =  new_skill_max_value;
+                    skill_max_value = new_skill_max_value;
 
                 SetSkill(prevSkill->skill,skill_value,skill_max_value);
             }
@@ -3791,9 +3791,10 @@ bool Player::resetTalents(bool no_cost)
         }
         */
 
-        for (int8 rank = MAX_TALENT_RANK-1; rank >= 0; --rank)
+        PlayerTalentMap::iterator plrTalent = m_talents[m_activeSpec]->find(talentInfo->TalentID);
+        if (plrTalent != m_talents[m_activeSpec]->end())
         {
-            if (talentInfo->RankID[rank] && HasTalent(talentInfo->RankID[rank], m_activeSpec))
+            for (int8 rank = MAX_TALENT_RANK-1; rank >= 0; --rank)
             {
                 for (PlayerSpellMap::iterator itr = GetSpellMap().begin(); itr != GetSpellMap().end();)
                 {
@@ -3820,8 +3821,7 @@ bool Player::resetTalents(bool no_cost)
                     else
                         ++itr;
                 }
-                //removeSpell(talentInfo->RankID[rank], false, false);
-                m_talents[m_activeSpec]->find(talentInfo->RankID[rank])->second->state = PLAYERSPELL_REMOVED; // mark the talent in the talent map as removed
+                plrTalent->second->state = PLAYERSPELL_REMOVED; // mark the talent in the talent map as removed
             }
         }
     }
@@ -21998,64 +21998,55 @@ void Player::ActivateSpec(uint8 spec)
     //RemoveAllAuras(this->GetGUID(), NULL, false, true); // removes too many auras
     //ExitVehicle(); // should be impossible to switch specs from inside a vehicle..
 
-    // Remove all talents and talent-learned spells under this spec.
-    for (uint32 i = 0; i < sTalentStore.GetNumRows(); ++i)
+    // find class talent tabs (all players have 3 talent tabs)
+    uint32 const *talentTabIds = GetTalentTabPages(getClass());
+
+    for (uint8 i = 0; i < 3; ++i)
     {
-        TalentEntry const *talentInfo = sTalentStore.LookupEntry(i);
+        uint32 talentTabId = talentTabIds[i];
 
-        if (!talentInfo)
-            continue;
-
-        TalentTabEntry const *talentTabInfo = sTalentTabStore.LookupEntry(talentInfo->TalentTab);
-
-        if (!talentTabInfo)
-            continue;
-
-        // unlearn only talents for character class
-        // some spell learned by one class as normal spells or know at creation but another class learn it as talent,
-        // to prevent unexpected lost normal learned spell skip another class talents
-        if ((getClassMask() & talentTabInfo->ClassMask) == 0)
-            continue;
-
-        /*
-        for (PlayerTalentMap::iterator itr = m_talents[m_activeSpec]->begin(); itr != m_talents[m_activeSpec]->end(); ++itr)
+        for (uint32 talentId = 0; talentId < sTalentStore.GetNumRows(); ++talentId)
         {
-            removeSpell(itr->first, !IsPassiveSpell(itr->first), false);
-            itr->second->state = PLAYERSPELL_REMOVED;
-        }
-        */
+            TalentEntry const *talentInfo = sTalentStore.LookupEntry(talentId);
+            if (!talentInfo)
+                continue;
 
-        for (int8 rank = MAX_TALENT_RANK-1; rank >= 0; --rank)
-        {
-            if (talentInfo->RankID[rank] && HasTalent(talentInfo->RankID[rank], m_activeSpec))
+            // skip another tab talents
+            if (talentInfo->TalentTab != talentTabId)
+                continue;
+
+            PlayerTalentMap::iterator plrTalent = m_talents[m_activeSpec]->find(talentInfo->TalentID);
+            if (plrTalent != m_talents[m_activeSpec]->end())
             {
-                for (PlayerSpellMap::iterator itr = GetSpellMap().begin(); itr != GetSpellMap().end();)
+                for (int8 rank = MAX_TALENT_RANK-1; rank >= 0; --rank)
                 {
-                    // remove learned spells (all ranks)
-                    uint32 itrFirstId = spellmgr.GetFirstSpellInChain(itr->first);
+                    for (PlayerSpellMap::iterator itr = GetSpellMap().begin(); itr != GetSpellMap().end();)
+                    {
+                        // remove learned spells (all ranks)
+                        uint32 itrFirstId = spellmgr.GetFirstSpellInChain(itr->first);
 
-                    // unlearn if first rank is talent or learned by talent
-                    if (itrFirstId == talentInfo->RankID[rank])
-                    {
-                        itr->second->disabled = false;
-                        itr->second->state = PLAYERSPELL_NEW;
-                        removeSpell(itr->first, false, false);
-                        itr = GetSpellMap().begin();
-                        continue;
+                        // unlearn if first rank is talent or learned by talent
+                        if (itrFirstId == talentInfo->RankID[rank])
+                        {
+                            itr->second->disabled = false;
+                            itr->second->state = PLAYERSPELL_NEW;
+                            removeSpell(itr->first, false, false);
+                            itr = GetSpellMap().begin();
+                            continue;
+                        }
+                        else if (spellmgr.IsSpellLearnToSpell(talentInfo->RankID[rank], itrFirstId))
+                        {
+                            itr->second->disabled = false;
+                            itr->second->state = PLAYERSPELL_NEW;
+                            removeSpell(itr->first, false, true);
+                            itr = GetSpellMap().begin();
+                            continue;
+                        }
+                        else
+                            ++itr;
                     }
-                    else if (spellmgr.IsSpellLearnToSpell(talentInfo->RankID[rank], itrFirstId))
-                    {
-                        itr->second->disabled = false;
-                        itr->second->state = PLAYERSPELL_NEW;
-                        removeSpell(itr->first, false, true);
-                        itr = GetSpellMap().begin();
-                        continue;
-                    }
-                    else
-                        ++itr;
+                    plrTalent->second->state = PLAYERSPELL_REMOVED; // mark the talent in the talent map as removed
                 }
-                //removeSpell(talentInfo->RankID[rank], false, false);
-                //m_talents[m_activeSpec]->find(talentInfo->RankID[rank])->second->state = PLAYERSPELL_REMOVED; // mark the talent in the talent map as removed
             }
         }
     }
@@ -22070,16 +22061,13 @@ void Player::ActivateSpec(uint8 spec)
     SetActiveSpec(spec);
     uint32 spentTalents = 0;
 
-    // find class talent tabs (all players have 3 talent tabs)
-    uint32 const *talentTabIds = GetTalentTabPages(getClass());
-
     for (uint8 i = 0; i < 3; ++i)
     {
         uint32 talentTabId = talentTabIds[i];
 
         for (uint32 talentId = 0; talentId < sTalentStore.GetNumRows(); ++talentId)
         {
-            TalentEntry const* talentInfo = sTalentStore.LookupEntry(talentId);
+            TalentEntry const *talentInfo = sTalentStore.LookupEntry(talentId);
             if (!talentInfo)
                 continue;
 
