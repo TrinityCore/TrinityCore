@@ -275,7 +275,7 @@ bool OPvPCapturePoint::Update(uint32 diff)
 
     for (uint32 team = 0; team < 2; ++team)
     {
-        for (PlayerSet::iterator itr = m_activePlayers[team].begin(); itr != m_activePlayers[team].end(); )
+        for (PlayerSet::iterator itr = m_activePlayers[team].begin(); itr != m_activePlayers[team].end();)
         {
             Player *player = *itr;
             ++itr;

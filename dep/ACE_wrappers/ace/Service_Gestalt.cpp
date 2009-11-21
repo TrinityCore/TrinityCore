@@ -1135,7 +1135,7 @@ ACE_Service_Gestalt::parse_args_i (int argc,
     return -1;
 
   //FUZZ: disable check_for_lack_ACE_OS
-  for (int c; (argc != 0) && ((c = getopt ()) != -1); )
+  for (int c; (argc != 0) && ((c = getopt ()) != -1);)
   //FUZZ: enable check_for_lack_ACE_OS
     switch (c)
       {

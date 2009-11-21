@@ -1093,7 +1093,7 @@ void Pet::_SaveSpellCooldowns()
     time_t curTime = time(NULL);
 
     // remove oudated and save active
-    for (CreatureSpellCooldowns::iterator itr = m_CreatureSpellCooldowns.begin(); itr != m_CreatureSpellCooldowns.end(); )
+    for (CreatureSpellCooldowns::iterator itr = m_CreatureSpellCooldowns.begin(); itr != m_CreatureSpellCooldowns.end();)
     {
         if (itr->second <= curTime)
             m_CreatureSpellCooldowns.erase(itr++);
@@ -1575,7 +1575,7 @@ bool Pet::resetTalents(bool no_cost)
 
         for (uint8 j = 0; j < MAX_TALENT_RANK; ++j)
         {
-            for (PetSpellMap::const_iterator itr = m_spells.begin(); itr != m_spells.end(); )
+            for (PetSpellMap::const_iterator itr = m_spells.begin(); itr != m_spells.end();)
             {
                 if (itr->second.state == PETSPELL_REMOVED)
                 {
@@ -1865,7 +1865,7 @@ void Pet::CastPetAuras(bool current)
     if (!IsPermanentPetFor((Player*)owner))
         return;
 
-    for (PetAuraSet::const_iterator itr = owner->m_petAuras.begin(); itr != owner->m_petAuras.end(); )
+    for (PetAuraSet::const_iterator itr = owner->m_petAuras.begin(); itr != owner->m_petAuras.end();)
     {
         PetAura const* pa = *itr;
         ++itr;

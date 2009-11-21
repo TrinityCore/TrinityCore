@@ -6457,7 +6457,7 @@ bool ChatHandler::HandleMovegensCommand(const char* /*args*/)
                 break;
             }
             case HOME_MOTION_TYPE:
-                if(unit->GetTypeId()==TYPEID_UNIT)
+                if(unit->GetTypeId() == TYPEID_UNIT)
                 {
                     float x,y,z;
                     mg->GetDestination(x,y,z);
@@ -6838,7 +6838,7 @@ bool ChatHandler::HandleInstanceUnbindCommand(const char *args)
         for (uint8 i = 0; i < TOTAL_DIFFICULTIES; ++i)
         {
             Player::BoundInstancesMap &binds = player->GetBoundInstances(i);
-            for (Player::BoundInstancesMap::iterator itr = binds.begin(); itr != binds.end(); )
+            for (Player::BoundInstancesMap::iterator itr = binds.begin(); itr != binds.end();)
             {
                 if(itr->first != player->GetMapId())
                 {

@@ -387,7 +387,7 @@ bool OPvPWintergrasp::SetupOutdoorPvP()
     // Load Graveyard
     GraveYardMap::const_iterator graveLow  = objmgr.mGraveYardMap.lower_bound(ZONE_WINTERGRASP);
     GraveYardMap::const_iterator graveUp   = objmgr.mGraveYardMap.upper_bound(ZONE_WINTERGRASP);
-    for (AreaPOIList::iterator itr = areaPOIs.begin(); itr != areaPOIs.end(); )
+    for (AreaPOIList::iterator itr = areaPOIs.begin(); itr != areaPOIs.end();)
     {
         if ((*itr)->icon[1] == 8)
         {

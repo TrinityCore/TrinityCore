@@ -555,7 +555,7 @@ ACE_NT_Service::wait_for_service_state (DWORD desired_state,
     time_out += *wait_time;
 
   // Poll until the service reaches the desired state.
-  for (; ; )
+  for (;;)
     {
       service_ok = 0 != QueryServiceStatus (this->svc_sc_handle_,
                                             &this->svc_status_);

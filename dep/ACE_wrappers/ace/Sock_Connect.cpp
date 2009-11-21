@@ -1076,7 +1076,7 @@ get_ip_interfaces_aix (size_t &count,
   char *buf_end = buf_start + ifc.ifc_len;
 
   num_ifs = 0;
-  for (char *ptr = buf_start; ptr < buf_end; )
+  for (char *ptr = buf_start; ptr < buf_end;)
     {
       struct ifreq *req = reinterpret_cast<struct ifreq *>(ptr);
       ptr += IFNAMSIZ;
@@ -1090,7 +1090,7 @@ get_ip_interfaces_aix (size_t &count,
     }
   ACE_NEW_RETURN (addrs,ACE_INET_Addr[num_ifs], -1);
 
-  for (char * ptr = buf_start; ptr < buf_end; )
+  for (char * ptr = buf_start; ptr < buf_end;)
   {
     struct ifreq *req = reinterpret_cast<struct ifreq *>(ptr);
     // skip the interface name

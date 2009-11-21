@@ -428,16 +428,14 @@ void BattleGround::Update(uint32 diff)
                         plr->RemoveAurasDueToSpell(SPELL_ARENA_PREPARATION);
                         // remove auras with duration lower than 30s
                         Unit::AuraMap & aurMap = plr->GetAuras();
-                        for (Unit::AuraMap::iterator iter = aurMap.begin(); iter != aurMap.end(); )
+                        for (Unit::AuraMap::iterator iter = aurMap.begin(); iter != aurMap.end();)
                         {
                             if (!iter->second->IsPermanent()
                                 && iter->second->GetAuraDuration()<=30*IN_MILISECONDS
                                 && iter->second->IsPositive()
                                 && (!(iter->second->GetSpellProto()->Attributes & SPELL_ATTR_UNAFFECTED_BY_INVULNERABILITY))
                                 && (!iter->second->IsAuraType(SPELL_AURA_MOD_INVISIBILITY)))
-                            {
                                 plr->RemoveAura(iter);
-                            }
                             else
                                 ++iter;
                         }

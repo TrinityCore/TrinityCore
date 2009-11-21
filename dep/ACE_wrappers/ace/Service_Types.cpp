@@ -360,7 +360,7 @@ ACE_Stream_Type::fini (void) const
   void *obj = this->object ();
   MT_Stream *str = (MT_Stream *) obj;
 
-  for (ACE_Module_Type *m = this->head_; m != 0; )
+  for (ACE_Module_Type *m = this->head_; m != 0;)
     {
       ACE_Module_Type *t = m->link ();
 
@@ -390,7 +390,7 @@ ACE_Stream_Type::remove (ACE_Module_Type *mod)
   MT_Stream *str = (MT_Stream *) obj;
   int result = 0;
 
-  for (ACE_Module_Type *m = this->head_; m != 0; )
+  for (ACE_Module_Type *m = this->head_; m != 0;)
     {
       // We need to do this first so we don't bomb out if we delete m!
       ACE_Module_Type *link = m->link ();

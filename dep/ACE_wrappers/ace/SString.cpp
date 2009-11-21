@@ -446,7 +446,7 @@ ACE_Tokenizer::next (void)
   ACE_TCHAR *next_token;
 
   // Skip all leading delimiters.
-  for (; ; )
+  for (;;)
     {
       // Check for end of string.
       if (buffer_[index_] == '\0')
@@ -501,7 +501,7 @@ ACE_Tokenizer::next (void)
     }
 
   // Step through finding the next delimiter or EOS.
-  for (; ; )
+  for (;;)
     {
       // Advance pointer.
       index_++;

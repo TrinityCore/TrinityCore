@@ -20,7 +20,7 @@ struct TSpellSummary
 
 void SummonList::DoZoneInCombat(uint32 entry)
 {
-    for (iterator i = begin(); i != end(); )
+    for (iterator i = begin(); i != end();)
     {
         Creature *summon = Unit::GetCreature(*m_creature, *i);
         ++i;
@@ -32,7 +32,7 @@ void SummonList::DoZoneInCombat(uint32 entry)
 
 void SummonList::DoAction(uint32 entry, uint32 info)
 {
-    for (iterator i = begin(); i != end(); )
+    for (iterator i = begin(); i != end();)
     {
         Creature *summon = Unit::GetCreature(*m_creature, *i);
         ++i;
@@ -44,7 +44,7 @@ void SummonList::DoAction(uint32 entry, uint32 info)
 
 void SummonList::DespawnEntry(uint32 entry)
 {
-    for (iterator i = begin(); i != end(); )
+    for (iterator i = begin(); i != end();)
     {
         Creature *summon = Unit::GetCreature(*m_creature, *i);
         if(!summon)

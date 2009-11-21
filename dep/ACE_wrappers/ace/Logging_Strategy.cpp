@@ -156,7 +156,7 @@ ACE_Logging_Strategy::parse_args (int argc, ACE_TCHAR *argv[])
   ACE_Get_Opt get_opt (argc, argv,
                        ACE_TEXT ("f:i:k:m:n:N:op:s:t:w"), 0);
 
-  for (int c; (c = get_opt ()) != -1; )
+  for (int c; (c = get_opt ()) != -1;)
     {
       switch (c)
         {

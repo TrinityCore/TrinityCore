@@ -521,7 +521,7 @@ ACE_POSIX_Proactor::handle_signal (int, siginfo_t *, ucontext_t *)
   ACE_Time_Value timeout (0, 0);
   int result = 0;
 
-  for (; ; )
+  for (;;)
     {
       result = this->handle_events (timeout);
       if (result != 0 || errno == ETIME)

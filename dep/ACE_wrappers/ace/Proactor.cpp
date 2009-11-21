@@ -458,7 +458,7 @@ ACE_Proactor::proactor_run_event_loop (PROACTOR_EVENT_HOOK eh)
   }
 
   // Run the event loop.
-  for (; ; )
+  for (;;)
     {
       // Check the end loop flag. It is ok to do this without lock,
       // since we care just whether it is zero or non-zero.
@@ -515,7 +515,7 @@ ACE_Proactor::proactor_run_event_loop (ACE_Time_Value &tv,
   }
 
   // Run the event loop.
-  for (; ; )
+  for (;;)
     {
       // Check the end loop flag. It is ok to do this without lock,
       // since we care just whether it is zero or non-zero.

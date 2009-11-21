@@ -214,7 +214,7 @@ void TempSummon::InitSummon()
     Unit* owner = GetSummoner();
     if(owner)
     {
-        if(owner->GetTypeId()==TYPEID_UNIT && ((Creature*)owner)->IsAIEnabled)
+        if(owner->GetTypeId() == TYPEID_UNIT && ((Creature*)owner)->IsAIEnabled)
             ((Creature*)owner)->AI()->JustSummoned(this);
         if(IsAIEnabled)
             AI()->IsSummonedBy(owner);

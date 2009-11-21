@@ -437,7 +437,7 @@ ACE::ldfind (const ACE_TCHAR* filename,
                                  nextholder);
               int result = 0;
 
-              for (; ; )
+              for (;;)
                 {
                   // Check if at end of search path.
                   if (path_entry == 0)

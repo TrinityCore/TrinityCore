@@ -3399,7 +3399,7 @@ void ObjectMgr::LoadGroups()
 
     // clean groups
     // TODO: maybe delete from the DB before loading in this case
-    for (GroupSet::iterator itr = mGroupSet.begin(); itr != mGroupSet.end(); )
+    for (GroupSet::iterator itr = mGroupSet.begin(); itr != mGroupSet.end();)
     {
         if((*itr)->GetMembersCount() < 2)
         {
@@ -7372,7 +7372,7 @@ bool ObjectMgr::LoadTrinityStrings(DatabaseType& db, char const* table, int32 mi
     }
 
     // cleanup affected map part for reloading case
-    for (TrinityStringLocaleMap::iterator itr = mTrinityStringLocaleMap.begin(); itr != mTrinityStringLocaleMap.end(); )
+    for (TrinityStringLocaleMap::iterator itr = mTrinityStringLocaleMap.begin(); itr != mTrinityStringLocaleMap.end();)
     {
         if (itr->first >= start_value && itr->first < end_value)
             mTrinityStringLocaleMap.erase(itr++);

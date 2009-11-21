@@ -278,7 +278,7 @@ void FAR *out_desc;
     left = state->wsize;
 
     /* Inflate until end of block marked as last */
-    for (; ; )
+    for (;;)
         switch (state->mode) {
         case TYPE:
             /* determine and dispatch block type */

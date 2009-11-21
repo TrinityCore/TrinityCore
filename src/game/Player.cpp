@@ -3608,7 +3608,7 @@ void Player::RemoveSpellCategoryCooldown(uint32 cat, bool update /* = false */)
         return;
 
     const SpellCategorySet& ct_set = ct->second;
-    for (SpellCooldowns::const_iterator i = m_spellCooldowns.begin(); i != m_spellCooldowns.end(); )
+    for (SpellCooldowns::const_iterator i = m_spellCooldowns.begin(); i != m_spellCooldowns.end();)
     {
         if (ct_set.find(i->first) != ct_set.end())
             RemoveSpellCooldown((i++)->first, update);
@@ -3695,7 +3695,7 @@ void Player::_SaveSpellCooldowns()
     time_t infTime = curTime + infinityCooldownDelayCheck;
 
     // remove outdated and save active
-    for (SpellCooldowns::iterator itr = m_spellCooldowns.begin(); itr != m_spellCooldowns.end(); )
+    for (SpellCooldowns::iterator itr = m_spellCooldowns.begin(); itr != m_spellCooldowns.end();)
     {
         if(itr->second.end <= curTime)
             m_spellCooldowns.erase(itr++);
@@ -6806,7 +6806,7 @@ void Player::DuelComplete(DuelCompleteType type)
 
     /* remove auras */
     AuraMap &itsAuras = duel->opponent->GetAuras();
-    for (AuraMap::iterator i = itsAuras.begin(); i != itsAuras.end(); )
+    for (AuraMap::iterator i = itsAuras.begin(); i != itsAuras.end();)
     {
         if (!i->second->IsPositive() && i->second->GetCasterGUID() == GetGUID() && i->second->GetAuraApplyTime() >= duel->startTime)
             duel->opponent->RemoveAura(i);
@@ -6815,7 +6815,7 @@ void Player::DuelComplete(DuelCompleteType type)
     }
 
     AuraMap &myAuras = GetAuras();
-    for (AuraMap::iterator i = myAuras.begin(); i != myAuras.end(); )
+    for (AuraMap::iterator i = myAuras.begin(); i != myAuras.end();)
     {
         if (!i->second->IsPositive() && i->second->GetCasterGUID() == duel->opponent->GetGUID() && i->second->GetAuraApplyTime() >= duel->startTime)
             RemoveAura(i);
@@ -10799,7 +10799,7 @@ Item* Player::StoreItem( ItemPosCountVec const& dest, Item* pItem, bool update )
 
     Item* lastItem = pItem;
     uint32 entry = pItem->GetEntry();
-    for (ItemPosCountVec::const_iterator itr = dest.begin(); itr != dest.end(); )
+    for (ItemPosCountVec::const_iterator itr = dest.begin(); itr != dest.end();)
     {
         uint16 pos = itr->pos;
         uint32 count = itr->count;
@@ -12099,7 +12099,7 @@ void Player::UpdateItemDuration(uint32 time, bool realtimeonly)
 
     sLog.outDebug("Player::UpdateItemDuration(%u,%u)", time, realtimeonly);
 
-    for (ItemDurationList::const_iterator itr = m_itemDuration.begin(); itr != m_itemDuration.end(); )
+    for (ItemDurationList::const_iterator itr = m_itemDuration.begin(); itr != m_itemDuration.end();)
     {
         Item* item = *itr;
         ++itr;                                              // current element can be erased in UpdateDuration
@@ -12148,7 +12148,7 @@ void Player::AddEnchantmentDurations(Item *item)
 
 void Player::RemoveEnchantmentDurations(Item *item)
 {
-    for (EnchantDurationList::iterator itr = m_enchantDuration.begin(); itr != m_enchantDuration.end(); )
+    for (EnchantDurationList::iterator itr = m_enchantDuration.begin(); itr != m_enchantDuration.end();)
     {
         if (itr->item == item)
         {
@@ -16470,7 +16470,7 @@ void Player::SaveGoldToDB()
 
 void Player::_SaveActions()
 {
-    for (ActionButtonList::iterator itr = m_actionButtons.begin(); itr != m_actionButtons.end(); )
+    for (ActionButtonList::iterator itr = m_actionButtons.begin(); itr != m_actionButtons.end();)
     {
         switch (itr->second.uState)
         {
@@ -16635,7 +16635,7 @@ void Player::_SaveMail()
     }
 
     //deallocate deleted mails...
-    for (PlayerMails::iterator itr = m_mail.begin(); itr != m_mail.end(); )
+    for (PlayerMails::iterator itr = m_mail.begin(); itr != m_mail.end();)
     {
         if ((*itr)->state == MAIL_STATE_DELETED)
         {
@@ -16693,7 +16693,7 @@ void Player::_SaveDailyQuestStatus()
 
 void Player::_SaveSpells()
 {
-    for (PlayerSpellMap::iterator itr = m_spells.begin(), next = m_spells.begin(); itr != m_spells.end(); )
+    for (PlayerSpellMap::iterator itr = m_spells.begin(), next = m_spells.begin(); itr != m_spells.end();)
     {
         if (itr->second->state == PLAYERSPELL_REMOVED || itr->second->state == PLAYERSPELL_CHANGED)
             CharacterDatabase.PExecute("DELETE FROM character_spell WHERE guid = '%u' and spell = '%u'", GetGUIDLow(), itr->first);
@@ -16939,7 +16939,7 @@ void Player::ResetInstances(uint8 method)
     // we assume that when the difficulty changes, all instances that can be reset will be
     uint8 dif = GetDifficulty();
 
-    for (BoundInstancesMap::iterator itr = m_boundInstances[dif].begin(); itr != m_boundInstances[dif].end(); )
+    for (BoundInstancesMap::iterator itr = m_boundInstances[dif].begin(); itr != m_boundInstances[dif].end();)
     {
         InstanceSave *p = itr->second.save;
         const MapEntry *entry = sMapStore.LookupEntry(itr->first);
@@ -17557,7 +17557,7 @@ void Player::RemoveSpellMods(Spell * spell)
     std::set <Aura *> checkedSpells;
 
     AuraEffectList const & auraList = GetAurasByType(SPELL_AURA_ABILITY_IGNORE_AURASTATE);
-    for (AuraEffectList::const_iterator itr = auraList.begin(); itr != auraList.end(); )
+    for (AuraEffectList::const_iterator itr = auraList.begin(); itr != auraList.end();)
     {
         AuraEffect * aur = *itr;
         ++itr;
@@ -17586,7 +17586,7 @@ void Player::RemoveSpellMods(Spell * spell)
 
     for (uint8 i=0; i<MAX_SPELLMOD; ++i)
     {
-        for (SpellModList::iterator itr = m_spellMods[i].begin(); itr != m_spellMods[i].end(); )
+        for (SpellModList::iterator itr = m_spellMods[i].begin(); itr != m_spellMods[i].end();)
         {
             SpellModifier *mod = *itr;
             ++itr;
@@ -20046,7 +20046,7 @@ bool Player::CanNoReagentCast(SpellEntry const* spellInfo) const
 void Player::RemoveItemDependentAurasAndCasts( Item * pItem )
 {
     AuraMap& auras = GetAuras();
-    for (AuraMap::iterator itr = auras.begin(); itr != auras.end(); )
+    for (AuraMap::iterator itr = auras.begin(); itr != auras.end();)
     {
         Aura* aura = itr->second;
 
@@ -20208,7 +20208,7 @@ bool Player::RewardPlayerAndGroupAtKill(Unit* pVictim)
                     if(pGroupGuy->isAlive()|| !pGroupGuy->GetCorpse())
                     {
                         // normal creature (not pet/etc) can be only in !PvP case
-                        if(pVictim->GetTypeId()==TYPEID_UNIT)
+                        if(pVictim->GetTypeId() == TYPEID_UNIT)
                             pGroupGuy->KilledMonster(((Creature*)pVictim)->GetCreatureInfo(), pVictim->GetGUID());
                     }
                 }
@@ -20239,7 +20239,7 @@ bool Player::RewardPlayerAndGroupAtKill(Unit* pVictim)
                 pet->GivePetXP(xp);
 
             // normal creature (not pet/etc) can be only in !PvP case
-            if(pVictim->GetTypeId()==TYPEID_UNIT)
+            if(pVictim->GetTypeId() == TYPEID_UNIT)
                 KilledMonster(((Creature*)pVictim)->GetCreatureInfo(), pVictim->GetGUID());
         }
     }
@@ -20356,7 +20356,7 @@ void Player::UpdateZoneDependentAuras( uint32 newZone )
 void Player::UpdateAreaDependentAuras( uint32 newArea )
 {
     // remove auras from spells with area limitations
-    for (AuraMap::iterator iter = m_Auras.begin(); iter != m_Auras.end(); )
+    for (AuraMap::iterator iter = m_Auras.begin(); iter != m_Auras.end();)
     {
         // use m_zoneUpdateId for speed: UpdateArea called from UpdateZone or instead UpdateZone in both cases m_zoneUpdateId up-to-date
         if(spellmgr.GetSpellAllowedInLocationError(iter->second->GetSpellProto(),GetMapId(),m_zoneUpdateId,newArea,this) != SPELL_CAST_OK)
@@ -21780,7 +21780,7 @@ void Player::SetEquipmentSet(uint32 index, EquipmentSet eqset)
 
 void Player::_SaveEquipmentSets()
 {
-    for (EquipmentSets::iterator itr = m_EquipmentSets.begin(); itr != m_EquipmentSets.end(); )
+    for (EquipmentSets::iterator itr = m_EquipmentSets.begin(); itr != m_EquipmentSets.end();)
     {
         uint32 index = itr->first;
         EquipmentSet& eqset = itr->second;

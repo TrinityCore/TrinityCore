@@ -566,7 +566,7 @@ ACE_Name_Options::parse_args (int argc, ACE_TCHAR *argv[])
 
   ACE_Get_Opt get_opt (argc, argv, ACE_TEXT ("b:c:dh:l:P:p:s:T:vr"));
 
-  for (int c; (c = get_opt ()) != -1; )
+  for (int c; (c = get_opt ()) != -1;)
     switch (c)
       {
       case 'c':

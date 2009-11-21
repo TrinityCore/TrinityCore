@@ -187,7 +187,7 @@ ACE_Service_Config::parse_args_i (int argc, ACE_TCHAR *argv[])
   superargv.add (argv[0]);
 
   //FUZZ: disable check_for_lack_ACE_OS
-  for (int c; (c = getopt ()) != -1; )
+  for (int c; (c = getopt ()) != -1;)
   //FUZZ: enable check_for_lack_ACE_OS
     switch (c)
       {

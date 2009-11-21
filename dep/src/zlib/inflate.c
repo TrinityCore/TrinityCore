@@ -584,7 +584,7 @@ int flush;
     in = have;
     out = left;
     ret = Z_OK;
-    for (; ; )
+    for (;;)
         switch (state->mode) {
         case HEAD:
             if (state->wrap == 0) {

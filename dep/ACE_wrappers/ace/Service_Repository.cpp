@@ -147,7 +147,7 @@ ACE_Service_Repository::fini (void)
   // Do not be tempted to use the prefix decrement operator.  Use
   // postfix decrement operator since the index is unsigned and may
   // wrap around the 0
-  for (size_t i = this->current_size_; i-- != 0; )
+  for (size_t i = this->current_size_; i-- != 0;)
     {
       // <fini> the services in reverse order.
       ACE_Service_Type *s =
@@ -205,7 +205,7 @@ ACE_Service_Repository::close (void)
 
   // Do not use the prefix decrement operator since the index is
   // unsigned and may wrap around the 0.
-  for (size_t i = this->current_size_; i-- != 0; )
+  for (size_t i = this->current_size_; i-- != 0;)
     {
       // Delete services in reverse order.
       ACE_Service_Type *s =

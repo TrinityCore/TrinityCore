@@ -198,7 +198,7 @@ ACE_Capabilities::fillent (const ACE_TCHAR *buf)
 int
 ACE_Capabilities::is_entry (const ACE_TCHAR *name, const ACE_TCHAR *line)
 {
-  for (; ; )
+  for (;;)
     {
       // Skip blanks or irrelevant characters
       while (*line && ACE_OS::ace_isspace(*line))

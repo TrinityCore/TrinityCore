@@ -1164,7 +1164,7 @@ void Group::_setLeader(const uint64 &guid)
         {
             for (uint8 i = 0; i < TOTAL_DIFFICULTIES; ++i)
             {
-                for (BoundInstancesMap::iterator itr = m_boundInstances[i].begin(); itr != m_boundInstances[i].end(); )
+                for (BoundInstancesMap::iterator itr = m_boundInstances[i].begin(); itr != m_boundInstances[i].end();)
                 {
                     if(itr->second.perm)
                     {
@@ -1487,7 +1487,7 @@ void Group::ResetInstances(uint8 method, Player* SendMsgTo)
     // we assume that when the difficulty changes, all instances that can be reset will be
     uint8 dif = GetDifficulty();
 
-    for (BoundInstancesMap::iterator itr = m_boundInstances[dif].begin(); itr != m_boundInstances[dif].end(); )
+    for (BoundInstancesMap::iterator itr = m_boundInstances[dif].begin(); itr != m_boundInstances[dif].end();)
     {
         InstanceSave *p = itr->second.save;
         const MapEntry *entry = sMapStore.LookupEntry(itr->first);

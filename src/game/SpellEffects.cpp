@@ -1438,7 +1438,7 @@ void Spell::EffectDummy(uint32 i)
 
                     // immediately finishes the cooldown on Frost spells
                     const SpellCooldowns& cm = ((Player *)m_caster)->GetSpellCooldownMap();
-                    for (SpellCooldowns::const_iterator itr = cm.begin(); itr != cm.end(); )
+                    for (SpellCooldowns::const_iterator itr = cm.begin(); itr != cm.end();)
                     {
                         SpellEntry const *spellInfo = sSpellStore.LookupEntry(itr->first);
 
@@ -1696,7 +1696,7 @@ void Spell::EffectDummy(uint32 i)
 
                     //immediately finishes the cooldown on certain Rogue abilities
                     const SpellCooldowns& cm = ((Player *)m_caster)->GetSpellCooldownMap();
-                    for (SpellCooldowns::const_iterator itr = cm.begin(); itr != cm.end(); )
+                    for (SpellCooldowns::const_iterator itr = cm.begin(); itr != cm.end();)
                     {
                         SpellEntry const *spellInfo = sSpellStore.LookupEntry(itr->first);
 
@@ -1739,7 +1739,7 @@ void Spell::EffectDummy(uint32 i)
 
                     // immediately finishes the cooldown on your other Hunter abilities except Bestial Wrath
                     const SpellCooldowns& cm = ((Player*)m_caster)->GetSpellCooldownMap();
-                    for (SpellCooldowns::const_iterator itr = cm.begin(); itr != cm.end(); )
+                    for (SpellCooldowns::const_iterator itr = cm.begin(); itr != cm.end();)
                     {
                         SpellEntry const *spellInfo = sSpellStore.LookupEntry(itr->first);
 
@@ -2145,7 +2145,7 @@ void Spell::EffectDummy(uint32 i)
     // So called only for not proccessed cases
     if(gameObjTarget)
         Script->EffectDummyGameObj(m_caster, m_spellInfo->Id, i, gameObjTarget);
-    else if(unitTarget && unitTarget->GetTypeId()==TYPEID_UNIT)
+    else if(unitTarget && unitTarget->GetTypeId() == TYPEID_UNIT)
         Script->EffectDummyCreature(m_caster, m_spellInfo->Id, i, (Creature*)unitTarget);
     else if(itemTarget)
         Script->EffectDummyItem(m_caster, m_spellInfo->Id, i, itemTarget);
@@ -2337,7 +2337,7 @@ void Spell::EffectTriggerSpell(uint32 effIndex)
         {
             uint32 dispelMask = GetDispellMask(DISPEL_ALL);
             Unit::AuraMap& Auras = unitTarget->GetAuras();
-            for (Unit::AuraMap::iterator iter = Auras.begin(); iter != Auras.end(); )
+            for (Unit::AuraMap::iterator iter = Auras.begin(); iter != Auras.end();)
             {
                 // remove all harmful spells on you...
                 SpellEntry const* spell = iter->second->GetSpellProto();
@@ -5772,7 +5772,7 @@ void Spell::EffectScriptEffect(uint32 effIndex)
                 case 55709:
                 {
                     int pct = 100;
-                    if (unitTarget->GetTypeId()==TYPEID_UNIT && ((Creature*)unitTarget)->isPet())
+                    if (unitTarget->GetTypeId() == TYPEID_UNIT && ((Creature*)unitTarget)->isPet())
                         if (Unit* owner = ((Creature*)unitTarget)->GetOwner())
                             owner->CastCustomSpell(unitTarget, 54114, &pct, NULL, NULL, true);
                     break;
