@@ -3794,22 +3794,19 @@ bool Player::resetTalents(bool no_cost)
         for (int8 rank = MAX_TALENT_RANK-1; rank >= 0; --rank)
         {
             PlayerTalentMap::iterator plrTalent = m_talents[m_activeSpec]->find(talentInfo->RankID[rank]);
-            if (plrTalent != m_talents[m_activeSpec]->end() || m_talents[m_activeSpec]->empty())
+            for (PlayerSpellMap::iterator itr = GetSpellMap().begin(); itr != GetSpellMap().end(); ++itr)
             {
-                for (PlayerSpellMap::iterator itr = GetSpellMap().begin(); itr != GetSpellMap().end(); ++itr)
-                {
-                    // remove learned spells (all ranks)
-                    uint32 itrFirstId = spellmgr.GetFirstSpellInChain(itr->first);
+                // remove learned spells (all ranks)
+                uint32 itrFirstId = spellmgr.GetFirstSpellInChain(itr->first);
 
-                    // unlearn if first rank is talent or learned by talent
-                    if (itrFirstId == talentInfo->RankID[rank])
-                        removeSpell(itr->first, true, false);
-                    else if (spellmgr.IsSpellLearnToSpell(talentInfo->RankID[rank], itrFirstId))
-                        removeSpell(itr->first, true, true);
-                }
-                if (!m_talents[m_activeSpec]->empty())
-                    plrTalent->second->state = PLAYERSPELL_REMOVED; // mark the talent in the talent map as removed
+                // unlearn if first rank is talent or learned by talent
+                if (itrFirstId == talentInfo->RankID[rank])
+                    removeSpell(itr->first, true, false);
+                else if (spellmgr.IsSpellLearnToSpell(talentInfo->RankID[rank], itrFirstId))
+                    removeSpell(itr->first, true, true);
             }
+            if (plrTalent != m_talents[m_activeSpec]->end())
+                plrTalent->second->state = PLAYERSPELL_REMOVED; // mark the talent in the talent map as removed
         }
     }
 
@@ -22006,22 +22003,19 @@ void Player::ActivateSpec(uint8 spec)
 
             for (int8 rank = MAX_TALENT_RANK-1; rank >= 0; --rank)
             {
-                PlayerTalentMap::iterator plrTalent = m_talents[m_activeSpec]->find(talentInfo->RankID[rank]);
-                if (plrTalent != m_talents[m_activeSpec]->end() || m_talents[m_activeSpec]->empty())
+                //PlayerTalentMap::iterator plrTalent = m_talents[m_activeSpec]->find(talentInfo->RankID[rank]);
+                for (PlayerSpellMap::iterator itr = GetSpellMap().begin(); itr != GetSpellMap().end(); ++itr)
                 {
-                    for (PlayerSpellMap::iterator itr = GetSpellMap().begin(); itr != GetSpellMap().end(); ++itr)
-                    {
-                        // remove learned spells (all ranks)
-                        uint32 itrFirstId = spellmgr.GetFirstSpellInChain(itr->first);
+                    // remove learned spells (all ranks)
+                    uint32 itrFirstId = spellmgr.GetFirstSpellInChain(itr->first);
 
-                        // unlearn if first rank is talent or learned by talent
-                        if (itrFirstId == talentInfo->RankID[rank])
-                            removeSpell(itr->first, true, false);
-                        else if (spellmgr.IsSpellLearnToSpell(talentInfo->RankID[rank], itrFirstId))
-                            removeSpell(itr->first, true, true);
-                    }
-                    //plrTalent->second->state = PLAYERSPELL_REMOVED; // mark the talent in the talent map as removed
+                    // unlearn if first rank is talent or learned by talent
+                    if (itrFirstId == talentInfo->RankID[rank])
+                        removeSpell(itr->first, true, false);
+                    else if (spellmgr.IsSpellLearnToSpell(talentInfo->RankID[rank], itrFirstId))
+                        removeSpell(itr->first, true, true);
                 }
+                //plrTalent->second->state = PLAYERSPELL_REMOVED; // mark the talent in the talent map as removed
             }
         }
     }
