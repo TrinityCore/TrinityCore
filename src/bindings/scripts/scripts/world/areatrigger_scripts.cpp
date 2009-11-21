@@ -22,10 +22,33 @@ SDCategory: Areatrigger
 EndScriptData */
 
 /* ContentData
-at_legion_teleporter    4560 Teleporter TO Invasion Point: Cataclysm
+at_coilfang_waterfall           4591
+at_legion_teleporter            4560 Teleporter TO Invasion Point: Cataclysm
+at_ravenholdt
+at_warsong_slaughterhouse
+at_warsong_grainery
+at_torp_farm
 EndContentData */
 
 #include "precompiled.h"
+
+/*######
+## at_coilfang_waterfall
+######*/
+
+enum eCoilfangGOs
+{
+    GO_COILFANG_WATERFALL   = 184212
+};
+
+bool AreaTrigger_at_coilfang_waterfall(Player *pPlayer, AreaTriggerEntry *pAt)
+{
+    if (GameObject* pGo = GetClosestGameObjectWithEntry(pPlayer, GO_COILFANG_WATERFALL, 35.0f))
+        if (pGo->getLootState() == GO_READY)
+            pGo->UseDoorOrButton();
+
+    return false;
+}
 
 /*#####
 ## at_legion_teleporter
@@ -40,19 +63,19 @@ enum eLegionTeleporter
     QUEST_GAINING_ACCESS_H  = 10604
 };
 
-bool AreaTrigger_at_legion_teleporter(Player* pPlayer, AreaTriggerEntry* pAt)
+bool AreaTrigger_at_legion_teleporter(Player *pPlayer, AreaTriggerEntry *pAt)
 {
     if (pPlayer->isAlive() && !pPlayer->isInCombat())
     {
-        if (pPlayer->GetTeam()== ALLIANCE && pPlayer->GetQuestRewardStatus(QUEST_GAINING_ACCESS_A))
+        if (pPlayer->GetTeam() == ALLIANCE && pPlayer->GetQuestRewardStatus(QUEST_GAINING_ACCESS_A))
         {
-            pPlayer->CastSpell(pPlayer,SPELL_TELE_A_TO,false);
+            pPlayer->CastSpell(pPlayer, SPELL_TELE_A_TO, false);
             return true;
         }
 
-        if (pPlayer->GetTeam()== HORDE && pPlayer->GetQuestRewardStatus(QUEST_GAINING_ACCESS_H))
+        if (pPlayer->GetTeam() == HORDE && pPlayer->GetQuestRewardStatus(QUEST_GAINING_ACCESS_H))
         {
-            pPlayer->CastSpell(pPlayer,SPELL_TELE_H_TO,false);
+            pPlayer->CastSpell(pPlayer, SPELL_TELE_H_TO, false);
             return true;
         }
 
@@ -78,6 +101,11 @@ bool AreaTrigger_at_ravenholdt(Player* pPlayer, AreaTriggerEntry* pAt)
 void AddSC_areatrigger_scripts()
 {
     Script *newscript;
+
+    newscript = new Script;
+    newscript->Name = "at_coilfang_waterfall";
+    newscript->pAreaTrigger = &AreaTrigger_at_coilfang_waterfall;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name = "at_legion_teleporter";
