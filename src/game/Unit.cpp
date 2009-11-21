@@ -9253,7 +9253,8 @@ uint32 Unit::SpellDamageBonus(Unit *pVictim, SpellEntry const *spellProto, uint3
                     if(pVictim->HasAuraState(AURA_STATE_HEALTHLESS_35_PERCENT, spellProto, this))
                         DoneTotalMod *= (100.0f+(*i)->GetAmount())/100.0f;
                 }
-                else // Tundra Stalker
+                // Tundra Stalker
+                else
                 {
                     // Frost Fever (target debuff)
                     if (pVictim->GetAura(SPELL_AURA_MOD_HASTE, SPELL_AURA_PERIODIC_DAMAGE, SPELLFAMILY_DEATHKNIGHT, 0, 0, 0x2))
@@ -9262,12 +9263,12 @@ uint32 Unit::SpellDamageBonus(Unit *pVictim, SpellEntry const *spellProto, uint3
                 }
                 break;
             }
-            case 7293: // Rage of Rivendare
+            // Rage of Rivendare
+            case 7293:
             {
                 if (pVictim->GetAura(SPELL_AURA_PERIODIC_DAMAGE, SPELLFAMILY_DEATHKNIGHT, 0,0x02000000,0))
                 {
-                    SpellChainNode const* chain = spellmgr.GetSpellChainNode((*i)->GetId());
-                    if (chain)
+                    if (SpellChainNode const *chain = spellmgr.GetSpellChainNode((*i)->GetId()))
                         DoneTotalMod *= (chain->rank * 2.0f + 100.0f)/100.0f;
                 }
                 break;
@@ -9401,6 +9402,10 @@ uint32 Unit::SpellDamageBonus(Unit *pVictim, SpellEntry const *spellProto, uint3
                 mod = dummy->GetAmount();
             TakenTotalMod *= (mod+100.0f)/100.0f;
         }
+        // Ebon Plague
+        if (AuraEffect *dummy = pVictim->GetDummyAura(SPELLFAMILY_DEATHKNIGHT, 1933, 1))
+            if(dummy->GetMiscValue() & GetSpellSchoolMask(spellProto))
+                TakenTotalMod *= (dummy->GetAmount()+100.0f)/100.0f;
     }
 
     // From caster spells
@@ -10359,10 +10364,59 @@ void Unit::MeleeDamageBonus(Unit *pVictim, uint32 *pdamage, WeaponAttackType att
     // SPELL_AURA_MOD_DAMAGE_PERCENT_DONE included in weapon damage
     // SPELL_AURA_MOD_OFFHAND_DAMAGE_PCT  included in weapon damage
 
-    AuraEffectList const& mDamageDoneVersus = GetAurasByType(SPELL_AURA_MOD_DAMAGE_DONE_VERSUS);
+    // SPELL_AURA_MOD_DAMAGE_PERCENT_DONE for non-physical spells like Scourge Strike, Frost Strike, this is NOT included in weapon damage
+    if (spellProto)
+        if (GetSpellSchoolMask(spellProto) != SPELL_SCHOOL_MASK_NORMAL)
+        {
+            AuraEffectList const &mModDamagePercentDone = GetAurasByType(SPELL_AURA_MOD_DAMAGE_PERCENT_DONE);
+            for (AuraEffectList::const_iterator i = mModDamagePercentDone.begin(); i != mModDamagePercentDone.end(); ++i)
+                if (((*i)->GetMiscValue() & GetSpellSchoolMask(spellProto)) && !((*i)->GetMiscValue() & SPELL_SCHOOL_MASK_NORMAL))
+                    DoneTotalMod *= ((*i)->GetAmount()+100.0f)/100.0f;
+        }
+
+    AuraEffectList const &mDamageDoneVersus = GetAurasByType(SPELL_AURA_MOD_DAMAGE_DONE_VERSUS);
     for (AuraEffectList::const_iterator i = mDamageDoneVersus.begin(); i != mDamageDoneVersus.end(); ++i)
         if(creatureTypeMask & uint32((*i)->GetMiscValue()))
             DoneTotalMod *= ((*i)->GetAmount()+100.0f)/100.0f;
+
+    // done scripted mod (take it from owner)
+    Unit *owner = GetOwner() ? GetOwner() : this;
+    AuraEffectList const &mOverrideClassScript= owner->GetAurasByType(SPELL_AURA_OVERRIDE_CLASS_SCRIPTS);
+    for (AuraEffectList::const_iterator i = mOverrideClassScript.begin(); i != mOverrideClassScript.end(); ++i)
+    {
+        if (!(*i)->isAffectedOnSpell(spellProto))
+            continue;
+        switch ((*i)->GetMiscValue())
+        {
+            // Tundra Stalker
+            // Merciless Combat
+            case 7277:
+            {
+                // Merciless Combat
+                if ((*i)->GetSpellProto()->SpellIconID == 2656)
+                {
+                    if (pVictim->HasAuraState(AURA_STATE_HEALTHLESS_35_PERCENT, spellProto, this))
+                        DoneTotalMod *= (100.0f+(*i)->GetAmount())/100.0f;
+                }
+                // Tundra Stalker
+                else
+                {
+                    // Frost Fever (target debuff)
+                    if (pVictim->GetAura(SPELL_AURA_MOD_HASTE, SPELL_AURA_PERIODIC_DAMAGE, SPELLFAMILY_DEATHKNIGHT, 0, 0, 0x2))
+                        DoneTotalMod *= ((*i)->GetAmount()+100.0f)/100.0f;
+                }
+                break;
+            }
+            // Rage of Rivendare
+            case 7293:
+            {
+                if (pVictim->GetAura(SPELL_AURA_PERIODIC_DAMAGE, SPELLFAMILY_DEATHKNIGHT, 0,0x02000000,0))
+                    if (SpellChainNode const *chain = spellmgr.GetSpellChainNode((*i)->GetId()))
+                        DoneTotalMod *= (chain->rank * 2.0f + 100.0f)/100.0f;
+                break;
+            }
+        }
+    }
 
     // ..taken
     AuraEffectList const& mModDamagePercentTaken = pVictim->GetAurasByType(SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN);
@@ -10407,6 +10461,11 @@ void Unit::MeleeDamageBonus(Unit *pVictim, uint32 *pdamage, WeaponAttackType att
                     TakenTotalMod *= (mod+100.0f)/100.0f;
                 }
                 break;
+            // Ebon Plague
+            case 1933:
+                if ((*i)->GetMiscValue() & (spellProto ? GetSpellSchoolMask(spellProto) : 0))
+                    TakenTotalMod *= ((*i)->GetAmount()+100.0f)/100.0f;
+                break;
         }
     }
 
@@ -10449,11 +10508,9 @@ void Unit::MeleeDamageBonus(Unit *pVictim, uint32 *pdamage, WeaponAttackType att
     float tmpDamage = float(int32(*pdamage) + DoneFlatBenefit) * DoneTotalMod;
 
     // apply spellmod to Done damage
-    if(spellProto)
-    {
-        if(Player* modOwner = GetSpellModOwner())
+    if (spellProto)
+        if (Player* modOwner = GetSpellModOwner())
             modOwner->ApplySpellMod(spellProto->Id, SPELLMOD_DAMAGE, tmpDamage);
-    }
 
     tmpDamage = (tmpDamage + TakenFlatBenefit)*TakenTotalMod;
 
