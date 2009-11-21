@@ -290,7 +290,7 @@ ACE_OS::wcspbrk_emulation (const wchar_t *string,
 
   while ((c = *string++) != 0)
     {
-      for (scanp = charset; (sc = *scanp++) != 0; )
+      for (scanp = charset; (sc = *scanp++) != 0;)
         if (sc == c)
           return const_cast<wchar_t *> (string - 1);
     }
@@ -341,7 +341,7 @@ ACE_OS::wcsspn_emulation (const wchar_t *string,
   // Skip any characters in charset, excluding the terminating \0.
 cont:
   c = *p++;
-  for (spanp = charset; (sc = *spanp++) != 0; )
+  for (spanp = charset; (sc = *spanp++) != 0;)
     if (sc == c)
       goto cont;
   return (p - 1 - string);

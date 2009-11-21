@@ -111,7 +111,7 @@ ACE_Service_Manager::init (int argc, ACE_TCHAR *argv[])
   //FUZZ: disable check_for_lack_ACE_OS
   ACE_Get_Opt getopt (argc, argv, ACE_TEXT ("dp:s:"), 0); // Start at argv[0]
 
-  for (int c; (c = getopt ()) != -1; )
+  for (int c; (c = getopt ()) != -1;)
   //FUZZ: enable check_for_lack_ACE_OS
      switch (c)
        {

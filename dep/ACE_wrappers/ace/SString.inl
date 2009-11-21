@@ -213,7 +213,7 @@ ACE_SString::rfind (char c, size_type pos) const
 
   // Do not change to prefix operator!  Proper operation of this loop
   // depends on postfix decrement behavior.
-  for (size_type i = pos; i-- != 0; )
+  for (size_type i = pos; i-- != 0;)
     if (this->rep_[i] == c)
       return i;
 

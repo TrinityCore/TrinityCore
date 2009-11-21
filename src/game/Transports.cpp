@@ -440,7 +440,7 @@ void Transport::TeleportTransport(uint32 newMapid, float x, float y, float z)
     Map const* oldMap = GetMap();
     Relocate(x, y, z);
 
-    for (PlayerSet::const_iterator itr = m_passengers.begin(); itr != m_passengers.end(); )
+    for (PlayerSet::const_iterator itr = m_passengers.begin(); itr != m_passengers.end();)
     {
         Player *plr = *itr;
         ++itr;
@@ -536,7 +536,7 @@ void Transport::Update(uint32 /*p_time*/)
         }
 */
         /*
-        for (PlayerSet::const_iterator itr = m_passengers.begin(); itr != m_passengers.end(); )
+        for (PlayerSet::const_iterator itr = m_passengers.begin(); itr != m_passengers.end();)
         {
             PlayerSet::const_iterator it2 = itr;
             ++itr;

@@ -3899,7 +3899,7 @@ void AuraEffect::HandleChannelDeathItem(bool apply, bool Real, bool /*changeAmou
         // Soul Shard only from non-grey units
         if( spellInfo->EffectItemType[m_effIndex] == 6265 &&
             (victim->getLevel() <= Trinity::XP::GetGrayLevel(caster->getLevel()) ||
-             victim->GetTypeId()==TYPEID_UNIT && !((Player*)caster)->isAllowedToLoot((Creature*)victim)) )
+             victim->GetTypeId() == TYPEID_UNIT && !((Player*)caster)->isAllowedToLoot((Creature*)victim)) )
             return;
         //Adding items
         uint32 noSpaceForCount = 0;
@@ -4476,7 +4476,7 @@ void AuraEffect::HandleModMechanicImmunity(bool apply, bool Real, bool /*changeA
     if(apply && GetSpellProto()->AttributesEx & SPELL_ATTR_EX_DISPEL_AURAS_ON_IMMUNITY)
     {
         Unit::AuraMap& Auras = m_target->GetAuras();
-        for (Unit::AuraMap::iterator iter = Auras.begin(); iter != Auras.end(); )
+        for (Unit::AuraMap::iterator iter = Auras.begin(); iter != Auras.end();)
         {
             SpellEntry const *spell = iter->second->GetSpellProto();
             if (spell->Id != GetId())
@@ -4557,7 +4557,7 @@ void AuraEffect::HandleAuraModSchoolImmunity(bool apply, bool Real, bool /*chang
     {
         uint32 school_mask = GetMiscValue();
         Unit::AuraMap& Auras = m_target->GetAuras();
-        for (Unit::AuraMap::iterator iter = Auras.begin(); iter != Auras.end(); )
+        for (Unit::AuraMap::iterator iter = Auras.begin(); iter != Auras.end();)
         {
             SpellEntry const *spell = iter->second->GetSpellProto();
             if((GetSpellSchoolMask(spell) & school_mask)//Check for school mask

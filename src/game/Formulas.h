@@ -112,7 +112,7 @@ namespace Trinity
 
         inline uint32 Gain(Player *pl, Unit *u)
         {
-            if (u->GetTypeId()==TYPEID_UNIT && (
+            if (u->GetTypeId() == TYPEID_UNIT && (
                 ((Creature*)u)->isTotem() || ((Creature*)u)->isPet() ||
                 (((Creature*)u)->GetCreatureInfo()->flags_extra & CREATURE_FLAG_EXTRA_NO_XP_AT_KILL) ))
                 return 0;

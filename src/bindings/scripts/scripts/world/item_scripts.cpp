@@ -150,7 +150,7 @@ bool ItemUse_item_flying_machine(Player* pPlayer, Item* pItem, SpellCastTargets 
 
 bool ItemUse_item_gor_dreks_ointment(Player* pPlayer, Item* pItem, SpellCastTargets const& targets)
 {
-    if (targets.getUnitTarget() && targets.getUnitTarget()->GetTypeId()==TYPEID_UNIT &&
+    if (targets.getUnitTarget() && targets.getUnitTarget()->GetTypeId() == TYPEID_UNIT &&
         targets.getUnitTarget()->GetEntry() == 20748 && !targets.getUnitTarget()->HasAura(32578))
         return false;
 

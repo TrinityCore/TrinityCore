@@ -768,7 +768,7 @@ void Map::Update(const uint32 &t_diff)
     // non-player active objects
     if (!m_activeNonPlayers.empty())
     {
-        for (m_activeNonPlayersIter = m_activeNonPlayers.begin(); m_activeNonPlayersIter != m_activeNonPlayers.end(); )
+        for (m_activeNonPlayersIter = m_activeNonPlayers.begin(); m_activeNonPlayersIter != m_activeNonPlayers.end();)
         {
             // skip not in world
             WorldObject* obj = *m_activeNonPlayersIter;
@@ -1220,7 +1220,7 @@ void Map::UnloadAll()
     // clear all delayed moves, useless anyway do this moves before map unload.
     i_creaturesToMove.clear();
 
-    for (GridRefManager<NGridType>::iterator i = GridRefManager<NGridType>::begin(); i != GridRefManager<NGridType>::end(); )
+    for (GridRefManager<NGridType>::iterator i = GridRefManager<NGridType>::begin(); i != GridRefManager<NGridType>::end();)
     {
         NGridType &grid(*i->getSource());
         ++i;
@@ -2268,7 +2268,7 @@ void Map::DelayedUpdate(const uint32 t_diff)
     // This isn't really bother us, since as soon as we have instanced BG-s, the whole map unloads as the BG gets ended
     if (!IsBattleGroundOrArena())
     {
-        for (GridRefManager<NGridType>::iterator i = GridRefManager<NGridType>::begin(); i != GridRefManager<NGridType>::end(); )
+        for (GridRefManager<NGridType>::iterator i = GridRefManager<NGridType>::begin(); i != GridRefManager<NGridType>::end();)
         {
             NGridType *grid = i->getSource();
             GridInfo *info = i->getSource()->getGridInfoRef();

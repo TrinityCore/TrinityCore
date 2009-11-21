@@ -2063,7 +2063,7 @@ ACE_OS::sema_wait (ACE_sema_t *s)
 #     else /* ACE_USES_WINCE_SEMA_SIMULATION */
   // Timed wait.
   int result = -1;
-  for (; ; )
+  for (;;)
     // Check if the semaphore is avialable or not and wait forever.
     // Don't bother to grab the lock if it is not available (to avoid
     // deadlock.)

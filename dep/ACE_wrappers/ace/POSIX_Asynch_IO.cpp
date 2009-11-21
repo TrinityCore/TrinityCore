@@ -1425,7 +1425,7 @@ ACE_POSIX_Asynch_Connect::connect_i (ACE_POSIX_Asynch_Connect_Result *result,
          -1);
     }
 
-  for (; ; )
+  for (;;)
     {
       int rc = ACE_OS::connect
         (handle,

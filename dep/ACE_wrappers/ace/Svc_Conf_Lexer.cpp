@@ -331,7 +331,7 @@ ACE_Svc_Conf_Lexer::scan (YYSTYPE* ace_yylval,
                 bool string_end_found = false;
                 if (current > buffer->index_)
                   {
-                    for (size_t i = current - buffer->index_; i-- != 0; )
+                    for (size_t i = current - buffer->index_; i-- != 0;)
                       {
                         if (source[i] == buffer->string_start_)
                           {
