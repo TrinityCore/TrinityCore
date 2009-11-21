@@ -1606,8 +1606,8 @@ void Spell::EffectDummy(uint32 i)
                 if (!unitTarget || !unitTarget->isAlive())
                     return;
 
-                int hurt = 0;
-                int heal = 0;
+                uint32 hurt = 0;
+                uint32 heal = 0;
                 switch(m_spellInfo->Id)
                 {
                     case 47540: hurt = 47758; heal = 47757; break;
@@ -1630,15 +1630,15 @@ void Spell::EffectDummy(uint32 i)
             if (m_spellInfo->SpellFamilyFlags[2] & 0x100)
             {
                 //Shapeshifting into an animal form or mounting cancels the effect.
-                if(m_caster->GetCreatureType() == CREATURE_TYPE_BEAST || m_caster->IsMounted())
+                if (m_caster->GetCreatureType() == CREATURE_TYPE_BEAST || m_caster->IsMounted())
                 {
-                    if(m_triggeredByAuraSpell)
+                    if (m_triggeredByAuraSpell)
                         m_caster->RemoveAurasDueToSpell(m_triggeredByAuraSpell->Id);
                     return;
                 }
 
                 //Any effect which causes you to lose control of your character will supress the starfall effect.
-                if(m_caster->hasUnitState(UNIT_STAT_STUNNED | UNIT_STAT_FLEEING | UNIT_STAT_ROOT | UNIT_STAT_CONFUSED))
+                if (m_caster->hasUnitState(UNIT_STAT_STUNNED | UNIT_STAT_FLEEING | UNIT_STAT_ROOT | UNIT_STAT_CONFUSED))
                     return;
 
                 m_caster->CastSpell(unitTarget, damage, true);
@@ -1652,35 +1652,35 @@ void Spell::EffectDummy(uint32 i)
                 m_caster->CastSpell(m_caster, 63848, true);
                 break;
             }
-            switch(m_spellInfo->Id )
+            switch(m_spellInfo->Id)
             {
                 case 5938:                                  // Shiv
                 {
-                    if(m_caster->GetTypeId() != TYPEID_PLAYER)
+                    if (m_caster->GetTypeId() != TYPEID_PLAYER)
                         return;
 
                     Player *pCaster = ((Player*)m_caster);
 
                     Item *item = pCaster->GetWeaponForAttack(OFF_ATTACK);
-                    if(!item)
+                    if (!item)
                         return;
 
                     // all poison enchantments is temporary
                     uint32 enchant_id = item->GetEnchantmentId(TEMP_ENCHANTMENT_SLOT);
-                    if(!enchant_id)
+                    if (!enchant_id)
                         return;
 
                     SpellItemEnchantmentEntry const *pEnchant = sSpellItemEnchantmentStore.LookupEntry(enchant_id);
-                    if(!pEnchant)
+                    if (!pEnchant)
                         return;
 
-                    for (int s=0; s<3; s++)
+                    for (uint8 s = 0; s < 3; ++s)
                     {
-                        if(pEnchant->type[s]!=ITEM_ENCHANTMENT_TYPE_COMBAT_SPELL)
+                        if(pEnchant->type[s] != ITEM_ENCHANTMENT_TYPE_COMBAT_SPELL)
                             continue;
 
-                        SpellEntry const* combatEntry = sSpellStore.LookupEntry(pEnchant->spellid[s]);
-                        if(!combatEntry || combatEntry->Dispel != DISPEL_POISON)
+                        SpellEntry const *combatEntry = sSpellStore.LookupEntry(pEnchant->spellid[s]);
+                        if (!combatEntry || combatEntry->Dispel != DISPEL_POISON)
                             continue;
 
                         m_caster->CastSpell(unitTarget, combatEntry, true, item);
@@ -1691,7 +1691,7 @@ void Spell::EffectDummy(uint32 i)
                 }
                 case 14185:                                 // Preparation
                 {
-                    if(m_caster->GetTypeId() != TYPEID_PLAYER)
+                    if (m_caster->GetTypeId() != TYPEID_PLAYER)
                         return;
 
                     //immediately finishes the cooldown on certain Rogue abilities
