@@ -41,7 +41,7 @@ bool Player::UpdateStats(Stats stat)
 
     SetStat(stat, int32(value));
 
-    if(stat == STAT_STAMINA || stat == STAT_INTELLECT)
+    if (stat == STAT_STAMINA || stat == STAT_INTELLECT || stat == STAT_STRENGTH)
     {
         Pet *pet = GetPet();
         if(pet)
@@ -906,38 +906,64 @@ void Creature::UpdateDamagePhysical(WeaponAttackType attType)
 #define ENTRY_WATER_ELEMENTAL   510
 #define ENTRY_TREANT            1964
 #define ENTRY_FIRE_ELEMENTAL    15438
+#define ENTRY_GHOUL             26125
 
 bool Guardian::UpdateStats(Stats stat)
 {
-    if(stat > STAT_SPIRIT)
+    if (stat >= MAX_STATS)
         return false;
 
     // value = ((base_value * base_pct) + total_value) * total_pct
     float value  = GetTotalStatValue(stat);
 
     Unit *owner = GetOwner();
-    if ( stat == STAT_STAMINA )
+    // Handle Death Knight Glyphs and Talents
+    if (IsPetGhoul() && (stat == STAT_STAMINA || stat == STAT_STRENGTH))
+    { 
+        float mod = 0.0f;
+        switch (stat)
+        {
+            case STAT_STAMINA:  mod = 0.3f; break;                // Default Owner's Stamina scale
+            case STAT_STRENGTH: mod = 0.7f; break;                // Default Owner's Strength scale
+            default: break;
+        }
+        // Ravenous Dead
+        AuraEffect const *aurEff;
+        // Check just if owner has Ravenous Dead since it's effect is not an aura
+        if (aurEff = owner->GetAuraEffect(SPELL_AURA_MOD_TOTAL_STAT_PERCENTAGE, SPELLFAMILY_DEATHKNIGHT, 3010, 0))
+        {
+            SpellEntry const* sProto = aurEff->GetSpellProto();                                                       // Then get the SpellProto and add the dummy effect value
+            mod += mod * (sProto->EffectBasePoints[1] / 100.0f);                                                      // Ravenous Dead edits the original scale
+        }
+        // Glyph of the Ghoul
+        if (aurEff = owner->GetAuraEffect(58686, 0))
+            mod += (aurEff->GetAmount() / 100.0f);                                                                    // Glyph of the Ghoul adds a flat value to the scale mod
+        value += float(owner->GetStat(stat)) * mod;
+    }
+    else if (stat == STAT_STAMINA)
     {
-        if(owner->getClass() == CLASS_WARLOCK && isPet())
+        if (owner->getClass() == CLASS_WARLOCK && isPet())
             value += float(owner->GetStat(STAT_STAMINA)) * 0.75f;
         else
             value += float(owner->GetStat(stat)) * 0.3f;
     }
                                                             //warlock's and mage's pets gain 30% of owner's intellect
-    else if ( stat == STAT_INTELLECT)
+    else if (stat == STAT_INTELLECT)
     {
-        if(owner->getClass() == CLASS_WARLOCK || owner->getClass() == CLASS_MAGE)
+        if (owner->getClass() == CLASS_WARLOCK || owner->getClass() == CLASS_MAGE)
             value += float(owner->GetStat(stat)) * 0.3f;
     }
-    else if ( stat == STAT_STRENGTH )
+/*
+    else if (stat == STAT_STRENGTH)
     {
         if (IsPetGhoul())
             value += float(owner->GetStat(stat)) * 0.3f;
     }
+*/
 
     SetStat(stat, int32(value));
 
-    switch(stat)
+    switch (stat)
     {
         case STAT_STRENGTH:         UpdateAttackPowerAndDamage();        break;
         case STAT_AGILITY:          UpdateArmor();                       break;
@@ -1013,6 +1039,7 @@ void Guardian::UpdateMaxHealth()
         case ENTRY_SUCCUBUS:    multiplicator = 9.1f;   break;
         case ENTRY_FELHUNTER:   multiplicator = 9.5f;   break;
         case ENTRY_FELGUARD:    multiplicator = 11.0f;  break;
+        case ENTRY_GHOUL:       multiplicator = 5.4f;   break;
         default:                multiplicator = 10.0f;  break;
     }
 
