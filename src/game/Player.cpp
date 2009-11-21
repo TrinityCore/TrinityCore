@@ -22013,6 +22013,7 @@ void Player::ActivateSpec(uint8 spec)
     for (PlayerTalentMap::iterator itr = m_talents[m_activeSpec]->begin(); itr != m_talents[m_activeSpec]->end(); ++itr)
     {
         removeSpell(itr->first, !IsPassiveSpell(itr->first), false);
+        uint32 itrFirstId = spellmgr.GetFirstSpellInChain(itr->first);
         for (PlayerSpellMap::iterator itr2 = GetSpellMap().begin(); itr2 != GetSpellMap().end();)
         {
             if (itr2->second->state == PLAYERSPELL_REMOVED || itr2->second->disabled)
@@ -22022,10 +22023,10 @@ void Player::ActivateSpec(uint8 spec)
             }
 
             // remove learned spells (all ranks)
-            uint32 itrFirstId = spellmgr.GetFirstSpellInChain(itr2->first);
+            uint32 itr2FirstId = spellmgr.GetFirstSpellInChain(itr2->first);
 
             // unlearn if first rank is talent or learned by talent
-            if (itrFirstId == itr->first)
+            if (itrFirstId == itr2FirstId)
             {
                 removeSpell(itr2->first, !IsPassiveSpell(itr2->first), false);
                 itr2 = GetSpellMap().begin();
