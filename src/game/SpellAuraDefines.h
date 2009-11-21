@@ -321,7 +321,7 @@ enum AuraType
     SPELL_AURA_273 = 273,
     SPELL_AURA_ABILITY_CONSUME_NO_AMMO = 274,
     SPELL_AURA_MOD_IGNORE_SHAPESHIFT = 275,
-    SPELL_AURA_276 = 276,                    // Only "Test Mod Damage % Mechanic" spell, possible mod damage done
+    SPELL_AURA_276 = 276,                                   // Only "Test Mod Damage % Mechanic" spell, possible mod damage done
     SPELL_AURA_MOD_MAX_AFFECTED_TARGETS = 277,
     SPELL_AURA_MOD_DISARM_RANGED = 278,
     SPELL_AURA_INITIALIZE_IMAGES = 279,

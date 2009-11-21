@@ -1183,7 +1183,7 @@ void Unit::CalculateSpellDamageTaken(SpellNonMeleeDamage *damageInfo, int32 dama
 
             if (crit)
             {
-                damageInfo->HitInfo|= SPELL_HIT_TYPE_CRIT;
+                damageInfo->HitInfo |= SPELL_HIT_TYPE_CRIT;
 
                 // Calculate crit bonus
                 uint32 crit_bonus = damage;
@@ -1247,8 +1247,16 @@ void Unit::CalculateSpellDamageTaken(SpellNonMeleeDamage *damageInfo, int32 dama
     // Calculate absorb resist
     if (damage > 0)
     {
-        CalcAbsorbResist(pVictim, damageSchoolMask, SPELL_DIRECT_DAMAGE, damage, &damageInfo->absorb, &damageInfo->resist, spellInfo);
-        damage-= damageInfo->absorb + damageInfo->resist;
+        switch (spellInfo->SpellIconID)
+        {
+            // Chaos Bolt - "Chaos Bolt cannot be resisted, and pierces through all absorption effects."
+            case 3178:
+                break;
+            default:
+                CalcAbsorbResist(pVictim, damageSchoolMask, SPELL_DIRECT_DAMAGE, damage, &damageInfo->absorb, &damageInfo->resist, spellInfo);
+                damage -= damageInfo->absorb + damageInfo->resist;
+                break;
+        }
     }
     else
         damage = 0;
@@ -1736,7 +1744,7 @@ uint32 Unit::CalcArmorReducedDamage(Unit* pVictim, const uint32 damage, SpellEnt
     return (newdamage > 1) ? newdamage : 1;
 }
 
-void Unit::CalcAbsorbResist(Unit *pVictim,SpellSchoolMask schoolMask, DamageEffectType damagetype, const uint32 damage, uint32 *absorb, uint32 *resist, SpellEntry const *spellInfo)
+void Unit::CalcAbsorbResist(Unit *pVictim, SpellSchoolMask schoolMask, DamageEffectType damagetype, const uint32 damage, uint32 *absorb, uint32 *resist, SpellEntry const *spellInfo)
 {
     if (!pVictim || !pVictim->isAlive() || !damage)
         return;
@@ -1761,7 +1769,7 @@ void Unit::CalcAbsorbResist(Unit *pVictim,SpellSchoolMask schoolMask, DamageEffe
         for (uint8 i = 0; i < 4; ++i)
         {
             Binom += 2400 *( powf(tmpvalue2, i) * powf( (1-tmpvalue2), (4-i)))/faq[i];
-            if (ran > Binom )
+            if (ran > Binom)
                 ++m;
             else
                 break;
@@ -1773,7 +1781,7 @@ void Unit::CalcAbsorbResist(Unit *pVictim,SpellSchoolMask schoolMask, DamageEffe
         if (*resist > damage)
             *resist = damage;
 
-        AuraEffectList const& ResIgnoreAurasAb = GetAurasByType(SPELL_AURA_MOD_ABILITY_IGNORE_TARGET_RESIST);
+        AuraEffectList const &ResIgnoreAurasAb = GetAurasByType(SPELL_AURA_MOD_ABILITY_IGNORE_TARGET_RESIST);
         for (AuraEffectList::const_iterator j = ResIgnoreAurasAb.begin(); j != ResIgnoreAurasAb.end(); ++j)
         {
             if ((*j)->GetMiscValue() & schoolMask
@@ -1781,7 +1789,7 @@ void Unit::CalcAbsorbResist(Unit *pVictim,SpellSchoolMask schoolMask, DamageEffe
                 *resist= int32(float(*resist) * (float(100-(*j)->GetAmount())/100.0f));
         }
 
-        AuraEffectList const& ResIgnoreAuras = GetAurasByType(SPELL_AURA_MOD_IGNORE_TARGET_RESIST);
+        AuraEffectList const &ResIgnoreAuras = GetAurasByType(SPELL_AURA_MOD_IGNORE_TARGET_RESIST);
         for (AuraEffectList::const_iterator j = ResIgnoreAuras.begin(); j != ResIgnoreAuras.end(); ++j)
         {
             if ((*j)->GetMiscValue() & schoolMask)
@@ -1814,14 +1822,14 @@ void Unit::CalcAbsorbResist(Unit *pVictim,SpellSchoolMask schoolMask, DamageEffe
         int32  currentAbsorb = (*i)->GetAmount();
 
         // Found empty aura (impossible but..)
-        if (currentAbsorb <=0)
+        if (currentAbsorb <= 0)
         {
             existExpired = true;
             continue;
         }
         // Handle custom absorb auras
         // TODO: try find better way
-        switch(spellProto->SpellFamilyName)
+        switch (spellProto->SpellFamilyName)
         {
             case SPELLFAMILY_GENERIC:
             {
@@ -1891,11 +1899,9 @@ void Unit::CalcAbsorbResist(Unit *pVictim,SpellSchoolMask schoolMask, DamageEffe
                 if (spellProto->SpellIconID == 2109)
                 {
                     if (!preventDeathSpell &&
-                        pVictim->GetTypeId() == TYPEID_PLAYER &&  // Only players
-                        !((Player*)pVictim)->HasSpellCooldown(31231) &&
-                                                                // Only if no cooldown
-                        roll_chance_i((*i)->GetAmount()))
-                                                                // Only if roll
+                        pVictim->GetTypeId() == TYPEID_PLAYER &&        // Only players
+                        !((Player*)pVictim)->HasSpellCooldown(31231) && // Only if no cooldown
+                        roll_chance_i((*i)->GetAmount()))               // Only if roll
                     {
                         preventDeathSpell = (*i)->GetSpellProto();
                     }
@@ -1953,7 +1959,7 @@ void Unit::CalcAbsorbResist(Unit *pVictim,SpellSchoolMask schoolMask, DamageEffe
             }
             case SPELLFAMILY_DEATHKNIGHT:
             {
-                switch(spellProto->Id)
+                switch (spellProto->Id)
                 {
                     case 51271: // Unbreakable Armor
                         if (Unit *caster = (*i)->GetCaster())
@@ -1962,7 +1968,7 @@ void Unit::CalcAbsorbResist(Unit *pVictim,SpellSchoolMask schoolMask, DamageEffe
 
                             // Glyph of Unbreakable Armor
                             if (AuraEffect *aurEff = caster->GetAuraEffect(58635, 0))
-                                absorbed += uint32( absorbed * aurEff->GetAmount() / 100 );
+                                absorbed += uint32(absorbed * aurEff->GetAmount() / 100);
 
                             RemainingDamage -= absorbed;
                         }
@@ -2010,7 +2016,7 @@ void Unit::CalcAbsorbResist(Unit *pVictim,SpellSchoolMask schoolMask, DamageEffe
         // Reduce shield amount
         (*i)->SetAmount((*i)->GetAmount() -currentAbsorb);
         // Need remove it later
-        if ((*i)->GetAmount()<=0)
+        if ((*i)->GetAmount() <= 0)
             existExpired = true;
     }
 
@@ -2020,7 +2026,7 @@ void Unit::CalcAbsorbResist(Unit *pVictim,SpellSchoolMask schoolMask, DamageEffe
             itr->source->CastCustomSpell(itr->spell, SPELLVALUE_BASE_POINT0, itr->amount, itr->target, true, NULL, itr->auraEff);
         else if (itr->amount > 0)
         {
-            uint32 damage = (uint32)itr->amount;
+            uint32 damage = uint32(itr->amount);
             itr->source->DealDamageMods(itr->target, damage, NULL);
             itr->source->DealDamage(itr->target, damage, NULL, damagetype, schoolMask, 0, false);
         }
