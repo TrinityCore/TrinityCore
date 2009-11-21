@@ -7621,11 +7621,18 @@ bool Unit::HandleProcTriggerSpell(Unit *pVictim, uint32 damage, AuraEffect* trig
             trigger_spell_id = 26470;
             break;
         }
+        // Unyielding Knights
+        case 38164:
+        {
+            if (pVictim->GetEntry() != 19457) // Proc only if you target is Grillok
+                return false;
+            break;
+        }
         // Deflection
         case 52420:
         {
-            if(GetHealth()*100 / GetMaxHealth() >= 35)
-            return false;
+            if (GetHealth()*100 / GetMaxHealth() >= 35)
+                return false;
             break;
         }
 
