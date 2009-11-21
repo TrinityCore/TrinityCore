@@ -3783,10 +3783,6 @@ bool Player::resetTalents(bool no_cost)
         if ((getClassMask() & talentTabInfo->ClassMask) == 0)
             continue;
 
-        PlayerTalentMap::const_iterator foundTalent = m_talents[m_activeSpec]->find(i);
-        if (foundTalent == m_talents[m_activeSpec]->end() || foundTalent->second->state == PLAYERSPELL_REMOVED)
-            continue;
-
         /*
         for (PlayerTalentMap::iterator itr = m_talents[m_activeSpec]->begin(); itr != m_talents[m_activeSpec]->end(); ++itr)
         {
@@ -3795,38 +3791,41 @@ bool Player::resetTalents(bool no_cost)
         }
         */
 
-        for (uint8 rank = 0; rank < MAX_TALENT_RANK; ++rank)
+        for (int8 rank = MAX_TALENT_RANK-1; rank >= 0; --rank)
         {
-            for (PlayerSpellMap::iterator itr = GetSpellMap().begin(); itr != GetSpellMap().end();)
+            if (talentInfo->RankID[rank] && HasTalent(talentInfo->RankID[rank], m_activeSpec))
             {
-                if (itr->second->state == PLAYERSPELL_REMOVED || itr->second->disabled)
+                for (PlayerSpellMap::iterator itr = GetSpellMap().begin(); itr != GetSpellMap().end();)
                 {
-                    ++itr;
-                    continue;
-                }
+                    if (itr->second->state == PLAYERSPELL_REMOVED || itr->second->disabled)
+                    {
+                        ++itr;
+                        continue;
+                    }
 
-                // remove learned spells (all ranks)
-                uint32 itrFirstId = spellmgr.GetFirstSpellInChain(itr->first);
+                    // remove learned spells (all ranks)
+                    uint32 itrFirstId = spellmgr.GetFirstSpellInChain(itr->first);
 
-                // unlearn if first rank is talent or learned by talent
-                if (itrFirstId == talentInfo->RankID[rank])
-                {
-                    removeSpell(itr->first, !IsPassiveSpell(itr->first), false);
-                    itr = GetSpellMap().begin();
-                    continue;
+                    // unlearn if first rank is talent or learned by talent
+                    if (itrFirstId == talentInfo->RankID[rank])
+                    {
+                        removeSpell(itr->first, !IsPassiveSpell(itr->first), false);
+                        itr = GetSpellMap().begin();
+                        continue;
+                    }
+                    else if (spellmgr.IsSpellLearnToSpell(talentInfo->RankID[rank], itrFirstId))
+                    {
+                        removeSpell(itr->first, !IsPassiveSpell(itr->first));
+                        itr = GetSpellMap().begin();
+                        continue;
+                    }
+                    else
+                        ++itr;
                 }
-                else if (spellmgr.IsSpellLearnToSpell(talentInfo->RankID[rank], itrFirstId))
-                {
-                    removeSpell(itr->first, !IsPassiveSpell(itr->first));
-                    itr = GetSpellMap().begin();
-                    continue;
-                }
-                else
-                    ++itr;
+                removeSpell(talentInfo->TalentID, !IsPassiveSpell(talentInfo->TalentID), false);
+                m_talents[m_activeSpec]->find(talentInfo->RankID[rank])->second->state = PLAYERSPELL_REMOVED; // mark the talent in the talent map as removed
             }
         }
-        removeSpell(i, !IsPassiveSpell(i), false);
-        foundTalent->second->state = PLAYERSPELL_REMOVED;
     }
 
     SetFreeTalentPoints(talentPointsForLevel);
@@ -22009,37 +22008,41 @@ void Player::ActivateSpec(uint8 spec)
         if (!talentInfo)
             continue;
 
-        for (uint8 rank = 0; rank < MAX_TALENT_RANK; ++rank)
+        for (int8 rank = MAX_TALENT_RANK-1; rank >= 0; --rank)
         {
-            for (PlayerSpellMap::iterator itr2 = GetSpellMap().begin(); itr2 != GetSpellMap().end();)
+            if (talentInfo->RankID[rank] && HasTalent(talentInfo->RankID[rank], m_activeSpec))
             {
-                if (itr2->second->state == PLAYERSPELL_REMOVED || itr2->second->disabled)
+                for (PlayerSpellMap::iterator itr = GetSpellMap().begin(); itr != GetSpellMap().end();)
                 {
-                    ++itr2;
-                    continue;
-                }
+                    if (itr->second->state == PLAYERSPELL_REMOVED || itr->second->disabled)
+                    {
+                        ++itr;
+                        continue;
+                    }
 
-                // remove learned spells (all ranks)
-                uint32 itrFirstId = spellmgr.GetFirstSpellInChain(itr2->first);
+                    // remove learned spells (all ranks)
+                    uint32 itrFirstId = spellmgr.GetFirstSpellInChain(itr->first);
 
-                // unlearn if first rank is talent or learned by talent
-                if (itrFirstId == talentInfo->RankID[rank])
-                {
-                    removeSpell(itr2->first, !IsPassiveSpell(itr2->first), false);
-                    itr2 = GetSpellMap().begin();
-                    continue;
+                    // unlearn if first rank is talent or learned by talent
+                    if (itrFirstId == talentInfo->RankID[rank])
+                    {
+                        removeSpell(itr->first, !IsPassiveSpell(itr->first), false);
+                        itr = GetSpellMap().begin();
+                        continue;
+                    }
+                    else if (spellmgr.IsSpellLearnToSpell(talentInfo->RankID[rank], itrFirstId))
+                    {
+                        removeSpell(itr->first, !IsPassiveSpell(itr->first));
+                        itr = GetSpellMap().begin();
+                        continue;
+                    }
+                    else
+                        ++itr;
                 }
-                else if (spellmgr.IsSpellLearnToSpell(talentInfo->RankID[rank], itrFirstId))
-                {
-                    removeSpell(itr2->first, !IsPassiveSpell(itr2->first));
-                    itr2 = GetSpellMap().begin();
-                    continue;
-                }
-                else
-                    ++itr2;
+                removeSpell(talentInfo->TalentID, !IsPassiveSpell(talentInfo->TalentID), false);
+                //m_talents[m_activeSpec]->find(talentInfo->RankID[rank])->second->state = PLAYERSPELL_REMOVED; // mark the talent in the talent map as removed
             }
         }
-        removeSpell(itr->first, !IsPassiveSpell(itr->first), false);
     }
 
     // set glyphs
