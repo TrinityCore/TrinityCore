@@ -2914,7 +2914,7 @@ bool Player::AddTalent(uint32 spell_id, uint8 spec, bool learning)
         return false;
     }
 
-    if(!SpellMgr::IsSpellValid(spellInfo,this,false))
+    if (!SpellMgr::IsSpellValid(spellInfo,this,false))
     {
         // do character spell book cleanup (all characters)
         if(!IsInWorld() && !learning)                       // spell load case
@@ -2930,25 +2930,21 @@ bool Player::AddTalent(uint32 spell_id, uint8 spec, bool learning)
 
     PlayerTalentMap::iterator itr = m_talents[spec]->find(spell_id);
     if (itr != m_talents[spec]->end())
-    {
         itr->second->state = PLAYERSPELL_UNCHANGED;
-    }
-    else if(TalentSpellPos const *talentPos = GetTalentSpellPos(spell_id))
+    else if (TalentSpellPos const *talentPos = GetTalentSpellPos(spell_id))
     {
-        if(TalentEntry const *talentInfo = sTalentStore.LookupEntry( talentPos->talent_id ))
+        if (TalentEntry const *talentInfo = sTalentStore.LookupEntry( talentPos->talent_id ))
         {
             for (uint8 rank = 0; rank < MAX_TALENT_RANK; ++rank)
             {
                 // skip learning spell and no rank spell case
                 uint32 rankSpellId = talentInfo->RankID[rank];
-                if(!rankSpellId || rankSpellId == spell_id)
+                if (!rankSpellId || rankSpellId == spell_id)
                     continue;
 
                 PlayerTalentMap::iterator itr = m_talents[spec]->find(rankSpellId);
                 if (itr != m_talents[spec]->end())
-                {
                     itr->second->state = PLAYERSPELL_REMOVED;
-                }
             }
         }
 
@@ -3745,8 +3741,8 @@ uint32 Player::resetTalentsCost() const
 bool Player::resetTalents(bool no_cost)
 {
     // not need after this call
-    if(HasAtLoginFlag(AT_LOGIN_RESET_TALENTS))
-        RemoveAtLoginFlag(AT_LOGIN_RESET_TALENTS,true);
+    if (HasAtLoginFlag(AT_LOGIN_RESET_TALENTS))
+        RemoveAtLoginFlag(AT_LOGIN_RESET_TALENTS, true);
 
     uint32 talentPointsForLevel = CalculateTalentsPoints();
 
@@ -3787,7 +3783,14 @@ bool Player::resetTalents(bool no_cost)
         if ((getClassMask() & talentTabInfo->ClassMask) == 0)
             continue;
 
+        PlayerTalentMap::const_iterator foundTalent = m_talents[m_activeSpec]->find(i);
+        if (foundTalent == m_talents[spec]->end() || foundTalent->second->state == PLAYERSPELL_REMOVED)
+            continue;
+        else
+            foundTalent->second->state = PLAYERSPELL_REMOVED;
+
         removeSpell(i, !IsPassiveSpell(i), false);
+
         /*
         for (PlayerTalentMap::iterator itr = m_talents[m_activeSpec]->begin(); itr != m_talents[m_activeSpec]->end(); ++itr)
         {
@@ -3800,7 +3803,7 @@ bool Player::resetTalents(bool no_cost)
         {
             for (PlayerSpellMap::iterator itr = GetSpellMap().begin(); itr != GetSpellMap().end();)
             {
-                if(itr->second->state == PLAYERSPELL_REMOVED || itr->second->disabled)
+                if (itr->second->state == PLAYERSPELL_REMOVED || itr->second->disabled)
                 {
                     ++itr;
                     continue;
@@ -3856,37 +3859,28 @@ bool Player::resetTalents(bool no_cost)
 Mail* Player::GetMail(uint32 id)
 {
     for (PlayerMails::iterator itr = m_mail.begin(); itr != m_mail.end(); ++itr)
-    {
         if ((*itr)->messageID == id)
-        {
             return (*itr);
-        }
-    }
+
     return NULL;
 }
 
 void Player::_SetCreateBits(UpdateMask *updateMask, Player *target) const
 {
     if(target == this)
-    {
         Object::_SetCreateBits(updateMask, target);
-    }
     else
     {
         for (uint16 index = 0; index < m_valuesCount; index++)
-        {
-            if(GetUInt32Value(index) != 0 && updateVisualBits.GetBit(index))
+            if (GetUInt32Value(index) != 0 && updateVisualBits.GetBit(index))
                 updateMask->SetBit(index);
-        }
     }
 }
 
 void Player::_SetUpdateBits(UpdateMask *updateMask, Player *target) const
 {
     if(target == this)
-    {
         Object::_SetUpdateBits(updateMask, target);
-    }
     else
     {
         Object::_SetUpdateBits(updateMask, target);
@@ -3985,7 +3979,7 @@ void Player::InitVisibleBits()
 
 void Player::BuildCreateUpdateBlockForPlayer( UpdateData *data, Player *target ) const
 {
-    for (uint8 i = 0; i < EQUIPMENT_SLOT_END; i++)
+    for (uint8 i = 0; i < EQUIPMENT_SLOT_END; ++i)
     {
         if(m_items[i] == NULL)
             continue;
@@ -3995,7 +3989,7 @@ void Player::BuildCreateUpdateBlockForPlayer( UpdateData *data, Player *target )
 
     if(target == this)
     {
-        for (uint8 i = INVENTORY_SLOT_BAG_START; i < BANK_SLOT_BAG_END; i++)
+        for (uint8 i = INVENTORY_SLOT_BAG_START; i < BANK_SLOT_BAG_END; ++i)
         {
             if(m_items[i] == NULL)
                 continue;
@@ -4018,7 +4012,7 @@ void Player::DestroyForPlayer( Player *target, bool anim ) const
 {
     Unit::DestroyForPlayer( target, anim );
 
-    for (uint8 i = 0; i < INVENTORY_SLOT_BAG_END; i++)
+    for (uint8 i = 0; i < INVENTORY_SLOT_BAG_END; ++i)
     {
         if(m_items[i] == NULL)
             continue;
@@ -4028,7 +4022,7 @@ void Player::DestroyForPlayer( Player *target, bool anim ) const
 
     if(target == this)
     {
-        for (uint8 i = INVENTORY_SLOT_BAG_START; i < BANK_SLOT_BAG_END; i++)
+        for (uint8 i = INVENTORY_SLOT_BAG_START; i < BANK_SLOT_BAG_END; ++i)
         {
             if(m_items[i] == NULL)
                 continue;
@@ -15174,7 +15168,7 @@ bool Player::LoadFromDB( uint32 guid, SqlQueryHolder *holder )
 
     // sanity check
     if (m_specsCount > MAX_TALENT_SPECS || m_activeSpec > MAX_TALENT_SPEC ||
-        m_specsCount < MIN_TALENT_SPECS || m_activeSpec < MIN_TALENT_SPEC ) // if (m_specsCount < 2) is not logical
+        m_specsCount < MIN_TALENT_SPECS || m_activeSpec < MIN_TALENT_SPEC)
     {
         m_activeSpec = 0;
         sLog.outError("Player %s(GUID: %u) has SpecCount = %u and ActiveSpec = %u.", GetName(), GetGUIDLow(), m_specsCount, m_activeSpec);
@@ -22012,34 +22006,42 @@ void Player::ActivateSpec(uint8 spec)
     // Remove all talents and talent-learned spells under this spec.
     for (PlayerTalentMap::iterator itr = m_talents[m_activeSpec]->begin(); itr != m_talents[m_activeSpec]->end(); ++itr)
     {
+        TalentEntry const *talentInfo = sTalentStore.LookupEntry(itr->first);
+
+        if (!talentInfo)
+            continue;
+
         removeSpell(itr->first, !IsPassiveSpell(itr->first), false);
-        uint32 itrFirstId = spellmgr.GetFirstSpellInChain(itr->first);
-        for (PlayerSpellMap::iterator itr2 = GetSpellMap().begin(); itr2 != GetSpellMap().end();)
+
+        for (uint8 rank = 0; rank < MAX_TALENT_RANK; ++rank)
         {
-            if (itr2->second->state == PLAYERSPELL_REMOVED || itr2->second->disabled)
+            for (PlayerSpellMap::iterator itr2 = GetSpellMap().begin(); itr2 != GetSpellMap().end();)
             {
-                ++itr2;
-                continue;
-            }
+                if (itr2->second->state == PLAYERSPELL_REMOVED || itr2->second->disabled)
+                {
+                    ++itr2;
+                    continue;
+                }
 
-            // remove learned spells (all ranks)
-            uint32 itr2FirstId = spellmgr.GetFirstSpellInChain(itr2->first);
+                // remove learned spells (all ranks)
+                uint32 itrFirstId = spellmgr.GetFirstSpellInChain(itr2->first);
 
-            // unlearn if first rank is talent or learned by talent
-            if (itrFirstId == itr2FirstId)
-            {
-                removeSpell(itr2->first, !IsPassiveSpell(itr2->first), false);
-                itr2 = GetSpellMap().begin();
-                continue;
+                // unlearn if first rank is talent or learned by talent
+                if (itrFirstId == talentInfo->RankID[rank])
+                {
+                    removeSpell(itr2->first, !IsPassiveSpell(itr2->first), false);
+                    itr2 = GetSpellMap().begin();
+                    continue;
+                }
+                else if (spellmgr.IsSpellLearnToSpell(talentInfo->RankID[rank], itrFirstId))
+                {
+                    removeSpell(itr2->first, !IsPassiveSpell(itr2->first));
+                    itr2 = GetSpellMap().begin();
+                    continue;
+                }
+                else
+                    ++itr2;
             }
-            else if (spellmgr.IsSpellLearnToSpell(itr->first, itrFirstId))
-            {
-                removeSpell(itr2->first, !IsPassiveSpell(itr2->first));
-                itr2 = GetSpellMap().begin();
-                continue;
-            }
-            else
-                ++itr2;
         }
     }
 

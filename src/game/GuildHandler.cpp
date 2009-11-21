@@ -1133,7 +1133,7 @@ void WorldSession::HandleGuildBankSwapItems( WorldPacket & recv_data )
     // Player <-> Bank
 
     // allow work with inventory only
-    if(!Player::IsInventoryPos(PlayerBag,PlayerSlot) && !(PlayerBag == NULL_BAG && PlayerSlot == NULL_SLOT) )
+    if(!Player::IsInventoryPos(PlayerBag,PlayerSlot) && !(PlayerBag == NULL_BAG && PlayerSlot == NULL_SLOT))
     {
         _player->SendEquipError( EQUIP_ERR_NONE, NULL, NULL );
         return;
