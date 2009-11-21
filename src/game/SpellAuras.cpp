@@ -3562,10 +3562,7 @@ void AuraEffect::HandleAuraModShapeshift(bool apply, bool Real, bool changeAmoun
                         case FORM_BEAR:
                         case FORM_DIREBEAR:
                         if (urand(0,99) < FurorChance)
-                        {
-                            int32 basePoints = 100; // Not sure if 100 is correct basePoints, maybe it should be 10?
-                            m_target->CastCustomSpell(m_target, 17057, &basePoints, NULL, NULL, true, NULL, this);
-                        }
+                            m_target->CastSpell(m_target, 17057, true);
                         default:
                         {
                             uint32 newEnergy = std::min(m_target->GetPower(POWER_ENERGY), FurorChance);
