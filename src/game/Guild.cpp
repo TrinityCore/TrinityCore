@@ -1995,7 +1995,7 @@ void Guild::SwapItems(Player * pl, uint8 BankTab, uint8 BankTabSlot, uint8 BankT
     {
         sLog.outCrash("Guild::SwapItems: Player %s(GUIDLow: %u) tried to move item %u from tab %u slot %u to tab %u slot %u, but item %u has a stack of zero!",
             pl->GetName(), pl->GetGUIDLow(), pItemSrc->GetEntry(), BankTab, BankTabSlot, BankTabDst, BankTabSlotDst, pItemSrc->GetEntry());
-        //return; // Commented out for now, uncomment when it's verified that this causes a crash!!
+        //return; // Commented out for now, uncomment when it's verified that this causes a crash!
     }
 
     if (SplitedAmount >= pItemSrc->GetCount())
