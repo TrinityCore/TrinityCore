@@ -3475,7 +3475,7 @@ void Player::removeSpell(uint32 spell_id, bool disabled, bool learn_low_rank)
                 uint32 skill_value = GetPureSkillValue(prevSkill->skill);
                 uint32 skill_max_value = GetPureMaxSkillValue(prevSkill->skill);
 
-                if (skill_value >  prevSkill->value)
+                if (skill_value > prevSkill->value)
                     skill_value = prevSkill->value;
 
                 uint32 new_skill_max_value = prevSkill->maxvalue == 0 ? GetMaxSkillValueForLevel() : prevSkill->maxvalue;
@@ -3791,10 +3791,10 @@ bool Player::resetTalents(bool no_cost)
         }
         */
 
-        PlayerTalentMap::iterator plrTalent = m_talents[m_activeSpec]->find(talentInfo->TalentID);
-        if (plrTalent != m_talents[m_activeSpec]->end() || m_talents[m_activeSpec]->empty())
+        for (int8 rank = MAX_TALENT_RANK-1; rank >= 0; --rank)
         {
-            for (int8 rank = MAX_TALENT_RANK-1; rank >= 0; --rank)
+            PlayerTalentMap::iterator plrTalent = m_talents[m_activeSpec]->find(talentInfo->RankID[rank]);
+            if (plrTalent != m_talents[m_activeSpec]->end() || m_talents[m_activeSpec]->empty())
             {
                 for (PlayerSpellMap::iterator itr = GetSpellMap().begin(); itr != GetSpellMap().end();)
                 {
@@ -3804,15 +3804,19 @@ bool Player::resetTalents(bool no_cost)
                     // unlearn if first rank is talent or learned by talent
                     if (itrFirstId == talentInfo->RankID[rank])
                     {
-                        itr->second->disabled = false;
+                        itr->second->state = PLAYERSPELL_NEW;
                         removeSpell(itr->first, false, false);
+                        itr->second->disabled = true;
+                        itr->second->state = PLAYERSPELL_REMOVED;
                         itr = GetSpellMap().begin();
                         continue;
                     }
                     else if (spellmgr.IsSpellLearnToSpell(talentInfo->RankID[rank], itrFirstId))
                     {
-                        itr->second->disabled = false;
+                        itr->second->state = PLAYERSPELL_NEW;
                         removeSpell(itr->first, false, true);
+                        itr->second->disabled = true;
+                        itr->second->state = PLAYERSPELL_REMOVED;
                         itr = GetSpellMap().begin();
                         continue;
                     }
@@ -22014,10 +22018,10 @@ void Player::ActivateSpec(uint8 spec)
             if (talentInfo->TalentTab != talentTabId)
                 continue;
 
-            PlayerTalentMap::iterator plrTalent = m_talents[m_activeSpec]->find(talentInfo->TalentID);
-            if (plrTalent != m_talents[m_activeSpec]->end())
+            for (int8 rank = MAX_TALENT_RANK-1; rank >= 0; --rank)
             {
-                for (int8 rank = MAX_TALENT_RANK-1; rank >= 0; --rank)
+                PlayerTalentMap::iterator plrTalent = m_talents[m_activeSpec]->find(talentInfo->RankID[rank]);
+                if (plrTalent != m_talents[m_activeSpec]->end() || m_talents[m_activeSpec]->empty())
                 {
                     for (PlayerSpellMap::iterator itr = GetSpellMap().begin(); itr != GetSpellMap().end();)
                     {
@@ -22027,15 +22031,18 @@ void Player::ActivateSpec(uint8 spec)
                         // unlearn if first rank is talent or learned by talent
                         if (itrFirstId == talentInfo->RankID[rank])
                         {
-                            itr->second->disabled = false;
+                            itr->second->state = PLAYERSPELL_NEW;
                             removeSpell(itr->first, false, false);
-                            itr = GetSpellMap().begin();
+                            itr->second->disabled = true;
+                            itr->second->state = PLAYERSPELL_REMOVED;
                             continue;
                         }
                         else if (spellmgr.IsSpellLearnToSpell(talentInfo->RankID[rank], itrFirstId))
                         {
-                            itr->second->disabled = false;
+                            itr->second->state = PLAYERSPELL_NEW;
                             removeSpell(itr->first, false, true);
+                            itr->second->disabled = true;
+                            itr->second->state = PLAYERSPELL_REMOVED;
                             itr = GetSpellMap().begin();
                             continue;
                         }
