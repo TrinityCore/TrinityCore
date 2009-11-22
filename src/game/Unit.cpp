@@ -6281,7 +6281,6 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                 target = this;
                 basepoints0 = triggerAmount;
                 basepoints1 = triggerAmount;
-                // 
                 break;
             }
             // Sacred Shield
