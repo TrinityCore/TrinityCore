@@ -3801,9 +3801,9 @@ bool Player::resetTalents(bool no_cost)
                 continue;
             removeSpell(talentInfo->RankID[rank], true);
             if (const SpellEntry *_spellEntry = sSpellStore.LookupEntry(talentInfo->RankID[rank]))
-                for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)                // search through the SpellEntry for valid trigger spells
-                    if (_spellEntry->EffectMiscValueB[i] > 0 && _spellEntry->Effect[i] == SPELL_EFFECT_LEARN_SPELL)
-                        removeSpell(_spellEntry->EffectMiscValueB[i], true); // and remove any spells that the talent teaches
+                for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)                  // search through the SpellEntry for valid trigger spells
+                    if (_spellEntry->EffectTriggerSpell[i] > 0 && _spellEntry->Effect[i] == SPELL_EFFECT_LEARN_SPELL)
+                        removeSpell(_spellEntry->EffectTriggerSpell[i], true); // and remove any spells that the talent teaches
             // if this talent rank can be found in the PlayerTalentMap, mark the talent as removed so it gets deleted
             PlayerTalentMap::iterator plrTalent = m_talents[m_activeSpec]->find(talentInfo->RankID[rank]);
             if (plrTalent != m_talents[m_activeSpec]->end())
@@ -22010,9 +22010,9 @@ void Player::ActivateSpec(uint8 spec)
                 continue;
             removeSpell(talentInfo->RankID[rank], true); // removes the talent, and all dependant, learned, and chained spells..
             if (const SpellEntry *_spellEntry = sSpellStore.LookupEntry(talentInfo->RankID[rank]))
-                for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)                // search through the SpellEntry for valid trigger spells
-                    if (_spellEntry->EffectMiscValueB[i] > 0 && _spellEntry->Effect[i] == SPELL_EFFECT_LEARN_SPELL)
-                        removeSpell(_spellEntry->EffectMiscValueB[i], true); // and remove any spells that the talent teaches
+                for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)                  // search through the SpellEntry for valid trigger spells
+                    if (_spellEntry->EffectTriggerSpell[i] > 0 && _spellEntry->Effect[i] == SPELL_EFFECT_LEARN_SPELL)
+                        removeSpell(_spellEntry->EffectTriggerSpell[i], true); // and remove any spells that the talent teaches
             // if this talent rank can be found in the PlayerTalentMap, mark the talent as removed so it gets deleted
             //PlayerTalentMap::iterator plrTalent = m_talents[m_activeSpec]->find(talentInfo->RankID[rank]);
             //if (plrTalent != m_talents[m_activeSpec]->end())
