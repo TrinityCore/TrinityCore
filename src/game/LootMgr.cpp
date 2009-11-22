@@ -1149,11 +1149,11 @@ void LoadLootTemplates_Creature()
     // remove real entries and check existence loot
     for (uint32 i = 1; i < sCreatureStorage.MaxEntry; ++i)
     {
-        if(CreatureInfo const* cInfo = sCreatureStorage.LookupEntry<CreatureInfo>(i))
+        if (CreatureInfo const* cInfo = sCreatureStorage.LookupEntry<CreatureInfo>(i))
         {
-            if(uint32 lootid = cInfo->lootid)
+            if (uint32 lootid = cInfo->lootid)
             {
-                if(!ids_set.count(lootid))
+                if (!ids_set.count(lootid))
                     LootTemplates_Creature.ReportNotExistedId(lootid);
                 else
                     ids_setUsed.insert(lootid);
@@ -1240,8 +1240,8 @@ void LoadLootTemplates_Item()
 
     // remove real entries and check existence loot
     for (uint32 i = 1; i < sItemStorage.MaxEntry; ++i)
-        if(ItemPrototype const *proto = sItemStorage.LookupEntry<ItemPrototype>(i))
-            if(ids_set.count(proto->ItemId))
+        if (ItemPrototype const *proto = sItemStorage.LookupEntry<ItemPrototype>(i))
+            if (ids_set.count(proto->ItemId))
                 ids_set.erase(proto->ItemId);
 
     // output error for any still listed (not referenced from appropriate table) ids
@@ -1257,13 +1257,13 @@ void LoadLootTemplates_Milling()
     for (uint32 i = 1; i < sItemStorage.MaxEntry; ++i)
     {
         ItemPrototype const *proto = sItemStorage.LookupEntry<ItemPrototype>(i);
-        if(!proto)
+        if (!proto)
             continue;
 
-        if((proto->BagFamily & BAG_FAMILY_MASK_HERBS) == 0)
+        if ((proto->BagFamily & BAG_FAMILY_MASK_HERBS) == 0)
             continue;
 
-        if(ids_set.count(proto->ItemId))
+        if (ids_set.count(proto->ItemId))
             ids_set.erase(proto->ItemId);
     }
 
