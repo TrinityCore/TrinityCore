@@ -107,7 +107,9 @@ struct TRINITY_DLL_DECL boss_razorscaleAI : public BossAI
 
     void UpdateAI(const uint32 diff)
     {
-        if (!UpdateVictim())
+        Unit *victim = me->SelectVictim();
+
+        if (victim == NULL)
             return;
 
         if(m_creature->GetPositionY() > -60 || m_creature->GetPositionX() < 450) // Not Blizzlike, anti-exploit to prevent players from pulling bosses to vehicles.
@@ -203,6 +205,8 @@ struct TRINITY_DLL_DECL boss_razorscaleAI : public BossAI
                 } else FlameBuffetTimer -= diff;
             }
 
+            if (me->getVictim() != victim && (Phase != 3 || FlameBuffetTimer <= 15000)) // Not sure about this.
+                AttackStart(victim);
             DoMeleeAttackIfReady();
         }
         else if (Phase == 1) //Flying Phase
@@ -270,7 +274,6 @@ struct TRINITY_DLL_DECL boss_razorscaleAI : public BossAI
 
         m_creature->SetFlying(IsFlying);
         m_creature->SendMovementFlagUpdate();
-        m_creature->SetReactState(IsFlying ? REACT_PASSIVE : REACT_AGGRESSIVE);
         m_creature->SetSpeed(MOVE_WALK, IsFlying ? 7.0f : 2.5f, IsFlying);
 
         if (Phase == 1) // Flying Phase
