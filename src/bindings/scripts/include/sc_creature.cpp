@@ -637,50 +637,50 @@ void BossAI::TeleportCheaters()
     float x, y, z;
     me->GetPosition(x, y, z);
     std::list<HostilReference*> &m_threatlist = me->getThreatManager().getThreatList();
-    for (std::list<HostilReference*>::iterator itr = m_threatlist.begin(); itr!= m_threatlist.end(); ++itr)
+    for (std::list<HostilReference*>::iterator itr = m_threatlist.begin(); itr != m_threatlist.end(); ++itr)
         if((*itr)->getTarget()->GetTypeId() == TYPEID_PLAYER && !CheckBoundary((*itr)->getTarget()))
             (*itr)->getTarget()->NearTeleportTo(x, y, z, 0);
 }
 
 bool BossAI::CheckBoundary(Unit *who)
 {
-    if(!boundary || !who)
+    if (!boundary || !who)
         return true;
 
     for (BossBoundaryMap::const_iterator itr = boundary->begin(); itr != boundary->end(); ++itr)
     {
-        switch(itr->first)
+        switch (itr->first)
         {
             case BOUNDARY_N:
-                if(me->GetPositionX() > itr->second)
+                if (me->GetPositionX() > itr->second)
                     return false;
                 break;
             case BOUNDARY_S:
-                if(me->GetPositionX() < itr->second)
+                if (me->GetPositionX() < itr->second)
                     return false;
                 break;
             case BOUNDARY_E:
-                if(me->GetPositionY() < itr->second)
+                if (me->GetPositionY() < itr->second)
                     return false;
                 break;
             case BOUNDARY_W:
-                if(me->GetPositionY() > itr->second)
+                if (me->GetPositionY() > itr->second)
                     return false;
                 break;
             case BOUNDARY_NW:
-                if(me->GetPositionX() + me->GetPositionY() > itr->second)
+                if (me->GetPositionX() + me->GetPositionY() > itr->second)
                     return false;
                 break;
             case BOUNDARY_SE:
-                if(me->GetPositionX() + me->GetPositionY() < itr->second)
+                if (me->GetPositionX() + me->GetPositionY() < itr->second)
                     return false;
                 break;
             case BOUNDARY_NE:
-                if(me->GetPositionX() - me->GetPositionY() > itr->second)
+                if (me->GetPositionX() - me->GetPositionY() > itr->second)
                     return false;
                 break;
             case BOUNDARY_SW:
-                if(me->GetPositionX() - me->GetPositionY() < itr->second)
+                if (me->GetPositionX() - me->GetPositionY() < itr->second)
                     return false;
                 break;
         }
@@ -752,76 +752,20 @@ void LoadOverridenDBCData()
     }
 }
 
-//return closest GO in grid, with range from pSource
-GameObject* GetClosestGameObjectWithEntry(WorldObject* pSource, uint32 uiEntry, float fMaxSearchRange)
+// SD2 grid searchers.
+Creature *GetClosestCreatureWithEntry(WorldObject *pSource, uint32 uiEntry, float fMaxSearchRange, bool bAlive)
 {
-    GameObject* pGo = NULL;
-
-    CellPair pair(MaNGOS::ComputeCellPair(pSource->GetPositionX(), pSource->GetPositionY()));
-    Cell cell(pair);
-    cell.data.Part.reserved = ALL_DISTRICT;
-    cell.SetNoCreate();
-
-    MaNGOS::NearestGameObjectEntryInObjectRangeCheck go_check(*pSource, uiEntry, fMaxSearchRange);
-    MaNGOS::GameObjectLastSearcher<MaNGOS::NearestGameObjectEntryInObjectRangeCheck> searcher(pSource, pGo, go_check);
-
-    TypeContainerVisitor<MaNGOS::GameObjectLastSearcher<MaNGOS::NearestGameObjectEntryInObjectRangeCheck>, GridTypeMapContainer> go_searcher(searcher);
-
-    CellLock<GridReadGuard> cell_lock(cell, pair);
-    cell_lock->Visit(cell_lock, go_searcher, *pSource->GetMap(), *pSource, fMaxSearchRange);
-
-    return pGo;
+    return pSource->FindNearestCreature(uiEntry, fMaxSearchRange, bAlive);
 }
-
-//return closest creature alive in grid, with range from pSource
-Creature* GetClosestCreatureWithEntry(WorldObject* pSource, uint32 uiEntry, float fMaxSearchRange)
+GameObject *GetClosestGameObjectWithEntry(WorldObject *pSource, uint32 uiEntry, float fMaxSearchRange)
 {
-    Creature* pCreature = NULL;
-
-    CellPair pair(MaNGOS::ComputeCellPair(pSource->GetPositionX(), pSource->GetPositionY()));
-    Cell cell(pair);
-    cell.data.Part.reserved = ALL_DISTRICT;
-    cell.SetNoCreate();
-
-    MaNGOS::NearestCreatureEntryWithLiveStateInObjectRangeCheck creature_check(*pSource, uiEntry, true, fMaxSearchRange);
-    MaNGOS::CreatureLastSearcher<MaNGOS::NearestCreatureEntryWithLiveStateInObjectRangeCheck> searcher(pSource, pCreature, creature_check);
-
-    TypeContainerVisitor<MaNGOS::CreatureLastSearcher<MaNGOS::NearestCreatureEntryWithLiveStateInObjectRangeCheck>, GridTypeMapContainer> creature_searcher(searcher);
-
-    CellLock<GridReadGuard> cell_lock(cell, pair);
-    cell_lock->Visit(cell_lock, creature_searcher,*(pSource->GetMap()), *pSource, fMaxSearchRange);
-
-    return pCreature;
+    return pSource->FindNearestGameObject(uiEntry, fMaxSearchRange);
 }
-
-/*
-void GetGameObjectListWithEntryInGrid(std::list<GameObject*>& lList , WorldObject* pSource, uint32 uiEntry, float fMaxSearchRange)
+void GetCreatureListWithEntryInGrid(std::list<Creature*>& lList, WorldObject *pSource, uint32 uiEntry, float fMaxSearchRange)
 {
-    CellPair pair(MaNGOS::ComputeCellPair(pSource->GetPositionX(), pSource->GetPositionY()));
-    Cell cell(pair);
-    cell.data.Part.reserved = ALL_DISTRICT;
-    cell.SetNoCreate();
-
-    AllGameObjectsWithEntryInRange check(pSource, uiEntry, fMaxSearchRange);
-    MaNGOS::GameObjectListSearcher<AllGameObjectsWithEntryInRange> searcher(pSource, lList, check);
-    TypeContainerVisitor<MaNGOS::GameObjectListSearcher<AllGameObjectsWithEntryInRange>, GridTypeMapContainer> visitor(searcher);
-
-    CellLock<GridReadGuard> cell_lock(cell, pair);
-    cell_lock->Visit(cell_lock, visitor, *(pSource->GetMap()), *pSource, fMaxSearchRange);
+    return pSource->GetCreatureListWithEntryInGrid(lList, uiEntry, fMaxSearchRange);
 }
-
-void GetCreatureListWithEntryInGrid(std::list<Creature*>& lList, WorldObject* pSource, uint32 uiEntry, float fMaxSearchRange)
+void GetGameObjectListWithEntryInGrid(std::list<GameObject*>& lList, WorldObject *pSource, uint32 uiEntry, float fMaxSearchRange)
 {
-    CellPair pair(MaNGOS::ComputeCellPair(pSource->GetPositionX(), pSource->GetPositionY()));
-    Cell cell(pair);
-    cell.data.Part.reserved = ALL_DISTRICT;
-    cell.SetNoCreate();
-
-    AllCreaturesOfEntryInRange check(pSource, uiEntry, fMaxSearchRange);
-    MaNGOS::CreatureListSearcher<AllCreaturesOfEntryInRange> searcher(pSource, lList, check);
-    TypeContainerVisitor<MaNGOS::CreatureListSearcher<AllCreaturesOfEntryInRange>, GridTypeMapContainer> visitor(searcher);
-
-    CellLock<GridReadGuard> cell_lock(cell, pair);
-    cell_lock->Visit(cell_lock, visitor, *(pSource->GetMap()), *pSource, fMaxSearchRange);
+    return pSource->GetGameObjectListWithEntryInGrid(lList, uiEntry, fMaxSearchRange);
 }
-*/

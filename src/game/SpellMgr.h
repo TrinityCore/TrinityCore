@@ -810,7 +810,7 @@ class SpellMgr
         uint32 GetSpellElixirMask(uint32 spellid) const
         {
             SpellElixirMap::const_iterator itr = mSpellElixirs.find(spellid);
-            if(itr==mSpellElixirs.end())
+            if (itr == mSpellElixirs.end())
                 return 0x0;
 
             return itr->second;
@@ -819,13 +819,13 @@ class SpellMgr
         SpellSpecific GetSpellElixirSpecific(uint32 spellid) const
         {
             uint32 mask = GetSpellElixirMask(spellid);
-            if((mask & ELIXIR_FLASK_MASK)==ELIXIR_FLASK_MASK)
+            if ((mask & ELIXIR_FLASK_MASK) == ELIXIR_FLASK_MASK)
                 return SPELL_FLASK_ELIXIR;
-            else if(mask & ELIXIR_BATTLE_MASK)
+            else if (mask & ELIXIR_BATTLE_MASK)
                 return SPELL_BATTLE_ELIXIR;
-            else if(mask & ELIXIR_GUARDIAN_MASK)
+            else if (mask & ELIXIR_GUARDIAN_MASK)
                 return SPELL_GUARDIAN_ELIXIR;
-            else if(mask & ELIXIR_WELL_FED)
+            else if (mask & ELIXIR_WELL_FED)
                 return SPELL_WELL_FED;
             else
                 return SPELL_NORMAL;
@@ -834,7 +834,7 @@ class SpellMgr
         uint16 GetSpellThreat(uint32 spellid) const
         {
             SpellThreatMap::const_iterator itr = mSpellThreatMap.find(spellid);
-            if(itr==mSpellThreatMap.end())
+            if (itr == mSpellThreatMap.end())
                 return 0;
 
             return itr->second;
@@ -844,7 +844,7 @@ class SpellMgr
         SpellProcEventEntry const* GetSpellProcEvent(uint32 spellId) const
         {
             SpellProcEventMap::const_iterator itr = mSpellProcEventMap.find(spellId);
-            if( itr != mSpellProcEventMap.end( ) )
+            if (itr != mSpellProcEventMap.end())
                 return &itr->second;
             return NULL;
         }
@@ -854,7 +854,7 @@ class SpellMgr
         SpellEnchantProcEntry const* GetSpellEnchantProcEvent(uint32 enchId) const
         {
             SpellEnchantProcEventMap::const_iterator itr = mSpellEnchantProcEventMap.find(enchId);
-            if( itr != mSpellEnchantProcEventMap.end( ) )
+            if (itr != mSpellEnchantProcEventMap.end())
                 return &itr->second;
             return NULL;
         }
@@ -864,13 +864,13 @@ class SpellMgr
         {
             // Lookup data
             SpellBonusMap::const_iterator itr = mSpellBonusMap.find(spellId);
-            if( itr != mSpellBonusMap.end( ) )
+            if (itr != mSpellBonusMap.end())
                 return &itr->second;
             // Not found, try lookup for 1 spell rank if exist
             if (uint32 rank_1 = GetFirstSpellInChain(spellId))
             {
                 SpellBonusMap::const_iterator itr2 = mSpellBonusMap.find(rank_1);
-                if( itr2 != mSpellBonusMap.end( ) )
+                if (itr2 != mSpellBonusMap.end())
                     return &itr2->second;
             }
             return NULL;
@@ -880,7 +880,7 @@ class SpellMgr
         SpellTargetPosition const* GetSpellTargetPosition(uint32 spell_id) const
         {
             SpellTargetPositionMap::const_iterator itr = mSpellTargetPositions.find( spell_id );
-            if( itr != mSpellTargetPositions.end( ) )
+            if (itr != mSpellTargetPositions.end())
                 return &itr->second;
             return NULL;
         }
@@ -889,7 +889,7 @@ class SpellMgr
         SpellChainNode const* GetSpellChainNode(uint32 spell_id) const
         {
             SpellChainMap::const_iterator itr = mSpellChains.find(spell_id);
-            if(itr == mSpellChains.end())
+            if (itr == mSpellChains.end())
                 return NULL;
 
             return &itr->second;
@@ -1009,7 +1009,7 @@ class SpellMgr
         {
             SpellLearnSpellMapBounds bounds = GetSpellLearnSpellMapBounds(spell_id1);
             for (SpellLearnSpellMap::const_iterator i = bounds.first; i != bounds.second; ++i)
-                if (i->second.spell==spell_id2)
+                if (i->second.spell == spell_id2)
                     return true;
             return false;
         }

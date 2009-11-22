@@ -221,13 +221,11 @@ struct TRINITY_DLL_DECL BossAI : public ScriptedAI
         void TeleportCheaters();
 };
 
-// SD2's grid searchers
-
-//return closest gameobject in grid, with range from pSource
-GameObject* GetClosestGameObjectWithEntry(WorldObject *pSource, uint32 uiEntry, float fMaxSearchRange);
-
-//return closest creature alive in grid, with range from pSource
-Creature* GetClosestCreatureWithEntry(WorldObject *pSource, uint32 Entry, float fMaxSearchRange);
+// SD2 grid searchers.
+Creature *GetClosestCreatureWithEntry(WorldObject *pSource, uint32 uiEntry, float fMaxSearchRange, bool bAlive = true);
+GameObject *GetClosestGameObjectWithEntry(WorldObject *pSource, uint32 uiEntry, float fMaxSearchRange);
+void GetCreatureListWithEntryInGrid(std::list<Creature*>& lList, WorldObject* pSource, uint32 uiEntry, float fMaxSearchRange);
+void GetGameObjectListWithEntryInGrid(std::list<GameObject*>& lList, WorldObject* pSource, uint32 uiEntry, float fMaxSearchRange);
 
 #endif
 
