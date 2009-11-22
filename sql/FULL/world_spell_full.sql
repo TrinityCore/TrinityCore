@@ -1784,7 +1784,7 @@ INSERT INTO `spell_bonus_data` (`entry`, `direct_bonus`, `dot_bonus`, `ap_bonus`
 (47666, 0.229, -1, -1, -1, 'Priest - Penance Hurt (Rank 1)'),
 (52998, 0.229, -1, -1, -1, 'Priest - Penance Hurt (Rank 2)'),
 (52999, 0.229, -1, -1, -1, 'Priest - Penance Hurt (Rank 3)'),
-(53000, 0.229, -1, -1, -1, 'Priest - Penance Hurt (Rank 4)');
+(53000, 0.229, -1, -1, -1, 'Priest - Penance Hurt (Rank 4)'),
 (17, 0.8068, -1, -1, -1, 'Priest - Power Word: Shield'),
 (596, 0.8068, -1, -1, -1, 'Priest - Prayer of Healing'),
 (33110, 0.8068, -1, -1, -1, 'Priest - Prayer of Mending Heal Proc'),
