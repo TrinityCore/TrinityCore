@@ -178,7 +178,7 @@ struct TRINITY_DLL_DECL instance_culling_of_stratholme : public ScriptedInstance
         OUT_LOAD_INST_DATA(in);
 
         char dataHead1, dataHead2;
-        uint16 data0,data1,data2, data3, data4;
+        uint16 data0, data1, data2, data3, data4;
 
         std::istringstream loadStream(in);
         loadStream >> dataHead1 >> dataHead2 >> data0 >> data1 >> data2 >> data3 >> data4;
