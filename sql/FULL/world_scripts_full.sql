@@ -877,6 +877,7 @@ UPDATE `creature_template` SET `ScriptName`='npc_shenthul' WHERE `entry`=3401;
 UPDATE `creature_template` SET `ScriptName`='npc_thrall_warchief' WHERE `entry`=4949;
 
 /* RAGEFIRE CHASM */
+UPDATE `gameobject_template` SET `ScriptName`='go_blood_filled_orb' WHERE `entry`=182024;
 
 /* RAZORFEN DOWNS */
 UPDATE `creature_template` SET `ScriptName`='boss_amnennar_the_coldbringer' WHERE `entry`=7358;
