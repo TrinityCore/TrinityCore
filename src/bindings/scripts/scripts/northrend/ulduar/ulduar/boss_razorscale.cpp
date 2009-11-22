@@ -107,8 +107,16 @@ struct TRINITY_DLL_DECL boss_razorscaleAI : public BossAI
 
     void UpdateAI(const uint32 diff)
     {
-        Unit *victim = me->SelectVictim();
+        if (!me->isInCombat())
+            return;
 
+        if (me->getThreatManager().isThreatListEmpty())
+        {
+            EnterEvadeMode();
+            return;
+        }
+
+        Unit *victim = me->SelectVictim();
         if (victim == NULL)
             return;
 
@@ -255,13 +263,15 @@ struct TRINITY_DLL_DECL boss_razorscaleAI : public BossAI
         uint8 random = urand(1,4);
         for (uint8 i = 0; i < random; ++i)
         {
-            Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 200, true);
-            float x = std::max(500.0f, std::min(650.0f, pTarget->GetPositionX() + irand(-20,20)));   // Safe range is between 500 and 650
-            float y = std::max(-235.0f, std::min(-145.0f, pTarget->GetPositionY() + irand(-20,20))); // Safe range is between -235 and -145
-            float z = m_creature->GetBaseMap()->GetHeight(x, y, MAX_HEIGHT);                         // Ground level
-            // TODO: Spawn drillers, then spawn adds 5 seconds later
-            if (Creature *pAdd = m_creature->SummonCreature(NPC_DARK_RUNE_SENTINEL, x, y, z, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 30000))
-                pAdd->AI()->AttackStart(pTarget);
+            if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 200, true))
+            {
+                float x = std::max(500.0f, std::min(650.0f, pTarget->GetPositionX() + irand(-20,20)));   // Safe range is between 500 and 650
+                float y = std::max(-235.0f, std::min(-145.0f, pTarget->GetPositionY() + irand(-20,20))); // Safe range is between -235 and -145
+                float z = m_creature->GetBaseMap()->GetHeight(x, y, MAX_HEIGHT);                         // Ground level
+                // TODO: Spawn drillers, then spawn adds 5 seconds later
+                if (Creature *pAdd = m_creature->SummonCreature(NPC_DARK_RUNE_SENTINEL, x, y, z, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 30000))
+                    pAdd->AI()->AttackStart(pTarget);
+            }
         }
         SummonAddsTimer = 45000;
     }
