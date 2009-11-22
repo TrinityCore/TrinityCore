@@ -148,7 +148,7 @@ bool ItemUse_item_flying_machine(Player* pPlayer, Item* pItem, SpellCastTargets 
 # item_gor_dreks_ointment
 #####*/
 
-bool ItemUse_item_gor_dreks_ointment(Player* pPlayer, Item* pItem, SpellCastTargets const& targets)
+bool ItemUse_item_gor_dreks_ointment(Player *pPlayer, Item *pItem, SpellCastTargets const& targets)
 {
     if (targets.getUnitTarget() && targets.getUnitTarget()->GetTypeId() == TYPEID_UNIT &&
         targets.getUnitTarget()->GetEntry() == 20748 && !targets.getUnitTarget()->HasAura(32578))
@@ -162,7 +162,7 @@ bool ItemUse_item_gor_dreks_ointment(Player* pPlayer, Item* pItem, SpellCastTarg
 # item_incendiary_explosives
 #####*/
 
-bool ItemUse_item_incendiary_explosives(Player* pPlayer, Item* pItem, SpellCastTargets const& targets)
+bool ItemUse_item_incendiary_explosives(Player *pPlayer, Item *pItem, SpellCastTargets const &targets)
 {
     if (pPlayer->FindNearestCreature(26248,15) || pPlayer->FindNearestCreature(26249,15))
         return false;
@@ -177,7 +177,7 @@ bool ItemUse_item_incendiary_explosives(Player* pPlayer, Item* pItem, SpellCastT
 # item_mysterious_egg
 #####*/
 
-bool ItemExpire_item_mysterious_egg(Player* pPlayer, ItemPrototype const * pItemProto)
+bool ItemExpire_item_mysterious_egg(Player *pPlayer, ItemPrototype const *pItemProto)
 {
     ItemPosCountVec dest;
     uint8 msg = pPlayer->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, 39883, 1); // Cracked Egg
@@ -191,7 +191,7 @@ bool ItemExpire_item_mysterious_egg(Player* pPlayer, ItemPrototype const * pItem
 # item_disgusting_jar
 #####*/
 
-bool ItemExpire_item_disgusting_jar(Player* pPlayer, ItemPrototype const * pItemProto)
+bool ItemExpire_item_disgusting_jar(Player *pPlayer, ItemPrototype const *pItemProto)
 {
     ItemPosCountVec dest;
     uint8 msg = pPlayer->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, 44718, 1); // Ripe Disgusting Jar
@@ -226,8 +226,7 @@ bool ItemUse_item_harvesters_gift(Player* pPlayer, Item* pItem, SpellCastTargets
         else
             return false;
     }
-    else
-        return true;
+    return true;
 }
 
 /*#####
@@ -254,7 +253,7 @@ enum ePileFakeFur
     GO_HIGH_QUALITY_FUR                                    = 187983,
     NPC_NESINGWARY_TRAPPER                                 = 25835
 };
-bool ItemUse_item_pile_fake_furs(Player* pPlayer, Item* _Item, SpellCastTargets const& targets)
+bool ItemUse_item_pile_fake_furs(Player *pPlayer, Item *pItem, SpellCastTargets const &targets)
 {
     GameObject* pGo;
     if ((pGo = pPlayer->FindNearestGameObject(GO_CARIBOU_TRAP_1, 5.0f)) ||
@@ -273,7 +272,7 @@ bool ItemUse_item_pile_fake_furs(Player* pPlayer, Item* _Item, SpellCastTargets 
         (pGo = pPlayer->FindNearestGameObject(GO_CARIBOU_TRAP_14, 5.0f)) ||
         (pGo = pPlayer->FindNearestGameObject(GO_CARIBOU_TRAP_15, 5.0f)))
     {
-        if (pGo->FindNearestCreature(NPC_NESINGWARY_TRAPPER,10.0f,true) || pGo->FindNearestCreature(NPC_NESINGWARY_TRAPPER,10.0f,false) || pGo->FindNearestGameObject(GO_HIGH_QUALITY_FUR,2.0f))
+        if (pGo->FindNearestCreature(NPC_NESINGWARY_TRAPPER, 10.0f, true) || pGo->FindNearestCreature(NPC_NESINGWARY_TRAPPER, 10.0f, false) || pGo->FindNearestGameObject(GO_HIGH_QUALITY_FUR, 2.0f))
             return true;
         float x, y, z;
         pGo->GetClosePoint(x, y, z, pGo->GetObjectSize() / 3, 7.0f);
@@ -284,8 +283,7 @@ bool ItemUse_item_pile_fake_furs(Player* pPlayer, Item* _Item, SpellCastTargets 
             summon->SetReactState(REACT_PASSIVE);
             summon->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
         }
-    } else
-        return true;
+    }
 }
 
 void AddSC_item_scripts()
