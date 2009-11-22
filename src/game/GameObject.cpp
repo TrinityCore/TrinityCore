@@ -787,23 +787,23 @@ void GameObject::Respawn()
     }
 }
 
-bool GameObject::ActivateToQuest( Player *pTarget)const
+bool GameObject::ActivateToQuest(Player *pTarget) const
 {
-    if(!objmgr.IsGameObjectForQuests(GetEntry()))
+    if (!objmgr.IsGameObjectForQuests(GetEntry()))
         return false;
 
-    switch(GetGoType())
+    switch (GetGoType())
     {
         // scan GO chest with loot including quest items
         case GAMEOBJECT_TYPE_CHEST:
         {
-            if(LootTemplates_Gameobject.HaveQuestLootForPlayer(GetGOInfo()->GetLootId(), pTarget))
+            if (LootTemplates_Gameobject.HaveQuestLootForPlayer(GetGOInfo()->GetLootId(), pTarget))
             {
                 //TODO: fix this hack
                 //look for battlegroundAV for some objects which are only activated after mine gots captured by own team
-                if(GetEntry() == BG_AV_OBJECTID_MINE_N || GetEntry() == BG_AV_OBJECTID_MINE_S)
-                    if(BattleGround *bg = pTarget->GetBattleGround())
-                        if(bg->GetTypeID() == BATTLEGROUND_AV && !(((BattleGroundAV*)bg)->PlayerCanDoMineQuest(GetEntry(),pTarget->GetTeam())))
+                if (GetEntry() == BG_AV_OBJECTID_MINE_N || GetEntry() == BG_AV_OBJECTID_MINE_S)
+                    if (BattleGround *bg = pTarget->GetBattleGround())
+                        if (bg->GetTypeID() == BATTLEGROUND_AV && !(((BattleGroundAV*)bg)->PlayerCanDoMineQuest(GetEntry(),pTarget->GetTeam())))
                             return false;
                 return true;
             }
@@ -811,7 +811,7 @@ bool GameObject::ActivateToQuest( Player *pTarget)const
         }
         case GAMEOBJECT_TYPE_GOOBER:
         {
-            if(pTarget->GetQuestStatus(GetGOInfo()->goober.questId) == QUEST_STATUS_INCOMPLETE)
+            if (pTarget->GetQuestStatus(GetGOInfo()->goober.questId) == QUEST_STATUS_INCOMPLETE)
                 return true;
             break;
         }
@@ -822,10 +822,10 @@ bool GameObject::ActivateToQuest( Player *pTarget)const
     return false;
 }
 
-void GameObject::TriggeringLinkedGameObject( uint32 trapEntry, Unit* target)
+void GameObject::TriggeringLinkedGameObject(uint32 trapEntry, Unit* target)
 {
     GameObjectInfo const* trapInfo = sGOStorage.LookupEntry<GameObjectInfo>(trapEntry);
-    if(!trapInfo || trapInfo->type!=GAMEOBJECT_TYPE_TRAP)
+    if (!trapInfo || trapInfo->type != GAMEOBJECT_TYPE_TRAP)
         return;
 
     SpellEntry const* trapSpell = sSpellStore.LookupEntry(trapInfo->trap.spellId);
@@ -839,8 +839,7 @@ void GameObject::TriggeringLinkedGameObject( uint32 trapEntry, Unit* target)
         range = GetSpellMaxRangeForHostile(srentry);
     else
     {
-        Unit * owner=GetOwner();
-        if (owner)
+        if (Unit *owner = GetOwner())
             range = owner->GetSpellMaxRangeForTarget(target, srentry);
         else
             //if no owner assume that object is hostile to target

@@ -308,8 +308,8 @@ struct TRINITY_DLL_DECL instance_ulduar : public ScriptedInstance
         OUT_LOAD_INST_DATA(strIn);
 
         char dataHead1, dataHead2;
-        uint32 data0,data1,data2,data3,data4,data5,data6,
-            data7,data8,data9,data10,data11,data12,data13;
+        uint32 data0, data1, data2, data3, data4, data5, data6,
+            data7, data8, data9, data10, data11, data12, data13;
 
         std::istringstream loadStream(strIn);
         loadStream >> dataHead1 >> dataHead2 >> data0 >> data1 >> data2 >> data3 >> data4 >> data5 >> data6
