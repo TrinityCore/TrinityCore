@@ -1719,7 +1719,7 @@ void Spell::EffectDummy(uint32 i)
             {
                 case 781:                                 // Disengage
                 {
-                    if (m_caster->GetTypeId() != TYPEID_PLAYER)
+                    if (m_caster->GetTypeId() != TYPEID_PLAYER || !m_caster->isInCombat()) // Does not require a target, but m_caster must be in combat (3.0.3?)
                         return;
 
                     m_caster->JumpTo(15.0f, 7.0f, false);
@@ -1736,7 +1736,7 @@ void Spell::EffectDummy(uint32 i)
                     {
                         SpellEntry const *spellInfo = sSpellStore.LookupEntry(itr->first);
 
-                        if (spellInfo->SpellFamilyName == SPELLFAMILY_HUNTER && spellInfo->Id != 23989 && GetSpellRecoveryTime(spellInfo) > 0 )
+                        if (spellInfo->SpellFamilyName == SPELLFAMILY_HUNTER && spellInfo->Id != 23989 && GetSpellRecoveryTime(spellInfo) > 0)
                             ((Player*)m_caster)->RemoveSpellCooldown((itr++)->first,true);
                         else
                             ++itr;
