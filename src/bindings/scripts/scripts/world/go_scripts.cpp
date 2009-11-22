@@ -530,6 +530,10 @@ bool GOHello_go_matrix_punchograph(Player *pPlayer, GameObject *pGO)
     return false;
 }
 
+/*######
+## go_rusty_cage
+######*/
+
 enum eRustyCage
 {
     NPC_GOBLIN_PRISIONER    = 29466
@@ -546,6 +550,10 @@ bool GOHello_go_rusty_cage(Player *pPlayer, GameObject *pGO)
 
     return true;
 }
+
+/*######
+## go_scourge_cage
+######*/
 
 enum eScourgeCage
 {
@@ -564,6 +572,10 @@ bool GOHello_go_scourge_cage(Player *pPlayer, GameObject *pGO)
     return true;
 }
 
+/*######
+## go_arcane_prison
+######*/
+
 enum eArcanePrison
 {
     QUEST_PRISON_BREAK                  = 11587,
@@ -579,6 +591,20 @@ bool GOHello_go_arcane_prison(Player *pPlayer, GameObject *pGO)
         return true;
     } else
         return false;
+}
+
+/*######
+## go_blood_filled_orb
+######*/
+
+#define NPC_ZELEMAR  17830
+
+bool GOHello_go_blood_filled_orb(Player *pPlayer, GameObject *pGO)
+{
+    if (pGO->GetGoType() == GAMEOBJECT_TYPE_GOOBER)
+        pPlayer->SummonCreature(NPC_ZELEMAR, -369.746, 166.759, -21.50, 5.235, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000);
+
+    return true;
 }
 
 void AddSC_go_scripts()
@@ -709,6 +735,11 @@ void AddSC_go_scripts()
     newscript = new Script;
     newscript->Name = "go_arcane_prison";
     newscript->pGOHello =           &GOHello_go_arcane_prison;
+    newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name = "go_blood_filled_orb";
+    newscript->pGOHello =           &GOHello_go_blood_filled_orb;
     newscript->RegisterSelf();
 }
 
