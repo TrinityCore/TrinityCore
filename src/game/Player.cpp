@@ -2049,8 +2049,18 @@ void Player::Regenerate(Powers power)
         return;
 
     uint32 curValue = GetPower(power);
-    if (curValue == maxValue)
-        return;
+    switch (power)
+    {
+        case POWER_RAGE:
+        case POWER_RUNIC_POWER:
+            if (curValue == 0)
+                return;
+            break;
+        default:
+            if (curValue == maxValue)
+                return;
+            break;
+    }
 
     // TODO: possible use of miscvalueb instead of amount
     if (HasAuraTypeWithValue(SPELL_AURA_PREVENT_REGENERATE_POWER, power))
@@ -2064,15 +2074,10 @@ void Player::Regenerate(Powers power)
         {
             bool recentCast = IsUnderLastManaUseEffect();
             float ManaIncreaseRate = sWorld.getRate(RATE_POWER_MANA);
-            if (recentCast)
-            {
-                // Trinity Updates Mana in intervals of 2s, which is correct
+            if (recentCast) // Trinity Updates Mana in intervals of 2s, which is correct
                 addvalue = GetFloatValue(UNIT_FIELD_POWER_REGEN_INTERRUPTED_FLAT_MODIFIER) *  ManaIncreaseRate * 0.001f * m_regenTimer;
-            }
             else
-            {
                 addvalue = GetFloatValue(UNIT_FIELD_POWER_REGEN_FLAT_MODIFIER) * ManaIncreaseRate * 0.001f * m_regenTimer;
-            }
         }   break;
         case POWER_RAGE:                                    // Regenerate rage
         {
@@ -2096,7 +2101,7 @@ void Player::Regenerate(Powers power)
 
     // Mana regen calculated in Player::UpdateManaRegen()
     // Exist only for POWER_MANA, POWER_ENERGY, POWER_FOCUS auras
-    if(power != POWER_MANA)
+    if (power != POWER_MANA)
     {
         AuraEffectList const& ModPowerRegenPCTAuras = GetAurasByType(SPELL_AURA_MOD_POWER_REGEN_PERCENT);
         for (AuraEffectList::const_iterator i = ModPowerRegenPCTAuras.begin(); i != ModPowerRegenPCTAuras.end(); ++i)
@@ -2105,32 +2110,34 @@ void Player::Regenerate(Powers power)
     }
 
     addvalue += m_powerFraction[power];
-    uint32 integerValue = (uint32)addvalue;
+    uint32 integerValue = uint32(addvalue);
 
-    if (power != POWER_RAGE && power != POWER_RUNIC_POWER)
+    switch (power)
     {
-        curValue += integerValue;
+        case POWER_RAGE:
+        case POWER_RUNIC_POWER:
+            if(curValue > integerValue)
+            {
+                curValue -= integerValue;
+                m_powerFraction[power] = addvalue - integerValue;
+            }
+            else
+            {
+                curValue = 0;
+                m_powerFraction[power] = 0;
+            }
+            break;
+        default:
+            curValue += integerValue;
 
-        if (curValue > maxValue)
-        {
-            curValue = maxValue;
-            m_powerFraction[power] = 0;
-        }
-        else
-            m_powerFraction[power] = addvalue - integerValue;
-    }
-    else
-    {
-        if(curValue > integerValue)
-        {
-            curValue -= integerValue;
-            m_powerFraction[power] = addvalue - integerValue;
-        }
-        else
-        {
-            curValue = 0;
-            m_powerFraction[power] = 0;
-        }
+            if (curValue > maxValue)
+            {
+                curValue = maxValue;
+                m_powerFraction[power] = 0;
+            }
+            else
+                m_powerFraction[power] = addvalue - integerValue;
+            break;
     }
     if(m_regenTimerCount >= 2000)
         SetPower(power, curValue);
@@ -2143,7 +2150,8 @@ void Player::RegenerateHealth()
     uint32 curValue = GetHealth();
     uint32 maxValue = GetMaxHealth();
 
-    if (curValue >= maxValue) return;
+    if (curValue >= maxValue)
+        return;
 
     float HealthIncreaseRate = sWorld.getRate(RATE_HEALTH);
 
