@@ -521,7 +521,7 @@ bool GOHello_go_matrix_punchograph(Player *pPlayer, GameObject *pGO)
             if(pPlayer->HasItemCount(ITEM_RED_PUNCH_CARD, 1))
             {
                 pPlayer->DestroyItemCount(ITEM_RED_PUNCH_CARD, 1, true);
-                pPlayer->CastSpell(pPlayer,SPELL_PRISMATIC_PUNCH_CARD,true);
+                pPlayer->CastSpell(pPlayer, SPELL_PRISMATIC_PUNCH_CARD, true);
             }
             break;
         default:

@@ -4637,10 +4637,10 @@ void Spell::SpellDamageWeaponDmg(uint32 i)
     }
 
     bool normalized = false;
-    float weaponDamagePercentMod = 1.0;
-    for (int j = 0; j < 3; ++j)
+    float weaponDamagePercentMod = 1.0f;
+    for (uint8 j = 0; j < 3; ++j)
     {
-        switch(m_spellInfo->Effect[j])
+        switch (m_spellInfo->Effect[j])
         {
             case SPELL_EFFECT_WEAPON_DAMAGE:
             case SPELL_EFFECT_WEAPON_DAMAGE_NOSCHOOL:
@@ -4659,10 +4659,10 @@ void Spell::SpellDamageWeaponDmg(uint32 i)
     }
 
     // apply to non-weapon bonus weapon total pct effect, weapon total flat effect included in weapon damage
-    if(fixed_bonus || spell_bonus)
+    if (fixed_bonus || spell_bonus)
     {
         UnitMods unitMod;
-        switch(m_attackType)
+        switch (m_attackType)
         {
             default:
             case BASE_ATTACK:   unitMod = UNIT_MOD_DAMAGE_MAINHAND; break;
@@ -4671,23 +4671,23 @@ void Spell::SpellDamageWeaponDmg(uint32 i)
         }
 
         float weapon_total_pct = 1.0f;
-        if ( m_spellInfo->SchoolMask & SPELL_SCHOOL_MASK_NORMAL )
+        if (m_spellInfo->SchoolMask & SPELL_SCHOOL_MASK_NORMAL)
              weapon_total_pct = m_caster->GetModifierValue(unitMod, TOTAL_PCT);
 
-        if(fixed_bonus)
+        if (fixed_bonus)
             fixed_bonus = int32(fixed_bonus * weapon_total_pct);
-        if(spell_bonus)
+        if (spell_bonus)
             spell_bonus = int32(spell_bonus * weapon_total_pct);
     }
 
     int32 weaponDamage = m_caster->CalculateDamage(m_attackType, normalized, true);
 
     // Sequence is important
-    for (int j = 0; j < 3; ++j)
+    for (uint8 j = 0; j < 3; ++j)
     {
         // We assume that a spell have at most one fixed_bonus
         // and at most one weaponDamagePercentMod
-        switch(m_spellInfo->Effect[j])
+        switch (m_spellInfo->Effect[j])
         {
             case SPELL_EFFECT_WEAPON_DAMAGE:
             case SPELL_EFFECT_WEAPON_DAMAGE_NOSCHOOL:
@@ -4714,7 +4714,7 @@ void Spell::SpellDamageWeaponDmg(uint32 i)
 
     // Add melee damage bonuses (also check for negative)
     m_caster->MeleeDamageBonus(unitTarget, &eff_damage, m_attackType, m_spellInfo);
-    m_damage+= eff_damage;
+    m_damage += eff_damage;
 }
 
 void Spell::EffectThreat(uint32 /*i*/)
