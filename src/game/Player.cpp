@@ -3404,13 +3404,13 @@ void Player::removeSpell(uint32 spell_id, bool disabled, bool learn_low_rank)
     if (SpellChainNode const* node = spellmgr.GetSpellChainNode(spell_id))
     {
         if (HasSpell(node->next) && !GetTalentSpellPos(node->next))
-        removeSpell(node->next,disabled);
+            removeSpell(node->next,disabled);
     }
     //unlearn spells dependent from recently removed spells
     SpellsRequiringSpellMap const &reqMap = spellmgr.GetSpellsRequiringSpell();
     SpellsRequiringSpellMap::const_iterator itr2 = reqMap.find(spell_id);
     for (uint32 i = reqMap.count(spell_id); i > 0; --i, ++itr2)
-        removeSpell(itr2->second,disabled,false);
+        removeSpell(itr2->second, disabled, false);
 
     // re-search, it can be corrupted in prev loop
     itr = m_spells.find(spell_id);
@@ -3516,7 +3516,7 @@ void Player::removeSpell(uint32 spell_id, bool disabled, bool learn_low_rank)
                 ((pSkill->id == SKILL_LOCKPICKING || pSkill->id == SKILL_RUNEFORGING) && _spell_idx->second->max_value == 0))
             {
                 // not reset skills for professions and racial abilities
-                if ((pSkill->categoryId==SKILL_CATEGORY_SECONDARY || pSkill->categoryId==SKILL_CATEGORY_PROFESSION) &&
+                if ((pSkill->categoryId == SKILL_CATEGORY_SECONDARY || pSkill->categoryId == SKILL_CATEGORY_PROFESSION) &&
                     (IsProfessionSkill(pSkill->id) || _spell_idx->second->racemask!=0))
                     continue;
 
@@ -3799,18 +3799,11 @@ bool Player::resetTalents(bool no_cost)
             // skip non-existant talent ranks
             if (talentInfo->RankID[rank] == 0)
                 continue;
-            // remove all talent related spells from the PlayerSpellMap
-            for (PlayerSpellMap::iterator itr = GetSpellMap().begin(); itr != GetSpellMap().end(); ++itr)
-            {
-                // remove learned spells (all ranks)
-                uint32 itrFirstId = spellmgr.GetFirstSpellInChain(itr->first);
-
-                // unlearn if first rank is talent or learned by talent
-                if (itrFirstId == talentInfo->RankID[rank])
-                    removeSpell(itr->first, true, false); // disable the talent, delete it at the next _SaveSpells() call
-                else if (spellmgr.IsSpellLearnToSpell(talentInfo->RankID[rank], itrFirstId))
-                    removeSpell(itr->first, true, true);  // disable the talent, delete it at the next _SaveSpells() call
-            }
+            removeSpell(talentInfo->RankID[rank], true);
+            if (const SpellEntry *_spellEntry = sSpellStore.LookupEntry(talentInfo->RankID[rank]))
+                for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)                // search through the SpellEntry for valid trigger spells
+                    if (_spellEntry->EffectMiscValueB[i] > 0 && _spellEntry->Effect[i] == SPELL_EFFECT_LEARN_SPELL)
+                        removeSpell(_spellEntry->EffectMiscValueB[i], true); // and remove any spells that the talent teaches
             // if this talent rank can be found in the PlayerTalentMap, mark the talent as removed so it gets deleted
             PlayerTalentMap::iterator plrTalent = m_talents[m_activeSpec]->find(talentInfo->RankID[rank]);
             if (plrTalent != m_talents[m_activeSpec]->end())
@@ -22015,18 +22008,11 @@ void Player::ActivateSpec(uint8 spec)
             // skip non-existant talent ranks
             if (talentInfo->RankID[rank] == 0)
                 continue;
-            // remove all talent related spells from the PlayerSpellMap
-            for (PlayerSpellMap::iterator itr = GetSpellMap().begin(); itr != GetSpellMap().end(); ++itr)
-            {
-                // remove learned spells (all ranks)
-                uint32 itrFirstId = spellmgr.GetFirstSpellInChain(itr->first);
-
-                // unlearn if first rank is talent or learned by talent
-                if (itrFirstId == talentInfo->RankID[rank])
-                    removeSpell(itr->first, true, false); // disable the talent, delete it at the next _SaveSpells() call
-                else if (spellmgr.IsSpellLearnToSpell(talentInfo->RankID[rank], itrFirstId))
-                    removeSpell(itr->first, true, true);  // disable the talent, delete it at the next _SaveSpells() call
-            }
+            removeSpell(talentInfo->RankID[rank], true); // removes the talent, and all dependant, learned, and chained spells..
+            if (const SpellEntry *_spellEntry = sSpellStore.LookupEntry(talentInfo->RankID[rank]))
+                for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)                // search through the SpellEntry for valid trigger spells
+                    if (_spellEntry->EffectMiscValueB[i] > 0 && _spellEntry->Effect[i] == SPELL_EFFECT_LEARN_SPELL)
+                        removeSpell(_spellEntry->EffectMiscValueB[i], true); // and remove any spells that the talent teaches
             // if this talent rank can be found in the PlayerTalentMap, mark the talent as removed so it gets deleted
             //PlayerTalentMap::iterator plrTalent = m_talents[m_activeSpec]->find(talentInfo->RankID[rank]);
             //if (plrTalent != m_talents[m_activeSpec]->end())
