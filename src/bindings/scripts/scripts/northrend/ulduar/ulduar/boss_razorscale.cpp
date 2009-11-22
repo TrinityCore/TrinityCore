@@ -120,8 +120,12 @@ struct TRINITY_DLL_DECL boss_razorscaleAI : public BossAI
             m_creature->GetMotionMaster()->MoveTargetedHome();
         }
 
-        if(!m_creature->getVictim()->GetCharmerOrOwnerPlayerOrPlayerItself()) // Victim is not controlled by a player (should never happen)
-            m_creature->getVictim()->CombatStop();                            // Forcibly stop combat with this victim
+        // Victim is not controlled by a player (should never happen)
+        if(m_creature->getVictim() && !m_creature->getVictim()->GetCharmerOrOwnerPlayerOrPlayerItself())
+        {
+            m_creature->getVictim()->CombatStop(false);                     // Force the unit to exit combat..
+            m_creature->getVictim()->GetMotionMaster()->MoveTargetedHome(); // and return home, so they don't just stand there.
+        }
 
         if ((m_creature->GetHealth()*100 / m_creature->GetMaxHealth()) < 99 && Phase == 1) // TODO: Only land (exit Phase 1) if brought down with harpoon guns! This is important!
         {
