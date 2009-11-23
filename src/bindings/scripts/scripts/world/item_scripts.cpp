@@ -255,7 +255,7 @@ enum ePileFakeFur
 };
 bool ItemUse_item_pile_fake_furs(Player *pPlayer, Item *pItem, SpellCastTargets const &targets)
 {
-    GameObject* pGo;
+    GameObject *pGo;
     if ((pGo = pPlayer->FindNearestGameObject(GO_CARIBOU_TRAP_1, 5.0f)) ||
         (pGo = pPlayer->FindNearestGameObject(GO_CARIBOU_TRAP_2, 5.0f)) ||
         (pGo = pPlayer->FindNearestGameObject(GO_CARIBOU_TRAP_3, 5.0f)) ||
@@ -276,7 +276,7 @@ bool ItemUse_item_pile_fake_furs(Player *pPlayer, Item *pItem, SpellCastTargets 
             return true;
         float x, y, z;
         pGo->GetClosePoint(x, y, z, pGo->GetObjectSize() / 3, 7.0f);
-        pGo->SummonGameObject(GO_HIGH_QUALITY_FUR,pGo->GetPositionX(),pGo->GetPositionY(),pGo->GetPositionZ(),0,0,0,0,0,1000);
+        pGo->SummonGameObject(GO_HIGH_QUALITY_FUR, pGo->GetPositionX(), pGo->GetPositionY(), pGo->GetPositionZ(), 0, 0, 0, 0, 0, 1000);
         if (TempSummon* summon = pPlayer->SummonCreature(NPC_NESINGWARY_TRAPPER, x, y, z, pGo->GetOrientation(), TEMPSUMMON_DEAD_DESPAWN, 1000))
         {
             summon->SetVisibility(VISIBILITY_OFF);
@@ -284,6 +284,7 @@ bool ItemUse_item_pile_fake_furs(Player *pPlayer, Item *pItem, SpellCastTargets 
             summon->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
         }
     }
+    return false;
 }
 
 void AddSC_item_scripts()
