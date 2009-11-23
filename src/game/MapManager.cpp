@@ -67,10 +67,9 @@ MapManager::Initialize()
 
     // debugging code, should be deleted some day
     {
-        for (int i=0; i<MAX_GRID_STATE; i++)
-        {
+        for (uint8 i = 0; i < MAX_GRID_STATE; ++i)
             i_GridStates[i] = si_GridStates[i];
-        }
+
         i_GridStateErrorCount = 0;
     }
 
