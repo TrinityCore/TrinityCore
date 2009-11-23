@@ -5950,6 +5950,7 @@ void Player::SendMessageToSet(WorldPacket *data, bool self)
 
     // we use World::GetMaxVisibleDistance() because i cannot see why not use a distance
     // update: replaced by GetMap()->GetVisibilityDistance()
+
     Trinity::MessageDistDeliverer notifier(this, data, GetMap()->GetVisibilityDistance());
     VisitNearbyWorldObject(GetMap()->GetVisibilityDistance(), notifier);
 }
@@ -19020,16 +19021,14 @@ bool Player::IsVisibleInGridForPlayer( Player const * pl ) const
     // It seems in battleground everyone sees everyone, except the enemy-faction ghosts
     if (InBattleGround())
     {
-        if (!(isAlive() || m_deathTimer > 0) && !IsFriendlyTo(pl) )
+        if (!(isAlive() || m_deathTimer > 0) && !IsFriendlyTo(pl))
             return false;
         return true;
     }
 
     // Live player see live player or dead player with not realized corpse
-    if(pl->isAlive() || pl->m_deathTimer > 0)
-    {
+    if (pl->isAlive() || pl->m_deathTimer > 0)
         return isAlive() || m_deathTimer > 0;
-    }
 
     // Ghost see other friendly ghosts, that's for sure
     if(!(isAlive() || m_deathTimer > 0) && IsFriendlyTo(pl))
