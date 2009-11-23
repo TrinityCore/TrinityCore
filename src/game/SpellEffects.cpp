@@ -6017,7 +6017,7 @@ void Spell::EffectSanctuary(uint32 /*i*/)
         if(!(*iter)->hasUnitState(UNIT_STAT_CASTING))
             continue;
 
-        for (uint32 i = CURRENT_FIRST_NON_MELEE_SPELL; i < CURRENT_MAX_SPELL; i++)
+        for (uint32 i = CURRENT_FIRST_NON_MELEE_SPELL; i < CURRENT_MAX_SPELL; ++i)
         {
             if((*iter)->GetCurrentSpell(i)
             && (*iter)->GetCurrentSpell(i)->m_targets.getUnitTargetGUID() == unitTarget->GetGUID())

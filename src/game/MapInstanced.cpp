@@ -40,9 +40,7 @@ void MapInstanced::InitVisibilityDistance()
         return;
     //initialize visibility distances for all instance copies
     for (InstancedMaps::iterator i = m_InstancedMaps.begin(); i != m_InstancedMaps.end(); ++i)
-    {
         (*i).second->InitVisibilityDistance();
-    }
 }
 
 void MapInstanced::Update(const uint32& t)
