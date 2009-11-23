@@ -99,6 +99,6 @@ void WorldRunnable::run()
 
     ///- End the database thread
     WorldDatabase.ThreadEnd();                                  // free mySQL thread resources
-    CharacterDatabase.ThreadStart();
+    CharacterDatabase.ThreadEnd();
     loginDatabase.ThreadEnd();
 }
