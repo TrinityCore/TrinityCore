@@ -74,7 +74,7 @@ struct TRINITY_DLL_DECL npc_mageguard_dalaranAI : public Scripted_NoMovementAI
         {
             case 29254:
                 if (pPlayer->GetTeam() == HORDE)              // Horde unit found in Alliance area
-                    if (Creature *pOutdoorNPC = GetClosestCreatureWithEntry(me, NPC_APPLEBOUGH_A, 35.0f))
+                    if (Creature *pOutdoorNPC = GetClosestCreatureWithEntry(me, NPC_APPLEBOUGH_A, 32.0f))
                     {
                         if (me->isInBackInMap(pWho, 12.0f))   // In my line of sight, "outdoors", and behind me
                             DoCast(pWho, SPELL_TRESPASSER_A); // Teleport the Horde unit out
@@ -84,7 +84,7 @@ struct TRINITY_DLL_DECL npc_mageguard_dalaranAI : public Scripted_NoMovementAI
                 break;
             case 29255:
                 if (pPlayer->GetTeam() == ALLIANCE)           // Alliance unit found in Horde area
-                    if (Creature *pOutdoorNPC = GetClosestCreatureWithEntry(me, NPC_SWEETBERRY_H, 35.0f))
+                    if (Creature *pOutdoorNPC = GetClosestCreatureWithEntry(me, NPC_SWEETBERRY_H, 32.0f))
                     {
                         if (me->isInBackInMap(pWho, 12.0f))   // In my line of sight, "outdoors", and behind me
                             DoCast(pWho, SPELL_TRESPASSER_H); // Teleport the Alliance unit out
