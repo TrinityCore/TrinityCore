@@ -813,13 +813,13 @@ void LootTemplate::LootGroup::AddEntry(LootStoreItem& item)
 // Rolls an item from the group, returns NULL if all miss their chances
 LootStoreItem const * LootTemplate::LootGroup::Roll() const
 {
-    if (!ExplicitlyChanced.empty())                         // First explicitly chanced entries are checked
+    if (!ExplicitlyChanced.empty())                             // First explicitly chanced entries are checked
     {
         float Roll = rand_chance();
 
-        for (uint32 i=0; i<ExplicitlyChanced.size(); ++i)    //check each explicitly chanced entry in the template and modify its chance based on quality.
+        for (uint32 i = 0; i < ExplicitlyChanced.size(); ++i)   // check each explicitly chanced entry in the template and modify its chance based on quality.
         {
-            if(ExplicitlyChanced[i].chance>=100.0f)
+            if (ExplicitlyChanced[i].chance >= 100.0f)
                 return &ExplicitlyChanced[i];
 
             Roll -= ExplicitlyChanced[i].chance;
@@ -861,49 +861,82 @@ bool LootTemplate::LootGroup::HasQuestDropForPlayer(Player const * player) const
 void LootTemplate::LootGroup::Process(Loot& loot, uint16 lootMode) const
 {
     // build up list of possible drops
-    std::list<uint32> *possibleDrops = new std::list<uint32>();
-    for (LootStoreItemList::const_iterator itr = EqualChanced.begin(); itr != EqualChanced.end(); ++itr)
-        possibleDrops->push_back(itr->itemid);         // add all of the equal chanced items to possibleDrops
+    LootStoreItemList EqualPossibleDrops = EqualChanced;
+    LootStoreItemList ExplicitPossibleDrops = ExplicitlyChanced;
 
-    for (LootStoreItemList::const_iterator itr = ExplicitlyChanced.begin(); itr != ExplicitlyChanced.end(); ++itr)
-        possibleDrops->push_back(itr->itemid);         // add all of the explicitly chanced items to possibleDrops
+    uint8 uiAttemptCount = 0;
+    const uint8 uiMaxAttempts = ExplicitlyChanced.size() + EqualChanced.size();
 
-    possibleDrops->unique();                           // remove duplicates
-
-    uint8 uiFailSafeLoopBreaker = 0;
-
-    while (!possibleDrops->empty())                    // continue rolling while possibleDrops contains data
+    while (!ExplicitPossibleDrops.empty() || !EqualPossibleDrops.empty())
     {
-        ++uiFailSafeLoopBreaker;
-        if (uiFailSafeLoopBreaker == 255)
-        {
-            sLog.outError("Tried to roll for loot from the same loot group too many times, aborting to avoid a crash.");
+        if (uiAttemptCount == uiMaxAttempts)             // already tried rolling too many times, just abort
             return;
-        }
 
-        LootStoreItem const *item = Roll();
+        LootStoreItem *item = NULL;
 
-        if (item != NULL && item->lootmode & lootMode) // only add this item if roll succeeds and the mode matches
+        // begin rolling (normally called via Roll())
+        LootStoreItemList::iterator itr;
+        uint8 itemSource = 0;
+        if (!ExplicitPossibleDrops.empty())              // First explicitly chanced entries are checked
         {
-            if (std::find(possibleDrops->begin(), possibleDrops->end(), item->itemid) == possibleDrops->end())
-                continue;                              // if item->itemid can't be found in possibleDrops, roll again
+            itemSource = 1;
+            float Roll = rand_chance();
+            // check each explicitly chanced entry in the template and modify its chance based on quality
+            for (itr = ExplicitPossibleDrops.begin(); itr != ExplicitPossibleDrops.end(); ++itr)
+            {
+                if (itr->chance >= 100.0f)
+                {
+                    item = &*itr;
+                    break;
+                }
 
+                Roll -= itr->chance;
+                if (Roll < 0)
+                {
+                    item = &*itr;
+                    break;
+                }
+                // this item failed it's roll, so don't roll for it again
+                ExplicitPossibleDrops.erase(itr);
+            }
+        }
+        if (item == NULL && !EqualPossibleDrops.empty()) // If nothing selected yet - an item is taken from equal-chanced part
+        {
+            itemSource = 2;
+            itr = EqualPossibleDrops.begin();
+            std::advance(itr, irand(0, EqualPossibleDrops.size()-1));
+            item = &*itr;
+        }
+        // finish rolling
+
+        ++uiAttemptCount;
+
+        if (item != NULL && item->lootmode & lootMode)   // only add this item if roll succeeds and the mode matches
+        {
             bool duplicate = false;
             if (ItemPrototype const *_proto = sItemStorage.LookupEntry<ItemPrototype>(item->itemid))
             {
                 uint8 _item_counter = 0;
                 for (LootItemList::const_iterator _item = loot.items.begin(); _item != loot.items.end(); ++_item)
-                    if (_item->itemid == item->itemid)                            // search through the items that have already dropped
+                    if (_item->itemid == item->itemid)                             // search through the items that have already dropped
                     {
                         ++_item_counter;
-                        if (_proto->InventoryType == 0 && _item_counter == 3)     // Non-equippable items are limited to 3 drops
+                        if (_proto->InventoryType == 0 && _item_counter == 3)      // Non-equippable items are limited to 3 drops
                             duplicate = true;
-                        else if(_proto->InventoryType != 0 && _item_counter == 1) // Equippable item are limited to 1 drop
+                        else if (_proto->InventoryType != 0 && _item_counter == 1) // Equippable item are limited to 1 drop
                             duplicate = true;
                     }
             }
-            if (duplicate) // if item->itemid is a duplicate, remove it from possibleDrops
-                possibleDrops->remove(item->itemid);
+            if (duplicate) // if item->itemid is a duplicate, remove it
+                switch (itemSource)
+                {
+                    case 1: // item came from ExplicitPossibleDrops
+                        ExplicitPossibleDrops.erase(itr);
+                        break;
+                    case 2: // item came from EqualPossibleDrops
+                        EqualPossibleDrops.erase(itr);
+                        break;
+                }
             else           // otherwise, add the item and exit the function
             {
                 loot.AddItem(*item);
