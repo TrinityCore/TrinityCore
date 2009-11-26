@@ -229,7 +229,7 @@ struct CreatureInfo
     float   unk16;
     float   unk17;
     bool    RacialLeader;
-    uint32  questItems[4];
+    uint32  questItems[6];
     uint32  movementId;
     bool    RegenHealth;
     uint32  equipmentId;
