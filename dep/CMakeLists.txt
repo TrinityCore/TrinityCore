@@ -1,6 +1,6 @@
 #if(BUILD_ACE)
 #add_subdirectory(ACE_wrappers)
 #endif(BUILD_ACE)
-add_subdirectory(include)
+#add_subdirectory(include)
 add_subdirectory(lib)
 add_subdirectory(src)

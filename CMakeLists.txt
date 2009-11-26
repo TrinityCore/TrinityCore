@@ -202,6 +202,6 @@ SET(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
 SET(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 
 add_subdirectory(dep)
-add_subdirectory(doc)
+#add_subdirectory(doc)
 add_subdirectory(src)
 add_subdirectory(sql)
