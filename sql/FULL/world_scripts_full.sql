@@ -377,6 +377,12 @@ UPDATE `creature_template` SET `ScriptName`='npc_lurgglbr' WHERE `entry`=25208;
 UPDATE `creature_template` SET `ScriptName`='npc_nexus_drake_hatchling' WHERE `entry`=26127;
 UPDATE `creature_template` SET `ScriptName`='npc_nesingwary_trapper' WHERE `entry`=25835;
 UPDATE `item_template` SET `ScriptName`='item_pile_fake_furs' WHERE `entry`=35127;
+UPDATE `creature_template` SET `ScriptName`='npc_general_arlos' WHERE `entry`=25250;
+UPDATE `creature_template` SET `ScriptName`='npc_leryssa' WHERE `entry`=25251;
+UPDATE `creature_template` SET `ScriptName`='npc_thassarian' WHERE `entry`=26170;
+UPDATE `creature_template` SET `ScriptName`='npc_image_lich_king' WHERE `entry`=26203;
+UPDATE `creature_template` SET `ScriptName`='npc_counselor_talbot' WHERE `entry`=25301;
+
 
 
 /* BURNING STEPPES */
