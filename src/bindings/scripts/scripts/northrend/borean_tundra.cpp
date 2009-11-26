@@ -959,6 +959,607 @@ CreatureAI* GetAI_npc_nexus_drake_hatchling(Creature* pCreature)
     return new npc_nexus_drake_hatchlingAI(pCreature);
 }
 
+/*######
+## npc_thassarian
+######*/
+
+enum eThassarian
+{
+    QUEST_LAST_RITES        = 12019,
+
+    SPELL_TRANSFORM_VALANAR = 46753,
+    SPELL_STUN              = 46957,
+    SPELL_SHADOW_BOLT       = 15537,
+
+    NPC_IMAGE_LICH_KING     = 26203,
+    NPC_COUNSELOR_TALBOT    = 25301,
+    NPC_PRINCE_VALANAR      = 28189,
+    NPC_GENERAL_ARLOS       = 25250,
+    NPC_LERYSSA             = 25251,
+
+    SAY_TALBOT_1            = -1571004,
+    SAY_LICH_1              = -1571005,
+    SAY_TALBOT_2            = -1571006,
+    SAY_THASSARIAN_1        = -1571007,
+    SAY_THASSARIAN_2        = -1571008,
+    SAY_LICH_2              = -1571009,
+    SAY_THASSARIAN_3        = -1571010,
+    SAY_TALBOT_3            = -1571011,
+    SAY_LICH_3              = -1571012,
+    SAY_TALBOT_4            = -1571013,
+    SAY_ARLOS_1             = -1571014,
+    SAY_ARLOS_2             = -1571015,
+    SAY_LERYSSA_1           = -1571016,
+    SAY_THASSARIAN_4        = -1571017,
+    SAY_LERYSSA_2           = -1571018,
+    SAY_THASSARIAN_5        = -1571019,
+    SAY_LERYSSA_3           = -1571020,
+    SAY_THASSARIAN_6        = -1571021,
+    SAY_LERYSSA_4           = -1571022,
+    SAY_THASSARIAN_7        = -1571023,
+};
+
+#define GOSSIP_ITEM_T   "Let's do this, Thassarian. It's now or never."
+
+struct TRINITY_DLL_DECL npc_thassarianAI : public npc_escortAI
+{
+    npc_thassarianAI(Creature* pCreature) : npc_escortAI(pCreature)
+    {
+        pArthas      = NULL;
+        pTalbot      = NULL;
+        pLeryssa     = NULL;
+        pArlos       = NULL;
+        pCreature->RemoveStandFlags(UNIT_STAND_STATE_SIT);
+    }
+
+    Creature* pArthas;
+    Creature* pTalbot;
+    Creature* pLeryssa;
+    Creature* pArlos;
+
+    bool bArthasInPosition;
+    bool bArlosInPosition;
+    bool bLeryssaInPosition;
+    bool bTalbotInPosition;
+
+    uint32 uiPhase;
+    uint32 uiPhase_Timer;
+
+    void Reset()
+    {
+        m_creature->RestoreFaction();
+        m_creature->RemoveStandFlags(UNIT_STAND_STATE_SIT);
+
+        bArthasInPosition           = false;
+        bArlosInPosition            = false;
+        bLeryssaInPosition          = false;
+        bTalbotInPosition           = false;
+
+        uiPhase = 0;
+        uiPhase_Timer = 0;
+    }
+
+    void WaypointReached(uint32 uiPointId)
+    {
+        Player* pPlayer = GetPlayerForEscort();
+
+        if (!pPlayer)
+            return;
+
+        switch(uiPointId)
+        {
+            case 3:
+                SetEscortPaused(true);
+                if (pArthas = m_creature->SummonCreature(NPC_IMAGE_LICH_KING, 3730.313, 3518.689, 473.324, 1.562, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 120000))
+                {
+                    pArthas->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                    pArthas->SetReactState(REACT_PASSIVE);
+                    pArthas->AddUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
+                    pArthas->GetMotionMaster()->MovePoint(0, 3737.374756,3564.841309,477.433014);
+                }
+                if (pTalbot = m_creature->SummonCreature(NPC_COUNSELOR_TALBOT, 3747.23, 3614.936, 473.321, 4.462012, TEMPSUMMON_CORPSE_TIMED_DESPAWN,120000))
+                {
+                    pTalbot->AddUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
+                    pTalbot->GetMotionMaster()->MovePoint(0, 3738.000977,3568.882080,477.433014);
+                }
+                m_creature->RemoveUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
+                break;
+
+            case 4:
+                SetEscortPaused(true);
+                uiPhase = 7;
+                break;
+        }
+    }
+
+    void UpdateAI(const uint32 uiDiff)
+    {
+        npc_escortAI::UpdateAI(uiDiff);
+
+        if (bArthasInPosition && bTalbotInPosition)
+        {
+            uiPhase = 1;
+            bArthasInPosition = false;
+            bTalbotInPosition = false;
+        }
+
+        if (bArlosInPosition && bLeryssaInPosition)
+        {
+            bArlosInPosition   = false;
+            bLeryssaInPosition = false;
+            DoScriptText(SAY_THASSARIAN_1, m_creature);
+            SetEscortPaused(false);
+        }
+
+        if (uiPhase_Timer <= uiDiff)
+        {
+            switch (uiPhase)
+            {
+                case 1:
+                    if (pTalbot)
+                        pTalbot->SetStandState(UNIT_STAND_STATE_KNEEL);
+                    uiPhase_Timer = 3000;
+                    ++uiPhase;
+                    break;
+
+                case 2:
+                    if (pTalbot)
+                    {
+                        pTalbot->UpdateEntry(NPC_PRINCE_VALANAR,ALLIANCE);
+                        pTalbot->setFaction(14);
+                        pTalbot->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                        pTalbot->SetReactState(REACT_PASSIVE);
+                    }
+                    uiPhase_Timer = 5000;
+                    ++uiPhase;
+                    break;
+
+                case 3:
+                    if (pTalbot)
+                        DoScriptText(SAY_TALBOT_1, pTalbot);
+                    uiPhase_Timer = 5000;
+                    ++uiPhase;
+                    break;
+
+                case 4:
+                    if (pArthas)
+                        DoScriptText(SAY_LICH_1, pArthas);
+                    uiPhase_Timer = 5000;
+                    ++uiPhase;
+                    break;
+
+                case 5:
+                    if (pTalbot)
+                        DoScriptText(SAY_TALBOT_2, pTalbot);
+                    uiPhase_Timer = 5000;
+                    ++uiPhase;
+                    break;
+
+                case 6:
+                    if (pArlos = m_creature->SummonCreature(NPC_GENERAL_ARLOS, 3745.527100, 3615.655029, 473.321533, 4.447805, TEMPSUMMON_CORPSE_TIMED_DESPAWN,120000))
+                    {
+                        pArlos->AddUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
+                        pArlos->GetMotionMaster()->MovePoint(0, 3735.570068, 3572.419922, 477.441010);
+                    }
+                    if (pLeryssa = m_creature->SummonCreature(NPC_LERYSSA, 3749.654541, 3614.959717, 473.323486, 4.524959, TEMPSUMMON_CORPSE_TIMED_DESPAWN,120000))
+                    {
+                        pLeryssa->AddUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
+                        pLeryssa->SetReactState(REACT_PASSIVE);
+                        pLeryssa->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                        pLeryssa->GetMotionMaster()->MovePoint(0, 3741.969971, 3571.439941, 477.441010);
+                    }
+                    uiPhase_Timer = 2000;
+                    uiPhase = 0;
+                    break;
+
+                case 7:
+                    DoScriptText(SAY_THASSARIAN_2, m_creature);
+                    uiPhase_Timer = 5000;
+                    ++uiPhase;
+                    break;
+
+                case 8:
+                    if (pArthas && pTalbot)
+                    {
+                        pArthas->SetInFront(m_creature); //The client doesen't update with the new orientation :l
+                        pTalbot->SetStandState(UNIT_STAND_STATE_STAND);
+                        DoScriptText(SAY_LICH_2, pArthas);
+                    }
+                    uiPhase_Timer = 5000;
+                    uiPhase = 9;
+                    break;
+
+               case 9:
+                    DoScriptText(SAY_THASSARIAN_3, m_creature);
+                    uiPhase_Timer = 5000;
+                    uiPhase = 10;
+                    break;
+
+               case 10:
+                    if (pTalbot)
+                        DoScriptText(SAY_TALBOT_3, pTalbot);
+                    uiPhase_Timer = 5000;
+                    uiPhase = 11;
+                    break;
+
+               case 11:
+                    if (pArthas)
+                        DoScriptText(SAY_LICH_3, pArthas);
+                    uiPhase_Timer = 5000;
+                    uiPhase = 12;
+                    break;
+
+                case 12:
+                    if (pTalbot)
+                        DoScriptText(SAY_TALBOT_4, pTalbot);
+                    uiPhase_Timer = 2000;
+                    uiPhase = 13;
+                    break;
+
+                case 13:
+                    if (pArthas)
+                        pArthas->RemoveFromWorld();
+                    ++uiPhase;
+                    break;
+
+                case 14:
+                    m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                    if (pTalbot)
+                    {
+                        pTalbot->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                        pTalbot->SetReactState(REACT_AGGRESSIVE);
+                        pTalbot->CastSpell(m_creature, SPELL_SHADOW_BOLT, false);
+                    }
+                    uiPhase_Timer = 1500;
+                    ++uiPhase;
+                    break;
+
+                case 15:
+                    m_creature->SetReactState(REACT_AGGRESSIVE);
+                    m_creature->AI()->AttackStart(pTalbot);
+                    uiPhase = 0;
+                    break;
+
+                case 16:
+                    m_creature->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
+                    uiPhase_Timer = 20000;
+                    ++uiPhase;
+                    break;
+
+               case 17:
+                    if (pLeryssa)
+                        pLeryssa->RemoveFromWorld();
+                    if (pArlos)
+                        pArlos->RemoveFromWorld();
+                    if (pTalbot)
+                        pTalbot->RemoveFromWorld();
+                    m_creature->RemoveStandFlags(UNIT_STAND_STATE_SIT);
+                    SetEscortPaused(false);
+                    uiPhase_Timer = 0;
+                    uiPhase = 0;
+            }
+        } else uiPhase_Timer -= uiDiff;
+
+        if (!UpdateVictim())
+            return;
+
+        DoMeleeAttackIfReady();
+    }
+
+    void JustDied(Unit* pKiller)
+    {
+        if (pTalbot)
+            pTalbot->RemoveFromWorld();
+        if (pLeryssa)
+            pLeryssa->RemoveFromWorld();
+        if (pArlos)
+            pArlos->RemoveFromWorld();
+        if (pArthas)
+            pArthas->RemoveFromWorld();
+    }
+};
+
+bool GossipHello_npc_thassarian(Player* pPlayer, Creature* pCreature)
+{
+    if (pCreature->isQuestGiver())
+        pPlayer->PrepareQuestMenu(pCreature->GetGUID());
+
+    if (pPlayer->GetQuestStatus(QUEST_LAST_RITES) == QUEST_STATUS_INCOMPLETE && pCreature->GetAreaId() == 4125)
+        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_T, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+
+    pPlayer->SEND_GOSSIP_MENU(pCreature->GetNpcTextId(), pCreature->GetGUID());
+
+    return true;
+}
+
+bool GossipSelect_npc_thassarian(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+{
+    switch (uiAction)
+    {
+        case GOSSIP_ACTION_INFO_DEF+1:
+            CAST_AI(npc_escortAI, (pCreature->AI()))->Start(true, false, pPlayer->GetGUID());
+            CAST_AI(npc_escortAI, (pCreature->AI()))->SetMaxPlayerDistance(200.0f);
+            break;
+    }
+    return true;
+}
+
+CreatureAI* GetAI_npc_thassarian(Creature *pCreature)
+{
+    return new npc_thassarianAI (pCreature);
+}
+
+/*######
+## npc_image_lich_king
+######*/
+
+struct TRINITY_DLL_DECL npc_image_lich_kingAI : public ScriptedAI
+{
+    npc_image_lich_kingAI(Creature* pCreature) : ScriptedAI(pCreature) {}
+
+    void Reset()
+    {
+        m_creature->RestoreFaction();
+    }
+
+    void MovementInform(uint32 uiType, uint32 uiId)
+    {
+        if (uiType != POINT_MOTION_TYPE)
+            return;
+
+        if (Unit* pSummoner = CAST_SUM(m_creature)->GetSummoner())
+            CAST_AI(npc_thassarianAI,CAST_CRE(pSummoner)->AI())->bArthasInPosition = true;
+    }
+};
+
+CreatureAI* GetAI_npc_image_lich_king(Creature* pCreature)
+{
+    return new npc_image_lich_kingAI (pCreature);
+}
+
+/*######
+## npc_general_arlos
+######*/
+
+struct TRINITY_DLL_DECL npc_general_arlosAI : public ScriptedAI
+{
+    npc_general_arlosAI(Creature* pCreature) : ScriptedAI(pCreature) {}
+
+    void MovementInform(uint32 uiType, uint32 uiId)
+    {
+        if (uiType != POINT_MOTION_TYPE)
+            return;
+
+        m_creature->addUnitState(UNIT_STAT_STUNNED);
+        m_creature->CastSpell(m_creature, SPELL_STUN, true);
+        if (Unit* pSummoner = CAST_SUM(m_creature)->GetSummoner())
+            CAST_AI(npc_thassarianAI,CAST_CRE(pSummoner)->AI())->bArlosInPosition = true;
+    }
+};
+
+CreatureAI* GetAI_npc_general_arlos(Creature *pCreature)
+{
+    return new npc_general_arlosAI (pCreature);
+}
+
+/*######
+## npc_counselor_talbot
+######*/
+
+enum eCounselotTalbot
+{
+    SPELL_DEFLECTION    = 51009,
+    SPELL_SOUL_BLAST    = 50992,
+};
+
+struct TRINITY_DLL_DECL npc_counselor_talbotAI : public ScriptedAI
+{
+    npc_counselor_talbotAI(Creature* pCreature) : ScriptedAI(pCreature)
+    {
+        pCreature->RestoreFaction();
+    }
+
+    Creature* pLeryssa;
+    Creature* pArlos;
+
+    bool bCheck;
+
+    uint32 uiShadowBoltTimer;
+    uint32 uiDeflectionTimer;
+    uint32 uiSoulBlastTimer;
+
+    void Reset()
+    {
+        pLeryssa             = NULL;
+        pArlos               = NULL;
+        bCheck              = false;
+        uiShadowBoltTimer   = urand(5000,12000);
+        uiDeflectionTimer   = urand(20000,25000);
+        uiSoulBlastTimer    = urand (12000,18000);
+    }
+    void MovementInform(uint32 uiType, uint32 uiId)
+    {
+        if(uiType != POINT_MOTION_TYPE)
+            return;
+
+        if (Unit* pSummoner = CAST_SUM(m_creature)->GetSummoner())
+            CAST_AI(npc_thassarianAI,CAST_CRE(pSummoner)->AI())->bTalbotInPosition = true;
+    }
+
+    void UpdateAI(const uint32 uiDiff)
+    {
+        if (bCheck)
+        {
+            pLeryssa = m_creature->FindNearestCreature(NPC_LERYSSA, 50.0f, true);
+            pArlos   = m_creature->FindNearestCreature(NPC_GENERAL_ARLOS, 50.0f, true);
+            bCheck  = false;
+        }
+
+        if (!UpdateVictim())
+            return;
+
+        if (m_creature->GetAreaId() == 4125)
+        {
+            if (uiShadowBoltTimer <= uiDiff)
+            {
+                DoCast(m_creature->getVictim(), SPELL_SHADOW_BOLT);
+                uiShadowBoltTimer = urand(5000,12000);
+            } else uiShadowBoltTimer -= uiDiff;
+
+            if (uiDeflectionTimer <= uiDiff)
+            {
+                DoCast(m_creature->getVictim(), SPELL_DEFLECTION);
+                uiDeflectionTimer = urand(20000,25000);
+            } else uiDeflectionTimer -= uiDiff;
+
+            if (uiSoulBlastTimer <= uiDiff)
+            {
+                DoCast(m_creature->getVictim(), SPELL_SOUL_BLAST);
+                uiSoulBlastTimer  = urand (12000,18000);
+            } else uiSoulBlastTimer -= uiDiff;
+
+            DoMeleeAttackIfReady();
+        }
+
+        DoMeleeAttackIfReady();
+   }
+
+   void JustDied(Unit* pKiller)
+   {
+        if (!pArlos || !pLeryssa)
+            return;
+
+        DoScriptText(SAY_ARLOS_1, pArlos);
+        DoScriptText(SAY_ARLOS_2, pArlos);
+        DoScriptText(SAY_LERYSSA_1, pLeryssa);
+        pArlos->Kill(pArlos, false);
+        pLeryssa->RemoveAura(SPELL_STUN);
+        pLeryssa->clearUnitState(UNIT_STAT_STUNNED);
+        pLeryssa->RemoveUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
+        pLeryssa->GetMotionMaster()->MovePoint(0,3722.114502, 3564.201660, 477.441437);
+
+        if (pKiller->GetTypeId() == TYPEID_PLAYER)
+            CAST_PLR(pKiller)->RewardPlayerAndGroupAtEvent(NPC_PRINCE_VALANAR, 0);
+    }
+};
+
+CreatureAI* GetAI_npc_counselor_talbot(Creature* pCreature)
+{
+    return new npc_counselor_talbotAI (pCreature);
+}
+
+/*######
+## npc_leryssa
+######*/
+
+struct TRINITY_DLL_DECL npc_leryssaAI : public ScriptedAI
+{
+    npc_leryssaAI(Creature* pCreature) : ScriptedAI(pCreature)
+    {
+        bDone = false;
+        Phase = 0;
+        Phase_Timer = 0;
+
+        pCreature->RemoveStandFlags(UNIT_STAND_STATE_SIT);
+    }
+
+    bool bDone;
+
+    uint32 Phase;
+    uint32 Phase_Timer;
+
+    void MovementInform(uint32 uiType, uint32 uiId)
+    {
+        if(uiType != POINT_MOTION_TYPE)
+            return;
+
+        if (!bDone)
+        {
+            if (Creature* pTalbot = m_creature->FindNearestCreature(NPC_PRINCE_VALANAR, 50.0f, true))
+                CAST_AI(npc_counselor_talbotAI, pTalbot->AI())->bCheck = true;
+
+            m_creature->addUnitState(UNIT_STAT_STUNNED);
+            m_creature->CastSpell(m_creature, SPELL_STUN, true);
+
+            if (Unit* pSummoner = CAST_SUM(m_creature)->GetSummoner())
+                CAST_AI(npc_thassarianAI,CAST_CRE(pSummoner)->AI())->bLeryssaInPosition = true;
+            bDone = true;
+        }
+        else
+        {
+            m_creature->SetStandState(UNIT_STAND_STATE_SIT);
+            if (Unit* pSummoner = CAST_SUM(m_creature)->GetSummoner())
+                pSummoner->SetStandState(UNIT_STAND_STATE_SIT);
+            Phase_Timer = 1500;
+            Phase = 1;
+        }
+    }
+
+    void UpdateAI(const uint32 uiDiff)
+    {
+        ScriptedAI::UpdateAI(uiDiff);
+
+        if (Phase_Timer <= uiDiff)
+        {
+            switch (Phase)
+            {
+                case 1:
+                    if (Unit* pThassarian = CAST_SUM(m_creature)->GetSummoner())
+                        DoScriptText(SAY_THASSARIAN_4, pThassarian);
+                    Phase_Timer = 5000;
+                    ++Phase;
+                    break;
+                case 2:
+                    DoScriptText(SAY_LERYSSA_2, m_creature);
+                    Phase_Timer = 5000;
+                    ++Phase;
+                    break;
+                case 3:
+                    if (Unit* pThassarian = CAST_SUM(m_creature)->GetSummoner())
+                        DoScriptText(SAY_THASSARIAN_5, pThassarian);
+                    Phase_Timer = 5000;
+                    ++Phase;
+                    break;
+                case 4:
+                    DoScriptText(SAY_LERYSSA_3, m_creature);
+                    Phase_Timer = 5000;
+                    ++Phase;
+                    break;
+                case 5:
+                    if (Unit* pThassarian = CAST_SUM(m_creature)->GetSummoner())
+                    DoScriptText(SAY_THASSARIAN_6, pThassarian);
+                    Phase_Timer = 5000;
+                    ++Phase;
+                    break;
+
+                case 6:
+                    DoScriptText(SAY_LERYSSA_4, m_creature);
+                    Phase_Timer = 5000;
+                    ++Phase;
+                    break;
+                case 7:
+                    if (Unit* pThassarian = CAST_SUM(m_creature)->GetSummoner())
+                    {
+                        DoScriptText(SAY_THASSARIAN_7, pThassarian);
+                        CAST_AI(npc_thassarianAI,CAST_CRE(pThassarian)->AI())->uiPhase = 16;
+                    }
+                    Phase_Timer = 5000;
+                    Phase = 0;
+                    break;
+            }
+        } else Phase_Timer -= uiDiff;
+
+        if (!UpdateVictim())
+            return;
+
+        DoMeleeAttackIfReady();
+    }
+};
+
+CreatureAI* GetAI_npc_leryssa(Creature *pCreature)
+{
+    return new npc_leryssaAI (pCreature);
+}
 
 void AddSC_borean_tundra()
 {
@@ -1040,5 +1641,32 @@ void AddSC_borean_tundra()
     newscript = new Script;
     newscript->Name = "npc_nexus_drake_hatchling";
     newscript->GetAI = &GetAI_npc_nexus_drake_hatchling;
+    newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name = "npc_thassarian";
+    newscript->GetAI = &GetAI_npc_thassarian;
+    newscript->pGossipHello = &GossipHello_npc_thassarian;
+    newscript->pGossipSelect = &GossipSelect_npc_thassarian;
+    newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name = "npc_image_lich_king";
+    newscript->GetAI = &GetAI_npc_image_lich_king;
+    newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name = "npc_counselor_talbot";
+    newscript->GetAI = &GetAI_npc_counselor_talbot;
+    newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name = "npc_leryssa";
+    newscript->GetAI = &GetAI_npc_leryssa;
+    newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name = "npc_general_arlos";
+    newscript->GetAI = &GetAI_npc_general_arlos;
     newscript->RegisterSelf();
 }
