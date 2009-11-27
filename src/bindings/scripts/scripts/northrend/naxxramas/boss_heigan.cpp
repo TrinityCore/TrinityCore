@@ -28,7 +28,8 @@
 
 enum Events
 {
-    EVENT_DISRUPT   = 1,
+    EVENT_NONE,
+    EVENT_DISRUPT,
     EVENT_FEVER,
     EVENT_ERUPT,
     EVENT_PHASE,

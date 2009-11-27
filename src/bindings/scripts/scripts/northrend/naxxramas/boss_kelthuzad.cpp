@@ -56,6 +56,7 @@ enum Yells
 };
 enum Event
 {
+    EVENT_NONE,
     EVENT_BOLT,
     EVENT_NOVA,
     EVENT_CHAIN,

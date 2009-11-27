@@ -31,6 +31,7 @@ enum Spells
 
 enum Events
 {
+    EVENT_NONE,
     EVENT_AURA,
     EVENT_BLOOM,
     EVENT_DOOM,

@@ -52,7 +52,8 @@ enum Phases
 
 enum Events
 {
-    EVENT_BERSERK   = 1,
+    EVENT_NONE,
+    EVENT_BERSERK,
     EVENT_CLEAVE,
     EVENT_TAIL,
     EVENT_DRAIN,

@@ -38,7 +38,8 @@ const float PosWrap[MAX_POS_WRAP][3] =
 
 enum Events
 {
-    EVENT_SPRAY = 1,
+    EVENT_NONE,
+    EVENT_SPRAY,
     EVENT_SHOCK,
     EVENT_POISON,
     EVENT_WRAP,
