@@ -100,9 +100,13 @@ OPvPWintergrasp::OPvPWintergrasp()
 bool OPvPWintergrasp::SetupOutdoorPvP()
 {
     if (!sWorld.getConfig(CONFIG_OUTDOORPVP_WINTERGRASP_ENABLED))
+    {
+        sWorld.setState(WORLDSTATE_WINTERGRASP_CONTROLING_FACTION, TEAM_NEUTRAL);
         return false;
+    }
 
     m_defender = TeamId(rand()%2);
+    sWorld.setState(WORLDSTATE_WINTERGRASP_CONTROLING_FACTION, getDefenderTeam());
     m_changeDefender = false;
     m_workshopCount[TEAM_ALLIANCE] = 0;
     m_workshopCount[TEAM_HORDE] = 0;
@@ -598,9 +602,8 @@ void OPvPWintergrasp::ProcessEvent(GameObject *obj, uint32 eventId)
 void OPvPWintergrasp::RemoveOfflinePlayerWGAuras()
 {
     // if server crashed while in battle there could be players with rank or tenacity
-    CharacterDatabase.PExecute("DELETE FROM character_aura WHERE spell IN (%u, %u, %u, %u, %u, %u)",
-        SPELL_RECRUIT, SPELL_CORPORAL, SPELL_LIEUTENANT, SPELL_TENACITY,
-        SPELL_ESSENCE_OF_WG, SPELL_TOWER_CONTROL);
+    CharacterDatabase.PExecute("DELETE FROM character_aura WHERE spell IN (%u, %u, %u, %u, %u)",
+        SPELL_RECRUIT, SPELL_CORPORAL, SPELL_LIEUTENANT, SPELL_TENACITY, SPELL_TOWER_CONTROL);
 }
 
 void OPvPWintergrasp::ModifyWorkshopCount(TeamId team, bool add)
@@ -1058,12 +1061,7 @@ void OPvPWintergrasp::HandlePlayerEnterZone(Player * plr, uint32 zone)
         plr->GetSession()->SendNotification(LANG_ZONE_NOFLYZONE);
     }
 
-    if (!isWarTime())
-    {
-        if (plr->GetTeamId() == getDefenderTeam())
-            plr->CastSpell(plr,SPELL_ESSENCE_OF_WG, true);
-    }
-    else
+    if (isWarTime())
     {
         if (plr->getLevel() > 69)
         {
@@ -1141,7 +1139,6 @@ void OPvPWintergrasp::HandlePlayerLeaveZone(Player * plr, uint32 zone)
     plr->RemoveAurasDueToSpell(SPELL_TENACITY);
     OutdoorPvP::HandlePlayerLeaveZone(plr, zone);
     UpdateTenacityStack();
-    plr->RemoveAura(SPELL_ESSENCE_OF_WG);
     plr->RemoveAura(SPELL_NOFLYZONE_WG);
 }
 
@@ -1425,11 +1422,7 @@ void OPvPWintergrasp::forceStopBattle()
 { // Uptime will do all the work.
 
     if (!isWarTime())
-    {
         m_wartime = true;
-        if (m_changeDefender)
-            TeamCastSpell(getDefenderTeam(), -SPELL_ESSENCE_OF_WG);
-    }
 
     if (m_timer != 1)
     {
@@ -1454,6 +1447,10 @@ void OPvPWintergrasp::StartBattle()
 {
     m_wartime = true;
     m_timer = sWorld.getConfig(CONFIG_OUTDOORPVP_WINTERGRASP_BATTLE_TIME) * MINUTE * IN_MILISECONDS;
+
+    // Remove Essence of Wintergrasp to all players
+    sWorld.setState(WORLDSTATE_WINTERGRASP_CONTROLING_FACTION, TEAM_NEUTRAL);
+    sWorld.UpdateAreaDependentAuras();
 
     // destroyed all vehicles
     for (uint32 team = 0; team < 2; ++team)
@@ -1481,7 +1478,6 @@ void OPvPWintergrasp::StartBattle()
     for (PlayerSet::iterator itr = m_players[getDefenderTeam()].begin(); itr != m_players[getDefenderTeam()].end(); ++itr)
     {
         REMOVE_WARTIME_AURAS(*itr);
-        (*itr)->RemoveAura(SPELL_ESSENCE_OF_WG);
         if ((*itr)->getLevel() > 69)
             (*itr)->CastSpell(*itr, SPELL_RECRUIT, true);
     }
@@ -1490,6 +1486,10 @@ void OPvPWintergrasp::StartBattle()
 
 void OPvPWintergrasp::EndBattle()
 {
+    // Cast Essence of Wintergrasp to all players (CheckCast will determine who to cast)
+    sWorld.setState(WORLDSTATE_WINTERGRASP_CONTROLING_FACTION, getDefenderTeam());
+    sWorld.UpdateAreaDependentAuras();
+
     for (uint32 team = 0; team < 2; ++team)
     {
         // destroyed all vehicles
@@ -1641,7 +1641,6 @@ void OPvPWintergrasp::EndBattle()
     m_timer = sWorld.getConfig(CONFIG_OUTDOORPVP_WINTERGRASP_INTERVAL) * MINUTE * IN_MILISECONDS;
     //3.2.0: TeamCastSpell(getAttackerTeam(), SPELL_TELEPORT_DALARAN);
     RemoveOfflinePlayerWGAuras();
-    TeamCastSpell(getDefenderTeam(), SPELL_ESSENCE_OF_WG);
 }
 
 void OPvPWintergrasp::SetData(uint32 id, uint32 value)

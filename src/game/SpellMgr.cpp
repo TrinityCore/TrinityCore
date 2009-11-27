@@ -3030,17 +3030,21 @@ bool SpellArea::IsFitToRequirements(Player const* player, uint32 newZone, uint32
             return false;
     }
 
-    if(auraSpell)
+    if (auraSpell)
     {
         // not have expected aura
-        if(!player)
+        if (!player || auraSpell > 0 && !player->HasAura(auraSpell) || auraSpell < 0 && player->HasAura(-auraSpell))
             return false;
-        if(auraSpell > 0)
-            // have expected aura
-            return player->HasAura(auraSpell);
-        else
-            // not have expected aura
-            return !player->HasAura(-auraSpell);
+    }
+
+    // Extra conditions
+    switch(spellId)
+    {
+        case 58045: // Essence of Wintergrasp - Wintergrasp
+        case 57940: // Essence of Wintergrasp - Northrend
+            if (!player || player->GetTeamId() != sWorld.getState(WORLDSTATE_WINTERGRASP_CONTROLING_FACTION))
+                return false;
+            break;
     }
 
     return true;

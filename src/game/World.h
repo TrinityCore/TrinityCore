@@ -84,6 +84,13 @@ enum WorldTimers
     WUPDATE_COUNT       = 9
 };
 
+// States than may change after server started
+enum WorldStates
+{
+    WORLDSTATE_WINTERGRASP_CONTROLING_FACTION,
+    WORLDSTATE_VALUE_COUNT,
+};
+
 /// Configuration elements
 enum WorldConfigs
 {
@@ -554,17 +561,27 @@ class World
         /// Set a server configuration element (see #WorldConfigs)
         void setConfig(uint32 index,uint32 value)
         {
-            if(index<CONFIG_VALUE_COUNT)
-                m_configs[index]=value;
+            if (index < CONFIG_VALUE_COUNT)
+                m_configs[index] = value;
         }
 
         /// Get a server configuration element (see #WorldConfigs)
         uint32 getConfig(uint32 index) const
         {
-            if(index<CONFIG_VALUE_COUNT)
-                return m_configs[index];
-            else
-                return 0;
+            return index < CONFIG_VALUE_COUNT ? m_configs[index] : 0;
+        }
+
+        // Set a server state - Those general values that can change after server have been setup
+        void setState(uint32 index, uint32 value)
+        {
+            if (index < WORLDSTATE_VALUE_COUNT)
+                m_states[index] = value;
+        }
+
+        // Get a server state element
+        uint32 getState(uint32 index) const
+        {
+            return index < WORLDSTATE_VALUE_COUNT ? m_states[index] : 0;
         }
 
         /// Are we on a "Player versus Player" server?
@@ -619,6 +636,8 @@ class World
         void RecordTimeDiff(const char * text, ...);
 
         void LoadAutobroadcasts();
+
+        void UpdateAreaDependentAuras();
     protected:
         void _UpdateGameTime();
         // callback for UpdateRealmCharacters
@@ -661,6 +680,7 @@ class World
 
         float rate_values[MAX_RATES];
         uint32 m_configs[CONFIG_VALUE_COUNT];
+        uint32 m_states[WORLDSTATE_VALUE_COUNT];
         int32 m_playerLimit;
         AccountTypes m_allowedSecurityLevel;
         LocaleConstant m_defaultDbcLocale;                     // from config for one from loaded DBC locales
