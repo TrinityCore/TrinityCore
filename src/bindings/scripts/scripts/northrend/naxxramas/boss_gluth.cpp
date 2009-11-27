@@ -34,7 +34,8 @@ const Position PosSummon[3] =
 
 enum Events
 {
-    EVENT_WOUND = 1,
+    EVENT_NONE,
+    EVENT_WOUND,
     EVENT_ENRAGE,
     EVENT_DECIMATE,
     EVENT_BERSERK,

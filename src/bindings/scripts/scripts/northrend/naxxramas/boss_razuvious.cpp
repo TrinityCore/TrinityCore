@@ -46,6 +46,7 @@
 
 enum Events
 {
+    EVENT_NONE,
     EVENT_STRIKE,
     EVENT_SHOUT,
     EVENT_KNIFE,

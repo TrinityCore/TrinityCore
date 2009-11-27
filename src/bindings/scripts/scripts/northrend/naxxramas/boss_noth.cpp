@@ -52,7 +52,8 @@ const float SummonPos[MAX_SUMMON_POS][4] =
 
 enum Events
 {
-    EVENT_BERSERK   = 1,
+    EVENT_NONE,
+    EVENT_BERSERK,
     EVENT_CURSE,
     EVENT_BLINK,
     EVENT_WARRIOR,

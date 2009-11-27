@@ -77,7 +77,8 @@ enum ThaddiusSpells
 
 enum Events
 {
-    EVENT_SHIFT = 1,
+    EVENT_NONE,
+    EVENT_SHIFT,
     EVENT_CHAIN,
     EVENT_BERSERK,
 };
@@ -90,6 +91,7 @@ struct TRINITY_DLL_DECL boss_thaddiusAI : public BossAI
     boss_thaddiusAI(Creature *c) : BossAI(c, BOSS_THADDIUS)
     {
         me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_STUNNED);
+        me->SetReactState(REACT_PASSIVE);
     }
 
     void KilledUnit(Unit* victim)
@@ -115,8 +117,10 @@ struct TRINITY_DLL_DECL boss_thaddiusAI : public BossAI
 
     void UpdateAI(const uint32 diff)
     {
-       if (CheckStalaggAlive == false && CheckFeugenAlive == false)
+       if (CheckStalaggAlive == false && CheckFeugenAlive == false) {
            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_STUNNED);
+           me->SetReactState(REACT_AGGRESSIVE);
+       }
 
        if (!UpdateVictim())
            return;

@@ -27,7 +27,8 @@ enum Horsemen
 
 enum Events
 {
-    EVENT_MARK = 1,
+    EVENT_NONE,
+    EVENT_MARK,
     EVENT_CAST,
     EVENT_BERSERK,
 };
