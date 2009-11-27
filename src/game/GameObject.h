@@ -590,6 +590,7 @@ class TRINITY_DLL_SPEC GameObject : public WorldObject
         GameObjectValue * GetGOValue() const { return m_goValue; }
 
         bool IsTransport() const;
+        bool IsDynTransport() const;
 
         uint32 GetDBTableGUIDLow() const { return m_DBTableGuid; }
 
