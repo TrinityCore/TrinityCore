@@ -61,10 +61,11 @@ struct TRINITY_DLL_DECL boss_nerubenkanAI : public ScriptedAI
             pInstance->SetData(TYPE_NERUB,IN_PROGRESS);
     }
 
-    void RaiseUndeadScarab(Unit* victim)
+    void RaiseUndeadScarab(Unit* pVictim)
     {
-        if (Creature *UndeadScarab = DoSpawnCreature(10876, RAND(irand(0,-9),irand(0,9)), RAND(irand(0,-9),irand(0,9)), 0, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 180000))
-            UndeadScarab->AI()->AttackStart(victim);
+        if (Creature* pUndeadScarab = DoSpawnCreature(10876, RAND(irand(-9,0),irand(0,9)), RAND(irand(-9,0),irand(0,9)), 0, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 180000))
+            if (pUndeadScarab->AI())
+                pUndeadScarab->AI()->AttackStart(pVictim);
     }
 
     void UpdateAI(const uint32 diff)
