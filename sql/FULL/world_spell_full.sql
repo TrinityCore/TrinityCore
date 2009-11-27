@@ -2089,59 +2089,6 @@ DELETE FROM `spell_target_position` WHERE `id`=51852;
 INSERT INTO `spell_target_position` (`id`, `target_map`, `target_position_x`, `target_position_y`, `target_position_z`, `target_orientation`) VALUES
 (51852, 609, 2361.21, -5660.45, 503.828, 4.49);
 
--- death charger
-DELETE FROM spell_area WHERE spell = 52693;
-INSERT INTO spell_area (`spell`, `area`, `quest_start`, `quest_start_active`, `quest_end`, `aura_spell`, `racemask`, `gender`, `autocast`) VALUES
-(52693, 4298, 12687, 1, 12687, 0, 0, 2, 1);
-update spell_area set gender=2 where spell in (33836,50426,46023,52693);
-
-DELETE FROM `npc_spellclick_spells` WHERE `spell_id` IN (
-54568, 54575, 52263, 52280, 52447);
-INSERT INTO `npc_spellclick_spells` (`npc_entry`, `spell_id`, `quest_start`, `quest_start_active`, `quest_end`, `cast_flags`) VALUES
-(29488, 54568, 12670, 1, 0, 3), -- Taxi to Death's Breath
-(29501, 54575, 12670, 1, 0, 3),
-(28605, 52263, 12680, 1, 12680, 1), -- Stolen Horse
-(28606, 52263, 12680, 1, 12680, 1),
-(28607, 52263, 12680, 1, 12680, 1),
-(28782, 52280, 12687, 1, 12687, 1), -- Unbound Charger
-(28833, 52447, 12701, 1, 12701, 1); -- Scarlet Cannon Master
--- (28887, 52447, 12701, 1, 12701, 1); -- dead cannon
-
-DELETE FROM `npc_spellclick_spells` WHERE `npc_entry` IN(31883, 31893, 31894, 31895, 31896, 31897);
-INSERT INTO `npc_spellclick_spells` (npc_entry, spell_id, quest_start, quest_start_active, quest_end, cast_flags, aura_required, aura_forbidden, user_type) VALUES
-(31883, 60123, 0, 0, 0, 0x2, 0, 48085, 2),
-(31893, 60123, 0, 0, 0, 0x2, 0, 48084, 2),
-(31894, 60123, 0, 0, 0, 0x2, 0, 28276, 2),
-(31895, 60123, 0, 0, 0, 0x2, 0, 27874, 2),
-(31896, 60123, 0, 0, 0, 0x2, 0, 27873, 2),
-(31897, 60123, 0, 0, 0, 0x2, 0, 7001, 2);
-
-update item_template set spellppmRate_1 = 1 where entry = 39371; -- persuader
-
-DELETE FROM `creature_questrelation` WHERE `quest` = 12754;
-INSERT INTO `creature_questrelation` (`id`, `quest`) VALUES (28914, 12754);
-DELETE FROM `creature_involvedrelation` WHERE `quest` = 12754;
-INSERT INTO `creature_involvedrelation` (`id`, `quest`) VALUES (28914, 12754);
-DELETE FROM `creature_questrelation` WHERE `quest` = 12755;
-INSERT INTO `creature_questrelation` (`id`, `quest`) VALUES (28914, 12755);
-DELETE FROM `creature_involvedrelation` WHERE `quest` = 12755;
-INSERT INTO `creature_involvedrelation` (`id`, `quest`) VALUES (29077, 12755);
-DELETE FROM `creature_questrelation` WHERE `quest` = 12756;
-INSERT INTO `creature_questrelation` (`id`, `quest`) VALUES (29077, 12756);
-DELETE FROM `creature_involvedrelation` WHERE `quest` = 12756;
-INSERT INTO `creature_involvedrelation` (`id`, `quest`) VALUES (28914, 12756);
-DELETE FROM `creature_questrelation` WHERE `quest` = 12757;
-INSERT INTO `creature_questrelation` (`id`, `quest`) VALUES (28914, 12757);
-
-UPDATE `quest_template` SET `PrevQuestId`=12751 WHERE `entry`=12754;
-
-update spell_area set quest_end = 12756 where spell=53081;
-
-update creature_template set spell1=53117 where entry=29104;
-update creature_template set spell1=53348,killcredit1=29150 where entry IN (29102,29103);
-UPDATE creature_template SET spell1=52435,spell2=52576,spell5=52588,VehicleId=79,speed=0 WHERE entry = 28833;
-UPDATE `creature_template` SET vehicleid=87 WHERE (`entry`='28817'); -- mine car
-
 DELETE FROM `spell_script_target` WHERE `entry` in (53658, 53679, 53701, 53705, 53706, 53677, 53685);
 insert into spell_script_target values
 -- (53658, 1, 29173),
@@ -2229,10 +2176,6 @@ INSERT INTO `spell_linked_spell` (`spell_trigger`, `spell_effect`, `type`, `comm
 ( 48565, -48564, 1, 'Mangle - Remover'),
 ( 48566, -48564, 1, 'Mangle - Remover');
 
-DELETE FROM `npc_spellclick_spells` WHERE `npc_entry` IN (29912);
-INSERT INTO `npc_spellclick_spells` (`npc_entry`, `spell_id`, `quest_start`, `quest_start_active`, `quest_end`, `cast_flags`) VALUES
-(29912, 55479, 0, 0, 0, 3); -- Obedience Crystal - Force Obedience
-
 DELETE FROM `spell_script_target` WHERE `entry` IN
 (28732,54097,55479,
 27892,27893,27928,27929,27935,27936);
@@ -2253,38 +2196,6 @@ INSERT INTO `spell_script_target` (`entry`, `type`, `targetEntry`) VALUES
 -- --------
 -- ULDUAR
 -- --------
-INSERT INTO creature_template (entry, vehicleid) VALUES
-(32930, 328), -- Kologarn
-(32934, 380), -- Right Arm
-(33113, 340), -- Flame Leviathan
-(33114, 341), -- Flame Leviathan Seat
-(33214, 348) -- Mechanolift 304-A
-ON DUPLICATE KEY UPDATE
-vehicleid = VALUES(vehicleid);
-
-UPDATE creature_template SET spell1=62288 WHERE entry = 33090;
-UPDATE creature_template SET speed=1 WHERE entry=33113;
-UPDATE creature_template SET speed=1.25 WHERE entry IN (33060,33109);
-UPDATE creature_template SET speed=2 WHERE entry=33062;
-UPDATE creature_template SET faction_A=1965,faction_H=1965 WHERE entry IN (33090,33113,33139);
-
-UPDATE creature_template SET flags_extra = 0 WHERE entry IN (33114);
-UPDATE creature_template SET InhabitType = 4 WHERE entry = 33214; -- Mechanolift 304-A
-
-INSERT INTO creature_template (entry, spell1, spell2, spell3, spell4, spell5, spell6, vehicleid) VALUES
-(33062, 62974, 62286, 62299, 64660, 0, 0, 335), -- Salvaged Chopper
-(33109, 62306, 62490, 62308, 62324, 0, 0, 338), -- Salvaged Demolisher
-(33167, 62634, 64979, 62479, 62471, 0, 62428, 345), -- Salvaged Demolisher Mechanic Seat
-(33060, 62345, 62522, 62346, 0, 0, 0, 336), -- Salvaged Siege Engine
-(33067, 62358, 62359, 64677, 0, 0, 0, 337) -- Salvaged Siege Turret
-ON DUPLICATE KEY UPDATE
-spell1 = VALUES(spell1),
-spell2 = VALUES(spell2),
-spell3 = VALUES(spell3),
-spell4 = VALUES(spell4),
-spell5 = VALUES(spell5),
-spell6 = VALUES(spell6),
-vehicleid = VALUES(vehicleid);
 
 DELETE FROM `spell_script_target` WHERE `entry` IN (62427,62496,62374,62399,62056,63985);
 INSERT INTO `spell_script_target` (`entry`, `type`, `targetEntry`) VALUES
@@ -2303,23 +2214,10 @@ INSERT INTO `spell_linked_spell` (`spell_trigger`, `spell_effect`, `type`, `comm
 (-62475, 62472, 0, 'System Shutdown'), #inform, not correct spell
 ( 62427, 62340, 2, 'Load into Catapult - Passenger Loaded');
 
-DELETE FROM `npc_spellclick_spells` WHERE `npc_entry` IN (33143);
-INSERT INTO `npc_spellclick_spells` (`npc_entry`, `spell_id`, `quest_start`, `quest_start_active`, `quest_end`, `cast_flags`) VALUES
-(33143, 62399, 0, 0, 0, 0); -- Overide device
-
-update creature_template set spell1=62395, AIName = 'TurretAI', scriptname='' where entry = 33139;
-update creature_template set spell1=62402 where entry = 33142;
-update creature_template set ScriptName = 'boss_kologarn' where entry = 32930;
-update creature_template set scriptname = "boss_flame_leviathan_safety_container" where entry = 33218;
-
 
 -- --------
 -- WINTERGRASP
 -- --------
-DELETE FROM `game_event` WHERE `entry` IN (50,51);
-INSERT INTO `game_event` (`entry`, `description`, `world_event`) VALUES
-(50, 'Wintergrasp Alliance Defence', 5),
-(51, 'Wintergrasp Horde Defence', 5);
 
 -- Build Vehicles
 DELETE FROM `spell_script_target` WHERE entry IN
@@ -2342,38 +2240,24 @@ DELETE FROM `spell_linked_spell` WHERE `spell_trigger` IN (54643);
 INSERT INTO `spell_linked_spell` (`spell_trigger`, `spell_effect`, `type`, `comment`) VALUES
 ( 54643,-54643, 2, 'Wintergrasp Defender Teleport');
 
-update game_graveyard_zone set ghost_zone = 4603 where id = 1474;
-
 -- No Fly Zone
 INSERT INTO `spell_linked_spell` (spell_trigger, spell_effect, type, comment) VALUES
     (-58600, 61243, 0, 'No fly zone - Parachute'),
     (-58730, 61243, 0, 'No fly zone - Parachute');
 
 -- temp
-
-UPDATE `creature_template` SET `ScriptName`='boss_netherspite', `RegenHealth` = '1' WHERE `entry`='15689';
-UPDATE `creature_template` SET `faction_A` = '35', `faction_H` = '35', `modelid1`='11686', `modelid3`='11686', `unit_flags` = '33554496', `ScriptName` = '' WHERE `entry` IN ('17367','17368','17369');
-UPDATE `creature_template` SET `minlevel` = '70', `maxlevel` = '70',`flags_extra`= '2', `speed`= '0.0001', `faction_A` = '16', `faction_H` = '16', `ScriptName` = 'mob_eventai'  WHERE `entry` = '16697';
-DELETE FROM `creature_ai_scripts` WHERE `creature_id` = '16697';
-INSERT INTO `creature_ai_scripts`
-(`id`,`creature_id`,`event_type`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`action1_type`,`action1_param1`,`action1_param2`,`action1_param3`,`comment`) VALUES
-('1669701', '16697',         '0',         '100',          '3',        '3000',        '3000',        '3000',        '3000',          '11',         '46264',             '0',             '2','Void Zone - Cast Void Zone Effect'),
-('1669702', '16697',         '1',         '100',          '3',        '3000',        '3000',        '3000',        '3000',          '11',         '46264',             '0',             '2','Void Zone - Cast Void Zone Effect');
+UPDATE `creature_template` SET `ScriptName`='boss_netherspite' WHERE `entry`='15689';
+UPDATE `creature_template` SET `ScriptName` = 'mob_eventai'  WHERE `entry` = '16697';
 DELETE FROM `spell_linked_spell` WHERE `spell_trigger` IN ('-30421','-30422','-30423','38637','38638','38639');
 INSERT INTO `spell_linked_spell`(`spell_trigger`,`spell_effect`,`type`,`comment`) VALUES
 ('-30421','38637','0','Netherspite''s Perseverence'),
 ('-30422','38638','0','Netherspite''s Serenity'),
 ('-30423','38639','0','Netherspite''s Dominance');
-UPDATE `script_texts` SET `type` = '3' WHERE `entry` IN ('-1532089','-1532090');
 
 
 -- Chicken Net
 DELETE FROM `spell_script_target` WHERE `entry` = '51959' and `type` = '1';
 INSERT INTO `spell_script_target` ( `entry`, `type`, `targetEntry`) VALUES ('51959', '1', '28161');
-
--- the lurker below
-update creature_template set inhabittype=3 where entry=21217;
-
 
 -- update creature_template set ScriptName = 'npc_iruk' where entry = 26219;
 -- UPDATE creature_template SET ScriptName = 'npc_corastrasza' WHERE entry = 32548;
@@ -2381,7 +2265,3 @@ update creature_template set inhabittype=3 where entry=21217;
 DELETE FROM `spell_script_target` WHERE entry = 61245;
 INSERT INTO `spell_script_target` (`entry`, `type`, `targetEntry`) VALUES
 (61245, 1, 32535);
-
-UPDATE creature_template SET VehicleId = 165 , spell1 = 56091,spell2 = 56092,spell3 = 57090,spell4 = 57143 ,spell5 = 57108,spell6=57403, unit_class = 1, minhealth = 100000, maxhealth = 100000 WHERE entry = 32535;
-UPDATE creature_template SET armor = 9729, mindmg = 422, maxdmg=586, minrangedmg=345, maxrangedmg=509, attackpower=642, rangedattackpower=103 WHERE entry = 32535;
-update creature set DeathState = 0 where id = 26219;

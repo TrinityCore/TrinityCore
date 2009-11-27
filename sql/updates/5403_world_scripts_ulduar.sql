@@ -1,13 +1,3 @@
-INSERT INTO creature_template (entry, vehicleid) VALUES
-(32930, 312), # Kologarn
-(33214, 348) # Mechanolift 304-A
-ON DUPLICATE KEY UPDATE
-vehicleid = VALUES(vehicleid);
-
-UPDATE creature_template SET InhabitType = 4 WHERE entry = 33214;
-
-update creature_template set spell1=62395, AIName = 'TurretAI', scriptname='' where entry = 33139;
-update creature_template set spell1=62402 where entry = 33142;
 update creature_template set ScriptName = 'boss_kologarn' where entry = 32930;
 
 DELETE FROM `spell_linked_spell` WHERE `spell_trigger` IN (-62475,62427);

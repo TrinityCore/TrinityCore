@@ -40,6 +40,8 @@ UPDATE `gameobject_template` SET `ScriptName`='go_tele_to_violet_stand' WHERE `e
 UPDATE `gameobject_template` SET `ScriptName`='go_orb_of_the_blue_flight' WHERE `entry`=188415;
 UPDATE `gameobject_template` SET `ScriptName`='go_acherus_soul_prison' WHERE `entry` IN (191577,191580,191581,191582,191583,191584,191585,191586,191587,191588,191589,191590);
 UPDATE `gameobject_template` SET `ScriptName`='go_shrine_of_the_birds' WHERE `entry` IN (185547,185553,185551);
+UPDATE `gameobject_template` SET `ScriptName`='go_matrix_punchograph' WHERE `entry` IN (142345,142475,142476,142696);
+
 
 /* GUARD */
 UPDATE `creature_template` SET `ScriptName`='guard_azuremyst' WHERE `entry`=18038;
@@ -83,6 +85,7 @@ UPDATE `item_template` SET `ScriptName`='item_only_for_flight' WHERE `entry` IN 
 UPDATE `item_template` SET `ScriptName`='item_incendiary_explosives' WHERE (`entry`=35704);
 UPDATE `item_template` SET `ScriptName`='item_mysterious_egg' WHERE `entry` IN(39878);
 UPDATE `item_template` SET `ScriptName`='item_disgusting_jar' WHERE `entry` IN(44717);
+UPDATE `item_template` SET `ScriptName`='item_harvesters_gift' WHERE `entry`=39253;
 
 /* NPC (usually creatures to be found in more than one specific zone) */
 UPDATE `creature_template` SET `ScriptName`='npc_air_force_bots' WHERE `entry` IN (2614,2615,21974,21993,21996,21997,21999,22001,22002,22003,22063,22065,22066,22068,22069,22070,22071,22078,22079,22080,22086,22087,22088,22090,22124,22125,22126);
@@ -448,6 +451,7 @@ UPDATE `creature_template` SET `ScriptName`='mob_steamrigger_mechanic' WHERE `en
 UPDATE `instance_template` SET `script`='instance_serpent_shrine' WHERE `map`=548;
 UPDATE `creature_template` SET `ScriptName`='boss_hydross_the_unstable' WHERE `entry`=21216;
 UPDATE `gameobject_template` SET `ScriptName`='go_bridge_console' WHERE `entry`=184568;
+INSERT IGNORE INTO `areatrigger_scripts` VALUES (4591,'at_coilfang_waterfall');
 
 /* Leotheras the Blind event */
 UPDATE `creature_template` SET `ScriptName`='boss_leotheras_the_blind' WHERE `entry`=21215;
@@ -685,7 +689,7 @@ UPDATE `creature_template` SET `ScriptName`='npc_rinji' WHERE `entry`=7780;
 
 /* HOWLING FJORD */
 UPDATE `creature_template` SET `ScriptName`='npc_plaguehound_tracker' WHERE `entry`=24156;
-UPDATE `creature_template` SET `ScriptName`='npc_razael_and_lyana',`npcflag`=`npcflag`|1 WHERE `entry` IN (23778,23998);
+UPDATE `creature_template` SET `ScriptName`='npc_razael_and_lyana' WHERE `entry` IN (23778,23998);
 UPDATE `creature_template` SET `ScriptName`='npc_apothecary_hanes' WHERE `entry`=23784;
 
 /* ICECROWN */
@@ -714,6 +718,7 @@ UPDATE `creature_template` SET `ScriptName`='mob_tito' WHERE `entry`=17548;
 UPDATE `creature_template` SET `ScriptName`='boss_roar' WHERE `entry`=17546;
 UPDATE `creature_template` SET `ScriptName`='boss_crone' WHERE `entry`=18168;
 UPDATE `creature_template` SET `ScriptName`='boss_terestian_illhoof' WHERE `entry`=15688;
+UPDATE `creature_template` SET `ScriptName`='mob_fiendish_portal' WHERE `entry`=17265;
 UPDATE `creature_template` SET `ScriptName`='boss_shade_of_aran' WHERE `entry`=16524;
 UPDATE `creature_template` SET `ScriptName`='boss_netherspite' WHERE `entry`=15689;
 UPDATE `creature_template` SET `ScriptName`='boss_malchezaar' WHERE `entry`=15690;
@@ -1242,6 +1247,7 @@ UPDATE `creature_template` SET `ScriptName`='boss_svala_sorrowgrave' WHERE `entr
 UPDATE `creature_template` SET `ScriptName`='mob_ritual_channeler' WHERE `entry`=27281;
 UPDATE `creature_template` SET `ScriptName`='boss_svala' WHERE `entry`=29281;
 UPDATE `creature_template` SET `ScriptName`='boss_palehoof' WHERE `entry`=26687;
+UPDATE `creature_template` SET `ScriptName`='mob_palehoof_orb' WHERE `entry`=26688;
 UPDATE `creature_template` SET `ScriptName`='boss_skadi' WHERE `entry`=26693;
 UPDATE `creature_template` SET `ScriptName`='boss_ymiron' WHERE `entry`=26861;
 UPDATE `creature_template` SET `ScriptName`='mob_frenzied_worgen' WHERE `entry`=26683;
@@ -1340,6 +1346,7 @@ UPDATE `creature_template` SET `ScriptName`='npc_gymer' WHERE `entry`=29647;
 UPDATE `creature_template` SET `ScriptName`='npc_sergeant_bly' WHERE `entry`=7604;
 UPDATE `creature_template` SET `ScriptName`='npc_weegli_blastfuse' WHERE `entry`=7607;
 UPDATE `gameobject_template` SET `ScriptName`='go_shallow_grave' WHERE `entry` IN (128308,128403);
+INSERT IGNORE INTO `areatrigger_scripts` (`entry`, `ScriptName`) VALUES('962','at_zumrah');
 
 /* ZUL'GURUB */
 UPDATE `instance_template` SET `script`='instance_zulgurub' WHERE `map`=309;
@@ -1365,54 +1372,6 @@ UPDATE `creature_template` SET `ScriptName`='mob_batrider' WHERE `entry`=14965;
 UPDATE `creature_template` SET `ScriptName`='mob_shade_of_jindo' WHERE `entry`=14986;
 UPDATE `creature_template` SET `ScriptName`='mob_ohgan' WHERE `entry`=14988;
 
--- --------
--- EVENT AI
--- --------
-UPDATE `creature_template` SET `AIName` = 'EventAI' WHERE entry IN (26796,26798,26929,26928,26930);
-DELETE FROM `creature_ai_scripts` WHERE `creature_id` IN (26796,26798,26929,26928,26930);
-UPDATE `creature_template` SET `ScriptName`='EventAI' WHERE `entry` IN(29998,33753,33752,33751,33750);
-DELETE FROM `creature_ai_scripts` WHERE `creature_id` IN (29998,33753,33752,33751,33750);
-INSERT INTO `creature_ai_scripts` VALUES 
--- Commander Stoutbeard
-   (2679600,26796,4,0,100,4,0,0,0,0,28,0,47543,0,0,0,0,0,0,0,0,0,'Commander Stoutbeard - crystal prison remove'),
-   (2679601,26796,4,0,100,4,0,0,0,0,11,31403,0,0,0,0,0,0,0,0,0,0,'Commander Stoutbeard - cast battle shout'),
-   (2679602,26796,0,0,100,5,3000,3000,11000,15000,11,60067,4,0,0,0,0,0,0,0,0,0,'Commander Stoutbeard - cast charge'),
-   (2679603,26796,0,0,100,5,6000,8000,19500,25000,11,38618,0,0,0,0,0,0,0,0,0,0,'Commander Stoutbeard - cast whirlwind'),
-   (2679604,26796,0,0,100,5,13000,13000,45000,55000,11,19134,1,0,0,0,0,0,0,0,0,0,'Commander Stoutbeard - cast Frightening Shout'),
--- Commander Kolurg
-   (2679800,26798,4,0,100,4,0,0,0,0,28,0,47543,0,0,0,0,0,0,0,0,0,'Commander Kolurg - crystal prison remove'),
-   (2679801,26798,4,0,100,4,0,0,0,0,11,31403,0,0,0,0,0,0,0,0,0,0,'Commander Kolurg - cast battle shout'),
-   (2679802,26798,0,0,100,5,3000,3000,11000,15000,11,60067,4,0,0,0,0,0,0,0,0,0,'Commander Kolurg - cast charge'),
-   (2679803,26798,0,0,100,5,6000,8000,19500,25000,11,38618,0,0,0,0,0,0,0,0,0,0,'Commander Kolurg - cast whirlwind'),
-   (2679804,26798,0,0,100,5,13000,13000,45000,55000,11,19134,1,0,0,0,0,0,0,0,0,0,'Commander Kolurg - cast Frightening Shout'),
--- Grand Magus Telestra Clone (Arcane)
-   (2692901,26929,0,0,100,7,6000,8000,10000,12000,11,47731,4,0,0,0,0,0,0,0,0,0,'Grand Magus Telestra arcane - cast pollymorph critter'),
-   (2692902,26929,0,0,100,7,15000,16000,15000,16000,11,47736,0,0,0,0,0,0,0,0,0,0,'Grand Magus Telestra arcane - cast time stop'),
--- Grand Magus Telestra Clone (Fire)
-   (2692801,26928,0,0,100,3,3000,3000,8000,9000,11,47721,1,0,0,0,0,0,0,0,0,0,'Grand magus Telestra fire - cast fire blast N'),
-   (2692802,26928,0,0,100,5,3000,3000,8000,9000,11,56939,1,0,0,0,0,0,0,0,0,0,'Grand magus Telestra fire - cast fire blast H'),
-   (2692803,26928,0,0,100,3,9000,9000,9500,11500,11,47723,1,0,0,0,0,0,0,0,0,0,'Grand magus Telestra fire - cast scorge N'),
-   (2692804,26928,0,0,100,5,9000,9000,9500,11500,11,56938,1,0,0,0,0,0,0,0,0,0,'Grand magus Telestra fire - cast scorge H'),
--- Grand Magus Telestra Clone (Frost)
-   (2693001,26930,0,0,100,3,3000,3000,8000,9000,11,47729,1,0,0,0,0,0,0,0,0,0,'Grand Magus Telestra frost - cast ice bard N'),
-   (2693002,26930,0,0,100,5,3000,3000,8000,9000,11,56937,1,0,0,0,0,0,0,0,0,0,'Grand Magus Telestra frost - cast ice bard H'),
-   (2693003,26930,0,0,100,3,9000,9000,15000,16000,11,47727,1,0,0,0,0,0,0,0,0,0,'Grand Magus Telestra frost - cast blizzard N'),
-   (2693004,26930,0,0,100,5,9000,9000,15000,16000,11,56936,1,0,0,0,0,0,0,0,0,0,'Grand Magus Telestra frost - cast blizzard H'),
--- Desecration
-   (2999801,29998,11,0,100,0,0,0,0,0,11,55741,0,0,0,0,0,0,0,0,0,0,'Desecration'),
-   (2999800,29998,1,0,100,0,1,1,0,0,11,55671,0,2,11,55710,0,2,0,0,0,0,'Desecration'),
--- Desecration
-   (3375301,33753,11,0,100,0,0,0,0,0,11,55741,0,0,0,0,0,0,0,0,0,0,'Desecration'),
-   (3375300,33753,1,0,100,0,1,1,0,0,11,63584,0,2,11,63580,0,2,0,0,0,0,'Desecration'),
--- Desecration
-   (3375201,33752,11,0,100,0,0,0,0,0,11,55741,0,0,0,0,0,0,0,0,0,0,'Desecration'),
-   (3375200,33752,1,0,100,0,1,1,0,0,11,63585,0,2,11,63581,0,2,0,0,0,0,'Desecration'),
--- Desecration
-   (3375101,33751,11,0,100,0,0,0,0,0,11,55741,0,0,0,0,0,0,0,0,0,0,'Desecration'),
-   (3375100,33751,1,0,100,0,1,1,0,0,11,63586,0,2,11,63582,0,2,0,0,0,0,'Desecration'),
--- Desecration
-   (3375001,33750,11,0,100,0,0,0,0,0,11,55741,0,0,0,0,0,0,0,0,0,0,'Desecration'),
-   (3375000,33750,1,0,100,0,1,1,0,0,11,63587,0,2,11,63583,0,2,0,0,0,0,'Desecration');
 /* EOF */
 
 UPDATE `creature_template` SET `ScriptName` = 'npc_skywing' WHERE `entry`=22424;
@@ -1424,76 +1383,8 @@ INSERT INTO areatrigger_scripts VALUES
 DELETE FROM areatrigger_scripts WHERE `entry`=3066;
 INSERT INTO areatrigger_scripts VALUES
    (3066,'at_ravenholdt');
-
-/* Oculus: "Just for the logic, shouldn't be necessary": */
-DELETE FROM `creature_ai_scripts` WHERE `creature_id`=23035 AND `comment` LIKE 'Anzu%Death';
-INSERT INTO `creature_ai_scripts` (`creature_id`,`event_type`,`event_chance`,`event_flags`,`action1_type`,`action1_param1`,`action1_param2`,`comment`) VALUES
-   (23035,6,100,6,34,2,3,'Anzu - Set Inst Data on Death');
-
--- dk final quest
-UPDATE `creature_template` SET `AIName`='EventAI' WHERE `entry` IN (29199,29204,29200,29174,29182,29186,29190,29219,29206,29176,29178,29179,29180,29177,29181);
-DELETE FROM `creature_ai_scripts` WHERE `creature_id` IN (29199,29204,29200,29174,29182,29186,29190,29219,29206,29176,29178,29179,29180,29177,29181);
-INSERT INTO `creature_ai_scripts` VALUES
-   (2919901,29199,0,0,100,3,10000,20000,10000,20000,11,52374,1,0,0,0,0,0,0,0,0,0,'Koltira Deathweaver - SPELL_BLOOD_STRIKE1'),
-   (2919902,29199,0,0,100,3,10000,20000,10000,20000,11,49576,1,0,0,0,0,0,0,0,0,0,'Koltira Deathweaver - SPELL_DEATH_GRIP'),
-   (2919903,29199,0,0,100,3,10000,20000,10000,20000,11,52372,1,0,0,0,0,0,0,0,0,0,'Koltira Deathweaver - SPELL_ICY_TOUCH2'),
-   (2919904,29199,0,0,100,3,10000,20000,10000,20000,11,50668,1,0,0,0,0,0,0,0,0,0,'Koltira Deathweaver - SPELL_PLAGUE_STRIKE1'),
-   (2920401,29204,0,0,100,3,10000,20000,10000,20000,11,52374,1,0,0,0,0,0,0,0,0,0,'Orbaz Bloodbane - SPELL_BLOOD_STRIKE1'),
-   (2920402,29204,0,0,100,3,10000,20000,10000,20000,11,49576,1,0,0,0,0,0,0,0,0,0,'Orbaz Bloodbane - SPELL_DEATH_GRIP'),
-   (2920403,29204,0,0,100,3,10000,20000,10000,20000,11,52372,1,0,0,0,0,0,0,0,0,0,'Orbaz Bloodbane - SPELL_ICY_TOUCH2'),
-   (2920404,29204,0,0,100,3,10000,20000,10000,20000,11,50668,1,0,0,0,0,0,0,0,0,0,'Orbaz Bloodbane - SPELL_PLAGUE_STRIKE1'),
-   (2920001,29200,0,0,100,3,10000,20000,10000,20000,11,52374,1,0,0,0,0,0,0,0,0,0,'Thassarian - SPELL_BLOOD_STRIKE1'),
-   (2920002,29200,0,0,100,3,10000,20000,10000,20000,11,49576,1,0,0,0,0,0,0,0,0,0,'Thassarian - SPELL_DEATH_GRIP'),
-   (2920003,29200,0,0,100,3,10000,20000,10000,20000,11,52372,1,0,0,0,0,0,0,0,0,0,'Thassarian - SPELL_ICY_TOUCH2'),
-   (2920004,29200,0,0,100,3,10000,20000,10000,20000,11,50668,1,0,0,0,0,0,0,0,0,0,'Thassarian - SPELL_PLAGUE_STRIKE1'),
-   (2917401,29174,14,0,100,3,10000,20,5000,10000,11,29427,6,1,0,0,0,0,0,0,0,0,'Defender of the Light - SPELL_HOLY_LIGHT1'),
-   (2917402,29174,4,0,100,0,0,0,0,0,11,53625,1,5,0,0,0,0,0,0,0,0,'Defender of the Light aggro'),
-   (2917403,29174,0,0,100,3,10000,20000,10000,20000,11,53625,5,0,0,0,0,0,0,0,0,0,'Defender of the Light - SPELL_HEROIC_LEAP'),
-   (2917404,29174,0,0,100,3,10000,20000,10000,20000,11,53643,1,0,0,0,0,0,0,0,0,0,'Defender of the Light - SPELL_HOLY_STRIKE'),
-   (2917405,29174,0,0,100,3,10000,20000,10000,20000,11,53638,1,0,0,0,0,0,0,0,0,0,'Defender of the Light - SPELL_HOLY_WRATH'),
-   (2917406,29174,0,0,100,3,10000,20000,10000,20000,11,53629,1,0,0,0,0,0,0,0,0,0,'Defender of the Light - SPELL_UPPERCUT'),
-   (2918201,29182,14,0,100,3,10000,20,5000,10000,11,33642,6,1,0,0,0,0,0,0,0,0,'Rimblat Earthshatter - SPELL_CHAIN_HEAL'),
-   (2918202,29182,0,0,100,3,10000,20000,10000,10000,11,53630,1,0,0,0,0,0,0,0,0,0,'Rimblat Earthshatter - SPELL_THUNDER'),
-   (2918601,29186,0,0,100,3,10000,20000,10000,10000,11,53633,1,0,0,0,0,0,0,0,0,0,'Rampaging Abomination - SPELL_CLEAVE1'),
-   (2918602,29186,0,0,100,3,10000,20000,10000,10000,11,50335,5,0,0,0,0,0,0,0,0,0,'Rampaging Abomination - SPELL_SCOURGE_HOOK'),
-   (2919001,29190,0,0,100,3,10000,20000,10000,10000,11,53634,1,0,0,0,0,0,0,0,0,0,'Flesh Behemoth - SPELL_SCOURGE_HOOK'),
-   (2919002,29190,0,0,100,3,10000,20000,10000,10000,11,36706,1,0,0,0,0,0,0,0,0,0,'Flesh Behemoth - SPELL_THUNDERCLAP'),
-   (2919003,29190,0,0,100,3,5000,10000,5000,10000,11,53627,0,0,0,0,0,0,0,0,0,0,'Flesh Behemoth - SPELL_THUNDERCLAP'),
-   (2921901,29219,0,0,100,3,10000,20000,10000,10000,11,53632,1,0,0,0,0,0,0,0,0,0,'Volatile Ghoul - SPELL_GHOULPLOSION'),
-   (2920601,29206,0,0,100,3,10000,20000,10000,10000,11,53631,1,0,0,0,0,0,0,0,0,0,'Warrior of the Frozen Wastes - SPELL_CLEAVE'),
-   (2917601,29176,0,0,100,3,10000,20000,10000,10000,11,53631,1,0,0,0,0,0,0,0,0,0,'Korfax - SPELL_CLEAVE'),
-   (2917602,29176,0,0,100,3,10000,20000,10000,10000,11,53625,1,0,0,0,0,0,0,0,0,0,'Korfax - SPELL_CLEAVE'),
-   (2917701,29177,14,0,100,3,10000,20,5000,10000,11,37979,6,1,0,0,0,0,0,0,0,0,'Commander Eligor Dawnbringer - SPELL_HOLY_LIGHT2'),
-   (2918101,29181,14,0,100,3,10000,20,5000,10000,11,20664,6,1,0,0,0,0,0,0,0,0,'Rayne - SPELL_REJUVENATION'),
-   (2918102,29181,14,0,100,3,10000,20,5000,10000,11,25817,6,1,0,0,0,0,0,0,0,0,'Rayne - SPELL_TRANQUILITY'),
-   (2918103,29181,0,0,100,3,10000,20000,10000,20000,11,20678,1,0,0,0,0,0,0,0,0,0,'Rayne - SPELL_STARFALL'),
-   (2918104,29181,0,0,100,3,10000,20000,10000,20000,11,21807,1,0,0,0,0,0,0,0,0,0,'Rayne - SPELL_WRATH');
-
--- spell 30298 tries to start event script 10675 but it doesn't exist. create it & make it spawn Geezle
-DELETE FROM `event_scripts` WHERE `id`=10675;
-INSERT INTO `event_scripts` (`id`, `delay`, `command`, `datalong`, `datalong2`, `x`, `y`, `z`, `o`) VALUES
-   (10675,0,10,17318,90000,-5139.79,-11248.27,5.23,6.27609);
-
--- geezle should not spawn by default
-UPDATE `creature` SET `spawnMask`=0 WHERE `id`=17318;
-
--- Quest - The Warsong Farms
-DELETE FROM `creature_ai_scripts` WHERE `creature_id` IN (25669,25671,25672);
-INSERT INTO `creature_ai_scripts` (`id`, `creature_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_type`, `action1_param1`, `action1_param2`, `action1_param3`, `action2_type`, `action2_param1`, `action2_param2`, `action2_param3`, `action3_type`, `action3_param1`, `action3_param2`, `action3_param3`, `comment`) VALUES
-   (2566901,25669,10,0,100,3,1,20,2000,2000,33,25669,6,0,0,0,0,0,0,0,0,0,'Scout Warsong Granary - Killed Moster at LOS'),
-   (2567101,25671,10,0,100,3,1,20,2000,2000,33,25671,6,0,0,0,0,0,0,0,0,0,'Scout Torp''s Farm - Killed Moster at LOS'),
-   (2567201,25672,10,0,100,3,1,20,2000,2000,33,25672,6,0,0,0,0,0,0,0,0,0,'Scout Warsong Slaughterhouse - Killed Moster at LOS');
-
--- WOTLK Naxxramas Worshipper update
-DELETE FROM `creature_ai_scripts` WHERE `id`=1650612 AND `creature_id`=16506;
-INSERT INTO `creature_ai_scripts` (`id`, `creature_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_type`, `action1_param1`, `action1_param2`, `action1_param3`, `action2_type`, `action2_param1`, `action2_param2`, `action2_param3`, `action3_type`, `action3_param1`, `action3_param2`, `action3_param3`, `comment`) VALUES
-   (1650612,16506,6,0,100,0,0,0,0,0,11,28732,0,0,0,0,0,0,0,0,0,0,'Naxxramas Worshipper - Widow Embrace');
-
--- Quest - Kroshius' Infernal Core (level 50 warlock specific)
-DELETE FROM `creature_ai_scripts` WHERE `creature_id`=14467;
-UPDATE `creature_template` SET `AIName`='EventAI' WHERE `entry`=14467;
-INSERT INTO `creature_ai_scripts` (`id`, `creature_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_type`, `action1_param1`, `action1_param2`, `action1_param3`, `action2_type`, `action2_param1`, `action2_param2`, `action2_param3`, `action3_type`, `action3_param1`, `action3_param2`, `action3_param3`, `comment`) VALUES 
-   (1446701, 14467, 11, 0, 100, 0, 0, 0, 0, 0, 1, -980, 0, 0, 19, 768, 0, 0, 2, 16, 0, 0, 'Kroshius Spawn Say');
-DELETE FROM `creature_ai_texts` WHERE `entry`=-980;
-INSERT INTO `creature_ai_texts` (`entry`, `content_default`, `content_loc1`, `content_loc2`, `content_loc3`, `content_loc4`, `content_loc5`, `content_loc6`, `content_loc7`, `content_loc8`, `sound`, `type`, `language`, `emote`, `comment`) VALUES
-   (-980,'Kroshius live? Kroshius crush!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,1,0,0,NULL);
+   
+-- moved from world_spell_full.sql to here
+update creature_template set AIName = 'TurretAI', scriptname='' where entry = 33139;
+update creature_template set ScriptName = 'boss_kologarn' where entry = 32930;
+update creature_template set scriptname = "boss_flame_leviathan_safety_container" where entry = 33218;
