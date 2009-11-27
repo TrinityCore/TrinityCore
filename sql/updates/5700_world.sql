@@ -10,8 +10,6 @@ DELETE FROM `areatrigger_scripts` WHERE `entry`=4017;
 INSERT INTO `areatrigger_scripts` (`entry`,`ScriptName`) VALUES (4017,'at_twilight_grove');
 UPDATE `creature_template` SET `ScriptName`='boss_twilight_corrupter' WHERE `entry`=15625;
 
--- quest data: Long Forgotten Memories
--- TDB(???): UPDATE `quest_template` SET `method`=0 WHERE `entry`=8305;
 -- quest data: A pawn on the eternal board
 -- Already in world_scripts_full.sql
 UPDATE `gameobject_template` SET `ScriptName`='go_crystalline_tear' WHERE `entry`=180633;
