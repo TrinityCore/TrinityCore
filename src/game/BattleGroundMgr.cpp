@@ -1554,8 +1554,8 @@ BattleGround * BattleGroundMgr::CreateNewBattleGround(BattleGroundTypeId bgTypeI
     //for arenas there is random map used
     if (bg_template->isArena())
     {
-        BattleGroundTypeId arenas[] = {BATTLEGROUND_NA, BATTLEGROUND_BE, BATTLEGROUND_RL};
-        uint32 arena_num = urand(0,2);
+        BattleGroundTypeId arenas[] = {BATTLEGROUND_RV, BATTLEGROUND_NA, BATTLEGROUND_BE, BATTLEGROUND_RL};
+        uint32 arena_num = urand(0,3);
         bgTypeId = arenas[arena_num];
         bg_template = GetBattleGroundTemplate(bgTypeId);
         if (!bg_template)
@@ -1929,6 +1929,8 @@ bool BattleGroundMgr::IsArenaType(BattleGroundTypeId bgTypeId)
     return ( bgTypeId == BATTLEGROUND_AA ||
         bgTypeId == BATTLEGROUND_BE ||
         bgTypeId == BATTLEGROUND_NA ||
+        bgTypeId == BATTLEGROUND_DS ||
+        bgTypeId == BATTLEGROUND_RV ||
         bgTypeId == BATTLEGROUND_RL );
 }
 
