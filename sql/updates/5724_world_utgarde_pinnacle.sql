@@ -9,4 +9,4 @@ UPDATE `creature_template` SET `ScriptName`='mob_ravenous_furbolg' WHERE `entry`
 UPDATE `creature_template` SET `ScriptName`='mob_ferocious_rhino' WHERE `entry`=26685;
 UPDATE `creature_template` SET `ScriptName`='mob_massive_jormungar' WHERE `entry`=26686;
 UPDATE `instance_template` SET `script`='instance_utgarde_pinnacle' WHERE `map`=575;
-UPDATE `gameobject_template` SET `ScriptName`='go_palehoof_sphere'WHERE `entry`=188593;
+UPDATE `gameobject_template` SET `ScriptName`='go_palehoof_sphere'WHERE `entry`=188593;
