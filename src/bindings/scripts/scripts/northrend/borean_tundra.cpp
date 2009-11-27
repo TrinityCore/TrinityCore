@@ -1561,6 +1561,79 @@ CreatureAI* GetAI_npc_leryssa(Creature *pCreature)
     return new npc_leryssaAI (pCreature);
 }
 
+/*######
+## npc_beryl_sorcerer
+######*/
+
+enum eBerylSorcerer
+{
+    NPC_CAPTURED_BERLY_SORCERER         = 25474,
+    NPC_LIBRARIAN_DONATHAN              = 25262,
+
+    SPELL_ARCANE_CHAINS                 = 45611,
+    SPELL_COSMETIC_CHAINS               = 54324,
+    SPELL_COSMETIC_ENSLAVE_CHAINS_SELF  = 45631
+};
+
+struct TRINITY_DLL_DECL npc_beryl_sorcererAI : public FollowerAI
+{
+    npc_beryl_sorcererAI(Creature* pCreature) : FollowerAI(pCreature) {}
+
+    bool bEnslaved;
+
+    void Reset()
+    {
+        m_creature->SetReactState(REACT_AGGRESSIVE);
+        bEnslaved = false;
+    }
+
+    void EnterCombat(Unit* pWho)
+    {
+        if (m_creature->canAttack(pWho))
+            m_creature->AI()->AttackStart(pWho);
+    }
+
+    void SpellHit(Unit* pCaster, const SpellEntry* pSpell)
+    {
+        if (pSpell->Id == SPELL_ARCANE_CHAINS && pCaster->GetTypeId() == TYPEID_PLAYER && m_creature->GetHealth()*100 / m_creature->GetMaxHealth() <= 50 && !bEnslaved)
+        {
+            EnterEvadeMode(); //We make sure that the npc is not attacking the player!
+            m_creature->SetReactState(REACT_PASSIVE);
+            if (npc_beryl_sorcererAI* pBerylAI = CAST_AI(npc_beryl_sorcererAI, m_creature->AI()))
+                pBerylAI->StartFollow(CAST_PLR(pCaster), NULL, NULL);
+            m_creature->UpdateEntry(NPC_CAPTURED_BERLY_SORCERER, TEAM_NEUTRAL);
+            DoCast(m_creature, SPELL_COSMETIC_ENSLAVE_CHAINS_SELF, true);
+            CAST_PLR(pCaster)->KilledMonsterCredit(NPC_CAPTURED_BERLY_SORCERER, 0);
+            bEnslaved = true;
+        }
+    }
+
+    void MoveInLineOfSight(Unit* pWho)
+    {
+        FollowerAI::MoveInLineOfSight(pWho);
+
+        if (pWho->GetEntry() == NPC_LIBRARIAN_DONATHAN && m_creature->IsWithinDistInMap(pWho, INTERACTION_DISTANCE))
+        {
+            SetFollowComplete();
+            m_creature->DisappearAndDie();
+        }
+    }
+
+    void UpdateAI(const uint32 uiDiff)
+    {
+        if (!UpdateVictim())
+            return;
+
+        DoMeleeAttackIfReady();
+    }
+};
+
+CreatureAI* GetAI_npc_beryl_sorcerer(Creature* pCreature)
+{
+    return new npc_beryl_sorcererAI(pCreature);
+}
+
+
 void AddSC_borean_tundra()
 {
     Script *newscript;
@@ -1668,5 +1741,10 @@ void AddSC_borean_tundra()
     newscript = new Script;
     newscript->Name = "npc_general_arlos";
     newscript->GetAI = &GetAI_npc_general_arlos;
+    newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name = "npc_beryl_sorcerer";
+    newscript->GetAI = &GetAI_npc_beryl_sorcerer;
     newscript->RegisterSelf();
 }
