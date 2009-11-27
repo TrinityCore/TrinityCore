@@ -2575,3 +2575,14 @@ void World::LoadDBVersion()
     if (m_CreatureEventAIVersion.empty())
         m_CreatureEventAIVersion = "Unknown creature EventAI.";
 }
+
+void World::UpdateAreaDependentAuras()
+{
+    SessionMap::const_iterator itr;
+    for (itr = m_sessions.begin(); itr != m_sessions.end(); ++itr)
+        if (itr->second && itr->second->GetPlayer() && itr->second->GetPlayer()->IsInWorld())
+        {
+            itr->second->GetPlayer()->UpdateAreaDependentAuras(itr->second->GetPlayer()->GetAreaId());
+            itr->second->GetPlayer()->UpdateZoneDependentAuras(itr->second->GetPlayer()->GetZoneId());
+        }
+}
