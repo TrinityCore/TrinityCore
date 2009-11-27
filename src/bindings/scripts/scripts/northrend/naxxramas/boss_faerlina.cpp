@@ -46,7 +46,8 @@ enum Spells
 
 enum Events
 {
-    EVENT_POISON = 1,
+    EVENT_NONE,
+    EVENT_POISON,
     EVENT_FIRE,
     EVENT_FRENZY,
     EVENT_AFTERENRAGE

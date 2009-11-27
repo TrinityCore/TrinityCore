@@ -108,7 +108,8 @@ const Waves wavesHeroic[] =
 
 enum Events
 {
-    EVENT_SUMMON = 1,
+    EVENT_NONE,
+    EVENT_SUMMON,
     EVENT_HARVEST,
     EVENT_BOLT,
 };
