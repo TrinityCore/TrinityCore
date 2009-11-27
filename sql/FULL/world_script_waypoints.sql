@@ -724,13 +724,14 @@ INSERT INTO `script_waypoint` VALUES
    (11856, 17, -40.25, -510.07, -46.05, 0, ''),
    (11856, 18, -38.88, -520.72, -46.06, 5000, 'END');
 
+/* Harrison Jones Zul'Aman - Bad sd2 merge leftover
 DELETE FROM `script_waypoint` WHERE `entry`=24358;
 INSERT INTO `script_waypoint` VALUES
    (24358, 0, 121.193970, 1645.619385, 42.021, 0, ''),
    (24358, 1, 132.051468, 1642.176025, 42.021, 5000, 'SAY_AT_GONG'),
    (24358, 2, 120.670631, 1636.346802, 42.415, 0, ''),
    (24358, 3, 120.536003, 1611.654663, 43.473, 10000, 'SAY_OPEN_ENTRANCE'),
-   (24358, 4, 120.536003, 1611.654663, 43.473, 0, '');
+   (24358, 4, 120.536003, 1611.654663, 43.473, 0, '');*/
 
 DELETE FROM `script_waypoint` WHERE `entry`=16295;
 INSERT INTO `script_waypoint` VALUES
@@ -1720,4 +1721,4 @@ INSERT INTO `script_waypoint` VALUES
    (25208, 39, 4254.04, 6205.58, -0.186623, 0, ''),
    (25208, 40, 4262.6, 6194.47, -0.145114, 0, ''),
    (25208, 41, 4268.96, 6189.47, 0.0303093, 21000, '');
-
+   

@@ -2248,43 +2248,6 @@ INSERT INTO `script_texts` (`npc_entry`,`entry`,`content_default`,`content_loc1`
    (29173,-1609284,'charges towards the Lich King, Ashbringer in hand and strikes the Lich King.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,2,0,0,'Highlord Tirion Fordring'),
    (29173,-1609285,'disappears. Tirion walks over to where Darion lay',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,2,0,0,'The Lich King'),
    (29173,-1609286,'Light washes over the chapel  the Light of Dawn is uncovered.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,2,0,0,'');
-
-DELETE FROM `creature_ai_scripts` WHERE `creature_id` in (26796,26798,26929,26928,26930);
-INSERT INTO `creature_ai_scripts` VALUES 
--- Commander Stoutbeard
-   (2679600,26796,4,0,100,4,0,0,0,0,28,0,47543,0,0,0,0,0,0,0,0,0,'Commander Stoutbeard - crystal prison remove'),
-   (2679601,26796,4,0,100,4,0,0,0,0,11,31403,0,0,0,0,0,0,0,0,0,0,'Commander Stoutbeard - cast battle shout'),
-   (2679602,26796,0,0,100,5,3000,3000,11000,15000,11,60067,4,0,0,0,0,0,0,0,0,0,'Commander Stoutbeard - cast charge'),
-   (2679603,26796,0,0,100,5,6000,8000,19500,25000,11,38618,0,0,0,0,0,0,0,0,0,0,'Commander Stoutbeard - cast whirlwind'),
-   (2679604,26796,0,0,100,5,13000,13000,45000,55000,11,19134,1,0,0,0,0,0,0,0,0,0,'Commander Stoutbeard - cast Frightening Shout'),
--- Commander Kolurg
-   (2679800,26798,4,0,100,4,0,0,0,0,28,0,47543,0,0,0,0,0,0,0,0,0,'Commander Kolurg - crystal prison remove'),
-   (2679801,26798,4,0,100,4,0,0,0,0,11,31403,0,0,0,0,0,0,0,0,0,0,'Commander Kolurg - cast battle shout'),
-   (2679802,26798,0,0,100,5,3000,3000,11000,15000,11,60067,4,0,0,0,0,0,0,0,0,0,'Commander Kolurg - cast charge'),
-   (2679803,26798,0,0,100,5,6000,8000,19500,25000,11,38618,0,0,0,0,0,0,0,0,0,0,'Commander Kolurg - cast whirlwind'),
-   (2679804,26798,0,0,100,5,13000,13000,45000,55000,11,19134,1,0,0,0,0,0,0,0,0,0,'Commander Kolurg - cast Frightening Shout'),
--- Grand Magus Telestra Clone (Arcane)
-   (2692901,26929,0,0,100,7,6000,8000,10000,12000,11,47731,4,0,0,0,0,0,0,0,0,0,'Grand Magus Telestra arcane - cast pollymorph critter'),
-   (2692902,26929,0,0,100,7,15000,16000,15000,16000,11,47736,0,0,0,0,0,0,0,0,0,0,'Grand Magus Telestra arcane - cast time stop'),
--- Grand Magus Telestra Clone (Fire)
-   (2692801,26928,0,0,100,3,3000,3000,8000,9000,11,47721,1,0,0,0,0,0,0,0,0,0,'Grand magus Telestra fire - cast fire blast N'),
-   (2692802,26928,0,0,100,5,3000,3000,8000,9000,11,56939,1,0,0,0,0,0,0,0,0,0,'Grand magus Telestra fire - cast fire blast H'),
-   (2692803,26928,0,0,100,3,9000,9000,9500,11500,11,47723,1,0,0,0,0,0,0,0,0,0,'Grand magus Telestra fire - cast scorge N'),
-   (2692804,26928,0,0,100,5,9000,9000,9500,11500,11,56938,1,0,0,0,0,0,0,0,0,0,'Grand magus Telestra fire - cast scorge H'),
--- Grand Magus Telestra Clone (Frost)
-   (2693001,26930,0,0,100,3,3000,3000,8000,9000,11,47729,1,0,0,0,0,0,0,0,0,0,'Grand Magus Telestra frost - cast ice bard N'),
-   (2693002,26930,0,0,100,5,3000,3000,8000,9000,11,56937,1,0,0,0,0,0,0,0,0,0,'Grand Magus Telestra frost - cast ice bard H'),
-   (2693003,26930,0,0,100,3,9000,9000,15000,16000,11,47727,1,0,0,0,0,0,0,0,0,0,'Grand Magus Telestra frost - cast blizzard N'),
-   (2693004,26930,0,0,100,5,9000,9000,15000,16000,11,56936,1,0,0,0,0,0,0,0,0,0,'Grand Magus Telestra frost - cast blizzard H');
-
--- Used in guards.cpp, see GOSSIP_TEXT_INSCRIPTION
-DELETE FROM `npc_text` WHERE `ID` IN (30000,30001);
-INSERT INTO `npc_text` (`ID`,`text0_0`,`text0_1`,`lang0`,`prob0`,`em0_0`,`em0_1`,`em0_2`,`em0_3`,`em0_4`,`em0_5`,`text1_0`,`text1_1`,`lang1`,`prob1`,`em1_0`,`em1_1`,`em1_2`,`em1_3`,`em1_4`,`em1_5`,`text2_0`,`text2_1`,`lang2`,`prob2`,`em2_0`,`em2_1`,`em2_2`,`em2_3`,`em2_4`,`em2_5`,`text3_0`,`text3_1`,`lang3`,`prob3`,`em3_0`,`em3_1`,`em3_2`,`em3_3`,`em3_4`,`em3_5`,`text4_0`,`text4_1`,`lang4`,`prob4`,`em4_0`,`em4_1`,`em4_2`,`em4_3`,`em4_4`,`em4_5`,`text5_0`,`text5_1`,`lang5`,`prob5`,`em5_0`,`em5_1`,`em5_2`,`em5_3`,`em5_4`,`em5_5`,`text6_0`,`text6_1`,`lang6`,`prob6`,`em6_0`,`em6_1`,`em6_2`,`em6_3`,`em6_4`,`em6_5`,`text7_0`,`text7_1`,`lang7`,`prob7`,`em7_0`,`em7_1`,`em7_2`,`em7_3`,`em7_4`,`em7_5`) VALUES
-   ('30000','Here you will find the Inscription Trainer.','Here you will find the Inscription Trainer.','0','1','0','0','0','0','0','0','So you want to be a Inscriber? Well here you will find the trainer.','So you want to be a Inscriber? Well here you will find the trainer.','0','0','0','0','0','0','0','0',NULL,NULL,'0','0','0','0','0','0','0','0',NULL,NULL,'0','0','0','0','0','0','0','0',NULL,NULL,'0','0','0','0','0','0','0','0',NULL,NULL,'0','0','0','0','0','0','0','0',NULL,NULL,'0','0','0','0','0','0','0','0',NULL,NULL,'0','0','0','0','0','0','0','0'),
-   ('30001','So you are looking for a Inscription Trainer? Well you can''t find the trainer out here, better head to the nearest city.\r\n','So you are looking for a Inscription Trainer? Well you can''t find the trainer out here, better head to the nearest city.\r\n','0','0','0','0','0','0','0','0','So you want to be a Inscriber? Well you can''t find the trainer out here, better head to the nearest city.','So you want to be a Inscriber? Well you can''t find the trainer out here, better head to the nearest city.','0','0','0','0','0','0','0','0',NULL,NULL,'0','0','0','0','0','0','0','0',NULL,NULL,'0','0','0','0','0','0','0','0',NULL,NULL,'0','0','0','0','0','0','0','0',NULL,NULL,'0','0','0','0','0','0','0','0',NULL,NULL,'0','0','0','0','0','0','0','0',NULL,NULL,'0','0','0','0','0','0','0','0');
    
--- Dual Spec `npc_option` change
-UPDATE `npc_option` SET `id`=52,`action`=19 WHERE `id`=51 AND `action`=18 AND `option_text`='UNIT_NPC_FLAG_OUTDOORPVP';
-DELETE FROM `npc_option` WHERE `id`=51;
-INSERT INTO `npc_option` (`id`,`gossip_id`,`npcflag`,`icon`,`action`,`box_money`,`coded`,`option_text`,`box_text`) VALUES
-   ('51','0','16','0','18','10000000','0','Purchase a Dual Talent Specialization.','Are you sure you wish to purchase a Dual Talent Specialization?');
+-- moved from world_spells_full.sql
+UPDATE `script_texts` SET `type` = '3' WHERE `entry` IN ('-1532089','-1532090');
