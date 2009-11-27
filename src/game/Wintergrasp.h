@@ -34,31 +34,28 @@ const uint32 ClockWorldState[5] = {3785,3784,3782,3976,3975};
 enum WintergraspSpell
 {
     // Wartime auras
-    SPELL_RECRUIT           = 37795,
-    SPELL_CORPORAL          = 33280,
-    SPELL_LIEUTENANT        = 55629,
-    SPELL_TENACITY          = 58549,
-    SPELL_TENACITY_VEHICLE  = 59911,
-    SPELL_TOWER_CONTROL     = 62064,
-    SPELL_SPIRITUAL_IMMUNITY = 58729,
+    SPELL_RECRUIT                                = 37795,
+    SPELL_CORPORAL                               = 33280,
+    SPELL_LIEUTENANT                             = 55629,
+    SPELL_TENACITY                               = 58549,
+    SPELL_TENACITY_VEHICLE                       = 59911,
+    SPELL_TOWER_CONTROL                          = 62064,
+    SPELL_SPIRITUAL_IMMUNITY                     = 58729,
 
     // Reward spells
-    SPELL_VICTORY_REWARD    = 56902,
-    SPELL_DEFEAT_REWARD     = 58494,
-    SPELL_DAMAGED_TOWER     = 59135,
-    SPELL_DESTROYED_TOWER   = 59136,
-    SPELL_DAMAGED_BUILDING  = 59201,
-    SPELL_INTACT_BUILDING   = 59203,
-
-    // No Wartime auras
-    SPELL_ESSENCE_OF_WG     = 58045,
+    SPELL_VICTORY_REWARD                         = 56902,
+    SPELL_DEFEAT_REWARD                          = 58494,
+    SPELL_DAMAGED_TOWER                          = 59135,
+    SPELL_DESTROYED_TOWER                        = 59136,
+    SPELL_DAMAGED_BUILDING                       = 59201,
+    SPELL_INTACT_BUILDING                        = 59203,
 
     // other
-    SPELL_NOFLYZONE_WG      = 58730,
-    SPELL_PARACHUTE_WG      = 61243,
+    SPELL_NOFLYZONE_WG                           = 58730,
+    SPELL_PARACHUTE_WG                           = 61243,
 
-//    SPELL_TELEPORT_DALARAN  = 53360,
-//    SPELL_VICTORY_AURA      = 60044,
+//    SPELL_TELEPORT_DALARAN                       = 53360,
+//    SPELL_VICTORY_AURA                           = 60044,
 };
 
 enum WintergraspRewardEvent
