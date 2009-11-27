@@ -118,7 +118,15 @@ enum eEnums
 
     //using these custom points for dragons start and end
     POINT_ID_INIT                               = 100,
-    POINT_ID_LAND                               = 200
+    POINT_ID_LAND                               = 200,
+
+    //Achievements
+    ACHIEV_TWILIGHT_ASSIST                      = 2049,
+    H_ACHIEV_TWILIGHT_ASSIST                    = 2052,
+    ACHIEV_TWILIGHT_DUO                         = 2050,
+    H_ACHIEV_TWILIGHT_DUO                       = 2053,
+    ACHIEV_TWILIGHT_ZONE                        = 2051,
+    H_ACHIEV_TWILIGHT_ZONE                      = 2054
 };
 
 struct Waypoint
@@ -190,6 +198,8 @@ struct TRINITY_DLL_DECL boss_sartharionAI : public ScriptedAI
     bool m_bHasCalledShadron;
     bool m_bHasCalledVesperon;
 
+    uint32 achievProgress;
+
     void Reset()
     {
         m_bIsBerserk = false;
@@ -216,6 +226,8 @@ struct TRINITY_DLL_DECL boss_sartharionAI : public ScriptedAI
             m_creature->RemoveAurasDueToSpell(SPELL_TWILIGHT_REVENGE);
 
         m_creature->ResetLootMode();
+
+        achievProgress = 0;
     }
 
     void JustReachedHome()
@@ -224,7 +236,7 @@ struct TRINITY_DLL_DECL boss_sartharionAI : public ScriptedAI
             pInstance->SetData(TYPE_SARTHARION_EVENT, NOT_STARTED);
     }
 
-    void Aggro(Unit* pWho)
+    void EnterCombat(Unit* pWho)
     {
         DoScriptText(SAY_SARTHARION_AGGRO,m_creature);
         DoZoneInCombat();
@@ -241,7 +253,16 @@ struct TRINITY_DLL_DECL boss_sartharionAI : public ScriptedAI
         DoScriptText(SAY_SARTHARION_DEATH,m_creature);
 
         if (pInstance)
+        {
+            if (achievProgress == 1)
+              pInstance->DoCompleteAchievement(HEROIC(ACHIEV_TWILIGHT_ASSIST,H_ACHIEV_TWILIGHT_ASSIST));
+            else if (achievProgress == 2)
+              pInstance->DoCompleteAchievement(HEROIC(ACHIEV_TWILIGHT_DUO,H_ACHIEV_TWILIGHT_DUO));
+            else if (achievProgress == 3)
+              pInstance->DoCompleteAchievement(HEROIC(ACHIEV_TWILIGHT_ZONE,H_ACHIEV_TWILIGHT_ZONE));
+       
             pInstance->SetData(TYPE_SARTHARION_EVENT, DONE);
+        }
     }
 
     void KilledUnit(Unit* pVictim)
@@ -305,7 +326,9 @@ struct TRINITY_DLL_DECL boss_sartharionAI : public ScriptedAI
     void CallDragon(uint32 uiDataId)
     {
         if (pInstance)
+        {
             if (Creature *pTemp = Unit::GetCreature(*m_creature,pInstance->GetData64(uiDataId)))
+            {
                 if (pTemp->isAlive() && !pTemp->getVictim())
                 {
                     if (pTemp->HasUnitMovementFlag(MOVEMENTFLAG_WALK_MODE))
@@ -316,6 +339,8 @@ struct TRINITY_DLL_DECL boss_sartharionAI : public ScriptedAI
 
                     int32 iTextId = 0;
                     AddDrakeLootMode();
+
+                    achievProgress++;
 
                     switch(pTemp->GetEntry())
                     {
@@ -338,6 +363,8 @@ struct TRINITY_DLL_DECL boss_sartharionAI : public ScriptedAI
 
                     DoScriptText(iTextId, m_creature);
                 }
+            }
+        }
     }
 
     void SendFlameTsunami()
