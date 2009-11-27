@@ -679,7 +679,7 @@ CreatureAI* GetAI_mob_massive_jormungar(Creature* pCreature)
     return new mob_massive_jormungarAI (pCreature);
 }
 
-/*
+
 struct TRINITY_DLL_DECL mob_palehoof_orbAI : public ScriptedAI
 {
     mob_palehoof_orbAI(Creature *c) : ScriptedAI(c)
@@ -759,7 +759,7 @@ CreatureAI* GetAI_mob_palehoof_orb(Creature* pCreature)
     return new mob_palehoof_orbAI (pCreature);
 }
 
-*/
+
 
 bool GOHello_palehoof_sphere(Player *pPlayer, GameObject *pGO)
 {
@@ -808,12 +808,12 @@ void AddSC_boss_palehoof()
     newscript->GetAI = &GetAI_mob_massive_jormungar;
     newscript->RegisterSelf();
 
-    /*   
+       
     newscript = new Script;
     newscript->Name = "mob_palehoof_orb";
     newscript->GetAI = &GetAI_mob_palehoof_orb;
     newscript->RegisterSelf();
-    */
+    
 
     newscript = new Script;
     newscript->Name = "go_palehoof_sphere";
