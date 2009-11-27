@@ -10,6 +10,7 @@ SET(game_STAT_SRCS
    AddonHandler.h
    CombatAI.cpp
    CombatAI.h
+   AnimalRandomMovementGenerator.h
    ArenaTeam.cpp
    ArenaTeam.h
    ArenaTeamHandler.cpp
