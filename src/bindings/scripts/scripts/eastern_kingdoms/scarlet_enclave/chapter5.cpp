@@ -354,6 +354,7 @@ struct TRINITY_DLL_DECL npc_highlord_darion_mograineAI : public npc_escortAI
 
             me->SetStandState(UNIT_STAND_STATE_STAND);
             me->Mount(25279);
+            me->SetVisibility(VISIBILITY_ON);
 
             UpdateWorldState(me->GetMap(), WORLD_STATE_REMAINS, 0);
             //UpdateWorldState(me->GetMap(), WORLD_STATE_COUNTDOWN, 0);
@@ -1283,7 +1284,11 @@ struct TRINITY_DLL_DECL npc_highlord_darion_mograineAI : public npc_escortAI
 
                     case 72:
                         SetHoldState(false); // Escort ends
-                        JumpToNextStep(0);
+                        JumpToNextStep(25000);
+                        break;
+
+                    case 73:
+                        me->ForcedDespawn();
                         break;
                 }
 
