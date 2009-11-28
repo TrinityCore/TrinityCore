@@ -34,7 +34,7 @@ enum eDrakuruShackles
 
 struct TRINITY_DLL_DECL npc_drakuru_shacklesAI : public ScriptedAI
 {
-    npc_drakuru_shacklesAI(Creature *c) : ScriptedAI(c) {}
+    npc_drakuru_shacklesAI(Creature* pCreature) : ScriptedAI(pCreature) {}
 
     Unit* Rageclaw;
 
@@ -48,16 +48,16 @@ struct TRINITY_DLL_DECL npc_drakuru_shacklesAI : public ScriptedAI
             DoActionOnRageclaw(true,summon);
     }
 
-    void DoActionOnRageclaw(bool locking, Unit *who)
+    void DoActionOnRageclaw(bool bLocking, Unit* pWho)
     {
-        if (!who)
+        if (!pWho)
             return;
 
-        if (locking)
+        if (bLocking)
         {
-            if (who)
+            if (pWho)
             {
-                Rageclaw = who;
+                Rageclaw = pWho;
 
                 m_creature->SetInFront(Rageclaw);
                 Rageclaw->SetInFront(m_creature);
@@ -69,20 +69,19 @@ struct TRINITY_DLL_DECL npc_drakuru_shacklesAI : public ScriptedAI
         else
         {
             DoCast(Rageclaw, SPELL_FREE_RAGECLAW, true);
-            CAST_PLR(who)->CastSpell(Rageclaw, SPELL_UNLOCK_SHACKLE, true);
+            CAST_PLR(pWho)->CastSpell(Rageclaw, SPELL_UNLOCK_SHACKLE, true);
             m_creature->setDeathState(DEAD);
         }
     }
 
-    void SpellHit(Unit *caster, const SpellEntry *spell)
+    void SpellHit(Unit* pCaster, const SpellEntry* pSpell)
     {
-        if (spell->Id == SPELL_UNLOCK_SHACKLE)
+        if (pSpell->Id == SPELL_UNLOCK_SHACKLE)
         {
             if (Rageclaw)
-                DoActionOnRageclaw(false,caster);
+                DoActionOnRageclaw(false, pCaster);
             else
                 m_creature->setDeathState(JUST_DIED);
-
         }
     }
 };
@@ -105,11 +104,12 @@ enum eRageclaw
 const char * SAY_RAGECLAW_1 =      "I poop on you, trollses!";
 const char * SAY_RAGECLAW_2 =      "ARRRROOOOGGGGAAAA!";
 const char * SAY_RAGECLAW_3 =      "No more mister nice wolvar!";
+
 #define SAY_RAGECLAW RAND(SAY_RAGECLAW_1,SAY_RAGECLAW_2,SAY_RAGECLAW_3)
 
 struct TRINITY_DLL_DECL npc_captured_rageclawAI : public ScriptedAI
 {
-    npc_captured_rageclawAI(Creature *c) : ScriptedAI(c) {}
+    npc_captured_rageclawAI(Creature* pCreature) : ScriptedAI(pCreature) {}
 
     uint32 DespawnTimer;
     bool Despawn;
@@ -124,9 +124,9 @@ struct TRINITY_DLL_DECL npc_captured_rageclawAI : public ScriptedAI
 
     void MoveInLineOfSight(Unit *who){}
 
-    void SpellHit(Unit *caster, const SpellEntry *spell)
+    void SpellHit(Unit* pCaster, const SpellEntry* pSpell)
     {
-        if (spell->Id == SPELL_FREE_RAGECLAW)
+        if (pSpell->Id == SPELL_FREE_RAGECLAW)
         {
             m_creature->RemoveAurasDueToSpell(SPELL_LEFT_CHAIN);
 
@@ -145,7 +145,7 @@ struct TRINITY_DLL_DECL npc_captured_rageclawAI : public ScriptedAI
         }
     }
 
-    void UpdateAI(const uint32 diff)
+    void UpdateAI(const uint32 uiDiff)
     {
         if (m_creature->getVictim())
         {
@@ -156,9 +156,9 @@ struct TRINITY_DLL_DECL npc_captured_rageclawAI : public ScriptedAI
         if (!Despawn)
             return;
 
-        if (DespawnTimer <= diff)
+        if (DespawnTimer <= uiDiff)
             m_creature->setDeathState(JUST_DIED);
-        else DespawnTimer-=diff;
+        else DespawnTimer -= uiDiff;
    }
 };
 
@@ -179,31 +179,32 @@ enum eGymer
     SPELL_GYMER                   = 55568
 };
 
-    bool GossipHello_npc_gymer(Player *pPlayer, Creature *pCreature)
+bool GossipHello_npc_gymer(Player* pPlayer, Creature* pCreature)
+{
+    if (pCreature->isQuestGiver())
+        pPlayer->PrepareQuestMenu(pCreature->GetGUID());
+
+    pPlayer->SEND_GOSSIP_MENU(pCreature->GetNpcTextId(), pCreature->GetGUID());
+
+    if (pPlayer->GetQuestStatus(QUEST_STORM_KING_VENGEANCE) == QUEST_STATUS_INCOMPLETE)
     {
-        if (pCreature->isQuestGiver())
-            pPlayer->PrepareQuestMenu(pCreature->GetGUID());
-        pPlayer->SEND_GOSSIP_MENU(pCreature->GetNpcTextId(), pCreature->GetGUID());
-
-        if (pPlayer->GetQuestStatus(QUEST_STORM_KING_VENGEANCE) == QUEST_STATUS_INCOMPLETE)
-        {
-            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_G, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-            pPlayer->SEND_GOSSIP_MENU(13640, pCreature->GetGUID());
-        }
-
-        return true;
+        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_G, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+        pPlayer->SEND_GOSSIP_MENU(13640, pCreature->GetGUID());
     }
 
-    bool GossipSelect_npc_gymer(Player *pPlayer, Creature *pCreature, uint32 uiSender, uint32 uiAction)
-    {
-        if (uiAction == GOSSIP_ACTION_INFO_DEF+1)
-        {
-            pPlayer->CLOSE_GOSSIP_MENU();
-            pPlayer->CastSpell(pPlayer, SPELL_GYMER, true);
-        }
+    return true;
+}
 
-        return true;
+bool GossipSelect_npc_gymer(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+{
+    if (uiAction == GOSSIP_ACTION_INFO_DEF+1)
+    {
+        pPlayer->CLOSE_GOSSIP_MENU();
+        pPlayer->CastSpell(pPlayer, SPELL_GYMER, true);
     }
+
+    return true;
+}
 
 void AddSC_zuldrak()
 {
