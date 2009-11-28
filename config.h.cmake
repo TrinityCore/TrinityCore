@@ -3,4 +3,6 @@
 
 #cmakedefine HAVE_ACE_STACK_TRACE_H
 
+#cmakedefine USE_MULTI_THREAD_MAP
+
 #endif HAVE_CONFIG_H

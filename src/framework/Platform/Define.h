@@ -152,7 +152,9 @@ typedef uint64 OBJECT_HANDLE;
 #endif
 
 #if !defined(DEBUG) && !defined(MANGOS_DEBUG) && !defined(TRINITY_DEBUG)
-//#define MULTI_THREAD_MAP
+  #if defined(USE_MULTI_THREAD_MAP)
+    #define MULTI_THREAD_MAP
+  #endif
 #endif
 
 #ifdef MULTI_THREAD_MAP
