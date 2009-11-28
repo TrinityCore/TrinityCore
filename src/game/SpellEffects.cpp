@@ -676,7 +676,7 @@ void Spell::SpellDamageSchoolDmg(uint32 effect_idx)
                     float ap = m_caster->GetTotalAttackPowerValue(BASE_ATTACK);
                     float sp = m_caster->SpellBaseDamageBonus(GetSpellSchoolMask(m_spellInfo));
                     damage += int32(0.16f*ap + 0.25f*sp);
-                }                
+                }
                 break;
             }
             case SPELLFAMILY_DEATHKNIGHT:
@@ -5725,6 +5725,9 @@ void Spell::EffectScriptEffect(uint32 effIndex)
                         AuraDivinePlea->RefreshAura();
                     return;
                 }
+                case 45634: //Neural Needle
+                    unitTarget->CastSpell(unitTarget, 45702, true); //Neural Needle Impact
+                    return;
             }
             break;
         }
