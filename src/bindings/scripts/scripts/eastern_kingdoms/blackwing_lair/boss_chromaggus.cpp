@@ -232,7 +232,7 @@ struct TRINITY_DLL_DECL boss_chromaggusAI : public ScriptedAI
             for (std::list<HostilReference*>::iterator i = m_creature->getThreatManager().getThreatList().begin(); i != m_creature->getThreatManager().getThreatList().end(); ++i)
             {
                 Unit* pUnit;
-                if ((*i)->getSource())
+                if ((*i) && (*i)->getSource())
                 {
                     pUnit = Unit::GetUnit((*m_creature), (*i)->getUnitGuid());
                     if (pUnit)
