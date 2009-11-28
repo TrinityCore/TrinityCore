@@ -284,13 +284,17 @@ CreatureAI* GetAI_npc_taskmaster_fizzule(Creature* pCreature)
 ## npc_twiggy_flathead
 #####*/
 
-#define BIG_WILL 6238
-#define AFFRAY_CHALLENGER 6240
-#define SAY_BIG_WILL_READY                  -1000267
-#define SAY_TWIGGY_FLATHEAD_BEGIN           -1000268
-#define SAY_TWIGGY_FLATHEAD_FRAY            -1000269
-#define SAY_TWIGGY_FLATHEAD_DOWN            -1000270
-#define SAY_TWIGGY_FLATHEAD_OVER            -1000271
+enum eTwiggyFlathead
+{
+    NPC_BIG_WILL                = 6238,
+    NPC_AFFRAY_CHALLENGER       = 6240,
+
+    SAY_BIG_WILL_READY          = -1000123,
+    SAY_TWIGGY_FLATHEAD_BEGIN   = -1000124,
+    SAY_TWIGGY_FLATHEAD_FRAY    = -1000125,
+    SAY_TWIGGY_FLATHEAD_DOWN    = -1000126,
+    SAY_TWIGGY_FLATHEAD_OVER    = -1000127,
+};
 
 float AffrayChallengerLoc[6][4]=
 {
@@ -409,7 +413,7 @@ struct TRINITY_DLL_DECL npc_twiggy_flatheadAI : public ScriptedAI
 
                     for (uint8 i = 0; i < 6; ++i)
                     {
-                        Creature* pCreature = m_creature->SummonCreature(AFFRAY_CHALLENGER, AffrayChallengerLoc[i][0], AffrayChallengerLoc[i][1], AffrayChallengerLoc[i][2], AffrayChallengerLoc[i][3], TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 600000);
+                        Creature* pCreature = m_creature->SummonCreature(NPC_AFFRAY_CHALLENGER, AffrayChallengerLoc[i][0], AffrayChallengerLoc[i][1], AffrayChallengerLoc[i][2], AffrayChallengerLoc[i][3], TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 600000);
                         if (!pCreature)
                             continue;
                         pCreature->setFaction(35);
@@ -460,7 +464,7 @@ struct TRINITY_DLL_DECL npc_twiggy_flatheadAI : public ScriptedAI
                         }
                     }
                     else if (Wave >= 6 && !EventBigWill) {
-                        if (Creature* pCreature = m_creature->SummonCreature(BIG_WILL, -1722, -4341, 6.12, 6.26, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 480000))
+                        if (Creature* pCreature = m_creature->SummonCreature(NPC_BIG_WILL, -1722, -4341, 6.12, 6.26, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 480000))
                         {
                             BigWill = pCreature->GetGUID();
                             //pCreature->GetMotionMaster()->MovePoint(0, -1693, -4343, 4.32);
