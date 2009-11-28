@@ -741,10 +741,10 @@ enum eLurgglbr
     FACTION_ESCORTEE_H                  = 775,
 };
 
-#define SAY_WP_1_LUR_START  -1571004
+/*#define SAY_WP_1_LUR_START  -1571004
 #define SAY_WP_1_LUR_END    -1571005
 #define SAY_WP_41_LUR_START -1571006
-#define SAY_WP_41_LUR_END   -1571007
+#define SAY_WP_41_LUR_END   -1571007*/
 
 struct TRINITY_DLL_DECL npc_lurgglbrAI : public npc_escortAI
 {
@@ -1633,6 +1633,140 @@ CreatureAI* GetAI_npc_beryl_sorcerer(Creature* pCreature)
     return new npc_beryl_sorcererAI(pCreature);
 }
 
+/*######
+## npc_imprisoned_beryl_sorcerer
+######*/
+
+enum eImprisionedBerylSorcerer
+{
+    SPELL_NEURAL_NEEDLE             = 45634,
+
+    NPC_IMPRISONED_BERYL_SORCERER   = 25478,
+
+    SAY_IMPRISIONED_BERYL_1         = -1571024,
+    SAY_IMPRISIONED_BERYL_2         = -1571025,
+    SAY_IMPRISIONED_BERYL_3         = -1571026,
+    SAY_IMPRISIONED_BERYL_4         = -1571027,
+    SAY_IMPRISIONED_BERYL_5         = -1571028,
+    SAY_IMPRISIONED_BERYL_6         = -1571029,
+    SAY_IMPRISIONED_BERYL_7         = -1571030,
+};
+
+struct TRINITY_DLL_DECL npc_imprisoned_beryl_sorcererAI : public ScriptedAI
+{
+    npc_imprisoned_beryl_sorcererAI(Creature* pCreature) : ScriptedAI(pCreature)
+    {
+        pCaster = NULL;
+    }
+
+    Player *pCaster;
+
+    uint32  uiStep;
+    uint32  uiPhase;
+
+    void Reset()
+    {
+        uiStep = 1;
+        uiPhase = 0;
+    }
+
+    void EnterCombat(Unit* pWho)
+    {
+        return;
+    }
+
+    void SpellHit(Unit* pCaster, const SpellEntry* pSpell)
+    {
+        if (pSpell->Id == SPELL_NEURAL_NEEDLE && pCaster->GetTypeId() == TYPEID_PLAYER)
+        {
+            ++uiPhase;
+            pCaster = CAST_PLR(pCaster);
+        }
+    }
+
+    void UpdateAI(const uint32 uiDiff)
+    {
+        ScriptedAI::UpdateAI(uiDiff);
+
+        if (!m_creature->HasAura(SPELL_COSMETIC_ENSLAVE_CHAINS_SELF))
+            DoCast(m_creature, SPELL_COSMETIC_ENSLAVE_CHAINS_SELF);
+
+        if (m_creature->GetReactState() != REACT_PASSIVE)
+            m_creature->SetReactState(REACT_PASSIVE);
+
+        switch (uiPhase)
+        {
+            case 1:
+                if (uiStep == 1)
+                {
+                    DoScriptText(SAY_IMPRISIONED_BERYL_1, m_creature);
+                    uiStep = 2;
+                }
+                break;
+
+            case 2:
+                if (uiStep == 2)
+                {
+                    DoScriptText(SAY_IMPRISIONED_BERYL_2, m_creature);
+                    uiStep = 3;
+                }
+                break;
+
+            case 3:
+                if (uiStep == 3)
+                {
+                    DoScriptText(SAY_IMPRISIONED_BERYL_3, m_creature);
+                    uiStep = 4;
+                }
+                break;
+
+            case 4:
+                if (uiStep == 4)
+                {
+                    DoScriptText(SAY_IMPRISIONED_BERYL_4, m_creature);
+                    uiStep = 5;
+                }
+                break;
+
+            case 5:
+                if (uiStep == 5)
+                {
+                    if (pCaster)
+                    {
+                        DoScriptText(SAY_IMPRISIONED_BERYL_5, m_creature);
+                        pCaster->KilledMonsterCredit(25478,0);
+                        uiStep = 6;
+                    }
+                }
+                break;
+
+            case 6:
+                if (uiStep == 6)
+                {
+                    DoScriptText(SAY_IMPRISIONED_BERYL_6, m_creature);
+                    uiStep = 7;
+                }
+                break;
+
+            case 7:
+                if (uiStep == 7)
+                {
+                    DoScriptText(SAY_IMPRISIONED_BERYL_7, m_creature);
+                    uiStep  = 1;
+                    uiPhase = 0;
+                }
+                break;
+
+        if (!UpdateVictim())
+            return;
+        }
+    }
+};
+
+CreatureAI* GetAI_npc_imprisoned_beryl_sorcerer(Creature* pCreature)
+{
+    return new npc_imprisoned_beryl_sorcererAI(pCreature);
+}
 
 void AddSC_borean_tundra()
 {
@@ -1746,5 +1880,10 @@ void AddSC_borean_tundra()
     newscript = new Script;
     newscript->Name = "npc_beryl_sorcerer";
     newscript->GetAI = &GetAI_npc_beryl_sorcerer;
+    newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name = "npc_imprisoned_beryl_sorcerer";
+    newscript->GetAI = &GetAI_npc_imprisoned_beryl_sorcerer;
     newscript->RegisterSelf();
 }

@@ -1628,6 +1628,13 @@ INSERT INTO `script_texts` (`npc_entry`,`entry`,`content_default`,`content_loc1`
    (26170,-1571021,'You might be right, sister. My obligations to my land and King have been fulfilled. But there is still something that I owe to myself.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,''),
    (26170,-1571022,'I know that look in your eye... I''m not going to be able to talk you out of this. If you die on me again...',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,''),
    (26170,-1571023,'Do not worry, Leryssa. I will come back to you when I''m done. Nothing in the world will stop me from coming home to the only family that I have left.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,''),
+   (25478,-1571024,'Pathetic fool! A servant of malygos would sooner die than aid an emeny...',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,''),
+   (25478,-1571025,'Aargh! Do your worst, $C ! I''ll tell you NOTHING!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,''),
+   (25478,-1571026,'Aahhhh! Release me! I am of no use to you. I swear it!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,''),
+   (25478,-1571027,'Stop! I beg you, please stop. Please...',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,''),
+   (25478,-1571028,'Alright! I am beaten. Your previous archmage is held in a prison, elevated and sealed. Even if you manage to reach her, Salrand herself holds the key. Your mission is folly!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,''),
+   (25478,-1571029,'I''ve given you the information, $C ! You''re wasting your time....',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,''),
+   (25478,-1571030,'Noooo! This tortue is inhumane! You have what you want... why don''t you just kill me?',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,''),
 
 -- -1 574 000 UTGARDE KEEP
    (23953,-1574000,'Your blood is mine!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,13221,1,0,0,'keleseth SAY_AGGRO'),
