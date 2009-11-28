@@ -181,9 +181,10 @@ void npc_escortAI::EnterEvadeMode()
         debug_log("TSCR: EscortAI has left combat and is now returning to last point");
     }
     else
+    {
         m_creature->GetMotionMaster()->MoveTargetedHome();
-
-    Reset();
+        Reset();
+    }
 }
 
 bool npc_escortAI::IsPlayerOrGroupInRange()
@@ -302,8 +303,10 @@ void npc_escortAI::UpdateAI(const uint32 uiDiff)
 
 void npc_escortAI::UpdateEscortAI(const uint32 uiDiff)
 {
-    if (CanMelee && UpdateVictim())
-        DoMeleeAttackIfReady();
+    if (!CanMelee && !UpdateVictim())
+        return;
+
+    DoMeleeAttackIfReady();
 }
 
 void npc_escortAI::MovementInform(uint32 uiMoveType, uint32 uiPointId)
