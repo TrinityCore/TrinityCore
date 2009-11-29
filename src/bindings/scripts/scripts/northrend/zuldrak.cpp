@@ -69,7 +69,8 @@ struct TRINITY_DLL_DECL npc_drakuru_shacklesAI : public ScriptedAI
         else
         {
             DoCast(Rageclaw, SPELL_FREE_RAGECLAW, true);
-            CAST_PLR(pWho)->CastSpell(Rageclaw, SPELL_UNLOCK_SHACKLE, true);
+            if (pWho->GetTypeId() == TYPEID_PLAYER)
+                CAST_PLR(pWho)->CastSpell(Rageclaw, SPELL_UNLOCK_SHACKLE, true);
             m_creature->setDeathState(DEAD);
         }
     }
