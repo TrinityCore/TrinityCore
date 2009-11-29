@@ -158,7 +158,7 @@ struct TRINITY_DLL_DECL npc_captured_rageclawAI : public ScriptedAI
             return;
 
         if (DespawnTimer <= uiDiff)
-            m_creature->setDeathState(JUST_DIED);
+            m_creature->DisappearAndDie();
         else DespawnTimer -= uiDiff;
    }
 };
