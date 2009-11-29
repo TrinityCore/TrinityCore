@@ -1756,10 +1756,10 @@ struct TRINITY_DLL_DECL npc_imprisoned_beryl_sorcererAI : public ScriptedAI
                     uiPhase = 0;
                 }
                 break;
+        }
 
         if (!UpdateVictim())
             return;
-        }
     }
 };
 
