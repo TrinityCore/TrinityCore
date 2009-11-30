@@ -5425,10 +5425,10 @@ bool Player::UpdateSkillPro(uint16 SkillId, int32 Chance, uint32 step)
     uint16 SkillValue = SKILL_VALUE(data);
     uint16 MaxValue   = SKILL_MAX(data);
 
-    if ( !MaxValue || !SkillValue || SkillValue >= MaxValue )
+    if (!MaxValue || !SkillValue || SkillValue >= MaxValue )
         return false;
 
-    int32 Roll = irand(1,1000);
+    int32 Roll = irand(1,100);
 
     if ( Roll <= Chance )
     {
