@@ -1155,7 +1155,7 @@ void GameObject::Use(Unit* user)
                         sLog.outErrorDb("Fishable areaId %u are not properly defined in `skill_fishing_base_level`.",subzone);
 
                     int32 skill = player->GetSkillValue(SKILL_FISHING);
-                    int32 chance = skill - zone_skill + 5;
+                    int32 chance = pow((double)skill/zone_skill,2) * 100;
                     int32 roll = irand(1,100);
 
                     DEBUG_LOG("Fishing check (skill: %i zone min skill: %i chance %i roll: %i",skill,zone_skill,chance,roll);
