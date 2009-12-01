@@ -50,10 +50,6 @@ enum WintergraspSpell
     SPELL_DAMAGED_BUILDING                       = 59201,
     SPELL_INTACT_BUILDING                        = 59203,
 
-    // other
-    SPELL_NOFLYZONE_WG                           = 58730,
-    SPELL_PARACHUTE_WG                           = 61243,
-
 //    SPELL_TELEPORT_DALARAN                       = 53360,
 //    SPELL_VICTORY_AURA                           = 60044,
 };

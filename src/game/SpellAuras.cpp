@@ -3347,30 +3347,7 @@ void AuraEffect::HandleAuraFeatherFall(bool apply, bool Real, bool /*changeAmoun
 
     WorldPacket data;
     if (apply)
-    {
-        Unit* caster = GetCaster();
-        if (!caster)
-            return;
-
-        if (caster->GetGUID() == m_target->GetGUID())
-        {
-            m_target->RemoveAurasByType(SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED);
-            m_target->RemoveAurasByType(SPELL_AURA_FLY);
-        }
-
-        if (GetId() == 61243) // No fly zone - Parachute
-        {
-            float x, y, z;
-            caster->GetPosition(x, y, z);
-            float ground_Z = caster->GetMap()->GetVmapHeight(x, y, z, true);
-            if (fabs(ground_Z - z) < 0.1f)
-            {
-                m_target->RemoveAura(GetId());
-                return;
-            }
-        }
         data.Initialize(SMSG_MOVE_FEATHER_FALL, 8+4);
-    }
     else
         data.Initialize(SMSG_MOVE_NORMAL_FALL, 8+4);
     data.append(m_target->GetPackGUID());
@@ -4633,6 +4610,16 @@ void AuraEffect::HandlePeriodicTriggerSpell(bool apply, bool Real, bool /*change
 void AuraEffect::HandlePeriodicTriggerSpellWithValue(bool apply, bool Real, bool /*changeAmount*/)
 {
     m_isPeriodic = apply;
+
+    SpellEntry const* spell = GetSpellProto();
+    switch (spell->Id)
+    {
+        case 58730: // No fly zone - Wintergrasp (3.1.3 only 3.2.2 Does not call this aura)
+            if (apply)
+                if (Player *plr = (Player*)m_target)
+                    plr->GetSession()->SendNotification(LANG_ZONE_NOFLYZONE);
+        break;
+    }
 }
 
 void AuraEffect::HandlePeriodicEnergize(bool apply, bool Real, bool changeAmount)
@@ -4654,22 +4641,36 @@ void AuraEffect::HandleAuraPeriodicDummy(bool apply, bool Real, bool changeAmoun
     Unit* caster = GetCaster();
 
     SpellEntry const*spell = GetSpellProto();
-    switch( spell->SpellFamilyName)
+    switch(spell->SpellFamilyName)
     {
         case SPELLFAMILY_GENERIC:
         {
-            if(spell->Id == 62399) // Overload Circuit
+            switch(spell->Id)
             {
-                if(m_target->GetMap()->IsDungeon())
-                    if(m_target->GetAuras().count(62399) >= (m_target->GetMap()->IsHeroic() ? 4 : 2))
-                    {
-                        m_target->CastSpell(m_target, 62475, true); // System Shutdown
-                        if(Unit *veh = m_target->GetVehicleBase())
-                            veh->CastSpell(m_target, 62475, true);
-                    }
+                case 62399: // Overload Circuit
+                    if(m_target->GetMap()->IsDungeon() && m_target->GetAuras().count(62399) >= (m_target->GetMap()->IsHeroic() ? 4 : 2))
+                     {
+                         m_target->CastSpell(m_target, 62475, true); // System Shutdown
+                         if(Unit *veh = m_target->GetVehicleBase())
+                             veh->CastSpell(m_target, 62475, true);
+                     }
+                    break;
+                case 58600: // No fly zone - Dalaran
+                    if (Player *plr = (Player*)m_target)
+                        if (apply)
+                            plr->GetSession()->SendNotification(LANG_ZONE_NOFLYZONE);
+                        else
+                        {
+                            plr->RemoveAurasByType(SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED);
+                            plr->RemoveAurasByType(SPELL_AURA_FLY);
+                        }
+                    break;
+                default:
+                    break;
             }
             break;
         }
+
         case SPELLFAMILY_WARLOCK:
         {
             switch (spell->Id)
@@ -4682,11 +4683,12 @@ void AuraEffect::HandleAuraPeriodicDummy(bool apply, bool Real, bool changeAmoun
                         // to prevent remove GO added by new spell
                         // old one is already removed
                         if (GetParentAura()->GetRemoveMode()!=AURA_REMOVE_BY_STACK)
-                            m_target->RemoveGameObject(spell->Id,true);
+                            m_target->RemoveGameObject(spell->Id, true);
                         m_target->RemoveAura(62388);
                     }
                 break;
             }
+            break;
         }
         case SPELLFAMILY_DEATHKNIGHT:
         {
@@ -6538,6 +6540,14 @@ void AuraEffect::PeriodicDummyTick()
                 // 7053 Forsaken Skill: Shadow
                 return;
             }
+            case 45472: // Parachute
+                if (Player *plr = (Player*)m_target)
+                    if (plr->IsFalling())
+                    {
+                        plr->RemoveAurasDueToSpell(45472);
+                        plr->CastSpell(plr, 44795, true);
+                    }
+            break;
             case 58549: // Tenacity
             case 59911: // Tenacity (vehicle)
                 GetParentAura()->RefreshAura();
