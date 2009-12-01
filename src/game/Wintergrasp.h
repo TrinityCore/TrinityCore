@@ -54,17 +54,6 @@ enum WintergraspSpell
 //    SPELL_VICTORY_AURA                           = 60044,
 };
 
-enum WintergraspRewardEvent
-{
-    WIN_BATTLE,
-    LOSE_BATTLE,
-    DAMAGED_TOWER,
-    DESTROYED_TOWER,
-    DAMAGED_BUILDING,
-    INTACT_BUILDING,
-    WG_REWARD_EVENT_MAX,
-};
-
 /* Not used / Not implemented
 
 const uint16 GameEventWintergraspDefender[2] = {50, 51};
@@ -259,8 +248,6 @@ class OPvPWintergrasp : public OutdoorPvP
         uint32 m_workshopCount[2];
         uint32 m_towerDestroyedCount[2];
         uint32 m_towerDamagedCount[2];
-
-        uint32 m_customHonorReward[WG_REWARD_EVENT_MAX];
 
         SiegeWorkshop *GetWorkshop(uint32 lowguid) const;
         SiegeWorkshop *GetWorkshopByEngGuid(uint32 lowguid) const;
