@@ -5094,6 +5094,15 @@ SpellCastResult Spell::CheckCast(bool strict)
 
                         break;
                     }
+                    case 44795: // Parachute
+                    {
+                        float x, y, z;
+                        m_caster->GetPosition(x, y, z);
+                        float ground_Z = m_caster->GetMap()->GetVmapHeight(x, y, z, true);
+                        if (fabs(ground_Z - z) < 0.1f)
+                            return SPELL_FAILED_DONT_REPORT;
+                        break;
+                    }
                     default:
                         break;
                 }
