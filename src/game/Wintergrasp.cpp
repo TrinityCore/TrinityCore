@@ -448,16 +448,6 @@ bool OPvPWintergrasp::SetupOutdoorPvP()
     m_towerDamagedCount[TEAM_HORDE] = 0;
     m_towerDestroyedCount[TEAM_HORDE] = 0;
 
-    // Load custom rewards
-    if (sWorld.getConfig(CONFIG_OUTDOORPVP_WINTERGRASP_CUSTOM_HONOR))
-    {
-        m_customHonorReward[WIN_BATTLE] = sWorld.getConfig(CONFIG_OUTDOORPVP_WINTERGRASP_WIN_BATTLE);
-        m_customHonorReward[LOSE_BATTLE] = sWorld.getConfig(CONFIG_OUTDOORPVP_WINTERGRASP_LOSE_BATTLE);
-        m_customHonorReward[DAMAGED_TOWER] = sWorld.getConfig(CONFIG_OUTDOORPVP_WINTERGRASP_DAMAGED_TOWER);
-        m_customHonorReward[DESTROYED_TOWER] = sWorld.getConfig(CONFIG_OUTDOORPVP_WINTERGRASP_DESTROYED_TOWER);
-        m_customHonorReward[DAMAGED_BUILDING] = sWorld.getConfig(CONFIG_OUTDOORPVP_WINTERGRASP_DAMAGED_BUILDING);
-        m_customHonorReward[INTACT_BUILDING] = sWorld.getConfig(CONFIG_OUTDOORPVP_WINTERGRASP_INTACT_BUILDING);
-    }
     RemoveOfflinePlayerWGAuras();
 
     RegisterZone(ZONE_WINTERGRASP);
@@ -1539,11 +1529,11 @@ void OPvPWintergrasp::EndBattle()
                 if ((*itr)->getLevel() > 69 && ((*itr)->HasAura(SPELL_LIEUTENANT) || (*itr)->HasAura(SPELL_CORPORAL)))
                     ++playersWithRankNum;
 
-            baseHonor = m_customHonorReward[(team == getDefenderTeam()) ? WIN_BATTLE : LOSE_BATTLE];
-            baseHonor += (m_customHonorReward[DAMAGED_TOWER] * m_towerDamagedCount[OTHER_TEAM(team)]);
-            baseHonor += (m_customHonorReward[DESTROYED_TOWER] * m_towerDestroyedCount[OTHER_TEAM(team)]);
-            baseHonor += (m_customHonorReward[INTACT_BUILDING] * intactNum);
-            baseHonor += (m_customHonorReward[DAMAGED_BUILDING] * damagedNum);
+            baseHonor = team == getDefenderTeam() ? sWorld.getConfig(CONFIG_OUTDOORPVP_WINTERGRASP_WIN_BATTLE) : sWorld.getConfig(CONFIG_OUTDOORPVP_WINTERGRASP_LOSE_BATTLE);
+            baseHonor += (sWorld.getConfig(CONFIG_OUTDOORPVP_WINTERGRASP_DAMAGED_TOWER) * m_towerDamagedCount[OTHER_TEAM(team)]);
+            baseHonor += (sWorld.getConfig(CONFIG_OUTDOORPVP_WINTERGRASP_DESTROYED_TOWER) * m_towerDestroyedCount[OTHER_TEAM(team)]);
+            baseHonor += (sWorld.getConfig(CONFIG_OUTDOORPVP_WINTERGRASP_INTACT_BUILDING) * intactNum);
+            baseHonor += (sWorld.getConfig(CONFIG_OUTDOORPVP_WINTERGRASP_DAMAGED_BUILDING) * damagedNum);
             if (playersWithRankNum)
                 baseHonor /= playersWithRankNum;
         }
