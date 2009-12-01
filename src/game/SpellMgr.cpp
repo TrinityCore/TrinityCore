@@ -3045,6 +3045,12 @@ bool SpellArea::IsFitToRequirements(Player const* player, uint32 newZone, uint32
             if (!player || player->GetTeamId() != sWorld.getState(WORLDSTATE_WINTERGRASP_CONTROLING_FACTION))
                 return false;
             break;
+        case 58600: // No fly Zone - Dalaran
+        case 58730: // No fly Zone - Wintergrasp
+            if (!player || !player->HasAuraType(SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED) && !player->HasAuraType(SPELL_AURA_FLY)
+                || player->HasAura(45472) || player->HasAura(44795))
+                return false;
+            break;
     }
 
     return true;

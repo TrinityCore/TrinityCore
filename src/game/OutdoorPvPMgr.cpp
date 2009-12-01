@@ -19,7 +19,6 @@
 #include "OutdoorPvPMgr.h"
 #include "OutdoorPvPHP.h"
 #include "OutdoorPvPNA.h"
-#include "OutdoorPvPNR.h"
 #include "OutdoorPvPTF.h"
 #include "OutdoorPvPZM.h"
 #include "OutdoorPvPSI.h"
@@ -137,19 +136,6 @@ void OutdoorPvPMgr::InitOutdoorPvP()
     {
         m_OutdoorPvPSet.push_back(pOP);
         sLog.outDebug("OutdoorPvP : Wintergrasp successfully initiated.");
-    }
-
-    pOP = new OutdoorPvPNR;
-    // respawn, init variables
-    if(!pOP->SetupOutdoorPvP())
-    {
-        sLog.outDebug("OutdoorPvP : NR init failed.");
-        delete pOP;
-    }
-    else
-    {
-        m_OutdoorPvPSet.push_back(pOP);
-        sLog.outDebug("OutdoorPvP : NR successfully initiated.");
     }
 }
 

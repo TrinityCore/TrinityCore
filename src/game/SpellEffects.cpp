@@ -1338,6 +1338,13 @@ void Spell::EffectDummy(uint32 i)
                 case 58418:                                 // Portal to Orgrimmar
                 case 58420:                                 // Portal to Stormwind
                     return;                                 // implemented in EffectScript[0]
+                case 58601:
+                    if (Player *plr = (Player*)unitTarget)
+                    {
+                        plr->RemoveAurasByType(SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED);
+                        plr->RemoveAurasByType(SPELL_AURA_FLY);
+                    }
+                    break;
                 case 59640:                                 // Underbelly Elixir
                 {
                     if(m_caster->GetTypeId() != TYPEID_PLAYER)
