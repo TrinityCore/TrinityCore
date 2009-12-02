@@ -1843,6 +1843,7 @@ uint16 Map::GetAreaFlag(float x, float y, float z) const
         case 166:                                           // The Forlorn Mine
 	    if (6812.0f < x && x < 7048.0f && -1200.0f > y && y > -1433.0f && 807.0f < z && z < 840.0f)
 	        areaflag = 2213;
+        break;
         // Acherus: The Ebon Hold (Plaguelands: The Scarlet Enclave)
         case 1984:                                          // Plaguelands: The Scarlet Enclave
         case 2076:                                          // Death's Breach (Plaguelands: The Scarlet Enclave)
