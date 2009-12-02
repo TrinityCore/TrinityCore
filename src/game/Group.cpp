@@ -1461,6 +1461,9 @@ void Group::SetDifficulty(uint8 difficulty)
             continue;
         player->SetDifficulty(difficulty);
         player->SendDungeonDifficulty(true);
+        //send player to recall positio nis a dungeon (to avoid an exploit)
+        if (sMapStore.LookupEntry(player->GetMap()->IsDungeon()))
+            player->TeleportTo(player->m_recallMap, player->m_recallX, player->m_recallY, player->m_recallZ, player->m_recallO);
     }
 }
 
