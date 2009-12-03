@@ -456,9 +456,9 @@ bool OPvPWintergrasp::SetupOutdoorPvP()
 
 void OPvPWintergrasp::ProcessEvent(GameObject *obj, uint32 eventId)
 {
-    if (eventId == 19982)
+    if (obj->GetEntry() == 192829)
     {
-        if (isWarTime() && m_gate && m_gate->damageState == DAMAGE_DESTROYED)
+        if (obj->GetGOInfo()->goober.eventId == eventId && isWarTime() && m_gate && m_gate->damageState == DAMAGE_DESTROYED)
         {
             m_changeDefender = true;
             m_timer = 0;
