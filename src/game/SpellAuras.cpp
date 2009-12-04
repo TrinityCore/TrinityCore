@@ -4659,11 +4659,6 @@ void AuraEffect::HandleAuraPeriodicDummy(bool apply, bool Real, bool changeAmoun
                     if (Player *plr = (Player*)m_target)
                         if (apply)
                             plr->GetSession()->SendNotification(LANG_ZONE_NOFLYZONE);
-                        else
-                        {
-                            plr->RemoveAurasByType(SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED);
-                            plr->RemoveAurasByType(SPELL_AURA_FLY);
-                        }
                     break;
                 default:
                     break;
@@ -6547,7 +6542,15 @@ void AuraEffect::PeriodicDummyTick()
                         plr->RemoveAurasDueToSpell(45472);
                         plr->CastSpell(plr, 44795, true);
                     }
-            break;
+                break;
+            case 58600: // No fly Zone - Dalaran
+                if (10 == m_tickNumber)
+                    if (Player *plr = (Player*)m_target)
+                    {
+                        plr->RemoveAurasByType(SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED);
+                        plr->RemoveAurasByType(SPELL_AURA_FLY);
+                    }
+                break;
             case 58549: // Tenacity
             case 59911: // Tenacity (vehicle)
                 GetParentAura()->RefreshAura();
