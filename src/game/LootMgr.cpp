@@ -882,7 +882,8 @@ void LootTemplate::LootGroup::Process(Loot& loot, uint16 lootMode) const
             itemSource = 1;
             float Roll = rand_chance();
             // check each explicitly chanced entry in the template and modify its chance based on quality
-            for (itr = ExplicitPossibleDrops.begin(); itr != ExplicitPossibleDrops.end(); ExplicitPossibleDrops.erase(itr))
+            itr = ExplicitPossibleDrops.begin();
+            while (itr != ExplicitPossibleDrops.end())
             {
                 if (itr->chance >= 100.0f)
                 {
@@ -896,6 +897,7 @@ void LootTemplate::LootGroup::Process(Loot& loot, uint16 lootMode) const
                     item = &*itr;
                     break;
                 }
+                itr = ExplicitPossibleDrops.erase(itr);
             }
         }
         if (item == NULL && !EqualPossibleDrops.empty()) // If nothing selected yet - an item is taken from equal-chanced part
