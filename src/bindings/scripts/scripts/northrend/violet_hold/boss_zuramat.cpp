@@ -15,7 +15,6 @@ enum Spells
     SPELL_SUMMON_VOID_SENTRY                       = 54369,
     SPELL_VOID_SHIFT                               = 54361,
     H_SPELL_VOID_SHIFT                             = 59743,
-    SPELL_VOID_SHIFTED                             = 54343,
 
     SPELL_ZUMARAT_ADD_2                            = 59747,
     H_SPELL_ZUMARAT_ADD_2                          = 59747
@@ -47,14 +46,10 @@ struct TRINITY_DLL_DECL boss_zuramatAI : public ScriptedAI
     }
 
     ScriptedInstance* pInstance;
-    Unit* Shifted;
 
     uint32 SpellVoidShiftTimer;
     uint32 SpellSummonVoidTimer;
     uint32 SpellShroudOfDarknessTimer;
-    uint32 SpellVoidShiftedTimer;
-
-    bool shiftcast;
 
     void Reset()
     {
@@ -69,8 +64,6 @@ struct TRINITY_DLL_DECL boss_zuramatAI : public ScriptedAI
         SpellShroudOfDarknessTimer = 22000;
         SpellVoidShiftTimer = 15000;
         SpellSummonVoidTimer = 12000;
-
-        shiftcast = false;
     }
 
     void EnterCombat(Unit* who)
@@ -99,24 +92,11 @@ struct TRINITY_DLL_DECL boss_zuramatAI : public ScriptedAI
             SpellSummonVoidTimer = 20000;
         } else SpellSummonVoidTimer -=diff;
 
-        if(SpellVoidShiftedTimer < diff && shiftcast)
-        {
-            Shifted =  SelectUnit(SELECT_TARGET_RANDOM, 0);
-            if (Shifted)
-                DoCast(Shifted, SPELL_VOID_SHIFTED, false);
-            shiftcast = false;
-        } else SpellVoidShiftedTimer -=diff;
-
         if (SpellVoidShiftTimer <= diff)
         {
-            Shifted =  SelectUnit(SELECT_TARGET_RANDOM, 0);
-            if (Shifted)
-            {
-                DoCast(Shifted, HEROIC(SPELL_VOID_SHIFT, H_SPELL_VOID_SHIFT));
-                shiftcast = true;
-                SpellVoidShiftTimer = 20000;
-            }
-            SpellVoidShiftedTimer = 5000;
+             if (Unit* pUnit = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                DoCast(pUnit, HEROIC(SPELL_VOID_SHIFT, H_SPELL_VOID_SHIFT));
+            SpellVoidShiftTimer = 20000;
         } else SpellVoidShiftTimer -=diff;
 
         if (SpellShroudOfDarknessTimer <= diff)
@@ -154,7 +134,7 @@ struct TRINITY_DLL_DECL boss_zuramatAI : public ScriptedAI
 
         DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2,SAY_SLAY_3), m_creature);
     }
-    
+
     void JustSummoned(Creature* summon)
     {
         summon->AI()->AttackStart(m_creature->getVictim());
