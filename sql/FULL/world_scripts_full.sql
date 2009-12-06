@@ -1353,6 +1353,8 @@ UPDATE `creature_template` SET `ScriptName`='mob_mojo' WHERE `entry`=24480;
 UPDATE `creature_template` SET `ScriptName`='npc_captured_rageclaw' WHERE `entry`=29686;
 UPDATE `creature_template` SET `ScriptName`='npc_drakuru_shackles' WHERE `entry`=29700;
 UPDATE `creature_template` SET `ScriptName`='npc_gymer' WHERE `entry`=29647;
+UPDATE `creature_template` SET `ScriptName`='npc_gurgthock' WHERE `entry`=30007;
+UPDATE `creature_template` SET `ScriptName`='npc_orinoko_tuskbreaker' WHERE `entry`= 30020;
 
 /* ZUL'FARRAK */
 UPDATE `creature_template` SET `ScriptName`='npc_sergeant_bly' WHERE `entry`=7604;
