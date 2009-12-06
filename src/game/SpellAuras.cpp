@@ -4616,8 +4616,8 @@ void AuraEffect::HandlePeriodicTriggerSpellWithValue(bool apply, bool Real, bool
     {
         case 58730: // No fly zone - Wintergrasp (3.1.3 only 3.2.2 Does not call this aura)
             if (apply)
-                if (Player *plr = (Player*)m_target)
-                    plr->GetSession()->SendNotification(LANG_ZONE_NOFLYZONE);
+                if (m_target->GetTypeId() == TYPEID_PLAYER)
+                    ((Player *)m_target)->GetSession()->SendNotification(LANG_ZONE_NOFLYZONE);
         break;
     }
 }
@@ -4656,9 +4656,8 @@ void AuraEffect::HandleAuraPeriodicDummy(bool apply, bool Real, bool changeAmoun
                      }
                     break;
                 case 58600: // No fly zone - Dalaran
-                    if (Player *plr = (Player*)m_target)
-                        if (apply)
-                            plr->GetSession()->SendNotification(LANG_ZONE_NOFLYZONE);
+                    if (apply && m_target->GetTypeId() == TYPEID_PLAYER)
+                        ((Player *)m_target)->GetSession()->SendNotification(LANG_ZONE_NOFLYZONE);
                     break;
                 default:
                     break;
@@ -6536,20 +6535,22 @@ void AuraEffect::PeriodicDummyTick()
                 return;
             }
             case 45472: // Parachute
-                if (Player *plr = (Player*)m_target)
+                if (m_target->GetTypeId() == TYPEID_PLAYER)
+                {
+                    Player *plr = (Player*)m_target;
                     if (plr->IsFalling())
                     {
                         plr->RemoveAurasDueToSpell(45472);
                         plr->CastSpell(plr, 44795, true);
                     }
+                }
                 break;
             case 58600: // No fly Zone - Dalaran
                 if (10 == m_tickNumber)
-                    if (Player *plr = (Player*)m_target)
-                    {
-                        plr->RemoveAurasByType(SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED);
-                        plr->RemoveAurasByType(SPELL_AURA_FLY);
-                    }
+                {
+                    m_target->RemoveAurasByType(SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED);
+                    m_target->RemoveAurasByType(SPELL_AURA_FLY);
+                }
                 break;
             case 58549: // Tenacity
             case 59911: // Tenacity (vehicle)
