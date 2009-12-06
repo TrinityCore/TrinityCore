@@ -192,9 +192,9 @@ bool GossipSelect_npc_cooshcoosh(Player* pPlayer, Creature* pCreature, uint32 ui
 ## npc_elder_kuruti
 ######*/
 
-#define GOSSIP_ITEM_KUR1 "Offer treat"
-#define GOSSIP_ITEM_KUR2 "Im a messenger for Draenei"
-#define GOSSIP_ITEM_KUR3 "Get message"
+#define GOSSIP_ITEM_KUR1 "Greetings, elder. It is time for your people to end their hostility towards the draenei and their allies."
+#define GOSSIP_ITEM_KUR2 "I did not mean to deceive you, elder. The draenei of Telredor thought to approach you in a way that would seem familiar to you."
+#define GOSSIP_ITEM_KUR3 "I will tell them. Farewell, elder."
 
 bool GossipHello_npc_elder_kuruti(Player* pPlayer, Creature* pCreature)
 {
