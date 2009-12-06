@@ -1904,6 +1904,10 @@ uint8 Guild::CanStoreItem( uint8 tab, uint8 slot, GuildItemPosCountVec &dest, ui
     if (pItem->IsSoulBound())
         return EQUIP_ERR_CANT_DROP_SOULBOUND;
 
+    // in specific tab
+    if (tab >=  m_TabListMap.size() || tab >= GUILD_BANK_MAX_TABS)
+        return EQUIP_ERR_ITEM_DOESNT_GO_INTO_BAG;
+
     // in specific slot
     if (slot != NULL_SLOT)
     {
@@ -1964,7 +1968,7 @@ void Guild::SetGuildBankTabText(uint8 TabId, std::string text)
 
 void Guild::SendGuildBankTabText(WorldSession *session, uint8 TabId)
 {
-    if (TabId > GUILD_BANK_MAX_TABS)
+    if (TabId >= GUILD_BANK_MAX_TABS)                   // tabs starts in 0
         return;
 
     GuildBankTab const *tab = GetBankTab(TabId);
