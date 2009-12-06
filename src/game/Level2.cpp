@@ -4346,13 +4346,21 @@ bool ChatHandler::HandleWintergraspTimerCommand(const char* args)
 
     int32 time = atoi (args);
 
-    if (time <= 0 || time > 60)
-        return false;
+    // Min value 1 min
+    if (1 > time)
+        time = 1;
+    // Max value during wartime = 60. No wartime = 1440 (day)
+    if (pvpWG->isWarTime())
+    {
+        if (60 < time)
+            return false;
+    }
     else
-        time *= MINUTE * IN_MILISECONDS;
+        if (1440 < time)
+            return false;
+    time *= MINUTE * IN_MILISECONDS;
 
     pvpWG->setTimer((uint32)time);
-
     PSendSysMessage(LANG_BG_WG_CHANGE_TIMER, secsToTimeString(pvpWG->GetTimer(), true).c_str());
     return true;
 }
@@ -4367,7 +4375,9 @@ bool ChatHandler::HandleWintergraspSwitchTeamCommand(const char* args)
         SetSentErrorMessage(true);
         return false;
     }
+    uint32 timer = pvpWG->GetTimer();
     pvpWG->forceChangeTeam();
+    pvpWG->setTimer(timer);
     PSendSysMessage(LANG_BG_WG_SWITCH_FACTION, GetTrinityString(pvpWG->GetTeam() == TEAM_ALLIANCE ? LANG_BG_AB_ALLY : LANG_BG_AB_HORDE));
     return true;
 }
