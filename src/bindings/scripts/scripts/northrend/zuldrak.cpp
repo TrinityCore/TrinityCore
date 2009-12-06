@@ -214,10 +214,15 @@ bool GossipSelect_npc_gymer(Player* pPlayer, Creature* pCreature, uint32 uiSende
 enum eGurgthock
 {
     QUEST_AMPHITHEATER_ANGUISH_TUSKARRMAGEDDON   = 12935,
+    QUEST_AMPHITHEATER_ANGUISH_KORRAK_BLOODRAGER = 12936,
 
     NPC_ORINOKO_TUSKBREAKER = 30020,
+    NPC_KORRAK_BLOODRAGER   = 30023,
 
-    SAY_QUEST_ACCEPT_TUSKARRMAGEDON = -1571031
+    SAY_QUEST_ACCEPT_TUSKARRMAGEDON = -1571031,
+    SAY_QUEST_ACCEPT_KORRAK_1       = -1571033,
+    SAY_QUEST_ACCEPT_KORRAK_2       = -1571034,
+
 };
 
 struct TRINITY_DLL_DECL npc_gurgthockAI : public ScriptedAI
@@ -225,8 +230,10 @@ struct TRINITY_DLL_DECL npc_gurgthockAI : public ScriptedAI
     npc_gurgthockAI(Creature* pCreature) : ScriptedAI(pCreature)
     {
         pOrinoko = NULL;
+        pKorrak  = NULL;
     }
 
+    Creature* pKorrak;
     Creature* pOrinoko;
 
     uint32 uiTimer;
@@ -259,6 +266,12 @@ struct TRINITY_DLL_DECL npc_gurgthockAI : public ScriptedAI
             pOrinoko->RemoveFromWorld();
             pOrinoko = NULL;
         }
+
+        if (pKorrak)
+        {
+            pKorrak->RemoveFromWorld();
+            pKorrak = NULL;
+        }
     }
 
     void UpdateAI(const uint32 uiDiff)
@@ -271,6 +284,7 @@ struct TRINITY_DLL_DECL npc_gurgthockAI : public ScriptedAI
             {
                 m_creature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
                 bRemoveFlag = false;
+                uiRemoveFlagTimer = 5000;
             } else uiRemoveFlagTimer -= uiDiff;
         }
 
@@ -284,6 +298,17 @@ struct TRINITY_DLL_DECL npc_gurgthockAI : public ScriptedAI
                     DoScriptText(SAY_QUEST_ACCEPT_TUSKARRMAGEDON, m_creature);
                     uiPhase = 1;
                     uiTimer = 4000;
+                    uiQuest = 0;
+                }
+                break;
+                case 2:
+                if (!bEventInProgress)
+                {
+                    bEventInProgress = true;
+                    bRemoveFlag = true;
+                    DoScriptText(SAY_QUEST_ACCEPT_KORRAK_1, m_creature);
+                    uiPhase = 3;
+                    uiTimer = 3000;
                     uiQuest = 0;
                 }
                 break;
@@ -305,6 +330,22 @@ struct TRINITY_DLL_DECL npc_gurgthockAI : public ScriptedAI
                             pOrinoko->GetMotionMaster()->MoveJump(5776.319824, -2981.005371, 273.100037, 10.0f, 20.0f);
                         uiPhase = 0;
                         break;
+                    case 3:
+                        DoScriptText(SAY_QUEST_ACCEPT_KORRAK_2, m_creature);
+                        uiTimer = 3000;
+                        uiPhase = 4;
+                        break;
+                    case 4:
+                        pKorrak = m_creature->SummonCreature(NPC_KORRAK_BLOODRAGER, 5757.765137, -2945.161133, 286.276672, 5.156380, TEMPSUMMON_CORPSE_DESPAWN, 1000);
+                        uiTimer = 3000;
+                        uiPhase = 5;
+                        break;
+                    case 5:
+                        if (pKorrak)
+                            pKorrak->GetMotionMaster()->MovePoint(0, 5722.558594, -2960.685059, 286.276367);
+                        uiTimer = 0;
+                        uiPhase = 0;
+                        break;
                 }
             } else uiTimer -= uiDiff;
         }
@@ -319,12 +360,15 @@ struct TRINITY_DLL_DECL npc_gurgthockAI : public ScriptedAI
     }
 };
 
-bool QuestAccept_npc_gurgthock(Player* pPlayer, Creature* pCreature, Quest const *pQuest)
+bool QuestAccept_npc_gurgthock(Player* pPlayer, Creature* pCreature, Quest const* pQuest)
 {
     switch (pQuest->GetQuestId())
     {
         case QUEST_AMPHITHEATER_ANGUISH_TUSKARRMAGEDDON:
             CAST_AI(npc_gurgthockAI, pCreature->AI())->uiQuest = 1;
+            break;
+        case QUEST_AMPHITHEATER_ANGUISH_KORRAK_BLOODRAGER:
+            CAST_AI(npc_gurgthockAI, pCreature->AI())->uiQuest = 2;
             break;
     }
     return false;
@@ -470,6 +514,138 @@ CreatureAI* GetAI_npc_orinoko_tuskbreaker(Creature* pCreature)
     return new npc_orinoko_tuskbreakerAI(pCreature);
 }
 
+/*####
+## npc_korrak_bloodrager
+####*/
+
+enum eKorrakBloodrager
+{
+    SPELL_GROW     = 55948,
+    SPELL_CHARGE   = 24193,
+    SPELL_UPPERCUT = 30471,
+    SPELL_ENRAGE   = 42745
+};
+
+struct TRINITY_DLL_DECL npc_korrak_bloodragerAI : public ScriptedAI
+{
+    npc_korrak_bloodragerAI(Creature* pCreature) : ScriptedAI(pCreature)
+    {
+        m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
+        m_creature->SetReactState(REACT_PASSIVE);
+        uiPoint = 0;
+        uiStep  = 0;
+        uiChargeTimer = 15000;
+        uiUppercutTimer = 12000;
+        bEnrage = false;
+    }
+
+    uint8  uiPoint;
+    uint8  uiStep;
+    uint32 uiChargeTimer;
+    uint32 uiUppercutTimer;
+
+    bool bEnrage;
+
+    void EnterEvadeMode() //If you lose the combat, then the npc go away
+    {
+        if (Unit* pSummoner = CAST_SUM(m_creature)->GetSummoner())
+        {
+            CAST_AI(npc_gurgthockAI,CAST_CRE(pSummoner)->AI())->RemoveSummons();
+            CAST_AI(npc_gurgthockAI,CAST_CRE(pSummoner)->AI())->bEventInProgress = false;
+        }
+    }
+
+    void MovementInform(uint32 uiType, uint32 uiId)
+    {
+        if (uiType != POINT_MOTION_TYPE)
+            return;
+
+        if (uiStep != 5)
+            ++uiPoint;
+    }
+
+    void EnterCombat(Unit* pWho)
+    {
+        DoCast(m_creature, SPELL_GROW);
+    }
+
+    void UpdateAI(const uint32 uiDiff)
+    {
+        ScriptedAI::UpdateAI(uiDiff);
+
+        switch(uiPoint)
+        {
+            case 1:
+               if (uiStep == 0)
+                    m_creature->GetMotionMaster()->MovePoint(0, 5734.698730, -2984.990234, 286.276794);
+                uiStep = 1;
+                break;
+            case 2:
+                if (uiStep == 1)
+                    m_creature->GetMotionMaster()->MovePoint(0, 5737.401855,-2991.310547, 282.575623);
+                uiStep = 2;
+                break;
+            case 3:
+                if (uiStep == 2)
+                    m_creature->GetMotionMaster()->MovePoint(0, 5740.416992, -2997.536133, 277.263031);
+                uiStep = 3;
+                break;
+            case 4:
+                if (uiStep == 3)
+                    m_creature->GetMotionMaster()->MovePoint(0, 5743.790527, -3004.050537, 273.570282);
+                uiStep = 4;
+                break;
+            case 5:
+                if (uiStep == 4)
+                    m_creature->GetMotionMaster()->MovePoint(0, 5764.240234, -2993.788818, 272.944946);
+                m_creature->SetHomePosition(m_creature->GetPositionX(),m_creature->GetPositionY(),m_creature->GetPositionZ(), 0);
+                uiStep = 5;
+                uiPoint = 0;
+                m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
+                m_creature->SetReactState(REACT_AGGRESSIVE);
+                break;
+            }
+
+        if (!UpdateVictim())
+            return;
+
+        if (uiUppercutTimer <= uiDiff)
+        {
+            if (Unit* pTarget = SelectUnit(SELECT_TARGET_NEAREST, 0))
+                DoCast(pTarget, SPELL_UPPERCUT);
+            uiUppercutTimer = 12000;
+        } else uiUppercutTimer -= uiDiff;
+
+        if (uiChargeTimer <= uiDiff)
+        {
+            if (Unit* pTarget = SelectUnit(SELECT_TARGET_FARTHEST, 0))
+                DoCast(pTarget, SPELL_CHARGE);
+            uiChargeTimer = 15000;
+        } else uiChargeTimer -= uiDiff;
+
+        if (!bEnrage && m_creature->GetHealth()*100 / m_creature->GetMaxHealth() <= 20)
+        {
+            DoCast(m_creature, SPELL_ENRAGE);
+            bEnrage = true;
+        }
+        DoMeleeAttackIfReady();
+    }
+
+    void JustDied(Unit* pKiller)
+    {
+        if (pKiller->GetTypeId() == TYPEID_PLAYER)
+            CAST_PLR(pKiller)->GroupEventHappens(QUEST_AMPHITHEATER_ANGUISH_KORRAK_BLOODRAGER, CAST_PLR(pKiller));
+
+        if (Unit* pSummoner = CAST_SUM(m_creature)->GetSummoner())
+            CAST_AI(npc_gurgthockAI,CAST_CRE(pSummoner)->AI())->bEventInProgress = false;
+    }
+};
+
+CreatureAI* GetAI_npc_korrak_bloodrager(Creature* pCreature)
+{
+    return new npc_korrak_bloodragerAI(pCreature);
+}
+
 void AddSC_zuldrak()
 {
     Script *newscript;
@@ -499,5 +675,10 @@ void AddSC_zuldrak()
     newscript = new Script;
     newscript->Name = "npc_orinoko_tuskbreaker";
     newscript->GetAI = &GetAI_npc_orinoko_tuskbreaker;
+    newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name = "npc_korrak_bloodrager";
+    newscript->GetAI = &GetAI_npc_korrak_bloodrager;
     newscript->RegisterSelf();
 }
