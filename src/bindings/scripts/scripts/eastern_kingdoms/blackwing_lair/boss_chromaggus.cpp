@@ -229,7 +229,8 @@ struct TRINITY_DLL_DECL boss_chromaggusAI : public ScriptedAI
         //Affliction_Timer
         if (Affliction_Timer <= diff)
         {
-            for (std::list<HostilReference*>::iterator i = m_creature->getThreatManager().getThreatList().begin(); i != m_creature->getThreatManager().getThreatList().end(); ++i)
+            std::list<HostilReference*> threatlist = m_creature->getThreatManager().getThreatList();
+            for (std::list<HostilReference*>::iterator i = threatlist.begin(); i != threatlist.end(); ++i)
             {
                 Unit* pUnit;
                 if ((*i) && (*i)->getSource())
