@@ -1025,6 +1025,11 @@ UPDATE `creature_template` SET `ScriptName`='npc_archmage_malin' WHERE `entry`=2
 UPDATE `creature_template` SET `ScriptName`='npc_bartleby' WHERE `entry`=6090;
 UPDATE `creature_template` SET `ScriptName`='npc_dashel_stonefist' WHERE `entry`=4961;
 UPDATE `creature_template` SET `ScriptName`='npc_lady_katrana_prestor' WHERE `entry`=1749;
+UPDATE `creature_template` SET `ScriptName`='npc_tyrion' WHERE `entry`=7766;
+UPDATE `creature_template` SET `ScriptName`='npc_tyrion_spybot' WHERE `entry`=8856;
+UPDATE `creature_template` SET `ScriptName`='npc_lord_gregor_lescovar' WHERE `entry`=1754;
+UPDATE `creature_template` SET `ScriptName`='npc_marzon_silent_blade' WHERE `entry`=1755;
+
 
 /* STRANGLETHORN VALE */
 UPDATE `creature_template` SET `ScriptName`='mob_yenniku' WHERE `entry`=2530;
