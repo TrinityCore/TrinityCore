@@ -86,6 +86,7 @@ struct TRINITY_DLL_DECL boss_razuviousAI : public BossAI
         events.ScheduleEvent(EVENT_STRIKE, 30000);
         events.ScheduleEvent(EVENT_SHOUT, 25000);
         events.ScheduleEvent(EVENT_COMMAND, 40000);
+        events.ScheduleEvent(EVENT_KNIFE, 10000);
     }
 
     void UpdateAI(const uint32 diff)
@@ -110,7 +111,7 @@ struct TRINITY_DLL_DECL boss_razuviousAI : public BossAI
                 case EVENT_KNIFE:
                     if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 45))
                         DoCast(pTarget, SPELL_JAGGED_KNIFE);
-                    events.ScheduleEvent(EVENT_KNIFE, 25000);
+                    events.ScheduleEvent(EVENT_KNIFE, 10000);
                     return;
                 case EVENT_COMMAND:
                     DoPlaySoundToSet(me, SOUND_COMMND);
