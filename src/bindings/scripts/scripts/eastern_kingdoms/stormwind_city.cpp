@@ -661,5 +661,25 @@ void AddSC_stormwind_city()
     newscript->pGossipHello = &GossipHello_npc_lady_katrana_prestor;
     newscript->pGossipSelect = &GossipSelect_npc_lady_katrana_prestor;
     newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name = "npc_tyrion";
+    newscript->pQuestAccept = &QuestAccept_npc_tyrion;
+    newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name = "npc_tyrion_spybot";
+    newscript->GetAI = &GetAI_npc_tyrion_spybot;
+    newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name = "npc_lord_gregor_lescovar";
+    newscript->GetAI = &GetAI_npc_lord_gregor_lescovar;
+    newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name = "npc_marzon_silent_blade";
+    newscript->GetAI = &GetAI_npc_marzon_silent_blade;
+    newscript->RegisterSelf();
 }
 
