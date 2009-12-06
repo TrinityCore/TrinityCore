@@ -101,6 +101,7 @@ struct TRINITY_DLL_DECL boss_zuramatAI : public ScriptedAI
 
         if(SpellVoidShiftedTimer < diff && shiftcast)
         {
+            Shifted =  SelectUnit(SELECT_TARGET_RANDOM, 0);
             if (Shifted)
                 DoCast(Shifted, SPELL_VOID_SHIFTED, false);
             shiftcast = false;
