@@ -159,8 +159,10 @@ INSERT INTO `spell_linked_spell` (`spell_trigger`, `spell_effect`, `type`, `comm
 (-28169, 28240, 0, 'Mutating Injection - Poison Cloud'),
 -- Archavon
 ( 58666, 58672, 1, 'Impale (Archavon)'),
-( 60882, 58672, 1, 'Impale (Archavon)');
-
+( 60882, 58672, 1, 'Impale (Archavon)'),
+-- Violet Hold
+(-54361, 54343, 0, 'Void Shift (Normal) - Void Shifted'),
+(-59743, 54343, 0, 'Void Shift (Heroic) - Void Shifted');
 
 -- --------
 -- CLICK
