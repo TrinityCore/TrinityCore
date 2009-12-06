@@ -238,7 +238,7 @@ void Creature::RemoveCorpse()
     ObjectAccessor::UpdateObjectVisibility(this);
     loot.clear();
     uint32 respawnDelay = m_respawnDelay;
-    if (AI())
+    if (IsAIEnabled)
         AI()->CorpseRemoved(respawnDelay);
 
     m_respawnTime = time(NULL) + m_respawnDelay;
@@ -1894,7 +1894,8 @@ void Creature::Respawn(bool force)
         }
 
         //Call AI respawn virtual function
-        AI()->JustRespawned();
+        if (IsAIEnabled)
+            AI()->JustRespawned();
 
         uint16 poolid = poolhandler.IsPartOfAPool(GetGUIDLow(), GetTypeId());
         if (poolid)
