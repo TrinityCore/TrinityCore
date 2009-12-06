@@ -207,6 +207,269 @@ bool GossipSelect_npc_gymer(Player* pPlayer, Creature* pCreature, uint32 uiSende
     return true;
 }
 
+/*####
+## npc_gurgthock
+####*/
+
+enum eGurgthock
+{
+    QUEST_AMPHITHEATER_ANGUISH_TUSKARRMAGEDDON   = 12935,
+
+    NPC_ORINOKO_TUSKBREAKER = 30020,
+
+    SAY_QUEST_ACCEPT_TUSKARRMAGEDON = -1571031
+};
+
+struct TRINITY_DLL_DECL npc_gurgthockAI : public ScriptedAI
+{
+    npc_gurgthockAI(Creature* pCreature) : ScriptedAI(pCreature)
+    {
+        pOrinoko = NULL;
+    }
+
+    Creature* pOrinoko;
+
+    uint32 uiTimer;
+    uint32 uiPhase;
+    uint32 uiRemoveFlagTimer;
+    uint32 uiQuest;
+
+    bool bEventInProgress;
+    bool bRemoveFlag;
+
+    void Reset()
+    {
+        m_creature->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
+        uiTimer = 0;
+        uiPhase = 0;
+        uiRemoveFlagTimer = 5000;
+        bEventInProgress = false;
+        bRemoveFlag = false;
+    }
+
+    void RemoveSummons()
+    {
+        if (bEventInProgress)
+            bEventInProgress = false;
+
+        m_creature->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
+
+        if (pOrinoko)
+        {
+            pOrinoko->RemoveFromWorld();
+            pOrinoko = NULL;
+        }
+    }
+
+    void UpdateAI(const uint32 uiDiff)
+    {
+        ScriptedAI::UpdateAI(uiDiff);
+
+        if (bRemoveFlag)
+        {
+            if (uiRemoveFlagTimer <= uiDiff)
+            {
+                m_creature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
+                bRemoveFlag = false;
+            } else uiRemoveFlagTimer -= uiDiff;
+        }
+
+        switch(uiQuest)
+        {
+            case 1:
+                if (!bEventInProgress)
+                {
+                    bEventInProgress = true;
+                    bRemoveFlag = true;
+                    DoScriptText(SAY_QUEST_ACCEPT_TUSKARRMAGEDON, m_creature);
+                    uiPhase = 1;
+                    uiTimer = 4000;
+                    uiQuest = 0;
+                }
+                break;
+        }
+
+        if (uiPhase)
+        {
+            if (uiTimer <= uiDiff)
+            {
+                switch(uiPhase)
+                {
+                    case 1:
+                        pOrinoko = m_creature->SummonCreature(NPC_ORINOKO_TUSKBREAKER, 5757.765137, -2945.161133, 286.276672, 5.156380, TEMPSUMMON_CORPSE_DESPAWN, 1000);
+                        uiPhase = 2;
+                        uiTimer = 4000;
+                        break;
+                     case 2:
+                        if (pOrinoko)
+                            pOrinoko->GetMotionMaster()->MoveJump(5776.319824, -2981.005371, 273.100037, 10.0f, 20.0f);
+                        uiPhase = 0;
+                        break;
+                }
+            } else uiTimer -= uiDiff;
+        }
+    }
+
+    void SummonedCreatureDespawn(Creature* pSummon)
+    {
+        if (bEventInProgress)
+            bEventInProgress = false;
+
+        m_creature->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
+    }
+};
+
+bool QuestAccept_npc_gurgthock(Player* pPlayer, Creature* pCreature, Quest const *pQuest)
+{
+    switch (pQuest->GetQuestId())
+    {
+        case QUEST_AMPHITHEATER_ANGUISH_TUSKARRMAGEDDON:
+            CAST_AI(npc_gurgthockAI, pCreature->AI())->uiQuest = 1;
+            break;
+    }
+    return false;
+}
+
+CreatureAI* GetAI_npc_gurgthock(Creature* pCreature)
+{
+    return new npc_gurgthockAI(pCreature);
+}
+
+/*####
+## npc_orinoko_tuskbreaker
+####*/
+
+enum eOrinokoTuskbreaker
+{
+    SPELL_BATTLE_SHOUT      = 32064,
+    SPELL_FISHY_SCENT       = 55937,
+    SPELL_IMPALE            = 55929,
+    SPELL_SUMMON_WHISKER    = 55946,
+
+    NPC_WHISKER             = 30113,
+    NPC_HUNGRY_PENGUIN      = 30110,
+
+    SAY_CALL_FOR_HELP       = -1571032
+};
+
+struct TRINITY_DLL_DECL npc_orinoko_tuskbreakerAI : public ScriptedAI
+{
+    npc_orinoko_tuskbreakerAI(Creature* pCreature) : ScriptedAI(pCreature)
+    {
+        m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
+        m_creature->SetReactState(REACT_PASSIVE);
+        pAffected = NULL;
+        pWhisker  = NULL;
+    }
+
+    bool bSummoned;
+    bool bBattleShout;
+    bool bFishyScent;
+
+    uint32 uiBattleShoutTimer;
+    uint32 uiFishyScentTimer;
+
+    Unit* pAffected;
+    Creature* pWhisker;
+
+    void Reset()
+    {
+        bSummoned           = false;
+        bBattleShout        = false;
+        bFishyScent         = false;
+        uiBattleShoutTimer  = 0;
+        uiFishyScentTimer   = 20000;
+    }
+
+    void EnterEvadeMode()
+    {
+        if (pWhisker)
+            pWhisker->RemoveFromWorld();
+
+        if (Unit* pSummoner = CAST_SUM(m_creature)->GetSummoner())
+        {
+            CAST_AI(npc_gurgthockAI,CAST_CRE(pSummoner)->AI())->bEventInProgress = false;
+            CAST_AI(npc_gurgthockAI,CAST_CRE(pSummoner)->AI())->RemoveSummons();
+        }
+    }
+
+    void MovementInform(uint32 uiType, uint32 uiId)
+    {
+        if (uiType != POINT_MOTION_TYPE)
+            return;
+
+        m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
+        m_creature->SetReactState(REACT_AGGRESSIVE);
+        m_creature->SetHomePosition(m_creature->GetPositionX(),m_creature->GetPositionY(),m_creature->GetPositionZ(), 0);
+        uiBattleShoutTimer  = 7000;
+    }
+
+    void EnterCombat(Unit* pWho)
+    {
+        DoCast(pWho, SPELL_IMPALE);
+    }
+
+    void UpdateAI(const uint32 uiDiff)
+    {
+        if (!UpdateVictim())
+            return;
+
+        if (!bBattleShout && uiBattleShoutTimer <= uiDiff)
+        {
+            DoCast(m_creature, SPELL_BATTLE_SHOUT);
+            bBattleShout = true;
+        } else uiBattleShoutTimer -= uiDiff;
+
+        if (uiFishyScentTimer <= uiDiff)
+        {
+            if (pAffected = SelectUnit(SELECT_TARGET_RANDOM,0))
+                DoCast(pAffected, SPELL_FISHY_SCENT);
+            uiFishyScentTimer = 20000;
+        } else uiFishyScentTimer -= uiDiff;
+
+        if (!bSummoned && m_creature->GetHealth()*100 / m_creature->GetMaxHealth() <= 50)
+        {
+            DoScriptText(SAY_CALL_FOR_HELP ,m_creature);
+            //DoCast(m_creature->getVictim(), SPELL_SUMMON_WHISKER); petai is not working correctly???
+            pWhisker = m_creature->SummonCreature(NPC_WHISKER, m_creature->GetPositionX(), m_creature->GetPositionY(), m_creature->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 0);
+            bSummoned = true;
+        }
+
+        DoMeleeAttackIfReady();
+    }
+
+    void JustSummoned(Creature* pSummon)
+    {
+        switch(pSummon->GetEntry())
+        {
+            case NPC_WHISKER:
+                pSummon->AI()->AttackStart(m_creature->getVictim());
+                break;
+            case NPC_HUNGRY_PENGUIN:
+                if (pAffected && pAffected->isAlive())
+                    pSummon->AI()->AttackStart(pAffected);
+                break;
+        }
+    }
+
+    void JustDied(Unit* pKiller)
+    {
+        if (pWhisker)
+            pWhisker->RemoveFromWorld();
+
+        if (pKiller->GetTypeId() == TYPEID_PLAYER)
+            CAST_PLR(pKiller)->GroupEventHappens(QUEST_AMPHITHEATER_ANGUISH_TUSKARRMAGEDDON, CAST_PLR(pKiller));
+
+        if (Unit* pSummoner = CAST_SUM(m_creature)->GetSummoner())
+            CAST_AI(npc_gurgthockAI,CAST_CRE(pSummoner)->AI())->bEventInProgress = false;
+    }
+};
+
+CreatureAI* GetAI_npc_orinoko_tuskbreaker(Creature* pCreature)
+{
+    return new npc_orinoko_tuskbreakerAI(pCreature);
+}
+
 void AddSC_zuldrak()
 {
     Script *newscript;
@@ -225,5 +488,16 @@ void AddSC_zuldrak()
     newscript->Name = "npc_gymer";
     newscript->pGossipHello = &GossipHello_npc_gymer;
     newscript->pGossipSelect = &GossipSelect_npc_gymer;
+    newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name = "npc_gurgthock";
+    newscript->GetAI = &GetAI_npc_gurgthock;
+    newscript->pQuestAccept = &QuestAccept_npc_gurgthock;
+    newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name = "npc_orinoko_tuskbreaker";
+    newscript->GetAI = &GetAI_npc_orinoko_tuskbreaker;
     newscript->RegisterSelf();
 }
