@@ -1840,10 +1840,34 @@ uint16 Map::GetAreaFlag(float x, float y, float z) const
     //       not provided correct areaflag with this hacks
     switch(areaflag)
     {
-        case 166:                                           // The Forlorn Mine
-	    if (6812.0f < x && x < 7048.0f && -1200.0f > y && y > -1433.0f && 807.0f < z && z < 840.0f)
-	        areaflag = 2213;
-        break;
+        case 2227:                                          // The Foot Steppes (Storm Peaks)
+        case 2207:                                          // Sifreldar Village (Storm Peaks)
+            if (6924.0f < x && x < 6980.0f && -1520.0f < y && y < -1432.0f && 838.0f < z && z < 843.0f)
+                areaflag = 2213;                            // The Forlorn Mine (Storm Peaks)
+            break;
+        case 2209:                                          // Brunnhildar Village (Storm Peaks)
+            if (6885.0f < x && x < 6938.0f && -1200.0f < y && y < -1138.0f && 801.0f < z && z < 809.0f)
+                areaflag = 2213;                            // The Forlorn Mine (Storm Peaks)
+            break;
+        case 166:                                           // Storm Peaks
+            if (6812.0f < x && x < 7048.0f && -1463.0f < y && y < -1200.0f && 807.0f < z && z < 843.0f)
+                areaflag = 2213;                            // The Forlorn Mine (Storm Peaks)
+            break;
+        case 446:                                           // (Stonelaton Mountains)
+        case 944:                                           // Boulderslide Ravine (Stonelaton Mountains)
+            if (-128.0f < x && x < 35.0f && 221.0f < y && y < 456.0f && 87.0f < z && z < 130.0f)
+                areaflag = 1019;                            // Boulderslide Cavern (Stonelaton Mountains)
+            break;
+        case 272:                                           // Palemane Rock (Mulgore)
+            if (-2466.0f < x && x < -2295.0f && 366.0f < y && y < 530.0f && 40.0f < z && z < 70.0f)
+                areaflag = 668;                             // Palemane Rock (Mulgore)
+            break;
+        case 65535:                                         // Multipe places.
+            if (-128.0f < x && x < 35.0f && 221.0f < y && y < 456.0f && 87.0f < z && z < 130.0f)
+                areaflag = 1019;                            // Boulderslide Cavern (Stonelaton Mountains)
+            else if (-2466.0f < x && x < -2295.0f && 366.0f < y && y < 530.0f && 40.0f < z && z < 70.0f)
+                areaflag = 668;                             // Palemane Rock (Mulgore)
+            break;
         // Acherus: The Ebon Hold (Plaguelands: The Scarlet Enclave)
         case 1984:                                          // Plaguelands: The Scarlet Enclave
         case 2076:                                          // Death's Breach (Plaguelands: The Scarlet Enclave)
@@ -1856,35 +1880,23 @@ uint16 Map::GetAreaFlag(float x, float y, float z) const
         // Dalaran
         case 2492:                                          // Forlorn Woods (Crystalsong Forest)
         case 2371:                                          // Valley of Echoes (Icecrown Glacier)
-            if (x > 5568.0f && x < 6116.0f && y > 282.0f && y < 982.0f && z > 563.0f)
+            if (x > 5568.0f && x < 6022.0f && y > 374.0f && y < 918.0f && z > 563.0f)
             {
-                // Krasus' Landing (Dalaran), fast check
-                if (x > 5758.77f && x < 5869.03f && y < 510.46f)
-                {
-                    // Krasus' Landing (Dalaran), with open east side
-                    if (y < 449.33f || (x-5813.9f)*(x-5813.9f)+(y-449.33f)*(y-449.33f) < 1864.0f)
-                    {
-                        areaflag = 2531;                    // Note: also 2633, possible one flight allowed and other not allowed case
-                        break;
-                    }
-                }
-
-                // The Violet Hold (Dalaran), fast check
-                if (x < 5791.0f && y > 404.0f && y < 595.0f)
-                {
-                    areaflag = 2540;
-                    break;
-                }
-
-                // Dalaran
                 areaflag = 2153;
+                if(y - 1.41f * x + 7649.55f > 0)            // Violet Hold
+                {
+                    if (y < 595.0f)
+                        areaflag = 2540;
+                }
+                else if (y + 2.91 * x - 17522.57f < 0)      // Krasus landing
+                    areaflag = 2531;
             }
             break;
         // The Violet Citadel (Dalaran) or Dalaran
         case 2484:                                          // The Twilight Rivulet (Crystalsong Forest)
         case 1593:                                          // Crystalsong Forest
             // Dalaran
-            if (x > 5568.0f && x < 6116.0f && y > 282.0f && y < 982.0f && z > 563.0f)
+            if (x > 5568.0f && x < 6116.0f && y > 282.0f && y < 918.0f && z > 563.0f)
             {
                 // The Violet Citadel (Dalaran), fast check
                 if (x > 5721.1f && x < 5884.66f && y > 764.4f && y < 948.0f)
