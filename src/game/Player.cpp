@@ -4237,7 +4237,10 @@ void Player::DeleteFromDB(uint64 playerguid, uint32 accountId, bool updateRealmC
     CharacterDatabase.PExecute("DELETE FROM mail_items WHERE receiver = '%u'",guid);
     CharacterDatabase.PExecute("DELETE FROM character_pet WHERE owner = '%u'",guid);
     CharacterDatabase.PExecute("DELETE FROM character_pet_declinedname WHERE owner = '%u'",guid);
-    CharacterDatabase.PExecute("DELETE FROM character_achievement WHERE guid = '%u'",guid);
+    CharacterDatabase.PExecute("DELETE FROM character_achievement WHERE guid = '%u' " // NOTE: These achievements have flags & 256 in DBC.
+                                "AND achievement NOT BETWEEN '456' AND '467' " // Realm First Level 80
+                                "AND achievement NOT BETWEEN '1400' AND '1427' " // Realm First Raid Achievements
+                                "AND achievement NOT IN(1463, 3117, 3259) ", guid); // Realm First Northen Vanguard + Raid Achievements
     CharacterDatabase.PExecute("DELETE FROM character_achievement_progress WHERE guid = '%u'",guid);
     CharacterDatabase.PExecute("DELETE FROM character_equipmentsets WHERE guid = '%u'",guid);
     CharacterDatabase.PExecute("DELETE FROM guild_eventlog WHERE PlayerGuid1 = '%u'",guid);
