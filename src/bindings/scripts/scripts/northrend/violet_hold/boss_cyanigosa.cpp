@@ -21,7 +21,8 @@ enum Spells
     SPELL_TAIL_SWEEP                               = 58690,
     H_SPELL_TAIL_SWEEP                             = 59283,
     SPELL_UNCONTROLLABLE_ENERGY                    = 58688,
-    H_SPELL_UNCONTROLLABLE_ENERGY                  = 59281
+    H_SPELL_UNCONTROLLABLE_ENERGY                  = 59281,
+    SPELL_TRANSFORM                                = 58668
 };
 
 enum Yells
@@ -67,6 +68,7 @@ struct TRINITY_DLL_DECL boss_cyanigosaAI : public ScriptedAI
     void EnterCombat(Unit* who)
     {
         DoScriptText(SAY_AGGRO, m_creature);
+        DoCast(m_creature, SPELL_TRANSFORM);
 
         if (pInstance)
             pInstance->SetData(DATA_CYANIGOSA_EVENT, IN_PROGRESS);
