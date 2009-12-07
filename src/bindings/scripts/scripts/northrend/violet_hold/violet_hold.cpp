@@ -45,7 +45,7 @@ struct TRINITY_DLL_DECL npc_teleportation_portalAI : public ScriptedAI
 
     ScriptedInstance *pInstance;
 
-    void reset()
+    void Reset()
     {
         uiDespawnTimer = NEXT_WAVE_TIME;
         uiSpawnTimer = 3000;
@@ -68,7 +68,7 @@ struct TRINITY_DLL_DECL npc_teleportation_portalAI : public ScriptedAI
         } else uiSpawnTimer -= diff;
 
         if (uiDespawnTimer <= diff)
-            m_creature->DisappearAndDie();
+            m_creature->Kill(m_creature, false);
         else
             uiDespawnTimer -= diff;
     }
