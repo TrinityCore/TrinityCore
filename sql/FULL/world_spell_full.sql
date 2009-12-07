@@ -525,6 +525,12 @@ INSERT INTO `spell_script_target` VALUES
 (55083, 1, 29700),(55223, 1, 29686),
 (59951, 1, 29686),(59952, 1, 29686);
 
+-- Violet Hold
+DELETE FROM `spell_script_target` WHERE `entry` IN (54160,59474);
+INSERT INTO `spell_script_target` (`entry`, `type`, `targetEntry`) VALUES
+(54160, 1, 29266),
+(59474, 1, 29266);
+
 -- --------
 -- POSITION
 -- --------
