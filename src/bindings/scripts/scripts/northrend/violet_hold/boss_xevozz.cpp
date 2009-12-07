@@ -68,17 +68,17 @@ struct TRINITY_DLL_DECL boss_xevozzAI : public ScriptedAI
 {
     boss_xevozzAI(Creature* pCreature) : ScriptedAI(pCreature)
     {
-        pInstance   = pCreature->GetInstanceData();
-        bHeroicMode = pCreature->GetMap()->IsHeroic();
+        pInstance  = pCreature->GetInstanceData();
+        HeroicMode = pCreature->GetMap()->IsHeroic();
     }
 
     ScriptedInstance* pInstance;
 
-    bool bHeroicMode;
+    bool HeroicMode;
 
-    uint32 m_uiSummonEtherealSphere_Timer;
-    uint32 m_uiArcaneBarrageVolley_Timer;
-    uint32 m_uiArcaneBuffet_Timer;
+    uint32 uiSummonEtherealSphere_Timer;
+    uint32 uiArcaneBarrageVolley_Timer;
+    uint32 uiArcaneBuffet_Timer;
 
     void Reset()
     {
@@ -90,9 +90,9 @@ struct TRINITY_DLL_DECL boss_xevozzAI : public ScriptedAI
                 pInstance->SetData(DATA_2ND_BOSS_EVENT, NOT_STARTED);
         }
 
-        m_uiSummonEtherealSphere_Timer = urand(10000, 12000);
-        m_uiArcaneBarrageVolley_Timer = urand(20000, 22000);
-        m_uiArcaneBuffet_Timer = m_uiSummonEtherealSphere_Timer + urand(5000, 6000);
+        uiSummonEtherealSphere_Timer = urand(10000, 12000);
+        uiArcaneBarrageVolley_Timer = urand(20000, 22000);
+        uiArcaneBuffet_Timer = uiSummonEtherealSphere_Timer + urand(5000, 6000);
         DespawnSphere();
     }
 
@@ -141,32 +141,32 @@ struct TRINITY_DLL_DECL boss_xevozzAI : public ScriptedAI
         if (!UpdateVictim())
             return;
 
-        if (m_uiArcaneBarrageVolley_Timer < uiDiff)
+        if (uiArcaneBarrageVolley_Timer < uiDiff)
         {
-            DoCast(m_creature, bHeroicMode ? SPELL_ARCANE_BARRAGE_VOLLEY_H : SPELL_ARCANE_BARRAGE_VOLLEY);
-            m_uiArcaneBarrageVolley_Timer = urand(20000, 22000);
+            DoCast(m_creature, HEROIC(SPELL_ARCANE_BARRAGE_VOLLEY, SPELL_ARCANE_BARRAGE_VOLLEY_H));
+            uiArcaneBarrageVolley_Timer = urand(20000, 22000);
         }
-        else m_uiArcaneBarrageVolley_Timer -= uiDiff;
+        else uiArcaneBarrageVolley_Timer -= uiDiff;
 
-        if (m_uiArcaneBuffet_Timer)
-            if (m_uiArcaneBuffet_Timer < uiDiff)
+        if (uiArcaneBuffet_Timer)
+            if (uiArcaneBuffet_Timer < uiDiff)
             {
-                DoCast(m_creature->getVictim(), bHeroicMode ? SPELL_ARCANE_BUFFET_H : SPELL_ARCANE_BUFFET);
-                m_uiArcaneBuffet_Timer = 0;
+                DoCast(m_creature->getVictim(), HEROIC(SPELL_ARCANE_BUFFET, SPELL_ARCANE_BUFFET_H));
+                uiArcaneBuffet_Timer = 0;
             }
-            else m_uiArcaneBuffet_Timer -= uiDiff;
+            else uiArcaneBuffet_Timer -= uiDiff;
 
-        if (m_uiSummonEtherealSphere_Timer < uiDiff)
+        if (uiSummonEtherealSphere_Timer < uiDiff)
         {
             DoScriptText(SAY_SPAWN, m_creature);
             DoCast(m_creature, SPELL_SUMMON_ETHEREAL_SPHERE_1);
-            if (bHeroicMode) // extra one for heroic
+            if (HeroicMode) // extra one for heroic
                 m_creature->SummonCreature(NPC_ETHEREAL_SPHERE, m_creature->GetPositionX()-5+rand()%10, m_creature->GetPositionY()-5+rand()%10, m_creature->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 40000);
 
-            m_uiSummonEtherealSphere_Timer = urand(45000, 47000);
-            m_uiArcaneBuffet_Timer = urand(5000, 6000);
+            uiSummonEtherealSphere_Timer = urand(45000, 47000);
+            uiArcaneBuffet_Timer = urand(5000, 6000);
         }
-        else m_uiSummonEtherealSphere_Timer -= uiDiff;
+        else uiSummonEtherealSphere_Timer -= uiDiff;
 
         DoMeleeAttackIfReady();
     }
@@ -209,20 +209,20 @@ struct TRINITY_DLL_DECL mob_ethereal_sphereAI : public ScriptedAI
 {
     mob_ethereal_sphereAI(Creature* pCreature) : ScriptedAI(pCreature)
     {
-    	m_pInstance = ((ScriptedInstance*)pCreature->GetInstanceData());
-    	bHeroicMode = pCreature->GetMap()->IsHeroic();
+    	pInstance   = pCreature->GetInstanceData();
+    	HeroicMode  = pCreature->GetMap()->IsHeroic();
     }
 
-    ScriptedInstance* m_pInstance;
-    bool bHeroicMode;
+    ScriptedInstance* pInstance;
+    bool HeroicMode;
 
-    uint32 m_uiSummonPlayers_Timer;
-    uint32 m_uiRangeCheck_Timer;
+    uint32 uiSummonPlayers_Timer;
+    uint32 uiRangeCheck_Timer;
 
     void Reset()
     {
-        m_uiSummonPlayers_Timer = urand(33000, 35000);
-        m_uiRangeCheck_Timer = 1000;
+        uiSummonPlayers_Timer = urand(33000, 35000);
+        uiRangeCheck_Timer = 1000;
     }
 
     void UpdateAI(const uint32 uiDiff)
@@ -234,24 +234,24 @@ struct TRINITY_DLL_DECL mob_ethereal_sphereAI : public ScriptedAI
         if (!m_creature->HasAura(SPELL_POWER_BALL_VISUAL))
             DoCast(m_creature, SPELL_POWER_BALL_VISUAL);
 
-        if (m_uiRangeCheck_Timer < uiDiff)
+        if (uiRangeCheck_Timer < uiDiff)
         {
-            if (m_pInstance)
+            if (pInstance)
             {
-                if (Creature* pXevozz = ((Creature*)Unit::GetUnit((*m_creature), m_pInstance->GetData64(DATA_XEVOZZ))))
+                if (Creature* pXevozz = ((Creature*)Unit::GetUnit((*m_creature), pInstance->GetData64(DATA_XEVOZZ))))
                 {
                     float fDistance = m_creature->GetDistance2d(pXevozz);
                     if (fDistance <= 3)
-                        DoCast(pXevozz, bHeroicMode ? H_SPELL_ARCANE_POWER : SPELL_ARCANE_POWER);
+                        DoCast(pXevozz, HEROIC(SPELL_ARCANE_POWER, H_SPELL_ARCANE_POWER));
                     else
                         DoCast(m_creature, 35845); //Is it blizzlike?
                 }
             }
-            m_uiRangeCheck_Timer = 1000;
+            uiRangeCheck_Timer = 1000;
         }
-        else m_uiRangeCheck_Timer -= uiDiff;
+        else uiRangeCheck_Timer -= uiDiff;
 
-        if (m_uiSummonPlayers_Timer < uiDiff)
+        if (uiSummonPlayers_Timer < uiDiff)
         {
             DoCast(m_creature, SPELL_SUMMON_PLAYERS); // not working right
 
@@ -266,9 +266,9 @@ struct TRINITY_DLL_DECL mob_ethereal_sphereAI : public ScriptedAI
                             DoTeleportPlayer(i->getSource(), m_creature->GetPositionX(), m_creature->GetPositionY(), m_creature->GetPositionZ(), i->getSource()->GetOrientation());
             }
 
-            m_uiSummonPlayers_Timer = urand(33000, 35000);
+            uiSummonPlayers_Timer = urand(33000, 35000);
         }
-        else m_uiSummonPlayers_Timer -= uiDiff;
+        else uiSummonPlayers_Timer -= uiDiff;
     }
 };
 
