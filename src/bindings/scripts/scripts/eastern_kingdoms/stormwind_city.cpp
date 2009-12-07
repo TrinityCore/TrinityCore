@@ -418,10 +418,14 @@ struct TRINITY_DLL_DECL npc_marzon_silent_bladeAI : public ScriptedAI
     void EnterCombat(Unit* pWho)
     {
         DoScriptText(SAY_MARZON_2, m_creature);
-        if (Unit* pSummoner = CAST_SUM(m_creature)->GetSummoner())
+
+        if (m_creature->isSummon())
         {
-            if (pSummoner && pSummoner->isAlive() && !pSummoner->isInCombat())
-                CAST_CRE(pSummoner)->AI()->AttackStart(pWho);
+            if (Unit* pSummoner = CAST_SUM(m_creature)->GetSummoner())
+            {
+                if (pSummoner && pSummoner->isAlive() && !pSummoner->isInCombat())
+                    CAST_CRE(pSummoner)->AI()->AttackStart(pWho);
+            }
         }
     }
 
@@ -429,10 +433,13 @@ struct TRINITY_DLL_DECL npc_marzon_silent_bladeAI : public ScriptedAI
     {
         m_creature->DisappearAndDie();
 
-        if (Unit* pSummoner = CAST_SUM(m_creature)->GetSummoner())
+        if (m_creature->isSummon())
         {
-            if (pSummoner && pSummoner->isAlive())
-                CAST_CRE(pSummoner)->DisappearAndDie();
+            if (Unit* pSummoner = CAST_SUM(m_creature)->GetSummoner())
+            {
+                if (pSummoner && pSummoner->isAlive())
+                    CAST_CRE(pSummoner)->DisappearAndDie();
+            }
         }
     }
 
@@ -441,11 +448,14 @@ struct TRINITY_DLL_DECL npc_marzon_silent_bladeAI : public ScriptedAI
         if (uiType != POINT_MOTION_TYPE)
             return;
 
-        if (Unit* pSummoner = CAST_SUM(m_creature)->GetSummoner())
+        if (m_creature->isSummon())
         {
-            CAST_AI(npc_lord_gregor_lescovarAI, CAST_CRE(pSummoner)->AI())->uiTimer = 2000;
-            CAST_AI(npc_lord_gregor_lescovarAI, CAST_CRE(pSummoner)->AI())->uiPhase = 5;
-            m_creature->ChangeOrient(0.0f, pSummoner);
+            if (Unit* pSummoner = CAST_SUM(m_creature)->GetSummoner())
+            {
+                CAST_AI(npc_lord_gregor_lescovarAI, CAST_CRE(pSummoner)->AI())->uiTimer = 2000;
+                CAST_AI(npc_lord_gregor_lescovarAI, CAST_CRE(pSummoner)->AI())->uiPhase = 5;
+                m_creature->ChangeOrient(0.0f, pSummoner);
+            }
         }
     }
 
