@@ -261,7 +261,7 @@ struct TRINITY_DLL_DECL instance_violet_hold : public ScriptedInstance
                         {
                             pSinclari->SummonCreature(CREATURE_TELEPORTATION_PORTAL,PortalLocation[uiLocation].x,PortalLocation[uiLocation].y,
                                                        PortalLocation[uiLocation].z,PortalLocation[uiLocation].orientation,
-                                                       TEMPSUMMON_CORPSE_DESPAWN,900000);
+                                                       TEMPSUMMON_CORPSE_TIMED_DESPAWN,900000);
                             uiLocation = (++uiLocation)%3;
                         }
                     }
