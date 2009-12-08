@@ -1358,7 +1358,7 @@ UPDATE `creature_template` SET `ScriptName`='npc_gymer' WHERE `entry`=29647;
 UPDATE `creature_template` SET `ScriptName`='npc_gurgthock' WHERE `entry`=30007;
 UPDATE `creature_template` SET `ScriptName`='npc_orinoko_tuskbreaker' WHERE `entry`= 30020;
 UPDATE `creature_template` SET `ScriptName`='npc_korrak_bloodrager' WHERE `entry`=30023;
-
+UPDATE `creature_template` SET `ScriptName`='npc_yggdras' WHERE `entry`=30014;
 
 /* ZUL'FARRAK */
 UPDATE `creature_template` SET `ScriptName`='npc_sergeant_bly' WHERE `entry`=7604;
