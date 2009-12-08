@@ -229,12 +229,12 @@ struct TRINITY_DLL_DECL npc_gurgthockAI : public ScriptedAI
 {
     npc_gurgthockAI(Creature* pCreature) : ScriptedAI(pCreature)
     {
-        pOrinoko = NULL;
-        pKorrak  = NULL;
+        pSummon = NULL;
     }
 
-    Creature* pKorrak;
-    Creature* pOrinoko;
+    Unit* pSummon;
+
+    std::list<uint64> SummonList;
 
     uint32 uiTimer;
     uint32 uiPhase;
@@ -256,22 +256,21 @@ struct TRINITY_DLL_DECL npc_gurgthockAI : public ScriptedAI
 
     void RemoveSummons()
     {
-        if (bEventInProgress)
-            bEventInProgress = false;
+        if (SummonList.empty())
+            return;
+
+        bEventInProgress = false;
 
         m_creature->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
 
-        if (pOrinoko)
+        for(std::list<uint64>::iterator itr = SummonList.begin(); itr != SummonList.end(); ++itr)
         {
-            pOrinoko->RemoveFromWorld();
-            pOrinoko = NULL;
+            if (Creature* pTemp = (Creature*)Unit::GetUnit(*m_creature, *itr))
+                if (pTemp)
+                    pTemp->RemoveFromWorld();
         }
 
-        if (pKorrak)
-        {
-            pKorrak->RemoveFromWorld();
-            pKorrak = NULL;
-        }
+        SummonList.clear();
     }
 
     void UpdateAI(const uint32 uiDiff)
@@ -321,14 +320,15 @@ struct TRINITY_DLL_DECL npc_gurgthockAI : public ScriptedAI
                 switch(uiPhase)
                 {
                     case 1:
-                        pOrinoko = m_creature->SummonCreature(NPC_ORINOKO_TUSKBREAKER, 5757.765137, -2945.161133, 286.276672, 5.156380, TEMPSUMMON_CORPSE_DESPAWN, 1000);
+                        pSummon = m_creature->SummonCreature(NPC_ORINOKO_TUSKBREAKER, 5757.765137, -2945.161133, 286.276672, 5.156380, TEMPSUMMON_CORPSE_DESPAWN, 1000);
                         uiPhase = 2;
                         uiTimer = 4000;
                         break;
                      case 2:
-                        if (pOrinoko)
-                            pOrinoko->GetMotionMaster()->MoveJump(5776.319824, -2981.005371, 273.100037, 10.0f, 20.0f);
+                        if (pSummon)
+                            pSummon->GetMotionMaster()->MoveJump(5776.319824, -2981.005371, 273.100037, 10.0f, 20.0f);
                         uiPhase = 0;
+                        pSummon = NULL;
                         break;
                     case 3:
                         DoScriptText(SAY_QUEST_ACCEPT_KORRAK_2, m_creature);
@@ -336,19 +336,25 @@ struct TRINITY_DLL_DECL npc_gurgthockAI : public ScriptedAI
                         uiPhase = 4;
                         break;
                     case 4:
-                        pKorrak = m_creature->SummonCreature(NPC_KORRAK_BLOODRAGER, 5757.765137, -2945.161133, 286.276672, 5.156380, TEMPSUMMON_CORPSE_DESPAWN, 1000);
+                        pSummon = m_creature->SummonCreature(NPC_KORRAK_BLOODRAGER, 5757.765137, -2945.161133, 286.276672, 5.156380, TEMPSUMMON_CORPSE_DESPAWN, 1000);
                         uiTimer = 3000;
                         uiPhase = 5;
                         break;
                     case 5:
-                        if (pKorrak)
-                            pKorrak->GetMotionMaster()->MovePoint(0, 5722.558594, -2960.685059, 286.276367);
+                        if (pSummon)
+                            pSummon->GetMotionMaster()->MovePoint(0, 5722.558594, -2960.685059, 286.276367);
                         uiTimer = 0;
                         uiPhase = 0;
+                        pSummon = NULL;
                         break;
                 }
             } else uiTimer -= uiDiff;
         }
+    }
+
+    void JustSummoned(Creature* pSummon)
+    {
+        SummonList.push_back(pSummon->GetGUID());
     }
 
     void SummonedCreatureDespawn(Creature* pSummon)
@@ -430,11 +436,9 @@ struct TRINITY_DLL_DECL npc_orinoko_tuskbreakerAI : public ScriptedAI
         if (pWhisker)
             pWhisker->RemoveFromWorld();
 
-        if (Unit* pSummoner = CAST_SUM(m_creature)->GetSummoner())
-        {
-            CAST_AI(npc_gurgthockAI,CAST_CRE(pSummoner)->AI())->bEventInProgress = false;
-            CAST_AI(npc_gurgthockAI,CAST_CRE(pSummoner)->AI())->RemoveSummons();
-        }
+        if (m_creature->isSummon())
+            if (Unit* pSummoner = CAST_SUM(m_creature)->GetSummoner())
+                CAST_AI(npc_gurgthockAI,CAST_CRE(pSummoner)->AI())->RemoveSummons();
     }
 
     void MovementInform(uint32 uiType, uint32 uiId)
@@ -504,8 +508,9 @@ struct TRINITY_DLL_DECL npc_orinoko_tuskbreakerAI : public ScriptedAI
         if (pKiller->GetTypeId() == TYPEID_PLAYER)
             CAST_PLR(pKiller)->GroupEventHappens(QUEST_AMPHITHEATER_ANGUISH_TUSKARRMAGEDDON, CAST_PLR(pKiller));
 
-        if (Unit* pSummoner = CAST_SUM(m_creature)->GetSummoner())
-            CAST_AI(npc_gurgthockAI,CAST_CRE(pSummoner)->AI())->bEventInProgress = false;
+        if (m_creature->isSummon())
+            if (Unit* pSummoner = CAST_SUM(m_creature)->GetSummoner())
+                CAST_AI(npc_gurgthockAI,CAST_CRE(pSummoner)->AI())->bEventInProgress = false;
     }
 };
 
@@ -548,11 +553,9 @@ struct TRINITY_DLL_DECL npc_korrak_bloodragerAI : public ScriptedAI
 
     void EnterEvadeMode() //If you lose the combat, then the npc go away
     {
-        if (Unit* pSummoner = CAST_SUM(m_creature)->GetSummoner())
-        {
-            CAST_AI(npc_gurgthockAI,CAST_CRE(pSummoner)->AI())->RemoveSummons();
-            CAST_AI(npc_gurgthockAI,CAST_CRE(pSummoner)->AI())->bEventInProgress = false;
-        }
+        if (m_creature->isSummon())
+            if (Unit* pSummoner = CAST_SUM(m_creature)->GetSummoner())
+                CAST_AI(npc_gurgthockAI,CAST_CRE(pSummoner)->AI())->RemoveSummons();
     }
 
     void MovementInform(uint32 uiType, uint32 uiId)
@@ -636,8 +639,9 @@ struct TRINITY_DLL_DECL npc_korrak_bloodragerAI : public ScriptedAI
         if (pKiller->GetTypeId() == TYPEID_PLAYER)
             CAST_PLR(pKiller)->GroupEventHappens(QUEST_AMPHITHEATER_ANGUISH_KORRAK_BLOODRAGER, CAST_PLR(pKiller));
 
-        if (Unit* pSummoner = CAST_SUM(m_creature)->GetSummoner())
-            CAST_AI(npc_gurgthockAI,CAST_CRE(pSummoner)->AI())->bEventInProgress = false;
+        if (m_creature->isSummon())
+            if (Unit* pSummoner = CAST_SUM(m_creature)->GetSummoner())
+                CAST_AI(npc_gurgthockAI,CAST_CRE(pSummoner)->AI())->bEventInProgress = false;
     }
 };
 
