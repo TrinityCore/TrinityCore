@@ -215,14 +215,16 @@ enum eGurgthock
 {
     QUEST_AMPHITHEATER_ANGUISH_TUSKARRMAGEDDON   = 12935,
     QUEST_AMPHITHEATER_ANGUISH_KORRAK_BLOODRAGER = 12936,
+    QUEST_AMPHITHEATER_ANGUISH_YGGDRAS_2         = 12954,
+    QUEST_AMPHITHEATER_ANGUISH_YGGDRAS_1         = 12932,
 
     NPC_ORINOKO_TUSKBREAKER = 30020,
     NPC_KORRAK_BLOODRAGER   = 30023,
+    NPC_YGGDRAS             = 30014,
 
     SAY_QUEST_ACCEPT_TUSKARRMAGEDON = -1571031,
     SAY_QUEST_ACCEPT_KORRAK_1       = -1571033,
     SAY_QUEST_ACCEPT_KORRAK_2       = -1571034,
-
 };
 
 struct TRINITY_DLL_DECL npc_gurgthockAI : public ScriptedAI
@@ -249,6 +251,7 @@ struct TRINITY_DLL_DECL npc_gurgthockAI : public ScriptedAI
         m_creature->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
         uiTimer = 0;
         uiPhase = 0;
+        uiQuest = 0;
         uiRemoveFlagTimer = 5000;
         bEventInProgress = false;
         bRemoveFlag = false;
@@ -269,7 +272,6 @@ struct TRINITY_DLL_DECL npc_gurgthockAI : public ScriptedAI
                 if (pTemp)
                     pTemp->RemoveFromWorld();
         }
-
         SummonList.clear();
     }
 
@@ -300,13 +302,23 @@ struct TRINITY_DLL_DECL npc_gurgthockAI : public ScriptedAI
                     uiQuest = 0;
                 }
                 break;
-                case 2:
+            case 2:
                 if (!bEventInProgress)
                 {
                     bEventInProgress = true;
                     bRemoveFlag = true;
                     DoScriptText(SAY_QUEST_ACCEPT_KORRAK_1, m_creature);
                     uiPhase = 3;
+                    uiTimer = 3000;
+                    uiQuest = 0;
+                }
+                break;
+            case 3:
+                if (!bEventInProgress)
+                {
+                    bEventInProgress = true;
+                    bRemoveFlag = true;
+                    uiPhase = 6;
                     uiTimer = 3000;
                     uiQuest = 0;
                 }
@@ -347,6 +359,10 @@ struct TRINITY_DLL_DECL npc_gurgthockAI : public ScriptedAI
                         uiPhase = 0;
                         pSummon = NULL;
                         break;
+                    case 6:
+                        m_creature->SummonCreature(NPC_YGGDRAS, 5762.054199, -2954.385010, 273.826955, 5.108289, TEMPSUMMON_CORPSE_DESPAWN, 1000);
+                        uiPhase = 0;
+                        break;
                 }
             } else uiTimer -= uiDiff;
         }
@@ -375,6 +391,10 @@ bool QuestAccept_npc_gurgthock(Player* pPlayer, Creature* pCreature, Quest const
             break;
         case QUEST_AMPHITHEATER_ANGUISH_KORRAK_BLOODRAGER:
             CAST_AI(npc_gurgthockAI, pCreature->AI())->uiQuest = 2;
+            break;
+        case QUEST_AMPHITHEATER_ANGUISH_YGGDRAS_2:
+        case QUEST_AMPHITHEATER_ANGUISH_YGGDRAS_1:
+            CAST_AI(npc_gurgthockAI, pCreature->AI())->uiQuest = 3;
             break;
     }
     return false;
@@ -650,6 +670,82 @@ CreatureAI* GetAI_npc_korrak_bloodrager(Creature* pCreature)
     return new npc_korrak_bloodragerAI(pCreature);
 }
 
+/*####
+## npc_yggdras
+####*/
+
+enum eYggdras
+{
+    SPELL_CLEAVE            = 40504,
+    SPELL_CORRODE_FLESH     = 57076,
+    SPELL_JORMUNGAR_SPAWN   = 55859
+};
+
+struct TRINITY_DLL_DECL npc_yggdrasAI : public ScriptedAI
+{
+    npc_yggdrasAI(Creature* pCreature) : ScriptedAI(pCreature)
+    {
+        uiCleaveTimer = 12000;
+        uiCorrodeFleshTimer = 18000;
+    }
+
+    uint32 uiCleaveTimer;
+    uint32 uiCorrodeFleshTimer;
+
+    void EnterEvadeMode() //If you lose the combat, then the npc go away
+    {
+        if (m_creature->isSummon())
+            if (Unit* pSummoner = CAST_SUM(m_creature)->GetSummoner())
+                CAST_AI(npc_gurgthockAI,CAST_CRE(pSummoner)->AI())->RemoveSummons();
+    }
+
+    void EnterCombat(Unit* pWho)
+    {
+        DoCast(m_creature, SPELL_GROW);
+    }
+
+    void UpdateAI(const uint32 uiDiff)
+    {
+        if (!UpdateVictim())
+            return;
+
+        if (uiCleaveTimer <= uiDiff)
+        {
+            DoCast(m_creature->getVictim(), SPELL_CLEAVE);
+            uiCleaveTimer = 12000;
+        } else uiCleaveTimer -= uiDiff;
+
+        if (uiCorrodeFleshTimer <= uiDiff)
+        {
+            DoCast(m_creature->getVictim(), SPELL_CHARGE);
+            uiCorrodeFleshTimer = 18000;
+        } else uiCorrodeFleshTimer -= uiDiff;
+
+        DoMeleeAttackIfReady();
+    }
+
+    void JustDied(Unit* pKiller)
+    {
+        if (pKiller->GetTypeId() == TYPEID_PLAYER)
+        {
+            CAST_PLR(pKiller)->GroupEventHappens(QUEST_AMPHITHEATER_ANGUISH_YGGDRAS_1, CAST_PLR(pKiller));
+            CAST_PLR(pKiller)->GroupEventHappens(QUEST_AMPHITHEATER_ANGUISH_YGGDRAS_2, CAST_PLR(pKiller));
+        }
+
+        for (uint8 i = 0; i < 2; ++i)
+            DoCast(pKiller, SPELL_JORMUNGAR_SPAWN, true);
+
+        if (m_creature->isSummon())
+            if (Unit* pSummoner = CAST_SUM(m_creature)->GetSummoner())
+                CAST_AI(npc_gurgthockAI,CAST_CRE(pSummoner)->AI())->bEventInProgress = false;
+    }
+};
+
+CreatureAI* GetAI_npc_yggdras(Creature* pCreature)
+{
+    return new npc_yggdrasAI(pCreature);
+}
+
 void AddSC_zuldrak()
 {
     Script *newscript;
@@ -684,5 +780,10 @@ void AddSC_zuldrak()
     newscript = new Script;
     newscript->Name = "npc_korrak_bloodrager";
     newscript->GetAI = &GetAI_npc_korrak_bloodrager;
+    newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name = "npc_yggdras";
+    newscript->GetAI = &GetAI_npc_yggdras;
     newscript->RegisterSelf();
 }
