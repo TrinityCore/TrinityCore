@@ -20,7 +20,7 @@ enum Spells
     H_SPELL_ZUMARAT_ADD_2                          = 59747
 };
 
-enum Creatures
+enum ZuramatCreatures
 {
     CREATURE_VOID_SENTRY                           = 29364
 };

@@ -16,19 +16,6 @@
 4 - Xevozz
 5 - Zuramat
 6 - Cyanigosa */
-enum Creatures
-{
-    CREATURE_TELEPORTATION_PORTAL                   = 31011,
-    CREATURE_XEVOZZ                                 = 29266,
-    CREATURE_LAVANTHOR                              = 29312,
-    CREATURE_ICHORON                                = 29313,
-    CREATURE_ZURAMAT                                = 29314,
-    CREATURE_EREKEM                                 = 29315,
-    CREATURE_EREKEM_GUARD                           = 29395,
-    CREATURE_MORAGG                                 = 29316,
-    CREATURE_CYANIGOSA                              = 31134,
-    CREATURE_SINCLARI                               = 30658
-};
 enum GameObjects
 {
     GO_MAIN_DOOR                                    = 191723,
@@ -42,6 +29,10 @@ enum GameObjects
     GO_MORAGG_DOOR                                  = 191606,
     GO_INTRO_ACTIVATION_CRYSTAL                     = 193615,
     GO_ACTIVATION_CRYSTAL                           = 193611
+};
+enum Spells
+{
+    SPELL_PORTAL_CHANNEL                            = 58012
 };
 struct Location
 {
@@ -259,10 +250,17 @@ struct TRINITY_DLL_DECL instance_violet_hold : public ScriptedInstance
                         Creature *pSinclari = instance->GetCreature(uiSinclari);
                         if (pSinclari)
                         {
-                            pSinclari->SummonCreature(CREATURE_TELEPORTATION_PORTAL,PortalLocation[uiLocation].x,PortalLocation[uiLocation].y,
+                            if (Creature *pPortal = pSinclari->SummonCreature(CREATURE_TELEPORTATION_PORTAL,PortalLocation[uiLocation].x,PortalLocation[uiLocation].y,
                                                        PortalLocation[uiLocation].z,PortalLocation[uiLocation].orientation,
-                                                       TEMPSUMMON_CORPSE_TIMED_DESPAWN,900000);
-                            uiLocation = (++uiLocation)%3;
+                                                       TEMPSUMMON_CORPSE_TIMED_DESPAWN,900000))
+                            {
+                                uint32 entry = urand(0, 1) ? CREATURE_PORTAL_GUARDIAN : CREATURE_PORTAL_KEEPER;
+                                if (Creature *pPortalKeeper = pPortal->SummonCreature(entry,PortalLocation[uiLocation].x, PortalLocation[uiLocation].y,
+                                                                            PortalLocation[uiLocation].z, PortalLocation[uiLocation].orientation,
+                                                                            TEMPSUMMON_CORPSE_TIMED_DESPAWN,900000))
+                                    pPortal->CastSpell(pPortalKeeper, SPELL_PORTAL_CHANNEL,false);
+                                uiLocation = (++uiLocation)%3;
+                            }
                         }
                     }
                 }
