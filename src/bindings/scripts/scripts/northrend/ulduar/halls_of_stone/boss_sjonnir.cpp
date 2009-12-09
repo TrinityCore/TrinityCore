@@ -38,7 +38,7 @@ enum Yells
 
 #define EMOTE_GENERIC_FRENZY                               -1000002
 
-enum Creatures
+enum SjonnirCreatures
 {
     CREATURE_FORGED_IRON_TROGG                             = 27979,
     CREATURE_MALFORMED_OOZE                                = 27981,
@@ -113,7 +113,12 @@ struct TRINITY_DLL_DECL boss_sjonnirAI : public ScriptedAI
         uiEncounterTimer = 0;
 
         if (pInstance)
+        {
             pInstance->SetData(DATA_SJONNIR_EVENT, IN_PROGRESS);
+            if (GameObject pDoor = pInstance->instance->GetGameObject(pInstance->GetData64(DATA_SJONNIR_DOOR)) &&
+                pDoor->GetGoState() == GO_STATE_READY)
+                EnterEvadeMode();
+        }
     }
 
     void UpdateAI(const uint32 diff)

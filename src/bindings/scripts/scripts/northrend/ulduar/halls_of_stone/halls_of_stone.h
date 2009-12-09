@@ -19,7 +19,8 @@ enum Data64
     DATA_GO_KADDRAK,
     DATA_GO_MARNAK,
     DATA_GO_ABEDNEUM,
-    DATA_GO_SKY_FLOOR
+    DATA_GO_SKY_FLOOR,
+    DATA_SJONNIR_DOOR
 };
 enum Creatures
 {
