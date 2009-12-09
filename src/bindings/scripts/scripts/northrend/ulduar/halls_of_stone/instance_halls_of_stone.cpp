@@ -10,12 +10,6 @@
 3- Sjonnir The Ironshaper
 */
 
-enum GameObjects
-{
-    GO_TRIBUNAL_CHEST       = 190586,
-    GO_TRIBUNAL_CHEST_HERO  = 193996
-};
-
 struct TRINITY_DLL_DECL instance_halls_of_stone : public ScriptedInstance
 {
     instance_halls_of_stone(Map* pMap) : ScriptedInstance(pMap) {Initialize();};
@@ -72,13 +66,13 @@ struct TRINITY_DLL_DECL instance_halls_of_stone : public ScriptedInstance
     {
         switch(pCreature->GetEntry())
         {
-            case 27975: uiMaidenOfGrief = pCreature->GetGUID(); break;
-            case 27977: uiKrystallus = pCreature->GetGUID(); break;
-            case 27978: uiSjonnir = pCreature->GetGUID(); break;
-            case 30897: uiMarnak = pCreature->GetGUID(); break;
-            case 30898: uiKaddrak = pCreature->GetGUID(); break;
-            case 30899: uiAbedneum = pCreature->GetGUID(); break;
-            case 28070: uiBrann = pCreature->GetGUID(); break;
+            case CREATURE_MAIDEN: uiMaidenOfGrief = pCreature->GetGUID(); break;
+            case CREATURE_KRYSTALLUS: uiKrystallus = pCreature->GetGUID(); break;
+            case CREATURE_SJONNIR: uiSjonnir = pCreature->GetGUID(); break;
+            case CREATURE_MARNAK: uiMarnak = pCreature->GetGUID(); break;
+            case CREATURE_KADDRAK: uiKaddrak = pCreature->GetGUID(); break;
+            case CREATURE_ABEDNEUM: uiAbedneum = pCreature->GetGUID(); break;
+            case CREATURE_BRANN: uiBrann = pCreature->GetGUID(); break;
         }
     }
 
@@ -86,37 +80,37 @@ struct TRINITY_DLL_DECL instance_halls_of_stone : public ScriptedInstance
     {
         switch(pGo->GetEntry())
         {
-            case 191669:
+            case GO_ABEDNEUM:
                 uiAbedneumGo = pGo->GetGUID();
                 break;
-            case 192170:
+            case GO_MARNAK:
                 uiMarnakGo = pGo->GetGUID();
                 break;
-            case 192171:
+            case GO_KADDRAK:
                 uiKaddrakGo = pGo->GetGUID();
                 break;
-            case 191292:
+            case GO_MAIDEN_DOOR:
                 uiMaidenOfGriefDoor = pGo->GetGUID();
                 if (m_auiEncounter[0] == DONE)
                     pGo->SetGoState(GO_STATE_ACTIVE);
                 else
                     pGo->SetGoState(GO_STATE_READY);
                 break;
-            case 191295:
+            case GO_BRANN_DOOR:
                 uiBrannDoor = pGo->GetGUID();
                 if (m_auiEncounter[1] == DONE)
                     pGo->SetGoState(GO_STATE_ACTIVE);
                 else
                     pGo->SetGoState(GO_STATE_READY);
                 break;
-            case 191296:
+            case GO_SJONNIR_DOOR:
                 uiSjonnirDoor = pGo->GetGUID();
                 if (m_auiEncounter[2] == DONE)
                     pGo->SetGoState(GO_STATE_ACTIVE);
                 else
                     pGo->SetGoState(GO_STATE_READY);
                 break;
-            case 193907:
+            case GO_TRIBUNAL_CONSOLE:
                 uiTribunalConsole = pGo->GetGUID();
                 break;
             case GO_TRIBUNAL_CHEST:
