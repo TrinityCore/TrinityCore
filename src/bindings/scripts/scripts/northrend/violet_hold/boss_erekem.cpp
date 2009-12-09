@@ -74,6 +74,20 @@ struct TRINITY_DLL_DECL boss_erekemAI : public ScriptedAI
         }
     }
 
+    void AttackStart(Unit* pWho)
+    {
+        if (m_creature->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE) || m_creature->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
+            return;
+
+        if (m_creature->Attack(pWho, true))
+        {
+            m_creature->AddThreat(pWho, 0.0f);
+            m_creature->SetInCombatWith(pWho);
+            pWho->SetInCombatWith(m_creature);
+            DoStartMovement(pWho);
+        }
+    }
+
     void EnterCombat(Unit* who)
     {
         DoScriptText(SAY_AGGRO, m_creature);
@@ -213,27 +227,41 @@ struct TRINITY_DLL_DECL mob_erekem_guardAI : public ScriptedAI
         uiGushingWoundTimer = urand(1000,3000);
     }
 
+    void AttackStart(Unit* pWho)
+    {
+        if (m_creature->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE) || m_creature->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
+            return;
+
+        if (m_creature->Attack(pWho, true))
+        {
+            m_creature->AddThreat(pWho, 0.0f);
+            m_creature->SetInCombatWith(pWho);
+            pWho->SetInCombatWith(m_creature);
+            DoStartMovement(pWho);
+        }
+    }
+
     void MoveInLineOfSight(Unit* who) {}
 
     void UpdateAI(const uint32 diff)
     {
         if (!UpdateVictim())
             return;
-        
+
         DoMeleeAttackIfReady();
-        
+
         if (uiStrikeTimer <= diff)
         {
             DoCast(m_creature->getVictim(), SPELL_STRIKE);
             uiStrikeTimer = urand(4000,8000);
         } else uiStrikeTimer -= diff;
-        
+
         if (uiHowlingScreechTimer <= diff)
         {
             DoCast(m_creature->getVictim(), SPELL_HOWLING_SCREECH);
             uiHowlingScreechTimer = urand(8000,13000);
         } else uiHowlingScreechTimer -= diff;
-        
+
         if (uiGushingWoundTimer <= diff)
         {
             DoCast(m_creature->getVictim(), SPELL_GUSHING_WOUND);
