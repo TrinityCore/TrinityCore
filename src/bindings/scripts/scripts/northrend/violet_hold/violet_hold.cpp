@@ -3,15 +3,18 @@
 
 #define GOSSIP_START_EVENT "[PH]: Start Event"
 #define NEXT_WAVE_TIME        90000
-#define SPAWN_TIME             9000
+#define SPAWN_TIME            15000
 
-enum Creatures
+enum PortalCreatures
 {
     CREATURE_AZURE_INVADER            = 30661,
     CREATURE_AZURE_SPELLBREAKER       = 30662,
     CREATURE_AZURE_BINDER             = 30663,
     CREATURE_AZURE_MAGE_SLAYER        = 30664,
-    CREATURE_AZURE_CAPTAIN            = 30666
+    CREATURE_AZURE_CAPTAIN            = 30666,
+    CREATURE_AZURE_SORCEROR           = 30667,
+    CREATURE_AZURE_RAIDER             = 30668,
+    CREATURE_AZURE_STALKER            = 32191
 };
 
 bool GossipHello_npc_sinclari(Player* pPlayer, Creature* pCreature)
@@ -58,14 +61,26 @@ struct TRINITY_DLL_DECL npc_teleportation_portalAI : public ScriptedAI
     {
         if (uiSpawnTimer <= diff)
         {
-            if (Creature* pSummon = m_creature->SummonCreature(RAND(CREATURE_AZURE_CAPTAIN,CREATURE_AZURE_SPELLBREAKER,
-                                                               CREATURE_AZURE_BINDER,CREATURE_AZURE_MAGE_SLAYER,CREATURE_AZURE_CAPTAIN),
+            for (uint8 i = 0; i < pInstance->GetData(DATA_WAVE_COUNT) < 12 ? 3 : 4; ++i)
+            {
+                if (Creature* pSummon = m_creature->SummonCreature(RAND(CREATURE_AZURE_CAPTAIN,CREATURE_AZURE_RAIDER,CREATURE_AZURE_STALKER,CREATURE_AZURE_SORCEROR),
                                                        m_creature->GetPositionX()+urand(0,2), m_creature->GetPositionY()+urand(0,2),
                                                        m_creature->GetPositionZ(),m_creature->GetOrientation(),
                                                        TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000))
-                pSummon->Attack(pSummon->SelectNearestTarget(100),true);
+                    if (Creature* pTarget = GetClosestCreatureWithEntry(m_creature, CREATURE_SINCLARI, 150.0f))
+                    {
+                        pSummon->Attack(pTarget, true);
+                    }
+            }
             uiSpawnTimer = SPAWN_TIME;
         } else uiSpawnTimer -= diff;
+
+        if (!m_creature->IsNonMeleeSpellCasted(false))
+        {
+            m_creature->Kill(m_creature, false);
+            m_creature->RemoveCorpse();
+            return;
+        }
 
         if (uiDespawnTimer <= diff)
         {

@@ -38,7 +38,7 @@ enum Spells
     SPELL_SPLASH                                = 59516,
 };
 
-enum Creatures
+enum IchoronCreatures
 {
     NPC_ICHOR_GLOBULE                           = 29321,
 };

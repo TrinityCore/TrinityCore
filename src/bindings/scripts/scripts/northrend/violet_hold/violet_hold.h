@@ -1,6 +1,22 @@
 #ifndef DEF_VIOLET_HOLD_H
 #define DEF_VIOLET_HOLD_H
 
+enum Creatures
+{
+    CREATURE_TELEPORTATION_PORTAL                   = 31011,
+    CREATURE_PORTAL_GUARDIAN                        = 30660,
+    CREATURE_PORTAL_KEEPER                          = 30695,
+    CREATURE_XEVOZZ                                 = 29266,
+    CREATURE_LAVANTHOR                              = 29312,
+    CREATURE_ICHORON                                = 29313,
+    CREATURE_ZURAMAT                                = 29314,
+    CREATURE_EREKEM                                 = 29315,
+    CREATURE_EREKEM_GUARD                           = 29395,
+    CREATURE_MORAGG                                 = 29316,
+    CREATURE_CYANIGOSA                              = 31134,
+    CREATURE_SINCLARI                               = 30658
+};
+
 enum Data
 {
     DATA_1ST_BOSS_EVENT,
