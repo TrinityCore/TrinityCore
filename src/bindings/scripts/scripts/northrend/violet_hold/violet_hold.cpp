@@ -68,7 +68,10 @@ struct TRINITY_DLL_DECL npc_teleportation_portalAI : public ScriptedAI
         } else uiSpawnTimer -= diff;
 
         if (uiDespawnTimer <= diff)
+        {
             m_creature->Kill(m_creature, false);
+            m_creature->RemoveCorpse();
+        }
         else
             uiDespawnTimer -= diff;
     }
