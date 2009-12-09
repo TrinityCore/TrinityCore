@@ -187,6 +187,7 @@ struct TRINITY_DLL_DECL instance_halls_of_stone : public ScriptedInstance
             case DATA_GO_MARNAK:                       return uiMarnakGo;
             case DATA_GO_SKY_FLOOR:                    return uiTribunalSkyFloor;
             case DATA_SJONNIR_DOOR:                    return uiSjonnirDoor;
+            case DATA_MAIDEN_DOOR:                     return uiMaidenOfGriefDoor;
         }
 
         return 0;

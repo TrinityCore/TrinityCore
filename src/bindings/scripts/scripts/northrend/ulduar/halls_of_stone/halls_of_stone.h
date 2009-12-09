@@ -20,7 +20,8 @@ enum Data64
     DATA_GO_MARNAK,
     DATA_GO_ABEDNEUM,
     DATA_GO_SKY_FLOOR,
-    DATA_SJONNIR_DOOR
+    DATA_SJONNIR_DOOR,
+    DATA_MAIDEN_DOOR
 };
 enum Creatures
 {
