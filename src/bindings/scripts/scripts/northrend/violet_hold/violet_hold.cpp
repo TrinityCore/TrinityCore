@@ -61,7 +61,8 @@ struct TRINITY_DLL_DECL npc_teleportation_portalAI : public ScriptedAI
     {
         if (uiSpawnTimer <= diff)
         {
-            for (uint8 i = 0; i < pInstance->GetData(DATA_WAVE_COUNT) < 12 ? 3 : 4; ++i)
+            uint8 k = pInstance->GetData(DATA_WAVE_COUNT) < 12 ? 3 : 4;
+            for (uint8 i = 0; i < k; ++i)
             {
                 if (Creature* pSummon = m_creature->SummonCreature(RAND(CREATURE_AZURE_CAPTAIN,CREATURE_AZURE_RAIDER,CREATURE_AZURE_STALKER,CREATURE_AZURE_SORCEROR),
                                                        m_creature->GetPositionX()+urand(0,2), m_creature->GetPositionY()+urand(0,2),
