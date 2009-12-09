@@ -65,7 +65,12 @@ struct TRINITY_DLL_DECL boss_maiden_of_griefAI : public ScriptedAI
         AchievTimer = 0;
 
         if (pInstance)
+        {
             pInstance->SetData(DATA_MAIDEN_OF_GRIEF_EVENT, NOT_STARTED);
+            if (GameObject *pDoor = pInstance->instance->GetGameObject(pInstance->GetData64(DATA_MAIDEN_DOOR)))
+                if (pDoor->GetGoState() == GO_STATE_READY)
+                    EnterEvadeMode();
+        }
     }
 
     void EnterCombat(Unit* who)

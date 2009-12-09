@@ -71,7 +71,7 @@ enum Texts
     TEXT_ID_PROGRESS                    = 13101
 };
 
-enum Creatures
+enum BrannCreatures
 {
     CREATURE_TRIBUNAL_OF_THE_AGES       = 28234,
     CREATURE_BRANN_BRONZEBEARD          = 28070,
@@ -80,7 +80,6 @@ enum Creatures
     CREATURE_DARK_RUNE_PROTECTOR        = 27983,
     CREATURE_DARK_RUNE_STORMCALLER      = 27984,
     CREATURE_IRON_GOLEM_CUSTODIAN       = 27985,
-    CREATURE_KADDRAK                    = 30898
 };
 
 enum Spells
