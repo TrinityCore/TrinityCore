@@ -177,6 +177,49 @@ struct TRINITY_DLL_DECL instance_halls_of_lightning : public ScriptedInstance
         }
         return 0;
     }
+
+    std::string GetSaveData()
+    {
+        OUT_SAVE_INST_DATA;
+
+        std::ostringstream saveStream;
+        saveStream << "H L " << m_auiEncounter[0] << " " << m_auiEncounter[1] << " "
+        << m_auiEncounter[2] << " " << m_auiEncounter[3];
+
+        OUT_SAVE_INST_DATA_COMPLETE;
+        return saveStream.str();
+    }
+
+    void Load(const char* in)
+    {
+        if (!in)
+        {
+            OUT_LOAD_INST_DATA_FAIL;
+            return;
+        }
+
+        OUT_LOAD_INST_DATA(in);
+
+        char dataHead1, dataHead2;
+        uint16 data0, data1, data2, data3;
+
+        std::istringstream loadStream(in);
+        loadStream >> dataHead1 >> dataHead2 >> data0 >> data1 >> data2 >> data3;
+
+        if (dataHead1 == 'G' && dataHead2 == 'D')
+        {
+            m_auiEncounter[0] = data0;
+            m_auiEncounter[1] = data1;
+            m_auiEncounter[2] = data2;
+            m_auiEncounter[3] = data3;
+
+            for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
+                if (m_auiEncounter[i] == IN_PROGRESS)
+                    m_auiEncounter[i] = NOT_STARTED;
+        } else OUT_LOAD_INST_DATA_FAIL;
+
+        OUT_LOAD_INST_DATA_COMPLETE;
+    }
 };
 
 InstanceData* GetInstanceData_instance_halls_of_lightning(Map* pMap)
