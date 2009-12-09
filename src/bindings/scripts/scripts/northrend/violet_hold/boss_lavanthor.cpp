@@ -63,6 +63,20 @@ struct TRINITY_DLL_DECL boss_lavanthorAI : public ScriptedAI
         }
     }
 
+    void AttackStart(Unit* pWho)
+    {
+        if (m_creature->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE) || m_creature->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
+            return;
+
+        if (m_creature->Attack(pWho, true))
+        {
+            m_creature->AddThreat(pWho, 0.0f);
+            m_creature->SetInCombatWith(pWho);
+            pWho->SetInCombatWith(m_creature);
+            DoStartMovement(pWho);
+        }
+    }
+
     void MoveInLineOfSight(Unit* who) {}
 
     void UpdateAI(const uint32 diff)
