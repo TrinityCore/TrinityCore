@@ -206,7 +206,7 @@ struct TRINITY_DLL_DECL instance_halls_of_lightning : public ScriptedInstance
         std::istringstream loadStream(in);
         loadStream >> dataHead1 >> dataHead2 >> data0 >> data1 >> data2 >> data3;
 
-        if (dataHead1 == 'G' && dataHead2 == 'D')
+        if (dataHead1 == 'H' && dataHead2 == 'L')
         {
             m_auiEncounter[0] = data0;
             m_auiEncounter[1] = data1;
