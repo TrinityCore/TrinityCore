@@ -126,6 +126,13 @@ struct TRINITY_DLL_DECL boss_anomalusAI : public ScriptedAI
         if (!UpdateVictim())
             return;
 
+        if (m_creature->GetDistance(m_creature->GetHomePosition()) > 60.0f)
+        {
+            //Not blizzlike, hack to avoid an exploit
+            EnterEvadeMode();
+            return;
+        }
+
         if (m_creature->HasAura(SPELL_RIFT_SHIELD))
         {
             if (ChaoticRiftGUID)
