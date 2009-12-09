@@ -115,9 +115,9 @@ struct TRINITY_DLL_DECL boss_sjonnirAI : public ScriptedAI
         if (pInstance)
         {
             pInstance->SetData(DATA_SJONNIR_EVENT, IN_PROGRESS);
-            if (GameObject pDoor = pInstance->instance->GetGameObject(pInstance->GetData64(DATA_SJONNIR_DOOR)) &&
-                pDoor->GetGoState() == GO_STATE_READY)
-                EnterEvadeMode();
+            if (GameObject *pDoor = pInstance->instance->GetGameObject(pInstance->GetData64(DATA_SJONNIR_DOOR)))
+                if (pDoor->GetGoState() == GO_STATE_READY)
+                    EnterEvadeMode();
         }
     }
 
