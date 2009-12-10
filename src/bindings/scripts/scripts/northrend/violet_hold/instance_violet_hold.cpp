@@ -70,6 +70,8 @@ struct TRINITY_DLL_DECL instance_violet_hold : public ScriptedInstance
     
     uint64 uiActivationCrystal[3];
 
+    uint32 uiActivationTimer;
+
     uint8 uiWaveCount;
     uint8 uiLocation;
     uint8 uiFirstBoss;
@@ -79,7 +81,7 @@ struct TRINITY_DLL_DECL instance_violet_hold : public ScriptedInstance
     uint8 uiCountErekemGuards;
     uint8 uiCountActivationCrystals;
 
-    bool HeroicMode;
+    bool bActive;
 
     std::string str_data;
 
@@ -110,6 +112,10 @@ struct TRINITY_DLL_DECL instance_violet_hold : public ScriptedInstance
         uiSecondBoss = 0;
         uiCountErekemGuards = 0;
         uiCountActivationCrystals = 0;
+
+        uiActivationTimer = 5000;
+
+        bActive = false;
 
         memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
     }
@@ -220,50 +226,7 @@ struct TRINITY_DLL_DECL instance_violet_hold : public ScriptedInstance
                 break;
             case DATA_WAVE_COUNT:
                 uiWaveCount = data;
-                switch(data)
-                {
-                    case 6:
-                        uiFirstBoss = rand()%6;
-                        StartBossEncounter(uiFirstBoss);
-                        break;
-                    case 12:
-                        uiSecondBoss = rand()%6;
-                        while (uiSecondBoss == uiFirstBoss)
-                            uiSecondBoss = rand()%6;
-                        StartBossEncounter(uiSecondBoss);
-                        break;
-                    case 18:
-                    {
-                        Creature *pSinclari = instance->GetCreature(uiSinclari);
-                        if (pSinclari)
-                            pSinclari->SummonCreature(CREATURE_CYANIGOSA,PortalLocation[0].x,PortalLocation[0].y,
-                                                       PortalLocation[0].z,PortalLocation[0].orientation,TEMPSUMMON_DEAD_DESPAWN,0);
-                        break;
-                    }
-                    case 1:
-                    {
-                        if (GameObject* pMainDoor = instance->GetGameObject(uiMainDoor))
-                            pMainDoor->SetGoState(GO_STATE_READY);
-                    }
-                    default:
-                    {
-                        Creature *pSinclari = instance->GetCreature(uiSinclari);
-                        if (pSinclari)
-                        {
-                            if (Creature *pPortal = pSinclari->SummonCreature(CREATURE_TELEPORTATION_PORTAL,PortalLocation[uiLocation].x,PortalLocation[uiLocation].y,
-                                                       PortalLocation[uiLocation].z,PortalLocation[uiLocation].orientation,
-                                                       TEMPSUMMON_CORPSE_DESPAWN,900000))
-                            {
-                                uint32 entry = urand(0, 1) ? CREATURE_PORTAL_GUARDIAN : CREATURE_PORTAL_KEEPER;
-                                if (Creature *pPortalKeeper = pPortal->SummonCreature(entry,PortalLocation[uiLocation].x, PortalLocation[uiLocation].y,
-                                                                            PortalLocation[uiLocation].z, PortalLocation[uiLocation].orientation,
-                                                                            TEMPSUMMON_DEAD_DESPAWN,900000))
-                                    pPortal->CastSpell(pPortalKeeper, SPELL_PORTAL_CHANNEL,false);
-                                uiLocation = (++uiLocation)%3;
-                            }
-                        }
-                    }
-                }
+                bActive = true;
                 break;
         }
     }
@@ -279,6 +242,25 @@ struct TRINITY_DLL_DECL instance_violet_hold : public ScriptedInstance
         }
 
         return 0;
+    }
+
+    void SpawnPortal()
+    {
+        Creature *pSinclari = instance->GetCreature(uiSinclari);
+        if (pSinclari)
+        {
+            if (Creature *pPortal = pSinclari->SummonCreature(CREATURE_TELEPORTATION_PORTAL,PortalLocation[uiLocation].x,PortalLocation[uiLocation].y,
+                PortalLocation[uiLocation].z,PortalLocation[uiLocation].orientation,
+                                                              TEMPSUMMON_CORPSE_DESPAWN,900000))
+            {
+                uint32 entry = urand(0, 1) ? CREATURE_PORTAL_GUARDIAN : CREATURE_PORTAL_KEEPER;
+                if (Creature *pPortalKeeper = pPortal->SummonCreature(entry,PortalLocation[uiLocation].x, PortalLocation[uiLocation].y,
+                    PortalLocation[uiLocation].z, PortalLocation[uiLocation].orientation,
+                                                                      TEMPSUMMON_DEAD_DESPAWN,900000))
+                    pPortal->CastSpell(pPortalKeeper, SPELL_PORTAL_CHANNEL,false);
+                uiLocation = (++uiLocation)%3;
+            }
+        }
     }
 
     void StartBossEncounter(uint8 uiBoss)
@@ -347,6 +329,39 @@ struct TRINITY_DLL_DECL instance_violet_hold : public ScriptedInstance
                 }
                 break;
         }
+    }
+
+    void AddWave()
+    {
+        switch(uiWaveCount)
+        {
+            case 6:
+                uiFirstBoss = rand()%6;
+                StartBossEncounter(uiFirstBoss);
+                break;
+            case 12:
+                uiSecondBoss = rand()%6;
+                while (uiSecondBoss == uiFirstBoss)
+                    uiSecondBoss = rand()%6;
+                StartBossEncounter(uiSecondBoss);
+                break;
+            case 18:
+            {
+                Creature *pSinclari = instance->GetCreature(uiSinclari);
+                if (pSinclari)
+                    pSinclari->SummonCreature(CREATURE_CYANIGOSA,PortalLocation[0].x,PortalLocation[0].y,
+                                              PortalLocation[0].z,PortalLocation[0].orientation,TEMPSUMMON_DEAD_DESPAWN,0);
+                                              break;
+            }
+            case 1:
+            {
+                if (GameObject* pMainDoor = instance->GetGameObject(uiMainDoor))
+                    pMainDoor->SetGoState(GO_STATE_READY);
+            }
+            default:
+                SpawnPortal();
+        }
+        bActive = true;
     }
 
     uint64 GetData64(uint32 identifier)
@@ -422,6 +437,19 @@ struct TRINITY_DLL_DECL instance_violet_hold : public ScriptedInstance
         } else OUT_LOAD_INST_DATA_FAIL;
 
         OUT_LOAD_INST_DATA_COMPLETE;
+    }
+
+    void Update(uint32 diff)
+    {
+        if (bActive)
+        {
+            if (uiActivationTimer < diff)
+            {
+                AddWave();
+                bActive = false;
+                uiActivationTimer = 5000;
+            } else uiActivationTimer -= diff;
+        }
     }
 };
 
