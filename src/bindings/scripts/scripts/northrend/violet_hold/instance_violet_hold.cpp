@@ -333,6 +333,7 @@ struct TRINITY_DLL_DECL instance_violet_hold : public ScriptedInstance
 
     void AddWave()
     {
+        DoUpdateWorldState(WORLD_STATE_VH, uiWaveCount);
         switch(uiWaveCount)
         {
             case 6:

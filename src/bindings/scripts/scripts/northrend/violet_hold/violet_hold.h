@@ -48,4 +48,9 @@ enum Data64
     DATA_SINCLARI
 };
 
+enum WorldStates
+{
+    WORLD_STATE_VH          = 3816
+};
+
 #endif
