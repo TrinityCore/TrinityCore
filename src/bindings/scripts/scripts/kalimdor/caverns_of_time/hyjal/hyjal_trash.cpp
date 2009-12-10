@@ -1138,7 +1138,7 @@ struct mob_frost_wyrmAI : public hyjal_trashAI
         hyjal_trashAI::UpdateAI(diff);
         if (IsEvent || IsOverrun)
         {
-            CAST_AI(hyjal_trashAI, m_creature->AI())->SetCanMelee(false);
+            CAST_AI(hyjal_trashAI, m_creature->AI())->SetCanAttack(false);
             npc_escortAI::UpdateAI(diff);
         }
         if (IsEvent)
@@ -1249,7 +1249,7 @@ struct mob_gargoyleAI : public hyjal_trashAI
         hyjal_trashAI::UpdateAI(diff);
         if (IsEvent || IsOverrun)
         {
-            CAST_AI(hyjal_trashAI, m_creature->AI())->SetCanMelee(false);
+            CAST_AI(hyjal_trashAI, m_creature->AI())->SetCanAttack(false);
             npc_escortAI::UpdateAI(diff);
         }
         if (IsEvent)

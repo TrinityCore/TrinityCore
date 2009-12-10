@@ -21,7 +21,6 @@ enum ePoints
 npc_escortAI::npc_escortAI(Creature* pCreature) : ScriptedAI(pCreature),
     m_uiPlayerGUID(0),
     MaxPlayerDistance(DEFAULT_MAX_PLAYER_DISTANCE),
-    CanMelee(true),
     m_uiPlayerCheckTimer(1000),
     m_uiWPWaitTimer(2500),
     m_uiEscortState(STATE_ESCORT_NONE),
@@ -303,7 +302,7 @@ void npc_escortAI::UpdateAI(const uint32 uiDiff)
 
 void npc_escortAI::UpdateEscortAI(const uint32 uiDiff)
 {
-    if (!CanMelee && !UpdateVictim())
+    if (!UpdateVictim())
         return;
 
     DoMeleeAttackIfReady();
