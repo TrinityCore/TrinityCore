@@ -2,7 +2,6 @@
 #include "violet_hold.h"
 
 #define GOSSIP_START_EVENT "[PH]: Start Event"
-#define NEXT_WAVE_TIME        90000
 #define SPAWN_TIME            15000
 
 enum PortalCreatures
@@ -45,14 +44,12 @@ struct TRINITY_DLL_DECL npc_teleportation_portalAI : public ScriptedAI
         pInstance = c->GetInstanceData();
     }
 
-    uint32 uiDespawnTimer;
     uint32 uiSpawnTimer;
 
     ScriptedInstance *pInstance;
 
     void Reset()
     {
-        uiDespawnTimer = NEXT_WAVE_TIME;
         uiSpawnTimer = 3000;
     }
 
@@ -81,14 +78,6 @@ struct TRINITY_DLL_DECL npc_teleportation_portalAI : public ScriptedAI
             m_creature->RemoveCorpse();
             return;
         }
-
-        if (uiDespawnTimer <= diff)
-        {
-            m_creature->Kill(m_creature, false);
-            m_creature->RemoveCorpse();
-        }
-        else
-            uiDespawnTimer -= diff;
     }
 
     void JustDied(Unit* killer)
