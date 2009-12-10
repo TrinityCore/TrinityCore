@@ -17,6 +17,8 @@ enum PortalCreatures
     CREATURE_AZURE_STALKER            = 32191
 };
 
+const Position DoorPosition = { 1828.300049, 797.309021, 46.135502, 1.48353};
+
 bool GossipHello_npc_sinclari(Player* pPlayer, Creature* pCreature)
 {
     ScriptedInstance* pInstance = pCreature->GetInstanceData();
@@ -68,10 +70,7 @@ struct TRINITY_DLL_DECL npc_teleportation_portalAI : public ScriptedAI
                                                        m_creature->GetPositionX()+urand(0,2), m_creature->GetPositionY()+urand(0,2),
                                                        m_creature->GetPositionZ(),m_creature->GetOrientation(),
                                                        TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000))
-                    if (Creature* pTarget = GetClosestCreatureWithEntry(m_creature, CREATURE_SINCLARI, 150.0f))
-                    {
-                        pSummon->Attack(pTarget, true);
-                    }
+                    pSummon->GetMotionMaster()->MovePoint(0, DoorPosition);
             }
             uiSpawnTimer = SPAWN_TIME;
         } else uiSpawnTimer -= diff;
