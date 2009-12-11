@@ -1,8 +1,9 @@
 #include "precompiled.h"
 #include "violet_hold.h"
 
-#define GOSSIP_START_EVENT "[PH]: Start Event"
-#define SPAWN_TIME            15000
+#define GOSSIP_START_EVENT  "Get your people to safety, we'll keep the Blue Dragonflight's forces at bay."
+#define GOSSIP_ITEM_1       "Activate the crystals when we get in trouble, right"
+#define SPAWN_TIME          15000
 
 enum PortalCreatures
 {
@@ -142,17 +143,28 @@ bool GossipHello_npc_sinclari(Player* pPlayer, Creature* pCreature)
 {
     ScriptedInstance* pInstance = pCreature->GetInstanceData();
     if (pInstance && pInstance->GetData(DATA_WAVE_COUNT) == 0 && pPlayer)
+    {
+        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT,GOSSIP_ITEM_1,GOSSIP_SENDER_MAIN,GOSSIP_ACTION_INFO_DEF+2);
         pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT,GOSSIP_START_EVENT,GOSSIP_SENDER_MAIN,GOSSIP_ACTION_INFO_DEF+1);
-    pPlayer->SEND_GOSSIP_MENU(1, pCreature->GetGUID());
+        pPlayer->SEND_GOSSIP_MENU(13853, pCreature->GetGUID());
+    }else
+        pPlayer->SEND_GOSSIP_MENU(13910, pCreature->GetGUID());
     return true;
 }
 
 bool GossipSelect_npc_sinclari(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
 {
-    if (pPlayer)
-        pPlayer->CLOSE_GOSSIP_MENU();
-    CAST_AI(npc_sinclariAI, (pCreature->AI()))->uiPhase = 1;
-
+    switch(uiAction)
+    {
+        case GOSSIP_ACTION_INFO_DEF+1:
+            if (pPlayer)
+                pPlayer->CLOSE_GOSSIP_MENU();
+            CAST_AI(npc_sinclariAI, (pCreature->AI()))->uiPhase = 1;
+            break;
+        case GOSSIP_ACTION_INFO_DEF+2:
+            pPlayer->SEND_GOSSIP_MENU(13854, pCreature->GetGUID());
+            break;
+    }
     return true;
 }
 
