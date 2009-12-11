@@ -16,7 +16,127 @@ enum PortalCreatures
     CREATURE_AZURE_STALKER            = 32191
 };
 
+enum eSinclari
+{
+    NPC_VIOLET_HOLD_GUARD             = 30659,
+
+    SAY_SINCLARI_1                    = -1608000,
+};
+
 const Position DoorPosition = { 1828.300049, 797.309021, 46.135502, 1.48353};
+const Position MovePosition = { 1806.955566, 803.851807, 44.363323};
+
+struct TRINITY_DLL_DECL npc_sinclariAI : public ScriptedAI
+{
+    npc_sinclariAI(Creature* pCreature) : ScriptedAI(pCreature)
+    {
+       pInstance = pCreature->GetInstanceData();
+    }
+
+    ScriptedInstance* pInstance;
+
+    uint8  uiPhase;
+    uint32 uiTimer;
+
+    std::list<Creature*> GuardList;
+
+    void Reset()
+    {
+        uiPhase = 0;
+        uiTimer = 0;
+
+        m_creature->SetVisibility(VISIBILITY_ON);
+        m_creature->SetReactState(REACT_AGGRESSIVE);
+
+        m_creature->GetCreatureListWithEntryInGrid(GuardList, NPC_VIOLET_HOLD_GUARD, 40.0f);
+        if (!GuardList.empty())
+            for (std::list<Creature*>::iterator itr = GuardList.begin(); itr != GuardList.end(); ++itr)
+            {
+                if (Creature* pGuard = *itr)
+                {
+                    pGuard->SetVisibility(VISIBILITY_ON);
+                    pGuard->SetReactState(REACT_AGGRESSIVE);
+                }
+            }
+    }
+
+    void MovementInform(uint32 uiType, uint32 uiId)
+    {
+        if (uiType != POINT_MOTION_TYPE)
+            return;
+
+        if (pInstance)
+            pInstance->SetData(DATA_WAVE_COUNT,1);
+
+        //She should not be despawned, she will be used by the instance to summon some npcs
+        m_creature->SetVisibility(VISIBILITY_OFF);
+        m_creature->SetReactState(REACT_PASSIVE);
+    }
+
+    void UpdateAI(const uint32 uiDiff)
+    {
+        ScriptedAI::UpdateAI(uiDiff);
+
+        if (uiPhase)
+        {
+            if (uiTimer <= uiDiff)
+            {
+                switch(uiPhase)
+                {
+                    case 1:
+                       DoScriptText(SAY_SINCLARI_1, m_creature);
+                       uiTimer = 4000;
+                       uiPhase = 2;
+                       break;
+                    case 2:
+                        m_creature->GetCreatureListWithEntryInGrid(GuardList, NPC_VIOLET_HOLD_GUARD, 40.0f);
+                        if (!GuardList.empty())
+                            for (std::list<Creature*>::iterator itr = GuardList.begin(); itr != GuardList.end(); ++itr)
+                            {
+                                if (Creature* pGuard = *itr)
+                                {
+                                    pGuard->RemoveUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
+                                    pGuard->GetMotionMaster()->MovePoint(0, MovePosition);
+                                }
+                            }
+                        uiTimer = 6000;
+                        uiPhase = 3;
+                        break;
+                    case 3:
+                        m_creature->GetCreatureListWithEntryInGrid(GuardList, NPC_VIOLET_HOLD_GUARD, 40.0f);
+                        if (!GuardList.empty())
+                            for (std::list<Creature*>::iterator itr = GuardList.begin(); itr != GuardList.end(); ++itr)
+                            {
+                                if (Creature* pGuard = *itr)
+                                {
+                                    pGuard->SetVisibility(VISIBILITY_OFF);
+                                    pGuard->SetReactState(REACT_PASSIVE);
+                                }
+                            }
+                        uiTimer = 2000;
+                        uiPhase = 4;
+                        break;
+                    case 4:
+                        m_creature->GetMotionMaster()->MovePoint(0, MovePosition);
+                        uiTimer = 0;
+                        uiPhase = 0;
+                        break;
+                }
+            }
+            else uiTimer -= uiDiff;
+        }
+
+        if (!UpdateVictim())
+            return;
+
+        DoMeleeAttackIfReady();
+    }
+};
+
+CreatureAI* GetAI_npc_sinclari(Creature* pCreature)
+{
+    return new npc_sinclariAI(pCreature);
+}
 
 bool GossipHello_npc_sinclari(Player* pPlayer, Creature* pCreature)
 {
@@ -31,9 +151,8 @@ bool GossipSelect_npc_sinclari(Player* pPlayer, Creature* pCreature, uint32 uiSe
 {
     if (pPlayer)
         pPlayer->CLOSE_GOSSIP_MENU();
-    ScriptedInstance* pInstance = pCreature->GetInstanceData();
-    if (pInstance)
-        pInstance->SetData(DATA_WAVE_COUNT,1);
+    CAST_AI(npc_sinclariAI, (pCreature->AI()))->uiPhase = 1;
+
     return true;
 }
 
@@ -98,6 +217,7 @@ void AddSC_violet_hold()
 
     newscript = new Script;
     newscript->Name = "npc_sinclari_vh";
+    newscript->GetAI = &GetAI_npc_sinclari;
     newscript->pGossipHello = &GossipHello_npc_sinclari;
     newscript->pGossipSelect = &GossipSelect_npc_sinclari;
     newscript->RegisterSelf();
