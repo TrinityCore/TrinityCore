@@ -1983,6 +1983,9 @@ INSERT INTO `script_texts` (`npc_entry`,`entry`,`content_default`,`content_loc1`
    (29305,-1604015,'Get ready for somethin''... much... BIGGAH! ',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,1,0,0,'SAY_TRANSFORM boss_moorabi'),
    (29305,-1604016,'Da ground gonna swallow you up',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,1,0,0,'SAY_QUAKE boss_moorabi'),
    (29305,-1604017,'%s begins to transform!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,3,0,0,'EMOTE_TRANSFORM boss_moorabi'),
+
+-- -1 608 000 VIOLET HOLD
+   (30658,-1608000,'Prision guards, we are leaving! These adventurers are taking over! Go go go',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,1,0,0,''),
    
 -- -1 615 000 OBSIDIAN SANCTUM
    (30451,-1615000,'I fear nothing! Least of all you!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,14111,1,0,0,'shadron SAY_SHADRON_AGGRO'),
