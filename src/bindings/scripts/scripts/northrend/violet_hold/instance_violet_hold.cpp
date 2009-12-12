@@ -21,7 +21,7 @@ enum GameObjects
     GO_MAIN_DOOR                                    = 191723,
     GO_XEVOZZ_DOOR                                  = 191556,
     GO_LAVANTHOR_DOOR                               = 191566,
-    GO_ICHORON_DOOR                                 = 191557,
+    GO_ICHORON_DOOR                                 = 191722,
     GO_ZURAMAT_DOOR                                 = 191565,
     GO_EREKEM_DOOR                                  = 191564,
     GO_EREKEM_GUARD_1_DOOR                          = 191563,
@@ -67,7 +67,7 @@ struct TRINITY_DLL_DECL instance_violet_hold : public ScriptedInstance
     uint64 uiXevozzCell;
     uint64 uiZuramatCell;
     uint64 uiMainDoor;
-    
+
     uint64 uiActivationCrystal[3];
 
     uint32 uiActivationTimer;
