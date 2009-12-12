@@ -78,6 +78,12 @@ struct TRINITY_DLL_DECL boss_cyanigosaAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
+        if (pInstance && pInstance->GetData(DATA_REMOVE_NPC) == 1)
+        {
+            m_creature->ForcedDespawn();
+            pInstance->SetData(DATA_REMOVE_NPC, 0);
+        }
+
         //Return since we have no target
         if (!UpdateVictim())
             return;
