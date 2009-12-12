@@ -55,6 +55,8 @@ struct TRINITY_DLL_DECL npc_sinclariAI : public ScriptedAI
             {
                 if (Creature* pGuard = *itr)
                 {
+                    pGuard->DisappearAndDie();
+                    pGuard->Respawn();
                     pGuard->SetVisibility(VISIBILITY_ON);
                     pGuard->SetReactState(REACT_AGGRESSIVE);
                 }
@@ -142,7 +144,7 @@ CreatureAI* GetAI_npc_sinclari(Creature* pCreature)
 bool GossipHello_npc_sinclari(Player* pPlayer, Creature* pCreature)
 {
     ScriptedInstance* pInstance = pCreature->GetInstanceData();
-    if (pInstance && pInstance->GetData(DATA_WAVE_COUNT) == 0 && pPlayer)
+    if (pInstance && pInstance->GetData(DATA_CYANIGOSA_EVENT) != DONE && pInstance->GetData(DATA_WAVE_COUNT) == 0 && pPlayer)
     {
         pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT,GOSSIP_ITEM_1,GOSSIP_SENDER_MAIN,GOSSIP_ACTION_INFO_DEF+2);
         pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT,GOSSIP_START_EVENT,GOSSIP_SENDER_MAIN,GOSSIP_ACTION_INFO_DEF+1);
@@ -189,6 +191,12 @@ struct TRINITY_DLL_DECL npc_teleportation_portalAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
+        if (pInstance && pInstance->GetData(DATA_REMOVE_NPC) == 1)
+        {
+            m_creature->ForcedDespawn();
+            pInstance->SetData(DATA_REMOVE_NPC, 0);
+        }
+
         if (uiSpawnTimer <= diff)
         {
             uint8 k = pInstance->GetData(DATA_WAVE_COUNT) < 12 ? 3 : 4;
