@@ -1579,6 +1579,26 @@ void AuraEffect::HandleAuraEffectSpecificMods(bool apply, bool Real, bool change
                 DoneActualBenefit *= caster->CalculateLevelPenalty(GetSpellProto());
                 m_amount += (int32)DoneActualBenefit;
             }
+
+            // we have exact amount now so apply mods affecting all boni
+            switch (m_spellProto->SpellFamilyName)
+            {
+                case SPELLFAMILY_PRIEST:
+                    // Glyph of Power Word: Shield
+                    if (m_spellProto->SpellFamilyFlags[0] & 0x1 && m_spellProto->SpellFamilyFlags[2] & 0x400 && 
+                        GetAuraName() == SPELL_AURA_SCHOOL_ABSORB)
+                    {
+                        if (AuraEffect* glyph = caster->GetAuraEffect(55672,0))
+                        {
+                            // instantly heal m_amount% of the absorb-value
+                            int32 heal = (glyph->GetAmount() * m_amount)/100;
+                            caster->CastCustomSpell(m_target, 56160, &heal, NULL, NULL, true, 0, this);
+                        }
+                    }
+                    break;
+                default:
+                    break;
+            }
         }
     }
 }
