@@ -2066,13 +2066,18 @@ void Unit::CalcAbsorbResist(Unit *pVictim, SpellSchoolMask schoolMask, DamageEff
         else
             currentAbsorb = RemainingDamage;
 
-        float manaMultiplier = (*i)->GetSpellProto()->EffectMultipleValue[(*i)->GetEffIndex()];
-        if (Player *modOwner = pVictim->GetSpellModOwner())
-            modOwner->ApplySpellMod((*i)->GetId(), SPELLMOD_MULTIPLE_VALUE, manaMultiplier);
+        if (float manaMultiplier = (*i)->GetSpellProto()->EffectMultipleValue[(*i)->GetEffIndex()])
+        {
+            if(Player *modOwner = pVictim->GetSpellModOwner())
+                modOwner->ApplySpellMod((*i)->GetId(), SPELLMOD_MULTIPLE_VALUE, manaMultiplier);
 
-        int32 maxAbsorb = int32(pVictim->GetPower(POWER_MANA) / manaMultiplier);
-        if (currentAbsorb > maxAbsorb)
-            currentAbsorb = maxAbsorb;
+            int32 maxAbsorb = int32(pVictim->GetPower(POWER_MANA) / manaMultiplier);
+            if (currentAbsorb > maxAbsorb)
+                currentAbsorb = maxAbsorb;
+
+            int32 manaReduction = int32(currentAbsorb * manaMultiplier);
+            pVictim->ApplyPowerMod(POWER_MANA, manaReduction, false);
+        }
 
         (*i)->SetAmount((*i)->GetAmount()-currentAbsorb);
         if ((*i)->GetAmount() <= 0)
@@ -2080,9 +2085,6 @@ void Unit::CalcAbsorbResist(Unit *pVictim, SpellSchoolMask schoolMask, DamageEff
             pVictim->RemoveAura((*i)->GetParentAura(), AURA_REMOVE_BY_ENEMY_SPELL);
             next = vManaShield.begin();
         }
-
-        int32 manaReduction = int32(currentAbsorb * manaMultiplier);
-        pVictim->ApplyPowerMod(POWER_MANA, manaReduction, false);
 
         RemainingDamage -= currentAbsorb;
     }
