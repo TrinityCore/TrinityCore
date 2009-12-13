@@ -684,7 +684,7 @@ void Spell::SpellDamageSchoolDmg(uint32 effect_idx)
                     damage += int32(0.25f*ap + 0.4f*sp);
                 }
                 // Judgement of Wisdom, Light, Justice
-                else if (m_spellInfo->SpellFamilyFlags[0]&0x00800000)
+                else if (m_spellInfo->SpellFamilyFlags[0] & 0x00800000 && m_spellInfo->Id != 31804 && m_spellInfo->Id != 53733)
                 {
                     float ap = m_caster->GetTotalAttackPowerValue(BASE_ATTACK);
                     float sp = m_caster->SpellBaseDamageBonus(GetSpellSchoolMask(m_spellInfo));
