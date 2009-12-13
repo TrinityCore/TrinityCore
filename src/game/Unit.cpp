@@ -5786,13 +5786,6 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                     target = this;
                     break;
                 }
-                // Glyph of Power Word: Shield
-                case 55672:
-                {
-                    basepoints0 = damage * triggerAmount/100;
-                    triggered_spell_id = 56160;
-                    break;
-                }
                 // Glyph of Prayer of Healing
                 case 55680:
                 {
