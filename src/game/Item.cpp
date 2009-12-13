@@ -733,22 +733,37 @@ bool Item::CanBeTraded(bool mail) const
     return true;
 }
 
+bool Item::HasEnchantRequiredSkill(const Player *pPlayer) const
+{
+    // Check all enchants for required skill
+    for (uint32 enchant_slot = PERM_ENCHANTMENT_SLOT; enchant_slot < MAX_ENCHANTMENT_SLOT; ++enchant_slot)
+        if (uint32 enchant_id = GetEnchantmentId(EnchantmentSlot(enchant_slot)))
+            if (SpellItemEnchantmentEntry const* enchantEntry = sSpellItemEnchantmentStore.LookupEntry(enchant_id))
+                if (enchantEntry->requiredSkill && pPlayer->GetSkillValue(enchantEntry->requiredSkill) < enchantEntry->requiredSkillValue)
+                    return false;
+    return true;
+}
+
+uint32 Item::GetEnchantRequiredLevel() const
+{
+    uint32 level = 0;
+    // Check all enchants for required level
+    for (uint32 enchant_slot = PERM_ENCHANTMENT_SLOT; enchant_slot < MAX_ENCHANTMENT_SLOT; ++enchant_slot)
+        if (uint32 enchant_id = GetEnchantmentId(EnchantmentSlot(enchant_slot)))
+            if (SpellItemEnchantmentEntry const* enchantEntry = sSpellItemEnchantmentStore.LookupEntry(enchant_id))
+                if (enchantEntry->RequiredLevel > level)
+                    level = enchantEntry->RequiredLevel;
+    return level;
+}
+
 bool Item::IsBoundByEnchant() const
 {
     // Check all enchants for soulbound
     for (uint32 enchant_slot = PERM_ENCHANTMENT_SLOT; enchant_slot < MAX_ENCHANTMENT_SLOT; ++enchant_slot)
-    {
-        uint32 enchant_id = GetEnchantmentId(EnchantmentSlot(enchant_slot));
-        if(!enchant_id)
-            continue;
-
-        SpellItemEnchantmentEntry const* enchantEntry = sSpellItemEnchantmentStore.LookupEntry(enchant_id);
-        if(!enchantEntry)
-            continue;
-
-        if(enchantEntry->slot & ENCHANTMENT_CAN_SOULBOUND)
-            return true;
-    }
+        if (uint32 enchant_id = GetEnchantmentId(EnchantmentSlot(enchant_slot)))
+            if (SpellItemEnchantmentEntry const* enchantEntry = sSpellItemEnchantmentStore.LookupEntry(enchant_id))
+                if (enchantEntry->slot & ENCHANTMENT_CAN_SOULBOUND)
+                    return true;
     return false;
 }
 
