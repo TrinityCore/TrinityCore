@@ -520,6 +520,19 @@ void Spell::SpellDamageSchoolDmg(uint32 effect_idx)
                     if(back_damage < unitTarget->GetHealth())
                         m_caster->CastCustomSpell(m_caster, 32409, &back_damage, 0, 0, true);
                 }
+                // Smite
+                else if (m_spellInfo->SpellFamilyFlags[0] & 0x80)
+                {
+                    // Glyph of Smite
+                    if (m_caster->HasAura(55692))
+                    {
+                        Unit::AuraEffectList const &mPeriodic = unitTarget->GetAurasByType(SPELL_AURA_PERIODIC_DAMAGE);
+                        for (Unit::AuraEffectList::const_iterator i = mPeriodic.begin(); i != mPeriodic.end(); ++i)
+                            if ((*i)->GetSpellProto()->SpellFamilyName == SPELLFAMILY_PRIEST && (*i)->GetSpellProto()->SpellFamilyFlags[0] & 0x100000)
+                                damage += damage / 5; // 20% more damage with smite
+                    }
+                }
+
                 break;
             }
             case SPELLFAMILY_DRUID:
