@@ -208,6 +208,10 @@ class Channel
         bool IsOn(uint64 who) const { return players.find(who) != players.end(); }
         bool IsBanned(uint64 guid) const { return banned.find(guid) != banned.end(); }
 
+        bool _UpdateStringInDB(const std::string& colName, const std::string& colValue) const;
+        bool _UpdateIntInDB(const std::string& colName, int colValue) const;
+        void _UpdateBanListInDB() const;
+
         uint8 GetPlayerFlags(uint64 p) const
         {
             PlayerList::const_iterator p_itr = players.find(p);
