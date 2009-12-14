@@ -1698,11 +1698,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\game\Wintergrasp.cpp"
+				RelativePath="..\..\src\game\OutdoorPvPWG.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\game\Wintergrasp.h"
+				RelativePath="..\..\src\game\OutdoorPvPWG.h"
 				>
 			</File>
 		</Filter>
