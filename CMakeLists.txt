@@ -30,15 +30,27 @@ SET(GENREV_SRC
 src/tools/genrevision/genrevision.cpp
 )
 
-ADD_EXECUTABLE(genrev
-${GENREV_SRC}
-)
-ADD_CUSTOM_TARGET("revision.h" ALL
-    COMMAND "${Trinity_BINARY_DIR}/genrev"
-    ${Trinity_SOURCE_DIR}
-    WORKING_DIRECTORY "${Trinity_SOURCE_DIR}/src/shared"
-    DEPENDS genrev
-)
+if (DO_DEBUG)
+    ADD_EXECUTABLE(genrev
+    ${GENREV_SRC}
+    )
+    ADD_CUSTOM_TARGET("revision.h" ALL
+        COMMAND "${Trinity_BINARY_DIR}/genrev -d"
+        ${Trinity_SOURCE_DIR}
+        WORKING_DIRECTORY "${Trinity_SOURCE_DIR}/src/shared"
+        DEPENDS genrev
+    )
+else (DO_DEBUG)
+    ADD_EXECUTABLE(genrev
+    ${GENREV_SRC}
+    )
+    ADD_CUSTOM_TARGET("revision.h" ALL
+        COMMAND "${Trinity_BINARY_DIR}/genrev"
+        ${Trinity_SOURCE_DIR}
+        WORKING_DIRECTORY "${Trinity_SOURCE_DIR}/src/shared"
+        DEPENDS genrev
+    )
+endif (DO_DEBUG)
 
 
 EXECUTE_PROCESS(
