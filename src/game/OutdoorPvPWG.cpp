@@ -16,7 +16,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-#include "Wintergrasp.h"
+#include "OutdoorPvPWG.h"
 #include "SpellAuras.h"
 #include "Vehicle.h"
 #include "ObjectMgr.h"
@@ -24,41 +24,7 @@
 #include "Chat.h"
 #include "MapManager.h"
 
-typedef uint32 TeamPair[2];
-
-enum WintergraspQuest
-{
-    A_VICTORY_IN_WG = 13181,
-    H_VICTORY_IN_WG = 13183,
-    CRE_PVP_KILL = 31086, //Quest Objective
-    CRE_PVP_KILL_V = 31093, //Quest Objective
-};
-
-enum CreatureEntry
-{
-    CRE_ENG_A = 30499,
-    CRE_ENG_H = 30400,
-    CRE_SPI_A = 31842,
-    CRE_SPI_H = 31841,
-};
-
-const TeamPair CreatureEntryPair[] =
-{
-    {32307, 32308}, // Guards
-    {30739, 30740}, // Champions
-    {32296, 32294}, // Quartermaster
-    {32615, 32626}, // Warbringer & Brigadier General
-    {0,0} // Do not delete Used in LoadTeamPair
-};
-
-const TeamPair GODisplayPair[] =
-{
-    {5651, 5652},
-    {8256, 8257},
-    {0,0} // Do not delete Used in LoadTeamPair
-};
-
-void LoadTeamPair(TeamPairMap &pairMap, const TeamPair *pair)
+void _LoadTeamPair(TeamPairMap &pairMap, const TeamPair *pair)
 {
     while((*pair)[0])
     {
@@ -68,7 +34,7 @@ void LoadTeamPair(TeamPairMap &pairMap, const TeamPair *pair)
     }
 }
 
-void RespawnCreatureIfNeeded(Creature *cr, uint32 entry)
+void _RespawnCreatureIfNeeded(Creature *cr, uint32 entry)
 {
     if (cr)
     {
@@ -79,25 +45,14 @@ void RespawnCreatureIfNeeded(Creature *cr, uint32 entry)
     }
 }
 
-#define REMOVE_WARTIME_AURAS(p) (p)->RemoveAura(SPELL_RECRUIT);\
-    (p)->RemoveAura(SPELL_CORPORAL);(p)->RemoveAura(SPELL_LIEUTENANT);\
-    (p)->RemoveAura(SPELL_TOWER_CONTROL);\
-    (p)->RemoveAura(SPELL_SPIRITUAL_IMMUNITY)
-
-// Visual defines, easier to understand code
-#define getDefenderTeam() m_defender
-#define getAttackerTeam() OTHER_TEAM(m_defender)
-
-typedef std::list<const AreaPOIEntry *> AreaPOIList;
-
-OPvPWintergrasp::OPvPWintergrasp()
+OutdoorPvPWG::OutdoorPvPWG()
 {
-    m_TypeId = OPVP_WINTERGRASP;
+    m_TypeId = OUTDOOR_PVP_WG;
 
     m_LastResurrectTime = 0; // Temporal copy of BG system till 3.2
 }
 
-bool OPvPWintergrasp::SetupOutdoorPvP()
+bool OutdoorPvPWG::SetupOutdoorPvP()
 {
     if (!sWorld.getConfig(CONFIG_OUTDOORPVP_WINTERGRASP_ENABLED))
     {
@@ -340,7 +295,7 @@ bool OPvPWintergrasp::SetupOutdoorPvP()
             }
 
             // Inside fortress won't be capturable
-            SiegeWorkshop *workshop = new SiegeWorkshop(this, m_buildingStates[guid]);
+            OPvPCapturePointWG *workshop = new OPvPCapturePointWG(this, m_buildingStates[guid]);
             if (goData->posX < POS_X_CENTER && !workshop->SetCapturePointData(capturePointEntry, goData->mapid, goData->posX + 40 * cos(goData->orientation + M_PI / 2), goData->posY + 40 * sin(goData->orientation + M_PI / 2), goData->posZ))
             {
                 delete workshop;
@@ -429,16 +384,11 @@ bool OPvPWintergrasp::SetupOutdoorPvP()
             ++itr;
     }
 
-    //for (AreaPOIList::iterator itr = areaPOIs.begin(); itr != areaPOIs.end(); ++itr)
-    //    sLog.outError("not assigned %u %f %f", (*itr)->id, (*itr)->x, (*itr)->y);
-
-    //gameeventmgr.StartInternalEvent(GameEventWintergraspDefender[getDefenderTeam()]);
-
-    //Titan Relic eventid = 19982
+    //Titan Relic
     objmgr.AddGOData(192829, 571, 5440, 2840.8, 420.43 + 10, 0);
 
-    LoadTeamPair(m_goDisplayPair, GODisplayPair);
-    LoadTeamPair(m_creEntryPair, CreatureEntryPair);
+    _LoadTeamPair(m_goDisplayPair, OutdoorPvPWGGODisplayPair);
+    _LoadTeamPair(m_creEntryPair, OutdoorPvPWGCreEntryPair);
 
     m_wartime = false;
     m_timer = sWorld.getConfig(CONFIG_OUTDOORPVP_WINTERGRASP_START_TIME) * MINUTE * IN_MILISECONDS;
@@ -454,9 +404,9 @@ bool OPvPWintergrasp::SetupOutdoorPvP()
     return true;
 }
 
-void OPvPWintergrasp::ProcessEvent(GameObject *obj, uint32 eventId)
+void OutdoorPvPWG::ProcessEvent(GameObject *obj, uint32 eventId)
 {
-    if (obj->GetEntry() == 192829)
+    if (obj->GetEntry() == 192829) // Titan Relic
     {
         if (obj->GetGOInfo()->goober.eventId == eventId && isWarTime() && m_gate && m_gate->damageState == DAMAGE_DESTROYED)
         {
@@ -589,14 +539,14 @@ void OPvPWintergrasp::ProcessEvent(GameObject *obj, uint32 eventId)
     }
 }
 
-void OPvPWintergrasp::RemoveOfflinePlayerWGAuras()
+void OutdoorPvPWG::RemoveOfflinePlayerWGAuras()
 {
     // if server crashed while in battle there could be players with rank or tenacity
     CharacterDatabase.PExecute("DELETE FROM character_aura WHERE spell IN (%u, %u, %u, %u, %u)",
         SPELL_RECRUIT, SPELL_CORPORAL, SPELL_LIEUTENANT, SPELL_TENACITY, SPELL_TOWER_CONTROL);
 }
 
-void OPvPWintergrasp::ModifyWorkshopCount(TeamId team, bool add)
+void OutdoorPvPWG::ModifyWorkshopCount(TeamId team, bool add)
 {
     if (team == TEAM_NEUTRAL)
         return;
@@ -606,12 +556,12 @@ void OPvPWintergrasp::ModifyWorkshopCount(TeamId team, bool add)
     else if (m_workshopCount[team])
         --m_workshopCount[team];
     else
-        sLog.outError("OPvPWintergrasp::ModifyWorkshopCount: negative workshop count!");
+        sLog.outError("OutdoorPvPWG::ModifyWorkshopCount: negative workshop count!");
 
     SendUpdateWorldState(MaxVehNumWorldState[team], m_workshopCount[team] * MAX_VEHICLE_PER_WORKSHOP);
 }
 
-uint32 OPvPWintergrasp::GetCreatureEntry(uint32 guidlow, const CreatureData *data)
+uint32 OutdoorPvPWG::GetCreatureEntry(uint32 guidlow, const CreatureData *data)
 {
     if (getDefenderTeam() == TEAM_ALLIANCE)
     {
@@ -625,7 +575,7 @@ uint32 OPvPWintergrasp::GetCreatureEntry(uint32 guidlow, const CreatureData *dat
     return data->id;
 }
 
-WintergraspCreType OPvPWintergrasp::GetCreatureType(uint32 entry) const
+OutdoorPvPWGCreType OutdoorPvPWG::GetCreatureType(uint32 entry) const
 {
     // VEHICLES, GUARDS and TURRETS gives kill credit
     // OTHER Not in wartime
@@ -671,7 +621,7 @@ WintergraspCreType OPvPWintergrasp::GetCreatureType(uint32 entry) const
     }
 }
 
-void OPvPWintergrasp::OnCreatureCreate(Creature *creature, bool add)
+void OutdoorPvPWG::OnCreatureCreate(Creature *creature, bool add)
 {
     uint32 entry = creature->GetEntry();
     switch(GetCreatureType(entry))
@@ -693,7 +643,7 @@ void OPvPWintergrasp::OnCreatureCreate(Creature *creature, bool add)
 
                 if (uint32 engLowguid = GUID_LOPART(((TempSummon*)creature)->GetSummonerGUID()))
                 {
-                    if (SiegeWorkshop *workshop = GetWorkshopByEngGuid(engLowguid))
+                    if (OPvPCapturePointWG *workshop = GetWorkshopByEngGuid(engLowguid))
                     {
                         if (CanBuildVehicle(workshop))
                         {
@@ -733,7 +683,7 @@ void OPvPWintergrasp::OnCreatureCreate(Creature *creature, bool add)
         case CREATURE_ENGINEER:
             for (OutdoorPvP::OPvPCapturePointMap::iterator itr = m_capturePoints.begin(); itr != m_capturePoints.end(); ++itr)
             {
-                if (SiegeWorkshop *workshop = dynamic_cast<SiegeWorkshop*>(itr->second))
+                if (OPvPCapturePointWG *workshop = dynamic_cast<OPvPCapturePointWG*>(itr->second))
                     if (workshop->m_engGuid == creature->GetDBTableGUIDLow())
                     {
                         workshop->m_engineer = add ? creature : NULL;
@@ -744,7 +694,7 @@ void OPvPWintergrasp::OnCreatureCreate(Creature *creature, bool add)
         case CREATURE_SPIRIT_GUIDE:
             for (OutdoorPvP::OPvPCapturePointMap::iterator itr = m_capturePoints.begin(); itr != m_capturePoints.end(); ++itr)
             {
-                if (SiegeWorkshop *workshop = dynamic_cast<SiegeWorkshop*>(itr->second))
+                if (OPvPCapturePointWG *workshop = dynamic_cast<OPvPCapturePointWG*>(itr->second))
                     if (workshop->m_spiGuid == creature->GetDBTableGUIDLow())
                     {
                         workshop->m_spiritguide = add ? creature : NULL;
@@ -766,7 +716,7 @@ void OPvPWintergrasp::OnCreatureCreate(Creature *creature, bool add)
     }
 }
 
-void OPvPWintergrasp::OnGameObjectCreate(GameObject *go, bool add)
+void OutdoorPvPWG::OnGameObjectCreate(GameObject *go, bool add)
 {
     OutdoorPvP::OnGameObjectCreate(go, add);
 
@@ -798,7 +748,7 @@ void OPvPWintergrasp::OnGameObjectCreate(GameObject *go, bool add)
     }
 }
 
-void OPvPWintergrasp::UpdateAllWorldObject()
+void OutdoorPvPWG::UpdateAllWorldObject()
 {
     // update cre and go factions
     for (GameObjectSet::iterator itr = m_gobjects.begin(); itr != m_gobjects.end(); ++itr)
@@ -813,11 +763,11 @@ void OPvPWintergrasp::UpdateAllWorldObject()
 
     // update capture points
     for (OPvPCapturePointMap::iterator itr = m_capturePoints.begin(); itr != m_capturePoints.end(); ++itr)
-        if (SiegeWorkshop *workshop = dynamic_cast<SiegeWorkshop*>(itr->second))
+        if (OPvPCapturePointWG *workshop = dynamic_cast<OPvPCapturePointWG*>(itr->second))
             workshop->SetTeamByBuildingState();
 }
 
-void OPvPWintergrasp::RebuildAllBuildings()
+void OutdoorPvPWG::RebuildAllBuildings()
 {
     for (BuildingStateMap::const_iterator itr = m_buildingStates.begin(); itr != m_buildingStates.end(); ++itr)
     {
@@ -845,7 +795,7 @@ void OPvPWintergrasp::RebuildAllBuildings()
     m_towerDestroyedCount[TEAM_HORDE] = 0;
 }
 
-void OPvPWintergrasp::SendInitWorldStatesTo(Player *player) const
+void OutdoorPvPWG::SendInitWorldStatesTo(Player *player) const
 {
     WorldPacket data(SMSG_INIT_WORLD_STATES, (4+4+4+2+(m_buildingStates.size()*8)));
     data << uint32(571);
@@ -875,7 +825,7 @@ void OPvPWintergrasp::SendInitWorldStatesTo(Player *player) const
         BroadcastPacket(data);
 }
 
-void OPvPWintergrasp::BroadcastStateChange(BuildingState *state) const
+void OutdoorPvPWG::BroadcastStateChange(BuildingState *state) const
 {
     if (m_sendUpdate)
         for (uint32 team = 0; team < 2; ++team)
@@ -884,7 +834,7 @@ void OPvPWintergrasp::BroadcastStateChange(BuildingState *state) const
 }
 
 // Called at Start and Battle End
-bool OPvPWintergrasp::UpdateCreatureInfo(Creature *creature)
+bool OutdoorPvPWG::UpdateCreatureInfo(Creature *creature)
 {
     if (!creature)
         return false;
@@ -946,7 +896,7 @@ bool OPvPWintergrasp::UpdateCreatureInfo(Creature *creature)
             if (itr != m_creEntryPair.end())
             {
                 entry = getDefenderTeam() == TEAM_ALLIANCE ? itr->second : itr->first;
-                RespawnCreatureIfNeeded(creature, entry);
+                _RespawnCreatureIfNeeded(creature, entry);
             }
             return false;
         }
@@ -955,7 +905,7 @@ bool OPvPWintergrasp::UpdateCreatureInfo(Creature *creature)
     }
 }
 
-bool OPvPWintergrasp::UpdateQuestGiverPosition(uint32 guid, Creature *creature)
+bool OutdoorPvPWG::UpdateQuestGiverPosition(uint32 guid, Creature *creature)
 {
     assert(guid);
     Position pos = m_qgPosMap[std::pair<uint32, bool>(guid, getDefenderTeam() == TEAM_HORDE)];
@@ -989,7 +939,7 @@ bool OPvPWintergrasp::UpdateQuestGiverPosition(uint32 guid, Creature *creature)
 
 // Return false = Need to rebuild at battle End/Start
 //        true  = no need to rebuild (ie: Banners or teleporters)
-bool OPvPWintergrasp::UpdateGameObjectInfo(GameObject *go) const
+bool OutdoorPvPWG::UpdateGameObjectInfo(GameObject *go) const
 {
     uint32 attFaction = 35;
     uint32 defFaction = 35;
@@ -1020,7 +970,7 @@ bool OPvPWintergrasp::UpdateGameObjectInfo(GameObject *go) const
             go->SetUInt32Value(GAMEOBJECT_FACTION, attFaction);
             return false;
         case 8208: // Goblin Workshop
-            SiegeWorkshop *workshop = GetWorkshopByGOGuid(go->GetGUID());
+            OPvPCapturePointWG *workshop = GetWorkshopByGOGuid(go->GetGUID());
             if (workshop)
                 go->SetUInt32Value(GAMEOBJECT_FACTION, WintergraspFaction[workshop->m_buildingState->GetTeam()]);
             return false;
@@ -1037,7 +987,7 @@ bool OPvPWintergrasp::UpdateGameObjectInfo(GameObject *go) const
     return false;
 }
 
-void OPvPWintergrasp::HandlePlayerEnterZone(Player * plr, uint32 zone)
+void OutdoorPvPWG::HandlePlayerEnterZone(Player * plr, uint32 zone)
 {
     if (!sWorld.getConfig(CONFIG_OUTDOORPVP_WINTERGRASP_ENABLED))
         return;
@@ -1068,7 +1018,7 @@ void OPvPWintergrasp::HandlePlayerEnterZone(Player * plr, uint32 zone)
 }
 
 // Reapply Auras if needed
-void OPvPWintergrasp::HandlePlayerResurrects(Player * plr, uint32 zone)
+void OutdoorPvPWG::HandlePlayerResurrects(Player * plr, uint32 zone)
 {
     if (!sWorld.getConfig(CONFIG_OUTDOORPVP_WINTERGRASP_ENABLED))
         return;
@@ -1106,7 +1056,7 @@ void OPvPWintergrasp::HandlePlayerResurrects(Player * plr, uint32 zone)
     OutdoorPvP::HandlePlayerResurrects(plr, zone);
 }
 
-void OPvPWintergrasp::HandlePlayerLeaveZone(Player * plr, uint32 zone)
+void OutdoorPvPWG::HandlePlayerLeaveZone(Player * plr, uint32 zone)
 {
     if (!sWorld.getConfig(CONFIG_OUTDOORPVP_WINTERGRASP_ENABLED))
         return;
@@ -1115,14 +1065,18 @@ void OPvPWintergrasp::HandlePlayerLeaveZone(Player * plr, uint32 zone)
     {
         if (plr->GetVehicle()) // dismiss in change zone case
             plr->GetVehicle()->Dismiss();
-        REMOVE_WARTIME_AURAS(plr);
+        plr->RemoveAurasDueToSpell(SPELL_RECRUIT);
+        plr->RemoveAurasDueToSpell(SPELL_CORPORAL);
+        plr->RemoveAurasDueToSpell(SPELL_LIEUTENANT);
+        plr->RemoveAurasDueToSpell(SPELL_TOWER_CONTROL);
+        plr->RemoveAurasDueToSpell(SPELL_SPIRITUAL_IMMUNITY);
     }
     plr->RemoveAurasDueToSpell(SPELL_TENACITY);
     OutdoorPvP::HandlePlayerLeaveZone(plr, zone);
     UpdateTenacityStack();
 }
 
-void OPvPWintergrasp::PromotePlayer(Player *killer) const
+void OutdoorPvPWG::PromotePlayer(Player *killer) const
 {
     Aura *aur;
     if (aur = killer->GetAura(SPELL_RECRUIT))
@@ -1149,7 +1103,7 @@ void OPvPWintergrasp::PromotePlayer(Player *killer) const
     }
 }
 
-void OPvPWintergrasp::HandleKill(Player *killer, Unit *victim)
+void OutdoorPvPWG::HandleKill(Player *killer, Unit *victim)
 {
     if (!sWorld.getConfig(CONFIG_OUTDOORPVP_WINTERGRASP_ENABLED) || !isWarTime())
         return;
@@ -1193,7 +1147,7 @@ void OPvPWintergrasp::HandleKill(Player *killer, Unit *victim)
 }
 
 // Recalculates Tenacity and applies it to Players / Vehicles
-void OPvPWintergrasp::UpdateTenacityStack()
+void OutdoorPvPWG::UpdateTenacityStack()
 {
     if (!isWarTime())
         return;
@@ -1258,7 +1212,7 @@ void OPvPWintergrasp::UpdateTenacityStack()
     }
 }
 
-void OPvPWintergrasp::UpdateClockDigit(uint32 &timer, uint32 digit, uint32 mod)
+void OutdoorPvPWG::UpdateClockDigit(uint32 &timer, uint32 digit, uint32 mod)
 {
     uint32 value = timer%mod;
     timer /= mod;
@@ -1269,7 +1223,7 @@ void OPvPWintergrasp::UpdateClockDigit(uint32 &timer, uint32 digit, uint32 mod)
     }
 }
 
-void OPvPWintergrasp::UpdateClock()
+void OutdoorPvPWG::UpdateClock()
 {
     uint32 timer = m_timer / 1000;
     UpdateClockDigit(timer, 0, 10);
@@ -1280,7 +1234,7 @@ void OPvPWintergrasp::UpdateClock()
         UpdateClockDigit(timer, 4, 10);
 }
 
-bool OPvPWintergrasp::Update(uint32 diff)
+bool OutdoorPvPWG::Update(uint32 diff)
 {
     if (!sWorld.getConfig(CONFIG_OUTDOORPVP_WINTERGRASP_ENABLED))
         return false;
@@ -1387,7 +1341,7 @@ bool OPvPWintergrasp::Update(uint32 diff)
     return false;
 }
 
-void OPvPWintergrasp::forceStartBattle()
+void OutdoorPvPWG::forceStartBattle()
 { // Uptime will do all the work
     m_wartime = false;
 
@@ -1398,7 +1352,7 @@ void OPvPWintergrasp::forceStartBattle()
     }
 }
 
-void OPvPWintergrasp::forceStopBattle()
+void OutdoorPvPWG::forceStopBattle()
 { // Uptime will do all the work.
 
     if (!isWarTime())
@@ -1411,7 +1365,7 @@ void OPvPWintergrasp::forceStopBattle()
     }
 }
 
-void OPvPWintergrasp::forceChangeTeam()
+void OutdoorPvPWG::forceChangeTeam()
 {
     m_changeDefender = true;
     m_timer = 1;
@@ -1423,7 +1377,7 @@ void OPvPWintergrasp::forceChangeTeam()
 }
 
 // Can be forced by gm's while in battle so have to reset in case it was wartime
-void OPvPWintergrasp::StartBattle()
+void OutdoorPvPWG::StartBattle()
 {
     m_wartime = true;
     m_timer = sWorld.getConfig(CONFIG_OUTDOORPVP_WINTERGRASP_BATTLE_TIME) * MINUTE * IN_MILISECONDS;
@@ -1446,7 +1400,11 @@ void OPvPWintergrasp::StartBattle()
     // Remove All Wintergrasp auras. Add Recruit rank and Tower Control
     for (PlayerSet::iterator itr = m_players[getAttackerTeam()].begin(); itr != m_players[getAttackerTeam()].end(); ++itr)
     {
-        REMOVE_WARTIME_AURAS(*itr);
+        (*itr)->RemoveAurasDueToSpell(SPELL_RECRUIT);
+        (*itr)->RemoveAurasDueToSpell(SPELL_CORPORAL);
+        (*itr)->RemoveAurasDueToSpell(SPELL_LIEUTENANT);
+        (*itr)->RemoveAurasDueToSpell(SPELL_TOWER_CONTROL);
+        (*itr)->RemoveAurasDueToSpell(SPELL_SPIRITUAL_IMMUNITY);
         if ((*itr)->getLevel() > 69)
         {
             (*itr)->SetAuraStack(SPELL_TOWER_CONTROL, (*itr), 3);
@@ -1457,14 +1415,18 @@ void OPvPWintergrasp::StartBattle()
     // Remove All Wintergrasp auras. Add Recruit rank
     for (PlayerSet::iterator itr = m_players[getDefenderTeam()].begin(); itr != m_players[getDefenderTeam()].end(); ++itr)
     {
-        REMOVE_WARTIME_AURAS(*itr);
+        (*itr)->RemoveAurasDueToSpell(SPELL_RECRUIT);
+        (*itr)->RemoveAurasDueToSpell(SPELL_CORPORAL);
+        (*itr)->RemoveAurasDueToSpell(SPELL_LIEUTENANT);
+        (*itr)->RemoveAurasDueToSpell(SPELL_TOWER_CONTROL);
+        (*itr)->RemoveAurasDueToSpell(SPELL_SPIRITUAL_IMMUNITY);
         if ((*itr)->getLevel() > 69)
             (*itr)->CastSpell(*itr, SPELL_RECRUIT, true);
     }
     UpdateTenacityStack();
 }
 
-void OPvPWintergrasp::EndBattle()
+void OutdoorPvPWG::EndBattle()
 {
     // Cast Essence of Wintergrasp to all players (CheckCast will determine who to cast)
     sWorld.setState(WORLDSTATE_WINTERGRASP_CONTROLING_FACTION, getDefenderTeam());
@@ -1500,7 +1462,11 @@ void OPvPWintergrasp::EndBattle()
         {
             for (PlayerSet::iterator itr = m_players[team].begin(); itr != m_players[team].end(); ++itr)
             {
-                REMOVE_WARTIME_AURAS(*itr);
+                (*itr)->RemoveAurasDueToSpell(SPELL_RECRUIT);
+                (*itr)->RemoveAurasDueToSpell(SPELL_CORPORAL);
+                (*itr)->RemoveAurasDueToSpell(SPELL_LIEUTENANT);
+                (*itr)->RemoveAurasDueToSpell(SPELL_TOWER_CONTROL);
+                (*itr)->RemoveAurasDueToSpell(SPELL_SPIRITUAL_IMMUNITY);
             }
             continue;
         }
@@ -1509,7 +1475,7 @@ void OPvPWintergrasp::EndBattle()
         uint32 intactNum = 0;
         uint32 damagedNum = 0;
         for (OutdoorPvP::OPvPCapturePointMap::const_iterator itr = m_capturePoints.begin(); itr != m_capturePoints.end(); ++itr)
-            if (SiegeWorkshop *workshop = dynamic_cast<SiegeWorkshop*>(itr->second))
+            if (OPvPCapturePointWG *workshop = dynamic_cast<OPvPCapturePointWG*>(itr->second))
                 if (workshop->m_buildingState->GetTeam() == team)
                     if (workshop->m_buildingState->damageState == DAMAGE_DAMAGED)
                         ++damagedNum;
@@ -1613,7 +1579,11 @@ void OPvPWintergrasp::EndBattle()
                     (*itr)->AreaExploredOrEventHappens(H_VICTORY_IN_WG);
                 }
             }
-            REMOVE_WARTIME_AURAS(*itr);
+            (*itr)->RemoveAurasDueToSpell(SPELL_RECRUIT);
+            (*itr)->RemoveAurasDueToSpell(SPELL_CORPORAL);
+            (*itr)->RemoveAurasDueToSpell(SPELL_LIEUTENANT);
+            (*itr)->RemoveAurasDueToSpell(SPELL_TOWER_CONTROL);
+            (*itr)->RemoveAurasDueToSpell(SPELL_SPIRITUAL_IMMUNITY);
         }
     }
 
@@ -1623,14 +1593,7 @@ void OPvPWintergrasp::EndBattle()
     RemoveOfflinePlayerWGAuras();
 }
 
-void OPvPWintergrasp::SetData(uint32 id, uint32 value)
-{
-    //if (id == DATA_ENGINEER_DIE)
-    //    if (SiegeWorkshop *workshop = GetWorkshopByEngGuid(value))
-    //        workshop->DespawnAllVehicles();
-}
-
-bool OPvPWintergrasp::CanBuildVehicle(SiegeWorkshop *workshop) const
+bool OutdoorPvPWG::CanBuildVehicle(OPvPCapturePointWG *workshop) const
 {
     TeamId team = workshop->m_buildingState->GetTeam();
     if (team == TEAM_NEUTRAL)
@@ -1641,16 +1604,16 @@ bool OPvPWintergrasp::CanBuildVehicle(SiegeWorkshop *workshop) const
         && m_vehicles[team].size() < m_workshopCount[team] * MAX_VEHICLE_PER_WORKSHOP;
 }
 
-uint32 OPvPWintergrasp::GetData(uint32 id)
+uint32 OutdoorPvPWG::GetData(uint32 id)
 {
     // if can build more vehicles
-    if (SiegeWorkshop *workshop = GetWorkshopByEngGuid(id))
+    if (OPvPCapturePointWG *workshop = GetWorkshopByEngGuid(id))
         return CanBuildVehicle(workshop) ? 1 : 0;
 
     return 0;
 }
 
-void OPvPWintergrasp::RewardMarkOfHonor(Player *plr, uint32 count)
+void OutdoorPvPWG::RewardMarkOfHonor(Player *plr, uint32 count)
 {
     // 'Inactive' this aura prevents the player from gaining honor points and battleground tokens
     if (plr->HasAura(SPELL_AURA_PLAYER_INACTIVE))
@@ -1676,7 +1639,7 @@ void OPvPWintergrasp::RewardMarkOfHonor(Player *plr, uint32 count)
             plr->SendNewItem(item, count, true, false);
 }
 
-void OPvPWintergrasp::LoadQuestGiverMap(uint32 guid, Position posHorde, Position posAlli)
+void OutdoorPvPWG::LoadQuestGiverMap(uint32 guid, Position posHorde, Position posAlli)
 {
     m_qgPosMap[std::pair<uint32, bool>(guid, true)] = posHorde,
     m_qgPosMap[std::pair<uint32, bool>(guid, false)] = posAlli,
@@ -1685,26 +1648,26 @@ void OPvPWintergrasp::LoadQuestGiverMap(uint32 guid, Position posHorde, Position
         objmgr.MoveCreData(guid, 571, posAlli);
 }
 
-SiegeWorkshop *OPvPWintergrasp::GetWorkshop(uint32 lowguid) const
+OPvPCapturePointWG *OutdoorPvPWG::GetWorkshop(uint32 lowguid) const
 {
     if (OPvPCapturePoint *cp = GetCapturePoint(lowguid))
-        return dynamic_cast<SiegeWorkshop*>(cp);
+        return dynamic_cast<OPvPCapturePointWG*>(cp);
     return NULL;
 }
 
-SiegeWorkshop *OPvPWintergrasp::GetWorkshopByEngGuid(uint32 lowguid) const
+OPvPCapturePointWG *OutdoorPvPWG::GetWorkshopByEngGuid(uint32 lowguid) const
 {
     for (OutdoorPvP::OPvPCapturePointMap::const_iterator itr = m_capturePoints.begin(); itr != m_capturePoints.end(); ++itr)
-        if (SiegeWorkshop *workshop = dynamic_cast<SiegeWorkshop*>(itr->second))
+        if (OPvPCapturePointWG *workshop = dynamic_cast<OPvPCapturePointWG*>(itr->second))
             if (workshop->m_engGuid == lowguid)
                 return workshop;
     return NULL;
 }
 
-SiegeWorkshop *OPvPWintergrasp::GetWorkshopByGOGuid(uint32 lowguid) const
+OPvPCapturePointWG *OutdoorPvPWG::GetWorkshopByGOGuid(uint32 lowguid) const
 {
     for (OutdoorPvP::OPvPCapturePointMap::const_iterator itr = m_capturePoints.begin(); itr != m_capturePoints.end(); ++itr)
-        if (SiegeWorkshop *workshop = dynamic_cast<SiegeWorkshop*>(itr->second))
+        if (OPvPCapturePointWG *workshop = dynamic_cast<OPvPCapturePointWG*>(itr->second))
             if (workshop->m_workshopGuid == lowguid)
                 return workshop;
     return NULL;
@@ -1713,7 +1676,7 @@ SiegeWorkshop *OPvPWintergrasp::GetWorkshopByGOGuid(uint32 lowguid) const
 /*########################################################
  * Copy of Battleground system to make Spirit Guides Work
  *#######################################################*/
-void OPvPWintergrasp::SendAreaSpiritHealerQueryOpcode(Player *pl, const uint64& guid)
+void OutdoorPvPWG::SendAreaSpiritHealerQueryOpcode(Player *pl, const uint64& guid)
 {
     WorldPacket data(SMSG_AREA_SPIRIT_HEALER_TIME, 12);
     uint32 time_ = 30000 - GetLastResurrectTime();      // resurrect every 30 seconds
@@ -1723,7 +1686,7 @@ void OPvPWintergrasp::SendAreaSpiritHealerQueryOpcode(Player *pl, const uint64& 
     pl->GetSession()->SendPacket(&data);
 }
 
-void OPvPWintergrasp::AddPlayerToResurrectQueue(uint64 npc_guid, uint64 player_guid)
+void OutdoorPvPWG::AddPlayerToResurrectQueue(uint64 npc_guid, uint64 player_guid)
 {
     m_ReviveQueue[npc_guid].push_back(player_guid);
 
@@ -1734,7 +1697,7 @@ void OPvPWintergrasp::AddPlayerToResurrectQueue(uint64 npc_guid, uint64 player_g
     plr->CastSpell(plr, SPELL_WAITING_FOR_RESURRECT, true);
 }
 
-void OPvPWintergrasp::RemovePlayerFromResurrectQueue(uint64 player_guid)
+void OutdoorPvPWG::RemovePlayerFromResurrectQueue(uint64 player_guid)
 {
     for (std::map<uint64, std::vector<uint64> >::iterator itr = m_ReviveQueue.begin(); itr != m_ReviveQueue.end(); ++itr)
     {
@@ -1756,7 +1719,7 @@ void OPvPWintergrasp::RemovePlayerFromResurrectQueue(uint64 player_guid)
     }
 }
 
-void OPvPWintergrasp::RelocateDeadPlayers(Creature *cr)
+void OutdoorPvPWG::RelocateDeadPlayers(Creature *cr)
 {
     if (!cr || GetCreatureType(cr->GetEntry()) != CREATURE_SPIRIT_GUIDE)
         return;
@@ -1782,16 +1745,16 @@ void OPvPWintergrasp::RelocateDeadPlayers(Creature *cr)
 }
 
 /*######
-##SiegeWorkshop
+##OPvPCapturePointWG
 ######*/
 
-SiegeWorkshop::SiegeWorkshop(OPvPWintergrasp *opvp, BuildingState *state)
+OPvPCapturePointWG::OPvPCapturePointWG(OutdoorPvPWG *opvp, BuildingState *state)
 : OPvPCapturePoint(opvp), m_buildingState(state), m_wintergrasp(opvp)
 , m_engineer(NULL), m_engGuid(0), m_spiritguide(NULL), m_spiGuid(0)
 {
 }
 
-void SiegeWorkshop::SetTeamByBuildingState()
+void OPvPCapturePointWG::SetTeamByBuildingState()
 {
     if (m_buildingState->GetTeam() == TEAM_ALLIANCE)
     {
@@ -1819,7 +1782,7 @@ void SiegeWorkshop::SetTeamByBuildingState()
     SendChangePhase();
 }
 
-void SiegeWorkshop::ChangeTeam(TeamId oldTeam)
+void OPvPCapturePointWG::ChangeTeam(TeamId oldTeam)
 {
     uint32 entry = 0;
     uint32 guide_entry = 0;
@@ -1849,12 +1812,12 @@ void SiegeWorkshop::ChangeTeam(TeamId oldTeam)
         if (m_engGuid)
         {
             *m_engEntry = entry;
-            RespawnCreatureIfNeeded(m_engineer, entry);
+            _RespawnCreatureIfNeeded(m_engineer, entry);
         }
         if (m_spiGuid)
         {
             *m_spiEntry = guide_entry;
-            RespawnCreatureIfNeeded(m_spiritguide, guide_entry);
+            _RespawnCreatureIfNeeded(m_spiritguide, guide_entry);
             m_wintergrasp->RelocateDeadPlayers(m_spiritguide);
         }
     }

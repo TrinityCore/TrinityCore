@@ -15,7 +15,7 @@
  */
 
 #include "precompiled.h"
-#include "Wintergrasp.h"
+#include "OutdoorPvPWG.h"
 
 #define GOSSIP_HELLO_DEMO1  "Build catapult."
 #define GOSSIP_HELLO_DEMO2  "Build demolisher."

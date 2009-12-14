@@ -33,7 +33,7 @@ enum OutdoorPvPTypes
     OUTDOOR_PVP_ZM,
     OUTDOOR_PVP_SI,
     OUTDOOR_PVP_EP,
-    OPVP_WINTERGRASP,
+    OUTDOOR_PVP_WG,
     OUTDOOR_PVP_NR,
 };
 
