@@ -524,13 +524,9 @@ void Spell::SpellDamageSchoolDmg(uint32 effect_idx)
                 else if (m_spellInfo->SpellFamilyFlags[0] & 0x80)
                 {
                     // Glyph of Smite
-                    if (m_caster->HasAura(55692))
-                    {
-                        Unit::AuraEffectList const &mPeriodic = unitTarget->GetAurasByType(SPELL_AURA_PERIODIC_DAMAGE);
-                        for (Unit::AuraEffectList::const_iterator i = mPeriodic.begin(); i != mPeriodic.end(); ++i)
-                            if ((*i)->GetSpellProto()->SpellFamilyName == SPELLFAMILY_PRIEST && (*i)->GetSpellProto()->SpellFamilyFlags[0] & 0x100000)
-                                damage += damage / 5; // 20% more damage with smite
-                    }
+                    if (AuraEffect * aurEff = m_caster->GetAuraEffect(55692, 0))
+                        if (unitTarget->GetAura(SPELL_AURA_PERIODIC_DAMAGE, SPELLFAMILY_PRIEST, 0x100000, 0, 0, m_caster->GetGUID()))
+                            damage += damage * aurEff->GetAmount() / 100;
                 }
 
                 break;
