@@ -884,7 +884,7 @@
 				<Tool
 					Name="VCCustomBuildTool"
 					Description="Getting Version..."
-					CommandLine="cd $(InputDir)&#x0D;&#x0A;&quot;$(TargetDir)\..\genrevision__$(PlatformName)_$(ConfigurationName)\genrevision.exe&quot; &quot;..\..&quot;&#x0D;&#x0A;"
+					CommandLine="cd $(InputDir)&#x0D;&#x0A;&quot;$(TargetDir)\..\genrevision__$(PlatformName)_$(ConfigurationName)\genrevision.exe&quot; &quot;-d&quot; &quot;..\..&quot;&#x0D;&#x0A;"
 					AdditionalDependencies="$(SolutionDir)../.hg/branch.cache"
 					Outputs="revision.h"
 				/>
@@ -895,7 +895,7 @@
 				<Tool
 					Name="VCCustomBuildTool"
 					Description="Getting Version..."
-					CommandLine="cd $(InputDir)&#x0D;&#x0A;&quot;$(TargetDir)\..\genrevision__$(PlatformName)_$(ConfigurationName)\genrevision.exe&quot; &quot;..\..&quot;&#x0D;&#x0A;"
+					CommandLine="cd $(InputDir)&#x0D;&#x0A;&quot;$(TargetDir)\..\genrevision__$(PlatformName)_$(ConfigurationName)\genrevision.exe&quot; &quot;-d&quot; &quot;..\..&quot;&#x0D;&#x0A;"
 					AdditionalDependencies="$(SolutionDir)../.hg/branch.cache"
 					Outputs="revision.h"
 				/>

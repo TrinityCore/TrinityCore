@@ -24,6 +24,8 @@
 
 #pragma warning(disable:4996)
 
+std::string build_directive;
+
 struct RawData
 {
     char hash_str[200];
@@ -298,6 +300,7 @@ std::string generateHeader(char const* rev_str, char const* date_str, char const
     std::ostringstream newData;
     newData << "#ifndef __REVISION_H__" << std::endl;
     newData << "#define __REVISION_H__"  << std::endl;
+    newData << " #define _BUILD_DIRECTIVE \"" << build_directive << "\"" << std::endl;
     newData << " #define _REVISION \"" << rev_str << "\"" << std::endl;
     newData << " #define _HASH \"" << hash_str << "\"" << std::endl;
     newData << " #define _REVISION_DATE \"" << date_str << "\"" << std::endl;
@@ -325,6 +328,7 @@ int main(int argc, char **argv)
     bool hg_prefered = true;
     bool git_prefered = false;
     bool svn_prefered = false;
+    bool debug = false;
     std::string path;
 
     // Call: tool {options} [path]
@@ -333,6 +337,7 @@ int main(int argc, char **argv)
     //    -s use svn prefered
     //    -r use only revision (without repo URL) (default)
     //    -u include repositire URL as commit URL or "rev at URL"
+    //    -d compile directive debug
     for (int k = 1; k <= argc; ++k)
     {
         if(!argv[k] || !*argv[k])
@@ -369,11 +374,19 @@ int main(int argc, char **argv)
             case 'u':
                 use_url = true;
                 continue;
+            case 'd':
+                debug = true;
+                continue;
             default:
                 printf("Unknown option %s",argv[k]);
                 return 1;
         }
     }
+
+    if (debug)
+        build_directive = "Debug";
+    else
+        build_directive = "Release";
 
     /// new data extraction
     std::string newData;
