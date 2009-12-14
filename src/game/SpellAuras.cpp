@@ -5944,9 +5944,6 @@ void AuraEffect::PeriodicTick()
 
             pCaster->DealDamageMods(m_target,pdamage,&absorb);
 
-            SpellPeriodicAuraLogInfo pInfo(this, pdamage, 0, absorb, resist, 0.0f, crit);
-            m_target->SendPeriodicAuraLog(&pInfo);
-
             Unit* target = m_target;                        // aura can be deleted in DealDamage
             SpellEntry const* spellProto = GetSpellProto();
 
@@ -5957,6 +5954,14 @@ void AuraEffect::PeriodicTick()
             pdamage = (pdamage <= absorb+resist) ? 0 : (pdamage-absorb-resist);
             if (pdamage)
                 procVictim|=PROC_FLAG_TAKEN_ANY_DAMAGE;
+
+            int32 overkill = pdamage - m_target->GetHealth();
+            if (overkill < 0)
+              overkill = 0;
+
+            SpellPeriodicAuraLogInfo pInfo(this, pdamage, overkill, absorb, resist, 0.0f, crit);
+            m_target->SendPeriodicAuraLog(&pInfo);
+
             pCaster->ProcDamageAndSpell(target, procAttacker, procVictim, procEx, pdamage, BASE_ATTACK, spellProto);
 
             pCaster->DealDamage(target, pdamage, &cleanDamage, DOT, GetSpellSchoolMask(spellProto), spellProto, true);
