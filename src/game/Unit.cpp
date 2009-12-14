@@ -6852,9 +6852,22 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                 // 1 dummy aura for dismiss rune blade
                 if (effIndex != 2)
                     return false;
-                // TODO: write script for this "fights on its own, doing the same attacks"
-                // NOTE: Trigger here on every attack and spell cast
-                return false;
+                uint64 PetGUID = NULL;
+                for (ControlList::const_iterator itr = m_Controlled.begin(); itr != m_Controlled.end(); ++itr) //Find Rune Weapon
+                    if ((*itr)->GetEntry() == 27893)
+                    {
+                        PetGUID = (*itr)->GetGUID();
+                        break;
+                    }
+
+                if (PetGUID && pVictim && damage && procSpell)
+                {
+                    int32 procDmg = damage / 2;
+                    CastCustomSpell(pVictim, procSpell->Id, &procDmg, NULL, NULL, true, NULL, NULL, PetGUID);
+                    break;
+                }
+                else
+                    return false;
             }
             // Mark of Blood
             if (dummySpell->Id == 49005)

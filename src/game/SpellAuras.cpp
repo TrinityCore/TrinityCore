@@ -2821,6 +2821,10 @@ void AuraEffect::HandleAuraDummy(bool apply, bool Real, bool changeAmount)
                 }
                 return;
             }
+            case 49028:
+                GetParentAura()->SetAuraDuration(GetParentAura()->GetAuraDuration() + (caster->GetPower(POWER_RUNIC_POWER) * 10));
+                caster->SetPower(POWER_RUNIC_POWER, 0);
+                break;
             case 39850:                                     // Rocket Blast
                 if(roll_chance_i(20))                       // backfire stun
                     m_target->CastSpell(m_target, 51581, true, NULL, this);
