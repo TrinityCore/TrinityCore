@@ -13152,7 +13152,8 @@ void Player::RewardQuest( Quest const *pQuest, uint32 reward, Object* questGiver
         if (pQuest->ReqItemId[i])
             DestroyItemCount( pQuest->ReqItemId[i], pQuest->ReqItemCount[i], true);
 
-    TakeQuestSourceItem(quest_id, true); // take quest src item from player on completing quest
+//    This is wrong. If SrcItem is supposed to be destroyed on quest complete then the item will be either in ReqItemId or ReqSrcItemId
+//    TakeQuestSourceItem(quest_id, true); // take quest src item from player on completing quest
 
     for (uint8 i = 0; i < QUEST_SOURCE_ITEM_IDS_COUNT; ++i)
     {
