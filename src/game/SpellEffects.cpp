@@ -3581,6 +3581,7 @@ void Spell::EffectSummonType(uint32 i)
             {
                 case SUMMON_TYPE_PET:
                 case SUMMON_TYPE_GUARDIAN:
+                case SUMMON_TYPE_GUARDIAN2:
                 case SUMMON_TYPE_MINION:
                     SummonGuardian(i, entry, properties);
                     break;
@@ -7298,13 +7299,16 @@ void Spell::SummonGuardian(uint32 i, uint32 entry, SummonPropertiesEntry const *
     //float radius = GetSpellRadiusForFriend(sSpellRadiusStore.LookupEntry(m_spellInfo->EffectRadiusIndex[i]));
     float radius = 5.0f;
     int32 amount = damage > 0 ? damage : 1;
+    int32 duration = GetSpellDuration(m_spellInfo);
     switch (m_spellInfo->Id)
     {
         case 1122: // Inferno
             amount = 1;
             break;
+        case 49028: // Dancing Rune Weapon
+            duration += m_originalCaster->GetPower(POWER_RUNIC_POWER) * 10;
+            break;
     }
-    int32 duration = GetSpellDuration(m_spellInfo);
     if(Player* modOwner = m_originalCaster->GetSpellModOwner())
         modOwner->ApplySpellMod(m_spellInfo->Id, SPELLMOD_DURATION, duration);
 
@@ -7326,6 +7330,14 @@ void Spell::SummonGuardian(uint32 i, uint32 entry, SummonPropertiesEntry const *
         if (summon->HasUnitTypeMask(UNIT_MASK_MINION) && m_targets.m_targetMask & TARGET_FLAG_DEST_LOCATION)
             ((Minion*)summon)->SetFollowAngle(m_caster->GetAngle(summon));
 
+        if (summon->GetEntry() == 27893)
+            if (uint32 weapon = m_caster->GetUInt32Value(PLAYER_VISIBLE_ITEM_16_ENTRYID))
+            {
+                summon->SetDisplayId(11686);
+                summon->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, weapon);
+            }
+            else
+                summon->SetDisplayId(1126);
         summon->AI()->EnterEvadeMode();
     }
 }
