@@ -1505,8 +1505,12 @@ void AuctionHouseBot::Commands(uint32 command, uint32 ahMapID, uint32 col, char*
             while (itr != auctionHouse->GetAuctionsEnd())
             {
                 if (itr->second->owner == AHBplayerGUID)
+                {
                     itr->second->expire_time = sWorld.GetGameTime();
-
+                    uint32 id = itr->second->Id;
+                    uint32 expire_time = itr->second->expire_time;
+                    CharacterDatabase.PExecute("UPDATE auctionhouse SET time = '%u' WHERE id = '%u'", expire_time, id);
+                }
                 ++itr;
             }
         }
