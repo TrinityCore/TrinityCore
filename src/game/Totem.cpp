@@ -63,6 +63,20 @@ void Totem::InitStats(uint32 duration)
         CreatureModelInfo const *minfo = objmgr.GetCreatureModelRandomGender(display_id);
         if (minfo)
             display_id = minfo->modelid;
+        switch (((Player*)m_owner)->GetTeam())
+        {
+            case ALLIANCE:
+                display_id = cinfo->Modelid1;
+                break;
+            case HORDE:
+                if (cinfo->Modelid3)
+                    display_id = cinfo->Modelid3;
+                else
+                    display_id = cinfo->Modelid1;
+                break;
+            default:
+                break;
+        }
         SetDisplayId(display_id);
     }
 
