@@ -820,6 +820,28 @@ LOCK TABLES `character_reputation` WRITE;
 UNLOCK TABLES;
 
 --
+-- Table structure for table `character_skills`
+--
+
+DROP TABLE IF EXISTS `character_skills`;
+CREATE TABLE `character_skills` (
+  `guid` int(11) unsigned NOT NULL COMMENT 'Global Unique Identifier',
+  `skill` mediumint(9) unsigned NOT NULL,
+  `value` mediumint(9) unsigned NOT NULL,
+  `max` mediumint(9) unsigned NOT NULL,
+  PRIMARY KEY  (`guid`,`skill`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT='Player System';
+
+--
+-- Dumping data for table `character_skills`
+--
+
+LOCK TABLES `character_skills` WRITE;
+/*!40000 ALTER TABLE `character_skills` DISABLE KEYS */;
+/*!40000 ALTER TABLE `character_skills` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `character_social`
 --
 
