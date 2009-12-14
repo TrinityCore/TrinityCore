@@ -1697,6 +1697,7 @@ TempSummon *Map::SummonCreature(uint32 entry, const Position &pos, SummonPropert
                 {
                     case SUMMON_TYPE_MINION:
                     case SUMMON_TYPE_GUARDIAN:
+                    case SUMMON_TYPE_GUARDIAN2:
                         mask = UNIT_MASK_GUARDIAN;  break;
                     case SUMMON_TYPE_TOTEM:
                         mask = UNIT_MASK_TOTEM;     break;
