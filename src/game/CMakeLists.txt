@@ -192,6 +192,8 @@ SET(game_STAT_SRCS
    OutdoorPvPTF.h
    OutdoorPvPZM.cpp
    OutdoorPvPZM.h
+   OutdoorPvPWG.cpp
+   OutdoorPvPWG.h
    Path.h
    PetAI.cpp
    PetAI.h
@@ -290,8 +292,6 @@ SET(game_STAT_SRCS
    GroupReference.h
    GroupRefManager.h
    OutdoorPvPImpl.h
-   Wintergrasp.h
-   Wintergrasp.cpp
    ZoneScript.h
 )
 add_definitions(-fopenmp)

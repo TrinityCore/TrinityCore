@@ -23,7 +23,7 @@
 #include "OutdoorPvPZM.h"
 #include "OutdoorPvPSI.h"
 #include "OutdoorPvPEP.h"
-#include "Wintergrasp.h"
+#include "OutdoorPvPWG.h"
 #include "Player.h"
 #include "Policies/SingletonImp.h"
 
@@ -125,7 +125,7 @@ void OutdoorPvPMgr::InitOutdoorPvP()
         sLog.outDebug("OutdoorPvP : EP successfully initiated.");
     }
 
-    pOP = new OPvPWintergrasp;
+    pOP = new OutdoorPvPWG;
     // respawn, init variables
     if(!pOP->SetupOutdoorPvP())
     {
