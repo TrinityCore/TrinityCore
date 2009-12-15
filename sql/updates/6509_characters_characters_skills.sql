@@ -1,5 +1,3 @@
--- ALTER TABLE character_db_version CHANGE COLUMN required_8843_01_characters required_8874_01_characters_character_skills bit;
-
 DROP TABLE IF EXISTS `character_skills`;
 CREATE TABLE `character_skills` (
   `guid` int(11) unsigned NOT NULL COMMENT 'Global Unique Identifier',
