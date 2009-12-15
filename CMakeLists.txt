@@ -35,7 +35,7 @@ if (DO_DEBUG)
     ${GENREV_SRC}
     )
     ADD_CUSTOM_TARGET("revision.h" ALL
-        COMMAND "${Trinity_BINARY_DIR}/genrev -d"
+        COMMAND "${Trinity_BINARY_DIR}/genrev"
         ${Trinity_SOURCE_DIR}
         WORKING_DIRECTORY "${Trinity_SOURCE_DIR}/src/shared"
         DEPENDS genrev
