@@ -3474,6 +3474,9 @@ void AuraEffect::HandleAuraModShapeshift(bool apply, bool Real, bool changeAmoun
             else
                 modelid = 21244;
             break;
+        case FORM_MASTER_ANGLER:
+            modelid = 15234;
+            break;
         case FORM_METAMORPHOSIS:
             modelid = 25277;
             break;
