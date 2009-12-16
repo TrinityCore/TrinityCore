@@ -1428,8 +1428,8 @@ class MANGOS_DLL_SPEC Player : public Unit
         uint32 GetMailSize() { return m_mail.size();};
         Mail* GetMail(uint32 id);
 
-        PlayerMails::iterator GetmailBegin() { return m_mail.begin();};
-        PlayerMails::iterator GetmailEnd() { return m_mail.end();};
+        PlayerMails::iterator GetMailBegin() { return m_mail.begin();};
+        PlayerMails::iterator GetMailEnd() { return m_mail.end();};
 
         /*********************************************************/
         /*** MAILED ITEMS SYSTEM ***/

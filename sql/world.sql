@@ -1814,6 +1814,40 @@ CREATE TABLE `locales_quest` (
 SET character_set_client = @saved_cs_client;
 
 --
+-- Table structure for table `mail_level_reward`
+--
+
+DROP TABLE IF EXISTS `mail_level_reward`;
+CREATE TABLE `mail_level_reward` (
+  `level` tinyint(3) unsigned NOT NULL default '0',
+  `raceMask` mediumint(8) unsigned NOT NULL default '0',
+  `mailTemplateId` mediumint(8) unsigned NOT NULL default '0',
+  `senderEntry`    mediumint(8) unsigned NOT NULL default '0',
+  PRIMARY KEY  (`level`,`raceMask`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Mail System';
+
+--
+-- Table structure for table `mail_loot_template`
+--
+
+DROP TABLE IF EXISTS `mail_loot_template`;
+SET @saved_cs_client     = @@character_set_client;
+SET character_set_client = utf8;
+CREATE TABLE `mail_loot_template` (
+  `entry` mediumint(8) unsigned NOT NULL default '0',
+  `item` mediumint(8) unsigned NOT NULL default '0',
+  `ChanceOrQuestChance` float NOT NULL default '100',
+  `groupid` tinyint(3) unsigned NOT NULL default '0',
+  `mincountOrRef` mediumint(9) NOT NULL default '1',
+  `maxcount` tinyint(3) unsigned NOT NULL default '1',
+  `lootcondition` tinyint(3) unsigned NOT NULL default '0',
+  `condition_value1` mediumint(8) unsigned NOT NULL default '0',
+  `condition_value2` mediumint(8) unsigned NOT NULL default '0',
+  PRIMARY KEY  (`entry`,`item`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Loot System';
+SET character_set_client = @saved_cs_client;
+
+--
 -- Table structure for table `milling_loot_template`
 --
 
@@ -2377,27 +2411,6 @@ CREATE TABLE `quest_end_scripts` (
   `z` float NOT NULL default '0',
   `o` float NOT NULL default '0'
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
-SET character_set_client = @saved_cs_client;
-
---
--- Table structure for table `quest_mail_loot_template`
---
-
-DROP TABLE IF EXISTS `quest_mail_loot_template`;
-SET @saved_cs_client     = @@character_set_client;
-SET character_set_client = utf8;
-CREATE TABLE `quest_mail_loot_template` (
-  `entry` mediumint(8) unsigned NOT NULL default '0',
-  `item` mediumint(8) unsigned NOT NULL default '0',
-  `ChanceOrQuestChance` float NOT NULL default '100',
-  `groupid` tinyint(3) unsigned NOT NULL default '0',
-  `mincountOrRef` mediumint(9) NOT NULL default '1',
-  `maxcount` tinyint(3) unsigned NOT NULL default '1',
-  `lootcondition` tinyint(3) unsigned NOT NULL default '0',
-  `condition_value1` mediumint(8) unsigned NOT NULL default '0',
-  `condition_value2` mediumint(8) unsigned NOT NULL default '0',
-  PRIMARY KEY  (`entry`,`item`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Loot System';
 SET character_set_client = @saved_cs_client;
 
 --
