@@ -92,9 +92,7 @@ enum BattleGroundRVData
     BG_RV_FIRE_TO_PILAR_TIMER                    = 20000,
     BG_RV_PILAR_TO_FIRE_TIMER                    =  5000,
     BG_RV_FIRST_TIMER                            = 20133,
-    BG_RV_WORLD_STATE_A                          = 0xe10,
-    BG_RV_WORLD_STATE_H                          = 0xe11,
-    BG_RV_WORLD_STATE                            = 0xe1a,
+    BG_RV_WORLD_STATE                            = 0xE1A,
 };
 
 class BattleGroundRVScore : public BattleGroundScore

@@ -79,8 +79,7 @@ void BattleGroundNA::AddPlayer(Player *plr)
 
     m_PlayerScores[plr->GetGUID()] = sc;
 
-    UpdateWorldState(0xa0f, GetAlivePlayersCountByTeam(ALLIANCE));
-    UpdateWorldState(0xa10, GetAlivePlayersCountByTeam(HORDE));
+    UpdateArenaUnitWorldState();
 }
 
 void BattleGroundNA::RemovePlayer(Player* /*plr*/, uint64 /*guid*/)
@@ -88,9 +87,7 @@ void BattleGroundNA::RemovePlayer(Player* /*plr*/, uint64 /*guid*/)
     if (GetStatus() == STATUS_WAIT_LEAVE)
         return;
 
-    UpdateWorldState(0xa0f, GetAlivePlayersCountByTeam(ALLIANCE));
-    UpdateWorldState(0xa10, GetAlivePlayersCountByTeam(HORDE));
-
+    UpdateArenaUnitWorldState();
     CheckArenaWinConditions();
 }
 
@@ -107,9 +104,7 @@ void BattleGroundNA::HandleKillPlayer(Player *player, Player *killer)
 
     BattleGround::HandleKillPlayer(player,killer);
 
-    UpdateWorldState(0xa0f, GetAlivePlayersCountByTeam(ALLIANCE));
-    UpdateWorldState(0xa10, GetAlivePlayersCountByTeam(HORDE));
-
+    UpdateArenaUnitWorldState();
     CheckArenaWinConditions();
 }
 
@@ -143,9 +138,9 @@ void BattleGroundNA::HandleAreaTrigger(Player *Source, uint32 Trigger)
 
 void BattleGroundNA::FillInitialWorldStates(WorldPacket &data)
 {
-    data << uint32(0xa0f) << uint32(GetAlivePlayersCountByTeam(ALLIANCE));           // 7
-    data << uint32(0xa10) << uint32(GetAlivePlayersCountByTeam(HORDE));           // 8
-    data << uint32(0xa11) << uint32(1);           // 9
+    data << uint32(0xa11) << uint32(1);
+
+    UpdateArenaUnitWorldState();
 }
 
 void BattleGroundNA::Reset()
