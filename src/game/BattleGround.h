@@ -210,6 +210,12 @@ enum ArenaType
     ARENA_TYPE_5v5          = 5
 };
 
+enum ArenaWorldUnitState
+{
+    HORDE_WORLD_STATE           = 0xE10,
+    ALLIANCE_WORLD_STATE        = 0xE11
+};
+
 enum BattleGroundType
 {
     TYPE_BATTLEGROUND     = 3,
@@ -478,6 +484,7 @@ class BattleGround
         void SetArenaTeamRatingChangeForTeam(uint32 Team, int32 RatingChange) { m_ArenaTeamRatingChanges[GetTeamIndexByTeamId(Team)] = RatingChange; }
         int32 GetArenaTeamRatingChangeForTeam(uint32 Team) const    { return m_ArenaTeamRatingChanges[GetTeamIndexByTeamId(Team)]; }
         void CheckArenaWinConditions();
+        void UpdateArenaUnitWorldState();
 
         /* Triggers handle */
         // must be implemented in BG subclass

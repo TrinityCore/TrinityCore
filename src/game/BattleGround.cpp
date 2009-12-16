@@ -1885,6 +1885,12 @@ void BattleGround::CheckArenaWinConditions()
         EndBattleGround(ALLIANCE);
 }
 
+void BattleGround::UpdateArenaUnitWorldState()
+{
+    UpdateWorldState(HORDE_WORLD_STATE, GetAlivePlayersCountByTeam(HORDE));
+    UpdateWorldState(ALLIANCE_WORLD_STATE, GetAlivePlayersCountByTeam(ALLIANCE));
+}
+
 void BattleGround::SetBgRaid( uint32 TeamID, Group *bg_raid )
 {
     Group* &old_raid = TeamID == ALLIANCE ? m_BgRaids[BG_TEAM_ALLIANCE] : m_BgRaids[BG_TEAM_HORDE];
