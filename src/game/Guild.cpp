@@ -953,14 +953,12 @@ void Guild::LogGuildEvent(uint8 EventType, uint32 PlayerGuid1, uint32 PlayerGuid
 // Bank content related
 void Guild::DisplayGuildBankContent(WorldSession *session, uint8 TabId)
 {
-    WorldPacket data(SMSG_GUILD_BANK_LIST, 1300);
-
-    GuildBankTab const* tab = GetBankTab(TabId);
-    if (!tab)
-        return;
+    GuildBankTab const* tab = m_TabListMap[TabId];
 
     if (!IsMemberHaveRights(session->GetPlayer()->GetGUIDLow(),TabId,GUILD_BANK_RIGHT_VIEW_TAB))
         return;
+
+    WorldPacket data(SMSG_GUILD_BANK_LIST,1200);
 
     data << uint64(GetGuildBankMoney());
     data << uint8(TabId);
@@ -979,9 +977,7 @@ void Guild::DisplayGuildBankContent(WorldSession *session, uint8 TabId)
 
 void Guild::DisplayGuildBankContentUpdate(uint8 TabId, int32 slot1, int32 slot2)
 {
-    GuildBankTab const* tab = GetBankTab(TabId);
-    if (!tab)
-        return;
+    GuildBankTab const* tab = m_TabListMap[TabId];
 
     WorldPacket data(SMSG_GUILD_BANK_LIST,1200);
 
@@ -1029,9 +1025,7 @@ void Guild::DisplayGuildBankContentUpdate(uint8 TabId, int32 slot1, int32 slot2)
 
 void Guild::DisplayGuildBankContentUpdate(uint8 TabId, GuildItemPosCountVec const& slots)
 {
-    GuildBankTab const* tab = GetBankTab(TabId);
-    if (!tab)
-        return;
+    GuildBankTab const* tab = m_TabListMap[TabId];
 
     WorldPacket data(SMSG_GUILD_BANK_LIST,1200);
 
@@ -1101,6 +1095,20 @@ void Guild::DisplayGuildBankTabsInfo(WorldSession *session)
     sLog.outDebug("WORLD: Sent (SMSG_GUILD_BANK_LIST)");
 }
 
+void Guild::DisplayGuildBankMoneyUpdate()
+{
+    WorldPacket data(SMSG_GUILD_BANK_LIST, 8+1+4+1+1);
+
+    data << uint64(GetGuildBankMoney());
+    data << uint8(0);                                       // TabId, default 0
+    data << uint32(0);                                      // slot withdrow, default 0
+    data << uint8(0);                                       // Tell client this is a tab content packet
+    data << uint8(0);                                       // not send items
+    BroadcastPacket(&data);
+
+    sLog.outDebug("WORLD: Sent (SMSG_GUILD_BANK_LIST)");
+}
+
 void Guild::CreateNewBankTab()
 {
     if (m_PurchasedTabs >= GUILD_BANK_MAX_TABS)
@@ -1121,14 +1129,6 @@ void Guild::CreateNewBankTab()
 
 void Guild::SetGuildBankTabInfo(uint8 TabId, std::string Name, std::string Icon)
 {
-    if (TabId >= GUILD_BANK_MAX_TABS)
-        return;
-    if (TabId >= m_TabListMap.size())
-        return;
-
-    if (!m_TabListMap[TabId])
-        return;
-
     if (m_TabListMap[TabId]->Name == Name && m_TabListMap[TabId]->Icon == Icon)
         return;
 
@@ -1572,7 +1572,7 @@ void Guild::UnloadGuildBankEventLog()
 
 void Guild::DisplayGuildBankLogs(WorldSession *session, uint8 TabId)
 {
-    if (TabId > GUILD_BANK_MAX_TABS)
+    if (TabId >= GUILD_BANK_MAX_TABS)                   // tabs starts in 0
         return;
 
     if (TabId == GUILD_BANK_MAX_TABS)
@@ -1739,7 +1739,7 @@ Item* Guild::StoreItem(uint8 tabId, GuildItemPosCountVec const& dest, Item* pIte
     return lastItem;
 }
 
-// Return stored item (if stored to stack, it can diff. from pItem). And pItem can be deleted in this case.
+// Return stored item (if stored to stack, it can diff. from pItem). And pItem ca be deleted in this case.
 Item* Guild::_StoreItem( uint8 tab, uint8 slot, Item *pItem, uint32 count, bool clone )
 {
     if (!pItem)
@@ -1765,15 +1765,15 @@ Item* Guild::_StoreItem( uint8 tab, uint8 slot, Item *pItem, uint32 count, bool 
         pItem->SetUInt64Value(ITEM_FIELD_OWNER, 0);
         AddGBankItemToDB(GetId(), tab, slot, pItem->GetGUIDLow(), pItem->GetEntry());
         pItem->FSetState(ITEM_NEW);
-        pItem->SaveToDB();                                  // not in inventory and can be save standalone
+        pItem->SaveToDB();                                  // not in onventory and can be save standalone
 
         return pItem;
     }
     else
     {
-        pItem2->SetCount(pItem2->GetCount() + count);
+        pItem2->SetCount( pItem2->GetCount() + count );
         pItem2->FSetState(ITEM_CHANGED);
-        pItem2->SaveToDB();                                 // not in inventory and can be save standalone
+        pItem2->SaveToDB();                                 // not in onventory and can be save standalone
 
         if (!clone)
         {
@@ -1968,12 +1968,7 @@ void Guild::SetGuildBankTabText(uint8 TabId, std::string text)
 
 void Guild::SendGuildBankTabText(WorldSession *session, uint8 TabId)
 {
-    if (TabId >= GUILD_BANK_MAX_TABS)                   // tabs starts in 0
-        return;
-
-    GuildBankTab const *tab = GetBankTab(TabId);
-    if (!tab)
-        return;
+    GuildBankTab const* tab = m_TabListMap[TabId];
 
     WorldPacket data(MSG_QUERY_GUILD_BANK_TEXT, 1+tab->Text.size()+1);
     data << uint8(TabId);
@@ -1999,7 +1994,7 @@ void Guild::SwapItems(Player * pl, uint8 BankTab, uint8 BankTabSlot, uint8 BankT
     {
         sLog.outCrash("Guild::SwapItems: Player %s(GUIDLow: %u) tried to move item %u from tab %u slot %u to tab %u slot %u, but item %u has a stack of zero!",
             pl->GetName(), pl->GetGUIDLow(), pItemSrc->GetEntry(), BankTab, BankTabSlot, BankTabDst, BankTabSlotDst, pItemSrc->GetEntry());
-        //return; // Commented out for now, uncomment when it's verified that this causes a crash!
+        //return; // Commented out for now, uncomment when it's verified that this causes a crash!!
     }
 
     if (SplitedAmount >= pItemSrc->GetCount())
