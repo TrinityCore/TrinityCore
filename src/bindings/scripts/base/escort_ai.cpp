@@ -456,7 +456,7 @@ void npc_escortAI::Start(bool bIsActiveAttacker, bool bRun, uint64 uiPlayerGUID,
     {
         if (pQuest != NULL)
         {
-            error_db_log("TSCR: EscortAI Start with 0 waypoints (possible missing entry in script_waypoint. Quest: %u).", m_pQuestForEscort->GetQuestId());
+            error_db_log("TSCR: EscortAI Start with 0 waypoints (possible missing entry in script_waypoint. Quest: %u).", pQuest->GetQuestId());
             return;
         }
         else
