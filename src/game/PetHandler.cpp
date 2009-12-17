@@ -428,22 +428,28 @@ void WorldSession::HandlePetSetAction( WorldPacket & recv_data )
         }
     }
  
-    // check swap
+    // check swap (at command->spell swap client remove spell first in another packet, so check only command move correctness)
     if (move_command)
     {
         uint8 act_state_0 = UNIT_ACTION_BUTTON_TYPE(data[0]);
-        uint32 spell_id_0 = UNIT_ACTION_BUTTON_ACTION(data[0]);
-        UnitActionBarEntry const* actionEntry_1 = charmInfo->GetActionBarEntry(position[1]);
-        if (!actionEntry_1 || spell_id_0 != actionEntry_1->GetAction() ||
-            act_state_0 != actionEntry_1->GetType())
-            return;
+        if(act_state_0 == ACT_COMMAND || act_state_0 == ACT_REACTION)
+        {
+            uint32 spell_id_0 = UNIT_ACTION_BUTTON_ACTION(data[0]);
+            UnitActionBarEntry const* actionEntry_1 = charmInfo->GetActionBarEntry(position[1]);
+            if (!actionEntry_1 || spell_id_0 != actionEntry_1->GetAction() ||
+                act_state_0 != actionEntry_1->GetType())
+                return;
+        }
  
         uint8 act_state_1 = UNIT_ACTION_BUTTON_TYPE(data[1]);
-        uint32 spell_id_1 = UNIT_ACTION_BUTTON_ACTION(data[1]);
-        UnitActionBarEntry const* actionEntry_0 = charmInfo->GetActionBarEntry(position[0]);
-        if (!actionEntry_0 || spell_id_1 != actionEntry_0->GetAction() ||
-            act_state_1 != actionEntry_0->GetType())
-            return;
+        if(act_state_1 == ACT_COMMAND || act_state_1 == ACT_REACTION)
+        {
+            uint32 spell_id_1 = UNIT_ACTION_BUTTON_ACTION(data[1]);
+            UnitActionBarEntry const* actionEntry_0 = charmInfo->GetActionBarEntry(position[0]);
+            if (!actionEntry_0 || spell_id_1 != actionEntry_0->GetAction() ||
+                act_state_1 != actionEntry_0->GetType())
+                return;
+        }
     }
  
     for(uint8 i = 0; i < count; ++i)
