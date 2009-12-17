@@ -640,14 +640,14 @@ void CreatureEventAIMgr::LoadCreatureEventAI_Scripts()
                             sLog.outErrorDb("CreatureEventAI:  Event %u Action %u uses incorrect Target type", i, j+1);
                         break;
                     case ACTION_T_SET_INST_DATA:
-                        if (!(temp.event_flags & EFLAG_NORMAL) && !(temp.event_flags & EFLAG_HEROIC))
-                            sLog.outErrorDb("CreatureEventAI:  Event %u Action %u. Cannot set instance data without event flags (normal/heroic).", i, j+1);
+                        if (!(temp.event_flags & EFLAG_DIFFICULTY_ALL))
+                            sLog.outErrorDb("CreatureEventAI:  Event %u Action %u. Cannot set instance data without difficulty event flags.", i, j+1);
                         if (action.set_inst_data.value > 4/*SPECIAL*/)
                             sLog.outErrorDb("CreatureEventAI:  Event %u Action %u attempts to set instance data above encounter state 4. Custom case?", i, j+1);
                         break;
                     case ACTION_T_SET_INST_DATA64:
-                        if (!(temp.event_flags & EFLAG_NORMAL) && !(temp.event_flags & EFLAG_HEROIC))
-                            sLog.outErrorDb("CreatureEventAI:  Event %u Action %u. Cannot set instance data without event flags (normal/heroic).", i, j+1);
+                        if (!(temp.event_flags & EFLAG_DIFFICULTY_ALL))
+                            sLog.outErrorDb("CreatureEventAI:  Event %u Action %u. Cannot set instance data without difficulty event flags.", i, j+1);
                         if (action.set_inst_data64.target >= TARGET_T_END)
                             sLog.outErrorDb("CreatureEventAI:  Event %u Action %u uses incorrect Target type", i, j+1);
                         break;

@@ -51,10 +51,8 @@ void WorldSession::HandleDuelAcceptedOpcode(WorldPacket& recvPacket)
     pl->duel->startTimer = now;
     plTarget->duel->startTimer = now;
 
-    WorldPacket data(SMSG_DUEL_COUNTDOWN, 4);
-    data << (uint32)3000;                                   // 3 seconds
-    pl->GetSession()->SendPacket(&data);
-    plTarget->GetSession()->SendPacket(&data);
+    pl->SendDuelCountdown(3000);
+    plTarget->SendDuelCountdown(3000);
 }
 
 void WorldSession::HandleDuelCancelledOpcode(WorldPacket& recvPacket)
@@ -84,4 +82,3 @@ void WorldSession::HandleDuelCancelledOpcode(WorldPacket& recvPacket)
 
     GetPlayer()->DuelComplete(DUEL_INTERUPTED);
 }
-
