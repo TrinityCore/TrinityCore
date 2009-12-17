@@ -395,8 +395,6 @@ void WorldSession::SendSpiritResurrect()
     else
         //ObjectAccessor::UpdateVisibilityForPlayer(_player);
         _player->SetToNotify();
-
-    _player->SaveToDB();
 }
 
 void WorldSession::HandleBinderActivateOpcode( WorldPacket & recv_data )
