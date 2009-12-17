@@ -196,10 +196,10 @@ bool AchievementCriteriaData::IsValid(AchievementCriteriaEntry const* criteria)
             }
             return true;
         case ACHIEVEMENT_CRITERIA_DATA_TYPE_MAP_DIFFICULTY:
-            if (difficalty.difficalty >= TOTAL_DIFFICULTIES)
+            if (difficulty.difficulty >= MAX_DIFFICULTY)
             {
                 sLog.outErrorDb( "Table `achievement_criteria_data` (Entry: %u Type: %u) for data type ACHIEVEMENT_CRITERIA_DATA_TYPE_MAP_DIFFICULTY (%u) have wrong difficulty in value1 (%u), ignore.",
-                    criteria->ID, criteria->requiredType,dataType,difficalty.difficalty);
+                    criteria->ID, criteria->requiredType,dataType,difficulty.difficulty);
                 return false;
             }
             return true;
@@ -294,7 +294,7 @@ bool AchievementCriteriaData::Meets(Player const* source, Unit const* target, ui
         case ACHIEVEMENT_CRITERIA_DATA_TYPE_DISABLED:
             return false;                                   // always fail
         case ACHIEVEMENT_CRITERIA_DATA_TYPE_MAP_DIFFICULTY:
-            return source->GetMap()->GetSpawnMode()==difficalty.difficalty;
+            return source->GetMap()->GetSpawnMode()==difficulty.difficulty;
         case ACHIEVEMENT_CRITERIA_DATA_TYPE_MAP_PLAYER_COUNT:
             return source->GetMap()->GetPlayersCountExceptGMs() <= map_players.maxcount;
         case ACHIEVEMENT_CRITERIA_DATA_TYPE_T_TEAM:
@@ -902,7 +902,7 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
                             if(!achievIdForDangeon[j][2])
                                 break;                      // for
                         }
-                        else if(GetPlayer()->GetDifficulty()==DIFFICULTY_NORMAL)
+                        else if(GetPlayer()->GetDungeonDifficulty()==DUNGEON_DIFFICULTY_NORMAL)
                         {
                             // dungeon in normal mode accepted
                             if(!achievIdForDangeon[j][1])
@@ -1708,6 +1708,16 @@ void AchievementMgr::CompletedAchievement(AchievementEntry const* achievement)
     {
         Item* item = reward->itemId ? Item::CreateItem(reward->itemId,1,GetPlayer ()) : NULL;
 
+        MailItemsInfo mi;
+        if(item)
+        {
+            // save new item before send
+            item->SaveToDB();                               // save for prevent lost at next mail load, if send fail then item will deleted
+
+            // item
+            mi.AddItem(item->GetGUIDLow(), item->GetEntry(), item);
+        }
+
         int loc_idx = GetPlayer()->GetSession()->GetSessionDbLocaleIndex();
 
         // subject and text
@@ -1726,18 +1736,7 @@ void AchievementMgr::CompletedAchievement(AchievementEntry const* achievement)
 
         uint32 itemTextId = objmgr.CreateItemText( text );
 
-        MailDraft draft(subject, itemTextId);
-
-        if(item)
-        {
-            // save new item before send
-            item->SaveToDB();                               // save for prevent lost at next mail load, if send fail then item will deleted
-
-            // item
-            draft.AddItem(item);
-        }
-
-        draft.SendMailTo(GetPlayer(), MailSender(MAIL_CREATURE, reward->sender));
+        WorldSession::SendMailTo(GetPlayer(), MAIL_CREATURE, MAIL_STATIONERY_NORMAL, reward->sender, GetPlayer()->GetGUIDLow(), subject, itemTextId , &mi, 0, 0, MAIL_CHECK_MASK_NONE);
     }
 }
 
