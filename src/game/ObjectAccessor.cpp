@@ -49,7 +49,10 @@ ObjectAccessor::ObjectAccessor() {}
 ObjectAccessor::~ObjectAccessor()
 {
     for (Player2CorpsesMapType::const_iterator itr = i_player2corpse.begin(); itr != i_player2corpse.end(); ++itr)
+    {
+        itr->second->RemoveFromWorld();
         delete itr->second;
+    }
 }
 
 Creature*
@@ -351,6 +354,10 @@ ObjectAccessor::ConvertCorpseForPlayer(uint64 player_guid, bool insignia)
     // remove corpse from DB
     corpse->DeleteFromDB();
 
+    // we don't want bones to save some cpu.. :)
+    delete corpse;
+    return NULL;
+
     Corpse *bones = NULL;
     // create the bones only if the map and the grid is loaded at the corpse's location
     // ignore bones creating option in case insignia
@@ -521,4 +528,3 @@ template Creature* ObjectAccessor::GetObjectInWorld<Creature>(uint32 mapid, floa
 template Corpse* ObjectAccessor::GetObjectInWorld<Corpse>(uint32 mapid, float x, float y, uint64 guid, Corpse* /*fake*/);
 template GameObject* ObjectAccessor::GetObjectInWorld<GameObject>(uint32 mapid, float x, float y, uint64 guid, GameObject* /*fake*/);
 template DynamicObject* ObjectAccessor::GetObjectInWorld<DynamicObject>(uint32 mapid, float x, float y, uint64 guid, DynamicObject* /*fake*/);
-
