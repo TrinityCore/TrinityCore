@@ -50,30 +50,35 @@
 void WorldSession::HandlePetitionBuyOpcode(WorldPacket & recv_data)
 {
     sLog.outDebug("Received opcode CMSG_PETITION_BUY");
-    //recv_data.hexlike();
+    recv_data.hexlike();
 
     uint64 guidNPC;
-    uint64 unk1, unk3, unk4, unk5, unk6, unk7;
-    uint32 unk2;
+    uint32 clientIndex;                                     // 1 for guild and arenaslot+1 for arenas in client
     std::string name;
-    uint16 unk8;
-    uint8  unk9;
-    uint32 unk10;                                           // selected index
-    uint32 unk11;
-    recv_data >> guidNPC;                                   // NPC GUID
-    recv_data >> unk1;                                      // 0
-    recv_data >> unk2;                                      // 0
-    recv_data >> name;                                      // name
 
-    recv_data >> unk3;                                      // 0
-    recv_data >> unk4;                                      // 0
-    recv_data >> unk5;                                      // 0
-    recv_data >> unk6;                                      // 0
-    recv_data >> unk7;                                      // 0
-    recv_data >> unk8;                                      // 0
-    recv_data >> unk9;                                      // 0
-    recv_data >> unk10;                                     // index
-    recv_data >> unk11;                                     // 0
+    recv_data >> guidNPC;                                   // NPC GUID
+    recv_data.read_skip<uint32>();                          // 0
+    recv_data.read_skip<uint64>();                          // 0
+    recv_data >> name;                                      // name
+    recv_data.read_skip<std::string>();                     // some string
+    recv_data.read_skip<uint32>();                          // 0
+    recv_data.read_skip<uint32>();                          // 0
+    recv_data.read_skip<uint32>();                          // 0
+    recv_data.read_skip<uint32>();                          // 0
+    recv_data.read_skip<uint32>();                          // 0
+    recv_data.read_skip<uint32>();                          // 0
+    recv_data.read_skip<uint32>();                          // 0
+    recv_data.read_skip<uint16>();                          // 0
+    recv_data.read_skip<uint32>();                          // 0
+    recv_data.read_skip<uint32>();                          // 0
+    recv_data.read_skip<uint32>();                          // 0
+
+    for (int i = 0; i < 10; ++i)
+        recv_data.read_skip<std::string>();
+
+    recv_data >> clientIndex;                               // index
+    recv_data.read_skip<uint32>();                          // 0
+
     sLog.outDebug("Petitioner with GUID %u tried sell petition: name %s", GUID_LOPART(guidNPC), name.c_str());
 
     // prevent cheating
@@ -111,7 +116,7 @@ void WorldSession::HandlePetitionBuyOpcode(WorldPacket & recv_data)
             return;
         }
 
-        switch(unk10)
+        switch(clientIndex)                                 // arenaSlot+1 as received from client (1 from 3 case)
         {
             case 1:
                 charterid = ARENA_TEAM_CHARTER_2v2;
@@ -129,11 +134,11 @@ void WorldSession::HandlePetitionBuyOpcode(WorldPacket & recv_data)
                 type = 5;                                   // 5v5
                 break;
             default:
-                sLog.outDebug("unknown selection at buy petition: %u", unk10);
+                sLog.outDebug("unknown selection at buy arena petition: %u", clientIndex);
                 return;
         }
 
-        if(_player->GetArenaTeamId(unk10-1))
+        if(_player->GetArenaTeamId(clientIndex - 1))        // arenaSlot+1 as received from client
         {
             SendArenaTeamCommandResult(ERR_ARENA_TEAM_CREATE_S, name, "", ERR_ALREADY_IN_ARENA_TEAM);
             return;
@@ -208,7 +213,6 @@ void WorldSession::HandlePetitionBuyOpcode(WorldPacket & recv_data)
 
     if (result)
     {
-
         do
         {
             Field *fields = result->Fetch();
@@ -328,11 +332,11 @@ void WorldSession::SendPetitionQueryOpcode(uint64 petitionguid)
         return;
     }
 
-    WorldPacket data(SMSG_PETITION_QUERY_RESPONSE, (4+8+name.size()+1+1+4*13));
-    data << GUID_LOPART(petitionguid);                      // guild/team guid (in Trinity always same as GUID_LOPART(petition guid)
-    data << ownerguid;                                      // charter owner guid
+    WorldPacket data(SMSG_PETITION_QUERY_RESPONSE, (4+8+name.size()+1+1+4*12+2+10));
+    data << uint32(GUID_LOPART(petitionguid));              // guild/team guid (in Trinity always same as GUID_LOPART(petition guid)
+    data << uint64(ownerguid);                              // charter owner guid
     data << name;                                           // name (guild/arena team)
-    data << uint8(0);                                       // 1
+    data << uint8(0);                                       // some string
     if(type == 9)
     {
         data << uint32(9);
@@ -341,9 +345,9 @@ void WorldSession::SendPetitionQueryOpcode(uint64 petitionguid)
     }
     else
     {
-        data << type-1;
-        data << type-1;
-        data << type;                                       // bypass client - side limitation, a different value is needed here for each petition
+        data << uint32(type-1);
+        data << uint32(type-1);
+        data << uint32(type);                               // bypass client - side limitation, a different value is needed here for each petition
     }
     data << uint32(0);                                      // 5
     data << uint32(0);                                      // 6
@@ -353,11 +357,17 @@ void WorldSession::SendPetitionQueryOpcode(uint64 petitionguid)
     data << uint32(0);                                      // 10
     data << uint32(0);                                      // 11
     data << uint32(0);                                      // 13 count of next strings?
+
+    for(int i = 0; i < 10; ++i)
+        data << uint8(0);                                   // some string
+
     data << uint32(0);                                      // 14
+
     if(type == 9)
         data << uint32(0);                                  // 15 0 - guild, 1 - arena team
     else
         data << uint32(1);
+
     SendPacket(&data);
 }
 
@@ -949,4 +959,3 @@ void WorldSession::SendPetitionShowList(uint64 guid)
     SendPacket(&data);
     sLog.outDebug("Sent SMSG_PETITION_SHOWLIST");
 }
-
