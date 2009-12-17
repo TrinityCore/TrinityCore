@@ -960,6 +960,7 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
                 case 31216: // Mirror Image
                 {
                     SetBonusDamage(int32(m_owner->SpellBaseDamageBonus(SPELL_SCHOOL_MASK_FROST) * 0.33f));
+                    SetDisplayId(m_owner->GetDisplayId());
                     if (!pInfo)
                     {
                         SetCreateMana(28 + 30*petlevel);
