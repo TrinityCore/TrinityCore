@@ -225,11 +225,8 @@ void Unit::Update(uint32 p_time)
     // WARNING! Order of execution here is important, do not change.
     // Spells must be processed with event system BEFORE they go to _UpdateSpells.
     // Or else we may have some SPELL_STATE_FINISHED spells stalled in pointers, that is bad.
-    #pragma omp critical(UpdateThreadSafety)
-    {
-        m_Events.Update(p_time);
-        _UpdateSpells(p_time);
-    }
+    m_Events.Update(p_time);
+    _UpdateSpells(p_time);
 
     // If this is set during update SetCantProc(false) call is missing somewhere in the code
     // Having this would prevent spells from being proced, so let's crash

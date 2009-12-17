@@ -18,9 +18,6 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifdef MULTI_THREAD_MAP
-#include <omp.h>
-#endif
 #include "MapManager.h"
 #include "InstanceSaveMgr.h"
 #include "Policies/SingletonImp.h"
@@ -32,6 +29,7 @@
 #include "MapInstanced.h"
 #include "InstanceData.h"
 #include "DestinationHolderImp.h"
+#include "Config/ConfigEnv.h"
 #include "World.h"
 #include "CellImpl.h"
 #include "Corpse.h"
@@ -72,6 +70,12 @@ MapManager::Initialize()
 
         i_GridStateErrorCount = 0;
     }
+#ifdef MULTI_THREAD_MAP
+    int num_threads(sWorld.getConfig(CONFIG_NUMTHREADS));
+    // Start mtmaps if needed.
+    if(num_threads > 0 && m_updater.activate(num_threads) == -1)
+        abort();
+#endif
 
     InitMaxInstanceId();
 }
@@ -299,22 +303,17 @@ MapManager::Update(uint32 diff)
 
     MapMapType::iterator iter = i_maps.begin();
 #ifdef MULTI_THREAD_MAP
-    std::vector<Map*> update_queue(i_maps.size());
-    int omp_set_num_threads(sWorld.getConfig(CONFIG_NUMTHREADS));
-    for (uint32 i = 0; iter != i_maps.end(); ++iter, ++i)
-        update_queue[i] = iter->second;
-/*
-    gomp in gcc <4.4 version cannot parallelise loops using random access iterators
-    so until gcc 4.4 isnt standard, we need the update_queue workaround
-*/
-#pragma omp parallel for schedule(dynamic) private(i) shared(update_queue)
-    for (uint32 i = 0; i < i_maps.size(); ++i)
+    for(; iter != i_maps.end(); ++iter)
     {
-        checkAndCorrectGridStatesArray();                   // debugging code, should be deleted some day
-        update_queue[i]->Update(i_timer.GetCurrent());
-        sWorld.RecordTimeDiff("UpdateMap %u", update_queue[i]->GetId());
-        //sLog.outError("This is thread %d out of %d threads,updating map %u",omp_get_thread_num(),omp_get_num_threads(),iter->second->GetId());
+	 if (m_updater.activated())
+	     m_updater.schedule_update(*iter->second, i_timer.GetCurrent());
+        else
+	 {
+            iter->second->Update(i_timer.GetCurrent());
+	 }
     }
+    if (m_updater.activated())
+	 m_updater.wait();
 #else
     for (; iter != i_maps.end(); ++iter)
     {
@@ -377,6 +376,11 @@ void MapManager::UnloadAll()
         delete i_maps.begin()->second;
         i_maps.erase(i_maps.begin());
     }
+
+#ifdef MULTI_THREAD_MAP
+    if (m_updater.activated())
+        m_updater.deactivate();
+#endif
 }
 
 void MapManager::InitMaxInstanceId()
@@ -393,6 +397,8 @@ void MapManager::InitMaxInstanceId()
 
 uint32 MapManager::GetNumInstances()
 {
+    Guard guard(*this);
+
     uint32 ret = 0;
     for (MapMapType::iterator itr = i_maps.begin(); itr != i_maps.end(); ++itr)
     {
@@ -407,6 +413,8 @@ uint32 MapManager::GetNumInstances()
 
 uint32 MapManager::GetNumPlayersInInstances()
 {
+    Guard guard(*this);
+
     uint32 ret = 0;
     for (MapMapType::iterator itr = i_maps.begin(); itr != i_maps.end(); ++itr)
     {

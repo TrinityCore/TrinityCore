@@ -28,60 +28,6 @@
 typedef ACE_TSS<MTRand> MTRandTSS;
 static MTRandTSS mtRand;
 
-#ifdef MULTI_THREAD_MAP
-
-int32 irand (int32 min, int32 max)
-{
-    int32 result;
-#pragma omp critical (mtrand)
-{
-    result = int32 (mtRand->randInt (max - min)) + min;
-}
-  return result;
-}
-
-uint32 urand (uint32 min, uint32 max)
-{
-    uint32 result;
-#pragma omp critical (mtrand)
-{
-    result = mtRand->randInt (max - min) + min;
-}
-  return result;
-}
-
-int32 rand32 ()
-{
-    int32 result;
-#pragma omp critical (mtrand)
-{
-    result = mtRand->randInt ();
-}
-  return result;
-}
-
-double rand_norm(void)
-{
-    double result;
-#pragma omp critical (mtrand)
-{
-    result = mtRand->randExc ();
-}
-  return result;
-}
-
-double rand_chance (void)
-{
-    double result;
-#pragma omp critical (mtrand)
-{
-    result = mtRand->randExc (100.0);
-}
-  return result;
-}
-
-#else
-
 int32 irand (int32 min, int32 max)
 {
     return int32 (mtRand->randInt (max - min)) + min;
@@ -106,8 +52,6 @@ double rand_chance (void)
 {
     return mtRand->randExc (100.0);
 }
-
-#endif
 
 Tokens StrSplit(const std::string &src, const std::string &sep)
 {

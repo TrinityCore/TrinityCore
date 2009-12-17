@@ -9,6 +9,8 @@ SET(shared_STAT_SRCS
    ByteBuffer.h
    Common.cpp
    Common.h
+   DelayExecutor.cpp
+   DelayExecutor.h
    Errors.h
    Log.cpp
    Log.h
@@ -21,7 +23,6 @@ SET(shared_STAT_SRCS
    WorldPacket.h
    SystemConfig.h
 )
-add_definitions(-fopenmp)
 add_library(shared STATIC ${shared_STAT_SRCS})
 target_link_libraries(
 shared

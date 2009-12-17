@@ -1121,12 +1121,6 @@ void Player::SetDrunkValue(uint16 newDrunkenValue, uint32 itemId)
 
 void Player::Update( uint32 p_time )
 {
-    // Until Trinity is thread safe, anything that could result in a
-    // map, zone, or area change in this Update should be preceded by:
-    // #pragma omp critical(UpdateThreadSafety)
-    // This will only allow one thread at a time to process a "UpdateThreadSafety" block.
-    // NOTE: I'm only certain about the map change part. The zone and area #pragma is just a precaution.
-
     if (!IsInWorld())
         return;
 
@@ -1294,7 +1288,6 @@ void Player::Update( uint32 p_time )
             m_weaponChangeTimer -= p_time;
     }
 
-    #pragma omp critical(UpdateThreadSafety)
     if (m_zoneUpdateTimer > 0)
     {
         if (p_time >= m_zoneUpdateTimer)
@@ -1374,7 +1367,6 @@ void Player::Update( uint32 p_time )
     // not auto-free ghost from body in instances
     if(m_deathTimer > 0 && !GetBaseMap()->Instanceable())
     {
-        #pragma omp critical(UpdateThreadSafety)
         if(p_time >= m_deathTimer)
         {
             m_deathTimer = 0;
@@ -1398,7 +1390,6 @@ void Player::Update( uint32 p_time )
 
     //we should execute delayed teleports only for alive(!) players
     //because we don't want player's ghost teleported from graveyard
-    #pragma omp critical(UpdateThreadSafety)
     if (IsHasDelayedTeleport() && isAlive())
         TeleportTo(m_teleport_dest, m_teleport_options);
 }
