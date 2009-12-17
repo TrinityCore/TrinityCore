@@ -1258,13 +1258,14 @@ CREATE TABLE `item_template` (
   `displayid` mediumint(8) unsigned NOT NULL default '0',
   `Quality` tinyint(3) unsigned NOT NULL default '0',
   `Flags` int(10) unsigned NOT NULL default '0',
+  `Faction` int(11) UNSIGNED NOT NULL default '0',
   `BuyCount` tinyint(3) unsigned NOT NULL default '1',
   `BuyPrice` int(10) unsigned NOT NULL default '0',
   `SellPrice` int(10) unsigned NOT NULL default '0',
   `InventoryType` tinyint(3) unsigned NOT NULL default '0',
   `AllowableClass` int signed NOT NULL default '-1',
   `AllowableRace` int signed NOT NULL default '-1',
-  `ItemLevel` tinyint(3) unsigned NOT NULL default '0',
+  `ItemLevel` smallint(5) unsigned NOT NULL default '0',
   `RequiredLevel` tinyint(3) unsigned NOT NULL default '0',
   `RequiredSkill` smallint(5) unsigned NOT NULL default '0',
   `RequiredSkillRank` smallint(5) unsigned NOT NULL default '0',
@@ -2750,7 +2751,7 @@ SET character_set_client = @saved_cs_client;
 
 DROP TABLE IF EXISTS `spell_bonus_data`;
 CREATE TABLE `spell_bonus_data` (
-  `entry` smallint(5) unsigned NOT NULL,
+  `entry` mediumint(8) unsigned NOT NULL,
   `direct_bonus` float NOT NULL default '0',
   `dot_bonus` float NOT NULL default '0',
   `ap_bonus` float NOT NULL default '0',
@@ -2982,7 +2983,7 @@ DROP TABLE IF EXISTS `spell_proc_event`;
 SET @saved_cs_client     = @@character_set_client;
 SET character_set_client = utf8;
 CREATE TABLE `spell_proc_event` (
-  `entry` smallint(5) unsigned NOT NULL default '0',
+  `entry` mediumint(8) unsigned NOT NULL default '0',
   `SchoolMask` tinyint(4) NOT NULL default '0',
   `SpellFamilyName` smallint(5) unsigned NOT NULL default '0',
   `SpellFamilyMask0` int(10) unsigned NOT NULL default '0',
