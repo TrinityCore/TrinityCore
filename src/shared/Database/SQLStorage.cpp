@@ -27,19 +27,19 @@ extern DatabasePostgre  WorldDatabase;
 extern DatabaseMysql  WorldDatabase;
 #endif
 
-const char CreatureInfosrcfmt[]="iiiiiiiisssiiiiiiiiiiffiffiifiiiiiiiiiiffiiiiiiiiiiiiiiiiiiiiiiiisiiffliiiiiiiliiis";
-const char CreatureInfodstfmt[]="iiiiiiiisssiiiiiiiiiiffiffiifiiiiiiiiiiffiiiiiiiiiiiiiiiiiiiiiiiisiiffliiiiiiiliiii";
+const char CreatureInfosrcfmt[]="iiiiiiiiiisssiiiiiiiiiiffiffiifiiiiiiiiiiffiiiiiiiiiiiiiiiiiiiiiiiisiiffliiiiiiiliiis";
+const char CreatureInfodstfmt[]="iiiiiiiiiisssiiiiiiiiiiffiffiifiiiiiiiiiiffiiiiiiiiiiiiiiiiiiiiiiiisiiffliiiiiiiliiii";
 const char CreatureDataAddonInfofmt[]="iiiiiiis";
 const char CreatureModelfmt[]="iffbi";
 const char CreatureInfoAddonInfofmt[]="iiiiiiis";
 const char EquipmentInfofmt[]="iiii";
 const char GameObjectInfosrcfmt[]="iiissssiifiiiiiiiiiiiiiiiiiiiiiiiiiiiiiis";
 const char GameObjectInfodstfmt[]="iiissssiifiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii";
-const char ItemPrototypesrcfmt[]="iiiisiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiffiffiiiiiiiiiifiiifiiiiiifiiiiiifiiiiiifiiiiiifiiiisiiiiiiiiiiiiiiiiiiiiiiiiifiiisiiii";
-const char ItemPrototypedstfmt[]="iiiisiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiffiffiiiiiiiiiifiiifiiiiiifiiiiiifiiiiiifiiiiiifiiiisiiiiiiiiiiiiiiiiiiiiiiiiifiiiiiiii";
+const char ItemPrototypesrcfmt[]="iiiisiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiffiffiiiiiiiiiifiiifiiiiiifiiiiiifiiiiiifiiiiiifiiiisiiiiiiiiiiiiiiiiiiiiiiiiifiiisiiii";
+const char ItemPrototypedstfmt[]="iiiisiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiffiffiiiiiiiiiifiiifiiiiiifiiiiiifiiiiiifiiiiiifiiiisiiiiiiiiiiiiiiiiiiiiiiiiifiiiiiiii";
 const char PageTextfmt[]="isi";
-const char InstanceTemplatesrcfmt[]="iiiiiiffffs";
-const char InstanceTemplatedstfmt[]="iiiiiiffffi";
+const char InstanceTemplatesrcfmt[]="iiiffffs";
+const char InstanceTemplatedstfmt[]="iiiffffi";
 
 SQLStorage sCreatureStorage(CreatureInfosrcfmt, CreatureInfodstfmt, "entry","creature_template");
 SQLStorage sCreatureDataAddonStorage(CreatureDataAddonInfofmt,"guid","creature_addon");
@@ -79,4 +79,3 @@ void SQLStorage::Load()
     SQLStorageLoader loader;
     loader.Load(*this);
 }
-
