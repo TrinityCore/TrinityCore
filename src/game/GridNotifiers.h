@@ -1244,4 +1244,3 @@ namespace Trinity
     #endif
 }
 #endif
-
