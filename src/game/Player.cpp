@@ -6018,8 +6018,9 @@ void Player::SendMessageToSetInRange(WorldPacket *data, float dist, bool self, b
 }
 
 void Player::SendDirectMessage(WorldPacket *data)
-{
-    GetSession()->SendPacket(data);
+{	
+    if (m_session)
+        m_session->SendPacket(data);
 }
 
 void Player::SendCinematicStart(uint32 CinematicSequenceId)
