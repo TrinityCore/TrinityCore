@@ -3609,6 +3609,7 @@ void AuraEffect::HandleAuraModShapeshift(bool apply, bool Real, bool changeAmoun
         case FORM_MOONKIN:
         case FORM_FLIGHT_EPIC:
         case FORM_METAMORPHOSIS:
+        case FORM_MASTER_ANGLER:
         case FORM_AMBIENT:
         case FORM_SHADOW:
         case FORM_STEALTH:
