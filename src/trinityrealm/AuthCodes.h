@@ -72,7 +72,8 @@ enum LoginResult
 //2.4.3 build 8606
 //3.1.3 build 9947
 //3.1.3 build 10146 Chinese build
+//3.2.2a build 10505
 
-#define EXPECTED_TRINITY_CLIENT_BUILD        {10146, 9947, 8606, 5875, 6005, 0}
+#define EXPECTED_TRINITY_CLIENT_BUILD        {10505, 10146, 9947, 8606, 5875, 6005, 0}
 
 #endif
