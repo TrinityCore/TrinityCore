@@ -189,6 +189,7 @@ class BattleGroundWS : public BattleGround
         virtual WorldSafeLocsEntry const* GetClosestGraveYard(Player* player);
 
         void UpdateFlagState(uint32 team, uint32 value);
+        void SetFirstFlagCapture(uint32 team)                { m_FirstFlagCaptureTeam = team; }
         void UpdateTeamScore(uint32 team);
         void UpdatePlayerScore(Player *Source, uint32 type, uint32 value);
         void SetDroppedFlagGUID(uint64 guid, uint32 TeamID)  { m_DroppedFlagGUID[GetTeamIndexByTeamId(TeamID)] = guid;}
@@ -206,7 +207,8 @@ class BattleGroundWS : public BattleGround
         uint8 m_FlagState[2];                               // for checking flag state
         int32 m_FlagsTimer[2];
         int32 m_FlagsDropTimer[2];
-
+        uint32 m_FirstFlagCaptureTeam;                      // Winner is based on this if score is equal
+        
         uint32 m_ReputationCapture;
         uint32 m_HonorWinKills;
         uint32 m_HonorEndKills;
