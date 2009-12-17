@@ -400,22 +400,58 @@ void WorldSession::HandlePetSetAction( WorldPacket & recv_data )
     }
 
     count = (recv_data.size() == 24) ? 2 : 1;
-    for (uint8 i = 0; i < count; ++i)
+
+    uint32 position[2];
+    uint32 data[2];
+    bool move_command = false;
+ 
+    for(uint8 i = 0; i < count; ++i)
     {
-        uint32 position;
-        uint32 data;
-
-        recv_data >> position;
-        recv_data >> data;
-
-        uint32 spell_id = UNIT_ACTION_BUTTON_ACTION(data);
-        uint8 act_state = UNIT_ACTION_BUTTON_TYPE(data);
-
-        sLog.outDetail( "Player %s has changed pet spell action. Position: %u, Spell: %u, State: 0x%X", _player->GetName(), position, spell_id, uint32(act_state));
-
+        recv_data >> position[i];
+        recv_data >> data[i];
+ 
+        uint8 act_state = UNIT_ACTION_BUTTON_TYPE(data[i]);
+ 
         //ignore invalid position
-        if(position >= MAX_UNIT_ACTION_BAR_INDEX)
+        if(position[i] >= MAX_UNIT_ACTION_BAR_INDEX)
             return;
+ 
+        // in the normal case, command and reaction buttons can only be moved, not removed
+        // at moving count ==2, at removing count == 1
+        // ignore attempt to remove command|reaction buttons (not possible at normal case)
+        if (act_state == ACT_COMMAND || act_state == ACT_REACTION)
+        {
+            if (count == 1)
+                return;
+ 
+            move_command = true;
+        }
+    }
+ 
+    // check swap
+    if (move_command)
+    {
+        uint8 act_state_0 = UNIT_ACTION_BUTTON_TYPE(data[0]);
+        uint32 spell_id_0 = UNIT_ACTION_BUTTON_ACTION(data[0]);
+        UnitActionBarEntry const* actionEntry_1 = charmInfo->GetActionBarEntry(position[1]);
+        if (!actionEntry_1 || spell_id_0 != actionEntry_1->GetAction() ||
+            act_state_0 != actionEntry_1->GetType())
+            return;
+ 
+        uint8 act_state_1 = UNIT_ACTION_BUTTON_TYPE(data[1]);
+        uint32 spell_id_1 = UNIT_ACTION_BUTTON_ACTION(data[1]);
+        UnitActionBarEntry const* actionEntry_0 = charmInfo->GetActionBarEntry(position[0]);
+        if (!actionEntry_0 || spell_id_1 != actionEntry_0->GetAction() ||
+            act_state_1 != actionEntry_0->GetType())
+            return;
+    }
+ 
+    for(uint8 i = 0; i < count; ++i)
+    {
+        uint32 spell_id = UNIT_ACTION_BUTTON_ACTION(data[i]);
+        uint8 act_state = UNIT_ACTION_BUTTON_TYPE(data[i]);
+ 
+        sLog.outDetail( "Player %s has changed pet spell action. Position: %u, Spell: %u, State: 0x%X", _player->GetName(), position[i], spell_id, uint32(act_state));
 
         //if it's act for spell (en/disable/cast) and there is a spell given (0 = remove spell) which pet doesn't know, don't add
         if(!((act_state == ACT_ENABLED || act_state == ACT_DISABLED || act_state == ACT_PASSIVE) && spell_id && !pet->HasSpell(spell_id)))
@@ -438,7 +474,7 @@ void WorldSession::HandlePetSetAction( WorldPacket & recv_data )
 
             }
 
-            charmInfo->SetActionBar(position,spell_id,ActiveStates(act_state));
+            charmInfo->SetActionBar(position[i],spell_id,ActiveStates(act_state));
         }
     }
 }
