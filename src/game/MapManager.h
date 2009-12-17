@@ -156,4 +156,3 @@ class MANGOS_DLL_DECL MapManager : public MaNGOS::Singleton<MapManager, MaNGOS::
         MapUpdater m_updater;
 };
 #endif
-

@@ -38,6 +38,7 @@
 #include "MapRefManager.h"
 #include "Vehicle.h"
 #include "WaypointManager.h"
+#include "DBCEnums.h"
 
 #include "MapInstanced.h"
 #include "InstanceSaveMgr.h"
@@ -217,12 +218,12 @@ Map::Map(uint32 id, time_t expiry, uint32 InstanceId, uint8 SpawnMode, Map* _par
 {
     m_notifyTimer.SetInterval(IN_MILISECONDS/2);
 
-    for (uint8 idx = 0; idx < MAX_NUMBER_OF_GRIDS; ++idx)
+    for (unsigned int idx=0; idx < MAX_NUMBER_OF_GRIDS; ++idx)
     {
-        for (uint8 j = 0; j < MAX_NUMBER_OF_GRIDS; ++j)
+        for (unsigned int j=0; j < MAX_NUMBER_OF_GRIDS; ++j)
         {
             //z code
-            GridMaps[idx][j] = NULL;
+            GridMaps[idx][j] =NULL;
             setNGrid(NULL, idx, j);
         }
     }
@@ -2384,6 +2385,7 @@ void Map::RemoveAllObjectsInRemoveList()
 
         i_objectsToRemove.erase(itr);
     }
+
     //sLog.outDebug("Object remover 2 check.");
 }
 
@@ -2584,11 +2586,11 @@ bool InstanceMap::Add(Player *player)
             if(!mapSave)
             {
                 sLog.outDetail("InstanceMap::Add: creating instance save for map %d spawnmode %d with instance id %d", GetId(), GetSpawnMode(), GetInstanceId());
-                mapSave = sInstanceSaveManager.AddInstanceSave(GetId(), GetInstanceId(), GetSpawnMode(), 0, true);
+                mapSave = sInstanceSaveManager.AddInstanceSave(GetId(), GetInstanceId(), Difficulty(GetSpawnMode()), 0, true);
             }
 
             // check for existing instance binds
-            InstancePlayerBind *playerBind = player->GetBoundInstance(GetId(), GetSpawnMode());
+            InstancePlayerBind *playerBind = player->GetBoundInstance(GetId(), Difficulty(GetSpawnMode()));
             if(playerBind && playerBind->perm)
             {
                 // cannot enter other instances if bound permanently
@@ -2604,7 +2606,7 @@ bool InstanceMap::Add(Player *player)
                 if(pGroup)
                 {
                     // solo saves should be reset when entering a group
-                    InstanceGroupBind *groupBind = pGroup->GetBoundInstance(GetId(), GetSpawnMode());
+                    InstanceGroupBind *groupBind = pGroup->GetBoundInstance(this);
                     if(playerBind)
                     {
                         sLog.outError("InstanceMap::Add: player %s(%d) is being put in instance %d,%d,%d,%d,%d,%d but he is in group %d and is bound to instance %d,%d,%d,%d,%d,%d!", player->GetName(), player->GetGUIDLow(), mapSave->GetMapId(), mapSave->GetInstanceId(), mapSave->GetDifficulty(), mapSave->GetPlayerCount(), mapSave->GetGroupCount(), mapSave->CanReset(), GUID_LOPART(pGroup->GetLeaderGUID()), playerBind->save->GetMapId(), playerBind->save->GetInstanceId(), playerBind->save->GetDifficulty(), playerBind->save->GetPlayerCount(), playerBind->save->GetGroupCount(), playerBind->save->CanReset());
@@ -2811,7 +2813,7 @@ void InstanceMap::UnloadAll()
 void InstanceMap::SendResetWarnings(uint32 timeLeft) const
 {
     for (MapRefManager::const_iterator itr = m_mapRefManager.begin(); itr != m_mapRefManager.end(); ++itr)
-        itr->getSource()->SendInstanceResetWarning(GetId(), itr->getSource()->GetDifficulty(), timeLeft);
+        itr->getSource()->SendInstanceResetWarning(GetId(), itr->getSource()->GetDifficulty(IsRaid()), timeLeft);
 }
 
 void InstanceMap::SetResetSchedule(bool on)
@@ -2819,26 +2821,45 @@ void InstanceMap::SetResetSchedule(bool on)
     // only for normal instances
     // the reset time is only scheduled when there are no payers inside
     // it is assumed that the reset time will rarely (if ever) change while the reset is scheduled
-    if (IsDungeon() && !HavePlayers() && !IsRaid() && !IsHeroic())
+    if(IsDungeon() && !HavePlayers() && !IsRaidOrHeroicDungeon())
     {
         InstanceSave *save = sInstanceSaveManager.GetInstanceSave(GetInstanceId());
         if (!save) sLog.outError("InstanceMap::SetResetSchedule: cannot turn schedule %s, no save available for instance %d of %d", on ? "on" : "off", GetInstanceId(), GetId());
-        else sInstanceSaveManager.ScheduleReset(on, save->GetResetTime(), InstanceSaveManager::InstResetEvent(0, GetId(), GetInstanceId()));
+        else sInstanceSaveManager.ScheduleReset(on, save->GetResetTime(), InstanceSaveManager::InstResetEvent(0, GetId(), Difficulty(GetSpawnMode()), GetInstanceId()));
     }
+}
+
+MapDifficulty const* InstanceMap::GetMapDifficulty() const
+{
+    return GetMapDifficultyData(GetId(),GetDifficulty());
 }
 
 uint32 InstanceMap::GetMaxPlayers() const
 {
-    InstanceTemplate const* iTemplate = objmgr.GetInstanceTemplate(GetId());
-    if (!iTemplate)
+    if(MapDifficulty const* mapDiff = GetMapDifficulty())
+    {
+        if(mapDiff->maxPlayers || IsRegularDifficulty())    // Normal case (expect that regular difficulty always have correct maxplayers)
+            return mapDiff->maxPlayers;
+        else                                                // DBC have 0 maxplayers for heroic instances with expansion < 2
+        {                                                   // The heroic entry exists, so we don't have to check anything, simply return normal max players
+            MapDifficulty const* normalDiff = GetMapDifficultyData(GetId(), REGULAR_DIFFICULTY);
+            return normalDiff ? normalDiff->maxPlayers : 0;
+        }
+    }
+    else                                                    // I'd rather assert(false);
         return 0;
-    return IsHeroic() ? iTemplate->maxPlayersHeroic : iTemplate->maxPlayers;
+}
+
+uint32 InstanceMap::GetMaxResetDelay() const
+{
+    MapDifficulty const* mapDiff = GetMapDifficulty();
+    return mapDiff ? mapDiff->resetTime : 0;
 }
 
 /* ******* Battleground Instance Maps ******* */
 
-BattleGroundMap::BattleGroundMap(uint32 id, time_t expiry, uint32 InstanceId, Map* _parent)
-  : Map(id, expiry, InstanceId, DIFFICULTY_NORMAL, _parent)
+BattleGroundMap::BattleGroundMap(uint32 id, time_t expiry, uint32 InstanceId, Map* _parent, uint8 spawnMode)
+  : Map(id, expiry, InstanceId, spawnMode, _parent)
 {
     //lets initialize visibility distance for BG/Arenas
     BattleGroundMap::InitVisibilityDistance();
@@ -3789,4 +3810,3 @@ void Map::UpdateIteratorBack(Player *player)
     if(m_mapRefIter == player->GetMapRef())
         m_mapRefIter = m_mapRefIter->nocheck_prev();
 }
-
