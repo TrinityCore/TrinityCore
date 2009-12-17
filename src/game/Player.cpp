@@ -18463,17 +18463,32 @@ bool Player::BuyItemFromVendor(uint64 vendorguid, uint32 item, uint8 count, uint
         }
 
         ModifyMoney( -(int32)price );
+        uint32 arenaPoints = 0;
+        uint32 honorPoints = 0;
+        uint32 extendedCost[5] = {0,0,0,0,0};
+        uint32 extendedCostCount[5] = {0,0,0,0,0};
+
         if (crItem->ExtendedCost)                            // case for new honor system
         {
             ItemExtendedCostEntry const* iece = sItemExtendedCostStore.LookupEntry(crItem->ExtendedCost);
             if (iece->reqhonorpoints)
-                ModifyHonorPoints( - int32(iece->reqhonorpoints * count));
+            {
+                honorPoints = iece->reqhonorpoints * count;
+                ModifyHonorPoints( - int32(honorPoints) );
+            }
             if (iece->reqarenapoints)
-                ModifyArenaPoints( - int32(iece->reqarenapoints * count));
+            {
+                arenaPoints = iece->reqarenapoints * count;
+                ModifyArenaPoints( - int32(arenaPoints) );
+            }
             for (uint8 i = 0; i < 5; ++i)
             {
                 if (iece->reqitem[i])
+                {
                     DestroyItemCount(iece->reqitem[i], (iece->reqitemcount[i] * count), true);
+                    extendedCost[i] = iece->reqitem[i];
+                    extendedCostCount[i] = iece->reqitemcount[i];
+                }
             }
         }
 
@@ -18487,8 +18502,17 @@ bool Player::BuyItemFromVendor(uint64 vendorguid, uint32 item, uint8 count, uint
             data << uint32(crItem->maxcount > 0 ? new_count : 0xFFFFFFFF);
             data << uint32(count);
             GetSession()->SendPacket(&data);
-
             SendNewItem(it, pProto->BuyCount*count, true, false, false);
+            
+            // Item Refund system, only works for non stackable items with extendedcost
+            if(count == 1 && crItem->ExtendedCost )
+            {
+                it->SetPaidArenaPoints(arenaPoints);
+                it->SetPaidHonorPoints(honorPoints);
+                it->SetRefundExpiryTime( time(NULL)+(HOUR*2) );
+                for (uint8 i = 0; i < 5; ++i)
+                    it->SetPaidExtendedCost(i, extendedCost[i], extendedCostCount[i]);
+            }
         }
     }
     else if (IsEquipmentPos(bag, slot))

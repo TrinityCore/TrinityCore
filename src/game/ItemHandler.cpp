@@ -1360,4 +1360,89 @@ void WorldSession::HandleItemRefundInfoRequest(WorldPacket& recv_data)
     }
 
     // item refund system not implemented yet
+    WorldPacket data(SMSG_ITEM_REFUND_TIMER, 8+4+4+4+4*4+4*4+4+4); // guess size
+    data << uint64(guid);                               // item guid
+    data << uint32(1);                                  // unknown
+    data << uint32(item->GetPaidHonorPoints());         // honor point cost
+    data << uint32(item->GetPaidArenaPoints());         // arena point cost
+    for(uint32 i = 0; i < 5; ++i)                       // extended cost data
+    {
+        data << uint32(item->GetPaidExtendedCostId(i));
+        data << uint32(item->GetPaidExtendedCostCount(i));
+    }
+    data << uint32(0);
+    data << uint32(0);
+    SendPacket(&data);
+}
+
+void WorldSession::HandleItemRefund(WorldPacket &recv_data)
+{
+    sLog.outDebug("WORLD: CMSG_ITEM_REFUND");
+    uint64 guid;
+    recv_data >> guid;                                      // item guid
+
+    Item *item = _player->GetItemByGuid(guid);
+    if(!item)
+    {
+        sLog.outDebug("Item refund: item not found!");
+        return;
+    }
+
+    if(!item->HasFlag(ITEM_FIELD_FLAGS, ITEM_FLAGS_REFUNDABLE))
+    {
+        sLog.outDebug("Item refund: item not refundable!");
+        return;
+    }
+    
+    if(item->GetRefundExpiryTime() <= time(NULL))    // item refund has expired
+    {
+        WorldPacket data(SMSG_ITEM_REFUND);
+        data << uint64(guid);                       // guid
+        data << uint32(1);                          // error, abort refund
+        return;
+    }
+    
+    WorldPacket data(SMSG_ITEM_REFUND);
+    data << uint64(guid);                            // guid?
+    data << uint32(0);                               // must be 0 or client side error in refund
+    data << uint32(0);                               // unk - message sent to client?
+    data << uint32(item->GetPaidHonorPoints());      // honor points refund
+    data << uint32(item->GetPaidArenaPoints());      // arena points refund
+    for(uint32 i = 0; i < 5; ++i)                    // extended cost?
+    {
+        data << uint32(item->GetPaidExtendedCostId(i));
+        data << uint32(item->GetPaidExtendedCostCount(i));
+    }
+    SendPacket(&data);
+    
+    // Grant back extendedcost items
+    uint32 count = 0;
+    uint32 itemid = 0;
+    for(uint32 i = 0; i < 5; ++i)
+    {
+        count = item->GetPaidExtendedCostCount(i);
+        itemid = item->GetPaidExtendedCostId(i);
+        if (count && itemid)
+        {
+            ItemPosCountVec dest;
+            uint8 msg = _player->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, itemid, count);
+            if (msg == EQUIP_ERR_OK)
+            {
+                Item* it = _player->StoreNewItem(dest, itemid, true);
+                _player->SendNewItem(it, count, true, false, true);
+            }
+
+            // What to do if there's no space?
+        }
+    }
+    // Grant back Honor points
+    if (uint32 honorRefund = item->GetPaidHonorPoints() > 0)
+        _player->ModifyHonorPoints(honorRefund);
+        
+    // Grant back Arena points
+    if (uint32 arenaRefund = item->GetPaidArenaPoints() > 0)
+        _player->ModifyArenaPoints(arenaRefund);
+        
+    // Destroy item
+    _player->DestroyItemCount(item->GetEntry(), 1, true, true);
 }
