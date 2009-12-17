@@ -706,7 +706,7 @@ bool AuthSocket::_HandleLogonProof()
         sha.UpdateBigNumbers(&A, &M, &K, NULL);
         sha.Finalize();
 
-        if (_build == 8606 || _build == 9947 || _build == 10146)//2.4.3 and 3.1.3 clients (10146 is Chinese build for 3.1.3)
+        if (_build == 8606 || _build == 9947 || _build == 10146 || _build == 10505)//2.4.3, 3.1.3 and 3.2.2a clients (10146 is Chinese build for 3.1.3)
         {
             sAuthLogonProof_S proof;
             memcpy(proof.M2, sha.GetDigest(), 20);
@@ -909,7 +909,7 @@ bool AuthSocket::_HandleRealmList()
     RealmList built_realmList;
     for (rlm = m_realmList.begin(); rlm != m_realmList.end(); ++rlm)
     {
-        if (_build == 8606 || _build == 9947 || _build == 10146)//2.4.3 and 3.1.3 cliens
+        if (_build == 8606 || _build == 9947 || _build == 10146 || _build == 10505)//2.4.3, 3.1.3 and 3.2.2a clients
         {
             if (rlm->second.gamebuild == _build)
                 built_realmList.AddRealm(rlm->second);
@@ -925,7 +925,7 @@ bool AuthSocket::_HandleRealmList()
     ///- Circle through realms in the RealmList and construct the return packet (including # of user characters in each realm)
     ByteBuffer pkt;
     pkt << (uint32) 0;
-    if (_build == 8606 || _build == 9947 || _build == 10146)//only 2.4.3 and 3.1.3 cliens
+    if (_build == 8606 || _build == 9947 || _build == 10146 || _build == 10505)//only 2.4.3, 3.1.3 and 3.2.2a clients
         pkt << (uint16) built_realmList.size();
     else
         pkt << (uint32) built_realmList.size();
@@ -948,7 +948,7 @@ bool AuthSocket::_HandleRealmList()
         uint8 lock = (i->second.allowedSecurityLevel > _accountSecurityLevel) ? 1 : 0;
 
         pkt << i->second.icon;                             // realm type
-        if (i->second.gamebuild == 9947 || i->second.gamebuild == 10146 || i->second.gamebuild == 8606)//only 2.4.3 and 3.1.3 cliens
+        if (i->second.gamebuild == 10505 || i->second.gamebuild == 9947 || i->second.gamebuild == 10146 || i->second.gamebuild == 8606)//only 2.4.3, 3.1.3 and 3.2.2a clients
             pkt << lock;                                       // if 1, then realm locked
         pkt << i->second.color;                            // if 2, then realm is offline
         pkt << i->first;
@@ -956,13 +956,13 @@ bool AuthSocket::_HandleRealmList()
         pkt << i->second.populationLevel;
         pkt << AmountOfCharacters;
         pkt << i->second.timezone;                          // realm category
-        if (i->second.gamebuild == 9947 || i->second.gamebuild == 10146 || i->second.gamebuild == 8606)//2.4.3 and 3.1.3 clients
+        if (i->second.gamebuild == 10505 || i->second.gamebuild == 9947 || i->second.gamebuild == 10146 || i->second.gamebuild == 8606)//2.4.3, 3.1.3 and 3.2.2a clients
             pkt << (uint8) 0x2C;                                // unk, may be realm number/id?
         else
             pkt << (uint8) 0x0; //1.12.1 and 1.12.2 clients
     }
 
-    if (_build == 9947 || _build == 10146 || _build == 8606)//2.4.3 and 3.1.3 cliens
+    if (_build == 10505 || _build == 9947 || _build == 10146 || _build == 8606)//2.4.3, 3.1.3 and 3.2.2a clients
     {
         pkt << (uint8) 0x10;
         pkt << (uint8) 0x00;
