@@ -2393,9 +2393,6 @@ void World::UpdateSessions(uint32 diff)
         next = itr;
         ++next;
 
-        if (!itr->second)
-            continue;
-
         ///- and remove not active sessions from the list
         if (!itr->second->Update(diff))                      // As interval = 0
         {
