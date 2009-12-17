@@ -250,6 +250,7 @@ class BattleGroundMgr
         static uint8 BGArenaType(BattleGroundQueueTypeId bgQueueTypeId);
 
         static bool IsBGWeekend(BattleGroundTypeId bgTypeId);
+		void DoCompleteAchievement(uint32 achievement, Player * player = NULL);
     private:
         BattleMastersMap    mBattleMastersMap;
 
