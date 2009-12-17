@@ -29,6 +29,8 @@
 #include <map>
 #include "Utilities/UnorderedMap.h"
 #include "Database/DatabaseEnv.h"
+#include "DBCEnums.h"
+#include "ObjectDefines.h"
 
 struct InstanceTemplate;
 struct MapEntry;
@@ -50,7 +52,7 @@ class InstanceSave
            - any new instance is being generated
            - the first time a player bound to InstanceId logs in
            - when a group bound to the instance is loaded */
-        InstanceSave(uint16 MapId, uint32 InstanceId, uint8 difficulty, time_t resetTime, bool canReset);
+        InstanceSave(uint16 MapId, uint32 InstanceId, Difficulty difficulty, time_t resetTime, bool canReset);
 
         /* Unloaded when m_playerList and m_groupList become empty
            or when the instance is reset */
@@ -95,7 +97,7 @@ class InstanceSave
 
         /* currently it is possible to omit this information from this structure
            but that would depend on a lot of things that can easily change in future */
-        uint8 GetDifficulty() { return m_difficulty; }
+        Difficulty GetDifficulty() { return m_difficulty; }
 
         typedef std::list<Player*> PlayerListType;
         typedef std::list<Group*> GroupListType;
@@ -108,8 +110,8 @@ class InstanceSave
         GroupListType m_groupList;
         time_t m_resetTime;
         uint32 m_instanceid;
-        uint16 m_mapid;
-        uint8 m_difficulty;
+        uint32 m_mapid;
+        Difficulty m_difficulty;
         bool m_canReset;
 };
 
@@ -120,33 +122,44 @@ class MANGOS_DLL_DECL InstanceSaveManager : public MaNGOS::Singleton<InstanceSav
         InstanceSaveManager();
         ~InstanceSaveManager();
 
-        typedef std::map<uint32 /*InstanceId*/, InstanceSave*> InstanceSaveMap;
         typedef UNORDERED_MAP<uint32 /*InstanceId*/, InstanceSave*> InstanceSaveHashMap;
-        typedef std::map<uint32 /*mapId*/, InstanceSaveMap> InstanceSaveMapMap;
+        typedef UNORDERED_MAP<uint32 /*mapId*/, InstanceSaveHashMap> InstanceSaveMapMap;
 
         /* resetTime is a global propery of each (raid/heroic) map
            all instances of that map reset at the same time */
         struct InstResetEvent
         {
             uint8 type;
+            Difficulty difficulty:8;
             uint16 mapid;
             uint16 instanceId;
-            InstResetEvent(uint8 t = 0, uint16 m = 0, uint16 i = 0) : type(t), mapid(m), instanceId(i) {}
+
+            InstResetEvent() : type(0), difficulty(DUNGEON_DIFFICULTY_NORMAL), mapid(0), instanceId(0) {}
+            InstResetEvent(uint8 t, uint32 _mapid, Difficulty d, uint16 _instanceid)
+                : type(t), difficulty(d), mapid(_mapid), instanceId(_instanceid) {}
             bool operator == (const InstResetEvent& e) { return e.instanceId == instanceId; }
         };
         typedef std::multimap<time_t /*resetTime*/, InstResetEvent> ResetTimeQueue;
-        typedef std::vector<time_t /*resetTime*/> ResetTimeVector;
+        typedef UNORDERED_MAP<uint32 /*PAIR32(map,difficulty)*/,time_t /*resetTime*/> ResetTimeByMapDifficultyMap;
 
         void CleanupInstances();
         void PackInstances();
 
         void LoadResetTimes();
-        time_t GetResetTimeFor(uint32 mapid) { return m_resetTimeByMapId[mapid]; }
+        time_t GetResetTimeFor(uint32 mapid, Difficulty d) const
+        {
+            ResetTimeByMapDifficultyMap::const_iterator itr  = m_resetTimeByMapDifficulty.find(MAKE_PAIR32(mapid,d));
+            return itr != m_resetTimeByMapDifficulty.end() ? itr->second : 0;
+        }
+        void SetResetTimeFor(uint32 mapid, Difficulty d, time_t t)
+        {
+            m_resetTimeByMapDifficulty[MAKE_PAIR32(mapid,d)] = t;
+        }
         void ScheduleReset(bool add, time_t time, InstResetEvent event);
 
         void Update();
 
-        InstanceSave* AddInstanceSave(uint32 mapId, uint32 instanceId, uint8 difficulty, time_t resetTime, bool canReset, bool load = false);
+        InstanceSave* AddInstanceSave(uint32 mapId, uint32 instanceId, Difficulty difficulty, time_t resetTime, bool canReset, bool load = false);
         void RemoveInstanceSave(uint32 InstanceId);
         static void DeleteInstanceFromDB(uint32 instanceid);
 
@@ -158,7 +171,7 @@ class MANGOS_DLL_DECL InstanceSaveManager : public MaNGOS::Singleton<InstanceSav
         uint32 GetNumBoundGroupsTotal();
 
     private:
-        void _ResetOrWarnAll(uint32 mapid, bool warn, uint32 timeleft);
+        void _ResetOrWarnAll(uint32 mapid, Difficulty difficulty, bool warn, uint32 timeleft);
         void _ResetInstance(uint32 mapid, uint32 instanceId);
         void _ResetSave(InstanceSaveHashMap::iterator &itr);
         void _DelHelper(DatabaseType &db, const char *fields, const char *table, const char *queryTail,...);
@@ -166,11 +179,10 @@ class MANGOS_DLL_DECL InstanceSaveManager : public MaNGOS::Singleton<InstanceSav
         bool lock_instLists;
         // fast lookup by instance id
         InstanceSaveHashMap m_instanceSaveById;
-        // fast lookup for reset times
-        ResetTimeVector m_resetTimeByMapId;
+        // fast lookup for reset times (always use existed functions for access/set)
+        ResetTimeByMapDifficultyMap m_resetTimeByMapDifficulty;
         ResetTimeQueue m_resetTimeQueue;
 };
 
 #define sInstanceSaveManager Trinity::Singleton<InstanceSaveManager>::Instance()
 #endif
-

@@ -328,4 +328,3 @@ class TRINITY_DLL_SPEC Item : public Object
         bool mb_in_trade;                                   // true if item is currently in trade-window
 };
 #endif
-
