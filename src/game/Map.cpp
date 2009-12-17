@@ -683,11 +683,20 @@ void Map::RemoveUnitFromNotify(Unit *unit)
         else if(slot < i_unitsToNotify.size() && i_unitsToNotify[slot] == unit)
             i_unitsToNotify[slot] = NULL;
         else
-            assert(false);
+        {
+            sLog.outError("Map::RemoveUnitFromNotify(Unit*) unit has incorrect notify slot=%d, cleaning up",slot);
+            unit->m_NotifyListPos = -1;
+            return;
+        }
     }
     else
     {
-        assert(slot < i_unitsToNotify.size());
+        if(slot >= i_unitsToNotify.size())
+        {
+            sLog.outError("Map::RemoveUnitFromNotify(Unit*) unit has incorrect notify slot=%d, cleaning up", slot);
+            unit->m_NotifyListPos = -1;
+            return;
+        }
         i_unitsToNotify[slot] = NULL;
     }
 
@@ -2584,7 +2593,7 @@ bool InstanceMap::Add(Player *player)
                 if(playerBind->save != mapSave)
                 {
                     sLog.outError("InstanceMap::Add: player %s(%d) is permanently bound to instance %d,%d,%d,%d,%d,%d but he is being put in instance %d,%d,%d,%d,%d,%d", player->GetName(), player->GetGUIDLow(), playerBind->save->GetMapId(), playerBind->save->GetInstanceId(), playerBind->save->GetDifficulty(), playerBind->save->GetPlayerCount(), playerBind->save->GetGroupCount(), playerBind->save->CanReset(), mapSave->GetMapId(), mapSave->GetInstanceId(), mapSave->GetDifficulty(), mapSave->GetPlayerCount(), mapSave->GetGroupCount(), mapSave->CanReset());
-                    assert(false);
+                    return false;
                 }
             }
             else
@@ -2618,7 +2627,7 @@ bool InstanceMap::Add(Player *player)
                                 sLog.outError("GroupBind save players: %d, group count: %d", groupBind->save->GetPlayerCount(), groupBind->save->GetGroupCount());
                             else
                                 sLog.outError("GroupBind save NULL");
-                            assert(false);
+                            return false;
                         }
                         // if the group/leader is permanently bound to the instance
                         // players also become permanently bound when they enter

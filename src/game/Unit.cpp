@@ -4481,7 +4481,9 @@ GameObject* Unit::GetGameObject(uint32 spellId) const
 
 void Unit::AddGameObject(GameObject* gameObj)
 {
-    assert(gameObj && gameObj->GetOwnerGUID()==0);
+    if(!gameObj || !gameObj->GetOwnerGUID()==0)
+       return;
+
     m_gameObj.push_back(gameObj);
     gameObj->SetOwnerGUID(GetGUID());
 
@@ -4497,7 +4499,8 @@ void Unit::AddGameObject(GameObject* gameObj)
 
 void Unit::RemoveGameObject(GameObject* gameObj, bool del)
 {
-    assert(gameObj && gameObj->GetOwnerGUID()==GetGUID());
+    if(!gameObj || !gameObj->GetOwnerGUID()==GetGUID())
+       return;
 
     gameObj->SetOwnerGUID(0);
 
