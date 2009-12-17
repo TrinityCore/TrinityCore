@@ -365,4 +365,3 @@ inline void LoadLootTables()
 }
 
 #endif
-

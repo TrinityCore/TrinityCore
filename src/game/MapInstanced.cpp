@@ -26,7 +26,7 @@
 #include "InstanceSaveMgr.h"
 #include "World.h"
 
-MapInstanced::MapInstanced(uint32 id, time_t expiry) : Map(id, expiry, 0, 0)
+MapInstanced::MapInstanced(uint32 id, time_t expiry) : Map(id, expiry, 0, DUNGEON_DIFFICULTY_NORMAL)
 {
     // initialize instanced maps list
     m_InstancedMaps.clear();
@@ -40,7 +40,9 @@ void MapInstanced::InitVisibilityDistance()
         return;
     //initialize visibility distances for all instance copies
     for (InstancedMaps::iterator i = m_InstancedMaps.begin(); i != m_InstancedMaps.end(); ++i)
+    {
         (*i).second->InitVisibilityDistance();
+    }
 }
 
 void MapInstanced::Update(const uint32& t)
@@ -118,46 +120,63 @@ void MapInstanced::UnloadAll()
 - create the instance if it's not created already
 - the player is not actually added to the instance (only in InstanceMap::Add)
 */
-Map* MapInstanced::CreateInstance(const uint32 mapId, Player * player, uint32 instanceId)
+Map* MapInstanced::CreateInstance(const uint32 mapId, Player * player)
 {
-    if(instanceId)
-        if(Map *map = _FindMap(instanceId))
-            return map;
+    if(GetId() != mapId || !player)
+        return NULL;
+
+    Map* map = NULL;
+    uint32 NewInstanceId = 0;                       // instanceId of the resulting map
 
     if(IsBattleGroundOrArena())
     {
-        instanceId = player->GetBattleGroundId();
-        if(instanceId)
-            if(Map *map = _FindMap(instanceId))
-                return map;
-        return CreateBattleGround(instanceId);
+        // instantiate or find existing bg map for player
+        // the instance id is set in battlegroundid
+        NewInstanceId = player->GetBattleGroundId();
+        if(!NewInstanceId) return NULL;
+        map = _FindMap(NewInstanceId);
+        if(!map)
+            map = CreateBattleGround(NewInstanceId, player->GetBattleGround());
     }
-    else if(InstanceSave *pSave = player->GetInstanceSave(GetId()))
+    else
     {
-        if(!instanceId)
+        InstancePlayerBind *pBind = player->GetBoundInstance(GetId(), player->GetDifficulty(IsRaid()));
+        InstanceSave *pSave = pBind ? pBind->save : NULL;
+
+        // the player's permanent player bind is taken into consideration first
+        // then the player's group bind and finally the solo bind.
+        if(!pBind || !pBind->perm)
         {
-            instanceId = pSave->GetInstanceId(); // go from outside to instance
-            if(Map *map = _FindMap(instanceId))
-                return map;
+            InstanceGroupBind *groupBind = NULL;
+            Group *group = player->GetGroup();
+            // use the player's difficulty setting (it may not be the same as the group's)
+            if(group && (groupBind = group->GetBoundInstance(this)))
+                pSave = groupBind->save;
         }
-        else if(instanceId != pSave->GetInstanceId()) // cannot go from one instance to another
-            return NULL;
-        // else log in at a saved instance
+        if(pSave)
+        {
+            // solo/perm/group
+            NewInstanceId = pSave->GetInstanceId();
+            map = _FindMap(NewInstanceId);
+            // it is possible that the save exists but the map doesn't
+            if(!map)
+                map = CreateInstance(NewInstanceId, pSave, pSave->GetDifficulty());
+        }
+        else
+        {
+            // if no instanceId via group members or instance saves is found
+            // the instance will be created for the first time
+            NewInstanceId = MapManager::Instance().GenerateInstanceId();
 
-        return CreateInstance(instanceId, pSave, pSave->GetDifficulty());
+            Difficulty diff = player->GetGroup() ? player->GetGroup()->GetDifficulty(IsRaid()) : player->GetDifficulty(IsRaid());
+            map = CreateInstance(NewInstanceId, NULL, diff);
+        }
     }
-    else if(!player->GetSession()->PlayerLoading())
-    {
-        if(!instanceId)
-            instanceId = MapManager::Instance().GenerateInstanceId();
 
-        return CreateInstance(instanceId, NULL, player->GetDifficulty());
-    }
-
-    return NULL;
+    return map;
 }
 
-InstanceMap* MapInstanced::CreateInstance(uint32 InstanceId, InstanceSave *save, uint8 difficulty)
+InstanceMap* MapInstanced::CreateInstance(uint32 InstanceId, InstanceSave *save, Difficulty difficulty)
 {
     // load/create a map
     Guard guard(*this);
@@ -177,7 +196,9 @@ InstanceMap* MapInstanced::CreateInstance(uint32 InstanceId, InstanceSave *save,
     }
 
     // some instances only have one difficulty
-    if (entry && !entry->SupportsHeroicMode()) difficulty = DIFFICULTY_NORMAL;
+    MapDifficulty const* mapDiff = GetMapDifficultyData(GetId(),difficulty);
+    if (!mapDiff)
+        difficulty = DUNGEON_DIFFICULTY_NORMAL;
 
     sLog.outDebug("MapInstanced::CreateInstance: %s map instance %d for %d created with difficulty %s", save?"":"new ", InstanceId, GetId(), difficulty?"heroic":"normal");
 
@@ -191,15 +212,21 @@ InstanceMap* MapInstanced::CreateInstance(uint32 InstanceId, InstanceSave *save,
     return map;
 }
 
-BattleGroundMap* MapInstanced::CreateBattleGround(uint32 InstanceId)
+BattleGroundMap* MapInstanced::CreateBattleGround(uint32 InstanceId, BattleGround* bg)
 {
     // load/create a map
     Guard guard(*this);
 
     sLog.outDebug("MapInstanced::CreateBattleGround: map bg %d for %d created.", InstanceId, GetId());
 
-    BattleGroundMap *map = new BattleGroundMap(GetId(), GetGridExpiry(), InstanceId, this);
+    // 0-59 normal spawn 60-69 difficulty_1, 70-79 difficulty_2, 80 dufficulty_3
+    uint8 spawnMode = (bg->GetQueueId() > QUEUE_ID_MAX_LEVEL_59) ? (bg->GetQueueId() - QUEUE_ID_MAX_LEVEL_59) : 0;
+    while (!GetMapDifficultyData(GetId(), Difficulty(spawnMode)))
+        spawnMode--;
+    BattleGroundMap *map = new BattleGroundMap(GetId(), GetGridExpiry(), InstanceId, this, spawnMode);
     ASSERT(map->IsBattleGroundOrArena());
+    map->SetBG(bg);
+    bg->SetBgMap(map);
 
     m_InstancedMaps[InstanceId] = map;
     return map;
@@ -235,4 +262,3 @@ bool MapInstanced::CanEnter(Player *player)
     //assert(false);
     return true;
 }
-

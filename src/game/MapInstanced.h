@@ -23,6 +23,7 @@
 
 #include "Map.h"
 #include "InstanceSaveMgr.h"
+#include "DBCEnums.h"
 
 class TRINITY_DLL_DECL MapInstanced : public Map
 {
@@ -41,7 +42,7 @@ class TRINITY_DLL_DECL MapInstanced : public Map
         void UnloadAll();
         bool CanEnter(Player* player);
 
-        Map* CreateInstance(const uint32 mapId, Player * player, uint32 instanceId);
+        Map* CreateInstance(const uint32 mapId, Player * player);
         Map* FindMap(uint32 InstanceId) const { return _FindMap(InstanceId); }
         bool DestroyInstance(InstancedMaps::iterator &itr);
 
@@ -63,8 +64,8 @@ class TRINITY_DLL_DECL MapInstanced : public Map
 
     private:
 
-        InstanceMap* CreateInstance(uint32 InstanceId, InstanceSave *save, uint8 difficulty);
-        BattleGroundMap* CreateBattleGround(uint32 InstanceId);
+        InstanceMap* CreateInstance(uint32 InstanceId, InstanceSave *save, Difficulty difficulty);
+        BattleGroundMap* CreateBattleGround(uint32 InstanceId, BattleGround* bg);
 
         InstancedMaps m_InstancedMaps;
 
@@ -77,4 +78,3 @@ class TRINITY_DLL_DECL MapInstanced : public Map
         uint16 GridMapReference[MAX_NUMBER_OF_GRIDS][MAX_NUMBER_OF_GRIDS];
 };
 #endif
-
