@@ -33,11 +33,7 @@
 #include "Timer.h"
 #include "WorldRunnable.h"
 
-#if (defined(WIN32) || defined(SHORT_SLEEP))
 #define WORLD_SLEEP_CONST 50
-#else
-#define WORLD_SLEEP_CONST 100                               //Is this still needed?? [On linux some time ago not working 50ms]
-#endif
 
 #ifdef WIN32
 #include "ServiceWin32.h"
