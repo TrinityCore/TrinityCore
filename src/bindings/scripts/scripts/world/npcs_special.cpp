@@ -1491,40 +1491,64 @@ CreatureAI* GetAI_npc_tonk_mine(Creature* pCreature)
 }
 
 /*####
+## npc_brewfest_reveler
+####*/
+
+struct TRINITY_DLL_DECL npc_brewfest_revelerAI : public ScriptedAI
+{
+    npc_brewfest_revelerAI(Creature* c) : ScriptedAI(c) {}
+    void ReceiveEmote(Player* pPlayer, uint32 emote)
+    {
+        if (!IsHolidayActive(HOLIDAY_BREWFEST))
+            return;
+ 
+        if (emote == TEXTEMOTE_DANCE)
+            m_creature->CastSpell(pPlayer, 41586, false);
+    }
+};
+
+CreatureAI* GetAI_npc_brewfest_reveler(Creature* pCreature)
+{
+    return new npc_brewfest_revelerAI(pCreature);
+}
+
+/*####
 ## npc_winter_reveler
 ####*/
 
-bool ReceiveEmote_npc_winter_reveler(Player* pPlayer, Creature* pCreature, uint32 emote)
+struct TRINITY_DLL_DECL npc_winter_revelerAI : public ScriptedAI
 {
     //TODO: check auralist.
     if (pPlayer->HasAura(26218))
         return false;
-
-    if (emote == TEXTEMOTE_KISS)
+    npc_winter_revelerAI(Creature* c) : ScriptedAI(c) {}
+    void ReceiveEmote(Player* pPlayer, uint32 emote)
     {
-        pCreature->CastSpell(pCreature, 26218, false);
-        pPlayer->CastSpell(pPlayer, 26218, false);
-        switch (urand(0,2))
+        if (!IsHolidayActive(HOLIDAY_FEAST_OF_WINTER_VEIL))
+            return;
+        //TODO: check auralist.
+        if (pPlayer->HasAura(26218))
+            return;
+
+        if (emote == TEXTEMOTE_KISS)
         {
-            case 0: pCreature->CastSpell(pPlayer, 26207, false); break;
-            case 1: pCreature->CastSpell(pPlayer, 26206, false); break;
-            case 2: pCreature->CastSpell(pPlayer, 45036, false); break;
+            m_creature->CastSpell(m_creature, 26218, false);
+            pPlayer->CastSpell(pPlayer, 26218, false);
+            switch (urand(0,2))
+            {
+                case 0: m_creature->CastSpell(pPlayer, 26207, false); break;
+                case 1: m_creature->CastSpell(pPlayer, 26206, false); break;
+                case 2: m_creature->CastSpell(pPlayer, 45036, false); break;
+            }
         }
     }
-    return true;
-}
+};
 
-/*####
-## npc_brewfest_reveler
-####*/
-
-bool ReceiveEmote_npc_brewfest_reveler(Player* pPlayer, Creature* pCreature, uint32 emote)
+CreatureAI* GetAI_npc_winter_reveler(Creature* pCreature)
 {
-    if (emote == TEXTEMOTE_DANCE)
-        pCreature->CastSpell(pPlayer, 41586, false);
-
-    return true;
+    return new npc_winter_revelerAI(pCreature);
 }
+
 
 /*####
 ## npc_snake_trap_serpents
@@ -2016,12 +2040,12 @@ void AddSC_npcs_special()
 
     newscript = new Script;
     newscript->Name = "npc_winter_reveler";
-    //newscript->pReceiveEmote =  &ReceiveEmote_npc_winter_reveler;
+    newscript->GetAI = &GetAI_npc_winter_reveler;
     newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name = "npc_brewfest_reveler";
-    //newscript->pReceiveEmote =  &ReceiveEmote_npc_brewfest_reveler;
+    newscript->GetAI = &GetAI_npc_winter_reveler;
     newscript->RegisterSelf();
 
     newscript = new Script;
