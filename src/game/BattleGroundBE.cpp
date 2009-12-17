@@ -82,7 +82,7 @@ void BattleGroundBE::AddPlayer(Player *plr)
 
     m_PlayerScores[plr->GetGUID()] = sc;
 
-    UpdateArenaUnitWorldState();
+    UpdateArenaWorldState();
 }
 
 void BattleGroundBE::RemovePlayer(Player* /*plr*/, uint64 /*guid*/)
@@ -90,7 +90,7 @@ void BattleGroundBE::RemovePlayer(Player* /*plr*/, uint64 /*guid*/)
     if (GetStatus() == STATUS_WAIT_LEAVE)
         return;
 
-    UpdateArenaUnitWorldState();
+    UpdateArenaWorldState();
     CheckArenaWinConditions();
 }
 
@@ -107,7 +107,7 @@ void BattleGroundBE::HandleKillPlayer(Player *player, Player *killer)
 
     BattleGround::HandleKillPlayer(player,killer);
 
-    UpdateArenaUnitWorldState();
+    UpdateArenaWorldState();
     CheckArenaWinConditions();
 }
 
@@ -146,8 +146,7 @@ void BattleGroundBE::HandleAreaTrigger(Player *Source, uint32 Trigger)
 void BattleGroundBE::FillInitialWorldStates(WorldPacket &data)
 {
     data << uint32(0x9f3) << uint32(1);           // 9
-
-    UpdateArenaUnitWorldState();
+    UpdateArenaWorldState();
 }
 
 void BattleGroundBE::Reset()
@@ -200,4 +199,3 @@ spell 32725 - Green Team
 35774 Gold Team
 35775 Green Team
 */
-
