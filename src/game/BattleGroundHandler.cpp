@@ -36,7 +36,7 @@
 #include "Opcodes.h"
 
 // Temporal fix to wintergrasp spirit guides till 3.2
-#include "OutdoorPvPWG.h"
+#include "Wintergrasp.h"
 #include "OutdoorPvPMgr.h"
 // WG end
 
@@ -285,7 +285,10 @@ void WorldSession::HandleBattlefieldListOpcode( WorldPacket &recv_data )
     recv_data >> bgTypeId;                                  // id from DBC
 
     uint8 fromWhere;
-    recv_data >> fromWhere;                                 // 0 - battlemaster, 1 - UI
+    recv_data >> fromWhere;                                 // 0 - battlemaster (lua: ShowBattlefieldList), 1 - UI (lua: RequestBattlegroundInstanceInfo)
+    
+    uint8 unk1;
+    recv_data >> unk1;                                       // Unknown 3.2.2
 
     BattlemasterListEntry const* bl = sBattlemasterListStore.LookupEntry(bgTypeId);
     if (!bl)
@@ -601,7 +604,7 @@ void WorldSession::HandleAreaSpiritHealerQueryOpcode( WorldPacket & recv_data )
     {  // Wintergrasp Hack till 3.2 and it's implemented as BG
         if (GetPlayer()->GetZoneId() == 4197)
         {
-            OutdoorPvPWG *pvpWG = (OutdoorPvPWG*)sOutdoorPvPMgr.GetOutdoorPvPToZoneId(4197);
+            OPvPWintergrasp *pvpWG = (OPvPWintergrasp*)sOutdoorPvPMgr.GetOutdoorPvPToZoneId(4197);
             if (pvpWG && pvpWG->isWarTime())
                 pvpWG->SendAreaSpiritHealerQueryOpcode(_player, guid);
         }
@@ -632,7 +635,7 @@ void WorldSession::HandleAreaSpiritHealerQueueOpcode( WorldPacket & recv_data )
     {  // Wintergrasp Hack till 3.2 and it's implemented as BG
         if (GetPlayer()->GetZoneId() == 4197)
         {
-            OutdoorPvPWG *pvpWG = (OutdoorPvPWG*)sOutdoorPvPMgr.GetOutdoorPvPToZoneId(4197);
+            OPvPWintergrasp *pvpWG = (OPvPWintergrasp*)sOutdoorPvPMgr.GetOutdoorPvPToZoneId(4197);
             if (pvpWG && pvpWG->isWarTime())
                 pvpWG->AddPlayerToResurrectQueue(guid, _player->GetGUID());
         }
@@ -742,7 +745,7 @@ void WorldSession::HandleBattlemasterJoinArena( WorldPacket & recv_data )
             Player *member = itr->getSource();
 
             // calc avg personal rating
-            avg_pers_rating += member->GetUInt32Value(PLAYER_FIELD_ARENA_TEAM_INFO_1_1 + (arenaslot*6) + 5);
+            avg_pers_rating += member->GetUInt32Value(PLAYER_FIELD_ARENA_TEAM_INFO_1_1 + (arenaslot * ARENA_TEAM_END) + ARENA_TEAM_PERSONAL_RATING);
         }
 
         if (arenatype)

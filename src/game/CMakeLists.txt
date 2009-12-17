@@ -23,10 +23,12 @@ SET(game_STAT_SRCS
    BattleGround.cpp
    BattleGroundAA.cpp
    BattleGroundAB.cpp
+   BattleGroundABG.cpp
    BattleGroundAV.cpp
    BattleGroundBE.cpp
    BattleGroundDS.cpp
    BattleGroundEY.cpp
+   BattleGroundIC.cpp
    BattleGroundNA.cpp
    BattleGroundRL.cpp
    BattleGroundRV.cpp
@@ -35,10 +37,12 @@ SET(game_STAT_SRCS
    BattleGround.h
    BattleGroundAA.h
    BattleGroundAB.h
+   BattleGroundABG.h
    BattleGroundAV.h
    BattleGroundBE.h
    BattleGroundDS.h
    BattleGroundEY.h
+   BattleGroundIC.h
    BattleGroundNA.h
    BattleGroundRL.h
    BattleGroundRV.h
