@@ -1518,9 +1518,6 @@ CreatureAI* GetAI_npc_brewfest_reveler(Creature* pCreature)
 
 struct TRINITY_DLL_DECL npc_winter_revelerAI : public ScriptedAI
 {
-    //TODO: check auralist.
-    if (pPlayer->HasAura(26218))
-        return false;
     npc_winter_revelerAI(Creature* c) : ScriptedAI(c) {}
     void ReceiveEmote(Player* pPlayer, uint32 emote)
     {
