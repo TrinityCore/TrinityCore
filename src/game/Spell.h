@@ -734,11 +734,11 @@ namespace Trinity
                             i_data->push_back(target);
                         break;
                     case PUSH_IN_FRONT:
-                        if(i_source->isInFrontInMap(target, i_radius, M_PI/3))
+                        if(i_source->isInFront(target, i_radius, M_PI/3))
                             i_data->push_back(target);
                         break;
                     case PUSH_IN_BACK:
-                        if(i_source->isInBackInMap(target, i_radius, M_PI/3))
+                        if(i_source->isInBack(target, i_radius, M_PI/3))
                             i_data->push_back(target);
                         break;
                     case PUSH_IN_LINE:
