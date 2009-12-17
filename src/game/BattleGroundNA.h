@@ -74,4 +74,3 @@ class BattleGroundNA : public BattleGround
         bool HandlePlayerUnderMap(Player * plr);
 };
 #endif
-

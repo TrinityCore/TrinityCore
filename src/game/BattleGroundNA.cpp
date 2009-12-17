@@ -79,7 +79,7 @@ void BattleGroundNA::AddPlayer(Player *plr)
 
     m_PlayerScores[plr->GetGUID()] = sc;
 
-    UpdateArenaUnitWorldState();
+    UpdateArenaWorldState();
 }
 
 void BattleGroundNA::RemovePlayer(Player* /*plr*/, uint64 /*guid*/)
@@ -87,7 +87,7 @@ void BattleGroundNA::RemovePlayer(Player* /*plr*/, uint64 /*guid*/)
     if (GetStatus() == STATUS_WAIT_LEAVE)
         return;
 
-    UpdateArenaUnitWorldState();
+    UpdateArenaWorldState();
     CheckArenaWinConditions();
 }
 
@@ -104,7 +104,7 @@ void BattleGroundNA::HandleKillPlayer(Player *player, Player *killer)
 
     BattleGround::HandleKillPlayer(player,killer);
 
-    UpdateArenaUnitWorldState();
+    UpdateArenaWorldState();
     CheckArenaWinConditions();
 }
 
@@ -138,9 +138,8 @@ void BattleGroundNA::HandleAreaTrigger(Player *Source, uint32 Trigger)
 
 void BattleGroundNA::FillInitialWorldStates(WorldPacket &data)
 {
-    data << uint32(0xa11) << uint32(1);
-
-    UpdateArenaUnitWorldState();
+    data << uint32(0xa11) << uint32(1);           // 9
+    UpdateArenaWorldState();
 }
 
 void BattleGroundNA::Reset()
@@ -176,4 +175,3 @@ bool BattleGroundNA::SetupBattleGround()
 0040: 00 00 00 00 00 00 d5 08 00 00 00 00 00 00 d3 08  |  ................
 0050: 00 00 00 00 00 00                                |  ......
 */
-

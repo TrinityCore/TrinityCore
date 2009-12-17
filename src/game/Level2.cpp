@@ -4250,7 +4250,7 @@ bool ChatHandler::HandleWintergraspStatusCommand(const char* args)
     }
 
     PSendSysMessage(LANG_BG_WG_STATUS, objmgr.GetTrinityStringForDBCLocale(
-        pvpWG->GetTeam() == TEAM_ALLIANCE ? LANG_BG_AB_ALLY : LANG_BG_AB_HORDE),
+        pvpWG->getDefenderTeam() == TEAM_ALLIANCE ? LANG_BG_AB_ALLY : LANG_BG_AB_HORDE),
         secsToTimeString(pvpWG->GetTimer(), true).c_str(),
         pvpWG->isWarTime() ? "Yes" : "No",
         pvpWG->GetNumPlayersH(),

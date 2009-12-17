@@ -823,7 +823,7 @@ bool ChatHandler::HandleDebugSendSetPhaseShiftCommand(const char* args)
     return true;
 }
 
-bool ChatHandler::HandleDebugSetItemFlagCommand(const char* args)
+bool ChatHandler::HandleDebugGetItemValueCommand(const char* args)
 {
     if (!*args)
         return false;
@@ -835,14 +835,48 @@ bool ChatHandler::HandleDebugSetItemFlagCommand(const char* args)
         return false;
 
     uint32 guid = (uint32)atoi(e);
-    uint32 flag = (uint32)atoi(f);
+    uint32 index = (uint32)atoi(f);
 
     Item *i = m_session->GetPlayer()->GetItemByGuid(MAKE_NEW_GUID(guid, 0, HIGHGUID_ITEM));
 
     if (!i)
         return false;
 
-    i->SetUInt32Value(ITEM_FIELD_FLAGS, flag);
+    if (index >= i->GetValuesCount())
+        return false;
+
+    uint32 value = i->GetUInt32Value(index);
+
+    PSendSysMessage("Item %u: value at %u is %u", guid, index, value);
+
+    return true;
+}
+
+bool ChatHandler::HandleDebugSetItemValueCommand(const char* args)
+{
+    if (!*args)
+        return false;
+
+    char* e = strtok((char*)args, " ");
+    char* f = strtok(NULL, " ");
+    char* g = strtok(NULL, " ");
+
+    if (!e || !f || !g)
+        return false;
+
+    uint32 guid = (uint32)atoi(e);
+    uint32 index = (uint32)atoi(f);
+    uint32 value = (uint32)atoi(g);
+
+    Item *i = m_session->GetPlayer()->GetItemByGuid(MAKE_NEW_GUID(guid, 0, HIGHGUID_ITEM));
+
+    if (!i)
+        return false;
+
+    if (index >= i->GetValuesCount())
+        return false;
+
+    i->SetUInt32Value(index, value);
 
     return true;
 }

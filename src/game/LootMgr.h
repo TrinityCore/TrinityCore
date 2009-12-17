@@ -33,7 +33,8 @@ enum RollType
 {
     ROLL_PASS         = 0,
     ROLL_NEED         = 1,
-    ROLL_GREED        = 2
+    ROLL_GREED        = 2,
+    MAX_ROLL_TYPE     = 3
 };
 
 #define MAX_NR_LOOT_ITEMS 16
