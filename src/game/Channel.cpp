@@ -298,6 +298,7 @@ void Channel::KickOrBan(uint64 good, const char *badname, bool ban)
                 banned.insert(bad->GetGUID());
                 MakePlayerBanned(&data, bad->GetGUID(), good);
                 _UpdateBanListInDB();
+
             }
             else
                 MakePlayerKicked(&data, bad->GetGUID(), good);
@@ -351,6 +352,7 @@ void Channel::UnBan(uint64 good, const char *badname)
             WorldPacket data;
             MakePlayerUnbanned(&data, bad->GetGUID(), good);
             SendToAll(&data);
+            //save banlist
             _UpdateBanListInDB();
         }
     }
@@ -592,6 +594,7 @@ void Channel::Announce(uint64 p)
         SendToAll(&data);
         if (m_IsSaved && _UpdateIntInDB("m_announce", m_announce ? 1 : 0))
             sLog.outDebug("Channel(%s) announce saved", m_name.c_str());
+
     }
 }
 
@@ -624,8 +627,8 @@ void Channel::Moderate(uint64 p)
         else
             MakeModerationOff(&data, p);
         SendToAll(&data);
-        if (m_IsSaved && _UpdateIntInDB("m_moderate", m_moderate ? 1 : 0))
-            sLog.outDebug("Channel(%s) moderate saved", m_name.c_str());
+        if (m_IsSaved && _UpdateIntInDB("m_announce", m_announce ? 1 : 0))
+            sLog.outDebug("Channel(%s) announce saved", m_name.c_str());
     }
 }
 
@@ -754,15 +757,8 @@ void Channel::SetOwner(uint64 guid, bool exclaim)
             MakeOwnerChanged(&data, m_ownerGUID);
             SendToAll(&data);
         }
-        /*if(m_IsSaved)
-        {
-            std::ostringstream ss;
-            ss << "UPDATE channels SET m_ownerGUID = '" << guid << "' WHERE m_name = '"<<m_name.c_str()<<"' AND m_team = '"<<m_Team<<"'";
-            if(CharacterDatabase.PExecute( ss.str( ).c_str( ) ))
-            {
-                sLog.outDebug("Channel(%s) owner saved", m_name.c_str());
-            }
-        }*/
+        if (m_IsSaved && _UpdateIntInDB("m_moderate", m_moderate ? 1 : 0))
+            sLog.outDebug("Channel(%s) moderate saved", m_name.c_str());
 
     }
 }

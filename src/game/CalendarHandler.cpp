@@ -45,7 +45,7 @@ void WorldSession::HandleCalendarGetCalendar(WorldPacket &recv_data)
     size_t p_counter = data.wpos();
     data << uint32(counter);                                // instance save count
 
-    for (int i = 0; i < TOTAL_DIFFICULTIES; ++i)
+    for (int i = 0; i < MAX_DIFFICULTY; ++i)
     {
         for (Player::BoundInstancesMap::const_iterator itr = _player->m_boundInstances[i].begin(); itr != _player->m_boundInstances[i].end(); ++itr)
         {
