@@ -1148,7 +1148,7 @@ void Player::Update( uint32 p_time )
         //sLog.outCrash("Player has m_pad %u during update!", m_pad);
         //if(m_spellModTakingSpell)
             sLog.outCrash("Player has m_spellModTakingSpell %u during update!", m_spellModTakingSpell->m_spellInfo->Id);
-        assert(false);
+        return;
         m_spellModTakingSpell = NULL;
     }
 

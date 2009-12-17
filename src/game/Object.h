@@ -237,7 +237,8 @@ class TRINITY_DLL_SPEC Object
 
         bool HasFlag( uint16 index, uint32 flag ) const
         {
-            ASSERT( index < m_valuesCount || PrintIndexError( index , false ) );
+            if(index >= m_valuesCount && !PrintIndexError(index , false))
+               return false;
             return (m_uint32Values[ index ] & flag) != 0;
         }
 
