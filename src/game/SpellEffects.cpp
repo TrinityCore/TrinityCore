@@ -2810,6 +2810,19 @@ void Spell::SpellDamageHeal(uint32 /*i*/)
             //addhealth += tickheal * tickcount;
             //addhealth = caster->SpellHealingBonus(m_spellInfo, addhealth,HEAL, unitTarget);
         }
+        // Glyph of Nourish
+        else if (m_spellInfo->SpellFamilyName == SPELLFAMILY_DRUID && m_spellInfo->SpellFamilyFlags[1] & 0x2000000)
+        {
+            addhealth = caster->SpellHealingBonus(unitTarget, m_spellInfo, addhealth, HEAL);
+
+            Unit::AuraEffectList const& Periodic = unitTarget->GetAurasByType(SPELL_AURA_PERIODIC_HEAL);
+            for (Unit::AuraEffectList::const_iterator i = Periodic.begin(); i != Periodic.end(); ++i)
+            {
+                if (m_caster->HasAura(62971))
+                    if (m_caster->GetGUID() == (*i)->GetCasterGUID())
+                        addhealth += addhealth * (*i)->GetParentAura()->GetStackAmount() * 0.06f;
+            }
+        }
         // Riptide - increase healing done by Chain Heal
         else if (m_spellInfo->SpellFamilyName==SPELLFAMILY_SHAMAN && m_spellInfo->SpellFamilyFlags[0] & 0x100)
         {
