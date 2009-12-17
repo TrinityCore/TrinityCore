@@ -389,6 +389,7 @@ class Guild
         // ** Guild bank **
         // Content & item deposit/withdraw
         void   DisplayGuildBankContent(WorldSession *session, uint8 TabId);
+        void   DisplayGuildBankMoneyUpdate();
 
         void   SwapItems( Player * pl, uint8 BankTab, uint8 BankTabSlot, uint8 BankTabDst, uint8 BankTabSlotDst, uint32 SplitedAmount);
         void   MoveFromBankToChar( Player * pl, uint8 BankTab, uint8 BankTabSlot, uint8 PlayerBag, uint8 PlayerSlot, uint32 SplitedAmount);
@@ -400,7 +401,6 @@ class Guild
         void   SetGuildBankTabText(uint8 TabId, std::string text);
         void   SendGuildBankTabText(WorldSession *session, uint8 TabId);
         void   SetGuildBankTabInfo(uint8 TabId, std::string name, std::string icon);
-        const  GuildBankTab *GetBankTab(uint8 index) { if(index >= m_TabListMap.size()) return NULL; return m_TabListMap[index]; }
         const  uint8  GetPurchasedTabs() const { return m_PurchasedTabs; }
         uint32 GetBankRights(uint32 rankId, uint8 TabId) const;
         bool   IsMemberHaveRights(uint32 LowGuid, uint8 TabId,uint32 rights) const;
@@ -408,6 +408,7 @@ class Guild
         // Load/unload
         void   LoadGuildBankFromDB();
         void   UnloadGuildBank();
+        bool   IsGuildBankLoaded() const { return m_GuildBankLoaded; }
         void   IncOnlineMemberCount() { ++m_OnlineMembers; }
         // Money deposit/withdraw
         void   SendMoneyInfo(WorldSession *session, uint32 LowGuid);
@@ -489,4 +490,3 @@ class Guild
         Item* _StoreItem( uint8 tab, uint8 slot, Item *pItem, uint32 count, bool clone );
 };
 #endif
-
