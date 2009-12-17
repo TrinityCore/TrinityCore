@@ -706,10 +706,12 @@ void Map::RemoveUnitFromNotify(Unit *unit)
 void Map::Update(const uint32 &t_diff)
 {
     /// update players at tick
-    for (m_mapRefIter = m_mapRefManager.begin(); m_mapRefIter != m_mapRefManager.end(); ++m_mapRefIter)
-        if (Player* plr = m_mapRefIter->getSource())
-            if (plr && plr->IsInWorld())
-                plr->Update(t_diff);
+    for(m_mapRefIter = m_mapRefManager.begin(); m_mapRefIter != m_mapRefManager.end(); ++m_mapRefIter)
+    {
+        Player* plr = m_mapRefIter->getSource();
+        if(plr && plr->IsInWorld())
+            plr->Update(t_diff);
+    }
 
     m_notifyTimer.Update(t_diff);
     if (m_notifyTimer.Passed())
