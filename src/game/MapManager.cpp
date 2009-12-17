@@ -82,7 +82,7 @@ MapManager::Initialize()
 
 void MapManager::InitializeVisibilityDistanceInfo()
 {
-    for (MapMapType::iterator iter = i_maps.begin(); iter != i_maps.end(); ++iter)
+    for (MapMapType::iterator iter=i_maps.begin(); iter != i_maps.end(); ++iter)
         (*iter).second->InitVisibilityDistance();
 }
 
@@ -90,9 +90,9 @@ void MapManager::InitializeVisibilityDistanceInfo()
 void MapManager::checkAndCorrectGridStatesArray()
 {
     bool ok = true;
-    for (uint8 i = 0; i < MAX_GRID_STATE; ++i)
+    for (int i=0; i<MAX_GRID_STATE; i++)
     {
-        if (i_GridStates[i] != si_GridStates[i])
+        if(i_GridStates[i] != si_GridStates[i])
         {
             sLog.outError("MapManager::checkGridStates(), GridState: si_GridStates is currupt !!!");
             ok = false;
@@ -107,10 +107,8 @@ void MapManager::checkAndCorrectGridStatesArray()
         }
         #endif
     }
-    if (!ok)
+    if(!ok)
         ++i_GridStateErrorCount;
-    if (i_GridStateErrorCount > 2)
-        assert(false);                                      // force a crash. Too many errors
 }
 
 Map*
@@ -127,13 +125,9 @@ MapManager::_createBaseMap(uint32 id)
         {
             m = new MapInstanced(id, i_gridCleanUpDelay);
         }
-        else if (entry)
-        {
-            m = new Map(id, i_gridCleanUpDelay, 0, 0);
-        }
         else
         {
-            assert(false);
+            m = new Map(id, i_gridCleanUpDelay, 0, REGULAR_DIFFICULTY);
         }
         i_maps[id] = m;
     }
@@ -148,7 +142,7 @@ Map* MapManager::CreateMap(uint32 id, const WorldObject* obj, uint32 instanceId)
     //if(!obj->IsInWorld()) sLog.outError("GetMap: called for map %d with object (typeid %d, guid %d, mapid %d, instanceid %d) who is not in world!", id, obj->GetTypeId(), obj->GetGUIDLow(), obj->GetMapId(), obj->GetInstanceId());
     Map *m = _createBaseMap(id);
 
-    if (m && (obj->GetTypeId() == TYPEID_PLAYER) && m->Instanceable()) m = ((MapInstanced*)m)->CreateInstance(id, (Player*)obj, instanceId);
+    if (m && (obj->GetTypeId() == TYPEID_PLAYER) && m->Instanceable()) m = ((MapInstanced*)m)->CreateInstance(id, (Player*)obj);
 
     return m;
 }
@@ -192,14 +186,22 @@ bool MapManager::CanPlayerEnter(uint32 mapid, Player* player)
                     sLog.outDebug("MAP: Player '%s' must be in a raid group to enter instance of '%s'", player->GetName(), mapName);
                     return false;
                 }
+				// Если ИК или ИЧ, то проверять уровень шмота одетого на персе.
+				//if(mapid==649)
             }
         }
 
         //The player has a heroic mode and tries to enter into instance which has no a heroic mode
-        if (!entry->SupportsHeroicMode() && player->GetDifficulty() == DIFFICULTY_HEROIC)
+        MapDifficulty const* mapDiff = GetMapDifficultyData(entry->MapID,player->GetDifficulty(entry->map_type == MAP_RAID));
+        if (!mapDiff)
         {
+            bool isNormalTargetMap = entry->map_type == MAP_RAID
+                ? (player->GetRaidDifficulty()    == RAID_DIFFICULTY_10MAN_NORMAL)
+                : (player->GetDungeonDifficulty() == DUNGEON_DIFFICULTY_NORMAL);
+
             //Send aborted message
-            player->SendTransferAborted(mapid, TRANSFER_ABORT_DIFFICULTY, DIFFICULTY_HEROIC);
+            // FIX ME: what about absent normal/heroic mode with specific players limit...
+            player->SendTransferAborted(mapid, TRANSFER_ABORT_DIFFICULTY, isNormalTargetMap ? DUNGEON_DIFFICULTY_NORMAL : DUNGEON_DIFFICULTY_HEROIC);
             return false;
         }
 
@@ -240,13 +242,13 @@ bool MapManager::CanPlayerEnter(uint32 mapid, Player* player)
         //Get instance where player's group is bound & its map
         if (player->GetGroup())
         {
-            InstanceGroupBind* boundedInstance = player->GetGroup()->GetBoundInstance(mapid, player->GetDifficulty());
+            InstanceGroupBind* boundedInstance = player->GetGroup()->GetBoundInstance(player);
             if (boundedInstance && boundedInstance->save)
             {
                 if (Map *boundedMap = MapManager::Instance().FindMap(mapid,boundedInstance->save->GetInstanceId()))
                 {
                     //Player permanently bounded to different instance than groups one
-                    InstancePlayerBind* playerBoundedInstance = player->GetBoundInstance(mapid, player->GetDifficulty());
+                    InstancePlayerBind* playerBoundedInstance = player->GetBoundInstance(mapid, player->GetDungeonDifficulty());
                     if (playerBoundedInstance && playerBoundedInstance->perm && playerBoundedInstance->save &&
                         boundedInstance->save->GetInstanceId() != playerBoundedInstance->save->GetInstanceId())
                     {
@@ -263,7 +265,8 @@ bool MapManager::CanPlayerEnter(uint32 mapid, Player* player)
                     }
                     
                     //Instance is full
-                    int8 maxPlayers = (player->GetDifficulty() == DIFFICULTY_HEROIC) ? instance->maxPlayersHeroic : instance->maxPlayers;
+                    MapDifficulty const* mapDiff = ((InstanceMap*)player)->GetMapDifficulty();
+                    int8 maxPlayers = mapDiff ? mapDiff->maxPlayers : 0;
                     if (maxPlayers != -1) //-1: unlimited access
                     {
                         if (boundedMap->GetPlayersCountExceptGMs() >= maxPlayers)
@@ -336,17 +339,6 @@ MapManager::Update(uint32 diff)
 
 void MapManager::DoDelayedMovesAndRemoves()
 {
-    /*
-    std::vector<Map*> update_queue(i_maps.size());
-    for (MapMapType::iterator iter = i_maps.begin(), uint32 i = 0; iter != i_maps.end(); ++iter, ++i)
-    update_queue[i] = iter->second;
-
-    omp_set_num_threads(sWorld.getConfig(CONFIG_NUMTHREADS));
-
-#pragma omp parallel for schedule(dynamic) private(i) shared(update_queue)
-    for (uint32 i = 0; i < i_maps.size(); ++i)
-        update_queue[i]->DoDelayedMovesAndRemoves();
-    */
 }
 
 bool MapManager::ExistMapAndVMap(uint32 mapid, float x,float y)
@@ -427,4 +419,3 @@ uint32 MapManager::GetNumPlayersInInstances()
     }
     return ret;
 }
-
