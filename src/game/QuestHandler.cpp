@@ -173,7 +173,7 @@ void WorldSession::HandleQuestgiverAcceptQuestOpcode( WorldPacket & recv_data )
 
                     // destroy not required for quest finish quest starting item
                     bool destroyItem = true;
-                    for (int i = 0; i < QUEST_OBJECTIVES_COUNT; ++i)
+                    for (int i = 0; i < QUEST_ITEM_OBJECTIVES_COUNT; ++i)
                     {
                         if ((qInfo->ReqItemId[i] == ((Item*)pObject)->GetEntry()) && (((Item*)pObject)->GetProto()->MaxCount > 0))
                         {
@@ -638,4 +638,3 @@ void WorldSession::HandleQuestgiverStatusMultipleQuery(WorldPacket& /*recvPacket
     data.put<uint32>(0, count);                             // write real count
     SendPacket(&data);
 }
-
