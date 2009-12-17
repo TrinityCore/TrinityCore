@@ -319,6 +319,21 @@ class TRINITY_DLL_SPEC Item : public Object
         bool IsWeaponVellum() const { return GetProto()->IsWeaponVellum(); }
         bool IsArmorVellum() const { return GetProto()->IsArmorVellum(); }
         bool IsConjuredConsumable() const { return GetProto()->IsConjuredConsumable(); }
+        
+        // Item Refund system
+        uint32 GetPaidHonorPoints() { return m_paidHonorPoints; }
+        uint32 GetPaidArenaPoints() { return m_paidArenaPoints; }
+        uint32 GetPaidExtendedCostId(uint32 pos) { return m_paidExtendedCostId[pos]; }
+        uint32 GetPaidExtendedCostCount(uint32 pos) { return m_paidExtendedCostCount[pos]; }
+        uint32 GetRefundExpiryTime() { return GetUInt32Value(ITEM_FIELD_CREATE_PLAYED_TIME); }
+        void SetRefundExpiryTime(uint32 timeval) { SetUInt32Value(ITEM_FIELD_CREATE_PLAYED_TIME, timeval); }
+        void SetPaidHonorPoints(uint32 value) { m_paidHonorPoints = value; }
+        void SetPaidArenaPoints(uint32 value) { m_paidArenaPoints = value; }
+        void SetPaidExtendedCost(uint32 pos, uint32 entry, uint32 count)
+        {
+            m_paidExtendedCostId[pos] = entry;
+            m_paidExtendedCostCount[pos] = count;
+        }
 
     private:
         uint8 m_slot;
@@ -326,5 +341,11 @@ class TRINITY_DLL_SPEC Item : public Object
         ItemUpdateState uState;
         int16 uQueuePos;
         bool mb_in_trade;                                   // true if item is currently in trade-window
+        
+        // refund system
+        uint32 m_paidHonorPoints;
+        uint32 m_paidArenaPoints;
+        uint32 m_paidExtendedCostId[5];
+        uint32 m_paidExtendedCostCount[5];
 };
 #endif

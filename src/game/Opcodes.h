@@ -1238,10 +1238,10 @@ enum Opcodes
     UMSG_UNKNOWN_1199                               = 0x4AF, // not found
     UMSG_UNKNOWN_1200                               = 0x4B0, // not found
     UMSG_UNKNOWN_1201                               = 0x4B1, // not found
-    SMSG_UNKNOWN_1202                               = 0x4B2, // refund something
+    SMSG_ITEM_REFUND_TIMER                          = 0x4B2, // refund something
     CMSG_ITEM_REFUND_INFO_REQUEST                   = 0x4B3, // refund request?
-    CMSG_UNKNOWN_1204                               = 0x4B4, // lua: ContainerRefundItemPurchase
-    SMSG_UNKNOWN_1205                               = 0x4B5, // refund something
+    CMSG_ITEM_REFUND                                = 0x4B4, // lua: ContainerRefundItemPurchase
+    SMSG_ITEM_REFUND                                = 0x4B5, // refund something
     CMSG_CORPSE_MAP_POSITION_QUERY                  = 0x4B6, // CMSG, uint32
     CMSG_CORPSE_MAP_POSITION_QUERY_RESPONSE         = 0x4B7, // SMSG, 3*float+float
     CMSG_LFG_SET_ROLES                              = 0x4B8, // CMSG, empty, lua: SetLFGRoles
