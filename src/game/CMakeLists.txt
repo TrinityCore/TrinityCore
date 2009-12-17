@@ -150,6 +150,8 @@ SET(game_STAT_SRCS
    MapInstanced.h
    MapManager.cpp
    MapManager.h
+   MapUpdater.cpp
+   MapUpdater.h
    MapReference.h
    MapRefManager.h
    MiscHandler.cpp
@@ -294,6 +296,5 @@ SET(game_STAT_SRCS
    OutdoorPvPImpl.h
    ZoneScript.h
 )
-add_definitions(-fopenmp)
 add_library(game STATIC ${game_STAT_SRCS})
 ADD_DEPENDENCIES(game revision.h)
