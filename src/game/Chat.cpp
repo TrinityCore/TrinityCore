@@ -165,11 +165,12 @@ ChatCommand * ChatHandler::getCommandTable()
         { "getitemstate",   SEC_ADMINISTRATOR,  false, &ChatHandler::HandleDebugGetItemStateCommand,        "", NULL },
         { "lootrecipient",  SEC_GAMEMASTER,     false, &ChatHandler::HandleDebugGetLootRecipientCommand,    "", NULL },
         { "getvalue",       SEC_ADMINISTRATOR,  false, &ChatHandler::HandleDebugGetValueCommand,            "", NULL },
+        { "getitemvalue",   SEC_ADMINISTRATOR,  false, &ChatHandler::HandleDebugGetItemValueCommand,        "", NULL },
         { "Mod32Value",     SEC_ADMINISTRATOR,  false, &ChatHandler::HandleDebugMod32ValueCommand,          "", NULL },
         { "play",           SEC_MODERATOR,      false, NULL,                                                "", debugPlayCommandTable },
         { "send",           SEC_ADMINISTRATOR,  false, NULL,                                                "", debugSendCommandTable },
         { "setaurastate",   SEC_ADMINISTRATOR,  false, &ChatHandler::HandleDebugSetAuraStateCommand,        "", NULL },
-        { "setitemflag",    SEC_ADMINISTRATOR,  false, &ChatHandler::HandleDebugSetItemFlagCommand,         "", NULL },
+        { "setitemvalue",   SEC_ADMINISTRATOR,  false, &ChatHandler::HandleDebugSetItemValueCommand,        "", NULL },
         { "setvalue",       SEC_ADMINISTRATOR,  false, &ChatHandler::HandleDebugSetValueCommand,            "", NULL },
         { "spawnvehicle",   SEC_ADMINISTRATOR,  false, &ChatHandler::HandleDebugSpawnVehicle,               "", NULL },
         { "setvid",         SEC_ADMINISTRATOR,  false, &ChatHandler::HandleDebugSetVehicleId,               "", NULL },
@@ -1164,6 +1165,8 @@ valid examples:
     Quest const* linkedQuest;
     SpellEntry const *linkedSpell;
     AchievementEntry const* linkedAchievement;
+    ItemRandomPropertiesEntry const* itemProperty;
+    ItemRandomSuffixEntry const* itemSuffix;
 
     while(!reader.eof())
     {
@@ -1173,6 +1176,8 @@ valid examples:
             linkedQuest = NULL;
             linkedSpell = NULL;
             linkedAchievement = NULL;
+            itemProperty = NULL;
+            itemSuffix = NULL;
 
             reader.ignore(255, '|');
         }
@@ -1289,9 +1294,47 @@ valid examples:
                         return false;
                     }
 
-                    char c = reader.peek();
+                    // the itementry is followed by several integers which describe an instance of this item
 
-                    // ignore enchants etc.
+                    // position relative after itemEntry
+                    const uint8 randomPropertyPosition = 6;
+
+                    int32 propertyId = 0;
+                    bool negativeNumber = false;
+                    char c;
+                    for(uint8 i=0; i<randomPropertyPosition; ++i)
+                    {
+                        propertyId = 0;
+                        negativeNumber = false;
+                        while((c = reader.get())!=':')
+                        {
+                            if(c >='0' && c<='9')
+                            {
+                                propertyId*=10;
+                                propertyId += c-'0';
+                            } else if(c == '-')
+                                negativeNumber = true;
+                            else
+                                return false;
+                        }
+                    }
+                    if (negativeNumber)
+                        propertyId *= -1;
+
+                    if (propertyId > 0)
+                    {
+                        itemProperty = sItemRandomPropertiesStore.LookupEntry(propertyId);
+                        if (!itemProperty)
+                            return false;
+                    }
+                    else if(propertyId < 0)
+                    {
+                        itemSuffix = sItemRandomSuffixStore.LookupEntry(-propertyId);
+                        if (!itemSuffix)
+                            return false;
+                    }
+
+                    // ignore other integers
                     while((c >='0' && c <='9') || c==':')
                     {
                         reader.ignore(1);
@@ -1560,22 +1603,34 @@ valid examples:
                     }
                     else if (linkedItem)
                     {
-                        if (strcmp(linkedItem->Name1, buffer) != 0)
+                        char* const* suffix = itemSuffix?itemSuffix->nameSuffix:(itemProperty?itemProperty->nameSuffix:NULL);
+
+                        std::string expectedName = std::string(linkedItem->Name1);
+                        if (suffix)
+                        {
+                            expectedName += " ";
+                            expectedName += suffix[LOCALE_enUS];
+                        }
+
+                        if (expectedName != buffer)
                         {
                             ItemLocale const *il = objmgr.GetItemLocale(linkedItem->ItemId);
 
-                            if (!il)
-                            {
-#ifdef MANGOS_DEBUG
-                                sLog.outBasic("ChatHandler::isValidChatMessage linked item name doesn't is wrong and there is no localization");
-#endif
-                                return false;
-                            }
-
                             bool foundName = false;
-                            for (uint8 i=0; i<il->Name.size(); ++i)
+                            for(uint8 i=LOCALE_koKR; i<MAX_LOCALE; ++i)
                             {
-                                if (il->Name[i] == buffer)
+                                int8 dbIndex = objmgr.GetIndexForLocale(LocaleConstant(i));
+                                if (dbIndex == -1 || il == NULL || dbIndex >= il->Name.size())
+                                    // using strange database/client combinations can lead to this case
+                                    expectedName = linkedItem->Name1;
+                                else
+                                    expectedName = il->Name[dbIndex];
+                                if (suffix)
+                                {
+                                    expectedName += " ";
+                                    expectedName += suffix[i];
+                                }
+                                if ( expectedName == buffer)
                                 {
                                     foundName = true;
                                     break;

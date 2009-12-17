@@ -261,19 +261,24 @@ bool Creature::InitEntry(uint32 Entry, uint32 team, const CreatureData *data )
         return false;
     }
 
-    // get heroic mode entry
+    // get difficulty 1 mode entry
     uint32 actualEntry = Entry;
     CreatureInfo const *cinfo = normalInfo;
-    if(normalInfo->HeroicEntry)
+    // TODO correctly implement spawnmodes for non-bg maps
+    for (uint32 diff = 0; diff < MAX_DIFFICULTY - 1; ++diff)
     {
-        //we already have valid Map pointer for current creature!
-        if(GetMap()->IsHeroic())
+        if (normalInfo->DifficultyEntry[diff])
         {
-            cinfo = objmgr.GetCreatureTemplate(normalInfo->HeroicEntry);
-            if(!cinfo)
+            // we already have valid Map pointer for current creature!
+            if (GetMap()->GetSpawnMode() > diff)
             {
-                sLog.outErrorDb("Creature::UpdateEntry creature heroic entry %u does not exist.", actualEntry);
-                return false;
+                cinfo = objmgr.GetCreatureTemplate(normalInfo->DifficultyEntry[diff]);
+                if (!cinfo)
+                {
+                    // maybe check such things already at startup
+                    sLog.outErrorDb("Creature::UpdateEntry creature difficulty %u entry %u does not exist.", diff + 1, actualEntry);
+                    return false;
+                }
             }
         }
     }
@@ -1565,7 +1570,7 @@ bool Creature::LoadFromDB(uint32 guid, Map *map)
         m_deathState = DEAD;
         if(canFly())
         {
-            float tz = GetMap()->GetHeight(data->posX,data->posY,data->posZ,false);
+            float tz = map->GetHeight(data->posX,data->posY,data->posZ,false);
             if(data->posZ - tz > 0.1)
                 Relocate(data->posX,data->posY,tz);
         }
@@ -2265,7 +2270,7 @@ CreatureDataAddon const* Creature::GetCreatureAddon() const
             return addon;
     }
 
-    // dependent from heroic mode entry
+    // dependent from difficulty mode entry
     return ObjectMgr::GetCreatureTemplateAddon(GetCreatureInfo()->Entry);
 }
 
@@ -2671,4 +2676,3 @@ time_t Creature::GetLinkedCreatureRespawnTime() const
 
     return 0;
 }
-

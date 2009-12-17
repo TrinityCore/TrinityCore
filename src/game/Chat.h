@@ -144,9 +144,10 @@ class TRINITY_DLL_SPEC ChatHandler
         bool HandleDebugGetItemStateCommand(const char * args);
         bool HandleDebugGetLootRecipientCommand(const char * args);
         bool HandleDebugGetValueCommand(const char* args);
+        bool HandleDebugGetItemValueCommand(const char* args);
         bool HandleDebugMod32ValueCommand(const char* args);
         bool HandleDebugSetAuraStateCommand(const char * args);
-        bool HandleDebugSetItemFlagCommand(const char * args);
+        bool HandleDebugSetItemValueCommand(const char * args);
         bool HandleDebugItemExpireCommand(const char * args);
         bool HandleDebugSetVehicleId(const char * args);
         bool HandleDebugEnterVehicle(const char * args);
