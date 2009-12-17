@@ -36,7 +36,7 @@
 #include "Opcodes.h"
 
 // Temporal fix to wintergrasp spirit guides till 3.2
-#include "Wintergrasp.h"
+#include "OutdoorPvPWG.h"
 #include "OutdoorPvPMgr.h"
 // WG end
 
@@ -604,7 +604,7 @@ void WorldSession::HandleAreaSpiritHealerQueryOpcode( WorldPacket & recv_data )
     {  // Wintergrasp Hack till 3.2 and it's implemented as BG
         if (GetPlayer()->GetZoneId() == 4197)
         {
-            OPvPWintergrasp *pvpWG = (OPvPWintergrasp*)sOutdoorPvPMgr.GetOutdoorPvPToZoneId(4197);
+            OutdoorPvPWG *pvpWG = (OutdoorPvPWG*)sOutdoorPvPMgr.GetOutdoorPvPToZoneId(4197);
             if (pvpWG && pvpWG->isWarTime())
                 pvpWG->SendAreaSpiritHealerQueryOpcode(_player, guid);
         }
@@ -635,7 +635,7 @@ void WorldSession::HandleAreaSpiritHealerQueueOpcode( WorldPacket & recv_data )
     {  // Wintergrasp Hack till 3.2 and it's implemented as BG
         if (GetPlayer()->GetZoneId() == 4197)
         {
-            OPvPWintergrasp *pvpWG = (OPvPWintergrasp*)sOutdoorPvPMgr.GetOutdoorPvPToZoneId(4197);
+            OutdoorPvPWG *pvpWG = (OutdoorPvPWG*)sOutdoorPvPMgr.GetOutdoorPvPToZoneId(4197);
             if (pvpWG && pvpWG->isWarTime())
                 pvpWG->AddPlayerToResurrectQueue(guid, _player->GetGUID());
         }

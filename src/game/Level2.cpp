@@ -40,7 +40,7 @@
 #include <fstream>
 #include <map>
 #include "GlobalEvents.h"
-#include "Wintergrasp.h"
+#include "OutdoorPvPWG.h"
 #include "OutdoorPvPMgr.h"
 
 #include "TargetedMovementGenerator.h"                      // for HandleNpcUnFollowCommand
@@ -4240,7 +4240,7 @@ bool ChatHandler::HandleNpcSetLinkCommand(const char* args)
 
 bool ChatHandler::HandleWintergraspStatusCommand(const char* args)
 {
-    OPvPWintergrasp *pvpWG = (OPvPWintergrasp*)sOutdoorPvPMgr.GetOutdoorPvPToZoneId(4197);
+    OutdoorPvPWG *pvpWG = (OutdoorPvPWG*)sOutdoorPvPMgr.GetOutdoorPvPToZoneId(4197);
 
     if (!pvpWG || !sWorld.getConfig(CONFIG_OUTDOORPVP_WINTERGRASP_ENABLED))
     {
@@ -4260,7 +4260,7 @@ bool ChatHandler::HandleWintergraspStatusCommand(const char* args)
 
 bool ChatHandler::HandleWintergraspStartCommand(const char* args)
 {
-    OPvPWintergrasp *pvpWG = (OPvPWintergrasp*)sOutdoorPvPMgr.GetOutdoorPvPToZoneId(4197);
+    OutdoorPvPWG *pvpWG = (OutdoorPvPWG*)sOutdoorPvPMgr.GetOutdoorPvPToZoneId(4197);
 
     if (!pvpWG || !sWorld.getConfig(CONFIG_OUTDOORPVP_WINTERGRASP_ENABLED))
     {
@@ -4275,7 +4275,7 @@ bool ChatHandler::HandleWintergraspStartCommand(const char* args)
 
 bool ChatHandler::HandleWintergraspStopCommand(const char* args)
 {
-    OPvPWintergrasp *pvpWG = (OPvPWintergrasp*)sOutdoorPvPMgr.GetOutdoorPvPToZoneId(4197);
+    OutdoorPvPWG *pvpWG = (OutdoorPvPWG*)sOutdoorPvPMgr.GetOutdoorPvPToZoneId(4197);
 
     if (!pvpWG || !sWorld.getConfig(CONFIG_OUTDOORPVP_WINTERGRASP_ENABLED))
     {
@@ -4293,7 +4293,7 @@ bool ChatHandler::HandleWintergraspEnableCommand(const char* args)
     if(!*args)
         return false;
 
-    OPvPWintergrasp *pvpWG = (OPvPWintergrasp*)sOutdoorPvPMgr.GetOutdoorPvPToZoneId(4197);
+    OutdoorPvPWG *pvpWG = (OutdoorPvPWG*)sOutdoorPvPMgr.GetOutdoorPvPToZoneId(4197);
 
     if (!pvpWG || !sWorld.getConfig(CONFIG_OUTDOORPVP_WINTERGRASP_ENABLED))
     {
@@ -4335,7 +4335,7 @@ bool ChatHandler::HandleWintergraspTimerCommand(const char* args)
     if(!*args)
         return false;
 
-    OPvPWintergrasp *pvpWG = (OPvPWintergrasp*)sOutdoorPvPMgr.GetOutdoorPvPToZoneId(4197);
+    OutdoorPvPWG *pvpWG = (OutdoorPvPWG*)sOutdoorPvPMgr.GetOutdoorPvPToZoneId(4197);
 
     if (!pvpWG)
     {
@@ -4368,7 +4368,7 @@ bool ChatHandler::HandleWintergraspTimerCommand(const char* args)
 
 bool ChatHandler::HandleWintergraspSwitchTeamCommand(const char* args)
 {
-    OPvPWintergrasp *pvpWG = (OPvPWintergrasp*)sOutdoorPvPMgr.GetOutdoorPvPToZoneId(4197);
+    OutdoorPvPWG *pvpWG = (OutdoorPvPWG*)sOutdoorPvPMgr.GetOutdoorPvPToZoneId(4197);
 
     if (!pvpWG)
     {
@@ -4379,6 +4379,6 @@ bool ChatHandler::HandleWintergraspSwitchTeamCommand(const char* args)
     uint32 timer = pvpWG->GetTimer();
     pvpWG->forceChangeTeam();
     pvpWG->setTimer(timer);
-    PSendSysMessage(LANG_BG_WG_SWITCH_FACTION, GetTrinityString(pvpWG->GetTeam() == TEAM_ALLIANCE ? LANG_BG_AB_ALLY : LANG_BG_AB_HORDE));
+    PSendSysMessage(LANG_BG_WG_SWITCH_FACTION, GetTrinityString(pvpWG->getDefenderTeam() == TEAM_ALLIANCE ? LANG_BG_AB_ALLY : LANG_BG_AB_HORDE));
     return true;
 }
