@@ -1378,6 +1378,25 @@ void Spell::EffectDummy(uint32 i)
                     m_caster->CastSpell(m_caster, 54586, true);
                     return;
                 }
+                // Great Feast
+                case 57337:
+                {
+                    if (!unitTarget)
+                        return;
+
+                    unitTarget->CastSpell(unitTarget, 58067, true);
+                    break;
+                }
+                //Fish Feast
+                case 57397:
+                {
+                    if (!unitTarget)
+                        return;
+
+                    unitTarget->CastSpell(unitTarget, 58648, true);
+                    unitTarget->CastSpell(unitTarget, 57398, true);
+                    break;
+                }
                 case 58418:                                 // Portal to Orgrimmar
                 case 58420:                                 // Portal to Stormwind
                     return;                                 // implemented in EffectScript[0]
@@ -2786,6 +2805,21 @@ void Spell::SpellDamageHeal(uint32 /*i*/)
 
             //addhealth += tickheal * tickcount;
             //addhealth = caster->SpellHealingBonus(m_spellInfo, addhealth,HEAL, unitTarget);
+        }
+        // Glyph of Nourish
+        else if (m_spellInfo->SpellFamilyName == SPELLFAMILY_DRUID && m_spellInfo->SpellFamilyFlags[1] & 0x2000000)
+        {
+            addhealth = caster->SpellHealingBonus(unitTarget, m_spellInfo, addhealth, HEAL);
+
+            if (AuraEffect const* aurEff = m_caster->GetAuraEffect(62971, 0))
+            {
+                Unit::AuraEffectList const& Periodic = unitTarget->GetAurasByType(SPELL_AURA_PERIODIC_HEAL);
+                for (Unit::AuraEffectList::const_iterator i = Periodic.begin(); i != Periodic.end(); ++i)
+                {
+                    if (m_caster->GetGUID() == (*i)->GetCasterGUID())
+                        addhealth += addhealth * (*i)->GetParentAura()->GetStackAmount() * aurEff->GetAmount() / 100;
+                }
+            }
         }
         // Riptide - increase healing done by Chain Heal
         else if (m_spellInfo->SpellFamilyName==SPELLFAMILY_SHAMAN && m_spellInfo->SpellFamilyFlags[0] & 0x100)
@@ -5463,6 +5497,26 @@ void Spell::EffectScriptEffect(uint32 effIndex)
 
                     return;
                 }
+                // Gigantic Feast
+                case 58466:
+                {
+                    if (!unitTarget)
+                        return;
+
+                    unitTarget->CastSpell(unitTarget, 58648, true);
+                    unitTarget->CastSpell(unitTarget, 58467, true);
+                    break;
+                }
+                // Small Feast
+                case 58475:
+                {
+                    if (!unitTarget)
+                        return;
+
+                    unitTarget->CastSpell(unitTarget, 58648, true);
+                    unitTarget->CastSpell(unitTarget, 58477, true);
+                    break;
+                }
                 case 58941:                                 // Rock Shards
                     if(unitTarget && m_originalCaster)
                     {
@@ -5529,12 +5583,15 @@ void Spell::EffectScriptEffect(uint32 effIndex)
                     return;
                 }
                 case 62428: // Load into Catapult
+                {
                     if(Vehicle *seat = m_caster->GetVehicleKit())
                         if(Unit *passenger = seat->GetPassenger(0))
                             if(Unit *demolisher = m_caster->GetVehicleBase())
                                 passenger->CastSpell(demolisher, damage, true);
                     return;
+                }
                 case 62482: // Grab Crate
+                {
                     if(unitTarget)
                     {
                         if(Vehicle *seat = m_caster->GetVehicleKit())
@@ -5547,40 +5604,6 @@ void Spell::EffectScriptEffect(uint32 effIndex)
                         }
                     }
                     return;
-                case 57337:   //Great Feast
-                {
-                    if (!unitTarget)
-                        return;
-
-                    unitTarget->CastSpell(unitTarget,58067,true);
-                    break;
-                }
-                case 57397:   //Fish Feast
-                {
-                    if (!unitTarget)
-                        return;
-
-                    unitTarget->CastSpell(unitTarget,58648,true);
-                    unitTarget->CastSpell(unitTarget,57398,true);
-                    break;
-                }
-                case 58466:   //Gigantic Feast
-                {
-                    if (!unitTarget)
-                        return;
-
-                    unitTarget->CastSpell(unitTarget,58648,true);
-                    unitTarget->CastSpell(unitTarget,58467,true);
-                    break;
-                }
-                case 58475:   //Small Feast
-                {
-                    if (!unitTarget)
-                        return;
-
-                    unitTarget->CastSpell(unitTarget,58648,true);
-                    unitTarget->CastSpell(unitTarget,58477,true);
-                    break;
                 }
                 case 60123: // Lightwell
                 {

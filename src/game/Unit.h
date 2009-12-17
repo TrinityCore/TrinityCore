@@ -206,6 +206,7 @@ enum ShapeshiftForm
     FORM_ZOMBIE             = 0x15,
     FORM_METAMORPHOSIS      = 0x16,
     FORM_UNDEAD             = 0x19,
+    FORM_MASTER_ANGLER      = 0x1A,
     FORM_FLIGHT_EPIC        = 0x1B,
     FORM_SHADOW             = 0x1C,
     FORM_FLIGHT             = 0x1D,
