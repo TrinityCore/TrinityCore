@@ -28,6 +28,7 @@
 #include "Common.h"
 #include "SharedDefines.h"
 
+class MailItemsInfo;
 struct ItemPrototype;
 struct AuctionEntry;
 struct DeclinedName;
@@ -41,6 +42,7 @@ class Unit;
 class GameObject;
 class WorldPacket;
 class WorldSocket;
+class WorldSession;
 class QueryResult;
 class LoginQueryHolder;
 class CharacterHandler;
@@ -126,6 +128,7 @@ class TRINITY_DLL_SPEC WorldSession
         void SendAddonsInfo();
 
         void ReadMovementInfo(WorldPacket &data, MovementInfo *mi);
+        void WriteMovementInfo(WorldPacket *data, MovementInfo *mi);
 
         void SendPacket(WorldPacket const* packet);
         void SendNotification(const char *format,...) ATTR_PRINTF(2,3);
@@ -203,7 +206,7 @@ class TRINITY_DLL_SPEC WorldSession
         // Account Data
         AccountData *GetAccountData(AccountDataType type) { return &m_accountData[type]; }
         void SetAccountData(AccountDataType type, time_t time_, std::string data);
-        void SendAccountDataTimes();
+        void SendAccountDataTimes(uint32 mask);
         void LoadGlobalAccountData();
         void LoadAccountData(QueryResult* result, uint32 mask);
         void LoadTutorialsData();
@@ -222,8 +225,12 @@ class TRINITY_DLL_SPEC WorldSession
                 m_TutorialsChanged = true;
             }
         }
-                                                             //used with item_page table
+
+        //mail
+                                                            //used with item_page table
         bool SendItemInfo( uint32 itemid, WorldPacket data );
+        static void SendReturnToSender(uint8 messageType, uint32 sender_acc, uint32 sender_guid, uint32 receiver_guid, const std::string& subject, uint32 itemTextId, MailItemsInfo *mi, uint32 money, uint16 mailTemplateId = 0);
+        static void SendMailTo(Player* receiver, uint8 messageType, uint8 stationery, uint32 sender_guidlow_or_entry, uint32 received_guidlow, std::string subject, uint32 itemTextId, MailItemsInfo* mi, uint32 money, uint32 COD, uint32 checked, uint32 deliver_delay = 0, uint16 mailTemplateId = 0);
 
         //auction
         void SendAuctionHello( uint64 guid, Creature * unit );
@@ -573,6 +580,7 @@ class TRINITY_DLL_SPEC WorldSession
 
         void HandleReclaimCorpseOpcode( WorldPacket& recvPacket );
         void HandleCorpseQueryOpcode( WorldPacket& recvPacket );
+        void HandleCorpseMapPositionQuery( WorldPacket& recvPacket );
         void HandleResurrectResponseOpcode(WorldPacket& recvPacket);
         void HandleSummonResponseOpcode(WorldPacket& recv_data);
 
@@ -647,6 +655,7 @@ class TRINITY_DLL_SPEC WorldSession
         void HandleFarSightOpcode(WorldPacket& recv_data);
         void HandleSetLfgOpcode(WorldPacket& recv_data);
         void HandleSetDungeonDifficultyOpcode(WorldPacket& recv_data);
+        void HandleSetRaidDifficultyOpcode(WorldPacket& recv_data);
         void HandleMoveSetCanFlyAckOpcode(WorldPacket& recv_data);
         void HandleLfgSetAutoJoinOpcode(WorldPacket& recv_data);
         void HandleLfgClearAutoJoinOpcode(WorldPacket& recv_data);
@@ -686,6 +695,7 @@ class TRINITY_DLL_SPEC WorldSession
         void HandleSocketOpcode(WorldPacket& recv_data);
 
         void HandleCancelTempEnchantmentOpcode(WorldPacket& recv_data);
+        void HandleItemRefundInfoRequest(WorldPacket& recv_data);
 
         void HandleChannelVoiceOnOpcode(WorldPacket & recv_data);
         void HandleVoiceSessionEnableOpcode(WorldPacket& recv_data);
@@ -733,6 +743,7 @@ class TRINITY_DLL_SPEC WorldSession
         void HandleEquipmentSetSave(WorldPacket& recv_data);
         void HandleEquipmentSetDelete(WorldPacket& recv_data);
         void HandleEquipmentSetUse(WorldPacket& recv_data);
+        void HandleWorldStateUITimerUpdate(WorldPacket& recv_data);
         void HandleOnPVPKill(Player *killed);
         bool HandleOnPlayerChat(const char *text);
         uint32 HandleOnGetXP(uint32 amount);
@@ -776,4 +787,3 @@ class TRINITY_DLL_SPEC WorldSession
 };
 #endif
 /// @}
-

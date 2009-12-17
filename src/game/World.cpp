@@ -259,6 +259,8 @@ World::AddSession_ (WorldSession* s)
     pkt << uint32(sWorld.getConfig(CONFIG_CLIENTCACHE_VERSION));
     s->SendPacket(&pkt);
 
+    s->SendAccountDataTimes(GLOBAL_CACHE_MASK);
+    
     s->SendTutorialsData();
 
     UpdateMaxSessionCounters ();
@@ -269,7 +271,6 @@ World::AddSession_ (WorldSession* s)
         float popu = GetActiveSessionCount ();              // updated number of users on the server
         popu /= pLimit;
         popu *= 2;
-        loginDatabase.PExecute ("UPDATE realmlist SET population = '%f' WHERE id = '%d'", popu, realmID);
         sLog.outDetail ("Server Population (%f).", popu);
     }
 }
@@ -365,6 +366,7 @@ bool World::RemoveQueuedPlayer(WorldSession* sess)
         pkt << uint32(sWorld.getConfig(CONFIG_CLIENTCACHE_VERSION));
         pop_sess->SendPacket(&pkt);
 
+        pop_sess->SendAccountDataTimes(GLOBAL_CACHE_MASK);
         pop_sess->SendTutorialsData();
 
         m_QueuedPlayer.pop_front();
@@ -553,41 +555,40 @@ void World::LoadConfigSettings(bool reload)
     rate_values[RATE_DURABILITY_LOSS_ON_DEATH]  = sConfig.GetFloatDefault("DurabilityLoss.OnDeath", 10.0f);
     if (rate_values[RATE_DURABILITY_LOSS_ON_DEATH] < 0.0f)
     {
-        sLog.outError("DurabilityLoss.OnDeath (%f) must be >= 0. Using 0.0 instead.",rate_values[RATE_DURABILITY_LOSS_ON_DEATH]);
+        sLog.outError("DurabilityLoss.OnDeath (%f) must be >=0. Using 0.0 instead.",rate_values[RATE_DURABILITY_LOSS_ON_DEATH]);
         rate_values[RATE_DURABILITY_LOSS_ON_DEATH] = 0.0f;
     }
     if (rate_values[RATE_DURABILITY_LOSS_ON_DEATH] > 100.0f)
     {
-        sLog.outError("DurabilityLoss.OnDeath (%f) must be <= 100. Using 100.0 instead.",rate_values[RATE_DURABILITY_LOSS_ON_DEATH]);
-        rate_values[RATE_DURABILITY_LOSS_ON_DEATH] = 100.0f;
+        sLog.outError("DurabilityLoss.OnDeath (%f) must be <=100. Using 100.0 instead.",rate_values[RATE_DURABILITY_LOSS_ON_DEATH]);
+        rate_values[RATE_DURABILITY_LOSS_ON_DEATH] = 0.0f;
     }
     rate_values[RATE_DURABILITY_LOSS_ON_DEATH] = rate_values[RATE_DURABILITY_LOSS_ON_DEATH] / 100.0f;
 
     rate_values[RATE_DURABILITY_LOSS_DAMAGE] = sConfig.GetFloatDefault("DurabilityLossChance.Damage",0.5f);
     if (rate_values[RATE_DURABILITY_LOSS_DAMAGE] < 0.0f)
     {
-        sLog.outError("DurabilityLossChance.Damage (%f) must be >= 0. Using 0.0 instead.",rate_values[RATE_DURABILITY_LOSS_DAMAGE]);
+        sLog.outError("DurabilityLossChance.Damage (%f) must be >=0. Using 0.0 instead.",rate_values[RATE_DURABILITY_LOSS_DAMAGE]);
         rate_values[RATE_DURABILITY_LOSS_DAMAGE] = 0.0f;
     }
     rate_values[RATE_DURABILITY_LOSS_ABSORB] = sConfig.GetFloatDefault("DurabilityLossChance.Absorb",0.5f);
     if (rate_values[RATE_DURABILITY_LOSS_ABSORB] < 0.0f)
     {
-        sLog.outError("DurabilityLossChance.Absorb (%f) must be >= 0. Using 0.0 instead.",rate_values[RATE_DURABILITY_LOSS_ABSORB]);
+        sLog.outError("DurabilityLossChance.Absorb (%f) must be >=0. Using 0.0 instead.",rate_values[RATE_DURABILITY_LOSS_ABSORB]);
         rate_values[RATE_DURABILITY_LOSS_ABSORB] = 0.0f;
     }
     rate_values[RATE_DURABILITY_LOSS_PARRY] = sConfig.GetFloatDefault("DurabilityLossChance.Parry",0.05f);
     if (rate_values[RATE_DURABILITY_LOSS_PARRY] < 0.0f)
     {
-        sLog.outError("DurabilityLossChance.Parry (%f) must be >= 0. Using 0.0 instead.",rate_values[RATE_DURABILITY_LOSS_PARRY]);
+        sLog.outError("DurabilityLossChance.Parry (%f) must be >=0. Using 0.0 instead.",rate_values[RATE_DURABILITY_LOSS_PARRY]);
         rate_values[RATE_DURABILITY_LOSS_PARRY] = 0.0f;
     }
     rate_values[RATE_DURABILITY_LOSS_BLOCK] = sConfig.GetFloatDefault("DurabilityLossChance.Block",0.05f);
     if (rate_values[RATE_DURABILITY_LOSS_BLOCK] < 0.0f)
     {
-        sLog.outError("DurabilityLossChance.Block (%f) must be >= 0. Using 0.0 instead.",rate_values[RATE_DURABILITY_LOSS_BLOCK]);
+        sLog.outError("DurabilityLossChance.Block (%f) must be >=0. Using 0.0 instead.",rate_values[RATE_DURABILITY_LOSS_BLOCK]);
         rate_values[RATE_DURABILITY_LOSS_BLOCK] = 0.0f;
     }
-
     ///- Read other configuration items from the config file
 
     m_configs[CONFIG_DURABILITY_LOSS_IN_PVP] = sConfig.GetBoolDefault("DurabilityLoss.InPvP", false);
@@ -1193,7 +1194,7 @@ void World::LoadConfigSettings(bool reload)
     m_configs[CONFIG_INTERVAL_LOG_UPDATE] = sConfig.GetIntDefault("RecordUpdateTimeDiffInterval", 60000);
     m_configs[CONFIG_MIN_LOG_UPDATE] = sConfig.GetIntDefault("MinRecordUpdateTimeDiff", 10);
     m_configs[CONFIG_CHECK_DB] = sConfig.GetBoolDefault("CheckDB", true);
-    m_configs[CONFIG_NUMTHREADS] = sConfig.GetIntDefault("MapUpdate.Threads",1);
+    m_configs[CONFIG_NUMTHREADS] = sConfig.GetIntDefault("MapUpdate.Threads", 1);
 
     std::string forbiddenmaps = sConfig.GetStringDefault("ForbiddenMaps", "");
     char * forbiddenMaps = new char[forbiddenmaps.length() + 1];
@@ -1302,9 +1303,6 @@ void World::SetInitialWorldSettings()
 
     sLog.outString("Loading Page Texts...");
     objmgr.LoadPageTexts();
-
-    sLog.outString("Loading Player info in cache...");
-    objmgr.LoadPlayerInfoInCache();
 
     sLog.outString("Loading Game Object Templates...");   // must be after LoadPageTexts
     objmgr.LoadGameobjectInfo();
@@ -1476,9 +1474,6 @@ void World::SetInitialWorldSettings()
 
     sLog.outString("Loading Player Corpses...");
     objmgr.LoadCorpses();
-
-    sLog.outString( "Loading Player level dependent mail rewards..." );
-    objmgr.LoadMailLevelRewards();
 
     sLog.outString("Loading Disabled Spells...");
     objmgr.LoadSpellDisabledEntrys();
@@ -2584,13 +2579,12 @@ void World::LoadDBVersion()
         m_CreatureEventAIVersion = "Unknown creature EventAI.";
 }
 
-void World::UpdateAreaDependentAuras()
+void World::ProcessStartEvent()
 {
-    SessionMap::const_iterator itr;
-    for (itr = m_sessions.begin(); itr != m_sessions.end(); ++itr)
-        if (itr->second && itr->second->GetPlayer() && itr->second->GetPlayer()->IsInWorld())
-        {
-            itr->second->GetPlayer()->UpdateAreaDependentAuras(itr->second->GetPlayer()->GetAreaId());
-            itr->second->GetPlayer()->UpdateZoneDependentAuras(itr->second->GetPlayer()->GetZoneId());
-        }
+	isEventKillStart = true;
+}
+
+void World::ProcessStopEvent()
+{
+	isEventKillStart = false;
 }
