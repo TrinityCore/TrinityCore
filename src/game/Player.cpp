@@ -3695,6 +3695,9 @@ void Player::_SaveSpellCooldowns()
     time_t curTime = time(NULL);
     time_t infTime = curTime + infinityCooldownDelayCheck;
 
+    bool first_round = true;
+    std::ostringstream ss;
+
     // remove outdated and save active
     for (SpellCooldowns::iterator itr = m_spellCooldowns.begin(); itr != m_spellCooldowns.end();)
     {
@@ -3702,12 +3705,24 @@ void Player::_SaveSpellCooldowns()
             m_spellCooldowns.erase(itr++);
         else if(itr->second.end <= infTime)                 // not save locked cooldowns, it will be reset or set at reload
         {
-            CharacterDatabase.PExecute("INSERT INTO character_spell_cooldown (guid,spell,item,time) VALUES ('%u', '%u', '%u', '" UI64FMTD "')", GetGUIDLow(), itr->first, itr->second.itemid, uint64(itr->second.end));
+            if (first_round)
+            {
+                ss << "INSERT INTO character_spell_cooldown (guid,spell,item,time) VALUES ";
+                first_round = false;
+            }
+            // next new/changed record prefix
+            else
+                ss << ", ";
+            ss << "(" << GetGUIDLow() << "," << itr->first << "," << itr->second.itemid << "," << uint64(itr->second.end) << ")";
             ++itr;
         }
         else
             ++itr;
+
     }
+    // if something changed execute
+    if (!first_round)
+        CharacterDatabase.Execute(ss.str().c_str());
 }
 
 uint32 Player::resetTalentsCost() const
