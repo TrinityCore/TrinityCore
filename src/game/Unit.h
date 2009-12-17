@@ -206,7 +206,6 @@ enum ShapeshiftForm
     FORM_ZOMBIE             = 0x15,
     FORM_METAMORPHOSIS      = 0x16,
     FORM_UNDEAD             = 0x19,
-    FORM_MASTER_ANGLER      = 0x1A,
     FORM_FLIGHT_EPIC        = 0x1B,
     FORM_SHADOW             = 0x1C,
     FORM_FLIGHT             = 0x1D,
@@ -715,6 +714,7 @@ enum MonsterMovementFlags
 struct MovementInfo
 {
     // common
+    uint64 guid;
     uint32  flags;
     uint16  unk1;
     uint32  time;
@@ -1623,18 +1623,6 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
                 SetOrientation(GetAngle(target));
         }
         bool isInBackInMap(Unit const* target, float distance, float arc = M_PI) const;
-        void ChangeOrient(float fAngle, Unit* pUnit = NULL)
-        {
-            if(!this)
-                return;
-
-            if(!pUnit)
-                this->SetOrientation(fAngle);
-            else
-                this->SetInFront(pUnit);
-
-            this->SendMovementFlagUpdate();
-        }
 
         // Visibility system
         UnitVisibility GetVisibility() const { return m_Visibility; }
@@ -1852,6 +1840,8 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
         void AddPetAura(PetAura const* petSpell);
         void RemovePetAura(PetAura const* petSpell);
 
+        uint32 GetModelForForm(ShapeshiftForm form);
+
         // relocation notification
         void SetToNotify();
         bool m_Notified;
@@ -2030,4 +2020,3 @@ namespace Trinity
 }
 
 #endif
-
