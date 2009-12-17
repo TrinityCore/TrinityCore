@@ -2822,12 +2822,14 @@ void Spell::SpellDamageHeal(uint32 /*i*/)
         {
             addhealth = caster->SpellHealingBonus(unitTarget, m_spellInfo, addhealth, HEAL);
 
-            Unit::AuraEffectList const& Periodic = unitTarget->GetAurasByType(SPELL_AURA_PERIODIC_HEAL);
-            for (Unit::AuraEffectList::const_iterator i = Periodic.begin(); i != Periodic.end(); ++i)
+            if (AuraEffect const* aurEff = m_caster->GetAuraEffect(62971, 0))
             {
-                if (m_caster->HasAura(62971))
+                Unit::AuraEffectList const& Periodic = unitTarget->GetAurasByType(SPELL_AURA_PERIODIC_HEAL);
+                for (Unit::AuraEffectList::const_iterator i = Periodic.begin(); i != Periodic.end(); ++i)
+                {
                     if (m_caster->GetGUID() == (*i)->GetCasterGUID())
-                        addhealth += addhealth * (*i)->GetParentAura()->GetStackAmount() * 0.06f;
+                        addhealth += addhealth * (*i)->GetParentAura()->GetStackAmount() * aurEff->GetAmount() / 100;
+                }
             }
         }
         // Riptide - increase healing done by Chain Heal
