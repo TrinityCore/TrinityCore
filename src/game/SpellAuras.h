@@ -321,6 +321,7 @@ class TRINITY_DLL_SPEC AuraEffect
         void HandleForceMoveForward(bool apply, bool Real, bool changeAmount);
         void HandleAuraModResistenceOfStatPercent(bool apply, bool Real, bool changeAmount);
         void HandleAuraPowerBurn(bool apply, bool Real, bool changeAmount);
+        void HandleSchoolAbsorb(bool apply, bool Real, bool changeAmount);
         void HandlePreventFleeing(bool apply, bool Real, bool changeAmount);
         void HandleArenaPreparation(bool apply, bool Real, bool changeAmount);
         void HandleAuraConvertRune(bool apply, bool Real, bool changeAmount);
