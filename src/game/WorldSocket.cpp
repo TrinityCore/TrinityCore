@@ -255,8 +255,13 @@ int WorldSocket::open (void *a)
     m_Address = remote_addr.get_host_addr ();
 
     // Send startup packet.
-    WorldPacket packet (SMSG_AUTH_CHALLENGE, 4);
+    WorldPacket packet (SMSG_AUTH_CHALLENGE, 24);
+    packet << uint32(1);                                    // 1...31
     packet << m_Seed;
+    packet << uint32(0xF3539DA3);                           // random data
+    packet << uint32(0x6E8547B9);                           // random data
+    packet << uint32(0x9A6AA2F8);                           // random data
+    packet << uint32(0xA4F170F4);                           // random data
 
     if (SendPacket (packet) == -1)
         return -1;
@@ -690,6 +695,7 @@ int WorldSocket::HandleAuthSession (WorldPacket& recvPacket)
     uint8 digest[20];
     uint32 clientSeed;
     uint32 unk2, unk3;
+    uint64 unk4;
     uint32 BuiltNumberClient;
     uint32 id, security;
     //uint8 expansion = 0;
@@ -717,6 +723,7 @@ int WorldSocket::HandleAuthSession (WorldPacket& recvPacket)
     recvPacket >> account;
     recvPacket >> unk3;
     recvPacket >> clientSeed;
+    recvPacket >> unk4;
     recvPacket.read (digest, 20);
 
     DEBUG_LOG ("WorldSocket::HandleAuthSession: client %u, unk2 %u, account %s, unk3 %u, clientseed %u",
@@ -1066,4 +1073,3 @@ bool WorldSocket::iFlushPacketQueue()
 
     return haveone;
 }
-
