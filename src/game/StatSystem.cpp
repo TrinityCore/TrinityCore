@@ -242,7 +242,7 @@ void Player::UpdateMaxPower(Powers power)
 {
     UnitMods unitMod = UnitMods(UNIT_MOD_POWER_START + power);
 
-    float bonusPower = (power == POWER_MANA) ? GetManaBonusFromIntellect() : 0;
+    float bonusPower = (power == POWER_MANA && GetCreatePowers(power) > 0) ? GetManaBonusFromIntellect() : 0;
 
     float value = GetModifierValue(unitMod, BASE_VALUE) + GetCreatePowers(power);
     value *= GetModifierValue(unitMod, BASE_PCT);
@@ -694,6 +694,11 @@ void Player::ApplyManaRegenBonus(int32 amount, bool apply)
     UpdateManaRegen();
 }
 
+void Player::ApplyHealthRegenBonus(int32 amount, bool apply)
+{
+    m_baseHealthRegen+= apply ? amount : -amount;
+}
+
 void Player::UpdateManaRegen()
 {
     float Intellect = GetStat(STAT_INTELLECT);
@@ -918,9 +923,9 @@ bool Guardian::UpdateStats(Stats stat)
 
     Unit *owner = GetOwner();
     // Handle Death Knight Glyphs and Talents
+	float mod = 0.75f;
     if (IsPetGhoul() && (stat == STAT_STAMINA || stat == STAT_STRENGTH))
     { 
-        float mod = 0.0f;
         switch (stat)
         {
             case STAT_STAMINA:  mod = 0.3f; break;                // Default Owner's Stamina scale
@@ -945,7 +950,24 @@ bool Guardian::UpdateStats(Stats stat)
         if (owner->getClass() == CLASS_WARLOCK && isPet())
             value += float(owner->GetStat(STAT_STAMINA)) * 0.75f;
         else
-            value += float(owner->GetStat(stat)) * 0.3f;
+	{
+	  mod = 0.3f;
+	  if (((Creature*)this)->isPet())
+	    {
+	      PetSpellMap::const_iterator itr = (((Pet*)this)->m_spells.find(62758));				     //Wild Hunt rank1
+	      if (itr == ((Pet*)this)->m_spells.end())
+	      {
+		itr = ((Pet*)this)->m_spells.find(62762);							     //Wild Hunt rank2
+	      }
+	      if (itr != ((Pet*)this)->m_spells.end())								     // If pet has Wild Hunt
+	      {
+		
+		SpellEntry const* sProto = sSpellStore.LookupEntry(itr->first);                                    // Then get the SpellProto and add the dummy effect value
+                mod += mod * (sProto->EffectBasePoints[0] / 100.0f);
+	      }
+	    }
+            value += float(owner->GetStat(stat)) * mod;
+	}
     }
                                                             //warlock's and mage's pets gain 30% of owner's intellect
     else if (stat == STAT_INTELLECT)
@@ -1095,8 +1117,23 @@ void Guardian::UpdateAttackPowerAndDamage(bool ranged)
     {
         if(isHunterPet())                      //hunter pets benefit from owner's attack power
         {
-            bonusAP = owner->GetTotalAttackPowerValue(RANGED_ATTACK) * 0.22f;
-            SetBonusDamage( int32(owner->GetTotalAttackPowerValue(RANGED_ATTACK) * 0.1287f));
+	    float mod = 1.0f;											     //Hunter contribution modifier
+            if (((Creature*)this)->isPet())
+	    {
+	      PetSpellMap::const_iterator itr = ((Pet*)this)->m_spells.find(62758);				     //Wild Hunt rank1
+	      if (itr == ((Pet*)this)->m_spells.end())
+	      {
+		itr = ((Pet*)this)->m_spells.find(62762);							     //Wild Hunt rank2
+	      }
+	      if (itr != ((Pet*)this)->m_spells.end())								     // If pet has Wild Hunt
+	      {
+		
+		SpellEntry const* sProto = sSpellStore.LookupEntry(itr->first);                                    // Then get the SpellProto and add the dummy effect value
+                mod += (sProto->EffectBasePoints[1] / 100.0f);
+	      }
+	    }
+            bonusAP = owner->GetTotalAttackPowerValue(RANGED_ATTACK) * 0.22f * mod;
+            SetBonusDamage( int32(owner->GetTotalAttackPowerValue(RANGED_ATTACK) * 0.1287f * mod));
         }
         else if (IsPetGhoul()) //ghouls benefit from deathknight's attack power (may be summon pet or not)
         {
@@ -1220,4 +1257,3 @@ void Guardian::UpdateDamagePhysical(WeaponAttackType attType)
     SetStatFloatValue(UNIT_FIELD_MINDAMAGE, mindamage);
     SetStatFloatValue(UNIT_FIELD_MAXDAMAGE, maxdamage);
 }
-
