@@ -548,6 +548,8 @@ class TRINITY_DLL_SPEC WorldObject : public Object, public WorldLocation
         bool IsInRange(WorldObject const* obj, float minRange, float maxRange, bool is3D = true) const;
         bool IsInRange2d(float x, float y, float minRange, float maxRange) const;
         bool IsInRange3d(float x, float y, float z, float minRange, float maxRange) const;
+        bool isInFront(WorldObject const* target,float distance, float arc = M_PI) const;
+        bool isInBack(WorldObject const* target, float distance, float arc = M_PI) const;
 
         bool IsInBetween(const WorldObject *obj1, const WorldObject *obj2, float size = 0) const;
 
