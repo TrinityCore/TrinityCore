@@ -6285,11 +6285,6 @@ void Player::RewardReputation(Quest const *pQuest)
     // TODO: implement reputation spillover
 }
 
-void Player::UpdateArenaFields(void)
-{
-    /* arena calcs go here */
-}
-
 void Player::UpdateHonorFields()
 {
     /// called when rewarding honor and at each save
