@@ -76,4 +76,3 @@ class BattleGroundBE : public BattleGround
         void UpdatePlayerScore(Player *Source, uint32 type, uint32 value);
 };
 #endif
-

@@ -454,7 +454,7 @@ struct TRINITY_DLL_DECL npc_marzon_silent_bladeAI : public ScriptedAI
             {
                 CAST_AI(npc_lord_gregor_lescovarAI, CAST_CRE(pSummoner)->AI())->uiTimer = 2000;
                 CAST_AI(npc_lord_gregor_lescovarAI, CAST_CRE(pSummoner)->AI())->uiPhase = 5;
-                m_creature->ChangeOrient(0.0f, pSummoner);
+                //m_creature->ChangeOrient(0.0f, pSummoner);
             }
         }
     }
@@ -514,8 +514,6 @@ struct TRINITY_DLL_DECL npc_tyrion_spybotAI : public npc_escortAI
         switch(uiPointId)
         {
             case 1:
-                if (pTyrion = m_creature->FindNearestCreature(NPC_TYRION, 10.0f, true))
-                    m_creature->ChangeOrient(0.0f, pTyrion);
                 SetEscortPaused(true);
                 uiTimer = 2000;
                 uiPhase = 1;
@@ -528,8 +526,6 @@ struct TRINITY_DLL_DECL npc_tyrion_spybotAI : public npc_escortAI
                 break;
             case 17:
                 SetEscortPaused(true);
-                if (pLescovar = m_creature->FindNearestCreature(NPC_LORD_GREGOR_LESCOVAR, 20.0f, true))
-                    pLescovar->ChangeOrient(0.0f, m_creature);
                 DoScriptText(SAY_SPYBOT_3, m_creature);
                 uiTimer = 3000;
                 uiPhase = 8;

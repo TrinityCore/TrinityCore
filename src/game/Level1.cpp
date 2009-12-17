@@ -827,7 +827,7 @@ bool ChatHandler::HandleNamegoCommand(const char* args)
             Map* cMap = target->GetMap();
             if (cMap->Instanceable() && cMap->GetInstanceId() != pMap->GetInstanceId())
             {
-                target->UnbindInstance(pMap->GetInstanceId(), target->GetDifficulty(), true);
+                target->UnbindInstance(pMap->GetInstanceId(), target->GetDungeonDifficulty(), true);
                 // cannot summon from instance to instance
                 //PSendSysMessage(LANG_CANNOT_SUMMON_TO_INST,nameLink.c_str());
                 //SetSentErrorMessage(true);
@@ -968,24 +968,26 @@ bool ChatHandler::HandleGonameCommand(const char* args)
 
             // if the player or the player's group is bound to another instance
             // the player will not be bound to another one
-            InstancePlayerBind *pBind = _player->GetBoundInstance(target->GetMapId(), target->GetDifficulty());
+            InstancePlayerBind *pBind = _player->GetBoundInstance(target->GetMapId(), target->GetDifficulty(cMap->IsRaid()));
             if (!pBind)
             {
                 Group *group = _player->GetGroup();
                 // if no bind exists, create a solo bind
-                InstanceGroupBind *gBind = group ? group->GetBoundInstance(target->GetMapId(), target->GetDifficulty()) : NULL;
-                // if no bind exists, create a solo bind
+                InstanceGroupBind *gBind = group ? group->GetBoundInstance(target) : NULL;                // if no bind exists, create a solo bind
                 if (!gBind)
                     if (InstanceSave *save = sInstanceSaveManager.GetInstanceSave(target->GetInstanceId()))
                         _player->BindToInstance(save, !save->CanReset());
             }
 
-            _player->SetDifficulty(target->GetDifficulty());
+            if(cMap->IsRaid())
+                _player->SetRaidDifficulty(target->GetRaidDifficulty());
+            else
+                _player->SetDungeonDifficulty(target->GetDungeonDifficulty());
         }
 
         PSendSysMessage(LANG_APPEARING_AT, chrNameLink.c_str());
-        if (needReportToTarget(target))
-            ChatHandler(target).PSendSysMessage(LANG_APPEARING_TO, GetNameLink().c_str());
+        //if (needReportToTarget(target))
+        //    ChatHandler(target).PSendSysMessage(LANG_APPEARING_TO, GetNameLink().c_str());
 
         // stop flight if need
         if (_player->isInFlight())

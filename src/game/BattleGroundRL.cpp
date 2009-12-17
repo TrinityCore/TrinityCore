@@ -79,7 +79,7 @@ void BattleGroundRL::AddPlayer(Player *plr)
 
     m_PlayerScores[plr->GetGUID()] = sc;
 
-    UpdateArenaUnitWorldState();
+    UpdateArenaWorldState();
 }
 
 void BattleGroundRL::RemovePlayer(Player* /*plr*/, uint64 /*guid*/)
@@ -87,7 +87,7 @@ void BattleGroundRL::RemovePlayer(Player* /*plr*/, uint64 /*guid*/)
     if (GetStatus() == STATUS_WAIT_LEAVE)
         return;
 
-    UpdateArenaUnitWorldState();
+    UpdateArenaWorldState();
     CheckArenaWinConditions();
 }
 
@@ -104,7 +104,7 @@ void BattleGroundRL::HandleKillPlayer(Player *player, Player *killer)
 
     BattleGround::HandleKillPlayer(player,killer);
 
-    UpdateArenaUnitWorldState();
+    UpdateArenaWorldState();
     CheckArenaWinConditions();
 }
 
@@ -139,9 +139,8 @@ void BattleGroundRL::HandleAreaTrigger(Player *Source, uint32 Trigger)
 
 void BattleGroundRL::FillInitialWorldStates(WorldPacket &data)
 {
-    data << uint32(0xbba) << uint32(1);
-
-    UpdateArenaUnitWorldState();
+    data << uint32(0xbba) << uint32(1);           // 9
+    UpdateArenaWorldState();
 }
 
 void BattleGroundRL::Reset()
@@ -175,4 +174,3 @@ Packet S->C, id 600, SMSG_INIT_WORLD_STATES (706), len 86
 0040: 00 00 00 00 00 00 D3 08 00 00 00 00 00 00 D4 08 | ................
 0050: 00 00 00 00 00 00                               | ......
 */
-
