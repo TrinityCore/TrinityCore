@@ -754,4 +754,3 @@ class TRINITY_DLL_SPEC GameObject : public WorldObject
         GridReference<GameObject> m_gridRef;
 };
 #endif
-

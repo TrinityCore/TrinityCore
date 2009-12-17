@@ -64,11 +64,9 @@ class DynamicObject : public WorldObject
         uint32 m_effMask;
         int32 m_aliveDuration;
         uint32 m_updateTimer;
-        time_t m_nextThinkTime;
         float m_radius;
         AffectedSet m_affected;
     private:
         GridReference<DynamicObject> m_gridRef;
 };
 #endif
-
