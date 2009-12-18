@@ -40,25 +40,24 @@ struct PoolObject
 template <class T>
 class PoolGroup
 {
+    typedef std::vector<PoolObject> PoolObjectList;
     public:
-        PoolGroup();
+        PoolGroup() : m_SpawnedPoolAmount(0) {}
         ~PoolGroup() {};
         bool isEmpty() { return ExplicitlyChanced.empty() && EqualChanced.empty(); }
         void AddEntry(PoolObject& poolitem, uint32 maxentries);
         bool CheckPool(void);
-        uint32 RollOne(void);
+        void RollOne(int32& index, PoolObjectList** store, uint32 triggerFrom);
         bool IsSpawnedObject(uint32 guid);
         void DespawnObject(uint32 guid=0);
         void Despawn1Object(uint32 guid);
-        void SpawnObject(uint32 limit, bool cache=false);
+        void SpawnObject(uint32 limit, uint32 triggerFrom);
         bool Spawn1Object(uint32 guid);
         bool ReSpawn1Object(uint32 guid);
         void RemoveOneRelation(uint16 child_pool_id);
     private:
-        typedef std::vector<PoolObject> PoolObjectList;
         PoolObjectList ExplicitlyChanced;
         PoolObjectList EqualChanced;
-        uint32 m_LastDespawnedNode;                         // Store the guid of the removed creature/gameobject during a pool update
         uint32 m_SpawnedPoolAmount;                         // Used to know the number of spawned objects
 };
 
@@ -75,7 +74,7 @@ class PoolHandler
         uint16 IsPartOfAPool(uint32 guid, uint32 type);
         bool IsSpawnedObject(uint16 pool_id, uint32 guid, uint32 type);
         bool CheckPool(uint16 pool_id);
-        void SpawnPool(uint16 pool_id, bool cache=false);
+        void SpawnPool(uint16 pool_id, uint32 guid, uint32 type);
         void DespawnPool(uint16 pool_id);
         void UpdatePool(uint16 pool_id, uint32 guid, uint32 type);
         void Initialize();
