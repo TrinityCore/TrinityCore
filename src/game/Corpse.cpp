@@ -42,7 +42,7 @@ Corpse::Corpse(CorpseType type) : WorldObject()
 
     lootForBody = false;
 
-    if(type != CORPSE_BONES)
+    if (type != CORPSE_BONES)
         m_isWorldObject = true;
 }
 
