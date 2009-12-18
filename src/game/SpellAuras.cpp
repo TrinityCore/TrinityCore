@@ -1642,8 +1642,8 @@ void AuraEffect::HandleAuraEffectSpecificMods(bool apply, bool Real, bool change
                     else if (m_spellProto->Id == 29166 && GetAuraName() == SPELL_AURA_PERIODIC_ENERGIZE)
                         m_amount = m_target->GetCreatePowers(POWER_MANA) * m_amount / (GetTotalTicks() * 100.0f);
                     // Owlkin Frenzy
-                    else if (m_spellProto->Id == 48391)
-                        m_amount = m_target->GetCreatePowers(POWER_MANA) * 2 / 100;
+                    else if (m_spellProto->Id == 48391 && GetAuraName() == SPELL_AURA_PERIODIC_ENERGIZE)
+                        m_amount = m_target->GetCreatePowers(POWER_MANA) * m_amount / 100.0f;
                     // Thorns
                     else if (m_spellProto->SpellFamilyFlags[0] & 0x100 && GetAuraName() == SPELL_AURA_DAMAGE_SHIELD)
                         // 3.3% from sp bonus
