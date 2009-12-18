@@ -525,8 +525,10 @@ void WorldSession::HandleGetMailList(WorldPacket & recv_data )
     const uint32 maxPacketSize = 32767;
 
     uint32 mailsCount = 0;                                 // real send to client mails amount
+    uint32 realCount  = 0;                                 // real mails amount
 
     WorldPacket data(SMSG_MAIL_LIST_RESULT, (200));         // guess size
+    data << uint32(0);                                      // real mail's count
     data << uint8(0);                                       // mail's count
     time_t cur_time = time(NULL);
 
@@ -534,7 +536,10 @@ void WorldSession::HandleGetMailList(WorldPacket & recv_data )
     {
         // packet send mail count as uint8, prevent overflow
         if (mailsCount >= 254)
-            break;
+        {
+            realCount += 1;
+            continue;
+        }
 
         // skip deleted or not delivered (deliver delay not expired) mails
         if ((*itr)->state == MAIL_STATE_DELETED || cur_time < (*itr)->deliver_time)
@@ -545,7 +550,10 @@ void WorldSession::HandleGetMailList(WorldPacket & recv_data )
         size_t next_mail_size = 2+4+1+8+4*8+((*itr)->subject.size()+1)+1+item_count*(1+4+4+6*3*4+4+4+1+4+4+4);
 
         if (data.wpos()+next_mail_size > maxPacketSize)
-            break;
+        {
+            realCount += 1;
+            continue;
+        }
 
         uint32 show_flags = 0;
         if ((*itr)->messageType != MAIL_NORMAL)
@@ -570,6 +578,7 @@ void WorldSession::HandleGetMailList(WorldPacket & recv_data )
                 data << uint32((*itr)->sender);            // creature/gameobject entry, auction id
                 break;
             case MAIL_ITEM:                                 // item entry (?) sender = "Unknown", NYI
+                data << uint32(0);                          // item entry
                 break;
         }
 
@@ -618,10 +627,12 @@ void WorldSession::HandleGetMailList(WorldPacket & recv_data )
             data << uint8(0);
         }
 
+        realCount += 1;
         mailsCount += 1;
     }
 
-    data.put<uint8>(0, mailsCount);                        // set real send mails to client
+    data.put<uint32>(0, realCount);                         // this will display warning about undelivered mail to player if realCount > mailsCount
+    data.put<uint8>(4, mailsCount);                        // set real send mails to client
     SendPacket(&data);
 
     // recalculate m_nextMailDelivereTime and unReadMails
