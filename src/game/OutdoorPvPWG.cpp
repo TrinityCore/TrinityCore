@@ -801,14 +801,14 @@ void OutdoorPvPWG::SendInitWorldStatesTo(Player *player) const
     data << uint32(571);
     data << uint32(ZONE_WINTERGRASP);
     data << uint32(0);
-    data << uint16(4+5+4+m_buildingStates.size());
+    data << uint16(4+2+4+m_buildingStates.size());
 
     data << uint32(3803) << uint32(getDefenderTeam() == TEAM_ALLIANCE ? 1 : 0);
     data << uint32(3802) << uint32(getDefenderTeam() != TEAM_ALLIANCE ? 1 : 0);
     data << uint32(3801) << uint32(isWarTime() ? 0 : 1);
     data << uint32(3710) << uint32(isWarTime() ? 1 : 0);
 
-    for (uint32 i = 0; i < 5; ++i)
+    for (uint32 i = 0; i < 2; ++i)
         data << ClockWorldState[i] << m_clock[i];
 
     data << uint32(3490) << uint32(m_vehicles[TEAM_HORDE].size());
@@ -1219,19 +1219,17 @@ void OutdoorPvPWG::UpdateClockDigit(uint32 &timer, uint32 digit, uint32 mod)
     if (m_clock[digit] != value)
     {
         m_clock[digit] = value;
-        SendUpdateWorldState(ClockWorldState[digit], value);
+        SendUpdateWorldState(ClockWorldState[digit], (timer + time(NULL)));
     }
 }
 
 void OutdoorPvPWG::UpdateClock()
 {
     uint32 timer = m_timer / 1000;
-    UpdateClockDigit(timer, 0, 10);
-    UpdateClockDigit(timer, 1, 6);
-    UpdateClockDigit(timer, 2, 10);
-    UpdateClockDigit(timer, 3, 6);
     if (!isWarTime())
-        UpdateClockDigit(timer, 4, 10);
+        UpdateClockDigit(timer, 1, 10);
+    else
+        UpdateClockDigit(timer, 0, 10);
 }
 
 bool OutdoorPvPWG::Update(uint32 diff)
