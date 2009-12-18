@@ -3004,18 +3004,10 @@ void Spell::handle_immediate()
     _handle_immediate_phase();
 
     for (std::list<TargetInfo>::iterator ihit= m_UniqueTargetInfo.begin(); ihit != m_UniqueTargetInfo.end(); ++ihit)
-	{
         DoAllEffectOnTarget(&(*ihit));
-        if(m_UniqueTargetInfo.end()==ihit)
-            break;
-    }
 
     for (std::list<GOTargetInfo>::iterator ihit= m_UniqueGOTargetInfo.begin(); ihit != m_UniqueGOTargetInfo.end(); ++ihit)
-	{
         DoAllEffectOnTarget(&(*ihit));
-        if(m_UniqueGOTargetInfo.end()==ihit)
-            break;
-    }
 
     // spell is finished, perform some last features of the spell here
     _handle_finish_phase();
