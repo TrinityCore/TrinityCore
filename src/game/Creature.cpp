@@ -1904,7 +1904,7 @@ void Creature::Respawn(bool force)
 
         uint16 poolid = poolhandler.IsPartOfAPool(GetGUIDLow(), GetTypeId());
         if (poolid)
-            poolhandler.UpdatePool(poolid, GetGUIDLow(), GetTypeId());
+            poolhandler.UpdatePool(poolid, GetGUIDLow(), TYPEID_UNIT);
     }
 
     SetToNotify();
