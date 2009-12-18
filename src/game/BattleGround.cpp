@@ -784,7 +784,6 @@ void BattleGround::EndBattleGround(uint32 winner)
         else if(winner)
             RewardMark(plr,ITEM_LOSER_COUNT);
 
- 	
         plr->SetHealth(plr->GetMaxHealth());
         plr->SetPower(POWER_MANA, plr->GetMaxPower(POWER_MANA));
         plr->CombatStopWithPets(true);

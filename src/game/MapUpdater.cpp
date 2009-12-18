@@ -112,7 +112,7 @@ bool MapUpdater::activated()
 
 void MapUpdater::update_finished()
 {
-	ACE_GUARD(ACE_Thread_Mutex, guard, this->m_mutex);
+    ACE_GUARD(ACE_Thread_Mutex, guard, this->m_mutex);
 
     if (this->pedning_requests == 0)
     {

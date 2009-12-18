@@ -260,7 +260,7 @@ World::AddSession_ (WorldSession* s)
     s->SendPacket(&pkt);
 
     s->SendAccountDataTimes(GLOBAL_CACHE_MASK);
-    
+
     s->SendTutorialsData();
 
     UpdateMaxSessionCounters ();
@@ -2584,12 +2584,12 @@ void World::LoadDBVersion()
 
 void World::ProcessStartEvent()
 {
-	isEventKillStart = true;
+    isEventKillStart = true;
 }
 
 void World::ProcessStopEvent()
 {
-	isEventKillStart = false;
+    isEventKillStart = false;
 }
 
 void World::UpdateAreaDependentAuras()

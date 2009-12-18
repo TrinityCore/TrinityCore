@@ -348,7 +348,7 @@ public:
     template<class type>
     inline bool operator < (type & right)
     {
-        for (uint8 i=3; i>0; i--)
+        for (uint8 i=3; i > 0; --i)
         {
             if (part[i-1]<right.part[i-1])
                 return 1;
@@ -361,7 +361,7 @@ public:
     template<class type>
     inline bool operator < (type & right) const
     {
-        for (uint8 i=3; i>0; i--)
+        for (uint8 i = 3; i > 0; --i)
         {
             if (part[i-1]<right.part[i-1])
                 return 1;

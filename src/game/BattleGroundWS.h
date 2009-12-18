@@ -208,7 +208,7 @@ class BattleGroundWS : public BattleGround
         int32 m_FlagsTimer[2];
         int32 m_FlagsDropTimer[2];
         uint32 m_FirstFlagCaptureTeam;                      // Winner is based on this if score is equal
-        
+
         uint32 m_ReputationCapture;
         uint32 m_HonorWinKills;
         uint32 m_HonorEndKills;

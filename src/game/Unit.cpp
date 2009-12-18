@@ -5014,17 +5014,17 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                     triggered_spell_id = 58374;
                     break;
                 }
-				// Glyph of Devastate
-				if (dummySpell->Id == 58388)
-				{
-					if (!pVictim || !pVictim->isAlive())
-						return false;
+                // Glyph of Devastate
+                if (dummySpell->Id == 58388)
+                {
+                    if (!pVictim || !pVictim->isAlive())
+                        return false;
 
-					if (Aura* aur = pVictim->GetAura(58567,0))
-						aur->modStackAmount(1);
+                    if (Aura* aur = pVictim->GetAura(58567,0))
+                        aur->modStackAmount(1);
 
-					return true;
-				}
+                    return true;
+                }
                 // Unstable Power
                 case 24658:
                 {
@@ -5332,12 +5332,12 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                 // Shadowfiend Death (Gain mana if pet dies with Glyph of Shadowfiend)
                 case 57989:
                 {
-					Unit *owner = GetOwner();
-					if (!owner || owner->GetTypeId() != TYPEID_PLAYER)
-					    return false;
-					// Glyph of Shadowfiend (need cast as self cast for owner, no hidden cooldown)
-					owner->CastSpell(owner,58227,true,castItem,triggeredByAura);
-					return true;
+                    Unit *owner = GetOwner();
+                    if (!owner || owner->GetTypeId() != TYPEID_PLAYER)
+                        return false;
+                    // Glyph of Shadowfiend (need cast as self cast for owner, no hidden cooldown)
+                    owner->CastSpell(owner,58227,true,castItem,triggeredByAura);
+                    return true;
                 }
                 // Divine purpose
                 case 31871:
@@ -5467,7 +5467,7 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                     target->RemoveAurasByType(SPELL_AURA_PERIODIC_DAMAGE_PERCENT);
                     return true;
                 }
-				// Glyph of Drain Soul 
+                // Glyph of Drain Soul 
                 case 58070:
                 {
                     triggered_spell_id = 58068;
@@ -6604,7 +6604,7 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                 // Windfury Weapon (Passive) 1-5 Ranks
                 case 33757:
                 {
-					if(GetTypeId()!=TYPEID_PLAYER || !castItem || !castItem->IsEquipped()  || !pVictim || !pVictim->isAlive())
+                    if(GetTypeId()!=TYPEID_PLAYER || !castItem || !castItem->IsEquipped()  || !pVictim || !pVictim->isAlive())
                         return false;
 
                     // custom cooldown processing case

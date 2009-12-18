@@ -1214,7 +1214,7 @@ struct ScalingStatValuesEntry
     //uint32 unk1;                                          // 18 all fields equal to 0
     //uint32 unk2;                                          // 19 unk, probably also Armor for level
     uint32  armorMod2[4];                                   // 20-23 Armor for level
-    
+
     uint32  getssdMultiplier(uint32 mask) const
     {
         if (mask & 0x001F)

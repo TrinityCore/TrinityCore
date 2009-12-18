@@ -272,7 +272,7 @@ bool AOEAI::CanAIAttack(const Unit *who) const
 
 void AOEAI::AttackStart(Unit *who)
 {
-    
+
 }
 
 void AOEAI::UpdateAI(const uint32 diff)

@@ -319,7 +319,7 @@ class TRINITY_DLL_SPEC Item : public Object
         bool IsWeaponVellum() const { return GetProto()->IsWeaponVellum(); }
         bool IsArmorVellum() const { return GetProto()->IsArmorVellum(); }
         bool IsConjuredConsumable() const { return GetProto()->IsConjuredConsumable(); }
-        
+
         // Item Refund system
         uint32 GetPaidHonorPoints() { return m_paidHonorPoints; }
         uint32 GetPaidArenaPoints() { return m_paidArenaPoints; }
@@ -341,7 +341,7 @@ class TRINITY_DLL_SPEC Item : public Object
         ItemUpdateState uState;
         int16 uQueuePos;
         bool mb_in_trade;                                   // true if item is currently in trade-window
-        
+
         // refund system
         uint32 m_paidHonorPoints;
         uint32 m_paidArenaPoints;

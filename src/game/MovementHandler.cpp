@@ -404,7 +404,7 @@ void WorldSession::HandleForceSpeedChangeAck(WorldPacket &recv_data)
 {
     uint32 opcode = recv_data.GetOpcode();
     sLog.outDebug("WORLD: Recvd %s (%u, 0x%X) opcode", LookupOpcodeName(opcode), opcode, opcode);
-    
+
     /* extract packet */
     uint64 guid;
     uint32 unk1;
@@ -526,7 +526,7 @@ void WorldSession::HandleMoveNotActiveMover(WorldPacket &recv_data)
     MovementInfo mi;
     mi.guid = old_mover_guid;
     ReadMovementInfo(recv_data, &mi);
-    
+
     //ReadMovementInfo(recv_data, &_player->m_mover->m_movementInfo);
     _player->m_movementInfo = mi;
 }
@@ -554,7 +554,7 @@ void WorldSession::HandleDismissControlledVehicle(WorldPacket &recv_data)
     ReadMovementInfo(recv_data, &mi);
 
     _player->m_movementInfo = mi;
-     
+
     /* 
     ReadMovementInfo(recv_data, &_player->m_mover->m_movementInfo);*/
     _player->ExitVehicle();
