@@ -2158,21 +2158,21 @@ bool BattleGroundMgr::IsBGWeekend(BattleGroundTypeId bgTypeId)
 
 void BattleGroundMgr::DoCompleteAchievement(uint32 achievement, Player * player)
 {
-	AchievementEntry const* AE = GetAchievementStore()->LookupEntry(achievement);
+    AchievementEntry const* AE = GetAchievementStore()->LookupEntry(achievement);
 
-	if(!player)
-	{
-		//Map::PlayerList const &PlayerList = this->GetPlayers();
-		//GroupsQueueType::iterator group = SelectedGroups.begin();
+    if(!player)
+    {
+        //Map::PlayerList const &PlayerList = this->GetPlayers();
+        //GroupsQueueType::iterator group = SelectedGroups.begin();
 
-		//if (!PlayerList.isEmpty())
-			//for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
-		//	for (GroupsQueueType::iterator itr = group; itr != SelectedGroups.end(); ++itr)
-		//		if (Player *pPlayer = itr->getSource())
-		//	        pPlayer->CompletedAchievement(AE);
-	}
-	else
-	{
-		player->CompletedAchievement(AE);
-	}
+        //if (!PlayerList.isEmpty())
+            //for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
+        //    for (GroupsQueueType::iterator itr = group; itr != SelectedGroups.end(); ++itr)
+        //        if (Player *pPlayer = itr->getSource())
+        //            pPlayer->CompletedAchievement(AE);
+    }
+    else
+    {
+        player->CompletedAchievement(AE);
+    }
 }

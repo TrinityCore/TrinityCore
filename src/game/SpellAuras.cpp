@@ -955,10 +955,10 @@ void AuraEffect::HandleSchoolAbsorb(bool apply, bool Real, bool changeAmount)
     if (apply)
     {
         // prevent double apply bonuses
-        if (m_target->GetTypeId()!=TYPEID_PLAYER || !((Player*)m_target)->GetSession()->PlayerLoading())
+        if (m_target->GetTypeId() != TYPEID_PLAYER || !((Player*)m_target)->GetSession()->PlayerLoading())
         {
             float DoneActualBenefit = 0.0f;
-            switch(m_spellProto->SpellFamilyName)
+            switch (m_spellProto->SpellFamilyName)
             {
                 case SPELLFAMILY_PRIEST:
                     // Power Word: Shield
@@ -4763,7 +4763,7 @@ void AuraEffect::HandlePeriodicTriggerSpell(bool apply, bool Real, bool /*change
         { 
             case 66:                                        // Invisibility 
                     m_target->CastSpell(m_target, 32612, true, NULL, this); 
- 
+
                 return; 
             case 42783:                                     //Wrath of the Astrom... 
                     m_target->CastSpell(m_target, m_spellProto->CalculateSimpleValue(GetEffIndex()+1), true); 
@@ -6055,7 +6055,7 @@ void AuraEffect::PeriodicTick()
             bool crit = IsPeriodicTickCrit(pCaster);
             if (crit)
                 pdamage = pCaster->SpellCriticalDamageBonus(m_spellProto, pdamage, m_target);
-                
+
             // Reduce dot damage from resilience for players.
             if (m_target->GetTypeId() == TYPEID_PLAYER)
                 pdamage-=((Player*)m_target)->GetSpellDamageReduction(pdamage);
@@ -6126,7 +6126,7 @@ void AuraEffect::PeriodicTick()
                 cleanDamage.mitigated_damage += pdamage - pdamageReductedArmor;
                 pdamage = pdamageReductedArmor;
             }
-            
+
             // Reduce dot damage from resilience for players.
             if (m_target->GetTypeId() == TYPEID_PLAYER)
                 pdamage-=((Player*)m_target)->GetSpellDamageReduction(pdamage);

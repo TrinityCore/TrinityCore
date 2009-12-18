@@ -5410,7 +5410,7 @@ bool ChatHandler::HandleServerShutDownCommand(const char *args)
     char* time_str = strtok ((char*) args, " ");
     char* exitcode_str = strtok (NULL, "");
 
-	char* tailStr = *args!='"' ? strtok(NULL, "") : (char*)args;
+    char* tailStr = *args!='"' ? strtok(NULL, "") : (char*)args;
     if(!tailStr)
         return false;
 

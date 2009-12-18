@@ -2488,7 +2488,7 @@ enum DiminishingGroup
     DIMINISHING_TAUNT,
     DIMINISHING_LIMITONLY               // Don't Diminish, but limit duration to 10s
 };
- 
+
 enum SummonCategory
 {
     SUMMON_CATEGORY_WILD        = 0,
