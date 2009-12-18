@@ -2070,7 +2070,7 @@ void ObjectMgr::LoadItemPrototypes()
                         break;
                     }
                 }
-            
+
             if (req)
             {
                 if(!(proto->AllowableClass & CLASSMASK_ALL_PLAYABLE))
@@ -3338,7 +3338,7 @@ void ObjectMgr::LoadGroups()
     uint32 count = 0;
     //                                                     0         1              2           3           4              5      6      7      8      9      10     11     12     13      14         15              16
     QueryResult *result = CharacterDatabase.Query("SELECT mainTank, mainAssistant, lootMethod, looterGuid, lootThreshold, icon1, icon2, icon3, icon4, icon5, icon6, icon7, icon8, isRaid, difficulty, raiddifficulty, leaderGuid FROM groups");
- 
+
     if( !result )
     {
         barGoLink bar( 1 );
@@ -3561,7 +3561,7 @@ void ObjectMgr::LoadQuests()
 
     delete result;
 
-   std::map<uint32,uint32> usedMailTemplates;
+    std::map<uint32,uint32> usedMailTemplates;
 
     // Post processing
     for (QuestMap::iterator iter = mQuestTemplates.begin(); iter != mQuestTemplates.end(); ++iter)
@@ -4689,36 +4689,36 @@ void ObjectMgr::LoadWaypointScripts()
 void ObjectMgr::LoadItemTexts()
 {
     QueryResult *result = CharacterDatabase.Query("SELECT id, text FROM item_text");
- 
+
     uint32 count = 0;
- 
+
     if( !result )
     {
         barGoLink bar( 1 );
         bar.step();
- 
+
         sLog.outString();
         sLog.outString( ">> Loaded %u item pages", count );
         return;
     }
- 
+
     barGoLink bar( result->GetRowCount() );
- 
+
     Field* fields;
     do
     {
         bar.step();
- 
+
         fields = result->Fetch();
- 
+
         mItemTexts[ fields[0].GetUInt32() ] = fields[1].GetCppString();
- 
+
         ++count;
- 
+
     } while ( result->NextRow() );
- 
+
     delete result;
- 
+
     sLog.outString();
     sLog.outString( ">> Loaded %u item texts", count );
 }
@@ -5253,7 +5253,6 @@ void ObjectMgr::LoadAreaTriggerScripts()
     sLog.outString( ">> Loaded %u areatrigger scripts", count );
 }
 
-// use searched_node for search some known node
 uint32 ObjectMgr::GetNearestTaxiNode( float x, float y, float z, uint32 mapid, uint32 team )
 {
     bool found = false;
@@ -5264,7 +5263,7 @@ uint32 ObjectMgr::GetNearestTaxiNode( float x, float y, float z, uint32 mapid, u
     {
         TaxiNodesEntry const* node = sTaxiNodesStore.LookupEntry(i);
 
-		if(!node || node->map_id != mapid || !node->MountCreatureID[team == ALLIANCE ? 1 : 0] && node->MountCreatureID[0] != 32981) // dk flight
+        if(!node || node->map_id != mapid || !node->MountCreatureID[team == ALLIANCE ? 1 : 0] && node->MountCreatureID[0] != 32981) // dk flight
             continue;
 
         uint8  field   = (uint8)((i - 1) / 32);
@@ -5274,7 +5273,7 @@ uint32 ObjectMgr::GetNearestTaxiNode( float x, float y, float z, uint32 mapid, u
         if((sTaxiNodesMask[field] & submask)==0)
             continue;
 
-		float dist2 = (node->x - x)*(node->x - x)+(node->y - y)*(node->y - y)+(node->z - z)*(node->z - z);
+        float dist2 = (node->x - x)*(node->x - x)+(node->y - y)*(node->y - y)+(node->z - z)*(node->z - z);
         if(found)
         {
             if(dist2 < dist)

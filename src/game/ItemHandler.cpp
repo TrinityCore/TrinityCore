@@ -1393,7 +1393,7 @@ void WorldSession::HandleItemRefund(WorldPacket &recv_data)
         sLog.outDebug("Item refund: item not refundable!");
         return;
     }
-    
+
     if(item->GetRefundExpiryTime() <= time(NULL))    // item refund has expired
     {
         WorldPacket data(SMSG_ITEM_REFUND);
@@ -1401,7 +1401,7 @@ void WorldSession::HandleItemRefund(WorldPacket &recv_data)
         data << uint32(1);                          // error, abort refund
         return;
     }
-    
+
     WorldPacket data(SMSG_ITEM_REFUND);
     data << uint64(guid);                            // guid?
     data << uint32(0);                               // must be 0 or client side error in refund
@@ -1414,7 +1414,7 @@ void WorldSession::HandleItemRefund(WorldPacket &recv_data)
         data << uint32(item->GetPaidExtendedCostCount(i));
     }
     SendPacket(&data);
-    
+
     // Grant back extendedcost items
     uint32 count = 0;
     uint32 itemid = 0;
@@ -1438,11 +1438,11 @@ void WorldSession::HandleItemRefund(WorldPacket &recv_data)
     // Grant back Honor points
     if (uint32 honorRefund = item->GetPaidHonorPoints() > 0)
         _player->ModifyHonorPoints(honorRefund);
-        
+
     // Grant back Arena points
     if (uint32 arenaRefund = item->GetPaidArenaPoints() > 0)
         _player->ModifyArenaPoints(arenaRefund);
-        
+
     // Destroy item
     _player->DestroyItemCount(item->GetEntry(), 1, true, true);
 }

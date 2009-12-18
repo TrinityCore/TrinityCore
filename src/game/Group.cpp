@@ -104,7 +104,7 @@ bool Group::Create(const uint64 &guid, const char * name)
             m_dungeonDifficulty = leader->GetDungeonDifficulty();
             m_raidDifficulty = leader->GetRaidDifficulty();
         }
- 
+
         Player::ConvertInstancesToGroup(leader, this, guid);
 
         // store group in database
@@ -1480,7 +1480,7 @@ void Group::SetDungeonDifficulty(Difficulty difficulty)
     m_dungeonDifficulty = difficulty;
     if(!isBGGroup())
        CharacterDatabase.PExecute("UPDATE groups SET difficulty = %u WHERE leaderGuid ='%u'", m_dungeonDifficulty, GUID_LOPART(m_leaderGuid));
-    
+
     for (GroupReference *itr = GetFirstMember(); itr != NULL; itr = itr->next())
     {
         Player *player = itr->getSource();

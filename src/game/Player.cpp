@@ -8248,12 +8248,12 @@ void Player::SendInitWorldStates(uint32 zoneid, uint32 areaid)
                                                             // 8 Arena season id
     data << uint32(0xF3D) << uint32(sWorld.getConfig(CONFIG_ARENA_SEASON_ID));
 
-	// May be send timer to start Wintergrasp
-	//if(sWorld.GetWintergrapsState()==4354)
-	//	data << uint32(0x1102) << sWorld.GetWintergrapsTimer();
-	//else
-	//	data << uint32(0xEC5) << sWorld.GetWintergrapsTimer();
-	// ---
+    // May be send timer to start Wintergrasp
+    //if(sWorld.GetWintergrapsState()==4354)
+    //    data << uint32(0x1102) << sWorld.GetWintergrapsTimer();
+    //else
+    //    data << uint32(0xEC5) << sWorld.GetWintergrapsTimer();
+    // ---
     if(mapid == 530)                                        // Outland
     {
         data << uint32(0x9bf) << uint32(0x0);               // 7
@@ -18503,7 +18503,7 @@ bool Player::BuyItemFromVendor(uint64 vendorguid, uint32 item, uint8 count, uint
             data << uint32(count);
             GetSession()->SendPacket(&data);
             SendNewItem(it, pProto->BuyCount*count, true, false, false);
-            
+
             // Item Refund system, only works for non stackable items with extendedcost
             if(count == 1 && crItem->ExtendedCost )
             {
@@ -19443,7 +19443,7 @@ void Player::AddComboPoints(Unit* target, int8 count, Spell * spell)
     // without combo points lost (duration checked in aura)
     RemoveAurasByType(SPELL_AURA_RETAIN_COMBO_POINTS);
 
-	if (target->GetGUID() == m_comboTarget)
+    if (target->GetGUID() == m_comboTarget)
         *comboPoints += count;
     else
     {

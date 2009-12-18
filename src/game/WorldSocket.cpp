@@ -1013,7 +1013,7 @@ int WorldSocket::iSendPartialPacket(WorldPacket& pct)
             return 0; // nothing written, still remaining data => 0
 
         m_Crypt.EncryptSend(header.header, header.getHeaderLength());
-     
+
         if (m_OutBuffer->copy((char*) header.header, header.getHeaderLength()) == -1)
             return 0; // no space left. This should not happend. Just return 0 as nothing written and still remaining data
 
@@ -1033,10 +1033,9 @@ int WorldSocket::iSendPartialPacket(WorldPacket& pct)
 
     if (m_OutBuffer->copy((char*) (pct.contents() + pct.rpos()), remainingLen) == -1)
          ACE_ASSERT (false);
- 
+
      return 1; // some byte written and packet completed 
 }
- 
 
 bool WorldSocket::iFlushPacketQueue()
 {

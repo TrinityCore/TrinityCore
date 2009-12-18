@@ -404,18 +404,18 @@ void WorldSession::HandlePetSetAction( WorldPacket & recv_data )
     uint32 position[2];
     uint32 data[2];
     bool move_command = false;
- 
+
     for(uint8 i = 0; i < count; ++i)
     {
         recv_data >> position[i];
         recv_data >> data[i];
- 
+
         uint8 act_state = UNIT_ACTION_BUTTON_TYPE(data[i]);
- 
+
         //ignore invalid position
         if(position[i] >= MAX_UNIT_ACTION_BAR_INDEX)
             return;
- 
+
         // in the normal case, command and reaction buttons can only be moved, not removed
         // at moving count ==2, at removing count == 1
         // ignore attempt to remove command|reaction buttons (not possible at normal case)
@@ -423,11 +423,11 @@ void WorldSession::HandlePetSetAction( WorldPacket & recv_data )
         {
             if (count == 1)
                 return;
- 
+
             move_command = true;
         }
     }
- 
+
     // check swap (at command->spell swap client remove spell first in another packet, so check only command move correctness)
     if (move_command)
     {
@@ -440,7 +440,7 @@ void WorldSession::HandlePetSetAction( WorldPacket & recv_data )
                 act_state_0 != actionEntry_1->GetType())
                 return;
         }
- 
+
         uint8 act_state_1 = UNIT_ACTION_BUTTON_TYPE(data[1]);
         if(act_state_1 == ACT_COMMAND || act_state_1 == ACT_REACTION)
         {
@@ -451,12 +451,12 @@ void WorldSession::HandlePetSetAction( WorldPacket & recv_data )
                 return;
         }
     }
- 
+
     for(uint8 i = 0; i < count; ++i)
     {
         uint32 spell_id = UNIT_ACTION_BUTTON_ACTION(data[i]);
         uint8 act_state = UNIT_ACTION_BUTTON_TYPE(data[i]);
- 
+
         sLog.outDetail( "Player %s has changed pet spell action. Position: %u, Spell: %u, State: 0x%X", _player->GetName(), position[i], spell_id, uint32(act_state));
 
         //if it's act for spell (en/disable/cast) and there is a spell given (0 = remove spell) which pet doesn't know, don't add

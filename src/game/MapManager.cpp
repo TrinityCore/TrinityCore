@@ -186,8 +186,8 @@ bool MapManager::CanPlayerEnter(uint32 mapid, Player* player)
                     sLog.outDebug("MAP: Player '%s' must be in a raid group to enter instance of '%s'", player->GetName(), mapName);
                     return false;
                 }
-				// Если ИК или ИЧ, то проверять уровень шмота одетого на персе.
-				//if(mapid==649)
+                // Если ИК или ИЧ, то проверять уровень шмота одетого на персе.
+                //if (mapid == 649)
             }
         }
 
@@ -234,7 +234,7 @@ bool MapManager::CanPlayerEnter(uint32 mapid, Player* player)
                 sLog.outDebug("Map::CanEnter - player '%s' is dead but doesn't have a corpse!", player->GetName());
             }
         }
-        
+
         InstanceTemplate const* instance = objmgr.GetInstanceTemplate(mapid);
         if(!instance)
             return false;
@@ -255,7 +255,7 @@ bool MapManager::CanPlayerEnter(uint32 mapid, Player* player)
                         //TODO: send some kind of error message to the player
                         return false;
                     }
-                    
+
                     //Encounters in progress
                     if (entry->map_type == MAP_RAID && ((InstanceMap*)boundedMap)->GetInstanceData() && ((InstanceMap*)boundedMap)->GetInstanceData()->IsEncounterInProgress())
                     {
@@ -263,7 +263,7 @@ bool MapManager::CanPlayerEnter(uint32 mapid, Player* player)
                         player->SendTransferAborted(mapid, TRANSFER_ABORT_ZONE_IN_COMBAT);
                         return(false);
                     }
-                    
+
                     //Instance is full
                     MapDifficulty const* mapDiff = ((InstanceMap*)player)->GetMapDifficulty();
                     int8 maxPlayers = mapDiff ? mapDiff->maxPlayers : 0;
@@ -308,15 +308,15 @@ MapManager::Update(uint32 diff)
 #ifdef MULTI_THREAD_MAP
     for(; iter != i_maps.end(); ++iter)
     {
-	 if (m_updater.activated())
-	     m_updater.schedule_update(*iter->second, i_timer.GetCurrent());
+     if (m_updater.activated())
+         m_updater.schedule_update(*iter->second, i_timer.GetCurrent());
         else
-	 {
+     {
             iter->second->Update(i_timer.GetCurrent());
-	 }
+     }
     }
     if (m_updater.activated())
-	 m_updater.wait();
+     m_updater.wait();
 #else
     for (; iter != i_maps.end(); ++iter)
     {

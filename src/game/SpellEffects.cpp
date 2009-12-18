@@ -865,22 +865,22 @@ void Spell::EffectDummy(uint32 i)
                     m_caster->CastSpell(unitTarget,spell_id,true,NULL);
                     return;
                 }
-		case 67019:				    // Flask of the North
-		{
-		    if (m_caster->GetTypeId() != TYPEID_PLAYER)
-			return;
+        case 67019:                    // Flask of the North
+        {
+            if (m_caster->GetTypeId() != TYPEID_PLAYER)
+            return;
 
-		    uint32 spell_id;
-		    switch(urand(1, 3))
-		    {
-			case 1: spell_id = 67016; break;
-			case 2: spell_id = 67017; break;
-			default:spell_id = 67018; break;
-		    }
+            uint32 spell_id;
+            switch(urand(1, 3))
+            {
+            case 1: spell_id = 67016; break;
+            case 2: spell_id = 67017; break;
+            default:spell_id = 67018; break;
+            }
 
-		    m_caster->CastSpell(m_caster, spell_id, true, NULL);
-		    return;
-		}
+            m_caster->CastSpell(m_caster, spell_id, true, NULL);
+            return;
+        }
                 case 13280:                                 // Gnomish Death Ray
                 {
                     if (!unitTarget)
@@ -3367,7 +3367,7 @@ void Spell::EffectOpenLock(uint32 effIndex)
                 return;
             }
         }
-		// TODO: Add script for spell 41920 - Filling, becouse server it freze when use this spell
+        // TODO: Add script for spell 41920 - Filling, becouse server it freze when use this spell
         // handle outdoor pvp object opening, return true if go was registered for handling
         // these objects must have been spawned by outdoorpvp!
         else if(gameObjTarget->GetGOInfo()->type == GAMEOBJECT_TYPE_GOOBER && sOutdoorPvPMgr.HandleOpenGo(player, gameObjTarget->GetGUID()))
@@ -5204,17 +5204,17 @@ void Spell::EffectScriptEffect(uint32 effIndex)
 
                     switch(((Player*)unitTarget)->GetBaseSkillValue(762))
                     {
-						case 75: unitTarget->CastSpell(unitTarget, 51621, true); break;;
-						case 150: unitTarget->CastSpell(unitTarget, 48024, true); break;
-						case 225:
-							if(((Player*)unitTarget)->GetMapId()==571 || ((Player*)unitTarget)->GetMapId()==530)
-								unitTarget->CastSpell(unitTarget, 51617, true);
-							break;
-						case 300:
-							if(((Player*)unitTarget)->GetMapId()==571 || ((Player*)unitTarget)->GetMapId()==530)
-								unitTarget->CastSpell(unitTarget, 48023, true);
-							break;
-						default: break;
+                        case 75: unitTarget->CastSpell(unitTarget, 51621, true); break;;
+                        case 150: unitTarget->CastSpell(unitTarget, 48024, true); break;
+                        case 225:
+                            if(((Player*)unitTarget)->GetMapId()==571 || ((Player*)unitTarget)->GetMapId()==530)
+                                unitTarget->CastSpell(unitTarget, 51617, true);
+                            break;
+                        case 300:
+                            if(((Player*)unitTarget)->GetMapId()==571 || ((Player*)unitTarget)->GetMapId()==530)
+                                unitTarget->CastSpell(unitTarget, 48023, true);
+                            break;
+                        default: break;
                     }
                     break;
                 }
