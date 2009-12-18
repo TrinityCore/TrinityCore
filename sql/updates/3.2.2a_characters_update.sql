@@ -17,6 +17,11 @@ UPDATE characters SET data = CONCAT(TRIM(data),' ');
 alter table `groups`
     add column `raiddifficulty` int(11) UNSIGNED DEFAULT '0' NOT NULL after `difficulty`;
 
+ALTER TABLE instance_reset
+  ADD COLUMN difficulty tinyint(1) unsigned NOT NULL default '0' AFTER mapid,
+  DROP PRIMARY KEY,
+  ADD  PRIMARY KEY  (`mapid`,`difficulty`);
+
 ALTER TABLE `bugreport` CHANGE `type` `type` LONGTEXT NOT NULL;
 ALTER TABLE `bugreport` CHANGE `content` `content` LONGTEXT NOT NULL;
 

@@ -7,6 +7,114 @@ ALTER TABLE item_template
 ALTER TABLE `spell_proc_event` CHANGE COLUMN `entry` `entry` mediumint(8) unsigned NOT NULL DEFAULT '0';
 ALTER TABLE `spell_bonus_data` CHANGE COLUMN `entry` `entry` mediumint(8) unsigned NOT NULL DEFAULT '0';
 
+ALTER TABLE `quest_template`
+    ADD COLUMN `ReqItemId5` mediumint(8) UNSIGNED DEFAULT '0' NOT NULL AFTER `ReqItemId4`,
+    ADD COLUMN `ReqItemId6` mediumint(8) UNSIGNED DEFAULT '0' NOT NULL AFTER `ReqItemId5`,
+    ADD COLUMN `ReqItemCount5` smallint(5) UNSIGNED DEFAULT '0' NOT NULL AFTER `ReqItemCount4`,
+    ADD COLUMN `ReqItemCount6` smallint(5) UNSIGNED DEFAULT '0' NOT NULL AFTER `ReqItemCount5`;
+
+ALTER TABLE creature_template
+  CHANGE COLUMN heroic_entry difficulty_entry_1 mediumint(8) unsigned NOT NULL default '0';
+
+ALTER TABLE `creature_template` ADD `difficulty_entry_2` MEDIUMINT(8) unsigned
+ NOT NULL default 0 AFTER `difficulty_entry_1`;
+ALTER TABLE `creature_template` ADD `difficulty_entry_3` MEDIUMINT(8) unsigned
+ NOT NULL default 0 AFTER `difficulty_entry_2`;
+
+ALTER TABLE instance_template
+  DROP COLUMN maxPlayers,
+  DROP COLUMN maxPlayersHeroic,
+  DROP COLUMN reset_delay;
+
+DELETE FROM `spell_elixir` WHERE `entry` IN (67016,67017,67018);
+INSERT INTO `spell_elixir` (`entry`, `mask`) VALUES
+(67016,0x3),
+(67017,0x3),
+(67018,0x3);
+
+DELETE from `player_classlevelstats` where `class` = 7;
+INSERT INTO `player_classlevelstats` (`class`, `level`, `basehp`, `basemana`) VALUES
+(7, 1, 40, 85),
+(7, 2, 47, 91),
+(7, 3, 55, 98),
+(7, 4, 62, 106),
+(7, 5, 70, 115),
+(7, 6, 77, 125),
+(7, 7, 85, 136),
+(7, 8, 92, 148),
+(7, 9, 100, 161),
+(7, 10, 107, 175),
+(7, 11, 114, 190),
+(7, 12, 122, 206),
+(7, 13, 129, 223),
+(7, 14, 137, 241),
+(7, 15, 144, 260),
+(7, 16, 152, 280),
+(7, 17, 161, 301),
+(7, 18, 170, 323),
+(7, 19, 181, 346),
+(7, 20, 193, 370),
+(7, 21, 205, 395),
+(7, 22, 219, 421),
+(7, 23, 234, 448),
+(7, 24, 250, 476),
+(7, 25, 257, 505),
+(7, 26, 275, 535),
+(7, 27, 294, 566),
+(7, 28, 315, 598),
+(7, 29, 336, 631),
+(7, 30, 358, 665),
+(7, 31, 371, 699),
+(7, 32, 396, 733),
+(7, 33, 422, 767),
+(7, 34, 448, 786),
+(7, 35, 465, 820),
+(7, 36, 494, 854),
+(7, 37, 524, 888),
+(7, 38, 545, 922),
+(7, 39, 577, 941),
+(7, 40, 610, 975),
+(7, 41, 633, 1009),
+(7, 42, 669, 1028),
+(7, 43, 694, 1062),
+(7, 44, 732, 1096),
+(7, 45, 760, 1115),
+(7, 46, 799, 1149),
+(7, 47, 829, 1183),
+(7, 48, 871, 1202),
+(7, 49, 903, 1236),
+(7, 50, 947, 1255),
+(7, 51, 981, 1289),
+(7, 52, 1027, 1323),
+(7, 53, 1064, 1342),
+(7, 54, 1101, 1376),
+(7, 55, 1150, 1395),
+(7, 56, 1190, 1414),
+(7, 57, 1231, 1448),
+(7, 58, 1283, 1467),
+(7, 59, 1326, 1501),
+(7, 60, 1423, 1520),
+(7, 61, 1528, 1664),
+(7, 62, 1694, 1808),
+(7, 63, 1883, 1951),
+(7, 64, 2067, 2095),
+(7, 65, 2262, 2239),
+(7, 66, 2465, 2383),
+(7, 67, 2679, 2527),
+(7, 68, 2903, 2670),
+(7, 69, 3136, 2814),
+(7, 70, 3380, 2958),
+(7, 71, 3633, 3102),
+(7, 72, 3903, 3246),
+(7, 73, 4194, 3389),
+(7, 74, 4507, 3533),
+(7, 75, 4843, 3677),
+(7, 76, 5203, 3821),
+(7, 77, 5592, 3965),
+(7, 78, 6009, 4108),
+(7, 79, 6457, 4252),
+(7, 80, 6939, 4396); 
+
 DROP TABLE IF EXISTS `playercreateinfo_action`;
 CREATE TABLE `playercreateinfo_action` (
   `race` tinyint(3) unsigned NOT NULL default '0',
