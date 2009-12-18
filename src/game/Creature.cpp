@@ -74,8 +74,8 @@ bool VendorItemData::RemoveItem( uint32 item_id )
 
 size_t VendorItemData::FindItemSlot(uint32 item_id) const
 {
-    for (size_t i = 0; i < m_items.size(); ++i )
-        if(m_items[i]->item==item_id)
+    for (size_t i = 0; i < m_items.size(); ++i)
+        if (m_items[i]->item==item_id)
             return i;
     return m_items.size();
 }
