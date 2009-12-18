@@ -645,9 +645,10 @@ struct TRINITY_DLL_DECL npc_nesingwary_trapperAI : public ScriptedAI
             go_caribou->SetLootState(GO_JUST_DEACTIVATED);
 
         if (TempSummon *summon = (TempSummon*)m_creature)
-            if (Unit *pTemp = summon->GetSummoner())
-                if (pTemp->GetTypeId() == TYPEID_PLAYER)
-                    CAST_PLR(pTemp)->KilledMonsterCredit(m_creature->GetEntry(),0);
+            if (summon->isSummon())
+                if (Unit *pTemp = summon->GetSummoner())
+                    if (pTemp->GetTypeId() == TYPEID_PLAYER)
+                        CAST_PLR(pTemp)->KilledMonsterCredit(m_creature->GetEntry(),0);
 
         if (go_caribou && go_caribou->GetTypeId() == TYPEID_GAMEOBJECT)
             go_caribou->SetGoState(GO_STATE_READY);
@@ -1307,8 +1308,9 @@ struct TRINITY_DLL_DECL npc_image_lich_kingAI : public ScriptedAI
         if (uiType != POINT_MOTION_TYPE)
             return;
 
-        if (Unit* pSummoner = CAST_SUM(m_creature)->GetSummoner())
-            CAST_AI(npc_thassarianAI,CAST_CRE(pSummoner)->AI())->bArthasInPosition = true;
+        if (m_creature->isSummon())
+            if (Unit* pSummoner = CAST_SUM(m_creature)->GetSummoner())
+                CAST_AI(npc_thassarianAI,CAST_CRE(pSummoner)->AI())->bArthasInPosition = true;
     }
 };
 
@@ -1332,8 +1334,9 @@ struct TRINITY_DLL_DECL npc_general_arlosAI : public ScriptedAI
 
         m_creature->addUnitState(UNIT_STAT_STUNNED);
         m_creature->CastSpell(m_creature, SPELL_STUN, true);
-        if (Unit* pSummoner = CAST_SUM(m_creature)->GetSummoner())
-            CAST_AI(npc_thassarianAI,CAST_CRE(pSummoner)->AI())->bArlosInPosition = true;
+        if (m_creature->isSummon())
+            if (Unit* pSummoner = CAST_SUM(m_creature)->GetSummoner())
+                CAST_AI(npc_thassarianAI,CAST_CRE(pSummoner)->AI())->bArlosInPosition = true;
     }
 };
 
@@ -1382,8 +1385,9 @@ struct TRINITY_DLL_DECL npc_counselor_talbotAI : public ScriptedAI
         if(uiType != POINT_MOTION_TYPE)
             return;
 
-        if (Unit* pSummoner = CAST_SUM(m_creature)->GetSummoner())
-            CAST_AI(npc_thassarianAI,CAST_CRE(pSummoner)->AI())->bTalbotInPosition = true;
+        if (m_creature->isSummon())
+            if (Unit* pSummoner = CAST_SUM(m_creature)->GetSummoner())
+                CAST_AI(npc_thassarianAI,CAST_CRE(pSummoner)->AI())->bTalbotInPosition = true;
     }
 
     void UpdateAI(const uint32 uiDiff)
@@ -1481,14 +1485,16 @@ struct TRINITY_DLL_DECL npc_leryssaAI : public ScriptedAI
             m_creature->addUnitState(UNIT_STAT_STUNNED);
             m_creature->CastSpell(m_creature, SPELL_STUN, true);
 
-            if (Unit* pSummoner = CAST_SUM(m_creature)->GetSummoner())
-                CAST_AI(npc_thassarianAI,CAST_CRE(pSummoner)->AI())->bLeryssaInPosition = true;
+            if (m_creature->isSummon())
+                if (Unit* pSummoner = CAST_SUM(m_creature)->GetSummoner())
+                    CAST_AI(npc_thassarianAI,CAST_CRE(pSummoner)->AI())->bLeryssaInPosition = true;
             bDone = true;
         }
         else
         {
             m_creature->SetStandState(UNIT_STAND_STATE_SIT);
-            if (Unit* pSummoner = CAST_SUM(m_creature)->GetSummoner())
+            if (m_creature->isSummon())
+                if (Unit* pSummoner = CAST_SUM(m_creature)->GetSummoner())
                 pSummoner->SetStandState(UNIT_STAND_STATE_SIT);
             Phase_Timer = 1500;
             Phase = 1;
@@ -1504,8 +1510,9 @@ struct TRINITY_DLL_DECL npc_leryssaAI : public ScriptedAI
             switch (Phase)
             {
                 case 1:
-                    if (Unit* pThassarian = CAST_SUM(m_creature)->GetSummoner())
-                        DoScriptText(SAY_THASSARIAN_4, pThassarian);
+                    if (m_creature->isSummon())
+                        if (Unit* pThassarian = CAST_SUM(m_creature)->GetSummoner())
+                            DoScriptText(SAY_THASSARIAN_4, pThassarian);
                     Phase_Timer = 5000;
                     ++Phase;
                     break;
@@ -1515,8 +1522,9 @@ struct TRINITY_DLL_DECL npc_leryssaAI : public ScriptedAI
                     ++Phase;
                     break;
                 case 3:
-                    if (Unit* pThassarian = CAST_SUM(m_creature)->GetSummoner())
-                        DoScriptText(SAY_THASSARIAN_5, pThassarian);
+                    if (m_creature->isSummon())
+                        if (Unit* pThassarian = CAST_SUM(m_creature)->GetSummoner())
+                            DoScriptText(SAY_THASSARIAN_5, pThassarian);
                     Phase_Timer = 5000;
                     ++Phase;
                     break;
@@ -1526,7 +1534,8 @@ struct TRINITY_DLL_DECL npc_leryssaAI : public ScriptedAI
                     ++Phase;
                     break;
                 case 5:
-                    if (Unit* pThassarian = CAST_SUM(m_creature)->GetSummoner())
+                    if (m_creature->isSummon())
+                        if (Unit* pThassarian = CAST_SUM(m_creature)->GetSummoner())
                     DoScriptText(SAY_THASSARIAN_6, pThassarian);
                     Phase_Timer = 5000;
                     ++Phase;
@@ -1538,11 +1547,12 @@ struct TRINITY_DLL_DECL npc_leryssaAI : public ScriptedAI
                     ++Phase;
                     break;
                 case 7:
-                    if (Unit* pThassarian = CAST_SUM(m_creature)->GetSummoner())
-                    {
-                        DoScriptText(SAY_THASSARIAN_7, pThassarian);
-                        CAST_AI(npc_thassarianAI,CAST_CRE(pThassarian)->AI())->uiPhase = 16;
-                    }
+                    if (m_creature->isSummon())
+                        if (Unit* pThassarian = CAST_SUM(m_creature)->GetSummoner())
+                        {
+                            DoScriptText(SAY_THASSARIAN_7, pThassarian);
+                            CAST_AI(npc_thassarianAI,CAST_CRE(pThassarian)->AI())->uiPhase = 16;
+                        }
                     Phase_Timer = 5000;
                     Phase = 0;
                     break;
