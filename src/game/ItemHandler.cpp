@@ -568,12 +568,12 @@ void WorldSession::HandleSellItemOpcode( WorldPacket & recv_data )
                     pItem->SetCount( pItem->GetCount() - count );
                     _player->ItemRemovedQuestCheck( pItem->GetEntry(), count );
                     if( _player->IsInWorld() )
-                        pItem->SendCreateUpdateToPlayer( _player );
+                        pItem->SendUpdateToPlayer( _player );
                     pItem->SetState(ITEM_CHANGED, _player);
 
                     _player->AddItemToBuyBackSlot( pNewItem );
                     if( _player->IsInWorld() )
-                        pNewItem->SendCreateUpdateToPlayer( _player );
+                        pNewItem->SendUpdateToPlayer( _player );
                 }
                 else
                 {
