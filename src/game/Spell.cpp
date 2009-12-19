@@ -4596,7 +4596,7 @@ SpellCastResult Spell::CheckCast(bool strict)
         !IsPassiveSpell(m_spellInfo->Id) && !(m_spellInfo->Attributes & SPELL_ATTR_CASTABLE_WHILE_MOUNTED))
     {
         if (m_caster->isInFlight())
-            return SPELL_FAILED_NOT_FLYING;
+            return SPELL_FAILED_NOT_ON_TAXI;
         else
             return SPELL_FAILED_NOT_MOUNTED;
     }
