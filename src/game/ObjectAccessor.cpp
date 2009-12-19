@@ -185,24 +185,6 @@ ObjectAccessor::SaveAllPlayers()
 }
 
 void
-ObjectAccessor::UpdateObject(Object* obj, Player* exceptPlayer)
-{
-    UpdateDataMapType update_players;
-    obj->BuildUpdate(update_players);
-
-    WorldPacket packet;
-    for (UpdateDataMapType::iterator iter = update_players.begin(); iter != update_players.end(); ++iter)
-    {
-        if(iter->first == exceptPlayer)
-            continue;
-
-        iter->second.BuildPacket(&packet);
-        iter->first->GetSession()->SendPacket(&packet);
-        packet.clear();
-    }
-}
-
-void
 ObjectAccessor::_buildUpdateObject(Object *obj, UpdateDataMapType &update_players)
 {
     if(obj->isType(TYPEMASK_ITEM))
