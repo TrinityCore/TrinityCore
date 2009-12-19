@@ -2094,6 +2094,18 @@ Unit* Creature::SelectNearestTarget(float dist) const
     return target;
 }
 
+void Creature::SendAIReaction(AiReaction reactionType)
+{
+    WorldPacket data(SMSG_AI_REACTION, 12);
+
+    data << uint64(GetGUID());
+    data << uint32(reactionType);
+
+    ((WorldObject*)this)->SendMessageToSet(&data, true);
+
+    sLog.outDebug("WORLD: Sent SMSG_AI_REACTION, type %u.", reactionType);
+}
+
 void Creature::CallAssistance()
 {
     if( !m_AlreadyCallAssistance && getVictim() && !isPet() && !isCharmed())
