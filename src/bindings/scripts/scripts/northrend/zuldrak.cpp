@@ -53,12 +53,12 @@ struct TRINITY_DLL_DECL npc_drakuru_shacklesAI : public ScriptedAI
         if (!pWho)
             return;
 
+        Rageclaw = pWho;
+
         if (bLocking)
         {
             if (pWho)
             {
-                Rageclaw = pWho;
-
                 m_creature->SetInFront(Rageclaw);
                 Rageclaw->SetInFront(m_creature);
 
