@@ -1624,6 +1624,7 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
                 SetOrientation(GetAngle(target));
         }
         bool isInBackInMap(Unit const* target, float distance, float arc = M_PI) const;
+        void SetFacingToObject(WorldObject* pObject);
 
         // Visibility system
         UnitVisibility GetVisibility() const { return m_Visibility; }
