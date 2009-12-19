@@ -158,6 +158,30 @@ void WorldSession::HandleQuestgiverAcceptQuestOpcode( WorldPacket & recv_data )
         {
             _player->AddQuest( qInfo, pObject );
 
+            if (qInfo->HasFlag(QUEST_FLAGS_PARTY_ACCEPT))
+            {
+                if (Group* pGroup = _player->GetGroup())
+                {
+                    for(GroupReference *itr = pGroup->GetFirstMember(); itr != NULL; itr = itr->next())
+                    {
+                        Player* pPlayer = itr->getSource();
+
+                        if (!pPlayer || pPlayer == _player)     // not self
+                            continue;
+
+                        if (pPlayer->CanTakeQuest(qInfo, true))
+                        {
+                            pPlayer->SetDivider(_player->GetGUID());
+
+                            //need confirmation that any gossip window will close
+                            pPlayer->PlayerTalkClass->CloseGossip();
+
+                            _player->SendQuestConfirmAccept(qInfo, pPlayer);
+                        }
+                    }
+                }
+            }
+
             if ( _player->CanCompleteQuest( quest ) )
                 _player->CompleteQuest( quest );
 
@@ -375,7 +399,34 @@ void WorldSession::HandleQuestConfirmAccept(WorldPacket& recv_data)
     uint32 quest;
     recv_data >> quest;
 
-    sLog.outDebug( "WORLD: Received CMSG_QUEST_CONFIRM_ACCEPT quest = %u",quest );
+    sLog.outDebug("WORLD: Received CMSG_QUEST_CONFIRM_ACCEPT quest = %u", quest);
+
+    if (const Quest* pQuest = objmgr.GetQuestTemplate(quest))
+    {
+        if (!pQuest->HasFlag(QUEST_FLAGS_PARTY_ACCEPT))
+            return;
+
+        Player* pOriginalPlayer = ObjectAccessor::FindPlayer(_player->GetDivider());
+
+        if (!pOriginalPlayer)
+            return;
+
+        if (pQuest->GetType() == QUEST_TYPE_RAID)
+        {
+            if (!_player->IsInSameRaidWith(pOriginalPlayer))
+                return;
+        }
+        else
+        {
+            if (!_player->IsInSameGroupWith(pOriginalPlayer))
+                return;
+        }
+
+        if (_player->CanAddQuest(pQuest, true))
+            _player->AddQuest(pQuest, NULL);                // NULL, this prevent DB script from duplicate running
+
+        _player->SetDivider(0);
+    }
 }
 
 void WorldSession::HandleQuestgiverCompleteQuest(WorldPacket& recv_data)
