@@ -24,6 +24,7 @@
 
 #include <openssl/opensslv.h>
 #include <openssl/crypto.h>
+#include <ace/Version.h>
 
 #include "Common.h"
 #include "Database/DatabaseEnv.h"
@@ -164,6 +165,7 @@ extern int main(int argc, char **argv)
         while (pause > clock()) {}
         return 1;
     }
+    sLog.outDetail("Using ACE: %s", ACE_VERSION);
 
     ///- and run the 'Master'
     /// \todo Why do we need this 'Master'? Can't all of this be in the Main as for Realmd?
