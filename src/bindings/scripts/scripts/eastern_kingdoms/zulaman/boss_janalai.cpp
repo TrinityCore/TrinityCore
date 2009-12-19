@@ -481,6 +481,7 @@ struct TRINITY_DLL_DECL mob_amanishi_hatcherAI : public ScriptedAI
 
     void Reset()
     {
+        me->AddUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
         side =(m_creature->GetPositionY() < 1150);
         waypoint = 0;
         isHatching = false;
@@ -519,7 +520,7 @@ struct TRINITY_DLL_DECL mob_amanishi_hatcherAI : public ScriptedAI
                 num--;
             }
 
-        return num != 0;   // if num == 0, no more templist
+        return num == 0;   // if num == 0, no more templist
     }
 
     void EnterCombat(Unit* who) {}
