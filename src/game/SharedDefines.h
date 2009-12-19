@@ -1989,8 +1989,12 @@ enum HolidayIds
     HOLIDAY_DARKMOON_FAIRE_ELWYNN    = 374,
     HOLIDAY_DARKMOON_FAIRE_THUNDER   = 375,
     HOLIDAY_DARKMOON_FAIRE_SHATTRATH = 376,
+    HOLIDAY_PIRATES_DAY              = 398,
     HOLIDAY_CALL_TO_ARMS_SA          = 400,
-    HOLIDAY_WOTLK_LAUNCH             = 406
+    HOLIDAY_PILGRIMS_BOUNTY          = 404,
+    HOLIDAY_WOTLK_LAUNCH             = 406,
+    HOLIDAY_DAY_OF_DEAD              = 409,
+    HOLIDAY_CALL_TO_ARMS_ISLE_OF_C   = 420
 };
 
 // values based at QuestInfo.dbc
