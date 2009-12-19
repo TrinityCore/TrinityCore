@@ -6015,6 +6015,9 @@ bool Player::SetPosition(float x, float y, float z, float orientation, bool tele
         // code block for underwater state update
         UpdateUnderwaterState(GetMap(), x, y, z);
 
+        if(GetTrader() && !IsWithinDistInMap(GetTrader(), 5))
+            GetSession()->SendCancelTrade();
+
         CheckExploreSystem();
     }
     else if(turn)
@@ -19292,16 +19295,30 @@ bool Player::IsVisibleGloballyFor( Player* u ) const
 }
 
 template<class T>
-inline void UpdateVisibilityOf_helper(std::set<uint64>& s64, T* target)
+inline void UpdateVisibilityOf_helper(std::set<uint64>& s64, T* target, std::set<Unit*>& v)
 {
     s64.insert(target->GetGUID());
 }
 
 template<>
-inline void UpdateVisibilityOf_helper(std::set<uint64>& s64, GameObject* target)
+inline void UpdateVisibilityOf_helper(std::set<uint64>& s64, GameObject* target, std::set<Unit*>& v)
 {
     if(!target->IsTransport())
         s64.insert(target->GetGUID());
+}
+
+template<>
+inline void UpdateVisibilityOf_helper(std::set<uint64>& s64, Creature* target, std::set<Unit*>& v)
+{
+    s64.insert(target->GetGUID());
+    v.insert(target);
+}
+
+template<>
+inline void UpdateVisibilityOf_helper(std::set<uint64>& s64, Player* target, std::set<Unit*>& v)
+{
+    s64.insert(target->GetGUID());
+    v.insert(target);
 }
 
 void Player::UpdateVisibilityOf(WorldObject* target)
@@ -19327,7 +19344,7 @@ void Player::UpdateVisibilityOf(WorldObject* target)
             //    UpdateVisibilityOf(((Unit*)target)->m_Vehicle);
 
             target->SendUpdateToPlayer(this);
-            UpdateVisibilityOf_helper(m_clientGUIDs, target);
+            m_clientGUIDs.insert(target->GetGUID());
 
             #ifdef TRINITY_DEBUG
             if((sLog.getLogFilter() & LOG_FILTER_VISIBILITY_CHANGES)==0)
@@ -19355,7 +19372,7 @@ void Player::SendInitialVisiblePackets(Unit* target)
 }
 
 template<class T>
-void Player::UpdateVisibilityOf(T* target, UpdateData& data, std::set<WorldObject*>& visibleNow)
+void Player::UpdateVisibilityOf(T* target, UpdateData& data, std::set<Unit*>& visibleNow)
 {
     if(HaveAtClient(target))
     {
@@ -19377,9 +19394,8 @@ void Player::UpdateVisibilityOf(T* target, UpdateData& data, std::set<WorldObjec
             //if(target->isType(TYPEMASK_UNIT) && ((Unit*)target)->m_Vehicle)
             //    UpdateVisibilityOf(((Unit*)target)->m_Vehicle, data, visibleNow);
 
-            visibleNow.insert(target);
             target->BuildCreateUpdateBlockForPlayer(&data, this);
-            UpdateVisibilityOf_helper(m_clientGUIDs,target);
+            UpdateVisibilityOf_helper(m_clientGUIDs,target,visibleNow);
 
             #ifdef TRINITY_DEBUG
             if((sLog.getLogFilter() & LOG_FILTER_VISIBILITY_CHANGES)==0)
@@ -19389,11 +19405,11 @@ void Player::UpdateVisibilityOf(T* target, UpdateData& data, std::set<WorldObjec
     }
 }
 
-template void Player::UpdateVisibilityOf(Player*        target, UpdateData& data, std::set<WorldObject*>& visibleNow);
-template void Player::UpdateVisibilityOf(Creature*      target, UpdateData& data, std::set<WorldObject*>& visibleNow);
-template void Player::UpdateVisibilityOf(Corpse*        target, UpdateData& data, std::set<WorldObject*>& visibleNow);
-template void Player::UpdateVisibilityOf(GameObject*    target, UpdateData& data, std::set<WorldObject*>& visibleNow);
-template void Player::UpdateVisibilityOf(DynamicObject* target, UpdateData& data, std::set<WorldObject*>& visibleNow);
+template void Player::UpdateVisibilityOf(Player*        target, UpdateData& data, std::set<Unit*>& visibleNow);
+template void Player::UpdateVisibilityOf(Creature*      target, UpdateData& data, std::set<Unit*>& visibleNow);
+template void Player::UpdateVisibilityOf(Corpse*        target, UpdateData& data, std::set<Unit*>& visibleNow);
+template void Player::UpdateVisibilityOf(GameObject*    target, UpdateData& data, std::set<Unit*>& visibleNow);
+template void Player::UpdateVisibilityOf(DynamicObject* target, UpdateData& data, std::set<Unit*>& visibleNow);
 
 void Player::InitPrimaryProfessions()
 {

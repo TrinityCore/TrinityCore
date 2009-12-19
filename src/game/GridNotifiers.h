@@ -38,6 +38,35 @@ class Player;
 
 namespace Trinity
 {
+    struct MANGOS_DLL_DECL VisibleNotifier
+    {
+        bool force;
+        Player &i_player;
+        UpdateData i_data;
+        std::set<Unit*> i_visibleNow;
+        Player::ClientGUIDs vis_guids;
+
+        explicit VisibleNotifier(Player &player, bool forced) :
+            i_player(player), vis_guids(player.m_clientGUIDs), force(forced) {}
+        explicit VisibleNotifier(Player &player) :
+            i_player(player), vis_guids(player.m_clientGUIDs),
+            force(player.isNeedNotify(NOTIFY_VISIBILITY_CHANGED)) {}
+        template<class T> void Visit(GridRefManager<T> &m);
+        void Visit(CreatureMapType &m);
+        void Visit(PlayerMapType &m) {}
+        void SendToSelf(void);
+    };
+
+    struct MANGOS_DLL_DECL Player2PlayerNotifier : public VisibleNotifier
+    {
+        Player2PlayerNotifier(Player &player, bool forced = false) :
+            VisibleNotifier(player, forced) {}
+
+        template<class T> void Visit(GridRefManager<T> &) {}
+        void Visit(PlayerMapType &);
+        void SendToSelf(void);
+    };
+
     struct TRINITY_DLL_DECL PlayerVisibilityNotifier
     {
         Player &i_player;
@@ -52,12 +81,12 @@ namespace Trinity
         void Notify(void);
     };
 
-    struct TRINITY_DLL_DECL PlayerRelocationNotifier : public PlayerVisibilityNotifier
+    struct MANGOS_DLL_DECL PlayerRelocationNotifier
     {
-        PlayerRelocationNotifier(Player &player) : PlayerVisibilityNotifier(player) {}
-        template<class T> inline void Visit(GridRefManager<T> &m) { PlayerVisibilityNotifier::Visit(m); }
+        Player &i_player;
+        PlayerRelocationNotifier(Player &pl) : i_player(pl) {}
+        template<class T> void Visit(GridRefManager<T> &) {}
         #ifdef WIN32
-        template<> inline void Visit(PlayerMapType &);
         template<> inline void Visit(CreatureMapType &);
         #endif
     };
@@ -82,6 +111,31 @@ namespace Trinity
         void Visit(PlayerMapType &);
         void Visit(CreatureMapType &);
         void Visit(DynamicObjectMapType &);
+    };
+
+    struct MANGOS_DLL_DECL DelayedUnitRelocation
+    {
+        typedef GridReadGuard ReadGuard;
+        Map &i_map;
+        CellLock<ReadGuard> &i_lock;
+        const float i_radius;
+        DelayedUnitRelocation(CellLock<ReadGuard> &lock, Map &map, float radius) :
+        i_lock(lock), i_map(map), i_radius(radius) {}
+        template<class T> void Visit(GridRefManager<T> &) {}
+        void Visit(CreatureMapType &m) { Notify<Creature,CreatureRelocationNotifier >(m); }
+        void Visit(PlayerMapType   &m) { Notify<Player,PlayerRelocationNotifier >(m); }
+        template<class T, class VISITOR> 
+            void Notify(GridRefManager<T> &);
+    };
+
+    struct MANGOS_DLL_DECL ResetNotifier
+    {
+        uint16 reset_mask;
+        ResetNotifier(uint16 notifies) : reset_mask(notifies) {}
+        template<class T> void Visit(GridRefManager<T> &m) { /*resetNotify(m);*/}
+        template<class T> void resetNotify(GridRefManager<T> &);
+        void Visit(CreatureMapType &m) { resetNotify<Creature>(m);}
+        void Visit(PlayerMapType &m) { resetNotify<Player>(m);}
     };
 
     struct TRINITY_DLL_DECL GridUpdater
@@ -1236,7 +1290,6 @@ namespace Trinity
 
     #ifndef WIN32
     template<> inline void PlayerRelocationNotifier::Visit<Creature>(CreatureMapType &);
-    template<> inline void PlayerRelocationNotifier::Visit<Player>(PlayerMapType &);
     template<> inline void CreatureRelocationNotifier::Visit<Player>(PlayerMapType &);
     template<> inline void CreatureRelocationNotifier::Visit<Creature>(CreatureMapType &);
     template<> inline void DynamicObjectUpdater::Visit<Creature>(CreatureMapType &);

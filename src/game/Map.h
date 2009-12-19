@@ -405,6 +405,8 @@ class MANGOS_DLL_SPEC Map : public GridRefManager<NGridType>, public MaNGOS::Obj
         virtual bool RemoveBones(uint64 guid, float x, float y);
 
         void UpdateObjectVisibility(WorldObject* obj, Cell cell, CellPair cellpair);
+        void UpdatePlayerVisibility( Player* player, Cell cell, CellPair cellpair );
+        void UpdateObjectsVisibilityFor(Player* player, Cell cell, CellPair cellpair );
 
         void resetMarkedCells() { marked_cells.reset(); }
         bool isCellMarked(uint32 pCellId) { return marked_cells.test(pCellId); }
@@ -517,6 +519,10 @@ class MANGOS_DLL_SPEC Map : public GridRefManager<NGridType>, public MaNGOS::Obj
         MapRefManager m_mapRefManager;
         MapRefManager::iterator m_mapRefIter;
 
+        PeriodicTimer m_ObjectVisibilityNotifyTimer;
+        PeriodicTimer m_PlayerVisibilityNotifyTimer;
+        PeriodicTimer m_RelocationNotifyTimer;
+
         typedef std::set<WorldObject*> ActiveNonPlayers;
         ActiveNonPlayers m_activeNonPlayers;
         ActiveNonPlayers::iterator m_activeNonPlayersIter;
@@ -536,6 +542,11 @@ class MANGOS_DLL_SPEC Map : public GridRefManager<NGridType>, public MaNGOS::Obj
         std::bitset<TOTAL_NUMBER_OF_CELLS_PER_MAP*TOTAL_NUMBER_OF_CELLS_PER_MAP> marked_cells;
 
         IntervalTimer m_notifyTimer;
+
+        void ProcessObjectsVisibility();
+        void ProcesssPlayersVisibility();
+        void ProcessRelocationNotifies();
+        void ResetNotifies(uint16 notify_mask);
 
         bool i_notifyLock, i_scriptLock;
         std::vector<Unit*> i_unitsToNotifyBacklog;

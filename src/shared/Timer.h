@@ -95,5 +95,28 @@ struct TimeTrackerSmall
     int32 i_expiryTime;
 };
 
+struct PeriodicTimer
+{
+    PeriodicTimer(int32 period, int32 start_time) :
+      i_expireTime(start_time), i_period(period) {}
+
+    bool Update(const uint32 &diff)
+    {
+        if((i_expireTime -= diff) > 0)
+            return false;
+
+        i_expireTime += i_period > diff ? i_period : diff;
+        return true;
+    }
+
+    void SetPeriodic(int32 period, int32 start_time)
+    {
+        i_expireTime=start_time, i_period=period;
+    }
+
+    int32 i_period;
+    int32 i_expireTime;
+};
+
 #endif
 
