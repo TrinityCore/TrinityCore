@@ -1932,26 +1932,30 @@ enum CreatureFamily
 
 enum CreatureTypeFlags
 {
-    CREATURE_TYPEFLAGS_TAMEABLE        = 0x00001,           //tameable by any hunter
-    CREATURE_TYPEFLAGS_GHOST           = 0x00002,           //creature are also visible for not alive player. Allow gossip interaction if npcflag allow?
-    CREATURE_TYPEFLAGS_UNK3            = 0x00004,
-    CREATURE_TYPEFLAGS_UNK4            = 0x00008,
-    CREATURE_TYPEFLAGS_UNK5            = 0x00010,
-    CREATURE_TYPEFLAGS_UNK6            = 0x00020,
-    CREATURE_TYPEFLAGS_UNK7            = 0x00040,
-    CREATURE_TYPEFLAGS_UNK8            = 0x00080,
-    CREATURE_TYPEFLAGS_HERBLOOT        = 0x00100,           //can be looted by herbalist
-    CREATURE_TYPEFLAGS_MININGLOOT      = 0x00200,           //can be looted by miner
-    CREATURE_TYPEFLAGS_UNK11           = 0x00400,
-    CREATURE_TYPEFLAGS_UNK12           = 0x00800,           //? Related to mounts in some way. If mounted, fight mounted, mount appear as independant when rider dies?
-    CREATURE_TYPEFLAGS_UNK13           = 0x01000,           //? Can aid any player in combat if in range?
-    CREATURE_TYPEFLAGS_UNK14           = 0x02000,
-    CREATURE_TYPEFLAGS_UNK15           = 0x04000,           //? Possibly not in use
-    CREATURE_TYPEFLAGS_ENGINEERLOOT    = 0x08000,           //can be looted by engineer
-    CREATURE_TYPEFLAGS_EXOTIC          = 0x10000,           //can be tamed by hunter as exotic pet
-    CREATURE_TYPEFLAGS_UNK18           = 0x20000,           //? Related to vehicles/pvp?
-    CREATURE_TYPEFLAGS_UNK19           = 0x40000,           //? Related to vehicles/siege weapons?
-    CREATURE_TYPEFLAGS_UNK20           = 0x80000
+    CREATURE_TYPEFLAGS_TAMEABLE         = 0x000001,         // Tameable by any hunter
+    CREATURE_TYPEFLAGS_GHOST            = 0x000002,         // Creature are also visible for not alive player. Allow gossip interaction if npcflag allow?
+    CREATURE_TYPEFLAGS_UNK3             = 0x000004,
+    CREATURE_TYPEFLAGS_UNK4             = 0x000008,
+    CREATURE_TYPEFLAGS_UNK5             = 0x000010,
+    CREATURE_TYPEFLAGS_UNK6             = 0x000020,
+    CREATURE_TYPEFLAGS_UNK7             = 0x000040,
+    CREATURE_TYPEFLAGS_UNK8             = 0x000080,
+    CREATURE_TYPEFLAGS_HERBLOOT         = 0x000100,         // Can be looted by herbalist
+    CREATURE_TYPEFLAGS_MININGLOOT       = 0x000200,         // Can be looted by miner
+    CREATURE_TYPEFLAGS_UNK11            = 0x000400,
+    CREATURE_TYPEFLAGS_UNK12            = 0x000800,         // ? Related to mounts in some way. If mounted, fight mounted, mount appear as independant when rider dies?
+    CREATURE_TYPEFLAGS_UNK13            = 0x001000,         // ? Can aid any player in combat if in range?
+    CREATURE_TYPEFLAGS_UNK14            = 0x002000,
+    CREATURE_TYPEFLAGS_UNK15            = 0x004000,         // ? Possibly not in use
+    CREATURE_TYPEFLAGS_ENGINEERLOOT     = 0x008000,         // Can be looted by engineer
+    CREATURE_TYPEFLAGS_EXOTIC           = 0x010000,         // Can be tamed by hunter as exotic pet
+    CREATURE_TYPEFLAGS_UNK18            = 0x020000,         // ? Related to vehicles/pvp?
+    CREATURE_TYPEFLAGS_UNK19            = 0x040000,         // ? Related to vehicle/siege weapons?
+    CREATURE_TYPEFLAGS_UNK20            = 0x080000,
+    CREATURE_TYPEFLAGS_UNK21            = 0x100000,
+    CREATURE_TYPEFLAGS_UNK22            = 0x200000,
+    CREATURE_TYPEFLAGS_UNK23            = 0x400000,
+    CREATURE_TYPEFLAGS_UNK24            = 0x800000          // ? First seen in 3.2.2. Related to banner/backpack of creature/companion?
 };
 
 enum CreatureEliteType
