@@ -364,7 +364,20 @@ struct TRINITY_DLL_DECL boss_kalecgosAI : public ScriptedAI
             return;
         me->SetVisibility(VISIBILITY_OFF);
         if (isFriendly)
+        {
             me->setDeathState(JUST_DIED);
+
+            Map::PlayerList const& players = me->GetMap()->GetPlayers();
+            if (!players.isEmpty())
+            {
+                for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
+                {
+                    Player* pPlayer = itr->getSource();
+                    if (pPlayer)
+                        ((InstanceMap*)me->GetMap())->PermBindAllPlayers(pPlayer);
+                }
+            }
+        }
         else
         {
             me->GetMotionMaster()->MoveTargetedHome();
