@@ -4555,18 +4555,17 @@ void Spell::SpellDamageWeaponDmg(uint32 i)
         }
         case SPELLFAMILY_PALADIN:
         {
-            // Seal of Command - receive benefit from Spell Damage and Healing
+            // Seal of Command - Increase damage by 36% on every swing
             if (m_spellInfo->SpellFamilyFlags[0] & 0x2000000)
             {
-                spell_bonus += int32(0.45f*0.23f*m_caster->SpellBaseDamageBonus(GetSpellSchoolMask(m_spellInfo)));
-                spell_bonus += int32(0.45f*0.23f*m_caster->SpellBaseDamageBonusForVictim(GetSpellSchoolMask(m_spellInfo), unitTarget));
+                totalDamagePercentMod *= 1.36f;            //136% damage
             }
 
             // Seal of Command Unleashed
             else if (m_spellInfo->Id==20467)
             {
-                spell_bonus += int32(0.16f*m_caster->GetTotalAttackPowerValue(BASE_ATTACK));
-                spell_bonus += int32(0.25f*m_caster->SpellBaseDamageBonus(GetSpellSchoolMask(m_spellInfo)));
+                spell_bonus += int32(0.08f*m_caster->GetTotalAttackPowerValue(BASE_ATTACK));
+                spell_bonus += int32(0.13f*m_caster->SpellBaseDamageBonus(GetSpellSchoolMask(m_spellInfo)));
             }
             break;
             // Judgement of Blood/of the Martyr backlash damage (33%)
@@ -4726,11 +4725,9 @@ void Spell::SpellDamageWeaponDmg(uint32 i)
         }
     }
 
-    // only for Seal of Command
     if(spell_bonus)
         weaponDamage += spell_bonus;
 
-    // only for Mutilate
     if(totalDamagePercentMod != 1.0f)
         weaponDamage = int32(weaponDamage * totalDamagePercentMod);
 
