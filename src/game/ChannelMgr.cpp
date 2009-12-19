@@ -46,18 +46,27 @@ ChannelMgr::~ChannelMgr()
 
 Channel *ChannelMgr::GetJoinChannel(std::string name, uint32 channel_id)
 {
-    if (channels.find(name) == channels.end())
+    std::wstring wname;
+    Utf8toWStr(name,wname);
+    wstrToLower(wname);
+
+    if (channels.find(wname) == channels.end())
     {
         Channel *nchan = new Channel(name,channel_id, team);
-        channels[name] = nchan;
+        channels[wname] = nchan;
+        return nchan;
     }
 
-    return channels[name];
+    return channels[wname];
 }
 
 Channel *ChannelMgr::GetChannel(std::string name, Player *p, bool pkt)
 {
-    ChannelMap::const_iterator i = channels.find(name);
+    std::wstring wname;
+    Utf8toWStr(name,wname);
+    wstrToLower(wname);
+
+    ChannelMap::const_iterator i = channels.find(wname);
 
     if(i == channels.end())
     {
@@ -76,7 +85,11 @@ Channel *ChannelMgr::GetChannel(std::string name, Player *p, bool pkt)
 
 void ChannelMgr::LeftChannel(std::string name)
 {
-    ChannelMap::const_iterator i = channels.find(name);
+    std::wstring wname;
+    Utf8toWStr(name,wname);
+    wstrToLower(wname);
+
+    ChannelMap::const_iterator i = channels.find(wname);
 
     if(i == channels.end())
         return;
@@ -85,7 +98,7 @@ void ChannelMgr::LeftChannel(std::string name)
 
     if(channel->GetNumPlayers() == 0 && !channel->IsConstant())
     {
-        channels.erase(name);
+        channels.erase(wname);
         delete channel;
     }
 }
