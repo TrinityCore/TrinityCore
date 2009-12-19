@@ -5124,56 +5124,6 @@ float Player::GetRatingBonusValue(CombatRating cr) const
     return float(GetUInt32Value(PLAYER_FIELD_COMBAT_RATING_1 + cr)) / GetRatingCoefficient(cr);
 }
 
-uint32 Player::GetMeleeCritDamageReduction(uint32 damage) const
-{
-    float melee  = GetRatingBonusValue(CR_CRIT_TAKEN_MELEE)*2.2f;
-    if (melee>33.0f) melee = 33.0f;
-    return uint32 (melee * damage /100.0f);
-}
-
-uint32 Player::GetMeleeDamageReduction(uint32 damage) const
-{
-    float rate = GetRatingBonusValue(CR_CRIT_TAKEN_MELEE);
-    // Resilience not limited (limit it by 100%)
-    if (rate > 100.0f)
-        rate = 100.0f;
-    return uint32 (rate * damage / 100.0f);
-}
-
-uint32 Player::GetRangedCritDamageReduction(uint32 damage) const
-{
-    float ranged = GetRatingBonusValue(CR_CRIT_TAKEN_RANGED)*2.2f;
-    if (ranged>33.0f) ranged=33.0f;
-    return uint32 (ranged * damage /100.0f);
-}
-
-uint32 Player::GetRangedDamageReduction(uint32 damage) const
-{
-    float rate = GetRatingBonusValue(CR_CRIT_TAKEN_RANGED);
-    // Resilience not limited (limit it by 100%)
-    if (rate > 100.0f)
-        rate = 100.0f;
-    return uint32 (rate * damage / 100.0f);
-}
-
-uint32 Player::GetSpellCritDamageReduction(uint32 damage) const
-{
-    float spell = GetRatingBonusValue(CR_CRIT_TAKEN_SPELL)*2.2f;
-    // In wow script resilience limited to 33%
-    if (spell>33.0f)
-        spell = 33.0f;
-    return uint32 (spell * damage / 100.0f);
-}
-
-uint32 Player::GetSpellDamageReduction(uint32 damage) const
-{
-    float rate = GetRatingBonusValue(CR_CRIT_TAKEN_SPELL);
-    // Resilience not limited (limit it by 100%)
-    if (rate > 100.0f)
-        rate = 100.0f;
-    return uint32 (rate * damage / 100.0f);
-}
-
 float Player::GetExpertiseDodgeOrParryReduction(WeaponAttackType attType) const
 {
     switch (attType)
