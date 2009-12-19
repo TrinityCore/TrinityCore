@@ -30,6 +30,92 @@
 using namespace Trinity;
 
 void
+Player2PlayerNotifier::Visit(PlayerMapType &m)
+{
+    for(PlayerMapType::iterator iter=m.begin(); iter != m.end(); ++iter)
+    {
+        Player* plr = iter->getSource();
+        if(plr == &i_player)
+            continue;
+
+        vis_guids.erase(plr->GetGUID());
+        i_player.UpdateVisibilityOf(plr,i_data,i_visibleNow);
+
+        // force == true - update i_player visibility for all player in cell, ignore optimization flags.
+        if(!force && (plr->NotifyExecuted(NOTIFY_PLAYER_VISIBILITY) || plr->isNeedNotify(NOTIFY_PLAYER_VISIBILITY)))
+            continue;
+
+        plr->UpdateVisibilityOf(&i_player);
+    }
+}
+
+void
+VisibleNotifier::SendToSelf()
+{
+    for(Player::ClientGUIDs::const_iterator it = vis_guids.begin();it != vis_guids.end();++it)
+    {   //player guids processed in Player2PlayerNotifier
+        if(IS_PLAYER_GUID(*it))
+            continue;
+
+        i_player.m_clientGUIDs.erase(*it);
+        i_data.AddOutOfRangeGUID(*it);
+    }
+
+    if(!i_data.HasData())
+        return;
+
+    WorldPacket packet;
+    i_data.BuildPacket(&packet);
+    i_player.GetSession()->SendPacket(&packet);
+
+    for(std::set<Unit*>::const_iterator it = i_visibleNow.begin(); it != i_visibleNow.end(); ++it)
+        i_player.SendInitialVisiblePackets(*it);
+}
+
+void
+Player2PlayerNotifier::SendToSelf()
+{
+    // at this moment i_clientGUIDs have guids that not iterate at grid level checks
+    // but exist one case when this possible and object not out of range: transports
+    if (Transport* transport = i_player.GetTransport())
+        for(Transport::PlayerSet::const_iterator itr = transport->GetPassengers().begin();itr!=transport->GetPassengers().end();++itr)
+        {
+            if(vis_guids.find((*itr)->GetGUID()) != vis_guids.end())
+            {
+                vis_guids.erase((*itr)->GetGUID());
+
+                i_player.UpdateVisibilityOf((*itr), i_data, i_visibleNow);
+
+                if(!(*itr)->isNeedNotify(NOTIFY_PLAYER_VISIBILITY))
+                    (*itr)->UpdateVisibilityOf(&i_player);
+            }
+        }
+
+    for(Player::ClientGUIDs::const_iterator it = vis_guids.begin();it != vis_guids.end(); ++it)
+    {
+        //since its player-player notifier we work only with player guids
+        if(!IS_PLAYER_GUID(*it))
+            continue;
+
+        i_player.m_clientGUIDs.erase(*it);
+        i_data.AddOutOfRangeGUID(*it);
+        Player* plr = ObjectAccessor::FindPlayer(*it);
+        if(plr && plr->IsInWorld() && !plr->NotifyExecuted(NOTIFY_PLAYER_VISIBILITY) && !plr->isNeedNotify(NOTIFY_PLAYER_VISIBILITY))
+            plr->UpdateVisibilityOf(&i_player);
+    }
+
+    if(!i_data.HasData())
+        return;
+
+    WorldPacket packet;
+    i_data.BuildPacket(&packet);
+    i_player.GetSession()->SendPacket(&packet);
+
+    for(std::set<Unit*>::const_iterator it = i_visibleNow.begin(); it != i_visibleNow.end(); ++it)
+        i_player.SendInitialVisiblePackets(*it);
+}
+
+void
 VisibleChangesNotifier::Visit(PlayerMapType &m)
 {
     for (PlayerMapType::iterator iter=m.begin(); iter != m.end(); ++iter)
@@ -71,74 +157,6 @@ VisibleChangesNotifier::Visit(DynamicObjectMapType &m)
 void
 PlayerVisibilityNotifier::Notify()
 {
-    // at this moment i_clientGUIDs have guids that not iterate at grid level checks
-    // but exist one case when this possible and object not out of range: transports
-    if(Transport* transport = i_player.GetTransport())
-    {
-        for (Transport::PlayerSet::const_iterator itr = transport->GetPassengers().begin(); itr!=transport->GetPassengers().end(); ++itr)
-        {
-            if(i_clientGUIDs.find((*itr)->GetGUID())!=i_clientGUIDs.end())
-            {
-                (*itr)->UpdateVisibilityOf(&i_player);
-                i_player.UpdateVisibilityOf((*itr),i_data,i_visibleNow);
-                i_clientGUIDs.erase((*itr)->GetGUID());
-            }
-        }
-    }
-
-    // generate outOfRange for not iterate objects
-    i_data.AddOutOfRangeGUID(i_clientGUIDs);
-    for (Player::ClientGUIDs::iterator itr = i_clientGUIDs.begin(); itr!=i_clientGUIDs.end(); ++itr)
-    {
-        i_player.m_clientGUIDs.erase(*itr);
-
-        #ifdef TRINITY_DEBUG
-        if((sLog.getLogFilter() & LOG_FILTER_VISIBILITY_CHANGES)==0)
-            sLog.outDebug("Object %u (Type: %u) is out of range (no in active cells set) now for player %u",GUID_LOPART(*itr),GuidHigh2TypeId(GUID_HIPART(*itr)),i_player.GetGUIDLow());
-        #endif
-    }
-
-    if( i_data.HasData() )
-    {
-        /*uint32 entry = 0, map;
-        float x,y;
-        if(!i_visibleNow.empty())
-        {
-            entry = (*i_visibleNow.begin())->GetEntry();
-            map = (*i_visibleNow.begin())->GetMapId();
-            x = (*i_visibleNow.begin())->GetPositionX();
-            y = (*i_visibleNow.begin())->GetPositionY();
-            sLog.outError("notify %u %u %f %f", entry, map, x, y);
-        }*/
-
-        // send create/outofrange packet to player (except player create updates that already sent using SendUpdateToPlayer)
-        WorldPacket packet;
-        i_data.BuildPacket(&packet);
-        i_player.GetSession()->SendPacket(&packet);
-
-        // send out of range to other players if need
-        std::set<uint64> const& oor = i_data.GetOutOfRangeGUIDs();
-        for (std::set<uint64>::const_iterator iter = oor.begin(); iter != oor.end(); ++iter)
-        {
-            if(!IS_PLAYER_GUID(*iter))
-                continue;
-
-            Player* plr = ObjectAccessor::GetPlayer(i_player,*iter);
-            if(plr)
-                plr->UpdateVisibilityOf(&i_player);
-        }
-    }
-
-    // Now do operations that required done at object visibility change to visible
-
-    // send data at target visibility change (adding to client)
-    for (std::set<WorldObject*>::const_iterator vItr = i_visibleNow.begin(); vItr != i_visibleNow.end(); ++vItr)
-        // target aura duration for caster show only if target exist at caster client
-        if((*vItr)!=&i_player && (*vItr)->isType(TYPEMASK_UNIT))
-            i_player.SendInitialVisiblePackets((Unit*)(*vItr));
-
-    if(i_visibleNow.size() >= 30)
-        i_player.SetToNotify();
 }
 
 void

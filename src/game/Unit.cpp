@@ -11220,7 +11220,22 @@ void Unit::SetVisibility(UnitVisibility x)
 {
     m_Visibility = x;
 
-    SetToNotify();
+    if(IsInWorld())
+    {
+        Map *m = GetMap();
+        CellPair p(Trinity::ComputeCellPair(GetPositionX(), GetPositionY()));
+        Cell cell(p);
+
+        if(GetTypeId() == TYPEID_PLAYER)
+        {
+            m->UpdatePlayerVisibility((Player*)this, cell, p);
+            m->UpdateObjectsVisibilityFor((Player*)this, cell, p);
+        }
+        else
+            m->UpdateObjectVisibility(this, cell, p);
+
+        AddToNotify(NOTIFY_AI_RELOCATION);
+    }
 
     if (x == VISIBILITY_GROUP_STEALTH)
         DestroyForNearbyPlayers();
@@ -14034,9 +14049,10 @@ bool Unit::HandleAuraRaidProcFromCharge(AuraEffect* triggeredByAura)
 
 void Unit::SetToNotify()
 {
-    // it is called somewhere when obj is not in world (crash when log in instance)
-    if (m_NotifyListPos < 0)
-        GetMap()->AddUnitToNotify(this);
+    if (GetTypeId() == TYPEID_PLAYER)
+        AddToNotify(NOTIFY_VISIBILITY_CHANGED | NOTIFY_AI_RELOCATION | NOTIFY_PLAYER_VISIBILITY);
+    else
+        AddToNotify(NOTIFY_VISIBILITY_CHANGED | NOTIFY_AI_RELOCATION);
 }
 
 void Unit::Kill(Unit *pVictim, bool durabilityLoss)
