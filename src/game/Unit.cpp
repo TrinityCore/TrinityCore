@@ -3517,6 +3517,17 @@ bool Unit::isInBackInMap(Unit const* target, float distance, float arc) const
     return IsWithinDistInMap(target, distance) && !HasInArc( 2 * M_PI - arc, target );
 }
 
+void Unit::SetFacingToObject(WorldObject* pObject)
+{
+    // update orientation at server
+    SetOrientation(GetAngle(pObject));
+ 
+    // and client
+    WorldPacket data;
+    BuildHeartBeatMsg(&data);
+    SendMessageToSet(&data, false);
+}
+
 bool Unit::isInAccessiblePlaceFor(Creature const* c) const
 {
     if(IsInWater())
