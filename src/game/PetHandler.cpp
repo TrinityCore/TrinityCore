@@ -269,17 +269,17 @@ void WorldSession::HandlePetActionHelper(Unit *pet, uint64 guid1, uint16 spellid
                 {
                     pet->SetInFront(unit_target);
                     if (unit_target->GetTypeId() == TYPEID_PLAYER)
-                        pet->SendUpdateToPlayer( (Player*)unit_target );
+                        pet->SendCreateUpdateToPlayer( (Player*)unit_target );
                 }
                 else if(Unit *unit_target2 = spell->m_targets.getUnitTarget())
                 {
                     pet->SetInFront(unit_target2);
                     if (unit_target2->GetTypeId() == TYPEID_PLAYER)
-                        pet->SendUpdateToPlayer( (Player*)unit_target2 );
+                        pet->SendCreateUpdateToPlayer( (Player*)unit_target2 );
                 }
                 if (Unit* powner = pet->GetCharmerOrOwner())
                     if(powner->GetTypeId() == TYPEID_PLAYER)
-                        pet->SendUpdateToPlayer((Player*)powner);
+                        pet->SendCreateUpdateToPlayer((Player*)powner);
                 result = SPELL_CAST_OK;
             }
 
