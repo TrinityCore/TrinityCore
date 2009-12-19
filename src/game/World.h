@@ -613,6 +613,9 @@ class World
         static float GetVisibleUnitGreyDistance()           { return m_VisibleUnitGreyDistance;        }
         static float GetVisibleObjectGreyDistance()         { return m_VisibleObjectGreyDistance;      }
 
+        static int32 GetVisibilityNotifyPeriodOnContinents(){ return m_visibility_notify_periodOnContinents; }
+        static int32 GetVisibilityNotifyPeriodInInstances() { return m_visibility_notify_periodInInstances;  }
+        static int32 GetVisibilityNotifyPeriodInBGArenas()  { return m_visibility_notify_periodInBGArenas;   }
 
      void SetWintergrapsTimer(uint32 timer, uint32 state)
      {
@@ -722,6 +725,10 @@ class World
         static float m_MaxVisibleDistanceInFlight;
         static float m_VisibleUnitGreyDistance;
         static float m_VisibleObjectGreyDistance;
+
+        static int32 m_visibility_notify_periodOnContinents;
+        static int32 m_visibility_notify_periodInInstances;
+        static int32 m_visibility_notify_periodInBGArenas;
 
         // CLI command holder to be thread safe
         ACE_Based::LockedQueue<CliCommandHolder*,ACE_Thread_Mutex> cliCmdQueue;

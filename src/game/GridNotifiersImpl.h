@@ -29,6 +29,32 @@
 #include "CreatureAI.h"
 #include "SpellAuras.h"
 
+
+template<class T>
+inline void
+Trinity::VisibleNotifier::Visit(GridRefManager<T> &m)
+{
+    for(typename GridRefManager<T>::iterator iter = m.begin(); iter != m.end(); ++iter)
+    {
+        vis_guids.erase(iter->getSource()->GetGUID());
+
+        if(force/* || iter->getSource()->isNeedNotify(NOTIFY_VISIBILITY_CHANGED)*/)
+            i_player.UpdateVisibilityOf(iter->getSource(),i_data,i_visibleNow);
+    }
+}
+
+inline void
+Trinity::VisibleNotifier::Visit(CreatureMapType &m)
+{
+    for(CreatureMapType::iterator iter = m.begin(); iter != m.end(); ++iter)
+    {
+        vis_guids.erase(iter->getSource()->GetGUID());
+
+        if(force || iter->getSource()->isNeedNotify(NOTIFY_VISIBILITY_CHANGED))
+            i_player.UpdateVisibilityOf(iter->getSource(),i_data,i_visibleNow);
+    }
+}
+
 inline void
 Trinity::ObjectUpdater::Visit(CreatureMapType &m)
 {
@@ -70,45 +96,47 @@ Trinity::PlayerVisibilityNotifier::Visit(GridRefManager<T> &m)
     }
 }
 
-template<>
+template<class T, class VISITOR> 
 inline void
-Trinity::PlayerRelocationNotifier::Visit(PlayerMapType &m)
+MaNGOS::DelayedUnitRelocation::Notify(GridRefManager<T> &m)
 {
-    for (PlayerMapType::iterator iter = m.begin(); iter != m.end(); ++iter)
+    for(typename GridRefManager<T>::iterator iter = m.begin(); iter != m.end(); ++iter)
     {
-        i_clientGUIDs.erase(iter->getSource()->GetGUID());
-
-        if(iter->getSource()->m_Notified) //self is also skipped in this check
+        T * unit = iter->getSource();
+        if(!unit->isAlive() || !unit->isNeedNotify(NOTIFY_AI_RELOCATION))
             continue;
 
-        i_player.UpdateVisibilityOf(iter->getSource(),i_data,i_visibleNow);
-        iter->getSource()->UpdateVisibilityOf(&i_player);
+        VISITOR relocate(*unit);
+        TypeContainerVisitor<VISITOR, WorldTypeMapContainer > c2world_relocation(relocate);
+        TypeContainerVisitor<VISITOR, GridTypeMapContainer >  c2grid_relocation(relocate);
 
-        //if (!i_player.GetSharedVisionList().empty())
-        //    for (SharedVisionList::const_iterator it = i_player.GetSharedVisionList().begin(); it != i_player.GetSharedVisionList().end(); ++it)
-        //        (*it)->UpdateVisibilityOf(iter->getSource());
+        i_lock->Visit(i_lock, c2world_relocation, i_map, *unit, i_radius);
+        i_lock->Visit(i_lock, c2grid_relocation, i_map, *unit, i_radius);
 
-        // Cancel Trade
-        if(i_player.GetTrader()==iter->getSource())
-            if(!i_player.IsWithinDistInMap(iter->getSource(), 5)) // iteraction distance
-                i_player.GetSession()->SendCancelTrade();   // will clode both side trade windows
+        unit->SetNotified(NOTIFY_AI_RELOCATION);
     }
+}
+
+template<class T>
+inline void
+MaNGOS::ResetNotifier::resetNotify(GridRefManager<T> &m)
+{
+    for(typename GridRefManager<T>::iterator iter=m.begin(); iter != m.end(); ++iter)
+        iter->getSource()->ResetAllNotifiesbyMask(reset_mask);
 }
 
 template<>
 inline void
 Trinity::PlayerRelocationNotifier::Visit(CreatureMapType &m)
 {
+    if(!i_player.isAlive() || i_player.isInFlight())
+        return;
+
     for (CreatureMapType::iterator iter = m.begin(); iter != m.end(); ++iter)
     {
-        i_clientGUIDs.erase(iter->getSource()->GetGUID());
-
-        if(iter->getSource()->m_Notified)
-            continue;
-
-        i_player.UpdateVisibilityOf(iter->getSource(),i_data,i_visibleNow);
-
-        PlayerCreatureRelocationWorker(&i_player, iter->getSource());
+        Creature * c = iter->getSource();
+        if(c->isAlive() && !c->NotifyExecuted(NOTIFY_AI_RELOCATION))
+            PlayerCreatureRelocationWorker(&i_player, c);
     }
 }
 
@@ -116,14 +144,14 @@ template<>
 inline void
 Trinity::CreatureRelocationNotifier::Visit(PlayerMapType &m)
 {
-    for (PlayerMapType::iterator iter = m.begin(); iter != m.end(); ++iter)
+    if(!i_creature.isAlive())
+        return;
+
+    for(PlayerMapType::iterator iter=m.begin(); iter != m.end(); ++iter)
     {
-        if(iter->getSource()->m_Notified)
-            continue;
-
-        iter->getSource()->UpdateVisibilityOf(&i_creature);
-
-        PlayerCreatureRelocationWorker(iter->getSource(), &i_creature);
+        Player * pl = iter->getSource();
+        if( pl->isAlive() && !pl->isInFlight() && !pl->NotifyExecuted(NOTIFY_AI_RELOCATION))
+            PlayerCreatureRelocationWorker(pl, &i_creature);
     }
 }
 
@@ -136,13 +164,9 @@ Trinity::CreatureRelocationNotifier::Visit(CreatureMapType &m)
 
     for (CreatureMapType::iterator iter = m.begin(); iter != m.end(); ++iter)
     {
-        if(iter->getSource()->m_Notified)
-            continue;
-
-        if(!iter->getSource()->isAlive())
-            continue;
-
-        CreatureCreatureRelocationWorker(iter->getSource(), &i_creature);
+        Creature* c = iter->getSource();
+        if( c != &i_creature && c->isAlive() && !c->NotifyExecuted(NOTIFY_AI_RELOCATION))
+            CreatureCreatureRelocationWorker(c, &i_creature);
     }
 }
 

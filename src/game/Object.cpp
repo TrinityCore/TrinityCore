@@ -240,9 +240,6 @@ void Object::BuildUpdate(UpdateDataMapType &update_players)
 
 void Object::SendUpdateToPlayer(Player* player)
 {
-    // send update to another players
-    SendUpdateObjectToAllExcept(player);
-
     // send create update to player
     UpdateData upd;
     WorldPacket packet;
@@ -1108,6 +1105,7 @@ WorldObject::WorldObject()
     , m_zoneScript(NULL)
     , m_isActive(false), m_isWorldObject(false)
     , m_name("")
+    , m_notifyflags(0), m_executed_notifies(0)
 {
 }
 

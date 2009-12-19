@@ -2154,7 +2154,7 @@ class MANGOS_DLL_SPEC Player : public Unit
         void SendInitialVisiblePackets(Unit* target);
 
         template<class T>
-            void UpdateVisibilityOf(T* target, UpdateData& data, std::set<WorldObject*>& visibleNow);
+            void UpdateVisibilityOf(T* target, UpdateData& data, std::set<Unit*>& visibleNow);
 
         // Stealth detection system
         void HandleStealthedUnitsDetection();
