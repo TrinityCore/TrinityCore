@@ -389,14 +389,13 @@ bool Creature::UpdateEntry(uint32 Entry, uint32 team, const CreatureData *data )
     SetCanModifyStats(true);
     UpdateAllStats();
 
-    FactionTemplateEntry const* factionTemplate = sFactionTemplateStore.LookupEntry(GetCreatureInfo()->faction_A);
-    if (factionTemplate)                                    // check and error show at loading templates
+    // checked and error show at loading templates
+    if (FactionTemplateEntry const* factionTemplate = sFactionTemplateStore.LookupEntry(GetCreatureInfo()->faction_A))
     {
-        FactionEntry const* factionEntry = sFactionStore.LookupEntry(factionTemplate->faction);
-        if (factionEntry)
-            if( !(GetCreatureInfo()->flags_extra & CREATURE_FLAG_EXTRA_CIVILIAN) &&
-                (factionEntry->team == ALLIANCE || factionEntry->team == HORDE) )
-                SetPvP(true);
+        if (factionTemplate->factionFlags & FACTION_TEMPLATE_FLAG_PVP)
+            SetPvP(true);
+        else
+            SetPvP(false);
     }
 
     // HACK: trigger creature is always not selectable
@@ -2318,7 +2317,7 @@ bool Creature::LoadCreaturesAddon(bool reload)
         // 3 ShapeshiftForm     Must be determined/set by shapeshift spell/aura
 
         SetByteValue(UNIT_FIELD_BYTES_2, 0, uint8(cainfo->bytes2 & 0xFF));
-        SetByteValue(UNIT_FIELD_BYTES_2, 1, uint8((cainfo->bytes2 >> 8) & 0xFF));
+        //SetByteValue(UNIT_FIELD_BYTES_2, 1, uint8((cainfo->bytes2 >> 8) & 0xFF));
         //SetByteValue(UNIT_FIELD_BYTES_2, 2, uint8((cainfo->bytes2 >> 16) & 0xFF));
         SetByteValue(UNIT_FIELD_BYTES_2, 2, 0);
         //SetByteValue(UNIT_FIELD_BYTES_2, 3, uint8((cainfo->bytes2 >> 24) & 0xFF));
