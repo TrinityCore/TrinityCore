@@ -5089,6 +5089,26 @@ SpellCastResult Spell::CheckCast(bool strict)
                         if(m_caster->GetTypeId() != TYPEID_PLAYER || !((Player*)m_caster)->IsInFeralForm())
                             return SPELL_FAILED_ONLY_SHAPESHIFT;
                         break;
+                    // Wild Growth
+                    case 48438:
+                    case 53248:
+                    case 53249:
+                    case 53251:
+                    {
+                        if (m_caster->GetTypeId() != TYPEID_PLAYER)
+                            return SPELL_FAILED_DONT_REPORT;
+                        
+                        Unit* target = m_targets.getUnitTarget();
+                        if (!target || target->GetTypeId() != TYPEID_PLAYER)
+                            return SPELL_FAILED_BAD_TARGETS;
+                        
+                        const Group* casterGroup = ((Player*)m_caster)->GetGroup();
+                        bool isInSameRaidOrGroup = casterGroup && casterGroup == ((Player*)target)->GetGroup();
+                        if (m_caster != target && !isInSameRaidOrGroup)
+                            return SPELL_FAILED_BAD_TARGETS;
+
+                        break;
+                    }
                     case 1515:
                     {
                         if (m_caster->GetTypeId() != TYPEID_PLAYER)
