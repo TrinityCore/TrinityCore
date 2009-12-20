@@ -40,39 +40,37 @@ struct TRINITY_DLL_DECL npc_drakuru_shacklesAI : public ScriptedAI
 
     void Reset()
     {
-        m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-        float x, y, z;
         Rageclaw = NULL;
-        m_creature->GetClosePoint(x, y, z, m_creature->GetObjectSize()/3,0.1);
-        if (Unit* summon = m_creature->SummonCreature(NPC_RAGECLAW,x,y,z,0,TEMPSUMMON_DEAD_DESPAWN,1000))
-            DoActionOnRageclaw(true,summon);
+        m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+
+        float x, y, z;
+        m_creature->GetClosePoint(x, y, z, m_creature->GetObjectSize() / 3, 0.1f);
+
+        if (Unit* summon = m_creature->SummonCreature(NPC_RAGECLAW, x, y, z,
+            0, TEMPSUMMON_DEAD_DESPAWN, 1000))
+        {
+            Rageclaw = summon;
+            LockRageclaw();
+        }
     }
 
-    void DoActionOnRageclaw(bool bLocking, Unit* pWho)
+    void LockRageclaw()
+    {
+        m_creature->SetInFront(Rageclaw);
+        Rageclaw->SetInFront(m_creature);
+
+        DoCast(Rageclaw, SPELL_LEFT_CHAIN, true);
+        DoCast(Rageclaw, SPELL_RIGHT_CHAIN, true);
+    }
+
+    void UnlockRageclaw(Unit* pWho)
     {
         if (!pWho)
             return;
 
-        Rageclaw = pWho;
+        DoCast(Rageclaw, SPELL_FREE_RAGECLAW, true);
 
-        if (bLocking)
-        {
-            if (pWho)
-            {
-                m_creature->SetInFront(Rageclaw);
-                Rageclaw->SetInFront(m_creature);
-
-                DoCast(Rageclaw, SPELL_LEFT_CHAIN, true);
-                DoCast(Rageclaw, SPELL_RIGHT_CHAIN, true);
-            }
-        }
-        else
-        {
-            DoCast(Rageclaw, SPELL_FREE_RAGECLAW, true);
-            if (pWho->GetTypeId() == TYPEID_PLAYER)
-                CAST_PLR(pWho)->CastSpell(Rageclaw, SPELL_UNLOCK_SHACKLE, true);
-            m_creature->setDeathState(DEAD);
-        }
+        m_creature->setDeathState(DEAD);
     }
 
     void SpellHit(Unit* pCaster, const SpellEntry* pSpell)
@@ -80,12 +78,13 @@ struct TRINITY_DLL_DECL npc_drakuru_shacklesAI : public ScriptedAI
         if (pSpell->Id == SPELL_UNLOCK_SHACKLE)
         {
             if (Rageclaw)
-                DoActionOnRageclaw(false, pCaster);
+                UnlockRageclaw(pCaster);
             else
                 m_creature->setDeathState(JUST_DIED);
         }
     }
 };
+
 
 CreatureAI* GetAI_npc_drakuru_shackles(Creature* pCreature)
 {
