@@ -420,8 +420,13 @@ void Object::_BuildMovementUpdate(ByteBuffer * data, uint16 flags) const
                 *data << uint32(GetGUIDLow());              // GetGUIDLow()
                 break;
             case TYPEID_UNIT:
+            {
+                if(((Creature*)this)->canFly())
+                    flags |= MOVEMENTFLAG_LEVITATING;
+
                 *data << uint32(0x0000000B);                // unk, can be 0xB or 0xC
                 break;
+            }
             case TYPEID_PLAYER:
                 if(flags & UPDATEFLAG_SELF)
                     *data << uint32(0x0000002F);            // unk, can be 0x15 or 0x22
