@@ -52,6 +52,9 @@ EndScriptData
 #define GOSSIP_CRIMSONWING      "<Ride the gryphons to Survey Alcaz Island>"
 #define GOSSIP_THRICESTAR1      "Do you think I could take a ride on one of those flying machines?"
 #define GOSSIP_THRICESTAR2      "Kara, I need to be flown out the Dens of Dying to find Bixie."
+#define GOSSIP_WILLIAMKEILAR1   "Take me to Northpass Tower."
+#define GOSSIP_WILLIAMKEILAR2   "Take me to Eastwall Tower."
+#define GOSSIP_WILLIAMKEILAR3   "Take me to Crown Guard Tower."
 
 bool GossipHello_npc_taxi(Player* pPlayer, Creature* pCreature)
 {
@@ -162,9 +165,15 @@ bool GossipHello_npc_taxi(Player* pPlayer, Creature* pCreature)
         if (pPlayer->GetQuestStatus(11692) == QUEST_STATUS_COMPLETE)
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_THRICESTAR2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 27);
         break;
+    case 17209:
+        pPlayer->SetTaxiCheater(true);
+        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_WILLIAMKEILAR1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 28);
+        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_WILLIAMKEILAR2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 29);
+        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_WILLIAMKEILAR3, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 30);
+        break;
     }
 
-    pPlayer->SEND_GOSSIP_MENU(pCreature->GetNpcTextId(), pCreature->GetGUID());
+    pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(pCreature), pCreature->GetGUID());
     return true;
 }
 
@@ -287,6 +296,18 @@ bool GossipSelect_npc_taxi(Player* pPlayer, Creature* pCreature, uint32 uiSender
     case GOSSIP_ACTION_INFO_DEF + 27:
         pPlayer->CLOSE_GOSSIP_MENU();
         pPlayer->CastSpell(pPlayer, 51446, false);
+        break;
+    case GOSSIP_ACTION_INFO_DEF + 28:
+        pPlayer->CLOSE_GOSSIP_MENU();
+        pPlayer->ActivateTaxiPathTo(494);
+        break;
+    case GOSSIP_ACTION_INFO_DEF + 29:
+        pPlayer->CLOSE_GOSSIP_MENU();
+        pPlayer->ActivateTaxiPathTo(495);
+        break;
+    case GOSSIP_ACTION_INFO_DEF + 30:
+        pPlayer->CLOSE_GOSSIP_MENU();
+        pPlayer->ActivateTaxiPathTo(496);
         break;
     }
 

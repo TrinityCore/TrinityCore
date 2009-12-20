@@ -246,8 +246,6 @@ public:
     // used when player is activated/inactivated in the area
     bool HandlePlayerEnter(Player * plr);
     void HandlePlayerLeave(Player * plr);
-    bool HandleGossipOption(Player *plr, uint64 guid, uint32 gossipid);
-    bool CanTalkTo(Player * plr, Creature * c, GossipOption &gso);
 protected:
     void SummonFlightMaster(uint32 team);
     void UpdateTowerState();

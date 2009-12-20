@@ -503,6 +503,7 @@ CREATE TABLE `creature_template` (
   `name` char(100) NOT NULL default '0',
   `subname` char(100) default NULL,
   `IconName` char(100) default NULL,
+  `gossip_menu_id` mediumint(8) unsigned NOT NULL default '0',
   `minlevel` tinyint(3) unsigned NOT NULL default '1',
   `maxlevel` tinyint(3) unsigned NOT NULL default '1',
   `minhealth` int(10) unsigned NOT NULL default '0',
@@ -1171,6 +1172,80 @@ CREATE TABLE `gameobject_template` (
 SET character_set_client = @saved_cs_client;
 
 --
+-- Table structure for table `gossip_menu`
+--
+
+DROP TABLE IF EXISTS `gossip_menu`;
+SET @saved_cs_client     = @@character_set_client;
+SET character_set_client = utf8;
+CREATE TABLE `gossip_menu` (
+  `entry` smallint(6) unsigned NOT NULL default '0',
+  `text_id` mediumint(8) unsigned NOT NULL default '0',
+  `cond_1` tinyint(3) unsigned NOT NULL default '0',
+  `cond_1_val_1` mediumint(8) unsigned NOT NULL default '0',
+  `cond_1_val_2` mediumint(8) unsigned NOT NULL default '0',
+  `cond_2` tinyint(3) unsigned NOT NULL default '0',
+  `cond_2_val_1` mediumint(8) unsigned NOT NULL default '0',
+  `cond_2_val_2` mediumint(8) unsigned NOT NULL default '0',
+  PRIMARY KEY (`entry`, `text_id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='Gossip System';
+SET character_set_client = @saved_cs_client;
+
+--
+-- Table structure for table `gossip_menu_option`
+--
+
+DROP TABLE IF EXISTS `gossip_menu_option`;
+SET @saved_cs_client     = @@character_set_client;
+SET character_set_client = utf8;
+CREATE TABLE `gossip_menu_option` (
+  `menu_id` smallint(6) unsigned NOT NULL default '0',
+  `id` smallint(6) unsigned NOT NULL default '0',
+  `option_icon` mediumint(8) unsigned NOT NULL default '0',
+  `option_text` text,
+  `option_id` tinyint(3) unsigned NOT NULL default '0',
+  `npc_option_npcflag` int(10) unsigned NOT NULL default '0',
+  `action_menu_id` mediumint(8) unsigned NOT NULL default '0',
+  `action_poi_id` mediumint(8) unsigned NOT NULL default '0',
+  `action_script_id` mediumint(8) unsigned NOT NULL default '0',
+  `box_coded` tinyint(3) unsigned NOT NULL default '0',
+  `box_money` int(11) unsigned NOT NULL default '0',
+  `box_text` text,
+  `cond_1` tinyint(3) unsigned NOT NULL default '0',
+  `cond_1_val_1` mediumint(8) unsigned NOT NULL default '0',
+  `cond_1_val_2` mediumint(8) unsigned NOT NULL default '0',
+  `cond_2` tinyint(3) unsigned NOT NULL default '0',
+  `cond_2_val_1` mediumint(8) unsigned NOT NULL default '0',
+  `cond_2_val_2` mediumint(8) unsigned NOT NULL default '0',
+  `cond_3` tinyint(3) unsigned NOT NULL default '0',
+  `cond_3_val_1` mediumint(8) unsigned NOT NULL default '0',
+  `cond_3_val_2` mediumint(8) unsigned NOT NULL default '0',
+  PRIMARY KEY (`menu_id`, `id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='Gossip System';
+SET character_set_client = @saved_cs_client;
+
+--
+-- Table structure for table `gossip_scripts`
+--
+
+DROP TABLE IF EXISTS `gossip_scripts`;
+SET @saved_cs_client     = @@character_set_client;
+SET character_set_client = utf8;
+CREATE TABLE `gossip_scripts` (
+  `id` mediumint(8) unsigned NOT NULL default '0',
+  `delay` int(10) unsigned NOT NULL default '0',
+  `command` mediumint(8) unsigned NOT NULL default '0',
+  `datalong` mediumint(8) unsigned NOT NULL default '0',
+  `datalong2` int(10) unsigned NOT NULL default '0',
+  `dataint` int(11) NOT NULL default '0',
+  `x` float NOT NULL default '0',
+  `y` float NOT NULL default '0',
+  `z` float NOT NULL default '0',
+  `o` float NOT NULL default '0'
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='Gossip System';
+SET character_set_client = @saved_cs_client;
+
+--
 -- Table structure for table `instance_template`
 --
 
@@ -1481,6 +1556,36 @@ CREATE TABLE `locales_gameobject` (
 SET character_set_client = @saved_cs_client;
 
 --
+-- Table structure for table `locales_gossip_menu_option`
+--
+
+DROP TABLE IF EXISTS `locales_gossip_menu_option`;
+SET @saved_cs_client     = @@character_set_client;
+SET character_set_client = utf8;
+CREATE TABLE `locales_gossip_menu_option` (
+  `menu_id` smallint(6) unsigned NOT NULL default '0',
+  `id` smallint(6) unsigned NOT NULL default '0',
+  `option_text_loc1` text,
+  `option_text_loc2` text,
+  `option_text_loc3` text,
+  `option_text_loc4` text,
+  `option_text_loc5` text,
+  `option_text_loc6` text,
+  `option_text_loc7` text,
+  `option_text_loc8` text,
+  `box_text_loc1` text,
+  `box_text_loc2` text,
+  `box_text_loc3` text,
+  `box_text_loc4` text,
+  `box_text_loc5` text,
+  `box_text_loc6` text,
+  `box_text_loc7` text,
+  `box_text_loc8` text,
+  PRIMARY KEY  (`menu_id`, `id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+SET character_set_client = @saved_cs_client;
+
+--
 -- Table structure for table `locales_item`
 --
 
@@ -1505,35 +1610,6 @@ CREATE TABLE `locales_item` (
   `description_loc6` varchar(255) default NULL,
   `description_loc7` varchar(255) default NULL,
   `description_loc8` varchar(255) default NULL,
-  PRIMARY KEY  (`entry`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
-SET character_set_client = @saved_cs_client;
-
---
--- Table structure for table `locales_npc_option`
---
-
-DROP TABLE IF EXISTS `locales_npc_option`;
-SET @saved_cs_client     = @@character_set_client;
-SET character_set_client = utf8;
-CREATE TABLE `locales_npc_option` (
-  `entry` mediumint(8) unsigned NOT NULL default '0',
-  `option_text_loc1` text,
-  `option_text_loc2` text,
-  `option_text_loc3` text,
-  `option_text_loc4` text,
-  `option_text_loc5` text,
-  `option_text_loc6` text,
-  `option_text_loc7` text,
-  `option_text_loc8` text,
-  `box_text_loc1` text,
-  `box_text_loc2` text,
-  `box_text_loc3` text,
-  `box_text_loc4` text,
-  `box_text_loc5` text,
-  `box_text_loc6` text,
-  `box_text_loc7` text,
-  `box_text_loc8` text,
   PRIMARY KEY  (`entry`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 SET character_set_client = @saved_cs_client;
@@ -1880,42 +1956,6 @@ CREATE TABLE `npc_gossip` (
   `npc_guid` int(10) unsigned NOT NULL default '0',
   `textid` mediumint(8) unsigned NOT NULL default '0',
   PRIMARY KEY  (`npc_guid`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
-SET character_set_client = @saved_cs_client;
-
---
--- Table structure for table `npc_gossip_textid`
---
-
-DROP TABLE IF EXISTS `npc_gossip_textid`;
-SET @saved_cs_client     = @@character_set_client;
-SET character_set_client = utf8;
-CREATE TABLE `npc_gossip_textid` (
-  `zoneid` smallint(5) unsigned NOT NULL default '0',
-  `action` smallint(5) unsigned NOT NULL default '0',
-  `textid` mediumint(8) unsigned NOT NULL default '0',
-  KEY `zoneid` (`zoneid`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
-SET character_set_client = @saved_cs_client;
-
---
--- Table structure for table `npc_option`
---
-
-DROP TABLE IF EXISTS `npc_option`;
-SET @saved_cs_client     = @@character_set_client;
-SET character_set_client = utf8;
-CREATE TABLE `npc_option` (
-  `id` mediumint(8) unsigned NOT NULL default '0',
-  `gossip_id` mediumint(8) unsigned NOT NULL default '0',
-  `npcflag` int(10) unsigned NOT NULL default '0',
-  `icon` tinyint(3) unsigned NOT NULL default '0',
-  `action` mediumint(8) unsigned NOT NULL default '0',
-  `box_money` int(10) unsigned NOT NULL default '0',
-  `coded` tinyint(3) unsigned NOT NULL default '0',
-  `option_text` text,
-  `box_text` text,
-  PRIMARY KEY  (`id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 SET character_set_client = @saved_cs_client;
 

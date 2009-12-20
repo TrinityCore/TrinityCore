@@ -291,11 +291,11 @@ void WorldSession::HandleGossipHelloOpcode( WorldPacket & recv_data )
         }
     }
 
-    if(!Script->GossipHello( _player, unit ))
+    if(!Script->GossipHello(_player, unit))
     {
-        _player->TalkedToCreature(unit->GetEntry(),unit->GetGUID());
-        unit->prepareGossipMenu(_player);
-        unit->sendPreparedGossip(_player);
+        _player->TalkedToCreature(unit->GetEntry(), unit->GetGUID());
+        _player->PrepareGossipMenu(unit, unit->GetCreatureInfo()->GossipMenuId);
+        _player->SendPreparedGossip(unit);
     }
 }
 

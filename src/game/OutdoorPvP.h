@@ -81,7 +81,7 @@ class GameObject;
 class WorldPacket;
 class Creature;
 class Unit;
-struct GossipOption;
+struct GossipMenuItems;
 
 typedef std::set<Player*> PlayerSet;
 
@@ -117,7 +117,7 @@ public:
 
     virtual bool HandleGossipOption(Player *plr, uint64 guid, uint32 gossipid);
 
-    virtual bool CanTalkTo(Player * plr, Creature * c, GossipOption &gso);
+    virtual bool CanTalkTo(Player * plr, Creature * c, GossipMenuItems gso);
 
     virtual bool HandleDropFlag(Player * plr, uint32 spellId);
 
@@ -217,7 +217,7 @@ public:
 
     virtual bool HandleGossipOption(Player *plr, uint64 guid, uint32 gossipid);
 
-    virtual bool CanTalkTo(Player * plr, Creature * c, GossipOption &gso);
+    virtual bool CanTalkTo(Player * plr, Creature * c, GossipMenuItems gso);
 
     void TeamApplyBuff(TeamId team, uint32 spellId, uint32 spellId2 = 0);
 protected:

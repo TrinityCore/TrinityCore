@@ -364,6 +364,8 @@ class TRINITY_DLL_SPEC ChatHandler
         bool HandleReloadGameGraveyardZoneCommand(const char* args);
         bool HandleReloadGameObjectScriptsCommand(const char* args);
         bool HandleReloadGameTeleCommand(const char* args);
+        bool HandleReloadGossipMenuCommand(const char* args);
+        bool HandleReloadGossipMenuOptionCommand(const char* args);
         bool HandleReloadGOQuestRelationsCommand(const char* args);
         bool HandleReloadGOQuestInvRelationsCommand(const char* args);
         bool HandleReloadItemEnchantementsCommand(const char* args);
@@ -392,7 +394,6 @@ class TRINITY_DLL_SPEC ChatHandler
         bool HandleReloadLootTemplatesSpellCommand(const char* args);
         bool HandleReloadTrinityStringCommand(const char* args);
         bool HandleReloadNpcGossipCommand(const char* args);
-        bool HandleReloadNpcOptionCommand(const char* args);
         bool HandleReloadNpcTrainerCommand(const char* args);
         bool HandleReloadNpcVendorCommand(const char* args);
         bool HandleReloadPageTextsCommand(const char* args);

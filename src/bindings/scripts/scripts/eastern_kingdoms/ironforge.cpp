@@ -48,7 +48,7 @@ bool GossipHello_npc_royal_historian_archesonus(Player* pPlayer, Creature* pCrea
         pPlayer->SEND_GOSSIP_MENU(2235, pCreature->GetGUID());
     }
     else
-        pPlayer->SEND_GOSSIP_MENU(pCreature->GetNpcTextId(), pCreature->GetGUID());
+        pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(pCreature), pCreature->GetGUID());
 
     return true;
 }

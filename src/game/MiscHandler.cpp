@@ -79,14 +79,14 @@ void WorldSession::HandleGossipSelectOptionOpcode( WorldPacket & recv_data )
 {
     sLog.outDebug("WORLD: CMSG_GOSSIP_SELECT_OPTION");
 
-    uint32 option;
-    uint32 unk;
+    uint32 gossipListId;
+    uint32 menuId;
     uint64 guid;
     std::string code = "";
 
-    recv_data >> guid >> unk >> option;
+    recv_data >> guid >> menuId >> gossipListId;
 
-    if(_player->PlayerTalkClass->GossipOptionCoded( option ))
+    if(_player->PlayerTalkClass->GossipOptionCoded(gossipListId))
     {
         // recheck
         sLog.outBasic("reading string");
@@ -128,21 +128,21 @@ void WorldSession::HandleGossipSelectOptionOpcode( WorldPacket & recv_data )
     {
         if(unit)
         {
-            if(!Script->GossipSelectWithCode( _player, unit, _player->PlayerTalkClass->GossipOptionSender( option ), _player->PlayerTalkClass->GossipOptionAction( option ), code.c_str()) )
-                unit->OnGossipSelect( _player, option );
+            if(!Script->GossipSelectWithCode( _player, unit, _player->PlayerTalkClass->GossipOptionSender(gossipListId), _player->PlayerTalkClass->GossipOptionAction(gossipListId), code.c_str()) )
+                _player->OnGossipSelect(unit, gossipListId, menuId);
         }
         else
-            Script->GOSelectWithCode( _player, go, _player->PlayerTalkClass->GossipOptionSender( option ), _player->PlayerTalkClass->GossipOptionAction( option ), code.c_str());
+            Script->GOSelectWithCode( _player, go, _player->PlayerTalkClass->GossipOptionSender(gossipListId), _player->PlayerTalkClass->GossipOptionAction(gossipListId), code.c_str());
     }
     else
     {
         if(unit)
         {
-            if(!Script->GossipSelect( _player, unit, _player->PlayerTalkClass->GossipOptionSender( option ), _player->PlayerTalkClass->GossipOptionAction( option )) )
-                unit->OnGossipSelect( _player, option );
+            if(!Script->GossipSelect( _player, unit, _player->PlayerTalkClass->GossipOptionSender(gossipListId), _player->PlayerTalkClass->GossipOptionAction(gossipListId)) )
+                _player->OnGossipSelect(unit, gossipListId, menuId);
         }
         else
-            Script->GOSelect( _player, go, _player->PlayerTalkClass->GossipOptionSender( option ), _player->PlayerTalkClass->GossipOptionAction( option ));
+            Script->GOSelect( _player, go, _player->PlayerTalkClass->GossipOptionSender(gossipListId), _player->PlayerTalkClass->GossipOptionAction(gossipListId));
     }
 }
 
