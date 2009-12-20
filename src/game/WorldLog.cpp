@@ -27,7 +27,7 @@
 #include "Config/ConfigEnv.h"
 #include "Log.h"
 
-#define CLASS_LOCK MaNGOS::ClassLevelLockable<WorldLog, ACE_Thread_Mutex>
+#define CLASS_LOCK Trinity::ClassLevelLockable<WorldLog, ACE_Thread_Mutex>
 INSTANTIATE_SINGLETON_2(WorldLog, CLASS_LOCK);
 INSTANTIATE_CLASS_MUTEX(WorldLog, ACE_Thread_Mutex);
 

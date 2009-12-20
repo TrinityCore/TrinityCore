@@ -98,7 +98,7 @@ Trinity::PlayerVisibilityNotifier::Visit(GridRefManager<T> &m)
 
 template<class T, class VISITOR> 
 inline void
-MaNGOS::DelayedUnitRelocation::Notify(GridRefManager<T> &m)
+Trinity::DelayedUnitRelocation::Notify(GridRefManager<T> &m)
 {
     for(typename GridRefManager<T>::iterator iter = m.begin(); iter != m.end(); ++iter)
     {
@@ -119,7 +119,7 @@ MaNGOS::DelayedUnitRelocation::Notify(GridRefManager<T> &m)
 
 template<class T>
 inline void
-MaNGOS::ResetNotifier::resetNotify(GridRefManager<T> &m)
+Trinity::ResetNotifier::resetNotify(GridRefManager<T> &m)
 {
     for(typename GridRefManager<T>::iterator iter=m.begin(); iter != m.end(); ++iter)
         iter->getSource()->ResetAllNotifiesbyMask(reset_mask);
@@ -609,7 +609,7 @@ void Trinity::PlayerSearcher<Check>::Visit(PlayerMapType &m)
 }
 
 template<class Builder>
-void MaNGOS::LocalizedPacketDo<Builder>::operator()( Player* p )
+void Trinity::LocalizedPacketDo<Builder>::operator()( Player* p )
 {
     int32 loc_idx = p->GetSession()->GetSessionDbLocaleIndex();
     uint32 cache_idx = loc_idx+1;
@@ -634,7 +634,7 @@ void MaNGOS::LocalizedPacketDo<Builder>::operator()( Player* p )
 }
 
 template<class Builder>
-void MaNGOS::LocalizedPacketListDo<Builder>::operator()( Player* p )
+void Trinity::LocalizedPacketListDo<Builder>::operator()( Player* p )
 {
     int32 loc_idx = p->GetSession()->GetSessionDbLocaleIndex();
     uint32 cache_idx = loc_idx+1;

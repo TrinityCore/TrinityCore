@@ -128,15 +128,15 @@ void DynamicObject::Update(uint32 p_time)
     if(m_radius)
     {
         // TODO: make a timer and update this in larger intervals
-        CellPair p(MaNGOS::ComputeCellPair(GetPositionX(), GetPositionY()));
+        CellPair p(Trinity::ComputeCellPair(GetPositionX(), GetPositionY()));
         Cell cell(p);
         cell.data.Part.reserved = ALL_DISTRICT;
         cell.SetNoCreate();
 
-        MaNGOS::DynamicObjectUpdater notifier(*this, caster);
+        Trinity::DynamicObjectUpdater notifier(*this, caster);
 
-        TypeContainerVisitor<MaNGOS::DynamicObjectUpdater, WorldTypeMapContainer > world_object_notifier(notifier);
-        TypeContainerVisitor<MaNGOS::DynamicObjectUpdater, GridTypeMapContainer > grid_object_notifier(notifier);
+        TypeContainerVisitor<Trinity::DynamicObjectUpdater, WorldTypeMapContainer > world_object_notifier(notifier);
+        TypeContainerVisitor<Trinity::DynamicObjectUpdater, GridTypeMapContainer > grid_object_notifier(notifier);
 
         CellLock<GridReadGuard> cell_lock(cell, p);
         cell_lock->Visit(cell_lock, world_object_notifier, *GetMap(), *this, m_radius);

@@ -358,8 +358,8 @@ void GameObject::Update(uint32 /*p_time*/)
                         // environmental damage spells already have around enemies targeting but this not help in case not existed GO casting support
                         // affect only players
                         Player* player = NULL;
-                        MaNGOS::AnyPlayerInObjectRangeCheck checker(this, radius);
-                        MaNGOS::PlayerSearcher<MaNGOS::AnyPlayerInObjectRangeCheck> searcher(this, player, checker);
+                        Trinity::AnyPlayerInObjectRangeCheck checker(this, radius);
+                        Trinity::PlayerSearcher<Trinity::AnyPlayerInObjectRangeCheck> searcher(this, player, checker);
                         VisitNearbyWorldObject(radius, searcher);
                         ok = player;
                     }
@@ -867,8 +867,8 @@ void GameObject::TriggeringLinkedGameObject(uint32 trapEntry, Unit* target)
         Cell cell(p);
         cell.data.Part.reserved = ALL_DISTRICT;
 
-        MaNGOS::NearestGameObjectEntryInObjectRangeCheck go_check(*target,trapEntry,range);
-        MaNGOS::GameObjectLastSearcher<MaNGOS::NearestGameObjectEntryInObjectRangeCheck> checker(this, trapGO,go_check);
+        Trinity::NearestGameObjectEntryInObjectRangeCheck go_check(*target,trapEntry,range);
+        Trinity::GameObjectLastSearcher<Trinity::NearestGameObjectEntryInObjectRangeCheck> checker(this, trapGO,go_check);
 
         TypeContainerVisitor<Trinity::GameObjectLastSearcher<Trinity::NearestGameObjectEntryInObjectRangeCheck>, GridTypeMapContainer > object_checker(checker);
         CellLock<GridReadGuard> cell_lock(cell, p);
@@ -888,8 +888,8 @@ GameObject* GameObject::LookupFishingHoleAround(float range)
     CellPair p(Trinity::ComputeCellPair(GetPositionX(),GetPositionY()));
     Cell cell(p);
     cell.data.Part.reserved = ALL_DISTRICT;
-    MaNGOS::NearestGameObjectFishingHole u_check(*this, range);
-    MaNGOS::GameObjectSearcher<MaNGOS::NearestGameObjectFishingHole> checker(this, ok, u_check);
+    Trinity::NearestGameObjectFishingHole u_check(*this, range);
+    Trinity::GameObjectSearcher<Trinity::NearestGameObjectFishingHole> checker(this, ok, u_check);
 
     CellLock<GridReadGuard> cell_lock(cell, p);
 

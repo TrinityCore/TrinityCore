@@ -67,7 +67,7 @@ class TRINITY_DLL_SPEC DistractMovementGenerator : public MovementGenerator
         uint32 m_timer;
 };
 
-class MANGOS_DLL_SPEC AssistanceDistractMovementGenerator : public DistractMovementGenerator
+class TRINITY_DLL_SPEC AssistanceDistractMovementGenerator : public DistractMovementGenerator
 {
     public:
         AssistanceDistractMovementGenerator(uint32 timer) :

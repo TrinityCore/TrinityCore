@@ -2081,8 +2081,8 @@ GameObject* ChatHandler::GetObjectGlobalyWithGuidOrNearWithDbGuid(uint32 lowguid
         Cell cell(p);
         cell.data.Part.reserved = ALL_DISTRICT;
 
-        MaNGOS::GameObjectWithDbGUIDCheck go_check(*pl,lowguid);
-        MaNGOS::GameObjectSearcher<MaNGOS::GameObjectWithDbGUIDCheck> checker(pl,obj,go_check);
+        Trinity::GameObjectWithDbGUIDCheck go_check(*pl,lowguid);
+        Trinity::GameObjectSearcher<Trinity::GameObjectWithDbGUIDCheck> checker(pl,obj,go_check);
 
         TypeContainerVisitor<Trinity::GameObjectSearcher<Trinity::GameObjectWithDbGUIDCheck>, GridTypeMapContainer > object_checker(checker);
         CellLock<GridReadGuard> cell_lock(cell, p);
@@ -2363,7 +2363,7 @@ int ChatHandler::GetSessionDbLocaleIndex() const
     return m_session->GetSessionDbLocaleIndex();
 }
 
-const char *CliHandler::GetMangosString(int32 entry) const
+const char *CliHandler::GetTrinityString(int32 entry) const
 {
     return objmgr.GetTrinityStringForDBCLocale(entry);
 }

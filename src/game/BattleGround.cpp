@@ -36,7 +36,7 @@
 #include "SpellAuras.h"
 #include "Util.h"
 
-namespace MaNGOS
+namespace Trinity
 {
     class BattleGroundChatBuilder
     {
@@ -45,7 +45,7 @@ namespace MaNGOS
                 : i_msgtype(msgtype), i_textId(textId), i_source(source), i_args(args) {}
             void operator()(WorldPacket& data, int32 loc_idx)
             {
-                char const* text = objmgr.GetMangosString(i_textId,loc_idx);
+                char const* text = objmgr.GetTrinityString(i_textId,loc_idx);
 
                 if (i_args)
                 {
@@ -90,9 +90,9 @@ namespace MaNGOS
                 : i_msgtype(msgtype), i_textId(textId), i_source(source), i_arg1(arg1), i_arg2(arg2) {}
             void operator()(WorldPacket& data, int32 loc_idx)
             {
-                char const* text = objmgr.GetMangosString(i_textId,loc_idx);
-                char const* arg1str = i_arg1 ? objmgr.GetMangosString(i_arg1,loc_idx) : "";
-                char const* arg2str = i_arg2 ? objmgr.GetMangosString(i_arg2,loc_idx) : "";
+                char const* text = objmgr.GetTrinityString(i_textId,loc_idx);
+                char const* arg1str = i_arg1 ? objmgr.GetTrinityString(i_arg1,loc_idx) : "";
+                char const* arg2str = i_arg2 ? objmgr.GetTrinityString(i_arg2,loc_idx) : "";
 
                 char str [2048];
                 snprintf(str,2048,text, arg1str, arg2str );
@@ -116,7 +116,7 @@ namespace MaNGOS
             int32 i_arg1;
             int32 i_arg2;
     };
-}                                                           // namespace MaNGOS
+}                                                           // namespace Trinity
 
 template<class Do>
 void BattleGround::BroadcastWorker(Do& _do)
@@ -820,7 +820,7 @@ void BattleGround::EndBattleGround(uint32 winner)
 uint32 BattleGround::GetBonusHonorFromKill(uint32 kills) const
 {
     //variable kills means how many honorable kills you scored (so we need kills * honor_for_one_kill)
-    return MaNGOS::Honor::hk_honor_at_level(GetMaxLevel(), kills);
+    return Trinity::Honor::hk_honor_at_level(GetMaxLevel(), kills);
 }
 
 uint32 BattleGround::GetBattlemasterEntry() const
@@ -1692,8 +1692,8 @@ bool BattleGround::AddSpiritGuide(uint32 type, float x, float y, float z, float 
 
 void BattleGround::SendMessageToAll(int32 entry, ChatMsg type, Player const* source)
 {
-    MaNGOS::BattleGroundChatBuilder bg_builder(type, entry, source);
-    MaNGOS::LocalizedPacketDo<MaNGOS::BattleGroundChatBuilder> bg_do(bg_builder);
+    Trinity::BattleGroundChatBuilder bg_builder(type, entry, source);
+    Trinity::LocalizedPacketDo<Trinity::BattleGroundChatBuilder> bg_do(bg_builder);
     BroadcastWorker(bg_do);
 }
 
@@ -1702,8 +1702,8 @@ void BattleGround::PSendMessageToAll(int32 entry, ChatMsg type, Player const* so
     va_list ap;
     va_start(ap, source);
 
-    MaNGOS::BattleGroundChatBuilder bg_builder(type, entry, source, &ap);
-    MaNGOS::LocalizedPacketDo<MaNGOS::BattleGroundChatBuilder> bg_do(bg_builder);
+    Trinity::BattleGroundChatBuilder bg_builder(type, entry, source, &ap);
+    Trinity::LocalizedPacketDo<Trinity::BattleGroundChatBuilder> bg_do(bg_builder);
     BroadcastWorker(bg_do);
 
     va_end(ap);
@@ -1711,8 +1711,8 @@ void BattleGround::PSendMessageToAll(int32 entry, ChatMsg type, Player const* so
 
 void BattleGround::SendMessage2ToAll(int32 entry, ChatMsg type, Player const* source, int32 arg1, int32 arg2)
 {
-    MaNGOS::BattleGround2ChatBuilder bg_builder(type, entry, source, arg1, arg2);
-    MaNGOS::LocalizedPacketDo<MaNGOS::BattleGround2ChatBuilder> bg_do(bg_builder);
+    Trinity::BattleGround2ChatBuilder bg_builder(type, entry, source, arg1, arg2);
+    Trinity::LocalizedPacketDo<Trinity::BattleGround2ChatBuilder> bg_do(bg_builder);
     BroadcastWorker(bg_do);
 }
 
