@@ -534,7 +534,7 @@ void Spell::SpellDamageSchoolDmg(uint32 effect_idx)
                         m_caster->CastCustomSpell(m_caster, 32409, &back_damage, 0, 0, true);
                 }
                 // Mind Blast - applies Mind Trauma if:
-                else if (m_spellInfo->SpellFamilyFlags & UI64LIT(0x2000))
+                else if (m_spellInfo->SpellFamilyFlags & 0x2000)
                 {
                     // We are in Shadow Form
                     if (m_caster->m_form == FORM_SHADOW)
