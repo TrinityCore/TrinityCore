@@ -437,7 +437,14 @@ void Spell::SpellDamageSchoolDmg(uint32 effect_idx)
                     damage = uint32(damage * (m_caster->GetTotalAttackPowerValue(BASE_ATTACK)) / 100);
                 // Shield Slam
                 else if(m_spellInfo->SpellFamilyFlags[1] & 0x200 && m_spellInfo->Category == 1209)
+                {
                     damage += int32(m_caster->GetShieldBlockValue());
+
+                    // Glyph of Shield Slam
+                    if (m_caster->HasAura(58375))
+                        m_caster->CastSpell(m_caster, 58374, true);
+                }
+
                 // Victory Rush
                 else if(m_spellInfo->SpellFamilyFlags[1] & 0x100)
                 {
@@ -611,7 +618,7 @@ void Spell::SpellDamageSchoolDmg(uint32 effect_idx)
                                 for (uint32 i = 0; i < doses; ++i)
                                     unitTarget->RemoveAuraFromStack(spellId);
                             damage *= doses;
-                            damage += int32(((Player*)m_caster)->GetTotalAttackPowerValue(BASE_ATTACK) * 0.03f * doses);
+                            damage += int32(((Player*)m_caster)->GetTotalAttackPowerValue(BASE_ATTACK) * 0.09f * doses);
                         }
                         // Eviscerate and Envenom Bonus Damage (item set effect)
                         if (m_caster->HasAura(37169))
