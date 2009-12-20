@@ -9009,6 +9009,8 @@ void ObjectMgr::LoadCreatureClassLevelStats()
     }
     while (result->NextRow());
 
+    delete result;
+
     sLog.outString();
     sLog.outString( ">> Loaded %u creature base stats.", counter);
 }
