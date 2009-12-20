@@ -1141,7 +1141,7 @@ CREATE TABLE `gameobject_template` (
   `questItem5` int(11) unsigned NOT NULL default '0',
   `questItem6` int(11) unsigned NOT NULL default '0',
   `data0` int(10) unsigned NOT NULL default '0',
-  `data1` int(10) unsigned NOT NULL default '0',
+  `data1` int(10) signed NOT NULL default '-1',
   `data2` int(10) unsigned NOT NULL default '0',
   `data3` int(10) unsigned NOT NULL default '0',
   `data4` int(10) unsigned NOT NULL default '0',
