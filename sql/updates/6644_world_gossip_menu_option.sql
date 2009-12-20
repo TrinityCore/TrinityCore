@@ -1,30 +1,3 @@
-DROP TABLE IF EXISTS `gossip_scripts`;
-CREATE TABLE `gossip_scripts` (
-  `id` mediumint(8) unsigned NOT NULL default '0',
-  `delay` int(10) unsigned NOT NULL default '0',
-  `command` mediumint(8) unsigned NOT NULL default '0',
-  `datalong` mediumint(8) unsigned NOT NULL default '0',
-  `datalong2` int(10) unsigned NOT NULL default '0',
-  `dataint` int(11) NOT NULL default '0',
-  `x` float NOT NULL default '0',
-  `y` float NOT NULL default '0',
-  `z` float NOT NULL default '0',
-  `o` float NOT NULL default '0'
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
-
-DROP TABLE IF EXISTS gossip_menu;
-CREATE TABLE gossip_menu (
-  entry smallint(6) unsigned NOT NULL default '0',
-  text_id mediumint(8) unsigned NOT NULL default '0',
-  cond_1 tinyint(3) unsigned NOT NULL default '0',
-  cond_1_val_1 mediumint(8) unsigned NOT NULL default '0',
-  cond_1_val_2 mediumint(8) unsigned NOT NULL default '0',
-  cond_2 tinyint(3) unsigned NOT NULL default '0',
-  cond_2_val_1 mediumint(8) unsigned NOT NULL default '0',
-  cond_2_val_2 mediumint(8) unsigned NOT NULL default '0',
-  PRIMARY KEY (entry, text_id)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
-
 DROP TABLE IF EXISTS gossip_menu_option;
 CREATE TABLE gossip_menu_option (
   menu_id smallint(6) unsigned NOT NULL default '0',
@@ -71,16 +44,3 @@ INSERT INTO gossip_menu_option VALUES
 (0,15,2,'GOSSIP_OPTION_UNLEARNPETSKILLS',17,16,0,0,0,0,0,NULL,0,0,0,0,0,0,0,0,0),
 (0,16,2,'GOSSIP_OPTION_LEARNDUALSPEC',18,16,0,0,0,0,10000000,NULL,0,0,0,0,0,0,0,0,0),
 (0,17,0,'GOSSIP_OPTION_OUTDOORPVP',1,19,536870912,0,0,0,0,NULL,0,0,0,0,0,0,0,0,0);
-
-ALTER TABLE creature_template ADD gossip_menu_id mediumint(8) unsigned NOT NULL default 0 AFTER IconName;
-
-ALTER TABLE locales_npc_option CHANGE COLUMN entry id smallint(6) unsigned NOT NULL default '0';
-ALTER TABLE locales_npc_option ADD menu_id smallint(6) unsigned NOT NULL default '0' FIRST;
-
-ALTER TABLE locales_npc_option DROP PRIMARY KEY;
-ALTER TABLE locales_npc_option ADD PRIMARY KEY (menu_id, id);
-
-RENAME TABLE locales_npc_option TO locales_gossip_menu_option;
-
-DROP TABLE IF EXISTS npc_option;
-DROP TABLE IF EXISTS npc_gossip_textid;
