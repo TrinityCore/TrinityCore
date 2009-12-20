@@ -41,7 +41,7 @@
 
 #include <cmath>
 
-#define CLASS_LOCK MaNGOS::ClassLevelLockable<ObjectAccessor, ACE_Thread_Mutex>
+#define CLASS_LOCK Trinity::ClassLevelLockable<ObjectAccessor, ACE_Thread_Mutex>
 INSTANTIATE_SINGLETON_2(ObjectAccessor, CLASS_LOCK);
 INSTANTIATE_CLASS_MUTEX(ObjectAccessor, ACE_Thread_Mutex);
 

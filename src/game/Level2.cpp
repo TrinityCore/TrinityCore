@@ -780,7 +780,7 @@ bool ChatHandler::HandleGameObjectAddCommand(const char* args)
         return false;
     }
 
-    sLog.outDebug(GetMangosString(LANG_GAMEOBJECT_CURRENT), gInfo->name, db_lowGUID, x, y, z, o);
+    sLog.outDebug(GetTrinityString(LANG_GAMEOBJECT_CURRENT), gInfo->name, db_lowGUID, x, y, z, o);
 
     map->Add(pGameObj);
 
@@ -3289,7 +3289,7 @@ bool ChatHandler::HandleCharacterReputationCommand(const char* args)
         FactionEntry const *factionEntry = sFactionStore.LookupEntry(itr->second.ID);
         char const* factionName = factionEntry ? factionEntry->name[loc] : "#Not found#";
         ReputationRank rank = target->GetReputationMgr().GetRank(factionEntry);
-        std::string rankName = GetMangosString(ReputationRankStrIndex[rank]);
+        std::string rankName = GetTrinityString(ReputationRankStrIndex[rank]);
         std::ostringstream ss;
         if (m_session)
             ss << itr->second.ID << " - |cffffffff|Hfaction:" << itr->second.ID << "|h[" << factionName << " " << localeNames[loc] << "]|h|r";
@@ -3299,17 +3299,17 @@ bool ChatHandler::HandleCharacterReputationCommand(const char* args)
         ss << " " << rankName << " (" << target->GetReputationMgr().GetReputation(factionEntry) << ")";
 
         if(itr->second.Flags & FACTION_FLAG_VISIBLE)
-            ss << GetMangosString(LANG_FACTION_VISIBLE);
+            ss << GetTrinityString(LANG_FACTION_VISIBLE);
         if(itr->second.Flags & FACTION_FLAG_AT_WAR)
-            ss << GetMangosString(LANG_FACTION_ATWAR);
+            ss << GetTrinityString(LANG_FACTION_ATWAR);
         if(itr->second.Flags & FACTION_FLAG_PEACE_FORCED)
-            ss << GetMangosString(LANG_FACTION_PEACE_FORCED);
+            ss << GetTrinityString(LANG_FACTION_PEACE_FORCED);
         if(itr->second.Flags & FACTION_FLAG_HIDDEN)
-            ss << GetMangosString(LANG_FACTION_HIDDEN);
+            ss << GetTrinityString(LANG_FACTION_HIDDEN);
         if(itr->second.Flags & FACTION_FLAG_INVISIBLE_FORCED)
-            ss << GetMangosString(LANG_FACTION_INVISIBLE_FORCED);
+            ss << GetTrinityString(LANG_FACTION_INVISIBLE_FORCED);
         if(itr->second.Flags & FACTION_FLAG_INACTIVE)
-            ss << GetMangosString(LANG_FACTION_INACTIVE);
+            ss << GetTrinityString(LANG_FACTION_INACTIVE);
 
         SendSysMessage(ss.str().c_str());
     }

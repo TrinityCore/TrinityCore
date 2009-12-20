@@ -505,7 +505,7 @@ Map::Add(T *obj)
 /*
 void Map::MessageBroadcast(Player *player, WorldPacket *msg, bool to_self)
 {
-    CellPair p = MaNGOS::ComputeCellPair(player->GetPositionX(), player->GetPositionY());
+    CellPair p = Trinity::ComputeCellPair(player->GetPositionX(), player->GetPositionY());
 
     if(p.x_coord >= TOTAL_NUMBER_OF_CELLS_PER_MAP || p.y_coord >= TOTAL_NUMBER_OF_CELLS_PER_MAP )
     {
@@ -520,15 +520,15 @@ void Map::MessageBroadcast(Player *player, WorldPacket *msg, bool to_self)
     if( !loaded(GridPair(cell.data.Part.grid_x, cell.data.Part.grid_y)) )
         return;
 
-    MaNGOS::MessageDeliverer post_man(*player, msg, to_self);
-    TypeContainerVisitor<MaNGOS::MessageDeliverer, WorldTypeMapContainer > message(post_man);
+    Trinity::MessageDeliverer post_man(*player, msg, to_self);
+    TypeContainerVisitor<Trinity::MessageDeliverer, WorldTypeMapContainer > message(post_man);
     CellLock<ReadGuard> cell_lock(cell, p);
     cell_lock->Visit(cell_lock, message, *this, *player, GetVisibilityDistance());
 }
 
 void Map::MessageBroadcast(WorldObject *obj, WorldPacket *msg)
 {
-    CellPair p = MaNGOS::ComputeCellPair(obj->GetPositionX(), obj->GetPositionY());
+    CellPair p = Trinity::ComputeCellPair(obj->GetPositionX(), obj->GetPositionY());
 
     if(p.x_coord >= TOTAL_NUMBER_OF_CELLS_PER_MAP || p.y_coord >= TOTAL_NUMBER_OF_CELLS_PER_MAP )
     {
@@ -545,15 +545,15 @@ void Map::MessageBroadcast(WorldObject *obj, WorldPacket *msg)
 
     //TODO: currently on continents when Visibility.Distance.InFlight > Visibility.Distance.Continents
     //we have alot of blinking mobs because monster move packet send is broken...
-    MaNGOS::ObjectMessageDeliverer post_man(*obj,msg);
-    TypeContainerVisitor<MaNGOS::ObjectMessageDeliverer, WorldTypeMapContainer > message(post_man);
+    Trinity::ObjectMessageDeliverer post_man(*obj,msg);
+    TypeContainerVisitor<Trinity::ObjectMessageDeliverer, WorldTypeMapContainer > message(post_man);
     CellLock<ReadGuard> cell_lock(cell, p);
     cell_lock->Visit(cell_lock, message, *this, *obj, GetVisibilityDistance());
 }
 
 void Map::MessageDistBroadcast(Player *player, WorldPacket *msg, float dist, bool to_self, bool own_team_only)
 {
-    CellPair p = MaNGOS::ComputeCellPair(player->GetPositionX(), player->GetPositionY());
+    CellPair p = Trinity::ComputeCellPair(player->GetPositionX(), player->GetPositionY());
 
     if(p.x_coord >= TOTAL_NUMBER_OF_CELLS_PER_MAP || p.y_coord >= TOTAL_NUMBER_OF_CELLS_PER_MAP )
     {
@@ -568,15 +568,15 @@ void Map::MessageDistBroadcast(Player *player, WorldPacket *msg, float dist, boo
     if( !loaded(GridPair(cell.data.Part.grid_x, cell.data.Part.grid_y)) )
         return;
 
-    MaNGOS::MessageDistDeliverer post_man(*player, msg, dist, to_self, own_team_only);
-    TypeContainerVisitor<MaNGOS::MessageDistDeliverer , WorldTypeMapContainer > message(post_man);
+    Trinity::MessageDistDeliverer post_man(*player, msg, dist, to_self, own_team_only);
+    TypeContainerVisitor<Trinity::MessageDistDeliverer , WorldTypeMapContainer > message(post_man);
     CellLock<ReadGuard> cell_lock(cell, p);
     cell_lock->Visit(cell_lock, message, *this, *player, dist);
 }
 
 void Map::MessageDistBroadcast(WorldObject *obj, WorldPacket *msg, float dist)
 {
-    CellPair p = MaNGOS::ComputeCellPair(obj->GetPositionX(), obj->GetPositionY());
+    CellPair p = Trinity::ComputeCellPair(obj->GetPositionX(), obj->GetPositionY());
 
     if(p.x_coord >= TOTAL_NUMBER_OF_CELLS_PER_MAP || p.y_coord >= TOTAL_NUMBER_OF_CELLS_PER_MAP )
     {
@@ -591,8 +591,8 @@ void Map::MessageDistBroadcast(WorldObject *obj, WorldPacket *msg, float dist)
     if( !loaded(GridPair(cell.data.Part.grid_x, cell.data.Part.grid_y)) )
         return;
 
-    MaNGOS::ObjectMessageDistDeliverer post_man(*obj, msg, dist);
-    TypeContainerVisitor<MaNGOS::ObjectMessageDistDeliverer, WorldTypeMapContainer > message(post_man);
+    Trinity::ObjectMessageDistDeliverer post_man(*obj, msg, dist);
+    TypeContainerVisitor<Trinity::ObjectMessageDistDeliverer, WorldTypeMapContainer > message(post_man);
     CellLock<ReadGuard> cell_lock(cell, p);
     cell_lock->Visit(cell_lock, message, *this, *obj, dist);
 }
@@ -2349,11 +2349,11 @@ void Map::UpdateObjectsVisibilityFor( Player* player, Cell cell, CellPair cellpa
 void Map::PlayerRelocationNotify( Player* player, Cell cell, CellPair cellpair )
 {
     CellLock<ReadGuard> cell_lock(cell, cellpair);
-    MaNGOS::PlayerRelocationNotifier relocationNotifier(*player);
+    Trinity::PlayerRelocationNotifier relocationNotifier(*player);
     cell.data.Part.reserved = ALL_DISTRICT;
 
-    TypeContainerVisitor<MaNGOS::PlayerRelocationNotifier, GridTypeMapContainer >  p2grid_relocation(relocationNotifier);
-    TypeContainerVisitor<MaNGOS::PlayerRelocationNotifier, WorldTypeMapContainer > p2world_relocation(relocationNotifier);
+    TypeContainerVisitor<Trinity::PlayerRelocationNotifier, GridTypeMapContainer >  p2grid_relocation(relocationNotifier);
+    TypeContainerVisitor<Trinity::PlayerRelocationNotifier, WorldTypeMapContainer > p2world_relocation(relocationNotifier);
 
     cell_lock->Visit(cell_lock, p2grid_relocation, *this, *player, MAX_CREATURE_ATTACK_RADIUS);
     cell_lock->Visit(cell_lock, p2world_relocation, *this, *player, MAX_CREATURE_ATTACK_RADIUS);
@@ -2362,12 +2362,12 @@ void Map::PlayerRelocationNotify( Player* player, Cell cell, CellPair cellpair )
 void Map::CreatureRelocationNotify(Creature *creature, Cell cell, CellPair cellpair)
 {
     CellLock<ReadGuard> cell_lock(cell, cellpair);
-    MaNGOS::CreatureRelocationNotifier relocationNotifier(*creature);
+    Trinity::CreatureRelocationNotifier relocationNotifier(*creature);
     cell.data.Part.reserved = ALL_DISTRICT;
     cell.SetNoCreate();                                     // not trigger load unloaded grids at notifier call
 
-    TypeContainerVisitor<MaNGOS::CreatureRelocationNotifier, WorldTypeMapContainer > c2world_relocation(relocationNotifier);
-    TypeContainerVisitor<MaNGOS::CreatureRelocationNotifier, GridTypeMapContainer >  c2grid_relocation(relocationNotifier);
+    TypeContainerVisitor<Trinity::CreatureRelocationNotifier, WorldTypeMapContainer > c2world_relocation(relocationNotifier);
+    TypeContainerVisitor<Trinity::CreatureRelocationNotifier, GridTypeMapContainer >  c2grid_relocation(relocationNotifier);
 
     cell_lock->Visit(cell_lock, c2world_relocation, *this, *creature, MAX_CREATURE_ATTACK_RADIUS);
     cell_lock->Visit(cell_lock, c2grid_relocation, *this, *creature, MAX_CREATURE_ATTACK_RADIUS);
@@ -3515,14 +3515,14 @@ void Map::ScriptsProcess()
                 GameObject *go = NULL;
                 int32 time_to_despawn = step.script->datalong2<5 ? 5 : (int32)step.script->datalong2;
 
-                CellPair p(MaNGOS::ComputeCellPair(summoner->GetPositionX(), summoner->GetPositionY()));
+                CellPair p(Trinity::ComputeCellPair(summoner->GetPositionX(), summoner->GetPositionY()));
                 Cell cell(p);
                 cell.data.Part.reserved = ALL_DISTRICT;
 
-                MaNGOS::GameObjectWithDbGUIDCheck go_check(*summoner,step.script->datalong);
-                MaNGOS::GameObjectSearcher<MaNGOS::GameObjectWithDbGUIDCheck> checker(summoner, go,go_check);
+                Trinity::GameObjectWithDbGUIDCheck go_check(*summoner,step.script->datalong);
+                Trinity::GameObjectSearcher<Trinity::GameObjectWithDbGUIDCheck> checker(summoner, go,go_check);
 
-                TypeContainerVisitor<MaNGOS::GameObjectSearcher<MaNGOS::GameObjectWithDbGUIDCheck>, GridTypeMapContainer > object_checker(checker);
+                TypeContainerVisitor<Trinity::GameObjectSearcher<Trinity::GameObjectWithDbGUIDCheck>, GridTypeMapContainer > object_checker(checker);
                 CellLock<GridReadGuard> cell_lock(cell, p);
                 cell_lock->Visit(cell_lock, object_checker, *summoner->GetMap());
 
@@ -3575,14 +3575,14 @@ void Map::ScriptsProcess()
                 GameObject *door = NULL;
                 int32 time_to_close = step.script->datalong2 < 15 ? 15 : (int32)step.script->datalong2;
 
-                CellPair p(MaNGOS::ComputeCellPair(caster->GetPositionX(), caster->GetPositionY()));
+                CellPair p(Trinity::ComputeCellPair(caster->GetPositionX(), caster->GetPositionY()));
                 Cell cell(p);
                 cell.data.Part.reserved = ALL_DISTRICT;
 
-                MaNGOS::GameObjectWithDbGUIDCheck go_check(*caster,step.script->datalong);
-                MaNGOS::GameObjectSearcher<MaNGOS::GameObjectWithDbGUIDCheck> checker(caster,door,go_check);
+                Trinity::GameObjectWithDbGUIDCheck go_check(*caster,step.script->datalong);
+                Trinity::GameObjectSearcher<Trinity::GameObjectWithDbGUIDCheck> checker(caster,door,go_check);
 
-                TypeContainerVisitor<MaNGOS::GameObjectSearcher<MaNGOS::GameObjectWithDbGUIDCheck>, GridTypeMapContainer > object_checker(checker);
+                TypeContainerVisitor<Trinity::GameObjectSearcher<Trinity::GameObjectWithDbGUIDCheck>, GridTypeMapContainer > object_checker(checker);
                 CellLock<GridReadGuard> cell_lock(cell, p);
                 cell_lock->Visit(cell_lock, object_checker, *caster->GetMap());
 
@@ -3631,14 +3631,14 @@ void Map::ScriptsProcess()
                 GameObject *door = NULL;
                 int32 time_to_open = step.script->datalong2 < 15 ? 15 : (int32)step.script->datalong2;
 
-                CellPair p(MaNGOS::ComputeCellPair(caster->GetPositionX(), caster->GetPositionY()));
+                CellPair p(Trinity::ComputeCellPair(caster->GetPositionX(), caster->GetPositionY()));
                 Cell cell(p);
                 cell.data.Part.reserved = ALL_DISTRICT;
 
-                MaNGOS::GameObjectWithDbGUIDCheck go_check(*caster,step.script->datalong);
-                MaNGOS::GameObjectSearcher<MaNGOS::GameObjectWithDbGUIDCheck> checker(caster,door,go_check);
+                Trinity::GameObjectWithDbGUIDCheck go_check(*caster,step.script->datalong);
+                Trinity::GameObjectSearcher<Trinity::GameObjectWithDbGUIDCheck> checker(caster,door,go_check);
 
-                TypeContainerVisitor<MaNGOS::GameObjectSearcher<MaNGOS::GameObjectWithDbGUIDCheck>, GridTypeMapContainer > object_checker(checker);
+                TypeContainerVisitor<Trinity::GameObjectSearcher<Trinity::GameObjectWithDbGUIDCheck>, GridTypeMapContainer > object_checker(checker);
                 CellLock<GridReadGuard> cell_lock(cell, p);
                 cell_lock->Visit(cell_lock, object_checker, *caster->GetMap());
 

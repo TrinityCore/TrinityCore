@@ -6725,7 +6725,7 @@ void ObjectMgr::LoadPointsOfInterest()
         POI.data                 = fields[5].GetUInt32();
         POI.icon_name            = fields[6].GetCppString();
 
-        if (!MaNGOS::IsValidMapCoord(POI.x,POI.y))
+        if (!Trinity::IsValidMapCoord(POI.x,POI.y))
         {
             sLog.outErrorDb("Table `points_of_interest` (Entry: %u) have invalid coordinates (X: %f Y: %f), ignored.",point_id,POI.x,POI.y);
             continue;

@@ -63,7 +63,7 @@ float JEDOGA_POS[2][4] =
     {372.330994f, -705.278015f, -16.179716f, 5.427970f}
 };
 
-struct MANGOS_DLL_DECL boss_jedoga_shadowseekerAI : public ScriptedAI
+struct TRINITY_DLL_DECL boss_jedoga_shadowseekerAI : public ScriptedAI
 {
     boss_jedoga_shadowseekerAI(Creature* c) : ScriptedAI(c)
     {
@@ -333,7 +333,7 @@ struct MANGOS_DLL_DECL boss_jedoga_shadowseekerAI : public ScriptedAI
     }
 };
 
-struct MANGOS_DLL_DECL mob_jedoga_initiandAI : public ScriptedAI
+struct TRINITY_DLL_DECL mob_jedoga_initiandAI : public ScriptedAI
 {
     mob_jedoga_initiandAI(Creature* c) : ScriptedAI(c)
     {
@@ -487,7 +487,7 @@ enum AufseherSpell
   SPELL_BEAM_VISUAL_JEDOGAS_AUFSEHER_2    = 56312
 };
 
-struct MANGOS_DLL_DECL npc_jedogas_aufseher_triggerAI : public Scripted_NoMovementAI
+struct TRINITY_DLL_DECL npc_jedogas_aufseher_triggerAI : public Scripted_NoMovementAI
 {
     npc_jedogas_aufseher_triggerAI(Creature* c) : Scripted_NoMovementAI(c)
     {

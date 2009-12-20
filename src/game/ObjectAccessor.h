@@ -50,7 +50,7 @@ class HashMapHolder
 
         typedef UNORDERED_MAP< uint64, T* >   MapType;
         typedef ACE_Thread_Mutex LockType;
-        typedef MaNGOS::GeneralLock<LockType > Guard;
+        typedef Trinity::GeneralLock<LockType > Guard;
 
         static void Insert(T* o)
         {
@@ -83,7 +83,7 @@ class HashMapHolder
         static MapType  m_objectMap;
 };
 
-class MANGOS_DLL_DECL ObjectAccessor : public MaNGOS::Singleton<ObjectAccessor, MaNGOS::ClassLevelLockable<ObjectAccessor, ACE_Thread_Mutex> >
+class TRINITY_DLL_DECL ObjectAccessor : public Trinity::Singleton<ObjectAccessor, Trinity::ClassLevelLockable<ObjectAccessor, ACE_Thread_Mutex> >
 {
 
     friend class Trinity::OperatorNew<ObjectAccessor>;
@@ -255,7 +255,7 @@ class MANGOS_DLL_DECL ObjectAccessor : public MaNGOS::Singleton<ObjectAccessor, 
         Player2CorpsesMapType   i_player2corpse;
 
         typedef ACE_Thread_Mutex LockType;
-        typedef MaNGOS::GeneralLock<LockType > Guard;
+        typedef Trinity::GeneralLock<LockType > Guard;
 
         static void _buildChangeObjectForPlayer(WorldObject *, UpdateDataMapType &);
         static void _buildPacket(Player *, Object *, UpdateDataMapType &);

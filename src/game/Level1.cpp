@@ -745,7 +745,7 @@ bool ChatHandler::HandleGPSCommand(const char* args)
         zone_x, zone_y, ground_z, floor_z, have_map, have_vmap );
 
     sLog.outDebug("Player %s GPS call for %s '%s' (%s: %u):",
-        m_session ? GetNameLink().c_str() : GetMangosString(LANG_CONSOLE_COMMAND),
+        m_session ? GetNameLink().c_str() : GetTrinityString(LANG_CONSOLE_COMMAND),
         (obj->GetTypeId() == TYPEID_PLAYER ? "player" : "creature"), obj->GetName(),
         (obj->GetTypeId() == TYPEID_PLAYER ? "GUID" : "Entry"), (obj->GetTypeId() == TYPEID_PLAYER ? obj->GetGUIDLow(): obj->GetEntry()) );
     sLog.outDebug(GetTrinityString(LANG_MAP_POSITION),
@@ -2526,7 +2526,7 @@ bool ChatHandler::HandleTeleNameCommand(const char * args)
 
         std::string nameLink = playerLink(target_name);
 
-        PSendSysMessage(LANG_TELEPORTING_TO, nameLink.c_str(), GetMangosString(LANG_OFFLINE), tele->name.c_str());
+        PSendSysMessage(LANG_TELEPORTING_TO, nameLink.c_str(), GetTrinityString(LANG_OFFLINE), tele->name.c_str());
         Player::SavePositionInDB(tele->mapId,tele->position_x,tele->position_y,tele->position_z,tele->orientation,
             MapManager::Instance().GetZoneId(tele->mapId,tele->position_x,tele->position_y,tele->position_z),target_guid);
     }
