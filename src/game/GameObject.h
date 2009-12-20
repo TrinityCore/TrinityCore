@@ -170,7 +170,7 @@ struct GameObjectInfo
         struct
         {
             uint32 lockId;                                  //0 -> Lock.dbc
-            uint32 questId;                                 //1
+            int32 questId;                                  //1
             uint32 eventId;                                 //2
             uint32 autoCloseTime;                           //3
             uint32 customAnim;                              //4
