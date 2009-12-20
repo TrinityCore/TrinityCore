@@ -17,7 +17,7 @@
 /* ScriptData
 SDName: GO_Scripts
 SD%Complete: 100
-SDComment: Quest support: 4285,4287,4288(crystal pylons), 4296, 6481, 10990, 10991, 10992, Field_Repair_Bot->Teaches spell 22704. Barov_journal->Teaches spell 26089,12843
+SDComment: Quest support: 4285,4287,4288(crystal pylons), 4296, 6481, 10990, 10991, 10992, Field_Repair_Bot->Teaches spell 22704. Barov_journal->Teaches spell 26089,12843,12982
 SDCategory: Game Objects
 EndScriptData */
 
@@ -41,6 +41,7 @@ go_tele_to_dalaran_crystal
 go_tele_to_violet_stand
 go_rusty_cage
 go_scourge_cage
+go_jotunheim_cage
 EndContentData */
 
 #include "precompiled.h"
@@ -568,7 +569,7 @@ bool GOHello_go_scourge_cage(Player *pPlayer, GameObject *pGO)
         pPlayer->KilledMonsterCredit(NPC_SCOURGE_PRISONER, pNearestPrisoner->GetGUID());
         pNearestPrisoner->DisappearAndDie();
     }
-    
+
     return true;
 }
 
@@ -604,6 +605,57 @@ bool GOHello_go_blood_filled_orb(Player *pPlayer, GameObject *pGO)
     if (pGO->GetGoType() == GAMEOBJECT_TYPE_GOOBER)
         pPlayer->SummonCreature(NPC_ZELEMAR, -369.746, 166.759, -21.50, 5.235, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000);
 
+    return true;
+}
+
+/*######
+## go_jotunheim_cage
+######*/
+
+enum eJotunheimCage
+{
+    NPC_EBON_BLADE_PRISONER_HUMAN   = 30186,
+    NPC_EBON_BLADE_PRISONER_NE      = 30194,
+    NPC_EBON_BLADE_PRISONER_TROLL   = 30196,
+    NPC_EBON_BLADE_PRISONER_ORC     = 30195,
+
+    SPELL_SUMMON_BLADE_KNIGHT_H     = 56207,
+    SPELL_SUMMON_BLADE_KNIGHT_NE    = 56209,
+    SPELL_SUMMON_BLADE_KNIGHT_ORC   = 56212,
+    SPELL_SUMMON_BLADE_KNIGHT_TROLL = 56214
+};
+
+bool GOHello_go_jotunheim_cage(Player* pPlayer, GameObject* pGO)
+{
+    Creature* pPrisoner;
+    pPrisoner = NULL;
+
+    if ((pPrisoner = pGO->FindNearestCreature(NPC_EBON_BLADE_PRISONER_HUMAN, 5.0f, true)) ||
+        (pPrisoner = pGO->FindNearestCreature(NPC_EBON_BLADE_PRISONER_TROLL, 5.0f, true)) ||
+        (pPrisoner = pGO->FindNearestCreature(NPC_EBON_BLADE_PRISONER_ORC, 5.0f, true))   ||
+        (pPrisoner = pGO->FindNearestCreature(NPC_EBON_BLADE_PRISONER_NE, 5.0f, true)))
+    {
+        if (pPrisoner && pPrisoner->isAlive())
+        {
+            pPrisoner->DisappearAndDie();
+            pPlayer->KilledMonsterCredit(NPC_EBON_BLADE_PRISONER_HUMAN, 0);
+            switch(pPrisoner->GetEntry())
+            {
+                case NPC_EBON_BLADE_PRISONER_HUMAN:
+                    pPlayer->CastSpell(pPlayer,SPELL_SUMMON_BLADE_KNIGHT_H,true);
+                    break;
+                case NPC_EBON_BLADE_PRISONER_NE:
+                    pPlayer->CastSpell(pPlayer,SPELL_SUMMON_BLADE_KNIGHT_NE,true);
+                    break;
+                case NPC_EBON_BLADE_PRISONER_TROLL:
+                    pPlayer->CastSpell(pPlayer,SPELL_SUMMON_BLADE_KNIGHT_TROLL,true);
+                    break;
+                case NPC_EBON_BLADE_PRISONER_ORC:
+                    pPlayer->CastSpell(pPlayer,SPELL_SUMMON_BLADE_KNIGHT_ORC,true);
+                    break;
+            }
+        }
+    }
     return true;
 }
 
@@ -741,5 +793,9 @@ void AddSC_go_scripts()
     newscript->Name = "go_blood_filled_orb";
     newscript->pGOHello =           &GOHello_go_blood_filled_orb;
     newscript->RegisterSelf();
-}
 
+    newscript = new Script;
+    newscript->Name = "go_jotunheim_cage";
+    newscript->pGOHello =           &GOHello_go_jotunheim_cage;
+    newscript->RegisterSelf();
+}
