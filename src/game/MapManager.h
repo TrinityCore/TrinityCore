@@ -33,7 +33,7 @@ class Transport;
 
 #define DEFAULT_VISIBILITY_NOTIFY_PERIOD      1000
 
-class MANGOS_DLL_DECL MapManager : public MaNGOS::Singleton<MapManager, MaNGOS::ClassLevelLockable<MapManager, ACE_Thread_Mutex> >
+class TRINITY_DLL_DECL MapManager : public Trinity::Singleton<MapManager, Trinity::ClassLevelLockable<MapManager, ACE_Thread_Mutex> >
 {
 
     friend class Trinity::OperatorNew<MapManager>;
@@ -149,7 +149,7 @@ class MANGOS_DLL_DECL MapManager : public MaNGOS::Singleton<MapManager, MaNGOS::
             return (iter == i_maps.end() ? NULL : iter->second);
         }
 
-        typedef MaNGOS::ClassLevelLockable<MapManager, ACE_Thread_Mutex>::Lock Guard;
+        typedef Trinity::ClassLevelLockable<MapManager, ACE_Thread_Mutex>::Lock Guard;
         uint32 i_gridCleanUpDelay;
         MapMapType i_maps;
         IntervalTimer i_timer;

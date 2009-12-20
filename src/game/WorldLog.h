@@ -32,13 +32,13 @@
 #include <stdarg.h>
 
 /// %Log packets to a file
-class MANGOS_DLL_DECL WorldLog : public MaNGOS::Singleton<WorldLog, MaNGOS::ClassLevelLockable<WorldLog, ACE_Thread_Mutex> >
+class TRINITY_DLL_DECL WorldLog : public Trinity::Singleton<WorldLog, Trinity::ClassLevelLockable<WorldLog, ACE_Thread_Mutex> >
 {
     friend class Trinity::OperatorNew<WorldLog>;
     WorldLog();
     WorldLog(const WorldLog &);
     WorldLog& operator=(const WorldLog &);
-    typedef MaNGOS::ClassLevelLockable<WorldLog, ACE_Thread_Mutex>::Lock Guard;
+    typedef Trinity::ClassLevelLockable<WorldLog, ACE_Thread_Mutex>::Lock Guard;
 
     /// Close the file in destructor
     ~WorldLog();

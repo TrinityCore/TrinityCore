@@ -50,7 +50,7 @@ enum eOOX
     FACTION_ESCORTEE_H      = 775
 };
 
-struct MANGOS_DLL_DECL npc_00x09hlAI : public npc_escortAI
+struct TRINITY_DLL_DECL npc_00x09hlAI : public npc_escortAI
 {
     npc_00x09hlAI(Creature* pCreature) : npc_escortAI(pCreature) { }
 

@@ -137,10 +137,14 @@ typedef uint32      DWORD;
 
 typedef uint64 OBJECT_HANDLE;
 
-#define MaNGOS              Trinity
-#define MANGOS_DLL_DECL     TRINITY_DLL_DECL
-#define MANGOS_DLL_SPEC     TRINITY_DLL_SPEC
-#define GetMangosString     GetTrinityString
+//commented out
+//so all future merges with invalid style will drop build errors
+//this way devs will at least read thru what they merge to find the error
+
+//#define MaNGOS              Trinity
+//#define MANGOS_DLL_DECL     TRINITY_DLL_DECL
+//#define MANGOS_DLL_SPEC     TRINITY_DLL_SPEC
+//#define GetMangosString     GetTrinityString
 
 #if defined(MANGOS_DEBUG) || defined(TRINITY_DEBUG)
 #  ifndef TRINITY_DEBUG

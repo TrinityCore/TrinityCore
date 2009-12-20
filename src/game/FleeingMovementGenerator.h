@@ -62,7 +62,7 @@ class TRINITY_DLL_SPEC FleeingMovementGenerator
         DestinationHolder< Traveller<T> > i_destinationHolder;
 };
 
-class MANGOS_DLL_SPEC TimedFleeingMovementGenerator
+class TRINITY_DLL_SPEC TimedFleeingMovementGenerator
 : public FleeingMovementGenerator<Creature>
 {
     public:
