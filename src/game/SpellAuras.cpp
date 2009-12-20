@@ -6003,6 +6003,16 @@ void AuraEffect::PeriodicTick()
                             m_amount *= 2;
                         break;
                     }
+                    case 31803:
+                    case 53742:
+                    {
+                        float ap = pCaster->GetTotalAttackPowerValue(BASE_ATTACK);
+                        int32 holy = pCaster->SpellBaseDamageBonus(GetSpellSchoolMask(m_spellProto)) +
+                                     pCaster->SpellBaseDamageBonusForVictim(GetSpellSchoolMask(m_spellProto), m_target);
+
+                        m_amount = (0.013f * holy + 0.025f * ap) * 6 / 5 * m_tickNumber;
+                        break;
+                    }
                     default:
                         break;
                 }
