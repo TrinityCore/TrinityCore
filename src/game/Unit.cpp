@@ -5812,7 +5812,15 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
             // Divine Aegis
             if (dummySpell->SpellIconID == 2820)
             {
-                basepoints0 = damage * triggerAmount/100;
+                // Multiple effects stack, so let's try to find this aura.
+                int32 bonus = 0;
+                if (AuraEffect *aurEff = target->GetAuraEffect(47753, 0))
+                    bonus = aurEff->GetAmount();
+                
+                basepoints0 = damage * triggerAmount/100 + bonus;
+                if (basepoints0 > target->getLevel() * 125)
+                    basepoints0 = target->getLevel() * 125;
+
                 triggered_spell_id = 47753;
                 break;
             }
