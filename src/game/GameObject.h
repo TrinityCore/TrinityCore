@@ -491,6 +491,15 @@ struct GameObjectInfo
             default: return 0;
         }
     }
+    uint32 GetGossipMenuId() const
+    {
+        switch(type)
+        {
+            case GAMEOBJECT_TYPE_QUESTGIVER:    return questgiver.gossipID;
+            case GAMEOBJECT_TYPE_GOOBER:        return goober.gossipID;
+            default: return 0;
+        }
+    }
 };
 
 class OPvPCapturePoint;

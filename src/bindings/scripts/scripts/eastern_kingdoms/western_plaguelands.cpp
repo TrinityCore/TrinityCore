@@ -55,7 +55,7 @@ bool GossipHello_npcs_dithers_and_arbington(Player* pPlayer, Creature* pCreature
         pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_HDA4, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+4);
         pPlayer->SEND_GOSSIP_MENU(3985, pCreature->GetGUID());
     }else
-        pPlayer->SEND_GOSSIP_MENU(pCreature->GetNpcTextId(), pCreature->GetGUID());
+        pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(pCreature), pCreature->GetGUID());
 
     return true;
 }
@@ -117,7 +117,7 @@ bool GossipHello_npc_myranda_the_hag(Player* pPlayer, Creature* pCreature)
         return true;
     }
     else
-        pPlayer->SEND_GOSSIP_MENU(pCreature->GetNpcTextId(), pCreature->GetGUID());
+        pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(pCreature), pCreature->GetGUID());
 
     return true;
 }

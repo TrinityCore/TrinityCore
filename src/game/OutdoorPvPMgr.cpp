@@ -231,7 +231,7 @@ void OutdoorPvPMgr::HandleGossipOption(Player *plr, uint64 guid, uint32 gossipid
     }
 }
 
-bool OutdoorPvPMgr::CanTalkTo(Player * plr, Creature * c, GossipOption & gso)
+bool OutdoorPvPMgr::CanTalkTo(Player * plr, Creature * c, GossipMenuItems gso)
 {
     for (OutdoorPvPSet::iterator itr = m_OutdoorPvPSet.begin(); itr != m_OutdoorPvPSet.end(); ++itr)
     {

@@ -39,104 +39,6 @@ class Player;
 class WorldSession;
 class CreatureGroup;
 
-enum Gossip_Option
-{
-    GOSSIP_OPTION_NONE              = 0,                    //UNIT_NPC_FLAG_NONE              = 0,
-    GOSSIP_OPTION_GOSSIP            = 1,                    //UNIT_NPC_FLAG_GOSSIP            = 1,
-    GOSSIP_OPTION_QUESTGIVER        = 2,                    //UNIT_NPC_FLAG_QUESTGIVER        = 2,
-    GOSSIP_OPTION_VENDOR            = 3,                    //UNIT_NPC_FLAG_VENDOR            = 4,
-    GOSSIP_OPTION_TAXIVENDOR        = 4,                    //UNIT_NPC_FLAG_TAXIVENDOR        = 8,
-    GOSSIP_OPTION_TRAINER           = 5,                    //UNIT_NPC_FLAG_TRAINER           = 16,
-    GOSSIP_OPTION_SPIRITHEALER      = 6,                    //UNIT_NPC_FLAG_SPIRITHEALER      = 32,
-    GOSSIP_OPTION_SPIRITGUIDE       = 7,                    //UNIT_NPC_FLAG_SPIRITGUIDE       = 64,
-    GOSSIP_OPTION_INNKEEPER         = 8,                    //UNIT_NPC_FLAG_INNKEEPER         = 128,
-    GOSSIP_OPTION_BANKER            = 9,                    //UNIT_NPC_FLAG_BANKER            = 256,
-    GOSSIP_OPTION_PETITIONER        = 10,                   //UNIT_NPC_FLAG_PETITIONER        = 512,
-    GOSSIP_OPTION_TABARDDESIGNER    = 11,                   //UNIT_NPC_FLAG_TABARDDESIGNER    = 1024,
-    GOSSIP_OPTION_BATTLEFIELD       = 12,                   //UNIT_NPC_FLAG_BATTLEFIELDPERSON = 2048,
-    GOSSIP_OPTION_AUCTIONEER        = 13,                   //UNIT_NPC_FLAG_AUCTIONEER        = 4096,
-    GOSSIP_OPTION_STABLEPET         = 14,                   //UNIT_NPC_FLAG_STABLE            = 8192,
-    GOSSIP_OPTION_ARMORER           = 15,                   //UNIT_NPC_FLAG_ARMORER           = 16384,
-    GOSSIP_OPTION_UNLEARNTALENTS    = 16,                   //UNIT_NPC_FLAG_TRAINER (bonus option for GOSSIP_OPTION_TRAINER)
-    GOSSIP_OPTION_UNLEARNPETSKILLS  = 17,                   //UNIT_NPC_FLAG_TRAINER (bonus option for GOSSIP_OPTION_TRAINER)
-    GOSSIP_OPTION_LEARNDUALSPEC     = 18,                   //UNIT_NPC_FLAG_TRAINER (bonus option for GOSSIP_OPTION_TRAINER)
-    GOSSIP_OPTION_OUTDOORPVP        = 19                    //added by code (option for outdoor pvp creatures)
-};
-
-enum Gossip_Guard
-{
-    GOSSIP_GUARD_BANK               = 32,
-    GOSSIP_GUARD_RIDE               = 33,
-    GOSSIP_GUARD_GUILD              = 34,
-    GOSSIP_GUARD_INN                = 35,
-    GOSSIP_GUARD_MAIL               = 36,
-    GOSSIP_GUARD_AUCTION            = 37,
-    GOSSIP_GUARD_WEAPON             = 38,
-    GOSSIP_GUARD_STABLE             = 39,
-    GOSSIP_GUARD_BATTLE             = 40,
-    GOSSIP_GUARD_SPELLTRAINER       = 41,
-    GOSSIP_GUARD_SKILLTRAINER       = 42
-};
-
-enum Gossip_Guard_Spell
-{
-    GOSSIP_GUARD_SPELL_WARRIOR      = 64,
-    GOSSIP_GUARD_SPELL_PALADIN      = 65,
-    GOSSIP_GUARD_SPELL_HUNTER       = 66,
-    GOSSIP_GUARD_SPELL_ROGUE        = 67,
-    GOSSIP_GUARD_SPELL_PRIEST       = 68,
-    GOSSIP_GUARD_SPELL_UNKNOWN1     = 69,
-    GOSSIP_GUARD_SPELL_SHAMAN       = 70,
-    GOSSIP_GUARD_SPELL_MAGE         = 71,
-    GOSSIP_GUARD_SPELL_WARLOCK      = 72,
-    GOSSIP_GUARD_SPELL_UNKNOWN2     = 73,
-    GOSSIP_GUARD_SPELL_DRUID        = 74
-};
-
-enum Gossip_Guard_Skill
-{
-    GOSSIP_GUARD_SKILL_ALCHEMY      = 80,
-    GOSSIP_GUARD_SKILL_BLACKSMITH   = 81,
-    GOSSIP_GUARD_SKILL_COOKING      = 82,
-    GOSSIP_GUARD_SKILL_ENCHANT      = 83,
-    GOSSIP_GUARD_SKILL_FIRSTAID     = 84,
-    GOSSIP_GUARD_SKILL_FISHING      = 85,
-    GOSSIP_GUARD_SKILL_HERBALISM    = 86,
-    GOSSIP_GUARD_SKILL_LEATHER      = 87,
-    GOSSIP_GUARD_SKILL_MINING       = 88,
-    GOSSIP_GUARD_SKILL_SKINNING     = 89,
-    GOSSIP_GUARD_SKILL_TAILORING    = 90,
-    GOSSIP_GUARD_SKILL_ENGINERING   = 91
-};
-
-enum GossipOptionIcon
-{
-    GOSSIP_ICON_CHAT                = 0,                    //white chat bubble
-    GOSSIP_ICON_VENDOR              = 1,                    //brown bag
-    GOSSIP_ICON_TAXI                = 2,                    //flight
-    GOSSIP_ICON_TRAINER             = 3,                    //book
-    GOSSIP_ICON_INTERACT_1          = 4,                    //interaction wheel
-    GOSSIP_ICON_INTERACT_2          = 5,                    //interaction wheel
-    GOSSIP_ICON_MONEY_BAG           = 6,                    //brown bag with yellow dot
-    GOSSIP_ICON_TALK                = 7,                    //white chat bubble with black dots
-    GOSSIP_ICON_TABARD              = 8,                    //tabard
-    GOSSIP_ICON_BATTLE              = 9,                    //two swords
-    GOSSIP_ICON_DOT                 = 10                    //yellow dot
-};
-
-struct GossipOption
-{
-    uint32 Id;
-    uint32 GossipId;
-    uint32 NpcFlag;
-    uint32 Icon;
-    uint32 Action;
-    uint32 BoxMoney;
-    bool Coded;
-    std::string OptionText;
-    std::string BoxText;
-};
-
 enum CreatureFlagsExtra
 {
     CREATURE_FLAG_EXTRA_INSTANCE_BIND   = 0x00000001,       // creature kill bind instance with killer and killer's group
@@ -176,6 +78,7 @@ struct CreatureInfo
     char*   Name;
     char*   SubName;
     char*   IconName;
+    uint32  GossipMenuId;
     uint32  minlevel;
     uint32  maxlevel;
     uint32  minhealth;
@@ -268,7 +171,7 @@ struct CreatureLocale
     std::vector<std::string> SubName;
 };
 
-struct NpcOptionLocale
+struct GossipMenuItemsLocale
 {
     std::vector<std::string> OptionText;
     std::vector<std::string> BoxText;
@@ -461,8 +364,6 @@ struct TrainerSpellData
     void Clear() { spellList.clear(); }
 };
 
-typedef std::list<GossipOption> GossipOptionList;
-
 typedef std::map<uint32,time_t> CreatureSpellCooldowns;
 
 // max different by z coordinate for creature aggro reaction
@@ -581,18 +482,6 @@ class TRINITY_DLL_SPEC Creature : public Unit
         std::string GetAIName() const;
         std::string GetScriptName() const;
         uint32 GetScriptId() const;
-
-        void prepareGossipMenu( Player *pPlayer, uint32 gossipid = 0 );
-        void sendPreparedGossip( Player* player );
-        void OnGossipSelect(Player* player, uint32 option);
-        void OnPoiSelect(Player* player, GossipOption const *gossip);
-
-        uint32 GetGossipTextId(uint32 action, uint32 zoneid);
-        uint32 GetNpcTextId();
-        void LoadGossipOptions();
-        void ResetGossipOptions();
-        GossipOption const* GetGossipOption( uint32 id ) const;
-        void addGossipOption(GossipOption const& gso) { m_goptions.push_back(gso); }
 
         void Say(int32 textId, uint32 language, uint64 TargetGuid) { MonsterSay(textId,language,TargetGuid); }
         void Yell(int32 textId, uint32 language, uint64 TargetGuid) { MonsterYell(textId,language,TargetGuid); }
@@ -759,9 +648,6 @@ class TRINITY_DLL_SPEC Creature : public Unit
         uint32 m_respawnDelay;                              // (secs) delay between corpse disappearance and respawning
         uint32 m_corpseDelay;                               // (secs) delay between death and corpse disappearance
         float m_respawnradius;
-
-        bool m_gossipOptionLoaded;
-        GossipOptionList m_goptions;
 
         ReactStates m_reactState;                           // for AI, not charmInfo
         void RegenerateMana();
