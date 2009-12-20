@@ -4795,6 +4795,16 @@ SpellCastResult Spell::CheckCast(bool strict)
                     if(!m_caster->FindNearestCreature(28653,5))
                         return SPELL_FAILED_OUT_OF_RANGE;
                 }
+                else if (m_spellInfo->Id == 31789)          // Righteous Defense
+                {
+                    if (m_caster->GetTypeId() != TYPEID_PLAYER)
+                        return SPELL_FAILED_DONT_REPORT;
+
+                    Unit* target = m_targets.getUnitTarget();
+                    if (!target || !target->IsFriendlyTo(m_caster) || target->getAttackers().empty())
+                        return SPELL_FAILED_BAD_TARGETS;
+
+                }
                 break;
             }
             case SPELL_EFFECT_LEARN_SPELL:
@@ -5102,10 +5112,8 @@ SpellCastResult Spell::CheckCast(bool strict)
                         if (!target || target->GetTypeId() != TYPEID_PLAYER)
                             return SPELL_FAILED_BAD_TARGETS;
                         
-                        const Group* casterGroup = ((Player*)m_caster)->GetGroup();
-                        bool isInSameRaidOrGroup = casterGroup && casterGroup == ((Player*)target)->GetGroup();
-                        if (m_caster != target && !isInSameRaidOrGroup)
-                            return SPELL_FAILED_BAD_TARGETS;
+                        if (!((Player*)m_caster)->IsInSameRaidWith(((Player*)target)))
+                            return SPELL_FAILED_TARGET_NOT_IN_RAID;
 
                         break;
                     }
