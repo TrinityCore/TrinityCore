@@ -13422,6 +13422,10 @@ bool Player::CanCompleteQuest( uint32 quest_id )
             if ( repFacId && GetReputationMgr().GetReputation(repFacId) < qInfo->GetRepObjectiveValue() )
                 return false;
 
+            uint32 repFacId2 = qInfo->GetRepObjectiveFaction2();
+            if ( repFacId2 && GetReputationMgr().GetReputation(repFacId) < qInfo->GetRepObjectiveValue2() )
+                return false;
+
             return true;
         }
     }
@@ -13554,6 +13558,10 @@ void Player::AddQuest( Quest const *pQuest, Object *questGiver )
 
     if( pQuest->GetRepObjectiveFaction() )
         if(FactionEntry const* factionEntry = sFactionStore.LookupEntry(pQuest->GetRepObjectiveFaction()))
+            GetReputationMgr().SetVisible(factionEntry);
+
+    if( pQuest->GetRepObjectiveFaction2() )
+        if(FactionEntry const* factionEntry = sFactionStore.LookupEntry(pQuest->GetRepObjectiveFaction2()))
             GetReputationMgr().SetVisible(factionEntry);
 
     uint32 qtime = 0;
@@ -14708,6 +14716,34 @@ void Player::ReputationChanged(FactionEntry const* factionEntry)
                     else if(q_status.m_status == QUEST_STATUS_COMPLETE)
                     {
                         if (GetReputationMgr().GetReputation(factionEntry) < qInfo->GetRepObjectiveValue())
+                            IncompleteQuest(questid);
+                    }
+                }
+            }
+        }
+    }
+}
+
+void Player::ReputationChanged2(FactionEntry const* factionEntry)
+{
+    for (uint8 i = 0; i < MAX_QUEST_LOG_SIZE; ++i)
+    {
+        if(uint32 questid = GetQuestSlotQuestId(i))
+        {
+            if (Quest const* qInfo = objmgr.GetQuestTemplate(questid))
+            {
+                if (qInfo->GetRepObjectiveFaction2() == factionEntry->ID)
+                {
+                    QuestStatusData& q_status = mQuestStatus[questid];
+                    if (q_status.m_status == QUEST_STATUS_INCOMPLETE)
+                    {
+                        if (GetReputationMgr().GetReputation(factionEntry) >= qInfo->GetRepObjectiveValue2())
+                            if (CanCompleteQuest(questid))
+                                CompleteQuest(questid);
+                    }
+                    else if(q_status.m_status == QUEST_STATUS_COMPLETE)
+                    {
+                        if (GetReputationMgr().GetReputation(factionEntry) < qInfo->GetRepObjectiveValue2())
                             IncompleteQuest(questid);
                     }
                 }
