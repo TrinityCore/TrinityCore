@@ -505,7 +505,7 @@ WorldObject* Spell::FindCorpseUsing()
     // non-standard target selection
     float max_range = GetSpellMaxRange(m_spellInfo, false);
 
-    CellPair p(MaNGOS::ComputeCellPair(m_caster->GetPositionX(), m_caster->GetPositionY()));
+    CellPair p(Trinity::ComputeCellPair(m_caster->GetPositionX(), m_caster->GetPositionY()));
     Cell cell(p);
     cell.data.Part.reserved = ALL_DISTRICT;
     cell.SetNoCreate();
@@ -513,15 +513,15 @@ WorldObject* Spell::FindCorpseUsing()
     WorldObject* result = NULL;
 
     T u_check(m_caster, max_range);
-    MaNGOS::WorldObjectSearcher<T> searcher(m_caster, result, u_check);
+    Trinity::WorldObjectSearcher<T> searcher(m_caster, result, u_check);
 
-    TypeContainerVisitor<MaNGOS::WorldObjectSearcher<T>, GridTypeMapContainer > grid_searcher(searcher);
+    TypeContainerVisitor<Trinity::WorldObjectSearcher<T>, GridTypeMapContainer > grid_searcher(searcher);
     CellLock<GridReadGuard> cell_lock(cell, p);
     cell_lock->Visit(cell_lock, grid_searcher, *m_caster->GetMap(), *m_caster, max_range);
 
     if (!result)
     {
-        TypeContainerVisitor<MaNGOS::WorldObjectSearcher<T>, WorldTypeMapContainer > world_searcher(searcher);
+        TypeContainerVisitor<Trinity::WorldObjectSearcher<T>, WorldTypeMapContainer > world_searcher(searcher);
         cell_lock->Visit(cell_lock, world_searcher, *m_caster->GetMap(), *m_caster, max_range);
     }
 
@@ -587,7 +587,7 @@ void Spell::SelectSpellTargets()
                     {
                         case 20577:                         // Cannibalize
                         {
-                            WorldObject* result = FindCorpseUsing<MaNGOS::CannibalizeObjectCheck> ();
+                            WorldObject* result = FindCorpseUsing<Trinity::CannibalizeObjectCheck> ();
 
                             if(result)
                             {
@@ -2288,7 +2288,7 @@ void Spell::SelectEffectTargets(uint32 i, uint32 cur)
                     case 46584: // Raise Dead
                     {
                         m_targets.m_targetMask &= ~TARGET_FLAG_DEST_LOCATION;
-                        if (WorldObject* result = FindCorpseUsing<MaNGOS::RaiseDeadObjectCheck> ())
+                        if (WorldObject* result = FindCorpseUsing<Trinity::RaiseDeadObjectCheck> ())
                         {
                             switch(result->GetTypeId())
                             {
@@ -4640,14 +4640,14 @@ SpellCastResult Spell::CheckCast(bool strict)
 
                             if (i_spellST->second.targetEntry)
                             {
-                                CellPair p(MaNGOS::ComputeCellPair(m_caster->GetPositionX(), m_caster->GetPositionY()));
+                                CellPair p(Trinity::ComputeCellPair(m_caster->GetPositionX(), m_caster->GetPositionY()));
                                 Cell cell(p);
                                 cell.data.Part.reserved = ALL_DISTRICT;
 
-                                MaNGOS::NearestGameObjectEntryInObjectRangeCheck go_check(*m_caster,i_spellST->second.targetEntry,range);
-                                MaNGOS::GameObjectLastSearcher<MaNGOS::NearestGameObjectEntryInObjectRangeCheck> checker(m_caster, p_GameObject,go_check);
+                                Trinity::NearestGameObjectEntryInObjectRangeCheck go_check(*m_caster,i_spellST->second.targetEntry,range);
+                                Trinity::GameObjectLastSearcher<Trinity::NearestGameObjectEntryInObjectRangeCheck> checker(m_caster, p_GameObject,go_check);
 
-                                TypeContainerVisitor<MaNGOS::GameObjectLastSearcher<MaNGOS::NearestGameObjectEntryInObjectRangeCheck>, GridTypeMapContainer > object_checker(checker);
+                                TypeContainerVisitor<Trinity::GameObjectLastSearcher<Trinity::NearestGameObjectEntryInObjectRangeCheck>, GridTypeMapContainer > object_checker(checker);
                                 CellLock<GridReadGuard> cell_lock(cell, p);
                                 cell_lock->Visit(cell_lock, object_checker, *m_caster->GetMap());
 
@@ -4677,15 +4677,15 @@ SpellCastResult Spell::CheckCast(bool strict)
                         {
                             Creature *p_Creature = NULL;
 
-                            CellPair p(MaNGOS::ComputeCellPair(m_caster->GetPositionX(), m_caster->GetPositionY()));
+                            CellPair p(Trinity::ComputeCellPair(m_caster->GetPositionX(), m_caster->GetPositionY()));
                             Cell cell(p);
                             cell.data.Part.reserved = ALL_DISTRICT;
                             cell.SetNoCreate();             // Really don't know what is that???
 
-                            MaNGOS::NearestCreatureEntryWithLiveStateInObjectRangeCheck u_check(*m_caster,i_spellST->second.targetEntry,i_spellST->second.type!=SPELL_TARGET_TYPE_DEAD,range);
-                            MaNGOS::CreatureLastSearcher<MaNGOS::NearestCreatureEntryWithLiveStateInObjectRangeCheck> searcher(m_caster, p_Creature, u_check);
+                            Trinity::NearestCreatureEntryWithLiveStateInObjectRangeCheck u_check(*m_caster,i_spellST->second.targetEntry,i_spellST->second.type!=SPELL_TARGET_TYPE_DEAD,range);
+                            Trinity::CreatureLastSearcher<Trinity::NearestCreatureEntryWithLiveStateInObjectRangeCheck> searcher(m_caster, p_Creature, u_check);
 
-                            TypeContainerVisitor<MaNGOS::CreatureLastSearcher<MaNGOS::NearestCreatureEntryWithLiveStateInObjectRangeCheck>, GridTypeMapContainer >  grid_creature_searcher(searcher);
+                            TypeContainerVisitor<Trinity::CreatureLastSearcher<Trinity::NearestCreatureEntryWithLiveStateInObjectRangeCheck>, GridTypeMapContainer >  grid_creature_searcher(searcher);
 
                             CellLock<GridReadGuard> cell_lock(cell, p);
                             cell_lock->Visit(cell_lock, grid_creature_searcher, *m_caster->GetMap(), *m_caster, range);
@@ -5622,8 +5622,8 @@ SpellCastResult Spell::CheckItems()
         cell.data.Part.reserved = ALL_DISTRICT;
 
         GameObject* ok = NULL;
-        MaNGOS::GameObjectFocusCheck go_check(m_caster,m_spellInfo->RequiresSpellFocus);
-        MaNGOS::GameObjectSearcher<MaNGOS::GameObjectFocusCheck> checker(m_caster, ok, go_check);
+        Trinity::GameObjectFocusCheck go_check(m_caster,m_spellInfo->RequiresSpellFocus);
+        Trinity::GameObjectSearcher<Trinity::GameObjectFocusCheck> checker(m_caster, ok, go_check);
 
         TypeContainerVisitor<Trinity::GameObjectSearcher<Trinity::GameObjectFocusCheck>, GridTypeMapContainer > object_checker(checker);
         CellLock<GridReadGuard> cell_lock(cell, p);

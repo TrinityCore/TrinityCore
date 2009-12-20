@@ -1171,21 +1171,21 @@ inline Unit* CreatureEventAI::GetTargetByType(uint32 Target, Unit* pActionInvoke
 
 Unit* CreatureEventAI::DoSelectLowestHpFriendly(float range, uint32 MinHPDiff)
 {
-    CellPair p(MaNGOS::ComputeCellPair(m_creature->GetPositionX(), m_creature->GetPositionY()));
+    CellPair p(Trinity::ComputeCellPair(m_creature->GetPositionX(), m_creature->GetPositionY()));
     Cell cell(p);
     cell.data.Part.reserved = ALL_DISTRICT;
     cell.SetNoCreate();
 
     Unit* pUnit = NULL;
 
-    MaNGOS::MostHPMissingInRange u_check(m_creature, range, MinHPDiff);
-    MaNGOS::UnitLastSearcher<MaNGOS::MostHPMissingInRange> searcher(m_creature, pUnit, u_check);
+    Trinity::MostHPMissingInRange u_check(m_creature, range, MinHPDiff);
+    Trinity::UnitLastSearcher<Trinity::MostHPMissingInRange> searcher(m_creature, pUnit, u_check);
 
     /*
     typedef TYPELIST_4(GameObject, Creature*except pets*, DynamicObject, Corpse*Bones*) AllGridObjectTypes;
     This means that if we only search grid then we cannot possibly return pets or players so this is safe
     */
-    TypeContainerVisitor<MaNGOS::UnitLastSearcher<MaNGOS::MostHPMissingInRange>, GridTypeMapContainer >  grid_unit_searcher(searcher);
+    TypeContainerVisitor<Trinity::UnitLastSearcher<Trinity::MostHPMissingInRange>, GridTypeMapContainer >  grid_unit_searcher(searcher);
 
     CellLock<GridReadGuard> cell_lock(cell, p);
     cell_lock->Visit(cell_lock, grid_unit_searcher, *m_creature->GetMap(), *m_creature, range);
@@ -1194,15 +1194,15 @@ Unit* CreatureEventAI::DoSelectLowestHpFriendly(float range, uint32 MinHPDiff)
 
 void CreatureEventAI::DoFindFriendlyCC(std::list<Creature*>& _list, float range)
 {
-    CellPair p(MaNGOS::ComputeCellPair(m_creature->GetPositionX(), m_creature->GetPositionY()));
+    CellPair p(Trinity::ComputeCellPair(m_creature->GetPositionX(), m_creature->GetPositionY()));
     Cell cell(p);
     cell.data.Part.reserved = ALL_DISTRICT;
     cell.SetNoCreate();
 
-    MaNGOS::FriendlyCCedInRange u_check(m_creature, range);
-    MaNGOS::CreatureListSearcher<MaNGOS::FriendlyCCedInRange> searcher(m_creature, _list, u_check);
+    Trinity::FriendlyCCedInRange u_check(m_creature, range);
+    Trinity::CreatureListSearcher<Trinity::FriendlyCCedInRange> searcher(m_creature, _list, u_check);
 
-    TypeContainerVisitor<MaNGOS::CreatureListSearcher<MaNGOS::FriendlyCCedInRange>, GridTypeMapContainer >  grid_creature_searcher(searcher);
+    TypeContainerVisitor<Trinity::CreatureListSearcher<Trinity::FriendlyCCedInRange>, GridTypeMapContainer >  grid_creature_searcher(searcher);
 
     CellLock<GridReadGuard> cell_lock(cell, p);
     cell_lock->Visit(cell_lock, grid_creature_searcher, *m_creature->GetMap());
@@ -1210,15 +1210,15 @@ void CreatureEventAI::DoFindFriendlyCC(std::list<Creature*>& _list, float range)
 
 void CreatureEventAI::DoFindFriendlyMissingBuff(std::list<Creature*>& _list, float range, uint32 spellid)
 {
-    CellPair p(MaNGOS::ComputeCellPair(m_creature->GetPositionX(), m_creature->GetPositionY()));
+    CellPair p(Trinity::ComputeCellPair(m_creature->GetPositionX(), m_creature->GetPositionY()));
     Cell cell(p);
     cell.data.Part.reserved = ALL_DISTRICT;
     cell.SetNoCreate();
 
-    MaNGOS::FriendlyMissingBuffInRange u_check(m_creature, range, spellid);
-    MaNGOS::CreatureListSearcher<MaNGOS::FriendlyMissingBuffInRange> searcher(m_creature, _list, u_check);
+    Trinity::FriendlyMissingBuffInRange u_check(m_creature, range, spellid);
+    Trinity::CreatureListSearcher<Trinity::FriendlyMissingBuffInRange> searcher(m_creature, _list, u_check);
 
-    TypeContainerVisitor<MaNGOS::CreatureListSearcher<MaNGOS::FriendlyMissingBuffInRange>, GridTypeMapContainer >  grid_creature_searcher(searcher);
+    TypeContainerVisitor<Trinity::CreatureListSearcher<Trinity::FriendlyMissingBuffInRange>, GridTypeMapContainer >  grid_creature_searcher(searcher);
 
     CellLock<GridReadGuard> cell_lock(cell, p);
     cell_lock->Visit(cell_lock, grid_creature_searcher, *m_creature->GetMap());

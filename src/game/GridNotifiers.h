@@ -38,7 +38,7 @@ class Player;
 
 namespace Trinity
 {
-    struct MANGOS_DLL_DECL VisibleNotifier
+    struct TRINITY_DLL_DECL VisibleNotifier
     {
         bool force;
         Player &i_player;
@@ -57,7 +57,7 @@ namespace Trinity
         void SendToSelf(void);
     };
 
-    struct MANGOS_DLL_DECL Player2PlayerNotifier : public VisibleNotifier
+    struct TRINITY_DLL_DECL Player2PlayerNotifier : public VisibleNotifier
     {
         Player2PlayerNotifier(Player &player, bool forced = false) :
             VisibleNotifier(player, forced) {}
@@ -81,7 +81,7 @@ namespace Trinity
         void Notify(void);
     };
 
-    struct MANGOS_DLL_DECL PlayerRelocationNotifier
+    struct TRINITY_DLL_DECL PlayerRelocationNotifier
     {
         Player &i_player;
         PlayerRelocationNotifier(Player &pl) : i_player(pl) {}
@@ -113,7 +113,7 @@ namespace Trinity
         void Visit(DynamicObjectMapType &);
     };
 
-    struct MANGOS_DLL_DECL DelayedUnitRelocation
+    struct TRINITY_DLL_DECL DelayedUnitRelocation
     {
         typedef GridReadGuard ReadGuard;
         Map &i_map;
@@ -128,7 +128,7 @@ namespace Trinity
             void Notify(GridRefManager<T> &);
     };
 
-    struct MANGOS_DLL_DECL ResetNotifier
+    struct TRINITY_DLL_DECL ResetNotifier
     {
         uint16 reset_mask;
         ResetNotifier(uint16 notifies) : reset_mask(notifies) {}
@@ -480,7 +480,7 @@ namespace Trinity
     };
 
     template<class Do>
-    struct MANGOS_DLL_DECL CreatureWorker
+    struct TRINITY_DLL_DECL CreatureWorker
     {
         uint32 i_phaseMask;
         Do& i_do;

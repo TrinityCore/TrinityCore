@@ -6776,15 +6776,15 @@ void AuraEffect::PeriodicDummyTick()
                         // eff_radius ==0
                         float radius = GetSpellMaxRange(spell, false);
 
-                        CellPair p(MaNGOS::ComputeCellPair(caster->GetPositionX(),caster->GetPositionY()));
+                        CellPair p(Trinity::ComputeCellPair(caster->GetPositionX(),caster->GetPositionY()));
                         Cell cell(p);
                         cell.data.Part.reserved = ALL_DISTRICT;
 
-                        MaNGOS::AnyUnfriendlyVisibleUnitInObjectRangeCheck u_check(caster, caster, radius);
-                        MaNGOS::UnitListSearcher<MaNGOS::AnyUnfriendlyVisibleUnitInObjectRangeCheck> checker(caster,targets, u_check);
+                        Trinity::AnyUnfriendlyVisibleUnitInObjectRangeCheck u_check(caster, caster, radius);
+                        Trinity::UnitListSearcher<Trinity::AnyUnfriendlyVisibleUnitInObjectRangeCheck> checker(caster,targets, u_check);
 
-                        TypeContainerVisitor<MaNGOS::UnitListSearcher<MaNGOS::AnyUnfriendlyVisibleUnitInObjectRangeCheck>, GridTypeMapContainer > grid_object_checker(checker);
-                        TypeContainerVisitor<MaNGOS::UnitListSearcher<MaNGOS::AnyUnfriendlyVisibleUnitInObjectRangeCheck>, WorldTypeMapContainer > world_object_checker(checker);
+                        TypeContainerVisitor<Trinity::UnitListSearcher<Trinity::AnyUnfriendlyVisibleUnitInObjectRangeCheck>, GridTypeMapContainer > grid_object_checker(checker);
+                        TypeContainerVisitor<Trinity::UnitListSearcher<Trinity::AnyUnfriendlyVisibleUnitInObjectRangeCheck>, WorldTypeMapContainer > world_object_checker(checker);
 
                         CellLock<GridReadGuard> cell_lock(cell, p);
 

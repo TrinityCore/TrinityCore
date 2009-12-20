@@ -52,7 +52,7 @@ class TRINITY_DLL_SPEC PointMovementGenerator
         bool arrived;
 };
 
-class MANGOS_DLL_SPEC AssistanceMovementGenerator
+class TRINITY_DLL_SPEC AssistanceMovementGenerator
 : public PointMovementGenerator<Creature>
 {
     public:

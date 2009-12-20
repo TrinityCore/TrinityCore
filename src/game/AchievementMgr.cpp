@@ -41,7 +41,7 @@
 
 INSTANTIATE_SINGLETON_1(AchievementGlobalMgr);
 
-namespace MaNGOS
+namespace Trinity
 {
     class AchievementChatBuilder
     {
@@ -50,7 +50,7 @@ namespace MaNGOS
                 : i_player(pl), i_msgtype(msgtype), i_textId(textId), i_achievementId(ach_id) {}
             void operator()(WorldPacket& data, int32 loc_idx)
             {
-                char const* text = objmgr.GetMangosString(i_textId,loc_idx);
+                char const* text = objmgr.GetTrinityString(i_textId,loc_idx);
 
                 data << uint8(i_msgtype);
                 data << uint32(LANG_UNIVERSAL);
@@ -69,7 +69,7 @@ namespace MaNGOS
             int32 i_textId;
             uint32 i_achievementId;
     };
-}                                                           // namespace MaNGOS
+}                                                           // namespace Trinity
 
 bool AchievementCriteriaData::IsValid(AchievementCriteriaEntry const* criteria)
 {
@@ -577,8 +577,8 @@ void AchievementMgr::SendAchievementEarned(AchievementEntry const* achievement)
 
     if(Guild* guild = objmgr.GetGuildById(GetPlayer()->GetGuildId()))
     {
-        MaNGOS::AchievementChatBuilder say_builder(*GetPlayer(), CHAT_MSG_GUILD_ACHIEVEMENT, LANG_ACHIEVEMENT_EARNED,achievement->ID);
-        MaNGOS::LocalizedPacketDo<MaNGOS::AchievementChatBuilder> say_do(say_builder);
+        Trinity::AchievementChatBuilder say_builder(*GetPlayer(), CHAT_MSG_GUILD_ACHIEVEMENT, LANG_ACHIEVEMENT_EARNED,achievement->ID);
+        Trinity::LocalizedPacketDo<Trinity::AchievementChatBuilder> say_do(say_builder);
         guild->BroadcastWorker(say_do,GetPlayer());
     }
 
@@ -595,16 +595,16 @@ void AchievementMgr::SendAchievementEarned(AchievementEntry const* achievement)
     // if player is in world he can tell his friends about new achievement
     else if (GetPlayer()->IsInWorld())
     {
-        CellPair p = MaNGOS::ComputeCellPair(GetPlayer()->GetPositionX(), GetPlayer()->GetPositionY());
+        CellPair p = Trinity::ComputeCellPair(GetPlayer()->GetPositionX(), GetPlayer()->GetPositionY());
 
         Cell cell(p);
         cell.data.Part.reserved = ALL_DISTRICT;
         cell.SetNoCreate();
 
-        MaNGOS::AchievementChatBuilder say_builder(*GetPlayer(), CHAT_MSG_ACHIEVEMENT, LANG_ACHIEVEMENT_EARNED,achievement->ID);
-        MaNGOS::LocalizedPacketDo<MaNGOS::AchievementChatBuilder> say_do(say_builder);
-        MaNGOS::PlayerDistWorker<MaNGOS::LocalizedPacketDo<MaNGOS::AchievementChatBuilder> > say_worker(GetPlayer(),sWorld.getConfig(CONFIG_LISTEN_RANGE_SAY),say_do);
-        TypeContainerVisitor<MaNGOS::PlayerDistWorker<MaNGOS::LocalizedPacketDo<MaNGOS::AchievementChatBuilder> >, WorldTypeMapContainer > message(say_worker);
+        Trinity::AchievementChatBuilder say_builder(*GetPlayer(), CHAT_MSG_ACHIEVEMENT, LANG_ACHIEVEMENT_EARNED,achievement->ID);
+        Trinity::LocalizedPacketDo<Trinity::AchievementChatBuilder> say_do(say_builder);
+        Trinity::PlayerDistWorker<Trinity::LocalizedPacketDo<Trinity::AchievementChatBuilder> > say_worker(GetPlayer(),sWorld.getConfig(CONFIG_LISTEN_RANGE_SAY),say_do);
+        TypeContainerVisitor<Trinity::PlayerDistWorker<Trinity::LocalizedPacketDo<Trinity::AchievementChatBuilder> >, WorldTypeMapContainer > message(say_worker);
         CellLock<GridReadGuard> cell_lock(cell, p);
         cell_lock->Visit(cell_lock, message, *GetPlayer()->GetMap(), *GetPlayer(), sWorld.getConfig(CONFIG_LISTEN_RANGE_SAY));
     }

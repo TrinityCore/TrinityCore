@@ -71,7 +71,7 @@ struct WGuard
 
 typedef RGuard<GridRWLock, ACE_Thread_Mutex> GridReadGuard;
 typedef WGuard<GridRWLock, ACE_Thread_Mutex> GridWriteGuard;
-typedef MaNGOS::SingleThreaded<GridRWLock>::Lock NullGuard;
+typedef Trinity::SingleThreaded<GridRWLock>::Lock NullGuard;
 
 //******************************************
 // Map file format defines
@@ -257,7 +257,7 @@ typedef UNORDERED_MAP<Creature*, CreatureMover> CreatureMoveList;
 
 typedef std::map<uint32/*leaderDBGUID*/, CreatureGroup*>        CreatureGroupHolderType;
 
-class MANGOS_DLL_SPEC Map : public GridRefManager<NGridType>, public MaNGOS::ObjectLevelLockable<Map, ACE_Thread_Mutex>
+class TRINITY_DLL_SPEC Map : public GridRefManager<NGridType>, public Trinity::ObjectLevelLockable<Map, ACE_Thread_Mutex>
 {
     friend class MapReference;
     public:
@@ -508,7 +508,7 @@ class MANGOS_DLL_SPEC Map : public GridRefManager<NGridType>, public MaNGOS::Obj
     protected:
         void SetUnloadReferenceLock(const GridPair &p, bool on) { getNGrid(p.x_coord, p.y_coord)->setUnloadReferenceLock(on); }
 
-        typedef MaNGOS::ObjectLevelLockable<Map, ACE_Thread_Mutex>::Lock Guard;
+        typedef Trinity::ObjectLevelLockable<Map, ACE_Thread_Mutex>::Lock Guard;
 
         MapEntry const* i_mapEntry;
         uint8 i_spawnMode;

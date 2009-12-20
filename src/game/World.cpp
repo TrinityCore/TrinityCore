@@ -2026,7 +2026,7 @@ void World::SendGlobalGMMessage(WorldPacket *packet, WorldSession *self, uint32 
     }
 }
 
-namespace MaNGOS
+namespace Trinity
 {
     class WorldWorldTextBuilder
     {
@@ -2035,7 +2035,7 @@ namespace MaNGOS
             explicit WorldWorldTextBuilder(int32 textId, va_list* args = NULL) : i_textId(textId), i_args(args) {}
             void operator()(WorldPacketList& data_list, int32 loc_idx)
             {
-                char const* text = objmgr.GetMangosString(i_textId,loc_idx);
+                char const* text = objmgr.GetTrinityString(i_textId,loc_idx);
 
                 if (i_args)
                 {
@@ -2081,7 +2081,7 @@ namespace MaNGOS
             int32 i_textId;
             va_list* i_args;
     };
-}                                                           // namespace MaNGOS
+}                                                           // namespace Trinity
 
 /// Send a System Message to all players (except self if mentioned)
 void World::SendWorldText(int32 string_id, ...)
@@ -2089,8 +2089,8 @@ void World::SendWorldText(int32 string_id, ...)
     va_list ap;
     va_start(ap, string_id);
 
-    MaNGOS::WorldWorldTextBuilder wt_builder(string_id, &ap);
-    MaNGOS::LocalizedPacketListDo<MaNGOS::WorldWorldTextBuilder> wt_do(wt_builder);
+    Trinity::WorldWorldTextBuilder wt_builder(string_id, &ap);
+    Trinity::LocalizedPacketListDo<Trinity::WorldWorldTextBuilder> wt_do(wt_builder);
     for (SessionMap::const_iterator itr = m_sessions.begin(); itr != m_sessions.end(); ++itr)
     {
         if (!itr->second || !itr->second->GetPlayer() || !itr->second->GetPlayer()->IsInWorld())
@@ -2108,8 +2108,8 @@ void World::SendGMText(int32 string_id, ...)
     va_list ap;
     va_start(ap, string_id);
 
-    MaNGOS::WorldWorldTextBuilder wt_builder(string_id, &ap);
-    MaNGOS::LocalizedPacketListDo<MaNGOS::WorldWorldTextBuilder> wt_do(wt_builder);
+    Trinity::WorldWorldTextBuilder wt_builder(string_id, &ap);
+    Trinity::LocalizedPacketListDo<Trinity::WorldWorldTextBuilder> wt_do(wt_builder);
     for (SessionMap::iterator itr = m_sessions.begin(); itr != m_sessions.end(); ++itr)
     {
         if (!itr->second || !itr->second->GetPlayer() || !itr->second->GetPlayer()->IsInWorld())
