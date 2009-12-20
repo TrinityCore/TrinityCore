@@ -28,7 +28,7 @@ class Player;
 class GameObject;
 class Creature;
 class ZoneScript;
-struct GossipOption;
+struct GossipMenuItems;
 
 // class to handle player enter / leave / areatrigger / GO use events
 class OutdoorPvPMgr

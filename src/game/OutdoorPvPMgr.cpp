@@ -24,6 +24,7 @@
 #include "OutdoorPvPSI.h"
 #include "OutdoorPvPEP.h"
 #include "OutdoorPvPWG.h"
+#include "ObjectMgr.h"
 #include "Player.h"
 #include "Policies/SingletonImp.h"
 
