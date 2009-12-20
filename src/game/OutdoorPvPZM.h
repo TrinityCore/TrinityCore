@@ -188,7 +188,7 @@ public:
     void SetBeaconState(uint32 controlling_team); // not good atm
     bool HandleGossipOption(Player * plr, uint64 guid, uint32 gossipid);
     bool HandleDropFlag(Player * plr, uint32 spellId);
-    bool CanTalkTo(Player * plr, Creature * c, GossipOption &gso);
+    bool CanTalkTo(Player * plr, Creature * c, GossipMenuItems gso);
 private:
     uint32 m_GraveYardState;
 protected:

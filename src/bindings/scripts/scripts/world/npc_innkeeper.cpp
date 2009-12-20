@@ -71,7 +71,7 @@ bool GossipHello_npc_innkeeper(Player *pPlayer, Creature *pCreature)
     }
 
     pPlayer->TalkedToCreature(pCreature->GetEntry(), pCreature->GetGUID());
-    pPlayer->SEND_GOSSIP_MENU(pCreature->GetNpcTextId(), pCreature->GetGUID());
+    pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(pCreature), pCreature->GetGUID());
     return true;
 }
 

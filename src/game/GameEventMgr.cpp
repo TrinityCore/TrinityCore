@@ -1180,7 +1180,7 @@ void GameEventMgr::UpdateEventNPCFlags(uint16 event_id)
                     npcflag |= ci->npcflag;
                 cr->SetUInt32Value(UNIT_NPC_FLAGS,npcflag);
                 // reset gossip options, since the flag change might have added / removed some
-                cr->ResetGossipOptions();
+                //cr->ResetGossipOptions();
                 // update to world
                 cr->SendUpdateObjectToAllExcept(NULL);
             }
