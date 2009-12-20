@@ -588,7 +588,7 @@ void WorldSession::HandleEmoteOpcode( WorldPacket & recv_data )
     GetPlayer()->HandleEmoteCommand(emote);
 }
 
-namespace MaNGOS
+namespace Trinity
 {
     class EmoteChatBuilder
     {
@@ -618,7 +618,7 @@ namespace MaNGOS
             uint32        i_emote_num;
             Unit const*   i_target;
     };
-}                                                           // namespace MaNGOS
+}                                                           // namespace Trinity
 
 void WorldSession::HandleTextEmoteOpcode( WorldPacket & recv_data )
 {
@@ -659,16 +659,16 @@ void WorldSession::HandleTextEmoteOpcode( WorldPacket & recv_data )
 
     Unit* unit = ObjectAccessor::GetUnit(*_player, guid);
 
-    CellPair p = MaNGOS::ComputeCellPair(GetPlayer()->GetPositionX(), GetPlayer()->GetPositionY());
+    CellPair p = Trinity::ComputeCellPair(GetPlayer()->GetPositionX(), GetPlayer()->GetPositionY());
 
     Cell cell(p);
     cell.data.Part.reserved = ALL_DISTRICT;
     cell.SetNoCreate();
 
-    MaNGOS::EmoteChatBuilder emote_builder(*GetPlayer(), text_emote, emoteNum, unit);
-    MaNGOS::LocalizedPacketDo<MaNGOS::EmoteChatBuilder > emote_do(emote_builder);
-    MaNGOS::PlayerDistWorker<MaNGOS::LocalizedPacketDo<MaNGOS::EmoteChatBuilder > > emote_worker(GetPlayer(),sWorld.getConfig(CONFIG_LISTEN_RANGE_TEXTEMOTE),emote_do);
-    TypeContainerVisitor<MaNGOS::PlayerDistWorker<MaNGOS::LocalizedPacketDo<MaNGOS::EmoteChatBuilder > >, WorldTypeMapContainer > message(emote_worker);
+    Trinity::EmoteChatBuilder emote_builder(*GetPlayer(), text_emote, emoteNum, unit);
+    Trinity::LocalizedPacketDo<Trinity::EmoteChatBuilder > emote_do(emote_builder);
+    Trinity::PlayerDistWorker<Trinity::LocalizedPacketDo<Trinity::EmoteChatBuilder > > emote_worker(GetPlayer(),sWorld.getConfig(CONFIG_LISTEN_RANGE_TEXTEMOTE),emote_do);
+    TypeContainerVisitor<Trinity::PlayerDistWorker<Trinity::LocalizedPacketDo<Trinity::EmoteChatBuilder > >, WorldTypeMapContainer > message(emote_worker);
     CellLock<GridReadGuard> cell_lock(cell, p);
     cell_lock->Visit(cell_lock, message, *GetPlayer()->GetMap(), *GetPlayer(), sWorld.getConfig(CONFIG_LISTEN_RANGE_TEXTEMOTE));
 

@@ -425,7 +425,7 @@ class Spell
         void CheckSrc() { if(!m_targets.HasSrc()) m_targets.setSrc(m_caster); }
         void CheckDst() { if(!m_targets.HasDst()) m_targets.setDst(m_caster); }
 
-        static void MANGOS_DLL_SPEC SendCastResult(Player* caster, SpellEntry const* spellInfo, uint8 cast_count, SpellCastResult result);
+        static void TRINITY_DLL_SPEC SendCastResult(Player* caster, SpellEntry const* spellInfo, uint8 cast_count, SpellCastResult result);
         void SendCastResult(SpellCastResult result);
         void SendSpellStart();
         void SendSpellGo();
