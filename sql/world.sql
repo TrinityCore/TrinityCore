@@ -3828,6 +3828,8 @@ CREATE TABLE `quest_template` (
   `RequiredSkillValue` smallint(5) unsigned NOT NULL DEFAULT '0',
   `RepObjectiveFaction` smallint(5) unsigned NOT NULL DEFAULT '0',
   `RepObjectiveValue` mediumint(9) NOT NULL DEFAULT '0',
+  `RepObjectiveFaction2` smallint(5) unsigned NOT NULL DEFAULT '0',
+  `RepObjectiveValue2` mediumint(9) NOT NULL DEFAULT '0',
   `RequiredMinRepFaction` smallint(5) unsigned NOT NULL DEFAULT '0',
   `RequiredMinRepValue` mediumint(9) NOT NULL DEFAULT '0',
   `RequiredMaxRepFaction` smallint(5) unsigned NOT NULL DEFAULT '0',
