@@ -4606,6 +4606,16 @@ void Spell::SpellDamageWeaponDmg(uint32 i)
             }
             break;
         }
+        case SPELLFAMILY_HUNTER:
+        {
+            // Kill Shot
+            if(m_spellInfo->SpellFamilyFlags[1] & 0x800000)
+            {
+                // Increase Weapon Damage by 200% (or Weapon Damage + Weapon Damage)
+                spell_bonus += m_caster->CalculateDamage(RANGED_ATTACK, false, true);
+            }
+            break;
+        }
         case SPELLFAMILY_DEATHKNIGHT:
         {
             // Plague Strike
