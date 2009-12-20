@@ -3505,37 +3505,37 @@ void ObjectMgr::LoadQuests()
 
     //                                                0      1       2           3             4         5           6     7              8
     QueryResult *result = WorldDatabase.Query("SELECT entry, Method, ZoneOrSort, SkillOrClass, MinLevel, QuestLevel, Type, RequiredRaces, RequiredSkillValue,"
-    //   9                    10                 11                     12                   13                     14                   15                16
-        "RepObjectiveFaction, RepObjectiveValue, RequiredMinRepFaction, RequiredMinRepValue, RequiredMaxRepFaction, RequiredMaxRepValue, SuggestedPlayers, LimitTime,"
-    //   17          18            19           20            21            22           23           24              25                26         27            28
+    //   9                    10                 11                    12                  13                     14                   15                     16                   17                18
+        "RepObjectiveFaction, RepObjectiveValue, RepObjectiveFaction2, RepObjectiveValue2, RequiredMinRepFaction, RequiredMinRepValue, RequiredMaxRepFaction, RequiredMaxRepValue, SuggestedPlayers, LimitTime,"
+    //   19          20            21           22            23            24           25           26              27                28         29            30
         "QuestFlags, SpecialFlags, CharTitleId, PlayersSlain, BonusTalents, PrevQuestId, NextQuestId, ExclusiveGroup, NextQuestInChain, SrcItemId, SrcItemCount, SrcSpell,"
-    //   29     30       31          32               33                34       35              36              37              38
+    //   31     32       33          34               35                36       37              38              39              40
         "Title, Details, Objectives, OfferRewardText, RequestItemsText, EndText, ObjectiveText1, ObjectiveText2, ObjectiveText3, ObjectiveText4,"
-    //   39          40          41          42          43          44          45             46             47             48             49             50
+    //   41          42          43          44          45          46          47             48             49             50             51             52
         "ReqItemId1, ReqItemId2, ReqItemId3, ReqItemId4, ReqItemId5, ReqItemId6, ReqItemCount1, ReqItemCount2, ReqItemCount3, ReqItemCount4, ReqItemCount5, ReqItemCount6,"
-    //   51            52            53            54            55               56               57               58
+    //   53            54            55            56            57               58               59               60
         "ReqSourceId1, ReqSourceId2, ReqSourceId3, ReqSourceId4, ReqSourceCount1, ReqSourceCount2, ReqSourceCount3, ReqSourceCount4,"
-    //   59                  60                  61                  62                  63                     64                     65                     66
+    //   61                  62                  63                  64                  65                     66                     67                     68
         "ReqCreatureOrGOId1, ReqCreatureOrGOId2, ReqCreatureOrGOId3, ReqCreatureOrGOId4, ReqCreatureOrGOCount1, ReqCreatureOrGOCount2, ReqCreatureOrGOCount3, ReqCreatureOrGOCount4,"
-    //   67             68             69             70
+    //   69             70             71             72
         "ReqSpellCast1, ReqSpellCast2, ReqSpellCast3, ReqSpellCast4,"
-    //   71                72                73                74                75                76
+    //   73                74                75                76                77                78
         "RewChoiceItemId1, RewChoiceItemId2, RewChoiceItemId3, RewChoiceItemId4, RewChoiceItemId5, RewChoiceItemId6,"
-    //   77                   78                   79                   80                   81                   82
+    //   79                   80                   81                   82                   83                   84
         "RewChoiceItemCount1, RewChoiceItemCount2, RewChoiceItemCount3, RewChoiceItemCount4, RewChoiceItemCount5, RewChoiceItemCount6,"
-    //   83          84          85          86          87             88             89             90
+    //   85          86          87          88          89             90             91             92
         "RewItemId1, RewItemId2, RewItemId3, RewItemId4, RewItemCount1, RewItemCount2, RewItemCount3, RewItemCount4,"
-    //   91              92              93              94              95              96            97            98            99            100
+    //   93              94              95              96              97              98            99            100           101           102
         "RewRepFaction1, RewRepFaction2, RewRepFaction3, RewRepFaction4, RewRepFaction5, RewRepValue1, RewRepValue2, RewRepValue3, RewRepValue4, RewRepValue5,"
-    //   101                102            103               104       105           106                107               108         109     110     111
+    //   103                104            105               106       107           108                109               110         111     112     113
         "RewHonorableKills, RewOrReqMoney, RewMoneyMaxLevel, RewSpell, RewSpellCast, RewMailTemplateId, RewMailDelaySecs, PointMapId, PointX, PointY, PointOpt,"
-    //   112            113            114            115            116                 117                 118                 119
+    //   114            115            116            117            118                 119                 120                 121
         "DetailsEmote1, DetailsEmote2, DetailsEmote3, DetailsEmote4, DetailsEmoteDelay1, DetailsEmoteDelay2, DetailsEmoteDelay3, DetailsEmoteDelay4,"
-    //   120              121            122                123                124                125
+    //   122              123            124                125                126                127
         "IncompleteEmote, CompleteEmote, OfferRewardEmote1, OfferRewardEmote2, OfferRewardEmote3, OfferRewardEmote4,"
-    //   126                     127                     128                     129
+    //   128                     129                     130                     131
         "OfferRewardEmoteDelay1, OfferRewardEmoteDelay2, OfferRewardEmoteDelay3, OfferRewardEmoteDelay4,"
-    //   130          131
+    //   132          133
         "StartScript, CompleteScript"
         " FROM quest_template");
     if(result == NULL)
@@ -3688,6 +3688,13 @@ void ObjectMgr::LoadQuests()
         }
         // else Skill quests can have 0 skill level, this is ok
 
+        if(qinfo->RepObjectiveFaction2 && !sFactionStore.LookupEntry(qinfo->RepObjectiveFaction2))
+        {
+            sLog.outErrorDb("Quest %u has `RepObjectiveFaction2` = %u but faction template %u does not exist, quest can't be done.",
+                qinfo->GetQuestId(),qinfo->RepObjectiveFaction2,qinfo->RepObjectiveFaction2);
+            // no changes, quest can't be done for this requirement
+        }
+
         if(qinfo->RepObjectiveFaction && !sFactionStore.LookupEntry(qinfo->RepObjectiveFaction))
         {
             sLog.outErrorDb("Quest %u has `RepObjectiveFaction` = %u but faction template %u does not exist, quest can't be done.",
@@ -3727,6 +3734,13 @@ void ObjectMgr::LoadQuests()
         {
             sLog.outErrorDb("Quest %u has `RepObjectiveValue` = %d but `RepObjectiveFaction` is 0, value has no effect",
                 qinfo->GetQuestId(),qinfo->RepObjectiveValue);
+            // warning
+        }
+
+        if(!qinfo->RepObjectiveFaction2 && qinfo->RepObjectiveValue2 > 0 )
+        {
+            sLog.outErrorDb("Quest %u has `RepObjectiveValue2` = %d but `RepObjectiveFaction2` is 0, value has no effect",
+                qinfo->GetQuestId(),qinfo->RepObjectiveValue2);
             // warning
         }
 

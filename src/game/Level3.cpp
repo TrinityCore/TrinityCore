@@ -5742,6 +5742,16 @@ bool ChatHandler::HandleQuestComplete(const char *args)
                 player->GetReputationMgr().SetReputation(factionEntry,repValue);
     }
 
+    // If the quest requires a SECOND reputation to complete
+    if(uint32 repFaction = pQuest->GetRepObjectiveFaction2())
+    {
+        uint32 repValue2 = pQuest->GetRepObjectiveValue2();
+        uint32 curRep = player->GetReputationMgr().GetReputation(repFaction);
+        if(curRep < repValue2)
+            if(FactionEntry const *factionEntry = sFactionStore.LookupEntry(repFaction))
+                player->GetReputationMgr().SetReputation(factionEntry,repValue2);
+    }
+
     // If the quest requires money
     int32 ReqOrRewMoney = pQuest->GetRewOrReqMoney();
     if(ReqOrRewMoney < 0)
