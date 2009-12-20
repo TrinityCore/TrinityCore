@@ -737,7 +737,7 @@ struct TRINITY_DLL_DECL mob_palehoof_orbAI : public ScriptedAI
     {
         if (type != POINT_MOTION_TYPE)
             return;
-        if(id<0&&id>4)
+        if(id<0 || id>4)
             return;
         Creature *pNext;
         switch(id)
