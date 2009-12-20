@@ -10270,6 +10270,11 @@ uint32 Unit::SpellHealingBonus(Unit *pVictim, SpellEntry const *spellProto, uint
             TakenTotalMod *= (HealingWay->GetAmount() + 100.0f) / 100.0f;
     }
 
+    // Tenacity increase healing % taken
+    if (AuraEffect const* Tenacity = pVictim->GetAuraEffect(58549, 0))
+        TakenTotalMod *= (Tenacity->GetAmount() + 100.0f) / 100.0f;
+
+
     // Healing taken percent
     float minval = pVictim->GetMaxNegativeAuraModifier(SPELL_AURA_MOD_HEALING_PCT);
     if (minval)
