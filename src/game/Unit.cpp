@@ -6182,30 +6182,20 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
             // Eclipse
             if (dummySpell->SpellIconID == 2856 && GetTypeId() == TYPEID_PLAYER)
             {
-                if (!procSpell)
+                if (!procSpell || effIndex != 0)
                     return false;
-                // Only 0 aura can proc
-                if (effIndex!=0)
+
+                bool isWrathSpell = (procSpell->SpellFamilyFlags[1] & 0x00000001);
+
+                if (!roll_chance_f(dummySpell->procChance * (isWrathSpell ? 0.6f : 1.0f)))
                     return false;
-                // Wrath crit
-                if (procSpell->SpellFamilyFlags[0] & 0x1)
-                {
-                    if (!roll_chance_i(60))
-                        return false;
-                    ((Player*)this)->AddSpellCooldown(48517,0,time(NULL) + cooldown);
-                    triggered_spell_id = 48518;
-                    target = this;
-                    break;
-                }
-                // Starfire crit
-                if (procSpell->SpellFamilyFlags[0] & 0x4)
-                {
-                    ((Player*)this)->AddSpellCooldown(48518,0,time(NULL) + cooldown);
-                    triggered_spell_id = 48517;
-                    target = this;
-                    break;
-                }
-                return false;
+
+                target = this;
+                if (target->HasAura(isWrathSpell ? 48517 : 48518))
+                    return false;
+
+                triggered_spell_id = isWrathSpell ? 48518 : 48517;
+                break;
             }
             // Living Seed
             else if (dummySpell->SpellIconID == 2860)
