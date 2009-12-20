@@ -962,17 +962,17 @@ void AuraEffect::HandleSchoolAbsorb(bool apply, bool Real, bool changeAmount)
             {
                 case SPELLFAMILY_PRIEST:
                     // Power Word: Shield
-                    if (m_spellProto->SpellFamilyFlags & UI64LIT(0x0000000000000001))
+                    if (m_spellProto->SpellFamilyFlags[0] & 0x00000001)
                         //+80.68% from +spell bonus
                         DoneActualBenefit = caster->SpellBaseHealingBonus(GetSpellSchoolMask(m_spellProto)) * 0.8068f;
                     break;
                 case SPELLFAMILY_MAGE:
                     // Frost Ward, Fire Ward
-                    if (m_spellProto->SpellFamilyFlags & UI64LIT(0x0000000000000108))
+                    if (m_spellProto->SpellFamilyFlags[0] & 0x00000108)
                         //+10% from +spell bonus
                         DoneActualBenefit = caster->SpellBaseDamageBonus(GetSpellSchoolMask(m_spellProto)) * 0.1f;
                     // Ice Barrier
-                    else if (m_spellProto->SpellFamilyFlags & UI64LIT(0x0000000100000000))
+                    else if (m_spellProto->SpellFamilyFlags[1] & 0x00000001 && m_spellProto->SpellIconID == 32)
                         //+80.67% from +spell bonus
                         DoneActualBenefit = caster->SpellBaseDamageBonus(GetSpellSchoolMask(m_spellProto)) * 0.8067f;
                     break;
@@ -985,7 +985,7 @@ void AuraEffect::HandleSchoolAbsorb(bool apply, bool Real, bool changeAmount)
                 case SPELLFAMILY_PALADIN:
                     // Sacred Shield
                     // (check not strictly needed, only Sacred Shield has SPELL_AURA_SCHOOL_ABSORB in SPELLFAMILY_PALADIN at this time)
-                    if (m_spellProto->SpellFamilyFlags & UI64LIT(0x0008000000000000))
+                    if (m_spellProto->SpellFamilyFlags[1] & 0x00080000)
                     {
                         // +75% from spell power
                         DoneActualBenefit = caster->SpellBaseHealingBonus(GetSpellSchoolMask(m_spellProto)) * 0.75f;
