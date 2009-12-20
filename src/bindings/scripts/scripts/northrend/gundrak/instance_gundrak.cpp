@@ -21,7 +21,7 @@ struct TRINITY_DLL_DECL instance_gundrak : public ScriptedInstance
 
     bool bHeroicMode;
     bool spawnSupport;
-    
+
     uint32 timer;
     uint32 phase;
     uint64 toActivate;
@@ -293,6 +293,7 @@ struct TRINITY_DLL_DECL instance_gundrak : public ScriptedInstance
             case DATA_SLAD_RAN_STATUE:            return uiSladRanStatue;
             case DATA_MOORABI_STATUE:             return uiMoorabiStatue;
             case DATA_DRAKKARI_COLOSSUS_STATUE:   return uiDrakkariColossusStatue;
+            case DATA_DRAKKARI_COLOSSUS:          return uiDrakkariColossus;
         }
 
         return 0;
@@ -308,7 +309,7 @@ struct TRINITY_DLL_DECL instance_gundrak : public ScriptedInstance
              << (uiSladRanStatue ? GetObjState(uiSladRanStatue) : GO_STATE_ACTIVE) << " " << (uiMoorabiStatue ? GetObjState(uiMoorabiStatue) : GO_STATE_ACTIVE) << " "
              << (uiDrakkariColossusStatue ? GetObjState(uiDrakkariColossusStatue) : GO_STATE_ACTIVE) << " " << (uiGalDarahStatue ? GetObjState(uiGalDarahStatue) : GO_STATE_READY) << " "
              << (uiBridge ? GetObjState(uiBridge) : GO_STATE_ACTIVE) << " " << (uiCollision ? GetObjState(uiCollision) : GO_STATE_READY);
-        
+
 
         str_data = saveStream.str();
 
