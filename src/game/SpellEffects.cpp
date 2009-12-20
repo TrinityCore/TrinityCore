@@ -1892,37 +1892,12 @@ void Spell::EffectDummy(uint32 i)
                 }
                 case 31789:                                 // Righteous Defense (step 1)
                 {
-                    if (m_caster->GetTypeId() != TYPEID_PLAYER)
-                    {
-                        SendCastResult(SPELL_FAILED_TARGET_AFFECTING_COMBAT);
-                        return;
-                    }
-
-                    // 31989 -> dummy effect (step 1) + dummy effect (step 2) -> 31709 (taunt like spell for each target)
-
-                    Unit* friendTarget = !unitTarget || unitTarget->IsFriendlyTo(m_caster) ? unitTarget : unitTarget->getVictim();
-                    if (friendTarget)
-                    {
-                        Player* player = friendTarget->GetCharmerOrOwnerPlayerOrPlayerItself();
-                        if (!player || !player->IsInSameRaidWith((Player*)m_caster))
-                            friendTarget = NULL;
-                    }
-
-                    // non-standard cast requirement check
-                    if (!friendTarget || friendTarget->getAttackers().empty())
-                    {
-                        ((Player*)m_caster)->RemoveSpellCooldown(m_spellInfo->Id,true);
-                        SendCastResult(SPELL_FAILED_TARGET_AFFECTING_COMBAT);
-                        return;
-                    }
-
-                    // Righteous Defense (step 2) (in old version 31980 dummy effect)
                     // Clear targets for eff 1
                     for (std::list<TargetInfo>::iterator ihit = m_UniqueTargetInfo.begin(); ihit != m_UniqueTargetInfo.end(); ++ihit)
                         ihit->effectMask &= ~(1<<1);
 
                     // not empty (checked), copy
-                    Unit::AttackerSet attackers = friendTarget->getAttackers();
+                    Unit::AttackerSet attackers = unitTarget->getAttackers();
 
                     // selected from list 3
                     for(int i = 0; i < std::min(size_t(3),attackers.size()); ++i)
