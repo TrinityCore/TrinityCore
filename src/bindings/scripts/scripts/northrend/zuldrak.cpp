@@ -147,7 +147,7 @@ struct TRINITY_DLL_DECL npc_captured_rageclawAI : public ScriptedAI
 
     void UpdateAI(const uint32 uiDiff)
     {
-        if (m_creature->getVictim())
+        if (UpdateVictim())
         {
             DoMeleeAttackIfReady();
             return;
