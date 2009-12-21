@@ -3469,10 +3469,14 @@ void SpellMgr::LoadSpellChains()
                 if (rank_count > 1)
                 for (itr2 = RankErrorMap.lower_bound(err_entry); itr2 != RankErrorMap.upper_bound(err_entry); ++itr2)
                 {
-                    sLog.outDebug("There is a duplicate rank entry (%s) for spell: %u",itr2->first,itr2->second->second.Id);
+ // I removed this pointless error message since there is NOTHING that can be
+ // done about it. Spell chain data is read from DBC...
+ // If you *REALLY* need to see this, uncomment this line and the one below
+ //                    sLog.outDebug("There is a duplicate rank entry (%s) for spell: %u",itr2->first,itr2->second->second.Id);
                     if (itr2->second->second.Id != 47541 && itr2->second->second.Id != 45902 && itr2->second->second.Id != 7620)
                     {
-                        sLog.outDebug("Spell %u removed from chain data.",itr2->second->second.Id);
+ // Part two of pointless error messages...
+ //                        sLog.outDebug("Spell %u removed from chain data.",itr2->second->second.Id);
                         RankMap.erase(itr2->second);
                     }
                 }
