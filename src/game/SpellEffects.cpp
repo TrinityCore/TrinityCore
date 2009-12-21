@@ -534,14 +534,14 @@ void Spell::SpellDamageSchoolDmg(uint32 effect_idx)
                         m_caster->CastCustomSpell(m_caster, 32409, &back_damage, 0, 0, true);
                 }
                 // Mind Blast - applies Mind Trauma if:
-                else if (m_spellInfo->SpellFamilyFlags[0] & 0x2000)
+                else if (m_spellInfo->SpellFamilyFlags[0] & 0x00002000)
                 {
                     // We are in Shadow Form
                     if (m_caster->m_form == FORM_SHADOW)
                         // We have Improved Mind Blast
                         if (AuraEffect * aurEff = m_caster->GetDummyAura(SPELLFAMILY_PRIEST,95,0))
                             // Chance has been successfully rolled
-                            if (roll_chance_i(aurEff->GetSpellProto()->EffectBasePoints[1] + 1))
+                            if (roll_chance_i(aurEff->GetAmount()))
                                 m_caster->CastSpell(unitTarget, 48301, true);
                 }
                 // Smite
