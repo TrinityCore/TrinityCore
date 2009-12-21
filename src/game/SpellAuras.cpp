@@ -2982,7 +2982,7 @@ void AuraEffect::HandleAuraDummy(bool apply, bool Real, bool changeAmount)
             case 62061:                                     // Festive Holiday Mount
                 if(m_target->HasAuraType(SPELL_AURA_MOUNTED))
                     m_target->CastSpell(m_target, 25860, true, NULL, this); // Reindeer Transformation
-				return;
+                return;
             case 52916:  // Honor Among Thieves
                 if(m_target->GetTypeId() == TYPEID_PLAYER)
                     if (Unit * target = ObjectAccessor::GetUnit(*m_target,((Player*)m_target)->GetComboTarget()))
