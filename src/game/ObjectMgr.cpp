@@ -1575,10 +1575,17 @@ void ObjectMgr::LoadGameobjects()
             continue;
         }
 
-        if(!gInfo->displayId && (!gInfo->type == GAMEOBJECT_TYPE_TRAP || !gInfo->type == GAMEOBJECT_TYPE_SPELL_FOCUS))
+        if (!gInfo->displayId)
         {
-            sLog.outErrorDb("Gameobject (GUID: %u Entry %u GoType: %u) doesn't have displayId (%u), not loaded.", guid, entry, gInfo->type, gInfo->displayId);
-            continue;
+            switch (gInfo->type)
+            {
+                case GAMEOBJECT_TYPE_TRAP:
+                case GAMEOBJECT_TYPE_SPELL_FOCUS:
+                    break;
+                default:
+                    sLog.outErrorDb("Gameobject (GUID: %u Entry %u GoType: %u) doesn't have displayId (%u), not loaded.", guid, entry, gInfo->type, gInfo->displayId);
+                    continue;
+            }
         }
 
         if (gInfo->displayId && !sGameObjectDisplayInfoStore.LookupEntry(gInfo->displayId))
