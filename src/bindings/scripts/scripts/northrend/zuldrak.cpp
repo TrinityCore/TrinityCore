@@ -745,6 +745,34 @@ CreatureAI* GetAI_npc_yggdras(Creature* pCreature)
     return new npc_yggdrasAI(pCreature);
 }
 
+/*####
+## npc_released_offspring_harkoa
+####*/
+
+struct TRINITY_DLL_DECL npc_released_offspring_harkoaAI : public ScriptedAI
+{
+    npc_released_offspring_harkoaAI(Creature* pCreature) : ScriptedAI(pCreature) {}
+
+    void Reset()
+    {
+        float x, y, z;
+        m_creature->GetClosePoint(x, y, z, m_creature->GetObjectSize() / 3, 25.0f);
+        m_creature->GetMotionMaster()->MovePoint(0, x, y, z);
+    }
+
+    void MovementInform(uint32 uiType, uint32 uiId)
+    {
+        if (uiType != POINT_MOTION_TYPE)
+            return;
+        m_creature->DisappearAndDie();
+    }
+};
+
+CreatureAI* GetAI_npc_released_offspring_harkoa(Creature* pCreature)
+{
+    return new npc_released_offspring_harkoaAI(pCreature);
+}
+
 void AddSC_zuldrak()
 {
     Script *newscript;
@@ -784,5 +812,10 @@ void AddSC_zuldrak()
     newscript = new Script;
     newscript->Name = "npc_yggdras";
     newscript->GetAI = &GetAI_npc_yggdras;
+    newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name = "npc_released_offspring_harkoa";
+    newscript->GetAI = &GetAI_npc_released_offspring_harkoa;
     newscript->RegisterSelf();
 }
