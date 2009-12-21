@@ -42,40 +42,38 @@ INSTANTIATE_CLASS_MUTEX(MapManager, ACE_Thread_Mutex);
 
 extern GridState* si_GridStates[];                          // debugging code, should be deleted some day
 
-MapManager::MapManager() : i_gridCleanUpDelay(sWorld.getConfig(CONFIG_INTERVAL_GRIDCLEAN))
+MapManager::MapManager()
 {
+    i_gridCleanUpDelay = sWorld.getConfig(CONFIG_INTERVAL_GRIDCLEAN);
     i_timer.SetInterval(sWorld.getConfig(CONFIG_INTERVAL_MAPUPDATE));
 }
 
 MapManager::~MapManager()
 {
     for (MapMapType::iterator iter=i_maps.begin(); iter != i_maps.end(); ++iter)
-        delete iter->second;
+         delete iter->second;
 
     for (TransportSet::iterator i = m_Transports.begin(); i != m_Transports.end(); ++i)
-        delete *i;
+         delete *i;
 
     Map::DeleteStateMachine();
 }
 
-void
-MapManager::Initialize()
+void MapManager::Initialize()
 {
     Map::InitStateMachine();
 
     // debugging code, should be deleted some day
     {
         for (uint8 i = 0; i < MAX_GRID_STATE; ++i)
-            i_GridStates[i] = si_GridStates[i];
+             i_GridStates[i] = si_GridStates[i];
 
         i_GridStateErrorCount = 0;
     }
-#ifdef MULTI_THREAD_MAP
     int num_threads(sWorld.getConfig(CONFIG_NUMTHREADS));
     // Start mtmaps if needed.
-    if(num_threads > 0 && m_updater.activate(num_threads) == -1)
+    if (num_threads > 0 && m_updater.activate(num_threads) == -1)
         abort();
-#endif
 
     InitMaxInstanceId();
 }
@@ -92,7 +90,7 @@ void MapManager::checkAndCorrectGridStatesArray()
     bool ok = true;
     for (int i=0; i<MAX_GRID_STATE; i++)
     {
-        if(i_GridStates[i] != si_GridStates[i])
+        if (i_GridStates[i] != si_GridStates[i])
         {
             sLog.outError("MapManager::checkGridStates(), GridState: si_GridStates is currupt !!!");
             ok = false;
@@ -100,23 +98,22 @@ void MapManager::checkAndCorrectGridStatesArray()
         }
         #ifdef TRINITY_DEBUG
         // inner class checking only when compiled with debug
-        if(!si_GridStates[i]->checkMagic())
+        if (!si_GridStates[i]->checkMagic())
         {
             ok = false;
             si_GridStates[i]->setMagic();
         }
         #endif
     }
-    if(!ok)
+    if (!ok)
         ++i_GridStateErrorCount;
 }
 
-Map*
-MapManager::_createBaseMap(uint32 id)
+Map* MapManager::_createBaseMap(uint32 id)
 {
     Map *m = _findMap(id);
 
-    if( m == NULL )
+    if (m == NULL)
     {
         Guard guard(*this);
 
@@ -150,23 +147,20 @@ Map* MapManager::CreateMap(uint32 id, const WorldObject* obj, uint32 instanceId)
 Map* MapManager::FindMap(uint32 mapid, uint32 instanceId) const
 {
     Map *map = _findMap(mapid);
-    if(!map)
+    if (!map)
         return NULL;
 
-    if(!map->Instanceable())
+    if (!map->Instanceable())
         return instanceId == 0 ? map : NULL;
 
     return ((MapInstanced*)map)->FindMap(instanceId);
 }
 
-/*
-    checks that do not require a map to be created
-    will send transfer error messages on fail
-*/
 bool MapManager::CanPlayerEnter(uint32 mapid, Player* player)
 {
     const MapEntry *entry = sMapStore.LookupEntry(mapid);
-    if(!entry) return false;
+    if(!entry)
+       return false;
     const char *mapName = entry->name[player->GetSession()->GetSessionDbcLocale()];
 
     if(entry->map_type == MAP_INSTANCE || entry->map_type == MAP_RAID)
@@ -174,7 +168,7 @@ bool MapManager::CanPlayerEnter(uint32 mapid, Player* player)
         if (entry->map_type == MAP_RAID)
         {
             // GMs can avoid raid limitations
-            if(!player->isGameMaster() && !sWorld.getConfig(CONFIG_INSTANCE_IGNORE_RAID))
+            if (!player->isGameMaster() && !sWorld.getConfig(CONFIG_INSTANCE_IGNORE_RAID))
             {
                 // can only enter in a raid group
                 Group* group = player->GetGroup();
@@ -186,8 +180,6 @@ bool MapManager::CanPlayerEnter(uint32 mapid, Player* player)
                     sLog.outDebug("MAP: Player '%s' must be in a raid group to enter instance of '%s'", player->GetName(), mapName);
                     return false;
                 }
-                // Если ИК или ИЧ, то проверять уровень шмота одетого на персе.
-                //if (mapid == 649)
             }
         }
 
@@ -207,13 +199,13 @@ bool MapManager::CanPlayerEnter(uint32 mapid, Player* player)
 
         if (!player->isAlive())
         {
-            if(Corpse *corpse = player->GetCorpse())
+            if (Corpse *corpse = player->GetCorpse())
             {
                 // let enter in ghost mode in instance that connected to inner instance with corpse
                 uint32 instance_map = corpse->GetMapId();
                 do
                 {
-                    if(instance_map==mapid)
+                    if (instance_map==mapid)
                         break;
 
                     InstanceTemplate const* instance = objmgr.GetInstanceTemplate(instance_map);
@@ -236,7 +228,7 @@ bool MapManager::CanPlayerEnter(uint32 mapid, Player* player)
         }
 
         InstanceTemplate const* instance = objmgr.GetInstanceTemplate(mapid);
-        if(!instance)
+        if (!instance)
             return false;
 
         //Get instance where player's group is bound & its map
@@ -297,42 +289,31 @@ void MapManager::RemoveBonesFromMap(uint32 mapid, uint64 guid, float x, float y)
     }
 }
 
-void
-MapManager::Update(uint32 diff)
+void MapManager::Update(uint32 diff)
 {
     i_timer.Update(diff);
     if (!i_timer.Passed())
         return;
 
     MapMapType::iterator iter = i_maps.begin();
-#ifdef MULTI_THREAD_MAP
-    for(; iter != i_maps.end(); ++iter)
-    {
-     if (m_updater.activated())
-         m_updater.schedule_update(*iter->second, i_timer.GetCurrent());
-        else
-     {
-            iter->second->Update(i_timer.GetCurrent());
-     }
-    }
-    if (m_updater.activated())
-     m_updater.wait();
-#else
     for (; iter != i_maps.end(); ++iter)
     {
-        iter->second->Update(i_timer.GetCurrent());
-        sWorld.RecordTimeDiff("UpdateMap %u", iter->second->GetId());
+	 if (m_updater.activated())
+            m_updater.schedule_update(*iter->second, i_timer.GetCurrent());
+	 else
+        {
+	     iter->second->Update(i_timer.GetCurrent());
+	 }
     }
-#endif
+    if (m_updater.activated())
+	 m_updater.wait();
 
     for (iter = i_maps.begin(); iter != i_maps.end(); ++iter)
         iter->second->DelayedUpdate(i_timer.GetCurrent());
 
     ObjectAccessor::Instance().Update(i_timer.GetCurrent());
-    sWorld.RecordTimeDiff("UpdateObjectAccessor");
     for (TransportSet::iterator iter = m_Transports.begin(); iter != m_Transports.end(); ++iter)
         (*iter)->Update(i_timer.GetCurrent());
-    sWorld.RecordTimeDiff("UpdateTransports");
 
     i_timer.SetCurrent(0);
 }
@@ -369,18 +350,16 @@ void MapManager::UnloadAll()
         i_maps.erase(i_maps.begin());
     }
 
-#ifdef MULTI_THREAD_MAP
     if (m_updater.activated())
         m_updater.deactivate();
-#endif
 }
 
 void MapManager::InitMaxInstanceId()
 {
     i_MaxInstanceId = 0;
 
-    QueryResult *result = CharacterDatabase.Query( "SELECT MAX(id) FROM instance" );
-    if( result )
+    QueryResult *result = CharacterDatabase.Query("SELECT MAX(id) FROM instance");
+    if (result)
     {
         i_MaxInstanceId = result->Fetch()[0].GetUInt32();
         delete result;
@@ -395,7 +374,8 @@ uint32 MapManager::GetNumInstances()
     for (MapMapType::iterator itr = i_maps.begin(); itr != i_maps.end(); ++itr)
     {
         Map *map = itr->second;
-        if(!map->Instanceable()) continue;
+        if (!map->Instanceable())
+            continue;
         MapInstanced::InstancedMaps &maps = ((MapInstanced *)map)->GetInstancedMaps();
         for (MapInstanced::InstancedMaps::iterator mitr = maps.begin(); mitr != maps.end(); ++mitr)
             if(mitr->second->IsDungeon()) ret++;
@@ -411,10 +391,11 @@ uint32 MapManager::GetNumPlayersInInstances()
     for (MapMapType::iterator itr = i_maps.begin(); itr != i_maps.end(); ++itr)
     {
         Map *map = itr->second;
-        if(!map->Instanceable()) continue;
+        if (!map->Instanceable())
+            continue;
         MapInstanced::InstancedMaps &maps = ((MapInstanced *)map)->GetInstancedMaps();
         for (MapInstanced::InstancedMaps::iterator mitr = maps.begin(); mitr != maps.end(); ++mitr)
-            if(mitr->second->IsDungeon())
+            if (mitr->second->IsDungeon())
                 ret += ((InstanceMap*)mitr->second)->GetPlayers().getSize();
     }
     return ret;

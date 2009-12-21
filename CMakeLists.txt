@@ -23,7 +23,6 @@ OPTION(DO_DEBUG "Debug mode" 0)
 OPTION(DO_WARN "Enable all compile warnings" 0)
 OPTION(LARGE_CELL "Large cell size" 0)
 OPTION(CENTOS "CENTOS" 0)
-OPTION(USE_MULTI_THREAD_MAP "With Multithread maps" 0)
 
 SET(GENREV_SRC
 src/tools/genrevision/genrevision.cpp
@@ -100,10 +99,6 @@ message("* Without Trinity Scripts")
 SET(SCRIPT_LIB trinityinterface)
 SET(SCRIPT_INCLUDE src/bindings/interface)
 endif(DO_SCRIPTS)
-
-IF (USE_MULTI_THREAD_MAP)
-  message("* With Multithread maps")
-ENDIF (USE_MULTI_THREAD_MAP)
 
 message("-- Miscellaneus options:")
 

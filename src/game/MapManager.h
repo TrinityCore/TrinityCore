@@ -31,7 +31,7 @@
 
 class Transport;
 
-#define DEFAULT_VISIBILITY_NOTIFY_PERIOD      1000
+#define DEFAULT_VISIBILITY_NOTIFY_PERIOD      1100
 
 class TRINITY_DLL_DECL MapManager : public Trinity::Singleton<MapManager, Trinity::ClassLevelLockable<MapManager, ACE_Thread_Mutex> >
 {
