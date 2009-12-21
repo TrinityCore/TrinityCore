@@ -72,8 +72,19 @@ enum LoginResult
 //2.4.3 build 8606
 //3.1.3 build 9947
 //3.1.3 build 10146 Chinese build
-//3.2.2a build 10505
 
-#define EXPECTED_TRINITY_CLIENT_BUILD        {10505, 10146, 9947, 8606, 5875, 6005, 0}
+#define POST_BC_ACCEPTED_CLIENT_BUILD                 {10505, 10146, 9947, 8606, 0}
+#define PRE_BC_ACCEPTED_CLIENT_BUILD                  {5875, 6005, 0}
+
+#define POST_BC_EXP_FLAG                              0x2
+#define PRE_BC_EXP_FLAG                               0x1
+#define NO_VALID_EXP_FLAG                             0x0
+
+namespace AuthHelper
+{
+    bool IsAcceptedClientBuild(int build);
+    bool IsPostBCAcceptedClientBuild(int build);
+    bool IsPreBCAcceptedClientBuild(int build);
+};
 
 #endif
