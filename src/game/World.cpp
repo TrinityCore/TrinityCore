@@ -1375,6 +1375,9 @@ void World::SetInitialWorldSettings()
     sLog.outString("Loading Points Of Interest Data...");
     objmgr.LoadPointsOfInterest();
 
+    sLog.outString("Loading Creature Base Stats...");
+    objmgr.LoadCreatureClassLevelStats();
+
     sLog.outString("Loading Creature Data...");
     objmgr.LoadCreatures();
 

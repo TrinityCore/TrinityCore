@@ -1585,8 +1585,9 @@ struct TRINITY_DLL_DECL npc_snake_trap_serpentsAI : public ScriptedAI
             IsViper = false;
 
         //We have to reload the states from db for summoned guardians
-        m_creature->SetMaxHealth(Info->maxhealth);
-        m_creature->SetHealth(Info->maxhealth);
+        BaseHealthManaPair pair = m_creature->GenerateHealthMana();
+        m_creature->SetMaxHealth(pair.first);
+        m_creature->SetHealth(pair.second);
         m_creature->SetStatFloatValue(UNIT_FIELD_MINDAMAGE, Info->mindmg);
         m_creature->SetStatFloatValue(UNIT_FIELD_MAXDAMAGE, Info->maxdmg);
 
