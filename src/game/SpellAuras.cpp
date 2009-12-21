@@ -347,7 +347,7 @@ pAuraHandler AuraHandler[TOTAL_AURAS]=
     &Aura::HandleNoImmediateEffect,                         //291 SPELL_AURA_MOD_XP_QUEST_PCT  implemented in Player::RewardQuest
     &Aura::HandleNULL,                                      //292 call stabled pet
     &Aura::HandleNULL,                                      //293 2 test spells
-    &Aura::HandleNoImmediateEffect,                          //294 SPELL_AURA_PREVENT_REGENERATE_POWER implemented in Player::Regenerate(Powers power)
+    &Aura::HandleNoImmediateEffect,                         //294 SPELL_AURA_PREVENT_REGENERATE_POWER implemented in Player::Regenerate(Powers power)
     &Aura::HandleNULL,                                      //295 unused
     &Aura::HandleNULL,                                      //296 2 spells
     &Aura::HandleNULL,                                      //297 1 spell (counter spell school?)
@@ -357,7 +357,7 @@ pAuraHandler AuraHandler[TOTAL_AURAS]=
     &Aura::HandleNULL,                                      //301 5 spells
     &Aura::HandleNULL,                                      //302 unused
     &Aura::HandleNULL,                                      //303 17 spells
-    &Aura::HandleNULL,                                      //304 2 spells (alcohol effect?)
+    &Aura::HandleAuraModInebriation,                        //304 2 spells
     &Aura::HandleAuraModIncreaseSpeed,                      //305 SPELL_AURA_MOD_MINIMUM_SPEED
     &Aura::HandleNULL                                       //306 1 spell
 };
@@ -7301,4 +7301,12 @@ bool AuraEffect::IsPeriodicTickCrit(Unit const * pCaster) const
             return true;
     }
     return false;
+}
+
+void AuraEffect::HandleAuraModInebriation(bool apply, bool Real, bool /*changeAmount*/)
+{
+    if(m_target->GetTypeId() != TYPEID_PLAYER)
+        return;
+
+    m_target->SetUInt32Value(PLAYER_FAKE_INEBRIATION, apply ? ((uint32)1)<<(GetMiscValue()-1) : 0 );
 }
