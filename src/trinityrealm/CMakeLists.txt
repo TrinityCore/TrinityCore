@@ -1,6 +1,7 @@
 ########### next target ###############
 
 SET(trinity-realm_SRCS
+AuthCodes.cpp
 AuthCodes.h
 AuthSocket.cpp
 AuthSocket.h
