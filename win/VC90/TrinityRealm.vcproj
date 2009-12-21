@@ -618,6 +618,10 @@
 			>
 		</File>
 		<File
+			RelativePath="..\..\src\trinityrealm\AuthCodes.cpp"
+			>
+		</File>
+		<File
 			RelativePath="..\..\src\trinityrealm\AuthSocket.cpp"
 			>
 		</File>

@@ -418,6 +418,7 @@
     <ClInclude Include="..\..\src\shared\WheatyExceptionReport.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\src\realmd\AuthCodes.cpp" />
     <ClCompile Include="..\..\src\realmd\AuthSocket.cpp" />
     <ClCompile Include="..\..\src\realmd\Main.cpp" />
     <ClCompile Include="..\..\src\realmd\RealmList.cpp" />
