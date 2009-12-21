@@ -5576,7 +5576,9 @@ INSERT INTO `spell_linked_spell` (`spell_trigger`,`spell_effect`,`type`,`comment
 ( 16857, 60089, 0, 'Faerie Fire (Feral)'),
 -- Violet Hold
 (-54361, 54343, 0, 'Void Shift (Normal) - Void Shifted'),
-(-59743, 54343, 0, 'Void Shift (Heroic) - Void Shifted');
+(-59743, 54343, 0, 'Void Shift (Heroic) - Void Shifted'),
+-- Gundrak
+(54850, 54851, 1, 'Emerge - Emerge Summon');
 /*!40000 ALTER TABLE `spell_linked_spell` ENABLE KEYS */;
 UNLOCK TABLES;
 
