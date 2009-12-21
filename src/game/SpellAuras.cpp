@@ -4772,16 +4772,6 @@ void AuraEffect::HandlePeriodicTriggerSpell(bool apply, bool Real, bool /*change
 void AuraEffect::HandlePeriodicTriggerSpellWithValue(bool apply, bool Real, bool /*changeAmount*/)
 {
     m_isPeriodic = apply;
-
-    SpellEntry const* spell = GetSpellProto();
-    switch (spell->Id)
-    {
-        case 58730: // No fly zone - Wintergrasp (3.1.3 only 3.2.2 Does not call this aura)
-            if (apply)
-                if (m_target->GetTypeId() == TYPEID_PLAYER)
-                    ((Player *)m_target)->GetSession()->SendNotification(LANG_ZONE_NOFLYZONE);
-        break;
-    }
 }
 
 void AuraEffect::HandlePeriodicEnergize(bool apply, bool Real, bool changeAmount)
