@@ -12719,7 +12719,7 @@ void Player::SendNewItem(Item *item, uint32 count, bool received, bool created, 
     data << uint32((item->GetCount() == count) ? item->GetSlot() : -1);
     data << uint32(item->GetEntry());                       // item id
     data << uint32(item->GetItemSuffixFactor());            // SuffixFactor
-    data << uint32(item->GetItemRandomPropertyId());        // random item property id
+    data << int32(item->GetItemRandomPropertyId());         // random item property id
     data << uint32(count);                                  // count of items
     data << uint32(GetItemCount(item->GetEntry()));         // count of items in inventory
 
@@ -18847,7 +18847,7 @@ bool Player::BuyItemFromVendor(uint64 vendorguid, uint32 item, uint8 count, uint
         }
     }
 
-    uint32 price  = pProto->BuyPrice * count;
+    int32 price  = pProto->BuyPrice * count;
 
     // reputation discount
     price = uint32(floor(price * GetReputationPriceDiscount(pCreature)));
@@ -18905,7 +18905,7 @@ bool Player::BuyItemFromVendor(uint64 vendorguid, uint32 item, uint8 count, uint
             WorldPacket data(SMSG_BUY_ITEM, (8+4+4+4));
             data << uint64(pCreature->GetGUID());
             data << uint32(vendor_slot+1);                  // numbered from 1 at client
-            data << uint32(crItem->maxcount > 0 ? new_count : 0xFFFFFFFF);
+            data << int32(crItem->maxcount > 0 ? new_count : 0xFFFFFFFF);
             data << uint32(count);
             GetSession()->SendPacket(&data);
             SendNewItem(it, pProto->BuyCount*count, true, false, false);
@@ -18959,7 +18959,7 @@ bool Player::BuyItemFromVendor(uint64 vendorguid, uint32 item, uint8 count, uint
             WorldPacket data(SMSG_BUY_ITEM, (8+4+4+4));
             data << uint64(pCreature->GetGUID());
             data << uint32(vendor_slot + 1);                // numbered from 1 at client
-            data << uint32(crItem->maxcount > 0 ? new_count : 0xFFFFFFFF);
+            data << int32(crItem->maxcount > 0 ? new_count : 0xFFFFFFFF);
             data << uint32(count);
             GetSession()->SendPacket(&data);
 
@@ -20197,11 +20197,19 @@ void Player::learnDefaultSpells()
 
 void Player::learnQuestRewardedSpells(Quest const* quest)
 {
-    uint32 spell_id = quest->GetRewSpellCast();
+    int32 spell_id = quest->GetRewSpellCast();
+    uint32 src_spell_id = quest->GetSrcSpell();
 
     // skip quests without rewarded spell
     if( !spell_id )
         return;
+
+    // if RewSpellCast = -1 we remove aura do to SrcSpell from player.
+    if (spell_id == -1 && src_spell_id)
+    {
+        this->RemoveAurasDueToSpell(src_spell_id);
+        return;
+    }
 
     SpellEntry const *spellInfo = sSpellStore.LookupEntry(spell_id);
     if(!spellInfo)

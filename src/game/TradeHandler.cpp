@@ -158,7 +158,7 @@ void WorldSession::SendUpdateTrade()
             data << (uint32) item->GetSpellCharges();       // charges
             data << (uint32) item->GetItemSuffixFactor();   // SuffixFactor
                                                             // random properties id
-            data << (uint32) item->GetItemRandomPropertyId();
+            data << (int32) item->GetItemRandomPropertyId();
             data << (uint32) item->GetProto()->LockID;      // lock id
                                                             // max durability
             data << (uint32) item->GetUInt32Value(ITEM_FIELD_MAXDURABILITY);

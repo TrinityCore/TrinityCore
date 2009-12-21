@@ -750,12 +750,12 @@ void WorldSession::SendListInventory( uint64 vendorguid )
                 ++count;
 
                 // reputation discount
-                uint32 price = uint32(floor(pProto->BuyPrice * discountMod));
+                int32 price = uint32(floor(pProto->BuyPrice * discountMod));
 
                 data << uint32(count);
                 data << uint32(crItem->item);
                 data << uint32(pProto->DisplayInfoID);
-                data << uint32(crItem->maxcount <= 0 ? 0xFFFFFFFF : pCreature->GetVendorItemCurrentCount(crItem));
+                data << int32(crItem->maxcount <= 0 ? 0xFFFFFFFF : pCreature->GetVendorItemCurrentCount(crItem));
                 data << uint32(price);
                 data << uint32(pProto->MaxDurability);
                 data << uint32(pProto->BuyCount);
