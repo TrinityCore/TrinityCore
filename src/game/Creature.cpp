@@ -1033,14 +1033,13 @@ void Creature::SelectLevel(const CreatureInfo *cinfo)
     uint8 level = minlevel == maxlevel ? minlevel : urand(minlevel, maxlevel);
     SetLevel(level);
 
-    float rellevel = maxlevel == minlevel ? 0 : (float(level - minlevel))/(maxlevel - minlevel);
+    BaseHealthManaPair pair = objmgr.GenerateCreatureStats(level, cinfo);
 
     // health
     float healthmod = _GetHealthMod(rank);
 
-    uint32 minhealth = std::min(cinfo->maxhealth, cinfo->minhealth);
-    uint32 maxhealth = std::max(cinfo->maxhealth, cinfo->minhealth);
-    uint32 health = uint32(healthmod * (minhealth + uint32(rellevel*(maxhealth - minhealth))));
+    uint32 basehp = pair.first;
+    uint32 health = uint32(basehp * healthmod);
 
     SetCreateHealth(health);
     SetMaxHealth(health);
@@ -1048,9 +1047,7 @@ void Creature::SelectLevel(const CreatureInfo *cinfo)
     ResetPlayerDamageReq();
 
     // mana
-    uint32 minmana = std::min(cinfo->maxmana, cinfo->minmana);
-    uint32 maxmana = std::max(cinfo->maxmana, cinfo->minmana);
-    uint32 mana = minmana + uint32(rellevel*(maxmana - minmana));
+    uint32 mana = pair.second;
 
     SetCreateMana(mana);
     SetMaxPower(POWER_MANA, mana);                          //MAX Mana
@@ -2319,4 +2316,9 @@ time_t Creature::GetLinkedCreatureRespawnTime() const
     }
 
     return 0;
+}
+
+BaseHealthManaPair Creature::GenerateHealthMana()
+{
+    return objmgr.GenerateCreatureStats(getLevel(), GetCreatureInfo());
 }

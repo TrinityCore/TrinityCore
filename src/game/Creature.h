@@ -81,10 +81,7 @@ struct CreatureInfo
     uint32  GossipMenuId;
     uint32  minlevel;
     uint32  maxlevel;
-    uint32  minhealth;
-    uint32  maxhealth;
-    uint32  minmana;
-    uint32  maxmana;
+    uint32  expansion;
     uint32  armor;
     uint32  faction_A;
     uint32  faction_H;
@@ -129,8 +126,8 @@ struct CreatureInfo
     char const* AIName;
     uint32  MovementType;
     uint32  InhabitType;
-    float   unk16;
-    float   unk17;
+    float   ModHealth;
+    float   ModMana;
     bool    RacialLeader;
     uint32  questItems[6];
     uint32  movementId;
@@ -164,6 +161,35 @@ struct CreatureInfo
         return exotic || (type_flags & CREATURE_TYPEFLAGS_EXOTIC)==0;
     }
 };
+
+// Defines base stats for creatures (used to calculate HP/mana).
+struct CreatureBaseStats
+{
+    uint8 Expansion;
+    uint8 Class;
+    uint32 Level;
+    uint32 BaseHealth;
+    uint32 BaseMana;
+
+    // Helpers
+
+    uint32 GenerateHealth(uint32 level, CreatureInfo const* info) const
+    {
+        return uint32((BaseHealth * info->ModHealth) + 0.5f);
+    }
+
+    uint32 GenerateMana(uint32 level, CreatureInfo const* info) const
+    {
+        // Mana can be 0.
+        if (!BaseMana)
+            return 0;
+
+        return uint32((BaseMana * info->ModMana) + 0.5f);
+    }
+};
+
+typedef std::list<CreatureBaseStats> CreatureBaseStatsList;
+typedef std::pair<uint32, uint32> BaseHealthManaPair;
 
 struct CreatureLocale
 {
@@ -624,6 +650,9 @@ class TRINITY_DLL_SPEC Creature : public Unit
         uint32 m_PlayerDamageReq;
 
         void SetOriginalEntry(uint32 entry) { m_originalEntry = entry; }
+
+        // Provided for script access.
+        BaseHealthManaPair GenerateHealthMana();
 
         static float _GetDamageMod(int32 Rank);
 
