@@ -2238,7 +2238,7 @@ uint32 Creature::UpdateVendorItemCurrentCount(VendorItem const* vItem, uint32 us
 
     if(itr == m_vendorItemCounts.end())
     {
-        uint32 new_count = vItem->maxcount > used_count ? vItem->maxcount-used_count : 0;
+        int32 new_count = vItem->maxcount > used_count ? vItem->maxcount-used_count : 0;
         m_vendorItemCounts.push_back(VendorItemCount(vItem->item,new_count));
         return new_count;
     }

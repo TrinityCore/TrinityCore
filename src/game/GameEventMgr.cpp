@@ -832,7 +832,7 @@ void GameEventMgr::LoadFromDB()
             NPCVendorEntry newEntry;
             uint32 guid = fields[1].GetUInt32();
             newEntry.item = fields[2].GetUInt32();
-            newEntry.maxcount = fields[3].GetUInt32();
+            newEntry.maxcount = fields[3].GetInt32();
             newEntry.incrtime = fields[4].GetUInt32();
             newEntry.ExtendedCost = fields[5].GetUInt32();
             // get the event npc flag for checking if the npc will be vendor during the event or not

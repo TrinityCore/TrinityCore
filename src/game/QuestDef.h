@@ -216,7 +216,7 @@ class Quest
         uint32 GetRewMoneyMaxLevel() const { return RewMoneyMaxLevel; }
                                                             // use in XP calculation at client
         uint32 GetRewSpell() const { return RewSpell; }
-        uint32 GetRewSpellCast() const { return RewSpellCast; }
+        int32  GetRewSpellCast() const { return RewSpellCast; }
         uint32 GetRewMailTemplateId() const { return RewMailTemplateId; }
         uint32 GetRewMailDelaySecs() const { return RewMailDelaySecs; }
         uint32 GetPointMapId() const { return PointMapId; }
@@ -311,7 +311,7 @@ class Quest
         int32  RewOrReqMoney;
         uint32 RewMoneyMaxLevel;
         uint32 RewSpell;
-        uint32 RewSpellCast;
+        int32  RewSpellCast;
         uint32 RewMailTemplateId;
         uint32 RewMailDelaySecs;
         uint32 PointMapId;

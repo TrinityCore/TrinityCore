@@ -1695,7 +1695,7 @@ void Guild::AppendDisplayGuildBankSlot( WorldPacket& data, GuildBankTab const *t
     data << uint32(entry);
     if (entry)
     {
-        data << (uint32) pItem->GetItemRandomPropertyId();  // random item property id +8
+        data << (int32) pItem->GetItemRandomPropertyId();   // random item property id +8
         if (pItem->GetItemRandomPropertyId())
             data << (uint32) pItem->GetItemSuffixFactor();  // SuffixFactor +4
 

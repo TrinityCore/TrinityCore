@@ -8238,7 +8238,7 @@ void ObjectMgr::LoadVendors()
 
         uint32 entry        = fields[0].GetUInt32();
         uint32 item_id      = fields[1].GetUInt32();
-        uint32 maxcount     = fields[2].GetUInt32();
+        int32  maxcount     = fields[2].GetInt32();
         uint32 incrtime     = fields[3].GetUInt32();
         uint32 ExtendedCost = fields[4].GetUInt32();
 
@@ -8515,7 +8515,7 @@ void ObjectMgr::LoadGossipMenuItems()
     sLog.outString(">> Loaded %u gossip_menu_option entries", count);
 }
 
-void ObjectMgr::AddVendorItem( uint32 entry,uint32 item, uint32 maxcount, uint32 incrtime, uint32 extendedcost, bool savetodb)
+void ObjectMgr::AddVendorItem( uint32 entry,uint32 item, int32 maxcount, uint32 incrtime, uint32 extendedcost, bool savetodb)
 {
     VendorItemData& vList = m_mCacheVendorItemMap[entry];
     vList.AddItem(item,maxcount,incrtime,extendedcost);
@@ -8537,7 +8537,7 @@ bool ObjectMgr::RemoveVendorItem( uint32 entry,uint32 item, bool savetodb)
     return true;
 }
 
-bool ObjectMgr::IsVendorItemValid( uint32 vendor_entry, uint32 item_id, uint32 maxcount, uint32 incrtime, uint32 ExtendedCost, Player* pl, std::set<uint32>* skip_vendors, uint32 ORnpcflag ) const
+bool ObjectMgr::IsVendorItemValid( uint32 vendor_entry, uint32 item_id, int32 maxcount, uint32 incrtime, uint32 ExtendedCost, Player* pl, std::set<uint32>* skip_vendors, uint32 ORnpcflag ) const
 {
     CreatureInfo const* cInfo = GetCreatureTemplate(vendor_entry);
     if(!cInfo)

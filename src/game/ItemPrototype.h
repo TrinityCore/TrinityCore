@@ -523,10 +523,10 @@ struct ItemPrototype
     char*  Name1;
     uint32 DisplayInfoID;                                   // id from ItemDisplayInfo.dbc
     uint32 Quality;
-    uint32 Flags;
+    int32  Flags;
     uint32 Faction;
     uint32 BuyCount;
-    uint32 BuyPrice;
+    int32  BuyPrice;
     uint32 SellPrice;
     uint32 InventoryType;
     uint32 AllowableClass;
@@ -568,7 +568,7 @@ struct ItemPrototype
     uint32 LockID;
     int32  Material;                                        // id from Material.dbc
     uint32 Sheath;
-    uint32 RandomProperty;                                  // id from ItemRandomProperties.dbc
+    int32  RandomProperty;                                  // id from ItemRandomProperties.dbc
     uint32 RandomSuffix;                                    // id from ItemRandomSuffix.dbc
     uint32 Block;
     uint32 ItemSet;                                         // id from ItemSet.dbc
