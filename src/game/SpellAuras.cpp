@@ -1536,7 +1536,7 @@ void AuraEffect::HandleAuraEffectSpecificMods(bool apply, bool Real, bool change
                     // Replenishment (0.25% from max)
                     // Infinite Replenishment
                     if (m_spellProto->SpellIconID == 3184 && m_spellProto->SpellVisual[0] == 12495 && GetAuraName() == SPELL_AURA_PERIODIC_ENERGIZE)
-                        m_amount = m_target->GetMaxPower(POWER_MANA) * 25 / 10000;
+                        m_amount = m_target->GetMaxPower(POWER_MANA) * 20 / 10000;
                     break;
                 case SPELLFAMILY_MAGE:
                     // Mana Shield
