@@ -2112,10 +2112,10 @@ void ObjectMgr::LoadItemPrototypes()
             sLog.outErrorDb("Item (Entry: %u) has too large negative in stackable (%i), replace by value (-1) no stacking limits.",i,proto->Stackable);
             const_cast<ItemPrototype*>(proto)->Stackable = -1;
         }
-        else if (proto->Stackable > 1000)
+        else if (proto->Stackable > 2147483647)
         {
-            sLog.outErrorDb("Item (Entry: %u) has too large value in stackable (%u), replace by hardcoded upper limit (1000).",i,proto->Stackable);
-            const_cast<ItemPrototype*>(proto)->Stackable = 1000;
+            sLog.outErrorDb("Item (Entry: %u) has too large value in stackable (%u), replace by hardcoded upper limit (2147483647).",i,proto->Stackable);
+            const_cast<ItemPrototype*>(proto)->Stackable = 2147483647;
         }
 
         if (proto->ContainerSlots > MAX_BAG_SIZE)
