@@ -28,9 +28,9 @@ enum Spells
 //Id's from ACID
 enum Yells
 {
-    SAY_AGGRO                                              = -566,
-    SAY_SLEEP                                              = -567,
-    SAY_DEATH                                              = -568
+    SAY_AGGRO                                              = -1048002,
+    SAY_SLEEP                                              = -1048001,
+    SAY_DEATH                                              = -1048000
 };
 
 struct TRINITY_DLL_DECL boss_kelrisAI : public ScriptedAI
@@ -39,12 +39,12 @@ struct TRINITY_DLL_DECL boss_kelrisAI : public ScriptedAI
     {
         pInstance = c->GetInstanceData();
     }
-    
+
     uint32 uiMindBlastTimer;
     uint32 uiSleepTimer;
-    
+
     ScriptedInstance *pInstance;
-    
+
     void Reset()
     {
         uiMindBlastTimer = urand(2000,5000);
@@ -52,26 +52,26 @@ struct TRINITY_DLL_DECL boss_kelrisAI : public ScriptedAI
         if (pInstance)
             pInstance->SetData(TYPE_KELRIS, NOT_STARTED);
     }
-    
+
     void EnterCombat(Unit* who)
     {
         DoScriptText(SAY_AGGRO, m_creature);
         if (pInstance)
             pInstance->SetData(TYPE_KELRIS, IN_PROGRESS);
     }
-    
+
     void JustDied(Unit* killer)
     {
         DoScriptText(SAY_DEATH, m_creature);
         if (pInstance)
             pInstance->SetData(TYPE_KELRIS, DONE);
     }
-    
+
     void UpdateAI(const uint32 diff)
     {
         if (!UpdateVictim())
             return;
-        
+
         if (uiMindBlastTimer < diff)
         {
             DoCastVictim(SPELL_MIND_BLAST);
@@ -87,7 +87,7 @@ struct TRINITY_DLL_DECL boss_kelrisAI : public ScriptedAI
             }
             uiSleepTimer = urand(15000,20000);
         } else uiSleepTimer -= diff;
-        
+
         DoMeleeAttackIfReady();
     }
 };
@@ -100,7 +100,7 @@ CreatureAI* GetAI_boss_kelris(Creature* pCreature)
 void AddSC_boss_kelris()
 {
     Script *newscript;
-    
+
     newscript = new Script;
     newscript->Name = "boss_kelris";
     newscript->GetAI = &GetAI_boss_kelris;
