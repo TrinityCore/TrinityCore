@@ -1536,7 +1536,7 @@ void AuraEffect::HandleAuraEffectSpecificMods(bool apply, bool Real, bool change
                     // Replenishment (0.25% from max)
                     // Infinite Replenishment
                     if (m_spellProto->SpellIconID == 3184 && m_spellProto->SpellVisual[0] == 12495 && GetAuraName() == SPELL_AURA_PERIODIC_ENERGIZE)
-                        m_amount = m_target->GetMaxPower(POWER_MANA) * 25 / 10000;
+                        m_amount = m_target->GetMaxPower(POWER_MANA) * 20 / 10000;
                     break;
                 case SPELLFAMILY_MAGE:
                     // Mana Shield
@@ -2978,6 +2978,10 @@ void AuraEffect::HandleAuraDummy(bool apply, bool Real, bool changeAmount)
             case 46699:                                     // Requires No Ammo
                 if(m_target->GetTypeId() == TYPEID_PLAYER)
                     ((Player*)m_target)->RemoveAmmo();      // not use ammo and not allow use
+                return;
+            case 62061:                                     // Festive Holiday Mount
+                if(m_target->HasAuraType(SPELL_AURA_MOUNTED))
+                    m_target->CastSpell(m_target, 25860, true, NULL, this); // Reindeer Transformation
                 return;
             case 52916:  // Honor Among Thieves
                 if(m_target->GetTypeId() == TYPEID_PLAYER)
@@ -4438,11 +4442,18 @@ void AuraEffect::HandleAuraModIncreaseSpeed(bool apply, bool Real, bool changeAm
     m_target->UpdateSpeed(MOVE_RUN, true);
 }
 
-void AuraEffect::HandleAuraModIncreaseMountedSpeed(bool /*apply*/, bool Real, bool changeAmount)
+void AuraEffect::HandleAuraModIncreaseMountedSpeed(bool apply, bool Real, bool changeAmount)
 {
     // all applied/removed only at real aura add/remove
     if(!Real && !changeAmount)
         return;
+
+    if(apply)
+    {
+        // Festive Holiday Mount
+        if(m_target->HasAura(62061) && GetSpellProto()->SpellIconID != 1794)
+            m_target->CastSpell(m_target, 25860, true, NULL, this); // Reindeer Transformation
+    }
 
     m_target->UpdateSpeed(MOVE_RUN, true);
 }
@@ -4469,9 +4480,16 @@ void AuraEffect::HandleAuraModIncreaseFlightSpeed(bool apply, bool Real, bool ch
         if (m_target->GetTypeId() == TYPEID_PLAYER)
             m_target->ApplySpellImmune(GetId(),IMMUNITY_MECHANIC,MECHANIC_POLYMORPH,apply);
 
-        // Dragonmaw Illusion (overwrite mount model, mounted aura already applied)
-        if( apply && m_target->HasAuraEffect(42016,0) && m_target->GetMountID())
-            m_target->SetUInt32Value(UNIT_FIELD_MOUNTDISPLAYID,16314);
+        if(apply)
+        {
+            // Dragonmaw Illusion (overwrite mount model, mounted aura already applied)
+            if(m_target->HasAuraEffect(42016,0) && m_target->GetMountID())
+                m_target->SetUInt32Value(UNIT_FIELD_MOUNTDISPLAYID,16314);
+
+            // Festive Holiday Mount
+            if(m_target->HasAura(62061) && GetSpellProto()->SpellIconID != 1794)
+                m_target->CastSpell(m_target, 25860, true, NULL, this); // Reindeer Transformation
+        }
     }
 
     m_target->UpdateSpeed(MOVE_FLIGHT, true);
