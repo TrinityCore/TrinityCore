@@ -748,7 +748,8 @@ struct TRINITY_DLL_DECL mob_palehoof_orbAI : public ScriptedAI
             case PHASE_FEROCIOUS_RHINO: pNext = Unit::GetCreature((*m_creature), pInstance ? pInstance->GetData64(DATA_MOB_FEROCIOUS_RHINO) : 0); break;
             case PHASE_GORTOK_PALEHOOF: pNext = Unit::GetCreature((*m_creature), pInstance ? pInstance->GetData64(DATA_GORTOK_PALEHOOF) : 0); break;
         }
-        DoCast(pNext, SPELL_ORB_CHANNEL, false);
+        if(pNext)
+            DoCast(pNext, SPELL_ORB_CHANNEL, false);
         currentPhase=(Phase)id;
         SummonTimer=5000;
     }
