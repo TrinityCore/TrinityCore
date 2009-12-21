@@ -108,7 +108,7 @@ Quest::Quest(Field * questRecord)
     RewOrReqMoney = questRecord[104].GetInt32();
     RewMoneyMaxLevel = questRecord[105].GetUInt32();
     RewSpell = questRecord[106].GetUInt32();
-    RewSpellCast = questRecord[107].GetUInt32();
+    RewSpellCast = questRecord[107].GetInt32();
     RewMailTemplateId = questRecord[108].GetUInt32();
     RewMailDelaySecs = questRecord[109].GetUInt32();
     PointMapId = questRecord[110].GetUInt32();

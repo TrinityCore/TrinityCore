@@ -612,7 +612,7 @@ void WorldSession::HandleGetMailList(WorldPacket & recv_data )
                 data << uint32((item ? item->GetEnchantmentId((EnchantmentSlot)j) : 0));
             }
             // can be negative
-            data << uint32((item ? item->GetItemRandomPropertyId() : 0));
+            data << int32((item ? item->GetItemRandomPropertyId() : 0));
             // unk
             data << uint32((item ? item->GetItemSuffixFactor() : 0));
             // stack count

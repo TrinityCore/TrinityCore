@@ -117,7 +117,7 @@ void LootStore::LoadLootTable()
             uint16 lootmode            = fields[3].GetUInt16();
             uint8  group               = fields[4].GetUInt8();
             int32  mincountOrRef       = fields[5].GetInt32();
-            uint32 maxcount            = fields[6].GetUInt32();
+            int32  maxcount            = fields[6].GetInt32();
             ConditionType condition    = (ConditionType)fields[7].GetUInt8();
             uint32 cond_value1         = fields[8].GetUInt32();
             uint32 cond_value2         = fields[9].GetUInt32();
@@ -293,7 +293,7 @@ bool LootStoreItem::IsValid(LootStore const& store, uint32 entry) const
 
         if( maxcount < mincountOrRef)                       // wrong max count
         {
-            sLog.outErrorDb("Table '%s' entry %d item %d: max count (%u) less that min count (%i) - skipped", store.GetName(), entry, itemid, uint32(maxcount), mincountOrRef);
+            sLog.outErrorDb("Table '%s' entry %d item %d: max count (%u) less that min count (%i) - skipped", store.GetName(), entry, itemid, int32(maxcount), mincountOrRef);
             return false;
         }
 
