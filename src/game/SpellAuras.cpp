@@ -122,7 +122,7 @@ pAuraHandler AuraHandler[TOTAL_AURAS]=
     &Aura::HandleFeignDeath,                                // 66 SPELL_AURA_FEIGN_DEATH
     &Aura::HandleAuraModDisarm,                             // 67 SPELL_AURA_MOD_DISARM
     &Aura::HandleAuraModStalked,                            // 68 SPELL_AURA_MOD_STALKED
-    &Aura::HandleSchoolAbsorb,                              // 69 SPELL_AURA_SCHOOL_ABSORB implemented in Unit::CalcAbsorbResist
+    &Aura::HandleNoImmediateEffect,                         // 69 SPELL_AURA_SCHOOL_ABSORB implemented in Unit::CalcAbsorbResist
     &Aura::HandleUnused,                                    // 70 SPELL_AURA_EXTRA_ATTACKS      Useless, used by only one spell that has only visual effect
     &Aura::HandleModSpellCritChanceShool,                   // 71 SPELL_AURA_MOD_SPELL_CRIT_CHANCE_SCHOOL
     &Aura::HandleModPowerCostPCT,                           // 72 SPELL_AURA_MOD_POWER_COST_SCHOOL_PCT
@@ -342,7 +342,7 @@ pAuraHandler AuraHandler[TOTAL_AURAS]=
     &Aura::HandleNoImmediateEffect,                         //286 SPELL_AURA_ABILITY_PERIODIC_CRIT implemented in AuraEffect::PeriodicTick
     &Aura::HandleNoImmediateEffect,                         //287 SPELL_AURA_DEFLECT_SPELLS             implemented in Unit::MagicSpellHitResult and Unit::MeleeSpellHitResult
     &Aura::HandleNoImmediateEffect,                         //288 SPELL_AURA_IGNORE_HIT_DIRECTION  implemented in Unit::MagicSpellHitResult and Unit::MeleeSpellHitResult Unit::RollMeleeOutcomeAgainst   
-    &Aura::HandleNULL,                                      //289 unused
+    &Aura::HandleUnused,                                    //289 unused (3.2.2a)
     &Aura::HandleAuraModCritPct,                            //290 SPELL_AURA_MOD_CRIT_PCT
     &Aura::HandleNoImmediateEffect,                         //291 SPELL_AURA_MOD_XP_QUEST_PCT  implemented in Player::RewardQuest
     &Aura::HandleNULL,                                      //292 call stabled pet
@@ -943,131 +943,6 @@ void AuraEffect::CleanupTriggeredSpells()
     m_target->RemoveAurasDueToSpell(tSpellId, GetCasterGUID());
 }
 
-void AuraEffect::HandleSchoolAbsorb(bool apply, bool Real, bool changeAmount)
-{
-    if(!Real)
-        return;
-
-    Unit* caster = GetCaster();
-    if(!caster)
-        return;
-
-    if (apply)
-    {
-        // prevent double apply bonuses
-        if (m_target->GetTypeId() != TYPEID_PLAYER || !((Player*)m_target)->GetSession()->PlayerLoading())
-        {
-            float DoneActualBenefit = 0.0f;
-            switch (m_spellProto->SpellFamilyName)
-            {
-                case SPELLFAMILY_PRIEST:
-                    // Power Word: Shield
-                    if (m_spellProto->SpellFamilyFlags[0] & 0x00000001)
-                        //+80.68% from +spell bonus
-                        DoneActualBenefit = caster->SpellBaseHealingBonus(GetSpellSchoolMask(m_spellProto)) * 0.8068f;
-                    break;
-                case SPELLFAMILY_MAGE:
-                    // Frost Ward, Fire Ward
-                    if (m_spellProto->SpellFamilyFlags[0] & 0x00000108)
-                        //+10% from +spell bonus
-                        DoneActualBenefit = caster->SpellBaseDamageBonus(GetSpellSchoolMask(m_spellProto)) * 0.1f;
-                    // Ice Barrier
-                    else if (m_spellProto->SpellFamilyFlags[1] & 0x00000001 && m_spellProto->SpellIconID == 32)
-                        //+80.67% from +spell bonus
-                        DoneActualBenefit = caster->SpellBaseDamageBonus(GetSpellSchoolMask(m_spellProto)) * 0.8067f;
-                    break;
-                case SPELLFAMILY_WARLOCK:
-                    // Shadow Ward
-                    if (m_spellProto->SpellIconID == 207)
-                        //+30% from +spell bonus
-                        DoneActualBenefit = caster->SpellBaseDamageBonus(GetSpellSchoolMask(m_spellProto)) * 0.30f;
-                    break;
-                case SPELLFAMILY_PALADIN:
-                    // Sacred Shield
-                    // (check not strictly needed, only Sacred Shield has SPELL_AURA_SCHOOL_ABSORB in SPELLFAMILY_PALADIN at this time)
-                    if (m_spellProto->SpellFamilyFlags[1] & 0x00080000)
-                    {
-                        // +75% from spell power
-                        DoneActualBenefit = caster->SpellBaseHealingBonus(GetSpellSchoolMask(m_spellProto)) * 0.75f;
-                    }
-                    break;
-                default:
-                    break;
-            }
-
-            DoneActualBenefit *= caster->CalculateLevelPenalty(GetSpellProto());
-
-            m_amount += (int32)DoneActualBenefit;
-        }
-    }
-    else
-    {
-        if (caster &&
-            // Power Word: Shield
-            m_spellProto->SpellFamilyName == SPELLFAMILY_PRIEST && m_spellProto->Mechanic == MECHANIC_SHIELD &&
-            (m_spellProto->SpellFamilyFlags & UI64LIT(0x0000000000000001)) &&
-            // completely absorbed or dispelled
-            ((m_parentAura->GetRemoveMode() == AURA_REMOVE_BY_DEFAULT && m_amount) || m_parentAura->GetRemoveMode() == AURA_REMOVE_BY_EXPIRE))
-        {
-            Unit::AuraEffectList const& vDummyAuras = caster->GetAurasByType(SPELL_AURA_DUMMY);
-            for(Unit::AuraEffectList::const_iterator itr = vDummyAuras.begin(); itr != vDummyAuras.end(); ++itr)
-            {
-                SpellEntry const* vSpell = (*itr)->GetSpellProto();
-
-                // Rapture (main spell)
-                if(vSpell->SpellFamilyName == SPELLFAMILY_PRIEST && vSpell->SpellIconID == 2894 && vSpell->Effect[1])
-                {
-                    switch((*itr)->m_effIndex)
-                    {
-                        case 0:
-                        {
-                            // energize caster
-                            int32 manapct1000 = 5 * ((*itr)->m_amount + spellmgr.GetSpellRank(vSpell->Id));
-                            int32 basepoints0 = caster->GetMaxPower(POWER_MANA) * manapct1000 / 1000;
-                            caster->CastCustomSpell(caster, 47755, &basepoints0, NULL, NULL, true);
-                            break;
-                        }
-                        case 1:
-                        {
-                            // energize target
-                            if (!roll_chance_i((*itr)->m_amount) || caster->HasAura(63853))
-                                break;
-
-                            switch(m_target->getPowerType())
-                            {
-                            case POWER_RUNIC_POWER:
-                                m_target->CastSpell(m_target, 63652, true, NULL, NULL, GetCasterGUID());
-                                break;
-                            case POWER_RAGE:
-                                m_target->CastSpell(m_target, 63653, true, NULL, NULL, GetCasterGUID());
-                                break;
-                            case POWER_MANA:
-                                {
-                                    int32 basepoints0 = m_target->GetMaxPower(POWER_MANA) * 2 / 100;
-                                    m_target->CastCustomSpell(m_target, 63654, &basepoints0, NULL, NULL, true);
-                                    break;
-                                }
-                            case POWER_ENERGY:
-                                m_target->CastSpell(m_target, 63655, true, NULL, NULL, GetCasterGUID());
-                                break;
-                            default:
-                                break;
-                            }
-
-                            //cooldwon aura
-                            caster->CastSpell(caster, 63853, true);
-                            break;
-                        }
-                        default:
-                            sLog.outError("Changes in R-dummy spell???: effect 3");
-                            break;
-                    }
-                }
-            }
-        }
-    }
-}
-
 void Aura::ApplyAllModifiers(bool apply, bool Real)
 {
     for (uint8 i = 0; i<MAX_SPELL_EFFECTS; ++i)
@@ -1523,11 +1398,16 @@ void AuraEffect::HandleAuraEffectSpecificMods(bool apply, bool Real, bool change
     if(!Real && !changeAmount)
         return;
 
+    Unit* caster = GetCaster();
+
+    if (!caster)
+        return;
+
     if(apply)
     {
         // prevent double apply bonuses
         if (!m_target->isBeingLoaded())
-        if(Unit* caster = GetCaster())
+        if(caster)
         {
             float DoneActualBenefit = 0.0f;
             switch(m_spellProto->SpellFamilyName)
@@ -1550,6 +1430,12 @@ void AuraEffect::HandleAuraEffectSpecificMods(bool apply, bool Real, bool change
                     {
                         // +80.67% from sp bonus
                         DoneActualBenefit = caster->SpellBaseDamageBonus(GetSpellSchoolMask(m_spellProto)) * 0.8067f;
+                    }
+                    // Frost Ward, Fire Ward
+                    else if (m_spellProto->SpellFamilyFlags[0] & 0x00000108 && GetAuraName() == SPELL_AURA_SCHOOL_ABSORB)
+                    {
+                        //+10% from +spell bonus
+                        DoneActualBenefit = caster->SpellBaseDamageBonus(GetSpellSchoolMask(m_spellProto)) * 0.1f;
                     }
                     break;
                 case SPELLFAMILY_WARRIOR:
@@ -1724,6 +1610,72 @@ void AuraEffect::HandleAuraEffectSpecificMods(bool apply, bool Real, bool change
             {
                 DoneActualBenefit *= caster->CalculateLevelPenalty(GetSpellProto());
                 m_amount += (int32)DoneActualBenefit;
+            }
+        }
+    }
+    else
+    {
+        if (caster &&
+            // Power Word: Shield
+            m_spellProto->SpellFamilyName == SPELLFAMILY_PRIEST && m_spellProto->Mechanic == MECHANIC_SHIELD &&
+            (m_spellProto->SpellFamilyFlags[0] & 0x00000001) &&
+            // completely absorbed or dispelled
+            ((m_parentAura->GetRemoveMode() == AURA_REMOVE_BY_DEFAULT && m_amount) || m_parentAura->GetRemoveMode() == AURA_REMOVE_BY_EXPIRE))
+        {
+            Unit::AuraEffectList const& vDummyAuras = caster->GetAurasByType(SPELL_AURA_DUMMY);
+            for(Unit::AuraEffectList::const_iterator itr = vDummyAuras.begin(); itr != vDummyAuras.end(); ++itr)
+            {
+                SpellEntry const* vSpell = (*itr)->GetSpellProto();
+
+                // Rapture (main spell)
+                if(vSpell->SpellFamilyName == SPELLFAMILY_PRIEST && vSpell->SpellIconID == 2894 && vSpell->Effect[1])
+                {
+                    switch((*itr)->m_effIndex)
+                    {
+                        case 0:
+                        {
+                            // energize caster
+                            int32 manapct1000 = 5 * ((*itr)->m_amount + spellmgr.GetSpellRank(vSpell->Id));
+                            int32 basepoints0 = caster->GetMaxPower(POWER_MANA) * manapct1000 / 1000;
+                            caster->CastCustomSpell(caster, 47755, &basepoints0, NULL, NULL, true);
+                            break;
+                        }
+                        case 1:
+                        {
+                            // energize target
+                            if (!roll_chance_i((*itr)->m_amount) || caster->HasAura(63853))
+                                break;
+
+                            switch(m_target->getPowerType())
+                            {
+                            case POWER_RUNIC_POWER:
+                                m_target->CastSpell(m_target, 63652, true, NULL, NULL, GetCasterGUID());
+                                break;
+                            case POWER_RAGE:
+                                m_target->CastSpell(m_target, 63653, true, NULL, NULL, GetCasterGUID());
+                                break;
+                            case POWER_MANA:
+                                {
+                                    int32 basepoints0 = m_target->GetMaxPower(POWER_MANA) * 2 / 100;
+                                    m_target->CastCustomSpell(m_target, 63654, &basepoints0, NULL, NULL, true);
+                                    break;
+                                }
+                            case POWER_ENERGY:
+                                m_target->CastSpell(m_target, 63655, true, NULL, NULL, GetCasterGUID());
+                                break;
+                            default:
+                                break;
+                            }
+
+                            //cooldwon aura
+                            caster->CastSpell(caster, 63853, true);
+                            break;
+                        }
+                        default:
+                            sLog.outError("Changes in R-dummy spell???: effect 3");
+                            break;
+                    }
+                }
             }
         }
     }

@@ -1996,7 +1996,7 @@ void Unit::CalcAbsorbResist(Unit *pVictim, SpellSchoolMask schoolMask, DamageEff
                     {
                         // Cast healing spell, completely avoid damage
                         RemainingDamage = 0;
-                        
+
                         uint32 defenseSkillValue = pVictim->GetDefenseSkillValue();
                         // Max heal when defense skill denies critical hits from raid bosses
                         // Formula: max defense at level + 140 (raiting from gear)
@@ -2005,7 +2005,7 @@ void Unit::CalcAbsorbResist(Unit *pVictim, SpellSchoolMask schoolMask, DamageEff
                             ? 1.0f
                             : float(defenseSkillValue) / float(reqDefForMaxHeal);
 
-                        int32 healAmount = pVictim->GetMaxHealth() * ((*i)->GetSpellProto()->EffectBasePoints[1] + 1) / 100.0f * pctFromDefense;
+                        int32 healAmount = pVictim->GetMaxHealth() * (*i)->GetAmount() / 100.0f * pctFromDefense;
                         pVictim->CastCustomSpell(pVictim, 66235, &healAmount, NULL, NULL, true);
                         ((Player*)pVictim)->AddSpellCooldown(66235,0,time(NULL) + 120);
                     }
