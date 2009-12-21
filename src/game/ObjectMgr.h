@@ -576,6 +576,7 @@ class ObjectMgr
         bool LoadTrinityStrings(DatabaseType& db, char const* table, int32 min_value, int32 max_value);
         bool LoadTrinityStrings() { return LoadTrinityStrings(WorldDatabase,"trinity_string",MIN_TRINITY_STRING_ID,MAX_TRINITY_STRING_ID); }
         void LoadDbScriptStrings();
+        void LoadCreatureClassLevelStats();
         void LoadCreatureLocales();
         void LoadCreatureTemplates();
         void LoadCreatures();
@@ -648,6 +649,9 @@ class ObjectMgr
         }
 
         void ReturnOrDeleteOldMails(bool serverUp);
+
+        CreatureBaseStats const* GetCreatureBaseStats(uint8 expansion, uint8 unitClass, uint32 level);
+        BaseHealthManaPair GenerateCreatureStats(uint32 level, CreatureInfo const* info);
 
         void SetHighestGuids();
         uint32 GenerateLowGuid(HighGuid guidhigh);
@@ -1008,6 +1012,8 @@ class ObjectMgr
         void LoadQuestRelationsHelper(QuestRelations& map,char const* table);
 
         MailLevelRewardMap m_mailLevelRewardMap;
+
+        CreatureBaseStatsList m_creatureBaseStatsList;
 
         typedef std::map<uint32,PetLevelInfo*> PetLevelInfoMap;
         // PetLevelInfoMap[creature_id][level]
