@@ -2189,7 +2189,11 @@ bool ChatHandler::HandlePInfoCommand(const char* args)
     uint32 security = 0;
     std::string last_login = GetTrinityString(LANG_ERROR);
 
-    QueryResult* result = loginDatabase.PQuery("SELECT username,gmlevel,email,last_ip,last_login FROM account WHERE id = '%u'",accId);
+    QueryResult* result = loginDatabase.PQuery("SELECT a.username,aa.gmlevel,a.email,a.last_ip,a.last_login "
+                                                "FROM account a "
+                                                "LEFT JOIN account_access aa "
+                                                "ON (a.id = aa.id) "
+                                                "WHERE a.id = '%u'",accId);
     if(result)
     {
         Field* fields = result->Fetch();
