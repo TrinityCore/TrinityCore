@@ -572,14 +572,10 @@ void WorldSession::HandlePartyAssignmentOpcode( WorldPacket & recv_data )
     if(!group)
         return;
 
-    uint8 flag1, flag2;
+    uint8 flag, apply;
     uint64 guid;
-    recv_data >> flag1 >> flag2;
+    recv_data >> flag >> apply;
     recv_data >> guid;
-    // if(flag1) Main Assist
-    //     0x4
-    // if(flag2) Main Tank
-    //     0x2
 
     /** error handling **/
     if(!group->IsLeader(GetPlayer()->GetGUID()))
@@ -587,10 +583,11 @@ void WorldSession::HandlePartyAssignmentOpcode( WorldPacket & recv_data )
     /********************/
 
     // everything's fine, do it
-    if(flag1 == 1)
-        group->SetMainAssistant(guid);
-    if(flag2 == 1)
-        group->SetMainTank(guid);
+    if (flag == MEMBER_FLAG_MAINTANK)
+        group->SetMainTank(guid, apply);
+        
+    else if (flag == MEMBER_FLAG_MAINASSIST)
+        group->SetMainAssistant(guid, apply);
 }
 
 void WorldSession::HandleRaidReadyCheckOpcode( WorldPacket & recv_data )

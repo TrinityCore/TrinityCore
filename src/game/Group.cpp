@@ -203,7 +203,13 @@ bool Group::LoadMemberFromDB(uint32 guidLow, uint8 subgroup, bool assistant)
         return false;
 
     member.group     = subgroup;
-    member.assistant = assistant;
+    if (assistant)
+        member.flags |= MEMBER_FLAG_ASSISTANT;
+    if (member.guid == m_mainTank)
+        member.flags |= MEMBER_FLAG_MAINTANK;
+    if (member.guid == m_mainAssistant)
+        member.flags |= MEMBER_FLAG_MAINASSIST;
+
     m_memberSlots.push_back(member);
 
     SubGroupCounterIncrease(subgroup);
@@ -956,10 +962,10 @@ void Group::SendUpdate()
             continue;
                                                             // guess size
         WorldPacket data(SMSG_GROUP_LIST, (1+1+1+1+8+4+GetMembersCount()*20));
-        data << (uint8)m_groupType;                         // group type
-        data << (uint8)(isBGGroup() ? 1 : 0);               // 2.0.x, isBattleGroundGroup?
-        data << (uint8)(citr->group);                       // groupid
-        data << (uint8)(citr->assistant?0x01:0);            // 0x2 main assist, 0x4 main tank
+        data << uint8(m_groupType);                         // group type
+        data << uint8(isBGGroup() ? 1 : 0);                 // 2.0.x, isBattleGroundGroup?
+        data << uint8(citr->group);                         // groupid
+        data << uint8(0);                                   // unk
         data << uint64(0x50000000FFFFFFFELL);               // related to voice chat?
         data << uint32(GetMembersCount()-1);
         for (member_citerator citr2 = m_memberSlots.begin(); citr2 != m_memberSlots.end(); ++citr2)
@@ -967,25 +973,26 @@ void Group::SendUpdate()
             if(citr->guid == citr2->guid)
                 continue;
             Player* member = objmgr.GetPlayer(citr2->guid);
+            
+            // Sometimes objmgr can't find player when he is teleporting between maps, causing him to show up as offline
             uint8 onlineState = (member) ? MEMBER_STATUS_ONLINE : MEMBER_STATUS_OFFLINE;
             onlineState = onlineState | ((isBGGroup()) ? MEMBER_STATUS_PVP : 0);
 
             data << citr2->name;
-            data << (uint64)citr2->guid;
-                                                            // online-state
-            data << (uint8)(onlineState);
-            data << (uint8)(citr2->group);                  // groupid
-            data << (uint8)(citr2->assistant?0x01:0);       // 0x2 main assist, 0x4 main tank
+            data << uint64(citr2->guid);                    // guid
+            data << uint8(onlineState);                     // online-state
+            data << uint8(citr2->group);                    // groupid
+            data << uint8(citr2->flags);                    // See enum GroupMemberFlags
         }
 
         data << uint64(m_leaderGuid);                       // leader guid
         if(GetMembersCount()-1)
         {
-            data << (uint8)m_lootMethod;                    // loot method
-            data << (uint64)m_looterGuid;                   // looter guid
-            data << (uint8)m_lootThreshold;                 // loot threshold
-            data << (uint8)m_dungeonDifficulty;             // Dungeon Difficulty
-            data << (uint8)m_raidDifficulty;                // Raid Difficulty
+            data << uint8(m_lootMethod);                    // loot method
+            data << uint64(m_looterGuid);                   // looter guid
+            data << uint8(m_lootThreshold);                 // loot threshold
+            data << uint8(m_dungeonDifficulty);             // Dungeon Difficulty
+            data << uint8(m_raidDifficulty);                // Raid Difficulty
         }
         player->GetSession()->SendPacket( &data );
     }
@@ -1047,7 +1054,7 @@ void Group::OfflineReadyCheck()
     }
 }
 
-bool Group::_addMember(const uint64 &guid, const char* name, bool isAssistant)
+bool Group::_addMember(const uint64 &guid, const char* name)
 {
     // get first not-full group
     uint8 groupid = 0;
@@ -1067,10 +1074,10 @@ bool Group::_addMember(const uint64 &guid, const char* name, bool isAssistant)
             return false;
     }
 
-    return _addMember(guid, name, isAssistant, groupid);
+    return _addMember(guid, name, groupid);
 }
 
-bool Group::_addMember(const uint64 &guid, const char* name, bool isAssistant, uint8 group)
+bool Group::_addMember(const uint64 &guid, const char* name, uint8 group)
 {
     if(IsFull())
         return false;
@@ -1084,7 +1091,7 @@ bool Group::_addMember(const uint64 &guid, const char* name, bool isAssistant, u
     member.guid      = guid;
     member.name      = name;
     member.group     = group;
-    member.assistant = isAssistant;
+    member.flags     = 0;
     m_memberSlots.push_back(member);
 
     SubGroupCounterIncrease(group);
@@ -1116,7 +1123,7 @@ bool Group::_addMember(const uint64 &guid, const char* name, bool isAssistant, u
     if(!isBGGroup())
     {
         // insert into group table
-        CharacterDatabase.PExecute("INSERT INTO group_member(leaderGuid,memberGuid,assistant,subgroup) VALUES('%u','%u','%u','%u')", GUID_LOPART(m_leaderGuid), GUID_LOPART(member.guid), ((member.assistant==1)?1:0), member.group);
+        CharacterDatabase.PExecute("INSERT INTO group_member(leaderGuid,memberGuid,assistant,subgroup) VALUES('%u','%u','%u','%u')", GUID_LOPART(m_leaderGuid), GUID_LOPART(member.guid), ((member.flags & MEMBER_FLAG_ASSISTANT)?1:0), member.group);
     }
 
     return true;
@@ -1256,40 +1263,44 @@ bool Group::_setMembersGroup(const uint64 &guid, const uint8 &group)
     return true;
 }
 
-bool Group::_setAssistantFlag(const uint64 &guid, const bool &state)
+bool Group::_setAssistantFlag(const uint64 &guid, const bool &apply)
 {
     member_witerator slot = _getMemberWSlot(guid);
-    if(slot==m_memberSlots.end())
+    if (slot == m_memberSlots.end())
         return false;
 
-    slot->assistant = state;
-    if(!isBGGroup()) CharacterDatabase.PExecute("UPDATE group_member SET assistant='%u' WHERE memberGuid='%u'", (state==true)?1:0, GUID_LOPART(guid));
+    ToggleGroupMemberFlag(slot, MEMBER_FLAG_ASSISTANT, apply);
+
+    if(!isBGGroup())
+        CharacterDatabase.PExecute("UPDATE group_member SET assistant='%u' WHERE memberGuid='%u'", (apply)?1:0, GUID_LOPART(guid));
     return true;
 }
 
-bool Group::_setMainTank(const uint64 &guid)
+bool Group::_setMainTank(const uint64 &guid, const bool &apply)
 {
-    member_citerator slot = _getMemberCSlot(guid);
-    if(slot==m_memberSlots.end())
+    member_witerator slot = _getMemberWSlot(guid);  // First check member slots to see if the target exists
+    if (slot == m_memberSlots.end())
         return false;
 
-    if(m_mainAssistant == guid)
-        _setMainAssistant(0);
-    m_mainTank = guid;
-    if(!isBGGroup()) CharacterDatabase.PExecute("UPDATE groups SET mainTank='%u' WHERE leaderGuid='%u'", GUID_LOPART(m_mainTank), GUID_LOPART(m_leaderGuid));
+    RemoveUniqueGroupMemberFlag(MEMBER_FLAG_MAINTANK);          // Remove main tank flag from current if any.
+    ToggleGroupMemberFlag(slot, MEMBER_FLAG_MAINTANK, apply);   // And apply main tank flag on new main tank.
+   
+    if (!isBGGroup())
+        CharacterDatabase.PExecute("UPDATE groups SET mainTank='%u' WHERE leaderGuid='%u'", GUID_LOPART(m_mainTank), GUID_LOPART(m_leaderGuid));
     return true;
 }
 
-bool Group::_setMainAssistant(const uint64 &guid)
+bool Group::_setMainAssistant(const uint64 &guid, const bool &apply)
 {
     member_witerator slot = _getMemberWSlot(guid);
-    if(slot==m_memberSlots.end())
+    if (slot == m_memberSlots.end())
         return false;
 
-    if(m_mainTank == guid)
-        _setMainTank(0);
-    m_mainAssistant = guid;
-    if(!isBGGroup()) CharacterDatabase.PExecute("UPDATE groups SET mainAssistant='%u' WHERE leaderGuid='%u'", GUID_LOPART(m_mainAssistant), GUID_LOPART(m_leaderGuid));
+    RemoveUniqueGroupMemberFlag(MEMBER_FLAG_MAINASSIST);         // Remove main assist flag from current if any.
+    ToggleGroupMemberFlag(slot, MEMBER_FLAG_MAINASSIST, apply);  // Apply main assist flag on new main assist.
+   
+    if (!isBGGroup())
+        CharacterDatabase.PExecute("UPDATE groups SET mainAssistant='%u' WHERE leaderGuid='%u'", GUID_LOPART(m_mainAssistant), GUID_LOPART(m_leaderGuid));
     return true;
 }
 
