@@ -95,6 +95,7 @@ AccountOpResult AccountMgr::DeleteAccount(uint32 accid)
 
     bool res =
         loginDatabase.PExecute("DELETE FROM account WHERE id='%d'", accid) &&
+        loginDatabase.PExecute("DELETE FROM account_access WHERE id ='%d'", accid) &&
         loginDatabase.PExecute("DELETE FROM realmcharacters WHERE acctid='%d'", accid);
 
     loginDatabase.CommitTransaction();
@@ -167,7 +168,7 @@ uint32 AccountMgr::GetId(std::string username)
 
 uint32 AccountMgr::GetSecurity(uint32 acc_id)
 {
-    QueryResult *result = loginDatabase.PQuery("SELECT gmlevel FROM account WHERE id = '%u'", acc_id);
+    QueryResult *result = loginDatabase.PQuery("SELECT gmlevel FROM account_access WHERE id = '%u'", acc_id);
     if(result)
     {
         uint32 sec = (*result)[0].GetUInt32();
