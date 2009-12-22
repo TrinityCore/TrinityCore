@@ -154,7 +154,7 @@ void RASocket::OnRead()
                     ///- Escape the Login to allow quotes in names
                     loginDatabase.escape_string(login);
 
-                    QueryResult* result = loginDatabase.PQuery("SELECT aa.gmlevel FROM account_access aa, account a WHERE a.username = '%s' AND aa.id = a.id",login.c_str());
+                    QueryResult* result = loginDatabase.PQuery("SELECT aa.gmlevel FROM account a LEFT JOIN account_access aa ON (a.id = aa.id) WHERE a.username = '%s'",login.c_str ());
 
                     ///- If the user is not found, deny access
                     if(!result)
