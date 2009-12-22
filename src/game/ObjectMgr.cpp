@@ -1575,7 +1575,7 @@ void ObjectMgr::LoadGameobjects()
             continue;
         }
 
-        if(!gInfo->displayId)
+        if(!gInfo->displayId && (!gInfo->type == GAMEOBJECT_TYPE_TRAP || !gInfo->type == GAMEOBJECT_TYPE_SPELL_FOCUS))
         {
             sLog.outErrorDb("Gameobject (GUID: %u Entry %u GoType: %u) doesn't have displayId (%u), not loaded.", guid, entry, gInfo->type, gInfo->displayId);
             continue;
