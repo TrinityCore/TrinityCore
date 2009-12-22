@@ -267,13 +267,17 @@ bool GossipSelect_npc_razael_and_lyana(Player* pPlayer, Creature* pCreature, uin
 ## npc_mcgoyver
 ######*/
 
-#define GOSSIP_ITEM_MG_I  "Create Dark Iron Ingots"
+#define GOSSIP_ITEM_MG_I  "Walt sent me to pick up some dark iron ingots."
+#define GOSSIP_ITEM_MG_II "Yarp."
 
 enum eMcGoyver
 {
-    QUEST_WE_CAN_REBUILD_IT                = 11483,
+    QUEST_WE_CAN_REBUILD_IT             = 11483,
 
-    SPELL_CREATURE_DARK_IRON_INGOTS      = 44512,
+    SPELL_CREATURE_DARK_IRON_INGOTS     = 44512,
+    SPELL_TAXI_EXPLORERS_LEAGUE         = 44280,
+
+    GOSSIP_TEXTID_MCGOYVER              = 12193
 };
 
 bool GossipHello_npc_mcgoyver(Player* pPlayer, Creature* pCreature)
@@ -290,7 +294,12 @@ bool GossipSelect_npc_mcgoyver(Player* pPlayer, Creature* pCreature, uint32 uiSe
     switch(uiAction)
     {
         case GOSSIP_ACTION_INFO_DEF+1:
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_MG_II, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
+            pPlayer->SEND_GOSSIP_MENU(GOSSIP_TEXTID_MCGOYVER, pCreature->GetGUID());
             pPlayer->CastSpell(pPlayer, SPELL_CREATURE_DARK_IRON_INGOTS, true);
+            break;
+        case GOSSIP_ACTION_INFO_DEF+2:
+            pPlayer->CastSpell(pPlayer, SPELL_TAXI_EXPLORERS_LEAGUE, true);
             pPlayer->CLOSE_GOSSIP_MENU();
             break;
     }
