@@ -1584,7 +1584,7 @@ void ObjectMgr::LoadGameobjects()
                     break;
                 default:
                     sLog.outErrorDb("Gameobject (GUID: %u Entry %u GoType: %u) doesn't have displayId (%u), not loaded.", guid, entry, gInfo->type, gInfo->displayId);
-                    continue;
+                    break;
             }
         }
 

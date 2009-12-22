@@ -1253,10 +1253,11 @@ void LoadLootTemplates_Gameobject()
         {
             if (uint32 lootid = gInfo->GetLootId())
             {
-                if (!ids_set.count(lootid))
-                    LootTemplates_Gameobject.ReportNotExistedId(lootid);
-                else
-                    ids_setUsed.insert(lootid);
+                //if (!ids_set.count(lootid))
+                //    LootTemplates_Gameobject.ReportNotExistedId(lootid);
+                //else
+                //    ids_setUsed.insert(lootid);
+                ids_setUsed.insert(lootid);
             }
         }
     }
