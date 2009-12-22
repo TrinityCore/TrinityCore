@@ -72,7 +72,7 @@ Quest::Quest(Field * questRecord)
         ReqItemCount[i] = questRecord[47+i].GetUInt32();
 
     for (int i = 0; i < QUEST_SOURCE_ITEM_IDS_COUNT; ++i)
-        ReqSourceId[i] = questRecord[52+i].GetUInt32();
+        ReqSourceId[i] = questRecord[53+i].GetUInt32();
 
     for (int i = 0; i < QUEST_SOURCE_ITEM_IDS_COUNT; ++i)
         ReqSourceCount[i] = questRecord[57+i].GetUInt32();
@@ -87,7 +87,7 @@ Quest::Quest(Field * questRecord)
         ReqSpell[i] = questRecord[69+i].GetUInt32();
 
     for (int i = 0; i < QUEST_REWARD_CHOICES_COUNT; ++i)
-        RewChoiceItemId[i] = questRecord[72+i].GetUInt32();
+        RewChoiceItemId[i] = questRecord[73+i].GetUInt32();
 
     for (int i = 0; i < QUEST_REWARD_CHOICES_COUNT; ++i)
         RewChoiceItemCount[i] = questRecord[79+i].GetUInt32();
