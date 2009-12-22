@@ -2731,6 +2731,8 @@ void Spell::EffectPowerBurn(uint32 i)
     //unitTarget->ModifyHealth(-new_damage);
     if(m_originalCaster)
         m_originalCaster->DealDamage(unitTarget, new_damage);
+
+    unitTarget->RemoveAurasByType(SPELL_AURA_MOD_FEAR);
 }
 
 void Spell::EffectHeal( uint32 /*i*/ )
