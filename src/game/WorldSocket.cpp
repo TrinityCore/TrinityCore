@@ -820,16 +820,16 @@ int WorldSocket::HandleAuthSession (WorldPacket& recvPacket)
 
     delete result;
 
-    	// Checks gmlevel per Realm
-	result = 
-		loginDatabase.PQuery ("SELECT "
-							  "RealmID, "            //0
-							  "gmlevel "             //1
-							  "FROM account_access "
-							  "WHERE id = '%d'"
-							  " AND (RealmID = '%d'"
-							  " OR RealmID = '-1')",
-							  id, realmID);
+    // Checks gmlevel per Realm
+    result = 
+        loginDatabase.PQuery ("SELECT "
+                              "RealmID, "            //0
+                              "gmlevel "             //1
+                              "FROM account_access "
+                              "WHERE id = '%d'"
+                              " AND (RealmID = '%d'"
+                              " OR RealmID = '-1')",
+                              id, realmID);
 	if(!result)
     	security = 0;
 	else
