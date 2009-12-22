@@ -56,6 +56,13 @@ enum GroupMemberOnlineStatus
     MEMBER_STATUS_UNK5      = 0x0080,                       // never seen
 };
 
+enum GroupMemberFlags
+{
+    MEMBER_FLAG_ASSISTANT   = 1,
+    MEMBER_FLAG_MAINTANK    = 2,
+    MEMBER_FLAG_MAINASSIST  = 4,
+};
+
 enum GroupType
 {
     GROUPTYPE_NORMAL = 0,
@@ -141,7 +148,7 @@ class TRINITY_DLL_SPEC Group
             uint64      guid;
             std::string name;
             uint8       group;
-            bool        assistant;
+            uint8       flags;
         };
         typedef std::list<MemberSlot> MemberSlotList;
         typedef MemberSlotList::const_iterator member_citerator;
@@ -206,7 +213,7 @@ class TRINITY_DLL_SPEC Group
             if(mslot==m_memberSlots.end())
                 return false;
 
-            return mslot->assistant;
+            return mslot->flags & MEMBER_FLAG_ASSISTANT;
         }
         Player* GetInvited(const uint64& guid) const;
         Player* GetInvited(const std::string& name) const;
@@ -258,27 +265,27 @@ class TRINITY_DLL_SPEC Group
         void ChangeMembersGroup(const uint64 &guid, const uint8 &group);
         void ChangeMembersGroup(Player *player, const uint8 &group);
 
-        void SetAssistant(uint64 guid, const bool &state)
+        void SetAssistant(uint64 guid, const bool &apply)
         {
             if(!isRaidGroup())
                 return;
-            if(_setAssistantFlag(guid, state))
+            if(_setAssistantFlag(guid, apply))
                 SendUpdate();
         }
-        void SetMainTank(uint64 guid)
+        void SetMainTank(uint64 guid, const bool &apply)
         {
             if(!isRaidGroup())
                 return;
 
-            if(_setMainTank(guid))
+            if(_setMainTank(guid, apply))
                 SendUpdate();
         }
-        void SetMainAssistant(uint64 guid)
+        void SetMainAssistant(uint64 guid, const bool &apply)
         {
             if(!isRaidGroup())
                 return;
 
-            if(_setMainAssistant(guid))
+            if(_setMainAssistant(guid, apply))
                 SendUpdate();
         }
 
@@ -343,17 +350,17 @@ class TRINITY_DLL_SPEC Group
         void BroadcastGroupUpdate(void);
 
     protected:
-        bool _addMember(const uint64 &guid, const char* name, bool isAssistant=false);
-        bool _addMember(const uint64 &guid, const char* name, bool isAssistant, uint8 group);
+        bool _addMember(const uint64 &guid, const char* name);
+        bool _addMember(const uint64 &guid, const char* name, uint8 group);
         bool _removeMember(const uint64 &guid);             // returns true if leader has changed
         void _setLeader(const uint64 &guid);
 
         void _removeRolls(const uint64 &guid);
 
         bool _setMembersGroup(const uint64 &guid, const uint8 &group);
-        bool _setAssistantFlag(const uint64 &guid, const bool &state);
-        bool _setMainTank(const uint64 &guid);
-        bool _setMainAssistant(const uint64 &guid);
+        bool _setAssistantFlag(const uint64 &guid, const bool &apply);
+        bool _setMainTank(const uint64 &guid, const bool &apply);
+        bool _setMainAssistant(const uint64 &guid, const bool &apply);
 
         void _homebindIfInstance(Player *player);
 
@@ -400,6 +407,23 @@ class TRINITY_DLL_SPEC Group
             if (m_subGroupsCounts)
                 --m_subGroupsCounts[subgroup];
         }
+        
+        void RemoveUniqueGroupMemberFlag(GroupMemberFlags flag)
+        {
+            for (member_witerator itr = m_memberSlots.begin(); itr != m_memberSlots.end(); ++itr)
+            {
+                if (itr->flags & flag)
+                    itr->flags = GroupMemberFlags(itr->flags & ~flag);
+            }
+        }
+        
+        void ToggleGroupMemberFlag(member_witerator slot, uint8 flag, bool apply)
+        {
+            if (apply)
+                slot->flags |= flag;
+            else
+                slot->flags &= ~flag;
+        } 
 
         MemberSlotList      m_memberSlots;
         GroupRefManager     m_memberMgr;
