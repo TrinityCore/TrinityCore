@@ -767,6 +767,15 @@ class ObjectMgr
             return &itr->second;
         }
 
+        bool IsGoOfSpecificEntrySpawned(uint32 entry) const
+        {
+            for (GameObjectDataMap::const_iterator it = mGameObjectDataMap.begin(); it != mGameObjectDataMap.end(); ++it)
+                if (it->second.id == entry)
+                    return true;
+
+            return false;
+        }
+
         GameObjectData const* GetGOData(uint32 guid) const
         {
             GameObjectDataMap::const_iterator itr = mGameObjectDataMap.find(guid);
