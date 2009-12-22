@@ -8948,9 +8948,7 @@ BaseHealthManaPair ObjectMgr::GenerateCreatureStats(uint32 level, CreatureInfo c
 
     CreatureBaseStats const* stats = GetCreatureBaseStats(info->expansion, info->unit_class, level);
     if (!stats)
-    {
-        sLog.outError("Could not find base stats for creature entry %u (base stats level %u)", info->Entry, level);
-    }
+        sLog.outError("Could not find base stats for creature entry %u (base stats: expansion %u, class %u, level %u)", info->Entry, info->expansion, info->unit_class, level);
     else
     {
         health = stats->GenerateHealth(level, info);
