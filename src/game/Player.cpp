@@ -14572,8 +14572,17 @@ void Player::CastedCreatureOrGO(uint32 entry, uint64 guid, uint32 spell_id)
                     {
                         // creature activate objectives
                         if (qInfo->ReqCreatureOrGOId[j] > 0)
+                        {
                             // checked at quest_template loading
                             reqTarget = qInfo->ReqCreatureOrGOId[j];
+                            if (reqTarget != entry) // if entry doesn't match, check for killcredits referenced in template
+                            {
+                                CreatureInfo const *cinfo = objmgr.GetCreatureTemplate(entry);
+                                for (uint8 i = 0; i < MAX_KILL_CREDIT; ++i)
+                                    if (cinfo->KillCredit[i] == reqTarget)
+                                        entry = cinfo->KillCredit[i];
+                            }
+                         }
                     }
                     else
                     {
@@ -14584,7 +14593,7 @@ void Player::CastedCreatureOrGO(uint32 entry, uint64 guid, uint32 spell_id)
                     }
 
                     // other not this creature/GO related objectives
-                    if(reqTarget != entry)
+                    if (reqTarget != entry)
                         continue;
 
                     uint32 reqCastCount = qInfo->ReqCreatureOrGOCount[j];
