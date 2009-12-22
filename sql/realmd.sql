@@ -58,8 +58,7 @@ CREATE TABLE `account` (
   `mutetime` bigint(40) unsigned NOT NULL default '0',
   `locale` tinyint(3) unsigned NOT NULL default '0',
   PRIMARY KEY  (`id`),
-  UNIQUE KEY `idx_username` (`username`),
-  KEY `idx_gmlevel` (`gmlevel`)
+  UNIQUE KEY `idx_username` (`username`)
 ) ENGINE=MyISAM AUTO_INCREMENT=5 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci ROW_FORMAT=DYNAMIC COMMENT='Account System';
 
 --
