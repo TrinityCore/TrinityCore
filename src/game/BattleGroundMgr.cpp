@@ -1343,9 +1343,9 @@ void BattleGroundMgr::BuildPvpLogDataPacket(WorldPacket *data, BattleGround *bg)
         {
             for (int8 i = 1; i >= 0; --i)                       // Rating difference per team first
             {
-                *data << uint32(0);
-                *data << uint32(3000 + bg->m_ArenaTeamRatingChanges[i]);
-                *data << uint32(0);                             // added again in 3.1
+                *data << uint32(0);                             // Padding
+                *data << uint32(3000 + bg->m_ArenaTeamRatingChanges[i]);        // rating change + 3000
+                *data << uint32(0);                             // added again in 3.1 - padding?
             }
             for (int8 i = 1; i >= 0; --i)                       // Send out arena team names per team
             {
@@ -1356,8 +1356,9 @@ void BattleGroundMgr::BuildPvpLogDataPacket(WorldPacket *data, BattleGround *bg)
         }
         else // if (!bg->isRated())
         {
-            *data << uint32(0) << uint32(0) << uint32(0);
-            *data << uint32(0) << uint32(0) << uint32(0);
+                  // padding   // /\rating  // padding   // team name
+            *data << uint32(0) << uint32(0) << uint32(0) << uint8(0);
+            *data << uint32(0) << uint32(0) << uint32(0) << uint8(0);
         }
     }
 
