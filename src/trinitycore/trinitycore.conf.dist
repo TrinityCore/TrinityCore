@@ -1,7 +1,7 @@
 ##########################################
 # Trinity Core worldd configuration file #
 ##########################################
-ConfVersion=2009101701
+ConfVersion=2009122101
 
 ###################################################################################################################
 # CONNECTIONS AND DIRECTORIES
@@ -1858,11 +1858,12 @@ Ra.Secure = 1
 #		Players will start with most of the high level reputations that are needed for items, mounts etc.
 #		If there are any reputation faction you want to be added, just tell me.
 #
-#	PlayerStart.AllSpells
-#		If enabled, players will start with all their class spells (not talents). Useful for instant 70 servers.
-#		You must import playercreateinfo_spell_custom.sql, it's included in the SQL folder.
-#		Default: 0 - off
-#				 1 - on
+#       PlayerStart.AllSpells
+#               If enabled, players will start with all their class spells (not talents). Useful for instant 80 servers.
+#               You must populate playercreateinfo_spell_custom table with the spells you want, or this WILL NOT WORK! The table has data for all classes / races up to TBC expansion. Do not enable if you do not know what you are doing!
+#               Default: 0 - off
+#                                1 - on
+#
 #
 #	PlayerStart.MapsExplored
 #		Players will start with all maps explored if enabled
