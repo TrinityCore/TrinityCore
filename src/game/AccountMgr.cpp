@@ -179,6 +179,21 @@ uint32 AccountMgr::GetSecurity(uint32 acc_id)
     return 0;
 }
 
+uint32 AccountMgr::GetSecurity(uint32 acc_id, int32 realm_id)
+{
+    QueryResult *result = (realm_id == -1)
+        ? loginDatabase.PQuery("SELECT gmlevel FROM account_access WHERE id = '%u' AND RealmID = '%d'", acc_id, realm_id)
+        : loginDatabase.PQuery("SELECT gmlevel FROM account_access WHERE id = '%u' AND (RealmID = '%d' OR RealmID = '-1')", acc_id, realm_id);
+    if(result)
+    {
+        uint32 sec = (*result)[0].GetUInt32();
+        delete result;
+        return sec;
+    }
+
+    return 0;
+}
+
 bool AccountMgr::GetName(uint32 acc_id, std::string &name)
 {
     QueryResult *result = loginDatabase.PQuery("SELECT username FROM account WHERE id = '%u'", acc_id);

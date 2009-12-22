@@ -25,6 +25,7 @@
 #include "World.h"
 #include "ObjectMgr.h"
 #include "Player.h"
+#include "AccountMgr.h"
 #include "Opcodes.h"
 #include "Chat.h"
 #include "Log.h"
@@ -483,12 +484,10 @@ bool ChatHandler::HandleGMTicketAssignToCommand(const char* args)
         return false;
 
     std::string targm = targetgm;
-
     if(!normalizePlayerName(targm))
-        return true;
+        return false;
 
     Player *cplr = m_session->GetPlayer();
-    std::string gmname;
     GM_Ticket *ticket = objmgr.GetGMTicket(ticketGuid);
 
     if(!ticket || ticket->closed != 0)
@@ -496,24 +495,24 @@ bool ChatHandler::HandleGMTicketAssignToCommand(const char* args)
         SendSysMessage(LANG_COMMAND_TICKETNOTEXIST);
         return true;
     }
+    
     uint64 tarGUID = objmgr.GetPlayerGUIDByName(targm.c_str());
     uint64 accid = objmgr.GetPlayerAccountIdByGUID(tarGUID);
-    QueryResult *result = loginDatabase.PQuery("SELECT 'gmlevel', 'RealmID' FROM account_access WHERE id = '%u'", accid);
+    uint32 gmlevel = accmgr.GetSecurity(accid, realmID);
 
-    Field * fields = result->Fetch();
-    uint32 gmlevel = fields[0].GetUInt32();
-    uint32 SecurityRealmID = fields[1].GetUInt32();
-
-    if(!tarGUID|| !result || gmlevel < SEC_MODERATOR || (SecurityRealmID != realmID && SecurityRealmID != -1))
+    if(!tarGUID || gmlevel == SEC_PLAYER)
     {
         SendSysMessage(LANG_COMMAND_TICKETASSIGNERROR_A);
         return true;
     }
+
     if(ticket->assignedToGM == tarGUID)
     {
         PSendSysMessage(LANG_COMMAND_TICKETASSIGNERROR_B, ticket->guid);
         return true;
     }
+
+    std::string gmname;
     objmgr.GetPlayerNameByGUID(tarGUID, gmname);
     if(ticket->assignedToGM != 0 && ticket->assignedToGM != cplr->GetGUID())
     {
@@ -1790,7 +1789,7 @@ bool ChatHandler::HandleModifyScaleCommand(const char* args)
         return false;
 
     float Scale = (float)atof((char*)args);
-    if (Scale > 10.0f || Scale <= 0.1f)
+    if (Scale > 10.0f || Scale < 0.1f)
     {
         SendSysMessage(LANG_BAD_VALUE);
         SetSentErrorMessage(true);
