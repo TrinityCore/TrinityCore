@@ -586,7 +586,6 @@ INSERT INTO `command` VALUES
 ('reload locales_quest','3','Syntax: .reload locales_quest\nReload locales_quest table.'),
 ('reload milling_loot_template','3','Syntax: .reload milling_loot_template\nReload milling_loot_template table.'),
 ('reload npc_gossip','3','Syntax: .reload npc_gossip\nReload npc_gossip table.'),
-('reload npc_option','3','Syntax: .reload npc_option\nReload npc_option table.'),
 ('reload npc_trainer','3','Syntax: .reload npc_trainer\nReload npc_trainer table.'),
 ('reload npc_vendor','3','Syntax: .reload npc_vendor\nReload npc_vendor table.'),
 ('reload page_text','3','Syntax: .reload page_text\nReload page_text table.'),
