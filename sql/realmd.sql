@@ -19,6 +19,7 @@
 -- Structure for table `account_access`
 -- 
 
+DROP TABLE IF EXISTS `account_access`;
 CREATE TABLE `account_access` (
   `id` int(11) unsigned NOT NULL,
   `gmlevel` tinyint(3) unsigned NOT NULL,
