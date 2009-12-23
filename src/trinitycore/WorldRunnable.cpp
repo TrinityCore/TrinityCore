@@ -30,7 +30,7 @@
 
 #include "BattleGroundMgr.h"
 #include "MapManager.h"
-#include "Timer.h"
+#include "TimeMgr.h"
 #include "WorldRunnable.h"
 
 #define WORLD_SLEEP_CONST 50
