@@ -170,7 +170,7 @@ void RASocket::OnRead()
                         //szPass=fields[0].GetString();
 
                         ///- if gmlevel is too low, deny access
-                        if(fields[1].GetUInt32()<iMinLevel || fields[1].GetUInt32() == NULL))
+                        if(fields[1].GetUInt32()<iMinLevel || fields[1].GetUInt32() == NULL)
                         {
                             Sendf("-Not enough privileges.\r\n");
                             sLog.outRemote("User %s has no privilege.\n",szLogin.c_str());
