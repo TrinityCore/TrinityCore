@@ -1252,63 +1252,18 @@ void BattleGroundMgr::BuildBattleGroundStatusPacket(WorldPacket *data, BattleGro
 
     data->Initialize(SMSG_BATTLEFIELD_STATUS, (4+1+1+4+2+4+1+4+4+4));
     *data << uint32(QueueSlot);                             // queue id (0...2) - player can be in 3 queues in time
-    // uint64 in client
-    *data << uint64( uint64(arenatype) | (uint64(0x0D) << 8) | (uint64(bg->GetTypeID()) << 16) | (uint64(0x1F90) << 48) );
+    // The following segment is read as uint64 in client but can be appended as their original type.
+    *data << uint8(arenatype);
+    sLog.outDebug("BattleGroundMgr::BuildBattleGroundStatusPacket: arenatype = %u for bg instanceID %u, TypeID %u.", arenatype, bg->GetClientInstanceID(), bg->GetTypeID());
+    *data << uint8(bg->isArena() ? 0xC : 0x2);
+    *data << uint32(bg->GetTypeID());
+    *data << uint16(0x1F90);
+    // End of uint64 segment, decomposed this way for simplicity
     *data << uint32(bg->GetClientInstanceID());
     // alliance/horde for BG and skirmish/rated for Arenas
     // following displays the minimap-icon 0 = faction icon 1 = arenaicon
-    *data << uint8(bg->isRated());
-/*    *data << uint8(arenatype ? arenatype : bg->GetArenaType());                     // team type (0=BG, 2=2x2, 3=3x3, 5=5x5), for arenas    // NOT PROPER VALUE IF ARENA ISN'T RUNNING YET!!!!
-    switch(bg->GetTypeID())                                 // value depends on bg id
-    {
-        case BATTLEGROUND_AV:
-            *data << uint8(1);
-            break;
-        case BATTLEGROUND_WS:
-            *data << uint8(2);
-            break;
-        case BATTLEGROUND_AB:
-            *data << uint8(3);
-            break;
-        case BATTLEGROUND_NA:
-            *data << uint8(4);
-            break;
-        case BATTLEGROUND_BE:
-            *data << uint8(5);
-            break;
-        case BATTLEGROUND_AA:
-            *data << uint8(6);
-            break;
-        case BATTLEGROUND_EY:
-            *data << uint8(7);
-            break;
-        case BATTLEGROUND_RL:
-            *data << uint8(8);
-            break;
-        case BATTLEGROUND_SA:
-            *data << uint8(9);
-            break;
-        case BATTLEGROUND_DS:
-            *data << uint8(10);
-            break;
-        case BATTLEGROUND_RV:
-            *data << uint8(11);
-            break;
-        default:                                            // unknown
-            *data << uint8(0);
-            break;
-    }
+    *data << uint8(bg->isRated());                          // 1 for rated match, 0 for bg or non rated match
 
-    if (bg->isArena() && (StatusID == STATUS_WAIT_QUEUE))
-        *data << uint32(BATTLEGROUND_AA);                   // all arenas   I don't think so.
-    else
-    *data << uint32(bg->GetTypeID());                   // BG id from DBC
-
-    *data << uint16(0x1F90);                                // unk value 8080
-    *data << uint32(bg->GetInstanceID());                   // instance id
-
-    *data << uint8(bg->isArena());                          // minimap-icon 0=faction 1=arena
-*/
     *data << uint32(StatusID);                              // status
     switch(StatusID)
     {
@@ -1324,7 +1279,7 @@ void BattleGroundMgr::BuildBattleGroundStatusPacket(WorldPacket *data, BattleGro
             *data << uint32(bg->GetMapId());                // map id
             *data << uint32(Time1);                         // time to bg auto leave, 0 at bg start, 120000 after bg end, milliseconds
             *data << uint32(Time2);                         // time from bg start, milliseconds
-            *data << uint8(0x1);                            // unk sometimes 0x0!
+            *data << uint8(bg->isArena() ? 0 : 1);          // unk, 0 for arena matches, 1 for bg matches
             break;
         default:
             sLog.outError("Unknown BG status!");
