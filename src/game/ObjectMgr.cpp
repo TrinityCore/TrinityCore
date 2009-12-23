@@ -46,6 +46,7 @@
 #include "WaypointManager.h"
 #include "InstanceData.h" //for condition_instance_data
 #include "GossipDef.h"
+#include "TimeMgr.h"
 
 INSTANTIATE_SINGLETON_1(ObjectMgr);
 
@@ -5024,7 +5025,7 @@ void ObjectMgr::LoadNpcTextLocales()
 //not very fast function but it is called only once a day, or on starting-up
 void ObjectMgr::ReturnOrDeleteOldMails(bool serverUp)
 {
-    time_t basetime = time(NULL);
+    time_t basetime = sGameTime.GetGameTime();
     sLog.outDebug("Returning mails current time: hour: %d, minute: %d, second: %d ", localtime(&basetime)->tm_hour, localtime(&basetime)->tm_min, localtime(&basetime)->tm_sec);
     //delete all old mails without item and without body immediately, if starting server
     if (!serverUp)
@@ -8249,7 +8250,9 @@ void ObjectMgr::LoadVendors()
 
         VendorItemData& vList = m_mCacheVendorItemMap[entry];
 
-        vList.AddItem(item_id,maxcount,incrtime,ExtendedCost);
+        uint8 vendorslot = vList.GetItemCount();
+
+        vList.AddItem(item_id,maxcount,incrtime,ExtendedCost,vendorslot);
         ++count;
 
     } while (result->NextRow());
@@ -8520,7 +8523,8 @@ void ObjectMgr::LoadGossipMenuItems()
 void ObjectMgr::AddVendorItem( uint32 entry,uint32 item, int32 maxcount, uint32 incrtime, uint32 extendedcost, bool savetodb)
 {
     VendorItemData& vList = m_mCacheVendorItemMap[entry];
-    vList.AddItem(item,maxcount,incrtime,extendedcost);
+    uint8 vendorslot = vList.GetItemCount();
+    vList.AddItem(item,maxcount,incrtime,extendedcost,vendorslot);
 
     if(savetodb) WorldDatabase.PExecuteLog("INSERT INTO npc_vendor (entry,item,maxcount,incrtime,extendedcost) VALUES('%u','%u','%u','%u','%u')",entry, item, maxcount,incrtime,extendedcost);
 }

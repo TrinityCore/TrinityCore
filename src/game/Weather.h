@@ -27,7 +27,7 @@
 
 #include "Common.h"
 #include "SharedDefines.h"
-#include "Timer.h"
+#include "TimeMgr.h"
 
 class Player;
 

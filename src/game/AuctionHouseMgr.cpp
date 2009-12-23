@@ -32,6 +32,7 @@
 #include "Item.h"
 #include "Language.h"
 #include "Log.h"
+#include "TimeMgr.h"
 #include "ProgressBar.h"
 #include <vector>
 
@@ -183,7 +184,7 @@ void AuctionHouseMgr::SendAuctionSalePendingMail(AuctionEntry * auction)
         std::ostringstream msgAuctionSalePendingBody;
         uint32 auctionCut = auction->GetAuctionCut();
 
-        time_t distrTime = time(NULL) + sWorld.getConfig(CONFIG_MAIL_DELIVERY_DELAY);
+        time_t distrTime = sGameTime.GetGameTime() + sWorld.getConfig(CONFIG_MAIL_DELIVERY_DELAY);
 
         msgAuctionSalePendingBody.width(16);
         msgAuctionSalePendingBody << std::right << std::hex << auction->bidder;
@@ -499,7 +500,7 @@ AuctionHouseEntry const* AuctionHouseMgr::GetAuctionHouseEntry(uint32 factionTem
 
 void AuctionHouseObject::Update()
 {
-    time_t curTime = sWorld.GetGameTime();
+    time_t curTime = sGameTime.GetGameTime();
     ///- Handle expired auctions
 
     // If storage is empty, no need to update. next == NULL in this case.
@@ -683,7 +684,7 @@ bool AuctionEntry::BuildAuctionInfo(WorldPacket & data) const
     data << uint32(bid ? GetAuctionOutBid() : 0);
     //minimal outbid
     data << uint32(buyout);                                 //auction->buyout
-    data << uint32((expire_time-time(NULL))*IN_MILISECONDS);//time left
+    data << uint32((expire_time-sGameTime.GetGameTime())*IN_MILISECONDS);//time left
     data << uint64(bidder) ;                                //auction->bidder current
     data << uint32(bid);                                    //current bid
     return true;

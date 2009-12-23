@@ -39,6 +39,7 @@
 #include "ScriptCalls.h"
 #include "SpellAuras.h"
 #include "Util.h"
+#include "TimeMgr.h"
 
 bool WorldSession::processChatmessageFurtherAfterSecurityChecks(std::string& msg, uint32 lang)
 {
@@ -166,7 +167,7 @@ void WorldSession::HandleMessagechatOpcode( WorldPacket & recv_data )
 
         if (!_player->CanSpeak())
         {
-            std::string timeStr = secsToTimeString(m_muteTime - time(NULL));
+            std::string timeStr = secsToTimeString(m_muteTime - sGameTime.GetGameTime());
             SendNotification(GetTrinityString(LANG_WAIT_BEFORE_SPEAKING),timeStr.c_str());
             return;
         }
@@ -627,7 +628,7 @@ void WorldSession::HandleTextEmoteOpcode( WorldPacket & recv_data )
 
     if (!GetPlayer()->CanSpeak())
     {
-        std::string timeStr = secsToTimeString(m_muteTime - time(NULL));
+        std::string timeStr = secsToTimeString(m_muteTime - sGameTime.GetGameTime());
         SendNotification(GetTrinityString(LANG_WAIT_BEFORE_SPEAKING),timeStr.c_str());
         return;
     }

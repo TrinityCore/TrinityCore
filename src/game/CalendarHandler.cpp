@@ -24,12 +24,13 @@
 #include "Log.h"
 #include "Opcodes.h"
 #include "Player.h"
+#include "TimeMgr.h"
 
 void WorldSession::HandleCalendarGetCalendar(WorldPacket &recv_data)
 {
     sLog.outDebug("WORLD: CMSG_CALENDAR_GET_CALENDAR");     // empty
 
-    time_t cur_time = time(NULL);
+    time_t cur_time = sGameTime.GetGameTime();
 
     WorldPacket data(SMSG_CALENDAR_SEND_CALENDAR,4+4*0+4+4*0+4+4);
 
