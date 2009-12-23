@@ -413,7 +413,7 @@ class TRINITY_DLL_SPEC Group
             for (member_witerator itr = m_memberSlots.begin(); itr != m_memberSlots.end(); ++itr)
             {
                 if (itr->flags & flag)
-                    itr->flags = &= ~flag;
+                    itr->flags &= ~flag;
             }
         }
         
