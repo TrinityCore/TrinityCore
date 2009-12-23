@@ -29,7 +29,7 @@
 #include "DBCStructure.h"
 #include "GridDefines.h"
 #include "Cell.h"
-#include "Timer.h"
+#include "TimeMgr.h"
 #include "SharedDefines.h"
 #include "GameSystem/GridRefManager.h"
 #include "MapRefManager.h"

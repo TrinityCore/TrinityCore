@@ -28,6 +28,7 @@
 #include "LootMgr.h"
 #include "Database/DatabaseEnv.h"
 #include "Cell.h"
+#include "TimeMgr.h"
 
 #include <list>
 
@@ -318,45 +319,50 @@ struct VendorItem
     uint32 ExtendedCost;
 };
 typedef std::vector<VendorItem*> VendorItemList;
+typedef std::map<uint32, uint8> ItemToSlotMap;
 
 struct VendorItemData
 {
     VendorItemList m_items;
+    ItemToSlotMap m_itemtoslot;
 
-    VendorItem* GetItem(uint32 slot) const
+    VendorItem* GetItem(uint8 slot) const
     {
-        if(slot>=m_items.size()) return NULL;
+        if(slot >= uint8(m_items.size()))
+            return NULL;
         return m_items[slot];
     }
+
     bool Empty() const { return m_items.empty(); }
-    uint8 GetItemCount() const { return m_items.size(); }
-    void AddItem( uint32 item, int32 maxcount, uint32 ptime, uint32 ExtendedCost)
+    uint8 GetItemCount() const { return uint8(m_items.size()); }
+    void AddItem(uint32 item, uint32 maxcount, uint32 ptime, uint32 ExtendedCost, uint8 vendorslot)
     {
         m_items.push_back(new VendorItem(item, maxcount, ptime, ExtendedCost));
+        m_itemtoslot[item] = vendorslot;
     }
     bool RemoveItem( uint32 item_id );
     VendorItem const* FindItem(uint32 item_id) const;
-    size_t FindItemSlot(uint32 item_id) const;
+    uint8 FindItemSlot(uint32 item_id) const;
 
     void Clear()
     {
         for (VendorItemList::const_iterator itr = m_items.begin(); itr != m_items.end(); ++itr)
             delete (*itr);
         m_items.clear();
+        m_itemtoslot.clear();
     }
 };
 
 struct VendorItemCount
 {
-    explicit VendorItemCount(uint32 _item, uint32 _count)
-        : itemId(_item), count(_count), lastIncrementTime(time(NULL)) {}
+    VendorItemCount();
+    VendorItemCount(uint32 _count);
 
-    uint32 itemId;
     uint32 count;
     time_t lastIncrementTime;
 };
 
-typedef std::list<VendorItemCount> VendorItemCounts;
+typedef std::map<uint32, VendorItemCount*> VendorItemCounts;
 
 struct TrainerSpell
 {
@@ -583,7 +589,7 @@ class TRINITY_DLL_SPEC Creature : public Unit
 
         time_t const& GetRespawnTime() const { return m_respawnTime; }
         time_t GetRespawnTimeEx() const;
-        void SetRespawnTime(uint32 respawn) { m_respawnTime = respawn ? time(NULL) + respawn : 0; }
+        void SetRespawnTime(uint32 respawn);
         void Respawn(bool force = false);
         void SaveRespawnTime();
 

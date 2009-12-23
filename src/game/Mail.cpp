@@ -34,6 +34,7 @@
 #include "BattleGroundMgr.h"
 #include "Item.h"
 #include "AuctionHouseMgr.h"
+#include "TimeMgr.h"
 
 enum MailShowFlags
 {
@@ -283,7 +284,7 @@ void WorldSession::HandleMailMarkAsRead(WorldPacket & recv_data )
         if (pl->unReadMails)
             --pl->unReadMails;
         m->checked = m->checked | MAIL_CHECK_MASK_READ;
-        // m->expire_time = time(NULL) + (30 * DAY);  // Expire time do not change at reading mail
+        // m->expire_time = sGameTime.GetGameTime() + (30 * DAY);  // Expire time do not change at reading mail
         pl->m_mailsUpdated = true;
         m->state = MAIL_STATE_CHANGED;
     }
@@ -331,7 +332,7 @@ void WorldSession::HandleMailReturnToSender(WorldPacket & recv_data )
 
     Player *pl = _player;
     Mail *m = pl->GetMail(mailId);
-    if (!m || m->state == MAIL_STATE_DELETED || m->deliver_time > time(NULL))
+    if (!m || m->state == MAIL_STATE_DELETED || m->deliver_time > sGameTime.GetGameTime())
     {
         pl->SendMailResult(mailId, MAIL_RETURNED_TO_SENDER, MAIL_ERR_INTERNAL_ERROR);
         return;
@@ -393,7 +394,7 @@ void WorldSession::HandleMailTakeItem(WorldPacket & recv_data )
     Player* pl = _player;
 
     Mail* m = pl->GetMail(mailId);
-    if (!m || m->state == MAIL_STATE_DELETED || m->deliver_time > time(NULL))
+    if (!m || m->state == MAIL_STATE_DELETED || m->deliver_time > sGameTime.GetGameTime())
     {
         pl->SendMailResult(mailId, MAIL_ITEM_TAKEN, MAIL_ERR_INTERNAL_ERROR);
         return;
@@ -486,7 +487,7 @@ void WorldSession::HandleMailTakeMoney(WorldPacket & recv_data )
     Player *pl = _player;
 
     Mail* m = pl->GetMail(mailId);
-    if (!m || m->state == MAIL_STATE_DELETED || m->deliver_time > time(NULL))
+    if (!m || m->state == MAIL_STATE_DELETED || m->deliver_time > sGameTime.GetGameTime())
     {
         pl->SendMailResult(mailId, MAIL_MONEY_TAKEN, MAIL_ERR_INTERNAL_ERROR);
         return;
@@ -530,7 +531,7 @@ void WorldSession::HandleGetMailList(WorldPacket & recv_data )
     WorldPacket data(SMSG_MAIL_LIST_RESULT, (200));         // guess size
     data << uint32(0);                                      // real mail's count
     data << uint8(0);                                       // mail's count
-    time_t cur_time = time(NULL);
+    time_t cur_time = sGameTime.GetGameTime();
 
     for (PlayerMails::iterator itr = pl->GetMailBegin(); itr != pl->GetMailEnd(); ++itr)
     {
@@ -588,7 +589,7 @@ void WorldSession::HandleGetMailList(WorldPacket & recv_data )
         data << uint32((*itr)->stationery);                  // stationery (Stationery.dbc)
         data << uint32((*itr)->money);                       // Gold
         data << uint32(show_flags);                          // unknown, 0x4 - auction, 0x10 - normal
-        data << float(((*itr)->expire_time-time(NULL))/DAY); // Time
+        data << float(((*itr)->expire_time-sGameTime.GetGameTime())/DAY); // Time
         data << uint32((*itr)->mailTemplateId);              // mail template (MailTemplate.dbc)
         data << (*itr)->subject;                             // Subject string - once 00, when mail type = 3
         data << uint8(item_count);                           // client limit is 0x10
@@ -674,7 +675,7 @@ void WorldSession::HandleMailCreateTextItem(WorldPacket & recv_data )
     Player *pl = _player;
 
     Mail* m = pl->GetMail(mailId);
-    if (!m || !m->itemTextId && !m->mailTemplateId || m->state == MAIL_STATE_DELETED || m->deliver_time > time(NULL))
+    if (!m || !m->itemTextId && !m->mailTemplateId || m->state == MAIL_STATE_DELETED || m->deliver_time > sGameTime.GetGameTime())
     {
         pl->SendMailResult(mailId, MAIL_MADE_PERMANENT, MAIL_ERR_INTERNAL_ERROR);
         return;
@@ -740,7 +741,7 @@ void WorldSession::HandleQueryNextMailTime(WorldPacket & /*recv_data*/ )
         data << uint32(0);                                 // count
 
         uint32 count = 0;
-        time_t now = time(NULL);
+        time_t now = sGameTime.GetGameTime();
         for (PlayerMails::iterator itr = _player->GetMailBegin(); itr != _player->GetMailEnd(); ++itr)
         {
             Mail *m = (*itr);
@@ -929,7 +930,7 @@ void MailDraft::SendMailTo(MailReceiver const& receiver, MailSender const& sende
         return;
     }
 
-    time_t deliver_time = time(NULL) + deliver_delay;
+    time_t deliver_time = sGameTime.GetGameTime() + deliver_delay;
 
     //expire time if COD 3 days, if no COD 30 days, if auction sale pending 1 hour
     uint32 expire_delay;

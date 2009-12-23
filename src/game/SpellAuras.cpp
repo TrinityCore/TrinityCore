@@ -49,6 +49,7 @@
 #include "GridNotifiersImpl.h"
 #include "Vehicle.h"
 #include "CellImpl.h"
+#include "TimeMgr.h"
 
 #define Aura AuraEffect
 pAuraHandler AuraHandler[TOTAL_AURAS]=
@@ -366,7 +367,7 @@ pAuraHandler AuraHandler[TOTAL_AURAS]=
 Aura::Aura(SpellEntry const* spellproto, uint32 effMask, Unit *target, WorldObject *source, Unit *caster, int32 *currentBasePoints, Item* castItem) :
     m_spellProto(spellproto),
     m_target(target), m_sourceGuid(source->GetGUID()), m_casterGuid(caster->GetGUID()), m_castItemGuid(castItem ? castItem->GetGUID() : 0),
-    m_applyTime(time(NULL)),
+    m_applyTime(sGameTime.GetGameTime()),
     m_timeCla(0), m_removeMode(AURA_REMOVE_BY_DEFAULT), m_AuraDRGroup(DIMINISHING_NONE),
     m_auraSlot(MAX_AURAS), m_auraLevel(1), m_procCharges(0), m_stackAmount(1), m_isRemoved(false)
 {
@@ -1330,7 +1331,7 @@ void Aura::HandleAuraSpecificMods(bool apply)
                     return;
 
                 player->RemoveSpellCooldown(m_spellProto->Id, true);
-                player->AddSpellCooldown(m_spellProto->Id, 0, uint32(time(NULL) + aurEff->GetAmount()));
+                player->AddSpellCooldown(m_spellProto->Id, 0, uint32(sGameTime.GetGameTime() + aurEff->GetAmount()));
 
                 WorldPacket data(SMSG_SPELL_COOLDOWN, 8+1+4+4);
                 data << uint64(player->GetGUID());
