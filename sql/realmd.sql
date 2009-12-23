@@ -30,10 +30,10 @@ CREATE TABLE `account_access` (
 -- Content for table `account_access`
 -- 
 
-INSERT INTO `account_access` (`id`, `gmlevel`, `RealmID`) VALUES 
+/*INSERT INTO `account_access` (`id`, `gmlevel`, `RealmID`) VALUES 
 (1, 3, -1),
 (2, 2, -1),
-(3, 1, -1);
+(3, 1, -1);*/
 
 --
 -- Table structure for table `account`
