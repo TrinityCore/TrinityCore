@@ -17,6 +17,7 @@
  */
 
 #include "precompiled.h"
+#include "escort_ai.h"
 
 /*####
 ## npc_drakuru_shackles
@@ -226,6 +227,12 @@ enum eGurgthock
     SAY_QUEST_ACCEPT_KORRAK_2       = -1571034,
 };
 
+const Position SpawnPosition[] =
+{
+  {5757.765137, -2945.161133, 286.276672, 5.156380},
+  {5762.054199, -2954.385010, 273.826955, 5.108289}  //yggdras
+};
+
 struct TRINITY_DLL_DECL npc_gurgthockAI : public ScriptedAI
 {
     npc_gurgthockAI(Creature* pCreature) : ScriptedAI(pCreature)
@@ -274,8 +281,43 @@ struct TRINITY_DLL_DECL npc_gurgthockAI : public ScriptedAI
         SummonList.clear();
     }
 
+    void SetData(uint32 uiId, uint32 uiValue)
+    {
+        if (!bEventInProgress)
+        {
+            bEventInProgress = true;
+            bRemoveFlag = true;
+            switch(uiId)
+            {
+                case 1:
+                    switch(uiValue)
+                    {
+                        case QUEST_AMPHITHEATER_ANGUISH_TUSKARRMAGEDDON:
+                            DoScriptText(SAY_QUEST_ACCEPT_TUSKARRMAGEDON, m_creature);
+                            uiPhase = 1;
+                            uiTimer = 4000;
+                            break;
+                        case QUEST_AMPHITHEATER_ANGUISH_KORRAK_BLOODRAGER:
+                            DoScriptText(SAY_QUEST_ACCEPT_KORRAK_1, m_creature);
+                            uiPhase = 3;
+                            uiTimer = 3000;
+                            break;
+                        case QUEST_AMPHITHEATER_ANGUISH_YGGDRAS_2:
+                        case QUEST_AMPHITHEATER_ANGUISH_YGGDRAS_1:
+                            uiPhase = 6;
+                            uiTimer = 3000;
+                            break;
+                        }
+                        break;
+                }
+            }
+        }
+
     void UpdateAI(const uint32 uiDiff)
     {
+        if (!bEventInProgress)
+            return;
+
         ScriptedAI::UpdateAI(uiDiff);
 
         if (bRemoveFlag)
@@ -288,42 +330,6 @@ struct TRINITY_DLL_DECL npc_gurgthockAI : public ScriptedAI
             } else uiRemoveFlagTimer -= uiDiff;
         }
 
-        switch(uiQuest)
-        {
-            case 1:
-                if (!bEventInProgress)
-                {
-                    bEventInProgress = true;
-                    bRemoveFlag = true;
-                    DoScriptText(SAY_QUEST_ACCEPT_TUSKARRMAGEDON, m_creature);
-                    uiPhase = 1;
-                    uiTimer = 4000;
-                    uiQuest = 0;
-                }
-                break;
-            case 2:
-                if (!bEventInProgress)
-                {
-                    bEventInProgress = true;
-                    bRemoveFlag = true;
-                    DoScriptText(SAY_QUEST_ACCEPT_KORRAK_1, m_creature);
-                    uiPhase = 3;
-                    uiTimer = 3000;
-                    uiQuest = 0;
-                }
-                break;
-            case 3:
-                if (!bEventInProgress)
-                {
-                    bEventInProgress = true;
-                    bRemoveFlag = true;
-                    uiPhase = 6;
-                    uiTimer = 3000;
-                    uiQuest = 0;
-                }
-                break;
-        }
-
         if (uiPhase)
         {
             if (uiTimer <= uiDiff)
@@ -331,7 +337,7 @@ struct TRINITY_DLL_DECL npc_gurgthockAI : public ScriptedAI
                 switch(uiPhase)
                 {
                     case 1:
-                        pSummon = m_creature->SummonCreature(NPC_ORINOKO_TUSKBREAKER, 5757.765137, -2945.161133, 286.276672, 5.156380, TEMPSUMMON_CORPSE_DESPAWN, 1000);
+                        pSummon = m_creature->SummonCreature(NPC_ORINOKO_TUSKBREAKER, SpawnPosition[0], TEMPSUMMON_CORPSE_DESPAWN, 1000);
                         uiPhase = 2;
                         uiTimer = 4000;
                         break;
@@ -347,19 +353,12 @@ struct TRINITY_DLL_DECL npc_gurgthockAI : public ScriptedAI
                         uiPhase = 4;
                         break;
                     case 4:
-                        pSummon = m_creature->SummonCreature(NPC_KORRAK_BLOODRAGER, 5757.765137, -2945.161133, 286.276672, 5.156380, TEMPSUMMON_CORPSE_DESPAWN, 1000);
+                        pSummon = m_creature->SummonCreature(NPC_KORRAK_BLOODRAGER, SpawnPosition[0], TEMPSUMMON_CORPSE_DESPAWN, 1000);
                         uiTimer = 3000;
-                        uiPhase = 5;
-                        break;
-                    case 5:
-                        if (pSummon)
-                            pSummon->GetMotionMaster()->MovePoint(0, 5722.558594, -2960.685059, 286.276367);
-                        uiTimer = 0;
                         uiPhase = 0;
-                        pSummon = NULL;
                         break;
                     case 6:
-                        m_creature->SummonCreature(NPC_YGGDRAS, 5762.054199, -2954.385010, 273.826955, 5.108289, TEMPSUMMON_CORPSE_DESPAWN, 1000);
+                        m_creature->SummonCreature(NPC_YGGDRAS, SpawnPosition[1], TEMPSUMMON_CORPSE_DESPAWN, 1000);
                         uiPhase = 0;
                         break;
                 }
@@ -386,14 +385,14 @@ bool QuestAccept_npc_gurgthock(Player* pPlayer, Creature* pCreature, Quest const
     switch (pQuest->GetQuestId())
     {
         case QUEST_AMPHITHEATER_ANGUISH_TUSKARRMAGEDDON:
-            CAST_AI(npc_gurgthockAI, pCreature->AI())->uiQuest = 1;
+            pCreature->AI()->SetData(1, pQuest->GetQuestId());
             break;
         case QUEST_AMPHITHEATER_ANGUISH_KORRAK_BLOODRAGER:
-            CAST_AI(npc_gurgthockAI, pCreature->AI())->uiQuest = 2;
+            pCreature->AI()->SetData(1, pQuest->GetQuestId());
             break;
         case QUEST_AMPHITHEATER_ANGUISH_YGGDRAS_2:
         case QUEST_AMPHITHEATER_ANGUISH_YGGDRAS_1:
-            CAST_AI(npc_gurgthockAI, pCreature->AI())->uiQuest = 3;
+            pCreature->AI()->SetData(1, pQuest->GetQuestId());
             break;
     }
     return false;
@@ -550,40 +549,45 @@ enum eKorrakBloodrager
     SPELL_ENRAGE   = 42745
 };
 
-struct TRINITY_DLL_DECL npc_korrak_bloodragerAI : public ScriptedAI
+struct TRINITY_DLL_DECL npc_korrak_bloodragerAI : public npc_escortAI
 {
-    npc_korrak_bloodragerAI(Creature* pCreature) : ScriptedAI(pCreature)
+    npc_korrak_bloodragerAI(Creature* pCreature) : npc_escortAI(pCreature)
     {
-        m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
-        m_creature->SetReactState(REACT_PASSIVE);
-        uiPoint = 0;
-        uiStep  = 0;
-        uiChargeTimer = 15000;
-        uiUppercutTimer = 12000;
-        bEnrage = false;
+        Start(true,true, 0, NULL);
+        SetDespawnAtEnd(false);
     }
 
-    uint8  uiPoint;
-    uint8  uiStep;
     uint32 uiChargeTimer;
     uint32 uiUppercutTimer;
 
     bool bEnrage;
 
-    void EnterEvadeMode() //If you lose the combat, then the npc go away
+    void Reset()
+    {
+        m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
+        m_creature->SetReactState(REACT_PASSIVE);
+        uiChargeTimer = 15000;
+        uiUppercutTimer = 12000;
+        bEnrage = false;
+    }
+
+    void EnterEvadeMode()
     {
         if (m_creature->isSummon())
             if (Unit* pSummoner = CAST_SUM(m_creature)->GetSummoner())
                 CAST_AI(npc_gurgthockAI,CAST_CRE(pSummoner)->AI())->RemoveSummons();
     }
 
-    void MovementInform(uint32 uiType, uint32 uiId)
+    void WaypointReached(uint32 uiI)
     {
-        if (uiType != POINT_MOTION_TYPE)
-            return;
-
-        if (uiStep != 5)
-            ++uiPoint;
+        switch(uiI)
+        {
+            case 6:
+                m_creature->SetHomePosition(m_creature->GetPositionX(),m_creature->GetPositionY(),m_creature->GetPositionZ(), 0);
+                m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
+                m_creature->SetReactState(REACT_AGGRESSIVE);
+                break;
+        }
     }
 
     void EnterCombat(Unit* pWho)
@@ -593,40 +597,7 @@ struct TRINITY_DLL_DECL npc_korrak_bloodragerAI : public ScriptedAI
 
     void UpdateAI(const uint32 uiDiff)
     {
-        ScriptedAI::UpdateAI(uiDiff);
-
-        switch(uiPoint)
-        {
-            case 1:
-               if (uiStep == 0)
-                    m_creature->GetMotionMaster()->MovePoint(0, 5734.698730, -2984.990234, 286.276794);
-                uiStep = 1;
-                break;
-            case 2:
-                if (uiStep == 1)
-                    m_creature->GetMotionMaster()->MovePoint(0, 5737.401855,-2991.310547, 282.575623);
-                uiStep = 2;
-                break;
-            case 3:
-                if (uiStep == 2)
-                    m_creature->GetMotionMaster()->MovePoint(0, 5740.416992, -2997.536133, 277.263031);
-                uiStep = 3;
-                break;
-            case 4:
-                if (uiStep == 3)
-                    m_creature->GetMotionMaster()->MovePoint(0, 5743.790527, -3004.050537, 273.570282);
-                uiStep = 4;
-                break;
-            case 5:
-                if (uiStep == 4)
-                    m_creature->GetMotionMaster()->MovePoint(0, 5764.240234, -2993.788818, 272.944946);
-                m_creature->SetHomePosition(m_creature->GetPositionX(),m_creature->GetPositionY(),m_creature->GetPositionZ(), 0);
-                uiStep = 5;
-                uiPoint = 0;
-                m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
-                m_creature->SetReactState(REACT_AGGRESSIVE);
-                break;
-            }
+        npc_escortAI::UpdateAI(uiDiff);
 
         if (!UpdateVictim())
             return;
@@ -682,14 +653,16 @@ enum eYggdras
 
 struct TRINITY_DLL_DECL npc_yggdrasAI : public ScriptedAI
 {
-    npc_yggdrasAI(Creature* pCreature) : ScriptedAI(pCreature)
+    npc_yggdrasAI(Creature* pCreature) : ScriptedAI(pCreature) {}
+
+    uint32 uiCleaveTimer;
+    uint32 uiCorrodeFleshTimer;
+
+    void Reset()
     {
         uiCleaveTimer = 12000;
         uiCorrodeFleshTimer = 18000;
     }
-
-    uint32 uiCleaveTimer;
-    uint32 uiCorrodeFleshTimer;
 
     void EnterEvadeMode() //If you lose the combat, then the npc go away
     {
