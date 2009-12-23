@@ -1219,6 +1219,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\src\game\TimeMgr.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\game\TimeMgr.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\src\game\Totem.cpp"
 				>
 			</File>

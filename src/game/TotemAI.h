@@ -22,7 +22,7 @@
 #define TRINITY_TOTEMAI_H
 
 #include "CreatureAI.h"
-#include "Timer.h"
+#include "TimeMgr.h"
 
 class Creature;
 class Totem;

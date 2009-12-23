@@ -250,6 +250,8 @@ SET(game_STAT_SRCS
    TaxiHandler.cpp
    TemporarySummon.cpp
    TemporarySummon.h
+   TimeMgr.cpp
+   TimeMgr.h
    TicketHandler.cpp
    Tools.cpp
    Tools.h

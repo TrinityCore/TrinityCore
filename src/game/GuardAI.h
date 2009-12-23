@@ -22,7 +22,7 @@
 #define TRINITY_GUARDAI_H
 
 #include "CreatureAI.h"
-#include "Timer.h"
+#include "TimeMgr.h"
 
 class Creature;
 

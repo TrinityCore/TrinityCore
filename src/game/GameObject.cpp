@@ -39,6 +39,7 @@
 #include "Util.h"
 #include "OutdoorPvPMgr.h"
 #include "BattleGroundAV.h"
+#include "TimeMgr.h"
 
 GameObject::GameObject() : WorldObject(), m_goValue(new GameObjectValue)
 {
@@ -225,14 +226,14 @@ void GameObject::Update(uint32 /*p_time*/)
                     // Arming Time for GAMEOBJECT_TYPE_TRAP (6)
                     Unit* owner = GetOwner();
                     if (owner && owner->isInCombat())
-                        m_cooldownTime = time(NULL) + GetGOInfo()->trap.startDelay;
+                        m_cooldownTime = sGameTime.GetGameTime() + GetGOInfo()->trap.startDelay;
                     m_lootState = GO_READY;
                     break;
                 }
                 case GAMEOBJECT_TYPE_FISHINGNODE:
                 {
                     // fishing code (bobber ready)
-                    if( time(NULL) > m_respawnTime - FISHING_BOBBER_READY_TIME )
+                    if( sGameTime.GetGameTime() > m_respawnTime - FISHING_BOBBER_READY_TIME )
                     {
                         // splash bobber (bobber ready now)
                         Unit* caster = GetOwner();
@@ -264,7 +265,7 @@ void GameObject::Update(uint32 /*p_time*/)
         {
             if (m_respawnTime > 0)                          // timer on
             {
-                if (m_respawnTime <= time(NULL))            // timer expired
+                if (m_respawnTime <= sGameTime.GetGameTime())            // timer expired
                 {
                     m_respawnTime = 0;
                     m_SkillupList.clear();
@@ -316,7 +317,7 @@ void GameObject::Update(uint32 /*p_time*/)
                 GameObjectInfo const* goInfo = GetGOInfo();
                 if(goInfo->type == GAMEOBJECT_TYPE_TRAP)
                 {
-                    if(m_cooldownTime >= time(NULL))
+                    if(m_cooldownTime >= sGameTime.GetGameTime())
                         return;
 
                     // traps
@@ -370,7 +371,7 @@ void GameObject::Update(uint32 /*p_time*/)
                         if(goInfo->trap.spellId)
                             CastSpell(ok, goInfo->trap.spellId);
 
-                        m_cooldownTime = time(NULL) + 4;        // 4 seconds
+                        m_cooldownTime = sGameTime.GetGameTime() + 4;        // 4 seconds
 
                         // count charges
                         //if(goInfo->trap.charges > 0)
@@ -406,7 +407,7 @@ void GameObject::Update(uint32 /*p_time*/)
             {
                 case GAMEOBJECT_TYPE_DOOR:
                 case GAMEOBJECT_TYPE_BUTTON:
-                    if (GetGOInfo()->GetAutoCloseTime() && (m_cooldownTime < time(NULL)))
+                    if (GetGOInfo()->GetAutoCloseTime() && (m_cooldownTime < sGameTime.GetGameTime()))
                         ResetDoorOrButton();
                     break;
                 default: break;
@@ -470,7 +471,7 @@ void GameObject::Update(uint32 /*p_time*/)
                 return;
             }
 
-            m_respawnTime = time(NULL) + m_respawnDelayTime;
+            m_respawnTime = sGameTime.GetGameTime() + m_respawnDelayTime;
 
             // if option not set then object will be saved at grid unload
             if(sWorld.getConfig(CONFIG_SAVE_RESPAWN_TIME_IMMEDIATELY))
@@ -651,7 +652,7 @@ bool GameObject::LoadFromDB(uint32 guid, Map *map)
             m_respawnTime = objmgr.GetGORespawnTime(m_DBTableGuid, map->GetInstanceId());
 
             // ready to respawn
-            if(m_respawnTime && m_respawnTime <= time(NULL))
+            if(m_respawnTime && m_respawnTime <= sGameTime.GetGameTime())
             {
                 m_respawnTime = 0;
                 objmgr.SaveGORespawnTime(m_DBTableGuid,GetInstanceId(),0);
@@ -735,7 +736,7 @@ Unit* GameObject::GetOwner(bool inWorld) const
 
 void GameObject::SaveRespawnTime()
 {
-    if(m_goData && m_goData->dbData && m_respawnTime > time(NULL) && m_spawnedByDefault)
+    if(m_goData && m_goData->dbData && m_respawnTime > sGameTime.GetGameTime() && m_spawnedByDefault)
         objmgr.SaveGORespawnTime(m_DBTableGuid,GetInstanceId(),m_respawnTime);
 }
 
@@ -791,11 +792,26 @@ bool GameObject::canDetectTrap(Player const* u, float distance) const
     return distance < visibleDistance;
 }
 
+time_t GameObject::GetRespawnTimeEx() const
+{
+    time_t now = sGameTime.GetGameTime();
+    if(m_respawnTime > now)
+        return m_respawnTime;
+    else
+        return now;
+}
+
+void GameObject::SetRespawnTime(int32 respawn)
+{
+    m_respawnTime = respawn > 0 ? sGameTime.GetGameTime() + respawn : 0;
+    m_respawnDelayTime = respawn > 0 ? respawn : 0;
+}
+
 void GameObject::Respawn()
 {
     if(m_spawnedByDefault && m_respawnTime > 0)
     {
-        m_respawnTime = time(NULL);
+        m_respawnTime = sGameTime.GetGameTime();
         objmgr.SaveGORespawnTime(m_DBTableGuid,GetInstanceId(),0);
     }
 }
@@ -920,7 +936,7 @@ void GameObject::UseDoorOrButton(uint32 time_to_restore, bool alternative /* = f
     SwitchDoorOrButton(true,alternative);
     SetLootState(GO_ACTIVATED);
 
-    m_cooldownTime = time(NULL) + time_to_restore;
+    m_cooldownTime = sGameTime.GetGameTime() + time_to_restore;
 }
 
 void GameObject::SetGoArtKit(uint8 kit)

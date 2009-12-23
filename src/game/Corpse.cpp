@@ -27,6 +27,7 @@
 #include "Opcodes.h"
 #include "GossipDef.h"
 #include "World.h"
+#include "TimeMgr.h"
 
 Corpse::Corpse(CorpseType type) : WorldObject()
 , m_type(type)
@@ -38,7 +39,7 @@ Corpse::Corpse(CorpseType type) : WorldObject()
 
     m_valuesCount = CORPSE_END;
 
-    m_time = time(NULL);
+    m_time = sGameTime.GetGameTime();
 
     lootForBody = false;
 

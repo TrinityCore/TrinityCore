@@ -48,6 +48,7 @@
 #include "Vehicle.h"
 #include "CreatureAI.h"
 #include "DBCEnums.h"
+#include "TimeMgr.h"
 
 void WorldSession::HandleRepopRequestOpcode( WorldPacket & recv_data )
 {
@@ -382,7 +383,7 @@ void WorldSession::HandleLogoutRequestOpcode( WorldPacket & /*recv_data*/ )
     data << uint32(0);
     data << uint8(0);
     SendPacket( &data );
-    LogoutRequest(time(NULL));
+    LogoutRequest(sGameTime.GetGameTime());
 }
 
 void WorldSession::HandlePlayerLogoutOpcode( WorldPacket & /*recv_data*/ )
@@ -442,7 +443,7 @@ void WorldSession::HandleTogglePvP( WorldPacket & recv_data )
     else
     {
         if(!GetPlayer()->pvpInfo.inHostileArea && GetPlayer()->IsPvP())
-            GetPlayer()->pvpInfo.endTimer = time(NULL);     // start toggle-off
+            GetPlayer()->pvpInfo.endTimer = sGameTime.GetGameTime();     // start toggle-off
     }
 
     //if(OutdoorPvP * pvp = _player->GetOutdoorPvP())
@@ -733,7 +734,7 @@ void WorldSession::HandleReclaimCorpseOpcode(WorldPacket &recv_data)
         return;
 
     // prevent resurrect before 30-sec delay after body release not finished
-    if(corpse->GetGhostTime() + GetPlayer()->GetCorpseReclaimDelay(corpse->GetType()==CORPSE_RESURRECTABLE_PVP) > time(NULL))
+    if(corpse->GetGhostTime() + GetPlayer()->GetCorpseReclaimDelay(corpse->GetType()==CORPSE_RESURRECTABLE_PVP) > sGameTime.GetGameTime())
         return;
 
     if (!corpse->IsWithinDistInMap(GetPlayer(), CORPSE_RECLAIM_RADIUS, true))
@@ -867,7 +868,7 @@ void WorldSession::HandleAreaTriggerOpcode(WorldPacket & recv_data)
     {
         // set resting flag we are in the inn
         GetPlayer()->SetFlag(PLAYER_FLAGS, PLAYER_FLAGS_RESTING);
-        GetPlayer()->InnEnter(time(NULL), atEntry->mapid, atEntry->x, atEntry->y, atEntry->z);
+        GetPlayer()->InnEnter(sGameTime.GetGameTime(), atEntry->mapid, atEntry->x, atEntry->y, atEntry->z);
         GetPlayer()->SetRestType(REST_TYPE_IN_TAVERN);
 
         if(sWorld.IsFFAPvPRealm())
@@ -1621,6 +1622,6 @@ void WorldSession::HandleWorldStateUITimerUpdate(WorldPacket& recv_data)
     sLog.outDebug("WORLD: CMSG_WORLD_STATE_UI_TIMER_UPDATE");
 
     WorldPacket data(SMSG_WORLD_STATE_UI_TIMER_UPDATE, 4);
-    data << uint32(time(NULL));
+    data << uint32(sGameTime.GetGameTime());
     SendPacket(&data);
 }
