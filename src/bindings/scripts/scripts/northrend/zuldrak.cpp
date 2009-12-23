@@ -217,14 +217,17 @@ enum eGurgthock
     QUEST_AMPHITHEATER_ANGUISH_KORRAK_BLOODRAGER = 12936,
     QUEST_AMPHITHEATER_ANGUISH_YGGDRAS_2         = 12954,
     QUEST_AMPHITHEATER_ANGUISH_YGGDRAS_1         = 12932,
+    QUEST_AMPHITHEATER_ANGUISH_MAGNATAUR         = 12933,
 
     NPC_ORINOKO_TUSKBREAKER = 30020,
     NPC_KORRAK_BLOODRAGER   = 30023,
     NPC_YGGDRAS             = 30014,
+    NPC_STINKBEARD          = 30017,
 
     SAY_QUEST_ACCEPT_TUSKARRMAGEDON = -1571031,
     SAY_QUEST_ACCEPT_KORRAK_1       = -1571033,
     SAY_QUEST_ACCEPT_KORRAK_2       = -1571034,
+    SAY_QUEST_ACCEPT_MAGNATAUR      = -1571035
 };
 
 const Position SpawnPosition[] =
@@ -307,6 +310,10 @@ struct TRINITY_DLL_DECL npc_gurgthockAI : public ScriptedAI
                             uiPhase = 6;
                             uiTimer = 3000;
                             break;
+                        case QUEST_AMPHITHEATER_ANGUISH_MAGNATAUR:
+                            uiTimer = 5000;
+                            uiPhase = 7;
+                            break;
                         }
                         break;
                 }
@@ -361,6 +368,15 @@ struct TRINITY_DLL_DECL npc_gurgthockAI : public ScriptedAI
                         m_creature->SummonCreature(NPC_YGGDRAS, SpawnPosition[1], TEMPSUMMON_CORPSE_DESPAWN, 1000);
                         uiPhase = 0;
                         break;
+                    case 7:
+                        DoScriptText(SAY_QUEST_ACCEPT_MAGNATAUR, m_creature);
+                        uiTimer = 3000;
+                        uiPhase = 8;
+                        break;
+                    case 8:
+                        m_creature->SummonCreature(NPC_STINKBEARD, SpawnPosition[0], TEMPSUMMON_CORPSE_DESPAWN, 1000);
+                        uiPhase = 0;
+                        break;
                 }
             } else uiTimer -= uiDiff;
         }
@@ -392,6 +408,9 @@ bool QuestAccept_npc_gurgthock(Player* pPlayer, Creature* pCreature, Quest const
             break;
         case QUEST_AMPHITHEATER_ANGUISH_YGGDRAS_2:
         case QUEST_AMPHITHEATER_ANGUISH_YGGDRAS_1:
+            pCreature->AI()->SetData(1, pQuest->GetQuestId());
+            break;
+        case QUEST_AMPHITHEATER_ANGUISH_MAGNATAUR:
             pCreature->AI()->SetData(1, pQuest->GetQuestId());
             break;
     }
@@ -718,6 +737,120 @@ CreatureAI* GetAI_npc_yggdras(Creature* pCreature)
     return new npc_yggdrasAI(pCreature);
 }
 
+enum eStinkbeard
+{
+    SPELL_ENRAGE_STINKBEARD = 50420,
+    SPELL_KNOCK_AWAY        = 31389,
+    SPELL_STINKY_BEARD      = 55867,
+    SPELL_THUNDERBLADE      = 55866,
+    SPELL_THUNDERCLAP       = 15588
+};
+
+/*####
+## npc_stinkbeard
+####*/
+
+struct TRINITY_DLL_DECL npc_stinkbeardAI : public npc_escortAI
+{
+    npc_stinkbeardAI(Creature* pCreature) : npc_escortAI(pCreature)
+    {
+        m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
+        m_creature->SetReactState(REACT_PASSIVE);
+        Start(true,true, 0, NULL);
+        SetDespawnAtEnd(false);
+    }
+
+    uint32 uiThunderclapTimer;
+    uint32 uiKnockAwayTimer;
+    uint32 uiStinkyBeardTimer;
+
+    bool bEnrage;
+
+    void Reset()
+    {
+        DoCast(m_creature, SPELL_THUNDERBLADE);
+        uiThunderclapTimer = 5000;
+        uiKnockAwayTimer   = 10000;
+        uiStinkyBeardTimer = 15000;
+        bEnrage = false;
+    }
+
+    void EnterEvadeMode()
+    {
+        if (m_creature->isSummon())
+            if (Unit* pSummoner = CAST_SUM(m_creature)->GetSummoner())
+                CAST_AI(npc_gurgthockAI,CAST_CRE(pSummoner)->AI())->RemoveSummons();
+    }
+
+    void WaypointReached(uint32 uiI)
+    {
+        switch(uiI)
+        {
+            case 7:
+                m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
+                m_creature->SetReactState(REACT_AGGRESSIVE);
+                m_creature->SetHomePosition(m_creature->GetPositionX(), m_creature->GetPositionY(), m_creature->GetPositionZ(), m_creature->GetOrientation());
+                break;
+        }
+    }
+
+    void UpdateAI(const uint32 uiDiff)
+    {
+        npc_escortAI::UpdateAI(uiDiff);
+
+        if (!UpdateVictim())
+            return;
+
+        if (uiThunderclapTimer <= uiDiff)
+        {
+            DoCastAOE(SPELL_THUNDERCLAP);
+            uiThunderclapTimer = 5000;
+        } else uiThunderclapTimer -= uiDiff;
+
+        if (uiKnockAwayTimer <= uiDiff)
+        {
+            if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
+            {
+                if (pTarget && pTarget->isAlive())
+                    DoCast(pTarget, SPELL_KNOCK_AWAY);
+            }
+            uiKnockAwayTimer = 10000;
+        } else uiKnockAwayTimer -= uiDiff;
+
+        if (uiStinkyBeardTimer <= uiDiff)
+        {
+            if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
+            {
+                if (pTarget && pTarget->isAlive())
+                    DoCast(pTarget, SPELL_STINKY_BEARD);
+            }
+            uiStinkyBeardTimer = 15000;
+        } else uiStinkyBeardTimer -= uiDiff;
+
+       if (!bEnrage && m_creature->GetHealth()*100 / m_creature->GetMaxHealth() <= 20)
+        {
+            DoCast(m_creature, SPELL_ENRAGE_STINKBEARD);
+            bEnrage = true;
+        }
+        DoMeleeAttackIfReady();
+    }
+
+    void JustDied(Unit* pKiller)
+    {
+        if (m_creature->isSummon())
+            if (Unit* pSummoner = CAST_SUM(m_creature)->GetSummoner())
+                CAST_AI(npc_gurgthockAI,CAST_CRE(pSummoner)->AI())->bEventInProgress = false;
+
+        if (pKiller->GetTypeId() == TYPEID_PLAYER)
+           CAST_PLR(pKiller)->GroupEventHappens(QUEST_AMPHITHEATER_ANGUISH_MAGNATAUR, CAST_PLR(pKiller));
+    }
+};
+
+CreatureAI* GetAI_npc_stinkbeard(Creature* pCreature)
+{
+    return new npc_stinkbeardAI(pCreature);
+}
+
 /*####
 ## npc_released_offspring_harkoa
 ####*/
@@ -785,6 +918,11 @@ void AddSC_zuldrak()
     newscript = new Script;
     newscript->Name = "npc_yggdras";
     newscript->GetAI = &GetAI_npc_yggdras;
+    newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name = "npc_stinkbeard";
+    newscript->GetAI = &GetAI_npc_stinkbeard;
     newscript->RegisterSelf();
 
     newscript = new Script;

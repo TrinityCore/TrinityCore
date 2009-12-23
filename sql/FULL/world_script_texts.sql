@@ -1621,7 +1621,7 @@ INSERT INTO `script_texts` (`npc_entry`,`entry`,`content_default`,`content_loc1`
    (0,-1568022,'Da Amani gonna rule again!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,12076,1,0,0,'nalorakk SAY_SLAY2'),
    (0,-1568023,'I... be waitin'' on da udda side....',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,12077,1,0,0,'nalorakk SAY_DEATH'),
 
--- -1 571 000 SHOLAZAR BASIN
+-- -1 571 000 NORTHREND
    (28217,-1571000,'You save me! We thank you. We going to go back to village now. You come too... you can stay with us! Puppy-men kind of mean anyway. ',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,'npc_injured_rainspeaker_oracle SAY_END_IRO'),
    (28217,-1571001,'Let me know when you ready to go, okay?',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,'npc_injured_rainspeaker_oracle SAY_QUEST_ACCEPT_IRO '),
    (28217,-1571002,'Home time!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,'npc_injured_rainspeaker_oracle SAY_START_IRO'),
@@ -1657,6 +1657,7 @@ INSERT INTO `script_texts` (`npc_entry`,`entry`,`content_default`,`content_loc1`
    (30020,-1571032,'Whisker! Where are you? Assist me!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,1,0,0,''),
    (30007,-1571033,'The champion of the Winterax trolls has challenged you, Treeofdoom! I hope you''re ready!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,''),
   (30007,-1571034,'Hailling from the distant mountains of Alterac, one of the fiercest competitors this arena has ever seen: KORRAK THE BLOODRAGER!!!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,13363,1,0,0,''),
+  (30007,-1571035,'The battle is about to begin! Am I reading this card right It... It''s the nefarious magnataur lord, STINKBEARD! Yes, folks, STINKBEARD! Chitchat dosen''t stand a chance!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,13363,1,0,0,''),
 
 -- -1 574 000 UTGARDE KEEP
    (23953,-1574000,'Your blood is mine!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,13221,1,0,0,'keleseth SAY_AGGRO'),

@@ -1361,6 +1361,7 @@ UPDATE `creature_template` SET `ScriptName`='npc_orinoko_tuskbreaker' WHERE `ent
 UPDATE `creature_template` SET `ScriptName`='npc_korrak_bloodrager' WHERE `entry`=30023;
 UPDATE `creature_template` SET `ScriptName`='npc_yggdras' WHERE `entry`=30014;
 UPDATE `creature_template` SET `ScriptName`='npc_released_offspring_harkoa' WHERE `entry`=28526;
+UPDATE `creature_template` SET `ScriptName`='npc_stinkbeard' WHERE `entry`=30017;
 
 /* ZUL'FARRAK */
 UPDATE `creature_template` SET `ScriptName`='npc_sergeant_bly' WHERE `entry`=7604;
