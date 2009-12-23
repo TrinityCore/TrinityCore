@@ -154,7 +154,7 @@ void RASocket::OnRead()
                     ///- Escape the Login to allow quotes in names
                     loginDatabase.escape_string(login);
 
-                    QueryResult* result = loginDatabase.PQuery("SELECT a.id, aa.gmlevel FROM account a LEFT JOIN account_access aa ON (a.id = aa.id) WHERE a.username = '%s' AND aa.RealmID = '-1'",login.c_str ());
+                    QueryResult* result = loginDatabase.PQuery("SELECT a.id, aa.gmlevel, aa.RealmID FROM account a LEFT JOIN account_access aa ON (a.id = aa.id) WHERE a.username = '%s'",login.c_str ());
 
                     ///- If the user is not found, deny access
                     if(!result)
@@ -174,6 +174,12 @@ void RASocket::OnRead()
                         {
                             Sendf("-Not enough privileges.\r\n");
                             sLog.outRemote("User %s has no privilege.\n",szLogin.c_str());
+                            if(bSecure)SetCloseAndDelete();
+                        }   else if(fields[2].GetUInt32() != '-1')
+                        {
+                            ///- if RealmID isn't -1, deny access
+                            Sendf("-Not enough privileges.\r\n");
+                            sLog.outRemote("User %s has to be assigned on all realms (with RealmID = '-1').\n",szLogin.c_str());
                             if(bSecure)SetCloseAndDelete();
                         }   else
                         {
