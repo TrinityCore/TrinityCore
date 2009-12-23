@@ -154,7 +154,7 @@ void RASocket::OnRead()
                     ///- Escape the Login to allow quotes in names
                     loginDatabase.escape_string(login);
 
-                    QueryResult* result = loginDatabase.PQuery("SELECT aa.gmlevel FROM account a LEFT JOIN account_access aa ON (a.id = aa.id) WHERE a.username = '%s'",login.c_str ());
+                    QueryResult* result = loginDatabase.PQuery("SELECT a.id, aa.gmlevel FROM account a LEFT JOIN account_access aa ON (a.id = aa.id) WHERE a.username = '%s' AND aa.RealmID = '-1'",login.c_str ());
 
                     ///- If the user is not found, deny access
                     if(!result)
@@ -170,7 +170,7 @@ void RASocket::OnRead()
                         //szPass=fields[0].GetString();
 
                         ///- if gmlevel is too low, deny access
-                        if(fields[0].GetUInt32()<iMinLevel)
+                        if(fields[1].GetUInt32()<iMinLevel && fields[1].GetUInt32() != NULL))
                         {
                             Sendf("-Not enough privileges.\r\n");
                             sLog.outRemote("User %s has no privilege.\n",szLogin.c_str());
