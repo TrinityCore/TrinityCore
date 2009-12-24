@@ -1,7 +1,6 @@
 #include "ObjectMgr.h"
 #include "AuctionHouseMgr.h"
 #include "AuctionHouseBot.h"
-#include "TimeMgr.h"
 #include <vector>
 
 #include "Policies/SingletonImp.h"
@@ -90,9 +89,9 @@ AuctionHouseBot::AuctionHouseBot()
 
     //End Filters
 
-    _lastrun_a = sGameTime.GetGameTime();
-    _lastrun_h = sGameTime.GetGameTime();
-    _lastrun_n = sGameTime.GetGameTime();
+    _lastrun_a = time(NULL);
+    _lastrun_h = time(NULL);
+    _lastrun_n = time(NULL);
 
     AllianceConfig = AHBConfig(2);
     HordeConfig = AHBConfig(6);
@@ -420,7 +419,7 @@ void AuctionHouseBot::addNewAuctions(Player *AHBplayer, AHBConfig *config)
             auctionEntry->bidder = 0;
             auctionEntry->bid = 0;
             auctionEntry->deposit = dep;
-            auctionEntry->expire_time = (time_t) etime + sGameTime.GetGameTime();
+            auctionEntry->expire_time = (time_t) etime + time(NULL);
             auctionEntry->auctionHouseEntry = ahEntry;
             item->SaveToDB();
             item->RemoveFromUpdateQueueOf(AHBplayer);
@@ -696,7 +695,7 @@ void AuctionHouseBot::addNewAuctionBuyerBotBid(Player *AHBplayer, AHBConfig *con
 
 void AuctionHouseBot::Update()
 {
-    time_t _newrun = sGameTime.GetGameTime();
+    time_t _newrun = time(NULL);
     if ((!AHBSeller) && (!AHBBuyer))
         return;
 
@@ -1507,7 +1506,7 @@ void AuctionHouseBot::Commands(uint32 command, uint32 ahMapID, uint32 col, char*
             {
                 if (itr->second->owner == AHBplayerGUID)
                 {
-                    itr->second->expire_time = sGameTime.GetGameTime();
+                    itr->second->expire_time = sWorld.GetGameTime();
                     uint32 id = itr->second->Id;
                     uint32 expire_time = itr->second->expire_time;
                     CharacterDatabase.PExecute("UPDATE auctionhouse SET time = '%u' WHERE id = '%u'", expire_time, id);

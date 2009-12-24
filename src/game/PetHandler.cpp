@@ -31,7 +31,6 @@
 #include "Util.h"
 #include "Pet.h"
 #include "World.h"
-#include "TimeMgr.h"
 
 void WorldSession::HandlePetAction( WorldPacket & recv_data )
 {
@@ -558,7 +557,7 @@ void WorldSession::HandlePetRename( WorldPacket & recv_data )
     CharacterDatabase.PExecute("UPDATE character_pet SET name = '%s', renamed = '1' WHERE owner = '%u' AND id = '%u'", name.c_str(), _player->GetGUIDLow(), pet->GetCharmInfo()->GetPetNumber());
     CharacterDatabase.CommitTransaction();
 
-    pet->SetUInt32Value(UNIT_FIELD_PET_NAME_TIMESTAMP, sGameTime.GetGameTime());
+    pet->SetUInt32Value(UNIT_FIELD_PET_NAME_TIMESTAMP, time(NULL));
 }
 
 void WorldSession::HandlePetAbandon( WorldPacket & recv_data )

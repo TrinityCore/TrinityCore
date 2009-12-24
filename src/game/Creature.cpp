@@ -47,7 +47,6 @@
 #include "GameEventMgr.h"
 #include "CreatureGroups.h"
 #include "Vehicle.h"
-#include "TimeMgr.h"
 // apply implementation of the singletons
 #include "Policies/SingletonImp.h"
 
@@ -60,40 +59,32 @@ TrainerSpell const* TrainerSpellData::Find(uint32 spell_id) const
     return NULL;
 }
 
-bool VendorItemData::RemoveItem(uint32 item_id)
+bool VendorItemData::RemoveItem( uint32 item_id )
 {
-    ItemToSlotMap::iterator i = m_itemtoslot.find(item_id);
-    if (i != m_itemtoslot.end())
+    for (VendorItemList::iterator i = m_items.begin(); i != m_items.end(); ++i )
     {
-        m_items.erase(m_items.begin() + i->second);
-
-        //need to recount vendorslot
-        ItemToSlotMap::iterator itr;
-        for (itr = i; itr != m_itemtoslot.end();++itr)
-            itr->second -= 1;
-        //and delete
-        m_itemtoslot.erase(i);
-
-        return true;
+        if((*i)->item==item_id)
+        {
+            m_items.erase(i);
+            return true;
+        }
     }
-
     return false;
 }
 
-uint8 VendorItemData::FindItemSlot(uint32 item_id) const
+size_t VendorItemData::FindItemSlot(uint32 item_id) const
 {
-    ItemToSlotMap::const_iterator i = m_itemtoslot.find(item_id);
-    if (i != m_itemtoslot.end())
-        return i->second;
-
-    return uint8(m_items.size());
+    for (size_t i = 0; i < m_items.size(); ++i)
+        if (m_items[i]->item==item_id)
+            return i;
+    return m_items.size();
 }
 
 VendorItem const* VendorItemData::FindItem(uint32 item_id) const
 {
-    ItemToSlotMap::const_iterator i = m_itemtoslot.find(item_id);
-        if (i != m_itemtoslot.end())
-            return m_items[i->second];
+    for (VendorItemList::const_iterator i = m_items.begin(); i != m_items.end(); ++i )
+        if((*i)->item==item_id)
+            return *i;
     return NULL;
 }
 
@@ -171,8 +162,6 @@ m_creatureInfo(NULL), m_reactState(REACT_AGGRESSIVE), m_formation(NULL)
 
 Creature::~Creature()
 {
-    for (VendorItemCounts::iterator itr = m_vendorItemCounts.begin(); itr != m_vendorItemCounts.end(); ++itr)
-        delete itr->second;
     m_vendorItemCounts.clear();
 
     if(i_AI)
@@ -251,7 +240,7 @@ void Creature::RemoveCorpse()
     if (IsAIEnabled)
         AI()->CorpseRemoved(respawnDelay);
 
-    m_respawnTime = sGameTime.GetGameTime() + m_respawnDelay;
+    m_respawnTime = time(NULL) + m_respawnDelay;
 
     float x,y,z,o;
     GetRespawnCoord(x, y, z, &o);
@@ -451,7 +440,7 @@ void Creature::Update(uint32 diff)
             break;
         case DEAD:
         {
-            if( m_respawnTime <= sGameTime.GetGameTime() )
+            if( m_respawnTime <= time(NULL) )
             {
                 if(!GetLinkedCreatureRespawnTime()) // Can respawn
                     Respawn();
@@ -462,7 +451,7 @@ void Creature::Update(uint32 diff)
                         if(targetGuid == m_DBTableGuid) // if linking self, never respawn (check delayed to next day)
                             SetRespawnTime(DAY);
                         else
-                            m_respawnTime = (sGameTime.GetGameTime()>GetLinkedCreatureRespawnTime()? sGameTime.GetGameTime():GetLinkedCreatureRespawnTime())+urand(5,MINUTE); // else copy time from master and add a little
+                            m_respawnTime = (time(NULL)>GetLinkedCreatureRespawnTime()? time(NULL):GetLinkedCreatureRespawnTime())+urand(5,MINUTE); // else copy time from master and add a little
                         SaveRespawnTime(); // also save to DB immediately
                     }
                     else
@@ -593,11 +582,6 @@ void Creature::Update(uint32 diff)
         default:
             break;
     }
-}
-
-void Creature::SetRespawnTime(uint32 respawn)
-{
-    m_respawnTime = respawn ? sGameTime.GetGameTime() + respawn : 0;
 }
 
 void Creature::RegenerateMana()
@@ -1886,10 +1870,10 @@ void Creature::SaveRespawnTime()
     if(isSummon() || !m_DBTableGuid || m_creatureData && !m_creatureData->dbData)
         return;
 
-    if(m_respawnTime > sGameTime.GetGameTime())                          // dead (no corpse)
+    if(m_respawnTime > time(NULL))                          // dead (no corpse)
         objmgr.SaveCreatureRespawnTime(m_DBTableGuid,GetInstanceId(),m_respawnTime);
     else if(m_deathTimer > 0)                               // dead (corpse)
-        objmgr.SaveCreatureRespawnTime(m_DBTableGuid,GetInstanceId(),sGameTime.GetGameTime()+m_respawnDelay+m_deathTimer/IN_MILISECONDS);
+        objmgr.SaveCreatureRespawnTime(m_DBTableGuid,GetInstanceId(),time(NULL)+m_respawnDelay+m_deathTimer/IN_MILISECONDS);
 }
 
 // this should not be called by petAI or
@@ -2078,10 +2062,10 @@ void Creature::AddCreatureSpellCooldown(uint32 spellid)
         modOwner->ApplySpellMod(spellid, SPELLMOD_COOLDOWN, cooldown);
 
     if(cooldown)
-        _AddCreatureSpellCooldown(spellid, sGameTime.GetGameTime() + cooldown/IN_MILISECONDS);
+        _AddCreatureSpellCooldown(spellid, time(NULL) + cooldown/IN_MILISECONDS);
 
     if(spellInfo->Category)
-        _AddCreatureCategoryCooldown(spellInfo->Category, sGameTime.GetGameTime());
+        _AddCreatureCategoryCooldown(spellInfo->Category, time(NULL));
 
     m_GlobalCooldown = spellInfo->StartRecoveryTime;
 }
@@ -2097,13 +2081,13 @@ bool Creature::HasCategoryCooldown(uint32 spell_id) const
         return true;
 
     CreatureSpellCooldowns::const_iterator itr = m_CreatureCategoryCooldowns.find(spellInfo->Category);
-    return(itr != m_CreatureCategoryCooldowns.end() && time_t(itr->second + (spellInfo->CategoryRecoveryTime / IN_MILISECONDS)) > sGameTime.GetGameTime());
+    return(itr != m_CreatureCategoryCooldowns.end() && time_t(itr->second + (spellInfo->CategoryRecoveryTime / IN_MILISECONDS)) > time(NULL));
 }
 
 bool Creature::HasSpellCooldown(uint32 spell_id) const
 {
     CreatureSpellCooldowns::const_iterator itr = m_CreatureSpellCooldowns.find(spell_id);
-    return (itr != m_CreatureSpellCooldowns.end() && itr->second > sGameTime.GetGameTime()) || HasCategoryCooldown(spell_id);
+    return (itr != m_CreatureSpellCooldowns.end() && itr->second > time(NULL)) || HasCategoryCooldown(spell_id);
 }
 
 bool Creature::HasSpell(uint32 spellID) const
@@ -2117,7 +2101,7 @@ bool Creature::HasSpell(uint32 spellID) const
 
 time_t Creature::GetRespawnTimeEx() const
 {
-    time_t now = sGameTime.GetGameTime();
+    time_t now = time(NULL);
     if(m_respawnTime > now)                                 // dead (no corpse)
         return m_respawnTime;
     else if(m_deathTimer > 0)                               // dead (corpse)
@@ -2212,13 +2196,17 @@ uint32 Creature::GetVendorItemCurrentCount(VendorItem const* vItem)
     if(!vItem->maxcount)
         return vItem->maxcount;
 
-    VendorItemCounts::iterator itr = m_vendorItemCounts.find(vItem->item);
+    VendorItemCounts::iterator itr = m_vendorItemCounts.begin();
+    for (; itr != m_vendorItemCounts.end(); ++itr)
+        if(itr->itemId==vItem->item)
+            break;
+
     if(itr == m_vendorItemCounts.end())
         return vItem->maxcount;
 
-    VendorItemCount* vCount = itr->second;
+    VendorItemCount* vCount = &*itr;
 
-    time_t ptime = sGameTime.GetGameTime();
+    time_t ptime = time(NULL);
 
     if( vCount->lastIncrementTime + vItem->incrtime <= ptime )
     {
@@ -2227,7 +2215,6 @@ uint32 Creature::GetVendorItemCurrentCount(VendorItem const* vItem)
         uint32 diff = uint32((ptime - vCount->lastIncrementTime)/vItem->incrtime);
         if((vCount->count + diff * pProto->BuyCount) >= vItem->maxcount )
         {
-            delete itr->second;
             m_vendorItemCounts.erase(itr);
             return vItem->maxcount;
         }
@@ -2244,17 +2231,21 @@ uint32 Creature::UpdateVendorItemCurrentCount(VendorItem const* vItem, uint32 us
     if(!vItem->maxcount)
         return 0;
 
-    VendorItemCounts::iterator itr = m_vendorItemCounts.find(vItem->item);
+    VendorItemCounts::iterator itr = m_vendorItemCounts.begin();
+    for (; itr != m_vendorItemCounts.end(); ++itr)
+        if(itr->itemId==vItem->item)
+            break;
+
     if(itr == m_vendorItemCounts.end())
     {
-        uint32 new_count = vItem->maxcount > used_count ? vItem->maxcount-used_count : 0;
-        m_vendorItemCounts[vItem->item] = new VendorItemCount(new_count);
+        int32 new_count = vItem->maxcount > used_count ? vItem->maxcount-used_count : 0;
+        m_vendorItemCounts.push_back(VendorItemCount(vItem->item,new_count));
         return new_count;
     }
 
-    VendorItemCount* vCount = itr->second;
+    VendorItemCount* vCount = &*itr;
 
-    time_t ptime = sGameTime.GetGameTime();
+    time_t ptime = time(NULL);
 
     if( vCount->lastIncrementTime + vItem->incrtime <= ptime )
     {
@@ -2267,7 +2258,7 @@ uint32 Creature::UpdateVendorItemCurrentCount(VendorItem const* vItem, uint32 us
             vCount->count = vItem->maxcount;
     }
 
-    vCount->count = vCount->count > used_count ? vCount->count - used_count : 0;
+    vCount->count = vCount->count > used_count ? vCount->count-used_count : 0;
     vCount->lastIncrementTime = ptime;
     return vCount->count;
 }
@@ -2331,6 +2322,3 @@ BaseHealthManaPair Creature::GenerateHealthMana()
 {
     return objmgr.GenerateCreatureStats(getLevel(), GetCreatureInfo());
 }
-
-VendorItemCount::VendorItemCount() : count(0), lastIncrementTime(sGameTime.GetGameTime()) {}
-VendorItemCount::VendorItemCount(uint32 _count) : count(_count), lastIncrementTime(sGameTime.GetGameTime()) {}

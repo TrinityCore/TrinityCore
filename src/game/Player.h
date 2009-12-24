@@ -39,7 +39,6 @@
 #include "ReputationMgr.h"
 #include "BattleGround.h"
 #include "DBCEnums.h"
-#include "TimeMgr.h"
 
 #include<string>
 #include<vector>
@@ -988,7 +987,14 @@ class TRINITY_DLL_SPEC Player : public Unit
 
         bool TeleportToBGEntryPoint();
 
-        void SetSummonPoint(uint32 mapid, float x, float y, float z);
+        void SetSummonPoint(uint32 mapid, float x, float y, float z)
+        {
+            m_summon_expire = time(NULL) + MAX_PLAYER_SUMMON_DELAY;
+            m_summon_mapid = mapid;
+            m_summon_x = x;
+            m_summon_y = y;
+            m_summon_z = z;
+        }
         void SummonIfPossible(bool agree);
 
         bool Create( uint32 guidlow, const std::string& name, uint8 race, uint8 class_, uint8 gender, uint8 skin, uint8 face, uint8 hairStyle, uint8 hairColor, uint8 facialHair, uint8 outfitId );
@@ -1565,8 +1571,17 @@ class TRINITY_DLL_SPEC Player : public Unit
 
         static uint32 const infinityCooldownDelay = MONTH;  // used for set "infinity cooldowns" for spells and check
         static uint32 const infinityCooldownDelayCheck = MONTH/2;
-        bool HasSpellCooldown(uint32 spell_id) const;
-        uint32 GetSpellCooldownDelay(uint32 spell_id) const;
+        bool HasSpellCooldown(uint32 spell_id) const
+        {
+            SpellCooldowns::const_iterator itr = m_spellCooldowns.find(spell_id);
+            return itr != m_spellCooldowns.end() && itr->second.end > time(NULL);
+        }
+        uint32 GetSpellCooldownDelay(uint32 spell_id) const
+        {
+            SpellCooldowns::const_iterator itr = m_spellCooldowns.find(spell_id);
+            time_t t = time(NULL);
+            return itr != m_spellCooldowns.end() && itr->second.end > t ? itr->second.end - t : 0;
+        }
         void AddSpellAndCategoryCooldowns(SpellEntry const* spellInfo, uint32 itemId, Spell* spell = NULL, bool infinityCooldown = false );
         void AddSpellCooldown(uint32 spell_id, uint32 itemid, time_t end_time);
         void SendCooldownEvent(SpellEntry const *spellInfo, uint32 itemId = 0, Spell* spell = NULL);

@@ -22,7 +22,7 @@
 #define TRINITY_PETAI_H
 
 #include "CreatureAI.h"
-#include "TimeMgr.h"
+#include "Timer.h"
 
 class Creature;
 class Spell;

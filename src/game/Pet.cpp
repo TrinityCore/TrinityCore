@@ -30,7 +30,6 @@
 #include "CreatureAI.h"
 #include "Unit.h"
 #include "Util.h"
-#include "TimeMgr.h"
 
 char const* petTypeSuffix[MAX_PET_TYPE] =
 {
@@ -244,7 +243,7 @@ bool Pet::LoadPetFromDB( Player* owner, uint32 petentry, uint32 petnumber, bool 
             break;
     }
 
-    SetUInt32Value(UNIT_FIELD_PET_NAME_TIMESTAMP, sGameTime.GetGameTime());
+    SetUInt32Value(UNIT_FIELD_PET_NAME_TIMESTAMP, time(NULL));
     SetUInt32Value(UNIT_FIELD_PETEXPERIENCE, fields[5].GetUInt32());
     SetCreatorGUID(owner->GetGUID());
 
@@ -302,7 +301,7 @@ bool Pet::LoadPetFromDB( Player* owner, uint32 petentry, uint32 petnumber, bool 
     m_resetTalentsTime = fields[16].GetUInt64();
     InitTalentForLevel();                                   // set original talents points before spell loading
 
-    uint32 timediff = (sGameTime.GetGameTime() - fields[14].GetUInt32());
+    uint32 timediff = (time(NULL) - fields[14].GetUInt32());
     _LoadAuras(timediff);
 
     // load action bar, if data broken will fill later by default spells.
@@ -443,7 +442,7 @@ void Pet::SavePetToDB(PetSaveMode mode)
         };
 
         ss  << "', "
-            << sGameTime.GetGameTime() << ", "
+            << time(NULL) << ", "
             << uint32(m_resetTalentsCost) << ", "
             << uint64(m_resetTalentsTime) << ", "
             << GetUInt32Value(UNIT_CREATED_BY_SPELL) << ", "
@@ -1035,7 +1034,7 @@ void Pet::_LoadSpellCooldowns()
 
     if(result)
     {
-        time_t curTime = sGameTime.GetGameTime();
+        time_t curTime = time(NULL);
 
         WorldPacket data(SMSG_SPELL_COOLDOWN, (8+1+result->GetRowCount()*8));
         data << GetGUID();
@@ -1078,7 +1077,7 @@ void Pet::_SaveSpellCooldowns()
 {
     CharacterDatabase.PExecute("DELETE FROM pet_spell_cooldown WHERE guid = '%u'", m_charmInfo->GetPetNumber());
 
-    time_t curTime = sGameTime.GetGameTime();
+    time_t curTime = time(NULL);
 
     // remove oudated and save active
     for (CreatureSpellCooldowns::iterator itr = m_CreatureSpellCooldowns.begin(); itr != m_CreatureSpellCooldowns.end();)
@@ -1593,7 +1592,7 @@ bool Pet::resetTalents(bool no_cost)
         player->ModifyMoney(-(int32)cost);
 
         m_resetTalentsCost = cost;
-        m_resetTalentsTime = sGameTime.GetGameTime();
+        m_resetTalentsTime = time(NULL);
     }
     if (!m_loading)
         player->PetSpellInitialize();
@@ -1704,7 +1703,7 @@ void Pet::InitTalentForLevel()
 
 uint32 Pet::resetTalentsCost() const
 {
-    uint32 days = (sGameTime.GetGameTime() - m_resetTalentsTime)/DAY;
+    uint32 days = (sWorld.GetGameTime() - m_resetTalentsTime)/DAY;
 
     // The first time reset costs 10 silver; after 1 day cost is reset to 10 silver
     if (m_resetTalentsCost < 10*SILVER || days > 0)
