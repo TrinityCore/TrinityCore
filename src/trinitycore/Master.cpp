@@ -39,7 +39,7 @@
 #include "Master.h"
 #include "RASocket.h"
 #include "ScriptCalls.h"
-#include "TimeMgr.h"
+#include "Timer.h"
 #include "Util.h"
 
 #include "sockets/TcpSocket.h"

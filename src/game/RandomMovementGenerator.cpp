@@ -170,7 +170,7 @@ RandomMovementGenerator<Creature>::Update(Creature &creature, const uint32 &diff
 {
     if(creature.hasUnitState(UNIT_STAT_ROOT | UNIT_STAT_STUNNED | UNIT_STAT_DISTRACTED))
     {
-        i_nextMoveTime.Update(i_nextMoveTime.GetExpireTime());    // Expire the timer
+        i_nextMoveTime.Update(i_nextMoveTime.GetExpiry());    // Expire the timer
         creature.clearUnitState(UNIT_STAT_ROAMING);
         return true;
     }

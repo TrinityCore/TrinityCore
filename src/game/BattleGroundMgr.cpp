@@ -47,7 +47,6 @@
 #include "GameEventMgr.h"
 #include "ProgressBar.h"
 #include "SharedDefines.h"
-#include "TimeMgr.h"
 
 INSTANTIATE_SINGLETON_1( BattleGroundMgr );
 
@@ -1225,10 +1224,10 @@ void BattleGroundMgr::Update(uint32 diff)
     {
         if (m_AutoDistributionTimeChecker < diff)
         {
-            if(sGameTime.GetGameTime() > m_NextAutoDistributionTime)
+            if(time(NULL) > m_NextAutoDistributionTime)
             {
                 DistributeArenaPoints();
-                m_NextAutoDistributionTime = sGameTime.GetGameTime() + BATTLEGROUND_ARENA_POINT_DISTRIBUTION_DAY * sWorld.getConfig(CONFIG_ARENA_AUTO_DISTRIBUTE_INTERVAL_DAYS);
+                m_NextAutoDistributionTime = time(NULL) + BATTLEGROUND_ARENA_POINT_DISTRIBUTION_DAY * sWorld.getConfig(CONFIG_ARENA_AUTO_DISTRIBUTE_INTERVAL_DAYS);
                 CharacterDatabase.PExecute("UPDATE saved_variables SET NextArenaPointDistributionTime = '"UI64FMTD"'", m_NextAutoDistributionTime);
             }
             m_AutoDistributionTimeChecker = 600000; // check 10 minutes
@@ -1761,7 +1760,7 @@ void BattleGroundMgr::InitAutomaticArenaPointDistribution()
         if (!result)
         {
             sLog.outDebug("Battleground: Next arena point distribution time not found in SavedVariables, reseting it now.");
-            m_NextAutoDistributionTime = sGameTime.GetGameTime() + BATTLEGROUND_ARENA_POINT_DISTRIBUTION_DAY * sWorld.getConfig(CONFIG_ARENA_AUTO_DISTRIBUTE_INTERVAL_DAYS);
+            m_NextAutoDistributionTime = time(NULL) + BATTLEGROUND_ARENA_POINT_DISTRIBUTION_DAY * sWorld.getConfig(CONFIG_ARENA_AUTO_DISTRIBUTE_INTERVAL_DAYS);
             CharacterDatabase.PExecute("INSERT INTO saved_variables (NextArenaPointDistributionTime) VALUES ('"UI64FMTD"')", m_NextAutoDistributionTime);
         }
         else

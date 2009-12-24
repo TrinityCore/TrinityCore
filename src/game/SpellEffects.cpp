@@ -61,7 +61,6 @@
 #include "SkillDiscovery.h"
 #include "Formulas.h"
 #include "Vehicle.h"
-#include "TimeMgr.h"
 
 pEffect SpellEffects[TOTAL_SPELL_EFFECTS]=
 {
@@ -999,7 +998,7 @@ void Spell::EffectDummy(uint32 i)
 
                     Creature* creatureTarget = (Creature*)unitTarget;
 
-                    GameObject* Crystal_Prison = m_caster->SummonGameObject(179644, creatureTarget->GetPositionX(), creatureTarget->GetPositionY(), creatureTarget->GetPositionZ(), creatureTarget->GetOrientation(), 0, 0, 0, 0, creatureTarget->GetRespawnTime()-sGameTime.GetGameTime());
+                    GameObject* Crystal_Prison = m_caster->SummonGameObject(179644, creatureTarget->GetPositionX(), creatureTarget->GetPositionY(), creatureTarget->GetPositionZ(), creatureTarget->GetOrientation(), 0, 0, 0, 0, creatureTarget->GetRespawnTime()-time(NULL));
                     sLog.outDebug("SummonGameObject at SpellEfects.cpp EffectDummy for Spell 23019");
 
                     creatureTarget->ForcedDespawn();
