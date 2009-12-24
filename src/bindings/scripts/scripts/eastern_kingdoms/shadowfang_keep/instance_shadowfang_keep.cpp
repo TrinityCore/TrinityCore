@@ -81,17 +81,17 @@ struct TRINITY_DLL_DECL instance_shadowfang_keep : public ScriptedInstance
             case GO_COURTYARD_DOOR:
                 DoorCourtyardGUID = pGo->GetGUID();
                 if (m_auiEncounter[0] == DONE)
-                    DoUseDoorOrButton(DoorCourtyardGUID);
+                    HandleGameObject(NULL, true, pGo);
                 break;
             case GO_SORCERER_DOOR:
                 DoorSorcererGUID = pGo->GetGUID();
                 if (m_auiEncounter[2] == DONE)
-                    DoUseDoorOrButton(DoorSorcererGUID);
+                    HandleGameObject(NULL, true, pGo);
                 break;
             case GO_ARUGAL_DOOR:
                 DoorArugalGUID = pGo->GetGUID();
                 if (m_auiEncounter[3] == DONE)
-                    DoUseDoorOrButton(DoorArugalGUID);
+                    HandleGameObject(NULL, true, pGo);
                 break;
         }
     }
