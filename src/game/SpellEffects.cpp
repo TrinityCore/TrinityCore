@@ -1540,7 +1540,7 @@ void Spell::EffectDummy(uint32 i)
             break;
         case SPELLFAMILY_WARRIOR:
             // Charge
-            if(m_spellInfo->SpellFamilyFlags & 0x1 && m_spellInfo->SpellVisual[0] == 867)
+            if(m_spellInfo->SpellFamilyFlags & SPELLFAMILYFLAG_WARRIOR_CHARGE && m_spellInfo->SpellVisual[0] == 867)
             {
                 int32 chargeBasePoints0 = damage;
                 m_caster->CastCustomSpell(m_caster, 34846, &chargeBasePoints0, NULL, NULL, true);
@@ -1551,14 +1551,14 @@ void Spell::EffectDummy(uint32 i)
                 return;
             }
             //Slam
-            if(m_spellInfo->SpellFamilyFlags[0] & 0x200000 && m_spellInfo->SpellIconID == 559)
+            if(m_spellInfo->SpellFamilyFlags[0] & SPELLFAMILYFLAG_WARRIOR_SLAM && m_spellInfo->SpellIconID == 559)
             {
                 int32 bp0 = damage;
                 m_caster->CastCustomSpell(unitTarget, 50783, &bp0, NULL, NULL, true, 0);
                 return;
             }
             // Execute
-            if(m_spellInfo->SpellFamilyFlags[0] & 0x20000000)
+            if(m_spellInfo->SpellFamilyFlags[0] & SPELLFAMILYFLAG_WARRIOR_EXECUTE)
             {
                 if(!unitTarget)
                     return;
@@ -1589,7 +1589,7 @@ void Spell::EffectDummy(uint32 i)
                 break;
             }
             // Concussion Blow
-            if(m_spellInfo->SpellFamilyFlags[0] & 0x4000000)
+            if(m_spellInfo->SpellFamilyFlags[0] & SPELLFAMILYFLAG_WARRIOR_CONCUSSION_BLOW)
             {
                 m_damage+= uint32(damage * m_caster->GetTotalAttackPowerValue(BASE_ATTACK) / 100);
                 return;
@@ -1621,7 +1621,7 @@ void Spell::EffectDummy(uint32 i)
             break;
         case SPELLFAMILY_WARLOCK:
             // Life Tap
-            if (m_spellInfo->SpellFamilyFlags[0] & 0x40000)
+            if (m_spellInfo->SpellFamilyFlags[0] & SPELLFAMILYFLAG_WARLOCK_LIFETAP)
             {
                 // In 303 exist spirit depend
                 uint32 spirit = uint32(m_caster->GetStat(STAT_SPIRIT));
@@ -1671,7 +1671,7 @@ void Spell::EffectDummy(uint32 i)
             break;
         case SPELLFAMILY_PRIEST:
             // Penance
-            if (m_spellInfo->SpellFamilyFlags[1] & 0x00800000)
+            if (m_spellInfo->SpellFamilyFlags[1] & SPELLFAMILYFLAG1_PRIEST_PENANCE)
             {
                 if (!unitTarget || !unitTarget->isAlive())
                     return;
@@ -1697,7 +1697,7 @@ void Spell::EffectDummy(uint32 i)
             break;
         case SPELLFAMILY_DRUID:
             // Starfall
-            if (m_spellInfo->SpellFamilyFlags[2] & 0x100)
+            if (m_spellInfo->SpellFamilyFlags[2] & SPELLFAMILYFLAG2_DRUID_STARFALL)
             {
                 //Shapeshifting into an animal form or mounting cancels the effect.
                 if(m_caster->GetCreatureType() == CREATURE_TYPE_BEAST || m_caster->IsMounted())
@@ -1717,7 +1717,7 @@ void Spell::EffectDummy(uint32 i)
             break;
         case SPELLFAMILY_ROGUE:
             // Hunger for Blood
-            if (m_spellInfo->SpellFamilyFlags[1] & 0x1000000)
+            if (m_spellInfo->SpellFamilyFlags[1] & SPELLFAMILYFLAG1_ROGUE_HUNGERFORBLOOD)
             {
                 m_caster->CastSpell(m_caster, 63848, true);
                 break;
@@ -1770,7 +1770,7 @@ void Spell::EffectDummy(uint32 i)
                     {
                         SpellEntry const *spellInfo = sSpellStore.LookupEntry(itr->first);
 
-                        if (spellInfo->SpellFamilyName == SPELLFAMILY_ROGUE && (spellInfo->SpellFamilyFlags[1] & 0x00000240 || spellInfo->SpellFamilyFlags[0] & 0x00000860))
+                        if (spellInfo->SpellFamilyName == SPELLFAMILY_ROGUE && (spellInfo->SpellFamilyFlags[1] & SPELLFAMILYFLAG1_ROGUE_COLDB_SHADOWSTEP || spellInfo->SpellFamilyFlags[0] & SPELLFAMILYFLAG_ROGUE_VAN_EVAS_SPRINT))
                             ((Player*)m_caster)->RemoveSpellCooldown((itr++)->first,true);
                         else
                             ++itr;
@@ -1851,7 +1851,7 @@ void Spell::EffectDummy(uint32 i)
             break;
         case SPELLFAMILY_PALADIN:
             // Divine Storm
-            if (m_spellInfo->SpellFamilyFlags[1] & 0x20000 && i == 1)
+            if (m_spellInfo->SpellFamilyFlags[1] & SPELLFAMILYFLAG1_PALADIN_DIVINESTORM && i == 1)
             {
                 int32 dmg = m_damage * damage / 100;
                 if (!unitTarget)
@@ -1953,7 +1953,7 @@ void Spell::EffectDummy(uint32 i)
             break;
         case SPELLFAMILY_SHAMAN:
             // Cleansing Totem Pulse
-            if (m_spellInfo->SpellFamilyFlags[0] & 0x04000000 && m_spellInfo->SpellIconID==1673)
+            if (m_spellInfo->SpellFamilyFlags[0] & SPELLFAMILYFLAG_SHAMAN_TOTEM_EFFECTS && m_spellInfo->SpellIconID==1673)
             {
                 int32 bp1 = 1;
                 // Cleansing Totem Effect
@@ -1962,14 +1962,14 @@ void Spell::EffectDummy(uint32 i)
                 return;
             }
             // Healing Stream Totem
-            if(m_spellInfo->SpellFamilyFlags[0] & 0x2000)
+            if(m_spellInfo->SpellFamilyFlags[0] & SPELLFAMILYFLAG_SHAMAN_HEALING_STREAM)
             {
                 if (unitTarget)
                     m_caster->CastCustomSpell(unitTarget, 52042, &damage, 0, 0, true, 0, 0, m_originalCasterGUID);
                 return;
             }
             // Mana Spring Totem
-            if (m_spellInfo->SpellFamilyFlags[0] & 0x4000)
+            if (m_spellInfo->SpellFamilyFlags[0] & SPELLFAMILYFLAG_SHAMAN_MANA_SPRING)
             {
                 if (!unitTarget || unitTarget->getPowerType() != POWER_MANA)
                     return;
@@ -1990,7 +1990,7 @@ void Spell::EffectDummy(uint32 i)
                 return;
             }
             // Lava Lash
-            if (m_spellInfo->SpellFamilyFlags[2] & 0x00000004)
+            if (m_spellInfo->SpellFamilyFlags[2] & SPELLFAMILYFLAG2_SHAMAN_LAVA_LASH)
             {
                 if (m_caster->GetTypeId() != TYPEID_PLAYER)
                     return;
@@ -2006,7 +2006,7 @@ void Spell::EffectDummy(uint32 i)
             break;
         case SPELLFAMILY_DEATHKNIGHT:
             // Death strike
-            if (m_spellInfo->SpellFamilyFlags[0] & 0x00000010)
+            if (m_spellInfo->SpellFamilyFlags[0] & SPELLFAMILYFLAG_DK_DEATH_STRIKE)
             {
                 uint32 count = unitTarget->GetDiseasesByCaster(m_caster->GetGUID());
                 int32 bp = count * m_caster->GetMaxHealth() * m_spellInfo->DmgMultiplier[0] / 100;
@@ -2017,13 +2017,13 @@ void Spell::EffectDummy(uint32 i)
                 return;
             }
             // Scourge Strike
-            if(m_spellInfo->SpellFamilyFlags[1] & 0x8000000)
+            if(m_spellInfo->SpellFamilyFlags[1] & SPELLFAMILYFLAG1_DK_SCOURGE_STRIKE)
             {
                 m_damage = float (m_damage) * (float(damage * unitTarget->GetDiseasesByCaster(m_caster->GetGUID()) + 100.0f) / 100.0f);
                 return;
             }
             // Death Coil
-            if(m_spellInfo->SpellFamilyFlags[0] & 0x002000)
+            if(m_spellInfo->SpellFamilyFlags[0] & SPELLFAMILYFLAG_DK_DEATH_COIL)
             {
                 if(m_caster->IsFriendlyTo(unitTarget))
                 {
@@ -2038,7 +2038,7 @@ void Spell::EffectDummy(uint32 i)
                 return;
             }
             // Hungering Cold
-            if (m_spellInfo->SpellFamilyFlags[1] & 0x1000)
+            if (m_spellInfo->SpellFamilyFlags[1] & SPELLFAMILYFLAG1_DK_HUNGERING_COLD)
             {
                 unitTarget->CastSpell(m_caster, 51209, true);
                 return;
