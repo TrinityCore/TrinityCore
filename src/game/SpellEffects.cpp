@@ -5171,6 +5171,13 @@ void Spell::EffectScriptEffect(uint32 effIndex)
                     unitTarget->RemoveMovementImpairingAuras();
                     break;
                 }
+                // Spirit Walk
+                case 58876:
+                {
+                    // Removes snares and roots.
+                    unitTarget->RemoveMovementImpairingAuras();
+                    break;
+                }
                 // Plant Warmaul Ogre Banner
                 case 32307:
                 {
