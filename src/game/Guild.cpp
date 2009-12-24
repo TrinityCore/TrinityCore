@@ -30,7 +30,6 @@
 #include "Util.h"
 #include "Language.h"
 #include "World.h"
-#include "TimeMgr.h"
 #include "Config/ConfigEnv.h"
 
 Guild::Guild()
@@ -169,7 +168,7 @@ bool Guild::AddMember(uint64 plGuid, uint32 plRank)
     newmember.RankId  = plRank;
     newmember.OFFnote = (std::string)"";
     newmember.Pnote   = (std::string)"";
-    newmember.LogoutTime = sGameTime.GetGameTime();
+    newmember.LogoutTime = time(NULL);
     newmember.BankResetTimeMoney = 0;                       // this will force update at first query
     for (uint8 i = 0; i < GUILD_BANK_MAX_TABS; ++i)
         newmember.BankResetTimeTab[i] = 0;
@@ -773,7 +772,7 @@ void Guild::Roster(WorldSession *session /*= NULL*/)
             data << uint8(itr->second.Class);
             data << uint8(0);                               // new 2.4.0
             data << uint32(itr->second.ZoneId);
-            data << float(float(sGameTime.GetGameTime()-itr->second.LogoutTime) / DAY);
+            data << float(float(time(NULL)-itr->second.LogoutTime) / DAY);
             data << itr->second.Pnote;
             data << itr->second.OFFnote;
         }
@@ -828,7 +827,7 @@ void Guild::UpdateLogoutTime(uint64 guid)
     if (itr == members.end())
         return;
 
-    itr->second.LogoutTime = sGameTime.GetGameTime();
+    itr->second.LogoutTime = time(NULL);
 
     if (m_OnlineMembers > 0)
         --m_OnlineMembers;
@@ -866,7 +865,7 @@ void Guild::DisplayGuildEventLog(WorldSession *session)
         if (itr->EventType == GUILD_EVENT_LOG_PROMOTE_PLAYER || itr->EventType == GUILD_EVENT_LOG_DEMOTE_PLAYER)
             data << uint8(itr->NewRank);
         // Event timestamp
-        data << uint32(sGameTime.GetGameTime()-itr->TimeStamp);
+        data << uint32(time(NULL)-itr->TimeStamp);
     }
     session->SendPacket(&data);
     sLog.outDebug("WORLD: Sent (MSG_GUILD_EVENT_LOG_QUERY)");
@@ -934,7 +933,7 @@ void Guild::LogGuildEvent(uint8 EventType, uint32 PlayerGuid1, uint32 PlayerGuid
     NewEvent.PlayerGuid1 = PlayerGuid1;
     NewEvent.PlayerGuid2 = PlayerGuid2;
     NewEvent.NewRank = NewRank;
-    NewEvent.TimeStamp = uint32(sGameTime.GetGameTime());
+    NewEvent.TimeStamp = uint32(time(NULL));
     // Count new LogGuid
     m_GuildEventLogNextGuid = (m_GuildEventLogNextGuid + 1) % sWorld.getConfig(CONFIG_GUILD_EVENT_LOG_COUNT);
     // Check max records limit
@@ -1347,7 +1346,7 @@ uint32 Guild::GetMemberSlotWithdrawRem(uint32 LowGuid, uint8 TabId)
     if ((GetBankRights(itr->second.RankId,TabId) & GUILD_BANK_RIGHT_VIEW_TAB) != GUILD_BANK_RIGHT_VIEW_TAB)
         return 0;
 
-    uint32 curTime = uint32(sGameTime.GetGameTime()/MINUTE);
+    uint32 curTime = uint32(time(NULL)/MINUTE);
     if (curTime - itr->second.BankResetTimeTab[TabId] >= 24*HOUR/MINUTE)
     {
         itr->second.BankResetTimeTab[TabId] = curTime;
@@ -1367,7 +1366,7 @@ uint32 Guild::GetMemberMoneyWithdrawRem(uint32 LowGuid)
     if (itr->second.RankId == GR_GUILDMASTER)
         return WITHDRAW_MONEY_UNLIMITED;
 
-    uint32 curTime = uint32(sGameTime.GetGameTime()/MINUTE);             // minutes
+    uint32 curTime = uint32(time(NULL)/MINUTE);             // minutes
                                                             // 24 hours
     if (curTime > itr->second.BankResetTimeMoney + 24*HOUR/MINUTE)
     {
@@ -1601,7 +1600,7 @@ void Guild::DisplayGuildBankLogs(WorldSession *session, uint8 TabId)
                 if (itr->EventType == GUILD_BANK_LOG_MOVE_ITEM || itr->EventType == GUILD_BANK_LOG_MOVE_ITEM2)
                     data << uint8(itr->DestTabId);          // moved tab
             }
-            data << uint32(sGameTime.GetGameTime() - itr->TimeStamp);
+            data << uint32(time(NULL) - itr->TimeStamp);
         }
         session->SendPacket(&data);
     }
@@ -1631,7 +1630,7 @@ void Guild::DisplayGuildBankLogs(WorldSession *session, uint8 TabId)
                 if (itr->EventType == GUILD_BANK_LOG_MOVE_ITEM || itr->EventType == GUILD_BANK_LOG_MOVE_ITEM2)
                     data << uint8(itr->DestTabId);          // moved tab
             }
-            data << uint32(sGameTime.GetGameTime() - itr->TimeStamp);
+            data << uint32(time(NULL) - itr->TimeStamp);
         }
         session->SendPacket(&data);
     }
@@ -1647,7 +1646,7 @@ void Guild::LogBankEvent(uint8 EventType, uint8 TabId, uint32 PlayerGuidLow, uin
     NewEvent.ItemOrMoney = ItemOrMoney;
     NewEvent.ItemStackCount = ItemStackCount;
     NewEvent.DestTabId = DestTabId;
-    NewEvent.TimeStamp = uint32(sGameTime.GetGameTime());
+    NewEvent.TimeStamp = uint32(time(NULL));
 
     //add new event to the end of event list
     uint32 currentTabId = TabId;

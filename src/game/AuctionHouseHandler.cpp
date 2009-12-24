@@ -30,7 +30,6 @@
 #include "Opcodes.h"
 #include "UpdateMask.h"
 #include "Util.h"
-#include "TimeMgr.h"
 
 //please DO NOT use iterator++, because it is slower than ++iterator!!!
 //post-incrementation is always slower than pre-incrementation !
@@ -272,7 +271,7 @@ void WorldSession::HandleAuctionSellItem(WorldPacket & recv_data)
     AH->bidder = 0;
     AH->bid = 0;
     AH->buyout = buyout;
-    AH->expire_time = sGameTime.GetGameTime() + auction_time;
+    AH->expire_time = time(NULL) + auction_time;
     AH->deposit = deposit;
     AH->auctionHouseEntry = auctionHouseEntry;
 

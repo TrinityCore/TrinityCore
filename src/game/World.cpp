@@ -68,7 +68,6 @@
 #include "CreatureGroups.h"
 #include "Transports.h"
 #include "ProgressBar.h"
-#include "TimeMgr.h"
 
 INSTANTIATE_SINGLETON_1(World);
 
@@ -97,7 +96,7 @@ World::World()
     m_allowMovement = true;
     m_ShutdownMask = 0;
     m_ShutdownTimer = 0;
-    m_gameTime=sGameTime.GetGameTime();
+    m_gameTime=time(NULL);
     m_startTime=m_gameTime;
     m_maxActiveSessionCount = 0;
     m_maxQueuedSessionCount = 0;
@@ -288,7 +287,7 @@ bool World::HasRecentlyDisconnected(WorldSession* session)
     {
         for (DisconnectMap::iterator i = m_disconnects.begin(); i != m_disconnects.end();)
         {
-            if (difftime(i->second, sGameTime.GetGameTime()) < tolerance)
+            if (difftime(i->second, time(NULL)) < tolerance)
             {
                 if (i->first == session->GetAccountId())
                     return true;
@@ -1235,7 +1234,7 @@ void World::LoadConfigSettings(bool reload)
 void World::SetInitialWorldSettings()
 {
     ///- Initialize the random number generator
-    srand((unsigned int)sGameTime.GetGameTime());
+    srand((unsigned int)time(NULL));
 
     ///- Initialize config settings
     LoadConfigSettings();
@@ -1626,7 +1625,7 @@ void World::SetInitialWorldSettings()
 
     ///- Initialize game time and timers
     sLog.outDebug("DEBUG:: Initialize game time and timers");
-    m_gameTime=sGameTime.GetGameTime();
+    m_gameTime = time(NULL);
     m_startTime=m_gameTime;
 
     tm local;
@@ -1638,7 +1637,7 @@ void World::SetInitialWorldSettings()
         local.tm_year+1900, local.tm_mon+1, local.tm_mday, local.tm_hour, local.tm_min, local.tm_sec);
 
     loginDatabase.PExecute("INSERT INTO uptime (realmid, starttime, startstring, uptime, revision) VALUES('%u', " UI64FMTD ", '%s', 0, '%s')",
-        realmID, m_startTime, isoDate, _FULLVERSION);
+        realmID, uint64(m_startTime), isoDate, _FULLVERSION);
 
     static uint32 abtimer = 0;
     abtimer = sConfig.GetIntDefault("AutoBroadcast.Timer", 60000);
@@ -1657,7 +1656,7 @@ void World::SetInitialWorldSettings()
     //to set mailtimer to return mails every day between 4 and 5 am
     //mailtimer is increased when updating auctions
     //one second is 1000 -(tested on win system)
-    mail_timer = ((((localtime(&sGameTime.GetGameTime())->tm_hour + 20) % 24)* HOUR * IN_MILISECONDS) / m_timers[WUPDATE_AUCTIONS].GetInterval());
+    mail_timer = ((((localtime(&m_gameTime)->tm_hour + 20) % 24)* HOUR * IN_MILISECONDS) / m_timers[WUPDATE_AUCTIONS].GetInterval());
                                                             //1440
     mail_timer_expires = ((DAY * IN_MILISECONDS) / (m_timers[WUPDATE_AUCTIONS].GetInterval()));
     sLog.outDebug("Mail timer set to: %u, mail return is called every %u minutes", mail_timer, mail_timer_expires);
@@ -1858,7 +1857,7 @@ void World::Update(uint32 diff)
     _UpdateGameTime();
 
     /// Handle daily quests reset time
-    if (sGameTime.GetGameTime() > m_NextDailyQuestReset)
+    if (m_gameTime > m_NextDailyQuestReset)
     {
         ResetDailyQuests();
         m_NextDailyQuestReset += DAY;
@@ -1915,7 +1914,7 @@ void World::Update(uint32 diff)
         uint32 maxClientsNum = GetMaxActiveSessionCount();
 
         m_timers[WUPDATE_UPTIME].Reset();
-        loginDatabase.PExecute("UPDATE uptime SET uptime = %u, maxplayers = %u WHERE realmid = %u AND starttime = " UI64FMTD, tmpDiff, maxClientsNum, realmID, m_startTime);
+        loginDatabase.PExecute("UPDATE uptime SET uptime = %u, maxplayers = %u WHERE realmid = %u AND starttime = " UI64FMTD, tmpDiff, maxClientsNum, realmID, uint64(m_startTime));
     }
 
     /// <li> Clean logs table
@@ -2282,9 +2281,9 @@ bool World::RemoveBanAccount(BanMode mode, std::string nameOrIP)
 void World::_UpdateGameTime()
 {
     ///- update the time
-    time_t thisTime = sGameTime.GetGameTime();
-    uint32 elapsed = uint32(thisTime - sGameTime.GetGameTime());
-    sGameTime.SetGameTime();
+    time_t thisTime = time(NULL);
+    uint32 elapsed = uint32(thisTime - m_gameTime);
+    m_gameTime = thisTime;
 
     ///- if there is a shutdown timer
     if (!m_stopEvent && m_ShutdownTimer > 0 && elapsed > 0)
@@ -2413,7 +2412,7 @@ void World::UpdateSessions(uint32 diff)
         if (!itr->second->Update(diff))                      // As interval = 0
         {
             if (!RemoveQueuedPlayer(itr->second) && itr->second && getConfig(CONFIG_INTERVAL_DISCONNECT_TOLERANCE))
-                m_disconnects[itr->second->GetAccountId()] = sGameTime.GetGameTime();
+                m_disconnects[itr->second->GetAccountId()] = time(NULL);
             delete itr->second;
             m_sessions.erase(itr);
         }
@@ -2524,7 +2523,7 @@ void World::InitDailyQuestResetTime()
 
     // client built-in time for reset is 6:00 AM
     // FIX ME: client not show day start time
-    time_t curTime = sGameTime.GetGameTime();
+    time_t curTime = time(NULL);
     tm localTm = *localtime(&curTime);
     localTm.tm_hour = 6;
     localTm.tm_min  = 0;

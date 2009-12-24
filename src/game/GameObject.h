@@ -25,7 +25,6 @@
 #include "SharedDefines.h"
 #include "Object.h"
 #include "LootMgr.h"
-#include "TimeMgr.h"
 #include "Database/DatabaseEnv.h"
 
 // GCC have alternative #pragma pack(N) syntax and old gcc version not support pack(push,N), also any gcc version not support it at some platform
@@ -641,10 +640,20 @@ class TRINITY_DLL_SPEC GameObject : public WorldObject
         uint32 GetSpellId() const { return m_spellId;}
 
         time_t GetRespawnTime() const { return m_respawnTime; }
-        time_t GetRespawnTimeEx() const;
+        time_t GetRespawnTimeEx() const
+        {
+            time_t now = time(NULL);
+            if(m_respawnTime > now)
+                return m_respawnTime;
+            else
+                return now;
+        }
 
-        void SetRespawnTime(int32 respawn);
-
+        void SetRespawnTime(int32 respawn)
+        {
+            m_respawnTime = respawn > 0 ? time(NULL) + respawn : 0;
+            m_respawnDelayTime = respawn > 0 ? respawn : 0;
+        }
         void Respawn();
         bool isSpawned() const
         {

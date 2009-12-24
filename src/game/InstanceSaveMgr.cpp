@@ -31,6 +31,7 @@
 #include "MapManager.h"
 #include "MapInstanced.h"
 #include "InstanceSaveMgr.h"
+#include "Timer.h"
 #include "GridNotifiersImpl.h"
 #include "Config/ConfigEnv.h"
 #include "Transports.h"
@@ -38,7 +39,6 @@
 #include "World.h"
 #include "Group.h"
 #include "InstanceData.h"
-#include "TimeMgr.h"
 #include "ProgressBar.h"
 #include "Policies/Singleton.h"
 #include "Policies/SingletonImp.h"
@@ -109,7 +109,7 @@ InstanceSave* InstanceSaveManager::AddInstanceSave(uint32 mapId, uint32 instance
             resetTime = GetResetTimeFor(mapId,difficulty);
         else
         {
-            resetTime = sGameTime.GetGameTime() + 2 * HOUR;
+            resetTime = time(NULL) + 2 * HOUR;
             // normally this will be removed soon after in InstanceMap::Add, prevent error
             ScheduleReset(true, resetTime, InstResetEvent(0, mapId, difficulty, instanceId));
         }
@@ -259,7 +259,7 @@ void InstanceSaveManager::_DelHelper(DatabaseType &db, const char *fields, const
 
 void InstanceSaveManager::CleanupInstances()
 {
-    uint64 now = (uint64)sGameTime.GetGameTime();
+    uint64 now = (uint64)time(NULL);
 
     barGoLink bar(2);
     bar.step();
@@ -406,7 +406,7 @@ void InstanceSaveManager::PackInstances()
 
 void InstanceSaveManager::LoadResetTimes()
 {
-    time_t now = sGameTime.GetGameTime();
+    time_t now = time(NULL);
     time_t today = (now / DAY) * DAY;
 
     // NOTE: Use DirectPExecute for tables that will be queried later
@@ -571,7 +571,7 @@ void InstanceSaveManager::ScheduleReset(bool add, time_t time, InstResetEvent ev
 
 void InstanceSaveManager::Update()
 {
-    time_t now = sGameTime.GetGameTime(), t;
+    time_t now = time(NULL), t;
     while(!m_resetTimeQueue.empty() && (t = m_resetTimeQueue.begin()->first) < now)
     {
         InstResetEvent &event = m_resetTimeQueue.begin()->second;
@@ -643,7 +643,7 @@ void InstanceSaveManager::_ResetOrWarnAll(uint32 mapid, Difficulty difficulty, b
     if (!mapEntry->Instanceable())
         return;
 
-    uint64 now = (uint64)sGameTime.GetGameTime();
+    uint64 now = (uint64)time(NULL);
 
     if(!warn)
     {

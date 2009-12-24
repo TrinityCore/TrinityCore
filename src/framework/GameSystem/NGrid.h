@@ -26,7 +26,7 @@
 
 #include "GameSystem/Grid.h"
 #include "GameSystem/GridReference.h"
-#include "TimeMgr.h"
+#include "Timer.h"
 
 class GridInfo
 {

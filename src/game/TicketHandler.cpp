@@ -24,7 +24,6 @@
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "World.h"
-#include "TimeMgr.h"
 
 void WorldSession::HandleGMTicketCreateOpcode( WorldPacket & recv_data )
 {
@@ -53,12 +52,12 @@ void WorldSession::HandleGMTicketCreateOpcode( WorldPacket & recv_data )
     ticket->guid = objmgr.GenerateGMTicketId();
     ticket->playerGuid = GetPlayer()->GetGUID();
     ticket->message = ticketText;
-    ticket->createtime = sGameTime.GetGameTime();
+    ticket->createtime = time(NULL);
     ticket->map = map;
     ticket->pos_x = x;
     ticket->pos_y = y;
     ticket->pos_z = z;
-    ticket->timestamp = sGameTime.GetGameTime();
+    ticket->timestamp = time(NULL);
     ticket->closed = 0;
     ticket->assignedToGM = 0;
     ticket->comment = "";
@@ -88,7 +87,7 @@ void WorldSession::HandleGMTicketUpdateOpcode( WorldPacket & recv_data)
     }
 
     ticket->message = message;
-    ticket->timestamp = sGameTime.GetGameTime();
+    ticket->timestamp = time(NULL);
 
     objmgr.AddOrUpdateGMTicket(*ticket);
 
@@ -118,7 +117,7 @@ void WorldSession::HandleGMTicketDeleteOpcode( WorldPacket & /*recv_data*/)
 void WorldSession::HandleGMTicketGetTicketOpcode( WorldPacket & /*recv_data*/)
 {
     WorldPacket data( SMSG_QUERY_TIME_RESPONSE, 4+4 );
-    data << (uint32)sGameTime.GetGameTime();
+    data << (uint32)time(NULL);
     data << (uint32)0;
     SendPacket( &data );
 

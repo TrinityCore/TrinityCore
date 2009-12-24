@@ -33,7 +33,6 @@
 #include "WaypointMovementGenerator.h"
 #include "InstanceSaveMgr.h"
 #include "ObjectMgr.h"
-#include "TimeMgr.h"
 
 void WorldSession::HandleMoveWorldportAckOpcode( WorldPacket & /*recv_data*/ )
 {
@@ -155,7 +154,7 @@ void WorldSession::HandleMoveWorldportAckOpcode()
         Difficulty diff = GetPlayer()->GetDifficulty(mEntry->IsRaid());
         if (uint32 timeReset = sInstanceSaveManager.GetResetTimeFor(GetPlayer()->GetMapId(),diff))
         {
-            uint32 timeleft = timeReset - sGameTime.GetGameTime();
+            uint32 timeleft = timeReset - time(NULL);
             GetPlayer()->SendInstanceResetWarning(GetPlayer()->GetMapId(), diff, timeleft);
         }
     }
