@@ -1083,14 +1083,13 @@ void GameObject::Use(Unit* user)
             {
                 Player* player = (Player*)user;
 
-                // show page
-                if(info->goober.pageId)
+                if (info->goober.pageId)                    // show page...
                 {
                     WorldPacket data(SMSG_GAMEOBJECT_PAGETEXT, 8);
                     data << GetGUID();
                     player->GetSession()->SendPacket(&data);
                 }
-                else if (info->questgiver.gossipID)
+                else if (info->goober.gossipID)             // ...or gossip, if page does not exist
                 {
                     player->PrepareGossipMenu(this, info->goober.gossipID);
                     player->SendPreparedGossip(this);
