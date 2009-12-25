@@ -60,9 +60,10 @@ enum AchievementCriteriaDataType
     ACHIEVEMENT_CRITERIA_DATA_TYPE_S_DRUNK             = 15,// drunken_state  0             (enum DrunkenState) of player
     ACHIEVEMENT_CRITERIA_DATA_TYPE_HOLIDAY             = 16,// holiday_id     0             event in holiday time
     ACHIEVEMENT_CRITERIA_DATA_TYPE_BG_LOSS_TEAM_SCORE  = 17,// min_score      max_score     player's team win bg and opposition team have team score in range
+    ACHIEVEMENT_CRITERIA_REQUIRE_INSTANCE_SCRIPT       = 18,// 0              0             maker instance script call for check curent criteria requirements fit
 };
 
-#define MAX_ACHIEVEMENT_CRITERIA_DATA_TYPE               18 // maximum value in AchievementCriteriaDataType enum
+#define MAX_ACHIEVEMENT_CRITERIA_DATA_TYPE               19 // maximum value in AchievementCriteriaDataType enum
 
 class Player;
 class Unit;
@@ -174,15 +175,18 @@ struct AchievementCriteriaData
     }
 
     bool IsValid(AchievementCriteriaEntry const* criteria);
-    bool Meets(Player const* source, Unit const* target, uint32 miscvalue1 = 0) const;
+    bool Meets(uint32 criteria_id, Player const* source, Unit const* target, uint32 miscvalue1 = 0) const;
 };
 
 struct AchievementCriteriaDataSet
 {
+        AchievementCriteriaDataSet() : criteria_id(0) {}
+        explicit AchievementCriteriaDataSet(uint32 id) : criteria_id(id) {}
         typedef std::vector<AchievementCriteriaData> Storage;
         void Add(AchievementCriteriaData const& data) { storage.push_back(data); }
         bool Meets(Player const* source, Unit const* target, uint32 miscvalue = 0) const;
     private:
+        uint32 criteria_id;
         Storage storage;
 };
 
