@@ -175,13 +175,15 @@ void RASocket::OnRead()
                             Sendf("-Not enough privileges.\r\n");
                             sLog.outRemote("User %s has no privilege.\n",szLogin.c_str());
                             if(bSecure)SetCloseAndDelete();
-                        }   else if(fields[2].GetUInt32() != '-1')
+                        }
+                        else if(fields[2].GetInt32() != -1)
                         {
                             ///- if RealmID isn't -1, deny access
                             Sendf("-Not enough privileges.\r\n");
                             sLog.outRemote("User %s has to be assigned on all realms (with RealmID = '-1').\n",szLogin.c_str());
                             if(bSecure)SetCloseAndDelete();
-                        }   else
+                        }
+                        else
                         {
                             stage=LG;
                         }
