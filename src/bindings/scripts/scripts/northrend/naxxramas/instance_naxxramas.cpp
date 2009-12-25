@@ -110,6 +110,11 @@ struct TRINITY_DLL_DECL instance_naxxramas : public InstanceData
     Creature* Sapphiron;
     uint32 HorsemenNum;
     uint64 uiFaerlina;
+    uint64 uiThane;
+    uint64 uiLady;
+    uint64 uiBaron;
+    uint64 uiSir;
+
 
     void OnCreatureCreate(Creature* pCreature, bool add)
     {
@@ -117,6 +122,10 @@ struct TRINITY_DLL_DECL instance_naxxramas : public InstanceData
         {
             case 15989: Sapphiron = add ? pCreature : NULL; return;
             case 15953: uiFaerlina = pCreature->GetGUID(); return;
+            case 16064: uiThane = pCreature->GetGUID(); return;
+            case 16065: uiLady = pCreature->GetGUID(); return;
+            case 30549: uiBaron = pCreature->GetGUID(); return;
+            case 16063: uiSir = pCreature->GetGUID(); return;
         }
 
         AddMinion(pCreature, add);
@@ -163,6 +172,14 @@ struct TRINITY_DLL_DECL instance_naxxramas : public InstanceData
     {
         if (id == DATA_FAERLINA)
             return uiFaerlina;
+        if (id == DATA_THANE)
+            return uiThane;
+        if (id == DATA_LADY)
+            return uiLady;
+        if (id == DATA_BARON)
+            return uiBaron;
+        if (id == DATA_SIR)
+            return uiSir;
         return 0;
     }
 
