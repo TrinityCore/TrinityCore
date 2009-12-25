@@ -1784,6 +1784,34 @@
 					</File>
 				</Filter>
 				<Filter
+					Name="Trial of the Champion"
+					>
+					<File
+						RelativePath="..\scripts\northrend\crusaders_coliseum\trial_of_the_champion\boss_argent_challenge.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\scripts\northrend\crusaders_coliseum\trial_of_the_champion\boss_black_knight.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\scripts\northrend\crusaders_coliseum\trial_of_the_champion\boss_grand_champions.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\scripts\northrend\crusaders_coliseum\trial_of_the_champion\instance_trial_of_the_champion.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\scripts\northrend\crusaders_coliseum\trial_of_the_champion\trial_of_the_champion.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\scripts\northrend\crusaders_coliseum\trial_of_the_champion\trial_of_the_champion.h"
+						>
+					</File>
+				</Filter>
+				<Filter
 					Name="Gundrak"
 					>
 					<File
