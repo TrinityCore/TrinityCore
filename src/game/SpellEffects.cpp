@@ -31,6 +31,7 @@
 #include "SkillExtraItems.h"
 #include "Unit.h"
 #include "Spell.h"
+#include "SpellId.h"
 #include "DynamicObject.h"
 #include "SpellAuras.h"
 #include "Group.h"
@@ -267,17 +268,17 @@ void Spell::EffectInstaKill(uint32 /*i*/)
         return;
 
     // Demonic Sacrifice
-    if (m_spellInfo->Id == 18788 && unitTarget->GetTypeId() == TYPEID_UNIT)
+    if (m_spellInfo->Id == SPELL_DEMONIC_SACRIFICE_18788 && unitTarget->GetTypeId() == TYPEID_UNIT)
     {
         uint32 entry = unitTarget->GetEntry();
         uint32 spellID;
         switch (entry)
         {
-            case   416: spellID = 18789; break;               //imp
-            case   417: spellID = 18792; break;               //fellhunter
-            case  1860: spellID = 18790; break;               //void
-            case  1863: spellID = 18791; break;               //succubus
-            case 17252: spellID = 35701; break;               //fellguard
+            case   416: spellID = SPELL_BURNING_WISH_18789; break;               //imp
+            case   417: spellID = SPELL_FEL_ENERGY_18792; break;               //fellhunter
+            case  1860: spellID = SPELL_FEL_STAMINA_18790; break;               //void
+            case  1863: spellID = SPELL_TOUCH_OF_SHADOW_18791; break;               //succubus
+            case 17252: spellID = SPELL_TOUCH_OF_SHADOW_35701; break;               //fellguard
             default:
                 sLog.outError("EffectInstaKill: Unhandled creature entry (%u) case.", entry);
                 return;
@@ -337,10 +338,10 @@ void Spell::SpellDamageSchoolDmg(uint32 effect_idx)
                 switch(m_spellInfo->Id)                     // better way to check unknown
                 {
                     // Positive/Negative Charge
-                    case 28062:
-                    case 28085:
-                    case 39090:
-                    case 39093:
+                    case SPELL_POSITIVE_CHARGE_28062:
+                    case SPELL_NEGATIVE_CHARGE_28085:
+                    case SPELL_POSITIVE_CHARGE_39090:
+                    case SPELL_NEGATIVE_CHARGE 39093:
                         if (!m_triggeredByAuraSpell)
                             break;
                         if (unitTarget == m_caster)
@@ -356,10 +357,10 @@ void Spell::SpellDamageSchoolDmg(uint32 effect_idx)
                                 uint32 spellId;
                                 switch (m_spellInfo->Id)
                                 {
-                                    case 28062: spellId = 29659; break;
-                                    case 28085: spellId = 29660; break;
-                                    case 39090: spellId = 39089; break;
-                                    case 39093: spellId = 39092; break;
+                                    case SPELL_POSITIVE_CHARGE_28062: spellId = SPELL_POSITIVE_CHARGE_29659; break;
+                                    case SPELL_NEGATIVE_CHARGE_28085: spellId = SPELL_NEGATIVE_CHARGE_29660; break;
+                                    case SPELL_POSITIVE_CHARGE_39090: spellId = SPELL_POSITIVE_CHARGE_39089; break;
+                                    case SPELL_NEGATIVE_CHARGE_39093: spellId = SPELL_NEGATIVE_CHARGE_39092; break;
                                 }
                                 Aura *aur = m_caster->GetAura(spellId);
                                 if (!aur)
@@ -376,11 +377,11 @@ void Spell::SpellDamageSchoolDmg(uint32 effect_idx)
                             damage = 0;
                         break;
                     // Consumption
-                    case 28865:
+                    case SPELL_CONSUMPTION_28865:
                         damage = (((InstanceMap*)m_caster->GetMap())->GetDifficulty() == REGULAR_DIFFICULTY ? 2750 : 4250);
                         break;
                     // percent from health with min
-                    case 25599:                             // Thundercrash
+                    case SPELL_THUNDERCRASH_25599:                             // Thundercrash
                     {
                         damage = unitTarget->GetHealth() / 2;
                         if(damage < 200)
@@ -388,7 +389,7 @@ void Spell::SpellDamageSchoolDmg(uint32 effect_idx)
                         break;
                     }
                     // arcane charge. must only affect demons (also undead?)
-                    case 45072:
+                    case SPELL_ARCANE_CHARGES_45072:
                     {
                         if(unitTarget->GetCreatureType() != CREATURE_TYPE_DEMON
                             && unitTarget->GetCreatureType() != CREATURE_TYPE_UNDEAD)
@@ -396,7 +397,7 @@ void Spell::SpellDamageSchoolDmg(uint32 effect_idx)
                         break;
                     }
                     // gruul's shatter
-                    case 33671:
+                    case SPELL_SHATTER_33671:
                     {
                         // don't damage self and only players
                         if(unitTarget->GetGUID() == m_caster->GetGUID() || unitTarget->GetTypeId() != TYPEID_PLAYER)
@@ -409,18 +410,19 @@ void Spell::SpellDamageSchoolDmg(uint32 effect_idx)
                         break;
                     }
                     // Cataclysmic Bolt
-                    case 38441:
+                    case SPELL_CATACLYSMIC_BOLT_38441:
                     {
                         damage = unitTarget->GetMaxHealth() / 2;
                         break;
                     }
                     // Tympanic Tantrum
-                    case 62775:
+                    case SPELL_TYMPANIC_TANTRUM_62775:
                     {
                         damage = unitTarget->GetMaxHealth() / 10;
                         break;
                     }
-                    case 51963: // Gargoyle Strike
+                    // Gargoyle Strike
+                    case SPELL_GARGOYLE_STRIKE_51963:
                     { 
                         // about +4 base spell dmg per level
                         damage = (m_caster->getLevel() - 60) * 4 + 60;
@@ -531,7 +533,7 @@ void Spell::SpellDamageSchoolDmg(uint32 effect_idx)
                 {
                     int32 back_damage = int32(damage + m_caster->SpellDamageBonus(unitTarget, m_spellInfo, (uint32)damage, SPELL_DIRECT_DAMAGE));
                     if(back_damage < unitTarget->GetHealth())
-                        m_caster->CastCustomSpell(m_caster, 32409, &back_damage, 0, 0, true);
+                        m_caster->CastCustomSpell(m_caster, SPELL_SHADOW_WORD_DEATH_32409, &back_damage, 0, 0, true);
                 }
                 // Mind Blast - applies Mind Trauma if:
                 else if (m_spellInfo->SpellFamilyFlags[0] & 0x00002000)
@@ -542,7 +544,7 @@ void Spell::SpellDamageSchoolDmg(uint32 effect_idx)
                         if (AuraEffect * aurEff = m_caster->GetDummyAura(SPELLFAMILY_PRIEST,95,0))
                             // Chance has been successfully rolled
                             if (roll_chance_i(aurEff->GetAmount()))
-                                m_caster->CastSpell(unitTarget, 48301, true);
+                                m_caster->CastSpell(unitTarget, SPELL_MIND_TRAUMA_48301, true);
                 }
                 // Smite
                 else if (m_spellInfo->SpellFamilyFlags[0] & 0x80)
@@ -564,7 +566,7 @@ void Spell::SpellDamageSchoolDmg(uint32 effect_idx)
                             int chance = (*i)->GetSpellProto()->CalculateSimpleValue(1);
                             if (roll_chance_i(chance))
                                 // Mind Trauma
-                                m_caster->CastSpell(unitTarget, 48301, true, 0);
+                                m_caster->CastSpell(unitTarget, SPELL_MIND_TRAUMA_48301, true, 0);
                             break;
                         }
                     }
@@ -632,7 +634,7 @@ void Spell::SpellDamageSchoolDmg(uint32 effect_idx)
                             damage += int32(((Player*)m_caster)->GetTotalAttackPowerValue(BASE_ATTACK) * 0.09f * doses);
                         }
                         // Eviscerate and Envenom Bonus Damage (item set effect)
-                        if (m_caster->HasAura(37169))
+                        if (m_caster->HasAura(SPELL_EVISCERATE_AND_ENVENOM_BONUS_DAMAGE_37169))
                             damage += ((Player*)m_caster)->GetComboPoints()*40;
                     }
                 }
@@ -645,7 +647,7 @@ void Spell::SpellDamageSchoolDmg(uint32 effect_idx)
                         damage += irand(int32(ap * combo * 0.03f), int32(ap * combo * 0.07f));
 
                         // Eviscerate and Envenom Bonus Damage (item set effect)
-                        if (m_caster->HasAura(37169))
+                        if (m_caster->HasAura(SPELL_EVISCERATE_AND_ENVENOM_BONUS_DAMAGE_37169))
                             damage += combo*40;
                     }
                 }
@@ -656,7 +658,7 @@ void Spell::SpellDamageSchoolDmg(uint32 effect_idx)
                 //Gore
                 if (m_spellInfo->SpellIconID == 1578)
                 {
-                    if (m_caster->HasAura(57627))           // Charge 6 sec post-affect
+                    if (m_caster->HasAura(SPELL_CHARGE_57627))           // Charge 6 sec post-affect
                         damage *= 2;
                 }
                 // Steady Shot
@@ -765,7 +767,7 @@ void Spell::EffectDummy(uint32 i)
             switch (m_spellInfo->Id)
             {
                 // Wrath of the Astromancer
-                case 42784:
+                case SPELL_WRATH_OF_THE_ASTROMANCER_42784:
                 {
                     uint32 count = 0;
                     for (std::list<TargetInfo>::iterator ihit= m_UniqueTargetInfo.begin(); ihit != m_UniqueTargetInfo.end(); ++ihit)
@@ -785,7 +787,7 @@ void Spell::EffectDummy(uint32 i)
                                 m_caster->DealDamage(casttarget, damage, NULL, SPELL_DIRECT_DAMAGE, SPELL_SCHOOL_MASK_ARCANE, spellInfo, false);
                         }
                 }
-                case 8063:                                  // Deviate Fish
+                case SPELL_DEVIATE_FISH_8063:                                  // Deviate Fish
                 {
                     if(m_caster->GetTypeId() != TYPEID_PLAYER)
                         return;
@@ -793,16 +795,16 @@ void Spell::EffectDummy(uint32 i)
                     uint32 spell_id = 0;
                     switch(urand(1,5))
                     {
-                        case 1: spell_id = 8064; break;     // Sleepy
-                        case 2: spell_id = 8065; break;     // Invigorate
-                        case 3: spell_id = 8066; break;     // Shrink
-                        case 4: spell_id = 8067; break;     // Party Time!
-                        case 5: spell_id = 8068; break;     // Healthy Spirit
+                        case 1: spell_id = SPELL_SLEEPY_8064; break;     // Sleepy
+                        case 2: spell_id = SPELL_INVIGORATE_8065; break;     // Invigorate
+                        case 3: spell_id = SPELL_SHRINK_8066; break;     // Shrink
+                        case 4: spell_id = SPELL_PARTY_TIME_8067; break;     // Party Time!
+                        case 5: spell_id = SPELL_HEALTHY_SPIRIT_8068; break;     // Healthy Spirit
                     }
                     m_caster->CastSpell(m_caster, spell_id, true, NULL);
                     return;
                 }
-                case 8213:                                  // Savory Deviate Delight
+                case SPELL_COOKED_DEVIATE_FISH_8213:          // Savory Deviate Delight
                 {
                     if(m_caster->GetTypeId() != TYPEID_PLAYER)
                         return;
@@ -811,24 +813,24 @@ void Spell::EffectDummy(uint32 i)
                     switch(urand(1,2))
                     {
                         // Flip Out - ninja
-                        case 1: spell_id = (m_caster->getGender() == GENDER_MALE ? 8219 : 8220); break;
+                        case 1: spell_id = (m_caster->getGender() == GENDER_MALE ? SPELL_FLIP_OUT_8219 : SPELL_FLIP_OUT_8220); break;
                         // Yaaarrrr - pirate
-                        case 2: spell_id = (m_caster->getGender() == GENDER_MALE ? 8221 : 8222); break;
+                        case 2: spell_id = (m_caster->getGender() == GENDER_MALE ? SPELL_YAAARRRR_8221 : SPELL_YAAARRRR_8222); break;
                     }
                     m_caster->CastSpell(m_caster,spell_id,true,NULL);
                     return;
                 }
-                case 8593:                                  // Symbol of life (restore creature to life)
-                case 31225:                                 // Shimmering Vessel (restore creature to life)
+                case SPELL_SYMBOL_OF_LIFE_8593:                                  // Symbol of life (restore creature to life)
+                case SPELL_SHIMMERING_VESSEL_31225:                                 // Shimmering Vessel (restore creature to life)
                 {
                     if (!unitTarget || unitTarget->GetTypeId() != TYPEID_UNIT)
                         return;
                     ((Creature*)unitTarget)->setDeathState(JUST_ALIVED);
                     return;
                 }
-                case 12162:                                 // Deep wounds
-                case 12850:                                 // (now good common check for this spells)
-                case 12868:
+                case SPELL_DEEP_WOUNDS_12162:                                 // Deep wounds
+                case SPELL_DEEP_WOUNDS_12850:                                 // (now good common check for this spells)
+                case SPELL_DEEP_WOUNDS_12868:
                 {
                     if (!unitTarget)
                         return;
@@ -843,16 +845,16 @@ void Spell::EffectDummy(uint32 i)
 
                     switch (m_spellInfo->Id)
                     {
-                        case 12162: damage *= 0.16f; break; // Rank 1
-                        case 12850: damage *= 0.32f; break; // Rank 2
-                        case 12868: damage *= 0.48f; break; // Rank 3
+                        case SPELL_DEEP_WOUNDS_12162: damage *= 0.16f; break; // Rank 1
+                        case SPELL_DEEP_WOUNDS_12850: damage *= 0.32f; break; // Rank 2
+                        case SPELL_DEEP_WOUNDS_12868: damage *= 0.48f; break; // Rank 3
                         default:
                             sLog.outError("Spell::EffectDummy: Spell %u not handled in DW",m_spellInfo->Id);
                             return;
                     };
 
                     // get remaining damage of old Deep Wound aura
-                    AuraEffect* deepWound = unitTarget->GetAuraEffect(12721, 0);
+                    AuraEffect* deepWound = unitTarget->GetAuraEffect(SPELL_DEEP_WOUNDS_12721, 0);
                     if (deepWound)
                     {
                         int32 remainingTicks = deepWound->GetParentAura()->GetAuraDuration() / deepWound->GetAuraAmplitude();
