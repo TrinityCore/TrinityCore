@@ -733,7 +733,7 @@ void Spell::SpellDamageSchoolDmg(uint32 effect_idx)
                 {
                     float ap = m_caster->GetTotalAttackPowerValue(BASE_ATTACK);
                     float sp = m_caster->SpellBaseDamageBonus(GetSpellSchoolMask(m_spellInfo));
-                    damage += int32(0.16f*ap + 0.25f*sp);
+                    damage += int32(0.14f*ap + 0.22f*sp);
                 }                
                 break;
             }
