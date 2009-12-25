@@ -2071,7 +2071,6 @@ void Unit::CalcAbsorbResist(Unit *pVictim, SpellSchoolMask schoolMask, DamageEff
                                 absorbed = canabsorb;
 
                             RemainingDamage -= absorbed;
-                            triggeredSpells.push_back(TriggeredSpellInfo(0, this, caster, absorbed, *i));
                         }
                         continue;
                     default:
