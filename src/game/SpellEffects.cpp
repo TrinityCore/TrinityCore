@@ -700,7 +700,7 @@ void Spell::SpellDamageSchoolDmg(uint32 effect_idx)
             case SPELLFAMILY_PALADIN:
             {
                 // Hammer of the Righteous
-                else if (m_spellInfo->SpellFamilyFlags[1]&0x00040000)
+                if (m_spellInfo->SpellFamilyFlags[1]&0x00040000)
                 {
                     // Add main hand dps * effect[2] amount
                     float average = (m_caster->GetFloatValue(UNIT_FIELD_MINDAMAGE) + m_caster->GetFloatValue(UNIT_FIELD_MAXDAMAGE)) / 2;
