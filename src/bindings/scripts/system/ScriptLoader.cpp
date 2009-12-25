@@ -290,6 +290,11 @@ extern void AddSC_boss_taldaram();
 extern void AddSC_boss_jedoga_shadowseeker();
 extern void AddSC_boss_elder_nadox();
 extern void AddSC_boss_volazj();
+extern void AddSC_boss_argent_challenge();      //Trial of the Champion
+extern void AddSC_boss_black_knight();
+extern void AddSC_boss_grand_champions();
+extern void AddSC_instance_trial_of_the_champion();
+extern void AddSC_trial_of_the_champion();
 extern void AddSC_boss_anubrekhan();            //Naxxramas
 extern void AddSC_boss_maexxna();
 extern void AddSC_boss_patchwerk();
@@ -738,6 +743,11 @@ void AddScripts()
     AddSC_boss_jedoga_shadowseeker();
     AddSC_boss_volazj();
     AddSC_instance_ahnkahet();
+    AddSC_boss_argent_challenge();      //Trial of the Champion
+    AddSC_boss_black_knight();
+    AddSC_boss_grand_champions();
+    AddSC_instance_trial_of_the_champion();
+    AddSC_trial_of_the_champion();
     AddSC_boss_krik_thir();             //Azjol-Nerub Azjol-Nerub
     AddSC_boss_hadronox();
     AddSC_boss_anub_arak();
