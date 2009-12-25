@@ -473,6 +473,7 @@ bool GossipSelect_npc_death_knight_initiate(Player* pPlayer, Creature* pCreature
                 return true;
         }
 
+        pCreature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
         pCreature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_15);
 
         int32 uiSayId = rand()% (sizeof(m_auiRandomSay)/sizeof(int32));
