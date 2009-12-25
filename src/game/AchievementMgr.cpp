@@ -38,6 +38,8 @@
 #include "MapManager.h"
 #include "BattleGround.h"
 #include "BattleGroundAB.h"
+#include "Map.h"
+#include "InstanceData.h"
 
 INSTANTIATE_SINGLETON_1(AchievementGlobalMgr);
 
@@ -102,6 +104,7 @@ bool AchievementCriteriaData::IsValid(AchievementCriteriaEntry const* criteria)
         case ACHIEVEMENT_CRITERIA_DATA_TYPE_NONE:
         case ACHIEVEMENT_CRITERIA_DATA_TYPE_VALUE:
         case ACHIEVEMENT_CRITERIA_DATA_TYPE_DISABLED:
+        case ACHIEVEMENT_CRITERIA_DATA_INSTANCE_SCRIPT:
             return true;
         case ACHIEVEMENT_CRITERIA_DATA_TYPE_T_CREATURE:
             if (!creature.id || !objmgr.GetCreatureTemplate(creature.id))
@@ -244,7 +247,7 @@ bool AchievementCriteriaData::IsValid(AchievementCriteriaEntry const* criteria)
     return false;
 }
 
-bool AchievementCriteriaData::Meets(Player const* source, Unit const* target, uint32 miscvalue1 /*= 0*/) const
+bool AchievementCriteriaData::Meets(uint32 criteria_id, Player const* source, Unit const* target, uint32 miscvalue1 /*= 0*/) const
 {
     switch(dataType)
     {
@@ -312,6 +315,24 @@ bool AchievementCriteriaData::Meets(Player const* source, Unit const* target, ui
                 return false;
             return bg->IsTeamScoreInRange(source->GetTeam()==ALLIANCE ? HORDE : ALLIANCE,bg_loss_team_score.min_score,bg_loss_team_score.max_score);
         }
+        case ACHIEVEMENT_CRITERIA_DATA_INSTANCE_SCRIPT:
+            if (!source->IsInWorld())
+                return false;
+            Map* map = source->GetMap();
+            if (!map->Instanceable())
+            {
+                sLog.outErrorDb("Achievement system call ACHIEVEMENT_CRITERIA_DATA_INSTANCE_SCRIPT (%u) for achievement criteria %u for non-instance map %u",
+                    ACHIEVEMENT_CRITERIA_DATA_INSTANCE_SCRIPT, criteria_id, map->GetId());
+                    return false;
+            }
+            InstanceData* data = ((InstanceMap*)map)->GetInstanceData();
+            if (!data)
+            {
+                sLog.outErrorDb("Achievement system call ACHIEVEMENT_CRITERIA_DATA_INSTANCE_SCRIPT (%u) for achievement criteria %u for map %u but map not have instance script",
+                    ACHIEVEMENT_CRITERIA_DATA_INSTANCE_SCRIPT, criteria_id, map->GetId());
+                return false;
+            }
+            return data->CheckAchievementCriteriaMeet(criteria_id, source, target, miscvalue1);
     }
     return false;
 }
@@ -319,7 +340,7 @@ bool AchievementCriteriaData::Meets(Player const* source, Unit const* target, ui
 bool AchievementCriteriaDataSet::Meets(Player const* source, Unit const* target, uint32 miscvalue /*= 0*/) const
 {
     for (Storage::const_iterator itr = storage.begin(); itr != storage.end(); ++itr)
-        if(!itr->Meets(source,target,miscvalue))
+        if(!itr->Meets(criteria_id, source, target, miscvalue))
             return false;
 
     return true;
