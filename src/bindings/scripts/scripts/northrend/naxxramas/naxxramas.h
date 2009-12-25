@@ -44,7 +44,11 @@ enum Data
     DATA_HEIGAN_ERUPT,
     DATA_GOTHIK_GATE,
     DATA_SAPPHIRON_BIRTH,
-    DATA_FAERLINA
+    DATA_FAERLINA,
+    DATA_THANE,
+    DATA_LADY,
+    DATA_BARON,
+    DATA_SIR
 };
 
 #define GO_BIRTH                181356
