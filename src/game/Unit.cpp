@@ -6343,13 +6343,24 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                 break;
             }
             // Rapid Recuperation
-            if ( dummySpell->SpellIconID == 3560 )
+            if (dummySpell->SpellIconID == 3560)
             {
                 // This effect only from Rapid Killing (mana regen)
                 if (!(procSpell->SpellFamilyFlags[1] & 0x01000000))
                     return false;
                 triggered_spell_id = 56654;
+
                 target = this;
+
+                switch(dummySpell->Id)
+                {
+                    case 53228:                             // Rank 1
+                        triggered_spell_id = 56654;
+                        break;
+                    case 53232:                             // Rank 2
+                        triggered_spell_id = 58882;
+                        break;
+                }
                 break;
             }
             break;
