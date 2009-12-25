@@ -2991,11 +2991,21 @@ void AuraEffect::HandleAuraDummy(bool apply, bool Real, bool changeAmount)
                 switch(GetId())
                 {
                     case 2584: // Waiting to Resurrect
+                    {
                         // Waiting to resurrect spell cancel, we must remove player from resurrect queue
-                        if(m_target->GetTypeId() == TYPEID_PLAYER)
-                            if(BattleGround *bg = ((Player*)m_target)->GetBattleGround())
+                        if (m_target->GetTypeId() == TYPEID_PLAYER)
+                            if (BattleGround *bg = ((Player*)m_target)->GetBattleGround())
                                 bg->RemovePlayerFromResurrectQueue(m_target->GetGUID());
                         return;
+                    }
+                    case 28169:                                     // Mutating Injection
+                    {
+                        // Mutagen Explosion
+                        m_target->CastSpell(m_target, 28206, true, NULL, this);
+                        // Poison Cloud
+                        m_target->CastSpell(m_target, 28240, true, NULL, this);
+                        return;
+                    }
                     case 36730:                                     // Flame Strike
                     {
                         m_target->CastSpell(m_target, 36731, true, NULL, this);
