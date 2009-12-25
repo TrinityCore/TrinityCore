@@ -607,15 +607,15 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\src\game\BattleGroundHandler.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\..\src\game\BattleGroundIC.cpp"
 				>
 			</File>
 			<File
 				RelativePath="..\..\src\game\BattleGroundIC.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\game\BattleGroundHandler.cpp"
 				>
 			</File>
 			<File
@@ -964,6 +964,10 @@
 			</File>
 			<File
 				RelativePath="..\..\src\game\SpellHandler.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\game\SpellId.h"
 				>
 			</File>
 			<File
@@ -1715,19 +1719,19 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\game\OutdoorPvPZM.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\game\OutdoorPvPZM.h"
-				>
-			</File>
-			<File
 				RelativePath="..\..\src\game\OutdoorPvPWG.cpp"
 				>
 			</File>
 			<File
 				RelativePath="..\..\src\game\OutdoorPvPWG.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\game\OutdoorPvPZM.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\game\OutdoorPvPZM.h"
 				>
 			</File>
 		</Filter>
