@@ -223,6 +223,9 @@ enum eRazael
 
 bool GossipHello_npc_razael_and_lyana(Player* pPlayer, Creature* pCreature)
 {
+    if (pCreature->isQuestGiver())
+        pPlayer->PrepareQuestMenu(pCreature->GetGUID());
+
     if (pPlayer->GetQuestStatus(QUEST_REPORTS_FROM_THE_FIELD) == QUEST_STATUS_INCOMPLETE)
         switch (pCreature->GetEntry())
         {
