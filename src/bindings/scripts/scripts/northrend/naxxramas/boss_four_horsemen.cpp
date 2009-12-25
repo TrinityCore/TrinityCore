@@ -33,6 +33,26 @@ enum Events
     EVENT_BERSERK,
 };
 
+const Position WaypointPositions[12] =
+{
+    // Thane waypoints
+    {2542.3, -2984.1, 241.49, 5.362},
+    {2547.6, -2999.4, 241.34, 5.049},
+    {2542.9, -3015.0, 241.35, 4.654},
+    // Lady waypoints
+    {2498.3, -2961.8, 241.28, 3.267},
+    {2487.7, -2959.2, 241.28, 2.890},
+    {2469.4, -2947.6, 241.28, 2.576},
+    // Baron waypoints
+    {2553.8, -2968.4, 241.33, 5.757},
+    {2564.3, -2972.5, 241.33, 5.890},
+    {2583.9, -2971.67, 241.35, 0.008},
+    // Sir waypoints
+    {2534.5, -2921.7, 241.53, 1.363},
+    {2523.5, -2902.8, 241.28, 2.095},
+    {2517.8, -2896.6, 241.28, 2.315},
+};
+
 const uint32 MOB_HORSEMEN[]     =   {16064, 16065, 30549, 16063};
 const uint32 SPELL_MARK[]       =   {28832, 28833, 28834, 28835};
 #define SPELL_PRIMARY(i)            HEROIC(SPELL_PRIMARY_N[i],SPELL_PRIMARY_H[i])
@@ -68,7 +88,148 @@ struct TRINITY_DLL_DECL boss_four_horsemenAI : public BossAI
     }
 
     Horsemen id;
+    Unit *eventStarter;
+    uint8 nextWP;
+    uint32 punishTimer;
     bool caster;
+    bool nextMovementStarted;
+    bool movementCompleted;
+    bool movementStarted;
+    bool encounterActionAttack;
+    bool encounterActionReset;
+    bool doDelayPunish;
+
+    void Reset()
+    {
+        if (!encounterActionReset)
+            DoEncounterAction(NULL, false, true, false);
+
+        me->SetReactState(REACT_AGGRESSIVE);
+        eventStarter = NULL;
+        nextWP = 0;
+        punishTimer = 2000;
+        nextMovementStarted = false;
+        movementCompleted = false;
+        movementStarted = false;
+        encounterActionAttack = false;
+        encounterActionReset = false;
+        doDelayPunish = false;
+        _Reset();
+    }
+
+    bool DoEncounterAction(Unit *who, bool attack, bool reset, bool checkAllDead)
+    {
+        if (!instance)
+            return false;
+
+        Creature *Thane = CAST_CRE(Unit::GetUnit(*me, instance->GetData64(DATA_THANE)));
+        Creature *Lady = CAST_CRE(Unit::GetUnit(*me, instance->GetData64(DATA_LADY)));
+        Creature *Baron = CAST_CRE(Unit::GetUnit(*me, instance->GetData64(DATA_BARON)));
+        Creature *Sir = CAST_CRE(Unit::GetUnit(*me, instance->GetData64(DATA_SIR)));
+
+        if (Thane && Lady && Baron && Sir)
+        {
+            if (attack && who)
+            {
+                CAST_AI(boss_four_horsemenAI, Thane->AI())->encounterActionAttack = true;
+                CAST_AI(boss_four_horsemenAI, Lady->AI())->encounterActionAttack = true;
+                CAST_AI(boss_four_horsemenAI, Baron->AI())->encounterActionAttack = true;
+                CAST_AI(boss_four_horsemenAI, Sir->AI())->encounterActionAttack = true;
+
+                CAST_AI(boss_four_horsemenAI, Thane->AI())->AttackStart(who);
+                CAST_AI(boss_four_horsemenAI, Lady->AI())->AttackStart(who);
+                CAST_AI(boss_four_horsemenAI, Baron->AI())->AttackStart(who);
+                CAST_AI(boss_four_horsemenAI, Sir->AI())->AttackStart(who);
+            }
+
+            if (reset)
+            {
+                if (instance->GetBossState(BOSS_HORSEMEN) != NOT_STARTED)
+                {
+                    if (!Thane->isAlive())
+                        Thane->Respawn();
+
+                    if (!Lady->isAlive())
+                        Lady->Respawn();
+
+                    if (!Baron->isAlive())
+                        Baron->Respawn();
+
+                    if (!Sir->isAlive())
+                        Sir->Respawn();
+
+                    CAST_AI(boss_four_horsemenAI, Thane->AI())->encounterActionReset = true;
+                    CAST_AI(boss_four_horsemenAI, Lady->AI())->encounterActionReset = true;
+                    CAST_AI(boss_four_horsemenAI, Baron->AI())->encounterActionReset = true;
+                    CAST_AI(boss_four_horsemenAI, Sir->AI())->encounterActionReset = true;
+
+                    CAST_AI(boss_four_horsemenAI, Thane->AI())->EnterEvadeMode();
+                    CAST_AI(boss_four_horsemenAI, Lady->AI())->EnterEvadeMode();
+                    CAST_AI(boss_four_horsemenAI, Baron->AI())->EnterEvadeMode();
+                    CAST_AI(boss_four_horsemenAI, Sir->AI())->EnterEvadeMode();
+                }
+            }
+
+            if (checkAllDead)
+                return !Thane->isAlive() && !Lady->isAlive() && !Baron->isAlive() && !Sir->isAlive();
+        }
+        return false;
+    }
+
+    void BeginFourHorsemenMovement()
+    {
+        movementStarted = true;
+        me->SetReactState(REACT_PASSIVE);
+        me->RemoveUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
+        me->SetSpeed(MOVE_RUN, me->GetSpeedRate(MOVE_RUN), true);
+
+        switch(id)
+        {
+            case HORSEMEN_THANE:
+                me->GetMotionMaster()->MovePoint(0, WaypointPositions[0]);
+                break;
+            case HORSEMEN_LADY:
+                me->GetMotionMaster()->MovePoint(3, WaypointPositions[3]);
+                break;
+            case HORSEMEN_BARON:
+                me->GetMotionMaster()->MovePoint(6, WaypointPositions[6]);
+                break;
+            case HORSEMEN_SIR:
+                me->GetMotionMaster()->MovePoint(9, WaypointPositions[9]);
+                break;
+        }
+    }
+
+    void MovementInform(uint32 type, uint32 id)
+    {
+        if (type != POINT_MOTION_TYPE)
+            return;
+
+        if (id == 2 || id == 5 || id == 8 || id == 11)
+        {
+            movementCompleted = true;
+            me->SetReactState(REACT_AGGRESSIVE);
+
+            if (me->canAttack(eventStarter))
+                AttackStart(eventStarter);
+            else if (!UpdateVictim())
+            {
+                EnterEvadeMode();
+                return;
+            }
+
+            if (caster)
+            {
+                me->GetMotionMaster()->Clear();
+                me->GetMotionMaster()->MoveIdle();
+            }
+
+            return;
+        }
+
+        nextMovementStarted = false;
+        nextWP = id + 1;
+    }
 
     void MoveInLineOfSight(Unit *who)
     {
@@ -79,10 +240,21 @@ struct TRINITY_DLL_DECL boss_four_horsemenAI : public BossAI
 
     void AttackStart(Unit *who)
     {
-        if (caster)
-            AttackStartCaster(who, 20);
-        else
-            BossAI::AttackStart(who);
+        if (!movementCompleted && !movementStarted)
+        {
+            eventStarter = who;
+            BeginFourHorsemenMovement();
+
+            if (!encounterActionAttack)
+                DoEncounterAction(who, true, false, false);
+        }
+        else if (movementCompleted && movementStarted)
+        {
+            if (caster)
+                me->Attack(who, false);
+            else
+                BossAI::AttackStart(who);
+        }
     }
 
     void KilledUnit(Unit* victim)
@@ -98,25 +270,40 @@ struct TRINITY_DLL_DECL boss_four_horsemenAI : public BossAI
 
     void JustDied(Unit* killer)
     {
-        _JustDied();
+        events.Reset();
+        summons.DespawnAll();
+        if(instance && DoEncounterAction(NULL, false, false, true))
+        {
+            instance->SetBossState(BOSS_HORSEMEN, DONE);
+            instance->SaveToDB();
+        }
+
         DoScriptText(SAY_DEATH[id], me);
     }
 
     void EnterCombat(Unit *who)
     {
         _EnterCombat();
+
         if (id == HORSEMEN_BARON)
             DoScriptText(SAY_BARON_AGGRO, me);
         else
             DoScriptText(SAY_AGGRO[id], me);
-            events.ScheduleEvent(EVENT_MARK, 15000);
-            events.ScheduleEvent(EVENT_CAST, 20000+rand()%5000);
-            events.ScheduleEvent(EVENT_BERSERK, 15*100*1000);
+
+        events.ScheduleEvent(EVENT_MARK, 15000);
+        events.ScheduleEvent(EVENT_CAST, 20000+rand()%5000);
+        events.ScheduleEvent(EVENT_BERSERK, 15*100*1000);
     }
 
     void UpdateAI(const uint32 diff)
     {
-        if (!UpdateVictim() || !CheckInRoom())
+        if (nextWP && movementStarted && !movementCompleted && !nextMovementStarted)
+        {
+            nextMovementStarted = true;
+            me->GetMotionMaster()->MovePoint(nextWP, WaypointPositions[nextWP]);
+        }
+
+        if (!UpdateVictim() || !CheckInRoom() || !movementCompleted)
             return;
 
         events.Update(diff);
@@ -133,24 +320,42 @@ struct TRINITY_DLL_DECL boss_four_horsemenAI : public BossAI
                         DoScriptText(SAY_SPECIAL[id], me);
                     DoCastAOE(SPELL_MARK[id]);
                     events.ScheduleEvent(EVENT_MARK, 15000);
-                    return;
+                    break;
                 case EVENT_CAST:
                     if (!(rand()%5))
                         DoScriptText(SAY_TAUNT[rand()%3][id], me);
-                    DoCast(SPELL_PRIMARY(id));
+
+                    if (caster)
+                    {
+                        if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 45))
+                            DoCast(pTarget, SPELL_PRIMARY(id));
+                    }
+                    else
+                        DoCast(me->getVictim(), SPELL_PRIMARY(id));
+
                     events.ScheduleEvent(EVENT_CAST, 15000);
-                    return;
+                    break;
                 case EVENT_BERSERK:
                     DoScriptText(SAY_SPECIAL[id], me);
                     DoCast(me, EVENT_BERSERK);
-                    return;
+                    break;
             }
         }
 
+        if (punishTimer <= diff)
+        {
+            if (doDelayPunish)
+            {
+                DoCastAOE(SPELL_PUNISH[id], true);
+                doDelayPunish = false;
+            }
+            punishTimer = 2000;
+        } else punishTimer -= diff;
+
         if (!caster)
             DoMeleeAttackIfReady();
-        else if (!DoSpellAttackIfReady(SPELL_SECONDARY(id)))
-            DoCastAOE(SPELL_PUNISH[id]);
+        else if ((!DoSpellAttackIfReady(SPELL_SECONDARY(id)) || !me->IsWithinLOSInMap(me->getVictim())) && movementCompleted && !doDelayPunish)
+            doDelayPunish = true;
     }
 };
 
