@@ -122,7 +122,7 @@ struct TRINITY_DLL_DECL boss_black_knightAI : public ScriptedAI
 	 m_pInstance = (ScriptedInstance*)pCreature->GetInstanceData();
     }
 
-	ScriptedInstance* m_pInstance;
+    ScriptedInstance* m_pInstance;
     bool m_bIsRegularMode;
 
     uint32 Plague_Strike_Timer;
@@ -193,6 +193,7 @@ struct TRINITY_DLL_DECL boss_black_knightAI : public ScriptedAI
 	 if (phase1)
 	     StartPhase2();
     }
+}
 
     void JustDied(Unit* pKiller)
     {
