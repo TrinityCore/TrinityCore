@@ -69,16 +69,16 @@ struct TRINITY_DLL_DECL npc_toc5_announcerAI : public ScriptedAI
 
         if(pInstance->GetData(TYPE_GRAND_CHAMPIONS) == DONE && pInstance->GetData(TYPE_ARGENT_CHALLENGE) == NOT_STARTED && pInstance->GetData(TYPE_BLACK_KNIGHT) == NOT_STARTED)
         {
-            argent = RAND(35119,34928);
+           argent = RAND(35119,34928);
 	    m_creature->SummonCreature(argent, 746.864441, 660.918762, 411.695465, 4.698700, TEMPSUMMON_MANUAL_DESPAWN, 0);
-            pInstance->SetData(TYPE_ARGENT_CHALLENGE, IN_PROGRESS);
+           pInstance->SetData(TYPE_ARGENT_CHALLENGE, IN_PROGRESS);
         }
 
         if(pInstance->GetData(TYPE_GRAND_CHAMPIONS) == DONE && pInstance->GetData(TYPE_ARGENT_CHALLENGE) == DONE && pInstance->GetData(TYPE_BLACK_KNIGHT) == NOT_STARTED)
         {
 	    m_creature->SummonCreature(NPC_BLACK_KNIGHT, 746.864441, 660.918762, 411.695465, 4.698700, TEMPSUMMON_MANUAL_DESPAWN, 0);
 	    pInstance->SetData(TYPE_BLACK_KNIGHT, IN_PROGRESS);
-            m_creature->DealDamage(m_creature, m_creature->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+           m_creature->DealDamage(m_creature, m_creature->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
         }
     }
 
@@ -123,7 +123,7 @@ void AddSC_trial_of_the_champion()
 
     NewScript = new Script;
     NewScript->Name = "npc_toc5_announcer";
-	NewScript->GetAI = &GetAI_npc_toc5_announcer;
+    NewScript->GetAI = &GetAI_npc_toc5_announcer;
     NewScript->pGossipHello = &GossipHello_npc_toc5_announcer;
     NewScript->pGossipSelect = &GossipSelect_npc_toc5_announcer;
     NewScript->RegisterSelf();
