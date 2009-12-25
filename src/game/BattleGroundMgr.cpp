@@ -1336,8 +1336,22 @@ void BattleGroundMgr::BuildPvpLogDataPacket(WorldPacket *data, BattleGround *bg)
         *data << uint32(itr->second->KillingBlows);
         if (type) // if (bg->isArena())
         {
+            // BG Team ID (Green/Gold team, not faction teams in arena)
             Player *plr = objmgr.GetPlayer(itr->first);
-            *data << uint8(plr->GetBGTeam());               // BG Team ID (Green/Gold team, not faction teams in arena)
+            uint8 team = 0;
+            if (plr)
+                team = plr->GetBGTeam();
+            else
+            {
+                QueryResult *result = CharacterDatabase.PQuery("SELECT team FROM character_battleground_data WHERE guid = '%u'", GUID_LOPART(itr->first));
+                if (result)
+                {
+                    team = (*result)[0].GetUInt8();
+                    delete result;
+                }
+                else
+                    sLog.outError("Player GUID %u - unable to find correct BG Team ID for MSG_PVP_LOG_DATA (scoreboard). Defaulting to 0.", GUID_LOPART(itr->first));
+            }
         }
         else    // if (!bg->isArena())
         {
