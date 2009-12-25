@@ -60,7 +60,7 @@ enum AchievementCriteriaDataType
     ACHIEVEMENT_CRITERIA_DATA_TYPE_S_DRUNK             = 15,// drunken_state  0             (enum DrunkenState) of player
     ACHIEVEMENT_CRITERIA_DATA_TYPE_HOLIDAY             = 16,// holiday_id     0             event in holiday time
     ACHIEVEMENT_CRITERIA_DATA_TYPE_BG_LOSS_TEAM_SCORE  = 17,// min_score      max_score     player's team win bg and opposition team have team score in range
-    ACHIEVEMENT_CRITERIA_REQUIRE_INSTANCE_SCRIPT       = 18,// 0              0             maker instance script call for check curent criteria requirements fit
+    ACHIEVEMENT_CRITERIA_DATA_INSTANCE_SCRIPT          = 18,// 0              0             maker instance script call for check curent criteria requirements fit
 };
 
 #define MAX_ACHIEVEMENT_CRITERIA_DATA_TYPE               19 // maximum value in AchievementCriteriaDataType enum
