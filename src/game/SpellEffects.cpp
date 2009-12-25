@@ -341,7 +341,7 @@ void Spell::SpellDamageSchoolDmg(uint32 effect_idx)
                     case SPELL_POSITIVE_CHARGE_28062:
                     case SPELL_NEGATIVE_CHARGE_28085:
                     case SPELL_POSITIVE_CHARGE_39090:
-                    case SPELL_NEGATIVE_CHARGE 39093:
+                    case SPELL_NEGATIVE_CHARGE_39093:
                         if (!m_triggeredByAuraSpell)
                             break;
                         if (unitTarget == m_caster)
