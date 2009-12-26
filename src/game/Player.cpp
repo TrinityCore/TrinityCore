@@ -9413,10 +9413,100 @@ bool Player::HasItemOrGemWithLimitCategoryEquipped( uint32 limitCategory, uint32
     return false;
 }
 
+uint8 Player::CountItemWithLimitCategory(uint32 limitCategory, Item* skipItem) const
+{
+    uint8 tempcount = 0;
+    for(int i = EQUIPMENT_SLOT_START; i < INVENTORY_SLOT_ITEM_END; ++i)
+    {
+        Item *pItem = GetItemByPos( INVENTORY_SLOT_BAG_0, i );
+        if (!pItem)
+            continue;
+
+        if (pItem == skipItem)
+            continue;
+
+        ItemPrototype const *pProto = pItem->GetProto();
+        if (pProto && pProto->ItemLimitCategory == limitCategory)
+            tempcount += pItem->GetCount();
+    }
+
+    for(int i = KEYRING_SLOT_START; i < CURRENCYTOKEN_SLOT_END; ++i)
+    {
+        Item *pItem = GetItemByPos( INVENTORY_SLOT_BAG_0, i );
+        if (!pItem)
+            continue;
+
+        if (pItem == skipItem)
+            continue;
+
+        ItemPrototype const *pProto = pItem->GetProto();
+        if (pProto && pProto->ItemLimitCategory == limitCategory)
+            tempcount += pItem->GetCount();
+    }
+
+    for(int i = INVENTORY_SLOT_BAG_START; i < INVENTORY_SLOT_BAG_END; ++i)
+    {
+        Bag* pBag = (Bag*)GetItemByPos( INVENTORY_SLOT_BAG_0, i );
+        if (!pBag)
+            continue;
+
+        for(uint32 j = 0; j < pBag->GetBagSize(); ++j)
+        {
+            Item *pItem = GetItemByPos( i, j );
+
+            if (!pItem)
+                continue;
+
+            if (pItem == skipItem)
+                continue;
+
+            if (pItem->GetProto()->ItemLimitCategory == limitCategory)
+                tempcount += pItem->GetCount();
+        }
+    }
+
+    for(int i = BANK_SLOT_ITEM_START; i < BANK_SLOT_ITEM_END; ++i)
+    {
+        Item *pItem = GetItemByPos( INVENTORY_SLOT_BAG_0, i );
+        if (!pItem)
+            continue;
+
+        if (pItem == skipItem)
+            continue;
+
+        ItemPrototype const *pProto = pItem->GetProto();
+        if (pProto && pProto->ItemLimitCategory == limitCategory)
+            tempcount += pItem->GetCount();
+    }
+
+    for(int i = BANK_SLOT_BAG_START; i < BANK_SLOT_BAG_END; ++i)
+    {
+        Bag* pBag = (Bag*)GetItemByPos( INVENTORY_SLOT_BAG_0, i );
+        if (!pBag)
+            continue;
+
+        for(uint32 j = 0; j < pBag->GetBagSize(); ++j)
+        {
+            Item *pItem = GetItemByPos( i, j );
+
+            if(!pItem)
+                continue;
+
+            if(pItem == skipItem)
+                continue;
+
+            if(pItem->GetProto()->ItemLimitCategory == limitCategory)
+                tempcount += pItem->GetCount();
+        }
+    }
+
+    return tempcount;
+}
+
 uint8 Player::_CanTakeMoreSimilarItems(uint32 entry, uint32 count, Item* pItem, uint32* no_space_count ) const
 {
     ItemPrototype const *pProto = objmgr.GetItemPrototype(entry);
-    if( !pProto )
+    if (!pProto)
     {
         if(no_space_count)
             *no_space_count = count;
@@ -9424,16 +9514,34 @@ uint8 Player::_CanTakeMoreSimilarItems(uint32 entry, uint32 count, Item* pItem, 
     }
 
     // no maximum
-    if(pProto->MaxCount <= 0 || pProto->MaxCount == 2147483647)
+    if (pProto->MaxCount <= 0 && pProto->ItemLimitCategory == 0 || pProto->MaxCount == 2147483647)
         return EQUIP_ERR_OK;
 
-    uint32 curcount = GetItemCount(pProto->ItemId,true,pItem);
+    uint32 curcount;
+    if (pProto->ItemLimitCategory)
+        curcount = CountItemWithLimitCategory(pProto->ItemLimitCategory,pItem);
+    else
+        curcount = GetItemCount(pProto->ItemId,true,pItem);
 
-    if (curcount + count > uint32(pProto->MaxCount))
+    if ((curcount + count > uint32(pProto->MaxCount)) && !(pProto->ItemLimitCategory))
     {
-        if(no_space_count)
+        if (no_space_count)
             *no_space_count = count +curcount - pProto->MaxCount;
         return EQUIP_ERR_CANT_CARRY_MORE_OF_THIS;
+    }
+
+    if (pProto->ItemLimitCategory && pProto->Class!=ITEM_CLASS_GEM) // gem have equip check (maybe sort by bonding?)
+    {
+        ItemLimitCategoryEntry const* limitEntry = sItemLimitCategoryStore.LookupEntry(pProto->ItemLimitCategory);
+        if (!limitEntry)
+            return EQUIP_ERR_CANT_CARRY_MORE_OF_THIS;
+
+        if (curcount + count > limitEntry->maxCount)
+        {
+            if (no_space_count)
+                *no_space_count = count + curcount - limitEntry->maxCount;       
+            return EQUIP_ERR_CANT_CARRY_MORE_OF_THIS;         // attempt add too many limit category items
+        }
     }
 
     return EQUIP_ERR_OK;
@@ -11396,54 +11504,6 @@ void Player::DestroyItem(uint8 bag, uint8 slot, bool update)
     }
 }
 
- 
-void Player::HandleDestroyItemReplace( uint32 itemEntry, uint8 bag ,uint8 slot, uint16 pos )
-{
-    if(!itemEntry || !slot || !bag)
-        return;
-
-    uint32 newItemEntry = 0;
-    switch(itemEntry)
-    {
-        case 39878:         // Mysterious Unhatched Egg
-            newItemEntry = 39883;
-            break;
-        case 44717:         // Disgusting Jar
-            newItemEntry = 44718;
-            break;
-        default:
-            return;
-    }
-
-    Item *pNewItem = Item::CreateItem( newItemEntry, 1, this);
-    if( !pNewItem )
-        return;
-
-    if( IsInventoryPos( pos ) )
-    {
-        ItemPosCountVec dest;
-        uint8 msg = CanStoreItem( bag, slot, dest, pNewItem, true );
-        if( msg == EQUIP_ERR_OK )
-        {
-            StoreItem( dest, pNewItem, true);
-            return;
-        }
-    }
-    else if( IsBankPos ( pos ) )
-    {
-        ItemPosCountVec dest;
-        uint8 msg = CanBankItem( bag, slot, dest, pNewItem, true  );
-        if( msg == EQUIP_ERR_OK )
-        {
-            BankItem( dest, pNewItem, true);
-            return;
-        }
-    }
-
-    // fail
-    delete pNewItem;
-}
-
 void Player::DestroyItemCount(uint32 item, uint32 count, bool update, bool unequip_check)
 {
     sLog.outDebug( "STORAGE: DestroyItemCount item = %u, count = %u", item, count);
@@ -11628,6 +11688,41 @@ void Player::DestroyConjuredItems( bool update )
         if (Item* pItem = GetItemByPos( INVENTORY_SLOT_BAG_0, i ))
             if (pItem->IsConjuredConsumable())
                 DestroyItem( INVENTORY_SLOT_BAG_0, i, update);
+}
+
+Item* Player::GetItemByEntry(uint32 entry) const
+{
+    // in inventory
+    for(int i = INVENTORY_SLOT_ITEM_START; i < INVENTORY_SLOT_ITEM_END; ++i)
+    {
+        if (Item* pItem = GetItemByPos( INVENTORY_SLOT_BAG_0, i ))
+            if (pItem->GetEntry() == entry)
+                return pItem;
+    }
+
+
+    for(int i = INVENTORY_SLOT_BAG_START; i < INVENTORY_SLOT_BAG_END; ++i)
+    {
+        if (Bag* pBag = (Bag*)GetItemByPos( INVENTORY_SLOT_BAG_0, i ))
+        {
+            for(uint32 j = 0; j < pBag->GetBagSize(); ++j)
+            {
+                if (Item* pItem = pBag->GetItemByPos(j))
+                    if (pItem->GetEntry()==entry)
+                        return pItem;
+            }
+        }
+    }
+
+
+    for(int i = EQUIPMENT_SLOT_START; i < INVENTORY_SLOT_BAG_END; ++i)
+    {
+        if (Item* pItem = GetItemByPos( INVENTORY_SLOT_BAG_0, i ))
+            if (pItem->GetEntry()==entry)
+                return pItem;
+    }
+
+    return NULL;
 }
 
 void Player::DestroyItemCount( Item* pItem, uint32 &count, bool update )

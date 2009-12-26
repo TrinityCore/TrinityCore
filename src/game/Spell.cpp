@@ -3458,6 +3458,17 @@ void Spell::SendCastResult(Player* caster, SpellEntry const* spellInfo, uint8 ca
             data << uint32(spellInfo->EquippedItemSubClassMask);
             //data << uint32(spellInfo->EquippedItemInventoryTypeMask);
             break;
+        case SPELL_FAILED_TOO_MANY_OF_ITEM:
+        {
+             uint32 item;
+             for(int8 x=0;x < 3;x++)
+                 if (spellInfo->EffectItemType[x])
+                     item = spellInfo->EffectItemType[x];
+             ItemPrototype const *pProto = objmgr.GetItemPrototype(item);
+             if (pProto && pProto->ItemLimitCategory)
+                 data << uint32(pProto->ItemLimitCategory);
+             break;
+        }
         default:
             break;
     }
@@ -5770,8 +5781,22 @@ SpellCastResult Spell::CheckItems()
                     uint8 msg = p_caster->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, m_spellInfo->EffectItemType[i], 1 );
                     if (msg != EQUIP_ERR_OK )
                     {
-                        p_caster->SendEquipError( msg, NULL, NULL );
-                        return SPELL_FAILED_DONT_REPORT;
+                        ItemPrototype const *pProto = objmgr.GetItemPrototype(m_spellInfo->EffectItemType[i]);
+                        if (pProto && !(pProto->ItemLimitCategory))
+                        {
+                            p_caster->SendEquipError( msg, NULL, NULL );
+                            return SPELL_FAILED_DONT_REPORT;
+                        }
+                        else
+                        {
+                            if (!(m_spellInfo->SpellFamilyName == SPELLFAMILY_MAGE && (m_spellInfo->SpellFamilyFlags & UI64LIT(0x40000000))))
+                                return SPELL_FAILED_TOO_MANY_OF_ITEM;
+                            else if (!(p_caster->HasItemCount(m_spellInfo->EffectItemType[i],1)))
+                                return SPELL_FAILED_TOO_MANY_OF_ITEM;
+                            else
+                                p_caster->CastSpell(m_caster,m_spellInfo->CalculateSimpleValue(1),false);        // move this to anywhere
+                            return SPELL_FAILED_DONT_REPORT;
+                        }
                     }
                 }
                 break;
@@ -5973,7 +5998,24 @@ SpellCastResult Spell::CheckItems()
                 }
                 break;
             }
-            default:break;
+            case SPELL_EFFECT_CREATE_MANA_GEM:
+            {
+                 uint32 item_id = m_spellInfo->EffectItemType[i];
+                 ItemPrototype const *pProto = objmgr.GetItemPrototype(item_id);
+
+                 if (!pProto)
+                     return SPELL_FAILED_ITEM_AT_MAX_CHARGES;
+
+                 if (Item* pitem = p_caster->GetItemByEntry(item_id))
+                 {
+                     for(int x = 0; x < MAX_ITEM_PROTO_SPELLS; ++x)
+                         if (pProto->Spells[x].SpellCharges != 0 && pitem->GetSpellCharges(x) == pProto->Spells[x].SpellCharges)
+                             return SPELL_FAILED_ITEM_AT_MAX_CHARGES;
+                 }
+                 break;                    
+            }
+            default:
+                break;
         }
     }
 
