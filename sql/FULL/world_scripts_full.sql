@@ -1200,6 +1200,10 @@ UPDATE `gameobject_template` SET `ScriptName`='go_panther_cage' WHERE `entry`=17
 /* THUNDER BLUFF */
 UPDATE `creature_template` SET `ScriptName`='npc_cairne_bloodhoof' WHERE `entry`=3057;
 
+/* TRIAL OF THE CHAMPION */
+UPDATE `creature_template` SET `ScriptName`='npc_risen_ghoul' WHERE `entry` IN (35545,35564);
+UPDATE `creature_template` SET `ScriptName`='boss_black_knight' WHERE `entry`=35451;
+
 /* TIRISFAL GLADES */
 UPDATE `creature_template` SET `ScriptName`='npc_calvin_montague' WHERE `entry`=6784;
 
