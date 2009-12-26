@@ -1427,7 +1427,7 @@ struct SpellEntry
     //uint32    spellPriority;                              // 138 not used
     char*     SpellName[16];                                // 139-154  m_name_lang
     //uint32    SpellNameFlag;                              // 155 not used
-    char*     Rank[16];                                     // 156-171  m_nameSubtext_lang
+    //char*     Rank[16];                                   // 156-171  m_nameSubtext_lang
     //uint32    RankFlags;                                  // 172 not used
     //char*     Description[16];                            // 173-188  m_description_lang not used
     //uint32    DescriptionFlags;                           // 189 not used
