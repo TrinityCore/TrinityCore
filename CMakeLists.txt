@@ -21,7 +21,6 @@ OPTION(DO_CLI "With CLI" 1)
 OPTION(DO_RA "With RA" 0)
 OPTION(DO_DEBUG "Debug mode" 0)
 OPTION(DO_WARN "Enable all compile warnings" 0)
-OPTION(LARGE_CELL "Large cell size" 0)
 OPTION(CENTOS "CENTOS" 0)
 
 SET(GENREV_SRC
@@ -125,13 +124,6 @@ if(DO_WARN)
     message("* All warnings mode")
     add_definitions(-Wall -Wfatal-errors -Wextra)
 endif(DO_WARN)
-
-if(LARGE_CELL)
-message("* Large cell size")
-add_definitions(-DLARGE_CELL)
-else(LARGE_CELL)
-message("* Small cell size")
-endif(LARGE_CELL)
 
 IF(UNIX)
     IF(CENTOS)
