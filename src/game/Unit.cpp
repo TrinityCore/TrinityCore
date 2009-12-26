@@ -5566,6 +5566,10 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                 // Combustion
                 case 11129:
                 {
+                    Unit *caster = triggeredByAura->GetCaster();
+                    if (!caster || !damage)
+                        return false;
+
                     //last charge and crit
                     if (triggeredByAura->GetParentAura()->GetAuraCharges() <= 1 && (procEx & PROC_EX_CRITICAL_HIT) )
                     {
@@ -5573,7 +5577,7 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                         return true;                        // charge counting (will removed)
                     }
 
-                    CastSpell(this, 11129, true, castItem, triggeredByAura);
+                    CastSpell(this, 28682, true, castItem, triggeredByAura);
                     return (procEx & PROC_EX_CRITICAL_HIT);// charge update only at crit hits, no hidden cooldowns
                 }
                 // Glyph of Ice Block
