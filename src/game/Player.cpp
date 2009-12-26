@@ -11396,6 +11396,54 @@ void Player::DestroyItem(uint8 bag, uint8 slot, bool update)
     }
 }
 
+ 
+void Player::HandleDestroyItemReplace( uint32 itemEntry, uint8 bag ,uint8 slot, uint16 pos )
+{
+    if(!itemEntry || !slot || !bag)
+        return;
+
+    uint32 newItemEntry = 0;
+    switch(itemEntry)
+    {
+        case 39878:         // Mysterious Unhatched Egg
+            newItemEntry = 39883;
+            break;
+        case 44717:         // Disgusting Jar
+            newItemEntry = 44718;
+            break;
+        default:
+            return;
+    }
+
+    Item *pNewItem = Item::CreateItem( newItemEntry, 1, this);
+    if( !pNewItem )
+        return;
+
+    if( IsInventoryPos( pos ) )
+    {
+        ItemPosCountVec dest;
+        uint8 msg = CanStoreItem( bag, slot, dest, pNewItem, true );
+        if( msg == EQUIP_ERR_OK )
+        {
+            StoreItem( dest, pNewItem, true);
+            return;
+        }
+    }
+    else if( IsBankPos ( pos ) )
+    {
+        ItemPosCountVec dest;
+        uint8 msg = CanBankItem( bag, slot, dest, pNewItem, true  );
+        if( msg == EQUIP_ERR_OK )
+        {
+            BankItem( dest, pNewItem, true);
+            return;
+        }
+    }
+
+    // fail
+    delete pNewItem;
+}
+
 void Player::DestroyItemCount(uint32 item, uint32 count, bool update, bool unequip_check)
 {
     sLog.outDebug( "STORAGE: DestroyItemCount item = %u, count = %u", item, count);
