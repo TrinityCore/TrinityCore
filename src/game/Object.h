@@ -448,6 +448,15 @@ class WorldLocation : public Position
         uint32 m_mapId;
 };
 
+template<class T>
+class GridObject
+{
+    public:
+        GridReference<T> &GetGridRef() { return m_gridRef; }
+    protected:
+        GridReference<T> m_gridRef;
+};
+
 class TRINITY_DLL_SPEC WorldObject : public Object, public WorldLocation
 {
     public:

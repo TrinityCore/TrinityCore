@@ -581,7 +581,7 @@ class Unit;
 // 5 sec for bobber catch
 #define FISHING_BOBBER_READY_TIME 5
 
-class TRINITY_DLL_SPEC GameObject : public WorldObject
+class TRINITY_DLL_SPEC GameObject : public WorldObject, public GridObject<GameObject>
 {
     public:
         explicit GameObject();
@@ -722,8 +722,6 @@ class TRINITY_DLL_SPEC GameObject : public WorldObject
 
         GameObject* LookupFishingHoleAround(float range);
 
-        GridReference<GameObject> &GetGridRef() { return m_gridRef; }
-
         void CastSpell(Unit *target, uint32 spell);
         void SendCustomAnim();
         bool IsInRange(float x, float y, float z, float radius) const;
@@ -759,7 +757,5 @@ class TRINITY_DLL_SPEC GameObject : public WorldObject
         uint16 m_LootMode;                                  // bitmask, default DEFAULT_LOOT_MODE, determines what loot will be lootable
     private:
         void SwitchDoorOrButton(bool activate, bool alternative = false);
-
-        GridReference<GameObject> m_gridRef;
 };
 #endif
