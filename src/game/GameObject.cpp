@@ -1089,7 +1089,7 @@ void GameObject::Use(Unit* user)
                     data << GetGUID();
                     player->GetSession()->SendPacket(&data);
                 }
-                else if (info->goober.gossipID)             // ...or gossip, if page does not exist
+                else if (info->questgiver.gossipID)
                 {
                     player->PrepareGossipMenu(this, info->goober.gossipID);
                     player->SendPreparedGossip(this);
