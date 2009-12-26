@@ -1834,10 +1834,11 @@ void Spell::EffectDummy(uint32 i)
                 // Master's Call
                 case 53271:
                 {
-                    if (!m_caster->isHunterPet() || !unitTarget)
+                    if (m_caster->GetTypeId() != TYPEID_PLAYER || !unitTarget)
                         return;
-                    else
-                        m_caster->CastSpell(unitTarget, m_spellInfo->CalculateSimpleValue(i), true);
+
+                    if (Pet *PlrPet = ((Player*)m_caster)->GetPet())
+                        PlrPet->CastSpell(unitTarget, m_spellInfo->CalculateSimpleValue(i), true);
                         return;
                 }
             }
@@ -5900,12 +5901,12 @@ void Spell::EffectScriptEffect(uint32 effIndex)
                 // Master's Call
                 case 53271:
                 {
-                    if (!unitTarget)
+                    if (m_caster->GetTypeId() != TYPEID_PLAYER)
                         return;
 
-                    // script effect have in value, but this outdated removed part
-                    unitTarget->CastSpell(unitTarget, 62305, true);
-                    return;
+                    if (Pet *PlrPet = ((Player*)m_caster)->GetPet())
+                        m_caster->CastSpell(PlrPet, 62305, true);
+                        return;
                 }
                 default:
                     break;
