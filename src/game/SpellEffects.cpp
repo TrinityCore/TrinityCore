@@ -423,7 +423,7 @@ void Spell::SpellDamageSchoolDmg(uint32 effect_idx)
                     }
                     // Gargoyle Strike
                     case SPELL_GARGOYLE_STRIKE_51963:
-                    { 
+                    {
                         // about +4 base spell dmg per level
                         damage = (m_caster->getLevel() - 60) * 4 + 60;
                         break;
@@ -727,7 +727,7 @@ void Spell::SpellDamageSchoolDmg(uint32 effect_idx)
                     float ap = m_caster->GetTotalAttackPowerValue(BASE_ATTACK);
                     float sp = m_caster->SpellBaseDamageBonus(GetSpellSchoolMask(m_spellInfo));
                     damage += int32(0.14f*ap + 0.22f*sp);
-                }                
+                }
                 break;
             }
             case SPELLFAMILY_DEATHKNIGHT:
@@ -5680,6 +5680,11 @@ void Spell::EffectScriptEffect(uint32 effIndex)
                     }
                     break;
                 }
+                case 67751:// Ghoul Explode
+                {
+                    unitTarget->CastSpell(unitTarget,67729,false); //Explode
+                    break;
+                }
             }
             break;
         }
@@ -6099,7 +6104,7 @@ void Spell::EffectSanctuary(uint32 /*i*/)
     if(m_spellInfo->SpellFamilyName == SPELLFAMILY_ROGUE && (m_spellInfo->SpellFamilyFlags[0] & SPELLFAMILYFLAG_ROGUE_VANISH))
     {
         ((Player *)m_caster)->RemoveAurasByType(SPELL_AURA_MOD_ROOT);
-        // Overkill 
+        // Overkill
         if(((Player*)m_caster)->HasSpell(58426))
            m_caster->CastSpell(m_caster, 58427, true);
     }
