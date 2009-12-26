@@ -737,7 +737,7 @@ void BattleGround::EndBattleGround(uint32 winner)
         }
 
         // should remove spirit of redemption
-        if(plr->HasAuraType(SPELL_AURA_SPIRIT_OF_REDEMPTION))
+        if (plr->HasAuraType(SPELL_AURA_SPIRIT_OF_REDEMPTION))
             plr->RemoveAurasByType(SPELL_AURA_MOD_SHAPESHIFT);
 
         if (!plr->isAlive())
@@ -996,8 +996,11 @@ void BattleGround::RemovePlayerAtLeave(uint64 guid, bool Transport, bool SendPac
     Player *plr = objmgr.GetPlayer(guid);
 
     // should remove spirit of redemption
-    if(plr && plr->HasAuraType(SPELL_AURA_SPIRIT_OF_REDEMPTION))
+    if (plr && plr->HasAuraType(SPELL_AURA_SPIRIT_OF_REDEMPTION))
         plr->RemoveAurasByType(SPELL_AURA_MOD_SHAPESHIFT);
+
+    if (plr->HasAuraType(SPELL_AURA_MOUNTED))
+        plr->RemoveAurasByType(SPELL_AURA_MOUNTED);
 
     if(plr && !plr->isAlive())                              // resurrect on exit
     {
