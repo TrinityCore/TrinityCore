@@ -3925,10 +3925,14 @@ void AuraEffect::HandleForceReaction(bool apply, bool Real, bool changeAmount)
     Player* player = (Player*)m_target;
 
     uint32 faction_id = GetMiscValue();
-    uint32 faction_rank = m_amount;
+    ReputationRank faction_rank = ReputationRank(m_amount);
 
-    player->GetReputationMgr().ApplyForceReaction(faction_id,ReputationRank(faction_rank),apply);
+    player->GetReputationMgr().ApplyForceReaction(faction_id,faction_rank,apply);
     player->GetReputationMgr().SendForceReactions();
+
+    // stop fighting if at apply forced rank friendly or at remove real rank friendly
+    if (apply && faction_rank >= REP_FRIENDLY || !apply && player->GetReputationRank(faction_id) >= REP_FRIENDLY)
+        player->StopAttackFaction(faction_id);
 }
 
 void AuraEffect::HandleAuraModSkill(bool apply, bool Real, bool /*changeAmount*/)
