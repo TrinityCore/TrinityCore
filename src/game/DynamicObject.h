@@ -26,7 +26,7 @@
 class Unit;
 struct SpellEntry;
 
-class DynamicObject : public WorldObject
+class DynamicObject : public WorldObject, public GridObject<DynamicObject>
 {
     public:
         typedef std::set<Unit*> AffectedSet;
@@ -58,7 +58,6 @@ class DynamicObject : public WorldObject
         void Whisper(int32 textId,uint64 receiver) { MonsterWhisper(textId,receiver); }
         void YellToZone(int32 textId, uint32 language, uint64 TargetGuid) { MonsterYellToZone(textId,language,TargetGuid); }
 
-        GridReference<DynamicObject> &GetGridRef() { return m_gridRef; }
     protected:
         uint32 m_spellId;
         uint32 m_effMask;
@@ -66,7 +65,5 @@ class DynamicObject : public WorldObject
         uint32 m_updateTimer;
         float m_radius;
         AffectedSet m_affected;
-    private:
-        GridReference<DynamicObject> m_gridRef;
 };
 #endif

@@ -960,7 +960,7 @@ struct BGData
     bool HasTaxiPath() const { return taxiPath[0] && taxiPath[1]; }
 };
 
-class TRINITY_DLL_SPEC Player : public Unit
+class TRINITY_DLL_SPEC Player : public Unit, public GridObject<Player>
 {
     friend class WorldSession;
     friend void Item::AddToUpdateQueueOf(Player *player);
@@ -2238,7 +2238,6 @@ class TRINITY_DLL_SPEC Player : public Unit
         uint8 GetOriginalSubGroup() const { return m_originalGroup.getSubGroup(); }
         void SetOriginalGroup(Group *group, int8 subgroup = -1);
 
-        GridReference<Player> &GetGridRef() { return m_gridRef; }
         MapReference &GetMapRef() { return m_mapRef; }
 
         // Set map to player and add reference
@@ -2531,7 +2530,6 @@ Spell * m_spellModTakingSpell;
                 m_DelayedOperations |= operation;
         }
 
-        GridReference<Player> m_gridRef;
         MapReference m_mapRef;
 
         void UpdateCharmedAI();

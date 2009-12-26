@@ -397,7 +397,7 @@ typedef std::map<uint32,time_t> CreatureSpellCooldowns;
 
 #define MAX_VENDOR_ITEMS 150                                // Limitation in 3.x.x item count in SMSG_LIST_INVENTORY
 
-class TRINITY_DLL_SPEC Creature : public Unit
+class TRINITY_DLL_SPEC Creature : public Unit, public GridObject<Creature>
 {
     public:
 
@@ -607,7 +607,6 @@ class TRINITY_DLL_SPEC Creature : public Unit
         bool hasQuest(uint32 quest_id) const;
         bool hasInvolvedQuest(uint32 quest_id)  const;
 
-        GridReference<Creature> &GetGridRef() { return m_gridRef; }
         bool isRegeneratingHealth() { return m_regenHealth; }
         virtual uint8 GetPetAutoSpellSize() const { return CREATURE_MAX_SPELLS; }
         virtual uint32 GetPetAutoSpellOnPos(uint8 pos) const
@@ -711,8 +710,6 @@ class TRINITY_DLL_SPEC Creature : public Unit
 
         //Formation var
         CreatureGroup *m_formation;
-
-        GridReference<Creature> m_gridRef;
 };
 
 class AssistDelayEvent : public BasicEvent
