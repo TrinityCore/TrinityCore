@@ -2378,7 +2378,6 @@ void AuraEffect::HandleAddModifier(bool apply, bool Real, bool changeAmount)
     // Auras with charges do not mod amount of passive auras
     if (GetParentAura()->GetAuraCharges())
         return;
-
     // reapply some passive spells after add/remove related spellmods
     // Warning: it is a dead loop if 2 auras each other amount-shouldn't happen
     switch (modOp)
@@ -2425,10 +2424,6 @@ void AuraEffect::HandleAddModifier(bool apply, bool Real, bool changeAmount)
         }
         default:
             break;
-    }
-    if (m_spellProto->Id == 11129 && !apply)
-    {
-        m_target->RemoveAurasDueToSpell(28682);
     }
 }
 
