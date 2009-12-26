@@ -886,7 +886,14 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
         SetCreateStat(STAT_INTELLECT, 28);
         SetCreateStat(STAT_SPIRIT, 27);
     }
-
+    if (GetEntry() == 29264)
+    {
+        float apbonus=0.35f;
+ 
+        // Glyph of Feral Spirit
+        if (AuraEffect *aurEff = m_owner->GetAuraEffect(63271, 0))
+            apbonus += aurEff->GetAmount() / 100.0f;
+    }
     m_bonusdamage = 0;
     switch (petType)
     {
