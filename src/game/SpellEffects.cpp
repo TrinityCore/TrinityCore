@@ -131,7 +131,7 @@ pEffect SpellEffects[TOTAL_SPELL_EFFECTS]=
     &Spell::EffectThreat,                                   // 63 SPELL_EFFECT_THREAT
     &Spell::EffectTriggerSpell,                             // 64 SPELL_EFFECT_TRIGGER_SPELL
     &Spell::EffectApplyAreaAura,                            // 65 SPELL_EFFECT_APPLY_AREA_AURA_RAID
-    &Spell::EffectUnused,                                   // 66 SPELL_EFFECT_CREATE_MANA_GEM          (possibly recharge it, misc - is item ID)
+    &Spell::EffectRechargeManaGem,                          // 66 SPELL_EFFECT_CREATE_MANA_GEM          (possibly recharge it, misc - is item ID)
     &Spell::EffectHealMaxHealth,                            // 67 SPELL_EFFECT_HEAL_MAX_HEALTH
     &Spell::EffectInterruptCast,                            // 68 SPELL_EFFECT_INTERRUPT_CAST
     &Spell::EffectDistract,                                 // 69 SPELL_EFFECT_DISTRACT
@@ -7495,5 +7495,32 @@ void Spell::EffectCastButtons(uint32 i)
         m_caster->ModifyPower(POWER_MANA, -(int32)cost);
         p_caster->AddSpellAndCategoryCooldowns(spellInfo, 0);
         }
+    }
+}
+
+void Spell::EffectRechargeManaGem(uint32 i)
+{
+    if(!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
+        return;
+
+    Player *player = (Player*)m_caster;
+
+    if (!player)
+        return;
+
+    uint32 item_id = m_spellInfo->EffectItemType[0];
+
+    ItemPrototype const *pProto = objmgr.GetItemPrototype(item_id);
+    if(!pProto)
+    {
+        player->SendEquipError( EQUIP_ERR_ITEM_NOT_FOUND, NULL, NULL );
+        return;
+    }
+
+    if (Item* pItem = player->GetItemByEntry(item_id))
+    {
+        for(int x = 0; x < MAX_ITEM_PROTO_SPELLS; ++x)
+            pItem->SetSpellCharges(x,pProto->Spells[x].SpellCharges);
+        pItem->SetState(ITEM_CHANGED,player);
     }
 }

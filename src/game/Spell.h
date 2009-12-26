@@ -364,6 +364,7 @@ class Spell
         void EffectSpecCount(uint32 i);
         void EffectActivateSpec(uint32 i);
         void EffectCastButtons(uint32 i);
+        void EffectRechargeManaGem(uint32 i);
 
         typedef std::set<Aura *> UsedSpellMods;
 
