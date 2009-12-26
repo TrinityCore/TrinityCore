@@ -3813,6 +3813,11 @@ void SpellMgr::LoadSpellCustomAttr()
         case 62324: // Throw Passenger
             spellInfo->Targets |= TARGET_FLAG_CASTER;
             break;
+        case 51735: // Ebon Plague
+        case 51734:
+        case 51726:
+            spellInfo->SpellFamilyFlags[2] = 0x10;
+            break;
         // cleansing totem pulse when it is spawned
         case 8172:
             spellInfo->AttributesEx5 |= SPELL_ATTR_EX5_START_PERIODIC_AT_APPLY;
