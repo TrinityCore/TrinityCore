@@ -15751,6 +15751,40 @@ void Unit::RewardRage( uint32 damage, uint32 weaponSpeedHitFactor, bool attacker
     ModifyPower(POWER_RAGE, uint32(addRage*10));
 }
 
+void Unit::StopAttackFaction(uint32 faction_id)
+{
+    if (Unit* victim = getVictim())
+    {
+        if (victim->getFactionTemplateEntry()->faction==faction_id)
+        {
+            AttackStop();
+            if (IsNonMeleeSpellCasted(false))
+                InterruptNonMeleeSpells(false);
+
+            // melee and ranged forced attack cancel
+            if (GetTypeId() == TYPEID_PLAYER)
+                ((Player*)this)->SendAttackSwingCancelAttack();
+        }
+    }
+
+    AttackerSet const& attackers = getAttackers();
+    for(AttackerSet::const_iterator itr = attackers.begin(); itr != attackers.end();)
+    {
+        if ((*itr)->getFactionTemplateEntry()->faction==faction_id)
+        {
+            (*itr)->AttackStop();
+            itr = attackers.begin();
+        }
+        else
+            ++itr;
+    }
+
+    getHostilRefManager().deleteReferencesForFaction(faction_id);
+
+    for(ControlList::const_iterator itr = m_Controlled.begin(); itr != m_Controlled.end(); ++itr)
+            (*itr)->StopAttackFaction(faction_id);
+}
+
 void Unit::OutDebugInfo() const
 {
     sLog.outError("Unit::OutDebugInfo");
