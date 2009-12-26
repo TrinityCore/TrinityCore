@@ -1904,7 +1904,7 @@ Ra.Secure = 1
 #       Default: 0 = Only 1 Guild Master per guild
 #                1 = Allow more than one Guild Master
 #
-#   OutdoorPvP.Wintergrasp.Enabled = 1
+#   OutdoorPvP.Wintergrasp.Enabled = 0
 #       Determines whether the Wintergrasp battle is enabled or not.
 #
 #   OutdoorPvP.Wintergrasp.StartTime = 30
@@ -1991,7 +1991,7 @@ PvPToken.MapAllowType = 4
 PvPToken.ItemID = 29434
 PvPToken.ItemCount = 1
 Guild.AllowMultipleGuildMaster = 0
-OutdoorPvP.Wintergrasp.Enabled = 1
+OutdoorPvP.Wintergrasp.Enabled = 0
 OutdoorPvP.Wintergrasp.StartTime = 30
 OutdoorPvP.Wintergrasp.BattleTime = 30
 OutdoorPvP.Wintergrasp.Interval = 150
