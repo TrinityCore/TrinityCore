@@ -4101,6 +4101,10 @@ SpellCastResult Spell::CheckRuneCost(uint32 runeCostID)
     if(src->NoRuneCost())
         return SPELL_CAST_OK;
 
+    // Freezing Fog makes Howling Blast cost no runes
+    if (m_caster->HasAura(59052) && m_spellInfo->SpellFamilyFlags[1] & 0x2)
+        return SPELL_CAST_OK;
+
     int32 runeCost[NUM_RUNE_TYPES];                         // blood, frost, unholy, death
 
     for (uint32 i = 0; i < RUNE_DEATH; ++i)
@@ -4139,6 +4143,14 @@ void Spell::TakeRunePower()
 
     if(!src || (src->NoRuneCost() && src->NoRunicPowerGain()))
         return;
+
+    // Freezing Fog makes Howling Blast cost no runes
+    if (m_caster->HasAura(59052) && m_spellInfo->SpellFamilyFlags[1] & 0x2)
+    {
+        m_caster->RemoveAurasDueToSpell(59052, m_caster->GetGUID());
+        return;
+    }
+
     m_runesState = plr->GetRunesState();                    // store previous state
 
     int32 runeCost[NUM_RUNE_TYPES];                         // blood, frost, unholy, death
