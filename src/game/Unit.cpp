@@ -9675,20 +9675,29 @@ uint32 Unit::SpellDamageBonus(Unit *pVictim, SpellEntry const *spellProto, uint3
             TakenTotalMod *= ((*i)->GetAmount()+100.0f)/100.0f;
 
     // .. taken pct: dummy auras
-    if (pVictim->GetTypeId() == TYPEID_PLAYER)
+    AuraEffectList const& mDummyAuras = pVictim->GetAurasByType(SPELL_AURA_DUMMY);
+    for (AuraEffectList::const_iterator i = mDummyAuras.begin(); i != mDummyAuras.end(); ++i)
     {
-        //Cheat Death
-        if (AuraEffect *dummy = pVictim->GetAuraEffect(45182, 0))
+        switch((*i)->GetSpellProto()->SpellIconID)
         {
-            float mod = -((Player*)pVictim)->GetRatingBonusValue(CR_CRIT_TAKEN_SPELL)*2*4;
-            if (mod < dummy->GetAmount())
-                mod = dummy->GetAmount();
-            TakenTotalMod *= (mod+100.0f)/100.0f;
+            // Cheat Death
+            case 2109:
+                if ((*i)->GetMiscValue() & SPELL_SCHOOL_MASK_NORMAL)
+                {
+                    if (pVictim->GetTypeId() != TYPEID_PLAYER)
+                        continue;
+                    float mod = ((Player*)pVictim)->GetRatingBonusValue(CR_CRIT_TAKEN_MELEE)*(-8.0f);
+                    if (mod < (*i)->GetAmount())
+                        mod = (*i)->GetAmount();
+                    TakenTotalMod *= (mod+100.0f)/100.0f;
+                }
+                break;
+            // Ebon Plague
+            case 1933:
+                if ((*i)->GetMiscValue() & (spellProto ? GetSpellSchoolMask(spellProto) : 0))
+                    TakenTotalMod *= ((*i)->GetAmount()+100.0f)/100.0f;
+                break;
         }
-        // Ebon Plague
-        if (AuraEffect *dummy = pVictim->GetDummyAura(SPELLFAMILY_DEATHKNIGHT, 1933, 1))
-            if (dummy->GetMiscValue() & GetSpellSchoolMask(spellProto))
-                TakenTotalMod *= (dummy->GetAmount()+100.0f)/100.0f;
     }
 
     // From caster spells
