@@ -110,6 +110,24 @@ void HostilRefManager::deleteReferences()
 }
 
 //=================================================
+// delete one reference, defined by faction
+
+void HostilRefManager::deleteReferencesForFaction(uint32 faction)
+{
+    HostilReference* ref = getFirst();
+    while(ref)
+    {
+        HostilReference* nextRef = ref->next();
+        if(ref->getSource()->getOwner()->getFactionTemplateEntry()->faction == faction)
+        {
+            ref->removeReference();
+            delete ref;
+        }
+        ref = nextRef;
+    }
+}
+
+//=================================================
 // delete one reference, defined by Unit
 
 void HostilRefManager::deleteReference(Unit *pCreature)
