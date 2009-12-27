@@ -1066,7 +1066,7 @@ int ChatHandler::ParseCommands(const char* text)
 
     std::string fullcmd = text;
 
-    if (this->getSession()->GetSecurity() <= SEC_PLAYER && sWorld.getConfig(CONFIG_ALLOW_PLAYER_COMMANDS) == 0)
+    if (m_session->GetSecurity() <= SEC_PLAYER && sWorld.getConfig(CONFIG_ALLOW_PLAYER_COMMANDS) == 0)
 	 return 0;
 
     if (m_session && !m_session->HandleOnPlayerChat(text))
