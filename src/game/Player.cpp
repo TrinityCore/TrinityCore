@@ -21885,7 +21885,7 @@ void Player::_LoadSkills(QueryResult *result)
         uint8 base_level = std::min(getLevel(),uint8(sWorld.getConfig(CONFIG_START_HEROIC_PLAYER_LEVEL)));
         if (base_level < 1)
             base_level = 1;
-        uint8 base_skill = (base_level-1)*5;                // 270 at starting level 55
+        uint16 base_skill = (base_level-1)*5;               // 270 at starting level 55
         if (base_skill < 1)
             base_skill = 1;                                 // skill mast be known and then > 0 in any case
 
