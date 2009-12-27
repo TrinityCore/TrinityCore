@@ -510,6 +510,9 @@ void WorldSession::HandleMessagechatOpcode( WorldPacket & recv_data )
             if (!processChatmessageFurtherAfterSecurityChecks(msg, lang))
                 return;
 
+	     if (_player->getLevel() < sWorld.getConfig(CONFIG_CHAT_CHANNEL_LEVEL_REQ))
+		  return;
+
             if(msg.empty())
                 break;
 
