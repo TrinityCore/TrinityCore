@@ -866,7 +866,7 @@ void Spell::EffectDummy(uint32 i)
                     m_caster->CastCustomSpell(unitTarget, 12721, &deepWoundsDotBasePoints0, NULL, NULL, true, NULL);
                     return;
                 }
-                case SPELL_NET_O_MATIC_13120:                                 // net-o-matic
+                case 13120:                                 // net-o-matic
                 {
                     if (!unitTarget)
                         return;
@@ -876,16 +876,16 @@ void Spell::EffectDummy(uint32 i)
                     uint32 roll = urand(0, 99);
 
                     if(roll < 2)                            // 2% for 30 sec self root (off-like chance unknown)
-                        spell_id = SPELL_NET_O_MATIC_16566;
+                        spell_id = 16566;
                     else if(roll < 4)                       // 2% for 20 sec root, charge to target (off-like chance unknown)
-                        spell_id = SPELL_NET_O_MATIC_13119;
+                        spell_id = 13119;
                     else                                    // normal root
-                        spell_id = SPELL_NET_O_MATIC_13099;
+                        spell_id = 13099;
 
                     m_caster->CastSpell(unitTarget,spell_id,true,NULL);
                     return;
                 }
-        case SPELL_FLASK_OF_THE_NORTH_67019:                    // Flask of the North
+        case 67019:                    // Flask of the North
         {
             if (m_caster->GetTypeId() != TYPEID_PLAYER)
             return;
@@ -893,43 +893,43 @@ void Spell::EffectDummy(uint32 i)
             uint32 spell_id;
             switch(urand(1, 3))
             {
-                case 1:  spell_id = SPELL_FLASK_OF_THE_NORTH_67016; break;
-                case 2:  spell_id = SPELL_FLASK_OF_THE_NORTH_67017; break;
-                default: spell_id = SPELL_FLASK_OF_THE_NORTH_67018; break;
+            case 1: spell_id = 67016; break;
+            case 2: spell_id = 67017; break;
+            default:spell_id = 67018; break;
             }
 
             m_caster->CastSpell(m_caster, spell_id, true, NULL);
             return;
         }
-        case SPELL_GNOMISH_DEATH_RAY_13280:                                 // Gnomish Death Ray
-        {
-            if (!unitTarget)
-                return;
+                case 13280:                                 // Gnomish Death Ray
+                {
+                    if (!unitTarget)
+                        return;
 
-            if (urand(0, 99) < 15)
-                m_caster->CastSpell(m_caster, SPELL_GNOMISH_DEATH_RAY_13493, true, NULL);    // failure
-            else
-                m_caster->CastSpell(unitTarget, SPELL_GNOMISH_DEATH_RAY_13279, true, NULL);
+                    if (urand(0, 99) < 15)
+                        m_caster->CastSpell(m_caster, 13493, true, NULL);    // failure
+                    else
+                        m_caster->CastSpell(unitTarget, 13279, true, NULL);
 
-            return;
-        }
-        case SPELL_DUMMY_TRIGGER_13567:                                 // Dummy Trigger
-        {
-             // can be used for different aura triggering, so select by aura
-             if (!m_triggeredByAuraSpell || !unitTarget)
-                 return;
+                    return;
+                }
+                case 13567:                                 // Dummy Trigger
+                {
+                    // can be used for different aura triggering, so select by aura
+                    if (!m_triggeredByAuraSpell || !unitTarget)
+                        return;
 
-              switch (m_triggeredByAuraSpell->Id)
-              {
-                  case SPELL_PERSISTENT_SHIELD_26467:                         // Persistent Shield
-                      m_caster->CastCustomSpell(unitTarget, 26470, &damage, NULL, NULL, true);
-                      break;
-                  default:
-                      sLog.outError("EffectDummy: Non-handled case for spell 13567 for triggered aura %u",m_triggeredByAuraSpell->Id);
-                      break;
-              }
-              return;
-         }
+                    switch (m_triggeredByAuraSpell->Id)
+                    {
+                        case 26467:                         // Persistent Shield
+                            m_caster->CastCustomSpell(unitTarget, 26470, &damage, NULL, NULL, true);
+                            break;
+                        default:
+                            sLog.outError("EffectDummy: Non-handled case for spell 13567 for triggered aura %u",m_triggeredByAuraSpell->Id);
+                            break;
+                    }
+                    return;
+                }
                 case 15998:                                 // Capture Worg Pup
                 case 29435:                                 // Capture Female Kaliri Hatchling
                 {
