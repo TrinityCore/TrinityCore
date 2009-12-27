@@ -1551,7 +1551,7 @@ CreatureAI* GetAI_npc_winter_reveler(Creature* pCreature)
 ## npc_snake_trap_serpents
 ####*/
 
-#define SPELL_MIND_NUMBING_POISON    8692    //Viper
+#define SPELL_MIND_NUMBING_POISON    25810   //Viper
 #define SPELL_DEADLY_POISON          34655   //Venomous Snake
 #define SPELL_CRIPPLING_POISON       3409    //Viper
 
