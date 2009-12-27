@@ -245,7 +245,7 @@ void Unit::Update(uint32 p_time)
         {
             // m_CombatTimer set at aura start and it will be freeze until aura removing
             if (m_CombatTimer <= p_time)
-                CombatStop();
+                ClearInCombat();
             else
                 m_CombatTimer -= p_time;
         }
@@ -1432,7 +1432,7 @@ void Unit::CalculateMeleeDamage(Unit *pVictim, uint32 damage, CalcDamageInfo *da
                 resilienceReduction = pVictim->GetMeleeCritDamageReduction(damageInfo->damage);
             else
                 resilienceReduction = pVictim->GetRangedCritDamageReduction(damageInfo->damage);
-            
+
             damageInfo->damage      -= resilienceReduction;
             damageInfo->cleanDamage += resilienceReduction;
             break;
@@ -3560,7 +3560,7 @@ void Unit::SetFacingToObject(WorldObject* pObject)
 {
     // update orientation at server
     SetOrientation(GetAngle(pObject));
- 
+
     // and client
     WorldPacket data;
     BuildHeartBeatMsg(&data);
@@ -5528,7 +5528,7 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                     target->RemoveAurasByType(SPELL_AURA_PERIODIC_DAMAGE_PERCENT);
                     return true;
                 }
-                // Glyph of Drain Soul 
+                // Glyph of Drain Soul
                 case 58070:
                 {
                     triggered_spell_id = 58068;
@@ -5868,7 +5868,7 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                 int32 bonus = 0;
                 if (AuraEffect *aurEff = target->GetAuraEffect(47753, 0))
                     bonus = aurEff->GetAmount();
-                
+
                 basepoints0 = damage * triggerAmount/100 + bonus;
                 if (basepoints0 > target->getLevel() * 125)
                     basepoints0 = target->getLevel() * 125;
@@ -15175,7 +15175,7 @@ float Unit::GetCombatRatingReduction(CombatRating cr) const
             if(owner->GetTypeId() == TYPEID_PLAYER)
                 return ((Player*)owner)->GetRatingBonusValue(cr) * 0.4f;
     }
-    
+
     return 0.0f;
 }
 
@@ -15231,7 +15231,7 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form)
                         case 10:
                         case 11:
                             return 29410;
-                        case 6: // Brown 
+                        case 6: // Brown
                         case 7:
                         case 8:
                             return 29411;
