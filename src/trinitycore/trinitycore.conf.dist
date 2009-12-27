@@ -1030,6 +1030,14 @@ ListenRange.Yell = 300
 #        Default: 0 (join announcement in normal way)
 #                 1 (GM join without announcement)
 #
+#    ChannelLevelReq
+#        The required level of character to be able to write in chat channels
+#        Default: 1 (From level 1)
+#
+#    AllowPlayerCommands
+#        Allowed the players to use commands
+#        Default: 1 (allow)
+#
 ###################################################################################################################
 
 ChatFakeMessagePreventing = 0
@@ -1040,6 +1048,8 @@ ChatFlood.MessageDelay = 1
 ChatFlood.MuteTime = 10
 Channel.RestrictedLfg = 1
 Channel.SilentlyGMJoin = 0
+ChannelLevelReq = 1
+AllowPlayerCommands = 1
 
 ###################################################################################################################
 # GAME MASTER SETTINGS
