@@ -6199,7 +6199,7 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                 if (!procSpell || effIndex != 0)
                     return false;
 
-                bool isWrathSpell = (procSpell->SpellFamilyFlags[1] & 0x00000001);
+                bool isWrathSpell = (procSpell->SpellFamilyFlags[0] & 1);
 
                 if (!roll_chance_f(dummySpell->procChance * (isWrathSpell ? 0.6f : 1.0f)))
                     return false;
