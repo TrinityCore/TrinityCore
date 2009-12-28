@@ -885,22 +885,22 @@ void Spell::EffectDummy(uint32 i)
                     m_caster->CastSpell(unitTarget,spell_id,true,NULL);
                     return;
                 }
-        case 67019:                    // Flask of the North
-        {
-            if (m_caster->GetTypeId() != TYPEID_PLAYER)
-            return;
+                case 67019:                    // Flask of the North
+                {
+                    if (m_caster->GetTypeId() != TYPEID_PLAYER)
+                    return;
 
-            uint32 spell_id;
-            switch(urand(1, 3))
-            {
-            case 1: spell_id = 67016; break;
-            case 2: spell_id = 67017; break;
-            default:spell_id = 67018; break;
-            }
+                    uint32 spell_id;
+                    switch(urand(1, 3))
+                    {
+                        case 1: spell_id = 67016; break;
+                        case 2: spell_id = 67017; break;
+                        default:spell_id = 67018; break;
+                    }
 
-            m_caster->CastSpell(m_caster, spell_id, true, NULL);
-            return;
-        }
+                    m_caster->CastSpell(m_caster, spell_id, true, NULL);
+                    return;
+                }
                 case 13280:                                 // Gnomish Death Ray
                 {
                     if (!unitTarget)
