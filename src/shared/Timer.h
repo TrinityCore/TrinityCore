@@ -56,67 +56,155 @@ inline uint32 getMSTimeDiff(uint32 oldMSTime, uint32 newMSTime)
         return newMSTime - oldMSTime;
 }
 
-class IntervalTimer
+struct IntervalTimer
 {
     public:
-        IntervalTimer() : _interval(0), _current(0) {}
 
-        void Update(time_t diff) { _current += diff; if(_current<0) _current=0;}
-        bool Passed() { return _current >= _interval; }
-        void Reset() { if(_current >= _interval) _current -= _interval;  }
+        IntervalTimer()
+            : _interval(0), _current(0)
+        {
+        }
 
-        void SetCurrent(time_t current) { _current = current; }
-        void SetInterval(time_t interval) { _interval = interval; }
-        time_t GetInterval() const { return _interval; }
-        time_t GetCurrent() const { return _current; }
+        void Update(time_t diff)
+        {
+            _current += diff;
+            if (_current < 0)
+                _current = 0;
+        }
+
+        bool Passed()
+        {
+            return _current >= _interval;
+        }
+
+        void Reset()
+        {
+            if (_current >= _interval)
+                _current -= _interval;
+        }
+
+        void SetCurrent(time_t current)
+        {
+            _current = current;
+        }
+
+        void SetInterval(time_t interval)
+        {
+            _interval = interval;
+        }
+
+        time_t GetInterval() const
+        {
+            return _interval;
+        }
+
+        time_t GetCurrent() const
+        {
+            return _current;
+        }
 
     private:
+
         time_t _interval;
         time_t _current;
 };
 
 struct TimeTracker
 {
-    TimeTracker(time_t expiry) : i_expiryTime(expiry) {}
-    void Update(time_t diff) { i_expiryTime -= diff; }
-    bool Passed(void) const { return (i_expiryTime <= 0); }
-    void Reset(time_t interval) { i_expiryTime = interval; }
-    time_t GetExpiry(void) const { return i_expiryTime; }
-    time_t i_expiryTime;
+    public:
+
+        TimeTracker(time_t expiry)
+            : i_expiryTime(expiry)
+        {
+        }
+
+        void Update(time_t diff)
+        {
+            i_expiryTime -= diff;
+        }
+
+        bool Passed() const
+        {
+            return i_expiryTime <= 0;
+        }
+
+        void Reset(time_t interval)
+        {
+            i_expiryTime = interval;
+        }
+
+        time_t GetExpiry() const
+        {
+            return i_expiryTime;
+        }
+
+    private:
+
+        time_t i_expiryTime;
 };
 
 struct TimeTrackerSmall
 {
-    TimeTrackerSmall(uint32 expiry) : i_expiryTime(expiry) {}
-    void Update(int32 diff) { i_expiryTime -= diff; }
-    bool Passed(void) const { return (i_expiryTime <= 0); }
-    void Reset(uint32 interval) { i_expiryTime = interval; }
-    uint32 GetExpiry(void) const { return i_expiryTime; }
-    uint32 i_expiryTime;
+    public:
+
+        TimeTrackerSmall(uint32 expiry)
+            : i_expiryTime(expiry)
+        {
+        }
+
+        void Update(int32 diff)
+        {
+            i_expiryTime -= diff;
+        }
+
+        bool Passed() const
+        {
+            return i_expiryTime <= 0;
+        }
+
+        void Reset(uint32 interval)
+        {
+            i_expiryTime = interval;
+        }
+
+        int32 GetExpiry() const
+        {
+            return i_expiryTime;
+        }
+
+    private:
+
+        int32 i_expiryTime;
 };
 
 struct PeriodicTimer
 {
-    PeriodicTimer(uint32 period, uint32 start_time) :
-      i_expireTime(start_time), i_period(period) {}
+    public:
 
-    bool Update(const uint32 &diff)
-    {
-        if((i_expireTime -= diff) > 0)
-            return false;
+        PeriodicTimer(int32 period, int32 start_time)
+            : i_expireTime(start_time), i_period(period)
+        {
+        }
 
-        i_expireTime += i_period > diff ? i_period : diff;
-        return true;
-    }
+        bool Update(const uint32 &diff)
+        {
+            if ((i_expireTime -= diff) > 0)
+                return false;
 
-    void SetPeriodic(uint32 period, uint32 start_time)
-    {
-        i_expireTime=start_time, i_period=period;
-    }
+            i_expireTime += i_period > diff ? i_period : diff;
+            return true;
+        }
 
-    uint32 i_period;
-    uint32 i_expireTime;
+        void SetPeriodic(int32 period, int32 start_time)
+        {
+            i_expireTime = start_time;
+            i_period = period;
+        }
+
+    private:
+
+        int32 i_period;
+        int32 i_expireTime;
 };
 
 #endif
-
