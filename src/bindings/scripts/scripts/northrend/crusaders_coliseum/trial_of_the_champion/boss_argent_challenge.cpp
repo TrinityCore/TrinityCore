@@ -36,7 +36,7 @@ enum eSpells
     SPELL_VENGEANCE             = 66865,
 
     //Paletress
-    SPELL_SMITE	                = 66536,
+    SPELL_SMITE                 = 66536,
     SPELL_SMITE_H               = 67674,
     SPELL_HOLY_FIRE             = 66538,
     SPELL_HOLY_FIRE_H           = 67676,
@@ -45,8 +45,9 @@ enum eSpells
     SPELL_HOLY_NOVA             = 66546,
     SPELL_SHIELD                = 66515,
     SPELL_CONFESS               = 66680,
+    SPELL_SUMMON_MEMORY         = 66545,
 
-	//Memory
+    //Memory
     SPELL_OLD_WOUNDS            = 66620,
     SPELL_OLD_WOUNDS_H          = 67679,
     SPELL_SHADOWS_PAST          = 66619,
@@ -59,9 +60,9 @@ struct TRINITY_DLL_DECL boss_eadricAI : public ScriptedAI
 {
     boss_eadricAI(Creature* pCreature) : ScriptedAI(pCreature) {}
 
-	uint32 uiVenganceTimer;
-	uint32 uiRadianceTimer;
-	uint32 uiHammerJusticeTimer;
+    uint32 uiVenganceTimer;
+    uint32 uiRadianceTimer;
+    uint32 uiHammerJusticeTimer;
 
     void Reset()
     {
@@ -104,7 +105,7 @@ struct TRINITY_DLL_DECL boss_eadricAI : public ScriptedAI
             uiRadianceTimer = 16000;
         } else uiRadianceTimer -= uiDiff;
 
-	    DoMeleeAttackIfReady();
+        DoMeleeAttackIfReady();
     }
 };
 
@@ -120,9 +121,9 @@ struct TRINITY_DLL_DECL boss_paletressAI : public ScriptedAI
         pMemory = NULL;
     }
 
-	ScriptedInstance* pInstance;
+    ScriptedInstance* pInstance;
 
-	Creature* pMemory;
+    Creature* pMemory;
 
     bool bHealth;
 
@@ -153,7 +154,7 @@ struct TRINITY_DLL_DECL boss_paletressAI : public ScriptedAI
             m_creature->RemoveAura(SPELL_SHIELD);
     }
 
-	void UpdateAI(const uint32 uiDiff)
+    void UpdateAI(const uint32 uiDiff)
     {
         if (!UpdateVictim())
             return;
@@ -210,7 +211,7 @@ struct TRINITY_DLL_DECL boss_paletressAI : public ScriptedAI
             uiRandomSpell = urand(1,26);
             DoCastAOE(SPELL_HOLY_NOVA,false);
             DoCast(m_creature, SPELL_SHIELD);
-            DoCastAOE(66545,false);
+            DoCastAOE(SPELL_SUMMON_MEMORY,false);
             DoCastAOE(SPELL_CONFESS,false);
 
             bHealth = true;
@@ -234,9 +235,9 @@ struct TRINITY_DLL_DECL npc_memoryAI : public ScriptedAI
 {
     npc_memoryAI(Creature* pCreature) : ScriptedAI(pCreature) {}
 
-	uint32 uiOldWoundsTimer;
-	uint32 uiShadowPastTimer;
-	uint32 uiWakingNightmare;
+    uint32 uiOldWoundsTimer;
+    uint32 uiShadowPastTimer;
+    uint32 uiWakingNightmare;
 
     void Reset()
     {
@@ -245,49 +246,49 @@ struct TRINITY_DLL_DECL npc_memoryAI : public ScriptedAI
         uiWakingNightmare = 7000;
     }
 
-	void UpdateAI(const uint32 uiDiff)
+    void UpdateAI(const uint32 uiDiff)
     {
         if (!UpdateVictim())
             return;
 
-		if (uiOldWoundsTimer <= uiDiff)
+        if (uiOldWoundsTimer <= uiDiff)
         {
-			if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM,0))
-			{
+            if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM,0))
+            {
                 if (pTarget && pTarget->isAlive())
                     DoCast(pTarget, HEROIC(SPELL_OLD_WOUNDS_H,SPELL_OLD_WOUNDS));
-			}
+            }
             uiOldWoundsTimer = 12000;
         }else uiOldWoundsTimer -= uiDiff;
 
-		if (uiWakingNightmare <= uiDiff)
+        if (uiWakingNightmare <= uiDiff)
         {
-			DoCast(m_creature, HEROIC(SPELL_WAKING_NIGHTMARE_H,SPELL_WAKING_NIGHTMARE));
+            DoCast(m_creature, HEROIC(SPELL_WAKING_NIGHTMARE_H,SPELL_WAKING_NIGHTMARE));
             uiWakingNightmare = 7000;
         }else uiWakingNightmare -= uiDiff;
 
-		if (uiShadowPastTimer <= uiDiff)
+        if (uiShadowPastTimer <= uiDiff)
         {
-			if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM,1))
-			{
-			    if (pTarget && pTarget->isAlive())
+            if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM,1))
+            {
+                if (pTarget && pTarget->isAlive())
                     DoCast(pTarget,HEROIC(SPELL_SHADOWS_PAST_H,SPELL_SHADOWS_PAST));
-			}
+            }
             uiShadowPastTimer = 5000;
         }else uiShadowPastTimer -= uiDiff;
 
-		DoMeleeAttackIfReady();
-	}
+        DoMeleeAttackIfReady();
+    }
 
-	void JustDied(Unit* pKiller)
-	{
+    void JustDied(Unit* pKiller)
+    {
         if (m_creature->isSummon())
             if (Unit* pSummoner = CAST_SUM(m_creature)->GetSummoner())
             {
                 if (pSummoner && pSummoner->isAlive())
                     CAST_CRE(pSummoner)->AI()->SetData(1,0);
             }
-	}
+    }
 };
 
 CreatureAI* GetAI_npc_memory(Creature* pCreature)
@@ -301,16 +302,16 @@ void AddSC_boss_argent_challenge()
 
     NewScript = new Script;
     NewScript->Name = "boss_eadric";
-	NewScript->GetAI = &GetAI_boss_eadric;
+    NewScript->GetAI = &GetAI_boss_eadric;
     NewScript->RegisterSelf();
 
-	NewScript = new Script;
+    NewScript = new Script;
     NewScript->Name = "boss_paletress";
-	NewScript->GetAI = &GetAI_boss_paletress;
+    NewScript->GetAI = &GetAI_boss_paletress;
     NewScript->RegisterSelf();
 
-	NewScript = new Script;
+    NewScript = new Script;
     NewScript->Name = "npc_memory";
-	NewScript->GetAI = &GetAI_npc_memory;
+    NewScript->GetAI = &GetAI_npc_memory;
     NewScript->RegisterSelf();
 }
