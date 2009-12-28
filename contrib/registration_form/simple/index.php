@@ -31,7 +31,8 @@ Password:
 <br /><input name="password" type="password" maxlength="12" /><br />
 Email:
 <br /><input name="email" type="text" maxlength="50" />
-<br /><input name="tbc" type="checkbox" checked="checked" /> TBC<br /><br /><br />
+<br /><input name="tbc" type="checkbox" /> TBC<br />
+<br /><input name="wotlk" type="checkbox" checked="checked" /> WOTLK<br /><br /><br />
 <button type="submit">Submit</button>
 </p>
 </form>
@@ -52,7 +53,7 @@ if (!$con) {
 };
 
 if (!empty($_POST)) {
-        if ((empty($_POST["username"]))||(empty($_POST["password"]))||(empty($_POST["email"]))||(empty($_POST["tbc"])) ) {
+        if ((empty($_POST["username"]))||(empty($_POST["password"]))||(empty($_POST["email"]))||((empty($_POST["tbc"]) && (empty($_POST["wotlk"])))) ) {
                 error_s("You did not enter all the required information.");
 				exit();
         } else {
@@ -95,10 +96,18 @@ if (!empty($_POST)) {
                         error_s("Email was in an incorrect format.");
                         exit();
                 };
-                if ($_POST['tbc'] != "on") {
-                        $tbc = "0";
+		if (($_POST["tbc"] == "on") && ($_POST["wotlk"] == "on")) {
+			error_s("TBC and WOTLK were both checked.");
+			exit();
+		};
+                if ($_POST["tbc"] != "on") {
+			if ($_POST["wotlk"] != "on") {
+                        	$exp = "0";
+			} else {
+				$exp = "2";
+			};
                 } else {
-                        $tbc = "1";
+                        $exp = "1";
                 };
                 $username = mysql_real_escape_string($username);
                 $password = mysql_real_escape_string($password);
@@ -133,7 +142,7 @@ if (!empty($_POST)) {
                 };
 				unset($qry);
                 $sha_pass_hash = sha1(strtoupper($username) . ":" . strtoupper($password));
-                $register_sql = "insert into " . mysql_real_escape_string($r_db) . ".account (username, sha_pass_hash, email, expansion) values (upper('" . $username . "'),'" . $sha_pass_hash . "','" . $email . "','" . $tbc . "')";
+                $register_sql = "insert into " . mysql_real_escape_string($r_db) . ".account (username, sha_pass_hash, email, expansion) values (upper('" . $username . "'),'" . $sha_pass_hash . "','" . $email . "','" . $exp . "')";
                 $qry = @mysql_query($register_sql, $con);
 				if (!$qry) {
 					error_s("Error creating account: " . mysql_error());
