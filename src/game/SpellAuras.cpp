@@ -31,6 +31,7 @@
 #include "Player.h"
 #include "Unit.h"
 #include "Spell.h"
+#include "SpellId.h"
 #include "DynamicObject.h"
 #include "Group.h"
 #include "UpdateData.h"
@@ -6679,8 +6680,9 @@ void AuraEffect::PeriodicDummyTick()
                     }
                 }
                 break;
-            case 58600: // No fly Zone - Dalaran
-                if (10 == m_tickNumber)
+            case SPELL_RESTRICTED_FLIGHT_AREA_58730: // No Fly Zone - Wintergrasp
+            case SPELL_RESTRICTED_FLIGHT_AREA_58600: // No fly Zone - Dalaran
+                if (m_tickNumber == 10)
                 {
                     m_target->RemoveAurasByType(SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED);
                     m_target->RemoveAurasByType(SPELL_AURA_FLY);
