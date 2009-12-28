@@ -75,18 +75,6 @@ namespace FactorySelector
                 ai_factory = ai_registry.GetRegistryItem("CritterAI");
         }
 
-        if(!ai_factory)
-        {
-            for (uint32 i = 0; i < CREATURE_MAX_SPELLS; ++i)
-            {
-                if(creature->m_spells[i])
-                {
-                    ai_factory = ai_registry.GetRegistryItem("CombatAI");
-                    break;
-                }
-            }
-        }
-
         // select by permit check
         if(!ai_factory)
         {
