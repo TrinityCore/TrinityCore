@@ -5578,7 +5578,8 @@ INSERT INTO `spell_linked_spell` (`spell_trigger`,`spell_effect`,`type`,`comment
 -- Gundrak
 (54850, 54851, 1, 'Emerge - Emerge Summon'),
 -- Trial of the Champion
-(66680, 66547, 0, 'Confess - Confess');
+(66680, 66547, 0, 'Confess - Confess'),
+(66889, -66865, 0, 'Remove Vengeance');
 /*!40000 ALTER TABLE `spell_linked_spell` ENABLE KEYS */;
 UNLOCK TABLES;
 
