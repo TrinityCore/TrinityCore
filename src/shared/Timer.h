@@ -87,17 +87,17 @@ struct TimeTracker
 
 struct TimeTrackerSmall
 {
-    TimeTrackerSmall(int32 expiry) : i_expiryTime(expiry) {}
+    TimeTrackerSmall(uint32 expiry) : i_expiryTime(expiry) {}
     void Update(int32 diff) { i_expiryTime -= diff; }
     bool Passed(void) const { return (i_expiryTime <= 0); }
-    void Reset(int32 interval) { i_expiryTime = interval; }
-    int32 GetExpiry(void) const { return i_expiryTime; }
-    int32 i_expiryTime;
+    void Reset(uint32 interval) { i_expiryTime = interval; }
+    uint32 GetExpiry(void) const { return i_expiryTime; }
+    uint32 i_expiryTime;
 };
 
 struct PeriodicTimer
 {
-    PeriodicTimer(int32 period, int32 start_time) :
+    PeriodicTimer(uint32 period, uint32 start_time) :
       i_expireTime(start_time), i_period(period) {}
 
     bool Update(const uint32 &diff)
@@ -109,13 +109,13 @@ struct PeriodicTimer
         return true;
     }
 
-    void SetPeriodic(int32 period, int32 start_time)
+    void SetPeriodic(uint32 period, uint32 start_time)
     {
         i_expireTime=start_time, i_period=period;
     }
 
-    int32 i_period;
-    int32 i_expireTime;
+    uint32 i_period;
+    uint32 i_expireTime;
 };
 
 #endif
