@@ -31,6 +31,7 @@
 #include "Player.h"
 #include "Unit.h"
 #include "Spell.h"
+#include "SpellId.h"
 #include "DynamicObject.h"
 #include "Group.h"
 #include "UpdateData.h"
