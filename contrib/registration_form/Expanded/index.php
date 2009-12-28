@@ -122,17 +122,17 @@ Username:
 <br /><input name="username" type="text" maxlength="14" /><img src="inc/help.gif" HEIGHT="20" WIDTH="20" alt="help" onMouseover="ttip(\'username must be 5 - 14 chars long\', 300)"; onMouseout="hidettip()"><br />
 Password:
 <br /><input name="password" type="password" maxlength="12" onkeyup="runPassword(this.value, \'mypassword\');" /><img src="inc/help.gif" HEIGHT="20" WIDTH="20" alt="help" onMouseover="ttip(\'Password must be 6 - 12 chars long\', 300)"; onMouseout="hidettip()">
-<div style="width: 100px;text-align:center;"> 
-				<div id="mypassword_text" style="font-size: 10px;"></div>
-				<div id="mypassword_bar" style="font-size: 1px; height: 2px; width: 0px; border: 1px solid white;"></div> 
-			</div></p>
+<div style="width: 100px;text-align:center;">
+                <div id="mypassword_text" style="font-size: 10px;"></div>
+                <div id="mypassword_bar" style="font-size: 1px; height: 2px; width: 0px; border: 1px solid white;"></div>
+            </div></p>
 <br />
 <p style="text-align:center;">Email:
-<br /><input name="email" type="text" maxlength="50" /><img src="inc/help.gif" HEIGHT="20" WIDTH="20" alt="help" onMouseover="ttip(\'Email must be 15 - 50 chars long\', 300)"; onMouseout="hidettip()"><br />
-<INPUT TYPE=RADIO NAME="expansion" VALUE="0"         >Original - 
-<INPUT TYPE=RADIO NAME="expansion" VALUE="1" CHECKED >TBC - 
-<INPUT TYPE=RADIO NAME="expansion" VALUE="2"         >WOTLK<br />
-<img src="inc/OOP5.php" style="border: 1px dashed silver;"><br />
+<br /><input name="email" type="text" maxlength="255" /><img src="inc/help.gif" HEIGHT="20" WIDTH="20" alt="help" onMouseover="ttip(\'Email must be 15 - 50 chars long\', 300)"; onMouseout="hidettip()"><br />
+<INPUT TYPE=RADIO NAME="expansion" VALUE="0"         >Original -
+<INPUT TYPE=RADIO NAME="expansion" VALUE="1"         >TBC -
+<INPUT TYPE=RADIO NAME="expansion" VALUE="2" CHECKED >WOTLK<br />
+<img src="inc/index.php" style="border: 1px dashed silver;"><br />
 <span style="font-size:9px;"><a href="">New question</a></span><br />
 <input type="text" style="width:160px;" name="AnimCaptcha"><img src="inc/help.gif" HEIGHT="20" WIDTH="20" alt="help" onMouseover="ttip(\'Are you a bot? are you? thats it...im getting my junior torturer kit, dont go anywhere i\'ll be right back.\', 300)"; onMouseout="hidettip()"><br />
 <br />
@@ -144,8 +144,8 @@ Password:
 </html>';
 
 function error_s ($text) {
-	echo("<p style=\"background-color:black;color:yellow;font-family:verdana;\">" . $text);
-	echo("<br /><br /><a style=\"color:orange;\" href=\"" . $_SERVER["SCRIPT_NAME"] . "\">Go back...</a></p>");
+    echo("<p style=\"background-color:black;color:yellow;font-family:verdana;\">" . $text);
+    echo("<br /><br /><a style=\"color:orange;\" href=\"" . $_SERVER["SCRIPT_NAME"] . "\">Go back...</a></p>");
 };
 
 $user_chars = "#[^a-zA-Z0-9_\-]#";
@@ -153,13 +153,13 @@ $email_chars = "/^[^0-9][A-z0-9_]+([.][A-z0-9_]+)*[@][A-z0-9_]+([.][A-z0-9_]+)*[
 
 $con = @mysql_connect($ip, $user, $pass);
 if (!$con) {
-	error_s("Unable to connect to database: " . mysql_error());
+    error_s("Unable to connect to database: " . mysql_error());
 };
 
 if (!empty($_POST)) {
         if ((empty($_POST["username"]))||(empty($_POST["password"]))||(empty($_POST["email"]))||(empty($_POST["expansion"])) ) {
                 error_s("You did not enter all the required information.");
-				exit();
+                exit();
         } else {
                 $username = strtoupper($_POST["username"]);
                 $password = strtoupper($_POST["password"]);
@@ -180,11 +180,11 @@ if (!empty($_POST)) {
                         error_s("Password too long.");
                         exit();
                 };
-                if (strlen($email) < 15) {
+                if (strlen($email) < 4) {
                         error_s("Email was too short.");
                         exit();
                 };
-				if (strlen($email) > 50) {
+                if (strlen($email) > 255) {
                         error_s("Email was too long.");
                         exit();
                 };
@@ -204,9 +204,9 @@ if (!empty($_POST)) {
                 $password = mysql_real_escape_string($password);
                 $email = mysql_real_escape_string($email);
                 $qry = @mysql_query("select username from " . mysql_real_escape_string($r_db) . ".account where username = '" . $username . "'", $con);
-				if (!$qry) {
-					error_s("Error querying database: " . mysql_error());
-				};
+                if (!$qry) {
+                    error_s("Error querying database: " . mysql_error());
+                };
                 if ($existing_username = mysql_fetch_assoc($qry)) {
                         foreach ($existing_username as $key => $value) {
                                 $existing_username = $value;
@@ -217,11 +217,11 @@ if (!empty($_POST)) {
                         error_s("That username is already taken.");
                         exit();
                 };
-				unset($qry);
+                unset($qry);
                 $qry = @mysql_query("select email from " . mysql_real_escape_string($r_db) . ".account where email = '" . $email . "'", $con);
-				if (!$qry) {
-					error_s("Error querying database: " . mysql_error());
-				};
+                if (!$qry) {
+                    error_s("Error querying database: " . mysql_error());
+                };
                 if ($existing_email = mysql_fetch_assoc($qry)) {
                         foreach ($existing_email as $key => $value) {
                                 $existing_email = $value;
@@ -231,16 +231,16 @@ if (!empty($_POST)) {
                         error_s("That email is already in use.");
                         exit();
                 };
-				unset($qry);
+                unset($qry);
                 $sha_pass_hash = sha1(strtoupper($username) . ":" . strtoupper($password));
                 $register_sql = "insert into " . mysql_real_escape_string($r_db) . ".account (username, sha_pass_hash, email, expansion) values (upper('" . $username . "'),'" . $sha_pass_hash . "','" . $email . "','" . $expansion . "')";
-		if (isset($_POST['AnimCaptcha']))
+        if (isset($_POST['AnimCaptcha']))
             {
               if (is_numeric($_POST['AnimCaptcha']))
                 {
                   if ( $_POST['AnimCaptcha'] == $_SESSION['answer'])
                     {
-					  $qry = @mysql_query($register_sql, $con);
+                      $qry = @mysql_query($register_sql, $con);
                     }
                   else
                     {
@@ -250,15 +250,15 @@ if (!empty($_POST)) {
                 }
               else
                 {
-				  error_s("<p><b>Enter Numbers or (+/-) only.  No alphabetical characters accepted.</b></p><p><a href=''>Try again</a></p>");
+                  error_s("<p><b>Enter Numbers or (+/-) only.  No alphabetical characters accepted.</b></p><p><a href=''>Try again</a></p>");
                         exit();
                 }
             }
                 if (!$qry) {
-					error_s("Error creating account: " . mysql_error());
-				};
+                    error_s("Error creating account: " . mysql_error());
+                };
                 echo("Account successfully created.");
-				exit();
+                exit();
         };
 } else {
         echo($page);

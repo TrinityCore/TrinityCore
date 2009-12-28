@@ -1,18 +1,6 @@
 <?php
 
-// Configuration.
-// Realm database.
-$r_db = "realmd";
-// IP (and port).
-$ip = "127.0.0.1:3306";
-// Username.
-$user = "trinity";
-// Password.
-$pass = "trinity";
-// Site title.
-$title = "Registration Form";
-$title2 = "Some Server";
-// End config.
+include("db.conf.php");
 
 $page = '<?xml version="1.0" encoding="utf-8" ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
@@ -30,9 +18,12 @@ Username:
 Password:
 <br /><input name="password" type="password" maxlength="12" /><br />
 Email:
-<br /><input name="email" type="text" maxlength="50" />
-<br /><input name="tbc" type="checkbox" /> TBC<br />
-<br /><input name="wotlk" type="checkbox" checked="checked" /> WOTLK<br /><br /><br />
+<br /><input name="email" type="text" maxlength="255" />
+<br />
+<INPUT TYPE=RADIO NAME="expansion" VALUE="0"         >Original -
+<INPUT TYPE=RADIO NAME="expansion" VALUE="1"         >TBC -
+<INPUT TYPE=RADIO NAME="expansion" VALUE="2" CHECKED >WOTLK<br />
+<br /><br /><br />
 <button type="submit">Submit</button>
 </p>
 </form>
@@ -40,8 +31,8 @@ Email:
 </html>';
 
 function error_s ($text) {
-	echo("<p style=\"background-color:black;color:yellow;font-family:verdana;\">" . $text);
-	echo("<br /><br /><a style=\"color:orange;\" href=\"" . $_SERVER["SCRIPT_NAME"] . "\">Go back...</a></p>");
+    echo("<p style=\"background-color:black;color:yellow;font-family:verdana;\">" . $text);
+    echo("<br /><br /><a style=\"color:orange;\" href=\"" . $_SERVER["SCRIPT_NAME"] . "\">Go back...</a></p>");
 };
 
 $user_chars = "#[^a-zA-Z0-9_\-]#";
@@ -49,17 +40,18 @@ $email_chars = "/^[^0-9][A-z0-9_]+([.][A-z0-9_]+)*[@][A-z0-9_]+([.][A-z0-9_]+)*[
 
 $con = @mysql_connect($ip, $user, $pass);
 if (!$con) {
-	error_s("Unable to connect to database: " . mysql_error());
+    error_s("Unable to connect to database: " . mysql_error());
 };
 
 if (!empty($_POST)) {
-        if ((empty($_POST["username"]))||(empty($_POST["password"]))||(empty($_POST["email"]))||((empty($_POST["tbc"]) && (empty($_POST["wotlk"])))) ) {
+        if ((empty($_POST["username"]))||(empty($_POST["password"]))||(empty($_POST["email"]))||(empty($_POST["expansion"])) ) {
                 error_s("You did not enter all the required information.");
-				exit();
+                exit();
         } else {
                 $username = strtoupper($_POST["username"]);
                 $password = strtoupper($_POST["password"]);
                 $email = strtoupper($_POST["email"]);
+                $expansion = $_POST["expansion"];
                 if (strlen($username) < 5) {
                         error_s("Username too short.");
                         exit();
@@ -76,11 +68,11 @@ if (!empty($_POST)) {
                         error_s("Password too long.");
                         exit();
                 };
-                if (strlen($email) < 15) {
+                if (strlen($email) < 4) {
                         error_s("Email was too short.");
                         exit();
                 };
-				if (strlen($email) > 50) {
+                if (strlen($email) > 255) {
                         error_s("Email was too long.");
                         exit();
                 };
@@ -96,26 +88,13 @@ if (!empty($_POST)) {
                         error_s("Email was in an incorrect format.");
                         exit();
                 };
-		if (($_POST["tbc"] == "on") && ($_POST["wotlk"] == "on")) {
-			error_s("TBC and WOTLK were both checked.");
-			exit();
-		};
-                if ($_POST["tbc"] != "on") {
-			if ($_POST["wotlk"] != "on") {
-                        	$exp = "0";
-			} else {
-				$exp = "2";
-			};
-                } else {
-                        $exp = "1";
-                };
                 $username = mysql_real_escape_string($username);
                 $password = mysql_real_escape_string($password);
                 $email = mysql_real_escape_string($email);
                 $qry = @mysql_query("select username from " . mysql_real_escape_string($r_db) . ".account where username = '" . $username . "'", $con);
-				if (!$qry) {
-					error_s("Error querying database: " . mysql_error());
-				};
+                if (!$qry) {
+                    error_s("Error querying database: " . mysql_error());
+                };
                 if ($existing_username = mysql_fetch_assoc($qry)) {
                         foreach ($existing_username as $key => $value) {
                                 $existing_username = $value;
@@ -126,11 +105,11 @@ if (!empty($_POST)) {
                         error_s("That username is already taken.");
                         exit();
                 };
-				unset($qry);
+                unset($qry);
                 $qry = @mysql_query("select email from " . mysql_real_escape_string($r_db) . ".account where email = '" . $email . "'", $con);
-				if (!$qry) {
-					error_s("Error querying database: " . mysql_error());
-				};
+                if (!$qry) {
+                    error_s("Error querying database: " . mysql_error());
+                };
                 if ($existing_email = mysql_fetch_assoc($qry)) {
                         foreach ($existing_email as $key => $value) {
                                 $existing_email = $value;
@@ -140,15 +119,15 @@ if (!empty($_POST)) {
                         error_s("That email is already in use.");
                         exit();
                 };
-				unset($qry);
+                unset($qry);
                 $sha_pass_hash = sha1(strtoupper($username) . ":" . strtoupper($password));
-                $register_sql = "insert into " . mysql_real_escape_string($r_db) . ".account (username, sha_pass_hash, email, expansion) values (upper('" . $username . "'),'" . $sha_pass_hash . "','" . $email . "','" . $exp . "')";
+                $register_sql = "insert into " . mysql_real_escape_string($r_db) . ".account (username, sha_pass_hash, email, expansion) values (upper('" . $username . "'),'" . $sha_pass_hash . "','" . $email . "','" . $expansion . "')";
                 $qry = @mysql_query($register_sql, $con);
-				if (!$qry) {
-					error_s("Error creating account: " . mysql_error());
-				};
+                if (!$qry) {
+                    error_s("Error creating account: " . mysql_error());
+                };
                 echo("Account successfully created.");
-				exit();
+                exit();
         };
 } else {
         echo($page);
