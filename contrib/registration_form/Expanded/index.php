@@ -164,6 +164,7 @@ if (!empty($_POST)) {
                 $username = strtoupper($_POST["username"]);
                 $password = strtoupper($_POST["password"]);
                 $email = strtoupper($_POST["email"]);
+                $expansion = $_POST["expansion"];
                 if (strlen($username) < 5) {
                         error_s("Username too short.");
                         exit();
