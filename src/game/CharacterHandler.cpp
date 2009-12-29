@@ -359,6 +359,7 @@ void WorldSession::HandleCharCreateOpcode( WorldPacket & recv_data )
                     {
                         data << (uint8)CHAR_CREATE_UNIQUE_CLASS_LIMIT;
                         SendPacket( &data );
+                        delete result2;
                         return;
                     }
                 }
@@ -413,6 +414,7 @@ void WorldSession::HandleCharCreateOpcode( WorldPacket & recv_data )
                         {
                             data << (uint8)CHAR_CREATE_UNIQUE_CLASS_LIMIT;
                             SendPacket( &data );
+                            delete result2;
                             return;
                         }
                     }
@@ -1248,6 +1250,7 @@ void WorldSession::HandleCharCustomize(WorldPacket& recv_data)
         std::string oldname = result->Fetch()[0].GetCppString();
         std::string IP_str = GetRemoteAddress();
         sLog.outChar("Account: %d (IP: %s), Character[%s] (guid:%u) Customized to: %s", GetAccountId(), IP_str.c_str(), oldname.c_str(), GUID_LOPART(guid), newname.c_str());
+        delete result;
     }
     Player::Customize(guid, gender, skin, face, hairStyle, hairColor, facialHair);
     CharacterDatabase.PExecute("UPDATE characters set name = '%s', at_login = at_login & ~ %u WHERE guid ='%u'", newname.c_str(), uint32(AT_LOGIN_CUSTOMIZE), GUID_LOPART(guid));
