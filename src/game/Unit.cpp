@@ -658,7 +658,8 @@ uint32 Unit::DealDamage(Unit *pVictim, uint32 damage, CleanDamage const* cleanDa
         if (spellProto->SpellFamilyName == SPELLFAMILY_PALADIN && spellProto->SpellFamilyFlags[1] & 0x20000)
         {
             Unit *pRaidGrpMember = GetNextRandomRaidMemberOrPet(30.0f);
-            int32 divineDmg = damage / 4;
+
+            int32 divineDmg = damage * (25 + (HasAura(63220) ? 15 : 0)) / 100; //25%, if has Glyph of Divine Storm -> 40%
 
             if (!pRaidGrpMember)
                 pRaidGrpMember = this;
