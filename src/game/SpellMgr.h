@@ -1202,8 +1202,6 @@ class SpellMgr
         void LoadPetDefaultSpells();
         void LoadSpellAreas();
 
-        bool CheckDB() const;
-
     private:
         bool _isPositiveSpell(uint32 spellId, bool deep) const;
         bool _isPositiveEffect(uint32 spellId, uint32 effIndex, bool deep) const;
