@@ -37,12 +37,6 @@
 # define _TRINITY_CORE_CONFIG  "TrinityCore.conf"
 #endif //_TRINITY_CORE_CONFIG
 
-// Format is YYYYMMDDRR where RR is the change in the conf file
-// for that day.
-#ifndef _TRINITY_CORE_CONFVER
-# define _TRINITY_CORE_CONFVER 2009101701
-#endif //_TRINITY_CORE_CONFVER
-
 #ifdef WIN32
 #include "ServiceWin32.h"
 char serviceName[] = "TrinityCore";
@@ -143,18 +137,6 @@ extern int main(int argc, char **argv)
         return 1;
     }
     sLog.outString("Using configuration file %s.", cfg_file);
-
-    uint32 confVersion = sConfig.GetIntDefault("ConfVersion", 0);
-    if (confVersion < _TRINITY_CORE_CONFVER)
-    {
-        sLog.outError("*****************************************************************************");
-        sLog.outError(" WARNING: Your trinitycore.conf version indicates your conf file is out of date!");
-        sLog.outError("          Please check for updates, as your current default values may cause");
-        sLog.outError("          strange behavior.");
-        sLog.outError("*****************************************************************************");
-        clock_t pause = 3000 + clock();
-        while (pause > clock()) {}
-    }
 
     sLog.outDetail("%s (Library: %s)", OPENSSL_VERSION_TEXT, SSLeay_version(SSLEAY_VERSION));
     if (SSLeay() < 0x009080bfL )
