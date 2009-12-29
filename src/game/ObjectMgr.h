@@ -934,8 +934,6 @@ class ObjectMgr
         GmTicketList m_GMTicketList;
         uint64 GenerateGMTicketId();
 
-        bool CheckDB() const;
-
         // for wintergrasp only
         GraveYardMap        mGraveYardMap;
     protected:
