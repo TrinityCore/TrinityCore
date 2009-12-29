@@ -38,7 +38,6 @@ trinitydatabase
 trinityauth
 trinityconfig
 zlib
-gomp
 ${SSLLIB}
 ${MYSQL_LIBRARIES}
 ${POSTGRESQL_LIBRARIES}
