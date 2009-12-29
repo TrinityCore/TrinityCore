@@ -2520,8 +2520,11 @@ void Spell::SelectEffectTargets(uint32 i, uint32 cur)
                     unitList.clear();
                     uint32 maxsize = 5;
 
-                    if (m_spellInfo->SpellFamilyName == SPELLFAMILY_DRUID && m_spellInfo->SpellFamilyFlags[1] & 0x04000000)
-                        maxsize += m_caster->HasAura(62970) ? 1 : 0;
+                    if (m_spellInfo->SpellFamilyName == SPELLFAMILY_DRUID && m_spellInfo->SpellFamilyFlags[1] & 0x04000000) // Wild Growth
+                        maxsize += m_caster->HasAura(62970) ? 1 : 0; // Glyph of Wild Growth
+
+                    if (m_spellInfo->SpellFamilyName == SPELLFAMILY_PRIEST && m_spellInfo->SpellFamilyFlags[0] & 0x10000000 && m_spellInfo->SpellIconID == 2214) // Circle of Healing
+                        maxsize += m_caster->HasAura(55675) ? 1 : 0; // Glyph of Circle of Healing
 
                     while(!healedMembers.empty() && unitList.size()<maxsize)
                     {
