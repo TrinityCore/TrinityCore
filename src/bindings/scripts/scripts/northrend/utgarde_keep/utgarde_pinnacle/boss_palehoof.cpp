@@ -151,7 +151,7 @@ struct TRINITY_DLL_DECL boss_palehoofAI : public ScriptedAI
         if (!UpdateVictim())
             return;
         
-        Creature* pTemp = Unit::GetCreature((*m_creature), pInstance->GetData64(DATA_MOB_ORB));
+        Creature* pTemp = Unit::GetCreature((*m_creature), pInstance ? pInstance->GetData64(DATA_MOB_ORB) : 0);
         if (pTemp && pTemp->isAlive())
             pTemp->DisappearAndDie();
         
@@ -182,7 +182,7 @@ struct TRINITY_DLL_DECL boss_palehoofAI : public ScriptedAI
         DoScriptText(SAY_DEATH, m_creature);
         if (pInstance)
             pInstance->SetData(DATA_GORTOK_PALEHOOF_EVENT, DONE);
-        Creature* pTemp = Unit::GetCreature((*m_creature), pInstance->GetData64(DATA_MOB_ORB));
+        Creature* pTemp = Unit::GetCreature((*m_creature), pInstance ? pInstance->GetData64(DATA_MOB_ORB) : 0);
         if (pTemp && pTemp->isAlive())
             pTemp->DisappearAndDie();
     }
@@ -438,7 +438,7 @@ struct TRINITY_DLL_DECL mob_frenzied_worgenAI : public ScriptedAI
     {
         if (pInstance)
         {
-            Creature *pPalehoof = Unit::GetCreature((*m_creature), pInstance ? pInstance->GetData64(DATA_GORTOK_PALEHOOF) : 0);
+            Creature *pPalehoof = Unit::GetCreature((*m_creature), pInstance->GetData64(DATA_GORTOK_PALEHOOF));
             if (pPalehoof)
                 CAST_AI(boss_palehoofAI, pPalehoof->AI())->NextPhase();
         }
