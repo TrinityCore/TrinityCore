@@ -1990,7 +1990,7 @@ INSERT INTO `script_texts` (`npc_entry`,`entry`,`content_default`,`content_loc1`
 
 -- -1 608 000 VIOLET HOLD
    (30658,-1608000,'Prision guards, we are leaving! These adventurers are taking over! Go go go',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,1,0,0,''),
-   
+  
 -- -1 615 000 OBSIDIAN SANCTUM
    (30451,-1615000,'I fear nothing! Least of all you!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,14111,1,0,0,'shadron SAY_SHADRON_AGGRO'),
    (30451,-1615001,'You are insignificant!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,14112,1,0,0,'shadron SAY_SHADRON_SLAY_1'),
@@ -2300,7 +2300,15 @@ INSERT INTO `script_texts` (`npc_entry`,`entry`,`content_default`,`content_loc1`
    (29173,-1609283,'collapses.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,2,0,0,'Highlord Darion Mograine'),
    (29173,-1609284,'charges towards the Lich King, Ashbringer in hand and strikes the Lich King.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,2,0,0,'Highlord Tirion Fordring'),
    (29173,-1609285,'disappears. Tirion walks over to where Darion lay',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,2,0,0,'The Lich King'),
-   (29173,-1609286,'Light washes over the chapel  the Light of Dawn is uncovered.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,2,0,0,'');
-   
+   (29173,-1609286,'Light washes over the chapel  the Light of Dawn is uncovered.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,2,0,0,''),
+   (25504, -1750040, 'My father''s aura is quite strong, he cannot be far. Could you be a doll and fight off the monsters wandering throught the mist?', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 'npc_mootoo_the_younger'),
+   (25504, -1750041, 'Watch out for the monsters!Which way should we go first? Let''s try this way...', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 'npc_mootoo_the_younger'),
+   (25504, -1750042, 'What could this be?', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 'npc_mootoo_the_younger'),
+   (25504, -1750043, 'There''s no sign of it ending! Where could my father be?', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 'npc_mootoo_the_younger'),
+   (25504, -1750044, 'Father! You''re safe!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 'npc_mootoo_the_younger'),
+   (25589, -1700003, 'I\'ll make you a deal: If you get me out of here alive, you\'ll get a reward larger than you can imagine!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'0','0','0','0','npc_bonker_togglevolt'),
+   (25589, -1700002, 'I AM NOT AN APPETIZER!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'0','0','0','0','npc_bonker_togglevolt'),
+   (25589, -1700001, 'Right then, no time to waste. Lets get outa here!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'0','0','0','0','npc_bonker_togglevolt');
+
 -- moved from world_spells_full.sql
 UPDATE `script_texts` SET `type` = '3' WHERE `entry` IN ('-1532089','-1532090');

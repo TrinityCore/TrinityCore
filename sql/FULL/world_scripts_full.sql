@@ -1,4 +1,4 @@
--- Up to TC2 6857
+-- Up to TC2 6859
 
 -- Cleanup first
 UPDATE `creature_template` SET `ScriptName`='';
@@ -384,8 +384,9 @@ UPDATE `creature_template` SET `ScriptName`='npc_thassarian' WHERE `entry`=26170
 UPDATE `creature_template` SET `ScriptName`='npc_image_lich_king' WHERE `entry`=26203;
 UPDATE `creature_template` SET `ScriptName`='npc_counselor_talbot' WHERE `entry`=25301;
 UPDATE `creature_template` SET `ScriptName`='npc_beryl_sorcerer' WHERE `entry`=25316;
-UPDATE `creature_template` SET `ScriptName` ='npc_imprisoned_beryl_sorcerer' WHERE `entry` = 25478;
-
+UPDATE `creature_template` SET `ScriptName`='npc_imprisoned_beryl_sorcerer' WHERE `entry` = 25478;
+UPDATE `creature_template` SET `ScriptName`='npc_mootoo_the_younger' WHERE `entry`= 25504;
+UPDATE `creature_template` SET `ScriptName`='npc_bonker_togglevolt' WHERE `entry`= 25589;
 
 /* BURNING STEPPES */
 UPDATE `creature_template` SET `ScriptName`='npc_ragged_john' WHERE `entry`=9563;
