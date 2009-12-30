@@ -64,6 +64,8 @@ Channel::Channel(const std::string& name, uint32 channel_id, uint32 Team)
             m_password  = fields[4].GetString();
             const char* db_BannedList = fields[5].GetString();
 
+            delete result;
+
             m_IsSaved = true;
 
             if (db_BannedList)
