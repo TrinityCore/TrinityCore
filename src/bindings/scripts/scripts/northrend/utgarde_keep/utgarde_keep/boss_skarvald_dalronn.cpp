@@ -246,7 +246,7 @@ struct TRINITY_DLL_DECL boss_dalronn_the_controllerAI : public ScriptedAI
 
     void EnterCombat(Unit *who)
     {
-        if (!ghost)
+        if (!ghost && pInstance)
         {
             Unit* skarvald = Unit::GetUnit((*m_creature),pInstance->GetData64(DATA_SKARVALD));
             if (skarvald && skarvald->isAlive() && !skarvald->getVictim())
@@ -261,7 +261,7 @@ struct TRINITY_DLL_DECL boss_dalronn_the_controllerAI : public ScriptedAI
 
     void JustDied(Unit* Killer)
     {
-        if (!ghost)
+        if (!ghost && pInstance)
         {
             Unit* skarvald = Unit::GetUnit((*m_creature),pInstance->GetData64(DATA_SKARVALD));
             if (skarvald)

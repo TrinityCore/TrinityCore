@@ -150,8 +150,11 @@ struct TRINITY_DLL_DECL boss_drakkari_elementalAI : public ScriptedAI
     boss_drakkari_elementalAI(Creature* pCreature) : ScriptedAI(pCreature)
     {
         pInstance = pCreature->GetInstanceData();
-        if (pCreature->GetMap()->IsDungeon())
-            pColossus = CAST_CRE(pCreature->GetUnit(*pCreature, pInstance->GetData64(DATA_DRAKKARI_COLOSSUS)));
+        if(pInstance)
+        {
+            if (pCreature->GetMap()->IsDungeon())
+                pColossus = CAST_CRE(pCreature->GetUnit(*pCreature, pInstance->GetData64(DATA_DRAKKARI_COLOSSUS)));
+        }
     }
 
     Creature* pColossus;
@@ -221,8 +224,11 @@ struct TRINITY_DLL_DECL npc_living_mojoAI : public ScriptedAI
     {
         HeroicMode = pCreature->GetMap()->IsHeroic();
         pInstance = pCreature->GetInstanceData();
-        if (pCreature->GetMap()->IsDungeon())
-            pColossus = CAST_CRE(pCreature->GetUnit(*pCreature, pInstance->GetData64(DATA_DRAKKARI_COLOSSUS)));
+        if(pInstance)
+        {
+            if (pCreature->GetMap()->IsDungeon())
+                pColossus = CAST_CRE(pCreature->GetUnit(*pCreature, pInstance->GetData64(DATA_DRAKKARI_COLOSSUS)));
+        }
     }
 
     Creature* pColossus;

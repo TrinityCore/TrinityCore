@@ -134,7 +134,8 @@ struct TRINITY_DLL_DECL boss_moroesAI : public ScriptedAI
         DeSpawnAdds();
 
         //remove aura from spell Garrote when Moroes dies
-        pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_GARROTE);
+        if(pInstance)
+            pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_GARROTE);
     }
 
     void SpawnAdds()
