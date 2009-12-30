@@ -1,23 +1,32 @@
 ##########################################
 # Trinity Core realmd configuration file #
 ##########################################
-
-###################################################################################################################
+# Note to devs, line breaks should be at column 80
+###############################################################################
 # REALMD SETTINGS
 #
 #    LoginDatabaseInfo
 #        Database connection settings for the realm server.
-#        Default: hostname;port;username;password;database
-#                 .;somenumber;username;password;database - use named pipes at Windows
-#                       Named pipes: mySQL required adding "enable-named-pipe" to [mysqld] section my.ini
-#                 .;/path/to/unix_socket;username;password;database - use Unix sockets at Unix/Linux
-#                       Unix sockets: experimental, not tested
+#        Default:
+#                ---MYSQL---
+#                    hostname;port;username;password;database
+#                    .;somenumber;username;password;database
+#                     - use named pipes in Windows
+#                    Named pipes: mySQL required adding
+#                        "enable-named-pipe" to [mysqld] section my.ini
+#                    .;/path/to/unix_socket;username;password;database
+#                     - use Unix sockets in Unix/Linux
+#                ---PGSQL---
+#                    hostname;port;username;password;database
+#                    .;/path/to/unix_socket/DIRECTORY or . for default path;
+#                            username;password;database
+#                     - use Unix sockets in Unix/Linux
 #
 #    LogsDir
-#         Logs directory setting.
-#         Important: Logs dir must exists, or all logs be disable
-#         Default: "" - no log directory prefix, if used log names isn't absolute path then logs will be
-#                       stored in current directory for run program.
+#        Logs directory setting.
+#        Important: Logs dir must exists, or all logs need to be disabled
+#        Default: "" - no log directory prefix, if used log names isn't
+#         absolute path then logs will be stored in current directory.
 #
 #    MaxPingTime
 #         Settings for maximum database-ping interval (minutes between pings)
@@ -35,29 +44,47 @@
 #
 #    LogLevel
 #        Server console level of logging
-#        0 = Minimum; 1 = Basic; 2 = Detail; 3 = Full/Debug
-#        Default: 0
+#        Default: 0 = Minimum
+#                 1 = Basic
+#                 2 = Detail
+#                 3 = Full/Debug
 #
 #    LogFile
 #        Logfile name
 #        Default: "realmd.log"
-#                 "" - empty name disable creating log file
+#                 "" - Empty name disable creating log file
 #
 #    LogTimestamp
 #        Logfile with timestamp of server start in name
+#         in form Logname_YYYY-MM-DD_HH-MM-SS.Ext for Logname.Ext
 #        Default: 0 - no timestamp in name
-#                 1 - add timestamp in name in form Logname_YYYY-MM-DD_HH-MM-SS.Ext for Logname.Ext
+#                 1 - add timestamp in name
 #
 #    LogFileLevel
 #        Server file level of logging
-#        0 = Minimum; 1 = Basic; 2 = Detail; 3 = Full/Debug
-#        Default: 0
+#        Default: 0 = Minimum
+#                 1 = Basic
+#                 2 = Detail
+#                 3 = Full/Debug
 #
 #    LogColors
 #        Color for messages (format "normal basic detail debug")
-#        Colors: 0 - BLACK, 1 - RED, 2 - GREEN,  3 - BROWN, 4 - BLUE, 5 - MAGENTA, 6 -  CYAN, 7 - GREY,
-#                8 - YELLOW, 9 - LRED, 10 - LGREEN, 11 - LBLUE, 12 - LMAGENTA, 13 - LCYAN, 14 - WHITE
-#        Default: "" - none colors
+#        Default: "" - no colors
+#        Colors: 0  - BLACK
+#                1  - RED
+#                2  - GREEN
+#                3  - BROWN
+#                4  - BLUE
+#                5  - MAGENTA
+#                6  - CYAN
+#                7  - GREY
+#                8  - YELLOW
+#                9  - LRED
+#                10 - LGREEN
+#                11 - LBLUE
+#                12 - LMAGENTA
+#                13 - LCYAN
+#                14 - WHITE
 #        Example: "13 11 9 5"
 #
 #    EnableLogDB
@@ -67,11 +94,13 @@
 #
 #    DBLogLevel
 #        Log level of DB logging.
-#        0 = Minimum; 1 = Basic; 2 = Detail; 3 = Full/Debug
-#        Default: 3
+#                 0 = Minimum
+#        Default: 1 = Basic
+#                 2 = Detail
+#                 3 = Full/Debug
 #
 #    UseProcessors
-#        Used processors mask for multi-processors system (Used only at Windows)
+#        Processors mask for multi-processor system (Used only in Windows)
 #        Default: 0 (selected by OS)
 #                 number (bitmask value of selected processors)
 #
@@ -81,12 +110,14 @@
 #                 0 (Normal)
 #
 #    RealmsStateUpdateDelay
-#        Realm list Update up delay (updated at realm list request if delay expired).
+#        Realm list Update up delay
+#         (updated at realm list request if delay expired).
 #        Default: 20
 #                 0  (Disabled)
 #
 #    WrongPass.MaxCount
-#        Number of login attemps with wrong password before the account or IP is banned
+#        Number of login attemps with wrong password
+#         before the account or IP is banned
 #        Default: 0  (Never ban)
 #
 #    WrongPass.BanTime
@@ -98,7 +129,7 @@
 #        Default: 0 (Ban IP)
 #                 1 (Ban Account)
 #
-###################################################################################################################
+###############################################################################
 
 LoginDatabaseInfo = "127.0.0.1;3306;trinity;trinity;realmd"
 LogsDir = ""
@@ -110,12 +141,12 @@ LogLevel = 0
 LogFile = "realmd.log"
 LogTimestamp = 0
 LogFileLevel = 0
+LogColors = ""
+EnableLogDB = 0
+DBLogLevel = 1
 UseProcessors = 0
 ProcessPriority = 1
 RealmsStateUpdateDelay = 20
 WrongPass.MaxCount = 0
 WrongPass.BanTime = 600
 WrongPass.BanType = 0
-LogColors = ""
-EnableLogDB = 0
-DBLogLevel = 1
