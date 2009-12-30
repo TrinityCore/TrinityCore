@@ -342,7 +342,7 @@ struct TRINITY_DLL_DECL boss_moroes_guestAI : public ScriptedAI
 
     Unit* SelectGuestTarget()
     {
-        uint64 TempGUID = GuestGUID[rand()%5];
+        uint64 TempGUID = GuestGUID[rand()%4];
         if (TempGUID)
         {
             Unit* pUnit = Unit::GetUnit((*m_creature), TempGUID);
