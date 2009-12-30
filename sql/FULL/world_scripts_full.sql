@@ -1,4 +1,4 @@
--- Up to TC2 5408
+-- Up to TC2 6857
 
 -- Cleanup first
 UPDATE `creature_template` SET `ScriptName`='';
@@ -702,6 +702,7 @@ UPDATE `creature_template` SET `ScriptName`='npc_apothecary_hanes' WHERE `entry`
 
 /* ICECROWN */
 UPDATE `creature_template` SET `ScriptName`='npc_arete' WHERE `entry`=29344;
+UPDATE `creature_template` SET `ScriptName`='valiant_challenge' WHERE `entry`=33518;
 
 /* IRONFORGE */
 UPDATE `creature_template` SET `ScriptName`='npc_royal_historian_archesonus' WHERE `entry`=8879;
