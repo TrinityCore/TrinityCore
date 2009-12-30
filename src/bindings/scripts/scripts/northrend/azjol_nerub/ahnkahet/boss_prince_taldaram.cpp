@@ -313,6 +313,8 @@ struct TRINITY_DLL_DECL boss_taldaramAI : public ScriptedAI
 
     void RemovePrison()
     {
+        if(!pInstance)
+            return;
         m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
         m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
         m_creature->RemoveAurasDueToSpell(SPELL_BEAM_VISUAL);

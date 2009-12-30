@@ -284,7 +284,8 @@ struct TRINITY_DLL_DECL boss_sartharionAI : public ScriptedAI
 
     void FetchDragons()
     {
-        assert(pInstance);
+        if(!pInstance)
+            return;
         Creature* pFetchTene = Unit::GetCreature(*m_creature, pInstance->GetData64(DATA_TENEBRON));
         Creature* pFetchShad = Unit::GetCreature(*m_creature, pInstance->GetData64(DATA_SHADRON));
         Creature* pFetchVesp = Unit::GetCreature(*m_creature, pInstance->GetData64(DATA_VESPERON));

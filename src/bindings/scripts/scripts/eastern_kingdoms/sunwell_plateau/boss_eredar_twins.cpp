@@ -577,12 +577,15 @@ struct TRINITY_DLL_DECL boss_alythessAI : public Scripted_NoMovementAI
         }
         if(!m_creature->getVictim())
         {
-            Creature* sisiter = Unit::GetCreature((*m_creature),pInstance->GetData64(DATA_SACROLASH));
-            if (sisiter && !sisiter->isDead() && sisiter->getVictim())
+            if(pInstance)
             {
-                m_creature->AddThreat(sisiter->getVictim(),0.0f);
-                DoStartNoMovement(sisiter->getVictim());
-                m_creature->Attack(sisiter->getVictim(),false);
+                Creature* sisiter = Unit::GetCreature((*m_creature),pInstance->GetData64(DATA_SACROLASH));
+                if (sisiter && !sisiter->isDead() && sisiter->getVictim())
+                {
+                    m_creature->AddThreat(sisiter->getVictim(),0.0f);
+                    DoStartNoMovement(sisiter->getVictim());
+                    m_creature->Attack(sisiter->getVictim(),false);
+                }
             }
         }
 

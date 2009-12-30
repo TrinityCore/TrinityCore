@@ -53,6 +53,8 @@ struct TRINITY_DLL_DECL npc_toc5_announcerAI : public ScriptedAI
 
     void StartEvent(Player* pPlayer)
     {
+        if(!pInstance)
+            return;
         if(pInstance->GetData(TYPE_GRAND_CHAMPIONS) == NOT_STARTED && pInstance->GetData(TYPE_ARGENT_CHALLENGE) == NOT_STARTED && pInstance->GetData(TYPE_BLACK_KNIGHT) == NOT_STARTED)
         {
             chmp1 = RAND(35572,35569,35571,35570,35617);
@@ -96,6 +98,9 @@ CreatureAI* GetAI_npc_toc5_announcer(Creature* pCreature)
 bool GossipHello_npc_toc5_announcer(Player* pPlayer, Creature* pCreature)
 {
     ScriptedInstance* pInstance = pCreature->GetInstanceData();
+
+    if(!pInstance)
+        return false;
 
     if(pInstance->GetData(TYPE_GRAND_CHAMPIONS) == NOT_STARTED && pInstance->GetData(TYPE_ARGENT_CHALLENGE) == NOT_STARTED && pInstance->GetData(TYPE_BLACK_KNIGHT) == NOT_STARTED)
         pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_START_EVENT1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
