@@ -327,15 +327,15 @@ struct TRINITY_DLL_DECL boss_moroes_guestAI : public ScriptedAI
         if (!pInstance)
             return;
 
-        GuestGUID[0] = pInstance->GetData64(DATA_MOROES);
-        Creature* Moroes = (Unit::GetCreature((*m_creature), GuestGUID[0]));
+        uint64 MoroesGUID = pInstance->GetData64(DATA_MOROES);
+        Creature* Moroes = (Unit::GetCreature((*m_creature), MoroesGUID));
         if (Moroes)
         {
-            for (uint8 i = 0; i < 3; ++i)
+            for (uint8 i = 0; i < 4; ++i)
             {
                 uint64 GUID = CAST_AI(boss_moroesAI, Moroes->AI())->AddGUID[i];
-                if (GUID && GUID != m_creature->GetGUID())
-                    GuestGUID[i+1] = GUID;
+                if (GUID)
+                    GuestGUID[i] = GUID;
             }
         }
     }
