@@ -671,29 +671,32 @@ bool QuestAccept_npc_professor_dabiri(Player* pPlayer, Creature* pCreature, Ques
 ## mob_phase_hunter
 ######*/
 
-#define SUMMONED_MOB            19595
-#define EMOTE_WEAK              -1000303
+#define QUEST_RECHARGING_THE_BATTERIES  10190
+
+#define NPC_PHASE_HUNTER_ENTRY          18879
+#define NPC_DRAINED_PHASE_HUNTER_ENTRY  19595
+
+#define EMOTE_WEAK                      -1000303
 
 // Spells
-#define SPELL_PHASE_SLIP        36574
-#define SPELL_MANA_BURN         13321
-#define SPELL_MATERIALIZE       34804
-#define SPELL_DE_MATERIALIZE    34804
+#define SPELL_RECHARGING_BATTERY        34219
+#define SPELL_PHASE_SLIP                36574
+#define SPELL_MANA_BURN                 13321
+#define SPELL_MATERIALIZE               34804
+#define SPELL_DE_MATERIALIZE            34814
 
 struct TRINITY_DLL_DECL mob_phase_hunterAI : public ScriptedAI
 {
-
     mob_phase_hunterAI(Creature *c) : ScriptedAI(c) {}
 
     bool Weak;
     bool Materialize;
     bool Drained;
+    uint8 WeakPercent;
+    float HpPercent;
 
-    int WeakPercent;
-    uint64 PlayerGUID;
-    uint32 Health;
-    uint32 Level;
-    uint32 PhaseSlipVulnerabilityTimer;
+    Player *pPlayer;
+
     uint32 ManaBurnTimer;
 
     void Reset()
@@ -701,16 +704,21 @@ struct TRINITY_DLL_DECL mob_phase_hunterAI : public ScriptedAI
         Weak = false;
         Materialize = false;
         Drained = false;
+        WeakPercent = 25 + (rand() % 16); // 25-40
+        HpPercent = 0.0f;
 
-        WeakPercent = 25 + (rand()%16); // 25-40
-        PlayerGUID = 0;
-        ManaBurnTimer = 5000 + (rand()%3 * 1000); // 5-8 sec cd
+        pPlayer = NULL;
+
+        ManaBurnTimer = 5000 + (rand() % 3 * 1000); // 5-8 sec cd
+
+        if(m_creature->GetEntry() == NPC_DRAINED_PHASE_HUNTER_ENTRY)
+            m_creature->UpdateEntry(NPC_PHASE_HUNTER_ENTRY);
     }
 
     void EnterCombat(Unit *who)
     {
-        if (Player* pPlayer = who->GetCharmerOrOwnerPlayerOrPlayerItself())
-            PlayerGUID = pPlayer->GetGUID();
+        if (who->GetTypeId() == TYPEID_PLAYER)
+            pPlayer = CAST_PLR(who);
     }
 
     void SpellHit(Unit *caster, const SpellEntry *spell)
@@ -732,50 +740,51 @@ struct TRINITY_DLL_DECL mob_phase_hunterAI : public ScriptedAI
         if (!UpdateVictim())
             return;
 
-        if (ManaBurnTimer <= diff) // cast Mana Burn
+        // some code to cast spell Mana Burn on random target which has mana
+        if (ManaBurnTimer <= diff)
         {
-            if (m_creature->getVictim()->GetCreateMana() > 0)
+            std::list<HostilReference*> AggroList = m_creature->getThreatManager().getThreatList();
+            std::list<Unit*> UnitsWithMana;
+
+            for(std::list<HostilReference*>::const_iterator itr = AggroList.begin(); itr != AggroList.end(); ++itr)
             {
-                DoCast(m_creature->getVictim(), SPELL_MANA_BURN);
-                ManaBurnTimer = 8000 + (rand()%10 * 1000); // 8-18 sec cd
+                if(Unit *pUnit = Unit::GetUnit(*m_creature, (*itr)->getUnitGuid()))
+                {
+                    if(pUnit->GetCreateMana() > 0)
+                        UnitsWithMana.push_back(pUnit);
+                }
             }
+            if(!UnitsWithMana.empty())
+            {
+                std::list<Unit*>::const_iterator it = UnitsWithMana.begin();
+                std::advance(it, rand() % UnitsWithMana.size());
+                DoCast(*it, SPELL_MANA_BURN);
+                ManaBurnTimer = 8000 + (rand() % 10 * 1000); // 8-18 sec cd
+            }
+            else
+                ManaBurnTimer = 3500;
         } else ManaBurnTimer -= diff;
 
-        if (PlayerGUID) // start: support for quest 10190
+        if (pPlayer) // start: support for quest 10190
         {
-            Unit *pTarget = Unit::GetUnit((*m_creature), PlayerGUID);
-
-            if (pTarget && !Weak && m_creature->GetHealth() < (m_creature->GetMaxHealth() / 100 * WeakPercent)
-                && CAST_PLR(pTarget)->GetQuestStatus(10190) == QUEST_STATUS_INCOMPLETE)
+            if (!Weak && m_creature->GetHealth() < (m_creature->GetMaxHealth() / 100 * WeakPercent)
+                && pPlayer->GetQuestStatus(QUEST_RECHARGING_THE_BATTERIES) == QUEST_STATUS_INCOMPLETE)
             {
                 DoScriptText(EMOTE_WEAK, m_creature);
                 Weak = true;
             }
-            if (Weak && !Drained && m_creature->HasAura(34219))
+            if (Weak && !Drained && m_creature->HasAura(SPELL_RECHARGING_BATTERY))
             {
                 Drained = true;
+                HpPercent = float(m_creature->GetHealth()) / float(m_creature->GetMaxHealth());
 
-                Health = m_creature->GetHealth(); // get the normal mob's data
-                Level = m_creature->getLevel();
+                m_creature->UpdateEntry(NPC_DRAINED_PHASE_HUNTER_ENTRY);
 
-                m_creature->AttackStop(); // delete the normal mob
-                m_creature->DealDamage(m_creature, m_creature->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
-                m_creature->RemoveCorpse();
-
-                Creature* DrainedPhaseHunter = NULL;
-
-                if (!DrainedPhaseHunter)
-                    DrainedPhaseHunter = m_creature->SummonCreature(SUMMONED_MOB, m_creature->GetPositionX(), m_creature->GetPositionY(), m_creature->GetPositionZ(), m_creature->GetOrientation(), TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 60000); // summon the mob
-
-                if (DrainedPhaseHunter)
-                {
-                    DrainedPhaseHunter->SetLevel(Level); // set the summoned mob's data
-                    DrainedPhaseHunter->SetHealth(Health);
-                    DrainedPhaseHunter->AddThreat(pTarget, 10000.0f);
-                    DrainedPhaseHunter->AI()->AttackStart(pTarget);
-                }
+                m_creature->SetHealth(m_creature->GetMaxHealth() * HpPercent);
+                m_creature->LowerPlayerDamageReq(m_creature->GetMaxHealth() - m_creature->GetHealth());
+                m_creature->SetInCombatWith(pPlayer);
             }
-        }// end: support for quest 10190
+        } // end: support for quest 10190
 
         DoMeleeAttackIfReady();
     }
