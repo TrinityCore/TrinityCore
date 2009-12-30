@@ -1778,6 +1778,178 @@ CreatureAI* GetAI_npc_imprisoned_beryl_sorcerer(Creature* pCreature)
     return new npc_imprisoned_beryl_sorcererAI(pCreature);
 }
 
+/*######
+## npc_mootoo_the_younger
+######*/
+enum Script_Texts_Mootoo_the_Younger
+{
+    SAY_1                    =-1750040,
+    SAY_2                    =-1750041,
+    SAY_3                    =-1750042,
+    SAY_4                    =-1750043,
+    SAY_5                    =-1750044
+};
+enum Mootoo_the_Younger_Entries
+{
+    NPC_MOOTOO_THE_YOUNGER          =25504,
+    QUEST_ESCAPING_THE_MIST         =11664
+};
+bool QuestAccept_npc_mootoo_the_younger(Player* pPlayer, Creature* pCreature, Quest const* quest)
+{    
+    if (quest->GetQuestId()==QUEST_ESCAPING_THE_MIST)
+    {
+        switch (pPlayer->GetTeam())
+        {
+        case ALLIANCE:
+            pCreature->setFaction(FACTION_ESCORTEE_A);
+            break;
+        case HORDE:
+            pCreature->setFaction(FACTION_ESCORTEE_H);
+            break;
+        }
+        DoScriptText(SAY_1, pCreature);
+        CAST_AI(npc_escortAI, (pCreature->AI()))->Start(true, false, pPlayer->GetGUID());
+    }
+    return true;
+}
+struct TRINITY_DLL_DECL npc_mootoo_the_youngerAI : public npc_escortAI
+{
+    npc_mootoo_the_youngerAI(Creature *c) : npc_escortAI(c) {}
+
+    void Reset()
+    {
+        SetDespawnAtFar(false); 
+    }
+
+    void JustDied(Unit* killer)
+    {   
+        if (Player* pPlayer=GetPlayerForEscort())
+            pPlayer->FailQuest(QUEST_ESCAPING_THE_MIST);
+    }
+
+    void WaypointReached(uint32 i)
+    {
+        Player* pPlayer = GetPlayerForEscort();
+
+        if (!pPlayer)
+            return;
+
+        switch(i)
+        {
+        case 10:
+            m_creature->HandleEmoteCommand(EMOTE_ONESHOT_EXCLAMATION);
+            DoScriptText(SAY_2, m_creature);
+            break;
+        case 12:
+            DoScriptText(SAY_3, m_creature);
+            m_creature->HandleEmoteCommand(EMOTE_ONESHOT_LOOT);
+            break;
+        case 16:
+            DoScriptText(SAY_4, m_creature);
+            m_creature->HandleEmoteCommand(EMOTE_ONESHOT_EXCLAMATION);
+            break;
+        case 20:
+            me->SetPhaseMask(1,true);
+            DoScriptText(SAY_5, m_creature);
+            m_creature->HandleEmoteCommand(EMOTE_ONESHOT_EXCLAMATION);
+            if (pPlayer)
+                pPlayer->GroupEventHappens(QUEST_ESCAPING_THE_MIST, m_creature);
+            SetRun(true);
+            break;  
+        }
+    }
+};
+CreatureAI* GetAI_npc_mootoo_the_younger(Creature* pCreature)
+{
+    return new npc_mootoo_the_youngerAI(pCreature);
+}
+
+/*######
+## npc_bonker_togglevolt
+######*/
+
+enum Bonker_Togglevolt_Entries
+{
+    NPC_BONKER_TOGGLEVOLT           =25589,
+    QUEST_GET_ME_OUTA_HERE          =11673
+};
+enum Script_Texts_Bonker_Togglevolt
+{
+    SAY_bonker_1                    =-1700002,
+    SAY_bonker_2                    =-1700003
+};
+
+bool QuestAccept_npc_bonker_togglevolt(Player* pPlayer, Creature* pCreature, Quest const* quest)
+{    
+    if (quest->GetQuestId()==QUEST_GET_ME_OUTA_HERE)
+    {
+        switch (pPlayer->GetTeam())
+        {
+        case ALLIANCE:
+                pCreature->setFaction(FACTION_ESCORTEE_A);
+                break;
+        case HORDE:
+                pCreature->setFaction(FACTION_ESCORTEE_H);
+                break;
+        }
+        DoScriptText(SAY_bonker_2, pCreature, pPlayer);
+        CAST_AI(npc_escortAI, (pCreature->AI()))->Start(true, true, pPlayer->GetGUID());
+    }
+    return true;
+}
+struct TRINITY_DLL_DECL npc_bonker_togglevoltAI : public npc_escortAI
+{
+    npc_bonker_togglevoltAI(Creature *c) : npc_escortAI(c) {}
+    uint32 Bonker_agro;
+
+    void Reset()
+    {
+    Bonker_agro=0;
+    SetDespawnAtFar(false);
+    }
+
+    void JustDied(Unit* killer)
+    {
+        if (Player* pPlayer = GetPlayerForEscort())
+            pPlayer->FailQuest(QUEST_ESCAPING_THE_MIST);
+    }
+    
+    void UpdateEscortAI(const uint32 diff)
+    {        
+        if (GetAttack() && UpdateVictim())
+        {
+            if(Bonker_agro==0)
+            {
+                DoScriptText(SAY_bonker_1,m_creature);
+                Bonker_agro++;
+            }
+            DoMeleeAttackIfReady();
+        }
+        else Bonker_agro=0;
+    }
+
+    void WaypointReached(uint32 i)
+    {
+        Player* pPlayer = GetPlayerForEscort();
+
+        if (!pPlayer)
+            return;
+
+        switch(i)
+        {
+        case 29:
+            if (pPlayer)
+                pPlayer->GroupEventHappens(QUEST_GET_ME_OUTA_HERE, m_creature);
+            break;
+        }
+    }
+};
+
+CreatureAI* GetAI_npc_bonker_togglevolt(Creature* pCreature)
+{
+    return new npc_bonker_togglevoltAI(pCreature);
+}
+
 void AddSC_borean_tundra()
 {
     Script *newscript;
@@ -1895,5 +2067,17 @@ void AddSC_borean_tundra()
     newscript = new Script;
     newscript->Name = "npc_imprisoned_beryl_sorcerer";
     newscript->GetAI = &GetAI_npc_imprisoned_beryl_sorcerer;
+    newscript->RegisterSelf();
+
+	newscript = new Script;
+    newscript->Name = "npc_mootoo_the_younger";
+    newscript->GetAI = &GetAI_npc_mootoo_the_younger;
+    newscript->pQuestAccept=&QuestAccept_npc_mootoo_the_younger;
+    newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name = "npc_bonker_togglevolt";
+    newscript->GetAI = &GetAI_npc_bonker_togglevolt;
+    newscript->pQuestAccept=&QuestAccept_npc_bonker_togglevolt;
     newscript->RegisterSelf();
 }
