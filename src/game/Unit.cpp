@@ -15420,6 +15420,19 @@ void Unit::JumpTo(WorldObject *obj, float speedZ)
     GetMotionMaster()->MoveJump(x, y, z, speedXY, speedZ);
 }
 
+bool Unit::CheckPlayerCondition(Player* pPlayer)
+{
+    switch(GetEntry())
+    {
+            case 35644: //Argent Warhorse
+            case 36558: //Argent Battleworg
+                if (!pPlayer->HasItemOrGemWithIdEquipped(46106,1)) //Check item Argent Lance
+                    return false;
+            default:
+                return true;
+    }
+}
+
 void Unit::EnterVehicle(Vehicle *vehicle, int8 seatId)
 {
     if (!isAlive() || GetVehicleKit() == vehicle)

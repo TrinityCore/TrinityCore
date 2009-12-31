@@ -556,7 +556,10 @@ void WorldSession::HandleSpellClick( WorldPacket & recv_data )
     }
 
     if(unit->IsVehicle())
-        _player->EnterVehicle(unit);
+    {
+        if (unit->CheckPlayerCondition(_player))
+            _player->EnterVehicle(unit);
+    }
 
     unit->AI()->DoAction(EVENT_SPELLCLICK);
 }

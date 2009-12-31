@@ -1291,17 +1291,17 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
         void CalculateSpellDamageTaken(SpellNonMeleeDamage *damageInfo, int32 damage, SpellEntry const *spellInfo, WeaponAttackType attackType = BASE_ATTACK, bool crit = false);
         void DealSpellDamage(SpellNonMeleeDamage *damageInfo, bool durabilityLoss);
 
-        
+
         // player or player's pet resilience (-1%)
         float GetMeleeCritChanceReduction() const { return GetCombatRatingReduction(CR_CRIT_TAKEN_MELEE); }
         float GetRangedCritChanceReduction() const { return GetCombatRatingReduction(CR_CRIT_TAKEN_RANGED); }
         float GetSpellCritChanceReduction() const { return GetCombatRatingReduction(CR_CRIT_TAKEN_SPELL); }
-        
+
         // player or player's pet resilience (-1%)
         uint32 GetMeleeCritDamageReduction(uint32 damage) const { return GetCombatRatingDamageReduction(CR_CRIT_TAKEN_MELEE, 2.2f, 33.0f, damage); }
         uint32 GetRangedCritDamageReduction(uint32 damage) const { return GetCombatRatingDamageReduction(CR_CRIT_TAKEN_RANGED, 2.2f, 33.0f, damage); }
         uint32 GetSpellCritDamageReduction(uint32 damage) const { return GetCombatRatingDamageReduction(CR_CRIT_TAKEN_SPELL, 2.2f, 33.0f, damage); }
-        
+
         // player or player's pet resilience (-1%), cap 100%
         uint32 GetMeleeDamageReduction(uint32 damage) const { return GetCombatRatingDamageReduction(CR_CRIT_TAKEN_MELEE, 1.0f, 100.0f, damage); }
         uint32 GetRangedDamageReduction(uint32 damage) const { return GetCombatRatingDamageReduction(CR_CRIT_TAKEN_MELEE, 1.0f, 100.0f, damage); }
@@ -1783,7 +1783,7 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
         bool IsImmunedToDamage(SpellSchoolMask meleeSchoolMask);
         bool IsImmunedToDamage(SpellEntry const* spellInfo);
         virtual bool IsImmunedToSpellEffect(SpellEntry const* spellInfo, uint32 index) const;
-                                                            // redefined in Creature       
+                                                            // redefined in Creature
         uint32 CalcNotIgnoreDamageRedunction( uint32 damage, SpellSchoolMask damageSchoolMask);
         uint32 CalcArmorReducedDamage(Unit* pVictim, const uint32 damage, SpellEntry const *spellInfo, WeaponAttackType attackType=MAX_ATTACK);
         void CalcAbsorbResist(Unit *pVictim, SpellSchoolMask schoolMask, DamageEffectType damagetype, const uint32 damage, uint32 *absorb, uint32 *resist, SpellEntry const *spellInfo = NULL);
@@ -1898,6 +1898,7 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
 
         bool m_ControlledByPlayer;
 
+        bool CheckPlayerCondition(Player* pPlayer);
         void EnterVehicle(Unit *base, int8 seatId = -1) { EnterVehicle(base->GetVehicleKit(), seatId); }
         void EnterVehicle(Vehicle *vehicle, int8 seatId = -1);
         void ExitVehicle();
