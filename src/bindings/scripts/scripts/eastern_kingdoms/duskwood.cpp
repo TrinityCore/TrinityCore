@@ -99,7 +99,7 @@ struct TRINITY_DLL_DECL boss_twilight_corrupterAI : public ScriptedAI
         } else SoulCorruption_Timer-=diff;
         if (CreatureOfNightmare_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_SOUL_CORRUPTION);
+            DoCast(m_creature->getVictim(), SPELL_CREATURE_OF_NIGHTMARE);
             CreatureOfNightmare_Timer = 45000; //gotta confirm Timers
         } else CreatureOfNightmare_Timer-=diff;
         DoMeleeAttackIfReady();
