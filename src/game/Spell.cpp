@@ -2179,6 +2179,11 @@ void Spell::SelectEffectTargets(uint32 i, uint32 cur)
                     else if (m_targets.getItemTarget())
                         AddItemTarget(m_targets.getItemTarget(), i);
                     break;
+                case TARGET_UNIT_DRIVER:
+                    if (Unit * driver = m_targets.getUnitTarget())
+                        if (driver->IsOnVehicle(driver))
+                            AddUnitTarget(driver, i);
+                    break;
                 default:
                     sLog.outError("Unhandled spell target %u", cur);
                     break;
