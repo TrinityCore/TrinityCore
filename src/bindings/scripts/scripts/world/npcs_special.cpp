@@ -36,6 +36,7 @@ npc_mount_vendor        100%    Regular mount vendors all over the world. Displa
 npc_rogue_trainer        80%    Scripted trainers, so they are able to offer item 17126 for class quest 6681
 npc_sayge               100%    Darkmoon event fortune teller, buff player based on answers given
 npc_snake_trap_serpents  80%    AI for snakes that summoned by Snake Trap
+npc_shadowfiend         100%   restore 5% of owner's mana when shadowfiend die from damage
 EndContentData */
 
 #include "precompiled.h"
@@ -1954,6 +1955,37 @@ CreatureAI* GetAI_npc_training_dummy(Creature* pCreature)
     return new npc_training_dummy (pCreature);
 }
 
+/*######
+# npc_shadowfiend
+######*/
+#define GLYPH_OF_SHADOWFIEND_MANA         58227
+#define GLYPH_OF_SHADOWFIEND              58228
+
+struct TRINITY_DLL_DECL npc_shadowfiendAI : public ScriptedAI
+{
+    npc_shadowfiendAI(Creature *c) : ScriptedAI(c) {}
+
+    void DamageTaken(Unit *killer, uint32 &damage)
+    {
+	if (Unit * Owner = CAST_SUM(m_creature)->GetSummoner())
+	{
+            if (Owner->HasAura(GLYPH_OF_SHADOWFIEND))
+                if (damage >= m_creature->GetHealth())
+                    Owner->CastSpell(Owner,GLYPH_OF_SHADOWFIEND_MANA,true);
+	}
+    }
+
+    void UpdateAI(const uint32 diff)
+    {
+        DoMeleeAttackIfReady();
+    }
+};
+
+CreatureAI* GetAI_npc_shadowfiend(Creature* pCreature)
+{
+    return new npc_shadowfiendAI(pCreature);
+}
+
 void AddSC_npcs_special()
 {
     Script *newscript;
@@ -2074,6 +2106,11 @@ void AddSC_npcs_special()
     newscript = new Script;
     newscript->Name = "npc_training_dummy";
     newscript->GetAI = &GetAI_npc_training_dummy;
+    newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name = "npc_shadowfiend";
+    newscript->GetAI = &GetAI_npc_shadowfiend;
     newscript->RegisterSelf();
 }
 
