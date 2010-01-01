@@ -321,15 +321,7 @@ void ObjectMgr::LoadCreatureLocales()
     QueryResult *result = WorldDatabase.Query("SELECT entry,name_loc1,subname_loc1,name_loc2,subname_loc2,name_loc3,subname_loc3,name_loc4,subname_loc4,name_loc5,subname_loc5,name_loc6,subname_loc6,name_loc7,subname_loc7,name_loc8,subname_loc8 FROM locales_creature");
 
     if(!result)
-    {
-        barGoLink bar(1);
-
-        bar.step();
-
-        sLog.outString();
-        sLog.outString(">> Loaded 0 creature locale strings. DB table `locales_creature` is empty.");
         return;
-    }
 
     barGoLink bar(result->GetRowCount());
 
@@ -389,15 +381,7 @@ void ObjectMgr::LoadNpcOptionLocales()
         "FROM locales_gossip_menu_option");
 
     if(!result)
-    {
-        barGoLink bar(1);
-
-        bar.step();
-
-        sLog.outString();
-        sLog.outString(">> Loaded 0 gossip_menu_option locale strings. DB table `locales_npc_option` is empty.");
         return;
-    }
 
     barGoLink bar(result->GetRowCount());
 
@@ -453,15 +437,7 @@ void ObjectMgr::LoadPointOfInterestLocales()
     QueryResult *result = WorldDatabase.Query("SELECT entry,icon_name_loc1,icon_name_loc2,icon_name_loc3,icon_name_loc4,icon_name_loc5,icon_name_loc6,icon_name_loc7,icon_name_loc8 FROM locales_points_of_interest");
 
     if(!result)
-    {
-        barGoLink bar(1);
-
-        bar.step();
-
-        sLog.outString();
-        sLog.outString(">> Loaded 0 points_of_interest locale strings. DB table `locales_points_of_interest` is empty.");
         return;
-    }
 
     barGoLink bar(result->GetRowCount());
 
@@ -1888,15 +1864,7 @@ void ObjectMgr::LoadItemLocales()
     QueryResult *result = WorldDatabase.Query("SELECT entry,name_loc1,description_loc1,name_loc2,description_loc2,name_loc3,description_loc3,name_loc4,description_loc4,name_loc5,description_loc5,name_loc6,description_loc6,name_loc7,description_loc7,name_loc8,description_loc8 FROM locales_item");
 
     if(!result)
-    {
-        barGoLink bar(1);
-
-        bar.step();
-
-        sLog.outString();
-        sLog.outString(">> Loaded 0 Item locale strings. DB table `locales_item` is empty.");
         return;
-    }
 
     barGoLink bar(result->GetRowCount());
 
@@ -4184,15 +4152,7 @@ void ObjectMgr::LoadQuestLocales()
         );
 
     if(!result)
-    {
-        barGoLink bar(1);
-
-        bar.step();
-
-        sLog.outString();
-        sLog.outString(">> Loaded 0 Quest locale strings. DB table `locales_quest` is empty.");
         return;
-    }
 
     barGoLink bar(result->GetRowCount());
 
@@ -4801,15 +4761,7 @@ void ObjectMgr::LoadPageTextLocales()
     QueryResult *result = WorldDatabase.Query("SELECT entry,text_loc1,text_loc2,text_loc3,text_loc4,text_loc5,text_loc6,text_loc7,text_loc8 FROM locales_page_text");
 
     if(!result)
-    {
-        barGoLink bar(1);
-
-        bar.step();
-
-        sLog.outString();
-        sLog.outString(">> Loaded 0 PageText locale strings. DB table `locales_page_text` is empty.");
         return;
-    }
 
     barGoLink bar(result->GetRowCount());
 
@@ -4962,15 +4914,7 @@ void ObjectMgr::LoadNpcTextLocales()
         " FROM locales_npc_text");
 
     if(!result)
-    {
-        barGoLink bar(1);
-
-        bar.step();
-
-        sLog.outString();
-        sLog.outString(">> Loaded 0 NpcText locale strings. DB table `locales_npc_text` is empty.");
         return;
-    }
 
     barGoLink bar(result->GetRowCount());
 
@@ -6151,15 +6095,7 @@ void ObjectMgr::LoadGameObjectLocales()
         "castbarcaption_loc5,castbarcaption_loc6,castbarcaption_loc7,castbarcaption_loc8 FROM locales_gameobject");
 
     if(!result)
-    {
-        barGoLink bar(1);
-
-        bar.step();
-
-        sLog.outString();
-        sLog.outString(">> Loaded 0 gameobject locale strings. DB table `locales_gameobject` is empty.");
         return;
-    }
 
     barGoLink bar(result->GetRowCount());
 
