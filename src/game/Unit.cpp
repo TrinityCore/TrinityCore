@@ -5561,6 +5561,15 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                             return false;
                     }
 
+                    AuraEffectList const& DoTAuras = target->GetAurasByType(SPELL_AURA_PERIODIC_DAMAGE);
+                    for (Unit::AuraEffectList::const_iterator i = DoTAuras.begin(); i != DoTAuras.end(); ++i)
+                    {
+                        if ((*i)->GetCasterGUID() != GetGUID() || (*i)->GetId() != 12654 || (*i)->GetEffIndex() != 0)
+                            continue;
+                        basepoints0 += ((*i)->GetAmount() * ((*i)->GetTotalTicks() - ((*i)->GetTickNumber()))) / 2;
+                        break;
+                    }
+
                     triggered_spell_id = 12654;
                     break;
                 }
