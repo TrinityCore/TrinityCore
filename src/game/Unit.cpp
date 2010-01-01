@@ -9665,7 +9665,8 @@ uint32 Unit::SpellDamageBonus(Unit *pVictim, SpellEntry const *spellProto, uint3
             // Glacier Rot
             if (spellProto->SpellFamilyFlags[0] & 0x2 || spellProto->SpellFamilyFlags[1] & 0x6)
                 if (AuraEffect * aurEff = GetDummyAura(SPELLFAMILY_DEATHKNIGHT, 196, 0))
-                    DoneTotalMod *= (100.0f + aurEff->GetAmount()) / 100.0f;
+                    if (pVictim->GetDiseasesByCaster(owner->GetGUID()) > 0)
+                        DoneTotalMod *= (100.0f + aurEff->GetAmount()) / 100.0f;
 
             // This is not a typo - Impurity has SPELLFAMILY_DRUID
             if (AuraEffect * aurEff = GetDummyAura(SPELLFAMILY_DRUID, 1986, 0))
@@ -10703,6 +10704,19 @@ void Unit::MeleeDamageBonus(Unit *pVictim, uint32 *pdamage, WeaponAttackType att
             }
         }
     }
+
+    // Custom scripted damage
+    if (spellProto)
+        switch(spellProto->SpellFamilyName)
+        {
+            case SPELLFAMILY_DEATHKNIGHT:
+                // Glacier Rot
+                if (spellProto->SpellFamilyFlags[0] & 0x2 || spellProto->SpellFamilyFlags[1] & 0x6)
+                    if (AuraEffect * aurEff = GetDummyAura(SPELLFAMILY_DEATHKNIGHT, 196, 0))
+                        if (pVictim->GetDiseasesByCaster(owner->GetGUID()) > 0)
+                            DoneTotalMod *= (100.0f + aurEff->GetAmount()) / 100.0f;
+            break;
+        }
 
     // ..taken
     AuraEffectList const& mModDamagePercentTaken = pVictim->GetAurasByType(SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN);
