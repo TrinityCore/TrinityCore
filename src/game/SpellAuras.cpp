@@ -1411,6 +1411,7 @@ void AuraEffect::HandleAuraEffectSpecificMods(bool apply, bool Real, bool change
         if(caster)
         {
             float DoneActualBenefit = 0.0f;
+            float BenefitMod = 1.0f;
             switch(m_spellProto->SpellFamilyName)
             {
                 case SPELLFAMILY_GENERIC:
@@ -1482,25 +1483,9 @@ void AuraEffect::HandleAuraEffectSpecificMods(bool apply, bool Real, bool change
                     {
                         //+80.68% from sp bonus
                         DoneActualBenefit = caster->SpellBaseHealingBonus(GetSpellSchoolMask(m_spellProto)) * 0.8068f;
-                    }
-                    // Borrowed Time
-                    else if(m_spellProto->SpellFamilyFlags[0] & 0x1 && GetAuraName() == SPELL_AURA_SCHOOL_ABSORB)
-                    {
-                        switch(m_spellProto->Id)
-                        {
-                            case 52795:
-                                DoneActualBenefit = caster->SpellBaseHealingBonus(GetSpellSchoolMask(m_spellProto)) * 0.08f; break;
-                            case 52797:
-                                DoneActualBenefit = caster->SpellBaseHealingBonus(GetSpellSchoolMask(m_spellProto)) * 0.16f; break;
-                            case 52798:
-                                DoneActualBenefit = caster->SpellBaseHealingBonus(GetSpellSchoolMask(m_spellProto)) * 0.24f; break;
-                            case 52799:
-                                DoneActualBenefit = caster->SpellBaseHealingBonus(GetSpellSchoolMask(m_spellProto)) * 0.32f; break;
-                            case 52800:
-                                DoneActualBenefit = caster->SpellBaseHealingBonus(GetSpellSchoolMask(m_spellProto)) * 0.40f; break;
-                            default:
-                                sLog.outDetail("Unhandled spell '%u' (possibly a new rank of Borrowed Time?) found.",m_spellProto->Id); break;
-                        }
+                        // Borrowed Time
+                        if (AuraEffect* aureff = caster->GetAuraEffect(SPELL_AURA_DUMMY, SPELLFAMILY_PRIEST, 2899, 1))
+                            DoneActualBenefit += caster->SpellBaseHealingBonus(GetSpellSchoolMask(m_spellProto)) * (aureff->GetAmount() / 100.0f);
                     }
                     break;
                 }
@@ -1609,6 +1594,15 @@ void AuraEffect::HandleAuraEffectSpecificMods(bool apply, bool Real, bool change
 
             if (DoneActualBenefit != 0.0f)
             {
+                // Handle SPELL_AURA_ADD_PCT_MODIFIERs
+                Unit::AuraEffectList const& AuraPctMmodifiers = caster->GetAurasByType(SPELL_AURA_ADD_PCT_MODIFIER);
+                for (Unit::AuraEffectList::const_iterator i = AuraPctMmodifiers.begin(); i != AuraPctMmodifiers.end(); ++i)
+                {
+                    if ((*i)->isAffectedOnSpell(m_spellProto) && (*i)->GetMiscValue() == SPELLMOD_ALL_EFFECTS)
+                        BenefitMod += (*i)->GetAmount() / 100.0f;
+                }
+
+                DoneActualBenefit *= BenefitMod;
                 DoneActualBenefit *= caster->CalculateLevelPenalty(GetSpellProto());
                 m_amount += (int32)DoneActualBenefit;
             }
