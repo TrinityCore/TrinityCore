@@ -1,4 +1,4 @@
--- Up to TC2 6859
+-- Up to TC2 6873
 
 -- Cleanup first
 UPDATE `creature_template` SET `ScriptName`='';
@@ -138,7 +138,7 @@ UPDATE `creature_template` SET `AIName`='ArchorAI', `ScriptName`='' WHERE `entry
 UPDATE `creature_template` SET `AIName`='TurretAI', `ScriptName`='' WHERE `entry`=29104;
 UPDATE `creature_template` SET `ScriptName`='npc_highlord_darion_mograine' WHERE `entry`=29173;
 UPDATE `creature_template` SET `ScriptName`='npc_the_lich_king_tirion_dawn' WHERE `entry` IN (29183,29175);
-
+UPDATE `creature_template` SET `ScriptName`='npc_shadowfiend' WHERE `entry` = 19668;
 
 /*  */
 /* ZONE */
