@@ -535,9 +535,11 @@ void InstanceSaveManager::LoadResetTimes()
         // schedule the global reset/warning
         uint8 type = 1;
         static int tim[4] = {3600, 900, 300, 60};
-        for (; type < 4; type++)
+        for(type; type < 4; type++)
             if(t - tim[type-1] > now)
                 break;
+
+        ScheduleReset(true, t - tim[type-1], InstResetEvent(type, mapid, difficulty, -1));
 
         for(ResetTimeMapDiffInstances::const_iterator in_itr = mapDiffResetInstances.lower_bound(map_diff_pair);
             in_itr != mapDiffResetInstances.upper_bound(map_diff_pair); ++in_itr)
@@ -643,7 +645,8 @@ void InstanceSaveManager::_ResetOrWarnAll(uint32 mapid, Difficulty difficulty, b
     if (!mapEntry->Instanceable())
         return;
 
-    uint64 now = (uint64)time(NULL);
+    time_t now = time(NULL);
+    time_t today = (now / DAY) * DAY;
 
     if(!warn)
     {
@@ -672,10 +675,12 @@ void InstanceSaveManager::_ResetOrWarnAll(uint32 mapid, Difficulty difficulty, b
 
         // calculate the next reset time
         uint32 diff = sWorld.getConfig(CONFIG_INSTANCE_RESET_TIME_HOUR) * HOUR;
-        uint32 period = mapDiff->resetTime * DAY;
-        uint64 next_reset = ((now + timeLeft + MINUTE) / DAY * DAY) + period + diff;
+        uint32 period = (mapDiff->resetTime / DAY * sWorld.getRate(RATE_INSTANCE_RESET_TIME)) * DAY;
+        time_t next_reset = today + period + diff;
         // update it in the DB
-        CharacterDatabase.PExecute("UPDATE instance_reset SET resettime = '"UI64FMTD"' WHERE mapid = '%d' AND difficulty = '%d'", next_reset, mapid, difficulty);
+        CharacterDatabase.PExecute("UPDATE instance_reset SET resettime = '"UI64FMTD"' WHERE mapid = '%d' AND difficulty = '%d'", (uint64)next_reset, mapid, difficulty);
+        SetResetTimeFor(mapid,difficulty,(uint64)next_reset);
+        ScheduleReset(true, next_reset-3600, InstResetEvent(1, mapid, difficulty, -1));
     }
 
     // note: this isn't fast but it's meant to be executed very rarely
