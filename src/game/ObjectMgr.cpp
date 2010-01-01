@@ -898,6 +898,7 @@ void ObjectMgr::LoadCreatureAddons()
             if(!sCreatureStorage.LookupEntry<CreatureInfo>(addon->guidOrEntry))
                 sLog.outErrorDb("Creature (Entry: %u) does not exist but has a record in `%s`",addon->guidOrEntry, sCreatureInfoAddonStorage.GetTableName());
 
+    sLog.outString( "Loading Creature Addon Data..." );
     LoadCreatureAddons(sCreatureDataAddonStorage,"GUID","creature addons");
 
     // check entry ids
@@ -1690,7 +1691,7 @@ void ObjectMgr::LoadCreatureRespawnTimes()
 
     QueryResult *result = WorldDatabase.Query("SELECT guid,respawntime,instance FROM creature_respawn");
 
-    if(!result)
+    if (!result)
     {
         barGoLink bar(1);
 
@@ -1719,8 +1720,8 @@ void ObjectMgr::LoadCreatureRespawnTimes()
 
     delete result;
 
-    sLog.outString( ">> Loaded %lu creature respawn times", (unsigned long)mCreatureRespawnTimes.size() );
     sLog.outString();
+    sLog.outString( ">> Loaded %lu creature respawn times", (unsigned long)mCreatureRespawnTimes.size() );
 }
 
 void ObjectMgr::LoadGameobjectRespawnTimes()
@@ -2636,6 +2637,7 @@ void ObjectMgr::LoadPlayerInfo()
     }
 
     // Load playercreate items
+    sLog.outString("Loading Player Create Items Data...");
     {
         //                                                0     1      2       3
         QueryResult *result = WorldDatabase.Query("SELECT race, class, itemid, amount FROM playercreateinfo_item");
@@ -2706,6 +2708,7 @@ void ObjectMgr::LoadPlayerInfo()
     }
 
     // Load playercreate spells
+    sLog.outString("Loading Player Create Spell Data...");
     {
 
         QueryResult *result = NULL;
@@ -2772,6 +2775,7 @@ void ObjectMgr::LoadPlayerInfo()
     }
 
     // Load playercreate actions
+    sLog.outString("Loading Player Create Action Data...");
     {
         //                                                0     1      2       3       4
         QueryResult *result = WorldDatabase.Query("SELECT race, class, button, action, type FROM playercreateinfo_action");
@@ -2824,6 +2828,7 @@ void ObjectMgr::LoadPlayerInfo()
     }
 
     // Loading levels data (class only dependent)
+    sLog.outString("Loading Player Create Level HP/Mana Data...");
     {
         //                                                 0      1      2       3
         QueryResult *result  = WorldDatabase.Query("SELECT class, level, basehp, basemana FROM player_classlevelstats");
@@ -2915,6 +2920,7 @@ void ObjectMgr::LoadPlayerInfo()
     }
 
     // Loading levels data (class/race dependent)
+    sLog.outString("Loading Player Create Level Stats Data...");
     {
         //                                                 0     1      2      3    4    5    6    7
         QueryResult *result  = WorldDatabase.Query("SELECT race, class, level, str, agi, sta, inte, spi FROM player_levelstats");
@@ -3034,6 +3040,7 @@ void ObjectMgr::LoadPlayerInfo()
     }
 
     // Loading xp per level data
+    sLog.outString("Loading Player Create XP Data...");
     {
         mPlayerXPperLevel.resize(sWorld.getConfig(CONFIG_MAX_PLAYER_LEVEL));
         for (uint8 level = 0; level < sWorld.getConfig(CONFIG_MAX_PLAYER_LEVEL); ++level)
@@ -4722,10 +4729,10 @@ void ObjectMgr::LoadPageTexts()
     {
         // check data correctness
         PageText const* page = sPageTextStore.LookupEntry<PageText>(i);
-        if(!page)
+        if (!page)
             continue;
 
-        if(page->Next_Page && !sPageTextStore.LookupEntry<PageText>(page->Next_Page))
+        if (page->Next_Page && !sPageTextStore.LookupEntry<PageText>(page->Next_Page))
         {
             sLog.outErrorDb("Page text (Id: %u) has not existing next page (Id:%u)", i,page->Next_Page);
             continue;
@@ -4735,13 +4742,13 @@ void ObjectMgr::LoadPageTexts()
         std::set<uint32> checkedPages;
         for (PageText const* pageItr = page; pageItr; pageItr = sPageTextStore.LookupEntry<PageText>(pageItr->Next_Page))
         {
-            if(!pageItr->Next_Page)
+            if (!pageItr->Next_Page)
                 break;
             checkedPages.insert(pageItr->Page_ID);
-            if(checkedPages.find(pageItr->Next_Page)!=checkedPages.end())
+            if (checkedPages.find(pageItr->Next_Page)!= checkedPages.end())
             {
                 std::ostringstream ss;
-                ss<< "The text page(s) ";
+                ss << "The text page(s) ";
                 for (std::set<uint32>::iterator itr= checkedPages.begin(); itr!=checkedPages.end(); ++itr)
                     ss << *itr << " ";
                 ss << "create(s) a circular reference, which can cause the server to freeze. Changing Next_Page of page "
@@ -6952,7 +6959,7 @@ void ObjectMgr::LoadQuestRelationsHelper(QuestRelations& map,char const* table)
 
     QueryResult *result = WorldDatabase.PQuery("SELECT id,quest FROM %s",table);
 
-    if(!result)
+    if (!result)
     {
         barGoLink bar(1);
 
@@ -8576,16 +8583,16 @@ void ObjectMgr::LoadScriptNames()
       "UNION "
       "SELECT DISTINCT(script) FROM instance_template WHERE script <> ''");
 
-    if( !result )
+    if (!result)
     {
-        barGoLink bar( 1 );
+        barGoLink bar(1);
         bar.step();
         sLog.outString();
         sLog.outErrorDb(">> Loaded empty set of Script Names!");
         return;
     }
 
-    barGoLink bar( result->GetRowCount() );
+    barGoLink bar(result->GetRowCount());
 
     //OnEvent Changes
     m_scriptNames.push_back("scripted_on_events");
@@ -8761,7 +8768,10 @@ void ObjectMgr::LoadGMTickets()
 
     if(!result)
     {
-        sLog.outString(" \n>> GM Tickets table is empty, no tickets were loaded.\n" );
+        barGoLink bar(1);
+        bar.step();
+        sLog.outString();
+        sLog.outString(">> GM Tickets table is empty, no tickets were loaded." );
         return;
     }
 
@@ -8804,7 +8814,7 @@ void ObjectMgr::LoadGMTickets()
     }
     delete result;
 
-    sLog.outString(">>> %u GM Tickets loaded from the database.", count);
+    sLog.outString(">> Loaded %u GM Tickets from the database.", count);
 }
 
 void ObjectMgr::AddOrUpdateGMTicket(GM_Ticket &ticket, bool create)
