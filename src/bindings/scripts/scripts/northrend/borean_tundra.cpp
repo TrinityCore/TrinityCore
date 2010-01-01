@@ -2069,7 +2069,7 @@ void AddSC_borean_tundra()
     newscript->GetAI = &GetAI_npc_imprisoned_beryl_sorcerer;
     newscript->RegisterSelf();
 
-	newscript = new Script;
+    newscript = new Script;
     newscript->Name = "npc_mootoo_the_younger";
     newscript->GetAI = &GetAI_npc_mootoo_the_younger;
     newscript->pQuestAccept=&QuestAccept_npc_mootoo_the_younger;

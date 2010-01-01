@@ -9545,7 +9545,7 @@ uint32 Unit::SpellDamageBonus(Unit *pVictim, SpellEntry const *spellProto, uint3
                 else
                 {
                     // Frost Fever (target debuff)
-                    if (pVictim->GetAura(SPELL_AURA_MOD_HASTE, SPELL_AURA_PERIODIC_DAMAGE, SPELLFAMILY_DEATHKNIGHT, 0, 0, 0x2))
+                    if (pVictim->HasAura(55095))
                         DoneTotalMod *= ((*i)->GetAmount()+100.0f)/100.0f;
                     break;
                 }
@@ -10688,7 +10688,7 @@ void Unit::MeleeDamageBonus(Unit *pVictim, uint32 *pdamage, WeaponAttackType att
                 else
                 {
                     // Frost Fever (target debuff)
-                    if (pVictim->GetAura(SPELL_AURA_MOD_HASTE, SPELL_AURA_PERIODIC_DAMAGE, SPELLFAMILY_DEATHKNIGHT, 0, 0, 0x2))
+                    if (pVictim->HasAura(55095))
                         DoneTotalMod *= ((*i)->GetAmount()+100.0f)/100.0f;
                 }
                 break;
