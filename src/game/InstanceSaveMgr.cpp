@@ -282,7 +282,7 @@ void InstanceSaveManager::CleanupInstances()
     // first, obtain total instance set
     std::set<uint32> InstanceSet;
     QueryResult *result = CharacterDatabase.Query("SELECT id FROM instance");
-    if( result )
+    if (result)
     {
         do
         {
@@ -295,12 +295,12 @@ void InstanceSaveManager::CleanupInstances()
 
     // creature_respawn
     result = WorldDatabase.Query("SELECT DISTINCT(instance) FROM creature_respawn WHERE instance <> 0");
-    if( result )
+    if (result)
     {
         do
         {
             Field *fields = result->Fetch();
-            if(InstanceSet.find(fields[0].GetUInt32()) == InstanceSet.end())
+            if (InstanceSet.find(fields[0].GetUInt32()) == InstanceSet.end())
                 WorldDatabase.DirectPExecute("DELETE FROM creature_respawn WHERE instance = '%u'", fields[0].GetUInt32());
         }
         while (result->NextRow());
@@ -309,12 +309,12 @@ void InstanceSaveManager::CleanupInstances()
 
     // gameobject_respawn
     result = WorldDatabase.Query("SELECT DISTINCT(instance) FROM gameobject_respawn WHERE instance <> 0");
-    if( result )
+    if (result)
     {
         do
         {
             Field *fields = result->Fetch();
-            if(InstanceSet.find(fields[0].GetUInt32()) == InstanceSet.end())
+            if (InstanceSet.find(fields[0].GetUInt32()) == InstanceSet.end())
                 WorldDatabase.DirectPExecute("DELETE FROM gameobject_respawn WHERE instance = '%u'", fields[0].GetUInt32());
         }
         while (result->NextRow());
@@ -323,12 +323,12 @@ void InstanceSaveManager::CleanupInstances()
 
     // characters
     result = CharacterDatabase.Query("SELECT DISTINCT(instance_id) FROM characters WHERE instance_id <> 0");
-    if( result )
+    if (result)
     {
         do
         {
             Field *fields = result->Fetch();
-            if(InstanceSet.find(fields[0].GetUInt32()) == InstanceSet.end())
+            if (InstanceSet.find(fields[0].GetUInt32()) == InstanceSet.end())
                 CharacterDatabase.PExecute("UPDATE characters SET instance_id = '0' WHERE instance_id = '%u'", fields[0].GetUInt32());
         }
         while (result->NextRow());
@@ -337,12 +337,12 @@ void InstanceSaveManager::CleanupInstances()
 
     // corpse
     result = CharacterDatabase.Query("SELECT DISTINCT(instance) FROM corpse WHERE instance <> 0");
-    if( result )
+    if (result)
     {
         do
         {
             Field *fields = result->Fetch();
-            if(InstanceSet.find(fields[0].GetUInt32()) == InstanceSet.end())
+            if (InstanceSet.find(fields[0].GetUInt32()) == InstanceSet.end())
                 CharacterDatabase.PExecute("UPDATE corpse SET instance = '0' WHERE instance = '%u'", fields[0].GetUInt32());
         }
         while (result->NextRow());
@@ -366,7 +366,7 @@ void InstanceSaveManager::PackInstances()
     // any associations to ids not in this table are assumed to be
     // cleaned already in CleanupInstances
     QueryResult *result = CharacterDatabase.Query("SELECT id FROM instance");
-    if( result )
+    if (result)
     {
         do
         {
@@ -377,7 +377,7 @@ void InstanceSaveManager::PackInstances()
         delete result;
     }
 
-    barGoLink bar( InstanceSet.size() + 1);
+    barGoLink bar(InstanceSet.size() + 1);
     bar.step();
 
     uint32 InstanceNumber = 1;
@@ -400,8 +400,8 @@ void InstanceSaveManager::PackInstances()
         bar.step();
     }
 
-    sLog.outString( ">> Instance numbers remapped, next instance id is %u", InstanceNumber );
     sLog.outString();
+    sLog.outString( ">> Instance numbers remapped, next instance id is %u", InstanceNumber );
 }
 
 void InstanceSaveManager::LoadResetTimes()

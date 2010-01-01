@@ -2201,14 +2201,15 @@ void AchievementGlobalMgr::LoadRewardLocales()
 
     QueryResult *result = WorldDatabase.Query("SELECT entry,subject_loc1,text_loc1,subject_loc2,text_loc2,subject_loc3,text_loc3,subject_loc4,text_loc4,subject_loc5,text_loc5,subject_loc6,text_loc6,subject_loc7,text_loc7,subject_loc8,text_loc8 FROM locales_achievement_reward");
 
-    if(!result)
+    if (!result)
     {
         barGoLink bar(1);
 
         bar.step();
 
         sLog.outString();
-        sLog.outString(">> Loaded 0 achievement reward locale strings. DB table `locales_achievement_reward` is empty.");
+        sLog.outString(">> Loaded 0 achievement reward locale strings.");
+        sLog.outString(">> DB table `locales_achievement_reward` is empty.");
         return;
     }
 
