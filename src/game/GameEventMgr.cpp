@@ -195,7 +195,7 @@ void GameEventMgr::LoadFromDB()
 {
     {
         QueryResult *result = WorldDatabase.Query("SELECT MAX(entry) FROM game_event");
-        if( !result )
+        if (!result)
         {
             sLog.outString(">> Table game_event is empty.");
             sLog.outString();
@@ -211,7 +211,7 @@ void GameEventMgr::LoadFromDB()
     }
 
     QueryResult *result = WorldDatabase.Query("SELECT entry,UNIX_TIMESTAMP(start_time),UNIX_TIMESTAMP(end_time),occurence,length,holiday,description,world_event FROM game_event");
-    if( !result )
+    if (!result)
     {
         mGameEvent.clear();
         sLog.outString(">> Table game_event is empty!");
@@ -222,7 +222,7 @@ void GameEventMgr::LoadFromDB()
     uint32 count = 0;
 
     {
-        barGoLink bar( result->GetRowCount() );
+        barGoLink bar(result->GetRowCount());
         do
         {
             ++count;
@@ -274,11 +274,14 @@ void GameEventMgr::LoadFromDB()
     }
 
     // load game event saves
-    //                                       0         1      2
+
+    sLog.outString("Loading Game Event Saves Data...");
+
+    //                                          0         1            2
     result = CharacterDatabase.Query("SELECT event_id, state, UNIX_TIMESTAMP(next_start) FROM game_event_save");
 
     count = 0;
-    if( !result )
+    if (!result)
     {
         barGoLink bar2(1);
         bar2.step();
@@ -324,8 +327,11 @@ void GameEventMgr::LoadFromDB()
     }
 
     // load game event links (prerequisites)
+
+    sLog.outString("Loading Game Event Prerequisite Data...");
+
     result = WorldDatabase.Query("SELECT event_id, prerequisite_event FROM game_event_prerequisite");
-    if( !result )
+    if (!result)
     {
         barGoLink bar2(1);
         bar2.step();
@@ -369,14 +375,18 @@ void GameEventMgr::LoadFromDB()
 
             ++count;
 
-        } while( result->NextRow() );
+        } while (result->NextRow());
         sLog.outString();
         sLog.outString( ">> Loaded %u game event prerequisites in game events", count );
         delete result;
     }
 
+    // Creatures
+
+    sLog.outString("Loading Game Event Creature Data...");
+
     mGameEventCreatureGuids.resize(mGameEvent.size()*2-1);
-    //                                   1              2
+    //                                        1                2
     result = WorldDatabase.Query("SELECT creature.guid, game_event_creature.event "
         "FROM creature JOIN game_event_creature ON creature.guid = game_event_creature.guid");
 
@@ -420,6 +430,10 @@ void GameEventMgr::LoadFromDB()
         sLog.outString();
         sLog.outString( ">> Loaded %u creatures in game events", count );
     }
+
+    // Gameobjects
+
+    sLog.outString("Loading Game Event GO Data...");
 
     mGameEventGameobjectGuids.resize(mGameEvent.size()*2-1);
     //                                   1                2
@@ -466,6 +480,10 @@ void GameEventMgr::LoadFromDB()
         sLog.outString();
         sLog.outString( ">> Loaded %u gameobjects in game events", count );
     }
+
+    // Model/Equipment Changes
+
+    sLog.outString("Loading Game Event Model/Equipment Change Data...");
 
     mGameEventModelEquip.resize(mGameEvent.size());
     //                                   0              1                             2
@@ -527,6 +545,10 @@ void GameEventMgr::LoadFromDB()
         sLog.outString( ">> Loaded %u model/equipment changes in game events", count );
     }
 
+    // Quests
+
+    sLog.outString("Loading Game Event Quest Data...");
+
     mGameEventCreatureQuests.resize(mGameEvent.size());
     //                                   0   1      2
     result = WorldDatabase.Query("SELECT id, quest, event FROM game_event_creature_quest");
@@ -569,6 +591,10 @@ void GameEventMgr::LoadFromDB()
 
         delete result;
     }
+
+    // GO Quests
+
+    sLog.outString("Loading Game Event GO Quest Data...");
 
     mGameEventGameObjectQuests.resize(mGameEvent.size());
     //                                   0   1      2
@@ -615,6 +641,8 @@ void GameEventMgr::LoadFromDB()
 
     // Load quest to (event,condition) mapping
     //                                   0      1         2             3
+
+    sLog.outString("Loading Game Event Quest Condition Data...");
     result = WorldDatabase.Query("SELECT quest, event_id, condition_id, num FROM game_event_quest_condition");
 
     count = 0;
@@ -659,7 +687,10 @@ void GameEventMgr::LoadFromDB()
     }
 
     // load conditions of the events
-    //                                   0         1             2        3                      4
+    //                                      0          1            2             3                      4
+
+    sLog.outString("Loading Game Event Condition Data...");
+
     result = WorldDatabase.Query("SELECT event_id, condition_id, req_num, max_world_state_field, done_world_state_field FROM game_event_condition");
 
     count = 0;
@@ -704,7 +735,10 @@ void GameEventMgr::LoadFromDB()
     }
 
     // load condition saves
-    //                                       0         1             2
+
+    sLog.outString("Loading Game Event Condition Save Data...");
+
+    //                                           0         1          2
     result = CharacterDatabase.Query("SELECT event_id, condition_id, done FROM game_event_condition_save");
 
     count = 0;
@@ -756,6 +790,9 @@ void GameEventMgr::LoadFromDB()
 
     mGameEventNPCFlags.resize(mGameEvent.size());
     // load game event npcflag
+
+    sLog.outString("Loading Game Event NPCflag Data...");
+
     //                                   0         1        2
     result = WorldDatabase.Query("SELECT guid, event_id, npcflag FROM game_event_npcflag");
 
@@ -798,7 +835,11 @@ void GameEventMgr::LoadFromDB()
         delete result;
     }
 
+    // Vendor
     mGameEventVendors.resize(mGameEvent.size());
+
+    sLog.outString("Loading Game Event Vendor Additions Data...");
+
     //                                   0      1      2     3         4         5
     result = WorldDatabase.Query("SELECT event, guid, item, maxcount, incrtime, ExtendedCost FROM game_event_npc_vendor");
 
@@ -866,6 +907,9 @@ void GameEventMgr::LoadFromDB()
     }
 
     // load game event npc gossip ids
+
+    sLog.outString("Loading Game Event NPC Gossip Data...");
+
     //                                   0         1        2
     result = WorldDatabase.Query("SELECT guid, event_id, textid FROM game_event_npc_gossip");
 
@@ -911,6 +955,9 @@ void GameEventMgr::LoadFromDB()
     // set all flags to 0
     mGameEventBattleGroundHolidays.resize(mGameEvent.size(),0);
     // load game event battleground flags
+
+    sLog.outString("Loading Game Event Battleground Data...");
+
     //                                   0     1
     result = WorldDatabase.Query("SELECT event, bgflag FROM game_event_battleground_holiday");
 
@@ -957,6 +1004,9 @@ void GameEventMgr::LoadFromDB()
     ////////////////////////
 
     mGameEventPoolIds.resize(mGameEvent.size()*2-1);
+
+    sLog.outString("Loading Game Event Pool Data...");
+
     //                                   1                    2
     result = WorldDatabase.Query("SELECT pool_template.entry, game_event_pool.event "
         "FROM pool_template JOIN game_event_pool ON pool_template.entry = game_event_pool.pool_entry");

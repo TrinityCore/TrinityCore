@@ -35,7 +35,7 @@ void WaypointStore::Free()
 void WaypointStore::Load()
 {
     QueryResult *result = WorldDatabase.PQuery("SELECT COUNT(id) FROM waypoint_data");
-    if(!result)
+    if (!result)
     {
         sLog.outError("an error occured while loading the table `waypoint_data` (maybe it doesn't exist ?)");
         exit(1);                                            // Stop server at loading non exited table or not accessable table
@@ -54,7 +54,8 @@ void WaypointStore::Load()
     WaypointPath* path_data;
     uint32 total_records = result->GetRowCount();
 
-    barGoLink bar( total_records);
+    barGoLink bar(total_records);
+    uint32 count = 0;
     Field *fields;
     uint32 last_id = 0;
 
@@ -63,6 +64,7 @@ void WaypointStore::Load()
         fields = result->Fetch();
         uint32 id = fields[0].GetUInt32();
         bar.step();
+        count++;
         WaypointData *wp = new WaypointData;
 
         if(last_id != id)
@@ -95,6 +97,8 @@ void WaypointStore::Load()
     } while(result->NextRow()) ;
 
     delete result;
+    sLog.outString();
+    sLog.outString(">> Loaded %u waypoints", count);
 }
 
 void WaypointStore::UpdatePath(uint32 id)

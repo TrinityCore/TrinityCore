@@ -1329,7 +1329,7 @@ void SpellMgr::LoadSpellProcEvents()
 
     sLog.outString();
     if (customProc)
-        sLog.outString( ">> Loaded %u extra spell proc event conditions +%u custom",  count, customProc );
+        sLog.outString( ">> Loaded %u extra spell proc event conditions + %u custom",  count, customProc );
     else
         sLog.outString( ">> Loaded %u extra spell proc event conditions", count );
 }
@@ -1567,10 +1567,10 @@ void SpellMgr::LoadSpellThreats()
 
     //                                                0      1
     QueryResult *result = WorldDatabase.Query("SELECT entry, Threat FROM spell_threat");
-    if( !result )
+    if (!result)
     {
 
-        barGoLink bar( 1 );
+        barGoLink bar(1);
 
         bar.step();
 
@@ -1579,7 +1579,7 @@ void SpellMgr::LoadSpellThreats()
         return;
     }
 
-    barGoLink bar( result->GetRowCount() );
+    barGoLink bar(result->GetRowCount());
 
     do
     {
@@ -1599,7 +1599,7 @@ void SpellMgr::LoadSpellThreats()
         mSpellThreatMap[entry] = Threat;
 
         ++count;
-    } while( result->NextRow() );
+    } while (result->NextRow());
 
     delete result;
 
@@ -1765,7 +1765,7 @@ void SpellMgr::LoadSpellLearnSkills()
 
     // search auto-learned skills and add its to map also for use in unlearn spells/talents
     uint32 dbc_count = 0;
-    barGoLink bar( sSpellStore.GetNumRows() );
+    barGoLink bar(sSpellStore.GetNumRows());
     for (uint32 spell = 0; spell < sSpellStore.GetNumRows(); ++spell)
     {
         bar.step();
@@ -1774,13 +1774,13 @@ void SpellMgr::LoadSpellLearnSkills()
         if(!entry)
             continue;
 
-        for (int i = 0; i < 3; ++i)
+        for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
         {
             if(entry->Effect[i]==SPELL_EFFECT_SKILL)
             {
                 SpellLearnSkillNode dbc_node;
-                dbc_node.skill    = entry->EffectMiscValue[i];
-                if ( dbc_node.skill != SKILL_RIDING )
+                dbc_node.skill = entry->EffectMiscValue[i];
+                if (dbc_node.skill != SKILL_RIDING)
                     dbc_node.value = 1;
                 else
                     dbc_node.value = entry->CalculateSimpleValue(i)*75;
@@ -1803,11 +1803,11 @@ void SpellMgr::LoadSpellLearnSpells()
 {
     mSpellLearnSpells.clear();                              // need for reload case
 
-    //                                                0      1        2
+    //                                                  0      1        2
     QueryResult *result = WorldDatabase.Query("SELECT entry, SpellID, Active FROM spell_learn_spell");
-    if(!result)
+    if (!result)
     {
-        barGoLink bar( 1 );
+        barGoLink bar(1);
         bar.step();
 
         sLog.outString();
@@ -1818,41 +1818,41 @@ void SpellMgr::LoadSpellLearnSpells()
 
     uint32 count = 0;
 
-    barGoLink bar( result->GetRowCount() );
+    barGoLink bar(result->GetRowCount());
     do
     {
         bar.step();
         Field *fields = result->Fetch();
 
-        uint32 spell_id    = fields[0].GetUInt32();
+        uint32 spell_id = fields[0].GetUInt32();
 
         SpellLearnSpellNode node;
         node.spell      = fields[1].GetUInt32();
         node.active     = fields[2].GetBool();
         node.autoLearned= false;
 
-        if(!sSpellStore.LookupEntry(spell_id))
+        if (!sSpellStore.LookupEntry(spell_id))
         {
-            sLog.outErrorDb("Spell %u listed in `spell_learn_spell` does not exist",spell_id);
+            sLog.outErrorDb("Spell %u listed in `spell_learn_spell` does not exist", spell_id);
             continue;
         }
 
-        if(!sSpellStore.LookupEntry(node.spell))
+        if (!sSpellStore.LookupEntry(node.spell))
         {
-            sLog.outErrorDb("Spell %u listed in `spell_learn_spell` learning not existed spell %u",spell_id,node.spell);
+            sLog.outErrorDb("Spell %u listed in `spell_learn_spell` learning not existed spell %u", spell_id, node.spell);
             continue;
         }
 
-        if(GetTalentSpellCost(node.spell))
+        if (GetTalentSpellCost(node.spell))
         {
-            sLog.outErrorDb("Spell %u listed in `spell_learn_spell` attempt learning talent spell %u, skipped",spell_id,node.spell);
+            sLog.outErrorDb("Spell %u listed in `spell_learn_spell` attempt learning talent spell %u, skipped", spell_id, node.spell);
             continue;
         }
 
         mSpellLearnSpells.insert(SpellLearnSpellMap::value_type(spell_id,node));
 
         ++count;
-    } while( result->NextRow() );
+    } while (result->NextRow());
 
     delete result;
 
@@ -1862,19 +1862,19 @@ void SpellMgr::LoadSpellLearnSpells()
     {
         SpellEntry const* entry = sSpellStore.LookupEntry(spell);
 
-        if(!entry)
+        if (!entry)
             continue;
 
-        for (int i = 0; i < 3; ++i)
+        for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
         {
             if(entry->Effect[i]==SPELL_EFFECT_LEARN_SPELL)
             {
                 SpellLearnSpellNode dbc_node;
-                dbc_node.spell       = entry->EffectTriggerSpell[i];
-                dbc_node.active      = true;                // all dbc based learned spells is active (show in spell book or hide by client itself)
+                dbc_node.spell = entry->EffectTriggerSpell[i];
+                dbc_node.active = true;                     // all dbc based learned spells is active (show in spell book or hide by client itself)
 
                 // ignore learning not existed spells (broken/outdated/or generic learnig spell 483
-                if(!sSpellStore.LookupEntry(dbc_node.spell))
+                if (!sSpellStore.LookupEntry(dbc_node.spell))
                     continue;
 
                 // talent or passive spells or skill-step spells auto-casted and not need dependent learning,
@@ -1887,7 +1887,7 @@ void SpellMgr::LoadSpellLearnSpells()
                 bool found = false;
                 for (SpellLearnSpellMap::const_iterator itr = db_node_bounds.first; itr != db_node_bounds.second; ++itr)
                 {
-                    if(itr->second.spell == dbc_node.spell)
+                    if (itr->second.spell == dbc_node.spell)
                     {
                         sLog.outErrorDb("Spell %u auto-learn spell %u in spell.dbc then the record in `spell_learn_spell` is redundant, please fix DB.",
                             spell,dbc_node.spell);
@@ -1896,7 +1896,7 @@ void SpellMgr::LoadSpellLearnSpells()
                     }
                 }
 
-                if(!found)                                  // add new spell-spell pair if not found
+                if (!found)                                  // add new spell-spell pair if not found
                 {
                     mSpellLearnSpells.insert(SpellLearnSpellMap::value_type(spell,dbc_node));
                     ++dbc_count;
@@ -2027,7 +2027,7 @@ void SpellMgr::LoadSpellScriptTarget()
             continue;
 
         bool found = false;
-        for (uint8 j = 0; j < 3; ++j)
+        for (uint8 j = 0; j < MAX_SPELL_EFFECTS; ++j)
         {
             switch (spellInfo->EffectImplicitTargetA[j])
             {
@@ -2041,6 +2041,7 @@ void SpellMgr::LoadSpellScriptTarget()
             }
             if (found)
                 break;
+
             switch (spellInfo->EffectImplicitTargetB[j])
             {
                 case TARGET_UNIT_AREA_ENTRY_SRC:
@@ -2051,14 +2052,15 @@ void SpellMgr::LoadSpellScriptTarget()
                     found = true;
                     break;
             }
+
             if (found)
                 break;
         }
         if (found)
         {
             SpellScriptTargetBounds bounds = spellmgr.GetSpellScriptTargetBounds(i);
-//            if (bounds.first == bounds.second)
-//                sLog.outDebug("Spell (ID: %u) does not have record in `spell_script_target`", i);
+            //if (bounds.first == bounds.second)
+            //sLog.outDebug("Spell (ID: %u) does not have record in `spell_script_target`", i);
         }
     }
 
@@ -2072,11 +2074,10 @@ void SpellMgr::LoadSpellPetAuras()
 
     uint32 count = 0;
 
-    //                                                0      1         2    3
+    //                                                  0       1       2    3
     QueryResult *result = WorldDatabase.Query("SELECT spell, effectId, pet, aura FROM spell_pet_auras");
     if (!result)
     {
-
         barGoLink bar(1);
 
         bar.step();
@@ -2145,10 +2146,14 @@ void SpellMgr::LoadPetLevelupSpellMap()
     uint32 count = 0;
     uint32 family_count = 0;
 
+    barGoLink bar(sCreatureFamilyStore.GetNumRows());
+
     for (uint32 i = 0; i < sCreatureFamilyStore.GetNumRows(); ++i)
     {
+        bar.step();
+
         CreatureFamilyEntry const *creatureFamily = sCreatureFamilyStore.LookupEntry(i);
-        if(!creatureFamily)                                 // not exist
+        if (!creatureFamily)                                     // not exist
             continue;
 
         for (uint8 j = 0; j < 2; ++j)
@@ -2166,7 +2171,7 @@ void SpellMgr::LoadPetLevelupSpellMap()
                 //    (!creatureFamily->skillLine[1] || skillLine->skillId!=creatureFamily->skillLine[1]))
                 //    continue;
 
-                if (skillLine->skillId!=creatureFamily->skillLine[j])
+                if (skillLine->skillId != creatureFamily->skillLine[j])
                     continue;
 
                 if (skillLine->learnOnGetSkill != ABILITY_LEARNED_ON_GET_RACE_OR_CLASS_SKILL)
@@ -2248,8 +2253,12 @@ void SpellMgr::LoadPetDefaultSpells()
     uint32 countCreature = 0;
     uint32 countData = 0;
 
+    barGoLink bar(sCreatureStorage.MaxEntry + sSpellStore.GetNumRows());
+
     for (uint32 i = 0; i < sCreatureStorage.MaxEntry; ++i)
     {
+        bar.step();
+
         CreatureInfo const* cInfo = sCreatureStorage.LookupEntry<CreatureInfo>(i);
         if (!cInfo)
             continue;
@@ -2277,11 +2286,13 @@ void SpellMgr::LoadPetDefaultSpells()
     // different summon spells
     for (uint32 i = 0; i < sSpellStore.GetNumRows(); ++i)
     {
+        bar.step();
+
         SpellEntry const* spellEntry = sSpellStore.LookupEntry(i);
         if (!spellEntry)
             continue;
 
-        for (uint8 k = 0; k < 3; ++k)
+        for (uint8 k = 0; k < MAX_SPELL_EFFECTS; ++k)
         {
             if (spellEntry->Effect[k] == SPELL_EFFECT_SUMMON || spellEntry->Effect[k] == SPELL_EFFECT_SUMMON_PET)
             {
@@ -2313,7 +2324,8 @@ void SpellMgr::LoadPetDefaultSpells()
     }
 
     sLog.outString();
-    sLog.outString( ">> Loaded addition spells for %u pet spell data entries and %u summonable creature templates", countData, countCreature );
+    sLog.outString( ">> Loaded addition spells for %u pet spell data entries.", countData );
+    sLog.outString( ">> Loaded %u summonable creature templates.", countCreature );
 }
 
 /// Some checks for spells, to prevent adding deprecated/broken spells for trainers, spell book, etc
@@ -2402,7 +2414,7 @@ void SpellMgr::LoadSpellAreas()
 
     uint32 count = 0;
 
-    //                                                0      1     2            3                   4          5           6         7       8
+    //                                                  0     1         2              3               4           5          6        7       8
     QueryResult *result = WorldDatabase.Query("SELECT spell, area, quest_start, quest_start_active, quest_end, aura_spell, racemask, gender, autocast FROM spell_area");
 
     if (!result)
@@ -2436,7 +2448,7 @@ void SpellMgr::LoadSpellAreas()
         spellArea.gender              = Gender(fields[7].GetUInt8());
         spellArea.autocast            = fields[8].GetBool();
 
-        if(const SpellEntry* spellInfo = sSpellStore.LookupEntry(spell))
+        if (const SpellEntry* spellInfo = sSpellStore.LookupEntry(spell))
         {
             if(spellArea.autocast)
                 const_cast<SpellEntry*>(spellInfo)->Attributes |= SPELL_ATTR_CANT_CANCEL;
@@ -3180,12 +3192,11 @@ void SpellMgr::LoadSpellEnchantProcData()
 
     uint32 count = 0;
 
-    //                                                0      1             2          3
+    //                                                  0         1           2         3
     QueryResult *result = WorldDatabase.Query("SELECT entry, customChance, PPMChance, procEx FROM spell_enchant_proc_data");
-    if( !result )
+    if (!result)
     {
-
-        barGoLink bar( 1 );
+        barGoLink bar(1);
 
         bar.step();
 
@@ -3194,7 +3205,7 @@ void SpellMgr::LoadSpellEnchantProcData()
         return;
     }
 
-    barGoLink bar( result->GetRowCount() );
+    barGoLink bar(result->GetRowCount());
     do
     {
         Field *fields = result->Fetch();
@@ -3223,6 +3234,7 @@ void SpellMgr::LoadSpellEnchantProcData()
 
     delete result;
 
+    sLog.outString();
     sLog.outString( ">> Loaded %u enchant proc data definitions", count);
 }
 
@@ -3233,7 +3245,7 @@ void SpellMgr::LoadSpellRequired()
 
     QueryResult *result = WorldDatabase.Query("SELECT spell_id, req_spell from spell_required");
 
-    if(result == NULL)
+    if (!result)
     {
         barGoLink bar(1);
         bar.step();
@@ -3251,13 +3263,14 @@ void SpellMgr::LoadSpellRequired()
         bar.step();
         Field *fields = result->Fetch();
 
-        uint32 spell_id = fields[0].GetUInt32();
+        uint32 spell_id =  fields[0].GetUInt32();
         uint32 spell_req = fields[1].GetUInt32();
 
         mSpellsReqSpell.insert (std::pair<uint32, uint32>(spell_req, spell_id));
         mSpellReq[spell_id] = spell_req;
         ++rows;
     } while (result->NextRow());
+
     delete result;
 
     sLog.outString();
@@ -3567,24 +3580,32 @@ void SpellMgr::LoadSpellCustomAttr()
 {
     mSpellCustomAttr.resize(GetSpellStore()->GetNumRows());
 
+    barGoLink bar(GetSpellStore()->GetNumRows());
+
+    uint32 count = 0;
+
     SpellEntry *spellInfo;
     for (uint32 i = 0; i < GetSpellStore()->GetNumRows(); ++i)
     {
+        bar.step();
+
         mSpellCustomAttr[i] = 0;
         spellInfo = (SpellEntry*)GetSpellStore()->LookupEntry(i);
         if (!spellInfo)
             continue;
 
-        for (uint32 j = 0; j < 3; ++j)
+        for (uint8 j = 0; j < MAX_SPELL_EFFECTS; ++j)
         {
             switch (spellInfo->EffectApplyAuraName[j])
             {
                 case SPELL_AURA_MOD_ROOT:
                     mSpellCustomAttr[i] |= SPELL_ATTR_CU_AURA_CC;
                     mSpellCustomAttr[i] |= SPELL_ATTR_CU_MOVEMENT_IMPAIR;
+                    count++;
                     break;
                 case SPELL_AURA_MOD_DECREASE_SPEED:
                     mSpellCustomAttr[i] |= SPELL_ATTR_CU_MOVEMENT_IMPAIR;
+                    count++;
                     break;
                 default:
                     break;
@@ -3599,6 +3620,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 case SPELL_EFFECT_WEAPON_PERCENT_DAMAGE:
                 case SPELL_EFFECT_HEAL:
                     mSpellCustomAttr[i] |= SPELL_ATTR_CU_DIRECT_DAMAGE;
+                    count++;
                     break;
                 case SPELL_EFFECT_CHARGE:
                 case SPELL_EFFECT_JUMP:
@@ -3607,11 +3629,13 @@ void SpellMgr::LoadSpellCustomAttr()
                     if(!spellInfo->speed && !spellInfo->SpellFamilyName)
                         spellInfo->speed = SPEED_CHARGE;
                     mSpellCustomAttr[i] |= SPELL_ATTR_CU_CHARGE;
+                    count++;
                     break;
                 case SPELL_EFFECT_TRIGGER_SPELL:
                     if (IsPositionTarget(spellInfo->EffectImplicitTargetA[j]) ||
                         spellInfo->Targets & (TARGET_FLAG_SOURCE_LOCATION|TARGET_FLAG_DEST_LOCATION))
                         spellInfo->Effect[j] = SPELL_EFFECT_TRIGGER_MISSILE;
+                    count++;
                     break;
             }
 
@@ -3620,6 +3644,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 case TARGET_TYPE_UNIT_TARGET:
                 case TARGET_TYPE_DEST_TARGET:
                     spellInfo->Targets |= TARGET_FLAG_UNIT;
+                    count++;
                     break;
                 //case TARGET_TYPE_AREA_DST:
                 //case TARGET_TYPE_DEST_DEST:
@@ -3628,7 +3653,7 @@ void SpellMgr::LoadSpellCustomAttr()
             }
         }
 
-        for (uint32 j = 0; j < 3; ++j)
+        for (uint8 j = 0; j < MAX_SPELL_EFFECTS; ++j)
         {
             switch (spellInfo->EffectApplyAuraName[j])
             {
@@ -3640,32 +3665,50 @@ void SpellMgr::LoadSpellCustomAttr()
                 case SPELL_AURA_MOD_STUN:
                     mSpellCustomAttr[i] |= SPELL_ATTR_CU_AURA_CC;
                     mSpellCustomAttr[i] &= ~SPELL_ATTR_CU_MOVEMENT_IMPAIR;
+                    count++;
                     break;
             }
         }
 
         if (!_isPositiveEffect(i, 0, false))
+        {
             mSpellCustomAttr[i] |= SPELL_ATTR_CU_NEGATIVE_EFF0;
+            count++;
+        }
         if (!_isPositiveEffect(i, 1, false))
+        {
             mSpellCustomAttr[i] |= SPELL_ATTR_CU_NEGATIVE_EFF1;
+            count++;
+        }
         if (!_isPositiveEffect(i, 2, false))
+        {
             mSpellCustomAttr[i] |= SPELL_ATTR_CU_NEGATIVE_EFF2;
+            count++;
+        }
 
         if (spellInfo->SpellVisual[0] == 3879)
+        {
             mSpellCustomAttr[i] |= SPELL_ATTR_CU_CONE_BACK;
+            count++;
+        }
 
         if (spellInfo->activeIconID == 2158)  // flight
+        {
             spellInfo->Attributes |= SPELL_ATTR_PASSIVE;
+            count++;
+        }
 
         switch(i)
         {
         // Heroism
         case 32182:
             spellInfo->excludeCasterAuraSpell = 57723; // Exhaustion
+            count++;
             break;
         // Bloodlust
         case 2825:
             spellInfo->excludeCasterAuraSpell = 57724; // Sated
+            count++;
             break;
         // Heart of the Crusader
         case 20335:
@@ -3673,16 +3716,19 @@ void SpellMgr::LoadSpellCustomAttr()
         case 20337:
         // Entries were not updated after spell effect change, we have to do that manually :/
             spellInfo->AttributesEx3 |= SPELL_ATTR_EX3_CAN_PROC_TRIGGERED;
+            count++;
             break;
         case 16007: // Draco-Incarcinatrix 900
             // was 46, but effect is aura effect
             spellInfo->EffectImplicitTargetA[0] = TARGET_UNIT_NEARBY_ENTRY;
             spellInfo->EffectImplicitTargetB[0] = TARGET_DST_NEARBY_ENTRY;
+            count++;
             break;
         case 26029: // dark glare
         case 37433: // spout
         case 43140: case 43215: // flame breath
             mSpellCustomAttr[i] |= SPELL_ATTR_CU_CONE_LINE;
+            count++;
             break;
         case 24340: case 26558: case 28884:     // Meteor
         case 36837: case 38903: case 41276:     // Meteor
@@ -3696,16 +3742,19 @@ void SpellMgr::LoadSpellCustomAttr()
         case 64422: case 64688:                 // Sonic Screech
             // ONLY SPELLS WITH SPELLFAMILY_GENERIC and EFFECT_SCHOOL_DAMAGE
             mSpellCustomAttr[i] |= SPELL_ATTR_CU_SHARE_DAMAGE;
+            count++;
             break;
         case 59725:                             // Improved Spell Reflection - aoe aura
             // Target entry seems to be wrong for this spell :/
             spellInfo->EffectImplicitTargetA[0] = TARGET_UNIT_PARTY_CASTER;
             spellInfo->EffectRadiusIndex[0] = 45;
+            count++;
             break;
         case 27820:                             // Mana Detonation
         //case 28062: case 39090:                 // Positive/Negative Charge
         //case 28085: case 39093:
             mSpellCustomAttr[i] |= SPELL_ATTR_CU_EXCLUDE_SELF;
+            count++;
             break;
         case 44978: case 45001: case 45002:     // Wild Magic
         case 45004: case 45006: case 45010:     // Wild Magic
@@ -3718,12 +3767,14 @@ void SpellMgr::LoadSpellCustomAttr()
         case 41071: // Raise Dead (HACK)
         case 52124: // Sky Darkener Assault
             spellInfo->MaxAffectedTargets = 1;
+            count++;
             break;
         case 52479: // Gift of the Harvester
             spellInfo->MaxAffectedTargets = 1;
             // a trap always has dst = src?
             spellInfo->EffectImplicitTargetA[0] = TARGET_DST_CASTER;
             spellInfo->EffectImplicitTargetA[1] = TARGET_DST_CASTER;
+            count++;
             break;
         case 41376: // Spite
         case 39992: // Needle Spine
@@ -3737,10 +3788,12 @@ void SpellMgr::LoadSpellCustomAttr()
         case 29213: // Curse of the Plaguebringer - Noth
         case 28542: // Life Drain - Sapphiron
             spellInfo->MaxAffectedTargets = 3;
+            count++;
             break;
         case 38310: // Multi-Shot
         case 53385: // Divine Storm (Damage)
             spellInfo->MaxAffectedTargets = 4;
+            count++;
             break;
         case 42005: // Bloodboil
         case 38296: // Spitfire Totem
@@ -3750,6 +3803,7 @@ void SpellMgr::LoadSpellCustomAttr()
         case 55665: // Life Drain - Sapphiron (H)
         case 28796: // Poison Bolt Volly - Faerlina
             spellInfo->MaxAffectedTargets = 5;
+            count++;
             break;
         case 40827: // Sinful Beam
         case 40859: // Sinister Beam
@@ -3758,10 +3812,12 @@ void SpellMgr::LoadSpellCustomAttr()
         case 54835: // Curse of the Plaguebringer - Noth (H)
         case 54098: // Poison Bolt Volly - Faerlina (H)
             spellInfo->MaxAffectedTargets = 10;
+            count++;
             break;
         case 38794: case 33711: //Murmur's Touch
             spellInfo->MaxAffectedTargets = 1;
             spellInfo->EffectTriggerSpell[0] = 33760;
+            count++;
             break;
         case 17941:    // Shadow Trance
         case 22008:    // Netherwind Focus
@@ -3776,55 +3832,70 @@ void SpellMgr::LoadSpellCustomAttr()
         case 52437:    // Sudden Death
         case 64823:    // Item - Druid T8 Balance 4P Bonus
             spellInfo->procCharges = 1;
+            count++;
             break;
         case SPELL_TIDAL_WAVES_51566: // Tidal Wave
             spellInfo->procCharges = 2;
+            count++;
             break;
         case 44544:    // Fingers of Frost
             spellInfo->procCharges = 2;
             spellInfo->EffectSpellClassMask[0] = flag96(685904631,1151048,0);
+            count++;
             break;
         case 28200:    // Ascendance (Talisman of Ascendance trinket)
             spellInfo->procCharges = 6;
+            count++;
             break;
         case 51852:    // The Eye of Acherus (no spawn in phase 2 in db)
             spellInfo->EffectMiscValue[0] |= 1;
+            count++;
             break;
         case 52025:    // Cleansing Totem Effect
             spellInfo->EffectDieSides[1] = 1;
+            count++;
             break;
         case 51904:     // Summon Ghouls On Scarlet Crusade (core does not know the triggered spell is summon spell)
             spellInfo->EffectImplicitTargetA[0] = TARGET_UNIT_CASTER;
+            count++;
             break;
         case 29809:     // Desecration Arm - 36 instead of 37 - typo? :/
             spellInfo->EffectRadiusIndex[0] = 37;
+            count++;
             break;
         // Master Shapeshifter: missing stance data for forms other than bear - bear version has correct data
         // To prevent aura staying on target after talent unlearned
         case 48420:
             spellInfo->Stances = 1 << (FORM_CAT - 1);
+            count++;
             break;
         case 48421:
             spellInfo->Stances = 1 << (FORM_MOONKIN - 1);
+            count++;
             break;
         case 48422:
             spellInfo->Stances = 1 << (FORM_TREE - 1);
+            count++;
             break;
         case 30421:     // Nether Portal - Perseverence
             spellInfo->EffectBasePoints[2] += 30000;
+            count++;
             break;
         // some dummy spell only has dest, should push caster in this case
         case 62324: // Throw Passenger
             spellInfo->Targets |= TARGET_FLAG_CASTER;
+            count++;
             break;
         case 51735: // Ebon Plague
         case 51734:
         case 51726:
             spellInfo->SpellFamilyFlags[2] = 0x10;
+            count++;
             break;
         // cleansing totem pulse when it is spawned
         case 8172:
             spellInfo->AttributesEx5 |= SPELL_ATTR_EX5_START_PERIODIC_AT_APPLY;
+            count++;
             break;
         default:
             break;
@@ -3834,9 +3905,11 @@ void SpellMgr::LoadSpellCustomAttr()
         {
             case SPELLFAMILY_WARRIOR:
                 // Shout
-                if(spellInfo->SpellFamilyFlags[0] & 0x20000
-                    || spellInfo->SpellFamilyFlags[1] & 0x20)
+                if(spellInfo->SpellFamilyFlags[0] & 0x20000 || spellInfo->SpellFamilyFlags[1] & 0x20)
                     mSpellCustomAttr[i] |= SPELL_ATTR_CU_AURA_CC;
+                else
+                    break;
+                count++;
                 break;
             case SPELLFAMILY_DRUID:
                 // Starfall Target Selection
@@ -3848,11 +3921,17 @@ void SpellMgr::LoadSpellCustomAttr()
                 // Roar
                 else if(spellInfo->SpellFamilyFlags[0] & 0x8)
                     mSpellCustomAttr[i] |= SPELL_ATTR_CU_AURA_CC;
+                else
+                    break;
+                count++;
                 break;
                 // Do not allow Deadly throw and Slice and Dice to proc twice
             case SPELLFAMILY_ROGUE:
                 if(spellInfo->SpellFamilyFlags[1] & 0x1 || spellInfo->SpellFamilyFlags[0] & 0x40000)
                     spellInfo->AttributesEx4 |= SPELL_ATTR_EX4_CANT_PROC_FROM_SELFCAST;
+                else
+                    break;
+                count++;
                 break;
         }
     }
@@ -3863,6 +3942,9 @@ void SpellMgr::LoadSpellCustomAttr()
     properties->Type = SUMMON_TYPE_TOTEM;
 
     CreatureAI::FillAISpellInfo();
+
+    sLog.outString();
+    sLog.outString(">> Loaded %u custom spell attributes", count );
 }
 
 // Fill custom data about enchancments
@@ -3871,11 +3953,17 @@ void SpellMgr::LoadEnchantCustomAttr()
     uint32 size = sSpellItemEnchantmentStore.GetNumRows();
     mEnchantCustomAttr.resize(size);
 
-    for (uint32 i = 0; i<size; ++i)
+    barGoLink bar(GetSpellStore()->GetNumRows());
+
+    uint32 count = 0;
+
+    for (uint32 i = 0; i < size; ++i)
        mEnchantCustomAttr[i] = 0;
 
     for (uint32 i = 0; i < GetSpellStore()->GetNumRows(); ++i)
     {
+        bar.step();
+
         SpellEntry * spellInfo = (SpellEntry*)GetSpellStore()->LookupEntry(i);
         if(!spellInfo)
             continue;
@@ -3884,7 +3972,7 @@ void SpellMgr::LoadEnchantCustomAttr()
         if (!(spellInfo->AttributesEx2 & SPELL_ATTR_EX2_UNK13) || !(spellInfo->Attributes & SPELL_ATTR_NOT_SHAPESHIFT))
             continue;
 
-        for (uint32 j = 0; j < 3; ++j)
+        for (uint32 j = 0; j < MAX_SPELL_EFFECTS; ++j)
         {
             if(spellInfo->Effect[j] == SPELL_EFFECT_ENCHANT_ITEM_TEMPORARY)
             {
@@ -3893,10 +3981,14 @@ void SpellMgr::LoadEnchantCustomAttr()
                 if (!enchId)
                     continue;
                 mEnchantCustomAttr[enchId] = true;
+                count++;
                 break;
             }
         }
     }
+
+    sLog.outString();
+    sLog.outString( ">> Loaded %u custom enchant attributes", count );
 }
 
 bool SpellMgr::IsSkillTypeSpell(uint32 spellId, SkillType type) const
@@ -3917,9 +4009,9 @@ void SpellMgr::LoadSpellLinked()
 
     //                                                0              1             2
     QueryResult *result = WorldDatabase.Query("SELECT spell_trigger, spell_effect, type FROM spell_linked_spell");
-    if( !result )
+    if (!result)
     {
-        barGoLink bar( 1 );
+        barGoLink bar(1);
         bar.step();
         sLog.outString();
         sLog.outString( ">> Loaded %u linked spells", count );
@@ -3935,8 +4027,8 @@ void SpellMgr::LoadSpellLinked()
         bar.step();
 
         int32 trigger = fields[0].GetInt32();
-        int32 effect = fields[1].GetInt32();
-        int32 type = fields[2].GetInt32();
+        int32 effect =  fields[1].GetInt32();
+        int32 type =    fields[2].GetInt32();
 
         SpellEntry const* spellInfo = sSpellStore.LookupEntry(abs(trigger));
         if (!spellInfo)

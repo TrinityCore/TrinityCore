@@ -217,12 +217,12 @@ void LoadDBCStores(const std::string& dataPath)
 
     const uint32 DBCFilesCount = 82;
 
-    barGoLink bar( DBCFilesCount );
+    barGoLink bar(DBCFilesCount);
 
     StoreProblemList bad_dbc_files;
     uint32 availableDbcLocales = 0xFFFFFFFF;
 
-    LoadDBC(availableDbcLocales,bar,bad_dbc_files,sAreaStore,                dbcPath,"AreaTable.dbc");
+    LoadDBC(availableDbcLocales, bar, bad_dbc_files, sAreaStore, dbcPath, "AreaTable.dbc");
 
     // must be after sAreaStore loading
     for (uint32 i = 0; i < sAreaStore.GetNumRows(); ++i)           // areaflag numbered from 0
