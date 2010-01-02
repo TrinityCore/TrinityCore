@@ -808,7 +808,9 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
     PetType petType = MAX_PET_TYPE;
     if(isPet() && m_owner->GetTypeId() == TYPEID_PLAYER)
     {
-        if(m_owner->getClass() == CLASS_WARLOCK)
+        if((m_owner->getClass() == CLASS_WARLOCK)
+            || (m_owner->getClass() == CLASS_SHAMAN)        // Fire Elemental
+            || (m_owner->getClass() == CLASS_DEATH_KNIGHT)) // Risen Ghoul
             petType = SUMMON_PET;
         else if(m_owner->getClass() == CLASS_HUNTER)
         {
