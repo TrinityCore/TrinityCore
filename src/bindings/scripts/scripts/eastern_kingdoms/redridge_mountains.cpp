@@ -76,6 +76,7 @@ struct TRINITY_DLL_DECL npc_corporal_keeshanAI : public npc_escortAI
                 m_creature->RemoveUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
                 break;
             case 115:
+                pPlayer->AreaExploredOrEventHappens(QUEST_MISSING_IN_ACTION);
                 uiTimer = 2000;
                 uiPhase = 4;
                 break;
