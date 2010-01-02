@@ -904,6 +904,7 @@ UPDATE `instance_template` SET `script`='instance_razorfen_kraul' WHERE `map`=47
 UPDATE `creature_template` SET `ScriptName`='npc_deaths_head_ward_keeper' WHERE `entry`=4625;
 
 /* REDRIDGE MOUNTAINS */
+UPDATE `creature_template` SET `ScriptName`='npc_corporal_keeshan' WHERE `entry`=349;
 
 /* RUINS OF AHN'QIRAJ */
 UPDATE `creature_template` SET `ScriptName`='boss_kurinnaxx' WHERE `entry`=15348;
