@@ -1502,7 +1502,7 @@ struct TRINITY_DLL_DECL npc_brewfest_revelerAI : public ScriptedAI
     {
         if (!IsHolidayActive(HOLIDAY_BREWFEST))
             return;
- 
+
         if (emote == TEXTEMOTE_DANCE)
             m_creature->CastSpell(pPlayer, 41586, false);
     }
@@ -1963,16 +1963,17 @@ CreatureAI* GetAI_npc_training_dummy(Creature* pCreature)
 
 struct TRINITY_DLL_DECL npc_shadowfiendAI : public ScriptedAI
 {
-    npc_shadowfiendAI(Creature *c) : ScriptedAI(c) {}
+    npc_shadowfiendAI(Creature* pCreature) : ScriptedAI(pCreature) {}
 
-    void DamageTaken(Unit *killer, uint32 &damage)
+    void DamageTaken(Unit* pKiller, uint32 &damage)
     {
-	if (Unit * Owner = CAST_SUM(m_creature)->GetSummoner())
-	{
-            if (Owner->HasAura(GLYPH_OF_SHADOWFIEND))
-                if (damage >= m_creature->GetHealth())
-                    Owner->CastSpell(Owner,GLYPH_OF_SHADOWFIEND_MANA,true);
-	}
+        if (m_creature->isSummon())
+            if (Unit* pOwner = CAST_SUM(m_creature)->GetSummoner())
+            {
+                if (pOwner->HasAura(GLYPH_OF_SHADOWFIEND))
+                    if (damage >= m_creature->GetHealth())
+                        pOwner->CastSpell(pOwner,GLYPH_OF_SHADOWFIEND_MANA,true);
+            }
     }
 
     void UpdateAI(const uint32 diff)
@@ -1994,7 +1995,7 @@ void AddSC_npcs_special()
     newscript->Name = "npc_air_force_bots";
     newscript->GetAI = &GetAI_npc_air_force_bots;
     newscript->RegisterSelf();
-	
+
     newscript = new Script;
     newscript->Name = "npc_lunaclaw_spirit";
     newscript->pGossipHello =  &GossipHello_npc_lunaclaw_spirit;
