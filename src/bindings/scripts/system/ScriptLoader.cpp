@@ -187,6 +187,7 @@ extern void AddSC_hinterlands();
 extern void AddSC_ironforge();
 extern void AddSC_isle_of_queldanas();
 extern void AddSC_loch_modan();
+extern void AddSC_redridge_mountains();
 extern void AddSC_searing_gorge();
 extern void AddSC_silvermoon_city();
 extern void AddSC_silverpine_forest();
@@ -644,6 +645,7 @@ void AddScripts()
     AddSC_ironforge();
     AddSC_isle_of_queldanas();
     AddSC_loch_modan();
+    AddSC_redridge_mountains();
     AddSC_searing_gorge();
     AddSC_silvermoon_city();
     AddSC_silverpine_forest();
