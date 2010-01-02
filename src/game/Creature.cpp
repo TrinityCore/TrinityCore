@@ -758,6 +758,16 @@ bool Creature::Create(uint32 guidlow, Map *map, uint32 phaseMask, uint32 Entry, 
             SetNativeDisplayId(display_id);
             SetByteValue(UNIT_FIELD_BYTES_0, 2, minfo->gender);
         }
+
+        switch(GetCreatureInfo()->InhabitType)
+        {
+            case INHABIT_AIR:
+                AddUnitMovementFlag(MOVEMENTFLAG_FLY_MODE | MOVEMENTFLAG_FLYING);
+                break;
+            case INHABIT_WATER:
+                AddUnitMovementFlag(MOVEMENTFLAG_SWIMMING);
+                break;
+        }
     }
     return bResult;
 }
