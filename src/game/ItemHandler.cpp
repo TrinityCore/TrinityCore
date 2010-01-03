@@ -998,14 +998,16 @@ void WorldSession::HandleItemNameQueryOpcode(WorldPacket & recv_data)
         SendPacket(&data);
         return;
     }
-    else
+// This is a BS check, there are lots of items listed in Item.dbc that do not even exist on official -- so we can NEVER get the data for them.
+// If you *really* want to spam your error log -- uncomment this.
+/*    else
     {
         // listed in dbc or not expected to exist unknown item
         if(sItemStore.LookupEntry(itemid))
             sLog.outErrorDb("WORLD: CMSG_ITEM_NAME_QUERY for item %u failed (item listed in Item.dbc but not exist in DB)", itemid);
         else
             sLog.outError("WORLD: CMSG_ITEM_NAME_QUERY for item %u failed (unknown item, not listed in Item.dbc)", itemid);
-    }
+    } */
 }
 
 void WorldSession::HandleWrapItemOpcode(WorldPacket& recv_data)
