@@ -1,0 +1,6 @@
+This is a PHP script for merging a new .dist file with your existing .conf file (trinitycore and trinityrealm)
+It should also work with mangos dist/conf files as well.
+
+It uses sessions so it is multi user safe, it adds any options that are removed to the bottom of the file,
+commented out, just in case it removes something it shouldn't,
+and, if you add all of your custom patch configs below "# Custom" they will be copied exactly as they are.
