@@ -23,13 +23,19 @@ enum Data
     TYPE_KELRIS,
     TYPE_SHRINE,
     TYPE_AKU_MAI,
-    DATA_FIRE
+    DATA_FIRE,
+    DATA_EVENT
 };
 
 enum Creatures
 {
     NPC_TWILIGHT_LORD_KELRIS                               = 4832,
-    NPC_LORGUS_JETT                                        = 12902
+    NPC_LORGUS_JETT                                        = 12902,
+
+    NPC_AKU_MAI_SNAPJAW                                    = 4825,
+    NPC_MURKSHALLOW_SOFTSHELL                              = 4977,
+    NPC_AKU_MAI_SERVANT                                    = 4978,
+    NPC_BARBED_CRUSTACEAN                                  = 4823
 };
 
 enum GameObjects
