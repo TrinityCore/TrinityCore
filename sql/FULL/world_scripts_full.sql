@@ -289,6 +289,7 @@ UPDATE `gameobject_template` SET `ScriptName`='go_blackfathom_altar' WHERE `entr
 UPDATE `creature_template` SET `ScriptName`='boss_gelihast' WHERE `entry`=6243;
 UPDATE `creature_template` SET `ScriptName`='boss_kelris' WHERE `entry`=4832;
 UPDATE `creature_template` SET `ScriptName`='boss_aku_mai' WHERE `entry`=4829;
+UPDATE `creature_template` SET `ScriptName`='npc_blackfathom_deeps_event' WHERE `entry` IN (4823,4825,4977,4978);
 
 
 /* BLACKROCK DEPTHS */
