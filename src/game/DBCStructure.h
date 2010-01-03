@@ -1129,7 +1129,7 @@ struct MapEntry
     float   entrance_y;                                     // 60 entrance y coordinate (if exist single entry)
                                                             // 61 -1, 0 and 720
     uint32  addon;                                          // 62 (0-original maps,1-tbc addon)
-                                                            // 63 some kind of time?
+    uint32  unk_time;                                       // 63 some kind of time? - for pre-bc raids
     //uint32 maxPlayers;                                    // 64 max players
 
     // Helpers
