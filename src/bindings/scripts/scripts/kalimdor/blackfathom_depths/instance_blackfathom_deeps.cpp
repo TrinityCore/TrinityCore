@@ -30,14 +30,22 @@ EndScriptData */
    Encounter 1 = Twilight Lord Kelris
    Encounter 2 = Shrine event
    Encounter 3 = Aku'Mai
-   Must kill twilight lord for shrine event to be possible
  */
 
 const Position LorgusPosition[4] =
-{ { -458.500610, -38.343079, -33.474445 },
-  { -469.423615, -88.400513, -39.265102 },
-  { -622.354980, -10.350100, -22.777000 },
-  { -759.640564,  16.658913, -29.159529 }
+{
+    { -458.500610, -38.343079, -33.474445 },
+    { -469.423615, -88.400513, -39.265102 },
+    { -622.354980, -10.350100, -22.777000 },
+    { -759.640564,  16.658913, -29.159529 }
+};
+
+const Position SpawnsLocation[] =
+{
+    {-775.431, -153.853, -25.871, 3.207},
+    {-775.404, -174.132, -25.871, 3.185},
+    {-862.430, -154.937, -25.871, 0.060},
+    {-862.193, -174.251, -25.871, 6.182},
 };
 
 struct TRINITY_DLL_DECL instance_blackfathom_deeps : public ScriptedInstance
@@ -55,6 +63,7 @@ struct TRINITY_DLL_DECL instance_blackfathom_deeps : public ScriptedInstance
 
     uint8 m_auiEncounter[MAX_ENCOUNTER];
     uint8 m_uiCountFires;
+    uint8 uiDeathTimes;
 
     void Initialize()
     {
@@ -69,6 +78,7 @@ struct TRINITY_DLL_DECL instance_blackfathom_deeps : public ScriptedInstance
         m_uiAltarOfTheDeepsGUID = 0;
         m_uiMainDoorGUID = 0;
         m_uiCountFires = 0;
+        uiDeathTimes = 0;
     }
 
     void OnCreatureCreate(Creature* pCreature, bool add)
@@ -90,23 +100,15 @@ struct TRINITY_DLL_DECL instance_blackfathom_deeps : public ScriptedInstance
         {
             case GO_FIRE_OF_AKU_MAI_1:
                 m_uiShrine1GUID = pGo->GetGUID();
-                pGo->SetGoState(GO_STATE_READY);
-                pGo->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_UNK1);
                 break;
             case GO_FIRE_OF_AKU_MAI_2:
                 m_uiShrine2GUID = pGo->GetGUID();
-                pGo->SetGoState(GO_STATE_READY);
-                pGo->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_UNK1);
                 break;
             case GO_FIRE_OF_AKU_MAI_3:
                 m_uiShrine3GUID = pGo->GetGUID();
-                pGo->SetGoState(GO_STATE_READY);
-                pGo->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_UNK1);
                 break;
             case GO_FIRE_OF_AKU_MAI_4:
                 m_uiShrine4GUID = pGo->GetGUID();
-                pGo->SetGoState(GO_STATE_READY);
-                pGo->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_UNK1);
                 break;
             case GO_SHRINE_OF_GELIHAST:
                 m_uiShrineOfGelihastGUID = pGo->GetGUID();
@@ -136,20 +138,6 @@ struct TRINITY_DLL_DECL instance_blackfathom_deeps : public ScriptedInstance
                     if (GameObject *pGo = instance->GetGameObject(m_uiShrineOfGelihastGUID))
                         pGo->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_UNK1);
                 break;
-            case TYPE_KELRIS:
-                m_auiEncounter[1] = uiData;
-                if (uiData == DONE)
-                {
-                    if (GameObject *pGo = instance->GetGameObject(m_uiShrine1GUID))
-                        pGo->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_UNK1);
-                    if (GameObject *pGo = instance->GetGameObject(m_uiShrine2GUID))
-                        pGo->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_UNK1);
-                    if (GameObject *pGo = instance->GetGameObject(m_uiShrine3GUID))
-                        pGo->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_UNK1);
-                    if (GameObject *pGo = instance->GetGameObject(m_uiShrine4GUID))
-                        pGo->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_UNK1);
-                }
-                break;
             case TYPE_AKU_MAI:
                 m_auiEncounter[3] = uiData;
                 if (uiData == DONE)
@@ -158,8 +146,51 @@ struct TRINITY_DLL_DECL instance_blackfathom_deeps : public ScriptedInstance
                 break;
             case DATA_FIRE:
                 m_uiCountFires = uiData;
-                if (uiData == 4)
-                    CheckFires();
+                switch (m_uiCountFires)
+                {
+                    case 1:
+                        if (GameObject* pGO = instance->GetGameObject(m_uiShrine1GUID))
+                        {
+                            pGO->SummonCreature(NPC_AKU_MAI_SNAPJAW, SpawnsLocation[0], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 300000);
+                            pGO->SummonCreature(NPC_AKU_MAI_SNAPJAW, SpawnsLocation[1], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 300000);
+                            pGO->SummonCreature(NPC_AKU_MAI_SNAPJAW, SpawnsLocation[2], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 300000);
+                            pGO->SummonCreature(NPC_AKU_MAI_SNAPJAW, SpawnsLocation[3], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 300000);
+                        }
+                        break;
+                    case 2:
+                        if (GameObject* pGO = instance->GetGameObject(m_uiShrine1GUID))
+                        {
+                            for (uint8 i = 0; i < 2; ++i)
+                            {
+                                pGO->SummonCreature(NPC_MURKSHALLOW_SOFTSHELL, SpawnsLocation[0], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 300000);
+                                pGO->SummonCreature(NPC_MURKSHALLOW_SOFTSHELL, SpawnsLocation[1], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 300000);
+                                pGO->SummonCreature(NPC_MURKSHALLOW_SOFTSHELL, SpawnsLocation[2], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 300000);
+                                pGO->SummonCreature(NPC_MURKSHALLOW_SOFTSHELL, SpawnsLocation[3], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 300000);
+                            }
+                        }
+                        break;
+                    case 3:
+                        if (GameObject* pGO = instance->GetGameObject(m_uiShrine1GUID))
+                        {
+                            pGO->SummonCreature(NPC_AKU_MAI_SERVANT, SpawnsLocation[1], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 300000);
+                            pGO->SummonCreature(NPC_AKU_MAI_SERVANT, SpawnsLocation[2], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 300000);
+                        }
+                        break;
+                    case 4:
+                        if (GameObject* pGO = instance->GetGameObject(m_uiShrine1GUID))
+                        {
+                            pGO->SummonCreature(NPC_BARBED_CRUSTACEAN, SpawnsLocation[0], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 300000);
+                            pGO->SummonCreature(NPC_BARBED_CRUSTACEAN, SpawnsLocation[1], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 300000);
+                            pGO->SummonCreature(NPC_BARBED_CRUSTACEAN, SpawnsLocation[2], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 300000);
+                            pGO->SummonCreature(NPC_BARBED_CRUSTACEAN, SpawnsLocation[3], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 300000);
+                        }
+                        break;
+                }
+                break;
+            case DATA_EVENT:
+                uiDeathTimes = uiData;
+                if (uiDeathTimes == 18)
+                    HandleGameObject(m_uiMainDoorGUID,true);
                 break;
         }
     }
@@ -178,6 +209,8 @@ struct TRINITY_DLL_DECL instance_blackfathom_deeps : public ScriptedInstance
                 return m_auiEncounter[3];
             case DATA_FIRE:
                 return m_uiCountFires;
+            case DATA_EVENT:
+                return uiDeathTimes;
         }
 
         return 0;
@@ -204,22 +237,6 @@ struct TRINITY_DLL_DECL instance_blackfathom_deeps : public ScriptedInstance
         }
 
         return 0;
-    }
-
-    void CheckFires()
-    {
-        GameObject *pShrine1 = instance->GetGameObject(m_uiShrine1GUID);
-        GameObject *pShrine2 = instance->GetGameObject(m_uiShrine2GUID);
-        GameObject *pShrine3 = instance->GetGameObject(m_uiShrine3GUID);
-        GameObject *pShrine4 = instance->GetGameObject(m_uiShrine4GUID);
-        if (pShrine1 && pShrine1->GetGoState() == GO_STATE_ACTIVE &&
-            pShrine2 && pShrine2->GetGoState() == GO_STATE_ACTIVE &&
-            pShrine3 && pShrine3->GetGoState() == GO_STATE_ACTIVE &&
-            pShrine4 && pShrine4->GetGoState() == GO_STATE_ACTIVE)
-        {
-            HandleGameObject(m_uiMainDoorGUID,true);
-            m_auiEncounter[2] = DONE;
-        }
     }
 };
 
