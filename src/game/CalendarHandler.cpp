@@ -33,13 +33,33 @@ void WorldSession::HandleCalendarGetCalendar(WorldPacket &recv_data)
 
     WorldPacket data(SMSG_CALENDAR_SEND_CALENDAR,4+4*0+4+4*0+4+4);
 
-    // TODO: calendar invite event output
-    data << (uint32) 0;                                     //invite node count
-    // TODO: calendar event output
-    data << (uint32) 0;                                     //event count
+    data << uint32(0);                                      // invite count
+    /*
+    for (;;)
+    {
+        uint64 inviteId;
+        uint64 unkGuid0;
+        uint8 unk1, unk2, unk3;
+        uint64 creatorGuid;
+    }
+    */
 
-    data << (uint32) 0;                                     //wtf??
-    data << (uint32) secsToTimeBitFields(cur_time);         // current time
+    data << uint32(0);                                      // event count
+    /*
+    for (;;)
+    {
+        uint64 eventId;
+        std::string title;                                  // 128 chars
+        uint32 type;
+        uint32 occurrenceTime;
+        uint32 flags;
+        uint32 unk4; -- possibly mapid for dungeon/raid
+        uint64 creatorGuid;
+    }
+    */
+
+    data << uint32(0);                                      // unk
+    data << uint32(secsToTimeBitFields(cur_time));          // current time
 
     uint32 counter = 0;
     size_t p_counter = data.wpos();
@@ -49,7 +69,7 @@ void WorldSession::HandleCalendarGetCalendar(WorldPacket &recv_data)
     {
         for (Player::BoundInstancesMap::const_iterator itr = _player->m_boundInstances[i].begin(); itr != _player->m_boundInstances[i].end(); ++itr)
         {
-            if(itr->second.perm)
+            if (itr->second.perm)
             {
                 InstanceSave *save = itr->second.save;
                 data << uint32(save->GetMapId());
@@ -60,13 +80,54 @@ void WorldSession::HandleCalendarGetCalendar(WorldPacket &recv_data)
             }
         }
     }
-    data.put<uint32>(p_counter,counter);
 
-    data << (uint32) 1135753200;                            //wtf?? (28.12.2005 12:00)
-    data << (uint32) 0;                                     //  unk counter 4
-    data << (uint32) 0;                                     // unk counter 5
-    //sLog.outDebug("Sending calendar");
-    //data.hexlike();
+    data.put<uint32>(p_counter, counter);
+
+    data << uint32(1135753200);                             // unk (28.12.2005 12:00)
+
+    counter = 0;
+    p_counter = data.wpos();
+    data << uint32(counter);                                // raid reset count
+
+    ResetTimeByMapDifficultyMap const& resets = sInstanceSaveManager.GetResetTimeMap();
+    for (ResetTimeByMapDifficultyMap::const_iterator itr = resets.begin(); itr != resets.end(); ++itr)
+    {
+        uint32 mapid = PAIR32_LOPART(itr->first);
+        MapEntry const* mapEnt = sMapStore.LookupEntry(mapid);
+        if (!mapEnt || !mapEnt->IsRaid())
+            continue;
+
+        data << uint32(mapid);
+        data << uint32(itr->second - cur_time);
+        data << uint32(mapEnt->unk_time);
+        ++counter;
+    }
+
+    data.put<uint32>(p_counter, counter);
+
+    data << uint32(0);                                      // holiday count?
+    /*
+    for (;;)
+    {
+        uint32 unk5, unk6, unk7, unk8, unk9;
+        for (uint32 j = 0; j < 26; ++j)
+        {
+            uint32 unk10;
+        }
+        for (uint32 j = 0; j < 10; ++j)
+        {
+            uint32 unk11;
+        }
+        for (uint32 j = 0; j < 10; ++j)
+        {
+            uint32 unk12;
+        }
+        std::string holidayName;                            // 64 chars
+    }
+    */
+
+    sLog.outDebug("Sending calendar");
+    data.hexlike();
     SendPacket(&data);
 }
 
