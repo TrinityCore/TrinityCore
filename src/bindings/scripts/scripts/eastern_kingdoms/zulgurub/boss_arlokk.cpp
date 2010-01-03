@@ -32,9 +32,10 @@ bool GOHello_go_gong_of_bethekk(Player* pPlayer, GameObject* pGo)
             return true;
 
         m_pInstance->SetData(TYPE_ARLOKK, IN_PROGRESS);
+        return true;
     }
 
-    return false;
+    return true;
 }
 
 enum eEnums

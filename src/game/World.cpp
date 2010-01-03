@@ -438,7 +438,6 @@ void World::LoadConfigSettings(bool reload)
             sLog.outError("World settings reload fail: can't read settings from %s.",sConfig.GetFilename().c_str());
             return;
         }
-        //TODO Check if config is outdated
     }
 
     ///- Read the player limit and the Message of the day from the config file
