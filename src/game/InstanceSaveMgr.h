@@ -115,6 +115,8 @@ class InstanceSave
         bool m_canReset;
 };
 
+typedef UNORDERED_MAP<uint32 /*PAIR32(map,difficulty)*/,time_t /*resetTime*/> ResetTimeByMapDifficultyMap;
+
 class TRINITY_DLL_DECL InstanceSaveManager : public Trinity::Singleton<InstanceSaveManager, Trinity::ClassLevelLockable<InstanceSaveManager, ACE_Thread_Mutex> >
 {
     friend class InstanceSave;
@@ -140,7 +142,6 @@ class TRINITY_DLL_DECL InstanceSaveManager : public Trinity::Singleton<InstanceS
             bool operator == (const InstResetEvent& e) { return e.instanceId == instanceId; }
         };
         typedef std::multimap<time_t /*resetTime*/, InstResetEvent> ResetTimeQueue;
-        typedef UNORDERED_MAP<uint32 /*PAIR32(map,difficulty)*/,time_t /*resetTime*/> ResetTimeByMapDifficultyMap;
 
         void CleanupInstances();
         void PackInstances();
@@ -154,6 +155,10 @@ class TRINITY_DLL_DECL InstanceSaveManager : public Trinity::Singleton<InstanceS
         void SetResetTimeFor(uint32 mapid, Difficulty d, time_t t)
         {
             m_resetTimeByMapDifficulty[MAKE_PAIR32(mapid,d)] = t;
+        }
+        ResetTimeByMapDifficultyMap const& GetResetTimeMap() const
+        {
+            return m_resetTimeByMapDifficulty;
         }
         void ScheduleReset(bool add, time_t time, InstResetEvent event);
 
