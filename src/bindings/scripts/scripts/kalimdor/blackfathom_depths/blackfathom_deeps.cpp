@@ -18,14 +18,18 @@
 
 #include "precompiled.h"
 #include "blackfathom_deeps.h"
+#include "escort_ai.h"
 
 enum eSpells
 {
     SPELL_BLESSING_OF_BLACKFATHOM                           = 8733,
     SPELL_RAVAGE                                            = 8391,
     SPELL_FROST_NOVA                                        = 865,
-    SPELL_FROST_BOLT_VOLLEY                                 = 8398
+    SPELL_FROST_BOLT_VOLLEY                                 = 8398,
+    SPELL_TELEPORT_DARNASSUS                                = 9268
 };
+
+#define GOSSIP_ITEM_MORRIDUNE "Please port me to Darnassus"
 
 const Position HomePosition = {-815.817,-145.299,-25.870, 0};
 
@@ -166,6 +170,61 @@ CreatureAI* GetAI_npc_blackfathom_deeps_event(Creature* pCreature)
     return new npc_blackfathom_deeps_eventAI (pCreature);
 }
 
+enum eMorridune
+{
+    SAY_MORRIDUNE_1 = -1048003,
+    SAY_MORRIDUNE_2 = -1048004
+};
+
+struct TRINITY_DLL_DECL npc_morriduneAI : public npc_escortAI
+{
+    npc_morriduneAI(Creature* pCreature) : npc_escortAI(pCreature)
+    {
+        DoScriptText(SAY_MORRIDUNE_1,pCreature);
+        m_creature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+        Start(false,false,NULL);
+    }
+
+    void WaypointReached(uint32 uiPoint)
+    {
+        switch(uiPoint)
+        {
+            case 4:
+                SetEscortPaused(true);
+                m_creature->SetOrientation(1.775791);
+                m_creature->SendMovementFlagUpdate();
+                m_creature->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                DoScriptText(SAY_MORRIDUNE_2,m_creature);
+                break;
+        }
+    }
+};
+
+CreatureAI* GetAI_npc_morridune(Creature* pCreature)
+{
+    return new npc_morriduneAI (pCreature);
+}
+
+bool GossipHello_npc_morridune(Player* pPlayer, Creature* pCreature)
+{
+    pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_MORRIDUNE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+
+    pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(pCreature), pCreature->GetGUID());
+    return true;
+}
+
+bool GossipSelect_npc_morridune(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+{
+    switch(uiAction)
+    {
+        case GOSSIP_ACTION_INFO_DEF+1:
+            pPlayer->TeleportTo(1,9952.239,2284.277,1341.394,1.595);
+            pPlayer->CLOSE_GOSSIP_MENU();
+            break;
+    }
+    return true;
+}
+
 void AddSC_blackfathom_deeps()
 {
     Script *newscript;
@@ -182,5 +241,12 @@ void AddSC_blackfathom_deeps()
     newscript = new Script;
     newscript->Name = "npc_blackfathom_deeps_event";
     newscript->GetAI = &GetAI_npc_blackfathom_deeps_event;
+    newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name = "npc_morridune";
+    newscript->GetAI = &GetAI_npc_morridune;
+    newscript->pGossipHello = &GossipHello_npc_morridune;
+    newscript->pGossipSelect = &GossipSelect_npc_morridune;
     newscript->RegisterSelf();
 }
