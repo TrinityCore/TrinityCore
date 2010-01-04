@@ -290,7 +290,7 @@ UPDATE `creature_template` SET `ScriptName`='boss_gelihast' WHERE `entry`=6243;
 UPDATE `creature_template` SET `ScriptName`='boss_kelris' WHERE `entry`=4832;
 UPDATE `creature_template` SET `ScriptName`='boss_aku_mai' WHERE `entry`=4829;
 UPDATE `creature_template` SET `ScriptName`='npc_blackfathom_deeps_event' WHERE `entry` IN (4823,4825,4977,4978);
-
+UPDATE `creature_template` SET `ScriptName`='npc_morridune' WHERE `entry`=6729;
 
 /* BLACKROCK DEPTHS */
 UPDATE `instance_template` SET `script`='instance_blackrock_depths' WHERE `map`=230;
