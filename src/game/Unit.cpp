@@ -9039,8 +9039,22 @@ void Unit::SetMinion(Minion *minion, bool apply)
         m_Controlled.erase(minion);
 
         if (minion->IsGuardianPet())
+        {
             if (GetPetGUID() == minion->GetGUID())
                 SetPetGUID(0);
+        }
+        else if (minion->isTotem())
+        {
+            // All summoned by totem minions must disappear when it is removed.
+            if (const SpellEntry* spInfo = sSpellStore.LookupEntry(((Totem*)minion)->GetSpell()))
+                for (int i = 0; i < MAX_SPELL_EFFECTS; ++i)
+                {
+                    if (spInfo->Effect[i] != SPELL_EFFECT_SUMMON)
+                        continue;
+
+                    this->RemoveAllMinionsByEntry(spInfo->EffectMiscValue[i]);
+                }
+        }
 
         if (GetTypeId() == TYPEID_PLAYER)
         {
