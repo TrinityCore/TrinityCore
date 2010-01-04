@@ -35,7 +35,9 @@ enum Creatures
     NPC_AKU_MAI_SNAPJAW                                    = 4825,
     NPC_MURKSHALLOW_SOFTSHELL                              = 4977,
     NPC_AKU_MAI_SERVANT                                    = 4978,
-    NPC_BARBED_CRUSTACEAN                                  = 4823
+    NPC_BARBED_CRUSTACEAN                                  = 4823,
+
+    NPC_MORRIDUNE                                          = 6729
 };
 
 enum GameObjects

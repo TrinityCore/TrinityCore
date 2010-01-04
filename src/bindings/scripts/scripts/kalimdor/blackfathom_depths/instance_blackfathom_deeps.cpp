@@ -46,6 +46,7 @@ const Position SpawnsLocation[] =
     {-775.404, -174.132, -25.871, 3.185},
     {-862.430, -154.937, -25.871, 0.060},
     {-862.193, -174.251, -25.871, 6.182},
+    {-863.895, -458.899, -33.891, 5.637}
 };
 
 struct TRINITY_DLL_DECL instance_blackfathom_deeps : public ScriptedInstance
@@ -142,7 +143,10 @@ struct TRINITY_DLL_DECL instance_blackfathom_deeps : public ScriptedInstance
                 m_auiEncounter[3] = uiData;
                 if (uiData == DONE)
                     if (GameObject *pGo = instance->GetGameObject(m_uiAltarOfTheDeepsGUID))
+                    {
                         pGo->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_UNK1);
+                        pGo->SummonCreature(NPC_MORRIDUNE,SpawnsLocation[4], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 300000);
+                    }
                 break;
             case DATA_FIRE:
                 m_uiCountFires = uiData;

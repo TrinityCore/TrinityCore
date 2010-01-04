@@ -469,9 +469,10 @@ INSERT INTO `script_texts` (`npc_entry`,`entry`,`content_default`,`content_loc1`
    (4508,-1047010,'Many thanks for your help.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,'Willix'),
 
 -- -1 048 000 BLACKFATHOM DEEPS
-   (4832,-1048000,'Just...Dust...',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,5803,1,0,0,''),
-   (4832,-1048001,'Sleep...',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,5804,1,0,0,''),
-   (4832,-1048002,'Who dares disturb my meditation!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,5805,1,0,0,''),
+   (4832,-1048000,'Just...Dust...',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,5803,1,0,0,''), (4832,-1048001,'Sleep...',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,5804,1,0,0,''),
+(4832,-1048002,'Who dares disturb my meditation!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,5805,1,0,0,''),
+(6729,-1048003,'Aku''mai is dead! At last, I can leave this wretched place.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,1,0,0,''),
+(6729,-1048004,'Speak with me to hear my tale',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,''),
 
 -- -1 060 000 863_world_scripts.sql
    (0,-1060005,'REUSE',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,'REUSE'),
