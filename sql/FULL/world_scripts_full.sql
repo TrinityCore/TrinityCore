@@ -1379,6 +1379,7 @@ UPDATE `creature_template` SET `ScriptName`='npc_sergeant_bly' WHERE `entry`=760
 UPDATE `creature_template` SET `ScriptName`='npc_weegli_blastfuse' WHERE `entry`=7607;
 UPDATE `gameobject_template` SET `ScriptName`='go_shallow_grave' WHERE `entry` IN (128308,128403);
 INSERT IGNORE INTO `areatrigger_scripts` (`entry`, `ScriptName`) VALUES('962','at_zumrah');
+UPDATE `gameobject_template` SET `ScriptName`='go_table_theka' WHERE `entry`=142715;
 
 /* ZUL'GURUB */
 UPDATE `instance_template` SET `script`='instance_zulgurub' WHERE `map`=309;
