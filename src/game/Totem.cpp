@@ -112,7 +112,19 @@ void Totem::UnSummon()
     CombatStop();
     RemoveAurasDueToSpell(GetSpell());
 
-    // clear owenr's totem slot
+    // All summoned by totem minions must disappear when it is removed.
+    if (const SpellEntry* spInfo = sSpellStore.LookupEntry(GetSpell()))
+    {
+        for (int i = 0; i < MAX_SPELL_EFFECTS; ++i)
+        {
+            if (spInfo->Effect[i] != SPELL_EFFECT_SUMMON)
+                continue;
+
+            m_owner->RemoveAllMinionsByEntry(spInfo->EffectMiscValue[i]);
+        }
+    }
+
+    // clear owner's totem slot
     for (int i = SUMMON_SLOT_TOTEM; i < MAX_TOTEM_SLOT; ++i)
     {
         if(m_owner->m_SummonSlot[i]==GetGUID())
