@@ -1487,6 +1487,14 @@ void AuraEffect::HandleAuraEffectSpecificMods(bool apply, bool Real, bool change
                         if (AuraEffect* aureff = caster->GetAuraEffect(SPELL_AURA_DUMMY, SPELLFAMILY_PRIEST, 2899, 1))
                             DoneActualBenefit += caster->SpellBaseHealingBonus(GetSpellSchoolMask(m_spellProto)) * (aureff->GetAmount() / 100.0f);
                     }
+                    // Lightwell Renew
+                    else if (m_spellProto->SpellFamilyFlags[2] & UI64LIT(0x4000) && GetAuraName() == SPELL_AURA_PERIODIC_HEAL)
+                    {
+                        if (caster->GetTypeId() == TYPEID_PLAYER)
+                        // Bonus from Glyph of Lightwell
+                        if (AuraEffect* modHealing = caster->GetAuraEffect(55673, 0))
+                            m_amount *= (100.0f + modHealing->GetAmount()) / 100.0f;
+                    }
                     break;
                 }
                 case SPELLFAMILY_DRUID:
