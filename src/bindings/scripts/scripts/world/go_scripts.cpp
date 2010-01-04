@@ -17,7 +17,7 @@
 /* ScriptData
 SDName: GO_Scripts
 SD%Complete: 100
-SDComment: Quest support: 4285,4287,4288(crystal pylons), 4296, 6481, 10990, 10991, 10992, Field_Repair_Bot->Teaches spell 22704. Barov_journal->Teaches spell 26089,12843,12982
+SDComment: Quest support: 4285,4287,4288(crystal pylons), 4296, 6481, 10990, 10991, 10992, Field_Repair_Bot->Teaches spell 22704. Barov_journal->Teaches spell 26089,12843,12982, 2936
 SDCategory: Game Objects
 EndScriptData */
 
@@ -42,6 +42,7 @@ go_tele_to_violet_stand
 go_rusty_cage
 go_scourge_cage
 go_jotunheim_cage
+go_table_theka
 EndContentData */
 
 #include "precompiled.h"
@@ -658,6 +659,22 @@ bool GOHello_go_jotunheim_cage(Player* pPlayer, GameObject* pGO)
     }
     return true;
 }
+enum eTableTheka
+{
+    GOSSIP_TABLE_THEKA = 1653,
+
+    QUEST_SPIDER_GOLD = 2936
+};
+
+bool GOHello_go_table_theka(Player* pPlayer, GameObject* pGO)
+{
+    if (pPlayer->GetQuestStatus(QUEST_SPIDER_GOLD) == QUEST_STATUS_INCOMPLETE)
+        pPlayer->AreaExploredOrEventHappens(QUEST_SPIDER_GOLD);
+
+    pPlayer->SEND_GOSSIP_MENU(GOSSIP_TABLE_THEKA, pGO->GetGUID());
+
+    return true;
+}
 
 void AddSC_go_scripts()
 {
@@ -797,5 +814,10 @@ void AddSC_go_scripts()
     newscript = new Script;
     newscript->Name = "go_jotunheim_cage";
     newscript->pGOHello =           &GOHello_go_jotunheim_cage;
+    newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name = "go_table_theka";
+    newscript->pGOHello =           &GOHello_go_table_theka;
     newscript->RegisterSelf();
 }
