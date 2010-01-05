@@ -68,7 +68,7 @@ struct TRINITY_DLL_DECL instance_shadowfang_keep : public ScriptedInstance
     uint64 DoorArugalGUID;
 
     uint8 uiPhase;
-    uint8 uiTimer;
+    uint16 uiTimer;
 
     void Initialize()
     {
