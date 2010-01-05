@@ -5676,6 +5676,19 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                 basepoints0 = GetShieldBlockValue() * triggerAmount / 100;
                 break;
             }
+            // Glyph of Sunder Armor
+            if (dummySpell->Id == 58387)
+            {
+                if (!pVictim || !pVictim->isAlive() || !procSpell)
+                    return false;
+
+                target = SelectNearbyTarget();
+                if (!target || target == pVictim)
+                    return false;
+
+                CastSpell(target, 58567, true); 
+                return true;
+            }
             break;
         }
         case SPELLFAMILY_WARLOCK:
