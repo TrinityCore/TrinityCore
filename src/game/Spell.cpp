@@ -1099,9 +1099,9 @@ void Spell::DoAllEffectOnTarget(TargetInfo *target)
         }
     }
 
-    // Do not take combo points on dodge
+    // Do not take combo points on dodge and miss
     if (m_needComboPoints && m_targets.getUnitTargetGUID() == target->targetGUID)
-        if( missInfo != SPELL_MISS_NONE && missInfo != SPELL_MISS_MISS)
+        if (missInfo != SPELL_MISS_NONE)
             m_needComboPoints = false;
 
     // Trigger info was not filled in spell::preparedatafortriggersystem - we do it now
