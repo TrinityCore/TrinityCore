@@ -429,7 +429,7 @@ INSERT INTO `script_texts` (`npc_entry`,`entry`,`content_default`,`content_loc1`
    (0,-1033006,'Good luck with Arugal. I must hurry back to Hadrec now.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,1,1,'prisoner adamant SAY_POST2_DOOR_AD'),
    (3849,-1033007,'About time someone killed the wretch.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,1,1,'prisoner adamant SAY_BOSS_DIE_AD'),
    (3850,-1033008,'For once I agree with you... scum.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,7,1,'prisoner ashcrombe SAY_BOSS_DIE_AS'),
-   (4275,-1033009,'Who cares interfere with the Sons of Arugal?',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,1,0,0,''),
+   (4275,-1033009,'Who dares interfere with the Sons of Arugal?',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,1,0,0,''),
 
 -- -1 034 000 STOCKADES
 -- -1 036 000 DEADMINES
