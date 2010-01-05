@@ -431,7 +431,6 @@ void Spell::SpellDamageSchoolDmg(uint32 effect_idx)
                 }
                 break;
             }
-
             case SPELLFAMILY_WARRIOR:
             {
                 // Bloodthirst
@@ -439,14 +438,7 @@ void Spell::SpellDamageSchoolDmg(uint32 effect_idx)
                     damage = uint32(damage * (m_caster->GetTotalAttackPowerValue(BASE_ATTACK)) / 100);
                 // Shield Slam
                 else if(m_spellInfo->SpellFamilyFlags[1] & 0x200 && m_spellInfo->Category == 1209)
-                {
                     damage += int32(m_caster->GetShieldBlockValue());
-
-                    // Glyph of Shield Slam
-                    if (m_caster->HasAura(58375))
-                        m_caster->CastSpell(m_caster, 58374, true);
-                }
-
                 // Victory Rush
                 else if(m_spellInfo->SpellFamilyFlags[1] & 0x100)
                 {
