@@ -5065,17 +5065,6 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                     triggered_spell_id = 58374;
                     break;
                 }
-                // Glyph of Devastate
-                if (dummySpell->Id == 58388)
-                {
-                    if (!pVictim || !pVictim->isAlive())
-                        return false;
-
-                    if (Aura* aur = pVictim->GetAura(58567,0))
-                        aur->modStackAmount(1);
-
-                    return true;
-                }
                 // Unstable Power
                 case 24658:
                 {
