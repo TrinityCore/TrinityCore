@@ -960,6 +960,7 @@ UPDATE `creature_template` SET `ScriptName`='npc_zamael_lunthistle' WHERE `entry
 /* SHADOWFANG KEEP */
 UPDATE `instance_template` SET `script`='instance_shadowfang_keep' WHERE `map`=33;
 UPDATE `creature_template` SET `ScriptName`='npc_shadowfang_prisoner' WHERE `entry` IN (3849,3850);
+UPDATE `creature_template` SET `ScriptName`='npc_arugal_voidwalker' WHERE `entry`=4627;
 
 /* SHADOWMOON VALLEY */
 UPDATE `creature_template` SET `ScriptName`='boss_doomwalker' WHERE `entry`=17711;

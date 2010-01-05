@@ -44,7 +44,9 @@ enum eEnums
     SAY_POST2_DOOR_AD       = -1033006,
 
     SPELL_UNLOCK            = 6421,
-    NPC_ASH                 = 3850
+    NPC_ASH                 = 3850,
+
+    SPELL_DARK_OFFERING     = 7154
 };
 
 #define GOSSIP_ITEM_DOOR        "Thanks, I'll follow you to the door."
@@ -129,15 +131,68 @@ bool GossipSelect_npc_shadowfang_prisoner(Player* pPlayer, Creature* pCreature, 
     return true;
 }
 
+struct TRINITY_DLL_DECL npc_arugal_voidwalkerAI : public ScriptedAI
+{
+    npc_arugal_voidwalkerAI(Creature* pCreature) : ScriptedAI(pCreature)
+    {
+        pInstance = pCreature->GetInstanceData();
+    }
+
+    ScriptedInstance* pInstance;
+
+    uint32 uiDarkOffering;
+
+    void Reset()
+    {
+        uiDarkOffering = urand(290,10);
+    }
+
+    void UpdateAI(uint32 const uiDiff)
+    {
+        if (!UpdateVictim())
+            return;
+
+        if (uiDarkOffering <= uiDiff)
+        {
+            if (Creature* pFriend = m_creature->FindNearestCreature(m_creature->GetEntry(),25.0f,true))
+            {
+                if (pFriend)
+                    DoCast(pFriend,SPELL_DARK_OFFERING);
+            }
+            else
+                DoCast(m_creature,SPELL_DARK_OFFERING);
+            uiDarkOffering = urand(4400,12500);
+        } else uiDarkOffering -= uiDiff;
+
+        DoMeleeAttackIfReady();
+    }
+
+    void JustDied(Unit* pKiller)
+    {
+        if (pInstance)
+            pInstance->SetData(TYPE_FENRUS, pInstance->GetData(TYPE_FENRUS) + 1);
+    }
+};
+
+CreatureAI* GetAI_npc_arugal_voidwalker(Creature* pCreature)
+{
+    return new npc_arugal_voidwalkerAI(pCreature);
+}
+
 void AddSC_shadowfang_keep()
 {
-    Script *newscript;
+    Script* newscript;
 
     newscript = new Script;
     newscript->Name = "npc_shadowfang_prisoner";
     newscript->pGossipHello =  &GossipHello_npc_shadowfang_prisoner;
     newscript->pGossipSelect = &GossipSelect_npc_shadowfang_prisoner;
     newscript->GetAI = &GetAI_npc_shadowfang_prisoner;
+    newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name = "npc_arugal_voidwalker";
+    newscript->GetAI = &GetAI_npc_arugal_voidwalker;
     newscript->RegisterSelf();
 }
 

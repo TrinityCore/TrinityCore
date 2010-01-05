@@ -30,15 +30,28 @@ enum eEnums
 {
     SAY_BOSS_DIE_AD         = -1033007,
     SAY_BOSS_DIE_AS         = -1033008,
+    SAY_ARCHMAGE            = -1033009,
 
     NPC_ASH                 = 3850,
     NPC_ADA                 = 3849,
+    NPC_ARCHMAGE_ARUGAL     = 4275,
+    NPC_ARUGAL_VOIDWALKER   = 4627,
 
     GO_COURTYARD_DOOR       = 18895,                        //door to open when talking to NPC's
     GO_SORCERER_DOOR        = 18972,                        //door to open when Fenrus the Devourer
-    GO_ARUGAL_DOOR          = 18971                         //door to open when Wolf Master Nandos
+    GO_ARUGAL_DOOR          = 18971,                        //door to open when Wolf Master Nandos
+
+    SPELL_ASHCROMBE_TELEPORT    = 15742
 };
 
+const Position SpawnLocation[] =
+{
+    {-148.199,2165.647,128.448,1.026},
+    {-153.110,2168.620,128.448,1.026},
+    {-145.905,2180.520,128.448,4.183},
+    {-140.794,2178.037,128.448,4.090},
+    {-138.640,2170.159,136.577,2.737}
+};
 struct TRINITY_DLL_DECL instance_shadowfang_keep : public ScriptedInstance
 {
     instance_shadowfang_keep(Map* pMap) : ScriptedInstance(pMap) {Initialize();};
@@ -48,10 +61,14 @@ struct TRINITY_DLL_DECL instance_shadowfang_keep : public ScriptedInstance
 
     uint64 uiAshGUID;
     uint64 uiAdaGUID;
+    uint64 uiArchmageArugalGUID;
 
     uint64 DoorCourtyardGUID;
     uint64 DoorSorcererGUID;
     uint64 DoorArugalGUID;
+
+    uint8 uiPhase;
+    uint8 uiTimer;
 
     void Initialize()
     {
@@ -59,10 +76,14 @@ struct TRINITY_DLL_DECL instance_shadowfang_keep : public ScriptedInstance
 
         uiAshGUID = 0;
         uiAdaGUID = 0;
+        uiArchmageArugalGUID = 0;
 
         DoorCourtyardGUID = 0;
         DoorSorcererGUID = 0;
         DoorArugalGUID = 0;
+
+        uiPhase = 0;
+        uiTimer = 0;
     }
 
     void OnCreatureCreate(Creature* pCreature, bool add)
@@ -71,6 +92,7 @@ struct TRINITY_DLL_DECL instance_shadowfang_keep : public ScriptedInstance
         {
             case NPC_ASH: uiAshGUID = pCreature->GetGUID(); break;
             case NPC_ADA: uiAdaGUID = pCreature->GetGUID(); break;
+            case NPC_ARCHMAGE_ARUGAL: uiArchmageArugalGUID = pCreature->GetGUID(); break;
         }
     }
 
@@ -123,8 +145,16 @@ struct TRINITY_DLL_DECL instance_shadowfang_keep : public ScriptedInstance
                 m_auiEncounter[1] = data;
                 break;
             case TYPE_FENRUS:
-                if (data == DONE)
-                    DoUseDoorOrButton(DoorSorcererGUID);
+                switch(data)
+                {
+                    case DONE:
+                        uiTimer = 1000;
+                        uiPhase = 1;
+                        break;
+                    case 7:
+                        DoUseDoorOrButton(DoorSorcererGUID);
+                        break;
+                }
                 m_auiEncounter[2] = data;
                 break;
             case TYPE_NANDOS:
@@ -189,6 +219,45 @@ struct TRINITY_DLL_DECL instance_shadowfang_keep : public ScriptedInstance
         }
 
         OUT_LOAD_INST_DATA_COMPLETE;
+    }
+
+    void Update(uint32 uiDiff)
+    {
+        if (GetData(TYPE_FENRUS) != DONE)
+            return;
+
+        Creature* pArchmage = instance->GetCreature(uiArchmageArugalGUID);
+        Creature* pSummon = NULL;
+
+        if (!pArchmage || !pArchmage->isAlive())
+            return;
+
+        if (uiPhase)
+        {
+            if (uiTimer <= uiDiff)
+            {
+                switch(uiPhase)
+                {
+                    case 1:
+                        pSummon = pArchmage->SummonCreature(pArchmage->GetEntry(),SpawnLocation[4],TEMPSUMMON_TIMED_DESPAWN,10000);
+                        pSummon->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
+                        pSummon->SetReactState(REACT_DEFENSIVE);
+                        pSummon->CastSpell(pSummon,SPELL_ASHCROMBE_TELEPORT,true);
+                        DoScriptText(SAY_ARCHMAGE,pSummon);
+                        uiTimer = 2000;
+                        uiPhase = 2;
+                        break;
+                    case 2:
+                        pArchmage->SummonCreature(NPC_ARUGAL_VOIDWALKER,SpawnLocation[0],TEMPSUMMON_CORPSE_TIMED_DESPAWN,60000);
+                        pArchmage->SummonCreature(NPC_ARUGAL_VOIDWALKER,SpawnLocation[1],TEMPSUMMON_CORPSE_TIMED_DESPAWN,60000);
+                        pArchmage->SummonCreature(NPC_ARUGAL_VOIDWALKER,SpawnLocation[2],TEMPSUMMON_CORPSE_TIMED_DESPAWN,60000);
+                        pArchmage->SummonCreature(NPC_ARUGAL_VOIDWALKER,SpawnLocation[3],TEMPSUMMON_CORPSE_TIMED_DESPAWN,60000);
+                        uiPhase = 0;
+                        break;
+
+                }
+            } else uiTimer -= uiDiff;
+        }
     }
 };
 
