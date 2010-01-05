@@ -140,6 +140,11 @@ inline int CellHelper(const float radius)
     return (int)ceilf(radius/SIZE_OF_GRID_CELL);
 }
 
+inline CellArea Cell::CalculateCellArea(const WorldObject &obj, float radius)
+{
+    return Cell::CalculateCellArea(obj.GetPositionX(), obj.GetPositionY(), radius);
+}
+
 inline CellArea Cell::CalculateCellArea(float x, float y, float radius)
 {
     if(radius <= 0.0f)
