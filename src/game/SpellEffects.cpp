@@ -4459,62 +4459,21 @@ void Spell::SpellDamageWeaponDmg(uint32 i)
     {
         case SPELLFAMILY_WARRIOR:
         {
-            // Devastate bonus and sunder armor refresh
+            // Devastate (player ones)
             if (m_spellInfo->SpellFamilyFlags[1] & 0x40)
             {
-                if (m_caster->GetTypeId() != TYPEID_PLAYER)
-                    return;
-                SpellEntry const *spellInfo = NULL;
-                uint32 stack = 0;
+                // Player can apply only 58567 Sunder Armor effect.
+                bool needCast = !unitTarget->HasAura(58567, m_caster->GetGUID());
+                if (needCast)
+                    m_caster->CastSpell(unitTarget, 58567, true);
 
-                if (Aura * aur = unitTarget->GetAura(58567, m_caster->GetGUID()))
+                if (Aura* aur = unitTarget->GetAura(58567, m_caster->GetGUID()))
                 {
-                    aur->RefreshAura();
-                    spellInfo = aur->GetSpellProto();
-                    stack = aur->GetStackAmount();
+                    // 58388 - Glyph of Devastate dummy aura.
+                    if (int32 num = (needCast ? 0 : 1) + (m_caster->HasAura(58388) ? 1 : 0))
+                        aur->modStackAmount(num);
+                    fixed_bonus += (aur->GetStackAmount() - 1) * CalculateDamage(2, unitTarget);
                 }
-
-                for (uint8 j = 0; j < 3; ++j)
-                {
-                    if(m_spellInfo->Effect[j] == SPELL_EFFECT_NORMALIZED_WEAPON_DMG)
-                    {
-                        fixed_bonus += (stack - 1) * CalculateDamage(j, unitTarget);
-                        break;
-                    }
-                }
-                if (!spellInfo)
-                {
-                    // get highest rank of the Sunder Armor spell
-                    const PlayerSpellMap& sp_list = ((Player*)m_caster)->GetSpellMap();
-                    for (PlayerSpellMap::const_iterator itr = sp_list.begin(); itr != sp_list.end(); ++itr)
-                    {
-                        // only highest rank is shown in spell book, so simply check if shown in spell book
-                        if (!itr->second->active || itr->second->disabled || itr->second->state == PLAYERSPELL_REMOVED)
-                            continue;
-
-                        SpellEntry const *spellProto = sSpellStore.LookupEntry(itr->first);
-                        if (!spellProto)
-                            continue;
-
-                        if (spellProto->SpellFamilyFlags[0] & SPELLFAMILYFLAG_WARRIOR_SUNDERARMOR
-                            && spellProto->Id != m_spellInfo->Id
-                            && spellProto->SpellFamilyName == SPELLFAMILY_WARRIOR)
-                        {
-                            spellInfo = spellProto;
-                            break;
-                        }
-                    }
-                }
-                if (!spellInfo)
-                    break;
-                int32 count = 1;
-                // Glyph of Devastate
-                if (AuraEffect * aurEff = m_caster->GetAuraEffect(58388, 0))
-                    count += aurEff->GetAmount();
-                for (; count > 0; --count)
-                    m_caster->CastSpell(unitTarget, spellInfo, true);
-                if (stack)
-                    spell_bonus += stack * CalculateDamage(2, unitTarget);
             }
             break;
         }
