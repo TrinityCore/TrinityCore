@@ -5059,12 +5059,6 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                     triggered_spell_id = 26654;
                     break;
                 }
-                // Glyph of Blocking
-                case 58375:
-                {
-                    triggered_spell_id = 58374;
-                    break;
-                }
                 // Unstable Power
                 case 24658:
                 {
@@ -5663,6 +5657,12 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                 triggered_spell_id = 59653;
                 // % of amount blocked
                 basepoints0 = GetShieldBlockValue() * triggerAmount / 100;
+                break;
+            }
+            // Glyph of Blocking
+            if (dummySpell->Id == 58375)
+            {
+                triggered_spell_id = 58374;
                 break;
             }
             // Glyph of Sunder Armor
