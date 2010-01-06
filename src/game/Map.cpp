@@ -1110,10 +1110,6 @@ Map::PlayerRelocation(Player *player, float x, float y, float z, float orientati
     {
         DEBUG_LOG("Player %s relocation grid[%u,%u]cell[%u,%u]->grid[%u,%u]cell[%u,%u]", player->GetName(), old_cell.GridX(), old_cell.GridY(), old_cell.CellX(), old_cell.CellY(), new_cell.GridX(), new_cell.GridY(), new_cell.CellX(), new_cell.CellY());
 
-        // update player position for group at taxi flight
-        if (player->GetGroup() && player->isInFlight())
-            player->SetGroupUpdateFlag(GROUP_UPDATE_FLAG_POSITION);
-
         NGridType* oldGrid = getNGrid(old_cell.GridX(), old_cell.GridY());
         RemoveFromGrid(player, oldGrid,old_cell);
         if (!old_cell.DiffGrid(new_cell))
