@@ -632,6 +632,11 @@ struct TRINITY_DLL_DECL npc_brann_hosAI : public npc_escortAI
             bIsLowHP = true;
         } else if (bIsLowHP && (m_creature->GetHealth()*100 / m_creature->GetMaxHealth()) > 30)
             bIsLowHP = false;
+
+        if (!UpdateVictim())
+            return;
+
+        DoMeleeAttackIfReady();
     }
 };
 
