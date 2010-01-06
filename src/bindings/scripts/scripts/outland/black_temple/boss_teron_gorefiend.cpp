@@ -399,7 +399,7 @@ struct TRINITY_DLL_DECL boss_teron_gorefiendAI : public ScriptedAI
                 float X = CalculateRandomLocation(pTarget->GetPositionX(), 20);
                 float Y = CalculateRandomLocation(pTarget->GetPositionY(), 20);
                 float Z = pTarget->GetPositionZ();
-                Z = m_creature->GetMap()->GetVmapHeight(X, Y, Z, true);
+                Z = m_creature->GetMap()->GetVmapHeight(X, Y, Z);
                 Creature* DoomBlossom = m_creature->SummonCreature(CREATURE_DOOM_BLOSSOM, X, Y, Z, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 20000);
                 if (DoomBlossom)
                 {

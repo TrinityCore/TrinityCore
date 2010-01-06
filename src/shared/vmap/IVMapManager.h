@@ -22,6 +22,7 @@
 #define _IVMAPMANAGER_H
 
 #include<string>
+#include "VMapDefinitions.h"
 
 //===========================================================
 
@@ -62,7 +63,7 @@ namespace VMAP
             virtual void unloadMap(unsigned int pMapId) = 0;
 
             virtual bool isInLineOfSight(unsigned int pMapId, float x1, float y1, float z1, float x2, float y2, float z2) = 0;
-            virtual float getHeight(unsigned int pMapId, float x, float y, float z) = 0;
+            virtual float getHeight(unsigned int pMapId, float x, float y, float z, float ray_lenght = MAX_CAN_FALL_DISTANCE) = 0;
             /**
             test if we hit an object. return true if we hit one. rx,ry,rz will hold the hit position or the dest position, if no intersection was found
             return a position, that is pReduceDist closer to the origin

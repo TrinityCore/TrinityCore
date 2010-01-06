@@ -1994,24 +1994,23 @@ float Map::GetHeight(float x, float y, float z, bool pUseVmaps) const
     }
 }
 
-float Map::GetVmapHeight(float x, float y, float z, bool useMaps) const
+float Map::GetVmapHeight(float x, float y, float z) const
 {
     float mapHeight;
-    float vmapHeight;
-    if (useMaps)
-    {
-        mapHeight = GetHeight(x, y, z, false);
-        if (fabs(mapHeight - z) < 0.1)
-            return mapHeight;
-    }
-    else
-        mapHeight = INVALID_HEIGHT;
+
+    mapHeight = GetHeight(x, y, z, false);
+    if (fabs(mapHeight - z) < 0.1)
+        return mapHeight;
+
     VMAP::IVMapManager* vmgr = VMAP::VMapFactory::createOrGetVMapManager();
-    if (vmgr->isLineOfSightCalcEnabled())
-        bool result = vmgr->getObjectHitPos(GetId(), x, y, z + 2.0f, x, y, mapHeight, x, y, vmapHeight, 0);
-    else
-        return INVALID_HEIGHT;
-    return vmapHeight;
+    if (!vmgr->isLineOfSightCalcEnabled())
+        return mapHeight;
+
+    float vmapHeight = vmgr->getHeight(GetId(), x, y, z + 2.0f, z + 2.0f - mapHeight);
+    if (vmapHeight > VMAP_INVALID_HEIGHT_VALUE)
+        return vmapHeight;
+
+    return mapHeight;
 }
 
 uint16 Map::GetAreaFlag(float x, float y, float z) const

@@ -333,7 +333,7 @@ class TRINITY_DLL_SPEC Map : public GridRefManager<NGridType>, public Trinity::O
         // some calls like isInWater should not use vmaps due to processor power
         // can return INVALID_HEIGHT if under z+2 z coord not found height
         float GetHeight(float x, float y, float z, bool pCheckVMap=true) const;
-        float GetVmapHeight(float x, float y, float z, bool useMaps) const;
+        float GetVmapHeight(float x, float y, float z) const;
         bool IsInWater(float x, float y, float z, float min_depth = 2.0f) const;
 
         ZLiquidStatus getLiquidStatus(float x, float y, float z, uint8 ReqLiquidType, LiquidData *data = 0) const;
