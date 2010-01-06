@@ -4476,7 +4476,7 @@ bool Player::FallGround(uint8 FallMode)
 
     float x, y, z;
     GetPosition(x, y, z);
-    float ground_Z = GetMap()->GetVmapHeight(x, y, z, true);
+    float ground_Z = GetMap()->GetVmapHeight(x, y, z);
     float z_diff = 0.0f;
     if ((z_diff = fabs(ground_Z - z)) < 0.1f)
         return false;
