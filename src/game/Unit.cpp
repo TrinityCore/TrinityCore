@@ -6918,15 +6918,24 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
             // Improved Water Shield
             if (dummySpell->SpellIconID == 2287)
             {
-                // Lesser Healing Wave need aditional 60% roll
-                if (procSpell->SpellFamilyFlags[0] & 0x80 && !roll_chance_i(60))
+                // Default chance for Healing Wave and Riptide
+                float chance = triggeredByAura->GetAmount();
+
+                if (procSpell->SpellFamilyFlags[0] & 0x80)
+                    // Lesser Healing Wave - 0.6 of default
+                    chance *= 0.6f;
+                else if (procSpell->SpellFamilyFlags[0] & 0x100)
+                    // Chain heal - 0.3 of default
+                    chance *= 0.3f;
+                
+                if (!roll_chance_f(chance))
                     return false;
+
                 // Water Shield
                 if (AuraEffect const * aurEff = GetAura(SPELL_AURA_PROC_TRIGGER_SPELL, SPELLFAMILY_SHAMAN, 0, 0x00000020))
                 {
                     uint32 spell = aurEff->GetSpellProto()->EffectTriggerSpell[aurEff->GetEffIndex()];
                     CastSpell(this, spell, true, castItem, triggeredByAura);
-                    aurEff->GetParentAura()->DropAuraCharge();
                     return true;
                 }
                 return false;
