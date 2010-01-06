@@ -5177,7 +5177,7 @@ SpellCastResult Spell::CheckCast(bool strict)
                     {
                         float x, y, z;
                         m_caster->GetPosition(x, y, z);
-                        float ground_Z = m_caster->GetMap()->GetVmapHeight(x, y, z, true);
+                        float ground_Z = m_caster->GetMap()->GetVmapHeight(x, y, z);
                         if (fabs(ground_Z - z) < 0.1f)
                             return SPELL_FAILED_DONT_REPORT;
                         break;
