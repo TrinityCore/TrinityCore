@@ -658,6 +658,10 @@
 				<Filter
 					Name="Deadmines"
 					>
+                                        <File
+						RelativePath="..\scripts\eastern_kingdoms\deadmines\boss_mr_smite.cpp"
+						>
+					</File>
 					<File
 						RelativePath="..\scripts\eastern_kingdoms\deadmines\deadmines.cpp"
 						>
