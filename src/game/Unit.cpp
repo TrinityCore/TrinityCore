@@ -4052,7 +4052,10 @@ void Unit::RemoveAurasDueToSpellByDispel(uint32 spellId, uint64 casterGUID, Unit
         Aura *aur = iter->second;
         if (casterGUID == aur->GetCasterGUID())
         {
-            RemoveAuraFromStack(iter, AURA_REMOVE_BY_ENEMY_SPELL);
+            if (aur->GetSpellProto()->AttributesEx7 & SPELL_ATTR_EX7_DISPEL_CHARGES)
+                iter = aur->DropAuraCharge() ? m_Auras.begin() : iter;
+            else
+                RemoveAuraFromStack(iter, AURA_REMOVE_BY_ENEMY_SPELL);
 
             // Unstable Affliction (crash if before removeaura?)
             if (aur->GetSpellProto()->SpellFamilyName == SPELLFAMILY_WARLOCK && (aur->GetSpellProto()->SpellFamilyFlags[1] & 0x0100))
@@ -4106,16 +4109,37 @@ void Unit::RemoveAurasDueToSpellBySteal(uint32 spellId, uint64 casterGUID, Unit 
                 else
                     damage[i]=NULL;
             }
-            int32 dur = 2*MINUTE*IN_MILISECONDS < aur->GetAuraDuration() ? 2*MINUTE*IN_MILISECONDS : aur->GetAuraDuration();
-            Aura * new_aur = new Aura(aur->GetSpellProto(),aur->GetEffectMask(), stealer, stealer, stealer);
-            new_aur->SetLoadedState(aur->GetCasterGUID(), dur, dur, aur->GetAuraCharges(), aur->GetStackAmount(), &damage[0]);
 
-            // Unregister _before_ adding to stealer
-            aur->UnregisterSingleCastAura();
-            // strange but intended behaviour: Stolen single target auras won't be treated as single targeted
-            new_aur->SetIsSingleTarget(false);
-            stealer->AddAura(new_aur);
-            RemoveAuraFromStack(iter, AURA_REMOVE_BY_ENEMY_SPELL);
+            bool steal_charge = aur->GetSpellProto()->AttributesEx7 & SPELL_ATTR_EX7_DISPEL_CHARGES;
+
+            if (Aura * new_aur = steal_charge ? stealer->GetAura(aur->GetId(), aur->GetCasterGUID()) : NULL)
+            {
+                uint8 new_charges = new_aur->GetAuraCharges() + 1;
+                uint8 max_charges = new_aur->GetSpellProto()->procCharges;
+                // We must be able to steal as much charges as original caster can have
+                if (Player* modOwner = aur->GetCaster()->GetSpellModOwner())
+                    modOwner->ApplySpellMod(aur->GetId(), SPELLMOD_CHARGES, max_charges);
+                // TODO: Do we need to refresh an aura?
+                new_aur->SetAuraCharges(max_charges < new_charges ? max_charges : new_charges);
+            }
+            else
+            {
+                int32 dur = 2*MINUTE*IN_MILISECONDS < aur->GetAuraDuration() ? 2*MINUTE*IN_MILISECONDS : aur->GetAuraDuration();
+
+                new_aur = new Aura(aur->GetSpellProto(),aur->GetEffectMask(), stealer, stealer, stealer);
+                new_aur->SetLoadedState(aur->GetCasterGUID(), dur, dur, steal_charge ? 1 : aur->GetAuraCharges(), aur->GetStackAmount(), &damage[0]);
+                
+                // Unregister _before_ adding to stealer
+                aur->UnregisterSingleCastAura();
+                // strange but intended behaviour: Stolen single target auras won't be treated as single targeted
+                new_aur->SetIsSingleTarget(false);
+                stealer->AddAura(new_aur);
+            }
+
+            if (steal_charge)
+                iter = aur->DropAuraCharge() ? m_Auras.begin() : iter;
+            else
+                RemoveAuraFromStack(iter, AURA_REMOVE_BY_ENEMY_SPELL);
             return;
         }
         else
