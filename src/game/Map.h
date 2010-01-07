@@ -687,46 +687,43 @@ template<class NOTIFIER>
 inline void
 Map::VisitAll(const float &x, const float &y, float radius, NOTIFIER &notifier)
 {
-    float x_off, y_off;
-    CellPair p(Trinity::ComputeCellPair(x, y, x_off, y_off));
+    CellPair p(Trinity::ComputeCellPair(x, y));
     Cell cell(p);
     cell.data.Part.reserved = ALL_DISTRICT;
     cell.SetNoCreate();
     CellLock<GridReadGuard> cell_lock(cell, p);
 
     TypeContainerVisitor<NOTIFIER, WorldTypeMapContainer> world_object_notifier(notifier);
-    cell_lock->Visit(cell_lock, world_object_notifier, *this, radius, x_off, y_off);
+    cell_lock->Visit(cell_lock, world_object_notifier, *this, radius, x, y);
     TypeContainerVisitor<NOTIFIER, GridTypeMapContainer >  grid_object_notifier(notifier);
-    cell_lock->Visit(cell_lock, grid_object_notifier, *this, radius, x_off, y_off);
+    cell_lock->Visit(cell_lock, grid_object_notifier, *this, radius, x, y);
 }
 
 template<class NOTIFIER>
 inline void
 Map::VisitWorld(const float &x, const float &y, float radius, NOTIFIER &notifier)
 {
-    float x_off, y_off;
-    CellPair p(Trinity::ComputeCellPair(x, y, x_off, y_off));
+    CellPair p(Trinity::ComputeCellPair(x, y));
     Cell cell(p);
     cell.data.Part.reserved = ALL_DISTRICT;
     cell.SetNoCreate();
     CellLock<GridReadGuard> cell_lock(cell, p);
 
     TypeContainerVisitor<NOTIFIER, WorldTypeMapContainer> world_object_notifier(notifier);
-    cell_lock->Visit(cell_lock, world_object_notifier, *this, radius, x_off, y_off);
+    cell_lock->Visit(cell_lock, world_object_notifier, *this, radius, x, y);
 }
 
 template<class NOTIFIER>
 inline void
 Map::VisitGrid(const float &x, const float &y, float radius, NOTIFIER &notifier)
 {
-    float x_off, y_off;
-    CellPair p(Trinity::ComputeCellPair(x, y, x_off, y_off));
+    CellPair p(Trinity::ComputeCellPair(x, y));
     Cell cell(p);
     cell.data.Part.reserved = ALL_DISTRICT;
     cell.SetNoCreate();
     CellLock<GridReadGuard> cell_lock(cell, p);
 
     TypeContainerVisitor<NOTIFIER, GridTypeMapContainer >  grid_object_notifier(notifier);
-    cell_lock->Visit(cell_lock, grid_object_notifier, *this, radius, x_off, y_off);
+    cell_lock->Visit(cell_lock, grid_object_notifier, *this, radius, x, y);
 }
 #endif
