@@ -459,6 +459,27 @@ const uint32 ItemQualityColors[MAX_ITEM_QUALITY] = {
 #define SPELL_ATTR_EX6_UNK30                      0x40000000            // 30 not set in 3.0.3
 #define SPELL_ATTR_EX6_UNK31                      0x80000000            // 31 not set in 3.0.3
 
+#define SPELL_ATTR_EX7_UNK0                       0x00000001            // 0  Shaman's new spells (Call of the ...), Feign Death.
+#define SPELL_ATTR_EX7_UNK1                       0x00000002            // 1  Not set in 3.2.2a.
+#define SPELL_ATTR_EX7_REACTIVATE_AT_RESURRECT    0x00000004            // 2  Paladin's auras and 65607 only.
+#define SPELL_ATTR_EX7_UNK3                       0x00000008            // 3  Only 43574 test spell.
+#define SPELL_ATTR_EX7_UNK4                       0x00000010            // 4  Only 66109 test spell.
+#define SPELL_ATTR_EX7_SUMMON_PLAYER_TOTEM        0x00000020            // 5  Only Shaman player totems.
+#define SPELL_ATTR_EX7_UNK6                       0x00000040            // 6  Dark Surge, Surge of Light, Burning Breath triggers (boss spells).
+#define SPELL_ATTR_EX7_UNK7                       0x00000080            // 7  66218 (Launch) spell.
+#define SPELL_ATTR_EX7_UNK8                       0x00000100            // 8  Teleports, mounts and other spells.
+#define SPELL_ATTR_EX7_UNK9                       0x00000200            // 9  Teleports, mounts and other spells.
+#define SPELL_ATTR_EX7_DISPEL_CHARGES             0x00000400            // 10 Dispel and Spellsteal individual charges instead of whole aura.
+#define SPELL_ATTR_EX7_INTERRUPT_ONLY_NONPLAYER   0x00000800            // 11 Only non-player casts interrupt, though Feral Charge - Bear has it.
+#define SPELL_ATTR_EX7_UNK12                      0x00001000            // 12 Not set in 3.2.2a.
+#define SPELL_ATTR_EX7_UNK13                      0x00002000            // 13 Not set in 3.2.2a.
+#define SPELL_ATTR_EX7_UNK14                      0x00004000            // 14 Only 52150 (Raise Dead - Pet) spell.
+#define SPELL_ATTR_EX7_UNK15                      0x00008000            // 15 Exorcism. Usable on players? 100% crit chance on undead and demons?
+#define SPELL_ATTR_EX7_UNK16                      0x00010000            // 16 Druid spells (29166, 54833, 64372, 68285).
+#define SPELL_ATTR_EX7_UNK17                      0x00020000            // 17 Only 27965 (Suicide) spell.
+#define SPELL_ATTR_EX7_HAS_CHARGE_EFFECT          0x00040000            // 18 Only spells that have Charge among effects.
+#define SPELL_ATTR_EX7_ZONE_TELEPORT              0x00080000            // 19 Teleports to specific zones.
+
 #define MIN_TALENT_SPEC         0
 #define MAX_TALENT_SPEC         1
 #define MIN_TALENT_SPECS        1
