@@ -3751,7 +3751,9 @@ void Spell::EffectDispel(uint32 i)
                     continue;
             }
 
-            for (uint8 i = aur->GetStackAmount(); i; --i)
+            bool dispel_charges = aur->GetSpellProto()->AttributesEx7 & SPELL_ATTR_EX7_DISPEL_CHARGES;
+            
+            for (uint8 i = dispel_charges ? aur->GetAuraCharges() : aur->GetStackAmount(); i; --i)
                 dispel_list.push_back(aur);
         }
     }
