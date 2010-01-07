@@ -44,7 +44,7 @@ enum Misc
 struct TRINITY_DLL_DECL instance_deadmines : public ScriptedInstance
 {
     instance_deadmines(Map* pMap) : ScriptedInstance(pMap) { Initialize(); };
-    
+
     GameObject* IronCladDoor;
     GameObject* DefiasCannon;
     GameObject* DoorLever;
@@ -54,20 +54,22 @@ struct TRINITY_DLL_DECL instance_deadmines : public ScriptedInstance
     uint32 State;
     uint32 CannonBlast_Timer;
     uint32 PiratesDelay_Timer;
-    
+    uint64 uiSmiteChestGUID;
+
     void Initialize()
     {
         IronCladDoor = NULL;
         DefiasCannon = NULL;
         DoorLever =    NULL;
         State = CANNON_NOT_USED;
+        uiSmiteChestGUID = 0;
     }
-    
+
     virtual void Update(uint32 diff)
     {
         if (!IronCladDoor || !DefiasCannon || !DoorLever)
             return;
-        
+
         switch (State)
         {
             case CANNON_GUNPOWDER_USED:
@@ -100,47 +102,47 @@ struct TRINITY_DLL_DECL instance_deadmines : public ScriptedInstance
                 break;
         }
     }
-    
+
     void SummonCreatures()
     {
         DefiasPirate1 = IronCladDoor->SummonCreature(657,IronCladDoor->GetPositionX() - 2,IronCladDoor->GetPositionY()-7,IronCladDoor->GetPositionZ(), 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3000);
         DefiasPirate2 = IronCladDoor->SummonCreature(657,IronCladDoor->GetPositionX() + 3,IronCladDoor->GetPositionY()-6,IronCladDoor->GetPositionZ(), 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3000);
         DefiasCompanion = IronCladDoor->SummonCreature(3450,IronCladDoor->GetPositionX() + 2,IronCladDoor->GetPositionY()-6,IronCladDoor->GetPositionZ(), 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3000);
     }
-    
+
     void MoveCreaturesInside()
     {
         if (!DefiasPirate1 || !DefiasPirate2 || !DefiasCompanion)
             return;
-        
+
         MoveCreatureInside(DefiasPirate1);
         MoveCreatureInside(DefiasPirate2);
         MoveCreatureInside(DefiasCompanion);
     }
-    
+
     void MoveCreatureInside(Creature* pCreature)
     {
         pCreature->RemoveUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
         pCreature->GetMotionMaster()->MovePoint(0, -102.7,-655.9, pCreature->GetPositionZ());
     }
-    
+
     void ShootCannon()
     {
         DefiasCannon->SetGoState(GO_STATE_ACTIVE);
         DoPlaySound(DefiasCannon, SOUND_CANNONFIRE);
     }
-    
+
     void BlastOutDoor()
     {
         IronCladDoor->SetGoState(GO_STATE_ACTIVE_ALTERNATIVE);
         DoPlaySound(IronCladDoor, SOUND_DESTROYDOOR);
     }
-    
+
     void LeverStucked()
     {
         DoorLever->SetUInt32Value(GAMEOBJECT_FLAGS, 4);
     }
-    
+
     void OnGameObjectCreate(GameObject* pGo, bool add)
     {
         switch(pGo->GetEntry())
@@ -154,9 +156,12 @@ struct TRINITY_DLL_DECL instance_deadmines : public ScriptedInstance
             case GO_DOOR_LEVER:
                 DoorLever = pGo;
                 break;
+            case GO_MR_SMITE_CHEST:
+                uiSmiteChestGUID = pGo->GetGUID();
+                break;
         }
     }
-    
+
     void SetData(uint32 type, uint32 data)
     {
         if (type == EVENT_STATE)
@@ -165,14 +170,29 @@ struct TRINITY_DLL_DECL instance_deadmines : public ScriptedInstance
                 State=data;
         }
     }
-    
+
     uint32 GetData(uint32 type)
     {
-        if (type == EVENT_STATE)
-            return State;
+        switch (type)
+        {
+            case EVENT_STATE:
+                return State;
+        }
+
         return 0;
     }
-    
+
+    uint64 GetData64(uint32 data)
+    {
+        switch (data)
+        {
+            case DATA_SMITE_CHEST:
+                return uiSmiteChestGUID;
+        }
+
+        return 0;
+    }
+
     void DoPlaySound(GameObject* unit, uint32 sound)
     {
         WorldPacket data(4);
@@ -180,7 +200,7 @@ struct TRINITY_DLL_DECL instance_deadmines : public ScriptedInstance
         data << uint32(sound);
         unit->SendMessageToSet(&data,false);
     }
-    
+
     void DoPlaySoundCreature(Unit* unit, uint32 sound)
     {
         WorldPacket data(4);

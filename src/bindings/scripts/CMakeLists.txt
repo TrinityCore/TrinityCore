@@ -54,6 +54,7 @@ SET(trinityscript_LIB_SRCS
    scripts/eastern_kingdoms/blackwing_lair/boss_vaelastrasz.cpp
    scripts/eastern_kingdoms/blackwing_lair/boss_victor_nefarius.cpp
    scripts/eastern_kingdoms/blackwing_lair/instance_blackwing_lair.cpp
+   scripts/eastern_kingdoms/deadmines/boss_mr_smite.cpp
    scripts/eastern_kingdoms/deadmines/deadmines.h
    scripts/eastern_kingdoms/deadmines/deadmines.cpp
    scripts/eastern_kingdoms/deadmines/instance_deadmines.cpp
