@@ -279,7 +279,7 @@ void GameObject::Update(uint32 /*p_time*/)
                             {
                                 caster->FinishSpell(CURRENT_CHANNELED_SPELL);
 
-                                WorldPacket data(SMSG_FISH_NOT_HOOKED,0);
+                                WorldPacket data(SMSG_FISH_ESCAPED,0);
                                 ((Player*)caster)->GetSession()->SendPacket(&data);
                             }
                             // can be delete
