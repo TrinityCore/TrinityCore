@@ -3009,65 +3009,46 @@ DiminishingReturnsType GetDiminishingReturnsGroupType(DiminishingGroup group)
 
 bool SpellArea::IsFitToRequirements(Player const* player, uint32 newZone, uint32 newArea) const
 {
-    if(gender!=GENDER_NONE)
-    {
-        // not in expected gender
-        if(!player || gender != player->getGender())
+    if (gender != GENDER_NONE)                   // not in expected gender
+        if (!player || gender != player->getGender())
             return false;
-    }
 
-    if(raceMask)
-    {
-        // not in expected race
-        if(!player || !(raceMask & player->getRaceMask()))
+    if (raceMask)                                // not in expected race
+        if (!player || !(raceMask & player->getRaceMask()))
             return false;
-    }
 
-    if(areaId)
-    {
-        // not in expected zone
-        if(newZone!=areaId && newArea!=areaId)
+    if (areaId)                                  // not in expected zone
+        if (newZone != areaId && newArea != areaId)
             return false;
-    }
 
-    if(questStart)
-    {
-        // not in expected required quest state
-        if(!player || (!questStartCanActive || !player->IsActiveQuest(questStart)) && !player->GetQuestRewardStatus(questStart))
+    if (questStart)                              // not in expected required quest state
+        if (!player || (!questStartCanActive || !player->IsActiveQuest(questStart)) && !player->GetQuestRewardStatus(questStart))
             return false;
-    }
 
-    if(questEnd)
-    {
-        // not in expected forbidden quest state
-        if(!player || player->GetQuestRewardStatus(questEnd))
+    if (questEnd)                                // not in expected forbidden quest state
+        if (!player || player->GetQuestRewardStatus(questEnd))
             return false;
-    }
 
-    if(auraSpell)
-    {
-        // not have expected aura
-        if(!player)
+    if (auraSpell)                               // not have expected aura
+        if (!player || auraSpell > 0 && !player->HasAura(auraSpell) || auraSpell < 0 && player->HasAura(-auraSpell))
             return false;
-        if(auraSpell > 0)
-            // have expected aura
-            return player->HasAura(auraSpell);
-        else
-            // not have expected aura
-            return !player->HasAura(-auraSpell);
-    }
 
     // Extra conditions
     switch(spellId)
     {
-        case 58600: // No fly Zone - Dalaran (Krasus Landing exception)
+        case SPELL_RESTRICTED_FLIGHT_AREA_58600: // No fly Zone - Dalaran (Krasus Landing exception)
             if (!player || player->GetAreaId() == 4564 || !player->HasAuraType(SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED) && !player->HasAuraType(SPELL_AURA_FLY)
                 || player->HasAura(44795))
                 return false;
             break;
-        case 58730: // No fly Zone - Wintergrasp
+        case SPELL_RESTRICTED_FLIGHT_AREA_58730: // No fly Zone - Wintergrasp
             if (!player || !player->HasAuraType(SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED) && !player->HasAuraType(SPELL_AURA_FLY)
                 || player->HasAura(45472) || player->HasAura(44795))
+                return false;
+            break;
+        case SPELL_ESSENCE_OF_WINTERGRASP_58045: // Essence of Wintergrasp - Wintergrasp
+        case SPELL_ESSENCE_OF_WINTERGRASP_57940: // Essence of Wintergrasp - Northrend
+            if (!player || player->GetTeamId() != sWorld.getState(WORLDSTATE_WINTERGRASP_CONTROLING_FACTION))
                 return false;
             break;
     }
