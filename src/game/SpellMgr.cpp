@@ -3815,7 +3815,7 @@ void SpellMgr::LoadSpellCustomAttr()
             spellInfo->procCharges = 1;
             count++;
             break;
-        case SPELL_TIDAL_WAVES_51566: // Tidal Wave
+        case SPELL_TIDAL_WAVES_53390: // Tidal Wave
             spellInfo->procCharges = 2;
             count++;
             break;
