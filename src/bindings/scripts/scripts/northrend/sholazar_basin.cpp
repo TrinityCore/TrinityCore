@@ -87,7 +87,7 @@ struct TRINITY_DLL_DECL npc_injured_rainspeaker_oracleAI : public npc_escortAI
             m_creature->RemoveUnitMovementFlag(MOVEMENTFLAG_SWIMMING);
             m_creature->RemoveUnitMovementFlag(MOVEMENTFLAG_JUMPING);
             m_creature->SetSpeed(MOVE_SWIM, 0.85f, true);
-            m_creature->AddUnitMovementFlag(MOVEMENTFLAG_SWIMMING + MOVEMENTFLAG_LEVITATING);
+            m_creature->AddUnitMovementFlag(MOVEMENTFLAG_SWIMMING | MOVEMENTFLAG_LEVITATING);
             break;
         case 19:
             m_creature->SetUnitMovementFlags(MOVEMENTFLAG_JUMPING);
