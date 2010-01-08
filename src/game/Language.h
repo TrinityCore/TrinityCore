@@ -885,7 +885,8 @@ enum TrinityStrings
     LANG_RAID                           = 5017,
     LANG_HEROIC                         = 5018,
     LANG_MOUNTABLE                      = 5019,
-    // Room for more Trinity strings      5020-9999
+    LANG_NPCINFO_PHASEMASK              = 5020,
+    // Room for more Trinity strings      5021-9999
     // Used for GM Announcements
     LANG_GM_BROADCAST                    = 6613,
     LANG_GM_NOTIFY                       = 6614,
