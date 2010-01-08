@@ -121,8 +121,8 @@ struct TRINITY_DLL_DECL boss_black_knightAI : public ScriptedAI
         uiDeathArmyCheckTimer = 7000;
         uiResurrectTimer = 4000;
         uiGhoulExplodeTimer = 8000;
-        uiDeathBiteTimer = urand (2000, 4000);
-        uiMarkedDeathTimer = urand (5000, 7000);
+        uiDeathBiteTimer = urand (2000,4000);
+        uiMarkedDeathTimer = urand (5000,7000);
     }
 
     void RemoveSummons()
@@ -169,17 +169,17 @@ struct TRINITY_DLL_DECL boss_black_knightAI : public ScriptedAI
             {
                 if (uiIcyTouchTimer <= uiDiff)
                 {
-                    DoCastVictim(HEROIC(SPELL_ICY_TOUCH_H,SPELL_ICY_TOUCH));
+                    DoCastVictim(HEROIC(SPELL_ICY_TOUCH,SPELL_ICY_TOUCH_H));
                     uiIcyTouchTimer = urand(5000,7000);
                 } else uiIcyTouchTimer -= uiDiff;
                 if (uiPlagueStrikeTimer <= uiDiff)
                 {
-                    DoCastVictim(HEROIC(SPELL_ICY_TOUCH_H,SPELL_ICY_TOUCH));
+                    DoCastVictim(HEROIC(SPELL_ICY_TOUCH,SPELL_ICY_TOUCH_H));
                     uiPlagueStrikeTimer = urand(12000,15000);
                 } else uiPlagueStrikeTimer -= uiDiff;
                 if (uiObliterateTimer <= uiDiff)
                 {
-                    DoCastVictim(HEROIC(SPELL_OBLITERATE_H,SPELL_OBLITERATE));
+                    DoCastVictim(HEROIC(SPELL_OBLITERATE,SPELL_OBLITERATE_H));
                     uiObliterateTimer = urand(17000,19000);
                 } else uiObliterateTimer -= uiDiff;
                 switch(uiPhase)

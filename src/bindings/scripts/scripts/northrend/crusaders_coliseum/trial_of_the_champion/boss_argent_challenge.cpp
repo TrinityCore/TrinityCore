@@ -164,7 +164,7 @@ struct TRINITY_DLL_DECL boss_paletressAI : public ScriptedAI
             if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 250, true))
             {
                 if (pTarget && pTarget->isAlive())
-                    DoCast(pTarget,HEROIC(SPELL_HOLY_FIRE_H,SPELL_HOLY_FIRE));
+                    DoCast(pTarget,HEROIC(SPELL_HOLY_FIRE,SPELL_HOLY_FIRE_H));
             }
              if (m_creature->HasAura(SPELL_SHIELD))
                 uiHolyFireTimer = 13000;
@@ -177,7 +177,7 @@ struct TRINITY_DLL_DECL boss_paletressAI : public ScriptedAI
             if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 250, true))
             {
                 if (pTarget && pTarget->isAlive())
-                    DoCast(pTarget,HEROIC(SPELL_SMITE_H,SPELL_SMITE));
+                    DoCast(pTarget,HEROIC(SPELL_SMITE,SPELL_SMITE_H));
             }
             if (m_creature->HasAura(SPELL_SHIELD))
                 uiHolySmiteTimer = 9000;
@@ -189,16 +189,15 @@ struct TRINITY_DLL_DECL boss_paletressAI : public ScriptedAI
             if (uiRenewTimer <= uiDiff)
             {
                 m_creature->InterruptNonMeleeSpells(true);
-                uint8 uiTarget = 0;
-                uiTarget = urand(0,1);
+                uint8 uiTarget = urand(0,1);
                 switch(uiTarget)
                 {
-                    case 1:
-                        DoCast(m_creature,HEROIC(SPELL_RENEW_H,SPELL_RENEW));
+                    case 0:
+                        DoCast(m_creature,HEROIC(SPELL_RENEW,SPELL_RENEW_H));
                         break;
-                    case 2:
+                    case 1:
                         if (pMemory && pMemory->isAlive())
-                            DoCast(pMemory,HEROIC(SPELL_RENEW_H,SPELL_RENEW));
+                            DoCast(pMemory,HEROIC(SPELL_RENEW,SPELL_RENEW_H));
                         break;
                 }
                 uiRenewTimer = urand(15000,17000);
@@ -256,14 +255,14 @@ struct TRINITY_DLL_DECL npc_memoryAI : public ScriptedAI
             if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM,0))
             {
                 if (pTarget && pTarget->isAlive())
-                    DoCast(pTarget, HEROIC(SPELL_OLD_WOUNDS_H,SPELL_OLD_WOUNDS));
+                    DoCast(pTarget, HEROIC(SPELL_OLD_WOUNDS,SPELL_OLD_WOUNDS_H));
             }
             uiOldWoundsTimer = 12000;
         }else uiOldWoundsTimer -= uiDiff;
 
         if (uiWakingNightmare <= uiDiff)
         {
-            DoCast(m_creature, HEROIC(SPELL_WAKING_NIGHTMARE_H,SPELL_WAKING_NIGHTMARE));
+            DoCast(m_creature, HEROIC(SPELL_WAKING_NIGHTMARE,SPELL_WAKING_NIGHTMARE_H));
             uiWakingNightmare = 7000;
         }else uiWakingNightmare -= uiDiff;
 
@@ -272,7 +271,7 @@ struct TRINITY_DLL_DECL npc_memoryAI : public ScriptedAI
             if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM,1))
             {
                 if (pTarget && pTarget->isAlive())
-                    DoCast(pTarget,HEROIC(SPELL_SHADOWS_PAST_H,SPELL_SHADOWS_PAST));
+                    DoCast(pTarget,HEROIC(SPELL_SHADOWS_PAST,SPELL_SHADOWS_PAST_H));
             }
             uiShadowPastTimer = 5000;
         }else uiShadowPastTimer -= uiDiff;
