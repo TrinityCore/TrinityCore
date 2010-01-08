@@ -186,6 +186,7 @@ bool CreatureEventAI::ProcessEvent(CreatureEventAIHolder& pHolder, Unit* pAction
             //Repeat Timers
             pHolder.UpdateRepeatTimer(m_creature,event.ooc_los.repeatMin,event.ooc_los.repeatMax);
             break;
+        case EVENT_T_RESET:
         case EVENT_T_SPAWNED:
             break;
         case EVENT_T_TARGET_HP:
@@ -834,6 +835,14 @@ void CreatureEventAI::Reset()
 
     if (bEmptyList)
         return;
+
+
+    for (std::list<CreatureEventAIHolder>::iterator i = CreatureEventAIList.begin(); i != CreatureEventAIList.end(); ++i)
+    {
+        if ((*i).Event.event_type == EVENT_T_RESET)
+            ProcessEvent(*i);
+    }
+
 
     //Reset all events to enabled
     for (std::list<CreatureEventAIHolder>::iterator i = CreatureEventAIList.begin(); i != CreatureEventAIList.end(); ++i)
