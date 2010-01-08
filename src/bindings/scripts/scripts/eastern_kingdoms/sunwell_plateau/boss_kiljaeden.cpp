@@ -320,7 +320,7 @@ struct TRINITY_DLL_DECL boss_kalecgos_kjAI : public ScriptedAI
         FindOrbs();
         OrbsEmpowered = 0;
         EmpowerCount = 0;
-        m_creature->AddUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT + MOVEMENTFLAG_LEVITATING);
+        m_creature->AddUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT | MOVEMENTFLAG_LEVITATING);
         m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
         m_creature->setActive(true);
         Searched = false;
@@ -828,7 +828,7 @@ struct TRINITY_DLL_DECL mob_kiljaeden_controllerAI : public Scripted_NoMovementA
                 summoned->CastSpell(summoned, SPELL_SHADOW_CHANNELING, false);
                 break;
             case CREATURE_ANVEENA:
-                summoned->AddUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT + MOVEMENTFLAG_LEVITATING);
+                summoned->AddUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT | MOVEMENTFLAG_LEVITATING);
                 summoned->CastSpell(summoned, SPELL_ANVEENA_PRISON, true);
                 summoned->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 break;
