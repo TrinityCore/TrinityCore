@@ -416,7 +416,10 @@ bool Creature::UpdateEntry(uint32 Entry, uint32 team, const CreatureData *data )
     }
 
     if(GetCreatureInfo()->InhabitType & INHABIT_AIR)
-        AddUnitMovementFlag(MOVEMENTFLAG_FLY_MODE + MOVEMENTFLAG_FLYING);
+        AddUnitMovementFlag(MOVEMENTFLAG_FLY_MODE | MOVEMENTFLAG_FLYING);
+
+    if(GetCreatureInfo()->InhabitType & INHABIT_WATER)
+        AddUnitMovementFlag(MOVEMENTFLAG_SWIMMING);
 
     return true;
 }
@@ -1456,7 +1459,9 @@ void Creature::setDeathState(DeathState s)
         CreatureInfo const *cinfo = GetCreatureInfo();
         AddUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
         if(GetCreatureInfo()->InhabitType & INHABIT_AIR)
-            AddUnitMovementFlag(MOVEMENTFLAG_FLY_MODE + MOVEMENTFLAG_FLYING);
+            AddUnitMovementFlag(MOVEMENTFLAG_FLY_MODE | MOVEMENTFLAG_FLYING);
+        if(GetCreatureInfo()->InhabitType & INHABIT_WATER)
+            AddUnitMovementFlag(MOVEMENTFLAG_SWIMMING);
         SetUInt32Value(UNIT_NPC_FLAGS, cinfo->npcflag);
         clearUnitState(UNIT_STAT_ALL_STATE);
         SetMeleeDamageSchool(SpellSchools(cinfo->dmgschool));
