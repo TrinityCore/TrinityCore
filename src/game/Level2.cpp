@@ -2338,7 +2338,7 @@ bool ChatHandler::HandleWpAddCommand(const char* args)
     WorldDatabase.PExecuteLog("INSERT INTO waypoint_data (id, point, position_x, position_y, position_z) VALUES ('%u','%u','%f', '%f', '%f')",
         pathid, point+1, player->GetPositionX(), player->GetPositionY(), player->GetPositionZ());
 
-    PSendSysMessage("%s%s%u%s%u%s|r", "|cff00ff00", "PathID: |r|cff00ffff", pathid, "|r|cff00ff00: Waypoint |r|cff00ffff", point,"|r|cff00ff00 created. ");
+    PSendSysMessage("%s%s%u%s%u%s|r", "|cff00ff00", "PathID: |r|cff00ffff", pathid, "|r|cff00ff00: Waypoint |r|cff00ffff", point+1,"|r|cff00ff00 created. ");
     return true;
 }                                                           // HandleWpAddCommand
 
