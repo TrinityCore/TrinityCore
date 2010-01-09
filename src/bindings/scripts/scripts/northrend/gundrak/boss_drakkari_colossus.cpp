@@ -247,7 +247,7 @@ struct TRINITY_DLL_DECL npc_living_mojoAI : public ScriptedAI
             pColossus = m_creature->GetCreature(*m_creature, pInstance->GetData64(DATA_DRAKKARI_COLOSSUS));
 
         //Check if the npc is near of Drakkari Colossus.
-        if (pColossus && m_creature->IsInRange3d(pColossus->GetHomePosition().GetPositionX(),pColossus->GetHomePosition().GetPositionY(),pColossus->GetHomePosition().GetPositionZ(),0.0f,17.0f))
+        if (pColossus && pColossus->isAlive() && m_creature->IsInRange3d(pColossus->GetHomePosition().GetPositionX(),pColossus->GetHomePosition().GetPositionY(),pColossus->GetHomePosition().GetPositionZ(),0.0f,17.0f))
             m_creature->SetReactState(REACT_PASSIVE);
         else
             m_creature->SetReactState(REACT_AGGRESSIVE);
