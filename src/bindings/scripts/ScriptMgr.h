@@ -32,7 +32,11 @@ struct ItemPrototype;
 struct Script
 {
     Script() :
+        pOnLogin(NULL), pOnLogout(NULL), pOnPVPKill(NULL), pOnSpellCast(NULL), pOnGetXP(NULL),
+        pOnGetMoney(NULL), pOnPlayerChat(NULL), pOnServerStartup(NULL), pOnServerShutdown(NULL),
+        pOnAreaChange(NULL), pOnItemClick(NULL), pOnItemOpen(NULL), pOnGoClick(NULL), pOnCreatureKill(NULL),
         pGossipHello(NULL), pQuestAccept(NULL), pGossipSelect(NULL), pGossipSelectWithCode(NULL),
+        pGOSelect(NULL), pGOSelectWithCode(NULL), 
         pQuestSelect(NULL), pQuestComplete(NULL), pNPCDialogStatus(NULL), pGODialogStatus(NULL),
         pChooseReward(NULL), pItemHello(NULL), pGOHello(NULL), pAreaTrigger(NULL), pItemQuestAccept(NULL),
         pGOQuestAccept(NULL), pGOChooseReward(NULL),pItemUse(NULL), pItemExpire(NULL),
