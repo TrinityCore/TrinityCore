@@ -1,4 +1,4 @@
--- Up to TC2 6873
+-- Up to TC2 6928
 
 -- Cleanup first
 UPDATE `creature_template` SET `ScriptName`='';
@@ -11,6 +11,7 @@ UPDATE `creature_template` SET `ScriptName`='boss_shade_of_taerar' WHERE `entry`
 UPDATE `creature_template` SET `ScriptName`='boss_kruul' WHERE `entry`=18338;
 UPDATE `creature_template` SET `ScriptName`='boss_azuregos' WHERE `entry`=6109;
 UPDATE `creature_template` SET `ScriptName`='mob_dementeddruids' WHERE `entry`=15260;
+UPDATE `creature_template` SET `ScriptName`='boss_mr_smite' WHERE `entry`=646;
 
 /* GO */
 UPDATE `gameobject_template` SET `ScriptName`='go_cat_figurine' WHERE `entry`=13873;
@@ -1206,6 +1207,14 @@ UPDATE `gameobject_template` SET `ScriptName`='go_panther_cage' WHERE `entry`=17
 UPDATE `creature_template` SET `ScriptName`='npc_cairne_bloodhoof' WHERE `entry`=3057;
 
 /* TRIAL OF THE CHAMPION */
+UPDATE `instance_template` SET `script`='instance_trial_of_the_champion' WHERE `map`=650;
+UPDATE `creature_template` SET `Scriptname`='npc_toc5_announcer',`npcflag`=1 WHERE entry IN (35004, 35005);
+UPDATE `creature_template` SET `ScriptName`='mob_toc5_warrior' WHERE entry IN (34705, 35572);
+UPDATE `creature_template` SET `ScriptName`='mob_toc5_mage' WHERE entry IN (34702, 35569);
+UPDATE `creature_template` SET `ScriptName`='mob_toc5_shaman' WHERE entry IN (34701, 35571);
+UPDATE `creature_template` SET `ScriptName`='mob_toc5_hunter' WHERE entry IN (34657, 35570);
+UPDATE `creature_template` SET `ScriptName`='mob_toc5_rogue' WHERE entry IN (34703, 35617);
+UPDATE `creature_template` SET `ScriptName`='mob_toc5_risen_ghoul' WHERE entry IN (35545, 35564);
 UPDATE `creature_template` SET `ScriptName`='npc_risen_ghoul' WHERE `entry` IN (35545,35564);
 UPDATE `creature_template` SET `ScriptName`='boss_black_knight' WHERE `entry`=35451;
 UPDATE `creature_template` SET `ScriptName`='boss_eadric' WHERE `entry`=35119;
