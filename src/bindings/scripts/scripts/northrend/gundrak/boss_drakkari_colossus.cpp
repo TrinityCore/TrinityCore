@@ -224,11 +224,6 @@ struct TRINITY_DLL_DECL npc_living_mojoAI : public ScriptedAI
     {
         HeroicMode = pCreature->GetMap()->IsHeroic();
         pInstance = pCreature->GetInstanceData();
-        if(pInstance)
-        {
-            if (pCreature->GetMap()->IsDungeon())
-                pColossus = CAST_CRE(pCreature->GetUnit(*pCreature, pInstance->GetData64(DATA_DRAKKARI_COLOSSUS)));
-        }
     }
 
     Creature* pColossus;
@@ -242,22 +237,27 @@ struct TRINITY_DLL_DECL npc_living_mojoAI : public ScriptedAI
 
     void Reset()
     {
+        uiMojoWaveTimer = 2000;
+        uiMojoPuddleTimer = 7000;
+    }
+
+    void EnterCombat(Unit* who)
+    {
+        if (pInstance)
+            pColossus = m_creature->GetCreature(*m_creature, pInstance->GetData64(DATA_DRAKKARI_COLOSSUS));
+
         //Check if the npc is near of Drakkari Colossus.
-        if (m_creature->IsInRange3d(1672.959,743.487,143.337,0.0f,17.0f))
+        if (pColossus && m_creature->IsInRange3d(pColossus->GetHomePosition().GetPositionX(),pColossus->GetHomePosition().GetPositionY(),pColossus->GetHomePosition().GetPositionZ(),0.0f,17.0f))
             m_creature->SetReactState(REACT_PASSIVE);
         else
-        {
             m_creature->SetReactState(REACT_AGGRESSIVE);
-            uiMojoWaveTimer = 2000;
-            uiMojoPuddleTimer = 7000;
-        }
     }
 
     void DamageTaken(Unit* pDone_by, uint32& uiDamage)
     {
         if (m_creature->HasReactState(REACT_PASSIVE))
         {
-            if (pColossus && !pColossus->isInCombat())
+            if (pColossus && pColossus->isAlive() && !pColossus->isInCombat())
             {
                 pColossus->RemoveAura(SPELL_FREEZE_ANIM);
                 pColossus->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
