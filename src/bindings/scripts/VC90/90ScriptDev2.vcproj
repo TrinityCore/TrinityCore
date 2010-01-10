@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="windows-1250"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="9.00"
+	Version="9,00"
 	Name="TrinityScript"
 	ProjectGUID="{4295C8A9-79B7-4354-8064-F05FB9CA0C96}"
 	RootNamespace="ScriptDev2"
@@ -459,7 +459,7 @@
 					RelativePath="..\scripts\eastern_kingdoms\loch_modan.cpp"
 					>
 				</File>
-                                <File
+				<File
 					RelativePath="..\scripts\eastern_kingdoms\redridge_mountains.cpp"
 					>
 				</File>
@@ -658,7 +658,7 @@
 				<Filter
 					Name="Deadmines"
 					>
-                                        <File
+					<File
 						RelativePath="..\scripts\eastern_kingdoms\deadmines\boss_mr_smite.cpp"
 						>
 					</File>
@@ -2870,10 +2870,6 @@
 			</File>
 			<File
 				RelativePath="..\include\sc_instance.h"
-				>
-			</File>
-			<File
-				RelativePath="..\include\sc_item.h"
 				>
 			</File>
 		</Filter>
