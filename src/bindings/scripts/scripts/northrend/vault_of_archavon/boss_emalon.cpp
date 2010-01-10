@@ -225,7 +225,7 @@ struct TRINITY_DLL_DECL mob_tempest_minionAI : public ScriptedAI
         if(me->hasUnitState(UNIT_STAT_CASTING))
             return;
 
-        if(Aura *OverchargedAura = m_creature->GetAura(SPELL_OVERCHARGED))
+        if(Aura * OverchargedAura = m_creature->GetAura(SPELL_OVERCHARGED))
         {
             if(OverchargedAura->GetStackAmount() < 10)
             {

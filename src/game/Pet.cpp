@@ -27,6 +27,7 @@
 #include "Pet.h"
 #include "Formulas.h"
 #include "SpellAuras.h"
+#include "SpellAuraEffects.h"
 #include "CreatureAI.h"
 #include "Unit.h"
 #include "Util.h"
@@ -57,7 +58,7 @@ m_declinedname(NULL), m_owner(owner)
     }
 
     m_name = "Pet";
-    m_regenTimer = 4000;
+    m_regenTimer = PET_FOCUS_REGEN_INTERVAL;
 
     m_isWorldObject = true;
 }
@@ -553,13 +554,13 @@ void Pet::Update(uint32 diff)
                     {
                         case POWER_FOCUS:
                             Regenerate(POWER_FOCUS);
-                            m_regenTimer += 4000 - diff;
+                            m_regenTimer += PET_FOCUS_REGEN_INTERVAL - diff;
                             if(!m_regenTimer) ++m_regenTimer;
                             break;
                         // in creature::update
                         //case POWER_ENERGY:
                         //    Regenerate(POWER_ENERGY);
-                        //    m_regenTimer += 2000 - diff;
+                        //    m_regenTimer += CREATURE_REGEN_INTERVAL - diff;
                         //    if(!m_regenTimer) ++m_regenTimer;
                         //    break;
                         default:
@@ -617,10 +618,12 @@ void Creature::Regenerate(Powers power)
     }
 
     // Apply modifiers (if any).
-    AuraEffectList const& ModPowerRegenPCTAuras = GetAurasByType(SPELL_AURA_MOD_POWER_REGEN_PERCENT);
+    AuraEffectList const& ModPowerRegenPCTAuras = GetAuraEffectsByType(SPELL_AURA_MOD_POWER_REGEN_PERCENT);
     for (AuraEffectList::const_iterator i = ModPowerRegenPCTAuras.begin(); i != ModPowerRegenPCTAuras.end(); ++i)
         if ((*i)->GetMiscValue() == power)
             addvalue *= ((*i)->GetAmount() + 100) / 100.0f;
+
+    addvalue += GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_POWER_REGEN, power) * (isHunterPet()? PET_FOCUS_REGEN_INTERVAL : CREATURE_REGEN_INTERVAL) / (5 * IN_MILISECONDS);
 
     ModifyPower(power, (int32)addvalue);
 }
@@ -1154,24 +1157,29 @@ void Pet::_LoadAuras(uint32 timediff)
 {
     sLog.outDebug("Loading auras for pet %u",GetGUIDLow());
 
-    QueryResult *result = CharacterDatabase.PQuery("SELECT caster_guid,spell,effect_mask,stackcount,amount0,amount1,amount2,maxduration,remaintime,remaincharges FROM pet_aura WHERE guid = '%u'",m_charmInfo->GetPetNumber());
+    QueryResult *result = CharacterDatabase.PQuery("SELECT caster_guid,spell,effect_mask,recalculate_mask,stackcount,amount0,amount1,amount2,base_amount0,base_amount1,base_amount2,maxduration,remaintime,remaincharges FROM pet_aura WHERE guid = '%u'",m_charmInfo->GetPetNumber());
 
     if (result)
     {
         do
         {
             int32 damage[3];
+            int32 baseDamage[3];
             Field *fields = result->Fetch();
             uint64 caster_guid = fields[0].GetUInt64();
             uint32 spellid = fields[1].GetUInt32();
             uint8 effmask = fields[2].GetUInt8();
-            uint8 stackcount = fields[3].GetUInt8();
-            damage[0] = fields[4].GetInt32();
-            damage[1] = fields[5].GetInt32();
-            damage[2] = fields[6].GetInt32();
-            int32 maxduration = fields[7].GetInt32();
-            int32 remaintime = fields[8].GetInt32();
-            uint8 remaincharges = fields[9].GetUInt8();
+            uint8 recalculatemask = fields[3].GetUInt8();
+            uint8 stackcount = fields[4].GetUInt8();
+            damage[0] = fields[5].GetInt32();
+            damage[1] = fields[6].GetInt32();
+            damage[2] = fields[7].GetInt32();
+            baseDamage[0] = fields[8].GetInt32();
+            baseDamage[1] = fields[9].GetInt32();
+            baseDamage[2] = fields[10].GetInt32();
+            int32 maxduration = fields[11].GetInt32();
+            int32 remaintime = fields[12].GetInt32();
+            uint8 remaincharges = fields[13].GetUInt8();
 
             SpellEntry const* spellproto = sSpellStore.LookupEntry(spellid);
             if(!spellproto)
@@ -1198,15 +1206,17 @@ void Pet::_LoadAuras(uint32 timediff)
             else
                 remaincharges = 0;
 
-            Aura* aura = new Aura(spellproto, effmask, this, this, this);
-            aura->SetLoadedState(caster_guid,maxduration,remaintime,remaincharges, stackcount, &damage[0]);
-            if(!aura->CanBeSaved())
+            if (Aura * aura = Aura::TryCreate( spellproto, effmask, this, NULL, &baseDamage[0], NULL, caster_guid))
             {
-                delete aura;
-                continue;
+                if (!aura->CanBeSaved())
+                {
+                    aura->Remove();
+                    continue;
+                }
+                aura->SetLoadedState(maxduration,remaintime,remaincharges,stackcount,recalculatemask,&damage[0]);
+                aura->ApplyForTargets();
+                sLog.outDetail("Added aura spellid %u, effectmask %u", spellproto->Id, effmask);
             }
-            AddAura(aura);
-            sLog.outDetail("Added aura spellid %u, effectmask %u", spellproto->Id, effmask);
         }
         while (result->NextRow());
 
@@ -1218,26 +1228,39 @@ void Pet::_SaveAuras()
 {
     CharacterDatabase.PExecute("DELETE FROM pet_aura WHERE guid = '%u'", m_charmInfo->GetPetNumber());
 
-    AuraMap const& auras = GetAuras();
-    for (AuraMap::const_iterator itr = auras.begin(); itr !=auras.end() ; ++itr)
+    for (AuraMap::const_iterator itr = m_ownedAuras.begin(); itr != m_ownedAuras.end() ; ++itr)
     {
         if (!itr->second->CanBeSaved())
             continue;
 
-        int32 amounts[MAX_SPELL_EFFECTS];
+        Aura * aura = itr->second;
+
+        int32 damage[MAX_SPELL_EFFECTS];
+        int32 baseDamage[MAX_SPELL_EFFECTS];
+        uint8 effMask = 0;
+        uint8 recalculateMask = 0;
         for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
         {
-            if (AuraEffect *partAura = itr->second->GetPartAura(i))
-                amounts[i] = partAura->GetAmount();
+            if (aura->GetEffect(i))
+            {
+                baseDamage[i] = aura->GetEffect(i)->GetBaseAmount();
+                damage[i] = aura->GetEffect(i)->GetAmount();
+                effMask |= (1<<i);
+                if (aura->GetEffect(i)->CanBeRecalculated())
+                    recalculateMask |= (1<<i);
+            }
             else
-                amounts[i] = 0;
+            {
+                baseDamage[i] = NULL;
+                damage[i] = NULL;
+            }
         }
 
-        CharacterDatabase.PExecute("INSERT INTO pet_aura (guid,caster_guid,spell,effect_mask,stackcount,amount0,amount1,amount2,maxduration,remaintime,remaincharges) "
-            "VALUES ('%u', '" UI64FMTD "', '%u', '%u', '%u', '%d', '%d', '%d', '%d', '%d', '%u')",
-            m_charmInfo->GetPetNumber(), itr->second->GetCasterGUID(), itr->second->GetId(), itr->second->GetEffectMask(),
-            itr->second->GetStackAmount(), amounts[0], amounts[1], amounts[2],
-            itr->second->GetAuraMaxDuration(), itr->second->GetAuraDuration(),itr->second->GetAuraCharges());
+        CharacterDatabase.PExecute("INSERT INTO pet_aura (guid,caster_guid,spell,effect_mask,recalculate_mask,stackcount,amount0,amount1,amount2,base_amount0,base_amount1,base_amount2,maxduration,remaintime,remaincharges) "
+            "VALUES ('%u', '" UI64FMTD "', '%u', '%u', '%u', '%u', '%d', '%d', '%d', '%d', '%d', '%d', '%d', '%d', '%u')",
+            m_charmInfo->GetPetNumber(), itr->second->GetCasterGUID(), itr->second->GetId(), effMask, recalculateMask, 
+            itr->second->GetStackAmount(), damage[0], damage[1], damage[2], baseDamage[0], baseDamage[1], baseDamage[2],
+            itr->second->GetMaxDuration(), itr->second->GetDuration(),itr->second->GetCharges());
     }
 }
 

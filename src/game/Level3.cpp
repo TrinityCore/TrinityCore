@@ -54,6 +54,7 @@
 #include "InstanceData.h"
 #include "AuctionHouseBot.h"
 #include "CreatureEventAIMgr.h"
+#include "SpellAuraEffects.h"
 #include "DBCEnums.h"
 
 bool ChatHandler::HandleAHBotOptionsCommand(const char *args)
@@ -4387,25 +4388,8 @@ bool ChatHandler::HandleAuraCommand(const char *args)
     // number or [name] Shift-click form |color|Hspell:spell_id|h[name]|h|r or Htalent form
     uint32 spellID = extractSpellIdFromLink((char*)args);
 
-    SpellEntry const *spellInfo = sSpellStore.LookupEntry( spellID );
-    uint8 eff_mask=0;
-    if(spellInfo)
-    {
-        for (uint32 i = 0; i<3; ++i)
-        {
-            uint8 eff = spellInfo->Effect[i];
-            if (eff>=TOTAL_SPELL_EFFECTS)
-                continue;
-            if( IsAreaAuraEffect(eff)           ||
-                eff == SPELL_EFFECT_APPLY_AURA  ||
-                eff == SPELL_EFFECT_PERSISTENT_AREA_AURA )
-            {
-                eff_mask|=1<<i;
-            }
-        }
-        Aura *Aur = new Aura(spellInfo, eff_mask, target, target, target);
-        target->AddAura(Aur);
-    }
+    if (SpellEntry const *spellInfo = sSpellStore.LookupEntry( spellID ))
+        Aura::TryCreate(spellInfo, target, target);
 
     return true;
 }
@@ -5117,39 +5101,41 @@ bool ChatHandler::HandleListAurasCommand (const char * /*args*/)
     char const* talentStr = GetTrinityString(LANG_TALENT);
     char const* passiveStr = GetTrinityString(LANG_PASSIVE);
 
-    Unit::AuraMap const& uAuras = unit->GetAuras();
+    Unit::AuraApplicationMap const& uAuras = unit->GetAppliedAuras();
     PSendSysMessage(LANG_COMMAND_TARGET_LISTAURAS, uAuras.size());
-    for (Unit::AuraMap::const_iterator itr = uAuras.begin(); itr != uAuras.end(); ++itr)
+    for (Unit::AuraApplicationMap::const_iterator itr = uAuras.begin(); itr != uAuras.end(); ++itr)
     {
-        bool talent = GetTalentSpellCost(itr->second->GetId()) > 0;
+        bool talent = GetTalentSpellCost(itr->second->GetBase()->GetId()) > 0;
 
-        char const* name = itr->second->GetSpellProto()->SpellName[GetSessionDbcLocale()];
+        AuraApplication const * aurApp = itr->second;
+        Aura const * aura = aurApp->GetBase();
+        char const* name = aura->GetSpellProto()->SpellName[GetSessionDbcLocale()];
 
         if (m_session)
         {
             std::ostringstream ss_name;
-            ss_name << "|cffffffff|Hspell:" << itr->second->GetId() << "|h[" << name << "]|h|r";
+            ss_name << "|cffffffff|Hspell:" << aura->GetId() << "|h[" << name << "]|h|r";
 
-            PSendSysMessage(LANG_COMMAND_TARGET_AURADETAIL, itr->second->GetId(), itr->second->GetEffectMask(),
-                itr->second->GetAuraCharges(), itr->second->GetStackAmount(),itr->second->GetAuraSlot(),
-                itr->second->GetAuraDuration(), itr->second->GetAuraMaxDuration(),
+            PSendSysMessage(LANG_COMMAND_TARGET_AURADETAIL, aura->GetId(), aurApp->GetEffectMask(),
+                aura->GetCharges(), aura->GetStackAmount(), aurApp->GetSlot(),
+                aura->GetDuration(), aura->GetMaxDuration(),
                 ss_name.str().c_str(),
-                (itr->second->IsPassive() ? passiveStr : ""),(talent ? talentStr : ""),
-                IS_PLAYER_GUID(itr->second->GetCasterGUID()) ? "player" : "creature",GUID_LOPART(itr->second->GetCasterGUID()));
+                (aura->IsPassive() ? passiveStr : ""),(talent ? talentStr : ""),
+                IS_PLAYER_GUID(aura->GetCasterGUID()) ? "player" : "creature",GUID_LOPART(aura->GetCasterGUID()));
         }
         else
         {
-            PSendSysMessage(LANG_COMMAND_TARGET_AURADETAIL, itr->second->GetId(), itr->second->GetEffectMask(),
-                itr->second->GetAuraCharges(), itr->second->GetStackAmount(),itr->second->GetAuraSlot(),
-                itr->second->GetAuraDuration(), itr->second->GetAuraMaxDuration(),
+            PSendSysMessage(LANG_COMMAND_TARGET_AURADETAIL, aura->GetId(), aurApp->GetEffectMask(),
+                aura->GetCharges(), aura->GetStackAmount(), aurApp->GetSlot(),
+                aura->GetDuration(), aura->GetMaxDuration(),
                 name,
-                (itr->second->IsPassive() ? passiveStr : ""),(talent ? talentStr : ""),
-                IS_PLAYER_GUID(itr->second->GetCasterGUID()) ? "player" : "creature",GUID_LOPART(itr->second->GetCasterGUID()));
+                (aura->IsPassive() ? passiveStr : ""),(talent ? talentStr : ""),
+                IS_PLAYER_GUID(aura->GetCasterGUID()) ? "player" : "creature",GUID_LOPART(aura->GetCasterGUID()));
         }
     }
     for (uint16 i = 0; i < TOTAL_AURAS; ++i)
     {
-        Unit::AuraEffectList const& uAuraList = unit->GetAurasByType(AuraType(i));
+        Unit::AuraEffectList const& uAuraList = unit->GetAuraEffectsByType(AuraType(i));
         if (uAuraList.empty()) continue;
         PSendSysMessage(LANG_COMMAND_TARGET_LISTAURATYPE, uAuraList.size(), i);
         for (Unit::AuraEffectList::const_iterator itr = uAuraList.begin(); itr != uAuraList.end(); ++itr)
@@ -7376,9 +7362,8 @@ bool ChatHandler::HandleFreezeCommand(const char *args)
         }
 
         //m_session->GetPlayer()->CastSpell(player,spellID,false);
-        SpellEntry const *spellInfo = sSpellStore.LookupEntry( 9454 );
-        Aura *Aur = new Aura(spellInfo, 1, player, player, player);
-        player->AddAura(Aur);
+        if (SpellEntry const *spellInfo = sSpellStore.LookupEntry(9454))
+            Aura::TryCreate(spellInfo, player, player);
 
         //save player
         player->SaveToDB();

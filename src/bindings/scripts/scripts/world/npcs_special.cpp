@@ -190,7 +190,7 @@ struct TRINITY_DLL_DECL npc_air_force_botsAI : public ScriptedAI
                     if (!pWho->IsWithinDistInMap(m_creature, RANGE_GUARDS_MARK))
                         return;
 
-                    Aura* pMarkAura = pWho->GetAura(SPELL_GUARDS_MARK, 0);
+                    Aura* pMarkAura = pWho->GetAura(SPELL_GUARDS_MARK);
                     if (pMarkAura)
                     {
                         // the target wasn't able to move out of our range within 25 seconds
@@ -202,7 +202,7 @@ struct TRINITY_DLL_DECL npc_air_force_botsAI : public ScriptedAI
                                 return;
                         }
 
-                        if (pMarkAura->GetAuraDuration() < AURA_DURATION_TIME_LEFT)
+                        if (pMarkAura->GetDuration() < AURA_DURATION_TIME_LEFT)
                         {
                             if (!pLastSpawnedGuard->getVictim())
                                 pLastSpawnedGuard->AI()->AttackStart(pWho);

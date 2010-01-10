@@ -38,6 +38,7 @@
 #include "Player.h"
 #include "ScriptCalls.h"
 #include "SpellAuras.h"
+#include "SpellAuraEffects.h"
 #include "Util.h"
 
 bool WorldSession::processChatmessageFurtherAfterSecurityChecks(std::string& msg, uint32 lang)
@@ -88,7 +89,7 @@ void WorldSession::HandleMessagechatOpcode( WorldPacket & recv_data )
     if(langDesc->skill_id != 0 && !_player->HasSkill(langDesc->skill_id))
     {
         // also check SPELL_AURA_COMPREHEND_LANGUAGE (client offers option to speak in that language)
-        Unit::AuraEffectList const& langAuras = _player->GetAurasByType(SPELL_AURA_COMPREHEND_LANGUAGE);
+        Unit::AuraEffectList const& langAuras = _player->GetAuraEffectsByType(SPELL_AURA_COMPREHEND_LANGUAGE);
         bool foundAura = false;
         for (Unit::AuraEffectList::const_iterator i = langAuras.begin(); i != langAuras.end(); ++i)
         {
@@ -159,7 +160,7 @@ void WorldSession::HandleMessagechatOpcode( WorldPacket & recv_data )
             }
 
             // but overwrite it by SPELL_AURA_MOD_LANGUAGE auras (only single case used)
-            Unit::AuraEffectList const& ModLangAuras = _player->GetAurasByType(SPELL_AURA_MOD_LANGUAGE);
+            Unit::AuraEffectList const& ModLangAuras = _player->GetAuraEffectsByType(SPELL_AURA_MOD_LANGUAGE);
             if(!ModLangAuras.empty())
                 lang = ModLangAuras.front()->GetMiscValue();
         }

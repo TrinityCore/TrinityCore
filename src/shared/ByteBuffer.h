@@ -386,21 +386,21 @@ class ByteBuffer
 
         void appendPackGUID(uint64 guid)
         {
-            if (_storage.size() < _wpos + sizeof(guid) + 1)
-                _storage.resize(_wpos + sizeof(guid) + 1);
-
-            size_t mask_position = wpos();
-            *this << uint8(0);
-            for (uint8 i = 0; i < 8; ++i)
+            uint8 packGUID[8+1];
+            packGUID[0] = 0;
+            size_t size = 1;
+            for(uint8 i = 0;guid != 0;++i)
             {
                 if(guid & 0xFF)
                 {
-                    _storage[mask_position] |= uint8(1 << i);
-                    *this << uint8(guid & 0xFF);
+                    packGUID[0] |= uint8(1 << i);
+                    packGUID[size] =  uint8(guid & 0xFF);
+                    ++size;
                 }
 
                 guid >>= 8;
             }
+            append(packGUID, size);
         }
 
         void put(size_t pos, const uint8 *src, size_t cnt)

@@ -53,19 +53,6 @@ EndScriptData */
 #define SPELL_STORM_BUFF        2148
 #define SPELL_STORM             26546
 
-struct TRINITY_DLL_DECL aqsentinelAI;
-class TRINITY_DLL_DECL SentinelAbilityAura : public Aura
-{
-    public:
-        ~SentinelAbilityAura();
-        Unit* GetTriggerTarget() const;
-        SentinelAbilityAura(aqsentinelAI *abilityOwner, SpellEntry *spell, uint32 ability, uint32 eff);
-    protected:
-        aqsentinelAI *aOwner;
-        int32 currentBasePoints;
-        uint32 abilityId;
-};
-
 struct TRINITY_DLL_DECL aqsentinelAI : public ScriptedAI
 {
     uint32 ability;
@@ -222,16 +209,7 @@ struct TRINITY_DLL_DECL aqsentinelAI : public ScriptedAI
 
     void GainSentinelAbility(uint32 id)
     {
-        const SpellEntry *spell = GetSpellStore()->LookupEntry(id);
-        uint8 eff_mask=0;
-        for (int i=0; i<3; ++i)
-        {
-            if (!spell->Effect[i])
-                continue;
-            eff_mask=1<<i;
-        }
-        SentinelAbilityAura *a = new SentinelAbilityAura(this, (SpellEntry*)spell, id, eff_mask);
-        m_creature->AddAura(a);
+        m_creature->AddAura(id, m_creature);
     }
 
     void EnterCombat(Unit *who)
@@ -260,7 +238,7 @@ struct TRINITY_DLL_DECL aqsentinelAI : public ScriptedAI
         }
     }
 
-    Unit *GetHatedManaUser()
+    Unit *GetHatedManaUser() const
     {
         std::list<HostilReference*>::iterator i;
         for (i = m_creature->getThreatManager().getThreatList().begin(); i != m_creature->getThreatManager().getThreatList().end(); ++i)
@@ -270,6 +248,28 @@ struct TRINITY_DLL_DECL aqsentinelAI : public ScriptedAI
                 return pUnit;
         }
         return NULL;
+    }
+
+    Unit* GetAuraEffectTriggerTarget(uint32 spellId, uint8 effIndex) const
+    {
+        switch (spellId)
+        {
+            case SPELL_KNOCK_BUFF:
+            case SPELL_THUNDER_BUFF:
+            case SPELL_MSTRIKE_BUFF:
+            case SPELL_STORM_BUFF:
+                return m_creature->getVictim();
+
+            case SPELL_MANAB_BUFF:
+                return GetHatedManaUser();
+
+            case SPELL_MENDING_BUFF:
+            case SPELL_REFLECTAF_BUFF:
+            case SPELL_REFLECTSFr_BUFF:
+            case SPELL_THORNS_BUFF:
+            default:
+                return m_creature;
+        }
     }
 };
 CreatureAI* GetAI_mob_anubisath_sentinelAI(Creature* pCreature)
@@ -285,34 +285,3 @@ void AddSC_mob_anubisath_sentinel()
     newscript->GetAI = &GetAI_mob_anubisath_sentinelAI;
     newscript->RegisterSelf();
 }
-
-SentinelAbilityAura::~SentinelAbilityAura() {}
-Unit* SentinelAbilityAura::GetTriggerTarget() const
-{
-    switch (abilityId)
-    {
-        case SPELL_KNOCK_BUFF:
-        case SPELL_THUNDER_BUFF:
-        case SPELL_MSTRIKE_BUFF:
-        case SPELL_STORM_BUFF:
-            return aOwner->m_creature->getVictim();
-
-        case SPELL_MANAB_BUFF:
-            return aOwner->GetHatedManaUser();
-
-        case SPELL_MENDING_BUFF:
-        case SPELL_REFLECTAF_BUFF:
-        case SPELL_REFLECTSFr_BUFF:
-        case SPELL_THORNS_BUFF:
-        default:
-            return aOwner->m_creature;
-    }
-}
-
-SentinelAbilityAura::SentinelAbilityAura(aqsentinelAI *abilityOwner, SpellEntry *spell, uint32 ability, uint32 eff)
-: Aura(spell, eff, abilityOwner->m_creature, abilityOwner->m_creature, abilityOwner->m_creature, NULL)
-{
-    aOwner = abilityOwner;
-    abilityId = ability;
-}
-

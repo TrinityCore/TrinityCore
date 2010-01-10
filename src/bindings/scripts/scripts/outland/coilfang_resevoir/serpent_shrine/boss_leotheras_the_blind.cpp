@@ -497,14 +497,8 @@ struct TRINITY_DLL_DECL boss_leotheras_the_blindAI : public ScriptedAI
                             demon->AI()->AttackStart((*itr));
                             CAST_AI(mob_inner_demonAI, demon->AI())->victimGUID = (*itr)->GetGUID();
 
-                            uint8 eff_mask=0;
-                            for (int i=0; i<3; ++i)
-                            {
-                                if (!spell->Effect[i])
-                                    continue;
-                                eff_mask|=1<<i;
-                            }
-                            (*itr)->AddAura(new Aura(spell, eff_mask, *itr, *itr, *itr));
+                            (*itr)->AddAura(SPELL_INSIDIOUS_WHISPER, *itr);
+
                             if (InnerDemon_Count > 4)
                                 InnerDemon_Count = 0;
 

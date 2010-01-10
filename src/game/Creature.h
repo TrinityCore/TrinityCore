@@ -64,6 +64,7 @@ enum CreatureFlagsExtra
 #endif
 
 #define MAX_KILL_CREDIT 2
+#define CREATURE_REGEN_INTERVAL 2 * IN_MILISECONDS
 
 // from `creature_template` table
 struct CreatureInfo
@@ -241,7 +242,7 @@ struct CreatureData
 struct CreatureDataAddonAura
 {
     uint32 spell_id;
-    uint8 effect_idx;
+    uint8 effectMask;
 };
 
 // from `creature_addon` table

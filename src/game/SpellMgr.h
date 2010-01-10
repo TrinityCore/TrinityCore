@@ -143,36 +143,36 @@ enum SpellFamilyFlag
 // Spell clasification
 enum SpellSpecific
 {
-    SPELL_NORMAL            = 0,
-    SPELL_SEAL              = 1,
-    SPELL_BLESSING          = 2,
-    SPELL_AURA              = 3,
-    SPELL_STING             = 4,
-    SPELL_CURSE             = 5,
-    SPELL_ASPECT            = 6,
-    SPELL_TRACKER           = 7,
-    SPELL_WARLOCK_ARMOR     = 8,
-    SPELL_MAGE_ARMOR        = 9,
-    SPELL_ELEMENTAL_SHIELD  = 10,
-    SPELL_MAGE_POLYMORPH    = 11,
-    SPELL_POSITIVE_SHOUT    = 12,
-    SPELL_JUDGEMENT         = 13,
-    SPELL_BATTLE_ELIXIR     = 14,
-    SPELL_GUARDIAN_ELIXIR   = 15,
-    SPELL_FLASK_ELIXIR      = 16,
-    SPELL_WARLOCK_CORRUPTION= 17,
-    SPELL_WELL_FED          = 18,
-    SPELL_FOOD              = 19,
-    SPELL_DRINK             = 20,
-    SPELL_FOOD_AND_DRINK    = 21,
-    SPELL_PRESENCE          = 22,
-    SPELL_CHARM             = 23,
-    SPELL_SCROLL            = 24,
-    SPELL_MAGE_ARCANE_BRILLANCE = 25,
-    SPELL_WARRIOR_ENRAGE    = 26,
-    SPELL_PRIEST_DIVINE_SPIRIT = 27,
-    SPELL_HAND              = 28,
-    SPELL_PHASE             = 29,
+    SPELL_SPECIFIC_NORMAL            = 0,
+    SPELL_SPECIFIC_SEAL              = 1,
+    SPELL_SPECIFIC_BLESSING          = 2,
+    SPELL_SPECIFIC_AURA              = 3,
+    SPELL_SPECIFIC_STING             = 4,
+    SPELL_SPECIFIC_CURSE             = 5,
+    SPELL_SPECIFIC_ASPECT            = 6,
+    SPELL_SPECIFIC_TRACKER           = 7,
+    SPELL_SPECIFIC_WARLOCK_ARMOR     = 8,
+    SPELL_SPECIFIC_MAGE_ARMOR        = 9,
+    SPELL_SPECIFIC_ELEMENTAL_SHIELD  = 10,
+    SPELL_SPECIFIC_MAGE_POLYMORPH    = 11,
+    SPELL_SPECIFIC_POSITIVE_SHOUT    = 12,
+    SPELL_SPECIFIC_JUDGEMENT         = 13,
+    SPELL_SPECIFIC_BATTLE_ELIXIR     = 14,
+    SPELL_SPECIFIC_GUARDIAN_ELIXIR   = 15,
+    SPELL_SPECIFIC_FLASK_ELIXIR      = 16,
+    SPELL_SPECIFIC_WARLOCK_CORRUPTION= 17,
+    SPELL_SPECIFIC_WELL_FED          = 18,
+    SPELL_SPECIFIC_FOOD              = 19,
+    SPELL_SPECIFIC_DRINK             = 20,
+    SPELL_SPECIFIC_FOOD_AND_DRINK    = 21,
+    SPELL_SPECIFIC_PRESENCE          = 22,
+    SPELL_SPECIFIC_CHARM             = 23,
+    SPELL_SPECIFIC_SCROLL            = 24,
+    SPELL_SPECIFIC_MAGE_ARCANE_BRILLANCE = 25,
+    SPELL_SPECIFIC_WARRIOR_ENRAGE    = 26,
+    SPELL_SPECIFIC_PRIEST_DIVINE_SPIRIT = 27,
+    SPELL_SPECIFIC_HAND              = 28,
+    SPELL_SPECIFIC_PHASE             = 29,
 };
 
 #define SPELL_LINKED_MAX_SPELLS  200000
@@ -301,6 +301,7 @@ bool IsHigherHankOfSpell(uint32 spellId_1,uint32 spellId_2);
 bool IsSingleFromSpellSpecificPerCaster(SpellSpecific spellSpec1, SpellSpecific spellSpec2);
 bool IsSingleFromSpellSpecificPerTarget(SpellSpecific spellSpec1, SpellSpecific spellSpec2);
 bool IsPassiveSpell(uint32 spellId);
+bool IsPassiveSpell(SpellEntry const * spellInfo);
 bool IsAutocastableSpell(uint32 spellId);
 
 uint32 CalculatePowerCost(SpellEntry const * spellInfo, Unit const * caster, SpellSchoolMask schoolMask);
@@ -404,6 +405,12 @@ inline bool IsAreaAuraEffect(uint32 effect)
         return true;
     return false;
 }
+
+inline bool IsUnitOwnedAuraEffect(uint32 effect)
+{
+    return (IsAreaAuraEffect(effect) || effect == SPELL_EFFECT_APPLY_AURA);
+}
+
 inline bool IsDispel(SpellEntry const *spellInfo)
 {
     //spellsteal is also dispel
@@ -573,8 +580,6 @@ enum ProcFlagsEx
    PROC_EX_ABSORB              = 0x0000400,
    PROC_EX_REFLECT             = 0x0000800,
    PROC_EX_INTERRUPT           = 0x0001000,                 // Melee hit result can be Interrupt (not used)
-   PROC_EX_AURA_REMOVE_DESTROY = 0x0002000,                 // Aura absorb destroy or dispel
-   PROC_EX_AURA_REMOVE_EXPIRE  = 0x0004000,                 // Aura remove by default and by cancel
    PROC_EX_NOT_ACTIVE_SPELL    = 0x0008000,                 // Spell mustn't do damage/heal to proc
    PROC_EX_EX_TRIGGER_ALWAYS   = 0x0010000,                 // If set trigger always no matter of hit result
    PROC_EX_EX_ONE_TIME_TRIGGER = 0x0020000,                 // If set trigger always but only one time (not implemented yet)
@@ -587,8 +592,6 @@ enum ProcFlagsEx
    PROC_EX_INTERNAL_TRIGGERED  = 0x4000000,
    PROC_EX_INTERNAL_REQ_FAMILY = 0x8000000
 };
-#define AURA_REMOVE_PROC_EX_MASK \
-   (PROC_EX_AURA_REMOVE_DESTROY | PROC_EX_AURA_REMOVE_EXPIRE)
 
 #define AURA_SPELL_PROC_EX_MASK \
    (PROC_EX_NORMAL_HIT | PROC_EX_CRITICAL_HIT | PROC_EX_MISS | \
@@ -822,7 +825,6 @@ inline bool IsProfessionSkill(uint32 skill)
 #define SPELL_ATTR_CU_LINK_HIT          0x00000800
 #define SPELL_ATTR_CU_LINK_AURA         0x00001000
 #define SPELL_ATTR_CU_LINK_REMOVE       0x00002000
-#define SPELL_ATTR_CU_MOVEMENT_IMPAIR   0x00004000
 #define SPELL_ATTR_CU_EXCLUDE_SELF      0x00008000
 #define SPELL_ATTR_CU_NEGATIVE_EFF0     0x00010000
 #define SPELL_ATTR_CU_NEGATIVE_EFF1     0x00020000
@@ -866,15 +868,15 @@ class SpellMgr
         {
             uint32 mask = GetSpellElixirMask(spellid);
             if((mask & ELIXIR_FLASK_MASK)==ELIXIR_FLASK_MASK)
-                return SPELL_FLASK_ELIXIR;
+                return SPELL_SPECIFIC_FLASK_ELIXIR;
             else if(mask & ELIXIR_BATTLE_MASK)
-                return SPELL_BATTLE_ELIXIR;
+                return SPELL_SPECIFIC_BATTLE_ELIXIR;
             else if(mask & ELIXIR_GUARDIAN_MASK)
-                return SPELL_GUARDIAN_ELIXIR;
+                return SPELL_SPECIFIC_GUARDIAN_ELIXIR;
             else if(mask & ELIXIR_WELL_FED)
-                return SPELL_WELL_FED;
+                return SPELL_SPECIFIC_WELL_FED;
             else
-                return SPELL_NORMAL;
+                return SPELL_SPECIFIC_NORMAL;
         }
 
         uint16 GetSpellThreat(uint32 spellid) const
