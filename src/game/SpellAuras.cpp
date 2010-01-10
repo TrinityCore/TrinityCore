@@ -1435,10 +1435,6 @@ void UnitAura::UpdateTargetMapForEffect(Unit * caster, uint8 effIndex)
                 continue;
             // add new unit to persistent area aura
             (*appIter)->_ApplyAuraEffect(this, effIndex);
-
-            // start combat with targeted enemy
-            if(GetSpellProto()->Effect[effIndex] == SPELL_EFFECT_APPLY_AREA_AURA_ENEMY)
-                GetUnitOwner()->CombatStart(*appIter);
         }
 
         itr = m_applications.find((*appIter)->GetGUID());
