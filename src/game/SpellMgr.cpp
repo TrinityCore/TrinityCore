@@ -3807,10 +3807,6 @@ void SpellMgr::LoadSpellCustomAttr()
             spellInfo->AttributesEx5 |= SPELL_ATTR_EX5_START_PERIODIC_AT_APPLY;
             count++;
             break;
-        case SPELL_TAG_MURLOC_30877:
-            spellInfo->EffectImplicitTargetA[0] = TARGET_UNIT_NEARBY_ENTRY;
-            spellInfo->EffectImplicitTargetB[0] = 0;
-            break;
         default:
             break;
         }
