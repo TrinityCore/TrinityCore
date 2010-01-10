@@ -767,6 +767,7 @@ bool SpellMgr::_isPositiveEffect(uint32 spellId, uint32 effIndex, bool deep) con
         case 50524:                                         // Runic Power Feed
             return false;
         case 12042:                                         // Arcane Power
+        case SPELL_ID_TAG_MURLOC:                           // Tag Murloc
             return true;
     }
 
@@ -3805,6 +3806,10 @@ void SpellMgr::LoadSpellCustomAttr()
         case 8172:
             spellInfo->AttributesEx5 |= SPELL_ATTR_EX5_START_PERIODIC_AT_APPLY;
             count++;
+            break;
+        case SPELL_ID_TAG_MURLOC:
+            spellInfo->EffectImplicitTargetA[0] = TARGET_UNIT_NEARBY_ENTRY;
+            spellInfo->EffectImplicitTargetB[0] = 0;
             break;
         default:
             break;
