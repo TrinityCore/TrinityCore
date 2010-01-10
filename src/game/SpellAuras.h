@@ -38,11 +38,11 @@ class AuraApplication
     friend AuraApplication * Unit::__ApplyAura(Aura * aura);
     friend void Unit::__UnapplyAura(AuraApplicationMap::iterator &i);
     friend bool Unit::_ApplyAuraEffect(Aura * aura, uint8 effIndex);
-	private:
-		Unit * const m_target;
-		Aura * const m_base;
-		uint8 m_slot;                                   // Aura slot on unit
-		uint8 m_flags;                                  // Aura info flag
+    private:
+        Unit * const m_target;
+        Aura * const m_base;
+        uint8 m_slot;                                   // Aura slot on unit
+        uint8 m_flags;                                  // Aura info flag
         AuraRemoveMode m_removeMode:8;                  // Store info for know remove aura reason
         bool m_needClientUpdate:1;
         bool m_isNeedManyNegativeEffects:1;
@@ -53,15 +53,15 @@ class AuraApplication
     private:
         bool _CheckPositive(Unit * caster) const;
         void _HandleEffect(uint8 effIndex, bool apply);
-	public:
+    public:
         bool _CanBeRemoved() const {return m_canBeRemoved;}
         void _SetCanBeRemoved(bool val) {m_canBeRemoved = val;}
 
         Unit * GetTarget() const { return m_target; }
         Aura * GetBase() const { return m_base; }
 
-		uint8 GetSlot() const { return m_slot; }
-		uint8 GetFlags() const { return m_flags; }
+        uint8 GetSlot() const { return m_slot; }
+        uint8 GetFlags() const { return m_flags; }
         uint8 GetEffectMask() const { return m_flags & (AFLAG_EFF_INDEX_0 | AFLAG_EFF_INDEX_1 | AFLAG_EFF_INDEX_2); }
         bool HasEffect(uint8 effect) const { assert(effect < MAX_SPELL_EFFECTS);  return m_flags & (1<<effect); }
         bool IsPositive() const { return m_flags & AFLAG_POSITIVE; }
@@ -175,12 +175,12 @@ class TRINITY_DLL_SPEC Aura
         int32 m_duration;                                   // Current time
         int32 m_timeCla;                                    // Timer for power per sec calcultion
 
-		uint8 const m_casterLevel;                          // Aura level (store caster level for correct show level dep amount)
+        uint8 const m_casterLevel;                          // Aura level (store caster level for correct show level dep amount)
         uint8 m_procCharges;                                // Aura charges (0 for infinite)
         uint8 m_stackAmount;                                // Aura stack amount
 
         AuraEffect * m_effects[3];
-	    ApplicationMap m_applications;
+        ApplicationMap m_applications;
 
         bool m_isRemoved:1;
         bool m_isSingleTarget:1;                        // true if it's a single target spell and registered at caster - can change at spell steal for example

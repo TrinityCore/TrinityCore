@@ -1253,7 +1253,7 @@ void Aura::HandleAuraSpecificMods(AuraApplication const * aurApp, Unit * caster,
 
 void Aura::SetNeedClientUpdateForTargets() const
 {
-	for (ApplicationMap::const_iterator appIter = m_applications.begin(); appIter != m_applications.end(); ++appIter)
+    for (ApplicationMap::const_iterator appIter = m_applications.begin(); appIter != m_applications.end(); ++appIter)
         appIter->second->SetNeedClientUpdate();
 }
 
@@ -1343,9 +1343,9 @@ void UnitAura::UpdateTargetMapForEffect(Unit * caster, uint8 effIndex)
             }
             case SPELL_EFFECT_APPLY_AREA_AURA_ENEMY:
             {
-			    Trinity::AnyAoETargetUnitInObjectRangeCheck u_check(GetUnitOwner(), GetUnitOwner(), radius); // No GetCharmer in searcher
-			    Trinity::UnitListSearcher<Trinity::AnyAoETargetUnitInObjectRangeCheck> searcher(GetUnitOwner(), targets, u_check);
-			    GetUnitOwner()->VisitNearbyObject(radius, searcher);
+                Trinity::AnyAoETargetUnitInObjectRangeCheck u_check(GetUnitOwner(), GetUnitOwner(), radius); // No GetCharmer in searcher
+                Trinity::UnitListSearcher<Trinity::AnyAoETargetUnitInObjectRangeCheck> searcher(GetUnitOwner(), targets, u_check);
+                GetUnitOwner()->VisitNearbyObject(radius, searcher);
                 break;
             }
             case SPELL_EFFECT_APPLY_AREA_AURA_PET:
@@ -1361,7 +1361,7 @@ void UnitAura::UpdateTargetMapForEffect(Unit * caster, uint8 effIndex)
     }
 
     // mark all auras as ready to remove
-	for (ApplicationMap::iterator appIter = m_applications.begin(); appIter != m_applications.end(); appIter++)
+    for (ApplicationMap::iterator appIter = m_applications.begin(); appIter != m_applications.end(); appIter++)
         if (appIter->second->HasEffect(effIndex))
             appIter->second->_SetCanBeRemoved(true);
         
@@ -1381,8 +1381,8 @@ void UnitAura::UpdateTargetMapForEffect(Unit * caster, uint8 effIndex)
             if (*appIter != GetOwner())
             {
                 bool addUnit = true;
-			    // check if not stacking aura already on target
-			    // this one prevents unwanted usefull buff loss because of stacking and prevents overriding auras periodicaly by 2 near area aura owners
+                // check if not stacking aura already on target
+                // this one prevents unwanted usefull buff loss because of stacking and prevents overriding auras periodicaly by 2 near area aura owners
                 for (Unit::AuraApplicationMap::iterator iter = (*appIter)->GetAppliedAuras().begin(); iter != (*appIter)->GetAppliedAuras().end(); ++iter)
                 {
                     Aura const * aura = iter->second->GetBase();
@@ -1401,8 +1401,8 @@ void UnitAura::UpdateTargetMapForEffect(Unit * caster, uint8 effIndex)
         {
             if((*appIter)->IsImmunedToSpellEffect(GetSpellProto(), effIndex))
                 continue;
-		    // add new unit to persistent area aura
-		    (*appIter)->_ApplyAuraEffect(this, effIndex);
+            // add new unit to persistent area aura
+            (*appIter)->_ApplyAuraEffect(this, effIndex);
 
             // start combat with targeted enemy
             if(GetSpellProto()->Effect[effIndex] == SPELL_EFFECT_APPLY_AREA_AURA_ENEMY)
@@ -1416,7 +1416,7 @@ void UnitAura::UpdateTargetMapForEffect(Unit * caster, uint8 effIndex)
     }
 
     // remove auras which are not in current area
-	for (ApplicationMap::iterator appIter = m_applications.begin(); appIter != m_applications.end();)
+    for (ApplicationMap::iterator appIter = m_applications.begin(); appIter != m_applications.end();)
     {
         AuraApplication * aurApp =  appIter->second;
         ++appIter;
@@ -1456,13 +1456,13 @@ void DynObjAura::UpdateTargetMapForEffect(Unit * caster, uint8 effIndex)
     }
     else
     {
-		Trinity::AnyAoETargetUnitInObjectRangeCheck u_check(GetDynobjOwner(), dynObjOwnerCaster, radius);
-		Trinity::UnitListSearcher<Trinity::AnyAoETargetUnitInObjectRangeCheck> searcher(GetDynobjOwner(), targets, u_check);
-		GetDynobjOwner()->VisitNearbyObject(radius, searcher);
+        Trinity::AnyAoETargetUnitInObjectRangeCheck u_check(GetDynobjOwner(), dynObjOwnerCaster, radius);
+        Trinity::UnitListSearcher<Trinity::AnyAoETargetUnitInObjectRangeCheck> searcher(GetDynobjOwner(), targets, u_check);
+        GetDynobjOwner()->VisitNearbyObject(radius, searcher);
     }
 
     // mark all auras as ready to remove
-	for (ApplicationMap::iterator appIter = m_applications.begin(); appIter != m_applications.end(); appIter++)
+    for (ApplicationMap::iterator appIter = m_applications.begin(); appIter != m_applications.end(); appIter++)
         if (appIter->second->HasEffect(effIndex))
             appIter->second->_SetCanBeRemoved(true);
 
@@ -1485,8 +1485,8 @@ void DynObjAura::UpdateTargetMapForEffect(Unit * caster, uint8 effIndex)
         {
             if((*appIter)->IsImmunedToSpellEffect(GetSpellProto(), effIndex))
                 continue;
-		    // add new unit to persistent area aura
-		    (*appIter)->_ApplyAuraEffect(this, effIndex);
+            // add new unit to persistent area aura
+            (*appIter)->_ApplyAuraEffect(this, effIndex);
 
             // start combat with targeted enemy
             if(GetSpellProto()->EffectImplicitTargetB[effIndex] != TARGET_DEST_DYNOBJ_ALLY
@@ -1501,7 +1501,7 @@ void DynObjAura::UpdateTargetMapForEffect(Unit * caster, uint8 effIndex)
     }
 
     // remove auras which are not in current area
-	for (ApplicationMap::iterator appIter = m_applications.begin(); appIter != m_applications.end();)
+    for (ApplicationMap::iterator appIter = m_applications.begin(); appIter != m_applications.end();)
     {
         AuraApplication * aurApp =  appIter->second;
         ++appIter;

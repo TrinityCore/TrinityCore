@@ -830,14 +830,14 @@ int WorldSocket::HandleAuthSession (WorldPacket& recvPacket)
                               " AND (RealmID = '%d'"
                               " OR RealmID = '-1')",
                               id, realmID);
-	if(!result)
-    	security = 0;
-	else
-	{
-		fields = result->Fetch ();
-		security = fields[1].GetInt32();
-		delete result;
-	}
+    if(!result)
+        security = 0;
+    else
+    {
+        fields = result->Fetch ();
+        security = fields[1].GetInt32();
+        delete result;
+    }
 
     // Re-check account ban (same check as in realmd)
     QueryResult *banresult =
