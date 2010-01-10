@@ -385,11 +385,11 @@ void AuraEffect::GetTargetList(std::list<Unit *> & targetList) const
 {
     Aura::ApplicationMap const & targetMap = GetBase()->GetApplicationMap();
     // remove all targets which were not added to new list - they no longer deserve area aura
-	for (Aura::ApplicationMap::const_iterator appIter = targetMap.begin(); appIter != targetMap.end(); appIter++)
-	{
+    for (Aura::ApplicationMap::const_iterator appIter = targetMap.begin(); appIter != targetMap.end(); appIter++)
+    {
         if(appIter->second->HasEffect(GetEffIndex()))
             targetList.push_back(appIter->second->GetTarget());
-	}
+    }
 }
 
 int32 AuraEffect::CalculateAmount(Unit * caster)
@@ -397,11 +397,11 @@ int32 AuraEffect::CalculateAmount(Unit * caster)
     int32 amount;
     // default amount calculation
     if(caster)
-	    amount = caster->CalculateSpellDamage(m_spellProto, m_effIndex, m_baseAmount, NULL);
+        amount = caster->CalculateSpellDamage(m_spellProto, m_effIndex, m_baseAmount, NULL);
     else
         amount = m_baseAmount + m_spellProto->EffectBaseDice[m_effIndex];
 
-	// check item enchant aura cast
+    // check item enchant aura cast
     if(!amount && caster)
         if(uint64 itemGUID = GetBase()->GetCastItemGUID())
             if(Player *playerCaster = dynamic_cast<Player*>(caster))
