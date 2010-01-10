@@ -836,9 +836,9 @@ void Map::ProcessRelocationNotifies()
         CellPair cell_min(gx*MAX_NUMBER_OF_CELLS, gy*MAX_NUMBER_OF_CELLS);
         CellPair cell_max(cell_min.x_coord + MAX_NUMBER_OF_CELLS, cell_min.y_coord+MAX_NUMBER_OF_CELLS);
 
-        for(uint32 x = cell_min.x_coord; x <= cell_max.x_coord; ++x)
+        for(uint32 x = cell_min.x_coord; x < cell_max.x_coord; ++x)
         {
-            for(uint32 y = cell_min.y_coord; y <= cell_max.y_coord; ++y)
+            for(uint32 y = cell_min.y_coord; y < cell_max.y_coord; ++y)
             {
                 uint32 cell_id = (y * TOTAL_NUMBER_OF_CELLS_PER_MAP) + x;
                 if(!isCellMarked(cell_id))
@@ -885,9 +885,9 @@ void Map::ResetNotifies(uint16 notify_mask)
         CellPair cell_min(gx*MAX_NUMBER_OF_CELLS, gy*MAX_NUMBER_OF_CELLS);
         CellPair cell_max(cell_min.x_coord + MAX_NUMBER_OF_CELLS, cell_min.y_coord+MAX_NUMBER_OF_CELLS);
 
-        for(uint32 x = cell_min.x_coord; x <= cell_max.x_coord; ++x)
+        for(uint32 x = cell_min.x_coord; x < cell_max.x_coord; ++x)
         {
-            for(uint32 y = cell_min.y_coord; y <= cell_max.y_coord; ++y)
+            for(uint32 y = cell_min.y_coord; y < cell_max.y_coord; ++y)
             {
                 uint32 cell_id = (y * TOTAL_NUMBER_OF_CELLS_PER_MAP) + x;
                 if(!isCellMarked(cell_id))
