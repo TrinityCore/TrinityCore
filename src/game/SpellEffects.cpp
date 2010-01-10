@@ -3742,11 +3742,15 @@ void Spell::EffectDispel(uint32 i)
     for (Unit::AuraMap::const_iterator itr = auras.begin(); itr != auras.end(); ++itr)
     {
         Aura * aura = itr->second;
+        AuraApplication * aurApp = aura->GetApplicationOfTarget(unitTarget->GetGUID());
+        if (!aurApp)
+            continue;
+
         if ((1<<aura->GetSpellProto()->Dispel) & dispelMask)
         {
             if(aura->GetSpellProto()->Dispel == DISPEL_MAGIC)
             {
-                bool positive = aura->IsPositive(unitTarget) ? (!(aura->GetSpellProto()->AttributesEx & SPELL_ATTR_EX_NEGATIVE)) : false;
+                bool positive = aurApp->IsPositive() ? (!(aura->GetSpellProto()->AttributesEx & SPELL_ATTR_EX_NEGATIVE)) : false;
 
                 // do not remove positive auras if friendly target
                 //               negative auras if non-friendly target
@@ -6812,10 +6816,12 @@ void Spell::EffectDispelMechanic(uint32 i)
 
     std::queue < std::pair < uint32, uint64 > > dispel_list;
 
-    Unit::AuraMap& Auras = unitTarget->GetOwnedAuras();
-    for (Unit::AuraMap::iterator iter = Auras.begin(); iter != Auras.end(); iter++)
+    Unit::AuraMap const& auras = unitTarget->GetOwnedAuras();
+    for (Unit::AuraMap::const_iterator itr = auras.begin(); itr != auras.end(); ++itr)
     {
-        Aura * aura = iter->second;
+        Aura * aura = itr->second;
+        if (!aura->GetApplicationOfTarget(unitTarget->GetGUID()))
+            continue;
         if((GetAllSpellMechanicMask(aura->GetSpellProto()) & (1<<(mechanic))) && GetDispelChance(aura->GetCaster(), aura->GetId()))
         {
             dispel_list.push(std::make_pair(aura->GetId(), aura->GetCasterGUID() ) );
@@ -7173,10 +7179,14 @@ void Spell::EffectStealBeneficialBuff(uint32 i)
     for (Unit::AuraMap::const_iterator itr = auras.begin(); itr != auras.end(); ++itr)
     {
         Aura * aura = itr->second;
+        AuraApplication * aurApp = aura->GetApplicationOfTarget(unitTarget->GetGUID());
+        if (!aurApp)
+            continue;
+
         if ((1<<aura->GetSpellProto()->Dispel) & dispelMask)
         {
             // Need check for passive? this
-            if (!aura->IsPositive(unitTarget) || aura->IsPassive() || aura->GetSpellProto()->AttributesEx4 & SPELL_ATTR_EX4_NOT_STEALABLE)
+            if (!aurApp->IsPositive() || aura->IsPassive() || aura->GetSpellProto()->AttributesEx4 & SPELL_ATTR_EX4_NOT_STEALABLE)
                 continue;
 
             bool dispel_charges = aura->GetSpellProto()->AttributesEx7 & SPELL_ATTR_EX7_DISPEL_CHARGES;

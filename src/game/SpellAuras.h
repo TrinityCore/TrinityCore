@@ -157,10 +157,6 @@ class TRINITY_DLL_SPEC Aura
         AuraApplication * GetApplicationOfTarget (uint64 const & guid) { ApplicationMap::iterator itr = m_applications.find(guid); if (itr != m_applications.end()) return itr->second; return NULL; }
         bool IsAppliedOnTarget (uint64 const & guid) const { return m_applications.find(guid) != m_applications.end(); }
 
-        bool IsPositive(Unit * const target) const { return (GetApplicationOfTarget(target->GetGUID()))->IsPositive(); }
-        bool GetEffectMask(Unit * const target) const { return (GetApplicationOfTarget(target->GetGUID()))->GetEffectMask(); }
-        uint8 GetSlot(Unit * const target) const { return (GetApplicationOfTarget(target->GetGUID()))->GetSlot(); }
-        bool HasEffect(Unit * const target, uint8 eff) const { return (GetApplicationOfTarget(target->GetGUID()))->HasEffect(eff); }
         void SetNeedClientUpdateForTargets() const;
         void HandleAuraSpecificMods(AuraApplication const * aurApp, Unit * caster, bool apply);
     private:
