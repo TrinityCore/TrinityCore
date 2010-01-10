@@ -5075,10 +5075,14 @@ SpellCastResult Spell::CheckCast(bool strict)
                 //custom check
                 switch(m_spellInfo->Id)
                 {
-                    case SPELL_TAG_MURLOC_30877:
-                        if (!m_targets.getUnitTarget() || (m_targets.getUnitTarget() && (m_targets.getUnitTarget()->HasAura(SPELL_TAG_MURLOC_30877) || m_targets.getUnitTarget()->GetTypeId() != TYPEID_UNIT || (m_targets.getUnitTarget()->GetTypeId() == TYPEID_UNIT && ((Creature*)m_targets.getUnitTarget())->GetEntry() != 17326 ))))// Tag Murloc, Blacksilt Scout
+                    // Tag Murloc
+                    case 30877:
+                    {
+                        Unit* target = m_targets.getUnitTarget();
+                        if (!target || target->GetEntry() != 17326)
                             return SPELL_FAILED_BAD_TARGETS;
                         break;
+                    }
                     case 61336:
                         if(m_caster->GetTypeId() != TYPEID_PLAYER || !((Player*)m_caster)->IsInFeralForm())
                             return SPELL_FAILED_ONLY_SHAPESHIFT;
