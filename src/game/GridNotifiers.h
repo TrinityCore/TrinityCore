@@ -67,20 +67,6 @@ namespace Trinity
         void SendToSelf(void);
     };
 
-    struct TRINITY_DLL_DECL PlayerVisibilityNotifier
-    {
-        Player &i_player;
-        UpdateData i_data;
-        Player::ClientGUIDs i_clientGUIDs;
-        std::set<WorldObject*> i_visibleNow;
-
-        PlayerVisibilityNotifier(Player &player) : i_player(player),i_clientGUIDs(player.m_clientGUIDs) {}
-
-        template<class T> inline void Visit(GridRefManager<T> &);
-
-        void Notify(void);
-    };
-
     struct TRINITY_DLL_DECL PlayerRelocationNotifier
     {
         Player &i_player;
