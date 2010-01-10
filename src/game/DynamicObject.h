@@ -24,32 +24,28 @@
 #include "Object.h"
 
 class Unit;
+class Aura;
 struct SpellEntry;
 
 class DynamicObject : public WorldObject, public GridObject<DynamicObject>
 {
     public:
-        typedef std::set<Unit*> AffectedSet;
         explicit DynamicObject();
 
         void AddToWorld();
         void RemoveFromWorld();
 
-        bool Create(uint32 guidlow, Unit *caster, uint32 spellId, uint32 effMask, const Position &pos, int32 duration, float radius, bool active);
+        bool Create(uint32 guidlow, Unit *caster, uint32 spellId, const Position &pos, float radius, bool active);
         void Update(uint32 p_time);
         void Delete();
-        uint32 GetSpellId() const { return m_spellId; }
-        uint32 GetEffectMask() const { return m_effMask; }
-        void AddEffect(uint32 effIndex) { m_effMask |= (1<<effIndex); }
-        bool HasEffect(uint32 effIndex) const { return m_effMask & (1<<effIndex); }
-        uint32 GetDuration() const { return m_aliveDuration; }
-        uint64 GetCasterGUID() const { return GetUInt64Value(DYNAMICOBJECT_CASTER); }
-        Unit* GetCaster() const;
-        float GetRadius() const { return m_radius; }
-        bool IsAffecting(Unit *unit) const { return m_affected.find(unit) != m_affected.end(); }
-        void AddAffected(Unit *unit) { m_affected.insert(unit); }
-        void RemoveAffected(Unit *unit) { m_affected.erase(unit); }
+        void SetDuration(int32 newDuration);
+        int32 GetDuration() const;
+        void SetAura(Aura * aura) {assert (!m_aura && aura); m_aura = aura;}
         void Delay(int32 delaytime);
+        uint32 GetSpellId() const {  return GetUInt32Value(DYNAMICOBJECT_SPELLID); }
+        uint64 GetCasterGUID() const { return GetUInt64Value(DYNAMICOBJECT_CASTER); }
+        float GetRadius() const { return GetFloatValue(DYNAMICOBJECT_RADIUS); }
+        Unit* GetCaster() const;
         bool isVisibleForInState(Player const* u, bool inVisibleList) const;
 
         void Say(int32 textId, uint32 language, uint64 TargetGuid) { MonsterSay(textId,language,TargetGuid); }
@@ -59,11 +55,7 @@ class DynamicObject : public WorldObject, public GridObject<DynamicObject>
         void YellToZone(int32 textId, uint32 language, uint64 TargetGuid) { MonsterYellToZone(textId,language,TargetGuid); }
 
     protected:
-        uint32 m_spellId;
-        uint32 m_effMask;
-        int32 m_aliveDuration;
-        uint32 m_updateTimer;
-        float m_radius;
-        AffectedSet m_affected;
+        int32 m_duration; // for non-aura dynobjects
+        Aura * m_aura;
 };
-#endif
+#endif

@@ -420,7 +420,7 @@ void WorldSession::HandleCancelAuraOpcode( WorldPacket& recvPacket)
 
     // non channeled case
     // maybe should only remove one buff when there are multiple?
-    _player->RemoveAurasDueToSpell(spellId, 0, AURA_REMOVE_BY_CANCEL);
+    _player->RemoveOwnedAura(spellId, 0, 0, AURA_REMOVE_BY_CANCEL);
 }
 
 void WorldSession::HandlePetCancelAuraOpcode( WorldPacket& recvPacket)
@@ -458,7 +458,7 @@ void WorldSession::HandlePetCancelAuraOpcode( WorldPacket& recvPacket)
         return;
     }
 
-    pet->RemoveAurasDueToSpell(spellId);
+    pet->RemoveOwnedAura(spellId, 0, 0, AURA_REMOVE_BY_CANCEL);
 
     pet->AddCreatureSpellCooldown(spellId);
 }

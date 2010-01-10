@@ -781,27 +781,40 @@ void ObjectMgr::ConvertCreatureAddonAuras(CreatureDataAddon* addon, char const* 
 {
     // Now add the auras, format "spellid effectindex spellid effectindex..."
     char *p,*s;
-    std::vector<int> val;
+    std::map<uint32, uint32> val;
     s=p=(char*)reinterpret_cast<char const*>(addon->auras);
     if(p)
     {
+        uint32 currSpellId = 0;
+        bool spell = true;
         while (p[0]!=0)
         {
             ++p;
-            if (p[0]==' ')
+            if (p[0] == ' ' || p[0] == 0)
             {
-                val.push_back(atoi(s));
+                if (spell)
+                    currSpellId = atoi(s);
+                else
+                {
+                    uint8 eff = atoi(s);
+                    if (eff >=3)
+                    {
+                        sLog.outErrorDb("Creature (%s: %u) has wrong `auras` data in `%s`(too high aura effect: %d for spell: %d)",guidEntryStr,addon->guidOrEntry,table,eff,currSpellId);
+                    }
+                    val[currSpellId] |= 1<<eff;
+                }
+                spell = !spell;
+                if (p[0] == 0)
+                    break;
                 s=++p;
             }
         }
-        if (p!=s)
-            val.push_back(atoi(s));
 
         // free char* loaded memory
         delete[] (char*)reinterpret_cast<char const*>(addon->auras);
 
         // wrong list
-        if (val.size()%2)
+        if (!spell)
         {
             addon->auras = NULL;
             sLog.outErrorDb("Creature (%s: %u) has wrong `auras` data in `%s`.",guidEntryStr,addon->guidOrEntry,table);
@@ -817,17 +830,17 @@ void ObjectMgr::ConvertCreatureAddonAuras(CreatureDataAddon* addon, char const* 
     }
 
     // replace by new structures array
-    const_cast<CreatureDataAddonAura*&>(addon->auras) = new CreatureDataAddonAura[val.size()/2+1];
+    const_cast<CreatureDataAddonAura*&>(addon->auras) = new CreatureDataAddonAura[val.size()+1];
 
     uint32 i=0;
-    for (uint32 j = 0; j < val.size()/2; ++j)
+    for (std::map<uint32, uint32>::iterator itr = val.begin(); itr!=val.end();++itr)
     {
         CreatureDataAddonAura& cAura = const_cast<CreatureDataAddonAura&>(addon->auras[i]);
-        cAura.spell_id = (uint32)val[2*j+0];
-        cAura.effect_idx  = (uint32)val[2*j+1];
-        if ( cAura.effect_idx > 2 )
+        cAura.spell_id = itr->first;
+        cAura.effectMask  = itr->second;
+        if ( cAura.effectMask > 7 || !cAura.effectMask)
         {
-            sLog.outErrorDb("Creature (%s: %u) has wrong effect %u for spell %u in `auras` field in `%s`.",guidEntryStr,addon->guidOrEntry,cAura.effect_idx,cAura.spell_id,table);
+            sLog.outErrorDb("Creature (%s: %u) has wrong effect for spell %u in `auras` field in `%s`.",guidEntryStr,addon->guidOrEntry,cAura.spell_id,table);
             continue;
         }
         SpellEntry const *AdditionalSpellInfo = sSpellStore.LookupEntry(cAura.spell_id);
@@ -836,11 +849,21 @@ void ObjectMgr::ConvertCreatureAddonAuras(CreatureDataAddon* addon, char const* 
             sLog.outErrorDb("Creature (%s: %u) has wrong spell %u defined in `auras` field in `%s`.",guidEntryStr,addon->guidOrEntry,cAura.spell_id,table);
             continue;
         }
-
-        if (!AdditionalSpellInfo->Effect[cAura.effect_idx] || !AdditionalSpellInfo->EffectApplyAuraName[cAura.effect_idx])
+        for (uint8 eff = 0; eff < MAX_SPELL_EFFECTS; ++eff)
         {
-            sLog.outErrorDb("Creature (%s: %u) has not aura effect %u of spell %u defined in `auras` field in `%s`.",guidEntryStr,addon->guidOrEntry,cAura.effect_idx,cAura.spell_id,table);
-            continue;
+            if ((1<<eff) & cAura.effectMask)
+            {
+                if (!AdditionalSpellInfo->Effect[eff] || !AdditionalSpellInfo->EffectApplyAuraName[eff])
+                {
+                    sLog.outErrorDb("Creature (%s: %u) has not aura effect %u of spell %u defined in `auras` field in `%s`.",guidEntryStr,addon->guidOrEntry,eff,cAura.spell_id,table);
+                    continue;
+                }
+                else if (AdditionalSpellInfo->Effect[eff] == SPELL_EFFECT_PERSISTENT_AREA_AURA)
+                {
+                    sLog.outErrorDb("Creature (%s: %u) has persistent area aura effect %u of spell %u defined in `auras` field in `%s`.",guidEntryStr,addon->guidOrEntry,eff,cAura.spell_id,table);
+                    continue;
+                }
+            }
         }
 
         ++i;
@@ -849,7 +872,7 @@ void ObjectMgr::ConvertCreatureAddonAuras(CreatureDataAddon* addon, char const* 
     // fill terminator element (after last added)
     CreatureDataAddonAura& endAura = const_cast<CreatureDataAddonAura&>(addon->auras[i]);
     endAura.spell_id   = 0;
-    endAura.effect_idx = 0;
+    endAura.effectMask = 0;
 }
 
 void ObjectMgr::LoadCreatureAddons(SQLStorage& creatureaddons, char const* entryName, char const* comment)
@@ -7641,9 +7664,9 @@ bool PlayerCondition::Meets(Player const * player) const
         }
         case CONDITION_AD_COMMISSION_AURA:
         {
-            Unit::AuraMap const& auras = player->GetAuras();
-            for (Unit::AuraMap::const_iterator itr = auras.begin(); itr != auras.end(); ++itr)
-                if((itr->second->GetSpellProto()->Attributes & 0x1000010) && itr->second->GetSpellProto()->SpellVisual[0]==3580)
+            Unit::AuraApplicationMap const& auras = player->GetAppliedAuras();
+            for (Unit::AuraApplicationMap::const_iterator itr = auras.begin(); itr != auras.end(); ++itr)
+                if((itr->second->GetBase()->GetSpellProto()->Attributes & 0x1000010) && itr->second->GetBase()->GetSpellProto()->SpellVisual[0]==3580)
                     return true;
             return false;
         }

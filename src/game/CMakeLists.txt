@@ -232,6 +232,8 @@ SET(game_STAT_SRCS
    SpellAuraDefines.h
    SpellAuras.cpp
    SpellAuras.h
+   SpellAuraEffects.cpp
+   SpellAuraEffects.h
    Spell.cpp
    SpellEffects.cpp
    SpellId.h

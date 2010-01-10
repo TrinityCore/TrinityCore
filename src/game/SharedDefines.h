@@ -2495,7 +2495,7 @@ enum DiminishingReturnsType
 enum DiminishingGroup
 {
     // Common Groups
-    DIMINISHING_NONE,
+    DIMINISHING_NONE = 0,
     DIMINISHING_CONTROL_STUN,                               // Player Controlled stuns
     DIMINISHING_TRIGGER_STUN,                               // By aura proced stuns, usualy chance on hit talents
     DIMINISHING_CONTROL_ROOT,                               // Immobilizing effects from casted spells

@@ -221,27 +221,6 @@ namespace Trinity
         template<class NOT_INTERESTED> void Visit(GridRefManager<NOT_INTERESTED> &) {}
     };
 
-    struct TRINITY_DLL_DECL DynamicObjectUpdater
-    {
-        DynamicObject &i_dynobject;
-        Unit* i_check;
-        DynamicObjectUpdater(DynamicObject &dynobject, Unit* caster) : i_dynobject(dynobject)
-        {
-            i_check = caster;
-            Unit* owner = i_check->GetOwner();
-            if(owner)
-                i_check = owner;
-        }
-
-        template<class T> inline void Visit(GridRefManager<T>  &) {}
-        #ifdef WIN32
-        template<> inline void Visit<Player>(PlayerMapType &);
-        template<> inline void Visit<Creature>(CreatureMapType &);
-        #endif
-
-        void VisitHelper(Unit* target);
-    };
-
     // SEARCHERS & LIST SEARCHERS & WORKERS
 
     // WorldObject searchers & workers
@@ -1292,8 +1271,6 @@ namespace Trinity
     template<> inline void PlayerRelocationNotifier::Visit<Creature>(CreatureMapType &);
     template<> inline void CreatureRelocationNotifier::Visit<Player>(PlayerMapType &);
     template<> inline void CreatureRelocationNotifier::Visit<Creature>(CreatureMapType &);
-    template<> inline void DynamicObjectUpdater::Visit<Creature>(CreatureMapType &);
-    template<> inline void DynamicObjectUpdater::Visit<Player>(PlayerMapType &);
     #endif
 }
 #endif

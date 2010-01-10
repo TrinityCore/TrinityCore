@@ -1342,6 +1342,7 @@ struct SoundEntriesEntry
 };
 
 #define MAX_SPELL_EFFECTS 3
+#define MAX_EFFECT_MASK 7
 
 struct SpellEntry
 {

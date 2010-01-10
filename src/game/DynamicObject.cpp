@@ -36,6 +36,9 @@ DynamicObject::DynamicObject() : WorldObject()
     m_updateFlag = (UPDATEFLAG_HIGHGUID | UPDATEFLAG_HAS_POSITION | UPDATEFLAG_POSITION);
 
     m_valuesCount = DYNAMICOBJECT_END;
+
+    m_aura = 0;
+    m_duration = 0;
 }
 
 void DynamicObject::AddToWorld()
@@ -70,13 +73,13 @@ void DynamicObject::RemoveFromWorld()
     }
 }
 
-bool DynamicObject::Create(uint32 guidlow, Unit *caster, uint32 spellId, uint32 effMask, const Position &pos, int32 duration, float radius, bool active)
+bool DynamicObject::Create(uint32 guidlow, Unit *caster, uint32 spellId, const Position &pos, float radius, bool active)
 {
     SetMap(caster->GetMap());
     Relocate(pos);
     if(!IsPositionValid())
     {
-        sLog.outError("DynamicObject (spell %u eff %u) not created. Suggested coordinates isn't valid (X: %f Y: %f)",spellId,effMask,GetPositionX(),GetPositionY());
+        sLog.outError("DynamicObject (spell %u) not created. Suggested coordinates isn't valid (X: %f Y: %f)",spellId,GetPositionX(),GetPositionY());
         return false;
     }
 
@@ -85,16 +88,10 @@ bool DynamicObject::Create(uint32 guidlow, Unit *caster, uint32 spellId, uint32 
     SetEntry(spellId);
     SetFloatValue( OBJECT_FIELD_SCALE_X, 1 );
     SetUInt64Value( DYNAMICOBJECT_CASTER, caster->GetGUID() );
-    SetUInt32Value( DYNAMICOBJECT_BYTES, 0x00000001 );
+    SetUInt32Value( DYNAMICOBJECT_BYTES, 0x00000001 ); // effectMask?
     SetUInt32Value( DYNAMICOBJECT_SPELLID, spellId );
-    SetFloatValue( DYNAMICOBJECT_RADIUS, radius);
+    SetFloatValue( DYNAMICOBJECT_RADIUS, radius );
     SetUInt32Value( DYNAMICOBJECT_CASTTIME, getMSTime() );  // new 2.4.0
-
-    m_aliveDuration = duration;
-    m_radius = radius;
-    m_effMask = effMask;
-    m_spellId = spellId;
-    m_updateTimer = 0;
 
     m_isWorldObject = active;
     return true;
@@ -116,45 +113,25 @@ void DynamicObject::Update(uint32 p_time)
         return;
     }
 
-    bool deleteThis = false;
+    bool expired = false;
 
-    if(m_aliveDuration > int32(p_time))
-        m_aliveDuration -= p_time;
+    if (m_aura)
+    {
+        if (!m_aura->IsRemoved())
+            m_aura->UpdateOwner(p_time, this);
+
+        if (m_aura->IsRemoved() || m_aura->IsExpired())
+            expired = true;
+    }
     else
-        deleteThis = true;
-
-    /*
-    // have radius and work as persistent effect
-    if(m_radius)
     {
-        // TODO: make a timer and update this in larger intervals
-        CellPair p(Trinity::ComputeCellPair(GetPositionX(), GetPositionY()));
-        Cell cell(p);
-        cell.data.Part.reserved = ALL_DISTRICT;
-        cell.SetNoCreate();
-
-        Trinity::DynamicObjectUpdater notifier(*this, caster);
-
-        TypeContainerVisitor<Trinity::DynamicObjectUpdater, WorldTypeMapContainer > world_object_notifier(notifier);
-        TypeContainerVisitor<Trinity::DynamicObjectUpdater, GridTypeMapContainer > grid_object_notifier(notifier);
-
-        CellLock<GridReadGuard> cell_lock(cell, p);
-        cell_lock->Visit(cell_lock, world_object_notifier, *GetMap(), *this, m_radius);
-        cell_lock->Visit(cell_lock, grid_object_notifier, *GetMap(), *this, m_radius);
-    }
-    */
-
-    if (m_effMask)
-    {
-        if (m_updateTimer < p_time)
-        {
-            Trinity::DynamicObjectUpdater notifier(*this,caster);
-            VisitNearbyObject(GetRadius(), notifier);
-            m_updateTimer = 500; // is this official-like?
-        } else m_updateTimer -= p_time;
+        if(GetDuration() > int32(p_time))
+            m_duration -= p_time;
+        else
+            expired = true;
     }
 
-    if (deleteThis)
+    if (expired)
     {
         caster->RemoveDynObjectWithGUID(GetGUID());
         Delete();
@@ -163,21 +140,43 @@ void DynamicObject::Update(uint32 p_time)
 
 void DynamicObject::Delete()
 {
+    if (m_aura)
+    {
+        // dynObj may be removed in Aura::Remove - we cannot delete there
+        // so recheck aura here
+        if (!m_aura->IsRemoved())
+            m_aura->_Remove(AURA_REMOVE_BY_DEFAULT);
+        delete m_aura;
+        m_aura = NULL;
+    }
     SendObjectDeSpawnAnim(GetGUID());
     RemoveFromWorld();
     AddObjectToRemoveList();
 }
 
+int32 DynamicObject::GetDuration() const
+{
+    if (!m_aura)
+        return m_duration;
+    else
+        return m_aura->GetDuration(); 
+}
+
+void DynamicObject::SetDuration(int32 newDuration)
+{
+    if (!m_aura)
+        m_duration = newDuration;
+    else
+        m_aura->SetDuration(newDuration);
+}
+
 void DynamicObject::Delay(int32 delaytime)
 {
-    m_aliveDuration -= delaytime;
-    for (AffectedSet::iterator iunit = m_affected.begin(); iunit != m_affected.end(); ++iunit)
-        if (*iunit)
-            (*iunit)->DelayAura(m_spellId, GetCaster()->GetGUID(), delaytime);
+    SetDuration(GetDuration() - delaytime);
 }
 
 bool DynamicObject::isVisibleForInState(Player const* u, bool inVisibleList) const
 {
     return IsInWorld() && u->IsInWorld()
         && (IsWithinDistInMap(u->m_seer,World::GetMaxVisibleDistanceForObject()+(inVisibleList ? World::GetVisibleObjectGreyDistance() : 0.0f), false));
-}
+}
