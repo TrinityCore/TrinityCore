@@ -58,4 +58,4 @@ class DynamicObject : public WorldObject, public GridObject<DynamicObject>
         int32 m_duration; // for non-aura dynobjects
         Aura * m_aura;
 };
-#endif
+#endif
