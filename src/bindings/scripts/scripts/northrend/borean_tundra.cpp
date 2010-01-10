@@ -777,15 +777,18 @@ enum eLurgglbr
 
 struct TRINITY_DLL_DECL npc_lurgglbrAI : public npc_escortAI
 {
-    npc_lurgglbrAI(Creature* c) : npc_escortAI(c){}
+    npc_lurgglbrAI(Creature* pCreature) : npc_escortAI(pCreature){}
 
     uint32 IntroTimer;
     uint32 IntroPhase;
 
     void Reset()
     {
-        IntroTimer = 0;
-        IntroPhase = 0;
+        if (!HasEscortState(STATE_ESCORT_ESCORTING))
+        {
+            IntroTimer = 0;
+            IntroPhase = 0;
+        }
     }
 
     void WaypointReached(uint32 i)
@@ -853,6 +856,9 @@ struct TRINITY_DLL_DECL npc_lurgglbrAI : public npc_escortAI
             } else IntroTimer -= diff;
         }
         npc_escortAI::UpdateAI(diff);
+
+        if (!UpdateVictim())
+            return;
     }
 };
 
