@@ -1484,7 +1484,7 @@ uint32 ObjectMgr::AddCreData(uint32 entry, uint32 team, uint32 mapId, float x, f
         return 0;
 
     uint32 level = cInfo->minlevel == cInfo->maxlevel ? cInfo->minlevel : urand(cInfo->minlevel, cInfo->maxlevel); // Only used for extracting creature base stats
-    BaseHealthManaPair pair = objmgr.GenerateCreatureStats(level, cInfo);
+    CreatureBaseStats const* stats = objmgr.GetCreatureBaseStats(level, cInfo->unit_class);
 
     uint32 guid = GenerateLowGuid(HIGHGUID_UNIT);
     CreatureData& data = NewOrExistCreatureData(guid);
@@ -1499,8 +1499,8 @@ uint32 ObjectMgr::AddCreData(uint32 entry, uint32 team, uint32 mapId, float x, f
     data.spawntimesecs = spawntimedelay;
     data.spawndist = 0;
     data.currentwaypoint = 0;
-    data.curhealth = pair.first;
-    data.curmana = pair.second;
+    data.curhealth = stats->GenerateHealth(cInfo);
+    data.curmana = stats->GenerateMana(cInfo);
     data.is_dead = false;
     data.movementType = cInfo->MovementType;
     data.spawnMask = 1;
@@ -8899,38 +8899,21 @@ void ObjectMgr::RemoveGMTicket(uint64 ticketGuid, int64 source, bool permanently
     RemoveGMTicket(ticket, source, permanently);
 }
 
-CreatureBaseStats const* ObjectMgr::GetCreatureBaseStats(uint8 expansion, uint8 unitClass, uint32 level)
+CreatureBaseStats const* ObjectMgr::GetCreatureBaseStats(uint32 level, uint8 unitClass)
 {
     for (CreatureBaseStatsList::const_iterator it = m_creatureBaseStatsList.begin(); it != m_creatureBaseStatsList.end(); ++it)
     {
         CreatureBaseStats const& stats = (*it);
-        if (stats.Expansion == expansion && stats.Class == unitClass && stats.Level == level)
+        if (stats.Level == level && stats.Class == unitClass)
             return &stats;
     }
 
     return NULL;
 }
 
-BaseHealthManaPair ObjectMgr::GenerateCreatureStats(uint32 level, CreatureInfo const* info)
-{
-    uint32 health = 1;
-    uint32 mana = 1;
-
-    CreatureBaseStats const* stats = GetCreatureBaseStats(info->expansion, info->unit_class, level);
-    if (!stats)
-        sLog.outError("Could not find base stats for creature entry %u (base stats: expansion %u, class %u, level %u)", info->Entry, info->expansion, info->unit_class, level);
-    else
-    {
-        health = stats->GenerateHealth(level, info);
-        mana = stats->GenerateMana(level, info);
-    }
-
-    return BaseHealthManaPair(health, mana);
-}
-
 void ObjectMgr::LoadCreatureClassLevelStats()
 {
-    QueryResult *result = WorldDatabase.Query("SELECT exp, class, level, basehp, basemana FROM creature_classlevelstats");
+    QueryResult *result = WorldDatabase.Query("SELECT level, class, basehp0, basehp1, basehp2, basemana, basearmor FROM creature_classlevelstats");
 
     if (!result)
     {
@@ -8948,28 +8931,32 @@ void ObjectMgr::LoadCreatureClassLevelStats()
     {
         Field *fields = result->Fetch();
         CreatureBaseStats stats = CreatureBaseStats();
-        stats.Expansion = fields[0].GetUInt8();
+        stats.Level = fields[0].GetUInt32();
         stats.Class = fields[1].GetUInt8();
-        stats.Level = fields[2].GetUInt32();
-        stats.BaseHealth = fields[3].GetUInt32();
-        stats.BaseMana = fields[4].GetUInt32();
+        for (uint8 i = 0; i < MAX_CREATURE_BASE_HP; ++i)
+            stats.BaseHealth[i] = fields[i + 2].GetUInt32();
+        stats.BaseMana = fields[5].GetUInt32();
+        stats.BaseArmor = fields[6].GetUInt32();
 
         if (stats.Level > MAX_LEVEL)
         {
-            sLog.outErrorDb("Creature base stats for expansion %u, class %u has invalid level %u (max is %u) - set to %u",
-                stats.Expansion, stats.Class, stats.Level, MAX_LEVEL, DEFAULT_MAX_LEVEL);
+            sLog.outErrorDb("Creature base stats for class %u has invalid level %u (max is %u) - set to %u",
+                stats.Class, stats.Level, MAX_LEVEL, DEFAULT_MAX_LEVEL);
             stats.Level = DEFAULT_MAX_LEVEL;
         }
 
-        if (!stats.Class || ((1 << (stats.Class-1)) & CLASSMASK_ALL_CREATURES) == 0)
-            sLog.outErrorDb("Creature base stats for expansion %u, level %u has invalid class %u",
-                stats.Expansion, stats.Level, stats.Class);
+        if (!stats.Class || ((1 << (stats.Class - 1)) & CLASSMASK_ALL_CREATURES) == 0)
+            sLog.outErrorDb("Creature base stats for level %u has invalid class %u",
+                stats.Level, stats.Class);
 
-        if (stats.BaseHealth < 1)
+        for (uint8 i = 0; i < MAX_CREATURE_BASE_HP; ++i)
         {
-            sLog.outErrorDb("Creature base stats for expansion %u, class %u, level %u has invalid zero base HP - set to 1",
-                stats.Expansion, stats.Class, stats.Level);
-            stats.BaseHealth = 1;
+            if (stats.BaseHealth[i] < 1)
+            {
+                sLog.outErrorDb("Creature base stats for class %u, level %u has invalid zero base HP[%u] - set to 1",
+                    stats.Class, stats.Level, i);
+                stats.BaseHealth[i] = 1;
+            }
         }
 
         m_creatureBaseStatsList.push_back(stats);
