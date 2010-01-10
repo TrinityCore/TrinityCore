@@ -5517,6 +5517,7 @@ INSERT INTO `spell_linked_spell` (`spell_trigger`,`spell_effect`,`type`,`comment
 (-59907,     7, 0, 'Lightwell Charges - Suicide'),
 ( 26022, 61417, 2, 'Pursuit of Justice'),
 ( 26023, 61418, 2, 'Pursuit of Justice'),
+( 19263, 67801, 2, 'Deterrence'),
 -- Quest
 ( 40214, 40216, 2, 'Dragonmaw Illusion'),
 ( 40214, 42016, 2, 'Dragonmaw Illusion'),

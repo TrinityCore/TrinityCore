@@ -5840,6 +5840,8 @@ void AuraEffect::HandleAuraDummy(AuraApplication const * aurApp, uint8 mode, boo
             break;
         }
         case SPELLFAMILY_PALADIN:
+            if (!(mode & AURA_EFFECT_HANDLE_REAL))
+                break;
             switch (GetSpellProto()->SpellIconID)
             {
                 // Blessing of Sanctuary
@@ -5847,8 +5849,8 @@ void AuraEffect::HandleAuraDummy(AuraApplication const * aurApp, uint8 mode, boo
                 case 19:
                 case 1804:
                 {
-                    if (!caster || !target)
-                        return;
+                    if (!caster)
+                        break;
 
                     if (apply)
                     {
@@ -5859,7 +5861,7 @@ void AuraEffect::HandleAuraDummy(AuraApplication const * aurApp, uint8 mode, boo
                     else
                         target->RemoveAura(67480, GetCasterGUID());
 
-                    return;
+                    break;
                 }
             }
             break;
