@@ -533,13 +533,13 @@ enum eJenny
 
 struct TRINITY_DLL_DECL npc_jennyAI : public ScriptedAI
 {
-    npc_jennyAI(Creature *c) : ScriptedAI(c) {}
+    npc_jennyAI(Creature* pCreature) : ScriptedAI(pCreature) {}
 
     bool setCrateNumber;
 
     void Reset()
     {
-        if(!setCrateNumber == false)
+        if(!setCrateNumber)
             setCrateNumber = true;
 
         m_creature->SetReactState(REACT_PASSIVE);
@@ -561,19 +561,6 @@ struct TRINITY_DLL_DECL npc_jennyAI : public ScriptedAI
         DoCast(m_creature, SPELL_DROP_CRATE, true);
     }
 
-    void MoveInLineOfSight(Unit* pWho)
-    {
-        if(pWho->GetEntry() == NPC_FEZZIX_GEARTWIST)
-        {
-            if(CAST_PLR(m_creature->GetOwner())->GetQuestStatus(QUEST_LOADER_UP) == QUEST_STATUS_INCOMPLETE && m_creature->GetAura(SPELL_CRATES_CARRIED))
-            {
-                DoCast(CAST_PLR(m_creature->GetOwner()), SPELL_GIVE_JENNY_CREDIT, true); // Maybe is not working.
-                CAST_PLR(m_creature->GetOwner())->CompleteQuest(QUEST_LOADER_UP);
-                m_creature->DisappearAndDie();
-            }
-        }
-    }
-
     void UpdateAI(const uint32 diff)
     {
         if(setCrateNumber)
@@ -582,8 +569,11 @@ struct TRINITY_DLL_DECL npc_jennyAI : public ScriptedAI
             setCrateNumber = false;
         }
 
-        if (setCrateNumber == false && !m_creature->HasAura(SPELL_CRATES_CARRIED))
+        if (!setCrateNumber && !m_creature->HasAura(SPELL_CRATES_CARRIED))
             m_creature->DisappearAndDie();
+
+        if (!UpdateVictim())
+            return;
     }
 };
 
@@ -593,7 +583,45 @@ CreatureAI* GetAI_npc_jenny(Creature *pCreature)
 }
 
 /*######
-## npc_npc_nesingwary_trapper
+## npc_fezzix_geartwist
+######*/
+
+struct TRINITY_DLL_DECL npc_fezzix_geartwistAI : public ScriptedAI
+{
+    npc_fezzix_geartwistAI(Creature* pCreature) : ScriptedAI(pCreature) {}
+
+    void MoveInLineOfSight(Unit* pWho)
+    {
+        ScriptedAI::MoveInLineOfSight(pWho);
+
+        if (pWho->GetTypeId() != TYPEID_UNIT)
+            return;
+
+        if (pWho->GetEntry() == NPC_JENNY && m_creature->IsWithinDistInMap(pWho, 10.0f))
+        {
+            if (Unit* pOwner = pWho->GetOwner())
+            {
+                if (pOwner->GetTypeId() == TYPEID_PLAYER)
+                {
+                    if (pWho->HasAura(SPELL_CRATES_CARRIED))
+                    {
+                        pOwner->CastSpell(pOwner, SPELL_GIVE_JENNY_CREDIT, true); // Maybe is not working.
+                        CAST_PLR(pOwner)->CompleteQuest(QUEST_LOADER_UP);
+                        CAST_CRE(pWho)->DisappearAndDie();
+                    }
+                }
+            }
+        }
+    }
+};
+
+CreatureAI* GetAI_npc_fezzix_geartwist(Creature* pCreature)
+{
+    return new npc_fezzix_geartwistAI(pCreature);
+}
+
+/*######
+## npc_nesingwary_trapper
 ######*/
 
 enum eNesingwaryTrapper
@@ -1795,7 +1823,7 @@ enum Mootoo_the_Younger_Entries
     QUEST_ESCAPING_THE_MIST         =11664
 };
 bool QuestAccept_npc_mootoo_the_younger(Player* pPlayer, Creature* pCreature, Quest const* quest)
-{    
+{
     if (quest->GetQuestId()==QUEST_ESCAPING_THE_MIST)
     {
         switch (pPlayer->GetTeam())
@@ -1818,11 +1846,11 @@ struct TRINITY_DLL_DECL npc_mootoo_the_youngerAI : public npc_escortAI
 
     void Reset()
     {
-        SetDespawnAtFar(false); 
+        SetDespawnAtFar(false);
     }
 
     void JustDied(Unit* killer)
-    {   
+    {
         if (Player* pPlayer=GetPlayerForEscort())
             pPlayer->FailQuest(QUEST_ESCAPING_THE_MIST);
     }
@@ -1855,7 +1883,7 @@ struct TRINITY_DLL_DECL npc_mootoo_the_youngerAI : public npc_escortAI
             if (pPlayer)
                 pPlayer->GroupEventHappens(QUEST_ESCAPING_THE_MIST, m_creature);
             SetRun(true);
-            break;  
+            break;
         }
     }
 };
@@ -1880,7 +1908,7 @@ enum Script_Texts_Bonker_Togglevolt
 };
 
 bool QuestAccept_npc_bonker_togglevolt(Player* pPlayer, Creature* pCreature, Quest const* quest)
-{    
+{
     if (quest->GetQuestId()==QUEST_GET_ME_OUTA_HERE)
     {
         switch (pPlayer->GetTeam())
@@ -1913,9 +1941,9 @@ struct TRINITY_DLL_DECL npc_bonker_togglevoltAI : public npc_escortAI
         if (Player* pPlayer = GetPlayerForEscort())
             pPlayer->FailQuest(QUEST_ESCAPING_THE_MIST);
     }
-    
+
     void UpdateEscortAI(const uint32 diff)
-    {        
+    {
         if (GetAttack() && UpdateVictim())
         {
             if(Bonker_agro==0)
@@ -2013,6 +2041,11 @@ void AddSC_borean_tundra()
     newscript = new Script;
     newscript->Name = "npc_jenny";
     newscript->GetAI = &GetAI_npc_jenny;
+    newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name = "npc_fezzix_geartwist";
+    newscript->GetAI = &GetAI_npc_fezzix_geartwist;
     newscript->RegisterSelf();
 
     newscript = new Script;
