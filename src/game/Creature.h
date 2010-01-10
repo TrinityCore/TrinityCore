@@ -83,7 +83,6 @@ struct CreatureInfo
     uint32  minlevel;
     uint32  maxlevel;
     uint32  expansion;
-    uint32  armor;
     uint32  faction_A;
     uint32  faction_H;
     uint32  npcflag;
@@ -129,6 +128,7 @@ struct CreatureInfo
     uint32  InhabitType;
     float   ModHealth;
     float   ModMana;
+    float   ModArmor;
     bool    RacialLeader;
     uint32  questItems[6];
     uint32  movementId;
@@ -163,23 +163,27 @@ struct CreatureInfo
     }
 };
 
-// Defines base stats for creatures (used to calculate HP/mana).
-struct CreatureBaseStats
+// Represents max amount of expansions.
+// TODO: Add MAX_EXPANSION constant.
+#define MAX_CREATURE_BASE_HP 3
+
+// Defines base stats for creatures (used to calculate HP/mana/armor).
+struct TRINITY_DLL_SPEC CreatureBaseStats
 {
-    uint8 Expansion;
-    uint8 Class;
     uint32 Level;
-    uint32 BaseHealth;
+    uint8 Class;
+    uint32 BaseHealth[MAX_CREATURE_BASE_HP];
     uint32 BaseMana;
+    uint32 BaseArmor;
 
     // Helpers
 
-    uint32 GenerateHealth(uint32 level, CreatureInfo const* info) const
+    uint32 GenerateHealth(CreatureInfo const* info) const
     {
-        return uint32((BaseHealth * info->ModHealth) + 0.5f);
+        return uint32((BaseHealth[info->expansion] * info->ModHealth) + 0.5f);
     }
 
-    uint32 GenerateMana(uint32 level, CreatureInfo const* info) const
+    uint32 GenerateMana(CreatureInfo const* info) const
     {
         // Mana can be 0.
         if (!BaseMana)
@@ -187,10 +191,16 @@ struct CreatureBaseStats
 
         return uint32((BaseMana * info->ModMana) + 0.5f);
     }
+
+    uint32 GenerateArmor(CreatureInfo const* info) const
+    {
+        return uint32((BaseArmor * info->ModArmor) + 0.5f);
+    }
+
+    static CreatureBaseStats const* GetBaseStats(uint32 level, uint8 unitClass);
 };
 
-typedef std::list<CreatureBaseStats> CreatureBaseStatsList;
-typedef std::pair<uint32, uint32> BaseHealthManaPair;
+typedef std::vector<CreatureBaseStats> CreatureBaseStatsList;
 
 struct CreatureLocale
 {
@@ -649,9 +659,6 @@ class TRINITY_DLL_SPEC Creature : public Unit, public GridObject<Creature>
         uint32 m_PlayerDamageReq;
 
         void SetOriginalEntry(uint32 entry) { m_originalEntry = entry; }
-
-        // Provided for script access.
-        BaseHealthManaPair GenerateHealthMana();
 
         static float _GetDamageMod(int32 Rank);
 
