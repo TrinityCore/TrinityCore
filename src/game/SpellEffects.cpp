@@ -7176,7 +7176,7 @@ void Spell::EffectStealBeneficialBuff(uint32 i)
         if ((1<<aura->GetSpellProto()->Dispel) & dispelMask)
         {
             // Need check for passive? this
-            if (aura->IsPositive(unitTarget) || aura->IsPassive() || aura->GetSpellProto()->AttributesEx4 & SPELL_ATTR_EX4_NOT_STEALABLE)
+            if (!aura->IsPositive(unitTarget) || aura->IsPassive() || aura->GetSpellProto()->AttributesEx4 & SPELL_ATTR_EX4_NOT_STEALABLE)
                 continue;
 
             bool dispel_charges = aura->GetSpellProto()->AttributesEx7 & SPELL_ATTR_EX7_DISPEL_CHARGES;

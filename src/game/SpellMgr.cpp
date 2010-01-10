@@ -733,6 +733,7 @@ bool IsPositiveTarget(uint32 targetA, uint32 targetB)
     // non-positive targets
     switch(targetA)
     {
+        case TARGET_UNIT_NEARBY_ENEMY:
         case TARGET_UNIT_TARGET_ENEMY:
         case TARGET_UNIT_AREA_ENEMY_SRC:
         case TARGET_UNIT_AREA_ENEMY_DST:
@@ -754,20 +755,16 @@ bool SpellMgr::_isPositiveEffect(uint32 spellId, uint32 effIndex, bool deep) con
     SpellEntry const *spellproto = sSpellStore.LookupEntry(spellId);
     if (!spellproto) return false;
 
+    // not found a single positive spell with this attribute
+    if (spellproto->Attributes & SPELL_ATTR_NEGATIVE_1)
+        return false;
+
     switch(spellId)
     {
-        case  1852:                                         // Silenced (GM)
-        case 46392:                                         // Focused Assault
-        case 46393:                                         // Brutal Assault
         //case 37675:                                         // Chaos Blast removed from mangos
-        case 41519:                                         // Mark of Stormrage
-        case 34877:                                         // Custodian of Time
         case 34700:                                         // Allergic Reaction
-        case 31719:                                         // Suspension
         case 61987:                                         // Avenging Wrath Marker
         case 50524:                                         // Runic Power Feed
-        case 52671:                                         // Arcing Burn
-        case 59834:                                         // Arcing Burn
             return false;
         case 12042:                                         // Arcane Power
             return true;
@@ -813,24 +810,6 @@ bool SpellMgr::_isPositiveEffect(uint32 spellId, uint32 effIndex, bool deep) con
         {
             switch(spellproto->EffectApplyAuraName[effIndex])
             {
-                case SPELL_AURA_DUMMY:
-                {
-                    // dummy aura can be positive or negative dependent from casted spell
-                    switch(spellproto->Id)
-                    {
-                        case 13139:                         // net-o-matic special effect
-                        case 23445:                         // evil twin
-                        case 35679:                         // Protectorate Demolitionist
-                        case 38637:                         // Nether Exhaustion (red)
-                        case 38638:                         // Nether Exhaustion (green)
-                        case 38639:                         // Nether Exhaustion (blue)
-                        case 11196:                         // Recently Bandaged
-                        case 44689:                         // Relay Race Accept Hidden Debuff - DND
-                            return false;
-                        default:
-                            break;
-                    }
-                }   break;
                 case SPELL_AURA_MOD_DAMAGE_DONE:            // dependent from bas point sign (negative -> negative)
                 case SPELL_AURA_MOD_STAT:
                 case SPELL_AURA_MOD_SKILL:
@@ -878,10 +857,6 @@ bool SpellMgr::_isPositiveEffect(uint32 spellId, uint32 effIndex, bool deep) con
                 case SPELL_AURA_MOD_STUN:                   //have positive and negative spells, we can't sort its correctly at this moment.
                     if(effIndex==0 && spellproto->Effect[1]==0 && spellproto->Effect[2]==0)
                         return false;                       // but all single stun aura spells is negative
-
-                    // Petrification
-                    if(spellproto->Id == 17624)
-                        return false;
                     break;
                 case SPELL_AURA_MOD_PACIFY_SILENCE:
                     if(spellproto->Id == 24740)             // Wisp Costume
@@ -906,26 +881,6 @@ bool SpellMgr::_isPositiveEffect(uint32 spellId, uint32 effIndex, bool deep) con
                     // but not this if this first effect (don't found batter check)
                     if(spellproto->Attributes & 0x4000000 && effIndex==0)
                         return false;
-                    break;
-                case SPELL_AURA_TRANSFORM:
-                    // some spells negative
-                    switch(spellproto->Id)
-                    {
-                        case 36897:                         // Transporter Malfunction (race mutation to horde)
-                        case 36899:                         // Transporter Malfunction (race mutation to alliance)
-                            return false;
-                    }
-                    break;
-                case SPELL_AURA_MOD_SCALE:
-                    // some spells negative
-                    switch(spellproto->Id)
-                    {
-                        case 36900:                         // Soul Split: Evil!
-                        case 36901:                         // Soul Split: Good
-                        case 36893:                         // Transporter Malfunction (decrease size case)
-                        case 36895:                         // Transporter Malfunction (increase size case)
-                            return false;
-                    }
                     break;
                 case SPELL_AURA_MECHANIC_IMMUNITY:
                 {
@@ -971,10 +926,6 @@ bool SpellMgr::_isPositiveEffect(uint32 spellId, uint32 effIndex, bool deep) con
                             break;
                     }
                 }   break;
-                case SPELL_AURA_FORCE_REACTION:
-                    if(spellproto->Id==42792)               // Recently Dropped Flag (prevent cancel)
-                        return false;
-                    break;
                 default:
                     break;
             }
