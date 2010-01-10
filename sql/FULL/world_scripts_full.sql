@@ -1,7 +1,11 @@
 -- Up to TC2 6928
 
 -- Cleanup first
+UPDATE `instance_template` SET `Script`='';
+UPDATE `item_template` SET `ScriptName`='';
 UPDATE `creature_template` SET `ScriptName`='';
+UPDATE `gameobject_template` SET `ScriptName`='';
+
 
 /* WORLD BOSS */
 UPDATE `creature_template` SET `ScriptName`='boss_ysondre' WHERE `entry`=14887;
