@@ -491,7 +491,7 @@ struct TRINITY_DLL_DECL npc_geezleAI : public ScriptedAI
         for (std::list<Player*>::iterator itr = players.begin(); itr != players.end(); ++itr)
         {
             if((*itr)->GetQuestStatus(QUEST_TREES_COMPANY)==QUEST_STATUS_INCOMPLETE
-                &&(*itr)->HasAuraEffect(SPELL_TREE_DISGUISE,3) )
+                &&(*itr)->HasAura(SPELL_TREE_DISGUISE) )
             {
                 (*itr)->KilledMonsterCredit(MOB_SPARK,0);
             }
