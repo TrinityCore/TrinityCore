@@ -213,14 +213,12 @@ Map::Map(uint32 id, time_t expiry, uint32 InstanceId, uint8 SpawnMode, Map* _par
   : i_mapEntry (sMapStore.LookupEntry(id)), i_spawnMode(SpawnMode), i_InstanceId(InstanceId), m_unloadTimer(0),
   m_activeNonPlayersIter(m_activeNonPlayers.end()),
   i_gridExpiry(expiry), m_parentMap(_parent ? _parent : this),
-  m_VisibleDistance(DEFAULT_VISIBILITY_DISTANCE)
-   , i_notifyLock(false), i_scriptLock(false),
+  m_VisibleDistance(DEFAULT_VISIBILITY_DISTANCE),
+  i_scriptLock(false),
   m_PlayerVisibilityNotifyTimer(0.75*DEFAULT_VISIBILITY_NOTIFY_PERIOD, 0.25*DEFAULT_VISIBILITY_NOTIFY_PERIOD),
   m_ObjectVisibilityNotifyTimer(DEFAULT_VISIBILITY_NOTIFY_PERIOD, 0 * DEFAULT_VISIBILITY_NOTIFY_PERIOD),
   m_RelocationNotifyTimer(DEFAULT_VISIBILITY_NOTIFY_PERIOD,0.5*DEFAULT_VISIBILITY_NOTIFY_PERIOD)
 {
-    m_notifyTimer.SetInterval(IN_MILISECONDS/2);
-
     for (unsigned int idx=0; idx < MAX_NUMBER_OF_GRIDS; ++idx)
     {
         for (unsigned int j=0; j < MAX_NUMBER_OF_GRIDS; ++j)
@@ -601,111 +599,6 @@ void Map::MessageDistBroadcast(WorldObject *obj, WorldPacket *msg, float dist)
 bool Map::loaded(const GridPair &p) const
 {
     return ( getNGrid(p.x_coord, p.y_coord) && isGridObjectDataLoaded(p.x_coord, p.y_coord) );
-}
-
-void Map::RelocationNotify()
-{
-/*  i_notifyLock = true;
-
-    //Notify
-    for (std::vector<Unit*>::iterator iter = i_unitsToNotify.begin(); iter != i_unitsToNotify.end(); ++iter)
-    {
-        Unit *unit = *iter;
-        if(!unit)
-            continue;
-
-        unit->m_NotifyListPos = -1;
-
-        if(unit->m_Notified)
-            continue;
-
-        unit->m_Notified = true;
-
-        float dist = abs(unit->GetPositionX() - unit->oldX) + abs(unit->GetPositionY() - unit->oldY);
-        if(dist > 10.0f)
-        {
-            Trinity::VisibleChangesNotifier notifier(*unit);
-            VisitWorld(unit->oldX, unit->oldY, GetVisibilityDistance(), notifier);
-            dist = 0;
-        }
-
-        if(unit->GetTypeId() == TYPEID_PLAYER)
-        {
-            Trinity::PlayerRelocationNotifier notifier(*((Player*)unit));
-            //if(((Player*)unit)->m_seer != unit)
-            VisitAll(((Player*)unit)->m_seer->GetPositionX(), ((Player*)unit)->m_seer->GetPositionY(), unit->GetMap()->GetVisibilityDistance() + dist, notifier);
-            //else
-            //VisitAll(((Player*)unit)->GetPositionX(), ((Player*)unit)->GetPositionY(), unit->GetMap()->GetVisibilityDistance() + dist, notifier);
-            notifier.Notify();
-        }
-        else
-        {
-            Trinity::CreatureRelocationNotifier notifier(*((Creature*)unit));
-            VisitAll(unit->GetPositionX(), unit->GetPositionY(), GetVisibilityDistance() + dist, notifier);
-        }
-    }
-    for (std::vector<Unit*>::iterator iter = i_unitsToNotify.begin(); iter != i_unitsToNotify.end(); ++iter)
-        if(*iter)
-            (*iter)->m_Notified = false;
-    i_unitsToNotify.clear();
-
-    i_notifyLock = false;
-
-    if(!i_unitsToNotifyBacklog.empty())
-    {
-        i_unitsToNotify.insert(i_unitsToNotify.end(), i_unitsToNotifyBacklog.begin(), i_unitsToNotifyBacklog.end());
-        i_unitsToNotifyBacklog.clear();
-    }*/
-}
-
-void Map::AddUnitToNotify(Unit* u)
-{
-/*  if(u->m_NotifyListPos < 0 && u->IsInWorld())
-    {
-        u->oldX = u->GetPositionX();
-        u->oldY = u->GetPositionY();
-
-        if(i_notifyLock)
-        {
-            u->m_NotifyListPos = i_unitsToNotifyBacklog.size();
-            i_unitsToNotifyBacklog.push_back(u);
-        }
-        else
-        {
-            u->m_NotifyListPos = i_unitsToNotify.size();
-            i_unitsToNotify.push_back(u);
-        }
-    }*/
-}
-
-void Map::RemoveUnitFromNotify(Unit *unit)
-{
-    int32 slot = unit->m_NotifyListPos;
-    if(i_notifyLock)
-    {
-        if(slot < i_unitsToNotifyBacklog.size() && i_unitsToNotifyBacklog[slot] == unit)
-            i_unitsToNotifyBacklog[slot] = NULL;
-        else if(slot < i_unitsToNotify.size() && i_unitsToNotify[slot] == unit)
-            i_unitsToNotify[slot] = NULL;
-        else
-        {
-            sLog.outError("Map::RemoveUnitFromNotify(Unit*) unit has incorrect notify slot=%d, cleaning up",slot);
-            unit->m_NotifyListPos = -1;
-            return;
-        }
-    }
-    else
-    {
-        if(slot >= i_unitsToNotify.size())
-        {
-            sLog.outError("Map::RemoveUnitFromNotify(Unit*) unit has incorrect notify slot=%d, cleaning up", slot);
-            unit->m_NotifyListPos = -1;
-            return;
-        }
-        i_unitsToNotify[slot] = NULL;
-    }
-
-    unit->m_NotifyListPos = -1;
 }
 
 void Map::Update(const uint32 &t_diff)

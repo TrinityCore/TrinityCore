@@ -155,11 +155,6 @@ VisibleChangesNotifier::Visit(DynamicObjectMapType &m)
 }
 
 void
-PlayerVisibilityNotifier::Notify()
-{
-}
-
-void
 MessageDistDeliverer::Visit(PlayerMapType &m)
 {
     for (PlayerMapType::iterator iter = m.begin(); iter != m.end(); ++iter)

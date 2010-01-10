@@ -93,7 +93,7 @@ static bool procPrepared = InitTriggerAuraData();
 
 Unit::Unit()
 : WorldObject(), i_motionMaster(this), m_ThreatManager(this), m_HostilRefManager(this)
-, m_NotifyListPos(-1), m_Notified(false), IsAIEnabled(false), NeedChangeAI(false)
+, IsAIEnabled(false), NeedChangeAI(false)
 , i_AI(NULL), i_disabledAI(NULL), m_removedAurasCount(0), m_vehicle(NULL), m_transport(NULL)
 , m_ControlledByPlayer(false), m_procDeep(0), m_unitTypeMask(UNIT_MASK_NONE), m_vehicleKit(NULL)
 , m_movedPlayer(NULL)
@@ -12773,9 +12773,6 @@ void Unit::AddToWorld()
     if (!IsInWorld())
     {
         WorldObject::AddToWorld();
-        m_Notified = false;
-        assert(m_NotifyListPos < 0); //instance : crash
-        //m_NotifyListPos = -1;
         SetToNotify();
     }
 }
@@ -12802,9 +12799,6 @@ void Unit::RemoveFromWorld()
         RemoveAllControlled();
 
         RemoveAreaAurasDueToLeaveWorld();
-
-        if (m_NotifyListPos >= 0)
-            GetMap()->RemoveUnitFromNotify(this);
 
         if (GetCharmerGUID())
         {
