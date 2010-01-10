@@ -364,7 +364,6 @@ class TRINITY_DLL_SPEC Map : public GridRefManager<NGridType>, public Trinity::O
 
         void MoveAllCreaturesInMoveList();
         void RemoveAllObjectsInRemoveList();
-        void RelocationNotify();
         virtual void RemoveAllPlayers();
 
         bool CreatureRespawnRelocation(Creature *c);        // used only in MoveAllCreaturesInMoveList and ObjectGridUnloader
@@ -416,8 +415,6 @@ class TRINITY_DLL_SPEC Map : public GridRefManager<NGridType>, public Trinity::O
         uint32 GetPlayersCountExceptGMs() const;
         bool ActiveObjectsNearGrid(uint32 x, uint32 y) const;
 
-        void AddUnitToNotify(Unit* unit);
-        void RemoveUnitFromNotify(Unit *unit);
         void AddWorldObject(WorldObject *obj) { i_worldObjects.insert(obj); }
         void RemoveWorldObject(WorldObject *obj) { i_worldObjects.erase(obj); }
 
@@ -541,16 +538,12 @@ class TRINITY_DLL_SPEC Map : public GridRefManager<NGridType>, public Trinity::O
         GridMap *GridMaps[MAX_NUMBER_OF_GRIDS][MAX_NUMBER_OF_GRIDS];
         std::bitset<TOTAL_NUMBER_OF_CELLS_PER_MAP*TOTAL_NUMBER_OF_CELLS_PER_MAP> marked_cells;
 
-        IntervalTimer m_notifyTimer;
-
         void ProcessObjectsVisibility();
         void ProcesssPlayersVisibility();
         void ProcessRelocationNotifies();
         void ResetNotifies(uint16 notify_mask);
 
-        bool i_notifyLock, i_scriptLock;
-        std::vector<Unit*> i_unitsToNotifyBacklog;
-        std::vector<Unit*> i_unitsToNotify;
+        bool i_scriptLock;
         std::set<WorldObject *> i_objectsToRemove;
         std::map<WorldObject*, bool> i_objectsToSwitch;
         std::set<WorldObject*> i_worldObjects;

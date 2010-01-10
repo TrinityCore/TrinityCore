@@ -85,17 +85,6 @@ inline void CreatureCreatureRelocationWorker(Creature* c1, Creature* c2)
             c2->AI()->MoveInLineOfSight(c1);
 }
 
-template<class T>
-inline void
-Trinity::PlayerVisibilityNotifier::Visit(GridRefManager<T> &m)
-{
-    for (typename GridRefManager<T>::iterator iter = m.begin(); iter != m.end(); ++iter)
-    {
-        i_player.UpdateVisibilityOf(iter->getSource(),i_data,i_visibleNow);
-        i_clientGUIDs.erase(iter->getSource()->GetGUID());
-    }
-}
-
 template<class T, class VISITOR> 
 inline void
 Trinity::DelayedUnitRelocation::Notify(GridRefManager<T> &m)
