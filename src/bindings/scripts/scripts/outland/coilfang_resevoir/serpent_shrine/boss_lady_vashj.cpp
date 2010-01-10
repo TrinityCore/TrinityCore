@@ -636,21 +636,7 @@ struct TRINITY_DLL_DECL mob_enchanted_elementalAI : public ScriptedAI
             {
                 m_creature->GetMotionMaster()->MovePoint(0, MIDDLE_X, MIDDLE_Y, MIDDLE_Z);
                 if (m_creature->IsWithinDist3d(MIDDLE_X, MIDDLE_Y, MIDDLE_Z, 3))
-                {
-                    SpellEntry *spell = GET_SPELL(SPELL_SURGE);
-                    if (spell)
-                    {
-                        uint8 eff_mask=0;
-                        for (uint8 i = 0; i < 3; ++i)
-                        {
-                            if (!spell->Effect[i])
-                                continue;
-                            eff_mask|=1<<i;
-                        }
-                        Vashj->AddAura(new Aura(spell, eff_mask, Vashj, Vashj, Vashj));
-                    }
-                    m_creature->Kill(m_creature);
-                }
+                    DoCast(m_creature, SPELL_SURGE);
             }
             if (!Vashj->isInCombat() || CAST_AI(boss_lady_vashjAI, Vashj->AI())->Phase != 2 || Vashj->isDead())
             {

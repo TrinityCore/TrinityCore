@@ -21,7 +21,6 @@
 #define TRINITY_SPELLAURADEFINES_H
 
 #define MAX_AURAS 64                                        // client support up to 255, but it will cause problems with group auras updating
-#define FRIENDLY_AA_REMOVE_TIME 2*IN_MILISECONDS
 
 enum AURA_FLAGS
 {
@@ -349,19 +348,15 @@ enum AuraType
     SPELL_AURA_301 = 301,
     SPELL_AURA_302 = 302,
     SPELL_AURA_303 = 303,
-    SPELL_AURA_MOD_INEBRIATION = 304,
+    SPELL_AURA_304 = 304,
     SPELL_AURA_MOD_MINIMUM_SPEED = 305,
     SPELL_AURA_306 = 306,
     TOTAL_AURAS = 307
 };
 
-enum AreaAuraType
+enum AuraObjectType
 {
-    AREA_AURA_PARTY,
-    AREA_AURA_RAID,
-    AREA_AURA_FRIEND,
-    AREA_AURA_ENEMY,
-    AREA_AURA_PET,
-    AREA_AURA_OWNER
+    UNIT_AURA_TYPE,
+    DYNOBJ_AURA_TYPE,
 };
 #endif

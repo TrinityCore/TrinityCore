@@ -133,9 +133,8 @@ struct TRINITY_DLL_DECL boss_trollgoreAI : public ScriptedAI
         {
             if (uiAuraCountTimer <= diff)
             {
-                if (m_creature->HasAura(HEROIC(SPELL_CONSUME,H_SPELL_CONSUME)))
+                if (Aura *pConsumeAura = m_creature->GetAura(HEROIC(SPELL_CONSUME,H_SPELL_CONSUME)))
                 {
-                    Aura *pConsumeAura = m_creature->GetAura(HEROIC(SPELL_CONSUME,H_SPELL_CONSUME));
                     if (pConsumeAura && pConsumeAura->GetStackAmount() > 9)
                         bAchiev = false;
                 }

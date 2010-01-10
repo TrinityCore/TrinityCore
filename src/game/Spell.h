@@ -363,6 +363,7 @@ class Spell
         void EffectPlayMusic(uint32 i);
         void EffectSpecCount(uint32 i);
         void EffectActivateSpec(uint32 i);
+        void EffectPlayerNotification(uint32 i);
         void EffectCastButtons(uint32 i);
         void EffectRechargeManaGem(uint32 i);
 
@@ -371,7 +372,7 @@ class Spell
         Spell( Unit* Caster, SpellEntry const *info, bool triggered, uint64 originalCasterGUID = 0, Spell** triggeringContainer = NULL, bool skipCheck = false );
         ~Spell();
 
-        void prepare(SpellCastTargets const* targets, AuraEffect* triggeredByAura = NULL);
+        void prepare(SpellCastTargets const* targets, AuraEffect const * triggeredByAura = NULL);
         void cancel();
         void update(uint32 difftime);
         void cast(bool skipCheck = false);
@@ -440,8 +441,7 @@ class Spell
 
         void HandleEffects(Unit *pUnitTarget,Item *pItemTarget,GameObject *pGOTarget,uint32 i);
         void HandleThreatSpells(uint32 spellId);
-        //void HandleAddAura(Unit* Target);
-
+        
         const SpellEntry * const m_spellInfo;
         int32 m_currentBasePoints[3];                       // cache SpellEntry::EffectBasePoints and use for set custom base points
         Item* m_CastItem;
@@ -492,7 +492,6 @@ class Spell
         void CleanupTargetList();
 
         void SetSpellValue(SpellValueMod mod, int32 value);
-        //void SetSpellValue(SpellValueMod mod, float value);
     protected:
 
         void SendLoot(uint64 guid, LootType loottype);
@@ -545,8 +544,8 @@ class Spell
         Item* itemTarget;
         GameObject* gameObjTarget;
         int32 damage;
-        Aura * m_spellAura; // only used in DoAllEffectOnTarget
-        DynamicObject *m_spellDynObj; // only used in DoAllEffectOnTarget
+        // used in effects handlers
+        Aura * m_spellAura;
 
         // this is set in Spell Hit, but used in Apply Aura handler
         DiminishingLevels m_diminishLevel;
@@ -566,8 +565,7 @@ class Spell
         uint32 m_procAttacker;                // Attacker trigger flags
         uint32 m_procVictim;                  // Victim   trigger flags
         uint32 m_procEx;
-        bool m_canTrigger;
-        void   prepareDataForTriggerSystem(AuraEffect * triggeredByAura);
+        void   prepareDataForTriggerSystem(AuraEffect const * triggeredByAura);
 
         //*****************************************
         // Spell target subsystem

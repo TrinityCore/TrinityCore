@@ -232,14 +232,8 @@ struct TRINITY_DLL_DECL boss_kelidan_the_breakerAI : public ScriptedAI
 
             if (SpellEntry *nova = GET_SPELL(SPELL_BURNING_NOVA))
             {
-                uint8 eff_mask=0;
-                for (int i=0; i<3; ++i)
-                {
-                    if (!nova->Effect[i])
-                        continue;
-                    eff_mask|=1<<i;
-                }
-                m_creature->AddAura(new Aura(nova, eff_mask, me, me, me));
+                if (Aura * aura = Aura::TryCreate(nova, me, me))
+                    aura->ApplyForTargets();
             }
 
             if (HeroicMode)

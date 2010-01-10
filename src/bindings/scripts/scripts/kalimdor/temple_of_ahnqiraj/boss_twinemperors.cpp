@@ -413,15 +413,7 @@ struct TRINITY_DLL_DECL boss_veknilashAI : public boss_twinemperorsAI
     {
         pTarget->setFaction(14);
         pTarget->AI()->AttackStart(m_creature->getThreatManager().getHostilTarget());
-        SpellEntry *spell = GET_SPELL(SPELL_MUTATE_BUG);
-        uint8 eff_mask=0;
-        for (int i=0; i<3; ++i)
-        {
-            if (!spell->Effect[i])
-                continue;
-            eff_mask|=1<<i;
-        }
-        pTarget->AddAura(new Aura(spell, eff_mask, pTarget, pTarget, pTarget));
+        pTarget->AddAura(SPELL_MUTATE_BUG, pTarget);
         pTarget->SetHealth(pTarget->GetMaxHealth());
     }
 
@@ -498,15 +490,7 @@ struct TRINITY_DLL_DECL boss_veklorAI : public boss_twinemperorsAI
     void CastSpellOnBug(Creature *pTarget)
     {
         pTarget->setFaction(14);
-        SpellEntry *spell = GET_SPELL(SPELL_EXPLODEBUG);
-        uint8 eff_mask=0;
-        for (int i=0; i<3; ++i)
-        {
-            if (!spell->Effect[i])
-                continue;
-            eff_mask|=1<<i;
-        }
-        pTarget->AddAura(new Aura(spell, eff_mask, pTarget, pTarget, pTarget));
+        pTarget->AddAura(SPELL_EXPLODEBUG, pTarget);
         pTarget->SetHealth(pTarget->GetMaxHealth());
     }
 

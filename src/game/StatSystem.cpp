@@ -24,6 +24,7 @@
 #include "Creature.h"
 #include "SharedDefines.h"
 #include "SpellAuras.h"
+#include "SpellAuraEffects.h"
 
 /*#######################################
 ########                         ########
@@ -97,9 +98,9 @@ bool Player::UpdateStats(Stats stat)
 
     // Update ratings in exist SPELL_AURA_MOD_RATING_FROM_STAT and only depends from stat
     uint32 mask = 0;
-    AuraEffectList const& modRatingFromStat = GetAurasByType(SPELL_AURA_MOD_RATING_FROM_STAT);
+    AuraEffectList const& modRatingFromStat = GetAuraEffectsByType(SPELL_AURA_MOD_RATING_FROM_STAT);
     for (AuraEffectList::const_iterator i = modRatingFromStat.begin(); i != modRatingFromStat.end(); ++i)
-        if (Stats((*i)->GetMiscBValue()) == stat)
+        if (Stats((*i)->GetMiscValueB()) == stat)
             mask |= (*i)->GetMiscValue();
     if (mask)
     {
@@ -188,11 +189,11 @@ void Player::UpdateArmor()
     value += GetModifierValue(unitMod, TOTAL_VALUE);
 
     //add dynamic flat mods
-    AuraEffectList const& mResbyIntellect = GetAurasByType(SPELL_AURA_MOD_RESISTANCE_OF_STAT_PERCENT);
+    AuraEffectList const& mResbyIntellect = GetAuraEffectsByType(SPELL_AURA_MOD_RESISTANCE_OF_STAT_PERCENT);
     for (AuraEffectList::const_iterator i = mResbyIntellect.begin(); i != mResbyIntellect.end(); ++i)
     {
         if((*i)->GetMiscValue() & SPELL_SCHOOL_MASK_NORMAL)
-            value += int32(GetStat(Stats((*i)->GetMiscBValue())) * (*i)->GetAmount() / 100.0f);
+            value += int32(GetStat(Stats((*i)->GetMiscValueB())) * (*i)->GetAmount() / 100.0f);
     }
 
     value *= GetModifierValue(unitMod, TOTAL_PCT);
@@ -315,7 +316,7 @@ void Player::UpdateAttackPowerAndDamage(bool ranged )
                     case FORM_DIREBEAR:
                     case FORM_MOONKIN:
                     {
-                        Unit::AuraEffectList const& mDummy = GetAurasByType(SPELL_AURA_DUMMY);
+                        Unit::AuraEffectList const& mDummy = GetAuraEffectsByType(SPELL_AURA_DUMMY);
                         for (Unit::AuraEffectList::const_iterator itr = mDummy.begin(); itr != mDummy.end(); ++itr)
                         {
                             // Predatory Strikes (effect 0)
@@ -360,18 +361,18 @@ void Player::UpdateAttackPowerAndDamage(bool ranged )
     {
         if ((getClassMask() & CLASSMASK_WAND_USERS)==0)
         {
-            AuraEffectList const& mRAPbyStat = GetAurasByType(SPELL_AURA_MOD_RANGED_ATTACK_POWER_OF_STAT_PERCENT);
+            AuraEffectList const& mRAPbyStat = GetAuraEffectsByType(SPELL_AURA_MOD_RANGED_ATTACK_POWER_OF_STAT_PERCENT);
             for (AuraEffectList::const_iterator i = mRAPbyStat.begin(); i != mRAPbyStat.end(); ++i)
                 attPowerMod += int32(GetStat(Stats((*i)->GetMiscValue())) * (*i)->GetAmount() / 100.0f);
         }
     }
     else
     {
-        AuraEffectList const& mAPbyStat = GetAurasByType(SPELL_AURA_MOD_ATTACK_POWER_OF_STAT_PERCENT);
+        AuraEffectList const& mAPbyStat = GetAuraEffectsByType(SPELL_AURA_MOD_ATTACK_POWER_OF_STAT_PERCENT);
         for (AuraEffectList::const_iterator i = mAPbyStat.begin(); i != mAPbyStat.end(); ++i)
             attPowerMod += int32(GetStat(Stats((*i)->GetMiscValue())) * (*i)->GetAmount() / 100.0f);
 
-        AuraEffectList const& mAPbyArmor = GetAurasByType(SPELL_AURA_MOD_ATTACK_POWER_OF_ARMOR);
+        AuraEffectList const& mAPbyArmor = GetAuraEffectsByType(SPELL_AURA_MOD_ATTACK_POWER_OF_ARMOR);
         for (AuraEffectList::const_iterator iter = mAPbyArmor.begin(); iter != mAPbyArmor.end(); ++iter)
             // always: ((*i)->GetModifier()->m_miscvalue == 1 == SPELL_SCHOOL_MASK_NORMAL)
             attPowerMod += int32(GetArmor() / (*iter)->GetAmount());
@@ -666,7 +667,7 @@ void Player::UpdateExpertise(WeaponAttackType attack)
 
     Item *weapon = GetWeaponForAttack(attack);
 
-    AuraEffectList const& expAuras = GetAurasByType(SPELL_AURA_MOD_EXPERTISE);
+    AuraEffectList const& expAuras = GetAuraEffectsByType(SPELL_AURA_MOD_EXPERTISE);
     for (AuraEffectList::const_iterator itr = expAuras.begin(); itr != expAuras.end(); ++itr)
     {
         // item neutral spell
@@ -711,7 +712,7 @@ void Player::UpdateManaRegen()
     float power_regen_mp5 = (GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_POWER_REGEN, POWER_MANA) + m_baseManaRegen) / 5.0f;
 
     // Get bonus from SPELL_AURA_MOD_MANA_REGEN_FROM_STAT aura
-    AuraEffectList const& regenAura = GetAurasByType(SPELL_AURA_MOD_MANA_REGEN_FROM_STAT);
+    AuraEffectList const& regenAura = GetAuraEffectsByType(SPELL_AURA_MOD_MANA_REGEN_FROM_STAT);
     for (AuraEffectList::const_iterator i = regenAura.begin(); i != regenAura.end(); ++i)
     {
         power_regen_mp5 += GetStat(Stats((*i)->GetMiscValue())) * (*i)->GetAmount() / 500.0f;
@@ -730,7 +731,7 @@ void Player::_ApplyAllStatBonuses()
 {
     SetCanModifyStats(false);
 
-    _ApplyAllAuraMods();
+    _ApplyAllAuraStatMods();
     _ApplyAllItemMods();
 
     SetCanModifyStats(true);
@@ -743,7 +744,7 @@ void Player::_RemoveAllStatBonuses()
     SetCanModifyStats(false);
 
     _RemoveAllItemMods();
-    _RemoveAllAuraMods();
+    _RemoveAllAuraStatMods();
 
     SetCanModifyStats(true);
 
@@ -1239,7 +1240,7 @@ void Guardian::UpdateDamagePhysical(WeaponAttackType attType)
         }
     }
 
-    Unit::AuraEffectList const& mDummy = GetAurasByType(SPELL_AURA_MOD_ATTACKSPEED);
+    Unit::AuraEffectList const& mDummy = GetAuraEffectsByType(SPELL_AURA_MOD_ATTACKSPEED);
     for(Unit::AuraEffectList::const_iterator itr = mDummy.begin(); itr != mDummy.end(); ++itr)
     {
         switch ((*itr)->GetSpellProto()->Id)

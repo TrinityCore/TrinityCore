@@ -1078,7 +1078,7 @@ void OutdoorPvPWG::HandlePlayerLeaveZone(Player * plr, uint32 zone)
 
 void OutdoorPvPWG::PromotePlayer(Player *killer) const
 {
-    Aura *aur;
+    Aura * aur;
     if (aur = killer->GetAura(SPELL_RECRUIT))
     {
         if (aur->GetStackAmount() >= 5)

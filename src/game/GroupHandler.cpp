@@ -703,8 +703,8 @@ void WorldSession::BuildPartyMemberStatsChangedPacket(Player *player, WorldPacke
         {
             if(auramask & (uint64(1) << i))
             {
-                Aura * pAura = player->GetVisibleAura(i);
-                *data << uint32(pAura ? pAura->GetId() : 0);
+                AuraApplication const * aurApp = player->GetVisibleAura(i);
+                *data << uint32(aurApp ? aurApp->GetBase()->GetId() : 0);
                 *data << uint8(1);
             }
         }
@@ -785,8 +785,8 @@ void WorldSession::BuildPartyMemberStatsChangedPacket(Player *player, WorldPacke
             {
                 if(auramask & (uint64(1) << i))
                 {
-                    Aura * pAura = pet->GetVisibleAura(i);
-                    *data << uint32(pAura ? pAura->GetId() : 0);
+                    AuraApplication const * aurApp = player->GetVisibleAura(i);
+                    *data << uint32(aurApp ? aurApp->GetBase()->GetId() : 0);
                     *data << uint8(1);
                 }
             }
@@ -843,10 +843,10 @@ void WorldSession::HandleRequestPartyMemberStatsOpcode( WorldPacket &recv_data )
     data << (uint64) auramask;                              // placeholder
     for (uint8 i = 0; i < MAX_AURAS; ++i)
     {
-        if(Aura * pAura = player->GetVisibleAura(i))
+        if(AuraApplication * aurApp = player->GetVisibleAura(i))
         {
             auramask |= (uint64(1) << i);
-            data << (uint32) pAura->GetId();
+            data << (uint32) aurApp->GetBase()->GetId();
             data << (uint8)  1;
         }
     }
@@ -869,10 +869,10 @@ void WorldSession::HandleRequestPartyMemberStatsOpcode( WorldPacket &recv_data )
         data << (uint64) petauramask;                       // placeholder
         for (uint8 i = 0; i < MAX_AURAS; ++i)
         {
-            if(Aura * pAura = pet->GetVisibleAura(i))
+            if(AuraApplication * auraApp = pet->GetVisibleAura(i))
             {
                 petauramask |= (uint64(1) << i);
-                data << (uint32) pAura->GetId();
+                data << (uint32) auraApp->GetBase()->GetId();
                 data << (uint8)  1;
             }
         }

@@ -47,6 +47,7 @@
 #include "GameEventMgr.h"
 #include "CreatureGroups.h"
 #include "Vehicle.h"
+#include "SpellAuraEffects.h"
 // apply implementation of the singletons
 #include "Policies/SingletonImp.h"
 
@@ -142,7 +143,7 @@ m_creatureInfo(NULL), m_reactState(REACT_AGGRESSIVE), m_formation(NULL)
 , m_AlreadySearchedAssistance(false)
 , m_creatureData(NULL), m_PlayerDamageReq(0)
 {
-    m_regenTimer = 2000;
+    m_regenTimer = CREATURE_REGEN_INTERVAL;
     m_valuesCount = UNIT_END;
 
     for (uint8 i = 0; i < CREATURE_MAX_SPELLS; ++i)
@@ -571,12 +572,12 @@ void Creature::Update(uint32 diff)
                 RegenerateMana();
 
             /*if(!bIsPolymorphed) // only increase the timer if not polymorphed
-                    m_regenTimer += 2000 - diff;
+                    m_regenTimer += CREATURE_REGEN_INTERVAL - diff;
             }
             else
                 if(!bIsPolymorphed) // if polymorphed, skip the timer
                     m_regenTimer -= diff;*/
-            m_regenTimer = 2000;
+            m_regenTimer = CREATURE_REGEN_INTERVAL;
             break;
         }
         case DEAD_FALLING:
@@ -611,6 +612,14 @@ void Creature::RegenerateMana()
     else
         addvalue = maxValue/3;
 
+    // Apply modifiers (if any).
+    AuraEffectList const& ModPowerRegenPCTAuras = GetAuraEffectsByType(SPELL_AURA_MOD_POWER_REGEN_PERCENT);
+    for (AuraEffectList::const_iterator i = ModPowerRegenPCTAuras.begin(); i != ModPowerRegenPCTAuras.end(); ++i)
+        if ((*i)->GetMiscValue() == POWER_MANA)
+            addvalue *= ((*i)->GetAmount() + 100) / 100.0f;
+
+    addvalue += GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_POWER_REGEN, POWER_MANA) * CREATURE_REGEN_INTERVAL / (5 * IN_MILISECONDS);
+
     ModifyPower(POWER_MANA, addvalue);
 }
 
@@ -640,6 +649,13 @@ void Creature::RegenerateHealth()
     }
     else
         addvalue = maxValue/3;
+
+    // Apply modifiers (if any).
+    AuraEffectList const& ModPowerRegenPCTAuras = GetAuraEffectsByType(SPELL_AURA_MOD_HEALTH_REGEN_PERCENT);
+    for (AuraEffectList::const_iterator i = ModPowerRegenPCTAuras.begin(); i != ModPowerRegenPCTAuras.end(); ++i)
+        addvalue *= ((*i)->GetAmount() + 100) / 100.0f;
+
+    addvalue += GetTotalAuraModifier(SPELL_AURA_MOD_REGEN) * CREATURE_REGEN_INTERVAL  / (5 * IN_MILISECONDS);
 
     ModifyHealth(addvalue);
 }
@@ -1988,16 +2004,16 @@ bool Creature::LoadCreaturesAddon(bool reload)
             }
 
             // skip already applied aura
-            if(HasAuraEffect(cAura->spell_id,cAura->effect_idx))
+            if(HasAura(cAura->spell_id))
             {
                 if(!reload)
-                    sLog.outErrorDb("Creature (GUID: %u Entry: %u) has duplicate aura (spell %u effect %u) in `auras` field.",GetGUIDLow(),GetEntry(),cAura->spell_id,cAura->effect_idx);
+                    sLog.outErrorDb("Creature (GUID: %u Entry: %u) has duplicate aura (spell %u) in `auras` field.",GetGUIDLow(),GetEntry(),cAura->spell_id);
 
                 continue;
             }
 
-            AddAuraEffect(AdditionalSpellInfo, cAura->effect_idx, this, this);
-            sLog.outDebug("Spell: %u with Aura %u added to creature (GUID: %u Entry: %u)", cAura->spell_id, AdditionalSpellInfo->EffectApplyAuraName[cAura->effect_idx],GetGUIDLow(),GetEntry());
+            AddAura(AdditionalSpellInfo, cAura->effectMask, this);
+            sLog.outDebug("Spell: %u with AuraEffectMask %u added to creature (GUID: %u Entry: %u)", cAura->spell_id, cAura->effectMask,GetGUIDLow(),GetEntry());
         }
     }
     return true;
