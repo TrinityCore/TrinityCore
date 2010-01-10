@@ -66,6 +66,7 @@
 #include "AchievementMgr.h"
 #include "SpellAuras.h"
 #include "SpellAuraEffects.h"
+#include "SpellId.h"
 
 #include <cmath>
 
@@ -1455,7 +1456,7 @@ void Player::setDeathState(DeathState s)
 
         // restore default warrior stance
         if (getClass() == CLASS_WARRIOR)
-            CastSpell(this,SPELL_ID_PASSIVE_BATTLE_STANCE,true);
+            CastSpell(this,SPELL_BATTLE_STANCE_2457,true);
     }
 }
 
@@ -1776,7 +1777,7 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
     else
     {
         if (getClass() == CLASS_DEATH_KNIGHT && GetMapId() == 609 && !isGameMaster()
-            && !HasSpell(SPELL_ID_DEATH_GATE))
+            && !HasSpell(SPELL_DEATH_GATE_50977))
             return false;
 
         // far teleport to another map
@@ -1930,7 +1931,7 @@ void Player::ProcessDelayedOperations()
         SaveToDB();
 
     if (m_DelayedOperations & DELAYED_SPELL_CAST_DESERTER)
-        CastSpell(this, SPELL_ID_DESERTER, true);               // Deserter
+        CastSpell(this, SPELL_DESERTER_26013, true);               // Deserter
 
     if (m_DelayedOperations & DELAYED_BG_MOUNT_RESTORE)
     {
@@ -4345,8 +4346,8 @@ void Player::BuildPlayerRepop()
     GetSession()->SendPacket(&data);
 
     if(getRace() == RACE_NIGHTELF)
-        CastSpell(this, SPELL_ID_NE_GHOST, true);
-    CastSpell(this, SPELL_ID_GHOST, true);
+        CastSpell(this, SPELL_GHOST_20584, true);
+    CastSpell(this, SPELL_GHOST_8326, true);
 
     // there must be SMSG.FORCE_RUN_SPEED_CHANGE, SMSG.FORCE_SWIM_SPEED_CHANGE, SMSG.MOVE_WATER_WALK
     // there must be SMSG.STOP_MIRROR_TIMER
@@ -4415,8 +4416,8 @@ void Player::ResurrectPlayer(float restore_percent, bool applySickness)
     // remove death flag + set aura
     SetByteValue(UNIT_FIELD_BYTES_1, 3, 0x00);
     if(getRace() == RACE_NIGHTELF)
-        RemoveAurasDueToSpell(SPELL_ID_NE_GHOST);                       // speed bonuses
-    RemoveAurasDueToSpell(SPELL_ID_GHOST);                            // SPELL_AURA_GHOST
+        RemoveAurasDueToSpell(SPELL_GHOST_20584);                       // speed bonuses
+    RemoveAurasDueToSpell(SPELL_GHOST_8326);                            // SPELL_AURA_GHOST
 
     setDeathState(ALIVE);
 
@@ -4456,14 +4457,14 @@ void Player::ResurrectPlayer(float restore_percent, bool applySickness)
     if(int32(getLevel()) >= startLevel)
     {
         // set resurrection sickness
-        CastSpell(this,SPELL_ID_PASSIVE_RESURRECTION_SICKNESS,true);
+        CastSpell(this,SPELL_RESURRECTION_SICKNESS_15007,true);
 
         // not full duration
         if(int32(getLevel()) < startLevel+9)
         {
             int32 delta = (int32(getLevel()) - startLevel + 1)*MINUTE;
 
-            if(Aura * aur = GetAura(SPELL_ID_PASSIVE_RESURRECTION_SICKNESS, GetGUID()))
+            if(Aura * aur = GetAura(SPELL_RESURRECTION_SICKNESS_15007, GetGUID()))
             {
                 aur->SetDuration(delta*IN_MILISECONDS);
             }
@@ -7544,7 +7545,7 @@ void Player::CastItemUseSpell(Item *item,SpellCastTargets const& targets,uint8 c
 {
     ItemPrototype const* proto = item->GetProto();
     // special learning case
-    if (proto->Spells[0].SpellId == SPELL_ID_GENERIC_LEARN || proto->Spells[0].SpellId==SPELL_ID_GENERIC_LEARN_PET)
+    if (proto->Spells[0].SpellId == SPELL_LEARNING_483 || proto->Spells[0].SpellId==SPELL_LEARNING_55884)
     {
         uint32 learn_spell_id = proto->Spells[0].SpellId;
         uint32 learning_spell_id = proto->Spells[1].SpellId;
@@ -11175,10 +11176,10 @@ Item* Player::EquipItem( uint16 pos, Item *pItem, bool update )
 
             if(pProto && isInCombat()&& pProto->Class == ITEM_CLASS_WEAPON && m_weaponChangeTimer == 0)
             {
-                uint32 cooldownSpell = SPELL_ID_WEAPON_SWITCH_COOLDOWN_1_5s;
+                uint32 cooldownSpell = SPELL_COMBAT_SWAP_DND_6119;
 
                 if (getClass() == CLASS_ROGUE)
-                    cooldownSpell = SPELL_ID_WEAPON_SWITCH_COOLDOWN_1_0s;
+                    cooldownSpell = SPELL_COMBAT_SWAP_DND_6123;
 
                 SpellEntry const* spellProto = sSpellStore.LookupEntry(cooldownSpell);
 
@@ -16085,7 +16086,7 @@ void Player::_LoadAuras(QueryResult *result, uint32 timediff)
     }
 
     if(getClass() == CLASS_WARRIOR && !HasAuraType(SPELL_AURA_MOD_SHAPESHIFT))
-        CastSpell(this,SPELL_ID_PASSIVE_BATTLE_STANCE,true);
+        CastSpell(this,SPELL_BATTLE_STANCE_2457,true);
 }
 
 void Player::_LoadGlyphAuras()
@@ -19334,7 +19335,7 @@ void Player::AddSpellAndCategoryCooldowns(SpellEntry const* spellInfo, uint32 it
     {
         // shoot spells used equipped item cooldown values already assigned in GetAttackTime(RANGED_ATTACK)
         // prevent 0 cooldowns set by another way
-        if (rec <= 0 && catrec <= 0 && (cat == 76 || IsAutoRepeatRangedSpell(spellInfo) && spellInfo->Id != SPELL_ID_AUTOSHOT))
+        if (rec <= 0 && catrec <= 0 && (cat == 76 || IsAutoRepeatRangedSpell(spellInfo) && spellInfo->Id != SPELL_AUTO_SHOT_75))
             rec = GetAttackTime(RANGED_ATTACK);
 
         // Now we have cooldown data (if found any), time to apply mods
@@ -19648,7 +19649,7 @@ void Player::LeaveBattleground(bool teleportToEntryPoint)
                     return;
                 }
 
-                CastSpell(this, SPELL_ID_DESERTER, true);               // Deserter
+                CastSpell(this, SPELL_DESERTER_26013, true);               // Deserter
             }
         }
     }
@@ -19657,7 +19658,7 @@ void Player::LeaveBattleground(bool teleportToEntryPoint)
 bool Player::CanJoinToBattleground() const
 {
     // check Deserter debuff
-    if(HasAura(SPELL_ID_DESERTER))
+    if(HasAura(SPELL_DESERTER_26013))
         return false;
 
     return true;
@@ -19697,7 +19698,7 @@ WorldLocation Player::GetStartPosition() const
 {
     PlayerInfo const *info = objmgr.GetPlayerInfo(getRace(), getClass());
     uint32 mapId = info->mapId;
-    if(getClass() == CLASS_DEATH_KNIGHT && HasSpell(SPELL_ID_DEATH_GATE))
+    if(getClass() == CLASS_DEATH_KNIGHT && HasSpell(SPELL_DEATH_GATE_50977))
         mapId = 0;
     return WorldLocation(mapId, info->positionX, info->positionY, info->positionZ, 0);
 }
@@ -20203,7 +20204,7 @@ void Player::SendInitialPacketsAfterAddToMap()
     data << uint32(0x00000000);                             // on blizz it increments periodically
     GetSession()->SendPacket(&data);
 
-    CastSpell(this, SPELL_ID_LOGINEFFECT, true);                             // LOGINEFFECT
+    CastSpell(this, SPELL_LOGINEFFECT_836, true);                             // LOGINEFFECT
 
     // set some aura effects that send packet to player client after add player to map
     // SendMessageToSet not send it to player not it map, only for aura that not changed anything at re-apply

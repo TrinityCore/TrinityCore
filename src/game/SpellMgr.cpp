@@ -631,7 +631,7 @@ SpellSpecific GetSpellSpecific(uint32 spellId)
             return spellmgr.GetSpellElixirSpecific(spellInfo->Id);
 
         case SPELLFAMILY_DEATHKNIGHT:
-            if (spellInfo->Id == SPELL_ID_BLOOD_PRESENCE || spellInfo->Id == SPELL_ID_FROST_PRESENCE || spellInfo->Id == SPELL_ID_UNHOLY_PRESENCE)
+            if (spellInfo->Id == SPELL_BLOOD_PRESENCE_48266 || spellInfo->Id == SPELL_FROST_PRESENCE_48263 || spellInfo->Id == SPELL_UNHOLY_PRESENCE_48265)
             //if (spellInfo->Category == 47)
                 return SPELL_SPECIFIC_PRESENCE;
             break;
@@ -767,7 +767,7 @@ bool SpellMgr::_isPositiveEffect(uint32 spellId, uint32 effIndex, bool deep) con
         case 50524:                                         // Runic Power Feed
             return false;
         case 12042:                                         // Arcane Power
-        case SPELL_ID_TAG_MURLOC:                           // Tag Murloc
+        case SPELL_TAG_MURLOC_30877:                           // Tag Murloc
             return true;
     }
 
@@ -3807,7 +3807,7 @@ void SpellMgr::LoadSpellCustomAttr()
             spellInfo->AttributesEx5 |= SPELL_ATTR_EX5_START_PERIODIC_AT_APPLY;
             count++;
             break;
-        case SPELL_ID_TAG_MURLOC:
+        case SPELL_TAG_MURLOC_30877:
             spellInfo->EffectImplicitTargetA[0] = TARGET_UNIT_NEARBY_ENTRY;
             spellInfo->EffectImplicitTargetB[0] = 0;
             break;

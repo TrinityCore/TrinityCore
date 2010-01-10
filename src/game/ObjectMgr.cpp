@@ -46,6 +46,7 @@
 #include "WaypointManager.h"
 #include "InstanceData.h" //for condition_instance_data
 #include "GossipDef.h"
+#include "SpellId.h"
 
 INSTANTIATE_SINGLETON_1(ObjectMgr);
 
@@ -2154,7 +2155,7 @@ void ObjectMgr::LoadItemPrototypes()
         }
 
         // special format
-        if ((proto->Spells[0].SpellId == SPELL_ID_GENERIC_LEARN) || (proto->Spells[0].SpellId == SPELL_ID_GENERIC_LEARN_PET))
+        if ((proto->Spells[0].SpellId == SPELL_LEARNING_483) || (proto->Spells[0].SpellId == SPELL_LEARNING_55884))
         {
             // spell_1
             if (proto->Spells[0].SpellTrigger != ITEM_SPELLTRIGGER_ON_USE)
@@ -2191,7 +2192,7 @@ void ObjectMgr::LoadItemPrototypes()
                     const_cast<ItemPrototype*>(proto)->Spells[1].SpellTrigger = ITEM_SPELLTRIGGER_ON_USE;
                 }
                 // allowed only in special format
-                else if ((proto->Spells[1].SpellId==SPELL_ID_GENERIC_LEARN) || (proto->Spells[1].SpellId == SPELL_ID_GENERIC_LEARN_PET))
+                else if ((proto->Spells[1].SpellId==SPELL_LEARNING_483) || (proto->Spells[1].SpellId == SPELL_LEARNING_55884))
                 {
                     sLog.outErrorDb("Item (Entry: %u) has broken spell in spellid_%d (%u)",i,1+1,proto->Spells[1].SpellId);
                     const_cast<ItemPrototype*>(proto)->Spells[0].SpellId = 0;
@@ -2237,7 +2238,7 @@ void ObjectMgr::LoadItemPrototypes()
                         const_cast<ItemPrototype*>(proto)->Spells[j].SpellId = 0;
                     }
                     // allowed only in special format
-                    else if ((proto->Spells[j].SpellId==SPELL_ID_GENERIC_LEARN) || (proto->Spells[j].SpellId==SPELL_ID_GENERIC_LEARN_PET))
+                    else if ((proto->Spells[j].SpellId==SPELL_LEARNING_483) || (proto->Spells[j].SpellId==SPELL_LEARNING_55884))
                     {
                         sLog.outErrorDb("Item (Entry: %u) has broken spell in spellid_%d (%u)",i,j+1,proto->Spells[j].SpellId);
                         const_cast<ItemPrototype*>(proto)->Spells[j].SpellId = 0;

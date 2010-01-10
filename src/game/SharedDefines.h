@@ -2350,27 +2350,6 @@ enum CorpseDynFlags
     CORPSE_DYNFLAG_LOOTABLE        = 0x0001
 };
 
-// Passive Spell codes explicit used in code
-#define SPELL_ID_GENERIC_LEARN                  483
-#define SPELL_ID_GENERIC_LEARN_PET              55884       // used for learning mounts and companions
-#define SPELL_ID_PASSIVE_BATTLE_STANCE          2457
-#define SPELL_ID_PASSIVE_RESURRECTION_SICKNESS  15007
-#define SPELL_ID_WEAPON_SWITCH_COOLDOWN_1_5s    6119
-#define SPELL_ID_WEAPON_SWITCH_COOLDOWN_1_0s    6123
-#define SPELL_ID_AUTOSHOT                       75          // used for checks in other spells interruption
-#define SPELL_ID_SHADOWMELD                     58984       // used for check ignore stealth stance state
-#define SPELL_ID_BLOOD_PRESENCE                 48266       // Blood Presence
-#define SPELL_ID_FROST_PRESENCE                 48263       // Frost Presence
-#define SPELL_ID_UNHOLY_PRESENCE                48265       // Unholy Presence
-#define SPELL_ID_NE_GHOST                       20584       // Night Elf Ghost Aura
-#define SPELL_ID_GHOST                          8326        // Ghost
-#define SPELL_ID_DESERTER                       26013       // Deserter
-#define SPELL_ID_LOGINEFFECT                    836         // LOGINEFFECT
-#define SPELL_ID_HONORLESS_TARGET               2479        // Honorless target
-#define SPELL_ID_DUEL_BEG                       7267        // Beg
-#define SPELL_ID_DEATH_GATE                     50977       // Death Gate
-#define SPELL_ID_TAG_MURLOC                     30877       // Tag Murloc
-
 enum WeatherType
 {
     WEATHER_TYPE_FINE       = 0,

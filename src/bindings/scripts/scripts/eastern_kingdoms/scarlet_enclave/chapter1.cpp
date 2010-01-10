@@ -20,6 +20,7 @@
 #include "Vehicle.h"
 #include "ObjectMgr.h"
 #include "escort_ai.h"
+#include "SpellId.h"
 
 /*######
 ##Quest 12848
@@ -387,7 +388,7 @@ struct TRINITY_DLL_DECL npc_death_knight_initiateAI : public CombatAI
                     pDoneBy->AttackStop();
                     me->CastSpell(pDoneBy, SPELL_DUEL_VICTORY, true);
                     lose = true;
-                    me->CastSpell(me, SPELL_ID_DUEL_BEG, true);
+                    me->CastSpell(me, SPELL_GROVEL_7267, true);
                     me->RestoreFaction();
                 }
             }
@@ -417,14 +418,14 @@ struct TRINITY_DLL_DECL npc_death_knight_initiateAI : public CombatAI
         {
             if (lose)
             {
-                if (!me->HasAura(SPELL_ID_DUEL_BEG))
+                if (!me->HasAura(SPELL_GROVEL_7267))
                     EnterEvadeMode();
                 return;
             }
             else if (me->getVictim()->GetTypeId() == TYPEID_PLAYER
                 && me->getVictim()->GetHealth() * 10 < me->getVictim()->GetMaxHealth())
             {
-                me->getVictim()->CastSpell(me->getVictim(), SPELL_ID_DUEL_BEG, true); // beg
+                me->getVictim()->CastSpell(me->getVictim(), SPELL_GROVEL_7267, true); // beg
                 me->getVictim()->RemoveGameObject(SPELL_DUEL_FLAG, true);
                 EnterEvadeMode();
                 return;

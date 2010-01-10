@@ -51,6 +51,7 @@
 #include "Vehicle.h"
 #include "ScriptCalls.h"
 #include "SpellAuraEffects.h"
+#include "SpellId.h"
 
 #define SPELL_CHANNEL_UPDATE_INTERVAL (1 * IN_MILISECONDS)
 
@@ -5074,8 +5075,8 @@ SpellCastResult Spell::CheckCast(bool strict)
                 //custom check
                 switch(m_spellInfo->Id)
                 {
-                    case SPELL_ID_TAG_MURLOC:
-                        if (!m_targets.getUnitTarget() || (m_targets.getUnitTarget() && (m_targets.getUnitTarget()->HasAura(SPELL_ID_TAG_MURLOC) || m_targets.getUnitTarget()->GetTypeId() != TYPEID_UNIT || (m_targets.getUnitTarget()->GetTypeId() == TYPEID_UNIT && ((Creature*)m_targets.getUnitTarget())->GetEntry() != 17326 ))))// Tag Murloc, Blacksilt Scout
+                    case SPELL_TAG_MURLOC_30877:
+                        if (!m_targets.getUnitTarget() || (m_targets.getUnitTarget() && (m_targets.getUnitTarget()->HasAura(SPELL_TAG_MURLOC_30877) || m_targets.getUnitTarget()->GetTypeId() != TYPEID_UNIT || (m_targets.getUnitTarget()->GetTypeId() == TYPEID_UNIT && ((Creature*)m_targets.getUnitTarget())->GetEntry() != 17326 ))))// Tag Murloc, Blacksilt Scout
                             return SPELL_FAILED_BAD_TARGETS;
                         break;
                     case 61336:

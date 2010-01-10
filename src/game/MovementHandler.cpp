@@ -33,6 +33,7 @@
 #include "WaypointMovementGenerator.h"
 #include "InstanceSaveMgr.h"
 #include "ObjectMgr.h"
+#include "SpellId.h"
 
 void WorldSession::HandleMoveWorldportAckOpcode( WorldPacket & /*recv_data*/ )
 {
@@ -170,7 +171,7 @@ void WorldSession::HandleMoveWorldportAckOpcode()
 
     // honorless target
     if(GetPlayer()->pvpInfo.inHostileArea)
-        GetPlayer()->CastSpell(GetPlayer(), SPELL_ID_HONORLESS_TARGET, true);
+        GetPlayer()->CastSpell(GetPlayer(), SPELL_HONORLESS_TARGET_2479, true);
 
     // resummon pet
     GetPlayer()->ResummonPetTemporaryUnSummonedIfAny();
@@ -218,7 +219,7 @@ void WorldSession::HandleMoveTeleportAck(WorldPacket& recv_data)
     {
         // honorless target
         if(plMover->pvpInfo.inHostileArea)
-            plMover->CastSpell(plMover, SPELL_ID_HONORLESS_TARGET, true);
+            plMover->CastSpell(plMover, SPELL_HONORLESS_TARGET_2479, true);
     }
 
     // resummon pet
