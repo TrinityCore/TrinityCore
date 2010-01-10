@@ -348,17 +348,14 @@ struct TRINITY_DLL_DECL boss_sartharionAI : public ScriptedAI
                         case NPC_TENEBRON:
                             iTextId = SAY_SARTHARION_CALL_TENEBRON;
                             pTemp->GetMotionMaster()->MovePoint(POINT_ID_LAND, m_aTene[1].m_fX, m_aTene[1].m_fY, m_aTene[1].m_fZ);
-                            DoAddAuraToAllHostilePlayers(SPELL_POWER_OF_TENEBRON);
                             break;
                         case NPC_SHADRON:
                             iTextId = SAY_SARTHARION_CALL_SHADRON;
                             pTemp->GetMotionMaster()->MovePoint(POINT_ID_LAND, m_aShad[1].m_fX, m_aShad[1].m_fY, m_aShad[1].m_fZ);
-                            DoAddAuraToAllHostilePlayers(SPELL_POWER_OF_SHADRON);
                             break;
                         case NPC_VESPERON:
                             iTextId = SAY_SARTHARION_CALL_VESPERON;
                             pTemp->GetMotionMaster()->MovePoint(POINT_ID_LAND, m_aVesp[1].m_fX, m_aVesp[1].m_fY, m_aVesp[1].m_fZ);
-                            DoAddAuraToAllHostilePlayers(SPELL_POWER_OF_VESPERON);
                             break;
                     }
 
@@ -685,9 +682,10 @@ struct TRINITY_DLL_DECL dummy_dragonAI : public ScriptedAI
 
         DoScriptText(iTextId, m_creature);
 
+        m_creature->RemoveOwnedAura(uiSpellId, AURA_REMOVE_BY_DEFAULT);
+
         if (pInstance)
         {
-            pInstance->DoRemoveAurasDueToSpellOnPlayers(uiSpellId);
             // not if solo mini-boss fight
             if (pInstance->GetData(TYPE_SARTHARION_EVENT) != IN_PROGRESS)
                 return;
