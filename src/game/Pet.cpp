@@ -344,6 +344,7 @@ bool Pet::LoadPetFromDB( Player* owner, uint32 petentry, uint32 petnumber, bool 
             {
                 m_declinedname->name[i] = fields2[i].GetCppString();
             }
+            delete result;
         }
     }
 
