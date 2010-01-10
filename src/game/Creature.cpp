@@ -132,6 +132,11 @@ bool AssistDelayEvent::Execute(uint64 /*e_time*/, uint32 /*p_time*/)
     return true;
 }
 
+CreatureBaseStats const* CreatureBaseStats::GetBaseStats(uint32 level, uint8 unitClass)
+{
+    return objmgr.GetCreatureBaseStats(level, unitClass);
+}
+
 Creature::Creature() :
 Unit(),
 lootForPickPocketed(false), lootForBody(false), m_groupLootTimer(0), lootingGroupLeaderGUID(0),
@@ -352,45 +357,49 @@ bool Creature::UpdateEntry(uint32 Entry, uint32 team, const CreatureData *data )
     if(!InitEntry(Entry,team,data))
         return false;
 
-    m_regenHealth = GetCreatureInfo()->RegenHealth;
+    CreatureInfo const* cInfo = GetCreatureInfo();
+
+    m_regenHealth = cInfo->RegenHealth;
 
     // creatures always have melee weapon ready if any
     SetSheath(SHEATH_STATE_MELEE);
 
     SelectLevel(GetCreatureInfo());
     if (team == HORDE)
-        setFaction(GetCreatureInfo()->faction_H);
+        setFaction(cInfo->faction_H);
     else
-        setFaction(GetCreatureInfo()->faction_A);
+        setFaction(cInfo->faction_A);
 
-    if(GetCreatureInfo()->flags_extra & CREATURE_FLAG_EXTRA_WORLDEVENT)
-        SetUInt32Value(UNIT_NPC_FLAGS,GetCreatureInfo()->npcflag | gameeventmgr.GetNPCFlag(this));
+    if(cInfo->flags_extra & CREATURE_FLAG_EXTRA_WORLDEVENT)
+        SetUInt32Value(UNIT_NPC_FLAGS,cInfo->npcflag | gameeventmgr.GetNPCFlag(this));
     else
-        SetUInt32Value(UNIT_NPC_FLAGS,GetCreatureInfo()->npcflag);
+        SetUInt32Value(UNIT_NPC_FLAGS,cInfo->npcflag);
 
-    SetAttackTime(BASE_ATTACK,  GetCreatureInfo()->baseattacktime);
-    SetAttackTime(OFF_ATTACK,   GetCreatureInfo()->baseattacktime);
-    SetAttackTime(RANGED_ATTACK,GetCreatureInfo()->rangeattacktime);
+    SetAttackTime(BASE_ATTACK,  cInfo->baseattacktime);
+    SetAttackTime(OFF_ATTACK,   cInfo->baseattacktime);
+    SetAttackTime(RANGED_ATTACK,cInfo->rangeattacktime);
 
-    SetUInt32Value(UNIT_FIELD_FLAGS,GetCreatureInfo()->unit_flags);
-    SetUInt32Value(UNIT_DYNAMIC_FLAGS,GetCreatureInfo()->dynamicflags);
+    SetUInt32Value(UNIT_FIELD_FLAGS,cInfo->unit_flags);
+    SetUInt32Value(UNIT_DYNAMIC_FLAGS,cInfo->dynamicflags);
 
     RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IN_COMBAT);
 
-    SetMeleeDamageSchool(SpellSchools(GetCreatureInfo()->dmgschool));
-    SetModifierValue(UNIT_MOD_ARMOR,             BASE_VALUE, float(GetCreatureInfo()->armor));
-    SetModifierValue(UNIT_MOD_RESISTANCE_HOLY,   BASE_VALUE, float(GetCreatureInfo()->resistance1));
-    SetModifierValue(UNIT_MOD_RESISTANCE_FIRE,   BASE_VALUE, float(GetCreatureInfo()->resistance2));
-    SetModifierValue(UNIT_MOD_RESISTANCE_NATURE, BASE_VALUE, float(GetCreatureInfo()->resistance3));
-    SetModifierValue(UNIT_MOD_RESISTANCE_FROST,  BASE_VALUE, float(GetCreatureInfo()->resistance4));
-    SetModifierValue(UNIT_MOD_RESISTANCE_SHADOW, BASE_VALUE, float(GetCreatureInfo()->resistance5));
-    SetModifierValue(UNIT_MOD_RESISTANCE_ARCANE, BASE_VALUE, float(GetCreatureInfo()->resistance6));
+    SetMeleeDamageSchool(SpellSchools(cInfo->dmgschool));
+    CreatureBaseStats const* stats = objmgr.GetCreatureBaseStats(getLevel(), cInfo->unit_class);
+    float armor = stats->GenerateArmor(cInfo); // TODO: Why is this treated as uint32 when it's a float?
+    SetModifierValue(UNIT_MOD_ARMOR,             BASE_VALUE, armor);
+    SetModifierValue(UNIT_MOD_RESISTANCE_HOLY,   BASE_VALUE, float(cInfo->resistance1));
+    SetModifierValue(UNIT_MOD_RESISTANCE_FIRE,   BASE_VALUE, float(cInfo->resistance2));
+    SetModifierValue(UNIT_MOD_RESISTANCE_NATURE, BASE_VALUE, float(cInfo->resistance3));
+    SetModifierValue(UNIT_MOD_RESISTANCE_FROST,  BASE_VALUE, float(cInfo->resistance4));
+    SetModifierValue(UNIT_MOD_RESISTANCE_SHADOW, BASE_VALUE, float(cInfo->resistance5));
+    SetModifierValue(UNIT_MOD_RESISTANCE_ARCANE, BASE_VALUE, float(cInfo->resistance6));
 
     SetCanModifyStats(true);
     UpdateAllStats();
 
     // checked and error show at loading templates
-    if (FactionTemplateEntry const* factionTemplate = sFactionTemplateStore.LookupEntry(GetCreatureInfo()->faction_A))
+    if (FactionTemplateEntry const* factionTemplate = sFactionTemplateStore.LookupEntry(cInfo->faction_A))
     {
         if (factionTemplate->factionFlags & FACTION_TEMPLATE_FLAG_PVP)
             SetPvP(true);
@@ -410,16 +419,17 @@ bool Creature::UpdateEntry(uint32 Entry, uint32 team, const CreatureData *data )
     else
         SetReactState(REACT_AGGRESSIVE);
 
-    if(GetCreatureInfo()->flags_extra & CREATURE_FLAG_EXTRA_NO_TAUNT)
+    if(cInfo->flags_extra & CREATURE_FLAG_EXTRA_NO_TAUNT)
     {
         ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_TAUNT, true);
         ApplySpellImmune(0, IMMUNITY_EFFECT,SPELL_EFFECT_ATTACK_ME, true);
     }
 
-    if(GetCreatureInfo()->InhabitType & INHABIT_AIR)
+    // TODO: In fact monster move flags should be set - not movement flags.
+    if(cInfo->InhabitType & INHABIT_AIR)
         AddUnitMovementFlag(MOVEMENTFLAG_FLY_MODE | MOVEMENTFLAG_FLYING);
 
-    if(GetCreatureInfo()->InhabitType & INHABIT_WATER)
+    if(cInfo->InhabitType & INHABIT_WATER)
         AddUnitMovementFlag(MOVEMENTFLAG_SWIMMING);
 
     return true;
@@ -1062,12 +1072,12 @@ void Creature::SelectLevel(const CreatureInfo *cinfo)
     uint8 level = minlevel == maxlevel ? minlevel : urand(minlevel, maxlevel);
     SetLevel(level);
 
-    BaseHealthManaPair pair = objmgr.GenerateCreatureStats(level, cinfo);
+    CreatureBaseStats const* stats = objmgr.GetCreatureBaseStats(level, cinfo->unit_class);
 
     // health
     float healthmod = _GetHealthMod(rank);
 
-    uint32 basehp = pair.first;
+    uint32 basehp = stats->GenerateHealth(cinfo);
     uint32 health = uint32(basehp * healthmod);
 
     SetCreateHealth(health);
@@ -1076,7 +1086,7 @@ void Creature::SelectLevel(const CreatureInfo *cinfo)
     ResetPlayerDamageReq();
 
     // mana
-    uint32 mana = pair.second;
+    uint32 mana = stats->GenerateMana(cinfo);
 
     SetCreateMana(mana);
     SetMaxPower(POWER_MANA, mana);                          //MAX Mana
@@ -2341,9 +2351,4 @@ time_t Creature::GetLinkedCreatureRespawnTime() const
     }
 
     return 0;
-}
-
-BaseHealthManaPair Creature::GenerateHealthMana()
-{
-    return objmgr.GenerateCreatureStats(getLevel(), GetCreatureInfo());
 }

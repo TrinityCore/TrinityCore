@@ -654,8 +654,7 @@ class ObjectMgr
 
         void ReturnOrDeleteOldMails(bool serverUp);
 
-        CreatureBaseStats const* GetCreatureBaseStats(uint8 expansion, uint8 unitClass, uint32 level);
-        BaseHealthManaPair GenerateCreatureStats(uint32 level, CreatureInfo const* info);
+        CreatureBaseStats const* GetCreatureBaseStats(uint32 level, uint8 unitClass);
 
         void SetHighestGuids();
         uint32 GenerateLowGuid(HighGuid guidhigh);
