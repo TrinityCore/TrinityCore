@@ -204,6 +204,38 @@ void AuraApplication::ClientUpdate(bool remove)
     m_target->SendMessageToSet(&data, true);
 }
 
+void AuraApplication::ConstructAuraInfo(ByteBuffer &data)
+{
+    m_needClientUpdate = false;
+
+    data << uint8(m_slot);
+
+    if(!m_target->GetVisibleAura(m_slot))
+    {
+        data << uint32(0);
+        sLog.outDebug("Aura %u removed slot %u",GetBase()->GetId(), m_slot);
+        return;
+    }
+
+    Aura const * aura = GetBase();
+    data << uint32(aura->GetId());
+    uint32 flags = m_flags;
+    if (aura->GetMaxDuration() > 0)
+        flags |= AFLAG_DURATION;
+    data << uint8(flags);
+    data << uint8(aura->GetCasterLevel());
+    data << uint8(aura->GetStackAmount() > 1 ? aura->GetStackAmount() : (aura->GetCharges()) ? aura->GetCharges() : 1);
+
+    if(!(flags & AFLAG_CASTER))
+        data.appendPackGUID(aura->GetCasterGUID());
+
+    if(flags & AFLAG_DURATION)
+    {
+        data << uint32(aura->GetMaxDuration());
+        data << uint32(aura->GetDuration());
+    }
+}
+
 Aura * Aura::TryCreate(SpellEntry const* spellproto, uint8 tryEffMask, WorldObject * owner, Unit * caster, int32 *baseAmount, Item * castItem, uint64 casterGUID)
 {
     assert(spellproto);
