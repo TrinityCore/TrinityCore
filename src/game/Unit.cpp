@@ -2210,9 +2210,9 @@ void Unit::CalcAbsorbResist(Unit *pVictim, SpellSchoolMask schoolMask, DamageEff
         {
             // Get total damage bonus from auras
             int32 current_dmg = 0;
-            std::pair<AuraMap::const_iterator, AuraMap::const_iterator> range = pVictim->GetOwnedAuras().equal_range(44413);
-            for (AuraMap::const_iterator iter = range.first; iter != range.second; ++iter)
-                if (AuraEffect const * bonusEff = iter->second->GetEffect(0))
+            std::pair<AuraApplicationMap::const_iterator, AuraApplicationMap::const_iterator> range = pVictim->GetAppliedAuras().equal_range(44413);
+            for (AuraApplicationMap::const_iterator iter = range.first; iter != range.second; ++iter)
+                if (AuraEffect const * bonusEff = iter->second->GetBase()->GetEffect(0))
                     current_dmg += bonusEff->GetAmount();
 
             int32 new_dmg = (int32)*absorb * aurEff->GetAmount() / 100;
@@ -4292,14 +4292,15 @@ void Unit::RemoveArenaAuras(bool onleave)
 {
     // in join, remove positive buffs, on end, remove negative
     // used to remove positive visible auras in arenas
-    for (AuraMap::iterator iter = m_ownedAuras.begin(); iter != m_ownedAuras.end();)
+    for (AuraApplicationMap::iterator iter = m_appliedAuras.begin(); iter != m_appliedAuras.end();)
     {
-        Aura const * aura = iter->second;
+        AuraApplication const * aurApp = iter->second;
+        Aura const * aura = aurApp->GetBase();
         if ( !(aura->GetSpellProto()->AttributesEx4 & (1<<21)) // don't remove stances, shadowform, pally/hunter auras
             && !aura->IsPassive()                               // don't remove passive auras
             && (!(aura->GetSpellProto()->Attributes & SPELL_ATTR_UNAFFECTED_BY_INVULNERABILITY) || !(aura->GetSpellProto()->Attributes & SPELL_ATTR_UNK8))   // not unaffected by invulnerability auras or not having that unknown flag (that seemed the most probable)
-            && (aura->IsPositive(this) ^ onleave))                   // remove positive buffs on enter, negative buffs on leave
-            RemoveOwnedAura(iter);
+            && (aurApp->IsPositive() ^ onleave))                   // remove positive buffs on enter, negative buffs on leave
+            RemoveAura(iter);
         else
             ++iter;
     }
