@@ -5681,6 +5681,13 @@ void AuraEffect::HandleAuraDummy(AuraApplication const * aurApp, uint8 mode, boo
                     target->RemoveAurasDueToSpell(spellId);
                     break;
                 }
+                // Tag Murloc
+                case 30877:
+                {
+                    // Tag/untag Blacksilt Scout
+                    target->SetEntry(apply ? 17654 : 17326);
+                    break;
+                }
                 //Summon Fire Elemental
                 case 40133:
                 {
