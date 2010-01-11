@@ -8968,6 +8968,31 @@ void ObjectMgr::LoadCreatureClassLevelStats()
 
     delete result;
 
+    for (uint32 i = 0; i < sCreatureStorage.MaxEntry; ++i)
+    {
+        CreatureInfo const* info = sCreatureStorage.LookupEntry<CreatureInfo>(i);
+        if (!info)
+            continue;
+
+        CreatureBaseStats const* stats = GetCreatureBaseStats(info->maxlevel, info->unit_class);
+        if (!stats)
+        {
+            sLog.outErrorDb("Missing base stats for creature template %u maxlevel %u, adding default values",
+                info->Entry, info->maxlevel);
+
+            CreatureBaseStats new_stats = CreatureBaseStats();
+
+            new_stats.BaseArmor = 1;
+            for (uint8 j = 0; j < MAX_CREATURE_BASE_HP; ++j)
+                new_stats.BaseHealth[j] = 1;
+            new_stats.BaseMana = 0;
+            new_stats.Class = info->unit_class;
+            new_stats.Level = info->maxlevel;
+
+            m_creatureBaseStatsList.push_back(new_stats);
+        }
+    }
+
     sLog.outString();
     sLog.outString( ">> Loaded %u creature base stats.", counter);
 }
