@@ -3741,6 +3741,7 @@ void SpellMgr::LoadSpellCustomAttr()
         case 39805:    // Lightning Overload
         case 52437:    // Sudden Death
         case 64823:    // Item - Druid T8 Balance 4P Bonus
+        case SPELL_MISSILE_BARRAGE_44401:
             spellInfo->procCharges = 1;
             count++;
             break;
