@@ -4364,7 +4364,7 @@ AuraEffect * Unit::GetAuraEffectOfRankedSpell(uint32 spellId, uint8 effIndex, ui
     uint32 rankSpell = spellmgr.GetFirstSpellInChain(spellId);
     while(true)
     {
-        if (AuraEffect * aurEff = GetAuraEffect(spellId, effIndex, caster))
+        if (AuraEffect * aurEff = GetAuraEffect(rankSpell, effIndex, caster))
             return aurEff;
         SpellChainNode const * chainNode = spellmgr.GetSpellChainNode(rankSpell);
         if (!chainNode)
