@@ -913,7 +913,8 @@ void Spell::AddUnitTarget(Unit* pVictim, uint32 effIndex)
         target.missCondition = SPELL_MISS_EVADE; //SPELL_MISS_NONE;
 
     // Spell have speed - need calculate incoming time
-    if (m_spellInfo->speed > 0.0f)
+    // Incoming time is zero for self casts. At least I think so.
+    if (m_spellInfo->speed > 0.0f && m_caster != pVictim)
     {
         // calculate spell incoming interval
         // TODO: this is a hack
