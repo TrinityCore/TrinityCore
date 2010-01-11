@@ -4279,13 +4279,16 @@ void Unit::RemoveAreaAurasDueToLeaveWorld()
 
 void Unit::RemoveAllAuras()
 {
-    AuraApplicationMap::iterator aurAppIter = m_appliedAuras.begin();
-    while (!m_appliedAuras.empty())
-        _UnapplyAura(aurAppIter, AURA_REMOVE_BY_DEFAULT);
+    while (!m_appliedAuras.empty() || !m_ownedAuras.empty())
+    {
+        AuraApplicationMap::iterator aurAppIter = m_appliedAuras.begin();
+        while (!m_appliedAuras.empty())
+            _UnapplyAura(aurAppIter, AURA_REMOVE_BY_DEFAULT);
 
-    AuraMap::iterator aurIter = m_ownedAuras.begin();
-    while (!m_ownedAuras.empty())
-        RemoveOwnedAura(aurIter);
+        AuraMap::iterator aurIter = m_ownedAuras.begin();
+        while (!m_ownedAuras.empty())
+            RemoveOwnedAura(aurIter);
+    }
 }
 
 void Unit::RemoveArenaAuras(bool onleave)
