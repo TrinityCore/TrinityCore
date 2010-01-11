@@ -682,7 +682,7 @@ struct TRINITY_DLL_DECL dummy_dragonAI : public ScriptedAI
 
         DoScriptText(iTextId, m_creature);
 
-        m_creature->RemoveOwnedAura(uiSpellId, AURA_REMOVE_BY_DEFAULT);
+        m_creature->RemoveOwnedAura(uiSpellId);
 
         if (pInstance)
         {

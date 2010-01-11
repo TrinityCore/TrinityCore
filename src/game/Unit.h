@@ -1545,7 +1545,7 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
         AuraMap const& GetOwnedAuras() const { return m_ownedAuras; }
 
         void RemoveOwnedAura(AuraMap::iterator &i, AuraRemoveMode removeMode = AURA_REMOVE_BY_DEFAULT);
-        void RemoveOwnedAura(uint32 spellId, uint64 caster, uint8 reqEffMask = 0, AuraRemoveMode removeMode = AURA_REMOVE_BY_DEFAULT);
+        void RemoveOwnedAura(uint32 spellId, uint64 caster = 0, uint8 reqEffMask = 0, AuraRemoveMode removeMode = AURA_REMOVE_BY_DEFAULT);
         void RemoveOwnedAura(Aura * aura, AuraRemoveMode removeMode = AURA_REMOVE_BY_DEFAULT);
 
         Aura * GetOwnedAura(uint32 spellId, uint64 casterGUID = 0, uint8 reqEffMask = 0) const;

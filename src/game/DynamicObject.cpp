@@ -179,4 +179,4 @@ bool DynamicObject::isVisibleForInState(Player const* u, bool inVisibleList) con
 {
     return IsInWorld() && u->IsInWorld()
         && (IsWithinDistInMap(u->m_seer,World::GetMaxVisibleDistanceForObject()+(inVisibleList ? World::GetVisibleObjectGreyDistance() : 0.0f), false));
-}
+}
