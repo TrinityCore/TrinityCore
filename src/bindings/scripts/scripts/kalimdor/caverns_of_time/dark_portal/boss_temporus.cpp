@@ -45,11 +45,9 @@ struct TRINITY_DLL_DECL boss_temporusAI : public ScriptedAI
     boss_temporusAI(Creature *c) : ScriptedAI(c)
     {
         pInstance = c->GetInstanceData();
-        HeroicMode = c->GetMap()->IsHeroic();
     }
 
     ScriptedInstance *pInstance;
-    bool HeroicMode;
 
     uint32 Haste_Timer;
     uint32 SpellReflection_Timer;
@@ -121,11 +119,11 @@ struct TRINITY_DLL_DECL boss_temporusAI : public ScriptedAI
         //Wing ruffet
         if (WingBuffet_Timer <= diff)
         {
-            DoCast(m_creature, HEROIC(SPELL_WING_BUFFET, H_SPELL_WING_BUFFET));
+            DoCast(m_creature, DUNGEON_MODE(SPELL_WING_BUFFET, H_SPELL_WING_BUFFET));
             WingBuffet_Timer = 20000+rand()%10000;
         } else WingBuffet_Timer -= diff;
 
-        if (HeroicMode)
+        if (IsHeroic())
         {
             if (SpellReflection_Timer <= diff)
             {

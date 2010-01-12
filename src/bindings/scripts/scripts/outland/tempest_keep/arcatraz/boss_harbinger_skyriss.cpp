@@ -58,12 +58,10 @@ struct TRINITY_DLL_DECL boss_harbinger_skyrissAI : public ScriptedAI
     boss_harbinger_skyrissAI(Creature *c) : ScriptedAI(c)
     {
         pInstance = c->GetInstanceData();
-        HeroicMode = c->GetMap()->IsHeroic();
         Intro = false;
     }
 
     ScriptedInstance *pInstance;
-    bool HeroicMode;
 
     bool Intro;
     bool IsImage33;
@@ -199,9 +197,9 @@ struct TRINITY_DLL_DECL boss_harbinger_skyrissAI : public ScriptedAI
         if (MindRend_Timer <= diff)
         {
             if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM,1))
-                DoCast(pTarget, HEROIC(SPELL_MIND_REND, H_SPELL_MIND_REND));
+                DoCast(pTarget, DUNGEON_MODE(SPELL_MIND_REND, H_SPELL_MIND_REND));
             else
-                DoCast(m_creature->getVictim(), HEROIC(SPELL_MIND_REND, H_SPELL_MIND_REND));
+                DoCast(m_creature->getVictim(), DUNGEON_MODE(SPELL_MIND_REND, H_SPELL_MIND_REND));
 
             MindRend_Timer = 8000;
         } else MindRend_Timer -=diff;
@@ -229,14 +227,14 @@ struct TRINITY_DLL_DECL boss_harbinger_skyrissAI : public ScriptedAI
             DoScriptText(RAND(SAY_MIND_1,SAY_MIND_2), m_creature);
 
             if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM,1))
-                DoCast(pTarget, HEROIC(SPELL_DOMINATION, H_SPELL_DOMINATION));
+                DoCast(pTarget, DUNGEON_MODE(SPELL_DOMINATION, H_SPELL_DOMINATION));
             else
-                DoCast(m_creature->getVictim(), HEROIC(SPELL_DOMINATION, H_SPELL_DOMINATION));
+                DoCast(m_creature->getVictim(), DUNGEON_MODE(SPELL_DOMINATION, H_SPELL_DOMINATION));
 
             Domination_Timer = 16000+rand()%16000;
         } else Domination_Timer -=diff;
 
-        if (HeroicMode)
+        if (IsHeroic())
         {
             if (ManaBurn_Timer <= diff)
             {
@@ -266,10 +264,7 @@ struct TRINITY_DLL_DECL boss_harbinger_skyriss_illusionAI : public ScriptedAI
 {
     boss_harbinger_skyriss_illusionAI(Creature *c) : ScriptedAI(c)
     {
-        HeroicMode = c->GetMap()->IsHeroic();
     }
-
-    bool HeroicMode;
 
     void Reset() { }
 

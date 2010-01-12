@@ -43,7 +43,7 @@ class SummonList : public std::list<uint64>
 struct TRINITY_DLL_DECL ScriptedAI : public CreatureAI
 {
     explicit ScriptedAI(Creature* pCreature);
-    ~ScriptedAI() {}
+    virtual ~ScriptedAI() {}
 
     //*************
     //CreatureAI Functions
@@ -90,8 +90,6 @@ struct TRINITY_DLL_DECL ScriptedAI : public CreatureAI
 
     //For fleeing
     bool IsFleeing;
-
-    bool HeroicMode;
 
     //*************
     //Pure virtual functions
@@ -171,14 +169,74 @@ struct TRINITY_DLL_DECL ScriptedAI : public CreatureAI
 
     bool EnterEvadeIfOutOfCombatArea(const uint32 uiDiff);
 
+    // return true for heroic mode. i.e.
+    //   - for dungeon in mode 10-heroic, 
+    //   - for raid in mode 10-Heroic 
+    //   - for raid in mode 25-heroic
+    // DO NOT USE to check raid in mode 25-normal.
+    bool IsHeroic() { return m_heroicMode; }
+
+    // return the dungeon or raid difficulty
+    Difficulty getDifficulty() { return m_difficulty; }
+
+    template<class T> inline
+    const T& DUNGEON_MODE(const T& normal5, const T& heroic10)
+    {
+        switch(m_difficulty)
+        {
+        case DUNGEON_DIFFICULTY_NORMAL:
+            return normal5;
+        case DUNGEON_DIFFICULTY_HEROIC:
+            return heroic10;
+        }
+
+        return heroic10;
+    }
+
+    template<class T> inline
+    const T& RAID_MODE(const T& normal10, const T& normal25)
+    {
+        switch(m_difficulty)
+        {
+        case RAID_DIFFICULTY_10MAN_NORMAL:
+            return normal10;
+        case RAID_DIFFICULTY_25MAN_NORMAL:
+            return normal25;
+        }
+
+        return normal25;
+    }
+
+    template<class T> inline
+    const T& RAID_MODE(const T& normal10, const T& normal25, const T& heroic10, const T& heroic25)
+    {
+        switch(m_difficulty)
+        {
+        case RAID_DIFFICULTY_10MAN_NORMAL:
+            return normal10;
+        case RAID_DIFFICULTY_25MAN_NORMAL:
+            return normal25;
+        case RAID_DIFFICULTY_10MAN_HEROIC:
+            return heroic10;
+        case RAID_DIFFICULTY_25MAN_HEROIC:
+            return heroic25;
+        }
+
+        return heroic25;
+    }
+
     private:
         bool m_bCombatMovement;
         uint32 m_uiEvadeCheckCooldown;
+        
+        bool m_heroicMode;
+        Difficulty m_difficulty;
 };
 
 struct TRINITY_DLL_DECL Scripted_NoMovementAI : public ScriptedAI
 {
     Scripted_NoMovementAI(Creature* creature) : ScriptedAI(creature) {}
+    virtual ~Scripted_NoMovementAI() {}
 
     //Called at each attack of m_creature by any victim
     void AttackStart(Unit* who);
@@ -187,6 +245,7 @@ struct TRINITY_DLL_DECL Scripted_NoMovementAI : public ScriptedAI
 struct TRINITY_DLL_DECL BossAI : public ScriptedAI
 {
     BossAI(Creature *c, uint32 id);
+    virtual ~BossAI() {}
 
     const uint32 bossId;
     EventMap events;

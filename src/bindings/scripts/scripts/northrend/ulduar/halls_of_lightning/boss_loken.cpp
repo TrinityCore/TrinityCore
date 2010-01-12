@@ -63,12 +63,10 @@ struct TRINITY_DLL_DECL boss_lokenAI : public ScriptedAI
     boss_lokenAI(Creature* pCreature) : ScriptedAI(pCreature)
     {
         m_pInstance = pCreature->GetInstanceData();
-        m_bIsHeroic = pCreature->GetMap()->IsHeroic();
     }
 
     ScriptedInstance* m_pInstance;
 
-    bool m_bIsHeroic;
     bool m_bIsAura;
 
     uint32 m_uiArcLightning_Timer;
@@ -109,7 +107,7 @@ struct TRINITY_DLL_DECL boss_lokenAI : public ScriptedAI
     {
         DoScriptText(SAY_DEATH, m_creature);
 
-        if (m_bIsHeroic && EncounterTime <= MAX_ENCOUNTER_TIME)
+        if (IsHeroic() && EncounterTime <= MAX_ENCOUNTER_TIME)
         {
             AchievementEntry const *AchievTimelyDeath = GetAchievementStore()->LookupEntry(ACHIEVEMENT_TIMELY_DEATH);
             if (AchievTimelyDeath)
@@ -160,12 +158,11 @@ struct TRINITY_DLL_DECL boss_lokenAI : public ScriptedAI
                             int32 dmg;
                             float m_fDist = m_creature->GetExactDist(i->getSource()->GetPositionX(), i->getSource()->GetPositionY(), i->getSource()->GetPositionZ());
 
-                            if (m_fDist <= 1.0f) // Less than 1 yard
-                                dmg = (m_bIsHeroic ? 150 : 100); // need to correct damage
-                            else // Further from 1 yard
-                                dmg = ((m_bIsHeroic ? 150 : 100) * m_fDist) + (m_bIsHeroic ? 150 : 100); // need to correct damage
+                            dmg = DUNGEON_MODE(100, 150); // need to correct damage
+                            if (m_fDist > 1.0f) // Further from 1 yard
+                                dmg *= m_fDist;
 
-                            m_creature->CastCustomSpell(i->getSource(), (m_bIsHeroic ? 59837 : 52942), &dmg, 0, 0, false);
+                            m_creature->CastCustomSpell(i->getSource(), DUNGEON_MODE(52942, 59837), &dmg, 0, 0, false);
                         }
                 }
                 m_uiPulsingShockwave_Timer = 2000;
@@ -178,7 +175,7 @@ struct TRINITY_DLL_DECL boss_lokenAI : public ScriptedAI
                 //breaks at movement, can we assume when it's time, this spell is casted and also must stop movement?
                 DoCast(m_creature, SPELL_PULSING_SHOCKWAVE_AURA, true);
 
-                  DoCast(m_creature, m_bIsHeroic ? SPELL_PULSING_SHOCKWAVE_H : SPELL_PULSING_SHOCKWAVE_N); // need core support
+                DoCast(m_creature, DUNGEON_MODE(SPELL_PULSING_SHOCKWAVE_N, SPELL_PULSING_SHOCKWAVE_H)); // need core support
                 m_bIsAura = true;
                 m_uiResumePulsingShockwave_Timer = 0;
             }
@@ -200,10 +197,10 @@ struct TRINITY_DLL_DECL boss_lokenAI : public ScriptedAI
         {
             DoScriptText(RAND(SAY_NOVA_1,SAY_NOVA_2,SAY_NOVA_3), m_creature);
             DoScriptText(EMOTE_NOVA, m_creature);
-            DoCast(m_creature, m_bIsHeroic ? SPELL_LIGHTNING_NOVA_H : SPELL_LIGHTNING_NOVA_N);
+            DoCast(m_creature, DUNGEON_MODE(SPELL_LIGHTNING_NOVA_N, SPELL_LIGHTNING_NOVA_H));
 
             m_bIsAura = false;
-            m_uiResumePulsingShockwave_Timer = (m_bIsHeroic ? 4000 : 5000); // Pause Pulsing Shockwave aura
+            m_uiResumePulsingShockwave_Timer = DUNGEON_MODE(5000, 4000); // Pause Pulsing Shockwave aura
             m_uiLightningNova_Timer = 20000 + rand()%1000;
         }
         else

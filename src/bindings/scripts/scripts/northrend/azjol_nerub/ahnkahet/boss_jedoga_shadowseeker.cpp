@@ -303,14 +303,14 @@ struct TRINITY_DLL_DECL boss_jedoga_shadowseekerAI : public ScriptedAI
 
             if (uiCycloneTimer <= diff)
             {
-                DoCast(m_creature, HEROIC(SPELL_CYCLONE_STRIKE, SPELL_CYCLONE_STRIKE_H), false);
+                DoCast(m_creature, DUNGEON_MODE(SPELL_CYCLONE_STRIKE, SPELL_CYCLONE_STRIKE_H), false);
                 uiCycloneTimer = urand(15000,30000);
             } else uiCycloneTimer -= diff;
 
             if (uiBoltTimer <= diff)
             {
                 if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                    m_creature->CastSpell(pTarget, HEROIC(SPELL_LIGHTNING_BOLT, SPELL_LIGHTNING_BOLT_H), false);
+                    m_creature->CastSpell(pTarget, DUNGEON_MODE(SPELL_LIGHTNING_BOLT, SPELL_LIGHTNING_BOLT_H), false);
 
                 uiBoltTimer = urand(15000,30000);
             } else uiBoltTimer -= diff;
@@ -318,7 +318,7 @@ struct TRINITY_DLL_DECL boss_jedoga_shadowseekerAI : public ScriptedAI
             if (uiThunderTimer <= diff)
             {
                 if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                    m_creature->CastSpell(pTarget, HEROIC(SPELL_THUNDERSHOCK, SPELL_THUNDERSHOCK_H), false);
+                    m_creature->CastSpell(pTarget, DUNGEON_MODE(SPELL_THUNDERSHOCK, SPELL_THUNDERSHOCK_H), false);
 
                 uiThunderTimer = urand(15000,30000);
             } else uiThunderTimer -= diff;

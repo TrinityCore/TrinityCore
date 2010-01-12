@@ -52,10 +52,7 @@ struct TRINITY_DLL_DECL boss_warchief_kargath_bladefistAI : public ScriptedAI
 {
     boss_warchief_kargath_bladefistAI(Creature *c) : ScriptedAI(c)
     {
-        HeroicMode = c->GetMap()->IsHeroic();
     }
-
-    bool HeroicMode;
 
     std::vector<uint64> adds;
     std::vector<uint64> assassins;
@@ -202,10 +199,10 @@ struct TRINITY_DLL_DECL boss_warchief_kargath_bladefistAI : public ScriptedAI
                         // stop bladedance
                         InBlade = false;
                         m_creature->SetSpeed(MOVE_RUN,2);
-                        (*m_creature).GetMotionMaster()->MoveChase(m_creature->getVictim());
+                        m_creature->GetMotionMaster()->MoveChase(m_creature->getVictim());
                         Blade_Dance_Timer = 30000;
                         Wait_Timer = 0;
-                        if (HeroicMode)
+                        if (IsHeroic())
                             Charge_timer = 5000;
                     }
                     else
@@ -216,7 +213,7 @@ struct TRINITY_DLL_DECL boss_warchief_kargath_bladefistAI : public ScriptedAI
                         randy = (rand()%40);
                         x = 210+ randx ;
                         y = -60- randy ;
-                        (*m_creature).GetMotionMaster()->MovePoint(1,x,y,m_creature->GetPositionZ());
+                        m_creature->GetMotionMaster()->MovePoint(1,x,y,m_creature->GetPositionZ());
                         Wait_Timer = 0;
                     }
                 } else Wait_Timer -= diff;

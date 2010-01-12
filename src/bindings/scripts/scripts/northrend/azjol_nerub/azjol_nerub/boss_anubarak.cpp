@@ -145,7 +145,7 @@ struct TRINITY_DLL_DECL boss_anub_arakAI : public ScriptedAI
             if (SPELL_IMPALE_Timer <= diff)
             {
                 if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                    m_creature->CastSpell(pTarget, HEROIC(SPELL_IMPALE,H_SPELL_IMPALE), true);
+                    m_creature->CastSpell(pTarget, DUNGEON_MODE(SPELL_IMPALE,H_SPELL_IMPALE), true);
 
                 SPELL_IMPALE_Timer = 9000;
             } else SPELL_IMPALE_Timer -= diff;
@@ -226,7 +226,7 @@ struct TRINITY_DLL_DECL boss_anub_arakAI : public ScriptedAI
 
             if (SPELL_POUND_Timer <= diff)
             {
-                 DoCastVictim(HEROIC(SPELL_POUND, H_SPELL_POUND));
+                 DoCastVictim(DUNGEON_MODE(SPELL_POUND, H_SPELL_POUND));
                  SPELL_POUND_Timer = 16500;
             } else SPELL_POUND_Timer -= diff;
         }

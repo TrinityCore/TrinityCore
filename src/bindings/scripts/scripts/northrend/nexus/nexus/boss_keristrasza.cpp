@@ -54,11 +54,9 @@ struct TRINITY_DLL_DECL boss_keristraszaAI : public ScriptedAI
     boss_keristraszaAI(Creature *c) : ScriptedAI(c)
     {
         pInstance = c->GetInstanceData();
-        HeroicMode = c->GetMap()->IsHeroic();
     }
 
     ScriptedInstance* pInstance;
-    bool HeroicMode;
 
     uint32 CRYSTALFIRE_BREATH_Timer;
     uint32 CRYSTAL_CHAINS_CRYSTALIZE_Timer;
@@ -73,7 +71,7 @@ struct TRINITY_DLL_DECL boss_keristraszaAI : public ScriptedAI
     void Reset()
     {
         CRYSTALFIRE_BREATH_Timer = 14000;
-        CRYSTAL_CHAINS_CRYSTALIZE_Timer = HEROIC(30000,11000);
+        CRYSTAL_CHAINS_CRYSTALIZE_Timer = DUNGEON_MODE(30000,11000);
         TAIL_SWEEP_Timer = 5000;
         Enrage = false;
 
@@ -101,7 +99,7 @@ struct TRINITY_DLL_DECL boss_keristraszaAI : public ScriptedAI
     {
         DoScriptText(SAY_DEATH, m_creature);
 
-        if (HeroicMode && !MoreThanTwoIntenseCold)
+        if (IsHeroic() && !MoreThanTwoIntenseCold)
         {
             AchievementEntry const *AchievIntenseCold = GetAchievementStore()->LookupEntry(ACHIEVEMENT_INTENSE_COLD);
             if (AchievIntenseCold)
@@ -199,7 +197,7 @@ struct TRINITY_DLL_DECL boss_keristraszaAI : public ScriptedAI
 
         if (CRYSTALFIRE_BREATH_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(), HEROIC(SPELL_CRYSTALFIRE_BREATH_N, SPELL_CRYSTALFIRE_BREATH_H));
+            DoCast(m_creature->getVictim(), DUNGEON_MODE(SPELL_CRYSTALFIRE_BREATH_N, SPELL_CRYSTALFIRE_BREATH_H));
             CRYSTALFIRE_BREATH_Timer = 14000;
         } else CRYSTALFIRE_BREATH_Timer -=diff;
 
@@ -212,11 +210,11 @@ struct TRINITY_DLL_DECL boss_keristraszaAI : public ScriptedAI
         if (CRYSTAL_CHAINS_CRYSTALIZE_Timer <= diff)
         {
             DoScriptText(SAY_CRYSTAL_NOVA, m_creature);
-            if (HeroicMode)
+            if (IsHeroic())
                 DoCast(m_creature, SPELL_CRYSTALIZE);
             else if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                 DoCast(pTarget, SPELL_CRYSTAL_CHAINS);
-            CRYSTAL_CHAINS_CRYSTALIZE_Timer = HEROIC(30000,11000);
+            CRYSTAL_CHAINS_CRYSTALIZE_Timer = DUNGEON_MODE(30000,11000);
         } else CRYSTAL_CHAINS_CRYSTALIZE_Timer -= diff;
 
         DoMeleeAttackIfReady();

@@ -24,9 +24,9 @@
 
 #define SOUND_DEATH      8848
 
-#define SPELL_CURSE_PLAGUEBRINGER       HEROIC(29213,54835)
+#define SPELL_CURSE_PLAGUEBRINGER       RAID_MODE(29213,54835)
 #define SPELL_BLINK                     RAND(29208,29209,29210,29211)
-#define SPELL_CRIPPLE                   HEROIC(29212,54814)
+#define SPELL_CRIPPLE                   RAID_MODE(29212,54814)
 #define SPELL_TELEPORT                  29216
 
 #define MOB_WARRIOR         16984
@@ -95,7 +95,7 @@ struct TRINITY_DLL_DECL boss_nothAI : public BossAI
             events.ScheduleEvent(EVENT_BALCONY, 110000);
             events.ScheduleEvent(EVENT_CURSE, 20000+rand()%10000);
             events.ScheduleEvent(EVENT_WARRIOR, 30000);
-            if (HeroicMode)
+            if (getDifficulty() == RAID_DIFFICULTY_25MAN_NORMAL)
                 events.ScheduleEvent(EVENT_BLINK, 20000+rand()%10000);
         }
     }
@@ -146,7 +146,7 @@ struct TRINITY_DLL_DECL boss_nothAI : public BossAI
                     return;
                 case EVENT_WARRIOR:
                     DoScriptText(SAY_SUMMON, me);
-                    SummonUndead(MOB_WARRIOR, HEROIC(2,3));
+                    SummonUndead(MOB_WARRIOR, RAID_MODE(2,3));
                     events.ScheduleEvent(EVENT_WARRIOR, 30000);
                     return;
                 case EVENT_BLINK:
@@ -169,12 +169,12 @@ struct TRINITY_DLL_DECL boss_nothAI : public BossAI
                     DoScriptText(SAY_SUMMON, me);
                     switch(balconyCount)
                     {
-                        case 0: SummonUndead(MOB_CHAMPION, HEROIC(2,4)); break;
-                        case 1: SummonUndead(MOB_CHAMPION, HEROIC(1,2));
-                                SummonUndead(MOB_GUARDIAN, HEROIC(1,2)); break;
-                        case 2: SummonUndead(MOB_GUARDIAN, HEROIC(2,4)); break;
-                        default:SummonUndead(MOB_CHAMPION, HEROIC(5,10));
-                                SummonUndead(MOB_GUARDIAN, HEROIC(5,10));break;
+                        case 0: SummonUndead(MOB_CHAMPION, RAID_MODE(2,4)); break;
+                        case 1: SummonUndead(MOB_CHAMPION, RAID_MODE(1,2));
+                                SummonUndead(MOB_GUARDIAN, RAID_MODE(1,2)); break;
+                        case 2: SummonUndead(MOB_GUARDIAN, RAID_MODE(2,4)); break;
+                        default:SummonUndead(MOB_CHAMPION, RAID_MODE(5,10));
+                                SummonUndead(MOB_GUARDIAN, RAID_MODE(5,10));break;
                     }
                     ++waveCount;
                     events.ScheduleEvent(waveCount < 2 ? EVENT_WAVE : EVENT_GROUND, 34000);

@@ -115,7 +115,7 @@ struct TRINITY_DLL_DECL boss_dredAI : public ScriptedAI
 
         if (FearsomeRoarTimer < diff)
         {
-            DoCastAOE(HEROIC(SPELL_FEARSOME_ROAR, H_SPELL_FEARSOME_ROAR),false);
+            DoCastAOE(DUNGEON_MODE(SPELL_FEARSOME_ROAR, H_SPELL_FEARSOME_ROAR),false);
             FearsomeRoarTimer = urand(16,18)*1000;
         } else FearsomeRoarTimer -=diff;
 
@@ -146,7 +146,7 @@ struct TRINITY_DLL_DECL boss_dredAI : public ScriptedAI
         {
             pInstance->SetData(DATA_DRED_EVENT,DONE);
 
-            if (HeroicMode && pInstance->GetData(DATA_KING_DRED_ACHIEV) == 6)
+            if (IsHeroic() && pInstance->GetData(DATA_KING_DRED_ACHIEV) == 6)
                 pInstance->DoCompleteAchievement(ACHIEV_BETTER_OFF_DRED);
         }
     }
@@ -192,7 +192,7 @@ struct TRINITY_DLL_DECL npc_drakkari_gutripperAI : public ScriptedAI
     {
         if (pInstance)
         {
-            if (m_creature->GetMap()->IsHeroic() && pInstance->GetData(DATA_DRED_EVENT) == IN_PROGRESS && pInstance->GetData(DATA_KING_DRED_ACHIEV) < 6)
+            if (IsHeroic() && pInstance->GetData(DATA_DRED_EVENT) == IN_PROGRESS && pInstance->GetData(DATA_KING_DRED_ACHIEV) < 6)
             {
                 pInstance->SetData(DATA_KING_DRED_ACHIEV, pInstance->GetData(DATA_KING_DRED_ACHIEV) + 1);
             }
@@ -240,7 +240,7 @@ struct TRINITY_DLL_DECL npc_drakkari_scytheclawAI : public ScriptedAI
     {
         if (pInstance)
         {
-            if (m_creature->GetMap()->IsHeroic() && pInstance->GetData(DATA_DRED_EVENT) == IN_PROGRESS && pInstance->GetData(DATA_KING_DRED_ACHIEV) < 6)
+            if (IsHeroic() && pInstance->GetData(DATA_DRED_EVENT) == IN_PROGRESS && pInstance->GetData(DATA_KING_DRED_ACHIEV) < 6)
             {
                 pInstance->SetData(DATA_KING_DRED_ACHIEV, pInstance->GetData(DATA_KING_DRED_ACHIEV) + 1);
             }

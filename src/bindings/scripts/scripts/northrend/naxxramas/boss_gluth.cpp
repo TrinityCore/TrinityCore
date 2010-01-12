@@ -18,8 +18,8 @@
 #include "naxxramas.h"
 
 #define SPELL_MORTAL_WOUND      25646
-#define SPELL_ENRAGE            HEROIC(28371,54427)
-#define SPELL_DECIMATE          HEROIC(28374,54426)
+#define SPELL_ENRAGE            RAID_MODE(28371,54427)
+#define SPELL_DECIMATE          RAID_MODE(28374,54426)
 #define SPELL_BERSERK           26662
 #define SPELL_INFECTED_WOUND    29306
 
@@ -131,7 +131,7 @@ struct TRINITY_DLL_DECL boss_gluthAI : public BossAI
                     events.ScheduleEvent(EVENT_BERSERK, 5*60000);
                     break;
                 case EVENT_SUMMON:
-                    for (uint32 i = 0; i < HEROIC(1,2); ++i)
+                    for (uint32 i = 0; i < RAID_MODE(1,2); ++i)
                         DoSummon(MOB_ZOMBIE, triggers[rand()%3]);
                     events.ScheduleEvent(EVENT_SUMMON, 10000);
                     break;

@@ -169,17 +169,17 @@ struct TRINITY_DLL_DECL boss_black_knightAI : public ScriptedAI
             {
                 if (uiIcyTouchTimer <= uiDiff)
                 {
-                    DoCastVictim(HEROIC(SPELL_ICY_TOUCH,SPELL_ICY_TOUCH_H));
+                    DoCastVictim(DUNGEON_MODE(SPELL_ICY_TOUCH,SPELL_ICY_TOUCH_H));
                     uiIcyTouchTimer = urand(5000,7000);
                 } else uiIcyTouchTimer -= uiDiff;
                 if (uiPlagueStrikeTimer <= uiDiff)
                 {
-                    DoCastVictim(HEROIC(SPELL_ICY_TOUCH,SPELL_ICY_TOUCH_H));
+                    DoCastVictim(DUNGEON_MODE(SPELL_ICY_TOUCH,SPELL_ICY_TOUCH_H));
                     uiPlagueStrikeTimer = urand(12000,15000);
                 } else uiPlagueStrikeTimer -= uiDiff;
                 if (uiObliterateTimer <= uiDiff)
                 {
-                    DoCastVictim(HEROIC(SPELL_OBLITERATE,SPELL_OBLITERATE_H));
+                    DoCastVictim(DUNGEON_MODE(SPELL_OBLITERATE,SPELL_OBLITERATE_H));
                     uiObliterateTimer = urand(17000,19000);
                 } else uiObliterateTimer -= uiDiff;
                 switch(uiPhase)
@@ -236,7 +236,7 @@ struct TRINITY_DLL_DECL boss_black_knightAI : public ScriptedAI
             {
                 if (uiDeathBiteTimer <= uiDiff)
                 {
-                    DoCastAOE(HEROIC(SPELL_DEATH_BITE_H,SPELL_DEATH_BITE));
+                    DoCastAOE(DUNGEON_MODE(SPELL_DEATH_BITE,SPELL_DEATH_BITE_H));
                     uiDeathBiteTimer = urand (2000, 4000);
                 } else uiDeathBiteTimer -= uiDiff;
                 if (uiMarkedDeathTimer <= uiDiff)
@@ -304,7 +304,7 @@ struct TRINITY_DLL_DECL npc_risen_ghoulAI : public ScriptedAI
             if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1, 100, true))
             {
                 if (pTarget && pTarget->isAlive())
-                DoCast(pTarget, (HEROIC(SPELL_LEAP_H,SPELL_LEAP)));
+                DoCast(pTarget, (DUNGEON_MODE(SPELL_LEAP,SPELL_LEAP_H)));
             }
             uiAttackTimer = 3500;
         } else uiAttackTimer -= uiDiff;

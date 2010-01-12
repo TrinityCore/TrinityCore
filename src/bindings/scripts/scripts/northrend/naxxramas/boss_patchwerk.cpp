@@ -24,7 +24,7 @@
 #define EMOTE_BERSERK           -1533021
 #define EMOTE_ENRAGE            -1533022
 
-#define SPELL_HATEFULSTRIKE     HEROIC(41926,59192)
+#define SPELL_HATEFULSTRIKE     RAID_MODE(41926,59192)
 #define SPELL_FRENZY            28131
 #define SPELL_BERSERK           26662
 #define SPELL_SLIMEBOLT         32309
@@ -33,7 +33,7 @@
 #define EVENT_HATEFUL   2
 #define EVENT_SLIME     3
 
-#define ACHIEVEMENT_MAKE_QUICK_WERK_OF_HIM  HEROIC(1856, 1857)
+#define ACHIEVEMENT_MAKE_QUICK_WERK_OF_HIM  RAID_MODE(1856, 1857)
 #define MAX_ENCOUNTER_TIME                    3 * 60 * 1000
 
 struct TRINITY_DLL_DECL boss_patchwerkAI : public BossAI

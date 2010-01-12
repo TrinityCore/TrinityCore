@@ -27,13 +27,13 @@ EndScriptData */
 #define SPELL_ATTRACTMAGIC          32265
 #define N_SPELL_CARNIVOROUSBITE     36383
 #define H_SPELL_CARNIVOROUSBITE     39382
-#define SPELL_CARNIVOROUSBITE       (HeroicMode?H_SPELL_CARNIVOROUSBITE:N_SPELL_CARNIVOROUSBITE)
+#define SPELL_CARNIVOROUSBITE       DUNGEON_MODE(N_SPELL_CARNIVOROUSBITE, H_SPELL_CARNIVOROUSBITE)
 
 #define ENTRY_FOCUS_FIRE            18374
 
 #define N_SPELL_FIERY_BLAST         32302
 #define H_SPELL_FIERY_BLAST         38382
-#define SPELL_FIERY_BLAST           (HeroicMode?H_SPELL_FIERY_BLAST:N_SPELL_FIERY_BLAST)
+#define SPELL_FIERY_BLAST           DUNGEON_MODE(N_SPELL_FIERY_BLAST, H_SPELL_FIERY_BLAST)
 #define SPELL_FOCUS_FIRE_VISUAL     42075 //need to find better visual
 
 #define EMOTE_FOCUSES_ON            "focuses on "
@@ -42,14 +42,13 @@ struct TRINITY_DLL_DECL boss_shirrak_the_dead_watcherAI : public ScriptedAI
 {
     boss_shirrak_the_dead_watcherAI(Creature *c) : ScriptedAI(c)
     {
-        HeroicMode = m_creature->GetMap()->IsHeroic();
     }
 
     uint32 Inhibitmagic_Timer;
     uint32 Attractmagic_Timer;
     uint32 Carnivorousbite_Timer;
     uint32 FocusFire_Timer;
-    bool HeroicMode;
+
     Unit *focusedTarget;
 
     void Reset()
@@ -156,10 +155,8 @@ struct TRINITY_DLL_DECL mob_focus_fireAI : public ScriptedAI
 {
     mob_focus_fireAI(Creature *c) : ScriptedAI(c)
     {
-        HeroicMode = m_creature->GetMap()->IsHeroic();
     }
 
-    bool HeroicMode;
     uint32 FieryBlast_Timer;
     bool fiery1, fiery2;
 

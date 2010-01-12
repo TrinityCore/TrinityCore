@@ -90,13 +90,11 @@ struct TRINITY_DLL_DECL boss_priestess_delrissaAI : public ScriptedAI
     boss_priestess_delrissaAI(Creature* c) : ScriptedAI(c)
     {
         pInstance = c->GetInstanceData();
-        Heroic = c->GetMap()->IsHeroic();
         memset(&m_auiLackeyGUID, 0, sizeof(m_auiLackeyGUID));
         LackeyEntryList.clear();
     }
 
     ScriptedInstance* pInstance;
-    bool Heroic;
 
     std::vector<uint32> LackeyEntryList;
     uint64 m_auiLackeyGUID[MAX_ACTIVE_LACKEY];
@@ -269,7 +267,7 @@ struct TRINITY_DLL_DECL boss_priestess_delrissaAI : public ScriptedAI
                     if (pAdd->isAlive())
                         pTarget = pAdd;
 
-            DoCast(pTarget, Heroic ? SPELL_RENEW_HEROIC : SPELL_RENEW_NORMAL);
+            DoCast(pTarget, DUNGEON_MODE(SPELL_RENEW_NORMAL, SPELL_RENEW_HEROIC));
             RenewTimer = 5000;
         } else RenewTimer -= diff;
 
@@ -314,7 +312,7 @@ struct TRINITY_DLL_DECL boss_priestess_delrissaAI : public ScriptedAI
         if (SWPainTimer <= diff)
         {
             if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                DoCast(pTarget, Heroic ? SPELL_SW_PAIN_HEROIC : SPELL_SW_PAIN_NORMAL);
+                DoCast(pTarget, DUNGEON_MODE(SPELL_SW_PAIN_NORMAL, SPELL_SW_PAIN_HEROIC));
 
             SWPainTimer = 10000;
         } else SWPainTimer -= diff;

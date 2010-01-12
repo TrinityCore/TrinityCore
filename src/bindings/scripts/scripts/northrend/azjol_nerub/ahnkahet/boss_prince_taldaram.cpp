@@ -148,7 +148,7 @@ struct TRINITY_DLL_DECL boss_taldaramAI : public ScriptedAI
                         y = pSpheres[0]->GetPositionY() + DATA_SPHERE_DISTANCE * sin(angle);
                         pSpheres[0]->GetMotionMaster()->MovePoint(0, x, y, pSpheres[0]->GetPositionZ());
                     }
-                    if (HeroicMode)
+                    if (IsHeroic())
                     {
                         //DoCast(m_creature, H_SPELL_FLAME_SPHERE_SUMMON_1);
                         pSpheres[1] = DoSpawnCreature(H_CREATURE_FLAME_SPHERE_1, 0, 0, 5, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 10000);
@@ -183,7 +183,7 @@ struct TRINITY_DLL_DECL boss_taldaramAI : public ScriptedAI
                 break;
                 case VANISHED:
                     if(pEmbraceTarget)
-                        DoCast(pEmbraceTarget, HEROIC(SPELL_EMBRACE_OF_THE_VAMPYR, H_SPELL_EMBRACE_OF_THE_VAMPYR));
+                        DoCast(pEmbraceTarget, DUNGEON_MODE(SPELL_EMBRACE_OF_THE_VAMPYR, H_SPELL_EMBRACE_OF_THE_VAMPYR));
                         m_creature->GetMotionMaster()->Clear();
                         m_creature->SetSpeed(MOVE_WALK, 1.0f, true);
                         m_creature->GetMotionMaster()->MoveChase(m_creature->getVictim());
@@ -247,7 +247,7 @@ struct TRINITY_DLL_DECL boss_taldaramAI : public ScriptedAI
         if (Phase == FEEDING && pEmbraceTarget && pEmbraceTarget->isAlive())
         {
           uiEmbraceTakenDamage += damage;
-          if (uiEmbraceTakenDamage > (HeroicMode ? H_DATA_EMBRACE_DMG : DATA_EMBRACE_DMG))
+          if (uiEmbraceTakenDamage > DUNGEON_MODE(DATA_EMBRACE_DMG, H_DATA_EMBRACE_DMG))
           {
               Phase = NORMAL;
               uiPhaseTimer = 0;
@@ -268,7 +268,7 @@ struct TRINITY_DLL_DECL boss_taldaramAI : public ScriptedAI
             //The Party's Over achievement:
             AchievementEntry const *AchievThePartyIsOver = GetAchievementStore()->LookupEntry(ACHIEVEMENT_THE_PARTY_IS_OVER);
             Map* pMap = m_creature->GetMap();
-            if (pMap && pMap->IsDungeon() && HeroicMode && AchievThePartyIsOver)
+            if (pMap && pMap->IsDungeon() && IsHeroic() && AchievThePartyIsOver)
             {
                 Map::PlayerList const &players = pMap->GetPlayers();
                 if (players.getSize() < 5)
@@ -343,7 +343,7 @@ struct TRINITY_DLL_DECL mob_taldaram_flamesphereAI : public ScriptedAI
         m_creature->SetFloatValue(OBJECT_FIELD_SCALE_X, 1.0f);
         DoCast(m_creature, SPELL_FLAME_SPHERE_VISUAL);
         DoCast(m_creature, SPELL_FLAME_SPHERE_SPAWN_EFFECT);
-        DoCast(m_creature, HEROIC(SPELL_FLAME_SPHERE_PERIODIC, H_SPELL_FLAME_SPHERE_PERIODIC));
+        DoCast(m_creature, DUNGEON_MODE(SPELL_FLAME_SPHERE_PERIODIC, H_SPELL_FLAME_SPHERE_PERIODIC));
         uiDespawnTimer = 10000;
     }
 

@@ -77,14 +77,12 @@ struct TRINITY_DLL_DECL boss_volkhanAI : public ScriptedAI
     boss_volkhanAI(Creature *pCreature) : ScriptedAI(pCreature)
     {
         m_pInstance = pCreature->GetInstanceData();
-        m_bIsHeroic = pCreature->GetMap()->IsHeroic();
     }
 
     ScriptedInstance* m_pInstance;
 
     std::list<uint64> m_lGolemGUIDList;
 
-    bool m_bIsHeroic;
     bool m_bHasTemper;
     bool m_bIsStriking;
     bool m_bCanShatterGolem;
@@ -145,7 +143,7 @@ struct TRINITY_DLL_DECL boss_volkhanAI : public ScriptedAI
         if (m_pInstance)
             m_pInstance->SetData(TYPE_VOLKHAN, DONE);
 
-        if (HeroicMode && GolemsShattered < 5)
+        if (IsHeroic() && GolemsShattered < 5)
         {
             AchievementEntry const *AchievShatterResistant = GetAchievementStore()->LookupEntry(ACHIEVEMENT_SHATTER_RESISTANT);
             if (AchievShatterResistant)
@@ -195,7 +193,7 @@ struct TRINITY_DLL_DECL boss_volkhanAI : public ScriptedAI
                 // only shatter brittle golems
                 if (pTemp->isAlive() && pTemp->GetEntry() == NPC_BRITTLE_GOLEM)
                 {
-                    pTemp->CastSpell(pTemp, m_bIsHeroic ? SPELL_SHATTER_H : SPELL_SHATTER_N, false);
+                    pTemp->CastSpell(pTemp, DUNGEON_MODE(SPELL_SHATTER_N, SPELL_SHATTER_H), false);
                     GolemsShattered += 1;
                 }
             }
@@ -218,7 +216,7 @@ struct TRINITY_DLL_DECL boss_volkhanAI : public ScriptedAI
                 pSummoned->AI()->AttackStart(pTarget);
 
             //why healing when just summoned?
-            pSummoned->CastSpell(pSummoned, m_bIsHeroic ? SPELL_HEAT_H : SPELL_HEAT_N, false, NULL, NULL, m_creature->GetGUID());
+            pSummoned->CastSpell(pSummoned, DUNGEON_MODE(SPELL_HEAT_N, SPELL_HEAT_H), false, NULL, NULL, m_creature->GetGUID());
         }
     }
 
@@ -257,7 +255,7 @@ struct TRINITY_DLL_DECL boss_volkhanAI : public ScriptedAI
 
                 DoScriptText(RAND(SAY_STOMP_1,SAY_STOMP_2), m_creature);
 
-                DoCast(m_creature, m_bIsHeroic ? SPELL_SHATTERING_STOMP_H : SPELL_SHATTERING_STOMP_N);
+                DoCast(m_creature, DUNGEON_MODE(SPELL_SHATTERING_STOMP_N, SPELL_SHATTERING_STOMP_H));
 
                 DoScriptText(EMOTE_SHATTER, m_creature);
 
@@ -369,10 +367,8 @@ struct TRINITY_DLL_DECL mob_molten_golemAI : public ScriptedAI
 {
     mob_molten_golemAI(Creature *pCreature) : ScriptedAI(pCreature)
     {
-        m_bIsHeroic = pCreature->GetMap()->IsHeroic();
     }
 
-    bool m_bIsHeroic;
     bool m_bIsFrozen;
 
     uint32 m_uiBlast_Timer;
@@ -445,7 +441,7 @@ struct TRINITY_DLL_DECL mob_molten_golemAI : public ScriptedAI
 
         if (m_uiImmolation_Timer <= uiDiff)
         {
-            DoCast(m_creature->getVictim(), m_bIsHeroic ? SPELL_IMMOLATION_STRIKE_H : SPELL_IMMOLATION_STRIKE_N);
+            DoCast(m_creature->getVictim(), DUNGEON_MODE(SPELL_IMMOLATION_STRIKE_N, SPELL_IMMOLATION_STRIKE_H));
             m_uiImmolation_Timer = 5000;
         }
         else

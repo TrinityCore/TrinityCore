@@ -62,11 +62,9 @@ struct  TRINITY_DLL_DECL boss_vexallusAI : public ScriptedAI
     boss_vexallusAI(Creature *c) : ScriptedAI(c)
     {
         pInstance = c->GetInstanceData();
-        Heroic = c->GetMap()->IsHeroic();
     }
 
     ScriptedInstance* pInstance;
-    bool Heroic;
 
     uint32 ChainLightningTimer;
     uint32 ArcaneShockTimer;
@@ -136,7 +134,7 @@ struct  TRINITY_DLL_DECL boss_vexallusAI : public ScriptedAI
                 DoScriptText(SAY_ENERGY, m_creature);
                 DoScriptText(EMOTE_DISCHARGE_ENERGY, m_creature);
 
-                if (Heroic)
+                if (IsHeroic())
                 {
                     DoCast(m_creature, H_SPELL_SUMMON_PURE_ENERGY1, false);
                     DoCast(m_creature, H_SPELL_SUMMON_PURE_ENERGY2, false);
@@ -147,14 +145,14 @@ struct  TRINITY_DLL_DECL boss_vexallusAI : public ScriptedAI
                 //below are workaround summons, remove when summoning spells w/implicitTarget 73 implemented in Mangos
                 m_creature->SummonCreature(NPC_PURE_ENERGY, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_CORPSE_DESPAWN, 0);
 
-                if (Heroic)
+                if (IsHeroic())
                     m_creature->SummonCreature(NPC_PURE_ENERGY, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_CORPSE_DESPAWN, 0);
             }
 
             if (ChainLightningTimer <= diff)
             {
                 if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
-                    DoCast(pTarget, Heroic ? SPELL_H_CHAIN_LIGHTNING : SPELL_CHAIN_LIGHTNING);
+                    DoCast(pTarget, DUNGEON_MODE(SPELL_CHAIN_LIGHTNING, SPELL_H_CHAIN_LIGHTNING));
 
                 ChainLightningTimer = 8000;
             } else ChainLightningTimer -= diff;
@@ -163,7 +161,7 @@ struct  TRINITY_DLL_DECL boss_vexallusAI : public ScriptedAI
             {
                 if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
                 if (pTarget)
-                    DoCast(pTarget, Heroic ? SPELL_H_ARCANE_SHOCK : SPELL_ARCANE_SHOCK);
+                    DoCast(pTarget, DUNGEON_MODE(SPELL_ARCANE_SHOCK, SPELL_H_ARCANE_SHOCK));
 
                 ArcaneShockTimer = 8000;
             } else ArcaneShockTimer -= diff;

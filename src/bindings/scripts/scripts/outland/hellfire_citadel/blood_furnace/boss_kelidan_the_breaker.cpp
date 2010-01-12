@@ -70,13 +70,11 @@ struct TRINITY_DLL_DECL boss_kelidan_the_breakerAI : public ScriptedAI
     boss_kelidan_the_breakerAI(Creature *c) : ScriptedAI(c)
     {
         pInstance = c->GetInstanceData();
-        HeroicMode = c->GetMap()->IsHeroic();
         for (uint8 i=0; i<5; ++i)
             Channelers[i] = 0;
     }
 
     ScriptedInstance* pInstance;
-    bool HeroicMode;
 
     uint32 ShadowVolley_Timer;
     uint32 BurningNova_Timer;
@@ -203,7 +201,7 @@ struct TRINITY_DLL_DECL boss_kelidan_the_breakerAI : public ScriptedAI
         {
             if (Firenova_Timer <= diff)
             {
-                DoCast(m_creature, HEROIC(SPELL_FIRE_NOVA, H_SPELL_FIRE_NOVA), true);
+                DoCast(m_creature, DUNGEON_MODE(SPELL_FIRE_NOVA, H_SPELL_FIRE_NOVA), true);
                 Firenova = false;
                 ShadowVolley_Timer = 2000;
             } else Firenova_Timer -=diff;
@@ -213,7 +211,7 @@ struct TRINITY_DLL_DECL boss_kelidan_the_breakerAI : public ScriptedAI
 
         if (ShadowVolley_Timer <= diff)
         {
-            DoCast(m_creature, HEROIC(SPELL_SHADOW_BOLT_VOLLEY, H_SPELL_SHADOW_BOLT_VOLLEY));
+            DoCast(m_creature, DUNGEON_MODE(SPELL_SHADOW_BOLT_VOLLEY, H_SPELL_SHADOW_BOLT_VOLLEY));
             ShadowVolley_Timer = 5000+rand()%8000;
         } else ShadowVolley_Timer -=diff;
 
@@ -236,7 +234,7 @@ struct TRINITY_DLL_DECL boss_kelidan_the_breakerAI : public ScriptedAI
                     aura->ApplyForTargets();
             }
 
-            if (HeroicMode)
+            if (IsHeroic())
                 DoTeleportAll(m_creature->GetPositionX(),m_creature->GetPositionY(),m_creature->GetPositionZ(),m_creature->GetOrientation());
 
             BurningNova_Timer = 20000+rand()%8000;
@@ -271,10 +269,7 @@ struct TRINITY_DLL_DECL mob_shadowmoon_channelerAI : public ScriptedAI
 {
     mob_shadowmoon_channelerAI(Creature *c) : ScriptedAI(c)
     {
-        HeroicMode = c->GetMap()->IsHeroic();
     }
-
-    bool HeroicMode;
 
     uint32 ShadowBolt_Timer;
     uint32 MarkOfShadow_Timer;
@@ -331,7 +326,7 @@ struct TRINITY_DLL_DECL mob_shadowmoon_channelerAI : public ScriptedAI
 
         if (ShadowBolt_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(), HEROIC(SPELL_SHADOW_BOLT, H_SPELL_SHADOW_BOLT));
+            DoCast(m_creature->getVictim(), DUNGEON_MODE(SPELL_SHADOW_BOLT, H_SPELL_SHADOW_BOLT));
             ShadowBolt_Timer = 5000+rand()%1000;
         } else ShadowBolt_Timer -=diff;
 
