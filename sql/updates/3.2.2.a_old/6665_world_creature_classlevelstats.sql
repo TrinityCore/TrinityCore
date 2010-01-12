@@ -471,4 +471,3 @@ INSERT INTO `creature_classlevelstats` (`exp`,`class`,`level`,`basehp`,`basemana
 (2,8,81,10486,8979),
 (2,8,82,10784,9160),
 (2,8,83,11156,9325);
-

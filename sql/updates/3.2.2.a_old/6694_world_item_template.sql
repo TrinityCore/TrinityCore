@@ -48,4 +48,3 @@ ALTER TABLE `item_template` CHANGE `RandomProperty` `RandomPropertytemp` MEDIUMI
 ALTER TABLE `item_template` ADD `RandomProperty` MEDIUMINT(8) SIGNED NOT NULL AFTER `sheath`;
 UPDATE `item_template` SET `RandomProperty` = `RandomPropertytemp`;
 ALTER TABLE `item_template` DROP `RandomPropertytemp`;
-
