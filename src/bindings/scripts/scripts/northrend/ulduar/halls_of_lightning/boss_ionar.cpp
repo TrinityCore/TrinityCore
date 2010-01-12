@@ -195,7 +195,7 @@ struct TRINITY_DLL_DECL boss_ionarAI : public ScriptedAI
     {
         if (pSummoned->GetEntry() == NPC_SPARK_OF_IONAR)
         {
-            pSummoned->CastSpell(pSummoned, HEROIC(SPELL_SPARK_VISUAL_TRIGGER_N,SPELL_SPARK_VISUAL_TRIGGER_H), true);
+            pSummoned->CastSpell(pSummoned, DUNGEON_MODE(SPELL_SPARK_VISUAL_TRIGGER_N,SPELL_SPARK_VISUAL_TRIGGER_H), true);
 
             Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0);
 
@@ -259,7 +259,7 @@ struct TRINITY_DLL_DECL boss_ionarAI : public ScriptedAI
         if (m_uiStaticOverload_Timer <= uiDiff)
         {
             if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
-                DoCast(pTarget, HEROIC(SPELL_STATIC_OVERLOAD_N, SPELL_STATIC_OVERLOAD_H));
+                DoCast(pTarget, DUNGEON_MODE(SPELL_STATIC_OVERLOAD_N, SPELL_STATIC_OVERLOAD_H));
 
             m_uiStaticOverload_Timer = 5000 + rand()%1000;
         }
@@ -268,7 +268,7 @@ struct TRINITY_DLL_DECL boss_ionarAI : public ScriptedAI
 
         if (m_uiBallLightning_Timer <= uiDiff)
         {
-            DoCast(m_creature->getVictim(), HEROIC(SPELL_BALL_LIGHTNING_N, SPELL_BALL_LIGHTNING_H));
+            DoCast(m_creature->getVictim(), DUNGEON_MODE(SPELL_BALL_LIGHTNING_N, SPELL_BALL_LIGHTNING_H));
             m_uiBallLightning_Timer = 10000 + rand()%1000;
         }
         else

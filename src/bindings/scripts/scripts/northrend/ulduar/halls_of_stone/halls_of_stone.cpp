@@ -184,7 +184,7 @@ struct TRINITY_DLL_DECL mob_tribuna_controllerAI : public ScriptedAI
                     if (!lKaddrakGUIDList.empty())
                         for (std::list<Creature*>::iterator itr = lKaddrakGUIDList.begin(); itr != lKaddrakGUIDList.end(); ++itr)
                             if ((*itr)->isAlive())
-                                (*itr)->CastSpell(pTarget, HEROIC(SPELL_GLARE_OF_THE_TRIBUNAL, H_SPELL_GLARE_OF_THE_TRIBUNAL), true);
+                                (*itr)->CastSpell(pTarget, DUNGEON_MODE(SPELL_GLARE_OF_THE_TRIBUNAL, H_SPELL_GLARE_OF_THE_TRIBUNAL), true);
                 uiKaddrakEncounterTimer = 1500;
             } else uiKaddrakEncounterTimer -= diff;
         }
@@ -198,7 +198,7 @@ struct TRINITY_DLL_DECL mob_tribuna_controllerAI : public ScriptedAI
                     {
                         pSummon->SetDisplayId(11686);
                         pSummon->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                        pSummon->CastSpell(pTarget, HEROIC(SPELL_DARK_MATTER, H_SPELL_DARK_MATTER), true);
+                        pSummon->CastSpell(pTarget, DUNGEON_MODE(SPELL_DARK_MATTER, H_SPELL_DARK_MATTER), true);
                     }
                 }
                 uiMarnakEncounterTimer = 30000 + rand()%1000;
@@ -214,7 +214,7 @@ struct TRINITY_DLL_DECL mob_tribuna_controllerAI : public ScriptedAI
                     {
                         pSummon->SetDisplayId(11686);
                         pSummon->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                        pSummon->CastSpell(pTarget, HEROIC(SPELL_SEARING_GAZE, H_SPELL_SEARING_GAZE), true);
+                        pSummon->CastSpell(pTarget, DUNGEON_MODE(SPELL_SEARING_GAZE, H_SPELL_SEARING_GAZE), true);
                     }
                 }
                 uiAbedneumEncounterTimer = 30000 + rand()%1000;
@@ -310,7 +310,7 @@ struct TRINITY_DLL_DECL npc_brann_hosAI : public npc_escortAI
        {
            case 1:
            {
-               uint32 uiSpawnNumber = (HeroicMode ? 3 : 2);
+               uint32 uiSpawnNumber = DUNGEON_MODE(2,3);
                for (uint8 i = 0; i < uiSpawnNumber; ++i)
                    m_creature->SummonCreature(CREATURE_DARK_RUNE_PROTECTOR, SpawnLocations[0].x, SpawnLocations[0].y, SpawnLocations[0].z, 0.0f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 30000);
                m_creature->SummonCreature(CREATURE_DARK_RUNE_STORMCALLER, SpawnLocations[0].x, SpawnLocations[0].y, SpawnLocations[0].z, 0.0f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 30000);

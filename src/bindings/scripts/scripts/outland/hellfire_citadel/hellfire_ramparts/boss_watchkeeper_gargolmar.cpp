@@ -42,10 +42,7 @@ struct TRINITY_DLL_DECL boss_watchkeeper_gargolmarAI : public ScriptedAI
 {
     boss_watchkeeper_gargolmarAI(Creature *c) : ScriptedAI(c)
     {
-        HeroicMode = m_creature->GetMap()->IsHeroic();
     }
-
-    bool HeroicMode;
 
     uint32 Surge_Timer;
     uint32 MortalWound_Timer;
@@ -107,7 +104,7 @@ struct TRINITY_DLL_DECL boss_watchkeeper_gargolmarAI : public ScriptedAI
 
         if (MortalWound_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(), HEROIC(SPELL_MORTAL_WOUND, H_SPELL_MORTAL_WOUND));
+            DoCast(m_creature->getVictim(), DUNGEON_MODE(SPELL_MORTAL_WOUND, H_SPELL_MORTAL_WOUND));
             MortalWound_Timer = 5000+rand()%8000;
         } else MortalWound_Timer -= diff;
 

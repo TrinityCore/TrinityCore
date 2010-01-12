@@ -23,8 +23,6 @@
 #include "TemporarySummon.h"
 #include "CreatureAI.h"
 
-#define HEROIC(n,h) (HeroicMode ? h : n)
-
 template<class T>
 inline
 const T& RAND(const T& v1, const T& v2)

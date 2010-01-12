@@ -37,10 +37,8 @@ struct TRINITY_DLL_DECL boss_the_black_stalkerAI : public ScriptedAI
 {
     boss_the_black_stalkerAI(Creature *c) : ScriptedAI(c)
     {
-        HeroicMode = m_creature->GetMap()->IsHeroic();
     }
 
-    bool HeroicMode;
     uint32 SporeStriders_Timer;
     uint32 Levitate_Timer;
     uint32 ChainLightning_Timer;
@@ -104,7 +102,7 @@ struct TRINITY_DLL_DECL boss_the_black_stalkerAI : public ScriptedAI
         } else check_Timer -= diff;
 
         // Spore Striders
-        if (HeroicMode && SporeStriders_Timer <= diff)
+        if (IsHeroic() && SporeStriders_Timer <= diff)
         {
             DoCast(m_creature, SPELL_SUMMON_SPORE_STRIDER);
             SporeStriders_Timer = 10000+rand()%5000;

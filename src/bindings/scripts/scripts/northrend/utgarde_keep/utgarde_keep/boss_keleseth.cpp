@@ -106,7 +106,6 @@ struct TRINITY_DLL_DECL boss_kelesethAI : public ScriptedAI
     boss_kelesethAI(Creature *c) : ScriptedAI(c)
     {
         pInstance = c->GetInstanceData();
-        Heroic = c->GetMap()->IsHeroic();
     }
 
     ScriptedInstance* pInstance;
@@ -117,7 +116,6 @@ struct TRINITY_DLL_DECL boss_kelesethAI : public ScriptedAI
     uint32 ShadowboltTimer;
     uint64 SkeletonGUID[5];
     bool Skeletons;
-    bool Heroic;
     bool RespawnSkeletons;
 
     void Reset()
@@ -145,7 +143,7 @@ struct TRINITY_DLL_DECL boss_kelesethAI : public ScriptedAI
     {
         DoScriptText(SAY_DEATH, m_creature);
 
-        if (Heroic && !ShatterFrostTomb)
+        if (IsHeroic() && !ShatterFrostTomb)
         {
             AchievementEntry const *AchievOnTheRocks = GetAchievementStore()->LookupEntry(ACHIEVEMENT_ON_THE_ROCKS);
             if (AchievOnTheRocks)
@@ -188,7 +186,7 @@ struct TRINITY_DLL_DECL boss_kelesethAI : public ScriptedAI
         {
             Unit *pTarget = SelectUnit(SELECT_TARGET_TOPAGGRO, 0);
             if (pTarget && pTarget->isAlive() && pTarget->GetTypeId() == TYPEID_PLAYER)
-                m_creature->CastSpell(pTarget, HEROIC(SPELL_SHADOWBOLT, SPELL_SHADOWBOLT_HEROIC), true);
+                m_creature->CastSpell(pTarget, DUNGEON_MODE(SPELL_SHADOWBOLT, SPELL_SHADOWBOLT_HEROIC), true);
             ShadowboltTimer = 10000;
         } else ShadowboltTimer -= diff;
 

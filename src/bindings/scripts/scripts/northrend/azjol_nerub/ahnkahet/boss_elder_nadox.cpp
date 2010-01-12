@@ -58,10 +58,8 @@ struct TRINITY_DLL_DECL boss_elder_nadoxAI : public ScriptedAI
     boss_elder_nadoxAI(Creature *c) : ScriptedAI(c)
     {
         pInstance = c->GetInstanceData();
-        HeroicMode = c->GetMap()->IsHeroic();
     }
 
-    bool HeroicMode;
     uint32 plague_Timer;
     uint32 rage_Timer;
 
@@ -106,7 +104,7 @@ struct TRINITY_DLL_DECL boss_elder_nadoxAI : public ScriptedAI
     {
         DoScriptText(SAY_SLAY_3,m_creature); //SAY_SLAY_3 on death?
 
-        if (HeroicMode && !DeadAhnkaharGuardian)
+        if (IsHeroic() && !DeadAhnkaharGuardian)
         {
             AchievementEntry const *AchievRespectYourElders = GetAchievementStore()->LookupEntry(ACHIEVEMENT_RESPECT_YOUR_ELDERS);
             if (AchievRespectYourElders)
@@ -132,11 +130,11 @@ struct TRINITY_DLL_DECL boss_elder_nadoxAI : public ScriptedAI
 
         if (plague_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(), HEROIC(SPELL_BROOD_PLAGUE, H_SPELL_BROOD_PLAGUE));
+            DoCast(m_creature->getVictim(), DUNGEON_MODE(SPELL_BROOD_PLAGUE, H_SPELL_BROOD_PLAGUE));
             plague_Timer = 15000;
         } else plague_Timer -= diff;
 
-        if (HeroicMode)
+        if (IsHeroic())
             if (rage_Timer <= diff)
             {
                 Unit* Swarmer = m_creature->FindNearestCreature(MOB_AHNKAHAR_SWARMER, 35);

@@ -91,7 +91,7 @@ struct TRINITY_DLL_DECL boss_erekemAI : public ScriptedAI
     void EnterCombat(Unit* who)
     {
         DoScriptText(SAY_AGGRO, m_creature);
-        DoCast(m_creature, HEROIC(SPELL_EARTH_SHIELD, H_SPELL_EARTH_SHIELD));
+        DoCast(m_creature, DUNGEON_MODE(SPELL_EARTH_SHIELD, H_SPELL_EARTH_SHIELD));
 
         if (pInstance)
         {
@@ -111,7 +111,7 @@ struct TRINITY_DLL_DECL boss_erekemAI : public ScriptedAI
             return;
 
         //spam stormstrike in hc mode if spawns are dead
-        if (HeroicMode)
+        if (IsHeroic())
         {
             if (pGuard1 && !pGuard1->isAlive() && pGuard2 && !pGuard2->isAlive())
             {
@@ -121,7 +121,7 @@ struct TRINITY_DLL_DECL boss_erekemAI : public ScriptedAI
 
         if (uiEarthShieldTimer <= diff)
         {
-            DoCast(m_creature, HEROIC(SPELL_EARTH_SHIELD, H_SPELL_EARTH_SHIELD));
+            DoCast(m_creature, DUNGEON_MODE(SPELL_EARTH_SHIELD, H_SPELL_EARTH_SHIELD));
             uiEarthShieldTimer = 20000;
         } else uiEarthShieldTimer -= diff;
 
@@ -129,7 +129,7 @@ struct TRINITY_DLL_DECL boss_erekemAI : public ScriptedAI
         {
             if (Creature *pTarget = GetChainHealTarget())
             {
-                DoCast(pTarget, HEROIC(SPELL_CHAIN_HEAL, H_SPELL_CHAIN_HEAL));
+                DoCast(pTarget, DUNGEON_MODE(SPELL_CHAIN_HEAL, H_SPELL_CHAIN_HEAL));
                 //If one of the adds is dead spawn heals faster
                 uiChainHealTimer = ((pGuard1 && !pGuard1->isAlive()) || (pGuard2 && !pGuard2->isAlive()) ? 3000 : 8000) + rand()%3000;
             }

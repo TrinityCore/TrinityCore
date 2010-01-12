@@ -97,20 +97,20 @@ struct TRINITY_DLL_DECL boss_volazjAI : public ScriptedAI
 
         if (uiMindFlayTimer <= diff)
         {
-            DoCast(m_creature->getVictim(), HEROIC(SPELL_MIND_FLAY, H_SPELL_MIND_FLAY));
+            DoCast(m_creature->getVictim(), DUNGEON_MODE(SPELL_MIND_FLAY, H_SPELL_MIND_FLAY));
             uiMindFlayTimer = 20000;
         } else uiMindFlayTimer -= diff;
 
         if (uiShadowBoltVolleyTimer <= diff)
         {
-            DoCast(m_creature->getVictim(), HEROIC(SPELL_SHADOW_BOLT_VOLLEY, H_SPELL_SHADOW_BOLT_VOLLEY));
+            DoCast(m_creature->getVictim(), DUNGEON_MODE(SPELL_SHADOW_BOLT_VOLLEY, H_SPELL_SHADOW_BOLT_VOLLEY));
             uiShadowBoltVolleyTimer = 5000;
         } else uiShadowBoltVolleyTimer -= diff;
 
         if (uiShiverTimer <= diff)
         {
             if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
-                DoCast(pTarget, HEROIC(SPELL_SHIVER, H_SPELL_SHIVER));
+                DoCast(pTarget, DUNGEON_MODE(SPELL_SHIVER, H_SPELL_SHIVER));
             uiShiverTimer = 15000;
         } else uiShiverTimer -= diff;
 
@@ -128,7 +128,7 @@ struct TRINITY_DLL_DECL boss_volazjAI : public ScriptedAI
         AchievementEntry const *AchievQuickDemise = GetAchievementStore()->LookupEntry(ACHIEVEMENT_QUICK_DEMISE);
         Map* pMap = m_creature->GetMap();
 
-        if (HeroicMode && uiEncounterTimer < 120000 && pMap && pMap->IsDungeon() && AchievQuickDemise)
+        if (IsHeroic() && uiEncounterTimer < 120000 && pMap && pMap->IsDungeon() && AchievQuickDemise)
         {
             Map::PlayerList const &players = pMap->GetPlayers();
                     for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)

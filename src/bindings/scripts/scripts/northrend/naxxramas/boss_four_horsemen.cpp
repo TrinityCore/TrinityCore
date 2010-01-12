@@ -55,10 +55,10 @@ const Position WaypointPositions[12] =
 
 const uint32 MOB_HORSEMEN[]     =   {16064, 16065, 30549, 16063};
 const uint32 SPELL_MARK[]       =   {28832, 28833, 28834, 28835};
-#define SPELL_PRIMARY(i)            HEROIC(SPELL_PRIMARY_N[i],SPELL_PRIMARY_H[i])
+#define SPELL_PRIMARY(i)            RAID_MODE(SPELL_PRIMARY_N[i],SPELL_PRIMARY_H[i])
 const uint32 SPELL_PRIMARY_N[]  =   {28884, 28863, 28882, 28883};
 const uint32 SPELL_PRIMARY_H[]  =   {57467, 57463, 57369, 57466};
-#define SPELL_SECONDARY(i)          HEROIC(SPELL_SECONDARY_N[i],SPELL_SECONDARY_H[i])
+#define SPELL_SECONDARY(i)          RAID_MODE(SPELL_SECONDARY_N[i],SPELL_SECONDARY_H[i])
 const uint32 SPELL_SECONDARY_N[]=   {0, 57374, 0, 57376};
 const uint32 SPELL_SECONDARY_H[]=   {0, 57464, 0, 57465};
 const uint32 SPELL_PUNISH[]     =   {0, 57381, 0, 57377};

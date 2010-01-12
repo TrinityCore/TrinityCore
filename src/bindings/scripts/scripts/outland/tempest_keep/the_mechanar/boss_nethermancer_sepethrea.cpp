@@ -46,12 +46,9 @@ struct TRINITY_DLL_DECL boss_nethermancer_sepethreaAI : public ScriptedAI
     boss_nethermancer_sepethreaAI(Creature *c) : ScriptedAI(c)
     {
         pInstance = c->GetInstanceData();
-        HeroicMode = c->GetMap()->IsHeroic();
     }
 
     ScriptedInstance *pInstance;
-
-    bool HeroicMode;
 
     uint32 frost_attack_Timer;
     uint32 arcane_blast_Timer;
@@ -77,7 +74,7 @@ struct TRINITY_DLL_DECL boss_nethermancer_sepethreaAI : public ScriptedAI
             pInstance->SetData(DATA_NETHERMANCER_EVENT, IN_PROGRESS);
 
         DoScriptText(SAY_AGGRO, m_creature);
-        DoCast(who, HEROIC(SPELL_SUMMON_RAGIN_FLAMES, H_SPELL_SUMMON_RAGIN_FLAMES));
+        DoCast(who, DUNGEON_MODE(SPELL_SUMMON_RAGIN_FLAMES, H_SPELL_SUMMON_RAGIN_FLAMES));
         DoScriptText(SAY_SUMMON, m_creature);
     }
 
@@ -158,12 +155,10 @@ struct TRINITY_DLL_DECL mob_ragin_flamesAI : public ScriptedAI
 {
     mob_ragin_flamesAI(Creature *c) : ScriptedAI(c)
     {
-        pInstance = c->GetInstanceData();        HeroicMode = m_creature->GetMap()->IsHeroic();
+        pInstance = c->GetInstanceData();        
     }
 
     ScriptedInstance *pInstance;
-
-    bool HeroicMode;
 
     uint32 inferno_Timer;
     uint32 flame_timer;
@@ -179,7 +174,7 @@ struct TRINITY_DLL_DECL mob_ragin_flamesAI : public ScriptedAI
         onlyonce = false;
         m_creature->ApplySpellImmune(0, IMMUNITY_DAMAGE, SPELL_SCHOOL_MASK_MAGIC, true);
         m_creature->ApplySpellImmune(0, IMMUNITY_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, true);
-        m_creature->SetSpeed(MOVE_RUN, HeroicMode ? 0.7f : 0.5f);
+        m_creature->SetSpeed(MOVE_RUN, DUNGEON_MODE(0.5f, 0.7f));
     }
 
     void EnterCombat(Unit* who)
@@ -215,7 +210,7 @@ struct TRINITY_DLL_DECL mob_ragin_flamesAI : public ScriptedAI
 
         if (inferno_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(), HEROIC(SPELL_INFERNO, H_SPELL_INFERNO));
+            DoCast(m_creature->getVictim(), DUNGEON_MODE(SPELL_INFERNO, H_SPELL_INFERNO));
             m_creature->TauntApply(m_creature->getVictim());
             inferno_Timer = 10000;
         } else inferno_Timer -= diff;

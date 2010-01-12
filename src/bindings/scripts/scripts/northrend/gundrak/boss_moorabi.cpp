@@ -112,7 +112,7 @@ struct TRINITY_DLL_DECL boss_moorabiAI : public ScriptedAI
         if (uiDeterminedStabTimer <= uiDiff)
         {
             if (bPhase)
-                DoCast(m_creature->getVictim(), HEROIC(SPELL_DETERMINED_GORE, SPELL_DETERMINED_GORE_1));
+                DoCast(m_creature->getVictim(), DUNGEON_MODE(SPELL_DETERMINED_GORE, SPELL_DETERMINED_GORE_1));
             else
                 DoCast(m_creature->getVictim(), SPELL_DETERMINED_STAB, true);
             uiDeterminedStabTimer = 8000;
@@ -133,7 +133,7 @@ struct TRINITY_DLL_DECL boss_moorabiAI : public ScriptedAI
      {
         DoScriptText(SAY_DEATH, m_creature);
 
-        if (HeroicMode && !bPhase)
+        if (IsHeroic() && !bPhase)
         {
             AchievementEntry const *AchievLessRabi = GetAchievementStore()->LookupEntry(ACHIEVEMENT_LESS_RABI);
             if (AchievLessRabi)

@@ -78,10 +78,8 @@ struct TRINITY_DLL_DECL boss_ichoronAI : public ScriptedAI
     boss_ichoronAI(Creature* pCreature) : ScriptedAI(pCreature)
     {
         pInstance  = pCreature->GetInstanceData();
-        HeroicMode = pCreature->GetMap()->IsHeroic();
     }
 
-    bool HeroicMode;
     bool bIsExploded;
     bool bIsFrenzy;
 
@@ -186,7 +184,7 @@ struct TRINITY_DLL_DECL boss_ichoronAI : public ScriptedAI
                 {
                     if (!m_creature->HasAura(SPELL_PROTECTIVE_BUBBLE, 0))
                     {
-                        DoCast(m_creature, HEROIC(SPELL_WATER_BLAST, SPELL_WATER_BLAST_H));
+                        DoCast(m_creature, DUNGEON_MODE(SPELL_WATER_BLAST, SPELL_WATER_BLAST_H));
                         //DoCast(m_creature, SPELL_DRAINED);
                         bIsExploded = true;
                         uiShowup_Counter = 0;
@@ -230,14 +228,14 @@ struct TRINITY_DLL_DECL boss_ichoronAI : public ScriptedAI
         {
             if (uiWaterBoltVolley_Timer < uiDiff)
             {
-                DoCast(m_creature, HEROIC(SPELL_WATER_BOLT_VOLLEY, SPELL_WATER_BOLT_VOLLEY_H));
+                DoCast(m_creature, DUNGEON_MODE(SPELL_WATER_BOLT_VOLLEY, SPELL_WATER_BOLT_VOLLEY_H));
                 uiWaterBoltVolley_Timer = urand(10000, 15000);
             }
             else uiWaterBoltVolley_Timer -= uiDiff;
 
             if (!bIsFrenzy && (m_creature->GetHealth()*100 / m_creature->GetMaxHealth()) < 25)
             {
-                DoCast(m_creature, HEROIC(SPELL_FRENZY, SPELL_FRENZY_H));
+                DoCast(m_creature, DUNGEON_MODE(SPELL_FRENZY, SPELL_FRENZY_H));
                 bIsFrenzy = true;
             }
 

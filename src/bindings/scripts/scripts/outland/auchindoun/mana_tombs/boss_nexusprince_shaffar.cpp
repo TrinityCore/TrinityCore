@@ -216,10 +216,8 @@ struct TRINITY_DLL_DECL mob_ethereal_beaconAI : public ScriptedAI
 {
     mob_ethereal_beaconAI(Creature *c) : ScriptedAI(c)
     {
-        HeroicMode = m_creature->GetMap()->IsHeroic();
     }
 
-    bool HeroicMode;
     uint32 Apprentice_Timer;
     uint32 ArcaneBolt_Timer;
     uint32 Check_Timer;
@@ -231,7 +229,7 @@ struct TRINITY_DLL_DECL mob_ethereal_beaconAI : public ScriptedAI
 
     void Reset()
     {
-        Apprentice_Timer = (HeroicMode ? 10000 : 20000);
+        Apprentice_Timer = DUNGEON_MODE(20000, 10000);
         ArcaneBolt_Timer = 1000;
         Check_Timer = 1000;
     }

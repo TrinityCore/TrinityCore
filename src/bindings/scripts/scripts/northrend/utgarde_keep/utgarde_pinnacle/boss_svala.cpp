@@ -263,7 +263,7 @@ struct TRINITY_DLL_DECL boss_svala_sorrowgraveAI : public ScriptedAI
 
             if (uiSinsterStrikeTimer <= diff)
             {
-                DoCast(m_creature->getVictim(), HEROIC(SPELL_SINSTER_STRIKE, H_SPELL_SINSTER_STRIKE));
+                DoCast(m_creature->getVictim(), DUNGEON_MODE(SPELL_SINSTER_STRIKE, H_SPELL_SINSTER_STRIKE));
                 uiSinsterStrikeTimer = urand(5000,9000);
             } else uiSinsterStrikeTimer -= diff;
 

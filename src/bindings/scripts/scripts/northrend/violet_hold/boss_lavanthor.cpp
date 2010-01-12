@@ -87,23 +87,23 @@ struct TRINITY_DLL_DECL boss_lavanthorAI : public ScriptedAI
 
         if (uiFireboltTimer <= diff)
         {
-            DoCast(m_creature->getVictim(), HEROIC(SPELL_FIREBOLT, H_SPELL_FIREBOLT));
+            DoCast(m_creature->getVictim(), DUNGEON_MODE(SPELL_FIREBOLT, H_SPELL_FIREBOLT));
             uiFireboltTimer = urand(5000,13000);
         } else uiFireboltTimer -= diff;
 
         if (uiFlameBreathTimer <= diff)
         {
-            DoCast(m_creature->getVictim(), HEROIC(SPELL_FLAME_BREATH, H_SPELL_FLAME_BREATH));
+            DoCast(m_creature->getVictim(), DUNGEON_MODE(SPELL_FLAME_BREATH, H_SPELL_FLAME_BREATH));
             uiFlameBreathTimer = urand(10000,15000);
         } else uiFlameBreathTimer -= diff;
 
         if (uiLavaBurnTimer <= diff)
         {
-            DoCast(m_creature->getVictim(), HEROIC(SPELL_LAVA_BURN, H_SPELL_LAVA_BURN));
+            DoCast(m_creature->getVictim(), DUNGEON_MODE(SPELL_LAVA_BURN, H_SPELL_LAVA_BURN));
             uiLavaBurnTimer = urand(15000,23000);
         }
 
-        if (HeroicMode)
+        if (IsHeroic())
         {
             if (uiCauterizingFlamesTimer <= diff)
             {

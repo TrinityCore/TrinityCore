@@ -222,15 +222,12 @@ struct TRINITY_DLL_DECL npc_living_mojoAI : public ScriptedAI
 {
     npc_living_mojoAI(Creature* pCreature) : ScriptedAI(pCreature)
     {
-        HeroicMode = pCreature->GetMap()->IsHeroic();
         pInstance = pCreature->GetInstanceData();
     }
 
     Creature* pColossus;
 
     ScriptedInstance* pInstance;
-
-    bool HeroicMode;
 
     uint32 uiMojoWaveTimer;
     uint32 uiMojoPuddleTimer;
@@ -277,13 +274,13 @@ struct TRINITY_DLL_DECL npc_living_mojoAI : public ScriptedAI
 
         if (uiMojoWaveTimer <= diff)
         {
-            DoCast(m_creature->getVictim(), HEROIC(SPELL_MOJO_WAVE, H_SPELL_MOJO_WAVE));
+            DoCast(m_creature->getVictim(), DUNGEON_MODE(SPELL_MOJO_WAVE, H_SPELL_MOJO_WAVE));
             uiMojoWaveTimer = 15000;
         } else uiMojoWaveTimer -= diff;
 
         if (uiMojoPuddleTimer <= diff)
         {
-            DoCast(m_creature->getVictim(), HEROIC(SPELL_MOJO_PUDDLE, H_SPELL_MOJO_PUDDLE));
+            DoCast(m_creature->getVictim(), DUNGEON_MODE(SPELL_MOJO_PUDDLE, H_SPELL_MOJO_PUDDLE));
             uiMojoPuddleTimer = 18000;
         } else uiMojoPuddleTimer -= diff;
 

@@ -95,7 +95,7 @@ struct TRINITY_DLL_DECL boss_hadronoxAI : public ScriptedAI
     void KilledUnit(Unit* Victim)
     {
         // not sure if this aura check is correct, I think it is though
-        if (!Victim || !Victim->HasAura(HEROIC(SPELL_LEECH_POISON, SPELL_LEECH_POISON_H)) || !m_creature->isAlive())
+        if (!Victim || !Victim->HasAura(DUNGEON_MODE(SPELL_LEECH_POISON, SPELL_LEECH_POISON_H)) || !m_creature->isAlive())
             return;
 
         uint32 health = (m_creature->GetMaxHealth()/100)*10;
@@ -165,7 +165,7 @@ struct TRINITY_DLL_DECL boss_hadronoxAI : public ScriptedAI
         if (acidtimer <= diff)
         {
             if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                DoCast(pTarget, HEROIC(SPELL_ACID_CLOUD, SPELL_ACID_CLOUD_H));
+                DoCast(pTarget, DUNGEON_MODE(SPELL_ACID_CLOUD, SPELL_ACID_CLOUD_H));
 
             acidtimer = urand(20000,30000);
         } else acidtimer -= diff;
@@ -173,7 +173,7 @@ struct TRINITY_DLL_DECL boss_hadronoxAI : public ScriptedAI
         if (leechtimer <= diff)
         {
             if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                DoCast(pTarget, HEROIC(SPELL_LEECH_POISON, SPELL_LEECH_POISON_H));
+                DoCast(pTarget, DUNGEON_MODE(SPELL_LEECH_POISON, SPELL_LEECH_POISON_H));
 
             leechtimer = urand(11000,14000);
         } else leechtimer -= diff;
@@ -181,7 +181,7 @@ struct TRINITY_DLL_DECL boss_hadronoxAI : public ScriptedAI
         if (grabtimer <= diff)
         {
             if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0)) // Draws all players (and attacking Mobs) to itself.
-                DoCast(pTarget, HEROIC(SPELL_WEB_GRAB, SPELL_WEB_GRAB_H));
+                DoCast(pTarget, DUNGEON_MODE(SPELL_WEB_GRAB, SPELL_WEB_GRAB_H));
 
             grabtimer = urand(15000,30000);
         } else grabtimer -= diff;

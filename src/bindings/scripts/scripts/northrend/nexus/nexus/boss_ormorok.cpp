@@ -58,11 +58,10 @@ struct TRINITY_DLL_DECL boss_ormorokAI : public ScriptedAI
     boss_ormorokAI(Creature *c) : ScriptedAI(c)
     {
         pInstance = c->GetInstanceData();
-        HeroicMode = c->GetMap()->IsHeroic();
     }
 
     ScriptedInstance* pInstance;
-    bool HeroicMode;
+
     bool Frenzy;
     bool CrystalSpikes;
     uint8 CrystalSpikes_Count;
@@ -145,7 +144,7 @@ struct TRINITY_DLL_DECL boss_ormorokAI : public ScriptedAI
 
         if (SPELL_TRAMPLE_Timer <= diff)
         {
-            DoCast(m_creature, HEROIC(SPELL_TRAMPLE_N, SPELL_TRAMPLE_H));
+            DoCast(m_creature, DUNGEON_MODE(SPELL_TRAMPLE_N, SPELL_TRAMPLE_H));
             SPELL_TRAMPLE_Timer = 10000;
         } else SPELL_TRAMPLE_Timer -= diff;
 
@@ -169,7 +168,7 @@ struct TRINITY_DLL_DECL boss_ormorokAI : public ScriptedAI
             SPELL_CRYSTAL_SPIKES_Timer = 20000;
         } else SPELL_CRYSTAL_SPIKES_Timer -=diff;
 
-        if (HeroicMode && (SPELL_SUMMON_CRYSTALLINE_TANGLER_Timer <= diff))
+        if (IsHeroic() && (SPELL_SUMMON_CRYSTALLINE_TANGLER_Timer <= diff))
         {
             Creature* Crystalline_Tangler = m_creature->SummonCreature(MOB_CRYSTALLINE_TANGLER, m_creature->GetPositionX(), m_creature->GetPositionY(), m_creature->GetPositionZ(), m_creature->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 1000);
             if (Crystalline_Tangler)
@@ -217,10 +216,7 @@ struct TRINITY_DLL_DECL mob_crystal_spikeAI : public Scripted_NoMovementAI
 {
     mob_crystal_spikeAI(Creature *c) : Scripted_NoMovementAI(c)
     {
-        HeroicMode = c->GetMap()->IsHeroic();
     }
-
-    bool HeroicMode;
 
     uint32 SPELL_CRYSTALL_SPIKE_DAMAGE_Timer;
     uint32 SPELL_CRYSTAL_SPIKE_PREVISUAL_Timer;
@@ -245,7 +241,7 @@ struct TRINITY_DLL_DECL mob_crystal_spikeAI : public Scripted_NoMovementAI
 
         if (SPELL_CRYSTALL_SPIKE_DAMAGE_Timer <= diff)
         {
-            DoCast(m_creature, HEROIC(SPELL_CRYSTALL_SPIKE_DAMAGE_N, SPELL_CRYSTALL_SPIKE_DAMAGE_H));
+            DoCast(m_creature, DUNGEON_MODE(SPELL_CRYSTALL_SPIKE_DAMAGE_N, SPELL_CRYSTALL_SPIKE_DAMAGE_H));
             SPELL_CRYSTALL_SPIKE_DAMAGE_Timer = 10000;
         } else SPELL_CRYSTALL_SPIKE_DAMAGE_Timer -=diff;
     }

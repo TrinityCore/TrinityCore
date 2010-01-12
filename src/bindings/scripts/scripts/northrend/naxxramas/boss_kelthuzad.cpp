@@ -188,7 +188,7 @@ struct TRINITY_DLL_DECL boss_kelthuzadAI : public BossAI
                         events.ScheduleEvent(EVENT_DETONATE, 20000);
                         events.ScheduleEvent(EVENT_FISSURE, 25000);
                         events.ScheduleEvent(EVENT_BLAST, urand(30000,60000));
-                        if (HeroicMode)
+                        if (getDifficulty() == RAID_DIFFICULTY_25MAN_NORMAL)
                             events.ScheduleEvent(EVENT_CHAIN, urand(30000,60000));
                         Phase = 2;
                         return;
@@ -212,7 +212,7 @@ struct TRINITY_DLL_DECL boss_kelthuzadAI : public BossAI
                     DoScriptText(SAY_ANSWER_REQUEST, m_creature);
                 }
             }
-            else if (GuardiansOfIcecrown_Count < HEROIC(2,5))
+            else if (GuardiansOfIcecrown_Count < RAID_MODE(2,5))
             {
                 if (GuardiansOfIcecrown_Timer <= diff)
                 {
@@ -231,11 +231,11 @@ struct TRINITY_DLL_DECL boss_kelthuzadAI : public BossAI
                 switch(eventId)
                 {
                     case EVENT_BOLT:
-                        DoCastVictim(HEROIC(SPELL_FROST_BOLT,H_SPELL_FROST_BOLT));
+                        DoCastVictim(RAID_MODE(SPELL_FROST_BOLT,H_SPELL_FROST_BOLT));
                         events.RepeatEvent(urand(1000,10000));
                         return;
                     case EVENT_NOVA:
-                        DoCastAOE(HEROIC(SPELL_FROST_BOLT_AOE,H_SPELL_FROST_BOLT_AOE));
+                        DoCastAOE(RAID_MODE(SPELL_FROST_BOLT_AOE,H_SPELL_FROST_BOLT_AOE));
                         events.RepeatEvent(urand(10000,20000));
                         return;
                     case EVENT_CHAIN:

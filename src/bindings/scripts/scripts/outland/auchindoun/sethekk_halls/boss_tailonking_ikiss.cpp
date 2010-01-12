@@ -59,8 +59,6 @@ struct TRINITY_DLL_DECL boss_talon_king_ikissAI : public ScriptedAI
 
     ScriptedInstance* pInstance;
 
-    bool HeroicMode;
-
     uint32 ArcaneVolley_Timer;
     uint32 Sheep_Timer;
     uint32 Blink_Timer;
@@ -72,8 +70,6 @@ struct TRINITY_DLL_DECL boss_talon_king_ikissAI : public ScriptedAI
 
     void Reset()
     {
-        HeroicMode = m_creature->GetMap()->IsHeroic();
-
         ArcaneVolley_Timer = 5000;
         Sheep_Timer = 8000;
         Blink_Timer = 35000;
@@ -130,24 +126,29 @@ struct TRINITY_DLL_DECL boss_talon_king_ikissAI : public ScriptedAI
 
         if (Blink)
         {
-            DoCast(m_creature, HEROIC(SPELL_ARCANE_EXPLOSION, H_SPELL_ARCANE_EXPLOSION));
+            DoCast(m_creature, DUNGEON_MODE(SPELL_ARCANE_EXPLOSION, H_SPELL_ARCANE_EXPLOSION));
             DoCast(m_creature, SPELL_ARCANE_BUBBLE, true);
             Blink = false;
         }
 
         if (ArcaneVolley_Timer <= diff)
         {
-            DoCast(m_creature, HEROIC(SPELL_ARCANE_VOLLEY, H_SPELL_ARCANE_VOLLEY));
+            DoCast(m_creature, DUNGEON_MODE(SPELL_ARCANE_VOLLEY, H_SPELL_ARCANE_VOLLEY));
             ArcaneVolley_Timer = 7000+rand()%5000;
         } else ArcaneVolley_Timer -= diff;
 
         if (Sheep_Timer <= diff)
         {
+            Unit *pTarget;
+
             //second top aggro target in normal, random target in heroic correct?
-            Unit *pTarget = NULL;
-            pTarget = HeroicMode ? SelectUnit(SELECT_TARGET_RANDOM,0) : SelectUnit(SELECT_TARGET_TOPAGGRO,1);
+            if (IsHeroic())
+                pTarget = SelectUnit(SELECT_TARGET_RANDOM,0);
+            else 
+                pTarget = SelectUnit(SELECT_TARGET_TOPAGGRO,1);
+
             if (pTarget)
-                DoCast(pTarget, HEROIC(SPELL_POLYMORPH, H_SPELL_POLYMORPH));
+                DoCast(pTarget, DUNGEON_MODE(SPELL_POLYMORPH, H_SPELL_POLYMORPH));
             Sheep_Timer = 15000+rand()%2500;
         } else Sheep_Timer -= diff;
 
@@ -158,7 +159,7 @@ struct TRINITY_DLL_DECL boss_talon_king_ikissAI : public ScriptedAI
             ManaShield = true;
         }
 
-        if (HeroicMode)
+        if (IsHeroic())
         {
             if (Slow_Timer <= diff)
             {

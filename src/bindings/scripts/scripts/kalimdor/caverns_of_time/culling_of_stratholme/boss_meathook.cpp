@@ -87,7 +87,7 @@ struct TRINITY_DLL_DECL boss_meathookAI : public ScriptedAI
 
         if (uiDiseaseTimer <= diff)
         {
-            DoCastAOE(HEROIC(SPELL_DISEASE_EXPULSION,H_SPELL_DISEASE_EXPULSION));
+            DoCastAOE(DUNGEON_MODE(SPELL_DISEASE_EXPULSION,H_SPELL_DISEASE_EXPULSION));
             uiDiseaseTimer = urand(1500,4000);
         } else uiDiseaseTimer -= diff;
 
@@ -100,7 +100,7 @@ struct TRINITY_DLL_DECL boss_meathookAI : public ScriptedAI
         if (uiChainTimer <= diff)
         {
             if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                DoCast(pTarget, HEROIC(SPELL_CONSTRICTING_CHAINS, H_SPELL_CONSTRICTING_CHAINS)); //anyone but the tank
+                DoCast(pTarget, DUNGEON_MODE(SPELL_CONSTRICTING_CHAINS, H_SPELL_CONSTRICTING_CHAINS)); //anyone but the tank
             uiChainTimer = urand(2000,4000);
         } else uiChainTimer -= diff;
 
