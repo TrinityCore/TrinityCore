@@ -25,7 +25,7 @@
 
 class BattleGround;
 
-#define BG_EY_FLAG_RESPAWN_TIME         (10*IN_MILISECONDS) //10 seconds
+#define BG_EY_FLAG_RESPAWN_TIME         (8*IN_MILISECONDS) //8 seconds
 #define BG_EY_FPOINTS_TICK_TIME         (2*IN_MILISECONDS)  //2 seconds
 
 enum BG_EY_WorldStates
@@ -216,8 +216,8 @@ enum EYBattleGroundObjectTypes
 
 enum BG_EY_Score
 {
-    BG_EY_WARNING_NEAR_VICTORY_SCORE    = 1800,
-    BG_EY_MAX_TEAM_SCORE                = 2000
+    BG_EY_WARNING_NEAR_VICTORY_SCORE    = 1400,
+    BG_EY_MAX_TEAM_SCORE                = 1600
 };
 
 enum BG_EY_FlagState
