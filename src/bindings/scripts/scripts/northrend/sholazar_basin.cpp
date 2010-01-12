@@ -265,6 +265,39 @@ bool GossipSelect_npc_avatar_of_freya(Player* pPlayer, Creature* pCreature, uint
     return true;
 }
 
+/*######
+## npc_geezle
+######*/
+
+struct TRINITY_DLL_DECL npc_bushwhackerAI : public ScriptedAI
+{
+    npc_bushwhackerAI(Creature* pCreature) : ScriptedAI(pCreature)
+    {
+        MoveToSummoner();
+    }
+
+    void MoveToSummoner()
+    {
+        if (m_creature->isSummon())
+            if (Unit* pSummoner = CAST_SUM(m_creature)->GetSummoner())
+                if (pSummoner)
+                    m_creature->GetMotionMaster()->MovePoint(0,pSummoner->GetPositionX(),pSummoner->GetPositionY(),pSummoner->GetPositionZ());
+    }
+
+    void UpdateAI(const uint32 uiDiff)
+    {
+        if (!UpdateVictim())
+            return;
+
+        DoMeleeAttackIfReady();
+    }
+};
+
+CreatureAI* GetAI_npc_bushwhacker(Creature* pCreature)
+{
+    return new npc_bushwhackerAI(pCreature);
+}
+
 void AddSC_sholazar_basin()
 {
     Script *newscript;
