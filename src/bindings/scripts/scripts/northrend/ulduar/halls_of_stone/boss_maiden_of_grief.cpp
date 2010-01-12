@@ -44,11 +44,9 @@ struct TRINITY_DLL_DECL boss_maiden_of_griefAI : public ScriptedAI
     boss_maiden_of_griefAI(Creature *c) : ScriptedAI(c)
     {
         pInstance = m_creature->GetInstanceData();
-        IsHeroic = m_creature->GetMap()->IsHeroic();
     }
 
     ScriptedInstance* pInstance;
-    bool IsHeroic;
 
     uint32 PartingSorrowTimer;
     uint32 StormOfGriefTimer;
@@ -92,7 +90,7 @@ struct TRINITY_DLL_DECL boss_maiden_of_griefAI : public ScriptedAI
             if (pInstance->GetData(DATA_MAIDEN_OF_GRIEF_EVENT) == IN_PROGRESS)
                 AchievTimer += diff;
 
-        if(IsHeroic)
+        if (IsHeroic())
         {
             if (PartingSorrowTimer <= diff)
             {
@@ -107,7 +105,7 @@ struct TRINITY_DLL_DECL boss_maiden_of_griefAI : public ScriptedAI
 
         if (StormOfGriefTimer <= diff)
         {
-            DoCast(m_creature->getVictim(), IsHeroic ? SPELL_STORM_OF_GRIEF_H : SPELL_STORM_OF_GRIEF_N, true);
+            DoCast(m_creature->getVictim(), DUNGEON_MODE(SPELL_STORM_OF_GRIEF_N, SPELL_STORM_OF_GRIEF_H), true);
             StormOfGriefTimer = 15000 + rand()%5000;
         } else StormOfGriefTimer -= diff;
 
@@ -115,7 +113,7 @@ struct TRINITY_DLL_DECL boss_maiden_of_griefAI : public ScriptedAI
         {
             DoResetThreat();
             DoScriptText(SAY_STUN, m_creature);
-            DoCast(m_creature, IsHeroic ? SPELL_SHOCK_OF_SORROW_H : SPELL_SHOCK_OF_SORROW_N);
+            DoCast(m_creature, DUNGEON_MODE(SPELL_SHOCK_OF_SORROW_N, SPELL_SHOCK_OF_SORROW_H));
             ShockOfSorrowTimer = 20000 + rand()%10000;
         } else ShockOfSorrowTimer -= diff;
 
@@ -123,10 +121,10 @@ struct TRINITY_DLL_DECL boss_maiden_of_griefAI : public ScriptedAI
         {
             Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 1);
 
-            if(pTarget)
-                DoCast(pTarget, IsHeroic ? SPELL_PILLAR_OF_WOE_H : SPELL_PILLAR_OF_WOE_N);
+            if (pTarget)
+                DoCast(pTarget, DUNGEON_MODE(SPELL_PILLAR_OF_WOE_N, SPELL_PILLAR_OF_WOE_H));
             else
-                DoCast(m_creature->getVictim(), IsHeroic ? SPELL_PILLAR_OF_WOE_H : SPELL_PILLAR_OF_WOE_N);
+                DoCast(m_creature->getVictim(), DUNGEON_MODE(SPELL_PILLAR_OF_WOE_N, SPELL_PILLAR_OF_WOE_H));
 
             PillarOfWoeTimer = 5000 + rand()%20000;
         } else PillarOfWoeTimer -= diff;
@@ -143,7 +141,7 @@ struct TRINITY_DLL_DECL boss_maiden_of_griefAI : public ScriptedAI
         AchievementEntry const *AchievGoodGrief = GetAchievementStore()->LookupEntry(ACHIEVEMENT_GOOD_GRIEF);
         Map* pMap = m_creature->GetMap();
 
-        if (HeroicMode && AchievTimer < 60000 && pMap && pMap->IsDungeon() && AchievGoodGrief)
+        if (IsHeroic() && AchievTimer < 60000 && pMap && pMap->IsDungeon() && AchievGoodGrief)
         {
             Map::PlayerList const &players = pMap->GetPlayers();
                     for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)

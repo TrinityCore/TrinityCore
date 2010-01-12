@@ -88,7 +88,7 @@ struct TRINITY_DLL_DECL mob_treantAI  : public ScriptedAI
 
 #define WAR_STOMP           34716
 #define SUMMON_TREANTS      34727                           // DBC: 34727, 34731, 34733, 34734, 34736, 34739, 34741 (with Ancestral Life spell 34742)   // won't work (guardian summon)
-#define ARCANE_VOLLEY       (HeroicMode?39133:36705)
+#define ARCANE_VOLLEY       DUNGEON_MODE(36705, 39133)
 
 #define CREATURE_TREANT     19949
 
@@ -108,7 +108,6 @@ struct TRINITY_DLL_DECL boss_warp_splinterAI : public ScriptedAI
 {
     boss_warp_splinterAI(Creature *c) : ScriptedAI(c)
     {
-        HeroicMode = c->GetMap()->IsHeroic();
         Treant_Spawn_Pos_X = c->GetPositionX();
         Treant_Spawn_Pos_Y = c->GetPositionY();
     }
@@ -116,7 +115,6 @@ struct TRINITY_DLL_DECL boss_warp_splinterAI : public ScriptedAI
     uint32 War_Stomp_Timer;
     uint32 Summon_Treants_Timer;
     uint32 Arcane_Volley_Timer;
-    bool HeroicMode;
 
     float Treant_Spawn_Pos_X;
     float Treant_Spawn_Pos_Y;

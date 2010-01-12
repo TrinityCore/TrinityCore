@@ -26,10 +26,10 @@ EndScriptData */
 
 #define EMOTE_SONIC_BOOM            -1555036
 
-#define SPELL_SONIC_BOOM_CAST       (HeroicMode?38796:33923)
-#define SPELL_SONIC_BOOM_EFFECT     (HeroicMode?38795:33666)
+#define SPELL_SONIC_BOOM_CAST       DUNGEON_MODE(33923, 38796)
+#define SPELL_SONIC_BOOM_EFFECT     DUNGEON_MODE(33666, 38795)
 #define SPELL_RESONANCE             33657
-#define SPELL_MURMURS_TOUCH         (HeroicMode?38794:33711)
+#define SPELL_MURMURS_TOUCH         DUNGEON_MODE(33711, 38794)
 #define SPELL_MAGNETIC_PULL         33689
 #define SPELL_SONIC_SHOCK           38797
 #define SPELL_THUNDERING_STORM      39365
@@ -39,7 +39,6 @@ struct TRINITY_DLL_DECL boss_murmurAI : public ScriptedAI
     boss_murmurAI(Creature *c) : ScriptedAI(c)
     {
         SetCombatMovement(false);
-        HeroicMode = m_creature->GetMap()->IsHeroic();
     }
 
     uint32 SonicBoom_Timer;
@@ -48,7 +47,6 @@ struct TRINITY_DLL_DECL boss_murmurAI : public ScriptedAI
     uint32 MagneticPull_Timer;
     uint32 SonicShock_Timer;
     uint32 ThunderingStorm_Timer;
-    bool HeroicMode;
     bool SonicBoom;
 
     void Reset()
@@ -149,7 +147,7 @@ struct TRINITY_DLL_DECL boss_murmurAI : public ScriptedAI
             MagneticPull_Timer = 500;
         } else MagneticPull_Timer -= diff;
 
-        if (HeroicMode)
+        if (IsHeroic())
         {
             // Thundering Storm
             if (ThunderingStorm_Timer <= diff)

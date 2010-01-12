@@ -64,10 +64,8 @@ struct TRINITY_DLL_DECL mob_voidtravelerAI : public ScriptedAI
 {
     mob_voidtravelerAI(Creature *c) : ScriptedAI(c)
     {
-        HeroicMode = m_creature->GetMap()->IsHeroic();
     }
 
-    bool HeroicMode;
     Unit *Vorpil;
     uint32 move;
     bool sacrificed;
@@ -92,7 +90,7 @@ struct TRINITY_DLL_DECL mob_voidtravelerAI : public ScriptedAI
         {
             if (sacrificed)
             {
-                m_creature->AddAura(HEROIC(H_SPELL_EMPOWERING_SHADOWS, SPELL_EMPOWERING_SHADOWS), Vorpil);
+                m_creature->AddAura(DUNGEON_MODE(SPELL_EMPOWERING_SHADOWS, H_SPELL_EMPOWERING_SHADOWS), Vorpil);
                 Vorpil->SetHealth(Vorpil->GetHealth() + Vorpil->GetMaxHealth()/25);
                 DoCast(m_creature, SPELL_SHADOW_NOVA, true);
                 m_creature->Kill(m_creature);
@@ -125,14 +123,12 @@ struct TRINITY_DLL_DECL boss_grandmaster_vorpilAI : public ScriptedAI
     boss_grandmaster_vorpilAI(Creature *c) : ScriptedAI(c)
     {
         pInstance = c->GetInstanceData();
-        HeroicMode = c->GetMap()->IsHeroic();
         Intro = false;
     }
 
     ScriptedInstance *pInstance;
     bool Intro, HelpYell;
     bool sumportals;
-    bool HeroicMode;
 
     uint32 ShadowBoltVolley_Timer;
     uint32 DrawShadows_Timer;
@@ -249,7 +245,7 @@ struct TRINITY_DLL_DECL boss_grandmaster_vorpilAI : public ScriptedAI
             ShadowBoltVolley_Timer = 15000 + rand()%15000;
         } else ShadowBoltVolley_Timer -= diff;
 
-        if (HeroicMode && banish_Timer <= diff)
+        if (IsHeroic() && banish_Timer <= diff)
         {
             Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM,0,30,false);
             if (pTarget)
@@ -271,7 +267,7 @@ struct TRINITY_DLL_DECL boss_grandmaster_vorpilAI : public ScriptedAI
             m_creature->GetMap()->CreatureRelocation(m_creature, VorpilPosition[0],VorpilPosition[1],VorpilPosition[2],0.0f);
             DoCast(m_creature, SPELL_DRAW_SHADOWS, true);
 
-            DoCast(m_creature, HeroicMode?H_SPELL_RAIN_OF_FIRE:SPELL_RAIN_OF_FIRE);
+            DoCast(m_creature, DUNGEON_MODE(SPELL_RAIN_OF_FIRE, H_SPELL_RAIN_OF_FIRE));
 
             ShadowBoltVolley_Timer = 6000;
             DrawShadows_Timer = 30000;

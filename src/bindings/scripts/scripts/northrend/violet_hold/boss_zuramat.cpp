@@ -109,13 +109,13 @@ struct TRINITY_DLL_DECL boss_zuramatAI : public ScriptedAI
         if (SpellVoidShiftTimer <= diff)
         {
              if (Unit* pUnit = SelectUnit(SELECT_TARGET_RANDOM, 0))
-                DoCast(pUnit, HEROIC(SPELL_VOID_SHIFT, H_SPELL_VOID_SHIFT));
+                DoCast(pUnit, DUNGEON_MODE(SPELL_VOID_SHIFT, H_SPELL_VOID_SHIFT));
             SpellVoidShiftTimer = 20000;
         } else SpellVoidShiftTimer -=diff;
 
         if (SpellShroudOfDarknessTimer <= diff)
         {
-            DoCast(m_creature->getVictim(), HEROIC(SPELL_SHROUD_OF_DARKNESS, H_SPELL_SHROUD_OF_DARKNESS));
+            DoCast(m_creature->getVictim(), DUNGEON_MODE(SPELL_SHROUD_OF_DARKNESS, H_SPELL_SHROUD_OF_DARKNESS));
             SpellShroudOfDarknessTimer = 20000;
         } else SpellShroudOfDarknessTimer -=diff;
 
@@ -152,7 +152,7 @@ struct TRINITY_DLL_DECL boss_zuramatAI : public ScriptedAI
     void JustSummoned(Creature* summon)
     {
         summon->AI()->AttackStart(m_creature->getVictim());
-        summon->AI()->DoCastAOE(HEROIC(SPELL_ZUMARAT_ADD_2, H_SPELL_ZUMARAT_ADD_2));
+        summon->AI()->DoCastAOE(DUNGEON_MODE(SPELL_ZUMARAT_ADD_2, H_SPELL_ZUMARAT_ADD_2));
         summon->SetPhaseMask(17,true);
     }
 };

@@ -255,11 +255,11 @@ struct TRINITY_DLL_DECL boss_sartharionAI : public ScriptedAI
         if (pInstance)
         {
             if (achievProgress == 1)
-              pInstance->DoCompleteAchievement(HEROIC(ACHIEV_TWILIGHT_ASSIST,H_ACHIEV_TWILIGHT_ASSIST));
+              pInstance->DoCompleteAchievement(RAID_MODE(ACHIEV_TWILIGHT_ASSIST,H_ACHIEV_TWILIGHT_ASSIST));
             else if (achievProgress == 2)
-              pInstance->DoCompleteAchievement(HEROIC(ACHIEV_TWILIGHT_DUO,H_ACHIEV_TWILIGHT_DUO));
+              pInstance->DoCompleteAchievement(RAID_MODE(ACHIEV_TWILIGHT_DUO,H_ACHIEV_TWILIGHT_DUO));
             else if (achievProgress == 3)
-              pInstance->DoCompleteAchievement(HEROIC(ACHIEV_TWILIGHT_ZONE,H_ACHIEV_TWILIGHT_ZONE));
+              pInstance->DoCompleteAchievement(RAID_MODE(ACHIEV_TWILIGHT_ZONE,H_ACHIEV_TWILIGHT_ZONE));
        
             pInstance->SetData(TYPE_SARTHARION_EVENT, DONE);
         }
@@ -430,7 +430,7 @@ struct TRINITY_DLL_DECL boss_sartharionAI : public ScriptedAI
         if (m_uiFlameBreathTimer <= uiDiff)
         {
             DoScriptText(SAY_SARTHARION_BREATH, m_creature);
-            DoCast(m_creature->getVictim(), HEROIC(SPELL_FLAME_BREATH, SPELL_FLAME_BREATH_H));
+            DoCast(m_creature->getVictim(), RAID_MODE(SPELL_FLAME_BREATH, SPELL_FLAME_BREATH_H));
             m_uiFlameBreathTimer = urand(25000,35000);
         }
         else
@@ -439,7 +439,7 @@ struct TRINITY_DLL_DECL boss_sartharionAI : public ScriptedAI
         // Tail Sweep
         if (m_uiTailSweepTimer <= uiDiff)
         {
-            DoCast(m_creature->getVictim(), HEROIC(SPELL_TAIL_LASH, SPELL_TAIL_LASH_H));
+            DoCast(m_creature->getVictim(), RAID_MODE(SPELL_TAIL_LASH, SPELL_TAIL_LASH_H));
             m_uiTailSweepTimer = urand(15000,20000);
         }
         else
@@ -760,7 +760,7 @@ struct TRINITY_DLL_DECL mob_tenebronAI : public dummy_dragonAI
         if (m_uiShadowFissureTimer <= uiDiff)
         {
             if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
-                DoCast(pTarget, HEROIC(SPELL_SHADOW_FISSURE, SPELL_SHADOW_FISSURE));
+                DoCast(pTarget, RAID_MODE(SPELL_SHADOW_FISSURE, SPELL_SHADOW_FISSURE));
 
             m_uiShadowFissureTimer = urand(15000,20000);
         }
@@ -771,7 +771,7 @@ struct TRINITY_DLL_DECL mob_tenebronAI : public dummy_dragonAI
         if (m_uiShadowBreathTimer <= uiDiff)
         {
             DoScriptText(SAY_TENEBRON_BREATH, m_creature);
-            DoCast(m_creature->getVictim(), HEROIC(SPELL_SHADOW_BREATH, SPELL_SHADOW_BREATH_H));
+            DoCast(m_creature->getVictim(), RAID_MODE(SPELL_SHADOW_BREATH, SPELL_SHADOW_BREATH_H));
             m_uiShadowBreathTimer = urand(20000,25000);
         }
         else
@@ -836,7 +836,7 @@ struct TRINITY_DLL_DECL mob_shadronAI : public dummy_dragonAI
         if (m_uiShadowFissureTimer <= uiDiff)
         {
             if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
-                DoCast(pTarget, HEROIC(SPELL_SHADOW_FISSURE, SPELL_SHADOW_FISSURE_H));
+                DoCast(pTarget, RAID_MODE(SPELL_SHADOW_FISSURE, SPELL_SHADOW_FISSURE_H));
 
             m_uiShadowFissureTimer = urand(15000,20000);
         }
@@ -847,7 +847,7 @@ struct TRINITY_DLL_DECL mob_shadronAI : public dummy_dragonAI
         if (m_uiShadowBreathTimer <= uiDiff)
         {
             DoScriptText(SAY_SHADRON_BREATH, m_creature);
-            DoCast(m_creature->getVictim(), HEROIC(SPELL_SHADOW_BREATH, SPELL_SHADOW_BREATH_H));
+            DoCast(m_creature->getVictim(), RAID_MODE(SPELL_SHADOW_BREATH, SPELL_SHADOW_BREATH_H));
             m_uiShadowBreathTimer = urand(20000,25000);
         }
         else
@@ -906,7 +906,7 @@ struct TRINITY_DLL_DECL mob_vesperonAI : public dummy_dragonAI
         if (m_uiShadowFissureTimer <= uiDiff)
         {
             if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
-                DoCast(pTarget, HEROIC(SPELL_SHADOW_FISSURE, SPELL_SHADOW_FISSURE_H));
+                DoCast(pTarget, RAID_MODE(SPELL_SHADOW_FISSURE, SPELL_SHADOW_FISSURE_H));
 
             m_uiShadowFissureTimer = urand(15000,20000);
         }
@@ -917,7 +917,7 @@ struct TRINITY_DLL_DECL mob_vesperonAI : public dummy_dragonAI
         if (m_uiShadowBreathTimer <= uiDiff)
         {
             DoScriptText(SAY_VESPERON_BREATH, m_creature);
-            DoCast(m_creature->getVictim(), HEROIC(SPELL_SHADOW_BREATH, SPELL_SHADOW_BREATH_H));
+            DoCast(m_creature->getVictim(), RAID_MODE(SPELL_SHADOW_BREATH, SPELL_SHADOW_BREATH_H));
             m_uiShadowBreathTimer = urand(20000,25000);
         }
         else

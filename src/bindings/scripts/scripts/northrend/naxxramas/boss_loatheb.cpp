@@ -66,11 +66,11 @@ struct TRINITY_DLL_DECL boss_loathebAI : public BossAI
                     return;
                 case EVENT_BLOOM:
                     DoCastAOE(SPELL_SUMMON_SPORE, true);
-                    DoCastAOE(HEROIC(SPELL_DEATHBLOOM,H_SPELL_DEATHBLOOM));
+                    DoCastAOE(RAID_MODE(SPELL_DEATHBLOOM,H_SPELL_DEATHBLOOM));
                     events.ScheduleEvent(EVENT_BLOOM, 30000);
                     return;
                 case EVENT_DOOM:
-                    DoCastAOE(HEROIC(SPELL_INEVITABLE_DOOM,H_SPELL_INEVITABLE_DOOM));
+                    DoCastAOE(RAID_MODE(SPELL_INEVITABLE_DOOM,H_SPELL_INEVITABLE_DOOM));
                     events.ScheduleEvent(EVENT_DOOM, events.GetTimer() < 5*60000 ? 30000 : 15000);
                     return;
             }

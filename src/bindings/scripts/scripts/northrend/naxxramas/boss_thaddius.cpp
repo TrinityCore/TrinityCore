@@ -139,7 +139,7 @@ struct TRINITY_DLL_DECL boss_thaddiusAI : public BossAI
                     events.ScheduleEvent(EVENT_SHIFT, 30000);
                     return;
                 case EVENT_CHAIN:
-                    DoCast(me->getVictim(), HEROIC(SPELL_CHAIN_LIGHTNING, H_SPELL_CHAIN_LIGHTNING));
+                    DoCast(me->getVictim(), RAID_MODE(SPELL_CHAIN_LIGHTNING, H_SPELL_CHAIN_LIGHTNING));
                     events.ScheduleEvent(EVENT_CHAIN, urand(10000,20000));
                     return;
                 case EVENT_BERSERK:
@@ -180,7 +180,7 @@ struct TRINITY_DLL_DECL mob_stalaggAI : public ScriptedAI
    {
        if (PowerSurgeTimer <= uiDiff)
        {
-           DoCast(m_creature, HEROIC(SPELL_POWERSURGE, H_SPELL_POWERSURGE));
+           DoCast(m_creature, RAID_MODE(SPELL_POWERSURGE, H_SPELL_POWERSURGE));
            PowerSurgeTimer = urand(15000,20000);
        } else PowerSurgeTimer -= uiDiff;
        DoMeleeAttackIfReady();
@@ -213,7 +213,7 @@ struct TRINITY_DLL_DECL mob_feugenAI : public ScriptedAI
    {
        if (StaticFieldTimer <= uiDiff)
        {
-           DoCast(m_creature, HEROIC(SPELL_STATICFIELD, H_SPELL_STATICFIELD));
+           DoCast(m_creature, RAID_MODE(SPELL_STATICFIELD, H_SPELL_STATICFIELD));
            StaticFieldTimer = 5000;
        } else StaticFieldTimer -= uiDiff;
        DoMeleeAttackIfReady();

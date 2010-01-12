@@ -149,21 +149,21 @@ struct TRINITY_DLL_DECL boss_skadiAI : public ScriptedAI
 
                 if (uiCrushTimer <= diff)
                 {
-                    DoCast(m_creature->getVictim(), HEROIC(SPELL_CRUSH, H_SPELL_CRUSH));
+                    DoCast(m_creature->getVictim(), DUNGEON_MODE(SPELL_CRUSH, H_SPELL_CRUSH));
                     uiCrushTimer = 8000;
                 } else uiCrushTimer -= diff;
 
                 if (uiPoisonedSpearTimer <= diff)
                 {
                     if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                        DoCast(pTarget, HEROIC(SPELL_POISONED_SPEAR, H_SPELL_POISONED_SPEAR));
+                        DoCast(pTarget, DUNGEON_MODE(SPELL_POISONED_SPEAR, H_SPELL_POISONED_SPEAR));
                     uiPoisonedSpearTimer = 10000;
                 } else uiPoisonedSpearTimer -= diff;
 
                 if (uiWhirlwindTimer <= diff)
                 {
                     if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                        m_creature->CastSpell(pTarget, HEROIC(SPELL_WHIRLWIND, H_SPELL_WHIRLWIND), false);
+                        m_creature->CastSpell(pTarget, DUNGEON_MODE(SPELL_WHIRLWIND, H_SPELL_WHIRLWIND), false);
                 } else uiWhirlwindTimer = 20000;
 
                 DoMeleeAttackIfReady();
@@ -189,7 +189,7 @@ struct TRINITY_DLL_DECL boss_skadiAI : public ScriptedAI
         if(type != POINT_MOTION_TYPE)
                 return;
 
-        if (HeroicMode ? (uiSpawnCounter >= 4) : (uiSpawnCounter >= 5))
+        if (uiSpawnCounter >= DUNGEON_MODE(4, 5))
         {
             uiWaypointId = 200;
             uiMovementTimer = 3000;
@@ -216,7 +216,7 @@ struct TRINITY_DLL_DECL boss_skadiAI : public ScriptedAI
 
     void SpawnMobs(uint32 spot)
     {
-        uint8 uiMaxSpawn = (HeroicMode ? 6 : 5);
+        uint8 uiMaxSpawn = DUNGEON_MODE(5, 6);
         for (uint8 i = 0; i < uiMaxSpawn; ++i)
         {
             Creature* pTemp;

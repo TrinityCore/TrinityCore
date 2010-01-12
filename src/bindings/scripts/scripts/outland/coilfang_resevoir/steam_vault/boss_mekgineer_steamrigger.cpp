@@ -51,11 +51,9 @@ struct TRINITY_DLL_DECL boss_mekgineer_steamriggerAI : public ScriptedAI
     boss_mekgineer_steamriggerAI(Creature *c) : ScriptedAI(c)
     {
         pInstance = c->GetInstanceData();
-        HeroicMode = c->GetMap()->IsHeroic();
     }
 
     ScriptedInstance *pInstance;
-    bool HeroicMode;
 
     uint32 Shrink_Timer;
     uint32 Saw_Blade_Timer;
@@ -190,11 +188,9 @@ struct TRINITY_DLL_DECL mob_steamrigger_mechanicAI : public ScriptedAI
     mob_steamrigger_mechanicAI(Creature *c) : ScriptedAI(c)
     {
         pInstance = c->GetInstanceData();
-        HeroicMode = c->GetMap()->IsHeroic();
     }
 
     ScriptedInstance* pInstance;
-    bool HeroicMode;
 
     uint32 Repair_Timer;
 
@@ -227,7 +223,7 @@ struct TRINITY_DLL_DECL mob_steamrigger_mechanicAI : public ScriptedAI
                             //m_creature->GetMotionMaster()->MovementExpired();
                             //m_creature->GetMotionMaster()->MoveIdle();
 
-                            DoCast(m_creature,HEROIC(SPELL_REPAIR, H_SPELL_REPAIR), true);
+                            DoCast(m_creature, DUNGEON_MODE(SPELL_REPAIR, H_SPELL_REPAIR), true);
                         }
                         Repair_Timer = 5000;
                     }

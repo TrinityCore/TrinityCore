@@ -46,11 +46,9 @@ struct TRINITY_DLL_DECL boss_thespiaAI : public ScriptedAI
     boss_thespiaAI(Creature *c) : ScriptedAI(c)
     {
         pInstance = c->GetInstanceData();
-        HeroicMode = m_creature->GetMap()->IsHeroic();
     }
 
     ScriptedInstance *pInstance;
-    bool HeroicMode;
 
     uint32 LightningCloud_Timer;
     uint32 LungBurst_Timer;
@@ -95,12 +93,14 @@ struct TRINITY_DLL_DECL boss_thespiaAI : public ScriptedAI
         //LightningCloud_Timer
         if (LightningCloud_Timer <= diff)
         {
-            //cast twice in Heroic mode
             if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM,0))
                 DoCast(pTarget, SPELL_LIGHTNING_CLOUD);
-            if (HeroicMode)
+
+            //cast twice in Heroic mode
+            if (IsHeroic())
                 if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM,0))
                     DoCast(pTarget, SPELL_LIGHTNING_CLOUD);
+
             LightningCloud_Timer = 15000+rand()%10000;
         } else LightningCloud_Timer -=diff;
 
@@ -115,10 +115,11 @@ struct TRINITY_DLL_DECL boss_thespiaAI : public ScriptedAI
         //EnvelopingWinds_Timer
         if (EnvelopingWinds_Timer <= diff)
         {
-            //cast twice in Heroic mode
             if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM,0))
                 DoCast(pTarget, SPELL_ENVELOPING_WINDS);
-            if (HeroicMode)
+
+            //cast twice in Heroic mode
+            if (IsHeroic())
                 if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM,0))
                     DoCast(pTarget, SPELL_ENVELOPING_WINDS);
             EnvelopingWinds_Timer = 10000+rand()%5000;
@@ -135,12 +136,10 @@ struct TRINITY_DLL_DECL mob_coilfang_waterelementalAI : public ScriptedAI
 {
     mob_coilfang_waterelementalAI(Creature *c) : ScriptedAI(c) {}
 
-    bool HeroicMode;
     uint32 WaterBoltVolley_Timer;
 
     void Reset()
     {
-        HeroicMode = m_creature->GetMap()->IsHeroic();
         WaterBoltVolley_Timer = 3000+rand()%3000;
     }
 
@@ -153,7 +152,7 @@ struct TRINITY_DLL_DECL mob_coilfang_waterelementalAI : public ScriptedAI
 
         if (WaterBoltVolley_Timer <= diff)
         {
-            DoCast(m_creature, HEROIC(SPELL_WATER_BOLT_VOLLEY, H_SPELL_WATER_BOLT_VOLLEY));
+            DoCast(m_creature, DUNGEON_MODE(SPELL_WATER_BOLT_VOLLEY, H_SPELL_WATER_BOLT_VOLLEY));
             WaterBoltVolley_Timer = 7000+rand()%5000;
         } else WaterBoltVolley_Timer -= diff;
 

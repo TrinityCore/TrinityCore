@@ -69,12 +69,9 @@ struct TRINITY_DLL_DECL boss_xevozzAI : public ScriptedAI
     boss_xevozzAI(Creature* pCreature) : ScriptedAI(pCreature)
     {
         pInstance  = pCreature->GetInstanceData();
-        HeroicMode = pCreature->GetMap()->IsHeroic();
     }
 
     ScriptedInstance* pInstance;
-
-    bool HeroicMode;
 
     uint32 uiSummonEtherealSphere_Timer;
     uint32 uiArcaneBarrageVolley_Timer;
@@ -157,7 +154,7 @@ struct TRINITY_DLL_DECL boss_xevozzAI : public ScriptedAI
 
         if (uiArcaneBarrageVolley_Timer < uiDiff)
         {
-            DoCast(m_creature, HEROIC(SPELL_ARCANE_BARRAGE_VOLLEY, SPELL_ARCANE_BARRAGE_VOLLEY_H));
+            DoCast(m_creature, DUNGEON_MODE(SPELL_ARCANE_BARRAGE_VOLLEY, SPELL_ARCANE_BARRAGE_VOLLEY_H));
             uiArcaneBarrageVolley_Timer = urand(20000, 22000);
         }
         else uiArcaneBarrageVolley_Timer -= uiDiff;
@@ -165,7 +162,7 @@ struct TRINITY_DLL_DECL boss_xevozzAI : public ScriptedAI
         if (uiArcaneBuffet_Timer)
             if (uiArcaneBuffet_Timer < uiDiff)
             {
-                DoCast(m_creature->getVictim(), HEROIC(SPELL_ARCANE_BUFFET, SPELL_ARCANE_BUFFET_H));
+                DoCast(m_creature->getVictim(), DUNGEON_MODE(SPELL_ARCANE_BUFFET, SPELL_ARCANE_BUFFET_H));
                 uiArcaneBuffet_Timer = 0;
             }
             else uiArcaneBuffet_Timer -= uiDiff;
@@ -174,7 +171,7 @@ struct TRINITY_DLL_DECL boss_xevozzAI : public ScriptedAI
         {
             DoScriptText(SAY_SPAWN, m_creature);
             DoCast(m_creature, SPELL_SUMMON_ETHEREAL_SPHERE_1);
-            if (HeroicMode) // extra one for heroic
+            if (IsHeroic()) // extra one for heroic
                 m_creature->SummonCreature(NPC_ETHEREAL_SPHERE, m_creature->GetPositionX()-5+rand()%10, m_creature->GetPositionY()-5+rand()%10, m_creature->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 40000);
 
             uiSummonEtherealSphere_Timer = urand(45000, 47000);
@@ -224,11 +221,9 @@ struct TRINITY_DLL_DECL mob_ethereal_sphereAI : public ScriptedAI
     mob_ethereal_sphereAI(Creature* pCreature) : ScriptedAI(pCreature)
     {
     	pInstance   = pCreature->GetInstanceData();
-    	HeroicMode  = pCreature->GetMap()->IsHeroic();
     }
 
     ScriptedInstance* pInstance;
-    bool HeroicMode;
 
     uint32 uiSummonPlayers_Timer;
     uint32 uiRangeCheck_Timer;
@@ -256,7 +251,7 @@ struct TRINITY_DLL_DECL mob_ethereal_sphereAI : public ScriptedAI
                 {
                     float fDistance = m_creature->GetDistance2d(pXevozz);
                     if (fDistance <= 3)
-                        DoCast(pXevozz, HEROIC(SPELL_ARCANE_POWER, H_SPELL_ARCANE_POWER));
+                        DoCast(pXevozz, DUNGEON_MODE(SPELL_ARCANE_POWER, H_SPELL_ARCANE_POWER));
                     else
                         DoCast(m_creature, 35845); //Is it blizzlike?
                 }

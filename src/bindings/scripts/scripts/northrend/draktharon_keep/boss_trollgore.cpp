@@ -90,12 +90,12 @@ struct TRINITY_DLL_DECL boss_trollgoreAI : public ScriptedAI
         uiExplodeCorpseTimer = 3000;
         uiSpawnTimer = urand(30000,40000);
 
-        bAchiev = HeroicMode;
+        bAchiev = IsHeroic();
 
         lSummons.DespawnAll();
 
-        if (m_creature->HasAura(HEROIC(SPELL_CONSUME,H_SPELL_CONSUME)))
-            m_creature->RemoveAura(HEROIC(SPELL_CONSUME,H_SPELL_CONSUME));
+        if (m_creature->HasAura(DUNGEON_MODE(SPELL_CONSUME,H_SPELL_CONSUME)))
+            m_creature->RemoveAura(DUNGEON_MODE(SPELL_CONSUME,H_SPELL_CONSUME));
         
         if (pInstance)
             pInstance->SetData(DATA_TROLLGORE_EVENT, NOT_STARTED);
@@ -117,7 +117,8 @@ struct TRINITY_DLL_DECL boss_trollgoreAI : public ScriptedAI
 
         if (uiSpawnTimer <= diff)
         {
-            for (uint8 i = 0; i < urand(2,HEROIC(3,5)); ++i)
+            uint32 spawnNumber = urand(2,DUNGEON_MODE(3,5));
+            for (uint8 i = 0; i < spawnNumber; ++i)
                 DoSpawnCreature(RAND(NPC_DRAKKARI_INVADER_1,NPC_DRAKKARI_INVADER_2), AddSpawnPoint.GetPositionX(), AddSpawnPoint.GetPositionY(), AddSpawnPoint.GetPositionZ(), AddSpawnPoint.GetOrientation(), TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 90000);
             uiSpawnTimer = urand(30000,40000);
         } else uiSpawnTimer -= diff;
@@ -125,7 +126,7 @@ struct TRINITY_DLL_DECL boss_trollgoreAI : public ScriptedAI
         if (uiConsumeTimer <= diff)
         {
             DoScriptText(SAY_CONSUME, m_creature);
-            DoCast(HEROIC(SPELL_CONSUME, H_SPELL_CONSUME));
+            DoCast(DUNGEON_MODE(SPELL_CONSUME, H_SPELL_CONSUME));
             uiConsumeTimer = 15000;
         } else uiConsumeTimer -= diff;
 
@@ -133,7 +134,7 @@ struct TRINITY_DLL_DECL boss_trollgoreAI : public ScriptedAI
         {
             if (uiAuraCountTimer <= diff)
             {
-                if (Aura *pConsumeAura = m_creature->GetAura(HEROIC(SPELL_CONSUME,H_SPELL_CONSUME)))
+                if (Aura *pConsumeAura = m_creature->GetAura(DUNGEON_MODE(SPELL_CONSUME,H_SPELL_CONSUME)))
                 {
                     if (pConsumeAura && pConsumeAura->GetStackAmount() > 9)
                         bAchiev = false;
@@ -156,7 +157,7 @@ struct TRINITY_DLL_DECL boss_trollgoreAI : public ScriptedAI
 
         if (uiExplodeCorpseTimer <= diff)
         {
-            DoCast(HEROIC(SPELL_CORPSE_EXPLODE, H_SPELL_CORPSE_EXPLODE));
+            DoCast(DUNGEON_MODE(SPELL_CORPSE_EXPLODE, H_SPELL_CORPSE_EXPLODE));
             DoScriptText(SAY_EXPLODE, m_creature);
             uiExplodeCorpseTimer = urand(15000,19000);
         } else uiExplodeCorpseTimer -= diff;

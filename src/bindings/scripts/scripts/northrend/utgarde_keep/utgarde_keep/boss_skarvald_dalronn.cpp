@@ -63,13 +63,11 @@ struct TRINITY_DLL_DECL boss_skarvald_the_constructorAI : public ScriptedAI
     boss_skarvald_the_constructorAI(Creature *c) : ScriptedAI(c)
     {
         pInstance = c->GetInstanceData();
-        HeroicMode = c->GetMap()->IsHeroic();
     }
 
     ScriptedInstance* pInstance;
 
     bool ghost;
-    bool HeroicMode;
     uint32 Charge_Timer;
     uint32 StoneStrike_Timer;
     uint32 Response_Timer;
@@ -208,13 +206,11 @@ struct TRINITY_DLL_DECL boss_dalronn_the_controllerAI : public ScriptedAI
     boss_dalronn_the_controllerAI(Creature *c) : ScriptedAI(c)
     {
         pInstance = c->GetInstanceData();
-        HeroicMode = c->GetMap()->IsHeroic();
     }
 
     ScriptedInstance* pInstance;
 
     bool ghost;
-    bool HeroicMode;
     uint32 ShadowBolt_Timer;
     uint32 Debilitate_Timer;
     uint32 Summon_Timer;
@@ -344,7 +340,7 @@ struct TRINITY_DLL_DECL boss_dalronn_the_controllerAI : public ScriptedAI
         {
             if (!m_creature->IsNonMeleeSpellCasted(false))
             {
-                DoCast(SelectUnit(SELECT_TARGET_RANDOM, 0),HEROIC(SPELL_SHADOW_BOLT, H_SPELL_SHADOW_BOLT));
+                DoCast(SelectUnit(SELECT_TARGET_RANDOM, 0), DUNGEON_MODE(SPELL_SHADOW_BOLT, H_SPELL_SHADOW_BOLT));
                 ShadowBolt_Timer = 1000;
             }
         } else ShadowBolt_Timer -= diff;
@@ -358,7 +354,7 @@ struct TRINITY_DLL_DECL boss_dalronn_the_controllerAI : public ScriptedAI
             }
         } else Debilitate_Timer -= diff;
 
-        if (HeroicMode)
+        if (IsHeroic())
             if (Summon_Timer <= diff)
             {
                 DoCast(m_creature, H_SPELL_SUMMON_SKELETONS);

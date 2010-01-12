@@ -156,14 +156,14 @@ struct TRINITY_DLL_DECL boss_mal_ganisAI : public ScriptedAI
 
                 if (uiCarrionSwarmTimer < diff)
                 {
-                    DoCastVictim(HEROIC(SPELL_CARRION_SWARM,H_SPELL_CARRION_SWARM));
+                    DoCastVictim(DUNGEON_MODE(SPELL_CARRION_SWARM,H_SPELL_CARRION_SWARM));
                     uiCarrionSwarmTimer = 7000;
                 } else uiCarrionSwarmTimer -= diff;
 
                 if (uiMindBlastTimer < diff)
                 {
                     if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                        DoCast(pTarget, HEROIC(SPELL_MIND_BLAST, H_SPELL_MIND_BLAST));
+                        DoCast(pTarget, DUNGEON_MODE(SPELL_MIND_BLAST, H_SPELL_MIND_BLAST));
                 } else uiMindBlastTimer -= diff;
 
                 if (uiVampiricTouchTimer < diff)
@@ -175,7 +175,7 @@ struct TRINITY_DLL_DECL boss_mal_ganisAI : public ScriptedAI
                 if (uiSleepTimer < diff)
                 {
                     if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                        DoCast(pTarget, HEROIC(SPELL_SLEEP, H_SPELL_SLEEP));
+                        DoCast(pTarget, DUNGEON_MODE(SPELL_SLEEP, H_SPELL_SLEEP));
                     uiSleepTimer = urand(15000,20000);
                 } else uiSleepTimer -= diff;
 

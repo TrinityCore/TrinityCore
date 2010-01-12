@@ -22,11 +22,11 @@
 #define EMOTE_BREATH            -1533082
 #define EMOTE_ENRAGE            -1533083
 
-#define SPELL_FROST_AURA        HEROIC(28531,55799)
+#define SPELL_FROST_AURA        RAID_MODE(28531,55799)
 #define SPELL_CLEAVE            19983
-#define SPELL_TAIL_SWEEP        HEROIC(55697,55696)
+#define SPELL_TAIL_SWEEP        RAID_MODE(55697,55696)
 #define SPELL_SUMMON_BLIZZARD   28560
-#define SPELL_LIFE_DRAIN        HEROIC(28542,55665)
+#define SPELL_LIFE_DRAIN        RAID_MODE(28542,55665)
 #define SPELL_ICEBOLT           28522
 #define SPELL_FROST_BREATH      29318
 #define SPELL_FROST_EXPLOSION   28524
@@ -34,12 +34,12 @@
 #define SPELL_BERSERK           26662
 #define SPELL_DIES              29357
 
-#define SPELL_CHILL             HEROIC(28547,55699)
+#define SPELL_CHILL             RAID_MODE(28547,55699)
 
 #define MOB_BLIZZARD            16474
 #define GO_ICEBLOCK             181247
 
-#define ACHIEVEMENT_THE_HUNDRED_CLUB    HEROIC(2146, 2147)
+#define ACHIEVEMENT_THE_HUNDRED_CLUB    RAID_MODE(2146, 2147)
 #define MAX_FROST_RESISTANCE            100
 
 enum Phases
@@ -258,7 +258,7 @@ struct TRINITY_DLL_DECL boss_sapphironAI : public BossAI
                         //DoCastAOE(SPELL_SUMMON_BLIZZARD);
                         if (Creature *pSummon = DoSummon(MOB_BLIZZARD, me, 0.0f, urand(25000,30000), TEMPSUMMON_TIMED_DESPAWN))
                             pSummon->GetMotionMaster()->MoveRandom(40);
-                        events.ScheduleEvent(EVENT_BLIZZARD, HEROIC(20000,7000), 0, PHASE_GROUND);
+                        events.ScheduleEvent(EVENT_BLIZZARD, RAID_MODE(20000,7000), 0, PHASE_GROUND);
                         break;
                     }
                     case EVENT_FLIGHT:
@@ -286,7 +286,7 @@ struct TRINITY_DLL_DECL boss_sapphironAI : public BossAI
                         me->AddUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
                         me->SendMovementFlagUpdate();
                         events.ScheduleEvent(EVENT_ICEBOLT, 1500);
-                        iceboltCount = HEROIC(2,3);
+                        iceboltCount = RAID_MODE(2,3);
                         return;
                     case EVENT_ICEBOLT:
                     {

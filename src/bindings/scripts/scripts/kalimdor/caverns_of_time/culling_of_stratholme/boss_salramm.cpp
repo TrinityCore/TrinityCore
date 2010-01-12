@@ -113,7 +113,7 @@ struct TRINITY_DLL_DECL boss_salrammAI : public ScriptedAI
         if (Shadow_bolt_Timer <= diff)
         {
             if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
-                DoCast(pTarget, HEROIC(SPELL_SHADOW_BOLT, H_SPELL_SHADOW_BOLT));
+                DoCast(pTarget, DUNGEON_MODE(SPELL_SHADOW_BOLT, H_SPELL_SHADOW_BOLT));
             Shadow_bolt_Timer = urand(8000,12000);
         } else Shadow_bolt_Timer -= diff;
 

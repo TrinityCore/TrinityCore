@@ -52,7 +52,6 @@ struct TRINITY_DLL_DECL boss_pathaleon_the_calculatorAI : public ScriptedAI
 {
     boss_pathaleon_the_calculatorAI(Creature *c) : ScriptedAI(c), summons(m_creature)
     {
-        HeroicMode = c->GetMap()->IsHeroic();
     }
 
     uint32 Summon_Timer;
@@ -61,7 +60,7 @@ struct TRINITY_DLL_DECL boss_pathaleon_the_calculatorAI : public ScriptedAI
     uint32 ArcaneTorrent_Timer;
     uint32 Domination_Timer;
     uint32 ArcaneExplosion_Timer;
-    bool HeroicMode;
+
     bool Enraged;
 
     uint32 Counter;
@@ -142,7 +141,7 @@ struct TRINITY_DLL_DECL boss_pathaleon_the_calculatorAI : public ScriptedAI
             } else Domination_Timer -= diff;
 
         //Only casting if Heroic Mode is used
-        if (HeroicMode)
+        if (IsHeroic())
         {
             if (ArcaneExplosion_Timer <= diff)
             {

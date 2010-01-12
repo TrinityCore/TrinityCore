@@ -67,11 +67,9 @@ struct TRINITY_DLL_DECL boss_selin_fireheartAI : public ScriptedAI
                 Crystals.push_back(guid);
             }
         }
-        Heroic = c->GetMap()->IsHeroic();
     }
 
     ScriptedInstance* pInstance;
-    bool Heroic;
 
     std::list<uint64> Crystals;
 
@@ -246,7 +244,7 @@ struct TRINITY_DLL_DECL boss_selin_fireheartAI : public ScriptedAI
                 } else DrainLifeTimer -= diff;
 
                 // Heroic only
-                if (Heroic)
+                if (IsHeroic())
                 {
                     if (DrainManaTimer <= diff)
                     {
@@ -272,8 +270,10 @@ struct TRINITY_DLL_DECL boss_selin_fireheartAI : public ScriptedAI
                 if (DrainCrystalTimer <= diff)
                 {
                     SelectNearestCrystal();
-                    if (Heroic) DrainCrystalTimer = 10000 + rand()%5000;
-                    else        DrainCrystalTimer = 20000 + rand()%5000;
+                    if (IsHeroic()) 
+                        DrainCrystalTimer = 10000 + rand()%5000;
+                    else
+                        DrainCrystalTimer = 20000 + rand()%5000;
                 } else DrainCrystalTimer -= diff;
             }
 

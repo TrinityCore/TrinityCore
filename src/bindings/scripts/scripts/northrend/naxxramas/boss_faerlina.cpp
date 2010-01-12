@@ -115,16 +115,16 @@ struct TRINITY_DLL_DECL boss_faerlinaAI : public BossAI
             {
                 case EVENT_POISON:
                     if (!me->HasAura(SPELL_WIDOWS_EMBRACE))
-                        DoCastAOE(HEROIC(SPELL_POISON_BOLT_VOLLEY,H_SPELL_POISON_BOLT_VOLLEY));
+                        DoCastAOE(RAID_MODE(SPELL_POISON_BOLT_VOLLEY,H_SPELL_POISON_BOLT_VOLLEY));
                     events.ScheduleEvent(EVENT_POISON, urand(12000,15000));
                     return;
                 case EVENT_FIRE:
                     if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
-                        DoCast(pTarget, HEROIC(SPELL_RAIN_OF_FIRE, H_SPELL_RAIN_OF_FIRE));
+                        DoCast(pTarget, RAID_MODE(SPELL_RAIN_OF_FIRE, H_SPELL_RAIN_OF_FIRE));
                     events.ScheduleEvent(EVENT_FIRE, urand(6000,18000));
                     return;
                 case EVENT_FRENZY:
-                    DoCast(me, HEROIC(SPELL_FRENZY, H_SPELL_FRENZY));
+                    DoCast(me, RAID_MODE(SPELL_FRENZY, H_SPELL_FRENZY));
                     delayFrenzy = false;
                     return;
                 case EVENT_AFTERENRAGE:
@@ -139,7 +139,7 @@ struct TRINITY_DLL_DECL boss_faerlinaAI : public BossAI
     {
         if (spell->Id == SPELL_WIDOWS_EMBRACE || spell->Id == H_SPELL_WIDOWS_EMBRACE)
         {
-            if (m_creature->HasAura(HEROIC(SPELL_FRENZY,H_SPELL_FRENZY)))
+            if (m_creature->HasAura(RAID_MODE(SPELL_FRENZY,H_SPELL_FRENZY)))
             {
                 if (!delayFrenzy)
                 {
@@ -169,7 +169,7 @@ struct TRINITY_DLL_DECL mob_faerlina_addAI : public ScriptedAI
 
     void Reset()
     {
-        if (!HeroicMode)
+        if (getDifficulty() == RAID_DIFFICULTY_10MAN_NORMAL)
             m_creature->ApplySpellImmune(0, IMMUNITY_MECHANIC, SPELL_EFFECT_BIND, true);
     }
 
@@ -178,7 +178,7 @@ struct TRINITY_DLL_DECL mob_faerlina_addAI : public ScriptedAI
         if (pInstance)
         {
             if (Creature *pFaerlina = pInstance->instance->GetCreature(pInstance->GetData64(DATA_FAERLINA)))
-                DoCast(pFaerlina, HEROIC(SPELL_WIDOWS_EMBRACE, H_SPELL_WIDOWS_EMBRACE));
+                DoCast(pFaerlina, RAID_MODE(SPELL_WIDOWS_EMBRACE, H_SPELL_WIDOWS_EMBRACE));
         }
     }
     

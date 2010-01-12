@@ -23,11 +23,11 @@ EndScriptData */
 
 #include "precompiled.h"
 
-#define SPELL_FIREBALL              (HeroicMode?36920:34653)
-#define SPELL_CONE_OF_FIRE          (HeroicMode?36921:30926)
-#define SPELL_SUMMON_LIQUID_FIRE    (HeroicMode?30928:23971)
+#define SPELL_FIREBALL              DUNGEON_MODE(34653, 36920)
+#define SPELL_CONE_OF_FIRE          DUNGEON_MODE(30926, 36921)
+#define SPELL_SUMMON_LIQUID_FIRE    DUNGEON_MODE(23971, 30928)
 #define SPELL_BELLOWING_ROAR        39427
-#define SPELL_REVENGE               (HeroicMode?40392:19130)
+#define SPELL_REVENGE               DUNGEON_MODE(19130, 40392)
 #define SPELL_KIDNEY_SHOT           30621
 #define SPELL_FIRE_NOVA_VISUAL      19823
 
@@ -36,7 +36,7 @@ EndScriptData */
 #define ENTRY_VAZRUDEN              17537
 #define ENTRY_NAZAN                 17536
 #define ENTRY_LIQUID_FIRE           22515
-#define ENTRY_REINFORCED_FEL_IRON_CHEST (HeroicMode?185169:185168)
+#define ENTRY_REINFORCED_FEL_IRON_CHEST DUNGEON_MODE(185168, 185169)
 
 #define SAY_INTRO               -1543017
 #define SAY_WIPE                -1543018
@@ -61,7 +61,6 @@ struct TRINITY_DLL_DECL boss_nazanAI : public ScriptedAI
 {
     boss_nazanAI(Creature *c) : ScriptedAI(c)
     {
-        HeroicMode = m_creature->GetMap()->IsHeroic();
         VazrudenGUID = 0;
         flight = true;
     }
@@ -74,7 +73,6 @@ struct TRINITY_DLL_DECL boss_nazanAI : public ScriptedAI
     uint32 UnsummonCheck;
     bool flight;
     uint64 VazrudenGUID;
-    bool HeroicMode;
     SpellEntry *liquid_fire;
 
     void Reset()
@@ -157,11 +155,12 @@ struct TRINITY_DLL_DECL boss_nazanAI : public ScriptedAI
                 Fireball_Timer = 4000;
             } else ConeOfFire_Timer -= diff;
 
-            if (HeroicMode && BellowingRoar_Timer <= diff)
-            {
-                DoCast(m_creature, SPELL_BELLOWING_ROAR);
-                BellowingRoar_Timer = 45000;
-            } else BellowingRoar_Timer -= diff;
+            if (IsHeroic())
+                if (BellowingRoar_Timer <= diff)
+                {
+                    DoCast(m_creature, SPELL_BELLOWING_ROAR);
+                    BellowingRoar_Timer = 45000;
+                } else BellowingRoar_Timer -= diff;
 
             DoMeleeAttackIfReady();
         }
@@ -172,11 +171,9 @@ struct TRINITY_DLL_DECL boss_vazrudenAI : public ScriptedAI
 {
     boss_vazrudenAI(Creature *c) : ScriptedAI(c)
     {
-        HeroicMode = m_creature->GetMap()->IsHeroic();
     }
 
     uint32 Revenge_Timer;
-    bool HeroicMode;
     bool WipeSaid;
     uint32 UnsummonCheck;
 
@@ -239,7 +236,6 @@ struct TRINITY_DLL_DECL boss_vazruden_the_heraldAI : public ScriptedAI
         sentryDown = false;
         NazanGUID = 0;
         VazrudenGUID = 0;
-        HeroicMode = m_creature->GetMap()->IsHeroic();
     }
 
     uint32 phase;
@@ -249,7 +245,6 @@ struct TRINITY_DLL_DECL boss_vazruden_the_heraldAI : public ScriptedAI
     uint64 NazanGUID;
     uint64 VazrudenGUID;
     bool summoned;
-    bool HeroicMode;
 
     void Reset()
     {

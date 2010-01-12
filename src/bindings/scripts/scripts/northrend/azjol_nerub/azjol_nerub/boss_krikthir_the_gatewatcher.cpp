@@ -100,11 +100,9 @@ struct TRINITY_DLL_DECL boss_krik_thirAI : public ScriptedAI
     boss_krik_thirAI(Creature *c) : ScriptedAI(c)
     {
         pInstance = c->GetInstanceData();
-        HeroicMode = c->GetMap()->IsHeroic();
     }
 
     ScriptedInstance* pInstance;
-    bool HeroicMode;
 
     uint32 MindFlayTimer;
     uint32 CurseFatigueTimer;
@@ -162,7 +160,7 @@ struct TRINITY_DLL_DECL boss_krik_thirAI : public ScriptedAI
 
         if (MindFlayTimer <= diff)
         {
-                DoCast(m_creature->getVictim(), HEROIC(SPELL_MIND_FLAY, H_SPELL_MIND_FLAY));
+                DoCast(m_creature->getVictim(), DUNGEON_MODE(SPELL_MIND_FLAY, H_SPELL_MIND_FLAY));
                 MindFlayTimer = 15000;
             } else MindFlayTimer -= diff;
 
@@ -172,8 +170,8 @@ struct TRINITY_DLL_DECL boss_krik_thirAI : public ScriptedAI
             Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true);
             Unit *pTarget_1 = SelectTarget(SELECT_TARGET_RANDOM, 1, 100, true);
 
-            DoCast(pTarget, HEROIC(SPELL_CURSE_OF_FATIGUE, H_SPELL_CURSE_OF_FATIGUE));
-            DoCast(pTarget_1, HEROIC(SPELL_CURSE_OF_FATIGUE, H_SPELL_CURSE_OF_FATIGUE));
+            DoCast(pTarget, DUNGEON_MODE(SPELL_CURSE_OF_FATIGUE, H_SPELL_CURSE_OF_FATIGUE));
+            DoCast(pTarget_1, DUNGEON_MODE(SPELL_CURSE_OF_FATIGUE, H_SPELL_CURSE_OF_FATIGUE));
 
             CurseFatigueTimer = 10000;
         } else CurseFatigueTimer -= diff;
@@ -197,7 +195,7 @@ struct TRINITY_DLL_DECL boss_krik_thirAI : public ScriptedAI
             if ((pAdd1 = Unit::GetCreature(*m_creature, pInstance->GetData64(DATA_WATCHER_GASHRA))) && pAdd1->isAlive() &&
                 (pAdd2 = Unit::GetCreature(*m_creature, pInstance->GetData64(DATA_WATCHER_SILTHIK))) && pAdd2->isAlive() &&
                 (pAdd3 = Unit::GetCreature(*m_creature, pInstance->GetData64(DATA_WATCHER_NARJIL))) && pAdd3->isAlive() &&
-                HeroicMode && pMap && pMap->IsDungeon() && AchievWatchHimDie)
+                IsHeroic() && pMap && pMap->IsDungeon() && AchievWatchHimDie)
             {
                 Map::PlayerList const &players = pMap->GetPlayers();
                 for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
@@ -227,7 +225,7 @@ struct TRINITY_DLL_DECL npc_skittering_infectorAI : public ScriptedAI
     void JustDied(Unit* killer)
     {
         //The spell is not working propperly
-        DoCast(m_creature->getVictim(),HEROIC(SPELL_ACID_SPLASH, H_SPELL_ACID_SPLASH), true);
+        DoCast(m_creature->getVictim(),DUNGEON_MODE(SPELL_ACID_SPLASH, H_SPELL_ACID_SPLASH), true);
     }
 
 };
@@ -294,13 +292,13 @@ struct TRINITY_DLL_DECL npc_anub_ar_shadowcasterAI : public ScriptedAI
         if (ShadowBoltTimer <= diff)
         {
             if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                 DoCast(pTarget, HEROIC(SPELL_SHADOW_BOLT, H_SPELL_SHADOW_BOLT), true);
+                 DoCast(pTarget, DUNGEON_MODE(SPELL_SHADOW_BOLT, H_SPELL_SHADOW_BOLT), true);
             ShadowBoltTimer = 15000;
         } else ShadowBoltTimer -= diff;
 
         if (ShadowNovaTimer <= diff)
         {
-            DoCast(m_creature->getVictim(), HEROIC(SPELL_SHADOW_NOVA, H_SPELL_SHADOW_NOVA), true);
+            DoCast(m_creature->getVictim(), DUNGEON_MODE(SPELL_SHADOW_NOVA, H_SPELL_SHADOW_NOVA), true);
             ShadowNovaTimer = 17000;
         } else ShadowNovaTimer -= diff;
 
@@ -376,7 +374,7 @@ struct TRINITY_DLL_DECL npc_watcher_gashraAI : public ScriptedAI
 
         if (InfectedBiteTimer <= diff)
         {
-            DoCast(m_creature->getVictim(), HEROIC(SPELL_INFECTED_BITE, H_SPELL_INFECTED_BITE), true);
+            DoCast(m_creature->getVictim(), DUNGEON_MODE(SPELL_INFECTED_BITE, H_SPELL_INFECTED_BITE), true);
             InfectedBiteTimer = 15000;
         } else InfectedBiteTimer -= diff;
 
@@ -413,13 +411,13 @@ struct TRINITY_DLL_DECL npc_watcher_narjilAI : public ScriptedAI
 
         if (InfectedBiteTimer <= diff)
         {
-            DoCast(m_creature->getVictim(), HEROIC(SPELL_INFECTED_BITE, H_SPELL_INFECTED_BITE), true);
+            DoCast(m_creature->getVictim(), DUNGEON_MODE(SPELL_INFECTED_BITE, H_SPELL_INFECTED_BITE), true);
             InfectedBiteTimer = 11000;
         } else InfectedBiteTimer -= diff;
 
         if (BlindingWebsTimer <= diff)
         {
-            DoCast(m_creature->getVictim(), HEROIC(SPELL_BLINDING_WEBS, H_SPELL_BLINDING_WEBS), true);
+            DoCast(m_creature->getVictim(), DUNGEON_MODE(SPELL_BLINDING_WEBS, H_SPELL_BLINDING_WEBS), true);
             BlindingWebsTimer = 17000;
         } else BlindingWebsTimer -= diff;
 
@@ -457,13 +455,13 @@ struct TRINITY_DLL_DECL npc_watcher_silthikAI : public ScriptedAI
 
         if (InfectedBiteTimer <= diff)
         {
-            DoCast(m_creature->getVictim(), HEROIC(SPELL_INFECTED_BITE, H_SPELL_INFECTED_BITE), true);
+            DoCast(m_creature->getVictim(), DUNGEON_MODE(SPELL_INFECTED_BITE, H_SPELL_INFECTED_BITE), true);
             InfectedBiteTimer = 15000;
         } else InfectedBiteTimer -= diff;
 
         if (PosionSprayTimer <= diff)
         {
-            DoCast(m_creature->getVictim(), HEROIC(SPELL_POSION_SPRAY, H_SPELL_POSION_SPRAY), true);
+            DoCast(m_creature->getVictim(), DUNGEON_MODE(SPELL_POSION_SPRAY, H_SPELL_POSION_SPRAY), true);
             PosionSprayTimer = 17000;
         } else PosionSprayTimer -= diff;
 

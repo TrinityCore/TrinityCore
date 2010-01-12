@@ -79,7 +79,7 @@ struct TRINITY_DLL_DECL boss_krystallusAI : public ScriptedAI
         if (uiBoulderTossTimer <= diff)
         {
             if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                DoCast(pTarget, HEROIC(SPELL_BOULDER_TOSS, H_SPELL_BOULDER_TOSS));
+                DoCast(pTarget, DUNGEON_MODE(SPELL_BOULDER_TOSS, H_SPELL_BOULDER_TOSS));
             uiBoulderTossTimer = 9000 + rand()%6000;
         } else uiBoulderTossTimer -= diff;
 
@@ -92,7 +92,7 @@ struct TRINITY_DLL_DECL boss_krystallusAI : public ScriptedAI
 
         if (uiStompTimer <= diff)
         {
-            DoCast(m_creature, HEROIC(SPELL_STOMP, H_SPELL_STOMP));
+            DoCast(m_creature, DUNGEON_MODE(SPELL_STOMP, H_SPELL_STOMP));
             uiStompTimer = 20000 + rand()%9000;
         } else uiStompTimer -= diff;
 
@@ -108,7 +108,7 @@ struct TRINITY_DLL_DECL boss_krystallusAI : public ScriptedAI
         {
             if (uiShatterTimer <= diff)
             {
-                DoCast(m_creature, HEROIC(SPELL_SHATTER, H_SPELL_SHATTER));
+                DoCast(m_creature, DUNGEON_MODE(SPELL_SHATTER, H_SPELL_SHATTER));
                 bIsSlam = false;
             } else uiShatterTimer -= diff;
         }

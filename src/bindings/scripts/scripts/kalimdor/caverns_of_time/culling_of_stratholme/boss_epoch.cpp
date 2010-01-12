@@ -116,7 +116,7 @@ struct TRINITY_DLL_DECL boss_epochAI : public ScriptedAI
 
         if (uiWoundingStrikeTimer < diff)
         {
-            DoCastVictim(HEROIC(SPELL_WOUNDING_STRIKE, H_SPELL_WOUNDING_STRIKE));
+            DoCastVictim(DUNGEON_MODE(SPELL_WOUNDING_STRIKE, H_SPELL_WOUNDING_STRIKE));
             uiWoundingStrikeTimer = 5300;
         } else uiWoundingStrikeTimer -= diff;
 

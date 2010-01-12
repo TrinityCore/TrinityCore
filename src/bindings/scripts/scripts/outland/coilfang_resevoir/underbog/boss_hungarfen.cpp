@@ -30,10 +30,8 @@ struct TRINITY_DLL_DECL boss_hungarfenAI : public ScriptedAI
 {
     boss_hungarfenAI(Creature *c) : ScriptedAI(c)
     {
-        HeroicMode = m_creature->GetMap()->IsHeroic();
     }
 
-    bool HeroicMode;
     bool Root;
     uint32 Mushroom_Timer;
     uint32 AcidGeyser_Timer;

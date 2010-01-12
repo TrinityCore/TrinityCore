@@ -46,11 +46,9 @@ struct TRINITY_DLL_DECL boss_chrono_lord_dejaAI : public ScriptedAI
     boss_chrono_lord_dejaAI(Creature *c) : ScriptedAI(c)
     {
         pInstance = c->GetInstanceData();
-        HeroicMode = c->GetMap()->IsHeroic();
     }
 
     ScriptedInstance *pInstance;
-    bool HeroicMode;
 
     uint32 ArcaneBlast_Timer;
     uint32 TimeLapse_Timer;
@@ -107,7 +105,7 @@ struct TRINITY_DLL_DECL boss_chrono_lord_dejaAI : public ScriptedAI
         //Arcane Blast
         if (ArcaneBlast_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(), HEROIC(SPELL_ARCANE_BLAST, H_SPELL_ARCANE_BLAST));
+            DoCast(m_creature->getVictim(), DUNGEON_MODE(SPELL_ARCANE_BLAST, H_SPELL_ARCANE_BLAST));
             ArcaneBlast_Timer = 15000+rand()%10000;
         } else ArcaneBlast_Timer -= diff;
 
@@ -115,7 +113,7 @@ struct TRINITY_DLL_DECL boss_chrono_lord_dejaAI : public ScriptedAI
         if (ArcaneDischarge_Timer <= diff)
         {
             Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0);
-            DoCast(pTarget, HEROIC(SPELL_ARCANE_DISCHARGE, H_SPELL_ARCANE_DISCHARGE));
+            DoCast(pTarget, DUNGEON_MODE(SPELL_ARCANE_DISCHARGE, H_SPELL_ARCANE_DISCHARGE));
             ArcaneDischarge_Timer = 20000+rand()%10000;
         } else ArcaneDischarge_Timer -= diff;
 
@@ -127,7 +125,7 @@ struct TRINITY_DLL_DECL boss_chrono_lord_dejaAI : public ScriptedAI
             TimeLapse_Timer = 15000+rand()%10000;
         } else TimeLapse_Timer -= diff;
 
-        if (HeroicMode)
+        if (IsHeroic())
         {
             if (Attraction_Timer <= diff)
             {

@@ -73,12 +73,10 @@ struct TRINITY_DLL_DECL boss_ingvar_the_plundererAI : public ScriptedAI
     boss_ingvar_the_plundererAI(Creature *c) : ScriptedAI(c)
     {
         pInstance = c->GetInstanceData();
-        HeroicMode = c->GetMap()->IsHeroic();
     }
 
     ScriptedInstance* pInstance;
 
-    bool HeroicMode;
     bool undead;
     bool event_inProgress;
 
@@ -204,7 +202,7 @@ struct TRINITY_DLL_DECL boss_ingvar_the_plundererAI : public ScriptedAI
             if (!wait_Timer)
             {
                 if (undead)
-                    DoCast(m_creature->getVictim(), HEROIC(SPELL_WOE_STRIKE, H_SPELL_WOE_STRIKE));
+                    DoCast(m_creature->getVictim(), DUNGEON_MODE(SPELL_WOE_STRIKE, H_SPELL_WOE_STRIKE));
                 else
                     DoCast(m_creature->getVictim(), SPELL_CLEAVE);
                 Cleave_Timer = rand()%5000 + 2000;
@@ -220,7 +218,7 @@ struct TRINITY_DLL_DECL boss_ingvar_the_plundererAI : public ScriptedAI
                 if (undead)
                     DoCast(m_creature->getVictim(), SPELL_DARK_SMASH);
                 else
-                    DoCast(m_creature->getVictim(), HEROIC(SPELL_SMASH, H_SPELL_SMASH));
+                    DoCast(m_creature->getVictim(), DUNGEON_MODE(SPELL_SMASH, H_SPELL_SMASH));
                 Smash_Timer = 10000;
 
                 wait_Timer = 5000;
@@ -231,7 +229,7 @@ struct TRINITY_DLL_DECL boss_ingvar_the_plundererAI : public ScriptedAI
         {
             if (Enrage_Timer <= diff)
             {
-                DoCast(m_creature, HEROIC(SPELL_ENRAGE, H_SPELL_ENRAGE));
+                DoCast(m_creature, DUNGEON_MODE(SPELL_ENRAGE, H_SPELL_ENRAGE));
                 Enrage_Timer = 10000;
             } else Enrage_Timer -= diff;
         } else // In Undead form used to summon weapon
@@ -258,9 +256,9 @@ struct TRINITY_DLL_DECL boss_ingvar_the_plundererAI : public ScriptedAI
             if (!wait_Timer)
             {
                 if (undead)
-                    DoCast(m_creature, HEROIC(SPELL_DREADFUL_ROAR, H_SPELL_DREADFUL_ROAR));
+                    DoCast(m_creature, DUNGEON_MODE(SPELL_DREADFUL_ROAR, H_SPELL_DREADFUL_ROAR));
                 else
-                    DoCast(m_creature, HEROIC(SPELL_STAGGERING_ROAR, H_SPELL_STAGGERING_ROAR));
+                    DoCast(m_creature, DUNGEON_MODE(SPELL_STAGGERING_ROAR, H_SPELL_STAGGERING_ROAR));
                 Roar_Timer = 10000;
 
                 wait_Timer = 5000;
@@ -398,10 +396,8 @@ struct TRINITY_DLL_DECL mob_ingvar_throw_dummyAI : public ScriptedAI
 {
     mob_ingvar_throw_dummyAI(Creature *c) : ScriptedAI(c)
     {
-        HeroicMode = c->GetMap()->IsHeroic();
     }
 
-    bool HeroicMode;
     uint32 Despawn_Timer;
 
     void Reset()
@@ -409,7 +405,7 @@ struct TRINITY_DLL_DECL mob_ingvar_throw_dummyAI : public ScriptedAI
         Unit *pTarget = m_creature->FindNearestCreature(ENTRY_THROW_TARGET,50);
         if (pTarget)
         {
-            DoCast(m_creature, HEROIC(SPELL_SHADOW_AXE_DAMAGE, H_SPELL_SHADOW_AXE_DAMAGE));
+            DoCast(m_creature, DUNGEON_MODE(SPELL_SHADOW_AXE_DAMAGE, H_SPELL_SHADOW_AXE_DAMAGE));
             float x,y,z;
             pTarget->GetPosition(x,y,z);
             m_creature->GetMotionMaster()->MovePoint(0,x,y,z);

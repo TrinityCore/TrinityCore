@@ -47,11 +47,9 @@ struct TRINITY_DLL_DECL boss_ambassador_hellmawAI : public npc_escortAI
     boss_ambassador_hellmawAI(Creature* pCreature) : npc_escortAI(pCreature)
     {
         m_pInstance = pCreature->GetInstanceData();
-        HeroicMode = pCreature->GetMap()->IsHeroic();
     }
 
     ScriptedInstance* m_pInstance;
-    bool HeroicMode;
 
     uint32 EventCheck_Timer;
     uint32 CorrosiveAcid_Timer;
@@ -181,7 +179,7 @@ struct TRINITY_DLL_DECL boss_ambassador_hellmawAI : public npc_escortAI
             Fear_Timer = 20000 + rand()%15000;
         } else Fear_Timer -= diff;
 
-        if (HeroicMode)
+        if (IsHeroic())
         {
             if (!Enraged && Enrage_Timer <= diff)
             {

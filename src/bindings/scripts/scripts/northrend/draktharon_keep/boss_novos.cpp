@@ -169,8 +169,8 @@ struct TRINITY_DLL_DECL boss_novosAI : public Scripted_NoMovementAI
                 if (uiTimer <= diff)
                 {
                     if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                        DoCast(pTarget, HEROIC(RAND(SPELL_ARCANE_BLAST,SPELL_BLIZZARD,SPELL_FROSTBOLT,SPELL_WRATH_OF_MISERY),
-                                               RAND(H_SPELL_ARCANE_BLAST,H_SPELL_BLIZZARD,H_SPELL_FROSTBOLT,H_SPELL_WRATH_OF_MISERY)));
+                        DoCast(pTarget, DUNGEON_MODE(RAND(SPELL_ARCANE_BLAST,SPELL_BLIZZARD,SPELL_FROSTBOLT,SPELL_WRATH_OF_MISERY),
+                                                     RAND(H_SPELL_ARCANE_BLAST,H_SPELL_BLIZZARD,H_SPELL_FROSTBOLT,H_SPELL_WRATH_OF_MISERY)));
                     uiTimer = urand(1000,3000);
                 } else uiTimer -= diff;
                 break;
@@ -182,7 +182,7 @@ struct TRINITY_DLL_DECL boss_novosAI : public Scripted_NoMovementAI
         {
             pInstance->SetData(DATA_NOVOS_EVENT, DONE);
 
-            if (HeroicMode && bAchiev)
+            if (IsHeroic() && bAchiev)
                 pInstance->DoCompleteAchievement(ACHIEV_OH_NOVOS);
         }
         lSummons.DespawnAll();

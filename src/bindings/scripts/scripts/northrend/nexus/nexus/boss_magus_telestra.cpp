@@ -66,11 +66,9 @@ struct TRINITY_DLL_DECL boss_magus_telestraAI : public ScriptedAI
     boss_magus_telestraAI(Creature* c) : ScriptedAI(c)
     {
         pInstance = c->GetInstanceData();
-        HeroicMode = c->GetMap()->IsHeroic();
     }
 
     ScriptedInstance* pInstance;
-    bool HeroicMode;
 
     uint64 FireMagusGUID;
     uint64 FrostMagusGUID;
@@ -131,7 +129,7 @@ struct TRINITY_DLL_DECL boss_magus_telestraAI : public ScriptedAI
     {
         DoScriptText(SAY_DEATH, m_creature);
 
-        if (HeroicMode && AchievementProgress == 2)
+        if (IsHeroic() && AchievementProgress == 2)
         {
             AchievementEntry const *AchievSplitPersonality = GetAchievementStore()->LookupEntry(ACHIEV_SPLIT_PERSONALITY);
             if (AchievSplitPersonality)
@@ -277,7 +275,7 @@ struct TRINITY_DLL_DECL boss_magus_telestraAI : public ScriptedAI
             return;
         }
 
-        if (HeroicMode && (Phase == 2) && (m_creature->GetHealth() <= (m_creature->GetMaxHealth() * 0.1)))
+        if (IsHeroic() && (Phase == 2) && (m_creature->GetHealth() <= (m_creature->GetMaxHealth() * 0.1)))
         {
             Phase = 3;
             m_creature->CastStop();
@@ -309,7 +307,7 @@ struct TRINITY_DLL_DECL boss_magus_telestraAI : public ScriptedAI
         {
             if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
             {
-                DoCast(pTarget, HEROIC(SPELL_ICE_NOVA_N, SPELL_ICE_NOVA_H));
+                DoCast(pTarget, DUNGEON_MODE(SPELL_ICE_NOVA_N, SPELL_ICE_NOVA_H));
                 Cooldown = 1500;
             }
             SPELL_ICE_NOVA_Timer = 15000;
@@ -329,7 +327,7 @@ struct TRINITY_DLL_DECL boss_magus_telestraAI : public ScriptedAI
         {
             if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
             {
-                DoCast(pTarget, HEROIC(SPELL_FIREBOMB_N, SPELL_FIREBOMB_H));
+                DoCast(pTarget, DUNGEON_MODE(SPELL_FIREBOMB_N, SPELL_FIREBOMB_H));
                 Cooldown = 2000;
             }
             SPELL_FIREBOMB_Timer = 2000;

@@ -66,11 +66,9 @@ struct TRINITY_DLL_DECL boss_anomalusAI : public ScriptedAI
     boss_anomalusAI(Creature *c) : ScriptedAI(c)
     {
         pInstance = c->GetInstanceData();
-        HeroicMode = c->GetMap()->IsHeroic();
     }
 
     ScriptedInstance* pInstance;
-    bool HeroicMode;
 
     uint8 Phase;
     uint32 SPELL_SPARK_Timer;
@@ -102,7 +100,7 @@ struct TRINITY_DLL_DECL boss_anomalusAI : public ScriptedAI
     {
         DoScriptText(SAY_DEATH, m_creature);
 
-        if (HeroicMode && !DeadChaoticRift)
+        if (IsHeroic() && !DeadChaoticRift)
         {
             AchievementEntry const *AchievChaosTheory = GetAchievementStore()->LookupEntry(ACHIEVEMENT_CHAOS_THEORY);
             if (AchievChaosTheory)
@@ -205,7 +203,7 @@ struct TRINITY_DLL_DECL boss_anomalusAI : public ScriptedAI
         if (SPELL_SPARK_Timer <= diff)
         {
             if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
-                DoCast(pTarget, HEROIC(SPELL_SPARK_N, SPELL_SPARK_H));
+                DoCast(pTarget, DUNGEON_MODE(SPELL_SPARK_N, SPELL_SPARK_H));
             SPELL_SPARK_Timer = 5000;
         } else SPELL_SPARK_Timer -=diff;
 

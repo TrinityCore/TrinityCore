@@ -185,7 +185,7 @@ struct TRINITY_DLL_DECL boss_razorscaleAI : public BossAI
                 {
                     DoScriptText(EMOTE_BREATH, m_creature);
                     std::list<Unit*> pTargets;
-                    SelectTargetList(pTargets, HEROIC(3,9), SELECT_TARGET_RANDOM, 100, true);
+                    SelectTargetList(pTargets, RAID_MODE(3,9), SELECT_TARGET_RANDOM, 100, true);
                     uint8 i = 0;
                     for (std::list<Unit*>::iterator itr = pTargets.begin(); itr != pTargets.end();)
                     {
@@ -194,7 +194,7 @@ struct TRINITY_DLL_DECL boss_razorscaleAI : public BossAI
                             DoCast(*itr, SPELL_FLAMEBUFFET, true);
                             ++i;
                         }
-                        if (++itr == pTargets.end() || i == HEROIC(3,9))
+                        if (++itr == pTargets.end() || i == RAID_MODE(3,9))
                         {
                             AttackStart(*--itr); // seems to attack targets randomly during perma-ground phase..
                             break;

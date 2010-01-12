@@ -20,10 +20,10 @@
 #include "naxxramas.h"
 
 #define SPELL_WEB_WRAP          28622
-#define SPELL_WEB_SPRAY         HEROIC(29484,54125)
-#define SPELL_POISON_SHOCK      HEROIC(28741,54122)
-#define SPELL_NECROTIC_POISON   HEROIC(54121,28776)
-#define SPELL_FRENZY            HEROIC(54123,54124)
+#define SPELL_WEB_SPRAY         RAID_MODE(29484,54125)
+#define SPELL_POISON_SHOCK      RAID_MODE(28741,54122)
+#define SPELL_NECROTIC_POISON   RAID_MODE(54121,28776)
+#define SPELL_FRENZY            RAID_MODE(54123,54124)
 
 #define MOB_WEB_WRAP            16486
 #define MOB_SPIDERLING          17055
@@ -75,7 +75,7 @@ struct TRINITY_DLL_DECL boss_maexxnaAI : public BossAI
             switch(eventId)
             {
                 case EVENT_WRAP:
-                    for (uint8 i = 0; i < HEROIC(1,2); ++i)
+                    for (uint8 i = 0; i < RAID_MODE(1,2); ++i)
                     {
                         if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1, 0, true, -SPELL_WEB_WRAP))
                         {

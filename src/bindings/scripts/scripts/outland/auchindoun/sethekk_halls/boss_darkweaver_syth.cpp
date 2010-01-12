@@ -46,17 +46,15 @@ EndScriptData */
 #define SPELL_SUMMON_SYTH_FROST     33539                   // Spawns 19204
 #define SPELL_SUMMON_SYTH_SHADOW    33540                   // Spawns 19206
 
-#define SPELL_FLAME_BUFFET          (HeroicMode?38141:33526)
-#define SPELL_ARCANE_BUFFET         (HeroicMode?38138:33527)
-#define SPELL_FROST_BUFFET          (HeroicMode?38142:33528)
-#define SPELL_SHADOW_BUFFET         (HeroicMode?38143:33529)
+#define SPELL_FLAME_BUFFET          DUNGEON_MODE(33526, 38141)
+#define SPELL_ARCANE_BUFFET         DUNGEON_MODE(33527, 38138)
+#define SPELL_FROST_BUFFET          DUNGEON_MODE(33528, 38142)
+#define SPELL_SHADOW_BUFFET         DUNGEON_MODE(33529, 38143)
 
 struct TRINITY_DLL_DECL boss_darkweaver_sythAI : public ScriptedAI
 {
     boss_darkweaver_sythAI(Creature *c) : ScriptedAI(c)
-
     {
-        HeroicMode = m_creature->GetMap()->IsHeroic();
     }
 
     uint32 flameshock_timer;
@@ -68,7 +66,6 @@ struct TRINITY_DLL_DECL boss_darkweaver_sythAI : public ScriptedAI
     bool summon90;
     bool summon50;
     bool summon10;
-    bool HeroicMode;
 
     void Reset()
     {
@@ -197,14 +194,11 @@ CreatureAI* GetAI_boss_darkweaver_syth(Creature* pCreature)
 struct TRINITY_DLL_DECL mob_syth_fireAI : public ScriptedAI
 {
     mob_syth_fireAI(Creature *c) : ScriptedAI(c)
-
     {
-        HeroicMode = m_creature->GetMap()->IsHeroic();
     }
 
     uint32 flameshock_timer;
     uint32 flamebuffet_timer;
-    bool HeroicMode;
 
     void Reset()
     {
@@ -248,14 +242,11 @@ CreatureAI* GetAI_mob_syth_fire(Creature* pCreature)
 struct TRINITY_DLL_DECL mob_syth_arcaneAI : public ScriptedAI
 {
     mob_syth_arcaneAI(Creature *c) : ScriptedAI(c)
-
     {
-        HeroicMode = m_creature->GetMap()->IsHeroic();
     }
 
     uint32 arcaneshock_timer;
     uint32 arcanebuffet_timer;
-    bool HeroicMode;
 
     void Reset()
     {
@@ -299,14 +290,11 @@ CreatureAI* GetAI_mob_syth_arcane(Creature* pCreature)
 struct TRINITY_DLL_DECL mob_syth_frostAI : public ScriptedAI
 {
     mob_syth_frostAI(Creature *c) : ScriptedAI(c)
-
     {
-        HeroicMode = m_creature->GetMap()->IsHeroic();
     }
 
     uint32 frostshock_timer;
     uint32 frostbuffet_timer;
-    bool HeroicMode;
 
     void Reset()
     {
@@ -350,14 +338,11 @@ CreatureAI* GetAI_mob_syth_frost(Creature* pCreature)
 struct TRINITY_DLL_DECL mob_syth_shadowAI : public ScriptedAI
 {
     mob_syth_shadowAI(Creature *c) : ScriptedAI(c)
-
     {
-        HeroicMode = m_creature->GetMap()->IsHeroic();
     }
 
     uint32 shadowshock_timer;
     uint32 shadowbuffet_timer;
-    bool HeroicMode;
 
     void Reset()
     {

@@ -71,7 +71,6 @@ struct TRINITY_DLL_DECL mob_toc5_warriorAI : public ScriptedAI
 	}
 
 	ScriptedInstance* m_pInstance;
-    bool m_bIsRegularMode;
 
 	uint32 Mortal_Strike_Timer;
 	uint32 Bladestorm_Timer;
@@ -122,7 +121,7 @@ struct TRINITY_DLL_DECL mob_toc5_warriorAI : public ScriptedAI
 
 		if (Mortal_Strike_Timer < diff)
         {
-			DoCast(m_creature->getVictim(), m_bIsRegularMode ? SPELL_MORTAL_STRIKE : SPELL_MORTAL_STRIKE_H);
+			DoCast(m_creature->getVictim(), DUNGEON_MODE(SPELL_MORTAL_STRIKE, SPELL_MORTAL_STRIKE_H));
             Mortal_Strike_Timer = 6000;
         }else Mortal_Strike_Timer -= diff;  
 
@@ -172,7 +171,6 @@ struct TRINITY_DLL_DECL mob_toc5_mageAI : public ScriptedAI
 	}
 
 	ScriptedInstance* m_pInstance;
-    bool m_bIsRegularMode;
 
 	uint32 Fireball_Timer;
 	uint32 Blast_Wave_Timer;
@@ -221,13 +219,13 @@ struct TRINITY_DLL_DECL mob_toc5_mageAI : public ScriptedAI
 
 		if (Fireball_Timer < diff)
         {
-			DoCast(m_creature->getVictim(), m_bIsRegularMode ? SPELL_FIREBALL : SPELL_FIREBALL_H);
+            DoCast(m_creature->getVictim(), DUNGEON_MODE(SPELL_FIREBALL, SPELL_FIREBALL_H));
             Fireball_Timer = 3000;
         }else Fireball_Timer -= diff;  
 
 		if (Blast_Wave_Timer < diff)
         {
-			DoCast(m_creature, m_bIsRegularMode ? SPELL_BLAST_WAVE : SPELL_BLAST_WAVE_H);
+			DoCast(m_creature, DUNGEON_MODE(SPELL_BLAST_WAVE, SPELL_BLAST_WAVE_H));
             Blast_Wave_Timer = 20000;
         }else Blast_Wave_Timer -= diff;
 
@@ -240,7 +238,7 @@ struct TRINITY_DLL_DECL mob_toc5_mageAI : public ScriptedAI
 		if (Polymorph_Timer < diff)
         {
 			if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM,1))
-				DoCast(target, m_bIsRegularMode ? SPELL_POLYMORPH : SPELL_POLYMORPH_H);
+                DoCast(target, DUNGEON_MODE(SPELL_POLYMORPH, SPELL_POLYMORPH_H));
             Polymorph_Timer = 15000;
         }else Polymorph_Timer -= diff;
 		
@@ -263,7 +261,6 @@ struct TRINITY_DLL_DECL mob_toc5_shamanAI : public ScriptedAI
 	}
 
 	ScriptedInstance* m_pInstance;
-    bool m_bIsRegularMode;
 
 	uint32 Chain_Lightning_Timer;
 	uint32 Earth_Shield_Timer;
@@ -316,7 +313,7 @@ struct TRINITY_DLL_DECL mob_toc5_shamanAI : public ScriptedAI
 
 		if (Chain_Lightning_Timer < diff)
         {
-			DoCast(m_creature->getVictim(), m_bIsRegularMode ? SPELL_CHAIN_LIGHTNING : SPELL_CHAIN_LIGHTNING_H);
+			DoCast(m_creature->getVictim(), DUNGEON_MODE(SPELL_CHAIN_LIGHTNING, SPELL_CHAIN_LIGHTNING_H));
             Chain_Lightning_Timer = 10000;
         }else Chain_Lightning_Timer -= diff;  
 
@@ -331,7 +328,7 @@ struct TRINITY_DLL_DECL mob_toc5_shamanAI : public ScriptedAI
             if(Unit* target = m_creature->SelectNearestTarget(40))
                 if(target->GetHealth() == target->GetHealth() * 100 / target->GetMaxHealth() && target->IsFriendlyTo(m_creature))
                 {
-                    DoCast(target, HEROIC(SPELL_HEALING_WAVE, SPELL_HEALING_WAVE_H));
+                    DoCast(target, DUNGEON_MODE(SPELL_HEALING_WAVE, SPELL_HEALING_WAVE_H));
                     Healing_Wave_Timer = 8000;
                 }
         }else Healing_Wave_Timer -= diff;
@@ -365,9 +362,8 @@ struct TRINITY_DLL_DECL mob_toc5_hunterAI : public ScriptedAI
 	}
 
 	ScriptedInstance* m_pInstance;
-    bool m_bIsRegularMode;
 
-	uint32 Shoot_Timer;
+    uint32 Shoot_Timer;
 	uint32 Lightning_Arrows_Timer;
 	uint32 Multi_Shot_Timer;
 	uint32 Disengage_Cooldown;
@@ -481,7 +477,6 @@ struct TRINITY_DLL_DECL mob_toc5_rogueAI : public ScriptedAI
 	}
 
 	ScriptedInstance* m_pInstance;
-    bool m_bIsRegularMode;
 
 	uint32 Eviscerate_Timer;
 	uint32 FoK_Timer;
@@ -528,7 +523,7 @@ struct TRINITY_DLL_DECL mob_toc5_rogueAI : public ScriptedAI
 
 		if (Eviscerate_Timer < diff)
         {
-			DoCast(m_creature->getVictim(), m_bIsRegularMode ? SPELL_EVISCERATE : SPELL_EVISCERATE_H);
+			DoCast(m_creature->getVictim(), DUNGEON_MODE(SPELL_EVISCERATE, SPELL_EVISCERATE_H));
             Eviscerate_Timer = 10000;
         }else Eviscerate_Timer -= diff;  
 

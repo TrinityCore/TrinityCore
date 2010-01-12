@@ -80,7 +80,6 @@ struct TRINITY_DLL_DECL boss_felblood_kaelthasAI : public ScriptedAI
     boss_felblood_kaelthasAI(Creature* c) : ScriptedAI(c)
     {
         pInstance = c->GetInstanceData();
-        Heroic = c->GetMap()->IsHeroic();
     }
 
     ScriptedInstance* pInstance;
@@ -102,7 +101,6 @@ struct TRINITY_DLL_DECL boss_felblood_kaelthasAI : public ScriptedAI
     // 4 = Applied an aura that allows them to fly, channeling visual, relased Arcane Orbs.
 
     bool FirstGravityLapse;
-    bool Heroic;
     bool HasTaunted;
 
     uint8 Phase;
@@ -271,7 +269,7 @@ struct TRINITY_DLL_DECL boss_felblood_kaelthasAI : public ScriptedAI
             case 0:
             {
                 // *Heroic mode only:
-                if (Heroic)
+                if (IsHeroic())
                 {
                     if (PyroblastTimer <= diff)
                     {
@@ -285,7 +283,7 @@ struct TRINITY_DLL_DECL boss_felblood_kaelthasAI : public ScriptedAI
 
                 if (FireballTimer <= diff)
                 {
-                    DoCast(m_creature->getVictim(), Heroic ? SPELL_FIREBALL_HEROIC : SPELL_FIREBALL_NORMAL);
+                    DoCast(m_creature->getVictim(), DUNGEON_MODE(SPELL_FIREBALL_NORMAL, SPELL_FIREBALL_HEROIC));
                     FireballTimer = urand(2000,6000);
                 } else FireballTimer -= diff;
 
@@ -421,11 +419,9 @@ struct TRINITY_DLL_DECL mob_felkael_flamestrikeAI : public ScriptedAI
 {
     mob_felkael_flamestrikeAI(Creature *c) : ScriptedAI(c)
     {
-        Heroic = c->GetMap()->IsHeroic();
     }
 
     uint32 FlameStrikeTimer;
-    bool Heroic;
 
     void Reset()
     {
@@ -443,7 +439,7 @@ struct TRINITY_DLL_DECL mob_felkael_flamestrikeAI : public ScriptedAI
     {
         if (FlameStrikeTimer <= diff)
         {
-            DoCast(m_creature, Heroic ? SPELL_FLAMESTRIKE1_HEROIC : SPELL_FLAMESTRIKE1_NORMAL, true);
+            DoCast(m_creature, DUNGEON_MODE(SPELL_FLAMESTRIKE1_NORMAL, SPELL_FLAMESTRIKE1_HEROIC), true);
             m_creature->Kill(m_creature);
         } else FlameStrikeTimer -= diff;
     }

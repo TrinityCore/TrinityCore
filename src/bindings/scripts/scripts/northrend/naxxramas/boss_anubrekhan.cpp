@@ -21,8 +21,8 @@
 #define SAY_AGGRO           RAND(-1533001,-1533002,-1533003)
 #define SAY_SLAY            -1533008
 
-#define SPELL_IMPALE        HEROIC(28783,56090)
-#define SPELL_LOCUSTSWARM   HEROIC(28785,54021)
+#define SPELL_IMPALE        RAID_MODE(28783,56090)
+#define SPELL_LOCUSTSWARM   RAID_MODE(28785,54021)
 
 #define SPELL_SELF_SPAWN_5  29105                           //This spawns 5 corpse scarabs ontop of us (most likely the player casts this on death)
 
@@ -41,7 +41,7 @@ struct TRINITY_DLL_DECL boss_anubrekhanAI : public BossAI
     {
         HasTaunted = false;
 
-        if (HeroicMode)
+        if (IsHeroic())
         {
             DoSpawnCreature(MOB_CRYPT_GUARD, 0, -10, 0, me->GetOrientation(), TEMPSUMMON_CORPSE_TIMED_DESPAWN, 60000);
             DoSpawnCreature(MOB_CRYPT_GUARD, 0, 10, 0, me->GetOrientation(), TEMPSUMMON_CORPSE_TIMED_DESPAWN, 60000);
