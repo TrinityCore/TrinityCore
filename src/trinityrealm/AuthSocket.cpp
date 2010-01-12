@@ -297,7 +297,8 @@ void AuthSocket::OnRead()
         ///- Report unknown commands in the debug log
         if (i == AUTH_TOTAL_COMMANDS)
         {
-            DEBUG_LOG("[Auth] got unknown packet %u", (uint32)_cmd);
+            DEBUG_LOG("[Auth] got unknown packet from '%s:%d'", GetRemoteAddress().c_str(), GetRemotePort());
+            SetCloseAndDelete();
             return;
         }
     }
