@@ -1421,7 +1421,7 @@ void Spell::DoTriggersOnSpellHit(Unit *unit)
             // Cast Avenging Wrath Marker
             m_caster->CastSpell(unit,61987, true, m_CastItem);
         }
-        else
+        else if (sSpellStore.LookupEntry(m_preCastSpell))
             m_caster->CastSpell(unit,m_preCastSpell, true, m_CastItem);
     }
 
