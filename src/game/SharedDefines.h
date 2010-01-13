@@ -678,7 +678,7 @@ enum SpellEffects
     SPELL_EFFECT_KILL_CREDIT               = 90,
     SPELL_EFFECT_THREAT_ALL                = 91,
     SPELL_EFFECT_ENCHANT_HELD_ITEM         = 92,
-    SPELL_EFFECT_SUMMON_PHANTASM           = 93, //unused
+    SPELL_EFFECT_FORCE_DESELECT            = 93,
     SPELL_EFFECT_SELF_RESURRECT            = 94,
     SPELL_EFFECT_SKINNING                  = 95,
     SPELL_EFFECT_CHARGE                    = 96,
