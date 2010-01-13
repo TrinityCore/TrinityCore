@@ -4755,7 +4755,7 @@ void AuraEffect::HandleAuraModWeaponCritPercent(AuraApplication const * aurApp, 
         return;
 
     for (int i = 0; i < MAX_ATTACK; ++i)
-        if(Item* pItem = ((Player*)target)->GetWeaponForAttack(WeaponAttackType(i), true))
+        if(Item* pItem = ((Player*)target)->GetWeaponForAttack(WeaponAttackType(i)))
             ((Player*)target)->_ApplyWeaponDependentAuraCritMod(pItem,WeaponAttackType(i),this,apply);
 
     // mods must be applied base at equipped weapon class and subclass comparison
@@ -5076,7 +5076,7 @@ void AuraEffect::HandleModDamageDone(AuraApplication const * aurApp, uint8 mode,
     if(target->GetTypeId() == TYPEID_PLAYER)
     {
         for (int i = 0; i < MAX_ATTACK; ++i)
-            if(Item* pItem = ((Player*)target)->GetWeaponForAttack(WeaponAttackType(i), true))
+            if(Item* pItem = ((Player*)target)->GetWeaponForAttack(WeaponAttackType(i)))
                 ((Player*)target)->_ApplyWeaponDependentAuraDamageMod(pItem,WeaponAttackType(i),this,apply);
     }
 
@@ -5163,7 +5163,7 @@ void AuraEffect::HandleModDamagePercentDone(AuraApplication const * aurApp, uint
     if(target->GetTypeId() == TYPEID_PLAYER)
     {
         for (int i = 0; i < MAX_ATTACK; ++i)
-            if(Item* pItem = ((Player*)target)->GetWeaponForAttack(WeaponAttackType(i), true))
+            if(Item* pItem = ((Player*)target)->GetWeaponForAttack(WeaponAttackType(i)))
                 ((Player*)target)->_ApplyWeaponDependentAuraDamageMod(pItem,WeaponAttackType(i),this,apply);
     }
 
