@@ -6565,7 +6565,20 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
             // Sacred Shield
             if (dummySpell->SpellFamilyFlags[1]&0x00080000)
             {
-                triggered_spell_id = 58597;
+                if (procFlag & PROC_FLAG_TAKEN_POSITIVE_MAGIC_SPELL)
+                {
+                    if (procSpell->SpellFamilyName == SPELLFAMILY_PALADIN 
+                        && (procSpell->SpellFamilyFlags[0] & 0x40000000))
+                    {
+                        basepoints0 = int32(float(damage)/12.0f);
+                        CastCustomSpell(this,66922,&basepoints0,NULL,NULL,true,0,triggeredByAura, pVictim->GetGUID());
+                        return true;
+                    }
+                    else
+                        return false;
+                }
+                else
+                    triggered_spell_id = 58597;
                 target = this;
                 break;
             }
