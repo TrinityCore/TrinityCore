@@ -1842,12 +1842,13 @@ struct TRINITY_DLL_DECL npc_ebon_gargoyleAI : CasterAI
         me->SetReactState(REACT_PASSIVE);
 
         // Fly Away
-        me->AddUnitMovementFlag(MOVEMENTFLAG_FLY_MODE);
-        me->SetSpeed(MOVE_FLIGHT, 0.25f, true);
-        me->SetSpeed(MOVE_RUN, 0.25f, true);
-        float x = me->GetPositionX() + 10 * cos(me->GetOrientation());
-        float y = me->GetPositionY() + 10 * sin(me->GetOrientation());
-        float z = me->GetPositionZ() + 25;
+        me->AddUnitMovementFlag(MOVEMENTFLAG_FLY_MODE|MOVEMENTFLAG_ASCEND|MOVEMENTFLAG_FLYING);
+        me->SetSpeed(MOVE_FLIGHT, 0.75f, true);
+        me->SetSpeed(MOVE_RUN, 0.75f, true);
+        float x = me->GetPositionX() + 20 * cos(me->GetOrientation());
+        float y = me->GetPositionY() + 20 * sin(me->GetOrientation());
+        float z = me->GetPositionZ() + 40;
+        me->GetMotionMaster()->Clear(false);
         me->GetMotionMaster()->MovePoint(0, x, y, z);
 
         // Despawn as soon as possible
