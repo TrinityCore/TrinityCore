@@ -12195,7 +12195,7 @@ void Unit::ModSpellCastTime(SpellEntry const* spellProto, int32 & castTime, Spel
     if (Player* modOwner = GetSpellModOwner())
         modOwner->ApplySpellMod(spellProto->Id, SPELLMOD_CASTING_TIME, castTime, spell);
 
-    if (!(spellProto->Attributes & (SPELL_ATTR_UNK4|SPELL_ATTR_TRADESPELL)) && spellProto->DmgClass == SPELL_DAMAGE_CLASS_MAGIC && spellProto->SpellFamilyName)
+    if (!(spellProto->Attributes & (SPELL_ATTR_UNK4|SPELL_ATTR_TRADESPELL)) && spellProto->SpellFamilyName)
         castTime = int32(float(castTime) * GetFloatValue(UNIT_MOD_CAST_SPEED));
     else
     {
