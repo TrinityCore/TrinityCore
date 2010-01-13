@@ -10018,7 +10018,7 @@ int32 Unit::SpellBaseDamageBonus(SpellSchoolMask schoolMask)
                 DoneAdvertisedBenefit += int32(GetTotalAttackPowerValue(BASE_ATTACK) * (*i)->GetAmount() / 100.0f);
 
     }
-    return DoneAdvertisedBenefit;
+    return DoneAdvertisedBenefit > 0 ? DoneAdvertisedBenefit : 0;
 }
 
 int32 Unit::SpellBaseDamageBonusForVictim(SpellSchoolMask schoolMask, Unit *pVictim)
@@ -10038,7 +10038,7 @@ int32 Unit::SpellBaseDamageBonusForVictim(SpellSchoolMask schoolMask, Unit *pVic
         if (((*i)->GetMiscValue() & schoolMask) != 0)
             TakenAdvertisedBenefit += (*i)->GetAmount();
 
-    return TakenAdvertisedBenefit;
+    return TakenAdvertisedBenefit > 0 ? TakenAdvertisedBenefit : 0;
 }
 
 bool Unit::isSpellCrit(Unit *pVictim, SpellEntry const *spellProto, SpellSchoolMask schoolMask, WeaponAttackType attackType) const
