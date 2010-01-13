@@ -4995,17 +4995,6 @@ SpellCastResult Spell::CheckCast(bool strict)
                 }
                 break;
             }
-            // Not used for summon?
-            case SPELL_EFFECT_SUMMON_PHANTASM:
-            {
-                if(m_caster->GetPetGUID())
-                    return SPELL_FAILED_ALREADY_HAVE_SUMMON;
-
-                if(m_caster->GetCharmGUID())
-                    return SPELL_FAILED_ALREADY_HAVE_CHARM;
-
-                break;
-            }
             case SPELL_EFFECT_SUMMON_PET:
             {
                 if(m_caster->GetPetGUID())                  //let warlock do a replacement summon
