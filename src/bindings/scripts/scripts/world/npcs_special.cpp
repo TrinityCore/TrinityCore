@@ -1556,7 +1556,7 @@ CreatureAI* GetAI_npc_winter_reveler(Creature* pCreature)
 #define SPELL_DEADLY_POISON          34655   //Venomous Snake
 #define SPELL_CRIPPLING_POISON       3409    //Viper
 
-#define VENOMOUS_SNAKE_TIMER 1200
+#define VENOMOUS_SNAKE_TIMER 1500
 #define VIPER_TIMER 3000
 
 #define C_VIPER 19921
@@ -1584,13 +1584,6 @@ struct TRINITY_DLL_DECL npc_snake_trap_serpentsAI : public ScriptedAI
             IsViper = true;
         else
             IsViper = false;
-
-        //We have to reload the states from db for summoned guardians
-        CreatureBaseStats const* stats = CreatureBaseStats::GetBaseStats(m_creature->getLevel(), Info->unit_class);
-        m_creature->SetMaxHealth(stats->GenerateHealth(Info));
-        m_creature->SetHealth(stats->GenerateMana(Info));
-        m_creature->SetStatFloatValue(UNIT_FIELD_MINDAMAGE, Info->mindmg);
-        m_creature->SetStatFloatValue(UNIT_FIELD_MAXDAMAGE, Info->maxdmg);
 
         //Add delta to make them not all hit the same time
         uint32 delta = (rand() % 7) * 100;
@@ -1657,7 +1650,7 @@ struct TRINITY_DLL_DECL npc_snake_trap_serpentsAI : public ScriptedAI
             }
             else //Venomous Snake
             {
-                if (urand(0,9) < 8) //80% chance to cast
+                if (urand(0,2) == 0) //33% chance to cast
                     DoCast(m_creature->getVictim(), SPELL_DEADLY_POISON);
                 SpellTimer = VENOMOUS_SNAKE_TIMER + (rand() %5)*100;
             }
