@@ -5862,13 +5862,16 @@ void Player::SendActionButtons(uint32 state) const
 
     WorldPacket data(SMSG_ACTION_BUTTONS, 1+(MAX_ACTION_BUTTONS*4));
     data << uint8(state);                                       // can be 0, 1, 2
-    for (uint16 button = 0; button < MAX_ACTION_BUTTONS; ++button)
+    if (state != 2)
     {
-        ActionButtonList::const_iterator itr = m_actionButtons.find(button);
-        if (itr != m_actionButtons.end() && itr->second.uState != ACTIONBUTTON_DELETED)
-            data << uint32(itr->second.packedData);
-        else
-            data << uint32(0);
+        for (uint16 button = 0; button < MAX_ACTION_BUTTONS; ++button)
+        {
+            ActionButtonList::const_iterator itr = m_actionButtons.find(button);
+            if (itr != m_actionButtons.end() && itr->second.uState != ACTIONBUTTON_DELETED)
+                data << uint32(itr->second.packedData);
+            else
+                data << uint32(0);
+        }
     }
 
     GetSession()->SendPacket(&data);
@@ -23006,8 +23009,8 @@ void Player::ActivateSpec(uint8 spec)
     m_usedTalentCount = spentTalents;
     InitTalentForLevel();
 
-    _SaveSpells();
-
+    // Let client clear his current Actions
+    SendActionButtons(2);
     m_actionButtons.clear();
     if (QueryResult *result = CharacterDatabase.PQuery("SELECT button,action,type FROM character_action WHERE guid = '%u' AND spec = '%u' ORDER BY button", GetGUIDLow(), m_activeSpec))
         _LoadActions(result, false);
