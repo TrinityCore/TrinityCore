@@ -224,8 +224,6 @@ void WorldSession::HandlePetActionHelper(Unit *pet, uint64 guid1, uint16 spellid
         case ACT_ENABLED:                                   // 0xC1    spell
         {
             Unit* unit_target = NULL;
-            if (((Creature*)pet)->GetGlobalCooldown() > 0)
-                return;
 
             if(guid2)
                 unit_target = ObjectAccessor::GetUnit(*_player,guid2);
@@ -237,6 +235,10 @@ void WorldSession::HandlePetActionHelper(Unit *pet, uint64 guid1, uint16 spellid
                 sLog.outError("WORLD: unknown PET spell id %i", spellid);
                 return;
             }
+
+            if (spellInfo->StartRecoveryCategory > 0)
+                if (((Creature*)pet)->GetGlobalCooldown() > 0)
+                    return;
 
             for (uint32 i = 0; i < 3; ++i)
             {
