@@ -24,7 +24,7 @@ EndScriptData */
 #include "precompiled.h"
 #include "trial_of_the_champion.h"
 
-enum
+enum Spells
 {
 	//yells
 
