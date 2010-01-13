@@ -748,6 +748,8 @@ class TRINITY_DLL_SPEC WorldSession
         bool HandleOnItemOpen(Item *pItem);
         bool HandleOnGoClick(GameObject *pGameObject);
         void HandleOnCreatureKill(Creature *pCreature);
+        void HandleEjectPasenger(WorldPacket &data);
+        void HandleEnterPlayerVehicle(WorldPacket &data);
     private:
         // private trade methods
         void moveItems(Item* myItems[], Item* hisItems[]);
