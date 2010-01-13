@@ -151,9 +151,18 @@ void Vehicle::Die()
 void Vehicle::Reset()
 {
     sLog.outDebug("Vehicle::Reset");
-    InstallAllAccessories();
     if(m_usableSeatNum)
-        me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
+    {
+        if (me->GetTypeId() == TYPEID_PLAYER)
+        {
+            me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_PLAYER_VEHICLE);
+        }
+        else
+        {
+            InstallAllAccessories();
+            me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
+        }
+    }
 }
 
 void Vehicle::RemoveAllPassengers()
@@ -275,7 +284,12 @@ bool Vehicle::AddPassenger(Unit *unit, int8 seatId)
         assert(m_usableSeatNum);
         --m_usableSeatNum;
         if(!m_usableSeatNum)
-            me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
+        {
+            if (me->GetTypeId() == TYPEID_PLAYER)
+                me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_PLAYER_VEHICLE);
+            else
+                me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
+        }
     }
 
     if(seat->second.seatInfo->m_flags && !(seat->second.seatInfo->m_flags & 0x400))
@@ -292,21 +306,24 @@ bool Vehicle::AddPassenger(Unit *unit, int8 seatId)
     unit->m_movementInfo.t_time = 0; // 1 for player
     unit->m_movementInfo.t_seat = seat->first;
 
-    if(unit->GetTypeId() == TYPEID_PLAYER && seat->first == 0 && seat->second.seatInfo->m_flags & 0x800) // not right
+    if(me->GetTypeId() == TYPEID_UNIT
+        && unit->GetTypeId() == TYPEID_PLAYER 
+        && seat->first == 0 && seat->second.seatInfo->m_flags & 0x800) // not right
         if (!me->SetCharmedBy(unit, CHARM_TYPE_VEHICLE))
             assert(false);
 
-    if(me->GetTypeId() == TYPEID_UNIT)
+    if(me->IsInWorld())
     {
-        if(me->IsInWorld())
+        unit->SendMonsterMoveTransport(me);
+
+        if(me->GetTypeId() == TYPEID_UNIT)
         {
-            unit->SendMonsterMoveTransport(me);
+            if(((Creature*)me)->IsAIEnabled)
+                ((Creature*)me)->AI()->PassengerBoarded(unit, seat->first, true);
+
             // move self = move all passengers
             me->GetMap()->CreatureRelocation((Creature*)me, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation());
         }
-
-        if(((Creature*)me)->IsAIEnabled)
-            ((Creature*)me)->AI()->PassengerBoarded(unit, seat->first, true);
     }
 
     //if(unit->GetTypeId() == TYPEID_PLAYER)
@@ -334,7 +351,12 @@ void Vehicle::RemovePassenger(Unit *unit)
     if(seat->second.seatInfo->IsUsable())
     {
         if(!m_usableSeatNum)
-            me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
+        {
+            if (me->GetTypeId() == TYPEID_PLAYER)
+                me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_PLAYER_VEHICLE);
+            else
+                me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
+        }
         ++m_usableSeatNum;
     }
 
@@ -342,7 +364,9 @@ void Vehicle::RemovePassenger(Unit *unit)
 
     //SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
 
-    if(unit->GetTypeId() == TYPEID_PLAYER && seat->first == 0 && seat->second.seatInfo->m_flags & 0x800)
+    if(me->GetTypeId() == TYPEID_UNIT
+        && unit->GetTypeId() == TYPEID_PLAYER 
+        && seat->first == 0 && seat->second.seatInfo->m_flags & 0x800)
         me->RemoveCharmedBy(unit);
 
     if(me->GetTypeId() == TYPEID_UNIT && ((Creature*)me)->IsAIEnabled)

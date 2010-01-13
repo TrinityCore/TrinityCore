@@ -3471,7 +3471,7 @@ void AuraEffect::HandleAuraMounted(AuraApplication const * aurApp, uint8 mode, b
             if(GetSpellProto()->Effect[i] == SPELL_EFFECT_SUMMON
                 && GetSpellProto()->EffectMiscValue[i] == GetMiscValue())
                 display_id = 0;
-        target->Mount(display_id);
+        target->Mount(display_id,ci->VehicleId);
     }
     else
     {
