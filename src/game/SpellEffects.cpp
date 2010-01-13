@@ -6600,10 +6600,9 @@ void Spell::EffectLeapForward(uint32 i)
             destz = fabs(ground - z) <= fabs(floor - z) ? ground:floor;
         } else break;
     }
-    if (j == 9)
-        return;
 
-    unitTarget->NearTeleportTo(destx, desty, destz + 0.07531, orientation, unitTarget==m_caster);
+    if(j < 10)
+        unitTarget->NearTeleportTo(destx, desty, destz + 0.07531, orientation, unitTarget==m_caster);
 }
 
 void Spell::EffectReputation(uint32 i)
