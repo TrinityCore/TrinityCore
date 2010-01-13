@@ -7320,7 +7320,14 @@ void Player::_ApplyWeaponDependentAuraDamageMod(Item *item, WeaponAttackType att
     }
 
     if (!item->IsBroken()&&item->IsFitToSpellRequirements(aura->GetSpellProto()))
+    {
         HandleStatModifier(unitMod, unitModType, float(aura->GetAmount()),apply);
+
+        if (unitModType == TOTAL_PCT)
+            ApplyModSignedFloatValue(PLAYER_FIELD_MOD_DAMAGE_DONE_PCT,aura->GetAmount()/100.0f,apply);
+        else
+            ApplyModUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_POS,aura->GetAmount(),apply);
+    }
 }
 
 void Player::ApplyItemEquipSpell(Item *item, bool apply, bool form_change)
