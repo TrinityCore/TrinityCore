@@ -11099,7 +11099,7 @@ float Unit::GetPPMProcChance(uint32 WeaponSpeed, float PPM, const SpellEntry * s
     return uint32((WeaponSpeed * PPM) / 600.0f);   // result is chance in percents (probability = Speed_in_sec * (PPM / 60))
 }
 
-void Unit::Mount(uint32 mount)
+void Unit::Mount(uint32 mount, uint32 VehicleId)
 {
     RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_MOUNT);
 
@@ -11120,6 +11120,27 @@ void Unit::Mount(uint32 mount)
                 pet->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED);
             else
                 ((Player*)this)->UnsummonPetTemporaryIfAny();
+        }
+
+        if(VehicleId !=0)
+        {
+            if(VehicleEntry const *ve = sVehicleStore.LookupEntry(VehicleId))
+            {
+
+                if (CreateVehicleKit(VehicleId))
+                {
+                    GetVehicleKit()->Reset();
+
+                    // Send others that we now have a vehicle
+                    WorldPacket data( SMSG_PLAYER_VEHICLE_DATA, GetPackGUID().size()+4);
+                    data.appendPackGUID(GetGUID());
+                    data << uint32(VehicleId);
+                    SendMessageToSet( &data,true );
+
+                    data.Initialize(SMSG_ON_CANCEL_EXPECTED_RIDE_VEHICLE_AURA, 0);
+                    ((Player*)this)->GetSession()->SendPacket( &data );
+                }
+            }
         }
     }
 
@@ -11147,6 +11168,16 @@ void Unit::Unmount()
         }
         else
             ((Player*)this)->ResummonPetTemporaryUnSummonedIfAny();
+    }
+    if(GetTypeId()==TYPEID_PLAYER && GetVehicleKit())
+    {
+        // Send other players that we are no longer a vehicle
+        WorldPacket data( SMSG_PLAYER_VEHICLE_DATA, 8+4 );
+        data.appendPackGUID(GetGUID());
+        data << uint32(0);
+        ((Player*)this)->SendMessageToSet(&data, true);
+        // Remove vehicle class from player
+        RemoveVehicleKit();
     }
 }
 
@@ -14954,6 +14985,22 @@ bool Unit::CreateVehicleKit(uint32 id)
     m_updateFlag |= UPDATEFLAG_VEHICLE;
     m_unitTypeMask |= UNIT_MASK_VEHICLE;
     return true;
+}
+
+void Unit::RemoveVehicleKit()
+{
+    if (!m_vehicleKit)
+        return;
+
+    m_vehicleKit->Uninstall();
+    delete m_vehicleKit;
+
+    m_vehicleKit = NULL;
+
+    m_updateFlag &= ~UPDATEFLAG_VEHICLE;
+    m_unitTypeMask &= ~UNIT_MASK_VEHICLE;
+    RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
+    RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_PLAYER_VEHICLE);
 }
 
 Unit *Unit::GetVehicleBase() const

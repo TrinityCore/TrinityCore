@@ -30,6 +30,7 @@
 #include "WorldPacket.h"
 #include "WorldSession.h"
 #include "Player.h"
+#include "Vehicle.h"
 #include "ObjectMgr.h"
 #include "Group.h"
 #include "Guild.h"
@@ -936,6 +937,39 @@ void WorldSession::SendAddonsInfo()
 
     SendPacket(&data);
 }
+
+
+void WorldSession::HandleEnterPlayerVehicle(WorldPacket &data)
+{
+    // Read guid
+    uint64 guid;
+    data >> guid;
+
+    if(Player* pl=ObjectAccessor::FindPlayer(guid))
+    {
+        if (!pl->GetVehicleKit())
+            return;
+        if (!pl->IsInRaidWith(_player))
+            return;
+        if(!pl->IsWithinDistInMap(_player,INTERACTION_DISTANCE))
+            return;
+        _player->EnterVehicle(pl);
+    }
+}
+
+void WorldSession::HandleEjectPasenger(WorldPacket &data)
+{
+    if(data.GetOpcode()==CMSG_EJECT_PASSENGER)
+    {
+        if(Vehicle* Vv= _player->GetVehicleKit())
+        {
+            uint64 guid;
+            data >> guid;
+            if(Player* Pl=ObjectAccessor::FindPlayer(guid))
+                Pl->ExitVehicle();
+        }
+    }
+ }
 
 void WorldSession::SetPlayer( Player *plr )
 {
