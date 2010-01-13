@@ -1208,6 +1208,16 @@ void Spell::DoAllEffectOnTarget(TargetInfo *target)
         // Do triggers for unit (reflect triggers passed on hit phase for correct drop charge)
         if (canEffectTrigger && missInfo != SPELL_MISS_REFLECT)
             caster->ProcDamageAndSpell(unit, procAttacker, procVictim, procEx, 0, m_attackType, m_spellInfo, m_triggeredByAuraSpell);
+
+        // Failed Pickpocket, reveal rogue
+        if (missInfo == SPELL_MISS_RESIST 
+            && m_customAttr & SPELL_ATTR_CU_PICKPOCKET
+            && unitTarget->GetTypeId() == TYPEID_UNIT)
+        {
+            m_caster->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_TALK);
+            if (((Creature*)unitTarget)->IsAIEnabled)
+                ((Creature*)unitTarget)->AI()->AttackStart(m_caster);
+        }
     }
 
     if(m_caster && !m_caster->IsFriendlyTo(unit) && !IsPositiveSpell(m_spellInfo->Id))
