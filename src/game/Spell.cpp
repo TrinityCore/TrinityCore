@@ -4441,6 +4441,39 @@ SpellCastResult Spell::CheckCast(bool strict)
             if (target->hasUnitState(UNIT_STAT_UNATTACKABLE))
                 return SPELL_FAILED_BAD_TARGETS;
 
+            if(!m_IsTriggeredSpell && (target->HasAuraType(SPELL_AURA_MOD_STEALTH)
+                || target->m_invisibilityMask) && !m_caster->canSeeOrDetect(target, true))
+                return SPELL_FAILED_BAD_TARGETS;
+
+            if (m_caster->GetTypeId() == TYPEID_PLAYER)
+            {
+                // Not allow banish not self target
+                if (m_spellInfo->Mechanic == MECHANIC_BANISH)
+                    if (target->GetTypeId() == TYPEID_UNIT &&
+                        !((Player*)m_caster)->isAllowedToLoot((Creature*)target))
+                        return SPELL_FAILED_CANT_CAST_ON_TAPPED;
+
+                if (m_customAttr & SPELL_ATTR_CU_PICKPOCKET)
+                {
+                     if (target->GetTypeId() == TYPEID_PLAYER)
+                         return SPELL_FAILED_BAD_TARGETS;
+    			     else if ((target->GetCreatureTypeMask() & CREATURE_TYPEMASK_HUMANOID_OR_UNDEAD) == 0)
+                         return SPELL_FAILED_TARGET_NO_POCKETS;
+                }
+
+                // Not allow disarm unarmed player
+                if (m_spellInfo->Mechanic == MECHANIC_DISARM)
+                {
+                    if (target->GetTypeId() == TYPEID_PLAYER)
+                    {
+                        if(!((Player*)target)->GetWeaponForAttack(BASE_ATTACK) || !((Player*)target)->IsUseEquipedWeapon(true))
+                            return SPELL_FAILED_TARGET_NO_WEAPONS;
+                    }
+                    else if (!target->GetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID))
+                        return SPELL_FAILED_TARGET_NO_WEAPONS;
+                }
+            }
+
             if(!m_IsTriggeredSpell && VMAP::VMapFactory::checkSpellForLoS(m_spellInfo->Id) && !m_caster->IsWithinLOSInMap(target))
                 return SPELL_FAILED_LINE_OF_SIGHT;
 
