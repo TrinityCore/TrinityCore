@@ -7138,12 +7138,29 @@ void Player::_ApplyItemBonuses(ItemPrototype const *proto, uint8 slot, bool appl
         if (uint32 ssvarmor = ssv->getArmorMod(proto->ScalingStatValue))
             armor = ssvarmor;
     }
-    // Add armor bonus from ArmorDamageModifier if > 0
-    if (proto->ArmorDamageModifier > 0)
-        armor += uint32(proto->ArmorDamageModifier);
 
     if (armor)
-        HandleStatModifier(UNIT_MOD_ARMOR, BASE_VALUE, float(armor), apply);
+    {
+        UnitModifierType modType = TOTAL_VALUE;
+        if (proto->Class == ITEM_CLASS_ARMOR)
+        {
+            switch (proto->SubClass)
+            {
+                case ITEM_SUBCLASS_ARMOR_CLOTH:
+                case ITEM_SUBCLASS_ARMOR_LEATHER:
+                case ITEM_SUBCLASS_ARMOR_MAIL:
+                case ITEM_SUBCLASS_ARMOR_PLATE:
+                case ITEM_SUBCLASS_ARMOR_SHIELD:
+                    modType = BASE_VALUE;
+                break;
+            }
+        }
+        HandleStatModifier(UNIT_MOD_ARMOR, modType, float(armor), apply);
+    }
+
+    // Add armor bonus from ArmorDamageModifier if > 0
+    if (proto->ArmorDamageModifier > 0)
+        HandleStatModifier(UNIT_MOD_ARMOR, TOTAL_VALUE, float(proto->ArmorDamageModifier), apply);
 
     if (proto->Block)
         HandleBaseModValue(SHIELD_BLOCK_VALUE, FLAT_MOD, float(proto->Block), apply);
