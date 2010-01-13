@@ -1817,7 +1817,7 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
                                                             // redefined in Creature
         bool IsImmunedToDamage(SpellSchoolMask meleeSchoolMask);
         bool IsImmunedToDamage(SpellEntry const* spellInfo);
-        virtual bool IsImmunedToSpellEffect(SpellEntry const* spellInfo, uint32 index) const;
+        virtual bool IsImmunedToSpellEffect(SpellEntry const* spellInfo, uint32 index, bool checkMechanic=true) const;
                                                             // redefined in Creature
         uint32 CalcNotIgnoreDamageRedunction( uint32 damage, SpellSchoolMask damageSchoolMask);
         uint32 CalcArmorReducedDamage(Unit* pVictim, const uint32 damage, SpellEntry const *spellInfo, WeaponAttackType attackType=MAX_ATTACK);
