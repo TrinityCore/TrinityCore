@@ -498,7 +498,10 @@ void Pet::setDeathState(DeathState s)                       // overwrite virtual
 
 void Pet::Update(uint32 diff)
 {
-    if(m_removed)                                           // pet already removed, just wait in remove queue, no updates
+    if (m_removed)                                           // pet already removed, just wait in remove queue, no updates
+        return;
+
+    if (m_loading)
         return;
 
     switch( m_deathState )
