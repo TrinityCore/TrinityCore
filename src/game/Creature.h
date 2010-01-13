@@ -448,7 +448,7 @@ class TRINITY_DLL_SPEC Creature : public Unit, public GridObject<Creature>
         bool canCreatureAttack(Unit const *pVictim, bool force = true) const;
         bool IsImmunedToSpell(SpellEntry const* spellInfo);
                                                             // redefine Unit::IsImmunedToSpell
-        bool IsImmunedToSpellEffect(SpellEntry const* spellInfo, uint32 index) const;
+        bool IsImmunedToSpellEffect(SpellEntry const* spellInfo, uint32 index, bool checkMechanic) const;
                                                             // redefine Unit::IsImmunedToSpellEffect
         bool isElite() const
         {
