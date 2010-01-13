@@ -397,7 +397,7 @@ void Player::UpdateAttackPowerAndDamage(bool ranged )
         UpdateDamagePhysical(BASE_ATTACK);
         if(CanDualWield() && haveOffhandWeapon())           //allow update offhand damage only if player knows DualWield Spec and has equipped offhand weapon
             UpdateDamagePhysical(OFF_ATTACK);
-        if(getClass() == CLASS_SHAMAN)                      // mental quickness
+        if(getClass() == CLASS_SHAMAN || getClass() == CLASS_PALADIN)                      // mental quickness
             UpdateSpellDamageAndHealingBonus();
 
         if(pet && pet->IsPetGhoul()) // At ranged attack change for hunter pet
