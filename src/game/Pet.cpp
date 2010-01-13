@@ -498,7 +498,10 @@ void Pet::setDeathState(DeathState s)                       // overwrite virtual
 
 void Pet::Update(uint32 diff)
 {
-    if(m_removed)                                           // pet already removed, just wait in remove queue, no updates
+    if (m_removed)                                           // pet already removed, just wait in remove queue, no updates
+        return;
+
+    if (m_loading)
         return;
 
     switch( m_deathState )
@@ -967,6 +970,22 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
                     }
                     SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, float(petlevel * 4 - petlevel));
                     SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, float(petlevel * 4 + petlevel));
+                    break;
+                }
+                case 19833: //Snake Trap - Venomous Snake
+                {
+                    SetCreateHealth(uint32(107 * (petlevel - 40) * 0.025f));
+                    SetCreateMana(0);
+                    SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, float((petlevel / 2) - 25));
+                    SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, float((petlevel / 2) - 18));
+                    break;
+                }
+                case 19921: //Snake Trap - Viper
+                {
+                    SetCreateHealth(uint32(107 * (petlevel - 40) * 0.025f));
+                    SetCreateMana(0);
+                    SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, float(petlevel / 2 - 10));
+                    SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, float(petlevel / 2));
                     break;
                 }
                 case 31216: // Mirror Image
