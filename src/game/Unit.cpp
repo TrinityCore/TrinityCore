@@ -8564,11 +8564,14 @@ bool Unit::IsHostileTo(Unit const* unit) const
 
         //= PvP states
         // Green/Blue (can't attack)
-        if(pTester->GetTeam()==pTarget->GetTeam())
-            return false;
+        if (!pTester->HasAuraType(SPELL_AURA_MOD_FACTION) && !pTarget->HasAuraType(SPELL_AURA_MOD_FACTION))
+        {
+            if(pTester->GetTeam()==pTarget->GetTeam())
+                return false;
 
-        // Red (can attack) if true, Blue/Yellow (can't attack) in another case
-        return pTester->IsPvP() && pTarget->IsPvP();
+            // Red (can attack) if true, Blue/Yellow (can't attack) in another case
+            return pTester->IsPvP() && pTarget->IsPvP();
+        }
     }
 
     // faction base cases
@@ -8581,7 +8584,7 @@ bool Unit::IsHostileTo(Unit const* unit) const
         return true;
 
     // PvC forced reaction and reputation case
-    if(tester->GetTypeId() == TYPEID_PLAYER)
+    if(tester->GetTypeId() == TYPEID_PLAYER && !tester->HasAuraType(SPELL_AURA_MOD_FACTION))
     {
         // forced reaction
         if(target_faction->faction)
@@ -8596,7 +8599,7 @@ bool Unit::IsHostileTo(Unit const* unit) const
         }
     }
     // CvP forced reaction and reputation case
-    else if(target->GetTypeId() == TYPEID_PLAYER)
+    else if(target->GetTypeId() == TYPEID_PLAYER && !target->HasAuraType(SPELL_AURA_MOD_FACTION))
     {
         // forced reaction
         if(tester_faction->faction)
@@ -8676,11 +8679,14 @@ bool Unit::IsFriendlyTo(Unit const* unit) const
 
         //= PvP states
         // Green/Blue (non-attackable)
-        if(pTester->GetTeam()==pTarget->GetTeam())
-            return true;
+        if (!pTester->HasAuraType(SPELL_AURA_MOD_FACTION) && !pTarget->HasAuraType(SPELL_AURA_MOD_FACTION))
+        {
+            if(pTester->GetTeam()==pTarget->GetTeam())
+                return true;
 
-        // Blue (friendly/non-attackable) if not PVP, or Yellow/Red in another case (attackable)
-        return !pTarget->IsPvP();
+            // Blue (friendly/non-attackable) if not PVP, or Yellow/Red in another case (attackable)
+            return !pTarget->IsPvP();
+        }
     }
 
     // faction base cases
@@ -8693,7 +8699,7 @@ bool Unit::IsFriendlyTo(Unit const* unit) const
         return false;
 
     // PvC forced reaction and reputation case
-    if (tester->GetTypeId() == TYPEID_PLAYER)
+    if (tester->GetTypeId() == TYPEID_PLAYER && !tester->HasAuraType(SPELL_AURA_MOD_FACTION))
     {
         // forced reaction
         if (target_faction->faction)
@@ -8708,7 +8714,7 @@ bool Unit::IsFriendlyTo(Unit const* unit) const
         }
     }
     // CvP forced reaction and reputation case
-    else if (target->GetTypeId() == TYPEID_PLAYER)
+    else if (target->GetTypeId() == TYPEID_PLAYER && !target->HasAuraType(SPELL_AURA_MOD_FACTION))
     {
         // forced reaction
         if (tester_faction->faction)
