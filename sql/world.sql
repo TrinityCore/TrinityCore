@@ -4788,6 +4788,7 @@ INSERT INTO `spell_bonus_data` (`entry`,`direct_bonus`,`dot_bonus`,`ap_bonus`,`a
 (44614, 0.8571, -1, -1, -1, 'Mage - Frostfire Bolt'),
 (11426, 0.8053, -1, -1, -1, 'Mage - Ice Barrier'),
 (30455, 0.1429, -1, -1, -1, 'Mage - Ice Lance'),
+(12654, 0, 0, 0, 0, 'Mage - Ignite'),
 (44457, 0.4, 0.2, -1, -1, 'Mage - Living Bomb'),
 (1463, 0.8053, -1, -1, -1, 'Mage - Mana Shield'),
 (34913, 0, 0, 0, 0, 'Mage - Molten Armor Triggered Rank 1'),
@@ -5709,7 +5710,7 @@ INSERT INTO `spell_proc_event` (`entry`,`SchoolMask`,`SpellFamilyName`,`SpellFam
 ( 11095, 0x00,   3, 0x00000010, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0,   0), -- Improved Scorch (Rank 1)
 ( 11119, 0x04,   3, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000002,   0,   0,   0), -- Ignite (Rank 1)
 ( 11120, 0x04,   3, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000002,   0,   0,   0), -- Ignite (Rank 2)
-( 11129, 0x00,   3, 0x00C00017, 0x00000040, 0x00000000, 0x00000000, 0x00000000,   0,   0,   0), -- Combustion
+( 11129, 0x04,   3, 0x08c00017, 0x00031048, 0x00000000, 0x00000000, 0x00000000,   0,   0,   0), -- Combustion
 ( 11180, 0x10,   3, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0,   0), -- Winter's Chill (Rank 1)
 ( 11185, 0x00,   3, 0x00000080, 0x00000000, 0x00000000, 0x00050000, 0x00000000,   0,   0,   0), -- Improved Blizzard (Rank 1)
 ( 11255, 0x00,   3, 0x00004000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0,   0), -- Improved Counterspell (Rank 1)
