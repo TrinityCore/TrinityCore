@@ -969,6 +969,22 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
                     SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, float(petlevel * 4 + petlevel));
                     break;
                 }
+                case 19833: //Snake Trap - Venomous Snake
+                {
+                    SetCreateHealth(uint32(107 * (petlevel - 40) * 0.025f));
+                    SetCreateMana(0);
+                    SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, float((petlevel / 2) - 25));
+                    SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, float((petlevel / 2) - 18));
+                    break;
+                }
+                case 19921: //Snake Trap - Viper
+                {
+                    SetCreateHealth(uint32(107 * (petlevel - 40) * 0.025f));
+                    SetCreateMana(0);
+                    SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, float(petlevel / 2 - 10));
+                    SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, float(petlevel / 2));
+                    break;
+                }
                 case 31216: // Mirror Image
                 {
                     SetBonusDamage(int32(m_owner->SpellBaseDamageBonus(SPELL_SCHOOL_MASK_FROST) * 0.33f));
