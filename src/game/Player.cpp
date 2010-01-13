@@ -1323,6 +1323,14 @@ void Player::Update( uint32 p_time )
             m_zoneUpdateTimer -= p_time;
     }
 
+    if (m_timeSyncTimer > 0)
+    {
+        if(p_time >= m_timeSyncTimer)
+            SendTimeSync();
+        else
+            m_timeSyncTimer -= p_time;
+    }
+
     if (isAlive())
     {
         m_regenTimer += p_time;
@@ -20204,9 +20212,8 @@ void Player::SendInitialPacketsAfterAddToMap()
     GetZoneAndAreaId(newzone,newarea);
     UpdateZone(newzone,newarea);                            // also call SendInitWorldStates();
 
-    WorldPacket data(SMSG_TIME_SYNC_REQ, 4);                // new 2.0.x, enable movement
-    data << uint32(0x00000000);                             // on blizz it increments periodically
-    GetSession()->SendPacket(&data);
+    ResetTimeSync();
+    SendTimeSync();
 
     CastSpell(this, SPELL_LOGINEFFECT_836, true);                             // LOGINEFFECT
 
@@ -23024,6 +23031,22 @@ void Player::ActivateSpec(uint8 spec)
         SetPower(POWER_MANA, 0); // Mana must be 0 even if it isn't the active power type.
 
     SetPower(pw, 0);
+}
+
+void Player::ResetTimeSync()
+{
+    m_timeSyncCount = 0;
+    m_timeSyncTimer = 0;
+}
+
+void Player::SendTimeSync()
+{
+    WorldPacket data(SMSG_TIME_SYNC_REQ, 4);
+    data << uint32(m_timeSyncCount++);
+    GetSession()->SendPacket(&data);
+
+    // Send another opcode in 10s again
+    m_timeSyncTimer = 10000;
 }
 
 void Player::SetReputation(uint32 factionentry, uint32 value)
