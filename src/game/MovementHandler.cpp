@@ -307,7 +307,11 @@ void WorldSession::HandleMovementOpcodes( WorldPacket & recv_data )
         }
 
         if (!mover->GetTransport() && !mover->GetVehicle())
-            movementInfo.flags &= ~MOVEMENTFLAG_ONTRANSPORT;
+        {
+            GameObject *go = mover->GetMap()->GetGameObject(movementInfo.t_guid);
+            if (!go || go->GetGoType() != GAMEOBJECT_TYPE_TRANSPORT)
+                movementInfo.flags &= ~MOVEMENTFLAG_ONTRANSPORT;
+        }
     }
     else if (plMover && plMover->GetTransport())                // if we were on a transport, leave
     {
