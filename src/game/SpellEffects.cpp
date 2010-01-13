@@ -4578,7 +4578,7 @@ void Spell::SpellDamageWeaponDmg(uint32 i)
         {
             // Kill Shot - bonus damage from Ranged Attack Power
             if(m_spellInfo->SpellFamilyFlags[1] & 0x800000)
-                spell_bonus += int32(0.4f*m_caster->GetTotalAttackPowerValue(RANGED_ATTACK, unitTarget));
+                spell_bonus += int32(0.4f*m_caster->GetTotalAttackPowerValue(RANGED_ATTACK));
             break;
         }
         case SPELLFAMILY_DEATHKNIGHT:
