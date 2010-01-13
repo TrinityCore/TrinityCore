@@ -676,6 +676,27 @@ bool GOHello_go_table_theka(Player* pPlayer, GameObject* pGO)
     return true;
 }
 
+/*######
+ * ## go_inconspicuous_landmark
+ * ######*/
+
+enum eInconspicuousLandmark
+{
+    SPELL_SUMMON_PIRATES_TREASURE_AND_TRIGGER_MOB    = 11462,
+    ITEM_CUERGOS_KEY                                 = 9275,
+};
+
+bool GOHello_go_inconspicuous_landmark(Player *pPlayer, GameObject* pGO)
+{
+    if (pPlayer->HasItemCount(ITEM_CUERGOS_KEY,1))
+        return false;
+
+    pPlayer->CastSpell(pPlayer,SPELL_SUMMON_PIRATES_TREASURE_AND_TRIGGER_MOB,true);
+
+    return true;
+}
+
+
 void AddSC_go_scripts()
 {
     Script *newscript;
@@ -819,5 +840,10 @@ void AddSC_go_scripts()
     newscript = new Script;
     newscript->Name = "go_table_theka";
     newscript->pGOHello =           &GOHello_go_table_theka;
+    newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name = "go_inconspicuous_landmark";
+    newscript->pGOHello =           &GOHello_go_inconspicuous_landmark;
     newscript->RegisterSelf();
 }
