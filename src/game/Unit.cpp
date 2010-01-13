@@ -11525,9 +11525,9 @@ bool Unit::canDetectStealthOf(Unit const* target, float distance) const
             return true;
 
     //Visible distance based on stealth value (stealth rank 4 300MOD, 10.5 - 3 = 7.5)
-    float visibleDistance = 10.5f - target->GetTotalAuraModifier(SPELL_AURA_MOD_STEALTH) / 100.0f;
+    float visibleDistance = 7.5f;
     //Visible distance is modified by -Level Diff (every level diff = 1.0f in visible distance)
-    visibleDistance += int32(getLevelForTarget(target)) - int32(target->getLevelForTarget(this));
+    visibleDistance += float(getLevelForTarget(target)) - target->GetTotalAuraModifier(SPELL_AURA_MOD_STEALTH)/5.0f;
     //-Stealth Mod(positive like Master of Deception) and Stealth Detection(negative like paranoia)
     //based on wowwiki every 5 mod we have 1 more level diff in calculation
     visibleDistance += (float)(GetTotalAuraModifier(SPELL_AURA_MOD_DETECT) - target->GetTotalAuraModifier(SPELL_AURA_MOD_STEALTH_LEVEL)) / 5.0f;
