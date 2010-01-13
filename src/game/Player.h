@@ -2437,6 +2437,9 @@ Spell * m_spellModTakingSpell;
         EnchantDurationList m_enchantDuration;
         ItemDurationList m_itemDuration;
 
+        void ResetTimeSync();
+        void SendTimeSync();
+
         uint64 m_resurrectGUID;
         uint32 m_resurrectMap;
         float m_resurrectX, m_resurrectY, m_resurrectZ;
@@ -2572,6 +2575,9 @@ Spell * m_spellModTakingSpell;
         SpellCooldowns m_spellCooldowns;
 
         uint32 m_ChampioningFaction;
+
+        uint32 m_timeSyncCount;
+        uint32 m_timeSyncTimer;
 };
 
 void AddItemsSetItem(Player*player,Item *item);
