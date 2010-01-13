@@ -507,7 +507,7 @@ void WorldSession::HandleSetActiveMoverOpcode(WorldPacket &recv_data)
     recv_data >> guid;
 
     if(guid == GetPlayer()->m_mover->GetGUID())
-        return;
+       return;
 
     if(Unit *mover = ObjectAccessor::GetUnit(*GetPlayer(), guid))
     {
