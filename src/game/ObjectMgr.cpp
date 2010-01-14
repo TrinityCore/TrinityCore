@@ -692,7 +692,10 @@ void ObjectMgr::LoadCreatureTemplates()
         }
 
         if (!cInfo->unit_class || ((1 << (cInfo->unit_class-1)) & CLASSMASK_ALL_CREATURES) == 0)
-            sLog.outErrorDb("Creature (Entry: %u) has invalid unit_class(%u) for creature_template", cInfo->Entry, cInfo->unit_class);
+        {
+            sLog.outErrorDb("Creature (Entry: %u) has invalid unit_class(%u) for creature_template. Set to 1 (UNIT_CLASS_WARRIOR).", cInfo->Entry, cInfo->unit_class);
+            const_cast<CreatureInfo*>(cInfo)->unit_class = UNIT_CLASS_WARRIOR;
+        }
 
         if(cInfo->dmgschool >= MAX_SPELL_SCHOOL)
         {
