@@ -1170,6 +1170,13 @@ void BattleGround::AddPlayer(Player *plr)
     sBattleGroundMgr.BuildPlayerJoinedBattleGroundPacket(&data, plr);
     SendPacketToTeam(team, &data, plr, false);
 
+    // BG Status packet
+    WorldPacket status;
+    BattleGroundQueueTypeId bgQueueTypeId = BattleGroundMgr::BGQueueTypeId(m_TypeID, GetArenaType());
+    uint32 queueSlot = plr->GetBattleGroundQueueIndex(bgQueueTypeId);
+    sBattleGroundMgr.BuildBattleGroundStatusPacket(&status, this, queueSlot, STATUS_IN_PROGRESS, 0, GetStartTime(), GetArenaType());
+    plr->GetSession()->SendPacket(&status);
+
     // add arena specific auras
     if (isArena())
     {
