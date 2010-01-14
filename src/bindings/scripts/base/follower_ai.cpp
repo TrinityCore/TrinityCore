@@ -129,8 +129,8 @@ void FollowerAI::JustDied(Unit* pKiller)
             {
                 if (Player* pMember = pRef->getSource())
                 {
-                    if (pPlayer->GetQuestStatus(m_pQuestForFollow->GetQuestId()) == QUEST_STATUS_INCOMPLETE)
-                        pPlayer->FailQuest(m_pQuestForFollow->GetQuestId());
+                    if (pMember->GetQuestStatus(m_pQuestForFollow->GetQuestId()) == QUEST_STATUS_INCOMPLETE)
+                        pMember->FailQuest(m_pQuestForFollow->GetQuestId());
                 }
             }
         }
