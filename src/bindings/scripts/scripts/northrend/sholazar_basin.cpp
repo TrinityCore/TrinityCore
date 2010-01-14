@@ -320,4 +320,9 @@ void AddSC_sholazar_basin()
     newscript->pGossipHello = &GossipHello_npc_avatar_of_freya;
     newscript->pGossipSelect = &GossipSelect_npc_avatar_of_freya;
     newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name = "npc_bushwhacker";
+    newscript->GetAI = &GetAI_npc_bushwhacker;
+    newscript->RegisterSelf();
 }
