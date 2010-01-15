@@ -472,25 +472,6 @@ void WorldSession::KickPlayer()
         m_Socket->CloseSocket ();
 }
 
-/// Cancel channeling handler
-
-void WorldSession::SendAreaTriggerMessage(const char* Text, ...)
-{
-    va_list ap;
-    char szStr [1024];
-    szStr[0] = '\0';
-
-    va_start(ap, Text);
-    vsnprintf( szStr, 1024, Text, ap );
-    va_end(ap);
-
-    uint32 length = strlen(szStr)+1;
-    WorldPacket data(SMSG_AREA_TRIGGER_MESSAGE, 4+length);
-    data << length;
-    data << szStr;
-    SendPacket(&data);
-}
-
 void WorldSession::SendNotification(const char *format,...)
 {
     if(format)
@@ -524,13 +505,6 @@ void WorldSession::SendNotification(int32 string_id,...)
         data << szStr;
         SendPacket(&data);
     }
-}
-
-void WorldSession::SendSetPhaseShift(uint32 PhaseShift)
-{
-    WorldPacket data(SMSG_SET_PHASE_SHIFT, 4);
-    data << uint32(PhaseShift);
-    SendPacket(&data);
 }
 
 const char * WorldSession::GetTrinityString( int32 entry ) const
@@ -860,11 +834,13 @@ void WorldSession::ReadAddonsInfo(WorldPacket &data)
 
             sLog.outDebug("ADDON: Name: %s, Enabled: 0x%x, CRC: 0x%x, Unknown2: 0x%x", addonName.c_str(), enabled, crc, unk1);
 
-            m_addonsList.push_back(AddonInfo(addonName, enabled, crc));
+            // TODO: Find out when to not use CRC/pubkey, and other possible states.
+            m_addonsList.push_back(AddonInfo(addonName, enabled, crc, 2, true));
         }
 
-        uint32 unk2;
-        addonInfo >> unk2;
+        uint32 currentTime;
+        addonInfo >> currentTime;
+        sLog.outDebug("ADDON: CurrentTime: %u", currentTime);
 
         if(addonInfo.rpos() != addonInfo.size())
             sLog.outDebug("packet under read!");
@@ -875,7 +851,7 @@ void WorldSession::ReadAddonsInfo(WorldPacket &data)
 
 void WorldSession::SendAddonsInfo()
 {
-    unsigned char tdata[256] =
+    unsigned char addonPublicKey[256] =
     {
         0xC3, 0x5B, 0x50, 0x84, 0xB9, 0x3E, 0x32, 0x42, 0x8C, 0xD0, 0xC7, 0x48, 0xFA, 0x0E, 0x5D, 0x54,
         0x5A, 0xA3, 0x0E, 0x14, 0xBA, 0x9E, 0x0D, 0xB9, 0x5D, 0x8B, 0xEE, 0xB6, 0x84, 0x93, 0x45, 0x75,
@@ -899,26 +875,30 @@ void WorldSession::SendAddonsInfo()
 
     for (AddonsList::iterator itr = m_addonsList.begin(); itr != m_addonsList.end(); ++itr)
     {
-        uint8 state = 2;                                    // 2 is sent here
-        data << uint8(state);
+        data << uint8(itr->State);
 
-        uint8 unk1 = 1;                                     // 1 is sent here
-        data << uint8(unk1);
-        if (unk1)
+        uint8 crcpub = itr->UsePublicKeyOrCRC;
+        data << uint8(crcpub);
+        if (crcpub)
         {
-            uint8 unk2 = (itr->CRC != 0x4c1c776d);          // If addon is Standard addon CRC
-            data << uint8(unk2);
-            if (unk2)                                       // if CRC is wrong, add public key (client need it)
-                data.append(tdata, sizeof(tdata));
+            uint8 usepk = (itr->CRC != STANDARD_ADDON_CRC); // If addon is Standard addon CRC
+            data << uint8(usepk);
+            if (usepk)                                      // if CRC is wrong, add public key (client need it)
+            {
+                sLog.outError("ADDON: CRC (0x%x) for addon %s is wrong (does not match expected %x), sending pubkey",
+                    itr->Name, itr->CRC, STANDARD_ADDON_CRC);
 
-            data << uint32(0);
+                data.append(addonPublicKey, sizeof(addonPublicKey));
+            }
+
+            data << uint32(/*itr->CRC*/ 0);                 // TODO: Find out the meaning of this.
         }
 
         uint8 unk3 = 0;                                     // 0 is sent here
         data << uint8(unk3);
         if (unk3)
         {
-            // String, 256 (null terminated?)
+            // String, length 256 (null terminated)
             data << uint8(0);
         }
     }
@@ -937,39 +917,6 @@ void WorldSession::SendAddonsInfo()
 
     SendPacket(&data);
 }
-
-
-void WorldSession::HandleEnterPlayerVehicle(WorldPacket &data)
-{
-    // Read guid
-    uint64 guid;
-    data >> guid;
-
-    if(Player* pl=ObjectAccessor::FindPlayer(guid))
-    {
-        if (!pl->GetVehicleKit())
-            return;
-        if (!pl->IsInRaidWith(_player))
-            return;
-        if(!pl->IsWithinDistInMap(_player,INTERACTION_DISTANCE))
-            return;
-        _player->EnterVehicle(pl);
-    }
-}
-
-void WorldSession::HandleEjectPasenger(WorldPacket &data)
-{
-    if(data.GetOpcode()==CMSG_EJECT_PASSENGER)
-    {
-        if(Vehicle* Vv= _player->GetVehicleKit())
-        {
-            uint64 guid;
-            data >> guid;
-            if(Player* Pl=ObjectAccessor::FindPlayer(guid))
-                Pl->ExitVehicle();
-        }
-    }
- }
 
 void WorldSession::SetPlayer( Player *plr )
 {
