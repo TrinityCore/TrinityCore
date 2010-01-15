@@ -245,6 +245,7 @@ bool AreaTrigger_at_zumrah(Player* pPlayer, AreaTriggerEntry *at)
         return false;
 
     Zumrah->setFaction(ZUMRAH_HOSTILE_FACTION);
+    Zumrah->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
     return true;
 }
 
