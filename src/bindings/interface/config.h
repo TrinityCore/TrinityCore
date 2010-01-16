@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2009 Trinity <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2010 Trinity <http://www.trinitycore.org/>
  *
  * Thanks to the original authors: MaNGOS <http://getmangos.com/>
  *
