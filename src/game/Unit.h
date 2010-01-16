@@ -320,6 +320,7 @@ struct SpellValue;
 
 class AuraApplication;
 class Aura;
+class UnitAura;
 class AuraEffect;
 class Creature;
 class Spell;
@@ -1531,14 +1532,16 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
         Pet* CreateTamedPetFrom(Creature* creatureTarget,uint32 spell_id = 0);
 
         // aura apply/remove helpers - you should better not use these
-        void _AddAura(Aura * aura);
+        void _AddAura(UnitAura * aura, Unit * caster);
         AuraApplication * __ApplyAura(Aura * aura);
         void __UnapplyAura(AuraApplicationMap::iterator &i);
         bool _ApplyAuraEffect(Aura * aura, uint8 effIndex);
         void _UnapplyAuraEffect(AuraApplication * aurApp, uint8 effIndex, AuraRemoveMode removeMode);
         void _UnapplyAura(AuraApplicationMap::iterator &i, AuraRemoveMode removeMode);
         void _UnapplyAura(AuraApplication * aurApp, AuraRemoveMode removeMode);
+        void _RemoveNoStackAuraApplicationsDueToAura(Aura * aura);
         void _RemoveNoStackAurasDueToAura(Aura * aura);
+        bool _IsNoStackAuraDueToAura(Aura * appliedAura, Aura * existingAura) const;
         void _HandleAuraEffect(AuraEffect * aurEff, bool apply);
 
         // m_ownedAuras container management
@@ -1549,7 +1552,7 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
         void RemoveOwnedAura(uint32 spellId, uint64 caster = 0, uint8 reqEffMask = 0, AuraRemoveMode removeMode = AURA_REMOVE_BY_DEFAULT);
         void RemoveOwnedAura(Aura * aura, AuraRemoveMode removeMode = AURA_REMOVE_BY_DEFAULT);
 
-        Aura * GetOwnedAura(uint32 spellId, uint64 casterGUID = 0, uint8 reqEffMask = 0) const;
+        Aura * GetOwnedAura(uint32 spellId, uint64 casterGUID = 0, uint8 reqEffMask = 0, Aura * except = NULL) const;
 
         // m_appliedAuras container management
         AuraApplicationMap      & GetAppliedAuras()       { return m_appliedAuras; }
@@ -1583,8 +1586,8 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
         void _ApplyAllAuraStatMods();
 
         AuraEffectList const& GetAuraEffectsByType(AuraType type) const { return m_modAuras[type]; }
-        AuraApplicationList      & GetSingleCastAuras()       { return m_scAuras; }
-        AuraApplicationList const& GetSingleCastAuras() const { return m_scAuras; }
+        AuraList      & GetSingleCastAuras()       { return m_scAuras; }
+        AuraList const& GetSingleCastAuras() const { return m_scAuras; }
 
         AuraEffect * GetAuraEffect(uint32 spellId, uint8 effIndex, uint64 casterGUID = 0) const;
         AuraEffect * GetAuraEffectOfRankedSpell(uint32 spellId, uint8 effIndex, uint64 casterGUID = 0) const;
@@ -1994,7 +1997,7 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
         uint32 m_removedAurasCount;
 
         AuraEffectList m_modAuras[TOTAL_AURAS];
-        AuraApplicationList m_scAuras;                        // casted singlecast auras
+        AuraList m_scAuras;                        // casted singlecast auras
         AuraApplicationList m_interruptableAuras;             // auras which have interrupt mask applied on unit
         AuraStateAurasMap m_auraStateAuras;        // Used for improve performance of aura state checks on aura apply/remove
         uint32 m_interruptMask;

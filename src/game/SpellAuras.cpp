@@ -302,22 +302,37 @@ Aura * Aura::Create(SpellEntry const* spellproto, uint8 effMask, WorldObject * o
     assert(owner);
     assert(caster || casterGUID);
     assert(effMask <= MAX_EFFECT_MASK);
+    // try to get caster of aura
+    if (casterGUID)
+    {
+        if (owner->GetGUID() == casterGUID)
+            caster = (Unit *)owner;
+        else
+            caster = ObjectAccessor::GetUnit(*owner, casterGUID);
+    }
+    Aura * aura = NULL;
     switch(owner->GetTypeId())
     {
         case TYPEID_UNIT:
         case TYPEID_PLAYER:
-            return new UnitAura(spellproto,effMask,owner,caster,baseAmount,castItem, casterGUID);
+            aura = new UnitAura(spellproto,effMask,owner,caster,baseAmount,castItem, casterGUID);
+            break;
         case TYPEID_DYNAMICOBJECT:
-            return new DynObjAura(spellproto,effMask,owner,caster,baseAmount,castItem, casterGUID);
+            aura = new DynObjAura(spellproto,effMask,owner,caster,baseAmount,castItem, casterGUID);
+            break;
         default:
             assert(false);
             return NULL;
     }
+    // aura can be removed in Unit::_AddAura call
+    if (aura->IsRemoved())
+        return NULL;
+    return aura;
 }
 
 Aura::Aura(SpellEntry const* spellproto, uint8 effMask, WorldObject * owner, Unit * caster, int32 *baseAmount, Item * castItem, uint64 casterGUID) :
 m_spellProto(spellproto), m_owner(owner), m_casterGuid(casterGUID ? casterGUID : caster->GetGUID()), m_castItemGuid(castItem ? castItem->GetGUID() : 0),
-    m_applyTime(time(NULL)), m_timeCla(0),
+    m_applyTime(time(NULL)), m_timeCla(0), m_isSingleTarget(false),
     m_procCharges(0), m_stackAmount(1), m_isRemoved(false), m_casterLevel(caster ? caster->getLevel() : m_spellProto->spellLevel)
 {
     if(m_spellProto->manaPerSecond || m_spellProto->manaPerSecondPerLevel)
@@ -352,8 +367,6 @@ m_spellProto(spellproto), m_owner(owner), m_casterGuid(casterGUID ? casterGUID :
         else
             m_effects[i] = NULL;
     }
-
-    m_isSingleTarget = IsSingleTargetSpell(GetSpellProto());
 }
 
 Aura::~Aura()
@@ -664,6 +677,14 @@ bool Aura::IsVisible() const
     if (GetOwner()->GetTypeId() == TYPEID_UNIT && ((Creature*)m_owner)->isTotem() && IsPassive())
         return true;
     return !IsPassive() || HasEffectType(SPELL_AURA_ABILITY_IGNORE_AURASTATE); 
+}
+
+void Aura::UnregisterSingleTarget()
+{
+    assert(m_isSingleTarget);
+    Unit * caster = GetCaster();
+    caster->GetSingleCastAuras().remove(this);
+    SetIsSingleTarget(false);
 }
 
 void Aura::SetLoadedState(int32 maxduration, int32 duration, int32 charges, uint8 stackamount, uint8 recalculateMask, int32 * amount)
@@ -1302,7 +1323,7 @@ UnitAura::UnitAura(SpellEntry const* spellproto, uint8 effMask, WorldObject * ow
     : Aura(spellproto, effMask, owner, caster, baseAmount, castItem, casterGUID) 
 {
     m_AuraDRGroup = DIMINISHING_NONE;
-    GetUnitOwner()->_AddAura(this);
+    GetUnitOwner()->_AddAura(this, caster);
 };
 
 void UnitAura::_ApplyForTarget(Unit * target, Unit * caster, AuraApplication * aurApp)
