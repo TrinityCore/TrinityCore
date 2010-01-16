@@ -310,8 +310,74 @@ CreatureAI* GetAI_npc_private_hendel(Creature* pCreature)
 }
 
 /*######
-##
+## npc_zelfrax
 ######*/
+
+const Position MovePosition = {-2967.030,-3872.1799,35.620};
+
+enum eZelfrax
+{
+    SAY_ZELFRAX     = -1000472,
+    SAY_ZELFRAX_2   = -1000473
+};
+
+struct TRINITY_DLL_DECL npc_zelfraxAI : public ScriptedAI
+{
+    npc_zelfraxAI(Creature* pCreature) : ScriptedAI(pCreature)
+    {
+        MoveToDock();
+    }
+
+    void AttackStart(Unit* pWho)
+    {
+        if (!pWho)
+            return;
+
+        if (m_creature->Attack(pWho, true))
+        {
+            m_creature->SetInCombatWith(pWho);
+            pWho->SetInCombatWith(m_creature);
+
+            if (IsCombatMovement())
+                m_creature->GetMotionMaster()->MoveChase(pWho);
+        }
+    }
+
+    void MovementInform(uint32 uiType, uint32 uiId)
+    {
+        if (uiType != POINT_MOTION_TYPE)
+            return;
+
+        m_creature->SetHomePosition(m_creature->GetPositionX(),m_creature->GetPositionY(),m_creature->GetPositionZ(),m_creature->GetOrientation());
+        m_creature->RemoveFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_OOC_NOT_ATTACKABLE);
+        SetCombatMovement(true);
+
+        if (m_creature->isInCombat())
+            if (Unit* pUnit = m_creature->getVictim())
+                m_creature->GetMotionMaster()->MoveChase(pUnit);
+    }
+
+    void MoveToDock()
+    {
+        SetCombatMovement(false);
+        m_creature->GetMotionMaster()->MovePoint(0,MovePosition);
+        DoScriptText(SAY_ZELFRAX,m_creature);
+        DoScriptText(SAY_ZELFRAX_2,m_creature);
+    }
+
+    void UpdateAI(uint32 const uiDiff)
+    {
+        if (!UpdateVictim())
+            return;
+
+        DoMeleeAttackIfReady();
+    }
+};
+
+CreatureAI* GetAI_npc_zelfrax(Creature* pCreature)
+{
+    return new npc_zelfraxAI(pCreature);
+}
 
 void AddSC_dustwallow_marsh()
 {
@@ -349,6 +415,11 @@ void AddSC_dustwallow_marsh()
     newscript->Name = "npc_private_hendel";
     newscript->GetAI = &GetAI_npc_private_hendel;
     newscript->pQuestAccept = &QuestAccept_npc_private_hendel;
+    newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name = "npc_zelfrax";
+    newscript->GetAI = &GetAI_npc_zelfrax;
     newscript->RegisterSelf();
 }
 
