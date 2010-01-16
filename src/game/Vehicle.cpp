@@ -376,6 +376,30 @@ void Vehicle::RemovePassenger(Unit *unit)
     //CastSpell(this, 45472, true);                           // Parachute
 }
 
+void Vehicle::RelocatePassengers(float x, float y, float z, float ang)
+{
+    Map *map = me->GetMap();
+    assert(map != NULL);
+
+    // not sure that absolute position calculation is correct, it must depend on vehicle orientation and pitch angle
+    for (SeatMap::const_iterator itr = m_Seats.begin(); itr != m_Seats.end(); ++itr)
+        if (Unit *passenger = itr->second.passenger)
+        {
+            if (passenger->GetTypeId() == TYPEID_PLAYER)
+                map->PlayerRelocation((Player*)passenger,
+                x + passenger->m_movementInfo.t_x,
+                y + passenger->m_movementInfo.t_y,
+                z + passenger->m_movementInfo.t_z,
+                ang + passenger->m_movementInfo.t_o);
+            else
+                map->CreatureRelocation((Creature*)passenger,
+                x + passenger->m_movementInfo.t_x,
+                y + passenger->m_movementInfo.t_y,
+                z + passenger->m_movementInfo.t_z,
+                ang + passenger->m_movementInfo.t_o);
+        }
+}
+
 void Vehicle::Dismiss()
 {
     sLog.outDebug("Vehicle::Dismiss %u", me->GetEntry());
