@@ -1639,6 +1639,7 @@ CREATE TABLE `creature_template` (
 
 LOCK TABLES `creature_template` WRITE;
 /*!40000 ALTER TABLE `creature_template` DISABLE KEYS */;
+INSERT INTO `creature_template` (`entry`,`difficulty_entry_1`,`difficulty_entry_2`,`difficulty_entry_3`,`KillCredit1`,`KillCredit2`,`modelid1`,`modelid2`,`modelid3`,`modelid4`,`name`,`subname`,`IconName`,`gossip_menu_id`,`minlevel`,`maxlevel`,`exp`,`faction_A`,`faction_H`,`npcflag`,`speed`,`scale`,`rank`,`mindmg`,`maxdmg`,`dmgschool`,`attackpower`,`dmg_multiplier`,`baseattacktime`,`rangeattacktime`,`unit_class`,`unit_flags`,`dynamicflags`,`family`,`trainer_type`,`trainer_spell`,`trainer_class`,`trainer_race`,`minrangedmg`,`maxrangedmg`,`rangedattackpower`,`type`,`type_flags`,`lootid`,`pickpocketloot`,`skinloot`,`resistance1`,`resistance2`,`resistance3`,`resistance4`,`resistance5`,`resistance6`,`spell1`,`spell2`,`spell3`,`spell4`,`spell5`,`spell6`,`spell7`,`spell8`,`PetSpellDataId`,`VehicleId`,`mingold`,`maxgold`,`AIName`,`MovementType`,`InhabitType`,`Health_mod`,`Mana_mod`,`Armor_mod`,`RacialLeader`,`questItem1`,`questItem2`,`questItem3`,`questItem4`,`questItem5`,`questItem6`,`movementId`,`RegenHealth`,`equipment_id`,`mechanic_immune_mask`,`flags_extra`,`ScriptName`) VALUES (1,0,0,0,0,0,10045,0,0,0,'Waypoint (Only GM can see it)','Visual',NULL,0,1,80,0,35,35,0,0.91,1,0,7,7,0,3,1,2000,2200,1,4096,0,0,0,0,0,0,1.76,2.42,100,8,5242886,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,'',0,7,0.0125,1,1,0,0,0,0,0,0,0,0,1,0,0,130,'');
 /*!40000 ALTER TABLE `creature_template` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -5426,14 +5427,14 @@ INSERT INTO `spell_linked_spell` (`spell_trigger`,`spell_effect`,`type`,`comment
 (-5145, -36032, 0, 'Arcane Missiles Rank 3'),
 (-8416, -36032, 0, 'Arcane Missiles Rank 4'),
 (-8417, -36032, 0, 'Arcane Missiles Rank 5'),
-(-10211, -36032, 0, 'Arcane Missiles Rank 6'),
-(-10212, -36032, 0, 'Arcane Missiles Rank 7'),
-(-25345, -36032, 0, 'Arcane Missiles Rank 8'),
-(-27075, -36032, 0, 'Arcane Missiles Rank 9'),
-(-38699, -36032, 0, 'Arcane Missiles Rank 10'),
-(-38704, -36032, 0, 'Arcane Missiles Rank 11'),
-(-42843, -36032, 0, 'Arcane Missiles Rank 12'),
-(-42846, -36032, 0, 'Arcane Missiles Rank 13'),
+(-10211,-36032, 0, 'Arcane Missiles Rank 6'),
+(-10212,-36032, 0, 'Arcane Missiles Rank 7'),
+(-25345,-36032, 0, 'Arcane Missiles Rank 8'),
+(-27075,-36032, 0, 'Arcane Missiles Rank 9'),
+(-38699,-36032, 0, 'Arcane Missiles Rank 10'),
+(-38704,-36032, 0, 'Arcane Missiles Rank 11'),
+(-42843,-36032, 0, 'Arcane Missiles Rank 12'),
+(-42846,-36032, 0, 'Arcane Missiles Rank 13'),
 ( 53563, 53651, 2, 'Beacon of Light'),
 (   781, 56446, 0, 'Disengage'),
 ( 57635, 57636, 0, 'Disengage'),
@@ -5451,13 +5452,13 @@ INSERT INTO `spell_linked_spell` (`spell_trigger`,`spell_effect`,`type`,`comment
 ( 33206, 44416, 2, 'Pain Suppression (threat)'),
 ( 50720, 59665, 0, 'Vigilance (redirect threat)'),
 ( 52610, 62071, 0, 'Savage Roar'),
-( -52610, -62071, 0, 'Savage Roar'),
-(51209, 55095, 1, 'Hungering cold - frost fever'),
-(50334, 58923, 2, 'Berserk - modify target number aura'),
-( -5229, -51185, 0, 'King of the Jungle - remove with enrage'),
-(48384, 50170, 2, 'Improved Moonkin Form'),
-(48395, 50171, 2, 'Improved Moonkin Form'),
-(48396, 50172, 2, 'Improved Moonkin Form'),
+(-52610,-62071, 0, 'Savage Roar'),
+( 51209, 55095, 1, 'Hungering cold - frost fever'),
+( 50334, 58923, 2, 'Berserk - modify target number aura'),
+(-5229, -51185, 0, 'King of the Jungle - remove with enrage'),
+( 48384, 50170, 2, 'Improved Moonkin Form'),
+( 48395, 50171, 2, 'Improved Moonkin Form'),
+( 48396, 50172, 2, 'Improved Moonkin Form'),
 ( 20594, 65116, 0, 'Stoneform'),
 ( 49039, 50397, 2, 'Lichborne - shapeshift'),
 ( 64382, 64380, 0, 'Shattering Throw'),
@@ -5476,6 +5477,8 @@ INSERT INTO `spell_linked_spell` (`spell_trigger`,`spell_effect`,`type`,`comment
 -- Quest
 ( 40214, 40216, 2, 'Dragonmaw Illusion'),
 ( 40214, 42016, 2, 'Dragonmaw Illusion'),
+( 66744, 66747, 0, 'Totem of the earthen ring'),
+( 53099, 53098, 0, 'Trigger teleport to acherus (for quest 12757)'),
 -- Creature
 ( 36574, 36650, 0, 'Apply Phase Slip Vulnerability'),
 -- instance
@@ -5543,10 +5546,10 @@ INSERT INTO `spell_linked_spell` (`spell_trigger`,`spell_effect`,`type`,`comment
 (-54361, 54343, 0, 'Void Shift (Normal) - Void Shifted'),
 (-59743, 54343, 0, 'Void Shift (Heroic) - Void Shifted'),
 -- Gundrak
-(54850, 54851, 1, 'Emerge - Emerge Summon'),
+( 54850, 54851, 1, 'Emerge - Emerge Summon'),
 -- Trial of the Champion
-(66680, 66547, 0, 'Confess - Confess'),
-(66889, -66865, 0, 'Remove Vengeance');
+( 66680, 66547, 0, 'Confess - Confess'),
+( 66889,-66865, 0, 'Remove Vengeance');
 /*!40000 ALTER TABLE `spell_linked_spell` ENABLE KEYS */;
 UNLOCK TABLES;
 
