@@ -77,6 +77,9 @@ void PetAI::_stopAttack()
 
 void PetAI::UpdateAI(const uint32 diff)
 {
+    if (!m_creature->isAlive())
+        return;
+
     Unit* owner = m_creature->GetCharmerOrOwner();
 
     if(m_updateAlliesTimer <= diff)
