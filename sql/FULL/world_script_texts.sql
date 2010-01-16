@@ -418,6 +418,9 @@ INSERT INTO `script_texts` (`npc_entry`,`entry`,`content_default`,`content_loc1`
    (349,-1000466,'The Blackrock infestation is thick in these parts. I will do my best to keep the pace. Let''s go!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,''),
    (349,-1000467,'Marshal Marris, sir. Corporal Keeshan of the 12th Sabre Regiment returned from battle and reporting for duty!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,''),
    (349,-1000468,'Brave adventurer, thank you for rescuing me! I am sure Marshal Marris will reward your kind deed.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,''),
+   (23861,-1000469,'It is too late for us, living one. Take yourself and your friend away from here before you both are... claimed...',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,''),
+   (23861,-1000470,'Go away, whoever you are! Witch Hill is mine... mine!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,''),
+   (23861,-1000471,'It was... terrible... the demon...',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,''),
 
 -- -1 033 000 SHADOWFANG KEEP
    (0,-1033000,'Follow me and I''ll open the courtyard door for you.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,7,1,'prisoner ashcrombe SAY_FREE_AS'),

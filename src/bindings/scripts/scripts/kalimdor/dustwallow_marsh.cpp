@@ -39,12 +39,15 @@ EndContentData */
 
 enum eHuskSpirit
 {
-    QUEST_WHATS_HAUNTING_WITCH_HILL  = 11180,
-    SPELL_SUMMON_RESTLESS_APPARITION = 42511,
-    SPELL_CONSUME_FLESH              = 37933,               //Risen Husk
-    SPELL_INTANGIBLE_PRESENCE        = 43127,               //Risen Spirit
-    NPC_RISEN_HUSK                   = 23555,
-    NPC_RISEN_SPIRIT                 = 23554
+    QUEST_WHATS_HAUNTING_WITCH_HILL     = 11180,
+
+    SPELL_SUMMON_RESTLESS_APPARITION    = 42511,
+    SPELL_CONSUME_FLESH                 = 37933,               //Risen Husk
+    SPELL_INTANGIBLE_PRESENCE           = 43127,               //Risen Spirit
+
+    NPC_RISEN_HUSK                      = 23555,
+    NPC_RISEN_SPIRIT                    = 23554,
+    NPC_RESTLESS_APPARITION             = 23861
 };
 
 struct TRINITY_DLL_DECL mobs_risen_husk_spiritAI : public ScriptedAI
@@ -58,15 +61,6 @@ struct TRINITY_DLL_DECL mobs_risen_husk_spiritAI : public ScriptedAI
     {
         m_uiConsumeFlesh_Timer = 10000;
         m_uiIntangiblePresence_Timer = 5000;
-    }
-
-    void DamageTaken(Unit* pDoneBy, uint32 &damage)
-    {
-        if (pDoneBy->GetTypeId() == TYPEID_PLAYER)
-        {
-            if (damage >= m_creature->GetHealth() && CAST_PLR(pDoneBy)->GetQuestStatus(QUEST_WHATS_HAUNTING_WITCH_HILL) == QUEST_STATUS_INCOMPLETE)
-                DoCast(pDoneBy, SPELL_SUMMON_RESTLESS_APPARITION, false);
-        }
     }
 
     void UpdateAI(const uint32 uiDiff)
@@ -96,6 +90,16 @@ struct TRINITY_DLL_DECL mobs_risen_husk_spiritAI : public ScriptedAI
 
         DoMeleeAttackIfReady();
     }
+
+    void JustDied(Unit* pKiller)
+    {
+        if (pKiller->GetTypeId() == TYPEID_PLAYER)
+            if (CAST_PLR(pKiller)->GetQuestStatus(QUEST_WHATS_HAUNTING_WITCH_HILL) == QUEST_STATUS_INCOMPLETE)
+            {
+                DoCast(pKiller, SPELL_SUMMON_RESTLESS_APPARITION, true);
+                CAST_PLR(pKiller)->KilledMonsterCredit(NPC_RESTLESS_APPARITION,0);
+            }
+    }
 };
 
 CreatureAI* GetAI_mobs_risen_husk_spirit(Creature* pCreature)
@@ -107,14 +111,26 @@ CreatureAI* GetAI_mobs_risen_husk_spirit(Creature* pCreature)
 ## npc_restless_apparition
 ######*/
 
-bool GossipHello_npc_restless_apparition(Player* pPlayer, Creature* pCreature)
+enum eRestlessApparition
 {
-    pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(pCreature), pCreature->GetGUID());
+    SAY_RESTLESS_1      = -1000469,
+    SAY_RESTLESS_2      = -1000470,
+    SAY_RESTLESS_3      = -1000471
+};
 
-    pPlayer->TalkedToCreature(pCreature->GetEntry(), pCreature->GetGUID());
-    pCreature->SetUInt32Value(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+struct TRINITY_DLL_DECL npc_restless_apparitionAI : public ScriptedAI
+{
+    npc_restless_apparitionAI(Creature* pCreature) : ScriptedAI(pCreature) {}
 
-    return true;
+    void Reset()
+    {
+        DoScriptText(RAND(SAY_RESTLESS_1,SAY_RESTLESS_2,SAY_RESTLESS_3), m_creature);
+    }
+};
+
+CreatureAI* GetAI_npc_restless_apparition(Creature* pCreature)
+{
+    return new npc_restless_apparitionAI (pCreature);
 }
 
 /*######
@@ -308,7 +324,7 @@ void AddSC_dustwallow_marsh()
 
     newscript = new Script;
     newscript->Name = "npc_restless_apparition";
-    newscript->pGossipHello =   &GossipHello_npc_restless_apparition;
+    newscript->GetAI = &GetAI_npc_restless_apparition;
     newscript->RegisterSelf();
 
     newscript = new Script;
