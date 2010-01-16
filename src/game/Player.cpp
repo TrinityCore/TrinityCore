@@ -15577,7 +15577,9 @@ bool Player::LoadFromDB( uint32 guid, SqlQueryHolder *holder )
         if(m_bgData.bgInstanceID)                                                //saved in BattleGround
             currentBg = sBattleGroundMgr.GetBattleGround(m_bgData.bgInstanceID, BATTLEGROUND_TYPE_NONE);
 
-        if(currentBg && currentBg->IsPlayerInBattleGround(GetGUID()))
+        bool player_at_bg = currentBg && currentBg->IsPlayerInBattleGround(GetGUID());
+
+        if(player_at_bg && currentBg->GetStatus() != STATUS_WAIT_LEAVE)
         {
             BattleGroundQueueTypeId bgQueueTypeId = sBattleGroundMgr.BGQueueTypeId(currentBg->GetTypeID(), currentBg->GetArenaType());
             AddBattleGroundQueueId(bgQueueTypeId);
@@ -15593,6 +15595,10 @@ bool Player::LoadFromDB( uint32 guid, SqlQueryHolder *holder )
         // Bg was not found - go to Entry Point
         else
         {
+            // leave bg
+            if (player_at_bg)
+                currentBg->RemovePlayerAtLeave(GetGUID(), false, true);
+
             // Do not look for instance if bg not found
             const WorldLocation& _loc = GetBattleGroundEntryPoint();
             mapId = _loc.GetMapId(); instanceId = 0;
