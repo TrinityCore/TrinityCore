@@ -120,7 +120,8 @@ void DynamicObject::Update(uint32 p_time)
         if (!m_aura->IsRemoved())
             m_aura->UpdateOwner(p_time, this);
 
-        if (m_aura->IsRemoved() || m_aura->IsExpired())
+        // m_aura may be set to null in Unit::RemoveGameObject call
+        if (m_aura && (m_aura->IsRemoved() || m_aura->IsExpired()))
             expired = true;
     }
     else

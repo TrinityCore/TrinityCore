@@ -3527,9 +3527,54 @@ void Unit::DeMorph()
     SetDisplayId(GetNativeDisplayId());
 }
 
-void Unit::_AddAura(Aura * aura)
+void Unit::_AddAura(UnitAura * aura, Unit * caster)
 {
     m_ownedAuras.insert(AuraMap::value_type(aura->GetId(), aura));
+
+    // passive and Incanter's Absorption and auras with different type can stack with themselves any number of times
+    if (!aura->IsPassive() && aura->GetId() != 44413)
+    {
+        // find current aura from spell and change it's stackamount
+        if (Aura * foundAura = GetOwnedAura(aura->GetId(), aura->GetCasterGUID(), 0, aura))
+        {
+            if(aura->GetSpellProto()->StackAmount)
+                aura->ModStackAmount(foundAura->GetStackAmount());
+
+            // Use the new one to replace the old one
+            // This is the only place where AURA_REMOVE_BY_STACK should be used
+            RemoveOwnedAura(foundAura, AURA_REMOVE_BY_STACK);
+        }
+    }
+    _RemoveNoStackAurasDueToAura(aura);
+
+    if (aura->IsRemoved())
+        return;
+
+    aura->SetIsSingleTarget(caster && IsSingleTargetSpell(aura->GetSpellProto()));
+    if (aura->IsSingleTarget())
+    {
+        // register single target aura
+        caster->GetSingleCastAuras().push_back(aura);
+        // remove other single target auras
+        for (;;)
+        {
+            bool restart = false;
+            Unit::AuraList& scAuras = caster->GetSingleCastAuras();
+            for (Unit::AuraList::iterator itr = scAuras.begin(); itr != scAuras.end(); ++itr)
+            {
+                if( (*itr) != aura &&
+                    IsSingleTargetSpells((*itr)->GetSpellProto(), aura->GetSpellProto()))
+                {
+                    (*itr)->Remove();
+                    restart = true;
+                    break;
+                }
+            }
+
+            if(!restart)
+                break;
+        }
+    }
 }
 
 AuraApplication * Unit::__ApplyAura(Aura * aura)
@@ -3552,10 +3597,6 @@ AuraApplication * Unit::__ApplyAura(Aura * aura)
     AuraApplication * aurApp = new AuraApplication(this, caster, aura);
     m_appliedAuras.insert(AuraApplicationMap::value_type(aurId, aurApp));
 
-    // Register single cast aura
-    if (caster && aura->IsSingleTarget())
-        caster->GetSingleCastAuras().push_back(aurApp);
-
     if(aurSpellInfo->AuraInterruptFlags)
     {
         m_interruptableAuras.push_back(aurApp);
@@ -3567,45 +3608,6 @@ AuraApplication * Unit::__ApplyAura(Aura * aura)
         m_auraStateAuras.insert(AuraStateAurasMap::value_type(aState, aurApp));
 
     aura->_ApplyForTarget(this, caster, aurApp);
-
-    // passive and Incanter's Absorption and auras with different type can stack with themselves any number of times
-    // auras with type other than TARGET_AURA have CanAuraStack check in their target selection code, so shouldn't go here
-    if (!aura->IsPassive() && aura->GetType() == UNIT_AURA_TYPE && aurId != 44413)
-    {
-        // find current aura from spell and change it's stackamount
-        if (AuraApplication * foundAura = GetAuraApplication(aurId, aura->GetCasterGUID(), 0, aurApp))
-        {
-            if(aurSpellInfo->StackAmount)
-                aura->ModStackAmount(foundAura->GetBase()->GetStackAmount());
-
-            // Use the new one to replace the old one
-            // This is the only place where AURA_REMOVE_BY_STACK should be used
-            RemoveAura(foundAura, AURA_REMOVE_BY_STACK);
-        }
-    }
-
-    // update single target auras list - after aura stack check to allow single target auras to stack
-    if (aura->IsSingleTarget())
-    {
-        for (;;)
-        {
-            bool restart = false;
-            AuraApplicationList& scAuras = caster->GetSingleCastAuras();
-            for (AuraApplicationList::iterator itr = scAuras.begin(); itr != scAuras.end(); ++itr)
-            {
-                if( (*itr)->GetBase() != aura &&
-                    IsSingleTargetSpells((*itr)->GetBase()->GetSpellProto(), aura->GetSpellProto()))
-                {
-                    (*itr)->GetBase()->Remove(AURA_REMOVE_BY_DEFAULT);
-                    restart = true;
-                    break;
-                }
-            }
-
-            if(!restart)
-                break;
-        }
-    }
 
     _RemoveNoStackAurasDueToAura(aura);
 
@@ -3640,10 +3642,6 @@ void Unit::__UnapplyAura(AuraApplicationMap::iterator &i)
 
     // Remove all pointers from lists here to prevent possible pointer invalidation on spellcast/auraapply/auraremove
     m_appliedAuras.erase(i);
-
-    // Unregister single cast aura
-    if (caster && aura->IsSingleTarget())
-        caster->GetSingleCastAuras().remove(aurApp);
 
     if (aura->GetSpellProto()->AuraInterruptFlags)
     {
@@ -3755,20 +3753,19 @@ void Unit::_UnapplyAura(AuraApplication * aurApp, AuraRemoveMode removeMode)
     }
 }
 
-void Unit::_RemoveNoStackAurasDueToAura(Aura * aura)
+void Unit::_RemoveNoStackAuraApplicationsDueToAura(Aura * aura)
 {
+    // dynobj auras can stack infinite number of times
     if (aura->GetType() == DYNOBJ_AURA_TYPE)
         return;
 
     SpellEntry const* spellProto = aura->GetSpellProto();
 
-    uint32 spellId = aura->GetId();
+    uint32 spellId = spellProto->Id;
 
     // passive spell special case (only non stackable with ranks)
     if(IsPassiveSpell(spellId) && IsPassiveSpellStackableWithRanks(spellProto))
         return;
-
-    //bool linked = spellmgr.GetSpellCustomAttr(spellId) & SPELL_ATTR_CU_LINK_AURA? true : false;
 
     bool remove = false;
     for (AuraApplicationMap::iterator i = m_appliedAuras.begin(); i != m_appliedAuras.end(); ++i)
@@ -3779,54 +3776,90 @@ void Unit::_RemoveNoStackAurasDueToAura(Aura * aura)
             i = m_appliedAuras.begin();
         }
 
-        // Do not check already applied aura
-        if (i->second->GetBase() == aura)
+        if (!_IsNoStackAuraDueToAura(aura, i->second->GetBase()))
             continue;
 
-        // Do not check already applied aura
-        if (i->second->GetBase()->GetType() != aura->GetType())
-            continue;
-
-        SpellEntry const* i_spellProto = i->second->GetBase()->GetSpellProto();
-        uint32 i_spellId = i_spellProto->Id;
-        bool sameCaster = aura->GetCasterGUID() == (*i).second->GetBase()->GetCasterGUID();
-
-        if(IsPassiveSpell(i_spellId))
-        {
-            // passive non-stackable spells not stackable only for same caster
-            if(!sameCaster)
-                continue;
-
-            // passive non-stackable spells not stackable only with another rank of same spell
-            if (!spellmgr.IsRankSpellDueToSpell(spellProto, i_spellId))
-                continue;
-        }
-
-        bool is_triggered_by_spell = false;
-        // prevent triggering aura of removing aura that triggered it
-        // prevent triggered aura of removing aura that triggering it (triggered effect early some aura of parent spell
-        for (uint8 j = 0; j < MAX_SPELL_EFFECTS; ++j)
-        {
-            if (i_spellProto->EffectTriggerSpell[j] == spellProto->Id
-                || spellProto->EffectTriggerSpell[j] == i_spellProto->Id) // I do not know what is this for
-            {
-                is_triggered_by_spell = true;
-                break;
-            }
-        }
-
-        if (is_triggered_by_spell)
-            continue;
-
-        if(spellmgr.CanAurasStack(spellProto, i_spellProto, sameCaster))
-            continue;
-
-        // Remove all auras by aura caster
         RemoveAura(i, AURA_REMOVE_BY_DEFAULT);
         if(i == m_appliedAuras.end())
             break;
         remove = true;
     }
+}
+
+void Unit::_RemoveNoStackAurasDueToAura(Aura * aura)
+{
+    SpellEntry const* spellProto = aura->GetSpellProto();
+
+    uint32 spellId = spellProto->Id;
+
+    // passive spell special case (only non stackable with ranks)
+    if(IsPassiveSpell(spellId) && IsPassiveSpellStackableWithRanks(spellProto))
+        return;
+
+    bool remove = false;
+    for (AuraMap::iterator i = m_ownedAuras.begin(); i != m_ownedAuras.end(); ++i)
+    {
+        if(remove)
+        {
+            remove = false;
+            i = m_ownedAuras.begin();
+        }
+
+        if (!_IsNoStackAuraDueToAura(aura, i->second))
+            continue;
+
+        RemoveOwnedAura(i, AURA_REMOVE_BY_DEFAULT);
+        if(i == m_ownedAuras.end())
+            break;
+        remove = true;
+    }
+}
+
+bool Unit::_IsNoStackAuraDueToAura(Aura * appliedAura, Aura * existingAura) const
+{
+    SpellEntry const* spellProto = appliedAura->GetSpellProto();
+    // Do not check already applied aura
+    if (existingAura == appliedAura)
+        return false;
+
+    // Do not check dynobj auras for stacking
+    if (existingAura->GetType() != UNIT_AURA_TYPE)
+        return false;
+
+    SpellEntry const* i_spellProto = existingAura->GetSpellProto();
+    uint32 i_spellId = i_spellProto->Id;
+    bool sameCaster = appliedAura->GetCasterGUID() == existingAura->GetCasterGUID();
+
+    if(IsPassiveSpell(i_spellId))
+    {
+        // passive non-stackable spells not stackable only for same caster
+        if(!sameCaster)
+            return false;
+
+        // passive non-stackable spells not stackable only with another rank of same spell
+        if (!spellmgr.IsRankSpellDueToSpell(spellProto, i_spellId))
+            return false;
+    }
+
+    bool is_triggered_by_spell = false;
+    // prevent triggering aura of removing aura that triggered it
+    // prevent triggered aura of removing aura that triggering it (triggered effect early some aura of parent spell
+    for (uint8 j = 0; j < MAX_SPELL_EFFECTS; ++j)
+    {
+        if (i_spellProto->EffectTriggerSpell[j] == spellProto->Id
+            || spellProto->EffectTriggerSpell[j] == i_spellProto->Id) // I do not know what is this for
+        {
+            is_triggered_by_spell = true;
+            break;
+        }
+    }
+
+    if (is_triggered_by_spell)
+        return false;
+
+    if(spellmgr.CanAurasStack(spellProto, i_spellProto, sameCaster))
+        return false;
+    return true;
 }
 
 void Unit::_HandleAuraEffect(AuraEffect * aurEff, bool apply)
@@ -3848,6 +3881,10 @@ void Unit::RemoveOwnedAura(AuraMap::iterator &i, AuraRemoveMode removeMode)
         ++m_auraUpdateIterator;
 
     m_ownedAuras.erase(i);
+
+    // Unregister single target aura
+    if (aura->IsSingleTarget())
+        aura->UnregisterSingleTarget();
 
     aura->_Remove(removeMode);
 
@@ -3883,10 +3920,10 @@ void Unit::RemoveOwnedAura(Aura * aura, AuraRemoveMode removeMode)
     assert(false);
 }
 
-Aura * Unit::GetOwnedAura(uint32 spellId, uint64 caster, uint8 reqEffMask) const
+Aura * Unit::GetOwnedAura(uint32 spellId, uint64 caster, uint8 reqEffMask, Aura * except) const
 {
     for (AuraMap::const_iterator itr = m_ownedAuras.lower_bound(spellId); itr != m_ownedAuras.upper_bound(spellId); ++itr)
-        if(((itr->second->GetEffectMask() & reqEffMask) == reqEffMask) && (!caster || itr->second->GetCasterGUID() == caster))
+        if(((itr->second->GetEffectMask() & reqEffMask) == reqEffMask) && (!caster || itr->second->GetCasterGUID() == caster) && (!except || except != itr->second))
             return itr->second;
     return NULL;
 }
@@ -4096,10 +4133,12 @@ void Unit::RemoveAurasDueToSpellBySteal(uint32 spellId, uint64 casterGUID, Unit 
                 int32 dur = 2*MINUTE*IN_MILISECONDS < aura->GetDuration() ? 2*MINUTE*IN_MILISECONDS : aura->GetDuration();
 
                 newAura = Aura::TryCreate(aura->GetSpellProto(), effMask, stealer, NULL, &baseDamage[0], NULL, aura->GetCasterGUID());
-                assert(newAura);
+                if (!newAura)
+                    return;
                 newAura->SetLoadedState(dur, dur, stealCharge ? 1 : aura->GetCharges(), aura->GetStackAmount(), recalculateMask, &damage[0]);
                 // strange but intended behaviour: Stolen single target auras won't be treated as single targeted
-                newAura->SetIsSingleTarget(false);
+                if (newAura->IsSingleTarget())
+                    newAura->UnregisterSingleTarget();
                 newAura->ApplyForTargets();
             }
             return;
@@ -4145,18 +4184,20 @@ void Unit::RemoveAurasByType(AuraType auraType, uint64 casterGUID, Aura * except
 void Unit::RemoveNotOwnSingleTargetAuras(uint32 newPhase)
 {
     // single target auras from other casters
-    for (AuraMap::iterator iter = m_ownedAuras.begin(); iter != m_ownedAuras.end();)
+    for (AuraApplicationMap::iterator iter = m_appliedAuras.begin(); iter != m_appliedAuras.end();)
     {
-        Aura const * aura = iter->second;
+        AuraApplication const * aurApp = iter->second;
+        Aura const * aura = aurApp->GetBase();
+
         if (aura->GetCasterGUID() !=GetGUID() && IsSingleTargetSpell(aura->GetSpellProto()))
         {
             if (!newPhase)
-                RemoveOwnedAura(iter);
+                RemoveAura(iter);
             else
             {
                 Unit* caster = aura->GetCaster();
                 if (!caster || !caster->InSamePhase(newPhase))
-                    RemoveOwnedAura(iter);
+                    RemoveAura(iter);
                 else
                     ++iter;
             }
@@ -4166,15 +4207,15 @@ void Unit::RemoveNotOwnSingleTargetAuras(uint32 newPhase)
     }
 
     // single target auras at other targets
-    AuraApplicationList& scAuras = GetSingleCastAuras();
-    for (AuraApplicationList::iterator iter = scAuras.begin(); iter != scAuras.end();)
+    AuraList& scAuras = GetSingleCastAuras();
+    for (AuraList::iterator iter = scAuras.begin(); iter != scAuras.end();)
     {
-        AuraApplication * aurApp= *iter;
+        Aura * aura = *iter;
         ++iter;
-        if (aurApp->GetTarget() != this && !aurApp->GetTarget()->InSamePhase(newPhase))
+        if (aura->GetUnitOwner() != this && !aura->GetUnitOwner()->InSamePhase(newPhase))
         {
             uint32 removedAuras = m_removedAurasCount;
-            aurApp->GetBase()->Remove();
+            aura->Remove();
             if (m_removedAurasCount > removedAuras + 1)
                 iter = scAuras.begin();
         }

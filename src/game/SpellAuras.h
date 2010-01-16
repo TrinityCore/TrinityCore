@@ -140,6 +140,7 @@ class TRINITY_DLL_SPEC Aura
         // Single cast aura helpers
         bool IsSingleTarget() const {return m_isSingleTarget;}
         void SetIsSingleTarget(bool val) { m_isSingleTarget = val;}
+        void UnregisterSingleTarget();
 
         void SetLoadedState(int32 maxduration, int32 duration, int32 charges, uint8 stackamount, uint8 recalculateMask, int32 * amount);
 
