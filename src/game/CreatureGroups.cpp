@@ -132,6 +132,7 @@ void CreatureGroupManager::LoadCreatureFormations()
                 sLog.outErrorDb("creature_formations table leader guid %u incorrect (not exist)", group_member->leaderGUID);
                 continue;
             }
+            delete result;
 
             result = WorldDatabase.PQuery("SELECT guid FROM creature WHERE guid = %u", memberGUID);
             if(!result)
@@ -139,6 +140,7 @@ void CreatureGroupManager::LoadCreatureFormations()
                 sLog.outErrorDb("creature_formations table member guid %u incorrect (not exist)", memberGUID);
                 continue;
             }
+            delete result;
         }
 
         CreatureGroupMap[memberGUID] = group_member;
