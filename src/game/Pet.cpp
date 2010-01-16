@@ -262,8 +262,13 @@ bool Pet::LoadPetFromDB( Player* owner, uint32 petentry, uint32 petnumber, bool 
     {
         uint32 savedhealth = fields[10].GetUInt32();
         uint32 savedmana = fields[11].GetUInt32();
-        SetHealth(savedhealth > GetMaxHealth() ? GetMaxHealth() : savedhealth);
-        SetPower(POWER_MANA, savedmana > GetMaxPower(POWER_MANA) ? GetMaxPower(POWER_MANA) : savedmana);
+        if(!savedhealth && getPetType() == HUNTER_PET)
+            setDeathState(JUST_DIED);
+        else
+        {
+            SetHealth(savedhealth > GetMaxHealth() ? GetMaxHealth() : savedhealth);
+            SetPower(POWER_MANA, savedmana > GetMaxPower(POWER_MANA) ? GetMaxPower(POWER_MANA) : savedmana);
+        }
     }
 
     // set current pet as current
@@ -433,7 +438,7 @@ void Pet::SavePetToDB(PetSaveMode mode)
             << uint32(mode) << ", '"
             << name.c_str() << "', "
             << uint32((GetByteValue(UNIT_FIELD_BYTES_2, 2) == UNIT_RENAME_ALLOWED)?0:1) << ", "
-            << (curhealth<1?1:curhealth) << ", "
+            << curhealth << ", "
             << curmana << ", "
             << GetPower(POWER_HAPPINESS) << ", '";
 

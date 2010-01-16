@@ -58,6 +58,9 @@ void WorldSession::HandlePetAction( WorldPacket & recv_data )
         sLog.outError("HandlePetAction.Pet %u isn't pet of player %s.", uint32(GUID_LOPART(guid1)), GetPlayer()->GetName() );
         return;
     }
+    
+    if (!pet->isAlive())
+        return;
 
     //TODO: allow control charmed player?
     if(pet->GetTypeId() == TYPEID_PLAYER && !(flag == ACT_COMMAND && spellid == COMMAND_ATTACK))
