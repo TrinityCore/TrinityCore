@@ -589,7 +589,7 @@ class TRINITY_DLL_SPEC Creature : public Unit, public GridObject<Creature>
         void RemoveCorpse();
         bool isDeadByDefault() const { return m_isDeadByDefault; };
 
-        void ForcedDespawn();
+        void ForcedDespawn(uint32 timeMSToDespawn = 0);
 
         time_t const& GetRespawnTime() const { return m_respawnTime; }
         time_t GetRespawnTimeEx() const;
@@ -710,6 +710,7 @@ class TRINITY_DLL_SPEC Creature : public Unit, public GridObject<Creature>
         CreatureData const* m_creatureData;
 
         uint16 m_LootMode;                                  // bitmask, default DEFAULT_LOOT_MODE, determines what loot will be lootable
+
     private:
         //WaypointMovementGenerator vars
         uint32 m_waypointID;
@@ -732,6 +733,16 @@ class AssistDelayEvent : public BasicEvent
         uint64            m_victim;
         std::list<uint64> m_assistants;
         Unit&             m_owner;
+};
+
+class ForcedDespawnDelayEvent : public BasicEvent
+{
+    public:
+        ForcedDespawnDelayEvent(Creature& owner) : BasicEvent(), m_owner(owner) { }
+        bool Execute(uint64 e_time, uint32 p_time);
+
+    private:
+        Creature& m_owner;
 };
 
 #endif

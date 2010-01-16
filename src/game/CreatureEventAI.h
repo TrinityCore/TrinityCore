@@ -387,7 +387,12 @@ struct CreatureEventAI_Action
         {
             uint32 sheath;
         } set_sheath;
-        // ACTION_T_SET_INVINCIBILITY_HP_LEVEL             = 42
+        // ACTION_T_FORCE_DESPAWN                           = 41
+        struct
+        {
+            uint32 msDelay;
+        } forced_despawn;
+        // ACTION_T_SET_INVINCIBILITY_HP_LEVEL              = 42
         struct
         {
             uint32 hp_level;
