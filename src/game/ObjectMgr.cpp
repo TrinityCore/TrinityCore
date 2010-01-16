@@ -8112,7 +8112,7 @@ void ObjectMgr::LoadTrainerSpell()
 
         if(!(cInfo->npcflag & UNIT_NPC_FLAG_TRAINER))
         {
-            if(skip_trainers.count(entry) == 0)
+            if (skip_trainers.find(entry) == skip_trainers.end())
             {
                 sLog.outErrorDb("Table `npc_trainer` have data for not creature template (Entry: %u) without trainer flag, ignore", entry);
                 skip_trainers.insert(entry);
@@ -8663,7 +8663,7 @@ void ObjectMgr::CheckScripts(ScriptMapMap const& scripts,std::set<int32>& ids)
                     if(!GetTrinityStringLocale (itrM->second.dataint))
                         sLog.outErrorDb( "Table `db_script_string` not has string id  %u used db script (ID: %u)", itrM->second.dataint, itrMM->first);
 
-                    if(ids.count(itrM->second.dataint))
+                    if (ids.find(itrM->second.dataint) != ids.end())
                         ids.erase(itrM->second.dataint);
                 }
             }
