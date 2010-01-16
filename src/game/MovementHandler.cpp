@@ -150,13 +150,20 @@ void WorldSession::HandleMoveWorldportAckOpcode()
         }
     }
 
-    if (mInstance && mEntry->IsDungeon())
+    if (mInstance)
     {
         Difficulty diff = GetPlayer()->GetDifficulty(mEntry->IsRaid());
-        if (uint32 timeReset = sInstanceSaveManager.GetResetTimeFor(GetPlayer()->GetMapId(),diff))
+        if(MapDifficulty const* mapDiff = GetMapDifficultyData(mEntry->MapID,diff))
         {
-            uint32 timeleft = timeReset - time(NULL);
-            GetPlayer()->SendInstanceResetWarning(GetPlayer()->GetMapId(), diff, timeleft);
+            if (mapDiff->resetTime)
+            {
+
+                if (uint32 timeReset = sInstanceSaveManager.GetResetTimeFor(mEntry->MapID,diff))
+                {
+                    uint32 timeleft = timeReset - time(NULL);
+                    GetPlayer()->SendInstanceResetWarning(mEntry->MapID, diff, timeleft);
+                }
+            }
         }
     }
 
