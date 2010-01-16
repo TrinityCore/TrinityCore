@@ -9588,6 +9588,9 @@ uint8 Player::_CanTakeMoreSimilarItems(uint32 entry, uint32 count, Item* pItem, 
         return EQUIP_ERR_CANT_CARRY_MORE_OF_THIS;
     }
 
+    if (pItem && pItem->m_lootGenerated)
+        return EQUIP_ERR_ALREADY_LOOTED;
+
     // no maximum
     if (pProto->MaxCount <= 0 && pProto->ItemLimitCategory == 0 || pProto->MaxCount == 2147483647)
         return EQUIP_ERR_OK;
@@ -12552,6 +12555,9 @@ void Player::ApplyEnchantment(Item *item, EnchantmentSlot slot, bool apply, bool
         return;
 
     if (!item->IsEquipped())
+        return;
+
+    if (!CanUseAttackType(Player::GetAttackBySlot(item->GetSlot())))
         return;
 
     if (slot >= MAX_ENCHANTMENT_SLOT)
