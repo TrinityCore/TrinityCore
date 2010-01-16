@@ -421,6 +421,8 @@ INSERT INTO `script_texts` (`npc_entry`,`entry`,`content_default`,`content_loc1`
    (23861,-1000469,'It is too late for us, living one. Take yourself and your friend away from here before you both are... claimed...',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,''),
    (23861,-1000470,'Go away, whoever you are! Witch Hill is mine... mine!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,''),
    (23861,-1000471,'It was... terrible... the demon...',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,''),
+   (23864,-1000472,'This land was mine long before your wretched kind set foot here.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,1,0,0,''),
+   (23864,-1000473,'All who venture here belong to me, including you!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,1,0,0,''),
 
 -- -1 033 000 SHADOWFANG KEEP
    (0,-1033000,'Follow me and I''ll open the courtyard door for you.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,7,1,'prisoner ashcrombe SAY_FREE_AS'),
