@@ -148,6 +148,7 @@ bool Player::UpdateAllStats()
     for (int i = POWER_MANA; i < MAX_POWERS; ++i)
         UpdateMaxPower(Powers(i));
 
+    UpdateAllRatings();
     UpdateAllCritPercentages();
     UpdateAllSpellCritChances();
     UpdateDefenseBonusesMod();
