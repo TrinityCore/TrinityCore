@@ -42,6 +42,7 @@ OutdoorPvPMgr::~OutdoorPvPMgr()
     for (OutdoorPvPSet::iterator itr = m_OutdoorPvPSet.begin(); itr != m_OutdoorPvPSet.end(); ++itr)
     {
         (*itr)->DeleteSpawns();
+        delete *itr;
     }
 }
 
