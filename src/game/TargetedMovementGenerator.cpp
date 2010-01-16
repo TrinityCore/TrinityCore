@@ -153,9 +153,7 @@ template<class T>
 void
 TargetedMovementGenerator<T>::Initialize(T &owner)
 {
-    if (owner.GetTypeId() == TYPEID_UNIT && ((Creature*)&owner)->HasSearchedAssistance())
-        owner.AddUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
-    else
+    if (owner.isInCombat())
         owner.RemoveUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
 
     _setTargetLocation(owner);
