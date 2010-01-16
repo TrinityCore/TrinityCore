@@ -60,6 +60,7 @@ class TRINITY_DLL_SPEC Vehicle
         int8 GetNextEmptySeat(int8 seatId, bool next) const;
         bool AddPassenger(Unit *passenger, int8 seatId = -1);
         void RemovePassenger(Unit *passenger);
+        void RelocatePassengers(float x, float y, float z, float ang);
         void RemoveAllPassengers();
         void Dismiss();
 
