@@ -66,6 +66,7 @@ GameObject::GameObject() : WorldObject(), m_goValue(new GameObjectValue)
 
 GameObject::~GameObject()
 {
+    delete m_goValue;
     //if(m_uint32Values)                                      // field array can be not exist if GameOBject not loaded
     //    CleanupsBeforeDelete();
 }
