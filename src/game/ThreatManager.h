@@ -215,6 +215,28 @@ class TRINITY_DLL_SPEC ThreatManager
 
         void setDirty(bool bDirty) { iThreatContainer.setDirty(bDirty); }
 
+        // Reset all aggro without modifying the threadlist.
+        void resetAllAggro();
+
+        // Reset all aggro of unit in threadlist satisfying the predicate.
+        template<class PREDICATE> void resetAggro(PREDICATE predicate)
+        {
+            std::list<HostilReference*> &threatlist = getThreatList();
+            if (threatlist.empty())
+                return;
+
+            for (std::list<HostilReference*>::iterator itr = threatlist.begin(); itr != threatlist.end(); ++itr)
+            {
+                HostilReference* ref = (*itr);
+
+                if (predicate(ref->getTarget()))
+                {
+                    ref->setThreat(0);
+                    setDirty(true);
+                }
+            }
+        }
+
         // methods to access the lists from the outside to do some dirty manipulation (scriping and such)
         // I hope they are used as little as possible.
         std::list<HostilReference*>& getThreatList() { return iThreatContainer.getThreatList(); }
