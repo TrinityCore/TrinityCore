@@ -550,7 +550,9 @@ SpellSpecific GetSpellSpecific(uint32 spellId)
         }
         case SPELLFAMILY_WARRIOR:
         {
-            if (spellInfo->SpellFamilyFlags[1] & 0x000080 || spellInfo->SpellFamilyFlags[0] & 0x10000)
+            if (spellInfo->SpellFamilyFlags[0] & 0x10000)
+                return SPELL_SPECIFIC_BATTLE_SHOUT;
+            if (spellInfo->SpellFamilyFlags[1] & 0x000080)
                 return SPELL_SPECIFIC_POSITIVE_SHOUT;
             if (spellInfo->Id == 12292) // Death Wish
                 return SPELL_SPECIFIC_WARRIOR_ENRAGE;
@@ -602,6 +604,9 @@ SpellSpecific GetSpellSpecific(uint32 spellId)
         {
             if (IsSealSpell(spellInfo))
                 return SPELL_SPECIFIC_SEAL;
+
+            if (spellInfo->SpellFamilyFlags[0] & 0x00000002)
+                return SPELL_SPECIFIC_BLESSING_OF_MIGHT;
 
             if (spellInfo->SpellFamilyFlags[0] & 0x11010002)
                 return SPELL_SPECIFIC_BLESSING;
@@ -670,12 +675,14 @@ bool IsSingleFromSpellSpecificPerCaster(SpellSpecific spellSpec1,SpellSpecific s
     switch(spellSpec1)
     {
         case SPELL_SPECIFIC_SEAL:
+        case SPELL_SPECIFIC_BLESSING_OF_MIGHT:
         case SPELL_SPECIFIC_BLESSING:
         case SPELL_SPECIFIC_HAND:
         case SPELL_SPECIFIC_AURA:
         case SPELL_SPECIFIC_STING:
         case SPELL_SPECIFIC_CURSE:
         case SPELL_SPECIFIC_ASPECT:
+        case SPELL_SPECIFIC_BATTLE_SHOUT:
         case SPELL_SPECIFIC_POSITIVE_SHOUT:
         case SPELL_SPECIFIC_JUDGEMENT:
         case SPELL_SPECIFIC_WARLOCK_CORRUPTION:
@@ -723,6 +730,16 @@ bool IsSingleFromSpellSpecificPerTarget(SpellSpecific spellSpec1, SpellSpecific 
             return spellSpec2==SPELL_SPECIFIC_BATTLE_ELIXIR
                 || spellSpec2==SPELL_SPECIFIC_GUARDIAN_ELIXIR
                 || spellSpec2==SPELL_SPECIFIC_FLASK_ELIXIR;
+        case SPELL_SPECIFIC_BLESSING_OF_MIGHT:
+            return spellSpec2==SPELL_SPECIFIC_BATTLE_SHOUT
+                || spellSpec2==SPELL_SPECIFIC_BLESSING;
+        case SPELL_SPECIFIC_BATTLE_SHOUT:
+            return spellSpec2==SPELL_SPECIFIC_BLESSING_OF_MIGHT
+                || spellSpec2==SPELL_SPECIFIC_POSITIVE_SHOUT;
+        case SPELL_SPECIFIC_POSITIVE_SHOUT:
+            return spellSpec2==SPELL_SPECIFIC_BATTLE_SHOUT;
+        case SPELL_SPECIFIC_BLESSING:
+            return spellSpec2==SPELL_SPECIFIC_BLESSING_OF_MIGHT;
         default:
             return false;
     }
