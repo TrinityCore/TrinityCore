@@ -2017,8 +2017,6 @@ uint16 Map::GetAreaFlag(float x, float y, float z) const
         // Maw of Neltharion (cave)
         case 164:                                           // Dragonblight
         case 1797:                                          // Obsidian Dragonshrine (Dragonblight)
-        case 1827:                                          // Wintergrasp
-        case 2591:                                          // The Cauldron of Flames (Wintergrasp)
             if (x > 4364.0f && x < 4632.0f && y > 1545.0f && y < 1886.0f && z < 200.0f) areaflag = 1853; break;
         // Undercity (sewers enter and path)
         case 179:                                           // Tirisfal Glades
