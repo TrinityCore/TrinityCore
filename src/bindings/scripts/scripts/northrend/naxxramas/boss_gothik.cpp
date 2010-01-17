@@ -16,7 +16,7 @@
 
 #include "precompiled.h"
 #include "naxxramas.h"
-#include "spellId.h"
+#include "SpellId.h"
 
 enum Yells
 {
