@@ -537,3 +537,17 @@ bool ThreatManager::isNeedUpdateToClient(uint32 time)
     return false;
 }
 
+// Reset all aggro without modifying the threadlist.
+void ThreatManager::resetAllAggro()
+{
+    std::list<HostilReference*> &threatlist = getThreatList();
+    if (threatlist.empty())
+        return;
+
+    for (std::list<HostilReference*>::iterator itr = threatlist.begin(); itr != threatlist.end(); ++itr)
+    {
+        (*itr)->setThreat(0);
+    }
+
+    setDirty(true);
+}
