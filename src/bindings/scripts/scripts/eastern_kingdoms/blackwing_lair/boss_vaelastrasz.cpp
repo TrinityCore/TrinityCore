@@ -42,7 +42,7 @@ struct TRINITY_DLL_DECL boss_vaelAI : public ScriptedAI
 {
     boss_vaelAI(Creature *c) : ScriptedAI(c)
     {
-        c->SetUInt32Value(UNIT_NPC_FLAGS,1);
+        c->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
         c->setFaction(35);
         c->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
     }
@@ -235,7 +235,10 @@ bool GossipSelect_boss_vael(Player* pPlayer, Creature* pCreature, uint32 uiSende
 
 bool GossipHello_boss_vael(Player* pPlayer, Creature* pCreature)
 {
-    pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM        , GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+    if (pCreature->isQuestGiver())
+        pPlayer->PrepareQuestMenu(pCreature->GetGUID());
+
+    pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
     pPlayer->SEND_GOSSIP_MENU(907, pCreature->GetGUID());
 
     return true;
