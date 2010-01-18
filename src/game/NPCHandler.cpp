@@ -678,7 +678,6 @@ void WorldSession::HandleUnstablePet( WorldPacket & recv_data )
     Pet *newpet = new Pet(_player, HUNTER_PET);
     if(!newpet->LoadPetFromDB(_player,creature_id,petnumber))
     {
-        newpet->CleanupsBeforeDelete();
         delete newpet;
         newpet = NULL;
         WorldPacket data(SMSG_STABLE_RESULT, 1);
@@ -797,7 +796,6 @@ void WorldSession::HandleStableSwapPet( WorldPacket & recv_data )
     Pet *newpet = new Pet(_player);
     if(!newpet->LoadPetFromDB(_player,creature_id,pet_number))
     {
-        newpet->CleanupsBeforeDelete();
         delete newpet;
         data << uint8(0x06);
     }

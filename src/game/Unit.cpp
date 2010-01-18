@@ -207,7 +207,6 @@ Unit::~Unit()
     if (m_vehicleKit)
         delete m_vehicleKit;
 
-    assert(m_cleanupDone);
     assert(!m_attacking);
     assert(m_attackers.empty());
     assert(m_sharedVision.empty());
