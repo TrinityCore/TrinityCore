@@ -1014,6 +1014,7 @@ bool ChatHandler::HandleNpcAddCommand(const char* args)
     Creature* pCreature = new Creature;
     if (!pCreature->Create(objmgr.GenerateLowGuid(HIGHGUID_UNIT), map, chr->GetPhaseMaskForSpawn(), id, 0, (uint32)teamval, x, y, z, o))
     {
+        pCreature->CleanupsBeforeDelete();
         delete pCreature;
         return false;
     }
@@ -2830,6 +2831,7 @@ bool ChatHandler::HandleWpModifyCommand(const char* args)
                 Creature* wpCreature2 = new Creature;
                 if (!wpCreature2->Create(objmgr.GenerateLowGuid(HIGHGUID_UNIT), map, chr->GetPhaseMaskForSpawn(), VISUAL_WAYPOINT, 0, 0, chr->GetPositionX(), chr->GetPositionY(), chr->GetPositionZ(), chr->GetOrientation()))
                 {
+                    wpCreature2->CleanupsBeforeDelete();
                     PSendSysMessage(LANG_WAYPOINT_VP_NOTCREATED, VISUAL_WAYPOINT);
                     delete wpCreature2;
                     return false;
@@ -3039,6 +3041,7 @@ bool ChatHandler::HandleWpShowCommand(const char* args)
             Creature* wpCreature = new Creature;
             if (!wpCreature->Create(objmgr.GenerateLowGuid(HIGHGUID_UNIT), map, chr->GetPhaseMaskForSpawn(), id, 0, 0, x, y, z, o))
             {
+                wpCreature->CleanupsBeforeDelete();
                 PSendSysMessage(LANG_WAYPOINT_VP_NOTCREATED, id);
                 delete wpCreature;
                 delete result;
@@ -3094,6 +3097,7 @@ bool ChatHandler::HandleWpShowCommand(const char* args)
         Creature* pCreature = new Creature;
         if (!pCreature->Create(objmgr.GenerateLowGuid(HIGHGUID_UNIT),map, chr->GetPhaseMaskForSpawn(), id, 0, 0, x, y, z, o))
         {
+            pCreature->CleanupsBeforeDelete();
             PSendSysMessage(LANG_WAYPOINT_VP_NOTCREATED, id);
             delete pCreature;
             delete result;
@@ -3149,6 +3153,7 @@ bool ChatHandler::HandleWpShowCommand(const char* args)
         Creature* pCreature = new Creature;
         if (!pCreature->Create(objmgr.GenerateLowGuid(HIGHGUID_UNIT), map, chr->GetPhaseMaskForSpawn(), id, 0, 0, x, y, z, o))
         {
+            pCreature->CleanupsBeforeDelete();
             PSendSysMessage(LANG_WAYPOINT_NOTCREATED, id);
             delete pCreature;
             delete result;
